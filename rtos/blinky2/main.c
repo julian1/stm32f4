@@ -150,8 +150,26 @@ static void demo_task(void *args) {
 
 #endif
 
-// see the getline function... just needs to have get() implemented...
 
+// see the getline function... just needs to have get() implemented...
+// should be possible to implement gets using just get.
+// and we just need the producer consumer setup. again. I think...
+// use same non blocking approach...
+// eg. 
+// most of the time - that we want to receive - will be at a prompt.
+// so we really only need to do it once. and we can perhaps directly block...
+// so dont need the queue mechanism.
+
+// is this blocking or non blocking...
+// int16_t usart_recv(uint32_t usart);
+
+/*
+333   if ( !uptr )
+334     return -1;  // No known uart
+335   while ( (rch = get_char(uptr)) == -1 )
+336     taskYIELD();
+337   return (char)rch;
+*/
 
 
 
