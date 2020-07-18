@@ -23,8 +23,8 @@
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/cm3/nvic.h>
 
-#include <stdarg.h>
-#include <stdio.h>
+//#include <stdarg.h>
+// #include <stdio.h>
 
 // using the ww library...
 //#include "uartlib.h"
@@ -45,10 +45,11 @@ void vApplicationStackOverflowHook(
 
 	// for(;;);	// Loop forever here..
 
-    for(;;) { 
+    for(;;) {
+      // not sure if this works or - vsnprintf() should have blown stack...
       gpio_toggle(GPIOE, GPIO0);  // JA
 
-      for (i = 0; i < 1000000; i++) { 
+      for (i = 0; i < 1000000; i++) {
         __asm__("nop");
       }
     }
@@ -237,8 +238,7 @@ static void demo_task(void *args) {
 
 
 
-static void
-uart_task(void *args __attribute__((unused))) {
+static void uart_task(void *args __attribute__((unused))) {
   char ch;
 
   for (;;) {
@@ -255,39 +255,13 @@ uart_task(void *args __attribute__((unused))) {
 }
 
 
-static inline void uart_puts(const char *s) {
+static void uart_puts(const char *s) {
 
   for ( ; *s; ++s )
     xQueueSend(uart_txq,s,portMAX_DELAY); /* blocks when queue is full */
 }
 
-
-/*
-static int mcu_printf1(const char *format,...) {
-  va_list ap;
-  int rc;
-  char buf[ 20] ; // has to be on the stack... if pre-emtive multitasking.
-
-  // va args really don't seem to want to work...
-   // vsnprintf(char *str, size_t size, const char *format, va_list ap);
-  va_start(ap,format);
-  rc = vsnprintf(buf, 20 , format, ap); // calling this... kills us...
-  va_end(ap);
-  //rc = snprintf(buf, 100, format); 
-
-  // so its the va args? or somthing else?
-
-  uart_puts(buf );
-
-
-  return rc;
-}
-*/
-
-
 static void uart_putc(char ch) {
-    //usart_send_blocking(USART1,ch); // libopencm3
-
     xQueueSend(uart_txq, &ch ,portMAX_DELAY); /* blocks when queue is full */
 }
 
@@ -312,9 +286,7 @@ demo_task(void *args __attribute__((unused))) {
 
   for (;;) {
 
-    // mcu_printf("hi there %d\n\r", 123 ); 
-    // mcu_printf1("hi there %d\n\r", 123 ); 
-    uart_printf("hi there %d\n\r", i++); 
+    uart_printf("hi there %d\n\r", i++);
 
     uart_puts("Now this is a message..\n\r");
     uart_puts("  sent via FreeRTOS queues.\n\n\r");
