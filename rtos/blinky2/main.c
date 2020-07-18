@@ -144,7 +144,8 @@ extern void usart1_isr(void)
     xQueueSend(uart_rxq, &data ,portMAX_DELAY); /* blocks when queue is full */
                                                 // if piping input to uart - then blocking is probably desirable,
 
-    xQueueSend(uart_txq, &data,portMAX_DELAY);  // send to tx queue to echo back to console.
+    xQueueSend(uart_txq, &data,portMAX_DELAY);  /* blocks */ 
+                                                // send to tx queue to echo back to console.
                                                 // probably don't want to do this here. but somewhere else for more
                                                 // control
 
@@ -344,7 +345,16 @@ static void demo_task(void *args __attribute__((unused))) {
 
 
 
+// OK. the thing does lock up. which isn't fun...
+// perhaps issue with stack...
+// just suddenly dies...
+// is one of the queues full...
 
+// type char - goes to both loops - and can block...
+// but then gets loop cant get the terminated character
+// and it outpus stuff.
+
+// 
 
 static void led_setup(void) {
   gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0); // JA - move to function led_setup.
