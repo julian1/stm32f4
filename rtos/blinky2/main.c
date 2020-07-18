@@ -3,10 +3,10 @@
  * The LED on PC13 is toggled in task1.
 
 
-  see, for 
+  see, for
   ~/devel/stm32/FreeRTOSv10.3.1/FreeRTOS/Demo/CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h
-  
-  doc, 
+
+  doc,
   https://www.freertos.org/FreeRTOS-for-STM32F4xx-Cortex-M4F-IAR.html
 
   so, i think 'proper' usart will use dma.
@@ -23,7 +23,8 @@
 #include <libopencm3/stm32/usart.h>
 // #include <libopencm3/cm3/nvic.h>
 
-#include "uartlib.h"
+// using the ww library...
+//#include "uartlib.h"
 
 
 extern void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTaskName);
@@ -60,19 +61,14 @@ static void usart_setup(void)
   // nvic_enable_irq(NVIC_USART1_IRQ); // JA
 
   // TODO - use  GPIO9 | GPIO10
-  /* Setup GPIO pins for USART1 transmit. */
-  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9); // JA
-  /* Setup GPIO pins for USART1 receive. */
-  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO10);
+  /* Setup GPIO pins  */
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9  | GPIO10); // JA
 
   // TODO - 100MHZ? only need tx bit to be set
   gpio_set_output_options(GPIOA, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ, GPIO10);
 
   /* Setup USART1 TX and RX pin as alternate function. */
-  // gpio_set_af(GPIOA, GPIO_AF7, GPIO2);
-  gpio_set_af(GPIOA, GPIO_AF7, GPIO9);  // JA  tx
-  // gpio_set_af(GPIOA, GPIO_AF7, GPIO3);
-  gpio_set_af(GPIOA, GPIO_AF7, GPIO10); // JA    rx
+  gpio_set_af(GPIOA, GPIO_AF7, GPIO9  | GPIO10);  // JA  tx
 
   /* Setup USART1 parameters. */
   // usart_set_baudrate(USART1, 38400);
@@ -163,16 +159,17 @@ uart_task(void *args __attribute__((unused))) {
     if ( xQueueReceive(uart_txq,&ch,500) == pdPASS ) {
       while ( !usart_get_flag(USART1,USART_SR_TXE) )
         taskYIELD();  // Yield until ready
+                      // JA - doesn't seem to use coroutines...
       usart_send(USART1,ch);
     }
     // Toggle LED to show signs of life
-    gpio_toggle(GPIOE,GPIO0);
+    // gpio_toggle(GPIOE,GPIO0);
   }
 }
 
 
 static inline void uart_puts(const char *s) {
- 
+
   for ( ; *s; ++s )
     xQueueSend(uart_txq,s,portMAX_DELAY); /* blocks when queue is full */
 }
@@ -181,6 +178,9 @@ static inline void uart_puts(const char *s) {
 
 static void
 demo_task(void *args __attribute__((unused))) {
+
+  // sprintf...
+  // int i;
 
   for (;;) {
     uart_puts("Now this is a message..\n\r");
