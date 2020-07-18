@@ -47,9 +47,10 @@ void vApplicationStackOverflowHook(
 
     for(;;) {
       // not sure if this works or - vsnprintf() should have blown stack...
+      // ok seems to work very fast toogle
       gpio_toggle(GPIOE, GPIO0);  // JA
 
-      for (i = 0; i < 1000000; i++) {
+      for (i = 0; i < 5000000; i++) {
         __asm__("nop");
       }
     }
@@ -267,6 +268,7 @@ static void uart_putc(char ch) {
 
 static int uart_printf(const char *format,...) {
   // very nice. writes to the uart_putc()/queue so cannot overflow buffer
+  // COOKED means that a CR is sent after every LF is sent out
   va_list args;
   int rc;
 
@@ -278,8 +280,39 @@ static int uart_printf(const char *format,...) {
 
 
 
-static void
-demo_task(void *args __attribute__((unused))) {
+static char *uart_gets( char *buf, size_t len) {
+  // will truncate if overflows...
+  char ch;
+	char *p = buf;
+
+  for (;;) {
+    // Receive char to be TX
+    if( xQueueReceive(uart_rxq,&ch,1) == pdPASS ) {
+
+      // screen only ever gives us a '\r'... i think and not a '\n'
+      // don't return the \r in the return string...
+      if(ch == '\r') {
+        // hang on, should we be including the '\r' and '\n' or not?
+        *p = 0;
+        return buf;
+      }
+
+      // OK. this line kills it... but why? because it blows the stack...
+      if((size_t) (p - buf) < (len - 1))
+        *p++ = ch;
+
+
+    } else {
+     taskYIELD();
+    }
+  }
+  // should never get here...
+}
+
+
+
+#if 0
+static void demo_task(void *args __attribute__((unused))) {
 
   // sprintf...
   int i = 0;
@@ -293,6 +326,25 @@ demo_task(void *args __attribute__((unused))) {
     vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
+#endif
+
+
+static char buf[100];
+
+static void demo_task(void *args __attribute__((unused))) {
+
+  int i = 0;
+  for (;;) {
+    uart_printf("\n\r> ", i++);
+    uart_gets( buf, 100 ); // ie. should block...
+    uart_printf("\n\ryou said '%s'", buf );   // there looks like a bug in the formatting...
+                                              // no it's just returning the \n but not the \r...
+  }
+}
+
+
+
+
 
 static void led_setup(void) {
   gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0); // JA - move to function led_setup.
