@@ -33,7 +33,7 @@ task1(void *args __attribute((unused))) {
 
 	for (;;) {
 		gpio_toggle(GPIOE,GPIO0);
-		vTaskDelay(pdMS_TO_TICKS(200));
+		vTaskDelay(pdMS_TO_TICKS(500));
 	}
 }
 
@@ -41,6 +41,7 @@ int
 main(void) {
 
 	// rcc_clock_setup_in_hse_8mhz_out_72mhz(); // For "blue pill"
+  rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 
 	// rcc_periph_clock_enable(RCC_GPIOC);
 	// gpio_set_mode( GPIOC, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, GPIO13);
