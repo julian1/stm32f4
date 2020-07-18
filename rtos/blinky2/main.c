@@ -32,7 +32,7 @@
 
 
 
-static void uart_puts(const char *s) ;
+// static void uart_puts(const char *s) ;
 
 extern void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTaskName);
 
@@ -42,12 +42,11 @@ void vApplicationStackOverflowHook(
   signed portCHAR *pcTaskName __attribute((unused))
 ) {
   int i;
+  // ok seems to be catching some stack overflow conditions
 
 	// for(;;);	// Loop forever here..
 
     for(;;) {
-      // not sure if this works or - vsnprintf() should have blown stack...
-      // ok seems to work very fast toogle
       gpio_toggle(GPIOE, GPIO0);  // JA
 
       for (i = 0; i < 3000000; i++) {
@@ -156,87 +155,6 @@ extern void usart1_isr(void)
 }
 
 
-#if 0
-static void uart_task(void *args) {
-  int gc;
-  char kbuf[256], ch;
-
-  (void)args;
-
-  uart_puts("\n\ruart_task() has begun:\n\r");
-
-  // puts_uart(1,"\n\ruart_task() has begun:\n\r");
-
-  for (;;) {
-    if ( (gc = getc_uart_nb(1)) != -1 ) {
-      puts_uart(1,"\r\n\nENTER INPUT: ");
-
-      ch = (char)gc;
-      if ( ch != '\r' && ch != '\n' ) {
-        /* Already received first character */
-        kbuf[0] = ch;
-        putc_uart(1,ch);
-        getline_uart(1,kbuf+1,sizeof kbuf-1);
-      } else  {
-        /* Read the entire line */
-        getline_uart(1,kbuf,sizeof kbuf);
-      }
-
-      puts_uart(1,"\r\nReceived input '");
-      puts_uart(1,kbuf);
-      puts_uart(1,"'\n\r\nResuming prints...\n\r");
-    }
-
-    /* Receive char to be TX */
-    if ( xQueueReceive(uart_txq,&ch,10) == pdPASS )
-      putc_uart(1,ch);
-    /* Toggle LED to show signs of life */
-    // gpio_toggle(GPIOC,GPIO13);
-    gpio_toggle(GPIOE,GPIO0); // JA
-  }
-}
-
-static void demo_task(void *args) {
-
-  (void)args;
-
-  for (;;) {
-    uart_puts("Now this is a message..\n\r");
-    uart_puts("  sent via FreeRTOS queues.\n\n\r");
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    uart_puts("Just start typing to enter a line, or..\n\r"
-      "hit Enter first, then enter your input.\n\n\r");
-    vTaskDelay(pdMS_TO_TICKS(1500));
-  }
-}
-
-#endif
-
-
-// see the getline function... just needs to have get() implemented...
-// should be possible to implement gets using just get.
-// and we just need the producer consumer setup. again. I think...
-// use same non blocking approach...
-// eg.
-// most of the time - that we want to receive - will be at a prompt.
-// so we really only need to do it once. and we can perhaps directly block...
-// so dont need the queue mechanism.
-// is this blocking or non blocking...
-// int16_t usart_recv(uint32_t usart);
-// Actually not sure - we want blocking... for character. So we don't miss a character.
-
-// So just use - an interrupt. and then push value onto the queue...
-// if the queue blocks its ok...
-// for getline ... we clear queue - then just keep processing the receive queue until we hit a \r\n
-
-/*
-333   if ( !uptr )
-334     return -1;  // No known uart
-335   while ( (rch = get_char(uptr)) == -1 )
-336     taskYIELD();
-337   return (char)rch;
-*/
-
 
 
 static void uart_task(void *args __attribute__((unused))) {
@@ -257,12 +175,14 @@ static void uart_task(void *args __attribute__((unused))) {
   }
 }
 
-
+#if 0
 static void uart_puts(const char *s) {
 
   for ( ; *s; ++s )
     xQueueSend(uart_txq,s,portMAX_DELAY); /* blocks when queue is full */
 }
+#endif
+
 
 static void uart_putc(char ch) {
     xQueueSend(uart_txq, &ch ,portMAX_DELAY); /* blocks when queue is full */
@@ -270,7 +190,7 @@ static void uart_putc(char ch) {
 
 
 static int uart_printf(const char *format,...) {
-  // very nice. writes to the uart_putc()/queue so cannot overflow buffer
+  // very nice. writes to the uart_putc()/queue so no buffer to overflow
   // COOKED means that a CR is sent after every LF is sent out
   va_list args;
   int rc;
@@ -317,7 +237,7 @@ static char *uart_gets( char *buf, size_t len) {
 
 
 #if 0
-static void demo_task(void *args __attribute__((unused))) {
+static void demo_task1(void *args __attribute__((unused))) {
 
   for (;;) {
     uart_puts("Now this is a message..\n\r");
@@ -351,26 +271,10 @@ static void demo_task(void *args __attribute__((unused))) {
 
 
 // OK. the thing does lock up. which isn't fun...
-// perhaps issue with stack...
-// just suddenly dies...
-// is one of the queues full...
 
-// type char - goes to both loops - and can block...
-// but then gets loop cant get the terminated character
-// and it outpus stuff.
 
-// freezes. led stops blinking / hangs.  which indicates something other than queues.
-// just like when trying to use vsnprintf...
-// ok - after deleting the miniprintf and using wwglib  version. cannot seem
-// to reproduce.
-// also remember - there was a hook for another condition...
-// ok hit it again. could be a bug in the miniprintf code - remember linked list stuff...
-// actually probably just need gdb.
-
-// Issue - blinker task stops - indicates issue not queue related. but complete failure.
-// see if put buf on stack how close it is.
-
-// opiins
+// led blink task - stops / freezes .  which indicates something other than deadlocked queues.
+// options
 // - check the m4 coretex arch - and m4 freeRTOS config example differs - stack allocation? - check for differences
 // - update freertos to current version.
 // - check if other examples (not blinky) use more stack.
