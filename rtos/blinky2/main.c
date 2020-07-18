@@ -294,6 +294,10 @@ demo_task(void *args __attribute__((unused))) {
   }
 }
 
+static void led_setup(void) {
+  gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0); // JA - move to function led_setup.
+}
+
 
 
 int main(void) {
@@ -305,7 +309,6 @@ int main(void) {
 	// rcc_periph_clock_enable(RCC_GPIOC);
 	// gpio_set_mode( GPIOC, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, GPIO13);
   rcc_periph_clock_enable(RCC_GPIOE); // JA
-  gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0); // JA - move to function led_setup.
 
   // USART
   rcc_periph_clock_enable(RCC_GPIOA);
@@ -313,6 +316,7 @@ int main(void) {
 
 
   ///////////////
+  led_setup();
   usart_setup();
 
   ///////////////
