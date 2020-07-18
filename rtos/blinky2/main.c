@@ -159,9 +159,13 @@ static void demo_task(void *args) {
 // most of the time - that we want to receive - will be at a prompt.
 // so we really only need to do it once. and we can perhaps directly block...
 // so dont need the queue mechanism.
-
 // is this blocking or non blocking...
 // int16_t usart_recv(uint32_t usart);
+// Actually not sure - we want blocking... for character. So we don't miss a character.
+
+// So just use - an interrupt. and then push value onto the queue... 
+// if the queue blocks its ok...
+// for getline ... we clear queue - then just keep processing the receive queue until we hit a \r\n
 
 /*
 333   if ( !uptr )
