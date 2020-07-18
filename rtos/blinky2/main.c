@@ -21,7 +21,7 @@
 #include <libopencm3/stm32/gpio.h>
 
 #include <libopencm3/stm32/usart.h>
-// #include <libopencm3/cm3/nvic.h>
+#include <libopencm3/cm3/nvic.h>
 
 // using the ww library...
 //#include "uartlib.h"
@@ -55,10 +55,17 @@ static void task1(void *args __attribute((unused))) {
 // TODO - consider if should be global, global struct, or returned from usart_setup()
 static QueueHandle_t uart_txq;        // TX queue for UART
 
+
+// think we have to use an interrupt - so we don't miss anything. eg. we take the character
+// in the interuupt.
+static QueueHandle_t uart_rxq;        // TX queue for UART
+
+
+
 static void usart_setup(void)
 {
-  /* Enable the USART1 interrupt. */
-  // nvic_enable_irq(NVIC_USART1_IRQ); // JA
+  // this is sets up the rx interupt, but does not enable 
+  nvic_enable_irq(NVIC_USART1_IRQ); // JA
 
   // TODO - use  GPIO9 | GPIO10
   /* Setup GPIO pins  */
@@ -84,13 +91,50 @@ static void usart_setup(void)
   /* Enable USART1 Receive interrupt. */
   // usart_enable_rx_interrupt(USART1);
 
+
+  /* Enable USART1 Receive interrupt. */
+  usart_enable_rx_interrupt(USART1);
+
   /* Finally enable the USART. */
   usart_enable(USART1);
 
 
   uart_txq = xQueueCreate(256,sizeof(char));
+
+  uart_rxq = xQueueCreate(256,sizeof(char));
+
 }
 
+
+
+extern void usart1_isr(void)
+{
+  // Only thing this is doing - is echoing the output.
+  // for console read I think we need blocking.
+  static uint8_t data = 'A';
+
+
+  /* Check if we were called because of RXNE. */
+  if (((USART_CR1(USART1) & USART_CR1_RXNEIE) != 0) &&
+      ((USART_SR(USART1) & USART_SR_RXNE) != 0)) {
+
+    /* Retrieve the data from the peripheral. */
+    data = usart_recv(USART1);
+
+
+    /* Enable transmit interrupt so it sends back the data. */
+    // JA - so this is a cheap way of echoing data???
+    // usart_enable_tx_interrupt(USART1);
+
+    xQueueSend(uart_rxq, &data ,portMAX_DELAY); /* blocks when queue is full */
+
+    xQueueSend(uart_txq, &data,portMAX_DELAY); // send to send queue to echo 
+
+    // Toggle LED to show signs of life
+    gpio_toggle(GPIOE,GPIO0);
+  }
+
+}
 
 static void uart_puts(const char *s) ;
 
