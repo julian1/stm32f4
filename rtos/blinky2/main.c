@@ -50,7 +50,7 @@ void vApplicationStackOverflowHook(
       // ok seems to work very fast toogle
       gpio_toggle(GPIOE, GPIO0);  // JA
 
-      for (i = 0; i < 5000000; i++) {
+      for (i = 0; i < 3000000; i++) {
         __asm__("nop");
       }
     }
@@ -334,7 +334,10 @@ static void demo_task(void *args __attribute__((unused))) {
 
 static void demo_task(void *args __attribute__((unused))) {
 
-  char buf[10];
+  // buf size of 10 - seems ok
+  // buf size of 50 - ok.
+  // OK. buf size of 100. fails and stack exception condition caught - led blinks fast.
+  char buf[100];
 
   for (;;) {
     // uart_printf is cooked ... so it should already be giving us stuff...
