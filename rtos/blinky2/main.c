@@ -64,7 +64,7 @@ static QueueHandle_t uart_rxq;        // TX queue for UART
 
 static void usart_setup(void)
 {
-  // this is sets up the rx interupt, but does not enable 
+  // this is sets up the rx interupt, but does not enable
   nvic_enable_irq(NVIC_USART1_IRQ); // JA
 
   // TODO - use  GPIO9 | GPIO10
@@ -127,8 +127,11 @@ extern void usart1_isr(void)
     // usart_enable_tx_interrupt(USART1);
 
     xQueueSend(uart_rxq, &data ,portMAX_DELAY); /* blocks when queue is full */
+                                                // if piping input to uart - then blocking is probably desirable,
 
-    xQueueSend(uart_txq, &data,portMAX_DELAY); // send to send queue to echo 
+    xQueueSend(uart_txq, &data,portMAX_DELAY);  // send to tx queue to echo back to console.
+                                                // probably don't want to do this here. but somewhere else for more
+                                                // control
 
     // Toggle LED to show signs of life
     gpio_toggle(GPIOE,GPIO0);
@@ -199,7 +202,7 @@ static void demo_task(void *args) {
 // should be possible to implement gets using just get.
 // and we just need the producer consumer setup. again. I think...
 // use same non blocking approach...
-// eg. 
+// eg.
 // most of the time - that we want to receive - will be at a prompt.
 // so we really only need to do it once. and we can perhaps directly block...
 // so dont need the queue mechanism.
@@ -207,7 +210,7 @@ static void demo_task(void *args) {
 // int16_t usart_recv(uint32_t usart);
 // Actually not sure - we want blocking... for character. So we don't miss a character.
 
-// So just use - an interrupt. and then push value onto the queue... 
+// So just use - an interrupt. and then push value onto the queue...
 // if the queue blocks its ok...
 // for getline ... we clear queue - then just keep processing the receive queue until we hit a \r\n
 
