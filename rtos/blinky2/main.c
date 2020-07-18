@@ -362,6 +362,15 @@ static void demo_task(void *args __attribute__((unused))) {
 // ok hit it again. could be a bug in the miniprintf code - remember linked list stuff...
 // actually probably just need gdb.
 
+// fact that blinker task stops - indicates issue not queue related.
+
+// opiins
+// - check the m4 coretex arch - and m4 freeRTOS config example differs - stack allocation? - check for differences
+// - update freertos to current version.
+// - check if other examples (not blinky) use more stack.
+// - increase stack - see if fixes issue.
+// 
+
 static void led_setup(void) {
   gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0); // JA - move to function led_setup.
 }
