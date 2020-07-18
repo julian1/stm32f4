@@ -69,13 +69,13 @@ static void usart_setup(void)
 
   // TODO - use  GPIO9 | GPIO10
   /* Setup GPIO pins  */
-  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9  | GPIO10); // JA
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9  | GPIO10);
 
   // TODO - 100MHZ? only need tx bit to be set
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO10);
 
-  /* Setup USART1 TX and RX pin as alternate function. */
-  gpio_set_af(GPIOA, GPIO_AF7, GPIO9  | GPIO10);  // JA  tx
+  // USART1 alternate function.
+  gpio_set_af(GPIOA, GPIO_AF7, GPIO9  | GPIO10);
 
   /* Setup USART1 parameters. */
   // usart_set_baudrate(USART1, 38400);
@@ -89,18 +89,14 @@ static void usart_setup(void)
   usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);
 
   /* Enable USART1 Receive interrupt. */
-  // usart_enable_rx_interrupt(USART1);
-
-
-  /* Enable USART1 Receive interrupt. */
   usart_enable_rx_interrupt(USART1);
 
   /* Finally enable the USART. */
   usart_enable(USART1);
 
-
+  // not sure but queues, should be created in main()
+  // setup() could take the queue as argument for better composibility
   uart_txq = xQueueCreate(256,sizeof(char));
-
   uart_rxq = xQueueCreate(256,sizeof(char));
 
 }
