@@ -72,12 +72,12 @@ static void task1(void *args __attribute((unused))) {
 
 
 // TODO - consider if should be global, global struct, or returned from usart_setup()
-static QueueHandle_t uart_txq;        // TX queue for UART
+static QueueHandle_t uart_txq;
 
 
 // think we have to use an interrupt - so we don't miss anything. eg. we take the character
-// in the interuupt.
-static QueueHandle_t uart_rxq;        // TX queue for UART
+// in the isr, before it is replaced
+static QueueHandle_t uart_rxq;
 
 
 
@@ -86,7 +86,6 @@ static void usart_setup(void)
   // this is sets up the rx interupt, but does not enable
   nvic_enable_irq(NVIC_USART1_IRQ); // JA
 
-  // TODO - use  GPIO9 | GPIO10
   /* Setup GPIO pins  */
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9  | GPIO10);
 
@@ -302,12 +301,9 @@ static void led_setup(void) {
 
 int main(void) {
 
-	// rcc_clock_setup_in_hse_8mhz_out_72mhz(); // For "blue pill"
   rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 
   // LED
-	// rcc_periph_clock_enable(RCC_GPIOC);
-	// gpio_set_mode( GPIOC, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, GPIO13);
   rcc_periph_clock_enable(RCC_GPIOE); // JA
 
   // USART
