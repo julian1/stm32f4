@@ -144,7 +144,7 @@ extern void usart1_isr(void)
     xQueueSend(uart_rxq, &data ,portMAX_DELAY); /* blocks when queue is full */
                                                 // if piping input to uart - then blocking is probably desirable,
 
-    xQueueSend(uart_txq, &data,portMAX_DELAY);  /* blocks */ 
+    xQueueSend(uart_txq, &data,portMAX_DELAY);  /* blocks */
                                                 // send to tx queue to echo back to console.
                                                 // probably don't want to do this here. but somewhere else for more
                                                 // control
@@ -319,13 +319,7 @@ static char *uart_gets( char *buf, size_t len) {
 #if 0
 static void demo_task(void *args __attribute__((unused))) {
 
-  // sprintf...
-  int i = 0;
-
   for (;;) {
-
-    uart_printf("hi there %d\n\r", i++);
-
     uart_puts("Now this is a message..\n\r");
     uart_puts("  sent via FreeRTOS queues.\n\n\r");
     vTaskDelay(pdMS_TO_TICKS(1000));
@@ -342,7 +336,7 @@ static void demo_task(void *args __attribute__((unused))) {
   // buf size of 50 - ok.
   // OK. buf size of 100. fails and stack exception condition caught - led blinks fast.
   // so we have a margin of somewhere between 50 - 100 bytes or so...
-  // ok - at 70 - short input strings are ok - but then will fail if give longer string..
+  // ok - at 70 - short input strings are ok - but will stack overflow on longer input strings..
   // char buf[70];
 
   for (;;) {
@@ -366,7 +360,7 @@ static void demo_task(void *args __attribute__((unused))) {
 // and it outpus stuff.
 
 // freezes. led stops blinking / hangs.  which indicates something other than queues.
-// just like when trying to use vsnprintf... 
+// just like when trying to use vsnprintf...
 // ok - after deleting the miniprintf and using wwglib  version. cannot seem
 // to reproduce.
 // also remember - there was a hook for another condition...
@@ -374,14 +368,14 @@ static void demo_task(void *args __attribute__((unused))) {
 // actually probably just need gdb.
 
 // Issue - blinker task stops - indicates issue not queue related. but complete failure.
-// see if put buf on stack how close it is. 
+// see if put buf on stack how close it is.
 
 // opiins
 // - check the m4 coretex arch - and m4 freeRTOS config example differs - stack allocation? - check for differences
 // - update freertos to current version.
 // - check if other examples (not blinky) use more stack.
 // - increase stack - see if fixes issue.
-// 
+//
 
 static void led_setup(void) {
   gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0); // JA - move to function led_setup.
