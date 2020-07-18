@@ -330,15 +330,17 @@ static void demo_task(void *args __attribute__((unused))) {
 #endif
 
 
-static char buf[100];
+// static char buf[100];
 
 static void demo_task(void *args __attribute__((unused))) {
+
+  char buf[10];
 
   for (;;) {
     // uart_printf is cooked ... so it should already be giving us stuff...
     uart_printf("\n\r> ");
-    uart_gets( buf, 100 ); // ie. should block...
-    uart_printf("\n\ryou said '%s'", buf );   // there looks like a bug in the formatting...
+    uart_gets( buf, 10 ); // ie. should block...
+    uart_printf("\n\ruuu you said '%s'", buf );   // there looks like a bug in the formatting...
                                               // no it's just returning the \n but not the \r...
   }
 }
@@ -362,7 +364,8 @@ static void demo_task(void *args __attribute__((unused))) {
 // ok hit it again. could be a bug in the miniprintf code - remember linked list stuff...
 // actually probably just need gdb.
 
-// fact that blinker task stops - indicates issue not queue related.
+// Issue - blinker task stops - indicates issue not queue related. but complete failure.
+// see if put buf on stack how close it is. 
 
 // opiins
 // - check the m4 coretex arch - and m4 freeRTOS config example differs - stack allocation? - check for differences
