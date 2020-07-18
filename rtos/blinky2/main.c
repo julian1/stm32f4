@@ -33,7 +33,7 @@ task1(void *args __attribute((unused))) {
 
 	for (;;) {
 		gpio_toggle(GPIOE,GPIO0);
-		vTaskDelay(pdMS_TO_TICKS(500));
+		vTaskDelay(pdMS_TO_TICKS(500)); // 1Hz
 	}
 }
 
