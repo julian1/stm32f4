@@ -243,7 +243,9 @@ static void uart_task(void *args __attribute__((unused))) {
   char ch;
 
   for (;;) {
-    // Receive char to be TX
+    /*
+      500 - is the time in ticks to wait. 1/2 second is too long?
+    */
     if ( xQueueReceive(uart_txq,&ch,500) == pdPASS ) {
       while ( !usart_get_flag(USART1,USART_SR_TXE) )
         taskYIELD();  // Yield until ready
@@ -288,12 +290,14 @@ static char *uart_gets( char *buf, size_t len) {
 
   for (;;) {
     // Receive char to be TX
-    if( xQueueReceive(uart_rxq,&ch,1) == pdPASS ) {
+    // if( xQueueReceive(uart_rxq,&ch,1) == pdPASS ) {
+    if( xQueueReceive(uart_rxq,&ch,500) == pdPASS ) {
 
       // screen only ever gives us a '\r'... i think and not a '\n'
       // don't return the \r in the return string...
       if(ch == '\r') {
         // hang on, should we be including the '\r' and '\n' or not?
+        // *p++ = ch;
         *p = 0;
         return buf;
       }
@@ -330,19 +334,21 @@ static void demo_task(void *args __attribute__((unused))) {
 #endif
 
 
-// static char buf[100];
+static char buf[100];
 
 static void demo_task(void *args __attribute__((unused))) {
 
   // buf size of 10 - seems ok
   // buf size of 50 - ok.
   // OK. buf size of 100. fails and stack exception condition caught - led blinks fast.
-  char buf[100];
+  // so we have a margin of somewhere between 50 - 100 bytes or so...
+  // ok - at 70 - short input strings are ok - but then will fail if give longer string..
+  // char buf[70];
 
   for (;;) {
     // uart_printf is cooked ... so it should already be giving us stuff...
     uart_printf("\n\r> ");
-    uart_gets( buf, 10 ); // ie. should block...
+    uart_gets( buf, 100 ); // ie. should block...
     uart_printf("\n\ruuu you said '%s'", buf );   // there looks like a bug in the formatting...
                                               // no it's just returning the \n but not the \r...
   }
