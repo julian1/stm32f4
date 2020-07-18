@@ -266,6 +266,7 @@ static void uart_putc(char ch) {
 
 
 static int uart_printf(const char *format,...) {
+  // very nice. writes to the uart_putc()/queue so cannot overflow buffer
   va_list args;
   int rc;
 
