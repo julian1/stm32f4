@@ -185,7 +185,7 @@ static void uart_puts(const char *s) {
 
 
 static void uart_putc(char ch) {
-    xQueueSend(uart_txq, &ch ,portMAX_DELAY); /* blocks when queue is full */
+  xQueueSend(uart_txq, &ch ,portMAX_DELAY); /* blocks when queue is full */
 }
 
 
@@ -213,6 +213,9 @@ static char *uart_gets( char *buf, size_t len) {
     // if( xQueueReceive(uart_rxq,&ch,1) == pdPASS ) {
     if( xQueueReceive(uart_rxq,&ch,500) == pdPASS ) {
 
+      // should we continue consuming - if past buf size...
+      // or return immediately without having received '\r' ?
+
       // screen only ever gives us a '\r'... i think and not a '\n'
       // don't return the \r in the return string...
       if(ch == '\r') {
@@ -231,7 +234,7 @@ static char *uart_gets( char *buf, size_t len) {
      taskYIELD();
     }
   }
-  // should never get here...
+  // should never arrive here...
 }
 
 
