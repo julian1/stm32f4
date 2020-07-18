@@ -296,7 +296,7 @@ static char *uart_gets( char *buf, size_t len) {
       // screen only ever gives us a '\r'... i think and not a '\n'
       // don't return the \r in the return string...
       if(ch == '\r') {
-        // hang on, should we be including the '\r' and '\n' or not?
+        // need to decide - if should be returning/including the '\r' and '\n' or not?
         // *p++ = ch;
         *p = 0;
         return buf;
