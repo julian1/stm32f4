@@ -201,6 +201,10 @@ static int uart_printf(const char *format,...) {
   return rc;
 }
 
+// add motor control again - b.  with external power, chose
+// needs to be real time - unless on interupt.
+// control motor with rotary encoder. 
+// control motor with prompt.
 
 
 static char *uart_gets( char *buf, size_t len) {
