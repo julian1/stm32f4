@@ -72,7 +72,7 @@ static void usart_setup(void)
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9  | GPIO10); // JA
 
   // TODO - 100MHZ? only need tx bit to be set
-  gpio_set_output_options(GPIOA, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ, GPIO10);
+  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO10);
 
   /* Setup USART1 TX and RX pin as alternate function. */
   gpio_set_af(GPIOA, GPIO_AF7, GPIO9  | GPIO10);  // JA  tx
