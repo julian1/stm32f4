@@ -23,9 +23,16 @@
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/cm3/nvic.h>
 
+#include <stdarg.h>
+#include <stdio.h>
+
 // using the ww library...
 //#include "uartlib.h"
+#include "miniprintf.h"
 
+
+
+static void uart_puts(const char *s) ;
 
 extern void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTaskName);
 
@@ -34,7 +41,18 @@ void vApplicationStackOverflowHook(
   xTaskHandle *pxTask __attribute((unused)),
   signed portCHAR *pcTaskName __attribute((unused))
 ) {
-	for(;;);	// Loop forever here..
+  int i;
+
+	// for(;;);	// Loop forever here..
+
+    for(;;) { 
+      gpio_toggle(GPIOE, GPIO0);  // JA
+
+      for (i = 0; i < 1000000; i++) { 
+        __asm__("nop");
+      }
+    }
+
 }
 
 
@@ -135,7 +153,6 @@ extern void usart1_isr(void)
 
 }
 
-static void uart_puts(const char *s) ;
 
 #if 0
 static void uart_task(void *args) {
@@ -245,20 +262,65 @@ static inline void uart_puts(const char *s) {
 }
 
 
+/*
+static int mcu_printf1(const char *format,...) {
+  va_list ap;
+  int rc;
+  char buf[ 20] ; // has to be on the stack... if pre-emtive multitasking.
+
+  // va args really don't seem to want to work...
+   // vsnprintf(char *str, size_t size, const char *format, va_list ap);
+  va_start(ap,format);
+  rc = vsnprintf(buf, 20 , format, ap); // calling this... kills us...
+  va_end(ap);
+  //rc = snprintf(buf, 100, format); 
+
+  // so its the va args? or somthing else?
+
+  uart_puts(buf );
+
+
+  return rc;
+}
+*/
+
+
+static void uart_putc(char ch) {
+    //usart_send_blocking(USART1,ch); // libopencm3
+
+    xQueueSend(uart_txq, &ch ,portMAX_DELAY); /* blocks when queue is full */
+}
+
+
+static int uart_printf(const char *format,...) {
+  va_list args;
+  int rc;
+
+  va_start(args,format);
+  rc = mini_vprintf_cooked(uart_putc,format,args);
+  va_end(args);
+  return rc;
+}
+
+
 
 static void
 demo_task(void *args __attribute__((unused))) {
 
   // sprintf...
-  // int i;
+  int i = 0;
 
   for (;;) {
+
+    // mcu_printf("hi there %d\n\r", 123 ); 
+    // mcu_printf1("hi there %d\n\r", 123 ); 
+    uart_printf("hi there %d\n\r", i++); 
+
     uart_puts("Now this is a message..\n\r");
     uart_puts("  sent via FreeRTOS queues.\n\n\r");
     vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
-
 
 
 
