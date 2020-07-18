@@ -354,7 +354,13 @@ static void demo_task(void *args __attribute__((unused))) {
 // but then gets loop cant get the terminated character
 // and it outpus stuff.
 
-// 
+// freezes. led stops blinking / hangs.  which indicates something other than queues.
+// just like when trying to use vsnprintf... 
+// ok - after deleting the miniprintf and using wwglib  version. cannot seem
+// to reproduce.
+// also remember - there was a hook for another condition...
+// ok hit it again. could be a bug in the miniprintf code - remember linked list stuff...
+// actually probably just need gdb.
 
 static void led_setup(void) {
   gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0); // JA - move to function led_setup.
