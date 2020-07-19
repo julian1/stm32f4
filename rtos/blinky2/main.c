@@ -220,6 +220,9 @@ static int uart_printf(const char *format,...) {
 
 // OK - EXTREME - we can use the setting of the OC value - to determine the speed.
 // eg. in the interupt - we set the next oc value - for the next interrupt.  eg. would just add a delay.
+// eg. the pwm-with-interrupts approach.
+
+// actually don't need the delay - just use regular 50% pulse.
 
 
 static char *uart_gets( char *buf, size_t len) {
