@@ -21,6 +21,7 @@
 
 // dt = 1 at all times.
 
+// protection diode for adc. 3.3V.
 
 typedef struct PID {
 
@@ -48,7 +49,6 @@ void pid_set( PID *pid, float kp, float ki, float kd, float clamp)
   pid->clamp = clamp;
 }
 
-// update - should yield the damn value - not store it...
 
 float pid_update(PID *pid, float set_point, float process_var)
 {

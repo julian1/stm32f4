@@ -203,8 +203,23 @@ static int uart_printf(const char *format,...) {
 
 // add motor control again - b.  with external power, chose
 // needs to be real time - unless on interupt.
-// control motor with rotary encoder. 
+// control motor with rotary encoder.
 // control motor with prompt.
+
+// ok - motor is a loop. but i think there's an issue..
+// cannot just have it running at some subdivision of 1ms. eg. if tick time.
+// 1ms tick time is twice as fast as 2ms.
+
+// or we multiplex the gpio signals with external ic logic?
+
+// or we just have a high-priority interupt timer - that works independently of any other tasks?
+// if the gpio update is running in an isr. then cannot see a problem.
+// we need to code this. though independenty.
+// so setting the timer - will set the speed...
+// actually timer just has to call the isr. 
+
+// OK - EXTREME - we can use the setting of the OC value - to determine the speed.
+// eg. in the interupt - we set the next oc value - for the next interrupt.  eg. would just add a delay.
 
 
 static char *uart_gets( char *buf, size_t len) {
