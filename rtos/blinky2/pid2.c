@@ -23,6 +23,12 @@
 
 // protection diode for adc. 3.3V.
 
+// good driver circuit, albeit should not need as much op-amp stuff.
+// note the zener to protect adc over-voltage, and voltage dividers to bring values into range.
+// hmmmm - adding an offset voltage - is quite neat - for getting full range feedback (eg. flyback).
+// but just use summing op-amp?
+// https://i0.wp.com/coder-tronics.com/wp-content/uploads/2014/05/Schematic1.png
+
 typedef struct PID {
 
   float prev;
