@@ -100,17 +100,52 @@ static void stepper_timer_setup(void)
 }
 
 
+static void timer2_setup(void)
+{
+
+
+      timer_set_master_mode(TIM4, 0x20); // set TIM4 as master
+
+
+  rcc_periph_reset_pulse(RST_TIM5);   // good practice
+
+  // pre
+	// timer_set_prescaler(TIM5, 65535 );  // blinks 1/s.
+
+  // timer is up counting.
+  // timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+  // timer_enable_preload(TIM5);
+  // timer_enable_break_main_output(TIM5); // what does this do?
+  // timer_set_period(TIM5, 100 ); // need autoreload to roll over.
 
 
 
+  timer_slave_set_mode( TIM5, TIM_SMCR_SMS_ECM1);
+
+  timer_slave_set_trigger(TIM5, TIM_SMCR_TS_ITR2);
+ 
+
+  // just enabling the timer will turn it on
+  timer_enable_counter(TIM5);
+ 
+/* 
+  // channel 1
+  timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_TOGGLE);
+  timer_enable_oc_output(TIM5, TIM_OC1);
+  timer_set_oc_value(TIM5, TIM_OC1, 1000);
+*/
+
+
+}
 
 
 // ok want a task to print the timer value
 
 static void report_timer_task(void *args __attribute__((unused))) {
 
+  // Ahhhh not having a buffer... means 
   for (;;) {
-    uart_printf("tim4 %u\n\r", timer_get_counter( TIM4 ));
+    uart_printf("tim4 %u   tim5 %u\n\r", timer_get_counter( TIM4 ), timer_get_counter( TIM5 ));
   }
 }
 
@@ -133,6 +168,7 @@ int main(void) {
   rcc_periph_clock_enable(RCC_GPIOD);
   rcc_periph_clock_enable(RCC_TIM4);
 
+  rcc_periph_clock_enable(RCC_TIM5);  // WHY NOT MOVE TO WHERE USED?
 
   ///////////////
   // setup
@@ -141,6 +177,8 @@ int main(void) {
 
 
   stepper_timer_setup();
+  timer2_setup();
+
 
   ///////////////
   // tasks
