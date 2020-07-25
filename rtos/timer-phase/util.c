@@ -23,6 +23,7 @@
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/cm3/nvic.h>
 
+#include <string.h> // strlen
 //#include <stdarg.h>
 // #include <stdio.h>
 
@@ -43,40 +44,26 @@ void vApplicationStackOverflowHook(
   signed portCHAR *pcTaskName __attribute((unused))
 ) {
   int i, j = 0, len;
-  // ok seems to be catching some stack overflow conditions
-
+    // ok seems to be catching some stack overflow conditions
     // this won't work - because relies on sending to queues.
     // we need to bit-bang the uart.
     // uart_printf("overflow\n\r" );
 
-    /*
-    // would think this would work
-    for(i = 0; i < 8; ++i) {
-      usart_send(USART1, "overflow"[ i ] );
-    }
-    */
-     
-    len = strlen(pcTaskName); 
+    len = strlen((const char *)pcTaskName);
 
-	  // for(;;);	// Loop forever here..
     for(;;) {
+      for(i = 0; i <= len; ++i) {
+        // usart_send(USART1, "overflow"[ i ] );
+        if(i != len)
+          usart_send(USART1, pcTaskName [ i ] );
+        else
+          usart_send(USART1, ' ' );
 
-      // usart_send(USART1, "overflow "[ j % 9 ] );
-      if( j % (len + 1) == len) 
-        usart_send(USART1, ' '  );
-      else
-        usart_send(USART1, pcTaskName [ j % (len +1)  ] );
-
-//pcTaskName
-
-      gpio_toggle(GPIOE, GPIO0);  // JA
-
-      for (i = 0; i < 3000000; i++) {
-        __asm__("nop");
+         for (j = 0; j < 3000000; j++) {
+          __asm__("nop");
+        }
       }
-      ++j;
     }
-
 }
 
 
@@ -259,7 +246,7 @@ int uart_printf(const char *format,...) {
 // if the gpio update is running in an isr. then cannot see a problem.
 // we need to code this. though independenty.
 // so setting the timer - will set the speed...
-// actually timer just has to call the isr. 
+// actually timer just has to call the isr.
 
 // OK - EXTREME - we can use the setting of the OC value - to determine the speed.
 // eg. in the interupt - we set the next oc value - for the next interrupt.  eg. would just add a delay.
