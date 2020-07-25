@@ -67,7 +67,7 @@ static void stepper_timer_setup(void)
   // timer_set_mode(TIM4, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);
   timer_enable_preload(TIM4);
   timer_enable_break_main_output(TIM4); // what does this do
-  timer_set_period(TIM4, 2000);
+  timer_set_period(TIM4, 1000);
 
   ////////
   // configure the channnel outputs to toggle on the oc (output compare) value
@@ -75,7 +75,7 @@ static void stepper_timer_setup(void)
   // channel 1
   timer_set_oc_mode(TIM4, TIM_OC1, TIM_OCM_TOGGLE);
   timer_enable_oc_output(TIM4, TIM_OC1);
-  timer_set_oc_value(TIM4, TIM_OC1, 1000);
+  timer_set_oc_value(TIM4, TIM_OC1, 500);
 
   // channel 2
   timer_set_oc_mode(TIM4, TIM_OC2, TIM_OCM_TOGGLE); // OK. this inverts from PWM1. eg. its the bottom.
@@ -85,7 +85,7 @@ static void stepper_timer_setup(void)
   // chan 3, same as 1 except flip polarity
   timer_set_oc_mode(TIM4, TIM_OC3, TIM_OCM_TOGGLE);
   timer_enable_oc_output(TIM4, TIM_OC3);
-  timer_set_oc_value(TIM4, TIM_OC3, 1000);
+  timer_set_oc_value(TIM4, TIM_OC3, 500);
   timer_set_oc_polarity_low(TIM4, TIM_OC3); // flip
 
   // chan4, same as 3 except flip polarity
@@ -96,49 +96,52 @@ static void stepper_timer_setup(void)
 
 
   timer_enable_counter(TIM4);
-
 }
 
 
 static void timer2_setup(void)
 {
+  // tim5 really looks to be 32 bit.
+  // note that we can treat it as signed - to get reverse position.
 
-  timer_set_master_mode(TIM4, 0x20);  // set TIM4 as master
+  timer_set_master_mode(TIM4,  TIM_CR2_MMS_UPDATE /* 0x20 */);  // set TIM4 as master
 
 
   rcc_periph_reset_pulse(RST_TIM5);   // good practice
 
 
   // timer is up counting.
-  // timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+  timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_DOWN); // useful for reversing?
   // timer_enable_break_main_output(TIM5); // what does this do?
 
+  // timer_set_period(TIM5, 5 );  // works - can be set for detents... but probably better to use mod %
 
-  timer_set_period(TIM5, 5 ); // this works - and could be set for detents...
-
-
-
+  // set external trigger
   timer_slave_set_mode( TIM5, TIM_SMCR_SMS_ECM1);
 
   // set to follow TIM4, see, links https://blog.csdn.net/zwlforever/article/details/89021249
   timer_slave_set_trigger(TIM5, TIM_SMCR_TS_ITR2);
 
+  timer_slave_set_polarity(TIM5, TIM_ET_RISING  );   // may be useful for reversing
 
   // just enabling the timer will turn it on
   // important need to turn on both timers at same time.
   timer_enable_counter(TIM5);
-
-
 }
 
 
-// ok want a task to print the timer value
+// ok do we want interrupts. ideally yes - for isolating, changing parameters.
+
 
 static void report_timer_task(void *args __attribute__((unused))) {
 
   // Ahhhh not having a buffer... means
   for (;;) {
-    uart_printf("tim4 %u   tim5 %u\n\r", timer_get_counter( TIM4 ), timer_get_counter( TIM5 ));
+    uart_printf("tim4 %u   tim5 %d\n\r", timer_get_counter( TIM4 ), timer_get_counter( TIM5 ));
+
+    // uart_printf("val %u\n\r", TIM_CR2_MMS_UPDATE);
+    // uart_printf("val %u\n\r", 0x20 );
+    // uart_printf("val %u\n\r", TIM_CR2_MMS_UPDATE == 0x20 );
   }
 }
 
