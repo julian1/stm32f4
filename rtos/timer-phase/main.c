@@ -105,6 +105,22 @@ static void timer2_setup(void)
   // note that we can treat it as signed - to get reverse position.
 
   timer_set_master_mode(TIM4,  TIM_CR2_MMS_UPDATE /* 0x20 */);  // set TIM4 as master
+  // timer_set_master_mode(TIM4,  TIM_CR2_MMS_COMPARE_PULSE );
+  // seems - really only want a single OC ...
+
+  // its a number, not a bitfield unfortunately. but we can select an individual oc
+  // timer_set_master_mode(TIM4,  TIM_CR2_MMS_COMPARE_OC1REF  );  // will update on 500.
+
+  /*
+  OK, incredibly neat. we can select the output channel to decide when to let it tick over.
+  unfortunately cannot seem to make it emit, on all channels,
+  its a bitfield not a nuber
+  tim4 499   tim5 3
+  tim4 501   tim5 4
+  Actually can probably do all of them
+  */
+
+
 
 
   rcc_periph_reset_pulse(RST_TIM5);   // good practice
@@ -122,7 +138,10 @@ static void timer2_setup(void)
   // set to follow TIM4, see, links https://blog.csdn.net/zwlforever/article/details/89021249
   timer_slave_set_trigger(TIM5, TIM_SMCR_TS_ITR2);
 
+  // rising or falling doesn't make a difference.
   timer_slave_set_polarity(TIM5, TIM_ET_RISING /*TIM_ET_FALLING */ );   // may be useful for reversing
+  // timer_slave_set_polarity(TIM5, TIM_ET_FALLING  );   // may be useful for reversing
+
 
   // just enabling the timer will turn it on
   // important need to turn on both timers at same time.
@@ -130,7 +149,13 @@ static void timer2_setup(void)
 }
 
 
+
+
 // ok do we want interrupts. ideally yes - for isolating, changing parameters.
+// ok, probably want to actually get the motor hooked up, and it generating correctly...
+// the counting to one on the first pulse isn't so neat. but maybe its ok - because it will be modulo?
+// falling
+
 
 
 static void report_timer_task(void *args __attribute__((unused))) {
