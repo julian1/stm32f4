@@ -111,7 +111,7 @@ static void timer2_setup(void)
 
 
   // timer is up counting.
-  timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_DOWN); // useful for reversing?
+  // timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_DOWN); // useful for reversing?
   // timer_enable_break_main_output(TIM5); // what does this do?
 
   // timer_set_period(TIM5, 5 );  // works - can be set for detents... but probably better to use mod %
@@ -122,7 +122,7 @@ static void timer2_setup(void)
   // set to follow TIM4, see, links https://blog.csdn.net/zwlforever/article/details/89021249
   timer_slave_set_trigger(TIM5, TIM_SMCR_TS_ITR2);
 
-  timer_slave_set_polarity(TIM5, TIM_ET_RISING  );   // may be useful for reversing
+  timer_slave_set_polarity(TIM5, TIM_ET_RISING /*TIM_ET_FALLING */ );   // may be useful for reversing
 
   // just enabling the timer will turn it on
   // important need to turn on both timers at same time.
