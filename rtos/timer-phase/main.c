@@ -80,7 +80,7 @@ static void stepper_timer_setup(void)
   // channel 2
   timer_set_oc_mode(TIM4, TIM_OC2, TIM_OCM_TOGGLE); // OK. this inverts from PWM1. eg. its the bottom.
   timer_enable_oc_output(TIM4, TIM_OC2);
-  timer_set_oc_value(TIM4, TIM_OC2, 1); // 1 not zero, to catch on the upward count...
+  timer_set_oc_value(TIM4, TIM_OC2, 1 /*999*/); // 1 not zero, to catch on the upward count...
 
   // chan 3, same as 1 except flip polarity
   timer_set_oc_mode(TIM4, TIM_OC3, TIM_OCM_TOGGLE);
@@ -91,7 +91,7 @@ static void stepper_timer_setup(void)
   // chan4, same as 3 except flip polarity
   timer_set_oc_mode(TIM4, TIM_OC4, TIM_OCM_TOGGLE);
   timer_enable_oc_output(TIM4, TIM_OC4);
-  timer_set_oc_value(TIM4, TIM_OC4, 1);
+  timer_set_oc_value(TIM4, TIM_OC4, 1 /*999*/);
   timer_set_oc_polarity_low(TIM4, TIM_OC4); // flip
 
 
@@ -109,20 +109,17 @@ static void timer2_setup(void)
   // seems - really only want a single OC ...
 
   // its a number, not a bitfield unfortunately. but we can select an individual oc
-  // timer_set_master_mode(TIM4,  TIM_CR2_MMS_COMPARE_OC1REF  );  // will update on 500.
+  // timer_set_master_mode(TIM4,  TIM_CR2_MMS_COMPARE_OC2REF  );  // will update on 500.
 
   /*
   OK, incredibly neat. we can select the output channel to decide when to let it tick over.
-  unfortunately cannot seem to make it emit, on all channels,
-  its a bitfield not a nuber
+  its a bitfield not a numbber, so cannot trigger on all channels combined.
   tim4 499   tim5 3
   tim4 501   tim5 4
-  Actually can probably do all of them
+
+  -- VERY IMPORTANT.
+  - OK - maybe we just need to think of the position. as 1 - position.
   */
-
-
-
-
   rcc_periph_reset_pulse(RST_TIM5);   // good practice
 
 
@@ -184,6 +181,8 @@ int main(void) {
   // usart
   rcc_periph_clock_enable(RCC_GPIOA);
   rcc_periph_clock_enable(RCC_USART1);
+
+
 
   // stepper
   rcc_periph_clock_enable(RCC_GPIOD);
