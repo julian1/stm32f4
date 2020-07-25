@@ -59,14 +59,6 @@ void vApplicationStackOverflowHook(
 
 
 
-void task1(void *args __attribute((unused))) {
-
-	for (;;) {
-		gpio_toggle(GPIOE,GPIO0);
-		vTaskDelay(pdMS_TO_TICKS(500)); // 1Hz
-	}
-}
-
 
 
 // OK. the thing does lock up. which isn't fun...
@@ -87,6 +79,15 @@ void led_setup(void) {
 
 
 
+void led_blink_task(void *args __attribute((unused))) {
+
+	for (;;) {
+		gpio_toggle(GPIOE,GPIO0);
+		vTaskDelay(pdMS_TO_TICKS(500)); // 1Hz
+	}
+}
+
+///////////////////////////
 
 
 // TODO - consider if should be global, global struct, or returned from usart_setup()
@@ -201,6 +202,8 @@ static void uart_puts(const char *s) {
 }
 #endif
 
+//////////////////
+
 
 static void uart_putc(char ch) {
   xQueueSend(uart_txq, &ch ,portMAX_DELAY); /* blocks when queue is full */
@@ -293,7 +296,7 @@ static void demo_task1(void *args __attribute__((unused))) {
 
 static char buf[100];
 
-void demo_task(void *args __attribute__((unused))) {
+void prompt_task(void *args __attribute__((unused))) {
 
   // buf size of 10 - seems ok
   // buf size of 50 - ok.

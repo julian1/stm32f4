@@ -44,11 +44,12 @@
 static void stepper_timer_setup(void)
 {
 
+/*
 	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 
   rcc_periph_clock_enable(RCC_GPIOD);
   rcc_periph_clock_enable(RCC_TIM4);
-
+*/
 
   gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO12 | GPIO13 | GPIO14 | GPIO15);
   gpio_set_af(GPIOD, GPIO_AF2, GPIO12 | GPIO13 | GPIO14 | GPIO15);
@@ -100,7 +101,7 @@ static void stepper_timer_setup(void)
 
 
 
-
+// ok want a task to print the timer value
 
 
 
@@ -117,6 +118,10 @@ int main(void) {
   rcc_periph_clock_enable(RCC_GPIOA);
   rcc_periph_clock_enable(RCC_USART1);
 
+  // stepper
+  rcc_periph_clock_enable(RCC_GPIOD);
+  rcc_periph_clock_enable(RCC_TIM4);
+
 
   ///////////////
   // setup
@@ -129,10 +134,9 @@ int main(void) {
   ///////////////
   // tasks
 
-	xTaskCreate(task1,    "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
-
-  xTaskCreate(uart_task,"UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
-  xTaskCreate(demo_task,"DEMO",100,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+	xTaskCreate(led_blink_task, "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+  xTaskCreate(uart_task,      "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
+  xTaskCreate(prompt_task,    "PROMPT",100,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 
 
