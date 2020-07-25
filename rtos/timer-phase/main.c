@@ -140,13 +140,13 @@ int main(void) {
 
   ///////////////
   // tasks
-
+  // value is the stackdepth.
 	xTaskCreate(led_blink_task, "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
   xTaskCreate(uart_task,      "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
   xTaskCreate(prompt_task,    "PROMPT",100,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 
-  xTaskCreate( report_timer_task,  "REPORT",100,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+  xTaskCreate( report_timer_task,  "REPORT",10,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 	vTaskStartScheduler();
 

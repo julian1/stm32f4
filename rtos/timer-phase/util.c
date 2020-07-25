@@ -42,17 +42,39 @@ void vApplicationStackOverflowHook(
   xTaskHandle *pxTask __attribute((unused)),
   signed portCHAR *pcTaskName __attribute((unused))
 ) {
-  int i;
+  int i, j = 0, len;
   // ok seems to be catching some stack overflow conditions
 
-	// for(;;);	// Loop forever here..
+    // this won't work - because relies on sending to queues.
+    // we need to bit-bang the uart.
+    // uart_printf("overflow\n\r" );
 
+    /*
+    // would think this would work
+    for(i = 0; i < 8; ++i) {
+      usart_send(USART1, "overflow"[ i ] );
+    }
+    */
+     
+    len = strlen(pcTaskName); 
+
+	  // for(;;);	// Loop forever here..
     for(;;) {
+
+      // usart_send(USART1, "overflow "[ j % 9 ] );
+      if( j % (len + 1) == len) 
+        usart_send(USART1, ' '  );
+      else
+        usart_send(USART1, pcTaskName [ j % (len +1)  ] );
+
+//pcTaskName
+
       gpio_toggle(GPIOE, GPIO0);  // JA
 
       for (i = 0; i < 3000000; i++) {
         __asm__("nop");
       }
+      ++j;
     }
 
 }
