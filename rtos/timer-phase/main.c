@@ -153,6 +153,7 @@ static void timer2_setup(void)
 // the counting to one on the first pulse isn't so neat. but maybe its ok - because it will be modulo?
 // falling
 
+// OK. we want to connect the motor up. and check that it really does/can work. before do anything else.
 
 
 static void report_timer_task(void *args __attribute__((unused))) {
