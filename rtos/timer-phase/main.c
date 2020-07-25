@@ -103,37 +103,30 @@ static void stepper_timer_setup(void)
 static void timer2_setup(void)
 {
 
-
-      timer_set_master_mode(TIM4, 0x20); // set TIM4 as master
+  timer_set_master_mode(TIM4, 0x20);  // set TIM4 as master
 
 
   rcc_periph_reset_pulse(RST_TIM5);   // good practice
 
-  // pre
-	// timer_set_prescaler(TIM5, 65535 );  // blinks 1/s.
 
   // timer is up counting.
   // timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
-  // timer_enable_preload(TIM5);
   // timer_enable_break_main_output(TIM5); // what does this do?
-  // timer_set_period(TIM5, 100 ); // need autoreload to roll over.
+
+
+  timer_set_period(TIM5, 5 ); // this works - and could be set for detents...
 
 
 
   timer_slave_set_mode( TIM5, TIM_SMCR_SMS_ECM1);
 
+  // set to follow TIM4, see, links https://blog.csdn.net/zwlforever/article/details/89021249
   timer_slave_set_trigger(TIM5, TIM_SMCR_TS_ITR2);
- 
+
 
   // just enabling the timer will turn it on
+  // important need to turn on both timers at same time.
   timer_enable_counter(TIM5);
- 
-/* 
-  // channel 1
-  timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_TOGGLE);
-  timer_enable_oc_output(TIM5, TIM_OC1);
-  timer_set_oc_value(TIM5, TIM_OC1, 1000);
-*/
 
 
 }
@@ -143,7 +136,7 @@ static void timer2_setup(void)
 
 static void report_timer_task(void *args __attribute__((unused))) {
 
-  // Ahhhh not having a buffer... means 
+  // Ahhhh not having a buffer... means
   for (;;) {
     uart_printf("tim4 %u   tim5 %u\n\r", timer_get_counter( TIM4 ), timer_get_counter( TIM5 ));
   }
