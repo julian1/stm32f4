@@ -47,7 +47,7 @@ void vApplicationStackOverflowHook(
     // ok seems to be catching some stack overflow conditions
     // this won't work - because relies on sending to queues.
     // we need to bit-bang the uart.
-    // uart_printf("overflow\n\r" );
+    // TODO - could probably still be cleaned up
 
     len = strlen((const char *)pcTaskName);
 

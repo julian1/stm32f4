@@ -101,6 +101,10 @@ static void stepper_timer_setup(void)
 
 
 
+
+
+
+
 // ok want a task to print the timer value
 
 static void report_timer_task(void *args __attribute__((unused))) {
@@ -146,7 +150,7 @@ int main(void) {
   xTaskCreate(prompt_task,    "PROMPT",100,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 
-  xTaskCreate( report_timer_task,  "REPORT",10,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+  xTaskCreate( report_timer_task,  "REPORT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 	vTaskStartScheduler();
 
