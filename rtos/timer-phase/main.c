@@ -103,6 +103,13 @@ static void stepper_timer_setup(void)
 
 // ok want a task to print the timer value
 
+static void report_timer_task(void *args __attribute__((unused))) {
+
+  for (;;) {
+    uart_printf("tim4 %u\n\r", timer_get_counter( TIM4 ));
+  }
+}
+
 
 
 int main(void) {
@@ -139,6 +146,7 @@ int main(void) {
   xTaskCreate(prompt_task,    "PROMPT",100,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 
+  xTaskCreate( report_timer_task,  "REPORT",100,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 	vTaskStartScheduler();
 
