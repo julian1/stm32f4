@@ -167,7 +167,8 @@ int main(void) {
   xTaskCreate(prompt_task,    "PROMPT",100,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
   xTaskCreate(rotary_task,    "ROTARY",100,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
-
+  // VERY IMPORTANT...
+  // possible that the echo - from uart ends up deadlocked.
   xTaskCreate( report_timer_task,  "REPORT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 	vTaskStartScheduler();
