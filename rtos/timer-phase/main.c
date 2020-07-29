@@ -126,7 +126,7 @@ int main(void) {
   // rotary
   // TIM3, PA6 and PA7
 
-  nvic_enable_irq(NVIC_TIM3_IRQ);
+  // nvic_enable_irq(NVIC_TIM3_IRQ);
   rotary_setup(TIM3, GPIOA, GPIO6, GPIO_AF2, GPIOA, GPIO7, GPIO_AF2) ;
   rotary_setup_interupt(); // uggly... because fixed 
 
