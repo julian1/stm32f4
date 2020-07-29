@@ -10,6 +10,9 @@ SRCFILES	= main.c rotary.c stepper.c usart.c blink.c \
 #LDSCRIPT	= stm32f103c8t6.ld
 LDSCRIPT	= ../../cjmcu-407.ld  # JA
 
+TGT_CFLAGS	+= -I./include
+
+
 include ../../Makefile.incl
 include ../Makefile.rtos
 
