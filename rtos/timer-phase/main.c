@@ -55,6 +55,35 @@ static void report_timer_task(void *args __attribute__((unused))) {
 }
 
 
+// maybe in slave mode it cannot do interupts...
+// or the trigger is no good?
+
+static void rotary_setup_interupt(void)
+{
+  // Ahhh interupt - cannot be set 
+  nvic_enable_irq(NVIC_TIM3_IRQ);
+
+  // timer_enable_irq(TIM3, TIM_DIER_CC1IE);
+  timer_enable_irq(TIM3, TIM_DIER_CC3IE); // this locks it up...
+
+  
+
+  // timer_enable_irq(TIM3, 0xffff );  // this locked it up
+}
+  
+void tim3_isr(void)
+{
+
+   // timer_clear_flag(TIM3, TIM_SR_CC1IF);
+   timer_clear_flag(TIM3, TIM_SR_CC3IF);
+  gpio_toggle(GPIOE,GPIO0);
+
+    // uart_printf("tim3 interrupt %d\n\r", timer_get_counter( TIM3 ));
+    uart_printf("interrupt");
+}
+
+
+// if cannot get to work. try the pwm pulse  timer.c example
 
 
 int main(void) {
@@ -95,8 +124,11 @@ int main(void) {
   stepper_timer_counter_setup();
 
   // rotary
-  // PA6 and PA7
+  // TIM3, PA6 and PA7
+
+  nvic_enable_irq(NVIC_TIM3_IRQ);
   rotary_setup(TIM3, GPIOA, GPIO6, GPIO_AF2, GPIOA, GPIO7, GPIO_AF2) ;
+  rotary_setup_interupt(); // uggly... because fixed 
 
 
   ///////////////

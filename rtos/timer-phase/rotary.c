@@ -4,8 +4,6 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/timer.h>
 
-
-
 #include "rotary.h"
 
 int rotary_setup(uint32_t tim, uint32_t portA, uint16_t pinA, uint8_t afA, uint32_t portB, uint16_t pinB, uint8_t afB) {
@@ -54,4 +52,7 @@ int rotary_setup(uint32_t tim, uint32_t portA, uint16_t pinA, uint8_t afA, uint3
 
   return 0;
 }
+
+
+ 
 
