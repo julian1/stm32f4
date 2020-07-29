@@ -273,6 +273,10 @@ static void demo_task1(void *args __attribute__((unused))) {
 }
 #endif
 
+/*
+  prompt task should perhaps be moved outside of elsewhere...
+*/
+
 
 static char buf[100];
 
