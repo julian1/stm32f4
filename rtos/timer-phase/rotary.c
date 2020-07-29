@@ -57,4 +57,77 @@ int rotary_setup(uint32_t tim, uint32_t portA, uint16_t pinA, uint8_t afA, uint3
 
 
 
+#if 0
+
+static QueueHandle_t rotary_txq;
+
+static void rotary_setup_interupt(void)
+{
+  rotary_txq = xQueueCreate(256,sizeof(char));
+  // timer_continuous_mode( TIM3);
+
+  // Ahhh interupt - cannot be set
+  nvic_enable_irq(NVIC_TIM3_IRQ);
+
+  // timer_enable_irq(TIM3, TIM_DIER_CC1IE);
+  // timer_enable_irq(TIM3, TIM_DIER_CC1IE | TIM_DIER_CC2IE | TIM_DIER_CC3IE | TIM_DIER_CC4IE);
+  timer_enable_irq(TIM3, TIM_DIER_UIE );  // this also gets an occasional value...
+
+  // TIM_DIER_UIE
+}
+
+/*
+  OK. hang on.
+    if we toggle back and forth over the same values - then it's always emitting something.
+  tim3 interrupt 65535
+  tim3 interrupt 0
+  tim3 interrupt 0
+  tim3 interrupt 65535
+  tim3 interrupt 65535
+  tim3 interrupt 0
+  tim3 interrupt 0
+  tim3 interrupt 65535
+  tim3 interrupt 65535
+  tim3 interrupt 0
+  tim3 interrupt 0
+
+  So the issue is that there are no interupt events for the normal process of counting.
+  If we set the,  timer_set_period(tim, 1 );
+  then we always get the events.
+
+  tim3 interrupt 0
+  tim3 interrupt 1
+  tim3 interrupt 1
+  tim3 interrupt 0
+  tim3 interrupt 0
+  tim3 interrupt 1
+  tim3 interrupt 1
+
+  So the easy way to do it, is just loop and test the last value, and if it changes emit an
+  event. becomes a bit more ugly, but will work fine. if we really need an event.
+*/
+
+void tim3_isr(void)
+{
+  // timer_clear_flag(TIM3, TIM_DIER_UIE );  // not clearing the interrupt will freeze it.
+
+  gpio_toggle(GPIOE,GPIO0);
+  uart_printf("tim3 interrupt %d\n\r", timer_get_counter( TIM3 ));
+  timer_clear_flag(TIM3, TIM_DIER_UIE);
+}
+
+static void rotary_task(void *args __attribute__((unused))) {
+  char ch;
+
+  for (;;) {
+    if ( xQueueReceive(rotary_txq,&ch,500) == pdPASS ) {
+      uart_printf("x");
+      // uart_printf("x\n\r");
+    }
+    //taskYIELD();
+  }
+}
+
+
+#endif
 
