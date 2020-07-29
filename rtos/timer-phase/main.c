@@ -75,7 +75,7 @@ static void rotary_setup_interupt(void)
  
 
 
-
+// someone else is using TIM_SR_CC3IF
  
 void tim3_isr(void)
 {
