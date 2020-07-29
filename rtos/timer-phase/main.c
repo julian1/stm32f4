@@ -34,31 +34,50 @@
 #include "miniprintf.h"
 #include "util.h"
 #include "stepper.h"
+#include "rotary.h"
 
 
 
 
 
 
-// ok do we want interrupts. ideally yes - for isolating, changing parameters.
-// ok, probably want to actually get the motor hooked up, and it generating correctly...
-// the counting to one on the first pulse isn't so neat. but maybe its ok - because it will be modulo?
-// falling
+/*
+test() {
 
-// OK. we want to connect the motor up. and check that it really does/can work. before do anything else.
+  rcc_periph_clock_enable(RCC_GPIOA);
+  rcc_periph_clock_enable(RCC_TIM3);
+
+  // PA6 and PA7
+  rotary_setup(TIM3, GPIOA, GPIO6, GPIO_AF2, GPIOA, GPIO7, GPIO_AF2) ;
+
+  while (1) {
+
+      int count = timer_get_counter(TIM3);
+
+      printf("count.. %d\n", count);
+
+      __asm__("nop");
+  }
+}
+
+*/
 
 
 static void report_timer_task(void *args __attribute__((unused))) {
 
   // Ahhhh not having a buffer... means
   for (;;) {
-    uart_printf("tim4 %u   tim5 %d\n\r", timer_get_counter( TIM4 ), timer_get_counter( TIM5 ));
+    // uart_printf("tim4 %u   tim5 %d\n\r", timer_get_counter( TIM4 ), timer_get_counter( TIM5 ));
+    uart_printf("tim3 %d\n\r", timer_get_counter( TIM3 ));
+
+
 
     // uart_printf("val %u\n\r", TIM_CR2_MMS_UPDATE);
     // uart_printf("val %u\n\r", 0x20 );
     // uart_printf("val %u\n\r", TIM_CR2_MMS_UPDATE == 0x20 );
   }
 }
+
 
 
 
@@ -80,17 +99,28 @@ int main(void) {
   // stepper
   rcc_periph_clock_enable(RCC_GPIOD);
   rcc_periph_clock_enable(RCC_TIM4);
-
+  // stepper counter
   rcc_periph_clock_enable(RCC_TIM5);  // WHY NOT MOVE TO WHERE USED?
+
+
+  // rotary
+  // rcc_periph_clock_enable(RCC_GPIOA);
+  rcc_periph_clock_enable(RCC_TIM3);
+
+
 
   ///////////////
   // setup
   led_setup();
   usart_setup();
 
-
+  // stepper
   stepper_timer_setup();
   stepper_timer_counter_setup();
+
+  // rotary
+  // PA6 and PA7
+  rotary_setup(TIM3, GPIOA, GPIO6, GPIO_AF2, GPIOA, GPIO7, GPIO_AF2) ;
 
 
   ///////////////

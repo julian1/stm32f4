@@ -9,6 +9,14 @@
 
 
 
+// ok do we want interrupts. ideally yes - for isolating, changing parameters.
+// ok, probably want to actually get the motor hooked up, and it generating correctly...
+// the counting to one on the first pulse isn't so neat. but maybe its ok - because it will be modulo?
+// falling
+
+// OK. we want to connect the motor up. and check that it really does/can work. before do anything else.
+
+
 
 void stepper_timer_setup(void)
 {
