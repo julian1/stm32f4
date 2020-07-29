@@ -69,8 +69,8 @@ static void rotary_setup_interupt(void)
   nvic_enable_irq(NVIC_TIM3_IRQ);
 
   // timer_enable_irq(TIM3, TIM_DIER_CC1IE);
-  timer_enable_irq(TIM3, TIM_DIER_CC1IE | TIM_DIER_CC2IE | TIM_DIER_CC3IE | TIM_DIER_CC4IE); 
-  // timer_enable_irq(TIM3, TIM_DIER_UIE );  // this also gets an occasional value...
+  // timer_enable_irq(TIM3, TIM_DIER_CC1IE | TIM_DIER_CC2IE | TIM_DIER_CC3IE | TIM_DIER_CC4IE); 
+  timer_enable_irq(TIM3, TIM_DIER_UIE );  // this also gets an occasional value...
   
   // TIM_DIER_UIE
 }
@@ -82,6 +82,20 @@ static void rotary_setup_interupt(void)
     but extending past that on just shaking 
 
     Ahhh - its generating an event on 0-65365 wrap around???
+
+  tim3 interrupt 65535
+  tim3 interrupt 0
+  tim3 interrupt 0
+  tim3 interrupt 65535
+  tim3 interrupt 65535
+  tim3 interrupt 0
+  tim3 interrupt 0
+  tim3 interrupt 65535
+  tim3 interrupt 65535
+  tim3 interrupt 0
+  tim3 interrupt 0
+
+  but nothing inbetween.
 */
  
 void tim3_isr(void)
@@ -100,8 +114,8 @@ void tim3_isr(void)
    //timer_clear_flag(TIM3, TIM_SR_CC2IF | );  // not clearing the interrupt will freeze it.
                                           // why CC2IF and not CC2IF?
 
-   timer_clear_flag(TIM3, TIM_DIER_CC1IE | TIM_DIER_CC2IE | TIM_DIER_CC3IE | TIM_DIER_CC4IE );  // not clearing the interrupt will freeze it.
- // timer_clear_flag(TIM3, TIM_DIER_UIE);
+  // timer_clear_flag(TIM3, TIM_DIER_CC1IE | TIM_DIER_CC2IE | TIM_DIER_CC3IE | TIM_DIER_CC4IE );  // not clearing the interrupt will freeze it.
+  timer_clear_flag(TIM3, TIM_DIER_UIE);
 
 }
 
