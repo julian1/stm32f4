@@ -41,12 +41,18 @@
 
 // could move this to rotary... as some test code
 
+static int last = 0;
+
 static void report_timer_task(void *args __attribute__((unused))) {
 
   // Ahhhh not having a buffer... means
   for (;;) {
     // uart_printf("tim4 %u   tim5 %d\n\r", timer_get_counter( TIM4 ), timer_get_counter( TIM5 ));
-    uart_printf("tim3 %d\n\r", timer_get_counter( TIM3 ));
+    int x = timer_get_counter( TIM3 );
+    if(x != last) {
+      uart_printf("tim3 %d\n\r", timer_get_counter( TIM3 ));
+      last = x;
+    }
 
     // uart_printf("val %u\n\r", TIM_CR2_MMS_UPDATE);
     // uart_printf("val %u\n\r", 0x20 );
@@ -114,7 +120,7 @@ static void rotary_setup_interupt(void)
  
 void tim3_isr(void)
 {
-  char ch = 'x';
+  // char ch = 'x';
 
   // timer_clear_flag(TIM3, TIM_DIER_UIE );  // not clearing the interrupt will freeze it.
          
