@@ -79,9 +79,6 @@ static void rotary_setup_interupt(void)
 /*
   OK. hang on.
     if we toggle back and forth over the same values - then it's always emitting something.
-    but extending past that on just shaking 
-
-    Ahhh - its generating an event on 0-65365 wrap around???
 
   tim3 interrupt 65535
   tim3 interrupt 0
@@ -95,7 +92,17 @@ static void rotary_setup_interupt(void)
   tim3 interrupt 0
   tim3 interrupt 0
 
-  but nothing inbetween.
+  So the issue is that there are no interupt events for the normal process of counting.
+  If we set the,  timer_set_period(tim, 1 );
+  then we always get the events.
+
+  tim3 interrupt 0
+  tim3 interrupt 1
+  tim3 interrupt 1
+  tim3 interrupt 0
+  tim3 interrupt 0
+  tim3 interrupt 1
+  tim3 interrupt 1
 */
  
 void tim3_isr(void)
@@ -104,19 +111,11 @@ void tim3_isr(void)
 
   // timer_clear_flag(TIM3, TIM_DIER_UIE );  // not clearing the interrupt will freeze it.
          
-   // timer_clear_flag(TIM3, TIM_SR_CC2IF);
   gpio_toggle(GPIOE,GPIO0);
 
-  //xQueueSend(rotary_txq, &ch, portMAX_DELAY); // blocks when queue is full
-  // IMPORTANT -- could just send a report.
   uart_printf("tim3 interrupt %d\n\r", timer_get_counter( TIM3 ));
-  //uart_printf("i");
-   //timer_clear_flag(TIM3, TIM_SR_CC2IF | );  // not clearing the interrupt will freeze it.
-                                          // why CC2IF and not CC2IF?
 
-  // timer_clear_flag(TIM3, TIM_DIER_CC1IE | TIM_DIER_CC2IE | TIM_DIER_CC3IE | TIM_DIER_CC4IE );  // not clearing the interrupt will freeze it.
   timer_clear_flag(TIM3, TIM_DIER_UIE);
-
 }
 
 
@@ -188,8 +187,10 @@ int main(void) {
   // value is the stackdepth.
 //	xTaskCreate(led_blink_task, "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
   xTaskCreate(uart_task,      "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
-  xTaskCreate(prompt_task,    "PROMPT",100,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
-  xTaskCreate(rotary_task,    "ROTARY",100,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+
+  // IMPORTANT setting from 100 to 200, stops deadlock
+  xTaskCreate(prompt_task,    "PROMPT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */  
+  xTaskCreate(rotary_task,    "ROTARY",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
   // VERY IMPORTANT...
   // possible that the echo - from uart ends up deadlocked.

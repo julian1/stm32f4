@@ -46,7 +46,8 @@ int rotary_setup(uint32_t tim, uint32_t portA, uint16_t pinA, uint8_t afA, uint3
   timer_disable_oc_output(tim, TIM_OC2);
 
   timer_disable_preload_complementry_enable_bits(tim);
-  timer_set_period(tim, 0xFFFFFFFF);
+  // timer_set_period(tim, 0xFFFFFFFF);
+  timer_set_period(tim, 1 );
 
   timer_enable_counter(tim);
 
