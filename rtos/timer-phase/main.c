@@ -46,8 +46,6 @@ static void report_timer_task(void *args __attribute__((unused))) {
     // uart_printf("tim4 %u   tim5 %d\n\r", timer_get_counter( TIM4 ), timer_get_counter( TIM5 ));
     uart_printf("tim3 %d\n\r", timer_get_counter( TIM3 ));
 
-
-
     // uart_printf("val %u\n\r", TIM_CR2_MMS_UPDATE);
     // uart_printf("val %u\n\r", 0x20 );
     // uart_printf("val %u\n\r", TIM_CR2_MMS_UPDATE == 0x20 );
@@ -58,31 +56,58 @@ static void report_timer_task(void *args __attribute__((unused))) {
 // maybe in slave mode it cannot do interupts...
 // or the trigger is no good?
 
+
+
+static QueueHandle_t rotary_txq;
+
 static void rotary_setup_interupt(void)
 {
+
+  rotary_txq = xQueueCreate(256,sizeof(char));
+
   // Ahhh interupt - cannot be set 
   nvic_enable_irq(NVIC_TIM3_IRQ);
 
   // timer_enable_irq(TIM3, TIM_DIER_CC1IE);
   timer_enable_irq(TIM3, TIM_DIER_CC3IE); // this locks it up...
-
   
-
-  // timer_enable_irq(TIM3, 0xffff );  // this locked it up
 }
-  
+ 
+
+
+
+ 
 void tim3_isr(void)
 {
+  char ch = 'x';
 
    // timer_clear_flag(TIM3, TIM_SR_CC1IF);
-   timer_clear_flag(TIM3, TIM_SR_CC3IF);  // not clearing the interrupt will freeze it.
+  gpio_toggle(GPIOE,GPIO0);
 
-  // gpio_toggle(GPIOE,GPIO0);
-  gpio_set(GPIOE,GPIO0);
+  xQueueSend(rotary_txq, &ch, portMAX_DELAY); // blocks when queue is full
+  // IMPORTANT -- could just send a report.
+  // uart_printf("tim3 interrupt %d\n\r", timer_get_counter( TIM3 ));
+  //uart_printf("i");
+   //timer_clear_flag(TIM3, TIM_SR_CC3IF | );  // not clearing the interrupt will freeze it.
+                                          // why CC3IF and not CC1IF?
 
-    // uart_printf("tim3 interrupt %d\n\r", timer_get_counter( TIM3 ));
-    uart_printf("i");
+   timer_clear_flag(TIM3, TIM_SR_CC3IF );  // not clearing the interrupt will freeze it.
 }
+
+
+
+static void rotary_task(void *args __attribute__((unused))) {
+  char ch;
+
+  for (;;) {
+    if ( xQueueReceive(rotary_txq,&ch,500) == pdPASS ) {
+      uart_printf("x");
+      // uart_printf("x\n\r");
+    }
+    //taskYIELD();  
+  }
+}
+
 
 
 // if cannot get to work. try the pwm pulse  timer.c example
@@ -139,6 +164,7 @@ int main(void) {
 	xTaskCreate(led_blink_task, "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
   xTaskCreate(uart_task,      "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
   xTaskCreate(prompt_task,    "PROMPT",100,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+  xTaskCreate(rotary_task,    "ROTARY",100,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 
   // xTaskCreate( report_timer_task,  "REPORT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
