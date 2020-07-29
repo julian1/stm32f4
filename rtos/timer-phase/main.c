@@ -37,31 +37,8 @@
 #include "rotary.h"
 
 
-
-
-
-
-/*
-test() {
-
-  rcc_periph_clock_enable(RCC_GPIOA);
-  rcc_periph_clock_enable(RCC_TIM3);
-
-  // PA6 and PA7
-  rotary_setup(TIM3, GPIOA, GPIO6, GPIO_AF2, GPIOA, GPIO7, GPIO_AF2) ;
-
-  while (1) {
-
-      int count = timer_get_counter(TIM3);
-
-      printf("count.. %d\n", count);
-
-      __asm__("nop");
-  }
-}
-
-*/
-
+// So we probably also want an interrupt...
+// setup on rotary change.
 
 static void report_timer_task(void *args __attribute__((unused))) {
 
