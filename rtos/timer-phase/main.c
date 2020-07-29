@@ -39,6 +39,8 @@
 // So we probably also want an interrupt...
 // setup on rotary change.
 
+// could move this to rotary... as some test code
+
 static void report_timer_task(void *args __attribute__((unused))) {
 
   // Ahhhh not having a buffer... means
@@ -65,6 +67,9 @@ static void rotary_setup_interupt(void)
 
   rotary_txq = xQueueCreate(256,sizeof(char));
 
+
+  // timer_continuous_mode( TIM3);
+
   // Ahhh interupt - cannot be set 
   nvic_enable_irq(NVIC_TIM3_IRQ);
 
@@ -79,7 +84,6 @@ static void rotary_setup_interupt(void)
 /*
   OK. hang on.
     if we toggle back and forth over the same values - then it's always emitting something.
-
   tim3 interrupt 65535
   tim3 interrupt 0
   tim3 interrupt 0
@@ -103,6 +107,9 @@ static void rotary_setup_interupt(void)
   tim3 interrupt 0
   tim3 interrupt 1
   tim3 interrupt 1
+
+  So the easy way to do it, is just loop and test the last value, and if it changes emit an 
+  event. becomes a bit more ugly, but will work fine. if we really need an event.
 */
  
 void tim3_isr(void)
@@ -194,7 +201,7 @@ int main(void) {
 
   // VERY IMPORTANT...
   // possible that the echo - from uart ends up deadlocked.
-  // xTaskCreate( report_timer_task,  "REPORT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+  xTaskCreate( report_timer_task,  "REPORT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 	vTaskStartScheduler();
 
