@@ -70,29 +70,39 @@ static void rotary_setup_interupt(void)
 
   // timer_enable_irq(TIM3, TIM_DIER_CC1IE);
   timer_enable_irq(TIM3, TIM_DIER_CC1IE | TIM_DIER_CC2IE | TIM_DIER_CC3IE | TIM_DIER_CC4IE); 
+  // timer_enable_irq(TIM3, TIM_DIER_UIE );  // this also gets an occasional value...
   
+  // TIM_DIER_UIE
 }
 
-// CC2 does something as well. sometimes. 
 
+/*
+  OK. hang on.
+    if we toggle back and forth over the same values - then it's always emitting something.
+    but extending past that on just shaking 
 
-// someone else is using TIM_SR_CC2IF
+    Ahhh - its generating an event on 0-65365 wrap around???
+*/
  
 void tim3_isr(void)
 {
   char ch = 'x';
 
+  // timer_clear_flag(TIM3, TIM_DIER_UIE );  // not clearing the interrupt will freeze it.
+         
    // timer_clear_flag(TIM3, TIM_SR_CC2IF);
   gpio_toggle(GPIOE,GPIO0);
 
-  xQueueSend(rotary_txq, &ch, portMAX_DELAY); // blocks when queue is full
+  //xQueueSend(rotary_txq, &ch, portMAX_DELAY); // blocks when queue is full
   // IMPORTANT -- could just send a report.
-  // uart_printf("tim3 interrupt %d\n\r", timer_get_counter( TIM3 ));
+  uart_printf("tim3 interrupt %d\n\r", timer_get_counter( TIM3 ));
   //uart_printf("i");
    //timer_clear_flag(TIM3, TIM_SR_CC2IF | );  // not clearing the interrupt will freeze it.
                                           // why CC2IF and not CC2IF?
 
    timer_clear_flag(TIM3, TIM_DIER_CC1IE | TIM_DIER_CC2IE | TIM_DIER_CC3IE | TIM_DIER_CC4IE );  // not clearing the interrupt will freeze it.
+ // timer_clear_flag(TIM3, TIM_DIER_UIE);
+
 }
 
 
@@ -162,14 +172,14 @@ int main(void) {
   ///////////////
   // tasks
   // value is the stackdepth.
-	xTaskCreate(led_blink_task, "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+//	xTaskCreate(led_blink_task, "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
   xTaskCreate(uart_task,      "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
   xTaskCreate(prompt_task,    "PROMPT",100,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
   xTaskCreate(rotary_task,    "ROTARY",100,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
   // VERY IMPORTANT...
   // possible that the echo - from uart ends up deadlocked.
-  xTaskCreate( report_timer_task,  "REPORT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+  // xTaskCreate( report_timer_task,  "REPORT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 	vTaskStartScheduler();
 
