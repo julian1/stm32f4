@@ -59,6 +59,11 @@ int rotary_setup(uint32_t tim, uint32_t portA, uint16_t pinA, uint8_t afA, uint3
 
 #if 0
 
+// Seems impossible to do interrupts. because interrupts occur on stuff like
+  output compare and wrap around. while we are just counting.
+  we cannot just update the output compare value to use in the isr - because
+  we don't know the direction eg. +1, or -1.
+
 static QueueHandle_t rotary_txq;
 
 static void rotary_setup_interupt(void)
