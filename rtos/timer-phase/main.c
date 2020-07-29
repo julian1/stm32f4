@@ -75,11 +75,13 @@ void tim3_isr(void)
 {
 
    // timer_clear_flag(TIM3, TIM_SR_CC1IF);
-   timer_clear_flag(TIM3, TIM_SR_CC3IF);
-  gpio_toggle(GPIOE,GPIO0);
+   timer_clear_flag(TIM3, TIM_SR_CC3IF);  // not clearing the interrupt will freeze it.
+
+  // gpio_toggle(GPIOE,GPIO0);
+  gpio_set(GPIOE,GPIO0);
 
     // uart_printf("tim3 interrupt %d\n\r", timer_get_counter( TIM3 ));
-    uart_printf("interrupt");
+    uart_printf("i");
 }
 
 
