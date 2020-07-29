@@ -1,13 +1,4 @@
-/* Simple LED task demo, using timed delays:
- *
- * The LED on PC13 is toggled in task1.
-
-
-  see, for
-  ~/devel/stm32/FreeRTOSv10.3.1/FreeRTOS/Demo/CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h
-
-  doc,
-  https://www.freertos.org/FreeRTOS-for-STM32F4xx-Cortex-M4F-IAR.html
+/*
 
   so, i think 'proper' usart will use dma.
 
@@ -36,7 +27,8 @@
 
 
 /*
-  This function should be moved to main(). it is *not* usart.. 
+  This function should be moved to main(). it is *not* usart..
+  We may just want to blink
 
 */
 
@@ -297,11 +289,9 @@ void prompt_task(void *args __attribute__((unused))) {
     // uart_printf is cooked ... so it should already be giving us stuff...
     uart_printf("\n\r> ");
     uart_gets( buf, 100 ); // ie. should block...
-    uart_printf("\n\ruuu you said '%s'", buf );   // there looks like a bug in the formatting...
+    uart_printf("\n\ryou said '%s'", buf );   // there looks like a bug in the formatting...
                                               // no it's just returning the \n but not the \r...
   }
 }
-
-
 
 

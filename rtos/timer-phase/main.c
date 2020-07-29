@@ -1,8 +1,5 @@
-/* Simple LED task demo, using timed delays:
+/* 
  *
- * The LED on PC13 is toggled in task1.
-
-
   see, for
   ~/devel/stm32/FreeRTOSv10.3.1/FreeRTOS/Demo/CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h
 
