@@ -31,7 +31,7 @@
 //#include "uartlib.h"
 #include "miniprintf.h"
 
-#include "util.h"
+#include "usart.h"
 
 
 // static void uart_puts(const char *s) ;

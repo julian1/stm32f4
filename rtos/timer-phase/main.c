@@ -31,8 +31,8 @@
 // #include <libopencm3/cm3/nvic.h>
 
 
-#include "miniprintf.h"
-#include "util.h"
+// #include "miniprintf.h"
+#include "usart.h"
 #include "stepper.h"
 #include "rotary.h"
 
