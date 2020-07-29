@@ -35,6 +35,8 @@
 #include "usart.h"
 #include "stepper.h"
 #include "rotary.h"
+#include "blink.h"
+ 
 
 
 // So we probably also want an interrupt...
