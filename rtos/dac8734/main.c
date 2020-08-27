@@ -131,12 +131,12 @@ static void dac_test(void *args __attribute((unused))) {
   // think we should be using spi_send which does not return anything
 
   // first byte,
-  spi_xfer(DAC_SPI, 0);
-  //spi_xfer(DAC_SPI, 0);
-  spi_xfer(DAC_SPI, 0 | 1 );           // dac gpio0 on
+  spi_send(DAC_SPI, 0);
+  //spi_send(DAC_SPI, 0);
+  spi_send(DAC_SPI, 0 | 1 );           // dac gpio1 on
 
-  // spi_xfer(DAC_SPI, 0);
-  spi_xfer(DAC_SPI, 0 | 1 << 7 );  // turn on
+  // spi_send(DAC_SPI, 0);
+  spi_send(DAC_SPI, 0 | 1 << 7 );  // turn on gpio0
 
 
   gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
@@ -156,39 +156,62 @@ static void dac_test(void *args __attribute((unused))) {
 
 static uint8_t dac_read(void)
 {
+  /*
+    OK. 
+    the timing diagram is very weird.
+    CS goes low. and there is a downward clock edge.
+    But then it doesn't read the first edge.
 
-  gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
+    So it's all shifted... by one bit seemingly...
+    very weird.
+    EXTREME
+      but subsequent reads are ok. 
+      see the multiple readings...
+      so its ok.
+
+    it's a simultaneous read/write - because we write the reg we are interested in for the nex read
+
+    hi 266 16 32 2
+    hi 267 16 32 130      <- this popped over automatically, with no code change - so we must be writing...
+    hi 268 0 0 2
+    hi 269 0 0 2
+
+    hi 34 16 32 2
+    hi 35 16 32 3
+    hi 36 16 32 130   <- there must be some kind of read failure....
+    hi 37 16 32 2
+
+    EXTREME
+      only the last read in a series of reads should be a nop...
+      eg. because we are reading out the value, indicated from the previous time.
+
+      but if we issue
+
+    flipping the r/w bit to read just doesn't seem to work
+  */
 
 
-  // first byte,
-  spi_xfer(DAC_SPI, 1 << 7 );   // top bit, to set to read. seems not to be interpreted
-  spi_xfer(DAC_SPI, 0 );
-  // spi_xfer(DAC_SPI, 1 << 5 );   // 6th bit....
-  spi_xfer(DAC_SPI, 0b00100000 );   // 6th bit - nop command - means no write. maybe.
-  // spi_xfer(DAC_SPI, 0 );   
+  msleep(1); // ok where we put this changes things.
+  gpio_clear(DAC_PORT_CS, DAC_CS);
+
+  // command to read register 0 again.
+  uint8_t a = spi_xfer( DAC_SPI, 0b10000000 );
+  uint8_t b = spi_xfer( DAC_SPI, 0b00000000  ); // dac latch not register.
+  uint8_t c = spi_xfer( DAC_SPI, 1 << 5 /* 0b01000000 */ );  // depending on what we set this we get different values back in c.
+                                                            // this really seems to be writing...
 
 
   gpio_set(DAC_PORT_CS, DAC_CS);
-
   msleep(1);
 
-  gpio_clear(DAC_PORT_CS, DAC_CS);
-  msleep(1);
 
-  uint8_t a = spi_xfer( DAC_SPI, 0x00 );
-  uint8_t b = spi_xfer( DAC_SPI, 0x00 );
-  uint8_t c = spi_xfer( DAC_SPI, 0b00100000 );
+                                                // very strange
+  return b;   // c value is 128... eg. 10000000 this was kind of correct for the gpio1 in last byte. ....
+              // so appear to be getting something out....
+              // but really need to look at it on a scope
 
-#if 0
-  uint8_t a = spi_read( DAC_SPI );
-  uint8_t b = spi_read( DAC_SPI );
-  uint8_t c = spi_read( DAC_SPI );
-
-  gpio_set(DAC_PORT_CS, DAC_CS);  // CS active low
-
-  return b;
-#endif
-  return c;   // c value is 128...
+              // b is now returning 1....
+              // c is returning 2.
 }
 
 // use spi_read
