@@ -58,19 +58,11 @@
 
 static void msleep(uint32_t x)
 {
-  // only works in task thread... not main initialization thread
+  // only works in a task thread... not main initialization thread
   vTaskDelay(pdMS_TO_TICKS(  x  )); // 1Hz
 }
 
 
-static void led_fast_blink_test()
-{
-  int i;
-  for(i = 0; i < 10; ++i) { 
-    gpio_toggle(LED_PORT, LED_OUT);
-    msleep(100);
-  }
-}
 
 
 static int last = 0;
@@ -92,6 +84,58 @@ static void led_blink_task2(void *args __attribute((unused))) {
 		// vTaskDelay(pdMS_TO_TICKS(  100  )); // 10Hz
   }
 }
+
+
+
+
+static void dac_test(void *args __attribute((unused))) {
+
+  int i;
+  for( i = 0; i < 10; ++i ) {
+		gpio_toggle(LED_PORT, LED_OUT);
+    msleep(50);
+  }
+
+  /*
+  Reset input (active low). Logic low on this pin resets the input registers
+  and DACs to the values RST67I defined by the UNI/BIP pins, and sets the Gain
+  Register and Zero Register to defaultvalues.
+  */
+  gpio_clear(DAC_PORT, DAC_RST);
+  msleep(1);
+  gpio_set(DAC_PORT, DAC_RST);
+  msleep(1);
+
+  // may need to control CS manually. as it may deassert on each byte...
+
+  // ldac latch clear - means should not need to touch again
+  // will update after sending all 23 bytes
+  gpio_clear(DAC_PORT, DAC_LDAC);
+
+  /* 
+  Writing a '1' to the GPIO-0 bit puts the GPIO-1 pin into a Hi-Zstate(default).
+  DB8 GPIO-01 Writing a '0' to the GPIO-0 bit forces the GPIO-1 pin low
+  */
+ 
+  // p25.
+  // not sure what CS/NSS does
+  spi_xfer(DAC_SPI, 0 );
+  // spi_xfer(DAC_SPI, 0 );
+  // spi_xfer(DAC_SPI, 0b00000001 );
+  // spi_xfer(DAC_SPI, 0b10000000 );
+  spi_xfer(DAC_SPI, 0);
+  spi_xfer(DAC_SPI, 0);
+
+
+
+  // sleep forever
+  // exiting a task thread isn't very good...
+  for(;;) {
+    msleep(1000);
+  }
+}
+
+
 
 
 
@@ -163,31 +207,15 @@ int main(void) {
   // IMPORTANT setting from 100 to 200, stops deadlock
   xTaskCreate(prompt_task,    "PROMPT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
+
+  // ok.... 
+  xTaskCreate(dac_test,    "DAC_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+
 	vTaskStartScheduler();
 
 	for (;;);
 	return 0;
 }
-
-
-
-/*
-
-
-static void report_timer_task(void *args __attribute__((unused))) {
-
-  for (;;) {
-      uart_printf("hi %d\n\r", last++);
-
-  }
-}
-
-
-
-  xTaskCreate( report_timer_task,  "REPORT",200,NULL,configMAX_PRIORITIES-2,NULL);
-
-
-*/
 
 
 
