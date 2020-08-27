@@ -104,15 +104,6 @@ static void dac_test(void *args __attribute((unused))) {
   msleep(50);
   gpio_set(DAC_PORT, DAC_RST);
 
-  // ok. timing is all screwed here...
-
-  // may need to control CS manually. as it may deassert on each byte...
-
-  // ldac latch clear - means should not need to touch again
-  // will update after sending all 23 bytes
-  // *** is not working... lets check reset.
-  // ok ldac is doing this
-  // gpio_set(DAC_PORT, DAC_LDAC);
   gpio_clear(DAC_PORT, DAC_LDAC);   // keep latch low, and unused, unless chaining
 
   gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
@@ -129,30 +120,15 @@ static void dac_test(void *args __attribute((unused))) {
   bits are set to '1', and the GPIO-n pin goes to a high-impedancestate.
   */
 
-  // or the code is never getting to the ldac clear...
-
-  // so if the spi write worked, then we would have set to 0 and cleared the gpio pins...
-
-  // OK CS is always low. not sure if that's right.
-
-  /*
-    ok - so clock works.
-    - but there is seemingly no data on mosi pin. check again.
-    - and CS is not asserted high at the end. in fact never changes.
-        which means it will never latch.
-  */
-
-  // p25.
-  // not sure what CS/NSS does
-  spi_xfer(DAC_SPI, 0 );
   spi_xfer(DAC_SPI, 0);
-  spi_xfer(DAC_SPI, 0 );
+  spi_xfer(DAC_SPI, 0);
+  spi_xfer(DAC_SPI, 0);
   // spi_xfer(DAC_SPI, 0xff );       // OK. working pa7, pin 4 dac
   // spi_xfer(DAC_SPI, 0b01010101 );
 
   msleep(1);
 
-  gpio_set(DAC_PORT_CS, DAC_CS);
+  gpio_set(DAC_PORT_CS, DAC_CS); // if ldac is low, then latch will latch on deselect cs.
 
   // gpio_clear(DAC_PORT, DAC_LDAC);
 
