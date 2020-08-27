@@ -89,6 +89,25 @@ static void led_blink_task2(void *args __attribute((unused))) {
 }
 
 
+#if 0
+  spi_send(DAC_SPI, 0);
+  //spi_send(DAC_SPI, 0);
+  spi_send(DAC_SPI, 0 | 1 );           // dac gpio1 on
+
+  // spi_send(DAC_SPI, 0);
+  spi_send(DAC_SPI, 0 | 1 << 7 );  // turn on gpio0
+#endif
+
+
+static void dac_write_register(uint32_t r)
+{
+  spi_send( DAC_SPI, (r >> 16) & 0xff );
+  spi_send( DAC_SPI, (r >> 8) & 0xff  );
+  spi_send( DAC_SPI, r & 0xff  );  // depending on what we set this we get different values back in c.
+}
+
+
+
 // static void msleep(int
 
 static void dac_test(void *args __attribute((unused))) {
@@ -117,10 +136,11 @@ static void dac_test(void *args __attribute((unused))) {
 
   msleep(1);
   gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
+  msleep(1);
 
 
   /*
-  Writing a '1' to the GPIO-0 bit puts the GPIO-1 pin into a Hi-Zstate(default).
+  Writing a '1' to the GPIO-0 bit puts the GPIO-1 pin into a Hi-Z state(default).
   DB8 GPIO-01 Writing a '0' to the GPIO-0 bit forces the GPIO-1 pin low
 
   p22 After a power-on reset or any forced hardware or software reset, all GPIO-n
@@ -130,18 +150,22 @@ static void dac_test(void *args __attribute((unused))) {
   // spi_xfer is 'data write and read'.
   // think we should be using spi_send which does not return anything
 
-  // first byte,
-  spi_send(DAC_SPI, 0);
-  //spi_send(DAC_SPI, 0);
-  spi_send(DAC_SPI, 0 | 1 );           // dac gpio1 on
+  // dac_write_register(  1 << 8 | 1 << 7 );
 
-  // spi_send(DAC_SPI, 0);
-  spi_send(DAC_SPI, 0 | 1 << 7 );  // turn on gpio0
+  // dac_write_register( 1 << 22 | 1 << 8 | 1 << 6 ); // read and nop
+  // dac_write_register( 1 << 8  | 1 << 6 );      // nop
+  // dac_write_register( 1 << 22 | 1 << 8 );      // writes, it shouldn't though...
+  dac_write_register( 0 );        // writes,
+  dac_write_register( 1 << 7  );  // turns off.
 
+  /*********
+  // reset gives gpio values = 1, which is high-z, therefore pulled hi.
+  // setting to 0 will clear.
+  **********/
 
+  msleep(1); // required
   gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
 
-  // msleep(1);
 
   // gpio_clear(DAC_PORT, DAC_LDAC);
 
@@ -152,6 +176,7 @@ static void dac_test(void *args __attribute((unused))) {
   }
 }
 
+// ok. it starts 
 
 
 static uint8_t dac_read(void)
@@ -181,25 +206,10 @@ static uint8_t dac_read(void)
     better choice would be to bit-bash.
 */
 
+  return 66;
 
   gpio_clear(DAC_PORT_CS, DAC_CS);
-  // msleep(1); // ok where we put this changes things.
-
-  /*
-  // command to read register 0 again.
-  uint8_t a = spi_xfer( DAC_SPI, 0b10000000 );
-  uint8_t b = spi_xfer( DAC_SPI, 0b00000000  ); // dac latch not register.
-  uint8_t c = spi_xfer( DAC_SPI, 1 << 5  0b01000000  );  // depending on what we set this we get different values back in c.
-  */
-                                                            // this really seems to be writing...
-  // command to read register 0 again.
-  // spi_send( DAC_SPI, 0b10000000 );
-  spi_send( DAC_SPI, 0 );
-  spi_send( DAC_SPI, 0 ); // dac latch not register.
-  //spi_send( DAC_SPI, 1 << 5 /* 0b01000000 */ );  // depending on what we set this we get different values back in c.
-  spi_send( DAC_SPI, 0 );  // depending on what we set this we get different values back in c.
-
-  // ok. it ought to send back the data but we will ignore it....
+  dac_write_register( 0   );
 
   msleep(1); // required...
   gpio_set(DAC_PORT_CS, DAC_CS);
@@ -320,4 +330,13 @@ int main(void) {
 }
 
 
+/*
+  // first byte,
+  spi_send(DAC_SPI, 0);
+  //spi_send(DAC_SPI, 0);
+  spi_send(DAC_SPI, 0 | 1 );           // dac gpio1 on
+
+  // spi_send(DAC_SPI, 0);
+  spi_send(DAC_SPI, 0 | 1 << 7 );  // turn on gpio0
+*/
 
