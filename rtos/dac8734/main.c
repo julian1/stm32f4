@@ -163,8 +163,9 @@ static uint8_t dac_read(void)
   // first byte,
   spi_xfer(DAC_SPI, 1 << 7 );   // top bit, to set to read. seems not to be interpreted
   spi_xfer(DAC_SPI, 0 );
-  spi_xfer(DAC_SPI, 1 << 5 );   // 6th bit....
-  // spi_xfer(DAC_SPI, 0b00100000 );   // 6th bit - nop command
+  // spi_xfer(DAC_SPI, 1 << 5 );   // 6th bit....
+  spi_xfer(DAC_SPI, 0b00100000 );   // 6th bit - nop command - means no write. maybe.
+  // spi_xfer(DAC_SPI, 0 );   
 
 
   gpio_set(DAC_PORT_CS, DAC_CS);
@@ -176,7 +177,7 @@ static uint8_t dac_read(void)
 
   uint8_t a = spi_xfer( DAC_SPI, 0x00 );
   uint8_t b = spi_xfer( DAC_SPI, 0x00 );
-  uint8_t c = spi_xfer( DAC_SPI, 0x00 );
+  uint8_t c = spi_xfer( DAC_SPI, 0b00100000 );
 
 #if 0
   uint8_t a = spi_read( DAC_SPI );
@@ -187,7 +188,7 @@ static uint8_t dac_read(void)
 
   return b;
 #endif
-  return c;
+  return c;   // c value is 128...
 }
 
 // use spi_read
