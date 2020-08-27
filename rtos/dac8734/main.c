@@ -53,21 +53,29 @@ static void led_blink_task2(void *args __attribute((unused))) {
 // 
 #define DAC_SPI       1 
 
-// GPIOA
+// SPI / GPIOA
 #define DAC_CS        4
 #define DAC_CLK       5
 #define DAC_MOSI      6
 #define DAC_MISO      7
 
+//  GPIOE
+#define DAC_PORT      GPIOE
+
+#define DAC_LDAC      2
+#define DAC_RST       3
+#define DAC_GPIO0     4
+#define DAC_GPIO1     5
+#define DAC_UNIBIPA   6
+
 
 static void dac_setup( void )
 {
 
-  // spi alternate function
-  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, DAC_CS | DAC_CLK |  DAC_MOSI | DAC_MISO );
+  // spi alternate function 5
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, DAC_CS | DAC_CLK | DAC_MOSI | DAC_MISO );
 
-  gpio_set_af(GPIOA, GPIO_AF5, DAC_CS | DAC_CLK |  DAC_MOSI | DAC_MISO );
-
+  gpio_set_af(GPIOA, GPIO_AF5, DAC_CS | DAC_CLK | DAC_MOSI | DAC_MISO );
 
   rcc_periph_clock_enable(RCC_SPI1);
   spi_init_master(DAC_SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_4,
@@ -78,11 +86,17 @@ static void dac_setup( void )
   spi_enable_ss_output(DAC_SPI);
   spi_enable(DAC_SPI);
 
+  /////
+  // other outputs
+  gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_LDAC | DAC_RST | DAC_UNIBIPA);
+
+  // dac gpio configure to read
+  gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 );
 }
 
 int main(void) {
 
-  ///////////////
+  ////
   // clocks
   rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 
@@ -123,7 +137,6 @@ int main(void) {
 	return 0;
 }
 
-// End
 
 
 /*
@@ -139,9 +152,7 @@ static void report_timer_task(void *args __attribute__((unused))) {
 
 
 
-  // VERY IMPORTANT...
-  // possible that the echo - from uart ends up deadlocked.
-  //xTaskCreate( report_timer_task,  "REPORT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+  xTaskCreate( report_timer_task,  "REPORT",200,NULL,configMAX_PRIORITIES-2,NULL); 
 
 
 */
