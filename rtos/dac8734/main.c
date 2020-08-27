@@ -157,56 +157,58 @@ static void dac_test(void *args __attribute((unused))) {
 static uint8_t dac_read(void)
 {
   /*
-    OK. 
-    the timing diagram is very weird.
-    CS goes low. and there is a downward clock edge.
-    But then it doesn't read the first edge.
+    OK.
+      some timing diagrams are weird. BUT
 
-    So it's all shifted... by one bit seemingly...
-    very weird.
-    EXTREME
-      but subsequent reads are ok. 
-      see the multiple readings...
-      so its ok.
-
-    it's a simultaneous read/write - because we write the reg we are interested in for the nex read
-
-    hi 266 16 32 2
-    hi 267 16 32 130      <- this popped over automatically, with no code change - so we must be writing...
-    hi 268 0 0 2
-    hi 269 0 0 2
-
-    hi 34 16 32 2
-    hi 35 16 32 3
-    hi 36 16 32 130   <- there must be some kind of read failure....
-    hi 37 16 32 2
-
-    EXTREME
-      only the last read in a series of reads should be a nop...
-      eg. because we are reading out the value, indicated from the previous time.
-
-      but if we issue
-
-    flipping the r/w bit to read just doesn't seem to work
+      case 5. p11.  for standalone mode. read timing is fine. see p11.
   */
+
+/*
+    OK. issue is that spi_xfer attempts to read after sending a full byte
+    while we want simultaneous. read/write.
+    Not sure if supported or can do it without bit-bashing supported.
+
+    we *have* to
+
+    spi_xfer,
+      "Data is written to the SPI interface, then a read is done after the incoming transfer has finished."
+
+    issue is that we cannot just clock it out.
+    instead we have to send a no-op.
+
+    BUT. if we used a separate spi channel for input.
+    Then we could do the write.
+
+    while simultaneously doing a blocking read in another thread.
+    pretty damn ugly.
+    better choice would be to bit-bash.
+*/
 
 
   msleep(1); // ok where we put this changes things.
   gpio_clear(DAC_PORT_CS, DAC_CS);
 
+  /*
   // command to read register 0 again.
   uint8_t a = spi_xfer( DAC_SPI, 0b10000000 );
   uint8_t b = spi_xfer( DAC_SPI, 0b00000000  ); // dac latch not register.
-  uint8_t c = spi_xfer( DAC_SPI, 1 << 5 /* 0b01000000 */ );  // depending on what we set this we get different values back in c.
+  uint8_t c = spi_xfer( DAC_SPI, 1 << 5  0b01000000  );  // depending on what we set this we get different values back in c.
+  */
                                                             // this really seems to be writing...
+  // command to read register 0 again.
+  spi_send( DAC_SPI, 0b10000000 );
+  spi_send( DAC_SPI, 0 ); // dac latch not register.
+  //spi_send( DAC_SPI, 1 << 5 /* 0b01000000 */ );  // depending on what we set this we get different values back in c.
+  spi_send( DAC_SPI, 0 );  // depending on what we set this we get different values back in c.
 
+  // ok. it ought to send back the data but we will ignore it....
 
   gpio_set(DAC_PORT_CS, DAC_CS);
   msleep(1);
 
 
                                                 // very strange
-  return b;   // c value is 128... eg. 10000000 this was kind of correct for the gpio1 in last byte. ....
+  return 123;   // c value is 128... eg. 10000000 this was kind of correct for the gpio1 in last byte. ....
               // so appear to be getting something out....
               // but really need to look at it on a scope
 
