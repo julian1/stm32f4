@@ -39,8 +39,9 @@
 
 // could move this to rotary... as some test code
 
-/*
 static int last = 0;
+
+/*
 
 
 static void report_timer_task(void *args __attribute__((unused))) {
@@ -59,6 +60,8 @@ static void led_blink_task2(void *args __attribute((unused))) {
 	for (;;) {
 
 		gpio_toggle(GPIOE,GPIO0);
+
+      uart_printf("hi %d\n\r", last++);
 
 		vTaskDelay(pdMS_TO_TICKS(  500  )); // 1Hz
 		// vTaskDelay(pdMS_TO_TICKS(  100  )); // 10Hz
