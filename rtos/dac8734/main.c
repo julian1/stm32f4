@@ -49,6 +49,7 @@
 #define DAC_GPIO0     GPIO4  // gpio pe4   dac pin 8
 #define DAC_GPIO1     GPIO5
 #define DAC_UNIBIPA   GPIO6
+#define DAC_UNIBIPB   GPIO7
 
 
 
@@ -89,11 +90,14 @@ static void led_blink_task2(void *args __attribute((unused))) {
 
 static void dac_test(void *args __attribute((unused))) {
 
+  // indicate we are here
   int i;
   for( i = 0; i < 10; ++i ) {
 		gpio_toggle(LED_PORT, LED_OUT);
     msleep(50);
   }
+
+  // gpio_clear(DAC_PORT, DAC_UNIBIPB);
 
   /*
   Reset input (active low). Logic low on this pin resets the input registers
@@ -124,7 +128,7 @@ static void dac_test(void *args __attribute((unused))) {
   spi_xfer(DAC_SPI, 0 | 1);               // dac gpio0 on
 
   // spi_xfer(DAC_SPI, 0);
-  spi_xfer(DAC_SPI, 0 /*| 0b10000000 */); // dac gpio1 on 
+  spi_xfer(DAC_SPI, 0 /*| 0b10000000 */); // dac gpio1 on
 
 
   gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
@@ -147,6 +151,9 @@ static void dac_test(void *args __attribute((unused))) {
   and we want to try and do spi read.
   bit hard to know how it works - if get back 24 bytes.
     except we control the clock... well spi does.
+
+  having gpio output is actually kind of useful - for different functions . albeit we would just use mcu.
+  likewise the mixer.
 */
 
 static void dac_setup( void )
@@ -173,10 +180,10 @@ static void dac_setup( void )
 
   /////
   // other outputs
-  gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_LDAC | DAC_RST | DAC_UNIBIPA);
+  gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_LDAC | DAC_RST | DAC_UNIBIPA | DAC_UNIBIPB);
 
 
-  // inputs, pullups work
+  // dac gpio inputs, pullups work
   gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 );
 }
 
