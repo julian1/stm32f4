@@ -128,7 +128,8 @@ static void dac_test(void *args __attribute((unused))) {
 
 
   gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
-  msleep(1);
+
+  // msleep(1);
 
   // gpio_clear(DAC_PORT, DAC_LDAC);
 
