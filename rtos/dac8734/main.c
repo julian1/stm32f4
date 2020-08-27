@@ -102,7 +102,7 @@ static void dac_test(void *args __attribute((unused))) {
   /*
   Reset input (active low). Logic low on this pin resets the input registers
   and DACs to the values RST67I defined by the UNI/BIP pins, and sets the Gain
-  Register and Zero Register to defaultvalues.
+  Register and Zero Register to default values.
   */
   gpio_clear(DAC_PORT, DAC_RST);
   msleep(50);
@@ -144,9 +144,13 @@ static void dac_test(void *args __attribute((unused))) {
   }
 }
 
-// strange issue - when plug in to usb - its not initialized properly...
-// but reset run is ok.
-// could be decoupling
+/*
+  strange issue - when plug in to usb - its not initialized properly...
+  but reset run is ok.
+  could be decoupling
+  or because mcu starts with GPIO undefined?.. but when do 'reset run' the gpio is still defined because its
+  a soft reset?
+*/
 
 /*
   OK. that is really very very good.
