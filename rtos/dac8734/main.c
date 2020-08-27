@@ -161,7 +161,7 @@ static void dac_setup( void )
   spi_enable(DAC_SPI);
 
 
-  // CS same pin as alternate function, but use as io.
+  // CS same pin as SPI alternate function, but we use it as gpio out.
   gpio_mode_setup(DAC_PORT_CS, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_CS);
 
   /////
