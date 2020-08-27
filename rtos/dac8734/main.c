@@ -110,23 +110,28 @@ static void dac_test(void *args __attribute((unused))) {
 
   // ldac latch clear - means should not need to touch again
   // will update after sending all 23 bytes
-  gpio_clear(DAC_PORT, DAC_LDAC);
+  gpio_set(DAC_PORT, DAC_LDAC);
+  msleep(1);
 
   /* 
   Writing a '1' to the GPIO-0 bit puts the GPIO-1 pin into a Hi-Zstate(default).
   DB8 GPIO-01 Writing a '0' to the GPIO-0 bit forces the GPIO-1 pin low
+
+  p22 After a power-on reset or any forced hardware or software reset, all GPIO-n
+  bits are set to '1', and the GPIO-n pin goes to a high-impedancestate.
   */
+
+  // so if the spi write worked, then we would have set to 0 and cleared the gpio pins...
  
   // p25.
   // not sure what CS/NSS does
   spi_xfer(DAC_SPI, 0 );
-  // spi_xfer(DAC_SPI, 0 );
-  // spi_xfer(DAC_SPI, 0b00000001 );
-  // spi_xfer(DAC_SPI, 0b10000000 );
   spi_xfer(DAC_SPI, 0);
   spi_xfer(DAC_SPI, 0);
 
+  msleep(1);
 
+  gpio_clear(DAC_PORT, DAC_LDAC);
 
   // sleep forever
   // exiting a task thread isn't very good...
@@ -148,7 +153,8 @@ static void dac_setup( void )
   gpio_set_af(GPIOA, GPIO_AF5, DAC_CS | DAC_CLK | DAC_MOSI | DAC_MISO );
 
   rcc_periph_clock_enable(RCC_SPI1);
-  spi_init_master(DAC_SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_4,
+  spi_init_master(DAC_SPI, 
+    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
     SPI_CR1_CPHA_CLK_TRANSITION_1,
     SPI_CR1_DFF_8BIT,
