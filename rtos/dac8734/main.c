@@ -168,25 +168,22 @@ static uint8_t dac_read(void)
     while we want simultaneous. read/write.
     Not sure if supported or can do it without bit-bashing supported.
 
-    we *have* to
-
     spi_xfer,
       "Data is written to the SPI interface, then a read is done after the incoming transfer has finished."
 
     issue is that we cannot just clock it out.
-    instead we have to send a no-op.
+    instead we have to send a no-op, while clocing it out.
 
     BUT. if we used a separate spi channel for input.
     Then we could do the write.
-
     while simultaneously doing a blocking read in another thread.
     pretty damn ugly.
     better choice would be to bit-bash.
 */
 
 
-  msleep(1); // ok where we put this changes things.
   gpio_clear(DAC_PORT_CS, DAC_CS);
+  // msleep(1); // ok where we put this changes things.
 
   /*
   // command to read register 0 again.
@@ -196,15 +193,16 @@ static uint8_t dac_read(void)
   */
                                                             // this really seems to be writing...
   // command to read register 0 again.
-  spi_send( DAC_SPI, 0b10000000 );
+  // spi_send( DAC_SPI, 0b10000000 );
+  spi_send( DAC_SPI, 0 );
   spi_send( DAC_SPI, 0 ); // dac latch not register.
   //spi_send( DAC_SPI, 1 << 5 /* 0b01000000 */ );  // depending on what we set this we get different values back in c.
   spi_send( DAC_SPI, 0 );  // depending on what we set this we get different values back in c.
 
   // ok. it ought to send back the data but we will ignore it....
 
+  msleep(1); // required...
   gpio_set(DAC_PORT_CS, DAC_CS);
-  msleep(1);
 
 
                                                 // very strange
@@ -299,8 +297,6 @@ int main(void) {
   usart_setup();
 
   dac_setup();
-
-
 
 
 
