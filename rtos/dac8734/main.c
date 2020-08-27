@@ -53,6 +53,26 @@
 
 
 
+
+
+
+static void msleep(uint32_t x)
+{
+  // only works in task thread... not main initialization thread
+  vTaskDelay(pdMS_TO_TICKS(  x  )); // 1Hz
+}
+
+
+static void led_fast_blink_test()
+{
+  int i;
+  for(i = 0; i < 10; ++i) { 
+    gpio_toggle(LED_PORT, LED_OUT);
+    msleep(100);
+  }
+}
+
+
 static int last = 0;
 
 static void led_blink_task2(void *args __attribute((unused))) {
@@ -67,8 +87,8 @@ static void led_blink_task2(void *args __attribute((unused))) {
       gpio_get(DAC_PORT, DAC_GPIO1 )
     );
 
-
-		vTaskDelay(pdMS_TO_TICKS(  500  )); // 1Hz
+    msleep(500);
+		// vTaskDelay(pdMS_TO_TICKS(  500  )); // 1Hz
 		// vTaskDelay(pdMS_TO_TICKS(  100  )); // 10Hz
   }
 }
@@ -102,6 +122,8 @@ static void dac_setup( void )
 }
 
 
+
+// OK. do we have a sleep function for bit bashing...?
 
 int main(void) {
 
