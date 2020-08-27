@@ -33,7 +33,7 @@
 
 
 //
-#define DAC_SPI       1
+#define DAC_SPI       SPI1
 
 // use spi1/ port A alternate function
 #define DAC_CS        GPIO4
@@ -86,7 +86,7 @@ static void led_blink_task2(void *args __attribute((unused))) {
 }
 
 
-
+// static void msleep(int
 
 static void dac_test(void *args __attribute((unused))) {
 
@@ -102,16 +102,26 @@ static void dac_test(void *args __attribute((unused))) {
   Register and Zero Register to defaultvalues.
   */
   gpio_clear(DAC_PORT, DAC_RST);
-  msleep(1);
+  msleep(50);
   gpio_set(DAC_PORT, DAC_RST);
-  msleep(1);
+  msleep(50);
+  gpio_clear(DAC_PORT, DAC_RST);
+  msleep(50);
+  gpio_set(DAC_PORT, DAC_RST);
+  msleep(50);
+
+  // ok. timing is all screwed here...
 
   // may need to control CS manually. as it may deassert on each byte...
 
   // ldac latch clear - means should not need to touch again
   // will update after sending all 23 bytes
+  // *** is not working... lets check reset.
+  // ok ldac is doing this 
   gpio_set(DAC_PORT, DAC_LDAC);
   msleep(1);
+  //gpio_clear(DAC_PORT, DAC_LDAC);   if we fall through... then we never
+  // msleep(1);
 
   /* 
   Writing a '1' to the GPIO-0 bit puts the GPIO-1 pin into a Hi-Zstate(default).
@@ -120,6 +130,8 @@ static void dac_test(void *args __attribute((unused))) {
   p22 After a power-on reset or any forced hardware or software reset, all GPIO-n
   bits are set to '1', and the GPIO-n pin goes to a high-impedancestate.
   */
+
+  // or the code is never getting to the ldac clear...
 
   // so if the spi write worked, then we would have set to 0 and cleared the gpio pins...
  
@@ -131,6 +143,7 @@ static void dac_test(void *args __attribute((unused))) {
 
   msleep(1);
 
+  // this code appears to never get hit...
   gpio_clear(DAC_PORT, DAC_LDAC);
 
   // sleep forever
@@ -141,7 +154,13 @@ static void dac_test(void *args __attribute((unused))) {
 }
 
 
-
+/*
+  OK. check with scope that spi is emitting stuff.
+  check RST works
+  check that CS is
+  check that latch gate is working as gpio
+  check mosi to SDI
+*/
 
 
 static void dac_setup( void )
