@@ -22,38 +22,18 @@
 // #include <libopencm3/stm32/timer.h>
 
 #include <libopencm3/stm32/spi.h> 
-
 // #include <libopencm3/stm32/gpio.h>
 // #include <libopencm3/stm32/usart.h>
 // #include <libopencm3/cm3/nvic.h>
 
 
-// #include "miniprintf.h"
 #include "usart.h"
 #include "blink.h"
 
 
 
-// So we probably also want an interrupt...
-// setup on rotary change.
-
-// could move this to rotary... as some test code
 
 static int last = 0;
-
-/*
-
-
-static void report_timer_task(void *args __attribute__((unused))) {
-
-  for (;;) {
-      uart_printf("hi %d\n\r", last++);
-
-  }
-}
-*/
-
-
 
 static void led_blink_task2(void *args __attribute((unused))) {
 
@@ -61,11 +41,11 @@ static void led_blink_task2(void *args __attribute((unused))) {
 
 		gpio_toggle(GPIOE,GPIO0);
 
-      uart_printf("hi %d\n\r", last++);
+    uart_printf("hi %d\n\r", last++);
 
 		vTaskDelay(pdMS_TO_TICKS(  500  )); // 1Hz
 		// vTaskDelay(pdMS_TO_TICKS(  100  )); // 10Hz
-	}
+  }
 }
 
 
@@ -124,6 +104,10 @@ int main(void) {
 
   dac_setup();
 
+
+
+
+
   ///////////////
   // tasks
   // value is the stackdepth.
@@ -133,10 +117,6 @@ int main(void) {
   // IMPORTANT setting from 100 to 200, stops deadlock
   xTaskCreate(prompt_task,    "PROMPT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
-  // VERY IMPORTANT...
-  // possible that the echo - from uart ends up deadlocked.
-  //xTaskCreate( report_timer_task,  "REPORT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
-
 	vTaskStartScheduler();
 
 	for (;;);
@@ -144,3 +124,27 @@ int main(void) {
 }
 
 // End
+
+
+/*
+
+
+static void report_timer_task(void *args __attribute__((unused))) {
+
+  for (;;) {
+      uart_printf("hi %d\n\r", last++);
+
+  }
+}
+
+
+
+  // VERY IMPORTANT...
+  // possible that the echo - from uart ends up deadlocked.
+  //xTaskCreate( report_timer_task,  "REPORT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+
+
+*/
+
+
+
