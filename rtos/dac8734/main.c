@@ -28,10 +28,7 @@
 
 
 #include "usart.h"
-#include "blink.h"
-
-
-
+#include "led.h"
 
 
 
@@ -62,18 +59,14 @@ static void led_blink_task2(void *args __attribute((unused))) {
 
 	for (;;) {
 
-		gpio_toggle(GPIOE,GPIO0); // OK. the toggle isn't working...
+		gpio_toggle(LED_PORT, LED_OUT);
 
+    uart_printf("hi %d %d %d\n\r",
+      last++,
+      gpio_get(DAC_PORT, DAC_GPIO0),
+      gpio_get(DAC_PORT, DAC_GPIO1 )
+    );
 
-  /// doesn't look right.... values 4 and 5 match the port numbers...
-     int u0 = gpio_get(DAC_PORT, DAC_GPIO0 ); // why is this numerical 4?
-     int u1 = gpio_get(DAC_PORT, DAC_GPIO1 ); // why is this numerical 4?
-
-    uart_printf("hi %d %d %d\n\r", last++, u0, u1 );
-    // uart_printf("gpio0 %d \n\r", u0 );
-    // uart_printf("gpio1 %d \n\r", u1 );
-
-  // whether we use pu/pd changes value but only for gpio1
 
 		vTaskDelay(pdMS_TO_TICKS(  500  )); // 1Hz
 		// vTaskDelay(pdMS_TO_TICKS(  100  )); // 10Hz
@@ -81,7 +74,6 @@ static void led_blink_task2(void *args __attribute((unused))) {
 }
 
 
-// gpio0 is always 4.  bit strange.
 
 static void dac_setup( void )
 {
@@ -96,7 +88,7 @@ static void dac_setup( void )
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
     SPI_CR1_CPHA_CLK_TRANSITION_1,
     SPI_CR1_DFF_8BIT,
-    SPI_CR1_MSBFIRST);              // check.
+    SPI_CR1_MSBFIRST);
   spi_enable_ss_output(DAC_SPI);
   spi_enable(DAC_SPI);
 
@@ -105,10 +97,11 @@ static void dac_setup( void )
   gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_LDAC | DAC_RST | DAC_UNIBIPA);
 
 
-  // OK. pull ups work, read 0 if use pull down.
+  // inputs, pullups work
   gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 );
-
 }
+
+
 
 int main(void) {
 

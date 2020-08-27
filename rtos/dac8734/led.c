@@ -10,7 +10,9 @@
 
 
 
-#include "blink.h"
+#include "led.h"
+
+
 
 
 
@@ -28,7 +30,7 @@
 
 void led_setup(void) {
 
-  gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0);
+  gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT);
 }
 
 
@@ -36,7 +38,7 @@ void led_setup(void) {
 void led_blink_task(void *args __attribute((unused))) {
 
 	for (;;) {
-		gpio_toggle(GPIOE,GPIO0);
+		gpio_toggle(LED_PORT, LED_OUT);
 		vTaskDelay(pdMS_TO_TICKS(500)); // 1Hz
 	}
 }
