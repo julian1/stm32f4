@@ -144,6 +144,10 @@ static void dac_test(void *args __attribute((unused))) {
   }
 }
 
+// strange issue - when plug in to usb - its not initialized properly...
+// but reset run is ok.
+// could be decoupling
+
 /*
   OK. that is really very very good.
     we want to add the other uni/bip .
