@@ -104,11 +104,6 @@ static void dac_test(void *args __attribute((unused))) {
   gpio_clear(DAC_PORT, DAC_RST);
   msleep(50);
   gpio_set(DAC_PORT, DAC_RST);
-  msleep(50);
-  gpio_clear(DAC_PORT, DAC_RST);
-  msleep(50);
-  gpio_set(DAC_PORT, DAC_RST);
-  msleep(50);
 
   // ok. timing is all screwed here...
 
@@ -134,12 +129,22 @@ static void dac_test(void *args __attribute((unused))) {
   // or the code is never getting to the ldac clear...
 
   // so if the spi write worked, then we would have set to 0 and cleared the gpio pins...
+
+  // OK CS is always low. not sure if that's right.
+
+  /*
+    ok - so clock works.
+    - but there is seemingly no data on mosi pin. check again.
+    - and CS is not asserted high at the end. in fact never changes.
+        which means it will never latch.
+  */
  
   // p25.
   // not sure what CS/NSS does
   spi_xfer(DAC_SPI, 0 );
   spi_xfer(DAC_SPI, 0);
-  spi_xfer(DAC_SPI, 0);
+  // spi_xfer(DAC_SPI, 0b1000000 );kkkk
+  spi_xfer(DAC_SPI, 0xff );       // OK. this is not being sent.
 
   msleep(1);
 
