@@ -107,20 +107,26 @@ static void dac_write_register(uint32_t r)
 }
 
 
-static void dac_write_register1(uint32_t r)
+static void dac_write_register1(uint32_t r)   // change name dac_write_register_cs
 {
   gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
   // msleep(1);
   dac_write_register( r );        // writes,
   msleep(1); // required
   gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
-
 }
 
 
+/*
+  why init fails on board power-up
+  check
+    - on scope weird pulse. rst or ldac pulse.
+    - power rails
+
+  another rst signal would screw it...
+*/
 
 
-// static void msleep(int
 
 static void dac_test(void *args __attribute((unused))) {
 
