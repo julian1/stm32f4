@@ -106,11 +106,9 @@ static void dac_test(void *args __attribute((unused))) {
 
   gpio_clear(DAC_PORT, DAC_LDAC);   // keep latch low, and unused, unless chaining
 
+  msleep(1);
   gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
 
-  msleep(1);
-  //gpio_clear(DAC_PORT, DAC_LDAC);   if we fall through... then we never
-  // msleep(1);
 
   /*
   Writing a '1' to the GPIO-0 bit puts the GPIO-1 pin into a Hi-Zstate(default).
@@ -120,22 +118,17 @@ static void dac_test(void *args __attribute((unused))) {
   bits are set to '1', and the GPIO-n pin goes to a high-impedancestate.
   */
 
+  // first byte,
   spi_xfer(DAC_SPI, 0);
   // spi_xfer(DAC_SPI, 0);
-  spi_xfer(DAC_SPI, 0 | 1);     // dac gpio0 on
+  spi_xfer(DAC_SPI, 0 | 1);               // dac gpio0 on
 
   // spi_xfer(DAC_SPI, 0);
-  spi_xfer(DAC_SPI, 0 | 0b10000000 ); // dac gpio1 on 
+  spi_xfer(DAC_SPI, 0 /*| 0b10000000 */); // dac gpio1 on 
 
-  // spi seems to be setting stuff on the rising edge.
-  // but chart shows falling edge.
 
-  // spi_xfer(DAC_SPI, 0xff );       // OK. working pa7, pin 4 dac
-  // spi_xfer(DAC_SPI, 0b01010101 );
-
+  gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
   msleep(1);
-
-  gpio_set(DAC_PORT_CS, DAC_CS); // if ldac is low, then latch will latch on deselect cs.
 
   // gpio_clear(DAC_PORT, DAC_LDAC);
 
