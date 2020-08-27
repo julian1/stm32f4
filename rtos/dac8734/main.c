@@ -113,7 +113,7 @@ static void dac_test(void *args __attribute((unused))) {
   // *** is not working... lets check reset.
   // ok ldac is doing this
   // gpio_set(DAC_PORT, DAC_LDAC);
-  gpio_clear(DAC_PORT, DAC_LDAC);
+  gpio_clear(DAC_PORT, DAC_LDAC);   // keep latch low, and unused, unless chaining
 
   gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
 
