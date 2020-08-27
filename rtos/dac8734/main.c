@@ -140,7 +140,14 @@ static void dac_test(void *args __attribute((unused))) {
   }
 }
 
+/*
+  OK. that is really very very good.
+    we want to add the other uni/bip .
 
+  and we want to try and do spi read.
+  bit hard to know how it works - if get back 24 bytes.
+    except we control the clock... well spi does.
+*/
 
 static void dac_setup( void )
 {
