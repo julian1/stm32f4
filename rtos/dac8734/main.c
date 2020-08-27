@@ -64,6 +64,7 @@ static void msleep(uint32_t x)
 
 
 
+static uint8_t dac_read(void);
 
 static int last = 0;
 
@@ -73,10 +74,12 @@ static void led_blink_task2(void *args __attribute((unused))) {
 
 		gpio_toggle(LED_PORT, LED_OUT);
 
-    uart_printf("hi %d %d %d\n\r",
+    uart_printf("hi %d %d %d %d\n\r",
       last++,
       gpio_get(DAC_PORT, DAC_GPIO0),
-      gpio_get(DAC_PORT, DAC_GPIO1 )
+      gpio_get(DAC_PORT, DAC_GPIO1 ),
+
+      dac_read()
     );
 
     msleep(500);
@@ -104,6 +107,8 @@ static void dac_test(void *args __attribute((unused))) {
   and DACs to the values RST67I defined by the UNI/BIP pins, and sets the Gain
   Register and Zero Register to default values.
   */
+  // gpio_set(DAC_PORT, DAC_RST);
+  // msleep(50);
   gpio_clear(DAC_PORT, DAC_RST);
   msleep(50);
   gpio_set(DAC_PORT, DAC_RST);
@@ -122,13 +127,17 @@ static void dac_test(void *args __attribute((unused))) {
   bits are set to '1', and the GPIO-n pin goes to a high-impedancestate.
   */
 
+  // spi_xfer is 'data write and read'.
+  // think we should be using spi_send which does not return anything
+
   // first byte,
   spi_xfer(DAC_SPI, 0);
   // spi_xfer(DAC_SPI, 0);
-  spi_xfer(DAC_SPI, 0 | 1);               // dac gpio0 on
+  spi_xfer(DAC_SPI, 0 | 1 );           // dac gpio0 on
 
   // spi_xfer(DAC_SPI, 0);
-  spi_xfer(DAC_SPI, 0 /*| 0b10000000 */); // dac gpio1 on
+  // spi_xfer(DAC_SPI, 0 | 7 << 1 );//  /*| 0b10000000 */); // dac gpio1 on
+  spi_xfer(DAC_SPI, 0 | 1 << 7 );  // turn on
 
 
   gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
@@ -144,12 +153,54 @@ static void dac_test(void *args __attribute((unused))) {
   }
 }
 
+
+
+static uint8_t dac_read(void)
+{
+
+  gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
+
+
+  // first byte,
+  spi_xfer(DAC_SPI, 1 << 7 );   // top bit, to set to read. seems not to be interpreted
+  spi_xfer(DAC_SPI, 0 );
+  spi_xfer(DAC_SPI, 1 << 5 );   // 6th bit....
+  // spi_xfer(DAC_SPI, 0b00100000 );   // 6th bit - nop command
+
+
+  gpio_set(DAC_PORT_CS, DAC_CS);
+
+  msleep(1);
+
+  gpio_clear(DAC_PORT_CS, DAC_CS);
+  msleep(1);
+
+  uint8_t a = spi_xfer( DAC_SPI, 0x00 );
+  uint8_t b = spi_xfer( DAC_SPI, 0x00 );
+  uint8_t c = spi_xfer( DAC_SPI, 0x00 );
+
+#if 0
+  uint8_t a = spi_read( DAC_SPI );
+  uint8_t b = spi_read( DAC_SPI );
+  uint8_t c = spi_read( DAC_SPI );
+
+  gpio_set(DAC_PORT_CS, DAC_CS);  // CS active low
+
+  return b;
+#endif
+  return c;
+}
+
+// use spi_read
+
+
 /*
-  strange issue - when plug in to usb - its not initialized properly...
+  strange issue - when first plug into usb power - its not initialized properly...
   but reset run is ok.
   could be decoupling
   or because mcu starts with GPIO undefined?.. but when do 'reset run' the gpio is still defined because its
   a soft reset?
+  - Or check the reset pin is genuinely working? or some other sync issue?
 */
 
 /*
