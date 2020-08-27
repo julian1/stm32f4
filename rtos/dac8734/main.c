@@ -31,20 +31,19 @@
 #include "led.h"
 
 
+#define DAC_PORT_CS   GPIOA
+#define DAC_CS        GPIO4
 
 //
 #define DAC_SPI       SPI1
 
 // use spi1/ port A alternate function
-#define DAC_CS        GPIO4
 #define DAC_CLK       GPIO5
 #define DAC_MOSI      GPIO6
 #define DAC_MISO      GPIO7
 
 //  GPIOE
-#define DAC_PORT      GPIOE
-
-// THESE ARE WRONG...
+#define DAC_PORT      GPIOE   // GPIO1 is led.
 #define DAC_LDAC      GPIO2
 #define DAC_RST       GPIO3
 #define DAC_GPIO0     GPIO4  // gpio pe4   dac pin 8
@@ -112,13 +111,17 @@ static void dac_test(void *args __attribute((unused))) {
   // ldac latch clear - means should not need to touch again
   // will update after sending all 23 bytes
   // *** is not working... lets check reset.
-  // ok ldac is doing this 
-  gpio_set(DAC_PORT, DAC_LDAC);
+  // ok ldac is doing this
+  // gpio_set(DAC_PORT, DAC_LDAC);
+  gpio_clear(DAC_PORT, DAC_LDAC);
+
+  gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
+
   msleep(1);
   //gpio_clear(DAC_PORT, DAC_LDAC);   if we fall through... then we never
   // msleep(1);
 
-  /* 
+  /*
   Writing a '1' to the GPIO-0 bit puts the GPIO-1 pin into a Hi-Zstate(default).
   DB8 GPIO-01 Writing a '0' to the GPIO-0 bit forces the GPIO-1 pin low
 
@@ -138,18 +141,20 @@ static void dac_test(void *args __attribute((unused))) {
     - and CS is not asserted high at the end. in fact never changes.
         which means it will never latch.
   */
- 
+
   // p25.
   // not sure what CS/NSS does
   spi_xfer(DAC_SPI, 0 );
   spi_xfer(DAC_SPI, 0);
-  // spi_xfer(DAC_SPI, 0b1000000 );kkkk
-  spi_xfer(DAC_SPI, 0xff );       // OK. this is not being sent.
+  spi_xfer(DAC_SPI, 0 );
+  // spi_xfer(DAC_SPI, 0xff );       // OK. working pa7, pin 4 dac
+  // spi_xfer(DAC_SPI, 0b01010101 );
 
   msleep(1);
 
-  // this code appears to never get hit...
-  gpio_clear(DAC_PORT, DAC_LDAC);
+  gpio_set(DAC_PORT_CS, DAC_CS);
+
+  // gpio_clear(DAC_PORT, DAC_LDAC);
 
   // sleep forever
   // exiting a task thread isn't very good...
@@ -172,12 +177,12 @@ static void dac_setup( void )
 {
 
   // spi alternate function 5
-  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, DAC_CS | DAC_CLK | DAC_MOSI | DAC_MISO );
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,  DAC_CLK | DAC_MOSI | DAC_MISO );
 
-  gpio_set_af(GPIOA, GPIO_AF5, DAC_CS | DAC_CLK | DAC_MOSI | DAC_MISO );
+  gpio_set_af(GPIOA, GPIO_AF5,  DAC_CLK | DAC_MOSI | DAC_MISO );
 
   rcc_periph_clock_enable(RCC_SPI1);
-  spi_init_master(DAC_SPI, 
+  spi_init_master(DAC_SPI,
     SPI_CR1_BAUDRATE_FPCLK_DIV_4,
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
     SPI_CR1_CPHA_CLK_TRANSITION_1,
@@ -185,6 +190,10 @@ static void dac_setup( void )
     SPI_CR1_MSBFIRST);
   spi_enable_ss_output(DAC_SPI);
   spi_enable(DAC_SPI);
+
+
+  // CS same pin as alternate function, but use as io.
+  gpio_mode_setup(DAC_PORT_CS, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_CS);
 
   /////
   // other outputs
@@ -238,7 +247,7 @@ int main(void) {
   xTaskCreate(prompt_task,    "PROMPT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 
-  // ok.... 
+  // ok....
   xTaskCreate(dac_test,    "DAC_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 	vTaskStartScheduler();
