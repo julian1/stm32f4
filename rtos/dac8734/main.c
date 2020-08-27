@@ -121,8 +121,15 @@ static void dac_test(void *args __attribute((unused))) {
   */
 
   spi_xfer(DAC_SPI, 0);
-  spi_xfer(DAC_SPI, 0);
-  spi_xfer(DAC_SPI, 0);
+  // spi_xfer(DAC_SPI, 0);
+  spi_xfer(DAC_SPI, 0 | 1);     // dac gpio0 on
+
+  // spi_xfer(DAC_SPI, 0);
+  spi_xfer(DAC_SPI, 0 | 0b10000000 ); // dac gpio1 on 
+
+  // spi seems to be setting stuff on the rising edge.
+  // but chart shows falling edge.
+
   // spi_xfer(DAC_SPI, 0xff );       // OK. working pa7, pin 4 dac
   // spi_xfer(DAC_SPI, 0b01010101 );
 
@@ -140,14 +147,6 @@ static void dac_test(void *args __attribute((unused))) {
 }
 
 
-/*
-  OK. check with scope that spi is emitting stuff.
-  check RST works
-  check that CS is
-  check that latch gate is working as gpio
-  check mosi to SDI
-*/
-
 
 static void dac_setup( void )
 {
@@ -161,7 +160,7 @@ static void dac_setup( void )
   spi_init_master(DAC_SPI,
     SPI_CR1_BAUDRATE_FPCLK_DIV_4,
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
-    SPI_CR1_CPHA_CLK_TRANSITION_1,
+    SPI_CR1_CPHA_CLK_TRANSITION_2,    // 1 == rising edge, 2 == falling edge.
     SPI_CR1_DFF_8BIT,
     SPI_CR1_MSBFIRST);
   spi_enable_ss_output(DAC_SPI);
