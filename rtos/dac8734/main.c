@@ -132,11 +132,10 @@ static void dac_test(void *args __attribute((unused))) {
 
   // first byte,
   spi_xfer(DAC_SPI, 0);
-  // spi_xfer(DAC_SPI, 0);
+  //spi_xfer(DAC_SPI, 0);
   spi_xfer(DAC_SPI, 0 | 1 );           // dac gpio0 on
 
   // spi_xfer(DAC_SPI, 0);
-  // spi_xfer(DAC_SPI, 0 | 7 << 1 );//  /*| 0b10000000 */); // dac gpio1 on
   spi_xfer(DAC_SPI, 0 | 1 << 7 );  // turn on
 
 
