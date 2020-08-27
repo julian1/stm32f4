@@ -107,6 +107,18 @@ static void dac_write_register(uint32_t r)
 }
 
 
+static void dac_write_register1(uint32_t r)
+{
+  gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
+  // msleep(1);
+  dac_write_register( r );        // writes,
+  msleep(1); // required
+  gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
+
+}
+
+
+
 
 // static void msleep(int
 
@@ -129,7 +141,8 @@ static void dac_test(void *args __attribute((unused))) {
   // gpio_set(DAC_PORT, DAC_RST);
   // msleep(50);
   gpio_clear(DAC_PORT, DAC_RST);
-  msleep(50);
+  msleep(100);
+
   gpio_set(DAC_PORT, DAC_RST);
 
   gpio_clear(DAC_PORT, DAC_LDAC);   // keep latch low, and unused, unless chaining
@@ -153,10 +166,12 @@ static void dac_test(void *args __attribute((unused))) {
   // dac_write_register(  1 << 8 | 1 << 7 );
 
   // dac_write_register( 1 << 22 | 1 << 8 | 1 << 6 ); // read and nop
-  // dac_write_register( 1 << 8  | 1 << 6 );      // nop
+  // dac_write_register( 1 << 8  | 1 << 6 );      // nop, does nothing
   // dac_write_register( 1 << 22 | 1 << 8 );      // writes, it shouldn't though...
-  dac_write_register( 0 );        // writes,
-  dac_write_register( 1 << 7  );  // turns off.
+  dac_write_register( 0 );        // turns off ,
+  // dac_write_register( 1 << 7  );
+
+  // very strange - code does not initialize properly... when plugged...
 
   /*********
   // reset gives gpio values = 1, which is high-z, therefore pulled hi.
@@ -176,11 +191,12 @@ static void dac_test(void *args __attribute((unused))) {
   }
 }
 
-// ok. it starts 
 
 
 static uint8_t dac_read(void)
 {
+
+
   /*
     OK.
       some timing diagrams are weird. BUT
@@ -206,13 +222,8 @@ static uint8_t dac_read(void)
     better choice would be to bit-bash.
 */
 
-  return 66;
+  // dac_write_register1( 0 );
 
-  gpio_clear(DAC_PORT_CS, DAC_CS);
-  dac_write_register( 0   );
-
-  msleep(1); // required...
-  gpio_set(DAC_PORT_CS, DAC_CS);
 
 
                                                 // very strange
