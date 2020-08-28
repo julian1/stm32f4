@@ -106,7 +106,7 @@ static void dac_write_register1(uint32_t r)   // change name dac_write_register_
 
 
 
-static void dac_test(void *args __attribute((unused))) 
+static void dac_test(void *args __attribute((unused)))
 {
   /*
   Reset input (active low). Logic low on this pin resets the input registers
@@ -114,8 +114,17 @@ static void dac_test(void *args __attribute((unused)))
   Register and Zero Register to default values.
   */
 
+  // do latch first... not sure if makes a difference
+  gpio_clear(DAC_PORT, DAC_LDAC);   // keep latch low, and unused, unless chaining
+
   msleep(1000);   // 500ms not long enough. on cold power-up.
                   // 1s ok.
+                  // actually sometimes 1s. fails.
+                  // maybe issue with latch...
+                  // Ok. 500ms was ok. when clear latch first.
+                  // and 250ms was ok.
+                  // actually nope. it must have been running from cap charge.  10secs no good.
+
 
   uart_printf("dac test\n\r");
 
@@ -126,20 +135,21 @@ static void dac_test(void *args __attribute((unused)))
   msleep(100);
 
 
-  gpio_clear(DAC_PORT, DAC_LDAC);   // keep latch low, and unused, unless chaining
 
   msleep(1);
   gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
   msleep(1);
 
   /*
-    we need to control the 3.3V power rail - without unplugging the usb all the time
-      and having to reset openocd
+    we need to control the general 3.3V power rail, as well without unplugging the usb all the time
+      and having to reset openocd.
     -------
     actually perhaps we need to control the 3.3V power for the dac.
     not. sure
     turn on only after have everything set up. no. better to give it power first?
     i think.
+    --------
+    would it make it easier to test things - if could power everything separately.
   */
 
   /*
@@ -273,7 +283,7 @@ int main(void) {
 
 
 
-  
+
 
 /*
   // first byte,
