@@ -124,6 +124,10 @@ static void dac_test(void *args __attribute((unused)))
                   // Ok. 500ms was ok. when clear latch first.
                   // and 250ms was ok.
                   // actually nope. it must have been running from cap charge.  10secs usb unplug no good.
+                  // ----------
+                  // Maybe need to pull reset low - as first gpio configuration action, before configure spi etc.
+                  // Also could be rails, need to be pulled to ground - first, and there is stray capacitance on them.
+                  // Also could be,
 
 
   uart_printf("dac test\n\r");
