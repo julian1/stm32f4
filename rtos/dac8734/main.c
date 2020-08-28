@@ -58,13 +58,12 @@
 
 static void msleep(uint32_t x)
 {
-  // only works in a task thread... not main initialization thread
+  // only works in a task thread... do not run in main initialization thread
   vTaskDelay(pdMS_TO_TICKS(  x  )); // 1Hz
 }
 
 
 
-static uint8_t dac_read(void);
 
 static int last = 0;
 
@@ -74,29 +73,17 @@ static void led_blink_task2(void *args __attribute((unused))) {
 
 		gpio_toggle(LED_PORT, LED_OUT);
 
-    uart_printf("hi %d %d %d %d\n\r",
+    uart_printf("hi %d %d %d\n\r",
       last++,
       gpio_get(DAC_PORT, DAC_GPIO0),
-      gpio_get(DAC_PORT, DAC_GPIO1 ),
+      gpio_get(DAC_PORT, DAC_GPIO1 )
 
-      dac_read()
     );
 
     msleep(500);
-		// vTaskDelay(pdMS_TO_TICKS(  500  )); // 1Hz
-		// vTaskDelay(pdMS_TO_TICKS(  100  )); // 10Hz
   }
 }
 
-
-#if 0
-  spi_send(DAC_SPI, 0);
-  //spi_send(DAC_SPI, 0);
-  spi_send(DAC_SPI, 0 | 1 );           // dac gpio1 on
-
-  // spi_send(DAC_SPI, 0);
-  spi_send(DAC_SPI, 0 | 1 << 7 );  // turn on gpio0
-#endif
 
 
 static void dac_write_register(uint32_t r)
@@ -117,47 +104,27 @@ static void dac_write_register1(uint32_t r)   // change name dac_write_register_
 }
 
 
-/*
-  why init fails on board power-up
-  check
-    - added a cap.
-      - lets put a 10uF or 22uF. inline.
-    - on scope weird pulse. rst or ldac pulse.
-    - power rails
-
-  or there is another rst signal that comes along and screws it...
-  ----
-
-  so the mcu is brought up in a weird state?
-  or the dac.
-  
-
-*/
 
 
-
-static void dac_test(void *args __attribute((unused))) {
-
-  // indicate we are here
-  int i;
-  for( i = 0; i < 10; ++i ) {
-		gpio_toggle(LED_PORT, LED_OUT);
-    msleep(50);
-  }
-
-  // gpio_clear(DAC_PORT, DAC_UNIBIPB);
-
+static void dac_test(void *args __attribute((unused))) 
+{
   /*
   Reset input (active low). Logic low on this pin resets the input registers
   and DACs to the values RST67I defined by the UNI/BIP pins, and sets the Gain
   Register and Zero Register to default values.
   */
-  // gpio_set(DAC_PORT, DAC_RST);
-  // msleep(50);
+
+  msleep(1000);   // 500ms not long enough. on cold power-up.
+                  // 1s ok.
+
+  uart_printf("dac test\n\r");
+
+
   gpio_clear(DAC_PORT, DAC_RST);
   msleep(100);
-
   gpio_set(DAC_PORT, DAC_RST);
+  msleep(100);
+
 
   gpio_clear(DAC_PORT, DAC_LDAC);   // keep latch low, and unused, unless chaining
 
@@ -165,6 +132,15 @@ static void dac_test(void *args __attribute((unused))) {
   gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
   msleep(1);
 
+  /*
+    we need to control the 3.3V power rail - without unplugging the usb all the time
+      and having to reset openocd
+    -------
+    actually perhaps we need to control the 3.3V power for the dac.
+    not. sure
+    turn on only after have everything set up. no. better to give it power first?
+    i think.
+  */
 
   /*
   Writing a '1' to the GPIO-0 bit puts the GPIO-1 pin into a Hi-Z state(default).
@@ -207,81 +183,17 @@ static void dac_test(void *args __attribute((unused))) {
 
 
 
-static uint8_t dac_read(void)
-{
-
-
-  /*
-    OK.
-      some timing diagrams are weird. BUT
-
-      case 5. p11.  for standalone mode. read timing is fine. see p11.
-  */
-
-/*
-    OK. issue is that spi_xfer attempts to read after sending a full byte
-    while we want simultaneous. read/write.
-    Not sure if supported or can do it without bit-bashing supported.
-
-    spi_xfer,
-      "Data is written to the SPI interface, then a read is done after the incoming transfer has finished."
-
-    issue is that we cannot just clock it out.
-    instead we have to send a no-op, while clocing it out.
-
-    BUT. if we used a separate spi channel for input.
-    Then we could do the write.
-    while simultaneously doing a blocking read in another thread.
-    pretty damn ugly.
-    better choice would be to bit-bash.
-*/
-
-  // dac_write_register1( 0 );
-
-
-
-                                                // very strange
-  return 123;   // c value is 128... eg. 10000000 this was kind of correct for the gpio1 in last byte. ....
-              // so appear to be getting something out....
-              // but really need to look at it on a scope
-
-              // b is now returning 1....
-              // c is returning 2.
-}
-
-// use spi_read
-
-
-/*
-  strange issue - when first plug into usb power - its not initialized properly...
-  but reset run is ok.
-  could be decoupling
-  or because mcu starts with GPIO undefined?.. but when do 'reset run' the gpio is still defined because its
-  a soft reset?
-  - Or check the reset pin is genuinely working? or some other sync issue?
-*/
-
-/*
-  OK. that is really very very good.
-    we want to add the other uni/bip .
-
-  and we want to try and do spi read.
-  bit hard to know how it works - if get back 24 bytes.
-    except we control the clock... well spi does.
-
-  having gpio output is actually kind of useful - for different functions . albeit we would just use mcu.
-  likewise the mixer.
-*/
-
 static void dac_setup( void )
 {
+
+  uart_printf("dac gpio/af setup\n\r");
 
   // spi alternate function 5
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,  DAC_CLK | DAC_MOSI | DAC_MISO );
 
   gpio_set_af(GPIOA, GPIO_AF5,  DAC_CLK | DAC_MOSI | DAC_MISO );
 
-  rcc_periph_clock_enable(RCC_SPI1);
+  // rcc_periph_clock_enable(RCC_SPI1);
   spi_init_master(DAC_SPI,
     SPI_CR1_BAUDRATE_FPCLK_DIV_4,
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
@@ -297,7 +209,12 @@ static void dac_setup( void )
 
   /////
   // other outputs
-  gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_LDAC | DAC_RST | DAC_UNIBIPA | DAC_UNIBIPB);
+  /// gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_LDAC  | DAC_UNIBIPA | DAC_UNIBIPB);
+  // gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, DAC_RST );
+
+  // internal pu, doesn't change anything - because its powered off, and starts up high-Z.
+  gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC | DAC_UNIBIPA | DAC_UNIBIPB);
+
 
 
   // dac gpio inputs, pullups work
@@ -355,6 +272,9 @@ int main(void) {
 }
 
 
+
+  
+
 /*
   // first byte,
   spi_send(DAC_SPI, 0);
@@ -364,4 +284,85 @@ int main(void) {
   // spi_send(DAC_SPI, 0);
   spi_send(DAC_SPI, 0 | 1 << 7 );  // turn on gpio0
 */
+
+#if 0
+static uint8_t dac_read(void)
+{
+
+
+  /*
+    OK.
+      some timing diagrams are weird. BUT
+
+      case 5. p11.  for standalone mode. read timing is fine. see p11.
+  */
+
+/*
+    OK. issue is that spi_xfer attempts to read after sending a full byte
+    while we want simultaneous. read/write.
+    Not sure if supported or can do it without bit-bashing supported.
+
+    spi_xfer,
+      "Data is written to the SPI interface, then a read is done after the incoming transfer has finished."
+
+    issue is that we cannot just clock it out.
+    instead we have to send a no-op, while clocing it out.
+
+    BUT. if we used a separate spi channel for input.
+    Then we could do the write.
+    while simultaneously doing a blocking read in another thread.
+    pretty damn ugly.
+    better choice would be to bit-bash.
+*/
+
+  // dac_write_register1( 0 );
+
+
+
+                                                // very strange
+  return 123;   // c value is 128... eg. 10000000 this was kind of correct for the gpio1 in last byte. ....
+              // so appear to be getting something out....
+              // but really need to look at it on a scope
+
+              // b is now returning 1....
+              // c is returning 2.
+}
+#endif
+
+// use spi_read
+
+
+/*
+  strange issue - when first plug into usb power - its not initialized properly...
+  but reset run is ok.
+  could be decoupling
+  or because mcu starts with GPIO undefined?.. but when do 'reset run' the gpio is still defined because its
+  a soft reset?
+  - Or check the reset pin is genuinely working? or some other sync issue?
+*/
+
+/*
+  OK. that is really very very good.
+    we want to add the other uni/bip .
+
+  and we want to try and do spi read.
+  bit hard to know how it works - if get back 24 bytes.
+    except we control the clock... well spi does.
+
+  having gpio output is actually kind of useful - for different functions . albeit we would just use mcu.
+  likewise the mixer.
+  ---
+
+  ok added external 10k pu. does not help. bloody weird.
+
+*/
+#if 0
+  spi_send(DAC_SPI, 0);
+  //spi_send(DAC_SPI, 0);
+  spi_send(DAC_SPI, 0 | 1 );           // dac gpio1 on
+
+  // spi_send(DAC_SPI, 0);
+  spi_send(DAC_SPI, 0 | 1 << 7 );  // turn on gpio0
+#endif
+
 
