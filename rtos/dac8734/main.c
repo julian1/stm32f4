@@ -123,7 +123,7 @@ static void dac_test(void *args __attribute((unused)))
                   // maybe issue with latch...
                   // Ok. 500ms was ok. when clear latch first.
                   // and 250ms was ok.
-                  // actually nope. it must have been running from cap charge.  10secs no good.
+                  // actually nope. it must have been running from cap charge.  10secs usb unplug no good.
 
 
   uart_printf("dac test\n\r");
