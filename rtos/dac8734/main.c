@@ -120,10 +120,18 @@ static void dac_write_register1(uint32_t r)   // change name dac_write_register_
 /*
   why init fails on board power-up
   check
+    - added a cap.
+      - lets put a 10uF or 22uF. inline.
     - on scope weird pulse. rst or ldac pulse.
     - power rails
 
-  another rst signal would screw it...
+  or there is another rst signal that comes along and screws it...
+  ----
+
+  so the mcu is brought up in a weird state?
+  or the dac.
+  
+
 */
 
 
