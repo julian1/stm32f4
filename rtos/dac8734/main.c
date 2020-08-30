@@ -197,7 +197,7 @@ static void dac_test(void *args __attribute((unused)))
   // should not draw current... and more current when ref is higher.
 
   // touching either of the refs with 3V.. fails... check for oscillation? no.
-  // because it's not floating?
+  // because siggen ground is not floating?
 
   msleep(100);
 
