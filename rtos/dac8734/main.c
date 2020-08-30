@@ -211,6 +211,7 @@ static void dac_test(void *args __attribute((unused)))
 
   // 5) LDAC register behavior is possibly different for dac registers than general registers?
   // 6) is the REF supposed to be a shunt or something? or negative?
+  // 7) we should be able to do a read of a register - even if overwriting it / using mcu spi ... good to test
 
   // problem we cannot write any register cleanly without affecting other bits - if we cannot read register first
   // to OR the values.
