@@ -43,7 +43,8 @@
 #define DAC_MISO      GPIO7
 
 //  GPIOE
-#define DAC_PORT      GPIOE   // GPIO1 is led.
+#define DAC_PORT      GPIOE   
+// GPIO1 is led.
 #define DAC_LDAC      GPIO2
 #define DAC_RST       GPIO3
 #define DAC_GPIO0     GPIO4  // gpio pe4   dac pin 8
@@ -51,8 +52,12 @@
 #define DAC_UNIBIPA   GPIO6
 #define DAC_UNIBIPB   GPIO7
 
+// rails...  can we do it in order...
+#define RAILS_PORT    GPIOE   
+#define RAILS_POS     GPIO8   // pull high to turn on.
+#define RAILS_NEG     GPIO9   // pull low to turn on
 
-
+#define VREF          GPIO10
 
 
 
@@ -139,10 +144,11 @@ static void dac_test(void *args __attribute((unused)))
   msleep(100);
 
 
+  dac_write_register1( 0);
 
-  msleep(1);
-  gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
-  msleep(1);
+  // msleep(1);
+  // gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
+  // msleep(1);
 
   /*
     we need to control the general 3.3V power rail, as well without unplugging the usb all the time
@@ -172,7 +178,7 @@ static void dac_test(void *args __attribute((unused)))
   // dac_write_register( 1 << 22 | 1 << 8 | 1 << 6 ); // read and nop
   // dac_write_register( 1 << 8  | 1 << 6 );      // nop, does nothing
   // dac_write_register( 1 << 22 | 1 << 8 );      // writes, it shouldn't though...
-  dac_write_register( 0 );        // turns off ,
+  // dac_write_register( 0 );        // turns off ,
   // dac_write_register( 1 << 7  );
 
   // very strange - code does not initialize properly... when plugged...
@@ -182,8 +188,8 @@ static void dac_test(void *args __attribute((unused)))
   // setting to 0 will clear.
   **********/
 
-  msleep(1); // required
-  gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
+  // msleep(1); // required
+  // gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
 
 
   // gpio_clear(DAC_PORT, DAC_LDAC);
@@ -237,6 +243,35 @@ static void dac_setup( void )
 
 
 
+
+static void rails_setup( void )
+{
+
+  uart_printf("rails setup\n\r");
+
+  // IMPORTANT ---- define with appropriate PULL ups / pull downs - so 
+  // so that they emerge from high-Z with correct output...
+
+  // actually - almost certainly needs the value defined as well...
+
+  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT,  GPIO_PUPD_NONE /*GPIO_PUPD_PULLDOWN */, RAILS_POS  );
+  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT,  GPIO_PUPD_PULLUP,   RAILS_NEG );
+
+  // that they emerge in the right state
+  // turn off
+  // gpio_clear(RAILS_PORT, RAILS_POS);     
+  // gpio_set  (RAILS_PORT, RAILS_NEG);     
+
+
+  // turn on.
+  gpio_set  (RAILS_PORT, RAILS_POS);     
+  gpio_clear(RAILS_PORT, RAILS_NEG);     
+
+}
+
+
+
+
 // OK. do we have a sleep function for bit bashing...?
 
 int main(void) {
@@ -264,7 +299,7 @@ int main(void) {
 
   dac_setup();
 
-
+  rails_setup();
 
   ///////////////
   // tasks
