@@ -151,7 +151,7 @@ static void dac_test(void *args __attribute((unused)))
   msleep(100);
 
 
-  uart_printf("gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+  uart_printf("dac gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
 /*
   // TODO - IMPORTANT - remove this.  just clear gpio pins separately if need to.
@@ -222,11 +222,10 @@ static void dac_test(void *args __attribute((unused)))
 
   //////////////
 
-
-/*
-  // we cannot clear pins - without also clearing default values
+  /*
+  // we cannot clear pins - without also clearing default values, because cannot OR...  without read value
   // dac_write_register1( 0b00000000 << 16 | 1 << 8 | 1 << 7  ); // write gpio pins
-*/
+ */
 
   uart_printf("writing dac register 1\n\r");
   dac_write_register1( 0b00000101 << 16 | 0x7f7f   ); // write dac 1.
@@ -247,7 +246,7 @@ static void dac_test(void *args __attribute((unused)))
   time the LDAC pin was brought low or the LD bit in the CommandRegister was set
   to'1', there by eliminating any unnecessary glitch.
 */
-  uart_printf("gpio read now %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+  uart_printf("dac gpio read now %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
   msleep(100);
 
 
