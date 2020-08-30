@@ -43,7 +43,7 @@
 #define DAC_MISO      GPIO7
 
 //  GPIOE
-#define DAC_PORT      GPIOE   
+#define DAC_PORT      GPIOE
 // GPIO1 is led.
 #define DAC_LDAC      GPIO2
 #define DAC_RST       GPIO3
@@ -53,7 +53,7 @@
 #define DAC_UNIBIPB   GPIO7
 
 // rails...  can we do it in order...
-#define RAILS_PORT    GPIOE   
+#define RAILS_PORT    GPIOE
 // #define RAILS_POS     GPIO8   // pull high to turn on.  I think we fucked this port...
 
 #define RAILS_NEG     GPIO9   // pull low to turn on
@@ -71,7 +71,7 @@ static void msleep(uint32_t x)
 
 
 
-static int last = 0;
+// static int last = 0;
 
 static void led_blink_task2(void *args __attribute((unused))) {
 
@@ -79,13 +79,14 @@ static void led_blink_task2(void *args __attribute((unused))) {
 
 		gpio_toggle(LED_PORT, LED_OUT);
 
+/*
     uart_printf("hi %d %d %d\n\r",
       last++,
       gpio_get(DAC_PORT, DAC_GPIO0),
       gpio_get(DAC_PORT, DAC_GPIO1 )
 
     );
-
+*/
     msleep(500);
   }
 }
@@ -136,8 +137,7 @@ static void dac_test(void *args __attribute((unused)))
                   // Also could be,
 
 
-  uart_printf("dac test\n\r");
-
+  uart_printf("dac reset\n\r");
 
   gpio_clear(DAC_PORT, DAC_RST);
   msleep(100);
@@ -145,7 +145,34 @@ static void dac_test(void *args __attribute((unused)))
   msleep(100);
 
 
+  uart_printf("dac clear\n\r");
   dac_write_register1( 0);
+
+
+
+  uart_printf("dac gpio %d %d\n\r",
+    gpio_get(DAC_PORT, DAC_GPIO0),
+    gpio_get(DAC_PORT, DAC_GPIO1));
+
+
+
+  // check gpio was set... else exit.
+
+  /*
+  34,the digital supplies (DVDD and IOVDD) and logic inputs (UNI/BIP-x) must be
+  applied before AVSS and AVDD. Additionally, AVSS must be applied before AVDD
+  unless both can ramp up at the same time. REF-x should be applied after AVDD
+  comes up in order to make sure the ESD protection circuitry does not turn on.
+  */
+
+  msleep(1000);
+  uart_printf("turn rails on \n\r");
+  gpio_clear(RAILS_PORT, RAILS_NEG);
+  msleep(100);
+  gpio_set  (RAILS_PORT, RAILS_POS);
+
+
+
 
   // sleep forever
   // exiting a task thread isn't very good...
@@ -203,24 +230,25 @@ static void rails_setup( void )
   uart_printf("rails setup\n\r");
 
 
-  // ok. define before enabling... 
+  // ok. define before enabling...
   // if we do this after setup - then the neg rail, needs high, will glitch on reset.
   // turn off
-  gpio_clear(RAILS_PORT, RAILS_POS);     
-  gpio_set  (RAILS_PORT, RAILS_NEG);     
+
+  uart_printf("rails off \n\r");
+  gpio_clear(RAILS_PORT, RAILS_POS);
+  gpio_set  (RAILS_PORT, RAILS_NEG);
 
 
   gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT,  GPIO_PUPD_NONE /*GPIO_PUPD_PULLDOWN */, RAILS_POS  );
   gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT,  GPIO_PUPD_NONE /*GPIO_PUPD_PULLUP*/,   RAILS_NEG );
-  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT,  GPIO_PUPD_NONE ,   GPIO8 ); // broken.. gpio. 
+  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT,  GPIO_PUPD_NONE ,   GPIO8 ); // broken.. gpio.
 
 
   // OK. on reset there is no glitch. for neg rail. or pos rail. but there is when 3.3V power first applied . 250nS.
 
-  uart_printf("rails pos on \n\r");
 
 
-  // gpio_clear (RAILS_PORT, RAILS_NEG);    // turn on... eg. pull p-chan gate down from 3.3V to 0. 
+  // gpio_clear (RAILS_PORT, RAILS_NEG);    // turn on... eg. pull p-chan gate down from 3.3V to 0.
 
   // OK - problem - our p-chan fet for neg rail is barely turning on.
   // to pull up the n-chan gate.
@@ -232,7 +260,7 @@ static void rails_setup( void )
   // if use 1k / 10k. it doesn't turn on at all.
   // if use without input resistor - it barely turns on.
   ///// /HMMMMM
-  
+
   // no it does glitch.
   // but why? because of weako
 
@@ -247,26 +275,27 @@ static void rails_setup( void )
   // and now we cannot trigger it...
 
   // ok added a 22uF cap as well...   glitching is only occasional and slight.c
-  
+  // powering on the other stmicro - 3.3V supply helps a bit also.
+
 
 }
 
 
 /*
   OK. its complicated.
-    the fet comes on as 3V is applied... 
-    BUT what happens if 
+    the fet comes on as 3V is applied...
+    BUT what happens if
     if have rail voltage and no 3V. should be ok. because of biasing.
 
   When we first plug in- we get a high side pulse.
     about 250nS.
 
     Looks like the gate gets some spikes.
-    OK. but what about a small cap... 
+    OK. but what about a small cap...
   ----
   ok 1nF helps
   but there's still a 20nS pulse... that turns on the gateo
-  -- 
+  --
   OK. both rails glitch at power-on.
   ...
   fuck.
