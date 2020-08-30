@@ -95,6 +95,7 @@ static void led_blink_task2(void *args __attribute((unused))) {
 
 static void dac_write_register(uint32_t r)
 {
+  // yes... amount is on the right 
   spi_send( DAC_SPI, (r >> 16) & 0xff );
   spi_send( DAC_SPI, (r >> 8) & 0xff  );
   spi_send( DAC_SPI, r & 0xff  );  // depending on what we set this we get different values back in c.
@@ -145,14 +146,13 @@ static void dac_test(void *args __attribute((unused)))
   msleep(100);
 
 
+  uart_printf("gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+
   uart_printf("dac clear\n\r");
   dac_write_register1( 0);
 
 
-
-  uart_printf("dac gpio %d %d\n\r",
-    gpio_get(DAC_PORT, DAC_GPIO0),
-    gpio_get(DAC_PORT, DAC_GPIO1));
+  uart_printf("gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
 
 
@@ -172,7 +172,38 @@ static void dac_test(void *args __attribute((unused)))
   gpio_set  (RAILS_PORT, RAILS_POS);
 
 
+  // OK. seems to be an issue - when we turn the voltage ref on..
+  // then it sucks 10mA on both rails.
+  // doesn't seem right... but doesn't go current mode?
+  // but its not CC. so maybe under 10mA.
 
+  msleep(100);
+
+  //////////////
+  uart_printf("writing a register \n\r");
+
+  // dac_write_register1( 0b00000000 << 16 | 1 << 8 | 1 << 7  );
+  // dac_write_register1(  0b10000000     ); // ok this isn't working ...
+  
+  ///                                                                  
+  gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
+  // msleep(1);
+  spi_send(DAC_SPI, 0);
+  spi_send(DAC_SPI, 0 | 1 );           // dac gpio1 on
+  spi_send(DAC_SPI, 0 | 1 << 7  );  // turn on gpio0
+
+  msleep(1); // required
+  gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
+  msleep(1); // required
+
+
+  uart_printf("gpio read now %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+  msleep(100);
+
+  //////////////
+
+  dac_write_register1( 0b00000101 << 16 | 0xffff );
+  dac_write_register1( 0b00000101 << 15 | 0xffff );
 
   // sleep forever
   // exiting a task thread isn't very good...
