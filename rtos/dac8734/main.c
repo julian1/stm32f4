@@ -193,6 +193,12 @@ static void dac_test(void *args __attribute((unused)))
 
   // OK. we should set the uni/pol . shouldn't matter. any value will do... it is output configured?
 
+  // OKK. no. i think there is something weird... perhaps pinout...
+  // should not draw current... and more current when ref is higher.
+
+  // touching either of the refs with 3V.. fails... check for oscillation? no.
+  // because it's not floating?
+
   msleep(100);
 
   //////////////
