@@ -146,54 +146,6 @@ static void dac_test(void *args __attribute((unused)))
 
   dac_write_register1( 0);
 
-  // msleep(1);
-  // gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
-  // msleep(1);
-
-  /*
-    we need to control the general 3.3V power rail, as well without unplugging the usb all the time
-      and having to reset openocd.
-    -------
-    actually perhaps we need to control the 3.3V power for the dac.
-    not. sure
-    turn on only after have everything set up. no. better to give it power first?
-    i think.
-    --------
-    would it make it easier to test things - if could power everything separately.
-  */
-
-  /*
-  Writing a '1' to the GPIO-0 bit puts the GPIO-1 pin into a Hi-Z state(default).
-  DB8 GPIO-01 Writing a '0' to the GPIO-0 bit forces the GPIO-1 pin low
-
-  p22 After a power-on reset or any forced hardware or software reset, all GPIO-n
-  bits are set to '1', and the GPIO-n pin goes to a high-impedancestate.
-  */
-
-  // spi_xfer is 'data write and read'.
-  // think we should be using spi_send which does not return anything
-
-  // dac_write_register(  1 << 8 | 1 << 7 );
-
-  // dac_write_register( 1 << 22 | 1 << 8 | 1 << 6 ); // read and nop
-  // dac_write_register( 1 << 8  | 1 << 6 );      // nop, does nothing
-  // dac_write_register( 1 << 22 | 1 << 8 );      // writes, it shouldn't though...
-  // dac_write_register( 0 );        // turns off ,
-  // dac_write_register( 1 << 7  );
-
-  // very strange - code does not initialize properly... when plugged...
-
-  /*********
-  // reset gives gpio values = 1, which is high-z, therefore pulled hi.
-  // setting to 0 will clear.
-  **********/
-
-  // msleep(1); // required
-  // gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
-
-
-  // gpio_clear(DAC_PORT, DAC_LDAC);
-
   // sleep forever
   // exiting a task thread isn't very good...
   for(;;) {
@@ -255,7 +207,7 @@ static void rails_setup( void )
   // actually - almost certainly needs the value defined as well...
 
   gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT,  GPIO_PUPD_NONE /*GPIO_PUPD_PULLDOWN */, RAILS_POS  );
-  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT,  GPIO_PUPD_PULLUP,   RAILS_NEG );
+  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT,  GPIO_PUPD_NONE /*GPIO_PUPD_PULLUP*/,   RAILS_NEG );
 
   // that they emerge in the right state
   // turn off
@@ -297,6 +249,9 @@ int main(void) {
   led_setup();
   usart_setup();
 
+
+  uart_printf("--------\n\r");
+
   dac_setup();
 
   rails_setup();
@@ -321,6 +276,64 @@ int main(void) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+  // msleep(1);
+  // gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
+  // msleep(1);
+
+  /*
+    we need to control the general 3.3V power rail, as well without unplugging the usb all the time
+      and having to reset openocd.
+    -------
+    actually perhaps we need to control the 3.3V power for the dac.
+    not. sure
+    turn on only after have everything set up. no. better to give it power first?
+    i think.
+    --------
+    would it make it easier to test things - if could power everything separately.
+  */
+
+  /*
+  Writing a '1' to the GPIO-0 bit puts the GPIO-1 pin into a Hi-Z state(default).
+  DB8 GPIO-01 Writing a '0' to the GPIO-0 bit forces the GPIO-1 pin low
+
+  p22 After a power-on reset or any forced hardware or software reset, all GPIO-n
+  bits are set to '1', and the GPIO-n pin goes to a high-impedancestate.
+  */
+
+  // spi_xfer is 'data write and read'.
+  // think we should be using spi_send which does not return anything
+
+  // dac_write_register(  1 << 8 | 1 << 7 );
+
+  // dac_write_register( 1 << 22 | 1 << 8 | 1 << 6 ); // read and nop
+  // dac_write_register( 1 << 8  | 1 << 6 );      // nop, does nothing
+  // dac_write_register( 1 << 22 | 1 << 8 );      // writes, it shouldn't though...
+  // dac_write_register( 0 );        // turns off ,
+  // dac_write_register( 1 << 7  );
+
+  // very strange - code does not initialize properly... when plugged...
+
+  /*********
+  // reset gives gpio values = 1, which is high-z, therefore pulled hi.
+  // setting to 0 will clear.
+  **********/
+
+  // msleep(1); // required
+  // gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
+
+
+  // gpio_clear(DAC_PORT, DAC_LDAC);
 
 
 
