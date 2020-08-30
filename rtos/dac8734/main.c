@@ -95,7 +95,7 @@ static void led_blink_task2(void *args __attribute((unused))) {
 
 static void dac_write_register(uint32_t r)
 {
-  // yes... amount is on the right 
+  // yes... amount is on the right
   spi_send( DAC_SPI, (r >> 16) & 0xff );
   spi_send( DAC_SPI, (r >> 8) & 0xff  );
   spi_send( DAC_SPI, r & 0xff  );  // depending on what we set this we get different values back in c.
@@ -201,10 +201,19 @@ static void dac_test(void *args __attribute((unused)))
   // because siggen ground is not floating?
 
   ////////********
-  // 0) test if AIN / MON work. - eg. can write register for selection properly. and fb is what we expect. 
+  // 0) test if AIN / MON work. - eg. can write register for selection properly. and fb is what we expect.
   // 1) perhaps there is a solder bridge... somewhere - around the refs.
   // 2) DO NOT  write the 0 register with 0 on init there is no need.
   // 3) other pins - need fb circuits setup -- perhaps oscillating?
+  // 4) don't modify any register - but check if still have high current draw issue. and can also try to write dac register.
+          // should try not to modify - the primary register at all - in case writing 0 in all bits is causing problems.
+          // but can still write the monitor, or dac registers with values. ok.
+
+  // problem we cannot write any register cleanly without affecting other bits - if we cannot read register first
+  // to OR the values.
+  // FUCK. even still it shouldn't matter - if we know the default values...
+
+
 
   msleep(100);
 
@@ -217,7 +226,7 @@ static void dac_test(void *args __attribute((unused)))
 
   dac_write_register1( 0b00000101 << 16 | 0x7f7f   ); // write dac 1.
 
-  msleep(1);  // must wait for update - before we read 
+  msleep(1);  // must wait for update - before we read
 
   uart_printf("gpio read now %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
   msleep(100);
