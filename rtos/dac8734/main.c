@@ -111,7 +111,12 @@ static void dac_write_register1(uint32_t r)   // change name dac_write_register_
   gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
 }
 
-
+/*
+static void dac_write_register2(uint32_t a, uint32_t d)   // change name dac_write_register_cs
+{
+  // address/ data/
+}
+*/
 
 
 static void dac_test(void *args __attribute((unused)))
@@ -176,6 +181,17 @@ static void dac_test(void *args __attribute((unused)))
   // then it sucks 10mA on both rails.
   // doesn't seem right... but doesn't go current mode?
   // but its not CC. so maybe under 10mA.
+
+  // don't need to have anything else connected...
+  // are other pins - needing fb?
+
+  /////
+  // if cannot get working - then should test if can get AIN MON to work. eg. feed it a voltage.
+  // and see if can get muxer to work - to select alternative input.
+  // this would verify register writing.
+  // and test.
+
+  // OK. we should set the uni/pol . shouldn't matter. any value will do... it is output configured?
 
   msleep(100);
 
