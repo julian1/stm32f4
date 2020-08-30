@@ -182,20 +182,11 @@ static void dac_test(void *args __attribute((unused)))
   //////////////
   uart_printf("writing a register \n\r");
 
-  // dac_write_register1( 0b00000000 << 16 | 1 << 8 | 1 << 7  );
-  // dac_write_register1(  0b10000000     ); // ok this isn't working ...
-  
-  ///                                                                  
-  gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
-  // msleep(1);
-  spi_send(DAC_SPI, 0);
-  spi_send(DAC_SPI, 0 | 1 );           // dac gpio1 on
-  spi_send(DAC_SPI, 0 | 1 << 7  );  // turn on gpio0
 
-  msleep(1); // required
-  gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
-  msleep(1); // required
 
+  dac_write_register1( 0b00000000 << 16 | 1 << 8 | 1 << 7  );
+  dac_write_register1( 0b00000001 << 16 | 1 << 8 | 1 << 7  );
+  msleep(1);  // must wait for update - before we read 
 
   uart_printf("gpio read now %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
   msleep(100);
