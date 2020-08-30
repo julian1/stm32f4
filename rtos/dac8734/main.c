@@ -184,17 +184,15 @@ static void dac_test(void *args __attribute((unused)))
 
 
 
-  dac_write_register1( 0b00000000 << 16 | 1 << 8 | 1 << 7  );
-  dac_write_register1( 0b00000001 << 16 | 1 << 8 | 1 << 7  );
+  dac_write_register1( 0b00000000 << 16 | 1 << 8 | 1 << 7  ); // write gpio pins
+
+  dac_write_register1( 0b00000101 << 16 | 0x7f7f   ); // write dac 1.
+
   msleep(1);  // must wait for update - before we read 
 
   uart_printf("gpio read now %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
   msleep(100);
 
-  //////////////
-
-  dac_write_register1( 0b00000101 << 16 | 0xffff );
-  dac_write_register1( 0b00000101 << 15 | 0xffff );
 
   // sleep forever
   // exiting a task thread isn't very good...
