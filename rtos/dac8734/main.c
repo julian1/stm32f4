@@ -153,6 +153,7 @@ static void dac_test(void *args __attribute((unused)))
 
   uart_printf("gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
+  // TODO - IMPORTANT - remove this.  just clear gpio pins separately if need to.
   uart_printf("dac clear\n\r");
   dac_write_register1( 0);
 
@@ -198,6 +199,12 @@ static void dac_test(void *args __attribute((unused)))
 
   // touching either of the refs with 3V.. fails... check for oscillation? no.
   // because siggen ground is not floating?
+
+  ////////********
+  // 0) test if AIN / MON work. - eg. can write register for selection properly. and fb is what we expect. 
+  // 1) perhaps there is a solder bridge... somewhere - around the refs.
+  // 2) DO NOT  write the 0 register with 0 on init there is no need.
+  // 3) other pins - need fb circuits setup -- perhaps oscillating?
 
   msleep(100);
 
