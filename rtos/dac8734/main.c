@@ -54,10 +54,11 @@
 
 // rails...  can we do it in order...
 #define RAILS_PORT    GPIOE   
-#define RAILS_POS     GPIO8   // pull high to turn on.
+// #define RAILS_POS     GPIO8   // pull high to turn on.  I think we fucked this port...
+
 #define RAILS_NEG     GPIO9   // pull low to turn on
 
-#define VREF          GPIO10
+#define RAILS_POS     GPIO10
 
 
 
@@ -211,19 +212,76 @@ static void rails_setup( void )
 
   gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT,  GPIO_PUPD_NONE /*GPIO_PUPD_PULLDOWN */, RAILS_POS  );
   gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT,  GPIO_PUPD_NONE /*GPIO_PUPD_PULLUP*/,   RAILS_NEG );
+  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT,  GPIO_PUPD_NONE ,   GPIO8 ); // broken.. gpio. 
 
 
   // OK. on reset there is no glitch. for neg rail. or pos rail. but there is when 3.3V power first applied . 250nS.
 
-  // turn on.
-  // gpio_set  (RAILS_PORT, RAILS_POS);     
-  // gpio_clear(RAILS_PORT, RAILS_NEG);     
+  uart_printf("rails pos on \n\r");
 
+
+  // gpio_clear (RAILS_PORT, RAILS_NEG);    // turn on... eg. pull p-chan gate down from 3.3V to 0. 
+
+  // OK - problem - our p-chan fet for neg rail is barely turning on.
+  // to pull up the n-chan gate.
+
+
+  // OK - a 1k on the fet gate. and defining the port before init... makes the top rail not glitch.
+
+  // bottom rail  - our p-chan fet is too weak.
+  // if use 1k / 10k. it doesn't turn on at all.
+  // if use without input resistor - it barely turns on.
+  ///// /HMMMMM
+  
+  // no it does glitch.
+  // but why? because of weako
+
+  // ok. and 1k seems to often work for neg rail.
+  // issue - but secondary issue is that the tx VGS is too bad for us to use it to turn the damn rail on.
+  // God damn it...
+  // sometimes it spikes and sometimes it doesn't - with or without resistor.
+  // when it first turns on - the gate is negative.
+  // freaking...
+  // ---------
+  // try to use dg444?
+  // and now we cannot trigger it...
+
+  // ok added a 22uF cap as well...   glitching is only occasional and slight.c
+  
 
 }
 
 
+/*
+  OK. its complicated.
+    the fet comes on as 3V is applied... 
+    BUT what happens if 
+    if have rail voltage and no 3V. should be ok. because of biasing.
 
+  When we first plug in- we get a high side pulse.
+    about 250nS.
+
+    Looks like the gate gets some spikes.
+    OK. but what about a small cap... 
+  ----
+  ok 1nF helps
+  but there's still a 20nS pulse... that turns on the gateo
+  -- 
+  OK. both rails glitch at power-on.
+  ...
+  fuck.
+
+  try a cap across the gate...
+  ok 1nF seems to be ok.
+
+  ok. 0.1uF seems to have fixed.
+  NOPE.
+
+  OK. lets try a 10k on the gate... to try and stop the ringing.
+  mosfet gatep has cap anyway.
+
+  OK. disconnecting the signal - and we don't trigger. very good.
+*/
 
 // OK. do we have a sleep function for bit bashing...?
 
