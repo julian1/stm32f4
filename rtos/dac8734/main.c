@@ -201,23 +201,24 @@ static void rails_setup( void )
 
   uart_printf("rails setup\n\r");
 
-  // IMPORTANT ---- define with appropriate PULL ups / pull downs - so 
-  // so that they emerge from high-Z with correct output...
 
-  // actually - almost certainly needs the value defined as well...
+  // ok. define before enabling... 
+  // if we do this after setup - then the neg rail, needs high, will glitch on reset.
+  // turn off
+  gpio_clear(RAILS_PORT, RAILS_POS);     
+  gpio_set  (RAILS_PORT, RAILS_NEG);     
+
 
   gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT,  GPIO_PUPD_NONE /*GPIO_PUPD_PULLDOWN */, RAILS_POS  );
   gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT,  GPIO_PUPD_NONE /*GPIO_PUPD_PULLUP*/,   RAILS_NEG );
 
-  // that they emerge in the right state
-  // turn off
-  // gpio_clear(RAILS_PORT, RAILS_POS);     
-  // gpio_set  (RAILS_PORT, RAILS_NEG);     
 
+  // OK. on reset there is no glitch. for neg rail. or pos rail. but there is when 3.3V power first applied . 250nS.
 
   // turn on.
-  gpio_set  (RAILS_PORT, RAILS_POS);     
-  gpio_clear(RAILS_PORT, RAILS_NEG);     
+  // gpio_set  (RAILS_PORT, RAILS_POS);     
+  // gpio_clear(RAILS_PORT, RAILS_NEG);     
+
 
 }
 
