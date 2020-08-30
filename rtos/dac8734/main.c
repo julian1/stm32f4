@@ -153,12 +153,12 @@ static void dac_test(void *args __attribute((unused)))
 
   uart_printf("gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
+/*
   // TODO - IMPORTANT - remove this.  just clear gpio pins separately if need to.
   uart_printf("dac clear\n\r");
   dac_write_register1( 0);
-
-
   uart_printf("gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+*/
 
 
 
@@ -209,25 +209,43 @@ static void dac_test(void *args __attribute((unused)))
           // should try not to modify - the primary register at all - in case writing 0 in all bits is causing problems.
           // but can still write the monitor, or dac registers with values. ok.
 
+  // 5) LDAC register behavior is possibly different for dac registers than general registers?
+  // 6) is the REF supposed to be a shunt or something? or negative?
+
   // problem we cannot write any register cleanly without affecting other bits - if we cannot read register first
   // to OR the values.
   // FUCK. even still it shouldn't matter - if we know the default values...
 
 
-
   msleep(100);
 
   //////////////
-  uart_printf("writing a register \n\r");
 
 
+/*
+  // we cannot clear pins - without also clearing default values
+  // dac_write_register1( 0b00000000 << 16 | 1 << 8 | 1 << 7  ); // write gpio pins
+*/
 
-  dac_write_register1( 0b00000000 << 16 | 1 << 8 | 1 << 7  ); // write gpio pins
-
+  uart_printf("writing dac register 1\n\r");
   dac_write_register1( 0b00000101 << 16 | 0x7f7f   ); // write dac 1.
-
   msleep(1);  // must wait for update - before we read
 
+
+  // toggle latch in case it makes a difference
+  uart_printf("toggle ldac\n\r");
+  gpio_set(DAC_PORT, DAC_LDAC);
+  msleep(1);
+  gpio_clear(DAC_PORT, DAC_LDAC);
+  msleep(1);
+
+/*
+  ...
+  p21.
+  The DAC8734 updates the DAC latch only if it has been accessed since the last
+  time the LDAC pin was brought low or the LD bit in the CommandRegister was set
+  to'1', there by eliminating any unnecessary glitch.
+*/
   uart_printf("gpio read now %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
   msleep(100);
 
