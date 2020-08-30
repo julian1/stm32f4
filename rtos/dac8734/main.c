@@ -119,6 +119,34 @@ static void dac_write_register2(uint32_t a, uint32_t d)   // change name dac_wri
 */
 
 
+
+static uint32_t dac_read(void)
+{
+  return 123;
+  // this will overwrite the register... because we cannot clock in a clear value...
+  // this whole thing just hangs...
+
+  msleep(1); // required
+  gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
+  msleep(1);
+  /*
+  uint8_t a = spi_read(DAC_PORT);
+  uint8_t b = spi_read(DAC_PORT);
+  uint8_t c = spi_read(DAC_PORT);
+  */
+
+  uint8_t a = spi_xfer(DAC_PORT, 0);
+  uint8_t b = spi_xfer(DAC_PORT, 0 );
+  uint8_t c = spi_xfer(DAC_PORT, 0);
+
+
+  msleep(1); // required
+  gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
+
+  return (a << 16) | (b << 8) | c;
+}
+
+
 static void dac_test(void *args __attribute((unused)))
 {
   /*
@@ -222,10 +250,20 @@ static void dac_test(void *args __attribute((unused)))
 
   //////////////
 
-  /*
+
   // we cannot clear pins - without also clearing default values, because cannot OR...  without read value
   // dac_write_register1( 0b00000000 << 16 | 1 << 8 | 1 << 7  ); // write gpio pins
- */
+  dac_write_register1( 0b00000000 << 16 | 0  );               // write gpio pins
+  msleep(1);
+  uart_printf("gpio now %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+
+  /*
+    ...
+    p21.
+    The DAC8734 updates the DAC latch only if it has been accessed since the last
+    time the LDAC pin was brought low or the LD bit in the CommandRegister was set
+    to'1', there by eliminating any unnecessary glitch.
+  */
 
   uart_printf("writing dac register 1\n\r");
   dac_write_register1( 0b00000101 << 16 | 0x7f7f   ); // write dac 1.
@@ -239,15 +277,41 @@ static void dac_test(void *args __attribute((unused)))
   gpio_clear(DAC_PORT, DAC_LDAC);
   msleep(1);
 
+
+  // write the monitor register
+  // addr=1, val
+
+  // doesn't seem to do anything...
+
 /*
-  ...
-  p21.
-  The DAC8734 updates the DAC latch only if it has been accessed since the last
-  time the LDAC pin was brought low or the LD bit in the CommandRegister was set
-  to'1', there by eliminating any unnecessary glitch.
+  uart_printf("write mon register for ain\n\r");
+  dac_write_register1( 0b00000001 << 16 | 0b00001000 << 8   ); // select AIN.
+  msleep(3000);
+
+
+  uart_printf("write mon register for dac 1\n\r");
+  dac_write_register1( 0b00000001 << 16 | 0b00100000 << 8   ); // select dac1.
+  msleep(3000);
+
+  uart_printf("write mon register for dac 2\n\r");
+  dac_write_register1( 0b00000001 << 16 | 0b01000000 << 8   ); // select dac1.
+  msleep(3000);
 */
+
+/*
   uart_printf("dac gpio read now %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
   msleep(100);
+*/
+
+/*
+  // doesn't seem to work at all...
+  uart_printf("starting dac 1 read");
+  // try to read...
+  dac_write_register1( 0b10000101 << 16 );
+  msleep(1);
+  uint32_t  x = dac_read();
+  uart_printf("dac 1 val %d\n\r", x);
+*/
 
 
   // sleep forever
