@@ -349,7 +349,8 @@ static void dac_test(void *args __attribute((unused)))
   uart_printf("write mon register for ain\n\r");
   // dac_write_register1( 0b00000001 << 16 | 0b00001000 << 10 ); // select AIN.
   // uart_printf("val is %d \n\r", 0b00000001 << 16 | 1 << 10 );
-  dac_write_register1( 0b00000001 << 16 | (1 << 11) ); // select AIN.
+  // dac_write_register1( 0b00000001 << 16 | (1 << 11) ); // select AIN.
+  dac_write_register1( 0b00000001 << 16 | (1 << 13) ); // select dac 1.
   // fucking looks correct...
   // 01 00000100 00000000
   msleep(1000);
