@@ -256,27 +256,6 @@ static void dac_test(void *args __attribute((unused)))
   // turning the rails on - brings the monitor pin to 0
   msleep( 1000);
 
-
-  ////////********
-  // 0) test if AIN / MON work. - eg. can write register for selection properly. and fb is what we expect.
-  // 1) perhaps there is a solder bridge... somewhere - around the refs.
-  // 2) DO NOT  write the 0 register with 0 on init there is no need.
-  // 3) other pins - need fb circuits setup -- perhaps oscillating?
-  // 4) don't modify any register - but check if still have high current draw issue. and can also try to write dac register.
-          // should try not to modify - the primary register at all - in case writing 0 in all bits is causing problems.
-          // but can still write the monitor, or dac registers with values. ok.
-
-  // 5) LDAC register behavior is possibly different for dac registers than general registers?
-  // 6) is the REF supposed to be a shunt or something? or negative?
-  // 7) we should be able to do a read of a register - even if overwriting it / using mcu spi ... good to test
-
-  // problem we cannot write any register cleanly without affecting other bits - if we cannot read register first
-  // to OR the values.
-  // FUCK. even still it shouldn't matter - if we know the default values...
-
-  //////////////
-
-  // we cannot clear pins - without also clearing default values, because cannot OR...  without read value
   /*
     I think we need to understand this better...
     ...
@@ -326,74 +305,13 @@ static void dac_test(void *args __attribute((unused)))
 
   */
 
-#if 0
-  // so this doesn't work...
-  // because the ordering is not right....
-  // but suggests something else is wrong.
-  for(int i = 9; i <= 16; ++i ) {
-    uart_printf("write mon register, bit %d\n\r", i);
-    dac_write_register1( 0b00000001 << 16 | 1 << i );
-    msleep(1000);
-  }
-#endif
-
-
-  // OK. there is something wrong - depending on the order of these...
-  // it does something or does nothing...
-
-  // SO depending on the order we select the monitor - we get quite different results...
-  // that is too bizarre
-
   // 11 is ain. 13 is dac1.
 
   uart_printf("write mon register for ain\n\r");
-  // dac_write_register1( 0b00000001 << 16 | 0b00001000 << 10 ); // select AIN.
-  // uart_printf("val is %d \n\r", 0b00000001 << 16 | 1 << 10 );
   // dac_write_register1( 0b00000001 << 16 | (1 << 11) ); // select AIN.
   dac_write_register1( 0b00000001 << 16 | (1 << 13) ); // select dac 1.
-  // fucking looks correct...
-  // 01 00000100 00000000
   msleep(1000);
 
-
-#if 0
-
-  // dac0 also has slightly different value...
-  uart_printf("write mon register for dac0\n\r");
-  dac_write_register1( 0b00000001 << 16 | (1 << 11)   ); // select dac 0
-  msleep(1000);
-
-
-  uart_printf("write mon register for dac1\n\r");
-  dac_write_register1( 0b00000001 << 16 | (1 << 12)   ); // select dac 1
-  msleep(1000);
-
-  uart_printf("write mon register for dac2\n\r");
-  dac_write_register1( 0b00000001 << 16 | (1 << 13)   ); // select dac 1
-  msleep(1000);
-
-
-  uart_printf("write mon register for dac3\n\r");
-  dac_write_register1( 0b00000001 << 16 | (1 << 14)   ); // select dac 1
-  msleep(1000);
-  // AIN/MON should fucking work...
-  // and it sometimes doesn't clear -0.745V
-  // this isnt clearing...
-  uart_printf("write mon register to clear\n\r");
-  dac_write_register1( 0b00000001 << 16 | 0   );
-  msleep(1000);
-#endif
- //
-
-#if 0
-  ////////////////////////////
-  uart_printf("dac read\n\r");
-
-  dac_write_register1( 0b10000101 << 16 | 0x0 ); // read dac 1 //
-  // ok, think that read doesn't fire
-  uint32_t x = dac_read();
-  uart_printf("val %d\n\r", x);
-#endif
 
   uart_printf("finished\n\r");
 
