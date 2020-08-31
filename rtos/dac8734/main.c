@@ -429,7 +429,9 @@ static void dac_setup( void )
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
     SPI_CR1_CPHA_CLK_TRANSITION_2,    // 1 == rising edge, 2 == falling edge.
     SPI_CR1_DFF_8BIT,
-    SPI_CR1_MSBFIRST);
+    SPI_CR1_MSBFIRST
+    // SPI_CR1_LSBFIRST
+  );
   spi_enable_ss_output(DAC_SPI);
   spi_enable(DAC_SPI);
 
@@ -437,11 +439,9 @@ static void dac_setup( void )
   // CS same pin as SPI alternate function, but we use it as gpio out.
   gpio_mode_setup(DAC_PORT_CS, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_CS);
 
-  /////
-  // other outputs
-  /// gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_LDAC  | DAC_UNIBIPA | DAC_UNIBIPB);
-  // gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, DAC_RST );
 
+
+  /////
   // internal pu, doesn't change anything - because its powered off, and starts up high-Z.
   gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC | DAC_UNIBIPA | DAC_UNIBIPB);
 
