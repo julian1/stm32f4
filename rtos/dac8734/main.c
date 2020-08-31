@@ -105,10 +105,10 @@ static void dac_write_register(uint32_t r)
 static void dac_write_register1(uint32_t r)   // change name dac_write_register_cs
 {
   gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
-  // msleep(1);
   dac_write_register( r );        // writes,
   msleep(1); // required
   gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
+  msleep(1);
 }
 
 /*
@@ -119,7 +119,7 @@ static void dac_write_register2(uint32_t a, uint32_t d)   // change name dac_wri
 */
 
 
-
+#if 0
 static uint32_t dac_read(void)
 {
   return 123;
@@ -145,6 +145,7 @@ static uint32_t dac_read(void)
 
   return (a << 16) | (b << 8) | c;
 }
+#endif
 
 // guy says device is drawing 10mA.
 // https://e2e.ti.com/support/data-converters/f/73/t/648061?DAC8734-Is-my-dac-damaged-
@@ -173,7 +174,7 @@ static void dac_test(void *args __attribute((unused)))
   gpio_set(DAC_PORT, DAC_UNIBIPA);
   gpio_set(DAC_PORT, DAC_UNIBIPB);
 
-  msleep(1000);   // 500ms not long enough. on cold power-up.
+  //msleep(1000);   // 500ms not long enough. on cold power-up.
                   // 1s ok.
                   // actually sometimes 1s. fails.
                   // maybe issue with latch...
@@ -195,20 +196,20 @@ static void dac_test(void *args __attribute((unused)))
   uart_printf("dac reset\n\r");
 
   gpio_clear(DAC_PORT, DAC_RST);
-  msleep(100);
+  msleep(1000);
   gpio_set(DAC_PORT, DAC_RST);
   msleep(100);
 
   uart_printf("reset done\n\r");
 
 
-/*
+#if 0
   uart_printf("dac gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
   // TODO - IMPORTANT - remove this.  just clear gpio pins separately if need to.
   uart_printf("dac clear\n\r");
   dac_write_register1( 0);
   uart_printf("gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
-*/
+#endif
 
 
 
@@ -271,10 +272,7 @@ static void dac_test(void *args __attribute((unused)))
   // to OR the values.
   // FUCK. even still it shouldn't matter - if we know the default values...
 
-
-
   //////////////
-
 
   // we cannot clear pins - without also clearing default values, because cannot OR...  without read value
   // dac_write_register1( 0b00000000 << 16 | 1 << 8 | 1 << 7  ); // write gpio pins
@@ -291,12 +289,10 @@ static void dac_test(void *args __attribute((unused)))
   */
 
 
-
   // WRITING THIS - does not affect mon value...
   uart_printf("writing dac register 1\n\r");
   dac_write_register1( 0b00000101 << 16 | 0xffff ); // write dac 1.
   msleep(1);  // must wait for update - before we read
-  /*  */
 
 
 /*
@@ -308,7 +304,7 @@ static void dac_test(void *args __attribute((unused)))
   msleep(1);
 */
 
-/*
+
 
   /*
     OKK - power consumption - seems *exactly* right.  around 10mA.
@@ -331,35 +327,38 @@ static void dac_test(void *args __attribute((unused)))
 
   // maybe the current is ok. but there's something else amiss. ground?
   // writing...
+#if 0
 
-  for(int i = 0; i < 15; ++i ) {
-
+  // so this doesn't work...
+  for(int i = 9; i <= 16; ++i ) {
     uart_printf("write mon register, bit %d\n\r", i);
     dac_write_register1( 0b00000001 << 16 | 1 << i );
-
+    msleep(1000);
   }
-#if 0
-  uart_printf("write mon register for bit 9 \n\r");
-  dac_write_register1( 0b00000001 << 16 | 1 << 9 ); // select AIN.
-  msleep(2000);
+#endif
 
+#if 1
 
   uart_printf("write mon register for ain\n\r");
   // dac_write_register1( 0b00000001 << 16 | 0b00001000 << 10 ); // select AIN.
   dac_write_register1( 0b00000001 << 16 | 1 << 10 ); // select AIN.
   msleep(2000);
 
+  // OK. there is something wrong - depending on the order of these...
+  // it does something or does nothing...
+
   uart_printf("write mon register for dac1\n\r");
   dac_write_register1( 0b00000001 << 16 | 1 << 12   ); // select dac 1
   msleep(2000);
-
-  // ok - we have a slightly different value... for dac0 or dac1, from cleared
 
   // dac0 also has slightly different value...
   uart_printf("write mon register for dac0\n\r");
   dac_write_register1( 0b00000001 << 16 | 1 << 11   ); // select dac 0
   msleep(2000);
 
+  // THIS IS TOO BIZARRE - we change the order and it doesn't work . UNLESS WE ARE NOT WRITING THE REG WE THINK
+
+  // this isnt clearing...
   uart_printf("write mon register to clear\n\r");
   dac_write_register1( 0b00000001 << 16 | 0   );
   msleep(2000);
