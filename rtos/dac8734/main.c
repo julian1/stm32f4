@@ -270,12 +270,12 @@ static void dac_test(void *args __attribute((unused)))
   */
 
  
-/* 
+ 
   // WRITING THIS - seems to change the MON
   uart_printf("writing dac register 1\n\r");
-  dac_write_register1( 0b00000101 << 16 | 0x7f7f   ); // write dac 1.
+  dac_write_register1( 0b00000101 << 16 | 0xffff ); // write dac 1.
   msleep(1);  // must wait for update - before we read
-  */
+  /*  */
 
   /*
   // toggle latch in case it makes a difference
