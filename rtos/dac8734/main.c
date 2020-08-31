@@ -276,24 +276,13 @@ static void dac_test(void *args __attribute((unused)))
   // dac_write_register1( 0b00000101 << 16 | 10000 ); // works 0.919V
   dac_write_register1( 0b00000101 << 16 | 0xffff - 10000 ); //  works. output -0.919V
 
-  // uart_printf("dac - val is %d \n\r", 0b00000101 << 16 | 0xffff );
-  // 0101 11111111 11111111
-  // looks correct
 
+#if 0
   dac_write_register1( 0b00000110 << 16 | 0x7f7f ); // write dac 2
   dac_write_register1( 0b00000111 << 16 | 0x7f7f ); // write dac 3
   msleep(1);  // must wait for update - before we read
-
-
-#if 0
-  // pull latch up to write
-  uart_printf("toggle ldac\n\r");
-  gpio_set(DAC_PORT, DAC_LDAC);
-  msleep(1);
-
-  // gpio_clear(DAC_PORT, DAC_LDAC);
-  // msleep(1);
 #endif
+
 
   /*
     OKK - power consumption - seems *exactly* right.  around 10mA.
@@ -661,4 +650,14 @@ static uint8_t dac_read(void)
   spi_send(DAC_SPI, 0 | 1 << 7 );  // turn on gpio0
 #endif
 
+
+#if 0
+  // pull latch up to write
+  uart_printf("toggle ldac\n\r");
+  gpio_set(DAC_PORT, DAC_LDAC);
+  msleep(1);
+
+  // gpio_clear(DAC_PORT, DAC_LDAC);
+  // msleep(1);
+#endif
 
