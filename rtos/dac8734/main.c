@@ -158,7 +158,11 @@ static void dac_test(void *args __attribute((unused)))
   // do latch first... not sure if makes a difference
   gpio_clear(DAC_PORT, DAC_LDAC);   // keep latch low, and unused, unless chaining
 
-  // makes no difference
+  /*
+  Output modeselection of groupB (DAC-2 and DAC-3). When UNI/BIP-A is tied to
+  IOVDD, group B is in unipolar output mode; when tied to DGND, group B is in
+  bipolar output mode
+  */
   gpio_clear(DAC_PORT, DAC_UNIBIPA);
   gpio_clear(DAC_PORT, DAC_UNIBIPB);
 
@@ -273,22 +277,22 @@ static void dac_test(void *args __attribute((unused)))
     to'1', there by eliminating any unnecessary glitch.
   */
 
- 
- 
+
+
   // WRITING THIS - does not affect mon value...
   uart_printf("writing dac register 1\n\r");
   dac_write_register1( 0b00000101 << 16 | 0xffff ); // write dac 1.
   msleep(1);  // must wait for update - before we read
   /*  */
 
-  
+
   // toggle latch in case it makes a difference
   uart_printf("toggle ldac\n\r");
   gpio_set(DAC_PORT, DAC_LDAC);
   msleep(1);
   gpio_clear(DAC_PORT, DAC_LDAC);
   msleep(1);
-  
+
 
   // it is too strange - that the damn monitor muxer doesn't work for ain.
   // indicates the supply rails must be off - or chip is no good.
@@ -297,9 +301,9 @@ static void dac_test(void *args __attribute((unused)))
   // lets make sure the uni/bip  is not highZ
 
   // OK. with ref=3V, get mon of -0.7V when reading mon for  dac0 and dac1
-  // with ref=1V      get mon of -0.5V when reading mon for dac0 and dac1 
+  // with ref=1V      get mon of -0.5V when reading mon for dac0 and dac1
   // writing dac value does not seem to do anything.
- 
+
 
   uart_printf("write mon register for ain\n\r");
   dac_write_register1( 0b00000001 << 16 | 0b00001000 << 10 ); // select AIN.
@@ -317,10 +321,10 @@ static void dac_test(void *args __attribute((unused)))
   msleep(2000);
 
   uart_printf("write mon register to clear\n\r");
-  dac_write_register1( 0b00000001 << 16 | 0   ); 
+  dac_write_register1( 0b00000001 << 16 | 0   );
   msleep(2000);
 
- // 
+ //
 
 
   // So... try to provide a reference voltage maybe...
@@ -330,7 +334,7 @@ static void dac_test(void *args __attribute((unused)))
   // try to wire it again?
 
 
-  // but clearing it again - has no effect... 
+  // but clearing it again - has no effect...
   // uart_printf("clearing the mon register\n\r");
   // dac_write_register1( 0b00000001 << 16 | 0   ); // clear
   // dac_write_register1( 0b00000001 << 16 | 1 << 11   ); // set dac 0
