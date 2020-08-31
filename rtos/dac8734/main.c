@@ -319,19 +319,27 @@ static void dac_test(void *args __attribute((unused)))
   // writing dac value does not seem to do anything.
 
 
+
+  uart_printf("write mon register for bit 9 \n\r");
+  dac_write_register1( 0b00000001 << 16 | 1 << 9 ); // select AIN.
+  msleep(2000);
+
+
+
   uart_printf("write mon register for ain\n\r");
-  dac_write_register1( 0b00000001 << 16 | 0b00001000 << 10 ); // select AIN.
+  // dac_write_register1( 0b00000001 << 16 | 0b00001000 << 10 ); // select AIN.
+  dac_write_register1( 0b00000001 << 16 | 1 << 10 ); // select AIN.
   msleep(2000);
 
   uart_printf("write mon register for dac1\n\r");
-  dac_write_register1( 0b00000001 << 16 | 0b00001000 << 12   ); // select dac 1
+  dac_write_register1( 0b00000001 << 16 | 1 << 12   ); // select dac 1
   msleep(2000);
 
   // ok - we have a slightly different value... for dac0 or dac1, from cleared
 
   // dac0 also has slightly different value...
   uart_printf("write mon register for dac0\n\r");
-  dac_write_register1( 0b00000001 << 16 | 0b00001000 << 11   ); // select dac 0
+  dac_write_register1( 0b00000001 << 16 | 1 << 11   ); // select dac 0
   msleep(2000);
 
   uart_printf("write mon register to clear\n\r");
