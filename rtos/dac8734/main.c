@@ -123,6 +123,9 @@ static void dac_write_register(uint32_t r)
 
 static void dac_write_register1(uint32_t r)   // change name dac_write_register_cs
 {
+  // is there an interaction between clk and CS.
+  gpio_set(DAC_PORT_SPI, DAC_CLK); // raise clock
+  msleep(1);
 
   gpio_clear(DAC_PORT_SPI, DAC_CS);  // CS active low
   msleep(1);
@@ -185,6 +188,9 @@ static void dac_test(void *args __attribute((unused)))
 
   // do latch first... not sure order makes a difference
   gpio_clear(DAC_PORT, DAC_LDAC);   // keep latch low, and unused, unless chaining
+
+  gpio_clear(DAC_PORT_SPI, DAC_CLK); // raise clock
+
 
   /*
   Output mode selection of groupB (DAC-2 and DAC-3). When UNI/BIP-A is tied to
@@ -334,7 +340,6 @@ static void dac_test(void *args __attribute((unused)))
   // SO depending on the order we select the monitor - we get quite different results...
   // that is too bizarre
 
-#if 0
   uart_printf("write mon register for ain\n\r");
   // dac_write_register1( 0b00000001 << 16 | 0b00001000 << 10 ); // select AIN.
   // uart_printf("val is %d \n\r", 0b00000001 << 16 | 1 << 10 );
@@ -344,7 +349,7 @@ static void dac_test(void *args __attribute((unused)))
   msleep(1000);
 
 
-
+#if 0
 
   // dac0 also has slightly different value...
   uart_printf("write mon register for dac0\n\r");
