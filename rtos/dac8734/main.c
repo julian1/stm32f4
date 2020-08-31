@@ -271,20 +271,20 @@ static void dac_test(void *args __attribute((unused)))
 
  
  
-  // WRITING THIS - seems to change the MON
+  // WRITING THIS - does not affect mon value...
   uart_printf("writing dac register 1\n\r");
   dac_write_register1( 0b00000101 << 16 | 0xffff ); // write dac 1.
   msleep(1);  // must wait for update - before we read
   /*  */
 
-  /*
+  
   // toggle latch in case it makes a difference
   uart_printf("toggle ldac\n\r");
   gpio_set(DAC_PORT, DAC_LDAC);
   msleep(1);
   gpio_clear(DAC_PORT, DAC_LDAC);
   msleep(1);
-  */
+  
 
   // write the monitor register
   // addr=1, val
@@ -333,20 +333,6 @@ static void dac_test(void *args __attribute((unused)))
   // dac_write_register1( 0b00000001 << 16 | 1 << 11   ); // set dac 0
   // msleep(1000);
 
-/*
-  uart_printf("write mon register for dac 1\n\r");
-  dac_write_register1( 0b00000001 << 16 | 0b00100000 << 8   ); // select dac1.
-  msleep(1000);
-*/
-
-  // ok. it seems to have done something...
-  // as in the value is 0.12V then hard 0, when write
-
-/*
-  uart_printf("write mon register for dac 2\n\r");
-  dac_write_register1( 0b00000001 << 16 | 0b01000000 << 8   ); // select dac1.
-  msleep(3000);
-*/
 
 /*
   uart_printf("dac gpio read now %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
