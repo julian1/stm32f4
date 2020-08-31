@@ -154,7 +154,7 @@ static void dac_test(void *args __attribute((unused)))
   bipolar output mode
   */
   gpio_clear(DAC_PORT, DAC_UNIBIPA);
-  gpio_clear(DAC_PORT, DAC_UNIBIPB);  // bipolar, less voltage range required.
+  gpio_clear(DAC_PORT, DAC_UNIBIPB);  // bipolar, lower supply voltage range required.
 
   //msleep(1000);   // 500ms not long enough. on cold power-up.
                   // 1s ok.
@@ -245,6 +245,11 @@ static void dac_test(void *args __attribute((unused)))
   uart_printf("writing dac register 1\n\r");
   dac_write_register1( 0b00000100 << 16 | 0x7f7f ); // write dac 0
   dac_write_register1( 0b00000101 << 16 | 0xffff ); // write dac 1
+
+  // uart_printf("dac - val is %d \n\r", 0b00000101 << 16 | 0xffff );
+  // 0101 11111111 11111111
+  // looks correct
+
   dac_write_register1( 0b00000110 << 16 | 0x7f7f ); // write dac 2
   dac_write_register1( 0b00000111 << 16 | 0x7f7f ); // write dac 3
   msleep(1);  // must wait for update - before we read
@@ -283,17 +288,22 @@ static void dac_test(void *args __attribute((unused)))
 
 #if 1
 
-  uart_printf("write mon register for ain\n\r");
-  // dac_write_register1( 0b00000001 << 16 | 0b00001000 << 10 ); // select AIN.
-  dac_write_register1( 0b00000001 << 16 | 1 << 10 ); // select AIN.
-  msleep(2000);
-
   // OK. there is something wrong - depending on the order of these...
   // it does something or does nothing...
 
   // SO depending on the order we select the monitor - we get quite different results...
   // that is too bizarre
 
+
+  uart_printf("write mon register for ain\n\r");
+  // dac_write_register1( 0b00000001 << 16 | 0b00001000 << 10 ); // select AIN.
+
+  uart_printf("val is %d \n\r", 0b00000001 << 16 | 1 << 10 );
+
+  dac_write_register1( 0b00000001 << 16 | 1 << 10 ); // select AIN.
+  // fucking looks correct...
+  // 01 00000100 00000000
+  msleep(2000);
 
   uart_printf("write mon register for dac1\n\r");
   dac_write_register1( 0b00000001 << 16 | 1 << 12   ); // select dac 1
@@ -323,8 +333,6 @@ static void dac_test(void *args __attribute((unused)))
   msleep(2000);
 #endif
  //
-
-
 
 
   uart_printf("finished\n\r");
