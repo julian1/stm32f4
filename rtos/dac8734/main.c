@@ -149,7 +149,7 @@ static void dac_test(void *args __attribute((unused)))
   gpio_clear(DAC_PORT, DAC_LDAC);   // keep latch low, and unused, unless chaining
 
   /*
-  Output modeselection of groupB (DAC-2 and DAC-3). When UNI/BIP-A is tied to
+  Output mode selection of groupB (DAC-2 and DAC-3). When UNI/BIP-A is tied to
   IOVDD, group B is in unipolar output mode; when tied to DGND, group B is in
   bipolar output mode
   */
@@ -239,6 +239,7 @@ static void dac_test(void *args __attribute((unused)))
     to'1', there by eliminating any unnecessary glitch.
   */
 
+  // OK... check  we have not screwed up the LDAC output ...
 
   // WRITING THIS - does not affect mon value...
   uart_printf("writing dac register 1\n\r");
@@ -249,13 +250,13 @@ static void dac_test(void *args __attribute((unused)))
   msleep(1);  // must wait for update - before we read
 
 
-#if 1
+#if 0
   // pull latch up to write
   uart_printf("toggle ldac\n\r");
   gpio_set(DAC_PORT, DAC_LDAC);
   msleep(1);
 
-  //gpio_clear(DAC_PORT, DAC_LDAC);
+  // gpio_clear(DAC_PORT, DAC_LDAC);
   // msleep(1);
 #endif
 
@@ -270,8 +271,9 @@ static void dac_test(void *args __attribute((unused)))
   */
 
 #if 0
-
   // so this doesn't work...
+  // because the ordering is not right....
+  // but suggests something else is wrong.
   for(int i = 9; i <= 16; ++i ) {
     uart_printf("write mon register, bit %d\n\r", i);
     dac_write_register1( 0b00000001 << 16 | 1 << i );
