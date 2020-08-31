@@ -105,6 +105,7 @@ static void dac_write_register(uint32_t r)
 static void dac_write_register1(uint32_t r)   // change name dac_write_register_cs
 {
   gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
+  msleep(1);
   dac_write_register( r );        // writes,
   msleep(1); // required
   gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
@@ -347,14 +348,20 @@ static void dac_test(void *args __attribute((unused)))
   // OK. there is something wrong - depending on the order of these...
   // it does something or does nothing...
 
+  // SO depending on the order we write - these we get quite different results...
+  // that is too bizarre
+
+
   uart_printf("write mon register for dac1\n\r");
   dac_write_register1( 0b00000001 << 16 | 1 << 12   ); // select dac 1
   msleep(2000);
+
 
   // dac0 also has slightly different value...
   uart_printf("write mon register for dac0\n\r");
   dac_write_register1( 0b00000001 << 16 | 1 << 11   ); // select dac 0
   msleep(2000);
+
 
   // THIS IS TOO BIZARRE - we change the order and it doesn't work . UNLESS WE ARE NOT WRITING THE REG WE THINK
 
