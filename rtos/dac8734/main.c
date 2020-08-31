@@ -171,6 +171,10 @@ static uint32_t dac_read(void)
 /*
   OK. 
     1) have to understand why our gpio registers are not quite right.
+
+  IT could be power supply stuff.
+    EG. when power supplies are switched on/ mon on.
+    then it loses configuration etc.
 */
 
 static void dac_test(void *args __attribute((unused)))
