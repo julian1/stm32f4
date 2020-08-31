@@ -128,9 +128,36 @@ static void dac_write_register2(uint32_t a, uint32_t d)   // change name dac_wri
 */
 
 
+#if 0
+static uint32_t dac_read(void)
+{
+  return 123;
+  // this will overwrite the register... because we cannot clock in a clear value...
+  // this whole thing just hangs...
+
+  msleep(1); // required
+  gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
+  msleep(1);
+  /*
+  uint8_t a = spi_read(DAC_PORT);
+  uint8_t b = spi_read(DAC_PORT);
+  uint8_t c = spi_read(DAC_PORT);
+  */
+
+  uint8_t a = spi_xfer(DAC_PORT, 0);
+  uint8_t b = spi_xfer(DAC_PORT, 0 );
+  uint8_t c = spi_xfer(DAC_PORT, 0);
 
 
+  msleep(1); // required
+  gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
 
+  return (a << 16) | (b << 8) | c;
+}
+#endif
+
+// guy says device is drawing 10mA.
+// https://e2e.ti.com/support/data-converters/f/73/t/648061?DAC8734-Is-my-dac-damaged-
 
 static void dac_test(void *args __attribute((unused)))
 {
@@ -210,6 +237,28 @@ static void dac_test(void *args __attribute((unused)))
   msleep( 1000);
 
 
+  // OK. seems to be an issue - when we turn the voltage ref on..
+  // then it sucks 10mA on both rails.
+  // doesn't seem right... but doesn't go current mode?
+  // but its not CC. so maybe under 10mA.
+
+  // don't need to have anything else connected...
+  // are other pins - needing fb?
+
+  /////
+  // if cannot get working - then should test if can get AIN MON to work. eg. feed it a voltage.
+  // and see if can get muxer to work - to select alternative input.
+  // this would verify register writing.
+  // and test.
+
+  // OK. we should set the uni/pol . shouldn't matter. any value will do... it is output configured?
+
+  // OKK. no. i think there is something weird... perhaps pinout...
+  // should not draw current... and more current when ref is higher.
+
+  // touching either of the refs with 3V.. fails... check for oscillation? no.
+  // because siggen ground is not floating?
+
   ////////********
   // 0) test if AIN / MON work. - eg. can write register for selection properly. and fb is what we expect.
   // 1) perhaps there is a solder bridge... somewhere - around the refs.
@@ -259,16 +308,29 @@ static void dac_test(void *args __attribute((unused)))
   // msleep(1);
 #endif
 
+
+
   /*
     OKK - power consumption - seems *exactly* right.  around 10mA.
+
     AIDD (normaloperation) ±10V output range, no loading current, VOUT=0V 2.7-3.4mA/Channel
     AAISS(normaloperation)±10V outputrange, no loadingcurrent, VOUT=0V 3.3-4.0mA/Channel
-    Input current  1μA - this is for the digital section only.
-    // guy says device is drawing 10mA.
-    // https://e2e.ti.com/support/data-converters/f/73/t/648061?DAC8734-Is-my-dac-damaged-
 
+    Input current  1μA - this is for the digital section only.
   */
 
+  // it is too strange - that the damn monitor muxer doesn't work for ain.
+  // indicates the supply rails must be off - or chip is no good.
+
+  // selecting dac  inputs gets voltages...
+  // lets make sure the uni/bip  is not highZ
+
+  // OK. with ref=3V, get mon of -0.7V when reading mon for  dac0 and dac1
+  // with ref=1V      get mon of -0.5V when reading mon for dac0 and dac1
+  // writing dac value does not seem to do anything.
+
+  // maybe the current is ok. but there's something else amiss. ground?
+  // writing...
 #if 0
 
   // so this doesn't work...
@@ -289,8 +351,15 @@ static void dac_test(void *args __attribute((unused)))
   // OK. there is something wrong - depending on the order of these...
   // it does something or does nothing...
 
-  // SO depending on the order we select the monitor - we get quite different results...
+  // SO depending on the order we write - these we get quite different results...
   // that is too bizarre
+
+
+
+  // dac0 also has slightly different value...
+  uart_printf("write mon register for dac0\n\r");
+  dac_write_register1( 0b00000001 << 16 | 1 << 11   ); // select dac 0
+  msleep(2000);
 
 
   uart_printf("write mon register for dac1\n\r");
@@ -302,18 +371,21 @@ static void dac_test(void *args __attribute((unused)))
   dac_write_register1( 0b00000001 << 16 | 1 << 11   ); // select dac 0
   msleep(2000);
 
-  uart_printf("write mon register for dac3\n\r");
-  dac_write_register1( 0b00000001 << 16 | 1 << 14   ); // select dac 1
-  msleep(2000);
+
+
 
   uart_printf("write mon register for dac2\n\r");
   dac_write_register1( 0b00000001 << 16 | 1 << 13   ); // select dac 1
   msleep(2000);
 
+  uart_printf("write mon register for dac3\n\r");
+  dac_write_register1( 0b00000001 << 16 | 1 << 14   ); // select dac 1
+  msleep(2000);
 
-  // AIN/MON should fucking work...
 
-  // and it sometimes doesn't clear -0.745V
+
+
+  // THIS IS TOO BIZARRE - we change the order and it doesn't work . UNLESS WE ARE NOT WRITING THE REG WE THINK
 
   // this isnt clearing...
   uart_printf("write mon register to clear\n\r");
@@ -323,7 +395,34 @@ static void dac_test(void *args __attribute((unused)))
  //
 
 
+  // So... try to provide a reference voltage maybe...
 
+
+  // So everything is always 0. and when plug ref in, it starts to use lots of current.
+  // try to wire it again?
+
+
+  // but clearing it again - has no effect...
+  // uart_printf("clearing the mon register\n\r");
+  // dac_write_register1( 0b00000001 << 16 | 0   ); // clear
+  // dac_write_register1( 0b00000001 << 16 | 1 << 11   ); // set dac 0
+  // msleep(1000);
+
+
+/*
+  uart_printf("dac gpio read now %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+  msleep(100);
+*/
+
+/*
+  // doesn't seem to work at all...
+  uart_printf("starting dac 1 read");
+  // try to read...
+  dac_write_register1( 0b10000101 << 16 );
+  msleep(1);
+  uint32_t  x = dac_read();
+  uart_printf("dac 1 val %d\n\r", x);
+*/
 
   uart_printf("finished\n\r");
 
