@@ -95,10 +95,18 @@ static void led_blink_task2(void *args __attribute((unused))) {
 
 static void dac_write_register(uint32_t r)
 {
+#if 1
   // yes... amount is on the right
   spi_send( DAC_SPI, (r >> 16) & 0xff );
   spi_send( DAC_SPI, (r >> 8) & 0xff  );
   spi_send( DAC_SPI, r & 0xff  );  // depending on what we set this we get different values back in c.
+#endif
+
+#if 0
+  spi_send( DAC_SPI, r & 0xff  );  // depending on what we set this we get different values back in c.
+  spi_send( DAC_SPI, (r >> 8) & 0xff  );
+  spi_send( DAC_SPI, (r >> 16) & 0xff );
+#endif
 }
 
 
@@ -188,12 +196,6 @@ static void dac_test(void *args __attribute((unused)))
                   // Also could be,
 
 
-    // OK EXTREME -- now we don't see anything on the monitor
-  // do latch again ... in case reset
-  gpio_clear(DAC_PORT, DAC_LDAC);
-
-
-
   uart_printf("dac reset\n\r");
 
   gpio_clear(DAC_PORT, DAC_RST);
@@ -203,12 +205,16 @@ static void dac_test(void *args __attribute((unused)))
 
   uart_printf("reset done\n\r");
 
+  // god damn it.
 
-#if 0
-  uart_printf("dac gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+#if 1
+  uart_printf("gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
   // TODO - IMPORTANT - remove this.  just clear gpio pins separately if need to.
   uart_printf("dac clear\n\r");
   dac_write_register1( 0);
+  uart_printf("gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+  uart_printf("dac set\n\r");
+  dac_write_register1( 0 << 24 | 1 << 7 | 1 << 8); // ok so this works...
   uart_printf("gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 #endif
 
