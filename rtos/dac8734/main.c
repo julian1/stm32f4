@@ -178,10 +178,11 @@ static void dac_test(void *args __attribute((unused)))
   gpio_set(DAC_PORT, DAC_RST);
   msleep(100);
 
+  uart_printf("reset done\n\r");
 
-  uart_printf("dac gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
 /*
+  uart_printf("dac gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
   // TODO - IMPORTANT - remove this.  just clear gpio pins separately if need to.
   uart_printf("dac clear\n\r");
   dac_write_register1( 0);
@@ -204,6 +205,10 @@ static void dac_test(void *args __attribute((unused)))
   gpio_clear(RAILS_PORT, RAILS_NEG);
   msleep(100);
   gpio_set  (RAILS_PORT, RAILS_POS);
+
+  uart_printf("rails on \n\r");
+  // turning the rails on - brings the monitor pin to 0
+  msleep( 1000);
 
 
   // OK. seems to be an issue - when we turn the voltage ref on..
@@ -246,16 +251,15 @@ static void dac_test(void *args __attribute((unused)))
   // FUCK. even still it shouldn't matter - if we know the default values...
 
 
-  msleep(100);
 
   //////////////
 
 
   // we cannot clear pins - without also clearing default values, because cannot OR...  without read value
   // dac_write_register1( 0b00000000 << 16 | 1 << 8 | 1 << 7  ); // write gpio pins
-  dac_write_register1( 0b00000000 << 16 | 0  );               // write gpio pins
-  msleep(1);
-  uart_printf("gpio now %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+  // dac_write_register1( 0b00000000 << 16 | 0  );               // write gpio pins
+  // msleep(1);
+  // uart_printf("gpio now %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
   /*
     ...
@@ -265,34 +269,75 @@ static void dac_test(void *args __attribute((unused)))
     to'1', there by eliminating any unnecessary glitch.
   */
 
+ 
+/* 
+  // WRITING THIS - seems to change the MON
   uart_printf("writing dac register 1\n\r");
   dac_write_register1( 0b00000101 << 16 | 0x7f7f   ); // write dac 1.
   msleep(1);  // must wait for update - before we read
+  */
 
-
+  /*
   // toggle latch in case it makes a difference
   uart_printf("toggle ldac\n\r");
   gpio_set(DAC_PORT, DAC_LDAC);
   msleep(1);
   gpio_clear(DAC_PORT, DAC_LDAC);
   msleep(1);
-
+  */
 
   // write the monitor register
   // addr=1, val
 
   // doesn't seem to do anything...
 
-/*
+ 
+  /*
+    As soon as we set this the mon goes to 0. which is not correct - but indicates something happens,
+    But if we write a different register we have an effect also...
+  */
   uart_printf("write mon register for ain\n\r");
-  dac_write_register1( 0b00000001 << 16 | 0b00001000 << 8   ); // select AIN.
-  msleep(3000);
+  dac_write_register1( 0b00000001 << 16 | 0b00001000 << 10 ); // select AIN.
+  msleep(2000);
+
+  uart_printf("write mon register for dac1\n\r");
+  dac_write_register1( 0b00000001 << 16 | 0b00001000 << 12   ); // select dac 1
+  msleep(2000);
+
+  // ok - we have a slightly different value... for dac1
+
+  // dac0 also has slightly different value...
+  uart_printf("write mon register for dac0\n\r");
+  dac_write_register1( 0b00000001 << 16 | 0b00001000 << 11   ); // select dac 1
+  msleep(2000);
+
+  uart_printf("write mon register to clear\n\r");
+  dac_write_register1( 0b00000001 << 16 | 0   ); 
+  msleep(2000);
 
 
+
+
+  // So everything is always 0. and when plug ref in, it starts to use lots of current.
+  // try to wire it again?
+
+
+  // but clearing it again - has no effect... 
+  // uart_printf("clearing the mon register\n\r");
+  // dac_write_register1( 0b00000001 << 16 | 0   ); // clear
+  // dac_write_register1( 0b00000001 << 16 | 1 << 11   ); // set dac 0
+  // msleep(1000);
+
+/*
   uart_printf("write mon register for dac 1\n\r");
   dac_write_register1( 0b00000001 << 16 | 0b00100000 << 8   ); // select dac1.
-  msleep(3000);
+  msleep(1000);
+*/
 
+  // ok. it seems to have done something...
+  // as in the value is 0.12V then hard 0, when write
+
+/*
   uart_printf("write mon register for dac 2\n\r");
   dac_write_register1( 0b00000001 << 16 | 0b01000000 << 8   ); // select dac1.
   msleep(3000);
@@ -313,6 +358,7 @@ static void dac_test(void *args __attribute((unused)))
   uart_printf("dac 1 val %d\n\r", x);
 */
 
+  uart_printf("finished\n\r");
 
   // sleep forever
   // exiting a task thread isn't very good...
