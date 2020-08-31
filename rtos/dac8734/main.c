@@ -165,16 +165,14 @@ static uint32_t dac_read(void)
   return (a << 16) | (b << 8) | c;
 }
 
-// is there some other IO action can try????
-// otherwise think we need to try and bit-bash so can try a read also...
+
 
 /*
-  OK. 
-    1) have to understand why our gpio registers are not quite right.
+  OK.  bitbashing sometimes works,
 
-  IT could be power supply stuff.
-    EG. when power supplies are switched on/ mon on.
-    then it loses configuration etc.
+  - seems to really likes a scope probe on it, to burden pin with some capacitance?.
+  - but could there be an issue - with interrupts - changing pins - or timing of clocking....
+  
 */
 
 static void dac_test(void *args __attribute((unused)))
