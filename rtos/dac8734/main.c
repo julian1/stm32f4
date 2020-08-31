@@ -126,6 +126,7 @@ static void dac_write_register1(uint32_t r)   // change name dac_write_register_
 
   gpio_clear(DAC_PORT_SPI, DAC_CS);  // CS active low
   msleep(1);
+
   dac_write_register( r );        // writes,
   msleep(1); // required
   gpio_set(DAC_PORT_SPI, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
@@ -164,6 +165,10 @@ static uint32_t dac_read(void)
 // is there some other IO action can try????
 // otherwise think we need to try and bit-bash so can try a read also...
 
+/*
+  OK. 
+    1) have to understand why our gpio registers are not quite right.
+*/
 
 static void dac_test(void *args __attribute((unused)))
 {
@@ -211,14 +216,15 @@ static void dac_test(void *args __attribute((unused)))
 
   // god damn it.
 
-#if 1
+#if 0
   uart_printf("gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
   // TODO - IMPORTANT - remove this.  just clear gpio pins separately if need to.
   uart_printf("dac clear\n\r");
   dac_write_register1( 0);
   uart_printf("gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
   uart_printf("dac set\n\r");
-  dac_write_register1( 0 << 24 | 1 << 7 | 1 << 8); // ok so this really looks like it works ok...
+  // OK. with bitbashing reg 8 and 9 look correct...
+  dac_write_register1( 0 << 24 | 1 << 9 | 1 << 8); // ok so this really looks like it works ok...
   uart_printf("gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 #endif
 
@@ -321,7 +327,6 @@ static void dac_test(void *args __attribute((unused)))
   }
 #endif
 
-#if 1
 
   // OK. there is something wrong - depending on the order of these...
   // it does something or does nothing...
@@ -329,32 +334,36 @@ static void dac_test(void *args __attribute((unused)))
   // SO depending on the order we select the monitor - we get quite different results...
   // that is too bizarre
 
-
+#if 0
   uart_printf("write mon register for ain\n\r");
   // dac_write_register1( 0b00000001 << 16 | 0b00001000 << 10 ); // select AIN.
   // uart_printf("val is %d \n\r", 0b00000001 << 16 | 1 << 10 );
-  dac_write_register1( 0b00000001 << 16 | 1 << 10 ); // select AIN.
+  dac_write_register1( 0b00000001 << 16 | (1 << 10) ); // select AIN.
   // fucking looks correct...
   // 01 00000100 00000000
   msleep(1000);
 
-  uart_printf("write mon register for dac1\n\r");
-  dac_write_register1( 0b00000001 << 16 | 1 << 12   ); // select dac 1
-  msleep(1000);
+
+
 
   // dac0 also has slightly different value...
   uart_printf("write mon register for dac0\n\r");
-  dac_write_register1( 0b00000001 << 16 | 1 << 11   ); // select dac 0
+  dac_write_register1( 0b00000001 << 16 | (1 << 11)   ); // select dac 0
   msleep(1000);
 
-  uart_printf("write mon register for dac3\n\r");
-  dac_write_register1( 0b00000001 << 16 | 1 << 14   ); // select dac 1
+
+  uart_printf("write mon register for dac1\n\r");
+  dac_write_register1( 0b00000001 << 16 | (1 << 12)   ); // select dac 1
   msleep(1000);
 
   uart_printf("write mon register for dac2\n\r");
-  dac_write_register1( 0b00000001 << 16 | 1 << 13   ); // select dac 1
+  dac_write_register1( 0b00000001 << 16 | (1 << 13)   ); // select dac 1
   msleep(1000);
 
+
+  uart_printf("write mon register for dac3\n\r");
+  dac_write_register1( 0b00000001 << 16 | (1 << 14)   ); // select dac 1
+  msleep(1000);
   // AIN/MON should fucking work...
   // and it sometimes doesn't clear -0.745V
   // this isnt clearing...
