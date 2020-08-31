@@ -315,6 +315,8 @@ static void dac_test(void *args __attribute((unused)))
 
     AIDD (normaloperation) ±10V output range, no loading current, VOUT=0V 2.7-3.4mA/Channel
     AAISS(normaloperation)±10V outputrange, no loadingcurrent, VOUT=0V 3.3-4.0mA/Channel
+
+    Input current  1μA - this is for the digital section only.
   */
 
   // it is too strange - that the damn monitor muxer doesn't work for ain.
@@ -330,10 +332,16 @@ static void dac_test(void *args __attribute((unused)))
   // maybe the current is ok. but there's something else amiss. ground?
   // writing...
 
+  for(int i = 0; i < 15; ++i ) {
+
+    uart_printf("write mon register, bit %d\n\r", i);
+    dac_write_register1( 0b00000001 << 16 | 1 << i );
+
+  }
+#if 0
   uart_printf("write mon register for bit 9 \n\r");
   dac_write_register1( 0b00000001 << 16 | 1 << 9 ); // select AIN.
   msleep(2000);
-
 
 
   uart_printf("write mon register for ain\n\r");
@@ -355,7 +363,7 @@ static void dac_test(void *args __attribute((unused)))
   uart_printf("write mon register to clear\n\r");
   dac_write_register1( 0b00000001 << 16 | 0   );
   msleep(2000);
-
+#endif
  //
 
 
