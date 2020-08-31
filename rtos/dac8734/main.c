@@ -158,6 +158,10 @@ static void dac_test(void *args __attribute((unused)))
   // do latch first... not sure if makes a difference
   gpio_clear(DAC_PORT, DAC_LDAC);   // keep latch low, and unused, unless chaining
 
+  // makes no difference
+  gpio_clear(DAC_PORT, DAC_UNIBIPA);
+  gpio_clear(DAC_PORT, DAC_UNIBIPB);
+
   msleep(1000);   // 500ms not long enough. on cold power-up.
                   // 1s ok.
                   // actually sometimes 1s. fails.
@@ -286,16 +290,17 @@ static void dac_test(void *args __attribute((unused)))
   msleep(1);
   
 
-  // write the monitor register
-  // addr=1, val
+  // it is too strange - that the damn monitor muxer doesn't work for ain.
+  // indicates the supply rails must be off - or chip is no good.
 
-  // doesn't seem to do anything...
+  // selecting dac  inputs gets voltages...
+  // lets make sure the uni/bip  is not highZ
 
+  // OK. with ref=3V, get mon of -0.7V when reading mon for  dac0 and dac1
+  // with ref=1V      get mon of -0.5V when reading mon for dac0 and dac1 
+  // writing dac value does not seem to do anything.
  
-  /*
-    As soon as we set this the mon goes to 0. which is not correct - but indicates something happens,
-    But if we write a different register we have an effect also...
-  */
+
   uart_printf("write mon register for ain\n\r");
   dac_write_register1( 0b00000001 << 16 | 0b00001000 << 10 ); // select AIN.
   msleep(2000);
@@ -315,9 +320,7 @@ static void dac_test(void *args __attribute((unused)))
   dac_write_register1( 0b00000001 << 16 | 0   ); 
   msleep(2000);
 
-  // OK. with ref=3V, get mon of -0.7V when reading mon for  dac0 and dac1
-  // with ref=1V      get mon of -0.5V when reading mon for dac0 and dac1 
-  // 
+ // 
 
 
   // So... try to provide a reference voltage maybe...
