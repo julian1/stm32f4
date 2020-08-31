@@ -129,7 +129,33 @@ static void dac_write_register2(uint32_t a, uint32_t d)   // change name dac_wri
 
 
 
+static uint32_t dac_read(void)
+{
+  // return 123;
+  // this will overwrite the register... because we cannot clock in a clear value...
+  // this whole thing just hangs...
 
+  msleep(1); // required
+  gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
+
+  // think problem is that it doesn't fiddle the clock.
+  uint8_t a = spi_read(DAC_PORT);
+  uint8_t b = spi_read(DAC_PORT);
+  uint8_t c = spi_read(DAC_PORT);
+
+  /*
+  uint8_t a = spi_xfer(DAC_PORT, 0);
+  uint8_t b = spi_xfer(DAC_PORT, 0 );
+  uint8_t c = spi_xfer(DAC_PORT, 0);
+  */
+  msleep(1); // required
+  gpio_set(DAC_PORT_CS, DAC_CS);
+
+  return (a << 16) | (b << 8) | c;
+}
+
+// is there some other IO action can try????
+// otherwise think we need to try and bit-bash so can try a read also...
 
 
 static void dac_test(void *args __attribute((unused)))
@@ -141,8 +167,8 @@ static void dac_test(void *args __attribute((unused)))
   */
 
   /* Load DAC latch control input(activelow). When LDAC is low, the DAC latch
-  is transparent and the LDAC 56I contents of the Input DataRegister are
-  transferred to it.The DAC outputc hanges to the corresponding level
+  is transparent and the LDAC 56I contents of the Input Data Register are
+  transferred to it.The DAC output changes to the corresponding level
   simultaneously when the DAClat */
 
   // do latch first... not sure order makes a difference
@@ -170,12 +196,10 @@ static void dac_test(void *args __attribute((unused)))
 
 
   uart_printf("dac reset\n\r");
-
   gpio_clear(DAC_PORT, DAC_RST);
   msleep(1000);
   gpio_set(DAC_PORT, DAC_RST);
   msleep(1000);
-
   uart_printf("reset done\n\r");
 
   // god damn it.
@@ -297,43 +321,47 @@ static void dac_test(void *args __attribute((unused)))
 
   uart_printf("write mon register for ain\n\r");
   // dac_write_register1( 0b00000001 << 16 | 0b00001000 << 10 ); // select AIN.
-
-  uart_printf("val is %d \n\r", 0b00000001 << 16 | 1 << 10 );
-
+  // uart_printf("val is %d \n\r", 0b00000001 << 16 | 1 << 10 );
   dac_write_register1( 0b00000001 << 16 | 1 << 10 ); // select AIN.
   // fucking looks correct...
   // 01 00000100 00000000
-  msleep(2000);
+  msleep(1000);
 
   uart_printf("write mon register for dac1\n\r");
   dac_write_register1( 0b00000001 << 16 | 1 << 12   ); // select dac 1
-  msleep(2000);
+  msleep(1000);
 
   // dac0 also has slightly different value...
   uart_printf("write mon register for dac0\n\r");
   dac_write_register1( 0b00000001 << 16 | 1 << 11   ); // select dac 0
-  msleep(2000);
+  msleep(1000);
 
   uart_printf("write mon register for dac3\n\r");
   dac_write_register1( 0b00000001 << 16 | 1 << 14   ); // select dac 1
-  msleep(2000);
+  msleep(1000);
 
   uart_printf("write mon register for dac2\n\r");
   dac_write_register1( 0b00000001 << 16 | 1 << 13   ); // select dac 1
-  msleep(2000);
-
+  msleep(1000);
 
   // AIN/MON should fucking work...
-
   // and it sometimes doesn't clear -0.745V
-
   // this isnt clearing...
   uart_printf("write mon register to clear\n\r");
   dac_write_register1( 0b00000001 << 16 | 0   );
-  msleep(2000);
+  msleep(1000);
 #endif
  //
 
+#if 0
+  ////////////////////////////
+  uart_printf("dac read\n\r");
+
+  dac_write_register1( 0b10000101 << 16 | 0x0 ); // read dac 1 //
+  // ok, think that read doesn't fire
+  uint32_t x = dac_read();
+  uart_printf("val %d\n\r", x);
+#endif
 
   uart_printf("finished\n\r");
 
@@ -358,7 +386,8 @@ static void dac_setup( void )
 
   // rcc_periph_clock_enable(RCC_SPI1);
   spi_init_master(DAC_SPI,
-    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
+    SPI_CR1_BAUDRATE_FPCLK_DIV_4,     // when we change this - we get different values?
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_256,     // the monitor pin values change - but still nothing correct
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
     SPI_CR1_CPHA_CLK_TRANSITION_2,    // 1 == rising edge, 2 == falling edge.
     SPI_CR1_DFF_8BIT,

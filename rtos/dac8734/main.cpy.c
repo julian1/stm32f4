@@ -129,31 +129,42 @@ static void dac_write_register2(uint32_t a, uint32_t d)   // change name dac_wri
 
 
 #if 0
+
+
+  dac_write_register1( 0b10000101 << 16 | 0x0 ); // read dac 1 //
+  // ok, think that read doesn't fire
+  uint32_t x = dac_read();
+  uart_printf("val %d\n\r", x);
+
+
 static uint32_t dac_read(void)
 {
-  return 123;
+  // return 123;
   // this will overwrite the register... because we cannot clock in a clear value...
   // this whole thing just hangs...
 
   msleep(1); // required
   gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
-  msleep(1);
-  /*
+
+  // think problem is that it doesn't fiddle the clock.
   uint8_t a = spi_read(DAC_PORT);
   uint8_t b = spi_read(DAC_PORT);
   uint8_t c = spi_read(DAC_PORT);
-  */
 
+
+  /*
   uint8_t a = spi_xfer(DAC_PORT, 0);
   uint8_t b = spi_xfer(DAC_PORT, 0 );
   uint8_t c = spi_xfer(DAC_PORT, 0);
-
+  */
 
   msleep(1); // required
-  gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
+  gpio_set(DAC_PORT_CS, DAC_CS);
 
   return (a << 16) | (b << 8) | c;
 }
+
+
 #endif
 
 // guy says device is drawing 10mA.
