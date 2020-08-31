@@ -304,18 +304,23 @@ static void dac_test(void *args __attribute((unused)))
   dac_write_register1( 0b00000001 << 16 | 0b00001000 << 12   ); // select dac 1
   msleep(2000);
 
-  // ok - we have a slightly different value... for dac1
+  // ok - we have a slightly different value... for dac0 or dac1, from cleared
 
   // dac0 also has slightly different value...
   uart_printf("write mon register for dac0\n\r");
-  dac_write_register1( 0b00000001 << 16 | 0b00001000 << 11   ); // select dac 1
+  dac_write_register1( 0b00000001 << 16 | 0b00001000 << 11   ); // select dac 0
   msleep(2000);
 
   uart_printf("write mon register to clear\n\r");
   dac_write_register1( 0b00000001 << 16 | 0   ); 
   msleep(2000);
 
+  // OK. with ref=3V, get mon of -0.7V when reading mon for  dac0 and dac1
+  // with ref=1V      get mon of -0.5V when reading mon for dac0 and dac1 
+  // 
 
+
+  // So... try to provide a reference voltage maybe...
 
 
   // So everything is always 0. and when plug ref in, it starts to use lots of current.
