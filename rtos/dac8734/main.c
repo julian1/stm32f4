@@ -31,12 +31,10 @@
 #include "led.h"
 
 
-#define DAC_PORT_CS   GPIOA
-#define DAC_CS        GPIO4
-
-//
 #define DAC_SPI       SPI1
 
+#define DAC_PORT_SPI   GPIOA
+#define DAC_CS        GPIO4
 // use spi1/ port A alternate function
 #define DAC_CLK       GPIO5
 #define DAC_MOSI      GPIO6
@@ -95,37 +93,45 @@ static void led_blink_task2(void *args __attribute((unused))) {
 
 static void dac_write_register(uint32_t r)
 {
-#if 1
+/*
   // yes... amount is on the right
   spi_send( DAC_SPI, (r >> 16) & 0xff );
   spi_send( DAC_SPI, (r >> 8) & 0xff  );
   spi_send( DAC_SPI, r & 0xff  );  // depending on what we set this we get different values back in c.
-#endif
+*/
 
-#if 0
-  spi_send( DAC_SPI, r & 0xff  );  // depending on what we set this we get different values back in c.
-  spi_send( DAC_SPI, (r >> 8) & 0xff  );
-  spi_send( DAC_SPI, (r >> 16) & 0xff );
-#endif
+  for(int i = 23; i >= 0; --i) {
+
+    gpio_set(DAC_PORT_SPI, DAC_CLK);  // clock high
+
+    // assert value
+    if( r & (1 << i ))
+      gpio_set(DAC_PORT_SPI, DAC_MOSI );
+    else
+      gpio_clear (DAC_PORT_SPI, DAC_MOSI );
+
+    msleep(1);
+    gpio_clear(DAC_PORT_SPI, DAC_CLK);  // slave gets value on down transition
+    msleep(1);
+
+  }
+
+  // maybe
+
 }
 
 
 static void dac_write_register1(uint32_t r)   // change name dac_write_register_cs
 {
-  gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
+  gpio_clear(DAC_PORT_SPI, DAC_CS);  // CS active low
   msleep(1);
   dac_write_register( r );        // writes,
   msleep(1); // required
-  gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
+  gpio_set(DAC_PORT_SPI, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
   msleep(1);
 }
 
-/*
-static void dac_write_register2(uint32_t a, uint32_t d)   // change name dac_write_register_cs
-{
-  // address/ data/
-}
-*/
+
 
 
 
@@ -136,7 +142,7 @@ static uint32_t dac_read(void)
   // this whole thing just hangs...
 
   msleep(1); // required
-  gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
+  gpio_clear(DAC_PORT_SPI, DAC_CS);  // CS active low
 
   // think problem is that it doesn't fiddle the clock.
   uint8_t a = spi_read(DAC_PORT);
@@ -149,7 +155,7 @@ static uint32_t dac_read(void)
   uint8_t c = spi_xfer(DAC_PORT, 0);
   */
   msleep(1); // required
-  gpio_set(DAC_PORT_CS, DAC_CS);
+  gpio_set(DAC_PORT_SPI, DAC_CS);
 
   return (a << 16) | (b << 8) | c;
 }
@@ -204,7 +210,7 @@ static void dac_test(void *args __attribute((unused)))
 
   // god damn it.
 
-#if 0
+#if 1
   uart_printf("gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
   // TODO - IMPORTANT - remove this.  just clear gpio pins separately if need to.
   uart_printf("dac clear\n\r");
@@ -379,6 +385,7 @@ static void dac_setup( void )
 
   uart_printf("dac gpio/af setup\n\r");
 
+#if 0
   // spi alternate function 5
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,  DAC_CLK | DAC_MOSI | DAC_MISO );
 
@@ -398,9 +405,12 @@ static void dac_setup( void )
   spi_enable(DAC_SPI);
 
 
-  // CS same pin as SPI alternate function, but we use it as gpio out.
-  gpio_mode_setup(DAC_PORT_CS, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_CS);
+#endif
 
+  gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_CLK | DAC_MOSI);
+  // CS same pin as SPI alternate function, but we use it as gpio out.
+  gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_CS);
+  gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_MISO );
 
 
   /////
@@ -568,7 +578,7 @@ int main(void) {
 
 
   // msleep(1);
-  // gpio_clear(DAC_PORT_CS, DAC_CS);  // CS active low
+  // gpio_clear(DAC_PORT_SPI, DAC_CS);  // CS active low
   // msleep(1);
 
   /*
@@ -610,7 +620,7 @@ int main(void) {
   **********/
 
   // msleep(1); // required
-  // gpio_set(DAC_PORT_CS, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
+  // gpio_set(DAC_PORT_SPI, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
 
 
   // gpio_clear(DAC_PORT, DAC_LDAC);
