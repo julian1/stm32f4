@@ -146,6 +146,8 @@ static uint32_t dac_read(void)
   return (a << 16) | (b << 8) | c;
 }
 
+// guy says device is drawing 10mA.
+// https://e2e.ti.com/support/data-converters/f/73/t/648061?DAC8734-Is-my-dac-damaged-
 
 static void dac_test(void *args __attribute((unused)))
 {
@@ -155,7 +157,12 @@ static void dac_test(void *args __attribute((unused)))
   Register and Zero Register to default values.
   */
 
-  // do latch first... not sure if makes a difference
+  /* Load DAC latch control input(activelow). When LDAC is low, the DAC latch
+  is transparent and the LDAC 56I contents of the Input DataRegister are
+  transferred to it.The DAC outputc hanges to the corresponding level
+  simultaneously when the DAClat */
+
+  // do latch first... not sure order makes a difference
   gpio_clear(DAC_PORT, DAC_LDAC);   // keep latch low, and unused, unless chaining
 
   /*
@@ -177,6 +184,12 @@ static void dac_test(void *args __attribute((unused)))
                   // Maybe need to pull reset low - as first gpio configuration action, before configure spi etc.
                   // Also could be rails, need to be pulled to ground - first, and there is stray capacitance on them.
                   // Also could be,
+
+
+    // OK EXTREME -- now we don't see anything on the monitor
+  // do latch again ... in case reset
+  gpio_clear(DAC_PORT, DAC_LDAC);
+
 
 
   uart_printf("dac reset\n\r");
@@ -286,13 +299,14 @@ static void dac_test(void *args __attribute((unused)))
   /*  */
 
 
+/*
   // toggle latch in case it makes a difference
   uart_printf("toggle ldac\n\r");
   gpio_set(DAC_PORT, DAC_LDAC);
   msleep(1);
   gpio_clear(DAC_PORT, DAC_LDAC);
   msleep(1);
-
+*/
 
   // it is too strange - that the damn monitor muxer doesn't work for ain.
   // indicates the supply rails must be off - or chip is no good.
