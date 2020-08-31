@@ -123,6 +123,7 @@ static void dac_write_register(uint32_t r)
 
 static void dac_write_register1(uint32_t r)   // change name dac_write_register_cs
 {
+
   gpio_clear(DAC_PORT_SPI, DAC_CS);  // CS active low
   msleep(1);
   dac_write_register( r );        // writes,
@@ -274,7 +275,7 @@ static void dac_test(void *args __attribute((unused)))
   // WRITING THIS - does not affect mon value...
   uart_printf("writing dac register 1\n\r");
   dac_write_register1( 0b00000100 << 16 | 0x7f7f ); // write dac 0
-  dac_write_register1( 0b00000101 << 16 | 0xffff ); // write dac 1
+  dac_write_register1( 0b00000101 << 16 | 0x3fff ); // write dac 1
 
   // uart_printf("dac - val is %d \n\r", 0b00000101 << 16 | 0xffff );
   // 0101 11111111 11111111
