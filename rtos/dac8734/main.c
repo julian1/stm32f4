@@ -163,8 +163,8 @@ static void dac_test(void *args __attribute((unused)))
   IOVDD, group B is in unipolar output mode; when tied to DGND, group B is in
   bipolar output mode
   */
-  gpio_clear(DAC_PORT, DAC_UNIBIPA);
-  gpio_clear(DAC_PORT, DAC_UNIBIPB);
+  gpio_set(DAC_PORT, DAC_UNIBIPA);
+  gpio_set(DAC_PORT, DAC_UNIBIPB);
 
   msleep(1000);   // 500ms not long enough. on cold power-up.
                   // 1s ok.
