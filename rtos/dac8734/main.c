@@ -308,6 +308,15 @@ static void dac_test(void *args __attribute((unused)))
   msleep(1);
 */
 
+/*
+
+  /*
+    OKK - power consumption - seems *exactly* right.  around 10mA.
+
+    AIDD (normaloperation) ±10V output range, no loading current, VOUT=0V 2.7-3.4mA/Channel
+    AAISS(normaloperation)±10V outputrange, no loadingcurrent, VOUT=0V 3.3-4.0mA/Channel
+  */
+
   // it is too strange - that the damn monitor muxer doesn't work for ain.
   // indicates the supply rails must be off - or chip is no good.
 
@@ -318,7 +327,8 @@ static void dac_test(void *args __attribute((unused)))
   // with ref=1V      get mon of -0.5V when reading mon for dac0 and dac1
   // writing dac value does not seem to do anything.
 
-
+  // maybe the current is ok. but there's something else amiss. ground?
+  // writing...
 
   uart_printf("write mon register for bit 9 \n\r");
   dac_write_register1( 0b00000001 << 16 | 1 << 9 ); // select AIN.
