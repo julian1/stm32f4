@@ -275,7 +275,11 @@ static void dac_test(void *args __attribute((unused)))
   // WRITING THIS - does not affect mon value...
   uart_printf("writing dac register 1\n\r");
   dac_write_register1( 0b00000100 << 16 | 0x7f7f ); // write dac 0
-  dac_write_register1( 0b00000101 << 16 | 0x3fff ); // write dac 1
+  //dac_write_register1( 0b00000101 << 16 | 0x3fff ); // write dac 1 1.5V out.
+  // dac_write_register1( 0b00000101 << 16 | 0x2fff ); // write dac 1 1.129 out.
+  // dac_write_register1( 0b00000101 << 16 | -10000 ); // didn't work 
+  // dac_write_register1( 0b00000101 << 16 | 10000 ); // works 0.919V
+  dac_write_register1( 0b00000101 << 16 | 0xffff - 10000 ); //  works. output -0.919V
 
   // uart_printf("dac - val is %d \n\r", 0b00000101 << 16 | 0xffff );
   // 0101 11111111 11111111
