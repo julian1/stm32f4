@@ -146,8 +146,8 @@ static void dac_write_register__(uint32_t r)
 static void dac_write_register1(uint32_t r)   // change name dac_write_register_cs
 {
   // is there an interaction between clk and CS.
-  gpio_set(DAC_PORT_SPI, DAC_CLK); // raise clock
-  msleep(1);
+  // gpio_set(DAC_PORT_SPI, DAC_CLK); // raise clock
+  // msleep(1);
 
   gpio_clear(DAC_PORT_SPI, DAC_CS);  // CS active low
   msleep(1);
