@@ -12,6 +12,9 @@ LDSCRIPT	= ../../cjmcu-407.ld  # JA
 
 TGT_CFLAGS	+= -I./include
 
+# JA
+CFLAGS    += -Wno-unused-function
+
 
 include ../../Makefile.incl
 include ../Makefile.rtos
