@@ -16,9 +16,9 @@
 /*
   - ok. move back to actual spi port - see if can still bit bash.
   - see if peripheral spi works.
-  - mon - to ADC - resistor divider? won't work - for negative signals. 
+  - mon - to ADC - resistor divider? won't work - for negative signals.
 
-  - we want 
+  - we want
 */
 
 // #include <libopencm3/cm3/nvic.h>
@@ -42,15 +42,15 @@
 #define DAC_CS        GPIO4
 // use spi1/ port A alternate function
 #define DAC_CLK       GPIO5
-// #define DAC_MOSI      GPIO6   // think BROKEN 
+// #define DAC_MOSI      GPIO6   // think BROKEN
 // #define DAC_MOSI      GPIO3   // also not strong... --- uggh...  maybe its the dac? or a short to the dac somehow?
 
 //#define DAC_MISO      GPIO7
 #define DAC_MISO      GPIO3 // not connected right now.
 #define DAC_MOSI      GPIO7
 
-// fucking hell 
-// spi 1 AF5 
+// fucking hell
+// spi 1 AF5
 //  MOSI == PA7 == GPIO7    DAC SDI pin 4
 //  MISO == PA6 == GPIO6    DAC SDO pin 5
 
@@ -105,19 +105,23 @@ static void led_blink_task2(void *args __attribute((unused))) {
 }
 
 // oko - there is is absolutely nothign on the scope...  when Vref=4V sometimes.
-// like the register never got wrote. 
+// like the register never got wrote.
 // and ain mon is not working
 // what if we try to write multiple times...
 
-static void dac_write_register__(uint32_t r)
+
+
+static void dac_write_register_spi(uint32_t r)
 {
-/*
-  // yes... amount is on the right
   spi_send( DAC_SPI, (r >> 16) & 0xff );
   spi_send( DAC_SPI, (r >> 8) & 0xff  );
-  spi_send( DAC_SPI, r & 0xff  );  // depending on what we set this we get different values back in c.
-*/
+  spi_send( DAC_SPI, r & 0xff  );  
 
+}
+
+
+static void dac_write_register_bitbash(uint32_t r)
+{
   for(int i = 23; i >= 0; --i) {
 
     gpio_set(DAC_PORT_SPI, DAC_CLK);  // clock high
@@ -130,31 +134,20 @@ static void dac_write_register__(uint32_t r)
     else
       gpio_clear (DAC_PORT_SPI, DAC_MOSI );
 
-
-    // gpio_set(DAC_PORT_SPI, DAC_CLK);  // clock high - works...
-
     msleep(1);
     gpio_clear(DAC_PORT_SPI, DAC_CLK);  // slave gets value on down transition
     msleep(1);
-
   }
-
-  // maybe
 }
 
 
-static void dac_write_register1(uint32_t r)   // change name dac_write_register_cs
+static void dac_write_register1(uint32_t r)
 {
-  // is there an interaction between clk and CS.
-  // gpio_set(DAC_PORT_SPI, DAC_CLK); // raise clock
-  // msleep(1);
-
-  gpio_clear(DAC_PORT_SPI, DAC_CS);  // CS active low
+  gpio_clear(DAC_PORT_SPI, DAC_CS);     // CS active low
   msleep(1);
-
-  dac_write_register__( r );        // writes,
+  dac_write_register_bitbash( r );     // write
   msleep(1); // required
-  gpio_set(DAC_PORT_SPI, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
+  gpio_set(DAC_PORT_SPI, DAC_CS);      // ldac is transparent if low, so will latch value on cs deselect
   msleep(1);
 }
 
@@ -508,7 +501,7 @@ static void rails_setup( void )
   ------------
   sep 1.
   OK. started from cold ok. but now cannot get to start now.
-    No seems to come on ok with 1V ref on. 0.730V dac1-out. 
+    No seems to come on ok with 1V ref on. 0.730V dac1-out.
 
 */
 
