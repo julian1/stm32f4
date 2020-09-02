@@ -140,7 +140,8 @@ static void dac_write_register1(uint32_t r)
 {
   gpio_clear(DAC_PORT_SPI, DAC_CS);     // CS active low
   msleep(1);
-  dac_write_register_bitbash( r );     // write
+  // dac_write_register_bitbash( r );     // write
+  dac_write_register_spi( r );     // write
   msleep(1); // required
   gpio_set(DAC_PORT_SPI, DAC_CS);      // ldac is transparent if low, so will latch value on cs deselect
   msleep(1);
@@ -152,6 +153,7 @@ static void dac_write_register1(uint32_t r)
 
 static uint32_t dac_read(void)
 {
+  // dac write register exchange...
 
   msleep(1); // required
   gpio_clear(DAC_PORT_SPI, DAC_CS);  // CS active low
@@ -428,7 +430,8 @@ int main(void) {
 
   uart_printf("------------------\n\r");
 
-  dac_setup_bitbash();
+  // dac_setup_bitbash();
+  dac_setup_spi();
 
   rails_setup();
 
