@@ -14,11 +14,9 @@
 #include "queue.h"
 
 /*
-  - ok. move back to actual spi port - see if can still bit bash.
+  - move back to actual spi port - see if can still bit bash.
   - see if peripheral spi works.
   - mon - to ADC - resistor divider? won't work - for negative signals. 
-
-  - we want 
 */
 
 // #include <libopencm3/cm3/nvic.h>
@@ -365,13 +363,12 @@ static void dac_test(void *args __attribute((unused)))
 
 
 
-
-
-
-static void dac_setup_spi( void )
+static void dac_setup( void )
 {
-  uart_printf("dac setup spi\n\r");
 
+  uart_printf("dac gpio/af setup\n\r");
+
+#if 0
   // spi alternate function 5
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,  DAC_CLK | DAC_MOSI | DAC_MISO );
 
@@ -391,26 +388,37 @@ static void dac_setup_spi( void )
   spi_enable(DAC_SPI);
 
 
-  gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_CS );
+#endif
+
+  // is there something else on the damn ports????
+  // if one of the gpio pins is broken - maybe others are as well - but not as obviously...
+  // OK... we can set faster or slower speed... no problem.
+
+  // OK. miso was incorrectly configured... it now does 4V ref seemingly ok. but not higher... but 
+
+  // OK - setting to 100MHz clock and nothing works...
+  gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_CS  | DAC_CLK | DAC_MOSI);
+  // gpio_set_output_options(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_OSPEED_2MHZ, DAC_CS  | DAC_CLK | DAC_MOSI); // fails
+  // gpio_set_output_options(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_OSPEED_100MHZ, DAC_CS  | DAC_CLK | DAC_MOSI); // fails
+  // gpio_set_output_options(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_OSPEED_100MHZ, DAC_CS  ); // fails 
+  // gpio_set_output_options(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_OSPEED_100MHZ, DAC_CLK | DAC_MOSI );  // fails
+  // gpio_set_output_options(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_OSPEED_100MHZ, DAC_CLK ); // fails 
+  // gpio_set_output_options(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_OSPEED_100MHZ, DAC_MOSI ); // fails 
+
+  // ok - setting any output option - and it fails...
+
 
   /////
   // internal pu, doesn't change anything - because its powered off, and starts up high-Z.
   gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC | DAC_UNIBIPA | DAC_UNIBIPB);
-  gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 ); // these are open-drain as inputs
-}
+  // gpio_set_output_options(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_OSPEED_2MHZ, DAC_RST | DAC_LDAC | DAC_UNIBIPA | DAC_UNIBIPB ); // OK...
+  // gpio_set_output_options(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_OSPEED_100MHZ, DAC_RST | DAC_LDAC | DAC_UNIBIPA | DAC_UNIBIPB ); // OK...
 
 
-
-
-
-static void dac_setup_bitbash( void )
-{
-  uart_printf("dac setup bitbash\n\r");
-
-  gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_CS  | DAC_CLK | DAC_MOSI);
+  /////////////////////
   gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_INPUT, GPIO_PUPD_NONE, DAC_MISO );
 
-  gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC | DAC_UNIBIPA | DAC_UNIBIPB);
+  // dac gpio inputs, pullups work
   gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 ); // these are open-drain as inputs
 }
 
@@ -528,7 +536,7 @@ int main(void) {
   rcc_periph_clock_enable(RCC_USART1);
 
   // spi1
-  rcc_periph_clock_enable(RCC_SPI1);
+  // rcc_periph_clock_enable(RCC_SPI1);
 
 
 
@@ -540,7 +548,7 @@ int main(void) {
 
   uart_printf("------------------\n\r");
 
-  dac_setup_bitbash();
+  dac_setup();
 
   rails_setup();
 
