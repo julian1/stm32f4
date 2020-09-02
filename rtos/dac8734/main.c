@@ -91,6 +91,7 @@ static void led_blink_task2(void *args __attribute((unused))) {
 
 		gpio_toggle(LED_PORT, LED_OUT);
 
+    // ping
     uart_printf("hi %d\n\r", last++);
 /*
     uart_printf("hi %d %d %d\n\r",
@@ -104,11 +105,6 @@ static void led_blink_task2(void *args __attribute((unused))) {
   }
 }
 
-// oko - there is is absolutely nothign on the scope...  when Vref=4V sometimes.
-// like the register never got wrote.
-// and ain mon is not working
-// what if we try to write multiple times...
-
 
 
 static void dac_write_register_spi(uint32_t r)
@@ -116,7 +112,6 @@ static void dac_write_register_spi(uint32_t r)
   spi_send( DAC_SPI, (r >> 16) & 0xff );
   spi_send( DAC_SPI, (r >> 8) & 0xff  );
   spi_send( DAC_SPI, r & 0xff  );  
-
 }
 
 
@@ -157,9 +152,6 @@ static void dac_write_register1(uint32_t r)
 
 static uint32_t dac_read(void)
 {
-  // return 123;
-  // this will overwrite the register... because we cannot clock in a clear value...
-  // this whole thing just hangs...
 
   msleep(1); // required
   gpio_clear(DAC_PORT_SPI, DAC_CS);  // CS active low
@@ -181,32 +173,6 @@ static uint32_t dac_read(void)
 }
 
 
-
-/*
-  OK.  bitbashing sometimes works,
-
-  - seems to really likes a scope probe on it, to burden pin with some capacitance?.
-  - but could there be an issue - with interrupts - changing pins - or timing of clocking....
-  - some stray mcu signal?
-
-  - ok lowered the vref to 1V and outputting 0.733V - and it doesn't fail nearly as much
-      could it be that the high voltage is doing stuff...
-    - also on the positive side. not negative rail.
-      - note also there's a spike to 4V when it turns on for about 10uS.
-
-    - could remove scope probes and still working
-
-  - we have the decoupling - on the power supply board.
-  - which is pretty far away...  should add 10nF.
-
-  - the timing of 100mS is bizarre.
-  - need to check mcu isn't resetting somehow/ emit a count...
-
-  - put scope on RST. make sure pin is clean.
-
-  - its a very clean switch-off (sharp transient).... at a precise timing of 200mS ... how... coming from mcu.
-  -- like RST was grounded .  or its on an AF
-*/
 
 static void dac_test(void *args __attribute((unused)))
 {
@@ -431,79 +397,8 @@ static void rails_setup( void )
   gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT,  GPIO_PUPD_NONE /*GPIO_PUPD_PULLUP*/,   RAILS_NEG );
   gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT,  GPIO_PUPD_NONE ,   GPIO8 ); // broken.. gpio.
 
-
-  // OK. on reset there is no glitch. for neg rail. or pos rail. but there is when 3.3V power first applied . 250nS.
-
-
-
-  // gpio_clear (RAILS_PORT, RAILS_NEG);    // turn on... eg. pull p-chan gate down from 3.3V to 0.
-
-  // OK - problem - our p-chan fet for neg rail is barely turning on.
-  // to pull up the n-chan gate.
-
-
-  // OK - a 1k on the fet gate. and defining the port before init... makes the top rail not glitch.
-
-  // bottom rail  - our p-chan fet is too weak.
-  // if use 1k / 10k. it doesn't turn on at all.
-  // if use without input resistor - it barely turns on.
-  ///// /HMMMMM
-
-  // no it does glitch.
-  // but why? because of weako
-
-  // ok. and 1k seems to often work for neg rail.
-  // issue - but secondary issue is that the tx VGS is too bad for us to use it to turn the damn rail on.
-  // God damn it...
-  // sometimes it spikes and sometimes it doesn't - with or without resistor.
-  // when it first turns on - the gate is negative.
-  // freaking...
-  // ---------
-  // try to use dg444?
-  // and now we cannot trigger it...
-
-  // ok added a 22uF cap as well...   glitching is only occasional and slight.c
-  // powering on the other stmicro - 3.3V supply helps a bit also.
-
-
 }
 
-
-/*
-  OK. its complicated.
-    the fet comes on as 3V is applied...
-    BUT what happens if
-    if have rail voltage and no 3V. should be ok. because of biasing.
-
-  When we first plug in- we get a high side pulse.
-    about 250nS.
-
-    Looks like the gate gets some spikes.
-    OK. but what about a small cap...
-  ----
-  ok 1nF helps
-  but there's still a 20nS pulse... that turns on the gateo
-  --
-  OK. both rails glitch at power-on.
-  ...
-  fuck.
-
-  try a cap across the gate...
-  ok 1nF seems to be ok.
-
-  ok. 0.1uF seems to have fixed.
-  NOPE.
-
-  OK. lets try a 10k on the gate... to try and stop the ringing.
-  mosfet gatep has cap anyway.
-
-  OK. disconnecting the signal - and we don't trigger. very good.
-  ------------
-  sep 1.
-  OK. started from cold ok. but now cannot get to start now.
-    No seems to come on ok with 1V ref on. 0.730V dac1-out.
-
-*/
 
 // OK. do we have a sleep function for bit bashing...?
 
@@ -560,6 +455,78 @@ int main(void) {
 
 
 
+// OK. on reset there is no glitch. for neg rail. or pos rail. but there is when 3.3V power first applied . 250nS.
+
+
+
+// gpio_clear (RAILS_PORT, RAILS_NEG);    // turn on... eg. pull p-chan gate down from 3.3V to 0.
+
+// OK - problem - our p-chan fet for neg rail is barely turning on.
+// to pull up the n-chan gate.
+
+
+// OK - a 1k on the fet gate. and defining the port before init... makes the top rail not glitch.
+
+// bottom rail  - our p-chan fet is too weak.
+// if use 1k / 10k. it doesn't turn on at all.
+// if use without input resistor - it barely turns on.
+///// /HMMMMM
+
+// no it does glitch.
+// but why? because of weako
+
+// ok. and 1k seems to often work for neg rail.
+// issue - but secondary issue is that the tx VGS is too bad for us to use it to turn the damn rail on.
+// God damn it...
+// sometimes it spikes and sometimes it doesn't - with or without resistor.
+// when it first turns on - the gate is negative.
+// freaking...
+// ---------
+// try to use dg444?
+// and now we cannot trigger it...
+
+// ok added a 22uF cap as well...   glitching is only occasional and slight.c
+// powering on the other stmicro - 3.3V supply helps a bit also.
+
+
+
+
+
+/*
+  OK. its complicated.
+    the fet comes on as 3V is applied...
+    BUT what happens if
+    if have rail voltage and no 3V. should be ok. because of biasing.
+
+  When we first plug in- we get a high side pulse.
+    about 250nS.
+
+    Looks like the gate gets some spikes.
+    OK. but what about a small cap...
+  ----
+  ok 1nF helps
+  but there's still a 20nS pulse... that turns on the gateo
+  --
+  OK. both rails glitch at power-on.
+  ...
+  fuck.
+
+  try a cap across the gate...
+  ok 1nF seems to be ok.
+
+  ok. 0.1uF seems to have fixed.
+  NOPE.
+
+  OK. lets try a 10k on the gate... to try and stop the ringing.
+  mosfet gatep has cap anyway.
+
+  OK. disconnecting the signal - and we don't trigger. very good.
+  ------------
+  sep 1.
+  OK. started from cold ok. but now cannot get to start now.
+    No seems to come on ok with 1V ref on. 0.730V dac1-out.
+
+*/
 
 
 
