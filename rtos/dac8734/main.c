@@ -143,11 +143,17 @@ static void dac_write_register1(uint32_t r)
   // dac_write_register_bitbash( r );     // write
   dac_write_register_spi( r );     // write
   msleep(1); // required
-  gpio_set(DAC_PORT_SPI, DAC_CS);      // ldac is transparent if low, so will latch value on cs deselect
+  gpio_set(DAC_PORT_SPI, DAC_CS);      // ldac is transparent if low, so will latch value on cs deselect (pull high).
   msleep(1);
 }
 
 
+static void dac_write_register(uint8_t r, uint16_t v)
+{
+
+  dac_write_register1( r << 16 | v );
+
+}
 
 
 
@@ -173,6 +179,58 @@ static uint32_t dac_read(void)
 
   return (a << 16) | (b << 8) | c;
 }
+
+
+
+static void dac_setup_spi( void )
+{
+  uart_printf("dac setup spi\n\r");
+
+  // spi alternate function 5
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,  DAC_CLK | DAC_MOSI | DAC_MISO );
+
+  gpio_set_af(GPIOA, GPIO_AF5,  DAC_CLK | DAC_MOSI | DAC_MISO );
+
+  // rcc_periph_clock_enable(RCC_SPI1);
+  spi_init_master(DAC_SPI,
+    SPI_CR1_BAUDRATE_FPCLK_DIV_4,     // when we change this - we get different values?
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_256,     // the monitor pin values change - but still nothing correct
+    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
+    SPI_CR1_CPHA_CLK_TRANSITION_2,    // 1 == rising edge, 2 == falling edge.
+    SPI_CR1_DFF_8BIT,
+    SPI_CR1_MSBFIRST
+    // SPI_CR1_LSBFIRST
+  );
+  spi_enable_ss_output(DAC_SPI);
+  spi_enable(DAC_SPI);
+
+
+  gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_CS );
+
+  /////
+  // internal pu, doesn't change anything - because its powered off, and starts up high-Z.
+  gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC | DAC_UNIBIPA | DAC_UNIBIPB);
+  gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 ); // these are open-drain as inputs
+}
+
+
+
+static void dac_setup_bitbash( void )
+{
+  uart_printf("dac setup bitbash\n\r");
+
+  gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_CS  | DAC_CLK | DAC_MOSI);
+  gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_INPUT, GPIO_PUPD_NONE, DAC_MISO );
+
+  gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC | DAC_UNIBIPA | DAC_UNIBIPB);
+  gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 ); // these are open-drain as inputs
+}
+
+
+
+
+
+
 
 
 
@@ -233,7 +291,10 @@ static void dac_test(void *args __attribute((unused)))
   uart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
   uart_printf("dac set\n\r");
   // OK. with bitbashing reg 8 and 9 look correct...
-  dac_write_register1( 0 << 16 | 1 << 9 | 1 << 8); // ok so this really looks like it works ok...
+  // dac_write_register1( 0 << 16 | 1 << 9 | 1 << 8); // ok so this really looks like it works ok...
+
+  dac_write_register(0, 1 << 9 | 1 << 8);
+
   uart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
 
@@ -284,7 +345,9 @@ static void dac_test(void *args __attribute((unused)))
   // dac_write_register1( 0b00000101 << 16 | -10000 ); // didn't work
   // dac_write_register1( 0b00000101 << 16 | 10000 ); // works 0.919V
   // dac_write_register1( 0b00000101 << 16 | 0xffff - 10000 ); //  works. output -0.919V
-  dac_write_register1( 0b00000101 << 16 | 0x5fff );
+  // dac_write_register1( 0b00000101 << 16 | 0x5fff );
+
+  dac_write_register(0x05, 0x5fff ); // 0b0101
 
 
 #if 0
@@ -328,52 +391,6 @@ static void dac_test(void *args __attribute((unused)))
 
 
 
-
-static void dac_setup_spi( void )
-{
-  uart_printf("dac setup spi\n\r");
-
-  // spi alternate function 5
-  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,  DAC_CLK | DAC_MOSI | DAC_MISO );
-
-  gpio_set_af(GPIOA, GPIO_AF5,  DAC_CLK | DAC_MOSI | DAC_MISO );
-
-  // rcc_periph_clock_enable(RCC_SPI1);
-  spi_init_master(DAC_SPI,
-    SPI_CR1_BAUDRATE_FPCLK_DIV_4,     // when we change this - we get different values?
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_256,     // the monitor pin values change - but still nothing correct
-    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
-    SPI_CR1_CPHA_CLK_TRANSITION_2,    // 1 == rising edge, 2 == falling edge.
-    SPI_CR1_DFF_8BIT,
-    SPI_CR1_MSBFIRST
-    // SPI_CR1_LSBFIRST
-  );
-  spi_enable_ss_output(DAC_SPI);
-  spi_enable(DAC_SPI);
-
-
-  gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_CS );
-
-  /////
-  // internal pu, doesn't change anything - because its powered off, and starts up high-Z.
-  gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC | DAC_UNIBIPA | DAC_UNIBIPB);
-  gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 ); // these are open-drain as inputs
-}
-
-
-
-
-
-static void dac_setup_bitbash( void )
-{
-  uart_printf("dac setup bitbash\n\r");
-
-  gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_CS  | DAC_CLK | DAC_MOSI);
-  gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_INPUT, GPIO_PUPD_NONE, DAC_MISO );
-
-  gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC | DAC_UNIBIPA | DAC_UNIBIPB);
-  gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 ); // these are open-drain as inputs
-}
 
 
 // set the gpio edges to be harder? eg. 20MHz.
