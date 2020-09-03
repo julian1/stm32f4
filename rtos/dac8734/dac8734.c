@@ -11,7 +11,6 @@
 
 
 /*
-  fucking hell
   spi 1 AF5
     MOSI == PA7 == GPIO7    DAC SDI pin 4
     MISO == PA6 == GPIO6    DAC SDO pin 5
@@ -184,19 +183,8 @@ void dac_setup_bitbash( void )
 
 
 
-
-
-
-
-
 void dac_test(void *args __attribute((unused)))
 {
-  /*
-  Reset input (active low). Logic low on this pin resets the input registers
-  and DACs to the values RST67I defined by the UNI/BIP pins, and sets the Gain
-  Register and Zero Register to default values.
-  */
-
   /* Load DAC latch control input(activelow). When LDAC is low, the DAC latch
   is transparent and the LDAC 56I contents of the Input Data Register are
   transferred to it.The DAC output changes to the corresponding level
@@ -229,15 +217,32 @@ void dac_test(void *args __attribute((unused)))
                   // Also could be,
 
 
-  // These values need to be increased for cold start...
+
+
+  /*
+  Reset input (active low). Logic low on this pin resets the input registers
+  and DACs to the values RST67I defined by the UNI/BIP pins, and sets the Gain
+  Register and Zero Register to default values.
+  */
+
+  // These times may need to be increased for true cold start...
   uart_printf("dac reset\n\r");
   gpio_clear(DAC_PORT, DAC_RST);
   msleep(20);
   gpio_set(DAC_PORT, DAC_RST);
   msleep(20);
-  uart_printf("reset done\n\r");
+  uart_printf("dac reset done\n\r");
 
-  // god damn it.
+
+
+  /*
+  Writing a '1' to the GPIO-0 bit puts the GPIO-1 pin into a Hi-Z state(default).
+  DB8 GPIO-01 Writing a '0' to the GPIO-0 bit forces the GPIO-1 pin low
+
+  p22 After a power-on reset or any forced hardware or software reset, all GPIO-n
+  bits are set to '1', and the GPIO-n pin goes to a high-impedancestate.
+  */
+
 
   uart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
   // TODO - IMPORTANT - remove this.  just clear gpio pins separately if need to.
@@ -251,6 +256,17 @@ void dac_test(void *args __attribute((unused)))
   dac_write_register(0, 1 << 9 | 1 << 8);
 
   uart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+
+
+  /*
+    LD bit
+    I think we need to understand this better...
+    ...
+    p21.
+    The DAC8734 updates the DAC latch only if it has been accessed since the last
+    time the LDAC pin was brought low or the LD bit in the CommandRegister was set
+    to'1', there by eliminating any unnecessary glitch.
+  */
 
 
   // dac_write_register1( 0 << 16 | 1 << 14); // LD bit    // now sometimes comes up 0, 0.629, or 0.755 ...
@@ -269,18 +285,9 @@ void dac_test(void *args __attribute((unused)))
   comes up in order to make sure the ESD protection circuitry does not turn on.
   */
 
-  /*
-    I think we need to understand this better...
-    ...
-    p21.
-    The DAC8734 updates the DAC latch only if it has been accessed since the last
-    time the LDAC pin was brought low or the LD bit in the CommandRegister was set
-    to'1', there by eliminating any unnecessary glitch.
-  */
-
 
   // WRITING THIS - does not affect mon value...
-  uart_printf("writing dac register 1\n\r");
+  uart_printf("dac writing dac register 1\n\r");
   // dac_write_register1( 0b00000100 << 16 | 0x7f7f ); // write dac 0
   //dac_write_register1( 0b00000101 << 16 | 0x3fff ); // write dac 1 1.5V out.
   // dac_write_register1( 0b00000101 << 16 | 0x2fff ); // write dac 1 1.129 out.
@@ -311,7 +318,7 @@ void dac_test(void *args __attribute((unused)))
 
   // 11 is ain. 13 is dac1.
 
-  uart_printf("write mon register for ain\n\r");
+  uart_printf("dac write mon register for ain\n\r");
   // dac_write_register1( 0b00000001 << 16 | (1 << 11) ); // select AIN.
   // dac_write_register1( 0b00000001 << 16 | (1 << 13) ); // select dac 1.
 
@@ -319,7 +326,7 @@ void dac_test(void *args __attribute((unused)))
 
 
 
-  uart_printf("finished\n\r");
+  uart_printf("dac finished\n\r");
 
   // sleep forever
   // exiting a task thread isn't very good...
@@ -430,13 +437,6 @@ void dac_test(void *args __attribute((unused)))
     would it make it easier to test things - if could power everything separately.
   */
 
-  /*
-  Writing a '1' to the GPIO-0 bit puts the GPIO-1 pin into a Hi-Z state(default).
-  DB8 GPIO-01 Writing a '0' to the GPIO-0 bit forces the GPIO-1 pin low
-
-  p22 After a power-on reset or any forced hardware or software reset, all GPIO-n
-  bits are set to '1', and the GPIO-n pin goes to a high-impedancestate.
-  */
 
   // spi_xfer is 'data write and read'.
   // think we should be using spi_send which does not return anything
@@ -463,96 +463,6 @@ void dac_test(void *args __attribute((unused)))
   // gpio_clear(DAC_PORT, DAC_LDAC);
 
 
-
-/*
-  // first byte,
-  spi_send(DAC_SPI, 0);
-  //spi_send(DAC_SPI, 0);
-  spi_send(DAC_SPI, 0 | 1 );           // dac gpio1 on
-
-  // spi_send(DAC_SPI, 0);
-  spi_send(DAC_SPI, 0 | 1 << 7 );  // turn on gpio0
-*/
-
-#if 0
-static uint8_t dac_read(void)
-{
-
-
-  /*
-    OK.
-      some timing diagrams are weird. BUT
-
-      case 5. p11.  for standalone mode. read timing is fine. see p11.
-  */
-
-/*
-    OK. issue is that spi_xfer attempts to read after sending a full byte
-    while we want simultaneous. read/write.
-    Not sure if supported or can do it without bit-bashing supported.
-
-    spi_xfer,
-      "Data is written to the SPI interface, then a read is done after the incoming transfer has finished."
-
-    issue is that we cannot just clock it out.
-    instead we have to send a no-op, while clocing it out.
-
-    BUT. if we used a separate spi channel for input.
-    Then we could do the write.
-    while simultaneously doing a blocking read in another thread.
-    pretty damn ugly.
-    better choice would be to bit-bash.
-*/
-
-  // dac_write_register1( 0 );
-
-
-
-                                                // very strange
-  return 123;   // c value is 128... eg. 10000000 this was kind of correct for the gpio1 in last byte. ....
-              // so appear to be getting something out....
-              // but really need to look at it on a scope
-
-              // b is now returning 1....
-              // c is returning 2.
-}
-#endif
-
-// use spi_read
-
-
-/*
-  strange issue - when first plug into usb power - its not initialized properly...
-  but reset run is ok.
-  could be decoupling
-  or because mcu starts with GPIO undefined?.. but when do 'reset run' the gpio is still defined because its
-  a soft reset?
-  - Or check the reset pin is genuinely working? or some other sync issue?
-*/
-
-/*
-  OK. that is really very very good.
-    we want to add the other uni/bip .
-
-  and we want to try and do spi read.
-  bit hard to know how it works - if get back 24 bytes.
-    except we control the clock... well spi does.
-
-  having gpio output is actually kind of useful - for different functions . albeit we would just use mcu.
-  likewise the mixer.
-  ---
-
-  ok added external 10k pu. does not help. bloody weird.
-
-*/
-#if 0
-  spi_send(DAC_SPI, 0);
-  //spi_send(DAC_SPI, 0);
-  spi_send(DAC_SPI, 0 | 1 );           // dac gpio1 on
-
-  // spi_send(DAC_SPI, 0);
-  spi_send(DAC_SPI, 0 | 1 << 7 );  // turn on gpio0
-#endif
 
 
 #if 0

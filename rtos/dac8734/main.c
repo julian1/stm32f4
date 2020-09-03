@@ -55,7 +55,7 @@ static void led_blink_task2(void *args __attribute((unused))) {
 		led_toggle();
 
     // ping
-    uart_printf("hi %d\n\r", last++);
+    uart_printf("ping %d\n\r", last++);
 /*
     uart_printf("hi %d %d %d\n\r",
       last++,
