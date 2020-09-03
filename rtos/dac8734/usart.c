@@ -280,7 +280,7 @@ static void demo_task1(void *args __attribute__((unused))) {
 
 static char buf[100];
 
-void prompt_task(void *args __attribute__((unused))) {
+void usart_prompt_task(void *args __attribute__((unused))) {
 
   // buf size of 10 - seems ok
   // buf size of 50 - ok.
