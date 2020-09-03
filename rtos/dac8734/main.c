@@ -111,7 +111,7 @@ static void dac_write_register_spi(uint32_t r)
 {
   spi_send( DAC_SPI, (r >> 16) & 0xff );
   spi_send( DAC_SPI, (r >> 8) & 0xff  );
-  spi_send( DAC_SPI, r & 0xff  );  
+  spi_send( DAC_SPI, r & 0xff  );
 }
 
 
@@ -347,7 +347,7 @@ static void dac_test(void *args __attribute((unused)))
   // dac_write_register1( 0b00000101 << 16 | 0xffff - 10000 ); //  works. output -0.919V
   // dac_write_register1( 0b00000101 << 16 | 0x5fff );
 
-  dac_write_register(0x05, 0x5fff ); // 0b0101
+  dac_write_register(0x05, 0x5fff ); // dac1 0b0101
 
 
 #if 0
@@ -371,7 +371,10 @@ static void dac_test(void *args __attribute((unused)))
 
   uart_printf("write mon register for ain\n\r");
   // dac_write_register1( 0b00000001 << 16 | (1 << 11) ); // select AIN.
-  dac_write_register1( 0b00000001 << 16 | (1 << 13) ); // select dac 1.
+  // dac_write_register1( 0b00000001 << 16 | (1 << 13) ); // select dac 1.
+
+  dac_write_register(0x01, (1 << 13) ); // mon
+
   msleep(1000);
 
 
