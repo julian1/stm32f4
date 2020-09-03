@@ -9,10 +9,7 @@
 #include "rails.h"
 #include "dac8734.h"
 
-/*
-  Same problem again...
-  OK - maybe overvoltage - has screwed the mcu pins. or mcu spi.
-*/
+
 
 /*
   spi 1 AF5
@@ -22,10 +19,9 @@
 #define DAC_SPI       SPI1
 #define DAC_PORT_SPI  GPIOA
 #define DAC_CS        GPIO4
-// use spi1/ port A alternate function
 #define DAC_CLK       GPIO5
 #define DAC_MOSI      GPIO7
-#define DAC_MISO      GPIO6 // not connected right now.
+#define DAC_MISO      GPIO6
 
 
 
@@ -39,25 +35,26 @@
 #define DAC_GPIO1     GPIO5
 #define DAC_UNIBIPA   GPIO6
 #define DAC_UNIBIPB   GPIO7
+// GPIO8 broken/ overvoltage?.
 
-// GPIOE8
+
 
 static void dac_write_register_spi(uint32_t r)
 {
-
+#if 1
   spi_send( DAC_SPI, (r >> 16) & 0xff );
   spi_send( DAC_SPI, (r >> 8) & 0xff  );
   spi_send( DAC_SPI, r & 0xff  );
+#endif
 
-
-/*
-  // OK. this doesn't work...
-  // think tries to do write followed by read, rather than simultaneously
+#if 0
+  // OK, this code now doesn't break writing...
+  // So, possible... just reads the buffered value, rather than pausing...
+  // and we can effect a read ...
   uint8_t a = spi_xfer( DAC_SPI, (r >> 16) & 0xff );
   uint8_t b = spi_xfer( DAC_SPI, (r >> 8) & 0xff  );
   uint8_t c = spi_xfer( DAC_SPI, r & 0xff  );
-*/
-
+#endif
 
 /*
   // don't think we can read 24 bytes... when hardware limited to 16 bytes
