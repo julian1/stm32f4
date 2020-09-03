@@ -338,7 +338,6 @@ static void dac_test(void *args __attribute((unused)))
   msleep(50);
   gpio_set  (RAILS_PORT, RAILS_POS);
   uart_printf("rails on \n\r");
-  // turning the rails on - brings the monitor pin to 0
   msleep( 50);
 
   /*
@@ -350,7 +349,6 @@ static void dac_test(void *args __attribute((unused)))
     to'1', there by eliminating any unnecessary glitch.
   */
 
-  // OK... check  we have not screwed up the LDAC output ...
 
   // WRITING THIS - does not affect mon value...
   uart_printf("writing dac register 1\n\r");
