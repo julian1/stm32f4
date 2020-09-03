@@ -281,15 +281,15 @@ void dac_test(void *args __attribute((unused)))
   dac_write_register1( 0);  // set gain bit to 0. also sets LD bit to 0
 
 
-  rails_turn_on();
-
-
   /*
   34,the digital supplies (DVDD and IOVDD) and logic inputs (UNI/BIP-x) must be
   applied before AVSS and AVDD. Additionally, AVSS must be applied before AVDD
   unless both can ramp up at the same time. REF-x should be applied after AVDD
   comes up in order to make sure the ESD protection circuitry does not turn on.
   */
+
+  rails_turn_on();
+
 
 
   // WRITING THIS - does not affect mon value...
