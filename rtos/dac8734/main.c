@@ -60,7 +60,7 @@ static void led_blink_task2(void *args __attribute((unused))) {
     uart_printf("ping %d\n\r", last++);
 
 
-    dac_write_register(0x05, 50000  - last);  // Vout == 10V
+    // dac_write_register(0x05, 50000  - last);  // Vout == 10V
 
 /*
     uart_printf("hi %d %d %d\n\r",
