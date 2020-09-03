@@ -304,8 +304,14 @@ void dac_test(void *args __attribute((unused)))
 
   // dac_write_register(0x05, 0x5fff ); // dac1 0b0101
   // dac_write_register(0x05, 0 ); // dac1 0b0101
-  // dac_write_register(0x05, 0x7fff ); // dac1 0b0101
-  dac_write_register(0x05, 65000 ); // dac1 0b0101
+  // dac_write_register(0x05, 0x7fff );
+  // dac_write_register(0x05, 0 );      // Vout = 0V 
+  dac_write_register(0x05, 50000 );  // Vout == 10V
+  // dac_write_register(0x05, 65535 );     // Vout == 13.122
+
+  // ok for v reference of 6.5536V
+  // then rails need to be 6.5536 * 2 + 1 == 14.1V.
+  // 
 
 
 #if 0
