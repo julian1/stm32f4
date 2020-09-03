@@ -9,12 +9,14 @@
 
 // rails...  can we do it in order...
 #define RAILS_PORT    GPIOE
-// #define RAILS_POS     GPIO8   // pull high to turn on.  I think we fucked this port...
+// #define RAILS_POS     GPIO8   // pull high to turn on.  I think we fucked this mcu pin with overvoltage...
 
 #define RAILS_NEG     GPIO9   // pull low to turn on
 #define RAILS_POS     GPIO10
 
 
+// TODO change to separate functions - as DAC expects negative rail on first...
+// or move this function entirely
 
 void rails_turn_on( void )
 {
