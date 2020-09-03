@@ -1,9 +1,6 @@
 
 
-#include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
-// #include <libopencm3/stm32/timer.h>
-
 #include <libopencm3/stm32/spi.h>
 
 
@@ -42,7 +39,7 @@
 
 
 
-void dac_write_register_spi(uint32_t r)
+static void dac_write_register_spi(uint32_t r)
 {
 
   spi_send( DAC_SPI, (r >> 16) & 0xff );
@@ -70,7 +67,7 @@ void dac_write_register_spi(uint32_t r)
 }
 
 
-void dac_write_register_bitbash(uint32_t v)
+static void dac_write_register_bitbash(uint32_t v)
 {
   for(int i = 23; i >= 0; --i) {
 
@@ -94,7 +91,7 @@ void dac_write_register_bitbash(uint32_t v)
 }
 
 
-void dac_write_register1(uint32_t r)
+static void dac_write_register1(uint32_t r)
 {
   gpio_clear(DAC_PORT_SPI, DAC_CS);     // CS active low
   msleep(1);

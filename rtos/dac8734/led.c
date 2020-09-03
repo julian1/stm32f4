@@ -8,8 +8,6 @@
 
 #include <libopencm3/stm32/gpio.h>
 
-
-
 #include "led.h"
 
 
@@ -34,6 +32,10 @@ void led_setup(void) {
 }
 
 
+void led_toggle(void) {
+  // avoid having to export LED_PORT, LED_OUT
+  gpio_toggle(LED_PORT, LED_OUT);
+}
 
 void led_blink_task(void *args __attribute((unused))) {
 

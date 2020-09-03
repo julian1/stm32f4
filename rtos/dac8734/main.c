@@ -27,8 +27,7 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 // #include <libopencm3/stm32/timer.h>
-
-#include <libopencm3/stm32/spi.h>
+// #include <libopencm3/stm32/spi.h>
 // #include <libopencm3/stm32/gpio.h>
 // #include <libopencm3/stm32/usart.h>
 // #include <libopencm3/cm3/nvic.h>
@@ -52,7 +51,8 @@ static void led_blink_task2(void *args __attribute((unused))) {
 
 	for (;;) {
 
-		gpio_toggle(LED_PORT, LED_OUT);
+    // led_toggle
+		led_toggle();
 
     // ping
     uart_printf("hi %d\n\r", last++);
