@@ -201,8 +201,14 @@ void dac_test(void *args __attribute((unused)))
   IOVDD, group B is in unipolar output mode; when tied to DGND, group B is in
   bipolar output mode
   */
-  gpio_clear(DAC_PORT, DAC_UNIBIPA);
-  gpio_clear(DAC_PORT, DAC_UNIBIPB);  // bipolar, lower supply voltage range required.
+  // gpio_clear(DAC_PORT, DAC_UNIBIPA);
+  // gpio_clear(DAC_PORT, DAC_UNIBIPB);  // bipolar, lower supply voltage range required.
+
+  // unipolar
+  gpio_set(DAC_PORT, DAC_UNIBIPA);
+  gpio_set(DAC_PORT, DAC_UNIBIPB);  // bipolar, lower supply voltage range required.
+
+
 
   //msleep(1000);   // 500ms not long enough. on cold power-up.
                   // 1s ok.
@@ -296,7 +302,10 @@ void dac_test(void *args __attribute((unused)))
   // dac_write_register1( 0b00000101 << 16 | 0xffff - 10000 ); //  works. output -0.919V
   // dac_write_register1( 0b00000101 << 16 | 0x5fff );
 
-  dac_write_register(0x05, 0x5fff ); // dac1 0b0101
+  // dac_write_register(0x05, 0x5fff ); // dac1 0b0101
+  // dac_write_register(0x05, 0 ); // dac1 0b0101
+  // dac_write_register(0x05, 0x7fff ); // dac1 0b0101
+  dac_write_register(0x05, 65000 ); // dac1 0b0101
 
 
 #if 0
