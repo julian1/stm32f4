@@ -116,15 +116,25 @@ static void dac_write_register_spi(uint32_t r)
 
 /*
   // OK. this doesn't work...
-  // but because... and a bit is off...
+  // think tries to do write followed by read, rather than simultaneously
   uint8_t a = spi_xfer( DAC_SPI, (r >> 16) & 0xff );
   uint8_t b = spi_xfer( DAC_SPI, (r >> 8) & 0xff  );
   uint8_t c = spi_xfer( DAC_SPI, r & 0xff  );
-*/ 
+*/
+
+
+/*
+  // don't think we can read 24 bytes... when hardware limited to 16 bytes
+  // perhaps this is just reading the same register value over and over...
+  uint8_t a = spi_read( DAC_SPI );
+  uint8_t b = spi_read( DAC_SPI );
+  uint8_t c = spi_read( DAC_SPI );
+*/
+
 }
 
 
-static void dac_write_register_bitbash(uint32_t r)
+static void dac_write_register_bitbash(uint32_t v)
 {
   for(int i = 23; i >= 0; --i) {
 
@@ -133,10 +143,13 @@ static void dac_write_register_bitbash(uint32_t r)
                         // but it should be fine
 
     // assert value
-    if( r & (1 << i ))
+    if( v & (1 << i ))
       gpio_set(DAC_PORT_SPI, DAC_MOSI );
     else
       gpio_clear (DAC_PORT_SPI, DAC_MOSI );
+
+    // read register something like this,
+    // x |=  (gpio_get(DAC_PORT_SPI, DAC_MISO ) ? 1 : 0) << i ;
 
     msleep(1);
     gpio_clear(DAC_PORT_SPI, DAC_CLK);  // slave gets value on down transition
@@ -165,7 +178,7 @@ static void dac_write_register(uint8_t r, uint16_t v)
 }
 
 
-
+#if 0
 static uint32_t dac_read(void)
 {
   // dac write register exchange...
@@ -188,7 +201,7 @@ static uint32_t dac_read(void)
 
   return (a << 16) | (b << 8) | c;
 }
-
+#endif
 
 
 static void dac_setup_spi( void )
