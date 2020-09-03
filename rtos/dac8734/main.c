@@ -108,9 +108,19 @@ static void led_blink_task2(void *args __attribute((unused))) {
 
 static void dac_write_register_spi(uint32_t r)
 {
+
   spi_send( DAC_SPI, (r >> 16) & 0xff );
   spi_send( DAC_SPI, (r >> 8) & 0xff  );
   spi_send( DAC_SPI, r & 0xff  );
+
+
+/*
+  // OK. this doesn't work...
+  // but because... and a bit is off...
+  uint8_t a = spi_xfer( DAC_SPI, (r >> 16) & 0xff );
+  uint8_t b = spi_xfer( DAC_SPI, (r >> 8) & 0xff  );
+  uint8_t c = spi_xfer( DAC_SPI, r & 0xff  );
+*/ 
 }
 
 
