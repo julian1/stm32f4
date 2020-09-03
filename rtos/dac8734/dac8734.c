@@ -190,7 +190,7 @@ void dac_test(void *args __attribute((unused)))
   transferred to it.The DAC output changes to the corresponding level
   simultaneously when the DAClat */
 
-  // do latch first... not sure order makes a difference
+  // 
   gpio_clear(DAC_PORT, DAC_LDAC);   // keep latch low, and unused, unless chaining
 
   gpio_clear(DAC_PORT_SPI, DAC_CLK); // raise clock
@@ -227,7 +227,7 @@ void dac_test(void *args __attribute((unused)))
 
   /*
   Reset input (active low). Logic low on this pin resets the input registers
-  and DACs to the values RST67I defined by the UNI/BIP pins, and sets the Gain
+  and DACs to the values RST 67I defined by the UNI/BIP pins, and sets the Gain
   Register and Zero Register to default values.
   */
 
@@ -248,8 +248,6 @@ void dac_test(void *args __attribute((unused)))
   p22 After a power-on reset or any forced hardware or software reset, all GPIO-n
   bits are set to '1', and the GPIO-n pin goes to a high-impedancestate.
   */
-
-
   uart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
   // TODO - IMPORTANT - remove this.  just clear gpio pins separately if need to.
   uart_printf("dac clear\n\r");
@@ -287,7 +285,6 @@ void dac_test(void *args __attribute((unused)))
   unless both can ramp up at the same time. REF-x should be applied after AVDD
   comes up in order to make sure the ESD protection circuitry does not turn on.
   */
-
   rails_turn_on();
 
 
