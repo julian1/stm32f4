@@ -38,6 +38,15 @@
 // GPIO8 broken/ overvoltage?.
 
 
+/*
+  Not sure.
+  Using nss manually (instead of gpio).
+    spi_enable_software_slave_management(MRF_SPI);
+    spi_set_nss_high(MRF_SPI);
+
+  https://github.com/libopencm3/libopencm3/issues/232
+  https://www.rhye.org/post/stm32-with-opencm3-2-spi-and-dma/
+*/
 
 static void dac_write_register_spi(uint32_t r)
 {
