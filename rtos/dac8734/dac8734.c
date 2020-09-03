@@ -146,6 +146,7 @@ void dac_setup_spi( void )
 
   // OK.. THIS MADE SPI WORK AGAIN....
   // need harder edges for signal integrity. or else different speed just helps suppress parasitic components
+  // see, https://www.eevblog.com/forum/microcontrollers/libopencm3-stm32l100rc-discovery-and-spi-issues/
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, DAC_CLK | DAC_MOSI | DAC_MISO );
 
   gpio_set_af(GPIOA, GPIO_AF5,  DAC_CLK | DAC_MOSI | DAC_MISO );
