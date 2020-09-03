@@ -94,8 +94,8 @@ static void dac_write_register1(uint32_t r)
 {
   gpio_clear(DAC_PORT_SPI, DAC_CS);     // CS active low
   msleep(1);
-  // dac_write_register_bitbash( r );     // write
-  dac_write_register_spi( r );     // write
+  dac_write_register_bitbash( r );     // write
+  // dac_write_register_spi( r );     // write
   msleep(1); // required
   gpio_set(DAC_PORT_SPI, DAC_CS);      // ldac is transparent if low, so will latch value on cs deselect (pull high).
   msleep(1);
@@ -234,12 +234,13 @@ void dac_test(void *args __attribute((unused)))
   // These times may need to be increased for true cold start...
   uart_printf("dac reset\n\r");
   gpio_clear(DAC_PORT, DAC_RST);
-  msleep(20);
+  msleep(1000);
   gpio_set(DAC_PORT, DAC_RST);
-  msleep(20);
+  msleep(1000);
   uart_printf("dac reset done\n\r");
 
-
+// powered up with +-14V....
+//   HOLY SHIT the registers are wrong again.
 
   /*
   Writing a '1' to the GPIO-0 bit puts the GPIO-1 pin into a Hi-Z state(default).

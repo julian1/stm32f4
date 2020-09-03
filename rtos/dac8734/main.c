@@ -40,10 +40,12 @@
 #include "utility.h" // msleep
 
 
+/*
+  OK. our sequencing *is* no good.
+    - because we are pumping in the reference before the rails are up.
+    - we need to fix this.
 
-
-
-
+*/
 
 static int last = 0;
 
@@ -73,14 +75,6 @@ static void led_blink_task2(void *args __attribute((unused))) {
 }
 
 
-// set the gpio edges to be harder? eg. 20MHz.
-// OK - using spi didn't work. but bitbashing does. so perhaps there's still issues.
-// not power supplies... but writing.
-
-
-
-
-// OK. do we have a sleep function for bit bashing...?
 
 int main(void) {
 
@@ -111,8 +105,8 @@ int main(void) {
   rails_setup();
 
 
-  // dac_setup_bitbash();
-  dac_setup_spi();
+  dac_setup_bitbash();
+  // dac_setup_spi();
 
 
   ///////////////
