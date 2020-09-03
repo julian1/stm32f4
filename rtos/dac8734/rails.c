@@ -28,7 +28,18 @@ void rails_vref_on( void )
 }
 
 
+void rails_positive_on( void )
+{
+  gpio_set  (RAILS_PORT, RAILS_POS);  // pull up.
+}
 
+void rails_negative_on( void )
+{
+  gpio_clear(RAILS_PORT, RAILS_NEG);  // pull down.
+}
+
+
+#if 0
 void rails_turn_on( void )
 {
 
@@ -38,8 +49,8 @@ void rails_turn_on( void )
   gpio_set  (RAILS_PORT, RAILS_POS);  // pull up.
   uart_printf("rails on \n\r");
   msleep( 50);
-
 }
+#endif
 
 
 void rails_setup( void )
