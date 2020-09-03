@@ -36,23 +36,22 @@
 #include "led.h"
 
 
+/*
+  fucking hell
+  spi 1 AF5
+    MOSI == PA7 == GPIO7    DAC SDI pin 4
+    MISO == PA6 == GPIO6    DAC SDO pin 5
+*/
 #define DAC_SPI       SPI1
-
-#define DAC_PORT_SPI   GPIOA
+#define DAC_PORT_SPI  GPIOA
 #define DAC_CS        GPIO4
 // use spi1/ port A alternate function
 #define DAC_CLK       GPIO5
-// #define DAC_MOSI      GPIO6   // think BROKEN
-// #define DAC_MOSI      GPIO3   // also not strong... --- uggh...  maybe its the dac? or a short to the dac somehow?
-
-//#define DAC_MISO      GPIO7
-#define DAC_MISO      GPIO3 // not connected right now.
 #define DAC_MOSI      GPIO7
+#define DAC_MISO      GPIO3 // not connected right now.
 
-// fucking hell
-// spi 1 AF5
-//  MOSI == PA7 == GPIO7    DAC SDI pin 4
-//  MISO == PA6 == GPIO6    DAC SDO pin 5
+
+
 
 //  GPIOE
 #define DAC_PORT      GPIOE
@@ -373,7 +372,7 @@ static void dac_test(void *args __attribute((unused)))
   // dac_write_register1( 0b00000001 << 16 | (1 << 11) ); // select AIN.
   // dac_write_register1( 0b00000001 << 16 | (1 << 13) ); // select dac 1.
 
-  dac_write_register(0x01, (1 << 13) ); // mon
+  dac_write_register(0x01, (1 << 13) ); // select monitor dac1
 
   msleep(1000);
 
