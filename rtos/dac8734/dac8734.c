@@ -262,7 +262,7 @@ void dac_test(void *args __attribute((unused)))
                                                         // freaking weird.
 
 
-  turn_rails_on();
+  rails_turn_on();
 
 
   /*

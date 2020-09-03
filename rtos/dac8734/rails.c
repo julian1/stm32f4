@@ -21,7 +21,7 @@
 
 
 
-void turn_rails_on( void )
+void rails_turn_on( void )
 {
 
   uart_printf("turn rails on \n\r");
