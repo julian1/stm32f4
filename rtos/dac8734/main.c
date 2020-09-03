@@ -105,8 +105,8 @@ int main(void) {
   rails_setup();
 
 
-  dac_setup_bitbash();
-  // dac_setup_spi();
+  // dac_setup_bitbash();
+  dac_setup_spi();
 
 
   ///////////////

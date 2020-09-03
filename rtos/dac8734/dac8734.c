@@ -98,8 +98,8 @@ static void dac_write_register1(uint32_t r)
 {
   gpio_clear(DAC_PORT_SPI, DAC_CS);     // CS active low
   msleep(1);
-  dac_write_register_bitbash( r );     // write
-  // dac_write_register_spi( r );     // write
+  // dac_write_register_bitbash( r );     // write
+  dac_write_register_spi( r );     // write
   msleep(1); // required
   gpio_set(DAC_PORT_SPI, DAC_CS);      // ldac is transparent if low, so will latch value on cs deselect (pull high).
   msleep(1);
@@ -147,6 +147,10 @@ void dac_setup_spi( void )
   // spi alternate function 5
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,  DAC_CLK | DAC_MOSI /*| DAC_MISO */ );
 
+  // OK.. THIS MADE SPI WORK AGAIN....
+  // need harder edges for signal integrity. or else different speed just helps suppress parasitic components
+  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, DAC_CLK | DAC_MOSI /*| DAC_MISO */);
+
   gpio_set_af(GPIOA, GPIO_AF5,  DAC_CLK | DAC_MOSI/* | DAC_MISO */ );
 
   // rcc_periph_clock_enable(RCC_SPI1);
@@ -154,6 +158,7 @@ void dac_setup_spi( void )
     SPI_CR1_BAUDRATE_FPCLK_DIV_4,
     // SPI_CR1_BAUDRATE_FPCLK_DIV_256,
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
+    // SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE , // possible we want clock high instead... no doesn't work
     SPI_CR1_CPHA_CLK_TRANSITION_2,    // 1 == rising edge, 2 == falling edge.
     SPI_CR1_DFF_8BIT,
     SPI_CR1_MSBFIRST
@@ -197,7 +202,8 @@ void dac_test(void *args __attribute((unused)))
   //
   gpio_clear(DAC_PORT, DAC_LDAC);   // keep latch low, and unused, unless chaining
 
-  gpio_clear(DAC_PORT_SPI, DAC_CLK); // raise clock
+  // ONLY FOR BIT-BASHING
+  gpio_clear(DAC_PORT_SPI, DAC_CLK); // raise clock - should be set / high????
 
 
   /*
