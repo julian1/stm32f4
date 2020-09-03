@@ -40,7 +40,7 @@
 #define DAC_UNIBIPA   GPIO6
 #define DAC_UNIBIPB   GPIO7
 
-// GPIOE8 
+// GPIOE8
 
 static void dac_write_register_spi(uint32_t r)
 {
@@ -145,14 +145,14 @@ void dac_setup_spi( void )
   uart_printf("dac setup spi\n\r");
 
   // spi alternate function 5
-  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,  DAC_CLK | DAC_MOSI | DAC_MISO );
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,  DAC_CLK | DAC_MOSI /*| DAC_MISO */ );
 
-  gpio_set_af(GPIOA, GPIO_AF5,  DAC_CLK | DAC_MOSI | DAC_MISO );
+  gpio_set_af(GPIOA, GPIO_AF5,  DAC_CLK | DAC_MOSI/* | DAC_MISO */ );
 
   // rcc_periph_clock_enable(RCC_SPI1);
   spi_init_master(DAC_SPI,
-    SPI_CR1_BAUDRATE_FPCLK_DIV_4,     // when we change this - we get different values?
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_256,     // the monitor pin values change - but still nothing correct
+    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_256,
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
     SPI_CR1_CPHA_CLK_TRANSITION_2,    // 1 == rising edge, 2 == falling edge.
     SPI_CR1_DFF_8BIT,
@@ -194,7 +194,7 @@ void dac_test(void *args __attribute((unused)))
   transferred to it.The DAC output changes to the corresponding level
   simultaneously when the DAClat */
 
-  // 
+  //
   gpio_clear(DAC_PORT, DAC_LDAC);   // keep latch low, and unused, unless chaining
 
   gpio_clear(DAC_PORT_SPI, DAC_CLK); // raise clock
@@ -238,9 +238,9 @@ void dac_test(void *args __attribute((unused)))
   // These times may need to be increased for true cold start...
   uart_printf("dac reset\n\r");
   gpio_clear(DAC_PORT, DAC_RST);
-  msleep(1000);
+  msleep(20);
   gpio_set(DAC_PORT, DAC_RST);
-  msleep(1000);
+  msleep(20);
   uart_printf("dac reset done\n\r");
 
 // powered up with +-14V....
@@ -291,11 +291,11 @@ void dac_test(void *args __attribute((unused)))
   comes up in order to make sure the ESD protection circuitry does not turn on.
   */
   rails_negative_on();
-  msleep(50); 
+  msleep(50);
   rails_positive_on();
-  msleep(50); 
+  msleep(50);
   rails_vref_on();
-  msleep(50); 
+  msleep(50);
 
 
   // WRITING THIS - does not affect mon value...

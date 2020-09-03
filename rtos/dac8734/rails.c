@@ -1,3 +1,6 @@
+/*
+  change name to supplies?
+*/
 
 #include <libopencm3/stm32/gpio.h>
 
@@ -21,11 +24,7 @@
 // or move this function entirely
 
 
-void rails_vref_on( void )
-{
-  gpio_clear(RAILS_PORT, RAILS_VREF);  // pull down.
 
-}
 
 
 void rails_positive_on( void )
@@ -38,19 +37,11 @@ void rails_negative_on( void )
   gpio_clear(RAILS_PORT, RAILS_NEG);  // pull down.
 }
 
-
-#if 0
-void rails_turn_on( void )
+void rails_vref_on( void )
 {
+  gpio_clear(RAILS_PORT, RAILS_VREF);  // pull down.
 
-  uart_printf("turn rails on \n\r");
-  gpio_clear(RAILS_PORT, RAILS_NEG);  // pull down.
-  msleep(50);
-  gpio_set  (RAILS_PORT, RAILS_POS);  // pull up.
-  uart_printf("rails on \n\r");
-  msleep( 50);
 }
-#endif
 
 
 void rails_setup( void )
@@ -65,14 +56,8 @@ void rails_setup( void )
   uart_printf("rails off \n\r");
   gpio_clear(RAILS_PORT, RAILS_POS);
   gpio_set  (RAILS_PORT, RAILS_NEG);
+  gpio_set  (RAILS_PORT, RAILS_VREF);   // pull-down off
 
-  gpio_set  (RAILS_PORT, RAILS_VREF);
-
-  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE , RAILS_POS | RAILS_NEG | RAILS_VREF  );
-
-#if 0
-  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE /*GPIO_PUPD_PULLUP*/,   RAILS_NEG );
-  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8 ); // broken.. gpio.
-#endif
+  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE ,  /* broken GPIO8 */ RAILS_POS | RAILS_NEG | RAILS_VREF  );
 
 }
