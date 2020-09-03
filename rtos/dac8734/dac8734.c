@@ -265,20 +265,20 @@ void dac_test(void *args __attribute((unused)))
 
 
   /*
-    LD bit
-    I think we need to understand this better...
-    ...
-    p21.
-    The DAC8734 updates the DAC latch only if it has been accessed since the last
-    time the LDAC pin was brought low or the LD bit in the CommandRegister was set
-    to'1', there by eliminating any unnecessary glitch.
+  The DAC8734 updates the DAC latch only if it has been accessed since the last
+  time the LDAC pin was brought low or the LD bit in the CommandRegister was set
+  to'1', there by eliminating any unnecessary glitch.
   */
+  // dac_write_register1( 0 << 16 | 1 << 14); // LD bit
 
-
-  // dac_write_register1( 0 << 16 | 1 << 14); // LD bit    // now sometimes comes up 0, 0.629, or 0.755 ...
-                                                        // indicating that gain regsisters are etting garbage?
-                                                        // LD default value is 0...
-                                                        // freaking weird.
+  /*
+   To set the DAC-x gain=2, connect RFB1-x and RFB2-x to VOUT-x, and set the
+  corresponding GAIN bit in the CommandRegister to'0'. To set the DAC-xgain=4,
+  connect RFB1-x to VOUT-x, keep RFB2-x open, and set the corresponding GAIN bit
+  in the CommandRegister to '1'. After power-on reset or userreset, the GAIN bits
+  are set to'1' by default; forgain=2, the gain bits must be cleared to'0'.
+  */
+  dac_write_register1( 0);  // set gain bit to 0. also sets LD bit to 0
 
 
   rails_turn_on();
@@ -305,13 +305,13 @@ void dac_test(void *args __attribute((unused)))
   // dac_write_register(0x05, 0x5fff ); // dac1 0b0101
   // dac_write_register(0x05, 0 ); // dac1 0b0101
   // dac_write_register(0x05, 0x7fff );
-  // dac_write_register(0x05, 0 );      // Vout = 0V 
+  // dac_write_register(0x05, 0 );      // Vout = 0V
   dac_write_register(0x05, 50000 );  // Vout == 10V
   // dac_write_register(0x05, 65535 );     // Vout == 13.122
 
   // ok for v reference of 6.5536V
   // then rails need to be 6.5536 * 2 + 1 == 14.1V.
-  // 
+  //
 
 
 #if 0
