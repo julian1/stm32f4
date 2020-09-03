@@ -9,6 +9,10 @@
 #include "rails.h"
 #include "dac8734.h"
 
+/*
+  Same problem again...
+  OK - maybe overvoltage - has screwed the mcu pins. or mcu spi.
+*/
 
 /*
   spi 1 AF5
@@ -36,7 +40,7 @@
 #define DAC_UNIBIPA   GPIO6
 #define DAC_UNIBIPB   GPIO7
 
-
+// GPIOE8 
 
 static void dac_write_register_spi(uint32_t r)
 {
@@ -288,6 +292,7 @@ void dac_test(void *args __attribute((unused)))
   */
   rails_turn_on();
 
+  rails_vref_on();
 
 
   // WRITING THIS - does not affect mon value...
