@@ -296,16 +296,16 @@ static void dac_test(void *args __attribute((unused)))
                   // Also could be,
 
 
+  // These values need to be increased for cold start...
   uart_printf("dac reset\n\r");
   gpio_clear(DAC_PORT, DAC_RST);
-  msleep(1000);
+  msleep(20);
   gpio_set(DAC_PORT, DAC_RST);
-  msleep(1000);
+  msleep(20);
   uart_printf("reset done\n\r");
 
   // god damn it.
 
-#if 1
   uart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
   // TODO - IMPORTANT - remove this.  just clear gpio pins separately if need to.
   uart_printf("dac clear\n\r");
@@ -324,14 +324,7 @@ static void dac_test(void *args __attribute((unused)))
                                                         // indicating that gain regsisters are etting garbage?
                                                         // LD default value is 0...
                                                         // freaking weird.
-                          // 0.567, 0.629 or 0.755
-                          //   0.253?
 
-  // OKK we're getting all kinds of values now...
-#endif
-
-
-  // should check if gpio was successfully set... indicating dac is correctly initialized.
 
   /*
   34,the digital supplies (DVDD and IOVDD) and logic inputs (UNI/BIP-x) must be
@@ -342,11 +335,11 @@ static void dac_test(void *args __attribute((unused)))
 
   uart_printf("turn rails on \n\r");
   gpio_clear(RAILS_PORT, RAILS_NEG);
-  msleep(100);
+  msleep(50);
   gpio_set  (RAILS_PORT, RAILS_POS);
   uart_printf("rails on \n\r");
   // turning the rails on - brings the monitor pin to 0
-  msleep( 1000);
+  msleep( 50);
 
   /*
     I think we need to understand this better...
@@ -397,12 +390,8 @@ static void dac_test(void *args __attribute((unused)))
 
   dac_write_register(0x01, (1 << 13) ); // select monitor dac1
 
-  msleep(1000);
 
 
-
-  uart_printf("set mosi \n\r");
-  gpio_set(DAC_PORT_SPI, DAC_MOSI );
   uart_printf("finished\n\r");
 
   // sleep forever
