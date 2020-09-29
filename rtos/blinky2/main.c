@@ -314,7 +314,8 @@ static void led_setup(void) {
 
 int main(void) {
 
-  rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
+  // ONLY WORKS if fit crystal.
+  // rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 
   // LED
   rcc_periph_clock_enable(RCC_GPIOE); // JA
