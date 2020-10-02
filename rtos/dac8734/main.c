@@ -47,7 +47,7 @@
 
 */
 
-static int last = 0;
+// static int last = 0;
 
 static void led_blink_task2(void *args __attribute((unused))) {
 
@@ -57,10 +57,7 @@ static void led_blink_task2(void *args __attribute((unused))) {
 		led_toggle();
 
     // ping
-    uart_printf("ping %d\n\r", last++);
-
-
-    // dac_write_register(0x05, 50000  - last);  // Vout == 10V
+    // uart_printf("ping %d\n\r", last++);
 
 /*
     uart_printf("hi %d %d %d\n\r",
@@ -111,6 +108,9 @@ int main(void) {
 
 
   rails_setup();
+
+  rails_positive_on(); // OK. this turned on the negative rail
+  rails_negative_on();
 
 /*
   // dac_setup_bitbash();

@@ -14,33 +14,29 @@
 #define RAILS_PORT    GPIOE
 // #define RAILS_POS     GPIO8   // pull high to turn on.  I think we fucked this mcu pin with overvoltage...
 
-#define RAILS_NEG     GPIO9   // pull low to turn on
-#define RAILS_POS     GPIO10
+#define RAILS_POS     GPIO9
+#define RAILS_NEG     GPIO10
 
 #define RAILS_VREF    GPIO11
-
-
-// TODO change to separate functions - as DAC expects negative rail on first...
-// or move this function entirely
-
 
 
 
 
 void rails_positive_on( void )
 {
-  gpio_set  (RAILS_PORT, RAILS_POS);  // pull up.
+  gpio_set(RAILS_PORT, RAILS_POS);
+  uart_printf("rails positive on\n\r");
 }
 
 void rails_negative_on( void )
 {
-  // gpio_clear(RAILS_PORT, RAILS_NEG);  // pull down.
+  uart_printf("rails negative on\n\r");
+  gpio_set(RAILS_PORT, RAILS_NEG);
 }
 
 
 void rails_setup( void )
 {
-
   uart_printf("rails setup\n\r");
 
   gpio_clear(RAILS_PORT, RAILS_POS);
