@@ -79,8 +79,9 @@ static void led_blink_task2(void *args __attribute((unused))) {
 int main(void) {
 
   ////
+  // Disable HSE
   // clocks
-  rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
+  // rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 
   // led
   rcc_periph_clock_enable(RCC_GPIOE); // JA
@@ -102,12 +103,19 @@ int main(void) {
 
   uart_printf("------------------\n\r");
 
+/*
+  This organisation is really bad...
+  There should be a single linear task that does all the configuration.
+  Rather than doing half in the main thread, and half in the task thread.
+*/
+
+/*
   rails_setup();
 
 
   // dac_setup_bitbash();
   dac_setup_spi();
-
+*/
 
   ///////////////
   // tasks
@@ -118,9 +126,10 @@ int main(void) {
   // IMPORTANT setting from 100 to 200, stops deadlock
   xTaskCreate(usart_prompt_task,    "PROMPT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
-
+/*
   // ok....
-  xTaskCreate(dac_test,    "DAC_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+  xTaskCreate(dac_test,    "DAC_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
+*/
 
 	vTaskStartScheduler();
 
