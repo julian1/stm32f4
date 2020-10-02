@@ -109,10 +109,10 @@ int main(void) {
   Rather than doing half in the main thread, and half in the task thread.
 */
 
-/*
+
   rails_setup();
 
-
+/*
   // dac_setup_bitbash();
   dac_setup_spi();
 */

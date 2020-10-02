@@ -34,9 +34,25 @@ void rails_positive_on( void )
 
 void rails_negative_on( void )
 {
-  gpio_clear(RAILS_PORT, RAILS_NEG);  // pull down.
+  // gpio_clear(RAILS_PORT, RAILS_NEG);  // pull down.
 }
 
+
+void rails_setup( void )
+{
+
+  uart_printf("rails setup\n\r");
+
+  gpio_clear(RAILS_PORT, RAILS_POS);
+  gpio_clear(RAILS_PORT, RAILS_NEG);
+
+  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE ,  /* broken GPIO8 */ RAILS_POS | RAILS_NEG  );
+
+  uart_printf("rails setup done\n\r");
+}
+
+#if 0
+// should NOT be here...
 void rails_vref_on( void )
 {
   gpio_clear(RAILS_PORT, RAILS_VREF);  // pull down.
@@ -61,3 +77,6 @@ void rails_setup( void )
   gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE ,  /* broken GPIO8 */ RAILS_POS | RAILS_NEG | RAILS_VREF  );
 
 }
+#endif
+
+
