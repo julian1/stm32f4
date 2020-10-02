@@ -80,7 +80,7 @@
  * application requirements.
  *
  * THESE PARAMETERS ARE DESCRIBED WITHIN THE 'CONFIGURATION' SECTION OF THE
- * FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE. 
+ * FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE.
  *
  * See http://www.freertos.org/a00110.html.
  *----------------------------------------------------------*/
@@ -88,8 +88,16 @@
 #define configUSE_PREEMPTION		1
 #define configUSE_IDLE_HOOK		0
 #define configUSE_TICK_HOOK		0
-// #define configCPU_CLOCK_HZ		( ( unsigned long ) 72000000 )	
-#define configCPU_CLOCK_HZ		( ( unsigned long ) 168 * 1000000 )	
+/*
+  // JA stm32f407
+  "On reset the 16 MHz internal RC oscillator is selected as the default CPU
+  clock. The 16 MHz internal RC oscillator is factory-trimmed to offer 1%
+  accuracy over the full temperature range."
+*/
+// #define configCPU_CLOCK_HZ		( ( unsigned long ) 72000000 )
+#define configCPU_CLOCK_HZ		( ( unsigned long ) 16 * 1000000 )
+// JA hse
+// #define configCPU_CLOCK_HZ		( ( unsigned long ) 168 * 1000000 )
 #define configSYSTICK_CLOCK_HZ		( configCPU_CLOCK_HZ / 8 ) /* vTaskDelay() fix */
 // #define configTICK_RATE_HZ		( ( TickType_t ) 250 )
 #define configTICK_RATE_HZ		( ( TickType_t ) 1000 )

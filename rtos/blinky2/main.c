@@ -49,6 +49,7 @@ void vApplicationStackOverflowHook(
     for(;;) {
       gpio_toggle(GPIOE, GPIO0);  // JA
 
+      // blink very fast. probably too fast, if hse...
       for (i = 0; i < 3000000; i++) {
         __asm__("nop");
       }
