@@ -6,21 +6,19 @@
 
 
 #include "usart.h"
-#include "utility.h"
 #include "rails.h"
 
 
 // rails...  can we do it in order...
 #define RAILS_PORT    GPIOE
-// #define RAILS_POS     GPIO8   // pull high to turn on.  I think we fucked this mcu pin with overvoltage...
-
+// #define RAILS_POS     GPIO8   // This pin output driver is broken due to overvoltage...
 #define RAILS_POS     GPIO9
 #define RAILS_NEG     GPIO10
 
 #define RAILS_VREF    GPIO11
 
 
-
+// should pass an argument. eg. 1 for on. 0 for off.
 
 void rails_positive_on( void )
 {
