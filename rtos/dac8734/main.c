@@ -36,6 +36,7 @@
 #include "usart.h"
 #include "led.h"
 #include "rails.h"
+#include "ref.h"
 #include "dac8734.h"
 #include "utility.h" // msleep
 
@@ -108,9 +109,13 @@ int main(void) {
 
 
   rails_setup();
+  ref_setup();
 
   rails_positive_on(); // OK. this turned on the negative rail
   rails_negative_on();
+
+
+  ref_on();
 
 /*
   // dac_setup_bitbash();
