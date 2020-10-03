@@ -25,7 +25,7 @@
 #define DAC_MISO      GPIO6
 
 /*
-  OK. looks like we remapped everything.
+  OK. looks like we remapped everything. to GPIOB
   Need RSS...
 */
 
@@ -165,8 +165,10 @@ void dac_setup_spi( void )
 {
   uart_printf("dac setup spi\n\r");
 
+  // TODO change GPIOA to DAC_PORT_SPI
+  // albeit, should probabaly also do DAC_PORT_AF
   // spi alternate function 5
-  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,  DAC_CLK | DAC_MOSI | DAC_MISO );
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, DAC_CLK | DAC_MOSI | DAC_MISO );
 
   // OK.. THIS MADE SPI WORK AGAIN....
   // need harder edges for signal integrity. or else different speed just helps suppress parasitic components
