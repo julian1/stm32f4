@@ -95,6 +95,7 @@ int main(void) {
 
   ///////////////
   // setup
+  // TODO maybe change names setup_led() setup_uart() ?
   led_setup();
   usart_setup();
 
@@ -110,17 +111,9 @@ int main(void) {
 
   rails_setup();
   ref_setup();
-
-  rails_positive_on(); // OK. this turned on the negative rail
-  rails_negative_on();
-
-
-  ref_on();
-
-/*
   // dac_setup_bitbash();
   dac_setup_spi();
-*/
+
 
   ///////////////
   // tasks
@@ -131,10 +124,9 @@ int main(void) {
   // IMPORTANT setting from 100 to 200, stops deadlock
   xTaskCreate(usart_prompt_task,    "PROMPT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
-/*
+
   // ok....
   xTaskCreate(dac_test,    "DAC_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
-*/
 
 	vTaskStartScheduler();
 

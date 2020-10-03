@@ -181,6 +181,8 @@ void dac_setup_spi( void )
   // internal pu, doesn't change anything - because its powered off, and starts up high-Z.
   gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC | DAC_UNIBIPA | DAC_UNIBIPB);
   gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 ); // these are open-drain as inputs
+
+  uart_printf("dac setup spi done\n\r");
 }
 
 
@@ -256,6 +258,7 @@ void dac_test(void *args __attribute((unused)))
   msleep(20);
   uart_printf("dac reset done\n\r");
 
+
 // powered up with +-14V....
 //   HOLY SHIT the registers are wrong again.
 
@@ -279,6 +282,7 @@ void dac_test(void *args __attribute((unused)))
 
   uart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
+#if 0
 
   /*
   The DAC8734 updates the DAC latch only if it has been accessed since the last
@@ -361,6 +365,9 @@ void dac_test(void *args __attribute((unused)))
 
 
   uart_printf("dac finished\n\r");
+
+
+#endif
 
   // sleep forever
   // exiting a task thread isn't very good...
