@@ -7,6 +7,7 @@
 #include "utility.h"
 #include "usart.h"
 #include "rails.h"
+#include "ref.h"
 #include "dac8734.h"
 
 
@@ -276,8 +277,7 @@ void dac_test(void *args __attribute((unused)))
   uart_printf("dac reset done\n\r");
 
 
-// powered up with +-14V....
-//   HOLY SHIT the registers are wrong again.
+  // powered up with +-14V....
 
   /*
   Writing a '1' to the GPIO-0 bit puts the GPIO-1 pin into a Hi-Z state(default).
@@ -299,7 +299,6 @@ void dac_test(void *args __attribute((unused)))
 
   uart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
-#if 0
 
   /*
   The DAC8734 updates the DAC latch only if it has been accessed since the last
@@ -328,7 +327,7 @@ void dac_test(void *args __attribute((unused)))
   msleep(50);
   rails_positive_on();
   msleep(50);
-  rails_vref_on();
+  ref_on();
   msleep(50);
 
 
@@ -348,6 +347,10 @@ void dac_test(void *args __attribute((unused)))
   // dac_write_register(0x05, 0 );      // Vout = 0V
   dac_write_register(0x05, 50000 );  // Vout == 10V
   // dac_write_register(0x05, 65535 );     // Vout == 13.122
+
+
+  dac_write_register(0x04, 25000 );  // Vout == 10V
+
 
   // ok for v reference of 6.5536V
   // then rails need to be 6.5536 * 2 + 1 == 14.1V.
@@ -384,6 +387,7 @@ void dac_test(void *args __attribute((unused)))
   uart_printf("dac finished\n\r");
 
 
+#if 0
 #endif
 
   // sleep forever
