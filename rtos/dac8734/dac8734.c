@@ -18,14 +18,18 @@
 */
 #define DAC_SPI       SPI1
 #define DAC_PORT_SPI  GPIOA
+
 #define DAC_CS        GPIO4
 #define DAC_CLK       GPIO5
 #define DAC_MOSI      GPIO7
 #define DAC_MISO      GPIO6
 
+/*
+  OK. looks like we remapped everything.
+  Need RSS...
+*/
 
-
-
+/*
 //  GPIOE
 #define DAC_PORT      GPIOE
 // GPIO1 is led.
@@ -36,6 +40,17 @@
 #define DAC_UNIBIPA   GPIO6
 #define DAC_UNIBIPB   GPIO7
 // GPIO8 broken/ overvoltage?.
+*/
+
+#define DAC_PORT      GPIOB
+
+#define DAC_LDAC      GPIO0
+#define DAC_RST       GPIO1
+#define DAC_GPIO0     GPIO2  // gpio pe4   dac pin 8
+#define DAC_GPIO1     GPIO3
+#define DAC_UNIBIPA   GPIO4
+#define DAC_UNIBIPB   GPIO5
+
 
 
 /*

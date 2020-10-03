@@ -83,6 +83,8 @@ int main(void) {
 
   // led
   rcc_periph_clock_enable(RCC_GPIOE); // JA
+  // Dac
+  rcc_periph_clock_enable(RCC_GPIOB); // JA
 
   // usart
   rcc_periph_clock_enable(RCC_GPIOA);
