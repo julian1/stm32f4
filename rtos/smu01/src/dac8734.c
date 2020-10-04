@@ -6,8 +6,8 @@
 
 #include "utility.h"
 #include "usart.h"
-#include "rails.h"
-#include "ref.h"
+// #include "rails.h"
+// #include "ref.h"
 #include "dac8734.h"
 
 
@@ -223,15 +223,21 @@ void dac_setup_bitbash( void )
 
 void dac_reset(void)
 {
+  /*
+    code relies on msleep() for sequencing rst.
+    therefore should only call in context of rtos thread.
+    OTHERWISE - should just use a nop loop.
+      and remove dependency on msleep. no still required for uart_print()
+  */
+
   /* Load DAC latch control input(activelow). When LDAC is low, the DAC latch
   is transparent and the LDAC 56I contents of the Input Data Register are
   transferred to it.The DAC output changes to the corresponding level
   simultaneously when the DAClat */
-
   //
   gpio_clear(DAC_PORT, DAC_LDAC);   // keep latch low, and unused, unless chaining
 
-  // ONLY FOR BIT-BASHING
+  // ONLY needed FOR BIT-BASHING
   gpio_clear(DAC_PORT_SPI, DAC_CLK); // raise clock - should be set / high????
 
 
@@ -241,12 +247,10 @@ void dac_reset(void)
   bipolar output mode
   */
   // bipolar
-  // gpio_clear(DAC_PORT, DAC_UNIBIPA);
-  // gpio_clear(DAC_PORT, DAC_UNIBIPB);
+  // gpio_clear(DAC_PORT, DAC_UNIBIPA | DAC_UNIBIPB);
 
   // unipolar
-  gpio_set(DAC_PORT, DAC_UNIBIPA);
-  gpio_set(DAC_PORT, DAC_UNIBIPB);
+  gpio_set(DAC_PORT, DAC_UNIBIPA  | DAC_UNIBIPB);
 
 
 
@@ -287,7 +291,6 @@ void dac_reset(void)
 
   uart_printf("dac set\n\r");
   dac_write_register(0, 1 << 9 | 1 << 8);
-
   uart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
 
@@ -307,6 +310,7 @@ void dac_reset(void)
   are set to'1' by default; forgain=2, the gain bits must be cleared to'0'.
   */
   // *NOT* or-ing.
+  // sets all bits.
   dac_write_register1( 0);  // set gain bit to 0. also sets LD bit to 0
 
 }
