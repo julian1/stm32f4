@@ -1,5 +1,4 @@
 /*
- *
   see, for
   ~/devel/stm32/FreeRTOSv10.3.1/FreeRTOS/Demo/CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h
 
@@ -7,21 +6,11 @@
   https://www.freertos.org/FreeRTOS-for-STM32F4xx-Cortex-M4F-IAR.html
 
   so, i think 'proper' usart will use dma.
-
-  // OK. so we want to move the dac code.
-
- */
+*/
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 
-/*
-  - ok. move back to actual spi port - see if can still bit bash.
-  - see if peripheral spi works.
-  - mon - to ADC - resistor divider? won't work - for negative signals.
-
-  - we want
-*/
 
 // #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/stm32/rcc.h>
@@ -41,14 +30,6 @@
 #include "dac8734.h"
 
 
-/*
-  OK. our sequencing *is* no good.
-    - because we are pumping in the reference before the rails are up.
-    - we need to fix this.
-
-*/
-
-// static int last = 0;
 
 static void led_blink_task2(void *args __attribute((unused))) {
 
@@ -133,7 +114,6 @@ static void dac_test1(void *args __attribute((unused)))
   dac_test();
 
   // sleep forever
-  // exiting a task thread isn't very good...
   for(;;) {
     task_sleep(1000);
   }
@@ -148,6 +128,7 @@ int main(void) {
 
   ////
   // Disable HSE
+  // must edit, configCPU_CLOCK_HZ also
   // clocks
   // rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 
