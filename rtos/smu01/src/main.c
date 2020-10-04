@@ -54,11 +54,26 @@ static void led_blink_task2(void *args __attribute((unused)))
 
     );
 */
+    // at gnd 0-2, at 3.3V supply get 4095.  eg. 4096 = 12bit. good. but maybe resolution is off.
+    /*
+      ADC channel numbers
+      http://libopencm3.org/docs/latest/stm32f4/html/group__adc__channel.html
+    */
 
-		uint16_t input_adc0 = read_adc_native(0);
-		uint16_t input_adc1 = read_adc_native(1);
+		uint16_t input_adc0 = read_adc_native(0);   // PA0.
 
-    // so vref, vbat and temp?...
+    // don't think this works...
+		// uint16_t input_adc1 = read_adc_native( ADC_CHANNEL_VREF);
+		// uint16_t input_adc1 = read_adc_native( ADC_CHANNEL_VBAT);
+		 uint16_t input_adc1 = read_adc_native(  ADC_CHANNEL_TEMP_F40  );
+
+    /*
+      OK
+      VREF seems quite stable...  // 700 to 704
+      VBAT also 745 to 750
+      so maybe its working...
+      TEMP_F40 went 770 to 850 with heat gun... pointed at it. and back again.
+    */
 
 		uart_printf("tick: %d: adc0=%u adc1=%d\n", tick++, input_adc0, input_adc1);
 
@@ -174,7 +189,7 @@ static void adc_setup(void)
 
 	adc_power_off(ADC1);
 	adc_disable_scan_mode(ADC1);
-	adc_set_sample_time_on_all_channels(ADC1, ADC_SMPR_SMP_3CYC);
+	adc_set_sample_time_on_all_channels(ADC1, ADC_SMPR_SMP_3CYC); // is this enough for all bits?
 
 	adc_power_on(ADC1);
 
