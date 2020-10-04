@@ -220,7 +220,9 @@ void dac_setup_bitbash( void )
 }
 
 
-
+/*
+  This test turns on rails etc. so it really should not be here.
+*/
 
 void dac_test(void)
 {
