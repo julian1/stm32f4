@@ -2,7 +2,7 @@
 #include <stddef.h>
 
 
-// change name from uart to usart
+// TODO maybe change name from uart to usart
 
 // extern void usart1_isr(void); // already defined in libopencm3
 
