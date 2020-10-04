@@ -16,6 +16,7 @@
   spi 1 AF5
     MOSI == PA7 == GPIO7    DAC SDI pin 4
     MISO == PA6 == GPIO6    DAC SDO pin 5
+
 */
 #define DAC_SPI       SPI1
 #define DAC_PORT_SPI  GPIOA
@@ -47,7 +48,7 @@
 
 #define DAC_LDAC      GPIO0
 #define DAC_RST       GPIO1
-#define DAC_GPIO0     GPIO2  // gpio pe4   dac pin 8
+#define DAC_GPIO0     GPIO2  // PB2, is BOOT1
 #define DAC_GPIO1     GPIO3
 #define DAC_UNIBIPA   GPIO4
 #define DAC_UNIBIPB   GPIO5
@@ -75,7 +76,7 @@ static void dac_write_register_spi(uint32_t r)
 #if 0
   // OK, this code now doesn't break writing...
   // So, possible... just reads the buffered value, rather than pausing...
-  // and we can effect a read ...
+  // and we use to do a simultaneous read ...
   uint8_t a = spi_xfer( DAC_SPI, (r >> 16) & 0xff );
   uint8_t b = spi_xfer( DAC_SPI, (r >> 8) & 0xff  );
   uint8_t c = spi_xfer( DAC_SPI, r & 0xff  );
@@ -214,12 +215,13 @@ void dac_setup_bitbash( void )
 
   gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC | DAC_UNIBIPA | DAC_UNIBIPB);
   gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 ); // these are open-drain as inputs
+
+  uart_printf("dac setup spi bitbash done\n\r");
 }
 
 
 
 
-// void dac_test(void *args __attribute((unused)))
 void dac_test(void)
 {
   /* Load DAC latch control input(activelow). When LDAC is low, the DAC latch
@@ -248,7 +250,6 @@ void dac_test(void)
   gpio_set(DAC_PORT, DAC_UNIBIPB);
 
 
-
   //msleep(1000);   // 500ms not long enough. on cold power-up.
                   // 1s ok.
                   // actually sometimes 1s. fails.
@@ -261,15 +262,11 @@ void dac_test(void)
                   // Also could be rails, need to be pulled to ground - first, and there is stray capacitance on them.
                   // Also could be,
 
-
-
-
   /*
   Reset input (active low). Logic low on this pin resets the input registers
   and DACs to the values RST 67I defined by the UNI/BIP pins, and sets the Gain
   Register and Zero Register to default values.
   */
-
   // These times may need to be increased for true cold start...
   uart_printf("dac reset\n\r");
   gpio_clear(DAC_PORT, DAC_RST);
@@ -288,15 +285,17 @@ void dac_test(void)
   p22 After a power-on reset or any forced hardware or software reset, all GPIO-n
   bits are set to '1', and the GPIO-n pin goes to a high-impedancestate.
   */
+  /*
+    THIS code is *NOT* or-ing with the current contents of the register.
+    Instead it is overwriting. So do not use except as test.
+  */
   uart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
-  // TODO - IMPORTANT - remove this.  just clear gpio pins separately if need to.
+
   uart_printf("dac clear\n\r");
   dac_write_register1( 0);
   uart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
-  uart_printf("dac set\n\r");
-  // OK. with bitbashing reg 8 and 9 look correct...
-  // dac_write_register1( 0 << 16 | 1 << 9 | 1 << 8); // ok so this really looks like it works ok...
 
+  uart_printf("dac set\n\r");
   dac_write_register(0, 1 << 9 | 1 << 8);
 
   uart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
