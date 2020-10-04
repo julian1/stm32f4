@@ -21,6 +21,8 @@
 // #include <libopencm3/stm32/usart.h>
 // #include <libopencm3/cm3/nvic.h>
 
+#include <libopencm3/stm32/adc.h>
+
 
 #include "sleep.h"
 #include "usart.h"
@@ -30,10 +32,11 @@
 #include "dac8734.h"
 
 
+static uint16_t read_adc_native(uint8_t channel);
 
 static void led_blink_task2(void *args __attribute((unused)))
 {
-  // static int last = 0;
+  static int tick = 0;
 
 	for (;;) {
 
@@ -41,7 +44,7 @@ static void led_blink_task2(void *args __attribute((unused)))
 		led_toggle();
 
     // ping
-    // uart_printf("ping %d\n\r", last++);
+    // uart_printf("ping %d\n\r", tick++);
 
 /*
     uart_printf("hi %d %d %d\n\r",
@@ -51,6 +54,14 @@ static void led_blink_task2(void *args __attribute((unused)))
 
     );
 */
+
+		uint16_t input_adc0 = read_adc_native(0);
+		uint16_t input_adc1 = read_adc_native(1);
+
+    // so vref, vbat and temp?...
+
+		uart_printf("tick: %d: adc0=%u adc1=%d\n", tick++, input_adc0, input_adc1);
+
     task_sleep(500);
   }
 }
@@ -110,10 +121,42 @@ static void dac_test(void)
 
 
 
+static void mux_setup(void)
+{
+  uart_printf("mux setup\n\r");
+  // call *before* bringing up rails
+  gpio_set(GPIOE, GPIO1 | GPIO2 |  GPIO3 | GPIO4);   // active low.
+  gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO1 | GPIO2 |  GPIO3 | GPIO4);
+  uart_printf("mux setup done\n\r");
+}
+
+
+static void mux_test(void)
+{
+  // U1
+  uart_printf("mux test \n\r");
+
+  // gpio_clear(GPIOE, GPIO1 );   // top-left      VFB
+   gpio_clear(GPIOE, GPIO2 );   // bottom-right  VSET  ... gives us +9V on TP4 / VERR
+                                  // but top-right shows 9V on both sides why - even though off. why?
+                                  // Yes. So it flows through the resistor network. about 3x resistors.
+                                  // Hmmm...
+
+  //gpio_clear(GPIOE, GPIO3 );   // top-right     VSET  --- something weird. drawing 20mA. no output.
+                                  // looks like it shorts. a bit
+  // gpio_clear(GPIOE, GPIO4);       // bottom-left   VFB
+
+  uart_printf("mux test finished\n\r");
+}
+
+
 
 static void dac_test1(void *args __attribute((unused)))
 {
   dac_test();
+
+  mux_test();
+
 
   // sleep forever
   for(;;) {
@@ -124,7 +167,33 @@ static void dac_test1(void *args __attribute((unused)))
 
 
 
+static void adc_setup(void)
+{
+	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0);
+	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1);
 
+	adc_power_off(ADC1);
+	adc_disable_scan_mode(ADC1);
+	adc_set_sample_time_on_all_channels(ADC1, ADC_SMPR_SMP_3CYC);
+
+	adc_power_on(ADC1);
+
+}
+
+
+static uint16_t read_adc_native(uint8_t channel)
+{
+  // set up the arry of channels to read.
+	uint8_t channel_array[16];
+	channel_array[0] = channel;
+	adc_set_regular_sequence(ADC1, 1, channel_array); // 1 indicates number of channels to read. eg. 1
+
+  // start the read
+	adc_start_conversion_regular(ADC1);
+	while (!adc_eoc(ADC1));
+	uint16_t reg16 = adc_read_regular(ADC1);
+	return reg16;
+}
 
 int main(void) {
 
@@ -146,7 +215,8 @@ int main(void) {
   // spi1
   rcc_periph_clock_enable(RCC_SPI1);
 
-
+  // adc1
+	rcc_periph_clock_enable(RCC_ADC1);
 
   ///////////////
   // setup
@@ -156,12 +226,15 @@ int main(void) {
   uart_printf("------------------\n\r");
   uart_printf("starting\n\r");
 
-
+#if 0
   // peripheral setup
   rails_setup();
   ref_setup();
   // dac_setup_bitbash();
   dac_setup_spi();
+  mux_setup();
+#endif
+  adc_setup();
 
 
   ///////////////
