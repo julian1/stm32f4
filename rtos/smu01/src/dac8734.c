@@ -220,11 +220,8 @@ void dac_setup_bitbash( void )
 }
 
 
-/*
-  This test turns on rails etc. so it really should not be here.
-*/
 
-void dac_test(void)
+void dac_reset(void)
 {
   /* Load DAC latch control input(activelow). When LDAC is low, the DAC latch
   is transparent and the LDAC 56I contents of the Input Data Register are
@@ -252,17 +249,6 @@ void dac_test(void)
   gpio_set(DAC_PORT, DAC_UNIBIPB);
 
 
-  //msleep(1000);   // 500ms not long enough. on cold power-up.
-                  // 1s ok.
-                  // actually sometimes 1s. fails.
-                  // maybe issue with latch...
-                  // Ok. 500ms was ok. when clear latch first.
-                  // and 250ms was ok.
-                  // actually nope. it must have been running from cap charge.  10secs usb unplug no good.
-                  // ----------
-                  // Maybe need to pull reset low - as first gpio configuration action, before configure spi etc.
-                  // Also could be rails, need to be pulled to ground - first, and there is stray capacitance on them.
-                  // Also could be,
 
   /*
   Reset input (active low). Logic low on this pin resets the input registers
@@ -312,6 +298,7 @@ void dac_test(void)
   */
   // dac_write_register1( 0 << 16 | 1 << 14); // LD bit
 
+
   /*
    To set the DAC-x gain=2, connect RFB1-x and RFB2-x to VOUT-x, and set the
   corresponding GAIN bit in the CommandRegister to'0'. To set the DAC-xgain=4,
@@ -322,6 +309,17 @@ void dac_test(void)
   // *NOT* or-ing.
   dac_write_register1( 0);  // set gain bit to 0. also sets LD bit to 0
 
+}
+
+
+
+/*
+  This test turns on rails and ref. so should probably go elsewhere to avoid the header/code dependency
+  But we need all the defines,
+*/
+#if 0
+void dac_test(void)
+{
 
   /*
   34,the digital supplies (DVDD and IOVDD) and logic inputs (UNI/BIP-x) must be
@@ -401,7 +399,7 @@ void dac_test(void)
   }
 }
 
-
+#endif
 
 
 

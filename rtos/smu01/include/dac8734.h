@@ -12,6 +12,9 @@ void dac_setup_bitbash( void );
 
 void dac_write_register(uint8_t r, uint16_t v);
 
+void dac_reset(void);
+
+
 // ahhh --- call this
-void dac_test(void );
+// void dac_test(void );
 

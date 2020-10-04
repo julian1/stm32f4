@@ -73,10 +73,104 @@ static void led_blink_task2(void *args __attribute((unused))) {
 }
 
 
+
+
+
+
+static void dac_test(void)
+{
+
+  dac_reset();
+
+  /*
+  34,the digital supplies (DVDD and IOVDD) and logic inputs (UNI/BIP-x) must be
+  applied before AVSS and AVDD. Additionally, AVSS must be applied before AVDD
+  unless both can ramp up at the same time. REF-x should be applied after AVDD
+  comes up in order to make sure the ESD protection circuitry does not turn on.
+  */
+  rails_negative_on();
+  msleep(50);
+  rails_positive_on();
+  msleep(50);
+  ref_on();
+  msleep(50);
+
+
+  // WRITING THIS - does not affect mon value...
+  uart_printf("dac writing dac register 1\n\r");
+  // dac_write_register1( 0b00000100 << 16 | 0x7f7f ); // write dac 0
+  //dac_write_register1( 0b00000101 << 16 | 0x3fff ); // write dac 1 1.5V out.
+  // dac_write_register1( 0b00000101 << 16 | 0x2fff ); // write dac 1 1.129 out.
+  // dac_write_register1( 0b00000101 << 16 | -10000 ); // didn't work
+  // dac_write_register1( 0b00000101 << 16 | 10000 ); // works 0.919V
+  // dac_write_register1( 0b00000101 << 16 | 0xffff - 10000 ); //  works. output -0.919V
+  // dac_write_register1( 0b00000101 << 16 | 0x5fff );
+
+  // dac_write_register(0x05, 0x5fff ); // dac1 0b0101
+  // dac_write_register(0x05, 0 ); // dac1 0b0101
+  // dac_write_register(0x05, 0x7fff );
+  // dac_write_register(0x05, 0 );      // Vout = 0V
+  // dac_write_register(0x05, 65535 );     // Vout == 13.122
+
+
+  dac_write_register(0x04, 25000 );  // Vout == 5V
+
+  dac_write_register(0x05, 50000 );  // Iout == 10V
+
+
+  // ok for v reference of 6.5536V
+  // then rails need to be 6.5536 * 2 + 1 == 14.1V.
+  //
+
+
+#if 0
+  dac_write_register1( 0b00000110 << 16 | 0x7f7f ); // write dac 2
+  dac_write_register1( 0b00000111 << 16 | 0x7f7f ); // write dac 3
+  msleep(1);  // must wait for update - before we read
+#endif
+
+
+  /*
+    OKK - power consumption - seems *exactly* right.  around 10mA.
+    AIDD (normaloperation) ±10V output range, no loading current, VOUT=0V 2.7-3.4mA/Channel
+    AAISS(normaloperation)±10V outputrange, no loadingcurrent, VOUT=0V 3.3-4.0mA/Channel
+    Input current  1μA - this is for the digital section only.
+    // guy says device is drawing 10mA.
+    // https://e2e.ti.com/support/data-converters/f/73/t/648061?DAC8734-Is-my-dac-damaged-
+
+  */
+
+  // 11 is ain. 13 is dac1.
+
+  uart_printf("dac write mon register for ain\n\r");
+  // dac_write_register1( 0b00000001 << 16 | (1 << 11) ); // select AIN.
+  // dac_write_register1( 0b00000001 << 16 | (1 << 13) ); // select dac 1.
+
+  dac_write_register(0x01, (1 << 13) ); // select monitor dac1
+
+  uart_printf("dac finished\n\r");
+
+#if 0
+#endif
+
+  // sleep forever
+  // exiting a task thread isn't very good...
+  for(;;) {
+    msleep(1000);
+  }
+
+}
+
+
+
+
 static void dac_test1(void *args __attribute((unused)))
 {
   dac_test();
 }
+
+
+
 
 
 
