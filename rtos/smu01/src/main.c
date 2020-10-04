@@ -151,9 +151,8 @@ int main(void) {
   // TODO maybe change names setup_led() setup_uart() ?
   led_setup();
   usart_setup();
-
-
   uart_printf("------------------\n\r");
+  uart_printf("starting\n\r");
 
 /*
   This organisation is really bad...
