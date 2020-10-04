@@ -83,8 +83,8 @@ static void dac_test(void)
 
   uart_printf("dac writing dac registers\n\r");
 
-  dac_write_register(0x04, 25000 );  // Vout == 5V, need macro for DAC_OUT0
-  dac_write_register(0x05, 50000 );  // Iout == 10V
+  dac_write_register(0x04, 50000 );  // Iout == 10V, need macro for DAC_OUT0
+  dac_write_register(0x05, 25000 );  // Vout == 5V
 
   /*
     ok for v reference of 6.5536V
