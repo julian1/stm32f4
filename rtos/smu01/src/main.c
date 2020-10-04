@@ -177,6 +177,7 @@ int main(void) {
 
 	vTaskStartScheduler();
 
+  // should never get here?
 	for (;;);
 	return 0;
 }
