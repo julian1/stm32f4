@@ -33,12 +33,12 @@
 // #include <libopencm3/cm3/nvic.h>
 
 
+#include "sleep.h"
 #include "usart.h"
 #include "led.h"
 #include "rails.h"
 #include "ref.h"
 #include "dac8734.h"
-#include "utility.h" // task_sleep
 
 
 /*
@@ -98,13 +98,9 @@ static void dac_test(void)
   ref_on();
   task_sleep(50);
 
+  uart_printf("dac writing dac registers\n\r");
 
-  // WRITING THIS - does not affect mon value...
-  uart_printf("dac writing dac register 1\n\r");
-
-
-  dac_write_register(0x04, 25000 );  // Vout == 5V
-
+  dac_write_register(0x04, 25000 );  // Vout == 5V, need macro for DAC_OUT0
   dac_write_register(0x05, 50000 );  // Iout == 10V
 
   /*
@@ -194,15 +190,13 @@ int main(void) {
   ///////////////
   // tasks
   // value is the stackdepth.
-	xTaskCreate(led_blink_task2, "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
-  xTaskCreate(uart_task,      "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
+	xTaskCreate(led_blink_task2,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+  xTaskCreate(uart_task,        "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
 
-  // IMPORTANT setting from 100 to 200, stops deadlock
-  xTaskCreate(usart_prompt_task,    "PROMPT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+  // IMPORTANT changing from 100 to 200, stops deadlock
+  xTaskCreate(usart_prompt_task,"PROMPT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
-
-  // ok....
-  xTaskCreate(dac_test1,    "DAC_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
+  xTaskCreate(dac_test1,        "DAC_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
 	vTaskStartScheduler();
 
