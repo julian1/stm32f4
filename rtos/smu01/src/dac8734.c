@@ -66,7 +66,7 @@
 static void dac_write_register_spi(uint32_t r)
 {
 #if 1
-  spi_send( DAC_SPI, (r >> 16) & 0xff );
+  spi_send( DAC_SPI, (r >> 16) & 0xff );    // just r >> 16 for 8 bit...
   spi_send( DAC_SPI, (r >> 8) & 0xff  );
   spi_send( DAC_SPI, r & 0xff  );
 #endif
@@ -101,9 +101,9 @@ static void dac_write_register_bitbash(uint32_t v)
 
     // assert value
     if( v & (1 << i ))
-      gpio_set(DAC_PORT_SPI, DAC_MOSI );
+      gpio_set(DAC_PORT_SPI, DAC_MOSI);
     else
-      gpio_clear (DAC_PORT_SPI, DAC_MOSI );
+      gpio_clear(DAC_PORT_SPI, DAC_MOSI);
 
     // read register something like this,
     // x |=  (gpio_get(DAC_PORT_SPI, DAC_MISO ) ? 1 : 0) << i ;
