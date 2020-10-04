@@ -88,6 +88,7 @@ static void dac_test(void)
   unless both can ramp up at the same time. REF-x should be applied after AVDD
   comes up in order to make sure the ESD protection circuitry does not turn on.
   */
+  msleep(50);
   rails_negative_on();
   msleep(50);
   rails_positive_on();
