@@ -38,7 +38,7 @@
 #include "rails.h"
 #include "ref.h"
 #include "dac8734.h"
-#include "utility.h" // msleep
+#include "utility.h" // task_sleep
 
 
 /*
@@ -68,7 +68,7 @@ static void led_blink_task2(void *args __attribute((unused))) {
 
     );
 */
-    msleep(500);
+    task_sleep(500);
   }
 }
 
@@ -90,13 +90,13 @@ static void dac_test(void)
   unless both can ramp up at the same time. REF-x should be applied after AVDD
   comes up in order to make sure the ESD protection circuitry does not turn on.
   */
-  msleep(50);
+  task_sleep(50);
   rails_negative_on();
-  msleep(50);
+  task_sleep(50);
   rails_positive_on();
-  msleep(50);
+  task_sleep(50);
   ref_on();
-  msleep(50);
+  task_sleep(50);
 
 
   // WRITING THIS - does not affect mon value...
@@ -114,7 +114,7 @@ static void dac_test(void)
 #if 0
   dac_write_register1( 0b00000110 << 16 | 0x7f7f ); // write dac 2
   dac_write_register1( 0b00000111 << 16 | 0x7f7f ); // write dac 3
-  msleep(1);  // must wait for update - before we read
+  task_sleep(1);  // must wait for update - before we read
 #endif
 
 
@@ -139,7 +139,7 @@ static void dac_test1(void *args __attribute((unused)))
   // sleep forever
   // exiting a task thread isn't very good...
   for(;;) {
-    msleep(1000);
+    task_sleep(1000);
   }
 }
 

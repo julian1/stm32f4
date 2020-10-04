@@ -98,7 +98,7 @@ static void dac_write_register_bitbash(uint32_t v)
   for(int i = 23; i >= 0; --i) {
 
     gpio_set(DAC_PORT_SPI, DAC_CLK);  // clock high
-    // msleep(1);      // OK... interesting it doesn't like this at all...
+    // task_sleep(1);      // OK... interesting it doesn't like this at all...
                         // but it should be fine
 
     // assert value
@@ -110,9 +110,9 @@ static void dac_write_register_bitbash(uint32_t v)
     // read register something like this,
     // x |=  (gpio_get(DAC_PORT_SPI, DAC_MISO ) ? 1 : 0) << i ;
 
-    msleep(1);
+    task_sleep(1);
     gpio_clear(DAC_PORT_SPI, DAC_CLK);  // slave gets value on down transition
-    msleep(1);
+    task_sleep(1);
   }
 }
 
@@ -120,12 +120,12 @@ static void dac_write_register_bitbash(uint32_t v)
 static void dac_write_register1(uint32_t r)
 {
   gpio_clear(DAC_PORT_SPI, DAC_CS);     // CS active low
-  msleep(1);
+  task_sleep(1);
   // dac_write_register_bitbash( r );     // write
   dac_write_register_spi( r );     // write
-  msleep(1); // required
+  task_sleep(1); // required
   gpio_set(DAC_PORT_SPI, DAC_CS);      // ldac is transparent if low, so will latch value on cs deselect (pull high).
-  msleep(1);
+  task_sleep(1);
 }
 
 
@@ -142,7 +142,7 @@ static uint32_t dac_read(void)
 {
   // dac write register exchange...
 
-  msleep(1); // required
+  task_sleep(1); // required
   gpio_clear(DAC_PORT_SPI, DAC_CS);  // CS active low
 
   // think problem is that it doesn't fiddle the clock.
@@ -155,7 +155,7 @@ static uint32_t dac_read(void)
   uint8_t b = spi_xfer(DAC_PORT, 0 );
   uint8_t c = spi_xfer(DAC_PORT, 0);
   */
-  msleep(1); // required
+  task_sleep(1); // required
   gpio_set(DAC_PORT_SPI, DAC_CS);
 
   return (a << 16) | (b << 8) | c;
@@ -224,10 +224,10 @@ void dac_setup_bitbash( void )
 void dac_reset(void)
 {
   /*
-    code relies on msleep() for sequencing rst.
+    code relies on task_sleep() for sequencing rst.
     therefore should only call in context of rtos thread.
     OTHERWISE - should just use a nop loop.
-      and remove dependency on msleep. no still required for uart_print()
+      and remove dependency on task_sleep. no still required for uart_print()
   */
 
   /* Load DAC latch control input(activelow). When LDAC is low, the DAC latch
@@ -262,9 +262,9 @@ void dac_reset(void)
   // These times may need to be increased for true cold start...
   uart_printf("dac reset\n\r");
   gpio_clear(DAC_PORT, DAC_RST);
-  msleep(20);
+  task_sleep(20);
   gpio_set(DAC_PORT, DAC_RST);
-  msleep(20);
+  task_sleep(20);
   uart_printf("dac reset done\n\r");
 
 
@@ -332,11 +332,11 @@ void dac_test(void)
   comes up in order to make sure the ESD protection circuitry does not turn on.
   */
   rails_negative_on();
-  msleep(50);
+  task_sleep(50);
   rails_positive_on();
-  msleep(50);
+  task_sleep(50);
   ref_on();
-  msleep(50);
+  task_sleep(50);
 
 
   // WRITING THIS - does not affect mon value...
@@ -369,7 +369,7 @@ void dac_test(void)
 #if 0
   dac_write_register1( 0b00000110 << 16 | 0x7f7f ); // write dac 2
   dac_write_register1( 0b00000111 << 16 | 0x7f7f ); // write dac 3
-  msleep(1);  // must wait for update - before we read
+  task_sleep(1);  // must wait for update - before we read
 #endif
 
 
@@ -399,7 +399,7 @@ void dac_test(void)
   // sleep forever
   // exiting a task thread isn't very good...
   for(;;) {
-    msleep(1000);
+    task_sleep(1000);
   }
 }
 
@@ -489,9 +489,9 @@ void dac_test(void)
 
 
 
-  // msleep(1);
+  // task_sleep(1);
   // gpio_clear(DAC_PORT_SPI, DAC_CS);  // CS active low
-  // msleep(1);
+  // task_sleep(1);
 
   /*
     we need to control the general 3.3V power rail, as well without unplugging the usb all the time
@@ -524,7 +524,7 @@ void dac_test(void)
   // setting to 0 will clear.
   **********/
 
-  // msleep(1); // required
+  // task_sleep(1); // required
   // gpio_set(DAC_PORT_SPI, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
 
 
@@ -537,9 +537,9 @@ void dac_test(void)
   // pull latch up to write
   uart_printf("toggle ldac\n\r");
   gpio_set(DAC_PORT, DAC_LDAC);
-  msleep(1);
+  task_sleep(1);
 
   // gpio_clear(DAC_PORT, DAC_LDAC);
-  // msleep(1);
+  // task_sleep(1);
 #endif
 
