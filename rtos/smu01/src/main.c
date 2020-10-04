@@ -95,8 +95,8 @@ static void dac_test(void)
 #endif
 
 
+  // select ain auxillary monitor.
   // 11 is ain. 13 is dac1.
-
   uart_printf("dac write mon register for ain\n\r");
   // dac_write_register1( 0b00000001 << 16 | (1 << 11) ); // select AIN.
   // dac_write_register1( 0b00000001 << 16 | (1 << 13) ); // select dac 1.
@@ -126,8 +126,8 @@ static void dac_test1(void *args __attribute((unused)))
 
 int main(void) {
 
-  ////
-  // Disable HSE
+  // main clocks
+  // disable HSE
   // must edit, configCPU_CLOCK_HZ also
   // clocks
   // rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
@@ -154,13 +154,8 @@ int main(void) {
   uart_printf("------------------\n\r");
   uart_printf("starting\n\r");
 
-/*
-  This organisation is really bad...
-  There should be a single linear task that does all the configuration.
-  Rather than doing half in the main thread, and half in the task thread.
-*/
 
-
+  // peripheral setup
   rails_setup();
   ref_setup();
   // dac_setup_bitbash();
