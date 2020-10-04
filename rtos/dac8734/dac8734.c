@@ -288,6 +288,8 @@ void dac_test(void)
   /*
     THIS code is *NOT* or-ing with the current contents of the register.
     Instead it is overwriting. So do not use except as test.
+
+    TODO - use a typedef struct defining all the default bit values we want, and use it as a mask.
   */
   uart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
@@ -315,6 +317,7 @@ void dac_test(void)
   in the CommandRegister to '1'. After power-on reset or userreset, the GAIN bits
   are set to'1' by default; forgain=2, the gain bits must be cleared to'0'.
   */
+  // *NOT* or-ing.
   dac_write_register1( 0);  // set gain bit to 0. also sets LD bit to 0
 
 
