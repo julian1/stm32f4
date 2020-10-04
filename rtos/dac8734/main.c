@@ -73,6 +73,12 @@ static void led_blink_task2(void *args __attribute((unused))) {
 }
 
 
+static void dac_test1(void *args __attribute((unused)))
+{
+  dac_test();
+}
+
+
 
 int main(void) {
 
@@ -128,7 +134,7 @@ int main(void) {
 
 
   // ok....
-  xTaskCreate(dac_test,    "DAC_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
+  xTaskCreate(dac_test1,    "DAC_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
 	vTaskStartScheduler();
 

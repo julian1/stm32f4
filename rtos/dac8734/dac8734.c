@@ -219,7 +219,8 @@ void dac_setup_bitbash( void )
 
 
 
-void dac_test(void *args __attribute((unused)))
+// void dac_test(void *args __attribute((unused)))
+void dac_test(void)
 {
   /* Load DAC latch control input(activelow). When LDAC is low, the DAC latch
   is transparent and the LDAC 56I contents of the Input Data Register are
@@ -238,12 +239,13 @@ void dac_test(void *args __attribute((unused)))
   IOVDD, group B is in unipolar output mode; when tied to DGND, group B is in
   bipolar output mode
   */
+  // bipolar
   // gpio_clear(DAC_PORT, DAC_UNIBIPA);
-  // gpio_clear(DAC_PORT, DAC_UNIBIPB);  // bipolar, lower supply voltage range required.
+  // gpio_clear(DAC_PORT, DAC_UNIBIPB);
 
   // unipolar
   gpio_set(DAC_PORT, DAC_UNIBIPA);
-  gpio_set(DAC_PORT, DAC_UNIBIPB);  // bipolar, lower supply voltage range required.
+  gpio_set(DAC_PORT, DAC_UNIBIPB);
 
 
 
@@ -345,11 +347,12 @@ void dac_test(void *args __attribute((unused)))
   // dac_write_register(0x05, 0 ); // dac1 0b0101
   // dac_write_register(0x05, 0x7fff );
   // dac_write_register(0x05, 0 );      // Vout = 0V
-  dac_write_register(0x05, 50000 );  // Vout == 10V
   // dac_write_register(0x05, 65535 );     // Vout == 13.122
 
 
-  dac_write_register(0x04, 25000 );  // Vout == 10V
+  dac_write_register(0x04, 25000 );  // Vout == 5V
+
+  dac_write_register(0x05, 50000 );  // Iout == 10V
 
 
   // ok for v reference of 6.5536V
@@ -382,10 +385,7 @@ void dac_test(void *args __attribute((unused)))
 
   dac_write_register(0x01, (1 << 13) ); // select monitor dac1
 
-
-
   uart_printf("dac finished\n\r");
-
 
 #if 0
 #endif
