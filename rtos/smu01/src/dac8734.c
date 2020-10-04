@@ -311,6 +311,13 @@ void dac_reset(void)
   // sets all bits.
   dac_write_register1( 0);  // set gain bit to 0. also sets LD bit to 0
 
+
+  /*
+  34,the digital supplies (DVDD and IOVDD) and logic inputs (UNI/BIP-x) must be
+  applied before AVSS and AVDD. Additionally, AVSS must be applied before AVDD
+  unless both can ramp up at the same time. REF-x should be applied after AVDD
+  comes up in order to make sure the ESD protection circuitry does not turn on.
+  */
 }
 
 

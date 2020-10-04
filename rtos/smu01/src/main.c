@@ -31,7 +31,9 @@
 
 
 
-static void led_blink_task2(void *args __attribute((unused))) {
+static void led_blink_task2(void *args __attribute((unused)))
+{
+  // static int last = 0;
 
 	for (;;) {
 
