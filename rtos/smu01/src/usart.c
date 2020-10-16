@@ -147,8 +147,12 @@ void usart1_isr(void)
                                                 // probably don't want to do this here. but somewhere else for more
                                                 // control
 
+    /*
+    DISABLE - It is confusing, if stack overflow fast blink - or just normal logging.
+
     // Toggle LED to show signs of life
     gpio_toggle(GPIOE,GPIO0);
+    */
   }
 
 }

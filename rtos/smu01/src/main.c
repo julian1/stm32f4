@@ -64,8 +64,8 @@ static void led_blink_task2(void *args __attribute((unused)))
 
     // don't think this works...
 		// uint16_t input_adc1 = read_adc_native( ADC_CHANNEL_VREF);
-		// uint16_t input_adc1 = read_adc_native( ADC_CHANNEL_VBAT);
-		 uint16_t input_adc1 = read_adc_native(  ADC_CHANNEL_TEMP_F40  );
+		uint16_t input_adc1 = read_adc_native( ADC_CHANNEL_VBAT);
+		// uint16_t input_adc1 = read_adc_native( ADC_CHANNEL_TEMP_F40 );
 
     /*
       OK
