@@ -43,29 +43,26 @@ static void led_blink_task2(void *args __attribute((unused)))
     // led_toggle
 		led_toggle();
 
-    // ping
-    // uart_printf("ping %d\n\r", tick++);
-
-/*
+#if 0 
     uart_printf("hi %d %d %d\n\r",
       last++,
       gpio_get(DAC_PORT, DAC_GPIO0),
       gpio_get(DAC_PORT, DAC_GPIO1 )
-
     );
-*/
+#endif
+
+#if 0
     // at gnd 0-2, at 3.3V supply get 4095.  eg. 4096 = 12bit. good. but maybe resolution is off.
     /*
       ADC channel numbers
       http://libopencm3.org/docs/latest/stm32f4/html/group__adc__channel.html
     */
-
-		uint16_t input_adc0 = read_adc_native(0);   // PA0.
+		uint16_t pa0 = read_adc_native(0);   // PA0.
 
     // don't think this works...
-		// uint16_t input_adc1 = read_adc_native( ADC_CHANNEL_VREF);
-		uint16_t input_adc1 = read_adc_native( ADC_CHANNEL_VBAT);
-		// uint16_t input_adc1 = read_adc_native( ADC_CHANNEL_TEMP_F40 );
+		uint16_t vref = read_adc_native( ADC_CHANNEL_VREF);
+		uint16_t vbat = read_adc_native( ADC_CHANNEL_VBAT);
+		uint16_t temp = read_adc_native( ADC_CHANNEL_TEMP_F40 );
 
     /*
       OK
@@ -74,8 +71,8 @@ static void led_blink_task2(void *args __attribute((unused)))
       so maybe its working...
       TEMP_F40 went 770 to 850 with heat gun... pointed at it. and back again.
     */
-
-		uart_printf("tick: %d: adc0=%u adc1=%d\n", tick++, input_adc0, input_adc1);
+		uart_printf("tick: %d: pa0=%u vbat=%d  vref=%d temp=%d\n", tick++, pa0, vbat, vref, temp);
+#endif
 
     task_sleep(500);
   }
@@ -88,6 +85,8 @@ static void led_blink_task2(void *args __attribute((unused)))
 
 static void dac_test(void)
 {
+
+  uart_printf("dac test - before reset\n\r");
 
   dac_reset();
 
