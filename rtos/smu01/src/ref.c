@@ -9,8 +9,7 @@
 
 
 #define REF_PORT    GPIOE
-// #define REF_VREF    GPIO11
-#define REF_PIN     GPIO13  // dg444 pins swapped.. change name REF_PORT??? or REF_IN? or REF_SWITCH?
+#define REF_PIN     GPIO11  // dg444 pins swapped.. change name REF_PORT??? or REF_IN? or REF_SWITCH?
 
 
 /*

@@ -112,12 +112,13 @@ static void dac_test(void)
   rails_negative_on();
   task_sleep(50);
   rails_positive_on();
-#if 0
+
   task_sleep(50);
-  ref_on();
+  ref_on();         // OK. this 
   task_sleep(50);
 
   uart_printf("dac writing dac registers\n\r");
+
 
   dac_write_register(0x04, 50000 );  // Iout == 10V, need macro for DAC_OUT0
   dac_write_register(0x05, 25000 );  // Vout == 5V
@@ -142,7 +143,6 @@ static void dac_test(void)
   dac_write_register(0x01, (1 << 13) ); // select monitor dac1
 
   uart_printf("dac test finished\n\r");
-#endif
 }
 
 
