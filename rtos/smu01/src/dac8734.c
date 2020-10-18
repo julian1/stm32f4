@@ -46,10 +46,12 @@
 
 #define DAC_LDAC      GPIO0
 #define DAC_RST       GPIO1
-#define DAC_GPIO0     GPIO2  // PB2, is BOOT1
-#define DAC_GPIO1     GPIO3
+// PB2, is BOOT1
 #define DAC_UNIBIPA   GPIO4
 #define DAC_UNIBIPB   GPIO5
+#define DAC_GPIO0     GPIO6
+#define DAC_GPIO1     GPIO7
+
 
 
 
