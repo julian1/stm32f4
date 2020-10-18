@@ -31,8 +31,25 @@
 #include "ref.h"
 #include "dac8734.h"
 
-
 static uint16_t read_adc_native(uint8_t channel);
+
+static void wait_for_rails()
+{
+  int tick = 0;
+
+  while(1) { 
+    uint16_t pa0 = read_adc_native(0);   // LP15VP
+    uint16_t pa1 = read_adc_native(1);   // LN15VN
+
+		uart_printf("wait_for_rails, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
+    if(pa0 > 300 && pa1 > 300)
+      break;
+
+    task_sleep(500);
+  }
+}
+
+
 
 static void led_blink_task2(void *args __attribute((unused)))
 {
@@ -51,11 +68,14 @@ static void led_blink_task2(void *args __attribute((unused)))
     );
 #endif
 
-#if 1
+#if 0
     // So we need to wait until supplies come up when initializing.
     // which means factorizing this code.
     // but where do we put it...
     // actually - monitoring supplies should almost be a separate task...
+
+    // Note that we should be able to talk to the dac / gpio - even if do not have
+    // rails or ref up.
 
 		uint16_t pa0 = read_adc_native(0);   // LP15VP
 		uint16_t pa1 = read_adc_native(1);   // LN15VN
@@ -112,6 +132,9 @@ static void dac_test(void)
   unless both can ramp up at the same time. REF-x should be applied after AVDD
   comes up in order to make sure the ESD protection circuitry does not turn on.
   */
+
+  wait_for_rails();
+
   task_sleep(50);
   rails_negative_on();
   task_sleep(50);
