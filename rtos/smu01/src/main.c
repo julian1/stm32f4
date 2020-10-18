@@ -52,6 +52,10 @@ static void led_blink_task2(void *args __attribute((unused)))
 #endif
 
 #if 1
+    // So we need to wait until supplies come up when initializing.
+    // which means factorizing this code.
+    // but where do we put it...
+    // actually - monitoring supplies should almost be a separate task...
 
 		uint16_t pa0 = read_adc_native(0);   // LP15VP
 		uint16_t pa1 = read_adc_native(1);   // LN15VN
