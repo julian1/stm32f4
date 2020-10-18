@@ -35,6 +35,7 @@ static uint16_t read_adc_native(uint8_t channel);
 
 static void wait_for_rails(void)
 {
+  // move to rails?
   // potentially want a continuous running task to monitor, with queue events - not just a blocking call.
   // also want to pause for a couple of ticks... before unblock
   int tick = 0;
@@ -221,6 +222,8 @@ static void dac_test1(void *args __attribute((unused)))
 
 
 
+/////////////////////////////
+// this code should be where?
 
 static void adc_setup(void)
 {
@@ -249,6 +252,10 @@ static uint16_t read_adc_native(uint8_t channel)
 	uint16_t reg16 = adc_read_regular(ADC1);
 	return reg16;
 }
+
+
+/////////////////////////////
+
 
 int main(void) {
 
@@ -282,19 +289,14 @@ int main(void) {
   uart_printf("starting\n\r");
 
   // /////////////
-  //// EXTREME - only gpio, clocks, and peripheral config.
-  // only spi clocking and gpio
-  dac_setup_spi();
-
-  rails_setup();
-
-#if 0
-  // peripheral setup
-  ref_setup();
-  // dac_setup_bitbash();
-  mux_setup();
-#endif
+  // EXTREME - gpio, clocks, and peripheral config ONLY.
+  // no actual spi calls
   adc_setup();
+  rails_setup();
+  dac_setup_spi();
+  // dac_setup_bitbash();
+  ref_setup();
+  mux_setup();
 
 
   ///////////////
