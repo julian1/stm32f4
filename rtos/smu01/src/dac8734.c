@@ -221,6 +221,8 @@ void dac_setup_bitbash( void )
 
 void dac_reset(void)
 {
+  uart_printf("dac reset\n\r");
+
   /*
     code relies on task_sleep() for sequencing rst.
     therefore should only call in context of rtos thread.
@@ -263,7 +265,6 @@ void dac_reset(void)
   task_sleep(20);
   gpio_set(DAC_PORT, DAC_RST);
   task_sleep(20);
-  uart_printf("dac reset done\n\r");
 
 
   // powered up with +-14V....
@@ -283,7 +284,8 @@ void dac_reset(void)
   */
   uart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
-  uart_printf("dac clear\n\r");
+  // ok this hangs perhaps - because there is nothing connected
+  uart_printf("dac clearing dac register\n\r");
   dac_write_register1( 0);
   uart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 

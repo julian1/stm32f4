@@ -96,11 +96,11 @@ static void led_blink_task2(void *args __attribute((unused)))
 static void dac_test(void)
 {
 
-  uart_printf("dac test - before reset\n\r");
+  uart_printf("dac test - before dac reset\n\r");
 
   dac_reset();
 
-  uart_printf("dac test\n\r");
+  uart_printf("dac test - after dac reset\n\r");
 
   /*
   34,the digital supplies (DVDD and IOVDD) and logic inputs (UNI/BIP-x) must be
