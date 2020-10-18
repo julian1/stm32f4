@@ -112,6 +112,7 @@ static void dac_test(void)
   rails_negative_on();
   task_sleep(50);
   rails_positive_on();
+#if 0
   task_sleep(50);
   ref_on();
   task_sleep(50);
@@ -141,6 +142,7 @@ static void dac_test(void)
   dac_write_register(0x01, (1 << 13) ); // select monitor dac1
 
   uart_printf("dac test finished\n\r");
+#endif
 }
 
 
@@ -250,12 +252,17 @@ int main(void) {
   uart_printf("------------------\n\r");
   uart_printf("starting\n\r");
 
+  // /////////////
+  //// EXTREME - only gpio, clocks, and peripheral config.
+  // only spi clocking and gpio
+  dac_setup_spi();
+
+  rails_setup();
+
 #if 0
   // peripheral setup
-  rails_setup();
   ref_setup();
   // dac_setup_bitbash();
-  dac_setup_spi();
   mux_setup();
 #endif
   adc_setup();

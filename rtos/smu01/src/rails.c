@@ -22,8 +22,8 @@
 
 void rails_positive_on( void )
 {
-  gpio_set(RAILS_PORT, RAILS_POS);
   uart_printf("rails positive on\n\r");
+  gpio_set(RAILS_PORT, RAILS_POS);
 }
 
 void rails_negative_on( void )
@@ -37,10 +37,11 @@ void rails_setup( void )
 {
   uart_printf("rails setup\n\r");
 
+  // define, before configure
   gpio_clear(RAILS_PORT, RAILS_POS);
   gpio_clear(RAILS_PORT, RAILS_NEG);
 
-  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE ,  /* broken GPIO8 */ RAILS_POS | RAILS_NEG  );
+  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,  /* broken GPIO8 */ RAILS_POS | RAILS_NEG  );
 
   uart_printf("rails setup done\n\r");
 }
