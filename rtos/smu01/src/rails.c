@@ -1,6 +1,3 @@
-/*
-  change name to supplies?
-*/
 
 #include <libopencm3/stm32/gpio.h>
 
@@ -9,16 +6,12 @@
 #include "rails.h"
 
 
-// rails...  can we do it in order...
 #define RAILS_PORT    GPIOE
-// #define RAILS_POS     GPIO8   // This pin output driver is broken due to overvoltage...
 #define RAILS_NEG     GPIO13
 #define RAILS_POS     GPIO14
 
-#define RAILS_VREF    GPIO11
 
-
-// should pass an argument. eg. 1 for on. 0 for off.
+// TODO pass argument. eg. 1 for on. 0 for off.
 
 void rails_positive_on( void )
 {
@@ -41,37 +34,9 @@ void rails_setup( void )
   gpio_clear(RAILS_PORT, RAILS_POS);
   gpio_clear(RAILS_PORT, RAILS_NEG);
 
-  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,  /* broken GPIO8 */ RAILS_POS | RAILS_NEG  );
+  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, RAILS_POS | RAILS_NEG);
 
   uart_printf("rails setup done\n\r");
 }
-
-#if 0
-// should NOT be here...
-void rails_vref_on( void )
-{
-  gpio_clear(RAILS_PORT, RAILS_VREF);  // pull down.
-
-}
-
-
-void rails_setup( void )
-{
-
-  uart_printf("rails setup\n\r");
-
-  // ok. define before enabling...
-  // if we do this after setup - then the neg rail, needs high, will glitch on reset.
-  // turn off
-
-  uart_printf("rails off \n\r");
-  gpio_clear(RAILS_PORT, RAILS_POS);
-  gpio_set  (RAILS_PORT, RAILS_NEG);
-  gpio_set  (RAILS_PORT, RAILS_VREF);   // pull-down off
-
-  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE ,  /* broken GPIO8 */ RAILS_POS | RAILS_NEG | RAILS_VREF  );
-
-}
-#endif
 
 
