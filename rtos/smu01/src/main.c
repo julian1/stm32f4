@@ -33,8 +33,10 @@
 
 static uint16_t read_adc_native(uint8_t channel);
 
-static void wait_for_rails()
+static void wait_for_rails(void)
 {
+  // potentially want a continuous running task to monitor, with queue events - not just a blocking call.
+  // also want to pause for a couple of ticks... before unblock
   int tick = 0;
 
   while(1) { 
@@ -53,7 +55,7 @@ static void wait_for_rails()
 
 static void led_blink_task2(void *args __attribute((unused)))
 {
-  static int tick = 0;
+  // static int tick = 0;
 
 	for (;;) {
 
