@@ -40,7 +40,7 @@ static void wait_for_rails(void)
   // also want to pause for a couple of ticks... before unblock
   int tick = 0;
 
-  while(1) { 
+  while(1) {
     uint16_t pa0 = read_adc_native(0);   // LP15VP
     uint16_t pa1 = read_adc_native(1);   // LN15VN
 
@@ -63,7 +63,7 @@ static void led_blink_task2(void *args __attribute((unused)))
     // led_toggle
 		led_toggle();
 
-#if 0 
+#if 0
     uart_printf("hi %d %d %d\n\r",
       last++,
       gpio_get(DAC_PORT, DAC_GPIO0),
@@ -144,7 +144,7 @@ static void dac_test(void)
   rails_positive_on();
 
   task_sleep(50);
-  ref_on();         // OK. this 
+  ref_on();         // OK. this
   task_sleep(50);
 
   uart_printf("dac writing dac registers\n\r");
@@ -178,8 +178,10 @@ static void dac_test(void)
 
 ////////////////////////////////////
 
-// should prefix all thse with MUX_
 
+#define MUX_PORT GPIOE
+
+// TODO, fix should prefix all thse with MUX_ in the schematic.
 #define VSET_CTL      GPIO1
 #define VSET_INV_CTL  GPIO2
 #define ISET_CTL      GPIO3
@@ -200,20 +202,19 @@ static void dac_test(void)
 // LP15V_LCT 14
 
 
-
 static void mux_setup(void)
 {
 
-  uint32_t all = 
-    VSET_CTL | VSET_INV_CTL | ISET_CTL | ISET_INV_CTL 
-    | VFB_CTL | VFB_INV_CTL | IFB_CTL   | IFB_INV_CTL 
+  uint32_t all =
+    VSET_CTL | VSET_INV_CTL | ISET_CTL | ISET_INV_CTL
+    | VFB_CTL | VFB_INV_CTL | IFB_CTL   | IFB_INV_CTL
     | MUX_MIN_CTL | MUX_MAX_CTL | MUX_MUX_UNUSED_CTL;
 
 
   uart_printf("mux setup\n\r");
   // call *before* bringing up rails
-  gpio_set(GPIOE, all);   // active low.
-  gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
+  gpio_set(MUX_PORT, all);   // active low.
+  gpio_mode_setup(MUX_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
   uart_printf("mux setup done\n\r");
 }
 
@@ -223,17 +224,13 @@ static void mux_test(void)
   // U1
   uart_printf("mux test \n\r");
 
-#if 0
-  // gpio_clear(GPIOE, GPIO1 );   // top-left      VFB
-   // gpio_clear(GPIOE, GPIO2 );   // bottom-right  VSET  ... gives us +9V on TP4 / VERR
-                                  // but top-right shows 9V on both sides why - even though off. why?
-                                  // Yes. So it flows through the resistor network. about 3x resistors.
-                                  /// Hmmm...
+  // gpio_clear(MUX_PORT, VSET_CTL);
+  gpio_clear(MUX_PORT, VSET_INV_CTL);
+  // gpio_clear(MUX_PORT, VFB_CTL);
+  gpio_clear(MUX_PORT, VFB_INV_CTL);
 
-  //gpio_clear(GPIOE, GPIO3 );   // top-right     VSET  --- something weird. drawing 20mA. no output.
-                                  // looks like it shorts. a bit
-  // gpio_clear(GPIOE, GPIO4);       // bottom-left   VFB
-#endif
+  gpio_clear(MUX_PORT, MUX_MAX_CTL);
+
   uart_printf("mux test finished\n\r");
 }
 
