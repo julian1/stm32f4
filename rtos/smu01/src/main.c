@@ -150,8 +150,8 @@ static void dac_test(void)
   uart_printf("dac writing dac registers\n\r");
 
 
-  dac_write_register(0x04, 50000 );  // Iout == 10V, need macro for DAC_OUT0
-  dac_write_register(0x05, 25000 );  // Vout == 5V
+  dac_write_register(0x04, 51900 );  // Iout == 10V, need macro for DAC_OUT0
+  dac_write_register(0x05, 25900 );  // Vout == 5V
 
   /*
     ok for v reference of 6.5536V
@@ -196,7 +196,7 @@ static void mux_test(void)
    gpio_clear(GPIOE, GPIO2 );   // bottom-right  VSET  ... gives us +9V on TP4 / VERR
                                   // but top-right shows 9V on both sides why - even though off. why?
                                   // Yes. So it flows through the resistor network. about 3x resistors.
-                                  // Hmmm...
+                                  /// Hmmm...
 
   //gpio_clear(GPIOE, GPIO3 );   // top-right     VSET  --- something weird. drawing 20mA. no output.
                                   // looks like it shorts. a bit
