@@ -170,6 +170,7 @@ static void dac_test(void)
   // dac_write_register1( 0b00000001 << 16 | (1 << 11) ); // select AIN.
   // dac_write_register1( 0b00000001 << 16 | (1 << 13) ); // select dac 1.
 
+  // ok!
   dac_write_register(0x01, (1 << 13) ); // select monitor dac1
 
   uart_printf("dac test finished\n\r");
