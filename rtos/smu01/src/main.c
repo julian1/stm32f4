@@ -51,13 +51,23 @@ static void led_blink_task2(void *args __attribute((unused)))
     );
 #endif
 
+#if 1
+
+		uint16_t pa0 = read_adc_native(0);   // LP15VP
+		uint16_t pa1 = read_adc_native(1);   // LN15VN
+		uint16_t pa2 = read_adc_native(2);   // dacmon - need to cut trace
+                                        // should test it works though
+
+		uart_printf("tick: %d: LP15VP=%u, LN15VN=%d, pa2=%d\n", tick++, pa0, pa1, pa2 );
+
+#endif
+
 #if 0
     // at gnd 0-2, at 3.3V supply get 4095.  eg. 4096 = 12bit. good. but maybe resolution is off.
     /*
       ADC channel numbers
       http://libopencm3.org/docs/latest/stm32f4/html/group__adc__channel.html
     */
-		uint16_t pa0 = read_adc_native(0);   // PA0.
 
     // don't think this works...
 		uint16_t vref = read_adc_native( ADC_CHANNEL_VREF);

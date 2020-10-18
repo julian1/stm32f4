@@ -12,8 +12,8 @@
 // rails...  can we do it in order...
 #define RAILS_PORT    GPIOE
 // #define RAILS_POS     GPIO8   // This pin output driver is broken due to overvoltage...
-#define RAILS_POS     GPIO9
-#define RAILS_NEG     GPIO10
+#define RAILS_NEG     GPIO13
+#define RAILS_POS     GPIO14
 
 #define RAILS_VREF    GPIO11
 
