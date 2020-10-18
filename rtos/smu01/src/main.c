@@ -176,7 +176,28 @@ static void dac_test(void)
   uart_printf("dac test finished\n\r");
 }
 
+////////////////////////////////////
 
+// should prefix all thse with MUX_
+
+#define VSET_CTL      GPIO1
+#define VSET_INV_CTL  GPIO2
+#define ISET_CTL      GPIO3
+#define ISET_INV_CTL  GPIO4
+
+
+#define VFB_CTL       GPIO5
+#define VFB_INV_CTL   GPIO6
+#define IFB_CTL       GPIO7
+#define IFB_INV_CTL   GPIO8
+
+#define MUX_MIN_CTL   GPIO9
+#define MUX_MAX_CTL   GPIO10
+
+// DAC_REF65_CTL    GPIO11
+#define MUX_MUX_UNUSED_CTL    GPIO12
+// LN15V_LCT  13
+// LP15V_LCT 14
 
 static void mux_setup(void)
 {
