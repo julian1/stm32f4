@@ -150,7 +150,8 @@ static void dac_test(void)
   uart_printf("dac writing dac registers\n\r");
 
 
-  dac_write_register(0x04, 51800 );  // Iout == 10V, need macro for DAC_OUT0
+  // dac_write_register(0x04, 51800 );  // Iout == 10V, need macro for DAC_OUT0
+  dac_write_register(0x04, 5180 );  // Iout == 1V
   dac_write_register(0x05, 25900 );  // Vout == 5V
 
   /*
@@ -219,7 +220,7 @@ static void mux_setup(void)
 }
 
 
-static void mux_test(void)
+static void mux_test_old(void)
 {
   // U1
   uart_printf("mux test \n\r");
@@ -248,6 +249,25 @@ static void mux_test(void)
   // select max...
   // gpio_clear(MUX_PORT, MUX_MAX_CTL);       
   gpio_clear(MUX_PORT, MUX_MIN_CTL);       
+
+  uart_printf("mux test finished\n\r");
+}
+
+
+static void mux_test(void)
+{
+  // U1
+  uart_printf("mux test new\n\r");
+
+  // balance around 0V
+  gpio_clear(MUX_PORT, VSET_INV_CTL); // so          Verr gets +1V.
+  gpio_clear(MUX_PORT, VFB_CTL);
+
+  gpio_clear(MUX_PORT, ISET_CTL);     // eg. inject +5V, so verr gets -5V.
+
+
+  // select max...
+  gpio_clear(MUX_PORT, MUX_MAX_CTL);       
 
   uart_printf("mux test finished\n\r");
 }
