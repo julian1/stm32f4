@@ -241,10 +241,13 @@ static void mux_test(void)
     which may be the min/max and is a bit confusing.
     - to test in isolation - we can always set the other value as -10V etc.. 
       we don't really want/ high-impedance - for a min/max function - as its a completely unrelated state
+    - alternatively if we used a single op-amp and dg-444 for 4 diodes, then we could control all throughput.
+      - no, because have to control the 10k bias resistors also.
   */
 
-  // turn on max...
-  gpio_clear(MUX_PORT, MUX_MAX_CTL);       // hmmm not working?
+  // select max...
+  // gpio_clear(MUX_PORT, MUX_MAX_CTL);       
+  gpio_clear(MUX_PORT, MUX_MIN_CTL);       
 
   uart_printf("mux test finished\n\r");
 }
