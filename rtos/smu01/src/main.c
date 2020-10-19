@@ -224,12 +224,27 @@ static void mux_test(void)
   // U1
   uart_printf("mux test \n\r");
 
-  // gpio_clear(MUX_PORT, VSET_CTL);
-  gpio_clear(MUX_PORT, VSET_INV_CTL);
+  gpio_clear(MUX_PORT, VSET_CTL);  // eg. +10V so Verr gets -10V
+  // gpio_clear(MUX_PORT, VSET_INV_CTL); // so          Verr gets +10V.
   // gpio_clear(MUX_PORT, VFB_CTL);
-  gpio_clear(MUX_PORT, VFB_INV_CTL);
+  // gpio_clear(MUX_PORT, VFB_INV_CTL);
 
-  gpio_clear(MUX_PORT, MUX_MAX_CTL);
+
+
+
+  gpio_clear(MUX_PORT, ISET_CTL);     // eg. inject +5V, so verr gets -5V.
+  // gpio_clear(MUX_PORT, ISET_INV_CTL);     // eg. inject -5V, so verr gets +5V.
+
+
+  /*
+    - if an input is not turned on - then it gets 0V/AGND rather than high impedance which may 
+    which may be the min/max and is a bit confusing.
+    - to test in isolation - we can always set the other value as -10V etc.. 
+      we don't really want/ high-impedance - for a min/max function - as its a completely unrelated state
+  */
+
+  // turn on max...
+  gpio_clear(MUX_PORT, MUX_MAX_CTL);       // hmmm not working?
 
   uart_printf("mux test finished\n\r");
 }
