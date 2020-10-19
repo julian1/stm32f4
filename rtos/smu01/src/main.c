@@ -142,8 +142,8 @@ static void dac_test(void)
   rails_negative_on();
   task_sleep(50);
   rails_positive_on();
-
   task_sleep(50);
+
   ref_on();         // OK. this
   task_sleep(50);
 
@@ -256,7 +256,7 @@ static void mux_test_old(void)
 
 static void mux_test(void)
 {
-  // set to source voltage
+  // set to source voltage / current compliance - first quadrant.
   // U1
   uart_printf("mux test new\n\r");
 
