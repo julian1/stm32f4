@@ -150,9 +150,9 @@ static void dac_test(void)
   uart_printf("dac writing dac registers\n\r");
 
 
-  // dac_write_register(0x04, 51800 );  // Iout == 10V, need macro for DAC_OUT0
-  dac_write_register(0x04, 5180 * 2 );  // Iout == 1V
-  dac_write_register(0x05, 25900 );  // Vout == 5V
+  // dac_write_register(0x04, 51800 );  // Vout
+  dac_write_register(0x04, 5180 * 2 );  // Vout - 2V.
+  dac_write_register(0x05, 25900 );     // Iout -5V at ierr
 
   /*
     ok for v reference of 6.5536V
@@ -238,17 +238,17 @@ static void mux_test_old(void)
   gpio_clear(MUX_PORT, IFB_INV_CTL);          // fb
 
   /*
-    - if an input is not turned on - then it gets 0V/AGND rather than high impedance which may 
+    - if an input is not turned on - then it gets 0V/AGND rather than high impedance which may
     which may be the min/max and is a bit confusing.
-    - to test in isolation - we can always set the other value as -10V etc.. 
+    - to test in isolation - we can always set the other value as -10V etc..
       we don't really want/ high-impedance - for a min/max function - as its a completely unrelated state
     - alternatively if we used a single op-amp and dg-444 for 4 diodes, then we could control all throughput.
       - no, because have to control the 10k bias resistors also.
   */
 
   // select max...
-  // gpio_clear(MUX_PORT, MUX_MAX_CTL);       
-  gpio_clear(MUX_PORT, MUX_MIN_CTL);       
+  // gpio_clear(MUX_PORT, MUX_MAX_CTL);
+  gpio_clear(MUX_PORT, MUX_MIN_CTL);
 
   uart_printf("mux test finished\n\r");
 }
@@ -267,7 +267,7 @@ static void mux_test(void)
   gpio_clear(MUX_PORT, ISET_CTL);     // eg. inject +5V, so verr gets -5V. to turn off...
 
   // select max for sourcing...
-  gpio_clear(MUX_PORT, MUX_MAX_CTL);       
+  gpio_clear(MUX_PORT, MUX_MAX_CTL);
 
   uart_printf("mux test finished\n\r");
 }
