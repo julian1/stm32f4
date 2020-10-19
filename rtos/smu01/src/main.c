@@ -260,6 +260,11 @@ static void mux_test(void)
   // U1
   uart_printf("mux test new\n\r");
 
+
+  dac_write_register(0x04, 5180 * 2 );  // Vout - 2V.
+  dac_write_register(0x05, 25900 );     // Iout -5V at ierr
+
+
   // balance around 0V
   gpio_clear(MUX_PORT, VSET_INV_CTL); // so          Verr gets +1V.
   gpio_clear(MUX_PORT, VFB_CTL);
