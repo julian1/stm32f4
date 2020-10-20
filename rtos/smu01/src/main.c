@@ -254,15 +254,15 @@ static void mux_test_old(void)
 }
 
 
-static void mux_test(void)
+static void mux_test_vsrc(void)
 {
   // set to source voltage / current compliance - first quadrant.
   // U1
   uart_printf("mux test new\n\r");
 
 
-  dac_write_register(0x04, 5180 * 2 );  // Vout - 2V.
-  dac_write_register(0x05, 25900 );     // Iout -5V at ierr
+  dac_write_register(0x04, 5180 * 2 );  // Vset - 2V.
+  dac_write_register(0x05, 25900 );     // Iset -5V at ierr
 
 
   // balance around 0V
@@ -276,6 +276,41 @@ static void mux_test(void)
 
   uart_printf("mux test finished\n\r");
 }
+
+
+
+static void mux_test(void)
+{
+  // set to source current / voltage compliance - .. quadrant.
+  // ifb amp is 10x.  10mA == 100mV.
+
+  // U1
+  uart_printf("mux test new\n\r");
+
+  dac_write_register(0x04, 5180 * 5 );  // Vset 5v, makes Verr -5V ... to disable.
+  dac_write_register(0x05, 518 * 1 );   // Iset 100mA.
+
+  // balance around 0V
+  gpio_clear(MUX_PORT, VSET_CTL);     // -5V deactivate
+  // gpio_clear(MUX_PORT, VFB_CTL);
+
+  // OK. this looks like its sinking 
+  // gpio_clear(MUX_PORT, ISET_CTL);
+  // gpio_clear(MUX_PORT, IFB_CTL);
+
+  // OK. think this is sourcing. 
+  gpio_clear(MUX_PORT, ISET_INV_CTL);
+  gpio_clear(MUX_PORT, IFB_CTL);
+
+
+
+  // select max for sourcing...
+  gpio_clear(MUX_PORT, MUX_MAX_CTL);
+
+  uart_printf("mux test finished\n\r");
+}
+
+
 
 
 
