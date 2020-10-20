@@ -288,7 +288,7 @@ static void mux_test(void)
   uart_printf("mux test new\n\r");
 
   dac_write_register(0x04, 5180 * 5 );  // Vset 5v, makes Verr -5V ... to disable.
-  dac_write_register(0x05, 518 * 1 );   // Iset 100mA.
+  dac_write_register(0x05, 518 * 3 );   // Iset 100mA.
 
   // balance around 0V
   gpio_clear(MUX_PORT, VSET_CTL);     // -5V deactivate
