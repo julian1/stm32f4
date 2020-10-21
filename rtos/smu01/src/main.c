@@ -59,9 +59,9 @@ static void led_blink_task2(void *args __attribute((unused)))
     // Note that we should be able to talk to the dac / gpio - even if do not have
     // rails or ref up.
 
-		uint16_t pa0 = read_adc_native(0);   // LP15VP
-		uint16_t pa1 = read_adc_native(1);   // LN15VN
-		uint16_t pa2 = read_adc_native(2);   // dacmon - need to cut trace
+		uint16_t pa0 = mcu_read_adc_native(0);   // LP15VP
+		uint16_t pa1 = mcu_read_adc_native(1);   // LN15VN
+		uint16_t pa2 = mcu_read_adc_native(2);   // dacmon - need to cut trace
                                         // should test it works though
 
 		uart_printf("tick: %d: LP15VP=%u, LN15VN=%d, pa2=%d\n", tick++, pa0, pa1, pa2 );
@@ -76,9 +76,9 @@ static void led_blink_task2(void *args __attribute((unused)))
     */
 
     // don't think this works...
-		uint16_t vref = read_adc_native( ADC_CHANNEL_VREF);
-		uint16_t vbat = read_adc_native( ADC_CHANNEL_VBAT);
-		uint16_t temp = read_adc_native( ADC_CHANNEL_TEMP_F40 );
+		uint16_t vref = mcu_read_adc_native( ADC_CHANNEL_VREF);
+		uint16_t vbat = mcu_read_adc_native( ADC_CHANNEL_VBAT);
+		uint16_t temp = mcu_read_adc_native( ADC_CHANNEL_TEMP_F40 );
 
     /*
       OK
@@ -97,9 +97,9 @@ static void led_blink_task2(void *args __attribute((unused)))
 
 
 
-static uint16_t read_adc_native(uint8_t channel);
+static uint16_t mcu_read_adc_native(uint8_t channel);
 
-static void wait_for_rails(void)
+static void rails_wait_for_voltage(void)
 {
   // move to rails?
   // potentially want a continuous running task to monitor, with queue events - not just a blocking call.
@@ -107,10 +107,10 @@ static void wait_for_rails(void)
   int tick = 0;
 
   while(1) {
-    uint16_t pa0 = read_adc_native(0);   // LP15VP
-    uint16_t pa1 = read_adc_native(1);   // LN15VN
+    uint16_t pa0 = mcu_read_adc_native(0);   // LP15VP
+    uint16_t pa1 = mcu_read_adc_native(1);   // LN15VN
 
-		uart_printf("wait_for_rails, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
+		uart_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
     if(pa0 > 300 && pa1 > 300)
       break;
 
@@ -128,7 +128,7 @@ static void power_up(void)
   dac_reset();
 
 
-  wait_for_rails();
+  rails_wait_for_voltage();
 
   task_sleep(50);
   rails_negative_on();
@@ -341,7 +341,7 @@ static void test01(void *args __attribute((unused)))
 /////////////////////////////
 // this code should be where?
 
-static void adc_setup(void)
+static void mcu_adc_setup(void)
 {
 	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0);
 	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1);
@@ -355,7 +355,7 @@ static void adc_setup(void)
 }
 
 
-static uint16_t read_adc_native(uint8_t channel)
+static uint16_t mcu_read_adc_native(uint8_t channel)
 {
   // set up the arry of channels to read.
 	uint8_t channel_array[16];
@@ -407,7 +407,7 @@ int main(void) {
   // /////////////
   // EXTREME - gpio, clocks, and peripheral config ONLY.
   // no actual spi calls
-  adc_setup();
+  mcu_adc_setup();
   rails_setup();
   dac_setup_spi();
   // dac_setup_bitbash();
