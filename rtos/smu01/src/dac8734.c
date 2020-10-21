@@ -264,7 +264,6 @@ void dac_reset(void)
   Register and Zero Register to default values.
   */
   // These times may need to be increased for true cold start...
-  uart_printf("dac reset\n\r");
   gpio_clear(DAC_PORT, DAC_RST);
   task_sleep(20);
   gpio_set(DAC_PORT, DAC_RST);
@@ -324,6 +323,8 @@ void dac_reset(void)
   unless both can ramp up at the same time. REF-x should be applied after AVDD
   comes up in order to make sure the ESD protection circuitry does not turn on.
   */
+
+  uart_printf("dac reset done\n\r");
 }
 
 

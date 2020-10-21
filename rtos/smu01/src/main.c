@@ -121,15 +121,14 @@ static void led_blink_task2(void *args __attribute((unused)))
 
 static void power_up(void)
 {
+  uart_printf("\n\r");
   uart_printf("power_up start\n\r");
 
-  uart_printf("dac test - before dac reset\n\r");
-  // should be done before rails powerup?
+  // important - configure before rails
   dac_reset();
-  uart_printf("dac test - after dac reset\n\r");
 
 
-   wait_for_rails();
+  wait_for_rails();
 
   task_sleep(50);
   rails_negative_on();
@@ -266,6 +265,7 @@ static void mux_test_old(void)
 
 static void mux_test_vsrc(void)
 {
+#if 0
   // set to source voltage / current compliance - first quadrant.
   // U1
   uart_printf("mux test new\n\r");
@@ -285,40 +285,28 @@ static void mux_test_vsrc(void)
   gpio_clear(MUX_PORT, MUX_MAX_CTL);
 
   uart_printf("mux test finished\n\r");
+#endif
 }
 
-/*
-  OK - change to inverting integrator. 
-  still needs to be max. i think 
-  - fb is kept the same ...
-*/
+
+
+
 static void mux_test(void)
 {
-  // set to source current / voltage compliance - .. quadrant.
+  // updated - to new integrating error amp.
+  // set to source current control / voltage compliance - .. quadrant.
   // ifb amp is 10x.  10mA == 100mV.
 
   // U1
-  uart_printf("mux test new\n\r");
+  uart_printf("mux test\n\r");
 
   dac_write_register(0x04, 5180 * 5 );  // Vset 5v, makes Verr -5V ... to disable.
-  dac_write_register(0x05, 518 * 3 );   // Iset 100mA.
+  dac_write_register(0x05, 518 * 3 );   // Iset 3V == 30mA source.
 
-  // balance around 0V
   gpio_clear(MUX_PORT, VSET_CTL);     // -5V deactivate
-  // gpio_clear(MUX_PORT, VFB_CTL);
-
-  // OK. this looks like its sinking 
-  // gpio_clear(MUX_PORT, ISET_CTL);
-  // gpio_clear(MUX_PORT, IFB_CTL);
-
-  // OK. think this is sourcing. 
-  // gpio_clear(MUX_PORT, ISET_INV_CTL);    // porportionte
-  // gpio_clear(MUX_PORT, IFB_CTL);
 
   gpio_clear(MUX_PORT, ISET_CTL);       // integrating / inverting
   gpio_clear(MUX_PORT, IFB_INV_CTL);
-
-  // seemed to work but current limited????
 
 
   // select max for sourcing...
@@ -335,7 +323,7 @@ static void test01(void *args __attribute((unused)))
 {
   power_up();
 
-  dac_test();
+  // dac_test();
 
   mux_test();
 
@@ -424,6 +412,7 @@ int main(void) {
   ref_setup();
   mux_setup();
 
+  uart_printf("------------------\n\r");
 
   ///////////////
   // tasks
