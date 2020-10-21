@@ -277,8 +277,11 @@ static void mux_test_vsrc(void)
   uart_printf("mux test finished\n\r");
 }
 
-
-
+/*
+  OK - change to inverting integrator. 
+  still needs to be max. i think 
+  - fb is kept the same ...
+*/
 static void mux_test(void)
 {
   // set to source current / voltage compliance - .. quadrant.
@@ -299,9 +302,13 @@ static void mux_test(void)
   // gpio_clear(MUX_PORT, IFB_CTL);
 
   // OK. think this is sourcing. 
-  gpio_clear(MUX_PORT, ISET_INV_CTL);
-  gpio_clear(MUX_PORT, IFB_CTL);
+  // gpio_clear(MUX_PORT, ISET_INV_CTL);    // porportionte
+  // gpio_clear(MUX_PORT, IFB_CTL);
 
+  gpio_clear(MUX_PORT, ISET_CTL);       // integrating / inverting
+  gpio_clear(MUX_PORT, IFB_INV_CTL);
+
+  // seemed to work but current limited????
 
 
   // select max for sourcing...
