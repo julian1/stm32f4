@@ -263,7 +263,7 @@ static void source_current_test_old(void)
 }
 
 
-static void source_current_test_vsrc(void)
+static void source_voltage_test(void)
 {
   // old before integrating error amp.
 #if 0
