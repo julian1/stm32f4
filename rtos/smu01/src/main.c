@@ -229,7 +229,7 @@ static void mux_setup(void)
 }
 
 
-static void mux_test_old(void)
+static void source_current_test_old(void)
 {
   // U1
   uart_printf("mux test \n\r");
@@ -263,8 +263,9 @@ static void mux_test_old(void)
 }
 
 
-static void mux_test_vsrc(void)
+static void source_current_test_vsrc(void)
 {
+  // old before integrating error amp.
 #if 0
   // set to source voltage / current compliance - first quadrant.
   // U1
@@ -291,8 +292,9 @@ static void mux_test_vsrc(void)
 
 
 
-static void mux_test(void)
+static void source_current_test(void)
 {
+  // change name source_current_test?
   // updated - to new integrating error amp.
   // set to source current control / voltage compliance - .. quadrant.
   // ifb amp is 10x.  10mA == 100mV.
@@ -325,7 +327,7 @@ static void test01(void *args __attribute((unused)))
 
   // dac_test();
 
-  mux_test();
+  source_current_test();
 
 
   // sleep forever
