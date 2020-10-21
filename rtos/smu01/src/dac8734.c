@@ -223,6 +223,8 @@ void dac_setup_bitbash( void )
 
 void dac_reset(void)
 {
+  // can / should do, before rails powerup.
+
   uart_printf("dac reset\n\r");
 
   /*

@@ -119,24 +119,17 @@ static void led_blink_task2(void *args __attribute((unused)))
 
 
 
-
-static void dac_test(void)
+static void power_up(void)
 {
+  uart_printf("power_up start\n\r");
 
   uart_printf("dac test - before dac reset\n\r");
-
+  // should be done before rails powerup?
   dac_reset();
-
   uart_printf("dac test - after dac reset\n\r");
 
-  /*
-  34,the digital supplies (DVDD and IOVDD) and logic inputs (UNI/BIP-x) must be
-  applied before AVSS and AVDD. Additionally, AVSS must be applied before AVDD
-  unless both can ramp up at the same time. REF-x should be applied after AVDD
-  comes up in order to make sure the ESD protection circuitry does not turn on.
-  */
 
-  wait_for_rails();
+   wait_for_rails();
 
   task_sleep(50);
   rails_negative_on();
@@ -146,6 +139,22 @@ static void dac_test(void)
 
   ref_on();         // OK. this
   task_sleep(50);
+ 
+
+  uart_printf("power_up done\n\r");
+}
+
+static void dac_test(void)
+{
+
+
+  /*
+  34,the digital supplies (DVDD and IOVDD) and logic inputs (UNI/BIP-x) must be
+  applied before AVSS and AVDD. Additionally, AVSS must be applied before AVDD
+  unless both can ramp up at the same time. REF-x should be applied after AVDD
+  comes up in order to make sure the ESD protection circuitry does not turn on.
+  */
+
 
   uart_printf("dac writing dac registers\n\r");
 
@@ -183,6 +192,7 @@ static void dac_test(void)
 #define MUX_PORT GPIOE
 
 // TODO, fix should prefix all thse with MUX_ in the schematic.
+// maybe differentiate from bootstrap mux. also.
 #define VSET_CTL      GPIO1
 #define VSET_INV_CTL  GPIO2
 #define ISET_CTL      GPIO3
@@ -321,8 +331,10 @@ static void mux_test(void)
 
 
 
-static void dac_test1(void *args __attribute((unused)))
+static void test01(void *args __attribute((unused)))
 {
+  power_up();
+
   dac_test();
 
   mux_test();
@@ -422,7 +434,7 @@ int main(void) {
   // IMPORTANT changing from 100 to 200, stops deadlock
   xTaskCreate(usart_prompt_task,"PROMPT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
-  xTaskCreate(dac_test1,        "DAC_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
+  xTaskCreate(test01,        "DAC_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
 	vTaskStartScheduler();
 
