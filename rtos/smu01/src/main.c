@@ -138,7 +138,7 @@ static void power_up(void)
 
   ref_on();         // OK. this
   task_sleep(50);
- 
+
 
   uart_printf("power_up done\n\r");
 }
@@ -217,8 +217,8 @@ static void mux_setup(void)
 
   uint32_t all =
     VSET_CTL | VSET_INV_CTL | ISET_CTL | ISET_INV_CTL
-    | VFB_CTL | VFB_INV_CTL | IFB_CTL   | IFB_INV_CTL
-    | MUX_MIN_CTL | MUX_MAX_CTL | MUX_MUX_UNUSED_CTL;
+      | VFB_CTL | VFB_INV_CTL | IFB_CTL | IFB_INV_CTL
+      | MUX_MIN_CTL | MUX_MAX_CTL | MUX_MUX_UNUSED_CTL;
 
 
   uart_printf("mux setup\n\r");
@@ -319,6 +319,46 @@ static void source_current_test(void)
 
 
 
+//////////////////////////////////////////
+
+
+#define ADC_PORT              GPIOD
+
+// TODO, fix should prefix all thse with MUX_ in the schematic.
+// maybe differentiate from bootstrap mux. also.
+#define ADC_OUT               GPIO0
+#define ADC_REFP10V_CTL       GPIO1
+#define ADC_REFN10V_CTL       GPIO2
+#define ADC_IN_CTL            GPIO3
+#define ADC_IN_CTL            GPIO3
+#define ADC_RESET_CTL         GPIO4
+#define ADC_MUX_VFB_CTL       GPIO5
+#define ADC_MUX_IFB_CTL       GPIO6
+#define ADC_MUX_DAC_VMON_CTL  GPIO7
+#define ADC_MUX_AGND_CTL      GPIO8
+
+
+
+static void adc_setup(void)
+{
+
+  uint32_t all_ctl =
+    ADC_REFP10V_CTL | ADC_REFN10V_CTL | ADC_IN_CTL | ADC_IN_CTL | ADC_RESET_CTL
+      | ADC_MUX_VFB_CTL | ADC_MUX_IFB_CTL | ADC_MUX_DAC_VMON_CTL | ADC_MUX_AGND_CTL;
+
+  uart_printf("adc setup\n\r");
+
+  gpio_set(ADC_PORT, all_ctl);   // active low.
+  gpio_mode_setup(ADC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all_ctl);
+
+
+  // clock rate...
+  gpio_mode_setup(ADC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADC_OUT);
+
+  uart_printf("adc setup done\n\r");
+}
+
+
 
 
 static void test01(void *args __attribute((unused)))
@@ -393,8 +433,13 @@ int main(void) {
   // spi1
   rcc_periph_clock_enable(RCC_SPI1);
 
-  // adc1
+  // mcu adc1
 	rcc_periph_clock_enable(RCC_ADC1);
+
+  // adc	
+  rcc_periph_clock_enable(RCC_GPIOD);
+
+
 
   ///////////////
   // setup
@@ -413,6 +458,7 @@ int main(void) {
   // dac_setup_bitbash();
   ref_setup();
   mux_setup();
+  adc_setup();
 
   uart_printf("------------------\n\r");
 
