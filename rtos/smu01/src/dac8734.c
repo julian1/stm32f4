@@ -119,6 +119,10 @@ static void dac_write_register_bitbash(uint32_t v)
 
 static void dac_write_register1(uint32_t r)
 {
+  // should be able to remove sleep and speed this up.
+  // also can keep cs active low since nothing else uses spi port.
+  // or else use the latch actively.
+
   gpio_clear(DAC_PORT_SPI, DAC_CS);     // CS active low
   task_sleep(1);
   // dac_write_register_bitbash( r );     // write

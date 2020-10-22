@@ -377,8 +377,12 @@ static void adc_test(void)
 
 
   // dac_write_register(0x01, (1 << 12) );  // select monitor dac0  // works
-  dac_write_register(0x01, (1 << 11) );     // ain, which is wired to vref65  // works
-  gpio_clear(ADC_PORT, ADC_MUX_DAC_VMON_CTL);
+  // dac_write_register(0x01, (1 << 11) );     // ain, which is wired to vref65  // works
+  // gpio_clear(ADC_PORT, ADC_MUX_DAC_VMON_CTL);
+
+
+  // ok - so populate the integrator?
+  // and get it on a scope?
 
   uart_printf("adc test done\n\r");
 }
