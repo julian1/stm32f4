@@ -367,12 +367,13 @@ static void adc_setup(void)
                                           // it's the diode clamp that appears to oscillate ...
                                           // because the diode clamp ...
 
-  // gpio_clear(ADC_PORT, ADC_IN_CTL );      // set adc in
-  // gpio_clear(ADC_PORT, ADC_MUX_AGND_CTL);   // Cannot do this --- it is shunting extra current on -ve rail?....
+  gpio_clear(ADC_PORT, ADC_IN_CTL );      // set adc in
+  gpio_clear(ADC_PORT, ADC_MUX_AGND_CTL);   // Cannot do this --- it is shunting extra current on -ve rail?....
+                                                // NO. because we run adc_test which changes stuff
 
   gpio_mode_setup(ADC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all_ctl);
 
-
+  // need a strobe control. or need bias so off?
 
   // set up the output.
   // IMPORTANT set fast edge rate... maybe?
@@ -400,7 +401,7 @@ static void adc_test(void)
   uart_printf("adc test\n\r");
 
   // active low.
-  gpio_clear(ADC_PORT, ADC_REFP10V_CTL);   // doesn't work -- because integrator is already in wind-up?
+  // gpio_clear(ADC_PORT, ADC_REFP10V_CTL);   // doesn't work -- because integrator is already in wind-up?
   // gpio_clear(ADC_PORT, ADC_REFN10V_CTL);      // works nice - integrates up....
 
 
@@ -419,9 +420,6 @@ static void adc_test(void)
 
   // ok - so populate the integrator?
   // and get it on a scope?
-
-
-
 
   uart_printf("adc test done\n\r");
 }
