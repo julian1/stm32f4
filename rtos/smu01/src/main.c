@@ -32,19 +32,29 @@
 #include "dac8734.h"
 
 
+static void adc_out_print(void);
+
 
 static void led_blink_task2(void *args __attribute((unused)))
 {
-  // static int tick = 0;
 
 	for (;;) {
 
     // led_toggle
 		led_toggle();
 
+    adc_out_print();
+
+  // we are going to have to set up a timer/0v
+  // get adc value...
+
+
+
 #if 0
+    static int tick = 0;
+
     uart_printf("hi %d %d %d\n\r",
-      last++,
+      tick++,
       gpio_get(DAC_PORT, DAC_GPIO0),
       gpio_get(DAC_PORT, DAC_GPIO1 )
     );
@@ -338,6 +348,7 @@ static void source_current_test(void)
 
 
 
+
 static void adc_setup(void)
 {
 
@@ -351,12 +362,24 @@ static void adc_setup(void)
   gpio_mode_setup(ADC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all_ctl);
 
 
-  // clock rate...
+  // IMPORTANT set fast edge rate... maybe?
+
   gpio_mode_setup(ADC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADC_OUT);
 
   uart_printf("adc setup done\n\r");
 }
 
+
+
+static void adc_out_print(void)
+{
+  static uint32_t tick = 0;
+
+  uart_printf("hi tick %d %d\n\r",
+      tick++,
+      gpio_get(ADC_PORT, ADC_OUT)
+    );
+}
 
 
 static void adc_test(void)
@@ -383,6 +406,9 @@ static void adc_test(void)
 
   // ok - so populate the integrator?
   // and get it on a scope?
+
+
+
 
   uart_printf("adc test done\n\r");
 }

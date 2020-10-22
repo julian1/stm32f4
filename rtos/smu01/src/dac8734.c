@@ -14,7 +14,6 @@
   spi 1 AF5
     MOSI == PA7 == GPIO7    DAC SDI pin 4
     MISO == PA6 == GPIO6    DAC SDO pin 5
-
 */
 #define DAC_SPI       SPI1
 #define DAC_PORT_SPI  GPIOA
@@ -24,29 +23,14 @@
 #define DAC_MOSI      GPIO7
 #define DAC_MISO      GPIO6
 
-/*
-  OK. looks like we remapped everything. to GPIOB
-  Need RSS...
-*/
 
-/*
-//  GPIOE
-#define DAC_PORT      GPIOE
-// GPIO1 is led.
-#define DAC_LDAC      GPIO2
-#define DAC_RST       GPIO3
-#define DAC_GPIO0     GPIO4  // gpio pe4   dac pin 8
-#define DAC_GPIO1     GPIO5
-#define DAC_UNIBIPA   GPIO6
-#define DAC_UNIBIPB   GPIO7
-// GPIO8 broken/ overvoltage?.
-*/
 
+// OK. looks like we remapped everything. to GPIOB
 #define DAC_PORT      GPIOB
-
 #define DAC_LDAC      GPIO0
 #define DAC_RST       GPIO1
 // PB2, is BOOT1
+// PB3, is SDO
 #define DAC_UNIBIPA   GPIO4
 #define DAC_UNIBIPB   GPIO5
 #define DAC_GPIO0     GPIO6
