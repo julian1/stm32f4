@@ -312,11 +312,13 @@ static void source_current_test(void)
   // U1
   uart_printf("mux test\n\r");
 
+  // compliance function. max of 5V.
   dac_write_register(0x04, 5180 * 5 );  // Vset 5v, makes Verr -5V ... to disable.
+  gpio_clear(MUX_PORT, VSET_CTL);     
+  gpio_clear(MUX_PORT, VFB_INV_CTL);
+
+  // control function 20mA
   dac_write_register(0x05, 518 * 3 );   // Iset 3V == 30mA source.
-
-  gpio_clear(MUX_PORT, VSET_CTL);     // -5V deactivate
-
   gpio_clear(MUX_PORT, ISET_CTL);       // integrating / inverting
   gpio_clear(MUX_PORT, IFB_INV_CTL);
 
@@ -352,16 +354,27 @@ static void source_current_test(void)
 static void adc_setup(void)
 {
 
+  // active low.
   uint32_t all_ctl =
-    ADC_REFP10V_CTL | ADC_REFN10V_CTL | ADC_IN_CTL | ADC_IN_CTL | ADC_RESET_CTL
+    ADC_REFP10V_CTL | ADC_REFN10V_CTL | ADC_IN_CTL | ADC_RESET_CTL
       | ADC_MUX_VFB_CTL | ADC_MUX_IFB_CTL | ADC_MUX_DAC_VMON_CTL | ADC_MUX_AGND_CTL;
 
   uart_printf("adc setup\n\r");
 
-  gpio_set(ADC_PORT, all_ctl);   // active low.
+  gpio_set(ADC_PORT, all_ctl);   
+
+  gpio_clear(ADC_PORT, ADC_RESET_CTL);    // turn on - to short cap, and hold integrator at agnd.
+                                          // it's the diode clamp that appears to oscillate ...
+                                          // because the diode clamp ...
+
+  // gpio_clear(ADC_PORT, ADC_IN_CTL );      // set adc in  
+  // gpio_clear(ADC_PORT, ADC_MUX_AGND_CTL);   // Cannot do this --- it is shunting extra current on -ve rail?.... 
+
   gpio_mode_setup(ADC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all_ctl);
 
 
+
+  // set up the output.
   // IMPORTANT set fast edge rate... maybe?
 
   gpio_mode_setup(ADC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADC_OUT);
@@ -387,8 +400,8 @@ static void adc_test(void)
   uart_printf("adc test\n\r");
 
   // active low.
-  // gpio_clear(ADC_PORT, ADC_REFP10V_CTL);   // doesn't work -- because integrator is already in wind-up?
-  gpio_clear(ADC_PORT, ADC_REFN10V_CTL);      // works nice - integrates up....
+  gpio_clear(ADC_PORT, ADC_REFP10V_CTL);   // doesn't work -- because integrator is already in wind-up?
+  // gpio_clear(ADC_PORT, ADC_REFN10V_CTL);      // works nice - integrates up....
 
 
   // gpio_clear(ADC_PORT, ADC_IN_CTL);
