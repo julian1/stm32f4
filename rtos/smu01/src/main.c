@@ -69,9 +69,9 @@ static void led_blink_task2(void *args __attribute((unused)))
     // Note that we should be able to talk to the dac / gpio - even if do not have
     // rails or ref up.
 
-		uint16_t pa0 = mcu_read_adc_native(0);   // LP15VP
-		uint16_t pa1 = mcu_read_adc_native(1);   // LN15VN
-		uint16_t pa2 = mcu_read_adc_native(2);   // dacmon - need to cut trace
+		uint16_t pa0 = mcu_adc_read_native(0);   // LP15VP
+		uint16_t pa1 = mcu_adc_read_native(1);   // LN15VN
+		uint16_t pa2 = mcu_adc_read_native(2);   // dacmon - need to cut trace
                                         // should test it works though
 
 		uart_printf("tick: %d: LP15VP=%u, LN15VN=%d, pa2=%d\n", tick++, pa0, pa1, pa2 );
@@ -86,9 +86,9 @@ static void led_blink_task2(void *args __attribute((unused)))
     */
 
     // don't think this works...
-		uint16_t vref = mcu_read_adc_native( ADC_CHANNEL_VREF);
-		uint16_t vbat = mcu_read_adc_native( ADC_CHANNEL_VBAT);
-		uint16_t temp = mcu_read_adc_native( ADC_CHANNEL_TEMP_F40 );
+		uint16_t vref = mcu_adc_read_native( ADC_CHANNEL_VREF);
+		uint16_t vbat = mcu_adc_read_native( ADC_CHANNEL_VBAT);
+		uint16_t temp = mcu_adc_read_native( ADC_CHANNEL_TEMP_F40 );
 
     /*
       OK
@@ -107,7 +107,7 @@ static void led_blink_task2(void *args __attribute((unused)))
 
 
 
-static uint16_t mcu_read_adc_native(uint8_t channel);
+static uint16_t mcu_adc_read_native(uint8_t channel);
 
 static void rails_wait_for_voltage(void)
 {
@@ -117,8 +117,8 @@ static void rails_wait_for_voltage(void)
   int tick = 0;
 
   while(1) {
-    uint16_t pa0 = mcu_read_adc_native(0);   // LP15VP
-    uint16_t pa1 = mcu_read_adc_native(1);   // LN15VN
+    uint16_t pa0 = mcu_adc_read_native(0);   // LP15VP
+    uint16_t pa1 = mcu_adc_read_native(1);   // LN15VN
 
 		uart_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
     if(pa0 > 300 && pa1 > 300)
@@ -450,7 +450,7 @@ static void mcu_adc_setup(void)
 }
 
 
-static uint16_t mcu_read_adc_native(uint8_t channel)
+static uint16_t mcu_adc_read_native(uint8_t channel)
 {
   // set up the arry of channels to read.
 	uint8_t channel_array[16];
