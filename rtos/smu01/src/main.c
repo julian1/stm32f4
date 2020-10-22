@@ -330,7 +330,6 @@ static void source_current_test(void)
 #define ADC_REFP10V_CTL       GPIO1
 #define ADC_REFN10V_CTL       GPIO2
 #define ADC_IN_CTL            GPIO3
-#define ADC_IN_CTL            GPIO3
 #define ADC_RESET_CTL         GPIO4
 #define ADC_MUX_VFB_CTL       GPIO5
 #define ADC_MUX_IFB_CTL       GPIO6
@@ -360,6 +359,31 @@ static void adc_setup(void)
 
 
 
+static void adc_test(void)
+{
+  uart_printf("adc test\n\r");
+
+  // active low.
+  // gpio_clear(ADC_PORT, ADC_REFP10V_CTL);   // works.
+  // gpio_clear(ADC_PORT, ADC_REFN10V_CTL);      // works
+
+
+  gpio_clear(ADC_PORT, ADC_IN_CTL);
+  // gpio_clear(ADC_PORT, ADC_MUX_VFB_CTL);    // works...
+  // gpio_clear(ADC_PORT, ADC_MUX_IFB_CTL);    // is this right -- looks like ISET?
+                                            // it's 0.3V rather than 0.03V... ????
+                                            // no. because it's 10x gain. it maybe correct. need to source voltage to check
+  // gpio_clear(ADC_PORT, ADC_MUX_AGND_CTL );    // appears to work
+
+
+  // dac_write_register(0x01, (1 << 12) );  // select monitor dac0  // works
+  dac_write_register(0x01, (1 << 11) );     // ain, which is wired to vref65  // works
+  gpio_clear(ADC_PORT, ADC_MUX_DAC_VMON_CTL);
+
+  uart_printf("adc test done\n\r");
+}
+
+
 
 static void test01(void *args __attribute((unused)))
 {
@@ -369,6 +393,7 @@ static void test01(void *args __attribute((unused)))
 
   source_current_test();
 
+  adc_test();
 
   // sleep forever
   for(;;) {
@@ -436,7 +461,7 @@ int main(void) {
   // mcu adc1
 	rcc_periph_clock_enable(RCC_ADC1);
 
-  // adc	
+  // adc
   rcc_periph_clock_enable(RCC_GPIOD);
 
 
@@ -450,7 +475,7 @@ int main(void) {
   uart_printf("starting\n\r");
 
   // /////////////
-  // EXTREME - gpio, clocks, and peripheral config ONLY.
+  // EXTREME - gpio, clocks, and peripheral configuration ONLY.
   // no actual spi calls
   mcu_adc_setup();
   rails_setup();
