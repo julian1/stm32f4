@@ -305,7 +305,6 @@ static void source_voltage_test(void)
 
 static void source_current_test(void)
 {
-  // change name source_current_test?
   // updated - to new integrating error amp.
   // set to source current control / voltage compliance - .. quadrant.
   // ifb amp is 10x.  10mA == 100mV.
@@ -320,7 +319,7 @@ static void source_current_test(void)
 
   // control function 20mA
   dac_write_register(DAC_ISET_REG, 518 * 3 );   // Iset 3V == 30mA control function, 10x ifb gain.
-  gpio_clear(MUX_PORT, ISET_CTL);       // integrating / inverting
+  gpio_clear(MUX_PORT, ISET_CTL);
   gpio_clear(MUX_PORT, IFB_INV_CTL);
 
 
@@ -369,7 +368,7 @@ static void adc_setup(void)
                                           // because the diode clamp ...
 
   gpio_clear(ADC_PORT, ADC_IN_CTL );      // set for adc in
-  gpio_clear(ADC_PORT, ADC_MUX_AGND_CTL); // set agnd in 
+  gpio_clear(ADC_PORT, ADC_MUX_AGND_CTL); // set agnd in
 
   gpio_mode_setup(ADC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all_ctl);
 
