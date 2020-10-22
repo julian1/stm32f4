@@ -365,18 +365,22 @@ static void adc_setup(void)
 
   gpio_clear(ADC_PORT, ADC_RESET_CTL);    // turn on - to short cap, and hold integrator at agnd.
                                           // it's the diode clamp that appears to oscillate ...
-                                          // because the diode clamp ...
 
-  gpio_clear(ADC_PORT, ADC_IN_CTL );      // set for adc in
-  gpio_clear(ADC_PORT, ADC_MUX_AGND_CTL); // set agnd in
+  // there's an oscillation ...
 
-  gpio_mode_setup(ADC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all_ctl);
+  // ok all of these inputs will oscillate... with the cap shorted/reset by switch...
+  // so there's no point - adding a smaller offset...
+  gpio_clear(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);   // put agnd on the input
+  // gpio_clear(ADC_PORT, ADC_REFP10V_CTL);  // put 10V on the input
+  // gpio_clear(ADC_PORT, ADC_REFN10V_CTL);  // put -10V on the input
 
+
+
+  ///////////////
   // need a strobe control. or need bias so off?
-
   // set up the output.
   // IMPORTANT set fast edge rate... maybe?
-
+  gpio_mode_setup(ADC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all_ctl);
   gpio_mode_setup(ADC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADC_OUT);
 
   uart_printf("adc setup done\n\r");
@@ -397,6 +401,9 @@ static void adc_out_print(void)
 
 static void adc_test(void)
 {
+
+  uart_printf("adc test disable\n\r");
+  return;
   uart_printf("adc test\n\r");
 
   // active low.
@@ -419,6 +426,25 @@ static void adc_test(void)
 
   // ok - so populate the integrator?
   // and get it on a scope?
+
+
+#if 0
+  // this integrates up
+  gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);      // turn off agnd in
+  gpio_clear(ADC_PORT, ADC_REFN10V_CTL);                  // turn on N10V ref
+  gpio_set(ADC_PORT, ADC_RESET_CTL);                    // start integrating
+#endif
+
+
+  // this integrates down.
+  gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);      // turn off agnd in
+  gpio_clear(ADC_PORT, ADC_REFP10V_CTL);                  // turn on N10V ref
+  gpio_set(ADC_PORT, ADC_RESET_CTL);                    // start integrating
+
+
+  // OK. lets try to introduce a small bias - perhaps - to prevent oscillation...
+  // actually lets try a large bias - rather than agnd...
+
 
   uart_printf("adc test done\n\r");
 }
