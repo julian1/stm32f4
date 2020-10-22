@@ -387,11 +387,11 @@ static void adc_test(void)
   uart_printf("adc test\n\r");
 
   // active low.
-  // gpio_clear(ADC_PORT, ADC_REFP10V_CTL);   // works.
-  // gpio_clear(ADC_PORT, ADC_REFN10V_CTL);      // works
+  // gpio_clear(ADC_PORT, ADC_REFP10V_CTL);   // doesn't work -- because integrator is already in wind-up?
+  gpio_clear(ADC_PORT, ADC_REFN10V_CTL);      // works nice - integrates up....
 
 
-  gpio_clear(ADC_PORT, ADC_IN_CTL);
+  // gpio_clear(ADC_PORT, ADC_IN_CTL);
   // gpio_clear(ADC_PORT, ADC_MUX_VFB_CTL);    // works...
   // gpio_clear(ADC_PORT, ADC_MUX_IFB_CTL);    // is this right -- looks like ISET?
                                             // it's 0.3V rather than 0.03V... ????
