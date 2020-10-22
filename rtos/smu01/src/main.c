@@ -313,12 +313,12 @@ static void source_current_test(void)
   uart_printf("mux test\n\r");
 
   // compliance function. max of 5V.
-  dac_write_register(0x04, 5180 * 5 );  // Vset 5v, makes Verr -5V ... to disable.
-  gpio_clear(MUX_PORT, VSET_CTL);     
+  dac_write_register(0x04, 5180 * 5 );  // Vset 5v max compliance function
+  gpio_clear(MUX_PORT, VSET_CTL);
   gpio_clear(MUX_PORT, VFB_INV_CTL);
 
   // control function 20mA
-  dac_write_register(0x05, 518 * 3 );   // Iset 3V == 30mA source.
+  dac_write_register(0x05, 518 * 3 );   // Iset 3V == 30mA control function
   gpio_clear(MUX_PORT, ISET_CTL);       // integrating / inverting
   gpio_clear(MUX_PORT, IFB_INV_CTL);
 
@@ -361,14 +361,14 @@ static void adc_setup(void)
 
   uart_printf("adc setup\n\r");
 
-  gpio_set(ADC_PORT, all_ctl);   
+  gpio_set(ADC_PORT, all_ctl);
 
   gpio_clear(ADC_PORT, ADC_RESET_CTL);    // turn on - to short cap, and hold integrator at agnd.
                                           // it's the diode clamp that appears to oscillate ...
                                           // because the diode clamp ...
 
-  // gpio_clear(ADC_PORT, ADC_IN_CTL );      // set adc in  
-  // gpio_clear(ADC_PORT, ADC_MUX_AGND_CTL);   // Cannot do this --- it is shunting extra current on -ve rail?.... 
+  // gpio_clear(ADC_PORT, ADC_IN_CTL );      // set adc in
+  // gpio_clear(ADC_PORT, ADC_MUX_AGND_CTL);   // Cannot do this --- it is shunting extra current on -ve rail?....
 
   gpio_mode_setup(ADC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all_ctl);
 
