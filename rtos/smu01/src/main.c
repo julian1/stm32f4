@@ -375,9 +375,11 @@ static void adc_setup(void)
   // gpio_clear(ADC_PORT, ADC_REFN10V_CTL);  // put -10V on the input
 
 
+  // issue is the diode clamp...
+  // it is gettting fed a constant output.
 
   ///////////////
-  // need a strobe control. or need bias so off?
+  // NO. its not the comparator.  which is just following the diode clamp.
   // set up the output.
   // IMPORTANT set fast edge rate... maybe?
   gpio_mode_setup(ADC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all_ctl);
