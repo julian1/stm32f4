@@ -443,24 +443,24 @@ static void adc_test(void)
 }
 
 
+// VFB appears to be integrating in the wrong direction also?..
+// gahh. we need VFB pin - to actually be sure that it's holding 5V?
+
 static void adc_test2(void)
 {
   // uart_printf("adc test disable\n\r");
   // return;
   uart_printf("adc test\n\r");
 
-  // dac_write_register(0x01, (1 << 12) );      // select monitor dac0  // works
-  // dac_write_register(0x01, (1 << 11) );      // ain, which is wired to vref65  // works
-  // gpio_clear(ADC_PORT, ADC_MUX_DAC_VMON_CTL);
-
+#if 1
   // integrate up
   gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);    // turn off agnd in
-  gpio_clear(ADC_PORT, ADC_IN_CTL | ADC_MUX_VFB_CTL);    // turn on VFB ref
+  gpio_clear(ADC_PORT, ADC_IN_CTL | ADC_MUX_IFB_CTL);    // turn on IFB ref
   gpio_set(ADC_PORT, ADC_RESET_CTL);                    // clear the short of the cap - start integrating
   task_sleep(3);
 
   // integrate down
-  gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_VFB_CTL);    // turn off VFB ref
+  gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_IFB_CTL);    // turn off IFB ref
   gpio_clear(ADC_PORT, ADC_REFP10V_CTL);                  // turn on P10V ref
   task_sleep(3);
 
@@ -468,7 +468,7 @@ static void adc_test2(void)
   gpio_set(ADC_PORT, ADC_IN_CTL | ADC_REFP10V_CTL);                  // turn off N10V ref
   gpio_clear(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);  // turn on agnd in
   gpio_clear(ADC_PORT, ADC_RESET_CTL);                    // stop integrating
-
+#endif
   uart_printf("adc test done\n\r");
 }
 
