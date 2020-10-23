@@ -309,6 +309,8 @@ static void source_current_test(void)
   // set to source current control / voltage compliance - .. quadrant.
   // ifb amp is 10x.  10mA == 100mV.
 
+  // so there's no difference between control and compliance order.
+
   // U1
   uart_printf("mux test\n\r");
 
@@ -321,7 +323,6 @@ static void source_current_test(void)
   dac_write_register(DAC_ISET_REG, 518 * 3 );   // Iset 3V == 30mA control function, 10x ifb gain.
   gpio_clear(MUX_PORT, ISET_CTL);
   gpio_clear(MUX_PORT, IFB_INV_CTL);
-
 
   // select max for sourcing...
   gpio_clear(MUX_PORT, MUX_MAX_CTL);
@@ -367,6 +368,14 @@ static void adc_setup(void)
                                           // it's the diode clamp that appears to oscillate ...
 
   // there's an oscillation ...
+  // maybe at agnd crossover...
+  // better psrr op?
+
+  // ne5534 slew is 13V/uS.
+  // mc33172 slew is 2.1V/uS
+  // opa2177         0.7V/uS
+
+  // small amount of hysteriss could be useful - but don't think is the problem - unless its coupling?
 
   // ok all of these inputs will oscillate... with the cap shorted/reset by switch...
   // so there's no point - adding a smaller offset...
