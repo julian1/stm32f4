@@ -415,58 +415,68 @@ static void adc_out_print(void)
 
 static void adc_test(void)
 {
-
   // uart_printf("adc test disable\n\r");
   // return;
   uart_printf("adc test\n\r");
-
-  // active low.
-  // gpio_clear(ADC_PORT, ADC_REFP10V_CTL);   // doesn't work -- because integrator is already in wind-up?
-  // gpio_clear(ADC_PORT, ADC_REFN10V_CTL);      // works nice - integrates up....
-
-
-  // gpio_clear(ADC_PORT, ADC_IN_CTL);
-  // gpio_clear(ADC_PORT, ADC_MUX_VFB_CTL);    // works...
-  // gpio_clear(ADC_PORT, ADC_MUX_IFB_CTL);    // is this right -- looks like ISET?
-                                            // it's 0.3V rather than 0.03V... ????
-                                            // no. because it's 10x gain. it maybe correct. need to source voltage to check
-  // gpio_clear(ADC_PORT, ADC_MUX_AGND_CTL );    // appears to work
-
 
   // dac_write_register(0x01, (1 << 12) );  // select monitor dac0  // works
   // dac_write_register(0x01, (1 << 11) );     // ain, which is wired to vref65  // works
   // gpio_clear(ADC_PORT, ADC_MUX_DAC_VMON_CTL);
 
-
-  // ok - so populate the integrator?
-  // and get it on a scope?
-
-
-#if 1
-  // this integrates up
+  // integrates up
   gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);      // turn off agnd in
   gpio_clear(ADC_PORT, ADC_REFN10V_CTL);                  // turn on N10V ref
   gpio_set(ADC_PORT, ADC_RESET_CTL);                    // start integrating
-#endif
+  task_sleep(3);
 
-    task_sleep(3);
-
-#if 1
-
-  gpio_set(ADC_PORT, ADC_REFN10V_CTL);                  // turn on N10V ref
-  // this integrates down.
-  // it's a bit tricky to get the scope to trigger correctly, though on reset.
-  gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);      // turn off agnd in
+  // integrate down
+  gpio_set(ADC_PORT, ADC_REFN10V_CTL);                  // turn off N10V ref
   gpio_clear(ADC_PORT, ADC_REFP10V_CTL);                  // turn on N10V ref
-  gpio_set(ADC_PORT, ADC_RESET_CTL);                    // start integrating
-#endif
+  task_sleep(3);
 
-  // OK. lets try to introduce a small bias - perhaps - to prevent oscillation...
-  // actually lets try a large bias - rather than agnd...
-
+  // reset
+  gpio_set(ADC_PORT, ADC_REFP10V_CTL);                  // turn off N10V ref
+  gpio_clear(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);  // turn on agnd in
+  gpio_clear(ADC_PORT, ADC_RESET_CTL);                    // short the cap, to stop integrating
 
   uart_printf("adc test done\n\r");
 }
+
+
+static void adc_test2(void)
+{
+  // uart_printf("adc test disable\n\r");
+  // return;
+  uart_printf("adc test\n\r");
+
+  // dac_write_register(0x01, (1 << 12) );  // select monitor dac0  // works
+  // dac_write_register(0x01, (1 << 11) );     // ain, which is wired to vref65  // works
+  // gpio_clear(ADC_PORT, ADC_MUX_DAC_VMON_CTL);
+
+  // integrates up
+  gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);    // turn off agnd in
+  gpio_clear(ADC_PORT, ADC_MUX_VFB_CTL);                    // turn on N10V ref
+  gpio_set(ADC_PORT, ADC_RESET_CTL);                    // clear the short of the cap - start integrating
+  task_sleep(3);
+
+
+  // integrate down
+  gpio_set(ADC_PORT, ADC_MUX_VFB_CTL);                  // turn off VFB ref
+  gpio_clear(ADC_PORT, ADC_REFP10V_CTL);                  // turn on P10V ref
+  task_sleep(3);
+
+  // reset
+  gpio_set(ADC_PORT, ADC_REFP10V_CTL);                  // turn off N10V ref
+  gpio_clear(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);  // turn on agnd in
+  gpio_clear(ADC_PORT, ADC_RESET_CTL);                    // stop integrating
+
+  uart_printf("adc test done\n\r");
+}
+
+
+
+
+
 
 
 
@@ -478,7 +488,8 @@ static void test01(void *args __attribute((unused)))
 
   source_current_test();
 
-  adc_test();
+  // adc_test();
+  adc_test2();
 
   // sleep forever
   for(;;) {
