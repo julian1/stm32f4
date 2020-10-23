@@ -377,9 +377,12 @@ static void adc_setup(void)
 
   // issue is the diode clamp...
   // it is gettting fed a constant output.
+  // could try increasing gain - maybe more stable.
+  // or removing...
 
   ///////////////
   // NO. its not the comparator.  which is just following the diode clamp.
+  // unless it's the inputs to the comparator somehow - but the'yre high-impedance. so unlikely.
   // set up the output.
   // IMPORTANT set fast edge rate... maybe?
   gpio_mode_setup(ADC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all_ctl);
@@ -404,8 +407,8 @@ static void adc_out_print(void)
 static void adc_test(void)
 {
 
-  uart_printf("adc test disable\n\r");
-  return;
+  // uart_printf("adc test disable\n\r");
+  // return;
   uart_printf("adc test\n\r");
 
   // active low.
@@ -430,19 +433,24 @@ static void adc_test(void)
   // and get it on a scope?
 
 
-#if 0
+#if 1
   // this integrates up
   gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);      // turn off agnd in
   gpio_clear(ADC_PORT, ADC_REFN10V_CTL);                  // turn on N10V ref
   gpio_set(ADC_PORT, ADC_RESET_CTL);                    // start integrating
 #endif
 
+    task_sleep(3);
 
+#if 1
+
+  gpio_set(ADC_PORT, ADC_REFN10V_CTL);                  // turn on N10V ref
   // this integrates down.
+  // it's a bit tricky to get the scope to trigger correctly, though on reset.
   gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);      // turn off agnd in
   gpio_clear(ADC_PORT, ADC_REFP10V_CTL);                  // turn on N10V ref
   gpio_set(ADC_PORT, ADC_RESET_CTL);                    // start integrating
-
+#endif
 
   // OK. lets try to introduce a small bias - perhaps - to prevent oscillation...
   // actually lets try a large bias - rather than agnd...
