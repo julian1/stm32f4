@@ -351,14 +351,19 @@ static void source_current_test(void)
 
 
 
+static  uint32_t all_ctl =
+    ADC_REFP10V_CTL | ADC_REFN10V_CTL | ADC_IN_CTL | ADC_RESET_CTL
+      | ADC_MUX_VFB_CTL | ADC_MUX_IFB_CTL | ADC_MUX_DAC_VMON_CTL | ADC_MUX_AGND_CTL;
+
 
 static void adc_setup(void)
 {
-
+/*
   // active low.
   uint32_t all_ctl =
     ADC_REFP10V_CTL | ADC_REFN10V_CTL | ADC_IN_CTL | ADC_RESET_CTL
       | ADC_MUX_VFB_CTL | ADC_MUX_IFB_CTL | ADC_MUX_DAC_VMON_CTL | ADC_MUX_AGND_CTL;
+*/
 
   uart_printf("adc setup\n\r");
 
@@ -366,15 +371,6 @@ static void adc_setup(void)
 
   gpio_clear(ADC_PORT, ADC_RESET_CTL);    // turn on - to short cap, and hold integrator at agnd.
                                           // it's the diode clamp that appears to oscillate ...
-
-  // there's an oscillation ...
-  // maybe at agnd crossover...
-  // better psrr op?
-
-  // ne5534 slew is 13V/uS.
-  // mc33172 slew is 2.1V/uS
-  // opa2177         0.7V/uS
-
   // small amount of hysteriss could be useful - but don't think is the problem - unless its coupling?
 
   // ok all of these inputs will oscillate... with the cap shorted/reset by switch...
@@ -383,17 +379,6 @@ static void adc_setup(void)
   // gpio_clear(ADC_PORT, ADC_REFP10V_CTL);  // put 10V on the input
   // gpio_clear(ADC_PORT, ADC_REFN10V_CTL);  // put -10V on the input
 
-
-  // issue is the diode clamp...
-  // it is gettting fed a constant output.
-  // could try increasing gain - maybe more stable.
-  // or removing...
-
-  ///////////////
-  // NO. its not the comparator.  which is just following the diode clamp.
-  // unless it's the inputs to the comparator somehow - but the'yre high-impedance. so unlikely.
-  // set up the output.
-  // IMPORTANT set fast edge rate... maybe?
   gpio_mode_setup(ADC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all_ctl);
   gpio_mode_setup(ADC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADC_OUT);
 
@@ -443,37 +428,79 @@ static void adc_test(void)
 }
 
 
-// VFB appears to be integrating in the wrong direction also?..
-// gahh. we need VFB pin - to actually be sure that it's holding 5V?
 
-static void adc_test2(void)
+// IFB looks ok. goes in the correct direction, and looks nice and linear.
+
+static void adc_clear(void)
 {
-  // uart_printf("adc test disable\n\r");
-  // return;
+  gpio_set(ADC_PORT, all_ctl);
+  gpio_clear(ADC_PORT, ADC_RESET_CTL);                    // short cap.  stop integrating
+  gpio_clear(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);   // put agnd on the input
+}
+
+
+static void adc_ifb_test(void)
+{
   uart_printf("adc test\n\r");
+
+  adc_clear();
+  task_sleep(3);
 
 #if 1
   // integrate up
   gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);    // turn off agnd in
   gpio_clear(ADC_PORT, ADC_IN_CTL | ADC_MUX_IFB_CTL);    // turn on IFB ref
   gpio_set(ADC_PORT, ADC_RESET_CTL);                    // clear the short of the cap - start integrating
-  task_sleep(3);
+  task_sleep(5);
 
   // integrate down
   gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_IFB_CTL);    // turn off IFB ref
-  gpio_clear(ADC_PORT, ADC_REFP10V_CTL);                  // turn on P10V ref
+  gpio_clear(ADC_PORT, ADC_REFN10V_CTL);                  // turn on P10V ref
   task_sleep(3);
 
   // reset
-  gpio_set(ADC_PORT, ADC_IN_CTL | ADC_REFP10V_CTL);                  // turn off N10V ref
-  gpio_clear(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);  // turn on agnd in
-  gpio_clear(ADC_PORT, ADC_RESET_CTL);                    // stop integrating
+  adc_clear();
 #endif
   uart_printf("adc test done\n\r");
 }
 
 
+// VFB appears to be integrating in the wrong direction also?..
+// gahh. we need VFB pin - to actually be sure that it's holding 5V?
 
+
+
+static void adc_vfb_test(void)
+{
+  uart_printf("adc test\n\r");
+
+  // VFB is 2.5V on the input. no problem. but not buffered...
+  // gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);    // turn off agnd in
+  // gpio_clear(ADC_PORT, ADC_IN_CTL | ADC_MUX_VFB_CTL);    // turn on VFB ref
+
+  // IFB is 0.3VDC - no problem.
+  // gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);    // turn off agnd in
+  // gpio_clear(ADC_PORT, ADC_IN_CTL | ADC_MUX_IFB_CTL);    // turn on VFB ref
+
+  adc_clear();
+  task_sleep(3);
+
+  // integrate down
+  gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);    // turn off agnd in
+  gpio_clear(ADC_PORT, ADC_IN_CTL | ADC_MUX_VFB_CTL);    // turn on VFB ref
+  gpio_set(ADC_PORT, ADC_RESET_CTL);                    // clear the short of the cap - start integrating
+  task_sleep(3);
+
+  // integrate up
+  gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_VFB_CTL);    // turn off VFB ref
+  gpio_clear(ADC_PORT, ADC_REFN10V_CTL);                  // turn on P10V ref
+  task_sleep(3);
+
+  // reset
+  adc_clear();
+
+  uart_printf("adc test done\n\r");
+}
 
 
 
@@ -488,7 +515,8 @@ static void test01(void *args __attribute((unused)))
   source_current_test();
 
   // adc_test();
-  adc_test2();
+  adc_ifb_test();
+  // adc_vfb_test();
 
   // sleep forever
   for(;;) {
