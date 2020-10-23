@@ -43,7 +43,7 @@ static void led_blink_task2(void *args __attribute((unused)))
     // led_toggle
 		led_toggle();
 
-    adc_out_print();
+    // adc_out_print();
 
   // we are going to have to set up a timer/0v
   // get adc value...
@@ -220,6 +220,9 @@ static void dac_test(void)
 #define MUX_MUX_UNUSED_CTL    GPIO12
 // LN15V_LCT  13
 // LP15V_LCT 14
+
+
+
 
 
 static void mux_setup(void)
@@ -506,18 +509,41 @@ static void adc_vfb_test(void)
 
 
 
+static void regulate_on_vfb(void)
+{
+
+  uart_printf("regulate on vfb\n\r");
+
+  /*
+    bypass
+    regulates on vfb regardless of dac or other muxes
+    Note - if we buffer vfb with inverting op-amp this won't work.
+  */
+  // gpio_clear(MUX_PORT, MUX_MUX_UNUSED_CTL);   // set active low. regulate on VFB. non inverted
+
+  gpio_clear(MUX_PORT, VFB_INV_CTL);
+
+  gpio_clear(MUX_PORT, MUX_MAX_CTL);
+
+  uart_printf("regulate on vfb done\n\r");
+}
+
+
 
 static void test01(void *args __attribute((unused)))
 {
   power_up();
 
+  regulate_on_vfb();
+
+#if 0
   // dac_test();
-
   source_current_test();
-
   // adc_test();
   // adc_ifb_test();
   adc_vfb_test();
+#endif
+
 
   // sleep forever
   for(;;) {
