@@ -455,12 +455,12 @@ static void adc_test2(void)
 
   // integrate up
   gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);    // turn off agnd in
-  gpio_clear(ADC_PORT, ADC_IN_CTL | ADC_MUX_VFB_CTL);                // turn on VFB ref
+  gpio_clear(ADC_PORT, ADC_IN_CTL | ADC_MUX_VFB_CTL);    // turn on VFB ref
   gpio_set(ADC_PORT, ADC_RESET_CTL);                    // clear the short of the cap - start integrating
   task_sleep(3);
 
   // integrate down
-  gpio_set(ADC_PORT, ADC_MUX_VFB_CTL);                  // turn off VFB ref
+  gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_VFB_CTL);    // turn off VFB ref
   gpio_clear(ADC_PORT, ADC_REFP10V_CTL);                  // turn on P10V ref
   task_sleep(3);
 
