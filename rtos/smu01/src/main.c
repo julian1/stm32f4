@@ -465,9 +465,10 @@ static void adc_ifb_test(void)
 }
 
 
-// VFB appears to be integrating in the wrong direction also?..
-// gahh. we need VFB pin - to actually be sure that it's holding 5V?
 
+
+// VFB looks ok. it's hard to trigger on.
+// but its a bit curved rather than linear - because not buffered.
 
 
 static void adc_vfb_test(void)
