@@ -515,8 +515,8 @@ static void test01(void *args __attribute((unused)))
   source_current_test();
 
   // adc_test();
-  adc_ifb_test();
-  // adc_vfb_test();
+  // adc_ifb_test();
+  adc_vfb_test();
 
   // sleep forever
   for(;;) {
