@@ -5,7 +5,7 @@
 #include "usart.h"
 #include "rails.h"
 
-
+Fixme. we swapped these for rev03.
 #define RAILS_PORT    GPIOE
 #define RAILS_NEG     GPIO13
 #define RAILS_POS     GPIO14
