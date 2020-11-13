@@ -182,6 +182,7 @@ void dac_setup_spi( void )
   spi_enable(DAC_SPI);
 
 
+  // make cs regular gpio
   gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_CS );
 
   /////
