@@ -9,6 +9,17 @@
 #include "dac8734.h"
 
 
+/*
+  TODO SHOULD RENAME THESE
+
+  DAC_SPI_PORT
+  DAC_MOSI becomes DAC_SPI_MOSI
+
+  DAC_CTL_PORT
+  DAC_CTL_UNIBIPB 
+  etc.
+  To make it clear which port is associated with which gpio/af more easily
+*/
 
 /*
   spi 1 AF5
