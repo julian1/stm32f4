@@ -49,6 +49,23 @@
 
 
 
+#if 0
+
+static inline void spi_wait_for_transfer_finish(uint32_t spi)
+{
+   /* Wait for transfer finished. */
+   while (!(SPI_SR(spi) & SPI_SR_TXE));
+}
+
+
+static inline void wait_for_transfer_finish(void)
+{
+  spi_wait_for_transfer_finish(TFT_SPI);
+  nop_sleep(15);   // 9 doesn't work. 10 does... weird margin
+}
+
+#endif
+
 
 /*
   Not sure.
