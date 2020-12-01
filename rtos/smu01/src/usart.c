@@ -126,6 +126,18 @@ void usart1_isr(void)
   // for console read I think we need blocking.
   static uint8_t data = 'A';
 
+/*
+  *********************
+  EXTREME.
+
+  should be
+
+  xQueueSendFromISR() not xQueueSend()
+  see p369.
+
+  *********************
+*/
+
 
   /* Check if we were called because of RXNE. */
   if (((USART_CR1(USART1) & USART_CR1_RXNEIE) != 0) &&
