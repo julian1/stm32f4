@@ -1,4 +1,28 @@
 /*
+  *********************
+  EXTREME.
+
+  should be
+
+  xQueueSendFromISR() not xQueueSend()
+  see p369.
+
+  *********************
+
+  libwwg uses its own FreeRTOSCOnfig.h
+    which may differ from local.
+
+  p357.
+    must fix.
+    by copying src to local
+
+
+    from ../Makefile.inc
+
+*/
+
+
+/*
   see, for
   ~/devel/stm32/FreeRTOSv10.3.1/FreeRTOS/Demo/CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h
 
