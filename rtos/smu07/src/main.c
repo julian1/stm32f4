@@ -65,7 +65,6 @@ TODO
 #include "dac8734.h"
 
 
-static void adc_out_print(void);
 
 
 static void led_blink_task2(void *args __attribute((unused)))
@@ -76,12 +75,6 @@ static void led_blink_task2(void *args __attribute((unused)))
     // led_toggle
 		led_toggle();
 
-    // adc_out_print();
-
-  // we are going to have to set up a timer/0v
-  // get adc value...
-
-
 
 #if 0
     static int tick = 0;
@@ -91,46 +84,6 @@ static void led_blink_task2(void *args __attribute((unused)))
       gpio_get(DAC_PORT, DAC_GPIO0),
       gpio_get(DAC_PORT, DAC_GPIO1 )
     );
-#endif
-
-#if 0
-    // So we need to wait until supplies come up when initializing.
-    // which means factorizing this code.
-    // but where do we put it...
-    // actually - monitoring supplies should almost be a separate task...
-
-    // Note that we should be able to talk to the dac / gpio - even if do not have
-    // rails or ref up.
-
-		uint16_t pa0 = mcu_adc_read_native(0);   // LP15VP
-		uint16_t pa1 = mcu_adc_read_native(1);   // LN15VN
-		uint16_t pa2 = mcu_adc_read_native(2);   // dacmon - need to cut trace
-                                        // should test it works though
-
-		uart_printf("tick: %d: LP15VP=%u, LN15VN=%d, pa2=%d\n", tick++, pa0, pa1, pa2 );
-
-#endif
-
-#if 0
-    // at gnd 0-2, at 3.3V supply get 4095.  eg. 4096 = 12bit. good. but maybe resolution is off.
-    /*
-      ADC channel numbers
-      http://libopencm3.org/docs/latest/stm32f4/html/group__adc__channel.html
-    */
-
-    // don't think this works...
-		uint16_t vref = mcu_adc_read_native( ADC_CHANNEL_VREF);
-		uint16_t vbat = mcu_adc_read_native( ADC_CHANNEL_VBAT);
-		uint16_t temp = mcu_adc_read_native( ADC_CHANNEL_TEMP_F40 );
-
-    /*
-      OK
-      VREF seems quite stable...  // 700 to 704
-      VBAT also 745 to 750
-      so maybe its working...
-      TEMP_F40 went 770 to 850 with heat gun... pointed at it. and back again.
-    */
-		uart_printf("tick: %d: pa0=%u vbat=%d  vref=%d temp=%d\n", tick++, pa0, vbat, vref, temp);
 #endif
 
     task_sleep(500);
