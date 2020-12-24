@@ -117,7 +117,7 @@ static void rails_wait_for_voltage(void)
   }
 }
 
-
+#if 0
 static void power_up(void)
 {
   // coordinate - rails, for dac, then ref for dac
@@ -142,9 +142,11 @@ static void power_up(void)
 
   uart_printf("power_up done\n\r");
 }
+#endif
 
 
-
+// need to make surer teh ref voltaages are off. 
+// then turn them on.
 
 ////////////////////////////////////
 
@@ -153,12 +155,20 @@ static void power_up(void)
 
 static void test01(void *args __attribute((unused)))
 {
-  // power_up();
-  // mux_regulate_on_vfb();
-
-
 
   dac_reset();
+  refa_off();
+
+  rails_wait_for_voltage();
+
+  task_sleep(50);
+  rails_negative_on();
+  task_sleep(50);
+  rails_positive_on();
+  task_sleep(50);
+
+  refa_on();
+
 
   // dac_test();
 #if 0
@@ -250,6 +260,7 @@ int main(void) {
   rails_setup();
   mcu_adc_setup();
 
+  ref_setup();
   dac_setup_spi();
 
 
@@ -273,8 +284,6 @@ int main(void) {
 
 	// xTaskCreate(relay_toggle_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
 
-  // rails_positive_on();
-  // rails_negative_on();
 
 
 	vTaskStartScheduler();

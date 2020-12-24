@@ -8,8 +8,10 @@
 #include "ref.h"
 
 
-#define REF_PORT    GPIOE
-#define REF_PIN     GPIO11  // dg444 pins swapped.. change name REF_PORT??? or REF_IN? or REF_SWITCH?
+#define REF_PORT    GPIOB
+
+#define DAC_MUX_REFA_CTL  GPIO8 
+#define DAC_MUX_REFB_CTL  GPIO9  
 
 
 /*
@@ -23,22 +25,28 @@ void ref_setup( void )
   // WE SHOULD DO ALL PINS here???
   uart_printf("ref setup\n\r");
 
-  gpio_set(REF_PORT, REF_PIN);
-  gpio_mode_setup(REF_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, REF_PIN);
+  gpio_set(REF_PORT, DAC_MUX_REFA_CTL | DAC_MUX_REFB_CTL);  // hi == off for dg444, as init condition.
+  gpio_mode_setup(REF_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_MUX_REFA_CTL | DAC_MUX_REFB_CTL);
 
   uart_printf("ref setup done\n\r");
 }
 
 
 
+void refa_off( void )
+{
+  gpio_set(REF_PORT, DAC_MUX_REFA_CTL);
+  uart_printf("refa off\n\r");
+}
+
 
 
 // TODO pass an argument. eg. 1 for on. 0 for off.  ref_ctrl(bool)
 
-void ref_on( void )
+void refa_on( void )
 {
-  gpio_clear(REF_PORT, REF_PIN);
-  uart_printf("ref on\n\r");
+  gpio_clear(REF_PORT, DAC_MUX_REFA_CTL);
+  uart_printf("refa on\n\r");
 }
 
 
