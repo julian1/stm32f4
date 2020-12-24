@@ -11,7 +11,7 @@
 
 #include "sleep.h"
 #include "usart.h"
-#include "adc.h"
+#include "slope_adc.h"
 
 
 #define ADC_PORT              GPIOD
@@ -44,7 +44,7 @@ void slope_adc_setup(void)
       | ADC_MUX_VFB_CTL | ADC_MUX_IFB_CTL | ADC_MUX_DAC_VMON_CTL | ADC_MUX_AGND_CTL;
 */
 
-  uart_printf("adc setup\n\r");
+  uart_printf("slope_adc setup\n\r");
 
   gpio_set(ADC_PORT, all_ctl);
 
@@ -61,7 +61,7 @@ void slope_adc_setup(void)
   gpio_mode_setup(ADC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all_ctl);
   gpio_mode_setup(ADC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADC_OUT);
 
-  uart_printf("adc setup done\n\r");
+  uart_printf("slope_adc setup done\n\r");
 }
 
 
@@ -70,7 +70,7 @@ static void slope_adc_out_print(void)
 {
   static uint32_t tick = 0;
 
-  uart_printf("hi tick %d %d\n\r",
+  uart_printf("slope_adc hi tick %d %d\n\r",
       tick++,
       gpio_get(ADC_PORT, ADC_OUT)
     );
@@ -81,7 +81,7 @@ static void slope_adc_test(void)
 {
   // uart_printf("adc test disable\n\r");
   // return;
-  uart_printf("adc test\n\r");
+  uart_printf("slope_adc test\n\r");
 
   // dac_write_register(0x01, (1 << 12) );  // select monitor dac0  // works
   // dac_write_register(0x01, (1 << 11) );     // ain, which is wired to vref65  // works
@@ -103,7 +103,7 @@ static void slope_adc_test(void)
   gpio_clear(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);  // turn on agnd in
   gpio_clear(ADC_PORT, ADC_RESET_CTL);                    // short the cap, to stop integrating
 
-  uart_printf("adc test done\n\r");
+  uart_printf("slope_adc test done\n\r");
 }
 
 
@@ -120,7 +120,7 @@ static void slope_adc_clear(void)
 
 static void slope_adc_ifb_test(void)
 {
-  uart_printf("adc test\n\r");
+  uart_printf("slope_adc test\n\r");
 
   slope_adc_clear();
   task_sleep(3);
@@ -140,7 +140,7 @@ static void slope_adc_ifb_test(void)
   // reset
   slope_adc_clear();
 #endif
-  uart_printf("adc test done\n\r");
+  uart_printf("slope_adc test done\n\r");
 }
 
 
@@ -152,7 +152,7 @@ static void slope_adc_ifb_test(void)
 
 static void slope_adc_vfb_test(void)
 {
-  uart_printf("adc test\n\r");
+  uart_printf("slope_adc test\n\r");
 
   // VFB is 2.5V on the input. no problem. but not buffered...
   // gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);    // turn off agnd in
@@ -179,7 +179,7 @@ static void slope_adc_vfb_test(void)
   // reset
   slope_adc_clear();
 
-  uart_printf("adc test done\n\r");
+  uart_printf("slope_adc test done\n\r");
 }
 
 
