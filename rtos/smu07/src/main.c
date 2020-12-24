@@ -97,38 +97,7 @@ static void rails_wait_for_voltage(void)
   }
 }
 
-#if 0
-static void power_up(void)
-{
-  // coordinate - rails, for dac, then ref for dac
 
-  uart_printf("\n\r");
-  uart_printf("power_up start\n\r");
-
-  // important - should be configured before supply rails/ analog power
-  dac_reset();
-
-
-  rails_wait_for_voltage();
-
-  task_sleep(50);
-  rails_negative_on();
-  task_sleep(50);
-  rails_positive_on();
-  task_sleep(50);
-  ref_on();         // OK. this
-  task_sleep(50);
-
-
-  uart_printf("power_up done\n\r");
-}
-#endif
-
-
-// need to make surer teh ref voltaages are off.
-// then turn them on.
-
-////////////////////////////////////
 
 /*
 // 65535 increment
@@ -138,10 +107,10 @@ static void power_up(void)
 static int voltageToDac( float x)
 {
   // return x / (6.5769 * 2) * 65535;
-
   // eg.
   return x / 2.0 * 10000;  // need to add ptf56 60ohm, and then use dac trim registers.
 }
+
 
 static void test01(void *args __attribute((unused)))
 {
