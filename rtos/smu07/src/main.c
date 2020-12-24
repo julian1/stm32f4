@@ -7,7 +7,7 @@
   xQueueSendFromISR() not xQueueSend()
   see p369.
     - fixed for usart.c
-    - but do we have other ISRs using it? 
+    - but do we have other ISRs using it?
 
   *********************
 
@@ -15,7 +15,7 @@ TODO
   libwwg uses its own FreeRTOSCOnfig.h
     which may differ from local.
 
-  see top-level ../../Makefile 
+  see top-level ../../Makefile
   actually no. think it comes from Makefile.incl.
 
   p357.
@@ -68,7 +68,7 @@ TODO
 
 
 
-
+#if 0
 static void led_blink_task2(void *args __attribute((unused)))
 {
   // should put this in led.c?
@@ -93,7 +93,7 @@ static void led_blink_task2(void *args __attribute((unused)))
     task_sleep(500);
   }
 }
-
+#endif
 
 
 
@@ -110,7 +110,7 @@ static void rails_wait_for_voltage(void)
     uint16_t pa1 = mcu_adc_read_native(1);   // LN15VN
 
 		uart_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
-    if(pa0 > 300 && pa1 > 300)
+    if(pa0 > 1000 && pa1 > 1000)
       break;
 
     task_sleep(500);
@@ -120,10 +120,12 @@ static void rails_wait_for_voltage(void)
 
 static void power_up(void)
 {
+  // coordinate - rails, for dac, then ref for dac
+
   uart_printf("\n\r");
   uart_printf("power_up start\n\r");
 
-  // important - configure before rails
+  // important - should be configured before supply rails/ analog power
   dac_reset();
 
 
@@ -134,7 +136,6 @@ static void power_up(void)
   task_sleep(50);
   rails_positive_on();
   task_sleep(50);
-
   ref_on();         // OK. this
   task_sleep(50);
 
@@ -230,7 +231,7 @@ static void relay_setup()
 }
 
 
-static void relay_toggle_task(void *args __attribute((unused))) 
+static void relay_toggle_task(void *args __attribute((unused)))
 {
   // change name test_task
 
@@ -288,7 +289,7 @@ int main(void) {
   ///////////////
   // setup
 
-	xTaskCreate(led_blink_task2,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+	xTaskCreate(led_blink_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
 
 
   // IMPORTANT changing from 100 to 200, stops deadlock
@@ -370,7 +371,7 @@ int main_old(void) {
   ///////////////
   // tasks
   // value is the stackdepth.
-	xTaskCreate(led_blink_task2,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+	xTaskCreate(led_blink_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
   xTaskCreate(uart_task,        "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
 
   // IMPORTANT changing from 100 to 200, stops deadlock
