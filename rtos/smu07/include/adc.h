@@ -1,2 +1,2 @@
 
-void adc_setup(void);
+void slope_adc_setup(void);

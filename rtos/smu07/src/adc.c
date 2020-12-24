@@ -35,7 +35,7 @@ static  uint32_t all_ctl =
       | ADC_MUX_VFB_CTL | ADC_MUX_IFB_CTL | ADC_MUX_DAC_VMON_CTL | ADC_MUX_AGND_CTL;
 
 
-void adc_setup(void)
+void slope_adc_setup(void)
 {
 /*
   // active low.
@@ -66,7 +66,7 @@ void adc_setup(void)
 
 
 
-static void adc_out_print(void)
+static void slope_adc_out_print(void)
 {
   static uint32_t tick = 0;
 
@@ -77,7 +77,7 @@ static void adc_out_print(void)
 }
 
 
-static void adc_test(void)
+static void slope_adc_test(void)
 {
   // uart_printf("adc test disable\n\r");
   // return;
@@ -110,7 +110,7 @@ static void adc_test(void)
 
 // IFB looks ok. goes in the correct direction, and looks nice and linear.
 
-static void adc_clear(void)
+static void slope_adc_clear(void)
 {
   gpio_set(ADC_PORT, all_ctl);
   gpio_clear(ADC_PORT, ADC_RESET_CTL);                    // short cap.  stop integrating
@@ -118,11 +118,11 @@ static void adc_clear(void)
 }
 
 
-static void adc_ifb_test(void)
+static void slope_adc_ifb_test(void)
 {
   uart_printf("adc test\n\r");
 
-  adc_clear();
+  slope_adc_clear();
   task_sleep(3);
 
 #if 1
@@ -138,7 +138,7 @@ static void adc_ifb_test(void)
   task_sleep(3);
 
   // reset
-  adc_clear();
+  slope_adc_clear();
 #endif
   uart_printf("adc test done\n\r");
 }
@@ -150,7 +150,7 @@ static void adc_ifb_test(void)
 // but its a bit curved rather than linear - because not buffered.
 
 
-static void adc_vfb_test(void)
+static void slope_adc_vfb_test(void)
 {
   uart_printf("adc test\n\r");
 
@@ -162,7 +162,7 @@ static void adc_vfb_test(void)
   // gpio_set(ADC_PORT, ADC_IN_CTL | ADC_MUX_AGND_CTL);    // turn off agnd in
   // gpio_clear(ADC_PORT, ADC_IN_CTL | ADC_MUX_IFB_CTL);    // turn on VFB ref
 
-  adc_clear();
+  slope_adc_clear();
   task_sleep(3);
 
   // integrate down
@@ -177,7 +177,7 @@ static void adc_vfb_test(void)
   task_sleep(3);
 
   // reset
-  adc_clear();
+  slope_adc_clear();
 
   uart_printf("adc test done\n\r");
 }
