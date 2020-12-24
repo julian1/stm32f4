@@ -150,8 +150,15 @@ static void power_up(void)
 
 ////////////////////////////////////
 
+/*
+// 65535 increment   
+// 6.55V   ref. for ref * 2. 
+*/
 
-
+static int voltageToDac( float x)
+{
+  return x / (6.5769 * 2) * 65535  ;
+}
 
 static void test01(void *args __attribute((unused)))
 {
@@ -169,7 +176,7 @@ static void test01(void *args __attribute((unused)))
 
   refa_on();
 
-  dac_write_register(DAC_VSET_REGISTER, 5180 * 2 );  // 2V
+  dac_write_register(DAC_VSET_REGISTER, voltageToDac( 5.0 ) );  // 1V
   dac_write_register(DAC_ISET_REGISTER, 5180 * 4 );  // Vout - 2V.
 
   // dac_test();
