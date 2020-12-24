@@ -11,10 +11,10 @@
 #include "led.h"
 
 
+// should be highest proprity
 
 
-
-// OK. the thing does lock up. which isn't fun...
+// OK. this thing can lock up. which isn't fun...
 
 // led blink task - stops / freezes .  which indicates something other than deadlocked queues.
 // options
@@ -42,5 +42,6 @@ void led_blink_task(void *args __attribute((unused))) {
 	for (;;) {
 		gpio_toggle(LED_PORT, LED_OUT);
 		vTaskDelay(pdMS_TO_TICKS(500)); // 1Hz
+    // eg. task_sleep()...
 	}
 }
