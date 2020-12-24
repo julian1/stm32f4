@@ -687,8 +687,8 @@ int main(void) {
 
 	//xTaskCreate(relay_toggle_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
 
-  rails_positive_on();
-  rails_negative_on();
+  // rails_positive_on();
+  // rails_negative_on();
 
 
 	vTaskStartScheduler();

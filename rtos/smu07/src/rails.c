@@ -5,7 +5,6 @@
 #include "usart.h"
 #include "rails.h"
 
-// Fixme. we swapped these for rev03.
 #define RAILS_PORT    GPIOE
 // #define RAILS_NEG     GPIO13
 // #define RAILS_POS     GPIO14
@@ -29,6 +28,8 @@ void rails_setup( void )
   gpio_clear(RAILS_PORT, RAILS_NEG);
 
   gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, RAILS_POS | RAILS_NEG);
+
+  // TODO Set speed. should be slow...
 
   uart_printf("rails setup done\n\r");
 }
