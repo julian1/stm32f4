@@ -618,6 +618,64 @@ static uint16_t mcu_adc_read_native(uint8_t channel)
 }
 
 
+static void mcu_adc_print_task(void *args __attribute((unused)))
+{
+
+  static int tick = 0;
+
+	for (;;) {
+
+#if 1
+    // So we need to wait until supplies come up when initializing.
+    // which means factorizing this code.
+    // but where do we put it...
+    // actually - monitoring supplies should almost be a separate task...
+
+    // Note that we should be able to talk to the dac / gpio - even if do not have
+    // rails or ref up.
+
+		uint16_t pa0 = mcu_adc_read_native(0);   // LP15VP
+		uint16_t pa1 = mcu_adc_read_native(1);   // LN15VN
+		// uint16_t pa2 = mcu_adc_read_native(2);   // dacmon - need to cut trace
+                                        // should test it works though
+
+		// uart_printf("tick: %d: LP15VP=%u, LN15VN=%d, pa2=%d\n", tick++, pa0, pa1, pa2 );
+		uart_printf("tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1 );
+
+#endif
+
+#if 0
+    // at gnd 0-2, at 3.3V supply get 4095.  eg. 4096 = 12bit. good. but maybe resolution is off.
+    /*
+      ADC channel numbers
+      http://libopencm3.org/docs/latest/stm32f4/html/group__adc__channel.html
+    */
+
+    // don't think this works...
+		uint16_t vref = mcu_adc_read_native( ADC_CHANNEL_VREF);
+		uint16_t vbat = mcu_adc_read_native( ADC_CHANNEL_VBAT);
+		uint16_t temp = mcu_adc_read_native( ADC_CHANNEL_TEMP_F40 );
+
+    /*
+      OK
+      VREF seems quite stable...  // 700 to 704
+      VBAT also 745 to 750
+      so maybe its working...
+      TEMP_F40 went 770 to 850 with heat gun... pointed at it. and back again.
+    */
+		uart_printf("tick: %d: pa0=%u vbat=%d  vref=%d temp=%d\n", tick++, pa0, vbat, vref, temp);
+#endif
+
+    task_sleep(1000);
+  }
+}
+
+
+
+
+////////////////////////////
+
+
 
 static void relay_setup()
 {
@@ -658,6 +716,9 @@ int main(void) {
   // rails
   rcc_periph_clock_enable(RCC_GPIOE);
 
+  // mcu adc1
+	rcc_periph_clock_enable(RCC_ADC1);
+
 
 
 
@@ -671,6 +732,8 @@ int main(void) {
 
   relay_setup();
   rails_setup();
+  mcu_adc_setup();
+
 
 
 
@@ -683,6 +746,10 @@ int main(void) {
   // IMPORTANT changing from 100 to 200, stops deadlock
   xTaskCreate(uart_task,        "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
   xTaskCreate(usart_prompt_task,"PROMPT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+
+
+
+  xTaskCreate(mcu_adc_print_task,"MCU_ADC",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 
 	//xTaskCreate(relay_toggle_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
