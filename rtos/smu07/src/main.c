@@ -144,52 +144,7 @@ static void power_up(void)
 }
 
 
-// should be moved to dac.
-// should be digital...
-// actually
 
-static void dac_test(void)
-{
-  // this is a higher-level function... relying on dac_write_register()
-  // so don't place in dac8734.c
-
-  /*
-  34,the digital supplies (DVDD and IOVDD) and logic inputs (UNI/BIP-x) must be
-  applied before AVSS and AVDD. Additionally, AVSS must be applied before AVDD
-  unless both can ramp up at the same time. REF-x should be applied after AVDD
-  comes up in order to make sure the ESD protection circuitry does not turn on.
-  */
-
-
-  uart_printf("dac writing dac registers\n\r");
-
-
-  // dac_write_register(0x04, 51800 );  // Vout
-  dac_write_register(0x04, 5180 * 2 );  // Vout - 2V.
-  dac_write_register(0x05, 25900 );     // Iout -5V at ierr
-
-  /*
-    ok for v reference of 6.5536V
-    rails need to be 6.5536 * 2 + 1 == 14.1V.
-  */
-#if 0
-  dac_write_register1( 0b00000110 << 16 | 0x7f7f ); // write dac 2
-  dac_write_register1( 0b00000111 << 16 | 0x7f7f ); // write dac 3
-  task_sleep(1);  // must wait for update - before we read
-#endif
-
-
-  // select ain auxillary monitor.
-  // 11 is ain. 13 is dac1.
-  uart_printf("dac write mon register for ain\n\r");
-  // dac_write_register1( 0b00000001 << 16 | (1 << 11) ); // select AIN.
-  // dac_write_register1( 0b00000001 << 16 | (1 << 13) ); // select dac 1.
-
-  // ok!
-  dac_write_register(0x01, (1 << 13) ); // select monitor dac1
-
-  uart_printf("dac test finished\n\r");
-}
 
 ////////////////////////////////////
 
@@ -331,7 +286,7 @@ int main(void) {
 
 
 
-
+#if 0
 
 int main_old(void) {
 
@@ -400,5 +355,7 @@ int main_old(void) {
 	for (;;);
 	return 0;
 }
+
+#endif
 
 
