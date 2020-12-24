@@ -1,4 +1,9 @@
 
+/*
+  TODO try to use the NSS. now have 10k pull up available.
+
+  need to get rid of the 1ms task sleeps.
+*/
 
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
@@ -42,8 +47,8 @@
 #define DAC_RST       GPIO1
 // PB2, is BOOT1
 // PB3, is SDO
-#define DAC_UNIBIPA   GPIO4
-#define DAC_UNIBIPB   GPIO5
+// #define DAC_UNIBIPA   GPIO4
+// #define DAC_UNIBIPB   GPIO5
 #define DAC_GPIO0     GPIO6
 #define DAC_GPIO1     GPIO7
 
@@ -215,7 +220,7 @@ void dac_setup_spi( void )
 
   /////
   // internal pu, doesn't change anything - because its powered off, and starts up high-Z.
-  gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC | DAC_UNIBIPA | DAC_UNIBIPB);
+  gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC /*| DAC_UNIBIPA | DAC_UNIBIPB */);
   gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 ); // these are open-drain as inputs
 
   uart_printf("dac setup spi done\n\r");
@@ -230,7 +235,7 @@ void dac_setup_bitbash( void )
   gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_CS  | DAC_CLK | DAC_MOSI);
   gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_INPUT, GPIO_PUPD_NONE, DAC_MISO );
 
-  gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC | DAC_UNIBIPA | DAC_UNIBIPB);
+  gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC /*| DAC_UNIBIPA | DAC_UNIBIPB */);
   gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 ); // these are open-drain as inputs
 
   uart_printf("dac setup spi bitbash done\n\r");
@@ -271,7 +276,7 @@ void dac_reset(void)
   // gpio_clear(DAC_PORT, DAC_UNIBIPA | DAC_UNIBIPB);
 
   // unipolar
-  gpio_set(DAC_PORT, DAC_UNIBIPA  | DAC_UNIBIPB);
+  /* gpio_set(DAC_PORT, DAC_UNIBIPA  | DAC_UNIBIPB); */
 
 
 
