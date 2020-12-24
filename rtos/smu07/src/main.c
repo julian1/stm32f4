@@ -169,7 +169,8 @@ static void test01(void *args __attribute((unused)))
 
   refa_on();
 
-  dac_write_register(0x04, 5180 * 2 );  // Vout - 2V.
+  dac_write_register(DAC_VSET_REGISTER, 5180 * 2 );  // 2V
+  dac_write_register(DAC_ISET_REGISTER, 5180 * 4 );  // Vout - 2V.
 
   // dac_test();
 #if 0
