@@ -22,12 +22,10 @@ TODO
     must fix.
     by copying src to local
 
-
     from ../Makefile.inc
 
-
+    maybe just move...
     mini_vprintf_cooked()
-
 */
 
 
@@ -147,6 +145,8 @@ static void power_up(void)
 
 
 // should be moved to dac.
+// should be digital... 
+// actually 
 
 static void dac_test(void)
 {
@@ -198,16 +198,19 @@ static void dac_test(void)
 
 static void test01(void *args __attribute((unused)))
 {
-  power_up();
+  // power_up();
+  // mux_regulate_on_vfb();
 
-  mux_regulate_on_vfb();
 
-#if 0
+
+  dac_reset();
+
   // dac_test();
-  source_current_test();
+#if 0
+  // source_current_test();
   // adc_test();
   // adc_ifb_test();
-  adc_vfb_test();
+  // adc_vfb_test();
 #endif
 
 
@@ -226,7 +229,7 @@ static void test01(void *args __attribute((unused)))
 
 
 
-static void relay_setup()
+static void relay_setup(void)
 {
   gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO9);
   gpio_clear(GPIOD, GPIO9);   // off.
@@ -270,6 +273,13 @@ int main(void) {
   // mcu adc1
 	rcc_periph_clock_enable(RCC_ADC1);
 
+  // spi1 / dac
+  rcc_periph_clock_enable(RCC_SPI1);
+
+  // Dac
+  rcc_periph_clock_enable(RCC_GPIOB); // JA
+
+
 
 
 
@@ -285,6 +295,7 @@ int main(void) {
   rails_setup();
   mcu_adc_setup();
 
+  dac_setup_spi();
 
 
 
@@ -300,8 +311,10 @@ int main(void) {
 
 
 
-  xTaskCreate(mcu_adc_print_task,"MCU_ADC",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+  // xTaskCreate(mcu_adc_print_task,"MCU_ADC",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
+
+  xTaskCreate(test01,        "DAC_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
 	// xTaskCreate(relay_toggle_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
 
@@ -338,7 +351,7 @@ int main_old(void) {
   rcc_periph_clock_enable(RCC_GPIOA);
   rcc_periph_clock_enable(RCC_USART1);
 
-  // spi1
+  // spi1 / dac
   rcc_periph_clock_enable(RCC_SPI1);
 
   // mcu adc1
