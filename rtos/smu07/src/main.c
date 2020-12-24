@@ -100,9 +100,11 @@ static void led_blink_task2(void *args __attribute((unused)))
 
 static void rails_wait_for_voltage(void)
 {
+  /*
   // move to rails?
   // potentially want a continuous running task to monitor, with queue events - not just a blocking call.
   // also want to pause for a couple of ticks... before unblock
+  */
   int tick = 0;
 
   while(1) {
