@@ -145,19 +145,22 @@ static void power_up(void)
 #endif
 
 
-// need to make surer teh ref voltaages are off. 
+// need to make surer teh ref voltaages are off.
 // then turn them on.
 
 ////////////////////////////////////
 
 /*
-// 65535 increment   
-// 6.55V   ref. for ref * 2. 
+// 65535 increment
+// 6.55V   ref. for ref * 2.
 */
 
 static int voltageToDac( float x)
 {
-  return x / (6.5769 * 2) * 65535  ;
+  // return x / (6.5769 * 2) * 65535;
+
+  // eg.
+  return x / 2.0 * 10000;  // need to extra 60ohm and then use dac trim registers.
 }
 
 static void test01(void *args __attribute((unused)))
@@ -176,8 +179,8 @@ static void test01(void *args __attribute((unused)))
 
   refa_on();
 
-  dac_write_register(DAC_VSET_REGISTER, voltageToDac( 5.0 ) );  // 1V
-  dac_write_register(DAC_ISET_REGISTER, 5180 * 4 );  // Vout - 2V.
+  dac_write_register(DAC_VSET_REGISTER, voltageToDac( 5.0 ) );
+  dac_write_register(DAC_ISET_REGISTER, voltageToDac( 4.0 )  );
 
   // dac_test();
 #if 0
