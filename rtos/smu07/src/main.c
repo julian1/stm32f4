@@ -160,11 +160,13 @@ static int voltageToDac( float x)
   // return x / (6.5769 * 2) * 65535;
 
   // eg.
-  return x / 2.0 * 10000;  // need to extra 60ohm and then use dac trim registers.
+  return x / 2.0 * 10000;  // need to add ptf56 60ohm, and then use dac trim registers.
 }
 
 static void test01(void *args __attribute((unused)))
 {
+
+  uart_printf("test01\n");
 
   dac_reset();
   refa_off();
@@ -182,13 +184,15 @@ static void test01(void *args __attribute((unused)))
   dac_write_register(DAC_VSET_REGISTER, voltageToDac( 5.0 ) );
   dac_write_register(DAC_ISET_REGISTER, voltageToDac( 4.0 )  );
 
-  // dac_test();
+
 #if 0
   // source_current_test();
   // adc_test();
   // adc_ifb_test();
   // adc_vfb_test();
 #endif
+
+  uart_printf("test01 done\n");
 
 
   // sleep forever
