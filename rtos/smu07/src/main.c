@@ -130,8 +130,8 @@ static void test01(void *args __attribute((unused)))
 
   refa_on();
 
-  dac_write_register(DAC_VSET_REGISTER, voltageToDac( 5.0 ) );
-  dac_write_register(DAC_ISET_REGISTER, voltageToDac( 4.0 )  );
+  dac_write_register(DAC_VSET_REGISTER, voltageToDac( 5.0 ));
+  dac_write_register(DAC_ISET_REGISTER, voltageToDac( 4.0 ));
 
 
 #if 0

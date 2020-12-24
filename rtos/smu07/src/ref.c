@@ -1,5 +1,5 @@
 /*
-  change name to supplies?
+  ref
 */
 
 #include <libopencm3/stm32/gpio.h>
@@ -10,8 +10,8 @@
 
 #define REF_PORT    GPIOB
 
-#define DAC_MUX_REFA_CTL  GPIO8 
-#define DAC_MUX_REFB_CTL  GPIO9  
+#define DAC_MUX_REFA_CTL  GPIO8
+#define DAC_MUX_REFB_CTL  GPIO9
 
 
 /*
