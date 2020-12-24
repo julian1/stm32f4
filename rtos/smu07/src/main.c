@@ -63,6 +63,8 @@ TODO
 #include "ref.h"
 #include "dac8734.h"
 #include "mcu_adc.h"
+#include "mux.h"
+#include "slope_adc.h"
 
 
 
@@ -145,7 +147,8 @@ static void power_up(void)
 
 static void dac_test(void)
 {
-
+  // this is a higher-level function... relying on dac_write_register()
+  // so don't place in dac8734.c
 
   /*
   34,the digital supplies (DVDD and IOVDD) and logic inputs (UNI/BIP-x) must be
@@ -194,7 +197,7 @@ static void test01(void *args __attribute((unused)))
 {
   power_up();
 
-  regulate_on_vfb();
+  mux_regulate_on_vfb();
 
 #if 0
   // dac_test();
@@ -360,7 +363,7 @@ int main_old(void) {
   // dac_setup_bitbash();
   ref_setup();
   mux_setup();
-  adc_setup();
+  slope_adc_setup();
 
   uart_printf("------------------\n\r");
 

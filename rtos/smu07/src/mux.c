@@ -44,7 +44,7 @@
 
 
 
-static void mux_setup(void)
+void mux_setup(void)
 {
 
   uint32_t all =
@@ -156,7 +156,7 @@ static void source_current_test(void)
 
 
 
-static void regulate_on_vfb(void)
+void mux_regulate_on_vfb(void)
 {
 
   uart_printf("regulate on vfb\n\r");

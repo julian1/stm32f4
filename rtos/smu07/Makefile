@@ -13,7 +13,13 @@ LDSCRIPT	= ../../cjmcu-407.ld  # JA
 TGT_CFLAGS	+= -I./include
 
 # JA
-CFLAGS    += -Wno-unused-function
+CFLAGS    += -Wno-unused-function  
+
+# we want error not warning. 
+# to avoid progressing, and linking regardless of whether function exists.
+CFLAGS    += -Werror-implicit-function-declaration
+
+
 
 
 include ../../Makefile.incl
