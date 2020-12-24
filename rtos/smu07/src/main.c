@@ -6,11 +6,17 @@
 
   xQueueSendFromISR() not xQueueSend()
   see p369.
+    - fixed for usart.c
+    - but do we have other ISRs using it? 
 
   *********************
 
+TODO
   libwwg uses its own FreeRTOSCOnfig.h
     which may differ from local.
+
+  see top-level ../../Makefile 
+  actually no. think it comes from Makefile.incl.
 
   p357.
     must fix.
@@ -18,6 +24,9 @@
 
 
     from ../Makefile.inc
+
+
+    mini_vprintf_cooked()
 
 */
 
