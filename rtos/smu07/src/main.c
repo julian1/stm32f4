@@ -609,6 +609,22 @@ static uint16_t mcu_adc_read_native(uint8_t channel)
 }
 
 
+
+static void relay_setup()
+{
+  gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO9);
+  gpio_clear(GPIOD, GPIO9);   // off.
+}
+
+
+static void relay_toggle_task(void *args __attribute((unused))) {
+
+	for (;;) {
+		vTaskDelay(pdMS_TO_TICKS(5 * 1000)); // 1Hz
+    gpio_toggle(GPIOD, GPIO9);
+	}
+}
+
 /////////////////////////////
 
 int main(void) {
@@ -622,18 +638,51 @@ int main(void) {
   // led
   rcc_periph_clock_enable(RCC_GPIOA);
 
+  // usart
+  rcc_periph_clock_enable(RCC_GPIOA);
+  rcc_periph_clock_enable(RCC_USART1);
+
+
+  // relay
+  rcc_periph_clock_enable(RCC_GPIOD);
+
+
+
 
   ///////////////
   // setup
   led_setup();
+  usart_setup();
+  uart_printf("------------------\n\r");
+  uart_printf("starting\n\r");
+
+
+  relay_setup();
+
+  ///////////////
+  // setup
 
 	xTaskCreate(led_blink_task2,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+
+
+  // IMPORTANT changing from 100 to 200, stops deadlock
+  xTaskCreate(uart_task,        "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
+  xTaskCreate(usart_prompt_task,"PROMPT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+
+
+
+	xTaskCreate(relay_toggle_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+
+
 
 	vTaskStartScheduler();
 
   // should never get here?
 	for (;;);
 }
+
+
+
 
 
 
