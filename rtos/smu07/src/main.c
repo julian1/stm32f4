@@ -145,8 +145,8 @@ static void power_up(void)
 
 
 // should be moved to dac.
-// should be digital... 
-// actually 
+// should be digital...
+// actually
 
 static void dac_test(void)
 {
@@ -276,8 +276,8 @@ int main(void) {
   // spi1 / dac
   rcc_periph_clock_enable(RCC_SPI1);
 
-  // Dac
-  rcc_periph_clock_enable(RCC_GPIOB); // JA
+  // dac / gpio
+  rcc_periph_clock_enable(RCC_GPIOB);
 
 
 
