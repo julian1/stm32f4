@@ -141,10 +141,12 @@ void usart1_isr(void)
     // JA - so this is a cheap way of echoing data???
     // usart_enable_tx_interrupt(USART1);
 
-    xQueueSend(uart_rxq, &data ,portMAX_DELAY); /* blocks when queue is full */
+  //  SHOULD be
+    // xQueueSendFromISR not xQueueSend 
+    xQueueSendFromISR(uart_rxq, &data , NULL ); /* blocks when queue is full */
                                                 // if piping input to uart - then blocking is probably desirable,
 
-    xQueueSend(uart_txq, &data,portMAX_DELAY);  /* blocks */
+    xQueueSendFromISR(uart_txq, &data, NULL );  /* blocks */
                                                 // send to tx queue to echo back to console.
                                                 // probably don't want to do this here. but somewhere else for more
                                                 // control
@@ -155,12 +157,20 @@ void usart1_isr(void)
     // Toggle LED to show signs of life
     gpio_toggle(GPIOE,GPIO0);
     */
+
   }
 
 }
 
 
-
+#if 0
+ BaseType_t xQueueSendFromISR
+           (
+               QueueHandle_t xQueue,
+               const void *pvItemToQueue,
+               BaseType_t *pxHigherPriorityTaskWoken
+           );
+#endif
 
 void uart_task(void *args __attribute__((unused))) {
   char ch;
