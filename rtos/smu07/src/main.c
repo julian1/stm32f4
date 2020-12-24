@@ -66,34 +66,6 @@ TODO
 
 
 
-#if 0
-static void led_blink_task2(void *args __attribute((unused)))
-{
-  // should put this in led.c?
-  // already there....
-
-	for (;;) {
-
-    // led_toggle
-		led_toggle();
-
-
-#if 0
-    static int tick = 0;
-
-    uart_printf("hi %d %d %d\n\r",
-      tick++,
-      gpio_get(DAC_PORT, DAC_GPIO0),
-      gpio_get(DAC_PORT, DAC_GPIO1 )
-    );
-#endif
-
-    task_sleep(500);
-  }
-}
-#endif
-
-
 
 
 static void rails_wait_for_voltage(void)
@@ -105,12 +77,20 @@ static void rails_wait_for_voltage(void)
   */
   int tick = 0;
 
+  int good = 0; // how many ticks it's ok...
+
   while(1) {
     uint16_t pa0 = mcu_adc_read_native(0);   // LP15VP
     uint16_t pa1 = mcu_adc_read_native(1);   // LN15VN
 
 		uart_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
+
     if(pa0 > 1000 && pa1 > 1000)
+      ++good;
+    else
+      good = 0;
+
+    if(good >= 3)
       break;
 
     task_sleep(500);
