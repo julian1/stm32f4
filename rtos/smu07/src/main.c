@@ -140,6 +140,9 @@ static void power_up(void)
   uart_printf("power_up done\n\r");
 }
 
+
+// should be moved to dac.
+
 static void dac_test(void)
 {
 
@@ -382,7 +385,9 @@ static void relay_setup()
 }
 
 
-static void relay_toggle_task(void *args __attribute((unused))) {
+static void relay_toggle_task(void *args __attribute((unused))) 
+{
+  // change name test_task
 
 	for (;;) {
 		vTaskDelay(pdMS_TO_TICKS(5 * 1000)); // 1Hz
@@ -450,7 +455,7 @@ int main(void) {
   xTaskCreate(mcu_adc_print_task,"MCU_ADC",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 
-	//xTaskCreate(relay_toggle_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+	// xTaskCreate(relay_toggle_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
 
   // rails_positive_on();
   // rails_negative_on();
