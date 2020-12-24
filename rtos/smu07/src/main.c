@@ -655,6 +655,9 @@ int main(void) {
   // relay
   rcc_periph_clock_enable(RCC_GPIOD);
 
+  // rails
+  rcc_periph_clock_enable(RCC_GPIOE);
+
 
 
 
@@ -667,6 +670,9 @@ int main(void) {
 
 
   relay_setup();
+  rails_setup();
+
+
 
   ///////////////
   // setup
@@ -681,6 +687,8 @@ int main(void) {
 
 	//xTaskCreate(relay_toggle_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
 
+  rails_positive_on();
+  rails_negative_on();
 
 
 	vTaskStartScheduler();
