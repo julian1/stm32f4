@@ -128,11 +128,15 @@ static void test01(void *args __attribute((unused)))
   rails_positive_on();
   task_sleep(50);
 
+
   refa_on();
 
   dac_write_register(DAC_VSET_REGISTER, voltageToDac( 5.0 ));
   dac_write_register(DAC_ISET_REGISTER, voltageToDac( 4.0 ));
 
+
+  task_sleep(50);
+  rails_p30V_on();
 
 #if 0
   // source_current_test();
