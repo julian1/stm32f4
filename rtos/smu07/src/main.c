@@ -61,7 +61,7 @@ TODO
 #include "ref.h"
 #include "dac8734.h"
 #include "mcu_adc.h"
-#include "mux.h"
+// #include "mux.h"
 #include "slope_adc.h"
 
 
@@ -77,7 +77,7 @@ static void rails_wait_for_voltage(void)
   */
   int tick = 0;
 
-  int good = 0; // how many ticks it's ok...
+  int good = 0; // count of how many ticks it's ok...
 
   while(1) {
     uint16_t pa0 = mcu_adc_read_native(0);   // LP15VP
@@ -97,6 +97,63 @@ static void rails_wait_for_voltage(void)
   }
 }
 
+
+
+
+
+////////////////////////////
+
+
+
+static void relay_setup(void)
+{
+  gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO9);
+  gpio_clear(GPIOD, GPIO9);   // off.
+}
+
+
+static void relay_toggle_task(void *args __attribute((unused)))
+{
+  // change name test_task
+
+	for (;;) {
+		vTaskDelay(pdMS_TO_TICKS(5 * 1000)); // 1Hz
+    gpio_toggle(GPIOD, GPIO9);
+	}
+}
+
+
+
+
+
+/////////////////////////////
+
+
+#define MUX_PORT GPIOE
+#define MUX_MIN_CTL         GPIO8
+#define MUX_INJECT_AGND_CTL GPIO9
+#define MUX_INJECT_VFB_CTL  GPIO10
+#define MUX_MAX_CTL         GPIO11
+
+static void mux_setup(void)
+{
+  const uint16_t all = MUX_MIN_CTL | MUX_INJECT_AGND_CTL | MUX_INJECT_VFB_CTL | MUX_MAX_CTL;
+
+  gpio_set(MUX_PORT, all); // active lo
+  gpio_mode_setup(MUX_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
+}
+
+static void mux_regulate_vfb_direct(void)
+{
+  gpio_clear(MUX_PORT, MUX_INJECT_VFB_CTL); // active lo
+}
+
+
+
+
+
+
+/////////////////////////////
 
 
 /*
@@ -137,6 +194,8 @@ static void test01(void *args __attribute((unused)))
 
   task_sleep(50);
 
+  mux_regulate_vfb_direct();
+
   rails_p30V_on();
   rails_n30V_on();
 
@@ -163,26 +222,7 @@ static void test01(void *args __attribute((unused)))
 
 
 
-////////////////////////////
 
-
-
-static void relay_setup(void)
-{
-  gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO9);
-  gpio_clear(GPIOD, GPIO9);   // off.
-}
-
-
-static void relay_toggle_task(void *args __attribute((unused)))
-{
-  // change name test_task
-
-	for (;;) {
-		vTaskDelay(pdMS_TO_TICKS(5 * 1000)); // 1Hz
-    gpio_toggle(GPIOD, GPIO9);
-	}
-}
 
 /////////////////////////////
 
@@ -205,7 +245,7 @@ int main(void) {
   // relay
   rcc_periph_clock_enable(RCC_GPIOD);
 
-  // rails
+  // rails / mux
   rcc_periph_clock_enable(RCC_GPIOE);
 
   // mcu adc1
@@ -236,6 +276,8 @@ int main(void) {
   ref_setup();
   dac_setup_spi();
 
+
+  mux_setup();
 
 
   ///////////////
