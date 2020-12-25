@@ -135,9 +135,18 @@ static void relay_toggle_task(void *args __attribute((unused)))
 #define MUX_INJECT_VFB_CTL  GPIO10
 #define MUX_MAX_CTL         GPIO11
 
+
+#define MUX_VSET_INV_CTL    GPIO0
+#define MUX_VFB_INV_CTL     GPIO1
+#define MUX_VFB_CTL         GPIO2
+#define MUX_VSET_CTL        GPIO3
+
 static void mux_setup(void)
 {
-  const uint16_t all = MUX_MIN_CTL | MUX_INJECT_AGND_CTL | MUX_INJECT_VFB_CTL | MUX_MAX_CTL;
+  const uint16_t u11 = MUX_MIN_CTL | MUX_INJECT_AGND_CTL | MUX_INJECT_VFB_CTL | MUX_MAX_CTL;  
+  const uint16_t u1 = MUX_VSET_INV_CTL | MUX_VFB_INV_CTL | MUX_VFB_CTL | MUX_VSET_CTL;  
+  const uint16_t all = u11 | u1;
+
 
   gpio_set(MUX_PORT, all); // active lo
   gpio_mode_setup(MUX_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
@@ -146,6 +155,11 @@ static void mux_setup(void)
 static void mux_regulate_vfb_direct(void)
 {
   gpio_clear(MUX_PORT, MUX_INJECT_VFB_CTL); // active lo
+
+
+  // we have to have 2x inputs into the summer. because its non-inverting.
+  // otherwise we get value multiplied by 2.
+  gpio_clear(MUX_PORT, MUX_VSET_INV_CTL | MUX_VFB_CTL ); // active lo
 }
 
 
