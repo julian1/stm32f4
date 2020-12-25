@@ -8,6 +8,7 @@ void rails_negative_on( void );
 
 
 void rails_p30V_on( void );
+void rails_n30V_on( void );
 
 
 

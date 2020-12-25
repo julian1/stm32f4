@@ -23,12 +23,13 @@ void rails_setup( void )
 {
   uart_printf("rails setup\n\r");
 
-  const uint16_t all = LP15V_CTL | LN15V_CTL | LP30V_CTL |  LN30V_CTL ;
+  // is 16 bit enough for this - yes?
+  const uint16_t all = LP15V_CTL | LN15V_CTL | LP30V_CTL | LN30V_CTL;
 
   // define, before configure
   gpio_clear(RAILS_PORT, all );
 
-  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all );
+  gpio_mode_setup(RAILS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
 
   // TODO Set speed. should be slow...
 
@@ -60,7 +61,11 @@ void rails_p30V_on( void )
   gpio_set(RAILS_PORT, LP30V_CTL);
 }
 
-
+void rails_n30V_on( void )
+{
+  uart_printf("rails n30V on\n\r");
+  gpio_set(RAILS_PORT, LN30V_CTL);
+}
 
 
 

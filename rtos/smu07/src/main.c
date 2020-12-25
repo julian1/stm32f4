@@ -136,7 +136,11 @@ static void test01(void *args __attribute((unused)))
 
 
   task_sleep(50);
+
   rails_p30V_on();
+  rails_n30V_on();
+
+
 
 #if 0
   // source_current_test();
