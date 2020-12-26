@@ -166,15 +166,19 @@ static void range_op_setup(void)
   gpio_set(RANGE_OP_PORT, all);     // gain to x1 for all 4x ops.
 
 
-  gpio_clear(RANGE_OP_PORT, VRANGE_OP1_CTL);  // turning on. we get 0.9V. instead of 10V... worked.
-  gpio_clear(RANGE_OP_PORT, VRANGE_OP2_CTL);  // turning on as well we get 0.083 .... eg. 100x gain.
+  // gpio_clear(RANGE_OP_PORT, VRANGE_OP1_CTL);  // x10,turning on. we get 0.9V. instead of 10V... worked.
+  // gpio_clear(RANGE_OP_PORT, VRANGE_OP2_CTL);  // x10 turning on as well we get 0.083 .... eg. 100x gain.
+
 
   gpio_mode_setup(RANGE_OP_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
 }
 
 
-// IRANGE_OP2 ctl doesn't look right.  it's low. when should be hi.
-
+// IRANGE_OP2_CTL is not right.  it's low. when should be hi.
+// maybe because of unpopulated input voltages?
+// pin 20. top pin on dg333.
+// pin62 on mcu.
+// bad solder join on mcu.
 
 
 
