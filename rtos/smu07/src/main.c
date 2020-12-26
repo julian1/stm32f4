@@ -163,7 +163,9 @@ static void range_op_setup(void)
 {
   const uint16_t all = VRANGE_OP1_CTL | VRANGE_OP2_CTL | IRANGE_OP1_CTL | IRANGE_OP2_CTL;
 
+  // dg333 is active hi, at least - in that it changes from non default position.
   gpio_set(RANGE_OP_PORT, all);     // gain to x1 for all 4x ops.
+
 
   gpio_mode_setup(RANGE_OP_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
 }
