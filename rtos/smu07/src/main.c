@@ -105,26 +105,29 @@ static void rails_wait_for_voltage(void)
 
 #define RELAY_PORT GPIOD
 #define OUTPUT_RELAY_CTL        GPIO9
-
+#define COMXY_RELAY_CTL         GPIO10
+#define VRANGE_RELAY_CTL        GPIO11
 
 static void relay_setup(void)
 {
-  gpio_mode_setup(RELAY_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, OUTPUT_RELAY_CTL);
+  const uint16_t all = OUTPUT_RELAY_CTL | COMXY_RELAY_CTL | VRANGE_RELAY_CTL;
 
-  gpio_clear(RELAY_PORT, OUTPUT_RELAY_CTL);   // off
+  gpio_clear(RELAY_PORT, all);   // off
+  gpio_mode_setup(RELAY_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
+
 }
 
-
-static void relay_toggle_task(void *args __attribute((unused)))
+#if 1
+static void relay_toggle_test_task(void *args __attribute((unused)))
 {
-  // change name test_task
 
 	for (;;) {
-		vTaskDelay(pdMS_TO_TICKS(5 * 1000)); // 1Hz
-    gpio_toggle(GPIOD, GPIO9);
+		vTaskDelay(pdMS_TO_TICKS(1 * 1000)); // 1Hz
+    // gpio_toggle(RELAY_PORT, OUTPUT_RELAY_CTL);
+    // gpio_toggle(RELAY_PORT, VRANGE_RELAY_CTL);
 	}
 }
-
+#endif
 
 
 
@@ -374,9 +377,9 @@ int main(void) {
   // xTaskCreate(mcu_adc_print_task,"MCU_ADC",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 
-  xTaskCreate(test01,        "DAC_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
+  // xTaskCreate(test01,        "TEST01",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
-	// xTaskCreate(relay_toggle_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+	xTaskCreate(relay_toggle_test_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
 
 
 
