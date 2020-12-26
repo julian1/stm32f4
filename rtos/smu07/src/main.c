@@ -153,6 +153,32 @@ static int voltageToDac( float x)
 
 
 
+/*
+// better names sense1 sense2 ctl.
+// 
+#define IRANGE_MUX2_PORT  GPIOC_
+#define IRANGE_MUX2_FET12_CTL         GPIO12
+#define IRANGE_MUX2_FET34_CTL         GPIO13
+#define IRANGE_MUX2_COMBUFFERED_CTL   GPIO14    // this is not buffered...
+#define IRANGE_MUX2_UNUSED_CTL        GPIO15
+*/
+
+#define IRANGE_SENSE_PORT           GPIOC
+#define IRANGE_SENSE_1_CTL          GPIO12
+#define IRANGE_SENSE_2_CTL          GPIO13
+#define IRANGE_SENSE_3_CTL          GPIO14    // this is not buffered...
+#define IRANGE_SENSE_UNUSED_CTL     GPIO15
+
+
+static void irange_sense_setup(void)
+{
+  const uint16_t all = IRANGE_SENSE_1_CTL | IRANGE_SENSE_2_CTL | IRANGE_SENSE_3_CTL | IRANGE_SENSE_UNUSED_CTL;
+  gpio_set(IRANGE_SENSE_PORT, all);     // active lo
+  gpio_mode_setup(IRANGE_SENSE_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
+}
+
+
+
 /////////////////////////////
 
 #define RANGE_OP_PORT     GPIOD // change name...
@@ -225,7 +251,7 @@ static void irange_sw_setup(void)
 /////////////////////////////
 
 
-#define MUX_PORT GPIOE
+#define MUX_PORT            GPIOE
 #define MUX_MIN_CTL         GPIO8
 #define MUX_INJECT_AGND_CTL GPIO9
 #define MUX_INJECT_VFB_CTL  GPIO10
@@ -408,6 +434,8 @@ int main(void) {
   mux_setup();
   irange_sw_setup();
   range_op_setup();
+  irange_sense_setup();
+
 
 
   ///////////////
