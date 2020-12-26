@@ -180,6 +180,10 @@ static void range_op_setup(void)
 // want to fint ina128 - instrument amp - on the current sense resistor.
 // eg. to check, working.
 
+
+// want to check diode voltage drop - across dual fet current switch.
+// for both source positive and negative voltage.
+
 // rather than plug usb in endlessly. can we use gpio (on stm32, or usb connector) to turn on/off 5V power
 // this would just about be worthwhile. to add to the board.
 // we can already control rails.
