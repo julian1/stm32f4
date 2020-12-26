@@ -126,6 +126,28 @@ static void relay_toggle_task(void *args __attribute((unused)))
 
 
 
+
+
+/////////////////////////////
+
+
+/*
+// 65535 increment
+// 6.55V   ref. for ref * 2.
+*/
+
+static int voltageToDac( float x)
+{
+  // return x / (6.5769 * 2) * 65535;
+  // eg.
+  return x / 2.0 * 10000;  // need to add ptf56 60ohm, and then use dac trim registers.
+}
+
+
+
+
+
+
 /////////////////////////////
 
 
@@ -154,34 +176,29 @@ static void mux_setup(void)
 
 static void mux_regulate_vfb_direct(void)
 {
-  // gpio_clear(MUX_PORT, MUX_INJECT_VFB_CTL); // active lo
-  gpio_clear(MUX_PORT, MUX_MAX_CTL); // active lo
+  gpio_clear(MUX_PORT, MUX_INJECT_VFB_CTL); // active lo
+
+}
+
+
+static void mux_regulate_p5v(void)
+{
+  dac_write_register(DAC_VSET_REGISTER, voltageToDac( 6.0 ));
 
 
   // summer is non-inverting. so must give 2x inputs . else it will multiply single by x2.
   // otherwise we get value multiplied by 2.
   gpio_clear(MUX_PORT, MUX_VSET_INV_CTL | MUX_VFB_CTL ); // active lo
+
+  // gpio_clear(MUX_PORT, MUX_INJECT_VFB_CTL); // active lo
+  gpio_clear(MUX_PORT, MUX_MAX_CTL); // active lo
 }
-
-
 
 
 
 
 /////////////////////////////
 
-
-/*
-// 65535 increment
-// 6.55V   ref. for ref * 2.
-*/
-
-static int voltageToDac( float x)
-{
-  // return x / (6.5769 * 2) * 65535;
-  // eg.
-  return x / 2.0 * 10000;  // need to add ptf56 60ohm, and then use dac trim registers.
-}
 
 
 static void test01(void *args __attribute((unused)))
@@ -209,7 +226,8 @@ static void test01(void *args __attribute((unused)))
 
   task_sleep(50);
 
-  mux_regulate_vfb_direct();
+  // mux_regulate_vfb_direct();
+  mux_regulate_p5v();
 
   rails_p30V_on();
   rails_n30V_on();
