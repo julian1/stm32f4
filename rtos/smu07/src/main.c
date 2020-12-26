@@ -221,14 +221,11 @@ static void mux_regulate_p5v(void)
 
   // summer is non-inverting. so must give 2x inputs . else it will multiply single by x2.
   // otherwise we get value multiplied by 2.
-  // gpio_clear(MUX_PORT, MUX_VSET_INV_CTL | MUX_VFB_CTL ); // regulate +6V eg. source.
-
-  gpio_clear(MUX_PORT, MUX_VSET_CTL | MUX_VFB_CTL ); //  regulate -6V, eg. sink. still max.
+  gpio_clear(MUX_PORT, MUX_VSET_INV_CTL | MUX_VFB_CTL ); // source positive voltage. regulate +6V eg. source.
+  // gpio_clear(MUX_PORT, MUX_VSET_CTL | MUX_VFB_CTL ); //  source negative voltage. still source. regulate -6V, eg. sink. still max.
 
 
   gpio_clear(MUX_PORT, MUX_MAX_CTL);    // regulate on max(verr,ierr).
-
-
 
 
 
