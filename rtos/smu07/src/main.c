@@ -103,12 +103,15 @@ static void rails_wait_for_voltage(void)
 
 ////////////////////////////
 
+#define RELAY_PORT GPIOD
+#define OUTPUT_RELAY_CTL        GPIO9
 
 
 static void relay_setup(void)
 {
-  gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO9);
-  gpio_clear(GPIOD, GPIO9);   // off.
+  gpio_mode_setup(RELAY_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, OUTPUT_RELAY_CTL);
+
+  gpio_clear(RELAY_PORT, OUTPUT_RELAY_CTL);   // off
 }
 
 
@@ -188,10 +191,15 @@ static void mux_regulate_p5v(void)
 
   // summer is non-inverting. so must give 2x inputs . else it will multiply single by x2.
   // otherwise we get value multiplied by 2.
-  gpio_clear(MUX_PORT, MUX_VSET_INV_CTL | MUX_VFB_CTL ); // active lo
+  // gpio_clear(MUX_PORT, MUX_VSET_INV_CTL | MUX_VFB_CTL ); // regulate +6V eg. source.
 
-  // gpio_clear(MUX_PORT, MUX_INJECT_VFB_CTL); // active lo
-  gpio_clear(MUX_PORT, MUX_MAX_CTL); // active lo
+  gpio_clear(MUX_PORT, MUX_VSET_CTL | MUX_VFB_CTL ); //  regulate -6V, eg. sink. still max.
+
+
+  gpio_clear(MUX_PORT, MUX_MAX_CTL);    // regulate on max(verr,ierr).
+
+
+  gpio_set(RELAY_PORT, OUTPUT_RELAY_CTL);   // on
 }
 
 
