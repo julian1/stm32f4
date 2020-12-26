@@ -149,6 +149,30 @@ static int voltageToDac( float x)
 
 
 
+/////////////////////////////
+
+#define IRANGE_PORT         GPIOC
+#define IRANGE_SW1_CTL      GPIO0
+#define IRANGE_SW2_CTL      GPIO1
+#define IRANGE_SW3_CTL      GPIO2
+#define IRANGE_SW4_CTL      GPIO3
+
+static void irange_setup(void)
+{
+  const uint16_t all = IRANGE_SW1_CTL | IRANGE_SW2_CTL | IRANGE_SW3_CTL | IRANGE_SW4_CTL;
+
+  // set  +15V to gate
+  gpio_set(IRANGE_PORT, all); // active lo
+  gpio_mode_setup(IRANGE_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
+
+
+  // ok ... it's toggled both... they are connected so one is high and the other lo.
+}
+
+
+// -15top
+// 15bottom
+
 
 
 /////////////////////////////
@@ -160,11 +184,15 @@ static int voltageToDac( float x)
 #define MUX_INJECT_VFB_CTL  GPIO10
 #define MUX_MAX_CTL         GPIO11
 
-
 #define MUX_VSET_INV_CTL    GPIO0
 #define MUX_VFB_INV_CTL     GPIO1
 #define MUX_VFB_CTL         GPIO2
 #define MUX_VSET_CTL        GPIO3
+
+
+
+
+
 
 static void mux_setup(void)
 {
@@ -237,6 +265,7 @@ static void test01(void *args __attribute((unused)))
   // mux_regulate_vfb_direct();
   mux_regulate_p5v();
 
+  // turn on rails... should set regulate on vfb first... then bring up rails.. then regulate
   rails_p30V_on();
   rails_n30V_on();
 
@@ -275,13 +304,15 @@ int main(void) {
   // clocks
   // rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 
+
   // led
   rcc_periph_clock_enable(RCC_GPIOA);
 
-  // usart
-  rcc_periph_clock_enable(RCC_GPIOA);
-  rcc_periph_clock_enable(RCC_USART1);
+  // dac / gpio
+  rcc_periph_clock_enable(RCC_GPIOB);
 
+  // irange
+  rcc_periph_clock_enable(RCC_GPIOC);
 
   // relay
   rcc_periph_clock_enable(RCC_GPIOD);
@@ -289,16 +320,16 @@ int main(void) {
   // rails / mux
   rcc_periph_clock_enable(RCC_GPIOE);
 
-  // mcu adc1
-	rcc_periph_clock_enable(RCC_ADC1);
+
+  // usart
+  rcc_periph_clock_enable(RCC_GPIOA);
+  rcc_periph_clock_enable(RCC_USART1);
 
   // spi1 / dac
   rcc_periph_clock_enable(RCC_SPI1);
 
-  // dac / gpio
-  rcc_periph_clock_enable(RCC_GPIOB);
-
-
+  // mcu adc1
+	rcc_periph_clock_enable(RCC_ADC1);
 
 
 
@@ -319,6 +350,7 @@ int main(void) {
 
 
   mux_setup();
+  irange_setup();
 
 
   ///////////////
