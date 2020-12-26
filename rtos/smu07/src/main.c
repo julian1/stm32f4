@@ -151,6 +151,33 @@ static int voltageToDac( float x)
 
 
 
+/////////////////////////////
+
+#define RANGE_OP_PORT     GPIOD // change name...
+#define VRANGE_OP1_CTL      GPIO12
+#define VRANGE_OP2_CTL      GPIO13
+#define IRANGE_OP1_CTL      GPIO14
+#define IRANGE_OP2_CTL      GPIO15
+
+static void range_op_setup(void)
+{
+  const uint16_t all = VRANGE_OP1_CTL | VRANGE_OP2_CTL | IRANGE_OP1_CTL | IRANGE_OP2_CTL;
+
+  gpio_set(RANGE_OP_PORT, all);     // gain to x1 for all 4x ops.
+
+
+  gpio_clear(RANGE_OP_PORT, VRANGE_OP1_CTL);  // turning on. we get 0.9V. instead of 10V... worked.
+  gpio_clear(RANGE_OP_PORT, VRANGE_OP2_CTL);  // turning on as well we get 0.083 .... eg. 100x gain.
+
+  gpio_mode_setup(RANGE_OP_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
+}
+
+
+// IRANGE_OP2 ctl doesn't look right.  it's low. when should be hi.
+
+
+
+
 
 /////////////////////////////
 
@@ -360,6 +387,7 @@ int main(void) {
 
   mux_setup();
   irange_setup();
+  range_op_setup();
 
 
   ///////////////
