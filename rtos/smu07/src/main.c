@@ -86,8 +86,8 @@ static void rails_wait_for_voltage(void)
     uint16_t pa1 = mcu_adc_read_native(1);   // LN15VN
 
     // only report first time...
-    if(tick == 0)
-  		uart_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
+    // if(tick == 0)
+    uart_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
 
     if(pa0 > 1000 && pa1 > 1000)
       ++good;
@@ -180,6 +180,8 @@ static void irange_sense_setup(void)
   gpio_set(IRANGE_SENSE_PORT, all);     // active lo
   gpio_mode_setup(IRANGE_SENSE_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
 }
+
+
 
 
 
@@ -291,6 +293,8 @@ static void mux_regulate_vfb_direct(void)
 
 static void mux_regulate_p5v(void)
 {
+
+  // set for 10V
   dac_write_register(DAC_VSET_REGISTER, voltageToDac( 10.0 ));
 
 
@@ -304,15 +308,24 @@ static void mux_regulate_p5v(void)
 
 
 
-  gpio_set(IRANGE_PORT, IRANGE_SW1_CTL | IRANGE_SW2_CTL); // current range 1. on.
+  // turn fets 1 and 2 on - for current range 1
+  gpio_set(IRANGE_PORT, IRANGE_SW1_CTL | IRANGE_SW2_CTL);
+
+  // turn on current sense1 ina
+  gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_1_CTL);
 
 
   // set x1 gain for both vrange ops
   gpio_set(RANGE_OP_PORT, VRANGE_OP1_CTL);
   gpio_set(RANGE_OP_PORT, VRANGE_OP2_CTL);
 
+  // set x1 gain for irange ops... default
+  // gpio_set(RANGE_OP_PORT, IRANGE_OP1_CTL);
+  // gpio_set(RANGE_OP_PORT, IRANGE_OP2_CTL);
 
-  // turn relay on
+
+
+  // turn output relay on
   gpio_set(RELAY_PORT, OUTPUT_RELAY_CTL);   // on
 }
 
