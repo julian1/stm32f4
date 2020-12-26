@@ -162,8 +162,10 @@ static void irange_setup(void)
   const uint16_t all = IRANGE_SW1_CTL | IRANGE_SW2_CTL | IRANGE_SW3_CTL | IRANGE_SW4_CTL;
 
   // set  +15V to gate
-  gpio_set(IRANGE_PORT, all); // active lo
-  gpio_mode_setup(IRANGE_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
+  gpio_clear(IRANGE_PORT, all); // all fets off.
+
+  gpio_mode_setup(IRANGE_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);    // thing this turns all fets on.
+
 
 
   // ok ... it's toggled both... they are connected so one is high and the other lo.
@@ -214,7 +216,7 @@ static void mux_regulate_vfb_direct(void)
 
 static void mux_regulate_p5v(void)
 {
-  dac_write_register(DAC_VSET_REGISTER, voltageToDac( 6.0 ));
+  dac_write_register(DAC_VSET_REGISTER, voltageToDac( 10.0 ));
 
 
   // summer is non-inverting. so must give 2x inputs . else it will multiply single by x2.
@@ -227,6 +229,13 @@ static void mux_regulate_p5v(void)
   gpio_clear(MUX_PORT, MUX_MAX_CTL);    // regulate on max(verr,ierr).
 
 
+
+
+
+  gpio_set(IRANGE_PORT, IRANGE_SW1_CTL | IRANGE_SW2_CTL); // current range 1. on.
+
+
+  // turn relay on
   gpio_set(RELAY_PORT, OUTPUT_RELAY_CTL);   // on
 }
 
