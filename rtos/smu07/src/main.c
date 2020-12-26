@@ -65,8 +65,10 @@ TODO
 #include "slope_adc.h"
 
 
+// we need a continually running task to pull down rails - again... when the rails go down.  
+// *and* when digital goes down.
 
-
+// we need setup()/ and clear()
 
 static void rails_wait_for_voltage(void)
 {
