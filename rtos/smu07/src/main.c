@@ -65,7 +65,7 @@ TODO
 #include "slope_adc.h"
 
 
-// we need a continually running task to pull down rails - again... when the rails go down.  
+// we need a continually running task to pull down rails - again... when the rails go down.
 // *and* when digital goes down.
 
 // we need setup()/ and clear()
@@ -85,7 +85,9 @@ static void rails_wait_for_voltage(void)
     uint16_t pa0 = mcu_adc_read_native(0);   // LP15VP
     uint16_t pa1 = mcu_adc_read_native(1);   // LN15VN
 
-		uart_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
+    // only report first time...
+    if(tick == 0)
+  		uart_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
 
     if(pa0 > 1000 && pa1 > 1000)
       ++good;
@@ -153,9 +155,11 @@ static int voltageToDac( float x)
 
 
 
+/////////////////////////////
 /*
-// better names sense1 sense2 ctl.
-// 
+// need better names sense1 sense2 ctl.
+// it's muxing the inas. so calls it irange_sense_mux etc...
+//
 #define IRANGE_MUX2_PORT  GPIOC_
 #define IRANGE_MUX2_FET12_CTL         GPIO12
 #define IRANGE_MUX2_FET34_CTL         GPIO13
