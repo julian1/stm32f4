@@ -165,11 +165,6 @@ static void range_op_setup(void)
 
   gpio_set(RANGE_OP_PORT, all);     // gain to x1 for all 4x ops.
 
-
-  // gpio_clear(RANGE_OP_PORT, VRANGE_OP1_CTL);  // x10,turning on. we get 0.9V. instead of 10V... worked.
-  // gpio_clear(RANGE_OP_PORT, VRANGE_OP2_CTL);  // x10 turning on as well we get 0.083 .... eg. 100x gain.
-
-
   gpio_mode_setup(RANGE_OP_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
 }
 
@@ -191,8 +186,10 @@ static void range_op_setup(void)
 #define IRANGE_SW3_CTL      GPIO2
 #define IRANGE_SW4_CTL      GPIO3
 
-static void irange_setup(void)
+static void irange_sw_setup(void)
 {
+  // change name irange_sw_setup
+
   const uint16_t all = IRANGE_SW1_CTL | IRANGE_SW2_CTL | IRANGE_SW3_CTL | IRANGE_SW4_CTL;
 
   // set  +15V to gate
@@ -264,6 +261,11 @@ static void mux_regulate_p5v(void)
 
 
   gpio_set(IRANGE_PORT, IRANGE_SW1_CTL | IRANGE_SW2_CTL); // current range 1. on.
+
+
+  // set x1 gain for both vrange ops
+  gpio_set(RANGE_OP_PORT, VRANGE_OP1_CTL);
+  gpio_set(RANGE_OP_PORT, VRANGE_OP2_CTL);
 
 
   // turn relay on
@@ -390,7 +392,7 @@ int main(void) {
 
 
   mux_setup();
-  irange_setup();
+  irange_sw_setup();
   range_op_setup();
 
 
