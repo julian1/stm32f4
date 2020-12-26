@@ -177,7 +177,8 @@ static void range_op_setup(void)
 // pin62 on mcu.
 // bad solder join on mcu.
 
-
+// want to fint ina128 - instrument amp - on the current sense resistor.
+// eg. to check, working.
 
 
 /////////////////////////////
