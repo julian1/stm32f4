@@ -509,9 +509,12 @@ static void x(void)
   pwr_enable_power_voltage_detect(PWR_CR_PLS_2V9);
 
 
-
-  // we really need to try controlling a single gpio pin - and connecting to a scope.
-
+  /*
+    1) see if can get the pwr_voltage_high() to change. first. by powering with a bench supply.
+        could log to gpio.
+        eg. ignoring the interrupt.
+    2) then try setting gpio pin - which we can see with a scope.
+  */
 }
 
 
