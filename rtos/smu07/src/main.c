@@ -309,7 +309,10 @@ static void mux_regulate_p5v(void)
 
 
   // turn fets 1 and 2 on - for current range 1
-  gpio_set(IRANGE_PORT, IRANGE_SW1_CTL | IRANGE_SW2_CTL);
+  // gpio_set(IRANGE_PORT, IRANGE_SW1_CTL | IRANGE_SW2_CTL);
+ 
+  // turn on fets 2,3 for current range 2 
+  gpio_set(IRANGE_PORT, IRANGE_SW3_CTL | IRANGE_SW4_CTL);
 
   // turn on current sense1 ina
   gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_1_CTL);
