@@ -315,7 +315,10 @@ static void mux_regulate_p5v(void)
   gpio_set(IRANGE_PORT, IRANGE_SW3_CTL | IRANGE_SW4_CTL);
 
   // turn on current sense1 ina
-  gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_1_CTL);
+  // gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_1_CTL);
+
+  // turn on current sense2 ina
+  gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_2_CTL);
 
 
   // set x1 gain for both vrange ops
@@ -326,7 +329,8 @@ static void mux_regulate_p5v(void)
   gpio_set(RANGE_OP_PORT, IRANGE_OP1_CTL);
   gpio_set(RANGE_OP_PORT, IRANGE_OP2_CTL);
 
-  gpio_clear(RANGE_OP_PORT, IRANGE_OP1_CTL);  // x10  current fb. works.
+  // x10  current fb. works.
+  gpio_clear(RANGE_OP_PORT, IRANGE_OP1_CTL);  
 
 
   // turn output relay on
