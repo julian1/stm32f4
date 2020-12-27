@@ -310,8 +310,8 @@ static void mux_regulate_p5v(void)
 
   // turn fets 1 and 2 on - for current range 1
   // gpio_set(IRANGE_PORT, IRANGE_SW1_CTL | IRANGE_SW2_CTL);
- 
-  // turn on fets 2,3 for current range 2 
+
+  // turn on fets 2,3 for current range 2
   gpio_set(IRANGE_PORT, IRANGE_SW3_CTL | IRANGE_SW4_CTL);
 
   // turn on current sense1 ina
@@ -327,14 +327,22 @@ static void mux_regulate_p5v(void)
 
   // set x1 gain for irange ops... default
   gpio_set(RANGE_OP_PORT, IRANGE_OP1_CTL);
-  gpio_set(RANGE_OP_PORT, IRANGE_OP2_CTL);
 
-  // x10  current fb. works.
-  gpio_clear(RANGE_OP_PORT, IRANGE_OP1_CTL);  
+  // set x10  for irange op. works.
+  // gpio_clear(RANGE_OP_PORT, IRANGE_OP1_CTL);
 
 
   // turn output relay on
   gpio_set(RELAY_PORT, OUTPUT_RELAY_CTL);   // on
+
+/*
+  eg. 
+    3A    range use 1000x.
+    1A    range use 100x
+    100mA range use 10x across 10ohm 1/2 watt. 
+    10mA range use 100x acroos 10ohm. or 1x across 1k.
+
+*/
 }
 
 
