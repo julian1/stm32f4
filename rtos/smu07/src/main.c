@@ -337,11 +337,13 @@ static void mux_regulate_p5v(void)
   gpio_set(RELAY_PORT, OUTPUT_RELAY_CTL);   // on
 
 /*
-  eg. 
-    3A    range use 10x. (not 1000x).  means we have to change sense resistor, back to 5.6k.
+  ina gain is 10x. op-gain is 10x.
+
+  eg.
+    3A    range use 10x. across 0.1ohm (not 1000x).
     1A    range use 100x  (10x + 10x) across 0.1ohm.
-    100mA range use 10x across 10ohm 1/2 watt. 
-    10mA range use 100x acroos 10ohm. or 1x across 1k.
+    100mA range use 10x across 10ohm 1/2 watt.
+    10mA  range use 100x acroos 10ohm. or 1x across 1k.
 
 */
 }
