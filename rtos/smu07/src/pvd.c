@@ -27,6 +27,7 @@ void pvd_isr (void)
   // most we can do is enqueue an output character. something.
 
   usart_enqueue_tx_test('x');
+  usart_enqueue_tx_test('\n');
 }
 
 
@@ -57,6 +58,8 @@ void power_voltage_detect_setup(void)
 
   // https://community.st.com/s/question/0D50X00009XkYe3SAF/pvd-through-exti-line-detection-not-triggered
 
+
+  // in main.c
 	// rcc_periph_clock_enable(RCC_PWR);
 
 
