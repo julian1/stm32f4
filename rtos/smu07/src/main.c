@@ -103,12 +103,12 @@ static void rails_wait_for_voltage(void)
     p209 beginning stm32.
 
     http://libopencm3.org/docs/latest/stm32f4/html/group__pwr__file.html
-   
+
       Enable Power Voltage Detector.
 
       This provides voltage level threshold detection. The result of detection is
       provided in the power voltage detector output flag (see pwr_voltage_high) or by
-      setting the EXTI16 interrupt (see datasheet for configuration details). 
+      setting the EXTI16 interrupt (see datasheet for configuration details).
 
     ext16 would correspond to the pvd_isr()
 
@@ -120,14 +120,14 @@ static void rails_wait_for_voltage(void)
         enabled, see pwr_enable_power_voltage_detect.
 
         Returns boolean: TRUE if the power voltage is above the preset voltage
-        threshold. 
+        threshold.
 
 
     levels...
     http://libopencm3.org/docs/latest/stm32f4/html/group__pwr__pls.html
 
     https://community.st.com/s/question/0D50X00009XkbAJ/how-to-get-pvd-programmable-voltage-detector-interrupt-working-
-          
+
   */
 
   /*
@@ -480,7 +480,7 @@ void pvd_isr (void)
 
 }
 
-static void x(void) 
+static void x(void)
 {
 
   // https://community.st.com/s/question/0D50X00009XkbAJ/how-to-get-pvd-programmable-voltage-detector-interrupt-working-
@@ -497,13 +497,13 @@ static void x(void)
 	rcc_periph_clock_enable(RCC_PWR);
 
   // exti_set_trigger(EXTI16, EXTI_TRIGGER_RISING);
-  exti_set_trigger(EXTI16, EXTI_TRIGGER_FALLING);   // think we want falling. 
+  exti_set_trigger(EXTI16, EXTI_TRIGGER_FALLING);   // think we want falling.
                                                     // pwr_voltage_high() eg. goes from high to lo.
   exti_enable_request(EXTI16);
 
   // defined 1 for line 16.
   // #define NVIC_PVD_IRQ 1
-  nvic_enable_irq( NVIC_PVD_IRQ ); 
+  nvic_enable_irq( NVIC_PVD_IRQ );
 
 
   // PWR_CR_PLS_2V9  is highest voltage
@@ -514,6 +514,7 @@ static void x(void)
     1) see if can get the pwr_voltage_high() to change. first. by powering with a bench supply.
         could log to gpio.
         eg. ignoring the interrupt.
+        ok. works. so we know the register value changes.
     2) then try setting gpio pin - which we can see with a scope.
   */
 }
@@ -529,7 +530,7 @@ static void report_pvd_task(void *args __attribute((unused)))
 
 
 
-int main(void) 
+int main(void)
 {
 
   // main clocks
