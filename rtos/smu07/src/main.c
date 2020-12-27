@@ -43,15 +43,18 @@ TODO
 #include "queue.h"
 
 
-// #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 // #include <libopencm3/stm32/timer.h>
 // #include <libopencm3/stm32/spi.h>
 // #include <libopencm3/stm32/gpio.h>
 // #include <libopencm3/stm32/usart.h>
-// #include <libopencm3/cm3/nvic.h>
+#include <libopencm3/cm3/nvic.h>
 // #include <libopencm3/stm32/adc.h>
+
+#include <libopencm3/stm32/exti.h>
+
+
 
 
 #include "sleep.h"
@@ -75,6 +78,56 @@ static void rails_wait_for_voltage(void)
   /*
     its far more important - to turn rails off. if digital power goes. in order to protect the dac.
     it will turn off automatically - with the optos, but would be good to pre-empt as well.
+
+    https://stm32f4-discovery.net/2015/08/hal-library-22-bor-for-stm32fxxx/
+
+    BO brownout
+    BOR == brownout reset
+    BOD == brownout detect.
+
+    we don't want BOR - we want BO interupt.
+
+   ///////
+
+    Programmable voltage detector (PVD)
+
+    ../../libopencm3/include/libopencm3/stm32/f4/nvic.h:void pvd_isr(void);
+
+    NVIC_PVD_IRQ
+    void pvd_isr(void);
+
+
+    void pwr_enable_power_voltage_detect(uint32_t pvd_level);
+    void pwr_disable_power_voltage_detect(void)
+
+    p209 beginning stm32.
+
+    http://libopencm3.org/docs/latest/stm32f4/html/group__pwr__file.html
+   
+      Enable Power Voltage Detector.
+
+      This provides voltage level threshold detection. The result of detection is
+      provided in the power voltage detector output flag (see pwr_voltage_high) or by
+      setting the EXTI16 interrupt (see datasheet for configuration details). 
+
+    ext16 would correspond to the pvd_isr()
+
+    void pwr_voltage_high()
+
+        Get Voltage Detector Output.
+
+        The voltage detector threshold must be set when the power voltage detector is
+        enabled, see pwr_enable_power_voltage_detect.
+
+        Returns boolean: TRUE if the power voltage is above the preset voltage
+        threshold. 
+
+
+    levels...
+    http://libopencm3.org/docs/latest/stm32f4/html/group__pwr__pls.html
+
+    https://community.st.com/s/question/0D50X00009XkbAJ/how-to-get-pvd-programmable-voltage-detector-interrupt-working-
+          
   */
 
   /*
@@ -419,7 +472,52 @@ static void test01(void *args __attribute((unused)))
 
 /////////////////////////////
 
-int main(void) {
+void pvd_isr (void)
+{
+  // we really need to try controlling a single gpio pin - and connecting to a scope.
+  uart_printf("xxxxxxxxn\r");
+
+}
+
+static void x(void) 
+{
+
+  // https://community.st.com/s/question/0D50X00009XkbAJ/how-to-get-pvd-programmable-voltage-detector-interrupt-working-
+
+  // https://github.com/MaJerle/stm32fxxx-hal-libraries/tree/master/26-STM32Fxxx_PVD/User
+
+  // see beginnging stm32... p191. for exti17 for RTC. almost the same.
+
+
+  // probably working, example
+  // https://github.com/MaJerle/stm32fxxx-hal-libraries/blob/master/26-STM32Fxxx_PVD/User/main.c
+
+
+	rcc_periph_clock_enable(RCC_PWR);
+
+  // exti_set_trigger(EXTI16, EXTI_TRIGGER_RISING);
+  exti_set_trigger(EXTI16, EXTI_TRIGGER_FALLING);   // think we want falling. 
+                                                    // pwr_voltage_high() eg. goes from high to lo.
+  exti_enable_request(EXTI16);
+
+  // defined 1 for line 16.
+  // #define NVIC_PVD_IRQ 1
+  nvic_enable_irq( NVIC_PVD_IRQ ); 
+
+
+  // PWR_CR_PLS_2V9  is highest voltage
+  pwr_enable_power_voltage_detect(PWR_CR_PLS_2V9);
+
+
+
+  // we really need to try controlling a single gpio pin - and connecting to a scope.
+
+}
+
+
+
+int main(void) 
+{
 
   // main clocks
   // disable HSE
@@ -454,7 +552,7 @@ int main(void) {
   // mcu adc1
 	rcc_periph_clock_enable(RCC_ADC1);
 
-
+  x();
 
   ///////////////
   // setup
