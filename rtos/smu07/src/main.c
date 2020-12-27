@@ -320,9 +320,10 @@ static void mux_regulate_p5v(void)
   gpio_set(RANGE_OP_PORT, VRANGE_OP2_CTL);
 
   // set x1 gain for irange ops... default
-  // gpio_set(RANGE_OP_PORT, IRANGE_OP1_CTL);
-  // gpio_set(RANGE_OP_PORT, IRANGE_OP2_CTL);
+  gpio_set(RANGE_OP_PORT, IRANGE_OP1_CTL);
+  gpio_set(RANGE_OP_PORT, IRANGE_OP2_CTL);
 
+  gpio_clear(RANGE_OP_PORT, IRANGE_OP1_CTL);  // x10  current fb. works.
 
 
   // turn output relay on
