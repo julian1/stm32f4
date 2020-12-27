@@ -496,12 +496,14 @@ static void x(void)
 
   // https://github.com/MaJerle/stm32fxxx-hal-libraries/tree/master/26-STM32Fxxx_PVD/User
 
-  // see beginnging stm32... p191. for exti17 for RTC. almost the same.
-
+  // see beginnging stm32... p191. for RTC / exti17. setup should be the same.
 
   // probably working, example
   // https://github.com/MaJerle/stm32fxxx-hal-libraries/blob/master/26-STM32Fxxx_PVD/User/main.c
 
+  // TM_PVD_Enable()
+  // https://github.com/MaJerle/stm32fxxx-hal-libraries/blob/89bc743fa9b9766ff5e86add8e108c9f784317fa/00-STM32_LIBRARIES/tm_stm32_pvd.h
+  // https://github.com/MaJerle/stm32fxxx-hal-libraries/blob/3e68dfadc34e24ed89612b9fdf9cad7b60a0e69c/00-STM32_LIBRARIES/tm_stm32_pvd.c
 
 	rcc_periph_clock_enable(RCC_PWR);
 
