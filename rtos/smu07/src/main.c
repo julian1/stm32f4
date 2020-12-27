@@ -489,7 +489,7 @@ void pvd_isr (void)
 
 
 
-static void x(void)
+static void power_voltage_detect_setup(void)
 {
 
   // https://community.st.com/s/question/0D50X00009XkbAJ/how-to-get-pvd-programmable-voltage-detector-interrupt-working-
@@ -515,10 +515,10 @@ static void x(void)
 
   // https://community.st.com/s/question/0D50X00009XkYe3SAF/pvd-through-exti-line-detection-not-triggered
 
-	rcc_periph_clock_enable(RCC_PWR);
+	// rcc_periph_clock_enable(RCC_PWR);
 
-  // exti_set_trigger(EXTI16, EXTI_TRIGGER_RISING);
-  exti_set_trigger(EXTI16, EXTI_TRIGGER_FALLING);   // think we want falling.
+  exti_set_trigger(EXTI16, EXTI_TRIGGER_RISING);      // other code uses rising...
+  // exti_set_trigger(EXTI16, EXTI_TRIGGER_FALLING);   // think we want falling.
                                                     // pwr_voltage_high() eg. goes from high to lo.
   exti_enable_request(EXTI16);
 
@@ -543,6 +543,7 @@ static void x(void)
 
 static void report_pvd_test_task(void *args __attribute((unused)))
 {
+  // just monitor pwr_voltage_high() and we can see...
   while(1) {
     uart_printf("%c\n", pwr_voltage_high() ? 't' : 'f' );
   }
@@ -587,11 +588,16 @@ int main(void)
   // mcu adc1
 	rcc_periph_clock_enable(RCC_ADC1);
 
-  x();
+  // power voltage detect
+	rcc_periph_clock_enable(RCC_PWR);
+
 
   ///////////////
   // setup
   led_setup();
+
+  power_voltage_detect_setup();
+
   usart_setup();
   uart_printf("------------------\n\r");
   uart_printf("starting\n\r");
