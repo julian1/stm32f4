@@ -182,6 +182,7 @@ static void relay_setup(void)
 #if 1
 static void relay_toggle_test_task(void *args __attribute((unused)))
 {
+  // useful test function.
 
 	for (;;) {
 		vTaskDelay(pdMS_TO_TICKS(1 * 1000)); // 1Hz
@@ -475,7 +476,7 @@ static void test01(void *args __attribute((unused)))
 void pvd_isr (void)
 {
   // we really need to try controlling a single gpio pin - and connecting to a scope.
-  uart_printf("xxxxxxxxn\r");
+  uart_printf("x\n");
 
 }
 
@@ -516,6 +517,15 @@ static void x(void)
     2) then try setting gpio pin - which we can see with a scope.
   */
 }
+
+
+static void report_pvd_task(void *args __attribute((unused)))
+{
+  while(1) {
+    uart_printf("%c\n", pwr_voltage_high() ? 't' : 'f' );
+  }
+}
+
 
 
 
@@ -597,6 +607,7 @@ int main(void)
 
   xTaskCreate(test01,        "TEST01",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
+  // xTaskCreate(report_pvd_task,    "PVD_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
 
 
