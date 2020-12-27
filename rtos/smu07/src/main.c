@@ -73,6 +73,11 @@ TODO
 static void rails_wait_for_voltage(void)
 {
   /*
+    its far more important - to turn rails off. if digital power goes. in order to protect the dac.
+    it will turn off automatically - with the optos, but would be good to pre-empt as well.
+  */
+
+  /*
   // move to rails?
   // potentially want a continuous running task to monitor, with queue events - not just a blocking call.
   // also want to pause for a couple of ticks... before unblock
