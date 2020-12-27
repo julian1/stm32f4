@@ -119,6 +119,10 @@ void usart_setup(void)
 }
 
 
+void usart_enqueue_tx_test(uint8_t data ) 
+{
+  xQueueSendFromISR(uart_txq, &data, NULL );
+}
 
 void usart1_isr(void)
 {

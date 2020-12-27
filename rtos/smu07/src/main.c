@@ -475,10 +475,19 @@ static void test01(void *args __attribute((unused)))
 
 void pvd_isr (void)
 {
-  // we really need to try controlling a single gpio pin - and connecting to a scope.
-  uart_printf("x\n");
 
+  // TODO - change this.
+  // WE CANNOT PRINT FROM ISR...!!!!!!
+
+  // most we could do is enqueue an output character. something.
+
+  // char data = 'x';
+  // xQueueSendFromISR(uart_txq, &data, NULL );
+
+  usart_enqueue_tx_test('x');
 }
+
+
 
 static void x(void)
 {
@@ -520,7 +529,7 @@ static void x(void)
 }
 
 
-static void report_pvd_task(void *args __attribute((unused)))
+static void report_pvd_test_task(void *args __attribute((unused)))
 {
   while(1) {
     uart_printf("%c\n", pwr_voltage_high() ? 't' : 'f' );
@@ -603,12 +612,12 @@ int main(void)
 
 
 
+  xTaskCreate(test01,        "TEST01",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
 	// xTaskCreate(relay_toggle_test_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
 
-  xTaskCreate(test01,        "TEST01",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
-  // xTaskCreate(report_pvd_task,    "PVD_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
+  // xTaskCreate(report_pvd_test_task,    "PVD_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
 
 
