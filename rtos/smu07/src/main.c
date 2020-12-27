@@ -505,6 +505,16 @@ static void x(void)
   // https://github.com/MaJerle/stm32fxxx-hal-libraries/blob/89bc743fa9b9766ff5e86add8e108c9f784317fa/00-STM32_LIBRARIES/tm_stm32_pvd.h
   // https://github.com/MaJerle/stm32fxxx-hal-libraries/blob/3e68dfadc34e24ed89612b9fdf9cad7b60a0e69c/00-STM32_LIBRARIES/tm_stm32_pvd.c
 
+  // guy does it,
+  // https://community.st.com/s/question/0D50X00009XkhnSSAR/monitoring-vdd-using-the-pvd-feature
+
+    // NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = BKPDEV_PVD_PRIORITY;
+
+  // USES RISING...!!!!. eg. because it's different than the register?
+  // EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising; // trigger power rising edge (voltage drop)
+
+  // https://community.st.com/s/question/0D50X00009XkYe3SAF/pvd-through-exti-line-detection-not-triggered
+
 	rcc_periph_clock_enable(RCC_PWR);
 
   // exti_set_trigger(EXTI16, EXTI_TRIGGER_RISING);
