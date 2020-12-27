@@ -309,27 +309,28 @@ static void mux_regulate_p5v(void)
 
 
   // turn fets 1 and 2 on - for current range 1
-  // gpio_set(IRANGE_PORT, IRANGE_SW1_CTL | IRANGE_SW2_CTL);
+  gpio_set(IRANGE_PORT, IRANGE_SW1_CTL | IRANGE_SW2_CTL);
 
   // turn on fets 2,3 for current range 2
-  gpio_set(IRANGE_PORT, IRANGE_SW3_CTL | IRANGE_SW4_CTL);
+  // gpio_set(IRANGE_PORT, IRANGE_SW3_CTL | IRANGE_SW4_CTL);
 
   // turn on current sense1 ina
-  // gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_1_CTL);
+  gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_1_CTL);
 
   // turn on current sense2 ina
-  gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_2_CTL);
+  // gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_2_CTL);
 
 
   // set x1 gain for both vrange ops
   gpio_set(RANGE_OP_PORT, VRANGE_OP1_CTL);
   gpio_set(RANGE_OP_PORT, VRANGE_OP2_CTL);
 
+
   // set x1 gain for irange ops... default
-  gpio_set(RANGE_OP_PORT, IRANGE_OP1_CTL);
+  // gpio_set(RANGE_OP_PORT, IRANGE_OP1_CTL);
 
   // set x10  for irange op. works.
-  // gpio_clear(RANGE_OP_PORT, IRANGE_OP1_CTL);
+  gpio_clear(RANGE_OP_PORT, IRANGE_OP1_CTL);
 
 
   // turn output relay on
@@ -337,8 +338,8 @@ static void mux_regulate_p5v(void)
 
 /*
   eg. 
-    3A    range use 1000x.
-    1A    range use 100x
+    3A    range use 10x. (not 1000x).  means we have to change sense resistor, back to 5.6k.
+    1A    range use 100x  (10x + 10x) across 0.1ohm.
     100mA range use 10x across 10ohm 1/2 watt. 
     10mA range use 100x acroos 10ohm. or 1x across 1k.
 
