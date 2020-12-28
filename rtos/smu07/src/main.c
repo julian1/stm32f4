@@ -289,7 +289,7 @@ static void mux_setup(void)
 {
   const uint16_t u12 = MUX_MIN_CTL | MUX_INJECT_AGND_CTL | MUX_INJECT_VFB_CTL | MUX_MAX_CTL;
   const uint16_t u1 = MUX_VSET_INV_CTL | MUX_VFB_INV_CTL | MUX_VFB_CTL | MUX_VSET_CTL;
-  const uint16_t u8 = MUX_ISET_INV_CTL | MUX_IFB_INV_CTL | MUX_IFB_CTL | MUX_ISET_CTL; 
+  const uint16_t u8 = MUX_ISET_INV_CTL | MUX_IFB_INV_CTL | MUX_IFB_CTL | MUX_ISET_CTL;
 
   const uint16_t all = u12 | u1 | u8;
 
@@ -310,6 +310,7 @@ static void mux_regulate_p5v(void)
 
   // set for 10V
   dac_write_register(DAC_VSET_REGISTER, voltageToDac( 10.0 ));
+  dac_write_register(DAC_ISET_REGISTER, voltageToDac( 0.2 ));
 
 
   // summer is non-inverting. so must give 2x inputs . else it will multiply single by x2.
@@ -318,7 +319,13 @@ static void mux_regulate_p5v(void)
   // gpio_clear(MUX_PORT, MUX_VSET_CTL | MUX_VFB_CTL ); //  source negative voltage. still source. regulate -6V, eg. sink. still max.
 
 
-  gpio_clear(MUX_PORT, MUX_MAX_CTL);    // regulate on max(verr,ierr).
+  gpio_clear(MUX_PORT, MUX_ISET_INV_CTL | MUX_IFB_CTL );   // this sources positive current. works.
+                                                              //   issue was failure of one amp of dual op-amp.
+
+
+  // max is correct for sourcing. because verr,ierr, and err are inverted.
+  gpio_clear(MUX_PORT, MUX_MAX_CTL);
+  // gpio_clear(MUX_PORT, MUX_MIN_CTL);
 
 
 
