@@ -264,6 +264,7 @@ static void irange_sw_setup(void)
 
 // U12
 #define MUX_PORT            GPIOE
+
 #define MUX_MIN_CTL         GPIO8
 #define MUX_INJECT_AGND_CTL GPIO9
 #define MUX_INJECT_VFB_CTL  GPIO10
@@ -276,19 +277,21 @@ static void irange_sw_setup(void)
 #define MUX_VSET_CTL        GPIO3
 
 // U8
-#define MUX_ISET_INV_CTL    GPIO0
-#define MUX_ISET_CTL        GPIO0
-#define MUX_IFB_INV_CTL     GPIO0
-#define MUX_IFB_CTL         GPIO0
+#define MUX_ISET_INV_CTL    GPIO4
+#define MUX_IFB_INV_CTL     GPIO5
+#define MUX_IFB_CTL         GPIO6
+#define MUX_ISET_CTL        GPIO7
 
 
 
 
 static void mux_setup(void)
 {
-  const uint16_t u11 = MUX_MIN_CTL | MUX_INJECT_AGND_CTL | MUX_INJECT_VFB_CTL | MUX_MAX_CTL;
+  const uint16_t u12 = MUX_MIN_CTL | MUX_INJECT_AGND_CTL | MUX_INJECT_VFB_CTL | MUX_MAX_CTL;
   const uint16_t u1 = MUX_VSET_INV_CTL | MUX_VFB_INV_CTL | MUX_VFB_CTL | MUX_VSET_CTL;
-  const uint16_t all = u11 | u1;
+  const uint16_t u8 = MUX_ISET_INV_CTL | MUX_IFB_INV_CTL | MUX_IFB_CTL | MUX_ISET_CTL; 
+
+  const uint16_t all = u12 | u1 | u8;
 
 
   gpio_set(MUX_PORT, all); // active lo
