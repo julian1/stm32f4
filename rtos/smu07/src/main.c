@@ -310,7 +310,8 @@ static void mux_regulate_p5v(void)
 
   // set for 10V
   dac_write_register(DAC_VSET_REGISTER, voltageToDac( 10.0 ));
-  dac_write_register(DAC_ISET_REGISTER, voltageToDac( 0.2 ));
+  dac_write_register(DAC_ISET_REGISTER, voltageToDac( 0.2 ));   // 2mA
+  // dac_write_register(DAC_ISET_REGISTER, voltageToDac( 2 )); // 20mA.
 
 
   // summer is non-inverting. so must give 2x inputs . else it will multiply single by x2.
