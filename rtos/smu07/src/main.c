@@ -231,6 +231,7 @@ static void range_op_setup(void)
 
 /////////////////////////////
 
+// U14
 #define IRANGE_PORT         GPIOC
 #define IRANGE_SW1_CTL      GPIO0
 #define IRANGE_SW2_CTL      GPIO1
@@ -261,19 +262,24 @@ static void irange_sw_setup(void)
 
 /////////////////////////////
 
-
+// U12
 #define MUX_PORT            GPIOE
 #define MUX_MIN_CTL         GPIO8
 #define MUX_INJECT_AGND_CTL GPIO9
 #define MUX_INJECT_VFB_CTL  GPIO10
 #define MUX_MAX_CTL         GPIO11
 
+// U1
 #define MUX_VSET_INV_CTL    GPIO0
 #define MUX_VFB_INV_CTL     GPIO1
 #define MUX_VFB_CTL         GPIO2
 #define MUX_VSET_CTL        GPIO3
 
-
+// U8
+#define MUX_ISET_INV_CTL    GPIO0
+#define MUX_ISET_CTL        GPIO0
+#define MUX_IFB_INV_CTL     GPIO0
+#define MUX_IFB_CTL         GPIO0
 
 
 
@@ -314,16 +320,16 @@ static void mux_regulate_p5v(void)
 
 
   // turn fets 1 and 2 on - for current range 1
-  gpio_set(IRANGE_PORT, IRANGE_SW1_CTL | IRANGE_SW2_CTL);
+  // gpio_set(IRANGE_PORT, IRANGE_SW1_CTL | IRANGE_SW2_CTL);
 
   // turn on fets 2,3 for current range 2
-  // gpio_set(IRANGE_PORT, IRANGE_SW3_CTL | IRANGE_SW4_CTL);
+  gpio_set(IRANGE_PORT, IRANGE_SW3_CTL | IRANGE_SW4_CTL);
 
   // turn on current sense1 ina
-  gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_1_CTL);
+  // gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_1_CTL);
 
   // turn on current sense2 ina
-  // gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_2_CTL);
+  gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_2_CTL);
 
 
   // set x1 gain for both vrange ops
@@ -332,10 +338,10 @@ static void mux_regulate_p5v(void)
 
 
   // set x1 gain for irange ops... default
-  // gpio_set(RANGE_OP_PORT, IRANGE_OP1_CTL);
+  gpio_set(RANGE_OP_PORT, IRANGE_OP1_CTL);
 
   // set x10  for irange op. works.
-  gpio_clear(RANGE_OP_PORT, IRANGE_OP1_CTL);
+  // gpio_clear(RANGE_OP_PORT, IRANGE_OP1_CTL);
 
 
   // turn output relay on
