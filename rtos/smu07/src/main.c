@@ -320,8 +320,9 @@ static void mux_regulate_p5v(void)
   // gpio_clear(MUX_PORT, MUX_VSET_CTL | MUX_VFB_CTL ); //  source negative voltage. still source. regulate -6V, eg. sink. still max.
 
 
-  gpio_clear(MUX_PORT, MUX_ISET_INV_CTL | MUX_IFB_CTL );   // this sources positive current. works.
-                                                              //   issue was failure of one amp of dual op-amp.
+  gpio_clear(MUX_PORT, MUX_ISET_INV_CTL | MUX_IFB_CTL );    // this sources positive current. works.
+                                                            // issue is ne5532 does not handle large input offset voltage
+                                                            // and input protection starts sinks current.
 
 
   // max is correct for sourcing. because verr,ierr, and err are inverted.
