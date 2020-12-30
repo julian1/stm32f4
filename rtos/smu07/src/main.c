@@ -111,7 +111,7 @@ static void rails_wait_for_voltage(void)
 
 ////////////////////////////
 
-#define RELAY_PORT GPIOD
+#define RELAY_PORT              GPIOD
 #define OUTPUT_RELAY_CTL        GPIO9
 #define COMXY_RELAY_CTL         GPIO10
 #define VRANGE_RELAY_CTL        GPIO11
@@ -125,18 +125,23 @@ static void relay_setup(void)
 
 }
 
-#if 1
 static void relay_toggle_test_task(void *args __attribute((unused)))
 {
+  // need to move to set of useful functions.
+  // albeit - must move all header definitinos to header file. or somewhere include
   // useful test function.
-
+  int tick = 0;
 	for (;;) {
-		vTaskDelay(pdMS_TO_TICKS(1 * 1000)); // 1Hz
+
+    uart_printf("relay toggle %d\n", tick++);
     // gpio_toggle(RELAY_PORT, OUTPUT_RELAY_CTL);
     // gpio_toggle(RELAY_PORT, VRANGE_RELAY_CTL);
+    gpio_toggle(RELAY_PORT, COMXY_RELAY_CTL);
+
+
+    task_sleep(1000); // 1Hz
 	}
 }
-#endif
 
 
 
@@ -520,9 +525,9 @@ int main(void)
 
 
 
-  xTaskCreate(test01,        "TEST01",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
+  // xTaskCreate(test01,        "TEST01",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
-	// xTaskCreate(relay_toggle_test_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+	xTaskCreate(relay_toggle_test_task,  "RELAY_TEST",100,NULL,configMAX_PRIORITIES-1,NULL);
 
 
   // xTaskCreate(report_pvd_test_task,    "PVD_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
