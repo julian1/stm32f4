@@ -243,20 +243,28 @@ static void range_op_setup(void)
 #define IRANGE_SW3_CTL      GPIO2
 #define IRANGE_SW4_CTL      GPIO3
 
+
+// U46
+#define IRANGE_SW9_CTL      GPIO8
+#define IRANGE_SW10_CTL     GPIO9
+#define IRANGE_SW11_CTL     GPIO10
+#define IRANGE_SW12_CTL     GPIO11
+
+
+
 static void irange_sw_setup(void)
 {
-  // change name irange_sw_setup
 
-  const uint16_t all = IRANGE_SW1_CTL | IRANGE_SW2_CTL | IRANGE_SW3_CTL | IRANGE_SW4_CTL;
+  const uint16_t u14 = IRANGE_SW1_CTL | IRANGE_SW2_CTL | IRANGE_SW3_CTL | IRANGE_SW4_CTL;     // n&p power fet switches
+  const uint16_t u46 = IRANGE_SW9_CTL | IRANGE_SW10_CTL | IRANGE_SW11_CTL | IRANGE_SW12_CTL;  // jfet switches.
+  const uint16_t all = u14 | u46;
 
-  // set  +15V to gate
-  gpio_clear(IRANGE_PORT, all); // all fets off.
+  // set +15V to gate. not default
+  gpio_clear(IRANGE_PORT, all); 
+  
 
-  gpio_mode_setup(IRANGE_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);    // thing this turns all fets on.
+  gpio_mode_setup(IRANGE_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
 
-
-
-  // ok ... it's toggled both... they are connected so one is high and the other lo.
 }
 
 
@@ -525,9 +533,9 @@ int main(void)
 
 
 
-  // xTaskCreate(test01,        "TEST01",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
+  xTaskCreate(test01,        "TEST01",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
-	xTaskCreate(relay_toggle_test_task,  "RELAY_TEST",100,NULL,configMAX_PRIORITIES-1,NULL);
+	// xTaskCreate(relay_toggle_test_task,  "RELAY_TEST",100,NULL,configMAX_PRIORITIES-1,NULL);
 
 
   // xTaskCreate(report_pvd_test_task,    "PVD_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
