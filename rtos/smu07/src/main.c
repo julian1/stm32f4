@@ -236,7 +236,7 @@ static void range_op_setup(void)
 
 /////////////////////////////
 
-// U14
+// U14 power n&p fet switches
 #define IRANGE_PORT         GPIOC
 #define IRANGE_SW1_CTL      GPIO0
 #define IRANGE_SW2_CTL      GPIO1
@@ -244,7 +244,7 @@ static void range_op_setup(void)
 #define IRANGE_SW4_CTL      GPIO3
 
 
-// U46
+// U46 jfets
 #define IRANGE_SW9_CTL      GPIO8
 #define IRANGE_SW10_CTL     GPIO9
 #define IRANGE_SW11_CTL     GPIO10
@@ -255,13 +255,13 @@ static void range_op_setup(void)
 static void irange_sw_setup(void)
 {
 
-  const uint16_t u14 = IRANGE_SW1_CTL | IRANGE_SW2_CTL | IRANGE_SW3_CTL | IRANGE_SW4_CTL;     // n&p power fet switches
+  const uint16_t u14 = IRANGE_SW1_CTL | IRANGE_SW2_CTL | IRANGE_SW3_CTL | IRANGE_SW4_CTL;     // power n&p fet switches
   const uint16_t u46 = IRANGE_SW9_CTL | IRANGE_SW10_CTL | IRANGE_SW11_CTL | IRANGE_SW12_CTL;  // jfet switches.
   const uint16_t all = u14 | u46;
 
   // set +15V to gate. not default
-  gpio_clear(IRANGE_PORT, all); 
-  
+  gpio_clear(IRANGE_PORT, all);
+
 
   gpio_mode_setup(IRANGE_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
 
