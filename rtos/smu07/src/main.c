@@ -353,7 +353,7 @@ static void mux_regulate_p5v(void)
   // turn on current sense1 ina
   // gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_1_CTL);
 
-  // turn on current sense2 ina
+  // turn on current sense2 ina. builtin gain is 10x
   gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_2_CTL);
 
 
@@ -384,6 +384,55 @@ static void mux_regulate_p5v(void)
 */
 }
 
+//////////////////////////
+
+
+static void mux_regulate_jfet(void)
+{
+
+  // set for 10V
+  dac_write_register(DAC_VSET_REGISTER, voltageToDac( 10.0 ));
+  dac_write_register(DAC_ISET_REGISTER, voltageToDac( 4.0 ));   // 5V across 10k == 0.5mA
+
+  gpio_clear(MUX_PORT, MUX_VSET_INV_CTL | MUX_VFB_CTL ); // source positive voltage. compliance. 
+  gpio_clear(MUX_PORT, MUX_ISET_INV_CTL | MUX_IFB_CTL );   // source positive current. function. 
+
+  // max for correct for sourcing. because verr,ierr, and err are inverted.
+  gpio_clear(MUX_PORT, MUX_MAX_CTL);
+
+
+  // turn on sense amp 3.
+  gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_3_CTL);
+
+
+  // turn on jfet 1. switch 9.
+  gpio_set(IRANGE_PORT, IRANGE_SW9_CTL );
+
+  // set x1 gain for both vrange ops
+  gpio_set(RANGE_OP_PORT, VRANGE_OP1_CTL);
+  gpio_set(RANGE_OP_PORT, VRANGE_OP2_CTL);
+
+  // set x1 gain for irange ops... default
+  gpio_set(RANGE_OP_PORT, IRANGE_OP1_CTL);
+
+
+  // set to Y return current path 
+  gpio_set(RELAY_PORT, COMXY_RELAY_CTL);
+
+  // turn output relay on
+  gpio_set(RELAY_PORT, OUTPUT_RELAY_CTL);   // on
+
+/*
+  ina gain is 10x. op-gain is 10x.
+
+  eg.
+    3A    range use 10x. across 0.1ohm (not 1000x).
+    1A    range use 100x  (10x + 10x) across 0.1ohm.
+    100mA range use 10x across 10ohm 1/2 watt.
+    10mA  range use 100x acroos 10ohm. or 1x across 1k.
+
+*/
+}
 
 
 
@@ -399,6 +448,9 @@ static void test01(void *args __attribute((unused)))
   dac_reset();
   refa_off();
 
+  // needs to be a task that ressets everything if voltages go off again.
+  // would be much easier.
+  // we don't have to keep doing a reset.
   rails_wait_for_voltage();
 
   task_sleep(50);
@@ -417,7 +469,8 @@ static void test01(void *args __attribute((unused)))
   task_sleep(50);
 
   // mux_regulate_vfb_direct();
-  mux_regulate_p5v();
+  // mux_regulate_p5v();
+  mux_regulate_jfet();
 
   // turn on rails... should set regulate on vfb first... then bring up rails.. then regulate
   rails_p30V_on();
