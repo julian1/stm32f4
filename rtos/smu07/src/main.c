@@ -395,6 +395,8 @@ static void mux_regulate_p5v(void)
 
 static void mux_regulate_n5v(void)
 {
+  // OK. working to source negative voltage. and negative current.
+  // but cannot combine.
 
   // set for 10V
   dac_write_register(DAC_VSET_REGISTER, voltageToDac( 10.0 ));
@@ -404,7 +406,7 @@ static void mux_regulate_n5v(void)
 
   // summer is non-inverting. so must give 2x inputs . else it will multiply single by x2.
   // otherwise we get value multiplied by 2.
-  // gpio_clear(MUX_PORT, MUX_VSET_CTL | MUX_VFB_CTL ); // ok - this works by itself. to source negative 10V voltage
+  gpio_clear(MUX_PORT, MUX_VSET_CTL | MUX_VFB_CTL ); // ok - this works by itself. to source negative 10V voltage
                                                           // but must be max...
                                                             // min doesn't work at all... chooses the negative rail.
 
@@ -415,8 +417,8 @@ static void mux_regulate_n5v(void)
 
 
   // max is correct for sourcing. because verr,ierr, and err are inverted.
-  gpio_clear(MUX_PORT, MUX_MAX_CTL);      // outputs .... 
-  // gpio_clear(MUX_PORT, MUX_MIN_CTL);  // minimum . 
+  // gpio_clear(MUX_PORT, MUX_MAX_CTL);      // outputs .... 
+  gpio_clear(MUX_PORT, MUX_MIN_CTL);  // minimum . 
 
   // ok. maybe negative is not sorking...
 
