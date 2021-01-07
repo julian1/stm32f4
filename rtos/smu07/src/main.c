@@ -404,18 +404,14 @@ static void mux_regulate_n5v(void)
 
   // summer is non-inverting. so must give 2x inputs . else it will multiply single by x2.
   // otherwise we get value multiplied by 2.
-  gpio_clear(MUX_PORT, MUX_VSET_CTL | MUX_VFB_CTL ); // ok - this works by itself. to source negative 10V voltage
+  // gpio_clear(MUX_PORT, MUX_VSET_CTL | MUX_VFB_CTL ); // ok - this works by itself. to source negative 10V voltage
                                                           // but must be max...
                                                             // min doesn't work at all... chooses the negative rail.
 
                                                               // because we are getting
                                                                 // -13V through on the I adder. even though nothing there...
 
-  // when we select min. then we get a -13V coming through.
-
-  // why is negativev coming through..
-
-  // gpio_clear(MUX_PORT, MUX_ISET_CTL | MUX_IFB_INV_CTL  );    // this sources positive current. works.
+  gpio_clear(MUX_PORT, MUX_ISET_CTL | MUX_IFB_CTL  );    
 
 
   // max is correct for sourcing. because verr,ierr, and err are inverted.
