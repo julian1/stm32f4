@@ -437,15 +437,6 @@ static void mux_regulate_n5v(void)
   // turn output relay on
   gpio_set(RELAY_PORT, OUTPUT_RELAY_CTL);   // on
 
-/*
-  ina gain is 10x. op-gain is 10x.
-
-  eg.
-    3A    range use 10x. across 0.1ohm (not 1000x).
-    1A    range use 100x  (10x + 10x) across 0.1ohm.
-    100mA range use 10x across 10ohm 1/2 watt.
-    10mA  range use 100x acroos 10ohm (test). or 10x across 100ohm, or 1x across 1k. - need fets / or dg444 maybe.
-*/
 }
 
 
