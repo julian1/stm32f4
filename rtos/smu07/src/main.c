@@ -379,8 +379,7 @@ static void mux_regulate_p5v(void)
     3A    range use 10x. across 0.1ohm (not 1000x).
     1A    range use 100x  (10x + 10x) across 0.1ohm.
     100mA range use 10x across 10ohm 1/2 watt.
-    10mA  range use 100x acroos 10ohm. or 1x across 1k.
-
+    10mA  range use 100x acroos 10ohm (test). or 10x across 100ohm, or 1x across 1k. - need fets / or dg444 maybe.
 */
 }
 
