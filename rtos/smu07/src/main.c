@@ -412,15 +412,11 @@ static void mux_regulate_n5v(void)
 
                                                               // because we are getting
                                                                 // -13V through on the I adder. even though nothing there...
-
   gpio_clear(MUX_PORT, MUX_ISET_CTL | MUX_IFB_CTL  );    
 
 
-  // max is correct for sourcing. because verr,ierr, and err are inverted.
-  // gpio_clear(MUX_PORT, MUX_MAX_CTL);      // outputs .... 
   gpio_clear(MUX_PORT, MUX_MIN_CTL);  // minimum . 
 
-  // ok. maybe negative is not sorking...
 
   // turn fets 1 and 2 on - for current range 1
   // gpio_set(IRANGE_PORT, IRANGE_SW1_CTL | IRANGE_SW2_CTL);
