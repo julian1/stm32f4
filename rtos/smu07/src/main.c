@@ -392,6 +392,8 @@ static void mux_regulate_p5v(void)
 }
 
 
+// ok what about the other quaters...
+// kind of want a battery to test.
 
 static void mux_regulate_n5v(void)
 {
