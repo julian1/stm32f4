@@ -343,7 +343,7 @@ static void mux_regulate_p5v(void)
   gpio_clear(MUX_PORT, MUX_MAX_CTL);
   // gpio_clear(MUX_PORT, MUX_MIN_CTL);  // negative
 
-
+  // ok. maybe negative is not sorking...
 
   // turn fets 1 and 2 on - for current range 1
   // gpio_set(IRANGE_PORT, IRANGE_SW1_CTL | IRANGE_SW2_CTL);
@@ -476,8 +476,8 @@ static void test01(void *args __attribute((unused)))
   task_sleep(50);
 
   // mux_regulate_vfb_direct();
-  // mux_regulate_p5v();
-  mux_regulate_jfet();
+  mux_regulate_p5v();
+  // mux_regulate_jfet();
 
   // turn on rails... should set regulate on vfb first... then bring up rails.. then regulate
   rails_p30V_on();
