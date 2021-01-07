@@ -285,13 +285,13 @@ static void irange_sw_setup(void)
 
 // U1
 #define MUX_VSET_INV_CTL    GPIO0
-// #define MUX_VFB_INV_CTL     GPIO1
+#define MUX_VFB_INV_CTL     GPIO1
 #define MUX_VFB_CTL         GPIO2
 #define MUX_VSET_CTL        GPIO3
 
 // U8
 #define MUX_ISET_INV_CTL    GPIO4
-// #define MUX_IFB_INV_CTL     GPIO5
+#define MUX_IFB_INV_CTL     GPIO5
 #define MUX_IFB_CTL         GPIO6
 #define MUX_ISET_CTL        GPIO7
 
@@ -301,8 +301,8 @@ static void irange_sw_setup(void)
 static void mux_setup(void)
 {
   const uint16_t u12 = MUX_MIN_CTL | MUX_INJECT_AGND_CTL | MUX_INJECT_VFB_CTL | MUX_MAX_CTL;
-  const uint16_t u1 = MUX_VSET_INV_CTL /*| MUX_VFB_INV_CTL */ | MUX_VFB_CTL | MUX_VSET_CTL;
-  const uint16_t u8 = MUX_ISET_INV_CTL /*| MUX_IFB_INV_CTL */ | MUX_IFB_CTL | MUX_ISET_CTL;
+  const uint16_t u1 = MUX_VSET_INV_CTL | MUX_VFB_INV_CTL | MUX_VFB_CTL | MUX_VSET_CTL;
+  const uint16_t u8 = MUX_ISET_INV_CTL | MUX_IFB_INV_CTL | MUX_IFB_CTL | MUX_ISET_CTL;
 
   const uint16_t all = u12 | u1 | u8;
 
@@ -318,19 +318,25 @@ static void mux_regulate_vfb_direct(void)
 }
 
 
+// it's pretty hard to test this...
+// think we need to step through everything.  
+// it's confusing that the set input to the summer - is not inverted.
+// maybe we have it wrong. and we need the inv_fb. and on both?
+// eg. everything is inverted.
+
 static void mux_regulate_p5v(void)
 {
 
   // set for 10V
   dac_write_register(DAC_VSET_REGISTER, voltageToDac( 10.0 ));
-  dac_write_register(DAC_ISET_REGISTER, voltageToDac( 0.3 ));   // 2mA
+  dac_write_register(DAC_ISET_REGISTER, voltageToDac( 0.2 ));   // 2mA
   // dac_write_register(DAC_ISET_REGISTER, voltageToDac( 2 )); // 20mA.
 
 
   // summer is non-inverting. so must give 2x inputs . else it will multiply single by x2.
   // otherwise we get value multiplied by 2.
   gpio_clear(MUX_PORT, MUX_VSET_INV_CTL | MUX_VFB_CTL ); // source positive voltage. regulate +6V eg. source.
-  // gpio_clear(MUX_PORT, MUX_VSET_CTL | MUX_VFB_CTL ); //  source negative voltage. still source. regulate -6V, eg. sink. still max.
+  // gpio_clear(MUX_PORT, MUX_VSET_CTL | MUX_VFB_CTL );        //  source negative voltage. still source. regulate -6V, eg. sink. still max.
 
 
   gpio_clear(MUX_PORT, MUX_ISET_INV_CTL | MUX_IFB_CTL );    // this sources positive current. works.
@@ -338,10 +344,11 @@ static void mux_regulate_p5v(void)
                                                             // issue is ne5532 does not handle large input offset voltage
                                                             // and input protection starts sinks current.
 
+  // ok. it's not regulating in reverse on current...
 
   // max is correct for sourcing. because verr,ierr, and err are inverted.
-  gpio_clear(MUX_PORT, MUX_MAX_CTL);
-  // gpio_clear(MUX_PORT, MUX_MIN_CTL);  // negative
+  gpio_clear(MUX_PORT, MUX_MAX_CTL);      // outputs .... 
+  // gpio_clear(MUX_PORT, MUX_MIN_CTL);  // minimum . 
 
   // ok. maybe negative is not sorking...
 
@@ -383,6 +390,80 @@ static void mux_regulate_p5v(void)
     10mA  range use 100x acroos 10ohm (test). or 10x across 100ohm, or 1x across 1k. - need fets / or dg444 maybe.
 */
 }
+
+
+
+static void mux_regulate_n5v(void)
+{
+
+  // set for 10V
+  dac_write_register(DAC_VSET_REGISTER, voltageToDac( 10.0 ));
+  dac_write_register(DAC_ISET_REGISTER, voltageToDac( 0.2 ));   // 2mA
+  // dac_write_register(DAC_ISET_REGISTER, voltageToDac( 2 )); // 20mA.
+
+
+  // summer is non-inverting. so must give 2x inputs . else it will multiply single by x2.
+  // otherwise we get value multiplied by 2.
+  gpio_clear(MUX_PORT, MUX_VSET_CTL | MUX_VFB_CTL ); // ok - this works by itself. to source negative 10V voltage
+                                                          // but must be max...
+                                                            // min doesn't work at all... chooses the negative rail.
+
+                                                              // because we are getting
+                                                                // -13V through on the I adder. even though nothing there...
+
+  // when we select min. then we get a -13V coming through.
+
+  // why is negativev coming through..
+
+  // gpio_clear(MUX_PORT, MUX_ISET_CTL | MUX_IFB_INV_CTL  );    // this sources positive current. works.
+
+
+  // max is correct for sourcing. because verr,ierr, and err are inverted.
+  gpio_clear(MUX_PORT, MUX_MAX_CTL);      // outputs .... 
+  // gpio_clear(MUX_PORT, MUX_MIN_CTL);  // minimum . 
+
+  // ok. maybe negative is not sorking...
+
+  // turn fets 1 and 2 on - for current range 1
+  // gpio_set(IRANGE_PORT, IRANGE_SW1_CTL | IRANGE_SW2_CTL);
+
+  // turn on fets 2,3 for current range 2
+  gpio_set(IRANGE_PORT, IRANGE_SW3_CTL | IRANGE_SW4_CTL);
+
+  // turn on current sense1 ina
+  // gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_1_CTL);
+
+  // turn on current sense2 ina. builtin gain is 10x
+  gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_2_CTL);
+
+
+  // set x1 gain for both vrange ops
+  gpio_set(RANGE_OP_PORT, VRANGE_OP1_CTL);
+  gpio_set(RANGE_OP_PORT, VRANGE_OP2_CTL);
+
+
+  // set x1 gain for irange ops... default
+  gpio_set(RANGE_OP_PORT, IRANGE_OP1_CTL);
+
+  // set x10  for irange op. works.
+  // gpio_clear(RANGE_OP_PORT, IRANGE_OP1_CTL);
+
+
+  // turn output relay on
+  gpio_set(RELAY_PORT, OUTPUT_RELAY_CTL);   // on
+
+/*
+  ina gain is 10x. op-gain is 10x.
+
+  eg.
+    3A    range use 10x. across 0.1ohm (not 1000x).
+    1A    range use 100x  (10x + 10x) across 0.1ohm.
+    100mA range use 10x across 10ohm 1/2 watt.
+    10mA  range use 100x acroos 10ohm (test). or 10x across 100ohm, or 1x across 1k. - need fets / or dg444 maybe.
+*/
+}
+
+
 
 //////////////////////////
 
@@ -476,7 +557,8 @@ static void test01(void *args __attribute((unused)))
   task_sleep(50);
 
   // mux_regulate_vfb_direct();
-  mux_regulate_p5v();
+  // mux_regulate_p5v();
+  mux_regulate_n5v();
   // mux_regulate_jfet();
 
   // turn on rails... should set regulate on vfb first... then bring up rails.. then regulate
