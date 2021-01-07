@@ -285,13 +285,13 @@ static void irange_sw_setup(void)
 
 // U1
 #define MUX_VSET_INV_CTL    GPIO0
-#define MUX_VFB_INV_CTL     GPIO1
+// #define MUX_VFB_INV_CTL     GPIO1
 #define MUX_VFB_CTL         GPIO2
 #define MUX_VSET_CTL        GPIO3
 
 // U8
 #define MUX_ISET_INV_CTL    GPIO4
-#define MUX_IFB_INV_CTL     GPIO5
+// #define MUX_IFB_INV_CTL     GPIO5
 #define MUX_IFB_CTL         GPIO6
 #define MUX_ISET_CTL        GPIO7
 
@@ -301,8 +301,8 @@ static void irange_sw_setup(void)
 static void mux_setup(void)
 {
   const uint16_t u12 = MUX_MIN_CTL | MUX_INJECT_AGND_CTL | MUX_INJECT_VFB_CTL | MUX_MAX_CTL;
-  const uint16_t u1 = MUX_VSET_INV_CTL | MUX_VFB_INV_CTL | MUX_VFB_CTL | MUX_VSET_CTL;
-  const uint16_t u8 = MUX_ISET_INV_CTL | MUX_IFB_INV_CTL | MUX_IFB_CTL | MUX_ISET_CTL;
+  const uint16_t u1 = MUX_VSET_INV_CTL /*| MUX_VFB_INV_CTL */ | MUX_VFB_CTL | MUX_VSET_CTL;
+  const uint16_t u8 = MUX_ISET_INV_CTL /*| MUX_IFB_INV_CTL */ | MUX_IFB_CTL | MUX_ISET_CTL;
 
   const uint16_t all = u12 | u1 | u8;
 
@@ -323,7 +323,7 @@ static void mux_regulate_p5v(void)
 
   // set for 10V
   dac_write_register(DAC_VSET_REGISTER, voltageToDac( 10.0 ));
-  dac_write_register(DAC_ISET_REGISTER, voltageToDac( 0.2 ));   // 2mA
+  dac_write_register(DAC_ISET_REGISTER, voltageToDac( 0.3 ));   // 2mA
   // dac_write_register(DAC_ISET_REGISTER, voltageToDac( 2 )); // 20mA.
 
 
@@ -392,10 +392,12 @@ static void mux_regulate_jfet(void)
 
   // set for 10V
   dac_write_register(DAC_VSET_REGISTER, voltageToDac( 10.0 ));
-  dac_write_register(DAC_ISET_REGISTER, voltageToDac( 4.0 ));   // 5V across 10k == 0.5mA
+  dac_write_register(DAC_ISET_REGISTER, voltageToDac( 8.0 ));   // 5V across 10k == 0.5mA
 
-  gpio_clear(MUX_PORT, MUX_VSET_INV_CTL | MUX_VFB_CTL ); // source positive voltage. compliance. 
+  // gpio_clear(MUX_PORT, MUX_VSET_INV_CTL | MUX_VFB_CTL ); // source positive voltage. compliance. 
+                                                              // ok - single elment feedback works. cool. just regulating on current.
   gpio_clear(MUX_PORT, MUX_ISET_INV_CTL | MUX_IFB_CTL );   // source positive current. function. 
+  // gpio_clear(MUX_PORT, MUX_ISET_CTL | MUX_IFB_CTL );       // source negative current. function. 
 
   // max for correct for sourcing. because verr,ierr, and err are inverted.
   gpio_clear(MUX_PORT, MUX_MAX_CTL);
@@ -406,7 +408,12 @@ static void mux_regulate_jfet(void)
 
 
   // turn on jfet 1. switch 9.
-  gpio_set(IRANGE_PORT, IRANGE_SW9_CTL );
+  // gpio_set(IRANGE_PORT, IRANGE_SW9_CTL );
+
+  // turn on jfet 2, switch 10 
+  // gpio_set(IRANGE_PORT, IRANGE_SW10_CTL );
+  // turn on jfet 3. switch 11,
+  gpio_set(IRANGE_PORT, IRANGE_SW11_CTL );
 
   // set x1 gain for both vrange ops
   gpio_set(RANGE_OP_PORT, VRANGE_OP1_CTL);
@@ -462,8 +469,8 @@ static void test01(void *args __attribute((unused)))
 
   refa_on();
 
-  dac_write_register(DAC_VSET_REGISTER, voltageToDac( 5.0 ));
-  dac_write_register(DAC_ISET_REGISTER, voltageToDac( 4.0 ));
+  dac_write_register(DAC_VSET_REGISTER, /*voltageToDac( 0 )*/ 0 );
+  dac_write_register(DAC_ISET_REGISTER, /* voltageToDac( 0 ) */ 0);
 
 
   task_sleep(50);
