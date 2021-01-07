@@ -404,17 +404,8 @@ static void mux_regulate_n5v(void)
   // dac_write_register(DAC_ISET_REGISTER, voltageToDac( 2 )); // 20mA.
 
 
-  // summer is non-inverting. so must give 2x inputs . else it will multiply single by x2.
-  // otherwise we get value multiplied by 2.
   gpio_clear(MUX_PORT, MUX_VSET_CTL | MUX_VFB_CTL ); // ok - this works by itself. to source negative 10V voltage
-                                                          // but must be max...
-                                                            // min doesn't work at all... chooses the negative rail.
-
-                                                              // because we are getting
-                                                                // -13V through on the I adder. even though nothing there...
-  gpio_clear(MUX_PORT, MUX_ISET_CTL | MUX_IFB_CTL  );    
-
-
+  gpio_clear(MUX_PORT, MUX_ISET_CTL | MUX_IFB_CTL  );  // source negative current.  
   gpio_clear(MUX_PORT, MUX_MIN_CTL);  // minimum . 
 
 
