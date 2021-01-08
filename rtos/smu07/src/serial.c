@@ -1,6 +1,5 @@
 
 
-
 #include <stdarg.h>
 #include "usart.h"
 #include "task.h"
@@ -9,24 +8,24 @@
 #include "miniprintf.h" // FIXME.... should not be linked through library, with different compilation parameters...
 
 
-//////////////////
 ///////////////////////
-// these are higher level functions....
-// except requires access to the queue.
+// all higher level functions....
+// but do require queue accessn.
 
 
 void uart_putc_from_isr(char ch) 
-// void usart_enqueue_tx_test(uint8_t data ) 
 {
   xQueueSendFromISR(uart_txq, &ch, NULL );
 }
 
-static void uart_putc(char ch) {
+static void uart_putc(char ch) 
+{
   xQueueSend(uart_txq, &ch, portMAX_DELAY); /* blocks when queue is full */
 }
 
 
-int uart_printf(const char *format,...) {
+int uart_printf(const char *format,...) 
+{
   // very nice. writes to the uart_putc()/queue so no buffer to overflow
   // COOKED means that a CR is sent after every LF is sent out
   va_list args;
@@ -38,31 +37,10 @@ int uart_printf(const char *format,...) {
   return rc;
 }
 
-// add motor control again - b.  with external power, chose
-// needs to be real time - unless on interupt.
-// control motor with rotary encoder.
-// control motor with prompt.
-
-// ok - motor is a loop. but i think there's an issue..
-// cannot just have it running at some subdivision of 1ms. eg. if tick time.
-// 1ms tick time is twice as fast as 2ms.
-
-// or we multiplex the gpio signals with external ic logic?
-
-// or we just have a high-priority interupt timer - that works independently of any other tasks?
-// if the gpio update is running in an isr. then cannot see a problem.
-// we need to code this. though independenty.
-// so setting the timer - will set the speed...
-// actually timer just has to call the isr.
-
-// OK - EXTREME - we can use the setting of the OC value - to determine the speed.
-// eg. in the interupt - we set the next oc value - for the next interrupt.  eg. would just add a delay.
-// eg. the pwm-with-interrupts approach.
-
-// actually don't need the delay - just use regular 50% pulse.
 
 
-char *uart_gets( char *buf, size_t len) {
+char *uart_gets( char *buf, size_t len) 
+{
   // will truncate if overflows...
   char ch;
 	char *p = buf;
@@ -97,26 +75,10 @@ char *uart_gets( char *buf, size_t len) {
 }
 
 
-
-#if 0
-static void demo_task1(void *args __attribute__((unused))) {
-
-  for (;;) {
-    uart_puts("Now this is a message..\n\r");
-    uart_puts("  sent via FreeRTOS queues.\n\n\r");
-    vTaskDelay(pdMS_TO_TICKS(1000));
-  }
-}
-#endif
-
-/*
-  prompt task should perhaps be moved outside of elsewhere...
-*/
-
-
 static char buf[100];
 
-void serial_prompt_task(void *args __attribute__((unused))) {
+void serial_prompt_task(void *args __attribute__((unused))) 
+{
 
   // buf size of 10 - seems ok
   // buf size of 50 - ok.
@@ -136,9 +98,24 @@ void serial_prompt_task(void *args __attribute__((unused))) {
 
 
 
+#if 0
+static void demo_task1(void *args __attribute__((unused))) 
+{
+
+  for (;;) {
+    uart_puts("Now this is a message..\n\r");
+    uart_puts("  sent via FreeRTOS queues.\n\n\r");
+    vTaskDelay(pdMS_TO_TICKS(1000));
+  }
+}
+#endif
+
+
+
 
 #if 0
-static void uart_puts(const char *s) {
+static void uart_puts(const char *s) 
+{
 
   for ( ; *s; ++s )
     xQueueSend(uart_txq,s,portMAX_DELAY); /* blocks when queue is full */
@@ -146,4 +123,26 @@ static void uart_puts(const char *s) {
 #endif
 
 
+// add motor control again - b.  with external power, chose
+// needs to be real time - unless on interupt.
+// control motor with rotary encoder.
+// control motor with prompt.
+
+// ok - motor is a loop. but i think there's an issue..
+// cannot just have it running at some subdivision of 1ms. eg. if tick time.
+// 1ms tick time is twice as fast as 2ms.
+
+// or we multiplex the gpio signals with external ic logic?
+
+// or we just have a high-priority interupt timer - that works independently of any other tasks?
+// if the gpio update is running in an isr. then cannot see a problem.
+// we need to code this. though independenty.
+// so setting the timer - will set the speed...
+// actually timer just has to call the isr.
+
+// OK - EXTREME - we can use the setting of the OC value - to determine the speed.
+// eg. in the interupt - we set the next oc value - for the next interrupt.  eg. would just add a delay.
+// eg. the pwm-with-interrupts approach.
+
+// actually don't need the delay - just use regular 50% pulse.
 
