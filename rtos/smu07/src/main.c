@@ -318,8 +318,55 @@ static void mux_regulate_vfb_direct(void)
 }
 
 
+// we need to control the output relay at least. via command.
+// then we don't have to keep flicking the power on off...
+
+
+// worked but transistors are boiling hot.
+// burnt finger.
+
+static void mux_regulate_halogen(void)
+{
+  // positive voltage always associated with max function (min)...
+  // regardless if we source or sink current.
+
+  // set for 10V
+  dac_write_register(DAC_VSET_REGISTER, voltageToDac( 2.0 ));
+  dac_write_register(DAC_ISET_REGISTER, voltageToDac( 10.0 ));   // 10 == 1A approx. compliance.
+
+  // 3V 4.44?  absolutely boiling hot still.
+
+  // summer is non-inverting. so must give 2x inputs . else it will multiply single by x2.
+  // otherwise we get value multiplied by 2.
+  gpio_clear(MUX_PORT, MUX_VSET_INV_CTL | MUX_VFB_CTL );
+  gpio_clear(MUX_PORT, MUX_ISET_INV_CTL | MUX_IFB_CTL );
+  gpio_clear(MUX_PORT, MUX_MAX_CTL);      // outputs ....
+
+
+  // turn fets 1 and 2 on - for current range 1
+  gpio_set(IRANGE_PORT, IRANGE_SW1_CTL | IRANGE_SW2_CTL);
+
+  // turn on current sense1 ina, with 10x. gain.
+  gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_1_CTL);
+
+
+  // set x1 gain for both vrange ops
+  gpio_set(RANGE_OP_PORT, VRANGE_OP1_CTL);
+  gpio_set(RANGE_OP_PORT, VRANGE_OP2_CTL);
+
+  // set x10  for irange op. works.
+  gpio_clear(RANGE_OP_PORT, IRANGE_OP1_CTL);
+
+  // turn output relay on
+  gpio_set(RELAY_PORT, OUTPUT_RELAY_CTL);   // on
+}
+
+
+
+
+
 // it's pretty hard to test this...
-// think we need to step through everything.  
+// think we need to step through everything.
 // it's confusing that the set input to the summer - is not inverted.
 // maybe we have it wrong. and we need the inv_fb. and on both?
 // eg. everything is inverted.
@@ -344,8 +391,8 @@ static void mux_regulate_p5v(void)
                                                             // issue is ne5532 does not handle large input offset voltage
                                                             // and input protection starts sinks current.
   // max is correct for sourcing. because verr,ierr, and err are inverted.
-  gpio_clear(MUX_PORT, MUX_MAX_CTL);      // outputs .... 
-  // gpio_clear(MUX_PORT, MUX_MIN_CTL);  // minimum . 
+  gpio_clear(MUX_PORT, MUX_MAX_CTL);      // outputs ....
+  // gpio_clear(MUX_PORT, MUX_MIN_CTL);  // minimum .
 
   // ok. maybe negative is not sorking...
 
@@ -360,7 +407,6 @@ static void mux_regulate_p5v(void)
 
   // turn on current sense2 ina. builtin gain is 10x
   gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_2_CTL);
-
 
   // set x1 gain for both vrange ops
   gpio_set(RANGE_OP_PORT, VRANGE_OP1_CTL);
@@ -404,8 +450,8 @@ static void mux_regulate_n5v(void)
 
 
   gpio_clear(MUX_PORT, MUX_VSET_CTL | MUX_VFB_CTL ); // ok - this works by itself. to source negative 10V voltage
-  gpio_clear(MUX_PORT, MUX_ISET_CTL | MUX_IFB_CTL  );  // source negative current.  
-  gpio_clear(MUX_PORT, MUX_MIN_CTL);  // minimum . 
+  gpio_clear(MUX_PORT, MUX_ISET_CTL | MUX_IFB_CTL  );  // source negative current.
+  gpio_clear(MUX_PORT, MUX_MIN_CTL);  // minimum .
 
 
   // turn fets 1 and 2 on - for current range 1
@@ -450,10 +496,10 @@ static void mux_regulate_jfet(void)
   dac_write_register(DAC_VSET_REGISTER, voltageToDac( 10.0 ));
   dac_write_register(DAC_ISET_REGISTER, voltageToDac( 8.0 ));   // 5V across 10k == 0.5mA
 
-  // gpio_clear(MUX_PORT, MUX_VSET_INV_CTL | MUX_VFB_CTL ); // source positive voltage. compliance. 
+  // gpio_clear(MUX_PORT, MUX_VSET_INV_CTL | MUX_VFB_CTL ); // source positive voltage. compliance.
                                                               // ok - single elment feedback works. cool. just regulating on current.
-  gpio_clear(MUX_PORT, MUX_ISET_INV_CTL | MUX_IFB_CTL );   // source positive current. function. 
-  // gpio_clear(MUX_PORT, MUX_ISET_CTL | MUX_IFB_CTL );       // source negative current. function. 
+  gpio_clear(MUX_PORT, MUX_ISET_INV_CTL | MUX_IFB_CTL );   // source positive current. function.
+  // gpio_clear(MUX_PORT, MUX_ISET_CTL | MUX_IFB_CTL );       // source negative current. function.
 
   // max for correct for sourcing. because verr,ierr, and err are inverted.
   gpio_clear(MUX_PORT, MUX_MAX_CTL);
@@ -466,7 +512,7 @@ static void mux_regulate_jfet(void)
   // turn on jfet 1. switch 9.
   // gpio_set(IRANGE_PORT, IRANGE_SW9_CTL );
 
-  // turn on jfet 2, switch 10 
+  // turn on jfet 2, switch 10
   // gpio_set(IRANGE_PORT, IRANGE_SW10_CTL );
   // turn on jfet 3. switch 11,
   gpio_set(IRANGE_PORT, IRANGE_SW11_CTL );
@@ -479,7 +525,7 @@ static void mux_regulate_jfet(void)
   gpio_set(RANGE_OP_PORT, IRANGE_OP1_CTL);
 
 
-  // set to Y return current path 
+  // set to Y return current path
   gpio_set(RELAY_PORT, COMXY_RELAY_CTL);
 
   // turn output relay on
@@ -532,9 +578,12 @@ static void test01(void *args __attribute((unused)))
   task_sleep(50);
 
   // mux_regulate_vfb_direct();
-  mux_regulate_p5v();
+  // mux_regulate_p5v();
   // mux_regulate_n5v();
   // mux_regulate_jfet();
+
+
+  mux_regulate_halogen();
 
   // turn on rails... should set regulate on vfb first... then bring up rails.. then regulate
   rails_p30V_on();
