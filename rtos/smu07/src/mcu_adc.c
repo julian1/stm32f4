@@ -9,8 +9,8 @@
 
 
 #include "sleep.h"
-#include "usart.h"
-#include  "mcu_adc.h"
+#include "serial.h"
+#include "mcu_adc.h"
 
 /////////////////////////////
 // this code should be where?

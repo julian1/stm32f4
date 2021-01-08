@@ -4,7 +4,7 @@
 
 #include <libopencm3/stm32/gpio.h>
 
-#include "usart.h"
+#include "serial.h"
 #include "ref.h"
 
 

@@ -10,7 +10,7 @@
 
 
 #include "sleep.h"
-#include "usart.h"
+#include "serial.h"
 #include "slope_adc.h"
 
 

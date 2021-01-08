@@ -16,7 +16,7 @@
 
 #include "pvd.h"
 
-#include "usart.h"  // to try and capture interrupt
+#include "serial.h"  // to try and capture interrupt
 
 
 
@@ -25,9 +25,8 @@ void pvd_isr (void)
   // TODO - change this.
   // WE CANNOT PRINT FROM ISR...!!!!!!
   // most we can do is enqueue an output character. something.
-
-  usart_enqueue_tx_test('x');
-  usart_enqueue_tx_test('\n');
+  uart_putc_from_isr('x');
+  uart_putc_from_isr('\n');
 }
 
 

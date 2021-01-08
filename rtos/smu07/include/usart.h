@@ -1,19 +1,24 @@
 
-#include <stddef.h>
 
 
-// TODO maybe change name from uart to usart
+#include "FreeRTOS.h"
+#include "queue.h"
 
-// extern void usart1_isr(void); // already defined in libopencm3
+
+// TODO - consider if should be global, global struct, or returned from usart_setup()
+// not sure if should be pointer?
+extern QueueHandle_t uart_txq;
+
+
+// think we have to use an interrupt - so we don't miss anything. eg. we take the character
+// in the isr, before it is replaced
+extern QueueHandle_t uart_rxq;
+
+
 
 extern void usart_setup(void);
-extern char *uart_gets( char *buf, size_t len);
-extern int uart_printf(const char *format,...);
+
 
 extern void uart_task(void *args __attribute__((unused))) ;
 
-// move?
-extern void usart_prompt_task(void *args __attribute__((unused))) ;
 
-///////
-void usart_enqueue_tx_test(uint8_t data ) ;

@@ -10,7 +10,9 @@
 
 
 #include "sleep.h"
-#include "usart.h"
+// #include "usart.h"
+#include "serial.h"
+
 #include "dac8734.h"
 
 
