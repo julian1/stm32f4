@@ -75,10 +75,11 @@ char *uart_gets( char *buf, size_t len)
 }
 
 
-static char buf[100];
 
 void serial_prompt_task(void *args __attribute__((unused))) 
 {
+
+  static char buf[100];
 
   // buf size of 10 - seems ok
   // buf size of 50 - ok.

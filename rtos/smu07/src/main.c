@@ -54,6 +54,7 @@ TODO
 // #include <libopencm3/stm32/exti.h>
 
 
+#include <string.h>   // strcmp
 
 
 #include "led.h"
@@ -614,7 +615,38 @@ static void test01(void *args __attribute((unused)))
 
 
 
+static void serial_prompt_task2(void *args __attribute__((unused))) 
+{
+  static char buf[100];
 
+  // buf size of 10 - seems ok
+  // buf size of 50 - ok.
+  // OK. buf size of 100. fails and stack exception condition caught - led blinks fast.
+  // so we have a margin of somewhere between 50 - 100 bytes or so...
+  // ok - at 70 - short input strings are ok - but will stack overflow on longer input strings..
+  // char buf[70];
+
+  for (;;) {
+    // uart_printf is cooked ... so it should already be giving us stuff...
+    uart_printf("\n\r> ");
+    uart_gets( buf, 100 );                    // ie. block...
+    //uart_printf("\n\ryou said '%s'", buf );   // there looks like a bug in the formatting...
+                                              // no it's just returning the \n but not the \r...
+
+    if(strcmp(buf, "on") == 0) {
+
+      uart_printf("whoot switch on\n\r");
+
+      gpio_set(RELAY_PORT, OUTPUT_RELAY_CTL);   // on
+    }
+    else if(strcmp(buf, "off") == 0) {
+
+      uart_printf("whoot switch off\n\r");
+
+      gpio_clear(RELAY_PORT, OUTPUT_RELAY_CTL);   // on
+    }
+  }
+}
 
 
 
@@ -699,7 +731,9 @@ int main(void)
 
   // IMPORTANT changing from 100 to 200, stops deadlock
   xTaskCreate(uart_task,        "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
-  xTaskCreate(serial_prompt_task,"SERIAL",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+
+  // xTaskCreate(serial_prompt_task,"SERIAL",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+  xTaskCreate(serial_prompt_task2,"SERIAL2",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 
 
