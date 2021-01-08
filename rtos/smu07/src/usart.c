@@ -191,12 +191,4 @@ void uart_task(void *args __attribute__((unused))) {
   }
 }
 
-#if 0
-static void uart_puts(const char *s) {
-
-  for ( ; *s; ++s )
-    xQueueSend(uart_txq,s,portMAX_DELAY); /* blocks when queue is full */
-}
-#endif
-
 
