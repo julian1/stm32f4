@@ -111,6 +111,8 @@ void usart_setup(void)
   /* Finally enable the USART. */
   usart_enable(USART1);
 
+
+
   // not sure but queues, should be created in main()
   // setup() could take the queue as argument for better composibility
   uart_txq = xQueueCreate(256,sizeof(char));
@@ -173,7 +175,11 @@ void usart1_isr(void)
            );
 #endif
 
-void uart_task(void *args __attribute__((unused))) {
+void uart_task(void *args __attribute__((unused))) 
+{
+
+  // waits for chars on the serial queue, then push them out on the hardware uart.
+
   char ch;
 
   for (;;) {
@@ -181,7 +187,7 @@ void uart_task(void *args __attribute__((unused))) {
       500 - is the time in ticks to wait. 1/2 second is too long?
     */
     if ( xQueueReceive(uart_txq,&ch,500) == pdPASS ) {
-      while ( !usart_get_flag(USART1,USART_SR_TXE) )
+      while(!usart_get_flag(USART1,USART_SR_TXE))
         taskYIELD();  // Yield until ready
                       // JA - doesn't seem to use coroutines...
       usart_send(USART1,ch);
