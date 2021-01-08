@@ -552,7 +552,7 @@ static void mux_regulate_jfet(void)
 
 /////////////////////////////
 
-
+// this is much more of an initialization function...
 
 static void test01(void *args __attribute((unused)))
 {
@@ -582,7 +582,7 @@ static void test01(void *args __attribute((unused)))
 
   task_sleep(50);
 
-  // mux_regulate_vfb_direct();
+  // mux_regulate_vfb_direct();    // current source gets very hot....  without relay -13V?
   // mux_regulate_p5v();
   // mux_regulate_n5v();
   // mux_regulate_jfet();
@@ -613,18 +613,20 @@ static void test01(void *args __attribute((unused)))
 }
 
 
-
+////////////////////////// 
+// ok what's useful... here now...
+// set the set voltage and current? 
+// set the test function?
+// rails?
+// reset of smu params...
+// need sscanf() for values...
+// but that probably requires a deeper stack.
+// does miniprint have... these functions?
 
 static void serial_prompt_task2(void *args __attribute__((unused))) 
 {
   static char buf[100];
 
-  // buf size of 10 - seems ok
-  // buf size of 50 - ok.
-  // OK. buf size of 100. fails and stack exception condition caught - led blinks fast.
-  // so we have a margin of somewhere between 50 - 100 bytes or so...
-  // ok - at 70 - short input strings are ok - but will stack overflow on longer input strings..
-  // char buf[70];
 
   for (;;) {
     // uart_printf is cooked ... so it should already be giving us stuff...
