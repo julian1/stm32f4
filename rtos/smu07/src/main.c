@@ -343,11 +343,6 @@ static void mux_regulate_p5v(void)
   gpio_clear(MUX_PORT, MUX_ISET_INV_CTL | MUX_IFB_CTL );    // this sources positive current. works.
                                                             // issue is ne5532 does not handle large input offset voltage
                                                             // and input protection starts sinks current.
-  // gpio_clear(MUX_PORT, MUX_ISET_CTL | MUX_IFB_CTL );      // sink. works for battery.
-
-
-  // ok. it's not regulating in reverse on current...
-
   // max is correct for sourcing. because verr,ierr, and err are inverted.
   gpio_clear(MUX_PORT, MUX_MAX_CTL);      // outputs .... 
   // gpio_clear(MUX_PORT, MUX_MIN_CTL);  // minimum . 
@@ -357,11 +352,11 @@ static void mux_regulate_p5v(void)
   // turn fets 1 and 2 on - for current range 1
   // gpio_set(IRANGE_PORT, IRANGE_SW1_CTL | IRANGE_SW2_CTL);
 
-  // turn on fets 2,3 for current range 2
-  gpio_set(IRANGE_PORT, IRANGE_SW3_CTL | IRANGE_SW4_CTL);
-
   // turn on current sense1 ina
   // gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_1_CTL);
+
+  // turn on fets 2,3 for current range 2
+  gpio_set(IRANGE_PORT, IRANGE_SW3_CTL | IRANGE_SW4_CTL);
 
   // turn on current sense2 ina. builtin gain is 10x
   gpio_clear(IRANGE_SENSE_PORT, IRANGE_SENSE_2_CTL);
