@@ -699,7 +699,7 @@ int main(void)
 
   // IMPORTANT changing from 100 to 200, stops deadlock
   xTaskCreate(uart_task,        "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
-  xTaskCreate(usart_prompt_task,"PROMPT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+  xTaskCreate(serial_prompt_task,"SERIAL",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 
 

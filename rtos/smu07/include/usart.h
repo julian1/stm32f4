@@ -5,13 +5,8 @@
 #include "queue.h"
 
 
-// TODO - consider if should be global, global struct, or returned from usart_setup()
-// not sure if should be pointer?
+// TODO - we need to expose these unfortunatley.... to separate out the serial task
 extern QueueHandle_t uart_txq;
-
-
-// think we have to use an interrupt - so we don't miss anything. eg. we take the character
-// in the isr, before it is replaced
 extern QueueHandle_t uart_rxq;
 
 

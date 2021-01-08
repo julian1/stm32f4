@@ -13,7 +13,7 @@ extern int uart_printf(const char *format,...);
 extern char *uart_gets( char *buf, size_t len);
 
 
-extern void usart_prompt_task(void *args __attribute__((unused))) ;
+extern void serial_prompt_task(void *args __attribute__((unused))) ;
 
 ///////
 // void usart_enqueue_tx_test(uint8_t data ) ;
