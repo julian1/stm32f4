@@ -25,8 +25,8 @@ void pvd_isr (void)
   // TODO - change this.
   // WE CANNOT PRINT FROM ISR...!!!!!!
   // most we can do is enqueue an output character. something.
-  uart_putc_from_isr('x');
-  uart_putc_from_isr('\n');
+  usart_putc_from_isr('x');
+  usart_putc_from_isr('\n');
 }
 
 
@@ -92,7 +92,7 @@ void report_pvd_test_task(void *args __attribute((unused)))
 {
   // just monitor pwr_voltage_high() to catch the register flip when power disconnected...
   while(1) {
-    uart_printf("%c\n", pwr_voltage_high() ? 't' : 'f' );
+    usart_printf("%c\n", pwr_voltage_high() ? 't' : 'f' );
   }
 }
 

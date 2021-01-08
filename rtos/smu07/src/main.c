@@ -96,7 +96,7 @@ static void rails_wait_for_voltage(void)
 
     // only report first time...
     // if(tick == 0)
-    uart_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
+    usart_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
 
     if(pa0 > 1000 && pa1 > 1000)
       ++good;
@@ -138,7 +138,7 @@ static void relay_toggle_test_task(void *args __attribute((unused)))
   int tick = 0;
 	for (;;) {
 
-    uart_printf("relay toggle %d\n", tick++);
+    usart_printf("relay toggle %d\n", tick++);
     // gpio_toggle(RELAY_PORT, OUTPUT_RELAY_CTL);
     // gpio_toggle(RELAY_PORT, VRANGE_RELAY_CTL);
     gpio_toggle(RELAY_PORT, COMXY_RELAY_CTL);
@@ -557,7 +557,7 @@ static void mux_regulate_jfet(void)
 static void test01(void *args __attribute((unused)))
 {
 
-  uart_printf("test01\n");
+  usart_printf("test01\n");
 
   dac_reset();
   refa_off();
@@ -603,7 +603,7 @@ static void test01(void *args __attribute((unused)))
   // adc_vfb_test();
 #endif
 
-  uart_printf("test01 done\n");
+  usart_printf("test01 done\n");
 
 
   // sleep forever
@@ -629,21 +629,21 @@ static void serial_prompt_task2(void *args __attribute__((unused)))
 
 
   for (;;) {
-    // uart_printf is cooked ... so it should already be giving us stuff...
-    uart_printf("\n\r> ");
-    uart_gets( buf, 100 );                    // ie. block...
-    //uart_printf("\n\ryou said '%s'", buf );   // there looks like a bug in the formatting...
+    // usart_printf is cooked ... so it should already be giving us stuff...
+    usart_printf("\n\r> ");
+    usart_gets( buf, 100 );                    // ie. block...
+    //usart_printf("\n\ryou said '%s'", buf );   // there looks like a bug in the formatting...
                                               // no it's just returning the \n but not the \r...
 
     if(strcmp(buf, "on") == 0) {
 
-      uart_printf("whoot switch on\n\r");
+      usart_printf("whoot switch on\n\r");
 
       gpio_set(RELAY_PORT, OUTPUT_RELAY_CTL);   // on
     }
     else if(strcmp(buf, "off") == 0) {
 
-      uart_printf("whoot switch off\n\r");
+      usart_printf("whoot switch off\n\r");
 
       gpio_clear(RELAY_PORT, OUTPUT_RELAY_CTL);   // on
     }
@@ -704,8 +704,8 @@ int main(void)
   led_setup();
 
   usart_setup();
-  uart_printf("------------------\n\r");
-  uart_printf("starting\n\r");
+  usart_printf("------------------\n\r");
+  usart_printf("starting\n\r");
 
 
   power_voltage_detect_setup();
@@ -732,7 +732,7 @@ int main(void)
 
 
   // IMPORTANT changing from 100 to 200, stops deadlock
-  xTaskCreate(uart_task,        "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
+  xTaskCreate(usart_task,        "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
 
   // xTaskCreate(serial_prompt_task,"SERIAL",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
   xTaskCreate(serial_prompt_task2,"SERIAL2",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
@@ -790,11 +790,11 @@ int main_old(void) {
 
   ///////////////
   // setup
-  // TODO maybe change names setup_led() setup_uart() ?
+  // TODO maybe change names setup_led() setup_usart() ?
   led_setup();
   usart_setup();
-  uart_printf("------------------\n\r");
-  uart_printf("starting\n\r");
+  usart_printf("------------------\n\r");
+  usart_printf("starting\n\r");
 
   // /////////////
   // EXTREME - gpio, clocks, and peripheral configuration ONLY.
@@ -807,13 +807,13 @@ int main_old(void) {
   mux_setup();
   slope_adc_setup();
 
-  uart_printf("------------------\n\r");
+  usart_printf("------------------\n\r");
 
   ///////////////
   // tasks
   // value is the stackdepth.
 	xTaskCreate(led_blink_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
-  xTaskCreate(uart_task,        "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
+  xTaskCreate(usart_task,        "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
 
   // IMPORTANT changing from 100 to 200, stops deadlock
   xTaskCreate(usart_prompt_task,"PROMPT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */

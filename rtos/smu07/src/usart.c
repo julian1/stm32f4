@@ -26,12 +26,12 @@
 
 
 // TODO - consider if should be global, global struct, or returned from usart_setup()
-QueueHandle_t uart_txq;
+QueueHandle_t usart_txq;
 
 
 // think we have to use an interrupt - so we don't miss anything. eg. we take the character
 // in the isr, before it is replaced
-QueueHandle_t uart_rxq;
+QueueHandle_t usart_rxq;
 
 
 
@@ -54,7 +54,7 @@ void vApplicationStackOverflowHook(
   int i, j = 0, len;
     // ok seems to be catching some stack overflow conditions
     // this won't work - because relies on sending to queues.
-    // we need to bit-bang the uart.
+    // we need to bit-bang the usart.
     // TODO - could probably still be cleaned up
 
     len = strlen((const char *)pcTaskName);
@@ -115,8 +115,8 @@ void usart_setup(void)
 
   // not sure but queues, should be created in main()
   // setup() could take the queue as argument for better composibility
-  uart_txq = xQueueCreate(256,sizeof(char));
-  uart_rxq = xQueueCreate(256,sizeof(char));
+  usart_txq = xQueueCreate(256,sizeof(char));
+  usart_rxq = xQueueCreate(256,sizeof(char));
 
 }
 
@@ -146,10 +146,10 @@ void usart1_isr(void)
 
   //  SHOULD be
     // xQueueSendFromISR not xQueueSend 
-    xQueueSendFromISR(uart_rxq, &data , NULL ); /* blocks when queue is full */
-                                                // if piping input to uart - then blocking is probably desirable,
+    xQueueSendFromISR(usart_rxq, &data , NULL ); /* blocks when queue is full */
+                                                // if piping input to usart - then blocking is probably desirable,
 
-    xQueueSendFromISR(uart_txq, &data, NULL );  /* blocks */
+    xQueueSendFromISR(usart_txq, &data, NULL );  /* blocks */
                                                 // send to tx queue to echo back to console.
                                                 // probably don't want to do this here. but somewhere else for more
                                                 // control
@@ -175,10 +175,10 @@ void usart1_isr(void)
            );
 #endif
 
-void uart_task(void *args __attribute__((unused))) 
+void usart_task(void *args __attribute__((unused))) 
 {
 
-  // waits for chars on the serial queue, then push them out on the hardware uart.
+  // waits for chars on the serial queue, then push them out on the hardware usart.
 
   char ch;
 
@@ -186,7 +186,7 @@ void uart_task(void *args __attribute__((unused)))
     /*
       500 - is the time in ticks to wait. 1/2 second is too long?
     */
-    if ( xQueueReceive(uart_txq,&ch,500) == pdPASS ) {
+    if ( xQueueReceive(usart_txq,&ch,500) == pdPASS ) {
       while(!usart_get_flag(USART1,USART_SR_TXE))
         taskYIELD();  // Yield until ready
                       // JA - doesn't seem to use coroutines...

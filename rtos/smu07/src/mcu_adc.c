@@ -20,7 +20,7 @@
 
 void mcu_adc_setup(void)
 {
-  uart_printf("mcu_adc setup\n\r");
+  usart_printf("mcu_adc setup\n\r");
 
 	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0);
 	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1);
@@ -31,7 +31,7 @@ void mcu_adc_setup(void)
 
 	adc_power_on(ADC1);
 
-  uart_printf("mcu_adc setup done\n\r");
+  usart_printf("mcu_adc setup done\n\r");
 }
 
 
@@ -71,8 +71,8 @@ void mcu_adc_print_task(void *args __attribute((unused)))
 		// uint16_t pa2 = mcu_adc_read_native(2);   // dacmon - need to cut trace
                                         // should test it works though
 
-		// uart_printf("tick: %d: LP15VP=%u, LN15VN=%d, pa2=%d\n", tick++, pa0, pa1, pa2 );
-		uart_printf("tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1 );
+		// usart_printf("tick: %d: LP15VP=%u, LN15VN=%d, pa2=%d\n", tick++, pa0, pa1, pa2 );
+		usart_printf("tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1 );
 
 #endif
 
@@ -95,7 +95,7 @@ void mcu_adc_print_task(void *args __attribute((unused)))
       so maybe its working...
       TEMP_F40 went 770 to 850 with heat gun... pointed at it. and back again.
     */
-		uart_printf("tick: %d: pa0=%u vbat=%d  vref=%d temp=%d\n", tick++, pa0, vbat, vref, temp);
+		usart_printf("tick: %d: pa0=%u vbat=%d  vref=%d temp=%d\n", tick++, pa0, vbat, vref, temp);
 #endif
 
     task_sleep(1000);

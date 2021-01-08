@@ -55,18 +55,18 @@ void mux_setup(void)
       | MUX_MIN_CTL | MUX_MAX_CTL | MUX_MUX_UNUSED_CTL;
 
 
-  uart_printf("mux setup\n\r");
+  usart_printf("mux setup\n\r");
   // call *before* bringing up rails
   gpio_set(MUX_PORT, all);   // active low.
   gpio_mode_setup(MUX_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
-  uart_printf("mux setup done\n\r");
+  usart_printf("mux setup done\n\r");
 }
 
 
 static void source_current_test_old(void)
 {
   // U1
-  uart_printf("mux test \n\r");
+  usart_printf("mux test \n\r");
 
   gpio_clear(MUX_PORT, VSET_CTL);  // eg. +10V so Verr gets -10V. good for testing ifb
   // gpio_clear(MUX_PORT, VSET_INV_CTL); // so          Verr gets +10V.
@@ -93,7 +93,7 @@ static void source_current_test_old(void)
   // gpio_clear(MUX_PORT, MUX_MAX_CTL);
   gpio_clear(MUX_PORT, MUX_MIN_CTL);
 
-  uart_printf("mux test finished\n\r");
+  usart_printf("mux test finished\n\r");
 }
 
 
@@ -103,7 +103,7 @@ static void source_voltage_test(void)
 #if 0
   // set to source voltage / current compliance - first quadrant.
   // U1
-  uart_printf("mux test new\n\r");
+  usart_printf("mux test new\n\r");
 
 
   dac_write_register(0x04, 5180 * 2 );  // Vset - 2V.
@@ -119,7 +119,7 @@ static void source_voltage_test(void)
   // select max for sourcing...
   gpio_clear(MUX_PORT, MUX_MAX_CTL);
 
-  uart_printf("mux test finished\n\r");
+  usart_printf("mux test finished\n\r");
 #endif
 }
 
@@ -136,7 +136,7 @@ static void source_current_test(void)
   // so there's no difference between control and compliance order.
 
   // U1
-  uart_printf("mux test\n\r");
+  usart_printf("mux test\n\r");
 
   // compliance function. max of 5V.
   dac_write_register(DAC_VSET_REG, 5180 * 5 );  // Vset 5v max compliance function
@@ -151,7 +151,7 @@ static void source_current_test(void)
   // select max for sourcing...
   gpio_clear(MUX_PORT, MUX_MAX_CTL);
 
-  uart_printf("mux test finished\n\r");
+  usart_printf("mux test finished\n\r");
 }
 
 
@@ -161,7 +161,7 @@ static void source_current_test(void)
 void mux_regulate_on_vfb(void)
 {
 
-  uart_printf("regulate on vfb\n\r");
+  usart_printf("regulate on vfb\n\r");
 
   /*
     bypass
@@ -174,7 +174,7 @@ void mux_regulate_on_vfb(void)
 
   gpio_clear(MUX_PORT, MUX_MAX_CTL);
 
-  uart_printf("regulate on vfb done\n\r");
+  usart_printf("regulate on vfb done\n\r");
 }
 
 
@@ -198,7 +198,7 @@ static void dac_test(void)
   */
 
 
-  uart_printf("dac writing dac registers\n\r");
+  usart_printf("dac writing dac registers\n\r");
 
 
   // dac_write_register(0x04, 51800 );  // Vout
@@ -218,14 +218,14 @@ static void dac_test(void)
 
   // select ain auxillary monitor.
   // 11 is ain. 13 is dac1.
-  uart_printf("dac write mon register for ain\n\r");
+  usart_printf("dac write mon register for ain\n\r");
   // dac_write_register1( 0b00000001 << 16 | (1 << 11) ); // select AIN.
   // dac_write_register1( 0b00000001 << 16 | (1 << 13) ); // select dac 1.
 
   // ok!
   dac_write_register(0x01, (1 << 13) ); // select monitor dac1
 
-  uart_printf("dac test finished\n\r");
+  usart_printf("dac test finished\n\r");
 }
 
 #endif

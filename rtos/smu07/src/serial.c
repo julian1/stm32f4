@@ -13,33 +13,33 @@
 // but do require queue accessn.
 
 
-void uart_putc_from_isr(char ch) 
+void usart_putc_from_isr(char ch) 
 {
-  xQueueSendFromISR(uart_txq, &ch, NULL );
+  xQueueSendFromISR(usart_txq, &ch, NULL );
 }
 
-static void uart_putc(char ch) 
+static void usart_putc(char ch) 
 {
-  xQueueSend(uart_txq, &ch, portMAX_DELAY); /* blocks when queue is full */
+  xQueueSend(usart_txq, &ch, portMAX_DELAY); /* blocks when queue is full */
 }
 
 
-int uart_printf(const char *format,...) 
+int usart_printf(const char *format,...) 
 {
-  // very nice. writes to the uart_putc()/queue so no buffer to overflow
+  // very nice. writes to the usart_putc()/queue so no buffer to overflow
   // COOKED means that a CR is sent after every LF is sent out
   va_list args;
   int rc;
 
   va_start(args,format);
-  rc = mini_vprintf_cooked(uart_putc,format,args);
+  rc = mini_vprintf_cooked(usart_putc,format,args);
   va_end(args);
   return rc;
 }
 
 
 
-char *uart_gets( char *buf, size_t len) 
+char *usart_gets( char *buf, size_t len) 
 {
   // will truncate if overflows...
   char ch;
@@ -47,8 +47,8 @@ char *uart_gets( char *buf, size_t len)
 
   for (;;) {
     // Receive char to be TX
-    // if( xQueueReceive(uart_rxq,&ch,1) == pdPASS ) {
-    if( xQueueReceive(uart_rxq,&ch,500) == pdPASS ) {
+    // if( xQueueReceive(usart_rxq,&ch,1) == pdPASS ) {
+    if( xQueueReceive(usart_rxq,&ch,500) == pdPASS ) {
 
       // should we continue consuming - if past buf size...
       // or return immediately without having received '\r' ?
@@ -89,10 +89,10 @@ void serial_prompt_task(void *args __attribute__((unused)))
   // char buf[70];
 
   for (;;) {
-    // uart_printf is cooked ... so it should already be giving us stuff...
-    uart_printf("\n\r> ");
-    uart_gets( buf, 100 );                    // ie. block...
-    uart_printf("\n\ryou said '%s'", buf );   // there looks like a bug in the formatting...
+    // usart_printf is cooked ... so it should already be giving us stuff...
+    usart_printf("\n\r> ");
+    usart_gets( buf, 100 );                    // ie. block...
+    usart_printf("\n\ryou said '%s'", buf );   // there looks like a bug in the formatting...
                                               // no it's just returning the \n but not the \r...
   }
 }
@@ -104,8 +104,8 @@ static void demo_task1(void *args __attribute__((unused)))
 {
 
   for (;;) {
-    uart_puts("Now this is a message..\n\r");
-    uart_puts("  sent via FreeRTOS queues.\n\n\r");
+    usart_puts("Now this is a message..\n\r");
+    usart_puts("  sent via FreeRTOS queues.\n\n\r");
     vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
@@ -115,11 +115,11 @@ static void demo_task1(void *args __attribute__((unused)))
 
 
 #if 0
-static void uart_puts(const char *s) 
+static void usart_puts(const char *s) 
 {
 
   for ( ; *s; ++s )
-    xQueueSend(uart_txq,s,portMAX_DELAY); /* blocks when queue is full */
+    xQueueSend(usart_txq,s,portMAX_DELAY); /* blocks when queue is full */
 }
 #endif
 
