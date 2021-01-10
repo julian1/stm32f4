@@ -114,29 +114,14 @@ void slope_adc_setup(void)
 
   timer_set_repetition_counter(TIM5, 0);
 
-  // timer_set_counter(TIM5, 0);
 
-                      // freaking weird. prescaling doesn't do anything?.
-                      // and period.
-                      // but we have lots of code using TIM2 which is already an advanced timer?
-
-                      // OK. when output clicked over. we get 1.6V output.
-
-                      // OK. No. once it ticks over then it works. we get 1.6V because its oscillating between 0 and 3.3V
-                      // freaking weird.
-                      // the problem is that its counting past the period perhaps????
-
-
-  // timer_set_prescaler(TIM5, 655 ); // JA - blinks 1x/s. eg. consistent with 64MHz, which is documented .
-  timer_set_prescaler(TIM5, 0 ); // JA - blinks 1x/s. eg. consistent with 64MHz, which is documented .
-  // timer_enable_preload(TIM5);
+  // must be disable_preload... else counter just counts to 32bits, 4billion
+  timer_set_prescaler(TIM5, 0 );      // 0 is twice as fast as 1. 
   timer_disable_preload(TIM5);
   timer_continuous_mode(TIM5);
-  timer_set_period(TIM5, 10000000); // why isn't this working.
+  timer_set_period(TIM5, 10000000); // ok working 
                                     // it might be. but only after it ticks over 32bits, 4 billion.
                                       // its all too weird.
-
-  // must be disable preload... and then the period is respected
 
   // timer_enable_break_main_output(TIM5);
 
@@ -146,9 +131,6 @@ void slope_adc_setup(void)
   timer_enable_oc_output(TIM5, TIM_OC1);
 
 
-  timer_set_counter(TIM5, 0);
-
-    usart_printf("initial count %u\n\r", timer_get_counter(TIM5));
   timer_enable_counter(TIM5);
 
 
