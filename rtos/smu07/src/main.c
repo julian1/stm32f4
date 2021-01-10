@@ -4,6 +4,7 @@
 
   should be
 
+  done.
   xQueueSendFromISR() not xQueueSend()
   see p369.
     - fixed for usart.c
@@ -45,6 +46,8 @@ TODO
 
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
+
+// ideally, nothing too mcu complicated here,
 // #include <libopencm3/stm32/timer.h>
 // #include <libopencm3/stm32/spi.h>
 // #include <libopencm3/stm32/gpio.h>
