@@ -73,19 +73,20 @@ void slope_adc_setup(void)
   gpio_mode_setup(ADC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADC_OUT);
 
 
-  // we are using GPIO D0  so we don't want ext15
+  // we are using GPIO D0  so we don't want exti15
+  // want exti0
 
   // really not quite sure what EXTI15_10 means 15 or 10?
   // see code example, https://sourceforge.net/p/libopencm3/mailman/message/28510519/
   // defn, libopencm3/include/libopencm3/stm32/f4/nvic.h
 
   // nvic_enable_irq(NVIC_EXTI0_IRQ);
-  nvic_enable_irq(NVIC_EXTI15_10_IRQ);
+  nvic_enable_irq(NVIC_EXTI0_IRQ);
 
   /* Configure the EXTI subsystem. */
-  exti_select_source(EXTI15, GPIOD);
-  exti_set_trigger(EXTI15, EXTI_TRIGGER_BOTH  /*EXTI_TRIGGER_FALLING */ );
-  exti_enable_request(EXTI15);
+  exti_select_source(EXTI0, GPIOD);
+  exti_set_trigger(EXTI0, EXTI_TRIGGER_BOTH  /*EXTI_TRIGGER_FALLING */ );
+  exti_enable_request(EXTI0);
 
   exti_direction = FALLING;
 
@@ -96,9 +97,10 @@ void slope_adc_setup(void)
 
 static int interupt_hit = 0;
 
-void exti15_10_isr(void)
+// void exti15_10_isr(void)
+void exti0_isr(void)
 {
-  exti_reset_request(EXTI15);
+  exti_reset_request(EXTI0);
 
   // this might be getting other interupts also... not sure.
 
@@ -120,15 +122,13 @@ void exti15_10_isr(void)
   if (exti_direction == FALLING) {
     // gpio_set(GPIOE, GPIO0);
     exti_direction = RISING;
-    exti_set_trigger(EXTI15, EXTI_TRIGGER_RISING);
+    exti_set_trigger(EXTI0, EXTI_TRIGGER_RISING);
   } else {
     // gpio_clear(GPIOE, GPIO0);
     exti_direction = FALLING;
-    exti_set_trigger(EXTI15, EXTI_TRIGGER_FALLING);
+    exti_set_trigger(EXTI0, EXTI_TRIGGER_FALLING);
   }
 }
-
-
 
 
 
