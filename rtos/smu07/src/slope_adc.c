@@ -114,10 +114,25 @@ void slope_adc_setup(void)
 
   timer_set_repetition_counter(TIM5, 0);
 
-  timer_set_prescaler(TIM5, 6553 ); // JA - blinks 1x/s. eg. consistent with 64MHz, which is documented .
+  // timer_set_counter(TIM5, 0);
+
+                      // freaking weird. prescaling doesn't do anything?.
+                      // and period.
+                      // but we have lots of code using TIM2 which is already an advanced timer?
+
+                      // OK. when output clicked over. we get 1.6V output.
+
+                      // OK. No. once it ticks over then it works. we get 1.6V because its oscillating between 0 and 3.3V
+                      // freaking weird.
+                      // the problem is that its counting past the period perhaps????
+
+  // timer_set_counter(0);
+
+  // timer_set_prescaler(TIM5, 655 ); // JA - blinks 1x/s. eg. consistent with 64MHz, which is documented .
+  timer_set_prescaler(TIM5, 0 ); // JA - blinks 1x/s. eg. consistent with 64MHz, which is documented .
   timer_enable_preload(TIM5);
   timer_continuous_mode(TIM5);
-  timer_set_period(TIM5, 100);
+  timer_set_period(TIM5, 100); // why isn't this working.
 
   timer_disable_oc_output(TIM5, TIM_OC1);
   timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_PWM1);
@@ -180,7 +195,7 @@ void slope_adc_out_status_test_task(void *args __attribute((unused)))
 
     uint32_t x = timer_get_counter(TIM5);
 
-    usart_printf("count d %d\n\r", x);
+    usart_printf("count %u\n\r", x);
 
     usart_printf("slope_adc hi tick %d %d\n\r", tick++, gpio_get(ADC_PORT, ADC_OUT));
     task_sleep(1000); // 1Hz
