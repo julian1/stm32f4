@@ -112,32 +112,24 @@ void slope_adc_setup(void)
 
   timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
 
-  timer_set_repetition_counter(TIM5, 0);
-
+  // timer_set_repetition_counter(TIM5, 0);
+  // timer_enable_break_main_output(TIM5);
 
   // must be disable_preload... else counter just counts to 32bits, 4billion
   timer_set_prescaler(TIM5, 0 );      // 0 is twice as fast as 1. 
   timer_disable_preload(TIM5);
   timer_continuous_mode(TIM5);
   timer_set_period(TIM5, 10000000); // ok working 
-                                    // it might be. but only after it ticks over 32bits, 4 billion.
-                                      // its all too weird.
-
-  // timer_enable_break_main_output(TIM5);
 
   timer_disable_oc_output(TIM5, TIM_OC1);
   timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_PWM1);
-  timer_set_oc_value(TIM5, TIM_OC1, 5000000);
+  timer_set_oc_value(TIM5, TIM_OC1, 5000000);   // eg. half the period for 50% duty
   timer_enable_oc_output(TIM5, TIM_OC1);
-
 
   timer_enable_counter(TIM5);
 
-
   usart_printf("slope_adc done timer done\n\r");
 #endif
-
-
 }
 
 
