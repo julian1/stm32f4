@@ -17,6 +17,18 @@
 #define ADC_PORT              GPIOD
 #define ADC_OUT               GPIO0
 
+// these need to be on a timer.
+#define ADC_MUX_P_CTL         GPIO1
+#define ADC_MUX_N_CTL         GPIO2
+
+/*
+  OK. I think we screwed up the adc. by not putting the P and N ref on a timer port. and with inverse.
+  - in fact we almost certainly wanted a hardwhere inverse
+    so we could just blink/alternate the refs.
+  - but we can manually do it.
+  - and we can probably appropriate io somewhere. and even add an inverter ic/fet common drain.
+  - this is a big complicated.
+*/
 
 // OK. first lets just report the status
 
@@ -26,7 +38,26 @@ void slope_adc_setup(void)
 
   gpio_mode_setup(ADC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADC_OUT);
 
+
+
+
+
+  exti_set_trigger(EXTI16, EXTI_TRIGGER_RISING);      // other code uses rising...
+  // exti_set_trigger(EXTI16, EXTI_TRIGGER_FALLING);   // think we want falling.
+                                                    // pwr_voltage_high() eg. goes from high to lo.
+  exti_enable_request(EXTI16);
+
+  // defined 1 for line 16.
+  // #define NVIC_PVD_IRQ 1
+  nvic_enable_irq( NVIC_PVD_IRQ );
+
+
+
   usart_printf("slope_adc setup done\n\r");
+
+
+
+
 }
 
 
