@@ -43,11 +43,11 @@
 
   see exti_rising_falling.c
 
-  NO. NO. 
-    we just want to blip the corrective ref voltage. not add the voltage of the same direction. 
-    it's basically just a led on a timer. 
+  NO. NO.
+    we just want to blip the corrective ref voltage. not add the voltage of the same direction.
+    it's basically just a led on a timer.
     it is more two timers - for each direction - so can configure but enable/disable.
-    or else 
+    or else
 
   should use nor gate - to construct not. perhaps.
 
@@ -55,10 +55,9 @@
 
   mux_ifb_inv_ctl pe5   tim9 ch1.  <- can use easily.
   lets try to get interrupt working.
-  
+
 */
 
-// OK. first lets just report the status
 
 
 #define FALLING 0
@@ -73,14 +72,7 @@ void slope_adc_setup(void)
   gpio_mode_setup(ADC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADC_OUT);
 
 
-  // we are using GPIO D0  so we don't want exti15
-  // want exti0
-
-  // really not quite sure what EXTI15_10 means 15 or 10?
-  // see code example, https://sourceforge.net/p/libopencm3/mailman/message/28510519/
-  // defn, libopencm3/include/libopencm3/stm32/f4/nvic.h
-
-  // nvic_enable_irq(NVIC_EXTI0_IRQ);
+  // use GPIO D0 so need EXTI0
   nvic_enable_irq(NVIC_EXTI0_IRQ);
 
   /* Configure the EXTI subsystem. */
@@ -102,22 +94,10 @@ void exti0_isr(void)
 {
   exti_reset_request(EXTI0);
 
-  // this might be getting other interupts also... not sure.
+  // this works. quite nice
+  usart_putc_from_isr('a');
 
-  // see, https://sourceforge.net/p/libopencm3/mailman/libopencm3-devel/thread/CAJ%3DSVavkRD3UwzptrAGG%2B-4DXexwncp_hOqqmFXhAXgEWjc8cw%40mail.gmail.com/#msg28508251
-  // uint16_t port = gpio_port_read(GPIOE);
-  // if(port & GPIO1) {
-  // uint16_t EXTI_PR_ = EXTI_PR;
-  // if(EXTI_PR_ & GPIO15) {
-
-  // No. Think we do not have to filter,
-  // see, exti15_10_isr example here,
-  // https://github.com/geomatsi/stm32-tests/blob/master/boards/stm32f4-nucleo/apps/freertos-demo/button.c
-
-
-  usart_putc_from_isr('a');  
-
-    interupt_hit = 1;
+  interupt_hit = 1;
 
   if (exti_direction == FALLING) {
     // gpio_set(GPIOE, GPIO0);
@@ -151,3 +131,31 @@ void slope_adc_out_status_test_task(void *args __attribute((unused)))
     task_sleep(1000); // 1Hz
 	}
 }
+
+
+
+
+
+
+////////////////////////////
+
+// this might be getting other interupts also... not sure.
+
+// IMPORTANT how to discriminate ports if using high.
+  // see, https://sourceforge.net/p/libopencm3/mailman/libopencm3-devel/thread/CAJ%3DSVavkRD3UwzptrAGG%2B-4DXexwncp_hOqqmFXhAXgEWjc8cw%40mail.gmail.com/#msg28508251
+  // uint16_t port = gpio_port_read(GPIOE);
+  // if(port & GPIO1) {
+  // uint16_t EXTI_PR_ = EXTI_PR;
+  // if(EXTI_PR_ & GPIO15) {
+
+  // No. Think we do not have to filter,
+  // see, exti15_10_isr example here,
+  // https://github.com/geomatsi/stm32-tests/blob/master/boards/stm32f4-nucleo/apps/freertos-demo/button.c
+
+
+  // really not quite sure what EXTI15_10 means 15 or 10?
+  // see code example, https://sourceforge.net/p/libopencm3/mailman/message/28510519/
+  // defn, libopencm3/include/libopencm3/stm32/f4/nvic.h
+
+
+
