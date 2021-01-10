@@ -4,6 +4,9 @@
 #include "task.h"
 
 #include <libopencm3/stm32/gpio.h>
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/stm32/exti.h>
+
 
 
 //////////////////////////////////////////
@@ -38,6 +41,8 @@
   - this is a big complicated.
   ---------
 
+  see exti_rising_falling.c
+
   NO. NO. 
     we just want to blip the corrective ref voltage. not add the voltage of the same direction. 
     it's basically just a led on a timer. 
@@ -57,6 +62,12 @@
 
 // OK. first lets just report the status
 
+
+#define FALLING 0
+#define RISING 1
+static uint16_t exti_direction = FALLING;
+
+
 void slope_adc_setup(void)
 {
   usart_printf("slope_adc setup\n\r");
@@ -65,25 +76,67 @@ void slope_adc_setup(void)
 
 
 
+  // really not quite sure what EXTI15_10 means 15 or 10?
+  // see code example, https://sourceforge.net/p/libopencm3/mailman/message/28510519/
+  // defn, libopencm3/include/libopencm3/stm32/f4/nvic.h
+
+  // nvic_enable_irq(NVIC_EXTI0_IRQ);
+  nvic_enable_irq(NVIC_EXTI15_10_IRQ);
+
+  /* Configure the EXTI subsystem. */
+  exti_select_source(EXTI15, GPIOD);
+  exti_set_trigger(EXTI15, EXTI_TRIGGER_FALLING);
+  exti_enable_request(EXTI15);
 
 
-  exti_set_trigger(EXTI16, EXTI_TRIGGER_RISING);      // other code uses rising...
-  // exti_set_trigger(EXTI16, EXTI_TRIGGER_FALLING);   // think we want falling.
-                                                    // pwr_voltage_high() eg. goes from high to lo.
-  exti_enable_request(EXTI16);
-
-  // defined 1 for line 16.
-  // #define NVIC_PVD_IRQ 1
-  nvic_enable_irq( NVIC_PVD_IRQ );
-
-
+  exti_direction = FALLING;
 
   usart_printf("slope_adc setup done\n\r");
-
-
-
-
 }
+
+
+
+static int interupt_hit = 0;
+
+void exti15_10_isr(void)
+// void exti0_isr(void)
+{
+  exti_reset_request(EXTI15);
+
+  // this might be getting other interupts also... not sure.
+
+  // see, https://sourceforge.net/p/libopencm3/mailman/libopencm3-devel/thread/CAJ%3DSVavkRD3UwzptrAGG%2B-4DXexwncp_hOqqmFXhAXgEWjc8cw%40mail.gmail.com/#msg28508251
+  // uint16_t port = gpio_port_read(GPIOE);
+  // if(port & GPIO1) {
+  // uint16_t EXTI_PR_ = EXTI_PR;
+  // if(EXTI_PR_ & GPIO15) {
+
+  // No. Think we do not have to filter,
+  // see, exti15_10_isr example here,
+  // https://github.com/geomatsi/stm32-tests/blob/master/boards/stm32f4-nucleo/apps/freertos-demo/button.c
+
+
+  usart_putc_from_isr('a');  
+
+    interupt_hit = 1;
+
+  if (exti_direction == FALLING) {
+    // gpio_set(GPIOE, GPIO0);
+    exti_direction = RISING;
+    exti_set_trigger(EXTI15, EXTI_TRIGGER_RISING);
+  } else {
+    // gpio_clear(GPIOE, GPIO0);
+    exti_direction = FALLING;
+    exti_set_trigger(EXTI15, EXTI_TRIGGER_FALLING);
+  }
+}
+
+
+
+
+
+
+
 
 
 
@@ -92,8 +145,12 @@ void slope_adc_out_status_test_task(void *args __attribute((unused)))
   int tick = 0;
 	for (;;) {
 
-    usart_printf("slope_adc hi tick %d %d\n\r", tick++, gpio_get(ADC_PORT, ADC_OUT));
+    if(interupt_hit) {
+      usart_printf("slope_adc interupt\n\r");
+      interupt_hit = 0;
+    }
 
+    usart_printf("slope_adc hi tick %d %d\n\r", tick++, gpio_get(ADC_PORT, ADC_OUT));
     task_sleep(1000); // 1Hz
 	}
 }

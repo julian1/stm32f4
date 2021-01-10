@@ -702,6 +702,11 @@ int main(void)
   // power voltage detect
 	rcc_periph_clock_enable(RCC_PWR);
 
+  // needed for external interupts.  (maybe pvd also?)
+  rcc_periph_clock_enable(RCC_SYSCFG); 
+
+
+
 
   ///////////////
   // setup
