@@ -19,7 +19,13 @@
 
 // these need to be on a timer.
 // there is a timer port.
-// need pd12 to pd15. gahhh.
+// on port d, need pd12 to pd15. gahhh.
+
+// pb4 and pb5 are tim3o
+
+// pb10 gpio1. we could use. tim2 channel 3.
+// gahhh. that's annoying.
+
 #define ADC_MUX_P_CTL         GPIO1
 #define ADC_MUX_N_CTL         GPIO2
 
@@ -31,7 +37,22 @@
   - and we can probably appropriate io somewhere. and even add an inverter ic/fet common drain.
   - this is a big complicated.
   ---------
+
+  NO. NO. 
+    we just want to blip the corrective ref voltage. not add the voltage of the same direction. 
+    it's basically just a led on a timer. 
+    it is more two timers - for each direction - so can configure but enable/disable.
+    or else 
+
   should use nor gate - to construct not. perhaps.
+
+  note our pwm example - where we respond on the interupt - because we change the led in the interrupt.
+
+  mux_ifb_inv_ctl pe5   tim9 ch1.  <- can use easily.
+
+
+  lets try to get interrupt working.
+  
 */
 
 // OK. first lets just report the status
