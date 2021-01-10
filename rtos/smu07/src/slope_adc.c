@@ -132,15 +132,17 @@ void slope_adc_setup(void)
   // timer_enable_preload(TIM5);
   timer_disable_preload(TIM5);
   timer_continuous_mode(TIM5);
-  timer_set_period(TIM5, 100); // why isn't this working.
+  timer_set_period(TIM5, 10000000); // why isn't this working.
                                     // it might be. but only after it ticks over 32bits, 4 billion.
                                       // its all too weird.
+
+  // must be disable preload... and then the period is respected
 
   // timer_enable_break_main_output(TIM5);
 
   timer_disable_oc_output(TIM5, TIM_OC1);
   timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_PWM1);
-  timer_set_oc_value(TIM5, TIM_OC1, 5000);
+  timer_set_oc_value(TIM5, TIM_OC1, 5000000);
   timer_enable_oc_output(TIM5, TIM_OC1);
 
 
