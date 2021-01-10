@@ -18,6 +18,8 @@
 #define ADC_OUT               GPIO0
 
 
+// OK. first lets just report the status
+
 void slope_adc_setup(void)
 {
   usart_printf("slope_adc setup\n\r");
@@ -29,14 +31,13 @@ void slope_adc_setup(void)
 
 
 
-static void slope_adc_out_print(void)
+void slope_adc_out_status_test_task(void *args __attribute((unused)))
 {
-  static uint32_t tick = 0;
+  int tick = 0;
+	for (;;) {
 
-  usart_printf("slope_adc hi tick %d %d\n\r",
-      tick++,
-      gpio_get(ADC_PORT, ADC_OUT)
-    );
+    usart_printf("slope_adc hi tick %d %d\n\r", tick++, gpio_get(ADC_PORT, ADC_OUT));
+
+    task_sleep(1000); // 1Hz
+	}
 }
-
-

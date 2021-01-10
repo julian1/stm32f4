@@ -115,7 +115,8 @@ static void rails_wait_for_voltage(void)
 
 
 
-
+// think we probably want a single header with all interface ports defined.
+// then we can move code around as we like.
 
 ////////////////////////////
 
@@ -744,15 +745,13 @@ int main(void)
   xTaskCreate(serial_prompt_task2,"SERIAL2",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 
-
   xTaskCreate(test01,        "TEST01",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
 	// xTaskCreate(relay_toggle_test_task,  "RELAY_TEST",100,NULL,configMAX_PRIORITIES-1,NULL);
-
-
   // xTaskCreate(report_pvd_test_task,    "PVD_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
 
+	xTaskCreate(slope_adc_out_status_test_task,  "SLOPE_ADC",100,NULL,configMAX_PRIORITIES-1,NULL);
 
 	vTaskStartScheduler();
 
