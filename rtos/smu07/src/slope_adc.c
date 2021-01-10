@@ -95,67 +95,15 @@ void slope_adc_setup(void)
   usart_printf("slope_adc setup done\n\r");
 
 
-  /////////////////////////
 
-  // etr is external trigger.  don't think its what we want..
+  /////////////////////////////
 
-  //rcc_periph_clock_enable(RCC_GPIOA);
-  // rcc_periph_clock_enable(RCC_TIM1);  
-
-  // summary of timers, http://stm32f4-discovery.net/2014/05/stm32f4-stm32f429-discovery-pwm-tutorial/
-  // OK. hang on. I think we want 32bit. not 16bit. resolution. with prescale of one. that ticks over pretty fast. 
-  // that means timer2 or timer5
-  // timer_set_oc_value (uint32_t timer_peripheral, enum tim_oc_id oc_id, uint32_t value)   is 32 bit value.
-
-  /////////////////////////////////////////
-  // tim2-ch1  pa15   af1.
-  // my god. so we can use the led status.
-  // see this on pa15 confusion,
-  // https://community.st.com/s/question/0D50X00009XkZNI/where-is-tim2ch1-on-the-stm32f4-chips 
-  // says has to have jtag disabled,
-  // https://community.st.com/s/question/0D50X00009XkbxeSAB/can-tim2ch1-not-etr-be-remapped-to-pa15-or-anywhere
-  // this has code and pretends to set PA15 but doesnt, just ignores. 
-  // http://www.micromouseonline.com/2013/02/16/quadrature-encoders-with-the-stm32f4/
-  
-  /////////////////////////////////////////
-
-  // tim5 ch1 is pa0.   lp15v_fb. uggh.
-
-/*
-  maybe a conflict with swd/jtag output.
-  eg. works for gpio. but not AF1.
-*/
   rcc_periph_clock_enable(RCC_TIM5);  
 
   // pa0.
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO0 );
   gpio_set_af(GPIOA, GPIO_AF2, GPIO0 ); // AF1 == timer.
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, GPIO0 ); // 50is faster than 100? no. same speed
-
-
-#if 0
-
-  rcc_periph_reset_pulse(RST_TIM5);   // is this needed
-  timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
-                                 // but perhaps at 1, the interupt is running into each other. for delay of 10
-  timer_set_prescaler(TIM5, 100 );    // doesn't work... if delay is 10. interupts
-                                    // but appears ok if delay is set to 100
-
-  /* Disable preload. */
-  timer_disable_preload(TIM5);
-  timer_continuous_mode(TIM5);
-
-  /* count full range, as we'll update compare value continuously */
-  timer_set_period(TIM5, 65535);
-
-  // TODO read from the array
-  /* Set the initual output compare value for OC1. */
-  timer_set_oc_value(TIM5, TIM_OC1, 1 );   // could set to 1 or something?
-
-  /* Counter enable. */
-  timer_enable_counter(TIM5);
-  // timer_enable_counter(TIM5 | TIM3);  // can start two timers at the same time?
-#endif
 
 
 #if 1
@@ -166,63 +114,18 @@ void slope_adc_setup(void)
   timer_set_prescaler(TIM5, 65535 ); // JA - blinks 1x/s. eg. consistent with 64MHz, which is documented .
   timer_enable_preload(TIM5);
   timer_continuous_mode(TIM5);
-  timer_set_period(TIM5, 1000);
+  timer_set_period(TIM5, 100);
 
 
   timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_PWM1);
-  // timer_enable_break_main_output(TIM5);
-  timer_set_oc_value(TIM5, TIM_OC1, 100);
+  timer_enable_break_main_output(TIM5);
+  timer_set_oc_value(TIM5, TIM_OC1, 50);
   timer_enable_oc_output(TIM5, TIM_OC1);
 
 
   timer_enable_counter(TIM5);
 #endif
 
-
-
-#if 0
-  rcc_periph_reset_pulse(RST_TIM2);   // is this needed
-
-  timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT/*TIM_CR2_CKD_CK_INT*/, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);
-
-  timer_set_prescaler(TIM2, 65535 ); // JA - blinks 1x/s. eg. consistent with 64MHz, which is documented .
-  // timer_set_prescaler(TIM2, (rcc_apb1_frequency * 2) / 100 );
-
-
-  timer_set_oc_mode(TIM2, TIM_OC1, TIM_OCM_PWM2);
-  timer_enable_oc_output(TIM2, TIM_OC1);
-  timer_enable_break_main_output(TIM2);
-  timer_set_oc_value(TIM2, TIM_OC1, 100);
-
-  timer_enable_preload(TIM2);
-
-  timer_set_period(TIM2, 1000);
-  timer_enable_counter(TIM2);
-#endif
-
-#if 0
-  //////////////////
-  /* Reset TIM2 peripheral to defaults. */
-  rcc_periph_reset_pulse(RST_TIM2);
-
-  timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
-
-  timer_set_prescaler(TIM2, 1 );    // doesn't work... if delay is 10. interupts
-                                    // but appears ok if delay is set to 100
-  /* Disable preload. */
-  //timer_disable_preload(TIM2);
-  timer_continuous_mode(TIM2);
-
-  /* count full range, as we'll update compare value continuously */
-  timer_set_period(TIM2, 65535);
-
-  // TODO read from the array
-  /* Set the initual output compare value for OC1. */
-  timer_set_oc_value(TIM2, TIM_OC1, 1 );   // could set to 1 or something?
-
-  /* Counter enable. */
-  timer_enable_counter(TIM2);
-#endif
 
 }
 
@@ -299,4 +202,34 @@ void slope_adc_out_status_test_task(void *args __attribute((unused)))
   // defn, libopencm3/include/libopencm3/stm32/f4/nvic.h
 
 
+  /////////////////////////
+
+  // etr is external trigger.  don't think its what we want..
+
+  //rcc_periph_clock_enable(RCC_GPIOA);
+  // rcc_periph_clock_enable(RCC_TIM1);  
+
+  // summary of timers, http://stm32f4-discovery.net/2014/05/stm32f4-stm32f429-discovery-pwm-tutorial/
+  // OK. hang on. I think we want 32bit. not 16bit. resolution. with prescale of one. that ticks over pretty fast. 
+  // that means timer2 or timer5
+  // timer_set_oc_value (uint32_t timer_peripheral, enum tim_oc_id oc_id, uint32_t value)   is 32 bit value.
+
+  /////////////////////////////////////////
+  // tim2-ch1  pa15   af1.
+  // my god. so we can use the led status.
+  // see this on pa15 confusion,
+  // https://community.st.com/s/question/0D50X00009XkZNI/where-is-tim2ch1-on-the-stm32f4-chips 
+  // says has to have jtag disabled,
+  // https://community.st.com/s/question/0D50X00009XkbxeSAB/can-tim2ch1-not-etr-be-remapped-to-pa15-or-anywhere
+  // this has code and pretends to set PA15 but doesnt, just ignores. 
+  // http://www.micromouseonline.com/2013/02/16/quadrature-encoders-with-the-stm32f4/
+  
+  /////////////////////////////////////////
+
+  // tim5 ch1 is pa0.   lp15v_fb. uggh.
+
+/*
+  maybe a conflict with swd/jtag output.
+  eg. works for gpio. but not AF1.
+*/
 

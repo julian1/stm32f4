@@ -706,6 +706,7 @@ int main(void)
   rcc_periph_clock_enable(RCC_SYSCFG); 
 
 
+  rcc_periph_clock_enable(RCC_TIM5);  
 
 
   ///////////////
@@ -750,7 +751,7 @@ int main(void)
   xTaskCreate(serial_prompt_task2,"SERIAL2",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 
-  xTaskCreate(test01,        "TEST01",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
+  //xTaskCreate(test01,        "TEST01",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
 	// xTaskCreate(relay_toggle_test_task,  "RELAY_TEST",100,NULL,configMAX_PRIORITIES-1,NULL);
   // xTaskCreate(report_pvd_test_task,    "PVD_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
