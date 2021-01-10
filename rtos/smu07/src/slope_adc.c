@@ -97,33 +97,39 @@ void slope_adc_setup(void)
 
 
   /////////////////////////////
+  // think the ETR is not correct
 
-  rcc_periph_clock_enable(RCC_TIM2);  
+  rcc_periph_clock_enable(RCC_TIM5);  
 
   // pa0.
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO0 );
-  gpio_set_af(GPIOA, GPIO_AF1, GPIO0 ); // AF1 == TIM2-CH1-ESR ,   == timer.
+  gpio_set_af(GPIOA, GPIO_AF2, GPIO0 ); // AF1 == TIM5-CH1-ETR ,  AF2 == tim5-ch1 .
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, GPIO0 ); // 50is faster than 100? no. same speed
 
 
 #if 1
-  rcc_periph_reset_pulse(RST_TIM2);   // is this needed
+  rcc_periph_reset_pulse(RST_TIM5);   // is this needed
 
-  timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+  timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
 
-  timer_set_prescaler(TIM2, 65535 ); // JA - blinks 1x/s. eg. consistent with 64MHz, which is documented .
-  timer_enable_preload(TIM2);
-  timer_continuous_mode(TIM2);
-  timer_set_period(TIM2, 100);
+  timer_set_repetition_counter(TIM5, 0);
 
+  timer_set_prescaler(TIM5, 6553 ); // JA - blinks 1x/s. eg. consistent with 64MHz, which is documented .
+  timer_enable_preload(TIM5);
+  timer_continuous_mode(TIM5);
+  timer_set_period(TIM5, 100);
 
-  timer_set_oc_mode(TIM2, TIM_OC1, TIM_OCM_PWM1);
-  timer_enable_break_main_output(TIM2);
-  timer_set_oc_value(TIM2, TIM_OC1, 50);
-  timer_enable_oc_output(TIM2, TIM_OC1);
+  timer_disable_oc_output(TIM5, TIM_OC1);
+  timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_PWM1);
+  timer_enable_oc_output(TIM5, TIM_OC1);
 
+  // timer_enable_break_main_output(TIM5);
+  timer_set_oc_value(TIM5, TIM_OC1, 50);
 
   timer_enable_counter(TIM5);
+
+
+  usart_printf("slope_adc done timer done\n\r");
 #endif
 
 
@@ -170,6 +176,11 @@ void slope_adc_out_status_test_task(void *args __attribute((unused)))
       usart_printf("slope_adc interupt\n\r");
       interupt_hit = 0;
     }
+
+
+    uint32_t x = timer_get_counter(TIM5);
+
+    usart_printf("count d %d\n\r", x);
 
     usart_printf("slope_adc hi tick %d %d\n\r", tick++, gpio_get(ADC_PORT, ADC_OUT));
     task_sleep(1000); // 1Hz
