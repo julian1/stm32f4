@@ -57,6 +57,7 @@ TODO
 #include <string.h>   // strcmp
 
 
+//////////
 #include "led.h"
 #include "pvd.h"
 #include "sleep.h"
@@ -64,27 +65,26 @@ TODO
 #include "serial.h"
 
 
-
-// #include "led.h"
+//////////
 #include "rails.h"
 #include "ref.h"
 #include "dac8734.h"
 #include "mcu_adc.h"
-// #include "mux.h"
 #include "slope_adc.h"
 
 
-// we need a continually running task to pull down rails - again... when the rails go down.
-// *and* when digital goes down.
 
-// we need setup()/ and clear()
 
 static void rails_wait_for_voltage(void)
 {
   /*
   // move to rails?
+  // block until rails come up.
   // potentially want a continuous running task to monitor, with queue events - not just a blocking call.
   // also want to pause for a couple of ticks... before unblock
+
+  // we really, need a continually running task to reset/ pull down rails - again... if rails fail/go down.
+  // *and* when digital fails.
   */
   int tick = 0;
 
@@ -95,8 +95,8 @@ static void rails_wait_for_voltage(void)
     uint16_t pa1 = mcu_adc_read_native(1);   // LN15VN
 
     // only report first time...
-    // if(tick == 0)
-    usart_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
+    if(tick == 0)
+      usart_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
 
     if(pa0 > 1000 && pa1 > 1000)
       ++good;
@@ -722,6 +722,9 @@ int main(void)
   irange_sw_setup();
   range_op_setup();
   irange_sense_setup();
+
+
+  slope_adc_setup();
 
 
 
