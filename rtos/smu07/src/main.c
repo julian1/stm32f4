@@ -772,64 +772,6 @@ int main_old(void) {
   // clocks
   // rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 
-  // led
-  rcc_periph_clock_enable(RCC_GPIOE); // JA
-
-  // Dac
-  rcc_periph_clock_enable(RCC_GPIOB); // JA
-
-  // usart
-  rcc_periph_clock_enable(RCC_GPIOA);
-  rcc_periph_clock_enable(RCC_USART1);
-
-  // spi1 / dac
-  rcc_periph_clock_enable(RCC_SPI1);
-
-  // mcu adc1
-	rcc_periph_clock_enable(RCC_ADC1);
-
-  // adc
-  rcc_periph_clock_enable(RCC_GPIOD);
-
-
-
-  ///////////////
-  // setup
-  // TODO maybe change names setup_led() setup_usart() ?
-  led_setup();
-  usart_setup();
-  usart_printf("------------------\n\r");
-  usart_printf("starting\n\r");
-
-  // /////////////
-  // EXTREME - gpio, clocks, and peripheral configuration ONLY.
-  // no actual spi calls
-  mcu_adc_setup();
-  rails_setup();
-  dac_setup_spi();
-  // dac_setup_bitbash();
-  ref_setup();
-  mux_setup();
-  slope_adc_setup();
-
-  usart_printf("------------------\n\r");
-
-  ///////////////
-  // tasks
-  // value is the stackdepth.
-	xTaskCreate(led_blink_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
-  xTaskCreate(usart_task,        "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
-
-  // IMPORTANT changing from 100 to 200, stops deadlock
-  xTaskCreate(usart_prompt_task,"PROMPT",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
-
-  xTaskCreate(test01,        "DAC_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
-
-	vTaskStartScheduler();
-
-  // should never get here?
-	for (;;);
-	return 0;
 }
 
 #endif
