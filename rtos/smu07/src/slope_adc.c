@@ -115,9 +115,8 @@ void slope_adc_setup(void)
   // timer_set_repetition_counter(TIM5, 0);
   // timer_enable_break_main_output(TIM5);
 
-  // must be disable_preload... else counter just counts to 32bits, 4billion
   timer_set_prescaler(TIM5, 0 );      // 0 is twice as fast as 1. 
-  timer_disable_preload(TIM5);
+  timer_disable_preload(TIM5);        // must be disable_preload... else counter ignores period, and counts to 32bits, 4billion
   timer_continuous_mode(TIM5);
   timer_set_period(TIM5, 10000000); // ok working 
 
