@@ -18,6 +18,8 @@
 #define ADC_OUT               GPIO0
 
 // these need to be on a timer.
+// there is a timer port.
+// need pd12 to pd15. gahhh.
 #define ADC_MUX_P_CTL         GPIO1
 #define ADC_MUX_N_CTL         GPIO2
 
@@ -28,6 +30,8 @@
   - but we can manually do it.
   - and we can probably appropriate io somewhere. and even add an inverter ic/fet common drain.
   - this is a big complicated.
+  ---------
+  should use nor gate - to construct not. perhaps.
 */
 
 // OK. first lets just report the status
