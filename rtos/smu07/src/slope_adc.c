@@ -63,7 +63,7 @@
   lets try to get interrupt working - done.
 
   now we want to blink a led - on output we can use...
-  actually multimeter would do. 
+  actually multimeter would do.
 
 */
 
@@ -97,9 +97,9 @@ void slope_adc_setup(void)
 
 
   /////////////////////////////
-  // perhaps the non ETR eg. PA15 doesn't work? 
+  // perhaps the non ETR eg. PA15 doesn't work?
 
-  rcc_periph_clock_enable(RCC_TIM2);  
+  rcc_periph_clock_enable(RCC_TIM2);
 
   // pa0.
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO15 );
@@ -110,18 +110,17 @@ void slope_adc_setup(void)
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, GPIO15); // 50is faster than 100? no. same speed
 
 
-#if 1
-  rcc_periph_reset_pulse(RST_TIM2);   // is this needed
+  rcc_periph_reset_pulse(RST_TIM2);     // reset
 
   timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
 
   // timer_set_repetition_counter(TIM2, 0);
   // timer_enable_break_main_output(TIM2);
 
-  timer_set_prescaler(TIM2, 0 );      // 0 is twice as fast as 1. 
+  timer_set_prescaler(TIM2, 0 );      // 0 is twice as fast as 1.
   timer_disable_preload(TIM2);        // must be disable_preload... else counter ignores period, and counts to 32bits, 4billion
   timer_continuous_mode(TIM2);
-  timer_set_period(TIM2, 1000000); // ok working 
+  timer_set_period(TIM2, 1000000); // ok working
 
   timer_disable_oc_output(TIM2, TIM_OC1);
   timer_set_oc_mode(TIM2, TIM_OC1, TIM_OCM_PWM1);
@@ -131,7 +130,7 @@ void slope_adc_setup(void)
   timer_enable_counter(TIM2);
 
   usart_printf("slope_adc done timer done\n\r");
-#endif
+
 }
 
 
@@ -176,9 +175,7 @@ void slope_adc_out_status_test_task(void *args __attribute((unused)))
       interupt_hit = 0;
     }
 
-
-
-    usart_printf("count %u\n\r", timer_get_counter(TIM5));
+    // usart_printf("count %u\n\r", timer_get_counter(TIM5));
 
     usart_printf("slope_adc hi tick %d %d\n\r", tick++, gpio_get(ADC_PORT, ADC_OUT));
     task_sleep(1000); // 1Hz
@@ -216,10 +213,10 @@ void slope_adc_out_status_test_task(void *args __attribute((unused)))
   // etr is external trigger.  don't think its what we want..
 
   //rcc_periph_clock_enable(RCC_GPIOA);
-  // rcc_periph_clock_enable(RCC_TIM1);  
+  // rcc_periph_clock_enable(RCC_TIM1);
 
   // summary of timers, http://stm32f4-discovery.net/2014/05/stm32f4-stm32f429-discovery-pwm-tutorial/
-  // OK. hang on. I think we want 32bit. not 16bit. resolution. with prescale of one. that ticks over pretty fast. 
+  // OK. hang on. I think we want 32bit. not 16bit. resolution. with prescale of one. that ticks over pretty fast.
   // that means timer2 or timer5
   // timer_set_oc_value (uint32_t timer_peripheral, enum tim_oc_id oc_id, uint32_t value)   is 32 bit value.
 
@@ -227,12 +224,12 @@ void slope_adc_out_status_test_task(void *args __attribute((unused)))
   // tim2-ch1  pa15   af1.
   // my god. so we can use the led status.
   // see this on pa15 confusion,
-  // https://community.st.com/s/question/0D50X00009XkZNI/where-is-tim2ch1-on-the-stm32f4-chips 
+  // https://community.st.com/s/question/0D50X00009XkZNI/where-is-tim2ch1-on-the-stm32f4-chips
   // says has to have jtag disabled,
   // https://community.st.com/s/question/0D50X00009XkbxeSAB/can-tim2ch1-not-etr-be-remapped-to-pa15-or-anywhere
-  // this has code and pretends to set PA15 but doesnt, just ignores. 
+  // this has code and pretends to set PA15 but doesnt, just ignores.
   // http://www.micromouseonline.com/2013/02/16/quadrature-encoders-with-the-stm32f4/
-  
+
   /////////////////////////////////////////
 
   // tim5 ch1 is pa0.   lp15v_fb. uggh.
