@@ -98,8 +98,8 @@ static void rails_wait_for_voltage(void)
     uint16_t pa1 = mcu_adc_read_native(1);   // LN15VN
 
     // only report first time...
-    if(tick == 0)
-      usart_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
+    // if(tick == 0)
+    usart_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
 
     if(pa0 > 1000 && pa1 > 1000)
       ++good;
@@ -111,6 +111,8 @@ static void rails_wait_for_voltage(void)
 
     task_sleep(500);
   }
+
+  usart_printf("rails ok\n");
 }
 
 
@@ -706,7 +708,7 @@ int main(void)
   rcc_periph_clock_enable(RCC_SYSCFG); 
 
 
-  rcc_periph_clock_enable(RCC_TIM5);  
+  // rcc_periph_clock_enable(RCC_TIM5);  
 
 
   ///////////////
@@ -751,13 +753,11 @@ int main(void)
   xTaskCreate(serial_prompt_task2,"SERIAL2",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 
-  //xTaskCreate(test01,        "TEST01",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
+  xTaskCreate(test01,        "TEST01",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
 	// xTaskCreate(relay_toggle_test_task,  "RELAY_TEST",100,NULL,configMAX_PRIORITIES-1,NULL);
   // xTaskCreate(report_pvd_test_task,    "PVD_TEST",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
-
-
-	xTaskCreate(slope_adc_out_status_test_task,  "SLOPE_ADC",100,NULL,configMAX_PRIORITIES-1,NULL);
+	// xTaskCreate(slope_adc_out_status_test_task,  "SLOPE_ADC",100,NULL,configMAX_PRIORITIES-1,NULL);
 
 	vTaskStartScheduler();
 

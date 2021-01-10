@@ -97,7 +97,7 @@ void slope_adc_setup(void)
 
 
   /////////////////////////////
-  // perhaps the non ETR eg. PA15 doesn't work?
+  // stm32f4, need tim2 or tim5, for 32 bit timers
 
   rcc_periph_clock_enable(RCC_TIM2);
 
@@ -118,7 +118,7 @@ void slope_adc_setup(void)
   // timer_enable_break_main_output(TIM2);
 
   timer_set_prescaler(TIM2, 0 );      // 0 is twice as fast as 1.
-  timer_disable_preload(TIM2);        // must be disable_preload... else counter ignores period, and counts to 32bits, 4billion
+  timer_disable_preload(TIM2);        // must be disable_preload()... else counter ignores period, and counts through to 32bits, 4billion
   timer_continuous_mode(TIM2);
   timer_set_period(TIM2, 1000000); // ok working
 
