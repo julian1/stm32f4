@@ -54,8 +54,6 @@
   note our pwm example - where we respond on the interupt - because we change the led in the interrupt.
 
   mux_ifb_inv_ctl pe5   tim9 ch1.  <- can use easily.
-
-
   lets try to get interrupt working.
   
 */
@@ -75,6 +73,7 @@ void slope_adc_setup(void)
   gpio_mode_setup(ADC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADC_OUT);
 
 
+  // we are using GPIO D0  so we don't want ext15
 
   // really not quite sure what EXTI15_10 means 15 or 10?
   // see code example, https://sourceforge.net/p/libopencm3/mailman/message/28510519/
@@ -85,9 +84,8 @@ void slope_adc_setup(void)
 
   /* Configure the EXTI subsystem. */
   exti_select_source(EXTI15, GPIOD);
-  exti_set_trigger(EXTI15, EXTI_TRIGGER_FALLING);
+  exti_set_trigger(EXTI15, EXTI_TRIGGER_BOTH  /*EXTI_TRIGGER_FALLING */ );
   exti_enable_request(EXTI15);
-
 
   exti_direction = FALLING;
 
@@ -99,7 +97,6 @@ void slope_adc_setup(void)
 static int interupt_hit = 0;
 
 void exti15_10_isr(void)
-// void exti0_isr(void)
 {
   exti_reset_request(EXTI15);
 
