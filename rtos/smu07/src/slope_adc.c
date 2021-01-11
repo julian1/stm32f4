@@ -231,16 +231,16 @@ void exti0_isr(void)
     /// oc_value += ((remain / (float)diff) - 1.0) * 100;
 
 #if 1
-    int32_t adjust = (remain - diff) * 0.001;
+    int32_t err = (remain - diff) * 0.0005;
 
-    usart_printf("adjust %d\n\r", adjust);
+    usart_printf("err %d\n\r", err);
 
-    if(adjust > 50) adjust = 50;
-    if(adjust < -50) adjust = -50;
+    if(err > 50) err = 50;
+    if(err < -50) err = -50;
 
-    usart_printf("clamped adjust %d\n\r", adjust);
+    usart_printf("clamped err %d\n\r", err);
 
-    oc_value += adjust  ;   // it's weird that it oscillates/ and overshoots.
+    oc_value += err  ;   // it's weird that it oscillates/ and overshoots.
     timer_set_oc_value(TIM2, TIM_OC1, oc_value);
 #endif
 
