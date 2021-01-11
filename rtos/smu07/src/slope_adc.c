@@ -184,6 +184,7 @@ void exti0_isr(void)
   // the crossing interrupt.
 
   uint32_t count = timer_get_counter(TIM2); // do as first thing
+  // count -= 20; // approx time for interupt and call to get value
 
   exti_reset_request(EXTI0);
 
@@ -199,6 +200,7 @@ void exti0_isr(void)
     // usart_putc_from_isr('xu');
 
     usart_printf("x up\n");
+    usart_printf("  count %u\n", count);
 
     // gpio_set(GPIOE, GPIO0);
     exti_direction = RISING;
@@ -218,7 +220,7 @@ void exti0_isr(void)
     int32_t remain  = period - count;
 
     // oc_value %u,
-    usart_printf("  count %u\n\r", count);
+    usart_printf("  count %u\n", count);
     usart_printf("  diff %d  remain %d\n", diff, remain );
     usart_printf("  oc_value %u\n", oc_value  );
 
