@@ -184,7 +184,7 @@ void exti0_isr(void)
   // the crossing interrupt.
 
   uint32_t count = timer_get_counter(TIM2); // do as first thing
-  // count -= 20; // approx time for interupt and call to get value
+  count -= 21; // approx time for interupt and call to get value
 
   exti_reset_request(EXTI0);
 
@@ -269,16 +269,18 @@ void exti0_isr(void)
 
 #if 1
     // appears to kind of work
-    float err = (remain - diff) * 0.005;
+    float err = (remain - diff) * 0.001;
 
-    usart_printf("err %d\n\r", (int32_t)err);
+    usart_printf("  err %d\n", (int32_t)err);
 
-    if(err > 50) err = 50;
-    if(err < -50) err = -50;
+    // if(err > 50) err = 50;
+    // if(err < -50) err = -50;
 
     // usart_printf("clamped err %d\n\r", err);
 
     oc_value += err  ;   // it's weird that it oscillates/ and overshoots.
+
+    usart_printf("  oc_value %u  (set)\n", oc_value  );
 #endif
 
 
@@ -310,6 +312,7 @@ void tim2_isr(void)
   // SR=status register, IF= interupt flag.
 
   uint32_t count = timer_get_counter(TIM2);
+  count -= 21; // approx time for interupt and call to get value
 
   if (timer_get_flag(TIM2, TIM_SR_UIF)) {
     // ok. this seems to be the thing can catch the count at 20
