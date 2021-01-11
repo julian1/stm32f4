@@ -143,15 +143,19 @@ void exti0_isr(void)
   exti_reset_request(EXTI0);
 
   // this works. quite nice
-  usart_putc_from_isr('a');
 
   interupt_hit = 1;
 
   if (exti_direction == FALLING) {
+
+    usart_putc_from_isr('u');
+
     // gpio_set(GPIOE, GPIO0);
     exti_direction = RISING;
     exti_set_trigger(EXTI0, EXTI_TRIGGER_RISING);
   } else {
+
+    usart_putc_from_isr('d');
     // gpio_clear(GPIOE, GPIO0);
     exti_direction = FALLING;
     exti_set_trigger(EXTI0, EXTI_TRIGGER_FALLING);
