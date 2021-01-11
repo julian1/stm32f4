@@ -82,6 +82,7 @@ void slope_adc_setup(void)
 
   // rcc_periph_clock_enable(RCC_SYSCFG);  for interrupts. once in main.c
 
+  // set up input and crossing interupt
   gpio_mode_setup(ADC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADC_OUT);
 
   // use GPIO D0 so need EXTI0
@@ -149,6 +150,11 @@ void slope_adc_setup(void)
 
 }
 
+// we dont even need to switch input. because its constantly being integrated.
+// so only actually require 2x of the 4x dpdt switches
+
+// think we need an interupt - so if at the end of a cycle, we got no crossing interupt . 
+// we can extend the count in a direction.
 
 /*
   OK. so using a DC sig-gen and manipulating voltage
