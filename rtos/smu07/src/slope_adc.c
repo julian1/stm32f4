@@ -173,12 +173,19 @@ void exti0_isr(void)
   exti_reset_request(EXTI0);
 
   // this works. quite nice
+  // need to work out which is which...
 
   interupt_hit = 1;
 
   if (exti_direction == FALLING) {
-
+  
+    // think this is rising.
     usart_putc_from_isr('u');
+
+    // ahhh shouldn't call this from interupt. but it seems to work...
+    // 265596
+    usart_printf("count %u\n\r", timer_get_counter(TIM2));
+    
 
     // gpio_set(GPIOE, GPIO0);
     exti_direction = RISING;
