@@ -203,11 +203,11 @@ void exti0_isr(void)
     // ahhh shouldn't call this from interupt. but it seems to work...
     // 265596
 
-    uint32_t count = timer_get_counter(TIM2);
-    int32_t diff   = count - oc_value;            // count should be greater than oc_value?
-    int32_t diff2  = period - count;
+    uint32_t intercept = timer_get_counter(TIM2);
+    int32_t diff   = intercept - oc_value;            // intercept should be greater than oc_value?
+    int32_t diff2  = period - intercept;
 
-    usart_printf("count %u diff %d  diff2 %d\n\r", count, diff, diff2 );
+    usart_printf("oc_value %u, intercept %u diff %d  diff2 %d\n\r", oc_value, intercept, diff, diff2 );
 
     if(diff < diff2) {
       oc_value += 50;
