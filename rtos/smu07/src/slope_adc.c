@@ -140,10 +140,6 @@ void slope_adc_setup(void)
   timer_set_oc_value(TIM2, TIM_OC1, oc_value);   // eg. half the period for 50% duty
   timer_enable_oc_output(TIM2, TIM_OC1);
 
-  // maybe TIM_DIER_TIE
-  // TIE trigger interupt enable.
-  //  TIM_DIER_UIE  or update interupt  enable
-  // CC   capture compare interupt enable for channel.
 
   timer_enable_irq(TIM2, TIM_DIER_CC1IE | TIM_DIER_UIE /*| TIM_DIER_TIE */ );   // counter update and capture compare
   timer_enable_counter(TIM2);
