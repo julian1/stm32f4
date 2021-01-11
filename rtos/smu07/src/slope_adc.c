@@ -75,6 +75,8 @@
 #define RISING 1
 static uint16_t exti_direction = FALLING;
 
+static uint32_t period = 0;
+static uint32_t oc_value = 0;
 
 void slope_adc_setup(void)
 {
@@ -124,11 +126,15 @@ void slope_adc_setup(void)
   timer_set_prescaler(TIM2, 0 );      // 0 is twice as fast as 1.
   timer_disable_preload(TIM2);        // must be disable_preload()... else counter ignores period, and counts through to 32bits, 4billion
   timer_continuous_mode(TIM2);
-  timer_set_period(TIM2, 1000000); // ok working
+
+  period = 1000000;
+  timer_set_period(TIM2, period); // ok working
 
   timer_disable_oc_output(TIM2, TIM_OC1);
   timer_set_oc_mode(TIM2, TIM_OC1, TIM_OCM_PWM1);
-  timer_set_oc_value(TIM2, TIM_OC1, 500000);   // eg. half the period for 50% duty
+
+  oc_value = 500000;
+  timer_set_oc_value(TIM2, TIM_OC1, oc_value);   // eg. half the period for 50% duty
   timer_enable_oc_output(TIM2, TIM_OC1);
 
   timer_enable_counter(TIM2);
@@ -177,22 +183,49 @@ void exti0_isr(void)
 
   interupt_hit = 1;
 
+  // this rising falling is no good at all. it's just a toggle.
+
   if (exti_direction == FALLING) {
   
     // think this is rising.
     usart_putc_from_isr('u');
 
-    // ahhh shouldn't call this from interupt. but it seems to work...
-    // 265596
-    usart_printf("count %u\n\r", timer_get_counter(TIM2));
-    
-
     // gpio_set(GPIOE, GPIO0);
     exti_direction = RISING;
     exti_set_trigger(EXTI0, EXTI_TRIGGER_RISING);
+
   } else {
 
     usart_putc_from_isr('d');
+
+    // integrating up... I think.
+
+    // ahhh shouldn't call this from interupt. but it seems to work...
+    // 265596
+
+    uint32_t count = timer_get_counter(TIM2);
+    int32_t diff   = count - oc_value;            // count should be greater than oc_value?
+    int32_t diff2  = period - count;
+
+    usart_printf("count %u diff %d  diff2 %d\n\r", count, diff, diff2 );
+
+    if(diff < diff2) {
+      oc_value += 50;
+    } else {
+      oc_value -= 50;
+    }
+    
+
+    timer_set_oc_value(TIM2, TIM_OC1, oc_value);   // eg. half the period for 50% duty
+
+    // see also,  timer_set_oc_fast_mode()
+
+    // ahhh is there an issue t
+    // timer_set_oc_value(TIM2, TIM_OC1, 500000);   
+    // timer_get_oc_value(TIM2, TIM_OC1);   
+
+
+
     // gpio_clear(GPIOE, GPIO0);
     exti_direction = FALLING;
     exti_set_trigger(EXTI0, EXTI_TRIGGER_FALLING);
@@ -279,4 +312,53 @@ void slope_adc_out_status_test_task(void *args __attribute((unused)))
   maybe a conflict with swd/jtag output.
   eg. works for gpio. but not AF1.
 */
+
+
+
+#if 0
+void exti0_isr(void)
+{
+  exti_reset_request(EXTI0);
+
+  // this works. quite nice
+  // need to work out which is which...
+
+  interupt_hit = 1;
+
+  // this rising falling is no good at all. it's just a toggle.
+
+  if (exti_direction == FALLING) {
+  
+    // think this is rising.
+    usart_putc_from_isr('u');
+
+    // ahhh shouldn't call this from interupt. but it seems to work...
+    // 265596
+
+    uint32_t count = timer_get_counter(TIM2);
+    int32_t diff   = count - oc_value;    // count should be greater than oc_value?
+
+    usart_printf("count %u diff %d\n\r", count, diff );
+
+    timer_set_oc_value(TIM2, TIM_OC1, oc_value);   // eg. half the period for 50% duty
+
+    // see also,  timer_set_oc_fast_mode()
+
+    // ahhh is there an issue t
+    // timer_set_oc_value(TIM2, TIM_OC1, 500000);   
+    // timer_get_oc_value(TIM2, TIM_OC1);   
+
+    // gpio_set(GPIOE, GPIO0);
+    exti_direction = RISING;
+    exti_set_trigger(EXTI0, EXTI_TRIGGER_RISING);
+  } else {
+
+    usart_putc_from_isr('d');
+    // gpio_clear(GPIOE, GPIO0);
+    exti_direction = FALLING;
+    exti_set_trigger(EXTI0, EXTI_TRIGGER_FALLING);
+  }
+}
+
+#endif
 
