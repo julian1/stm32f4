@@ -212,9 +212,14 @@ void exti0_isr(void)
 /*
   extreme could be a problem with interupt being hit multiple times.
   resulting in multiple error values adjusting. not stabilizing.
+
+  or quantitization error. need to using a doulbe for oc_value
+
+  oc_value is changing in huge amounts.... why?
+  eg. adjut is 1. but value change 100?
 */
 
-#if 1
+#if 0
     // this works.
     if(diff < remain) {
       oc_value += 50;
@@ -226,7 +231,7 @@ void exti0_isr(void)
     /// oc_value += ((remain / (float)diff) - 1.0) * 100;
 
 #if 1
-    int32_t adjust = (remain - diff) * 0.0001;
+    int32_t adjust = (remain - diff) * 0.001;
 
     usart_printf("adjust %d\n\r", adjust);
 
