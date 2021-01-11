@@ -107,6 +107,9 @@ void slope_adc_setup(void)
 
   rcc_periph_clock_enable(RCC_TIM2);
 
+    /* Enable TIM2 interrupt. */
+  nvic_enable_irq(NVIC_TIM2_IRQ);
+
   // pa0.
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO15 );
   gpio_set_af(GPIOA, GPIO_AF1, GPIO15 ); // PA0 AF1 == TIM2-CH1-ETR, PA0 AF2 == tim5-ch1 .
@@ -137,11 +140,18 @@ void slope_adc_setup(void)
   timer_set_oc_value(TIM2, TIM_OC1, oc_value);   // eg. half the period for 50% duty
   timer_enable_oc_output(TIM2, TIM_OC1);
 
+  // maybe TIM_DIER_TIE
+  // TIE trigger interupt enable.
+  //  TIM_DIER_UIE  or update interupt  enable
+  // CC   capture compare interupt enable for channel.
+
+  timer_enable_irq(TIM2, TIM_DIER_CC1IE);       // enable interupt. on capture compare.
   timer_enable_counter(TIM2);
 
   /////////////////////////////
   /////////////////////////////
-
+  // ports to mux voltages to integrator
+  
 
   // u16
   const uint16_t all = ADC_MUX_P_CTL  | ADC_MUX_N_CTL | ADC_IN_CTL | ADC_RESET_CTL;
@@ -176,6 +186,8 @@ static int interupt_hit = 0;
 
 void exti0_isr(void)
 {
+  // the crossing interrupt.
+
   exti_reset_request(EXTI0);
 
   // this works. quite nice
@@ -210,10 +222,20 @@ void exti0_isr(void)
     usart_printf("oc_value %u, intercept %u diff %d  remain %d\n\r", oc_value, intercept, diff, remain );
 
 /*
-  toggle a gpio pin.  on the interupt. and hook up to a scope. 
-    to confirm we are not getting spurious values.
+  its overshooting back and forward. regardless
+
+  ----
+  toggle a gpio pin.  on the crossing interupt. and hook up to a scope. 
+    to confirm we are not getting multiple interrupts on a cross.
+    - is there another way to do this?
+    - yes an interupt on new cycle.  
+
+    -----
+    we can do print statements instead of a scope - if have the oc/period pwm interupt.
+    
 
   also hook up to a scope - the injection ctl.
+ crystal
 
   extreme could be a problem with interupt being hit multiple times.
   resulting in multiple error values adjusting. not stabilizing.
@@ -270,6 +292,34 @@ void exti0_isr(void)
 
 
 
+
+void tim2_isr(void)
+{
+  // we want interupts for the period. and the oc. in fact we don't much care about oc.
+  // the period and oc interupt
+  // want to distinguish the two states. beginning/end. and oc.
+  // 
+
+// think we need to clear flag also...
+//    TIM_SR(TIM6) &= ~TIM_SR_UIF;
+
+
+  // SR=status register, IF= interupt flag.
+
+  if (timer_get_flag(TIM2, TIM_SR_UIF)) {
+
+    timer_clear_flag(TIM2, TIM_SR_UIF);  
+  }
+
+  if (timer_get_flag(TIM2, TIM_SR_CC1IF)) {
+
+    /* Clear compare interrupt flag. */
+    timer_clear_flag(TIM2, TIM_SR_CC1IF);   // TIM_DIER_CC1IE  ??   TIM_SR_CC1IF
+
+
+  }
+
+}
 
 
 
