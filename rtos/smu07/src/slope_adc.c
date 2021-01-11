@@ -145,13 +145,13 @@ void slope_adc_setup(void)
   //  TIM_DIER_UIE  or update interupt  enable
   // CC   capture compare interupt enable for channel.
 
-  timer_enable_irq(TIM2, TIM_DIER_CC1IE);       // enable interupt. on capture compare.
+  timer_enable_irq(TIM2, TIM_DIER_CC1IE | TIM_DIER_UIE /*| TIM_DIER_TIE */ );   // counter update and capture compare
   timer_enable_counter(TIM2);
 
   /////////////////////////////
   /////////////////////////////
   // ports to mux voltages to integrator
-  
+
 
   // u16
   const uint16_t all = ADC_MUX_P_CTL  | ADC_MUX_N_CTL | ADC_IN_CTL | ADC_RESET_CTL;
@@ -200,7 +200,9 @@ void exti0_isr(void)
   if (exti_direction == FALLING) {
 
     // think this is rising.
-    usart_putc_from_isr('u');
+    // usart_putc_from_isr('xu');
+
+    usart_printf("x up\n");
 
     // gpio_set(GPIOE, GPIO0);
     exti_direction = RISING;
@@ -208,31 +210,34 @@ void exti0_isr(void)
 
   } else {
 
-    usart_putc_from_isr('d');
+    usart_printf("x dwn\n");
+    // usart_putc_from_isr('d');
 
     // integrating up... I think.
 
     // ahhh shouldn't call this from interupt. but it seems to work...
     // 265596
 
-    uint32_t intercept = timer_get_counter(TIM2);
-    int32_t diff   = intercept - oc_value;            // intercept should be greater than oc_value?
-    int32_t remain  = period - intercept;
+    uint32_t count = timer_get_counter(TIM2);
+    int32_t diff   = count - oc_value;            // count should be greater than oc_value?
+    int32_t remain  = period - count;
 
-    usart_printf("oc_value %u, intercept %u diff %d  remain %d\n\r", oc_value, intercept, diff, remain );
+    // oc_value %u,
+    usart_printf("  count    %u diff %d  remain %d\n\r", count, diff, remain );
+    usart_printf("  oc_value %u\n\r", oc_value  );
 
 /*
   its overshooting back and forward. regardless
 
   ----
-  toggle a gpio pin.  on the crossing interupt. and hook up to a scope. 
+  toggle a gpio pin.  on the crossing interupt. and hook up to a scope.
     to confirm we are not getting multiple interrupts on a cross.
     - is there another way to do this?
-    - yes an interupt on new cycle.  
+    - yes an interupt on new cycle.
 
     -----
     we can do print statements instead of a scope - if have the oc/period pwm interupt.
-    
+
 
   also hook up to a scope - the injection ctl.
  crystal
@@ -263,12 +268,12 @@ void exti0_isr(void)
     // int32_t err = (remain - diff) * 0.0005;
     int32_t err = (remain - diff) / 2 ;
 
-    usart_printf("err %d\n\r", err);
+    // usart_printf("err %d\n\r", err);
 
     if(err > 50) err = 50;
     if(err < -50) err = -50;
 
-    usart_printf("clamped err %d\n\r", err);
+    // usart_printf("clamped err %d\n\r", err);
 
     oc_value += err  ;   // it's weird that it oscillates/ and overshoots.
     timer_set_oc_value(TIM2, TIM_OC1, oc_value);
@@ -295,28 +300,28 @@ void exti0_isr(void)
 
 void tim2_isr(void)
 {
-  // we want interupts for the period. and the oc. in fact we don't much care about oc.
-  // the period and oc interupt
-  // want to distinguish the two states. beginning/end. and oc.
-  // 
-
-// think we need to clear flag also...
-//    TIM_SR(TIM6) &= ~TIM_SR_UIF;
-
-
+  // interupts for beginning of period (update), and output compare
+  // EXTREME ---- if cannot get it someother way - then get the interupt by setting oc to 1 on second channel
   // SR=status register, IF= interupt flag.
 
-  if (timer_get_flag(TIM2, TIM_SR_UIF)) {
+  uint32_t count = timer_get_counter(TIM2);
 
-    timer_clear_flag(TIM2, TIM_SR_UIF);  
+  if (timer_get_flag(TIM2, TIM_SR_UIF)) {
+    // ok. this seems to be the thing can catch the count at 20
+    timer_clear_flag(TIM2, TIM_SR_UIF);
+
+    usart_printf("-----\n");
+    usart_printf("uif\n");
+    usart_printf("  count %u\n", count );
   }
 
-  if (timer_get_flag(TIM2, TIM_SR_CC1IF)) {
 
+
+  if (timer_get_flag(TIM2, TIM_SR_CC1IF)) {
     /* Clear compare interrupt flag. */
     timer_clear_flag(TIM2, TIM_SR_CC1IF);   // TIM_DIER_CC1IE  ??   TIM_SR_CC1IF
-
-
+    usart_printf("cc1if\n\r");
+    usart_printf("  count %u\n", count );
   }
 
 }
