@@ -134,10 +134,14 @@ void slope_adc_setup(void)
 }
 
 
+/*
+  OK. so using a DC sig-gen and manipulating voltage
+  will generate several interupts.
+  but think we can discriminate in software.
+*/
 
 static int interupt_hit = 0;
 
-// void exti15_10_isr(void)
 void exti0_isr(void)
 {
   exti_reset_request(EXTI0);
