@@ -205,25 +205,30 @@ void exti0_isr(void)
 
     uint32_t intercept = timer_get_counter(TIM2);
     int32_t diff   = intercept - oc_value;            // intercept should be greater than oc_value?
-    int32_t diff2  = period - intercept;
+    int32_t remain  = period - intercept;
 
-    usart_printf("oc_value %u, intercept %u diff %d  diff2 %d\n\r", oc_value, intercept, diff, diff2 );
+    usart_printf("oc_value %u, intercept %u diff %d  remain %d\n\r", oc_value, intercept, diff, remain );
 
-    if(diff < diff2) {
+#if 0
+    // this works.
+    if(diff < remain) {
       oc_value += 50;
     } else {
       oc_value -= 50;
     }
+#endif
+    // oc_value += (remain - diff) * 0.1;
+    /// oc_value += ((remain / (float)diff) - 1.0) * 100;
+
+    oc_value += (remain - diff) / 1000 ;
+    
+    // actually it ought to be possible to calculate the desired value exactly... 
+    
     
 
     timer_set_oc_value(TIM2, TIM_OC1, oc_value);   // eg. half the period for 50% duty
 
     // see also,  timer_set_oc_fast_mode()
-
-    // ahhh is there an issue t
-    // timer_set_oc_value(TIM2, TIM_OC1, 500000);   
-    // timer_get_oc_value(TIM2, TIM_OC1);   
-
 
 
     // gpio_clear(GPIOE, GPIO0);
