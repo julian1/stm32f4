@@ -213,6 +213,8 @@ void exti0_isr(void)
   extreme could be a problem with interupt being hit multiple times.
   resulting in multiple error values adjusting. not stabilizing.
 
+  or lagging because of print.
+
   or quantitization error. need to using a doulbe for oc_value
 
   oc_value is changing in huge amounts.... why?
@@ -231,7 +233,8 @@ void exti0_isr(void)
     /// oc_value += ((remain / (float)diff) - 1.0) * 100;
 
 #if 1
-    int32_t err = (remain - diff) * 0.0005;
+    // int32_t err = (remain - diff) * 0.0005;
+    int32_t err = (remain - diff) / 2 ;
 
     usart_printf("err %d\n\r", err);
 
