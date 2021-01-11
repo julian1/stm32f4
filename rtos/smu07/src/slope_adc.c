@@ -178,20 +178,20 @@ void slope_adc_setup(void)
   but think we can discriminate in software.
 */
 
-static int interupt_hit = 0;
 
 void exti0_isr(void)
 {
   // the crossing interrupt.
 
+  uint32_t count = timer_get_counter(TIM2); // do as first thing
+
   exti_reset_request(EXTI0);
 
-  // this works. quite nice
-  // need to work out which is which...
 
-  interupt_hit = 1;
 
   // this rising falling is no good at all. it's just a toggle.
+
+  // TODO - this state variable is terrible - we should be able to get the direction from the mcu flags
 
   if (exti_direction == FALLING) {
 
@@ -214,15 +214,20 @@ void exti0_isr(void)
     // ahhh shouldn't call this from interupt. but it seems to work...
     // 265596
 
-    uint32_t count = timer_get_counter(TIM2);
     int32_t diff   = count - oc_value;            // count should be greater than oc_value?
     int32_t remain  = period - count;
 
     // oc_value %u,
-    usart_printf("  count    %u diff %d  remain %d\n\r", count, diff, remain );
-    usart_printf("  oc_value %u\n\r", oc_value  );
+    usart_printf("  count %u\n\r", count);
+    usart_printf("  diff %d  remain %d\n", diff, remain );
+    usart_printf("  oc_value %u\n", oc_value  );
 
 /*
+
+
+  reason - not getting count as first thing. also probably need to adjust.
+            
+
   its overshooting back and forward. regardless
 
   ----
@@ -261,10 +266,10 @@ void exti0_isr(void)
     /// oc_value += ((remain / (float)diff) - 1.0) * 100;
 
 #if 1
-    // int32_t err = (remain - diff) * 0.0005;
-    int32_t err = (remain - diff) / 2 ;
+    // appears to kind of work
+    float err = (remain - diff) * 0.005;
 
-    // usart_printf("err %d\n\r", err);
+    usart_printf("err %d\n\r", (int32_t)err);
 
     if(err > 50) err = 50;
     if(err < -50) err = -50;
@@ -272,8 +277,10 @@ void exti0_isr(void)
     // usart_printf("clamped err %d\n\r", err);
 
     oc_value += err  ;   // it's weird that it oscillates/ and overshoots.
-    timer_set_oc_value(TIM2, TIM_OC1, oc_value);
 #endif
+
+
+    timer_set_oc_value(TIM2, TIM_OC1, oc_value);
 
 
     /*
@@ -323,7 +330,7 @@ void tim2_isr(void)
 }
 
 
-
+#if 0
 void slope_adc_out_status_test_task(void *args __attribute((unused)))
 {
   int tick = 0;
@@ -340,7 +347,7 @@ void slope_adc_out_status_test_task(void *args __attribute((unused)))
     task_sleep(1000); // 1Hz
 	}
 }
-
+#endif
 
 
 
