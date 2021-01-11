@@ -152,6 +152,8 @@ void slope_adc_setup(void)
 
 // we dont even need to switch input. because its constantly being integrated.
 // so only actually require 2x of the 4x dpdt switches
+// OR - the corrective voltage - should always be able to run long enough - to push to centre (to get interrupt). when first start?
+
 
 // think we need an interupt - so if at the end of a cycle, we got no crossing interupt . 
 // we can extend the count in a direction.
