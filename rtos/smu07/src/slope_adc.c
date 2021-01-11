@@ -150,7 +150,7 @@ void slope_adc_setup(void)
   gpio_mode_setup(ADC_MUX_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
 
   // injecct +10V ref, which will integrate output to the negative rail
-  gpio_set(ADC_MUX_PORT, ADC_MUX_P_CTL);   
+  gpio_set(ADC_MUX_PORT, ADC_MUX_P_CTL);
 
   usart_printf("slope_adc done timer done\n\r");
 
@@ -163,7 +163,7 @@ void slope_adc_setup(void)
 // enough - that will always pass agng (to get interrupt). when first start?
 
 
-// think we need an interupt - so if at the end of a cycle, we got no crossing interupt . 
+// think we need an interupt - so if at the end of a cycle, we got no crossing interupt .
 // we can extend the count in a direction.
 
 /*
@@ -186,7 +186,7 @@ void exti0_isr(void)
   // this rising falling is no good at all. it's just a toggle.
 
   if (exti_direction == FALLING) {
-  
+
     // think this is rising.
     usart_putc_from_isr('u');
 
@@ -209,7 +209,12 @@ void exti0_isr(void)
 
     usart_printf("oc_value %u, intercept %u diff %d  remain %d\n\r", oc_value, intercept, diff, remain );
 
-#if 0
+/*
+  extreme could be a problem with interupt being hit multiple times.
+  resulting in multiple error values adjusting. not stabilizing.
+*/
+
+#if 1
     // this works.
     if(diff < remain) {
       oc_value += 50;
@@ -220,13 +225,24 @@ void exti0_isr(void)
     // oc_value += (remain - diff) * 0.1;
     /// oc_value += ((remain / (float)diff) - 1.0) * 100;
 
-    oc_value += (remain - diff) / 1000 ;
-    
-    // actually it ought to be possible to calculate the desired value exactly... 
-    
-    
+#if 1
+    int32_t adjust = (remain - diff) * 0.0001;
 
-    timer_set_oc_value(TIM2, TIM_OC1, oc_value);   // eg. half the period for 50% duty
+    usart_printf("adjust %d\n\r", adjust);
+
+    if(adjust > 50) adjust = 50;
+    if(adjust < -50) adjust = -50;
+
+    usart_printf("clamped adjust %d\n\r", adjust);
+
+    oc_value += adjust  ;   // it's weird that it oscillates/ and overshoots.
+    timer_set_oc_value(TIM2, TIM_OC1, oc_value);
+#endif
+
+
+    /*
+      it ought to be possible to calculate the desired value exactly...
+    */
 
     // see also,  timer_set_oc_fast_mode()
 
@@ -333,7 +349,7 @@ void exti0_isr(void)
   // this rising falling is no good at all. it's just a toggle.
 
   if (exti_direction == FALLING) {
-  
+
     // think this is rising.
     usart_putc_from_isr('u');
 
@@ -350,8 +366,8 @@ void exti0_isr(void)
     // see also,  timer_set_oc_fast_mode()
 
     // ahhh is there an issue t
-    // timer_set_oc_value(TIM2, TIM_OC1, 500000);   
-    // timer_get_oc_value(TIM2, TIM_OC1);   
+    // timer_set_oc_value(TIM2, TIM_OC1, 500000);
+    // timer_get_oc_value(TIM2, TIM_OC1);
 
     // gpio_set(GPIOE, GPIO0);
     exti_direction = RISING;
