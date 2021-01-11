@@ -123,11 +123,11 @@ void slope_adc_setup(void)
   timer_set_prescaler(TIM2, 0 );      // 0 is twice as fast as 1.
   timer_disable_preload(TIM2);        // must be disable_preload()... else counter ignores period, and counts through to 32bits, 4billion
   timer_continuous_mode(TIM2);
-  timer_set_period(TIM2, 1000000); // ok working
+  timer_set_period(TIM2, 100000); // ok working
 
   timer_disable_oc_output(TIM2, TIM_OC1);
   timer_set_oc_mode(TIM2, TIM_OC1, TIM_OCM_PWM1);
-  timer_set_oc_value(TIM2, TIM_OC1, 500000);   // eg. half the period for 50% duty
+  timer_set_oc_value(TIM2, TIM_OC1, 50000);   // eg. half the period for 50% duty
   timer_enable_oc_output(TIM2, TIM_OC1);
 
   timer_enable_counter(TIM2);
@@ -141,6 +141,9 @@ void slope_adc_setup(void)
 
   gpio_clear(ADC_MUX_PORT, all);   // off for adg333 spdt
   gpio_mode_setup(ADC_MUX_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
+
+  // injecct +10V ref, which will integrate output to the negative rail
+  gpio_set(ADC_MUX_PORT, ADC_MUX_P_CTL);   
 
   usart_printf("slope_adc done timer done\n\r");
 
