@@ -162,22 +162,6 @@ void slope_adc_setup(void)
 
 }
 
-// we dont even need to switch input. because its constantly being integrated.
-// so only actually require 2x of the 4x dpdt switches
-
-// OR - the integrating period for the corrective voltage - should be long
-// enough - that will always pass agng (to get interrupt). when first start?
-
-
-// think we need an interupt - so if at the end of a cycle, we got no crossing interupt .
-// we can extend the count in a direction.
-
-/*
-  OK. so using a DC sig-gen and manipulating voltage
-  will generate several interupts.
-  but think we can discriminate in software.
-*/
-
 
 void exti0_isr(void)
 {
@@ -222,39 +206,14 @@ void exti0_isr(void)
     // oc_value %u,
     usart_printf("  count %u\n", count);
     usart_printf("  diff %d  remain %d\n", diff, remain );
-    usart_printf("  oc_value %u\n", oc_value  );
-
-/*
 
 
-  reason - not getting count as first thing. also probably need to adjust.
-            
 
-  its overshooting back and forward. regardless
-
-  ----
-  toggle a gpio pin.  on the crossing interupt. and hook up to a scope.
-    to confirm we are not getting multiple interrupts on a cross.
-    - is there another way to do this?
-    - yes an interupt on new cycle.
-
-    -----
-    we can do print statements instead of a scope - if have the oc/period pwm interupt.
+    float err = (remain - diff) / 10.0 ;   // it's weird that it oscillates/ and overshoots.
 
 
-  also hook up to a scope - the injection ctl.
- crystal
-
-  extreme could be a problem with interupt being hit multiple times.
-  resulting in multiple error values adjusting. not stabilizing.
-
-  or lagging because of print.
-
-  or quantitization error. need to using a doulbe for oc_value
-
-  oc_value is changing in huge amounts.... why?
-  eg. adjut is 1. but value change 100?
-*/
+    usart_printf("  err %d\n", (int32_t)err);
+    oc_value += err;
 
 #if 0
     // this works.
@@ -267,9 +226,9 @@ void exti0_isr(void)
     // oc_value += (remain - diff) * 0.1;
     /// oc_value += ((remain / (float)diff) - 1.0) * 100;
 
-#if 1
+#if 0
     // appears to kind of work
-    float err = (remain - diff) * 0.001;
+    float err = ((float)remain - diff) / (remain + diff )  * 1000.0;
 
     usart_printf("  err %d\n", (int32_t)err);
 
@@ -284,6 +243,7 @@ void exti0_isr(void)
 #endif
 
 
+    usart_printf("  oc_value %u\n", oc_value  );
     timer_set_oc_value(TIM2, TIM_OC1, oc_value);
 
 
@@ -302,7 +262,9 @@ void exti0_isr(void)
 
 
 
-
+// OK. the issue is that it doesn't start the integrationn ... at 0...
+// which is our assumption.
+// 
 
 
 void tim2_isr(void)
@@ -335,30 +297,30 @@ void tim2_isr(void)
 }
 
 
-#if 0
-void slope_adc_out_status_test_task(void *args __attribute((unused)))
-{
-  int tick = 0;
-	for (;;) {
-
-    if(interupt_hit) {
-      usart_printf("slope_adc interupt\n\r");
-      interupt_hit = 0;
-    }
-
-    // usart_printf("count %u\n\r", timer_get_counter(TIM5));
-
-    usart_printf("slope_adc hi tick %d %d\n\r", tick++, gpio_get(ADC_PORT, ADC_OUT));
-    task_sleep(1000); // 1Hz
-	}
-}
-#endif
-
-
 
 
 
 ////////////////////////////
+
+
+
+// we dont even need to switch input. because its constantly being integrated.
+// so only actually require 2x of the 4x dpdt switches
+
+// OR - the integrating period for the corrective voltage - should be long
+// enough - that will always pass agng (to get interrupt). when first start?
+
+
+// think we need an interupt - so if at the end of a cycle, we got no crossing interupt .
+// we can extend the count in a direction.
+
+/*
+  OK. so using a DC sig-gen and manipulating voltage
+  will generate several interupts.
+  but think we can discriminate in software.
+*/
+
+
 
 // this might be getting other interupts also... not sure.
 
@@ -410,6 +372,38 @@ void slope_adc_out_status_test_task(void *args __attribute((unused)))
   eg. works for gpio. but not AF1.
 */
 
+/*
+
+
+  reason - not getting count as first thing. also probably need to adjust.
+            
+
+  its overshooting back and forward. regardless
+
+  ----
+  toggle a gpio pin.  on the crossing interupt. and hook up to a scope.
+    to confirm we are not getting multiple interrupts on a cross.
+    - is there another way to do this?
+    - yes an interupt on new cycle.
+
+    -----
+    we can do print statements instead of a scope - if have the oc/period pwm interupt.
+
+
+  also hook up to a scope - the injection ctl.
+ crystal
+
+  extreme could be a problem with interupt being hit multiple times.
+  resulting in multiple error values adjusting. not stabilizing.
+
+  or lagging because of print.
+
+  or quantitization error. need to using a doulbe for oc_value
+
+  oc_value is changing in huge amounts.... why?
+  eg. adjut is 1. but value change 100?
+*/
+
 
 
 #if 0
@@ -458,4 +452,24 @@ void exti0_isr(void)
 }
 
 #endif
+
+#if 0
+void slope_adc_out_status_test_task(void *args __attribute((unused)))
+{
+  int tick = 0;
+	for (;;) {
+
+    if(interupt_hit) {
+      usart_printf("slope_adc interupt\n\r");
+      interupt_hit = 0;
+    }
+
+    // usart_printf("count %u\n\r", timer_get_counter(TIM5));
+
+    usart_printf("slope_adc hi tick %d %d\n\r", tick++, gpio_get(ADC_PORT, ADC_OUT));
+    task_sleep(1000); // 1Hz
+	}
+}
+#endif
+
 
