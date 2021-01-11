@@ -1,4 +1,6 @@
 
+// move gpio defines to central file,
+
 // should define these in led.h for the board. or else move all code here
 // led_setup() is separately defined...
 #if 0

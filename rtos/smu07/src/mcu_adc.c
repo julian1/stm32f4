@@ -22,6 +22,8 @@ void mcu_adc_setup(void)
 {
   usart_printf("mcu_adc setup\n\r");
 
+  // TODO fixme one line!!. 
+  // use schematic label defines.
 	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0);
 	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1);
 

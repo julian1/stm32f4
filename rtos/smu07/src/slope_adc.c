@@ -19,7 +19,7 @@
 #include "slope_adc.h"
 
 
-#define ADC_PORT              GPIOD
+#define ADC_PORT              GPIOD   // rename ADC_OUT_PORT... albeit this is just standard gpio.
 #define ADC_OUT               GPIO0
 
 // these need to be on a timer.
@@ -34,9 +34,6 @@
 // tim1 ch 1  pa8.   unused - but we didn't pull the pin out.
 // tim1 ch 1. pe9     mux_inject_agnd_ctl.   OK. unused.   But would have to change existing code...
 // tim3 ch 1  pc6    irange sw.
-
-#define ADC_MUX_P_CTL         GPIO1
-#define ADC_MUX_N_CTL         GPIO2
 
 /*
   OK. I think we screwed up the adc. by not putting the P and N ref on a timer port. and with inverse.
@@ -67,6 +64,11 @@
 
 */
 
+#define ADC_MUX_PORT    GPIOD
+#define ADC_MUX_P_CTL   GPIO1
+#define ADC_MUX_N_CTL   GPIO2   // disconnected.
+#define ADC_IN_CTL      GPIO3
+#define ADC_RESET_CTL   GPIO4   // unused. jumper not fitted.
 
 
 #define FALLING 0
@@ -96,6 +98,7 @@ void slope_adc_setup(void)
 
 
 
+  /////////////////////////////
   /////////////////////////////
   // stm32f4, need tim2 or tim5, for 32 bit timers
 
@@ -128,6 +131,16 @@ void slope_adc_setup(void)
   timer_enable_oc_output(TIM2, TIM_OC1);
 
   timer_enable_counter(TIM2);
+
+  /////////////////////////////
+  /////////////////////////////
+
+
+  // u16
+  const uint16_t all = ADC_MUX_P_CTL  | ADC_MUX_N_CTL | ADC_IN_CTL | ADC_RESET_CTL;
+
+  gpio_clear(ADC_MUX_PORT, all);   // off for adg333 spdt
+  gpio_mode_setup(ADC_MUX_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
 
   usart_printf("slope_adc done timer done\n\r");
 
