@@ -210,6 +210,11 @@ void exti0_isr(void)
     usart_printf("oc_value %u, intercept %u diff %d  remain %d\n\r", oc_value, intercept, diff, remain );
 
 /*
+  toggle a gpio pin.  on the interupt. and hook up to a scope. 
+    to confirm we are not getting spurious values.
+
+  also hook up to a scope - the injection ctl.
+
   extreme could be a problem with interupt being hit multiple times.
   resulting in multiple error values adjusting. not stabilizing.
 
