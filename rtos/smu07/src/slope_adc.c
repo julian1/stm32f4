@@ -200,7 +200,7 @@ void exti0_isr(void)
     // ahhh shouldn't call this from interupt. but it seems to work...
     // 265596
 
-    int32_t diff   = count - oc_value;            // count should be greater than oc_value?
+    int32_t diff    = count - oc_value;            // count should be greater than oc_value?
     int32_t remain  = period - count;
 
     // oc_value %u,
@@ -264,7 +264,7 @@ void exti0_isr(void)
 
 // OK. the issue is that it doesn't start the integrationn ... at 0...
 // which is our assumption.
-// 
+// that's why it overshoots and bounces around. 
 
 
 void tim2_isr(void)
