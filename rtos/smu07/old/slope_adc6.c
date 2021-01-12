@@ -16,7 +16,6 @@
 //////////////////////////////////////////
 
 
-#include "led.h"
 #include "sleep.h"
 #include "serial.h"
 #include "slope_adc.h"
@@ -24,223 +23,6 @@
 
 #define ADC_PORT              GPIOD   // rename ADC_OUT_PORT... albeit this is just standard gpio.
 #define ADC_OUT               GPIO0
-
-
-#define ADC_MUX_PORT    GPIOD
-#define ADC_MUX_P_CTL   GPIO1
-#define ADC_MUX_N_CTL   GPIO2   // disconnected.
-#define ADC_IN_CTL      GPIO3
-#define ADC_RESET_CTL   GPIO4   // unused. jumper not fitted.
-
-
-/*
-#define DAC_PORT      GPIOB
-#define DAC_LDAC      GPIO0
-#define DAC_RST       GPIO1
-*/
-
-#define MCU_GPIO_PORT   GPIOB
-#define MCU_GPIO1       GPIO10
-#define MCU_GPIO2       GPIO11
-
-
-
-
-#define FALLING 0
-#define RISING 1
-static uint16_t exti_direction = FALLING;
-
-static uint32_t period = 0;
-
-
-
-void slope_adc_setup(void)
-{
-  usart_printf("slope_adc setup\n\r");
-
-
-  //////////
-  //////////
-  // crossing detect config
-  // rcc_periph_clock_enable(RCC_SYSCFG);  for interrupts. once in main.c
-
-  // set up input and crossing interupt
-  gpio_mode_setup(ADC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADC_OUT);
-
-  // use GPIO D0 so need EXTI0
-  nvic_enable_irq(NVIC_EXTI0_IRQ);
-
-  /* Configure the EXTI subsystem. */
-  exti_select_source(EXTI0, GPIOD);
-  exti_set_trigger(EXTI0, EXTI_TRIGGER_BOTH  /*EXTI_TRIGGER_FALLING */ );
-  exti_enable_request(EXTI0);
-
-  exti_direction = FALLING;
-
-
-
-#if 1
-  /////////////////////////////
-  /////////////////////////////
-  // GPIOA PA15 - led out...  need to resolder old connections back
-  gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT);
-  gpio_set_output_options(LED_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, LED_OUT);
-  gpio_set(LED_PORT, LED_OUT);
-
-#endif
-
-
-  /////////////////////////////////
-  /*
-    countdown timer.
-    because for updatable countdown periods simpler.
-    since don't have to subtract desired time from the period of a count-up timer.
-    stm32f4, want tim2 or tim5, for 32 bit timers
-  */
-  rcc_periph_clock_enable(RCC_TIM2);
-
-    /* Enable TIM2 interrupt. */
-  nvic_enable_irq(NVIC_TIM2_IRQ);
-
-
-  rcc_periph_reset_pulse(RST_TIM2);     // reset
-  timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_DOWN);
-  timer_enable_break_main_output(TIM2);
-  timer_set_prescaler(TIM2, 0 );            // 0 is twice as fast as 1.
-  period = 200000;
-  timer_set_counter(TIM2, period );
-
-  timer_enable_irq(TIM2, TIM_DIER_UIE);   // counter update
-  timer_enable_counter(TIM2);               // start timer, IMPROTANT should be done last!!!.... or will miss.
-
-  /////////////////////////////
-  /////////////////////////////
-  // ports to mux voltages to integrator
-
-  //
-  // u16
-  const uint16_t all = ADC_MUX_P_CTL | ADC_MUX_N_CTL | ADC_IN_CTL | ADC_RESET_CTL;
-
-  gpio_clear(ADC_MUX_PORT, all);   // off for adg333 spdt
-  gpio_mode_setup(ADC_MUX_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
-
-  // injecct +10V ref, which will integrate output to the negative rail
-  gpio_set(ADC_MUX_PORT, ADC_MUX_P_CTL);
-
-  usart_printf("slope_adc done timer done\n\r");
-
-
-
-  /////////////////////////////
-  /////////////////////////////
-
-  // port for test signals for scope
-
-  gpio_mode_setup(MCU_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, MCU_GPIO1 | MCU_GPIO2);
-  gpio_set_output_options(MCU_GPIO_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, MCU_GPIO1 | MCU_GPIO2);
-
-  gpio_set(MCU_GPIO_PORT, MCU_GPIO1);
-  // gpio_clear(MCU_GPIO_PORT, MCU_GPIO1);
-  // speed...
-
-  //////////////////////
-
-  // run
-
-  // injecct +10V ref, which will integrate output to the negative rail
-  gpio_set(ADC_MUX_PORT, ADC_MUX_P_CTL);
-
-  // -10V ref is injected by timer. pushes output up.
-
-
-}
-
-
-
-void exti0_isr(void)
-{
-  // crossing interrupt.   ie. agnd comparator.
-
-
-  uint32_t count = timer_get_counter(TIM2); // do as first thing
-  count -= 21;                              // approx time for interupt and call to get value
-
-  exti_reset_request(EXTI0);
-
-  if (exti_direction == FALLING) {
-    // slope direction rising.
-
-    // usart_printf("  c rise\n");
-    // timer_set_counter(TIM2, period );
-    // timer_enable_counter(TIM2);
-
-    exti_direction = RISING;
-    exti_set_trigger(EXTI0, EXTI_TRIGGER_RISING);
-
-  } else {
-    // slope direction falling
-
-    // usart_printf("  c fall\n");
-    // timer_set_counter(TIM2, period );
-    // timer_enable_counter(TIM2);
-
-    exti_direction = FALLING;
-    exti_set_trigger(EXTI0, EXTI_TRIGGER_FALLING);
-  }
-
-  // set counter to run again...
-  timer_set_counter(TIM2, period );
-  // timer_enable_counter(TIM2);
-}
-
-
-void tim2_isr(void)
-{
-  // timer interrupt, we've hit a apex or bottom of integration
-
-  // uint32_t count = timer_get_counter(TIM2);
-  // count -= 21; // approx time for interupt and call to get value
-
-  // we use count, to updated the injected/integrated voltage/current.
-  // injected_voltage += count;
-
-  /*
-      have another timer counter - that just keeps aggregating the total injected current. 
-      rather than doing += values. 
-      - not sure. think we will need a reference count anyway.
-
-      OR. keep the counter running below 0...  and then we can use the value from the other side
-  */
-
-  if (timer_get_flag(TIM2, TIM_SR_UIF)) {
-
-    timer_clear_flag(TIM2, TIM_SR_UIF);
-    // timer_disable_counter(TIM2);
-
-    // branch timing  likely to be unequal here... think probably should just do a toggle...
-
-    if(exti_direction) {
-      // start falling - timing critical
-      gpio_clear(LED_PORT, LED_OUT);
-      usart_printf("reached top\n" );
-      // period is set in zero cross.
-    }
-    else {
-
-      gpio_set(LED_PORT, LED_OUT);
-      usart_printf("reached bottom\n" );
-    }
-  }
-}
-
-
-
-
-
-////////////////////////////
-
-
-
 
 // these need to be on a timer.
 // there is a timer port.
@@ -284,54 +66,306 @@ void tim2_isr(void)
 
 */
 
+#define ADC_MUX_PORT    GPIOD
+#define ADC_MUX_P_CTL   GPIO1
+#define ADC_MUX_N_CTL   GPIO2   // disconnected.
+#define ADC_IN_CTL      GPIO3
+#define ADC_RESET_CTL   GPIO4   // unused. jumper not fitted.
+
+
 /*
-
-  timer_generate_event()
-    Force generate a timer event.
-
-    The UG event is useful to cause shadow registers to be preloaded before the
-    timer is started to avoid uncertainties in the first cycle in case an update
-    event may never be generated.
-
-
-  TIM_EGR_UG   (1 << 0)
-    Update generation.
-  --------
-
-  simple as,
-
-   timer_generate_event(TIM3, TIM_EGR_UG);
-   timer_enable_counter(TIM3);
-
-    may need to set value...
-
-    https://github.com/jsphuebner/stm32-test/blob/master/stm32_test.c
-
-
-  eg.
-  void pwm_start(void)
-  {
-   timer_generate_event(TIM4, TIM_EGR_UG);
-    timer_enable_counter(TIM4);
-  }
-    https://github.com/marcorussi/stm32f4_demo/blob/master/pwm.c
-  --------
-
-  EXTREME.
-  Or it doesn't require anything at all.
-  eg. we are hittinig the period / to generate our update.
-
-    so we just change th counter value - in the update - tfor our new period.
-
-    interupt on update.
-      so set the counter for the next period.
-
-  EXTREME.
-  count down timer. from a starting position might be cleaner.
-    eg. in the upate. we set the countdown point.
-
-
+#define DAC_PORT      GPIOB
+#define DAC_LDAC      GPIO0
+#define DAC_RST       GPIO1
 */
+
+#define MCU_GPIO_PORT   GPIOB
+#define MCU_GPIO1       GPIO10
+#define MCU_GPIO2       GPIO11
+
+
+
+
+#define FALLING 0
+#define RISING 1
+static uint16_t exti_direction = FALLING;
+
+static uint32_t period = 0;
+static uint32_t oc_value = 0;
+
+void slope_adc_setup(void)
+{
+  usart_printf("slope_adc setup\n\r");
+
+  // rcc_periph_clock_enable(RCC_SYSCFG);  for interrupts. once in main.c
+
+  // set up input and crossing interupt
+  gpio_mode_setup(ADC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADC_OUT);
+
+  // use GPIO D0 so need EXTI0
+  nvic_enable_irq(NVIC_EXTI0_IRQ);
+
+  /* Configure the EXTI subsystem. */
+  exti_select_source(EXTI0, GPIOD);
+  exti_set_trigger(EXTI0, EXTI_TRIGGER_BOTH  /*EXTI_TRIGGER_FALLING */ );
+  exti_enable_request(EXTI0);
+
+  exti_direction = FALLING;
+
+  usart_printf("slope_adc setup done\n\r");
+
+
+
+  /////////////////////////////
+  /////////////////////////////
+  // stm32f4, need tim2 or tim5, for 32 bit timers
+
+  rcc_periph_clock_enable(RCC_TIM2);
+
+    /* Enable TIM2 interrupt. */
+  nvic_enable_irq(NVIC_TIM2_IRQ);
+
+  // pa0.
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO15 );
+  gpio_set_af(GPIOA, GPIO_AF1, GPIO15 ); // PA0 AF1 == TIM2-CH1-ETR, PA0 AF2 == tim5-ch1 .
+                                        // TIM5-CH1 / PA0 works.
+                                        // TIM2-CH1-ETR/PA0 also *does* work.
+                                        // TIM2-CH1 / PA15 also *does* work.
+  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, GPIO15); // 50is faster than 100? no. same speed
+
+
+  rcc_periph_reset_pulse(RST_TIM2);     // reset
+
+  timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+
+  // timer_set_repetition_counter(TIM2, 0);
+  // timer_enable_break_main_output(TIM2);
+
+  timer_set_prescaler(TIM2, 0 );      // 0 is twice as fast as 1.
+  timer_disable_preload(TIM2);        // must be disable_preload()... else counter ignores period, and counts through to 32bits, 4billion
+  timer_continuous_mode(TIM2);
+
+  period = 700000;
+  timer_set_period(TIM2, period); // ok working
+
+  timer_disable_oc_output(TIM2, TIM_OC1);
+  timer_set_oc_mode(TIM2, TIM_OC1, TIM_OCM_PWM1);
+
+  oc_value = 300000;
+  //oc_value = 600000;
+  timer_set_oc_value(TIM2, TIM_OC1, oc_value);   // eg. half the period for 50% duty
+  timer_enable_oc_output(TIM2, TIM_OC1);
+
+
+  timer_enable_irq(TIM2, TIM_DIER_CC1IE | TIM_DIER_UIE /*| TIM_DIER_TIE */ );   // counter update and capture compare
+  timer_enable_counter(TIM2);
+
+  /////////////////////////////
+  /////////////////////////////
+  // ports to mux voltages to integrator
+
+
+  // u16
+  const uint16_t all = ADC_MUX_P_CTL  | ADC_MUX_N_CTL | ADC_IN_CTL | ADC_RESET_CTL;
+
+  gpio_clear(ADC_MUX_PORT, all);   // off for adg333 spdt
+  gpio_mode_setup(ADC_MUX_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);
+
+  // injecct +10V ref, which will integrate output to the negative rail
+  gpio_set(ADC_MUX_PORT, ADC_MUX_P_CTL);
+
+  usart_printf("slope_adc done timer done\n\r");
+
+
+
+  /////////////////////////////
+  /////////////////////////////
+
+  // port for test signals for scope
+
+  gpio_mode_setup(MCU_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, MCU_GPIO1 | MCU_GPIO2);
+  gpio_set_output_options(MCU_GPIO_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, MCU_GPIO1 | MCU_GPIO2);
+
+  gpio_set(MCU_GPIO_PORT, MCU_GPIO1);
+  // gpio_clear(MCU_GPIO_PORT, MCU_GPIO1);
+  // speed...
+
+  //////////////////////
+
+  // run
+
+  // injecct +10V ref, which will integrate output to the negative rail
+  gpio_set(ADC_MUX_PORT, ADC_MUX_P_CTL);
+
+  // -10V ref is injected by timer. pushes output up.
+
+}
+
+
+
+// i think we need some kind of expression for height. only then can optimize / integrade/ feedback for it.
+// don't try to centre the integration around 0V - instead when it hits zero - we're finished.
+// or do 'enhanced dual slope', need the agnd on a cou
+// don't have channel for reset
+// actually we wouldn't necessarily use a timer. or we kind of could.
+// the timer sequences stuff.  but we calculate everything on the interrupt of the cross.
+// it just needs three more switches - much more complicated (agnd, reset, suspension of input).
+
+// can do dual slope - just with interrupts - and get_timer . would be easier with timer control - for agnd/reset..
+
+//////////////////
+// or have extra comparators (or ADC) at +10V and -10V - so can always just bounce it.
+// eg. when gets to value - we get interupt - so reverse... can set oc value in interrupt also - if want.
+
+
+// ADC with interrupts. and in the interrupt - we can just set the oc for a small time in the future .
+// ------ issue of loading of the output - ???
+
+
+// gahh. it shouldn't be so hard. - we know roughly where the voltage is - due to our zero crossing.
+
+// or do we need a slope compensation type thing... that applies the oc voltage early.
+
+
+// maybe we just need to keep the thing at less than 50% cycle ????
+
+static uint32_t crise = 0;
+
+static uint32_t diff_from_crise = 0;
+
+
+void exti0_isr(void)
+{
+  // crossing interrupt.   ie. agnd comparator.
+
+  uint32_t count = timer_get_counter(TIM2); // do as first thing
+  count -= 21;                              // approx time for interupt and call to get value
+
+  exti_reset_request(EXTI0);
+
+  if (exti_direction == FALLING) {
+
+    // slope direction rising
+
+    crise = count;
+
+  //    usart_printf("  c rise %u\n", crise );
+
+#if 0
+    if(diff_from_crise != 0) {
+
+      // oc_value += diff_from_crise - crise;
+
+      usart_printf("  oc_value %u\n", oc_value );
+
+      oc_value = crise + diff_from_crise ;
+
+      usart_printf("  set new oc_value %u\n", oc_value );
+
+      timer_set_oc_value(TIM2, TIM_OC1, oc_value  );
+    }
+    // for next time
+#endif
+
+    exti_direction = RISING;
+    exti_set_trigger(EXTI0, EXTI_TRIGGER_RISING);
+
+  } else {
+    // slope direction falling
+
+
+    usart_printf("c fall\n");
+    // usart_printf("  count %u\n", count);
+
+    uint32_t cfall = count;
+
+    // this is our 50% thing
+    int32_t x1 = cfall - oc_value;
+    int32_t x2 = period - cfall ;
+    int32_t diff = x2 - x1 ;
+
+
+    usart_printf("  crise %u, cfall %u  x1 %d x2 %d  diff %d\n", crise , cfall, x1, x2, diff );
+
+#if 1
+    if(x1 > 0 && x2 > 0 /*&& diff < 400000*/ )
+    {
+      oc_value += diff * 0.01 ;
+      timer_set_oc_value(TIM2, TIM_OC1, oc_value);
+
+      /*
+      usart_printf("  oc_value %u\n", oc_value );
+      oc_value = cfall + diff ; 
+
+      timer_set_oc_value(TIM2, TIM_OC1, oc_value);
+
+      usart_printf("  new oc_value %u\n", oc_value );
+      */
+
+      /*
+      uint32_t target = oc_value + diff;
+      diff_from_crise = target - crise;
+      usart_printf("  diff_from_crise %u\n", diff_from_crise );
+      */
+    }
+    else {
+      diff_from_crise = 0;
+    }
+#endif
+
+
+    exti_direction = FALLING;
+    exti_set_trigger(EXTI0, EXTI_TRIGGER_FALLING);
+  }
+}
+
+
+
+void tim2_isr(void)
+{
+  // interupts for beginning of period (update), and output compare
+  // only thing we do here is toggle gpio - so can hook a trace up to it.
+
+  // EXTREME ---- if cannot get it someother way - then get the interupt by setting oc to 1 on second channel
+  // SR=status register, IF= interupt flag.
+
+  uint32_t count = timer_get_counter(TIM2);
+  count -= 21; // approx time for interupt and call to get value
+
+  if (timer_get_flag(TIM2, TIM_SR_UIF)) {
+    // ok. this seems to be the thing can catch the count at 20
+    timer_clear_flag(TIM2, TIM_SR_UIF);
+
+    gpio_set(MCU_GPIO_PORT, MCU_GPIO1);   // high...
+/*
+    usart_printf("-----\n");
+    usart_printf("uif\n");
+    usart_printf("  count %u\n", count );
+*/
+  }
+
+
+  if (timer_get_flag(TIM2, TIM_SR_CC1IF)) {
+    /* Clear compare interrupt flag. */
+    timer_clear_flag(TIM2, TIM_SR_CC1IF);   // TIM_DIER_CC1IE  ??   TIM_SR_CC1IF
+
+    gpio_clear(MCU_GPIO_PORT, MCU_GPIO1);   // lo...
+/*
+    usart_printf("cc1if\n\r");
+    usart_printf("  count %u\n", count );
+*/
+  }
+
+}
+
+
+
+
+
+////////////////////////////
+
+
+
 
 /*
   There are two separate concerns.
@@ -563,86 +597,4 @@ void slope_adc_out_status_test_task(void *args __attribute((unused)))
 }
 #endif
 
-#if 0
-static float signed_square( float x )
-{
-  float h = x * x;
-  if(x < 0) h *= -1;
-  return h;
-}
 
-
-static uint32_t crise = 0;
-
-static uint32_t mylog2 (uint32_t val)
-{
-  if (val == 0) return UINT32_MAX;
-  if (val == 1) return 0;
-  uint32_t ret = 0;
-  while (val > 1) {
-      val >>= 1;
-      ret++;
-  }
-  return ret;
-}
-
-
-
-static int32_t signed_mylog2 (int32_t val)
-{
-  if(val > 0)
-    return mylog2( val);
-  else
-    return -mylog2(-val);
-
-}
-
-#endif
-
-// i think we need some kind of expression for height. only then can optimize / integrade/ feedback for it.
-// don't try to centre the integration around 0V - instead when it hits zero - we're finished.
-// or do 'enhanced dual slope', need the agnd on a cou
-// don't have channel for reset
-// actually we wouldn't necessarily use a timer. or we kind of could.
-// the timer sequences stuff.  but we calculate everything on the interrupt of the cross.
-// it just needs three more switches - much more complicated (agnd, reset, suspension of input).
-
-// can do dual slope - just with interrupts - and get_timer . would be easier with timer control - for agnd/reset..
-
-//////////////////
-// or have extra comparators (or ADC) at +10V and -10V - so can always just bounce it.
-// eg. when gets to value - we get interupt - so reverse... can set oc value in interrupt also - if want.
-
-
-// ADC with interrupts. and in the interrupt - we can just set the oc for a small time in the future .
-// ------ issue of loading of the output - ???
-
-
-// gahh. it shouldn't be so hard. - we know roughly where the voltage is - due to our zero crossing.
-
-// or do we need a slope compensation type thing... that applies the oc voltage early.
-
-
-// maybe we just need to keep the thing at less than 50% cycle ????
-
-
-
-/*
-EXTREME.
-  OK. get rid of fixed time.
-
-  after up crossing - continue running up for a bit, and fixed interval start tundown.
-  after down crossing - same.
-
-  That should be centred. And does not rely on any other comparators to bounce the signal.
-
-  It may make sense to use a timer to get our reverse point.
-  just do reset... if possible.
-  only one channel to do both.
-
-  set the period to really long. so will never reach.
-  then just use the OC value each time.
-
-  use preload. to start counting from number other than 0.
-
-*/

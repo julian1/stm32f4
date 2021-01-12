@@ -674,6 +674,7 @@ int main(void)
   // clocks
   // rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 
+  // TODO OR aggregate all these ... ?
 
   // led
   rcc_periph_clock_enable(RCC_GPIOA);
@@ -692,7 +693,7 @@ int main(void)
 
 
   // usart
-  rcc_periph_clock_enable(RCC_GPIOA);
+  // rcc_periph_clock_enable(RCC_GPIOA);
   rcc_periph_clock_enable(RCC_USART1);
 
   // spi1 / dac
@@ -743,7 +744,7 @@ int main(void)
   ///////////////
   // setup
 
-	xTaskCreate(led_blink_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+//	xTaskCreate(led_blink_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
 
 
   // IMPORTANT changing from 100 to 200, stops deadlock
