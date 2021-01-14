@@ -34,11 +34,7 @@
 #define ADC_RESET_CTL   GPIO4   // unused. jumper not fitted.
 
 
-/*
-#define DAC_PORT      GPIOB
-#define DAC_LDAC      GPIO0
-#define DAC_RST       GPIO1
-*/
+
 
 #define MCU_GPIO_PORT   GPIOB
 #define MCU_GPIO1       GPIO10
@@ -85,17 +81,6 @@ void slope_adc_setup(void)
 
 
 
-#if 0
-  /////////////////////////////
-  /////////////////////////////
-  // GPIOA PA15 - led out...  need to resolder old connections back
-  gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT);
-  gpio_set_output_options(LED_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, LED_OUT);
-  gpio_set(LED_PORT, LED_OUT);
-
-#endif
-
-
   /////////////////////////////////
   /*
     countdown timer.
@@ -118,7 +103,7 @@ void slope_adc_setup(void)
 
 
   ////////////////////////////////
-  // accumulation timer. 32 bit.
+  // accumulation timers. 32 bit.
   // count up
   rcc_periph_clock_enable(RCC_TIM2);
   rcc_periph_reset_pulse(RST_TIM2);         // reset
@@ -129,6 +114,7 @@ void slope_adc_setup(void)
   // move this
   timer_enable_counter(TIM2);
 
+  
   rcc_periph_clock_enable(RCC_TIM5);
   rcc_periph_reset_pulse(RST_TIM5);         // reset
   timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
@@ -158,18 +144,6 @@ void slope_adc_setup(void)
   usart_printf("slope_adc done timer done\n\r");
 
 
-
-  /////////////////////////////
-  /////////////////////////////
-
-  // port for test signals for scope
-
-  gpio_mode_setup(MCU_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, MCU_GPIO1 | MCU_GPIO2);
-  gpio_set_output_options(MCU_GPIO_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, MCU_GPIO1 | MCU_GPIO2);
-
-  gpio_set(MCU_GPIO_PORT, MCU_GPIO1);
-  // gpio_clear(MCU_GPIO_PORT, MCU_GPIO1);
-  // speed...
 
   //////////////////////
 
@@ -310,6 +284,33 @@ void tim3_isr(void)
 }
 
 
+
+
+
+/*
+  /////////////////////////////
+  /////////////////////////////
+
+  // port for test signals for scope
+
+  gpio_mode_setup(MCU_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, MCU_GPIO1 | MCU_GPIO2);
+  gpio_set_output_options(MCU_GPIO_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, MCU_GPIO1 | MCU_GPIO2);
+
+  gpio_set(MCU_GPIO_PORT, MCU_GPIO1);
+  // gpio_clear(MCU_GPIO_PORT, MCU_GPIO1);
+  // speed...
+*/
+
+
+#if 0
+  /////////////////////////////
+  /////////////////////////////
+  // GPIOA PA15 - led out...  need to resolder old connections back
+  gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT);
+  gpio_set_output_options(LED_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, LED_OUT);
+  gpio_set(LED_PORT, LED_OUT);
+
+#endif
 
 
 
