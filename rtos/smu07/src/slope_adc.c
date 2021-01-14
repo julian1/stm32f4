@@ -204,6 +204,10 @@ void slope_adc_setup(void)
     printf("%s\n",  ftos( 99.12345678, buf, 1000 ));
   }
 
+  TODO
+    1. set the interrupt priority - even though shouldn't matter (was does freertos use).
+      crossing interupt *does* have to be precise.
+    2. move miniprintf to ./lib.  and delink the ww library.
 */
 
 
