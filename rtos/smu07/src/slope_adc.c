@@ -205,7 +205,7 @@ void exti0_isr(void)
     int x = timer_get_counter(TIM2);
     int y = timer_get_counter(TIM5);
 
-    float result = (float)x / y ; 
+    float result = ((float)x) / y ; 
 
     usart_printf("done %d\n", (int32_t) (result * 1000000));
 
@@ -239,7 +239,7 @@ void tim3_isr(void)
     if(exti_direction) {
 
       // these are the two actions that should be run adjacent in time..
-      timer_enable_counter(TIM5);
+      timer_disable_counter(TIM5);
       gpio_clear(ADC_MUX_PORT, ADC_MUX_N_CTL);
 
       // usart_printf("reached top tim2 %u  tim5 %u \n", timer_get_counter(TIM2), timer_get_counter(TIM5) );
@@ -247,8 +247,8 @@ void tim3_isr(void)
     }
     else {
 
-      timer_disable_counter(TIM5);
-      gpio_set(ADC_MUX_PORT, ADC_MUX_N_CTL);
+      timer_enable_counter(TIM5);
+      gpio_set(ADC_MUX_PORT, ADC_MUX_N_CTL); // start injecting negative current to rise
 
       // usart_printf("reached bottom\n" );
     }

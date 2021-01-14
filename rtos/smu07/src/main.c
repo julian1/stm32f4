@@ -744,7 +744,7 @@ int main(void)
   ///////////////
   // setup
 
-//	xTaskCreate(led_blink_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+  xTaskCreate(led_blink_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
 
 
   // IMPORTANT changing from 100 to 200, stops deadlock
