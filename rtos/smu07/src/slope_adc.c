@@ -107,7 +107,7 @@ void slope_adc_setup(void)
   timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_DOWN);
   timer_enable_break_main_output(TIM2);
   timer_set_prescaler(TIM2, 0 );            // 0 is twice as fast as 1.
-  period = 200000;
+  period = 100000;
   timer_set_counter(TIM2, period );
 
   timer_enable_irq(TIM2, TIM_DIER_UIE);   // counter update
@@ -151,19 +151,23 @@ void slope_adc_setup(void)
   gpio_set(ADC_MUX_PORT, ADC_MUX_P_CTL);
 
   // -10V ref is injected by timer. pushes output up.
-
-
 }
 
 
+
+// stop/start a 32 bit counter. would be easy way to determine injected voltage...
+
+// OK wait... our up/down timer precision is not critical.   So use a non-32bit timer with prescalar.
+// that leaves us with two 32 bit timers - for the counting of injected voltages / references.
+// by just starting/stopping with enable and disable - would make very easy. 
 
 void exti0_isr(void)
 {
   // crossing interrupt.   ie. agnd comparator.
 
 
-  uint32_t count = timer_get_counter(TIM2); // do as first thing
-  count -= 21;                              // approx time for interupt and call to get value
+  // uint32_t count = timer_get_counter(TIM2); // do as first thing
+  // count -= 21;                              // approx time for interupt and call to get value
 
   exti_reset_request(EXTI0);
 
