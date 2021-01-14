@@ -62,7 +62,8 @@ void slope_adc_setup(void)
 
   //////////
   //////////
-  // crossing detect config
+  // crossing detect interupt 
+  // must be high(est) priority, as timer counts are read in interrupt. 
   // rcc_periph_clock_enable(RCC_SYSCFG);  for interrupts. once in main.c
 
   // set up input and crossing interupt
@@ -70,6 +71,10 @@ void slope_adc_setup(void)
 
   // use GPIO D0 so need EXTI0
   nvic_enable_irq(NVIC_EXTI0_IRQ);
+
+  // 0 appears to be highest priority
+  // set timer interupts to run at the highest priority
+  nvic_set_priority(NVIC_EXTI0_IRQ,0); // priority
 
   /* Configure the EXTI subsystem. */
   exti_select_source(EXTI0, GPIOD);
