@@ -98,10 +98,7 @@ void slope_adc_setup(void)
     stm32f4, want tim2 or tim5, for 32 bit timers
   */
   rcc_periph_clock_enable(RCC_TIM3);
-
-    /* Enable TIM3 interrupt. */
-  nvic_enable_irq(NVIC_TIM3_IRQ);
-
+  nvic_enable_irq(NVIC_TIM3_IRQ);         /* Enable TIM3 interrupt. */
 
   rcc_periph_reset_pulse(RST_TIM3);     // reset
   timer_set_mode(TIM3, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_DOWN);
@@ -112,6 +109,31 @@ void slope_adc_setup(void)
 
   timer_enable_irq(TIM3, TIM_DIER_UIE);   // counter update
   timer_enable_counter(TIM3);               // start timer, IMPROTANT should be done last!!!.... or will miss.
+
+
+  ////////////////////////////////
+  // accumulation timer. 32 bit.
+  // count up
+  rcc_periph_clock_enable(RCC_TIM2);
+  rcc_periph_reset_pulse(RST_TIM2);         // reset
+  timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+  timer_enable_break_main_output(TIM2);
+  timer_set_prescaler(TIM2, 0 );            // no prescale. 0 is twice as fast as 1.
+
+  // move this
+  timer_enable_counter(TIM2);
+
+  rcc_periph_clock_enable(RCC_TIM5);
+  rcc_periph_reset_pulse(RST_TIM5);         // reset
+  timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+  timer_enable_break_main_output(TIM5);
+  timer_set_prescaler(TIM5, 0 );            // no prescale. 0 is twice as fast as 1.
+
+  // move this
+  timer_enable_counter(TIM5);
+
+
+
 
   /////////////////////////////
   /////////////////////////////
@@ -200,7 +222,7 @@ void tim3_isr(void)
 
       gpio_clear(ADC_MUX_PORT, ADC_MUX_N_CTL);
       // gpio_clear(LED_PORT, LED_OUT);
-      usart_printf("reached top\n" );
+      usart_printf("reached top tim2 %u  tim5 %u \n", timer_get_counter(TIM2), timer_get_counter(TIM5) );
       // period is set in zero cross.
     }
     else {
@@ -223,7 +245,7 @@ void tim3_isr(void)
 
 // OK wait... our up/down timer precision is not critical.   So use a non-32bit timer with prescalar.
 // that leaves us with two 32 bit timers - for the counting of injected voltages / references.
-// by just starting/stopping with enable and disable - would make very easy. 
+// by just starting/stopping with enable and disable - would make very easy.
 
     // usart_printf("  c fall\n");
     // timer_set_counter(TIM2, period );
@@ -244,8 +266,8 @@ void tim3_isr(void)
   // injected_voltage += count;
 
   /*
-      have another timer counter - that just keeps aggregating the total injected current. 
-      rather than doing += values. 
+      have another timer counter - that just keeps aggregating the total injected current.
+      rather than doing += values.
       - not sure. think we will need a reference count anyway.
 
       OR. keep the counter running below 0...  and then we can use the value from the other side
