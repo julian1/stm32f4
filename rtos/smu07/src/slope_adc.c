@@ -97,21 +97,21 @@ void slope_adc_setup(void)
     since don't have to subtract desired time from the period of a count-up timer.
     stm32f4, want tim2 or tim5, for 32 bit timers
   */
-  rcc_periph_clock_enable(RCC_TIM2);
+  rcc_periph_clock_enable(RCC_TIM3);
 
-    /* Enable TIM2 interrupt. */
-  nvic_enable_irq(NVIC_TIM2_IRQ);
+    /* Enable TIM3 interrupt. */
+  nvic_enable_irq(NVIC_TIM3_IRQ);
 
 
-  rcc_periph_reset_pulse(RST_TIM2);     // reset
-  timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_DOWN);
-  timer_enable_break_main_output(TIM2);
-  timer_set_prescaler(TIM2, 10 );            // 0 is twice as fast as 1.
+  rcc_periph_reset_pulse(RST_TIM3);     // reset
+  timer_set_mode(TIM3, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_DOWN);
+  timer_enable_break_main_output(TIM3);
+  timer_set_prescaler(TIM3, 10 );            // 0 is twice as fast as 1.
   period = 10000;
-  timer_set_counter(TIM2, period );
+  timer_set_counter(TIM3, period );
 
-  timer_enable_irq(TIM2, TIM_DIER_UIE);   // counter update
-  timer_enable_counter(TIM2);               // start timer, IMPROTANT should be done last!!!.... or will miss.
+  timer_enable_irq(TIM3, TIM_DIER_UIE);   // counter update
+  timer_enable_counter(TIM3);               // start timer, IMPROTANT should be done last!!!.... or will miss.
 
   /////////////////////////////
   /////////////////////////////
@@ -160,7 +160,7 @@ void exti0_isr(void)
 {
   // crossing interrupt.   ie. agnd comparator.
 
-  // uint32_t count = timer_get_counter(TIM2); // do as first thing
+  // uint32_t count = timer_get_counter(TIM3); // do as first thing
   // count -= 21;                              // approx time for interupt and call to get value
 
   exti_reset_request(EXTI0);
@@ -178,20 +178,20 @@ void exti0_isr(void)
   }
 
   // set counter to run again...
-  timer_set_counter(TIM2, period );
-  // timer_enable_counter(TIM2);
+  timer_set_counter(TIM3, period );
+  // timer_enable_counter(TIM3);
 }
 
 
-void tim2_isr(void)
+void tim3_isr(void)
 {
   // timer interrupt, we've hit a apex or bottom of integration
 
 
-  if (timer_get_flag(TIM2, TIM_SR_UIF)) {
+  if (timer_get_flag(TIM3, TIM_SR_UIF)) {
 
-    timer_clear_flag(TIM2, TIM_SR_UIF);
-    // timer_disable_counter(TIM2);
+    timer_clear_flag(TIM3, TIM_SR_UIF);
+    // timer_disable_counter(TIM3);
 
     // branch timing  likely to be unequal here... think probably should just do a toggle...
 
