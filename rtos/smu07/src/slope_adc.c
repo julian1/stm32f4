@@ -79,7 +79,7 @@ void slope_adc_setup(void)
 
 
 
-#if 1
+#if 0
   /////////////////////////////
   /////////////////////////////
   // GPIOA PA15 - led out...  need to resolder old connections back
@@ -225,13 +225,16 @@ void tim2_isr(void)
 
     if(exti_direction) {
       // start falling - timing critical
-      gpio_clear(LED_PORT, LED_OUT);
+
+      gpio_clear(ADC_MUX_PORT, ADC_MUX_N_CTL);
+      // gpio_clear(LED_PORT, LED_OUT);
       usart_printf("reached top\n" );
       // period is set in zero cross.
     }
     else {
 
-      gpio_set(LED_PORT, LED_OUT);
+      gpio_set(ADC_MUX_PORT, ADC_MUX_N_CTL);
+      // gpio_set(LED_PORT, LED_OUT);
       usart_printf("reached bottom\n" );
     }
   }
