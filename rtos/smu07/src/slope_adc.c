@@ -11,7 +11,8 @@
 #include <libopencm3/stm32/timer.h>
 
 
-#include <math.h>
+// #include <math.h>
+// #include <stdlib.h>
 
 //////////////////////////////////////////
 
@@ -175,7 +176,35 @@ void slope_adc_setup(void)
   // -10V ref is injected by timer. pushes output up.
 }
 
+/*
+  https://stackoverflow.com/questions/19412780/stand-alone-portable-snprintf-independent-of-the-standard-library
 
+  portable snprintf.
+
+  const char * ftos(float x, char *buf, size_t n)
+  { 
+    int intpart, fracpart;
+    intpart = (int)x;
+    fracpart = (int)((x- intpart) * 10000000);  // controls the digits
+
+    // handle negatives
+    if(fracpart <0 )
+      fracpart *= -1;
+
+    // snprintf(buf, 11, "%4d.%04d", intpart, fracpart);
+    snprintf(buf, n, "%d.%d", intpart, fracpart);
+    return buf;
+  }
+
+
+  int main()
+  { 
+    char buf [ 1000];
+
+    printf("%s\n",  ftos( 99.12345678, buf, 1000 ));
+  }
+
+*/
 
 
 void exti0_isr(void)
@@ -207,6 +236,8 @@ void exti0_isr(void)
     float result = ((float)x) / y ; 
     usart_printf("full cycle %d\n", (int32_t) (result * 1000000));
 
+    // static char buf[100];
+    // gcvt(result, 5, buf);
 
     exti_direction = RISING;
     exti_set_trigger(EXTI0, EXTI_TRIGGER_RISING);
