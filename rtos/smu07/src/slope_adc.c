@@ -106,8 +106,8 @@ void slope_adc_setup(void)
   rcc_periph_reset_pulse(RST_TIM2);     // reset
   timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_DOWN);
   timer_enable_break_main_output(TIM2);
-  timer_set_prescaler(TIM2, 0 );            // 0 is twice as fast as 1.
-  period = 100000;
+  timer_set_prescaler(TIM2, 10 );            // 0 is twice as fast as 1.
+  period = 10000;
   timer_set_counter(TIM2, period );
 
   timer_enable_irq(TIM2, TIM_DIER_UIE);   // counter update
@@ -155,16 +155,10 @@ void slope_adc_setup(void)
 
 
 
-// stop/start a 32 bit counter. would be easy way to accumulate injected voltages...
-
-// OK wait... our up/down timer precision is not critical.   So use a non-32bit timer with prescalar.
-// that leaves us with two 32 bit timers - for the counting of injected voltages / references.
-// by just starting/stopping with enable and disable - would make very easy. 
 
 void exti0_isr(void)
 {
   // crossing interrupt.   ie. agnd comparator.
-
 
   // uint32_t count = timer_get_counter(TIM2); // do as first thing
   // count -= 21;                              // approx time for interupt and call to get value
@@ -174,19 +168,10 @@ void exti0_isr(void)
   if (exti_direction == FALLING) {
     // slope direction rising.
 
-    // usart_printf("  c rise\n");
-    // timer_set_counter(TIM2, period );
-    // timer_enable_counter(TIM2);
-
     exti_direction = RISING;
     exti_set_trigger(EXTI0, EXTI_TRIGGER_RISING);
-
   } else {
     // slope direction falling
-
-    // usart_printf("  c fall\n");
-    // timer_set_counter(TIM2, period );
-    // timer_enable_counter(TIM2);
 
     exti_direction = FALLING;
     exti_set_trigger(EXTI0, EXTI_TRIGGER_FALLING);
@@ -202,19 +187,6 @@ void tim2_isr(void)
 {
   // timer interrupt, we've hit a apex or bottom of integration
 
-  // uint32_t count = timer_get_counter(TIM2);
-  // count -= 21; // approx time for interupt and call to get value
-
-  // we use count, to updated the injected/integrated voltage/current.
-  // injected_voltage += count;
-
-  /*
-      have another timer counter - that just keeps aggregating the total injected current. 
-      rather than doing += values. 
-      - not sure. think we will need a reference count anyway.
-
-      OR. keep the counter running below 0...  and then we can use the value from the other side
-  */
 
   if (timer_get_flag(TIM2, TIM_SR_UIF)) {
 
@@ -246,6 +218,38 @@ void tim2_isr(void)
 
 ////////////////////////////
 
+
+// stop/start a 32 bit counter. would be easy way to accumulate injected voltages...
+
+// OK wait... our up/down timer precision is not critical.   So use a non-32bit timer with prescalar.
+// that leaves us with two 32 bit timers - for the counting of injected voltages / references.
+// by just starting/stopping with enable and disable - would make very easy. 
+
+    // usart_printf("  c fall\n");
+    // timer_set_counter(TIM2, period );
+    // timer_enable_counter(TIM2);
+
+
+
+    // usart_printf("  c rise\n");
+    // timer_set_counter(TIM2, period );
+    // timer_enable_counter(TIM2);
+
+
+
+  // uint32_t count = timer_get_counter(TIM2);
+  // count -= 21; // approx time for interupt and call to get value
+
+  // we use count, to updated the injected/integrated voltage/current.
+  // injected_voltage += count;
+
+  /*
+      have another timer counter - that just keeps aggregating the total injected current. 
+      rather than doing += values. 
+      - not sure. think we will need a reference count anyway.
+
+      OR. keep the counter running below 0...  and then we can use the value from the other side
+  */
 
 
 
