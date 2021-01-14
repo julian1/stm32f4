@@ -155,7 +155,7 @@ void slope_adc_setup(void)
 
 
 
-// stop/start a 32 bit counter. would be easy way to determine injected voltage...
+// stop/start a 32 bit counter. would be easy way to accumulate injected voltages...
 
 // OK wait... our up/down timer precision is not critical.   So use a non-32bit timer with prescalar.
 // that leaves us with two 32 bit timers - for the counting of injected voltages / references.
