@@ -191,9 +191,22 @@ void exti0_isr(void)
     // slope direction rising.
 
     // set count to zero for both timers for start of integration... 
+  
+    ////////////////////////////
+    // full cycle
+    // get counter values, from last cycle
+    int32_t x = timer_get_counter(TIM2);
+    int32_t y = timer_get_counter(TIM5);
 
+    // clear counter values for next cycle
     timer_set_counter(TIM2, 0);
     timer_set_counter(TIM5, 0);
+  
+    // compute 
+    // use atos fton
+    float result = ((float)x) / y ; 
+    usart_printf("full cycle %d\n", (int32_t) (result * 1000000));
+
 
     exti_direction = RISING;
     exti_set_trigger(EXTI0, EXTI_TRIGGER_RISING);
@@ -201,13 +214,14 @@ void exti0_isr(void)
   } else {
     // slope direction falling
 
+    /*
     // get timer count...
     int x = timer_get_counter(TIM2);
     int y = timer_get_counter(TIM5);
 
     float result = ((float)x) / y ; 
-
     usart_printf("done %d\n", (int32_t) (result * 1000000));
+    */
 
 
     exti_direction = FALLING;
