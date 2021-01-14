@@ -204,31 +204,38 @@ void exti0_isr(void)
   // timer_enable_counter(TIM3);
 }
 
+/*
+  note that on first zero-cross we have to start the timer
+  EXTREME
+  NO. we just set both counters to zero... and whether it is counting of not is correct.
+
+  likewise for zero cross at end.
+*/
 
 void tim3_isr(void)
 {
   // timer interrupt, we've hit a apex or bottom of integration
 
-
   if (timer_get_flag(TIM3, TIM_SR_UIF)) {
 
     timer_clear_flag(TIM3, TIM_SR_UIF);
-    // timer_disable_counter(TIM3);
 
-    // branch timing  likely to be unequal here... think probably should just do a toggle...
+    // branch timing with if statement is unequal - but doesn't matter
 
     if(exti_direction) {
       // start falling - timing critical
 
+      timer_enable_counter(TIM5);
       gpio_clear(ADC_MUX_PORT, ADC_MUX_N_CTL);
-      // gpio_clear(LED_PORT, LED_OUT);
+
       usart_printf("reached top tim2 %u  tim5 %u \n", timer_get_counter(TIM2), timer_get_counter(TIM5) );
       // period is set in zero cross.
     }
     else {
 
+      timer_disable_counter(TIM5);
       gpio_set(ADC_MUX_PORT, ADC_MUX_N_CTL);
-      // gpio_set(LED_PORT, LED_OUT);
+
       usart_printf("reached bottom\n" );
     }
   }
