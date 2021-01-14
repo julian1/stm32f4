@@ -214,9 +214,8 @@ void exti0_isr(void)
     exti_set_trigger(EXTI0, EXTI_TRIGGER_FALLING);
   }
 
-  // set counter to run again...
+  // set run-down timer to run again.
   timer_set_counter(TIM3, period );
-  // timer_enable_counter(TIM3);
 }
 
 /*
