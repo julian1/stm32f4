@@ -190,10 +190,25 @@ void exti0_isr(void)
   if (exti_direction == FALLING) {
     // slope direction rising.
 
+    // set count to zero for both timers for start of integration... 
+
+    timer_set_counter(TIM2, 0);
+    timer_set_counter(TIM5, 0);
+
     exti_direction = RISING;
     exti_set_trigger(EXTI0, EXTI_TRIGGER_RISING);
+
   } else {
     // slope direction falling
+
+    // get timer count...
+    int x = timer_get_counter(TIM2);
+    int y = timer_get_counter(TIM5);
+
+    float result = (float)x / y ; 
+
+    usart_printf("done %d\n", (int32_t) (result * 1000000));
+
 
     exti_direction = FALLING;
     exti_set_trigger(EXTI0, EXTI_TRIGGER_FALLING);
@@ -223,12 +238,12 @@ void tim3_isr(void)
     // branch timing with if statement is unequal - but doesn't matter
 
     if(exti_direction) {
-      // start falling - timing critical
 
+      // these are the two actions that should be run adjacent in time..
       timer_enable_counter(TIM5);
       gpio_clear(ADC_MUX_PORT, ADC_MUX_N_CTL);
 
-      usart_printf("reached top tim2 %u  tim5 %u \n", timer_get_counter(TIM2), timer_get_counter(TIM5) );
+      // usart_printf("reached top tim2 %u  tim5 %u \n", timer_get_counter(TIM2), timer_get_counter(TIM5) );
       // period is set in zero cross.
     }
     else {
@@ -236,7 +251,7 @@ void tim3_isr(void)
       timer_disable_counter(TIM5);
       gpio_set(ADC_MUX_PORT, ADC_MUX_N_CTL);
 
-      usart_printf("reached bottom\n" );
+      // usart_printf("reached bottom\n" );
     }
   }
 }
