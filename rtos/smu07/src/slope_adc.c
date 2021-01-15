@@ -152,9 +152,12 @@ void slope_adc_setup(void)
   // injecct +10V ref, which will integrate output to the negative rail
   gpio_set(ADC_MUX_PORT, ADC_MUX_P_CTL);
 
-  usart_printf("slope_adc done timer done\n\r");
+  usart_printf("slope_adc done timer done\n");
 
 
+  // stm32f4 has native
+  // usart_printf("sizeof(float)  %d\n", sizeof(float));  // 4
+  // usart_printf("sizeof(double) %d\n", sizeof(double)); // 8
 
   //////////////////////
 
@@ -168,6 +171,15 @@ void slope_adc_setup(void)
 
 
 
+/*
+  osc crystal
+  prec resistors
+  prec capacitor NGO
+
+  need some code - to be able to report variation stats.
+  
+
+*/
 
 /*
   https://stackoverflow.com/questions/19412780/stand-alone-portable-snprintf-independent-of-the-standard-library
@@ -177,6 +189,8 @@ void slope_adc_setup(void)
 
 static const char * ftos(float x, char *buf, size_t n)
 {
+  // change to double. what is the stm32 native represenation?
+
   int intpart, fracpart;
   intpart = (int)x;
   fracpart = (int)((x- intpart) * 10000000);  // controls the digits
