@@ -173,11 +173,13 @@ void slope_adc_setup(void)
 
 /*
   osc crystal
+  power supply multiple
   prec resistors
   prec capacitor NGO
 
   need some code - to be able to report variation stats.
-  
+
+  try integrating for longer.
 
 */
 
@@ -214,6 +216,8 @@ static const char * ftos(float x, char *buf, size_t n)
 
 void exti0_isr(void)
 {
+  static uint32_t count = 0;
+
   // crossing interrupt.   ie. agnd comparator.
 
   // reset for next interrupt
@@ -225,19 +229,25 @@ void exti0_isr(void)
     // set count to zero for both timers for start of integration...
 
     ////////////////////////////
-    // full cycle
-    // get counter values, from last cycle
-    int32_t x = timer_get_counter(TIM2);
-    int32_t y = timer_get_counter(TIM5);
 
-    // clear counter values for next cycle
-    timer_set_counter(TIM2, 0);
-    timer_set_counter(TIM5, 0);
+    ++count;
+    if(count == 1) {
 
-    // compute and print result
-    float result = ((float)y) / x ;
-    static char buf[100];
-    usart_printf("full cycle %s\n", ftos(result, buf, 100));
+      // full cycle
+      // get counter values, from last cycle
+      int32_t x = timer_get_counter(TIM2);
+      int32_t y = timer_get_counter(TIM5);
+
+      // clear counter values, which continue counting,
+      timer_set_counter(TIM2, 0);
+      timer_set_counter(TIM5, 0);
+
+      // compute and print result
+      float result = ((float)y) / x ;
+      static char buf[100];
+      usart_printf("%d cycles  %s\n", count, ftos(result, buf, 100));
+      count = 0;
+    }
 
 
     exti_direction = RISING;
