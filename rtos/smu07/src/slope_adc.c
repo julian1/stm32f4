@@ -216,7 +216,7 @@ static const char * ftos(float x, char *buf, size_t n)
 
 void exti0_isr(void)
 {
-  static uint32_t count = 0;
+  static uint32_t cycle = 0;
 
   // crossing interrupt.   ie. agnd comparator.
 
@@ -230,8 +230,8 @@ void exti0_isr(void)
 
     ////////////////////////////
 
-    ++count;
-    if(count == 1) {
+    ++cycle;
+    if(cycle == 1) {
 
       // full cycle
       // get counter values, from last cycle
@@ -245,8 +245,8 @@ void exti0_isr(void)
       // compute and print result
       float result = ((float)y) / x ;
       static char buf[100];
-      usart_printf("%d cycles  %s\n", count, ftos(result, buf, 100));
-      count = 0;
+      usart_printf("%d cycles  %s\n", cycle, ftos(result, buf, 100));
+      cycle = 0;
     }
 
 
