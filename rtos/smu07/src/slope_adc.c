@@ -101,12 +101,13 @@ void slope_adc_setup(void)
   nvic_set_priority(NVIC_TIM3_IRQ,1);
 
 
-
   rcc_periph_reset_pulse(RST_TIM3);     // reset
   timer_set_mode(TIM3, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_DOWN);
   timer_enable_break_main_output(TIM3);
   timer_set_prescaler(TIM3, 10 );            // 0 is twice as fast as 1.
-  period = 10000;
+
+  // Ok faster appears to be more accurate...
+  period = 1000; // 1000 gives four digiss
   timer_set_counter(TIM3, period );
 
   timer_enable_irq(TIM3, TIM_DIER_UIE);   // counter update
@@ -207,31 +208,6 @@ void slope_adc_setup(void)
   portable snprintf.
 */
 
-#if 0
-static const char * ftos(float x, char *buf, size_t n)
-{
-  // change to double. what is the stm32 native represenation?
-
-  int intpart, fracpart;
-  intpart = (int)x;
-  fracpart = (int)((x- intpart) * 10000000);  // controls the digits
-
-  // handle negatives
-  if(fracpart <0 )
-    fracpart *= -1;
-
-  // snprintf(buf, 11, "%4d.%04d", intpart, fracpart);
-  // snprintf(buf, n, "%d.%d", intpart, fracpart);
-  // mini_snprintf(char *buf,unsigned maxbuf,const char *format,...) {
-
-  mini_snprintf(buf, n, "%d.%d", intpart, fracpart);
-
-  return buf;
-}
-
-#endif
-
-
 
 void exti0_isr(void)
 {
@@ -246,7 +222,7 @@ void exti0_isr(void)
     // slope direction rising.
 
     ++cycle;
-    if(cycle == 10) {
+    if(cycle == 50) {
 
       // full cycle
       // get counter values, from last cycle
@@ -824,3 +800,29 @@ EXTREME.
   use preload. to start counting from number other than 0.
 
 */
+
+#if 0
+static const char * ftos(float x, char *buf, size_t n)
+{
+  // change to double. what is the stm32 native represenation?
+
+  int intpart, fracpart;
+  intpart = (int)x;
+  fracpart = (int)((x- intpart) * 10000000);  // controls the digits
+
+  // handle negatives
+  if(fracpart <0 )
+    fracpart *= -1;
+
+  // snprintf(buf, 11, "%4d.%04d", intpart, fracpart);
+  // snprintf(buf, n, "%d.%d", intpart, fracpart);
+  // mini_snprintf(char *buf,unsigned maxbuf,const char *format,...) {
+
+  mini_snprintf(buf, n, "%d.%d", intpart, fracpart);
+
+  return buf;
+}
+
+#endif
+
+
