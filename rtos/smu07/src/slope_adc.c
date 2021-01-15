@@ -172,6 +172,9 @@ void slope_adc_setup(void)
 
 
 /*
+  std-dev. / determine stm32f4 native float representation float or double.
+
+  sharper gpio edges.
   osc crystal
   power supply multiple
   prec resistors
