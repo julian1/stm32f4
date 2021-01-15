@@ -173,7 +173,11 @@ void slope_adc_setup(void)
 
 
 /*
-  if there is error measuring residuals. then doing more cycles/freq - so height is less dominant
+  need to get stddev first.
+  then osc crystal to rule out other issues.
+  then c0g cap.
+
+  if there is error measuring residuals. then doing more cycles/freq - so height/ crossing interupt is less significant factor 
     should help.
 
   not havving a fixed time - means hard to fit within a powerline cycle.
