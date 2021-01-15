@@ -13,19 +13,22 @@
 // but do require queue accessn.
 
 
-void usart_putc_from_isr(char ch) 
+void usart_putc_from_isr(char ch)
 {
   xQueueSendFromISR(usart_txq, &ch, NULL );
 }
 
-static void usart_putc(char ch) 
+static void usart_putc(char ch)
 {
   xQueueSend(usart_txq, &ch, portMAX_DELAY); /* blocks when queue is full */
 }
 
 
-int usart_printf(const char *format,...) 
+int usart_printf(const char *format,...)
 {
+  // NOT safe!!! - when called from ISR.
+  // albeit seems to work
+
   // very nice. writes to the usart_putc()/queue so no buffer to overflow
   // COOKED means that a CR is sent after every LF is sent out
   va_list args;
@@ -39,7 +42,7 @@ int usart_printf(const char *format,...)
 
 
 
-char *usart_gets( char *buf, size_t len) 
+char *usart_gets( char *buf, size_t len)
 {
   // will truncate if overflows...
   char ch;
@@ -76,7 +79,7 @@ char *usart_gets( char *buf, size_t len)
 
 
 
-void serial_prompt_task(void *args __attribute__((unused))) 
+void serial_prompt_task(void *args __attribute__((unused)))
 {
 
   static char buf[100];
@@ -100,7 +103,7 @@ void serial_prompt_task(void *args __attribute__((unused)))
 
 
 #if 0
-static void demo_task1(void *args __attribute__((unused))) 
+static void demo_task1(void *args __attribute__((unused)))
 {
 
   for (;;) {
@@ -115,7 +118,7 @@ static void demo_task1(void *args __attribute__((unused)))
 
 
 #if 0
-static void usart_puts(const char *s) 
+static void usart_puts(const char *s)
 {
 
   for ( ; *s; ++s )
