@@ -176,6 +176,12 @@ void slope_adc_setup(void)
   need to get stddev first.
   then osc crystal to rule out other issues.
   then c0g cap.
+  smaller cap - should result in larger voltage swing - for speed - and therefore more resolution for comparator
+
+  the residual adc - is used so that - can determine end of integration at a power-line interval.
+  I don't see how it can beat the comparator and generating an interrupt - and reading the hardware timer.
+  --
+  
 
   if there is error measuring residuals. then doing more cycles/freq - so height/ crossing interupt is less significant factor 
     should help.
