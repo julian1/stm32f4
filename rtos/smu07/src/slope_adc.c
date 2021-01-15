@@ -11,6 +11,10 @@
 #include <libopencm3/stm32/timer.h>
 
 
+
+#include "miniprintf.h" // FIXME.... should not be linked through library, with different compilation parameters...
+
+
 // #include <math.h>
 // #include <stdlib.h>
 
@@ -21,6 +25,8 @@
 #include "sleep.h"
 #include "serial.h"
 #include "slope_adc.h"
+
+
 
 
 #define ADC_PORT              GPIOD   // rename ADC_OUT_PORT... albeit this is just standard gpio.
@@ -155,11 +161,13 @@ void slope_adc_setup(void)
   // -10V ref is injected by timer. pushes output up.
 }
 
+
 /*
   https://stackoverflow.com/questions/19412780/stand-alone-portable-snprintf-independent-of-the-standard-library
-
   portable snprintf.
+*/
 
+/*
   const char * ftos(float x, char *buf, size_t n)
   { 
     int intpart, fracpart;
@@ -171,10 +179,17 @@ void slope_adc_setup(void)
       fracpart *= -1;
 
     // snprintf(buf, 11, "%4d.%04d", intpart, fracpart);
-    snprintf(buf, n, "%d.%d", intpart, fracpart);
+    // snprintf(buf, n, "%d.%d", intpart, fracpart);
+
+    // mini_snprintf(char *buf,unsigned maxbuf,const char *format,...) {
+
+    mini_snprintf(buf, n, "%d.%d", intpart, fracpart);
+
     return buf;
   }
+*/
 
+/*
 
   int main()
   { 
