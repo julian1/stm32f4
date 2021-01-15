@@ -97,6 +97,11 @@ void slope_adc_setup(void)
   rcc_periph_clock_enable(RCC_TIM3);
   nvic_enable_irq(NVIC_TIM3_IRQ);         /* Enable TIM3 interrupt. */
 
+  // next level priority - albeit timing is certainly not important
+  nvic_set_priority(NVIC_TIM3_IRQ,1);
+
+
+
   rcc_periph_reset_pulse(RST_TIM3);     // reset
   timer_set_mode(TIM3, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_DOWN);
   timer_enable_break_main_output(TIM3);
