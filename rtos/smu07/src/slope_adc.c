@@ -167,8 +167,8 @@ void slope_adc_setup(void)
   portable snprintf.
 */
 
-/*
-  const char * ftos(float x, char *buf, size_t n)
+
+  static const char * ftos(float x, char *buf, size_t n)
   { 
     int intpart, fracpart;
     intpart = (int)x;
@@ -180,14 +180,13 @@ void slope_adc_setup(void)
 
     // snprintf(buf, 11, "%4d.%04d", intpart, fracpart);
     // snprintf(buf, n, "%d.%d", intpart, fracpart);
-
     // mini_snprintf(char *buf,unsigned maxbuf,const char *format,...) {
 
     mini_snprintf(buf, n, "%d.%d", intpart, fracpart);
 
     return buf;
   }
-*/
+
 
 /*
 
@@ -231,8 +230,13 @@ void exti0_isr(void)
   
     // compute 
     // use atos fton
-    float result = ((float)x) / y ; 
-    usart_printf("full cycle %d\n", (int32_t) (result * 1000000));
+    // float result = ((float)x) / y ; 
+    float result = ((float)y) / x ; 
+    static char buf[100];
+    // usart_printf("full cycle %d\n", (int32_t) (result * 1000000));
+    usart_printf("full cycle %s\n", ftos(result, buf, 100) );
+
+    //   static const char * ftos(float x, char *buf, size_t n)
 
     // static char buf[100];
     // gcvt(result, 5, buf);
