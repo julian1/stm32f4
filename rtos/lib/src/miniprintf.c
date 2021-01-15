@@ -7,6 +7,8 @@
  */
 #include <string.h>
 #include <stdbool.h>
+// #include <stdint.h> // JA size_t
+// #include <math.h> // JA pow10l
 #include <miniprintf.h>
 
 /*********************************************************************
@@ -52,6 +54,24 @@ mini_pad(miniarg_t *mini,char pad,int width,const char *text) {
 /*********************************************************************
  * Internal: mini_printf() engine.
  *********************************************************************/
+
+
+// https://stackoverflow.com/questions/29787310/does-pow-work-for-int-data-type-in-c
+
+static int int_pow(int base, int exp)
+{
+    int result = 1;
+    while (exp)
+    {
+        if (exp % 2)
+           result *= base;
+        exp /= 2;
+        base *= base;
+    }
+    return result;
+}
+
+
 
 static void
 internal_vprintf(miniarg_t *mini,const char *format,va_list arg) {
@@ -136,6 +156,9 @@ internal_vprintf(miniarg_t *mini,const char *format,va_list arg) {
 			mini_write(mini,bptr);
 			break;
 
+
+
+
 		case 'd':		/* Decimal format */
 			if ( !longf ) {
 				vint = va_arg(arg,int);
@@ -167,6 +190,66 @@ internal_vprintf(miniarg_t *mini,const char *format,va_list arg) {
 			mini_pad(mini,pad,width,bptr);
 			mini_write(mini,bptr);
 			break;
+
+
+
+		case 'f':		/* float/double */
+      {
+        // very basic float
+        // calling va_arg really doesn't seem to be working, unless use double on both sides.
+				// float x = va_arg(arg,double);    // fails.
+				double x = va_arg(arg,double);
+        unsigned prec = 7;
+        int intpart = (int)x;
+        int fracpart = (int)((x- intpart) * int_pow(10, prec));   // number of digits of precision
+
+        // handle negative
+        if(intpart<0) {
+          intpart *= -1;
+          fracpart *= -1;
+          mini->putc('-',mini->argp);
+        }
+
+        ////////////////////
+        // do int part
+				bptr = buf + sizeof buf;
+				*--bptr = 0;
+				do	{
+					*--bptr = intpart % 10u + '0';
+					intpart /= 10u;
+				} while (intpart != 0 );
+        mini_write(mini,bptr);
+
+        // dot
+        mini->putc('.',mini->argp);
+
+        ////////////////////
+        // do frac part
+
+				bptr = buf + sizeof buf;
+				*--bptr = 0;
+
+        bool gotnonzero = 0;
+
+        // must be to fixed loop/ not while
+        for(unsigned i = 0; i < prec; ++i)
+        {
+          // take care to truncate trailing zeros
+          char ch1 = fracpart % 10u + '0';
+          if(ch1 != '0')
+            gotnonzero = true;
+
+          if(gotnonzero == true)
+					  *--bptr = ch1;
+
+					fracpart /= 10u;
+        }
+        mini_write(mini,bptr);
+
+        break;
+      }
+
+
 
 		case 'p':		/* Pointer: assumes pointer is sizeof(unsigned) */
 			mini_write(mini,"0x");

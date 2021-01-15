@@ -207,7 +207,7 @@ void slope_adc_setup(void)
   portable snprintf.
 */
 
-
+#if 0
 static const char * ftos(float x, char *buf, size_t n)
 {
   // change to double. what is the stm32 native represenation?
@@ -229,7 +229,7 @@ static const char * ftos(float x, char *buf, size_t n)
   return buf;
 }
 
-
+#endif
 
 
 
@@ -259,8 +259,9 @@ void exti0_isr(void)
 
       // compute and print result
       float result = ((float)y) / x ;
-      static char buf[100];
-      usart_printf("%d cycles  %s\n", cycle, ftos(result, buf, 100));
+      // static char buf[100];
+      // usart_printf("%d cycles  %s\n", cycle, ftos(result, buf, 100));
+      usart_printf("%d cycles  %f\n", cycle, result);
       cycle = 0;
     }
 
@@ -318,7 +319,7 @@ void tim3_isr(void)
 TM32F4 floating-point unit only supports 32-bit floating point numbers (float
 type, but not the double type). If you are using an older GCC version, it will
 still try to generate hardware floating-point instructions for operations with
-double that will cause a run-time exception. 
+double tohat will cause a run-time exception. 
 */
 
 /*
@@ -723,6 +724,24 @@ void slope_adc_out_status_test_task(void *args __attribute((unused)))
 #endif
 
 #if 0
+
+
+
+
+static int int_pow(int base, int exp)
+{
+    int result = 1;
+    while (exp)
+    {
+        if (exp % 2)
+           result *= base;
+        exp /= 2;
+        base *= base;
+    }
+    return result;
+}
+
+
 static float signed_square( float x )
 {
   float h = x * x;
