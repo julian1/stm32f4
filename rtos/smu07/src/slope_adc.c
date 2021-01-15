@@ -216,19 +216,15 @@ static const char * ftos(float x, char *buf, size_t n)
 
 void exti0_isr(void)
 {
-  static uint32_t cycle = 0;
-
   // crossing interrupt.   ie. agnd comparator.
+
+  static uint32_t cycle = 0;
 
   // reset for next interrupt
   exti_reset_request(EXTI0);
 
   if (exti_direction == FALLING) {
     // slope direction rising.
-
-    // set count to zero for both timers for start of integration...
-
-    ////////////////////////////
 
     ++cycle;
     if(cycle == 1) {
@@ -238,7 +234,7 @@ void exti0_isr(void)
       int32_t x = timer_get_counter(TIM2);
       int32_t y = timer_get_counter(TIM5);
 
-      // clear counter values, which continue counting,
+      // clear timer count to zero to start new integration cycle
       timer_set_counter(TIM2, 0);
       timer_set_counter(TIM5, 0);
 
@@ -254,23 +250,13 @@ void exti0_isr(void)
     exti_set_trigger(EXTI0, EXTI_TRIGGER_RISING);
 
   } else {
-    // slope direction falling
-
-    /*
-    // get timer count...
-    int x = timer_get_counter(TIM2);
-    int y = timer_get_counter(TIM5);
-
-    float result = ((float)x) / y ;
-    usart_printf("done %d\n", (int32_t) (result * 1000000));
-    */
-
+    // slope direction is fallilng
 
     exti_direction = FALLING;
     exti_set_trigger(EXTI0, EXTI_TRIGGER_FALLING);
   }
 
-  // set run-down timer to run again.
+  // reset one-shot run-down timer to run again - to indicate reverse point.
   timer_set_counter(TIM3, period );
 }
 
@@ -288,6 +274,8 @@ void tim3_isr(void)
 
     if(exti_direction) {
 
+      // reached apex, need to start integrating down
+
       // these are the two actions that should be run adjacent in time..
       timer_disable_counter(TIM5);
       gpio_clear(ADC_MUX_PORT, ADC_MUX_N_CTL);
@@ -296,11 +284,11 @@ void tim3_isr(void)
       // period is set in zero cross.
     }
     else {
+      // reached bottom, need to start integrating up
 
       timer_enable_counter(TIM5);
-      gpio_set(ADC_MUX_PORT, ADC_MUX_N_CTL); // start injecting negative current to rise
+      gpio_set(ADC_MUX_PORT, ADC_MUX_N_CTL);
 
-      // usart_printf("reached bottom\n" );
     }
   }
 }
