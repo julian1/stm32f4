@@ -172,6 +172,20 @@ void slope_adc_setup(void)
 
 
 /*
+  if there is error measuring residuals. then doing more cycles/freq - so height is less dominant
+    should help.
+
+  not havving a fixed time - means hard to fit within a powerline cycle.
+    but if run at 10kHz then get very close.
+    auxillary/residual adc - because crossing detector timing is not accurate enough - for charge?
+
+  VERY IMPORTANT - we can make frequency (roughly) independent of input voltage 
+    - eg. the count from inversion to intercept - 
+      on the opposite side to hit opposite inversion.
+  
+  being able to stop integration and buffer voltage - for adc sampling is nice property.
+    reason to be able to switch integrating voltage.
+
   std-dev. / determine stm32f4 native float representation float or double.
 
   sharper gpio edges.
@@ -181,8 +195,10 @@ void slope_adc_setup(void)
   prec capacitor NGO
 
   need stats - for standard deviation / variation 
-
   try integrating for longer.
+  ---------------------
+
+  ok hang on. error = above / below.  but also speed of movement. faster = worse...
 
 */
 
@@ -298,8 +314,12 @@ void tim3_isr(void)
 
 
 
-
-
+/*
+TM32F4 floating-point unit only supports 32-bit floating point numbers (float
+type, but not the double type). If you are using an older GCC version, it will
+still try to generate hardware floating-point instructions for operations with
+double that will cause a run-time exception. 
+*/
 
 /*
 
