@@ -100,8 +100,6 @@ static void rails_wait_for_voltage(void)
     // only report first time...
     // if(tick == 0)
     usart_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
-    // usart_printf("whoot %f\n", 1.00123456 );
-    // usart_printf("whoot %f\n", 1.00123 );
 
     if(pa0 > 1000 && pa1 > 1000)
       ++good;
@@ -746,7 +744,7 @@ int main(void)
   ///////////////
   // setup
 
-  xTaskCreate(led_blink_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+//  xTaskCreate(led_blink_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
 
 
   // IMPORTANT changing from 100 to 200, stops deadlock

@@ -222,7 +222,7 @@ void exti0_isr(void)
     // slope direction rising.
 
     ++cycle;
-    if(cycle == 50) {
+    if(cycle == 100) {
 
       // full cycle
       // get counter values, from last cycle
