@@ -177,7 +177,7 @@ void slope_adc_setup(void)
   prec resistors
   prec capacitor NGO
 
-  need some code - to be able to report variation stats.
+  need stats - for standard deviation / variation 
 
   try integrating for longer.
 
@@ -227,7 +227,7 @@ void exti0_isr(void)
     // slope direction rising.
 
     ++cycle;
-    if(cycle == 1) {
+    if(cycle == 10) {
 
       // full cycle
       // get counter values, from last cycle
