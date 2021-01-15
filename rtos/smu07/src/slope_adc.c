@@ -12,10 +12,10 @@
 
 
 
-#include "miniprintf.h" // FIXME.... should not be linked through library, with different compilation parameters...
+#include "miniprintf.h"
 
 
-// #include <math.h>
+// #include <math.h>    // would need -lm
 // #include <stdlib.h>
 
 //////////////////////////////////////////
@@ -64,8 +64,8 @@ void slope_adc_setup(void)
 
   //////////
   //////////
-  // crossing detect interupt 
-  // must be high(est) priority, as timer counts are read in interrupt. 
+  // crossing detect interupt
+  // must be high(est) priority, as timer counts are read in interrupt.
   // rcc_periph_clock_enable(RCC_SYSCFG);  for interrupts. once in main.c
 
   // set up input and crossing interupt
@@ -120,7 +120,7 @@ void slope_adc_setup(void)
   // move this
   timer_enable_counter(TIM2);
 
-  
+
   rcc_periph_clock_enable(RCC_TIM5);
   rcc_periph_reset_pulse(RST_TIM5);         // reset
   timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
@@ -162,62 +162,49 @@ void slope_adc_setup(void)
 }
 
 
+
+
 /*
   https://stackoverflow.com/questions/19412780/stand-alone-portable-snprintf-independent-of-the-standard-library
   portable snprintf.
 */
 
 
-  static const char * ftos(float x, char *buf, size_t n)
-  { 
-    int intpart, fracpart;
-    intpart = (int)x;
-    fracpart = (int)((x- intpart) * 10000000);  // controls the digits
+static const char * ftos(float x, char *buf, size_t n)
+{
+  int intpart, fracpart;
+  intpart = (int)x;
+  fracpart = (int)((x- intpart) * 10000000);  // controls the digits
 
-    // handle negatives
-    if(fracpart <0 )
-      fracpart *= -1;
+  // handle negatives
+  if(fracpart <0 )
+    fracpart *= -1;
 
-    // snprintf(buf, 11, "%4d.%04d", intpart, fracpart);
-    // snprintf(buf, n, "%d.%d", intpart, fracpart);
-    // mini_snprintf(char *buf,unsigned maxbuf,const char *format,...) {
+  // snprintf(buf, 11, "%4d.%04d", intpart, fracpart);
+  // snprintf(buf, n, "%d.%d", intpart, fracpart);
+  // mini_snprintf(char *buf,unsigned maxbuf,const char *format,...) {
 
-    mini_snprintf(buf, n, "%d.%d", intpart, fracpart);
+  mini_snprintf(buf, n, "%d.%d", intpart, fracpart);
 
-    return buf;
-  }
+  return buf;
+}
 
 
-/*
 
-  int main()
-  { 
-    char buf [ 1000];
-
-    printf("%s\n",  ftos( 99.12345678, buf, 1000 ));
-  }
-
-  TODO
-    1. set the interrupt priority - even though shouldn't matter (was does freertos use).
-      crossing interupt *does* have to be precise.
-    2. move miniprintf to ./lib.  and delink the ww library.
-*/
 
 
 void exti0_isr(void)
 {
   // crossing interrupt.   ie. agnd comparator.
 
-  // uint32_t count = timer_get_counter(TIM3); // do as first thing
-  // count -= 21;                              // approx time for interupt and call to get value
-
+  // reset for next interrupt
   exti_reset_request(EXTI0);
 
   if (exti_direction == FALLING) {
     // slope direction rising.
 
-    // set count to zero for both timers for start of integration... 
-  
+    // set count to zero for both timers for start of integration...
+
     ////////////////////////////
     // full cycle
     // get counter values, from last cycle
@@ -227,19 +214,12 @@ void exti0_isr(void)
     // clear counter values for next cycle
     timer_set_counter(TIM2, 0);
     timer_set_counter(TIM5, 0);
-  
-    // compute 
-    // use atos fton
-    // float result = ((float)x) / y ; 
-    float result = ((float)y) / x ; 
+
+    // compute and print result
+    float result = ((float)y) / x ;
     static char buf[100];
-    // usart_printf("full cycle %d\n", (int32_t) (result * 1000000));
-    usart_printf("full cycle %s\n", ftos(result, buf, 100) );
+    usart_printf("full cycle %s\n", ftos(result, buf, 100));
 
-    //   static const char * ftos(float x, char *buf, size_t n)
-
-    // static char buf[100];
-    // gcvt(result, 5, buf);
 
     exti_direction = RISING;
     exti_set_trigger(EXTI0, EXTI_TRIGGER_RISING);
@@ -252,7 +232,7 @@ void exti0_isr(void)
     int x = timer_get_counter(TIM2);
     int y = timer_get_counter(TIM5);
 
-    float result = ((float)x) / y ; 
+    float result = ((float)x) / y ;
     usart_printf("done %d\n", (int32_t) (result * 1000000));
     */
 
@@ -265,13 +245,7 @@ void exti0_isr(void)
   timer_set_counter(TIM3, period );
 }
 
-/*
-  note that on first zero-cross we have to start the timer
-  EXTREME
-  NO. we just set both counters to zero... and whether it is counting of not is correct.
 
-  likewise for zero cross at end.
-*/
 
 void tim3_isr(void)
 {
@@ -306,6 +280,23 @@ void tim3_isr(void)
 
 
 
+
+/*
+
+
+  TODO
+    1. DONE - set the interrupt priority - even though shouldn't matter (was does freertos use).
+      crossing interupt *does* have to be precise.
+    2. DONE- move miniprintf to ./lib.  and delink the ww library.
+*/
+
+/*
+  note that on first zero-cross we have to start the timer
+  EXTREME
+  NO. we just set both counters to zero... and whether it is counting of not is correct.
+
+  likewise for zero cross at end.
+*/
 /*
   /////////////////////////////
   /////////////////////////////
