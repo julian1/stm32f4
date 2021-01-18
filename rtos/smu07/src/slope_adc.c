@@ -1,5 +1,10 @@
 
+/*
+  EXTR.
+  in the same way can take samples with the residual adc, to calc run-down intercept.
+    that value can be used as the start/reset value for the next integration period.
 
+*/
 #include "FreeRTOS.h"
 #include "task.h"
 
@@ -173,15 +178,19 @@ void slope_adc_setup(void)
 
 
 /*
+  continuously integrating signal - (but without a residual adc.
+  --------
+
   need to get stddev first.
   then osc crystal to rule out other issues.
   then c0g cap.
-  smaller cap - should result in larger voltage swing - for speed - and therefore more resolution for comparator
+  smaller cap - should result in larger voltage swing - for speed - and therefore better resolution for comparator switching
 
   the residual adc - is used so that - can determine end of integration at a power-line interval.
   I don't see how it can beat the comparator and generating an interrupt - and reading the hardware timer.
   --
-  
+ 
+  patent - says 150uS for rundown - eg. 0.15mS . for 6 digit. 
 
   if there is error measuring residuals. then doing more cycles/freq - so height/ crossing interupt is less significant factor 
     should help.

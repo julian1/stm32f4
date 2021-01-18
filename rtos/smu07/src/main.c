@@ -672,7 +672,7 @@ int main(void)
   // disable HSE
   // must edit, configCPU_CLOCK_HZ also
   // clocks
-  // rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
+  rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 
   // TODO OR aggregate all these ... ?
 
@@ -744,7 +744,7 @@ int main(void)
   ///////////////
   // setup
 
-//  xTaskCreate(led_blink_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+  xTaskCreate(led_blink_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
 
 
   // IMPORTANT changing from 100 to 200, stops deadlock
