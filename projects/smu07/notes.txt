@@ -1,0 +1,19 @@
+
+quick start,
+
+screen /dev/ttyUSB0 115200
+
+
+make clobber
+make
+
+
+# in a single screen session,
+openocd -f openocd.cfg
+rlwrap nc localhost 4444
+> reset 
+> halt 
+> reset halt ; flash write_image erase unlock ./projects/smu07/main.elf; reset run
+etc
+
+
