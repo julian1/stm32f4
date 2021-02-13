@@ -4,10 +4,14 @@
 
 BINARY		= main
 #SRCFILES	= main.c    rtos/heap_4.c rtos/list.c rtos/port.c rtos/tasks.c rtos/opencm3.c
-SRCFILES	= main.c pid2.c  rtos/heap_4.c rtos/list.c rtos/port.c rtos/queue.c rtos/tasks.c rtos/opencm3.c
+SRCFILES	= main.c pid2.c  rtos/heap_4.c rtos/list.c rtos/port.c rtos/queue.c rtos/tasks.c rtos/opencm3.c \
+            ../lib/src/miniprintf.c \
 
 #LDSCRIPT	= stm32f103c8t6.ld
 LDSCRIPT	= ../../cjmcu-407.ld  # JA
+
+
+TGT_CFLAGS	+= -I../lib/include
 
 include ../../Makefile.incl
 include ../Makefile.rtos
