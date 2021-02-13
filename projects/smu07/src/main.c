@@ -98,8 +98,8 @@ static void rails_wait_for_voltage(void)
     uint16_t pa1 = mcu_adc_read_native(1);   // LN15VN
 
     // only report first time...
-    // if(tick == 0)
-    usart_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
+    if(tick == 0)
+      usart_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
 
     if(pa0 > 1000 && pa1 > 1000)
       ++good;
@@ -672,7 +672,7 @@ int main(void)
   // disable HSE
   // must edit, configCPU_CLOCK_HZ also
   // clocks
-  rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
+  // rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 
   // TODO OR aggregate all these ... ?
 

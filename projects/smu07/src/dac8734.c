@@ -12,7 +12,6 @@
 #include "sleep.h"
 // #include "usart.h"
 #include "serial.h"
-
 #include "dac8734.h"
 
 
@@ -23,7 +22,7 @@
   DAC_MOSI becomes DAC_SPI_MOSI
 
   DAC_CTL_PORT
-  DAC_CTL_UNIBIPB 
+  DAC_CTL_UNIBIPB
   etc.
   To make it clear which port is associated with which gpio/af more easily
 */
@@ -56,192 +55,96 @@
 
 
 
-#if 0
 
-static inline void spi_wait_for_transfer_finish(uint32_t spi)
+static uint32_t dac_write_register_spi(uint32_t r)
 {
-   /* Wait for transfer finished. */
-   while (!(SPI_SR(spi) & SPI_SR_TXE));
-}
-
-
-static inline void wait_for_transfer_finish(void)
-{
-  spi_wait_for_transfer_finish(TFT_SPI);
-  nop_sleep(15);   // 9 doesn't work. 10 does... weird margin
-}
-
-#endif
-
-
-/*
-  Not sure.
-  Using nss manually (instead of gpio).
-    spi_enable_software_slave_management(MRF_SPI);
-    spi_set_nss_high(MRF_SPI);
-
-  https://github.com/libopencm3/libopencm3/issues/232
-  https://www.rhye.org/post/stm32-with-opencm3-2-spi-and-dma/
-*/
-
-static void dac_write_register_spi(uint32_t r)
-{
-#if 1
-  spi_send( DAC_SPI, (r >> 16) & 0xff );    // just r >> 16 for 8 bit...
-  spi_send( DAC_SPI, (r >> 8) & 0xff  );
-  spi_send( DAC_SPI, r & 0xff  );
-#endif
-
-#if 0
-  // OK, this code now doesn't break writing...
-  // So, possible... just reads the buffered value, rather than pausing...
-  // and we use to do a simultaneous read ...
   uint8_t a = spi_xfer( DAC_SPI, (r >> 16) & 0xff );
   uint8_t b = spi_xfer( DAC_SPI, (r >> 8) & 0xff  );
   uint8_t c = spi_xfer( DAC_SPI, r & 0xff  );
-#endif
 
-/*
-  // don't think we can read 24 bytes... when hardware limited to 16 bytes
-  // perhaps this is just reading the same register value over and over...
-  uint8_t a = spi_read( DAC_SPI );
-  uint8_t b = spi_read( DAC_SPI );
-  uint8_t c = spi_read( DAC_SPI );
-*/
-
+  // return (a << 16) + (b << 8) + c;
+  return (c << 16) + (b << 8) + a;
 }
 
 
-static void dac_write_register_bitbash(uint32_t v)
+
+static uint32_t dac_write_register1(uint32_t r)
 {
-  for(int i = 23; i >= 0; --i) {
+  spi_enable( DAC_SPI );
+  uint32_t ret = dac_write_register_spi( r );     // write
+  spi_disable( DAC_SPI );
 
-    gpio_set(DAC_PORT_SPI, DAC_CLK);  // clock high
-    // task_sleep(1);      // OK... interesting it doesn't like this at all...
-                        // but it should be fine
-
-    // assert value
-    if( v & (1 << i ))
-      gpio_set(DAC_PORT_SPI, DAC_MOSI);
-    else
-      gpio_clear(DAC_PORT_SPI, DAC_MOSI);
-
-    // read register something like this,
-    // x |=  (gpio_get(DAC_PORT_SPI, DAC_MISO ) ? 1 : 0) << i ;
-
-    task_sleep(1);
-    gpio_clear(DAC_PORT_SPI, DAC_CLK);  // slave gets value on down transition
-    task_sleep(1);
-  }
+  return ret;
 }
 
-
-static void dac_write_register1(uint32_t r)
-{
-  // should be able to remove sleep and speed this up.
-  // also can keep cs active low since nothing else uses spi port.
-  // or else use the latch actively.
-
-  gpio_clear(DAC_PORT_SPI, DAC_CS);     // CS active low
-  task_sleep(1);
-  // dac_write_register_bitbash( r );     // write
-  dac_write_register_spi( r );     // write
-  task_sleep(1); // required
-  gpio_set(DAC_PORT_SPI, DAC_CS);      // ldac is transparent if low, so will latch value on cs deselect (pull high).
-  task_sleep(1);
-}
 
 
 void dac_write_register(uint8_t r, uint16_t v)
 {
-
+  // eg. like reg, value
   dac_write_register1( r << 16 | v );
-
 }
 
 
-#if 0
-static uint32_t dac_read(void)
+
+
+uint32_t dac_read_register(uint8_t r)
 {
-  // dac write register exchange...
+  // write, with read flag (1 << 23) set, to read r.
+  dac_write_register1(1 << 23 | r << 16 );
 
-  task_sleep(1); // required
-  gpio_clear(DAC_PORT_SPI, DAC_CS);  // CS active low
-
-  // think problem is that it doesn't fiddle the clock.
-  uint8_t a = spi_read(DAC_PORT);
-  uint8_t b = spi_read(DAC_PORT);
-  uint8_t c = spi_read(DAC_PORT);
-
-  /*
-  uint8_t a = spi_xfer(DAC_PORT, 0);
-  uint8_t b = spi_xfer(DAC_PORT, 0 );
-  uint8_t c = spi_xfer(DAC_PORT, 0);
-  */
-  task_sleep(1); // required
-  gpio_set(DAC_PORT_SPI, DAC_CS);
-
-  return (a << 16) | (b << 8) | c;
+  // do a dummy read, while clocking out data, for previous read
+  // simple although inefficient
+  return dac_write_register1(1 << 23);
 }
-#endif
+
+
 
 
 void dac_setup_spi( void )
 {
-  usart_printf("dac setup spi\n\r");
+  uint32_t all = DAC_CLK | DAC_MOSI | DAC_MISO | DAC_CS;
 
-  // TODO change GPIOA to DAC_PORT_SPI
-  // albeit, should probabaly also do DAC_PORT_AF
-  // spi alternate function 5
-  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, DAC_CLK | DAC_MOSI | DAC_MISO );
+  usart_printf("dac setup spi\n");
+
+  // spi alternate function
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
 
   // OK.. THIS MADE SPI WORK AGAIN....
-  // need harder edges for signal integrity. or else different speed just helps suppress parasitic components
+  // note, need harder edges for signal integrity. or else different speed just helps suppress parasitic components
   // see, https://www.eevblog.com/forum/microcontrollers/libopencm3-stm32l100rc-discovery-and-spi-issues/
-  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, DAC_CLK | DAC_MOSI | DAC_MISO );
+  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, all);
 
-  gpio_set_af(GPIOA, GPIO_AF5,  DAC_CLK | DAC_MOSI | DAC_MISO );
+  // af 5
+  gpio_set_af(GPIOA, GPIO_AF5, all);
 
   // rcc_periph_clock_enable(RCC_SPI1);
-  spi_init_master(DAC_SPI,
-    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_256,
-    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
-    // SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE , // possible we want clock high instead... no doesn't work
-    SPI_CR1_CPHA_CLK_TRANSITION_2,    // 1 == rising edge, 2 == falling edge.
+  spi_init_master(
+    DAC_SPI,
+    SPI_CR1_BAUDRATE_FPCLK_DIV_4,     // SPI_CR1_BAUDRATE_FPCLK_DIV_256,
+    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,  // SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE ,
+    SPI_CR1_CPHA_CLK_TRANSITION_2,    // 2 == falling edge (from dac8734 doc.
     SPI_CR1_DFF_8BIT,
-    SPI_CR1_MSBFIRST
-    // SPI_CR1_LSBFIRST
+    SPI_CR1_MSBFIRST                  // SPI_CR1_LSBFIRST
   );
+
+  spi_disable_software_slave_management( DAC_SPI );
   spi_enable_ss_output(DAC_SPI);
   spi_enable(DAC_SPI);
 
+  ///////////////
 
-  // make cs regular gpio
-  gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_CS );
 
-  /////
   // internal pu, doesn't change anything - because its powered off, and starts up high-Z.
   gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC /*| DAC_UNIBIPA | DAC_UNIBIPB */);
   gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 ); // these are open-drain as inputs
 
-  usart_printf("dac setup spi done\n\r");
+  usart_printf("dac setup spi done\n");
 }
 
 
+// think we have to look at it on a scope.
 
-void dac_setup_bitbash( void )
-{
-  usart_printf("dac setup bitbash\n\r");
-
-  gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_CS  | DAC_CLK | DAC_MOSI);
-  gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_INPUT, GPIO_PUPD_NONE, DAC_MISO );
-
-  gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC /*| DAC_UNIBIPA | DAC_UNIBIPB */);
-  gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 ); // these are open-drain as inputs
-
-  usart_printf("dac setup spi bitbash done\n\r");
-}
 
 
 
@@ -249,7 +152,7 @@ void dac_reset(void)
 {
   // can / should do, before rails powerup.
 
-  usart_printf("dac reset\n\r");
+  usart_printf("dac reset\n");
 
   /*
     code relies on task_sleep() for sequencing rst.
@@ -309,16 +212,49 @@ void dac_reset(void)
 
     TODO - use a typedef struct defining all the default bit values we want, and use it as a mask.
   */
-  usart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+  usart_printf("mcu gpio read1 %d %d\n", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
   // ok this appears to hang if dac is not populated
-  usart_printf("dac clearing dac register\n\r");
+  usart_printf("dac clearing dac register\n");
   dac_write_register1( 0);
-  usart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+  task_sleep(1);
+  usart_printf("mcu gpio read2 %d %d\n", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
-  usart_printf("dac set\n\r");
+  usart_printf("dac set\n");
+
+  // doing two writes fills in the register?
   dac_write_register(0, 1 << 9 | 1 << 8);
-  usart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+  task_sleep(1);
+  usart_printf("mcu gpio read3 %d %d\n", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+
+
+  // R/W = '1' sets a read-back operation. For read operation, bits A3 to A0 select the register to be read.
+  usart_printf("----------\n");
+
+
+
+  ////////////////////
+  // write, then read the configuration register 0
+  // 128 (0x80) seems be hard-set as default...
+  dac_write_register(0,  1 << 8);       // gpio bit,  640  == 512 + 128
+  uint32_t u1 = dac_read_register(0);
+  usart_printf("read %d \n", u1 );
+  usart_printf("bit set %d \n", (u1 & (1 << 8)) == (1 << 8));
+  task_sleep(1);
+
+
+  usart_printf("----------\n");
+
+  ////////////////
+  // writing then read an output register
+  // output register is 16 bit, two bytes only. not 3 bytes == 24.
+
+  dac_write_register(DAC_VSET_REGISTER, 12345);
+  task_sleep(1);
+  uint32_t u = dac_read_register(DAC_VSET_REGISTER);
+  usart_printf("read %d \n",  (u & 0x00ff00) | (u >> 16));     // 12345 works...
+
+
 
 
   /*
@@ -348,234 +284,8 @@ void dac_reset(void)
   comes up in order to make sure the ESD protection circuitry does not turn on.
   */
 
-  usart_printf("dac reset done\n\r");
+  usart_printf("dac reset done\n");
 }
 
 
-
-/*
-  This test turns on rails and ref. so should probably go elsewhere to avoid the header/code dependency
-  But we need all the defines,
-*/
-#if 0
-void dac_test(void)
-{
-
-  /*
-  34,the digital supplies (DVDD and IOVDD) and logic inputs (UNI/BIP-x) must be
-  applied before AVSS and AVDD. Additionally, AVSS must be applied before AVDD
-  unless both can ramp up at the same time. REF-x should be applied after AVDD
-  comes up in order to make sure the ESD protection circuitry does not turn on.
-  */
-  rails_negative_on();
-  task_sleep(50);
-  rails_positive_on();
-  task_sleep(50);
-  ref_on();
-  task_sleep(50);
-
-
-  // WRITING THIS - does not affect mon value...
-  usart_printf("dac writing dac register 1\n\r");
-  // dac_write_register1( 0b00000100 << 16 | 0x7f7f ); // write dac 0
-  //dac_write_register1( 0b00000101 << 16 | 0x3fff ); // write dac 1 1.5V out.
-  // dac_write_register1( 0b00000101 << 16 | 0x2fff ); // write dac 1 1.129 out.
-  // dac_write_register1( 0b00000101 << 16 | -10000 ); // didn't work
-  // dac_write_register1( 0b00000101 << 16 | 10000 ); // works 0.919V
-  // dac_write_register1( 0b00000101 << 16 | 0xffff - 10000 ); //  works. output -0.919V
-  // dac_write_register1( 0b00000101 << 16 | 0x5fff );
-
-  // dac_write_register(0x05, 0x5fff ); // dac1 0b0101
-  // dac_write_register(0x05, 0 ); // dac1 0b0101
-  // dac_write_register(0x05, 0x7fff );
-  // dac_write_register(0x05, 0 );      // Vout = 0V
-  // dac_write_register(0x05, 65535 );     // Vout == 13.122
-
-
-  dac_write_register(0x04, 25000 );  // Vout == 5V
-
-  dac_write_register(0x05, 50000 );  // Iout == 10V
-
-
-  // ok for v reference of 6.5536V
-  // then rails need to be 6.5536 * 2 + 1 == 14.1V.
-  //
-
-
-#if 0
-  dac_write_register1( 0b00000110 << 16 | 0x7f7f ); // write dac 2
-  dac_write_register1( 0b00000111 << 16 | 0x7f7f ); // write dac 3
-  task_sleep(1);  // must wait for update - before we read
-#endif
-
-
-  /*
-    OKK - power consumption - seems *exactly* right.  around 10mA.
-    AIDD (normaloperation) ±10V output range, no loading current, VOUT=0V 2.7-3.4mA/Channel
-    AAISS(normaloperation)±10V outputrange, no loadingcurrent, VOUT=0V 3.3-4.0mA/Channel
-    Input current  1μA - this is for the digital section only.
-    // guy says device is drawing 10mA.
-    // https://e2e.ti.com/support/data-converters/f/73/t/648061?DAC8734-Is-my-dac-damaged-
-
-  */
-
-  // 11 is ain. 13 is dac1.
-
-  usart_printf("dac write mon register for ain\n\r");
-  // dac_write_register1( 0b00000001 << 16 | (1 << 11) ); // select AIN.
-  // dac_write_register1( 0b00000001 << 16 | (1 << 13) ); // select dac 1.
-
-  dac_write_register(0x01, (1 << 13) ); // select monitor dac1
-
-  usart_printf("dac finished\n\r");
-
-#if 0
-#endif
-
-  // sleep forever
-  // exiting a task thread isn't very good...
-  for(;;) {
-    task_sleep(1000);
-  }
-}
-
-#endif
-
-
-
-
-
-// OK. on reset there is no glitch. for neg rail. or pos rail. but there is when 3.3V power first applied . 250nS.
-
-
-
-// gpio_clear (RAILS_PORT, RAILS_NEG);    // turn on... eg. pull p-chan gate down from 3.3V to 0.
-
-// OK - problem - our p-chan fet for neg rail is barely turning on.
-// to pull up the n-chan gate.
-
-
-// OK - a 1k on the fet gate. and defining the port before init... makes the top rail not glitch.
-
-// bottom rail  - our p-chan fet is too weak.
-// if use 1k / 10k. it doesn't turn on at all.
-// if use without input resistor - it barely turns on.
-///// /HMMMMM
-
-// no it does glitch.
-// but why? because of weako
-
-// ok. and 1k seems to often work for neg rail.
-// issue - but secondary issue is that the tx VGS is too bad for us to use it to turn the damn rail on.
-// God damn it...
-// sometimes it spikes and sometimes it doesn't - with or without resistor.
-// when it first turns on - the gate is negative.
-// freaking...
-// ---------
-// try to use dg444?
-// and now we cannot trigger it...
-
-// ok added a 22uF cap as well...   glitching is only occasional and slight.c
-// powering on the other stmicro - 3.3V supply helps a bit also.
-
-
-
-
-
-/*
-  OK. its complicated.
-    the fet comes on as 3V is applied...
-    BUT what happens if
-    if have rail voltage and no 3V. should be ok. because of biasing.
-
-  When we first plug in- we get a high side pulse.
-    about 250nS.
-
-    Looks like the gate gets some spikes.
-    OK. but what about a small cap...
-  ----
-  ok 1nF helps
-  but there's still a 20nS pulse... that turns on the gateo
-  --
-  OK. both rails glitch at power-on.
-  ...
-  fuck.
-
-  try a cap across the gate...
-  ok 1nF seems to be ok.
-
-  ok. 0.1uF seems to have fixed.
-  NOPE.
-
-  OK. lets try a 10k on the gate... to try and stop the ringing.
-  mosfet gatep has cap anyway.
-
-  OK. disconnecting the signal - and we don't trigger. very good.
-  ------------
-  sep 1.
-  OK. started from cold ok. but now cannot get to start now.
-    No seems to come on ok with 1V ref on. 0.730V dac1-out.
-
-*/
-
-
-
-
-
-
-
-
-  // task_sleep(1);
-  // gpio_clear(DAC_PORT_SPI, DAC_CS);  // CS active low
-  // task_sleep(1);
-
-  /*
-    we need to control the general 3.3V power rail, as well without unplugging the usb all the time
-      and having to reset openocd.
-    -------
-    actually perhaps we need to control the 3.3V power for the dac.
-    not. sure
-    turn on only after have everything set up. no. better to give it power first?
-    i think.
-    --------
-    would it make it easier to test things - if could power everything separately.
-  */
-
-
-  // spi_xfer is 'data write and read'.
-  // think we should be using spi_send which does not return anything
-
-  // dac_write_register(  1 << 8 | 1 << 7 );
-
-  // dac_write_register( 1 << 22 | 1 << 8 | 1 << 6 ); // read and nop
-  // dac_write_register( 1 << 8  | 1 << 6 );      // nop, does nothing
-  // dac_write_register( 1 << 22 | 1 << 8 );      // writes, it shouldn't though...
-  // dac_write_register( 0 );        // turns off ,
-  // dac_write_register( 1 << 7  );
-
-  // very strange - code does not initialize properly... when plugged...
-
-  /*********
-  // reset gives gpio values = 1, which is high-z, therefore pulled hi.
-  // setting to 0 will clear.
-  **********/
-
-  // task_sleep(1); // required
-  // gpio_set(DAC_PORT_SPI, DAC_CS);      // if ldac is low, then latch will latch on deselect cs.
-
-
-  // gpio_clear(DAC_PORT, DAC_LDAC);
-
-
-
-
-#if 0
-  // pull latch up to write
-  usart_printf("toggle ldac\n\r");
-  gpio_set(DAC_PORT, DAC_LDAC);
-  task_sleep(1);
-
-  // gpio_clear(DAC_PORT, DAC_LDAC);
-  // task_sleep(1);
-#endif
 
