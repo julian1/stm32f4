@@ -6,14 +6,14 @@
 .PHONY = libopencm3 clobber_libopencm3 clean_libopencm3 #libwwg
 
 all:	libopencm3 #libwwg
-	$(MAKE) -$(MAKEFLAGS) -C ./rtos 
+	$(MAKE) -$(MAKEFLAGS) -C ./projects
 
 clean:	clean_libopencm3
-	$(MAKE) -$(MAKEFLAGS) -C ./rtos clean
+	$(MAKE) -$(MAKEFLAGS) -C ./projects clean
 #	$(MAKE) -$(MAKEFLAGS) -C ./rtos/libwwg clean
 
 clobber: clobber_libopencm3
-	$(MAKE) -$(MAKEFLAGS) -C ./rtos clobber
+	$(MAKE) -$(MAKEFLAGS) -C ./projects clobber
 #	$(MAKE) -$(MAKEFLAGS) -C ./rtos/libwwg clobber
 
 clean_libopencm3: clobber_libopencm3
