@@ -5,8 +5,9 @@
 BINARY		= main
 
 
-SRCFILES	= src/main.c src/dac8734.c src/ref.c src/rails.c src/usart.c src/serial.c src/sleep.c \
+SRCFILES	= src/main.c src/dac8734.c src/ref.c src/rails.c   \
              src/led.c src/mcu_adc.c src/slope_adc.c src/pvd.c  \
+            ../lib/src/serial.c ../lib/src/sleep.c ../lib/src/usart.c \
             ../lib/src/miniprintf.c \
             rtos/heap_4.c rtos/list.c rtos/port.c rtos/queue.c rtos/tasks.c rtos/opencm3.c
 

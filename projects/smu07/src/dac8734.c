@@ -108,6 +108,9 @@ void dac_setup_spi( void )
   usart_printf("dac setup spi\n");
 
   // spi alternate function
+
+  // TODO // don't refer to GPIOA
+
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
 
   // OK.. THIS MADE SPI WORK AGAIN....
@@ -134,6 +137,7 @@ void dac_setup_spi( void )
 
   ///////////////
 
+  // should set a reasonable state before enabling...
 
   // internal pu, doesn't change anything - because its powered off, and starts up high-Z.
   gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC /*| DAC_UNIBIPA | DAC_UNIBIPB */);
