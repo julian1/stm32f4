@@ -3,8 +3,7 @@
 ######################################################################
 
 BINARY		= main
-SRCFILES	= main.c   \
-            ../rtos/heap_4.c ../rtos/list.c ../rtos/port.c ../rtos/queue.c ../rtos/tasks.c ../rtos/opencm3.c \
+SRCFILES	= main.c   ../rtos/heap_4.c ../rtos/list.c ../rtos/port.c ../rtos/queue.c ../rtos/tasks.c ../rtos/opencm3.c \
             ../lib/src/serial.c ../lib/src/sleep.c ../lib/src/usart.c \
             ../lib/src/miniprintf.c \
 
