@@ -31,6 +31,8 @@
 #include "miniprintf.h"
 
 
+#define LED_PORT  GPIOE
+#define LED_OUT   GPIO15
 
 // static void uart_puts(const char *s) ;
 
@@ -47,7 +49,7 @@ void vApplicationStackOverflowHook(
 	// for(;;);	// Loop forever here..
 
     for(;;) {
-      gpio_toggle(GPIOE, GPIO0);  // JA
+      gpio_toggle(LED_PORT, LED_OUT);  // JA
 
       // blink very fast. probably too fast, if hse...
       for (i = 0; i < 3000000; i++) {
@@ -62,7 +64,7 @@ void vApplicationStackOverflowHook(
 static void task1(void *args __attribute((unused))) {
 
 	for (;;) {
-		gpio_toggle(GPIOE,GPIO0);
+		gpio_toggle(LED_PORT,LED_OUT);
 		vTaskDelay(pdMS_TO_TICKS(500)); // 1Hz
 	}
 }
@@ -150,7 +152,7 @@ extern void usart1_isr(void)
                                                 // control
 
     // Toggle LED to show signs of life
-    gpio_toggle(GPIOE,GPIO0);
+    gpio_toggle(LED_PORT, LED_OUT);
   }
 
 }
@@ -172,7 +174,7 @@ static void uart_task(void *args __attribute__((unused))) {
       usart_send(USART1,ch);
     }
     // Toggle LED to show signs of life
-    // gpio_toggle(GPIOE,GPIO0);
+    // gpio_toggle(LED_PORT, LED_OUT);
   }
 }
 
@@ -308,7 +310,7 @@ static void demo_task(void *args __attribute__((unused))) {
 //
 
 static void led_setup(void) {
-  gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0); // JA - move to function led_setup.
+  gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT); // JA - move to function led_setup.
 }
 
 
@@ -319,7 +321,7 @@ int main(void) {
   // rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 
   // LED
-  rcc_periph_clock_enable(RCC_GPIOE); // JA
+  rcc_periph_clock_enable(RCC_GPIOE); // LED_PORT JA
 
   // USART
   rcc_periph_clock_enable(RCC_GPIOA);
