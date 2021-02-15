@@ -63,8 +63,15 @@ static uint32_t dac_write_register_spi(uint32_t r)
   uint8_t b = spi_xfer( DAC_SPI, (r >> 8) & 0xff  );
   uint8_t c = spi_xfer( DAC_SPI, r & 0xff  );
 
+
+  // REVIEW
   // return (a << 16) + (b << 8) + c;
-  return (c << 16) + (b << 8) + a;
+  return (c << 16) + (b << 8) + a;      // msb last... seems weird.
+                                        // wrong...
+                                          // eg. we are manually swapping bytes around elsewhere,
+
+                                        /// usart_printf("bit set %d \n", (u1 & (1 << 8)) == (1 << 8));
+    
 }
 
 
@@ -79,7 +86,7 @@ static uint32_t dac_write_register1(uint32_t r)
 }
 
 
-
+// RENAME THIS....
 void dac_write_register(uint8_t r, uint16_t v)
 {
   // eg. like reg, value
