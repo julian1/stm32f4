@@ -69,6 +69,8 @@ static void led_setup(void)
   p37 power up discussion
   p82 for power on flowchart.
 
+  p55 wakeup
+  p55 unlock
 
   p16  asynchoroous interupt mode timing.
 
@@ -78,6 +80,12 @@ static void led_setup(void)
 
     The M0 pin settings(listedin Table12) are latchedon power-upto set the interface.
     not at reset?
+  --------------
+
+    NEEDS WAKEUP....?
+    NEEDS TO BE unlocked.
+
+
 
   //////////////
 
@@ -119,7 +127,7 @@ static void adc_setup_spi( void )
 
   spi_disable_software_slave_management( ADC_SPI);
   spi_enable_ss_output(ADC_SPI);
-  spi_enable(ADC_SPI);
+  // spi_enable(ADC_SPI);
 
 
 
@@ -131,6 +139,50 @@ static void adc_setup_spi( void )
   gpio_mode_setup(ADC_SPI_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, out );
   gpio_mode_setup(ADC_SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, in );
 }
+
+
+// ok spi_read is blocking, because it's waiting for the outgoing transaction perhaps? 
+// that doesn't exist...
+
+static uint32_t adc_read_register_spi(void)
+{
+//   return 111;
+  uint8_t a = spi_xfer( ADC_SPI, 0 );
+  //return a;
+  uint8_t b = spi_xfer( ADC_SPI, 0  );
+  uint8_t c = spi_xfer( ADC_SPI  , 0 );
+
+  // return (a << 16) + (b << 8) + c;
+  //return (c << 16) + (b << 8) + a;
+  // return  (b << 8) + a;
+  return  (a << 8) + b;
+    // register 65284
+    // == ff04
+    // which is the value we are looking for.
+}
+
+
+
+static uint32_t adc_read_register1(void)
+{
+
+  spi_enable( ADC_SPI );
+
+
+  spi_disable_rx_buffer_not_empty_interrupt(ADC_SPI);
+
+  uint32_t ret = adc_read_register_spi();     // write
+  spi_disable( ADC_SPI );
+
+  return ret;
+}
+
+
+
+
+// is it possible that the din is going high-Z. and spi refusing to read it?
+// we kind of need to get a scope on the pins. 
+// to see that 
 
 
 static void adc_reset( void )
@@ -150,41 +202,24 @@ static void adc_reset( void )
   gpio_clear(ADC_SPI_PORT, ADC_RESET);
   task_sleep(20);
 
-  usart_printf("reset mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
+  usart_printf("in    reset mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
+  
   gpio_set(ADC_SPI_PORT, ADC_RESET);
-
-
   usart_printf("after reset mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
 
-  task_sleep(20);
 
+  task_sleep(20);
   usart_printf("after sleep mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
 
   // ok this is pretty positive get data ready flag.
 
+  // Monitor serial output for 0xFF02 (ADS131A02) or 0xFF04
+  // (ADS131A04) 
+
+
+  usart_printf("register %d\r\n", adc_read_register1());
 }
 
-
-static uint32_t adc_read_register_spi(void)
-{
-  uint8_t a = spi_read( ADC_SPI );
-  uint8_t b = spi_read( ADC_SPI  );
-  uint8_t c = spi_read( ADC_SPI  );
-
-  // return (a << 16) + (b << 8) + c;
-  return (c << 16) + (b << 8) + a;
-}
-
-
-
-static uint32_t adc_read_register1(void)
-{
-  spi_enable( ADC_SPI );
-  uint32_t ret = adc_read_register_spi();     // write
-  spi_disable( ADC_SPI );
-
-  return ret;
-}
 
 
 
@@ -199,6 +234,7 @@ static void test01(void *args __attribute((unused)))
 
   adc_reset();
 
+#if 0
   usart_printf("adc reset done\n");
 
   usart_printf("mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
@@ -206,9 +242,9 @@ static void test01(void *args __attribute((unused)))
   uint32_t x = adc_read_register1();  // this is stalling?    // not enough stack?
 //  usart_printf("x %d\n", x );
 
-  usart_printf("here\r\n" );
+  usart_printf("register %d\r\n", adc_read_register1());
   usart_printf("----\n" );
-
+#endif
 
   // sleep forever
   for(;;) {
@@ -258,7 +294,7 @@ int main(void) {
   xTaskCreate(serial_prompt_task,"SERIAL2",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 
-  xTaskCreate(test01,        "TEST01",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
+  xTaskCreate(test01,        "TEST01",1500,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
 	vTaskStartScheduler();
 
