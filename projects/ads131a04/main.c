@@ -69,6 +69,9 @@ static void led_setup(void)
   p37 power up discussion
   p82 for power on flowchart.
 
+
+  p16  asynchoroous interupt mode timing.
+
   problem...
     This pin must be set to one of three states at power-up.The pin stateis
     latchedat power-upand changingthe pin stateafterpower-uphas no effect
@@ -79,6 +82,7 @@ static void led_setup(void)
   //////////////
 
   OK. crystal only comes up when digital and applied power...
+  cannot see any current draw on bench supply.
 
   /////////////////
   So we should try to read.
@@ -132,7 +136,8 @@ static void adc_setup_spi( void )
 static void adc_reset( void )
 {
 
-  gpio_clear(ADC_SPI_PORT, ADC_M0);     // GND:Synchronousmastermode
+  gpio_set(ADC_SPI_PORT, ADC_M0);     // GND:Synchronousmastermode
+                                        // IOVDD:Asynchronousinterruptmode
   
   gpio_clear(ADC_SPI_PORT, ADC_M1);     // SPI word transfersize GND:24 bit 
                                         // setting this may not work... after powerup. before reset.
