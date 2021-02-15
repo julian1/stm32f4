@@ -149,20 +149,25 @@ static void adc_reset( void )
   // reset
   gpio_clear(ADC_SPI_PORT, ADC_RESET);
   task_sleep(20);
+
+  usart_printf("reset mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
   gpio_set(ADC_SPI_PORT, ADC_RESET);
+
+
+  usart_printf("after reset mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
+
   task_sleep(20);
 
-
-  usart_printf("mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
+  usart_printf("after sleep mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
 
 }
 
 
-static uint32_t adc_write_register_spi(uint32_t r)
+static uint32_t adc_read_register_spi(void)
 {
-  uint8_t a = spi_xfer( ADC_SPI, (r >> 16) & 0xff );
-  uint8_t b = spi_xfer( ADC_SPI, (r >> 8) & 0xff  );
-  uint8_t c = spi_xfer( ADC_SPI, r & 0xff  );
+  uint8_t a = spi_read( ADC_SPI );
+  uint8_t b = spi_read( ADC_SPI  );
+  uint8_t c = spi_read( ADC_SPI  );
 
   // return (a << 16) + (b << 8) + c;
   return (c << 16) + (b << 8) + a;
@@ -170,10 +175,10 @@ static uint32_t adc_write_register_spi(uint32_t r)
 
 
 
-static uint32_t adc_write_register1(uint32_t r)
+static uint32_t adc_read_register1(void)
 {
   spi_enable( ADC_SPI );
-  uint32_t ret = adc_write_register_spi( r );     // write
+  uint32_t ret = adc_read_register_spi();     // write
   spi_disable( ADC_SPI );
 
   return ret;
@@ -194,12 +199,25 @@ static void test01(void *args __attribute((unused)))
 
   usart_printf("adc reset done\n");
 
+  usart_printf("mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
+
+  uint32_t x = adc_read_register1();  // this is stalling?    // not enough stack?
+//  usart_printf("x %d\n", x );
+
+  usart_printf("here\r\n" );
+  usart_printf("----\n" );
+
 
   // sleep forever
   for(;;) {
     task_sleep(1000);
   }
 }
+
+
+
+
+
 
 int main(void) {
 
