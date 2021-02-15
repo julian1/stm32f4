@@ -151,14 +151,12 @@ static void adc_setup_spi( void )
   so always use xfer. not spi_write() or spi_read()
 */
 
-static uint32_t spi_xfer_24(uint32_t spi )
+static uint32_t spi_xfer_24(uint32_t spi)
 {
   spi_enable( spi );
-
   uint8_t a = spi_xfer(spi, 0);
   uint8_t b = spi_xfer(spi, 0);
   uint8_t c = spi_xfer(spi, 0);
-
   spi_disable( spi);
 
   return (a << 16) + (b << 8) + c;  // msb first. reading 3 registers gives us ff0400   eg. 
@@ -169,6 +167,17 @@ static uint32_t spi_xfer_24(uint32_t spi )
     // == ff04
     // which is the value we are looking for.
 }
+
+
+static uint32_t spi_xfer_16(uint32_t spi)
+{
+  spi_enable( spi );
+  uint8_t a = spi_xfer(spi, 0);
+  uint8_t b = spi_xfer(spi, 0);
+  spi_disable( spi);
+
+  return  (a << 8) + b;
+} 
 
 
 
@@ -205,8 +214,8 @@ static void adc_reset( void )
   // (ADS131A04) 
 
 
-  usart_printf("register %x\r\n", spi_xfer_24( ADC_SPI ));
-  usart_printf("register %x\r\n", spi_xfer_24( ADC_SPI ));
+  usart_printf("register %x\r\n", spi_xfer_16( ADC_SPI ));
+  usart_printf("register %x\r\n", spi_xfer_16( ADC_SPI ));
 }
 
 
