@@ -124,7 +124,7 @@ static void adc_setup_spi( void )
 
 
   uint32_t out = ADC_M0 | ADC_M1 | ADC_M2 | ADC_RESET;
-  uint32_t in =  ADC_DONE | ADC_DRDY;
+  uint32_t in =  ADC_DRDY | ADC_DONE ;
 
   // should setup a reasonable state first...
 
@@ -151,6 +151,9 @@ static void adc_reset( void )
   task_sleep(20);
   gpio_set(ADC_SPI_PORT, ADC_RESET);
   task_sleep(20);
+
+
+  usart_printf("mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
 
 }
 
