@@ -91,6 +91,9 @@ static void led_setup(void)
   OK. crystal only comes up when digital and applied power...
   cannot see any current draw on bench supply.
 
+  The reference source is selected by the INT_REFEN bit in the A_SYS_CFGregister.
+  By default,the external reference is selected(INT_REFEN= 0).
+
   /////////////////
   So we should try to read.
   Or try to see if we are getting an interrupt. 
