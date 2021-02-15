@@ -125,7 +125,21 @@ static void adc_reset( void )
 
 
 
+static void test01(void *args __attribute((unused)))
+{
 
+  usart_printf("test01\n");
+
+  adc_reset();
+
+  usart_printf("test01 done\n");
+
+
+  // sleep forever
+  for(;;) {
+    task_sleep(1000);
+  }
+}
 
 int main(void) {
 
@@ -164,6 +178,7 @@ int main(void) {
   xTaskCreate(serial_prompt_task,"SERIAL2",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 
+  xTaskCreate(test01,        "TEST01",200,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
 	vTaskStartScheduler();
 
