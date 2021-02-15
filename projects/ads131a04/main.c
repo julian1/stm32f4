@@ -155,41 +155,35 @@ static void adc_setup_spi( void )
 /*
 // don't think it ever makes sense to do spi_read(), because hardware implies some value must
 // be asserted on mosi while clocking and reading miso/din
+  - similarly for write, there is always a value present on din/miso - even if high-Z/unconnected..
+  so always use xfer
 */
 
-static uint32_t adc_read_register_spi(void)
+static uint32_t spi_xfer_24(uint32_t spi )
 {
-//   return 111;
-  uint8_t a = spi_xfer( ADC_SPI, 0 );
-  //return a;
-  uint8_t b = spi_xfer( ADC_SPI, 0  );
-  uint8_t c = spi_xfer( ADC_SPI  , 0 );
+  spi_enable( spi );
 
-  // return (a << 16) + (b << 8) + c;
-  //return (c << 16) + (b << 8) + a;
+  uint8_t a = spi_xfer( spi, 0 );
+  uint8_t b = spi_xfer( spi, 0  );
+  uint8_t c = spi_xfer( spi , 0 );
+
+  spi_disable( spi);
+
+  return (a << 16) + (b << 8) + c;  // reading 3 registers gives us ff0400   eg. 
+  // return (c << 16) + (b << 8) + a;
   // return  (b << 8) + a;
-  return  (a << 8) + b;
+  // return  (a << 8) + b;
     // register 65284
     // == ff04
     // which is the value we are looking for.
 }
 
 
-
-static uint32_t adc_read_register1(void)
-{
-
-  spi_enable( ADC_SPI );
-
-
-  spi_disable_rx_buffer_not_empty_interrupt(ADC_SPI);
-
-  uint32_t ret = adc_read_register_spi();     // write
-  spi_disable( ADC_SPI );
-
-  return ret;
-}
-
+//  got ready signal 65284 == ff04"
+// gahhhh now its giving 65535 ????  after new power on.  changing from 16 bit to 24 bit?
+// because no analog power.
+// perhaps 24 bit...
+// need to print each character...
 
 
 
@@ -230,7 +224,7 @@ static void adc_reset( void )
   // (ADS131A04) 
 
 
-  usart_printf("register %d\r\n", adc_read_register1());
+  usart_printf("register %x\r\n", spi_xfer_24( ADC_SPI ));
 }
 
 
@@ -252,10 +246,10 @@ static void test01(void *args __attribute((unused)))
 
   usart_printf("mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
 
-  uint32_t x = adc_read_register1();  // this is stalling?    // not enough stack?
+  uint32_t x = spi_xfer_24();  // this is stalling?    // not enough stack?
 //  usart_printf("x %d\n", x );
 
-  usart_printf("register %d\r\n", adc_read_register1());
+  usart_printf("register %d\r\n", spi_xfer_24());
   usart_printf("----\n" );
 #endif
 
