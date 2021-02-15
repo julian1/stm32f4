@@ -160,6 +160,8 @@ static void adc_reset( void )
 
   usart_printf("after sleep mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
 
+  // ok this is pretty positive get data ready flag.
+
 }
 
 
