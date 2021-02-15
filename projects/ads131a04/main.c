@@ -66,13 +66,12 @@ static void led_setup(void)
 
 /*
   p9 pin functions
+  p16  asynchoroous interupt mode timing.
   p37 power up discussion
-  p82 for power on flowchart.
-
   p55 wakeup
   p55 unlock
+  p82 for power on flowchart.
 
-  p16  asynchoroous interupt mode timing.
 
   problem...
     This pin must be set to one of three states at power-up.The pin stateis
@@ -141,35 +140,25 @@ static void adc_setup_spi( void )
 }
 
 
-// ok spi_read is blocking, because it's waiting for the outgoing transaction perhaps? 
-// that doesn't exist...
-
-// spi_xfer24( v)
-// byte_swap_24() 
-// spi_xfer16( v)
-
-// combine the asserting function with the reading/writing
-
-// pass the spi designator, to generalize eg. flash, dac, adc.
 
 /*
-// don't think it ever makes sense to do spi_read(), because hardware implies some value must
-// be asserted on mosi while clocking and reading miso/din
+  - don't think it ever makes sense to do spi_read(), because hardware implies some value must
+    be asserted on mosi while clocking and reading miso/din. even if high-Z.
   - similarly for write, there is always a value present on din/miso - even if high-Z/unconnected..
-  so always use xfer
+  so always use xfer. not spi_write() or spi_read()
 */
 
 static uint32_t spi_xfer_24(uint32_t spi )
 {
   spi_enable( spi );
 
-  uint8_t a = spi_xfer( spi, 0 );
-  uint8_t b = spi_xfer( spi, 0  );
-  uint8_t c = spi_xfer( spi , 0 );
+  uint8_t a = spi_xfer(spi, 0);
+  uint8_t b = spi_xfer(spi, 0);
+  uint8_t c = spi_xfer(spi, 0);
 
   spi_disable( spi);
 
-  return (a << 16) + (b << 8) + c;  // reading 3 registers gives us ff0400   eg. 
+  return (a << 16) + (b << 8) + c;  // msb first. reading 3 registers gives us ff0400   eg. 
   // return (c << 16) + (b << 8) + a;
   // return  (b << 8) + a;
   // return  (a << 8) + b;
@@ -179,17 +168,6 @@ static uint32_t spi_xfer_24(uint32_t spi )
 }
 
 
-//  got ready signal 65284 == ff04"
-// gahhhh now its giving 65535 ????  after new power on.  changing from 16 bit to 24 bit?
-// because no analog power.
-// perhaps 24 bit...
-// need to print each character...
-
-
-
-// is it possible that the din is going high-Z. and spi refusing to read it?
-// we kind of need to get a scope on the pins. 
-// to see that 
 
 
 static void adc_reset( void )
@@ -224,6 +202,7 @@ static void adc_reset( void )
   // (ADS131A04) 
 
 
+  usart_printf("register %x\r\n", spi_xfer_24( ADC_SPI ));
   usart_printf("register %x\r\n", spi_xfer_24( ADC_SPI ));
 }
 

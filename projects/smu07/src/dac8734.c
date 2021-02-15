@@ -71,6 +71,8 @@ static uint32_t dac_write_register_spi(uint32_t r)
                                           // eg. we are manually swapping bytes around elsewhere,
 
                                         /// usart_printf("bit set %d \n", (u1 & (1 << 8)) == (1 << 8));
+
+                                        // Yes.
     
 }
 
