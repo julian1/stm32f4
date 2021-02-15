@@ -144,6 +144,19 @@ static void adc_setup_spi( void )
 // ok spi_read is blocking, because it's waiting for the outgoing transaction perhaps? 
 // that doesn't exist...
 
+// spi_xfer24( v)
+// byte_swap_24() 
+// spi_xfer16( v)
+
+// combine the asserting function with the reading/writing
+
+// pass the spi designator, to generalize eg. flash, dac, adc.
+
+/*
+// don't think it ever makes sense to do spi_read(), because hardware implies some value must
+// be asserted on mosi while clocking and reading miso/din
+*/
+
 static uint32_t adc_read_register_spi(void)
 {
 //   return 111;

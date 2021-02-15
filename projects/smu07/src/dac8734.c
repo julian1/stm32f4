@@ -55,6 +55,7 @@
 
 
 // change name dac_write_register24
+// pass the spi version?
 
 static uint32_t dac_write_register_spi(uint32_t r)
 {
@@ -133,6 +134,9 @@ void dac_setup_spi( void )
 
   spi_disable_software_slave_management( DAC_SPI );
   spi_enable_ss_output(DAC_SPI);
+
+  // ************
+  // TODO remove. this should be enabled in use... m
   spi_enable(DAC_SPI);
 
   ///////////////
