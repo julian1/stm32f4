@@ -202,20 +202,25 @@ static void adc_reset( void )
   usart_printf("in    reset mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
   
   gpio_set(ADC_SPI_PORT, ADC_RESET);
+/*
   usart_printf("after reset mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
-
-
   task_sleep(20);
   usart_printf("after sleep mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
+*/
 
   // ok this is pretty positive get data ready flag.
 
   // Monitor serial output for 0xFF02 (ADS131A02) or 0xFF04
   // (ADS131A04) 
+  // wait for ready.
+  uint32_t val =  0;
+  do { 
+    val = spi_xfer_16( ADC_SPI ); 
+    usart_printf("register %x\r\n", val);
+  }
+  while(val != 0xff04 ) ;
 
-
-  usart_printf("register %x\r\n", spi_xfer_16( ADC_SPI ));
-  usart_printf("register %x\r\n", spi_xfer_16( ADC_SPI ));
+  usart_printf("ok got ready\n");
 }
 
 
