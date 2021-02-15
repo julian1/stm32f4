@@ -152,7 +152,8 @@ extern void usart1_isr(void)
                                                 // control
 
     // Toggle LED to show signs of life
-    gpio_toggle(LED_PORT, LED_OUT);
+    // avoid. makes it look like its mcu is resetting.
+    // gpio_toggle(LED_PORT, LED_OUT);
   }
 
 }
