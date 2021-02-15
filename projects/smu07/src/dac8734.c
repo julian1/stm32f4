@@ -54,7 +54,7 @@
 #define DAC_GPIO1     GPIO7
 
 
-
+// change name dac_write_register24
 
 static uint32_t dac_write_register_spi(uint32_t r)
 {

@@ -64,7 +64,27 @@ static void led_setup(void)
 #define ADC_MISO    GPIO14      // SPI2_MISO
 #define ADC_MOSI    GPIO15      // SPI2_MISO
 
+/*
+  p9 pin functions
+  p37 power up discussion
+  p82 for power on flowchart.
 
+  problem...
+    This pin must be set to one of three states at power-up.The pin stateis
+    latchedat power-upand changingthe pin stateafterpower-uphas no effect
+
+    The M0 pin settings(listedin Table12) are latchedon power-upto set the interface.
+    not at reset?
+
+  //////////////
+
+  OK. crystal only comes up when digital and applied power...
+
+  /////////////////
+  So we should try to read.
+  Or try to see if we are getting an interrupt. 
+
+*/
 
 static void adc_setup_spi( void )
 {
@@ -112,15 +132,46 @@ static void adc_setup_spi( void )
 static void adc_reset( void )
 {
 
-#if 0
+  gpio_clear(ADC_SPI_PORT, ADC_M0);     // GND:Synchronousmastermode
+  
+  gpio_clear(ADC_SPI_PORT, ADC_M1);     // SPI word transfersize GND:24 bit 
+                                        // setting this may not work... after powerup. before reset.
+
+  gpio_clear(ADC_SPI_PORT, ADC_M2);     // GND: Hamming code word validation off
+
+
+
   // reset
-  gpio_clear(DAC_PORT, DAC_RST);
+  gpio_clear(ADC_SPI_PORT, ADC_RESET);
   task_sleep(20);
-  gpio_set(DAC_PORT, DAC_RST);
+  gpio_set(ADC_SPI_PORT, ADC_RESET);
   task_sleep(20);
-#endif
 
 }
+
+
+static uint32_t adc_write_register_spi(uint32_t r)
+{
+  uint8_t a = spi_xfer( ADC_SPI, (r >> 16) & 0xff );
+  uint8_t b = spi_xfer( ADC_SPI, (r >> 8) & 0xff  );
+  uint8_t c = spi_xfer( ADC_SPI, r & 0xff  );
+
+  // return (a << 16) + (b << 8) + c;
+  return (c << 16) + (b << 8) + a;
+}
+
+
+
+static uint32_t adc_write_register1(uint32_t r)
+{
+  spi_enable( ADC_SPI );
+  uint32_t ret = adc_write_register_spi( r );     // write
+  spi_disable( ADC_SPI );
+
+  return ret;
+}
+
+
 
 
 
@@ -129,10 +180,11 @@ static void test01(void *args __attribute((unused)))
 {
 
   usart_printf("test01\n");
+  usart_printf("adc reset\n");
 
   adc_reset();
 
-  usart_printf("test01 done\n");
+  usart_printf("adc reset done\n");
 
 
   // sleep forever
