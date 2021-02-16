@@ -65,13 +65,20 @@ static void led_setup(void)
 #define ADC_MOSI    GPIO15      // SPI2_MISO
 
 /*
-  p9 pin functions
-  p16  asynchoroous interupt mode timing.
+  https://www.ti.com/lit/ds/symlink/ads131a04.pdf
+
+  p9  pin table functions
+  p16 asynchoroous interupt mode timing.
   p37 power up discussion
   p55 wakeup
   p55 unlock
   p56 UNLOCKfromPORor RESET
   p82 for power on flowchart.
+  ---
+
+  p56 RREG:Reada SingleRegister
+  p57 WREG:WriteSingleRegister
+  p65  A_SYS_CFGRegister
 
   problem...
     This pin must be set to one of three states at power-up.The pin stateis
