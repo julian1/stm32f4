@@ -74,7 +74,8 @@ static int int_pow(int base, int exp)
 
 
 static void
-internal_vprintf(miniarg_t *mini,const char *format,va_list arg) {
+internal_vprintf(miniarg_t *mini,const char *format,va_list arg)
+{
 	char ch, pad, sgn;	/* Current char, pad char and sign char */
 	int vint, width;	/* Integer value to print and field width */
 	long vlong;
@@ -191,9 +192,9 @@ internal_vprintf(miniarg_t *mini,const char *format,va_list arg) {
 			mini_write(mini,bptr);
 			break;
 
+  // JA octal and binary with width would be very nice. 
 
-
-		case 'f':		/* float/double */
+		case 'f':		/* float/double */ // JA
       {
         // very basic float
         // calling va_arg really doesn't seem to be working, unless use double on both sides.
