@@ -175,7 +175,7 @@ static uint32_t spi_xfer_16(uint32_t spi, uint16_t val)
 
 
 
-static void adc_reset( void )
+static unsigned adc_reset( void )
 {
 
   usart_printf("------------------\n");
@@ -213,7 +213,7 @@ static void adc_reset( void )
   uint32_t val =  0;
   do {
     val = spi_xfer_16( ADC_SPI, 0 );
-    usart_printf("register %x\r\n", val);
+    usart_printf("register %x\n", val);
     task_sleep(20);
   }
   while(val != 0xff04 ) ;
@@ -226,14 +226,19 @@ static void adc_reset( void )
   // ~drdy == 0 means data available.
 
 
-
   /////////////////////////////////
   // unlock 0x0655
 
   spi_xfer_16( ADC_SPI, 0x0655);
   //while(gpio_get(ADC_SPI_PORT, ADC_DRDY));
   val = spi_xfer_16( ADC_SPI, 0 );
-  usart_printf("x %x\r\n", val);
+  usart_printf("x %x\n", val);
+
+  if(val != 0x0655 ) {
+    usart_printf("unlock failed\n", val);
+    return -1;   //  need proper error
+
+  }
 
 
     task_sleep(20);
@@ -242,6 +247,8 @@ static void adc_reset( void )
     task_sleep(20);
   usart_printf("x %x\r\n", spi_xfer_16( ADC_SPI, 0));
 
+
+  return 0;
 }
 
 
