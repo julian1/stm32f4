@@ -70,8 +70,8 @@ static void led_setup(void)
   p37 power up discussion
   p55 wakeup
   p55 unlock
+  p56 UNLOCKfromPORor RESET
   p82 for power on flowchart.
-
 
   problem...
     This pin must be set to one of three states at power-up.The pin stateis
@@ -84,6 +84,9 @@ static void led_setup(void)
     NEEDS WAKEUP....?
     NEEDS TO BE unlocked.
 
+  Chipselect(CS) is an active-lowinputthat selectsthe devicefor SPI
+  communicationand controlsthe beginningand end of a dataframein
+  asynchronous interruptmode.
 
 
   //////////////
@@ -117,7 +120,7 @@ static void adc_setup_spi( void )
   // af 5 for spi2 on PB
   gpio_set_af(ADC_SPI_PORT, GPIO_AF5, all);
 
-  // rcc_periph_clock_enable(RCC_SPI1);
+  // rcc_periph_clock_enable(RCC_SPI2);
   spi_init_master(
     ADC_SPI,
     SPI_CR1_BAUDRATE_FPCLK_DIV_4,     // SPI_CR1_BAUDRATE_FPCLK_DIV_256,
@@ -132,8 +135,9 @@ static void adc_setup_spi( void )
   // spi_enable(ADC_SPI);
 
 
+  // M1 high-Z. 16 bit.
 
-  uint32_t out = ADC_M0 | ADC_M1 | ADC_M2 | ADC_RESET;
+  uint32_t out = ADC_M0 /* | ADC_M1*/ | ADC_M2 | ADC_RESET;
   uint32_t in =  ADC_DRDY | ADC_DONE ;
 
   // should setup a reasonable state first...
@@ -161,9 +165,17 @@ static void adc_setup_spi( void )
 static uint32_t spi_xfer_24(uint32_t spi, uint32_t val)
 {
   spi_enable( spi );
+#if 1
   uint8_t a = spi_xfer(spi, (val >> 16) & 0xff);
   uint8_t b = spi_xfer(spi, (val >> 8) & 0xff);
   uint8_t c = spi_xfer(spi, val & 0xff);
+#endif
+#if 0
+  uint8_t a = spi_xfer(spi, val & 0xff);
+  uint8_t b = spi_xfer(spi, (val >> 8) & 0xff);
+  uint8_t c = spi_xfer(spi, (val >> 16) & 0xff);
+#endif
+
   spi_disable( spi);
 
   return (a << 16) + (b << 8) + c;  // msb first. reading 3 registers gives us ff0400   eg. 
@@ -189,6 +201,15 @@ static uint32_t spi_xfer_16(uint32_t spi, uint16_t val)
 } 
 
 
+static uint32_t spi_xfer_16_no_cs(uint32_t spi, uint16_t val)
+{
+  uint8_t a = spi_xfer(spi, (val >> 8 ) & 0xff );
+  uint8_t b = spi_xfer(spi, val & 0xff);
+
+  return  (a << 8) + b;
+}
+
+
 
 
 static void adc_reset( void )
@@ -197,7 +218,9 @@ static void adc_reset( void )
   gpio_set(ADC_SPI_PORT, ADC_M0);     // GND:Synchronousmastermode
                                         // IOVDD:Asynchronousinterruptmode
   
-  gpio_clear(ADC_SPI_PORT, ADC_M1);     // SPI word transfersize GND:24 bit 
+  // gpio_set(ADC_SPI_PORT, ADC_M1);     // SPI word transfersize 
+                                        // GND:24 bit
+                                        // No connection:16 bit
                                         // setting this may not work... after powerup. before reset.
 
   gpio_clear(ADC_SPI_PORT, ADC_M2);     // GND: Hamming code word validation off
@@ -219,6 +242,8 @@ static void adc_reset( void )
 
   // ok this is pretty positive get data ready flag.
 
+  /////////////////////////////////
+
   // Monitor serial output for 0xFF02 (ADS131A02) or 0xFF04 (ADS131A04) 
   // wait for ready.
   uint32_t val =  0;
@@ -231,27 +256,64 @@ static void adc_reset( void )
 
   usart_printf("ok got ready\n");
 
+  usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
+  
+
+  // NO. ~drdy == 0 means data available.
+
+
+
+  // HOW DOES CS work.... with data frames?
+
+  /////////////////////////////////
   // 0x0655
 
-  // send unlock
-  // val = spi_xfer_16( ADC_SPI, 0x0655); 
-  val = spi_xfer_24(ADC_SPI, 0x0655);
-  usart_printf("unlock response %x\r\n", val );
+  /*
+  // Chip select(CS) is an active-lowinput that selects the device for SPI
+    communication and controls the beginningand end of a dataframein
+    asynchronousinterruptmode.
 
-  // task_sleep(20);
+    The devicelatchesdataon DIN on the SCLKfallingedge  (MOSI)
+
+    Data on DOUTare shiftedout on the SCLKrisingedge.    (MISO)
+
+  */
+  spi_enable( ADC_SPI);
+  spi_xfer_16_no_cs( ADC_SPI, 0x0655); 
+  spi_disable( ADC_SPI);
+
+  // wait for ready...
+  while(gpio_get(ADC_SPI_PORT, ADC_DRDY));  
+
+  spi_enable( ADC_SPI);
+  val = spi_xfer_16_no_cs( ADC_SPI, 0 ); 
+  spi_disable( ADC_SPI);
+  usart_printf("x %x\r\n", val);  // got a zero value?
+
+
 
 
 #if 0
   while(true) { 
-    usart_printf("unlock response %x\r\n", spi_xfer_16( ADC_SPI, 0 ));
-    task_sleep(100);
-  }
+    // send unlock
+    val = spi_xfer_16( ADC_SPI, 0x0655); 
+    usart_printf("unlock response %x\r\n", val );
 
+    val = spi_xfer_16( ADC_SPI, 0x5506); 
+    usart_printf("unlock response %x\r\n", val );
+
+    task_sleep(1000);
+  }
 #endif
+
 /*
   // may need 24 bit unlock code word...
   // need to check mosi trace works. have not used
   // or the ready has to be read in the same write...
+
+  // or need to wait and synchronize the frame elsewhere?...
+
+  // OR. DO NOT RELEASE CS. between read and write.
 */
 
 }
