@@ -214,7 +214,7 @@ static unsigned adc_reset( void )
   // ok this is pretty positive get data ready flag.
 
   /////////////////////////////////
-  // Monitor serial output for 0xFF02 (ADS131A02) or 0xFF04 (ADS131A04)
+  // Monitor serial output for ready. 0xFF02 (ADS131A02) or 0xFF04 (ADS131A04)
 
   usart_printf("wait for ready\n");
   uint32_t val =  0;
@@ -247,11 +247,12 @@ static unsigned adc_reset( void )
 
 
   task_sleep(20);
-  usart_printf("register %04x\r\n", spi_xfer_16( ADC_SPI, 0));
+  usart_printf("register %04x\n", spi_xfer_16( ADC_SPI, 0));
 
   task_sleep(20);
-  usart_printf("register %04x\r\n", spi_xfer_16( ADC_SPI, 0));
+  usart_printf("register %04x\n", spi_xfer_16( ADC_SPI, 0));
 
+  usart_printf("test %b\n", 0xff );
 
   return 0;
 }
@@ -278,7 +279,7 @@ static void test01(void *args __attribute((unused)))
   uint32_t x = spi_xfer_24();  // this is stalling?    // not enough stack?
 //  usart_printf("x %d\n", x );
 
-  usart_printf("register %d\r\n", spi_xfer_24());
+  usart_printf("register %d\n", spi_xfer_24());
   usart_printf("----\n" );
 #endif
 

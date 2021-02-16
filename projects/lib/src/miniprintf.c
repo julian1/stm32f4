@@ -192,10 +192,29 @@ internal_vprintf(miniarg_t *mini,const char *format,va_list arg)
 			mini_write(mini,bptr);
 			break;
 
-  // JA octal and binary with width would be very nice. 
 
-		case 'f':		/* float/double */ // JA
+    // JA octal would be nice.
+
+    // JA binary
+    /* eg.
+        usart_printf("test %b\n", 0x01 );
+        usart_printf("test %16b\n", 0xffff );
+    */
+    case 'b':
+      uint = va_arg(arg,unsigned);
+      if( width == 0 )
+        width = 8;
+
+      for(int i = width - 1; i >= 0; --i ) {
+          mini->putc( uint & (1 << i) ? '1' : '0', mini->argp);
+      }
+      break;
+
+    // JA float/double
+		case 'f':
       {
+        // TODO should use width...  for prec.
+
         // very basic float
         // calling va_arg really doesn't seem to be working, unless use double on both sides.
 				// float x = va_arg(arg,double);    // fails.
