@@ -462,33 +462,31 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
     while(gpio_get(ADC_SPI_PORT, ADC_DRDY));   // wait for drdy to go lo
     spi_enable( spi );
 
-    // maybe have a read frame function.
 
     // get status code
-  // 
-
     uint32_t code = spi_xfer_24_whoot(spi, 0) >> 8;
-    usart_printf("code %x\n", code);
+    // usart_printf("code %x\n", code);
 
-
+    // negative value isn't working
+    // get adc readings
     for(unsigned j = 0; j < 1; ++j)
     {
-      val = spi_xfer_24_whoot(spi, 0);
+      signed x = spi_xfer_24_whoot(spi, 0);
       // usart_printf("%2x\n", val);
-      usart_printf("%d\n", val);
+      usart_printf("%d\n", x);
     }
     spi_disable( spi );
 
 
     // perhaps adc_read_register()... itself is not providing enough cycles?
     // usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
-    usart_printf("stat_s %8b\n", adc_read_register(ADC_SPI, STAT_S)); // F_FRAME,  not enough sclk values...
+    // usart_printf("stat_s %8b\n", adc_read_register(ADC_SPI, STAT_S)); // F_FRAME,  not enough sclk values...
                                                                       // or maybe we just aren't reading fast enough...
                                                                       // IMPORTANT. happens before read data .
                                                                       // so must check when initializing.
                                                                       // but get 24bit word working first.
-    usart_printf("-\n");
-    // break;
+    // usart_printf("-\n");
+
   } while(true);
 
 
