@@ -146,9 +146,8 @@ static void adc_setup_spi( void )
   // spi_enable(ADC_SPI);
 
 
-  // M1 high-Z. 16 bit.
-
-  uint32_t out = ADC_M0 /* | ADC_M1*/ | ADC_M2 | ADC_RESET;
+  // M1 high-Z. is 16 bit word.
+  uint32_t out = ADC_M0  | ADC_M1 | ADC_M2 | ADC_RESET;
   uint32_t in =  ADC_DRDY | ADC_DONE ;
 
   // should setup a reasonable state first...
@@ -177,6 +176,20 @@ static uint32_t spi_xfer_16(uint32_t spi, uint16_t val)
   spi_disable( spi);
 
   return (a << 8) + b;
+}
+
+
+static uint32_t spi_xfer_24(uint32_t spi, uint32_t val)
+{
+  spi_enable( spi );
+  uint8_t a = spi_xfer(spi, (val >> 16) & 0xff );
+  uint8_t b = spi_xfer(spi, (val >> 8) & 0xff);
+  uint8_t c = spi_xfer(spi, val & 0xff);
+
+  // spi_xfer(spi, 0 );  weird... this works...  but doesn't clear the spi clk error...
+  spi_disable( spi);
+
+  return (a << 16) + (b << 8) + c;
 }
 
 
@@ -247,7 +260,7 @@ static unsigned adc_reset( void )
   // GND:24 bit
   // No connection:16 bit
   // appears to be controllable on reset. not just power up, as indicated in datasheet.
-  // gpio_set(ADC_SPI_PORT, ADC_M1);
+  gpio_clear(ADC_SPI_PORT, ADC_M1);
 
   // GND: Hamming code word validation off
   gpio_clear(ADC_SPI_PORT, ADC_M2);
@@ -286,15 +299,17 @@ static unsigned adc_reset( void )
   /////////////////////////////////
   // unlock 0x0655
 
-  spi_xfer_16( ADC_SPI, 0x0655);
+  spi_xfer_24( ADC_SPI, 0x0655 << 8);
   //while(gpio_get(ADC_SPI_PORT, ADC_DRDY));
-  val = spi_xfer_16( ADC_SPI, 0 );
+  val = spi_xfer_24( ADC_SPI, 0 );
   // usart_printf("x here %04x\n", val);
 
   if(val != 0x0655) {
     usart_printf("unlock failed %4x\n", val);
     return -1;
   }
+
+
 
 
   task_sleep(20);
