@@ -630,7 +630,6 @@ static void exti_setup(void)
 }
 
 
-#if 1
 
 
 void exti15_10_isr(void)
@@ -657,7 +656,6 @@ void exti15_10_isr(void)
 
 }
 
-#endif
 
 
 static void test01(void *args __attribute((unused)))
