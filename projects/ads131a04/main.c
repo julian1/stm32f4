@@ -327,16 +327,29 @@ devicewordsare reservedfor the conversiondatafor eachofthe four channels,and
 the last wordis reservedfor the cyclicredundancycheck(CRC)dataword
 
 
-0 : Devicew ords per data frame depends on whether the CRC and ADCs are enabled(default)
+0 : Device words per data frame depends on whether the CRC and ADCs are enabled(default)
 0 : CRC disabled(default)
+
+
+
+The commandwordis the first devicewordon everyDIN dataframe.Thisframeis
+reservedfor sendingusercommandsto writeor readfromregisters(seetheSPI
+CommandDefinitionssection).The commandsare stand-alone,16-bitwordsthat appearin
+the 16 mostsignificantbits (MSBs)of the first devicewordof the DIN
+dataframe.Writezeroesto the remainingunusedleastsignificantbits
+(LSBs)whenoperatingin either24-bitor 32-bitwordsize modes.
+
+The contentsof the statuswordare always16 bits in lengthwith the
+remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 
 */
 
 #define ADC_ENA  0x0F
 
-  //adc_write_register(ADC_SPI, ADC_ENA, 0x01 );     // just one channel.
+  // adc_write_register(ADC_SPI, ADC_ENA, 0x0 );     // no channel.
+  adc_write_register(ADC_SPI, ADC_ENA, 0x01 );     // just one channel.
   // adc_write_register(ADC_SPI, ADC_ENA, 0b1111 );     // just one channel.
-  adc_write_register(ADC_SPI, ADC_ENA, 0x0f );     // all 4 channels
+  // adc_write_register(ADC_SPI, ADC_ENA, 0x0f );     // all 4 channels
 
 
 
@@ -357,27 +370,63 @@ the last wordis reservedfor the cyclicredundancycheck(CRC)dataword
   }
 
 
+
+
+//   STAT_1:Status1 Register(address= 02h
+
+#define STAT_1  0x02
+#define STAT_P  0x03
+#define STAT_N  0x04
+
+
+  // ok. think it's indicating that one of the F_ADCIN N or P bits is at fault.bits   (eg. high Z. comparator).
+  usart_printf("stat_1 %2x\n", adc_read_register(ADC_SPI, STAT_1));
+  usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1));
+
+
+  usart_printf("stat_p %8b\n", adc_read_register(ADC_SPI, STAT_P));
+  usart_printf("stat_n %8b\n", adc_read_register(ADC_SPI, STAT_N));
+
+
+  usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
+
+
   usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
+  usart_printf("-----------\n");
 
 
 
+  
+
+
+  // status word is 0x2230
+  // 0x22 is the value of stat_1  
+  // 0x30
 
   uint32_t spi = ADC_SPI;
   while(true )
   {
 
-    usart_printf("-----------\n");
 
     while(gpio_get(ADC_SPI_PORT, ADC_DRDY));   // wait for drdy to go lo
     spi_enable( spi );
 
 
-    while (! gpio_get(ADC_SPI_PORT, ADC_DRDY))    // while lo read...
+    uint32_t i = 0;
+    // while (! gpio_get(ADC_SPI_PORT, ADC_DRDY))    // while lo read...
+    for(unsigned j = 0; j < 14; ++j)    
     {
       uint8_t a = spi_xfer(spi, 0);
+
+      usart_printf("%x\n", a);
+      ++i;
     }
 
     spi_disable( spi );
+
+    
+    usart_printf("%d\n", i);
+    break;
 
 
 #if 0
