@@ -215,8 +215,8 @@ static uint8_t adc_read_register(uint32_t spi, uint8_t r )
   */
   uint32_t j = 1 << 5 | r;   // set bit 5 for read
 
-  spi_xfer_16(spi, j << 8);
-  uint32_t val = spi_xfer_16(spi, 0);
+  spi_xfer_24_16(spi, j << 8);
+  uint32_t val = spi_xfer_24_16(spi, 0);
 
   if(val >> 8 != j  ) {
     usart_printf("bad acknowledgement address\n");
@@ -240,8 +240,8 @@ static uint8_t adc_write_register(uint32_t spi, uint8_t r, uint8_t val )
   */
   uint32_t j = 1 << 6 | r;   // set bit 6 to write
 
-  spi_xfer_16(spi, j << 8 | val);
-  uint32_t ret = spi_xfer_16(spi, 0);
+  spi_xfer_24_16(spi, j << 8 | val);
+  uint32_t ret = spi_xfer_24_16(spi, 0);
 
 
   // return value is address or'd with read bit, and written val
@@ -323,10 +323,10 @@ static unsigned adc_reset( void )
 
 
   task_sleep(20);
-  usart_printf("register %04x\n", spi_xfer_16( ADC_SPI, 0));
+  usart_printf("register %04x\n", spi_xfer_24_16( ADC_SPI, 0));
 
   task_sleep(20);
-  usart_printf("register %04x\n", spi_xfer_16( ADC_SPI, 0));
+  usart_printf("register %04x\n", spi_xfer_24_16( ADC_SPI, 0));
 
 
   /////////////////////////////////
@@ -339,7 +339,12 @@ static unsigned adc_reset( void )
 
   usart_printf("val %02x\n", adc_read_register(ADC_SPI, A_SYS_CFG ));
 
+
+
+
   adc_write_register(ADC_SPI, A_SYS_CFG, 0x60 | (1 << 3) );     // configure internal ref.
+
+  while(true);
 
   usart_printf("val now %02x\n", adc_read_register(ADC_SPI, A_SYS_CFG ));
 
