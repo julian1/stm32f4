@@ -394,42 +394,37 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   usart_printf("-----------\n");
 
 
-
-  
-
-
   // status word is 0x2230
-  // 0x22 is the value of stat_1  
-  // 0x30
+  // 0x22 == 00100010  ?
+  // 0x30 is the value of stat_1
 
   uint32_t spi = ADC_SPI;
   while(true )
   {
 
-
     while(gpio_get(ADC_SPI_PORT, ADC_DRDY));   // wait for drdy to go lo
     spi_enable( spi );
 
-
     uint32_t i = 0;
     // while (! gpio_get(ADC_SPI_PORT, ADC_DRDY))    // while lo read...
-    for(unsigned j = 0; j < 14; ++j)    
+    for(unsigned j = 0; j < 8; ++j)
     {
       uint8_t a = spi_xfer(spi, 0);
 
       usart_printf("%x\n", a);
+      //usart_printf("%8b\n", a);
       ++i;
     }
 
     spi_disable( spi );
 
-    
+
     usart_printf("%d\n", i);
     break;
 
 
 #if 0
-    while(! gpio_get(ADC_SPI_PORT, ADC_DRDY)) 
+    while(! gpio_get(ADC_SPI_PORT, ADC_DRDY))
     {
       // need 8 bytes?
       // NO. think we need to read a bunch of bytes......
@@ -441,7 +436,7 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 #endif
   }
 
-  
+
 
 
   return 0;
