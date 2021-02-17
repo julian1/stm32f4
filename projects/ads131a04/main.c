@@ -331,8 +331,9 @@ static unsigned adc_reset( void )
   // unlock 0x0655
 
 
-  spi_xfer_24_16( ADC_SPI, 0x0655);
-  val = spi_xfer_24_16( ADC_SPI, 0 );
+  val = adc_send_code(ADC_SPI, 0x0655);
+//  spi_xfer_24_16( ADC_SPI, 0x0655);
+//  val = spi_xfer_24_16( ADC_SPI, 0 );
 
   if(val != 0x0655) {
     usart_printf("unlock failed %4x\n", val);
