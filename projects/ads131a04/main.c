@@ -218,9 +218,7 @@ static uint16_t spi_xfer_24_16(uint32_t spi, uint16_t val)
 static uint32_t adc_send_code(uint32_t spi, /*uint16_t */ uint32_t val)
 {
   spi_xfer_24_16( spi, val );
-  // while(gpio_get(spi, ADC_DRDY));
   val = spi_xfer_24_16( ADC_SPI, 0 );
-  // usart_printf("x here %04x\n", val);
   return val;
 }
 
@@ -275,7 +273,11 @@ static uint8_t adc_write_register(uint32_t spi, uint8_t r, uint8_t val )
 
 
 
-
+uint32_t sign_extend_24_32(uint32_t x) {
+    const int bits = 24;
+    uint32_t m = 1u << (bits - 1);
+    return (x ^ m) - m;
+}
 
 
 static unsigned adc_reset( void )
@@ -430,25 +432,18 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 
 // ok. stat_1 and stat_s is clear at this point...
 #if 1
-  // while(gpio_get(ADC_SPI_PORT, ADC_DRDY)) {
-  //  spi_xfer(spi, 0);
-  //}
-
   usart_printf("here0\n");
   usart_printf("-------\nhere0\n");
   usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1));
-  usart_printf("stat_p %8b\n", adc_read_register(spi, STAT_P));
   usart_printf("stat_p %8b\n", adc_read_register(spi, STAT_P));
 #endif
 
 
   /*
-    OK. we get the stat error as soon as we enable an adc ...
-    indicating data is/was presented...
+    as soon as we enable adc, then we get an error ...
+    because it starts generating data - that we don't consume ... 
     that we didn't read a produced value properly, eg. because of encoding or not enough time. etc...
     not that there is a problem with our 
-
-    maybe we have to manually clear the stat_1...
   */
 
   // adc_write_register(spi, ADC_ENA, 0x0 );     // no channel.
@@ -458,17 +453,25 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   // adc_write_register(spi, ADC_ENA, 0b1111 );     // just one channel.
   // adc_write_register(spi, ADC_ENA, 0x0f );     // all 4 channels
 
+  /*
+  // hang on.... 
+  // DRDY - if we configure an interrupt - then that will consume data - while 
+  // we are trying to do the register writing.
+  // we may have to have manual disable interupt - when we are writing and reading values...
 
+    VERY IMPORTANT NO. only configure the interupt to consume as last thing we do...
+    then if want to unlock and change registers, we would disable. etc.
+  */
+
+  // just using a while() loop without NSS/CS will not consume data.
 
 #if 1
-  while(!gpio_get(ADC_SPI_PORT, ADC_DRDY)) {
-    spi_xfer(spi, 0);
-  }
   // while(true) {
   usart_printf("-------\nhere1\n");
   usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1));
   usart_printf("stat_p %8b\n", adc_read_register(spi, STAT_P));
   usart_printf("stat_p %8b\n", adc_read_register(spi, STAT_P));
+  usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1));
   //}
 #endif
 
@@ -546,6 +549,8 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   {
 
     while(gpio_get(ADC_SPI_PORT, ADC_DRDY));   // wait for drdy to go lo
+                                                // should already be set.
+
     spi_enable( spi );
 
 
@@ -557,9 +562,17 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
     // get adc readings
     for(unsigned j = 0; j < 1; ++j)
     {
-      signed x = spi_xfer_24_whoot(spi, 0);
+      int32_t x = spi_xfer_24_whoot(spi, 0);
+
+      x = sign_extend_24_32(x );
+      // (x << 8) >> 8;
+
       // usart_printf("%2x\n", val);
       usart_printf("%d\n", x);
+
+      
+
+      usart_printf("%24b\n", x);
     }
     spi_disable( spi );
 
