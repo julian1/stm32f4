@@ -169,13 +169,62 @@ static void adc_setup_spi( void )
 static uint32_t spi_xfer_16(uint32_t spi, uint16_t val)
 {
   spi_enable( spi );
-  //   uint8_t a = spi_xfer(spi, val & 0xff  );
-  // uint8_t b = spi_xfer(spi, val >> 8);
   uint8_t a = spi_xfer(spi, (val >> 8 ) & 0xff );
   uint8_t b = spi_xfer(spi, val & 0xff);
   spi_disable( spi);
 
-  return  (a << 8) + b;
+  return (a << 8) + b;
+}
+
+
+static uint8_t adc_read_register(uint32_t spi, uint8_t r )
+{
+  /*
+    Firstbyte:001a aaaa, where a aaaa is the register address
+    Secondbyte:00h
+
+    The response contains an 8-bit acknowledgment byte with the register
+    address and an 8-bit data byte with the register content
+  */
+  uint32_t j = 1 << 5 | r;   // set bit 5 for read
+
+  spi_xfer_16(spi, j << 8);
+  uint32_t val = spi_xfer_16(spi, 0);
+
+  if(val >> 8 != j  ) {
+    usart_printf("bad acknowledgement address\n");
+    // need something better....
+    return -1;
+  }
+
+  return val & 0xff;
+}
+
+
+
+static uint8_t adc_write_register(uint32_t spi, uint8_t r, uint8_t val )
+{
+  /*
+    Firstbyte: 010a aaaa, where a aaaa is the register address.
+    Secondbyte: dddddddd, where dddddddd is the data to write to the address.
+
+    The resulting command status response is a register read back from the
+    updated register.
+  */
+  uint32_t j = 1 << 6 | r;   // set bit 6 to write
+
+  spi_xfer_16(spi, j << 8 | val);
+  uint32_t ret = spi_xfer_16(spi, 0);
+
+
+  // return value is address or'd with read bit, and written val
+  if(ret != ((1u << 5 | r) << 8 | val)) {
+    usart_printf("bad write acknowledgement address or value\n");
+    // need something better....
+    return -1;
+  }
+
+  return val & 0xff;
 }
 
 
@@ -252,7 +301,23 @@ static unsigned adc_reset( void )
   task_sleep(20);
   usart_printf("register %04x\n", spi_xfer_16( ADC_SPI, 0));
 
-  usart_printf("test %b\n", 0xff );
+
+
+  ///////////
+
+
+  usart_printf("--------\n");
+
+#define A_SYS_CFG   0x0B
+
+
+
+
+  usart_printf("val %02x\n", adc_read_register(ADC_SPI, A_SYS_CFG ));
+
+  adc_write_register(ADC_SPI, A_SYS_CFG, 0x60 | (1 << 3) );
+
+  usart_printf("val now %02x\n", adc_read_register(ADC_SPI, A_SYS_CFG ));
 
   return 0;
 }
