@@ -202,7 +202,7 @@ static uint32_t spi_xfer_24(uint32_t spi, uint32_t val)
 
 static uint16_t spi_xfer_24_16(uint32_t spi, uint16_t val)
 {
-  // encode 16 bit values in 24 bit word size
+  // encode 16 bit values in 24 bit word size, and return shifted value
 
   return spi_xfer_24( spi , val << 8) >> 8;
 }
@@ -410,6 +410,10 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   }
 
 
+   ////////////////////
+  // lock again
+
+ 
 
 
 #define STAT_1  0x02
@@ -477,6 +481,7 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
     }
     spi_disable( spi );
 
+    // stronger nss pullup?
 
     // perhaps adc_read_register()... itself is not providing enough cycles?
     // usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
