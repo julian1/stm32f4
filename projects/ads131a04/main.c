@@ -385,15 +385,6 @@ static unsigned adc_reset( void )
 
   usart_printf("a_sys_cfg now %02x\n", adc_read_register(spi, A_SYS_CFG ));
 
-#if 0
-  while(gpio_get(ADC_SPI_PORT, ADC_DRDY)) {
-    spi_xfer(spi, 0);
-  }
-#endif
-
-  // why is this lo yet?.
-  // OK.... this might be why stat_s is bad...
-  usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
 
 
 
@@ -405,6 +396,17 @@ static unsigned adc_reset( void )
     usart_printf("d_sys_cfg not expected default\n");
     return -1;
   }
+
+// ok. stat_p is clear at this point...
+#if 1
+
+  // while(gpio_get(ADC_SPI_PORT, ADC_DRDY)) {
+  //  spi_xfer(spi, 0);
+  //}
+
+  usart_printf("stat_p %8b\n", adc_read_register(spi, STAT_P));
+  usart_printf("stat_p %8b\n", adc_read_register(spi, STAT_P));
+#endif
 
 
 
