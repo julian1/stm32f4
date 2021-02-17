@@ -273,10 +273,12 @@ static uint8_t adc_write_register(uint32_t spi, uint8_t r, uint8_t val )
 
 
 
-uint32_t sign_extend_24_32(uint32_t x) {
-    const int bits = 24;
-    uint32_t m = 1u << (bits - 1);
-    return (x ^ m) - m;
+uint32_t sign_extend_24_32(uint32_t x) 
+{
+  // https://stackoverflow.com/questions/42534749/signed-extension-from-24-bit-to-32-bit-in-c
+  const int bits = 24;
+  uint32_t m = 1u << (bits - 1);
+  return (x ^ m) - m;
 }
 
 
