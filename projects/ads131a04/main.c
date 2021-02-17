@@ -544,8 +544,12 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   // word is now 0x2220... after connecting up input voltage.  eg. no ovc set.
   // eg. only bit 5 error is set.
 
-
   // so may need to put it on an interrupt... to immediately pull the data out...
+
+  // So. think we need to setup the interupt...
+  // we can probably print from the interupt, if really want.
+  // or enque the result. to print in a separate task.
+  // and select.
 
   do
   {
