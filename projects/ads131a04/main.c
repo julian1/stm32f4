@@ -14,6 +14,9 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
 
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/stm32/exti.h>
+
 
 //////////
 
@@ -28,6 +31,7 @@
 
 
 
+static void exti_setup(void);
 
 
 static void task1(void *args __attribute((unused))) {
@@ -50,7 +54,7 @@ static void led_setup(void)
 
 ////////////////
 ///  ads131a04
-#define ADC_SPI_PORT GPIOB
+#define ADC_GPIO_PORT GPIOB    // change name ADC_GPIO_PORT
 #define ADC_SPI     SPI2
 
 #define ADC_M0      GPIO6
@@ -121,15 +125,15 @@ static void adc_setup_spi( void )
   usart_printf("adc setup spi\n");
 
   // spi alternate function
-  gpio_mode_setup(ADC_SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
+  gpio_mode_setup(ADC_GPIO_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
 
   // OK.. THIS MADE SPI WORK AGAIN....
   // note, need harder edges for signal integrity. or else different speed just helps suppress parasitic components
   // see, https://www.eevblog.com/forum/microcontrollers/libopencm3-stm32l100rc-discovery-and-spi-issues/
-  gpio_set_output_options(ADC_SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, all);
+  gpio_set_output_options(ADC_GPIO_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, all);
 
   // af 5 for spi2 on PB
-  gpio_set_af(ADC_SPI_PORT, GPIO_AF5, all);
+  gpio_set_af(ADC_GPIO_PORT, GPIO_AF5, all);
 
   // rcc_periph_clock_enable(RCC_SPI2);
   spi_init_master(
@@ -152,8 +156,8 @@ static void adc_setup_spi( void )
 
   // should setup a reasonable state first...
 
-  gpio_mode_setup(ADC_SPI_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, out );
-  gpio_mode_setup(ADC_SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, in );
+  gpio_mode_setup(ADC_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, out );
+  gpio_mode_setup(ADC_GPIO_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, in );
 }
 
 
@@ -273,7 +277,7 @@ static uint8_t adc_write_register(uint32_t spi, uint8_t r, uint8_t val )
 
 
 
-uint32_t sign_extend_24_32(uint32_t x) 
+static uint32_t sign_extend_24_32(uint32_t x) 
 {
   // https://stackoverflow.com/questions/42534749/signed-extension-from-24-bit-to-32-bit-in-c
   const int bits = 24;
@@ -290,25 +294,25 @@ static unsigned adc_reset( void )
 
   // GND:Synchronousmastermode
   // IOVDD:Asynchronousinterruptmode
-  gpio_set(ADC_SPI_PORT, ADC_M0);
+  gpio_set(ADC_GPIO_PORT, ADC_M0);
 
   // SPI word transfersize
   // GND:24 bit
   // No connection:16 bit
   // appears to be controllable on reset. not just power up, as indicated in datasheet.
-  gpio_clear(ADC_SPI_PORT, ADC_M1);
+  gpio_clear(ADC_GPIO_PORT, ADC_M1);
 
   // GND: Hamming code word validation off
-  gpio_clear(ADC_SPI_PORT, ADC_M2);
+  gpio_clear(ADC_GPIO_PORT, ADC_M2);
 
 
   ////////////
   // reset
   usart_printf("assert reset\n");
-  gpio_clear(ADC_SPI_PORT, ADC_RESET);
+  gpio_clear(ADC_GPIO_PORT, ADC_RESET);
   task_sleep(20);
-  usart_printf("drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
-  gpio_set(ADC_SPI_PORT, ADC_RESET);
+  usart_printf("drdy %d done %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY), gpio_get(ADC_GPIO_PORT, ADC_DONE));
+  gpio_set(ADC_GPIO_PORT, ADC_RESET);
 
 
   uint32_t spi = ADC_SPI;
@@ -329,7 +333,7 @@ static unsigned adc_reset( void )
   while(val != 0xff04) ;
 
   usart_printf("ok got ready\n");
-  usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
+  usart_printf("drdy %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY));
 
 
 #define UNLOCK  0x0655
@@ -528,7 +532,7 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   // usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1)); // re-read
 
 
-  usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
+  usart_printf("drdy %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY));
   usart_printf("-----------\n");
 
 
@@ -554,13 +558,14 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   do
   {
 
-    while(gpio_get(ADC_SPI_PORT, ADC_DRDY));   // wait for drdy to go lo
+    while(gpio_get(ADC_GPIO_PORT, ADC_DRDY));   // wait for drdy to go lo
                                                 // should already be set.
 
     spi_enable(spi);
 
     // get status code
     uint32_t code = spi_xfer_24_whoot(spi, 0) >> 8;
+    (void) code;
     // usart_printf("code %x\n", code);
 
     // negative value isn't working
@@ -591,7 +596,8 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   } while(false);
 
 
-
+  // set up interrupt
+  exti_setup();
 
   return 0;
 }
@@ -600,6 +606,56 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 
 
 
+static void exti_setup(void)
+{
+  // rcc_periph_clock_enable(RCC_GPIOD);
+  // rcc_periph_clock_enable(RCC_SYSCFG); // needed for external interupts.
+
+  // gpio_mode_setup(ADC_GPIO_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO15 );
+  // #define ADC_DRDY    GPIO10
+  // gpio_mode_setup(ADC_GPIO_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADC_DRDY);
+
+  // really not quite sure what EXTI15_10 means 15 or 10?
+  // see code example, https://sourceforge.net/p/libopencm3/mailman/message/28510519/
+  // defn, libopencm3/include/libopencm3/stm32/f4/nvic.h
+
+  // nvic_enable_irq(NVIC_EXTI0_IRQ);
+  nvic_enable_irq(NVIC_EXTI15_10_IRQ);
+
+  /* Configure the EXTI subsystem. */
+  exti_select_source(EXTI10, ADC_GPIO_PORT);
+  // exti_direction = FALLING;
+  exti_set_trigger(EXTI10, EXTI_TRIGGER_FALLING);
+  exti_enable_request(EXTI10);
+}
+
+
+#if 1
+
+
+void exti15_10_isr(void)
+// void exti0_isr(void)
+{
+  exti_reset_request(EXTI10);
+
+  // this might be getting other interupts also... not sure.
+
+  // see, https://sourceforge.net/p/libopencm3/mailman/libopencm3-devel/thread/CAJ%3DSVavkRD3UwzptrAGG%2B-4DXexwncp_hOqqmFXhAXgEWjc8cw%40mail.gmail.com/#msg28508251
+  // uint16_t port = gpio_port_read(GPIOE);
+  // if(port & GPIO1) {
+  // uint16_t EXTI_PR_ = EXTI_PR;
+  // if(EXTI_PR_ & GPIO15) {
+
+  // No. Think we do not have to filter,
+  // see, exti15_10_isr example here,
+  // https://github.com/geomatsi/stm32-tests/blob/master/boards/stm32f4-nucleo/apps/freertos-demo/button.c
+
+
+  usart_printf(".");
+
+}
+
+#endif
 
 
 static void test01(void *args __attribute((unused)))
@@ -613,7 +669,7 @@ static void test01(void *args __attribute((unused)))
 #if 0
   usart_printf("adc reset done\n");
 
-  usart_printf("mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
+  usart_printf("mcu drdy %d done %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY), gpio_get(ADC_GPIO_PORT, ADC_DONE));
 
   uint32_t x = spi_xfer_24();  // this is stalling?    // not enough stack?
 //  usart_printf("x %d\n", x );
@@ -648,6 +704,10 @@ int main(void) {
   // adc02 gpio
   rcc_periph_clock_enable(RCC_GPIOB);
   rcc_periph_clock_enable(RCC_SPI2);
+
+  rcc_periph_clock_enable(RCC_SYSCFG); // needed for external interupts.
+
+
 
 
   ///////////////
