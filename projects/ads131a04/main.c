@@ -405,6 +405,9 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   // 0x22 == 00100010  ?
   // 0x30 is the value of stat_1
 
+  // after connecting up input voltage.  status word is now 0x2220...
+  // eg. only bit 5 error is set.
+
   uint32_t spi = ADC_SPI;
   while(true )
   {
@@ -414,7 +417,7 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 
     uint32_t i = 0;
     // while (! gpio_get(ADC_SPI_PORT, ADC_DRDY))    // while lo read...
-    for(unsigned j = 0; j < 8; ++j)
+    for(unsigned j = 0; j < 4; ++j)
     {
       uint8_t a = spi_xfer(spi, 0);
 
@@ -443,6 +446,7 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 #endif
   }
 
+  usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
 
 
 
