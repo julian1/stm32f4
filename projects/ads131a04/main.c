@@ -304,6 +304,9 @@ static unsigned adc_reset( void )
   gpio_set(ADC_SPI_PORT, ADC_RESET);
 
 
+  uint32_t spi = ADC_SPI;
+
+
   // ok this is pretty positive get data ready flag.
 
   /////////////////////////////////
@@ -312,7 +315,7 @@ static unsigned adc_reset( void )
   usart_printf("wait for ready\n");
   uint32_t val = 0;
   do {
-    val = spi_xfer_24_16( ADC_SPI, 0 );
+    val = spi_xfer_24_16( spi, 0 );
     usart_printf("register %04x\n", val);
     task_sleep(20);
   }
@@ -331,7 +334,7 @@ static unsigned adc_reset( void )
   // unlock 0x0655
 
 
-  val = adc_send_code(ADC_SPI, UNLOCK);
+  val = adc_send_code(spi, UNLOCK);
   if(val != UNLOCK) {
     usart_printf("unlock failed %4x\n", val);
     return -1;
@@ -341,10 +344,10 @@ static unsigned adc_reset( void )
 
 
   task_sleep(20);
-  usart_printf("register %04x\n", spi_xfer_24_16( ADC_SPI, 0));
+  usart_printf("register %04x\n", spi_xfer_24_16( spi, 0));
 
   task_sleep(20);
-  usart_printf("register %04x\n", spi_xfer_24_16( ADC_SPI, 0));
+  usart_printf("register %04x\n", spi_xfer_24_16( spi, 0));
 
 
   /////////////////////////////////
@@ -360,26 +363,50 @@ static unsigned adc_reset( void )
 #define STAT_N    0x04
 #define STAT_S    0x05      // spi.
 
-#define A_SYS_CFG 0x0B
 #define ERROR_CNT 0x06
+
+#define A_SYS_CFG 0x0B
+#define D_SYS_CFG 0x0C
+
 
 #define ADC_ENA   0x0F
 
   // read a_sys_cfg
-  uint8_t a_sys_cfg = adc_read_register(ADC_SPI, A_SYS_CFG );
-  usart_printf("a_sys_cfg %02x\n", a_sys_cfg);
+  uint8_t a_sys_cfg = adc_read_register(spi, A_SYS_CFG );
+  // usart_printf("a_sys_cfg %2x\n", a_sys_cfg);
+  usart_printf("a_sys_cfg %8b\n", a_sys_cfg);
   if(a_sys_cfg != 0x60) {
     usart_printf("a_sys_cfg not expected default\n");
     return -1;
   }
 
   // change
-  adc_write_register(ADC_SPI, A_SYS_CFG, a_sys_cfg | (1 << 3) );     // configure internal ref.
+  adc_write_register(spi, A_SYS_CFG, a_sys_cfg | (1 << 3) );     // configure internal ref.
 
-  usart_printf("a_sys_cfg now %02x\n", adc_read_register(ADC_SPI, A_SYS_CFG ));
+  usart_printf("a_sys_cfg now %02x\n", adc_read_register(spi, A_SYS_CFG ));
 
-  // shouldn't really be lo yet?.
+#if 0
+  while(gpio_get(ADC_SPI_PORT, ADC_DRDY)) {
+    spi_xfer(spi, 0);
+  }
+#endif
+
+  // why is this lo yet?.
+  // OK.... this might be why stat_s is bad...
   usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
+
+
+
+  // read d_sys_cfg
+  uint8_t d_sys_cfg = adc_read_register(spi, D_SYS_CFG );
+  // usart_printf("d_sys_cfg %02x\n", d_sys_cfg);
+  usart_printf("d_sys_cfg %8b\n", d_sys_cfg);
+  if(d_sys_cfg != 0x3c) {
+    usart_printf("d_sys_cfg not expected default\n");
+    return -1;
+  }
+
+
 
 
 /*
@@ -407,10 +434,10 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 */
 
 
-  // adc_write_register(ADC_SPI, ADC_ENA, 0x0 );     // no channel.
-  adc_write_register(ADC_SPI, ADC_ENA, 0x01 );     // just one channel.
-  // adc_write_register(ADC_SPI, ADC_ENA, 0b1111 );     // just one channel.
-  // adc_write_register(ADC_SPI, ADC_ENA, 0x0f );     // all 4 channels
+  // adc_write_register(spi, ADC_ENA, 0x0 );     // no channel.
+  adc_write_register(spi, ADC_ENA, 0x01 );     // just one channel.
+  // adc_write_register(spi, ADC_ENA, 0b1111 );     // just one channel.
+  // adc_write_register(spi, ADC_ENA, 0x0f );     // all 4 channels
 
 
 
@@ -418,7 +445,7 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   // wakeup
 
 
-  val = adc_send_code(ADC_SPI, WAKEUP);
+  val = adc_send_code(spi, WAKEUP);
   if(val != WAKEUP) {
     usart_printf("wakeup failed %4x\n", val);
     return -1;
@@ -433,7 +460,7 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   // lock again
 
 
-  val = adc_send_code(ADC_SPI, LOCK);
+  val = adc_send_code(spi, LOCK);
   if(val != LOCK) {
     usart_printf("lock failed %4x\n", val);
     return -1;
@@ -450,19 +477,19 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   // ok. think it's indicating that one of the F_ADCIN N or P bits is at fault.bits   (eg. high Z. comparator).
 
 
-  usart_printf("error_cnt %d\n", adc_read_register(ADC_SPI, ERROR_CNT));
+  usart_printf("error_cnt %d\n", adc_read_register(spi, ERROR_CNT));
 
-  usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1));
+  usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1));
 
 
-  usart_printf("stat_p %8b\n", adc_read_register(ADC_SPI, STAT_P));
-  usart_printf("stat_n %8b\n", adc_read_register(ADC_SPI, STAT_N));
+  usart_printf("stat_p %8b\n", adc_read_register(spi, STAT_P));
+  usart_printf("stat_n %8b\n", adc_read_register(spi, STAT_N));
 
-  usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
+  usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1)); // re-read
 
-  usart_printf("stat_s %8b\n", adc_read_register(ADC_SPI, STAT_S));   // this should clear the value?????
-  usart_printf("stat_s %8b\n", adc_read_register(ADC_SPI, STAT_S));   // this should clear the value?????
-  // usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
+  usart_printf("stat_s %8b\n", adc_read_register(spi, STAT_S));   // this should clear the value?????
+  usart_printf("stat_s %8b\n", adc_read_register(spi, STAT_S));   // this should clear the value?????
+  // usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1)); // re-read
 
 
   usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
@@ -484,7 +511,6 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 
   // so may need to put it on an interrupt... to immediately pull the data out...
 
-  uint32_t spi = ADC_SPI;
   do
   {
 
@@ -509,8 +535,8 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
     // stronger nss pullup?
 
     // perhaps adc_read_register()... itself is not providing enough cycles?
-    // usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
-    // usart_printf("stat_s %8b\n", adc_read_register(ADC_SPI, STAT_S)); // F_FRAME,  not enough sclk values...
+    // usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1)); // re-read
+    // usart_printf("stat_s %8b\n", adc_read_register(spi, STAT_S)); // F_FRAME,  not enough sclk values...
                                                                       // or maybe we just aren't reading fast enough...
                                                                       // IMPORTANT. happens before read data .
                                                                       // so must check when initializing.
