@@ -415,35 +415,19 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
     while(gpio_get(ADC_SPI_PORT, ADC_DRDY));   // wait for drdy to go lo
     spi_enable( spi );
 
-    uint32_t i = 0;
-    // while (! gpio_get(ADC_SPI_PORT, ADC_DRDY))    // while lo read...
     for(unsigned j = 0; j < 4; ++j)
     {
       uint8_t a = spi_xfer(spi, 0);
 
       usart_printf("%x\n", a);
       //usart_printf("%8b\n", a);
-      ++i;
     }
 
     spi_disable( spi );
 
 
-    usart_printf("%d\n", i);
     break;
 
-
-#if 0
-    while(! gpio_get(ADC_SPI_PORT, ADC_DRDY))
-    {
-      // need 8 bytes?
-      // NO. think we need to read a bunch of bytes......
-
-      val = spi_xfer_16( ADC_SPI, 0 );
-      // usart_printf("x %16b \n", val);
-      usart_printf("x %d\n", val);
-    }
-#endif
   }
 
   usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
