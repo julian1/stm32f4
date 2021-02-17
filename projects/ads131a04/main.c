@@ -332,6 +332,33 @@ the last wordis reservedfor the cyclicredundancycheck(CRC)dataword
 
 */
 
+#define ADC_ENA  0x0F
+
+  adc_write_register(ADC_SPI, ADC_ENA, 0x01 );     // just one channel.
+
+
+
+  ////////////////////
+  // wakeup
+
+  spi_xfer_16( ADC_SPI, 0x0033);
+  //while(gpio_get(ADC_SPI_PORT, ADC_DRDY));
+  val = spi_xfer_16( ADC_SPI, 0 );
+  usart_printf("x here %04x\n", val);
+
+  if(val != 0x0033) {
+    usart_printf("wakeup failed %4x\n", val);
+    return -1;
+  } else
+  {
+    usart_printf("wakeup ok\n", val);
+  }
+
+
+
+  
+
+
   return 0;
 }
 
