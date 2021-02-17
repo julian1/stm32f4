@@ -31,13 +31,13 @@
 
 
 
-static void exti_setup(void);
+static void adc_exti_setup(void);
 
 
 static void task1(void *args __attribute((unused))) {
 
 	for (;;) {
-		gpio_toggle(LED_PORT,LED_OUT);
+//		gpio_toggle(LED_PORT,LED_OUT);
 		vTaskDelay(pdMS_TO_TICKS(500)); // 1Hz
 	}
 }
@@ -199,7 +199,7 @@ static uint32_t spi_xfer_24(uint32_t spi, uint32_t val)
 {
   spi_enable( spi );
   uint32_t ret = spi_xfer_24_whoot(spi, val);
-  
+
   // spi_xfer(spi, 0 ); // dummy
 
   spi_disable( spi);
@@ -277,7 +277,7 @@ static uint8_t adc_write_register(uint32_t spi, uint8_t r, uint8_t val )
 
 
 
-static uint32_t sign_extend_24_32(uint32_t x) 
+static uint32_t sign_extend_24_32(uint32_t x)
 {
   // https://stackoverflow.com/questions/42534749/signed-extension-from-24-bit-to-32-bit-in-c
   const int bits = 24;
@@ -373,15 +373,19 @@ static unsigned adc_reset( void )
 #define STAT_P    0x03
 #define STAT_N    0x04
 #define STAT_S    0x05      // spi.
-
 #define ERROR_CNT 0x06
 
 #define A_SYS_CFG 0x0B
 #define D_SYS_CFG 0x0C
 
 
+#define CLK2      0x0E
 #define ADC_ENA   0x0F
 
+
+
+
+  //////////////////////
   // read a_sys_cfg
   uint8_t a_sys_cfg = adc_read_register(spi, A_SYS_CFG );
   // usart_printf("a_sys_cfg %2x\n", a_sys_cfg);
@@ -399,6 +403,7 @@ static unsigned adc_reset( void )
 
 
 
+  //////////////////////
   // read d_sys_cfg
   uint8_t d_sys_cfg = adc_read_register(spi, D_SYS_CFG );
   // usart_printf("d_sys_cfg %02x\n", d_sys_cfg);
@@ -409,31 +414,50 @@ static unsigned adc_reset( void )
   }
 
 
+  //////////////////////
+  // clk2 
+  uint8_t clk2 = adc_read_register(spi, CLK2 );
+  // usart_printf("clk2 %2x\n", clk2);
+  usart_printf("clk2 %8b\n", clk2); // 10000110
+  if(clk2 != 0x86) {
+    usart_printf("clk2 not expected default\n");
+    return -1;
+  }
+
+  // set OSR to max
+  adc_write_register(spi, CLK2, clk2 & (0b1111 << 4)  );    // clear lower 4 bits, for max OSR
+                                                            // better way to do this?
+
+  usart_printf("clk2 now %8b\n", adc_read_register(spi, CLK2 ));
 
 
-/*
-  In fixed-framemode,thereare alwayssix devicewordsfor eachdataframefor the
-ADS131A04.The first devicewordis reservedfor the statusword,the next four
-devicewordsare reservedfor the conversiondatafor eachofthe four channels,and
-the last wordis reservedfor the cyclicredundancycheck(CRC)dataword
-
-
-0 : Device words per data frame depends on whether the CRC and ADCs are enabled(default)
-0 : CRC disabled(default)
+ 
 
 
 
-The commandwordis the first devicewordon everyDIN dataframe.Thisframeis
-reservedfor sendingusercommandsto writeor readfromregisters(seetheSPI
-CommandDefinitionssection).The commandsare stand-alone,16-bitwordsthat appearin
-the 16 mostsignificantbits (MSBs)of the first devicewordof the DIN
-dataframe.Writezeroesto the remainingunusedleastsignificantbits
-(LSBs)whenoperatingin either24-bitor 32-bitwordsize modes.
+  /*
+    In fixed-framemode,thereare alwayssix devicewordsfor eachdataframefor the
+  ADS131A04.The first devicewordis reservedfor the statusword,the next four
+  devicewordsare reservedfor the conversiondatafor eachofthe four channels,and
+  the last wordis reservedfor the cyclicredundancycheck(CRC)dataword
 
-The contentsof the statuswordare always16 bits in lengthwith the
-remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 
-*/
+  0 : Device words per data frame depends on whether the CRC and ADCs are enabled(default)
+  0 : CRC disabled(default)
+
+
+
+  The commandwordis the first devicewordon everyDIN dataframe.Thisframeis
+  reservedfor sendingusercommandsto writeor readfromregisters(seetheSPI
+  CommandDefinitionssection).The commandsare stand-alone,16-bitwordsthat appearin
+  the 16 mostsignificantbits (MSBs)of the first devicewordof the DIN
+  dataframe.Writezeroesto the remainingunusedleastsignificantbits
+  (LSBs)whenoperatingin either24-bitor 32-bitwordsize modes.
+
+  The contentsof the statuswordare always16 bits in lengthwith the
+  remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
+
+  */
 
 
 // ok. stat_1 and stat_s is clear at this point...
@@ -447,9 +471,9 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 
   /*
     as soon as we enable adc, then we get an error ...
-    because it starts generating data - that we don't consume ... 
+    because it starts generating data - that we don't consume ...
     that we didn't read a produced value properly, eg. because of encoding or not enough time. etc...
-    not that there is a problem with our 
+    not that there is a problem with our
   */
 
   // adc_write_register(spi, ADC_ENA, 0x0 );     // no channel.
@@ -460,8 +484,8 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   // adc_write_register(spi, ADC_ENA, 0x0f );     // all 4 channels
 
   /*
-  // hang on.... 
-  // DRDY - if we configure an interrupt - then that will consume data - while 
+  // hang on....
+  // DRDY - if we configure an interrupt - then that will consume data - while
   // we are trying to do the register writing.
   // we may have to have manual disable interupt - when we are writing and reading values...
 
@@ -499,7 +523,7 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 
 
   ////////////////////
-  // lock again
+  // lock
   val = adc_send_code(spi, LOCK);
   if(val != LOCK) {
     usart_printf("lock failed %4x\n", val);
@@ -511,9 +535,9 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 
 
 
-    
 
- 
+
+
   // ok. think it's indicating that one of the F_ADCIN N or P bits is at fault.bits   (eg. high Z. comparator).
 
 
@@ -555,6 +579,7 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   // or enque the result. to print in a separate task.
   // and select.
 
+#if 0
   do
   {
 
@@ -594,10 +619,11 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
     // usart_printf("-\n");
 
   } while(false);
+#endif
 
 
   // set up interrupt
-  exti_setup();
+  adc_exti_setup();
 
   return 0;
 }
@@ -606,53 +632,62 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 
 
 
-static void exti_setup(void)
+static void adc_exti_setup(void)
 {
-  // rcc_periph_clock_enable(RCC_GPIOD);
-  // rcc_periph_clock_enable(RCC_SYSCFG); // needed for external interupts.
-
-  // gpio_mode_setup(ADC_GPIO_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO15 );
-  // #define ADC_DRDY    GPIO10
-  // gpio_mode_setup(ADC_GPIO_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADC_DRDY);
-
-  // really not quite sure what EXTI15_10 means 15 or 10?
-  // see code example, https://sourceforge.net/p/libopencm3/mailman/message/28510519/
-  // defn, libopencm3/include/libopencm3/stm32/f4/nvic.h
-
-  // nvic_enable_irq(NVIC_EXTI0_IRQ);
   nvic_enable_irq(NVIC_EXTI15_10_IRQ);
-
-  /* Configure the EXTI subsystem. */
   exti_select_source(EXTI10, ADC_GPIO_PORT);
-  // exti_direction = FALLING;
   exti_set_trigger(EXTI10, EXTI_TRIGGER_FALLING);
   exti_enable_request(EXTI10);
 }
 
 
 
-
 void exti15_10_isr(void)
-// void exti0_isr(void)
 {
   exti_reset_request(EXTI10);
 
-  // this might be getting other interupts also... not sure.
-
-  // see, https://sourceforge.net/p/libopencm3/mailman/libopencm3-devel/thread/CAJ%3DSVavkRD3UwzptrAGG%2B-4DXexwncp_hOqqmFXhAXgEWjc8cw%40mail.gmail.com/#msg28508251
-  // uint16_t port = gpio_port_read(GPIOE);
-  // if(port & GPIO1) {
-  // uint16_t EXTI_PR_ = EXTI_PR;
-  // if(EXTI_PR_ & GPIO15) {
-
-  // No. Think we do not have to filter,
-  // see, exti15_10_isr example here,
-  // https://github.com/geomatsi/stm32-tests/blob/master/boards/stm32f4-nucleo/apps/freertos-demo/button.c
-
+  ////////////////
+  uint32_t spi = ADC_SPI;
   static uint32_t count = 0;
 
-  if(count++ % 100 == 0)
-    usart_printf(".");
+  int32_t x = 0;
+  double y;
+
+  // do read...
+  spi_enable(spi);
+  // get status code
+  uint32_t code = spi_xfer_24_whoot(spi, 0) >> 8;
+  (void)code;
+  // get values
+  for(unsigned j = 0; j < 1; ++j)
+  {
+    x = spi_xfer_24_whoot(spi, 0);
+    x = sign_extend_24_32(x );
+                   // -3454153
+    y = ((double )x) / 3451766.f;
+  }
+  spi_disable( spi );
+
+
+  if(count++ % 100 == 0) {
+
+    // nat
+    // usart_printf("%d\n", x);
+
+    usart_printf("%f\n",  y   );
+
+#if 0
+    if(adc_read_register(spi, STAT_S) != 0) {
+      usart_printf("!");
+    }
+#endif
+
+#if 0
+    usart_printf("code   %8b\n", code );
+    usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1)); // re-read
+    usart_printf("stat_s %8b\n", adc_read_register(spi, STAT_S)); // this should clear the value?????
+#endif
+  }
 
 }
 
