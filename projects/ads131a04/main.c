@@ -287,10 +287,10 @@ static unsigned adc_reset( void )
   spi_xfer_16( ADC_SPI, 0x0655);
   //while(gpio_get(ADC_SPI_PORT, ADC_DRDY));
   val = spi_xfer_16( ADC_SPI, 0 );
-  usart_printf("x here %04x\n", val);
+  // usart_printf("x here %04x\n", val);
 
   if(val != 0x0655) {
-    usart_printf("unlock failed\n", val);
+    usart_printf("unlock failed %4x\n", val);
     return -1;
   }
 
@@ -334,7 +334,8 @@ the last wordis reservedfor the cyclicredundancycheck(CRC)dataword
 
 #define ADC_ENA  0x0F
 
-  adc_write_register(ADC_SPI, ADC_ENA, 0x01 );     // just one channel.
+  //adc_write_register(ADC_SPI, ADC_ENA, 0x01 );     // just one channel.
+  adc_write_register(ADC_SPI, ADC_ENA, 0b1111 );     // just one channel.
 
 
 
@@ -344,7 +345,7 @@ the last wordis reservedfor the cyclicredundancycheck(CRC)dataword
   spi_xfer_16( ADC_SPI, 0x0033);
   //while(gpio_get(ADC_SPI_PORT, ADC_DRDY));
   val = spi_xfer_16( ADC_SPI, 0 );
-  usart_printf("x here %04x\n", val);
+  // usart_printf("x here %04x\n", val);
 
   if(val != 0x0033) {
     usart_printf("wakeup failed %4x\n", val);
@@ -355,6 +356,21 @@ the last wordis reservedfor the cyclicredundancycheck(CRC)dataword
   }
 
 
+  usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
+
+
+  while(true )
+  {
+
+    usart_printf("-----------\n");
+
+    while(! gpio_get(ADC_SPI_PORT, ADC_DRDY)) 
+    {
+      // need 8 bytes?
+      val = spi_xfer_16( ADC_SPI, 0 );
+      usart_printf("x %d\n", val);
+    }
+  }
 
   
 
