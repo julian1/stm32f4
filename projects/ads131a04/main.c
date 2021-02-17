@@ -349,8 +349,18 @@ static unsigned adc_reset( void )
 
   usart_printf("--------\n");
 
-#define A_SYS_CFG   0x0B
 
+
+
+#define STAT_1    0x02
+#define STAT_P    0x03
+#define STAT_N    0x04
+#define STAT_S    0x05      // spi.
+
+#define A_SYS_CFG 0x0B
+#define ERROR_CNT 0x06
+
+#define ADC_ENA   0x0F
 
   usart_printf("val %02x\n", adc_read_register(ADC_SPI, A_SYS_CFG ));
 
@@ -387,7 +397,6 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 
 */
 
-#define ADC_ENA  0x0F
 
   // adc_write_register(ADC_SPI, ADC_ENA, 0x0 );     // no channel.
   adc_write_register(ADC_SPI, ADC_ENA, 0x01 );     // just one channel.
@@ -409,20 +418,25 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
     usart_printf("wakeup ok\n", val);
   }
 
+  // define the codes 
 
-   ////////////////////
+  ////////////////////
   // lock again
 
+  val = adc_send_code(ADC_SPI, 0x0555);
+  if(val != 0x0555) {
+    usart_printf("lock failed %4x\n", val);
+    return -1;
+  } else
+  {
+    usart_printf("lock ok\n", val);
+  }
+
+
+
+    
+
  
-
-
-#define STAT_1  0x02
-#define STAT_P  0x03
-#define STAT_N  0x04
-#define STAT_S  0x05      // spi.
-
-#define ERROR_CNT 0x06
-
   // ok. think it's indicating that one of the F_ADCIN N or P bits is at fault.bits   (eg. high Z. comparator).
 
 
@@ -437,7 +451,8 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
 
   usart_printf("stat_s %8b\n", adc_read_register(ADC_SPI, STAT_S));   // this should clear the value?????
-  usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
+  usart_printf("stat_s %8b\n", adc_read_register(ADC_SPI, STAT_S));   // this should clear the value?????
+  // usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
 
 
   usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
@@ -492,7 +507,7 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
                                                                       // but get 24bit word working first.
     // usart_printf("-\n");
 
-  } while(true);
+  } while(false);
 
 
 
