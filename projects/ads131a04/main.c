@@ -551,8 +551,7 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
     while(gpio_get(ADC_SPI_PORT, ADC_DRDY));   // wait for drdy to go lo
                                                 // should already be set.
 
-    spi_enable( spi );
-
+    spi_enable(spi);
 
     // get status code
     uint32_t code = spi_xfer_24_whoot(spi, 0) >> 8;
@@ -565,14 +564,10 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
       int32_t x = spi_xfer_24_whoot(spi, 0);
 
       x = sign_extend_24_32(x );
-      // (x << 8) >> 8;
 
       // usart_printf("%2x\n", val);
       usart_printf("%d\n", x);
 
-      
-
-      usart_printf("%24b\n", x);
     }
     spi_disable( spi );
 
