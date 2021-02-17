@@ -335,7 +335,8 @@ the last wordis reservedfor the cyclicredundancycheck(CRC)dataword
 #define ADC_ENA  0x0F
 
   //adc_write_register(ADC_SPI, ADC_ENA, 0x01 );     // just one channel.
-  adc_write_register(ADC_SPI, ADC_ENA, 0b1111 );     // just one channel.
+  // adc_write_register(ADC_SPI, ADC_ENA, 0b1111 );     // just one channel.
+  adc_write_register(ADC_SPI, ADC_ENA, 0x0f );     // all 4 channels
 
 
 
@@ -359,17 +360,37 @@ the last wordis reservedfor the cyclicredundancycheck(CRC)dataword
   usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
 
 
+
+
+  uint32_t spi = ADC_SPI;
   while(true )
   {
 
     usart_printf("-----------\n");
 
+    while(gpio_get(ADC_SPI_PORT, ADC_DRDY));   // wait for drdy to go lo
+    spi_enable( spi );
+
+
+    while (! gpio_get(ADC_SPI_PORT, ADC_DRDY))    // while lo read...
+    {
+      uint8_t a = spi_xfer(spi, 0);
+    }
+
+    spi_disable( spi );
+
+
+#if 0
     while(! gpio_get(ADC_SPI_PORT, ADC_DRDY)) 
     {
       // need 8 bytes?
+      // NO. think we need to read a bunch of bytes......
+
       val = spi_xfer_16( ADC_SPI, 0 );
+      // usart_printf("x %16b \n", val);
       usart_printf("x %d\n", val);
     }
+#endif
   }
 
   
