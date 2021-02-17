@@ -650,8 +650,10 @@ void exti15_10_isr(void)
   // see, exti15_10_isr example here,
   // https://github.com/geomatsi/stm32-tests/blob/master/boards/stm32f4-nucleo/apps/freertos-demo/button.c
 
+  static uint32_t count = 0;
 
-  usart_printf(".");
+  if(count++ % 100 == 0)
+    usart_printf(".");
 
 }
 
