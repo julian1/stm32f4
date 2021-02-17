@@ -372,8 +372,6 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 
 
 
-//   STAT_1:Status1 Register(address= 02h
-
 #define STAT_1  0x02
 #define STAT_P  0x03
 #define STAT_N  0x04
@@ -384,6 +382,7 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1));
 
 
+  // OK. great the lower bits, are only set/hi if the adc is actually enabled.
   usart_printf("stat_p %8b\n", adc_read_register(ADC_SPI, STAT_P));
   usart_printf("stat_n %8b\n", adc_read_register(ADC_SPI, STAT_N));
 
