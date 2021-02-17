@@ -166,6 +166,7 @@ static void adc_setup_spi( void )
 */
 
 
+#if 0
 static uint32_t spi_xfer_16(uint32_t spi, uint16_t val)
 {
   spi_enable( spi );
@@ -177,17 +178,25 @@ static uint32_t spi_xfer_16(uint32_t spi, uint16_t val)
 
   return (a << 8) + b;
 }
+#endif
 
+
+
+static uint32_t spi_xfer_24_whoot(uint32_t spi, uint32_t val)
+{
+  uint8_t a = spi_xfer(spi, (val >> 16) & 0xff );
+  uint8_t b = spi_xfer(spi, (val >> 8) & 0xff);
+  uint8_t c = spi_xfer(spi, val & 0xff);
+
+  return (a << 16) + (b << 8) + c;
+}
 
 static uint32_t spi_xfer_24(uint32_t spi, uint32_t val)
 {
   spi_enable( spi );
-  uint8_t a = spi_xfer(spi, (val >> 16) & 0xff );
-  uint8_t b = spi_xfer(spi, (val >> 8) & 0xff);
-  uint8_t c = spi_xfer(spi, val & 0xff);
+  uint32_t ret = spi_xfer_24_whoot(spi, val);
   spi_disable( spi);
-
-  return (a << 16) + (b << 8) + c;
+  return ret;
 }
 
 
@@ -203,7 +212,7 @@ static uint16_t spi_xfer_24_16(uint32_t spi, uint16_t val)
 
 
 
-static uint32_t adc_send_code(uint32_t spi, uint32_t val)
+static uint32_t adc_send_code(uint32_t spi, /*uint16_t */ uint32_t val)
 {
   spi_xfer_24_16( spi, val );
   // while(gpio_get(spi, ADC_DRDY));
@@ -303,7 +312,7 @@ static unsigned adc_reset( void )
   usart_printf("wait for ready\n");
   uint32_t val = 0;
   do {
-    val = spi_xfer_24_16( ADC_SPI, 0 );    // TODO should be 24 bit?
+    val = spi_xfer_24_16( ADC_SPI, 0 );
     usart_printf("register %04x\n", val);
     task_sleep(20);
   }
@@ -452,17 +461,26 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 
     while(gpio_get(ADC_SPI_PORT, ADC_DRDY));   // wait for drdy to go lo
     spi_enable( spi );
-    for(unsigned j = 0; j < 7; ++j)
+
+    // maybe have a read frame function.
+
+    // get status code
+  // 
+
+    uint32_t code = spi_xfer_24_whoot(spi, 0) >> 8;
+    usart_printf("code %x\n", code);
+
+
+    for(unsigned j = 0; j < 1; ++j)
     {
-      uint8_t a = spi_xfer(spi, 0);
-      usart_printf("%x\n", a);
-      //usart_printf("%8b\n", a);
+      val = spi_xfer_24_whoot(spi, 0);
+      // usart_printf("%2x\n", val);
+      usart_printf("%d\n", val);
     }
     spi_disable( spi );
 
 
-  // perhaps adc_read_register()... itself is not providing enough cycles?
-
+    // perhaps adc_read_register()... itself is not providing enough cycles?
     // usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
     usart_printf("stat_s %8b\n", adc_read_register(ADC_SPI, STAT_S)); // F_FRAME,  not enough sclk values...
                                                                       // or maybe we just aren't reading fast enough...
@@ -471,7 +489,7 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
                                                                       // but get 24bit word working first.
     usart_printf("-\n");
     // break;
-  } while(false);
+  } while(true);
 
 
 
