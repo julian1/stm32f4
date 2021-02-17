@@ -322,14 +322,17 @@ static unsigned adc_reset( void )
   usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
 
 
+#define UNLOCK  0x0655
+#define LOCK    0x0555
+#define WAKEUP  0x0033
 
 
   /////////////////////////////////
   // unlock 0x0655
 
 
-  val = adc_send_code(ADC_SPI, 0x0655);
-  if(val != 0x0655) {
+  val = adc_send_code(ADC_SPI, UNLOCK);
+  if(val != UNLOCK) {
     usart_printf("unlock failed %4x\n", val);
     return -1;
   } else {
@@ -409,8 +412,8 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   // wakeup
 
 
-  val = adc_send_code(ADC_SPI, 0x0033);
-  if(val != 0x0033) {
+  val = adc_send_code(ADC_SPI, WAKEUP);
+  if(val != WAKEUP) {
     usart_printf("wakeup failed %4x\n", val);
     return -1;
   } else
@@ -423,8 +426,9 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   ////////////////////
   // lock again
 
-  val = adc_send_code(ADC_SPI, 0x0555);
-  if(val != 0x0555) {
+
+  val = adc_send_code(ADC_SPI, LOCK);
+  if(val != LOCK) {
     usart_printf("lock failed %4x\n", val);
     return -1;
   } else
