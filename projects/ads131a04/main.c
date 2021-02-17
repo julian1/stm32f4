@@ -172,6 +172,8 @@ static uint32_t spi_xfer_16(uint32_t spi, uint16_t val)
   spi_enable( spi );
   uint8_t a = spi_xfer(spi, (val >> 8 ) & 0xff );
   uint8_t b = spi_xfer(spi, val & 0xff);
+
+  // spi_xfer(spi, 0 );  weird... this works...  but doesn't clear the spi clk error...
   spi_disable( spi);
 
   return (a << 8) + b;
@@ -375,6 +377,7 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 #define STAT_1  0x02
 #define STAT_P  0x03
 #define STAT_N  0x04
+#define STAT_S  0x05      // spi.
 
 #define ERROR_CNT 0x06
 
@@ -383,54 +386,64 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 
   usart_printf("error_cnt %d\n", adc_read_register(ADC_SPI, ERROR_CNT));
 
-  usart_printf("stat_1 %2x\n", adc_read_register(ADC_SPI, STAT_1));
   usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1));
 
 
-  // OK. great the lower bits, are only set/hi if the adc is actually enabled.
   usart_printf("stat_p %8b\n", adc_read_register(ADC_SPI, STAT_P));
   usart_printf("stat_n %8b\n", adc_read_register(ADC_SPI, STAT_N));
 
-
   usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
 
-
+  usart_printf("stat_s %8b\n", adc_read_register(ADC_SPI, STAT_S));   // this should clear the value?????
+  usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
 
 
   usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
   usart_printf("-----------\n");
 
 
+  /*
+
+  SPI fault.This bit indicatesthat one of the statusbits in the STAT_Sregisteris set.Readthe STAT_Sregisterto clearthe bit
+  */
+
   // status word is 0x2230
   // 0x22 == 00100010  ?
   // 0x30 is the value of stat_1
 
-  // after connecting up input voltage.  status word is now 0x2220...
+  // word is now 0x2220... after connecting up input voltage.  eg. no ovc set.
   // eg. only bit 5 error is set.
 
+
+  // so may need to put it on an interrupt... to immediately pull the data out...
+
   uint32_t spi = ADC_SPI;
-  while(true )
+  do
   {
 
     while(gpio_get(ADC_SPI_PORT, ADC_DRDY));   // wait for drdy to go lo
     spi_enable( spi );
-
     for(unsigned j = 0; j < 4; ++j)
     {
       uint8_t a = spi_xfer(spi, 0);
-
       usart_printf("%x\n", a);
       //usart_printf("%8b\n", a);
     }
-
     spi_disable( spi );
 
 
-    break;
+  // perhaps adc_read_register()... itself is not providing enough cycles?
 
-  }
+    // usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
+    usart_printf("stat_s %8b\n", adc_read_register(ADC_SPI, STAT_S)); // F_FRAME,  not enough sclk values...
+                                                                      // or maybe we just aren't reading fast enough...
+                                                                      // IMPORTANT. happens before read data .
+                                                                      // so must check when initializing.
+                                                                      // but get 24bit word working first.
+    usart_printf("-\n");
+    // break;
+  } while(false);
 
-  usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
 
 
 
