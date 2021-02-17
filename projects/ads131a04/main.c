@@ -284,6 +284,7 @@ uint32_t sign_extend_24_32(uint32_t x)
 
 static unsigned adc_reset( void )
 {
+  // change name. configure.
 
   usart_printf("------------------\n");
 
@@ -301,9 +302,8 @@ static unsigned adc_reset( void )
   gpio_clear(ADC_SPI_PORT, ADC_M2);
 
 
-
+  ////////////
   // reset
-
   usart_printf("assert reset\n");
   gpio_clear(ADC_SPI_PORT, ADC_RESET);
   task_sleep(20);
@@ -433,7 +433,7 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 
 
 // ok. stat_1 and stat_s is clear at this point...
-#if 1
+#if 0
   usart_printf("here0\n");
   usart_printf("-------\nhere0\n");
   usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1));
@@ -467,7 +467,7 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 
   // just using a while() loop without NSS/CS will not consume data.
 
-#if 1
+#if 0
   // while(true) {
   usart_printf("-------\nhere1\n");
   usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1));
