@@ -69,11 +69,12 @@ static void led_setup(void)
 
   p9  pin table functions
   p16 asynchoroous interupt mode timing.
+  p31 data frame
   p37 power up discussion
   p55 wakeup
   p55 unlock
   p56 UNLOCKfromPORor RESET
-  p82 for power on flowchart.
+  p82 flowchart.
   ---
 
   p56 RREG:Reada SingleRegister
@@ -275,7 +276,6 @@ static unsigned adc_reset( void )
   while(val != 0xff04) ;
 
   usart_printf("ok got ready\n");
-
   usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
 
 
@@ -302,22 +302,35 @@ static unsigned adc_reset( void )
   usart_printf("register %04x\n", spi_xfer_16( ADC_SPI, 0));
 
 
-
-  ///////////
-
+  /////////////////////////////////
+  // write some registers
 
   usart_printf("--------\n");
 
 #define A_SYS_CFG   0x0B
 
 
-
-
   usart_printf("val %02x\n", adc_read_register(ADC_SPI, A_SYS_CFG ));
 
-  adc_write_register(ADC_SPI, A_SYS_CFG, 0x60 | (1 << 3) );
+  adc_write_register(ADC_SPI, A_SYS_CFG, 0x60 | (1 << 3) );     // configure internal ref.
 
   usart_printf("val now %02x\n", adc_read_register(ADC_SPI, A_SYS_CFG ));
+
+  // shouldn't really be lo yet?.
+  usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
+
+
+/*
+  In fixed-framemode,thereare alwayssix devicewordsfor eachdataframefor the
+ADS131A04.The first devicewordis reservedfor the statusword,the next four
+devicewordsare reservedfor the conversiondatafor eachofthe four channels,and
+the last wordis reservedfor the cyclicredundancycheck(CRC)dataword
+
+
+0 : Devicew ords per data frame depends on whether the CRC and ADCs are enabled(default)
+0 : CRC disabled(default)
+
+*/
 
   return 0;
 }
