@@ -354,7 +354,7 @@ static unsigned adc_reset( void )
 
 
 
-
+// change prefix SR ?
 #define STAT_1    0x02
 #define STAT_P    0x03
 #define STAT_N    0x04
@@ -365,12 +365,18 @@ static unsigned adc_reset( void )
 
 #define ADC_ENA   0x0F
 
-  usart_printf("val %02x\n", adc_read_register(ADC_SPI, A_SYS_CFG ));
+  // read a_sys_cfg
+  uint8_t a_sys_cfg = adc_read_register(ADC_SPI, A_SYS_CFG );
+  usart_printf("a_sys_cfg %02x\n", a_sys_cfg);
+  if(a_sys_cfg != 0x60) {
+    usart_printf("a_sys_cfg not expected default\n");
+    return -1;
+  }
 
+  // change
+  adc_write_register(ADC_SPI, A_SYS_CFG, a_sys_cfg | (1 << 3) );     // configure internal ref.
 
-  adc_write_register(ADC_SPI, A_SYS_CFG, 0x60 | (1 << 3) );     // configure internal ref.
-
-  usart_printf("val now %02x\n", adc_read_register(ADC_SPI, A_SYS_CFG ));
+  usart_printf("a_sys_cfg now %02x\n", adc_read_register(ADC_SPI, A_SYS_CFG ));
 
   // shouldn't really be lo yet?.
   usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
