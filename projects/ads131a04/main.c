@@ -376,8 +376,13 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 #define STAT_P  0x03
 #define STAT_N  0x04
 
+#define ERROR_CNT 0x06
 
   // ok. think it's indicating that one of the F_ADCIN N or P bits is at fault.bits   (eg. high Z. comparator).
+
+
+  usart_printf("error_cnt %d\n", adc_read_register(ADC_SPI, ERROR_CNT));
+
   usart_printf("stat_1 %2x\n", adc_read_register(ADC_SPI, STAT_1));
   usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1));
 
@@ -388,6 +393,8 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 
 
   usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
+
+
 
 
   usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
