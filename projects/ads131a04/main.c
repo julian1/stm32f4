@@ -185,12 +185,23 @@ static uint32_t spi_xfer_24(uint32_t spi, uint32_t val)
   uint8_t a = spi_xfer(spi, (val >> 16) & 0xff );
   uint8_t b = spi_xfer(spi, (val >> 8) & 0xff);
   uint8_t c = spi_xfer(spi, val & 0xff);
-
-  // spi_xfer(spi, 0 );  weird... this works...  but doesn't clear the spi clk error...
   spi_disable( spi);
 
   return (a << 16) + (b << 8) + c;
 }
+
+
+static uint16_t spi_xfer_24_16(uint32_t spi, uint16_t val)
+{
+  // encode 16 bit values in 24 bit word size
+
+  return  spi_xfer_24( spi , val << 8) >> 8;
+
+ 
+}
+
+
+
 
 
 static uint8_t adc_read_register(uint32_t spi, uint8_t r )
@@ -284,7 +295,7 @@ static unsigned adc_reset( void )
   usart_printf("wait for ready\n");
   uint32_t val =  0;
   do {
-    val = spi_xfer_16( ADC_SPI, 0 );
+    val = spi_xfer_16( ADC_SPI, 0 );    // TODO should be 24 bit?
     usart_printf("register %04x\n", val);
     task_sleep(20);
   }
@@ -299,17 +310,16 @@ static unsigned adc_reset( void )
   /////////////////////////////////
   // unlock 0x0655
 
-  spi_xfer_24( ADC_SPI, 0x0655 << 8);
-  //while(gpio_get(ADC_SPI_PORT, ADC_DRDY));
-  val = spi_xfer_24( ADC_SPI, 0 );
-  // usart_printf("x here %04x\n", val);
+
+  spi_xfer_24_16( ADC_SPI, 0x0655);
+  val = spi_xfer_24_16( ADC_SPI, 0 );
 
   if(val != 0x0655) {
     usart_printf("unlock failed %4x\n", val);
     return -1;
+  } else {
+    usart_printf("unlock ok\n");
   }
-
-
 
 
   task_sleep(20);
