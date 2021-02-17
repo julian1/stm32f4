@@ -195,26 +195,21 @@ static uint16_t spi_xfer_24_16(uint32_t spi, uint16_t val)
 {
   // encode 16 bit values in 24 bit word size
 
-  return  spi_xfer_24( spi , val << 8) >> 8;
-
- 
+  return spi_xfer_24( spi , val << 8) >> 8;
 }
 
 
-
+//////////////////
 
 
 
 static uint32_t adc_send_code(uint32_t spi, uint32_t val)
 {
- 
   spi_xfer_24_16( spi, val );
-  //while(gpio_get(spi, ADC_DRDY));
+  // while(gpio_get(spi, ADC_DRDY));
   val = spi_xfer_24_16( ADC_SPI, 0 );
   // usart_printf("x here %04x\n", val);
-
   return val;
-
 }
 
 
@@ -230,12 +225,9 @@ static uint8_t adc_read_register(uint32_t spi, uint8_t r )
   */
   uint32_t j = 1 << 5 | r;   // set bit 5 for read
 
-  // spi_xfer_24_16(spi, j << 8);
-  // uint32_t val = spi_xfer_24_16(spi, 0);
-
   uint32_t val = adc_send_code(spi, j << 8 );
 
-  if(val >> 8 != j  ) {
+  if(val >> 8 != j) {
     usart_printf("bad acknowledgement address\n");
     // need something better....
     return -1;
@@ -257,11 +249,7 @@ static uint8_t adc_write_register(uint32_t spi, uint8_t r, uint8_t val )
   */
   uint32_t j = 1 << 6 | r;   // set bit 6 to write
 
-//  spi_xfer_24_16(spi, j << 8 | val);
-//  uint32_t ret = spi_xfer_24_16(spi, 0);
-
- uint32_t ret =  adc_send_code(spi, j << 8 | val);
-
+  uint32_t ret =  adc_send_code(spi, j << 8 | val);
 
   // return value is address or'd with read bit, and written val
   if(ret != ((1u << 5 | r) << 8 | val)) {
@@ -313,9 +301,9 @@ static unsigned adc_reset( void )
   // Monitor serial output for ready. 0xFF02 (ADS131A02) or 0xFF04 (ADS131A04)
 
   usart_printf("wait for ready\n");
-  uint32_t val =  0;
+  uint32_t val = 0;
   do {
-    val = spi_xfer_16( ADC_SPI, 0 );    // TODO should be 24 bit?
+    val = spi_xfer_24_16( ADC_SPI, 0 );    // TODO should be 24 bit?
     usart_printf("register %04x\n", val);
     task_sleep(20);
   }
@@ -332,9 +320,6 @@ static unsigned adc_reset( void )
 
 
   val = adc_send_code(ADC_SPI, 0x0655);
-//  spi_xfer_24_16( ADC_SPI, 0x0655);
-//  val = spi_xfer_24_16( ADC_SPI, 0 );
-
   if(val != 0x0655) {
     usart_printf("unlock failed %4x\n", val);
     return -1;
@@ -405,11 +390,8 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   ////////////////////
   // wakeup
 
-  spi_xfer_24_16( ADC_SPI, 0x0033);
-  //while(gpio_get(ADC_SPI_PORT, ADC_DRDY));
-  val = spi_xfer_24_16( ADC_SPI, 0 );
-  // usart_printf("x here %04x\n", val);
 
+  val = adc_send_code(ADC_SPI, 0x0033);
   if(val != 0x0033) {
     usart_printf("wakeup failed %4x\n", val);
     return -1;
