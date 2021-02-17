@@ -195,6 +195,9 @@ static uint32_t spi_xfer_24(uint32_t spi, uint32_t val)
 {
   spi_enable( spi );
   uint32_t ret = spi_xfer_24_whoot(spi, val);
+  
+  // spi_xfer(spi, 0 ); // dummy
+
   spi_disable( spi);
   return ret;
 }
@@ -397,17 +400,6 @@ static unsigned adc_reset( void )
     return -1;
   }
 
-// ok. stat_p is clear at this point...
-#if 1
-
-  // while(gpio_get(ADC_SPI_PORT, ADC_DRDY)) {
-  //  spi_xfer(spi, 0);
-  //}
-
-  usart_printf("stat_p %8b\n", adc_read_register(spi, STAT_P));
-  usart_printf("stat_p %8b\n", adc_read_register(spi, STAT_P));
-#endif
-
 
 
 
@@ -436,17 +428,53 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 */
 
 
+// ok. stat_1 and stat_s is clear at this point...
+#if 1
+  // while(gpio_get(ADC_SPI_PORT, ADC_DRDY)) {
+  //  spi_xfer(spi, 0);
+  //}
+
+  usart_printf("here0\n");
+  usart_printf("-------\nhere0\n");
+  usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1));
+  usart_printf("stat_p %8b\n", adc_read_register(spi, STAT_P));
+  usart_printf("stat_p %8b\n", adc_read_register(spi, STAT_P));
+#endif
+
+
+  /*
+    OK. we get the stat error as soon as we enable an adc ...
+    indicating data is/was presented...
+    that we didn't read properly afterwards...
+  */
+
   // adc_write_register(spi, ADC_ENA, 0x0 );     // no channel.
+                                              // setting
+
   adc_write_register(spi, ADC_ENA, 0x01 );     // just one channel.
   // adc_write_register(spi, ADC_ENA, 0b1111 );     // just one channel.
   // adc_write_register(spi, ADC_ENA, 0x0f );     // all 4 channels
 
 
 
+#if 1
+  while(!gpio_get(ADC_SPI_PORT, ADC_DRDY)) {
+    spi_xfer(spi, 0);
+  }
+  // while(true) {
+  usart_printf("-------\nhere1\n");
+  usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1));
+  usart_printf("stat_p %8b\n", adc_read_register(spi, STAT_P));
+  usart_printf("stat_p %8b\n", adc_read_register(spi, STAT_P));
+  //}
+#endif
+
+
+
+
+
   ////////////////////
   // wakeup
-
-
   val = adc_send_code(spi, WAKEUP);
   if(val != WAKEUP) {
     usart_printf("wakeup failed %4x\n", val);
@@ -456,12 +484,10 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
     usart_printf("wakeup ok\n", val);
   }
 
-  // define the codes 
+
 
   ////////////////////
   // lock again
-
-
   val = adc_send_code(spi, LOCK);
   if(val != LOCK) {
     usart_printf("lock failed %4x\n", val);
