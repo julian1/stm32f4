@@ -340,11 +340,7 @@ static unsigned adc_reset( void )
   usart_printf("val %02x\n", adc_read_register(ADC_SPI, A_SYS_CFG ));
 
 
-
-
   adc_write_register(ADC_SPI, A_SYS_CFG, 0x60 | (1 << 3) );     // configure internal ref.
-
-  while(true);
 
   usart_printf("val now %02x\n", adc_read_register(ADC_SPI, A_SYS_CFG ));
 
@@ -388,9 +384,9 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   ////////////////////
   // wakeup
 
-  spi_xfer_16( ADC_SPI, 0x0033);
+  spi_xfer_24_16( ADC_SPI, 0x0033);
   //while(gpio_get(ADC_SPI_PORT, ADC_DRDY));
-  val = spi_xfer_16( ADC_SPI, 0 );
+  val = spi_xfer_24_16( ADC_SPI, 0 );
   // usart_printf("x here %04x\n", val);
 
   if(val != 0x0033) {
@@ -453,7 +449,7 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 
     while(gpio_get(ADC_SPI_PORT, ADC_DRDY));   // wait for drdy to go lo
     spi_enable( spi );
-    for(unsigned j = 0; j < 4; ++j)
+    for(unsigned j = 0; j < 7; ++j)
     {
       uint8_t a = spi_xfer(spi, 0);
       usart_printf("%x\n", a);
