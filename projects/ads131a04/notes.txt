@@ -1,9 +1,26 @@
 
+connected 1V
+    34
+    a9
 
+900mV
+    2f
+    5b
+
+No p or n errors... good.
+
+
+
+
+-------------------
+A filterwith R3populatedas 100Ωand C1 = as 2.7 nF 
+
+---------------
 OK. we have to input a voltage. and see if we can actually get a reading - as a 16 bit value.
     before we do anything else.
 
 Also it's not clear why values change to 255 after reading the first one.
+one
 
 
 -------------
