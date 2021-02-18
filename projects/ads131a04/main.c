@@ -46,7 +46,7 @@
 static void adc_exti_setup(void);
 
 
-static void task1(void *args __attribute((unused))) {
+static void led_task(void *args __attribute((unused))) {
 
 	for (;;) {
 //		gpio_toggle(LED_PORT,LED_OUT);
@@ -723,9 +723,16 @@ void exti15_10_isr(void)
 
 static void adc_timer_setup(void)
 {
-  // it's simpler to setup a 1sec timer, and then count the readings we have, to determine
+  /*
+  // it is simple to setup a 1sec timer, and then count the readings we have, to determine
   // reading freq for noise.
   // than calculate from adc using clking dividers and fmod.
+
+  // could use rtos, 
+		vTaskDelay(pdMS_TO_TICKS(1000)); // 1Hz
+  // no because, it's a delay, and not a sync timer
+  // nice not to make peripheral dependent on freertos.
+  */
 
   /*
     countdown timer.
@@ -743,7 +750,7 @@ static void adc_timer_setup(void)
   rcc_periph_reset_pulse(RST_TIM3);     // reset
   timer_set_mode(TIM3, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_DOWN);
   timer_enable_break_main_output(TIM3);
-  timer_set_prescaler(TIM3, 10 );            // 0 is twice as fast as 1.
+  timer_set_prescaler(TIM3, 16000 );            // 16MHz / 16000 = 1kHz.
 
   // Ok faster appears to be more accurate...
   //period = 1000; // 1000 gives four digiss
@@ -776,10 +783,10 @@ void tim3_isr(void)
 
 
 
-static void test01(void *args __attribute((unused)))
+static void test01_task(void *args __attribute((unused)))
 {
 
-  usart_printf("test01\n");
+  usart_printf("test01_task\n");
   usart_printf("adc reset\n");
 
   adc_reset();
@@ -842,7 +849,7 @@ int main(void) {
 
 
 
-  xTaskCreate(task1,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+  xTaskCreate(led_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
 
   // IMPORTANT changing from 100 to 200, stops deadlock
   xTaskCreate(usart_task,        "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
@@ -850,7 +857,7 @@ int main(void) {
   xTaskCreate(serial_prompt_task,"SERIAL2",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 
-  xTaskCreate(test01,        "TEST01",1500,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
+  xTaskCreate(test01_task,        "TEST01",1500,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
 	vTaskStartScheduler();
 
