@@ -667,7 +667,8 @@ void exti15_10_isr(void)
   // do read...
   spi_enable(spi);
   // get status code
-  uint32_t code = spi_xfer_24_whoot(spi, 0) >> 8;
+  uint32_t code = spi_xfer_24_whoot(spi, 0) >> 8;     // this is just the 24_16 call... except without
+                                                      // the cs.   Should be able to refactor to keep consistent.
   (void)code;
   // get values
   for(unsigned j = 0; j < 1; ++j)
