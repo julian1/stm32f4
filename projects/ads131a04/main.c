@@ -296,7 +296,7 @@ static uint32_t sign_extend_24_32(uint32_t x)
 
 static unsigned adc_reset( void )
 {
-  // change name. configure.
+  // rename. adc_configure.  actually not sure...
 
   usart_printf("------------------\n");
 
@@ -637,7 +637,7 @@ static unsigned adc_reset( void )
 }
 
 
-
+/////////////////////////////////////////
 
 
 static void adc_exti_setup(void)
@@ -676,7 +676,8 @@ void exti15_10_isr(void)
   spi_enable(spi);
   // get status code
   uint32_t code = spi_xfer_24_whoot(spi, 0) >> 8;     // this is just the 24_16 call... except without
-                                                      // the cs.   Should be able to refactor to keep consistent.
+                                                      // the cs.   Should be able to refactor to avoid needing
+                                                      // separate extra function.
   (void)code;
   // get values
   for(unsigned j = 0; j < 1; ++j)

@@ -113,6 +113,8 @@ uint32_t dac_read_register(uint8_t r)
 
 void dac_setup_spi( void )
 {
+  // TODO change name. just dac_setup...  spi is given.
+
   uint32_t all = DAC_CLK | DAC_MOSI | DAC_MISO | DAC_CS;
 
   usart_printf("dac setup spi\n");
