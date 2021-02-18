@@ -13,6 +13,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
+#include "timers.h"   // JA
 
 
 #include <libopencm3/stm32/rcc.h>
@@ -52,9 +53,16 @@ static void led_task(void *args __attribute((unused))) {
 //		gpio_toggle(LED_PORT,LED_OUT);
 		vTaskDelay(pdMS_TO_TICKS(500)); // 1Hz
 	}
+
+/*
+  //
+  TickType_t xTimeNow;
+  xTimeNow = xTaskGetTickCount();
+*/
 }
 
 
+// prvTimerCallback
 
 
 static void led_setup(void)
@@ -720,7 +728,7 @@ void exti15_10_isr(void)
 
 
 
-
+#if 0
 static void adc_timer_setup(void)
 {
   /*
@@ -732,6 +740,8 @@ static void adc_timer_setup(void)
 		vTaskDelay(pdMS_TO_TICKS(1000)); // 1Hz
   // no because, it's a delay, and not a sync timer
   // nice not to make peripheral dependent on freertos.
+
+  //// But we shouldn't be doing anything complicated in interrupt (like printing ).
   */
 
   /*
@@ -778,6 +788,86 @@ void tim3_isr(void)
 
   } // else???
 }
+#endif
+
+
+
+TimerHandle_t xAutoReloadTimer;
+BaseType_t xTimer2Started;
+
+static void prvTimerCallback( TimerHandle_t xTimer );
+
+static void setup_timer ( void) 
+{
+  // Serial.begin(9600); // Enable serial communication library.
+
+  xAutoReloadTimer = xTimerCreate(
+    /* Text name for the software timer - not used by FreeRTOS. */
+    "AutoReload",
+    /* The software timer's period in ticks. */
+    // mainAUTO_RELOAD_TIMER_PERIOD,
+    (pdMS_TO_TICKS( 1000 )),
+    /* Setting uxAutoRealod to pdTRUE creates an auto-reload timer. */
+    pdTRUE,
+    /* This example does not use the timer id. */
+    0,
+    /* The callback function to be used by the software timer being created. */
+    prvTimerCallback
+  );
+
+#if 0
+  /* Check the software timers were created. */
+  if(( xAutoReloadTimer != NULL ) )
+  {
+  /* Start the software timers, using a block time of 0 (no block time). The scheduler has
+  not been started yet so any block time specified here would be ignored anyway. */
+  xTimer2Started = xTimerStart( xAutoReloadTimer, 0 );
+
+
+  /* The implementation of xTimerStart() uses the timer command queue, and xTimerStart()
+  will fail if the timer command queue gets full. The timer service task does not get
+  created until the scheduler is started, so all commands sent to the command queue will
+  stay in the queue until after the scheduler has been started. Check both calls to
+  xTimerStart() passed. */
+  if( ( xTimer2Started == pdPASS ) )
+  {
+  /* Start the scheduler. */
+  vTaskStartScheduler();
+#endif
+}
+
+
+static void prvTimerCallback( TimerHandle_t xTimer )
+{
+  (void) xTimer;
+
+
+#if 0
+TickType_t xTimeNow;
+uint32_t ulExecutionCount;
+/* A count of the number of times this software timer has expired is stored in the timer's
+ID. Obtain the ID, increment it, then save it as the new ID value. The ID is a void
+pointer, so is cast to a uint32_t. */
+ulExecutionCount = ( uint32_t ) pvTimerGetTimerID( xTimer );
+ulExecutionCount++;
+vTimerSetTimerID( xTimer, ( void * ) ulExecutionCount );
+/* Obtain the current tick count. */
+xTimeNow = xTaskGetTickCount();
+/* The handle of the one-shot timer was stored in xOneShotTimer when the timer was created.
+Compare the handle passed into this function with xOneShotTimer to determine if it was the
+one-shot or auto-reload timer that expired, then output a string to show the time at which
+the callback was executed. */
+
+Serial.print("Auto-reload timer callback executing ");
+Serial.println( xTimeNow/31 );
+if( ulExecutionCount >= 5 )
+{
+xTimerChangePeriod( xAutoReloadTimer, /* The timer being updated. */
+mainAUTO_RELOAD_TIMER_PERIOD2, /* The new period for the timer. */
+0 ); /* Do not block when sending this command. */
+#endif
+}
+
 
 
 
