@@ -218,8 +218,11 @@ internal_vprintf(miniarg_t *mini,const char *format,va_list arg)
 				// float x = va_arg(arg,double);    // fails.
 				double x = va_arg(arg,double);
 
-        // use width for trailing digits prec.
-        unsigned prec = width != 0 ? width : 7;
+        // TODO change to... to ensure we do everything with 32bit. for hardware support.
+        // float x = (double) va_arg(arg,double);
+
+        // use width to determine trailing digits prec.
+        unsigned prec = width != 0 ? width : 6;
 
         int intpart = (int)x;
         int fracpart = (int)((x- intpart) * int_pow(10, prec));   // number of digits of precision

@@ -18,6 +18,9 @@
 #include <libopencm3/stm32/exti.h>
 
 
+#include <math.h>
+
+
 //////////
 
 #include "sleep.h"
@@ -712,6 +715,8 @@ static void test01(void *args __attribute((unused)))
   usart_printf("adc reset\n");
 
   adc_reset();
+
+  usart_printf("adc reset done %f\n", sqrtf(123.456) );
 
 #if 0
   usart_printf("adc reset done\n");
