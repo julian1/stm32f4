@@ -26,54 +26,12 @@
 
 
 // TODO - consider if should be global, global struct, or returned from usart_setup()
-QueueHandle_t usart_txq;
+QueueHandle_t usart_txq = NULL;
 
 
 // think we have to use an interrupt - so we don't miss anything. eg. we take the character
 // in the isr, before it is replaced
-QueueHandle_t usart_rxq;
-
-
-
-/*
-  This function should be moved to main(). it is *not* usart..
-  We may just want to blink
-
-*/
-
-
-// this shouldn't be here either... probably...
-
-extern void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTaskName);
-
-
-void vApplicationStackOverflowHook(
-  xTaskHandle *pxTask __attribute((unused)),
-  signed portCHAR *pcTaskName __attribute((unused))
-) {
-  int i, j = 0, len;
-    // ok seems to be catching some stack overflow conditions
-    // this won't work - because relies on sending to queues.
-    // we need to bit-bang the usart.
-    // TODO - could probably still be cleaned up
-
-    len = strlen((const char *)pcTaskName);
-
-    for(;;) {
-      for(i = 0; i <= len; ++i) {
-        // usart_send(USART1, "overflow"[ i ] );
-        if(i != len)
-          usart_send(USART1, pcTaskName [ i ] );
-        else
-          usart_send(USART1, ' ' );
-
-         for (j = 0; j < 3000000; j++) {
-          __asm__("nop");
-        }
-      }
-    }
-}
-
+QueueHandle_t usart_rxq = NULL;
 
 
 
@@ -82,8 +40,18 @@ void vApplicationStackOverflowHook(
 
 void usart_setup(void)
 {
+
+  // not sure but queues, should be created in main()
+  // setup() could take the queue as argument for better composibility
+  // BUG.... QUEUES SHOULD BE CREATED FIRST!!!!!!!
+  // OR BEFORE ENABLE
+  usart_txq = xQueueCreate(256,sizeof(char));
+  usart_rxq = xQueueCreate(256,sizeof(char));
+
+
   // this is sets up the rx interupt, but does not enable
   nvic_enable_irq(NVIC_USART1_IRQ); // JA
+  nvic_set_priority(NVIC_USART1_IRQ,0xff );
 
   /* Setup GPIO pins  */
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9  | GPIO10);
@@ -105,31 +73,40 @@ void usart_setup(void)
   usart_set_parity(USART1, USART_PARITY_NONE);
   usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);
 
-  /* Enable USART1 Receive interrupt. */
-  usart_enable_rx_interrupt(USART1);
+// OK. enabling this
+// we have to clear the damn flag.... interrupt flag...
+
 
   /* Finally enable the USART. */
   usart_enable(USART1);
 
-
-
-  // not sure but queues, should be created in main()
-  // setup() could take the queue as argument for better composibility
-  usart_txq = xQueueCreate(256,sizeof(char));
-  usart_rxq = xQueueCreate(256,sizeof(char));
+#if 1
+  /* Enable USART1 Receive interrupt. */
+  usart_enable_rx_interrupt(USART1);
+#endif
 
 }
 
 
+// simply enabling the interrupt hangs...
+// so it returns from the func. but then the tx hangs? 
 
 
 void usart1_isr(void)
 {
+
+  return ; 
+
   // Only thing this is doing - is echoing the output.
   // for console read I think we need blocking.
-  static uint8_t data = 'A';
+  static uint32_t data = 'A';   // THINK MUST be 32 not 8
 
+  do {
+    // consume
+  }
+  while ((data & USART_SR_RXNE) != 0);
 
+  return ; 
 
 
   /* Check if we were called because of RXNE. */
@@ -181,6 +158,7 @@ void usart_task(void *args __attribute__((unused)))
   // waits for chars on the serial queue, then push them out on the hardware usart.
 
   char ch;
+
 
   for (;;) {
     /*

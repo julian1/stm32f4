@@ -44,13 +44,56 @@
 
 
 
+void vApplicationTickHook( void )
+{
+}
+
+void vApplicationIdleHook( void )
+{
+}
+
+
+
+void vApplicationStackOverflowHook( TaskHandle_t xTask, char * pcTaskName )
+{
+  (void) xTask;
+  (void) pcTaskName;
+
+  while(true)
+  {
+		gpio_toggle(LED_PORT,LED_OUT);
+
+    for(unsigned i = 0; i < 2 * 1000000; ++i) {
+      __asm__("nop");
+    }
+  }
+}
+
+void vApplicationMallocFailedHook(void)
+{
+  while(true)
+  {
+		gpio_toggle(LED_PORT,LED_OUT);
+
+    for(unsigned i = 0; i < 2 * 1000000; ++i) {
+      __asm__("nop");
+    }
+  }
+
+
+}
+
+
+
+
+
 static void adc_exti_setup(void);
 
 
 static void led_task(void *args __attribute((unused))) {
 
 	for (;;) {
-//		gpio_toggle(LED_PORT,LED_OUT);
+		gpio_toggle(LED_PORT,LED_OUT);
 		vTaskDelay(pdMS_TO_TICKS(500)); // 1Hz
 	}
 
@@ -790,8 +833,11 @@ void tim3_isr(void)
 }
 #endif
 
+// https://microcontrollerslab.com/change-period-reset-software-timer-freertos-arduino/
 
 
+
+#if 0
 TimerHandle_t xAutoReloadTimer;
 BaseType_t xTimer2Started;
 
@@ -838,6 +884,8 @@ static void timer_setup ( void)
   if( ( xTimer2Started == pdPASS ) )
   {
 
+    // we're good...
+
 #if 0
   /* Start the scheduler. */
   vTaskStartScheduler();
@@ -847,6 +895,33 @@ static void timer_setup ( void)
 
 
 }
+
+/*
+#find ../rtos/FreeRTOSv10.3.1/ | grep port.c | grep CM4 | grep GCC
+
+
+
+cp ../rtos/FreeRTOSv10.3.1/FreeRTOS/Demo/CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h ./rtos/ -i
+
+cp ../rtos/FreeRTOSv202012.00/FreeRTOS/Source/include/FreeRTOS.h ./rtos/ -i
+
+cp ../rtos/FreeRTOSv202012.00/FreeRTOS/Source/portable/GCC/ARM_CM4F/portmacro.h ./rtos -i
+
+
+cp ../rtos/FreeRTOSv202012.00/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c   ./rtos -i
+
+ cp ../rtos/FreeRTOSv202012.00/FreeRTOS/Source/portable/MemMang/heap_4.c rtos/
+
+*/
+
+/*
+ For this RTOS API function to be available:
+
+    configUSE_TIMERS and configSUPPORT_DYNAMIC_ALLOCATION must both be set to 1
+in FreeRTOSConfig.h (configSUPPORT_DYNAMIC_ALLOCATION can also be left
+undefined, in which case it will default to 1).
+    The FreeRTOS/Source/timers.c C source file must be included in the build.
+*/
 
 
 static void prvTimerCallback( TimerHandle_t xTimer )
@@ -880,14 +955,21 @@ mainAUTO_RELOAD_TIMER_PERIOD2, /* The new period for the timer. */
 #endif
 }
 
-
+#endif
 
 
 
 
 static void test01_task(void *args __attribute((unused)))
 {
+  static int count = 0; 
 
+  while(true) {
+    usart_printf("test01_task %u %f %f\n", count, (float)count / 100., sqrtf( count ) );
+    ++count;
+  }
+
+#if 0
   usart_printf("test01_task\n");
   usart_printf("adc reset\n");
 
@@ -907,6 +989,7 @@ static void test01_task(void *args __attribute((unused)))
   usart_printf("----\n" );
 #endif
 
+#endif
   // sleep forever
   for(;;) {
     task_sleep(1000);
@@ -917,7 +1000,46 @@ static void test01_task(void *args __attribute((unused)))
 
 
 
+#if 0
+int main(void) 
+{
 
+  // ONLY WORKS if fit crystal.
+  // rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
+
+  // LED
+  rcc_periph_clock_enable(RCC_GPIOE); // LED_PORT JA
+                                      // OK. this does enough to turn led on
+
+
+  ///////////////
+  led_setup();
+
+#if 0
+  while(true)
+  {
+		gpio_toggle(LED_PORT,LED_OUT);
+
+    for(unsigned i = 0; i < 2 * 1000000; ++i) {
+      __asm__("nop");
+    }
+  }
+#endif
+
+#if 1
+  xTaskCreate(led_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+
+	vTaskStartScheduler();
+#endif
+
+	for (;;);
+	return 0;
+}
+
+#endif
+
+
+#if 1
 int main(void) {
 
   // ONLY WORKS if fit crystal.
@@ -943,27 +1065,34 @@ int main(void) {
   led_setup();
   usart_setup();
 
+  //timer_setup();  // software timer 
+
   ///////////////
 
   adc_setup_spi();
 
 
 
+  // OK. but it's stalling....
+  // led is ok.
+  // uart can print some stuff
+  // try to type into terminal and it freezes.
+  
+  // xPSR: 0x21000035 pc: 0x080019d4 msp: 0x2001ffb8
 
-
-  xTaskCreate(led_task,  "LED",100,NULL,configMAX_PRIORITIES-1,NULL);
+  xTaskCreate(led_task,  "LED",1000,NULL,configMAX_PRIORITIES-1,NULL);
 
   // IMPORTANT changing from 100 to 200, stops deadlock
-  xTaskCreate(usart_task,        "UART",200,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
+  xTaskCreate(usart_task,        "UART",1000,NULL,configMAX_PRIORITIES-1,NULL); /* Highest priority */
 
-  xTaskCreate(serial_prompt_task,"SERIAL2",200,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
+  xTaskCreate(serial_prompt_task,"SERIAL2",1000,NULL,configMAX_PRIORITIES-2,NULL); /* Lower priority */
 
 
-  xTaskCreate(test01_task,        "TEST01",1500,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
+  xTaskCreate(test01_task,        "TEST01",3500,NULL,configMAX_PRIORITIES-2,NULL); // Lower priority
 
 	vTaskStartScheduler();
 
 	for (;;);
 	return 0;
 }
-
+#endif

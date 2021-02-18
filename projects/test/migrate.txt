@@ -1,0 +1,123 @@
+
+TODO
+download and try the v9.0.0  and see if it has the timer.c    code. should be enough.
+can also diff code. to check for any differences.
+
+---------------
+
+I have been a happy user of freertos v9.0.0 on stm32f4 (m4) for about 6 months.
+
+Recently I tried to upgrade to V202012.00, and everything works -
+except for any kind of interrupt (usart or gpio exti).
+
+I have reduced my code to the simplest broken example. here. Enabling usart_enable_rx_interrupt(USART1);
+and pressing a uart key leads to the led blink task hanging.
+
+I have read, https://www.freertos.org/RTOS-Cortex-M3-M4.html
+
+And, have included a libopencm3 equivalent to NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 ); albeit this
+was not required in my code under v9.0.0.
+
+I also cannot find any recent valid FreeRTOSConfig.h for stm32f4 on github to serve as a working example.
+
+Any help greatfully appreciated.
+
+---------------
+EXTREME
+  easist lock free - is a ring buffer with read index, and write index...
+    and doesn't matter if something,  writes and increments while we are reading.
+
+superloop.
+  lockless structure, mutex or crit section.
+  eg. interupt (uart, timer etc) just pushes values into list/vector/queue .
+  same as a 3d game.
+
+  one stack.  much simpler.
+
+  - but hard to take a sequence of uart commands... without callbacks etc.
+  - or configure adc over spi, where need return values.  eg. need to directly use spi_xfer()... and would block.
+  - eg. configure adc, wihle logging result. calls would be blocking and sync. but maybe that's ok.
+  - or stdout would be written to a queue, and then flushed once at end. but that makes debugging much harder.
+  - would pass the log output function as a dependency - to anything.
+
+  - we would also pass the interrupt callback as a dependency. we should probably do this already.
+
+  - so peripheral configuration will block . but that's ok. its only led blink.
+
+  - input commands can be done wiht even driven state-machine.
+
+  - sequencing. eg. configure led, uart, adc, dac,  etc.
+      can also be done with an event driven state-machine.   rather than linear blocking calls.
+      eg. if state == led_done -> setup_uart()
+
+  - can also breakup sequencing - for instance adc, timers.
+
+  - finite state machines can communicate with each other - in super loop structure.
+      just share a function pointer - to the event queue so they can inject.
+
+  - object
+    - init( dep functions )
+    - push_event(ring_buffer, e)
+    - void update()
+
+      it's really not dissimilar to freertos with message queues.
+
+  - when debugging the log of a peripheral configuration - can choose to block and buffer to uart directly .
+      or send to a queue, that is flushed in the superloop. so its more responsive.
+
+  - ring_buffer. if write goes past read. then can set a flag.  nice.
+
+  - in superloop have a realtime construct. an interrupt.
+
+  - blink a led, in superloop   ((systick / 500) % 2 == 0)  set() else clear()
+
+  - see, ../cjmcu-407/tft-spi-9341-2.8/clock.c
+
+---------------
+
+https://mcuoneclipse.com/2016/08/14/arm-cortex-m-interrupts-and-freertos-part-1/
+
+--------------
+Older versions,
+  https://sourceforge.net/projects/freertos/files/FreeRTOS/
+  https://sourceforge.net/projects/freertos/files/FreeRTOS/V9.0.0/FreeRTOSv9.0.0.zip/download
+
+-------------
+
+
+https://forums.freertos.org/t/uart-interrupt-in-freertos/11303
+  same problem. hangs.
+
+---------
+ If you are using an STM32 with the STM32 driver library then ensure all the
+priority bits are assigned to be preempt priority bits by calling
+NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 ); before the RTOS is started.
+---------
+
+https://www.freertos.org/FAQHelp.html
+
+Running the RTOS on a ARM Cortex-M Core
+https://www.freertos.org/RTOS-Cortex-M3-M4.html
+https://www.freertos.org/FreeRTOS_Support_Forum_Archive/May_2013/freertos_STM32F407_stack_corruption_8100776.html
+
+
+
+#find ../rtos/FreeRTOSv10.3.1/ | grep port.c | grep CM4 | grep GCC
+
+cp opencm3.c  ./rtos
+
+cp ../rtos/FreeRTOSv202012.00/FreeRTOS/Demo/CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h ./rtos/ -i
+
+cp ../rtos/FreeRTOSv202012.00/FreeRTOS/Source/include/FreeRTOS.h ./rtos/ -i
+
+cp ../rtos/FreeRTOSv202012.00/FreeRTOS/Source/portable/GCC/ARM_CM4F/portmacro.h ./rtos -i
+
+cp ../rtos/FreeRTOSv202012.00/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c   ./rtos -i
+
+cp ../rtos/FreeRTOSv202012.00/FreeRTOS/Source/portable/MemMang/heap_4.c rtos/
+
+---------
+
+diff ../rtos/FreeRTOSv202012.00/FreeRTOS/Demo/CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h ./rtos/FreeRTOSConfig.h
+
+
