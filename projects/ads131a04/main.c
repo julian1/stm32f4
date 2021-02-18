@@ -647,6 +647,7 @@ static void adc_exti_setup(void)
 // see if that works for wakeup, lock. without generating spi flag error. 
 
 // eg. once it's running then reading... becomes weird.
+// because it interferes with reading frames..
 
 
 void exti15_10_isr(void)
