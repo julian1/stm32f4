@@ -7,6 +7,9 @@ PREFIX		?= arm-none-eabi
 TOP_DIR 	:= $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 OPENCM3_DIR 	:= $(abspath $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/libopencm3)
 
+# JA TODO add strip... which reduces size a lot
+# arm-none-eabi-strip main.elf
+
 # JA
 #LIBNAME		= opencm3_stm32f1
 #DEFS		+= -DSTM32F1
