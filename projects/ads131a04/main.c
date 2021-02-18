@@ -641,6 +641,8 @@ static void adc_exti_setup(void)
 }
 
 
+// should try external ref.
+
 
 void exti15_10_isr(void)
 {
