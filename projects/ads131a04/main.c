@@ -1,4 +1,9 @@
 /*
+
+  EXTREME
+    we can use ina154 with bjt in loop.  just use feedback/ref pin.
+
+  ---------
   simple led blink task,
   and answer on uart.
 
