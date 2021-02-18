@@ -797,8 +797,10 @@ BaseType_t xTimer2Started;
 
 static void prvTimerCallback( TimerHandle_t xTimer );
 
-static void setup_timer ( void) 
+static void timer_setup ( void) 
 {
+  // it looks like this needs to be done at init time.
+
   // Serial.begin(9600); // Enable serial communication library.
 
   xAutoReloadTimer = xTimerCreate(
@@ -806,7 +808,7 @@ static void setup_timer ( void)
     "AutoReload",
     /* The software timer's period in ticks. */
     // mainAUTO_RELOAD_TIMER_PERIOD,
-    (pdMS_TO_TICKS( 1000 )),
+    pdMS_TO_TICKS( 1000 ),
     /* Setting uxAutoRealod to pdTRUE creates an auto-reload timer. */
     pdTRUE,
     /* This example does not use the timer id. */
@@ -815,7 +817,6 @@ static void setup_timer ( void)
     prvTimerCallback
   );
 
-#if 0
   /* Check the software timers were created. */
   if(( xAutoReloadTimer != NULL ) )
   {
@@ -829,11 +830,22 @@ static void setup_timer ( void)
   created until the scheduler is started, so all commands sent to the command queue will
   stay in the queue until after the scheduler has been started. Check both calls to
   xTimerStart() passed. */
+
+
+  // else fail
+
+
   if( ( xTimer2Started == pdPASS ) )
   {
+
+#if 0
   /* Start the scheduler. */
   vTaskStartScheduler();
 #endif
+  }
+  }
+
+
 }
 
 
