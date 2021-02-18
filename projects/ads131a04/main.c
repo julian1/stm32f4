@@ -22,6 +22,10 @@
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/stm32/exti.h>
 
+#include <libopencm3/stm32/timer.h>
+
+
+
 
 #include <math.h>
 
@@ -711,6 +715,64 @@ void exti15_10_isr(void)
   }
 
 }
+
+/////////////////////////////////////
+
+
+
+
+static void adc_timer_setup(void)
+{
+  // it's simpler to setup a 1sec timer, and then count the readings we have, to determine
+  // reading freq for noise.
+  // than calculate from adc using clking dividers and fmod.
+
+  /*
+    countdown timer.
+    because for updatable countdown periods simpler.
+    since don't have to subtract desired time from the period of a count-up timer.
+    stm32f4, want tim2 or tim5, for 32 bit timers
+  */
+  rcc_periph_clock_enable(RCC_TIM3);
+  nvic_enable_irq(NVIC_TIM3_IRQ);         /* Enable TIM3 interrupt. */
+
+  // next level priority - albeit timing is certainly not important
+  nvic_set_priority(NVIC_TIM3_IRQ,1);
+
+
+  rcc_periph_reset_pulse(RST_TIM3);     // reset
+  timer_set_mode(TIM3, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_DOWN);
+  timer_enable_break_main_output(TIM3);
+  timer_set_prescaler(TIM3, 10 );            // 0 is twice as fast as 1.
+
+  // Ok faster appears to be more accurate...
+  //period = 1000; // 1000 gives four digiss
+  // static uint32_t period = 1000;
+
+
+  timer_set_counter(TIM3, 1000 );
+
+  timer_enable_irq(TIM3, TIM_DIER_UIE);   // counter update
+  timer_enable_counter(TIM3);               // start timer, IMPROTANT should be done last!!!.... or will miss.
+
+
+
+}
+
+
+void tim3_isr(void)
+{
+  // timer interrupt, we've hit a apex or bottom of integration
+
+  if (timer_get_flag(TIM3, TIM_SR_UIF)) {
+    timer_clear_flag(TIM3, TIM_SR_UIF);
+
+    // branch timing with if statement is unequal - but doesn't matter
+
+  } // else???
+}
+
+
 
 
 
