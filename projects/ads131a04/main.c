@@ -642,12 +642,15 @@ static void adc_exti_setup(void)
 
 
 // should try external ref.
+// should try battery powered 5V ref - when have opamp input. maybe.
 
 // need to support a write  - without subsequent read. discard.
 // see if that works for wakeup, lock. without generating spi flag error. 
 
 // eg. once it's running then reading... becomes weird.
 // because it interferes with reading frames..
+
+// and turn on the interrupt - before wake and lock.
 
 
 void exti15_10_isr(void)

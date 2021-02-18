@@ -213,13 +213,14 @@ internal_vprintf(miniarg_t *mini,const char *format,va_list arg)
     // JA float/double
 		case 'f':
       {
-        // TODO should use width...  for prec.
-
         // very basic float
         // calling va_arg really doesn't seem to be working, unless use double on both sides.
 				// float x = va_arg(arg,double);    // fails.
 				double x = va_arg(arg,double);
-        unsigned prec = 7;
+
+        // use width for trailing digits prec.
+        unsigned prec = width != 0 ? width : 7;
+
         int intpart = (int)x;
         int fracpart = (int)((x- intpart) * int_pow(10, prec));   // number of digits of precision
 
