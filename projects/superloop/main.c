@@ -241,7 +241,7 @@ static void usart_update(A *aaa)
 }
 
 
-static A *console1;
+static A *console_out;
 
 
 
@@ -264,7 +264,7 @@ void sys_tick_handler(void)
   // one sec timer
   if( system_millis % 1000 == 0) {
 
-    mini_snprintf( (void*)write, console1, "whoot %d\r\n", system_millis);
+    mini_snprintf( (void*)write, console_out, "whoot %d\r\n", system_millis);
   }
 
 }
@@ -292,15 +292,15 @@ int main(void)
   struct A console;
   init(&console, buf, sizeof(buf));
 
-  console1 = &console;
+  console_out = &console;
 
 
   led_setup();
-  usart_setup( (void *)write, &console);     // usart char input, would actually use a different queue. eg. state machine.
+  usart_setup( (void *)write, console_out);     // usart char input, would actually use a different queue. eg. state machine.
   clock_setup();
 
 
-  mini_snprintf((void *)write, &console, "starting\r\n");
+  mini_snprintf((void *)write, console_out, "starting\r\n");
 
   while(true) {
 
