@@ -21,6 +21,7 @@
 
 
 #include "miniprintf2.h"
+#include "usart2.h"
 
 #define LED_PORT  GPIOE
 #define LED_OUT   GPIO15
@@ -46,82 +47,6 @@ static void led_setup(void)
   gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT);
 }
 
-/*
-  EXTREME...
-  OK. perhaps there's an actual hardware issue
-  on the pin...
-  due to overvoltage on the pin or something...
-*/
-
-////////////////////////////////////////////////////////
-
-
-
-
-
-// isr can't take a context... so need global vars
-static void	(*usart_cb_putc)(void *, char) = NULL;
-static void *usart_cb_ctx = NULL;
-
-
-static void usart_setup(
-	void	(*putc)(void *, char),
-	void 	*ctx
-)
-{
-  // callback on interrupt
-  usart_cb_putc = putc; 
-  usart_cb_ctx = ctx;
-
-
-  nvic_enable_irq(NVIC_USART1_IRQ);
-  nvic_set_priority(NVIC_USART1_IRQ,  5 );    // changing this has no effect
-
-  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9 | GPIO10);
-
-
-  gpio_set_af(GPIOA, GPIO_AF7, GPIO9 | GPIO10);
-
-  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO10);
-
-  usart_set_baudrate(USART1, 115200);
-  usart_set_databits(USART1, 8);
-  usart_set_stopbits(USART1, USART_STOPBITS_1);
-  // usart_set_mode(USART1, USART_MODE_TX_RX);
-
-  usart_set_mode(USART1, USART_MODE_TX_RX);
-  usart_set_parity(USART1, USART_PARITY_NONE);
-  usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);
-
-
-  // enabling any kind of interrupt makes freertos hang on interrupt
-#if 1
-  /* Enable USART1 Receive interrupt. */
-  usart_enable_rx_interrupt(USART1);
-#endif
-
-
-  usart_enable(USART1);
-}
-
-
-void usart1_isr(void)
-{
-  // do nothing, still hangs
-
-  /* Check if we were called because of RXNE. */
-  if (((USART_CR1(USART1) & USART_CR1_RXNEIE) != 0) &&
-      ((USART_SR(USART1) & USART_SR_RXNE) != 0)) {
-
-    /* Retrieve the data from the peripheral. */
-    char ch = usart_recv(USART1);
-
-    usart_cb_putc( usart_cb_ctx, ch ) ;
-  }
-
-  return ;
-}
-
 
 
 ////////////////////////////////////////////////////////
@@ -142,13 +67,6 @@ static void msleep(uint32_t delay)
   while (wake > system_millis);
 }
 
-#if 0
-/* Getter function for the current time */
-static uint32_t mtime(void)
-{
-  return system_millis;
-}
-#endif
 
 static void clock_setup(void)
 {
@@ -165,84 +83,11 @@ static void clock_setup(void)
 
 ////////////////////////////////////////////////////////
 
-#if 0
-
-static void led_update(void)
-{
-  bool state = (system_millis / 500)  % 2 == 0;
-  // TODO, check last state... to avoid resetting.
-  // bool state = (system_millis % 1000) > 500;
-  if(state) {
-    gpio_set(LED_PORT, LED_OUT);
-  } else {
-    gpio_clear(LED_PORT, LED_OUT);
-  }
-}
-#endif
 
 
 
-////////////////////////////////////////////////////////
-
-typedef struct A
-{
-  char *p;
-  size_t sz;
-  size_t wi;
-  size_t ri;
-} A;
-
-
-static void init(A *a, char *p, size_t sz)
-{
-  a->p = p;
-  a->sz = sz;
-  a->wi = 0;
-  a->ri = 0;
-}
-
-static void write(A *a, char val)
-{
-  (a->p)[ a->wi] = val;
-
-  a->wi = (a->wi + 1) % a->sz;
-}
-
-static int32_t read(A *a)
-{
-  if(a->ri == a->wi)
-    return -1;
-
-  char ret = (a->p)[ a->ri];
-
-  a->ri = (a->ri + 1) % a->sz;
-  return ret;
-}
-
-
-
-/////////////////////////////////////////////
-
-// do we need a lib2?...
-
-static void usart_update(A *aaa)
-{
-  while(true) {
-    // order matters
-    if(!usart_get_flag(USART1,USART_SR_TXE))
-      return;
-
-    int32_t ch = read(aaa);
-    if(ch == -1)
-      return;
-
-    usart_send(USART1,ch);
-  }
-}
-
-
-static A *console_out;
-
+static A *console_out = NULL;
+static A *console_in = NULL;
 
 
 void sys_tick_handler(void)
@@ -270,9 +115,13 @@ void sys_tick_handler(void)
 }
 
 
+/*
+  OK. EXTREME.
+    we don't have to wait, to get back to the loop to flush the output...  
+    Instead we can flush the output...
+    anytime...
 
-
-
+*/
 
 int main(void)
 {
@@ -287,18 +136,23 @@ int main(void)
   // rcc_periph_clock_enable(RCC_SYSCFG); // should only be needed for external interupts.
 
 
-  // initialize character circular buffer
-  char buf[1000];
-  struct A console;
-  init(&console, buf, sizeof(buf));
+  // initialize buffers
+  char buf1[1000];
+  struct A out;
+  console_out = &out;
+  init(console_out, buf1, sizeof(buf1));
 
-  console_out = &console;
+
+  char buf2[1000];
+  struct A in;
+  console_in = &in;
+  init(console_in, buf2, sizeof(buf2));
+
 
 
   led_setup();
-  usart_setup( (void *)write, console_out);     // usart char input, would actually use a different queue. eg. state machine.
+  usart_setup( console_out, console_in );
   clock_setup();
-
 
   mini_snprintf((void *)write, console_out, "starting\r\n");
 
@@ -306,9 +160,9 @@ int main(void)
 
     // led_update();
 
-    usart_update(&console);
+    usart_input_update();
+    usart_output_update(); // flush output
 
-    // test_update(&console);
   }
 
 
@@ -318,34 +172,27 @@ int main(void)
 
 
 
+
 #if 0
-// wait. configure the usart interrupt...
-// to do this...
 
-static int done = 0;
-
-static void test_update(A *console)
+static void led_update(void)
 {
-
-  // NO. we need  it in the sysclk kinterupt...
-
-  int x = system_millis % 1000;
-  
-  if(x > 500 && !done) {
-    done = true;
-  } else if (x < 500 && done) {
-    done = false;
-  }
-  
-
-  if(done) {
-
-#if 1
-    // mini_snprintf( (void*)write, a, "whoot");
-    mini_snprintf( (void*)write, console, "whoot %f\r\n", 123.456);
-#endif
+  bool state = (system_millis / 500)  % 2 == 0;
+  // TODO, check last state... to avoid resetting.
+  // bool state = (system_millis % 1000) > 500;
+  if(state) {
+    gpio_set(LED_PORT, LED_OUT);
+  } else {
+    gpio_clear(LED_PORT, LED_OUT);
   }
 }
+#endif
 
+#if 0
+/* Getter function for the current time */
+static uint32_t mtime(void)
+{
+  return system_millis;
+}
 #endif
 

@@ -10,19 +10,20 @@
 
 BINARY		= main
 SRCFILES	= main.c   \
-              ../lib/src/miniprintf2.c
+              ../lib2/src/miniprintf2.c ../lib2/src/usart2.c
             
 
 
 LDSCRIPT	= ../../cjmcu-407.ld  # JA
 
 
-TGT_CFLAGS  += -Wno-unused-function
+TGT_CFLAGS  += -Wno-unused-function   \
+              -Werror-implicit-function-declaration
 
 #TGT_CFLAGS	+= -I./rtos  # in priority
 #TGT_CFLAGS	+= -I${XH}
 
-TGT_CFLAGS	+= -I../lib/include
+TGT_CFLAGS	+= -I../lib2/include
 #LDLIBS		+= -lm
 
 
