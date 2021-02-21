@@ -44,12 +44,8 @@ void usart_setup( A *output, A *input)
   usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);
 
 
-  // enabling any kind of interrupt makes freertos hang on interrupt
-#if 1
   /* Enable USART1 Receive interrupt. */
   usart_enable_rx_interrupt(USART1);
-#endif
-
 
   usart_enable(USART1);
 }
@@ -57,7 +53,6 @@ void usart_setup( A *output, A *input)
 
 void usart1_isr(void)
 {
-  // do nothing, still hangs
 
   /* Check if we were called because of RXNE. */
   if (((USART_CR1(USART1) & USART_CR1_RXNEIE) != 0) &&
@@ -68,11 +63,8 @@ void usart1_isr(void)
      */
     char ch = usart_recv(USART1);
 
-    // use callback
-    // usart_cb_putc( usart_cb_ctx, ch ) ;
-
-    // write the input queue
-    write(input_buf, ch );
+    // write the input buffer
+    write(input_buf, ch);
   }
 
   return ;
@@ -185,33 +177,3 @@ void usart_input_update()
 
 
 
-
-#if 0
-// wait. configure the usart interrupt...
-// to do this...
-
-static int done = 0;
-
-static void test_update(A *console)
-{
-
-  // NO. we need  it in the sysclk kinterupt...
-
-  int x = system_millis % 1000;
-
-  if(x > 500 && !done) {
-    done = true;
-  } else if (x < 500 && done) {
-    done = false;
-  }
-
-
-  if(done) {
-
-#if 1
-    // mini_snprintf( (void*)write, a, "whoot");
-    mini_snprintf( (void*)write, console, "whoot %f\r\n", 123.456);
-#endif
-  }
-}
-#endif

@@ -93,6 +93,7 @@ void sys_tick_handler(void)
 
   system_millis++;
 
+  // 500ms.
   if( system_millis % 500 == 0) {
 
     gpio_toggle(LED_PORT, LED_OUT);
