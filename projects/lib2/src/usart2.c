@@ -8,16 +8,17 @@
 
 #include <stddef.h> // size_t
 
+#include "buffer.h"
 #include "usart2.h"
 
 
 
 
-static A *output_buf = NULL;
-static A *input_buf = NULL;
+static CBuf *output_buf = NULL;
+static CBuf *input_buf = NULL;
 
 
-void usart_setup( A *output, A *input)
+void usart_setup( CBuf *output, CBuf *input)
 {
   output_buf = output;
   input_buf = input;
@@ -64,7 +65,7 @@ void usart1_isr(void)
     char ch = usart_recv(USART1);
 
     // write the input buffer
-    write(input_buf, ch);
+    cBufWrite(input_buf, ch);
   }
 
   return ;
@@ -72,35 +73,6 @@ void usart1_isr(void)
 
 
 
-////////////////////////////////////////////////////////
-
-// ring buffer for output...
-
-
-void init(A *a, char *p, size_t sz)
-{
-  a->p = p;
-  a->sz = sz;
-  a->wi = 0;
-  a->ri = 0;
-}
-
-void write(A *a, char val)
-{
-  (a->p)[ a->wi] = val;
-  a->wi = (a->wi + 1) % a->sz;
-}
-
-int32_t read(A *a)
-{
-  if(a->ri == a->wi)
-    return -1;
-
-  char ret = (a->p)[ a->ri];
-
-  a->ri = (a->ri + 1) % a->sz;
-  return ret;
-}
 
 
 
@@ -118,7 +90,7 @@ void usart_output_update()
       return;
 
     // check for output to flush...
-    int32_t ch = read(output_buf);
+    int32_t ch = cBufRead(output_buf);
     if(ch == -1)
       return;
 
@@ -143,7 +115,7 @@ void usart_sync_flush()
   while(true) {
 
     // check for output to flush...
-    int32_t ch = read(output_buf);
+    int32_t ch = cBufRead(output_buf);
     if(ch == -1)
       return;
 
@@ -165,11 +137,11 @@ void usart_input_update()
   while(true) {
 
     // read input buf
-    int32_t ch = read(input_buf);
+    int32_t ch = cBufRead(input_buf);
     if(ch == -1)
       return;
     // transfer to output buf
-    write(output_buf, ch);
+    cBufWrite(output_buf, ch);
   }
 }
 

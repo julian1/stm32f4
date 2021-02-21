@@ -66,8 +66,7 @@ static int int_pow(int base, int exp)
 
 
 
-static void
-internal_vprintf(
+void internal_vprintf(
 	void	(*putc)(void *, char),	// the putc() function to invoke
 	void 	*ctx,			              // associated data struct
   const char *format,

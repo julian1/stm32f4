@@ -20,20 +20,30 @@
 
 */
 
-#include <stdio.h>
-#include <math.h>
+/*
+  code requires double prec.
+  not quite sure where though
+
+  the square() must be double...
+
+*/
 
 
+#include <math.h>   // sqrt,sqrtf
+#include "stats.h"
 
-float square(float a)
+
+static double square(double x)
 {
-  return a * a;
+  // must be double prec.
+  // return pow(x, 2);
+  return x * x;
 }
 
 
-float sum(float *p, size_t n)
+double sum(float *p, size_t n)
 {
-  float sum = 0;
+  double sum = 0;
   float *end = p + n;
   while(p < end)
     sum += *p++;
@@ -42,9 +52,9 @@ float sum(float *p, size_t n)
 }
 
 
-float sumX2(float *p, size_t n)
+static double sumX2(float *p, size_t n)
 {
-  float sum = 0;
+  double sum = 0;
   float *end = p + n;
   while(p < end)
     sum += square(*p++);
@@ -52,34 +62,54 @@ float sumX2(float *p, size_t n)
   return sum;
 }
 
+// mean, stddeve, rms are all the same values?????
+// so if they're the same then we return 0...
 
-float mean(float *p, size_t n)
+double mean(float *p, size_t n)
 {
   return sum(p, n) / n;
 }
 
 
-float stddev(float *p, size_t n)
+double variance(float *p, size_t n)
 {
-  float j = (sumX2(p, n) / n) - square(sum(p, n) / n);
-  return sqrtf( j );
+  double m = mean(p, n);
+
+  double sum = 0;
+  float *end = p + n;
+  while(p < end)
+    sum += square(*p++ - m);
+
+  return sum / n;
+}
+
+// population. should probably be sample.
+
+double stddev(float *p, size_t n)
+{
+  return sqrt(variance(p, n));
 }
 
 
-float rms(float *p, size_t n)
+double stddev2(float *p, size_t n)
+{
+  // alternate calc approach. also works.
+  double j = (sumX2(p, n) / n) - square(sum(p, n) / n);
+  return sqrt( j );
+}
+
+
+
+double rms(float *p, size_t n)
 {
   return sqrt(sumX2(p, n) / n);
 }
 
-#if 0
-void push(float *p, size_t n, size_t *idx, float val)
-{
-  // modulus to avoid buffer overflow
-  p[*idx % n] = val;
-  ++(*idx);
-}
-#endif
 
+
+
+
+#if 0
 void push(float *p, size_t n, size_t *idx, float val)
 {
   // don't advance if idx == n, to support overflow detect
@@ -89,9 +119,11 @@ void push(float *p, size_t n, size_t *idx, float val)
   }
 }
 
+#endif
 
 
-// we need to set up an interrupt for a timer. eg. 1 sec. 
+#if 0
+// we need to set up an interrupt for a timer. eg. 1 sec.
 // so the interrupt for adc just pushes values.
 // then interupt for 1sec. calculates noise etc.
 
@@ -125,3 +157,6 @@ int main()
 
   return 0;
 }
+
+#endif
+

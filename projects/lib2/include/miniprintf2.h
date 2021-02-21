@@ -14,15 +14,17 @@ extern "C" {
 
 #include <stdarg.h>
 
-
-int
-mini_printf(
-	void	(*putc)(void *, char),	
-	void 	*argp,			          
+void internal_vprintf(
+	void	(*putc)(void *, char),	// the putc() function to invoke
+	void 	*ctx,			              // associated data struct
   const char *format,
-  ...
-)
-; 
+  va_list arg
+);
+
+int mini_printf( void	(*putc)(void *, char), void *ctx, const char *format, ...); 
+
+
+
 
 
 #ifdef __cplusplus
