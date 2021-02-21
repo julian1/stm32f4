@@ -17,7 +17,7 @@ static void
 mini_write(
 	void	(*putc)(void *, char),	// The putc() function to invoke
 	void 	*ctx,			          // Associated data struct
-  const char *msg) 
+  const char *msg)
 {
 	char ch;
 
@@ -32,7 +32,7 @@ static void
 mini_pad(
 	void	(*putc)(void *, char),	// The putc() function to invoke
 	void 	*ctx,			          // Associated data struct
-  char pad,int width,const char *text) 
+  char pad,int width,const char *text)
 {
 	int slen;
 
@@ -88,6 +88,12 @@ internal_vprintf(
 			/* Non formatting field: copy as is */
       // JA
 			// mini->putc(ch,mini->ctx);
+
+#if 1
+      if(ch == '\n')
+        putc(ctx, '\r' );
+#endif
+
 			putc(ctx, ch);
 			continue;
 		}
@@ -202,7 +208,6 @@ internal_vprintf(
 			mini_pad(putc, ctx, pad,width,bptr);
 			mini_write(putc, ctx, bptr);
 			break;
-
 
     // JA octal would be nice.
 
@@ -356,9 +361,9 @@ internal_vprintf(
 
 int
 mini_snprintf(
-	void	(*putc)(void *, char),	
-	void 	*ctx,			          
-  const char *format,...) 
+	void	(*putc)(void *, char),
+	void 	*ctx,
+  const char *format,...)
 {
 
 	va_list args;			/* format arguments */

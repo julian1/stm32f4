@@ -85,7 +85,7 @@ static A *console_in = NULL;
 
 void sys_tick_handler(void)
 {
-  // equivalent to a software timer
+  // equivalent to a rtos software timer
   // we are in an interupt  context here... so don't do anything
   // NOTE. we could actually set a flag.  or a vector of functions to call..
   // and then process in main loop.
@@ -103,7 +103,7 @@ void sys_tick_handler(void)
   // one sec timer
   if( system_millis % 1000 == 0) {
 
-    mini_snprintf( (void*)write, console_out, "whoot %d\r\n", system_millis);
+    mini_snprintf( (void*)write, console_out, "whoot %d\n", system_millis);
   }
 
 }
@@ -147,7 +147,7 @@ int main(void)
   usart_setup( console_out, console_in );
   clock_setup();
 
-  mini_snprintf((void *)write, console_out, "starting\r\n");
+  mini_snprintf((void *)write, console_out, "starting\n");
 
   while(true) {
 
