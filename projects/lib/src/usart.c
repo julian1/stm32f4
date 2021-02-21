@@ -51,7 +51,11 @@ void usart_setup(void)
 
   // this is sets up the rx interupt, but does not enable
   nvic_enable_irq(NVIC_USART1_IRQ); // JA
-  nvic_set_priority(NVIC_USART1_IRQ,0xff );
+  nvic_set_priority(NVIC_USART1_IRQ, 80 );   // must be more than 5 or 6... different to old version
+                                              // 79 no good. 80 ok.
+                                              // but it might be because we are trying to print in an interrupt.
+                                              // BUT. it maybe because we are trying to print in an interrupt somewhere.
+                            
 
   /* Setup GPIO pins  */
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9  | GPIO10);
@@ -94,19 +98,10 @@ void usart_setup(void)
 
 void usart1_isr(void)
 {
-
-  return ; 
-
   // Only thing this is doing - is echoing the output.
   // for console read I think we need blocking.
   static uint32_t data = 'A';   // THINK MUST be 32 not 8
 
-  do {
-    // consume
-  }
-  while ((data & USART_SR_RXNE) != 0);
-
-  return ; 
 
 
   /* Check if we were called because of RXNE. */
@@ -159,7 +154,18 @@ void usart_task(void *args __attribute__((unused)))
 
   char ch;
 
+  for (;;) {
+    /*
+      500 - is the time in ticks to wait. 1/2 second is too long?
+    */
+    if ( xQueueReceive(usart_txq,&ch,500) == pdPASS ) {
 
+      while(!usart_get_flag(USART1,USART_SR_TXE));
+      usart_send(USART1,ch);
+    }
+  }
+
+#if 0
   for (;;) {
     /*
       500 - is the time in ticks to wait. 1/2 second is too long?
@@ -170,9 +176,8 @@ void usart_task(void *args __attribute__((unused)))
                       // JA - doesn't seem to use coroutines...
       usart_send(USART1,ch);
     }
-    // Toggle LED to show signs of life
-    // gpio_toggle(GPIOE,GPIO0);
   }
+#endif
 }
 
 

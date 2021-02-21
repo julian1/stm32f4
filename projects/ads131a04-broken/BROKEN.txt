@@ -1,0 +1,11 @@
+
+after upgrading to freertos10.
+there's weird issues with interrupts, and hangs 
+
+  eg. the uart priority needs to be 0x80
+
+  doing a print within the adc interupt - to print value
+  also hangs. although this might be expected. 
+
+
+

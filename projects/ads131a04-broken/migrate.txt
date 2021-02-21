@@ -1,0 +1,25 @@
+
+
+Running the RTOS on a ARM Cortex-M Core
+https://www.freertos.org/RTOS-Cortex-M3-M4.html
+
+https://www.freertos.org/FreeRTOS_Support_Forum_Archive/May_2013/freertos_STM32F407_stack_corruption_8100776.html
+
+
+
+#find ../rtos/FreeRTOSv10.3.1/ | grep port.c | grep CM4 | grep GCC
+
+cp opencm3.c  ./rtos
+
+cp ../rtos/FreeRTOSv202012.00/FreeRTOS/Demo/CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h ./rtos/ -i
+
+cp ../rtos/FreeRTOSv202012.00/FreeRTOS/Source/include/FreeRTOS.h ./rtos/ -i
+
+cp ../rtos/FreeRTOSv202012.00/FreeRTOS/Source/portable/GCC/ARM_CM4F/portmacro.h ./rtos -i
+
+cp ../rtos/FreeRTOSv202012.00/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c   ./rtos -i
+
+cp ../rtos/FreeRTOSv202012.00/FreeRTOS/Source/portable/MemMang/heap_4.c rtos/
+
+
+

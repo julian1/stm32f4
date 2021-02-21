@@ -357,14 +357,37 @@ internal_vprintf(
 	}
 }
 
+/*
 
+  we can change this...
+
+struct Buffer
+{
+  putc() should handle translation '\n' to \r\n
+
+	void	(*putc)(void *, char),
+	void 	*ctx,
+
+  bool lineBuffer;
+  void (*sync)() ;
+}
+
+
+*/
 
 int
-mini_snprintf(
+mini_printf(
 	void	(*putc)(void *, char),
 	void 	*ctx,
   const char *format,...)
 {
+  /*
+    - we could configure this to do line buffering
+    if we really wanted. just call usart_sync_flush()
+
+    ctx can be a more complicated structure...
+    in fact this function should perhaps be elsewhere.
+  */
 
 	va_list args;			/* format arguments */
 

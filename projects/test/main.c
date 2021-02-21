@@ -43,7 +43,8 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, char * pcTaskName )
 
 }
 
-void vApplicationMallocFailedHook(void)
+extern void vApplicationMallocFailedHook( void );
+void vApplicationMallocFailedHook( void )  // heap_4.c
 {
   critical_error_blink();
 }
@@ -100,11 +101,26 @@ static void usart_setup(void)
 }
 
 
+
 void usart1_isr(void)
 {
-  // do nothing, still hangs
+
+  /* Check if we were called because of RXNE. */
+  if (((USART_CR1(USART1) & USART_CR1_RXNEIE) != 0) &&
+      ((USART_SR(USART1) & USART_SR_RXNE) != 0)) {
+
+    /* Retrieve the data from the peripheral.
+      and clear flags.
+     */
+    char ch = usart_recv(USART1);
+
+    // write the input buffer
+    // write(input_buf, ch);
+  }
+
   return ;
 }
+
 
 
 
@@ -122,6 +138,7 @@ int main(void)
 
   // rcc_periph_clock_enable(RCC_SYSCFG); // should only be needed for external interupts.
 
+#if 0
  /*
   http://www.freertos.org/RTOS-Cortex-M3-M4.html
   Preempt priority and subpriority:
@@ -131,6 +148,7 @@ int main(void)
  */
 
   scb_set_priority_grouping(SCB_AIRCR_PRIGROUP_GROUP16_NOSUB);
+#endif
 
   led_setup();
   usart_setup();

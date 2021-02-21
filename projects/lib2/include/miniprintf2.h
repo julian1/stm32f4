@@ -16,10 +16,12 @@ extern "C" {
 
 
 int
-mini_snprintf(
+mini_printf(
 	void	(*putc)(void *, char),	
 	void 	*argp,			          
-  const char *format,...)
+  const char *format,
+  ...
+)
 ; 
 
 

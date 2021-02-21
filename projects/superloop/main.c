@@ -103,7 +103,7 @@ void sys_tick_handler(void)
   // one sec timer
   if( system_millis % 1000 == 0) {
 
-    mini_snprintf( (void*)write, console_out, "whoot %d\n", system_millis);
+    mini_printf( (void*)write, console_out, "whoot %d\n", system_millis);
   }
 
 }
@@ -147,10 +147,12 @@ int main(void)
   usart_setup( console_out, console_in );
   clock_setup();
 
-  mini_snprintf((void *)write, console_out, "starting\n");
+  mini_printf((void *)write, console_out, "starting\n");
 
   while(true) {
 
+    // EXTREME - can actually call update at any time, in a yield()...
+    // so long as we wrap calls with a mechanism to avoid stack reentrancy
     // led_update(); in systick.
 
     usart_input_update();
