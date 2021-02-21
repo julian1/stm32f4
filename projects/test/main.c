@@ -1,11 +1,6 @@
 /*
+  This shows uart not hanging... with uart interupt priority of 5
 
-  Issue. any kind of interrupt (uart rx, gpio exti) causes freertos to hang
-
-  Simplest example.
-    blinking led task.
-    and configure uart.
-    crashes whenever on uart rx interrupt
 */
 
 
@@ -72,7 +67,7 @@ static void usart_setup(void)
 {
 
   nvic_enable_irq(NVIC_USART1_IRQ);
-  nvic_set_priority(NVIC_USART1_IRQ,  5 );    // changing this has no effect
+  nvic_set_priority(NVIC_USART1_IRQ,  5 );
 
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9  | GPIO10);
 
