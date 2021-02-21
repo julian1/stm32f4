@@ -19,6 +19,6 @@ void usart_setup(A *output, A *input);
 void usart_output_update(void);
 void usart_input_update(void);
 
-void usart_output_flush(void);
+void usart_sync_flush(void);
 
 

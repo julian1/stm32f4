@@ -18,7 +18,10 @@ LDSCRIPT	= ../../cjmcu-407.ld  # JA
 
 
 TGT_CFLAGS  += -Wno-unused-function   \
-              -Werror-implicit-function-declaration
+              -Werror-implicit-function-declaration \
+              -Werror
+
+#              -Wno-missing-prototypes
 
 #TGT_CFLAGS	+= -I./rtos  # in priority
 #TGT_CFLAGS	+= -I${XH}

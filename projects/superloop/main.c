@@ -1,17 +1,10 @@
-/*
-
-*/
-
 
 
 
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 
-#include <libopencm3/stm32/usart.h>
 #include <libopencm3/cm3/nvic.h>
-
-
 #include <libopencm3/cm3/systick.h>
 
 // #include <libopencm3/cm3/scb.h>
@@ -117,10 +110,9 @@ void sys_tick_handler(void)
 
 /*
   OK. EXTREME.
-    we don't have to wait, to get back to the loop to flush the output...  
-    Instead we can flush the output...
-    anytime...
-
+    in a long func,
+    we need to wait for control to return to superloop to flush console output...
+    can call at anytime
 */
 
 int main(void)
@@ -158,11 +150,10 @@ int main(void)
 
   while(true) {
 
-    // led_update();
+    // led_update(); in systick.
 
     usart_input_update();
-    usart_output_update(); // flush output
-
+    usart_output_update();
   }
 
 

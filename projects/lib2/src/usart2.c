@@ -11,36 +11,18 @@
 #include "usart2.h"
 
 
-/*
-  rather than a callback
-  perhaps should pass complete console structure
-*/
 
-/*
-// this is for *input* characters, not output.
-// isr cannot pass a context... so use file globals
-static void	(*usart_cb_putc)(void *, char) = NULL;
-static void *usart_cb_ctx = NULL;
-*/
-
-/*
-	void	(*putc)(void *, char),
-	void 	*ctx
-*/
 
 static A *output_buf = NULL;
 static A *input_buf = NULL;
 
+
 void usart_setup( A *output, A *input)
 {
-/*
-  // callback on interrupt
-  usart_cb_putc = putc;
-  usart_cb_ctx = ctx;
-*/
-
   output_buf = output;
   input_buf = input;
+
+  //////
 
   nvic_enable_irq(NVIC_USART1_IRQ);
   nvic_set_priority(NVIC_USART1_IRQ,  5 );    // value???
@@ -153,10 +135,18 @@ void usart_output_update()
 }
 
 
-void usart_output_flush()
+/*
+  OK. EXTREME.
+    when logging from a long func,
+    we do not need to wait for control to return to superloop, in order to flush the console output
+    we can sync/flush anytime
+    or even automatically on '\n' line buffered...
+
+    change name sync_flush();
+*/
+
+void usart_sync_flush()
 {
-  // this can be called in a long running func... 
-  // or even automatically on '\n' line buffered...
 
   while(true) {
 
