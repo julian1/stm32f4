@@ -121,6 +121,77 @@ void flush( void)
 
 ///////////////////////////
 
+/*
+  PSD code,
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.welch.html
+
+    https://www.eevblog.com/forum/metrology/noise-spectral-density-(nsd)/
+*/
+
+static void adc_tickcount(int ticks)
+{
+    // we are doing this in a systick interupt context
+    // may be better to set a flag, or push a queue item (function). and run in update of main loop.
+    // maybe copy out data first.
+
+    // usart_printf(".");
+    float buf[1000];
+    uint32_t sz = 0;
+
+    // copy out values and clear circular buffer
+    while(!fBufEmpty(&ffbuf)) {
+      float val = fBufRead(&ffbuf);
+      // no overflow local buffer
+      if(sz < 1000) {
+        buf[sz++] = val;
+      } else {
+        usart_printf("overflow\n");
+      }
+    }
+
+#if 0
+    usart_printf("---------\n");
+    usart_printf("samples ");
+    for(unsigned i = 0; i < sz; ++i ) {
+      usart_printf("%7f, ", buf[ i]);
+    }
+    usart_printf("\n");
+#endif
+
+    float freq = 1000.f / ticks * sz;
+    // this is wrong...
+    // 60 obs in 1000ms == 60Hz.
+    // 6 in 100mS. == 60Hz. etc
+
+    // think we should just use noise p2p. converting from stddev or rms.
+
+    float m    = mean( buf, sz);
+    float sd   = stddev2(buf, sz);
+    float rms_ = rms(buf, sz) ;    // this is rms voltage. but think we want rms difference.
+
+    // rms is the same as the mean?
+    // float rms2 = rms_ - m;        // rms seems to be same as mean????
+    // need sample freq... eg. 100 / sz
+    // float nvd = sd / sqrt(freq) * pow(10, 9);
+
+    // RMS is a mean. not a measure of variance.
+    // arithmetic mean and rms
+
+    if(rms_ != m) {
+      usart_printf("not equal");
+    }
+
+    usart_printf("freq %2fHz, n %d, mean %7fV, stddev %6fuV, vrms %7fV\n",
+      freq,
+      sz,
+      m,
+      sd * powf(10,6),
+      rms_
+    );
+
+}
+
+
 void sys_tick_handler(void)
 {
   /*
@@ -145,40 +216,10 @@ void sys_tick_handler(void)
     gpio_toggle(LED_PORT, LED_OUT);
   }
 
-  float buf[1000];
-  uint32_t sz = 0;
 
-  // OK. stddev is much the same. whether 100ms or 1000ms...
-  // interesting
+  if(system_millis % 1000 == 0) {
 
-  // one sec timer
-  if( system_millis % 100 == 0) {
-
-    // usart_printf(".");
-
-    // clear the circular buffer
-    while(!fBufEmpty(&ffbuf)) {
-      float val = fBufRead(&ffbuf);
-      // buf don't overflow local buffer
-      if(sz < 1000) {
-        buf[sz++] = val;
-      } else {
-        usart_printf("overflow\n");
-      }
-    }
-
-    // maybe float is not enabled???
-    // is our character output buffer wrapping?
-
-    usart_printf("---------\n");
-
-  // need sample freq... eg. 100 / sz
-
-    usart_printf("n %d, mean %7f, stddev2*e6 %6f\n", sz, mean( buf, sz), stddev2(buf, sz) * powf(10,6));
-
-#if 0
-    usart_printf("rms    %f\n", rms( buf, sz) );
-#endif
+    adc_tickcount(1000);
   }
 }
 

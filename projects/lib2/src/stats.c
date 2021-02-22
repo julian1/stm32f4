@@ -102,6 +102,7 @@ double stddev2(float *p, size_t n)
 
 double rms(float *p, size_t n)
 {
+  // seems problematic calculation if DC not blocked.
   return sqrt(sumX2(p, n) / n);
 }
 
