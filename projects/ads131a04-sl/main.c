@@ -121,6 +121,60 @@ void flush( void)
 
 ///////////////////////////
 
+
+static void adc_100ms(void)
+{
+    // this is an interupt context.
+    // we potentially could miss other interrupts. 
+    // so might be better to set a flag, or push a queue item (function). and process in main loop.
+    // maybe copy data first. 
+
+    // usart_printf(".");
+    float buf[1000];
+    uint32_t sz = 0;
+
+    // copy out values and clear circular buffer
+    while(!fBufEmpty(&ffbuf)) {
+      float val = fBufRead(&ffbuf);
+      // no overflow local buffer
+      if(sz < 1000) {
+        buf[sz++] = val;
+      } else {
+        usart_printf("overflow\n");
+      }
+    }
+
+    usart_printf("---------\n");
+    usart_printf("samples ");
+    for(unsigned i = 0; i < sz; ++i ) { 
+      usart_printf("%7f, ", buf[ i]);
+    }
+    usart_printf("\n");
+
+    float freq = 1000.f / 100.f * sz;
+    // this is wrong...
+    // 60 obs in 1000ms == 60Hz.
+    // 6 in 100mS. == 60Hz. etc
+
+    float sd = stddev2(buf, sz);
+    float rms_ = rms(buf, sz) ;    // this is rms voltage. but think we want rms difference.
+    // need sample freq... eg. 100 / sz
+
+    //float nvd = rms_ / sqrt(freq) * pow(10, 9);
+    float nvd = sd / sqrt(freq) * pow(10, 9);
+
+    usart_printf("freq %2f Hz, n %d, mean %7f, stddev*e6 %6f uV, vrms %f (V), nvd %f\n",
+      freq,
+      sz,
+      mean( buf, sz),
+      sd * powf(10,6),
+      rms_,
+      nvd
+    );
+
+}
+
+
 void sys_tick_handler(void)
 {
   /*
@@ -145,40 +199,9 @@ void sys_tick_handler(void)
     gpio_toggle(LED_PORT, LED_OUT);
   }
 
-  float buf[1000];
-  uint32_t sz = 0;
 
-  // OK. stddev is much the same. whether 100ms or 1000ms...
-  // interesting
-
-  // one sec timer
-  if( system_millis % 100 == 0) {
-
-    // usart_printf(".");
-
-    // clear the circular buffer
-    while(!fBufEmpty(&ffbuf)) {
-      float val = fBufRead(&ffbuf);
-      // buf don't overflow local buffer
-      if(sz < 1000) {
-        buf[sz++] = val;
-      } else {
-        usart_printf("overflow\n");
-      }
-    }
-
-    // maybe float is not enabled???
-    // is our character output buffer wrapping?
-
-    usart_printf("---------\n");
-
-  // need sample freq... eg. 100 / sz
-
-    usart_printf("n %d, mean %7f, stddev2*e6 %6f\n", sz, mean( buf, sz), stddev2(buf, sz) * powf(10,6));
-
-#if 0
-    usart_printf("rms    %f\n", rms( buf, sz) );
-#endif
+  if(system_millis % 100 == 0) {
+    adc_100ms();
   }
 }
 

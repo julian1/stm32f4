@@ -2,7 +2,7 @@
 #  Makefile for top level rtos subdirectory
 ######################################################################
 
-PROJS = blinky2  smu07
+PROJS = blinky2  smu07 ads131a04-sl
 
 all:	
 	for proj in $(PROJS) ; do \
