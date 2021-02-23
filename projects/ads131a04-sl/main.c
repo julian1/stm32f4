@@ -121,13 +121,18 @@ void flush( void)
 
 ///////////////////////////
 
+/*
+  PSD code,
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.welch.html
 
-static void adc_100ms(void)
+    https://www.eevblog.com/forum/metrology/noise-spectral-density-(nsd)/
+*/
+
+static void adc_tickcount(int ticks)
 {
-    // this is an interupt context.
-    // we potentially could miss other interrupts. 
-    // so might be better to set a flag, or push a queue item (function). and process in main loop.
-    // maybe copy data first. 
+    // we are doing this in a systick interupt context
+    // may be better to set a flag, or push a queue item (function). and run in update of main loop.
+    // maybe copy out data first.
 
     // usart_printf(".");
     float buf[1000];
@@ -144,32 +149,44 @@ static void adc_100ms(void)
       }
     }
 
+#if 0
     usart_printf("---------\n");
     usart_printf("samples ");
-    for(unsigned i = 0; i < sz; ++i ) { 
+    for(unsigned i = 0; i < sz; ++i ) {
       usart_printf("%7f, ", buf[ i]);
     }
     usart_printf("\n");
+#endif
 
-    float freq = 1000.f / 100.f * sz;
+    float freq = 1000.f / ticks * sz;
     // this is wrong...
     // 60 obs in 1000ms == 60Hz.
     // 6 in 100mS. == 60Hz. etc
 
-    float sd = stddev2(buf, sz);
+    // think we should just use noise p2p. converting from stddev or rms.
+
+    float m    = mean( buf, sz);
+    float sd   = stddev2(buf, sz);
     float rms_ = rms(buf, sz) ;    // this is rms voltage. but think we want rms difference.
+
+    // rms is the same as the mean?
+    // float rms2 = rms_ - m;        // rms seems to be same as mean????
     // need sample freq... eg. 100 / sz
+    // float nvd = sd / sqrt(freq) * pow(10, 9);
 
-    //float nvd = rms_ / sqrt(freq) * pow(10, 9);
-    float nvd = sd / sqrt(freq) * pow(10, 9);
+    // RMS is a mean. not a measure of variance.
+    // arithmetic mean and rms
 
-    usart_printf("freq %2f Hz, n %d, mean %7f, stddev*e6 %6f uV, vrms %f (V), nvd %f\n",
+    if(rms_ != m) {
+      usart_printf("not equal");
+    }
+
+    usart_printf("freq %2fHz, n %d, mean %7fV, stddev %6fuV, vrms %7fV\n",
       freq,
       sz,
-      mean( buf, sz),
+      m,
       sd * powf(10,6),
-      rms_,
-      nvd
+      rms_
     );
 
 }
@@ -200,8 +217,9 @@ void sys_tick_handler(void)
   }
 
 
-  if(system_millis % 100 == 0) {
-    adc_100ms();
+  if(system_millis % 1000 == 0) {
+
+    adc_tickcount(1000);
   }
 }
 
