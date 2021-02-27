@@ -18,6 +18,27 @@ static CBuf *output_buf = NULL;
 static CBuf *input_buf = NULL;
 
 
+
+void usart_setup_gpio_portB(void)
+{
+  // we moved usart 1 for stm32f410. to different pins, 
+  // PB6 = tx, PB7=rx
+  // still AF7
+  gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO6 | GPIO7);
+  gpio_set_af(GPIOB, GPIO_AF7, GPIO6 | GPIO7);
+  gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO7);
+}
+
+
+
+void usart_setup_gpio(void)
+{
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9 | GPIO10);
+  gpio_set_af(GPIOA, GPIO_AF7, GPIO9 | GPIO10);
+  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO10);
+}
+
+
 void usart_setup( CBuf *output, CBuf *input)
 {
   output_buf = output;
@@ -26,14 +47,15 @@ void usart_setup( CBuf *output, CBuf *input)
   //////
 
   nvic_enable_irq(NVIC_USART1_IRQ);
-  nvic_set_priority(NVIC_USART1_IRQ,  5 );    // value???
+  nvic_set_priority(NVIC_USART1_IRQ, 5);    // value???
 
+#if 0
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9 | GPIO10);
-
-
   gpio_set_af(GPIOA, GPIO_AF7, GPIO9 | GPIO10);
-
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO10);
+#endif
+
+
 
   usart_set_baudrate(USART1, 115200);
   usart_set_databits(USART1, 8);

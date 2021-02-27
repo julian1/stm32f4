@@ -3,6 +3,14 @@
 
 #include "buffer.h"
 
+
+
+
+
+
+void usart_setup_gpio(void);
+void usart_setup_gpio_portB(void);
+
 void usart_setup(CBuf *output, CBuf *input);
 
 void usart_output_update(void);
