@@ -31,7 +31,7 @@ void usart_setup_gpio_portB(void)
 
 
 
-void usart_setup_gpio(void)
+void usart_setup_gpio_portA(void)
 {
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9 | GPIO10);
   gpio_set_af(GPIOA, GPIO_AF7, GPIO9 | GPIO10);
@@ -39,12 +39,11 @@ void usart_setup_gpio(void)
 }
 
 
-void usart_setup( CBuf *output, CBuf *input)
+void usart_setup( CBuf *input, CBuf *output)
 {
-  output_buf = output;
   input_buf = input;
+  output_buf = output;
 
-  //////
 
   nvic_enable_irq(NVIC_USART1_IRQ);
   nvic_set_priority(NVIC_USART1_IRQ, 5);    // value???

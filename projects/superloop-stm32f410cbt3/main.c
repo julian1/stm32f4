@@ -89,8 +89,8 @@ void msleep(uint32_t delay)
 static char buf1[1000];
 static char buf2[1000];
 
-static CBuf console_out;
 static CBuf console_in;
+static CBuf console_out;
 
 
 
@@ -157,23 +157,19 @@ int main(void)
   rcc_periph_clock_enable(RCC_USART1);
 
 
-
-  cBufInit(&console_out, buf1, sizeof(buf1));
-  cBufInit(&console_in, buf2, sizeof(buf2));
+  cBufInit(&console_in, buf1, sizeof(buf1));
+  cBufInit(&console_out, buf2, sizeof(buf2));
 
 
   clock_setup();
   led_setup();
-
-
   usart_setup_gpio_portB();
-  usart_setup(&console_out, &console_in);
+  usart_setup(&console_in, &console_out);
 
   usart_printf("\n--------\n");
   usart_printf("starting\n");
   // usart_printf("size %d\n", sizeof(fbuf) / sizeof(float));
 
-#if 1
   while(true) {
 
     // EXTREME - can actually call update at any time, in a yield()...
@@ -183,10 +179,7 @@ int main(void)
     usart_input_update();
     usart_output_update();
   }
-#endif
 
-  // GPIOA not working ????
-    // gpio_clear(LED_PORT, LED_OUT);
 
 	for (;;);
 	return 0;
