@@ -17,12 +17,11 @@ SRCFILES	= main.c   \
 
 LDSCRIPT	= ${TOP}/cjmcu-407.ld
 
-
+TGT_CFLAGS	+= -I./
 TGT_CFLAGS	+= -I${LIBINC}
 TGT_CFLAGS	+= -I${RTOS}
 
 include ../../Makefile.incl
-include ../Makefile.rtos
 
 ######################################################################
 #  NOTES:

@@ -39,7 +39,7 @@ CFLAGS    += -Werror-implicit-function-declaration
 
 
 include ../../Makefile.incl
-include ../Makefile.rtos
+#include ../Makefile.rtos
 
 ######################################################################
 #  NOTES:
