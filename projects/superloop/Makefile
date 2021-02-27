@@ -3,34 +3,35 @@
 ######################################################################
 
 
-#X=../rtos/FreeRTOSv202012.00/FreeRTOS/Source/
-#XH=${X}/include
 
+
+TOP=../../
+LIB2SRC=${TOP}/lib2/src
+LIB2INC=${TOP}/lib2/include
 
 
 BINARY		= main
 SRCFILES	= main.c   \
-              ../lib2/src/miniprintf2.c ../lib2/src/usart2.c
-            
+              ${LIB2SRC}/buffer.c ${LIB2SRC}/miniprintf2.c ${LIB2SRC}/usart2.c
 
 
-LDSCRIPT	= ../../cjmcu-407.ld  # JA
+
+
+
+LDSCRIPT	= ${TOP}/cjmcu-407.ld
 
 
 TGT_CFLAGS  += -Wno-unused-function   \
               -Werror-implicit-function-declaration \
               -Werror
 
-#              -Wno-missing-prototypes
 
-#TGT_CFLAGS	+= -I./rtos  # in priority
-#TGT_CFLAGS	+= -I${XH}
+TGT_CFLAGS	+= -I${LIB2INC}
 
-TGT_CFLAGS	+= -I../lib2/include
 #LDLIBS		+= -lm
 
 
-include ../../Makefile.incl
+include ${TOP}/Makefile.incl
 
 ######################################################################
 #  NOTES:

@@ -10,29 +10,29 @@
 // #include <libopencm3/cm3/scb.h>
 
 #include <stddef.h> // size_t
+#include <math.h> // nanf
+
+#include <stdio.h>
 
 
-
+#include "buffer.h"
 #include "miniprintf2.h"
 #include "usart2.h"
-
-#define LED_PORT  GPIOE
-#define LED_OUT   GPIO15
+#include "util.h"
 
 
-static void critical_error_blink(void)
-{
-	for (;;) {
-		gpio_toggle(LED_PORT,LED_OUT);
-		for(uint32_t i = 0; i < 500000; ++i)
-       __asm__("nop");
-	}
-}
+
 
 
 
 
 ////////////////////////////////////////////////////////
+
+#define LED_PORT  GPIOE
+#define LED_OUT   GPIO15
+
+
+
 
 
 static void led_setup(void)
@@ -52,15 +52,6 @@ static volatile uint32_t system_millis;
 
 
 
-/* simple sleep for delay milliseconds */
-static void msleep(uint32_t delay)
-{
-  // TODO. review. don't think this works on wrap around
-  uint32_t wake = system_millis + delay;
-  while (wake > system_millis);
-}
-
-
 static void clock_setup(void)
 {
   /* clock rate / 168000 to get 1mS interrupt rate */
@@ -76,15 +67,66 @@ static void clock_setup(void)
 
 ////////////////////////////////////////////////////////
 
+// implement critical_error_blink() msleep() and usart_printf()
+// eg. rather than ioc/ dependency injection, just implement
+
+void critical_error_blink(void)
+{
+	for (;;) {
+		gpio_toggle(LED_PORT,LED_OUT);
+		for(uint32_t i = 0; i < 500000; ++i)
+       __asm__("nop");
+	}
+}
+
+
+void msleep(uint32_t delay)
+{
+  // TODO. review. don't think this works on wrap around
+  uint32_t wake = system_millis + delay;
+  while (wake > system_millis);
+}
 
 
 
-static A *console_out = NULL;
-static A *console_in = NULL;
+static char buf1[1000];
+static char buf2[1000];
+
+static CBuf console_out;
+static CBuf console_in;
+
+
+
+
+void usart_printf( const char *format, ... )
+{
+  // TODO rename to just printf... it's not the responsibiilty of user to know context
+  // can override the write, to do flush etc.
+	va_list args;
+
+	va_start(args,format);
+	internal_vprintf((void *)cBufWrite, &console_out, format,args);
+	va_end(args);
+}
+
+void flush( void)
+{
+  usart_sync_flush();
+}
+
+
+
 
 
 void sys_tick_handler(void)
 {
+  /*
+    this is an interupt. not sure how much work should do here.
+    albeit maybe its ok as dispatch point.
+
+    it will interrupt other stuff...
+
+  */
   // equivalent to a rtos software timer
   // we are in an interupt  context here... so don't do anything
   // NOTE. we could actually set a flag.  or a vector of functions to call..
@@ -93,28 +135,19 @@ void sys_tick_handler(void)
 
   system_millis++;
 
+
   // 500ms.
   if( system_millis % 500 == 0) {
 
     gpio_toggle(LED_PORT, LED_OUT);
   }
 
-
-  // one sec timer
-  if( system_millis % 1000 == 0) {
-
-    mini_printf( (void*)write, console_out, "whoot %d\n", system_millis);
-  }
-
 }
 
 
-/*
-  OK. EXTREME.
-    in a long func,
-    we need to wait for control to return to superloop to flush console output...
-    can call at anytime
-*/
+
+
+
 
 int main(void)
 {
@@ -126,28 +159,18 @@ int main(void)
   rcc_periph_clock_enable(RCC_USART1);
 
 
-  // rcc_periph_clock_enable(RCC_SYSCFG); // should only be needed for external interupts.
 
-
-  // initialize buffers
-  char buf1[1000];
-  struct A out;
-  console_out = &out;
-  init(console_out, buf1, sizeof(buf1));
-
-
-  char buf2[1000];
-  struct A in;
-  console_in = &in;
-  init(console_in, buf2, sizeof(buf2));
-
+  cBufInit(&console_out, buf1, sizeof(buf1));
+  cBufInit(&console_in, buf2, sizeof(buf2));
 
 
   led_setup();
-  usart_setup( console_out, console_in );
+  usart_setup(&console_out, &console_in);
   clock_setup();
 
-  mini_printf((void *)write, console_out, "starting\n");
+  usart_printf("\n--------\n");
+  usart_printf("starting\n");
+  // usart_printf("size %d\n", sizeof(fbuf) / sizeof(float));
 
   while(true) {
 
@@ -166,27 +189,4 @@ int main(void)
 
 
 
-
-#if 0
-
-static void led_update(void)
-{
-  bool state = (system_millis / 500)  % 2 == 0;
-  // TODO, check last state... to avoid resetting.
-  // bool state = (system_millis % 1000) > 500;
-  if(state) {
-    gpio_set(LED_PORT, LED_OUT);
-  } else {
-    gpio_clear(LED_PORT, LED_OUT);
-  }
-}
-#endif
-
-#if 0
-/* Getter function for the current time */
-static uint32_t mtime(void)
-{
-  return system_millis;
-}
-#endif
 
