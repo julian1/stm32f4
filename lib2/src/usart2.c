@@ -161,7 +161,13 @@ void usart_input_update()
     int32_t ch = cBufRead(input_buf);
     if(ch == -1)
       return;
-    // transfer to output buf
+
+    // echo, by transfering to output buf
+    // handle line return
+    if(ch == '\r') {
+      cBufWrite(output_buf, '\n');
+    }
+
     cBufWrite(output_buf, ch);
   }
 }
