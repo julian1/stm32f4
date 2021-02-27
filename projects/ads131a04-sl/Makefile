@@ -4,15 +4,19 @@
 
 
 
+TOP=../../
+LIB2SRC=${TOP}/lib2/src
+LIB2INC=${TOP}/lib2/include
+
+
+
 BINARY		= main
 SRCFILES	= main.c ads131a04.c  \
-              ../lib2/src/stats.c \
-              ../lib2/src/buffer.c \
-              ../lib2/src/miniprintf2.c ../lib2/src/usart2.c
+              ${LIB2SRC}/stats.c ${LIB2SRC}/buffer.c ${LIB2SRC}/miniprintf2.c ${LIB2SRC}/usart2.c
 
 
+LDSCRIPT	= ${TOP}/cjmcu-407.ld
 
-LDSCRIPT	= ../../cjmcu-407.ld  # JA
 
 
 TGT_CFLAGS  += -Wno-unused-function   \
@@ -22,12 +26,12 @@ TGT_CFLAGS  += -Wno-unused-function   \
 #              -Wno-missing-prototypes
 
 
-TGT_CFLAGS	+= -I../lib2/include
+TGT_CFLAGS	+= -I${LIB2INC}
 
 LDLIBS		+= -lm
 
 
-include ../../Makefile.incl
+include ${TOP}/Makefile.incl
 
 ######################################################################
 #  NOTES:
