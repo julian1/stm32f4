@@ -26,6 +26,10 @@
 #define LED_OUT   GPIO15
 
 
+void vApplicationStackOverflowHook(void)
+{
+
+}
 
 
 

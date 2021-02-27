@@ -1,19 +1,24 @@
-######################################################################
+#####################################################################
 #  Project Makefile
 ######################################################################
 
+
+
+TOP=../../
+RTOS=${TOP}/rtos/rtos_v9
+LIBSRC=${TOP}/lib/src
+
 BINARY		= main
 SRCFILES	= main.c   \
-            ../rtos/heap_4.c ../rtos/list.c ../rtos/port.c ../rtos/queue.c ../rtos/tasks.c ../rtos/opencm3.c \
-            ../lib/src/serial.c ../lib/src/sleep.c ../lib/src/usart.c \
-            ../lib/src/miniprintf.c \
+            ${RTOS}/heap_4.c ${RTOS}/list.c ${RTOS}/port.c ${RTOS}/queue.c ${RTOS}/tasks.c ${RTOS}/opencm3.c \
+            ${LIBSRC}/serial.c ${LIBSRC}/sleep.c ${LIBSRC}/usart.c ${LIBSRC}/miniprintf.c \
 
-#LDSCRIPT	= stm32f103c8t6.ld
+
 LDSCRIPT	= ../../cjmcu-407.ld  # JA
 
 
-TGT_CFLAGS	+= -I../lib/include
-TGT_CFLAGS	+= -I../rtos
+TGT_CFLAGS	+= -I${LIBSRC}/../include
+TGT_CFLAGS	+= -I${RTOS}
 
 include ../../Makefile.incl
 include ../Makefile.rtos
