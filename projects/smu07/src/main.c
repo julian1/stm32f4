@@ -77,6 +77,14 @@ TODO
 
 
 
+void vApplicationStackOverflowHook(void)
+{
+  // FIXME
+
+}
+
+
+
 
 static void rails_wait_for_voltage(void)
 {

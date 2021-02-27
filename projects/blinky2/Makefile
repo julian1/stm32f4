@@ -7,6 +7,7 @@
 TOP=../../
 RTOS=${TOP}/rtos/rtos_v9
 LIBSRC=${TOP}/lib/src
+LIBINC=${TOP}/lib/include
 
 BINARY		= main
 SRCFILES	= main.c   \
@@ -14,10 +15,10 @@ SRCFILES	= main.c   \
             ${LIBSRC}/serial.c ${LIBSRC}/sleep.c ${LIBSRC}/usart.c ${LIBSRC}/miniprintf.c \
 
 
-LDSCRIPT	= ../../cjmcu-407.ld  # JA
+LDSCRIPT	= ${TOP}/cjmcu-407.ld
 
 
-TGT_CFLAGS	+= -I${LIBSRC}/../include
+TGT_CFLAGS	+= -I${LIBINC}
 TGT_CFLAGS	+= -I${RTOS}
 
 include ../../Makefile.incl

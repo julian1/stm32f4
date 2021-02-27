@@ -2,21 +2,34 @@
 #  Project Makefile
 ######################################################################
 
+
+
+TOP=../../
+RTOS=${TOP}/rtos/rtos_v9
+LIBSRC=${TOP}/lib/src
+LIBINC=${TOP}/lib/include
+
+
+
 BINARY		= main
 
 
 SRCFILES	= src/main.c src/dac8734.c src/ref.c src/rails.c   \
              src/led.c src/mcu_adc.c src/slope_adc.c src/pvd.c  \
-            ../lib/src/serial.c ../lib/src/sleep.c ../lib/src/usart.c \
-            ../lib/src/miniprintf.c \
-            ../rtos/heap_4.c ../rtos/list.c ../rtos/port.c ../rtos/queue.c ../rtos/tasks.c ../rtos/opencm3.c
+            ${LIBSRC}/serial.c ${LIBSRC}/sleep.c ${LIBSRC}/usart.c ${LIBSRC}/miniprintf.c \
+            ${RTOS}/heap_4.c ${RTOS}/list.c ${RTOS}/port.c ${RTOS}/queue.c ${RTOS}/tasks.c ${RTOS}/opencm3.c
 
-#LDSCRIPT	= stm32f103c8t6.ld
-LDSCRIPT	= ../../cjmcu-407.ld  # JA
+
+LDSCRIPT	= ${TOP}/cjmcu-407.ld
+
 
 TGT_CFLAGS	+= -I./include
-TGT_CFLAGS	+= -I../lib/include
-TGT_CFLAGS	+= -I../rtos
+TGT_CFLAGS	+= -I${LIBINC}
+TGT_CFLAGS	+= -I${RTOS}
+
+#TGT_CFLAGS	+= -I./include
+#TGT_CFLAGS	+= -I../lib/include
+#TGT_CFLAGS	+= -I../rtos
 
 # JA
 CFLAGS    += -Wno-unused-function
