@@ -27,9 +27,6 @@ TGT_CFLAGS	+= -I./include
 TGT_CFLAGS	+= -I${LIBINC}
 TGT_CFLAGS	+= -I${RTOS}
 
-#TGT_CFLAGS	+= -I./include
-#TGT_CFLAGS	+= -I../lib/include
-#TGT_CFLAGS	+= -I../rtos
 
 # JA
 CFLAGS    += -Wno-unused-function
