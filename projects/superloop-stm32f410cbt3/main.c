@@ -10,9 +10,8 @@
 // #include <libopencm3/cm3/scb.h>
 
 #include <stddef.h> // size_t
-#include <math.h> // nanf
-
-#include <stdio.h>
+//#include <math.h> // nanf
+//#include <stdio.h>
 
 
 #include "buffer.h"
@@ -148,6 +147,12 @@ void sys_tick_handler(void)
 
 int main(void)
 {
+  // high speed internal!!!
+  // this appears to work... 1Hz clock goes to 5Hz.
+  // although should be able to go to 100MHz.
+  rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_3V3_84MHZ ]); 
+
+
   // LED
   rcc_periph_clock_enable(RCC_GPIOA);
 
