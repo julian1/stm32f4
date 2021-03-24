@@ -1,7 +1,9 @@
 
 /*
   Actually better approach is just,
-    leave interrupt unenabled, until item is written, then reinit the interrupt.
+    leave interrupt unenabled, until item is written (mem + index update), then reenable the interrupt.
+
+    this avoids a double interupt.
 
     this doesn't get and put at the same time but ought to be enough. 
     also write the value before updating the index.
@@ -56,6 +58,7 @@ float fBufRead(FBuf *a)
   if(a->ri == a->wi)
     return -999999999;  // MAX_FLOAT?
 
+  // read then update index. - but could be reordered by compiler
   float ret = (a->p)[a->ri];
   a->ri = (a->ri + 1) % a->sz;
 
@@ -88,7 +91,7 @@ int32_t cBufRead(CBuf *a)
   if(a->ri == a->wi)
     return -1;
 
-  // read then update index.
+  // read then update index. - but could be reordered by compiler
   char ret = (a->p)[ a->ri];
   a->ri = (a->ri + 1) % a->sz;
 
