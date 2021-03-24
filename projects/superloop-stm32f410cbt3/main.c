@@ -101,7 +101,7 @@ void usart_printf( const char *format, ... )
 	va_list args;
 
 	va_start(args,format);
-	internal_vprintf((void *)cBufWrite, &console_out, format,args);
+	internal_vprintf((void *)cBufPut, &console_out, format,args);
 	va_end(args);
 }
 

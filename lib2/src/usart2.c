@@ -86,7 +86,7 @@ void usart1_isr(void)
     char ch = usart_recv(USART1);
 
     // write the input buffer
-    cBufWrite(input_buf, ch);
+    cBufPut(input_buf, ch);
   }
 
   return ;
@@ -111,7 +111,7 @@ void usart_output_update()
       return;
 
     // check for output to flush...
-    int32_t ch = cBufRead(output_buf);
+    int32_t ch = cBufPop(output_buf);
     if(ch == -1)
       return;
 
@@ -136,7 +136,7 @@ void usart_sync_flush()
   while(true) {
 
     // check for output to flush...
-    int32_t ch = cBufRead(output_buf);
+    int32_t ch = cBufPop(output_buf);
     if(ch == -1)
       return;
 
@@ -158,17 +158,17 @@ void usart_input_update()
   while(true) {
 
     // read input buf
-    int32_t ch = cBufRead(input_buf);
+    int32_t ch = cBufPop(input_buf);
     if(ch == -1)
       return;
 
     // echo, by transfering to output buf
     // handle line return
     if(ch == '\r') {
-      cBufWrite(output_buf, '\n');
+      cBufPut(output_buf, '\n');
     }
 
-    cBufWrite(output_buf, ch);
+    cBufPut(output_buf, ch);
   }
 }
 

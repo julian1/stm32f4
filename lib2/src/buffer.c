@@ -37,7 +37,7 @@ void fBufInit(FBuf *a, float *p, size_t sz)
   a->ri = 0;
 }
 
-void fBufWrite(FBuf *a, float val)
+void fBufPut(FBuf *a, float val)
 {
   // update val, then increment index
   (a->p)[ a->wi] = val;
@@ -52,7 +52,7 @@ bool fBufEmpty(FBuf *a)
 }
 
 
-float fBufRead(FBuf *a)
+float fBufPop(FBuf *a)
 {
   // THIS AINT MUCH GOOD.... need a separate isEmpty...
   if(a->ri == a->wi)
@@ -79,13 +79,13 @@ void cBufInit(CBuf *a, char *p, size_t sz)
   a->ri = 0;
 }
 
-void cBufWrite(CBuf *a, char val)
+void cBufPut(CBuf *a, char val)
 {
   (a->p)[ a->wi] = val;
   a->wi = (a->wi + 1) % a->sz;
 }
 
-int32_t cBufRead(CBuf *a)
+int32_t cBufPop(CBuf *a)
 {
   // sentinal value...
   if(a->ri == a->wi)

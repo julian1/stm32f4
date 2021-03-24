@@ -17,9 +17,9 @@ typedef struct FBuf
 
 
 void fBufInit(FBuf *a, float *p, size_t sz);
-void fBufWrite(FBuf *a, float val);
+void fBufPut(FBuf *a, float val);
 bool fBufEmpty(FBuf *a);
-float fBufRead(FBuf *a);
+float fBufPop(FBuf *a);
 
 /////////
 
@@ -35,8 +35,8 @@ typedef struct CBuf
 
 
 void cBufInit(CBuf *a, char *p, size_t sz);
-void cBufWrite(CBuf *a, char val);
-int32_t cBufRead(CBuf *a);
+void cBufPut(CBuf *a, char val);
+int32_t cBufPop(CBuf *a);
 
 
 #endif
