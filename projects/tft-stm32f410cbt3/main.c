@@ -141,7 +141,6 @@ void sys_tick_handler(void)
     albeit maybe its ok as dispatch point.
 
     it will interrupt other stuff...
-
   */
   // equivalent to a rtos software timer
   // we are in an interupt  context here... so don't do anything
@@ -154,16 +153,15 @@ void sys_tick_handler(void)
 
   // 100ms.
   if( system_millis % 100 == 0) {
-
+      // print rotary encoder
       int count = timer_get_counter(TIM1);
-
-      usart_printf("count.. %d\n", count);
+      usart_printf("rotary count.. %d\n", count);
   }
 
 
   // 500ms.
   if( system_millis % 500 == 0) {
-
+    // blink led
     gpio_toggle(LED_PORT, LED_OUT);
   }
 
