@@ -150,7 +150,7 @@ int main(void)
   // high speed internal!!!
   // this appears to work... 1Hz clock goes to 5Hz.
   // although should be able to go to 100MHz.
-  rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_3V3_84MHZ ]); 
+  // rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_3V3_84MHZ ]); 
 
 
   // LED
