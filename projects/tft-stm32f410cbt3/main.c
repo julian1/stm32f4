@@ -148,6 +148,16 @@ void sys_tick_handler(void)
 
 
 
+static void drawText(Context *ctx, const char *s) 
+{
+  while(*s) {
+    write(ctx, *s);     // This won't work very well with printf if have to pass a context...
+    ++s;
+  }
+}
+
+
+
 
 static void lcd_do_stuff(void)
 {
@@ -163,7 +173,7 @@ static void lcd_do_stuff(void)
   fillScreen(&ctx, ILI9341_WHITE );
   fillRect(&ctx, 20, 20, 40, 20, ILI9341_RED );
 
-#if 0
+#if 1
   writeFastHLine(&ctx, 50, 40, 100, ILI9341_BLUE);
 
   writeLine(&ctx, 10, 10, 190, 70, ILI9341_RED);
