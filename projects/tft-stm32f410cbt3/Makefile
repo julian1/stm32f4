@@ -11,7 +11,7 @@ LIB2INC=${TOP}/lib2/include
 
 
 BINARY		= main
-SRCFILES	= main.c lcd_spi.c context.c gfx.c  \
+SRCFILES	= main.c lcd_spi.c context.c gfx.c rotary.c \
               ${LIB2SRC}/buffer.c ${LIB2SRC}/miniprintf2.c ${LIB2SRC}/usart2.c
 
 

@@ -7,6 +7,9 @@
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/systick.h>
 
+
+#include <libopencm3/stm32/timer.h>
+
 // #include <libopencm3/cm3/scb.h>
 
 #include <stddef.h> // size_t
@@ -26,6 +29,7 @@
 #include "Adafruit_ILI9341.h"
 
 
+#include "rotary.h"
 
 
 ////////////////////////////////////////////////////////
@@ -91,7 +95,12 @@ void msleep(uint32_t delay)
 {
   // TODO. review. don't think this works on wrap around
   uint32_t wake = system_millis + delay;
-  while (wake > system_millis);
+  if(wake < delay) {
+
+    // wait for overflow
+    while (system_millis > (UINT32_MAX / 2));
+  }
+  while (system_millis < wake);
 }
 
 
@@ -143,6 +152,15 @@ void sys_tick_handler(void)
   system_millis++;
 
 
+  // 100ms.
+  if( system_millis % 100 == 0) {
+
+      int count = timer_get_counter(TIM1);
+
+      usart_printf("count.. %d\n", count);
+  }
+
+
   // 500ms.
   if( system_millis % 500 == 0) {
 
@@ -153,7 +171,7 @@ void sys_tick_handler(void)
 
 
 
-static void drawText(Context *ctx, const char *s) 
+static void drawText(Context *ctx, const char *s)
 {
   while(*s) {
     write(ctx, *s);     // This won't work very well with printf if have to pass a context...
@@ -203,7 +221,7 @@ static void lcd_do_stuff(void)
 #endif
 
 }
- 
+
 
 
 
@@ -212,7 +230,7 @@ int main(void)
   // high speed internal!!!
   // this appears to work... 1Hz clock goes to 5Hz.
   // although should be able to go to 100MHz.
-  // rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_3V3_84MHZ ]); 
+  // rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_3V3_84MHZ ]);
 
   clock_setup(16000);
 
@@ -235,6 +253,20 @@ int main(void)
   led_setup();
   usart_setup_gpio_portB();
   usart_setup(&console_in, &console_out);
+
+  ///////////////////////
+  // rotary
+  // PA8,PA9 TIM1 (advanced)   AF1.
+  rcc_periph_clock_enable(RCC_TIM1);
+ 
+  // PA6 and PA7
+  // initRotaryEncoderTimer(TIM3, GPIOA, GPIO6, GPIO_AF2, GPIOA, GPIO7, GPIO_AF2) ;
+  initRotaryEncoderTimer(TIM1, GPIOA, GPIO8, GPIO_AF1, GPIOA, GPIO9, GPIO_AF1) ;
+
+  ///////////////////////
+
+
+
 
   usart_printf("\n--------\n");
   usart_printf("starting\n");
