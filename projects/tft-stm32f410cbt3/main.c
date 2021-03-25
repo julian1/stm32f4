@@ -22,6 +22,8 @@
 
 #include "lcd_spi.h"
 #include "context.h"
+#include "gfx.h"
+#include "Adafruit_ILI9341.h"
 
 
 
@@ -154,7 +156,6 @@ static void lcd_do_stuff(void)
   // low level
   initialize(&ctx);
 
-#if 0
   ILI9341_setRotation(&ctx, 3); // 0 == trhs, 1 == brhs, 2 == blhs,  3 == tlhs
 
 
@@ -162,6 +163,7 @@ static void lcd_do_stuff(void)
   fillScreen(&ctx, ILI9341_WHITE );
   fillRect(&ctx, 20, 20, 40, 20, ILI9341_RED );
 
+#if 0
   writeFastHLine(&ctx, 50, 40, 100, ILI9341_BLUE);
 
   writeLine(&ctx, 10, 10, 190, 70, ILI9341_RED);
