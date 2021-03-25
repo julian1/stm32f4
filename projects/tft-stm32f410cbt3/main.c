@@ -54,11 +54,15 @@ static volatile uint32_t system_millis;
 
 
 
-static void clock_setup(void)
+// static void clock_setup(void)
+static void clock_setup(uint32_t tick_divider)
 {
+  // TODO change name systick_setup().
+  // TODO pass clock reload divider as argument, to localize.
+
   /* clock rate / 168000 to get 1mS interrupt rate */
   // systick_set_reload(168000);
-  systick_set_reload(16000);
+  systick_set_reload(tick_divider);
   systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
   systick_counter_enable();
 
@@ -74,6 +78,7 @@ static void clock_setup(void)
 
 void critical_error_blink(void)
 {
+  // avoid passing arguments, consuming stack.
 	for (;;) {
 		gpio_toggle(LED_PORT,LED_OUT);
 		for(uint32_t i = 0; i < 500000; ++i)
@@ -209,6 +214,7 @@ int main(void)
   // although should be able to go to 100MHz.
   // rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_3V3_84MHZ ]); 
 
+  clock_setup(16000);
 
   // LED
   rcc_periph_clock_enable(RCC_GPIOA);
@@ -226,7 +232,6 @@ int main(void)
   cBufInit(&console_out, buf2, sizeof(buf2));
 
 
-  clock_setup();
   led_setup();
   usart_setup_gpio_portB();
   usart_setup(&console_in, &console_out);
