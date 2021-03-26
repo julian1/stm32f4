@@ -111,6 +111,7 @@ void msleep(uint32_t delay)
 
 
 
+
 static char buf1[1000];
 static char buf2[1000];
 
@@ -139,75 +140,7 @@ void flush( void)
 
 
 
-
-void sys_tick_handler(void)
-{
-  /*
-    this is an interupt. not sure how much work should do here.
-    albeit maybe its ok as dispatch point.
-
-    it will interrupt other stuff...
-  */
-  // equivalent to a rtos software timer
-  // we are in an interupt  context here... so don't do anything
-  // NOTE. we could actually set a flag.  or a vector of functions to call..
-  // and then process in main loop.
-  // eg. where things can be properly sequenced
-
-  system_millis++;
-
-
-  // 100ms.
-  if( system_millis % 100 == 0) {
-  }
-
-
-  // 500ms.
-  if( system_millis % 500 == 0) {
-    // blink led
-    gpio_toggle(LED_PORT, LED_OUT);
-  }
-
-}
-
-
-static void loop(void)
-{
-  static uint32_t buzzer_stop_millis = 0;
-
-  while(true) {
-
-    // EXTREME - can actually call update at any time, in a yield()...
-    // so long as we wrap calls with a mechanism to avoid stack reentrancy
-    // led_update(); in systick.
-
-    // stop buzzer?
-    if(system_millis > buzzer_stop_millis)    // wrap around
-      buzzer_disable();
-
-
-
-    // print rotary encoder
-    int count = timer_get_counter(TIM1);
-    static int last_count = 0;
-    if(count != last_count) {
-      last_count = count ;
-      usart_printf("rotary count.. %d\n", count);
-
-      // set buzzer
-      buzzer_enable();
-      buzzer_stop_millis = system_millis + 20;
-    }
-
-    // pump usart queues
-    usart_input_update();
-    usart_output_update();
-
-  }
-
-}
-
-
+////////////////////////////////////
 
 static void drawText(Context *ctx, const char *s)
 {
@@ -341,6 +274,75 @@ static void buzzer_disable(void )
 }
 
 /////////////////////////////
+
+
+
+void sys_tick_handler(void)
+{
+  /*
+    this is an interupt. not sure how much work should do here.
+    albeit maybe its ok as dispatch point.
+
+    it will interrupt other stuff...
+  */
+  // equivalent to a rtos software timer
+  // we are in an interupt  context here... so don't do anything
+  // NOTE. we could actually set a flag.  or a vector of functions to call..
+  // and then process in main loop.
+  // eg. where things can be properly sequenced
+
+  system_millis++;
+
+
+  // 100ms.
+  if( system_millis % 100 == 0) {
+  }
+
+
+  // 500ms.
+  if( system_millis % 500 == 0) {
+    // blink led
+    gpio_toggle(LED_PORT, LED_OUT);
+  }
+
+}
+
+
+static void loop(void)
+{
+  static uint32_t buzzer_stop_millis = 0;
+
+  while(true) {
+
+    // EXTREME - can actually call update at any time, in a yield()...
+    // so long as we wrap calls with a mechanism to avoid stack reentrancy
+    // led_update(); in systick.
+
+    // stop buzzer?
+    if(system_millis > buzzer_stop_millis)    // wrap around
+      buzzer_disable();
+
+
+
+    // print rotary encoder
+    int count = timer_get_counter(TIM1);
+    static int last_count = 0;
+    if(count != last_count) {
+      last_count = count ;
+      usart_printf("rotary count.. %d\n", count);
+
+      // set buzzer
+      buzzer_enable();
+      buzzer_stop_millis = system_millis + 20;
+    }
+
+    // pump usart queues
+    usart_input_update();
+    usart_output_update();
+
+  }
+
+}
 
 
 
