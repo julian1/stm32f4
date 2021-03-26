@@ -159,7 +159,11 @@ void sys_tick_handler(void)
   if( system_millis % 100 == 0) {
       // print rotary encoder
       int count = timer_get_counter(TIM1);
-      usart_printf("rotary count.. %d\n", count);
+      static int last_count = 0;
+      if(count != last_count) {
+        usart_printf("rotary count.. %d\n", count);
+        last_count = count ;
+      }
   }
 
 
@@ -257,7 +261,62 @@ void exti15_10_isr(void)
   usart_printf("button pressed\n");
 }
 
+
+
+
 ////////////////////////////////////
+
+// buzzer.
+// TIM5  ch1.
+
+static void buzzer_setup(void )
+{
+  // HMMMMM...
+
+  usart_printf("buzzer setup\n");
+
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO0 );
+  gpio_set_af(GPIOA, GPIO_AF2, GPIO0 ); // AF1 == timer.
+  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, GPIO0 ); // 50is faster than 100? no. same speed
+
+
+#if 1
+
+  rcc_periph_reset_pulse(RST_TIM5);   // is this needed
+
+
+  timer_set_prescaler(TIM5, 16 );  // 1MHz.  
+
+  timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);
+
+  timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_PWM2);
+  timer_enable_oc_output(TIM5, TIM_OC1);
+  timer_enable_break_main_output(TIM5);
+  timer_set_oc_value(TIM5, TIM_OC1, 50000000);   // ok. we set this value high... and it delays going high...
+                                                  // about 10 seconds.
+
+
+  timer_enable_preload(TIM5);
+
+  /// added
+  // timer_continuous_mode(TIM5 );  // add  // OK. it made a slight noise.
+  // timer_set_repetition_counter(TIM5, 0);
+  // timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_TOGGLE);
+
+
+  timer_set_period(TIM5, 10000000);   // 1000Hz
+  timer_enable_counter(TIM5);
+
+  
+  // ok. enabling timer. makes it go high....
+  // IMPORTANT....
+  // some issue because advanced timer?
+#endif
+
+}
+
+
+
 
 
 int main(void)
@@ -284,7 +343,8 @@ int main(void)
   cBufInit(&console_in, buf1, sizeof(buf1));
   cBufInit(&console_out, buf2, sizeof(buf2));
 
-
+  /////////////////
+  // tft
   led_setup();
   usart_setup_gpio_portB();
   usart_setup(&console_in, &console_out);
@@ -296,9 +356,17 @@ int main(void)
   initRotaryEncoderTimer(TIM1, GPIOA, GPIO8, GPIO_AF1, GPIOA, GPIO9, GPIO_AF1) ;
 
   ///////////////////////
-
+  // rotary sw
   rotary_sw_exti_setup();
 
+
+  ///////////////////////
+  // buzzer
+
+  rcc_periph_clock_enable(RCC_TIM5);
+  buzzer_setup();
+
+  ////////////////////
 
 
   usart_printf("\n--------\n");
