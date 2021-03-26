@@ -203,13 +203,12 @@ static void rotary_sw_exti_setup(void)
   // rotary switch is PA10
   // *** EXTI10  needs to be macroed... so not much point defining all this
 
-  // gpio_mode_setup(ADC_GPIO_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, in );
+
   gpio_mode_setup(ROTARY_SW_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ROTARY_SW_IN );
 
   nvic_enable_irq(NVIC_EXTI15_10_IRQ);
   nvic_set_priority(NVIC_EXTI15_10_IRQ, 5 );
 
-  // exti_select_source(EXTI10, ADC_GPIO_PORT);
   exti_select_source(EXTI10, ROTARY_SW_PORT);
 
   exti_set_trigger(EXTI10, EXTI_TRIGGER_FALLING);
@@ -218,13 +217,55 @@ static void rotary_sw_exti_setup(void)
 
 
 
+
+
+
+////////////////////////////////////
+#define TACTILE_SW_PORT  GPIOB
+#define TACTILE_SW1_IN    GPIO13
+#define TACTILE_SW2_IN    GPIO14
+
+
+static void tactile_sw_exti_setup(void)
+{
+  // MUST be careful. to keep interupts on different pin numbers - when using more than one port.
+  // eg. cannot get interrupts on both PA10 and PB10.
+
+  uint16_t all = TACTILE_SW1_IN | TACTILE_SW2_IN;
+
+  gpio_mode_setup(TACTILE_SW_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, all );
+
+  // WARN. this is already setup in the rotary
+  // this needs much better factoring.
+  nvic_enable_irq(NVIC_EXTI15_10_IRQ);
+  nvic_set_priority(NVIC_EXTI15_10_IRQ, 5 );
+
+  // works.
+  exti_select_source(all, TACTILE_SW_PORT);
+  exti_set_trigger(all, EXTI_TRIGGER_FALLING);
+  exti_enable_request(all);
+}
+
+
+
 void exti15_10_isr(void)
 {
+  // need to decode...
+
+  // rotary sw.
   exti_reset_request(EXTI10);
 
+  // tactile switches
+  exti_reset_request(EXTI14);
+  exti_reset_request(EXTI13);
+
   // should be in super loop, actually it is very light, just enqueues
-  usart_printf("button pressed\n");
+  usart_printf("interupt button pressed\n");
 }
+
+
+
+
 
 
 
@@ -312,6 +353,10 @@ static void loop(void)
 {
   static uint32_t buzzer_stop_millis = 0;
 
+  //static uint16_t last_sw = 0;
+
+  static int last_rotary_count = 0;
+
   while(true) {
 
     // EXTREME - can actually call update at any time, in a yield()...
@@ -322,13 +367,19 @@ static void loop(void)
     if(system_millis > buzzer_stop_millis)    // wrap around
       buzzer_disable();
 
-
+    /*
+    // tactile switch
+    uint16_t sw = gpio_get( TACTILE_SW_PORT, TACTILE_SW1_IN | TACTILE_SW2_IN) ;
+    if(sw != last_sw) {
+      last_sw = sw;
+      usart_printf("sw1 or sw2 changed .. %d\n", sw);
+    }
+    */
 
     // print rotary encoder
     int count = timer_get_counter(TIM1);
-    static int last_count = 0;
-    if(count != last_count) {
-      last_count = count ;
+    if(count != last_rotary_count) {
+      last_rotary_count = count ;
       usart_printf("rotary count.. %d\n", count);
 
       // set buzzer
@@ -356,8 +407,16 @@ int main(void)
 
   clock_setup(16000);
 
+
+
+  rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
+
+
   // LED
   rcc_periph_clock_enable(RCC_GPIOA);
+
+  // tactile switches
+  rcc_periph_clock_enable(RCC_GPIOB);
 
   // TFT
   rcc_periph_clock_enable(RCC_SPI1);
@@ -386,6 +445,9 @@ int main(void)
   ///////////////////////
   // rotary sw
   rotary_sw_exti_setup();
+
+  // tactile sw
+  tactile_sw_exti_setup();
 
 
   ///////////////////////
