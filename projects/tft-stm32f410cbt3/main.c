@@ -30,6 +30,10 @@
 
 
 #include "rotary.h"
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/stm32/exti.h>
+
+
 
 
 ////////////////////////////////////////////////////////
@@ -221,6 +225,39 @@ static void lcd_do_stuff(void)
 }
 
 
+////////////////////////////////////
+#define ROTARY_SW_PORT  GPIOA
+#define ROTARY_SW_IN    GPIO10
+
+static void rotary_sw_exti_setup(void)
+{
+  // rotary switch is PA10
+  // *** EXTI10  needs to be macroed... so not much point defining all this
+
+  // gpio_mode_setup(ADC_GPIO_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, in );
+  gpio_mode_setup(ROTARY_SW_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ROTARY_SW_IN );
+
+  nvic_enable_irq(NVIC_EXTI15_10_IRQ);
+  nvic_set_priority(NVIC_EXTI15_10_IRQ, 5 );
+
+  // exti_select_source(EXTI10, ADC_GPIO_PORT);
+  exti_select_source(EXTI10, ROTARY_SW_PORT);
+
+  exti_set_trigger(EXTI10, EXTI_TRIGGER_FALLING);
+  exti_enable_request(EXTI10);
+}
+
+
+
+void exti15_10_isr(void)
+{
+  exti_reset_request(EXTI10);
+
+  // should be in super loop, actually it is very light, just enqueues
+  usart_printf("button pressed\n");
+}
+
+////////////////////////////////////
 
 
 int main(void)
@@ -254,15 +291,13 @@ int main(void)
 
   ///////////////////////
   // rotary
-  // PA8,PA9 TIM1 (advanced)   AF1.
   rcc_periph_clock_enable(RCC_TIM1);
- 
-  // PA6 and PA7
-  // initRotaryEncoderTimer(TIM3, GPIOA, GPIO6, GPIO_AF2, GPIOA, GPIO7, GPIO_AF2) ;
+
   initRotaryEncoderTimer(TIM1, GPIOA, GPIO8, GPIO_AF1, GPIOA, GPIO9, GPIO_AF1) ;
 
   ///////////////////////
 
+  rotary_sw_exti_setup();
 
 
 
