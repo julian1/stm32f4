@@ -287,24 +287,25 @@ static void buzzer_setup(void )
 
   timer_set_prescaler(TIM5, 16 );  // 1MHz.  
 
+  timer_set_period(TIM5, 50000000 * 2 );   // 1000Hz
+
   timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);
 
   timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_PWM2);
   timer_enable_oc_output(TIM5, TIM_OC1);
   timer_enable_break_main_output(TIM5);
   timer_set_oc_value(TIM5, TIM_OC1, 50000000);   // ok. we set this value high... and it delays going high...
-                                                  // about 10 seconds.
+                                                  // about 5 seconds
 
 
   timer_enable_preload(TIM5);
 
   /// added
-  // timer_continuous_mode(TIM5 );  // add  // OK. it made a slight noise.
+  timer_continuous_mode(TIM5 );  // add  // OK. it made a slight noise.
   // timer_set_repetition_counter(TIM5, 0);
   // timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_TOGGLE);
 
 
-  timer_set_period(TIM5, 10000000);   // 1000Hz
   timer_enable_counter(TIM5);
 
   
