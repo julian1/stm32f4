@@ -43,6 +43,8 @@
 
 
 
+static void buzzer_enable(void );
+static void buzzer_disable(void );
 
 
 static void led_setup(void)
@@ -157,13 +159,6 @@ void sys_tick_handler(void)
 
   // 100ms.
   if( system_millis % 100 == 0) {
-      // print rotary encoder
-      int count = timer_get_counter(TIM1);
-      static int last_count = 0;
-      if(count != last_count) {
-        usart_printf("rotary count.. %d\n", count);
-        last_count = count ;
-      }
   }
 
 
@@ -171,6 +166,43 @@ void sys_tick_handler(void)
   if( system_millis % 500 == 0) {
     // blink led
     gpio_toggle(LED_PORT, LED_OUT);
+  }
+
+}
+
+
+static void loop(void)
+{
+  static uint32_t buzzer_stop_millis = 0;
+
+  while(true) {
+
+    // EXTREME - can actually call update at any time, in a yield()...
+    // so long as we wrap calls with a mechanism to avoid stack reentrancy
+    // led_update(); in systick.
+
+    // stop buzzer?
+    if(system_millis > buzzer_stop_millis)    // wrap around
+      buzzer_disable();
+
+
+
+    // print rotary encoder
+    int count = timer_get_counter(TIM1);
+    static int last_count = 0;
+    if(count != last_count) {
+      last_count = count ;
+      usart_printf("rotary count.. %d\n", count);
+
+      // set buzzer
+      buzzer_enable();
+      buzzer_stop_millis = system_millis + 20;
+    }
+
+    // pump usart queues
+    usart_input_update();
+    usart_output_update();
+
   }
 
 }
@@ -269,6 +301,9 @@ void exti15_10_isr(void)
 // buzzer.
 // TIM5  ch1.
 
+// OK. drain voltage isn't changing. need to check fet.
+// also polarity of buzzer.
+
 static void buzzer_setup(void )
 {
   // HMMMMM...
@@ -280,42 +315,32 @@ static void buzzer_setup(void )
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, GPIO0 ); // 50is faster than 100? no. same speed
 
 
-#if 1
 
   rcc_periph_reset_pulse(RST_TIM5);   // is this needed
 
-
-  timer_set_prescaler(TIM5, 16 );  // 1MHz.  
-
-  timer_set_period(TIM5, 50000000 * 2 );   // 1000Hz
+  timer_set_prescaler(TIM5, 20);  // 1MHz.
 
   timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);
-
   timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_PWM2);
   timer_enable_oc_output(TIM5, TIM_OC1);
   timer_enable_break_main_output(TIM5);
-  timer_set_oc_value(TIM5, TIM_OC1, 50000000);   // ok. we set this value high... and it delays going high...
-                                                  // about 5 seconds
-
-
-  timer_enable_preload(TIM5);
-
-  /// added
-  timer_continuous_mode(TIM5 );  // add  // OK. it made a slight noise.
-  // timer_set_repetition_counter(TIM5, 0);
-  // timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_TOGGLE);
-
-
-  timer_enable_counter(TIM5);
-
-  
-  // ok. enabling timer. makes it go high....
-  // IMPORTANT....
-  // some issue because advanced timer?
-#endif
-
+  timer_set_oc_value(TIM5, TIM_OC1, 500);
+  timer_set_period(TIM5, 1000);
+  // timer_enable_counter(TIM5);
 }
 
+
+static void buzzer_enable(void )
+{
+  timer_enable_counter(TIM5);
+}
+
+static void buzzer_disable(void )
+{
+  timer_disable_counter(TIM5);
+}
+
+/////////////////////////////
 
 
 
@@ -382,16 +407,7 @@ int main(void)
   usart_printf("doing lcd_do_stuff()\n");
   lcd_do_stuff();
 
-  while(true) {
-
-    // EXTREME - can actually call update at any time, in a yield()...
-    // so long as we wrap calls with a mechanism to avoid stack reentrancy
-    // led_update(); in systick.
-
-    usart_input_update();
-    usart_output_update();
-  }
-
+  loop();
 
 	for (;;);
 	return 0;
