@@ -235,7 +235,7 @@ static void tactile_sw_exti_setup(void)
 
   gpio_mode_setup(TACTILE_SW_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, all );
 
-  // WARN. this is already setup in the rotary
+  // WARN. this is already setup/repeated in the rotary decoder exti setup.
   // this needs much better factoring.
   nvic_enable_irq(NVIC_EXTI15_10_IRQ);
   nvic_set_priority(NVIC_EXTI15_10_IRQ, 5 );
@@ -251,6 +251,7 @@ static void tactile_sw_exti_setup(void)
 void exti15_10_isr(void)
 {
   // need to decode...
+  // eg. exti_reset_request(EXTI10 | TACTILE_SW1_IN | TACTILE_SW2_IN);
 
   // rotary sw.
   exti_reset_request(EXTI10);
@@ -377,6 +378,8 @@ static void loop(void)
     */
 
     // print rotary encoder
+    // IMPORTANT - should be able to sign extend
+    // to get negative values... get_counter returns 16 or 32 bit?
     int count = timer_get_counter(TIM1);
     if(count != last_rotary_count) {
       last_rotary_count = count ;
