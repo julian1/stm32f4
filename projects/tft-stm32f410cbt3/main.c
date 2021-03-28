@@ -436,6 +436,8 @@ int main(void)
   /////////////////
   // tft
   led_setup();
+
+  // TODO move these up, under usart.
   usart_setup_gpio_portB();
   usart_setup(&console_in, &console_out);
 

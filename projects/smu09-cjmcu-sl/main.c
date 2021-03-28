@@ -188,27 +188,29 @@ int main(void)
   clock_setup(16000);
 
 
-
+  // clocks
   rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
-
 
   // LED
   rcc_periph_clock_enable(RCC_GPIOE);
-  rcc_periph_clock_enable(RCC_GPIOD);
-  rcc_periph_clock_enable(RCC_GPIOA);
 
+  // USART
+  rcc_periph_clock_enable(RCC_GPIOA);     // f407
+  // rcc_periph_clock_enable(RCC_GPIOB); // F410
+  rcc_periph_clock_enable(RCC_USART1);
+
+
+  //////////////////////
+  // setup
+
+  // let
   led_setup();
 
 
-  gpio_set(LED_PORT, LED_OUT);
-
-  // USART
-  // rcc_periph_clock_enable(RCC_GPIOA);
-  rcc_periph_clock_enable(RCC_GPIOB); // F410
-  rcc_periph_clock_enable(RCC_USART1);
-
+  // usart
   cBufInit(&console_in, buf1, sizeof(buf1));
   cBufInit(&console_out, buf2, sizeof(buf2));
+  usart_setup_gpio_portA();
   usart_setup(&console_in, &console_out);     // gahhh... we have to change this each time...
 
 
