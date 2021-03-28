@@ -51,8 +51,8 @@ static volatile uint32_t system_millis;
 
 
 
-// static void clock_setup(void)
-static void clock_setup(uint32_t tick_divider)
+// static void systick_setup(void)
+static void systick_setup(uint32_t tick_divider)
 {
   // TODO change name systick_setup().
   // TODO pass clock reload divider as argument, to localize.
@@ -181,11 +181,8 @@ static void loop(void)
 int main(void)
 {
   // high speed internal!!!
-  // this appears to work... 1Hz clock goes to 5Hz.
-  // although should be able to go to 100MHz.
-  // rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_3V3_84MHZ ]);
 
-  clock_setup(16000);
+  systick_setup(16000);
 
 
   // clocks
@@ -203,7 +200,7 @@ int main(void)
   //////////////////////
   // setup
 
-  // let
+  // led
   led_setup();
 
 

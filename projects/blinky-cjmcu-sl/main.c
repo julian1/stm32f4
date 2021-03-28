@@ -50,8 +50,7 @@ static void led_setup(void)
 static volatile uint32_t system_millis;
 
 
-
-// static void clock_setup(void)
+// TODO change name  systick_setup()
 static void clock_setup(uint32_t tick_divider)
 {
   // TODO change name systick_setup().
