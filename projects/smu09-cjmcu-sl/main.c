@@ -209,7 +209,7 @@ int main(void)
 
   cBufInit(&console_in, buf1, sizeof(buf1));
   cBufInit(&console_out, buf2, sizeof(buf2));
-  usart_setup(&console_in, &console_out);
+  usart_setup(&console_in, &console_out);     // gahhh... we have to change this each time...
 
 
   ////////////////////
