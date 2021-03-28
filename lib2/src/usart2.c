@@ -26,7 +26,8 @@ void usart_setup_gpio_portB(void)
   // still AF7
   gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO6 | GPIO7);
   gpio_set_af(GPIOB, GPIO_AF7, GPIO6 | GPIO7);
-  gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO7);
+  //gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO7);
+  gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO6);
 }
 
 
@@ -38,7 +39,8 @@ void usart_setup_gpio_portA(void)
   gpio_set_af(GPIOA, GPIO_AF7, GPIO9 | GPIO10);
 
   // TODO. REVIEW think this should be GPIO9...
-  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO10);
+  // gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO10);
+  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO9);
 }
 
 
