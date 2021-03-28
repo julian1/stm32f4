@@ -18,6 +18,7 @@ static CBuf *output_buf = NULL;
 static CBuf *input_buf = NULL;
 
 
+// TODO change name usart1_setup_portB  
 
 void usart_setup_gpio_portB(void)
 {
@@ -31,6 +32,8 @@ void usart_setup_gpio_portB(void)
 }
 
 
+// TODO change name usart1_setup_portA
+// Actually maybe better to pass the arguments...
 
 void usart_setup_gpio_portA(void)
 {

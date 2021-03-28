@@ -13,6 +13,8 @@
 
 #include <libopencm3/stm32/timer.h>
 
+#include <libopencm3/stm32/spi.h>
+
 // #include <libopencm3/cm3/scb.h>
 
 #include <stddef.h> // size_t
@@ -126,6 +128,17 @@ void flush( void)
 
 
 
+//////////////////////////
+
+#define SPI_ICE40       SPI1
+
+#define SPI_ICE40_PORT  GPIOA
+#define SPI_ICE40_CLK   GPIO5
+#define SPI_ICE40_CS    GPIO4
+#define SPI_ICE40_MOSI  GPIO7
+#define SPI_ICE40_MISO  GPIO6
+
+
 
 void sys_tick_handler(void)
 {
@@ -153,6 +166,11 @@ void sys_tick_handler(void)
   if( system_millis % 500 == 0) {
     // blink led
     gpio_toggle(LED_PORT, LED_OUT);
+
+
+    // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_CLK);
+    // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_CS);
+    // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_MOSI );
   }
 
 }
@@ -176,6 +194,111 @@ static void loop(void)
 }
 
 
+#if 0
+void dac_setup_spi( void )
+{
+  // TODO change name. just dac_setup...  spi is given.
+
+  uint32_t all = DAC_CLK | DAC_MOSI | DAC_MISO | DAC_CS;
+
+  usart_printf("dac setup spi\n");
+
+  // spi alternate function
+
+  // TODO // don't refer to GPIOA
+
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
+
+  // OK.. THIS MADE SPI WORK AGAIN....
+  // note, need harder edges for signal integrity. or else different speed just helps suppress parasitic components
+  // see, https://www.eevblog.com/forum/microcontrollers/libopencm3-stm32l100rc-discovery-and-spi-issues/
+  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, all);
+
+  // af 5
+  gpio_set_af(GPIOA, GPIO_AF5, all);
+
+  // rcc_periph_clock_enable(RCC_SPI1);
+  spi_init_master(
+    DAC_SPI,
+    SPI_CR1_BAUDRATE_FPCLK_DIV_4,     // SPI_CR1_BAUDRATE_FPCLK_DIV_256,
+    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,  // SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE ,
+    SPI_CR1_CPHA_CLK_TRANSITION_2,    // 2 == falling edge (from dac8734 doc.
+    SPI_CR1_DFF_8BIT,
+    SPI_CR1_MSBFIRST                  // SPI_CR1_LSBFIRST
+  );
+
+  spi_disable_software_slave_management( DAC_SPI );
+  spi_enable_ss_output(DAC_SPI);
+
+  // ************
+  // TODO remove. this should be enabled in use... m
+  spi_enable(DAC_SPI);
+
+  ///////////////
+
+  // should set a reasonable state before enabling...
+
+  // internal pu, doesn't change anything - because its powered off, and starts up high-Z.
+  gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC /*| DAC_UNIBIPA | DAC_UNIBIPB */);
+  gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 ); // these are open-drain as inputs
+
+  usart_printf("dac setup spi done\n");
+}
+#endif
+
+
+/*
+#define SPI_ICE40_PORT  GPIOA
+#define SPI_ICE40_CLK   GPIO5
+#define SPI_ICE40_CS    GPIO4
+#define SPI_ICE40_MOSI  GPIO7
+#define SPI_ICE40_MISO  GPIO6
+*/
+
+    // gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all );
+
+static void spi1_ice40_setup(void)
+{
+  uint16_t out = SPI_ICE40_CLK | SPI_ICE40_CS | SPI_ICE40_MOSI ; // not MISO 
+  uint16_t all = out |  SPI_ICE40_MISO;
+
+
+  // rcc_periph_clock_enable(RCC_SPI1);
+
+  gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
+  gpio_set_af(SPI_ICE40_PORT, GPIO_AF5, all); // af 5
+  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out);
+
+
+  spi_init_master(
+    SPI_ICE40,
+    SPI_CR1_BAUDRATE_FPCLK_DIV_4,     // SPI_CR1_BAUDRATE_FPCLK_DIV_256,
+    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,  // SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE ,
+    SPI_CR1_CPHA_CLK_TRANSITION_2,    // 2 == falling edge (from dac8734 doc.
+    SPI_CR1_DFF_8BIT,
+    SPI_CR1_MSBFIRST                  // SPI_CR1_LSBFIRST
+  );
+
+  spi_disable_software_slave_management( SPI_ICE40);
+  spi_enable_ss_output(SPI_ICE40);
+
+
+}
+
+
+
+
+
+static uint32_t ice40_write_register1(uint32_t r)
+{
+  spi_enable( SPI_ICE40 );
+  uint8_t ret = spi_xfer( SPI_ICE40, r );
+  // uint32_t ret = dac_write_register_spi( r );     // write
+  spi_disable( SPI_ICE40 );
+
+  return ret;
+}
+
 
 
 int main(void)
@@ -197,6 +320,9 @@ int main(void)
   rcc_periph_clock_enable(RCC_USART1);
 
 
+  // spi / ice40
+  rcc_periph_clock_enable(RCC_SPI1);
+
   //////////////////////
   // setup
 
@@ -211,6 +337,14 @@ int main(void)
   usart_setup(&console_in, &console_out);     // gahhh... we have to change this each time...
 
 
+  // 
+  spi1_ice40_setup();
+
+
+//  ice40_write_register1(0xff );
+  // ice40_write_register1(0 );
+  ice40_write_register1( 1 );
+
   ////////////////////
 
 
@@ -218,6 +352,7 @@ int main(void)
   usart_printf("starting\n");
   // usart_printf("size %d\n", sizeof(fbuf) / sizeof(float));
 
+    
 
   loop();
 

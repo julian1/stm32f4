@@ -115,6 +115,8 @@ void dac_setup_spi( void )
 {
   // TODO change name. just dac_setup...  spi is given.
 
+    error. miso should not have output option set
+    // TODO - FIXME. WRRONG
   uint32_t all = DAC_CLK | DAC_MOSI | DAC_MISO | DAC_CS;
 
   usart_printf("dac setup spi\n");
