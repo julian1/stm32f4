@@ -60,6 +60,7 @@ void usart_setup(void)
   /* Setup GPIO pins  */
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9  | GPIO10);
 
+  // TODO review. tx is gpio9???? not gpio10?
   // TODO - 100MHZ? only need tx bit to be set
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO10);
 
