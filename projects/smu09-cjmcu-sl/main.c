@@ -138,7 +138,8 @@ void flush( void)
 #define SPI_ICE40_MOSI  GPIO7
 #define SPI_ICE40_MISO  GPIO6
 
-
+// output reg.
+#define SPI_ICE40_SPECIAL GPIO3
 
 
 static void spi1_ice40_setup(void)
@@ -165,18 +166,33 @@ static void spi1_ice40_setup(void)
 
   spi_disable_software_slave_management( SPI_ICE40);
   spi_enable_ss_output(SPI_ICE40);
+
+  ////////////
+
+
+  // special 
+  gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_ICE40_SPECIAL);
+  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_ICE40_SPECIAL);
+  
+  gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // hi == off, active low...
 }
 
 
 
+// special register...
 
 static uint32_t ice40_write_register1(uint32_t r)
 {
+
+  gpio_clear(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // active low...
   spi_enable( SPI_ICE40 );
   uint8_t ret = spi_xfer( SPI_ICE40, r );
   spi_disable( SPI_ICE40 );
+
+  gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // active low...
   return ret;
 }
+
 
 
 
@@ -210,12 +226,16 @@ void sys_tick_handler(void)
     gpio_toggle(LED_PORT, LED_OUT);
 
 
+    // tests
     // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_CLK);
     // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_CS);
     // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_MOSI );
+    // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_SPECIAL );
 
     static int count = 0;
     ice40_write_register1( count++  );
+
+
 
   }
 
