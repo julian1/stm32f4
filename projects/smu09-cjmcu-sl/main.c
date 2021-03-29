@@ -250,9 +250,10 @@ void sys_tick_handler(void)
 
   // 500ms.
   if( system_millis % 500 == 0) {
-    // blink led
-    // gpio_toggle(LED_PORT, LED_OUT);
 
+
+    // blink led
+    gpio_toggle(LED_PORT, LED_OUT);
 
     // tests
     // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_CLK);
@@ -262,19 +263,7 @@ void sys_tick_handler(void)
 
     static int count = 0;
     // register 7 is the leds.
-    ice40_write_register1( 7 << 8 | (count++ & 0xff)  );     // register 4. is the led.
-    /*
-    static int count = 0;
-
-    if(count++ % 2 == 0)  {
-      ice40_write_register1( 1 << 8 | 0);     // register 4. is the led.
-      gpio_clear(LED_PORT, LED_OUT);
-    }
-    else {
-      ice40_write_register1( 1 << 8 | 1);
-      gpio_set(LED_PORT, LED_OUT);
-    }
-    */
+    ice40_write_register1( 7 << 8 | (count++ & 0xff)  );     // register 7. is the led.
 
 
   }
