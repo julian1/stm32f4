@@ -261,8 +261,8 @@ void sys_tick_handler(void)
     // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_SPECIAL );
 
     static int count = 0;
-
-    ice40_write_register1( 1 << 8 | (count++ & 0xff)  );     // register 4. is the led.
+    // register 7 is the leds.
+    ice40_write_register1( 7 << 8 | (count++ & 0xff)  );     // register 4. is the led.
     /*
     static int count = 0;
 
