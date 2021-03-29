@@ -209,28 +209,37 @@ static uint32_t spi_write_register_16(uint32_t spi, uint32_t r)
 static uint32_t ice40_write_register1(uint32_t r)
 {
 
-  gpio_clear(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // active low...
+  gpio_clear(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // assert special, active low...
   spi_enable( SPI_ICE40 );
-  // uint8_t ret = spi_xfer( SPI_ICE40, r );
 
   uint8_t ret = spi_write_register_16(SPI_ICE40, r );
 
   spi_disable( SPI_ICE40 );
 
-  gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // active low...
+  gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // deassert special, active low...
   return ret;
 }
 
 
 static uint32_t ice40_write_register2( uint8_t r, uint8_t v) 
 {
-  
   uint8_t ret = ice40_write_register1(r << 8 | v );
-
   return ret;
-
-  // LED_REGISTER << 8 | 1 << LED2 );     // led1 on 
 }
+
+
+
+// 
+static uint32_t ice40_write_peripheral(uint32_t r)
+{
+  // gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // deassert special...
+  spi_enable( SPI_ICE40 );
+  uint8_t ret = spi_write_register_16(SPI_ICE40, r );
+  spi_disable( SPI_ICE40 );
+  return ret;
+}
+
+
 
 
 //////////////////////////////////////////////
@@ -246,6 +255,12 @@ static uint32_t ice40_write_register2( uint8_t r, uint8_t v)
 #define DAC_RST       (1<<1)
 #define DAC_UNI_BIP_A (1<<2)
 #define DAC_UNI_BIP_B (1<<3) 
+
+
+#define SPI_MUX_REGISTER  0x08
+#define SPI_MUX_DAC       (1<<0)
+#define SPI_MUX_ADC03     (1<<1)
+
 
 void sys_tick_handler(void)
 {
@@ -292,10 +307,8 @@ void sys_tick_handler(void)
     /////////////////////
     // ice40_write_register2( LED_REGISTER, LED1 | ~LED2);
 
-    // EXTREME - don't need separate register if just have a toggle.
-    // no. toggle requires reading.
-    // but perhaps we should prioritize read .
-    // write the always
+    // NO. DO NOT use read/toggle expects to toggle all bits.
+
 
     ice40_write_register2( LED_REGISTER, count++ );
    
@@ -303,6 +316,21 @@ void sys_tick_handler(void)
       ice40_write_register2( DAC_REGISTER,  DAC_RST );
     else
       ice40_write_register2( DAC_REGISTER,  ~DAC_RST );
+
+
+    ///////////////////////////////////
+// #define SPI_MUX_REGISTER  0x08
+// #define SPI_MUX_DAC       (1<<0)
+
+
+    // ice40_write_register2( SPI_MUX_REGISTER, 0 );   // nothing should be active/ everything hi.
+    ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_DAC );   // nothing should be active
+    // ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_ADC03 );   // nothing should be active
+
+//    msleep(10); fails......... EXTREME
+    
+    ice40_write_peripheral(0xffff );
+
   }
 
 }
