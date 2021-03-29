@@ -222,9 +222,28 @@ static uint32_t ice40_write_register1(uint32_t r)
 }
 
 
+static uint32_t ice40_write_register2( uint8_t r, uint8_t v) 
+{
+  
+  uint8_t ret = ice40_write_register1(r << 8 | v );
+
+  return ret;
+
+  // LED_REGISTER << 8 | 1 << LED2 );     // led1 on 
+}
 
 
 //////////////////////////////////////////////
+
+#define LED_REGISTER 0x07
+#define LED1 (1<<0)    // D38
+#define LED2 (1<<1)    // D37
+
+#define DAC_REGISTER 0x09
+#define DAC_LDAC      (1<<0)
+#define DAC_RST       (1<<1)
+#define DAC_UNI_BIP_A (1<<2)
+#define DAC_UNI_BIP_B (1<<3) 
 
 void sys_tick_handler(void)
 {
@@ -261,10 +280,14 @@ void sys_tick_handler(void)
     // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_MOSI );
     // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_SPECIAL );
 
-    static int count = 0;
+    // static int count = 0;
     // register 7 is the leds.
-    ice40_write_register1( 7 << 8 | (count++ & 0xff)  );     // register 7. is the led.
+    //ice40_write_register1( 7 << 8 | (count++ & 0xff)  );     // register 7. is the led.
 
+    // ice40_write_register1( LED_REGISTER << 8 | 1 << LED1 );     // led1 on 
+    // ice40_write_register1( LED_REGISTER << 8 | 1 << LED2 );     // led1 on 
+
+    ice40_write_register2( LED_REGISTER, LED1 | ~LED2);
 
   }
 
