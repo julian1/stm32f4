@@ -178,7 +178,7 @@ static void spi1_ice40_setup(void)
 }
 
 
-
+#if 0
 // special register...
 
 static uint32_t spi_write_register_24(uint32_t spi, uint32_t r)
@@ -191,6 +191,7 @@ static uint32_t spi_write_register_24(uint32_t spi, uint32_t r)
   // return (a << 16) + (b << 8) + c;
   return (c << 16) + (b << 8) + a;      // msb last... seems weird.
 }
+#endif
 
 static uint32_t spi_write_register_16(uint32_t spi, uint32_t r)
 {
@@ -261,6 +262,10 @@ void sys_tick_handler(void)
 
     static int count = 0;
 
+    ice40_write_register1( 1 << 8 | (count++ & 0xff)  );     // register 4. is the led.
+    /*
+    static int count = 0;
+
     if(count++ % 2 == 0)  {
       ice40_write_register1( 1 << 8 | 0);     // register 4. is the led.
       gpio_clear(LED_PORT, LED_OUT);
@@ -269,6 +274,7 @@ void sys_tick_handler(void)
       ice40_write_register1( 1 << 8 | 1);
       gpio_set(LED_PORT, LED_OUT);
     }
+    */
 
 
   }
