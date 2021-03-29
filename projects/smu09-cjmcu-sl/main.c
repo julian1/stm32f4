@@ -324,10 +324,10 @@ void sys_tick_handler(void)
 
 
     // ice40_write_register2( SPI_MUX_REGISTER, 0 );   // nothing should be active/ everything hi.
-    ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_DAC );   // nothing should be active
-    // ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_ADC03 );   // nothing should be active
+    // ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_DAC );   // nothing should be active
+    ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_ADC03 );   // nothing should be active
 
-//    msleep(10); fails......... EXTREME
+//    msleep(10); locks up mcu review.......... EXTREME
     
     ice40_write_peripheral(0xffff );
 
