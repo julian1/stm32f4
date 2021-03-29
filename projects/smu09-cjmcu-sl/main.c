@@ -313,9 +313,9 @@ void sys_tick_handler(void)
     ice40_write_register2( LED_REGISTER, count++ );
    
     if(count % 2 == 0) 
-      ice40_write_register2( DAC_REGISTER,  DAC_RST );
+      ice40_write_register2( DAC_REGISTER,  DAC_UNI_BIP_A);
     else
-      ice40_write_register2( DAC_REGISTER,  ~DAC_RST );
+      ice40_write_register2( DAC_REGISTER,  ~DAC_UNI_BIP_A );
 
 
     ///////////////////////////////////
