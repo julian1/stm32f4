@@ -57,6 +57,9 @@
 // change name dac_write_register24
 // pass the spi version?
 
+// TODO . pass the spi as argument,
+// much simpler.
+
 static uint32_t dac_write_register_spi(uint32_t r)
 {
   uint8_t a = spi_xfer( DAC_SPI, (r >> 16) & 0xff );
