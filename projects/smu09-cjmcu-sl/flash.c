@@ -200,8 +200,106 @@ static void spi1_flash_setup(void)
 // may need to look at the iceprog - code. to see what it does.
 // if not generic enough.
 
+/*
+	spi_enable(spi);
+	spi_xfer(spi,W25_CMD_READ_SR1);
+	sr1 = spi_xfer(spi,DUMMY);
+	spi_disable(spi);
+*/	
 
 
+/* Flash command definitions */
+/* This command list is based on the Winbond W25Q128JV Datasheet */
+enum flash_cmd {
+ FC_WE = 0x06, /* Write Enable */
+ FC_SRWE = 0x50, /* Volatile SR Write Enable */
+ FC_WD = 0x04, /* Write Disable */
+ FC_RPD = 0xAB, /* Release Power-Down, returns Device ID */
+ FC_MFGID = 0x90, /*  Read Manufacturer/Device ID */
+ FC_JEDECID = 0x9F, /* Read JEDEC ID */
+ FC_UID = 0x4B, /* Read Unique ID */
+ FC_RD = 0x03, /* Read Data */
+ FC_FR = 0x0B, /* Fast Read */
+ FC_PP = 0x02, /* Page Program */
+ FC_SE = 0x20, /* Sector Erase 4kb */
+ FC_BE32 = 0x52, /* Block Erase 32kb */
+ FC_BE64 = 0xD8, /* Block Erase 64kb */
+ FC_CE = 0xC7, /* Chip Erase */
+ FC_RSR1 = 0x05, /* Read Status Register 1 */
+ FC_WSR1 = 0x01, /* Write Status Register 1 */
+ FC_RSR2 = 0x35, /* Read Status Register 2 */
+ FC_WSR2 = 0x31, /* Write Status Register 2 */
+ FC_RSR3 = 0x15, /* Read Status Register 3 */
+ FC_WSR3 = 0x11, /* Write Status Register 3 */
+ FC_RSFDP = 0x5A, /* Read SFDP Register */
+ FC_ESR = 0x44, /* Erase Security Register */
+ FC_PSR = 0x42, /* Program Security Register */
+ FC_RSR = 0x48, /* Read Security Register */
+ FC_GBL = 0x7E, /* Global Block Lock */
+ FC_GBU = 0x98, /* Global Block Unlock */
+ FC_RBL = 0x3D, /* Read Block Lock */
+ FC_RPR = 0x3C, /* Read Sector Protection Registers (adesto) */
+ FC_IBL = 0x36, /* Individual Block Lock */
+ FC_IBU = 0x39, /* Individual Block Unlock */
+ FC_EPS = 0x75, /* Erase / Program Suspend */
+ FC_EPR = 0x7A, /* Erase / Program Resume */
+ FC_PD = 0xB9, /* Power-down */
+ FC_QPI = 0x38, /* Enter QPI mode */
+ FC_ERESET = 0x66, /* Enable Reset */
+ FC_RESET = 0x99, /* Reset Device */
+};
+
+static void mpsse_xfer_spi(uint32_t spi, uint8_t *data, size_t n)
+{
+  for(size_t i = 0; i < n; ++i) {
+    uint8_t ret = spi_xfer(spi, data[i]);
+    data[i] = ret;
+  }
+}
+
+// check that it really is active lo. yes. because of pullup.
+
+static void flash_reset( uint32_t spi)
+{
+ uint8_t data[8] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+
+ // flash_chip_select();
+
+ spi_enable(spi);
+ mpsse_xfer_spi(spi, data, 8);
+ spi_disable(spi);
+ // flash_chip_deselect();
+}
+
+
+static void flash_power_up(uint32_t spi)
+{
+ uint8_t data_rpd[1] = { FC_RPD };
+
+ spi_enable(spi);
+ // flash_chip_select();
+ mpsse_xfer_spi(spi, data_rpd, 1);
+
+ spi_disable(spi);
+ // flash_chip_deselect();
+}
+
+
+
+static uint8_t flash_read_status( uint32_t spi)
+{
+ uint8_t data[2] = { FC_RSR1 };
+
+ spi_enable(spi);
+ // flash_chip_select();
+ mpsse_xfer_spi(spi, data, 2);
+ spi_disable(spi);
+ // flash_chip_deselect();
+
+  
+ return data[1];
+
+}
 
 
 //////////////////////////////////////////////
@@ -235,16 +333,31 @@ static void soft_500ms_update(void)
   gpio_toggle(LED_PORT, LED_OUT);
 
 
+  flash_reset( SPI_ICE40);
+
+  flash_power_up(SPI_ICE40);
+
   uint8_t ret = w25_read_sr1(SPI_ICE40);
   usart_printf("w25 read %d\n", ret);
 
   // need to unlock.
 
   // well at least it doesn't block...
-  // uint16_t ret2 = w25_manuf_device(SPI_ICE40); 
-  // usart_printf("device %d\n", ret2);
+  uint16_t ret2 = w25_manuf_device(SPI_ICE40); 
+  usart_printf("device %d\n", ret2);
+
+  uint16_t ret3 = w25_manuf_device(SPI_ICE40); 
+  usart_printf("device %d\n", ret3);
+
+
+
+  uint8_t x = flash_read_status( SPI_ICE40);
+  usart_printf("x %d\n", x);
+
 }
 
+// OK. issue is that the clk and mosi are not separate. 
+// actually not sure. rising edge looks  okk.
 
 
 static void loop(void)
