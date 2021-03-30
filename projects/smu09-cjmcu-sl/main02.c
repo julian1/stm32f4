@@ -75,41 +75,10 @@ static void systick_setup(uint32_t tick_divider)
 void sys_tick_handler(void)
 {
   /*
-    this is an interupt context. not sure how much work should do here.
-    albeit maybe its ok as dispatch point.
-
-    it will interrupt other stuff...
+    this is an interupt context. shouldn't do any work in here
   */
-  // equivalent to a rtos software timer
-  // we are in an interupt  context here... so don't do anything
-  // NOTE. we could actually set a flag.  or a vector of functions to call..
-  // and then process in main loop.
-  // eg. where things can be properly sequenced
 
   system_millis++;
-
-#if 0
-  // 100ms.
-  if( system_millis % 100 == 0) {
-  }
-
-  // OK. we should be able to do all this in main loop ...
-
-  // 500ms.
-  if( system_millis % 500 == 0) {
-    /*
-      SHould not be doing spi here.  should set a flag. do in loop.
-    */
-
-    // blink led
-    gpio_toggle(LED_PORT, LED_OUT);
-    uint8_t ret = w25_read_sr1(SPI_ICE40); 
-
-    usart_printf("w25 read %d\n", ret);
-    // ice40_write_peripheral(0xffff );
-  }
-#endif
-
 }
 
 
@@ -278,7 +247,7 @@ static void loop(void)
       gpio_toggle(LED_PORT, LED_OUT);
 
 
-      uint8_t ret = w25_read_sr1(SPI_ICE40); 
+      uint8_t ret = w25_read_sr1(SPI_ICE40);
       usart_printf("w25 read %d\n", ret);
 
     }
@@ -334,7 +303,7 @@ int main(void)
   spi1_special_setup();
   spi1_flash_setup();
 
- 
+
 
 
 //  ice40_write_register1(0xff );
