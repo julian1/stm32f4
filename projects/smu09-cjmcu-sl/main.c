@@ -258,8 +258,8 @@ static uint32_t ice40_write_peripheral(uint32_t r)
 
 
 #define SPI_MUX_REGISTER  0x08
-#define SPI_MUX_DAC       (1<<0)
-#define SPI_MUX_ADC03     (1<<1)
+#define SPI_MUX_ADC03     (1<<0)
+#define SPI_MUX_DAC       (1<<1)
 #define SPI_MUX_FLASH     (1<<2)
 
 
@@ -328,9 +328,9 @@ void sys_tick_handler(void)
     //ice40_write_register2( SPI_MUX_REGISTER, 0 );   // nothing should be active/ everything hi.
                                                     // seems to need to be initialized.
 
+    ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_ADC03 );   // nothing should be active
     // ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_DAC );   // nothing should be active
-    // ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_ADC03 );   // nothing should be active
-    ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_FLASH );   // nothing should be active
+    // ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_FLASH );   // nothing should be active
 
 //    msleep(10); locks up mcu review.......... EXTREME
     
