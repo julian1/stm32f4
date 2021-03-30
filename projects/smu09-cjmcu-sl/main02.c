@@ -197,6 +197,10 @@ static void spi1_flash_setup(void)
 // OK. there is nothing on miso.  it is lo. perhaps high impe.
 // there is stuff on outputs cs, clk, mosi.
 
+// may need to look at the iceprog - code. to see what it does.
+// if not generic enough.
+
+
 
 
 
@@ -253,9 +257,11 @@ static void loop(void)
       uint8_t ret = w25_read_sr1(SPI_ICE40);
       usart_printf("w25 read %d\n", ret);
 
+      // need to unlock.
+
       // well at least it doesn't block...
-      uint16_t ret2 = w25_manuf_device(SPI_ICE40); 
-      usart_printf("device %d\n", ret2);
+      // uint16_t ret2 = w25_manuf_device(SPI_ICE40); 
+      // usart_printf("device %d\n", ret2);
 	
 
     }
@@ -268,6 +274,7 @@ static void loop(void)
 // hmmm. problem.
 // the register writing using one type of clock dir and flash communication a different type of clock.
 // actually it's kind of ok. we will set everything up first.
+// need to unlock?
 
 
 int main(void)
