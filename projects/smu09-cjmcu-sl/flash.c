@@ -251,9 +251,15 @@ enum flash_cmd {
 
 static void mpsse_xfer_spi(uint32_t spi, uint8_t *data, size_t n)
 {
+  // CAREFUL. this modifies the data...
+  // probably don't use 
+  
   for(size_t i = 0; i < n; ++i) {
-    uint8_t ret = spi_xfer(spi, data[i]);
-    data[i] = ret;
+
+    spi_xfer(spi, data[i]);
+    // uint8_t ret = spi_xfer(spi, data[i]);
+    // uint8_t ret = spi_xfer(spi, data[i]);
+    // data[i] = ret;
   }
 }
 
@@ -337,9 +343,15 @@ static void soft_500ms_update(void)
 
   flash_power_up(SPI_ICE40);
 
-  uint8_t ret = w25_read_sr1(SPI_ICE40);
-  usart_printf("w25 read %d\n", ret);
+  // uint8_t ret = w25_read_sr1(SPI_ICE40);
+  // usart_printf("w25 read %d\n", ret);
 
+  // at the end of powerup. looks like miso goes lo.
+  uint8_t status = flash_read_status( SPI_ICE40);
+  usart_printf("status %d\n", status);
+
+
+/*
   // need to unlock.
 
   // well at least it doesn't block...
@@ -353,6 +365,9 @@ static void soft_500ms_update(void)
 
   uint8_t x = flash_read_status( SPI_ICE40);
   usart_printf("x %d\n", x);
+*/
+
+  // it's really not responding.
 
 }
 
