@@ -226,6 +226,27 @@ static void spi1_flash_setup(void)
 
 
 
+static void soft_500ms_update(void)
+{
+  // rename update() or timer()
+  // think update for consistency.
+
+  // blink led
+  gpio_toggle(LED_PORT, LED_OUT);
+
+
+  uint8_t ret = w25_read_sr1(SPI_ICE40);
+  usart_printf("w25 read %d\n", ret);
+
+  // need to unlock.
+
+  // well at least it doesn't block...
+  // uint16_t ret2 = w25_manuf_device(SPI_ICE40); 
+  // usart_printf("device %d\n", ret2);
+}
+
+
+
 static void loop(void)
 {
 
@@ -248,22 +269,7 @@ static void loop(void)
     if( system_millis > soft_500ms) {
       soft_500ms = system_millis + 500;
 
-      // can call a func if we want.
-
-      // blink led
-      gpio_toggle(LED_PORT, LED_OUT);
-
-
-      uint8_t ret = w25_read_sr1(SPI_ICE40);
-      usart_printf("w25 read %d\n", ret);
-
-      // need to unlock.
-
-      // well at least it doesn't block...
-      // uint16_t ret2 = w25_manuf_device(SPI_ICE40); 
-      // usart_printf("device %d\n", ret2);
-	
-
+      soft_500ms_update();
     }
 
   }
