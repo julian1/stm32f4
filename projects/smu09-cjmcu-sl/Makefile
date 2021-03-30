@@ -11,8 +11,8 @@ LIB2INC=${TOP}/lib2/include
 
 
 BINARY		= main
-SRCFILES	= main.c  \
-              ${LIB2SRC}/buffer.c ${LIB2SRC}/miniprintf2.c ${LIB2SRC}/usart2.c
+SRCFILES	= main02.c   \
+              ${LIB2SRC}/buffer.c ${LIB2SRC}/miniprintf2.c ${LIB2SRC}/usart2.c  ${LIB2SRC}/winbond.c
 
 # f407
 LDSCRIPT	= ${TOP}/cjmcu-407.ld # f410.ld
