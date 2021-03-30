@@ -260,12 +260,13 @@ static uint32_t ice40_write_peripheral(uint32_t r)
 #define SPI_MUX_REGISTER  0x08
 #define SPI_MUX_DAC       (1<<0)
 #define SPI_MUX_ADC03     (1<<1)
+#define SPI_MUX_FLASH     (1<<2)
 
 
 void sys_tick_handler(void)
 {
   /*
-    this is an interupt. not sure how much work should do here.
+    this is an interupt context. not sure how much work should do here.
     albeit maybe its ok as dispatch point.
 
     it will interrupt other stuff...
@@ -287,6 +288,10 @@ void sys_tick_handler(void)
   // 500ms.
   if( system_millis % 500 == 0) {
 
+    /*
+      SHould not be doing spi here.  should set a flag. do in loop.
+
+    */
 
     // blink led
     gpio_toggle(LED_PORT, LED_OUT);
@@ -319,13 +324,13 @@ void sys_tick_handler(void)
 
 
     ///////////////////////////////////
-// #define SPI_MUX_REGISTER  0x08
-// #define SPI_MUX_DAC       (1<<0)
 
+    //ice40_write_register2( SPI_MUX_REGISTER, 0 );   // nothing should be active/ everything hi.
+                                                    // seems to need to be initialized.
 
-    // ice40_write_register2( SPI_MUX_REGISTER, 0 );   // nothing should be active/ everything hi.
     // ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_DAC );   // nothing should be active
-    ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_ADC03 );   // nothing should be active
+    // ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_ADC03 );   // nothing should be active
+    ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_FLASH );   // nothing should be active
 
 //    msleep(10); locks up mcu review.......... EXTREME
     
