@@ -276,6 +276,15 @@ static void loop(void)
 // actually it's kind of ok. we will set everything up first.
 // need to unlock?
 
+// https://github.com/YosysHQ/icestorm/blob/master/iceprog/iceprog.c
+// flash_read_status()
+// looks like sends two bytes?
+// flash_reset();
+//  flash_power_up();
+
+// need to solder pin for miso - and 
+// use soic hat?
+
 
 int main(void)
 {
