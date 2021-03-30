@@ -359,7 +359,9 @@ static void loop(void)
 }
 
 
-
+// hmmm. problem.
+// the register writing using one type of clock dir and flash communication a different type of clock.
+// actually it's kind of ok. we will set everything up first.
 
 
 int main(void)
