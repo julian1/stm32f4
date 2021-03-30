@@ -193,8 +193,9 @@ static void spi1_flash_setup(void)
   spi_enable_ss_output(SPI_ICE40);
 }
 
-
-
+// on flash chip.
+// OK. there is nothing on miso.  it is lo. perhaps high impe.
+// there is stuff on outputs cs, clk, mosi.
 
 
 
@@ -243,12 +244,19 @@ static void loop(void)
     if( system_millis > soft_500ms) {
       soft_500ms = system_millis + 500;
 
+      // can call a func if we want.
+
       // blink led
       gpio_toggle(LED_PORT, LED_OUT);
 
 
       uint8_t ret = w25_read_sr1(SPI_ICE40);
       usart_printf("w25 read %d\n", ret);
+
+      // well at least it doesn't block...
+      uint16_t ret2 = w25_manuf_device(SPI_ICE40); 
+      usart_printf("device %d\n", ret2);
+	
 
     }
 
