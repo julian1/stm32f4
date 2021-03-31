@@ -31,9 +31,7 @@
 #define SPI_ICE40_SPECIAL GPIO3
 
 
-
-
-static void spi1_flash_setup(void)
+static void spi1_port_setup(void)
 {
   // same...
   uint16_t out = SPI_ICE40_CLK | SPI_ICE40_CS | SPI_ICE40_MOSI ; // not MISO
@@ -45,6 +43,12 @@ static void spi1_flash_setup(void)
   gpio_set_af(SPI_ICE40_PORT, GPIO_AF5, all); // af 5
   gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out);
 
+}
+
+
+
+static void spi1_mcp3208_setup(void)
+{
 
   spi_init_master(
     SPI_ICE40,
@@ -84,22 +88,6 @@ static void spi1_flash_setup(void)
     eg. at 2.7V, 1MHz / (3bytesx8bits=24clock) ~= 50ksps
 */
 
-//////////////////////////////////////////////
-#if 0
-static uint32_t spi_write_register_24(uint32_t spi, uint32_t r)
-{
-  uint8_t a = spi_xfer( spi, (r >> 16) & 0xff );
-  uint8_t b = spi_xfer( spi, (r >> 8) & 0xff  );
-  uint8_t c = spi_xfer( spi, r & 0xff  );
-
-  // REVIEW
-  // return (a << 16) + (b << 8) + c;
-  // return (c << 16) + (b << 8) + a;      // msb last... seems weird.
-
-
-  return (a << 16) + (b << 8) + c;      // msb last... seems weird.
-}
-#endif
 
 
 static void soft_500ms_update(void)
@@ -111,7 +99,6 @@ static void soft_500ms_update(void)
 
   uint32_t spi = SPI_ICE40;
 
-#if 1
   // first channel, single ended
    uint8_t data[3] = { 0b01100000 , 0x00, 0x00 };   // eg. delay by one bit so that data aligns
                                                     // on last two bits
@@ -135,20 +122,7 @@ static void soft_500ms_update(void)
   usart_printf("volts %f\n", x2 );
 
 
-#endif
-
-#if 0
-  spi_enable(spi);
-  uint32_t ret = spi_write_register_24(spi, 0b01000000 << 16 );
-      // I think two bits might be right - eg. trigger bit. then single/diff bit. then address.
-  spi_disable(spi);
-  usart_printf("ret %d\n", ret );
-#endif
-
   usart_printf("\n");
-
-
-
 }
 
 
@@ -212,7 +186,12 @@ int main(void)
   usart_setup_();
 
   //
-  spi1_flash_setup();
+  // spi1_mcp3208_setup();
+
+  spi1_port_setup();
+  spi1_mcp3208_setup();
+
+
 
   ////////////////////
 
