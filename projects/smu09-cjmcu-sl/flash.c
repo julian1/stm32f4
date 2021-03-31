@@ -463,46 +463,14 @@ static void soft_500ms_update(void)
   // blink led
   gpio_toggle(LED_PORT, LED_OUT);
 
+  ////////
 
   flash_reset( SPI_ICE40);
-
   flash_power_up(SPI_ICE40);
 
-  // uint8_t ret = w25_read_sr1(SPI_ICE40);
-  // usart_printf("w25 read %d\n", ret);
-
-  // at the end of powerup. looks like miso goes lo.
-  // OKK. this does prompt somethinig on scope.
-  // uint8_t status = flash_read_status( SPI_ICE40);
-
   flash_print_status(SPI_ICE40);
-
-
   flash_read_id( SPI_ICE40);
- 
-
-/*
-  // need to unlock.
-
-  // well at least it doesn't block...
-  uint16_t ret2 = w25_manuf_device(SPI_ICE40); 
-  usart_printf("device %d\n", ret2);
-
-  uint16_t ret3 = w25_manuf_device(SPI_ICE40); 
-  usart_printf("device %d\n", ret3);
-
-
-
-  uint8_t x = flash_read_status( SPI_ICE40);
-  usart_printf("x %d\n", x);
-*/
-
-  // it's really not responding.
-
 }
-
-// OK. issue is that the clk and mosi are not separate. 
-// actually not sure. rising edge looks  okk.
 
 
 static void loop(void)
