@@ -195,8 +195,17 @@ static void spi1_flash_setup(void)
 }
 
 	
+/*
+  mcp3208 - dout - goes high-Z when not in use. see p20.
+    https://ww1.microchip.com/downloads/en/DeviceDoc/21298e.pdf
 
+  it's actually nice. it clocks data through the SAR and 
+  to the output pin, so there is no delay. eg. spi is part of the pipeline.
 
+  actually may have to send a dummy 0 first byte. then the 4 bit input. 
+  in order to clock data out after the 4 bit value..
+
+*/
 
 //////////////////////////////////////////////
 
