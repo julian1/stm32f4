@@ -308,6 +308,18 @@ static uint8_t flash_read_status( uint32_t spi)
 }
 
 
+
+static void flash_write_enable( uint32_t spi)
+{
+ uint8_t data[1] = { FC_WE };
+ // flash_chip_select();
+
+ spi_enable(spi);
+ mpsse_xfer_spi(spi, data, 1);
+ // flash_chip_deselect();
+ spi_disable(spi);
+}
+
 //////////////////////////////////////////////
 
 // REGISTER_DAC?
@@ -349,6 +361,12 @@ static void soft_500ms_update(void)
   // at the end of powerup. looks like miso goes lo.
   uint8_t status = flash_read_status( SPI_ICE40);
   usart_printf("status %d\n", status);
+
+  flash_write_enable( SPI_ICE40);
+
+  status = flash_read_status( SPI_ICE40);
+  usart_printf("status after %d\n", status);
+
 
 
 /*
