@@ -204,6 +204,9 @@ static void spi1_flash_setup(void)
 
   actually may have to send a dummy 0 first byte. then the 4 bit input. 
   in order to clock data out after the 4 bit value..
+  ----
+  or can continuously clock 2 bytes - being - aware of the 1 byte offset
+  in return value.
 
 */
 
