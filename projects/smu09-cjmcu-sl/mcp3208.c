@@ -49,7 +49,7 @@ static void spi1_flash_setup(void)
   spi_init_master(
     SPI_ICE40,
     // SPI_CR1_BAUDRATE_FPCLK_DIV_4,
-    SPI_CR1_BAUDRATE_FPCLK_DIV_16,   // slow
+    SPI_CR1_BAUDRATE_FPCLK_DIV_16,   // slow... 16Mhz / 16 = 1Mhz. TODO review.
     // SPI_CR1_BAUDRATE_FPCLK_DIV_256,   // slow
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
     SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == rising edge. difference
@@ -61,26 +61,45 @@ static void spi1_flash_setup(void)
   spi_enable_ss_output(SPI_ICE40);
 }
 
-	
+
 /*
   mcp3208 - dout - goes high-Z when not in use. see p20.
     https://ww1.microchip.com/downloads/en/DeviceDoc/21298e.pdf
 
-  it's actually nice. it clocks data through the SAR and 
+  it's actually nice. it clocks data through the SAR and
   to the output pin, so there is no delay. eg. spi is part of the pipeline.
+*/
+/*
 
-  actually may have to send a dummy 0 first byte. then the 4 bit input. 
-  in order to clock data out after the 4 bit value..
-  ----
-  or can continuously clock 2 bytes - being - aware of the 1 byte offset
-  in return value.
-just 
+  Throughput Rate
+    fSAMPLE————
+    100 ksps  VDD = VREF = 5V
+    50ksps   VDD = VREF = 2.7V
 
-  50 ksps max. sampling rate at VDD = 2.7V
+  clock Frequency
+    fCLK————
+    2.0 MHz   VDD = 5V (Note 3)
+    1.0MHz   VDD = 2.7V (Note 3
 
+    eg. at 2.7V, 1MHz / (3bytesx8bits=24clock) ~= 50ksps
 */
 
 //////////////////////////////////////////////
+
+static uint32_t spi_write_register_24(uint32_t spi, uint32_t r)
+{
+  uint8_t a = spi_xfer( spi, (r >> 16) & 0xff );
+  uint8_t b = spi_xfer( spi, (r >> 8) & 0xff  );
+  uint8_t c = spi_xfer( spi, r & 0xff  );
+
+  // REVIEW
+  // return (a << 16) + (b << 8) + c;
+  // return (c << 16) + (b << 8) + a;      // msb last... seems weird.
+
+
+  return (a << 16) + (b << 8) + c;      // msb last... seems weird.
+}
+
 
 
 static void soft_500ms_update(void)
@@ -90,26 +109,46 @@ static void soft_500ms_update(void)
 
   ////////
 
-  uint32_t spi = SPI_ICE40; 
+  uint32_t spi = SPI_ICE40;
 
+#if 1
   // first channel, single ended
-  // uint8_t data[2] = { 0b1000 << 4 , 0x00 };
-  // uint8_t data[3] = { 0b10000000 , 0x00, 0x00 };
-  uint8_t data[3] = { 0b01000000 , 0x00, 0x00 };
-  // uint8_t data[3] = {  0x00, 0b10000000 , 0x00 };
-
-//      uint8_t addr = 0b01100000 | ((pin & 0b111) << 2);
-
+   uint8_t data[3] = { 0b01100000 , 0x00, 0x00 };   // eg. delay by one bit so that data aligns
+                                                    // on last two bits
   spi_enable(spi);
   mpsse_xfer_spi(spi, data, 3);
   spi_disable(spi);
 
-  // important - maybe clocking to fast 50kps at 2.7V.   
-  
-  usart_printf("\n");
-  usart_printf("data[0] %d\n", data[0]);
+  // important - maybe clocking to fast 50kps at 2.7V.
+  usart_printf("data[0] %d\n", data[0]);      // sometimes data[0] returns a bit that should be ignored.
   usart_printf("data[1] %d\n", data[1]);
   usart_printf("data[2] %d\n", data[2]);
+
+  // turns it into 16bit value. so lower bytes are unused.
+  // but should probably be 12bit.
+  // eg.  return (b1 << 4) | (b2 >> 4);
+  uint16_t x = (data[1] << 8) | (data[2] );
+
+  usart_printf("x %d\n", x );
+
+  float x2 = x / 65535.0 * 3.3;
+  usart_printf("volts %f\n", x2 );
+
+
+#endif
+
+#if 0
+  spi_enable(spi);
+  uint32_t ret = spi_write_register_24(spi, 0b01000000 << 16 );
+      // I think two bits might be right - eg. trigger bit. then single/diff bit. then address.
+  spi_disable(spi);
+  usart_printf("ret %d\n", ret );
+#endif
+
+  usart_printf("\n");
+
+
+
 }
 
 
