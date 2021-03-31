@@ -1,5 +1,10 @@
 
-
+/*
+  original code
+ *  Copyright (C) 2015  Clifford Wolf <clifford@clifford.at>
+ *  Copyright (C) 2018  Piotr Esden-Tempski <piotr@esden.net>
+ * https://github.com/YosysHQ/icestorm/blob/master/iceprog/iceprog.c
+*/
 
 #include <libopencm3/stm32/spi.h>
 
@@ -42,7 +47,7 @@ static void spi1_flash_setup(void)
   spi_enable_ss_output(SPI_ICE40);
 }
 
-#endif	
+#endif
 
 
 /* Flash command definitions */
@@ -94,7 +99,7 @@ void mpsse_xfer_spi(uint32_t spi, uint8_t *data, size_t n)
 {
   // CAREFUL. this modifies the data...
   // don't use static arrays .
-  
+
   for(size_t i = 0; i < n; ++i) {
 
     // spi_xfer(spi, data[i]);
@@ -139,7 +144,7 @@ uint8_t flash_read_status( uint32_t spi)
  mpsse_xfer_spi(spi, data, 2);
  spi_disable(spi);
  // flash_chip_deselect();
-  
+
  return data[1];
 }
 
@@ -173,8 +178,8 @@ void flash_print_status( uint32_t spi)
 // if (verbose) {
   usart_printf("SR1: 0x%02X\n", data[1]);
   usart_printf(" - SPRL: %s\n",
-   ((data[1] & (1 << 7)) == 0) ? 
-    "unlocked" : 
+   ((data[1] & (1 << 7)) == 0) ?
+    "unlocked" :
     "locked");
   usart_printf(" -  SPM: %s\n",
    ((data[1] & (1 << 6)) == 0) ?
