@@ -252,14 +252,13 @@ enum flash_cmd {
 static void mpsse_xfer_spi(uint32_t spi, uint8_t *data, size_t n)
 {
   // CAREFUL. this modifies the data...
-  // probably don't use 
+  // don't use static arrays .
   
   for(size_t i = 0; i < n; ++i) {
 
-    spi_xfer(spi, data[i]);
-    // uint8_t ret = spi_xfer(spi, data[i]);
-    // uint8_t ret = spi_xfer(spi, data[i]);
-    // data[i] = ret;
+    // spi_xfer(spi, data[i]);
+    uint8_t ret = spi_xfer(spi, data[i]);
+    data[i] = ret;
   }
 }
 
@@ -290,11 +289,12 @@ static void flash_power_up(uint32_t spi)
  // flash_chip_deselect();
 }
 
-
+// OK. we have stuff on the scope. for status.
+// But we are going through the fpga. so we need to make sure MISO propagates.
 
 static uint8_t flash_read_status( uint32_t spi)
 {
- uint8_t data[2] = { FC_RSR1 };
+ uint8_t data[2] = { FC_RSR1, 0 };
 
  spi_enable(spi);
  // flash_chip_select();
@@ -359,14 +359,18 @@ static void soft_500ms_update(void)
   // usart_printf("w25 read %d\n", ret);
 
   // at the end of powerup. looks like miso goes lo.
+  // OKK. this does prompt somethinig on scope.
   uint8_t status = flash_read_status( SPI_ICE40);
   usart_printf("status %d\n", status);
 
-  flash_write_enable( SPI_ICE40);
 
+
+//  flash_write_enable( SPI_ICE40);
+
+/*
   status = flash_read_status( SPI_ICE40);
   usart_printf("status after %d\n", status);
-
+*/
 
 
 /*
