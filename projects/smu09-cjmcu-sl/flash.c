@@ -375,12 +375,60 @@ static void flash_write_enable( uint32_t spi)
 {
  uint8_t data[1] = { FC_WE };
  // flash_chip_select();
-
  spi_enable(spi);
  mpsse_xfer_spi(spi, data, 1);
  // flash_chip_deselect();
  spi_disable(spi);
 }
+
+
+
+static void flash_read_id( uint32_t spi)
+{
+ /* JEDEC ID structure:
+  * Byte No. | Data Type
+  * ---------+----------
+  *        0 | FC_JEDECID Request Command
+  *        1 | MFG ID
+  *        2 | Dev ID 1
+  *        3 | Dev ID 2
+  *        4 | Ext Dev Str Len
+  */
+
+ uint8_t data[260] = { FC_JEDECID };
+ int len = 5; // command + 4 response bytes
+
+// if (verbose)
+  usart_printf("read flash ID..\n");
+
+ // flash_chip_select();
+ spi_enable(spi);
+
+ // Write command and read first 4 bytes
+ mpsse_xfer_spi(spi, data, len);
+
+ if (data[4] == 0xFF)
+  usart_printf("Extended Device String Length is 0xFF, "
+    "this is likely a read error. Ignorig...\n");
+ else {
+  // Read extended JEDEC ID bytes
+  if (data[4] != 0) {
+   len += data[4];
+   mpsse_xfer_spi(spi, data + 5, len - 5);
+  }
+ }
+
+ // flash_chip_deselect();
+ spi_disable(spi);
+
+ // TODO: Add full decode of the JEDEC ID.
+ usart_printf("flash ID:");
+ for (int i = 1; i < len; i++)
+  usart_printf(" 0x%02X", data[i]);
+ usart_printf("\n");
+}
+
+
 
 //////////////////////////////////////////////
 
@@ -403,6 +451,9 @@ static void flash_write_enable( uint32_t spi)
 #define SPI_MUX_FLASH     (1<<2)
 
 
+// same flash part, but different chips,
+// iceprog  0x20 0xBA 0x16 0x10 0x00 0x00 0x23 0x81 0x03 0x68 0x23 0x00 0x23 0x00 0x41 0x09 0x05 0x18 0x33 0x0F
+// our code 0x20 0xBA 0x16 0x10 0x00 0x00 0x23 0x81 0x03 0x68 0x23 0x00 0x18 0x00 0x26 0x09 0x05 0x18 0x32 0x7A
 
 static void soft_500ms_update(void)
 {
@@ -425,22 +476,10 @@ static void soft_500ms_update(void)
   uint8_t status = flash_read_status( SPI_ICE40);
 
   flash_print_status(status );
-  // usart_printf("status %d\n", status);
-
-/*
-  flash_write_enable( SPI_ICE40);
-
-  status = flash_read_status( SPI_ICE40);
-  usart_printf("status2 %d\n", status);
-*/
 
 
-
-/*
-  status = flash_read_status( SPI_ICE40);
-  usart_printf("status after %d\n", status);
-*/
-
+  flash_read_id( SPI_ICE40);
+ 
 
 /*
   // need to unlock.
