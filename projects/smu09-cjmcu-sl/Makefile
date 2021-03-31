@@ -11,8 +11,10 @@ LIB2INC=${TOP}/lib2/include
 
 
 BINARY		= main
-SRCFILES	= flash.c   \
+SRCFILES	= mcp3208.c   \
               ${LIB2SRC}/buffer.c ${LIB2SRC}/miniprintf2.c ${LIB2SRC}/usart2.c  ${LIB2SRC}/flash.c
+
+#SRCFILES	= flash.c   \
 
 # f407
 LDSCRIPT	= ${TOP}/cjmcu-407.ld # f410.ld
