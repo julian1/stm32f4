@@ -48,7 +48,9 @@ static void spi1_flash_setup(void)
 
   spi_init_master(
     SPI_ICE40,
-    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_4,
+    SPI_CR1_BAUDRATE_FPCLK_DIV_16,   // slow
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_256,   // slow
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
     SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == rising edge. difference
     SPI_CR1_DFF_8BIT,
@@ -92,15 +94,22 @@ static void soft_500ms_update(void)
 
   // first channel, single ended
   // uint8_t data[2] = { 0b1000 << 4 , 0x00 };
-  uint8_t data[2] = { 0b10000000 , 0x00 };
+  // uint8_t data[3] = { 0b10000000 , 0x00, 0x00 };
+  uint8_t data[3] = { 0b01000000 , 0x00, 0x00 };
+  // uint8_t data[3] = {  0x00, 0b10000000 , 0x00 };
+
+//      uint8_t addr = 0b01100000 | ((pin & 0b111) << 2);
 
   spi_enable(spi);
-  mpsse_xfer_spi(spi, data, 2);
+  mpsse_xfer_spi(spi, data, 3);
   spi_disable(spi);
 
+  // important - maybe clocking to fast 50kps at 2.7V.   
   
+  usart_printf("\n");
   usart_printf("data[0] %d\n", data[0]);
   usart_printf("data[1] %d\n", data[1]);
+  usart_printf("data[2] %d\n", data[2]);
 }
 
 
