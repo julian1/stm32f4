@@ -302,44 +302,54 @@ static uint8_t flash_read_status( uint32_t spi)
  mpsse_xfer_spi(spi, data, 2);
  spi_disable(spi);
  // flash_chip_deselect();
-
   
  return data[1];
-
 }
 
 
 
-static void flash_print_status(uint8_t data)
+static void flash_write_enable( uint32_t spi)
 {
-/*
- uint8_t data[2] = { FC_RSR1 };
+ uint8_t data[1] = { FC_WE };
+ // flash_chip_select();
+ spi_enable(spi);
+ mpsse_xfer_spi(spi, data, 1);
+ // flash_chip_deselect();
+ spi_disable(spi);
+}
 
- flash_chip_select();
- mpsse_xfer_spi(data, 2);
- flash_chip_deselect();
-*/
+static void flash_print_status( uint32_t spi)
+{
+
+ uint8_t data[2] = { FC_RSR1, 0 };
+
+ // flash_chip_select();
+ spi_enable(spi);
+ mpsse_xfer_spi(spi, data, 2);
+ // flash_chip_deselect();
+ spi_disable(spi);
+
 
 // if (verbose) {
-  usart_printf("SR1: 0x%02X\n", data);
+  usart_printf("SR1: 0x%02X\n", data[1]);
   usart_printf(" - SPRL: %s\n",
-   ((data & (1 << 7)) == 0) ? 
+   ((data[1] & (1 << 7)) == 0) ? 
     "unlocked" : 
     "locked");
   usart_printf(" -  SPM: %s\n",
-   ((data & (1 << 6)) == 0) ?
+   ((data[1] & (1 << 6)) == 0) ?
     "Byte/Page Prog Mode" :
     "Sequential Prog Mode");
   usart_printf(" -  EPE: %s\n",
-   ((data & (1 << 5)) == 0) ?
+   ((data[1] & (1 << 5)) == 0) ?
     "Erase/Prog success" :
     "Erase/Prog error");
   usart_printf("-  SPM: %s\n",
-   ((data & (1 << 4)) == 0) ?
+   ((data[1] & (1 << 4)) == 0) ?
     "~WP asserted" :
     "~WP deasserted");
   usart_printf(" -  SWP: ");
-  switch((data >> 2) & 0x3) {
+  switch((data[1] >> 2) & 0x3) {
    case 0:
     usart_printf("All sectors unprotected\n");
     break;
@@ -354,11 +364,11 @@ static void flash_print_status(uint8_t data)
     break;
   }
   usart_printf(" -  WEL: %s\n",
-   ((data & (1 << 1)) == 0) ?
+   ((data[1] & (1 << 1)) == 0) ?
     "Not write enabled" :
     "Write enabled");
   usart_printf(" - ~RDY: %s\n",
-   ((data & (1 << 0)) == 0) ?
+   ((data[1] & (1 << 0)) == 0) ?
     "Ready" :
     "Busy");
  // }
@@ -370,16 +380,6 @@ static void flash_print_status(uint8_t data)
 
 
 
-
-static void flash_write_enable( uint32_t spi)
-{
- uint8_t data[1] = { FC_WE };
- // flash_chip_select();
- spi_enable(spi);
- mpsse_xfer_spi(spi, data, 1);
- // flash_chip_deselect();
- spi_disable(spi);
-}
 
 
 
@@ -473,9 +473,9 @@ static void soft_500ms_update(void)
 
   // at the end of powerup. looks like miso goes lo.
   // OKK. this does prompt somethinig on scope.
-  uint8_t status = flash_read_status( SPI_ICE40);
+  // uint8_t status = flash_read_status( SPI_ICE40);
 
-  flash_print_status(status );
+  flash_print_status(SPI_ICE40);
 
 
   flash_read_id( SPI_ICE40);
