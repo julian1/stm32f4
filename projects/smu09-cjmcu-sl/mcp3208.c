@@ -85,7 +85,7 @@ static void spi1_flash_setup(void)
 */
 
 //////////////////////////////////////////////
-
+#if 0
 static uint32_t spi_write_register_24(uint32_t spi, uint32_t r)
 {
   uint8_t a = spi_xfer( spi, (r >> 16) & 0xff );
@@ -99,7 +99,7 @@ static uint32_t spi_write_register_24(uint32_t spi, uint32_t r)
 
   return (a << 16) + (b << 8) + c;      // msb last... seems weird.
 }
-
+#endif
 
 
 static void soft_500ms_update(void)
