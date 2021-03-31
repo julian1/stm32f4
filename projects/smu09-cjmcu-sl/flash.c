@@ -207,6 +207,9 @@ static void spi1_flash_setup(void)
   ----
   or can continuously clock 2 bytes - being - aware of the 1 byte offset
   in return value.
+just 
+
+  50 ksps max. sampling rate at VDD = 2.7V
 
 */
 
@@ -288,14 +291,6 @@ static void loop(void)
 // actually it's kind of ok. we will set everything up first.
 // need to unlock?
 
-// https://github.com/YosysHQ/icestorm/blob/master/iceprog/iceprog.c
-// flash_read_status()
-// looks like sends two bytes?
-// flash_reset();
-//  flash_power_up();
-
-// need to solder pin for miso - and 
-// use soic hat?
 
 
 int main(void)
