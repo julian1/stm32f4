@@ -1,144 +1,18 @@
 
 // cjmcu  stm32f407.
-// issue. is that board/stlink doesn't appear to reset cleanly. needs sleep.
+// issue. stlink doesn't appear to reset cleanly. needs sleep.
+
 
 
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
-
-#include <libopencm3/cm3/nvic.h>
-#include <libopencm3/cm3/systick.h>
-
-#include <libopencm3/stm32/exti.h>
-
-#include <libopencm3/stm32/timer.h>
-
 #include <libopencm3/stm32/spi.h>
 
-// #include <libopencm3/cm3/scb.h>
 
-#include <stddef.h> // size_t
-//#include <math.h> // nanf
-//#include <stdio.h>
-
-
-#include "buffer.h"
-#include "miniprintf2.h"
 #include "usart2.h"
 #include "util.h"
-
-// #include "winbond.h"
 #include "flash.h"
 
-
-
-
-#define LED_PORT      GPIOE
-#define LED_OUT       GPIO0
-
-
-
-static void led_setup(void)
-{
-  gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT);
-}
-
-
-
-////////////////////////////////////////////////////////
-
-/* Common function descriptions */
-// #include "clock.h"
-
-/* milliseconds since boot */
-static volatile uint32_t system_millis;
-
-
-
-// static void systick_setup(void)
-static void systick_setup(uint32_t tick_divider)
-{
-  // TODO change name systick_setup().
-  // TODO pass clock reload divider as argument, to localize.
-
-  /* clock rate / 168000 to get 1mS interrupt rate */
-  // systick_set_reload(168000);
-  systick_set_reload(tick_divider);
-  systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
-  systick_counter_enable();
-
-  /* this done last */
-  systick_interrupt_enable();
-}
-
-
-
-void sys_tick_handler(void)
-{
-  /*
-    this is an interupt context. shouldn't do any work in here
-  */
-
-  system_millis++;
-}
-
-
-
-////////////////////////////////////////////////////////
-
-// implement critical_error_blink() msleep() and usart_printf()
-// eg. rather than ioc/ dependency injection, just implement
-
-void critical_error_blink(void)
-{
-  // avoid passing arguments, consuming stack.
-	for (;;) {
-		gpio_toggle(LED_PORT,LED_OUT);
-		for(uint32_t i = 0; i < 500000; ++i)
-       __asm__("nop");
-	}
-}
-
-// defined in util.h
-void msleep(uint32_t delay)
-{
-  // TODO. review. don't think this works on wrap around
-  uint32_t wake = system_millis + delay;
-  if(wake < delay) {
-
-    // wait for overflow
-    while (system_millis > (UINT32_MAX / 2));
-  }
-  while (system_millis < wake);
-}
-
-
-
-
-static char buf1[1000];
-static char buf2[1000];
-
-static CBuf console_in;
-static CBuf console_out;
-
-
-
-
-void usart_printf( const char *format, ... )
-{
-  // TODO rename to just printf... it's not the responsibiilty of user to know context
-  // can override the write, to do flush etc.
-	va_list args;
-
-	va_start(args,format);
-	internal_vprintf((void *)cBufPut, &console_out, format,args);
-	va_end(args);
-}
-
-void flush( void)
-{
-  usart_sync_flush();
-}
 
 
 
@@ -157,7 +31,7 @@ void flush( void)
 
 
 
-
+#if 0
 static void spi1_special_setup(void)
 {
   // special
@@ -166,6 +40,7 @@ static void spi1_special_setup(void)
 
   gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // hi == off, active low...
 }
+#endif
 
 
 static void spi1_flash_setup(void)
@@ -194,20 +69,20 @@ static void spi1_flash_setup(void)
   spi_enable_ss_output(SPI_ICE40);
 }
 
-	
+
 /*
   mcp3208 - dout - goes high-Z when not in use. see p20.
     https://ww1.microchip.com/downloads/en/DeviceDoc/21298e.pdf
 
-  it's actually nice. it clocks data through the SAR and 
+  it's actually nice. it clocks data through the SAR and
   to the output pin, so there is no delay. eg. spi is part of the pipeline.
 
-  actually may have to send a dummy 0 first byte. then the 4 bit input. 
+  actually may have to send a dummy 0 first byte. then the 4 bit input.
   in order to clock data out after the 4 bit value..
   ----
   or can continuously clock 2 bytes - being - aware of the 1 byte offset
   in return value.
-just 
+just
 
   50 ksps max. sampling rate at VDD = 2.7V
 
@@ -240,19 +115,17 @@ just
 
 static void soft_500ms_update(void)
 {
-  // rename update() or timer()
-  // think update for consistency.
-
   // blink led
-  gpio_toggle(LED_PORT, LED_OUT);
+  led_toggle();
 
   ////////
+  uint32_t spi = SPI_ICE40;
 
-  flash_reset( SPI_ICE40);
-  flash_power_up(SPI_ICE40);
-
-  flash_print_status(SPI_ICE40);
-  flash_read_id( SPI_ICE40);
+  flash_reset( spi);
+  flash_power_up(spi);
+  flash_write_enable(spi );   // needed to change SR1 from 0x00 to 0x02, after repower.
+  flash_print_status(spi);
+  flash_read_id( spi);
 }
 
 
@@ -323,31 +196,15 @@ int main(void)
 
 
   // usart
-  cBufInit(&console_in, buf1, sizeof(buf1));
-  cBufInit(&console_out, buf2, sizeof(buf2));
-  usart_setup_gpio_portA();
-  usart_setup(&console_in, &console_out);     // gahhh... we have to change this each time...
+  usart_setup_();
 
-
-  //
   // spi1_ice40_setup();
-  spi1_special_setup();
+  // spi1_special_setup();
   spi1_flash_setup();
-
-
-
-
-//  ice40_write_register1(0xff );
-  // ice40_write_register1(0 );
-//  ice40_write_register1( 2 );
-
-  ////////////////////
 
 
   usart_printf("\n--------\n");
   usart_printf("starting\n");
-  // usart_printf("size %d\n", sizeof(fbuf) / sizeof(float));
-
 
 
   loop();

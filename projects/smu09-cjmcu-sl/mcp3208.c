@@ -1,27 +1,17 @@
 
 // cjmcu  stm32f407.
-// issue. is that board/stlink doesn't appear to reset cleanly. needs sleep.
+// issue. stlink doesn't appear to reset cleanly. needs sleep.
 
 
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
-
-
 #include <libopencm3/stm32/spi.h>
-
-
-#include <stddef.h> // size_t
 
 
 
 #include "usart2.h"
 #include "util.h"
-
-// #include "winbond.h"
-#include "flash.h"
-
-
-
+// #include "flash.h"
 
 
 
