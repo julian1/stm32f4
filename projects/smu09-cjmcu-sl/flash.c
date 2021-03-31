@@ -291,6 +291,7 @@ static void flash_power_up(uint32_t spi)
 
 // OK. we have stuff on the scope. for status.
 // But we are going through the fpga. so we need to make sure MISO propagates.
+// OK. got status register being read.
 
 static uint8_t flash_read_status( uint32_t spi)
 {
