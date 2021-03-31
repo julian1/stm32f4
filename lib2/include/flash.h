@@ -1,6 +1,6 @@
 
 
-
+// TODO. rename this. eg. not mpsse
 void mpsse_xfer_spi(uint32_t spi, uint8_t *data, size_t n);
 
 void flash_reset( uint32_t spi);

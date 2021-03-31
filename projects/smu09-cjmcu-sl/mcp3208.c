@@ -13,6 +13,7 @@
 #include "util.h"
 // #include "flash.h"
 
+#include "flash.h"    // msse_xfer_spi
 
 
 
@@ -30,16 +31,6 @@
 #define SPI_ICE40_SPECIAL GPIO3
 
 
-
-
-static void spi1_special_setup(void)
-{
-  // special
-  gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_ICE40_SPECIAL);
-  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_ICE40_SPECIAL);
-
-  gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // hi == off, active low...
-}
 
 
 static void spi1_flash_setup(void)
@@ -92,9 +83,6 @@ just
 
 static void soft_500ms_update(void)
 {
-  // rename update() or timer()
-  // think update for consistency.
-
   // blink led
   led_toggle();
 
@@ -102,21 +90,17 @@ static void soft_500ms_update(void)
 
   uint32_t spi = SPI_ICE40; 
 
-
-  uint8_t data[8] = { 0b1000 << 4 , 0x00 };
+  // first channel, single ended
+  // uint8_t data[2] = { 0b1000 << 4 , 0x00 };
+  uint8_t data[2] = { 0b10000000 , 0x00 };
 
   spi_enable(spi);
-  mpsse_xfer_spi(spi, data, 8);
+  mpsse_xfer_spi(spi, data, 2);
   spi_disable(spi);
 
-
-/*
-  flash_reset( SPI_ICE40);
-  flash_power_up(SPI_ICE40);
-
-  flash_print_status(SPI_ICE40);
-  flash_read_id( SPI_ICE40);
-*/
+  
+  usart_printf("data[0] %d\n", data[0]);
+  usart_printf("data[1] %d\n", data[1]);
 }
 
 
@@ -137,23 +121,14 @@ static void loop(void)
     usart_output_update();
 
 
-
     // 500ms soft timer
     if( system_millis > soft_500ms) {
       soft_500ms = system_millis + 500;
 
       soft_500ms_update();
     }
-
   }
-
 }
-
-
-// hmmm. problem.
-// the register writing using one type of clock dir and flash communication a different type of clock.
-// actually it's kind of ok. we will set everything up first.
-// need to unlock?
 
 
 
@@ -188,20 +163,13 @@ int main(void)
   // usart
   usart_setup_();
 
-
-
   //
-  // spi1_ice40_setup();
-  spi1_special_setup();
   spi1_flash_setup();
 
   ////////////////////
 
-
   usart_printf("\n--------\n");
   usart_printf("starting\n");
-
-
 
   loop();
 

@@ -27,20 +27,9 @@
 #define SPI_ICE40_MISO  GPIO6
 
 // output reg.
-#define SPI_ICE40_SPECIAL GPIO3
+// #define SPI_ICE40_SPECIAL GPIO3
 
 
-
-#if 0
-static void spi1_special_setup(void)
-{
-  // special
-  gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_ICE40_SPECIAL);
-  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_ICE40_SPECIAL);
-
-  gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // hi == off, active low...
-}
-#endif
 
 
 static void spi1_flash_setup(void)
@@ -70,43 +59,6 @@ static void spi1_flash_setup(void)
 }
 
 
-/*
-  mcp3208 - dout - goes high-Z when not in use. see p20.
-    https://ww1.microchip.com/downloads/en/DeviceDoc/21298e.pdf
-
-  it's actually nice. it clocks data through the SAR and
-  to the output pin, so there is no delay. eg. spi is part of the pipeline.
-
-  actually may have to send a dummy 0 first byte. then the 4 bit input.
-  in order to clock data out after the 4 bit value..
-  ----
-  or can continuously clock 2 bytes - being - aware of the 1 byte offset
-  in return value.
-just
-
-  50 ksps max. sampling rate at VDD = 2.7V
-
-*/
-
-//////////////////////////////////////////////
-
-// REGISTER_DAC?
-
-#define LED_REGISTER  0x07
-#define LED1 (1<<0)    // D38
-#define LED2 (1<<1)    // D37
-
-#define DAC_REGISTER  0x09
-#define DAC_LDAC      (1<<0)
-#define DAC_RST       (1<<1)
-#define DAC_UNI_BIP_A (1<<2)
-#define DAC_UNI_BIP_B (1<<3)
-
-
-#define SPI_MUX_REGISTER  0x08
-#define SPI_MUX_ADC03     (1<<0)
-#define SPI_MUX_DAC       (1<<1)
-#define SPI_MUX_FLASH     (1<<2)
 
 
 // same flash part, but different chips,
@@ -153,28 +105,17 @@ static void loop(void)
 
       soft_500ms_update();
     }
-
   }
-
 }
-
-
-// hmmm. problem.
-// the register writing using one type of clock dir and flash communication a different type of clock.
-// actually it's kind of ok. we will set everything up first.
-// need to unlock?
 
 
 
 int main(void)
 {
-  // high speed internal!!!
+  // need to test high speed internal!!!
 
   systick_setup(16000);
 
-
-  // clocks
-  rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
 
   // LED
   rcc_periph_clock_enable(RCC_GPIOE);
@@ -212,7 +153,5 @@ int main(void)
 	for (;;);
 	return 0;
 }
-
-
 
 
