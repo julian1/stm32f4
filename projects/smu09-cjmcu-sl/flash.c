@@ -193,19 +193,7 @@ static void spi1_flash_setup(void)
   spi_enable_ss_output(SPI_ICE40);
 }
 
-// on flash chip.
-// OK. there is nothing on miso.  it is lo. perhaps high impe.
-// there is stuff on outputs cs, clk, mosi.
-
-// may need to look at the iceprog - code. to see what it does.
-// if not generic enough.
-
-/*
-	spi_enable(spi);
-	spi_xfer(spi,W25_CMD_READ_SR1);
-	sr1 = spi_xfer(spi,DUMMY);
-	spi_disable(spi);
-*/	
+	
 
 
 /* Flash command definitions */
