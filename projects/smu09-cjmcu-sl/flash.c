@@ -30,9 +30,7 @@
 // #define SPI_ICE40_SPECIAL GPIO3
 
 
-
-
-static void spi1_flash_setup(void)
+static void spi1_port_setup(void)
 {
   // same...
   uint16_t out = SPI_ICE40_CLK | SPI_ICE40_CS | SPI_ICE40_MOSI ; // not MISO
@@ -43,6 +41,13 @@ static void spi1_flash_setup(void)
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
   gpio_set_af(SPI_ICE40_PORT, GPIO_AF5, all); // af 5
   gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out);
+
+}
+
+
+
+static void spi1_flash_setup(void)
+{
 
 
   spi_init_master(
@@ -139,8 +144,9 @@ int main(void)
   // usart
   usart_setup_();
 
-  // spi1_ice40_setup();
-  // spi1_special_setup();
+
+  // 
+  spi1_port_setup();
   spi1_flash_setup();
 
 
