@@ -6,24 +6,14 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 
-#include <libopencm3/cm3/nvic.h>
-#include <libopencm3/cm3/systick.h>
-
-#include <libopencm3/stm32/exti.h>
-
-#include <libopencm3/stm32/timer.h>
 
 #include <libopencm3/stm32/spi.h>
 
-// #include <libopencm3/cm3/scb.h>
 
 #include <stddef.h> // size_t
-//#include <math.h> // nanf
-//#include <stdio.h>
 
 
-#include "buffer.h"
-#include "miniprintf2.h"
+
 #include "usart2.h"
 #include "util.h"
 
@@ -33,112 +23,6 @@
 
 
 
-#define LED_PORT      GPIOE
-#define LED_OUT       GPIO0
-
-
-
-static void led_setup(void)
-{
-  gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT);
-}
-
-
-
-////////////////////////////////////////////////////////
-
-/* Common function descriptions */
-// #include "clock.h"
-
-/* milliseconds since boot */
-static volatile uint32_t system_millis;
-
-
-
-// static void systick_setup(void)
-static void systick_setup(uint32_t tick_divider)
-{
-  // TODO change name systick_setup().
-  // TODO pass clock reload divider as argument, to localize.
-
-  /* clock rate / 168000 to get 1mS interrupt rate */
-  // systick_set_reload(168000);
-  systick_set_reload(tick_divider);
-  systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
-  systick_counter_enable();
-
-  /* this done last */
-  systick_interrupt_enable();
-}
-
-
-
-void sys_tick_handler(void)
-{
-  /*
-    this is an interupt context. shouldn't do any work in here
-  */
-
-  system_millis++;
-}
-
-
-
-////////////////////////////////////////////////////////
-
-// implement critical_error_blink() msleep() and usart_printf()
-// eg. rather than ioc/ dependency injection, just implement
-
-void critical_error_blink(void)
-{
-  // avoid passing arguments, consuming stack.
-	for (;;) {
-		gpio_toggle(LED_PORT,LED_OUT);
-		for(uint32_t i = 0; i < 500000; ++i)
-       __asm__("nop");
-	}
-}
-
-// defined in util.h
-void msleep(uint32_t delay)
-{
-  // TODO. review. don't think this works on wrap around
-  uint32_t wake = system_millis + delay;
-  if(wake < delay) {
-
-    // wait for overflow
-    while (system_millis > (UINT32_MAX / 2));
-  }
-  while (system_millis < wake);
-}
-
-
-
-
-static char buf1[1000];
-static char buf2[1000];
-
-static CBuf console_in;
-static CBuf console_out;
-
-
-
-
-void usart_printf( const char *format, ... )
-{
-  // TODO rename to just printf... it's not the responsibiilty of user to know context
-  // can override the write, to do flush etc.
-	va_list args;
-
-	va_start(args,format);
-	internal_vprintf((void *)cBufPut, &console_out, format,args);
-	va_end(args);
-}
-
-void flush( void)
-{
-  usart_sync_flush();
-}
 
 
 
@@ -215,28 +99,6 @@ just
 
 //////////////////////////////////////////////
 
-// REGISTER_DAC?
-
-#define LED_REGISTER  0x07
-#define LED1 (1<<0)    // D38
-#define LED2 (1<<1)    // D37
-
-#define DAC_REGISTER  0x09
-#define DAC_LDAC      (1<<0)
-#define DAC_RST       (1<<1)
-#define DAC_UNI_BIP_A (1<<2)
-#define DAC_UNI_BIP_B (1<<3)
-
-
-#define SPI_MUX_REGISTER  0x08
-#define SPI_MUX_ADC03     (1<<0)
-#define SPI_MUX_DAC       (1<<1)
-#define SPI_MUX_FLASH     (1<<2)
-
-
-// same flash part, but different chips,
-// iceprog  0x20 0xBA 0x16 0x10 0x00 0x00 0x23 0x81 0x03 0x68 0x23 0x00 0x23 0x00 0x41 0x09 0x05 0x18 0x33 0x0F
-// our code 0x20 0xBA 0x16 0x10 0x00 0x00 0x23 0x81 0x03 0x68 0x23 0x00 0x18 0x00 0x26 0x09 0x05 0x18 0x32 0x7A
 
 static void soft_500ms_update(void)
 {
@@ -244,15 +106,27 @@ static void soft_500ms_update(void)
   // think update for consistency.
 
   // blink led
-  gpio_toggle(LED_PORT, LED_OUT);
+  led_toggle();
 
   ////////
 
+  uint32_t spi = SPI_ICE40; 
+
+
+  uint8_t data[8] = { 0b1000 << 4 , 0x00 };
+
+  spi_enable(spi);
+  mpsse_xfer_spi(spi, data, 8);
+  spi_disable(spi);
+
+
+/*
   flash_reset( SPI_ICE40);
   flash_power_up(SPI_ICE40);
 
   flash_print_status(SPI_ICE40);
   flash_read_id( SPI_ICE40);
+*/
 }
 
 
@@ -321,12 +195,9 @@ int main(void)
   // led
   led_setup();
 
-
   // usart
-  cBufInit(&console_in, buf1, sizeof(buf1));
-  cBufInit(&console_out, buf2, sizeof(buf2));
-  usart_setup_gpio_portA();
-  usart_setup(&console_in, &console_out);     // gahhh... we have to change this each time...
+  usart_setup_();
+
 
 
   //
@@ -334,19 +205,11 @@ int main(void)
   spi1_special_setup();
   spi1_flash_setup();
 
-
-
-
-//  ice40_write_register1(0xff );
-  // ice40_write_register1(0 );
-//  ice40_write_register1( 2 );
-
   ////////////////////
 
 
   usart_printf("\n--------\n");
   usart_printf("starting\n");
-  // usart_printf("size %d\n", sizeof(fbuf) / sizeof(float));
 
 
 
