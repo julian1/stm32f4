@@ -153,6 +153,13 @@ static void loop(void)
 }
 
 
+/*
+  OK. so we can share cs,clk,mosi.  for more than one peripheral
+
+  but fpga doesn't want to share miso.  because more than one driver.
+  so think we have to mux it.
+
+*/
 
 int main(void)
 {
