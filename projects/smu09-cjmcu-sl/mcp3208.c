@@ -11,7 +11,8 @@
 
 #include "usart2.h"
 #include "util.h"
-// #include "flash.h"
+
+
 
 #include "flash.h"    // msse_xfer_spi TODO FIX ME.
 #include "common.h"
@@ -19,21 +20,14 @@
 
 
 
-/*
-  OK. nice. can now pass the spi port by argument.
-  because have separated out io config.
-*/
-
 void spi_mcp3208_setup(uint32_t spi)
 {
 
   spi_init_master(
     spi,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_4,
-    SPI_CR1_BAUDRATE_FPCLK_DIV_16,   // slow... 16Mhz / 16 = 1Mhz. TODO review.
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_256,   // slow
+    SPI_CR1_BAUDRATE_FPCLK_DIV_16,   // slow... 16Mhz / 16 = 1Mhz. for 50ksps
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
-    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == rising edge. difference
+    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == rising edge 
     SPI_CR1_DFF_8BIT,
     SPI_CR1_MSBFIRST
   );
@@ -86,6 +80,9 @@ float spi_mcp3208_get_data(uint32_t spi)
 
   return x2; 
 }
+
+
+////////////////////////
 
 
 #define SPI_ICE40       SPI1

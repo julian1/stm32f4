@@ -22,8 +22,6 @@
 
 void spi_flash_setup(uint32_t spi)
 {
-
-
   spi_init_master(
     spi,
     SPI_CR1_BAUDRATE_FPCLK_DIV_4,

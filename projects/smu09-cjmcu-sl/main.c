@@ -59,7 +59,8 @@ static void spi_special_setup(uint32_t spi)
 
 
 
-
+///////////////
+// can move into util also.
 
 static uint32_t spi_write_register_16(uint32_t spi, uint32_t r)
 {
