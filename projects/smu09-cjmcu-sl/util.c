@@ -213,4 +213,22 @@ void spi1_special_gpio_setup(void)
 }
 
 
+#define UNUSED(x) (void)(x) 
+ 
+void spi_special_flag_clear(uint32_t spi)
+{
+  UNUSED(spi);
+  gpio_clear(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // assert special, active low...
+}
+
+
+void spi_special_flag_set(uint32_t spi)
+{
+  UNUSED(spi);
+  gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); 
+}
+
+
+
+
 
