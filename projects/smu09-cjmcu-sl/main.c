@@ -40,25 +40,14 @@
 
 static void spi1_special_setup(uint32_t spi)
 {
-/*
-  uint16_t out = SPI_ICE40_CLK | SPI_ICE40_CS | SPI_ICE40_MOSI ; // not MISO
-  uint16_t all = out |  SPI_ICE40_MISO;
-
-
-  // rcc_periph_clock_enable(RCC_SPI1);
-
-  gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
-  gpio_set_af(SPI_ICE40_PORT, GPIO_AF5, all); // af 5
-  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out);
-*/
 
   spi_init_master(
     spi,
-    SPI_CR1_BAUDRATE_FPCLK_DIV_4,     // SPI_CR1_BAUDRATE_FPCLK_DIV_256,
-    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,  // SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE ,
+    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
+    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
     SPI_CR1_CPHA_CLK_TRANSITION_2,    // 2 == falling edge (from dac8734 doc.
     SPI_CR1_DFF_8BIT,
-    SPI_CR1_MSBFIRST                  // SPI_CR1_LSBFIRST
+    SPI_CR1_MSBFIRST
   );
 
   spi_disable_software_slave_management( spi);
@@ -68,32 +57,12 @@ static void spi1_special_setup(uint32_t spi)
 }
 
 
-#if 0
-// special register...
-
-static uint32_t spi1_write_register_24(uint32_t spi, uint32_t r)
-{
-  uint8_t a = spi_xfer( spi, (r >> 16) & 0xff );
-  uint8_t b = spi_xfer( spi, (r >> 8) & 0xff  );
-  uint8_t c = spi_xfer( spi, r & 0xff  );
-
-  // REVIEW
-  // return (a << 16) + (b << 8) + c;
-  return (c << 16) + (b << 8) + a;      // msb last... seems weird.
-}
-#endif
-
 
 
 #define SPI_ICE40       SPI1
 
 #define SPI_ICE40_PORT  GPIOA
-/*
-#define SPI_ICE40_CLK   GPIO5
-#define SPI_ICE40_CS    GPIO4
-#define SPI_ICE40_MOSI  GPIO7
-#define SPI_ICE40_MISO  GPIO6
-*/
+
 
 // output reg.
 #define SPI_ICE40_SPECIAL GPIO3
@@ -192,7 +161,7 @@ static uint32_t ice40_write_peripheral(uint32_t r)
 
   a couple more address lines would simplify this.
   eg. instead of one special. 2 more - would give 8 devices.
-  although we still need - to reconfigure the spi each time. 
+  although we still need - to reconfigure the spi each time.
 */
 
 
@@ -200,7 +169,7 @@ static void mux_fpga(uint32_t spi)
 {
   /////////////////////////
   spi1_special_setup(spi);
-} 
+}
 
 
 static void mux_adc03(uint32_t spi)
