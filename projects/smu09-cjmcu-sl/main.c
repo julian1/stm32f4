@@ -59,14 +59,6 @@ static void spi_special_setup(uint32_t spi)
 
 
 
-#define SPI_ICE40       SPI1
-
-#define SPI_ICE40_PORT  GPIOA
-
-
-// output reg.
-#define SPI_ICE40_SPECIAL GPIO3
-
 
 
 static uint32_t spi_write_register_16(uint32_t spi, uint32_t r)
@@ -80,11 +72,8 @@ static uint32_t spi_write_register_16(uint32_t spi, uint32_t r)
 }
 
 
-
-
 static uint32_t spi_special_write1(uint32_t spi, uint32_t r)
 {
-  
   spi_special_flag_clear(spi);
   spi_enable(spi);
   uint8_t ret = spi_write_register_16(spi, r );
@@ -146,6 +135,8 @@ static void mux_flash(uint32_t spi)
 }
 
 
+
+#define SPI_ICE40       SPI1
 
 
 static void soft_500ms_update(void)
@@ -210,6 +201,9 @@ static void loop(void)
 // hmmm. problem.
 // the register writing using one type of clock dir and flash communication a different type of clock.
 // actually it's kind of ok. we will set everything up first.
+
+
+
 
 
 int main(void)
