@@ -31,100 +31,6 @@
 
 
 
-#define LED_PORT      GPIOE
-#define LED_OUT       GPIO0
-
-
-
-static void led_setup(void)
-{
-  gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT);
-}
-
-
-
-////////////////////////////////////////////////////////
-
-/* Common function descriptions */
-// #include "clock.h"
-
-/* milliseconds since boot */
-static volatile uint32_t system_millis;
-
-
-
-// static void systick_setup(void)
-static void systick_setup(uint32_t tick_divider)
-{
-  // TODO change name systick_setup().
-  // TODO pass clock reload divider as argument, to localize.
-
-  /* clock rate / 168000 to get 1mS interrupt rate */
-  // systick_set_reload(168000);
-  systick_set_reload(tick_divider);
-  systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
-  systick_counter_enable();
-
-  /* this done last */
-  systick_interrupt_enable();
-}
-
-
-////////////////////////////////////////////////////////
-
-// implement critical_error_blink() msleep() and usart_printf()
-// eg. rather than ioc/ dependency injection, just implement
-
-void critical_error_blink(void)
-{
-  // avoid passing arguments, consuming stack.
-	for (;;) {
-		gpio_toggle(LED_PORT,LED_OUT);
-		for(uint32_t i = 0; i < 500000; ++i)
-       __asm__("nop");
-	}
-}
-
-// defined in util.h
-void msleep(uint32_t delay)
-{
-  // TODO. review. don't think this works on wrap around
-  uint32_t wake = system_millis + delay;
-  if(wake < delay) {
-
-    // wait for overflow
-    while (system_millis > (UINT32_MAX / 2));
-  }
-  while (system_millis < wake);
-}
-
-
-
-
-static char buf1[1000];
-static char buf2[1000];
-
-static CBuf console_in;
-static CBuf console_out;
-
-
-
-
-void usart_printf( const char *format, ... )
-{
-  // TODO rename to just printf... it's not the responsibiilty of user to know context
-  // can override the write, to do flush etc.
-	va_list args;
-
-	va_start(args,format);
-	internal_vprintf((void *)cBufPut, &console_out, format,args);
-	va_end(args);
-}
-
-void flush( void)
-{
-  usart_sync_flush();
-}
 
 
 
@@ -142,8 +48,26 @@ void flush( void)
 #define SPI_ICE40_SPECIAL GPIO3
 
 
+static void spi1_port_setup(void)
+{
+  // same...
+  uint16_t out = SPI_ICE40_CLK | SPI_ICE40_CS | SPI_ICE40_MOSI ; // not MISO
+  uint16_t all = out | SPI_ICE40_MISO;
+
+  // rcc_periph_clock_enable(RCC_SPI1);
+
+  gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
+  gpio_set_af(SPI_ICE40_PORT, GPIO_AF5, all); // af 5
+  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out);
+
+}
+
+
+
+
 static void spi1_ice40_setup(void)
 {
+/*
   uint16_t out = SPI_ICE40_CLK | SPI_ICE40_CS | SPI_ICE40_MOSI ; // not MISO 
   uint16_t all = out |  SPI_ICE40_MISO;
 
@@ -153,7 +77,7 @@ static void spi1_ice40_setup(void)
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
   gpio_set_af(SPI_ICE40_PORT, GPIO_AF5, all); // af 5
   gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out);
-
+*/
 
   spi_init_master(
     SPI_ICE40,
@@ -263,28 +187,9 @@ static uint32_t ice40_write_peripheral(uint32_t r)
 #define SPI_MUX_FLASH     (1<<2)
 
 
+#if 0
 void sys_tick_handler(void)
 {
-  /*
-    this is an interupt context. not sure how much work should do here.
-    albeit maybe its ok as dispatch point.
-
-    it will interrupt other stuff...
-  */
-  // equivalent to a rtos software timer
-  // we are in an interupt  context here... so don't do anything
-  // NOTE. we could actually set a flag.  or a vector of functions to call..
-  // and then process in main loop.
-  // eg. where things can be properly sequenced
-
-  system_millis++;
-
-
-  // 100ms.
-  if( system_millis % 100 == 0) {
-  }
-
-
   // 500ms.
   if( system_millis % 500 == 0) {
 
@@ -335,14 +240,29 @@ void sys_tick_handler(void)
 //    msleep(10); locks up mcu review.......... EXTREME
     
     ice40_write_peripheral(0xffff );
-
   }
+}
+#endif
+
+
+static void soft_500ms_update(void)
+{
+  // blink led
+  led_toggle();
+
+  ////////
+  // uint32_t spi = SPI_ICE40;
 
 }
 
 
+
+
+
 static void loop(void)
 {
+
+  static uint32_t soft_500ms = 0;
 
   while(true) {
 
@@ -354,6 +274,14 @@ static void loop(void)
     // pump usart queues
     usart_input_update();
     usart_output_update();
+
+
+    // 500ms soft timer
+    if( system_millis > soft_500ms) {
+      soft_500ms = system_millis + 500;
+      soft_500ms_update();
+    }
+
   }
 
 }
@@ -394,19 +322,12 @@ int main(void)
 
 
   // usart
-  cBufInit(&console_in, buf1, sizeof(buf1));
-  cBufInit(&console_out, buf2, sizeof(buf2));
-  usart_setup_gpio_portA();
-  usart_setup(&console_in, &console_out);     // gahhh... we have to change this each time...
+  usart_setup_();
 
 
-  // 
+  spi1_port_setup();
   spi1_ice40_setup();
 
-
-//  ice40_write_register1(0xff );
-  // ice40_write_register1(0 );
-  ice40_write_register1( 2 );
 
   ////////////////////
 
@@ -415,7 +336,6 @@ int main(void)
   usart_printf("starting\n");
   // usart_printf("size %d\n", sizeof(fbuf) / sizeof(float));
 
-    
 
   loop();
 
