@@ -46,7 +46,9 @@ static void spi1_port_setup(void)
 
 
 
-static void spi1_flash_setup(void)
+extern void spi1_flash_setup(void);
+
+void spi1_flash_setup(void)
 {
 
 
@@ -69,6 +71,23 @@ static void spi1_flash_setup(void)
 // same flash part, but different chips,
 // iceprog  0x20 0xBA 0x16 0x10 0x00 0x00 0x23 0x81 0x03 0x68 0x23 0x00 0x23 0x00 0x41 0x09 0x05 0x18 0x33 0x0F
 // our code 0x20 0xBA 0x16 0x10 0x00 0x00 0x23 0x81 0x03 0x68 0x23 0x00 0x18 0x00 0x26 0x09 0x05 0x18 0x32 0x7A
+
+
+extern void spi1_flash_get_data(void); 
+
+void spi1_flash_get_data(void)
+{
+  uint32_t spi = SPI_ICE40;
+
+  flash_reset( spi);
+  flash_power_up(spi);
+  flash_write_enable(spi );   // needed to change SR1 from 0x00 to 0x02, after repower.
+  flash_print_status(spi);
+  flash_read_id( spi);
+}
+
+
+
 
 static void soft_500ms_update(void)
 {
@@ -114,7 +133,7 @@ static void loop(void)
 }
 
 
-
+#if 0
 int main(void)
 {
   // need to test high speed internal!!!
@@ -160,4 +179,4 @@ int main(void)
 	return 0;
 }
 
-
+#endif

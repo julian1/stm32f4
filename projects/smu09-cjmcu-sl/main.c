@@ -246,6 +246,10 @@ void sys_tick_handler(void)
 extern void spi1_mcp3208_setup(void);
 extern float spi1_mcp3208_get_data(void);
 
+extern void spi1_flash_setup(void);
+extern void spi1_flash_get_data(void); 
+
+
 static void soft_500ms_update(void)
 {
   // blink led
@@ -258,18 +262,33 @@ static void soft_500ms_update(void)
   static int count = 0;
 
   // setup spi1 for register control.
+
+  /////////////////////////
   spi1_ice40_setup();
+  // do register
   ice40_write_register2( LED_REGISTER, count++ );
+  // fpga mux adc03.
+  ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_ADC03 );   
 
-  ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_ADC03 );   // nothing should be active
-
-  // need to write register for mcp3208
 
   // setup spi1 for mcp3208
   spi1_mcp3208_setup();
   float val = spi1_mcp3208_get_data();
-
   usart_printf("val %f\n", val);
+
+  /////////////////////////
+  // setup spi1 for register control.
+  spi1_ice40_setup();
+  // do register
+  ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_FLASH );   
+
+
+  // setup spi to read flash
+  spi1_flash_setup();
+  spi1_flash_get_data(); 
+
+
+
 }
 
 
