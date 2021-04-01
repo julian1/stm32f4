@@ -17,34 +17,6 @@
 
 
 
-//////////////////////////
-
-#define SPI_ICE40       SPI1
-
-#define SPI_ICE40_PORT  GPIOA
-#define SPI_ICE40_CLK   GPIO5
-#define SPI_ICE40_CS    GPIO4
-#define SPI_ICE40_MOSI  GPIO7
-#define SPI_ICE40_MISO  GPIO6
-
-// output reg.
-// #define SPI_ICE40_SPECIAL GPIO3
-
-
-static void spi1_port_setup(void)
-{
-  // same...
-  uint16_t out = SPI_ICE40_CLK | SPI_ICE40_CS | SPI_ICE40_MOSI ; // not MISO
-  uint16_t all = out | SPI_ICE40_MISO;
-
-  // rcc_periph_clock_enable(RCC_SPI1);
-
-  gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
-  gpio_set_af(SPI_ICE40_PORT, GPIO_AF5, all); // af 5
-  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out);
-
-}
-
 
 
 
@@ -86,6 +58,7 @@ void spi1_flash_get_data(uint32_t spi)
 
 
 
+#define SPI_ICE40       SPI1
 
 static void soft_500ms_update(void)
 {

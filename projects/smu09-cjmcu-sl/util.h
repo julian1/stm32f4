@@ -23,4 +23,6 @@ extern void flush( void);
 extern void usart_setup_( void );
 
 
+void spi1_port_setup(void);
+void spi1_special_gpio_setup(void);
 

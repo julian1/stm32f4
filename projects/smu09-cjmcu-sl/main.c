@@ -35,41 +35,6 @@
 
 
 
-//////////////////////////
-
-#define SPI_ICE40       SPI1
-
-#define SPI_ICE40_PORT  GPIOA
-#define SPI_ICE40_CLK   GPIO5
-#define SPI_ICE40_CS    GPIO4
-#define SPI_ICE40_MOSI  GPIO7
-#define SPI_ICE40_MISO  GPIO6
-
-// output reg.
-#define SPI_ICE40_SPECIAL GPIO3
-
-
-static void spi1_port_setup(void)
-{
-  // same...
-  uint16_t out = SPI_ICE40_CLK | SPI_ICE40_CS | SPI_ICE40_MOSI ; // not MISO
-  uint16_t all = out | SPI_ICE40_MISO;
-
-  // rcc_periph_clock_enable(RCC_SPI1);
-
-  gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
-  gpio_set_af(SPI_ICE40_PORT, GPIO_AF5, all); // af 5
-  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out);
-
-
-  // special
-  gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_ICE40_SPECIAL);
-  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_ICE40_SPECIAL);
-
-  gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // hi == off, active low...
-
-}
-
 
 
 
@@ -117,6 +82,23 @@ static uint32_t spi1_write_register_24(uint32_t spi, uint32_t r)
   return (c << 16) + (b << 8) + a;      // msb last... seems weird.
 }
 #endif
+
+
+
+#define SPI_ICE40       SPI1
+
+#define SPI_ICE40_PORT  GPIOA
+/*
+#define SPI_ICE40_CLK   GPIO5
+#define SPI_ICE40_CS    GPIO4
+#define SPI_ICE40_MOSI  GPIO7
+#define SPI_ICE40_MISO  GPIO6
+*/
+
+// output reg.
+#define SPI_ICE40_SPECIAL GPIO3
+
+
 
 static uint32_t spi1_write_register_16(uint32_t spi, uint32_t r)
 {
@@ -339,6 +321,7 @@ int main(void)
 
 
   spi1_port_setup();
+  spi1_special_gpio_setup();
   spi1_special_setup(SPI_ICE40);// CHECK
 
 
