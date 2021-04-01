@@ -69,7 +69,7 @@ static void spi1_port_setup(void)
 static void spi1_special_setup(void)
 {
 /*
-  uint16_t out = SPI_ICE40_CLK | SPI_ICE40_CS | SPI_ICE40_MOSI ; // not MISO 
+  uint16_t out = SPI_ICE40_CLK | SPI_ICE40_CS | SPI_ICE40_MOSI ; // not MISO
   uint16_t all = out |  SPI_ICE40_MISO;
 
 
@@ -95,10 +95,10 @@ static void spi1_special_setup(void)
   ////////////
 
 
-  // special 
+  // special
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_ICE40_SPECIAL);
   gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_ICE40_SPECIAL);
-  
+
   gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // hi == off, active low...
 }
 
@@ -131,7 +131,7 @@ static uint32_t spi1_write_register_16(uint32_t spi, uint32_t r)
 
 
 
-static uint32_t spi1_write_special1(uint32_t r)
+static uint32_t spi1_special_write1(uint32_t r)
 {
 
   gpio_clear(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // assert special, active low...
@@ -143,15 +143,15 @@ static uint32_t spi1_write_special1(uint32_t r)
 }
 
 
-static uint32_t spi1_write_special( uint8_t r, uint8_t v) 
+static uint32_t spi1_special_write( uint8_t r, uint8_t v)
 {
-  uint8_t ret = spi1_write_special1(r << 8 | v );
+  uint8_t ret = spi1_special_write1(r << 8 | v );
   return ret;
 }
 
 
 /*
-// 
+//
 static uint32_t ice40_write_peripheral(uint32_t r)
 {
   // gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // deassert special...
@@ -176,7 +176,7 @@ static uint32_t ice40_write_peripheral(uint32_t r)
 #define DAC_LDAC      (1<<0)
 #define DAC_RST       (1<<1)
 #define DAC_UNI_BIP_A (1<<2)
-#define DAC_UNI_BIP_B (1<<3) 
+#define DAC_UNI_BIP_B (1<<3)
 
 
 #define SPI_MUX_REGISTER  0x08
@@ -193,11 +193,11 @@ static uint32_t ice40_write_peripheral(uint32_t r)
     // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_MOSI );
     // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_SPECIAL );
 
-  
-    if(count % 2 == 0) 
-      spi1_write_special( DAC_REGISTER,  DAC_UNI_BIP_A);
+
+    if(count % 2 == 0)
+      spi1_special_write( DAC_REGISTER,  DAC_UNI_BIP_A);
     else
-      spi1_write_special( DAC_REGISTER,  ~DAC_UNI_BIP_A );
+      spi1_special_write( DAC_REGISTER,  ~DAC_UNI_BIP_A );
 
 
 #endif
@@ -224,9 +224,9 @@ static void soft_500ms_update(void)
   /////////////////////////
   spi1_special_setup();
   // do register
-  spi1_write_special( LED_REGISTER, count++ );
+  spi1_special_write( LED_REGISTER, count++ );
   // fpga mux adc03.
-  spi1_write_special( SPI_MUX_REGISTER, SPI_MUX_ADC03 );   
+  spi1_special_write( SPI_MUX_REGISTER, SPI_MUX_ADC03 );
 
 
   // setup spi1 for mcp3208
@@ -238,12 +238,12 @@ static void soft_500ms_update(void)
   // setup spi1 for register control.
   spi1_special_setup();
   // do register
-  spi1_write_special( SPI_MUX_REGISTER, SPI_MUX_FLASH );   
+  spi1_special_write( SPI_MUX_REGISTER, SPI_MUX_FLASH );
 
 
   // setup spi to read flash
   spi1_flash_setup();
-  spi1_flash_get_data(); 
+  spi1_flash_get_data();
 
 
 
