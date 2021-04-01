@@ -82,7 +82,7 @@ void spi1_flash_get_data(void)
   flash_reset( spi);
   flash_power_up(spi);
   flash_write_enable(spi );   // needed to change SR1 from 0x00 to 0x02, after repower.
-  flash_print_status(spi);
+  // flash_print_status(spi);
   flash_read_id( spi);
 }
 

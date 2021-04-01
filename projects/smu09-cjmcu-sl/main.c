@@ -263,6 +263,8 @@ static void soft_500ms_update(void)
 
   // setup spi1 for register control.
 
+  usart_printf("-----------\n");
+
   /////////////////////////
   spi1_ice40_setup();
   // do register
@@ -314,7 +316,7 @@ static void loop(void)
 
     // 500ms soft timer
     if( system_millis > soft_500ms) {
-      soft_500ms = system_millis + 500;
+      soft_500ms = system_millis + 1000;
       soft_500ms_update();
     }
 
