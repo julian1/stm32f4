@@ -214,6 +214,30 @@ static uint32_t ice40_write_peripheral(uint32_t r)
 */
 
 
+static void mux_fpga(void)
+{
+  /////////////////////////
+  spi1_special_setup();
+} 
+
+
+static void mux_adc03(void)
+{
+  /////////////////////////
+  spi1_special_setup();
+  spi1_special_write( SPI_MUX_REGISTER, SPI_MUX_ADC03 );
+  spi1_mcp3208_setup();
+
+}
+
+static void mux_flash(void)
+{
+  /////////////////////////
+  spi1_special_setup();
+  spi1_special_write( SPI_MUX_REGISTER, SPI_MUX_FLASH );
+  spi1_flash_setup();
+}
+
 static void soft_500ms_update(void)
 {
   // blink mcu led
@@ -229,31 +253,18 @@ static void soft_500ms_update(void)
 
   usart_printf("-----------\n");
 
-  /////////////////////////
-  spi1_special_setup();
-  // do register
+
+  mux_fpga();
   spi1_special_write( LED_REGISTER, count++ );
-  // fpga mux adc03.
-  spi1_special_write( SPI_MUX_REGISTER, SPI_MUX_ADC03 );
 
 
-  // setup spi1 for mcp3208
-  spi1_mcp3208_setup();
+  mux_adc03();
   float val = spi1_mcp3208_get_data();
   usart_printf("val %f\n", val);
 
-  /////////////////////////
-  // setup spi1 for register control.
-  spi1_special_setup();
-  // do register
-  spi1_special_write( SPI_MUX_REGISTER, SPI_MUX_FLASH );
 
-
-  // setup spi to read flash
-  spi1_flash_setup();
+  mux_flash();
   spi1_flash_get_data();
-
-
 
 }
 
