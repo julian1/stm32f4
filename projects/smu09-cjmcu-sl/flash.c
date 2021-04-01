@@ -48,12 +48,12 @@ static void spi1_port_setup(void)
 
 
 
-void spi1_flash_setup(void)
+void spi1_flash_setup(uint32_t spi)
 {
 
 
   spi_init_master(
-    SPI_ICE40,
+    spi,
     SPI_CR1_BAUDRATE_FPCLK_DIV_4,
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
     SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == rising edge. difference
@@ -61,8 +61,8 @@ void spi1_flash_setup(void)
     SPI_CR1_MSBFIRST
   );
 
-  spi_disable_software_slave_management( SPI_ICE40);
-  spi_enable_ss_output(SPI_ICE40);
+  spi_disable_software_slave_management(spi);
+  spi_enable_ss_output(spi);
 }
 
 
@@ -74,9 +74,8 @@ void spi1_flash_setup(void)
 
 
 
-void spi1_flash_get_data(void)
+void spi1_flash_get_data(uint32_t spi)
 {
-  uint32_t spi = SPI_ICE40;
 
   flash_reset( spi);
   flash_power_up(spi);

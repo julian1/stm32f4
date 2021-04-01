@@ -61,12 +61,19 @@ static void spi1_port_setup(void)
   gpio_set_af(SPI_ICE40_PORT, GPIO_AF5, all); // af 5
   gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out);
 
+
+  // special
+  gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_ICE40_SPECIAL);
+  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_ICE40_SPECIAL);
+
+  gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // hi == off, active low...
+
 }
 
 
 
 
-static void spi1_special_setup(void)
+static void spi1_special_setup(uint32_t spi)
 {
 /*
   uint16_t out = SPI_ICE40_CLK | SPI_ICE40_CS | SPI_ICE40_MOSI ; // not MISO
@@ -81,7 +88,7 @@ static void spi1_special_setup(void)
 */
 
   spi_init_master(
-    SPI_ICE40,
+    spi,
     SPI_CR1_BAUDRATE_FPCLK_DIV_4,     // SPI_CR1_BAUDRATE_FPCLK_DIV_256,
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,  // SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE ,
     SPI_CR1_CPHA_CLK_TRANSITION_2,    // 2 == falling edge (from dac8734 doc.
@@ -89,17 +96,10 @@ static void spi1_special_setup(void)
     SPI_CR1_MSBFIRST                  // SPI_CR1_LSBFIRST
   );
 
-  spi_disable_software_slave_management( SPI_ICE40);
-  spi_enable_ss_output(SPI_ICE40);
+  spi_disable_software_slave_management( spi);
+  spi_enable_ss_output(spi);
 
   ////////////
-
-
-  // special
-  gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_ICE40_SPECIAL);
-  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_ICE40_SPECIAL);
-
-  gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // hi == off, active low...
 }
 
 
@@ -214,28 +214,28 @@ static uint32_t ice40_write_peripheral(uint32_t r)
 */
 
 
-static void mux_fpga(void)
+static void mux_fpga(uint32_t spi)
 {
   /////////////////////////
-  spi1_special_setup();
+  spi1_special_setup(spi);
 } 
 
 
-static void mux_adc03(void)
+static void mux_adc03(uint32_t spi)
 {
   /////////////////////////
-  spi1_special_setup();
+  spi1_special_setup(spi);
   spi1_special_write( SPI_MUX_REGISTER, SPI_MUX_ADC03 );
-  spi1_mcp3208_setup();
 
+  spi1_mcp3208_setup(spi);
 }
 
-static void mux_flash(void)
+static void mux_flash(uint32_t spi)
 {
   /////////////////////////
-  spi1_special_setup();
+  spi1_special_setup(spi);
   spi1_special_write( SPI_MUX_REGISTER, SPI_MUX_FLASH );
-  spi1_flash_setup();
+  spi1_flash_setup(spi);
 }
 
 static void soft_500ms_update(void)
@@ -244,7 +244,7 @@ static void soft_500ms_update(void)
   led_toggle();
 
   ////////
-  // uint32_t spi = SPI_ICE40;
+  uint32_t spi = SPI_ICE40;
 
   // blink led
   static int count = 0;
@@ -254,17 +254,17 @@ static void soft_500ms_update(void)
   usart_printf("-----------\n");
 
 
-  mux_fpga();
+  mux_fpga(spi);
   spi1_special_write( LED_REGISTER, count++ );
 
 
-  mux_adc03();
-  float val = spi1_mcp3208_get_data();
+  mux_adc03(spi);
+  float val = spi1_mcp3208_get_data(spi);
   usart_printf("val %f\n", val);
 
 
-  mux_flash();
-  spi1_flash_get_data();
+  mux_flash(spi);
+  spi1_flash_get_data(spi);
 
 }
 
@@ -339,7 +339,7 @@ int main(void)
 
 
   spi1_port_setup();
-  spi1_special_setup();
+  spi1_special_setup(SPI_ICE40);// CHECK
 
 
   ////////////////////

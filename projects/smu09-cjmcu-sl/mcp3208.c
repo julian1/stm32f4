@@ -47,13 +47,16 @@ static void spi1_port_setup(void)
 }
 
 
+/*
+  OK. nice. can now pass the spi port by argument.
+  because have separated out io config.
+*/
 
-
-void spi1_mcp3208_setup(void)
+void spi1_mcp3208_setup(uint32_t spi)
 {
 
   spi_init_master(
-    SPI_ICE40,
+    spi,
     // SPI_CR1_BAUDRATE_FPCLK_DIV_4,
     SPI_CR1_BAUDRATE_FPCLK_DIV_16,   // slow... 16Mhz / 16 = 1Mhz. TODO review.
     // SPI_CR1_BAUDRATE_FPCLK_DIV_256,   // slow
@@ -63,8 +66,8 @@ void spi1_mcp3208_setup(void)
     SPI_CR1_MSBFIRST
   );
 
-  spi_disable_software_slave_management( SPI_ICE40);
-  spi_enable_ss_output(SPI_ICE40);
+  spi_disable_software_slave_management( spi );
+  spi_enable_ss_output( spi);
 }
 
 
@@ -91,9 +94,8 @@ void spi1_mcp3208_setup(void)
 */
 
 
-float spi1_mcp3208_get_data(void)
+float spi1_mcp3208_get_data(uint32_t spi)
 {
-  uint32_t spi = SPI_ICE40;
 
   // first channel, single ended
    uint8_t data[3] = { 0b01100000 , 0x00, 0x00 };   // eg. delay by one bit so that data aligns
