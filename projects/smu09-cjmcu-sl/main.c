@@ -82,13 +82,13 @@ static uint32_t spi1_write_register_16(uint32_t spi, uint32_t r)
 
 
 
-static uint32_t spi1_special_write1(uint32_t r)
+static uint32_t spi1_special_write1(uint32_t spi, uint32_t r)
 {
 
   gpio_clear(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // assert special, active low...
-  spi_enable( SPI_ICE40 );
-  uint8_t ret = spi1_write_register_16(SPI_ICE40, r );
-  spi_disable( SPI_ICE40 );
+  spi_enable(spi);
+  uint8_t ret = spi1_write_register_16(spi, r );
+  spi_disable(spi);
   gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // deassert special, active low...
   return ret;
 }
@@ -96,22 +96,10 @@ static uint32_t spi1_special_write1(uint32_t r)
 
 static uint32_t spi1_special_write( uint8_t r, uint8_t v)
 {
-  uint8_t ret = spi1_special_write1(r << 8 | v );
+  uint8_t ret = spi1_special_write1(SPI_ICE40, r << 8 | v );
   return ret;
 }
 
-
-/*
-//
-static uint32_t ice40_write_peripheral(uint32_t r)
-{
-  // gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // deassert special...
-  spi_enable( SPI_ICE40 );
-  uint8_t ret = spi1_write_register_16(SPI_ICE40, r );
-  spi_disable( SPI_ICE40 );
-  return ret;
-}
-*/
 
 
 
@@ -136,58 +124,29 @@ static uint32_t ice40_write_peripheral(uint32_t r)
 #define SPI_MUX_FLASH     (1<<2)
 
 
-#if 0
-
-    // tests
-    // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_CLK);
-    // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_CS);
-    // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_MOSI );
-    // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_SPECIAL );
-
-
-    if(count % 2 == 0)
-      spi1_special_write( DAC_REGISTER,  DAC_UNI_BIP_A);
-    else
-      spi1_special_write( DAC_REGISTER,  ~DAC_UNI_BIP_A );
-
-
-#endif
-
-/*
-  should group for each function,
-    1. setup fpga spi
-    2. write the fpga mux register
-    3. setup the spi for peripheral.
-
-  a couple more address lines would simplify this.
-  eg. instead of one special. 2 more - would give 8 devices.
-  although we still need - to reconfigure the spi each time.
-*/
-
 
 static void mux_fpga(uint32_t spi)
 {
-  /////////////////////////
   spi1_special_setup(spi);
 }
 
 
 static void mux_adc03(uint32_t spi)
 {
-  /////////////////////////
   spi1_special_setup(spi);
   spi1_special_write( SPI_MUX_REGISTER, SPI_MUX_ADC03 );
-
   spi1_mcp3208_setup(spi);
 }
 
 static void mux_flash(uint32_t spi)
 {
-  /////////////////////////
   spi1_special_setup(spi);
   spi1_special_write( SPI_MUX_REGISTER, SPI_MUX_FLASH );
   spi1_flash_setup(spi);
 }
+
+
+
 
 static void soft_500ms_update(void)
 {
