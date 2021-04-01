@@ -35,8 +35,9 @@
 
 
 
-static void spi_special_setup(uint32_t spi)
+static void spi_fpga_setup(uint32_t spi)
 {
+  // the fpga as a spi slave.
 
   spi_init_master(
     spi,
@@ -49,8 +50,6 @@ static void spi_special_setup(uint32_t spi)
 
   spi_disable_software_slave_management( spi);
   spi_enable_ss_output(spi);
-
-  ////////////
 }
 
 
@@ -70,7 +69,7 @@ static uint32_t spi_write_register_16(uint32_t spi, uint32_t r)
 }
 
 
-static uint32_t spi_special_write1(uint32_t spi, uint32_t r)
+static uint32_t spi_fpga_write1(uint32_t spi, uint32_t r)
 {
   spi_special_flag_clear(spi);
   spi_enable(spi);
@@ -81,9 +80,9 @@ static uint32_t spi_special_write1(uint32_t spi, uint32_t r)
 }
 
 
-static uint32_t spi_special_write( uint32_t spi, uint8_t r, uint8_t v)
+static uint32_t spi_fpga_write( uint32_t spi, uint8_t r, uint8_t v)
 {
-  uint8_t ret = spi_special_write1(spi, r << 8 | v );
+  uint8_t ret = spi_fpga_write1(spi, r << 8 | v );
   return ret;
 }
 
@@ -114,21 +113,21 @@ static uint32_t spi_special_write( uint32_t spi, uint8_t r, uint8_t v)
 
 static void mux_fpga(uint32_t spi)
 {
-  spi_special_setup(spi);
+  spi_fpga_setup(spi);
 }
 
 
 static void mux_adc03(uint32_t spi)
 {
-  spi_special_setup(spi);
-  spi_special_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC03 );
+  spi_fpga_setup(spi);
+  spi_fpga_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC03 );
   spi_mcp3208_setup(spi);
 }
 
 static void mux_flash(uint32_t spi)
 {
-  spi_special_setup(spi);
-  spi_special_write(spi, SPI_MUX_REGISTER, SPI_MUX_FLASH );
+  spi_fpga_setup(spi);
+  spi_fpga_write(spi, SPI_MUX_REGISTER, SPI_MUX_FLASH );
   spi_flash_setup(spi);
 }
 
@@ -152,7 +151,7 @@ static void soft_500ms_update(void)
   usart_printf("-----------\n");
 
   mux_fpga(spi);
-  spi_special_write(spi, LED_REGISTER, count++ );
+  spi_fpga_write(spi, LED_REGISTER, count++);
 
   mux_adc03(spi);
   float val = spi_mcp3208_get_data(spi);
@@ -239,8 +238,6 @@ int main(void)
   ////////////////
   spi1_port_setup();
   spi1_special_gpio_setup();
-
-  spi_special_setup(SPI_ICE40);// CHECK
 
 
   ////////////////////
