@@ -24,7 +24,7 @@
   because have separated out io config.
 */
 
-void spi1_mcp3208_setup(uint32_t spi)
+void spi_mcp3208_setup(uint32_t spi)
 {
 
   spi_init_master(
@@ -66,7 +66,7 @@ void spi1_mcp3208_setup(uint32_t spi)
 */
 
 
-float spi1_mcp3208_get_data(uint32_t spi)
+float spi_mcp3208_get_data(uint32_t spi)
 {
 
   // first channel, single ended
@@ -192,10 +192,10 @@ int main(void)
   usart_setup_();
 
   //
-  // spi1_mcp3208_setup();
+  // spi_mcp3208_setup();
 
-  spi1_port_setup();
-  spi1_mcp3208_setup();
+  spi_port_setup();
+  spi_mcp3208_setup();
 
 
 

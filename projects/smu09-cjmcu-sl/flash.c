@@ -20,7 +20,7 @@
 
 
 
-void spi1_flash_setup(uint32_t spi)
+void spi_flash_setup(uint32_t spi)
 {
 
 
@@ -46,7 +46,7 @@ void spi1_flash_setup(uint32_t spi)
 
 
 
-void spi1_flash_get_data(uint32_t spi)
+void spi_flash_get_data(uint32_t spi)
 {
 
   flash_reset( spi);
@@ -136,8 +136,8 @@ int main(void)
 
 
   // 
-  spi1_port_setup();
-  spi1_flash_setup();
+  spi_port_setup();
+  spi_flash_setup();
 
 
   usart_printf("\n--------\n");

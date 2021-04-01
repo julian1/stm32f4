@@ -38,7 +38,7 @@
 
 
 
-static void spi1_special_setup(uint32_t spi)
+static void spi_special_setup(uint32_t spi)
 {
 
   spi_init_master(
@@ -69,7 +69,7 @@ static void spi1_special_setup(uint32_t spi)
 
 
 
-static uint32_t spi1_write_register_16(uint32_t spi, uint32_t r)
+static uint32_t spi_write_register_16(uint32_t spi, uint32_t r)
 {
   uint8_t a = spi_xfer( spi, (r >> 8) & 0xff  );
   uint8_t b = spi_xfer( spi, r & 0xff  );
@@ -82,25 +82,21 @@ static uint32_t spi1_write_register_16(uint32_t spi, uint32_t r)
 
 
 
-static uint32_t spi1_special_write1(uint32_t spi, uint32_t r)
+static uint32_t spi_special_write1(uint32_t spi, uint32_t r)
 {
-  // we can abstract this with a function
-  // spi1_gpio_special_clear();
-
+  
   spi_special_flag_clear(spi);
-  // gpio_clear(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // assert special, active low...
   spi_enable(spi);
-  uint8_t ret = spi1_write_register_16(spi, r );
+  uint8_t ret = spi_write_register_16(spi, r );
   spi_disable(spi);
   spi_special_flag_set(spi);
-  // gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // deassert special, active low...
   return ret;
 }
 
 
-static uint32_t spi1_special_write( uint32_t spi, uint8_t r, uint8_t v)
+static uint32_t spi_special_write( uint32_t spi, uint8_t r, uint8_t v)
 {
-  uint8_t ret = spi1_special_write1(spi, r << 8 | v );
+  uint8_t ret = spi_special_write1(spi, r << 8 | v );
   return ret;
 }
 
@@ -131,22 +127,22 @@ static uint32_t spi1_special_write( uint32_t spi, uint8_t r, uint8_t v)
 
 static void mux_fpga(uint32_t spi)
 {
-  spi1_special_setup(spi);
+  spi_special_setup(spi);
 }
 
 
 static void mux_adc03(uint32_t spi)
 {
-  spi1_special_setup(spi);
-  spi1_special_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC03 );
-  spi1_mcp3208_setup(spi);
+  spi_special_setup(spi);
+  spi_special_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC03 );
+  spi_mcp3208_setup(spi);
 }
 
 static void mux_flash(uint32_t spi)
 {
-  spi1_special_setup(spi);
-  spi1_special_write(spi, SPI_MUX_REGISTER, SPI_MUX_FLASH );
-  spi1_flash_setup(spi);
+  spi_special_setup(spi);
+  spi_special_write(spi, SPI_MUX_REGISTER, SPI_MUX_FLASH );
+  spi_flash_setup(spi);
 }
 
 
@@ -167,15 +163,15 @@ static void soft_500ms_update(void)
   usart_printf("-----------\n");
 
   mux_fpga(spi);
-  spi1_special_write(spi, LED_REGISTER, count++ );
+  spi_special_write(spi, LED_REGISTER, count++ );
 
   mux_adc03(spi);
-  float val = spi1_mcp3208_get_data(spi);
+  float val = spi_mcp3208_get_data(spi);
   usart_printf("val %f\n", val);
 
 
   mux_flash(spi);
-  spi1_flash_get_data(spi);
+  spi_flash_get_data(spi);
 
 }
 
@@ -248,10 +244,11 @@ int main(void)
   // usart
   usart_setup_();
 
-
+  ////////////////
   spi1_port_setup();
   spi1_special_gpio_setup();
-  spi1_special_setup(SPI_ICE40);// CHECK
+
+  spi_special_setup(SPI_ICE40);// CHECK
 
 
   ////////////////////
