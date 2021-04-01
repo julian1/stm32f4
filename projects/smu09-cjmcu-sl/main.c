@@ -66,7 +66,7 @@ static void spi1_port_setup(void)
 
 
 
-static void spi1_ice40_setup(void)
+static void spi1_special_setup(void)
 {
 /*
   uint16_t out = SPI_ICE40_CLK | SPI_ICE40_CS | SPI_ICE40_MOSI ; // not MISO 
@@ -106,7 +106,7 @@ static void spi1_ice40_setup(void)
 #if 0
 // special register...
 
-static uint32_t spi_write_register_24(uint32_t spi, uint32_t r)
+static uint32_t spi1_write_register_24(uint32_t spi, uint32_t r)
 {
   uint8_t a = spi_xfer( spi, (r >> 16) & 0xff );
   uint8_t b = spi_xfer( spi, (r >> 8) & 0xff  );
@@ -118,7 +118,7 @@ static uint32_t spi_write_register_24(uint32_t spi, uint32_t r)
 }
 #endif
 
-static uint32_t spi_write_register_16(uint32_t spi, uint32_t r)
+static uint32_t spi1_write_register_16(uint32_t spi, uint32_t r)
 {
   uint8_t a = spi_xfer( spi, (r >> 8) & 0xff  );
   uint8_t b = spi_xfer( spi, r & 0xff  );
@@ -131,21 +131,21 @@ static uint32_t spi_write_register_16(uint32_t spi, uint32_t r)
 
 
 
-static uint32_t ice40_write_register1(uint32_t r)
+static uint32_t spi1_write_special1(uint32_t r)
 {
 
   gpio_clear(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // assert special, active low...
   spi_enable( SPI_ICE40 );
-  uint8_t ret = spi_write_register_16(SPI_ICE40, r );
+  uint8_t ret = spi1_write_register_16(SPI_ICE40, r );
   spi_disable( SPI_ICE40 );
   gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // deassert special, active low...
   return ret;
 }
 
 
-static uint32_t ice40_write_register2( uint8_t r, uint8_t v) 
+static uint32_t spi1_write_special( uint8_t r, uint8_t v) 
 {
-  uint8_t ret = ice40_write_register1(r << 8 | v );
+  uint8_t ret = spi1_write_special1(r << 8 | v );
   return ret;
 }
 
@@ -156,7 +156,7 @@ static uint32_t ice40_write_peripheral(uint32_t r)
 {
   // gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // deassert special...
   spi_enable( SPI_ICE40 );
-  uint8_t ret = spi_write_register_16(SPI_ICE40, r );
+  uint8_t ret = spi1_write_register_16(SPI_ICE40, r );
   spi_disable( SPI_ICE40 );
   return ret;
 }
@@ -186,18 +186,6 @@ static uint32_t ice40_write_peripheral(uint32_t r)
 
 
 #if 0
-void sys_tick_handler(void)
-{
-  // 500ms.
-  if( system_millis % 500 == 0) {
-
-    /*
-      SHould not be doing spi here.  should set a flag. do in loop.
-
-    */
-
-    // blink led
-    gpio_toggle(LED_PORT, LED_OUT);
 
     // tests
     // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_CLK);
@@ -205,41 +193,13 @@ void sys_tick_handler(void)
     // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_MOSI );
     // gpio_toggle(SPI_ICE40_PORT, SPI_ICE40_SPECIAL );
 
-    static int count = 0;
-    // register 7 is the leds.
-    //ice40_write_register1( 7 << 8 | (count++ & 0xff)  );     // register 7. is the led.
-
-    // ice40_write_register1( LED_REGISTER << 8 | 1 << LED1 );     // led1 on 
-    // ice40_write_register1( LED_REGISTER << 8 | 1 << LED2 );     // led1 on 
-
-    /////////////////////
-    // ice40_write_register2( LED_REGISTER, LED1 | ~LED2);
-
-    // NO. DO NOT use read/toggle expects to toggle all bits.
-
-
-    ice40_write_register2( LED_REGISTER, count++ );
-   
+  
     if(count % 2 == 0) 
-      ice40_write_register2( DAC_REGISTER,  DAC_UNI_BIP_A);
+      spi1_write_special( DAC_REGISTER,  DAC_UNI_BIP_A);
     else
-      ice40_write_register2( DAC_REGISTER,  ~DAC_UNI_BIP_A );
+      spi1_write_special( DAC_REGISTER,  ~DAC_UNI_BIP_A );
 
 
-    ///////////////////////////////////
-
-    //ice40_write_register2( SPI_MUX_REGISTER, 0 );   // nothing should be active/ everything hi.
-                                                    // seems to need to be initialized.
-
-    ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_ADC03 );   // nothing should be active
-    // ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_DAC );   // nothing should be active
-    // ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_FLASH );   // nothing should be active
-
-//    msleep(10); locks up mcu review.......... EXTREME
-    
-    ice40_write_peripheral(0xffff );
-  }
-}
 #endif
 
 
@@ -262,11 +222,11 @@ static void soft_500ms_update(void)
   usart_printf("-----------\n");
 
   /////////////////////////
-  spi1_ice40_setup();
+  spi1_special_setup();
   // do register
-  ice40_write_register2( LED_REGISTER, count++ );
+  spi1_write_special( LED_REGISTER, count++ );
   // fpga mux adc03.
-  ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_ADC03 );   
+  spi1_write_special( SPI_MUX_REGISTER, SPI_MUX_ADC03 );   
 
 
   // setup spi1 for mcp3208
@@ -276,9 +236,9 @@ static void soft_500ms_update(void)
 
   /////////////////////////
   // setup spi1 for register control.
-  spi1_ice40_setup();
+  spi1_special_setup();
   // do register
-  ice40_write_register2( SPI_MUX_REGISTER, SPI_MUX_FLASH );   
+  spi1_write_special( SPI_MUX_REGISTER, SPI_MUX_FLASH );   
 
 
   // setup spi to read flash
@@ -360,7 +320,7 @@ int main(void)
 
 
   spi1_port_setup();
-  spi1_ice40_setup();
+  spi1_special_setup();
 
 
   ////////////////////
