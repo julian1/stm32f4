@@ -12,6 +12,7 @@
 #include "usart2.h"
 #include "util.h"
 #include "flash.h"
+#include "common.h"
 
 
 
@@ -46,7 +47,6 @@ static void spi1_port_setup(void)
 
 
 
-extern void spi1_flash_setup(void);
 
 void spi1_flash_setup(void)
 {
@@ -73,7 +73,6 @@ void spi1_flash_setup(void)
 // our code 0x20 0xBA 0x16 0x10 0x00 0x00 0x23 0x81 0x03 0x68 0x23 0x00 0x18 0x00 0x26 0x09 0x05 0x18 0x32 0x7A
 
 
-extern void spi1_flash_get_data(void); 
 
 void spi1_flash_get_data(void)
 {

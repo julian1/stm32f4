@@ -13,7 +13,8 @@
 #include "util.h"
 // #include "flash.h"
 
-#include "flash.h"    // msse_xfer_spi
+#include "flash.h"    // msse_xfer_spi TODO FIX ME.
+#include "common.h"
 
 
 
@@ -47,9 +48,6 @@ static void spi1_port_setup(void)
 
 
 
-extern void spi1_mcp3208_setup(void);
-
-extern float spi1_mcp3208_get_data(void);
 
 void spi1_mcp3208_setup(void)
 {
