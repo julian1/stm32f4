@@ -202,8 +202,16 @@ static uint32_t ice40_write_peripheral(uint32_t r)
 
 #endif
 
+/*
+  should group for each function,
+    1. setup fpga spi
+    2. write the fpga mux register
+    3. setup the spi for peripheral.
 
-
+  a couple more address lines would simplify this.
+  eg. instead of one special. 2 more - would give 8 devices.
+  although we still need - to reconfigure the spi each time. 
+*/
 
 
 static void soft_500ms_update(void)
