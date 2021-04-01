@@ -1,23 +1,26 @@
 /*
   helper stuff that belongs in separate file, but not in separate library
   because might change
+
+  also. port setup. eg. led blinker. that is very common. but different between stm32 series/part.
 */
 
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/systick.h>
 
 #include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/spi.h>
+
+
 
 #include "util.h"
-
 #include "buffer.h"
 #include "usart2.h"
-
 #include "miniprintf2.h" // internal_vprint
 
 
 #include <stddef.h> // size_t
-#include <stdarg.h> // va_starrt etc 
+#include <stdarg.h> // va_starrt etc
 
 
 
@@ -167,7 +170,29 @@ void usart_setup_( void )
 
 
 
+
+///////////////
+// can move into util also.
+
+uint32_t spi_write_register_16(uint32_t spi, uint32_t r)
+{
+  uint8_t a = spi_xfer( spi, (r >> 8) & 0xff  );
+  uint8_t b = spi_xfer( spi, r & 0xff  );
+
+  // REVIEW
+  // return (a << 16) + (b << 8) + c;
+  return (b << 8) + a;      // msb last... seems weird.
+}
+
+
+
+
+
+
 //////////////////////////
+
+
+// fairly application specific but that's ok.
 
 #define SPI_ICE40       SPI1
 
@@ -213,8 +238,8 @@ void spi1_special_gpio_setup(void)
 }
 
 
-#define UNUSED(x) (void)(x) 
- 
+#define UNUSED(x) (void)(x)
+
 void spi_special_flag_clear(uint32_t spi)
 {
   UNUSED(spi);
@@ -225,7 +250,7 @@ void spi_special_flag_clear(uint32_t spi)
 void spi_special_flag_set(uint32_t spi)
 {
   UNUSED(spi);
-  gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); 
+  gpio_set(SPI_ICE40_PORT, SPI_ICE40_SPECIAL );
 }
 
 

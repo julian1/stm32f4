@@ -10,7 +10,7 @@
 //#include <libopencm3/cm3/systick.h>
 //#include <libopencm3/stm32/exti.h>
 //#include <libopencm3/stm32/timer.h>
-// #include <libopencm3/cm3/scb.h>
+//#include <libopencm3/cm3/scb.h>
 #include <libopencm3/stm32/spi.h>
 
 
@@ -25,9 +25,6 @@
 #include "util.h"
 
 #include "common.h"
-
-
-
 
 
 
@@ -52,21 +49,6 @@ static void spi_fpga_setup(uint32_t spi)
   spi_enable_ss_output(spi);
 }
 
-
-
-
-///////////////
-// can move into util also.
-
-static uint32_t spi_write_register_16(uint32_t spi, uint32_t r)
-{
-  uint8_t a = spi_xfer( spi, (r >> 8) & 0xff  );
-  uint8_t b = spi_xfer( spi, r & 0xff  );
-
-  // REVIEW
-  // return (a << 16) + (b << 8) + c;
-  return (b << 8) + a;      // msb last... seems weird.
-}
 
 
 static uint32_t spi_fpga_write1(uint32_t spi, uint32_t r)
@@ -193,12 +175,6 @@ static void loop(void)
   }
 
 }
-
-
-// hmmm. problem.
-// the register writing using one type of clock dir and flash communication a different type of clock.
-// actually it's kind of ok. we will set everything up first.
-
 
 
 
