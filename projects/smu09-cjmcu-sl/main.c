@@ -4,18 +4,15 @@
 
 
 #include <libopencm3/stm32/rcc.h>
-#include <libopencm3/stm32/gpio.h>
 
-#include <libopencm3/cm3/nvic.h>
-#include <libopencm3/cm3/systick.h>
-
-#include <libopencm3/stm32/exti.h>
-
-#include <libopencm3/stm32/timer.h>
-
+//#include <libopencm3/stm32/gpio.h>
+//#include <libopencm3/cm3/nvic.h>
+//#include <libopencm3/cm3/systick.h>
+//#include <libopencm3/stm32/exti.h>
+//#include <libopencm3/stm32/timer.h>
+// #include <libopencm3/cm3/scb.h>
 #include <libopencm3/stm32/spi.h>
 
-// #include <libopencm3/cm3/scb.h>
 
 #include <stddef.h> // size_t
 //#include <math.h> // nanf
@@ -45,7 +42,7 @@ static void spi_special_setup(uint32_t spi)
     spi,
     SPI_CR1_BAUDRATE_FPCLK_DIV_4,
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
-    SPI_CR1_CPHA_CLK_TRANSITION_2,    // 2 == falling edge (from dac8734 doc.
+    SPI_CR1_CPHA_CLK_TRANSITION_2,    // 2 == falling edge
     SPI_CR1_DFF_8BIT,
     SPI_CR1_MSBFIRST
   );
@@ -259,7 +256,5 @@ int main(void)
 	for (;;);
 	return 0;
 }
-
-
 
 
