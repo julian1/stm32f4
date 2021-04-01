@@ -47,7 +47,11 @@ static void spi1_port_setup(void)
 
 
 
-static void spi1_mcp3208_setup(void)
+extern void spi1_mcp3208_setup(void);
+
+extern float spi1_mcp3208_get_data(void);
+
+void spi1_mcp3208_setup(void)
 {
 
   spi_init_master(
@@ -87,6 +91,29 @@ static void spi1_mcp3208_setup(void)
 
     eg. at 2.7V, 1MHz / (3bytesx8bits=24clock) ~= 50ksps
 */
+
+
+float spi1_mcp3208_get_data(void)
+{
+  uint32_t spi = SPI_ICE40;
+
+  // first channel, single ended
+   uint8_t data[3] = { 0b01100000 , 0x00, 0x00 };   // eg. delay by one bit so that data aligns
+                                                    // on last two bits
+  spi_enable(spi);
+  mpsse_xfer_spi(spi, data, 3);
+  spi_disable(spi);
+
+
+  // turns it into 16bit value. so lower bytes are unused.
+  // but should probably be 12bit.
+  // eg.  return (b1 << 4) | (b2 >> 4);
+  uint16_t x = (data[1] << 8) | (data[2] );
+
+  float x2 = x / 65535.0 * 3.3;
+
+  return x2; 
+}
 
 
 
@@ -142,11 +169,9 @@ static void loop(void)
     usart_input_update();
     usart_output_update();
 
-
     // 500ms soft timer
     if( system_millis > soft_500ms) {
       soft_500ms = system_millis + 500;
-
       soft_500ms_update();
     }
   }
@@ -158,9 +183,9 @@ static void loop(void)
 
   but fpga doesn't want to share miso.  because more than one driver.
   so think we have to mux it.
-
 */
 
+#if 0
 int main(void)
 {
   // high speed internal!!!
@@ -211,6 +236,6 @@ int main(void)
 	return 0;
 }
 
-
+#endif
 
 
