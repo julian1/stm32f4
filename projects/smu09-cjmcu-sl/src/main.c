@@ -49,9 +49,8 @@ static void spi_fpga_setup(uint32_t spi)
   spi_enable_ss_output(spi);
 }
 
-// TODO. rename write to xfer.  write/read action will depend on endpoint.
 
-static uint32_t spi_write_register_16_here(uint32_t spi, uint32_t r)
+static uint32_t spi_xfer_register_16_here(uint32_t spi, uint32_t r)
 {
   uint8_t a = spi_xfer( spi, (r >> 8) & 0xff  );
   uint8_t b = spi_xfer( spi, r & 0xff  );
@@ -63,11 +62,11 @@ static uint32_t spi_write_register_16_here(uint32_t spi, uint32_t r)
 
 
 
-static uint16_t spi_fpga_write1(uint32_t spi, uint32_t r)
+static uint16_t spi_fpga_xfer(uint32_t spi, uint32_t r)
 {
   spi_special_flag_clear(spi);
   spi_enable(spi);
-  uint16_t ret = spi_write_register_16_here(spi, r );
+  uint16_t ret = spi_xfer_register_16_here(spi, r );
   spi_disable(spi);
   spi_special_flag_set(spi);
   return ret;
@@ -76,7 +75,7 @@ static uint16_t spi_fpga_write1(uint32_t spi, uint32_t r)
 
 static uint16_t spi_fpga_write( uint32_t spi, uint8_t r, uint8_t v)
 {
-  uint16_t ret = spi_fpga_write1(spi, r << 8 | v );
+  uint16_t ret = spi_fpga_xfer(spi, r << 8 | v );
   return ret;
 }
 
