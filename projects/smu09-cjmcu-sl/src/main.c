@@ -106,7 +106,7 @@ static uint16_t spi_fpga_write( uint32_t spi, uint8_t r, uint8_t v)
 
 
 #define DAC_RST_REGISTER 10
-
+// one bit
 
 
 static void mux_fpga(uint32_t spi)
