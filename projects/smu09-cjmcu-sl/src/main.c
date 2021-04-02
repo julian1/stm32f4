@@ -49,6 +49,7 @@ static void spi_fpga_setup(uint32_t spi)
   spi_enable_ss_output(spi);
 }
 
+// TODO. rename write to xfer.  write/read action will depend on endpoint.
 
 static uint32_t spi_write_register_16_here(uint32_t spi, uint32_t r)
 {
@@ -90,17 +91,19 @@ static uint16_t spi_fpga_write( uint32_t spi, uint8_t r, uint8_t v)
 #define LED1 (1<<0)    // D38
 #define LED2 (1<<1)    // D37
 
-#define DAC_REGISTER  0x09
-#define DAC_LDAC      (1<<0)
-#define DAC_RST       (1<<1)
-#define DAC_UNI_BIP_A (1<<2)
-#define DAC_UNI_BIP_B (1<<3)
-
 
 #define SPI_MUX_REGISTER  0x08
 #define SPI_MUX_ADC03     (1<<0)
 #define SPI_MUX_DAC       (1<<1)
 #define SPI_MUX_FLASH     (1<<2)
+
+#define DAC_REGISTER  0x09
+#define DAC_LDAC      (1<<0)
+#define DAC_UNI_BIP_A (1<<1)
+#define DAC_UNI_BIP_B (1<<2)
+
+
+#define DAC_RST_REGISTER  0x09
 
 
 
