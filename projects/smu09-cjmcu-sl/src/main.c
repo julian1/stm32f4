@@ -53,6 +53,19 @@ void gpio_toggle(uint32_t gpioport, uint16_t gpios)
          uint32_t port = GPIO_ODR(gpioport);
          GPIO_BSRR(gpioport) = ((port & gpios) << 16) | (~port & gpios);
  }
+
+
+  so for setting it's just    current | val
+     and clear                ~(~current | val)
+
+   0b01111
+  ~0b10010
+val     1
+  |  10010
+  ~  01101
+
+  but then how are they combined?
+    yes. apply set(), take output, then apply clear()
 */
 
 static void spi_fpga_setup(uint32_t spi)
