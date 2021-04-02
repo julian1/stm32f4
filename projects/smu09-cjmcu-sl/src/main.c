@@ -197,9 +197,9 @@ static void spi_fpga_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 #define DAC_LDAC      (1<<0)
 #define DAC_UNI_BIP_A (1<<1)
 #define DAC_UNI_BIP_B (1<<2)
+#define DAC_RST       (1<<3)
 
 
-#define DAC_RST_REGISTER 10
 // one bit
 
 
@@ -294,9 +294,9 @@ static void soft_500ms_update(void)
 
   // pull dac rst lo then high
   mux_fpga(spi);
-  spi_fpga_write(spi, DAC_RST_REGISTER, 0);
-  // msleep(500);
-  spi_fpga_write(spi, DAC_RST_REGISTER, 1);
+  spi_fpga_reg_clear(spi, DAC_REGISTER, DAC_RST);
+  msleep(20);
+  spi_fpga_reg_set( spi, DAC_REGISTER, DAC_RST);
   msleep(20);
 
 
