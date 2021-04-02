@@ -107,13 +107,14 @@ void msleep(uint32_t delay)
 {
   // TODO. review. don't think this works on wrap around
   uint32_t wake = system_millis + delay;
-
+#if 0
   // this can lock up....
   if(wake < delay) {
 
     // wait for overflow
     while (system_millis > (UINT32_MAX / 2));
   }
+#endif
   while (system_millis < wake);
 }
 

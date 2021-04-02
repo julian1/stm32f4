@@ -87,23 +87,25 @@ static uint16_t spi_fpga_write( uint32_t spi, uint8_t r, uint8_t v)
 
 // REGISTER_DAC?
 
-#define LED_REGISTER  0x07
+// what the hell is happening...
+
+#define LED_REGISTER  7
 #define LED1 (1<<0)    // D38
 #define LED2 (1<<1)    // D37
 
 
-#define SPI_MUX_REGISTER  0x08
+#define SPI_MUX_REGISTER  8
 #define SPI_MUX_ADC03     (1<<0)
 #define SPI_MUX_DAC       (1<<1)
 #define SPI_MUX_FLASH     (1<<2)
 
-#define DAC_REGISTER  0x09
+#define DAC_REGISTER  9
 #define DAC_LDAC      (1<<0)
 #define DAC_UNI_BIP_A (1<<1)
 #define DAC_UNI_BIP_B (1<<2)
 
 
-#define DAC_RST_REGISTER  0x09
+#define DAC_RST_REGISTER 10
 
 
 
@@ -162,6 +164,15 @@ static void soft_500ms_update(void)
 
   mux_flash(spi);
   spi_flash_get_data(spi);
+
+
+  // pull dac rst lo then high
+  mux_fpga(spi);
+  spi_fpga_write(spi, DAC_RST_REGISTER, 0);
+  msleep(500);
+  spi_fpga_write(spi, DAC_RST_REGISTER, 1);
+  msleep(20);
+
 
 }
 
