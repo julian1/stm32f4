@@ -150,6 +150,22 @@ void usart_printf( const char *format, ... )
 	va_end(args);
 }
 
+#if 0
+// compiler complains about inbuit formatting conventions
+
+int printf( const char *format, ... )
+{
+  // TODO rename to just printf... it's not the responsibiilty of user to know context
+  // can override the write, to do flush etc.
+	va_list args;
+
+	va_start(args,format);
+	internal_vprintf((void *)cBufPut, &console_out, format,args);
+	va_end(args);
+  return 0;
+}
+#endif
+
 void flush( void)
 {
   usart_sync_flush();
