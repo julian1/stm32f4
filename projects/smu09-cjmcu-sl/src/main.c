@@ -314,6 +314,7 @@ static void soft_500ms_update(void)
   else
     spi_fpga_reg_clear( spi, RAILS_REGISTER, RAILS_LP15V);
 
+  spi_fpga_reg_set( spi, RAILS_REGISTER, RAILS_OE );
 
 
   count++;
