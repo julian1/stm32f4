@@ -132,9 +132,27 @@ static uint16_t spi_fpga_xfer(uint32_t spi, uint32_t r)
 
 static uint16_t spi_fpga_write( uint32_t spi, uint8_t r, uint8_t v)
 {
+  // change name to xfer also. I think.
   uint16_t ret = spi_fpga_xfer(spi, r << 8 | v );
   return ret;
 }
+
+
+
+static void spi_fpga_set( uint32_t spi, uint8_t r, uint8_t v)
+{
+  spi_fpga_write(spi, r, v);
+}
+
+static void spi_fpga_clear( uint32_t spi, uint8_t r, uint8_t v)
+{
+  spi_fpga_write(spi, r, v << 4);
+}
+
+
+
+
+
 
 
 
@@ -217,13 +235,13 @@ static void soft_500ms_update(void)
   // OK. this looks like it's working...
 
   // clear
-  spi_fpga_write(spi, LED_REGISTER, LED1 << 4 );
+  spi_fpga_set(spi, LED_REGISTER, LED1);
 
   // if((count & LED1) ) 
   if(count % 2 == 0  ) 
-    spi_fpga_write(spi, LED_REGISTER, LED2 );
+    spi_fpga_set(spi, LED_REGISTER, LED2);
   else
-    spi_fpga_write(spi, LED_REGISTER, LED2 <<4 );
+    spi_fpga_clear(spi, LED_REGISTER, LED2);
 
 /*
   if(count % 2 == 0  ) 
