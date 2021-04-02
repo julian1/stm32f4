@@ -199,6 +199,13 @@ static void spi_fpga_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 #define DAC_UNI_BIP_B (1<<2)
 #define DAC_RST       (1<<3)
 
+// rename RAILS_REG or REG_RAILS consistent with verilog?
+#define RAILS_REGISTER  10
+#define RAILS_LP15V   (1<<0)
+#define RAILS_LP30V   (1<<1)
+#define RAILS_LP60V   (1<<2)
+#define RAILS_OE      (1<<3)
+
 
 // one bit
 
@@ -276,7 +283,6 @@ static void soft_500ms_update(void)
   spi_fpga_reg_write(spi, LED_REGISTER, count);
 #endif
 
-  count++;
 
 
   // static void spi_fpga_reg_write( uint32_t spi, uint8_t r, uint8_t v)
@@ -291,15 +297,26 @@ static void soft_500ms_update(void)
   mux_flash(spi);
   spi_flash_get_data(spi);
 
-
+  /////////////////
   // pull dac rst lo then high
   mux_fpga(spi);
+
   spi_fpga_reg_clear(spi, DAC_REGISTER, DAC_RST);
   msleep(20);
   spi_fpga_reg_set( spi, DAC_REGISTER, DAC_RST);
   msleep(20);
 
 
+  // change name REG_DAC not DAC_REGISTER etc
+
+  if(count % 2 == 0) 
+    spi_fpga_reg_set( spi, RAILS_REGISTER, RAILS_LP15V);
+  else
+    spi_fpga_reg_clear( spi, RAILS_REGISTER, RAILS_LP15V);
+
+
+
+  count++;
 }
 
 
