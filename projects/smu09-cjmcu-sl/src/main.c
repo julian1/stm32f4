@@ -29,6 +29,17 @@
 
 
 /*
+
+  GPIOx_BSRR   
+    This is GPIO Bit Set/Reset Register. When you want to set or reset the
+    particular bit or pin, you can use this register.
+
+  GPIOx_ODR
+    This is the Output Data Register. [...] this register is used to set the value
+    to the GPIO pin. 
+  https://embetronicx.com/tutorials/microcontrollers/stm32/stm32-gpio-tutorial/#GPIOx_BSRR
+
+
 void gpio_set(uint32_t gpioport, uint16_t gpios)
  {
          GPIO_BSRR(gpioport) = gpios;
@@ -70,6 +81,12 @@ val     1
 
   we want to get analog power - to test dac. i think. in priority. 
 
+
+void gpio_port_write(uint32_t gpioport, uint16_t data)
+ {
+         GPIO_ODR(gpioport) = data;
+ }
+  write uses a different register.
 */
 
 static void spi_fpga_setup(uint32_t spi)
@@ -127,6 +144,8 @@ static uint16_t spi_fpga_write( uint32_t spi, uint8_t r, uint8_t v)
 // REGISTER_DAC?
 
 // what the hell is happening...
+
+// RENAME OR = output register and SRR set reset register
 
 #define LED_REGISTER  7
 #define LED1 (1<<0)    // D38
@@ -194,7 +213,36 @@ static void soft_500ms_update(void)
   usart_printf("-----------\n");
 
   mux_fpga(spi);
-  spi_fpga_write(spi, LED_REGISTER, count++);
+
+  // OK. this looks like it's working...
+
+  // clear
+  spi_fpga_write(spi, LED_REGISTER, LED1 << 4 );
+
+  // if((count & LED1) ) 
+  if(count % 2 == 0  ) 
+    spi_fpga_write(spi, LED_REGISTER, LED2 );
+  else
+    spi_fpga_write(spi, LED_REGISTER, LED2 <<4 );
+
+/*
+  if(count % 2 == 0  ) 
+    spi_fpga_write(spi, LED_REGISTER, LED1 );
+  else
+    spi_fpga_write(spi, LED_REGISTER, LED1 <<4 );
+*/
+
+
+/*
+  if((count & LED2) ) 
+    spi_fpga_write(spi, LED_REGISTER, LED2   );
+  else
+    spi_fpga_write(spi, LED_REGISTER, LED2 << 4 );
+*/
+  count++;
+
+
+  // spi_fpga_write(spi, LED_REGISTER, count++);
 
   mux_adc03(spi);
   float val = spi_mcp3208_get_data(spi);
@@ -238,7 +286,8 @@ static void loop(void)
 
     // 500ms soft timer
     if( system_millis > soft_500ms) {
-      soft_500ms = system_millis + 1000;
+      // soft_500ms = system_millis + 1000;
+      soft_500ms = system_millis + 500;
       soft_500ms_update();
     }
 
