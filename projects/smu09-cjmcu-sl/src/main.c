@@ -28,9 +28,32 @@
 
 
 
+/*
+void gpio_set(uint32_t gpioport, uint16_t gpios)
+ {
+         GPIO_BSRR(gpioport) = gpios;
+ }
 
+void  gpio_clear(uint32_t gpioport, uint16_t gpios)
+ {
+         GPIO_BSRR(gpioport) = (gpios << 16);
+ }
 
+  So BSRR. doesn't need bit masks, or to read values.  to set individual values.
+    instead it uses low bytes to set.
+    and high bytes to clear
 
+  #define GPIO_BSRR  (     port )     MMIO32((port) + 0x18)
+  #define MMIO32  (     addr )     (*(volatile uint32_t *)(addr))
+
+toggle does a read eg. stores in port ..
+
+void gpio_toggle(uint32_t gpioport, uint16_t gpios)
+ {
+         uint32_t port = GPIO_ODR(gpioport);
+         GPIO_BSRR(gpioport) = ((port & gpios) << 16) | (~port & gpios);
+ }
+*/
 
 static void spi_fpga_setup(uint32_t spi)
 {
