@@ -158,10 +158,8 @@ static void spi_fpga_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 {
 
   uint8_t x =  (~v << 4) | (v & 0xF );
-
-  usart_printf("spi %d  r %d\n", spi, r);
-  usart_printf("reg_write value val %d  %8b\n", v, x );
-
+  // usart_printf("spi %d  r %d\n", spi, r);
+  // usart_printf("reg_write value val %d  %8b\n", v, x );
   spi_fpga_write(spi, r, x );
 
 }
@@ -186,6 +184,8 @@ static void spi_fpga_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 #define LED_REGISTER  7
 #define LED1 (1<<0)    // D38
 #define LED2 (1<<1)    // D37
+#define LED3 (1<<2)    // D37
+#define LED4 (1<<3)    // D37
 
 
 #define SPI_MUX_REGISTER  8
@@ -214,10 +214,10 @@ static void mux_adc03(uint32_t spi)
 
   usart_printf("mux_adc03\n");
   spi_fpga_reg_setup(spi);
-  spi_fpga_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC03 );
+  //spi_fpga_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC03 );
 
 
-  // spi_fpga_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC03);
+  spi_fpga_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC03);
 
   spi_mcp3208_setup(spi);
 }
@@ -227,9 +227,9 @@ static void mux_flash(uint32_t spi)
 
   usart_printf("mux_flash\n");
   spi_fpga_reg_setup(spi);
-  spi_fpga_write(spi, SPI_MUX_REGISTER, SPI_MUX_FLASH );
+  // spi_fpga_write(spi, SPI_MUX_REGISTER, SPI_MUX_FLASH );
 
-  // spi_fpga_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_FLASH);
+  spi_fpga_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_FLASH);
 
   spi_flash_setup(spi);
 }
@@ -254,7 +254,7 @@ static void soft_500ms_update(void)
   // setup spi1 for register control.
   usart_printf("-----------\n");
 
-  usart_printf( "spi is %d\n", spi );
+  // usart_printf( "spi is %d\n", spi );
 
   mux_fpga(spi);
 
