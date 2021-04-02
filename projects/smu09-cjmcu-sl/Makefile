@@ -14,7 +14,7 @@ BINARY		= main
 #SRCFILES	= mcp3208.c  util.c \
 SRCFILES	= flash.c  util.c \
 
-SRCFILES	= src/main.c  src/mcp3208.c src/flash.c src/util.c \
+SRCFILES	= src/main.c  src/mcp3208.c src/flash.c  src/util.c \
               ${LIB2SRC}/buffer.c ${LIB2SRC}/miniprintf2.c ${LIB2SRC}/usart2.c  ${LIB2SRC}/flash.c
 
 #SRCFILES	= flash.c   \
