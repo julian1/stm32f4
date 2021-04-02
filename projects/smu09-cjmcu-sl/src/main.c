@@ -141,7 +141,7 @@ static uint16_t spi_fpga_write( uint32_t spi, uint8_t r, uint8_t v)
 
 static void spi_fpga_set( uint32_t spi, uint8_t r, uint8_t v)
 {
-  spi_fpga_write(spi, r, v);
+  spi_fpga_write(spi, r, (v & 0xF)); // SHOULD BE & 0xf
 }
 
 static void spi_fpga_clear( uint32_t spi, uint8_t r, uint8_t v)
@@ -149,6 +149,12 @@ static void spi_fpga_clear( uint32_t spi, uint8_t r, uint8_t v)
   spi_fpga_write(spi, r, v << 4);
 }
 
+// OK. don't think we need a separate hardware register...
+
+static void spi_fpga_write_full( uint32_t spi, uint8_t r, uint8_t v)
+{
+  spi_fpga_write(spi, r, (~v << 4) | (v & 0xF ) );
+}
 
 
 
@@ -164,6 +170,8 @@ static void spi_fpga_clear( uint32_t spi, uint8_t r, uint8_t v)
 // what the hell is happening...
 
 // RENAME OR = output register and SRR set reset register
+
+// OK. Now is there a way to do both...
 
 #define LED_REGISTER  7
 #define LED1 (1<<0)    // D38
@@ -234,33 +242,28 @@ static void soft_500ms_update(void)
 
   // OK. this looks like it's working...
 
+#if 1
   // clear
-  spi_fpga_set(spi, LED_REGISTER, LED1);
+  spi_fpga_clear(spi, LED_REGISTER, LED2);
 
   // if((count & LED1) ) 
   if(count % 2 == 0  ) 
-    spi_fpga_set(spi, LED_REGISTER, LED2);
+    spi_fpga_set(spi, LED_REGISTER, LED1);
   else
-    spi_fpga_clear(spi, LED_REGISTER, LED2);
-
-/*
-  if(count % 2 == 0  ) 
-    spi_fpga_write(spi, LED_REGISTER, LED1 );
-  else
-    spi_fpga_write(spi, LED_REGISTER, LED1 <<4 );
-*/
+    spi_fpga_clear(spi, LED_REGISTER, LED1);
+#endif
 
 
-/*
-  if((count & LED2) ) 
-    spi_fpga_write(spi, LED_REGISTER, LED2   );
-  else
-    spi_fpga_write(spi, LED_REGISTER, LED2 << 4 );
-*/
+#if 0
+  spi_fpga_write_full(spi, LED_REGISTER, count);
+#endif
+
   count++;
 
 
-  // spi_fpga_write(spi, LED_REGISTER, count++);
+  // static void spi_fpga_write_full( uint32_t spi, uint8_t r, uint8_t v)
+
+
 
   mux_adc03(spi);
   float val = spi_mcp3208_get_data(spi);
