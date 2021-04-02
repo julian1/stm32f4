@@ -66,6 +66,10 @@ val     1
 
   but then how are they combined?
     yes. apply set(), take output, then apply clear()
+  -----------------------
+
+  we want to get analog power - to test dac. i think. in priority. 
+
 */
 
 static void spi_fpga_setup(uint32_t spi)
