@@ -89,7 +89,7 @@ void gpio_port_write(uint32_t gpioport, uint16_t data)
   write uses a different register.
 */
 
-static void spi_fpga_setup(uint32_t spi)
+static void spi_fpga_reg_setup(uint32_t spi)
 {
   // the fpga as a spi slave.
 
@@ -130,6 +130,9 @@ static uint16_t spi_fpga_xfer(uint32_t spi, uint32_t r)
 }
 
 
+// OK. we are using this to write the spi muxing register with 8 bits.
+// if need more bits then it's problematic
+
 static uint16_t spi_fpga_write( uint32_t spi, uint8_t r, uint8_t v)
 {
   // change name to xfer also. I think.
@@ -139,19 +142,19 @@ static uint16_t spi_fpga_write( uint32_t spi, uint8_t r, uint8_t v)
 
 
 
-static void spi_fpga_set( uint32_t spi, uint8_t r, uint8_t v)
+static void spi_fpga_reg_set( uint32_t spi, uint8_t r, uint8_t v)
 {
   spi_fpga_write(spi, r, (v & 0xF)); // SHOULD BE & 0xf
 }
 
-static void spi_fpga_clear( uint32_t spi, uint8_t r, uint8_t v)
+static void spi_fpga_reg_clear( uint32_t spi, uint8_t r, uint8_t v)
 {
   spi_fpga_write(spi, r, v << 4);
 }
 
 // OK. don't think we need a separate hardware register...
 
-static void spi_fpga_write_full( uint32_t spi, uint8_t r, uint8_t v)
+static void spi_fpga_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 {
   spi_fpga_write(spi, r, (~v << 4) | (v & 0xF ) );
 }
@@ -195,13 +198,13 @@ static void spi_fpga_write_full( uint32_t spi, uint8_t r, uint8_t v)
 
 static void mux_fpga(uint32_t spi)
 {
-  spi_fpga_setup(spi);
+  spi_fpga_reg_setup(spi);
 }
 
 
 static void mux_adc03(uint32_t spi)
 {
-  spi_fpga_setup(spi);
+  spi_fpga_reg_setup(spi);
   uint32_t ret = spi_fpga_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC03 );
 
 
@@ -214,7 +217,7 @@ static void mux_adc03(uint32_t spi)
 
 static void mux_flash(uint32_t spi)
 {
-  spi_fpga_setup(spi);
+  spi_fpga_reg_setup(spi);
   spi_fpga_write(spi, SPI_MUX_REGISTER, SPI_MUX_FLASH );
   spi_flash_setup(spi);
 }
@@ -244,24 +247,24 @@ static void soft_500ms_update(void)
 
 #if 1
   // clear
-  spi_fpga_clear(spi, LED_REGISTER, LED2);
+  spi_fpga_reg_clear(spi, LED_REGISTER, LED1);
 
-  // if((count & LED1) ) 
   if(count % 2 == 0  ) 
-    spi_fpga_set(spi, LED_REGISTER, LED1);
+    spi_fpga_reg_set(spi, LED_REGISTER, LED2);
   else
-    spi_fpga_clear(spi, LED_REGISTER, LED1);
+    spi_fpga_reg_clear(spi, LED_REGISTER, LED2);
 #endif
 
 
 #if 0
-  spi_fpga_write_full(spi, LED_REGISTER, count);
+  // it's only 4 bits...
+  spi_fpga_reg_write(spi, LED_REGISTER, count);
 #endif
 
   count++;
 
 
-  // static void spi_fpga_write_full( uint32_t spi, uint8_t r, uint8_t v)
+  // static void spi_fpga_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 
 
 
@@ -277,7 +280,7 @@ static void soft_500ms_update(void)
   // pull dac rst lo then high
   mux_fpga(spi);
   spi_fpga_write(spi, DAC_RST_REGISTER, 0);
-  msleep(500);
+  // msleep(500);
   spi_fpga_write(spi, DAC_RST_REGISTER, 1);
   msleep(20);
 
