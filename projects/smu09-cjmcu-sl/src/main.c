@@ -293,18 +293,7 @@ static void soft_500ms_update(void)
 #endif
 
 
-#if 0
-  // it's only 4 bits...
-  spi_fpga_reg_write(spi, LED_REGISTER, count);
-#endif
-
-
-
-  // static void spi_fpga_reg_write( uint32_t spi, uint8_t r, uint8_t v)
-
-
   // OK. this should be done once. in setup
-
   static bool first = true;
   if(first) {
     first = false;
@@ -332,48 +321,62 @@ static void soft_500ms_update(void)
   }
 #endif
 
+  // we want to cycle this once per second...
+  // not on the power.
 
-  if( state == 0 && (lp15v > 10.0 && ln15v > 10.0))
-  {
-    usart_printf("have power - turning on rails\n");
-    state = 1;
+  static uint32_t next_millis = 0;
 
-  /////////////////////////////////////////
-    mux_fpga(spi);
-    spi_fpga_reg_set(spi, RAILS_REGISTER, RAILS_LP15V );
-    msleep(50);
+  switch(state) {
+    case 0:
+      if( (lp15v > 10.0 && ln15v > 10.0)  )
+      {
+        usart_printf("have power - turning on rails\n");
+        state = 1;
 
-    // dac_setup( spi );
-    // keep latch low, and unused, unless chaining
-    spi_fpga_reg_clear(spi, DAC_REGISTER, DAC_LDAC);
+      /////////////////////////////////////////
+        mux_fpga(spi);
+        spi_fpga_reg_set(spi, RAILS_REGISTER, RAILS_LP15V );
+        msleep(50);
+
+        // dac_setup( spi );
+        // keep latch low, and unused, unless chaining
+        spi_fpga_reg_clear(spi, DAC_REGISTER, DAC_LDAC);
+
+        usart_printf("doing dac reset\n");
+        spi_fpga_reg_clear(spi, DAC_REGISTER, DAC_RST);
+        msleep(20);
+        spi_fpga_reg_set( spi, DAC_REGISTER, DAC_RST);
+        msleep(20);
+
+        mux_dac(spi);
+        // dac_write_register(uint32_t spi, uint8_t r, uint16_t v)
+
+        // dac_write_register1( spi, 0);
+        dac_write_register(spi, 0, 1 << 9 | 1 << 8);
 
 
-    // can turn off - by dialing down voltage.
-    // need to set the ldac etc.
-    // should put this on a scope pin.
+        next_millis = system_millis + 5000; // 2 seconds 
+     }
+    break ;
 
-    spi_fpga_reg_clear(spi, DAC_REGISTER, DAC_RST);
-    msleep(20);
-    spi_fpga_reg_set( spi, DAC_REGISTER, DAC_RST);
-    msleep(20);
+    case 1:
+      if((lp15v < 10.0 || ln15v < 10.0)  ) {
+        
+        state = 0;
+        usart_printf("no power - turning off rails\n");
+        // turn off power
+        spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V );
+      }
 
+      if( system_millis > next_millis) {
+        state = 0;
+        usart_printf("timeout - turning off \n");
 
-    mux_dac(spi);
-    // dac_write_register(uint32_t spi, uint8_t r, uint16_t v)
+      }
+    
+    break;
 
-    dac_write_register1( spi, 0);
-
-    // dac_write_register(spi, 0, 1 << 9 | 1 << 8);
-
-  }
-  else if (state == 1 && (lp15v < 10.0 || ln15v < 10.0)) {
-
-    usart_printf("no power - turning off rails\n");
-    state = 0;
-    // turn off power
-    spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V );
- 
-  }
+  };
 
   // OK. setting it in the fpga works???
 
