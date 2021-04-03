@@ -1,8 +1,4 @@
 
-/*
-  change name w25.
-  eg. consistent with mcp3208, dac8734 etc.
-*/
 // cjmcu  stm32f407.
 // issue. stlink doesn't appear to reset cleanly. needs sleep.
 
@@ -25,7 +21,7 @@
 
 
 
-void spi_flash_setup(uint32_t spi)
+void spi_w25_setup(uint32_t spi)
 {
   spi_init_master(
     spi,
@@ -49,7 +45,7 @@ void spi_flash_setup(uint32_t spi)
 
 
 
-void spi_flash_get_data(uint32_t spi)
+void spi_w25_get_data(uint32_t spi)
 {
 
   flash_reset( spi);
@@ -140,7 +136,7 @@ int main(void)
 
   // 
   spi_port_setup();
-  spi_flash_setup();
+  spi_w25_setup();
 
 
   usart_printf("\n--------\n");

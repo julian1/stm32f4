@@ -240,7 +240,7 @@ static void mux_flash(uint32_t spi)
 
   spi_fpga_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_FLASH);
 
-  spi_flash_setup(spi);
+  spi_w25_setup(spi);
 }
 
 
@@ -298,7 +298,7 @@ static void soft_500ms_update(void)
 
 
   mux_flash(spi);
-  spi_flash_get_data(spi);
+  spi_w25_get_data(spi);
 
   /////////////////
   // pull dac rst lo then high
