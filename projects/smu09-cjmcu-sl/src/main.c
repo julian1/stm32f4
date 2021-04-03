@@ -357,10 +357,11 @@ static void soft_500ms_update(void)
         mux_dac(spi);
         // dac_write_register(uint32_t spi, uint8_t r, uint16_t v)
 
-        // dac_write_register1( spi, 0);
-        dac_write_register(spi, 0, 1 << 9 | 1 << 8);
+        dac_write_register1( spi, 0);                   // reads one V.
+        // dac_write_register(spi, 0, 1 << 9 | 1 << 8); // 0.1V. eg. high-Z without pu.
 
-        // OK. 
+        // OK. i think we have forgotten that these are pull-ups.
+        // and we used the stm32 internal gpio pullups - to pull high..
 
 
         next_millis = system_millis + 3000; // 3 seconds 
