@@ -30,13 +30,13 @@
 
 /*
 
-  GPIOx_BSRR   
+  GPIOx_BSRR
     This is GPIO Bit Set/Reset Register. When you want to set or reset the
     particular bit or pin, you can use this register.
 
   GPIOx_ODR
     This is the Output Data Register. [...] this register is used to set the value
-    to the GPIO pin. 
+    to the GPIO pin.
   https://embetronicx.com/tutorials/microcontrollers/stm32/stm32-gpio-tutorial/#GPIOx_BSRR
 
 
@@ -79,7 +79,7 @@ val     1
     yes. apply set(), take output, then apply clear()
   -----------------------
 
-  we want to get analog power - to test dac. i think. in priority. 
+  we want to get analog power - to test dac. i think. in priority.
 
 
 void gpio_port_write(uint32_t gpioport, uint16_t data)
@@ -271,7 +271,7 @@ static void soft_500ms_update(void)
   // clear
   spi_fpga_reg_clear(spi, LED_REGISTER, LED1);
 
-  if(count % 2 == 0  ) 
+  if(count % 2 == 0  )
     spi_fpga_reg_set(spi, LED_REGISTER, LED2);
   else
     spi_fpga_reg_clear(spi, LED_REGISTER, LED2);
@@ -309,12 +309,26 @@ static void soft_500ms_update(void)
 
   // change name REG_DAC not DAC_REGISTER etc
 
-  if(count % 2 == 0) 
-    spi_fpga_reg_set( spi, RAILS_REGISTER, RAILS_LP15V);
-  else
-    spi_fpga_reg_clear( spi, RAILS_REGISTER, RAILS_LP15V);
+  // pull high... turn off.
 
-  spi_fpga_reg_set( spi, RAILS_REGISTER, RAILS_OE );
+  // turn rails off
+  spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
+  // turn rails output enable on
+  spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_OE);
+
+
+  /*
+    weird.
+      fpga poweron , with no mcu, and it comes up high. as expected.
+      fpga power,   with mcu - but no write and its lo?
+
+    AHHH. It's clever
+      if fpga gpio comes up high - OE - is disabled. so out is low.
+      if fpga gpio comes up lo   - buffer is disabled so out low.
+
+      there seems to be a 50-100uS spike though on creset.
+      hopefully too short a time to turn on opto coupler.
+  */
 
 
   count++;
