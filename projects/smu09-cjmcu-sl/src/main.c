@@ -333,13 +333,19 @@ static void soft_500ms_update(void)
 #endif
 
 
-  if( state == 0 && (lp15v > 5.0 && ln15v > 5.0))
+  if( state == 0 && (lp15v > 10.0 && ln15v > 10.0))
   {
     usart_printf("have power - turning on rails\n");
     state = 1;
 
+  /////////////////////////////////////////
+    mux_fpga(spi);
     spi_fpga_reg_set(spi, RAILS_REGISTER, RAILS_LP15V );
     msleep(50);
+
+    // dac_setup( spi );
+    // keep latch low, and unused, unless chaining
+    spi_fpga_reg_clear(spi, DAC_REGISTER, DAC_LDAC);
 
 
     // can turn off - by dialing down voltage.
@@ -352,12 +358,12 @@ static void soft_500ms_update(void)
     msleep(20);
 
 
+    mux_dac(spi);
     // dac_write_register(uint32_t spi, uint8_t r, uint16_t v)
 
-    mux_dac(spi);
-    // dac_write_register1( spi, 0);
+    dac_write_register1( spi, 0);
 
-    dac_write_register(spi, 0, 1 << 9 | 1 << 8);
+    // dac_write_register(spi, 0, 1 << 9 | 1 << 8);
 
   }
   else if (state == 1 && (lp15v < 10.0 || ln15v < 10.0)) {
