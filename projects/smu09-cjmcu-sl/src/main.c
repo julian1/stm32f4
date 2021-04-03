@@ -309,7 +309,7 @@ static void soft_500ms_update(void)
     // turn rails output enable on
     spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_OE);
 
-
+    // test the flash
     mux_w25(spi);
     spi_w25_get_data(spi);
 
@@ -317,6 +317,7 @@ static void soft_500ms_update(void)
   }
 
 
+  // get supplies voltages,
   mux_adc03(spi);
   float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
   float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
@@ -342,8 +343,10 @@ static void soft_500ms_update(void)
     case 0:
       if( (lp15v > 10.0 && ln15v > 10.0)  )
       {
-        usart_printf("supplies ok - turning on rails\n");
         state = 1;
+
+        usart_printf("-----------\n");
+        usart_printf("supplies ok - turning on rails\n");
 
       /////////////////////////////////////////
         mux_fpga(spi);
@@ -363,17 +366,17 @@ static void soft_500ms_update(void)
 
         //////////////
         mux_dac(spi);
-        // dac_write_register(uint32_t spi, uint8_t r, uint16_t v)
 
-        // dac_write_register1( spi, 0);                   // reads one V.
-        // dac_write_register(spi, 0, 1 << 9 | 1 << 8); // 0.1V. eg. high-Z without pu.
+
+        // actually not being able to test the dac gpio.
+        // we need to get read working so we can verify that gpio is good.
 
         // OK. i think we have forgotten that these are pull-ups.
         // and we used the stm32 internal gpio pullups - to pull high..
         // ok. with pu. its working.
 
 
-        // next_millis = system_millis + 3000; // 3 seconds 
+        // next_millis = system_millis + 3000; // 3 seconds
      }
     break ;
 
@@ -384,7 +387,7 @@ static void soft_500ms_update(void)
         mux_dac(spi);
         dac_write_register1( spi, 0);                   // reads one V.
       }
-       
+
       else {
         mux_dac(spi);
         dac_write_register(spi, 0, 1 << 9 | 1 << 8); // 0.1V. eg. high-Z without pu.
@@ -394,7 +397,7 @@ static void soft_500ms_update(void)
       // could toggle dac_gpio.
 
       if((lp15v < 10.0 || ln15v < 10.0)  ) {
-        
+
         state = 0;
         usart_printf("supplies bad - turn off rails\n");
         // turn off power
@@ -405,7 +408,7 @@ static void soft_500ms_update(void)
         state = 0;
         usart_printf("timeout - turning off \n");
       }
- */   
+ */
     break;
 
   };
