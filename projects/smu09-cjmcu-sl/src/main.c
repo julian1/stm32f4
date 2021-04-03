@@ -292,7 +292,7 @@ static void soft_500ms_update(void)
 
 
   mux_adc03(spi);
-  float val = spi_mcp3208_get_data(spi, 0) * 0.91;
+  float val = spi_mcp3208_get_data(spi, 1) * 0.91;
   usart_printf("val %f\n", val);
 
 

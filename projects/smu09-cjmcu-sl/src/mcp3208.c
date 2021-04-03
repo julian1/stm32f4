@@ -62,10 +62,10 @@ void spi_mcp3208_setup(uint32_t spi)
 
 float spi_mcp3208_get_data(uint32_t spi, uint8_t channel)
 {
-  UNUSED(channel);
+  // UNUSED(channel);
 
   // first channel, single ended
-   uint8_t data[3] = { 0b01100000 , 0x00, 0x00 };   // eg. delay by one bit so that data aligns
+   uint8_t data[3] = { 0b01100000 | (channel << 2 ), 0x00, 0x00 };   // eg. delay by one bit so that data aligns
                                                     // on last two bits
   spi_enable(spi);
   mpsse_xfer_spi(spi, data, 3);
