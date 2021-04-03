@@ -255,8 +255,12 @@ static void mux_dac(uint32_t spi)
 }
 
 
-
-
+/*
+  ok. getting cs.
+  but no clk.
+  which is a bit weird.
+    check fpga soldering.
+*/
 
 #define SPI_ICE40       SPI1
 
@@ -348,14 +352,18 @@ static void soft_500ms_update(void)
         spi_fpga_reg_set( spi, DAC_REGISTER, DAC_RST);
         msleep(20);
 
+
+        //////////////
         mux_dac(spi);
         // dac_write_register(uint32_t spi, uint8_t r, uint16_t v)
 
         // dac_write_register1( spi, 0);
         dac_write_register(spi, 0, 1 << 9 | 1 << 8);
 
+        // OK. 
 
-        next_millis = system_millis + 5000; // 2 seconds 
+
+        next_millis = system_millis + 3000; // 3 seconds 
      }
     break ;
 
