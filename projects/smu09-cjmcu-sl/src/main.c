@@ -342,7 +342,7 @@ static void soft_500ms_update(void)
     case 0:
       if( (lp15v > 10.0 && ln15v > 10.0)  )
       {
-        usart_printf("have power - turning on rails\n");
+        usart_printf("supplies ok - turning on rails\n");
         state = 1;
 
       /////////////////////////////////////////
@@ -396,7 +396,7 @@ static void soft_500ms_update(void)
       if((lp15v < 10.0 || ln15v < 10.0)  ) {
         
         state = 0;
-        usart_printf("no power - turning off rails\n");
+        usart_printf("supplies bad - turn off rails\n");
         // turn off power
         spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V );
       }
