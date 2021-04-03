@@ -292,7 +292,7 @@ static void soft_500ms_update(void)
 
 
   mux_adc03(spi);
-  float lp15v = spi_mcp3208_get_data(spi, 0) * 0.91 * 10.;
+  float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
   float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
 
   usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
