@@ -15,7 +15,7 @@
 
 
 #include "flash.h"    // msse_xfer_spi TODO FIX ME.
-#include "common.h"
+#include "mcp3208.h"
 
 
 
@@ -60,8 +60,9 @@ void spi_mcp3208_setup(uint32_t spi)
 */
 
 
-float spi_mcp3208_get_data(uint32_t spi)
+float spi_mcp3208_get_data(uint32_t spi, uint8_t channel)
 {
+  UNUSED(channel);
 
   // first channel, single ended
    uint8_t data[3] = { 0b01100000 , 0x00, 0x00 };   // eg. delay by one bit so that data aligns

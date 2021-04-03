@@ -1,4 +1,8 @@
 
+/*
+  change name w25.
+  eg. consistent with mcp3208, dac8734 etc.
+*/
 // cjmcu  stm32f407.
 // issue. stlink doesn't appear to reset cleanly. needs sleep.
 

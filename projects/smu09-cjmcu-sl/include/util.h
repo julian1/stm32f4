@@ -36,3 +36,5 @@ extern void spi_special_flag_set(uint32_t spi);
 
 
 
+#define UNUSED(x) (void)(x)
+

@@ -24,7 +24,8 @@
 #include "usart2.h"
 #include "util.h"
 
-#include "common.h"
+#include "mcp3208.h"
+#include "common.h" // GET RID OF THIS
 
 
 
@@ -290,8 +291,9 @@ static void soft_500ms_update(void)
 
 
   mux_adc03(spi);
-  float val = spi_mcp3208_get_data(spi);
+  float val = spi_mcp3208_get_data(spi, 0) * 0.91;
   usart_printf("val %f\n", val);
+
 
 
   mux_flash(spi);

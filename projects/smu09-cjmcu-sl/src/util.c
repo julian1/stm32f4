@@ -255,7 +255,6 @@ void spi1_special_gpio_setup(void)
 }
 
 
-#define UNUSED(x) (void)(x)
 
 void spi_special_flag_clear(uint32_t spi)
 {
