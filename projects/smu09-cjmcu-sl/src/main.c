@@ -301,11 +301,19 @@ static void soft_500ms_update(void)
   static bool first = true;
   if(first) {
     first = false;
+
+    mux_fpga(spi);
     // make sure rails are off
     spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
 
     // turn rails output enable on
     spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_OE);
+
+
+    mux_w25(spi);
+    spi_w25_get_data(spi);
+
+
   }
 
 
@@ -328,7 +336,7 @@ static void soft_500ms_update(void)
   // we want to cycle this once per second...
   // not on the power.
 
-  static uint32_t next_millis = 0;
+  // static uint32_t next_millis = 0;
 
   switch(state) {
     case 0:
@@ -357,18 +365,34 @@ static void soft_500ms_update(void)
         mux_dac(spi);
         // dac_write_register(uint32_t spi, uint8_t r, uint16_t v)
 
-        dac_write_register1( spi, 0);                   // reads one V.
+        // dac_write_register1( spi, 0);                   // reads one V.
         // dac_write_register(spi, 0, 1 << 9 | 1 << 8); // 0.1V. eg. high-Z without pu.
 
         // OK. i think we have forgotten that these are pull-ups.
         // and we used the stm32 internal gpio pullups - to pull high..
+        // ok. with pu. its working.
 
 
-        next_millis = system_millis + 3000; // 3 seconds 
+        // next_millis = system_millis + 3000; // 3 seconds 
      }
     break ;
 
     case 1:
+
+      // dac toggle gpio
+      if(count % 2 == 0) {
+        mux_dac(spi);
+        dac_write_register1( spi, 0);                   // reads one V.
+      }
+       
+      else {
+        mux_dac(spi);
+        dac_write_register(spi, 0, 1 << 9 | 1 << 8); // 0.1V. eg. high-Z without pu.
+      }
+
+
+      // could toggle dac_gpio.
+
       if((lp15v < 10.0 || ln15v < 10.0)  ) {
         
         state = 0;
@@ -376,13 +400,12 @@ static void soft_500ms_update(void)
         // turn off power
         spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V );
       }
-
+/*
       if( system_millis > next_millis) {
         state = 0;
         usart_printf("timeout - turning off \n");
-
       }
-    
+ */   
     break;
 
   };
@@ -390,10 +413,7 @@ static void soft_500ms_update(void)
   // OK. setting it in the fpga works???
 
 
-/*
-  mux_w25(spi);
-  spi_w25_get_data(spi);
-*/
+
 
 
 
