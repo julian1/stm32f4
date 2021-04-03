@@ -26,7 +26,8 @@
 
 #include "mcp3208.h"
 #include "w25.h"
-// #include "common.h" // GET RID OF THIS
+#include "dac8734.h"
+
 
 
 
@@ -177,6 +178,8 @@ static void spi_fpga_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 
 // REGISTER_DAC?
 
+// change name REG_DAC not DAC_REGISTER etc
+
 // what the hell is happening...
 
 // RENAME OR = output register and SRR set reset register
@@ -221,20 +224,18 @@ static void mux_fpga(uint32_t spi)
 static void mux_adc03(uint32_t spi)
 {
 
-  usart_printf("mux_adc03\n");
+  // usart_printf("mux_adc03\n");
   spi_fpga_reg_setup(spi);
   //spi_fpga_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC03 );
 
-
   spi_fpga_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC03);
-
   spi_mcp3208_setup(spi);
 }
 
-static void mux_flash(uint32_t spi)
+static void mux_w25(uint32_t spi)
 {
 
-  usart_printf("mux_flash\n");
+  usart_printf("mux_w25\n");
   spi_fpga_reg_setup(spi);
   // spi_fpga_write(spi, SPI_MUX_REGISTER, SPI_MUX_FLASH );
 
@@ -242,6 +243,18 @@ static void mux_flash(uint32_t spi)
 
   spi_w25_setup(spi);
 }
+
+
+static void mux_dac(uint32_t spi)
+{
+
+  spi_fpga_reg_setup(spi);
+  spi_fpga_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_DAC);
+  spi_dac_setup(spi);
+
+}
+
+
 
 
 
@@ -261,7 +274,7 @@ static void soft_500ms_update(void)
   static int count = 0;
 
   // setup spi1 for register control.
-  usart_printf("-----------\n");
+  // usart_printf("-----------\n");
 
   // usart_printf( "spi is %d\n", spi );
 
@@ -290,36 +303,81 @@ static void soft_500ms_update(void)
   // static void spi_fpga_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 
 
+  // OK. this should be done once. in setup
+
+  static bool first = true;
+  if(first) {
+    first = false;
+    // make sure rails are off
+    spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
+
+    // turn rails output enable on
+    spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_OE);
+  }
+
 
   mux_adc03(spi);
   float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
   float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
 
-  usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
 
-
-  mux_flash(spi);
-  spi_w25_get_data(spi);
-
-  /////////////////
-  // pull dac rst lo then high
   mux_fpga(spi);
 
-  spi_fpga_reg_clear(spi, DAC_REGISTER, DAC_RST);
-  msleep(20);
-  spi_fpga_reg_set( spi, DAC_REGISTER, DAC_RST);
-  msleep(20);
+  static int state = 0;
+
+#if 0
+  if(state == 0) {
+    usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
+  }
+#endif
 
 
-  // change name REG_DAC not DAC_REGISTER etc
+  if( state == 0 && (lp15v > 5.0 && ln15v > 5.0))
+  {
+    usart_printf("have power - turning on rails\n");
+    state = 1;
 
-  // pull high... turn off.
+    spi_fpga_reg_set(spi, RAILS_REGISTER, RAILS_LP15V );
+    msleep(50);
 
-  // turn rails off
-  spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
-  // turn rails output enable on
-  spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_OE);
+
+    // can turn off - by dialing down voltage.
+    // need to set the ldac etc.
+    // should put this on a scope pin.
+
+    spi_fpga_reg_clear(spi, DAC_REGISTER, DAC_RST);
+    msleep(20);
+    spi_fpga_reg_set( spi, DAC_REGISTER, DAC_RST);
+    msleep(20);
+
+
+    // dac_write_register(uint32_t spi, uint8_t r, uint16_t v)
+
+    mux_dac(spi);
+    // dac_write_register1( spi, 0);
+
+    dac_write_register(spi, 0, 1 << 9 | 1 << 8);
+
+  }
+  else if (state == 1 && (lp15v < 10.0 || ln15v < 10.0)) {
+
+    usart_printf("no power - turning off rails\n");
+    state = 0;
+    // turn off power
+    spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V );
+ 
+  }
+
+  // OK. setting it in the fpga works???
+
+
+/*
+  mux_w25(spi);
+  spi_w25_get_data(spi);
+*/
+
+
 
 
   /*
