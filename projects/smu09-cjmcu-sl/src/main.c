@@ -25,7 +25,8 @@
 #include "util.h"
 
 #include "mcp3208.h"
-#include "common.h" // GET RID OF THIS
+#include "w25.h"
+// #include "common.h" // GET RID OF THIS
 
 
 

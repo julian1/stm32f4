@@ -15,8 +15,9 @@
 
 #include "usart2.h"
 #include "util.h"
-#include "flash.h"
-#include "common.h"
+#include "flash.h"   // from lib
+
+#include "w25.h"
 
 
 
