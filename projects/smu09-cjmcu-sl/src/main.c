@@ -412,11 +412,22 @@ static void soft_500ms_update(void)
           mux_dac(spi);
 
           dac_write_register(spi, DAC_VSET_REGISTER, 12345);
-          msleep( 1); 
+          msleep( 1);
           uint32_t u = dac_read_register(spi, DAC_VSET_REGISTER);
-          usart_printf("read %d \n",  (u & 0x00ff00) | (u >> 16));     // 12345 works...
+
+          uint32_t j = (u & 0x00ff00) | (u >> 16);
+          usart_printf("read %d \n", j  );     // 12345 works...
+          if( j == 12345) {
+              usart_printf("successfully wrote vset\n");
+          } else {
+
+              usart_printf("could not write vset\n");
+          }
+
+          // should go to failure... and return exit...
 
 
+          // dac_write_register(spi, DAC_VSET_REGISTER, 12345);
 
         }
         else {
@@ -424,6 +435,8 @@ static void soft_500ms_update(void)
 
           // should put into a failure state and then try again?
           // actually better to halt.
+
+          // go to failure and exit
         }
 
 
