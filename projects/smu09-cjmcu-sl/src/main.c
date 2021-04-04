@@ -390,9 +390,7 @@ static void soft_500ms_update(void)
         usart_printf("bit 8 set %d \n", (u1 & (1 << 8)) ); // TODO use macro for GPIO0 and GPIO1 // don't need == here
         usart_printf("bit 9 set %d \n", (u1 & (1 << 9)) );
 
-        // OK. there's something weird with the bits...
 
-        // TODO must change name. spi_spi_dac_write_register()
 
         // startup has the gpio bits set.
         // spi_dac_write_register(spi, 0, 1 << 9 | 1 << 8); // measure 0.1V. eg. high-Z without pu.
@@ -403,8 +401,9 @@ static void soft_500ms_update(void)
         usart_printf("bit 8 set %d \n", (u2 & (1 << 8)) );
         usart_printf("bit 9 set %d \n", (u2 & (1 << 9)) );
 
-        // OK. to read gpio0 and gpio1. we must have pullups.
-        // this means they can effectively be used bi-directionally.
+        /* OK. to read gpio0 and gpio1 hi vals. we must have pullups.
+           note. also means they can effectively be used bi-directionally.
+        */
 
         // toggle ok,
         if(u1 != u2) {
@@ -431,12 +430,12 @@ static void soft_500ms_update(void)
               usart_printf("successfully wrote vset\n");
           } else {
 
+              // should go to failure... and return exit...
               usart_printf("could not write vset\n");
           }
 
-          // should go to failure... and return exit...
 
-          // set 2V output. works.
+          // set 2V and 4V outputs. works.
           spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 2.0) );
           spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 4.0) );
 

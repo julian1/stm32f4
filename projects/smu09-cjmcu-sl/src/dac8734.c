@@ -24,7 +24,7 @@ void spi_dac_setup( uint32_t spi)
     spi,
     SPI_CR1_BAUDRATE_FPCLK_DIV_4,     // reasonably fast
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
-    SPI_CR1_CPHA_CLK_TRANSITION_2,
+    SPI_CR1_CPHA_CLK_TRANSITION_2,    // 2 == falling edge (from dac8734 doc.
     SPI_CR1_DFF_8BIT,
     SPI_CR1_MSBFIRST                  
   );
@@ -33,22 +33,11 @@ void spi_dac_setup( uint32_t spi)
 
 static uint32_t spi_dac_xfer_24(uint32_t spi, uint32_t r)
 {
-  // should be renamed. xfer. it can be read or write.
-
   uint8_t a = spi_xfer( spi, (r >> 16) & 0xff );
   uint8_t b = spi_xfer( spi, (r >> 8) & 0xff  );
   uint8_t c = spi_xfer( spi, r & 0xff  );
 
-
-  // REVIEW
   return (a << 16) + (b << 8) + c;        // this is better. needs no on reading value .
-
-  // return (c << 16) + (b << 8) + a;      // msb last... seems weird.
-                                        // wrong...
-                                          // eg. we are manually swapping bytes around elsewhere,
-                                        /// usart_printf("bit set %d \n", (u1 & (1 << 8)) == (1 << 8));
-                                        // Yes.
-
 }
 
 
