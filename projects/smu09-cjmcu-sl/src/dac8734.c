@@ -69,28 +69,9 @@ uint32_t spi_dac_read_register(uint32_t spi, uint8_t r)
   // do a dummy read, while clocking out data, for previous read
   // simple although inefficient
   return spi_dac_xfer_register(spi, 1 << 23);
+
+  // TODO IMPORTANT - we could chop off the high bit here.
 }
-
-
-
-/*
-    // can turn off - by dialing down voltage.
-    // need to set the ldac etc.
-    // should put this on a scope pin.
-
-    spi_fpga_reg_clear(spi, DAC_REGISTER, DAC_RST);
-    msleep(20);
-    spi_fpga_reg_set( spi, DAC_REGISTER, DAC_RST);
-    msleep(20);
-
-
-    // spi_dac_write_register(uint32_t spi, uint8_t r, uint16_t v)
-
-    mux_dac(spi);
-    // spi_dac_xfer_register( spi, 0);
-
-    spi_dac_write_register(spi, 0, 1 << 9 | 1 << 8);
-*/
 
 
 #if 0
