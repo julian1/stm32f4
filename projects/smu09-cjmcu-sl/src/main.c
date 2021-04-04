@@ -387,7 +387,10 @@ static void soft_500ms_update(void)
         mux_dac(spi);
         uint32_t u1 = spi_dac_read_register(spi, 0);
         // usart_printf("read %d \n", u1 );
-        usart_printf("bit 8 set %d \n", (u1 & (1 << 8)) == (1 << 8)); // TODO use macro for GPIO0 and GPIO1
+        usart_printf("bit 8 set %d \n", (u1 & (1 << 8)) ); // TODO use macro for GPIO0 and GPIO1 // don't need == here
+        usart_printf("bit 9 set %d \n", (u1 & (1 << 9)) );
+
+        // OK. there's something weird with the bits...
 
         // TODO must change name. spi_spi_dac_write_register()
 
@@ -397,7 +400,8 @@ static void soft_500ms_update(void)
 
         uint32_t u2 = spi_dac_read_register(spi, 0);
         // usart_printf("read %d \n", u2 );
-        usart_printf("bit 8 set %d \n", (u2 & (1 << 8)) == (1 << 8));
+        usart_printf("bit 8 set %d \n", (u2 & (1 << 8)) );
+        usart_printf("bit 9 set %d \n", (u2 & (1 << 9)) );
 
         // toggle ok,
         if(u1 != u2) {
@@ -413,11 +417,14 @@ static void soft_500ms_update(void)
 
           spi_dac_write_register(spi, DAC_VSET_REGISTER, 12345);
           msleep( 1);
-          uint32_t u = spi_dac_read_register(spi, DAC_VSET_REGISTER);
+          uint32_t u = spi_dac_read_register(spi, DAC_VSET_REGISTER) ;
 
-          uint32_t j = (u & 0x00ff00) | (u >> 16);
-          usart_printf("read %d \n", j  );     // 12345 works...
-          if( j == 12345) {
+          usart_printf("u is %d\n", u );
+          usart_printf("v set register val %d\n", u & 0xffff );
+          usart_printf("v set register is %d\n", (u >> 16) & 0b01111111 );
+
+
+          if( (u & 0xffff) == 12345) {
               usart_printf("successfully wrote vset\n");
           } else {
 

@@ -19,17 +19,15 @@ int voltage_to_dac( float x)
 
 void spi_dac_setup( uint32_t spi)
 {
-
   // rcc_periph_clock_enable(RCC_SPI1);
   spi_init_master(
     spi,
-    SPI_CR1_BAUDRATE_FPCLK_DIV_4,     // SPI_CR1_BAUDRATE_FPCLK_DIV_256,
-    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,  // SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE ,
-    SPI_CR1_CPHA_CLK_TRANSITION_2,    // 2 == falling edge (from dac8734 doc.
+    SPI_CR1_BAUDRATE_FPCLK_DIV_4,     // reasonably fast
+    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
+    SPI_CR1_CPHA_CLK_TRANSITION_2,
     SPI_CR1_DFF_8BIT,
-    SPI_CR1_MSBFIRST                  // SPI_CR1_LSBFIRST
+    SPI_CR1_MSBFIRST                  
   );
-
 }
 
 
@@ -43,17 +41,17 @@ static uint32_t spi_dac_xfer_24(uint32_t spi, uint32_t r)
 
 
   // REVIEW
-  // return (a << 16) + (b << 8) + c;
-  return (c << 16) + (b << 8) + a;      // msb last... seems weird.
+  return (a << 16) + (b << 8) + c;        // this is better. needs no on reading value .
+
+  // return (c << 16) + (b << 8) + a;      // msb last... seems weird.
                                         // wrong...
                                           // eg. we are manually swapping bytes around elsewhere,
                                         /// usart_printf("bit set %d \n", (u1 & (1 << 8)) == (1 << 8));
                                         // Yes.
-    
+
 }
 
 
-// change name spi_spi_dac_xfer_register etc
 static uint32_t spi_dac_xfer_register(uint32_t spi, uint32_t r)
 {
   spi_enable( spi);
@@ -66,10 +64,8 @@ static uint32_t spi_dac_xfer_register(uint32_t spi, uint32_t r)
 
 
 
-// RENAME THIS....
 void spi_dac_write_register(uint32_t spi, uint8_t r, uint16_t v)
 {
-  // eg. like reg, value
   spi_dac_xfer_register( spi, r << 16 | v );
 }
 
