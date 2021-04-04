@@ -302,12 +302,14 @@ static void soft_500ms_update(void)
         state = 0;
         mux_fpga(spi);
         usart_printf("supplies bad - turn off rails\n");
+        usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
         // turn off power
         spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V );
       }
 /*
-      if( system_millis > next_millis) {
+      // timeout to turn off...
+      if( system_millis > timeout_off_millis) {
         state = 0;
         usart_printf("timeout - turning off \n");
       }
