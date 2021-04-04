@@ -247,14 +247,14 @@ static void soft_500ms_update(void)
 
 
 
-  typedef enum state_t { 
+  typedef enum state_t {
     FIRST,    // INITIAL
     INITIALIZED,  // DIGIAL_INITIALIZED
     ERROR,
     RAILSUP
   } state_t;
 
-  // static 
+  // static
   static state_t state = FIRST;
 
 
@@ -262,8 +262,10 @@ static void soft_500ms_update(void)
   switch(state) {
 
     case FIRST:  {
+      // if any of these fail, this should progress to error
 
       mux_fpga(spi);
+
       // make sure rails are off
       spi_ice40_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
 
@@ -278,9 +280,7 @@ static void soft_500ms_update(void)
       spi_w25_get_data(spi);
 
       // init dac.
-
-      uint32_t ret = dac_init(spi) ; // bad name?
-      // progress to error if failed.
+      uint32_t ret = dac_init(spi); // bad name?
       if(ret != 0) {
         state = ERROR;
         return;
@@ -302,7 +302,7 @@ static void soft_500ms_update(void)
 
 #if 1
         mux_fpga(spi);
-        // assert rails oe 
+        // assert rails oe
         spi_ice40_reg_clear(spi, RAILS_REGISTER, RAILS_OE);
 
         // turn on +-15V analog rails
