@@ -370,6 +370,11 @@ static void soft_500ms_update(void)
         // need to set unipolar/bipolar
         spi_fpga_reg_clear(spi, DAC_REGISTER, DAC_LDAC);
 
+        // unipolar output on a
+        spi_fpga_reg_set(spi, DAC_REGISTER, DAC_UNI_BIP_A /*| DAC_UNIBIPB */);
+
+
+
         // dac reset
         usart_printf("doing dac reset\n");
         spi_fpga_reg_clear(spi, DAC_REGISTER, DAC_RST);
@@ -383,7 +388,9 @@ static void soft_500ms_update(void)
         uint32_t u1 = dac_read_register(spi, 0);
         // usart_printf("read %d \n", u1 );
         usart_printf("bit 8 set %d \n", (u1 & (1 << 8)) == (1 << 8)); // TODO use macro for GPIO0 and GPIO1
-       
+
+        // TODO must change name. spi_dac_write_register()
+
         // startup has the gpio bits set.
         // dac_write_register(spi, 0, 1 << 9 | 1 << 8); // measure 0.1V. eg. high-Z without pu.
         dac_write_register(spi, 0, 0 );                 // measure 0V
@@ -396,7 +403,7 @@ static void soft_500ms_update(void)
         if(u1 != u2) {
           usart_printf("ok. managed to set dac gpio\n" );
 
-        
+
           usart_printf("turning on ref a\n" );
           mux_fpga(spi);
           spi_fpga_reg_clear( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A);
@@ -407,7 +414,7 @@ static void soft_500ms_update(void)
           // should put into a failure state and then try again?
           // actually better to halt.
         }
- 
+
 
      }
     break ;
@@ -420,6 +427,7 @@ static void soft_500ms_update(void)
         state = 0;
         mux_fpga(spi);
         usart_printf("supplies bad - turn off rails\n");
+
         // turn off power
         spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V );
       }
@@ -438,7 +446,7 @@ static void soft_500ms_update(void)
 
 /*
   ok. so get the ref mux in. so we can test outputting a voltage.
-  don't need ref. use siggen for ref?  
+  don't need ref. use siggen for ref?
   then do ads131.
 
 */
