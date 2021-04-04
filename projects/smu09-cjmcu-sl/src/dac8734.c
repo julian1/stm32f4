@@ -4,7 +4,10 @@
 
 #include "dac8734.h"
 
-
+/*
+  OK. dac can be initialized and registers written and read.
+  without having analog power
+*/
 
 // TODO change to uint32_t
 int voltage_to_dac( float x)

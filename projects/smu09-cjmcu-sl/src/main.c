@@ -33,7 +33,7 @@
 
 
 
-
+#define UNUSED(x) (void)(x)
 
 
 
@@ -90,31 +90,121 @@
 
 static void mux_fpga(uint32_t spi)
 {
-  spi_fpga_reg_setup(spi);
+  spi_ice40_reg_setup(spi);
   // spi uses the special flag to communicate
 }
 
 
 static void mux_adc03(uint32_t spi)
 {
-  spi_fpga_reg_setup(spi);
-  spi_fpga_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC03);
+  spi_ice40_reg_setup(spi);
+  spi_ice40_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC03);
   spi_mcp3208_setup(spi);
 }
 
 static void mux_w25(uint32_t spi)
 {
-  spi_fpga_reg_setup(spi);
-  spi_fpga_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_FLASH);
+  spi_ice40_reg_setup(spi);
+  spi_ice40_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_FLASH);
   spi_w25_setup(spi);
 }
 
 
 static void mux_dac(uint32_t spi)
 {
-  spi_fpga_reg_setup(spi);
-  spi_fpga_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_DAC);
+  spi_ice40_reg_setup(spi);
+  spi_ice40_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_DAC);
   spi_dac_setup(spi);
+}
+
+
+/*
+// Must check again. that
+  ok. dac does not need analog voltage. to initialize.
+  so can bring up first.bring up analog
+
+  we need 2.5V ref.   for ads131. so need to do that.
+*/
+
+
+static uint32_t dac_init(uint32_t spi)  // bad name?
+{
+  // if something goes wrong we should not proceed.
+
+  mux_fpga(spi);
+  // dac_setup( spi );
+  // keep latch low, and unused, unless chaining
+  // need to set unipolar/bipolar
+  spi_ice40_reg_clear(spi, DAC_REGISTER, DAC_LDAC);
+
+  // unipolar output on a
+  spi_ice40_reg_set(spi, DAC_REGISTER, DAC_UNI_BIP_A /*| DAC_UNIBIPB */);
+
+
+  // dac reset
+  usart_printf("doing dac reset\n");
+  spi_ice40_reg_clear(spi, DAC_REGISTER, DAC_RST);
+  msleep(20);
+  spi_ice40_reg_set( spi, DAC_REGISTER, DAC_RST);
+  msleep(20);
+
+
+  // see if we can toggle the dac gpio0 output
+  mux_dac(spi);
+  uint32_t u1 = spi_dac_read_register(spi, 0);
+  // usart_printf("read %d \n", u1 );
+  usart_printf("gpio0 set %d \n", (u1 & DAC_GPIO0) != 0 ); // TODO use macro for GPIO0 and GPIO1 // don't need == here
+  usart_printf("gpio1 set %d \n", (u1 & DAC_GPIO1) != 0);
+
+
+
+  // startup has the gpio bits set.
+  // spi_dac_write_register(spi, 0, DAC_GPIO0 | DAC_GPIO1); // measure 0.1V. eg. high-Z without pu.
+  spi_dac_write_register(spi, 0, 0 );                 // measure 0V
+
+  uint32_t u2 = spi_dac_read_register(spi, 0);
+  // usart_printf("read %d \n", u2 );
+  usart_printf("gpio0 set %d \n", (u2 & DAC_GPIO0) != 0);
+  usart_printf("gpio1 set %d \n", (u2 & DAC_GPIO1) != 0);
+
+  /* OK. to read gpio0 and gpio1 hi vals. we must have pullups.
+     note. also means they can effectively be used bi-directionally.
+  */
+
+  if(u1 == u2) {
+    // toggle not ok,
+    usart_printf("dac toggle gpio not ok\n" );
+    return -1;
+  }
+
+  // toggle ok,
+  usart_printf("turning on ref a\n" );
+  mux_fpga(spi);
+  spi_ice40_reg_clear( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A);
+
+
+  mux_dac(spi);
+
+  spi_dac_write_register(spi, DAC_VSET_REGISTER, 12345);
+  msleep( 1);
+  uint32_t u = spi_dac_read_register(spi, DAC_VSET_REGISTER) ;
+
+  // usart_printf("u is %d\n", u );
+  usart_printf("v set register val %d\n", u & 0xffff );
+  usart_printf("v set register is %d\n", (u >> 16) & 0x7f);
+
+  if( (u & 0xffff) != 12345) {
+    usart_printf("dac setting reg not ok\n" );
+    return -1;
+  }
+
+  // should go to failure... and return exit...
+  usart_printf("write vset ok\n");
+
+    // clear it.
+  spi_dac_write_register(spi, DAC_VSET_REGISTER, 0);
+
+  return 0;
 }
 
 
@@ -145,34 +235,46 @@ static void soft_500ms_update(void)
 #if 1
   ////////////////////////////////
   // clear led1
-  spi_fpga_reg_clear(spi, LED_REGISTER, LED1);
+  spi_ice40_reg_clear(spi, LED_REGISTER, LED1);
 
   // toggle led2
   if(count % 2 == 0  )
-    spi_fpga_reg_set(spi, LED_REGISTER, LED2);
+    spi_ice40_reg_set(spi, LED_REGISTER, LED2);
   else
-    spi_fpga_reg_clear(spi, LED_REGISTER, LED2);
+    spi_ice40_reg_clear(spi, LED_REGISTER, LED2);
 #endif
 
+  typedef enum state_t { 
+    FIRST,
+    INIT
+  } state_t;
 
   // OK. this should be done once. in setup
+  // should be part of main enum
   static bool first = true;
+
   if(first) {
     first = false;
 
     mux_fpga(spi);
     // make sure rails are off
-    spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
+    spi_ice40_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
 
     // turn rails output enable on
-    spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_OE);
+    spi_ice40_reg_clear(spi, RAILS_REGISTER, RAILS_OE);
 
     // turn off dac ref mux. pull-high
-    spi_fpga_reg_set( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A | DAC_REF_MUX_B);
+    spi_ice40_reg_set( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A | DAC_REF_MUX_B);
 
     // test the flash
     mux_w25(spi);
     spi_w25_get_data(spi);
+
+    // init dac.
+
+    uint32_t ret = dac_init(spi) ; // bad name?
+    // progress to error if failed.
+    UNUSED(ret);
   }
 
 
@@ -187,93 +289,28 @@ static void soft_500ms_update(void)
 
   static int state = 0;
 
-
+  //
 
   switch(state) {
     case 0:
-      if( (lp15v > 10.0 && ln15v > 10.0)  )
+      if( lp15v > 15.0 && ln15v > 15.0 )
       {
+
         // power up sequence
-        state = 1;
+        state = 3;
 
         usart_printf("-----------\n");
 
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
         usart_printf("supplies ok - turning on rails\n");
 
-      /////////////////////////////////////////
+
+#if 0
         mux_fpga(spi);
-        spi_fpga_reg_set(spi, RAILS_REGISTER, RAILS_LP15V );
-        msleep(50);
+        // spi_ice40_reg_set(spi, RAILS_REGISTER, RAILS_LP15V );
+        // msleep(50);
 
-        // dac_setup( spi );
-        // keep latch low, and unused, unless chaining
-        // need to set unipolar/bipolar
-        spi_fpga_reg_clear(spi, DAC_REGISTER, DAC_LDAC);
-
-        // unipolar output on a
-        spi_fpga_reg_set(spi, DAC_REGISTER, DAC_UNI_BIP_A /*| DAC_UNIBIPB */);
-
-
-
-        // dac reset
-        usart_printf("doing dac reset\n");
-        spi_fpga_reg_clear(spi, DAC_REGISTER, DAC_RST);
-        msleep(20);
-        spi_fpga_reg_set( spi, DAC_REGISTER, DAC_RST);
-        msleep(20);
-
-
-        // see if we can toggle the dac gpio0 output
-        mux_dac(spi);
-        uint32_t u1 = spi_dac_read_register(spi, 0);
-        // usart_printf("read %d \n", u1 );
-        usart_printf("gpio0 set %d \n", (u1 & DAC_GPIO0) != 0 ); // TODO use macro for GPIO0 and GPIO1 // don't need == here
-        usart_printf("gpio1 set %d \n", (u1 & DAC_GPIO1) != 0);
-
-
-
-        // startup has the gpio bits set.
-        // spi_dac_write_register(spi, 0, DAC_GPIO0 | DAC_GPIO1); // measure 0.1V. eg. high-Z without pu.
-        spi_dac_write_register(spi, 0, 0 );                 // measure 0V
-
-        uint32_t u2 = spi_dac_read_register(spi, 0);
-        // usart_printf("read %d \n", u2 );
-        usart_printf("gpio0 set %d \n", (u2 & DAC_GPIO0) != 0);
-        usart_printf("gpio1 set %d \n", (u2 & DAC_GPIO1) != 0);
-
-        /* OK. to read gpio0 and gpio1 hi vals. we must have pullups.
-           note. also means they can effectively be used bi-directionally.
-        */
-
-        // toggle ok,
-        if(u1 != u2) {
-          usart_printf("toggle dac gpio ok\n" );
-
-
-          usart_printf("turning on ref a\n" );
-          mux_fpga(spi);
-          spi_fpga_reg_clear( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A);
-
-
-          mux_dac(spi);
-
-          spi_dac_write_register(spi, DAC_VSET_REGISTER, 12345);
-          msleep( 1);
-          uint32_t u = spi_dac_read_register(spi, DAC_VSET_REGISTER) ;
-
-          // usart_printf("u is %d\n", u );
-          usart_printf("v set register val %d\n", u & 0xffff );
-          usart_printf("v set register is %d\n", (u >> 16) & 0x7f);
-
-
-          if( (u & 0xffff) == 12345) {
-              usart_printf("successfully wrote vset\n");
-          } else {
-
-              // should go to failure... and return exit...
-              usart_printf("could not write vset\n");
-          }
+      /////////////////////////////////////////
 
 
           // set 2V and 4V outputs. works.
@@ -281,15 +318,7 @@ static void soft_500ms_update(void)
           spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 4.0) );
 
         }
-        else {
-          usart_printf("could not toggle dac gpio\n" );
-
-          // should put into a failure state and then try again?
-          // actually better to halt.
-
-          // go to failure and exit
-        }
-
+#endif
 
      }
     break ;
@@ -305,7 +334,7 @@ static void soft_500ms_update(void)
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
         // turn off power
-        spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V );
+        spi_ice40_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V );
       }
 /*
       // timeout to turn off...
