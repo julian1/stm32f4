@@ -319,15 +319,16 @@ static void soft_500ms_update(void)
     // turn rails output enable on
     spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_OE);
 
+    // turn off dac ref mux. pull-high
+    spi_fpga_reg_set( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A | DAC_REF_MUX_B);
+
     // test the flash
     mux_w25(spi);
     spi_w25_get_data(spi);
-
-
   }
 
 
-  // get supplies voltages,
+  // get supply voltages,
   mux_adc03(spi);
   float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
   float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
@@ -373,9 +374,16 @@ static void soft_500ms_update(void)
         spi_fpga_reg_set( spi, DAC_REGISTER, DAC_RST);
         msleep(20);
 
+        // dac is assumed to be up. but we really need to test the registers
+        // TODO - important check. gpio change worked -.
+
+        // these should be high. BEFORE WE TURN ON RAILS.
+        // turn on ref A
+        spi_fpga_reg_clear( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A);
+
 
         //////////////
-        mux_dac(spi);
+        // mux_dac(spi);
 
 
         // actually not being able to test the dac gpio.
@@ -409,6 +417,7 @@ static void soft_500ms_update(void)
       if((lp15v < 10.0 || ln15v < 10.0)  ) {
 
         state = 0;
+        mux_fpga(spi);
         usart_printf("supplies bad - turn off rails\n");
         // turn off power
         spi_fpga_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V );
