@@ -403,6 +403,9 @@ static void soft_500ms_update(void)
         usart_printf("bit 8 set %d \n", (u2 & (1 << 8)) );
         usart_printf("bit 9 set %d \n", (u2 & (1 << 9)) );
 
+        // OK. to read gpio0 and gpio1. we must have pullups.
+        // this means they can effectively be used bi-directionally.
+
         // toggle ok,
         if(u1 != u2) {
           usart_printf("toggle dac gpio ok\n" );
