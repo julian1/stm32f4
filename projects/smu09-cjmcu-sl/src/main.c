@@ -177,11 +177,6 @@ static uint32_t dac_init(uint32_t spi)  // bad name?
     return -1;
   }
 
-  // toggle ok,
-  usart_printf("turning on ref a\n" );
-  mux_fpga(spi);
-  spi_ice40_reg_clear( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A);
-
 
   mux_dac(spi);
 
@@ -203,6 +198,8 @@ static uint32_t dac_init(uint32_t spi)  // bad name?
 
     // clear it.
   spi_dac_write_register(spi, DAC_VSET_REGISTER, 0);
+
+  // Don't turn on the refs. yet.
 
   return 0;
 }
@@ -309,9 +306,17 @@ static void soft_500ms_update(void)
         spi_ice40_reg_set(spi, RAILS_REGISTER, RAILS_LP15V );
         msleep(50);
 
+
+        // toggle ok,
+        mux_dac(spi);
+        usart_printf("turning on ref a\n" );
+        mux_fpga(spi);
+        spi_ice40_reg_clear( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A);
+
+
         // set 2V and 4V outputs. works.
-        // spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 2.0) );
-        // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 4.0) );
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 2.0) );
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 4.0) );
 #endif
         // power up sequence
         state = RAILSUP;
@@ -327,6 +332,8 @@ static void soft_500ms_update(void)
 
         // turn off power
         spi_ice40_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V );
+
+
 
         state = ERROR;
       }
