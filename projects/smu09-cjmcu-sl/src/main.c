@@ -245,16 +245,17 @@ static void soft_500ms_update(void)
 #endif
 
   typedef enum state_t { 
-    FIRST,
-    INIT
+    FIRST,    // INITIAL
+    INITIALIZED,  // DIGIAL_INITIALIZED
+    ERROR,
+    RAILSUP
   } state_t;
 
   // OK. this should be done once. in setup
   // should be part of main enum
-  static bool first = true;
+  static state_t state = FIRST;
 
-  if(first) {
-    first = false;
+  if(state == FIRST) {
 
     mux_fpga(spi);
     // make sure rails are off
@@ -274,7 +275,12 @@ static void soft_500ms_update(void)
 
     uint32_t ret = dac_init(spi) ; // bad name?
     // progress to error if failed.
-    UNUSED(ret);
+    if(ret != 0) {
+      state = ERROR;
+      return;
+    }
+
+    state = INITIALIZED;
   }
 
 
@@ -284,20 +290,16 @@ static void soft_500ms_update(void)
   float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
 
 
-
   mux_fpga(spi);
 
-  static int state = 0;
+  // static int state = 0;
 
   //
 
   switch(state) {
-    case 0:
+    case INITIALIZED:
       if( lp15v > 15.0 && ln15v > 15.0 )
       {
-
-        // power up sequence
-        state = 3;
 
         usart_printf("-----------\n");
 
@@ -319,13 +321,14 @@ static void soft_500ms_update(void)
 
         }
 #endif
+        // power up sequence
+        state = RAILSUP;
+
 
      }
     break ;
 
-    case 1:
-
-
+    case RAILSUP:
       if((lp15v < 10.0 || ln15v < 10.0)  ) {
 
         state = 0;
@@ -335,6 +338,8 @@ static void soft_500ms_update(void)
 
         // turn off power
         spi_ice40_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V );
+
+        state = ERROR;
       }
 /*
       // timeout to turn off...
@@ -345,6 +350,8 @@ static void soft_500ms_update(void)
  */
     break;
 
+    default:
+      ;
   };
 
   // OK. setting it in the fpga works???
