@@ -33,7 +33,7 @@ void spi_dac_setup( uint32_t spi)
 }
 
 
-static uint32_t dac_write_register_spi(uint32_t spi, uint32_t r)
+static uint32_t spi_dac_xfer_24(uint32_t spi, uint32_t r)
 {
   // should be renamed. xfer. it can be read or write.
 
@@ -53,11 +53,11 @@ static uint32_t dac_write_register_spi(uint32_t spi, uint32_t r)
 }
 
 
-// change name spi_dac_write_register1 etc
-uint32_t dac_write_register1(uint32_t spi, uint32_t r)
+// change name spi_spi_dac_write_register1 etc
+uint32_t spi_dac_write_register1(uint32_t spi, uint32_t r)
 {
   spi_enable( spi);
-  uint32_t ret = dac_write_register_spi(spi, r );     // write
+  uint32_t ret = spi_dac_xfer_24(spi, r );     // write
   spi_disable( spi);
 
   return ret;
@@ -67,10 +67,10 @@ uint32_t dac_write_register1(uint32_t spi, uint32_t r)
 
 
 // RENAME THIS....
-void dac_write_register(uint32_t spi, uint8_t r, uint16_t v)
+void spi_dac_write_register(uint32_t spi, uint8_t r, uint16_t v)
 {
   // eg. like reg, value
-  dac_write_register1( spi, r << 16 | v );
+  spi_dac_write_register1( spi, r << 16 | v );
 }
 
 
@@ -78,11 +78,11 @@ void dac_write_register(uint32_t spi, uint8_t r, uint16_t v)
 uint32_t dac_read_register(uint32_t spi, uint8_t r)
 {
   // write, with read flag (1 << 23) set, to read r.
-  dac_write_register1(spi, 1 << 23 | r << 16 );
+  spi_dac_write_register1(spi, 1 << 23 | r << 16 );
 
   // do a dummy read, while clocking out data, for previous read
   // simple although inefficient
-  return dac_write_register1(spi, 1 << 23);
+  return spi_dac_write_register1(spi, 1 << 23);
 }
 
 
@@ -98,12 +98,12 @@ uint32_t dac_read_register(uint32_t spi, uint8_t r)
     msleep(20);
 
 
-    // dac_write_register(uint32_t spi, uint8_t r, uint16_t v)
+    // spi_dac_write_register(uint32_t spi, uint8_t r, uint16_t v)
 
     mux_dac(spi);
-    // dac_write_register1( spi, 0);
+    // spi_dac_write_register1( spi, 0);
 
-    dac_write_register(spi, 0, 1 << 9 | 1 << 8);
+    spi_dac_write_register(spi, 0, 1 << 9 | 1 << 8);
 */
 
 
@@ -177,7 +177,7 @@ void dac_reset(void)
 
   // ok this appears to hang if dac is not populated
   usart_printf("dac clearing dac register\n");
-  dac_write_register1( 0);
+  spi_dac_write_register1( 0);
   task_sleep(1);
   usart_printf("mcu gpio read2 %d %d\n", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 

@@ -389,11 +389,11 @@ static void soft_500ms_update(void)
         // usart_printf("read %d \n", u1 );
         usart_printf("bit 8 set %d \n", (u1 & (1 << 8)) == (1 << 8)); // TODO use macro for GPIO0 and GPIO1
 
-        // TODO must change name. spi_dac_write_register()
+        // TODO must change name. spi_spi_dac_write_register()
 
         // startup has the gpio bits set.
-        // dac_write_register(spi, 0, 1 << 9 | 1 << 8); // measure 0.1V. eg. high-Z without pu.
-        dac_write_register(spi, 0, 0 );                 // measure 0V
+        // spi_dac_write_register(spi, 0, 1 << 9 | 1 << 8); // measure 0.1V. eg. high-Z without pu.
+        spi_dac_write_register(spi, 0, 0 );                 // measure 0V
 
         uint32_t u2 = dac_read_register(spi, 0);
         // usart_printf("read %d \n", u2 );
@@ -411,7 +411,7 @@ static void soft_500ms_update(void)
 
           mux_dac(spi);
 
-          dac_write_register(spi, DAC_VSET_REGISTER, 12345);
+          spi_dac_write_register(spi, DAC_VSET_REGISTER, 12345);
           msleep( 1);
           uint32_t u = dac_read_register(spi, DAC_VSET_REGISTER);
 
@@ -427,8 +427,8 @@ static void soft_500ms_update(void)
           // should go to failure... and return exit...
 
           // set 2V output. works.
-          dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 2.0) );
-          dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 4.0) );
+          spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 2.0) );
+          spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 4.0) );
 
         }
         else {
