@@ -228,8 +228,8 @@ static void soft_500ms_update(void)
         mux_dac(spi);
         uint32_t u1 = spi_dac_read_register(spi, 0);
         // usart_printf("read %d \n", u1 );
-        usart_printf("bit 8 set %d \n", (u1 & (1 << 8)) ); // TODO use macro for GPIO0 and GPIO1 // don't need == here
-        usart_printf("bit 9 set %d \n", (u1 & (1 << 9)) );
+        usart_printf("gpio0 set %d \n", (u1 & DAC_GPIO0) != 0 ); // TODO use macro for GPIO0 and GPIO1 // don't need == here
+        usart_printf("gpio1 set %d \n", (u1 & DAC_GPIO1) != 0);
 
 
 
@@ -239,8 +239,8 @@ static void soft_500ms_update(void)
 
         uint32_t u2 = spi_dac_read_register(spi, 0);
         // usart_printf("read %d \n", u2 );
-        usart_printf("bit 8 set %d \n", (u2 & (1 << 8)) );
-        usart_printf("bit 9 set %d \n", (u2 & (1 << 9)) );
+        usart_printf("gpio0 set %d \n", (u2 & DAC_GPIO0) != 0);
+        usart_printf("gpio1 set %d \n", (u2 & DAC_GPIO1) != 0);
 
         /* OK. to read gpio0 and gpio1 hi vals. we must have pullups.
            note. also means they can effectively be used bi-directionally.
@@ -262,9 +262,9 @@ static void soft_500ms_update(void)
           msleep( 1);
           uint32_t u = spi_dac_read_register(spi, DAC_VSET_REGISTER) ;
 
-          usart_printf("u is %d\n", u );
+          // usart_printf("u is %d\n", u );
           usart_printf("v set register val %d\n", u & 0xffff );
-          usart_printf("v set register is %d\n", (u >> 16) & 0b01111111 );
+          usart_printf("v set register is %d\n", (u >> 16) & 0x7f);
 
 
           if( (u & 0xffff) == 12345) {
