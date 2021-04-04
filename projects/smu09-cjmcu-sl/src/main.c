@@ -385,7 +385,7 @@ static void soft_500ms_update(void)
 
         // see if we can toggle the dac gpio0 output
         mux_dac(spi);
-        uint32_t u1 = dac_read_register(spi, 0);
+        uint32_t u1 = spi_dac_read_register(spi, 0);
         // usart_printf("read %d \n", u1 );
         usart_printf("bit 8 set %d \n", (u1 & (1 << 8)) == (1 << 8)); // TODO use macro for GPIO0 and GPIO1
 
@@ -395,7 +395,7 @@ static void soft_500ms_update(void)
         // spi_dac_write_register(spi, 0, 1 << 9 | 1 << 8); // measure 0.1V. eg. high-Z without pu.
         spi_dac_write_register(spi, 0, 0 );                 // measure 0V
 
-        uint32_t u2 = dac_read_register(spi, 0);
+        uint32_t u2 = spi_dac_read_register(spi, 0);
         // usart_printf("read %d \n", u2 );
         usart_printf("bit 8 set %d \n", (u2 & (1 << 8)) == (1 << 8));
 
@@ -413,7 +413,7 @@ static void soft_500ms_update(void)
 
           spi_dac_write_register(spi, DAC_VSET_REGISTER, 12345);
           msleep( 1);
-          uint32_t u = dac_read_register(spi, DAC_VSET_REGISTER);
+          uint32_t u = spi_dac_read_register(spi, DAC_VSET_REGISTER);
 
           uint32_t j = (u & 0x00ff00) | (u >> 16);
           usart_printf("read %d \n", j  );     // 12345 works...
