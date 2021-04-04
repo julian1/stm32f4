@@ -24,6 +24,7 @@
 #include "usart2.h"
 #include "util.h"
 
+#include "spi1.h"
 #include "mcp3208.h"
 #include "w25.h"
 #include "dac8734.h"
