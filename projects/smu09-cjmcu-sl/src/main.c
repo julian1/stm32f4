@@ -374,16 +374,29 @@ static void soft_500ms_update(void)
         spi_fpga_reg_set( spi, DAC_REGISTER, DAC_RST);
         msleep(20);
 
+
+        mux_dac(spi);
+        uint32_t u1 = dac_read_register(spi, 0);
+        usart_printf("read %d \n", u1 );
+        usart_printf("bit 8 set %d \n", (u1 & (1 << 8)) == (1 << 8));
+       
+
+        // dac_write_register(spi, 0, 1 << 9 | 1 << 8); // 0.1V. eg. high-Z without pu.
+        dac_write_register(spi, 0, 0 ); // 0.1V. eg. high-Z without pu.
+
+        u1 = dac_read_register(spi, 0);
+        usart_printf("read %d \n", u1 );
+        usart_printf("bit 8 set %d \n", (u1 & (1 << 8)) == (1 << 8));
+ 
+
         // dac is assumed to be up. but we really need to test the registers
         // TODO - important check. gpio change worked -.
 
-        // these should be high. BEFORE WE TURN ON RAILS.
         // turn on ref A
-        spi_fpga_reg_clear( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A);
 
+        // mux_fpga(spi);
+        // spi_fpga_reg_clear( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A);
 
-        //////////////
-        // mux_dac(spi);
 
 
         // actually not being able to test the dac gpio.
