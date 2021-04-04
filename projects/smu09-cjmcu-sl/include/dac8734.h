@@ -1,5 +1,7 @@
 
 
+int voltage_to_dac( float x);
+
 void spi_dac_setup( uint32_t spi);
 
 extern uint32_t dac_write_register1(uint32_t spi, uint32_t r);

@@ -6,6 +6,17 @@
 
 
 
+// TODO change to uint32_t
+int voltage_to_dac( float x)
+{
+  // return x / (6.5769 * 2) * 65535;
+  // eg.
+  return x / 2.0 * 10000;  // need to add ptf56 60ohm, and then use dac trim registers.
+}
+
+
+
+
 void spi_dac_setup( uint32_t spi)
 {
 
@@ -73,6 +84,28 @@ uint32_t dac_read_register(uint32_t spi, uint8_t r)
   // simple although inefficient
   return dac_write_register1(spi, 1 << 23);
 }
+
+
+
+/*
+    // can turn off - by dialing down voltage.
+    // need to set the ldac etc.
+    // should put this on a scope pin.
+
+    spi_fpga_reg_clear(spi, DAC_REGISTER, DAC_RST);
+    msleep(20);
+    spi_fpga_reg_set( spi, DAC_REGISTER, DAC_RST);
+    msleep(20);
+
+
+    // dac_write_register(uint32_t spi, uint8_t r, uint16_t v)
+
+    mux_dac(spi);
+    // dac_write_register1( spi, 0);
+
+    dac_write_register(spi, 0, 1 << 9 | 1 << 8);
+*/
+
 
 #if 0
 

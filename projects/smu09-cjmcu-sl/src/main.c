@@ -426,8 +426,9 @@ static void soft_500ms_update(void)
 
           // should go to failure... and return exit...
 
-
-          // dac_write_register(spi, DAC_VSET_REGISTER, 12345);
+          // set 2V output. works.
+          dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 2.0) );
+          dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 4.0) );
 
         }
         else {
