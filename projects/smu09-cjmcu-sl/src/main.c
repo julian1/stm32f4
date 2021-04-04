@@ -212,6 +212,13 @@ static void spi_fpga_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 #define RAILS_OE      (1<<3)
 
 
+#define REF_MUX REGISTER  11
+#define REF_MUX A     (1<<0)
+#define REF_MUX B     (1<<1)
+
+
+
+
 // one bit
 
 
@@ -416,17 +423,17 @@ static void soft_500ms_update(void)
   // OK. setting it in the fpga works???
 
 
+/*
+  ok. so get the ref mux in. so we can test outputting a voltage.
+  don't need ref. use siggen for ref?  
+  then do ads131.
 
-
-
+*/
 
 
   /*
-    weird.
-      fpga poweron , with no mcu, and it comes up high. as expected.
-      fpga power,   with mcu - but no write and its lo?
-
-    AHHH. It's clever
+    AHHH. is clever
+      74hc125.
       if fpga gpio comes up high - OE - is disabled. so out is low.
       if fpga gpio comes up lo   - buffer is disabled so out low.
 
