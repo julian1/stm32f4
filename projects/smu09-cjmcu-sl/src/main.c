@@ -143,9 +143,11 @@ static void soft_500ms_update(void)
   // OK. this looks like it's working...
 
 #if 1
-  // clear
+  ////////////////////////////////
+  // clear led1
   spi_fpga_reg_clear(spi, LED_REGISTER, LED1);
 
+  // toggle led2
   if(count % 2 == 0  )
     spi_fpga_reg_set(spi, LED_REGISTER, LED2);
   else
@@ -185,16 +187,7 @@ static void soft_500ms_update(void)
 
   static int state = 0;
 
-#if 0
-  if(state == 0) {
-    usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
-  }
-#endif
 
-  // we want to cycle this once per second...
-  // not on the power.
-
-  // static uint32_t next_millis = 0;
 
   switch(state) {
     case 0:
@@ -204,6 +197,8 @@ static void soft_500ms_update(void)
         state = 1;
 
         usart_printf("-----------\n");
+
+        usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
         usart_printf("supplies ok - turning on rails\n");
 
       /////////////////////////////////////////
