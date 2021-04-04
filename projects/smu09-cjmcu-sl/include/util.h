@@ -24,8 +24,6 @@ extern void flush( void);
 extern void usart_setup_( void );
 
 
-//////////////////
-uint32_t spi_write_register_16(uint32_t spi, uint32_t r);
 
 ///////////////
 extern void spi1_port_setup(void);

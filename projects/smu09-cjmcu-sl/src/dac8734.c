@@ -37,6 +37,7 @@ static uint32_t spi_dac_xfer_24(uint32_t spi, uint32_t r)
   uint8_t b = spi_xfer( spi, (r >> 8) & 0xff  );
   uint8_t c = spi_xfer( spi, r & 0xff  );
 
+  // fixed this.
   return (a << 16) + (b << 8) + c;        // this is better. needs no on reading value .
 }
 

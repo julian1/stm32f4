@@ -110,12 +110,12 @@ static void spi_fpga_reg_setup(uint32_t spi)
 }
 
 
-static uint32_t spi_xfer_register_16_here(uint32_t spi, uint32_t r)
+static uint32_t spi_xfer_register_16(uint32_t spi, uint32_t r)
 {
   uint8_t a = spi_xfer( spi, (r >> 8) & 0xff  );
   uint8_t b = spi_xfer( spi, r & 0xff  );
 
-  return (a << 8) + b; // msb first
+  return (a << 8) + b; // msb first, same as dac
 }
 
 
@@ -126,7 +126,7 @@ static uint16_t spi_fpga_xfer(uint32_t spi, uint32_t r)
 {
   spi_special_flag_clear(spi);
   spi_enable(spi);
-  uint16_t ret = spi_xfer_register_16_here(spi, r );
+  uint16_t ret = spi_xfer_register_16(spi, r );
   spi_disable(spi);
   spi_special_flag_set(spi);
   return ret;

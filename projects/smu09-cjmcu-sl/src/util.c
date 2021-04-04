@@ -188,22 +188,6 @@ void usart_setup_( void )
 
 
 
-///////////////
-// can move into util also.
-
-uint32_t spi_write_register_16(uint32_t spi, uint32_t r)
-{
-  uint8_t a = spi_xfer( spi, (r >> 8) & 0xff  );
-  uint8_t b = spi_xfer( spi, r & 0xff  );
-
-  // REVIEW
-  // return (a << 16) + (b << 8) + c;
-  return (b << 8) + a;      // msb last... seems weird.
-}
-
-
-
-
 
 
 //////////////////////////
