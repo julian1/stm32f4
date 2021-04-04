@@ -234,7 +234,7 @@ static void soft_500ms_update(void)
 
 
         // startup has the gpio bits set.
-        // spi_dac_write_register(spi, 0, 1 << 9 | 1 << 8); // measure 0.1V. eg. high-Z without pu.
+        // spi_dac_write_register(spi, 0, DAC_GPIO0 | DAC_GPIO1); // measure 0.1V. eg. high-Z without pu.
         spi_dac_write_register(spi, 0, 0 );                 // measure 0V
 
         uint32_t u2 = spi_dac_read_register(spi, 0);
