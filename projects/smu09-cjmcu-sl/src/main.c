@@ -129,19 +129,21 @@ static void mux_dac(uint32_t spi)
 
 static uint32_t dac_init(uint32_t spi)  // bad name?
 {
-  // if something goes wrong we should not proceed.
+  /*
+    dac digital initialization. works even without analog power
+    fail early if something goes wrong
+  */
 
   mux_fpga(spi);
-  // dac_setup( spi );
+
   // keep latch low, and unused, unless chaining
-  // need to set unipolar/bipolar
   spi_ice40_reg_clear(spi, DAC_REGISTER, DAC_LDAC);
 
   // unipolar output on a
   spi_ice40_reg_set(spi, DAC_REGISTER, DAC_UNI_BIP_A /*| DAC_UNIBIPB */);
 
 
-  // dac reset
+  // toggle reset pin
   usart_printf("doing dac reset\n");
   spi_ice40_reg_clear(spi, DAC_REGISTER, DAC_RST);
   msleep(20);
@@ -152,10 +154,8 @@ static uint32_t dac_init(uint32_t spi)  // bad name?
   // see if we can toggle the dac gpio0 output
   mux_dac(spi);
   uint32_t u1 = spi_dac_read_register(spi, 0);
-  // usart_printf("read %d \n", u1 );
   usart_printf("gpio0 set %d \n", (u1 & DAC_GPIO0) != 0 ); // TODO use macro for GPIO0 and GPIO1 // don't need == here
   usart_printf("gpio1 set %d \n", (u1 & DAC_GPIO1) != 0);
-
 
 
   // startup has the gpio bits set.
@@ -170,7 +170,6 @@ static uint32_t dac_init(uint32_t spi)  // bad name?
   /* OK. to read gpio0 and gpio1 hi vals. we must have pullups.
      note. also means they can effectively be used bi-directionally.
   */
-
   if(u1 == u2) {
     // toggle not ok,
     usart_printf("dac toggle gpio not ok\n" );
@@ -180,6 +179,7 @@ static uint32_t dac_init(uint32_t spi)  // bad name?
 
   mux_dac(spi);
 
+  // check can write register also
   spi_dac_write_register(spi, DAC_VSET_REGISTER, 12345);
   msleep( 1);
   uint32_t u = spi_dac_read_register(spi, DAC_VSET_REGISTER) ;
@@ -196,11 +196,10 @@ static uint32_t dac_init(uint32_t spi)  // bad name?
   // should go to failure... and return exit...
   usart_printf("write vset ok\n");
 
-    // clear it.
+  // clear register
   spi_dac_write_register(spi, DAC_VSET_REGISTER, 0);
 
-  // Don't turn on the refs. yet.
-
+  // avoid turning on the refs. yet.
   return 0;
 }
 
@@ -283,6 +282,7 @@ static void soft_500ms_update(void)
         return;
       }
 
+      // done initialization
       state = INITIALIZED;
       break;
     }
@@ -307,18 +307,18 @@ static void soft_500ms_update(void)
         msleep(50);
 
 
-        // toggle ok,
+        // turn on refs for dac
         mux_dac(spi);
         usart_printf("turning on ref a\n" );
         mux_fpga(spi);
         spi_ice40_reg_clear( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A);
 
 
-        // set 2V and 4V outputs. works.
+        // turn on set voltages 2V and 4V outputs. works.
         spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 2.0) );
         spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 4.0) );
 #endif
-        // power up sequence
+        // power up sequence complete
         state = RAILSUP;
       }
       break ;
@@ -333,8 +333,7 @@ static void soft_500ms_update(void)
         // turn off power
         spi_ice40_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V );
 
-
-
+        // go to state error
         state = ERROR;
       }
       break;
