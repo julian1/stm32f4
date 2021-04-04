@@ -24,84 +24,12 @@
 #include "usart2.h"
 #include "util.h"
 
+
 #include "spi1.h"
+#include "ice40.h"
 #include "mcp3208.h"
 #include "w25.h"
 #include "dac8734.h"
-
-
-
-static void spi_fpga_reg_setup(uint32_t spi)
-{
-  // the fpga as a spi slave.
-
-  spi_init_master(
-    spi,
-    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
-    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
-    SPI_CR1_CPHA_CLK_TRANSITION_2,    // 2 == falling edge
-    SPI_CR1_DFF_8BIT,
-    SPI_CR1_MSBFIRST
-  );
-
-  spi_disable_software_slave_management( spi);
-  spi_enable_ss_output(spi);
-}
-
-
-static uint32_t spi_xfer_register_16(uint32_t spi, uint32_t r)
-{
-  uint8_t a = spi_xfer( spi, (r >> 8) & 0xff  );
-  uint8_t b = spi_xfer( spi, r & 0xff  );
-
-  return (a << 8) + b; // msb first, same as dac
-}
-
-
-
-
-
-static uint16_t spi_fpga_xfer(uint32_t spi, uint32_t r)
-{
-  spi_special_flag_clear(spi);
-  spi_enable(spi);
-  uint16_t ret = spi_xfer_register_16(spi, r );
-  spi_disable(spi);
-  spi_special_flag_set(spi);
-  return ret;
-}
-
-
-// OK. we are using this to write the spi muxing register with 8 bits.
-// if need more bits then it's problematic
-
-static uint16_t spi_fpga_write( uint32_t spi, uint8_t r, uint8_t v)
-{
-  // change name to xfer also. I think.
-  uint16_t ret = spi_fpga_xfer(spi, r << 8 | v );
-  return ret;
-}
-
-
-
-static void spi_fpga_reg_set( uint32_t spi, uint8_t r, uint8_t v)
-{
-  spi_fpga_write(spi, r, (v & 0xF)); // SHOULD BE & 0xf
-}
-
-static void spi_fpga_reg_clear( uint32_t spi, uint8_t r, uint8_t v)
-{
-  spi_fpga_write(spi, r, v << 4);
-}
-
-// OK. don't think we need a separate hardware register...
-
-static void spi_fpga_reg_write( uint32_t spi, uint8_t r, uint8_t v)
-{
-  uint8_t x = (~v << 4) | (v & 0xF );
-  spi_fpga_write(spi, r, x );
-}
-
 
 
 
