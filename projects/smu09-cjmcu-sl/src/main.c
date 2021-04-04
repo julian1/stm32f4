@@ -354,6 +354,7 @@ static void soft_500ms_update(void)
     case 0:
       if( (lp15v > 10.0 && ln15v > 10.0)  )
       {
+        // power up sequence
         state = 1;
 
         usart_printf("-----------\n");
@@ -366,8 +367,10 @@ static void soft_500ms_update(void)
 
         // dac_setup( spi );
         // keep latch low, and unused, unless chaining
+        // need to set unipolar/bipolar
         spi_fpga_reg_clear(spi, DAC_REGISTER, DAC_LDAC);
 
+        // dac reset
         usart_printf("doing dac reset\n");
         spi_fpga_reg_clear(spi, DAC_REGISTER, DAC_RST);
         msleep(20);
@@ -375,10 +378,11 @@ static void soft_500ms_update(void)
         msleep(20);
 
 
+        // see if we can toggle the dac gpio0 output
         mux_dac(spi);
         uint32_t u1 = dac_read_register(spi, 0);
         // usart_printf("read %d \n", u1 );
-        usart_printf("bit 8 set %d \n", (u1 & (1 << 8)) == (1 << 8));
+        usart_printf("bit 8 set %d \n", (u1 & (1 << 8)) == (1 << 8)); // TODO use macro for GPIO0 and GPIO1
        
         // startup has the gpio bits set.
         // dac_write_register(spi, 0, 1 << 9 | 1 << 8); // measure 0.1V. eg. high-Z without pu.
@@ -388,6 +392,7 @@ static void soft_500ms_update(void)
         // usart_printf("read %d \n", u2 );
         usart_printf("bit 8 set %d \n", (u2 & (1 << 8)) == (1 << 8));
 
+        // toggle ok,
         if(u1 != u2) {
           usart_printf("ok. managed to set dac gpio\n" );
 
@@ -404,15 +409,6 @@ static void soft_500ms_update(void)
         }
  
 
-        // dac is assumed to be up. but we really need to test the registers
-        // TODO - important check. gpio change worked -.
-
-        // turn on ref A
-
-
-
-
-        // next_millis = system_millis + 3000; // 3 seconds
      }
     break ;
 
