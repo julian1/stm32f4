@@ -220,17 +220,10 @@ static void soft_500ms_update(void)
   uint32_t spi = SPI_ICE40;
 
 
-  // blink led
   static int count = 0;
 
-  // setup spi1 for register control.
-  // usart_printf("-----------\n");
-
-  // usart_printf( "spi is %d\n", spi );
 
   mux_fpga(spi);
-
-  // OK. this looks like it's working...
 
 #if 1
   ////////////////////////////////
@@ -244,6 +237,16 @@ static void soft_500ms_update(void)
     spi_ice40_reg_clear(spi, LED_REGISTER, LED2);
 #endif
 
+  // DO we want to do this every loop?
+  // get supply voltages,
+  mux_adc03(spi);
+  float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
+  float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
+
+
+
+
+
   typedef enum state_t { 
     FIRST,    // INITIAL
     INITIALIZED,  // DIGIAL_INITIALIZED
@@ -251,52 +254,43 @@ static void soft_500ms_update(void)
     RAILSUP
   } state_t;
 
-  // OK. this should be done once. in setup
-  // should be part of main enum
+  // static 
   static state_t state = FIRST;
 
-  if(state == FIRST) {
 
-    mux_fpga(spi);
-    // make sure rails are off
-    spi_ice40_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
-
-    // turn rails output enable on
-    spi_ice40_reg_clear(spi, RAILS_REGISTER, RAILS_OE);
-
-    // turn off dac ref mux. pull-high
-    spi_ice40_reg_set( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A | DAC_REF_MUX_B);
-
-    // test the flash
-    mux_w25(spi);
-    spi_w25_get_data(spi);
-
-    // init dac.
-
-    uint32_t ret = dac_init(spi) ; // bad name?
-    // progress to error if failed.
-    if(ret != 0) {
-      state = ERROR;
-      return;
-    }
-
-    state = INITIALIZED;
-  }
-
-
-  // get supply voltages,
-  mux_adc03(spi);
-  float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
-  float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
-
-
-  mux_fpga(spi);
-
-  // static int state = 0;
-
-  //
 
   switch(state) {
+
+    case FIRST:  {
+
+      mux_fpga(spi);
+      // make sure rails are off
+      spi_ice40_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
+
+      // may as well keep rails OE deasserted, until really ready
+      spi_ice40_reg_set(spi, RAILS_REGISTER, RAILS_OE);
+
+      // turn off dac ref mux. pull-high
+      spi_ice40_reg_set( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A | DAC_REF_MUX_B);
+
+      // test the flash
+      mux_w25(spi);
+      spi_w25_get_data(spi);
+
+      // init dac.
+
+      uint32_t ret = dac_init(spi) ; // bad name?
+      // progress to error if failed.
+      if(ret != 0) {
+        state = ERROR;
+        return;
+      }
+
+      state = INITIALIZED;
+      break;
+    }
+
+
     case INITIALIZED:
       if( lp15v > 15.0 && ln15v > 15.0 )
       {
@@ -306,32 +300,27 @@ static void soft_500ms_update(void)
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
         usart_printf("supplies ok - turning on rails\n");
 
-
-#if 0
+#if 1
         mux_fpga(spi);
-        // spi_ice40_reg_set(spi, RAILS_REGISTER, RAILS_LP15V );
-        // msleep(50);
+        // assert rails oe 
+        spi_ice40_reg_clear(spi, RAILS_REGISTER, RAILS_OE);
 
-      /////////////////////////////////////////
+        // turn on +-15V analog rails
+        spi_ice40_reg_set(spi, RAILS_REGISTER, RAILS_LP15V );
+        msleep(50);
 
-
-          // set 2V and 4V outputs. works.
-          spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 2.0) );
-          spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 4.0) );
-
-        }
+        // set 2V and 4V outputs. works.
+        // spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 2.0) );
+        // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 4.0) );
 #endif
         // power up sequence
         state = RAILSUP;
-
-
-     }
-    break ;
+      }
+      break ;
 
     case RAILSUP:
-      if((lp15v < 10.0 || ln15v < 10.0)  ) {
+      if((lp15v < 14.7 || ln15v < 14.7)  ) {
 
-        state = 0;
         mux_fpga(spi);
         usart_printf("supplies bad - turn off rails\n");
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
@@ -341,14 +330,14 @@ static void soft_500ms_update(void)
 
         state = ERROR;
       }
+      break;
 /*
       // timeout to turn off...
       if( system_millis > timeout_off_millis) {
-        state = 0;
+        state = INIT;
         usart_printf("timeout - turning off \n");
       }
  */
-    break;
 
     default:
       ;
