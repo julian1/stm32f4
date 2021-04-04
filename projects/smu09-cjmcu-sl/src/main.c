@@ -377,16 +377,31 @@ static void soft_500ms_update(void)
 
         mux_dac(spi);
         uint32_t u1 = dac_read_register(spi, 0);
-        usart_printf("read %d \n", u1 );
+        // usart_printf("read %d \n", u1 );
         usart_printf("bit 8 set %d \n", (u1 & (1 << 8)) == (1 << 8));
        
+        // startup has the gpio bits set.
+        // dac_write_register(spi, 0, 1 << 9 | 1 << 8); // measure 0.1V. eg. high-Z without pu.
+        dac_write_register(spi, 0, 0 );                 // measure 0V
 
-        // dac_write_register(spi, 0, 1 << 9 | 1 << 8); // 0.1V. eg. high-Z without pu.
-        dac_write_register(spi, 0, 0 ); // 0.1V. eg. high-Z without pu.
+        uint32_t u2 = dac_read_register(spi, 0);
+        // usart_printf("read %d \n", u2 );
+        usart_printf("bit 8 set %d \n", (u2 & (1 << 8)) == (1 << 8));
 
-        u1 = dac_read_register(spi, 0);
-        usart_printf("read %d \n", u1 );
-        usart_printf("bit 8 set %d \n", (u1 & (1 << 8)) == (1 << 8));
+        if(u1 != u2) {
+          usart_printf("ok. managed to set dac gpio\n" );
+
+        
+          usart_printf("turning on ref a\n" );
+          mux_fpga(spi);
+          spi_fpga_reg_clear( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A);
+        }
+        else {
+          usart_printf("could not set dac gpio\n" );
+
+          // should put into a failure state and then try again?
+          // actually better to halt.
+        }
  
 
         // dac is assumed to be up. but we really need to test the registers
@@ -394,17 +409,7 @@ static void soft_500ms_update(void)
 
         // turn on ref A
 
-        // mux_fpga(spi);
-        // spi_fpga_reg_clear( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A);
 
-
-
-        // actually not being able to test the dac gpio.
-        // we need to get read working so we can verify that gpio is good.
-
-        // OK. i think we have forgotten that these are pull-ups.
-        // and we used the stm32 internal gpio pullups - to pull high..
-        // ok. with pu. its working.
 
 
         // next_millis = system_millis + 3000; // 3 seconds
@@ -413,19 +418,6 @@ static void soft_500ms_update(void)
 
     case 1:
 
-      // dac toggle gpio
-      if(count % 2 == 0) {
-        mux_dac(spi);
-        dac_write_register1( spi, 0);                   // reads one V.
-      }
-
-      else {
-        mux_dac(spi);
-        dac_write_register(spi, 0, 1 << 9 | 1 << 8); // 0.1V. eg. high-Z without pu.
-      }
-
-
-      // could toggle dac_gpio.
 
       if((lp15v < 10.0 || ln15v < 10.0)  ) {
 
