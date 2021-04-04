@@ -401,15 +401,26 @@ static void soft_500ms_update(void)
 
         // toggle ok,
         if(u1 != u2) {
-          usart_printf("ok. managed to set dac gpio\n" );
+          usart_printf("toggle dac gpio ok\n" );
 
 
           usart_printf("turning on ref a\n" );
           mux_fpga(spi);
           spi_fpga_reg_clear( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A);
+
+
+          mux_dac(spi);
+
+          dac_write_register(spi, DAC_VSET_REGISTER, 12345);
+          msleep( 1); 
+          uint32_t u = dac_read_register(spi, DAC_VSET_REGISTER);
+          usart_printf("read %d \n",  (u & 0x00ff00) | (u >> 16));     // 12345 works...
+
+
+
         }
         else {
-          usart_printf("could not set dac gpio\n" );
+          usart_printf("could not toggle dac gpio\n" );
 
           // should put into a failure state and then try again?
           // actually better to halt.
