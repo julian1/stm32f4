@@ -198,6 +198,8 @@ static void spi_fpga_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 #define SPI_MUX_DAC       (1<<1)
 #define SPI_MUX_FLASH     (1<<2)
 
+/////
+
 #define DAC_REGISTER  9
 #define DAC_LDAC      (1<<0)
 #define DAC_UNI_BIP_A (1<<1)
@@ -211,10 +213,11 @@ static void spi_fpga_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 #define RAILS_LP60V   (1<<2)
 #define RAILS_OE      (1<<3)
 
+// 12 is soft reset
 
-#define REF_MUX REGISTER  11
-#define REF_MUX A     (1<<0)
-#define REF_MUX B     (1<<1)
+#define DAC_REF_MUX_REGISTER  12
+#define DAC_REF_MUX_A     (1<<0)
+#define DAC_REF_MUX_B     (1<<1)
 
 
 
