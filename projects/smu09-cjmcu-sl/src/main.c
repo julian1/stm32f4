@@ -91,49 +91,34 @@
 static void mux_fpga(uint32_t spi)
 {
   spi_fpga_reg_setup(spi);
+  // spi uses the special flag to communicate
 }
 
 
 static void mux_adc03(uint32_t spi)
 {
-
-  // usart_printf("mux_adc03\n");
   spi_fpga_reg_setup(spi);
-  //spi_fpga_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC03 );
-
   spi_fpga_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC03);
   spi_mcp3208_setup(spi);
 }
 
 static void mux_w25(uint32_t spi)
 {
-
-  usart_printf("mux_w25\n");
   spi_fpga_reg_setup(spi);
-  // spi_fpga_write(spi, SPI_MUX_REGISTER, SPI_MUX_FLASH );
-
   spi_fpga_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_FLASH);
-
   spi_w25_setup(spi);
 }
 
 
 static void mux_dac(uint32_t spi)
 {
-
   spi_fpga_reg_setup(spi);
   spi_fpga_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_DAC);
   spi_dac_setup(spi);
-
 }
 
 
-/*
-  ok. getting cs.
-  but no clk.
-  which is a bit weird.
-    check fpga soldering.
-*/
+
 
 
 static void soft_500ms_update(void)
