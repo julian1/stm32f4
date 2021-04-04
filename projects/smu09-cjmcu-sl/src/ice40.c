@@ -50,7 +50,7 @@ static uint16_t spi_fpga_xfer(uint32_t spi, uint32_t r)
 // OK. we are using this to write the spi muxing register with 8 bits.
 // if need more bits then it's problematic
 
-static uint16_t spi_fpga_write( uint32_t spi, uint8_t r, uint8_t v)
+static uint16_t spi_fpga_xfer2( uint32_t spi, uint8_t r, uint8_t v)
 {
   // change name to xfer also. I think.
   uint16_t ret = spi_fpga_xfer(spi, r << 8 | v );
@@ -61,12 +61,12 @@ static uint16_t spi_fpga_write( uint32_t spi, uint8_t r, uint8_t v)
 
 void spi_fpga_reg_set( uint32_t spi, uint8_t r, uint8_t v)
 {
-  spi_fpga_write(spi, r, (v & 0xF)); // SHOULD BE & 0xf
+  spi_fpga_xfer2(spi, r, (v & 0xF)); // SHOULD BE & 0xf
 }
 
 void spi_fpga_reg_clear( uint32_t spi, uint8_t r, uint8_t v)
 {
-  spi_fpga_write(spi, r, v << 4);
+  spi_fpga_xfer2(spi, r, v << 4);
 }
 
 // OK. don't think we need a separate hardware register...
@@ -74,7 +74,7 @@ void spi_fpga_reg_clear( uint32_t spi, uint8_t r, uint8_t v)
 void spi_fpga_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 {
   uint8_t x = (~v << 4) | (v & 0xF );
-  spi_fpga_write(spi, r, x );
+  spi_fpga_xfer2(spi, r, x );
 }
 
 

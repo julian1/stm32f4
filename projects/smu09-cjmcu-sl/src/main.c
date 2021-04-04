@@ -135,8 +135,6 @@ static void mux_dac(uint32_t spi)
     check fpga soldering.
 */
 
-#define SPI_ICE40       SPI1
-
 
 static void soft_500ms_update(void)
 {
