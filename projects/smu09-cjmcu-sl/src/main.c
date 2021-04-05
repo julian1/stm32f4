@@ -221,6 +221,8 @@ static void soft_500ms_update(void)
       if(!power_off) {
         power_off = 1;
         io_clear(spi, RAILS_REGISTER, RAILS_LP15V );
+        // do other rails also
+        // turn off dac outputs. relays.
       }
 
       // stay in error.

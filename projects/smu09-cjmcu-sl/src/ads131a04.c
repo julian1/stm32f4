@@ -277,7 +277,7 @@ int adc_init( uint32_t spi, uint8_t reg)
   /////////////////////////////////
   // write some registers
 
-  usart_printf("--------\n");
+  // usart_printf("--------\n");
 
 
   //////////////////////
