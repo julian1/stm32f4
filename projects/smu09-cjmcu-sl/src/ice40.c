@@ -6,7 +6,7 @@
 
 // fpga as a target
 
-void spi_ice40_reg_setup(uint32_t spi)
+void spi_ice40_setup(uint32_t spi)
 {
   // the fpga as a spi slave.
 
