@@ -20,16 +20,11 @@ struct FBuf;
   io_set(a->reg, ADC_RST); 
   io_clear(a->reg, ADC_RST); 
 
-  could also just pass to the call.
- 
-  same for dac etc.
-  simpler functions would be good.
 */
-extern void spi_adc_setup(uint32_t spi /*, uint8_t reg */);
+extern void spi_adc_setup(uint32_t spi );
 
-unsigned adc_init( uint32_t spi);
+unsigned adc_init( uint32_t spi)/*, uint8_t reg */;
 
 // void adc_setup_spi( void );
-
 // void adc_exti_setup(FBuf *buffer1);
 

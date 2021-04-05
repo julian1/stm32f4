@@ -184,7 +184,7 @@ static void adc_print_status_registers(uint32_t spi)
   // keep latch low, and unused, unless chaining
 
 
-unsigned adc_init( uint32_t spi )
+unsigned adc_init( uint32_t spi /*, uint8_t reg */)
 {
 
   usart_printf("------------------\n");
