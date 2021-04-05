@@ -25,7 +25,8 @@
 #define SPI_MUX_DAC       (1<<1)
 #define SPI_MUX_FLASH     (1<<2)
 
-/////
+/////  shouldn't these name the component.  DAC8734, MCP3208, W25 etc.  maybe not 
+// because they will be repeated if have more than one.
 
 #define DAC_REGISTER  9
 #define DAC_LDAC      (1<<0)
@@ -33,18 +34,29 @@
 #define DAC_UNI_BIP_B (1<<2)
 #define DAC_RST       (1<<3)
 
-// rename RAILS_REG or REG_RAILS consistent with verilog?
+// TODO change name, RAILS_REG or REG_RAILS consistent with verilog?
 #define RAILS_REGISTER  10
 #define RAILS_LP15V   (1<<0)
 #define RAILS_LP30V   (1<<1)
 #define RAILS_LP60V   (1<<2)
 #define RAILS_OE      (1<<3)
 
-// 12 is soft reset
+// 11 is soft reset
 
 #define DAC_REF_MUX_REGISTER  12
 #define DAC_REF_MUX_A     (1<<0)
 #define DAC_REF_MUX_B     (1<<1)
+
+
+#define ADC_REGISTER  14
+#define ADC_M0      (1<<0)
+#define ADC_M1      (1<<1)
+#define ADC_M2      (1<<2)
+#define ADC_RESET   (1<<3)
+
+// inputs
+// #define ADC_DONE    GPIO9
+// #define ADC_DRDY    GPIO10
 
 
 

@@ -39,27 +39,13 @@
 
 
 
-
-
-/*
-// Must check again. that
-  ok. dac does not need analog voltage. to initialize.
-  so can bring up first.bring up analog
-
-  we need 2.5V ref.   for ads131. so need to do that.
-*/
-
-
-
-
-
-
 static void soft_500ms_update(void)
 {
   // blink mcu led
   led_toggle();
 
   ////////
+  // put this in spi1.h.  i think....
   uint32_t spi = SPI_ICE40;
 
 
