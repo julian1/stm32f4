@@ -87,7 +87,7 @@ uint32_t spi_dac_read_register(uint32_t spi, uint8_t r)
 
 // ok. peripherals have to be able to mux fo their IO.
 
-uint32_t dac_init(uint32_t spi)  // bad name?
+uint32_t dac_init(uint32_t spi, uint8_t reg)  // bad name?
 {
   usart_printf("------------------\n");
   usart_printf("dac8734 init\n");
@@ -98,20 +98,20 @@ uint32_t dac_init(uint32_t spi)  // bad name?
     fail early if something goes wrong
   */
 
-  mux_fpga(spi);
+  mux_io(spi);
 
   // keep latch low, and unused, unless chaining
-  spi_ice40_reg_clear(spi, DAC_REGISTER, DAC_LDAC);
+  io_clear(spi, reg, DAC_LDAC);
 
   // unipolar output on a
-  spi_ice40_reg_set(spi, DAC_REGISTER, DAC_UNI_BIP_A /*| DAC_UNIBIPB */);
+  io_set(spi, reg, DAC_UNI_BIP_A /*| DAC_UNIBIPB */);
 
 
   // toggle reset pin
   usart_printf("doing dac reset\n");
-  spi_ice40_reg_clear(spi, DAC_REGISTER, DAC_RST);
+  io_clear(spi, reg, DAC_RST);
   msleep(20);
-  spi_ice40_reg_set( spi, DAC_REGISTER, DAC_RST);
+  io_set( spi, reg, DAC_RST);
   msleep(20);
 
 

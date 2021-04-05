@@ -30,6 +30,9 @@
   shouldn't these name the component.  DAC8734, MCP3208, W25 etc.  maybe not
   because they will be repeated if have more than one.
   No. naming follows schematic labels. and verilog.  mostly.
+  -------
+
+  using 'reg' we don't have to pass these around
 */
 
 #define DAC_REGISTER  9
@@ -81,5 +84,7 @@ extern void mux_adc(uint32_t spi);
 extern void mux_io(uint32_t spi);
 extern void io_set( uint32_t spi, uint8_t r, uint8_t v);
 extern void io_clear( uint32_t spi, uint8_t r, uint8_t v);
+extern void io_write( uint32_t spi, uint8_t r, uint8_t v);
+// extern void io_toggle( uint32_t spi, uint8_t r, uint8_t v);
 
 

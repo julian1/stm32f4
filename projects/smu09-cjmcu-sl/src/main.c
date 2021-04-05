@@ -116,7 +116,7 @@ static void soft_500ms_update(void)
       spi_w25_get_data(spi);
 
       // init dac.
-      uint32_t ret = dac_init(spi); // bad name?
+      uint32_t ret = dac_init(spi, DAC_REGISTER); // bad name?
       if(ret != 0) {
         state = ERROR;
         return;
