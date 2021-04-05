@@ -116,7 +116,7 @@ static void soft_500ms_update(void)
       spi_w25_get_data(spi);
 
       // init dac.
-      uint32_t ret = dac_init(spi, DAC_REGISTER); // bad name?
+      int ret = dac_init(spi, DAC_REGISTER); // bad name?
       if(ret != 0) {
         state = ERROR;
         return;
@@ -164,16 +164,19 @@ static void soft_500ms_update(void)
         /////////////////
         // adc init has to be done after rails are up...
         // init adc
-        adc_init(spi, ADC_REGISTER);
+        int ret = adc_init(spi, ADC_REGISTER);
+        if(ret != 0) {
+          state = ERROR;
+          return;
+        }
 
 
+        usart_printf("initialization ok\n" );
 
         // power up sequence complete
         state = RAILSUP;
-
-
-
       }
+
       break ;
 
     case RAILSUP:
@@ -197,6 +200,20 @@ static void soft_500ms_update(void)
         usart_printf("timeout - turning off \n");
       }
  */
+
+    case ERROR: {
+
+      // should power down rails if up. but want to avoid looping. so need to read 
+      // or use a state variable
+      // but need to be able to read res
+
+      // turn off power
+      // spi_ice40_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V );
+
+
+    }
+    break;
+    
 
     default:
       ;

@@ -6,7 +6,6 @@
 #include "util.h"
 
 #include "mux.h"
-// #include "ice40.h"    // reg_set, reg_clear .... these functions need better scope
 
 
 
@@ -227,6 +226,8 @@ int adc_init( uint32_t spi, uint8_t reg)
   msleep(20);
 
 
+  //////////////////////////////////
+  // everything below here. is spi.
 
   // ok this is pretty positive get data ready flag.
 
@@ -292,7 +293,6 @@ int adc_init( uint32_t spi, uint8_t reg)
   }
 
 
-#if 0
 
   // change
   adc_write_register(spi, A_SYS_CFG, a_sys_cfg | (1 << 3) );     // configure internal ref.
@@ -300,6 +300,7 @@ int adc_init( uint32_t spi, uint8_t reg)
   usart_printf("a_sys_cfg now %02x\n", adc_read_register(spi, A_SYS_CFG ));
 
 
+#if 1
 
 
   //////////////////////
