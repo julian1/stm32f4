@@ -89,7 +89,7 @@ static void soft_500ms_update(void)
     FIRST,    // INITIAL
     INITIALIZED,  // DIGIAL_INITIALIZED
     ERROR,
-    RAILSUP
+    RAILS_UP
   } state_t;
 
   // static
@@ -176,12 +176,14 @@ static void soft_500ms_update(void)
         usart_printf("initialization ok\n" );
 
         // power up sequence complete
-        state = RAILSUP;
+        state = RAILS_UP;    // change name ANALOG_OK, ANALOG_UP ? INITIALIZED
+                              // rails_up is normal mode
       }
 
       break ;
 
-    case RAILSUP:
+
+    case RAILS_UP:
       if((lp15v < 14.7 || ln15v < 14.7)  ) {
 
         mux_fpga(spi);
@@ -205,17 +207,27 @@ static void soft_500ms_update(void)
 
     case ERROR: {
 
-      // should power down rails if up. but want to avoid looping. so need to read 
+      // should power down rails if up. but want to avoid looping. so need to read
       // or use a state variable
       // but need to be able to read res
+      // actually should perrhaps go to a power down state? after error
 
+      usart_printf("entered error state\n" );
+
+
+      // TODO improve.
       // turn off power
-      // io_clear(spi, RAILS_REGISTER, RAILS_LP15V );
+      static int power_off = 0;
+      if(!power_off) {
+        power_off = 1;
+        io_clear(spi, RAILS_REGISTER, RAILS_LP15V );
+      }
 
-
+      // stay in error.
     }
+
     break;
-    
+
 
     default:
       ;
