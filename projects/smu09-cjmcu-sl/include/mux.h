@@ -1,17 +1,25 @@
-
+/*
+  this file mux.h badly named,
+  all these registers - are the ice40/fpga verilog
+  not just mux. its fpga config.
+  but/and it's also not low level ice40 stuff.
+*/
 #include <stdint.h> // uint32_t
 
-//////////////////////////////////////////////
 
 // REGISTER_DAC?
-
 // change name REG_DAC not DAC_REGISTER etc
+// maybe RENAME OR = output register and SRR set reset register
 
-// what the hell is happening...
+/*
+  include specific part,  DAC8734, MCP3208, W25 etc.  maybe not
+  because they will be repeated if have more than one.
+  No. naming follows schematic labels. and verilog.  mostly.
+  -------
 
-// RENAME OR = output register and SRR set reset register
+  using 'reg' we don't have to pass these around
+*/
 
-// OK. Now is there a way to do both...
 
 #define LED_REGISTER  7
 #define LED1 (1<<0)    // D38
@@ -26,14 +34,6 @@
 #define SPI_MUX_FLASH     (1<<2)
 #define SPI_MUX_ADC       (1<<3)
 
-/*
-  shouldn't these name the component.  DAC8734, MCP3208, W25 etc.  maybe not
-  because they will be repeated if have more than one.
-  No. naming follows schematic labels. and verilog.  mostly.
-  -------
-
-  using 'reg' we don't have to pass these around
-*/
 
 #define DAC_REGISTER  9
 #define DAC_LDAC      (1<<0)
