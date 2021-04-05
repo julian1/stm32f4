@@ -10,6 +10,9 @@ extern void spi_dac_write_register(uint32_t spi, uint8_t r, uint16_t v);
 extern uint32_t spi_dac_read_register(uint32_t spi, uint8_t r);
 
 
+extern uint32_t dac_init(uint32_t spi);  // bad name?
+
+
 #define DAC_VSET_REGISTER 0x04 
 #define DAC_ISET_REGISTER 0x05
 

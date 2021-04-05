@@ -2,6 +2,12 @@
 
 #include <libopencm3/stm32/spi.h>
 
+
+#include "mux.h"
+#include "ice40.h"
+#include "util.h" // usart_printf
+
+
 #include "dac8734.h"
 
 /*
@@ -75,6 +81,105 @@ uint32_t spi_dac_read_register(uint32_t spi, uint8_t r)
 
   // TODO IMPORTANT - we could chop off the high bit here.
 }
+
+
+
+
+// ok. peripherals have to be able to mux fo their IO.
+
+uint32_t dac_init(uint32_t spi)  // bad name?
+{
+  /*
+    dac digital initialization. works even without analog power
+    fail early if something goes wrong
+  */
+
+  mux_fpga(spi);
+
+  // keep latch low, and unused, unless chaining
+  spi_ice40_reg_clear(spi, DAC_REGISTER, DAC_LDAC);
+
+  // unipolar output on a
+  spi_ice40_reg_set(spi, DAC_REGISTER, DAC_UNI_BIP_A /*| DAC_UNIBIPB */);
+
+
+  // toggle reset pin
+  usart_printf("doing dac reset\n");
+  spi_ice40_reg_clear(spi, DAC_REGISTER, DAC_RST);
+  msleep(20);
+  spi_ice40_reg_set( spi, DAC_REGISTER, DAC_RST);
+  msleep(20);
+
+
+  // see if we can toggle the dac gpio0 output
+  mux_dac(spi);
+  uint32_t u1 = spi_dac_read_register(spi, 0);
+  usart_printf("gpio0 set %d \n", (u1 & DAC_GPIO0) != 0 ); // TODO use macro for GPIO0 and GPIO1 // don't need == here
+  usart_printf("gpio1 set %d \n", (u1 & DAC_GPIO1) != 0);
+
+
+  // startup has the gpio bits set.
+  // spi_dac_write_register(spi, 0, DAC_GPIO0 | DAC_GPIO1); // measure 0.1V. eg. high-Z without pu.
+  spi_dac_write_register(spi, 0, 0 );                 // measure 0V
+
+  uint32_t u2 = spi_dac_read_register(spi, 0);
+  // usart_printf("read %d \n", u2 );
+  usart_printf("gpio0 set %d \n", (u2 & DAC_GPIO0) != 0);
+  usart_printf("gpio1 set %d \n", (u2 & DAC_GPIO1) != 0);
+
+  /* OK. to read gpio0 and gpio1 hi vals. we must have pullups.
+     note. also means they can effectively be used bi-directionally.
+  */
+  if(u1 == u2) {
+    // toggle not ok,
+    usart_printf("dac toggle gpio not ok\n" );
+    return -1;
+  }
+
+
+  mux_dac(spi);
+
+  // check can write register also
+  spi_dac_write_register(spi, DAC_VSET_REGISTER, 12345);
+  msleep( 1);
+  uint32_t u = spi_dac_read_register(spi, DAC_VSET_REGISTER) ;
+
+  // usart_printf("u is %d\n", u );
+  usart_printf("v set register val %d\n", u & 0xffff );
+  usart_printf("v set register is %d\n", (u >> 16) & 0x7f);
+
+  if( (u & 0xffff) != 12345) {
+    usart_printf("dac setting reg not ok\n" );
+    return -1;
+  }
+
+  // should go to failure... and return exit...
+  usart_printf("write vset ok\n");
+
+  // clear register
+  spi_dac_write_register(spi, DAC_VSET_REGISTER, 0);
+
+  // avoid turning on the refs. yet.
+  return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #if 0
