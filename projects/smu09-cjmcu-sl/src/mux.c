@@ -43,12 +43,7 @@ void mux_adc(uint32_t spi)
 {
   spi_ice40_setup(spi);
   spi_ice40_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC);
-
-  // if we have more than one. then pass a structure - with spi handle, and other registers.
-  // the problem is we have to prefex all the calls and it gets too messy.
   spi_adc_setup(spi);
-
-
 }
 
 

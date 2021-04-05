@@ -184,7 +184,7 @@ static void adc_print_status_registers(uint32_t spi)
   // keep latch low, and unused, unless chaining
 
 
-unsigned adc_reset( uint32_t spi )
+unsigned adc_init( uint32_t spi )
 {
   // rename. adc_configure.  actually not sure...
 
@@ -210,23 +210,24 @@ unsigned adc_reset( uint32_t spi )
   spi_ice40_reg_clear(spi, ADC_REGISTER, ADC_M2);
 
 
-#if 0
   ////////////
   // reset
   usart_printf("assert reset\n");
-  gpio_clear(ADC_GPIO_PORT, ADC_RESET);
-
+  // gpio_clear(ADC_GPIO_PORT, ADC_RESET);
+  spi_ice40_reg_clear(spi, ADC_REGISTER, ADC_RST);
 
   usart_printf("before msleep\n");
   msleep(20);
   usart_printf("after msleep\n");
 
 
-  usart_printf("drdy %d done %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY), gpio_get(ADC_GPIO_PORT, ADC_DONE));
-  gpio_set(ADC_GPIO_PORT, ADC_RESET);
+  // usart_printf("drdy %d done %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY), gpio_get(ADC_GPIO_PORT, ADC_DONE));
+  // gpio_set(ADC_GPIO_PORT, ADC_RESET);
+  spi_ice40_reg_set(spi, ADC_REGISTER, ADC_RST);
+  msleep(20);
 
 
-  uint32_t spi = ADC_SPI;
+  // uint32_t spi = ADC_SPI;
 
 
   // ok this is pretty positive get data ready flag.
@@ -236,6 +237,8 @@ unsigned adc_reset( uint32_t spi )
 
   usart_printf("wait for ready\n");
   // return 0;
+
+  mux_adc(spi);
 
   uint32_t val = 0;
   do {
@@ -247,8 +250,9 @@ unsigned adc_reset( uint32_t spi )
   while(val != 0xff04) ;
 
   usart_printf("ok got ready\n");
-  usart_printf("drdy %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY));
+  // usart_printf("drdy %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY));
 
+#if 0
 
 
   /////////////////////////////////

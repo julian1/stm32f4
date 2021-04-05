@@ -25,7 +25,7 @@ struct FBuf;
 */
 extern void spi_adc_setup(uint32_t spi);
 
-unsigned adc_reset( uint32_t spi);
+unsigned adc_init( uint32_t spi);
 
 // void adc_setup_spi( void );
 

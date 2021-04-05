@@ -30,6 +30,7 @@
 #include "mcp3208.h"
 #include "w25.h"
 #include "dac8734.h"
+#include "ads131a04.h"
 
 #include "mux.h"
 
@@ -64,11 +65,11 @@ static void soft_500ms_update(void)
   // toggle led2
   if(count % 2 == 0) {
     spi_ice40_reg_set(spi, LED_REGISTER, LED2);
-    spi_ice40_reg_set(spi, ADC_REGISTER, ADC_RST);
+    // spi_ice40_reg_set(spi, ADC_REGISTER, ADC_RST);
   }
   else {
     spi_ice40_reg_clear(spi, LED_REGISTER, LED2);
-    spi_ice40_reg_clear(spi, ADC_REGISTER, ADC_RST);
+    // spi_ice40_reg_clear(spi, ADC_REGISTER, ADC_RST);
   }
 #endif
 
@@ -121,6 +122,7 @@ static void soft_500ms_update(void)
         return;
       }
 
+
       // done initialization
       state = INITIALIZED;
       break;
@@ -157,8 +159,19 @@ static void soft_500ms_update(void)
         spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 2.0) );
         spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 4.0) );
 #endif
+
+        /////////////////
+        // adc init has to be done after rails are up...
+        // init adc
+        adc_init(spi);
+
+
+
         // power up sequence complete
         state = RAILSUP;
+
+
+
       }
       break ;
 
