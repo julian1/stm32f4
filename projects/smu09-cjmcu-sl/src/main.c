@@ -51,6 +51,9 @@
 */
 
 
+// ok. ads131. ought to be able to read value - without interrupt.
+//
+
 
 static void soft_500ms_update(void)
 {
@@ -321,7 +324,6 @@ int main(void)
   // led
   led_setup();
 
-
   // usart
   usart_setup_();
 
@@ -334,7 +336,8 @@ int main(void)
 
 
   usart_printf("\n--------\n");
-  usart_printf("starting\n");
+  usart_printf("starting loop\n");
+  usart_flush(); 
   // usart_printf("size %d\n", sizeof(fbuf) / sizeof(float));
 
 
