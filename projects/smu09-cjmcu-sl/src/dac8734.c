@@ -86,7 +86,7 @@ uint32_t spi_dac_read_register(uint32_t spi, uint8_t r)
 
 // ok. peripherals have to be able to mux fo their IO.
 
-uint32_t dac_init(uint32_t spi, uint8_t reg)  // bad name?
+int dac_init(uint32_t spi, uint8_t reg)  // bad name?
 {
   usart_printf("------------------\n");
   usart_printf("dac8734 init\n");

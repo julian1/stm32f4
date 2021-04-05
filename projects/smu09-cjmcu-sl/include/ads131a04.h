@@ -23,7 +23,7 @@ struct FBuf;
 */
 extern void spi_adc_setup(uint32_t spi);
 
-unsigned adc_init( uint32_t spi, uint8_t reg);
+int adc_init( uint32_t spi, uint8_t reg);
 
 // void adc_setup_spi( void );
 // void adc_exti_setup(FBuf *buffer1);

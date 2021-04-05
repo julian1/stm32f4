@@ -184,7 +184,7 @@ static void adc_print_status_registers(uint32_t spi)
   // keep latch low, and unused, unless chaining
 
 
-unsigned adc_init( uint32_t spi, uint8_t reg)
+int adc_init( uint32_t spi, uint8_t reg)
 {
 
   usart_printf("------------------\n");
@@ -288,7 +288,6 @@ unsigned adc_init( uint32_t spi, uint8_t reg)
     usart_printf("a_sys_cfg not expected default\n");
     return -1;
   } else {
-
     usart_printf("a_sys_cfg val ok\n");
   }
 
