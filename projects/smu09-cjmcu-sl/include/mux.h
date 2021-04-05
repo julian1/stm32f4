@@ -56,7 +56,7 @@
 #define ADC_M0      (1<<0)
 #define ADC_M1      (1<<1)
 #define ADC_M2      (1<<2)
-#define ADC_RESET   (1<<3)
+#define ADC_RST     (1<<3)
 
 // inputs
 // #define ADC_DONE    GPIO9

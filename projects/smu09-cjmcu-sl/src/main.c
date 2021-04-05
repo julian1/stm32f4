@@ -64,12 +64,11 @@ static void soft_500ms_update(void)
   // toggle led2
   if(count % 2 == 0) {
     spi_ice40_reg_set(spi, LED_REGISTER, LED2);
-    spi_ice40_reg_set(spi, ADC_REGISTER, ADC_M0);
+    spi_ice40_reg_set(spi, ADC_REGISTER, ADC_RST);
   }
   else {
     spi_ice40_reg_clear(spi, LED_REGISTER, LED2);
-
-    spi_ice40_reg_clear(spi, ADC_REGISTER, ADC_M0);
+    spi_ice40_reg_clear(spi, ADC_REGISTER, ADC_RST);
   }
 #endif
 
