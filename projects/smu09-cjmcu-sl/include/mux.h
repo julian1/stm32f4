@@ -24,9 +24,13 @@
 #define SPI_MUX_ADC03     (1<<0)
 #define SPI_MUX_DAC       (1<<1)
 #define SPI_MUX_FLASH     (1<<2)
+#define SPI_MUX_ADC       (1<<3)
 
-/////  shouldn't these name the component.  DAC8734, MCP3208, W25 etc.  maybe not 
-// because they will be repeated if have more than one.
+/*
+  shouldn't these name the component.  DAC8734, MCP3208, W25 etc.  maybe not 
+  because they will be repeated if have more than one.
+  No. naming follows schematic labels. and verilog.  mostly.
+*/
 
 #define DAC_REGISTER  9
 #define DAC_LDAC      (1<<0)
@@ -60,9 +64,15 @@
 
 
 
+// naming. there may be more than one.
+// type not so important.
 
-extern void mux_fpga(uint32_t spi);
+extern void mux_fpga(uint32_t spi);   // rename mux_io.
 extern void mux_adc03(uint32_t spi);
 extern void mux_w25(uint32_t spi);
 extern void mux_dac(uint32_t spi);
+extern void mux_adc(uint32_t spi);
+
+
+
 
