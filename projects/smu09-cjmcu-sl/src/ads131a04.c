@@ -273,12 +273,10 @@ unsigned adc_init( uint32_t spi, uint8_t reg)
   usart_printf("register %04x\n", spi_xfer_24_16_cs( spi, 0));
 
 
-#if 0
   /////////////////////////////////
   // write some registers
 
   usart_printf("--------\n");
-
 
 
   //////////////////////
@@ -289,7 +287,13 @@ unsigned adc_init( uint32_t spi, uint8_t reg)
   if(a_sys_cfg != 0x60) {
     usart_printf("a_sys_cfg not expected default\n");
     return -1;
+  } else {
+
+    usart_printf("a_sys_cfg val ok\n");
   }
+
+
+#if 0
 
   // change
   adc_write_register(spi, A_SYS_CFG, a_sys_cfg | (1 << 3) );     // configure internal ref.
