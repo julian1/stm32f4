@@ -197,7 +197,6 @@ unsigned adc_init( uint32_t spi, uint8_t reg)
   // IOVDD:Asynchronousinterruptmode
   // gpio_set(ADC_GPIO_PORT, ADC_M0);
   io_set(spi, reg, ADC_M0);
-  // io_set(spi, reg, ADC_M0);
 
   // SPI word transfersize
   // GND:24 bit
@@ -228,8 +227,6 @@ unsigned adc_init( uint32_t spi, uint8_t reg)
   msleep(20);
 
 
-  // uint32_t spi = ADC_SPI;
-
 
   // ok this is pretty positive get data ready flag.
 
@@ -245,7 +242,8 @@ unsigned adc_init( uint32_t spi, uint8_t reg)
   do {
     val = spi_xfer_24_16_cs( spi, 0 );
     usart_printf("register %04x\n", val);
-    flush();
+    // flush, to see usart log
+    usart_flush();
     msleep(20);
   }
   while(val != 0xff04) ;
@@ -253,7 +251,6 @@ unsigned adc_init( uint32_t spi, uint8_t reg)
   usart_printf("ok got ready %04x\n", val);
   // usart_printf("drdy %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY));
 
-#if 0
 
 
   /////////////////////////////////
@@ -269,13 +266,14 @@ unsigned adc_init( uint32_t spi, uint8_t reg)
   }
 
 
-  msleep(20);
-  usart_printf("register %04x\n", spi_xfer_24_16_cs( spi, 0));
+  // msleep(20);
+  // usart_printf("register %04x\n", spi_xfer_24_16_cs( spi, 0));
 
   msleep(20);
   usart_printf("register %04x\n", spi_xfer_24_16_cs( spi, 0));
 
 
+#if 0
   /////////////////////////////////
   // write some registers
 

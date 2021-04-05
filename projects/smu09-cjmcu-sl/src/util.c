@@ -164,7 +164,7 @@ int printf( const char *format, ... )
 }
 #endif
 
-void flush( void)
+void usart_flush( void)
 {
   usart_sync_flush();
 }
@@ -180,6 +180,14 @@ void usart_setup_( void )
   usart_setup(&console_in, &console_out);     // gahhh... we have to change this each time...
 }
 
+#if 0
+void usart_update(void)
+{
+  // pump usart queues
+  usart_input_update();
+  usart_output_update();
+}
+#endif
 
 //////////////////////////////////
 
