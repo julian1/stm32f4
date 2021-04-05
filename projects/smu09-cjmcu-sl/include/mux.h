@@ -73,6 +73,8 @@ extern void mux_w25(uint32_t spi);
 extern void mux_dac(uint32_t spi);
 extern void mux_adc(uint32_t spi);
 
-
+// abstract and avoid including ice40.h.
+extern void io_set( uint32_t spi, uint8_t r, uint8_t v);
+extern void io_clear( uint32_t spi, uint8_t r, uint8_t v);
 
 

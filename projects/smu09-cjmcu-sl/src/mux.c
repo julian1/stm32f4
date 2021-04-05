@@ -46,5 +46,19 @@ void mux_adc(uint32_t spi)
   spi_adc_setup(spi);
 }
 
+// actually perhaps we ought to change name of underlying function
+
+void io_set( uint32_t spi, uint8_t r, uint8_t v)
+{
+  spi_ice40_reg_set( spi, r, v);
+
+}
+
+void io_clear( uint32_t spi, uint8_t r, uint8_t v)
+{
+  spi_ice40_reg_clear( spi, r, v);
+}
+
+
 
 

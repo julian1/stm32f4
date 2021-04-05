@@ -197,6 +197,7 @@ unsigned adc_init( uint32_t spi )
   // IOVDD:Asynchronousinterruptmode
   // gpio_set(ADC_GPIO_PORT, ADC_M0);
   spi_ice40_reg_set(spi, ADC_REGISTER, ADC_M0);
+  // io_set(spi, ADC_REGISTER, ADC_M0);
 
   // SPI word transfersize
   // GND:24 bit
