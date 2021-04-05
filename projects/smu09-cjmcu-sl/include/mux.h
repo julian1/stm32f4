@@ -27,7 +27,7 @@
 #define SPI_MUX_ADC       (1<<3)
 
 /*
-  shouldn't these name the component.  DAC8734, MCP3208, W25 etc.  maybe not 
+  shouldn't these name the component.  DAC8734, MCP3208, W25 etc.  maybe not
   because they will be repeated if have more than one.
   No. naming follows schematic labels. and verilog.  mostly.
 */
@@ -73,7 +73,12 @@ extern void mux_w25(uint32_t spi);
 extern void mux_dac(uint32_t spi);
 extern void mux_adc(uint32_t spi);
 
+
+////////////////
 // abstract and avoid including ice40.h.
+// functions build on top of spi_ice40_reg_*
+
+extern void mux_io(uint32_t spi);
 extern void io_set( uint32_t spi, uint8_t r, uint8_t v);
 extern void io_clear( uint32_t spi, uint8_t r, uint8_t v);
 
