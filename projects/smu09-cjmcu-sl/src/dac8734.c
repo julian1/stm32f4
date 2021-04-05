@@ -89,6 +89,10 @@ uint32_t spi_dac_read_register(uint32_t spi, uint8_t r)
 
 uint32_t dac_init(uint32_t spi)  // bad name?
 {
+  usart_printf("------------------\n");
+  usart_printf("dac8734 init\n");
+
+
   /*
     dac digital initialization. works even without analog power
     fail early if something goes wrong

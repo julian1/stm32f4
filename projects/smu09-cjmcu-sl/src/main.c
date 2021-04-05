@@ -122,6 +122,7 @@ static void soft_500ms_update(void)
         return;
       }
 
+      // need to turn on rails before can init adc
 
       // done initialization
       state = INITIALIZED;

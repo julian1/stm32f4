@@ -186,9 +186,9 @@ static void adc_print_status_registers(uint32_t spi)
 
 unsigned adc_init( uint32_t spi )
 {
-  // rename. adc_configure.  actually not sure...
 
   usart_printf("------------------\n");
+  usart_printf("ads131a04 init\n");
 
 
   mux_fpga(spi);
@@ -249,7 +249,7 @@ unsigned adc_init( uint32_t spi )
   }
   while(val != 0xff04) ;
 
-  usart_printf("ok got ready\n");
+  usart_printf("ok got ready %04x\n", val);
   // usart_printf("drdy %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY));
 
 #if 0
