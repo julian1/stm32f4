@@ -412,8 +412,11 @@ int adc_init( uint32_t spi, uint8_t reg)
   }
 
 
+
   // ok. think it's indicating that one of the F_ADCIN N or P bits is at fault.bits   (eg. high Z. comparator).
   // adc_print_status_registers();
+
+  usart_printf("ads131a04 ok\n");
 
 #endif
   return 0;

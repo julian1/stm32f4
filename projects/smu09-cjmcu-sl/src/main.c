@@ -26,7 +26,7 @@
 
 
 #include "spi1.h"
-#include "ice40.h"
+// #include "ice40.h"
 #include "mcp3208.h"
 #include "w25.h"
 #include "dac8734.h"
@@ -35,6 +35,9 @@
 #include "mux.h"
 
 
+
+// here? or in mux.h.
+#define SPI_ICE40       SPI1
 
 
 
@@ -58,18 +61,18 @@ static void soft_500ms_update(void)
 #if 1
   ////////////////////////////////
   // clear led1
-  spi_ice40_reg_clear(spi, LED_REGISTER, LED1);
+  io_clear(spi, LED_REGISTER, LED1);
 
   // would be nice to have a toggle function.
 
   // toggle led2
   if(count % 2 == 0) {
-    spi_ice40_reg_set(spi, LED_REGISTER, LED2);
-    // spi_ice40_reg_set(spi, ADC_REGISTER, ADC_RST);
+    io_set(spi, LED_REGISTER, LED2);
+    // io_set(spi, ADC_REGISTER, ADC_RST);
   }
   else {
-    spi_ice40_reg_clear(spi, LED_REGISTER, LED2);
-    // spi_ice40_reg_clear(spi, ADC_REGISTER, ADC_RST);
+    io_clear(spi, LED_REGISTER, LED2);
+    // io_clear(spi, ADC_REGISTER, ADC_RST);
   }
 #endif
 
@@ -103,13 +106,13 @@ static void soft_500ms_update(void)
       mux_fpga(spi);
 
       // make sure rails are off
-      spi_ice40_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
+      io_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
 
       // may as well keep rails OE deasserted, until really ready
-      spi_ice40_reg_set(spi, RAILS_REGISTER, RAILS_OE);
+      io_set(spi, RAILS_REGISTER, RAILS_OE);
 
       // turn off dac ref mux. pull-high
-      spi_ice40_reg_set( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A | DAC_REF_MUX_B);
+      io_set( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A | DAC_REF_MUX_B);
 
       // test the flash
       mux_w25(spi);
@@ -142,10 +145,10 @@ static void soft_500ms_update(void)
 #if 1
         mux_fpga(spi);
         // assert rails oe
-        spi_ice40_reg_clear(spi, RAILS_REGISTER, RAILS_OE);
+        io_clear(spi, RAILS_REGISTER, RAILS_OE);
 
         // turn on +-15V analog rails
-        spi_ice40_reg_set(spi, RAILS_REGISTER, RAILS_LP15V );
+        io_set(spi, RAILS_REGISTER, RAILS_LP15V );
         msleep(50);
 
 
@@ -153,7 +156,7 @@ static void soft_500ms_update(void)
         mux_dac(spi);
         usart_printf("turning on ref a\n" );
         mux_fpga(spi);
-        spi_ice40_reg_clear( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A);
+        io_clear( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A);
 
 
         // turn on set voltages 2V and 4V outputs. works.
@@ -187,7 +190,7 @@ static void soft_500ms_update(void)
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
         // turn off power
-        spi_ice40_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V );
+        io_clear(spi, RAILS_REGISTER, RAILS_LP15V );
 
         // go to state error
         state = ERROR;
@@ -208,7 +211,7 @@ static void soft_500ms_update(void)
       // but need to be able to read res
 
       // turn off power
-      // spi_ice40_reg_clear(spi, RAILS_REGISTER, RAILS_LP15V );
+      // io_clear(spi, RAILS_REGISTER, RAILS_LP15V );
 
 
     }
