@@ -44,7 +44,7 @@ void mux_adc(uint32_t spi)
   spi_ice40_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC);
 
   // spi_adc_setup(spi);
-  spi_adc_setup(spi);
+  // spi_adc_setup(spi);
 }
 
 

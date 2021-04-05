@@ -59,11 +59,18 @@ static void soft_500ms_update(void)
   // clear led1
   spi_ice40_reg_clear(spi, LED_REGISTER, LED1);
 
+  // would be nice to have a toggle function.
+
   // toggle led2
-  if(count % 2 == 0  )
+  if(count % 2 == 0) {
     spi_ice40_reg_set(spi, LED_REGISTER, LED2);
-  else
+    spi_ice40_reg_set(spi, ADC_REGISTER, ADC_M0);
+  }
+  else {
     spi_ice40_reg_clear(spi, LED_REGISTER, LED2);
+
+    spi_ice40_reg_clear(spi, ADC_REGISTER, ADC_M0);
+  }
 #endif
 
   // DO we want to do this every loop?
