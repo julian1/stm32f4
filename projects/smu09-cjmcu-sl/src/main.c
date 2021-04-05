@@ -97,9 +97,9 @@ static void soft_500ms_update(void)
 
   typedef enum state_t {
     FIRST,    // INITIAL
-    INITIALIZED,  // DIGIAL_INITIALIZED
+    DIGITAL_UP,  // DIGIAL_DIGITAL_UP
     ERROR,
-    RAILS_UP
+    ANALOG_UP
   } state_t;
 
   // static
@@ -143,12 +143,12 @@ static void soft_500ms_update(void)
       // done digital initialization
 
       usart_printf("digital init ok\n" );
-      state = INITIALIZED;
+      state = DIGITAL_UP;
       break;
     }
 
 
-    case INITIALIZED:
+    case DIGITAL_UP:
       if( lp15v > 15.0 && ln15v > 15.0 )
       {
 
@@ -188,18 +188,14 @@ static void soft_500ms_update(void)
           return;
         }
 
-
         usart_printf("analog init ok\n" );
-
-        // power up sequence complete
-        state = RAILS_UP;    // change name ANALOG_OK, ANALOG_UP ? INITIALIZED
-                              // rails_up is normal mode
+        state = ANALOG_UP;    // change name ANALOG_OK, ANALOG_UP ? DIGITAL_UP // rails_up is normal mode
       }
 
       break ;
 
 
-    case RAILS_UP:
+    case ANALOG_UP:
       if((lp15v < 14.7 || ln15v < 14.7)  ) {
 
         mux_fpga(spi);
