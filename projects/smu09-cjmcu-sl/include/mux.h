@@ -61,16 +61,20 @@
 #define ADC_M2      (1<<2)
 #define ADC_RST     (1<<3)
 
-// inputs
-// #define ADC_DONE    GPIO9
-// #define ADC_DRDY    GPIO10
+
+/*
+  inputs.
+  this will be another register.
+  can read on fpga. or have fpga route back on adum gpio pin used as an interupt
+  ideally both would be good.
+  #define ADC_DONE    GPIO9
+  #define ADC_DRDY    GPIO10
+*/
 
 
+// configure the muxing of the spi port
 
-// naming. there may be more than one.
-// type not so important.
-
-extern void mux_fpga(uint32_t spi);   // rename mux_io.
+extern void mux_fpga(uint32_t spi);
 extern void mux_adc03(uint32_t spi);
 extern void mux_w25(uint32_t spi);
 extern void mux_dac(uint32_t spi);
@@ -78,8 +82,8 @@ extern void mux_adc(uint32_t spi);
 
 
 ////////////////
-// abstract and avoid including ice40.h.
-// functions build on top of spi_ice40_reg_*
+// abstract to avoid including ice40.h.
+// eg. consumers shouldn't care if they're dealing with fpga or ice40
 
 extern void mux_io(uint32_t spi);
 extern void io_set( uint32_t spi, uint8_t r, uint8_t v);
