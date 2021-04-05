@@ -65,7 +65,7 @@ static void soft_500ms_update(void)
   static int count = 0;
 
 
-  mux_fpga(spi);
+  mux_io(spi);
 
 #if 1
   ////////////////////////////////
@@ -115,7 +115,7 @@ static void soft_500ms_update(void)
       usart_printf("-----------\n");
       usart_printf("digital init start\n" );
 
-      mux_fpga(spi);
+      mux_io(spi);
 
       // should we have wrapper functions here, can then put comments
       // make sure rails are off
@@ -138,10 +138,6 @@ static void soft_500ms_update(void)
         return;
       }
 
-      // need to turn on rails before can init adc
-
-      // done digital initialization
-
       usart_printf("digital init ok\n" );
       state = DIGITAL_UP;
       break;
@@ -158,7 +154,7 @@ static void soft_500ms_update(void)
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
 #if 1
-        mux_fpga(spi);
+        mux_io(spi);
         // assert rails oe
         io_clear(spi, RAILS_REGISTER, RAILS_OE);
 
@@ -170,7 +166,7 @@ static void soft_500ms_update(void)
         // turn on refs for dac
         mux_dac(spi);
         usart_printf("turn on ref a for dac\n" );
-        mux_fpga(spi);
+        mux_io(spi);
         io_clear( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A);
 
 
@@ -189,16 +185,16 @@ static void soft_500ms_update(void)
         }
 
         usart_printf("analog init ok\n" );
-        state = ANALOG_UP;    // change name ANALOG_OK, ANALOG_UP ? DIGITAL_UP // rails_up is normal mode
+        // maybe change name RAILS_OK, RAILS_UP ANALOG_OK, ANALOG_UP
+        state = ANALOG_UP;
       }
-
       break ;
 
 
     case ANALOG_UP:
       if((lp15v < 14.7 || ln15v < 14.7)  ) {
 
-        mux_fpga(spi);
+        mux_io(spi);
         usart_printf("supplies bad - turn off rails\n");
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
