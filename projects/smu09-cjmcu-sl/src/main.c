@@ -125,7 +125,7 @@ static void soft_500ms_update(void)
       io_set(spi, RAILS_REGISTER, RAILS_OE);
 
       // turn off dac ref mux. pull-high
-      io_set( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A | DAC_REF_MUX_B);
+      io_set( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A | DAC_REF_MUX_B); // active lo
 
       // test the flash
       mux_w25(spi);
@@ -167,7 +167,7 @@ static void soft_500ms_update(void)
         mux_dac(spi);
         usart_printf("turn on ref a for dac\n" );
         mux_io(spi);
-        io_clear( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A);
+        io_clear(spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A); // active lo
 
 
         // turn on set voltages 2V and 4V outputs. works.
