@@ -164,7 +164,7 @@ static void soft_500ms_update(void)
         /////////////////
         // adc init has to be done after rails are up...
         // init adc
-        adc_init(spi);
+        adc_init(spi, ADC_REGISTER);
 
 
 

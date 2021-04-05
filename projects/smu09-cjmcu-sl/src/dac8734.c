@@ -4,7 +4,6 @@
 
 
 #include "mux.h"
-#include "ice40.h"
 #include "util.h" // usart_printf
 
 

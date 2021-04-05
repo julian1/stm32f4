@@ -6,7 +6,7 @@
 #include "util.h"
 
 #include "mux.h"
-#include "ice40.h"    // reg_set, reg_clear .... these functions need better scope
+// #include "ice40.h"    // reg_set, reg_clear .... these functions need better scope
 
 
 
@@ -184,38 +184,38 @@ static void adc_print_status_registers(uint32_t spi)
   // keep latch low, and unused, unless chaining
 
 
-unsigned adc_init( uint32_t spi /*, uint8_t reg */)
+unsigned adc_init( uint32_t spi, uint8_t reg)
 {
 
   usart_printf("------------------\n");
   usart_printf("ads131a04 init\n");
 
 
-  mux_fpga(spi);
+  mux_io(spi);
 
   // GND:Synchronousmastermode
   // IOVDD:Asynchronousinterruptmode
   // gpio_set(ADC_GPIO_PORT, ADC_M0);
-  spi_ice40_reg_set(spi, ADC_REGISTER, ADC_M0);
-  // io_set(spi, ADC_REGISTER, ADC_M0);
+  io_set(spi, reg, ADC_M0);
+  // io_set(spi, reg, ADC_M0);
 
   // SPI word transfersize
   // GND:24 bit
   // No connection:16 bit
   // appears to be controllable on reset. not just power up, as indicated in datasheet.
   // gpio_clear(ADC_GPIO_PORT, ADC_M1);
-  spi_ice40_reg_clear(spi, ADC_REGISTER, ADC_M1);
+  io_clear(spi, reg, ADC_M1);
 
   // GND: Hamming code word validation off
   // gpio_clear(ADC_GPIO_PORT, ADC_M2);
-  spi_ice40_reg_clear(spi, ADC_REGISTER, ADC_M2);
+  io_clear(spi, reg, ADC_M2);
 
 
   ////////////
   // reset
   usart_printf("assert reset\n");
   // gpio_clear(ADC_GPIO_PORT, ADC_RESET);
-  spi_ice40_reg_clear(spi, ADC_REGISTER, ADC_RST);
+  io_clear(spi, reg, ADC_RST);
 
   usart_printf("before msleep\n");
   msleep(20);
@@ -224,7 +224,7 @@ unsigned adc_init( uint32_t spi /*, uint8_t reg */)
 
   // usart_printf("drdy %d done %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY), gpio_get(ADC_GPIO_PORT, ADC_DONE));
   // gpio_set(ADC_GPIO_PORT, ADC_RESET);
-  spi_ice40_reg_set(spi, ADC_REGISTER, ADC_RST);
+  io_set(spi, reg, ADC_RST);
   msleep(20);
 
 
