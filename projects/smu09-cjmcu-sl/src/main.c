@@ -40,6 +40,16 @@
 
 
 
+/*
+  AHHH. is clever
+    74hc125.
+    if fpga gpio comes up high - OE - is disabled. so out is low.
+    if fpga gpio comes up lo   - buffer is disabled so out low.
+
+    there seems to be a 50-100uS spike though on creset.
+    hopefully too short a time to turn on opto coupler.
+*/
+
 
 
 static void soft_500ms_update(void)
@@ -102,8 +112,12 @@ static void soft_500ms_update(void)
     case FIRST:  {
       // if any of these fail, this should progress to error
 
+      usart_printf("-----------\n");
+      usart_printf("digital init start\n" );
+
       mux_fpga(spi);
 
+      // should we have wrapper functions here, can then put comments
       // make sure rails are off
       io_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
 
@@ -126,7 +140,9 @@ static void soft_500ms_update(void)
 
       // need to turn on rails before can init adc
 
-      // done initialization
+      // done digital initialization
+
+      usart_printf("digital init ok\n" );
       state = INITIALIZED;
       break;
     }
@@ -138,8 +154,8 @@ static void soft_500ms_update(void)
 
         usart_printf("-----------\n");
 
+        usart_printf("doing analog init -  supplies ok \n");
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
-        usart_printf("supplies ok - turning on rails\n");
 
 #if 1
         mux_fpga(spi);
@@ -153,7 +169,7 @@ static void soft_500ms_update(void)
 
         // turn on refs for dac
         mux_dac(spi);
-        usart_printf("turning on ref a\n" );
+        usart_printf("turn on ref a for dac\n" );
         mux_fpga(spi);
         io_clear( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A);
 
@@ -173,7 +189,7 @@ static void soft_500ms_update(void)
         }
 
 
-        usart_printf("initialization ok\n" );
+        usart_printf("analog init ok\n" );
 
         // power up sequence complete
         state = RAILS_UP;    // change name ANALOG_OK, ANALOG_UP ? INITIALIZED
@@ -245,16 +261,6 @@ static void soft_500ms_update(void)
 
 */
 
-
-  /*
-    AHHH. is clever
-      74hc125.
-      if fpga gpio comes up high - OE - is disabled. so out is low.
-      if fpga gpio comes up lo   - buffer is disabled so out low.
-
-      there seems to be a 50-100uS spike though on creset.
-      hopefully too short a time to turn on opto coupler.
-  */
 
 
   count++;
