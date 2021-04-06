@@ -437,7 +437,6 @@ adc val -9999.
 
 
 float spi_adc_do_read( uint32_t spi/*, uint8_t reg */)
-// float do_read()
 { 
 
   int32_t x = 0;

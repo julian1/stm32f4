@@ -182,6 +182,8 @@ static void soft_500ms_update(void)
         // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC1  );   // 1.71V ? should be vset...
                                                                               // we are forgetting the internal fb.
                                                                               // i think.
+        // but it's not outputting the full dac value. because uni/bipolar. or bit 
+
 
         /////////////////
         // adc init has to be done after rails are up...
