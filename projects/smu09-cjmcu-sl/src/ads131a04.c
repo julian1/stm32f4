@@ -416,6 +416,8 @@ int adc_init( uint32_t spi, uint8_t reg)
   // ok. think it's indicating that one of the F_ADCIN N or P bits is at fault.bits   (eg. high Z. comparator).
   // adc_print_status_registers();
 
+
+ 
   usart_printf("ads131a04 ok\n");
 
 #endif
@@ -423,6 +425,49 @@ int adc_init( uint32_t spi, uint8_t reg)
 }
 
 
+/*
+analog init ok
+adc, bad code 2230
+adc val -9999.
+adc, bad code 2232
+adc val -9999.
 
+*/
+
+
+float spi_adc_do_read( uint32_t spi/*, uint8_t reg */)
+// float do_read()
+{ 
+
+  int32_t x = 0;
+  double y;
+
+  // do read...
+
+  mux_adc(spi);
+  spi_enable(spi);
+
+  uint32_t code = spi_xfer_24_16(spi, 0);     // this is just the 24_16 call... except without
+  if(code != 0x2220) {
+    usart_printf("adc, bad code %4x\n",  code);
+    // return -9999; // log and ignore ????
+                  // need better error handling here
+  }
+
+
+  // get values
+  for(unsigned j = 0; j < 1; ++j)
+  {
+    x = spi_xfer_24(spi, 0);
+    x = sign_extend_24_32(x );
+    // y = ((double )x) / 3451766.f;
+    y = ((double )x) / 3451403.f;
+
+    (void)y;
+  }
+  spi_disable( spi );
+
+  return y;
+} 
 
 

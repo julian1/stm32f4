@@ -22,3 +22,5 @@ int adc_init( uint32_t spi, uint8_t reg);
 // OK. this thing is mcu? interrupt handling
 // void adc_exti_setup(FBuf *buffer1);
 
+// change spi_adc_do_read()?
+float spi_adc_do_read( uint32_t spi/*, uint8_t reg */);

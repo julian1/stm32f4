@@ -207,6 +207,10 @@ static void soft_500ms_update(void)
         // go to state error
         state = ERROR;
       }
+
+      float val = spi_adc_do_read(spi );
+      usart_printf("adc val %f\n", val);
+
       break;
 /*
       // timeout to turn off...
