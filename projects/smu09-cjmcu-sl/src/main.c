@@ -33,10 +33,11 @@
 
 #include "mux.h"
 
-
+#define UNUSED(x) (void)(x)
 
 // here? or in mux.h.
 #define SPI_ICE40       SPI1
+
 
 
 
@@ -94,7 +95,7 @@ static void soft_500ms_update(void)
   float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
   float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
 
-
+  // usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
 
 
@@ -150,7 +151,6 @@ static void soft_500ms_update(void)
     case DIGITAL_UP:
       if( lp15v > 15.0 && ln15v > 15.0 )
       {
-
         usart_printf("-----------\n");
 
         usart_printf("doing analog init -  supplies ok \n");
@@ -228,7 +228,8 @@ static void soft_500ms_update(void)
 
       // ... ok.
       float val = spi_adc_do_read(spi );
-      usart_printf("adc val %f\n", val);
+      UNUSED(val);
+      // usart_printf("adc val %f\n", val);
 
       break;
 /*
