@@ -381,11 +381,14 @@ int adc_init( uint32_t spi, uint8_t reg)
 
   // adc_write_register(spi, ADC_ENA, 0x01 );     // just one channel.
   // adc_write_register(spi, ADC_ENA, 0b1111 );
-  adc_write_register(spi, ADC_ENA, 0b1000 );      // vmon, chan 4.  only.  now disconnected.
-  // adc_write_register(spi, ADC_ENA, 0b0100 );   // agnd - avss, chan 3.  now disconnected.
+  // adc_write_register(spi, ADC_ENA, 0b1000 );     // vmon, chan4.  only.  now disconnected.
+  // adc_write_register(spi, ADC_ENA, 0b0100 );   // (agnd - avss), chan3.  now disconnected.
   // adc_write_register(spi, ADC_ENA, 0x0f );     // all 4 channels
 
+  // adc_write_register(spi, ADC_ENA, 0b0001 );      // ifb. chan1  10V in 1.65V measured.   10/2k = 1.666
+  adc_write_register(spi, ADC_ENA, 0b0010 );      // vfb.  chan2   10V in 1.65V measured.   10/2k = 1.666
 
+                                                  // ok. but negative values are not reading negative. 
 
 
 
