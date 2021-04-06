@@ -178,6 +178,17 @@ static void soft_500ms_update(void)
         spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 2.0) );
 #endif
 
+        /*  Also, the V MON pin output impedance is approximately 2.2kΩ;
+            therefore, V MON should be measured with a high-impedance input.
+            ----- 
+            think we need to unload circuit and test .... ci
+        */
+
+        // maybe it is multiplexing multiple values - analog values -  WE CLEAR ALL MON regs.
+        // we
+        spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC0  );      // 3.429V    should be vset...
+
+        // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_AIN );   
         spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC0  );      // 3.429V    should be vset...
         // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC1  );   // 1.71V ? should be vset...
                                                                               // we are forgetting the internal fb.
