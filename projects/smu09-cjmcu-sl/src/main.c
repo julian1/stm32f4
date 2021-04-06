@@ -132,10 +132,11 @@ static void soft_500ms_update(void)
       io_set( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A | DAC_REF_MUX_B); // active lo
 
       // test the flash
+      // TODO. check responses.
       mux_w25(spi);
       spi_w25_get_data(spi);
 
-      // init dac.
+      // dac init
       int ret = dac_init(spi, DAC_REGISTER); // bad name?
       if(ret != 0) {
         state = ERROR;
@@ -157,6 +158,8 @@ static void soft_500ms_update(void)
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
 #if 1
+
+        usart_printf("turn on analog rails - lp15v\n" );
         mux_io(spi);
         // assert rails oe
         io_clear(spi, RAILS_REGISTER, RAILS_OE);
@@ -180,7 +183,7 @@ static void soft_500ms_update(void)
 
         /*  Also, the V MON pin output impedance is approximately 2.2kΩ;
             therefore, V MON should be measured with a high-impedance input.
-            ----- 
+            -----
             think we need to unload circuit and test .... ci
         */
 
@@ -188,17 +191,17 @@ static void soft_500ms_update(void)
         // we
         spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC0  );      // 3.429V    should be vset...
 
-        // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_AIN );   
+        // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_AIN );
         spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC0  );      // 3.429V    should be vset...
         // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC1  );   // 1.71V ? should be vset...
                                                                               // we are forgetting the internal fb.
                                                                               // i think.
-        // but it's not outputting the full dac value. because uni/bipolar. or bit 
+        // but it's not outputting the full dac value. because uni/bipolar. or bit
 
 
         /////////////////
         // adc init has to be done after rails are up...
-        // init adc
+        // adc init
         int ret = adc_init(spi, ADC_REGISTER);
         if(ret != 0) {
           state = ERROR;
@@ -207,6 +210,18 @@ static void soft_500ms_update(void)
 
         usart_printf("analog init ok\n" );
         // maybe change name RAILS_OK, RAILS_UP ANALOG_OK, ANALOG_UP
+
+        // turn on power rails
+
+        ////////////////////
+        // power rails
+        usart_printf("turn on power rails - lp30v\n" );
+        mux_io(spi);
+        io_set(spi, RAILS_REGISTER, RAILS_LP30V );
+        msleep(50);
+
+
+        // analog and power... change name?
         state = ANALOG_UP;
       }
       break ;
@@ -220,7 +235,7 @@ static void soft_500ms_update(void)
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
         // turn off power
-        io_clear(spi, RAILS_REGISTER, RAILS_LP15V );
+        io_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
 
         // go to state error
         state = ERROR;
@@ -230,6 +245,8 @@ static void soft_500ms_update(void)
       float val = spi_adc_do_read(spi );
       UNUSED(val);
       // usart_printf("adc val %f\n", val);
+
+      // we want to go to another state here... and bring up POWER_UP...
 
       break;
 /*
@@ -362,7 +379,7 @@ int main(void)
 
   usart_printf("\n--------\n");
   usart_printf("starting loop\n");
-  usart_flush(); 
+  usart_flush();
   // usart_printf("size %d\n", sizeof(fbuf) / sizeof(float));
 
 
