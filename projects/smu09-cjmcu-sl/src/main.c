@@ -66,7 +66,8 @@ static void soft_500ms_update(void)
   uint32_t spi = SPI_ICE40;
 
 
-  static int count = 0;
+  static uint32_t count = 0; // -1
+  ++count;    // increment first. because state machine funcs return early.
 
 
   mux_io(spi);
@@ -217,7 +218,7 @@ static void soft_500ms_update(void)
         // power rails
         usart_printf("turn on power rails - lp30v\n" );
         mux_io(spi);
-        io_set(spi, RAILS_REGISTER, RAILS_LP30V );
+        // io_set(spi, RAILS_REGISTER, RAILS_LP30V );
         msleep(50);
 
 
@@ -298,9 +299,6 @@ static void soft_500ms_update(void)
 
 */
 
-
-
-  count++;
 }
 
 
