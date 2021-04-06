@@ -174,9 +174,14 @@ static void soft_500ms_update(void)
 
 
         // turn on set voltages 2V and 4V outputs. works.
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 2.0) );
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 4.0) );
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4.0) );
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 2.0) );
 #endif
+
+        spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC0  );      // 3.429V    should be vset...
+        // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC1  );   // 1.71V ? should be vset...
+                                                                              // we are forgetting the internal fb.
+                                                                              // i think.
 
         /////////////////
         // adc init has to be done after rails are up...
@@ -208,6 +213,7 @@ static void soft_500ms_update(void)
         state = ERROR;
       }
 
+      // ... ok.
       float val = spi_adc_do_read(spi );
       usart_printf("adc val %f\n", val);
 

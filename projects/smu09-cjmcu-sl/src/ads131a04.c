@@ -379,8 +379,9 @@ int adc_init( uint32_t spi, uint8_t reg)
   // adc_write_register(spi, ADC_ENA, 0x0 );     // no channel.
                                               // setting
 
-  adc_write_register(spi, ADC_ENA, 0x01 );     // just one channel.
+  // adc_write_register(spi, ADC_ENA, 0x01 );     // just one channel.
   // adc_write_register(spi, ADC_ENA, 0b1111 );
+  adc_write_register(spi, ADC_ENA, 0b1000 );      // fourth channel only
   // adc_write_register(spi, ADC_ENA, 0x0f );     // all 4 channels
 
 

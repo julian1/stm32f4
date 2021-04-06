@@ -20,3 +20,15 @@ extern int dac_init(uint32_t spi, uint8_t reg);  // bad name?
 #define DAC_GPIO1 (1 << 9)
 
 
+
+#define DAC_MON_REGISTER 0x01   // DB11, DB12-DB15
+#define DAC_MON_AIN   (1 << 11)
+#define DAC_MON_MDAC0 (1 << 12)
+#define DAC_MON_MDAC1 (1 << 13)
+#define DAC_MON_MDAC2 (1 << 14)
+#define DAC_MON_MDAC3 (1 << 13)
+
+
+
+
+
