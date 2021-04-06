@@ -381,7 +381,8 @@ int adc_init( uint32_t spi, uint8_t reg)
 
   // adc_write_register(spi, ADC_ENA, 0x01 );     // just one channel.
   // adc_write_register(spi, ADC_ENA, 0b1111 );
-  adc_write_register(spi, ADC_ENA, 0b1000 );      // fourth channel only
+  adc_write_register(spi, ADC_ENA, 0b1000 );      // vmon, chan 4.  only.  now disconnected.
+  // adc_write_register(spi, ADC_ENA, 0b0100 );   // agnd - avss, chan 3.  now disconnected.
   // adc_write_register(spi, ADC_ENA, 0x0f );     // all 4 channels
 
 
@@ -418,7 +419,7 @@ int adc_init( uint32_t spi, uint8_t reg)
   // adc_print_status_registers();
 
 
- 
+
   usart_printf("ads131a04 ok\n");
 
 #endif
@@ -437,7 +438,7 @@ adc val -9999.
 
 
 float spi_adc_do_read( uint32_t spi/*, uint8_t reg */)
-{ 
+{
 
   int32_t x = 0;
   double y;
@@ -468,6 +469,6 @@ float spi_adc_do_read( uint32_t spi/*, uint8_t reg */)
   spi_disable( spi );
 
   return y;
-} 
+}
 
 

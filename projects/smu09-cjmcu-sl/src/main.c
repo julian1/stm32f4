@@ -246,14 +246,15 @@ static void soft_500ms_update(void)
       // but need to be able to read res
       // actually should perrhaps go to a power down state? after error
 
-      usart_printf("entered error state\n" );
 
 
       // TODO improve.
       // turn off power
-      static int power_off = 0;
-      if(!power_off) {
-        power_off = 1;
+      static int first = 0;
+      if(!first) {
+        first = 1;
+
+        usart_printf("entered error state\n" );
         io_clear(spi, RAILS_REGISTER, RAILS_LP15V );
         // do other rails also
         // turn off dac outputs. relays.
