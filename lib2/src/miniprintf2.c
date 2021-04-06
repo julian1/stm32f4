@@ -244,7 +244,7 @@ void internal_vprintf(
         int fracpart = (int)((x- intpart) * int_pow(10, prec));   // number of digits of precision
 
         // handle negative
-        if(intpart<0) {
+        if(x < 0.0) {
           intpart *= -1;
           fracpart *= -1;
           // mini->putc('-',mini->ctx); JA
