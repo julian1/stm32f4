@@ -63,6 +63,22 @@
 #define ADC_RST     (1<<3)
 
 
+// dropping the _ctl, suffix?
+// order follows dg444 pin order
+#define CLAMP1          15
+#define CLAMP1_VSET     (1<<0)
+#define CLAMP1_ISET     (1<<1)
+#define CLAMP1_ISET_INV (1<<2)
+#define CLAMP1_VSET_INV (1<<3)
+
+
+
+
+
+
+
+
+/////////////////
 /*
   inputs.
   this will be another register.
