@@ -71,6 +71,12 @@
 #define CLAMP1_ISET_INV (1<<2)
 #define CLAMP1_VSET_INV (1<<3)
 
+#define CLAMP2            16
+#define CLAMP2_MIN        (1<<0)
+#define CLAMP2_INJECT_ERR (1<<1)
+#define CLAMP1_INJECT_VFB (1<<2)
+#define CLAMP1_MAX        (1<<3)
+
 
 
 
