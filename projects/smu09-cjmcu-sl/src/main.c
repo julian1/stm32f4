@@ -58,6 +58,12 @@
 
 static void soft_500ms_update(void)
 {
+  /*
+    This is wrong. statemachine - should run in fast inner loop.   
+    but easier to test like this.
+    and means don't oversample the ads. we haven't got interrupts yet.
+  */
+
   // blink mcu led
   led_toggle();
 
