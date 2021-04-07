@@ -195,6 +195,8 @@ static void soft_500ms_update(void)
         mux_io(spi);
         io_clear(spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A); // active lo
 
+        // EXTREME. feedback is always negative. why we just plug vfb and ifb without inverses.
+        // its easier to think of everything without polarity.   (the polarity just exists because we tap/ com at 0V).
 
         // turn on set voltages 2V and 4V outputs. works.
         spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4.0) );
