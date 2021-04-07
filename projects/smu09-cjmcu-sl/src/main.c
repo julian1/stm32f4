@@ -78,13 +78,14 @@ static void soft_500ms_update(void)
 
   mux_io(spi);
 
-#if 1
   ////////////////////////////////
   // clear led1
-  io_clear(spi, LED_REGISTER, LED1);
+  io_clear(spi, LED_REGISTER, LED2);
 
   // would be nice to have a toggle function.
 
+
+#if 0
   // toggle led2
   if(count % 2 == 0) {
     io_set(spi, LED_REGISTER, LED2);
@@ -95,6 +96,12 @@ static void soft_500ms_update(void)
     // io_clear(spi, ADC_REGISTER, ADC_RST);
   }
 #endif
+
+  io_toggle(spi, LED_REGISTER, LED1);
+
+
+
+  
 
   // DO we want to do this every loop?
   // get supply voltages,

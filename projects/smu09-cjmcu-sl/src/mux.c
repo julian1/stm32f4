@@ -76,6 +76,11 @@ void io_write( uint32_t spi, uint8_t r, uint8_t v)
   spi_ice40_reg_write( spi, r, v);
 }
 
+void io_toggle( uint32_t spi, uint8_t r, uint8_t v)
+{
+  spi_ice40_reg_toggle( spi, r, v);
+}
+
 
 
 

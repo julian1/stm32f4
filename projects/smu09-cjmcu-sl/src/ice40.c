@@ -78,4 +78,12 @@ void spi_ice40_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 }
 
 
+void spi_ice40_reg_toggle( uint32_t spi, uint8_t r, uint8_t v)
+{
+  uint8_t x = (v << 4) | (v & 0xF );
+  spi_ice40_xfer2(spi, r, x );
+}
+
+
+
 
