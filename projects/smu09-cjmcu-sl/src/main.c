@@ -178,7 +178,6 @@ static void soft_500ms_update(void)
         usart_printf("doing analog init -  supplies ok \n");
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
-#if 1
 
         usart_printf("turn on analog rails - lp15v\n" );
         mux_io(spi);
@@ -200,24 +199,28 @@ static void soft_500ms_update(void)
         // turn on set voltages 2V and 4V outputs. works.
         spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4.0) );
         spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 2.0) );
-#endif
+
+
+        mux_io(spi);
+
+        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV); // active lo. works. 3V -4V = -1V
+        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET);     // active lo. works. 3V +4V = 7V. 
+        // nothing.                                                              3V * 2= 6V
+
+
+        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET_INV); // active lo. works. 3V -2V = 1V
+        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET);     // active lo. works. 3V +2V = 5V
+        // nothing.                                                              3V * 2 = 6V. 
+
+
 
         /*  Also, the V MON pin output impedance is approximately 2.2kΩ;
-            therefore, V MON should be measured with a high-impedance input.
-            -----
-            think we need to unload circuit and test .... ci
         */
-
-        // maybe it is multiplexing multiple values - analog values -  WE CLEAR ALL MON regs.
-        // we
-        spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC0  );      // 3.429V    should be vset...
-
+        // spi_dac_write_register(spi, DAC_MON_REGISTER, 0 );      
+        // spi_dac_write_register(spi, DAC_MON_REGISTER, 0 DAC_MON_MDAC0  );      
         // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_AIN );
-        spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC0  );      // 3.429V    should be vset...
-        // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC1  );   // 1.71V ? should be vset...
-                                                                              // we are forgetting the internal fb.
-                                                                              // i think.
-        // but it's not outputting the full dac value. because uni/bipolar. or bit
+        // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC0  );      
+        // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC1  );   
 
 
         /////////////////
@@ -233,7 +236,7 @@ static void soft_500ms_update(void)
         // maybe change name RAILS_OK, RAILS_UP ANALOG_OK, ANALOG_UP
 
         // turn on power rails
-
+#if 0
         ////////////////////
         // power rails
         usart_printf("turn on power rails - lp30v\n" );
@@ -241,6 +244,7 @@ static void soft_500ms_update(void)
         // io_set(spi, RAILS_REGISTER, RAILS_LP30V );
         msleep(50);
 
+#endif
 
         // analog and power... change name?
         state = ANALOG_UP;
