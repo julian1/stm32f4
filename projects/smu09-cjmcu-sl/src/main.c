@@ -59,7 +59,7 @@
 static void soft_500ms_update(void)
 {
   /*
-    This is wrong. statemachine - should run in fast inner loop.   
+    This is wrong. statemachine - should run in fast inner loop.
     but easier to test like this.
     and means don't oversample the ads. we haven't got interrupts yet.
   */
@@ -102,7 +102,7 @@ static void soft_500ms_update(void)
 
   // io_write(spi, CLAMP1_REGISTER, count);  // appears to work
   // io_write(spi, CLAMP2_REGISTER, count);  // appears to work
-  
+
 
   // DO we want to do this every loop?
   // get supply voltages,
@@ -143,13 +143,13 @@ static void soft_500ms_update(void)
       // may as well keep rails OE deasserted, until really ready
       io_set(spi, RAILS_REGISTER, RAILS_OE);
 
-      // turn off dac ref mux. pull-high
-      io_set( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A | DAC_REF_MUX_B); // active lo
+      // turn off dac ref mux. pull-high, active lo.
+      io_set( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A | DAC_REF_MUX_B);
 
-      // turn off all clamp muxes
-      io_set(spi, CLAMP1_REGISTER, CLAMP1_VSET | CLAMP1_ISET | CLAMP1_ISET_INV | CLAMP1_VSET_INV);  
-      io_set(spi, CLAMP2_REGISTER, CLAMP2_MIN | CLAMP2_INJECT_ERR | CLAMP2_INJECT_VFB | CLAMP2_MAX);  
-    
+      // turn off all clamp muxes, active lo.
+      io_set(spi, CLAMP1_REGISTER, CLAMP1_VSET | CLAMP1_ISET | CLAMP1_ISET_INV | CLAMP1_VSET_INV);
+      io_set(spi, CLAMP2_REGISTER, CLAMP2_MIN | CLAMP2_INJECT_ERR | CLAMP2_INJECT_VFB | CLAMP2_MAX);
+
 
 
       // test the flash
