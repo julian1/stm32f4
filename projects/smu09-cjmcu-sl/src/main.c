@@ -100,7 +100,8 @@ static void soft_500ms_update(void)
   io_toggle(spi, LED_REGISTER, LED2);
 
 
-
+  // io_write(spi, CLAMP1_REGISTER, count);  // appears to work
+  // io_write(spi, CLAMP2_REGISTER, count);  // appears to work
   
 
   // DO we want to do this every loop?
@@ -144,6 +145,12 @@ static void soft_500ms_update(void)
 
       // turn off dac ref mux. pull-high
       io_set( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A | DAC_REF_MUX_B); // active lo
+
+      // turn off all clamp muxes
+      io_set(spi, CLAMP1_REGISTER, CLAMP1_VSET | CLAMP1_ISET | CLAMP1_ISET_INV | CLAMP1_VSET_INV);  
+      io_set(spi, CLAMP2_REGISTER, CLAMP2_MIN | CLAMP2_INJECT_ERR | CLAMP2_INJECT_VFB | CLAMP2_MAX);  
+    
+
 
       // test the flash
       // TODO. check responses.
