@@ -200,7 +200,8 @@ static void soft_500ms_update(void)
         spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4.0) );
         spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 2.0) );
 
-        /*  Also, the V MON pin output impedance is approximately 2.2kΩ;
+        /*  none of this works. 
+            Because, V MON pin output impedance is too low. and needs a buffer. (approximately 2.2kΩ).
         */
         // spi_dac_write_register(spi, DAC_MON_REGISTER, 0 );      
         // spi_dac_write_register(spi, DAC_MON_REGISTER, 0 DAC_MON_MDAC0  );      
