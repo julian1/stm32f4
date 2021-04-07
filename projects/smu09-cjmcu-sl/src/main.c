@@ -80,7 +80,7 @@ static void soft_500ms_update(void)
 
   ////////////////////////////////
   // clear led1
-  io_clear(spi, LED_REGISTER, LED2);
+  io_clear(spi, LED_REGISTER, LED1);
 
   // would be nice to have a toggle function.
 
@@ -97,7 +97,7 @@ static void soft_500ms_update(void)
   }
 #endif
 
-  io_toggle(spi, LED_REGISTER, LED1);
+  io_toggle(spi, LED_REGISTER, LED2);
 
 
 
