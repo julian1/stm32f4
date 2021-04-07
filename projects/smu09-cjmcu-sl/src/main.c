@@ -214,8 +214,8 @@ static void soft_500ms_update(void)
 
         // new approach where fb is always active/routed through.
         // 3V sig-gen. vset=4V, Iset=2V.
-        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV); // active lo. works. 3V -4V = -1V
-        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET);     // active lo. works. 3V +4V = 7V. 
+        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV); // active lo. works. 3V -4V = -1V
+        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET);     // active lo. works. 3V +4V = 7V. 
         // nothing.                                                              3V * 2= 6V
 
         // io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET_INV); // active lo. works. 3V -2V = 1V
@@ -279,7 +279,7 @@ static void soft_500ms_update(void)
       // ... ok.
       float val = spi_adc_do_read(spi );
       UNUSED(val);
-      // usart_printf("adc val %f\n", val / 1.64640 * 10.0 );
+      usart_printf("adc val %f\n", val / 1.64640 * 10.0 );
 
       // we want to go to another state here... and bring up POWER_UP...
 
