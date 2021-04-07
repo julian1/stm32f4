@@ -214,8 +214,8 @@ static void soft_500ms_update(void)
 
         // new approach where fb is always active/routed through.
         // 3V sig-gen. vset=4V, Iset=2V.
-        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV); // active lo. works. 3V -4V = -1V
-        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET);     // active lo. works. 3V +4V = 7V. 
+        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV); // active lo. works. 3V -4V = -1V  source a positive voltage.
+        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET);     // active lo. works. 3V +4V = 7V.  source a negative voltage. 
         // nothing.                                                              3V * 2= 6V
 
         // io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET_INV); // active lo. works. 3V -2V = 1V
@@ -227,10 +227,10 @@ static void soft_500ms_update(void)
         // ok. the selection has a 0.7V offset. however. without a resistor. 
         // ok. 1M. works. have hard knee.
 
-        io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);         // max. 
-        // io_clear(spi, CLAMP2_REGISTER, CLAMP2_MIN);         // min
+        io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);         // max.   for source +ve or -ve voltage
+        // io_clear(spi, CLAMP2_REGISTER, CLAMP2_MIN);         // min  for sink.
 
-
+        // need to test sink. but needs to be on current.
 
         /////////////////
         // adc init has to be done after rails are up...
