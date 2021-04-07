@@ -200,20 +200,6 @@ static void soft_500ms_update(void)
         spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4.0) );
         spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 2.0) );
 
-
-        mux_io(spi);
-
-        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV); // active lo. works. 3V -4V = -1V
-        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET);     // active lo. works. 3V +4V = 7V. 
-        // nothing.                                                              3V * 2= 6V
-
-
-        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET_INV); // active lo. works. 3V -2V = 1V
-        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET);     // active lo. works. 3V +2V = 5V
-        // nothing.                                                              3V * 2 = 6V. 
-
-
-
         /*  Also, the V MON pin output impedance is approximately 2.2kΩ;
         */
         // spi_dac_write_register(spi, DAC_MON_REGISTER, 0 );      
@@ -221,6 +207,29 @@ static void soft_500ms_update(void)
         // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_AIN );
         // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC0  );      
         // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC1  );   
+
+
+
+        mux_io(spi);
+
+        // new approach where fb is always active/routed through.
+        // 3V sig-gen. vset=4V, Iset=2V.
+        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV); // active lo. works. 3V -4V = -1V
+        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET);     // active lo. works. 3V +4V = 7V. 
+        // nothing.                                                              3V * 2= 6V
+
+        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET_INV); // active lo. works. 3V -2V = 1V
+        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET);     // active lo. works. 3V +2V = 5V
+        // nothing.                                                              3V * 2 = 6V. 
+        // with no clamps open. we get VERR and IERR = 0. GOOD!!!. makes it easy, to test/use comparison
+        // this also means can pass vfb (or vfb_inv) straight through to hold output at 0. (x2 doesn't matter, on integrator).
+
+        // ok. the selection has a 0.7V offset. however. without a resistor. 
+        // ok. 1M. works. have hard knee.
+
+        io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);         // max. 
+        // io_clear(spi, CLAMP2_REGISTER, CLAMP2_MIN);         // min
+
 
 
         /////////////////
@@ -236,12 +245,13 @@ static void soft_500ms_update(void)
         // maybe change name RAILS_OK, RAILS_UP ANALOG_OK, ANALOG_UP
 
         // turn on power rails
-#if 0
+        // effectively turn on output
+#if 1
         ////////////////////
         // power rails
         usart_printf("turn on power rails - lp30v\n" );
         mux_io(spi);
-        // io_set(spi, RAILS_REGISTER, RAILS_LP30V );
+        io_set(spi, RAILS_REGISTER, RAILS_LP30V );
         msleep(50);
 
 #endif
@@ -269,7 +279,7 @@ static void soft_500ms_update(void)
       // ... ok.
       float val = spi_adc_do_read(spi );
       UNUSED(val);
-      // usart_printf("adc val %f\n", val);
+      // usart_printf("adc val %f\n", val / 1.64640 * 10.0 );
 
       // we want to go to another state here... and bring up POWER_UP...
 
