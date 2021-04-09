@@ -3,6 +3,8 @@
   all these registers - are the ice40/fpga verilog
   not just mux. its fpga config.
   but/and it's also not low level ice40 stuff.
+  ---------
+  it's config.h or design.h. or control.h
 */
 #include <stdint.h> // uint32_t
 
@@ -71,11 +73,17 @@
 #define CLAMP1_ISET_INV (1<<2)
 #define CLAMP1_VSET_INV (1<<3)
 
-#define CLAMP2_REGISTER 16
+#define CLAMP2_REGISTER   16
 #define CLAMP2_MIN        (1<<0)
 #define CLAMP2_INJECT_ERR (1<<1)
 #define CLAMP2_INJECT_VFB (1<<2)
 #define CLAMP2_MAX        (1<<3)
+
+
+#define RELAY_COM_REGISTER  17
+#define RELAY_COM_X         (1<<0)
+#define RELAY_COM_Y         (1<<1)
+#define RELAY_COM_Z         (1<<2)
 
 
 
