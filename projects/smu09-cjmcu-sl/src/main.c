@@ -2,6 +2,8 @@
 // cjmcu  stm32f407.
 // issue. is that board/stlink doesn't appear to reset cleanly. needs sleep.
 
+// - can plug a thermocouple straight into the sense +p, +n, and 
+// then use the slow (digital) integrator/pid loop - as a temperature controler..
 
 #include <libopencm3/stm32/rcc.h>
 
@@ -98,11 +100,14 @@ static void soft_500ms_update(void)
 
   io_toggle(spi, LED_REGISTER, LED2);
 
-
+  // tests
   // io_write(spi, CLAMP1_REGISTER, count);  // works
   // io_write(spi, CLAMP2_REGISTER, count);  // works
   // io_write(spi, RELAY_COM_REGISTER, count);
-  io_write(spi, IRANGEX_SW_REGISTER, count);
+  // io_write(spi, IRANGEX_SW_REGISTER, count);
+
+  // io_toggle(spi, RELAY_COM_REGISTER, RELAY_COM_X);
+
 
   // DO we want to do this every loop?
   // get supply voltages,
