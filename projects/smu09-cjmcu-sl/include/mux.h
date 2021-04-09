@@ -1,10 +1,12 @@
 /*
+  core - is mostly spi mux, and io.
+
   this file mux.h badly named,
   all these registers - are the ice40/fpga verilog
   not just mux. its fpga config.
   but/and it's also not low level ice40 stuff.
   ---------
-  it's config.h or design.h. or control.h
+  it's config.h or design.h. or control.h or core.h.
 */
 #include <stdint.h> // uint32_t
 
