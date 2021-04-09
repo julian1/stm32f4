@@ -5,7 +5,7 @@
 #include "ads131a04.h"
 #include "util.h"
 
-#include "mux.h"
+#include "core.h"
 
 
 

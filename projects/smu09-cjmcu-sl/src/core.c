@@ -1,5 +1,5 @@
 
-#include "mux.h"
+#include "core.h"
 #include "ice40.h"
 
 #include "mcp3208.h"

@@ -3,7 +3,7 @@
 #include <libopencm3/stm32/spi.h>
 
 
-#include "mux.h"
+#include "core.h"
 #include "util.h" // usart_printf
 
 

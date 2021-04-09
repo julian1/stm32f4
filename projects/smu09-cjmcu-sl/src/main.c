@@ -31,7 +31,7 @@
 #include "dac8734.h"
 #include "ads131a04.h"
 
-#include "mux.h"
+#include "core.h"
 
 #define UNUSED(x) (void)(x)
 
