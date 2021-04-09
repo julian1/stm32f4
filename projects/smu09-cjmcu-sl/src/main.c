@@ -150,7 +150,9 @@ static void soft_500ms_update(void)
       io_set(spi, CLAMP1_REGISTER, CLAMP1_VSET | CLAMP1_ISET | CLAMP1_ISET_INV | CLAMP1_VSET_INV);
       io_set(spi, CLAMP2_REGISTER, CLAMP2_MIN | CLAMP2_INJECT_ERR | CLAMP2_INJECT_VFB | CLAMP2_MAX);
 
-
+      // TODO soft reset would be much better here.
+      //  make sure fpga can configure initial state.
+      // we must turn everything off. or else issue a soft reset.
 
       // test the flash
       // TODO. check responses.
@@ -217,11 +219,11 @@ static void soft_500ms_update(void)
 
         // new approach where fb is always active/routed through.
         // 3V sig-gen. vset=4V, Iset=2V.
-        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV); // active lo. works. 3V -4V = -1V  source a positive voltage.
-        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET);     // active lo. works. 3V +4V = 7V.  source a negative voltage. 
+        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV); // active lo. works. 3V -4V = -1V  source a positive voltage.
+        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET);     // active lo. works. 3V +4V = 7V.  source a negative voltage. 
         // nothing.                                                              3V * 2= 6V
 
-        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET_INV); // active lo. works. 3V -2V = 1V
+        io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET_INV); // active lo. works. 3V -2V = 1V
         // io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET);     // active lo. works. 3V +2V = 5V
         // nothing.                                                              3V * 2 = 6V. 
         // with no clamps open. we get VERR and IERR = 0. GOOD!!!. makes it easy, to test/use comparison
