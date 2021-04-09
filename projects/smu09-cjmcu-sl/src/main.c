@@ -31,7 +31,7 @@
 #include "dac8734.h"
 #include "ads131a04.h"
 
-#include "core.h"
+#include "core.h"   // some of the above files include core.h. need header guards.
 
 #define UNUSED(x) (void)(x)
 
@@ -82,7 +82,6 @@ static void soft_500ms_update(void)
   // clear led1
   io_clear(spi, LED_REGISTER, LED1);
 
-  // would be nice to have a toggle function.
 
 
 #if 0
@@ -102,6 +101,7 @@ static void soft_500ms_update(void)
 
   // io_write(spi, CLAMP1_REGISTER, count);  // appears to work
   // io_write(spi, CLAMP2_REGISTER, count);  // appears to work
+  io_write(spi, RELAY_COM_REGISTER, count);
 
 
   // DO we want to do this every loop?
@@ -115,8 +115,8 @@ static void soft_500ms_update(void)
 
 
   typedef enum state_t {
-    FIRST,    // INITIAL
-    DIGITAL_UP,  // DIGIAL_DIGITAL_UP
+    FIRST,        // INITIAL
+    DIGITAL_UP,   // DIGIAL_DIGITAL_UP
     ERROR,
     ANALOG_UP
   } state_t;
@@ -136,6 +136,13 @@ static void soft_500ms_update(void)
 
       mux_io(spi);
 
+
+      // io_clear(spi, CORE_SOFT_RST, 0);    // any value addressing this register.. to clear
+      // no. needs dg444/mux stuff. pulled high. for off.
+
+      // BUT I THINK we should probably hold RAILS_OE high / deasserted.
+
+#if 1
       // should we have wrapper functions here, can then put comments
       // make sure rails are off
       io_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
@@ -153,7 +160,7 @@ static void soft_500ms_update(void)
       // TODO soft reset would be much better here.
       //  make sure fpga can configure initial state.
       // we must turn everything off. or else issue a soft reset.
-
+#endif
       // test the flash
       // TODO. check responses.
       mux_w25(spi);
@@ -204,14 +211,14 @@ static void soft_500ms_update(void)
         spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4.0) );
         spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 2.0) );
 
-        /*  none of this works. 
+        /*  none of this works.
             Because, V MON pin output impedance is too low. and needs a buffer. (approximately 2.2kΩ).
         */
-        // spi_dac_write_register(spi, DAC_MON_REGISTER, 0 );      
-        // spi_dac_write_register(spi, DAC_MON_REGISTER, 0 DAC_MON_MDAC0  );      
+        // spi_dac_write_register(spi, DAC_MON_REGISTER, 0 );
+        // spi_dac_write_register(spi, DAC_MON_REGISTER, 0 DAC_MON_MDAC0  );
         // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_AIN );
-        // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC0  );      
-        // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC1  );   
+        // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC0  );
+        // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC1  );
 
 
 
@@ -220,16 +227,16 @@ static void soft_500ms_update(void)
         // new approach where fb is always active/routed through.
         // 3V sig-gen. vset=4V, Iset=2V.
         io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV); // active lo. works. 3V -4V = -1V  source a positive voltage.
-        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET);     // active lo. works. 3V +4V = 7V.  source a negative voltage. 
+        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET);     // active lo. works. 3V +4V = 7V.  source a negative voltage.
         // nothing.                                                              3V * 2= 6V
 
         io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET_INV); // active lo. works. 3V -2V = 1V
         // io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET);     // active lo. works. 3V +2V = 5V
-        // nothing.                                                              3V * 2 = 6V. 
+        // nothing.                                                              3V * 2 = 6V.
         // with no clamps open. we get VERR and IERR = 0. GOOD!!!. makes it easy, to test/use comparison
         // this also means can pass vfb (or vfb_inv) straight through to hold output at 0. (x2 doesn't matter, on integrator).
 
-        // ok. the selection has a 0.7V offset. however. without a resistor. 
+        // ok. the selection has a 0.7V offset. however. without a resistor.
         // ok. 1M. works. have hard knee.
 
         io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);         // max.   for source +ve or -ve voltage

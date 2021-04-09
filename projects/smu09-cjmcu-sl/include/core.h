@@ -50,7 +50,7 @@
 #define RAILS_OE      (1<<3)
 
 // 11 is soft reset
-#define ICE40_SOFT_RST   11
+#define CORE_SOFT_RST   11
 
 #define DAC_REF_MUX_REGISTER  12
 #define DAC_REF_MUX_A     (1<<0)
