@@ -84,6 +84,12 @@
 #define RELAY_COM_Y         (1<<1)
 #define RELAY_COM_Z         (1<<2)
 
+#define IRANGEX_SW_REGISTER     18
+#define IRANGEX_SW1         (1<<0)
+#define IRANGEX_SW2         (1<<1)
+#define IRANGEX_SW3         (1<<2)
+#define IRANGEX_SW4         (1<<3)
+
 
 
 

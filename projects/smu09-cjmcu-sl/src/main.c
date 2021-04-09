@@ -99,10 +99,10 @@ static void soft_500ms_update(void)
   io_toggle(spi, LED_REGISTER, LED2);
 
 
-  // io_write(spi, CLAMP1_REGISTER, count);  // appears to work
-  // io_write(spi, CLAMP2_REGISTER, count);  // appears to work
-  io_write(spi, RELAY_COM_REGISTER, count);
-
+  // io_write(spi, CLAMP1_REGISTER, count);  // works
+  // io_write(spi, CLAMP2_REGISTER, count);  // works
+  // io_write(spi, RELAY_COM_REGISTER, count);
+  io_write(spi, IRANGEX_SW_REGISTER, count);
 
   // DO we want to do this every loop?
   // get supply voltages,
