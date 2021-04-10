@@ -107,6 +107,11 @@ static void soft_500ms_update(void)
   // io_write(spi, IRANGEX_SW_REGISTER, count);
 
   // io_toggle(spi, RELAY_COM_REGISTER, RELAY_COM_X);
+  // io_toggle(spi, RELAY_REGISTER, RELAY_VRANGE);
+  // io_toggle(spi, RELAY_REGISTER, RELAY_OUTCOM);
+    io_toggle(spi, RELAY_REGISTER, RELAY_SENSE);
+
+
 
 
   // DO we want to do this every loop?
@@ -161,6 +166,15 @@ static void soft_500ms_update(void)
       // turn off all clamp muxes, active lo.
       io_set(spi, CLAMP1_REGISTER, CLAMP1_VSET | CLAMP1_ISET | CLAMP1_ISET_INV | CLAMP1_VSET_INV);
       io_set(spi, CLAMP2_REGISTER, CLAMP2_MIN | CLAMP2_INJECT_ERR | CLAMP2_INJECT_VFB | CLAMP2_MAX);
+
+      // active hi
+      io_clear(spi, RELAY_COM_REGISTER, RELAY_COM_X | RELAY_COM_Y | RELAY_COM_Z);
+
+      // adg1334, controlling b2b fets. wired to provide +-15V as needed. 
+      io_clear(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2 | IRANGEX_SW3 | IRANGEX_SW4);
+
+
+
 
       // TODO soft reset would be much better here.
       //  make sure fpga can configure initial state.
@@ -226,7 +240,8 @@ static void soft_500ms_update(void)
         // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC1  );
 
 
-
+        //////////////////////////////////
+        // set up clamps
         mux_io(spi);
 
         // new approach where fb is always active/routed through.
@@ -246,8 +261,19 @@ static void soft_500ms_update(void)
 
         io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);         // max.   for source +ve or -ve voltage
         // io_clear(spi, CLAMP2_REGISTER, CLAMP2_MIN);         // min  for sink.
+        //////////////////////////////////
 
-        // need to test sink. but needs to be on current.
+
+        //////////////////////////////
+        // current ranging/path
+
+        // turn on current relay range X.
+        io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);     
+
+        // turn on b2b fets.
+        io_set(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2);  
+
+
 
         /////////////////
         // adc init has to be done after rails are up...

@@ -92,6 +92,12 @@
 
 
 
+#define RELAY_REGISTER       19
+#define RELAY_VRANGE        (1<<0)
+#define RELAY_OUTCOM        (1<<1)
+#define RELAY_SENSE         (1<<2)
+
+
 
 
 
