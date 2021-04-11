@@ -42,6 +42,10 @@
 
 
 
+static void update(void)
+{
+
+}
 
 /*
   AHHH. is clever
@@ -388,7 +392,6 @@ static void soft_500ms_update(void)
 
 
 
-
 static void loop(void)
 {
 
@@ -402,9 +405,16 @@ static void loop(void)
 
 
     // pump usart queues
+/*
+  TODO.
+  OK. this is wrong. state should be being passed.
+
+  All
+*/
     usart_input_update();
     usart_output_update();
 
+    update();
 
     // 500ms soft timer
     if( system_millis > soft_500ms) {
@@ -416,6 +426,24 @@ static void loop(void)
   }
 
 }
+
+
+
+/*
+typedef struct App
+{
+  // state tree.
+
+
+} App;
+*/
+
+
+static char buf1[1000];
+static char buf2[1000];
+
+static CBuf console_in;
+static CBuf console_out;
 
 
 
@@ -449,7 +477,14 @@ int main(void)
   led_setup();
 
   // usart
-  usart_setup_();
+  // usart_setup_();
+  // usart
+  cBufInit(&console_in, buf1, sizeof(buf1));
+  cBufInit(&console_out, buf2, sizeof(buf2));
+  usart_setup_gpio_portA();
+  usart_setup(&console_in, &console_out);
+  usart_printf_init(&console_in, &console_out);
+
 
   ////////////////
   spi1_port_setup();

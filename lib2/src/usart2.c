@@ -47,8 +47,11 @@ void usart_setup_gpio_portA(void)
 }
 
 
+
 void usart_setup( CBuf *input, CBuf *output)
 {
+  // we have to setup the input_buf pointer for the isr...
+  // althouth output is only needed in update()
   input_buf = input;
   output_buf = output;
 
