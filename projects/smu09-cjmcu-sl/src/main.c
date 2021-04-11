@@ -143,6 +143,7 @@ static void soft_500ms_update(void)
   } state_t;
 
   // static
+  // should probably be put in state record structure, rather than on the stack?
   static state_t state = FIRST;
 
 
@@ -399,22 +400,15 @@ static void loop(void)
 
   while(true) {
 
-    // EXTREME - can actually call update at any time, in a yield()...
+    // EXTREME - could actually call update at any time, in a yield()...
     // so long as we wrap calls with a mechanism to avoid stack reentrancy
     // led_update(); in systick.
+    // but better just to flush() cocnsole queues.conin/out
 
 
-    // pump usart queues
-/*
-  TODO.
-  OK. this is wrong. state should be being passed.
-
-  All
-*/
     usart_input_update();
     usart_output_update();
 
-    update();
 
     // 500ms soft timer
     if( system_millis > soft_500ms) {
@@ -423,8 +417,9 @@ static void loop(void)
       soft_500ms_update();
     }
 
-  }
 
+    update();
+  }
 }
 
 
