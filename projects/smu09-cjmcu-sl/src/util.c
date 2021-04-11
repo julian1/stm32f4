@@ -21,7 +21,6 @@
 #include <stdarg.h> // va_starrt etc
 
 
-#define UNUSED(x) (void)(x)
 
 
 
@@ -127,7 +126,6 @@ void msleep(uint32_t delay)
 
 ////////////////////////////////////////////////////////
 
-// perhps bring lib/usart2 stuff in here
 
 
 static CBuf *console_in = NULL;
@@ -145,20 +143,18 @@ void usart_printf_init( CBuf *input,  CBuf *output)
 
 void usart_printf( const char *format, ... )
 {
+/*
   if(!console_in || !console_out)
     critical_error_blink();
+*/
 
-
-  UNUSED(format);
-#if 1
-  // TODO rename to just printf... it's not the responsibiilty of user to know context
-  // can override the write, to do flush etc.
+  // cannot rename to just printf... it's not the responsibiilty of user to know context
+  // because different formatting chars, conflict with gcc printf builtins
 	va_list args;
 
 	va_start(args,format);
 	internal_vprintf((void *)cBufPut, console_out, format, args);
 	va_end(args);
-#endif
 }
 
 
@@ -168,48 +164,5 @@ void usart_flush( void)
   // don't think we need this as a separrate function
   usart_sync_flush();
 }
-
-
-#if 0
-// compiler complains about inbuit formatting conventions
-
-int printf( const char *format, ... )
-{
-  // TODO rename to just printf... it's not the responsibiilty of user to know context
-  // can override the write, to do flush etc.
-	va_list args;
-
-	va_start(args,format);
-	internal_vprintf((void *)cBufPut, &console_out, format,args);
-	va_end(args);
-  return 0;
-}
-#endif
-
-
-/*
-void usart_setup_( void )
-{
-
-  usart_setup_gpio_portA();
-  usart_setup(&console_in, &console_out);     // gahhh... we have to change this each time...
-}
-*/
-
-#if 0
-void usart_update(void)
-{
-  // pump usart queues
-  usart_input_update();
-  usart_output_update();
-}
-#endif
-
-//////////////////////////////////
-
-
-
-
-
 
 
