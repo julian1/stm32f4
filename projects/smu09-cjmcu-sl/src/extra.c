@@ -1,4 +1,19 @@
 
+        // new approach where fb is always active/routed through.
+        // 3V sig-gen. vset=4V, Iset=2V.
+        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV); // active lo. works. 3V -4V = -1V  source a positive voltage.
+        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET);     // active lo. works. 3V +4V = 7V.  source a negative voltage.
+        // nothing.                                                              3V * 2= 6V
+
+        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET_INV); // active lo. works. 3V -2V = 1V
+        io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET);     // active lo. works. 3V +2V = 5V
+        // nothing.                                                              3V * 2 = 6V.
+        // with no clamps open. we get VERR and IERR = 0. GOOD!!!. makes it easy, to test/use comparison
+        // this also means can pass vfb (or vfb_inv) straight through to hold output at 0. (x2 doesn't matter, on integrator).
+
+        // ok. the selection has a 0.7V offset. however. without a resistor.
+        // ok. 1M. works. have hard knee.
+
 
 
 /*

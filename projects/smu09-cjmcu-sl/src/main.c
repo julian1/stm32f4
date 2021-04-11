@@ -62,6 +62,13 @@ static void update(void)
 //
 
 /*
+  - current feedback appears working.
+  - OK. we want ads to report current as well.
+  - connect the output up to a led.
+  - different valued sense resistor.
+*/
+
+/*
   there is no reason cannot have nested event driven fsm.  this is simple and works well.
   and there is no reason cannot have tasks in 500ms soft timer/ separate from main fsm state.
 */
@@ -120,7 +127,7 @@ static void soft_500ms_update(void)
   // io_toggle(spi, RELAY_REGISTER, RELAY_OUTCOM);
   // io_toggle(spi, RELAY_REGISTER, RELAY_SENSE);
 
-  
+
 
 
   /*
@@ -262,23 +269,18 @@ static void soft_500ms_update(void)
         // set up clamps
         mux_io(spi);
 
-        // new approach where fb is always active/routed through.
-        // 3V sig-gen. vset=4V, Iset=2V.
-        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV); // active lo. works. 3V -4V = -1V  source a positive voltage.
-        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET);     // active lo. works. 3V +4V = 7V.  source a negative voltage.
-        // nothing.                                                              3V * 2= 6V
+    #if 0
+        // source -ve current/voltage.
+        // should be write(  ~CLAMP1_VSET | CLAMP1_ISET) etc.
+        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET | CLAMP1_ISET);    // inv for +ve voltage, non invert for negative
+        io_clear(spi, CLAMP2_REGISTER, CLAMP2_MIN);             // max.   for source +ve voltage, min for source -ve voltage
+    #endif
 
-        io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET_INV); // active lo. works. 3V -2V = 1V
-        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET);     // active lo. works. 3V +2V = 5V
-        // nothing.                                                              3V * 2 = 6V.
-        // with no clamps open. we get VERR and IERR = 0. GOOD!!!. makes it easy, to test/use comparison
-        // this also means can pass vfb (or vfb_inv) straight through to hold output at 0. (x2 doesn't matter, on integrator).
+        // source +ve current/voltage.
+        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
+        io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);
 
-        // ok. the selection has a 0.7V offset. however. without a resistor.
-        // ok. 1M. works. have hard knee.
 
-        io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);         // max.   for source +ve or -ve voltage
-        // io_clear(spi, CLAMP2_REGISTER, CLAMP2_MIN);         // min  for sink.
         //////////////////////////////////
 
 
@@ -297,7 +299,7 @@ static void soft_500ms_update(void)
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
 
-      
+
 
 
         /////////////////
