@@ -2,7 +2,7 @@
 // cjmcu  stm32f407.
 // issue. is that board/stlink doesn't appear to reset cleanly. needs sleep.
 
-// - can plug a thermocouple straight into the sense +p, +n, and 
+// - can plug a thermocouple straight into the sense +p, +n, and
 // then use the slow (digital) integrator/pid loop - as a temperature controler..
 
 #include <libopencm3/stm32/rcc.h>
@@ -57,6 +57,10 @@
 // ok. ads131. ought to be able to read value - without interrupt.
 //
 
+/*
+  there is no reason cannot have nested event driven fsm.  this is simple and works well.
+  and there is no reason cannot have tasks in 500ms soft timer/ separate from main fsm state.
+*/
 
 static void soft_500ms_update(void)
 {
@@ -113,8 +117,11 @@ static void soft_500ms_update(void)
 
 
 
-
-  // DO we want to do this every loop?
+  /*
+    querying adc03 via spi, is slow (eg. we also clock spi slower to match read speed) .
+    so it should only be done in soft timer eg. 10ms is probably enough.
+    preferrably should offload to fpga with set voltages, -  and fpga can raise an interupt.
+  */
   // get supply voltages,
   mux_adc03(spi);
   float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
@@ -170,7 +177,7 @@ static void soft_500ms_update(void)
       // active hi
       io_clear(spi, RELAY_COM_REGISTER, RELAY_COM_X | RELAY_COM_Y | RELAY_COM_Z);
 
-      // adg1334, controlling b2b fets. wired to provide +-15V as needed. 
+      // adg1334, controlling b2b fets. wired to provide +-15V as needed.
       io_clear(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2 | IRANGEX_SW3 | IRANGEX_SW4);
 
 
@@ -268,10 +275,10 @@ static void soft_500ms_update(void)
         // current ranging/path
 
         // turn on current relay range X.
-        io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);     
+        io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
 
         // turn on b2b fets.
-        io_set(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2);  
+        io_set(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2);
 
 
 
