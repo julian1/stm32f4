@@ -114,11 +114,14 @@ static void soft_500ms_update(void)
   // io_write(spi, RELAY_COM_REGISTER, count);
   // io_write(spi, IRANGEX_SW_REGISTER, count);
 
+  io_write(spi, IRANGE_SENSE_REGISTER, count);
+
   // io_toggle(spi, RELAY_COM_REGISTER, RELAY_COM_X);
   // io_toggle(spi, RELAY_REGISTER, RELAY_VRANGE);
   // io_toggle(spi, RELAY_REGISTER, RELAY_OUTCOM);
-    // io_toggle(spi, RELAY_REGISTER, RELAY_SENSE);
+  // io_toggle(spi, RELAY_REGISTER, RELAY_SENSE);
 
+  
 
 
   /*
