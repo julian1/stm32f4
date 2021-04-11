@@ -117,7 +117,7 @@ static void soft_500ms_update(void)
   // io_toggle(spi, RELAY_COM_REGISTER, RELAY_COM_X);
   // io_toggle(spi, RELAY_REGISTER, RELAY_VRANGE);
   // io_toggle(spi, RELAY_REGISTER, RELAY_OUTCOM);
-    io_toggle(spi, RELAY_REGISTER, RELAY_SENSE);
+    // io_toggle(spi, RELAY_REGISTER, RELAY_SENSE);
 
 
 
@@ -184,6 +184,9 @@ static void soft_500ms_update(void)
 
       // adg1334, controlling b2b fets. wired to provide +-15V as needed.
       io_clear(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2 | IRANGEX_SW3 | IRANGEX_SW4);
+
+      // active hi
+      io_clear(spi, RELAY_REGISTER, RELAY_VRANGE | RELAY_OUTCOM | RELAY_SENSE);
 
 
 
@@ -284,6 +287,10 @@ static void soft_500ms_update(void)
 
         // turn on b2b fets.
         io_set(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2);
+
+
+        // turn on output relay
+        io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
 
 
 
