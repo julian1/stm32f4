@@ -113,8 +113,7 @@ static void soft_500ms_update(void)
   // io_write(spi, CLAMP2_REGISTER, count);  // works
   // io_write(spi, RELAY_COM_REGISTER, count);
   // io_write(spi, IRANGEX_SW_REGISTER, count);
-
-  io_write(spi, IRANGE_SENSE_REGISTER, count);
+  // io_write(spi, IRANGE_SENSE_REGISTER, count);
 
   // io_toggle(spi, RELAY_COM_REGISTER, RELAY_COM_X);
   // io_toggle(spi, RELAY_REGISTER, RELAY_VRANGE);
@@ -191,7 +190,8 @@ static void soft_500ms_update(void)
       // active hi
       io_clear(spi, RELAY_REGISTER, RELAY_VRANGE | RELAY_OUTCOM | RELAY_SENSE);
 
-
+      // active lo
+      io_set(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE1 | IRANGE_SENSE2 | IRANGE_SENSE3 | IRANGE_SENSE4);
 
 
       // TODO soft reset would be much better here.
@@ -288,13 +288,16 @@ static void soft_500ms_update(void)
         // turn on current relay range X.
         io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
 
-        // turn on b2b fets.
+        // turn on b2b fets. for range
         io_set(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2);
 
+        // turn on current sense amp 1.
+        io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE1);
 
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
 
+      
 
 
         /////////////////
