@@ -31,8 +31,8 @@ extern void usart_setup_( void );
 
 typedef struct CBuf CBuf;
 
-extern void usart_printf_init( CBuf *input,  CBuf *output);
-extern void usart_printf( const char *format, ... );
-extern void usart_flush( void);
+extern void usart_printf_init(CBuf *output);
+extern void usart_printf(const char *format, ... );
+extern void usart_flush(void);
 
 

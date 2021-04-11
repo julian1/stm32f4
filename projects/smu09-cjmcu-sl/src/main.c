@@ -478,7 +478,7 @@ int main(void)
   cBufInit(&console_out, buf2, sizeof(buf2));
   usart_setup_gpio_portA();
   usart_setup(&console_in, &console_out);
-  usart_printf_init(&console_in, &console_out);
+  usart_printf_init(&console_out);
 
 
   ////////////////

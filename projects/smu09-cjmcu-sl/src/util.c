@@ -128,14 +128,12 @@ void msleep(uint32_t delay)
 
 
 
-static CBuf *console_in = NULL;
 static CBuf *console_out = NULL;
 
 
 
-void usart_printf_init( CBuf *input,  CBuf *output)
+void usart_printf_init( CBuf *output)
 {
-  console_in = input;
   console_out = output;
 }
 
