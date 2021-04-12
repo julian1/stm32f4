@@ -59,7 +59,7 @@ static void update(void)
 
 
 
-static void current_range_100mA()
+static void current_range_100mA(void)
 {
   // eg. 60mA output.  6V ifb,    0.06A output coeff
   // we do need a coefficient as well the output range. probably to A first. then can adjust as needed.
@@ -314,11 +314,13 @@ static void soft_500ms_update(void)
         // turn on current relay range X.
         io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
 
-        // turn on b2b fets. for range
-        io_set(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2);
+        // turn on b2b fets.
+        // io_set(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2);
+        io_set(spi, IRANGEX_SW_REGISTER, IRANGEX_SW3 | IRANGEX_SW4);
 
-        // turn on current sense amp 1.
-        io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE1);
+        // turn on current sense amp
+        // io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE1);
+        io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE2);
 
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
