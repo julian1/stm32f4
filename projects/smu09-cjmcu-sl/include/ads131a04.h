@@ -1,5 +1,6 @@
 
 #include <stdint.h> // uint32_t
+#include <stddef.h> // size_t
 
 struct FBuf;
 
@@ -23,4 +24,7 @@ int adc_init( uint32_t spi, uint8_t reg);
 // void adc_exti_setup(FBuf *buffer1);
 
 // change spi_adc_do_read()?
-float spi_adc_do_read( uint32_t spi/*, uint8_t reg */);
+// float spi_adc_do_read( uint32_t spi/*, uint8_t reg */);
+
+uint32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n); // pass array 4 bytes...
+

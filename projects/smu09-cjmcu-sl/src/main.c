@@ -362,9 +362,10 @@ static void soft_500ms_update(void)
 
       // ... ok.
       // how to return. pass by reference...
-      float val = spi_adc_do_read(spi );
-      UNUSED(val);
-      usart_printf("adc val %f\n", val / 1.64640 * 10.0 );
+      float ar[4];
+      spi_adc_do_read(spi, ar, 4);
+
+      usart_printf("adc val %f    %f\n", ar[0] / 1.64640 * 10.0,   ar[1] / 1.64640 * 10.0  );
 
       // we want to go to another state here... and bring up POWER_UP...
 

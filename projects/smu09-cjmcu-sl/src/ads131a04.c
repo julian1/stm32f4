@@ -386,9 +386,10 @@ int adc_init( uint32_t spi, uint8_t reg)
   // adc_write_register(spi, ADC_ENA, 0x0f );     // all 4 channels
 
   // adc_write_register(spi, ADC_ENA, 0b0001 );      // ifb. chan1  10V in 1.65V measured.   10/2k = 1.666
-  adc_write_register(spi, ADC_ENA, 0b0010 );      // vfb.  chan2   10V in 1.65V measured.   10/2k = 1.666
+  // adc_write_register(spi, ADC_ENA, 0b0010 );      // vfb.  chan2   10V in 1.65V measured.   10/2k = 1.666
 
-                                                  // ok. but negative values are not reading negative. 
+                                                  
+  adc_write_register(spi, ADC_ENA, 0b0011 );     // vfb and ifb 
 
 
 
@@ -440,8 +441,12 @@ adc val -9999.
 */
 
 
-float spi_adc_do_read( uint32_t spi/*, uint8_t reg */)
+// float spi_adc_do_read( uint32_t spi/*, uint8_t reg */)
+
+uint32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n) 
+// uint32_t spi_adc_do_read( uint32_t spi, float *ar); // pass array 4 bytes...
 {
+  UNUSED(n);
 
   int32_t x = 0;
   double y;
@@ -451,6 +456,7 @@ float spi_adc_do_read( uint32_t spi/*, uint8_t reg */)
   mux_adc(spi);
   spi_enable(spi);
 
+  // read code
   uint32_t code = spi_xfer_24_16(spi, 0);     // this is just the 24_16 call... except without
   if(code != 0x2220) {
     usart_printf("adc, bad code %4x\n",  code);
@@ -459,19 +465,21 @@ float spi_adc_do_read( uint32_t spi/*, uint8_t reg */)
   }
 
 
-  // get values
-  for(unsigned j = 0; j < 1; ++j)
+  // read values
+  // MIN(n, 1);
+  for(unsigned j = 0; j < 2; ++j)
   {
     x = spi_xfer_24(spi, 0);
     x = sign_extend_24_32(x );
     // y = ((double )x) / 3451766.f;
     y = ((double )x) / 3451403.f;
 
-    (void)y;
+    // (void)y;
+    ar[j] = y;
   }
   spi_disable( spi );
 
-  return y;
+  return 0;
 }
 
 
