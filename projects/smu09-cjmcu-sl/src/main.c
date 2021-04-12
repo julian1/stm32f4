@@ -58,6 +58,15 @@ static void update(void)
 */
 
 
+
+static void current_range_100mA()
+{
+  // eg. 60mA output.  6V ifb,    0.06A output coeff
+  // we do need a coefficient as well the output range. probably to A first. then can adjust as needed.
+
+}
+
+
 // ok. ads131. ought to be able to read value - without interrupt.
 //
 
