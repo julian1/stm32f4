@@ -63,7 +63,6 @@ static float multiplier = 0;
 static void current_range_set_1A(uint32_t spi)
 {
   // 2V on 1A is 200mA
-  // set_current_range....
 
   // turn on current relay range X.
   io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
@@ -76,11 +75,20 @@ static void current_range_set_1A(uint32_t spi)
 
   io_clear(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 );
 
-  // sense gain = 0.1
+  // sense gain = 0.1x  ie. 0.1ohm sense resistor
   // ina gain x10.
   // extra amp gain = x10.
 
   multiplier = 0.1f;
+}
+
+static void current_range_set_10A(uint32_t spi)
+{
+  // 10A is the same as 1A, except no 10x gain
+  current_range_set_1A(spi);
+  // TODO must use write()
+  io_set(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 );
+  multiplier = 1.f;
 }
 
 
@@ -91,8 +99,8 @@ static void current_range_set_100mA(uint32_t spi)
   // 0.2V across 10ohm. g=10x, 0.2 / 10 = 0.02A = 20mA.
   // adc multiplier should be 0.1.
 
-  // TODO, these should all be write... not dependent on previous state/reset. 
-  // Careful. to do this, the separate gain for Vrange has to be split into another register, to avoid overwriting it. 
+  // TODO, these should all be write... not dependent on previous state/reset.
+  // Careful. to do this, the separate gain for Vrange has to be split into another register, to avoid overwriting it.
 
   // turn on current relay range X.
   io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
@@ -328,8 +336,12 @@ static void soft_500ms_update(void)
         // turn on set voltages 2V and 4V outputs. works.
         spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4 ) );
         // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 3.0) ); // 30mA on 100mA..
-        // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0) ); // 100mA on 1A..
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 5.0) ); // 0.5A on 1A range..
+        // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 5.0) ); // 0.5A on 1A range.. overheats bjt.
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0) ); // 100mA on 1A... hot. because drops 100mA over 15V=1.5W.
+
+        // can probably increase current. 12V out. 15-12V=  3V* 2A=6W... no thats even more lot.
+        // needs a heatsink.
+
 
         /*  none of this works.
             Because, V MON pin output impedance is too low. and needs a buffer. (approximately 2.2kΩ).
