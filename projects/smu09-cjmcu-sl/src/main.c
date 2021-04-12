@@ -298,7 +298,7 @@ static void soft_500ms_update(void)
 
         // turn on set voltages 2V and 4V outputs. works.
         spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4.0) );
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 2.0) );
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 3.0) ); // 30mA on 100mA..
 
         /*  none of this works.
             Because, V MON pin output impedance is too low. and needs a buffer. (approximately 2.2kΩ).
@@ -347,29 +347,10 @@ static void soft_500ms_update(void)
 
         //////////////////////////////
         // current ranging/path
-
         current_range_set_100mA(spi);
 
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
-
-/*
-
-        // turn on current relay range X.
-        io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
-
-        // turn on b2b fets.
-        // io_set(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2);
-        io_set(spi, IRANGEX_SW_REGISTER, IRANGEX_SW3 | IRANGEX_SW4);
-
-        // turn on current sense amp
-        // io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE1);
-        io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE2);
-
-        // turn on output relay
-        io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
-
-*/
 
 
         /////////////////
