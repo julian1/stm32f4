@@ -90,6 +90,8 @@ static void current_range_set_100mA(uint32_t spi)
   // 0.2V across 10ohm. g=10x, 0.2 / 10 = 0.02A = 20mA.
   // adc multiplier should be 0.1.
 
+  // TODO, these should all be write... not dependent on previous state/reset. 
+
   // turn on current relay range X.
   io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
 
@@ -103,6 +105,9 @@ static void current_range_set_100mA(uint32_t spi)
 
   // turn off gain fb.
   // io_set(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2);
+
+  // turn on x10 gain
+  io_clear(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 );
 }
 
 
