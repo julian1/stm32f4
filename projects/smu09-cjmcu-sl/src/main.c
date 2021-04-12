@@ -100,6 +100,9 @@ static void current_range_set_100mA(uint32_t spi)
   io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE2);
 
   multiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
+
+  // turn off gain fb.
+  io_set(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2);
 }
 
 
@@ -177,7 +180,7 @@ static void soft_500ms_update(void)
   // io_write(spi, RELAY_COM_REGISTER, count);
   // io_write(spi, IRANGEX_SW_REGISTER, count);
   // io_write(spi, IRANGE_SENSE_REGISTER, count);
-  io_write(spi, GAIN_FB_REGISTER, count);
+  // io_write(spi, GAIN_FB_REGISTER, count);
 
 
 
