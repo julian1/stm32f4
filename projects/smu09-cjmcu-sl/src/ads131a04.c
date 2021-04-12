@@ -388,8 +388,8 @@ int adc_init( uint32_t spi, uint8_t reg)
   // adc_write_register(spi, ADC_ENA, 0b0001 );      // ifb. chan1  10V in 1.65V measured.   10/2k = 1.666
   // adc_write_register(spi, ADC_ENA, 0b0010 );      // vfb.  chan2   10V in 1.65V measured.   10/2k = 1.666
 
-                                                  
-  adc_write_register(spi, ADC_ENA, 0b0011 );     // vfb and ifb 
+
+  adc_write_register(spi, ADC_ENA, 0b0011 );     // vfb and ifb
 
 
 
@@ -441,12 +441,11 @@ adc val -9999.
 */
 
 
-// float spi_adc_do_read( uint32_t spi/*, uint8_t reg */)
 
-uint32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n) 
-// uint32_t spi_adc_do_read( uint32_t spi, float *ar); // pass array 4 bytes...
+uint32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
 {
   UNUSED(n);
+  // assert( n >= 2)
 
   int32_t x = 0;
   double y;
@@ -483,7 +482,7 @@ uint32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
 
   float tmp = ar[0];
   ar[0] = ar[1];
-  ar[1] = tmp; 
+  ar[1] = tmp;
 
 
   return 0;
