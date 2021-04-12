@@ -479,6 +479,13 @@ uint32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
   }
   spi_disable( spi );
 
+  // SWAP ar[0] and ar[1] to return vfb, followed by ifb first. due to bad schematic ordering
+
+  float tmp = ar[0];
+  ar[0] = ar[1];
+  ar[1] = tmp; 
+
+
   return 0;
 }
 
