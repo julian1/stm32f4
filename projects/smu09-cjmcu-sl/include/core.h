@@ -104,7 +104,18 @@
 #define IRANGE_SENSE1 (1<<0)
 #define IRANGE_SENSE2 (1<<1)
 #define IRANGE_SENSE3 (1<<2)
-#define IRANGE_SENSE4 (1<<3)
+#define IRANGE_SENSE4 (1<<3)  // unused
+
+
+// use separate registers, even though on the same analog switch?
+// no. we can alias the register name if we really want
+#define GAIN_FB_REGISTER       21
+#define GAIN_FB_VRANGE_OP1     (1<<0)
+#define GAIN_FB_VRANGE_OP2     (1<<1)
+#define GAIN_FB_IRANGE_OP1     (1<<2)
+#define GAIN_FB_IRANGE_OP2     (1<<3)
+
+
 
 
 
