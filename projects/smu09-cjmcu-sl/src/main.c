@@ -91,6 +91,7 @@ static void current_range_set_100mA(uint32_t spi)
   // adc multiplier should be 0.1.
 
   // TODO, these should all be write... not dependent on previous state/reset. 
+  // Careful. to do this, the separate gain for Vrange has to be split into another register, to avoid overwriting it. 
 
   // turn on current relay range X.
   io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
@@ -104,10 +105,10 @@ static void current_range_set_100mA(uint32_t spi)
   multiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
 
   // turn off gain fb.
-  // io_set(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2);
+  io_set(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2);
 
-  // turn on x10 gain
-  io_clear(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2);
+  // turn on x10 gain, x100
+  // io_clear(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2);
 }
 
 

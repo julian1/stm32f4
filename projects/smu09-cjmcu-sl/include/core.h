@@ -109,6 +109,8 @@
 
 // use separate registers, even though on the same analog switch?
 // no. we can alias the register name if we really want
+// think we *do* want to split to different registers. so we can write the current in a function independent 
+// of voltage fb setup.
 #define GAIN_FB_REGISTER       21
 #define GAIN_FB_VRANGE_OP1     (1<<0)
 #define GAIN_FB_VRANGE_OP2     (1<<1)
