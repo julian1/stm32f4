@@ -441,6 +441,17 @@ adc val -9999.
 */
 
 
+// #define SWAP(a, b) do { typeof(a) temp = a; a = b; b = temp; } while (0)
+// #define SWAP(TYPE,x,y)  TYPE a = (x), x=(y), y=(a); 
+
+static void swapf(float *x, float *y)
+{
+  // hideous
+  float tmp = *x;
+  *x = *y;
+  *y = tmp;
+}
+
 
 uint32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
 {
@@ -480,9 +491,7 @@ uint32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
 
   // SWAP ar[0] and ar[1] to return vfb, followed by ifb first. due to bad schematic ordering
 
-  float tmp = ar[0];
-  ar[0] = ar[1];
-  ar[1] = tmp;
+  swapf(&ar[0], &ar[1]);
 
 
   return 0;
