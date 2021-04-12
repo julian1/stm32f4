@@ -442,7 +442,7 @@ adc val -9999.
 
 
 // #define SWAP(a, b) do { typeof(a) temp = a; a = b; b = temp; } while (0)
-// #define SWAP(TYPE,x,y)  TYPE a = (x), x=(y), y=(a); 
+// #define SWAP(TYPE,x,y)  TYPE a = (x), x=(y), y=(a);
 
 static void swapf(float *x, float *y)
 {
@@ -458,11 +458,6 @@ uint32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
   UNUSED(n);
   // assert( n >= 2)
 
-  int32_t x = 0;
-  double y;
-
-  // do read...
-
   mux_adc(spi);
   spi_enable(spi);
 
@@ -474,25 +469,18 @@ uint32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
                   // need better error handling here
   }
 
-
   // read values
-  // MIN(n, 1);
+  // /*MIN(n, 1)*/;
   for(unsigned j = 0; j < 2; ++j)
   {
-    x = spi_xfer_24(spi, 0);
+    int32_t x = spi_xfer_24(spi, 0);
     x = sign_extend_24_32(x );
-    // y = ((double )x) / 3451766.f;
-    y = ((double )x) / 3451403.f;
-
-    // (void)y;
-    ar[j] = y;
+    ar[j] = ((double )x) / 3451403.f;
   }
   spi_disable( spi );
 
-  // SWAP ar[0] and ar[1] to return vfb, followed by ifb first. due to bad schematic ordering
-
+  // SWAP ar[0] and ar[1] to return vfb, followed by ifb. due to bad schematic ordering
   swapf(&ar[0], &ar[1]);
-
 
   return 0;
 }
