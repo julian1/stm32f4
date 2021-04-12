@@ -338,6 +338,8 @@ static void soft_500ms_update(void)
         // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 5.0) ); // 0.5A on 1A range.. overheats bjt.
         spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0) ); // 100mA on 1A... hot. because drops 100mA over 15V=1.5W.
 
+        // 100mA*15V=1.5W.   think mje15034g is rated at 2W without heatsink.
+
         // can probably increase current. 12V out. 15-12V=  3V* 2A=6W... no thats even more lot.
         // needs a heatsink.
 
