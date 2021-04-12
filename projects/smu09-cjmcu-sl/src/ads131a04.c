@@ -475,7 +475,8 @@ uint32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
   {
     int32_t x = spi_xfer_24(spi, 0);
     x = sign_extend_24_32(x );
-    ar[j] = ((double )x) / 3451403.f;
+    // ar[j] = ((double )x) / 3451403.f;
+    ar[j] = ((double )x) / 345140.3f;
   }
   spi_disable( spi );
 

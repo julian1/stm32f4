@@ -58,7 +58,7 @@ static void update(void)
 */
 
 
-
+static float multiplier = 0; 
 
 static void current_range_set_1A(uint32_t spi)
 {
@@ -89,6 +89,8 @@ static void current_range_set_100mA(uint32_t spi)
 
   // turn on 2nd current sense amp
   io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE2);
+
+  multiplier = 0.01f; // eg. 10ohm not 1. and x10 gain.
 }
 
 
@@ -401,7 +403,15 @@ static void soft_500ms_update(void)
       float ar[4];
       spi_adc_do_read(spi, ar, 4);
 
-      usart_printf("adc val %f    %f\n", ar[0] / 1.64640 * 10.0,   ar[1] / 1.64640 * 10.0  );
+      // current in amps.
+      // til, we format it better
+      // %f formatter, doesn't pad with zeros properly...
+      // why is the voltage *10?
+      // Force=Potential=3V, etc.
+      usart_printf("adc %fV    %fA\n", 
+        ar[0] / 1.64640 ,   
+        ar[1] / 1.64640 * multiplier 
+      );
 
       // we want to go to another state here... and bring up POWER_UP...
 
