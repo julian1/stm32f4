@@ -102,7 +102,7 @@ static void current_range_set_100mA(uint32_t spi)
   multiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
 
   // turn off gain fb.
-  io_set(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2);
+  // io_set(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2);
 }
 
 
@@ -262,6 +262,10 @@ static void soft_500ms_update(void)
 
       // active lo
       io_set(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE1 | IRANGE_SENSE2 | IRANGE_SENSE3 | IRANGE_SENSE4);
+
+
+      // gain fb. turn off
+      io_set(spi, GAIN_FB_REGISTER, GAIN_FB_VRANGE_OP1 | GAIN_FB_VRANGE_OP2 | GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2);
 
 
       // TODO soft reset would be much better here.
