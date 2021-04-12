@@ -58,39 +58,48 @@ static void update(void)
 */
 
 
-static float multiplier = 0; 
+static float multiplier = 0;
 
 static void current_range_set_1A(uint32_t spi)
 {
+  // 2V on 1A is 200mA
   // set_current_range....
 
   // turn on current relay range X.
   io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
 
-  // turn on 2nd set of b2b fets.
+  // turn on 1st b2b fets.
   io_set(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2);
 
-  // turn on current sense amp
+  // turn on current sense ina 1
   io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE1);
+
+
+  // sense gain = 0.1
+  // ina gain x10.
+  // extra amp gain = x10.
+
+  multiplier = 0.01f;
 }
+
+
 
 static void current_range_set_100mA(uint32_t spi)
 {
-  // change name t_current
   // 2V on 100mA range should be 20mA.
-  // 0.2V across 10ohm. 0.2 / 10 = 0.02A = 20mA.
+  // 0.2V across 10ohm. g=10x, 0.2 / 10 = 0.02A = 20mA.
   // adc multiplier should be 0.1.
 
   // turn on current relay range X.
   io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
 
-  // turn on 2nd set of b2b fets.
+  // turn on 2nd b2b fets.
   io_set(spi, IRANGEX_SW_REGISTER, IRANGEX_SW3 | IRANGEX_SW4);
 
-  // turn on 2nd current sense amp
+  // turn on current sense ina 2
   io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE2);
 
-  multiplier = 0.01f; // eg. 10ohm not 1. and x10 gain.
+  multiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
 }
 
 
@@ -408,9 +417,9 @@ static void soft_500ms_update(void)
       // %f formatter, doesn't pad with zeros properly...
       // why is the voltage *10?
       // Force=Potential=3V, etc.
-      usart_printf("adc %fV    %fA\n", 
-        ar[0] / 1.64640 ,   
-        ar[1] / 1.64640 * multiplier 
+      usart_printf("adc %fV    %fA\n",
+        ar[0] / 1.64640 ,
+        ar[1] / 1.64640 * multiplier
       );
 
       // we want to go to another state here... and bring up POWER_UP...
