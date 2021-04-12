@@ -74,12 +74,13 @@ static void current_range_set_1A(uint32_t spi)
   // turn on current sense ina 1
   io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE1);
 
+  io_clear(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 );
 
   // sense gain = 0.1
   // ina gain x10.
   // extra amp gain = x10.
 
-  multiplier = 0.01f;
+  multiplier = 0.1f;
 }
 
 
@@ -325,8 +326,10 @@ static void soft_500ms_update(void)
         // its easier to think of everything without polarity.   (the polarity just exists because we tap/ com at 0V).
 
         // turn on set voltages 2V and 4V outputs. works.
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4.0) );
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 3.0) ); // 30mA on 100mA..
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4 ) );
+        // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 3.0) ); // 30mA on 100mA..
+        // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0) ); // 100mA on 1A..
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 5.0) ); // 0.5A on 1A range..
 
         /*  none of this works.
             Because, V MON pin output impedance is too low. and needs a buffer. (approximately 2.2kΩ).
@@ -375,7 +378,8 @@ static void soft_500ms_update(void)
 
         //////////////////////////////
         // current ranging/path
-        current_range_set_100mA(spi);
+        // current_range_set_100mA(spi);
+        current_range_set_1A(spi);
 
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
@@ -575,7 +579,7 @@ int main(void)
   led_setup();
 
   // uart/console
-  cBufInit(&console_in, buf1, sizeof(buf1));
+  cBufInit(&console_in,  buf1, sizeof(buf1));
   cBufInit(&console_out, buf2, sizeof(buf2));
 
   usart_setup_gpio_portA();
