@@ -276,9 +276,23 @@ static void soft_500ms_update(void)
         io_clear(spi, CLAMP2_REGISTER, CLAMP2_MIN);             // max.   for source +ve voltage, min for source -ve voltage
     #endif
 
+    #if 0
+
+        // sourcing, charging adc val 1.616501V
         // source +ve current/voltage.
         io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
         io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);
+    #endif
+
+
+        // OK. think its sinking current. 2V over 1k = i=v/r = 2mA. eg. battery discharging.  1.591694V
+        // but I don't think V is set correctly
+        // except I think V set would have to be negative as well to hold.
+        // not sure. set it to 1V and it works. but it goes out of range?
+        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV | CLAMP1_ISET);
+        io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);
+
+
 
 
         //////////////////////////////////
@@ -347,6 +361,7 @@ static void soft_500ms_update(void)
       }
 
       // ... ok.
+      // how to return. pass by reference...
       float val = spi_adc_do_read(spi );
       UNUSED(val);
       usart_printf("adc val %f\n", val / 1.64640 * 10.0 );
