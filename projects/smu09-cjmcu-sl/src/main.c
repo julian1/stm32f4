@@ -349,8 +349,9 @@ static void soft_500ms_update(void)
         mux_io(spi);
         io_set(spi, RAILS_REGISTER, RAILS_LP30V );
         msleep(50);
-
 #endif
+        // 2V on 100mA range should be 20mA.
+        // 0.2V across 10ohm. 0.2 / 10 = 0.02A = 20mA.
 
         // analog and power... change name?
         state = ANALOG_UP;
