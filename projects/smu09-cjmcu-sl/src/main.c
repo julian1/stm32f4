@@ -107,7 +107,7 @@ static void current_range_set_100mA(uint32_t spi)
   // io_set(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2);
 
   // turn on x10 gain
-  io_clear(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 );
+  io_clear(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2);
 }
 
 
