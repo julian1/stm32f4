@@ -197,9 +197,6 @@ static void soft_500ms_update(void)
   // io_write(spi, IRANGE_SENSE_REGISTER, count);
   // io_write(spi, GAIN_FB_REGISTER, count);
 
-
-
-
   // io_toggle(spi, RELAY_COM_REGISTER, RELAY_COM_X);
   // io_toggle(spi, RELAY_REGISTER, RELAY_VRANGE);
   // io_toggle(spi, RELAY_REGISTER, RELAY_OUTCOM);
@@ -252,6 +249,8 @@ static void soft_500ms_update(void)
       // BUT I THINK we should probably hold RAILS_OE high / deasserted.
 
 #if 1
+      // REALLy need to rely on fpga reset, setting this stuff.
+
       // should we have wrapper functions here, can then put comments
       // make sure rails are off
       io_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
