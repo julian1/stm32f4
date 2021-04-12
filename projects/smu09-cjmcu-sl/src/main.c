@@ -59,12 +59,48 @@ static void update(void)
 
 
 
-static void current_range_100mA(void)
-{
-  // eg. 60mA output.  6V ifb,    0.06A output coeff
-  // we do need a coefficient as well the output range. probably to A first. then can adjust as needed.
 
+static void current_range_set_1A(uint32_t spi)
+{
+  // set_current_range....
+
+  // turn on current relay range X.
+  io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
+
+  // turn on 2nd set of b2b fets.
+  io_set(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2);
+
+  // turn on current sense amp
+  io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE1);
 }
+
+static void current_range_set_100mA(uint32_t spi)
+{
+  // change name t_current
+  // 2V on 100mA range should be 20mA.
+  // 0.2V across 10ohm. 0.2 / 10 = 0.02A = 20mA.
+  // adc multiplier should be 0.1.
+
+  // turn on current relay range X.
+  io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
+
+  // turn on 2nd set of b2b fets.
+  io_set(spi, IRANGEX_SW_REGISTER, IRANGEX_SW3 | IRANGEX_SW4);
+
+  // turn on 2nd current sense amp
+  io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE2);
+}
+
+
+static void clamps_set_source_pve(uint32_t spi)
+{
+  // change name first_quadrant
+  // sourcing, charging adc val 1.616501V
+  // source +ve current/voltage.
+  io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
+  io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);
+}
+
 
 
 // ok. ads131. ought to be able to read value - without interrupt.
@@ -285,7 +321,7 @@ static void soft_500ms_update(void)
         io_clear(spi, CLAMP2_REGISTER, CLAMP2_MIN);             // max.   for source +ve voltage, min for source -ve voltage
     #endif
 
-    #if 1
+    #if 0
 
         // sourcing, charging adc val 1.616501V
         // source +ve current/voltage.
@@ -303,6 +339,7 @@ static void soft_500ms_update(void)
         io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);
 #endif
 
+        clamps_set_source_pve(spi);
 
 
         //////////////////////////////////
@@ -310,6 +347,13 @@ static void soft_500ms_update(void)
 
         //////////////////////////////
         // current ranging/path
+
+        current_range_set_100mA(spi);
+
+        // turn on output relay
+        io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
+
+/*
 
         // turn on current relay range X.
         io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
@@ -325,7 +369,7 @@ static void soft_500ms_update(void)
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
 
-
+*/
 
 
         /////////////////
@@ -350,8 +394,6 @@ static void soft_500ms_update(void)
         io_set(spi, RAILS_REGISTER, RAILS_LP30V );
         msleep(50);
 #endif
-        // 2V on 100mA range should be 20mA.
-        // 0.2V across 10ohm. 0.2 / 10 = 0.02A = 20mA.
 
         // analog and power... change name?
         state = ANALOG_UP;
