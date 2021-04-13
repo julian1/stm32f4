@@ -61,12 +61,12 @@ static uint16_t spi_ice40_xfer2( uint32_t spi, uint8_t r, uint8_t v)
 
 void spi_ice40_reg_set( uint32_t spi, uint8_t r, uint8_t v)
 {
-  spi_ice40_xfer2(spi, r, (v & 0xF)); // SHOULD BE & 0xf
+  spi_ice40_xfer2(spi, r, (v & 0xF)); // ie. lo 4 bits
 }
 
 void spi_ice40_reg_clear( uint32_t spi, uint8_t r, uint8_t v)
 {
-  spi_ice40_xfer2(spi, r, v << 4);
+  spi_ice40_xfer2(spi, r, v << 4);    // ie. hi 4 bits
 }
 
 // OK. don't think we need a separate hardware register...
@@ -78,6 +78,7 @@ void spi_ice40_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 }
 
 
+
 void spi_ice40_reg_toggle( uint32_t spi, uint8_t r, uint8_t v)
 {
   uint8_t x = (v << 4) | (v & 0xF );
@@ -85,5 +86,13 @@ void spi_ice40_reg_toggle( uint32_t spi, uint8_t r, uint8_t v)
 }
 
 
+void spi_ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t v)
+{
+  // not tested
+  mask = mask & 0xf;
+
+  uint8_t x = ((~v << 4) & (mask << 4)) | ((v & 0xF ) & mask);
+  spi_ice40_xfer2(spi, r, x );
+}
 
 

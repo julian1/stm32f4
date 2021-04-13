@@ -113,6 +113,9 @@
 // of voltage fb setup.
 // No. split these up, so we don't have to deal with bitmasks, if want to deal selectively. 
 // not. sure there are plenty of other places (relays) where we just set/clear/toggle bits
+// 
+/// combinations of set()/clear()  are substitute for bitmasks.
+// bitmasks can also be done in software.
 #define GAIN_FB_REGISTER    21
 #define GAIN_FB_VRANGE_OP1  (1<<0)
 #define GAIN_FB_VRANGE_OP2  (1<<1)
@@ -160,5 +163,16 @@ extern void io_set( uint32_t spi, uint8_t r, uint8_t v);
 extern void io_clear( uint32_t spi, uint8_t r, uint8_t v);
 extern void io_write( uint32_t spi, uint8_t r, uint8_t v);
 extern void io_toggle( uint32_t spi, uint8_t r, uint8_t v);
+
+// not tested
+extern void io_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t v);
+
+
+/*
+ supports or'ing mask selected values we want to write. eg.
+
+ io_write_mask( spi, reg, GAIN_FB_VRANGE_OP1 | GAIN_FB_VRANGE_OP2, 0);
+ io_write_mask( spi, reg, GAIN_FB_VRANGE_OP1 | GAIN_FB_VRANGE_OP2, GAIN_FB_VRANGE_OP2);
+*/
 
 

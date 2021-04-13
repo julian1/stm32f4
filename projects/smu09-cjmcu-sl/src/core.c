@@ -51,7 +51,7 @@ void mux_adc(uint32_t spi)
 /////////////////////////////
 
 // Not sure if should not just change, the name of the ice40 functions,
-// but this differentiates the abstraction for consumers from underlying method. 
+// but this differentiates the abstraction for consumers from underlying method.
 
 
 
@@ -81,8 +81,9 @@ void io_toggle( uint32_t spi, uint8_t r, uint8_t v)
   spi_ice40_reg_toggle( spi, r, v);
 }
 
-
-
-
+void io_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t v)
+{
+  spi_ice40_reg_write_mask( spi, r, mask, v);
+}
 
 
