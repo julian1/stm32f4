@@ -111,11 +111,13 @@
 // no. we can alias the register name if we really want
 // think we *do* want to split to different registers. so we can write the current in a function independent 
 // of voltage fb setup.
-#define GAIN_FB_REGISTER       21
-#define GAIN_FB_VRANGE_OP1     (1<<0)
-#define GAIN_FB_VRANGE_OP2     (1<<1)
-#define GAIN_FB_IRANGE_OP1     (1<<2)
-#define GAIN_FB_IRANGE_OP2     (1<<3)
+// No. split these up, so we don't have to deal with bitmasks, if want to deal selectively. 
+// not. sure there are plenty of other places (relays) where we just set/clear/toggle bits
+#define GAIN_FB_REGISTER    21
+#define GAIN_FB_VRANGE_OP1  (1<<0)
+#define GAIN_FB_VRANGE_OP2  (1<<1)
+#define GAIN_FB_IRANGE_OP1  (1<<2)
+#define GAIN_FB_IRANGE_OP2  (1<<3)
 
 
 

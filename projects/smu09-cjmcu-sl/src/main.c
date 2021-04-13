@@ -333,10 +333,11 @@ static void soft_500ms_update(void)
         // its easier to think of everything without polarity.   (the polarity just exists because we tap/ com at 0V).
 
         // turn on set voltages 2V and 4V outputs. works.
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4 ) );
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 10 ) );
+        // spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4 ) );
         // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 3.0) ); // 30mA on 100mA..
-        // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 5.0) ); // 0.5A on 1A range.. overheats bjt.
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0) ); // 100mA on 1A... hot. because drops 100mA over 15V=1.5W.
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 10.0) ); // 0.5A on 1A range.. overheats bjt.
+        // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0) ); // 100mA on 1A... hot. because drops 100mA over 15V=1.5W.
 
         // 100mA*15V=1.5W.   think mje15034g is rated at 2W without heatsink.
 
