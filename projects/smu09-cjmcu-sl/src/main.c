@@ -147,6 +147,10 @@ static void clamps_set_source_pve(uint32_t spi)
   and there is no reason cannot have tasks in 500ms soft timer/ separate from main fsm state.
 */
 
+/*
+  we can test the mask write. just on the dg333. without analog power.
+*/
+
 static void soft_500ms_update(void)
 {
   /*
@@ -223,7 +227,8 @@ static void soft_500ms_update(void)
     FIRST,        // INITIAL
     DIGITAL_UP,   // DIGIAL_DIGITAL_UP
     ERROR,
-    ANALOG_UP
+    ANALOG_UP,
+    DONE
   } state_t;
 
   // static
@@ -280,6 +285,21 @@ static void soft_500ms_update(void)
 
       // gain fb. turn off
       io_set(spi, GAIN_FB_REGISTER, GAIN_FB_VRANGE_OP1 | GAIN_FB_VRANGE_OP2 | GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2);
+
+
+#if 1
+      // change name GAIN_IFB_OP1 ... GAIN_VFB_OP2   etcc
+      // eg. clear ifb regs.
+      io_write_mask(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2, GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2);
+
+      // test
+      io_write_mask(spi, GAIN_FB_REGISTER, GAIN_FB_VRANGE_OP1 | GAIN_FB_VRANGE_OP2,  GAIN_FB_VRANGE_OP1 | GAIN_FB_VRANGE_OP2);
+
+      io_write_mask(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2, 0 );
+      state = DONE;
+      return;
+#endif
+
 
 
       // TODO soft reset would be much better here.
@@ -475,24 +495,32 @@ static void soft_500ms_update(void)
       // but need to be able to read res
       // actually should perrhaps go to a power down state? after error
 
-
-
       // TODO improve.
-      // turn off power
       static int first = 0;
       if(!first) {
         first = 1;
-
         usart_printf("entered error state\n" );
         io_clear(spi, RAILS_REGISTER, RAILS_LP15V );
         // do other rails also
         // turn off dac outputs. relays.
       }
-
       // stay in error.
     }
-
     break;
+
+
+    case DONE: {
+      // same as error, but different reporting
+      static int first = 0;
+      if(!first) {
+        first = 1;
+        usart_printf("entered done state\n" );
+        io_clear(spi, RAILS_REGISTER, RAILS_LP15V);
+      }
+    }
+    break;
+
+
 
 
     default:

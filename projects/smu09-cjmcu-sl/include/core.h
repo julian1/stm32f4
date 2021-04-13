@@ -109,11 +109,11 @@
 
 // use separate registers, even though on the same analog switch?
 // no. we can alias the register name if we really want
-// think we *do* want to split to different registers. so we can write the current in a function independent 
+// think we *do* want to split to different registers. so we can write the current in a function independent
 // of voltage fb setup.
-// No. split these up, so we don't have to deal with bitmasks, if want to deal selectively. 
+// No. split these up, so we don't have to deal with bitmasks, if want to deal selectively.
 // not. sure there are plenty of other places (relays) where we just set/clear/toggle bits
-// 
+//
 /// combinations of set()/clear()  are substitute for bitmasks.
 // bitmasks can also be done in software.
 #define GAIN_FB_REGISTER    21
@@ -164,7 +164,6 @@ extern void io_clear( uint32_t spi, uint8_t r, uint8_t v);
 extern void io_write( uint32_t spi, uint8_t r, uint8_t v);
 extern void io_toggle( uint32_t spi, uint8_t r, uint8_t v);
 
-// not tested
 extern void io_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t v);
 
 

@@ -74,7 +74,7 @@ void spi_ice40_reg_clear( uint32_t spi, uint8_t r, uint8_t v)
 void spi_ice40_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 {
   uint8_t x = (~v << 4) | (v & 0xF );
-  spi_ice40_xfer2(spi, r, x );
+  spi_ice40_xfer2(spi, r, x);
 }
 
 
@@ -82,17 +82,16 @@ void spi_ice40_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 void spi_ice40_reg_toggle( uint32_t spi, uint8_t r, uint8_t v)
 {
   uint8_t x = (v << 4) | (v & 0xF );
-  spi_ice40_xfer2(spi, r, x );
+  spi_ice40_xfer2(spi, r, x);
 }
 
 
 void spi_ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t v)
 {
-  // not tested
   mask = mask & 0xf;
 
   uint8_t x = ((~v << 4) & (mask << 4)) | ((v & 0xF ) & mask);
-  spi_ice40_xfer2(spi, r, x );
+  spi_ice40_xfer2(spi, r, x);
 }
 
 
