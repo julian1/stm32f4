@@ -58,7 +58,8 @@ static void update(void)
 */
 
 
-static float multiplier = 0;
+static float imultiplier = 0;
+static float vmultiplier = 0;
 
 static void current_range_set_1A(uint32_t spi)
 {
@@ -79,7 +80,7 @@ static void current_range_set_1A(uint32_t spi)
   // ina gain x10.
   // extra amp gain = x10.
 
-  multiplier = 0.1f;
+  imultiplier = 0.1f;
 }
 
 static void current_range_set_10A(uint32_t spi)
@@ -88,7 +89,7 @@ static void current_range_set_10A(uint32_t spi)
   current_range_set_1A(spi);
   // TODO must use write()
   io_set(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 );
-  multiplier = 1.f;
+  imultiplier = 1.f;
 }
 
 
@@ -97,7 +98,7 @@ static void current_range_set_100mA(uint32_t spi)
 {
   // 2V on 100mA range should be 20mA.
   // 0.2V across 10ohm. g=10x, 0.2 / 10 = 0.02A = 20mA.
-  // adc multiplier should be 0.1.
+  // adc imultiplier should be 0.1.
 
   // TODO, these should all be write... not dependent on previous state/reset.
   // Careful. to do this, the separate gain for Vrange has to be split into another register, to avoid overwriting it.
@@ -111,7 +112,7 @@ static void current_range_set_100mA(uint32_t spi)
   // turn on current sense ina 2
   io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE2);
 
-  multiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
+  imultiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
 
   // turn off gain fb.
   io_set(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2);
@@ -125,6 +126,7 @@ static void voltage_range_set_10V(uint32_t spi)
 {
   io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn off vrange
 
+  vmultiplier = 1.f;
   // also vgain..
 }
 
@@ -133,7 +135,9 @@ static void voltage_range_set_100V(uint32_t spi)
 
   io_set(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn on vrange
 
-  // vmultiplier.
+  // vimultiplier.
+
+  vmultiplier = 10.f;
 }
 
 
@@ -490,8 +494,8 @@ static void soft_500ms_update(void)
       // why is the voltage *10?
       // Force=Potential=3V, etc.
       usart_printf("adc %fV    %fA\n",
-        ar[0] / 1.64640 ,
-        ar[1] / 1.64640 * multiplier
+        ar[0] / 1.64640 * vmultiplier,
+        ar[1] / 1.64640 * imultiplier
       );
 
       // we want to go to another state here... and bring up POWER_UP...
