@@ -121,6 +121,23 @@ static void current_range_set_100mA(uint32_t spi)
 }
 
 
+static void voltage_range_set_10V(uint32_t spi)
+{
+  io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn off vrange
+
+  // also vgain..
+}
+
+static void voltage_range_set_100V(uint32_t spi)
+{
+
+  io_set(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn on vrange
+
+  // vmultiplier.
+}
+
+
+
 static void clamps_set_source_pve(uint32_t spi)
 {
   // change name first_quadrant
@@ -283,8 +300,9 @@ static void soft_500ms_update(void)
       io_set(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE1 | IRANGE_SENSE2 | IRANGE_SENSE3 | IRANGE_SENSE4);
 
 
-      // gain fb. turn off
+      // gain fb. turn off ifb and vfb gain ,active hi
       io_set(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2 | GAIN_IFB_OP1 | GAIN_IFB_OP2);
+      // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2);
 
 
 #if 0
@@ -350,7 +368,7 @@ static void soft_500ms_update(void)
         // its easier to think of everything without polarity.   (the polarity just exists because we tap/ com at 0V).
 
         // turn on set voltages 2V and 4V outputs. works.
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 10 ) );
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.2 ) ); // we cannot output 15V ...
         // spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4 ) );
         // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 3.0) ); // 30mA on 100mA..
         spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 10.0) ); // 0.5A on 1A range.. overheats bjt.
@@ -401,10 +419,12 @@ static void soft_500ms_update(void)
         io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);
 #endif
 
+
+        // io_set(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn on vrange register
+
         clamps_set_source_pve(spi);
 
-
-        //////////////////////////////////
+        voltage_range_set_100V(spi);
 
 
         //////////////////////////////
