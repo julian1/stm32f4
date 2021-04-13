@@ -117,10 +117,10 @@
 /// combinations of set()/clear()  are substitute for bitmasks.
 // bitmasks can also be done in software.
 #define GAIN_FB_REGISTER    21
-#define GAIN_FB_VRANGE_OP1  (1<<0)
-#define GAIN_FB_VRANGE_OP2  (1<<1)
-#define GAIN_FB_IRANGE_OP1  (1<<2)
-#define GAIN_FB_IRANGE_OP2  (1<<3)
+#define GAIN_VFB_OP1  (1<<0)
+#define GAIN_VFB_OP2  (1<<1)
+#define GAIN_IFB_OP1  (1<<2)
+#define GAIN_IFB_OP2  (1<<3)
 
 
 
@@ -170,8 +170,8 @@ extern void io_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t v);
 /*
  supports or'ing mask selected values we want to write. eg.
 
- io_write_mask( spi, reg, GAIN_FB_VRANGE_OP1 | GAIN_FB_VRANGE_OP2, 0);
- io_write_mask( spi, reg, GAIN_FB_VRANGE_OP1 | GAIN_FB_VRANGE_OP2, GAIN_FB_VRANGE_OP2);
+ io_write_mask( spi, reg, GAIN_VFB_OP1 | GAIN_VFB_OP2, 0);
+ io_write_mask( spi, reg, GAIN_VFB_OP1 | GAIN_VFB_OP2, GAIN_VFB_OP2);
 */
 
 

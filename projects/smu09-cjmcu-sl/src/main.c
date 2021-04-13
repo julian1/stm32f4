@@ -73,7 +73,7 @@ static void current_range_set_1A(uint32_t spi)
   // turn on current sense ina 1
   io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE1);
 
-  io_clear(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 );
+  io_clear(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 );
 
   // sense gain = 0.1x  ie. 0.1ohm sense resistor
   // ina gain x10.
@@ -87,7 +87,7 @@ static void current_range_set_10A(uint32_t spi)
   // 10A is the same as 1A, except no 10x gain
   current_range_set_1A(spi);
   // TODO must use write()
-  io_set(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 );
+  io_set(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 );
   multiplier = 1.f;
 }
 
@@ -114,10 +114,10 @@ static void current_range_set_100mA(uint32_t spi)
   multiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
 
   // turn off gain fb.
-  io_set(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2);
+  io_set(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2);
 
   // turn on x10 gain, x100
-  // io_clear(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2);
+  // io_clear(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2);
 }
 
 
@@ -284,18 +284,15 @@ static void soft_500ms_update(void)
 
 
       // gain fb. turn off
-      io_set(spi, GAIN_FB_REGISTER, GAIN_FB_VRANGE_OP1 | GAIN_FB_VRANGE_OP2 | GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2);
+      io_set(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2 | GAIN_IFB_OP1 | GAIN_IFB_OP2);
 
 
-#if 1
+#if 0
       // change name GAIN_IFB_OP1 ... GAIN_VFB_OP2   etcc
       // eg. clear ifb regs.
-      io_write_mask(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2, GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2);
-
-      // test
-      io_write_mask(spi, GAIN_FB_REGISTER, GAIN_FB_VRANGE_OP1 | GAIN_FB_VRANGE_OP2,  GAIN_FB_VRANGE_OP1 | GAIN_FB_VRANGE_OP2);
-
-      io_write_mask(spi, GAIN_FB_REGISTER, GAIN_FB_IRANGE_OP1 | GAIN_FB_IRANGE_OP2, 0 );
+      io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2);
+      io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2,  GAIN_VFB_OP1 | GAIN_VFB_OP2);
+      io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, 0 );
       state = DONE;
       return;
 #endif
