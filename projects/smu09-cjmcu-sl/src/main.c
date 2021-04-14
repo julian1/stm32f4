@@ -372,7 +372,7 @@ static void soft_500ms_update(void)
         // its easier to think of everything without polarity.   (the polarity just exists because we tap/ com at 0V).
 
         // turn on set voltages 2V and 4V outputs. works.
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.2 ) ); // we cannot output 15V ...
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.1 ) ); // // we cannot output 12V with 15V rails ...
         // spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4 ) );
         // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 3.0) ); // 30mA on 100mA..
         spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 10.0) ); // 0.5A on 1A range.. overheats bjt.
@@ -426,13 +426,25 @@ static void soft_500ms_update(void)
 
         // io_set(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn on vrange register
 
+        // should ok for 12V. perhaps we're running into a limit of voltage drops on output
+
+        // so. should try connecting a higher voltage output. or add 7815 regulation. and turn up bench?
+
+        // 100V range (eg. using 221k resisters
+        //  8V output.
+        //                  unloaded  8.0861   disconnected.
+        //                  loaded    8.0859     OK.
+        //   11V output       11.092 loaded  or unloaded. good.
+        // 10V
+        // 8V range
+        //                  unloaded    8.0226  disconnected.
+        //                  loaded      8.0225V  great.
+
         clamps_set_source_pve(spi);
 
-        voltage_range_set_100V(spi);
+        voltage_range_set_100V(spi);        // 1.2 / 10 * 100 = 12V output. good.
+        // voltage_range_set_10V(spi);
 
-
-        //////////////////////////////
-        // current ranging/path
         // current_range_set_100mA(spi);
         current_range_set_1A(spi);
 
