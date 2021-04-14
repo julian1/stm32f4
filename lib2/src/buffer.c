@@ -5,7 +5,7 @@
 
     this avoids a double interupt.
 
-    this doesn't get and put at the same time but ought to be enough. 
+    this doesn't get and put at the same time but ought to be enough.
     also write the value before updating the index.
     so index will not just jump.
 
@@ -98,5 +98,43 @@ int32_t cBufPop(CBuf *a)
   return ret;
 }
 
+
+
+int32_t cBufPeekFirst(CBuf *a)
+{
+  // sentinal value...
+  if(a->ri == a->wi)
+    return -1;
+
+  return (a->p)[a->ri];
+}
+
+int32_t cBufPeekLast(CBuf *a)
+{
+  // sentinal value...
+  if(a->ri == a->wi)
+    return -1;
+
+  // this kind of needs some tests
+  if(a->wi == 0) {
+    return (a->p)[a->sz - 1];
+  }
+  else
+    return (a->p)[a->wi - 1];
+}
+
+
+int32_t cBufCopy(CBuf *a, char *p, size_t n)
+{
+  // not tested...
+  int32_t ch;
+  size_t i = 0;
+  // copy and consume? 
+  while( i < n && (ch = cBufPop(a)) >= 0) {
+
+    p[i++] = ch;
+  }
+  return i;
+}
 
 

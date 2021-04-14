@@ -5,6 +5,7 @@
 // - can plug a thermocouple straight into the sense +p, +n, and
 // then use the slow (digital) integrator/pid loop - as a temperature controler..
 
+
 #include <libopencm3/stm32/rcc.h>
 
 //#include <libopencm3/stm32/gpio.h>
@@ -19,6 +20,7 @@
 #include <stddef.h> // size_t
 //#include <math.h> // nanf
 //#include <stdio.h>
+#include <string.h>   // strcmp
 
 
 #include "buffer.h"
@@ -192,13 +194,6 @@ static state_t state = FIRST;
 
 static void update_soft_500ms(uint32_t spi  /*, state */)
 {
-  // change name update_soft_500ms()
-  /*
-    This is wrong. statemachine - should run in fast inner loop.
-    but easier to test like this.
-    and means don't oversample the ads. we haven't got interrupts yet.
-  */
-
   // static uint32_t count = 0; // -1
   // ++count;    // increment first. because state machine funcs return early.
 
@@ -252,12 +247,12 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
     default: ;
   };
-
-  // we want to go to another state here... and bring up POWER_UP...
-
 }
 
 
+/*
+
+*/
 
 static void update_console_cmd(uint32_t spi, CBuf *console_in )
 {
@@ -266,13 +261,41 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in )
 
   UNUSED(spi);
 
+
+  // hang on... 
+  static char tmp[1000];
+
+  // hmmm character echo is a bit hard.
+  // must be done when receive.
+
+  if(cBufPeekLast(console_in) == '\r') {
+
+    // copy and consume the buffer
+    size_t n = cBufCopy(console_in, tmp, sizeof(tmp));
+    tmp[n - 1] = 0;   // drop tailing line feed
+
+
+    usart_printf("got line feed '%s'   %d\n", tmp, n);
+
+
+    if(strcmp(tmp, "off") == 0) {
+
+      usart_printf("switch off\n");
+
+    }
+
+    // usart_printf("got line feed \n" );
+
+  }
+
+#if 0
   // ok 
   int32_t ch; 
   while( (ch = cBufPop(console_in)) >= 0) {
 
       usart_printf("got char %c \n", ch );
   }
-
+#endif
 
 
 }
@@ -556,6 +579,7 @@ static CBuf console_out;
 
 
 
+
 static void loop(void)
 {
 
@@ -584,7 +608,6 @@ static void loop(void)
 
     // 500ms soft timer
     if( system_millis > soft_500ms) {
-      // soft_500ms = system_millis + 1000;
       soft_500ms = system_millis + 500;
       update_soft_500ms( spi );
     }
