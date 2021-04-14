@@ -426,10 +426,14 @@ static void update(uint32_t spi, CBuf *console_in)
         // turn off power
         io_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
 
+        // turn off output relay
+        io_clear(spi, RELAY_REGISTER, RELAY_OUTCOM);
+
         // go to state error
         state = ERROR;
       }
 
+#if 0
       // ... ok.
       // how to return. pass by reference...
       float ar[4];
@@ -446,7 +450,7 @@ static void update(uint32_t spi, CBuf *console_in)
       );
 
       // we want to go to another state here... and bring up POWER_UP...
-
+#endif
       break;
 /*
       // timeout to turn off...
