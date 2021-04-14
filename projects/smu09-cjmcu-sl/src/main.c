@@ -264,17 +264,14 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in, CBuf* console_out
   // OK. by not processing chars as we receive, we have lost character echo...
 
   int32_t ch;
-  // bool  gotChar = false;   // don't think we need. just test last char...
 
   while( (ch = cBufPop(console_in)) >= 0) {
     // got a character
 
-    // gotChar = true;
-
     // copy to command buffer
     cBufPut(cmd_in, ch);
 
-    // echo to output    
+    // echo to output, handling newlines...
     if(ch == '\r') {
       cBufPut(console_out, '\n');
     }
@@ -284,7 +281,6 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in, CBuf* console_out
 
 
   if(cBufPeekLast(cmd_in) == '\r') {
-
     
     static char tmp[1000];
     size_t n = cBufCopy(cmd_in, tmp, sizeof(tmp));
@@ -292,39 +288,32 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in, CBuf* console_out
 
     usart_printf("got command '%s'   %d\n", tmp, n);
 
-  }
-
-#if 0
-
-  // hang on... 
-  static char tmp[1000];
-
-  // hmmm character echo is a bit hard.
-  // must be done when receive.
-
-  if(cBufPeekLast(console_in) == '\r') {
-
-    // copy and consume the buffer
-    size_t n = cBufCopy(console_in, tmp, sizeof(tmp));
-    tmp[n - 1] = 0;   // drop tailing line feed
-    usart_printf("got line feed '%s'   %d\n", tmp, n);
 
     if(strcmp(tmp, "off") == 0) {
       usart_printf("switch off\n");
+
+      // turn off relayc
+      io_clear(spi, RELAY_REGISTER, RELAY_OUTCOM);
+
+
+      // state = DONE;
     }
-    // usart_printf("got line feed \n" );
 
+
+    if(strcmp(tmp, "on") == 0) {
+      usart_printf("switch on\n");
+
+      io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
+
+      // turn on relay
+
+      //  should keep analog supplies up...
+      // state = DONE;
+    }
+ 
+ 
   }
-#endif
 
-#if 0
-  // ok 
-  int32_t ch; 
-  while( (ch = cBufPop(console_in)) >= 0) {
-
-      usart_printf("got char %c \n", ch );
-  }
-#endif
 
 
 }
@@ -568,11 +557,16 @@ static void update(uint32_t spi)
 
     case DONE: {
       // same as error, but different reporting
+      // NO. should keep analog rails up. 
+      // but turn out relay off
       static int first = 0;
       if(!first) {
         first = 1;
         usart_printf("entered done state\n" );
-        io_clear(spi, RAILS_REGISTER, RAILS_LP15V);
+
+        // turn off output relay
+        io_clear(spi, RELAY_REGISTER, RELAY_OUTCOM);
+
       }
     }
     break;
