@@ -169,8 +169,30 @@ static void clamps_set_source_pve(uint32_t spi)
   we can test the mask write. just on the dg333. without analog power.
 */
 
-static void soft_500ms_update(uint32_t spi)
+
+
+
+
+typedef enum state_t {
+  FIRST,        // INITIAL
+  DIGITAL_UP,   // DIGIAL_DIGITAL_UP
+  ERROR,
+  ANALOG_UP,
+  DONE
+} state_t;
+
+// static
+// should probably be put in state record structure, rather than on the stack?
+// except would need to pass by reference.
+static state_t state = FIRST;
+
+
+
+
+
+static void soft_500ms_update(uint32_t spi  /*, state */)
 {
+  // change name update_soft_500ms()
   /*
     This is wrong. statemachine - should run in fast inner loop.
     but easier to test like this.
@@ -206,11 +228,57 @@ static void soft_500ms_update(uint32_t spi)
   // io_toggle(spi, RELAY_REGISTER, RELAY_SENSE);
 
 
+  switch(state) {
+
+ 
+    case ANALOG_UP: {
+     
+      // ... ok.
+      // how to return. pass by reference...
+      float ar[4];
+      spi_adc_do_read(spi, ar, 4);
+
+      // current in amps.
+      // til, we format it better
+      // %f formatter, doesn't pad with zeros properly...
+      // why is the voltage *10?
+      // Force=Potential=3V, etc.
+      usart_printf("adc %fV    %fA\n",
+        ar[0] / 1.64640 * vmultiplier,
+        ar[1] / 1.64640 * imultiplier
+      );
+      break;
+    }
+
+    default: ;
+  };
+
+  // we want to go to another state here... and bring up POWER_UP...
+
 }
 
 
 
-static void update(uint32_t spi, CBuf *console_in)
+static void update_console_cmd(uint32_t spi, CBuf *console_in )
+{
+  // needs to switch state.
+  // and needs a buffer for local commands...
+
+  UNUSED(spi);
+
+  // ok 
+  int32_t ch; 
+  while( (ch = cBufPop(console_in)) >= 0) {
+
+      usart_printf("got char %c \n", ch );
+  }
+
+
+
+}
+
+
+static void update(uint32_t spi)
 {
   // called as often as possible
 
@@ -225,28 +293,11 @@ static void update(uint32_t spi, CBuf *console_in)
   mux_adc03(spi);
   float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
   float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
-
   // usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
-  int32_t ch; 
-  while( (ch = cBufPop(console_in)) >= 0) {
-
-      usart_printf("got char %c \n", ch );
-  }
 
 
 
-  typedef enum state_t {
-    FIRST,        // INITIAL
-    DIGITAL_UP,   // DIGIAL_DIGITAL_UP
-    ERROR,
-    ANALOG_UP,
-    DONE
-  } state_t;
-
-  // static
-  // should probably be put in state record structure, rather than on the stack?
-  static state_t state = FIRST;
 
 
 
@@ -433,24 +484,6 @@ static void update(uint32_t spi, CBuf *console_in)
         state = ERROR;
       }
 
-#if 0
-      // ... ok.
-      // how to return. pass by reference...
-      float ar[4];
-      spi_adc_do_read(spi, ar, 4);
-
-      // current in amps.
-      // til, we format it better
-      // %f formatter, doesn't pad with zeros properly...
-      // why is the voltage *10?
-      // Force=Potential=3V, etc.
-      usart_printf("adc %fV    %fA\n",
-        ar[0] / 1.64640 * vmultiplier,
-        ar[1] / 1.64640 * imultiplier
-      );
-
-      // we want to go to another state here... and bring up POWER_UP...
-#endif
       break;
 /*
       // timeout to turn off...
@@ -545,7 +578,9 @@ static void loop(void)
     // usart_input_update();
     usart_output_update();
 
-    update(spi, &console_in);
+    update_console_cmd(spi, &console_in);
+
+    update(spi);
 
     // 500ms soft timer
     if( system_millis > soft_500ms) {

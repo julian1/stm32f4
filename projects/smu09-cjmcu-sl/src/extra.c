@@ -1,3 +1,27 @@
+
+
+
+#if 0
+      // ... ok.
+      // how to return. pass by reference...
+      float ar[4];
+      spi_adc_do_read(spi, ar, 4);
+
+      // current in amps.
+      // til, we format it better
+      // %f formatter, doesn't pad with zeros properly...
+      // why is the voltage *10?
+      // Force=Potential=3V, etc.
+      usart_printf("adc %fV    %fA\n",
+        ar[0] / 1.64640 * vmultiplier,
+        ar[1] / 1.64640 * imultiplier
+      );
+
+      // we want to go to another state here... and bring up POWER_UP...
+#endif
+
+
+
 #if 0
   // toggle led2
   if(count % 2 == 0) {
