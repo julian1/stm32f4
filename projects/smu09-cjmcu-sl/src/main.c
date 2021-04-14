@@ -225,9 +225,9 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
   switch(state) {
 
- 
+
     case ANALOG_UP: {
-     
+
       // ... ok.
       // how to return. pass by reference...
       float ar[4];
@@ -281,7 +281,8 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in, CBuf* console_out
 
 
   if(cBufPeekLast(cmd_in) == '\r') {
-    
+
+    // we got a carriage return
     static char tmp[1000];
     size_t n = cBufCopy(cmd_in, tmp, sizeof(tmp));
     tmp[n - 1] = 0;   // drop tailing line feed
@@ -313,7 +314,7 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in, CBuf* console_out
 
     // need to be able to turn on/off adc reporting. and perhaps speed.
     // actually an entire state tree...
- 
+
   }
 
 
@@ -561,13 +562,13 @@ static void update(uint32_t spi)
 
     case DONE: {
       // same as error, but different reporting
-      // NO. should keep analog rails up. 
+      // NO. should keep analog rails up.
       // but turn out relay off
       static int first = 0;
       if(!first) {
         first = 1;
         usart_printf("entered done state\n" );
- 
+
         // turn off output relay
         io_clear(spi, RELAY_REGISTER, RELAY_OUTCOM);
         // turn off all power
