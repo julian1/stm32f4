@@ -190,7 +190,7 @@ static state_t state = FIRST;
 
 
 
-static void soft_500ms_update(uint32_t spi  /*, state */)
+static void update_soft_500ms(uint32_t spi  /*, state */)
 {
   // change name update_soft_500ms()
   /*
@@ -586,7 +586,7 @@ static void loop(void)
     if( system_millis > soft_500ms) {
       // soft_500ms = system_millis + 1000;
       soft_500ms = system_millis + 500;
-      soft_500ms_update( spi );
+      update_soft_500ms( spi );
     }
 
 
