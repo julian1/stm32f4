@@ -261,6 +261,7 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in )
 
   UNUSED(spi);
 
+  // OK. by not processing chars as we receive, we have lost character echo...
 
   // hang on... 
   static char tmp[1000];

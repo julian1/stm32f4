@@ -126,12 +126,12 @@ int32_t cBufPeekLast(CBuf *a)
 
 int32_t cBufCopy(CBuf *a, char *p, size_t n)
 {
+  // copy and consume? 
+
   // not tested...
   int32_t ch;
   size_t i = 0;
-  // copy and consume? 
   while( i < n && (ch = cBufPop(a)) >= 0) {
-
     p[i++] = ch;
   }
   return i;
