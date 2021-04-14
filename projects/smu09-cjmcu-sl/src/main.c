@@ -289,28 +289,30 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in, CBuf* console_out
     usart_printf("got command '%s'   %d\n", tmp, n);
 
 
+    if(strcmp(tmp, "done") == 0) {
+      // go to state done
+      usart_printf("switch off\n");
+      state = DONE;
+      return;
+    }
+
+
     if(strcmp(tmp, "off") == 0) {
       usart_printf("switch off\n");
 
       // turn off relayc
       io_clear(spi, RELAY_REGISTER, RELAY_OUTCOM);
-
-
-      // state = DONE;
+      return;
     }
-
 
     if(strcmp(tmp, "on") == 0) {
       usart_printf("switch on\n");
-
       io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
-
-      // turn on relay
-
-      //  should keep analog supplies up...
-      // state = DONE;
+      return;
     }
- 
+
+    // need to be able to turn on/off adc reporting. and perhaps speed.
+    // actually an entire state tree...
  
   }
 
