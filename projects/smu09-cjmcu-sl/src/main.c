@@ -254,7 +254,7 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
 */
 
-static void update_console_cmd(uint32_t spi, CBuf *console_in )
+static void update_console_cmd(uint32_t spi, CBuf *console_in, CBuf* console_out, CBuf *cmd_in )
 {
   // needs to switch state.
   // and needs a buffer for local commands...
@@ -262,6 +262,39 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in )
   UNUSED(spi);
 
   // OK. by not processing chars as we receive, we have lost character echo...
+
+  int32_t ch;
+  // bool  gotChar = false;   // don't think we need. just test last char...
+
+  while( (ch = cBufPop(console_in)) >= 0) {
+    // got a character
+
+    // gotChar = true;
+
+    // copy to command buffer
+    cBufPut(cmd_in, ch);
+
+    // echo to output    
+    if(ch == '\r') {
+      cBufPut(console_out, '\n');
+    }
+
+    cBufPut(console_out, ch);
+  }
+
+
+  if(cBufPeekLast(cmd_in) == '\r') {
+
+    
+    static char tmp[1000];
+    size_t n = cBufCopy(cmd_in, tmp, sizeof(tmp));
+    tmp[n - 1] = 0;   // drop tailing line feed
+
+    usart_printf("got command '%s'   %d\n", tmp, n);
+
+  }
+
+#if 0
 
   // hang on... 
   static char tmp[1000];
@@ -274,20 +307,15 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in )
     // copy and consume the buffer
     size_t n = cBufCopy(console_in, tmp, sizeof(tmp));
     tmp[n - 1] = 0;   // drop tailing line feed
-
-
     usart_printf("got line feed '%s'   %d\n", tmp, n);
 
-
     if(strcmp(tmp, "off") == 0) {
-
       usart_printf("switch off\n");
-
     }
-
     // usart_printf("got line feed \n" );
 
   }
+#endif
 
 #if 0
   // ok 
@@ -579,6 +607,8 @@ static CBuf console_out;
 
 
 
+static char buf3[1000];
+static CBuf cmd_in;
 
 
 static void loop(void)
@@ -603,7 +633,8 @@ static void loop(void)
     // usart_input_update();
     usart_output_update();
 
-    update_console_cmd(spi, &console_in);
+    // update_console_cmd(spi, &console_in);
+    update_console_cmd(spi, &console_in, &console_out, &cmd_in);
 
     update(spi);
 
@@ -661,6 +692,10 @@ int main(void)
   // uart/console
   cBufInit(&console_in,  buf1, sizeof(buf1));
   cBufInit(&console_out, buf2, sizeof(buf2));
+
+
+  cBufInit(&cmd_in, buf3, sizeof(buf3));
+
 
   usart_setup_gpio_portA();
   usart_setup(&console_in, &console_out);
