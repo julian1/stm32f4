@@ -42,6 +42,14 @@
 
 
 
+static char buf1[1000];
+static char buf2[1000];
+
+static CBuf console_in;
+static CBuf console_out;
+
+
+
 static void update(void)
 {
 
@@ -242,6 +250,12 @@ static void soft_500ms_update(void)
 
   // usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
+  int32_t ch; 
+  while( (ch = cBufPop(&console_in)) >= 0) {
+
+      usart_printf("got char %c \n", ch );
+  }
+
 
 
   typedef enum state_t {
@@ -372,7 +386,7 @@ static void soft_500ms_update(void)
         // its easier to think of everything without polarity.   (the polarity just exists because we tap/ com at 0V).
 
         // turn on set voltages 2V and 4V outputs. works.
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.1 ) ); // // we cannot output 12V with 15V rails ...
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 10 ) ); // // we cannot output 12V with 15V rails ...
         // spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4 ) );
         // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 3.0) ); // 30mA on 100mA..
         spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 10.0) ); // 0.5A on 1A range.. overheats bjt.
@@ -406,7 +420,6 @@ static void soft_500ms_update(void)
     #endif
 
     #if 0
-
         // sourcing, charging adc val 1.616501V
         // source +ve current/voltage.
         io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
@@ -440,10 +453,15 @@ static void soft_500ms_update(void)
         //                  unloaded    8.0226  disconnected.
         //                  loaded      8.0225V  great.
 
+        // issue - set and measuring 11V.    but meter reads 10V? 
+
+
+
+
         clamps_set_source_pve(spi);
 
-        voltage_range_set_100V(spi);        // 1.2 / 10 * 100 = 12V output. good.
-        // voltage_range_set_10V(spi);
+        // voltage_range_set_100V(spi);        // 1.2 / 10 * 100 = 12V output. good.
+        voltage_range_set_10V(spi);
 
         // current_range_set_100mA(spi);
         current_range_set_1A(spi);
@@ -588,7 +606,7 @@ static void loop(void)
     // but better just to flush() cocnsole queues.conin/out
 
 
-    usart_input_update();
+    // usart_input_update();
     usart_output_update();
 
 
@@ -614,14 +632,6 @@ typedef struct App
 
 } App;
 */
-
-
-static char buf1[1000];
-static char buf2[1000];
-
-static CBuf console_in;
-static CBuf console_out;
-
 
 
 

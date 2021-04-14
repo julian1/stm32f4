@@ -159,7 +159,10 @@ void usart_sync_flush()
 }
 
 
+#if 0
 
+// this consumes the input queue, which means other code cannot process it...
+// don't think we want.
 
 void usart_input_update()
 {
@@ -182,7 +185,7 @@ void usart_input_update()
     cBufPut(output_buf, ch);
   }
 }
-
+#endif
 
 
 
