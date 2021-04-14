@@ -1,3 +1,76 @@
+#if 0
+  // toggle led2
+  if(count % 2 == 0) {
+    io_set(spi, LED_REGISTER, LED2);
+    // io_set(spi, ADC_REGISTER, ADC_RST);
+  }
+  else {
+    io_clear(spi, LED_REGISTER, LED2);
+    // io_clear(spi, ADC_REGISTER, ADC_RST);
+  }
+#endif
+
+        // 100mA*15V=1.5W.   think mje15034g is rated at 2W without heatsink.
+
+        // can probably increase current. 12V out. 15-12V=  3V* 2A=6W... no thats even more lot.
+        // needs a heatsink.
+
+
+        /*  none of this works.
+            Because, V MON pin output impedance is too low. and needs a buffer. (approximately 2.2kΩ).
+        */
+        // spi_dac_write_register(spi, DAC_MON_REGISTER, 0 );
+        // spi_dac_write_register(spi, DAC_MON_REGISTER, 0 DAC_MON_MDAC0  );
+        // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_AIN );
+        // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC0  );
+        // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC1  );
+
+
+
+    #if 0
+        // source -ve current/voltage.
+        // should be write(  ~CLAMP1_VSET | CLAMP1_ISET) etc.
+        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET | CLAMP1_ISET);    // inv for +ve voltage, non invert for negative
+        io_clear(spi, CLAMP2_REGISTER, CLAMP2_MIN);             // max.   for source +ve voltage, min for source -ve voltage
+    #endif
+
+    #if 0
+        // sourcing, charging adc val 1.616501V
+        // source +ve current/voltage.
+        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
+        io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);
+    #endif
+
+
+#if 0
+        // OK. think its sinking current. 2V over 1k = i=v/r = 2mA. eg. battery discharging.  1.591694V
+        // but I don't think V is set correctly
+        // except I think V set would have to be negative as well to hold.
+        // not sure. set it to 1V and it works. but it goes out of range?
+        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV | CLAMP1_ISET);
+        io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);
+#endif
+
+
+        // io_set(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn on vrange register
+
+        // should ok for 12V. perhaps we're running into a limit of voltage drops on output
+
+        // so. should try connecting a higher voltage output. or add 7815 regulation. and turn up bench?
+
+        // 100V range (eg. using 221k resisters
+        //  8V output.
+        //                  unloaded  8.0861   disconnected.
+        //                  loaded    8.0859     OK.
+        //   11V output       11.092 loaded  or unloaded. good.
+        // 10V
+        // 8V range
+        //                  unloaded    8.0226  disconnected.
+        //                  loaded      8.0225V  great.
+
+        // issue - set and measuring 11V.    but meter reads 10V? 
+
+
 
         // new approach where fb is always active/routed through.
         // 3V sig-gen. vset=4V, Iset=2V.

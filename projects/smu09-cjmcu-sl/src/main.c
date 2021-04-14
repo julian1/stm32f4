@@ -42,18 +42,7 @@
 
 
 
-static char buf1[1000];
-static char buf2[1000];
 
-static CBuf console_in;
-static CBuf console_out;
-
-
-
-static void update(void)
-{
-
-}
 
 /*
   AHHH. is clever
@@ -180,7 +169,7 @@ static void clamps_set_source_pve(uint32_t spi)
   we can test the mask write. just on the dg333. without analog power.
 */
 
-static void soft_500ms_update(void)
+static void soft_500ms_update(uint32_t spi)
 {
   /*
     This is wrong. statemachine - should run in fast inner loop.
@@ -188,17 +177,12 @@ static void soft_500ms_update(void)
     and means don't oversample the ads. we haven't got interrupts yet.
   */
 
+  // static uint32_t count = 0; // -1
+  // ++count;    // increment first. because state machine funcs return early.
+
+
   // blink mcu led
   led_toggle();
-
-  ////////
-  // put this in spi1.h.  i think....
-  uint32_t spi = SPI_ICE40;
-
-
-  static uint32_t count = 0; // -1
-  ++count;    // increment first. because state machine funcs return early.
-
 
   mux_io(spi);
 
@@ -207,22 +191,8 @@ static void soft_500ms_update(void)
   io_clear(spi, LED_REGISTER, LED1);
 
 
-
-#if 0
-  // toggle led2
-  if(count % 2 == 0) {
-    io_set(spi, LED_REGISTER, LED2);
-    // io_set(spi, ADC_REGISTER, ADC_RST);
-  }
-  else {
-    io_clear(spi, LED_REGISTER, LED2);
-    // io_clear(spi, ADC_REGISTER, ADC_RST);
-  }
-#endif
-
   io_toggle(spi, LED_REGISTER, LED2);
-
-  // tests
+ // tests
   // io_write(spi, CLAMP1_REGISTER, count);  // works
   // io_write(spi, CLAMP2_REGISTER, count);  // works
   // io_write(spi, RELAY_COM_REGISTER, count);
@@ -236,8 +206,16 @@ static void soft_500ms_update(void)
   // io_toggle(spi, RELAY_REGISTER, RELAY_SENSE);
 
 
+}
 
 
+
+static void update(uint32_t spi, CBuf *console_in)
+{
+  // called as often as possible
+
+
+  // mux_io(spi);
   /*
     querying adc03 via spi, is slow (eg. we also clock spi slower to match read speed) .
     so it should only be done in soft timer eg. 10ms is probably enough.
@@ -251,7 +229,7 @@ static void soft_500ms_update(void)
   // usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
   int32_t ch; 
-  while( (ch = cBufPop(&console_in)) >= 0) {
+  while( (ch = cBufPop(console_in)) >= 0) {
 
       usart_printf("got char %c \n", ch );
   }
@@ -392,70 +370,9 @@ static void soft_500ms_update(void)
         spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 10.0) ); // 0.5A on 1A range.. overheats bjt.
         // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0) ); // 100mA on 1A... hot. because drops 100mA over 15V=1.5W.
 
-        // 100mA*15V=1.5W.   think mje15034g is rated at 2W without heatsink.
-
-        // can probably increase current. 12V out. 15-12V=  3V* 2A=6W... no thats even more lot.
-        // needs a heatsink.
-
-
-        /*  none of this works.
-            Because, V MON pin output impedance is too low. and needs a buffer. (approximately 2.2kΩ).
-        */
-        // spi_dac_write_register(spi, DAC_MON_REGISTER, 0 );
-        // spi_dac_write_register(spi, DAC_MON_REGISTER, 0 DAC_MON_MDAC0  );
-        // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_AIN );
-        // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC0  );
-        // spi_dac_write_register(spi, DAC_MON_REGISTER, DAC_MON_MDAC1  );
-
-
         //////////////////////////////////
         // set up clamps
         mux_io(spi);
-
-    #if 0
-        // source -ve current/voltage.
-        // should be write(  ~CLAMP1_VSET | CLAMP1_ISET) etc.
-        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET | CLAMP1_ISET);    // inv for +ve voltage, non invert for negative
-        io_clear(spi, CLAMP2_REGISTER, CLAMP2_MIN);             // max.   for source +ve voltage, min for source -ve voltage
-    #endif
-
-    #if 0
-        // sourcing, charging adc val 1.616501V
-        // source +ve current/voltage.
-        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
-        io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);
-    #endif
-
-
-#if 0
-        // OK. think its sinking current. 2V over 1k = i=v/r = 2mA. eg. battery discharging.  1.591694V
-        // but I don't think V is set correctly
-        // except I think V set would have to be negative as well to hold.
-        // not sure. set it to 1V and it works. but it goes out of range?
-        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV | CLAMP1_ISET);
-        io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);
-#endif
-
-
-        // io_set(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn on vrange register
-
-        // should ok for 12V. perhaps we're running into a limit of voltage drops on output
-
-        // so. should try connecting a higher voltage output. or add 7815 regulation. and turn up bench?
-
-        // 100V range (eg. using 221k resisters
-        //  8V output.
-        //                  unloaded  8.0861   disconnected.
-        //                  loaded    8.0859     OK.
-        //   11V output       11.092 loaded  or unloaded. good.
-        // 10V
-        // 8V range
-        //                  unloaded    8.0226  disconnected.
-        //                  loaded      8.0225V  great.
-
-        // issue - set and measuring 11V.    but meter reads 10V? 
-
-
 
 
         clamps_set_source_pve(spi);
@@ -592,11 +509,26 @@ static void soft_500ms_update(void)
 
 
 
+// should pass the console to routines that need it...
+static char buf1[1000];
+static char buf2[1000];
+
+static CBuf console_in;
+static CBuf console_out;
+
+
+
 
 static void loop(void)
 {
 
   static uint32_t soft_500ms = 0;
+
+  ////////
+  // put this in spi1.h.  i think....
+  uint32_t spi = SPI_ICE40;
+
+
 
   while(true) {
 
@@ -609,16 +541,16 @@ static void loop(void)
     // usart_input_update();
     usart_output_update();
 
+    update(spi, &console_in);
 
     // 500ms soft timer
     if( system_millis > soft_500ms) {
       // soft_500ms = system_millis + 1000;
       soft_500ms = system_millis + 500;
-      soft_500ms_update();
+      soft_500ms_update( spi );
     }
 
 
-    update();
   }
 }
 
