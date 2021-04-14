@@ -565,9 +565,13 @@ static void update(uint32_t spi)
       if(!first) {
         first = 1;
         usart_printf("entered done state\n" );
-
+ 
         // turn off output relay
         io_clear(spi, RELAY_REGISTER, RELAY_OUTCOM);
+ 
+        // turn off all power
+        io_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
+
 
       }
     }
