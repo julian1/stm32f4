@@ -46,6 +46,16 @@ void mux_adc(uint32_t spi)
   spi_adc_setup(spi);
 }
 
+// is this even needed
+// sp
+
+#define UNUSED(x) (void)(x)
+
+void mux_io(uint32_t spi)
+{
+  // UNUSED(spi);
+  mux_fpga(spi);
+}
 
 
 /////////////////////////////
@@ -54,11 +64,7 @@ void mux_adc(uint32_t spi)
 // but this differentiates the abstraction for consumers from underlying method.
 
 
-
-void mux_io(uint32_t spi)
-{
-  mux_fpga(spi);
-}
+////////////////////////////////
 
 void io_set( uint32_t spi, uint8_t r, uint8_t v)
 {

@@ -508,11 +508,11 @@ static void update(uint32_t spi)
         // turn on set voltages 2V and 4V outputs. works.
 
 /*
-  OK. mux_io() and mux_dac() can work simultaneously.
+  OK. can talk to fpga for io, or peripheral, without having to intersperse calls to mux_io() and mux_dac() 
     eg. 
     special is asserted for io.
     it's only when we switch peripheral that we have to change. i think
-        
+    this is very good.
 */
         //////////////////////////////////
         // set up clamps
@@ -524,7 +524,7 @@ static void update(uint32_t spi)
 
         // voltage
         // mux_dac(spi);
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.0f ) );
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.2f ) );
         // mux_io(spi);
         voltage_range_set_100V(spi);     // ie. 1.2  = 12V, 1.5=15V etc
         // voltage_range_set_10V(spi);      // ie 1.2 = 1.2V
@@ -532,7 +532,7 @@ static void update(uint32_t spi)
 
         // current
         // mux_dac(spi);
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 0.5f ) );
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0f ) );
         // mux_io(spi);
         current_range_set_10A(spi);         // ie 1=1A, 0.5=0.5A, 0.1=0.1V
         // current_range_set_1A(spi);       // ie. 1=0.1A,10=1A
