@@ -120,7 +120,7 @@ static void current_range_set_100mA(uint32_t spi)
   // io_clear(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2);
 }
 
-
+#if 0
 static void voltage_range_set_10V(uint32_t spi)
 {
   io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn off vrange
@@ -128,17 +128,22 @@ static void voltage_range_set_10V(uint32_t spi)
   vmultiplier = 1.f;
   // also vgain..
 }
+#endif
 
+#if 1
 static void voltage_range_set_100V(uint32_t spi)
 {
+  // using ina 143. with 1:10 divide by default
 
-  io_set(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn on vrange
+  // io_set(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn on vrange
+  io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn on vrange
 
   // vimultiplier.
 
-  vmultiplier = 10.f;
+  // vmultiplier = 10.f;
+  vmultiplier = 1.f;
 }
-
+#endif
 
 
 static void clamps_set_source_pve(uint32_t spi)
@@ -424,6 +429,7 @@ static void update(uint32_t spi)
         return;
       }
 
+      // progress to digital up?
       usart_printf("digital init ok\n" );
       state = DIGITAL_UP;
       break;
@@ -459,7 +465,7 @@ static void update(uint32_t spi)
         // its easier to think of everything without polarity.   (the polarity just exists because we tap/ com at 0V).
 
         // turn on set voltages 2V and 4V outputs. works.
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 10 ) ); // // we cannot output 12V with 15V rails ...
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.2 ) ); // // we cannot output 12V with 15V rails ...
         // spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4 ) );
         // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 3.0) ); // 30mA on 100mA..
         spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 10.0) ); // 0.5A on 1A range.. overheats bjt.
@@ -472,8 +478,15 @@ static void update(uint32_t spi)
 
         clamps_set_source_pve(spi);
 
-        // voltage_range_set_100V(spi);        // 1.2 / 10 * 100 = 12V output. good.
-        voltage_range_set_10V(spi);
+        voltage_range_set_100V(spi);        // 1.2 / 10 * 100 = 12V output. good.
+                                            // vset=1.000V, vfb=1.000V. but output = 9.001V?.
+                                            // ina is outputting 1.000V. 
+                                            // pin3=in+=1.850V   pin2=in-=0.846.    pin6=1.000V
+                                            // so there's something wrong with the divider?
+                                            // the ina diff amp - is extracting the difference correctly. 
+                                            // but inputs to divider are wrong.
+
+        // voltage_range_set_10V(spi);     // measuring 9.904. which may be calibration. on 10V range.
 
         // current_range_set_100mA(spi);
         current_range_set_1A(spi);
