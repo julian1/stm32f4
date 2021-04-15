@@ -107,15 +107,7 @@
 #define IRANGE_SENSE4 (1<<3)  // unused
 
 
-// use separate registers, even though on the same analog switch?
-// no. we can alias the register name if we really want
-// think we *do* want to split to different registers. so we can write the current in a function independent
-// of voltage fb setup.
-// No. split these up, so we don't have to deal with bitmasks, if want to deal selectively.
-// not. sure there are plenty of other places (relays) where we just set/clear/toggle bits
-//
-/// combinations of set()/clear()  are substitute for bitmasks.
-// bitmasks can also be done in software.
+// use bitmask write, to write these in individual combination
 #define GAIN_FB_REGISTER    21
 #define GAIN_VFB_OP1  (1<<0)
 #define GAIN_VFB_OP2  (1<<1)
@@ -124,6 +116,12 @@
 
 
 
+// better name?
+#define IRANGEX_SW58_REGISTER    22
+#define IRANGEX_SW5         (1<<0)
+#define IRANGEX_SW6         (1<<1)
+#define IRANGEX_SW7         (1<<2)
+#define IRANGEX_SW8         (1<<3)
 
 
 
