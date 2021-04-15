@@ -67,6 +67,7 @@ static void current_range_set_1A(uint32_t spi)
   // ina gain x10.
   // extra amp gain = x10.
 
+  // write() writes all the bits.
 
   // turn on current relay range X.
   io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
@@ -78,7 +79,8 @@ static void current_range_set_1A(uint32_t spi)
   io_write(spi, IRANGE_SENSE_REGISTER, ~IRANGE_SENSE1);
 
   // turn on fb gain op1, x10. active lo
-  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, ~GAIN_IFB_OP1 );
+  // hi == off
+  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1  );
 
 
   imultiplier = 0.1f;
@@ -89,11 +91,10 @@ static void current_range_set_10A(uint32_t spi)
   // 10A is the same as 1A, except no 10x gain
   current_range_set_1A(spi);
 
-  // eg. one stage
 
-  // think this is correct for 10A. but wrong for 1A
-  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, ~GAIN_IFB_OP1 );
+  // turn off both gain stages... using 10x gain from ina, on 0.1R only. 
   io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, 0x7f ); // high == off
+  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2 ); // high == off
 
   imultiplier = 1.0f;
 }
@@ -485,8 +486,6 @@ static void update(uint32_t spi)
         // its easier to think of everything without polarity.   (the polarity just exists because we tap/ com at 0V).
 
         // turn on set voltages 2V and 4V outputs. works.
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.5 ) ); // 1.5=15V on 100V range 
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0 ) ); // 1.0= 10A range, 0.5=0.5A on 10 range
                                                                               
 
         //////////////////////////////////
@@ -496,19 +495,16 @@ static void update(uint32_t spi)
 
         clamps_set_source_pve(spi);
 
-        voltage_range_set_100V(spi);        // 1.2 / 10 * 100 = 12V output. good.
-                                            // vset=1.000V, vfb=1.000V. but output = 9.001V?.
-                                            // ina is outputting 1.000V. 
-                                            // pin3=in+=1.850V   pin2=in-=0.846.    pin6=1.000V
-                                            // so there's something wrong with the divider?
-                                            // the ina diff amp - is extracting the difference correctly. 
-                                            // but inputs to divider are wrong.
 
-        // voltage_range_set_10V(spi);     // measuring 9.904. which may be calibration. on 10V range.
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.5 ) ); 
+        voltage_range_set_100V(spi);        // ie. 1.2 * 100 = 12V, 1.5=15V etc 
+        // voltage_range_set_10V(spi);     
 
+
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 0.5 ) ); 
         // current_range_set_100mA(spi);
-        // current_range_set_1A(spi);
-        current_range_set_10A(spi);
+        // current_range_set_1A(spi);      // ie. 1=0.1A,10=1A
+        current_range_set_10A(spi);        // ie 1=1A, 0.5=0.5A
 
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
