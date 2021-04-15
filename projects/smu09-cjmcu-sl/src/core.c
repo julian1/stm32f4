@@ -10,12 +10,13 @@
 // one bit
 // put all these
 
+#if 0
 void mux_fpga(uint32_t spi)
 {
   spi_ice40_setup(spi);
   // spi uses the special flag to communicate
 }
-
+#endif
 
 void mux_adc03(uint32_t spi)
 {
@@ -53,8 +54,8 @@ void mux_adc(uint32_t spi)
 
 void mux_io(uint32_t spi)
 {
-  // UNUSED(spi);
-  mux_fpga(spi);
+  UNUSED(spi);
+  // mux_fpga(spi);
 }
 
 
