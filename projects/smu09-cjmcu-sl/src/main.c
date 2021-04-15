@@ -482,7 +482,7 @@ static void update(uint32_t spi)
         // its easier to think of everything without polarity.   (the polarity just exists because we tap/ com at 0V).
 
         // turn on set voltages 2V and 4V outputs. works.
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 10 ) ); // // we cannot output 12V with 15V rails ...
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.2 ) ); // // we cannot output 12V with 15V rails ...
         // spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4 ) );
         // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 3.0) ); // 30mA on 100mA..
         // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0) ); // 0.5A on 1A range.. overheats bjt.
