@@ -523,9 +523,9 @@ static void update(uint32_t spi)
 
         // current
         spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.f ) );
-        // current_range_set_100mA(spi);    // 10=100mA. 1=10mA
-        // current_range_set_1A(spi);       // ie. 1=0.1A,10=1A
         current_range_set_10A(spi);         // ie 1=1A, 0.5=0.5A, 0.1=0.1V
+        // current_range_set_1A(spi);       // ie. 1=0.1A,10=1A
+        // current_range_set_100mA(spi);    // 10=100mA. 1=10mA
 
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
