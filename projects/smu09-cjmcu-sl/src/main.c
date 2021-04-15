@@ -270,8 +270,8 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
   // test
 
-  usart_printf("count %d\n", count);
-  io_write(spi, IRANGEX_SW58_REGISTER, count);
+  // usart_printf("count %d\n", count);
+  // io_write(spi, IRANGEX_SW58_REGISTER, count);
 
   // io_toggle(spi, RELAY_COM_REGISTER, RELAY_COM_X);
   // io_toggle(spi, RELAY_REGISTER, RELAY_VRANGE);
@@ -358,12 +358,14 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in, CBuf* console_out
       usart_printf("switch off\n");
 
       // turn off relayc
+      mux_io(spi);
       io_clear(spi, RELAY_REGISTER, RELAY_OUTCOM);
       return;
     }
 
     if(strcmp(tmp, "on") == 0) {
       usart_printf("switch on\n");
+      mux_io(spi);
       io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
       return;
     }
