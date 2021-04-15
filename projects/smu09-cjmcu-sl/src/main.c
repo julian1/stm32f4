@@ -125,52 +125,13 @@ static void current_range_set_100mA(uint32_t spi)
   io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2 ); // high == off
 
   imultiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
-
-/*
-
-  // turn off gain fb.
-  io_set(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2);
-
-  // turn on x10 gain, x100
-  // io_clear(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2);
-*/
 }
+
+
+
 
 ////////////////////////////
 
-
-static void voltage_range_set_1V(uint32_t spi)
-{
-  // now using ina 143. with 1:10 divide by default
-
-  io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // no longer used. must be off.
-
-  // hi == off
-  // turn on OP1 and OP2
-  // this isn't working?????
-  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, 0 ); // good
-  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, ~(GAIN_VFB_OP1 | GAIN_VFB_OP2) ); // good.
-
-  // this doesn't work, because flipping all bits
-  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, ~GAIN_VFB_OP1 | ~GAIN_VFB_OP2 );    
-
-  vmultiplier = 0.1f;
-}
-
-
-
-static void voltage_range_set_10V(uint32_t spi)
-{
-  // now using ina 143. with 1:10 divide by default
-
-  io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // no longer used. must be off.
-
-  // hi == off
-  // turn on OP1
-  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, ~GAIN_VFB_OP1 | GAIN_VFB_OP2);
-
-  vmultiplier = 1.f;
-}
 
 
 static void voltage_range_set_100V(uint32_t spi)
@@ -187,6 +148,37 @@ static void voltage_range_set_100V(uint32_t spi)
   vmultiplier = 10.f;
 }
 
+
+static void voltage_range_set_10V(uint32_t spi)
+{
+  // now using ina 143. with 1:10 divide by default
+
+  io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // no longer used. must be off.
+
+  // hi == off
+  // turn on OP1
+  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, ~GAIN_VFB_OP1 | GAIN_VFB_OP2); // think this can be expressed better
+
+  vmultiplier = 1.f;
+}
+
+
+static void voltage_range_set_1V(uint32_t spi)
+{
+  // now using ina 143. with 1:10 divide by default
+
+  io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // no longer used. must be off.
+
+  // hi == off
+  // turn on OP1 and OP2
+  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, 0 ); // good
+  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, ~(GAIN_VFB_OP1 | GAIN_VFB_OP2) ); // good.
+
+  // this doesn't work, because flipping all bits
+  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, ~GAIN_VFB_OP1 | ~GAIN_VFB_OP2 );
+
+  vmultiplier = 0.1f;
+}
 
 
 
@@ -524,10 +516,10 @@ static void update(uint32_t spi)
         clamps_set_source_pve(spi);
 
         // voltage
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.2 ) );
-        // voltage_range_set_100V(spi);     // ie. 1.2  = 12V, 1.5=15V etc
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.0 ) );
+        voltage_range_set_100V(spi);     // ie. 1.2  = 12V, 1.5=15V etc
         // voltage_range_set_10V(spi);      // ie 1.2 = 1.2V
-        voltage_range_set_1V(spi);          // ie 1.2 = 0.12V
+        // voltage_range_set_1V(spi);          // ie 1.2 = 0.12V
 
         // current
         spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.f ) );
