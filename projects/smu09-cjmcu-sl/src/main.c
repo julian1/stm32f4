@@ -93,7 +93,7 @@ static void current_range_set_10A(uint32_t spi)
   current_range_set_1A(spi);
 
 
-  // turn off both gain stages... using 10x gain from ina, on 0.1R only. 
+  // turn off both gain stages... using 10x gain from ina, on 0.1R only.
   io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, 0x7f ); // high == off
   // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2 ); // high == off
 
@@ -133,10 +133,13 @@ static void current_range_set_100mA(uint32_t spi)
 
 static void voltage_range_set_10V(uint32_t spi)
 {
-  io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // no longer used. must be off. 
+  // now using ina 143. with 1:10 divide by default
+
+  io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // no longer used. must be off.
 
   // hi == off
-  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, ~GAIN_VFB_OP1 | GAIN_VFB_OP2);  // turn on OP1
+  // turn on OP1
+  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, ~GAIN_VFB_OP1 | GAIN_VFB_OP2);
 
   vmultiplier = 1.f;
 }
@@ -148,18 +151,12 @@ static void voltage_range_set_100V(uint32_t spi)
 {
   // now using ina 143. with 1:10 divide by default
 
-  // relay must be off to complete circuit, after fitting ina143.
-  io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn off vrange
+  io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // no longer used. must be off.
 
-  // vimultiplier.
 
-  // make sure vfb gain is off.
-  // needs to be a masked write
-  // io_set(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2);
-
-  // active lo. turn both vfb gain stages off.
-  // hi==off 
-  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, GAIN_VFB_OP1 | GAIN_VFB_OP2); 
+  // turn both vfb gain stages off
+  // hi==off
+  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, GAIN_VFB_OP1 | GAIN_VFB_OP2);
 
   vmultiplier = 10.f;
 }
@@ -492,7 +489,7 @@ static void update(uint32_t spi)
         // its easier to think of everything without polarity.   (the polarity just exists because we tap/ com at 0V).
 
         // turn on set voltages 2V and 4V outputs. works.
-                                                                              
+
 
         //////////////////////////////////
         // set up clamps
@@ -502,12 +499,12 @@ static void update(uint32_t spi)
         clamps_set_source_pve(spi);
 
 
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.2 ) ); 
-        voltage_range_set_100V(spi);        // ie. 1.2 * 100 = 12V, 1.5=15V etc 
-        // voltage_range_set_10V(spi);      // 1.2 = 1.2V 
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.2 ) );
+        voltage_range_set_100V(spi);        // ie. 1.2 * 100 = 12V, 1.5=15V etc
+        // voltage_range_set_10V(spi);      // 1.2 = 1.2V
 
 
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0 ) ); 
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0 ) );
         // current_range_set_100mA(spi);
         // current_range_set_1A(spi);      // ie. 1=0.1A,10=1A
         current_range_set_10A(spi);        // ie 1=1A, 0.5=0.5A
