@@ -511,7 +511,7 @@ static void update(uint32_t spi)
         // voltage_range_set_10V(spi);      // 1.2 = 1.2V
 
         // current
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.f ) );
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 0.1f ) );
         current_range_set_100mA(spi);       // 10=100mA. 1=10mA
         // current_range_set_1A(spi);      // ie. 1=0.1A,10=1A
         // current_range_set_10A(spi);        // ie 1=1A, 0.5=0.5A, 0.1=0.1V
