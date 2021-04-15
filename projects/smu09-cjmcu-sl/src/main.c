@@ -90,9 +90,12 @@ static void current_range_set_10A(uint32_t spi)
   current_range_set_1A(spi);
 
   // eg. one stage
-  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 );
 
-  imultiplier = 1.f;
+  // think this is correct for 10A. but wrong for 1A
+  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, ~GAIN_IFB_OP1 );
+  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, 0x7f ); // high == off
+
+  imultiplier = 1.0f;
 }
 
 
@@ -489,7 +492,7 @@ static void update(uint32_t spi)
         // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0) ); // 100mA on 1A... hot. because drops 100mA over 15V=1.5W.
 
 
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 10 ) ); // 1A on 10A range
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 0.5 ) ); // 1A on 10A range,
                                                                               
 
         //////////////////////////////////
