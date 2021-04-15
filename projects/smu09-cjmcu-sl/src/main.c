@@ -73,6 +73,7 @@ static void current_range_set_1A(uint32_t spi)
   // turn on current sense ina 1
   io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE1);
 
+  // TODO needs to be a mask.
   io_clear(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 );
 
   // sense gain = 0.1x  ie. 0.1ohm sense resistor
@@ -133,17 +134,31 @@ static void voltage_range_set_10V(uint32_t spi)
 #if 1
 static void voltage_range_set_100V(uint32_t spi)
 {
-  // using ina 143. with 1:10 divide by default
+  // now using ina 143. with 1:10 divide by default
 
   // io_set(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn on vrange
   io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn on vrange
 
   // vimultiplier.
 
+  // make sure vfb gain is off.
+  // needs to be a masked write
+  io_set(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2);
+
+  // one stage of gain
+  io_clear(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 );
+
   // vmultiplier = 10.f;
   vmultiplier = 1.f;
 }
 #endif
+
+
+
+
+
+
+
 
 
 static void clamps_set_source_pve(uint32_t spi)
