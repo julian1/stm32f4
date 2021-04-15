@@ -120,13 +120,20 @@ static void current_range_set_100mA(uint32_t spi)
   // turn on current sense ina 2
   io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE2);
 
+
+  // turn off both gain
+  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2 ); // high == off
+
   imultiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
+
+/*
 
   // turn off gain fb.
   io_set(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2);
 
   // turn on x10 gain, x100
   // io_clear(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2);
+*/
 }
 
 ////////////////////////////
@@ -498,16 +505,16 @@ static void update(uint32_t spi)
 
         clamps_set_source_pve(spi);
 
-
+        // voltage
         spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.2 ) );
         voltage_range_set_100V(spi);        // ie. 1.2 * 100 = 12V, 1.5=15V etc
         // voltage_range_set_10V(spi);      // 1.2 = 1.2V
 
-
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0 ) );
-        // current_range_set_100mA(spi);
+        // current
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.f ) );
+        current_range_set_100mA(spi);       // 10=100mA. 1=10mA
         // current_range_set_1A(spi);      // ie. 1=0.1A,10=1A
-        current_range_set_10A(spi);        // ie 1=1A, 0.5=0.5A
+        // current_range_set_10A(spi);        // ie 1=1A, 0.5=0.5A, 0.1=0.1V
 
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
