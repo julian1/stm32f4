@@ -62,23 +62,24 @@ static float vmultiplier = 0;
 
 static void current_range_set_1A(uint32_t spi)
 {
-  // 2V on 1A is 200mA
+  // 2V on 1A is 200mA, 5V is 0.5A
+  // sense gain = 0.1x  ie. 0.1ohm sense resistor
+  // ina gain x10.
+  // extra amp gain = x10.
+
 
   // turn on current relay range X.
   io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
 
   // turn on 1st b2b fets.
-  io_set(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2);
+  io_write(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2);
 
   // turn on current sense ina 1
-  io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE1);
+  io_write(spi, IRANGE_SENSE_REGISTER, ~IRANGE_SENSE1);
 
-  // TODO needs to be a mask.
-  io_clear(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 );
+  // turn on fb gain op1, x10. active lo
+  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, ~GAIN_IFB_OP1 );
 
-  // sense gain = 0.1x  ie. 0.1ohm sense resistor
-  // ina gain x10.
-  // extra amp gain = x10.
 
   imultiplier = 0.1f;
 }
@@ -87,8 +88,10 @@ static void current_range_set_10A(uint32_t spi)
 {
   // 10A is the same as 1A, except no 10x gain
   current_range_set_1A(spi);
-  // TODO must use write()
-  io_set(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 );
+
+  // eg. one stage
+  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 );
+
   imultiplier = 1.f;
 }
 
@@ -136,20 +139,19 @@ static void voltage_range_set_100V(uint32_t spi)
 {
   // now using ina 143. with 1:10 divide by default
 
-  // io_set(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn on vrange
-  io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn on vrange
+  // relay must be off to complete circuit, after fitting ina143.
+  io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn off vrange
 
   // vimultiplier.
 
   // make sure vfb gain is off.
   // needs to be a masked write
-  io_set(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2);
+  // io_set(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2);
 
-  // one stage of gain
-  io_clear(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 );
+  // active lo. turn both vfb gain stages off.
+  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, GAIN_VFB_OP1 | GAIN_VFB_OP2); 
 
-  // vmultiplier = 10.f;
-  vmultiplier = 1.f;
+  vmultiplier = 10.f;
 }
 #endif
 
@@ -480,11 +482,15 @@ static void update(uint32_t spi)
         // its easier to think of everything without polarity.   (the polarity just exists because we tap/ com at 0V).
 
         // turn on set voltages 2V and 4V outputs. works.
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.2 ) ); // // we cannot output 12V with 15V rails ...
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 10 ) ); // // we cannot output 12V with 15V rails ...
         // spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4 ) );
         // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 3.0) ); // 30mA on 100mA..
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 10.0) ); // 0.5A on 1A range.. overheats bjt.
+        // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0) ); // 0.5A on 1A range.. overheats bjt.
         // spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0) ); // 100mA on 1A... hot. because drops 100mA over 15V=1.5W.
+
+
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 10 ) ); // 1A on 10A range
+                                                                              
 
         //////////////////////////////////
         // set up clamps
@@ -504,7 +510,8 @@ static void update(uint32_t spi)
         // voltage_range_set_10V(spi);     // measuring 9.904. which may be calibration. on 10V range.
 
         // current_range_set_100mA(spi);
-        current_range_set_1A(spi);
+        // current_range_set_1A(spi);
+        current_range_set_10A(spi);
 
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
