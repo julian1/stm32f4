@@ -497,7 +497,7 @@ static void update(uint32_t spi)
 
 
         // turn on refs for dac
-        mux_dac(spi);
+        //mux_dac(spi);
         usart_printf("turn on ref a for dac\n" );
         mux_io(spi);
         io_clear(spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A); // active lo
@@ -507,22 +507,33 @@ static void update(uint32_t spi)
 
         // turn on set voltages 2V and 4V outputs. works.
 
-
+/*
+  OK. mux_io() and mux_dac() can work simultaneously.
+    eg. 
+    special is asserted for io.
+    it's only when we switch peripheral that we have to change. i think
+        
+*/
         //////////////////////////////////
         // set up clamps
-        mux_io(spi);
+        //mux_io(spi);
 
+        mux_dac(spi);
 
         clamps_set_source_pve(spi);
 
         // voltage
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.0 ) );
+        // mux_dac(spi);
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.0f ) );
+        // mux_io(spi);
         voltage_range_set_100V(spi);     // ie. 1.2  = 12V, 1.5=15V etc
         // voltage_range_set_10V(spi);      // ie 1.2 = 1.2V
         // voltage_range_set_1V(spi);          // ie 1.2 = 0.12V
 
         // current
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.f ) );
+        // mux_dac(spi);
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 0.5f ) );
+        // mux_io(spi);
         current_range_set_10A(spi);         // ie 1=1A, 0.5=0.5A, 0.1=0.1V
         // current_range_set_1A(spi);       // ie. 1=0.1A,10=1A
         // current_range_set_100mA(spi);    // 10=100mA. 1=10mA
