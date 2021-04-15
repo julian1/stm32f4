@@ -158,7 +158,8 @@ static void voltage_range_set_100V(uint32_t spi)
   // io_set(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2);
 
   // active lo. turn both vfb gain stages off.
-  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, GAIN_VFB_OP1 | GAIN_VFB_OP2); 
+  // hi==off 
+  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, GAIN_VFB_OP1 | GAIN_VFB_OP2); 
 
   vmultiplier = 10.f;
 }
@@ -501,12 +502,12 @@ static void update(uint32_t spi)
         clamps_set_source_pve(spi);
 
 
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 5.0 ) ); 
-        // voltage_range_set_100V(spi);        // ie. 1.2 * 100 = 12V, 1.5=15V etc 
-        voltage_range_set_10V(spi);           // 1.2 = 1.2V 
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.2 ) ); 
+        voltage_range_set_100V(spi);        // ie. 1.2 * 100 = 12V, 1.5=15V etc 
+        // voltage_range_set_10V(spi);      // 1.2 = 1.2V 
 
 
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 0.8 ) ); 
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0 ) ); 
         // current_range_set_100mA(spi);
         // current_range_set_1A(spi);      // ie. 1=0.1A,10=1A
         current_range_set_10A(spi);        // ie 1=1A, 0.5=0.5A
