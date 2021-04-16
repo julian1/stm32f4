@@ -523,16 +523,15 @@ static void update(uint32_t spi)
 
         // turn on set voltages 2V and 4V outputs. works.
 
-/*
-  OK. can talk to fpga for io, or peripheral, without having to intersperse calls to mux_io() and mux_dac() 
-    eg. 
-    special is asserted for io.
-    it's only when we switch peripheral that we have to change. i think
-    this is very good.
-*/
+        /*
+          OK. can talk to fpga for io, or peripheral, without having to intersperse calls to mux_io() and mux_dac() 
+            special is asserted for io.
+            ---    
+            but issue is the spi parameters might change for ice40 versus peripheral.  
+            use a second channel. and it would work.
+        */
         //////////////////////////////////
         // set up clamps
-        //mux_io(spi);
 
         mux_dac(spi);
 
@@ -553,9 +552,9 @@ static void update(uint32_t spi)
         mux_dac(spi); spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0f ) );
 
         mux_io(spi);
-        current_range_set_10A(spi);         // ie 1=1A, 0.5=0.5A, 0.1=0.1V
+        // current_range_set_10A(spi);         // ie 1=1A, 0.5=0.5A, 0.1=0.1V
         // current_range_set_1A(spi);       // ie. 1=0.1A,10=1A
-        // current_range_set_100mA(spi);    // 10=100mA. 1=10mA
+        current_range_set_100mA(spi);    // 10=100mA. 1=10mA
 
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
