@@ -129,7 +129,8 @@ static void current_range_set_100mA(uint32_t spi)
   io_write(spi, IRANGE_SENSE_REGISTER, ~IRANGE_SENSE2);
 
   // turn off both current gain ops
-  io_write(spi, GAIN_IFB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2 );  // hi == off, turn off both
+  // active lo
+  io_write(spi, GAIN_IFB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
 
   imultiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
 }
@@ -182,10 +183,8 @@ static void voltage_range_set_100V(uint32_t spi)
   io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // no longer used. must be off.
 
 
-  // turn both vfb gain stages off
-  // hi==off
-  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, GAIN_VFB_OP1 | GAIN_VFB_OP2);
-  io_write(spi, GAIN_VFB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2 );  // hi == off, turn off both
+  // active lo, turn both vfb gain stages off
+  io_write(spi, GAIN_VFB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2 );
 
   vmultiplier = 10.f;
 }
@@ -197,10 +196,8 @@ static void voltage_range_set_10V(uint32_t spi)
 
   io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // no longer used. must be off.
 
-  // hi == off
-  // turn on OP1
-  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, ~GAIN_VFB_OP1 | GAIN_VFB_OP2); // think this can be expressed better
-  io_write(spi, GAIN_VFB_REGISTER, ~GAIN_VFB_OP1 );  // hi == off, turn on op1
+  // active lo. turn on OP1
+  io_write(spi, GAIN_VFB_REGISTER, ~GAIN_VFB_OP1 );
 
   vmultiplier = 1.f;
 }
@@ -212,12 +209,8 @@ static void voltage_range_set_1V(uint32_t spi)
 
   io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // no longer used. must be off.
 
-  // hi == off
-  // turn on OP1 and OP2
-  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, 0 ); // good
-  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, ~(GAIN_VFB_OP1 | GAIN_VFB_OP2) ); // good.
-  io_write(spi, GAIN_VFB_REGISTER, ~(GAIN_VFB_OP1 | GAIN_VFB_OP2) );  // hi == off, turn on op1
-
+  // active lo.  turn on both OP1 and OP2
+  io_write(spi, GAIN_VFB_REGISTER, ~(GAIN_VFB_OP1 | GAIN_VFB_OP2) );
 
   vmultiplier = 0.1f;
 }
@@ -594,21 +587,21 @@ static void update(uint32_t spi)
 
         // voltage
         mux_dac(spi);
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 10.f ) );
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 4.f ) ); // 10V
 
         mux_io(spi);
         // voltage_range_set_100V(spi);       // ie. 1.2  = 12V, 1.5=15V etc
-        voltage_range_set_10V(spi);           // ie 1.2 = 1.2V
-        // voltage_range_set_1V(spi);         // ie 1.2 = 0.12V
+        // voltage_range_set_10V(spi);        // ie 1.2 = 1.2V
+        voltage_range_set_1V(spi);            // ie 1.2 = 0.12V
 
         // current
         mux_dac(spi);
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 0.5f ) );
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 0.5f ) );  // 5.f
 
         mux_io(spi);
-        current_range_set_10A(spi);         // ie 1=1A, 0.5=0.5A, 0.1=0.1V
-        // current_range_set_1A(spi);              // ie. 1=0.1A,10=1A
-        // current_range_set_100mA(spi);         // 1=10mA,   10=100mA.
+        current_range_set_10A(spi);           // ie 1=1A, 0.5=0.5A, 0.1=0.1V
+        // current_range_set_1A(spi);         // ie. 1=0.1A,10=1A
+        // current_range_set_100mA(spi);      // 1=10mA,   10=100mA.
 
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
