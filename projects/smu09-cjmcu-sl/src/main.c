@@ -601,7 +601,7 @@ static void update(uint32_t spi)
 
         // current
         mux_dac(spi);
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 2.f ) );
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 5.f ) );
 
         mux_io(spi);
         // current_range_set_10A(spi);         // ie 1=1A, 0.5=0.5A, 0.1=0.1V
