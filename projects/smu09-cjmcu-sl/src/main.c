@@ -125,11 +125,10 @@ static void current_range_set_100mA(uint32_t spi)
   io_write(spi, IRANGEX_SW_REGISTER, IRANGEX_SW3 | IRANGEX_SW4);
 
 
-  // current sense 2
+  // active lo, current sense 2
   io_write(spi, IRANGE_SENSE_REGISTER, ~IRANGE_SENSE2);
 
-  // turn off both current gain ops
-  // active lo
+  // active lo. turn off both current gain ops
   io_write(spi, GAIN_IFB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
 
   imultiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
@@ -140,33 +139,30 @@ static void current_range_set_100mA(uint32_t spi)
 
 static void current_range_set_10mA(uint32_t spi)
 {
-  UNUSED(spi);
-#if 0
-  // 2V on 10mA range should be 2mA.
-  // eg. across 1k. sense. no gain
+  // UNUSED(spi);
+  /*
+      10V = 0.01A * 1k.
+      = 100mW.      maybe ok.  with high-watt 1
+     1x gain.
+  */
 
-  // TODO, these should all be write... not dependent on previous state/reset.
-  // Careful. to do this, the separate gain for Vrange has to be split into another register, to avoid overwriting it.
 
   // turn on current relay range X.
-  io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
+  io_write(spi, RELAY_COM_REGISTER, RELAY_COM_X);
 
-  // turn off 1st and 2nd b2b fets
-  io_clear(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2 | IRANGEX_SW3 | IRANGEX_SW4);
+  // turn off other fets
+  io_write(spi, IRANGEX_SW_REGISTER, 0);
 
-  // turn on 3nd b2b fets.
-  io_set(spi, IRANGEX_SW58_REGISTER, IRANGEX_SW5 | IRANGEX_SW6);
+  // turn on 3rd b2b fets.
+  io_write(spi, IRANGEX_SW58_REGISTER, IRANGEX_SW5 | IRANGEX_SW6);
 
-  // turn on current sense ina 2
-  // THIS IS ONLY one bit. should be a write
-  io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE3);
+  // active lo, current sense 3
+  io_write(spi, IRANGE_SENSE_REGISTER, ~IRANGE_SENSE3);
 
+  // active lo, turn off both current gain ops
+  io_write(spi, GAIN_IFB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
 
-  // turn off both gain
-  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2 ); // high == off
-
-  imultiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
-#endif
+  imultiplier = 0.001f;
 }
 
 
@@ -601,7 +597,8 @@ static void update(uint32_t spi)
         mux_io(spi);
         // current_range_set_10A(spi);           // ie 1=1A, 0.5=0.5A, 0.1=0.1V
         // current_range_set_1A(spi);         // ie. 1=0.1A,10=1A
-        current_range_set_100mA(spi);      // 1=10mA,   10=100mA.
+        // current_range_set_100mA(spi);      // 1=10mA, 10=100mA.
+        current_range_set_10mA(spi);          // 1=1mA, 10=100mA.
 
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
