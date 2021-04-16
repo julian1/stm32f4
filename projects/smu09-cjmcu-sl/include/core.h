@@ -108,6 +108,8 @@
 
 
 // use bitmask write, to write these in individual combination
+// OK. no. it's messy. we really want to separate these, 
+// into different regs to make easier to write...
 #define GAIN_FB_REGISTER    21
 #define GAIN_VFB_OP1  (1<<0)
 #define GAIN_VFB_OP2  (1<<1)
