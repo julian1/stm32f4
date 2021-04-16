@@ -81,12 +81,8 @@ static void current_range_set_1A(uint32_t spi)
   // turn on current sense ina 1
   io_write(spi, IRANGE_SENSE_REGISTER, ~IRANGE_SENSE1);
 
-  // turn on fb gain op1, x10. active lo
-  // hi == off
-  // change this... it's turning on op2.
-
-  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1  );
-  io_write(spi, GAIN_IFB_REGISTER, ~GAIN_IFB_OP1  );  // turn on op1
+  // active lo. turn on ifb gain op1, x10
+  io_write(spi, GAIN_IFB_REGISTER, ~GAIN_IFB_OP1);
 
 
   imultiplier = 0.1f;
@@ -103,10 +99,9 @@ static void current_range_set_10A(uint32_t spi)
   // 10A is the same as 1A, except no 10x gain
   current_range_set_1A(spi);
 
-  // turn off both gain stages... using 10x gain from ina, on 0.1R only.
-  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, 0x7f ); // high == off
-  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2 ); // high == off
-  io_write(spi, GAIN_IFB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2 );  // hi == off, turn off both
+  // active lo. turn off both ifb gain stages...
+  // using 10x gain from ina, on 0.1R only.
+  io_write(spi, GAIN_IFB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
 
   imultiplier = 1.0f;
 }
@@ -133,10 +128,7 @@ static void current_range_set_100mA(uint32_t spi)
   // current sense 2
   io_write(spi, IRANGE_SENSE_REGISTER, ~IRANGE_SENSE2);
 
-
-  // separating out the registers
-  // turn off both gain
-  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2 ); // high == off
+  // turn off both current gain ops
   io_write(spi, GAIN_IFB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2 );  // hi == off, turn off both
 
   imultiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
@@ -611,12 +603,12 @@ static void update(uint32_t spi)
 
         // current
         mux_dac(spi);
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 5.f ) );
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 0.5f ) );
 
         mux_io(spi);
-        // current_range_set_10A(spi);         // ie 1=1A, 0.5=0.5A, 0.1=0.1V
-        // current_range_set_1A(spi);          // ie. 1=0.1A,10=1A
-        current_range_set_100mA(spi);         // 1=10mA,   10=100mA.
+        current_range_set_10A(spi);         // ie 1=1A, 0.5=0.5A, 0.1=0.1V
+        // current_range_set_1A(spi);              // ie. 1=0.1A,10=1A
+        // current_range_set_100mA(spi);         // 1=10mA,   10=100mA.
 
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
@@ -707,7 +699,7 @@ static void update(uint32_t spi)
       if(!first) {
         first = 1;
         usart_printf("entered halt state\n" );
-        
+
         mux_io(spi);
         // turn off output relay
         io_clear(spi, RELAY_REGISTER, RELAY_OUTCOM);
