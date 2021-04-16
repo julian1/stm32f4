@@ -113,19 +113,16 @@ static void current_range_set_100mA(uint32_t spi)
   // 0.2V across 10ohm. g=10x, 0.2 / 10 = 0.02A = 20mA.
   // adc imultiplier should be 0.1.
 
-  // TODO, these should all be write... not dependent on previous state/reset.
-  // Careful. to do this, the separate gain for Vrange has to be split into another register, to avoid overwriting it.
-
   // turn on current relay range X.
-  io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
+  io_write(spi, RELAY_COM_REGISTER, RELAY_COM_X);
 
   // turn on 2nd b2b fets.
-  io_set(spi, IRANGEX_SW_REGISTER, IRANGEX_SW3 | IRANGEX_SW4);
+  io_write(spi, IRANGEX_SW_REGISTER, IRANGEX_SW3 | IRANGEX_SW4);
 
-  // turn on current sense ina 2
-  io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE2);  // using io_write makes it fail? 
+  io_write(spi, IRANGE_SENSE_REGISTER, ~IRANGE_SENSE2);
 
 
+  // separating out the registers
   // turn off both gain
   io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2 ); // high == off
 
@@ -328,10 +325,20 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
       // %f formatter, doesn't pad with zeros properly...
       // why is the voltage *10?
       // Force=Potential=3V, etc.
-      usart_printf("adc %fV    %fA\n",
+#if 1
+      usart_printf("adc %f V    %fA\n",
         ar[0] / 1.64640 * vmultiplier,
         ar[1] / 1.64640 * imultiplier
       );
+#endif
+
+#if 0
+      usart_printf("adc %dV    %dA\n",
+        ar[0] ,
+        ar[1] 
+      );
+#endif
+ 
       break;
     }
 
@@ -579,17 +586,17 @@ static void update(uint32_t spi)
 
         mux_io(spi);
         // voltage_range_set_100V(spi);     // ie. 1.2  = 12V, 1.5=15V etc
-        // voltage_range_set_10V(spi);      // ie 1.2 = 1.2V
+        voltage_range_set_10V(spi);      // ie 1.2 = 1.2V
         // voltage_range_set_1V(spi);          // ie 1.2 = 0.12V
 
         // current
         mux_dac(spi); 
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 0.5f ) );
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 0.7f ) );
 
         mux_io(spi);
         // current_range_set_10A(spi);         // ie 1=1A, 0.5=0.5A, 0.1=0.1V
-        // current_range_set_1A(spi);       // ie. 1=0.1A,10=1A
-        current_range_set_100mA(spi);    // 10=100mA. 1=10mA
+        current_range_set_1A(spi);       // ie. 1=0.1A,10=1A
+        // current_range_set_100mA(spi);    // 10=100mA. 1=10mA
 
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
