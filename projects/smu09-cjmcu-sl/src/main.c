@@ -272,7 +272,7 @@ typedef enum state_t {
   DIGITAL_UP,   // DIGIAL_DIGITAL_UP
   ERROR,
   ANALOG_UP,
-  DONE
+  HALT
 } state_t;
 
 // static
@@ -397,10 +397,10 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in, CBuf* console_out
     usart_printf("got command '%s'   %d\n", tmp, n);
 
 
-    if(strcmp(tmp, "done") == 0) {
-      // go to state done
+    if(strcmp(tmp, "halt") == 0) {
+      // go to halt state
       usart_printf("switch off\n");
-      state = DONE;
+      state = HALT;
       return;
     }
 
@@ -515,7 +515,7 @@ static void update(uint32_t spi)
       io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2);
       io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2,  GAIN_VFB_OP1 | GAIN_VFB_OP2);
       io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, 0 );
-      state = DONE;
+      state = HALT;
       return;
 #endif
 
@@ -691,15 +691,14 @@ static void update(uint32_t spi)
     break;
 
 
-    case DONE: {
-      // same as error, but different reporting
-      // NO. should keep analog rails up.
-      // but turn out relay off
+    case HALT: {
+
       static int first = 0;
       if(!first) {
         first = 1;
-        usart_printf("entered done state\n" );
-
+        usart_printf("entered halt state\n" );
+        
+        mux_io(spi);
         // turn off output relay
         io_clear(spi, RELAY_REGISTER, RELAY_OUTCOM);
         // turn off all power
