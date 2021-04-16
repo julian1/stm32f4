@@ -110,11 +110,9 @@
 // use bitmask write, to write these in individual combination
 // OK. no. it's messy. we really want to separate these, 
 // into different regs to make easier to write...
-#define GAIN_FB_REGISTER    21
-#define GAIN_VFB_OP1  (1<<0)
-#define GAIN_VFB_OP2  (1<<1)
-#define GAIN_IFB_OP1  (1<<2)
-#define GAIN_IFB_OP2  (1<<3)
+#define GAIN_IFB_REGISTER    21
+#define GAIN_IFB_OP1  (1<<0)
+#define GAIN_IFB_OP2  (1<<1)
 
 
 
@@ -126,7 +124,11 @@
 #define IRANGEX_SW8         (1<<3)
 
 
-
+// same dg444 as GAIN_IFB_REGISTER
+// but separating makes it easier
+#define GAIN_VFB_REGISTER    23
+#define GAIN_VFB_OP1  (1<<0)
+#define GAIN_VFB_OP2  (1<<1)
 
 
 

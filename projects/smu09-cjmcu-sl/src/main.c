@@ -84,7 +84,9 @@ static void current_range_set_1A(uint32_t spi)
   // turn on fb gain op1, x10. active lo
   // hi == off
   // change this... it's turning on op2.
-  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1  );
+
+  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1  );
+  io_write(spi, GAIN_IFB_REGISTER, ~GAIN_IFB_OP1  );  // turn on op1
 
 
   imultiplier = 0.1f;
@@ -101,10 +103,10 @@ static void current_range_set_10A(uint32_t spi)
   // 10A is the same as 1A, except no 10x gain
   current_range_set_1A(spi);
 
-
   // turn off both gain stages... using 10x gain from ina, on 0.1R only.
-  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, 0x7f ); // high == off
+  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, 0x7f ); // high == off
   // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2 ); // high == off
+  io_write(spi, GAIN_IFB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2 );  // hi == off, turn off both
 
   imultiplier = 1.0f;
 }
@@ -134,7 +136,8 @@ static void current_range_set_100mA(uint32_t spi)
 
   // separating out the registers
   // turn off both gain
-  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2 ); // high == off
+  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2 ); // high == off
+  io_write(spi, GAIN_IFB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2 );  // hi == off, turn off both
 
   imultiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
 }
@@ -189,7 +192,8 @@ static void voltage_range_set_100V(uint32_t spi)
 
   // turn both vfb gain stages off
   // hi==off
-  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, GAIN_VFB_OP1 | GAIN_VFB_OP2);
+  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, GAIN_VFB_OP1 | GAIN_VFB_OP2);
+  io_write(spi, GAIN_VFB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2 );  // hi == off, turn off both
 
   vmultiplier = 10.f;
 }
@@ -203,7 +207,8 @@ static void voltage_range_set_10V(uint32_t spi)
 
   // hi == off
   // turn on OP1
-  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, ~GAIN_VFB_OP1 | GAIN_VFB_OP2); // think this can be expressed better
+  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, ~GAIN_VFB_OP1 | GAIN_VFB_OP2); // think this can be expressed better
+  io_write(spi, GAIN_VFB_REGISTER, ~GAIN_VFB_OP1 );  // hi == off, turn on op1
 
   vmultiplier = 1.f;
 }
@@ -218,10 +223,9 @@ static void voltage_range_set_1V(uint32_t spi)
   // hi == off
   // turn on OP1 and OP2
   // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, 0 ); // good
-  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, ~(GAIN_VFB_OP1 | GAIN_VFB_OP2) ); // good.
+  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, ~(GAIN_VFB_OP1 | GAIN_VFB_OP2) ); // good.
+  io_write(spi, GAIN_VFB_REGISTER, ~(GAIN_VFB_OP1 | GAIN_VFB_OP2) );  // hi == off, turn on op1
 
-  // this doesn't work, because flipping all bits
-  // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2, ~GAIN_VFB_OP1 | ~GAIN_VFB_OP2 );
 
   vmultiplier = 0.1f;
 }
@@ -307,7 +311,10 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
   // io_write(spi, RELAY_COM_REGISTER, count);
   // io_write(spi, IRANGEX_SW_REGISTER, count);
   // io_write(spi, IRANGE_SENSE_REGISTER, count);
-  // io_write(spi, GAIN_FB_REGISTER, count);
+
+
+  // io_write(spi, GAIN_IFB_REGISTER, count);
+  // io_write(spi, GAIN_VFB_REGISTER, count);
 
   // test
 
@@ -501,12 +508,15 @@ static void update(uint32_t spi)
 
 
       // gain fb. turn off ifb and vfb gain ,active hi
-      io_set(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2 | GAIN_IFB_OP1 | GAIN_IFB_OP2);
+      io_set(spi, GAIN_IFB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2);
       // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2);
 
 
       // adg1334. x range, b2b fets, lo is off.
       io_clear(spi, IRANGEX_SW58_REGISTER, IRANGEX_SW5 | IRANGEX_SW6 | IRANGEX_SW7 | IRANGEX_SW8);
+
+
+      io_set(spi, GAIN_VFB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2 );
 
 
 #if 0
