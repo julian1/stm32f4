@@ -123,13 +123,47 @@ static void current_range_set_100mA(uint32_t spi)
   io_set(spi, IRANGEX_SW_REGISTER, IRANGEX_SW3 | IRANGEX_SW4);
 
   // turn on current sense ina 2
-  io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE2);
+  io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE2);  // using io_write makes it fail? 
 
 
   // turn off both gain
   io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2 ); // high == off
 
   imultiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
+}
+
+
+
+
+static void current_range_set_10mA(uint32_t spi)
+{
+  UNUSED(spi);
+#if 0
+  // 2V on 10mA range should be 2mA.
+  // eg. across 1k. sense. no gain 
+
+  // TODO, these should all be write... not dependent on previous state/reset.
+  // Careful. to do this, the separate gain for Vrange has to be split into another register, to avoid overwriting it.
+
+  // turn on current relay range X.
+  io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
+
+  // turn off 1st and 2nd b2b fets
+  io_clear(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2 | IRANGEX_SW3 | IRANGEX_SW4);
+
+  // turn on 3nd b2b fets.
+  io_set(spi, IRANGEX_SW58_REGISTER, IRANGEX_SW5 | IRANGEX_SW6);
+
+  // turn on current sense ina 2
+  // THIS IS ONLY one bit. should be a write
+  io_clear(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE3);
+
+
+  // turn off both gain
+  io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2 ); // high == off
+
+  imultiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
+#endif
 }
 
 
@@ -533,15 +567,15 @@ static void update(uint32_t spi)
         //////////////////////////////////
         // set up clamps
 
-        mux_dac(spi);
-
+        mux_io(spi);
         clamps_set_source_pve(spi);
 
         // WE DO need the mux() calls. to setup the spi parameters which may differ.
         // sometimes it looks like we don't because they use the *same* clock polarity.
 
         // voltage
-        mux_dac(spi); spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.2f ) );
+        mux_dac(spi); 
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.2f ) );
 
         mux_io(spi);
         voltage_range_set_100V(spi);     // ie. 1.2  = 12V, 1.5=15V etc
@@ -549,7 +583,8 @@ static void update(uint32_t spi)
         // voltage_range_set_1V(spi);          // ie 1.2 = 0.12V
 
         // current
-        mux_dac(spi); spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0f ) );
+        mux_dac(spi); 
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0f ) );
 
         mux_io(spi);
         // current_range_set_10A(spi);         // ie 1=1A, 0.5=0.5A, 0.1=0.1V
