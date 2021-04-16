@@ -70,7 +70,8 @@ static void current_range_set_1A(uint32_t spi)
   // write() writes all the bits.
 
   // turn on current relay range X.
-  io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
+  // io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
+  io_write(spi, RELAY_COM_REGISTER, RELAY_COM_X);
 
   // turn on 1st b2b fets.
   io_write(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2);
