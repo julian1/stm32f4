@@ -134,6 +134,21 @@ static void current_range_set_100mA(uint32_t spi)
   imultiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
 }
 
+#if 0
+static void current_range_set_none(uint32_t spi)
+{
+  // this won't work. without a current sense resistor, its an open circuit.
+
+  // clear all current relays
+  io_write(spi, RELAY_COM_REGISTER, 0 );
+
+  // turn off other fets, switches
+  io_write(spi, IRANGEX_SW58_REGISTER, 0);
+  io_write(spi, IRANGEX_SW_REGISTER, 0);
+}
+#endif
+
+
 
 
 
@@ -210,9 +225,6 @@ static void voltage_range_set_1V(uint32_t spi)
 
   vmultiplier = 0.1f;
 }
-
-
-
 
 
 
@@ -583,7 +595,7 @@ static void update(uint32_t spi)
 
         // voltage
         mux_dac(spi);
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 10.f ) ); // 10V
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.f ) ); // 10V
 
         mux_io(spi);
         // voltage_range_set_100V(spi);       // ie. 1.2  = 12V, 1.5=15V etc
@@ -592,13 +604,14 @@ static void update(uint32_t spi)
 
         // current
         mux_dac(spi);
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 10.f ) );  // 5.f
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.f ) );  // 5.f
 
         mux_io(spi);
         // current_range_set_10A(spi);           // ie 1=1A, 0.5=0.5A, 0.1=0.1V
         // current_range_set_1A(spi);         // ie. 1=0.1A,10=1A
         // current_range_set_100mA(spi);      // 1=10mA, 10=100mA.
         current_range_set_10mA(spi);          // 1=1mA, 10=100mA.
+        // current_range_set_none(spi);       // won't work. there's no circuit.
 
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
