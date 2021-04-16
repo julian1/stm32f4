@@ -70,7 +70,6 @@ static void current_range_set_1A(uint32_t spi)
   // write() writes all the bits.
 
   // turn on current relay range X.
-  // io_set(spi, RELAY_COM_REGISTER, RELAY_COM_X);
   io_write(spi, RELAY_COM_REGISTER, RELAY_COM_X);
 
   // turn on 1st b2b fets.
@@ -90,6 +89,7 @@ static void current_range_set_1A(uint32_t spi)
 
 static void current_range_set_10A(uint32_t spi)
 {
+  // 0.1ohm
   // 300mV=3A across 0.1R sense.   could use 3.33 (10/3.3) gain after ina to get to 0-10V..
   // 1 / ( 1 +  2 )  = 0.3333333333333333
   // = divider with r1=1 and r2=2. eg. a 2 to 1.
@@ -110,6 +110,7 @@ static void current_range_set_10A(uint32_t spi)
 
 static void current_range_set_100mA(uint32_t spi)
 {
+  // 10ohm.
   // 2V on 100mA range should be 20mA.
   // 0.2V across 10ohm. g=10x, 0.2 / 10 = 0.02A = 20mA.
   // adc imultiplier should be 0.1.
@@ -120,6 +121,7 @@ static void current_range_set_100mA(uint32_t spi)
   // turn on 2nd b2b fets.
   io_write(spi, IRANGEX_SW_REGISTER, IRANGEX_SW3 | IRANGEX_SW4);
 
+  // current sense 2
   io_write(spi, IRANGE_SENSE_REGISTER, ~IRANGE_SENSE2);
 
 
@@ -596,8 +598,8 @@ static void update(uint32_t spi)
 
         mux_io(spi);
         // current_range_set_10A(spi);         // ie 1=1A, 0.5=0.5A, 0.1=0.1V
-        current_range_set_1A(spi);          // ie. 1=0.1A,10=1A
-        // current_range_set_100mA(spi);    // 10=100mA. 1=10mA
+        // current_range_set_1A(spi);          // ie. 1=0.1A,10=1A
+        current_range_set_100mA(spi);         // 10=100mA. 1=10mA
 
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
