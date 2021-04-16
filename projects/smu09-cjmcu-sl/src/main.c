@@ -578,13 +578,13 @@ static void update(uint32_t spi)
         spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.2f ) );
 
         mux_io(spi);
-        voltage_range_set_100V(spi);     // ie. 1.2  = 12V, 1.5=15V etc
+        // voltage_range_set_100V(spi);     // ie. 1.2  = 12V, 1.5=15V etc
         // voltage_range_set_10V(spi);      // ie 1.2 = 1.2V
         // voltage_range_set_1V(spi);          // ie 1.2 = 0.12V
 
         // current
         mux_dac(spi); 
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.0f ) );
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 0.5f ) );
 
         mux_io(spi);
         // current_range_set_10A(spi);         // ie 1=1A, 0.5=0.5A, 0.1=0.1V
@@ -614,7 +614,8 @@ static void update(uint32_t spi)
         // power rails
         usart_printf("turn on power rails - lp30v\n" );
         mux_io(spi);
-        io_set(spi, RAILS_REGISTER, RAILS_LP30V );
+        // io_set(spi, RAILS_REGISTER, RAILS_LP30V );
+        io_set(spi, RAILS_REGISTER, RAILS_LP60V );  // actually 15V
         msleep(50);
 #endif
 
