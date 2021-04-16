@@ -13,8 +13,9 @@
 #if 1
 void mux_fpga(uint32_t spi)
 {
+  // spi on mcu side, must be correctly configured
+  // in addition, relies on the special flag to mux
   spi_ice40_setup(spi);
-  // spi uses the special flag to communicate
 }
 #endif
 
