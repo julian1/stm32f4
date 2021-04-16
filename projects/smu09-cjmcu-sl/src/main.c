@@ -72,6 +72,9 @@ static void current_range_set_1A(uint32_t spi)
   // turn on current relay range X.
   io_write(spi, RELAY_COM_REGISTER, RELAY_COM_X);
 
+  // turn off other fets
+  io_write(spi, IRANGEX_SW58_REGISTER, 0);
+
   // turn on 1st b2b fets.
   io_write(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2);
 
@@ -93,7 +96,7 @@ static void current_range_set_10A(uint32_t spi)
   // 300mV=3A across 0.1R sense.   could use 3.33 (10/3.3) gain after ina to get to 0-10V..
   // 1 / ( 1 +  2 )  = 0.3333333333333333
   // = divider with r1=1 and r2=2. eg. a 2 to 1.
-  // eg. make op2 be 
+  // eg. make op2 be
 
   // 10A is the same as 1A, except no 10x gain
   current_range_set_1A(spi);
@@ -118,8 +121,12 @@ static void current_range_set_100mA(uint32_t spi)
   // turn on current relay range X.
   io_write(spi, RELAY_COM_REGISTER, RELAY_COM_X);
 
+  // turn off other fets
+  io_write(spi, IRANGEX_SW58_REGISTER, 0);
+
   // turn on 2nd b2b fets.
   io_write(spi, IRANGEX_SW_REGISTER, IRANGEX_SW3 | IRANGEX_SW4);
+
 
   // current sense 2
   io_write(spi, IRANGE_SENSE_REGISTER, ~IRANGE_SENSE2);
@@ -140,7 +147,7 @@ static void current_range_set_10mA(uint32_t spi)
   UNUSED(spi);
 #if 0
   // 2V on 10mA range should be 2mA.
-  // eg. across 1k. sense. no gain 
+  // eg. across 1k. sense. no gain
 
   // TODO, these should all be write... not dependent on previous state/reset.
   // Careful. to do this, the separate gain for Vrange has to be split into another register, to avoid overwriting it.
@@ -338,10 +345,10 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 #if 0
       usart_printf("adc %dV    %dA\n",
         ar[0] ,
-        ar[1] 
+        ar[1]
       );
 #endif
- 
+
       break;
     }
 
@@ -568,10 +575,10 @@ static void update(uint32_t spi)
         // turn on set voltages 2V and 4V outputs. works.
 
         /*
-          OK. can talk to fpga for io, or peripheral, without having to intersperse calls to mux_io() and mux_dac() 
+          OK. can talk to fpga for io, or peripheral, without having to intersperse calls to mux_io() and mux_dac()
             special is asserted for io.
-            ---    
-            but issue is the spi parameters might change for ice40 versus peripheral.  
+            ---
+            but issue is the spi parameters might change for ice40 versus peripheral.
             use a second channel. and it would work.
         */
         //////////////////////////////////
@@ -584,7 +591,7 @@ static void update(uint32_t spi)
         // sometimes it looks like we don't because they use the *same* clock polarity.
 
         // voltage
-        mux_dac(spi); 
+        mux_dac(spi);
         spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 10.f ) );
 
         mux_io(spi);
@@ -593,13 +600,13 @@ static void update(uint32_t spi)
         // voltage_range_set_1V(spi);         // ie 1.2 = 0.12V
 
         // current
-        mux_dac(spi); 
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 5.f ) );
+        mux_dac(spi);
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 2.f ) );
 
         mux_io(spi);
         // current_range_set_10A(spi);         // ie 1=1A, 0.5=0.5A, 0.1=0.1V
         // current_range_set_1A(spi);          // ie. 1=0.1A,10=1A
-        current_range_set_100mA(spi);         // 10=100mA. 1=10mA
+        current_range_set_100mA(spi);         // 1=10mA,   10=100mA.
 
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
