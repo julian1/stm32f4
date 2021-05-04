@@ -25,10 +25,9 @@
 
 
   ------------
-
+  
   - datasheet ILI9341
     https://www.displayfuture.com/Display/datasheet/controller/ILI9341.pdf
-
 
   libopencm3 example uses ILI9341  in spi mode.
     https://github.com/libopencm3/libopencm3-examples/blob/master/examples/stm32/f4/stm32f429i-discovery/lcd-dma/lcd-spi.c
@@ -110,7 +109,7 @@
 
 void lcd_spi_setup( void )
 {
-  // uart_printf("dac setup spi\n\r");
+  // uart_printf("lcd setup spi\n\r");
 
   // TODO change GPIOA to LCD_SPI_PORT
   // albeit, should probabaly also do LCD_PORT_AF
@@ -121,7 +120,7 @@ void lcd_spi_setup( void )
   // need harder edges for signal integrity. or else different speed just helps suppress parasitic components
   // see, https://www.eevblog.com/forum/microcontrollers/libopencm3-stm32l100rc-discovery-and-spi-issues/
 
-  
+
   // JA NSS
   // gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, LCD_CLK | LCD_MOSI | LCD_MISO );
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, LCD_CLK | LCD_MOSI | LCD_MISO | LCD_CS );
@@ -145,7 +144,7 @@ void lcd_spi_setup( void )
     // SPI_CR1_LSBFIRST
   );
 
-  
+
   // spi_enable_ss_output(LCD_SPI);
   // spi_enable(LCD_SPI);
 
@@ -291,6 +290,14 @@ void lcd_spi_disable(void)
 
 static void lcd_spi_assert_command(void )
 {
+/*
+    4 may 2021.
+    we should use the wait_() functions here,
+    and remove in the other code.
+
+    because this is the point we must wait, before we toggle the bit, else the tft will
+    treat it as a bad byte.
+*/
   //wait_for_transfer_finish();
   gpio_clear( LCD_CTL_PORT, LCD_CTL_DC);    // low == command
 }
@@ -330,11 +337,12 @@ static void lcd_spi_send8( uint8_t x )
 void lcd_send_command(uint8_t command, const uint8_t *dataBytes, uint32_t numDataBytes)
 {
 
-  wait_for_transfer_finish();
+  wait_for_transfer_finish(); // REQUIRED!!!
+
   lcd_spi_assert_command();
   lcd_spi_send8(command);
 
-  wait_for_transfer_finish();
+  wait_for_transfer_finish(); // REQUIRED
   lcd_spi_assert_data();
   for(unsigned i = 0; i < numDataBytes; ++i) {
     lcd_spi_send8(dataBytes[ i ]);
