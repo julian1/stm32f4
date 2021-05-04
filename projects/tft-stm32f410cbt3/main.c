@@ -392,8 +392,9 @@ static void loop(void)
     }
 
     // pump usart queues
-    usart_input_update();
+    // usart_input_update();
     usart_output_update();
+  
 
   }
 
