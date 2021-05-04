@@ -115,16 +115,21 @@ void lcd_spi_setup( void )
   // TODO change GPIOA to LCD_SPI_PORT
   // albeit, should probabaly also do LCD_PORT_AF
   // spi alternate function 5
-  gpio_mode_setup(LCD_SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, LCD_CLK | LCD_MOSI | LCD_MISO );
+  gpio_mode_setup(LCD_SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, LCD_CLK | LCD_MOSI | LCD_MISO | LCD_CS );
 
   // OK.. THIS MADE SPI WORK AGAIN....
   // need harder edges for signal integrity. or else different speed just helps suppress parasitic components
   // see, https://www.eevblog.com/forum/microcontrollers/libopencm3-stm32l100rc-discovery-and-spi-issues/
-  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, LCD_CLK | LCD_MOSI | LCD_MISO );
-  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, LCD_CLK | LCD_MOSI | LCD_MISO );
+
+  
+  // JA NSS
+  // gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, LCD_CLK | LCD_MOSI | LCD_MISO );
+  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, LCD_CLK | LCD_MOSI | LCD_MISO | LCD_CS );
 
   // WARNING - CAREFULl THIS IS SPECFICIC to GPIOA....
-  gpio_set_af(GPIOA, GPIO_AF5, LCD_CLK | LCD_MOSI | LCD_MISO );
+  // JA NSS
+  // gpio_set_af(GPIOA, GPIO_AF5, LCD_CLK | LCD_MOSI | LCD_MISO );
+  gpio_set_af(GPIOA, GPIO_AF5, LCD_CLK | LCD_MOSI | LCD_MISO | LCD_CS );
 
 
   // rcc_periph_clock_enable(RCC_SPI1);
@@ -139,12 +144,19 @@ void lcd_spi_setup( void )
     SPI_CR1_MSBFIRST
     // SPI_CR1_LSBFIRST
   );
+
+  
+  // spi_enable_ss_output(LCD_SPI);
+  // spi_enable(LCD_SPI);
+
+  // JA NSS
+  spi_disable_software_slave_management(LCD_SPI);
   spi_enable_ss_output(LCD_SPI);
-  spi_enable(LCD_SPI);
+
 
 
   // make spi cs regular gpio
-  gpio_mode_setup(LCD_SPI_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LCD_CS );
+  // gpio_mode_setup(LCD_SPI_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LCD_CS );
 
 
   // set up gpio
@@ -239,7 +251,7 @@ void lcd_spi_turn_on_backlight( void )
 
 void lcd_spi_assert_rst(void)
 {
-  gpio_clear(  LCD_CTL_PORT, LCD_CTL_RST);
+  gpio_clear(LCD_CTL_PORT, LCD_CTL_RST);
 }
 
 
@@ -259,13 +271,17 @@ void lcd_spi_deassert_rst(void)
 void lcd_spi_enable(void)
 {
   // assert chip select, with low
-  gpio_clear(LCD_SPI_PORT, LCD_CS);       // cs is spi port. this is hard.
+  // gpio_clear(LCD_SPI_PORT, LCD_CS);       // cs is spi port. this is hard.
+
+  spi_enable(LCD_SPI);
 }
 
 
 void lcd_spi_disable(void)
 {
-  gpio_set(LCD_SPI_PORT, LCD_CS);       // cs is spi port. this is hard.
+  // gpio_set(LCD_SPI_PORT, LCD_CS);       // cs is spi port. this is hard.
+
+  spi_disable(LCD_SPI);
 }
 
 

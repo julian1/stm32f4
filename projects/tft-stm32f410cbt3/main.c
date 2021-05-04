@@ -1,4 +1,13 @@
+/*
+  serial,
+  screen /dev/ttyUSB0 115200
 
+  screen
+  openocd -f openocd.cfg
+  rlwrap nc localhost 4444  # in new window
+  reset halt ; flash write_image erase unlock ./projects/tft-stm32f410cbt3/main.elf; sleep 1000; reset run
+
+*/
 
 
 #include <libopencm3/stm32/rcc.h>
