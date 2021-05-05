@@ -416,7 +416,7 @@ static void loop( Context *ctx)
     setTextSize(ctx, 5, 5);
 
     char buf[100];
-    snprintf( 100, buf, "%d", (int)system_millis );
+    snprintf( buf, 100, "%d", (int)system_millis );
     // ok. this will actually wrap correctly...
     // drawText(ctx, "hi there friends all  ");
     drawText(ctx, buf ); //"hi there friends all  ");

@@ -23,7 +23,7 @@ void internal_vprintf(
 
 // int mini_printf( void	(*putc)(void *, char), void *ctx, const char *format, ...); 
 
-int snprintf(int len, char *buf, const char *format,...);
+int snprintf(char *str, size_t len, const char *format, ...);
 
 
 
