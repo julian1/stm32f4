@@ -412,14 +412,16 @@ static void loop( Context *ctx)
 
     /////////////////////
     setTextColor(ctx, ILI9341_BLUE);
+    setTextBGColor(ctx, ILI9341_WHITE);
+
     setCursor(ctx, 50, 50);
     setTextSize(ctx, 5, 5);
 
     char buf[100];
     snprintf( buf, 100, "%d", (int)system_millis );
-    // ok. this will actually wrap correctly...
-    // drawText(ctx, "hi there friends all  ");
-    drawText(ctx, buf ); //"hi there friends all  ");
+    drawText(ctx, buf );
+
+    // how do we for
 
 
     /////////////////////
@@ -520,7 +522,7 @@ int main(void)
   // usart_printf("agg test\n");
   // agg_test();
 
- 
+
 
   loop( &ctx);
 

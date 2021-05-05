@@ -412,7 +412,15 @@ void setCursor(Context *ctx, int16_t x, int16_t y)
 
 void setTextColor(Context *ctx, uint16_t c) 
 { 
-  ctx->textcolor = ctx->textbgcolor = c; 
+  // ctx->textcolor = ctx->textbgcolor = c; 
+  ctx->textcolor = c; 
+}
+
+// c++ setTextColor(uint16_t color, uint16_t backgroundcolor);
+
+void setTextBGColor(Context *ctx, uint16_t c )
+{
+  ctx->textbgcolor = c; 
 }
 
 
