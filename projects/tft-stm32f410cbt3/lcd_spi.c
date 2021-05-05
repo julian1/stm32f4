@@ -232,7 +232,6 @@ static inline void wait_for_transfer_finish(void)
   // so we actually need both of these,
 
   spi_wait_for_transfer_finish(LCD_SPI);
-  // nop_sleep(15);   // 9 doesn't work. 10 does... weird margin
 
   spi_wait_until_not_busy(LCD_SPI);
 
@@ -291,12 +290,8 @@ void lcd_spi_disable(void)
 static void lcd_spi_assert_command(void )
 {
 /*
-    4 may 2021.
-    we should use the wait_() functions here,
-    and remove in the other code.
-
-    because this is the point we must wait, before we toggle the bit, else the tft will
-    treat it as a bad byte.
+  must wait until byte is transferred before flipping control bits, 
+  else tft interprets as bad byte.
 */
   wait_for_transfer_finish();
   gpio_clear( LCD_CTL_PORT, LCD_CTL_DC);    // low == command
@@ -336,36 +331,29 @@ static void lcd_spi_send8( uint8_t x )
 
 void lcd_send_command(uint8_t command, const uint8_t *dataBytes, uint32_t numDataBytes)
 {
-
-  // wait_for_transfer_finish(); // REQUIRED!!!
-
   lcd_spi_assert_command();
   lcd_spi_send8(command);
 
-  // wait_for_transfer_finish(); // REQUIRED
   lcd_spi_assert_data();
   for(unsigned i = 0; i < numDataBytes; ++i) {
     lcd_spi_send8(dataBytes[ i ]);
   }
-
 }
 
 
-void lcd_send_command_repeat(uint8_t command, uint16_t x, uint32_t n )
+void lcd_send_command_repeat_data(uint8_t command, uint16_t x, uint32_t n )
 {
+  // rename _repeat_data
   // n is *not* bytes, but number of 16bit elements
 
-  // wait_for_transfer_finish();
   lcd_spi_assert_command();
   lcd_spi_send8(command);
 
-  // wait_for_transfer_finish();
   lcd_spi_assert_data();
   for(unsigned i = 0; i < n; ++i) {
     lcd_spi_send8( x >> 8 );
     lcd_spi_send8( x & 0xFF );
   }
-
 }
 
 

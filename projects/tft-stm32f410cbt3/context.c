@@ -219,7 +219,7 @@ void ILI9341_DrawRectangle(Context *ctx, uint16_t x, uint16_t y, uint16_t x_off,
   ILI9341_SetAddressWindow(ctx, x, y, x + x_off - 1, y + y_off - 1);
 
 
-  lcd_send_command_repeat(ILI9341_RAMWR, color, x_off * y_off);
+  lcd_send_command_repeat_data(ILI9341_RAMWR, color, x_off * y_off);
 
 }
 

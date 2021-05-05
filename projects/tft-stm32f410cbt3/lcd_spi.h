@@ -19,7 +19,7 @@ void lcd_spi_disable(void);
 void lcd_send_command(uint8_t command, const uint8_t *dataBytes, uint32_t numDataBytes);
 
 
-void lcd_send_command_repeat(uint8_t command, uint16_t x, uint32_t n );
+void lcd_send_command_repeat_data(uint8_t command, uint16_t x, uint32_t n );
 
 
 
