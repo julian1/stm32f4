@@ -24,3 +24,5 @@ void lcd_send_command_repeat_data(uint8_t command, uint16_t x, uint32_t n );
 
 
 
+// supports rgb565 byte order for agg.
+void lcd_send_command_swap16(uint8_t command, const uint8_t *dataBytes, uint32_t numDataBytes);

@@ -9,12 +9,23 @@ TOP=../../
 LIB2SRC=${TOP}/lib2/src
 LIB2INC=${TOP}/lib2/include
 
+GFXSRC=./gfx/src
+GFXINC=./gfx/include
+
+
+AGGSRC=./agg-svn-r138-agg-2.4/examples
+AGGINC=./agg-svn-r138-agg-2.4/include/ 
+
+
+
 
 BINARY		= main
-SRCFILES	= ./src/main.c ./src/lcd_spi.c ./src/context.c ./src/gfx.c ./src/rotary.c \
-              ${LIB2SRC}/buffer.c ${LIB2SRC}/miniprintf2.c ${LIB2SRC}/usart2.c
+SRCFILES	= ./src/main.c ./src/lcd_spi.c ./src/rotary.c ./src/agg_test.cpp \
+              ${GFXSRC}/context.c ${GFXSRC}/gfx.c \
+              ${LIB2SRC}/buffer.c ${LIB2SRC}/miniprintf2.c ${LIB2SRC}/usart2.c \
+              ${AGGSRC}/circles.cpp
 
-
+            # glcdfont.c ??
 
 LDSCRIPT	= ${TOP}/f410.ld
 
@@ -26,10 +37,12 @@ TGT_CFLAGS  += -Wno-unused-function   \
 
 
 TGT_CFLAGS	+= -I./include
-TGT_CFLAGS	+= -I./           # adafruit library
+TGT_CFLAGS	+= -I${GFXINC}
+TGT_CXXFLAGS += -I${GFXINC}      
+TGT_CXXFLAGS += -I${AGGINC}      
 TGT_CFLAGS	+= -I${LIB2INC}
 
-#LDLIBS		+= -lm
+LDLIBS		+= -lm  -lstdc++  #-static-libstdc++
 
 
 include ${TOP}/Makefile.incl

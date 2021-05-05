@@ -1,0 +1,26 @@
+
+snapshot antigrain.
+https://sourceforge.net/p/agg/svn/HEAD/tarball?path=/agg-2.4
+
+doc,
+http://agg.sourceforge.net/antigrain.com/index.html
+http://agg.sourceforge.net/antigrain.com/doc/index.html
+http://agg.sourceforge.net/antigrain.com/demo/index.html
+
+http://agg.sourceforge.net/antigrain.com/doc/basic_renderers/basic_renderers.agdoc.html
+
+./agg-svn-r138-agg-2.4/include/platform/agg_platform_support.h
+    
+    includes platform_specific instance.
+    class platform_specific;
+
+    with all the virtual functions
+
+
+    platform_specific is passed by private constructor.
+
+    private:
+        platform_support(const platform_support&);
+ 
+    
+

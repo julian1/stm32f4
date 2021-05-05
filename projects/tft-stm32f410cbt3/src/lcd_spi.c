@@ -329,13 +329,16 @@ static void lcd_spi_send8( uint8_t x )
 */
 
 
+
+
+
 void lcd_send_command(uint8_t command, const uint8_t *dataBytes, uint32_t numDataBytes)
 {
   lcd_spi_assert_command();
   lcd_spi_send8(command);
 
   lcd_spi_assert_data();
-  for(unsigned i = 0; i < numDataBytes; ++i) {
+  for(uint32_t i = 0; i < numDataBytes; ++i) {
     lcd_spi_send8(dataBytes[ i ]);
   }
 }
@@ -350,9 +353,24 @@ void lcd_send_command_repeat_data(uint8_t command, uint16_t x, uint32_t n )
   lcd_spi_send8(command);
 
   lcd_spi_assert_data();
-  for(unsigned i = 0; i < n; ++i) {
+  for(uint32_t i = 0; i < n; ++i) {
     lcd_spi_send8( x >> 8 );
     lcd_spi_send8( x & 0xFF );
+  }
+}
+//////////////////////
+
+
+// supports rgb565 byte order for agg.
+void lcd_send_command_swap16(uint8_t command, const uint8_t *dataBytes, uint32_t numDataBytes)
+{
+  lcd_spi_assert_command();
+  lcd_spi_send8(command);
+
+  lcd_spi_assert_data();
+  for(uint32_t i = 0; i < numDataBytes; i += 2) {
+    lcd_spi_send8(dataBytes[ i + 1 ]);
+    lcd_spi_send8(dataBytes[ i ]);
   }
 }
 

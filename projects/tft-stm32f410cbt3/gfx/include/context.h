@@ -3,6 +3,12 @@
 #include <stdbool.h>
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
 #if 0
 
 Adafruit_GFX::Adafruit_GFX(int16_t w, int16_t h) : WIDTH(w), HEIGHT(h) {
@@ -60,10 +66,10 @@ typedef struct Context
 
 void startWrite(Context *ctx) ;
 
-void endWrite(Context *ctx); 
+void endWrite(Context *ctx);
 
 
-void delay( uint16_t x ); 
+void delay( uint16_t x );
 
 void initialize(Context *ctx);
 
@@ -72,6 +78,14 @@ void ILI9341_setRotation(Context *ctx, uint8_t m) ;
 void ILI9341_SetAddressWindow(Context *ctx, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
 
 void ILI9341_DrawRectangle(Context *ctx, uint16_t x, uint16_t y, uint16_t x_off, uint16_t y_off, uint16_t color);
+
+// supports rgb565 byte order for agg.
+void ILI9341_DrawBuffer(Context *ctx, uint16_t x, uint16_t y, uint16_t x_off, uint16_t y_off, const uint8_t *dataBytes);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 
 

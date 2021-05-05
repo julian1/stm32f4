@@ -223,4 +223,15 @@ void ILI9341_DrawRectangle(Context *ctx, uint16_t x, uint16_t y, uint16_t x_off,
 
 }
 
+///////////////////
 
+// supports rgb565 byte order for agg.
+void ILI9341_DrawBuffer(Context *ctx, uint16_t x, uint16_t y, uint16_t x_off, uint16_t y_off, const uint8_t *dataBytes)
+{
+
+  ILI9341_SetAddressWindow(ctx, x, y, x + x_off - 1, y + y_off - 1);
+
+  uint32_t numWords = (x_off - x ) * (y_off - y);
+
+  lcd_send_command_swap16(ILI9341_RAMWR, dataBytes, numWords * 2);
+}

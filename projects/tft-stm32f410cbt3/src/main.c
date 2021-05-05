@@ -413,6 +413,7 @@ static void loop(void)
 
 
 
+void agg_test(void);
 
 int main(void)
 {
@@ -486,8 +487,16 @@ int main(void)
   usart_printf("doing lcd_spi_setup()\n");
   lcd_spi_setup();
 
+
+
   usart_printf("doing lcd_do_stuff()\n");
   lcd_do_stuff();
+
+   // agg
+  usart_printf("agg test\n");
+  agg_test();
+
+ 
 
   loop();
 

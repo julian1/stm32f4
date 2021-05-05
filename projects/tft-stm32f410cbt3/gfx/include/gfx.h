@@ -15,6 +15,12 @@
 #include <stddef.h> // size_t
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
 // prefix with gfx_
 
 void fillRect(Context *ctx, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) ;
@@ -62,7 +68,8 @@ void setTextColor(Context *ctx, uint16_t c) ;
 void setTextSize(Context *ctx, uint8_t s_x, uint8_t s_y) ;
 
 
-
-
+#ifdef __cplusplus
+}
+#endif
 
 

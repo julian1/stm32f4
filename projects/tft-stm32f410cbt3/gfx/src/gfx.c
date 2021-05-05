@@ -2,8 +2,13 @@
 
 #include <stdint.h> // uint16_t etc
 
-#include "Adafruit-GFX-Library/gfxfont.h"
-#include "Adafruit-GFX-Library/glcdfont.c"
+// #include "Adafruit-GFX-Library/gfxfont.h"
+// #include "Adafruit-GFX-Library/glcdfont.c"
+
+
+#include "gfxfont.h"
+#include "glcdfont.c"
+
 
 
 #include "context.h"
