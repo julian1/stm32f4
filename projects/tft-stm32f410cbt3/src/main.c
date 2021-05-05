@@ -336,6 +336,8 @@ void sys_tick_handler(void)
     albeit maybe its ok as dispatch point.
 
     it will interrupt other stuff...
+
+    should be flipping a flag, so can handle in the main update loop()
   */
   // equivalent to a rtos software timer
   // we are in an interupt  context here... so don't do anything
@@ -403,7 +405,7 @@ static void loop(void)
     // pump usart queues
     // usart_input_update();
     usart_output_update();
-  
+
 
   }
 
