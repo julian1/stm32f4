@@ -275,6 +275,7 @@ void exti15_10_isr(void)
   exti_reset_request(EXTI13);
 
   // should be in super loop, actually it is very light, just enqueues
+  // it just writes a buffer.
   usart_printf("interupt button pressed\n");
 }
 
@@ -380,6 +381,11 @@ static void loop( Context *ctx)
     // so long as we wrap calls with a mechanism to avoid stack reentrancy
     // led_update(); in systick.
 
+    // pump usart queues
+    // usart_input_update();
+    usart_output_update();
+
+
     // stop buzzer?
     if(system_millis > buzzer_stop_millis)    // wrap around
       buzzer_disable();
@@ -401,28 +407,32 @@ static void loop( Context *ctx)
       last_rotary_count = count ;
       usart_printf("rotary count.. %d\n", count);
 
+      // usart_output_update();
+
+      setTextColor(ctx, ILI9341_RED);
+      setTextBGColor(ctx, ILI9341_WHITE);
+      setCursor(ctx, 20, 20);
+      setTextSize(ctx, 2, 2);
+      char buf[100];
+      snprintf( buf, 100, "%d   ", (int)count);
+      drawText(ctx, buf );
+
+
       // set buzzer
       buzzer_enable();
       buzzer_stop_millis = system_millis + 20;
     }
 
-    // pump usart queues
-    // usart_input_update();
-    usart_output_update();
 
     /////////////////////
     setTextColor(ctx, ILI9341_BLUE);
     setTextBGColor(ctx, ILI9341_WHITE);
-
     setCursor(ctx, 50, 50);
     setTextSize(ctx, 5, 5);
 
     char buf[100];
     snprintf( buf, 100, "%d", (int)system_millis );
     drawText(ctx, buf );
-
-    // how do we for
-
 
     /////////////////////
 
