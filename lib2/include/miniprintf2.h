@@ -21,8 +21,9 @@ void internal_vprintf(
   va_list arg
 );
 
-int mini_printf( void	(*putc)(void *, char), void *ctx, const char *format, ...); 
+// int mini_printf( void	(*putc)(void *, char), void *ctx, const char *format, ...); 
 
+int snprintf(int len, char *buf, const char *format,...);
 
 
 

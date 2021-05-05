@@ -154,6 +154,8 @@ void agg_test(void)
       ---------
       OR. just use bitmaps.  for text chars. and other elements, buttons.
         fastest, quickest path to strong visual environment.
+        need external flash. - pretty important. 
+      OR use VFD. because vastly simpler. graphically.
     */
     // 150*100 / 1000 = 15k
     int frame_width = 150; // 320;

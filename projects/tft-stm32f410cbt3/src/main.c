@@ -138,7 +138,7 @@ void usart_printf( const char *format, ... )
 	va_list args;
 
 	va_start(args,format);
-	internal_vprintf((void *)cBufPut, &console_out, format,args);
+	internal_vprintf((void *)cBufPut, &console_out, format, args);
 	va_end(args);
 }
 
@@ -163,42 +163,46 @@ static void drawText(Context *ctx, const char *s)
 
 
 
-static void lcd_do_stuff(void)
+
+
+
+static void lcd_do_stuff( Context *ctx)
 {
+/*
   Context   ctx;
 
   // low level
   initialize(&ctx);
 
   ILI9341_setRotation(&ctx, 3); // 0 == trhs, 1 == brhs, 2 == blhs,  3 == tlhs
-
+*/
 
   // gfx
-  fillScreen(&ctx, ILI9341_WHITE );
-  fillRect(&ctx, 20, 20, 40, 20, ILI9341_RED );
+  fillScreen(ctx, ILI9341_WHITE );
+  fillRect(ctx, 20, 20, 40, 20, ILI9341_RED );
 
 #if 1
-  writeFastHLine(&ctx, 50, 40, 100, ILI9341_BLUE);
+  writeFastHLine(ctx, 50, 40, 100, ILI9341_BLUE);
 
-  writeLine(&ctx, 10, 10, 190, 70, ILI9341_RED);
-  drawCircle(&ctx, 40, 40, 50, ILI9341_BLUE) ;
+  writeLine(ctx, 10, 10, 190, 70, ILI9341_RED);
+  drawCircle(ctx, 40, 40, 50, ILI9341_BLUE) ;
 
   drawChar(
-    &ctx,
+    ctx,
     60, 60, '8',                        // int16_t x, int16_t y, unsigned char c,
     ILI9341_BLACK, ILI9341_BLACK,       // uint16_t color, uint16_t bg,
     10, 10);                            // uint8_t size_x, uint8_t size_y);
 
 
 
-  setTextColor(&ctx, ILI9341_BLUE);
-  setCursor(&ctx, 50, 50);
-  setTextSize(&ctx, 0.3, 0.3);
+  setTextColor(ctx, ILI9341_BLUE);
+  setCursor(ctx, 50, 50);
+  setTextSize(ctx, 0.3, 0.3);
 
   // ok. this will actually wrap correctly...
-  drawText(&ctx, "hi there friends all  ");
+  drawText(ctx, "hi there friends all  ");
 
-  drawText(&ctx, "77.123");
+  drawText(ctx, "77.123");
 #endif
 
 }
@@ -362,7 +366,7 @@ void sys_tick_handler(void)
 }
 
 
-static void loop(void)
+static void loop( Context *ctx)
 {
   static uint32_t buzzer_stop_millis = 0;
 
@@ -406,6 +410,19 @@ static void loop(void)
     // usart_input_update();
     usart_output_update();
 
+    /////////////////////
+    setTextColor(ctx, ILI9341_BLUE);
+    setCursor(ctx, 50, 50);
+    setTextSize(ctx, 5, 5);
+
+    char buf[100];
+    snprintf( 100, buf, "%d", (int)system_millis );
+    // ok. this will actually wrap correctly...
+    // drawText(ctx, "hi there friends all  ");
+    drawText(ctx, buf ); //"hi there friends all  ");
+
+
+    /////////////////////
 
   }
 
@@ -488,17 +505,24 @@ int main(void)
   lcd_spi_setup();
 
 
+  /////////////////////////////
+  Context   ctx;
+
+  // low level
+  initialize(&ctx);
+
+  ILI9341_setRotation(&ctx, 3); // 0 == trhs, 1 == brhs, 2 == blhs,  3 == tlhs
 
   usart_printf("doing lcd_do_stuff()\n");
-  lcd_do_stuff();
+  lcd_do_stuff( &ctx);
 
    // agg
-  usart_printf("agg test\n");
-  agg_test();
+  // usart_printf("agg test\n");
+  // agg_test();
 
  
 
-  loop();
+  loop( &ctx);
 
 	for (;;);
 	return 0;

@@ -374,6 +374,9 @@ struct Buffer
 
 */
 
+
+////////////////////////
+#if 0
 int
 mini_printf(
 	void	(*putc)(void *, char),
@@ -396,5 +399,49 @@ mini_printf(
 
   return 0;
 }
+#endif
+
+
+///////////////////
+// snprintf
+
+
+struct Buffer
+{
+  char *buf;
+  int pos;
+	int len;
+};
+
+
+static void snprintf_putc(struct Buffer *buffer, char ch)
+{
+  if(buffer->pos < buffer->len) {
+    buffer->buf [  buffer->pos ] = ch; 
+    buffer->pos++;
+  }
+
+  // null terminator???
+}
+
+int
+snprintf(int len, char *buf, const char *format,...)
+{
+  struct Buffer buffer;
+  buffer.len = len;
+  buffer.buf = buf; 
+  buffer.pos = 0; 
+
+	va_list args;			/* format arguments */
+	va_start(args,format);
+	internal_vprintf( (void *) snprintf_putc, (void *)&buffer, format,args);
+	va_end(args);
+
+  return 0;
+}
+
+
+
+
 
 
