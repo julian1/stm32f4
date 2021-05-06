@@ -66,6 +66,11 @@ void /*Adafruit_GFX::*/ charBounds(Context *ctx, unsigned char c, int16_t *x, in
                               int16_t *minx, int16_t *miny, int16_t *maxx,
                               int16_t *maxy) ;
 
+void /*Adafruit_GFX::*/getTextBounds(Context *ctx, const char *str, int16_t x, int16_t y,
+                                 int16_t *x1, int16_t *y1, uint16_t *w,
+                                 uint16_t *h) ;
+
+
 
 void setCursor(Context *ctx, int16_t x, int16_t y) ;
 void setTextColor(Context *ctx, uint16_t c) ;

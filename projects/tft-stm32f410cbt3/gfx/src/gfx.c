@@ -490,6 +490,51 @@ void /*Adafruit_GFX::*/ charBounds(Context *ctx, unsigned char c, int16_t *x, in
 
 
 
+
+
+/**************************************************************************/
+/*!
+    @brief  Helper to determine size of a string with current font/size.
+            Pass string and a cursor position, returns UL corner and W,H.
+    @param  str  The ASCII string to measure
+    @param  x    The current cursor X
+    @param  y    The current cursor Y
+    @param  x1   The boundary X coordinate, returned by function
+    @param  y1   The boundary Y coordinate, returned by function
+    @param  w    The boundary width, returned by function
+    @param  h    The boundary height, returned by function
+*/
+/**************************************************************************/
+void /*Adafruit_GFX::*/getTextBounds(Context *ctx, const char *str, int16_t x, int16_t y,
+                                 int16_t *x1, int16_t *y1, uint16_t *w,
+                                 uint16_t *h) {
+
+  uint8_t c; // Current character
+  int16_t minx = 0x7FFF, miny = 0x7FFF, maxx = -1, maxy = -1; // Bound rect
+  // Bound rect is intentionally initialized inverted, so 1st char sets it
+
+  *x1 = x; // Initial position is value passed in
+  *y1 = y;
+  *w = *h = 0; // Initial size is zero
+
+  while ((c = *str++)) {
+    // charBounds() modifies x/y to advance for each character,
+    // and min/max x/y are updated to incrementally build bounding rect.
+    charBounds(ctx, c, &x, &y, &minx, &miny, &maxx, &maxy);
+  }
+
+  if (maxx >= minx) {     // If legit string bounds were found...
+    *x1 = minx;           // Update x1 to least X coord,
+    *w = maxx - minx + 1; // And w to bound rect width
+  }
+  if (maxy >= miny) { // Same for height
+    *y1 = miny;
+    *h = maxy - miny + 1;
+  }
+}
+
+
+
 void setCursor(Context *ctx, int16_t x, int16_t y) 
 {
     ctx->cursor_x = x;
