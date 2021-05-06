@@ -403,6 +403,92 @@ size_t write(Context *ctx, uint8_t c)
 
 
 
+/**************************************************************************/
+/*!
+    @brief  Helper to determine size of a character with current font/size.
+            Broke this out as it's used by both the PROGMEM- and RAM-resident
+            getTextBounds() functions.
+    @param  c     The ASCII character in question
+    @param  x     Pointer to x location of character. Value is modified by
+                  this function to advance to next character.
+    @param  y     Pointer to y location of character. Value is modified by
+                  this function to advance to next character.
+    @param  minx  Pointer to minimum X coordinate, passed in to AND returned
+                  by this function -- this is used to incrementally build a
+                  bounding rectangle for a string.
+    @param  miny  Pointer to minimum Y coord, passed in AND returned.
+    @param  maxx  Pointer to maximum X coord, passed in AND returned.
+    @param  maxy  Pointer to maximum Y coord, passed in AND returned.
+*/
+/**************************************************************************/
+void /*Adafruit_GFX::*/ charBounds(Context *ctx, unsigned char c, int16_t *x, int16_t *y,
+                              int16_t *minx, int16_t *miny, int16_t *maxx,
+                              int16_t *maxy) {
+#if 0
+  if (gfxFont) {
+
+    if (c == '\n') { // Newline?
+      *x = 0;        // Reset x to zero, advance y by one line
+      *y += textsize_y * (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
+    } else if (c != '\r') { // Not a carriage return; is normal char
+      uint8_t first = pgm_read_byte(&gfxFont->first),
+              last = pgm_read_byte(&gfxFont->last);
+      if ((c >= first) && (c <= last)) { // Char present in this font?
+        GFXglyph *glyph = pgm_read_glyph_ptr(gfxFont, c - first);
+        uint8_t gw = pgm_read_byte(&glyph->width),
+                gh = pgm_read_byte(&glyph->height),
+                xa = pgm_read_byte(&glyph->xAdvance);
+        int8_t xo = pgm_read_byte(&glyph->xOffset),
+               yo = pgm_read_byte(&glyph->yOffset);
+        if (wrap && ((*x + (((int16_t)xo + gw) * textsize_x)) > _width)) {
+          *x = 0; // Reset x to zero, advance y by one line
+          *y += textsize_y * (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
+        }
+        int16_t tsx = (int16_t)textsize_x, tsy = (int16_t)textsize_y,
+                x1 = *x + xo * tsx, y1 = *y + yo * tsy, x2 = x1 + gw * tsx - 1,
+                y2 = y1 + gh * tsy - 1;
+        if (x1 < *minx)
+          *minx = x1;
+        if (y1 < *miny)
+          *miny = y1;
+        if (x2 > *maxx)
+          *maxx = x2;
+        if (y2 > *maxy)
+          *maxy = y2;
+        *x += xa * tsx;
+      }
+    }
+
+  } else { // Default font
+#endif
+
+    if (c == '\n') {        // Newline?
+      *x = 0;               // Reset x to zero,
+      *y += ctx->textsize_y * 8; // advance y one line
+      // min/max x/y unchaged -- that waits for next 'normal' character
+    } else if (c != '\r') { // Normal char; ignore carriage returns
+      if (ctx->wrap && ((*x + ctx->textsize_x * 6) > ctx->width)) { // Off right?
+        *x = 0;                                       // Reset x to zero,
+        *y += ctx->textsize_y * 8;                         // advance y one line
+      }
+      int x2 = *x + ctx->textsize_x * 6 - 1, // Lower-right pixel of char
+          y2 = *y + ctx->textsize_y * 8 - 1;
+      if (x2 > *maxx)
+        *maxx = x2; // Track max x, y
+      if (y2 > *maxy)
+        *maxy = y2;
+      if (*x < *minx)
+        *minx = *x; // Track min x, y
+      if (*y < *miny)
+        *miny = *y;
+      *x += ctx->textsize_x * 6; // Advance x one char
+    }
+//  }
+}
+
+
+
+
 
 void setCursor(Context *ctx, int16_t x, int16_t y) 
 {

@@ -61,6 +61,12 @@ void drawChar(
 */
 size_t write(Context *ctx, uint8_t c);
 
+
+void /*Adafruit_GFX::*/ charBounds(Context *ctx, unsigned char c, int16_t *x, int16_t *y,
+                              int16_t *minx, int16_t *miny, int16_t *maxx,
+                              int16_t *maxy) ;
+
+
 void setCursor(Context *ctx, int16_t x, int16_t y) ;
 void setTextColor(Context *ctx, uint16_t c) ;
 //void setTextColor2(uint16_t c, uint16_t bg) ;
