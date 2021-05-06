@@ -71,7 +71,6 @@ void writeFastHLine(Context *ctx, int16_t x, int16_t y, int16_t w, uint16_t colo
   //drawFastHLine(x, y, w, color);
 
   writeFillRect(ctx, x, y, w, 1, color);
-
 }
 
 void writeFastVLine(Context *ctx, int16_t x, int16_t y, int16_t h, uint16_t color)
@@ -563,7 +562,25 @@ void setTextSize(Context *ctx, uint8_t s_x, uint8_t s_y)
 
 
 
-
+/**************************************************************************/
+/*!
+   @brief   Draw a rectangle with no fill color
+    @param    x   Top left corner x coordinate
+    @param    y   Top left corner y coordinate
+    @param    w   Width in pixels
+    @param    h   Height in pixels
+    @param    color 16-bit 5-6-5 Color to draw with
+*/
+/**************************************************************************/
+void /*Adafruit_GFX::*/drawRect(Context *ctx, int16_t x, int16_t y, int16_t w, int16_t h,
+                            uint16_t color) {
+  startWrite(ctx);
+  writeFastHLine(ctx, x, y, w, color);
+  writeFastHLine(ctx,x, y + h - 1, w, color);
+  writeFastVLine(ctx,x, y, h, color);
+  writeFastVLine(ctx,x + w - 1, y, h, color);
+  endWrite(ctx);
+}
 
 
 

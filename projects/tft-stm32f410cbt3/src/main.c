@@ -405,17 +405,10 @@ static void loop( Context *ctx)
     int count = timer_get_counter(TIM1);
     if(count != last_rotary_count) {
       last_rotary_count = count ;
+/*
       usart_printf("rotary count.. %d\n", count);
 
-      // usart_output_update();
-
-      setTextColor(ctx, ILI9341_RED);
-      setTextBGColor(ctx, ILI9341_WHITE);
-      setCursor(ctx, 20, 20);
-      setTextSize(ctx, 2, 2);
-      char buf[100];
-      snprintf( buf, 100, "%d   ", (int)count);
-      drawText(ctx, buf );
+*/
 
 
       // set buzzer
@@ -423,6 +416,7 @@ static void loop( Context *ctx)
       buzzer_stop_millis = system_millis + 20;
     }
 
+  
 
     /////////////////////
     setTextColor(ctx, ILI9341_BLUE);
@@ -433,6 +427,12 @@ static void loop( Context *ctx)
     char buf[100];
     snprintf( buf, 100, "%d", (int)system_millis );
     drawText(ctx, buf );
+
+    int16_t x1, y1;
+    uint16_t w, h;
+    getTextBounds(ctx, buf, 0, 0, &x1, &y1, &w, &h) ;
+    drawRect(ctx, 50 ,50 , w, h, ILI9341_BLUE);
+
 
     /////////////////////
 
