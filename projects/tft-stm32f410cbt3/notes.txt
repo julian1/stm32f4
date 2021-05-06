@@ -1,4 +1,30 @@
 
+Using anti-grain to rasterize text - will use a lot less memory than highresolution bitmaps for fonts.
+  eg. do not even have enough memory to cover screen.
+  bitmap fonts - would probably want to be stored sram rather than flash spi also. for speed.
+
+  also. a vectorized font will use less memory for storage - may not need flash spi.
+  just bake it in as a static C code.
+
+----------------
+
+http://en.radzio.dxp.pl/stm32f429idiscovery/sdram.html
+
+
+STM32F429I-DISCO board is equipped with 8MB SDRAM chip (IS42S16400J from
+Integrated Silicon Solution, Inc.). This SDRAM memory chip is connected to
+SDRAM bank 2 of Flexible Memory Controller of STM32F429 MCU. SDRAM memory can
+be used as frame buffer for big LCDs (up to 800x600). 
+
+ // Clear SDRAM or fill with some pattern/color
+  for(tmp = SDRAM_BASE; tmp < (SDRAM_BASE + SDRAM_SIZE); tmp += 4)
+    *((uint32_t *)tmp) = 0x00000000;
+
+memory mapped tft of f429 discovery
+  http://en.radzio.dxp.pl/stm32f429idiscovery/tft-lcd-controller.html
+
+
+----------------
 snapshot antigrain.
 https://sourceforge.net/p/agg/svn/HEAD/tarball?path=/agg-2.4
 
@@ -10,7 +36,7 @@ http://agg.sourceforge.net/antigrain.com/demo/index.html
 http://agg.sourceforge.net/antigrain.com/doc/basic_renderers/basic_renderers.agdoc.html
 
 ./agg-svn-r138-agg-2.4/include/platform/agg_platform_support.h
-    
+
     includes platform_specific instance.
     class platform_specific;
 
@@ -21,6 +47,7 @@ http://agg.sourceforge.net/antigrain.com/doc/basic_renderers/basic_renderers.agd
 
     private:
         platform_support(const platform_support&);
- 
-    
+
+
+
 
