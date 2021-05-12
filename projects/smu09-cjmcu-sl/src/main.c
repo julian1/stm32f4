@@ -283,6 +283,8 @@ static state_t state = FIRST;
 
 static void update_soft_500ms(uint32_t spi  /*, state */)
 {
+
+
   static uint32_t count = 0; // -1
   ++count;    // increment first. because state machine funcs return early.
 
@@ -298,6 +300,15 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
 
   io_toggle(spi, LED_REGISTER, LED2);
+
+
+  mux_adc03(spi);
+  float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
+  float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
+  usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
+
+
+
  // tests
   // io_write(spi, CLAMP1_REGISTER, count);  // works
   // io_write(spi, CLAMP2_REGISTER, count);  // works
@@ -442,6 +453,7 @@ static void update(uint32_t spi)
     so it should only be done in soft timer eg. 10ms is probably enough.
     preferrably should offload to fpga with set voltages, -  and fpga can raise an interupt.
   */
+
   // get supply voltages,
   mux_adc03(spi);
   float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
@@ -533,12 +545,14 @@ static void update(uint32_t spi)
       mux_w25(spi);
       spi_w25_get_data(spi);
 
+#if 0
       // dac init
       int ret = dac_init(spi, DAC_REGISTER); // bad name?
       if(ret != 0) {
         state = ERROR;
         return;
       }
+#endif
 
       // progress to digital up?
       usart_printf("digital init ok\n" );
@@ -548,6 +562,7 @@ static void update(uint32_t spi)
 
 
     case DIGITAL_UP:
+#if 0
       if( lp15v > 15.0 && ln15v > 15.0 )
       {
         usart_printf("-----------\n");
@@ -644,6 +659,7 @@ static void update(uint32_t spi)
         // analog and power... change name?
         state = ANALOG_UP;
       }
+#endif
       break ;
 
 

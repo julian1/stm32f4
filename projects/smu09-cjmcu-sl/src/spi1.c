@@ -16,13 +16,13 @@
 #define SPI_ICE40       SPI1
 
 #define SPI_ICE40_PORT  GPIOA
-#define SPI_ICE40_CLK   GPIO5
-#define SPI_ICE40_CS    GPIO4
-#define SPI_ICE40_MOSI  GPIO7
-#define SPI_ICE40_MISO  GPIO6
+#define SPI_ICE40_CLK   GPIO5     // PA5
+#define SPI_ICE40_CS    GPIO4     // PA4
+#define SPI_ICE40_MOSI  GPIO7     // PA7
+#define SPI_ICE40_MISO  GPIO6     // PA6
 
 // output reg.
-#define SPI_ICE40_SPECIAL GPIO3
+#define SPI_ICE40_SPECIAL GPIO3   // PA4
 
 
 #define UNUSED(x) (void)(x)
