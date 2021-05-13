@@ -492,7 +492,7 @@ static void update(uint32_t spi)
 
       // may as well keep rails OE deasserted, until really ready
       // io_set(spi, RAILS_REGISTER, RAILS_OE);
-      io_set(spi, RAILS_OE_REGISTER, RAILS_OE);
+      io_set(spi, RAILS_OE_REGISTER, RAILS_OE); // should
 
 
 
@@ -578,7 +578,7 @@ static void update(uint32_t spi)
         usart_printf("turn on analog rails - lp15v\n" );
         mux_io(spi);
         // assert rails oe
-        io_clear(spi, RAILS_REGISTER, RAILS_OE);
+        io_clear(spi, RAILS_OE_REGISTER, RAILS_OE);
 
         // turn on +-15V analog rails
         io_set(spi, RAILS_REGISTER, RAILS_LP15V );
