@@ -491,7 +491,7 @@ static void update(uint32_t spi)
       io_clear(spi, RAILS_REGISTER, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
 
       // may as well keep rails OE deasserted, until really ready
-      io_set(spi, RAILS_OE_REGISTER, RAILS_OE); // should
+      io_set(spi, RAILS_OE_REGISTER, RAILS_OE); // actie lo
 
 
 
@@ -574,15 +574,24 @@ static void update(uint32_t spi)
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
 
-        usart_printf("whoot turn on analog rails - lp15v\n" );
+        usart_printf("whoot2 turn on analog rails - lp15v\n" );
         mux_io(spi);
         // assert rails oe
         io_clear(spi, RAILS_OE_REGISTER, RAILS_OE);
 
         // turn on +-15V analog rails
-        // io_set(spi, RAILS_REGISTER, RAILS_LP15V );
-        // io_set(spi, RAILS_REGISTER, RAILS_LP5V );
+        // io_SET should be flipping single bit. 
+   /* 
+        io_set(spi, RAILS_REGISTER, RAILS_LP15V );
+        io_set(spi, RAILS_REGISTER, RAILS_LP5V );
+        io_set(spi, RAILS_REGISTER, RAILS_LP30V );
+        io_set(spi, RAILS_REGISTER, RAILS_LP60V );
+   */ 
+
+        // io_set(spi, RAILS_REGISTER, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V );
         msleep(50);
+
+        // signal integrity?
 
 #if 0
 
@@ -662,10 +671,9 @@ static void update(uint32_t spi)
 #endif
 
         // analog and power... change name?
-        state = ANALOG_UP;
 
 #endif
-        state = HALT;
+        state = ANALOG_UP;
       }
       break ;
 
