@@ -337,6 +337,7 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
     case ANALOG_UP: {
 
+#if 0
       // ... ok.
       // how to return. pass by reference...
       float ar[4];
@@ -347,7 +348,6 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
       // %f formatter, doesn't pad with zeros properly...
       // why is the voltage *10?
       // Force=Potential=3V, etc.
-#if 1
       usart_printf("adc %f V    %fA\n",
         ar[0] / 1.64640 * vmultiplier,
         ar[1] / 1.64640 * imultiplier
@@ -588,7 +588,7 @@ static void update(uint32_t spi)
         io_set(spi, RAILS_REGISTER, RAILS_LP60V );
    */ 
 
-        // io_set(spi, RAILS_REGISTER, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V );
+        io_set(spi, RAILS_REGISTER, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V );
         msleep(50);
 
         // signal integrity?
