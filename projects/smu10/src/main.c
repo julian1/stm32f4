@@ -302,12 +302,12 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
   io_toggle(spi, LED_REGISTER, LED2);
 
-
+#if 0
   mux_adc03(spi);
   float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
   float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
   usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
-
+#endif
 
 
  // tests
@@ -488,10 +488,9 @@ static void update(uint32_t spi)
 
       // should we have wrapper functions here, can then put comments
       // make sure rails are off
-      io_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
+      io_clear(spi, RAILS_REGISTER, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
 
       // may as well keep rails OE deasserted, until really ready
-      // io_set(spi, RAILS_REGISTER, RAILS_OE);
       io_set(spi, RAILS_OE_REGISTER, RAILS_OE); // should
 
 
@@ -575,13 +574,14 @@ static void update(uint32_t spi)
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
 
-        usart_printf("turn on analog rails - lp15v\n" );
+        usart_printf("whoot turn on analog rails - lp15v\n" );
         mux_io(spi);
         // assert rails oe
         io_clear(spi, RAILS_OE_REGISTER, RAILS_OE);
 
         // turn on +-15V analog rails
-        io_set(spi, RAILS_REGISTER, RAILS_LP15V );
+        // io_set(spi, RAILS_REGISTER, RAILS_LP15V );
+        // io_set(spi, RAILS_REGISTER, RAILS_LP5V );
         msleep(50);
 
 #if 0
