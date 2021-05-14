@@ -229,6 +229,7 @@ static void voltage_range_set(uint32_t spi)
   io_write(spi, INA_VFB_SW_REGISTER, INA_VFB_SW1_CTL);
 
   io_write(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW1_CTL); // ina154
+  // io_write(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW2_CTL); // ina143
 
   vmultiplier = 10.f;
 }
