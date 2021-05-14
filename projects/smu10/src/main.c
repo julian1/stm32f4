@@ -180,7 +180,7 @@ static void current_range_set_10mA(uint32_t spi)
 ////////////////////////////
 
 
-
+#if 0
 static void voltage_range_set_100V(uint32_t spi)
 {
   // now using ina 143. with 1:10 divide by default
@@ -218,6 +218,17 @@ static void voltage_range_set_1V(uint32_t spi)
   io_write(spi, GAIN_VFB_REGISTER, ~(GAIN_VFB_OP1 | GAIN_VFB_OP2) );
 
   vmultiplier = 0.1f;
+}
+#endif
+
+
+static void voltage_range_set(uint32_t spi)
+{
+  // now using ina 143. with 1:10 divide by default
+
+  io_write(spi, INA_VFB_SW_REGISTER, INA_VFB_SW1_CTL );
+
+  vmultiplier = 10.f;
 }
 
 
@@ -295,11 +306,13 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
 
   io_toggle(spi, LED_REGISTER, LED2);
-  
+
+#if 0
   if(count % 5 == 0) {
     io_toggle(spi, INA_VFB_SW_REGISTER, INA_VFB_SW1_CTL | INA_VFB_SW2_CTL | INA_VFB_SW3_CTL);
     io_toggle(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW1_CTL | INA_DIFF_SW2_CTL);
   }
+#endif
 
 #if 0
   mux_adc03(spi);
@@ -547,9 +560,13 @@ static void update(uint32_t spi)
         io_set(spi, RAILS_REGISTER, RAILS_LP30V );
         msleep(50);
    /*
-        io_set(spi, RAILS_REGISTER, RAILS_LP30V );
         io_set(spi, RAILS_REGISTER, RAILS_LP60V );
    */
+
+
+
+        voltage_range_set(spi);
+
 #if 0
 
         // turn on refs for dac
