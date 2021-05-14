@@ -586,6 +586,10 @@ static void update(uint32_t spi)
         // turn on +-15V rails
         io_set(spi, RAILS_REGISTER, RAILS_LP15V );
         msleep(50);
+
+        // LP30 - needed to power the vfb topside op amp. ltc6090/ bootstrapped
+        io_set(spi, RAILS_REGISTER, RAILS_LP30V );
+        msleep(50);
    /*
         io_set(spi, RAILS_REGISTER, RAILS_LP30V );
         io_set(spi, RAILS_REGISTER, RAILS_LP60V );
