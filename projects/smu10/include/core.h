@@ -122,13 +122,14 @@
 #define GAIN_IFB_OP2  (1<<1)
 
 
-
+/*
 // better name?
 #define IRANGEX_SW58_REGISTER    22
 #define IRANGEX_SW5         (1<<0)
 #define IRANGEX_SW6         (1<<1)
 #define IRANGEX_SW7         (1<<2)
 #define IRANGEX_SW8         (1<<3)
+*/
 
 
 // same dg444 as GAIN_IFB_REGISTER
@@ -137,7 +138,12 @@
 #define GAIN_VFB_OP1  (1<<0)
 #define GAIN_VFB_OP2  (1<<1)
 
-
+/////////////////////////
+// smu10
+#define INA_VFB_SW_REGISTER   25
+#define INA_VFB_SW1_CTL   (1<<0)
+#define INA_VFB_SW2_CTL   (1<<1)
+#define INA_VFB_SW3_CTL   (1<<2)
 
 
 

@@ -72,8 +72,6 @@ static void current_range_set_1A(uint32_t spi)
   // turn on current relay range X.
   io_write(spi, RELAY_COM_REGISTER, RELAY_COM_X);
 
-  // turn off other fets
-  io_write(spi, IRANGEX_SW58_REGISTER, 0);
 
   // turn on 1st b2b fets.
   io_write(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2);
@@ -118,8 +116,6 @@ static void current_range_set_100mA(uint32_t spi)
   // turn on current relay range X.
   io_write(spi, RELAY_COM_REGISTER, RELAY_COM_X);
 
-  // turn off other fets
-  io_write(spi, IRANGEX_SW58_REGISTER, 0);
 
   // turn on 2nd b2b fets.
   io_write(spi, IRANGEX_SW_REGISTER, IRANGEX_SW3 | IRANGEX_SW4);
@@ -168,8 +164,6 @@ static void current_range_set_10mA(uint32_t spi)
   // turn off other fets
   io_write(spi, IRANGEX_SW_REGISTER, 0);
 
-  // turn on 3rd b2b fets.
-  io_write(spi, IRANGEX_SW58_REGISTER, IRANGEX_SW5 | IRANGEX_SW6);
 
   // active lo, current sense 3
   io_write(spi, IRANGE_SENSE_REGISTER, ~IRANGE_SENSE3);
@@ -477,13 +471,16 @@ static void update(uint32_t spi)
 
       mux_io(spi);
 
+      ////////////
+      // soft reset is much better here.
+      // avoid defining initial condition. in more than one place
+      // so define in fpga.
+      io_clear(spi, CORE_SOFT_RST, 0);    // any value addressing this register.. to clear
 
-      // io_clear(spi, CORE_SOFT_RST, 0);    // any value addressing this register.. to clear
       // no. needs dg444/mux stuff. pulled high. for off.
-
       // BUT I THINK we should probably hold RAILS_OE high / deasserted.
 
-#if 1
+#if 0
       // REALLy need to rely on fpga reset, setting this stuff.
 
       // should we have wrapper functions here, can then put comments
@@ -520,11 +517,10 @@ static void update(uint32_t spi)
       // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2);
 
 
-      // adg1334. x range, b2b fets, lo is off.
-      io_clear(spi, IRANGEX_SW58_REGISTER, IRANGEX_SW5 | IRANGEX_SW6 | IRANGEX_SW7 | IRANGEX_SW8);
-
 
       io_set(spi, GAIN_VFB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2 );
+#endif
+
 
 
 #if 0
@@ -539,10 +535,6 @@ static void update(uint32_t spi)
 
 
 
-      // TODO soft reset would be much better here.
-      //  make sure fpga can configure initial state.
-      // we must turn everything off. or else issue a soft reset.
-#endif
       // test the flash
       // TODO. check responses.
       mux_w25(spi);
