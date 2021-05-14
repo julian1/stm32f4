@@ -579,20 +579,17 @@ static void update(uint32_t spi)
         // assert rails oe
         io_clear(spi, RAILS_OE_REGISTER, RAILS_OE);
 
-        // turn on +-15V analog rails
-        // io_SET should be flipping single bit. 
-   /* 
-        io_set(spi, RAILS_REGISTER, RAILS_LP15V );
+        // turn on 5V digital rails
         io_set(spi, RAILS_REGISTER, RAILS_LP5V );
-        io_set(spi, RAILS_REGISTER, RAILS_LP30V );
-        io_set(spi, RAILS_REGISTER, RAILS_LP60V );
-   */ 
-
-        io_set(spi, RAILS_REGISTER, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V );
         msleep(50);
 
-        // signal integrity?
-
+        // turn on +-15V rails
+        io_set(spi, RAILS_REGISTER, RAILS_LP15V );
+        msleep(50);
+   /*
+        io_set(spi, RAILS_REGISTER, RAILS_LP30V );
+        io_set(spi, RAILS_REGISTER, RAILS_LP60V );
+   */
 #if 0
 
         // turn on refs for dac
@@ -719,10 +716,11 @@ static void update(uint32_t spi)
 
         // turn off output relay
         io_clear(spi, RELAY_REGISTER, RELAY_OUTCOM);
-        // turn off all power
-        io_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
+
+        // turn off 5V digital and all analog power
+        io_clear(spi, RAILS_REGISTER, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
       }
-      // stay in error.
+      // stay in error state.
     }
     break;
 
@@ -737,8 +735,9 @@ static void update(uint32_t spi)
         mux_io(spi);
         // turn off output relay
         io_clear(spi, RELAY_REGISTER, RELAY_OUTCOM);
-        // turn off all power
-        io_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
+
+        // turn off 5V digital and all analog power
+        io_clear(spi, RAILS_REGISTER, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
       }
     }
     break;
