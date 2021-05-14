@@ -295,6 +295,9 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
 
   io_toggle(spi, LED_REGISTER, LED2);
+  
+  if(count % 5 == 0)
+    io_toggle(spi, INA_VFB_SW_REGISTER, INA_VFB_SW1_CTL);
 
 #if 0
   mux_adc03(spi);
@@ -479,47 +482,6 @@ static void update(uint32_t spi)
 
       // no. needs dg444/mux stuff. pulled high. for off.
       // BUT I THINK we should probably hold RAILS_OE high / deasserted.
-
-#if 0
-      // REALLy need to rely on fpga reset, setting this stuff.
-
-      // should we have wrapper functions here, can then put comments
-      // make sure rails are off
-      io_clear(spi, RAILS_REGISTER, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
-
-      // may as well keep rails OE deasserted, until really ready
-      io_set(spi, RAILS_OE_REGISTER, RAILS_OE); // actie lo
-
-
-
-      // turn off dac ref mux. pull-high, active lo.
-      io_set( spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A | DAC_REF_MUX_B);
-
-      // turn off all clamp muxes, active lo.
-      io_set(spi, CLAMP1_REGISTER, CLAMP1_VSET | CLAMP1_ISET | CLAMP1_ISET_INV | CLAMP1_VSET_INV);
-      io_set(spi, CLAMP2_REGISTER, CLAMP2_MIN | CLAMP2_INJECT_ERR | CLAMP2_INJECT_VFB | CLAMP2_MAX);
-
-      // active hi
-      io_clear(spi, RELAY_COM_REGISTER, RELAY_COM_X | RELAY_COM_Y | RELAY_COM_Z);
-
-      // adg1334, controlling b2b fets. wired to provide +-15V as needed.
-      io_clear(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2 | IRANGEX_SW3 | IRANGEX_SW4);
-
-      // active hi
-      io_clear(spi, RELAY_REGISTER, RELAY_VRANGE | RELAY_OUTCOM | RELAY_SENSE);
-
-      // active lo
-      io_set(spi, IRANGE_SENSE_REGISTER, IRANGE_SENSE1 | IRANGE_SENSE2 | IRANGE_SENSE3 | IRANGE_SENSE4);
-
-
-      // gain fb. turn off ifb and vfb gain ,active hi
-      io_set(spi, GAIN_IFB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2);
-      // io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2);
-
-
-
-      io_set(spi, GAIN_VFB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2 );
-#endif
 
 
 
