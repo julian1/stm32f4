@@ -298,7 +298,6 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
   
   if(count % 5 == 0) {
     io_toggle(spi, INA_VFB_SW_REGISTER, INA_VFB_SW1_CTL | INA_VFB_SW2_CTL | INA_VFB_SW3_CTL);
-
     io_toggle(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW1_CTL | INA_DIFF_SW2_CTL);
   }
 
