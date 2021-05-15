@@ -231,7 +231,8 @@ static void current_range_set(uint32_t spi)
 
   // turn on no resistor divider fb for gain = 1x.
   // io_write(spi, INA_IFB_SW1_CTL_REGISTER, ~INA_IFB_SW1_CTL); // 1x gain.
-  io_write(spi, INA_IFB_SW1_CTL_REGISTER, ~INA_IFB_SW2_CTL);    // 10x gain.
+  // io_write(spi, INA_IFB_SW1_CTL_REGISTER, ~INA_IFB_SW2_CTL);    // 10x gain.
+  io_write(spi, INA_IFB_SW1_CTL_REGISTER, ~INA_IFB_SW3_CTL);    // 100x gain.
 
   imultiplier = 1.f;
 }
