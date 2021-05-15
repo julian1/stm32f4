@@ -225,15 +225,13 @@ static void voltage_range_set(uint32_t spi)
 
 static void current_range_set(uint32_t spi)
 {
-//     io_toggle(spi, INA_ISENSE_SW_REGISTER,   ISENSE_SW1_CTL | ISENSE_SW2_CTL | ISENSE_SW3_CTL);
-//     io_toggle(spi, INA_IFB_SW1_CTL_REGISTER, INA_IFB_SW1_CTL | INA_IFB_SW2_CTL | INA_IFB_SW3_CTL);
- 
 
   // turn on sense dual op, for high-current range b2b fets
   io_write(spi, INA_ISENSE_SW_REGISTER,  ~ISENSE_SW1_CTL);
 
   // turn on no resistor divider fb for gain = 1x.
-  io_write(spi, INA_IFB_SW1_CTL_REGISTER, ~INA_IFB_SW1_CTL);
+  // io_write(spi, INA_IFB_SW1_CTL_REGISTER, ~INA_IFB_SW1_CTL); // 1x gain.
+  io_write(spi, INA_IFB_SW1_CTL_REGISTER, ~INA_IFB_SW2_CTL);    // 10x gain.
 
   imultiplier = 1.f;
 }
