@@ -230,10 +230,10 @@ static void current_range_set(uint32_t spi)
  
 
   // turn on sense dual op, for high-current range b2b fets
-  io_write(spi, INA_ISENSE_SW_REGISTER,  ISENSE_SW1_CTL);
+  io_write(spi, INA_ISENSE_SW_REGISTER,  ~ISENSE_SW1_CTL);
 
   // turn on no resistor divider fb for gain = 1x.
-  io_write(spi, INA_IFB_SW1_CTL_REGISTER, INA_IFB_SW1_CTL);
+  io_write(spi, INA_IFB_SW1_CTL_REGISTER, ~INA_IFB_SW1_CTL);
 
   imultiplier = 1.f;
 }
