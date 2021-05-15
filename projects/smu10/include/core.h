@@ -151,6 +151,24 @@
 #define INA_DIFF_SW2_CTL    (1<<1)
 
 
+
+#define INA_ISENSE_SW_REGISTER     27
+#define ISENSE_SW1_CTL   (1<<0)
+#define ISENSE_SW2_CTL   (1<<1)
+#define ISENSE_SW3_CTL   (1<<2)
+
+
+#define INA_IFB_SW1_CTL_REGISTER   28
+#define INA_IFB_SW1_CTL  (1<<0)
+#define INA_IFB_SW2_CTL  (1<<1)
+#define INA_IFB_SW3_CTL  (1<<2)
+
+
+
+
+
+
+
 /////////////////
 /*
   inputs.
