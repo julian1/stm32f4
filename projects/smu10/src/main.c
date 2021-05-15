@@ -60,6 +60,8 @@
 static float imultiplier = 0;
 static float vmultiplier = 0;
 
+#if 0
+
 static void current_range_set_1A(uint32_t spi)
 {
   // 2V on 1A is 200mA, 5V is 0.5A
@@ -130,21 +132,6 @@ static void current_range_set_100mA(uint32_t spi)
   imultiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
 }
 
-#if 0
-static void current_range_set_none(uint32_t spi)
-{
-  // this won't work. without a current sense resistor, its an open circuit.
-
-  // clear all current relays
-  io_write(spi, RELAY_COM_REGISTER, 0 );
-
-  // turn off other fets, switches
-  io_write(spi, IRANGEX_SW58_REGISTER, 0);
-  io_write(spi, IRANGEX_SW_REGISTER, 0);
-}
-#endif
-
-
 
 
 
@@ -175,6 +162,7 @@ static void current_range_set_10mA(uint32_t spi)
 }
 
 
+#endif
 
 
 ////////////////////////////
@@ -232,6 +220,22 @@ static void voltage_range_set(uint32_t spi)
   // io_write(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW2_CTL); // ina143
 
   vmultiplier = 10.f;
+}
+
+
+static void current_range_set(uint32_t spi)
+{
+//     io_toggle(spi, INA_ISENSE_SW_REGISTER,   ISENSE_SW1_CTL | ISENSE_SW2_CTL | ISENSE_SW3_CTL);
+//     io_toggle(spi, INA_IFB_SW1_CTL_REGISTER, INA_IFB_SW1_CTL | INA_IFB_SW2_CTL | INA_IFB_SW3_CTL);
+ 
+
+  // turn on sense dual op, for high-current range b2b fets
+  io_write(spi, INA_ISENSE_SW_REGISTER,  ISENSE_SW1_CTL);
+
+  // turn on no resistor divider fb for gain = 1x.
+  io_write(spi, INA_IFB_SW1_CTL_REGISTER, INA_IFB_SW1_CTL);
+
+  imultiplier = 1.f;
 }
 
 
@@ -319,7 +323,7 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
 
 
-#if 1
+#if 0
   // if(count % 5 == 0) {
     // io_toggle(spi, INA_VFB_SW_REGISTER, INA_VFB_SW1_CTL | INA_VFB_SW2_CTL | INA_VFB_SW3_CTL);
     // io_toggle(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW1_CTL | INA_DIFF_SW2_CTL);
@@ -581,7 +585,11 @@ static void update(uint32_t spi)
 
 
 
+        usart_printf("turn on voltage range\n" );
         voltage_range_set(spi);
+
+        usart_printf("turn on current range\n" );
+        current_range_set(spi);
 
 #if 0
 
