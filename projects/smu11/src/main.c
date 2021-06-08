@@ -698,7 +698,7 @@ static void update(uint32_t spi)
 
     case ANALOG_UP:
 
-#if 0
+#if 1
       if((lp15v < 14.7 || ln15v < 14.7)  ) {
 
         mux_io(spi);
