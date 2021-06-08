@@ -296,7 +296,8 @@ static state_t state = FIRST;
 
 
 
-
+// TODO pass the state. explicitly.
+// good for tests.
 
 static void update_soft_500ms(uint32_t spi  /*, state */)
 {
@@ -323,14 +324,14 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
 
 #if 1
-  if(count % 5 == 0) 
+  if(count % 5 == 0)
   {
     // io_toggle(spi, INA_VFB_SW_REGISTER, INA_VFB_SW1_CTL | INA_VFB_SW2_CTL | INA_VFB_SW3_CTL);
     // io_toggle(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW1_CTL | INA_DIFF_SW2_CTL);
     // io_toggle(spi, INA_ISENSE_SW_REGISTER,   ISENSE_SW1_CTL | ISENSE_SW2_CTL | ISENSE_SW3_CTL);
     // io_toggle(spi, INA_IFB_SW1_CTL_REGISTER, INA_IFB_SW1_CTL | INA_IFB_SW2_CTL | INA_IFB_SW3_CTL);
 
-    io_toggle(spi, RELAY_COM_REGISTER, RELAY_COM_X);
+    // io_toggle(spi, RELAY_COM_REGISTER, RELAY_COM_X);
 
   }
 #endif
@@ -476,6 +477,10 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in, CBuf* console_out
 }
 
 
+// TODO.
+// pass the state...
+// as a struct...
+
 static void update(uint32_t spi)
 {
   // called as often as possible
@@ -555,8 +560,8 @@ static void update(uint32_t spi)
     case DIGITAL_UP:
 
       // we want to print the voltages once... eg. first time on state...
-    {
-
+    // {
+/*
         usart_printf("turn on 5V\n" );
         mux_io(spi);
         // assert rails oe
@@ -565,10 +570,9 @@ static void update(uint32_t spi)
         // turn on 5V digital rails
         io_set(spi, RAILS_REGISTER, RAILS_LP5V );
         msleep(50);
+*/
 
 
-
-#if 0
       if( lp15v > 15.0 && ln15v > 15.0 )
       {
         usart_printf("-----------\n");
@@ -577,7 +581,7 @@ static void update(uint32_t spi)
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
 
-        usart_printf("whoot2 turn on analog rails - lp15v\n" );
+        usart_printf("turn on lp5v\n" );
         mux_io(spi);
         // assert rails oe
         io_clear(spi, RAILS_OE_REGISTER, RAILS_OE);
@@ -587,6 +591,7 @@ static void update(uint32_t spi)
         msleep(50);
 
         // turn on +-15V rails
+        usart_printf("turn on analog rails - lp15v\n" );
         io_set(spi, RAILS_REGISTER, RAILS_LP15V );
         msleep(50);
 
@@ -597,8 +602,7 @@ static void update(uint32_t spi)
         io_set(spi, RAILS_REGISTER, RAILS_LP60V );
    */
 
-
-
+#if 0
         usart_printf("turn on voltage range\n" );
         voltage_range_set(spi);
 
