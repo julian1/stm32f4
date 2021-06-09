@@ -234,8 +234,14 @@ static void voltage_range_set(uint32_t spi)
   // io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW2_CTL);    // x10 . works.
   io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW3_CTL);       // x100  works. 0.1V diff gives  8.75V out.
 
+  // 9.1 - 9.0 -> *.1*100 = 0.818.
+  // 1.1 - 1.0 -> *.1 x100 = 0.859 
+  // 0.1 - 1.0             = 0.845
+
   vmultiplier = 10.f;
 }
+
+// colorscheme default. loooks good.
 
 
 static void current_range_set(uint32_t spi)
