@@ -210,18 +210,33 @@ static void range_voltage_set_1V(uint32_t spi)
 #endif
 
 /*
-  VERY IMPORTANT. 
+  VERY IMPORTANT.
   we need to iterate all the ranges. even if we don't use them. so that can test them.
   A switch statement. is almost certainly going to be easier separate functions.
-
 */
-static void range_voltage_set(uint32_t spi)
+
+
+typedef enum vrange_t
+{
+  vrange_none,
+  vrange_1x,
+  vrange_1x_2,
+  vrange_0x1
+
+} vrange_t;
+
+
+#define VRANGE_1X
+
+
+static void range_voltage_set(uint32_t spi, vrange_t vrange)
 {
   // TODO swap name.
   // TODO COULD also call it. range_voltage_10x() etc. range_voltage_0x1() etc
 
   // now using ina 143. with 1:10 divide by default
 
+#if 0
 
   // io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW1_CTL);                         // atten = non = 1x
   io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
@@ -233,10 +248,46 @@ static void range_voltage_set(uint32_t spi)
   // io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW3_CTL);       // x100  works. 0.1V diff gives  8.75V out.
 
   // 9.1 - 9.0 -> *.1*100 = 0.818.
-  // 1.1 - 1.0 -> *.1 x100 = 0.859 
+  // 1.1 - 1.0 -> *.1 x100 = 0.859
   // 0.1 - 1.0             = 0.845
 
+#endif
   // try it without the atten...
+
+  switch(vrange)
+  {
+
+    case vrange_1x:
+      // flutters at 5 digit. nice.
+      io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW1_CTL);                         // atten = non = 1x
+      io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
+      vmultiplier = 1.f;
+      break;
+
+    // IMPORTANT - remember have the other attenuation possibility... of just turning on/off sw3.
+
+  case vrange_1x_2:
+      // flutters at 4th digit.
+      io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
+      io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW2_CTL);                                   // x10 . works.
+      vmultiplier = 1.f;
+      break;
+
+
+  case vrange_0x1:
+      // flutters at 4th digit. with mV.  but this is on mV. range... so ok?
+      // at 6th digit with V.  eg. 9V and 0.1V.
+      io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
+      io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
+      vmultiplier = 0.1f;
+      break;
+
+
+    // shouldn't have this...
+    case vrange_none:
+      // assert...
+    break;
+  };
 
   vmultiplier = 10.f;
 }
@@ -576,7 +627,8 @@ static void update(uint32_t spi)
 #endif
 
       usart_printf("turn on voltage range\n" );
-      range_voltage_set(spi);
+      // range_voltage_set(spi, vrange_1x_2);
+      range_voltage_set(spi, vrange_0x1);
 
 
 
