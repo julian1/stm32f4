@@ -216,7 +216,7 @@ static void voltage_range_set(uint32_t spi)
 
   io_write(spi, INA_VFB_SW_REGISTER, INA_VFB_SW1_CTL);
 
-  io_write(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW1_CTL); // ina154
+  // io_write(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW1_CTL); // ina154
   // io_write(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW2_CTL); // ina143
 
   vmultiplier = 10.f;
@@ -345,6 +345,10 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
 
  // tests
+
+
+  io_write(spi, INA_VFB_ATTEN_SW_REGISTER, count);  
+
   // io_write(spi, CLAMP1_REGISTER, count);  // works
   // io_write(spi, CLAMP2_REGISTER, count);  // works
   // io_write(spi, RELAY_COM_REGISTER, count);
@@ -573,7 +577,7 @@ static void update(uint32_t spi)
 */
 
 
-      if( lp15v > 15.0 && ln15v > 15.0 )
+      if( false && lp15v > 15.0 && ln15v > 15.0 )
       {
         usart_printf("-----------\n");
 

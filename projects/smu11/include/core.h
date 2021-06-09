@@ -146,9 +146,9 @@
 #define INA_VFB_SW3_CTL   (1<<2)
 
 
-#define INA_DIFF_SW_REGISTER   26
-#define INA_DIFF_SW1_CTL    (1<<0)
-#define INA_DIFF_SW2_CTL    (1<<1)
+// #define INA_DIFF_SW_REGISTER   26
+// #define INA_DIFF_SW1_CTL    (1<<0)
+// #define INA_DIFF_SW2_CTL    (1<<1)
 
 
 
@@ -163,6 +163,11 @@
 #define INA_IFB_SW2_CTL  (1<<1)
 #define INA_IFB_SW3_CTL  (1<<2)
 
+
+#define INA_VFB_ATTEN_SW_REGISTER   29
+#define INA_VFB_ATTEN_SW1_CTL   (1<<0)
+#define INA_VFB_ATTEN_SW2_CTL   (1<<1)
+#define INA_VFB_ATTEN_SW3_CTL   (1<<2)
 
 
 
