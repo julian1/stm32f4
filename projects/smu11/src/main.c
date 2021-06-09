@@ -225,11 +225,11 @@ static void voltage_range_set(uint32_t spi)
   // io_write(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW2_CTL); // ina143
 */
 
-  io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW1_CTL);                         // atten = non = 1x
-  // io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x 
+  // io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW1_CTL);                         // atten = non = 1x
+  io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
 
 
-  // fix in fpga code. init should be 0b4 
+  // fix in fpga code. init should be 0b4
   // io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW1_CTL);    // x1 direct feedback. works.
   // io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW2_CTL);    // x10 . works.
   io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW3_CTL);       // x100  works. 0.1V diff gives  8.75V out.
@@ -627,9 +627,9 @@ static void update(uint32_t spi)
         io_set(spi, RAILS_REGISTER, RAILS_LP60V );
    */
 
-     
-#if 0 
-        // TODO EXTREME . set the gain switches before turning on rails. 
+
+#if 0
+        // TODO EXTREME . set the gain switches before turning on rails.
         // IMPORTANT - should probably do this. before switching on the supplies.
         // so that vrange ops are not high-Z
         usart_printf("turn on voltage range\n" );
