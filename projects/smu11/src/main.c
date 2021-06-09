@@ -62,7 +62,7 @@ static float vmultiplier = 0;
 
 #if 0
 
-static void current_range_set_1A(uint32_t spi)
+static void range_current_set_1A(uint32_t spi)
 {
   // 2V on 1A is 200mA, 5V is 0.5A
   // sense gain = 0.1x  ie. 0.1ohm sense resistor
@@ -88,7 +88,7 @@ static void current_range_set_1A(uint32_t spi)
   imultiplier = 0.1f;
 }
 
-static void current_range_set_10A(uint32_t spi)
+static void range_current_set_10A(uint32_t spi)
 {
   // 0.1ohm
   // 300mV=3A across 0.1R sense.   could use 3.33 (10/3.3) gain after ina to get to 0-10V..
@@ -97,7 +97,7 @@ static void current_range_set_10A(uint32_t spi)
   // eg. make op2 be
 
   // 10A is the same as 1A, except no 10x gain
-  current_range_set_1A(spi);
+  range_current_set_1A(spi);
 
   // active lo. turn off both ifb gain stages...
   // using 10x gain from ina, on 0.1R only.
@@ -108,7 +108,7 @@ static void current_range_set_10A(uint32_t spi)
 
 
 
-static void current_range_set_100mA(uint32_t spi)
+static void range_current_set_100mA(uint32_t spi)
 {
   // 10ohm.
   // 2V on 100mA range should be 20mA.
@@ -135,7 +135,7 @@ static void current_range_set_100mA(uint32_t spi)
 
 
 
-static void current_range_set_10mA(uint32_t spi)
+static void range_current_set_10mA(uint32_t spi)
 {
   // UNUSED(spi);
   /*
@@ -169,7 +169,7 @@ static void current_range_set_10mA(uint32_t spi)
 
 
 #if 0
-static void voltage_range_set_100V(uint32_t spi)
+static void range_voltage_set_100V(uint32_t spi)
 {
   // now using ina 143. with 1:10 divide by default
 
@@ -183,7 +183,7 @@ static void voltage_range_set_100V(uint32_t spi)
 }
 
 
-static void voltage_range_set_10V(uint32_t spi)
+static void range_voltage_set_10V(uint32_t spi)
 {
   // now using ina 143. with 1:10 divide by default
 
@@ -196,7 +196,7 @@ static void voltage_range_set_10V(uint32_t spi)
 }
 
 
-static void voltage_range_set_1V(uint32_t spi)
+static void range_voltage_set_1V(uint32_t spi)
 {
   // now using ina 143. with 1:10 divide by default
 
@@ -215,7 +215,7 @@ static void voltage_range_set_1V(uint32_t spi)
   A switch statement. is almost certainly going to be easier separate functions.
 
 */
-static void voltage_range_set(uint32_t spi)
+static void range_voltage_set(uint32_t spi)
 {
   // TODO swap name.
   // TODO COULD also call it. range_voltage_10x() etc. range_voltage_0x1() etc
@@ -244,7 +244,7 @@ static void voltage_range_set(uint32_t spi)
 // colorscheme default. loooks good.
 
 
-static void current_range_set(uint32_t spi)
+static void range_current_set(uint32_t spi)
 {
 
   // turn on sense dual op, for high-current range b2b fets
@@ -576,7 +576,7 @@ static void update(uint32_t spi)
 #endif
 
       usart_printf("turn on voltage range\n" );
-      voltage_range_set(spi);
+      range_voltage_set(spi);
 
 
 
@@ -639,10 +639,10 @@ static void update(uint32_t spi)
         // IMPORTANT - should probably do this. before switching on the supplies.
         // so that vrange ops are not high-Z
         usart_printf("turn on voltage range\n" );
-        voltage_range_set(spi);
+        range_voltage_set(spi);
 
         usart_printf("turn on current range\n" );
-        current_range_set(spi);
+        range_current_set(spi);
 
 #endif
 
@@ -680,20 +680,20 @@ static void update(uint32_t spi)
         spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.f ) ); // 10V
 
         mux_io(spi);
-        // voltage_range_set_100V(spi);       // ie. 1.2  = 12V, 1.5=15V etc
-        voltage_range_set_10V(spi);           // ie 1.2 = 1.2V
-        // voltage_range_set_1V(spi);         // ie 1.2 = 0.12V
+        // range_voltage_set_100V(spi);       // ie. 1.2  = 12V, 1.5=15V etc
+        range_voltage_set_10V(spi);           // ie 1.2 = 1.2V
+        // range_voltage_set_1V(spi);         // ie 1.2 = 0.12V
 
         // current
         mux_dac(spi);
         spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.f ) );  // 5.f
 
         mux_io(spi);
-        // current_range_set_10A(spi);           // ie 1=1A, 0.5=0.5A, 0.1=0.1V
-        // current_range_set_1A(spi);         // ie. 1=0.1A,10=1A
-        // current_range_set_100mA(spi);      // 1=10mA, 10=100mA.
-        current_range_set_10mA(spi);          // 1=1mA, 10=100mA.
-        // current_range_set_none(spi);       // won't work. there's no circuit.
+        // range_current_set_10A(spi);           // ie 1=1A, 0.5=0.5A, 0.1=0.1V
+        // range_current_set_1A(spi);         // ie. 1=0.1A,10=1A
+        // range_current_set_100mA(spi);      // 1=10mA, 10=100mA.
+        range_current_set_10mA(spi);          // 1=1mA, 10=100mA.
+        // range_current_set_none(spi);       // won't work. there's no circuit.
 
         // turn on output relay
         io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
