@@ -231,7 +231,8 @@ static void voltage_range_set(uint32_t spi)
 
   // fix in fpga code. init should be 0b4 
   // io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW1_CTL);    // x1 direct feedback. works.
-  io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW2_CTL);    // x10 . works.
+  // io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW2_CTL);    // x10 . works.
+  io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW3_CTL);       // x100  works. 0.1V diff gives  8.75V out.
 
   vmultiplier = 10.f;
 }
