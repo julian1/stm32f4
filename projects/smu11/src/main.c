@@ -212,6 +212,9 @@ static void voltage_range_set_1V(uint32_t spi)
 
 static void voltage_range_set(uint32_t spi)
 {
+  // TODO swap name.
+  // TODO COULD also call it. range_voltage_10x() etc. range_voltage_0x1() etc
+
   // now using ina 143. with 1:10 divide by default
 
 
