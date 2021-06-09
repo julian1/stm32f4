@@ -214,10 +214,21 @@ static void voltage_range_set(uint32_t spi)
 {
   // now using ina 143. with 1:10 divide by default
 
-  io_write(spi, INA_VFB_SW_REGISTER, INA_VFB_SW1_CTL);
 
+/*
+  OLD
+  io_write(spi, INA_VFB_SW_REGISTER, INA_VFB_SW1_CTL);
   // io_write(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW1_CTL); // ina154
   // io_write(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW2_CTL); // ina143
+*/
+
+
+
+  io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW1_CTL);    // normal range. no divider.
+
+
+  // fix in fpga code. init should be 0b4 
+  io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW1_CTL);    // direct feedback.
 
   vmultiplier = 10.f;
 }
@@ -347,7 +358,7 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
  // tests
 
 
-  io_write(spi, INA_VFB_ATTEN_SW_REGISTER, count);  
+  // io_write(spi, INA_VFB_ATTEN_SW_REGISTER, count);    // works
 
   // io_write(spi, CLAMP1_REGISTER, count);  // works
   // io_write(spi, CLAMP2_REGISTER, count);  // works
@@ -554,6 +565,11 @@ static void update(uint32_t spi)
       }
 #endif
 
+      usart_printf("turn on voltage range\n" );
+      voltage_range_set(spi);
+
+
+
       // progress to digital up?
       usart_printf("digital init ok\n" );
       state = DIGITAL_UP;
@@ -577,7 +593,8 @@ static void update(uint32_t spi)
 */
 
 
-      if( false && lp15v > 15.0 && ln15v > 15.0 )
+      if(  lp15v > 15.0 && ln15v > 15.0 )
+      // if( lp15v > 15.0 && ln15v > 15.0 )
       {
         usart_printf("-----------\n");
 
@@ -606,7 +623,11 @@ static void update(uint32_t spi)
         io_set(spi, RAILS_REGISTER, RAILS_LP60V );
    */
 
-#if 0
+     
+#if 0 
+        // TODO EXTREME . set the gain switches before turning on rails. 
+        // IMPORTANT - should probably do this. before switching on the supplies.
+        // so that vrange ops are not high-Z
         usart_printf("turn on voltage range\n" );
         voltage_range_set(spi);
 
