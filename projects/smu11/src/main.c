@@ -209,7 +209,12 @@ static void voltage_range_set_1V(uint32_t spi)
 }
 #endif
 
+/*
+  VERY IMPORTANT. 
+  we need to iterate all the ranges. even if we don't use them. so that can test them.
+  A switch statement. is almost certainly going to be easier separate functions.
 
+*/
 static void voltage_range_set(uint32_t spi)
 {
   // TODO swap name.
@@ -218,25 +223,20 @@ static void voltage_range_set(uint32_t spi)
   // now using ina 143. with 1:10 divide by default
 
 
-/*
-  OLD
-  io_write(spi, INA_VFB_SW_REGISTER, INA_VFB_SW1_CTL);
-  // io_write(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW1_CTL); // ina154
-  // io_write(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW2_CTL); // ina143
-*/
-
   // io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW1_CTL);                         // atten = non = 1x
   io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
 
 
   // fix in fpga code. init should be 0b4
   // io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW1_CTL);    // x1 direct feedback. works.
-  // io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW2_CTL);    // x10 . works.
-  io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW3_CTL);       // x100  works. 0.1V diff gives  8.75V out.
+  io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW2_CTL);    // x10 . works.
+  // io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW3_CTL);       // x100  works. 0.1V diff gives  8.75V out.
 
   // 9.1 - 9.0 -> *.1*100 = 0.818.
   // 1.1 - 1.0 -> *.1 x100 = 0.859 
   // 0.1 - 1.0             = 0.845
+
+  // try it without the atten...
 
   vmultiplier = 10.f;
 }
@@ -946,4 +946,11 @@ int main(void)
 	return 0;
 }
 
+
+/*
+  OLD
+  io_write(spi, INA_VFB_SW_REGISTER, INA_VFB_SW1_CTL);
+  // io_write(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW1_CTL); // ina154
+  // io_write(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW2_CTL); // ina143
+*/
 
