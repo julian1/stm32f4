@@ -225,9 +225,8 @@ static void voltage_range_set(uint32_t spi)
   // io_write(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW2_CTL); // ina143
 */
 
-
-
-  io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW1_CTL);    // normal range. no divider.
+  io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW1_CTL);                         // atten = non = 1x
+  // io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x 
 
 
   // fix in fpga code. init should be 0b4 
