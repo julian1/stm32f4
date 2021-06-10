@@ -57,6 +57,33 @@
 */
 
 
+
+
+
+// TODO prefix these... ST_
+// also want a DONE state.
+
+typedef enum state_t {
+  FIRST,        // INITIAL
+  DIGITAL_UP,   // DIGIAL_DIGITAL_UP
+  ERROR,
+  ANALOG_UP,
+  HALT
+} state_t;
+
+// static
+// should probably be put in state record structure, rather than on the stack?
+// except would need to pass by reference.
+static state_t state = FIRST;
+
+
+
+// TODO pass the state. explicitly.
+// good for tests.
+
+
+
+
 static float imultiplier = 0;
 static float vmultiplier = 0;
 
@@ -150,10 +177,19 @@ typedef enum irange_t
 
 static void range_current_set(uint32_t spi, irange_t irange)
 {
-  UNUSED(spi);
+  // UNUSED(spi);
+  UNUSED(irange);
 
   io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX1_CTL);    // select main 0.1 ohm sense resistor. active lo
 
+  // io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);   //  10x active low
+  io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);   //  100x active low
+
+  // 100x. is stable flickers at 6th digit. nice!!!...
+
+  imultiplier = 10.f;
+
+#if 0
   switch(irange) 
   {
     
@@ -179,19 +215,8 @@ static void range_current_set(uint32_t spi, irange_t irange)
     break;
 
   }
-
-  // io_write(spi, REG_INA_IFB_SW1_CTL,  count);    // works
-
-#if 0
-  // turn on sense dual op, for high-current range b2b fets
-  io_write(spi, REG_INA_ISENSE_SW,  ~ISENSE_SW1_CTL);
-
-  // turn on no resistor divider fb for gain = 1x.
-  // io_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW1_CTL); // 1x gain.
-  // io_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW2_CTL);    // 10x gain.
-  io_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW3_CTL);    // 100x gain.
-
 #endif
+
 }
 
 
@@ -233,28 +258,6 @@ static void clamps_set_source_pve(uint32_t spi)
   we can test the mask write. just on the dg333. without analog power.
 */
 
-
-
-// TODO prefix these... ST_
-// also want a DONE state.
-
-typedef enum state_t {
-  FIRST,        // INITIAL
-  DIGITAL_UP,   // DIGIAL_DIGITAL_UP
-  ERROR,
-  ANALOG_UP,
-  HALT
-} state_t;
-
-// static
-// should probably be put in state record structure, rather than on the stack?
-// except would need to pass by reference.
-static state_t state = FIRST;
-
-
-
-// TODO pass the state. explicitly.
-// good for tests.
 
 
 
@@ -1065,4 +1068,16 @@ static void range_voltage_set_1V(uint32_t spi)
 
 #endif
   // try it without the atten...
+  // io_write(spi, REG_INA_IFB_SW1_CTL,  count);    // works
+
+#if 0
+  // turn on sense dual op, for high-current range b2b fets
+  io_write(spi, REG_INA_ISENSE_SW,  ~ISENSE_SW1_CTL);
+
+  // turn on no resistor divider fb for gain = 1x.
+  // io_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW1_CTL); // 1x gain.
+  // io_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW2_CTL);    // 10x gain.
+  io_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW3_CTL);    // 100x gain.
+
+#endif
 
