@@ -298,12 +298,49 @@ static void range_voltage_set(uint32_t spi, vrange_t vrange)
   vmultiplier = 10.f;
 }
 
-// colorscheme default. loooks good.
+// vim :colorscheme default. loooks good.
 
 
-static void range_current_set(uint32_t spi)
+
+typedef enum irange_t
 {
+  irange_none,
+  irange_1x,
+  irange_10x
 
+} irange_t;
+
+
+
+
+
+static void range_current_set(uint32_t spi, irange_t irange)
+{
+  UNUSED(spi);
+
+
+  switch(irange) 
+  {
+    
+    case irange_1x:
+      io_write(spi, REG_INA_IFB_SW_CTL,  ~INA_IFB_SW1_CTL);   //  active low
+      imultiplier = 1.f;
+      break;
+
+    case irange_10x:
+      // TODO
+      break;
+
+    // shouldn't have this...
+    case vrange_none:
+      // assert...
+    break;
+
+  }
+
+  // io_write(spi, REG_INA_IFB_SW1_CTL,  count);    // works
+
+#if 0
   // turn on sense dual op, for high-current range b2b fets
   io_write(spi, REG_INA_ISENSE_SW,  ~ISENSE_SW1_CTL);
 
@@ -312,7 +349,7 @@ static void range_current_set(uint32_t spi)
   // io_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW2_CTL);    // 10x gain.
   io_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW3_CTL);    // 100x gain.
 
-  imultiplier = 1.f;
+#endif
 }
 
 
@@ -377,6 +414,8 @@ static state_t state = FIRST;
 // TODO pass the state. explicitly.
 // good for tests.
 
+
+
 static void update_soft_500ms(uint32_t spi  /*, state */)
 {
 
@@ -396,8 +435,6 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
 
   io_toggle(spi, REG_LED, LED2);
-
-
 
 
 
@@ -423,6 +460,9 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
 
  // tests
+
+
+  // io_write(spi, REG_INA_IFB_SW_CTL,  count);    // works
 
 
   // io_write(spi, REG_INA_VFB_ATTEN_SW, count);    // works
@@ -632,12 +672,14 @@ static void update(uint32_t spi)
       }
 #endif
 
-      usart_printf("turn on voltage range\n" );
+      usart_printf("set voltage range\n" );
       range_voltage_set(spi, vrange_1x);
       // range_voltage_set(spi, vrange_1x_2);
       // range_voltage_set(spi, vrange_0x1);
 
 
+      usart_printf("set current range\n" );
+      range_current_set(spi, irange_1x);
 
       // progress to digital up?
       usart_printf("digital init ok\n" );

@@ -158,7 +158,7 @@
 #define ISENSE_SW3_CTL   (1<<2)
 
 
-#define REG_INA_IFB_SW1_CTL   28
+#define REG_INA_IFB_SW_CTL   28
 #define INA_IFB_SW1_CTL  (1<<0)
 #define INA_IFB_SW2_CTL  (1<<1)
 #define INA_IFB_SW3_CTL  (1<<2)
