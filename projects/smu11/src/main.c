@@ -148,18 +148,18 @@ static void range_current_set(uint32_t spi, irange_t irange)
   {
     
     case irange_1x:
-      io_write(spi, REG_INA_IFB_SW_CTL,  ~INA_IFB_SW1_CTL);   //  active low
+      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  active low
       imultiplier = 1.f;
       break;
 
     case irange_10x:
-      io_write(spi, REG_INA_IFB_SW_CTL,  ~INA_IFB_SW2_CTL);   //  active low
+      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);   //  active low
       imultiplier = 10.f;
       break;
 
 
     case irange_100x:
-      io_write(spi, REG_INA_IFB_SW_CTL,  ~INA_IFB_SW3_CTL);   //  active low
+      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);   //  active low
       imultiplier = 100.f;
       break;
 
