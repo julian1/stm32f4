@@ -138,11 +138,21 @@ typedef enum irange_t
 
 
 
+/*
+
+#define REG_ISENSE_MUX    30
+#define ISENSE_MUX1_CTL   (1<<0)
+#define ISENSE_MUX2_CTL   (1<<1)
+#define ISENSE_MUX3_CTL   (1<<2)
+*/
+
+
 
 static void range_current_set(uint32_t spi, irange_t irange)
 {
   UNUSED(spi);
 
+  io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX1_CTL);    // select main 0.1 ohm sense resistor. active lo
 
   switch(irange) 
   {
@@ -293,18 +303,10 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
  // tests
 
-/*
-#define REG_ISENSE_MUX    30
-#define ISENSE_MUX1_CTL   (1<<0)
-#define ISENSE_MUX2_CTL   (1<<1)
-#define ISENSE_MUX3_CTL   (1<<2)
-*/
 
-  io_write(spi, REG_ISENSE_MUX,  count);    // 
 
+  // io_write(spi, REG_ISENSE_MUX,  count);    // works 
   // io_write(spi, REG_INA_IFB_SW_CTL,  count);    // works
-
-
   // io_write(spi, REG_INA_VFB_ATTEN_SW, count);    // works
 
   // io_write(spi, REG_CLAMP1, count);  // works
