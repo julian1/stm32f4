@@ -226,8 +226,13 @@ typedef enum vrange_t
 } vrange_t;
 
 
-#define VRANGE_1X
 
+/*
+  me@zephyrus:~$ echo 'WHOOT_REGISTER' | sed 's/\(.*\)_REGISTER/REG_\1/'
+  REG_WHOOT
+
+
+*/
 
 static void range_voltage_set(uint32_t spi, vrange_t vrange)
 {
@@ -259,6 +264,7 @@ static void range_voltage_set(uint32_t spi, vrange_t vrange)
 
     case vrange_1x:
       // flutters at 5 digit. nice.
+      // 6th digit. with 9V and 0V.
       io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW1_CTL);                         // atten = non = 1x
       io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
       vmultiplier = 1.f;
@@ -276,7 +282,7 @@ static void range_voltage_set(uint32_t spi, vrange_t vrange)
 
   case vrange_0x1:
       // flutters at 4th digit. with mV.  but this is on mV. range... so ok?
-      // at 6th digit with V.  eg. 9V and 0.1V.
+      // at 6th digit with V.  eg. 9V and 0.1V. - very good - will work for hv.
       io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
       io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
       vmultiplier = 0.1f;
@@ -627,8 +633,9 @@ static void update(uint32_t spi)
 #endif
 
       usart_printf("turn on voltage range\n" );
+      range_voltage_set(spi, vrange_1x);
       // range_voltage_set(spi, vrange_1x_2);
-      range_voltage_set(spi, vrange_0x1);
+      // range_voltage_set(spi, vrange_0x1);
 
 
 
