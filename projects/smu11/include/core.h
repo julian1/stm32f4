@@ -9,7 +9,7 @@
 
 
 // REGISTER_DAC?
-// change name REG_DAC not DAC_REGISTER etc
+// change name REG_REG_DAC not DAC etc
 // maybe RENAME OR = output register and SRR set reset register
 
 /*
@@ -22,35 +22,35 @@
 */
 
 
-#define LED_REGISTER  7
+#define REG_LED  7
 #define LED1 (1<<0)    // D38
 #define LED2 (1<<1)    // D37
 #define LED3 (1<<2)    // D37
 #define LED4 (1<<3)    // D37
 
 
-#define SPI_MUX_REGISTER  8
+#define REG_SPI_MUX  8
 #define SPI_MUX_ADC03     (1<<0)
 #define SPI_MUX_DAC       (1<<1)
 #define SPI_MUX_FLASH     (1<<2)
 #define SPI_MUX_ADC       (1<<3)
 
 
-#define DAC_REGISTER  9
+#define REG_DAC  9
 #define DAC_LDAC      (1<<0)
 #define DAC_UNI_BIP_A (1<<1)
 #define DAC_UNI_BIP_B (1<<2)
 #define DAC_RST       (1<<3)
 
 // TODO change name, RAILS_REG or REG_RAILS consistent with verilog?
-#define RAILS_REGISTER  10
+#define REG_RAILS  10
 #define RAILS_LP5V    (1<<0)
 #define RAILS_LP15V   (1<<1)
 #define RAILS_LP30V   (1<<2)
 #define RAILS_LP60V   (1<<3)
 
 
-#define RAILS_OE_REGISTER  24 
+#define REG_RAILS_OE  24
 #define RAILS_OE      (1<<0)
 
 
@@ -59,12 +59,12 @@
 // 11 is soft reset
 #define CORE_SOFT_RST   11
 
-#define DAC_REF_MUX_REGISTER  12
+#define REG_DAC_REF_MUX  12
 #define DAC_REF_MUX_A     (1<<0)
 #define DAC_REF_MUX_B     (1<<1)
 
 
-#define ADC_REGISTER  14
+#define REG_ADC  14
 #define ADC_M0      (1<<0)
 #define ADC_M1      (1<<1)
 #define ADC_M2      (1<<2)
@@ -73,25 +73,25 @@
 
 // dropping the _ctl, suffix?
 // order follows dg444 pin order
-#define CLAMP1_REGISTER 15
+#define REG_CLAMP1 15
 #define CLAMP1_VSET     (1<<0)
 #define CLAMP1_ISET     (1<<1)
 #define CLAMP1_ISET_INV (1<<2)
 #define CLAMP1_VSET_INV (1<<3)
 
-#define CLAMP2_REGISTER   16
+#define REG_CLAMP2   16
 #define CLAMP2_MIN        (1<<0)
 #define CLAMP2_INJECT_ERR (1<<1)
 #define CLAMP2_INJECT_VFB (1<<2)
 #define CLAMP2_MAX        (1<<3)
 
 
-#define RELAY_COM_REGISTER  17
+#define REG_RELAY_COM  17
 #define RELAY_COM_X         (1<<0)
 #define RELAY_COM_Y         (1<<1)
 #define RELAY_COM_Z         (1<<2)
 
-#define IRANGEX_SW_REGISTER     18
+#define REG_IRANGEX_SW     18
 #define IRANGEX_SW1         (1<<0)
 #define IRANGEX_SW2         (1<<1)
 #define IRANGEX_SW3         (1<<2)
@@ -99,7 +99,7 @@
 
 
 
-#define RELAY_REGISTER       19
+#define REG_RELAY       19
 #define RELAY_VRANGE        (1<<0)
 #define RELAY_OUTCOM        (1<<1)
 #define RELAY_SENSE         (1<<2)
@@ -107,7 +107,7 @@
 
 // better name? just irange_sense does not communicate its a mux
 // #define IRANGE_MUX2_SENSE  20
-#define IRANGE_SENSE_REGISTER  20
+#define REG_IRANGE_SENSE  20
 #define IRANGE_SENSE1 (1<<0)
 #define IRANGE_SENSE2 (1<<1)
 #define IRANGE_SENSE3 (1<<2)
@@ -115,16 +115,16 @@
 
 
 // use bitmask write, to write these in individual combination
-// OK. no. it's messy. we really want to separate these, 
+// OK. no. it's messy. we really want to separate these,
 // into different regs to make easier to write...
-#define GAIN_IFB_REGISTER    21
+#define REG_GAIN_IFB    21
 #define GAIN_IFB_OP1  (1<<0)
 #define GAIN_IFB_OP2  (1<<1)
 
 
 /*
 // better name?
-#define IRANGEX_SW58_REGISTER    22
+#define REG_IRANGEX_SW58    22
 #define IRANGEX_SW5         (1<<0)
 #define IRANGEX_SW6         (1<<1)
 #define IRANGEX_SW7         (1<<2)
@@ -132,39 +132,39 @@
 */
 
 
-// same dg444 as GAIN_IFB_REGISTER
+// same dg444 as REG_GAIN_IFB
 // but separating makes it easier
-#define GAIN_VFB_REGISTER    23
+#define REG_GAIN_VFB    23
 #define GAIN_VFB_OP1  (1<<0)
 #define GAIN_VFB_OP2  (1<<1)
 
 /////////////////////////
 // smu10
-#define INA_VFB_SW_REGISTER   25
+#define REG_INA_VFB_SW   25
 #define INA_VFB_SW1_CTL   (1<<0)
 #define INA_VFB_SW2_CTL   (1<<1)
 #define INA_VFB_SW3_CTL   (1<<2)
 
 
-// #define INA_DIFF_SW_REGISTER   26
+// #define REG_INA_DIFF_SW   26
 // #define INA_DIFF_SW1_CTL    (1<<0)
 // #define INA_DIFF_SW2_CTL    (1<<1)
 
 
 
-#define INA_ISENSE_SW_REGISTER     27
+#define REG_INA_ISENSE_SW     27
 #define ISENSE_SW1_CTL   (1<<0)
 #define ISENSE_SW2_CTL   (1<<1)
 #define ISENSE_SW3_CTL   (1<<2)
 
 
-#define INA_IFB_SW1_CTL_REGISTER   28
+#define REG_INA_IFB_SW1_CTL   28
 #define INA_IFB_SW1_CTL  (1<<0)
 #define INA_IFB_SW2_CTL  (1<<1)
 #define INA_IFB_SW3_CTL  (1<<2)
 
 
-#define INA_VFB_ATTEN_SW_REGISTER   29
+#define REG_INA_VFB_ATTEN_SW   29
 #define INA_VFB_ATTEN_SW1_CTL   (1<<0)
 #define INA_VFB_ATTEN_SW2_CTL   (1<<1)
 #define INA_VFB_ATTEN_SW3_CTL   (1<<2)

@@ -72,17 +72,17 @@ static void range_current_set_1A(uint32_t spi)
   // write() writes all the bits.
 
   // turn on current relay range X.
-  io_write(spi, RELAY_COM_REGISTER, RELAY_COM_X);
+  io_write(spi, REG_RELAY_COM, RELAY_COM_X);
 
 
   // turn on 1st b2b fets.
-  io_write(spi, IRANGEX_SW_REGISTER, IRANGEX_SW1 | IRANGEX_SW2);
+  io_write(spi, REG_IRANGEX_SW, IRANGEX_SW1 | IRANGEX_SW2);
 
   // turn on current sense ina 1
-  io_write(spi, IRANGE_SENSE_REGISTER, ~IRANGE_SENSE1);
+  io_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE1);
 
   // active lo. turn on ifb gain op1, x10
-  io_write(spi, GAIN_IFB_REGISTER, ~GAIN_IFB_OP1);
+  io_write(spi, REG_GAIN_IFB, ~GAIN_IFB_OP1);
 
 
   imultiplier = 0.1f;
@@ -101,7 +101,7 @@ static void range_current_set_10A(uint32_t spi)
 
   // active lo. turn off both ifb gain stages...
   // using 10x gain from ina, on 0.1R only.
-  io_write(spi, GAIN_IFB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
+  io_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
 
   imultiplier = 1.0f;
 }
@@ -116,18 +116,18 @@ static void range_current_set_100mA(uint32_t spi)
   // adc imultiplier should be 0.1.
 
   // turn on current relay range X.
-  io_write(spi, RELAY_COM_REGISTER, RELAY_COM_X);
+  io_write(spi, REG_RELAY_COM, RELAY_COM_X);
 
 
   // turn on 2nd b2b fets.
-  io_write(spi, IRANGEX_SW_REGISTER, IRANGEX_SW3 | IRANGEX_SW4);
+  io_write(spi, REG_IRANGEX_SW, IRANGEX_SW3 | IRANGEX_SW4);
 
 
   // active lo, current sense 2
-  io_write(spi, IRANGE_SENSE_REGISTER, ~IRANGE_SENSE2);
+  io_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE2);
 
   // active lo. turn off both current gain ops
-  io_write(spi, GAIN_IFB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
+  io_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
 
   imultiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
 }
@@ -146,17 +146,17 @@ static void range_current_set_10mA(uint32_t spi)
 
 
   // turn on current relay range X.
-  io_write(spi, RELAY_COM_REGISTER, RELAY_COM_X);
+  io_write(spi, REG_RELAY_COM, RELAY_COM_X);
 
   // turn off other fets
-  io_write(spi, IRANGEX_SW_REGISTER, 0);
+  io_write(spi, REG_IRANGEX_SW, 0);
 
 
   // active lo, current sense 3
-  io_write(spi, IRANGE_SENSE_REGISTER, ~IRANGE_SENSE3);
+  io_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE3);
 
   // active lo, turn off both current gain ops
-  io_write(spi, GAIN_IFB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
+  io_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
 
   imultiplier = 0.001f;
 }
@@ -173,11 +173,11 @@ static void range_voltage_set_100V(uint32_t spi)
 {
   // now using ina 143. with 1:10 divide by default
 
-  io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // no longer used. must be off.
+  io_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
 
 
   // active lo, turn both vfb gain stages off
-  io_write(spi, GAIN_VFB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2 );
+  io_write(spi, REG_GAIN_VFB, GAIN_VFB_OP1 | GAIN_VFB_OP2 );
 
   vmultiplier = 10.f;
 }
@@ -187,10 +187,10 @@ static void range_voltage_set_10V(uint32_t spi)
 {
   // now using ina 143. with 1:10 divide by default
 
-  io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // no longer used. must be off.
+  io_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
 
   // active lo. turn on OP1
-  io_write(spi, GAIN_VFB_REGISTER, ~GAIN_VFB_OP1 );
+  io_write(spi, REG_GAIN_VFB, ~GAIN_VFB_OP1 );
 
   vmultiplier = 1.f;
 }
@@ -200,10 +200,10 @@ static void range_voltage_set_1V(uint32_t spi)
 {
   // now using ina 143. with 1:10 divide by default
 
-  io_clear(spi, RELAY_REGISTER, RELAY_VRANGE ); // no longer used. must be off.
+  io_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
 
   // active lo.  turn on both OP1 and OP2
-  io_write(spi, GAIN_VFB_REGISTER, ~(GAIN_VFB_OP1 | GAIN_VFB_OP2) );
+  io_write(spi, REG_GAIN_VFB, ~(GAIN_VFB_OP1 | GAIN_VFB_OP2) );
 
   vmultiplier = 0.1f;
 }
@@ -228,7 +228,7 @@ typedef enum vrange_t
 
 
 /*
-  me@zephyrus:~$ echo 'WHOOT_REGISTER' | sed 's/\(.*\)_REGISTER/REG_\1/'
+  me@zephyrus:~$ echo 'REG_WHOOT_REGISTER' | sed 's/\(.*\)/REG_\1/'
   REG_WHOOT
 
 
@@ -243,14 +243,14 @@ static void range_voltage_set(uint32_t spi, vrange_t vrange)
 
 #if 0
 
-  // io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW1_CTL);                         // atten = non = 1x
-  io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
+  // io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // atten = non = 1x
+  io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
 
 
   // fix in fpga code. init should be 0b4
-  // io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW1_CTL);    // x1 direct feedback. works.
-  io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW2_CTL);    // x10 . works.
-  // io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW3_CTL);       // x100  works. 0.1V diff gives  8.75V out.
+  // io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);    // x1 direct feedback. works.
+  io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);    // x10 . works.
+  // io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);       // x100  works. 0.1V diff gives  8.75V out.
 
   // 9.1 - 9.0 -> *.1*100 = 0.818.
   // 1.1 - 1.0 -> *.1 x100 = 0.859
@@ -265,8 +265,8 @@ static void range_voltage_set(uint32_t spi, vrange_t vrange)
     case vrange_1x:
       // flutters at 5 digit. nice.
       // 6th digit. with 9V and 0V.
-      io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW1_CTL);                         // atten = non = 1x
-      io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
+      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // atten = non = 1x
+      io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
       vmultiplier = 1.f;
       break;
 
@@ -274,8 +274,8 @@ static void range_voltage_set(uint32_t spi, vrange_t vrange)
 
   case vrange_1x_2:
       // flutters at 4th digit.
-      io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
-      io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW2_CTL);                                   // x10 . works.
+      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
+      io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                   // x10 . works.
       vmultiplier = 1.f;
       break;
 
@@ -283,8 +283,8 @@ static void range_voltage_set(uint32_t spi, vrange_t vrange)
   case vrange_0x1:
       // flutters at 4th digit. with mV.  but this is on mV. range... so ok?
       // at 6th digit with V.  eg. 9V and 0.1V. - very good - will work for hv.
-      io_write(spi, INA_VFB_ATTEN_SW_REGISTER, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
-      io_write(spi, INA_VFB_SW_REGISTER, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
+      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
+      io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
       vmultiplier = 0.1f;
       break;
 
@@ -305,12 +305,12 @@ static void range_current_set(uint32_t spi)
 {
 
   // turn on sense dual op, for high-current range b2b fets
-  io_write(spi, INA_ISENSE_SW_REGISTER,  ~ISENSE_SW1_CTL);
+  io_write(spi, REG_INA_ISENSE_SW,  ~ISENSE_SW1_CTL);
 
   // turn on no resistor divider fb for gain = 1x.
-  // io_write(spi, INA_IFB_SW1_CTL_REGISTER, ~INA_IFB_SW1_CTL); // 1x gain.
-  // io_write(spi, INA_IFB_SW1_CTL_REGISTER, ~INA_IFB_SW2_CTL);    // 10x gain.
-  io_write(spi, INA_IFB_SW1_CTL_REGISTER, ~INA_IFB_SW3_CTL);    // 100x gain.
+  // io_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW1_CTL); // 1x gain.
+  // io_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW2_CTL);    // 10x gain.
+  io_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW3_CTL);    // 100x gain.
 
   imultiplier = 1.f;
 }
@@ -329,8 +329,8 @@ static void clamps_set_source_pve(uint32_t spi)
   // change name first_quadrant
   // sourcing, charging adc val 1.616501V
   // source +ve current/voltage.
-  io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
-  io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);
+  io_clear(spi, REG_CLAMP1, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
+  io_clear(spi, REG_CLAMP2, CLAMP2_MAX);
 }
 
 
@@ -392,10 +392,10 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
   ////////////////////////////////
   // clear led1
-  io_clear(spi, LED_REGISTER, LED1);
+  io_clear(spi, REG_LED, LED1);
 
 
-  io_toggle(spi, LED_REGISTER, LED2);
+  io_toggle(spi, REG_LED, LED2);
 
 
 
@@ -404,12 +404,12 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 #if 1
   if(count % 3 == 0)
   {
-    // io_toggle(spi, INA_VFB_SW_REGISTER, INA_VFB_SW1_CTL | INA_VFB_SW2_CTL | INA_VFB_SW3_CTL);
-    // io_toggle(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW1_CTL | INA_DIFF_SW2_CTL);
-    // io_toggle(spi, INA_ISENSE_SW_REGISTER,   ISENSE_SW1_CTL | ISENSE_SW2_CTL | ISENSE_SW3_CTL);
-    // io_toggle(spi, INA_IFB_SW1_CTL_REGISTER, INA_IFB_SW1_CTL | INA_IFB_SW2_CTL | INA_IFB_SW3_CTL);
+    // io_toggle(spi, REG_INA_VFB_SW, INA_VFB_SW1_CTL | INA_VFB_SW2_CTL | INA_VFB_SW3_CTL);
+    // io_toggle(spi, REG_INA_DIFF_SW, INA_DIFF_SW1_CTL | INA_DIFF_SW2_CTL);
+    // io_toggle(spi, REG_INA_ISENSE_SW,   ISENSE_SW1_CTL | ISENSE_SW2_CTL | ISENSE_SW3_CTL);
+    // io_toggle(spi, REG_INA_IFB_SW1_CTL, INA_IFB_SW1_CTL | INA_IFB_SW2_CTL | INA_IFB_SW3_CTL);
 
-    // io_toggle(spi, RELAY_COM_REGISTER, RELAY_COM_X);
+    // io_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
 
   }
 #endif
@@ -425,27 +425,27 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
  // tests
 
 
-  // io_write(spi, INA_VFB_ATTEN_SW_REGISTER, count);    // works
+  // io_write(spi, REG_INA_VFB_ATTEN_SW, count);    // works
 
-  // io_write(spi, CLAMP1_REGISTER, count);  // works
-  // io_write(spi, CLAMP2_REGISTER, count);  // works
-  // io_write(spi, RELAY_COM_REGISTER, count);
-  // io_write(spi, IRANGEX_SW_REGISTER, count);
-  // io_write(spi, IRANGE_SENSE_REGISTER, count);
+  // io_write(spi, REG_CLAMP1, count);  // works
+  // io_write(spi, REG_CLAMP2, count);  // works
+  // io_write(spi, REG_RELAY_COM, count);
+  // io_write(spi, REG_IRANGEX_SW, count);
+  // io_write(spi, REG_IRANGE_SENSE, count);
 
 
-  // io_write(spi, GAIN_IFB_REGISTER, count);
-  // io_write(spi, GAIN_VFB_REGISTER, count);
+  // io_write(spi, REG_GAIN_IFB, count);
+  // io_write(spi, REG_GAIN_VFB, count);
 
   // test
 
   // usart_printf("count %d\n", count);
-  // io_write(spi, IRANGEX_SW58_REGISTER, count);
+  // io_write(spi, REG_IRANGEX_SW58, count);
 
-  // io_toggle(spi, RELAY_COM_REGISTER, RELAY_COM_X);
-  // io_toggle(spi, RELAY_REGISTER, RELAY_VRANGE);
-  // io_toggle(spi, RELAY_REGISTER, RELAY_OUTCOM);
-  // io_toggle(spi, RELAY_REGISTER, RELAY_SENSE);
+  // io_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
+  // io_toggle(spi, REG_RELAY, RELAY_VRANGE);
+  // io_toggle(spi, REG_RELAY, RELAY_OUTCOM);
+  // io_toggle(spi, REG_RELAY, RELAY_SENSE);
 
 
   switch(state) {
@@ -538,14 +538,14 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in, CBuf* console_out
 
       // turn off relayc
       mux_io(spi);
-      io_clear(spi, RELAY_REGISTER, RELAY_OUTCOM);
+      io_clear(spi, REG_RELAY, RELAY_OUTCOM);
       return;
     }
 
     if(strcmp(tmp, "on") == 0) {
       usart_printf("switch on\n");
       mux_io(spi);
-      io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
+      io_set(spi, REG_RELAY, RELAY_OUTCOM);
      return;
     }
 
@@ -610,9 +610,9 @@ static void update(uint32_t spi)
 #if 0
       // change name GAIN_IFB_OP1 ... GAIN_VFB_OP2   etcc
       // eg. clear ifb regs.
-      io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2);
-      io_write_mask(spi, GAIN_FB_REGISTER, GAIN_VFB_OP1 | GAIN_VFB_OP2,  GAIN_VFB_OP1 | GAIN_VFB_OP2);
-      io_write_mask(spi, GAIN_FB_REGISTER, GAIN_IFB_OP1 | GAIN_IFB_OP2, 0 );
+      io_write_mask(spi, REG_GAIN_FB, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2);
+      io_write_mask(spi, REG_GAIN_FB, GAIN_VFB_OP1 | GAIN_VFB_OP2,  GAIN_VFB_OP1 | GAIN_VFB_OP2);
+      io_write_mask(spi, REG_GAIN_FB, GAIN_IFB_OP1 | GAIN_IFB_OP2, 0 );
       state = HALT;
       return;
 #endif
@@ -625,7 +625,7 @@ static void update(uint32_t spi)
 
 #if 0
       // dac init
-      int ret = dac_init(spi, DAC_REGISTER); // bad name?
+      int ret = dac_init(spi, REG_DAC); // bad name?
       if(ret != 0) {
         state = ERROR;
         return;
@@ -654,10 +654,10 @@ static void update(uint32_t spi)
         usart_printf("turn on 5V\n" );
         mux_io(spi);
         // assert rails oe
-        io_clear(spi, RAILS_OE_REGISTER, RAILS_OE);
+        io_clear(spi, REG_RAILS_OE, RAILS_OE);
 
         // turn on 5V digital rails
-        io_set(spi, RAILS_REGISTER, RAILS_LP5V );
+        io_set(spi, REG_RAILS, RAILS_LP5V );
         msleep(50);
 */
 
@@ -674,22 +674,22 @@ static void update(uint32_t spi)
         usart_printf("turn on lp5v\n" );
         mux_io(spi);
         // assert rails oe
-        io_clear(spi, RAILS_OE_REGISTER, RAILS_OE);
+        io_clear(spi, REG_RAILS_OE, RAILS_OE);
 
         // turn on 5V digital rails
-        io_set(spi, RAILS_REGISTER, RAILS_LP5V );
+        io_set(spi, REG_RAILS, RAILS_LP5V );
         msleep(50);
 
         // turn on +-15V rails
         usart_printf("turn on analog rails - lp15v\n" );
-        io_set(spi, RAILS_REGISTER, RAILS_LP15V );
+        io_set(spi, REG_RAILS, RAILS_LP15V );
         msleep(50);
 
         // LP30 - needed to power the vfb topside op amp. ltc6090/ bootstrapped
-        io_set(spi, RAILS_REGISTER, RAILS_LP30V );
+        io_set(spi, REG_RAILS, RAILS_LP30V );
         msleep(50);
    /*
-        io_set(spi, RAILS_REGISTER, RAILS_LP60V );
+        io_set(spi, REG_RAILS, RAILS_LP60V );
    */
 
 
@@ -711,7 +711,7 @@ static void update(uint32_t spi)
         //mux_dac(spi);
         usart_printf("turn on ref a for dac\n" );
         mux_io(spi);
-        io_clear(spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A); // active lo
+        io_clear(spi, REG_DAC_REF_MUX, DAC_REF_MUX_A); // active lo
 
         // EXTREME. feedback is always negative. why we just plug vfb and ifb without inverses.
         // its easier to think of everything without polarity.   (the polarity just exists because we tap/ com at 0V).
@@ -736,7 +736,7 @@ static void update(uint32_t spi)
 
         // voltage
         mux_dac(spi);
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 1.f ) ); // 10V
+        spi_dac_write_register(spi, REG_DAC_VSET, voltage_to_dac( 1.f ) ); // 10V
 
         mux_io(spi);
         // range_voltage_set_100V(spi);       // ie. 1.2  = 12V, 1.5=15V etc
@@ -745,7 +745,7 @@ static void update(uint32_t spi)
 
         // current
         mux_dac(spi);
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 1.f ) );  // 5.f
+        spi_dac_write_register(spi, REG_DAC_ISET, voltage_to_dac( 1.f ) );  // 5.f
 
         mux_io(spi);
         // range_current_set_10A(spi);           // ie 1=1A, 0.5=0.5A, 0.1=0.1V
@@ -755,13 +755,13 @@ static void update(uint32_t spi)
         // range_current_set_none(spi);       // won't work. there's no circuit.
 
         // turn on output relay
-        io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
+        io_set(spi, REG_RELAY, RELAY_OUTCOM);
 
 
         /////////////////
         // adc init has to be done after rails are up...
         // adc init
-        int ret = adc_init(spi, ADC_REGISTER);
+        int ret = adc_init(spi, REG_ADC);
         if(ret != 0) {
           state = ERROR;
           return;
@@ -777,8 +777,8 @@ static void update(uint32_t spi)
         // power rails
         usart_printf("turn on power rails - lp30v\n" );
         mux_io(spi);
-        // io_set(spi, RAILS_REGISTER, RAILS_LP30V );
-        io_set(spi, RAILS_REGISTER, RAILS_LP60V );  // actually 15V
+        // io_set(spi, REG_RAILS, RAILS_LP30V );
+        io_set(spi, REG_RAILS, RAILS_LP60V );  // actually 15V
         msleep(50);
 #endif
 
@@ -800,10 +800,10 @@ static void update(uint32_t spi)
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
         // turn off power
-        io_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
+        io_clear(spi, REG_RAILS, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
 
         // turn off output relay
-        io_clear(spi, RELAY_REGISTER, RELAY_OUTCOM);
+        io_clear(spi, REG_RELAY, RELAY_OUTCOM);
 
         // go to state error
         state = ERROR;
@@ -833,10 +833,10 @@ static void update(uint32_t spi)
         usart_printf("entered error state\n" );
 
         // turn off output relay
-        io_clear(spi, RELAY_REGISTER, RELAY_OUTCOM);
+        io_clear(spi, REG_RELAY, RELAY_OUTCOM);
 
         // turn off 5V digital and all analog power
-        io_clear(spi, RAILS_REGISTER, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
+        io_clear(spi, REG_RAILS, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
       }
       // stay in error state.
     }
@@ -852,10 +852,10 @@ static void update(uint32_t spi)
 
         mux_io(spi);
         // turn off output relay
-        io_clear(spi, RELAY_REGISTER, RELAY_OUTCOM);
+        io_clear(spi, REG_RELAY, RELAY_OUTCOM);
 
         // turn off 5V digital and all analog power
-        io_clear(spi, RAILS_REGISTER, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
+        io_clear(spi, REG_RAILS, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
       }
     }
     break;
@@ -1008,8 +1008,8 @@ int main(void)
 
 /*
   OLD
-  io_write(spi, INA_VFB_SW_REGISTER, INA_VFB_SW1_CTL);
-  // io_write(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW1_CTL); // ina154
-  // io_write(spi, INA_DIFF_SW_REGISTER, INA_DIFF_SW2_CTL); // ina143
+  io_write(spi, REG_INA_VFB_SW, INA_VFB_SW1_CTL);
+  // io_write(spi, REG_INA_DIFF_SW, INA_DIFF_SW1_CTL); // ina154
+  // io_write(spi, REG_INA_DIFF_SW, INA_DIFF_SW2_CTL); // ina143
 */
 

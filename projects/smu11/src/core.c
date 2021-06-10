@@ -22,14 +22,14 @@ void mux_fpga(uint32_t spi)
 void mux_adc03(uint32_t spi)
 {
   spi_ice40_setup(spi);
-  spi_ice40_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC03);
+  spi_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_ADC03);
   spi_mcp3208_setup(spi);
 }
 
 void mux_w25(uint32_t spi)
 {
   spi_ice40_setup(spi);
-  spi_ice40_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_FLASH);
+  spi_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_FLASH);
   spi_w25_setup(spi);
 }
 
@@ -37,14 +37,14 @@ void mux_w25(uint32_t spi)
 void mux_dac(uint32_t spi)
 {
   spi_ice40_setup(spi);
-  spi_ice40_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_DAC);
+  spi_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_DAC);
   spi_dac_setup(spi);
 }
 
 void mux_adc(uint32_t spi)
 {
   spi_ice40_setup(spi);
-  spi_ice40_reg_write(spi, SPI_MUX_REGISTER, SPI_MUX_ADC);
+  spi_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_ADC);
   spi_adc_setup(spi);
 }
 
