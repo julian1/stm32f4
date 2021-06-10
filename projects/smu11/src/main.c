@@ -60,154 +60,6 @@
 static float imultiplier = 0;
 static float vmultiplier = 0;
 
-#if 0
-
-static void range_current_set_1A(uint32_t spi)
-{
-  // 2V on 1A is 200mA, 5V is 0.5A
-  // sense gain = 0.1x  ie. 0.1ohm sense resistor
-  // ina gain x10.
-  // extra amp gain = x10.
-
-  // write() writes all the bits.
-
-  // turn on current relay range X.
-  io_write(spi, REG_RELAY_COM, RELAY_COM_X);
-
-
-  // turn on 1st b2b fets.
-  io_write(spi, REG_IRANGEX_SW, IRANGEX_SW1 | IRANGEX_SW2);
-
-  // turn on current sense ina 1
-  io_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE1);
-
-  // active lo. turn on ifb gain op1, x10
-  io_write(spi, REG_GAIN_IFB, ~GAIN_IFB_OP1);
-
-
-  imultiplier = 0.1f;
-}
-
-static void range_current_set_10A(uint32_t spi)
-{
-  // 0.1ohm
-  // 300mV=3A across 0.1R sense.   could use 3.33 (10/3.3) gain after ina to get to 0-10V..
-  // 1 / ( 1 +  2 )  = 0.3333333333333333
-  // = divider with r1=1 and r2=2. eg. a 2 to 1.
-  // eg. make op2 be
-
-  // 10A is the same as 1A, except no 10x gain
-  range_current_set_1A(spi);
-
-  // active lo. turn off both ifb gain stages...
-  // using 10x gain from ina, on 0.1R only.
-  io_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
-
-  imultiplier = 1.0f;
-}
-
-
-
-static void range_current_set_100mA(uint32_t spi)
-{
-  // 10ohm.
-  // 2V on 100mA range should be 20mA.
-  // 0.2V across 10ohm. g=10x, 0.2 / 10 = 0.02A = 20mA.
-  // adc imultiplier should be 0.1.
-
-  // turn on current relay range X.
-  io_write(spi, REG_RELAY_COM, RELAY_COM_X);
-
-
-  // turn on 2nd b2b fets.
-  io_write(spi, REG_IRANGEX_SW, IRANGEX_SW3 | IRANGEX_SW4);
-
-
-  // active lo, current sense 2
-  io_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE2);
-
-  // active lo. turn off both current gain ops
-  io_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
-
-  imultiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
-}
-
-
-
-
-static void range_current_set_10mA(uint32_t spi)
-{
-  // UNUSED(spi);
-  /*
-      10V = 0.01A * 1k.
-      = 100mW.      maybe ok.  with high-watt 1
-     1x gain.
-  */
-
-
-  // turn on current relay range X.
-  io_write(spi, REG_RELAY_COM, RELAY_COM_X);
-
-  // turn off other fets
-  io_write(spi, REG_IRANGEX_SW, 0);
-
-
-  // active lo, current sense 3
-  io_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE3);
-
-  // active lo, turn off both current gain ops
-  io_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
-
-  imultiplier = 0.001f;
-}
-
-
-#endif
-
-
-////////////////////////////
-
-
-#if 0
-static void range_voltage_set_100V(uint32_t spi)
-{
-  // now using ina 143. with 1:10 divide by default
-
-  io_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
-
-
-  // active lo, turn both vfb gain stages off
-  io_write(spi, REG_GAIN_VFB, GAIN_VFB_OP1 | GAIN_VFB_OP2 );
-
-  vmultiplier = 10.f;
-}
-
-
-static void range_voltage_set_10V(uint32_t spi)
-{
-  // now using ina 143. with 1:10 divide by default
-
-  io_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
-
-  // active lo. turn on OP1
-  io_write(spi, REG_GAIN_VFB, ~GAIN_VFB_OP1 );
-
-  vmultiplier = 1.f;
-}
-
-
-static void range_voltage_set_1V(uint32_t spi)
-{
-  // now using ina 143. with 1:10 divide by default
-
-  io_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
-
-  // active lo.  turn on both OP1 and OP2
-  io_write(spi, REG_GAIN_VFB, ~(GAIN_VFB_OP1 | GAIN_VFB_OP2) );
-
-  vmultiplier = 0.1f;
-}
-#endif
 
 /*
   VERY IMPORTANT.
@@ -227,37 +79,9 @@ typedef enum vrange_t
 
 
 
-/*
-  me@zephyrus:~$ echo 'REG_WHOOT_REGISTER' | sed 's/\(.*\)/REG_\1/'
-  REG_WHOOT
-
-
-*/
 
 static void range_voltage_set(uint32_t spi, vrange_t vrange)
 {
-  // TODO swap name.
-  // TODO COULD also call it. range_voltage_10x() etc. range_voltage_0x1() etc
-
-  // now using ina 143. with 1:10 divide by default
-
-#if 0
-
-  // io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // atten = non = 1x
-  io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
-
-
-  // fix in fpga code. init should be 0b4
-  // io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);    // x1 direct feedback. works.
-  io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);    // x10 . works.
-  // io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);       // x100  works. 0.1V diff gives  8.75V out.
-
-  // 9.1 - 9.0 -> *.1*100 = 0.818.
-  // 1.1 - 1.0 -> *.1 x100 = 0.859
-  // 0.1 - 1.0             = 0.845
-
-#endif
-  // try it without the atten...
 
   switch(vrange)
   {
@@ -1054,4 +878,173 @@ int main(void)
   // io_write(spi, REG_INA_DIFF_SW, INA_DIFF_SW1_CTL); // ina154
   // io_write(spi, REG_INA_DIFF_SW, INA_DIFF_SW2_CTL); // ina143
 */
+
+
+
+#if 0
+
+static void range_current_set_1A(uint32_t spi)
+{
+  // 2V on 1A is 200mA, 5V is 0.5A
+  // sense gain = 0.1x  ie. 0.1ohm sense resistor
+  // ina gain x10.
+  // extra amp gain = x10.
+
+  // write() writes all the bits.
+
+  // turn on current relay range X.
+  io_write(spi, REG_RELAY_COM, RELAY_COM_X);
+
+
+  // turn on 1st b2b fets.
+  io_write(spi, REG_IRANGEX_SW, IRANGEX_SW1 | IRANGEX_SW2);
+
+  // turn on current sense ina 1
+  io_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE1);
+
+  // active lo. turn on ifb gain op1, x10
+  io_write(spi, REG_GAIN_IFB, ~GAIN_IFB_OP1);
+
+
+  imultiplier = 0.1f;
+}
+
+static void range_current_set_10A(uint32_t spi)
+{
+  // 0.1ohm
+  // 300mV=3A across 0.1R sense.   could use 3.33 (10/3.3) gain after ina to get to 0-10V..
+  // 1 / ( 1 +  2 )  = 0.3333333333333333
+  // = divider with r1=1 and r2=2. eg. a 2 to 1.
+  // eg. make op2 be
+
+  // 10A is the same as 1A, except no 10x gain
+  range_current_set_1A(spi);
+
+  // active lo. turn off both ifb gain stages...
+  // using 10x gain from ina, on 0.1R only.
+  io_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
+
+  imultiplier = 1.0f;
+}
+
+
+
+static void range_current_set_100mA(uint32_t spi)
+{
+  // 10ohm.
+  // 2V on 100mA range should be 20mA.
+  // 0.2V across 10ohm. g=10x, 0.2 / 10 = 0.02A = 20mA.
+  // adc imultiplier should be 0.1.
+
+  // turn on current relay range X.
+  io_write(spi, REG_RELAY_COM, RELAY_COM_X);
+
+
+  // turn on 2nd b2b fets.
+  io_write(spi, REG_IRANGEX_SW, IRANGEX_SW3 | IRANGEX_SW4);
+
+
+  // active lo, current sense 2
+  io_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE2);
+
+  // active lo. turn off both current gain ops
+  io_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
+
+  imultiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
+}
+
+
+
+
+static void range_current_set_10mA(uint32_t spi)
+{
+  // UNUSED(spi);
+  /*
+      10V = 0.01A * 1k.
+      = 100mW.      maybe ok.  with high-watt 1
+     1x gain.
+  */
+
+
+  // turn on current relay range X.
+  io_write(spi, REG_RELAY_COM, RELAY_COM_X);
+
+  // turn off other fets
+  io_write(spi, REG_IRANGEX_SW, 0);
+
+
+  // active lo, current sense 3
+  io_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE3);
+
+  // active lo, turn off both current gain ops
+  io_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
+
+  imultiplier = 0.001f;
+}
+
+
+#endif
+
+
+////////////////////////////
+
+
+#if 0
+static void range_voltage_set_100V(uint32_t spi)
+{
+  // now using ina 143. with 1:10 divide by default
+
+  io_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
+
+
+  // active lo, turn both vfb gain stages off
+  io_write(spi, REG_GAIN_VFB, GAIN_VFB_OP1 | GAIN_VFB_OP2 );
+
+  vmultiplier = 10.f;
+}
+
+
+static void range_voltage_set_10V(uint32_t spi)
+{
+  // now using ina 143. with 1:10 divide by default
+
+  io_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
+
+  // active lo. turn on OP1
+  io_write(spi, REG_GAIN_VFB, ~GAIN_VFB_OP1 );
+
+  vmultiplier = 1.f;
+}
+
+
+static void range_voltage_set_1V(uint32_t spi)
+{
+  // now using ina 143. with 1:10 divide by default
+
+  io_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
+
+  // active lo.  turn on both OP1 and OP2
+  io_write(spi, REG_GAIN_VFB, ~(GAIN_VFB_OP1 | GAIN_VFB_OP2) );
+
+  vmultiplier = 0.1f;
+}
+#endif
+
+#if 0
+
+  // io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // atten = non = 1x
+  io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
+
+
+  // fix in fpga code. init should be 0b4
+  // io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);    // x1 direct feedback. works.
+  io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);    // x10 . works.
+  // io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);       // x100  works. 0.1V diff gives  8.75V out.
+
+  // 9.1 - 9.0 -> *.1*100 = 0.818.
+  // 1.1 - 1.0 -> *.1 x100 = 0.859
+  // 0.1 - 1.0             = 0.845
+
+#endif
+  // try it without the atten...
 
