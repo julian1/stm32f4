@@ -170,7 +170,10 @@
 #define INA_VFB_ATTEN_SW3_CTL   (1<<2)
 
 
-
+#define REG_ISENSE_MUX    30
+#define ISENSE_MUX1_CTL   (1<<0)
+#define ISENSE_MUX2_CTL   (1<<1)
+#define ISENSE_MUX3_CTL   (1<<2)
 
 
 

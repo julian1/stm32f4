@@ -293,6 +293,14 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
  // tests
 
+/*
+#define REG_ISENSE_MUX    30
+#define ISENSE_MUX1_CTL   (1<<0)
+#define ISENSE_MUX2_CTL   (1<<1)
+#define ISENSE_MUX3_CTL   (1<<2)
+*/
+
+  io_write(spi, REG_ISENSE_MUX,  count);    // 
 
   // io_write(spi, REG_INA_IFB_SW_CTL,  count);    // works
 
