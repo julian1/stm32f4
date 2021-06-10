@@ -167,10 +167,8 @@ typedef enum irange_t
 
 /*
 
-#define REG_ISENSE_MUX    30
-#define ISENSE_MUX1_CTL   (1<<0)
-#define ISENSE_MUX2_CTL   (1<<1)
-#define ISENSE_MUX3_CTL   (1<<2)
+  EXTREME. remove the 10k thick film. in front of the op.
+  use jumper to test. or else era thin-film.
 */
 
 
