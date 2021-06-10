@@ -130,7 +130,8 @@ typedef enum irange_t
 {
   irange_none,
   irange_1x,
-  irange_10x
+  irange_10x,
+  irange_100x
 
 } irange_t;
 
@@ -152,7 +153,14 @@ static void range_current_set(uint32_t spi, irange_t irange)
       break;
 
     case irange_10x:
-      // TODO
+      io_write(spi, REG_INA_IFB_SW_CTL,  ~INA_IFB_SW2_CTL);   //  active low
+      imultiplier = 10.f;
+      break;
+
+
+    case irange_100x:
+      io_write(spi, REG_INA_IFB_SW_CTL,  ~INA_IFB_SW3_CTL);   //  active low
+      imultiplier = 100.f;
       break;
 
     // shouldn't have this...
