@@ -178,7 +178,9 @@ static void range_current_set(uint32_t spi, irange_t irange)
   // UNUSED(spi);
   UNUSED(irange);
 
-  io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX1_CTL);    // select main 0.1 ohm sense resistor. active lo
+  // io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX1_CTL);    // select dedicated 0.1 ohm sense resistor and op. active lo
+  io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX2_CTL);    // select dedicated 10 ohm sense resistor and op. active lo
+  // io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX3_CTL);        // select any other range resistor
 
   // io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);   //  10x active low
   io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);   //  100x active low
