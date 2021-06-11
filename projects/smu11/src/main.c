@@ -186,8 +186,10 @@ typedef enum irange_t
 
 /*
 
-  EXTREME. remove the 10k thick film. in front of the op.
+  done - EXTREME. remove the 10k thick film. in front of the op.
   use jumper to test. or else era thin-film.
+  --- 
+  change 200 and 20ohm to era. thin film. for lower noise.
 */
 
 /*
