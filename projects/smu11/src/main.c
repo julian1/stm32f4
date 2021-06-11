@@ -99,8 +99,11 @@ typedef enum vrange_t
 {
   vrange_none,
   vrange_1x,
+  vrange_10x,
+  vrange_100x,
+  vrange_0x1,
+
   vrange_1x_2,
-  vrange_0x1
 
 } vrange_t;
 
@@ -116,10 +119,33 @@ static void range_voltage_set(uint32_t spi, vrange_t vrange)
     case vrange_1x:
       // flutters at 5 digit. nice.
       // 6th digit. with 9V and 0V.
-      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // atten = non = 1x
+      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten 
       io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
       vmultiplier = 1.f;
       break;
+
+    case vrange_10x:
+      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten 
+      io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                    //  
+      vmultiplier = 10.f;
+      break;
+
+    case vrange_100x:
+      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten 
+      io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);                                    //  
+      vmultiplier = 10.f;
+      break;
+
+
+  case vrange_0x1:
+      // flutters at 4th digit. with mV.  but this is on mV. range... so ok?
+      // at 6th digit with V.  eg. 9V and 0.1V. - very good - will work for hv.
+      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
+      io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
+      vmultiplier = 0.1f;
+      break;
+
+
 
     // IMPORTANT - remember have the other attenuation possibility... of just turning on/off sw3.
 
@@ -131,13 +157,6 @@ static void range_voltage_set(uint32_t spi, vrange_t vrange)
       break;
 
 
-  case vrange_0x1:
-      // flutters at 4th digit. with mV.  but this is on mV. range... so ok?
-      // at 6th digit with V.  eg. 9V and 0.1V. - very good - will work for hv.
-      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
-      io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
-      vmultiplier = 0.1f;
-      break;
 
 
     // shouldn't have this...
@@ -171,7 +190,11 @@ typedef enum irange_t
   use jumper to test. or else era thin-film.
 */
 
-
+/*
+  Extreme. we should turn on 5V digital. so that dg444 inputs don't just sink. 
+  eg. turn on 5V. 
+  then configure.
+*/
 
 static void range_current_set(uint32_t spi, irange_t irange)
 {
@@ -521,6 +544,8 @@ static void update(uint32_t spi)
       range_voltage_set(spi, vrange_1x);
       // range_voltage_set(spi, vrange_1x_2);
       // range_voltage_set(spi, vrange_0x1);
+      // range_voltage_set(spi, vrange_10x);
+      range_voltage_set(spi, vrange_100x);
 
 
       usart_printf("set current range\n" );
