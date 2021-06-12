@@ -175,6 +175,7 @@ static void range_voltage_set(uint32_t spi, vrange_t vrange)
 
 typedef enum irange_t
 {
+  // TODO rename range_current_none, range_current_1x etc.
   irange_none,
   irange_1x,
   irange_10x,
@@ -201,15 +202,35 @@ typedef enum irange_t
 
 static void range_current_set(uint32_t spi, irange_t irange)
 {
-  // UNUSED(spi);
-  UNUSED(irange);
+  /*
+    this is doing two things. muxing the sense input. and amplification.
+  */
 
-  // io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX1_CTL);    // select dedicated 0.1 ohm sense resistor and op. active lo
-  io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX2_CTL);    // select dedicated 10 ohm sense resistor and op. active lo
+  switch(irange)
+  {
+    case irange_1x:
+      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  10x active low
+      break;
+
+    case irange_10x:
+      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);   //  10x active low
+      break;
+
+    case irange_100x:
+      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);   //  100x active low
+      break;
+
+
+    // shouldn't have this...
+    case vrange_none:
+      // assert...
+    break;
+
+  }
+
+  io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX1_CTL);    // select dedicated 0.1 ohm sense resistor and op. active lo
+  // io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX2_CTL);    // select dedicated 10 ohm sense resistor and op. active lo
   // io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX3_CTL);        // select any other range resistor
-
-  // io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);   //  10x active low
-  io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);   //  100x active low
 
   // 100x. is stable flickers at 6th digit. nice!!!...
 
