@@ -630,14 +630,15 @@ static void update(uint32_t spi)
         mux_io(spi);
         io_write(spi, REG_DAC_REF_MUX, ~(DAC_REF_MUX_A | DAC_REF_MUX_B)); // active lo
 
+        // dac naked register references should be wrapped by functions
         // unipolar.
         // voltage
         mux_dac(spi);
-        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 5.f ) ); // 5V
+        spi_dac_write_register(spi, DAC_VOUT0_REGISTER, voltage_to_dac( 5.f ) ); // 5V
 
         // current
         mux_dac(spi);
-        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 2.f ) );  // 2V
+        spi_dac_write_register(spi, DAC_VOUT1_REGISTER, voltage_to_dac( 2.f ) );  // 2V
 
 
         // working as bipolar. 

@@ -142,9 +142,9 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   // mux_dac(spi);
 
   // check can write register also
-  spi_dac_write_register(spi, DAC_VSET_REGISTER, 12345);
+  spi_dac_write_register(spi, DAC_VOUT0_REGISTER, 12345);
   msleep( 1);
-  uint32_t u = spi_dac_read_register(spi, DAC_VSET_REGISTER) ;
+  uint32_t u = spi_dac_read_register(spi, DAC_VOUT0_REGISTER) ;
   // usart_printf("u is %d\n", u );
   // usart_printf("v set register val %d\n", u & 0xffff );
   // usart_printf("v set register is %d\n", (u >> 16) & 0x7f);
@@ -160,7 +160,7 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   // usart_printf("write vset ok\n");
 
   // clear register
-  spi_dac_write_register(spi, DAC_VSET_REGISTER, 0);
+  spi_dac_write_register(spi, DAC_VOUT0_REGISTER, 0);
 
   // avoid turning on the refs. yet.
   return 0;
