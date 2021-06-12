@@ -259,6 +259,10 @@ static void clamps_set_source_pve(uint32_t spi)
   // change name first_quadrant
   // sourcing, charging adc val 1.616501V
   // source +ve current/voltage.
+  /*
+    TODO change name CLAMP_MUX_MAX, or CLAMP_MAX_MUX
+    actually not sure.
+  */
   io_clear(spi, REG_CLAMP1, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
   io_clear(spi, REG_CLAMP2, CLAMP2_MAX);
 }
@@ -551,7 +555,7 @@ static void update(uint32_t spi)
       // range_voltage_set(spi, vrange_1x_2);
       // range_voltage_set(spi, vrange_0x1);
       // range_voltage_set(spi, vrange_10x);
-      range_voltage_set(spi, vrange_100x);
+      // range_voltage_set(spi, vrange_100x);
 
 
       usart_printf("set current range\n" );
@@ -645,6 +649,9 @@ static void update(uint32_t spi)
         spi_dac_write_register(spi, DAC_VOUT2_REGISTER, voltage_to_dac( -2.f ) );  // outputs -4V to tp15.  two's complement works. TODO but need to change gain flag?
         spi_dac_write_register(spi, DAC_VOUT3_REGISTER, voltage_to_dac( 2.f ) );  // outputs 4V to tp11.
 
+
+        mux_io(spi);
+        clamps_set_source_pve(spi);
 
 
 
