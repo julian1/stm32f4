@@ -12,9 +12,14 @@ extern uint32_t spi_dac_read_register(uint32_t spi, uint8_t r);
 
 extern int dac_init(uint32_t spi, uint8_t reg);  // bad name?
 
-
+// should bbe called VOUT1 - etc. so that it's not application specific
 #define DAC_VSET_REGISTER 0x04 
 #define DAC_ISET_REGISTER 0x05
+
+#define DAC_VOUT2_REGISTER 0x06 
+#define DAC_VOUT3_REGISTER 0x07
+
+
 
 #define DAC_GPIO0 (1 << 8)
 #define DAC_GPIO1 (1 << 9)

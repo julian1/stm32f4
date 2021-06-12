@@ -120,20 +120,20 @@ static void range_voltage_set(uint32_t spi, vrange_t vrange)
     case vrange_1x:
       // flutters at 5 digit. nice.
       // 6th digit. with 9V and 0V.
-      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten 
+      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten
       io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
       vmultiplier = 1.f;
       break;
 
     case vrange_10x:
-      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten 
-      io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                    //  
+      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten
+      io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                    //
       vmultiplier = 10.f;
       break;
 
     case vrange_100x:
-      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten 
-      io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);                                    //  
+      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten
+      io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);                                    //
       vmultiplier = 10.f;
       break;
 
@@ -189,13 +189,13 @@ typedef enum irange_t
 
   done - EXTREME. remove the 10k thick film. in front of the op.
   use jumper to test. or else era thin-film.
-  --- 
+  ---
   change 200 and 20ohm to era. thin film. for lower noise.
 */
 
 /*
-  Extreme. we should turn on 5V digital. so that dg444 inputs don't just sink. 
-  eg. turn on 5V. 
+  Extreme. we should turn on 5V digital. so that dg444 inputs don't just sink.
+  eg. turn on 5V.
   then configure.
 */
 
@@ -216,9 +216,9 @@ static void range_current_set(uint32_t spi, irange_t irange)
   imultiplier = 10.f;
 
 #if 0
-  switch(irange) 
+  switch(irange)
   {
-    
+
     case irange_1x:
       io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  active low
       imultiplier = 1.f;
@@ -334,7 +334,7 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
 
 
-  // io_write(spi, REG_ISENSE_MUX,  count);    // works 
+  // io_write(spi, REG_ISENSE_MUX,  count);    // works
   // io_write(spi, REG_INA_IFB_SW_CTL,  count);    // works
   // io_write(spi, REG_INA_VFB_ATTEN_SW, count);    // works
 
@@ -544,6 +544,8 @@ static void update(uint32_t spi)
       }
 #endif
 
+      usart_printf("-------------\n" );
+
       usart_printf("set voltage range\n" );
       range_voltage_set(spi, vrange_1x);
       // range_voltage_set(spi, vrange_1x_2);
@@ -556,7 +558,7 @@ static void update(uint32_t spi)
       range_current_set(spi, irange_1x);
 
       // progress to digital up?
-      usart_printf("digital init ok\n" );
+      usart_printf("digital init done/ok\n" );
       state = DIGITAL_UP;
       break;
     }
@@ -621,14 +623,30 @@ static void update(uint32_t spi)
 
 #endif
 
-#if 0
 
         // turn on refs for dac
         //mux_dac(spi);
         usart_printf("turn on ref a for dac\n" );
         mux_io(spi);
-        io_clear(spi, REG_DAC_REF_MUX, DAC_REF_MUX_A); // active lo
+        io_write(spi, REG_DAC_REF_MUX, ~(DAC_REF_MUX_A | DAC_REF_MUX_B)); // active lo
 
+        // voltage
+        mux_dac(spi);
+        spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 5.f ) ); // 5V
+
+        // current
+        mux_dac(spi);
+        spi_dac_write_register(spi, DAC_ISET_REGISTER, voltage_to_dac( 2.f ) );  // 2V
+
+
+        // working as bipolar. 
+        spi_dac_write_register(spi, DAC_VOUT2_REGISTER, voltage_to_dac( -2.f ) );  // outputs -4V to tp15.  need to change gain flag.
+        spi_dac_write_register(spi, DAC_VOUT3_REGISTER, voltage_to_dac( 2.f ) );  // outputs 4V to tp11.
+
+
+
+
+#if 0
         // EXTREME. feedback is always negative. why we just plug vfb and ifb without inverses.
         // its easier to think of everything without polarity.   (the polarity just exists because we tap/ com at 0V).
 
