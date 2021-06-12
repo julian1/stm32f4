@@ -604,8 +604,8 @@ static void update(uint32_t spi)
         msleep(50);
 
         // LP30 - needed to power the vfb topside op amp. ltc6090/ bootstrapped
-        io_set(spi, REG_RAILS, RAILS_LP30V );
-        msleep(50);
+        // io_set(spi, REG_RAILS, RAILS_LP30V );
+        // msleep(50);
    /*
         io_set(spi, REG_RAILS, RAILS_LP60V );
    */
@@ -630,6 +630,7 @@ static void update(uint32_t spi)
         mux_io(spi);
         io_write(spi, REG_DAC_REF_MUX, ~(DAC_REF_MUX_A | DAC_REF_MUX_B)); // active lo
 
+        // unipolar.
         // voltage
         mux_dac(spi);
         spi_dac_write_register(spi, DAC_VSET_REGISTER, voltage_to_dac( 5.f ) ); // 5V
@@ -640,7 +641,7 @@ static void update(uint32_t spi)
 
 
         // working as bipolar. 
-        spi_dac_write_register(spi, DAC_VOUT2_REGISTER, voltage_to_dac( -2.f ) );  // outputs -4V to tp15.  need to change gain flag.
+        spi_dac_write_register(spi, DAC_VOUT2_REGISTER, voltage_to_dac( -2.f ) );  // outputs -4V to tp15.  two's complement works. TODO but need to change gain flag?
         spi_dac_write_register(spi, DAC_VOUT3_REGISTER, voltage_to_dac( 2.f ) );  // outputs 4V to tp11.
 
 
