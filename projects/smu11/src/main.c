@@ -535,7 +535,7 @@ static void update(uint32_t spi)
       mux_w25(spi);
       spi_w25_get_data(spi);
 
-#if 0
+#if 1
       // dac init
       int ret = dac_init(spi, REG_DAC); // bad name?
       if(ret != 0) {

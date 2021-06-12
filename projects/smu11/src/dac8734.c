@@ -117,8 +117,10 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   // see if we can toggle the dac gpio0 output
   mux_dac(spi);
   uint32_t u1 = spi_dac_read_register(spi, 0);
-  usart_printf("gpio0 set %d \n", (u1 & DAC_GPIO0) != 0 ); // TODO use macro for GPIO0 and GPIO1 // don't need == here
-  usart_printf("gpio1 set %d \n", (u1 & DAC_GPIO1) != 0);
+  // usart_printf("gpio0 set %d \n", (u1 & DAC_GPIO0) != 0 ); // TODO use macro for GPIO0 and GPIO1 // don't need == here
+  // usart_printf("gpio1 set %d \n", (u1 & DAC_GPIO1) != 0);
+
+  usart_printf("gpio set %d %d\n", (u1 & DAC_GPIO1) != 0, (u1 & DAC_GPIO1) != 0);
 
 
   // startup has the gpio bits set.
@@ -127,8 +129,10 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
 
   uint32_t u2 = spi_dac_read_register(spi, 0);
   // usart_printf("read %d \n", u2 );
-  usart_printf("gpio0 set %d \n", (u2 & DAC_GPIO0) != 0);
-  usart_printf("gpio1 set %d \n", (u2 & DAC_GPIO1) != 0);
+  // usart_printf("gpio0 set %d \n", (u2 & DAC_GPIO0) != 0);
+  // usart_printf("gpio1 set %d \n", (u2 & DAC_GPIO1) != 0);
+
+  usart_printf("gpio set %d %d\n", (u2 & DAC_GPIO1) != 0, (u2 & DAC_GPIO1) != 0);
 
   /* OK. to read gpio0 and gpio1 hi vals. we must have pullups.
      note. also means they can effectively be used bi-directionally.
