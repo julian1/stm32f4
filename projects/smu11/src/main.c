@@ -83,6 +83,7 @@ static state_t state = FIRST;
 
 
 
+// TODO put cal values for adc02 in state
 
 static float imultiplier = 0;
 static float vmultiplier = 0;
@@ -487,6 +488,7 @@ static void update(uint32_t spi)
 
   // get supply voltages,
   mux_adc03(spi);
+  // TODO put cal values in state
   float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
   float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
   UNUSED(lp15v);
