@@ -86,12 +86,12 @@
 #define CLAMP2_MAX        (1<<3)
 
 
-#define REG_RELAY_COM  17
+#define REG_RELAY_COM       17
 #define RELAY_COM_X         (1<<0)
 #define RELAY_COM_Y         (1<<1)
 #define RELAY_COM_Z         (1<<2)
 
-#define REG_IRANGEX_SW     18
+#define REG_IRANGEX_SW      18
 #define IRANGEX_SW1         (1<<0)
 #define IRANGEX_SW2         (1<<1)
 #define IRANGEX_SW3         (1<<2)
@@ -99,7 +99,7 @@
 
 
 
-#define REG_RELAY       19
+#define REG_RELAY           19
 #define RELAY_VRANGE        (1<<0)
 #define RELAY_OUTCOM        (1<<1)
 #define RELAY_SENSE         (1<<2)
@@ -175,6 +175,12 @@
 #define ISENSE_MUX2_CTL   (1<<1)
 #define ISENSE_MUX3_CTL   (1<<2)
 
+
+
+#define REG_RELAY_OUT         31
+#define RELAY_OUT_COM_HC    (1<<0)
+#define RELAY_OUT_COM_LC    (1<<1)
+#define RELAY_OUT_SENSE     (1<<2)
 
 
 /////////////////

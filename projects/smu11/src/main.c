@@ -335,7 +335,7 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
 
 #if 1
-  if(count % 3 == 0)
+  if(count % 2 == 0)
   {
     // io_toggle(spi, REG_INA_VFB_SW, INA_VFB_SW1_CTL | INA_VFB_SW2_CTL | INA_VFB_SW3_CTL);
     // io_toggle(spi, REG_INA_DIFF_SW, INA_DIFF_SW1_CTL | INA_DIFF_SW2_CTL);
@@ -343,6 +343,12 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
     // io_toggle(spi, REG_INA_IFB_SW1_CTL, INA_IFB_SW1_CTL | INA_IFB_SW2_CTL | INA_IFB_SW3_CTL);
 
     // io_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
+    
+    io_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
+
+// #define REG_RELAY_OUT         31
+// #define RELAY_OUT_COM_HC    (1<<0)
+
 
   }
 #endif
