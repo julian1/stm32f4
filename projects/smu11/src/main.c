@@ -343,7 +343,7 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
     // io_toggle(spi, REG_INA_IFB_SW1_CTL, INA_IFB_SW1_CTL | INA_IFB_SW2_CTL | INA_IFB_SW3_CTL);
 
     // io_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
-    
+
     // io_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
 
 // #define REG_RELAY_OUT         31
@@ -672,24 +672,27 @@ static void update(uint32_t spi)
         spi_dac_write_register(spi, DAC_VOUT1_REGISTER, voltage_to_dac( 2.f ) );  // 2V
 
 
-        // working as bipolar. 
+        // working as bipolar.
         spi_dac_write_register(spi, DAC_VOUT2_REGISTER, voltage_to_dac( -2.f ) );  // outputs -4V to tp15.  two's complement works. TODO but need to change gain flag?
-        spi_dac_write_register(spi, DAC_VOUT3_REGISTER, voltage_to_dac( 2.f ) );  // outputs 4V to tp11.
+        spi_dac_write_register(spi, DAC_VOUT3_REGISTER, voltage_to_dac( 0.f ) );  // outputs 4V to tp11.
 
 
         mux_io(spi);
         clamps_set_source_pve(spi);
 
 
+        // turn on sense amplifier 2
+        io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX2_CTL);
+
         // turn on range x
         io_write(spi, REG_RELAY_COM, RELAY_COM_X);
-   
-        // turn on output 
-        io_write(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
 
-        // also need to turn on the fets.  for the second fet.
-
+         // also need to turn on the fets.  for the second fet.
         io_write(spi, REG_IRANGEX_SW, IRANGEX_SW2);
+
+
+        // turn on output
+        io_write(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
 
 
 
