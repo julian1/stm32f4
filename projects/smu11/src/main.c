@@ -344,7 +344,7 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
     // io_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
     
-    io_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
+    // io_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
 
 // #define REG_RELAY_OUT         31
 // #define RELAY_OUT_COM_HC    (1<<0)
@@ -679,6 +679,19 @@ static void update(uint32_t spi)
 
         mux_io(spi);
         clamps_set_source_pve(spi);
+
+
+        // turn on range x
+        io_write(spi, REG_RELAY_COM, RELAY_COM_X);
+   
+        // turn on output 
+        io_write(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
+
+        // also need to turn on the fets.  for the second fet.
+
+        io_write(spi, REG_IRANGEX_SW, IRANGEX_SW2);
+
+
 
 
 
