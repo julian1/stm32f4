@@ -434,10 +434,6 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
       // why is the voltage *10?
       // Force=Potential=3V, etc.
 
-        // ar[0] / 1.64640 * vmultiplier,
-        // ar[1] / 1.64640 * imultiplier
- 
-
       float x = 0.435;
 
       usart_printf("adc %f V    %fA\n",
