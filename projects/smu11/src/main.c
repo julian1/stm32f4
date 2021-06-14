@@ -211,35 +211,34 @@ static void range_current_set(uint32_t spi, irange_t irange)
   switch(irange)
   {
     case irange_1x:
+      imultiplier = 1.f;
       io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  1x active low
       break;
 
     case irange_10x:
+      imultiplier = 10.f;
       io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);   //  10x active low
       break;
 
     case irange_100x:
+      imultiplier = 100.f;
       io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);   //  100x active low
       break;
 
 
 
     case irange_10mA:
-
-
-      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  1x active low
-
-      // turn on sense amplifier 2
-      // io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX2_CTL);
+      // gain 1x active low
+      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   
+      // turn on sense amplifier 3
       io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX3_CTL);
-
       // turn on range x
       io_write(spi, REG_RELAY_COM, RELAY_COM_X);
-
-       // also need to turn on the fets.  for the second fet.
-      // io_write(spi, REG_IRANGEX_SW, IRANGEX_SW2);
+      // turn on 4th set of fets.
       io_write(spi, REG_IRANGEX_SW, IRANGEX_SW4);
-
+      // mult
+      // we don't need this... can infer locally.
+      imultiplier = 1.f;
       break;
 
 
@@ -257,7 +256,7 @@ static void range_current_set(uint32_t spi, irange_t irange)
 
   // 100x. is stable flickers at 6th digit. nice!!!...
 
-  imultiplier = 10.f;
+  
 
 #if 0
   switch(irange)
@@ -704,21 +703,11 @@ static void update(uint32_t spi)
         clamps_set_source_pve(spi);
 
 
+        range_voltage_set(spi, vrange_1x);
 
         range_current_set(spi, irange_10mA);
 
-#if 0
-        // turn on sense amplifier 2
-        // io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX2_CTL);
-        io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX3_CTL);
 
-        // turn on range x
-        io_write(spi, REG_RELAY_COM, RELAY_COM_X);
-
-         // also need to turn on the fets.  for the second fet.
-        // io_write(spi, REG_IRANGEX_SW, IRANGEX_SW2);
-        io_write(spi, REG_IRANGEX_SW, IRANGEX_SW4);
-#endif
 
         // turn on output
         io_write(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
