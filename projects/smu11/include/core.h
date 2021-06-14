@@ -180,8 +180,11 @@
 #define REG_RELAY_OUT         31
 #define RELAY_OUT_COM_HC    (1<<0)
 #define RELAY_OUT_COM_LC    (1<<1)
-#define RELAY_OUT_SENSE     (1<<2)
 
+
+
+#define REG_RELAY_VSENSE    32
+#define RELAY_VSENSE_CTL    (1<<0)
 
 /////////////////
 /*

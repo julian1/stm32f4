@@ -231,13 +231,13 @@ static void range_current_set(uint32_t spi, irange_t irange)
       // gain 1x active low
       io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   
       // turn on sense amplifier 3
-      io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX3_CTL);
-      // turn on range x
-      io_write(spi, REG_RELAY_COM, RELAY_COM_X);
-      // turn on 4th set of fets.
+      io_write(spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
+      // turn on current range x
+      io_write(spi, REG_RELAY_COM,  RELAY_COM_X);
+      // turn on 4th switch fets.
       io_write(spi, REG_IRANGEX_SW, IRANGEX_SW4);
       // mult
-      // we don't need this... can infer locally.
+      // we don't need this... can infer multiplier locally, wfrom irange if needed.
       imultiplier = 1.f;
       break;
 
@@ -265,6 +265,7 @@ static void output_set(uint32_t spi, irange_t irange, uint8_t val)
 
       // problem this relay also controls the sense muxing.
       // think we probably want to 
+      // eg. we want to ensure... that the coto relay is not turned on.
 
         // turn on output
       if(val) 
@@ -359,6 +360,9 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
 // #define REG_RELAY_OUT         31
 // #define RELAY_OUT_COM_HC    (1<<0)
+
+
+    // io_toggle(spi, REG_RELAY_VSENSE, RELAY_VSENSE_CTL);
 
 
   }
