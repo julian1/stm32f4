@@ -1,3 +1,8 @@
+      // range_voltage_set(spi, vrange_1x_2);
+      // range_voltage_set(spi, vrange_0x1);
+      // range_voltage_set(spi, vrange_10x);
+      // range_voltage_set(spi, vrange_100x);
+
 
 // cjmcu  stm32f407.
 // issue. is that board/stlink doesn't appear to reset cleanly. needs sleep.
@@ -258,6 +263,10 @@ static void range_current_set(uint32_t spi, irange_t irange)
 
 static void output_set(uint32_t spi, irange_t irange, uint8_t val)
 {
+/*
+  EXTR. we could completely bypass the AB section and just use 6090
+  for low current ranges. if we wanted.
+*/
 
   if(val) {
 
