@@ -699,6 +699,18 @@ static void update(uint32_t spi)
 
 
 
+        /////////////////
+        // adc init has to be done after rails are up...
+        // but doesn't need xtal, to respond to spi.
+        // adc init
+        int ret = adc_init(spi, REG_ADC);
+        if(ret != 0) {
+          state = ERROR;
+          return;
+        }
+
+
+
 #if 0
         // EXTREME. feedback is always negative. why we just plug vfb and ifb without inverses.
         // its easier to think of everything without polarity.   (the polarity just exists because we tap/ com at 0V).
