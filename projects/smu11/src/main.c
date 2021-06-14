@@ -171,7 +171,6 @@ static void range_voltage_set(uint32_t spi, vrange_t vrange)
     break;
   };
 
-  vmultiplier = 10.f;
 }
 
 // vim :colorscheme default. loooks good.
@@ -423,7 +422,7 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
     case ANALOG_UP: {
 
-#if 0
+#if 1
       // ... ok.
       // how to return. pass by reference...
       float ar[4];
