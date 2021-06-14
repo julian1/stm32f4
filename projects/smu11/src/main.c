@@ -250,48 +250,37 @@ static void range_current_set(uint32_t spi, irange_t irange)
 
   }
 
-  // io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX1_CTL);    // select dedicated 0.1 ohm sense resistor and op. active lo
-  // io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX2_CTL);    // select dedicated 10 ohm sense resistor and op. active lo
-  // io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX3_CTL);        // select any other range resistor
-
-  // 100x. is stable flickers at 6th digit. nice!!!...
-
-  
-
-#if 0
-  switch(irange)
-  {
-
-    case irange_1x:
-      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  active low
-      imultiplier = 1.f;
-      break;
-
-    case irange_10x:
-      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);   //  active low
-      imultiplier = 10.f;
-      break;
-
-
-    case irange_100x:
-      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);   //  active low
-      imultiplier = 100.f;
-      break;
-
-    // shouldn't have this...
-    case vrange_none:
-      // assert...
-    break;
-
-  }
-#endif
 
 }
 
 
 
 
+static void output_set(uint32_t spi, irange_t irange, uint8_t val)
+{
+  switch(irange)
+  {
+ 
+    case irange_10mA:
 
+      // problem this relay also controls the sense muxing.
+      // think we probably want to 
+
+        // turn on output
+      if(val) 
+        io_write(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
+      else
+        io_write(spi, REG_RELAY_OUT, ~RELAY_OUT_COM_HC);
+
+
+      break;
+
+    default:
+      // ignore
+      ;
+  }
+
+}
 
 
 
@@ -707,10 +696,6 @@ static void update(uint32_t spi)
 
         range_current_set(spi, irange_10mA);
 
-
-
-        // turn on output
-        io_write(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
 
 
 
@@ -1196,5 +1181,40 @@ static void range_voltage_set_1V(uint32_t spi)
   // io_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW2_CTL);    // 10x gain.
   io_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW3_CTL);    // 100x gain.
 
+#endif
+  // io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX1_CTL);    // select dedicated 0.1 ohm sense resistor and op. active lo
+  // io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX2_CTL);    // select dedicated 10 ohm sense resistor and op. active lo
+  // io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX3_CTL);        // select any other range resistor
+
+  // 100x. is stable flickers at 6th digit. nice!!!...
+
+  
+
+#if 0
+  switch(irange)
+  {
+
+    case irange_1x:
+      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  active low
+      imultiplier = 1.f;
+      break;
+
+    case irange_10x:
+      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);   //  active low
+      imultiplier = 10.f;
+      break;
+
+
+    case irange_100x:
+      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);   //  active low
+      imultiplier = 100.f;
+      break;
+
+    // shouldn't have this...
+    case vrange_none:
+      // assert...
+    break;
+
+  }
 #endif
 
