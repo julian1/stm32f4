@@ -179,7 +179,9 @@ typedef enum irange_t
   irange_none,
   irange_1x,
   irange_10x,
-  irange_100x
+  irange_100x,
+
+  irange_10mA
 
 } irange_t;
 
@@ -209,7 +211,7 @@ static void range_current_set(uint32_t spi, irange_t irange)
   switch(irange)
   {
     case irange_1x:
-      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  10x active low
+      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  1x active low
       break;
 
     case irange_10x:
@@ -221,6 +223,27 @@ static void range_current_set(uint32_t spi, irange_t irange)
       break;
 
 
+
+    case irange_10mA:
+
+
+      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  1x active low
+
+      // turn on sense amplifier 2
+      // io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX2_CTL);
+      io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX3_CTL);
+
+      // turn on range x
+      io_write(spi, REG_RELAY_COM, RELAY_COM_X);
+
+       // also need to turn on the fets.  for the second fet.
+      // io_write(spi, REG_IRANGEX_SW, IRANGEX_SW2);
+      io_write(spi, REG_IRANGEX_SW, IRANGEX_SW4);
+
+      break;
+
+
+
     // shouldn't have this...
     case vrange_none:
       // assert...
@@ -228,7 +251,7 @@ static void range_current_set(uint32_t spi, irange_t irange)
 
   }
 
-  io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX1_CTL);    // select dedicated 0.1 ohm sense resistor and op. active lo
+  // io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX1_CTL);    // select dedicated 0.1 ohm sense resistor and op. active lo
   // io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX2_CTL);    // select dedicated 10 ohm sense resistor and op. active lo
   // io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX3_CTL);        // select any other range resistor
 
@@ -681,15 +704,21 @@ static void update(uint32_t spi)
         clamps_set_source_pve(spi);
 
 
+
+        range_current_set(spi, irange_10mA);
+
+#if 0
         // turn on sense amplifier 2
-        io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX2_CTL);
+        // io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX2_CTL);
+        io_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX3_CTL);
 
         // turn on range x
         io_write(spi, REG_RELAY_COM, RELAY_COM_X);
 
          // also need to turn on the fets.  for the second fet.
-        io_write(spi, REG_IRANGEX_SW, IRANGEX_SW2);
-
+        // io_write(spi, REG_IRANGEX_SW, IRANGEX_SW2);
+        io_write(spi, REG_IRANGEX_SW, IRANGEX_SW4);
+#endif
 
         // turn on output
         io_write(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
