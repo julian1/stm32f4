@@ -229,7 +229,7 @@ static void range_current_set(uint32_t spi, irange_t irange)
 
     case irange_10mA:
       // gain 1x active low
-      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   
+      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
       // turn on sense amplifier 3
       io_write(spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
       // turn on current range x
@@ -258,29 +258,28 @@ static void range_current_set(uint32_t spi, irange_t irange)
 
 static void output_set(uint32_t spi, irange_t irange, uint8_t val)
 {
-  switch(irange)
-  {
- 
-    case irange_10mA:
 
-      // problem this relay also controls the sense muxing.
-      // think we probably want to 
-      // eg. we want to ensure... that the coto relay is not turned on.
+  if(val) {
 
-        // turn on output
-      if(val) 
-        io_write(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
-      else
-        io_write(spi, REG_RELAY_OUT, ~RELAY_OUT_COM_HC);
+      usart_printf("switch on output\n");
+      switch(irange)
+      {
 
+      case irange_10mA:
+        io_write(spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
+        break;
 
-      break;
+      default:
+        // ignore
+        ;
 
-    default:
-      // ignore
-      ;
+      }
   }
+  else {
 
+    usart_printf("switch off output\n");
+    io_write(spi, REG_RELAY_OUT, 0 ); // both relays off
+  }
 }
 
 
@@ -363,6 +362,11 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
 
     // io_toggle(spi, REG_RELAY_VSENSE, RELAY_VSENSE_CTL);
+
+
+
+    // io_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
+    /////// CAREFUL io_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);    // dangerous if on high-current range.
 
 
   }
@@ -489,20 +493,17 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in, CBuf* console_out
       return;
     }
 
-
-    if(strcmp(tmp, "off") == 0) {
-      usart_printf("switch off\n");
-
+    else if(strcmp(tmp, "off") == 0) {
       // turn off relayc
       mux_io(spi);
-      io_clear(spi, REG_RELAY, RELAY_OUTCOM);
+      output_set(spi, irange_10mA, false );   // turn on
       return;
     }
 
-    if(strcmp(tmp, "on") == 0) {
-      usart_printf("switch on\n");
+    else if(strcmp(tmp, "on") == 0) {
       mux_io(spi);
-      io_set(spi, REG_RELAY, RELAY_OUTCOM);
+      output_set(spi, irange_10mA, true );   // turn on
+
      return;
     }
 
@@ -564,18 +565,6 @@ static void update(uint32_t spi)
       // BUT I THINK we should probably hold RAILS_OE high / deasserted.
 
 
-
-#if 0
-      // change name GAIN_IFB_OP1 ... GAIN_VFB_OP2   etcc
-      // eg. clear ifb regs.
-      io_write_mask(spi, REG_GAIN_FB, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2);
-      io_write_mask(spi, REG_GAIN_FB, GAIN_VFB_OP1 | GAIN_VFB_OP2,  GAIN_VFB_OP1 | GAIN_VFB_OP2);
-      io_write_mask(spi, REG_GAIN_FB, GAIN_IFB_OP1 | GAIN_IFB_OP2, 0 );
-      state = HALT;
-      return;
-#endif
-
-
       // test the flash
       // TODO. check responses.
       mux_w25(spi);
@@ -594,11 +583,6 @@ static void update(uint32_t spi)
 
       usart_printf("set voltage range\n" );
       range_voltage_set(spi, vrange_1x);
-      // range_voltage_set(spi, vrange_1x_2);
-      // range_voltage_set(spi, vrange_0x1);
-      // range_voltage_set(spi, vrange_10x);
-      // range_voltage_set(spi, vrange_100x);
-
 
       usart_printf("set current range\n" );
       range_current_set(spi, irange_1x);
@@ -701,7 +685,8 @@ static void update(uint32_t spi)
         range_current_set(spi, irange_10mA);
 
 
-
+        // change namem output relay?
+        output_set(spi, irange_10mA, true );   // turn on
 
 
 
@@ -1192,7 +1177,7 @@ static void range_voltage_set_1V(uint32_t spi)
 
   // 100x. is stable flickers at 6th digit. nice!!!...
 
-  
+
 
 #if 0
   switch(irange)
@@ -1221,4 +1206,21 @@ static void range_voltage_set_1V(uint32_t spi)
 
   }
 #endif
+
+
+#if 0
+      // change name GAIN_IFB_OP1 ... GAIN_VFB_OP2   etcc
+      // eg. clear ifb regs.
+      io_write_mask(spi, REG_GAIN_FB, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2);
+      io_write_mask(spi, REG_GAIN_FB, GAIN_VFB_OP1 | GAIN_VFB_OP2,  GAIN_VFB_OP1 | GAIN_VFB_OP2);
+      io_write_mask(spi, REG_GAIN_FB, GAIN_IFB_OP1 | GAIN_IFB_OP2, 0 );
+      state = HALT;
+      return;
+#endif
+
+      // range_voltage_set(spi, vrange_1x_2);
+      // range_voltage_set(spi, vrange_0x1);
+      // range_voltage_set(spi, vrange_10x);
+      // range_voltage_set(spi, vrange_100x);
+
 
