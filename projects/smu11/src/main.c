@@ -436,7 +436,7 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
       float x = 0.435;
 
-      usart_printf("adc %f V    %fA\n",
+      usart_printf("adc %f V    %f mA\n",
         ar[0] * x * vmultiplier,
         ar[1] * x * imultiplier
       );
