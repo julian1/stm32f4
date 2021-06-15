@@ -148,7 +148,7 @@ typedef enum format_t
 
 typedef struct app_t
 {
-  state_t   state; 
+  state_t   state;
 
   vrange_t  vrange;
   irange_t  irange;
@@ -402,7 +402,7 @@ static void clamps_set_source_pve(uint32_t spi)
 // should construct a string i think...
 
 static void print_value(format_t format, float val)
-{ 
+{
   switch(format)
   {
     case format_mV:
@@ -520,52 +520,28 @@ static void update_soft_500ms(app_t *app, uint32_t spi )
       float ar[4];
       spi_adc_do_read(spi, ar, 4);
 
-      // current in amps.
-      // til, we format it better
-      // %f formatter, doesn't pad with zeros properly...
-      // why is the voltage *10?
-      // Force=Potential=3V, etc.
 
-/*
-  actually not sure about this.
-  we don't want output to depend on range.
-  so want a common multiplier unit.
-
-  but we do want a default format prec.  eg. mA. that 
-  so using the common multiplier is I think correct.
-  
-*/
+      /*
+        ranging and format precision are separate and vary independently.
+        so need to use common unit approach.
+      */
       float x = 0.435;
 
       // get values in standard unit. eg. volts or amps.
-      float v = ar[0] * range_voltage_multiplier(app->vrange) * x; 
-      float i = ar[1] * range_current_multiplier(app->irange) * x; 
-
-      // then need to format according to desired precision.  
-      // which has a default per range.
-
-      // format_mA. or format_mV  or format_V. 
+      // change name range_voltage_si_coeff or similar
+      float v = ar[0] * range_voltage_multiplier(app->vrange) * x;
+      float i = ar[1] * range_current_multiplier(app->irange) * x;
 
 
-      usart_printf("adc ");
-
-
-      // when we set the range. we should set the default format. 
+      // when we set the range. we should set the default format.
       // the format prec wants to be able to user modified.
+      usart_printf("adc ");
 
       print_value(format_V , v);
       usart_printf("   ");
       print_value(format_A , i);
-
       usart_printf("\n");
 
-
-#if 0
-      usart_printf("adc %f V    %f mA\n",
-        ar[0] * x /** app->vmultiplier*/,
-        ar[1] * x /** app->imultiplier */
-      );
-#endif
 
 #if 0
       usart_printf("adc %dV    %dA\n",
@@ -820,7 +796,7 @@ static void update(app_t *app, uint32_t spi)
         mux_io(spi);
         clamps_set_source_pve(spi);
 
- 
+
         app->vrange = vrange_1x;
         range_voltage_set(spi, app->vrange);
 
