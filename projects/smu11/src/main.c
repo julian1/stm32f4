@@ -624,6 +624,11 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
       return;
     }
 
+    // so we want the same thing 
+    // 1) to go up/and down current ranges. and voltage ranges
+    //      eg. range_current( dir ); up/down
+    // 2) also the formatting ranges.   eg. 5.0V or 05.0V etc.
+
   }
 
   // ok. this doesn't quite work.
