@@ -148,6 +148,8 @@ typedef enum format_t
 
 typedef struct app_t
 {
+  uint32_t spi;
+
   state_t   state;
 
   vrange_t  vrange;
@@ -167,7 +169,7 @@ typedef struct app_t
 
 
 
-static void range_voltage_set(app_t *app, uint32_t spi, vrange_t vrange)
+static void range_voltage_set(app_t *app, vrange_t vrange)
 {
 
   app->vrange = vrange;
@@ -178,20 +180,20 @@ static void range_voltage_set(app_t *app, uint32_t spi, vrange_t vrange)
     case vrange_1x:
       // flutters at 5 digit. nice.
       // 6th digit. with 9V and 0V.
-      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten
-      io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
+      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten
+      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
       // vmultiplier = 1.f;
       break;
 
     case vrange_10x:
-      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten
-      io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                    //
+      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten
+      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                    //
       // vmultiplier = 10.f;
       break;
 
     case vrange_100x:
-      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten
-      io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);                                    //
+      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten
+      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);                                    //
       // vmultiplier = 10.f;
       break;
 
@@ -199,8 +201,8 @@ static void range_voltage_set(app_t *app, uint32_t spi, vrange_t vrange)
   case vrange_0x1:
       // flutters at 4th digit. with mV.  but this is on mV. range... so ok?
       // at 6th digit with V.  eg. 9V and 0.1V. - very good - will work for hv.
-      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
-      io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
+      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
+      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
       // vmultiplier = 0.1f;
       break;
 
@@ -210,8 +212,8 @@ static void range_voltage_set(app_t *app, uint32_t spi, vrange_t vrange)
 
   case vrange_1x_2:
       // flutters at 4th digit.
-      io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
-      io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                   // x10 . works.
+      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
+      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                   // x10 . works.
       // vmultiplier = 1.f;
       break;
 
@@ -261,7 +263,7 @@ static float range_voltage_multiplier( vrange_t vrange)
   then configure.
 */
 
-static void range_current_set(app_t *app, uint32_t spi, irange_t irange)
+static void range_current_set(app_t *app, irange_t irange)
 {
   /*
     this is doing two things. muxing the sense input. and amplification.
@@ -274,30 +276,30 @@ static void range_current_set(app_t *app, uint32_t spi, irange_t irange)
   {
     case irange_1x:
       // imultiplier = 1.f;
-      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  1x active low
+      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  1x active low
       break;
 
     case irange_10x:
       // imultiplier = 10.f;
-      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);   //  10x active low
+      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);   //  10x active low
       break;
 
     case irange_100x:
       // imultiplier = 100.f;
-      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);   //  100x active low
+      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);   //  100x active low
       break;
 
 
     // using 1k resistor. for 10V swing.
     case irange_10mA:
       // gain 1x active low
-      io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
+      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
       // turn on sense amplifier 3
-      io_write(spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
+      io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
       // turn on current range x
-      io_write(spi, REG_RELAY_COM,  RELAY_COM_X);
+      io_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
       // turn on 4th switch fets.
-      io_write(spi, REG_IRANGEX_SW, IRANGEX_SW4);
+      io_write(app->spi, REG_IRANGEX_SW, IRANGEX_SW4);
       // mult
       // we don't need this... can infer multiplier locally, wfrom irange if needed.
       // imultiplier = 1.f;
@@ -334,7 +336,7 @@ static float range_current_multiplier( irange_t irange)
 
 
 
-static void output_set(app_t *app, uint32_t spi, irange_t irange, uint8_t val)
+static void output_set(app_t *app, uint8_t val)
 {
 /*
   // better name
@@ -348,11 +350,11 @@ static void output_set(app_t *app, uint32_t spi, irange_t irange, uint8_t val)
   if(app->output) {
 
       usart_printf("switch output on\n");
-      switch(irange)
+      switch(app->irange)
       {
 
       case irange_10mA:
-        io_write(spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
+        io_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
         break;
 
       default:
@@ -364,7 +366,7 @@ static void output_set(app_t *app, uint32_t spi, irange_t irange, uint8_t val)
   else {
 
     usart_printf("switch output off\n");
-    io_write(spi, REG_RELAY_OUT, 0 ); // both relays off
+    io_write(app->spi, REG_RELAY_OUT, 0 ); // both relays off
   }
 }
 
@@ -440,7 +442,7 @@ static void print_value(format_t format, float val)
 
 
 
-static void update_soft_500ms(app_t *app, uint32_t spi )
+static void update_soft_500ms(app_t *app )
 {
 
 
@@ -451,14 +453,14 @@ static void update_soft_500ms(app_t *app, uint32_t spi )
   // blink mcu led
   led_toggle();
 
-  mux_io(spi);
+  mux_io(app->spi);
 
   ////////////////////////////////
   // clear led1
-  io_clear(spi, REG_LED, LED1);
+  io_clear(app->spi, REG_LED, LED1);
 
 
-  io_toggle(spi, REG_LED, LED2);
+  io_toggle(app->spi, REG_LED, LED2);
 
 
 
@@ -534,7 +536,7 @@ static void update_soft_500ms(app_t *app, uint32_t spi )
       // ... ok.
       // how to return. pass by reference...
       float ar[4];
-      spi_adc_do_read(spi, ar, 4);
+      spi_adc_do_read(app->spi, ar, 4);
 
 
       /*
@@ -581,7 +583,7 @@ static void update_soft_500ms(app_t *app, uint32_t spi )
 
 */
 
-static void update_console_cmd(app_t *app, uint32_t spi, CBuf *console_in, CBuf* console_out, CBuf *cmd_in )
+static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, CBuf *cmd_in )
 {
   /*
     TODO
@@ -591,7 +593,7 @@ static void update_console_cmd(app_t *app, uint32_t spi, CBuf *console_in, CBuf*
   // needs to switch state.
   // and needs a buffer for local commands...
 
-  UNUSED(spi);
+  // UNUSED(spi);
 
   // OK. by not processing chars as we receive, we have lost character echo...
 
@@ -617,16 +619,10 @@ static void update_console_cmd(app_t *app, uint32_t spi, CBuf *console_in, CBuf*
   // maybe start commands with ':' key.
 
   if(cBufPeekLast(cmd_in) == 'o') {
-    // toggle the output. on/off
 
-    if(app->output) {
-      mux_io(spi);
-      output_set(app, spi, app->irange, false);   
-    } else {
-
-      output_set(app, spi, app->irange, true);   
-    }
-
+      // toggle the output. on/off
+      mux_io(app->spi);
+      output_set(app, ! app->output);   
   }
 
 
@@ -679,12 +675,12 @@ static void update_console_cmd(app_t *app, uint32_t spi, CBuf *console_in, CBuf*
 // pass the state...
 // as a struct...
 
-static void update(app_t *app, uint32_t spi)
+static void update(app_t *app)
 {
   // called as often as possible
 
 
-  // mux_io(spi);
+  // mux_io(app->spi);
   /*
     querying adc03 via spi, is slow (eg. we also clock spi slower to match read speed) .
     so it should only be done in soft timer eg. 10ms is probably enough.
@@ -692,10 +688,10 @@ static void update(app_t *app, uint32_t spi)
   */
 
   // get supply voltages,
-  mux_adc03(spi);
+  mux_adc03(app->spi);
   // TODO put cal values in state
-  float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
-  float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
+  float lp15v = spi_mcp3208_get_data(app->spi, 0) * 0.92 * 10.;
+  float ln15v = spi_mcp3208_get_data(app->spi, 1) * 0.81 * 10.;
   UNUSED(lp15v);
   UNUSED(ln15v);
   // usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
@@ -711,13 +707,13 @@ static void update(app_t *app, uint32_t spi)
       usart_printf("-----------\n");
       usart_printf("digital init start\n" );
 
-      mux_io(spi);
+      mux_io(app->spi);
 
       ////////////
       // soft reset is much better here.
       // avoid defining initial condition. in more than one place
       // so define in fpga.
-      io_clear(spi, CORE_SOFT_RST, 0);    // any value addressing this register.. to clear
+      io_clear(app->spi, CORE_SOFT_RST, 0);    // any value addressing this register.. to clear
 
       // no. needs dg444/mux stuff. pulled high. for off.
       // BUT I THINK we should probably hold RAILS_OE high / deasserted.
@@ -725,12 +721,12 @@ static void update(app_t *app, uint32_t spi)
 
       // test the flash
       // TODO. check responses.
-      mux_w25(spi);
-      spi_w25_get_data(spi);
+      mux_w25(app->spi);
+      spi_w25_get_data(app->spi);
 
 #if 1
       // dac init
-      int ret = dac_init(spi, REG_DAC); // bad name?
+      int ret = dac_init(app->spi, REG_DAC); // bad name?
       if(ret != 0) {
         app->state = ERROR;
         return;
@@ -740,10 +736,10 @@ static void update(app_t *app, uint32_t spi)
       usart_printf("-------------\n" );
 
       usart_printf("set voltage range\n" );
-      range_voltage_set(app, spi, vrange_1x);
+      range_voltage_set(app, vrange_1x);
 
       usart_printf("set current range\n" );
-      range_current_set(app, spi, irange_10mA);
+      range_current_set(app, irange_10mA);
 
       // progress to digital up?
       usart_printf("digital init done/ok\n" );
@@ -778,17 +774,17 @@ static void update(app_t *app, uint32_t spi)
 
 
         usart_printf("turn on lp5v\n" );
-        mux_io(spi);
+        mux_io(app->spi);
         // assert rails oe
-        io_clear(spi, REG_RAILS_OE, RAILS_OE);
+        io_clear(app->spi, REG_RAILS_OE, RAILS_OE);
 
         // turn on 5V digital rails
-        io_set(spi, REG_RAILS, RAILS_LP5V );
+        io_set(app->spi, REG_RAILS, RAILS_LP5V );
         msleep(50);
 
         // turn on +-15V rails
         usart_printf("turn on analog rails - lp15v\n" );
-        io_set(spi, REG_RAILS, RAILS_LP15V );
+        io_set(app->spi, REG_RAILS, RAILS_LP15V );
         msleep(50);
 
         // LP30 - needed to power the vfb topside op amp. ltc6090/ bootstrapped
@@ -815,36 +811,36 @@ static void update(app_t *app, uint32_t spi)
         // turn on refs for dac
         //mux_dac(spi);
         usart_printf("turn on ref a for dac\n" );
-        mux_io(spi);
-        io_write(spi, REG_DAC_REF_MUX, ~(DAC_REF_MUX_A | DAC_REF_MUX_B)); // active lo
+        mux_io(app->spi);
+        io_write(app->spi, REG_DAC_REF_MUX, ~(DAC_REF_MUX_A | DAC_REF_MUX_B)); // active lo
 
         // dac naked register references should be wrapped by functions
         // unipolar.
         // voltage
-        mux_dac(spi);
-        spi_dac_write_register(spi, DAC_VOUT0_REGISTER, voltage_to_dac( 5.f ) ); // 5V
+        mux_dac(app->spi);
+        spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 5.f ) ); // 5V
 
         // current
-        mux_dac(spi);
-        spi_dac_write_register(spi, DAC_VOUT1_REGISTER, voltage_to_dac( 2.f ) );  // 2V
+        mux_dac(app->spi);
+        spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 2.f ) );  // 2V
 
 
         // working as bipolar.
-        spi_dac_write_register(spi, DAC_VOUT2_REGISTER, voltage_to_dac( -2.f ) );  // outputs -4V to tp15.  two's complement works. TODO but need to change gain flag?
-        spi_dac_write_register(spi, DAC_VOUT3_REGISTER, voltage_to_dac( 0.f ) );  // outputs 4V to tp11.
+        spi_dac_write_register(app->spi, DAC_VOUT2_REGISTER, voltage_to_dac( -2.f ) );  // outputs -4V to tp15.  two's complement works. TODO but need to change gain flag?
+        spi_dac_write_register(app->spi, DAC_VOUT3_REGISTER, voltage_to_dac( 0.f ) );  // outputs 4V to tp11.
 
 
-        mux_io(spi);
-        clamps_set_source_pve(spi);
+        mux_io(app->spi);
+        clamps_set_source_pve(app->spi);
 
 
-        range_voltage_set(app, spi, vrange_1x);
+        range_voltage_set(app, vrange_1x);
 
-        range_current_set(app, spi, app->irange);
+        range_current_set(app, irange_10mA);
 
 
         // change namem output relay?
-        output_set(app, spi, irange_10mA, true );   // turn on
+        output_set(app, true );   // turn on
 
 
 
@@ -852,7 +848,7 @@ static void update(app_t *app, uint32_t spi)
         // adc init has to be done after rails are up...
         // but doesn't need xtal, to respond to spi.
         // adc init
-        int ret = adc_init(spi, REG_ADC);
+        int ret = adc_init(app->spi, REG_ADC);
         if(ret != 0) {
           app->state = ERROR;
           return;
@@ -943,19 +939,19 @@ static void update(app_t *app, uint32_t spi)
 #if 1
       if((lp15v < 14.7 || ln15v < 14.7)  ) {
 
-        mux_io(spi);
+        mux_io(app->spi);
         usart_printf("supplies bad - turn off rails\n");
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
         // turn off power
-        io_clear(spi, REG_RAILS, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
+        io_clear(app->spi, REG_RAILS, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
 
         // TODO use the function that turns off both relays.
         // eg. write not read.
         // turn off output relay
         // io_clear(spi, REG_RELAY, RELAY_OUTCOM);
 
-        output_set(app, spi, app->irange, 0 );
+        output_set(app,  false );
 
         // go to state error
         app->state = ERROR;
@@ -985,10 +981,10 @@ static void update(app_t *app, uint32_t spi)
         usart_printf("entered error state\n" );
 
         // turn off output relay
-        io_clear(spi, REG_RELAY, RELAY_OUTCOM);
+        io_clear(app->spi, REG_RELAY, RELAY_OUTCOM);
 
         // turn off 5V digital and all analog power
-        io_clear(spi, REG_RAILS, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
+        io_clear(app->spi, REG_RAILS, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
       }
       // stay in error state.
     }
@@ -1002,12 +998,12 @@ static void update(app_t *app, uint32_t spi)
         first = 1;
         usart_printf("entered halt state\n" );
 
-        mux_io(spi);
+        mux_io(app->spi);
         // turn off output relay
-        io_clear(spi, REG_RELAY, RELAY_OUTCOM);
+        io_clear(app->spi, REG_RELAY, RELAY_OUTCOM);
 
         // turn off 5V digital and all analog power
-        io_clear(spi, REG_RAILS, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
+        io_clear(app->spi, REG_RAILS, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
       }
     }
     break;
@@ -1051,7 +1047,7 @@ static char buf3[1000];
 static CBuf cmd_in;
 
 
-static void loop(app_t *app, uint32_t spi)
+static void loop(app_t *app)
 {
 
   // move this into the app var.
@@ -1071,14 +1067,14 @@ static void loop(app_t *app, uint32_t spi)
     usart_output_update();
 
     // update_console_cmd(spi, &console_in);
-    update_console_cmd(app, spi, &console_in, &console_out, &cmd_in);
+    update_console_cmd(app, &console_in, &console_out, &cmd_in);
 
-    update(app, spi);
+    update(app);
 
     // 500ms soft timer
     if( system_millis > soft_500ms) {
       soft_500ms = system_millis + 500;
-      update_soft_500ms(app,  spi );
+      update_soft_500ms(app);
     }
 
 
@@ -1159,10 +1155,13 @@ int main(void)
 
   app_t app;
   memset(&app, 0, sizeof(app_t));
+
+  app.spi = SPI_ICE40;
   app.state = FIRST;
   app.print_adc_values = true;
+  app.output = false;
 
-  loop(&app, SPI_ICE40);
+  loop(&app);
 
 	for (;;);
 	return 0;
