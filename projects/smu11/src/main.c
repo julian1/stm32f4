@@ -68,6 +68,8 @@
 // TODO prefix these... ST_
 // also want a DONE state.
 
+
+
 typedef enum state_t {
   FIRST,        // INITIAL
   DIGITAL_UP,   // DIGIAL_DIGITAL_UP
@@ -79,7 +81,7 @@ typedef enum state_t {
 // static
 // should probably be put in state record structure, rather than on the stack?
 // except would need to pass by reference.
-static state_t state = FIRST;
+// static state_t state = FIRST;
 
 
 
@@ -90,8 +92,8 @@ static state_t state = FIRST;
 
 // TODO put cal values for adc02 in state
 
-static float imultiplier = 0;
-static float vmultiplier = 0;
+// static float imultiplier = 0;
+// static float vmultiplier = 0;
 
 
 /*
@@ -115,6 +117,48 @@ typedef enum vrange_t
 
 
 
+typedef enum irange_t
+{
+  // TODO rename range_current_none, range_current_1x etc.
+  irange_none,
+  irange_1x,
+  irange_10x,
+  irange_100x,
+
+  irange_10mA
+
+} irange_t;
+
+
+
+typedef enum format_t
+{
+  format_mV,
+  format_V,
+  format_mA,
+  format_A,
+
+} format_t;
+
+
+
+
+
+
+typedef struct app_t
+{
+  state_t   state; 
+
+  vrange_t  vrange;
+  irange_t  irange;
+
+  // float imultiplier;
+  // float vmultiplier;
+
+} app_t;
+
+
+
 
 static void range_voltage_set(uint32_t spi, vrange_t vrange)
 {
@@ -127,19 +171,19 @@ static void range_voltage_set(uint32_t spi, vrange_t vrange)
       // 6th digit. with 9V and 0V.
       io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten
       io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
-      vmultiplier = 1.f;
+      // vmultiplier = 1.f;
       break;
 
     case vrange_10x:
       io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten
       io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                    //
-      vmultiplier = 10.f;
+      // vmultiplier = 10.f;
       break;
 
     case vrange_100x:
       io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten
       io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);                                    //
-      vmultiplier = 10.f;
+      // vmultiplier = 10.f;
       break;
 
 
@@ -148,7 +192,7 @@ static void range_voltage_set(uint32_t spi, vrange_t vrange)
       // at 6th digit with V.  eg. 9V and 0.1V. - very good - will work for hv.
       io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
       io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
-      vmultiplier = 0.1f;
+      // vmultiplier = 0.1f;
       break;
 
 
@@ -159,9 +203,8 @@ static void range_voltage_set(uint32_t spi, vrange_t vrange)
       // flutters at 4th digit.
       io_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
       io_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                   // x10 . works.
-      vmultiplier = 1.f;
+      // vmultiplier = 1.f;
       break;
-
 
 
 
@@ -173,21 +216,24 @@ static void range_voltage_set(uint32_t spi, vrange_t vrange)
 
 }
 
-// vim :colorscheme default. loooks good.
 
 
 
-typedef enum irange_t
+static float range_voltage_multiplier( vrange_t vrange)
 {
-  // TODO rename range_current_none, range_current_1x etc.
-  irange_none,
-  irange_1x,
-  irange_10x,
-  irange_100x,
+    switch(vrange)
+    {
+      case vrange_1x:
+        return 1.f;
 
-  irange_10mA
+      default:
+        return 1 ;  // w
+        return -99999;
+    };
+}
 
-} irange_t;
+
+// vim :colorscheme default. loooks good.
 
 
 
@@ -215,17 +261,17 @@ static void range_current_set(uint32_t spi, irange_t irange)
   switch(irange)
   {
     case irange_1x:
-      imultiplier = 1.f;
+      // imultiplier = 1.f;
       io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  1x active low
       break;
 
     case irange_10x:
-      imultiplier = 10.f;
+      // imultiplier = 10.f;
       io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);   //  10x active low
       break;
 
     case irange_100x:
-      imultiplier = 100.f;
+      // imultiplier = 100.f;
       io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);   //  100x active low
       break;
 
@@ -242,7 +288,7 @@ static void range_current_set(uint32_t spi, irange_t irange)
       io_write(spi, REG_IRANGEX_SW, IRANGEX_SW4);
       // mult
       // we don't need this... can infer multiplier locally, wfrom irange if needed.
-      imultiplier = 1.f;
+      // imultiplier = 1.f;
       break;
 
 
@@ -258,11 +304,27 @@ static void range_current_set(uint32_t spi, irange_t irange)
 }
 
 
+static float range_current_multiplier( irange_t irange)
+{
+    switch(irange)
+    {
+      case irange_10mA:   return 1.f;
+
+      default:
+        return -99999;
+    };
+}
+
+
+
+
+
 
 
 static void output_set(uint32_t spi, irange_t irange, uint8_t val)
 {
 /*
+  // better name
   EXTR. we could completely bypass the AB section and just use 6090
   for low current ranges. if we wanted.
 */
@@ -296,6 +358,9 @@ static void output_set(uint32_t spi, irange_t irange, uint8_t val)
 
 static void clamps_set_source_pve(uint32_t spi)
 {
+  // TODO needs to take an enum. arguemnt.
+
+
   // change name first_quadrant
   // sourcing, charging adc val 1.616501V
   // source +ve current/voltage.
@@ -329,9 +394,33 @@ static void clamps_set_source_pve(uint32_t spi)
 */
 
 
+// change name to print_value...
+// should construct a string i think...
+
+static void print_value(format_t format, float val)
+{ 
+  switch(format)
+  {
+    case format_mV:
+      usart_printf("%fmV", val * 0.001);
+      break;
+    case format_V:
+      usart_printf("%fV", val);
+      break;
+
+    case format_mA:
+      usart_printf("%fmA", val * 0.001);
+      break;
+    case format_A:
+      usart_printf("%fA", val);
+      break;
+  };
+
+}
 
 
-static void update_soft_500ms(uint32_t spi  /*, state */)
+
+static void update_soft_500ms(app_t *app, uint32_t spi )
 {
 
 
@@ -417,12 +506,11 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
   // io_toggle(spi, REG_RELAY, RELAY_SENSE);
 
 
-  switch(state) {
+  switch(app->state) {
 
 
     case ANALOG_UP: {
 
-#if 1
       // ... ok.
       // how to return. pass by reference...
       float ar[4];
@@ -434,11 +522,44 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
       // why is the voltage *10?
       // Force=Potential=3V, etc.
 
+/*
+  actually not sure about this.
+  we don't want output to depend on range.
+  so want a common multiplier unit.
+
+  but we do want a default format prec.  eg. mA. that 
+  so using the common multiplier is I think correct.
+  
+*/
       float x = 0.435;
 
+      // get values in standard unit. eg. volts or amps.
+      float v = ar[0] * range_voltage_multiplier(app->vrange) * x; 
+      float i = ar[1] * range_current_multiplier(app->irange) * x; 
+
+      // then need to format according to desired precision.  
+      // which has a default per range.
+
+      // format_mA. or format_mV  or format_V. 
+
+
+      usart_printf("adc ");
+
+
+      // when we set the range. we should set the default format. 
+      // the format prec wants to be able to user modified.
+
+      print_value(format_V , v);
+      usart_printf("   ");
+      print_value(format_mA , i);
+
+      usart_printf("\n");
+
+
+#if 0
       usart_printf("adc %f V    %f mA\n",
-        ar[0] * x * vmultiplier,
-        ar[1] * x * imultiplier
+        ar[0] * x /** app->vmultiplier*/,
+        ar[1] * x /** app->imultiplier */
       );
 #endif
 
@@ -461,7 +582,7 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
 */
 
-static void update_console_cmd(uint32_t spi, CBuf *console_in, CBuf* console_out, CBuf *cmd_in )
+static void update_console_cmd(app_t *app, uint32_t spi, CBuf *console_in, CBuf* console_out, CBuf *cmd_in )
 {
   // needs to switch state.
   // and needs a buffer for local commands...
@@ -500,7 +621,7 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in, CBuf* console_out
     if(strcmp(tmp, "halt") == 0) {
       // go to halt state
       usart_printf("switch off\n");
-      state = HALT;
+      app->state = HALT;
       return;
     }
 
@@ -532,7 +653,7 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in, CBuf* console_out
 // pass the state...
 // as a struct...
 
-static void update(uint32_t spi)
+static void update(app_t *app, uint32_t spi)
 {
   // called as often as possible
 
@@ -556,7 +677,7 @@ static void update(uint32_t spi)
 
 
 
-  switch(state) {
+  switch(app->state) {
 
     case FIRST:  {
       // if any of these fail, this should progress to error
@@ -585,7 +706,7 @@ static void update(uint32_t spi)
       // dac init
       int ret = dac_init(spi, REG_DAC); // bad name?
       if(ret != 0) {
-        state = ERROR;
+        app->state = ERROR;
         return;
       }
 #endif
@@ -593,14 +714,19 @@ static void update(uint32_t spi)
       usart_printf("-------------\n" );
 
       usart_printf("set voltage range\n" );
-      range_voltage_set(spi, vrange_1x);
+
+      // this is all messy.
+      app->vrange = vrange_1x;
+      range_voltage_set(spi, app->vrange);
 
       usart_printf("set current range\n" );
-      range_current_set(spi, irange_1x);
+
+      app->irange = irange_10mA;
+      range_current_set(spi, app->irange);
 
       // progress to digital up?
       usart_printf("digital init done/ok\n" );
-      state = DIGITAL_UP;
+      app->state = DIGITAL_UP;
       break;
     }
 
@@ -690,10 +816,12 @@ static void update(uint32_t spi)
         mux_io(spi);
         clamps_set_source_pve(spi);
 
+ 
+        app->vrange = vrange_1x;
+        range_voltage_set(spi, app->vrange);
 
-        range_voltage_set(spi, vrange_1x);
-
-        range_current_set(spi, irange_10mA);
+        app->irange = irange_10mA;
+        range_current_set(spi, app->irange);
 
 
         // change namem output relay?
@@ -707,7 +835,7 @@ static void update(uint32_t spi)
         // adc init
         int ret = adc_init(spi, REG_ADC);
         if(ret != 0) {
-          state = ERROR;
+          app->state = ERROR;
           return;
         }
 
@@ -786,7 +914,7 @@ static void update(uint32_t spi)
         // analog and power... change name?
 
 #endif
-        state = ANALOG_UP;
+        app->state = ANALOG_UP;
       }
       break ;
 
@@ -803,11 +931,15 @@ static void update(uint32_t spi)
         // turn off power
         io_clear(spi, REG_RAILS, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
 
+        // TODO use the function that turns off both relays.
+        // eg. write not read.
         // turn off output relay
-        io_clear(spi, REG_RELAY, RELAY_OUTCOM);
+        // io_clear(spi, REG_RELAY, RELAY_OUTCOM);
+
+        output_set(spi, app->irange, 0 );
 
         // go to state error
-        state = ERROR;
+        app->state = ERROR;
       }
 #endif
 
@@ -895,14 +1027,11 @@ static char buf3[1000];
 static CBuf cmd_in;
 
 
-static void loop(void)
+static void loop(app_t *app, uint32_t spi)
 {
 
+  // move this into the app var.
   static uint32_t soft_500ms = 0;
-
-  ////////
-  // put this in spi1.h.  i think....
-  uint32_t spi = SPI_ICE40;
 
 
 
@@ -918,14 +1047,14 @@ static void loop(void)
     usart_output_update();
 
     // update_console_cmd(spi, &console_in);
-    update_console_cmd(spi, &console_in, &console_out, &cmd_in);
+    update_console_cmd(app, spi, &console_in, &console_out, &cmd_in);
 
-    update(spi);
+    update(app, spi);
 
     // 500ms soft timer
     if( system_millis > soft_500ms) {
       soft_500ms = system_millis + 500;
-      update_soft_500ms( spi );
+      update_soft_500ms(app,  spi );
     }
 
 
@@ -999,8 +1128,16 @@ int main(void)
   usart_flush();
   // usart_printf("size %d\n", sizeof(fbuf) / sizeof(float));
 
+  ////////
+  // put this in spi1.h.  i think....
+  // uint32_t spi = SPI_ICE40;
 
-  loop();
+
+  app_t app;
+  memset(&app, 0, sizeof(app_t));
+  app.state = FIRST;
+
+  loop(&app, SPI_ICE40);
 
 	for (;;);
 	return 0;
