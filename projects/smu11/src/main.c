@@ -155,6 +155,10 @@ typedef struct app_t
 
   bool      print_adc_values;
 
+
+  // bool      last_char_newline; // last console char
+  bool      output;   // whether output on/off
+
   // float imultiplier;
   // float vmultiplier;
 
@@ -163,10 +167,12 @@ typedef struct app_t
 
 
 
-static void range_voltage_set(uint32_t spi, vrange_t vrange)
+static void range_voltage_set(app_t *app, uint32_t spi, vrange_t vrange)
 {
 
-  switch(vrange)
+  app->vrange = vrange;
+
+  switch(app->vrange)
   {
 
     case vrange_1x:
@@ -255,13 +261,16 @@ static float range_voltage_multiplier( vrange_t vrange)
   then configure.
 */
 
-static void range_current_set(uint32_t spi, irange_t irange)
+static void range_current_set(app_t *app, uint32_t spi, irange_t irange)
 {
   /*
     this is doing two things. muxing the sense input. and amplification.
   */
+  
+  app->irange = irange;
 
-  switch(irange)
+
+  switch(app->irange)
   {
     case irange_1x:
       // imultiplier = 1.f;
@@ -325,9 +334,7 @@ static float range_current_multiplier( irange_t irange)
 
 
 
-
-
-static void output_set(uint32_t spi, irange_t irange, uint8_t val)
+static void output_set(app_t *app, uint32_t spi, irange_t irange, uint8_t val)
 {
 /*
   // better name
@@ -335,9 +342,12 @@ static void output_set(uint32_t spi, irange_t irange, uint8_t val)
   for low current ranges. if we wanted.
 */
 
-  if(val) {
 
-      usart_printf("switch on output\n");
+  app->output = val; 
+
+  if(app->output) {
+
+      usart_printf("switch output on\n");
       switch(irange)
       {
 
@@ -353,7 +363,7 @@ static void output_set(uint32_t spi, irange_t irange, uint8_t val)
   }
   else {
 
-    usart_printf("switch off output\n");
+    usart_printf("switch output off\n");
     io_write(spi, REG_RELAY_OUT, 0 ); // both relays off
   }
 }
@@ -596,9 +606,27 @@ static void update_console_cmd(app_t *app, uint32_t spi, CBuf *console_in, CBuf*
     // echo to output, handling newlines...
     if(ch == '\r') {
       cBufPut(console_out, '\n');
+    } else {
     }
 
     cBufPut(console_out, ch);
+  }
+
+
+  // we need to be able to differentiate single keystrokes from commands.
+  // maybe start commands with ':' key.
+
+  if(cBufPeekLast(cmd_in) == 'o') {
+    // toggle the output. on/off
+
+    if(app->output) {
+      mux_io(spi);
+      output_set(app, spi, app->irange, false);   
+    } else {
+
+      output_set(app, spi, app->irange, true);   
+    }
+
   }
 
 
@@ -620,18 +648,20 @@ static void update_console_cmd(app_t *app, uint32_t spi, CBuf *console_in, CBuf*
       return;
     }
 
+#if 0
     else if(strcmp(tmp, "off") == 0) {
       // turn off relayc
       mux_io(spi);
-      output_set(spi, irange_10mA, false );   // turn on
+      output_set(spi, app->irange, false );   // turn on
       return;
     }
 
     else if(strcmp(tmp, "on") == 0) {
       mux_io(spi);
-      output_set(spi, irange_10mA, true );   // turn on
+      output_set(spi, app->irange, true );   // turn on
      return;
     }
+#endif
 
     else if(strcmp(tmp, "p") == 0) {
       // TODO - change this so that works without needing return keypress.
@@ -710,15 +740,10 @@ static void update(app_t *app, uint32_t spi)
       usart_printf("-------------\n" );
 
       usart_printf("set voltage range\n" );
-
-      // this is all messy.
-      app->vrange = vrange_1x;
-      range_voltage_set(spi, app->vrange);
+      range_voltage_set(app, spi, vrange_1x);
 
       usart_printf("set current range\n" );
-
-      app->irange = irange_10mA;
-      range_current_set(spi, app->irange);
+      range_current_set(app, spi, irange_10mA);
 
       // progress to digital up?
       usart_printf("digital init done/ok\n" );
@@ -813,15 +838,13 @@ static void update(app_t *app, uint32_t spi)
         clamps_set_source_pve(spi);
 
 
-        app->vrange = vrange_1x;
-        range_voltage_set(spi, app->vrange);
+        range_voltage_set(app, spi, vrange_1x);
 
-        app->irange = irange_10mA;
-        range_current_set(spi, app->irange);
+        range_current_set(app, spi, app->irange);
 
 
         // change namem output relay?
-        output_set(spi, irange_10mA, true );   // turn on
+        output_set(app, spi, irange_10mA, true );   // turn on
 
 
 
@@ -932,7 +955,7 @@ static void update(app_t *app, uint32_t spi)
         // turn off output relay
         // io_clear(spi, REG_RELAY, RELAY_OUTCOM);
 
-        output_set(spi, app->irange, 0 );
+        output_set(app, spi, app->irange, 0 );
 
         // go to state error
         app->state = ERROR;
