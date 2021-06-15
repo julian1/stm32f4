@@ -605,25 +605,32 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
     // copy to command buffer
     cBufPut(cmd_in, ch);
 
-    // echo to output, handling newlines...
+    // handling newlines...
     if(ch == '\r') {
       cBufPut(console_out, '\n');
-    } else {
-    }
-
+    } 
+    // output char to console
     cBufPut(console_out, ch);
-  }
 
 
-  // we need to be able to differentiate single keystrokes from commands.
-  // maybe start commands with ':' key.
 
-  if(cBufPeekLast(cmd_in) == 'o') {
-
-      // toggle the output. on/off
+    // toggle output... on/off. must only process char once. avoid relay oscillate
+    if( ch == 'o') {
       mux_io(app->spi);
       output_set(app, ! app->output);   
+      cBufPut(console_out, '\n');
+    }
+
+    // toggle printing of adc values.
+    else if( ch == 'p') {
+      app->print_adc_values = ! app->print_adc_values;
+      cBufPut(console_out, '\n');
+    }
+
+
   }
+
+
 
 
   if(cBufPeekLast(cmd_in) == '\r') {
@@ -645,20 +652,6 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
     }
 
 #if 0
-    else if(strcmp(tmp, "off") == 0) {
-      // turn off relayc
-      mux_io(spi);
-      output_set(spi, app->irange, false );   // turn on
-      return;
-    }
-
-    else if(strcmp(tmp, "on") == 0) {
-      mux_io(spi);
-      output_set(spi, app->irange, true );   // turn on
-     return;
-    }
-#endif
-
     else if(strcmp(tmp, "p") == 0) {
       // TODO - change this so that works without needing return keypress.
       // toggle printing of adc values.
@@ -667,6 +660,9 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
     }
     // need to be able to turn on/off adc reporting. and perhaps speed.
     // actually an entire state tree...
+#endif
+
+
   }
 }
 
