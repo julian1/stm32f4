@@ -619,7 +619,6 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
     cBufPut(console_out, ch);
 
 
-
     // toggle output... on/off. must only process char once. avoid relay oscillate
     if( ch == 'o') {
       mux_io(app->spi);
@@ -633,7 +632,6 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
       cBufPut(console_out, '\n');
     }
 
-
     else if(ch == 'h') {
       // go to halt state
       // TODO . This is wrong. should call a function. that handles the transition.
@@ -645,7 +643,8 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
 
   }
 
-
+  // ok. this doesn't quite work. 
+  // need a variable. in_command. for a long sequence command.
 
 
   if(cBufPeekLast(cmd_in) == '\r') {
@@ -761,22 +760,8 @@ static void update(app_t *app)
 
     case DIGITAL_UP:
 
-      // we want to print the voltages once... eg. first time on state...
-    // {
-/*
-        usart_printf("turn on 5V\n" );
-        mux_io(spi);
-        // assert rails oe
-        io_clear(spi, REG_RAILS_OE, RAILS_OE);
 
-        // turn on 5V digital rails
-        io_set(spi, REG_RAILS, RAILS_LP5V );
-        msleep(50);
-*/
-
-
-      if(  lp15v > 15.0 && ln15v > 15.0 )
-      // if( lp15v > 15.0 && ln15v > 15.0 )
+      if(lp15v > 15.0 && ln15v > 15.0 )
       {
         usart_printf("-----------\n");
 
