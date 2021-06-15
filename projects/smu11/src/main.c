@@ -1,8 +1,5 @@
-      // range_voltage_set(spi, vrange_1x_2);
-      // range_voltage_set(spi, vrange_0x1);
-      // range_voltage_set(spi, vrange_10x);
-      // range_voltage_set(spi, vrange_100x);
 
+// vim :colorscheme default. loooks good.
 
 // cjmcu  stm32f407.
 // issue. is that board/stlink doesn't appear to reset cleanly. needs sleep.
@@ -65,7 +62,7 @@
 
 
 
-// TODO prefix these... ST_
+// TODO prefix these... ST_FIRST... etc.
 // also want a DONE state.
 
 
@@ -84,16 +81,6 @@ typedef enum state_t {
 // static state_t state = FIRST;
 
 
-
-// TODO pass the state. explicitly.
-// good for tests.
-
-
-
-// TODO put cal values for adc02 in state
-
-// static float imultiplier = 0;
-// static float vmultiplier = 0;
 
 
 /*
@@ -160,9 +147,6 @@ typedef struct app_t
 
   // bool      last_char_newline; // last console char
   bool      output;   // whether output on/off
-
-  // float imultiplier;
-  // float vmultiplier;
 
 } app_t;
 
@@ -244,7 +228,6 @@ static float range_voltage_multiplier( vrange_t vrange)
 }
 
 
-// vim :colorscheme default. loooks good.
 
 
 
@@ -268,7 +251,7 @@ static void range_current_set(app_t *app, irange_t irange)
   /*
     this is doing two things. muxing the sense input. and amplification.
   */
-  
+
   app->irange = irange;
 
 
@@ -345,7 +328,7 @@ static void output_set(app_t *app, uint8_t val)
 */
 
 
-  app->output = val; 
+  app->output = val;
 
   if(app->output) {
 
@@ -614,7 +597,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
     // handling newlines...
     if(ch == '\r') {
       cBufPut(console_out, '\n');
-    } 
+    }
     // output char to console
     cBufPut(console_out, ch);
 
@@ -622,7 +605,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
     // toggle output... on/off. must only process char once. avoid relay oscillate
     if( ch == 'o') {
       mux_io(app->spi);
-      output_set(app, ! app->output);   
+      output_set(app, ! app->output);
       cBufPut(console_out, '\n');
     }
 
@@ -643,7 +626,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
 
   }
 
-  // ok. this doesn't quite work. 
+  // ok. this doesn't quite work.
   // need a variable. in_command. for a long sequence command.
 
 
@@ -665,32 +648,16 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
       return;
     }
 
-#if 0
-    else if(strcmp(tmp, "p") == 0) {
-      // TODO - change this so that works without needing return keypress.
-      // toggle printing of adc values.
-      app->print_adc_values = ! app->print_adc_values;
-      return;
-    }
-    // need to be able to turn on/off adc reporting. and perhaps speed.
-    // actually an entire state tree...
-#endif
-
 
   }
 }
 
 
-// TODO.
-// pass the state...
-// as a struct...
 
 static void update(app_t *app)
 {
   // called as often as possible
 
-
-  // mux_io(app->spi);
   /*
     querying adc03 via spi, is slow (eg. we also clock spi slower to match read speed) .
     so it should only be done in soft timer eg. 10ms is probably enough.
@@ -705,7 +672,6 @@ static void update(app_t *app)
   UNUSED(lp15v);
   UNUSED(ln15v);
   // usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
-
 
 
 
@@ -1003,16 +969,6 @@ static void loop(app_t *app)
   }
 }
 
-
-
-/*
-typedef struct App
-{
-  // state tree.
-
-
-} App;
-*/
 
 
 
