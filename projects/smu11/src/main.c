@@ -371,7 +371,13 @@ static void output_set(app_t *app, uint8_t val)
 }
 
 
+static void halt(app_t *app )
+{
+  // should do the actions here.
+  app->state = HALT;
 
+
+}
 
 
 static void clamps_set_source_pve(uint32_t spi)
@@ -628,6 +634,15 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
     }
 
 
+    else if(ch == 'h') {
+      // go to halt state
+      // TODO . This is wrong. should call a function. that handles the transition.
+      // not interpret the state variable.
+      usart_printf("halt \n");
+      halt(app);
+      return;
+    }
+
   }
 
 
@@ -644,7 +659,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
     usart_printf("command '%s'\n", tmp);
 
 
-    if(strcmp(tmp, "halt") == 0) {
+    if(strcmp(tmp, ":halt") == 0) {
       // go to halt state
       usart_printf("switch off\n");
       app->state = HALT;
@@ -851,80 +866,6 @@ static void update(app_t *app)
         }
 
 
-
-#if 0
-        // EXTREME. feedback is always negative. why we just plug vfb and ifb without inverses.
-        // its easier to think of everything without polarity.   (the polarity just exists because we tap/ com at 0V).
-
-        // turn on set voltages 2V and 4V outputs. works.
-
-        /*
-          OK. can talk to fpga for io, or peripheral, without having to intersperse calls to mux_io() and mux_dac()
-            special is asserted for io.
-            ---
-            but issue is the spi parameters might change for ice40 versus peripheral.
-            use a second channel. and it would work.
-        */
-        //////////////////////////////////
-        // set up clamps
-
-        mux_io(spi);
-        clamps_set_source_pve(spi);
-
-        // WE DO need the mux() calls. to setup the spi parameters which may differ.
-        // sometimes it looks like we don't because they use the *same* clock polarity.
-
-        // voltage
-        mux_dac(spi);
-        spi_dac_write_register(spi, REG_DAC_VSET, voltage_to_dac( 1.f ) ); // 10V
-
-        mux_io(spi);
-        // range_voltage_set_100V(spi);       // ie. 1.2  = 12V, 1.5=15V etc
-        range_voltage_set_10V(spi);           // ie 1.2 = 1.2V
-        // range_voltage_set_1V(spi);         // ie 1.2 = 0.12V
-
-        // current
-        mux_dac(spi);
-        spi_dac_write_register(spi, REG_DAC_ISET, voltage_to_dac( 1.f ) );  // 5.f
-
-        mux_io(spi);
-        // range_current_set_10A(spi);           // ie 1=1A, 0.5=0.5A, 0.1=0.1V
-        // range_current_set_1A(spi);         // ie. 1=0.1A,10=1A
-        // range_current_set_100mA(spi);      // 1=10mA, 10=100mA.
-        range_current_set_10mA(spi);          // 1=1mA, 10=100mA.
-        // range_current_set_none(spi);       // won't work. there's no circuit.
-
-        // turn on output relay
-        io_set(spi, REG_RELAY, RELAY_OUTCOM);
-
-
-        /////////////////
-        // adc init has to be done after rails are up...
-        // adc init
-        int ret = adc_init(spi, REG_ADC);
-        if(ret != 0) {
-          state = ERROR;
-          return;
-        }
-
-        usart_printf("analog init ok\n" );
-        // maybe change name RAILS_OK, RAILS_UP ANALOG_OK, ANALOG_UP
-
-        // turn on power rails
-        // effectively turn on output
-#if 1
-        ////////////////////
-        // power rails
-        usart_printf("turn on power rails - lp30v\n" );
-        mux_io(spi);
-        // io_set(spi, REG_RAILS, RAILS_LP30V );
-        io_set(spi, REG_RAILS, RAILS_LP60V );  // actually 15V
-        msleep(50);
-#endif
-
-        // analog and power... change name?
-
-#endif
         app->state = ANALOG_UP;
       }
       break ;
@@ -1403,4 +1344,78 @@ static void range_voltage_set_1V(uint32_t spi)
       // range_voltage_set(spi, vrange_10x);
       // range_voltage_set(spi, vrange_100x);
 
+
+#if 0
+        // EXTREME. feedback is always negative. why we just plug vfb and ifb without inverses.
+        // its easier to think of everything without polarity.   (the polarity just exists because we tap/ com at 0V).
+
+        // turn on set voltages 2V and 4V outputs. works.
+
+        /*
+          OK. can talk to fpga for io, or peripheral, without having to intersperse calls to mux_io() and mux_dac()
+            special is asserted for io.
+            ---
+            but issue is the spi parameters might change for ice40 versus peripheral.
+            use a second channel. and it would work.
+        */
+        //////////////////////////////////
+        // set up clamps
+
+        mux_io(spi);
+        clamps_set_source_pve(spi);
+
+        // WE DO need the mux() calls. to setup the spi parameters which may differ.
+        // sometimes it looks like we don't because they use the *same* clock polarity.
+
+        // voltage
+        mux_dac(spi);
+        spi_dac_write_register(spi, REG_DAC_VSET, voltage_to_dac( 1.f ) ); // 10V
+
+        mux_io(spi);
+        // range_voltage_set_100V(spi);       // ie. 1.2  = 12V, 1.5=15V etc
+        range_voltage_set_10V(spi);           // ie 1.2 = 1.2V
+        // range_voltage_set_1V(spi);         // ie 1.2 = 0.12V
+
+        // current
+        mux_dac(spi);
+        spi_dac_write_register(spi, REG_DAC_ISET, voltage_to_dac( 1.f ) );  // 5.f
+
+        mux_io(spi);
+        // range_current_set_10A(spi);           // ie 1=1A, 0.5=0.5A, 0.1=0.1V
+        // range_current_set_1A(spi);         // ie. 1=0.1A,10=1A
+        // range_current_set_100mA(spi);      // 1=10mA, 10=100mA.
+        range_current_set_10mA(spi);          // 1=1mA, 10=100mA.
+        // range_current_set_none(spi);       // won't work. there's no circuit.
+
+        // turn on output relay
+        io_set(spi, REG_RELAY, RELAY_OUTCOM);
+
+
+        /////////////////
+        // adc init has to be done after rails are up...
+        // adc init
+        int ret = adc_init(spi, REG_ADC);
+        if(ret != 0) {
+          state = ERROR;
+          return;
+        }
+
+        usart_printf("analog init ok\n" );
+        // maybe change name RAILS_OK, RAILS_UP ANALOG_OK, ANALOG_UP
+
+        // turn on power rails
+        // effectively turn on output
+#if 1
+        ////////////////////
+        // power rails
+        usart_printf("turn on power rails - lp30v\n" );
+        mux_io(spi);
+        // io_set(spi, REG_RAILS, RAILS_LP30V );
+        io_set(spi, REG_RAILS, RAILS_LP60V );  // actually 15V
+        msleep(50);
+#endif
+
+        // analog and power... change name?
+
+#endif
 
