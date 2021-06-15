@@ -277,7 +277,7 @@ static void range_current_set(uint32_t spi, irange_t irange)
       break;
 
 
-
+    // using 1k resistor. for 10V swing.
     case irange_10mA:
       // gain 1x active low
       io_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
@@ -311,7 +311,7 @@ static float range_current_multiplier( irange_t irange)
 {
     switch(irange)
     {
-      case irange_10mA:   return 1000.f;
+      case irange_10mA:   return 0.001f;
       case irange_1A:     return 1.f;
 
       default:
@@ -406,14 +406,14 @@ static void print_value(format_t format, float val)
   switch(format)
   {
     case format_mV:
-      usart_printf("%fmV", val * 0.001);
+      usart_printf("%fmV", val * 1000.f);
       break;
     case format_V:
       usart_printf("%fV", val);
       break;
 
     case format_mA:
-      usart_printf("%fmA", val * 0.001);
+      usart_printf("%fmA", val * 1000.f );
       break;
     case format_A:
       usart_printf("%fA", val);
@@ -555,7 +555,7 @@ static void update_soft_500ms(app_t *app, uint32_t spi )
 
       print_value(format_V , v);
       usart_printf("   ");
-      print_value(format_mA , i);
+      print_value(format_A , i);
 
       usart_printf("\n");
 
