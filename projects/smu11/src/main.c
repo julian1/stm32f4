@@ -125,7 +125,8 @@ typedef enum irange_t
   irange_10x,
   irange_100x,
 
-  irange_10mA
+  irange_10mA,
+  irange_1A
 
 } irange_t;
 
@@ -292,6 +293,8 @@ static void range_current_set(uint32_t spi, irange_t irange)
       break;
 
 
+    case irange_1A:
+
 
     // shouldn't have this...
     case vrange_none:
@@ -308,7 +311,8 @@ static float range_current_multiplier( irange_t irange)
 {
     switch(irange)
     {
-      case irange_10mA:   return 1.f;
+      case irange_10mA:   return 1000.f;
+      case irange_1A:     return 1.f;
 
       default:
         return -99999;
