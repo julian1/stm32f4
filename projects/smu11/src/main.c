@@ -153,6 +153,8 @@ typedef struct app_t
   vrange_t  vrange;
   irange_t  irange;
 
+  bool      print_adc_values;
+
   // float imultiplier;
   // float vmultiplier;
 
@@ -362,6 +364,10 @@ static void output_set(uint32_t spi, irange_t irange, uint8_t val)
 
 static void clamps_set_source_pve(uint32_t spi)
 {
+/*
+  should also have the option to regulate on vfb directly here.
+  and errset?
+*/
   // TODO needs to take an enum. arguemnt.
 
 
@@ -373,7 +379,7 @@ static void clamps_set_source_pve(uint32_t spi)
     actually not sure.
   */
   io_clear(spi, REG_CLAMP1, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
-  io_clear(spi, REG_CLAMP2, CLAMP2_MAX);
+  io_clear(spi, REG_CLAMP2, CLAMP2_MAX);    // TODO this is terrible register naming.
 }
 
 
@@ -533,22 +539,25 @@ static void update_soft_500ms(app_t *app, uint32_t spi )
       float i = ar[1] * range_current_multiplier(app->irange) * x;
 
 
-      // when we set the range. we should set the default format.
-      // the format prec wants to be able to user modified.
-      usart_printf("adc ");
+      if(app->print_adc_values) {
 
-      print_value(format_V , v);
-      usart_printf("   ");
-      print_value(format_A , i);
-      usart_printf("\n");
+        // when we set the range. we should set the default format.
+        // the format prec wants to be able to user modified.
+        usart_printf("adc ");
+
+        print_value(format_V , v);
+        usart_printf("   ");
+        print_value(format_mA , i);
+        usart_printf("\n");
 
 
-#if 0
-      usart_printf("adc %dV    %dA\n",
-        ar[0] ,
-        ar[1]
-      );
-#endif
+  #if 0
+        usart_printf("adc %dV    %dA\n",
+          ar[0] ,
+          ar[1]
+        );
+  #endif
+      }
 
       break;
     }
@@ -564,6 +573,11 @@ static void update_soft_500ms(app_t *app, uint32_t spi )
 
 static void update_console_cmd(app_t *app, uint32_t spi, CBuf *console_in, CBuf* console_out, CBuf *cmd_in )
 {
+  /*
+    TODO
+    put these buffers. in the app structure.
+  */
+
   // needs to switch state.
   // and needs a buffer for local commands...
 
@@ -595,7 +609,8 @@ static void update_console_cmd(app_t *app, uint32_t spi, CBuf *console_in, CBuf*
     size_t n = cBufCopy(cmd_in, tmp, sizeof(tmp));
     tmp[n - 1] = 0;   // drop tailing line feed
 
-    usart_printf("got command '%s'   %d\n", tmp, n);
+    // usart_printf("got command '%s'   %d\n", tmp, n);
+    usart_printf("command '%s'\n", tmp);
 
 
     if(strcmp(tmp, "halt") == 0) {
@@ -615,17 +630,18 @@ static void update_console_cmd(app_t *app, uint32_t spi, CBuf *console_in, CBuf*
     else if(strcmp(tmp, "on") == 0) {
       mux_io(spi);
       output_set(spi, irange_10mA, true );   // turn on
-
      return;
     }
 
+    else if(strcmp(tmp, "p") == 0) {
+      // TODO - change this so that works without needing return keypress.
+      // toggle printing of adc values.
+      app->print_adc_values = ! app->print_adc_values;
+      return;
+    }
     // need to be able to turn on/off adc reporting. and perhaps speed.
     // actually an entire state tree...
-
   }
-
-
-
 }
 
 
@@ -993,6 +1009,11 @@ static void update(app_t *app, uint32_t spi)
 }
 
 
+/*
+  TODO.
+  Move. these into the app structure.
+  and mvoe the app structure off the stack.
+*/
 
 // should pass the console to routines that need it...
 static char buf1[1000];
@@ -1116,6 +1137,7 @@ int main(void)
   app_t app;
   memset(&app, 0, sizeof(app_t));
   app.state = FIRST;
+  app.print_adc_values = true;
 
   loop(&app, SPI_ICE40);
 
