@@ -282,7 +282,7 @@ static void range_current_set(app_t *app, irange_t irange)
       // turn on current range x
       io_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
       // turn on 4th switch fets.
-      io_write(app->spi, REG_IRANGEX_SW, IRANGEX_SW4_CTL);
+      io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW4_CTL);
       // mult
       // we don't need this... can infer multiplier locally, wfrom irange if needed.
       // imultiplier = 1.f;
@@ -499,7 +499,7 @@ static void update_soft_500ms(app_t *app )
   // io_write(spi, REG_CLAMP1, count);  // works
   // io_write(spi, REG_CLAMP2, count);  // works
   // io_write(spi, REG_RELAY_COM, count);
-  // io_write(spi, REG_IRANGEX_SW, count);
+  // io_write(spi, REG_IRANGE_X_SW, count);
   // io_write(spi, REG_IRANGE_SENSE, count);
 
 
@@ -509,7 +509,7 @@ static void update_soft_500ms(app_t *app )
   // test
 
   // usart_printf("count %d\n", count);
-  // io_write(spi, REG_IRANGEX_SW58, count);
+  // io_write(spi, REG_IRANGE_X_SW58, count);
 
   // io_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
   // io_toggle(spi, REG_RELAY, RELAY_VRANGE);
@@ -1082,7 +1082,7 @@ static void range_current_set_1A(uint32_t spi)
 
 
   // turn on 1st b2b fets.
-  io_write(spi, REG_IRANGEX_SW, IRANGEX_SW1 | IRANGEX_SW2);
+  io_write(spi, REG_IRANGE_X_SW, IRANGE_X_SW1 | IRANGE_X_SW2);
 
   // turn on current sense ina 1
   io_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE1);
@@ -1126,7 +1126,7 @@ static void range_current_set_100mA(uint32_t spi)
 
 
   // turn on 2nd b2b fets.
-  io_write(spi, REG_IRANGEX_SW, IRANGEX_SW3 | IRANGEX_SW4);
+  io_write(spi, REG_IRANGE_X_SW, IRANGE_X_SW3 | IRANGE_X_SW4);
 
 
   // active lo, current sense 2
@@ -1155,7 +1155,7 @@ static void range_current_set_10mA(uint32_t spi)
   io_write(spi, REG_RELAY_COM, RELAY_COM_X);
 
   // turn off other fets
-  io_write(spi, REG_IRANGEX_SW, 0);
+  io_write(spi, REG_IRANGE_X_SW, 0);
 
 
   // active lo, current sense 3

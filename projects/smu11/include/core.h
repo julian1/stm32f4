@@ -91,11 +91,11 @@
 #define RELAY_COM_Y         (1<<1)
 #define RELAY_COM_Z         (1<<2)
 
-#define REG_IRANGEX_SW      18
-#define IRANGEX_SW1_CTL         (1<<0)
-#define IRANGEX_SW2_CTL         (1<<1)
-#define IRANGEX_SW3_CTL         (1<<2)
-#define IRANGEX_SW4_CTL         (1<<3)
+#define REG_IRANGE_X_SW      18
+#define IRANGE_X_SW1_CTL         (1<<0)
+#define IRANGE_X_SW2_CTL         (1<<1)
+#define IRANGE_X_SW3_CTL         (1<<2)
+#define IRANGE_X_SW4_CTL         (1<<3)
 
 
 
@@ -117,26 +117,26 @@
 // use bitmask write, to write these in individual combination
 // OK. no. it's messy. we really want to separate these,
 // into different regs to make easier to write...
-#define REG_GAIN_IFB    21
-#define GAIN_IFB_OP1  (1<<0)
-#define GAIN_IFB_OP2  (1<<1)
+// #define REG_GAIN_IFB    21
+// #define GAIN_IFB_OP1  (1<<0)
+// #define GAIN_IFB_OP2  (1<<1)
 
 
 /*
 // better name?
-#define REG_IRANGEX_SW58    22
-#define IRANGEX_SW5         (1<<0)
-#define IRANGEX_SW6         (1<<1)
-#define IRANGEX_SW7         (1<<2)
-#define IRANGEX_SW8         (1<<3)
+#define REG_IRANGE_X_SW58    22
+#define IRANGE_X_SW5         (1<<0)
+#define IRANGE_X_SW6         (1<<1)
+#define IRANGE_X_SW7         (1<<2)
+#define IRANGE_X_SW8         (1<<3)
 */
 
 
 // same dg444 as REG_GAIN_IFB
 // but separating makes it easier
-#define REG_GAIN_VFB    23
-#define GAIN_VFB_OP1  (1<<0)
-#define GAIN_VFB_OP2  (1<<1)
+// #define REG_GAIN_VFB    23
+// #define GAIN_VFB_OP1  (1<<0)
+// #define GAIN_VFB_OP2  (1<<1)
 
 /////////////////////////
 // smu10
