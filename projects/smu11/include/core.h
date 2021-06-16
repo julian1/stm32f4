@@ -92,10 +92,10 @@
 #define RELAY_COM_Z         (1<<2)
 
 #define REG_IRANGEX_SW      18
-#define IRANGEX_SW1         (1<<0)
-#define IRANGEX_SW2         (1<<1)
-#define IRANGEX_SW3         (1<<2)
-#define IRANGEX_SW4         (1<<3)
+#define IRANGEX_SW1_CTL         (1<<0)
+#define IRANGEX_SW2_CTL         (1<<1)
+#define IRANGEX_SW3_CTL         (1<<2)
+#define IRANGEX_SW4_CTL         (1<<3)
 
 
 

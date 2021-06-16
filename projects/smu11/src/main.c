@@ -282,7 +282,7 @@ static void range_current_set(app_t *app, irange_t irange)
       // turn on current range x
       io_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
       // turn on 4th switch fets.
-      io_write(app->spi, REG_IRANGEX_SW, IRANGEX_SW4);
+      io_write(app->spi, REG_IRANGEX_SW, IRANGEX_SW4_CTL);
       // mult
       // we don't need this... can infer multiplier locally, wfrom irange if needed.
       // imultiplier = 1.f;
@@ -569,6 +569,12 @@ static void update_soft_500ms(app_t *app )
 
 
 /*
+  EXTREME.
+
+  we need functions to handle transition.  not set the state variable. and interpret.
+  but setting the state variable. at the end of code, for the new state is ok. eg. even if embedded.
+
+  need better error handling.
 
 */
 
