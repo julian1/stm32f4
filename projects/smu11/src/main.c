@@ -306,7 +306,7 @@ static void range_current_set(app_t *app, irange_t irange)
       io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
       // turn on current range relay y
       io_write(app->spi, REG_RELAY_COM,  RELAY_COM_Y);
-      // turn off all fets 
+      // turn off all fets
       io_write(app->spi, REG_IRANGE_X_SW, 0 );
 
       switch( app->irange) {
@@ -408,49 +408,43 @@ static void halt(app_t *app )
 }
 
 
+
+// I think, maybe we only need two ranges.
+// or maybe even one.
+
+
+// whether the value is inverse should not be a property here... i don't think.
+
+// maybe function should always be min... due to negative fb.
+
 static void clamps_set_source_pve(uint32_t spi)
 {
-/*
-  should also have the option to regulate on vfb directly here.
-  and errset?
-*/
-  // TODO needs to take an enum. arguemnt.
-
-
-  // change name first_quadrant
-  // sourcing, charging adc val 1.616501V
-  // source +ve current/voltage.
-  /*
-    TODO change name CLAMP_MUX_MAX, or CLAMP_MAX_MUX
-    actually not sure.
-  */
 #if 0
-  // source a positive voltage. on +2mA. off +5V.
-  io_clear(spi, REG_CLAMP1, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
-  io_clear(spi, REG_CLAMP2, CLAMP2_MAX);    // TODO this is terrible register naming.
+  // this sources a positive voltage. eg. the min or +ve v or +ve current.
+  io_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET_INV));
+  io_write(spi, REG_CLAMP2, ~CLAMP2_MAX );     // min is max due to integration inverter
 #endif
 
 #if 0
-  // this works. 
-  // source a negative voltage. on its -2mA. off its -5V.
-  io_clear(spi, REG_CLAMP1, CLAMP1_VSET | CLAMP1_ISET);
-  io_clear(spi, REG_CLAMP2, CLAMP2_MIN  );    // TODO this is terrible register naming.
+  // this sources a negative voltage. eg. the min or +ve v or +ve current.
+  io_write(spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));
+  io_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
 #endif
+
+// where are our little wires.
 
 #if 1
-  // current has to be negative to sink. otherwise it's charging.
-  // now sink.
-  // sinking current. with battery. on.  1.58V. -2mA.   but off reads -1.58V...
-
-  // lower voltage == sink more current (eg. more of a short). it's confusing.
-  // this is correct. limit at the min... means whatever will produce the lowest current. eg. if -2mA is limit use that.
-  io_clear(spi, REG_CLAMP1, CLAMP1_VSET_INV | CLAMP1_ISET);
-  io_clear(spi, REG_CLAMP2, CLAMP2_MAX );    // eg. min of 1V and -2mA. will limit on -2mA. for 1.5V battery 
-                                               // think this is correct.
-                                                // also signs are correct when turning on and off.
-                                                  // but the voltage is lower when off. weird.
-                                            // don't let voltage go higher than desired. by sinking more. don't let current go higher by sinking less
+  // this sinks a positive current.  or sources depending on voltage.
+  io_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
+  io_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
 #endif
+
+  /*
+    WE SHOULD BE USING WRITE HERE....
+
+    and everything is active lo.  so must use ~ for all arguments.
+  */
+
 
 
 }
@@ -876,13 +870,21 @@ static void update(app_t *app)
         // unipolar.
         // voltage
         mux_dac(app->spi);
-        spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.55f  ) ); // 5V
+        // spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 5.f  ) ); // 5V
+        spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 1.555f  ) ); // 1.56V
+        // spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.0f  ) ); // 1V
+        // spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 0.f  ) ); // 0V
 
-        // current
+       // current
         mux_dac(app->spi);
-        spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 2.f ) );  // 2V
+        spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 10.f ) );  // 10mA.
+        // spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 0.5f ) );  // 0.5mA.
+        // spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 5.0f ) );  // 5mA.
+        // spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 1.0f ) );      // 1mA.
 
 
+
+        /////////////
         // working as bipolar.
         spi_dac_write_register(app->spi, DAC_VOUT2_REGISTER, voltage_to_dac( -2.f ) );  // outputs -4V to tp15.  two's complement works. TODO but need to change gain flag?
         spi_dac_write_register(app->spi, DAC_VOUT3_REGISTER, voltage_to_dac( 0.f ) );  // outputs 4V to tp11.
@@ -1457,4 +1459,106 @@ static void range_voltage_set_1V(uint32_t spi)
         // analog and power... change name?
 
 #endif
+
+
+
+
+
+#if 0
+
+// whether the value is inverse should not be a property here... i don't think.
+
+static void clamps_set_source_pve(uint32_t spi)
+{
+/*
+  should also have the option to regulate on vfb directly here.
+  and errset?
+*/
+  // TODO needs to take an enum. arguemnt.
+
+
+  // change name first_quadrant
+  // sourcing, charging adc val 1.616501V
+  // source +ve current/voltage.
+  /*
+    TODO change name CLAMP_MUX_MAX, or CLAMP_MAX_MUX
+    actually not sure.
+  */
+#if 0
+  // source a positive voltage. on +2mA. off +5V.
+  io_write(spi, REG_CLAMP1, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
+  io_write(spi, REG_CLAMP2, CLAMP2_MAX);    // TODO this is terrible register naming.
+#endif
+
+#if 0
+  // this works.
+  // source a negative voltage. on its -2mA. off its -5V.
+  io_write(spi, REG_CLAMP1, CLAMP1_VSET | CLAMP1_ISET);
+  io_write(spi, REG_CLAMP2, CLAMP2_MIN  );    // TODO this is terrible register naming.
+#endif
+
+#if 1
+
+  // When using min. it will source or sink depending on voltage.  'not less than'
+
+  // source/ or sink positive.
+  // current has to be negative to sink. otherwise it's charging.
+  // now sink.
+  // sinking current. with battery. on.  1.58V. -2mA.   but off reads -1.58V...
+
+  // lower voltage == sink more current (eg. more of a short). it's confusing.
+  // this is correct. limit at the min... means whatever will produce the lowest current. eg. if -2mA is limit use that.
+  // io_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
+  // io_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
+
+
+  io_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
+  io_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
+
+
+#endif
+
+  /*
+    WE SHOULD BE USING WRITE HERE....
+
+    and everything is active lo.  so must use ~ for all arguments.
+  */
+
+  // VERY IMPORTANT. rather than just show the adc values.
+  // need to show the set values as well. in the log.
+
+  /////////////////
+  // EXTREME. when relay is off. the bad adc code. is because output is at -14V because it's trying to sink. but cannot because relay off. this is correct.
+  // eg. we putting -3.2V measured into adc. BAD. rail is -2.5V... eg. ESD diodes are sinking everything. op saturated?
+  // eg. 3 / (10 + 3) * 15V = 3.46
+  // BUT. can fix. with attenuation? no.
+  // if used +-30V output. then it would try to output -30V. and that would be even more...
+  // this might be a problem.
+  // OR. when sinking. we only set dac values. when relay is on.
+  // also. the adc out-of-bounds flag is sticking. because we are not clearing it.
+  // voltage is (hopefully) limited by the driving op.
+    //
+  // the alternative. is that the subtraction should work the other way. so current can be high. but it's limited if voltage goes down to 1V.
+  // this could be a mistake in our mux. logic.
+  // in which case we do need to invert.
+  // OR. we can represent it. but need to flip signs when outputting values.
+  //
+  // no. think it's ok. eg. 3V.2mA will regulate on 2mA. but 1V,3A  and it won't short any more than 1V. think that is correct.
+  //////////////
+
+  /////////////////
+
+  // sink negative. shows negative voltage. and positive current. but limits correctly.
+#if 0
+  io_write(spi, REG_CLAMP1, CLAMP1_VSET | CLAMP1_ISET_INV);
+  io_write(spi, REG_CLAMP2, CLAMP2_MAX );  // retest.
+
+#endif
+
+
+
+}
+
+#endif
+
 
