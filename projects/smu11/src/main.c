@@ -422,10 +422,10 @@ static void halt(app_t *app )
 
 /*
   source a voltage - let current be compliance.
-  source a current - let voltage be compliance. 
+  source a current - let voltage be compliance.
 
   sink a voltage - let current be compliance.
-  sink a current - let voltage be compliance. 
+  sink a current - let voltage be compliance.
 
   when sourcing, (voltage and current are positive) Q1  or (voltage and current are both negative) Q3.
   when sinking,  (voltage pos and current neg)  Q2      or (voltage neg and current pos). Q4
@@ -442,16 +442,16 @@ static void halt(app_t *app )
   source and compliance.
     eg.
     source positive voltage.  compliance should be positive current limit.
-    source negative voltage.  (eg. reverse on a diode). compliance needs to be negative current limit. (test leakage)   
+    source negative voltage.  (eg. reverse on a diode). compliance needs to be negative current limit. (test leakage)
     YES.
     source positive current. compiance is positive voltage limit.
     source negative current. compiance is negative voltage limit.
 
 
   sink positive voltage
-  
 
-    
+
+
 */
 
 static void clamps_set_source_pve(uint32_t spi)
@@ -919,14 +919,17 @@ static void update(app_t *app)
 
         /*
           https://www.youtube.com/watch?v=qFVhe_uzxnE
-  
-          source current. 100mA.   with compliance of 21V.  
+
+          source current. 100mA.   with compliance +21V.   DUT resistive load.
+
+          source current -100mA.   with compliance +21V.   with power supply.
+
         */
 
-        // source pos voltage, (current can be Q1 positive or Q4 negative ) depending on DUT and DUT polarity. 
-        if(true ) {
+        // source pos voltage, (current can be Q1 positive or Q4 negative ) depending on DUT and DUT polarity.
+        if(false) {
           // ok. this is correct. source 2mA. with compliance of 3V.
-          // alternatively can source voltage 1V with compliance of 10mA.  
+          // alternatively can source voltage 1V with compliance of 10mA.
           // and outputs the source voltage 3V compliance when relay is off.
           mux_dac(app->spi);
           // voltage
@@ -938,20 +941,22 @@ static void update(app_t *app)
           io_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
         }
 
-        // Q3  source neg voltage, and neg current.   correct if resistive load. 
-        // operates in Q4 if battery.
-        if(false) {
+        // Q3  source neg voltage, or neg current.   correct if DUT = resistive load.
+        // operates in Q4 if use battery.
+        if(true) {
+          // correct sources negative voltage. and negative current compliance or vice versa.
+          // relay off shows -3V. correct.
           mux_dac(app->spi);
           // voltage
           spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.f  ) ); // 0V
           // current
-          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 1.0f ) );      // 1mA.
+          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 5.0f ) );      // 1mA.
           mux_io(app->spi);
           io_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));   // positive voltage and current.
           io_write(app->spi, REG_CLAMP2, ~CLAMP2_MIN );     // min of current or voltage
         }
- 
-       
+
+
 
 
         // I think
