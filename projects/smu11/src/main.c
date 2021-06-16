@@ -112,6 +112,7 @@ typedef enum irange_t
   irange_10x,
   irange_100x,
 
+  irange_100uA,
   irange_1mA,
   irange_10mA,
   irange_1A
@@ -295,20 +296,34 @@ static void range_current_set(app_t *app, irange_t irange)
 
     // using 10k resistor. for 10V swing
     case irange_1mA:
+    // using 100k resistor with 10V swing.
+    case irange_100uA:
       // gain 1x active low
       io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
       // turn on sense amplifier 3
       io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
       // turn on current range relay y
       io_write(app->spi, REG_RELAY_COM,  RELAY_COM_Y);
-      // turn on jfet 1
-      io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);
       // turn off all fets 
       io_write(app->spi, REG_IRANGE_X_SW, 0 );
-      // mult
-      // we don't need this... can infer multiplier locally, wfrom irange if needed.
-      // imultiplier = 1.f;
+
+      switch( app->irange) {
+        case irange_1mA:
+          // turn on jfet 1
+          io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);
+          break;
+        case irange_100uA:
+          // turn on jfet 2
+          io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);
+          break;
+        default:;
+
+      }
       break;
+
+
+
+
 
 
 
@@ -330,6 +345,7 @@ static float range_current_multiplier( irange_t irange)
 {
     switch(irange)
     {
+      case irange_100uA:  return 0.00001f;
       case irange_1mA:    return 0.0001f;
       case irange_10mA:   return 0.001f;
       case irange_1A:     return 1.f;
@@ -360,10 +376,12 @@ static void output_set(app_t *app, uint8_t val)
       switch(app->irange)
       {
 
-      case irange_1mA:
-      case irange_10mA:
-        io_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
-        break;
+        case irange_100uA:
+        case irange_1mA:
+        case irange_10mA:
+          // turn on read relay
+          io_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
+          break;
 
       default:
         // ignore
@@ -841,7 +859,8 @@ static void update(app_t *app)
         range_voltage_set(app, vrange_1x);
 
         // range_current_set(app, irange_10mA);
-        range_current_set(app, irange_1mA);
+        // range_current_set(app, irange_1mA);
+        range_current_set(app, irange_100uA);
 
 
         // change namem output relay?
