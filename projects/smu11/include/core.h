@@ -186,6 +186,17 @@
 #define REG_RELAY_VSENSE    32
 #define RELAY_VSENSE_CTL    (1<<0)
 
+
+
+#define REG_IRANGE_YZ_SW    33
+#define IRANGE_YZ_SW1_CTL   (1<<0)
+#define IRANGE_YZ_SW2_CTL   (1<<1)
+#define IRANGE_YZ_SW3_CTL   (1<<2)
+#define IRANGE_YZ_SW4_CTL   (1<<3)
+
+
+
+
 /////////////////
 /*
   inputs.
