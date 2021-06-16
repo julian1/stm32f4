@@ -125,6 +125,8 @@ typedef enum format_t
 {
   format_mV,
   format_V,
+
+  format_uA,
   format_mA,
   format_A,
 
@@ -422,8 +424,35 @@ static void clamps_set_source_pve(uint32_t spi)
     TODO change name CLAMP_MUX_MAX, or CLAMP_MAX_MUX
     actually not sure.
   */
+#if 0
+  // source a positive voltage. on +2mA. off +5V.
   io_clear(spi, REG_CLAMP1, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
   io_clear(spi, REG_CLAMP2, CLAMP2_MAX);    // TODO this is terrible register naming.
+#endif
+
+#if 0
+  // this works. 
+  // source a negative voltage. on its -2mA. off its -5V.
+  io_clear(spi, REG_CLAMP1, CLAMP1_VSET | CLAMP1_ISET);
+  io_clear(spi, REG_CLAMP2, CLAMP2_MIN  );    // TODO this is terrible register naming.
+#endif
+
+#if 1
+  // current has to be negative to sink. otherwise it's charging.
+  // now sink.
+  // sinking current. with battery. on.  1.58V. -2mA.   but off reads -1.58V...
+
+  // lower voltage == sink more current (eg. more of a short). it's confusing.
+  // this is correct. limit at the min... means whatever will produce the lowest current. eg. if -2mA is limit use that.
+  io_clear(spi, REG_CLAMP1, CLAMP1_VSET_INV | CLAMP1_ISET);
+  io_clear(spi, REG_CLAMP2, CLAMP2_MAX );    // eg. min of 1V and -2mA. will limit on -2mA. for 1.5V battery 
+                                               // think this is correct.
+                                                // also signs are correct when turning on and off.
+                                                  // but the voltage is lower when off. weird.
+#endif
+
+
+
 }
 
 
@@ -462,6 +491,10 @@ static void print_value(format_t format, float val)
       usart_printf("%fV", val);
       break;
 
+
+    case format_uA:
+      usart_printf("%fuA", val * 1000000.f );
+      break;
     case format_mA:
       usart_printf("%fmA", val * 1000.f );
       break;
@@ -596,8 +629,11 @@ static void update_soft_500ms(app_t *app )
         usart_printf("adc ");
 
         print_value(format_V , v);
+        // print_value(format_mV , v);
+
         usart_printf("   ");
         print_value(format_mA , i);
+        // print_value(format_uA , i);
         usart_printf("\n");
 
 
@@ -840,7 +876,7 @@ static void update(app_t *app)
         // unipolar.
         // voltage
         mux_dac(app->spi);
-        spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 5.f ) ); // 5V
+        spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.f  ) ); // 5V
 
         // current
         mux_dac(app->spi);
@@ -858,9 +894,9 @@ static void update(app_t *app)
 
         range_voltage_set(app, vrange_1x);
 
-        // range_current_set(app, irange_10mA);
+        range_current_set(app, irange_10mA);
         // range_current_set(app, irange_1mA);
-        range_current_set(app, irange_100uA);
+        // range_current_set(app, irange_100uA);
 
 
         // change namem output relay?
