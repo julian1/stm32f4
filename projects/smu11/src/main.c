@@ -413,16 +413,27 @@ static void halt(app_t *app )
 // or maybe even one.
 
 
-// whether the value is inverse should not be a property here... i don't think.
+// source=positive current. sink = negative current.
+// can source positive voltage. but might be 
 
+// whether the value is inverse should not be a property here... i don't think.
 // maybe function should always be min... due to negative fb.
+
+
+/*
+  we really need
+  source = positive current == use min  (eg. max active low).  so current does not go too high.
+  sink   = negative current = use max  (eg. min active low) so current does not go too high while. 
+*/
 
 static void clamps_set_source_pve(uint32_t spi)
 {
-#if 0
+#if 1
+  // OK. this can also source or sink... depending on voltage.
   // this sources a positive voltage. eg. the min or +ve v or +ve current.
   io_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET_INV));
-  io_write(spi, REG_CLAMP2, ~CLAMP2_MAX );     // min is max due to integration inverter
+  io_write(spi, REG_CLAMP2, ~CLAMP2_MAX );     // min 
+                                                // MAX is min. eg. min or 3V,1mA. is 1mA. sourcing. 
 #endif
 
 #if 0
@@ -433,7 +444,8 @@ static void clamps_set_source_pve(uint32_t spi)
 
 // where are our little wires.
 
-#if 1
+#if 0
+  // this behaves correctly relay on or off
   // this sinks a positive current.  or sources depending on voltage.
   io_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
   io_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
@@ -871,17 +883,18 @@ static void update(app_t *app)
         // voltage
         mux_dac(app->spi);
         // spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 5.f  ) ); // 5V
-        spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 1.555f  ) ); // 1.56V
-        // spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.0f  ) ); // 1V
+        // spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 1.555f  ) ); // 1.56V
+        spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.0f  ) ); // 1V
         // spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 0.f  ) ); // 0V
 
        // current
         mux_dac(app->spi);
-        spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 10.f ) );  // 10mA.
+        // spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 10.f ) );  // 10mA.
         // spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 0.5f ) );  // 0.5mA.
         // spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 5.0f ) );  // 5mA.
-        // spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 1.0f ) );      // 1mA.
+        spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 1.0f ) );      // 1mA.
 
+        // I think 
 
 
         /////////////
