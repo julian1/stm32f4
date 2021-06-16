@@ -449,8 +449,8 @@ static void clamps_set_source_pve(uint32_t spi)
                                                // think this is correct.
                                                 // also signs are correct when turning on and off.
                                                   // but the voltage is lower when off. weird.
+                                            // don't let voltage go higher than desired. by sinking more. don't let current go higher by sinking less
 #endif
-
 
 
 }
@@ -876,7 +876,7 @@ static void update(app_t *app)
         // unipolar.
         // voltage
         mux_dac(app->spi);
-        spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.f  ) ); // 5V
+        spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.55f  ) ); // 5V
 
         // current
         mux_dac(app->spi);
