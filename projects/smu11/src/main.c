@@ -465,8 +465,8 @@ static void update_soft_500ms(app_t *app )
 
     // io_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
 
-// #define REG_RELAY_OUT         31
-// #define RELAY_OUT_COM_HC    (1<<0)
+    // #define REG_RELAY_OUT         31
+    // #define RELAY_OUT_COM_HC    (1<<0)
 
 
     // io_toggle(spi, REG_RELAY_VSENSE, RELAY_VSENSE_CTL);
@@ -476,6 +476,12 @@ static void update_soft_500ms(app_t *app )
     // io_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
     /////// CAREFUL io_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);    // dangerous if on high-current range.
 
+    // io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW4_CTL);
+
+    // io_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW4_CTL); // ok.
+    // io_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW3_CTL);  ok.
+    // io_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);    // 1.92V.  and toggles both ina1 and ina2 . bridge on switch or fpga?
+    // io_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);     // fixed bridge.
 
   }
 #endif
@@ -490,7 +496,7 @@ static void update_soft_500ms(app_t *app )
 
  // tests
 
-
+  // io_write(app->spi, REG_IRANGE_YZ_SW, count);
 
   // io_write(spi, REG_ISENSE_MUX,  count);    // works
   // io_write(spi, REG_INA_IFB_SW_CTL,  count);    // works
@@ -630,7 +636,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
       return;
     }
 
-    // so we want the same thing 
+    // so we want the same thing
     // 1) to go up/and down current ranges. and voltage ranges
     //      eg. range_current( dir ); up/down
     // 2) also the formatting ranges.   eg. 5.0V or 05.0V etc.
