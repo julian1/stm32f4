@@ -414,26 +414,55 @@ static void halt(app_t *app )
 
 
 // source=positive current. sink = negative current.
-// can source positive voltage. but might be 
+// can source positive voltage. but might be
 
 // whether the value is inverse should not be a property here... i don't think.
 // maybe function should always be min... due to negative fb.
 
 
 /*
-  we really need
-  source = positive current == use min  (eg. max active low).  so current does not go too high.
-  sink   = negative current = use max  (eg. min active low) so current does not go too high while. 
+  source a voltage - let current be compliance.
+  source a current - let voltage be compliance. 
+
+  sink a voltage - let current be compliance.
+  sink a current - let voltage be compliance. 
+
+  when sourcing, (voltage and current are positive) Q1  or (voltage and current are both negative) Q3.
+  when sinking,  (voltage pos and current neg)  Q2      or (voltage neg and current pos). Q4
+
+  ------------
+  think the main thing. is function( source or sink) then compliance.
+  9V battery. set to 1V sink.   is that a short. or is that just letting a small amount
+  Do we have to flip the min/max. around at a cross. quite possibly.
+  --------------
+
+  function - is either source or sink. but we may have to flip compliance.
+
+  the compliance function should work in the same direction as the source function sign.
+  source and compliance.
+    eg.
+    source positive voltage.  compliance should be positive current limit.
+    source negative voltage.  (eg. reverse on a diode). compliance needs to be negative current limit. (test leakage)   
+    YES.
+    source positive current. compiance is positive voltage limit.
+    source negative current. compiance is negative voltage limit.
+
+
+  sink positive voltage
+  
+
+    
 */
 
 static void clamps_set_source_pve(uint32_t spi)
 {
 #if 1
+  // bahaves correctly relay on or off
   // OK. this can also source or sink... depending on voltage.
   // this sources a positive voltage. eg. the min or +ve v or +ve current.
   io_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET_INV));
-  io_write(spi, REG_CLAMP2, ~CLAMP2_MAX );     // min 
-                                                // MAX is min. eg. min or 3V,1mA. is 1mA. sourcing. 
+  io_write(spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
+                                                // MAX is min. eg. min or 3V,1mA. is 1mA. sourcing.
 #endif
 
 #if 0
@@ -447,8 +476,14 @@ static void clamps_set_source_pve(uint32_t spi)
 #if 0
   // this behaves correctly relay on or off
   // this sinks a positive current.  or sources depending on voltage.
+  // not sure. if set to 3V then it will try to sink 3V.
+  // OR. set to 1V should be trying to sink everything. which is what it's doing. if set to 3V. it will start sourcing.
+  // so i think this might be wrong.
+
+  // not sure.
+
   io_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
-  io_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
+  io_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // the max of current or voltage. where current is negative
 #endif
 
   /*
@@ -881,30 +916,55 @@ static void update(app_t *app)
         // dac naked register references should be wrapped by functions
         // unipolar.
         // voltage
-        mux_dac(app->spi);
-        // spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 5.f  ) ); // 5V
-        // spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 1.555f  ) ); // 1.56V
-        spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.0f  ) ); // 1V
-        // spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 0.f  ) ); // 0V
 
-       // current
-        mux_dac(app->spi);
-        // spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 10.f ) );  // 10mA.
-        // spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 0.5f ) );  // 0.5mA.
-        // spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 5.0f ) );  // 5mA.
-        spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 1.0f ) );      // 1mA.
+        /*
+          https://www.youtube.com/watch?v=qFVhe_uzxnE
+  
+          source current. 100mA.   with compliance of 21V.  
+        */
 
-        // I think 
+        // source pos voltage, (current can be Q1 positive or Q4 negative ) depending on DUT and DUT polarity. 
+        if(true ) {
+          // ok. this is correct. source 2mA. with compliance of 3V.
+          // alternatively can source voltage 1V with compliance of 10mA.  
+          // and outputs the source voltage 3V compliance when relay is off.
+          mux_dac(app->spi);
+          // voltage
+          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.f  ) ); // 3V
+          // current
+          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 2.0f ) );  // 2mA.
+          mux_io(app->spi);
+          io_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET_INV));   // positive voltage and current.
+          io_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
+        }
+
+        // Q3  source neg voltage, and neg current.   correct if resistive load. 
+        // operates in Q4 if battery.
+        if(false) {
+          mux_dac(app->spi);
+          // voltage
+          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.f  ) ); // 0V
+          // current
+          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 1.0f ) );      // 1mA.
+          mux_io(app->spi);
+          io_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));   // positive voltage and current.
+          io_write(app->spi, REG_CLAMP2, ~CLAMP2_MIN );     // min of current or voltage
+        }
+ 
+       
+
+
+        // I think
 
 
         /////////////
         // working as bipolar.
-        spi_dac_write_register(app->spi, DAC_VOUT2_REGISTER, voltage_to_dac( -2.f ) );  // outputs -4V to tp15.  two's complement works. TODO but need to change gain flag?
-        spi_dac_write_register(app->spi, DAC_VOUT3_REGISTER, voltage_to_dac( 0.f ) );  // outputs 4V to tp11.
+        // spi_dac_write_register(app->spi, DAC_VOUT2_REGISTER, voltage_to_dac( -2.f ) );  // outputs -4V to tp15.  two's complement works. TODO but need to change gain flag?
+        // spi_dac_write_register(app->spi, DAC_VOUT3_REGISTER, voltage_to_dac( 0.f ) );  // outputs 4V to tp11.
 
 
-        mux_io(app->spi);
-        clamps_set_source_pve(app->spi);
+        // mux_io(app->spi);
+        // clamps_set_source_pve(app->spi);
 
 
         range_voltage_set(app, vrange_1x);
