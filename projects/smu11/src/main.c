@@ -20,7 +20,7 @@
 
 
 #include <stddef.h> // size_t
-//#include <math.h> // nanf
+#include <math.h> // nanf   fabs
 //#include <stdio.h>
 #include <string.h>   // strcmp
 
@@ -801,24 +801,37 @@ static void quadrant_set( app_t *app, bool v, bool i)
     uint32_t ii = i ? CLAMP1_ISET_INV : CLAMP1_ISET;
 
 
-    io_write(app->spi, REG_CLAMP1, ~(vv | ii ));   
+    io_write(app->spi, REG_CLAMP1, ~(vv | ii ));
 
 
     uint32_t minmax = v ?  CLAMP2_MAX : CLAMP2_MIN;
-    
+
     io_write(app->spi, REG_CLAMP2, ~( minmax ) );     // min of current or voltage
 
-          
 
-      // RULES.
-      // so. if voltage is positive use clamp max.  clamp min/max follows voltage.
-      // negative current. can still be source or sink. depending on polarity.
-
-      // so should be able to write simple function - with clamp min/max following voltage.
-      // true for positive
-      // set_quadrant( v, i) ; 
+    // RULES.
+    // so. if voltage is positive use clamp max.  clamp min/max follows voltage.
+    // negative current. can still be source or sink. depending on polarity.
+    // ie. clamp direction min/max following voltage.
 }
 
+
+// so can have another function. that tests the values.... v > 0 etc.
+
+static void core_set( app_t *app, float v, float i)
+{
+
+    mux_dac(app->spi);
+    // voltage
+    spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs( v)   ) );
+    // current
+    spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs( i) ) );
+
+
+    quadrant_set( app, v > 0.f, i > 0.f ) ;
+
+
+}
 
 
 
@@ -980,7 +993,7 @@ static void update(app_t *app)
           // relay off shows -3V. correct.
           mux_dac(app->spi);
           // voltage
-          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 1.50 /*3.0f*/  ) );     // this has no effect. either below or above dut V. if DUT is battery. ... 
+          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 1.50 /*3.0f*/  ) );     // this has no effect. either below or above dut V. if DUT is battery. ...
           // current
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 5.0f ) );      // -1mA. resistor or battery
 
@@ -1009,6 +1022,8 @@ static void update(app_t *app)
            }
 #endif
 
+
+#if 0
       // RULES.
       // so. if voltage is positive use clamp max.  clamp min/max follows voltage.
       // negative current. can still be source or sink. depending on polarity.
@@ -1018,9 +1033,13 @@ static void update(app_t *app)
         spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.f  ) ); // 3V
         // current
         spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 5.0f ) );  // 2mA.
-        quadrant_set( app, false, false) ; 
+        quadrant_set( app, false, false) ;
 
 
+       // usart_printf(" -0.123 %f    %f \n",   -0.123,  fabs(-0.123) );
+#endif
+
+        core_set( app, 5.f , -1.f );    // 5V compliance, -1mA  sink.
 
         // I think
 
