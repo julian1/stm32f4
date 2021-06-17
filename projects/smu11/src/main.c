@@ -791,6 +791,37 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
 
 
 
+
+static void quadrant_set( app_t *app, bool v, bool i)
+{
+
+    mux_io(app->spi);
+
+    uint32_t vv = v ? CLAMP1_VSET_INV : CLAMP1_VSET;
+    uint32_t ii = i ? CLAMP1_ISET_INV : CLAMP1_ISET;
+
+
+    io_write(app->spi, REG_CLAMP1, ~(vv | ii ));   
+
+
+    uint32_t minmax = v ?  CLAMP2_MAX : CLAMP2_MIN;
+    
+    io_write(app->spi, REG_CLAMP2, ~( minmax ) );     // min of current or voltage
+
+          
+
+      // RULES.
+      // so. if voltage is positive use clamp max.  clamp min/max follows voltage.
+      // negative current. can still be source or sink. depending on polarity.
+
+      // so should be able to write simple function - with clamp min/max following voltage.
+      // true for positive
+      // set_quadrant( v, i) ; 
+}
+
+
+
+
 static void update(app_t *app)
 {
   // called as often as possible
@@ -925,8 +956,8 @@ static void update(app_t *app)
           source current -100mA.   with compliance +21V.   with power supply.
 
         */
-
-        // source pos voltage, (current can be Q1 positive or Q2 negative to dut battery) depending on DUT and DUT polarity.
+#if 0
+        // source pos voltage, with pos compliance current.  (current can be Q1 positive or Q2 negative to dut battery) depending on DUT and DUT polarity.
         if(false) {
           // ok. this is correct. source 2mA. with compliance of 3V.
           // alternatively can source voltage 1V with compliance of 10mA.
@@ -958,8 +989,7 @@ static void update(app_t *app)
           io_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));   // positive voltage and current.
           io_write(app->spi, REG_CLAMP2, ~CLAMP2_MIN );     // min of current or voltage
         }
-#if 1
-        // source pos voltage. sink current. for DUT.   Q4.
+        // source pos voltage. and sink current. for DUT.   Q4.
         // will source neg voltage. sink current. for resistor.   Q3.
         if(true) {
 
@@ -977,15 +1007,18 @@ static void update(app_t *app)
           io_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
 
            }
+#endif
 
       // RULES.
       // so. if voltage is positive use clamp max.  clamp min/max follows voltage.
       // negative current. can still be source or sink. depending on polarity.
 
-#endif
-
-
-
+        mux_dac(app->spi);
+        // voltage
+        spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.f  ) ); // 3V
+        // current
+        spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 5.0f ) );  // 2mA.
+        quadrant_set( app, false, false) ; 
 
 
 
@@ -994,8 +1027,8 @@ static void update(app_t *app)
 
         /////////////
         // working as bipolar.
-        // spi_dac_write_register(app->spi, DAC_VOUT2_REGISTER, voltage_to_dac( -2.f ) );  // outputs -4V to tp15.  two's complement works. TODO but need to change gain flag?
-        // spi_dac_write_register(app->spi, DAC_VOUT3_REGISTER, voltage_to_dac( 0.f ) );  // outputs 4V to tp11.
+        spi_dac_write_register(app->spi, DAC_VOUT2_REGISTER, voltage_to_dac( -2.f ) );  // outputs -4V to tp15.  two's complement works. TODO but need to change gain flag?
+        spi_dac_write_register(app->spi, DAC_VOUT3_REGISTER, voltage_to_dac( 0.f ) );  // outputs 4V to tp11.
 
 
         // mux_io(app->spi);
