@@ -295,6 +295,10 @@ static void range_current_set(app_t *app, irange_t irange)
       // mult
       // we don't need this... can infer multiplier locally, wfrom irange if needed.
       // imultiplier = 1.f;
+
+      // if output on, make sure low current relay is on.. only switch after reducing current.
+      msleep(1);
+      if(app->output) io_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
       break;
 
 
@@ -326,6 +330,9 @@ static void range_current_set(app_t *app, irange_t irange)
         default:;
 
       }
+
+      msleep(1);
+      if(app->output) io_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
       break;
 
 
@@ -344,9 +351,10 @@ static void range_current_set(app_t *app, irange_t irange)
 
 
 
-static void range_current_increment(app_t *app, irange_t irange, bool dir)
+static void range_current_iterate(app_t *app, irange_t irange, bool dir)
 {
   /*
+    change anme iterate.
     useful test function.
     IMPORTANT. this does *NOT* take into account output relay switching.
   */
@@ -390,12 +398,14 @@ static float range_current_multiplier( irange_t irange)
 
 static void output_set(app_t *app, uint8_t val)
 {
-/*
-  // better name
-  EXTR. we could completely bypass the AB section and just use 6090
-  for low current ranges. if we wanted.
-*/
-
+  /*
+    // better name
+    EXTR. we could completely bypass the AB section and just use 6090
+    for low current ranges. if we wanted.
+  */
+  // this may be being called in response to range change. 
+  // we have to check the range... 
+  // possible we should pass the range also.
 
   app->output = val;
 
@@ -409,6 +419,7 @@ static void output_set(app_t *app, uint8_t val)
         case irange_1mA:
         case irange_10mA:
           // turn on read relay
+          // and turn off the hc relay.
           io_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
           break;
 
