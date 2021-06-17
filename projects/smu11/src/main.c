@@ -259,6 +259,9 @@ static void range_current_set(app_t *app, irange_t irange)
     if output is on. then we also have to change the output relay...
   */
 
+
+  mux_io(app->spi);   // would be better to avoid calling if don't need.
+
   app->irange = irange;
 
 
@@ -351,7 +354,7 @@ static void range_current_set(app_t *app, irange_t irange)
 
 
 
-static void range_current_iterate(app_t *app, irange_t irange, bool dir)
+static void range_current_iterate(app_t *app, bool dir)
 {
   /*
     change anme iterate.
@@ -359,7 +362,7 @@ static void range_current_iterate(app_t *app, irange_t irange, bool dir)
     IMPORTANT. this does *NOT* take into account output relay switching.
   */
   if(dir) {
-    switch(irange)
+    switch(app->irange)
     {
       case irange_100uA:  range_current_set(app, irange_1mA); break;
       case irange_1mA:    range_current_set(app, irange_10mA); break;
@@ -367,7 +370,7 @@ static void range_current_iterate(app_t *app, irange_t irange, bool dir)
         ;
     };
   } else {
-    switch(irange)
+    switch(app->irange)
     {
       case irange_1mA:    range_current_set(app, irange_100uA); break;
       case irange_10mA:   range_current_set(app, irange_1mA); break;
@@ -747,19 +750,17 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
   /*
     TODO
     put these buffers. in the app structure.
+    Actually. no. it's neater that they're not.
   */
 
-  // needs to switch state.
-  // and needs a buffer for local commands...
-
-  // UNUSED(spi);
-
-  // OK. by not processing chars as we receive, we have lost character echo...
 
   int32_t ch;
 
-  while( (ch = cBufPop(console_in)) >= 0) {
+  while((ch = cBufPop(console_in)) >= 0) {
     // got a character
+
+    // TODO for single character responses. then we probably don't want to 
+    // copy to buffer. or output.
 
     // copy to command buffer
     cBufPut(cmd_in, ch);
@@ -772,8 +773,15 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
     cBufPut(console_out, ch);
 
 
+    // kkkkkkkkkk
+    if(ch == 'u')
+        range_current_iterate(app, 1);
+    else if(ch == 'd')
+        range_current_iterate(app, 0);
+
+
     // toggle output... on/off. must only process char once. avoid relay oscillate
-    if( ch == 'o') {
+    else if( ch == 'o') {
       mux_io(app->spi);
       output_set(app, ! app->output);
       cBufPut(console_out, '\n');
