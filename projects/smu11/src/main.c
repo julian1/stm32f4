@@ -926,11 +926,12 @@ static void update(app_t *app)
 
         */
 
-        // source pos voltage, (current can be Q1 positive or Q4 negative ) depending on DUT and DUT polarity.
+        // source pos voltage, (current can be Q1 positive or Q2 negative to dut battery) depending on DUT and DUT polarity.
         if(false) {
           // ok. this is correct. source 2mA. with compliance of 3V.
           // alternatively can source voltage 1V with compliance of 10mA.
           // and outputs the source voltage 3V compliance when relay is off.
+          // limits DUT battery in both polarities.ways
           mux_dac(app->spi);
           // voltage
           spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.f  ) ); // 3V
@@ -942,19 +943,44 @@ static void update(app_t *app)
         }
 
         // Q3  source neg voltage, or neg current.   correct if DUT = resistive load.
-        // operates in Q4 if use battery.
-        if(true) {
+        // DUT=battery.  Q4.  this is correct .... positive voltage, and negative current.
+        if(false ) {
           // correct sources negative voltage. and negative current compliance or vice versa.
           // relay off shows -3V. correct.
           mux_dac(app->spi);
           // voltage
-          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.f  ) ); // 0V
+          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 1.50 /*3.0f*/  ) );     // this has no effect. either below or above dut V. if DUT is battery. ... 
           // current
-          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 5.0f ) );      // 1mA.
+          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 5.0f ) );      // -1mA. resistor or battery
+
+
           mux_io(app->spi);
           io_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));   // positive voltage and current.
           io_write(app->spi, REG_CLAMP2, ~CLAMP2_MIN );     // min of current or voltage
         }
+#if 1
+        // source pos voltage. sink current. for DUT.   Q4.
+        // will source neg voltage. sink current. for resistor.   Q3.
+        if(true) {
+
+          // OK. this is better for DUT sinking. compliance voltage is positive.  current is negative.
+          // -1mA. regardless of DUT polarity.
+          mux_dac(app->spi);
+          // voltage
+          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.50 /*3.0f*/  ) );     // 
+          // current
+          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 1.0f ) );      // -1mA. resistor or battery
+
+          mux_io(app->spi);
+          io_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));   // positive voltage and current.
+          io_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
+
+           }
+
+      // so. if voltage is positive use clamp max.  clamp min/max follows voltage.
+#endif
+
+
 
 
 
