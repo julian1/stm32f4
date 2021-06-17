@@ -406,8 +406,8 @@ static void output_set(app_t *app, uint8_t val)
     EXTR. we could completely bypass the AB section and just use 6090
     for low current ranges. if we wanted.
   */
-  // this may be being called in response to range change. 
-  // we have to check the range... 
+  // this may be being called in response to range change.
+  // we have to check the range...
   // possible we should pass the range also.
 
   app->output = val;
@@ -759,7 +759,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
   while((ch = cBufPop(console_in)) >= 0) {
     // got a character
 
-    // TODO for single character responses. then we probably don't want to 
+    // TODO for single character responses. then we probably don't want to
     // copy to buffer. or output.
 
     // copy to command buffer
@@ -840,6 +840,10 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
 
 static void quadrant_set( app_t *app, bool v, bool i)
 {
+    // RULES.
+    // so. if voltage is positive use clamp max.  clamp min/max follows voltage.
+    // negative current. can still be source or sink. depending on polarity.
+    // ie. clamp direction min/max following voltage.
 
     mux_io(app->spi);
 
@@ -853,12 +857,6 @@ static void quadrant_set( app_t *app, bool v, bool i)
     uint32_t minmax = v ?  CLAMP2_MAX : CLAMP2_MIN;
 
     io_write(app->spi, REG_CLAMP2, ~( minmax ) );     // min of current or voltage
-
-
-    // RULES.
-    // so. if voltage is positive use clamp max.  clamp min/max follows voltage.
-    // negative current. can still be source or sink. depending on polarity.
-    // ie. clamp direction min/max following voltage.
 }
 
 
@@ -868,10 +866,11 @@ static void core_set( app_t *app, float v, float i)
 {
 
     mux_dac(app->spi);
+
     // voltage
-    spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs( v)   ) );
+    spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs( v)) );
     // current
-    spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs( i) ) );
+    spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs( i)) );
 
 
     quadrant_set( app, v > 0.f, i > 0.f ) ;
@@ -936,6 +935,7 @@ static void update(app_t *app)
       }
 #endif
 
+      // TODO remove.... fix regualte on vfb.
       usart_printf("-------------\n" );
 
       usart_printf("set voltage range\n" );
