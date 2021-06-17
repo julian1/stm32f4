@@ -965,9 +965,10 @@ static void update(app_t *app)
 
           // OK. this is better for DUT sinking. compliance voltage is positive.  current is negative.
           // -1mA. regardless of DUT polarity.
+          // the only way to limit voltage exercusion. is to sink more current. this is correct. why set -100mA. and +21V  compliance
           mux_dac(app->spi);
           // voltage
-          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.50 /*3.0f*/  ) );     // 
+          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.50 /*3.0f*/  ) );     // 1.5 is respected. it will limit voltage. by sinking more current.
           // current
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 1.0f ) );      // -1mA. resistor or battery
 
@@ -977,7 +978,10 @@ static void update(app_t *app)
 
            }
 
+      // RULES.
       // so. if voltage is positive use clamp max.  clamp min/max follows voltage.
+      // negative current. can still be source or sink. depending on polarity.
+
 #endif
 
 
