@@ -254,6 +254,9 @@ static void range_current_set(app_t *app, irange_t irange)
 {
   /*
     this is doing two things. muxing the sense input. and amplification.
+
+    TODO IMPORTANT.
+    if output is on. then we also have to change the output relay...
   */
 
   app->irange = irange;
@@ -287,6 +290,8 @@ static void range_current_set(app_t *app, irange_t irange)
       io_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
       // turn on 4th switch fets.
       io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW4_CTL);
+
+      // TODO turn off jfets.
       // mult
       // we don't need this... can infer multiplier locally, wfrom irange if needed.
       // imultiplier = 1.f;
@@ -324,11 +329,6 @@ static void range_current_set(app_t *app, irange_t irange)
       break;
 
 
-
-
-
-
-
     case irange_1A:
 
 
@@ -343,6 +343,34 @@ static void range_current_set(app_t *app, irange_t irange)
 }
 
 
+
+static void range_current_increment(app_t *app, irange_t irange, bool dir)
+{
+  /*
+    useful test function.
+    IMPORTANT. this does *NOT* take into account output relay switching.
+  */
+  if(dir) {
+    switch(irange)
+    {
+      case irange_100uA:  range_current_set(app, irange_1mA); break;
+      case irange_1mA:    range_current_set(app, irange_10mA); break;
+      default:
+        ;
+    };
+  } else {
+    switch(irange)
+    {
+      case irange_1mA:    range_current_set(app, irange_100uA); break;
+      case irange_10mA:   range_current_set(app, irange_1mA); break;
+      default:
+        ;
+    };
+  }
+}
+
+
+
 static float range_current_multiplier( irange_t irange)
 {
     switch(irange)
@@ -351,7 +379,6 @@ static float range_current_multiplier( irange_t irange)
       case irange_1mA:    return 0.0001f;
       case irange_10mA:   return 0.001f;
       case irange_1A:     return 1.f;
-
       default:
         return -99999;
     };
@@ -1039,7 +1066,7 @@ static void update(app_t *app)
        // usart_printf(" -0.123 %f    %f \n",   -0.123,  fabs(-0.123) );
 #endif
 
-        core_set( app, 5.f , -1.f );    // 5V compliance, -1mA  sink.
+        core_set( app, -5.f , -5.f );    // 5V compliance, -1mA  sink.
 
         // I think
 
