@@ -175,26 +175,25 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
   {
 
     case vrange_10V:
-
       usart_printf("10V range \n");
       // flutters at 5 digit. nice.
       // 6th digit. with 9V and 0V.
-      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // no atten
-      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
+      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // no atten
+      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                  // x1 direct feedback. works.
       break;
 
 
     case vrange_1V:
       usart_printf("1V range \n");
-      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // no atten
-      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                    // 10x gain
+      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // no atten
+      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                  // 10x gain
       break;
 
     case vrange_100mV:
 
       usart_printf("100mV range \n");
-      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // no atten
-      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);                                    // 100x gain
+      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // no atten
+      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);                  // 100x gain
       break;
 
 
@@ -203,9 +202,8 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
       // flutters at 4th digit. with mV.  but this is on mV. range... so ok?
       // at 6th digit with V.  eg. 9V and 0.1V. - very good - will work for hv.
       io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
-      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
+      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                  // x1 direct feedback. works.
       break;
-
 
 
     // IMPORTANT - remember have the other attenuation possibility... of just turning on/off sw3.
@@ -218,11 +216,10 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
       break;
 #endif
 
-
     // shouldn't have this...
     case vrange_none:
       // assert...
-    break;
+      break;
   };
 
 }
