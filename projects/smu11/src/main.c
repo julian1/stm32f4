@@ -108,13 +108,16 @@ typedef enum irange_t
 {
   // TODO rename range_current_none, range_current_1x etc.
   irange_none,
+/*
   irange_1x,
   irange_10x,
   irange_100x,
+*/
 
   irange_100uA,
   irange_1mA,
   irange_10mA,
+  irange_100mA,
   irange_1A
 
 } irange_t;
@@ -273,6 +276,7 @@ static void range_current_set(app_t *app, irange_t irange)
 
   switch(app->irange)
   {
+/*
     case irange_1x:
       // imultiplier = 1.f;
       io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  1x active low
@@ -287,6 +291,34 @@ static void range_current_set(app_t *app, irange_t irange)
       // imultiplier = 100.f;
       io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);   //  100x active low
       break;
+*/
+
+
+
+   // using 10ohm resistor. for 10V swing.
+    case irange_100mA:
+      // ensure sure the high current relay is on. before switching 
+      output_set(app, app->irange, app->output);
+      msleep(1);
+
+      usart_printf("WHOOT trying 100mA range \n");
+
+      // gain 10x active low
+      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);
+      // turn on sense amplifier 2
+      io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX2_CTL);
+      // turn on current range x
+      io_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
+      // turn on 2nd switch fets.
+      io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW2_CTL);
+
+      // TODO turn off jfets.
+      // mult
+      // we don't need this... can infer multiplier locally, wfrom irange if needed.
+      // imultiplier = 1.f;
+
+      break;
+
 
 
     // using 1k resistor. for 10V swing.
@@ -373,6 +405,7 @@ static void range_current_iterate(app_t *app, bool dir)
     {
       case irange_100uA:  range_current_set(app, irange_1mA); break;
       case irange_1mA:    range_current_set(app, irange_10mA); break;
+      case irange_10mA:   range_current_set(app, irange_100mA); break;
       default:
         ;
     };
@@ -381,6 +414,7 @@ static void range_current_iterate(app_t *app, bool dir)
     {
       case irange_1mA:    range_current_set(app, irange_100uA); break;
       case irange_10mA:   range_current_set(app, irange_1mA); break;
+      case irange_100mA:  range_current_set(app, irange_10mA); break;
       default:
         ;
     };
@@ -393,10 +427,12 @@ static float range_current_multiplier( irange_t irange)
 {
     switch(irange)
     {
+      // ie. expressed on 10V range
       case irange_100uA:  return 0.00001f;
       case irange_1mA:    return 0.0001f;
       case irange_10mA:   return 0.001f;
-      case irange_1A:     return 1.f;
+      case irange_100mA:  return 0.01f;
+      case irange_1A:     return 0.1f;
       default:
         return -99999;
     };
@@ -444,6 +480,12 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
           io_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
           io_set(app->spi, REG_LED, LED2);
           break;
+
+        case irange_100mA:
+          // high current relay
+          io_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
+          io_clear(app->spi, REG_LED, LED2);
+
 
       default:
         // ignore
@@ -1105,8 +1147,8 @@ static void update(app_t *app)
        // usart_printf(" -0.123 %f    %f \n",   -0.123,  fabs(-0.123) );
 #endif
 
-        core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
-        // core_set( app, 5.f , 5.f );    // 5V source, 5mA compliance, 
+        // core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
+        core_set( app, 5.f , 5.f );    // 5V source, 5mA compliance, 
 
         // I think
 
