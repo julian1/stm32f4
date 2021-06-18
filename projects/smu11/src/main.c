@@ -179,20 +179,17 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
       // 6th digit. with 9V and 0V.
       io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // no atten
       io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
-      // vmultiplier = 1.f;
       break;
 
 
     case vrange_1V:
       io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // no atten
       io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                    // 10x gain
-      // vmultiplier = 10.f;
       break;
 
     case vrange_100mV:
       io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // no atten
       io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);                                    // 100x gain
-      // vmultiplier = 10.f;
       break;
 
 
@@ -201,7 +198,6 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
       // at 6th digit with V.  eg. 9V and 0.1V. - very good - will work for hv.
       io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
       io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
-      // vmultiplier = 0.1f;
       break;
 
 
@@ -226,6 +222,30 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
 }
 
 
+static void range_voltage_iterate(app_t *app, bool dir)
+{
+  if(dir) {
+    switch(app->vrange)
+    {
+      case vrange_100mV:  range_voltage_set(app, vrange_1V); break;
+      case vrange_1V:     range_voltage_set(app, vrange_10V); break;
+      case vrange_10V:    range_voltage_set(app, vrange_100V); break;
+      case vrange_100V:   break;
+      case vrange_none: break;
+    };
+  } else {
+    switch(app->vrange)
+    {
+      case vrange_100mV:  break;
+      case vrange_1V:     range_voltage_set(app, vrange_100mV); break;
+      case vrange_10V:    range_voltage_set(app, vrange_1V); break;
+      case vrange_100V:   range_voltage_set(app, vrange_10V); break;
+      case vrange_none: break;
+    };
+  }
+}
+
+
 
 
 static float range_voltage_multiplier( vrange_t vrange)
@@ -237,10 +257,11 @@ static float range_voltage_multiplier( vrange_t vrange)
       case vrange_10V:    return 1.f;
       case vrange_1V:     return 0.1f;
       case vrange_100mV:  return 0.01f;
+      case vrange_none:   return -99999;
+    }
 
-      default:
-        return -99999;
-    };
+  // invalid
+  return -99999;
 }
 
 
@@ -281,7 +302,7 @@ static void range_current_set(app_t *app, irange_t irange)
   {
 
     case irange_1A:
-      // ensure sure the high current relay is on. before switching 
+      // ensure sure the high current relay is on. before switching
       output_set(app, app->irange, app->output);
       msleep(1);
       usart_printf("1A range \n");
@@ -301,7 +322,7 @@ static void range_current_set(app_t *app, irange_t irange)
 
    // using 10ohm resistor. for 10V swing.
     case irange_100mA:
-      // ensure sure the high current relay is on. before switching 
+      // ensure sure the high current relay is on. before switching
       output_set(app, app->irange, app->output);
       msleep(1);
       usart_printf("100mA range \n");
@@ -409,8 +430,8 @@ static void range_current_iterate(app_t *app, bool dir)
       case irange_1mA:    range_current_set(app, irange_10mA); break;
       case irange_10mA:   range_current_set(app, irange_100mA); break;
       case irange_100mA:   range_current_set(app, irange_1A); break;
-      default:
-        ;
+      case irange_1A: break;
+      case irange_none: break;
     };
   } else {
     switch(app->irange)
@@ -419,8 +440,9 @@ static void range_current_iterate(app_t *app, bool dir)
       case irange_10mA:   range_current_set(app, irange_1mA); break;
       case irange_100mA:  range_current_set(app, irange_10mA); break;
       case irange_1A:     range_current_set(app, irange_100mA); break;
-      default:
-        ;
+
+      case irange_100uA: break;
+      case irange_none: break;
     };
   }
 }
@@ -462,7 +484,7 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
 
   /*
   // change to LC only
-  if(app->output) 
+  if(app->output)
     io_set(app->spi, REG_LED, LED2);
   else
     io_clear(app->spi, REG_LED, LED2);
@@ -1080,7 +1102,7 @@ static void update(app_t *app)
         */
 
         // core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
-        core_set( app, 5.f , 3.f );    // 5V source, 5mA compliance, 
+        core_set( app, 5.f , 3.f );    // 5V source, 5mA compliance,
 
 
         /////////////
