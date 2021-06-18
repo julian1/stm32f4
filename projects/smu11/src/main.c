@@ -158,6 +158,11 @@ typedef struct app_t
 
 
 
+static void output_set(app_t *app, irange_t irange, uint8_t val);
+
+
+
+
 static void range_voltage_set(app_t *app, vrange_t vrange)
 {
 
@@ -302,7 +307,8 @@ static void range_current_set(app_t *app, irange_t irange)
 
       // if output on, make sure low current relay is on.. only switch after reducing current.
       msleep(1);
-      if(app->output) io_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
+      output_set(app, app->irange, app->output);
+
       break;
 
 
@@ -336,7 +342,7 @@ static void range_current_set(app_t *app, irange_t irange)
       }
 
       msleep(1);
-      if(app->output) io_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
+      output_set(app, app->irange, app->output);
       break;
 
 
@@ -414,11 +420,13 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
 
   app->output = val;
 
+  /*
   // change to LC only
   if(app->output) 
     io_set(app->spi, REG_LED, LED2);
   else
     io_clear(app->spi, REG_LED, LED2);
+  */
 
 
   if(app->output) {
@@ -434,6 +442,7 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
           // turn on read relay
           // and turn off the hc relay.
           io_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
+          io_set(app->spi, REG_LED, LED2);
           break;
 
       default:
@@ -445,7 +454,9 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
   else {
 
     usart_printf("switch output off\n");
+
     io_write(app->spi, REG_RELAY_OUT, 0 ); // both relays off
+    io_clear(app->spi, REG_LED, LED2);
   }
 }
 
