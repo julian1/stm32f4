@@ -93,12 +93,12 @@ typedef enum state_t {
 typedef enum vrange_t
 {
   vrange_none,
-  vrange_1x,
-  vrange_10x,
-  vrange_100x,
-  vrange_0x1,
+  vrange_10V,
+  vrange_1V,
+  vrange_100mV,
+  vrange_100V // ,
 
-  vrange_1x_2,
+  // vrange_10V_2,
 
 } vrange_t;
 
@@ -174,28 +174,29 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
   switch(app->vrange)
   {
 
-    case vrange_1x:
+    case vrange_10V:
       // flutters at 5 digit. nice.
       // 6th digit. with 9V and 0V.
-      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten
+      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // no atten
       io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                                   // x1 direct feedback. works.
       // vmultiplier = 1.f;
       break;
 
-    case vrange_10x:
-      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten
-      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                    //
+
+    case vrange_1V:
+      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // no atten
+      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                    // 10x gain
       // vmultiplier = 10.f;
       break;
 
-    case vrange_100x:
-      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // turn off atten
-      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);                                    //
+    case vrange_100mV:
+      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // no atten
+      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);                                    // 100x gain
       // vmultiplier = 10.f;
       break;
 
 
-  case vrange_0x1:
+  case vrange_100V:
       // flutters at 4th digit. with mV.  but this is on mV. range... so ok?
       // at 6th digit with V.  eg. 9V and 0.1V. - very good - will work for hv.
       io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
@@ -206,14 +207,14 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
 
 
     // IMPORTANT - remember have the other attenuation possibility... of just turning on/off sw3.
-
-  case vrange_1x_2:
+#if 0
+  case vrange_10V_2:
       // flutters at 4th digit.
       io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
       io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                   // x10 . works.
       // vmultiplier = 1.f;
       break;
-
+#endif
 
 
     // shouldn't have this...
@@ -229,17 +230,18 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
 
 static float range_voltage_multiplier( vrange_t vrange)
 {
+    // ie expressed on 10V range
     switch(vrange)
     {
-      case vrange_1x:
-        return 1.f;
+      case vrange_100V:   return 10.f;
+      case vrange_10V:    return 1.f;
+      case vrange_1V:     return 0.1f;
+      case vrange_100mV:  return 0.01f;
 
       default:
-        return 1 ;  // w
         return -99999;
     };
 }
-
 
 
 
@@ -427,17 +429,17 @@ static void range_current_iterate(app_t *app, bool dir)
 
 static float range_current_multiplier( irange_t irange)
 {
-    switch(irange)
-    {
-      // ie. expressed on 10V range
-      case irange_100uA:  return 0.00001f;
-      case irange_1mA:    return 0.0001f;
-      case irange_10mA:   return 0.001f;
-      case irange_100mA:  return 0.01f;
-      case irange_1A:     return 0.1f;
-      default:
-        return -99999;
-    };
+  switch(irange)
+  {
+    // ie. expressed on 10V range
+    case irange_100uA:  return 0.00001f;
+    case irange_1mA:    return 0.0001f;
+    case irange_10mA:   return 0.001f;
+    case irange_100mA:  return 0.01f;
+    case irange_1A:     return 0.1f;
+    default:
+      return -99999;
+  };
 }
 
 
@@ -1003,7 +1005,7 @@ static void update(app_t *app)
       usart_printf("-------------\n" );
 
       usart_printf("set voltage range\n" );
-      range_voltage_set(app, vrange_1x);
+      range_voltage_set(app, vrange_10V);
 
       usart_printf("set current range\n" );
       range_current_set(app, irange_10mA);
@@ -1073,86 +1075,12 @@ static void update(app_t *app)
 
         /*
           https://www.youtube.com/watch?v=qFVhe_uzxnE
-
           source current. 100mA.   with compliance +21V.   DUT resistive load.
-
           source current -100mA.   with compliance +21V.   with power supply.
-
         */
-#if 0
-        // source pos voltage, with pos compliance current.  (current can be Q1 positive or Q2 negative to dut battery) depending on DUT and DUT polarity.
-        if(false) {
-          // ok. this is correct. source 2mA. with compliance of 3V.
-          // alternatively can source voltage 1V with compliance of 10mA.
-          // and outputs the source voltage 3V compliance when relay is off.
-          // limits DUT battery in both polarities.ways
-          mux_dac(app->spi);
-          // voltage
-          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.f  ) ); // 3V
-          // current
-          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 2.0f ) );  // 2mA.
-          mux_io(app->spi);
-          io_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET_INV));   // positive voltage and current.
-          io_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
-        }
-
-        // Q3  source neg voltage, or neg current.   correct if DUT = resistive load.
-        // DUT=battery.  Q4.  this is correct .... positive voltage, and negative current.
-        if(false ) {
-          // correct sources negative voltage. and negative current compliance or vice versa.
-          // relay off shows -3V. correct.
-          mux_dac(app->spi);
-          // voltage
-          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 1.50 /*3.0f*/  ) );     // this has no effect. either below or above dut V. if DUT is battery. ...
-          // current
-          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 5.0f ) );      // -1mA. resistor or battery
-
-
-          mux_io(app->spi);
-          io_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));   // positive voltage and current.
-          io_write(app->spi, REG_CLAMP2, ~CLAMP2_MIN );     // min of current or voltage
-        }
-        // source pos voltage. and sink current. for DUT.   Q4.
-        // will source neg voltage. sink current. for resistor.   Q3.
-        if(true) {
-
-          // OK. this is better for DUT sinking. compliance voltage is positive.  current is negative.
-          // -1mA. regardless of DUT polarity.
-          // the only way to limit voltage exercusion. is to sink more current. this is correct. why set -100mA. and +21V  compliance
-          mux_dac(app->spi);
-          // voltage
-          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.50 /*3.0f*/  ) );     // 1.5 is respected. it will limit voltage. by sinking more current.
-          // current
-          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 1.0f ) );      // -1mA. resistor or battery
-
-          mux_io(app->spi);
-          io_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));   // positive voltage and current.
-          io_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
-
-           }
-#endif
-
-
-#if 0
-      // RULES.
-      // so. if voltage is positive use clamp max.  clamp min/max follows voltage.
-      // negative current. can still be source or sink. depending on polarity.
-
-        mux_dac(app->spi);
-        // voltage
-        spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.f  ) ); // 3V
-        // current
-        spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 5.0f ) );  // 2mA.
-        quadrant_set( app, false, false) ;
-
-
-       // usart_printf(" -0.123 %f    %f \n",   -0.123,  fabs(-0.123) );
-#endif
 
         // core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
         core_set( app, 5.f , 3.f );    // 5V source, 5mA compliance, 
-
-        // I think
 
 
         /////////////
@@ -1165,7 +1093,7 @@ static void update(app_t *app)
         // clamps_set_source_pve(app->spi);
 
 
-        range_voltage_set(app, vrange_1x);
+        range_voltage_set(app, vrange_10V);
 
         range_current_set(app, irange_10mA);
         // range_current_set(app, irange_1mA);
@@ -1651,10 +1579,10 @@ static void range_voltage_set_1V(uint32_t spi)
       return;
 #endif
 
-      // range_voltage_set(spi, vrange_1x_2);
-      // range_voltage_set(spi, vrange_0x1);
-      // range_voltage_set(spi, vrange_10x);
-      // range_voltage_set(spi, vrange_100x);
+      // range_voltage_set(spi, vrange_10V_2);
+      // range_voltage_set(spi, vrange_100V);
+      // range_voltage_set(spi, vrange_1V);
+      // range_voltage_set(spi, vrange_100mV);
 
 
 #if 0
@@ -1832,4 +1760,73 @@ static void clamps_set_source_pve(uint32_t spi)
 
 #endif
 
+#if 0
+        // source pos voltage, with pos compliance current.  (current can be Q1 positive or Q2 negative to dut battery) depending on DUT and DUT polarity.
+        if(false) {
+          // ok. this is correct. source 2mA. with compliance of 3V.
+          // alternatively can source voltage 1V with compliance of 10mA.
+          // and outputs the source voltage 3V compliance when relay is off.
+          // limits DUT battery in both polarities.ways
+          mux_dac(app->spi);
+          // voltage
+          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.f  ) ); // 3V
+          // current
+          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 2.0f ) );  // 2mA.
+          mux_io(app->spi);
+          io_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET_INV));   // positive voltage and current.
+          io_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
+        }
+
+        // Q3  source neg voltage, or neg current.   correct if DUT = resistive load.
+        // DUT=battery.  Q4.  this is correct .... positive voltage, and negative current.
+        if(false ) {
+          // correct sources negative voltage. and negative current compliance or vice versa.
+          // relay off shows -3V. correct.
+          mux_dac(app->spi);
+          // voltage
+          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 1.50 /*3.0f*/  ) );     // this has no effect. either below or above dut V. if DUT is battery. ...
+          // current
+          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 5.0f ) );      // -1mA. resistor or battery
+
+
+          mux_io(app->spi);
+          io_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));   // positive voltage and current.
+          io_write(app->spi, REG_CLAMP2, ~CLAMP2_MIN );     // min of current or voltage
+        }
+        // source pos voltage. and sink current. for DUT.   Q4.
+        // will source neg voltage. sink current. for resistor.   Q3.
+        if(true) {
+
+          // OK. this is better for DUT sinking. compliance voltage is positive.  current is negative.
+          // -1mA. regardless of DUT polarity.
+          // the only way to limit voltage exercusion. is to sink more current. this is correct. why set -100mA. and +21V  compliance
+          mux_dac(app->spi);
+          // voltage
+          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.50 /*3.0f*/  ) );     // 1.5 is respected. it will limit voltage. by sinking more current.
+          // current
+          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 1.0f ) );      // -1mA. resistor or battery
+
+          mux_io(app->spi);
+          io_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));   // positive voltage and current.
+          io_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
+
+           }
+#endif
+
+
+#if 0
+      // RULES.
+      // so. if voltage is positive use clamp max.  clamp min/max follows voltage.
+      // negative current. can still be source or sink. depending on polarity.
+
+        mux_dac(app->spi);
+        // voltage
+        spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.f  ) ); // 3V
+        // current
+        spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 5.0f ) );  // 2mA.
+        quadrant_set( app, false, false) ;
+
+
+       // usart_printf(" -0.123 %f    %f \n",   -0.123,  fabs(-0.123) );
+#endif
 
