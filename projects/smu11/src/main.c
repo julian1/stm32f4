@@ -269,29 +269,17 @@ static void range_current_set(app_t *app, irange_t irange)
   */
 
 
+  app->irange = irange;
+
   mux_io(app->spi);   // would be better to avoid calling if don't need.
 
-  app->irange = irange;
 
 
   switch(app->irange)
   {
-/*
-    case irange_1x:
-      // imultiplier = 1.f;
-      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  1x active low
-      break;
 
-    case irange_10x:
-      // imultiplier = 10.f;
-      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);   //  10x active low
+    case irange_1A:
       break;
-
-    case irange_100x:
-      // imultiplier = 100.f;
-      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);   //  100x active low
-      break;
-*/
 
 
 
@@ -301,7 +289,7 @@ static void range_current_set(app_t *app, irange_t irange)
       output_set(app, app->irange, app->output);
       msleep(1);
 
-      usart_printf("WHOOT trying 100mA range \n");
+      usart_printf("100mA range \n");
 
       // gain 10x active low
       io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);
@@ -323,6 +311,9 @@ static void range_current_set(app_t *app, irange_t irange)
 
     // using 1k resistor. for 10V swing.
     case irange_10mA:
+
+      usart_printf("10mA range \n");
+
       // gain 1x active low
       io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
       // turn on sense amplifier 3
@@ -376,9 +367,6 @@ static void range_current_set(app_t *app, irange_t irange)
       msleep(1);
       output_set(app, app->irange, app->output);
       break;
-
-
-    case irange_1A:
 
 
     // shouldn't have this...
