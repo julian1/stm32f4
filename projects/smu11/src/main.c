@@ -1085,8 +1085,8 @@ static void update(app_t *app)
        // usart_printf(" -0.123 %f    %f \n",   -0.123,  fabs(-0.123) );
 #endif
 
-        // core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
-        core_set( app, 5.f , 5.f );    // 5V source, 5mA compliance, 
+        core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
+        // core_set( app, 5.f , 5.f );    // 5V source, 5mA compliance, 
 
         // I think
 
