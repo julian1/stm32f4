@@ -150,6 +150,7 @@ typedef struct app_t
 
 
   // bool      last_char_newline; // last console char
+  // we could eliminate this. if we were to read the relay register...
   bool      output;   // whether output on/off
 
 } app_t;
@@ -397,9 +398,10 @@ static float range_current_multiplier( irange_t irange)
 
 
 
+// shoudl we pass the irange?
+// we might be calling this due to/ or in preparation to a range change...
 
-
-static void output_set(app_t *app, uint8_t val)
+static void output_set(app_t *app, irange_t irange, uint8_t val)
 {
   /*
     // better name
@@ -412,10 +414,18 @@ static void output_set(app_t *app, uint8_t val)
 
   app->output = val;
 
+  // change to LC only
+  if(app->output) 
+    io_set(app->spi, REG_LED, LED2);
+  else
+    io_clear(app->spi, REG_LED, LED2);
+
+
   if(app->output) {
 
       usart_printf("switch output on\n");
-      switch(app->irange)
+      // switch( app->irange)
+      switch( irange)
       {
 
         case irange_100uA:
@@ -604,10 +614,9 @@ static void update_soft_500ms(app_t *app )
 
   ////////////////////////////////
   // clear led1
-  io_clear(app->spi, REG_LED, LED1);
 
 
-  io_toggle(app->spi, REG_LED, LED2);
+  io_toggle(app->spi, REG_LED, LED1);
 
 
 
@@ -783,7 +792,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
     // toggle output... on/off. must only process char once. avoid relay oscillate
     else if( ch == 'o') {
       mux_io(app->spi);
-      output_set(app, ! app->output);
+      output_set(app, app->irange, !app->output);
       cBufPut(console_out, '\n');
     }
 
@@ -1109,7 +1118,7 @@ static void update(app_t *app)
 
 
         // change namem output relay?
-        output_set(app, true );   // turn on
+        output_set(app, app->irange, true );   // turn on
 
 
 
@@ -1146,7 +1155,7 @@ static void update(app_t *app)
         // turn off output relay
         // io_clear(spi, REG_RELAY, RELAY_OUTCOM);
 
-        output_set(app,  false );
+        output_set(app, app->irange, false );
 
         // go to state error
         app->state = ERROR;
