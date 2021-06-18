@@ -279,6 +279,20 @@ static void range_current_set(app_t *app, irange_t irange)
   {
 
     case irange_1A:
+      // ensure sure the high current relay is on. before switching 
+      output_set(app, app->irange, app->output);
+      msleep(1);
+      usart_printf("1A range \n");
+      // gain 100x active low
+      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);
+      // turn on sense amplifier 1
+      io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX1_CTL);
+      // turn on current range x
+      io_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
+      // turn on 2nd switch fets.
+      io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW1_CTL);
+
+      // TODO turn off jfets.
       break;
 
 
@@ -288,9 +302,7 @@ static void range_current_set(app_t *app, irange_t irange)
       // ensure sure the high current relay is on. before switching 
       output_set(app, app->irange, app->output);
       msleep(1);
-
       usart_printf("100mA range \n");
-
       // gain 10x active low
       io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);
       // turn on sense amplifier 2
@@ -394,6 +406,7 @@ static void range_current_iterate(app_t *app, bool dir)
       case irange_100uA:  range_current_set(app, irange_1mA); break;
       case irange_1mA:    range_current_set(app, irange_10mA); break;
       case irange_10mA:   range_current_set(app, irange_100mA); break;
+      case irange_100mA:   range_current_set(app, irange_1A); break;
       default:
         ;
     };
@@ -403,6 +416,7 @@ static void range_current_iterate(app_t *app, bool dir)
       case irange_1mA:    range_current_set(app, irange_100uA); break;
       case irange_10mA:   range_current_set(app, irange_1mA); break;
       case irange_100mA:  range_current_set(app, irange_10mA); break;
+      case irange_1A:     range_current_set(app, irange_100mA); break;
       default:
         ;
     };
@@ -1136,7 +1150,7 @@ static void update(app_t *app)
 #endif
 
         // core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
-        core_set( app, 5.f , 5.f );    // 5V source, 5mA compliance, 
+        core_set( app, 5.f , 3.f );    // 5V source, 5mA compliance, 
 
         // I think
 
