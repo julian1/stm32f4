@@ -1,4 +1,13 @@
+/*
+  TODO 
+  - clear the bad code.  on adc OV. which happens when change range.
+  - drill in range. that puts compliance at max of range.
 
+  - add better default values... eg. 0.003mA = 3uA.
+  
+
+
+*/
 // vim :colorscheme default. loooks good.
 
 // cjmcu  stm32f407.
@@ -1005,8 +1014,8 @@ static void update(app_t *app)
   // TODO put cal values in state
   float lp15v = spi_mcp3208_get_data(app->spi, 0) * 0.92 * 10.;
   float ln15v = spi_mcp3208_get_data(app->spi, 1) * 0.81 * 10.;
-  UNUSED(lp15v);
-  UNUSED(ln15v);
+  // UNUSED(lp15v);
+  // UNUSED(ln15v);
   // usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
 
