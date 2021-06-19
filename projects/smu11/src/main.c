@@ -127,6 +127,7 @@ typedef enum irange_t
 
 
 
+#if 0
 typedef enum format_t
 {
   format_mV,
@@ -137,7 +138,7 @@ typedef enum format_t
   format_A,
 
 } format_t;
-
+#endif
 
 
 
@@ -706,7 +707,7 @@ static void print_voltage(vrange_t vrange, float val)
 
 
  
-
+/*
 static void print_value(format_t format, float val)
 {
   switch(format)
@@ -729,8 +730,8 @@ static void print_value(format_t format, float val)
       usart_printf("%fA", val);
       break;
   };
-
 }
+*/
 
 
 
@@ -856,25 +857,27 @@ static void update_soft_500ms(app_t *app )
 
         /////////////////
         usart_printf("vset ");
-        print_value(format_V , app->vset * range_voltage_multiplier(app->vrange) );
+        // print_value(format_V , app->vset * range_voltage_multiplier(app->vrange) );
+        print_voltage(app->vrange, app->vset * range_voltage_multiplier(app->vrange));
 
 
         usart_printf(", vfb ");
 
-        print_value(format_V , v);
-        usart_printf(" ");
+        // print_value(format_V , v);
+        // usart_printf(" ");
         print_voltage(app->vrange, v);
 
         /////////////////
         usart_printf("   ");
 
         usart_printf("iset ");
-        print_value(format_mA, app->iset * range_current_multiplier(app->irange) );
+        // print_value(format_mA, app->iset * range_current_multiplier(app->irange) );
+        print_current(app->irange, app->iset * range_current_multiplier(app->irange) );
 
         usart_printf(", ifb ");
-        print_value(format_mA , i);
+        // print_value(format_mA , i);
 
-        usart_printf("   ");
+        // usart_printf("   ");
         print_current(app->irange, i);
 
 
