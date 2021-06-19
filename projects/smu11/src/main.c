@@ -856,19 +856,6 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
   while((ch = cBufPop(console_in)) >= 0) {
     // got a character
 
-    // TODO for single character responses. then we probably don't want to
-    // copy to buffer. or output.
-
-    // copy to command buffer
-    cBufPut(cmd_in, ch);
-
-    // handling newlines...
-    if(ch == '\r') {
-      cBufPut(console_out, '\n');
-    }
-    // output char to console
-    cBufPut(console_out, ch);
-
 
     // current range iteration
     if(ch == 'u')
@@ -882,9 +869,6 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
         range_voltage_iterate(app, 1);
     else if(ch == 'k')
         range_voltage_iterate(app, 0);
-
-
-
 
     // toggle output... on/off. must only process char once. avoid relay oscillate
     else if( ch == 'o') {
@@ -909,10 +893,24 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
       return;
     }
 
-    // so we want the same thing
-    // 1) to go up/and down current ranges. and voltage ranges
-    //      eg. range_current( dir ); up/down
-    // 2) also the formatting ranges.   eg. 5.0V or 05.0V etc.
+
+    else {
+
+      /////////////////////////////////
+      // TODO for single character responses. then we probably don't want to
+      // copy to buffer. or output.
+
+      // copy to command buffer
+      cBufPut(cmd_in, ch);
+
+      // handling newlines...
+      if(ch == '\r') {
+        cBufPut(console_out, '\n');
+      }
+      // output char to console
+      cBufPut(console_out, ch);
+
+    }
 
   }
 
