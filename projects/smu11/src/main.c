@@ -108,12 +108,8 @@ typedef enum irange_t
 {
   // TODO rename range_current_none, range_current_1x etc.
   irange_none,
-/*
-  irange_1x,
-  irange_10x,
-  irange_100x,
-*/
 
+  irange_10uA,
   irange_100uA,
   irange_1mA,
   irange_10mA,
@@ -383,10 +379,11 @@ static void range_current_set(app_t *app, irange_t irange)
 
     // using 10k resistor. for 10V swing
     case irange_1mA:
-
-
     // using 100k resistor with 10V swing.
     case irange_100uA:
+    // 1M resistor  on 10V swing.
+    case irange_10uA:
+
       // gain 1x active low
       io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
       // turn on sense amplifier 3
@@ -408,6 +405,12 @@ static void range_current_set(app_t *app, irange_t irange)
           usart_printf("100uA range \n");
           io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);
           break;
+        case irange_10uA:
+          // turn on jfet 2
+          usart_printf("10uA range \n");
+          io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW3_CTL);
+          break;
+
         default:;
 
       }
@@ -439,6 +442,7 @@ static void range_current_iterate(app_t *app, bool dir)
   if(dir) {
     switch(app->irange)
     {
+      case irange_10uA:   range_current_set(app, irange_100uA); break;
       case irange_100uA:  range_current_set(app, irange_1mA); break;
       case irange_1mA:    range_current_set(app, irange_10mA); break;
       case irange_10mA:   range_current_set(app, irange_100mA); break;
@@ -449,12 +453,12 @@ static void range_current_iterate(app_t *app, bool dir)
   } else {
     switch(app->irange)
     {
+      case irange_10uA:   break;
+      case irange_100uA:  range_current_set(app, irange_10uA); break;
       case irange_1mA:    range_current_set(app, irange_100uA); break;
       case irange_10mA:   range_current_set(app, irange_1mA); break;
       case irange_100mA:  range_current_set(app, irange_10mA); break;
       case irange_1A:     range_current_set(app, irange_100mA); break;
-
-      case irange_100uA: break;
       case irange_none: break;
     };
   }
@@ -467,14 +471,17 @@ static float range_current_multiplier( irange_t irange)
   switch(irange)
   {
     // ie. expressed on 10V range
+    case irange_10uA:   return 0.000001f;
     case irange_100uA:  return 0.00001f;
     case irange_1mA:    return 0.0001f;
     case irange_10mA:   return 0.001f;
     case irange_100mA:  return 0.01f;
     case irange_1A:     return 0.1f;
-    default:
-      return -99999;
+
+    case irange_none: return -99999;
   };
+
+  return -9999;
 }
 
 
