@@ -9,6 +9,7 @@
       probably because of input offset voltage.
       correcting digitally. better. if can do this.
       need to get the output value right (dac), and the measurement value (dac + adc).
+      - can trim some of this with ref pin of ina154.
 
 
 
