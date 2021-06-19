@@ -156,6 +156,10 @@ typedef struct app_t
   // we could eliminate this. if we were to read the relay register...
   bool      output;   // whether output on/off
 
+
+  float     vset;   // ignoring range
+  float     iset;
+
 } app_t;
 
 
@@ -499,7 +503,7 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
     io_clear(app->spi, REG_LED, LED2);
   */
 
-  // ok. this is called when changing ranges. 
+  // ok. this is called when changing ranges.
   // usart_printf("output %s\n", app->output ? "on" : "off"  );
 
   if(app->output) {
@@ -805,12 +809,24 @@ static void update_soft_500ms(app_t *app )
 
         // when we set the range. we should set the default format.
         // the format prec wants to be able to user modified.
-        usart_printf("adc ");
 
+
+        /////////////////
+        usart_printf("vset ");
+        print_value(format_V , app->vset * range_voltage_multiplier(app->vrange) );
+
+
+        usart_printf(", vfb ");
         print_value(format_V , v);
         // print_value(format_mV , v);
 
+        /////////////////
         usart_printf("   ");
+
+        usart_printf("iset ");
+        print_value(format_mA, app->iset * range_current_multiplier(app->irange) );
+
+        usart_printf(", ifb ");
         print_value(format_mA , i);
         // print_value(format_uA , i);
         usart_printf("\n");
@@ -981,6 +997,9 @@ static void core_set( app_t *app, float v, float i)
     quadrant_set( app, v > 0.f, i > 0.f ) ;
 
 
+    // ignoring range
+    app->vset = v;
+    app->iset = i;
 }
 
 
