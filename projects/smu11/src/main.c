@@ -519,24 +519,25 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
       switch( irange)
       {
 
+        case irange_10uA:
         case irange_100uA:
         case irange_1mA:
-        case irange_10mA:
           // turn on read relay
           // and turn off the hc relay.
           io_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
           io_set(app->spi, REG_LED, LED2);
           break;
 
+        case irange_10mA:
         case irange_100mA:
+        case irange_1A:
           // high current relay
           io_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
           io_clear(app->spi, REG_LED, LED2);
+          break;
 
 
-      default:
-        // ignore
-        ;
+        case irange_none: ;
 
       }
   }
