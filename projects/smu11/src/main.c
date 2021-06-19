@@ -1,10 +1,10 @@
 /*
-  TODO 
+  TODO
   - clear the bad code.  on adc OV. which happens when change range.
   - drill in range. that puts compliance at max of range.
 
   - add better default values... eg. 0.003mA = 3uA.
-  
+
 
 
 */
@@ -125,20 +125,6 @@ typedef enum irange_t
 
 } irange_t;
 
-
-
-#if 0
-typedef enum format_t
-{
-  format_mV,
-  format_V,
-
-  format_uA,
-  format_mA,
-  format_A,
-
-} format_t;
-#endif
 
 
 
@@ -663,24 +649,24 @@ static void print_current(irange_t irange, float val)
   /*
     improtant.
       formatting measured values, according to selected range (rather than value) is correct.
-      enourage drill to a higher range. 
+      enourage drill to a higher range.
 
   */
   usart_printf(" here " );
 
   switch( irange)
   {
-    
-    case irange_10uA:     
-    case irange_100uA:    
-    case irange_1mA:     
-      usart_printf("%fuA", val * 1000000.f);   
+
+    case irange_10uA:
+    case irange_100uA:
+    case irange_1mA:
+      usart_printf("%fuA", val * 1000000.f);
       break;
 
-    case irange_10mA:     
-    case irange_100mA:    
-    case irange_1A:       
-      usart_printf("%fmA", val * 1000.f);   
+    case irange_10mA:
+    case irange_100mA:
+    case irange_1A:
+      usart_printf("%fmA", val * 1000.f);
       break;
   }
 }
@@ -691,47 +677,20 @@ static void print_voltage(vrange_t vrange, float val)
     // ie expressed on 10V range
     switch(vrange)
     {
-      case vrange_100V:   
-      case vrange_10V:    
-        usart_printf("%fV", val);   
+      case vrange_100V:
+      case vrange_10V:
+        usart_printf("%fV", val);
         break;
 
-      case vrange_1V:     
-      case vrange_100mV:  
+      case vrange_1V:
+      case vrange_100mV:
 
-        usart_printf("%fmV", val * 1000.f);   
+        usart_printf("%fmV", val * 1000.f);
         break;
 
     }
-} 
-
-
- 
-/*
-static void print_value(format_t format, float val)
-{
-  switch(format)
-  {
-    case format_mV:
-      usart_printf("%fmV", val * 1000.f);
-      break;
-    case format_V:
-      usart_printf("%fV", val);
-      break;
-
-
-    case format_uA:
-      usart_printf("%fuA", val * 1000000.f );
-      break;
-    case format_mA:
-      usart_printf("%fmA", val * 1000.f );
-      break;
-    case format_A:
-      usart_printf("%fA", val);
-      break;
-  };
 }
-*/
+
 
 
 
@@ -857,31 +816,21 @@ static void update_soft_500ms(app_t *app )
 
         /////////////////
         usart_printf("vset ");
-        // print_value(format_V , app->vset * range_voltage_multiplier(app->vrange) );
         print_voltage(app->vrange, app->vset * range_voltage_multiplier(app->vrange));
 
 
         usart_printf(", vfb ");
-
-        // print_value(format_V , v);
-        // usart_printf(" ");
         print_voltage(app->vrange, v);
 
         /////////////////
         usart_printf("   ");
-
         usart_printf("iset ");
-        // print_value(format_mA, app->iset * range_current_multiplier(app->irange) );
         print_current(app->irange, app->iset * range_current_multiplier(app->irange) );
 
         usart_printf(", ifb ");
-        // print_value(format_mA , i);
-
-        // usart_printf("   ");
         print_current(app->irange, i);
 
 
-        // print_value(format_uA , i);
         usart_printf("\n");
 
 
