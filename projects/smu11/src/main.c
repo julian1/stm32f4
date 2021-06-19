@@ -379,6 +379,8 @@ static void range_current_set(app_t *app, irange_t irange)
 
     // using 10k resistor. for 10V swing
     case irange_1mA:
+
+
     // using 100k resistor with 10V swing.
     case irange_100uA:
       // gain 1x active low
@@ -393,10 +395,13 @@ static void range_current_set(app_t *app, irange_t irange)
       switch( app->irange) {
         case irange_1mA:
           // turn on jfet 1
+
+          usart_printf("1mA range \n");
           io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);
           break;
         case irange_100uA:
           // turn on jfet 2
+          usart_printf("100uA range \n");
           io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);
           break;
         default:;
@@ -494,10 +499,11 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
     io_clear(app->spi, REG_LED, LED2);
   */
 
+  // ok. this is called when changing ranges. 
+  // usart_printf("output %s\n", app->output ? "on" : "off"  );
 
   if(app->output) {
 
-      usart_printf("switch output on\n");
       // switch( app->irange)
       switch( irange)
       {
@@ -525,7 +531,6 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
   }
   else {
 
-    usart_printf("switch output off\n");
 
     io_write(app->spi, REG_RELAY_OUT, 0 ); // both relays off
     io_clear(app->spi, REG_LED, LED2);
