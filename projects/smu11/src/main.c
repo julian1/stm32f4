@@ -3,7 +3,12 @@
   - clear the bad code.  on adc OV. which happens when change range.
   - drill in range. that puts compliance at max of range.
 
-  - add better default values... eg. 0.003mA = 3uA.
+  - done - add better default values... eg. 0.003mA = 3uA.
+
+  - we need offset calibration - for measurement.   eg. mV on 10 or 100V range looks wrong.
+      probably because of input offset voltage.
+      correcting digitally. better. if can do this.
+      need to get the output value right (dac), and the measurement value (dac + adc).
 
 
 
