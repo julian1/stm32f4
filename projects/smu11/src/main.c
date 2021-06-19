@@ -871,9 +871,17 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
         range_current_iterate(app, 0);
 
 
+    // current range iteration
+    else if(ch == 'j')
+        range_voltage_iterate(app, 1);
+    else if(ch == 'k')
+        range_voltage_iterate(app, 0);
+
+
+
+
     // toggle output... on/off. must only process char once. avoid relay oscillate
     else if( ch == 'o') {
-
       usart_printf("output \n", (!app->output) ? "on" : "off" );
       mux_io(app->spi);
       output_set(app, app->irange, !app->output);
