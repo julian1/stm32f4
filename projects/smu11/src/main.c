@@ -659,6 +659,29 @@ static void clamps_set_source_pve(uint32_t spi)
 // change name to print_value...
 // should construct a string i think...
 
+static void print_current(irange_t irange, float val)
+{
+  usart_printf(" here " );
+
+  switch( irange)
+  {
+    
+    case irange_10uA:     
+    case irange_100uA:    
+    case irange_1mA:     
+      usart_printf("%fuA", val * 1000000.f);   
+      break;
+
+    case irange_10mA:     
+    case irange_100mA:    
+    case irange_1A:       
+      usart_printf("%fmA", val * 1000.f);   
+      break;
+  }
+
+}
+ 
+
 static void print_value(format_t format, float val)
 {
   switch(format)
@@ -823,6 +846,11 @@ static void update_soft_500ms(app_t *app )
 
         usart_printf(", ifb ");
         print_value(format_mA , i);
+
+        usart_printf("   ");
+        print_current(app->irange, i);
+
+
         // print_value(format_uA , i);
         usart_printf("\n");
 
