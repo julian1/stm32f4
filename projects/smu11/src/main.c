@@ -168,6 +168,7 @@ static void output_set(app_t *app, irange_t irange, uint8_t val);
 
 static void range_voltage_set(app_t *app, vrange_t vrange)
 {
+  mux_io(app->spi);   // would be better to avoid calling if don't need.
 
   app->vrange = vrange;
 
@@ -257,7 +258,7 @@ static float range_voltage_multiplier( vrange_t vrange)
     switch(vrange)
     {
       case vrange_100V:   return 10.f;
-      case vrange_10V:    return 1.f;
+      case vrange_10V:    return 1.f;   // we're actually on a 10V range by default
       case vrange_1V:     return 0.1f;
       case vrange_100mV:  return 0.01f;
       case vrange_none:   return -99999;
@@ -294,10 +295,10 @@ static void range_current_set(app_t *app, irange_t irange)
     if output is on. then we also have to change the output relay...
   */
 
+  mux_io(app->spi);   // would be better to avoid calling if don't need.
 
   app->irange = irange;
 
-  mux_io(app->spi);   // would be better to avoid calling if don't need.
 
 
 
@@ -867,7 +868,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
     // current range iteration
     if(ch == 'u')
         range_current_iterate(app, 1);
-    else if(ch == 'd')
+    else if(ch == 'i')
         range_current_iterate(app, 0);
 
 
@@ -1114,9 +1115,14 @@ static void update(app_t *app)
           source current -100mA.   with compliance +21V.   with power supply.
         */
 
-        // core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
-        core_set( app, 5.f , 3.f );    // 5V source, 5mA compliance,
 
+      // range iteration changes the meaning of the set voltage.
+
+        // core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
+        // core_set( app, 5.f , 3.f );         // 5V source, 5mA compliance,
+        core_set( app, 3.f , 3.f );         // 5V source, 5mA compliance,
+
+        // the voltage - is not actually changing with voltage set... ?/
 
         /////////////
         // working as bipolar.
