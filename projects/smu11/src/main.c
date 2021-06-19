@@ -11,6 +11,9 @@
       need to get the output value right (dac), and the measurement value (dac + adc).
       - can trim some of this with ref pin of ina154.
 
+  - it's only the attenuation range. 100V. that's bad? or too low into the noise?
+
+  - we have to understand how the compliance regulation works, when the measurement on is on a different range.
 
 
 */
