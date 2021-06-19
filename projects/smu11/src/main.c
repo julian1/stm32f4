@@ -1128,7 +1128,7 @@ static void update(app_t *app)
 
         // core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
         // core_set( app, 5.f , 3.f );         // 5V source, 5mA compliance,
-        core_set( app, 3.f , 3.f );         // 5V source, 5mA compliance,
+        core_set( app, 5.f , 3.f );         // 5V source, 5mA compliance,
 
         // the voltage - is not actually changing with voltage set... ?/
 
