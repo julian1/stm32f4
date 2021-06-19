@@ -656,11 +656,15 @@ static void clamps_set_source_pve(uint32_t spi)
 */
 
 
-// change name to print_value...
-// should construct a string i think...
 
 static void print_current(irange_t irange, float val)
 {
+  /*
+    improtant.
+      formatting measured values, according to selected range (rather than value) is correct.
+      enourage drill to a higher range. 
+
+  */
   usart_printf(" here " );
 
   switch( irange)
@@ -678,8 +682,29 @@ static void print_current(irange_t irange, float val)
       usart_printf("%fmA", val * 1000.f);   
       break;
   }
-
 }
+
+
+static void print_voltage(vrange_t vrange, float val)
+{
+    // ie expressed on 10V range
+    switch(vrange)
+    {
+      case vrange_100V:   
+      case vrange_10V:    
+        usart_printf("%fV", val);   
+        break;
+
+      case vrange_1V:     
+      case vrange_100mV:  
+
+        usart_printf("%fmV", val * 1000.f);   
+        break;
+
+    }
+} 
+
+
  
 
 static void print_value(format_t format, float val)
@@ -835,8 +860,10 @@ static void update_soft_500ms(app_t *app )
 
 
         usart_printf(", vfb ");
+
         print_value(format_V , v);
-        // print_value(format_mV , v);
+        usart_printf(" ");
+        print_voltage(app->vrange, v);
 
         /////////////////
         usart_printf("   ");
