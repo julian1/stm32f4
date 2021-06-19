@@ -12,9 +12,49 @@
       - can trim some of this with ref pin of ina154.
 
   - it's only the attenuation range. 100V. that's bad? or too low into the noise?
-
   - we have to understand how the compliance regulation works, when the measurement on is on a different range.
+  - ok. think the bounce out to the next range. if exceed compliance on a zoomed range. makes sense.
+  ------------
+  calibration uses two points eg. 10V and 0V. good.
+    - change the dac value.
+    - change the adc value.
+  ------------
+  EXTREME.
+    actually. maybe it autoranges down. that's why when disconnected it always shows on lowest current range eg. 100uA.
+      compliance *will* be respected, as it jummps up ranges until hits compliance range. if DUT source. it's just going to be staggered jumping out.
 
+    So. long as it's on a lower range than the compliance range, then it is in compliance.
+    on a lower range it *is* limiting.
+    Actually use the dac to set +-10V.... which will limit.
+    So. KNOWING when it triggers the end of the range.  eg. running into +-10V. is very
+
+    So compliance can be limited by being in the compliance range, and at the compliance value.
+    OR being on a higher range with compliance set to +-10V..
+    YES.
+    so the ranging would be a bit jumpy. but that's ok.
+    and it's only the compliance that does the jumping. the source function will be fixed.
+    ------------------
+
+    Ahhh. set compliance to 1.05  etc.    and then anything in the range 1.02-1.05 should trigger a range switch.
+    And this could use a hardware comparitor set at 10.2 to 10.5V
+    In place of the slow ADC.   or else use the second fast adc. remembering that its buffered.
+    Or just use slow adc to test.
+    ----
+
+    need vset  vset_range,    iset  iset_range.
+    then change range based on value <1V or >10.5V etc.
+    perhaps only change the compliance range.   is_compliance. can be a flag.   or vset_auto_range.
+
+    eg. only changing one range. good to keep the source unchanged, when output relay is off.
+    -------
+    being able to set the dac to (eg. 10.5) so we have 0.5V headroom, so we can know we need to switch range is very useful.
+    ---------
+
+    the quadrant when sinking, when limit voltage, so current goes up - i think is still correct.
+    ----------
+
+    think range calibration,  is going to have to be defined as ab where y = ax + b.
+      for dac. and for adc.
 
 */
 // vim :colorscheme default. loooks good.
@@ -119,6 +159,15 @@ typedef enum vrange_t
 
 } vrange_t;
 
+
+
+/*
+  there is no *off* or *alternate* current range/path. when output is disconnected.
+    - instead when off / output is disconnected - auto ranging should zoom down to COM_Z  highest value resistor.
+    - so there is always an active current path.
+
+    that keeps com_lc parked near gnd. and allows VFB to work. and a current reading for high-impedance disconnect state.
+*/
 
 
 typedef enum irange_t
