@@ -873,6 +873,8 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
 
     // toggle output... on/off. must only process char once. avoid relay oscillate
     else if( ch == 'o') {
+
+      usart_printf("output \n", (!app->output) ? "on" : "off" );
       mux_io(app->spi);
       output_set(app, app->irange, !app->output);
       cBufPut(console_out, '\n');
