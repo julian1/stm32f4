@@ -92,8 +92,7 @@ typedef enum state_t {
 
 typedef enum vrange_t
 {
-  vrange_none,
-  vrange_10V,
+  vrange_10V = 3,
   vrange_1V,
   vrange_100mV,
   vrange_100V // ,
@@ -107,9 +106,8 @@ typedef enum vrange_t
 typedef enum irange_t
 {
   // TODO rename range_current_none, range_current_1x etc.
-  irange_none,
 
-  irange_10uA,
+  irange_10uA = 3,
   irange_100uA,
   irange_1mA,
   irange_10mA,
@@ -217,10 +215,6 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
       break;
 #endif
 
-    // shouldn't have this...
-    case vrange_none:
-      // assert...
-      break;
   };
 
 }
@@ -235,7 +229,6 @@ static void range_voltage_iterate(app_t *app, bool dir)
       case vrange_1V:     range_voltage_set(app, vrange_10V); break;
       case vrange_10V:    range_voltage_set(app, vrange_100V); break;
       case vrange_100V:   break;
-      case vrange_none: break;
     };
   } else {
     switch(app->vrange)
@@ -244,7 +237,6 @@ static void range_voltage_iterate(app_t *app, bool dir)
       case vrange_1V:     range_voltage_set(app, vrange_100mV); break;
       case vrange_10V:    range_voltage_set(app, vrange_1V); break;
       case vrange_100V:   range_voltage_set(app, vrange_10V); break;
-      case vrange_none: break;
     };
   }
 }
@@ -261,7 +253,6 @@ static float range_voltage_multiplier( vrange_t vrange)
       case vrange_10V:    return 1.f;   // we're actually on a 10V range by default
       case vrange_1V:     return 0.1f;
       case vrange_100mV:  return 0.01f;
-      case vrange_none:   return -99999;
     }
 
   // invalid
@@ -419,12 +410,6 @@ static void range_current_set(app_t *app, irange_t irange)
       output_set(app, app->irange, app->output);
       break;
 
-
-    // shouldn't have this...
-    case vrange_none:
-      // assert...
-    break;
-
   }
 
 
@@ -448,7 +433,6 @@ static void range_current_iterate(app_t *app, bool dir)
       case irange_10mA:   range_current_set(app, irange_100mA); break;
       case irange_100mA:   range_current_set(app, irange_1A); break;
       case irange_1A: break;
-      case irange_none: break;
     };
   } else {
     switch(app->irange)
@@ -459,7 +443,6 @@ static void range_current_iterate(app_t *app, bool dir)
       case irange_10mA:   range_current_set(app, irange_1mA); break;
       case irange_100mA:  range_current_set(app, irange_10mA); break;
       case irange_1A:     range_current_set(app, irange_100mA); break;
-      case irange_none: break;
     };
   }
 }
@@ -478,7 +461,6 @@ static float range_current_multiplier( irange_t irange)
     case irange_100mA:  return 0.01f;
     case irange_1A:     return 0.1f;
 
-    case irange_none: return -99999;
   };
 
   return -9999;
@@ -535,10 +517,6 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
           io_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
           io_clear(app->spi, REG_LED, LED2);
           break;
-
-
-        case irange_none: ;
-
       }
   }
   else {
@@ -1631,10 +1609,6 @@ static void range_voltage_set_1V(uint32_t spi)
       imultiplier = 100.f;
       break;
 
-    // shouldn't have this...
-    case vrange_none:
-      // assert...
-    break;
 
   }
 #endif
