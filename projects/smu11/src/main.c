@@ -855,6 +855,9 @@ static void update_soft_500ms(app_t *app )
       // No. its's regulating nicely on 11V. there's some other error...
       // why is it out of range at 11V????
 
+      // why does the adc give an error at 10.6V
+      // does the adc have an ovc register setting?
+
       ///////////////////////////////////////////
       usart_printf("V is %f\n", v);
       // this is wrong.... it's a value < 1
