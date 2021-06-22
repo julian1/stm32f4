@@ -539,46 +539,6 @@ static void range_current_iterate(app_t *app, bool dir)
   */
 
   range_current_set(app, range_current_next( app->irange, dir) );
-
-#if 0
-  /*
-    lower value  range.    means smaller current. higher shunt value.
-    higher value range.   larger current. lower shutn. less resolution.
-
-
-    change name - iterate means all. where this is now a relative range change
-    range_current_change() jump() ...
-    thnk have the meaning invertkk
-
-    change anme iterate.
-    useful test function.
-    IMPORTANT. this does *NOT* take into account output relay switching.
-
-    dir positive. go down in range, for smaller current. smaller currents.
-  */
-  if(dir) {   // go lower.
-    switch(app->irange)
-    {
-      case irange_10uA:   break;
-      case irange_100uA:  range_current_set(app, irange_10uA); break;
-      case irange_1mA:    range_current_set(app, irange_100uA); break;
-      case irange_10mA:   range_current_set(app, irange_1mA); break;
-      case irange_100mA:  range_current_set(app, irange_10mA); break;
-      case irange_1A:     range_current_set(app, irange_100mA); break;
-    };
-
-  } else {  // go higher
-    switch(app->irange)
-    {
-      case irange_10uA:   range_current_set(app, irange_100uA); break;
-      case irange_100uA:  range_current_set(app, irange_1mA); break;
-      case irange_1mA:    range_current_set(app, irange_10mA); break;
-      case irange_10mA:   range_current_set(app, irange_100mA); break;
-      case irange_100mA:   range_current_set(app, irange_1A); break;
-      case irange_1A: break;
-    };
-  }
-#endif
 }
 
 
@@ -795,15 +755,24 @@ static void update_soft_500ms(app_t *app )
 
       usart_printf("i is %f\n", i);
 
-      irange_t   last_irange = app->irange;
+      // irange_t   last_irange = app->irange;
 
       // will want to use the fast adc, and run every update
       // we have to set the dac value... as well...
       if(fabs(i) < 0.1f) {
         // need to switch to lower range.  more resolution. higher value shunt. smaller current.
 
-        usart_printf("switch lower\n");
-        range_current_iterate(app, 1);
+        if(range_current_next( app->irange, 1 ) != app->irange) { 
+
+          usart_printf("switch lower\n");
+
+          mux_dac(app->spi);
+          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(11.f)) );
+
+          range_current_set(app, range_current_next( app->irange, 1 ) );
+
+        }
+        // range_current_iterate(app, 1);
       }
       else if (fabs(i) > 10.5  && app->irange < app->iset_range  ) {
         // need to switch out to a higher range.
@@ -816,6 +785,8 @@ static void update_soft_500ms(app_t *app )
         // we don't want to switch to a higher range than the regulation range... *if we do we have to change*
         // the dac regulation value down.
 
+
+
         usart_printf("switch higher\n");
         range_current_iterate(app, 0);
       }
@@ -824,7 +795,7 @@ static void update_soft_500ms(app_t *app )
 
       // now test the range...
       // should do before changing...relays.
-
+#if 0 
       if(last_irange != app->irange) {
         // we changed range.
 
@@ -842,7 +813,7 @@ static void update_soft_500ms(app_t *app )
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(11.f)) );
         }
       }
-
+#endif
 
 
       break;
