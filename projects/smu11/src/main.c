@@ -72,7 +72,7 @@
       - operation vs compliance.
     --------------
 
-    A value like 1.02V needs to be able to be regulate on either range (either 1.02 or 0.102). else won't get range switch stability. 
+    A value like 1.02V needs to be able to be regulate on either range (either 1.02 or 0.102). else won't get range switch stability.
 
 */
 // vim :colorscheme default. loooks good.
@@ -495,8 +495,52 @@ static void range_current_set(app_t *app, irange_t irange)
 
 
 
+
+
+
+
+static irange_t range_current_next( irange_t irange, bool dir)
+{
+  // can simplify - enum addition ... etc.
+
+  if(dir) {   // lower range. ie. lower current, higher shunt resistor.
+    switch(irange)
+    {
+      case irange_10uA:   return irange_10uA;  // no change
+      case irange_100uA:  return irange_10uA;
+      case irange_1mA:    return irange_100uA;
+      case irange_10mA:   return irange_1mA;
+      case irange_100mA:  return irange_10mA;
+      case irange_1A:     return irange_100mA;
+    };
+
+  } else {  // higher range. higher current.  lower shunt resistor
+    switch(irange)
+    {
+      case irange_10uA:   return irange_100uA;
+      case irange_100uA:  return irange_1mA;
+      case irange_1mA:    return irange_10mA;
+      case irange_10mA:   return irange_100mA; 
+      case irange_100mA:  return irange_1A; 
+      case irange_1A:     return irange_1A;   // no change
+    };
+  }
+
+  // suppress compiler warning...
+  return (irange_t)-9999;
+}
+
+
+
 static void range_current_iterate(app_t *app, bool dir)
 {
+  /*
+    Think we can remove this entirely.
+  */
+
+  range_current_set(app, range_current_next( app->irange, dir) );
+
+#if 0
   /*
     lower value  range.    means smaller current. higher shunt value.
     higher value range.   larger current. lower shutn. less resolution.
@@ -534,6 +578,7 @@ static void range_current_iterate(app_t *app, bool dir)
       case irange_1A: break;
     };
   }
+#endif
 }
 
 
@@ -755,17 +800,24 @@ static void update_soft_500ms(app_t *app )
       // will want to use the fast adc, and run every update
       // we have to set the dac value... as well...
       if(fabs(i) < 0.1f) {
-        // lower range.  more resolution. higher value shunt. smaller current.
+        // need to switch to lower range.  more resolution. higher value shunt. smaller current.
 
         usart_printf("switch lower\n");
         range_current_iterate(app, 1);
-      } else if (fabs(i) > 10.5) {
+      }
+      else if (fabs(i) > 10.5  && app->irange < app->iset_range  ) {
+        // need to switch out to a higher range.
+
+        // can have a fucntion that will report the next range. (but not do the switch).
+
         // TODO - test to avoid switching to higher range than the set range.
         // higher range - more current, lower resistance shunt / or amplification.
 
+        // we don't want to switch to a higher range than the regulation range... *if we do we have to change*
+        // the dac regulation value down.
+
         usart_printf("switch higher\n");
         range_current_iterate(app, 0);
-
       }
 
     // it
