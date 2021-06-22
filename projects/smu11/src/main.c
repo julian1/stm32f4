@@ -710,21 +710,20 @@ static void print_current(irange_t irange, float val)
 
 static void print_voltage(vrange_t vrange, float val)
 {
-    // ie expressed on 10V range
-    switch(vrange)
-    {
-      case vrange_100V:
-      case vrange_10V:
-        usart_printf("%fV", val);
-        break;
+  // ie expressed on 10V range
+  switch(vrange)
+  {
+    case vrange_100V:
+    case vrange_10V:
+      usart_printf("%fV", val);
+      break;
 
-      case vrange_1V:
-      case vrange_100mV:
+    case vrange_1V:
+    case vrange_100mV:
+      usart_printf("%fmV", val * 1000.f);
+      break;
 
-        usart_printf("%fmV", val * 1000.f);
-        break;
-
-    }
+  }
 }
 
 
@@ -785,10 +784,7 @@ static void update_soft_500ms(app_t *app )
         // the format prec wants to be able to user modified.
         /////////////////
 
-
-        // static const char * range_current_string( irange_t irange)
-
-        usart_printf("range: %s", range_voltage_string(app->vrange));
+        usart_printf("vrange: %s", range_voltage_string(app->vrange));
         usart_printf(", vset ");
         print_voltage(app->vrange, app->vset * range_voltage_multiplier(app->vrange));
         usart_printf(", vfb ");
@@ -799,7 +795,7 @@ static void update_soft_500ms(app_t *app )
         usart_printf("    ");
 
 
-        usart_printf("range: %s", range_current_string(app->irange));
+        usart_printf("irange: %s", range_current_string(app->irange));
         usart_printf(", iset ");
         print_current(app->irange, app->iset * range_current_multiplier(app->irange) );
         usart_printf(", ifb ");
@@ -813,7 +809,7 @@ static void update_soft_500ms(app_t *app )
       // will want to use the fast adc, and run every update
       // we have to set the dac value... as well...
 
-      if(fabs(i) < 0.1f && app->irange <= app->iset_range ) {
+      if(fabs(i) < 1.f && app->irange <= app->iset_range ) {
 
         // need to switch to lower current range
         irange_t lower = range_current_next( app->irange, 1);
@@ -825,7 +821,7 @@ static void update_soft_500ms(app_t *app )
           mux_dac(app->spi);
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(11.f)) );
 
-          range_current_set(app, lower );
+          range_current_set(app, lower);
         }
       }
       else if (fabs(i) > 10.5 && app->irange < app->iset_range  ) {
@@ -851,6 +847,29 @@ static void update_soft_500ms(app_t *app )
           range_current_set(app, higher);
         }
       }
+#if 0
+
+      usart_printf("V is %f\n", v);
+      // this is wrong.... it's a value < 1
+
+      if(fabs(v) < 1.f /*&& app->vrange <= app->vset_range */ ) {
+
+        // need to switch to lower current range
+        vrange_t lower = range_voltage_next( app->vrange, 1);
+
+        if(lower != app->vrange) {
+
+          usart_printf("switch lower voltage range\n");
+
+          mux_dac(app->spi);
+          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs(11.f)) );
+
+          range_voltage_set(app, lower);
+        }
+      }
+
+#endif
+
 
 
       break;
