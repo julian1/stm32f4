@@ -477,7 +477,7 @@ int32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
   // read status code
   uint32_t code = spi_xfer_24_16(spi, 0);     // this is just the 24_16 call... except without
 
-  // read values   regardless of error
+  // read/consume values regardless of error
   // /*MIN(n, 1)*/;
   for(unsigned j = 0; j < 2; ++j)
   {

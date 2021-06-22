@@ -806,6 +806,8 @@ static void update_soft_500ms(app_t *app )
       // usart_printf("i is %f\n", i);
 
 
+#if 0
+
       ///////////////////////////////////////////
       // will want to use the fast adc, and run every update
       // we have to set the dac value... as well...
@@ -848,6 +850,9 @@ static void update_soft_500ms(app_t *app )
           range_current_set(app, higher);
         }
       }
+#endif
+
+
 #if 1
 
       // from lower range (eg. 100mV). so we turn output off. and voltage jumps wildly out of range value....
@@ -869,6 +874,8 @@ static void update_soft_500ms(app_t *app )
 
       if(fabs(v) < 1.f && app->vrange >= app->vset_range) {
 
+        usart_printf("here xxx \n");
+
         // need to switch to lower current range
         vrange_t lower = range_voltage_next( app->vrange, 1);
 
@@ -877,20 +884,23 @@ static void update_soft_500ms(app_t *app )
           usart_printf("switch lower voltage range\n");
 
           mux_dac(app->spi);
-          // spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs(11.f)) );
-          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs(10.3f)) );
+          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs(11.f)) );
+          // spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs(10.3f)) );
 
           range_voltage_set(app, lower);
         }
       }
-      else if (fabs(v) > 10.5 && app->vrange > app->vset_range  ) {
+      else if (fabs(v) > 10.5 /*&& app->vrange < app->vset_range */) {  // when 
 
         // switch out to a higher current range
-        vrange_t higher = range_current_next( app->vrange, 0);
+        vrange_t higher = range_voltage_next( app->vrange, 0);
+
+        usart_printf("now  vrange %s\n", range_voltage_string( app->vrange) );
+        usart_printf("next vrange %s\n", range_voltage_string( higher ) );
 
         if(higher != app->vrange) {
 
-          usart_printf("switch higher range\n");
+          usart_printf("switch higher range \n" );
 
           if(higher == app->vset_range) {
             // new range is set range, then use the set voltage
