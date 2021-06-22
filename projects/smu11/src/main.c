@@ -55,6 +55,24 @@
 
     think range calibration,  is going to have to be defined as ab where y = ax + b.
       for dac. and for adc.
+    -------------------
+
+    TODO
+      - print string of current range.
+      - suppress the continuous printing.  - only print the state changes.
+      - if vset_irange == irange then print vset. else print 1.1
+      - get V auto ranging also.  eg. down to 30mV when on. up to 5V when off.
+      - change to 40k count dac.
+      - functions for setting dac values - actually maybe not.  but need to handle vset.
+      - get adc slope and offset. working. should then be able to do a two point cal.
+
+      - think that using the slow adc. for autoranging may actually be better.
+          can also mix fast and slow reading.
+
+      - operation vs compliance.
+    --------------
+
+    A value like 1.02V needs to be able to be regulate on either range (either 1.02 or 0.102). else won't get range switch stability. 
 
 */
 // vim :colorscheme default. loooks good.
@@ -693,7 +711,7 @@ static void update_soft_500ms(app_t *app )
       // spi_adc_do_read(app->spi, ar, 4);
 
       int32_t ret = spi_adc_do_read(app->spi, ar, 4);
-      if(ret < 0) 
+      if(ret < 0)
         break;
 
       /*
@@ -1080,7 +1098,7 @@ static void update(app_t *app)
         core_set( app, 5.f , 3.0f );         // 5V source, 5mA compliance,
         // core_set( app, -5.f , -3.0f );         // 5V source, 5mA compliance,
 
-        // 9.8 no. 
+        // 9.8 no.
 
         // 6.8V + 6.8mA = 13.6V which is +-15V limit.   OK. we're limited by supply headroom. for current sense drop and voltage drop. hmmm.
         //
