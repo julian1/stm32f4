@@ -520,8 +520,10 @@ static const char * range_current_string( irange_t irange)
 static irange_t range_current_next( irange_t irange, bool dir)
 {
   // can simplify - enum addition ... etc.
+  // but this makes it pretty clear
 
-  if(dir) {   // lower range. ie. lower current, higher shunt resistor.
+  if(dir) {
+    // lower current range. ie. higher value shunt resistor.
     switch(irange)
     {
       case irange_10uA:   return irange_10uA;  // no change
@@ -532,7 +534,8 @@ static irange_t range_current_next( irange_t irange, bool dir)
       case irange_1A:     return irange_100mA;
     };
 
-  } else {  // higher range. higher current.  lower shunt resistor
+  } else {
+    // higher current range. ie lower value shunt resistor
     switch(irange)
     {
       case irange_10uA:   return irange_100uA;
