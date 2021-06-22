@@ -760,29 +760,22 @@ static void update_soft_500ms(app_t *app )
       // will want to use the fast adc, and run every update
       // we have to set the dac value... as well...
       if(fabs(i) < 0.1f) {
-        // need to switch to lower range.  more resolution. higher value shunt. smaller current.
+        // need to switch to lower current range
 
-        if(range_current_next( app->irange, 1 ) != app->irange) {
+        irange_t lower = range_current_next( app->irange, 1);
+
+        if(lower != app->irange) {
 
           usart_printf("switch lower range\n");
 
           mux_dac(app->spi);
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(11.f)) );
 
-          range_current_set(app, range_current_next( app->irange, 1 ) );
+          range_current_set(app, lower );
         }
-        // range_current_iterate(app, 1);
       }
       else if (fabs(i) > 10.5  && app->irange < app->iset_range  ) {
-        // need to switch out to a higher range.
-
-        // can have a fucntion that will report the next range. (but not do the switch).
-
-        // TODO - test to avoid switching to higher range than the set range.
-        // higher range - more current, lower resistance shunt / or amplification.
-
-        // we don't want to switch to a higher range than the regulation range... *if we do we have to change*
-        // the dac regulation value down.
+        // switch out to a higher current range
 
         irange_t higher = range_current_next( app->irange, 0);
 
@@ -792,7 +785,7 @@ static void update_soft_500ms(app_t *app )
 
           if(higher == app->iset_range) {
             // new range is set range, then use the set voltage
-            usart_printf("change - set dac value to range value %f\n", app->iset);
+            usart_printf("on regulation range, restore dac value %f\n", app->iset);
 
             mux_dac(app->spi);
             spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(app->iset)) );
