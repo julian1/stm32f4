@@ -206,7 +206,7 @@ typedef struct app_t
 
 
   float     vset;   // ignoring range
-  vrange_t  vset_range;   
+  vrange_t  vset_range;
 
   float     iset;
   irange_t  iset_range;
@@ -482,8 +482,8 @@ static void range_current_set(app_t *app, irange_t irange)
 static void range_current_iterate(app_t *app, bool dir)
 {
   /*
-    lower value  range.    means smaller current. higher shunt value. 
-    higher value range.   larger current. lower shutn. less resolution. 
+    lower value  range.    means smaller current. higher shunt value.
+    higher value range.   larger current. lower shutn. less resolution.
 
 
     change name - iterate means all. where this is now a relative range change
@@ -738,10 +738,11 @@ static void update_soft_500ms(app_t *app )
 
       // will want to use the fast adc, and run every update
       // we have to set the dac value... as well...
-      if(i < 1.f) { 
-        // lower range. smaller current. more resolution 
+      if(i < 1.f) {
+        // lower range.  more resolution. higher value shunt. smaller current.
         range_current_iterate(app, 1);
       } else if (i > 10.5) {
+        // TODO - test to avoid switching to higher range than the set range.
         // higher range - more current, lower resistance shunt / or amplification.
         range_current_iterate(app, 0);
       }
@@ -750,19 +751,17 @@ static void update_soft_500ms(app_t *app )
       // now test the range...
       // should do before changing...relays.
 
-      if(last_irange != app->irange) { 
+      if(last_irange != app->irange) {
         // we changed range.
 
-        if(app->iset_range == app->irange) { 
-
+        if(app->iset_range == app->irange) {
+          // new range is set range, then use the set voltage
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(app->vset)) );
         }  else {
-
+          // we're on a lower range . (could also be higher range... but we should prevent this)...
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(10.f)) );
         }
-
       }
-
 
 
 
@@ -1076,8 +1075,6 @@ static void update(app_t *app)
         range_voltage_set(app, vrange_10V);
         range_current_set(app, irange_10mA);
 
-
-
         // the voltage - is not actually changing with voltage set... ?/
 
         /////////////
@@ -1085,9 +1082,6 @@ static void update(app_t *app)
         spi_dac_write_register(app->spi, DAC_VOUT2_REGISTER, voltage_to_dac( -2.f ) );  // outputs -4V to tp15.  two's complement works. TODO but need to change gain flag?
         spi_dac_write_register(app->spi, DAC_VOUT3_REGISTER, voltage_to_dac( 0.f ) );  // outputs 4V to tp11.
 
-
-        // range_current_set(app, irange_1mA);
-        // range_current_set(app, irange_100uA);
 
 
         // change namem output relay?
