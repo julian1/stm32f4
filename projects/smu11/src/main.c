@@ -592,116 +592,6 @@ static void halt(app_t *app )
 
 
 
-// I think, maybe we only need two ranges.
-// or maybe even one.
-
-
-// source=positive current. sink = negative current.
-// can source positive voltage. but might be
-
-// whether the value is inverse should not be a property here... i don't think.
-// maybe function should always be min... due to negative fb.
-
-
-/*
-  source a voltage - let current be compliance.
-  source a current - let voltage be compliance.
-
-  sink a voltage - let current be compliance.
-  sink a current - let voltage be compliance.
-
-  when sourcing, (voltage and current are positive) Q1  or (voltage and current are both negative) Q3.
-  when sinking,  (voltage pos and current neg)  Q2      or (voltage neg and current pos). Q4
-
-  ------------
-  think the main thing. is function( source or sink) then compliance.
-  9V battery. set to 1V sink.   is that a short. or is that just letting a small amount
-  Do we have to flip the min/max. around at a cross. quite possibly.
-  --------------
-
-  function - is either source or sink. but we may have to flip compliance.
-
-  the compliance function should work in the same direction as the source function sign.
-  source and compliance.
-    eg.
-    source positive voltage.  compliance should be positive current limit.
-    source negative voltage.  (eg. reverse on a diode). compliance needs to be negative current limit. (test leakage)
-    YES.
-    source positive current. compiance is positive voltage limit.
-    source negative current. compiance is negative voltage limit.
-
-
-  sink positive voltage
-
-
-
-*/
-
-static void clamps_set_source_pve(uint32_t spi)
-{
-#if 1
-  // bahaves correctly relay on or off
-  // OK. this can also source or sink... depending on voltage.
-  // this sources a positive voltage. eg. the min or +ve v or +ve current.
-  io_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET_INV));
-  io_write(spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
-                                                // MAX is min. eg. min or 3V,1mA. is 1mA. sourcing.
-#endif
-
-#if 0
-  // this sources a negative voltage. eg. the min or +ve v or +ve current.
-  io_write(spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));
-  io_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
-#endif
-
-// where are our little wires.
-
-#if 0
-  // this behaves correctly relay on or off
-  // this sinks a positive current.  or sources depending on voltage.
-  // not sure. if set to 3V then it will try to sink 3V.
-  // OR. set to 1V should be trying to sink everything. which is what it's doing. if set to 3V. it will start sourcing.
-  // so i think this might be wrong.
-
-  // not sure.
-
-  io_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
-  io_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // the max of current or voltage. where current is negative
-#endif
-
-  /*
-    WE SHOULD BE USING WRITE HERE....
-
-    and everything is active lo.  so must use ~ for all arguments.
-  */
-
-
-
-}
-
-
-
-// ok. ads131. ought to be able to read value - without interrupt.
-//
-
-/*
-  - current feedback appears working.
-  - OK. we want ads to report current as well.
-  - connect the output up to a led.
-  - different valued sense resistor.
-*/
-
-/*
-  there is no reason cannot have nested event driven fsm.  this is simple and works well.
-  and there is no reason cannot have tasks in 500ms soft timer/ separate from main fsm state.
-*/
-
-/*
-  we can test the mask write. just on the dg333. without analog power.
-*/
-
-
-
 static void print_current(irange_t irange, float val)
 {
   /*
@@ -773,76 +663,6 @@ static void update_soft_500ms(app_t *app )
 
 
 
-#if 1
-  if(count % 2 == 0)
-  {
-    // io_toggle(spi, REG_INA_VFB_SW, INA_VFB_SW1_CTL | INA_VFB_SW2_CTL | INA_VFB_SW3_CTL);
-    // io_toggle(spi, REG_INA_DIFF_SW, INA_DIFF_SW1_CTL | INA_DIFF_SW2_CTL);
-    // io_toggle(spi, REG_INA_ISENSE_SW,   ISENSE_SW1_CTL | ISENSE_SW2_CTL | ISENSE_SW3_CTL);
-    // io_toggle(spi, REG_INA_IFB_SW1_CTL, INA_IFB_SW1_CTL | INA_IFB_SW2_CTL | INA_IFB_SW3_CTL);
-
-    // io_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
-
-    // io_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
-
-    // #define REG_RELAY_OUT         31
-    // #define RELAY_OUT_COM_HC    (1<<0)
-
-
-    // io_toggle(spi, REG_RELAY_VSENSE, RELAY_VSENSE_CTL);
-
-
-
-    // io_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
-    /////// CAREFUL io_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);    // dangerous if on high-current range.
-
-    // io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW4_CTL);
-
-    // io_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW4_CTL); // ok.
-    // io_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW3_CTL);  ok.
-    // io_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);    // 1.92V.  and toggles both ina1 and ina2 . bridge on switch or fpga?
-    // io_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);     // fixed bridge.
-
-  }
-#endif
-
-#if 0
-  mux_adc03(spi);
-  float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
-  float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
-  usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
-#endif
-
-
- // tests
-
-  // io_write(app->spi, REG_IRANGE_YZ_SW, count);
-
-  // io_write(spi, REG_ISENSE_MUX,  count);    // works
-  // io_write(spi, REG_INA_IFB_SW_CTL,  count);    // works
-  // io_write(spi, REG_INA_VFB_ATTEN_SW, count);    // works
-
-  // io_write(spi, REG_CLAMP1, count);  // works
-  // io_write(spi, REG_CLAMP2, count);  // works
-  // io_write(spi, REG_RELAY_COM, count);
-  // io_write(spi, REG_IRANGE_X_SW, count);
-  // io_write(spi, REG_IRANGE_SENSE, count);
-
-
-  // io_write(spi, REG_GAIN_IFB, count);
-  // io_write(spi, REG_GAIN_VFB, count);
-
-  // test
-
-  // usart_printf("count %d\n", count);
-  // io_write(spi, REG_IRANGE_X_SW58, count);
-
-  // io_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
-  // io_toggle(spi, REG_RELAY, RELAY_VRANGE);
-  // io_toggle(spi, REG_RELAY, RELAY_OUTCOM);
-  // io_toggle(spi, REG_RELAY, RELAY_SENSE);
-
-
   switch(app->state) {
 
 
@@ -862,8 +682,15 @@ static void update_soft_500ms(app_t *app )
 
       // get values in standard unit. eg. volts or amps.
       // change name range_voltage_si_coeff or similar
-      float v = ar[0] * range_voltage_multiplier(app->vrange) * x;
+      float v = ar[0] * range_voltage_multiplier(app->vrange) * x;      // these are the current ranges....
       float i = ar[1] * range_current_multiplier(app->irange) * x;
+
+
+      if(i < 1.f) { 
+    
+        // range current down
+
+      }
 
 
       if(app->print_adc_values) {
@@ -1466,6 +1293,201 @@ int main(void)
 	for (;;);
 	return 0;
 }
+
+
+
+
+
+#if 0
+  if(count % 2 == 0)
+  {
+    // io_toggle(spi, REG_INA_VFB_SW, INA_VFB_SW1_CTL | INA_VFB_SW2_CTL | INA_VFB_SW3_CTL);
+    // io_toggle(spi, REG_INA_DIFF_SW, INA_DIFF_SW1_CTL | INA_DIFF_SW2_CTL);
+    // io_toggle(spi, REG_INA_ISENSE_SW,   ISENSE_SW1_CTL | ISENSE_SW2_CTL | ISENSE_SW3_CTL);
+    // io_toggle(spi, REG_INA_IFB_SW1_CTL, INA_IFB_SW1_CTL | INA_IFB_SW2_CTL | INA_IFB_SW3_CTL);
+
+    // io_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
+
+    // io_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
+
+    // #define REG_RELAY_OUT         31
+    // #define RELAY_OUT_COM_HC    (1<<0)
+
+
+    // io_toggle(spi, REG_RELAY_VSENSE, RELAY_VSENSE_CTL);
+
+
+
+    // io_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
+    /////// CAREFUL io_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);    // dangerous if on high-current range.
+
+    // io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW4_CTL);
+
+    // io_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW4_CTL); // ok.
+    // io_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW3_CTL);  ok.
+    // io_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);    // 1.92V.  and toggles both ina1 and ina2 . bridge on switch or fpga?
+    // io_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);     // fixed bridge.
+
+  }
+#endif
+
+#if 0
+  mux_adc03(spi);
+  float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
+  float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
+  usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
+#endif
+
+
+ // tests
+
+  // io_write(app->spi, REG_IRANGE_YZ_SW, count);
+
+  // io_write(spi, REG_ISENSE_MUX,  count);    // works
+  // io_write(spi, REG_INA_IFB_SW_CTL,  count);    // works
+  // io_write(spi, REG_INA_VFB_ATTEN_SW, count);    // works
+
+  // io_write(spi, REG_CLAMP1, count);  // works
+  // io_write(spi, REG_CLAMP2, count);  // works
+  // io_write(spi, REG_RELAY_COM, count);
+  // io_write(spi, REG_IRANGE_X_SW, count);
+  // io_write(spi, REG_IRANGE_SENSE, count);
+
+
+  // io_write(spi, REG_GAIN_IFB, count);
+  // io_write(spi, REG_GAIN_VFB, count);
+
+  // test
+
+  // usart_printf("count %d\n", count);
+  // io_write(spi, REG_IRANGE_X_SW58, count);
+
+  // io_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
+  // io_toggle(spi, REG_RELAY, RELAY_VRANGE);
+  // io_toggle(spi, REG_RELAY, RELAY_OUTCOM);
+  // io_toggle(spi, REG_RELAY, RELAY_SENSE);
+
+
+
+// I think, maybe we only need two ranges.
+// or maybe even one.
+
+
+// source=positive current. sink = negative current.
+// can source positive voltage. but might be
+
+// whether the value is inverse should not be a property here... i don't think.
+// maybe function should always be min... due to negative fb.
+
+
+/*
+  source a voltage - let current be compliance.
+  source a current - let voltage be compliance.
+
+  sink a voltage - let current be compliance.
+  sink a current - let voltage be compliance.
+
+  when sourcing, (voltage and current are positive) Q1  or (voltage and current are both negative) Q3.
+  when sinking,  (voltage pos and current neg)  Q2      or (voltage neg and current pos). Q4
+
+  ------------
+  think the main thing. is function( source or sink) then compliance.
+  9V battery. set to 1V sink.   is that a short. or is that just letting a small amount
+  Do we have to flip the min/max. around at a cross. quite possibly.
+  --------------
+
+  function - is either source or sink. but we may have to flip compliance.
+
+  the compliance function should work in the same direction as the source function sign.
+  source and compliance.
+    eg.
+    source positive voltage.  compliance should be positive current limit.
+    source negative voltage.  (eg. reverse on a diode). compliance needs to be negative current limit. (test leakage)
+    YES.
+    source positive current. compiance is positive voltage limit.
+    source negative current. compiance is negative voltage limit.
+
+
+  sink positive voltage
+
+
+
+*/
+
+#if 0
+static void clamps_set_source_pve(uint32_t spi)
+{
+#if 1
+  // bahaves correctly relay on or off
+  // OK. this can also source or sink... depending on voltage.
+  // this sources a positive voltage. eg. the min or +ve v or +ve current.
+  io_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET_INV));
+  io_write(spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
+                                                // MAX is min. eg. min or 3V,1mA. is 1mA. sourcing.
+#endif
+
+#if 0
+  // this sources a negative voltage. eg. the min or +ve v or +ve current.
+  io_write(spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));
+  io_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
+#endif
+
+// where are our little wires.
+
+#if 0
+  // this behaves correctly relay on or off
+  // this sinks a positive current.  or sources depending on voltage.
+  // not sure. if set to 3V then it will try to sink 3V.
+  // OR. set to 1V should be trying to sink everything. which is what it's doing. if set to 3V. it will start sourcing.
+  // so i think this might be wrong.
+
+  // not sure.
+
+  io_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
+  io_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // the max of current or voltage. where current is negative
+#endif
+
+  /*
+    WE SHOULD BE USING WRITE HERE....
+
+    and everything is active lo.  so must use ~ for all arguments.
+  */
+
+
+
+}
+#endif
+
+
+// ok. ads131. ought to be able to read value - without interrupt.
+//
+
+/*
+  - current feedback appears working.
+  - OK. we want ads to report current as well.
+  - connect the output up to a led.
+  - different valued sense resistor.
+*/
+
+/*
+  there is no reason cannot have nested event driven fsm.  this is simple and works well.
+  and there is no reason cannot have tasks in 500ms soft timer/ separate from main fsm state.
+*/
+
+/*
+  we can test the mask write. just on the dg333. without analog power.
+*/
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*
