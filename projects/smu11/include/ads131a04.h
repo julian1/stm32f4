@@ -15,6 +15,15 @@ struct FBuf;
 */
 
 
+/*
+    TODO. fix the naming.
+    eg.
+
+    adc_spi_setup
+    adc_spi_init
+    or spi_adc_ etc.
+
+*/
 extern void spi_adc_setup(uint32_t spi);
 
 int adc_init( uint32_t spi, uint8_t reg);

@@ -489,12 +489,14 @@ int32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
       /*
         OK. it's regulating on set voltage of 11V and that appears to be outside the adc range.
         and so its not ranging higher/ more current.
-
         --------
         with 10k/3k 9.7V is ok. 9.8V gives oob .
 
         3 / (3 + 10 ) * 9.8  = 2.261538461538462
         should be ok?
+
+        So we want 2.5k to range to 11
+        2.5 / (2.5 + 10 ) * 11 =  2.2
       */
 
       // bad code return error.
@@ -509,7 +511,9 @@ int32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
     int32_t x = spi_xfer_24(spi, 0);
     x = sign_extend_24_32(x );
     // ar[j] = ((double )x) / 3451403.f;
-    ar[j] = ((double )x) / 345140.3f;   // weird.
+    // ar[j] = ((double )x) / 345140.3f;   // weird.   for 10k/3k.
+
+    ar[j] =  ((double)x) / 299410;    // 10k/2.5k
   }
   spi_disable( spi );
 

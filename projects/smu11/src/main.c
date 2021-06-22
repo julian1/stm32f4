@@ -689,6 +689,7 @@ static void update_soft_500ms(app_t *app )
       // ... ok.
       // how to return. pass by reference...
       float ar[4];
+      // change name adc_spi_do_read
       // spi_adc_do_read(app->spi, ar, 4);
 
       int32_t ret = spi_adc_do_read(app->spi, ar, 4);
@@ -766,7 +767,7 @@ static void update_soft_500ms(app_t *app )
         }  else {
           // we're on a lower range . (could also be higher range... but we should prevent this)...
 
-          usart_printf("change - set dac value to 11.f \n");
+          usart_printf("change - set dac/ and regulation set point to 11.f \n");
           mux_dac(app->spi);
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(11.f)) );
         }
@@ -1076,7 +1077,8 @@ static void update(app_t *app)
 
         // core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
         // core_set( app, 5.f , 3.f );         // 5V source, 5mA compliance,
-        core_set( app, 5.f , 9.7f );         // 5V source, 5mA compliance,
+        core_set( app, 5.f , 3.0f );         // 5V source, 5mA compliance,
+        // core_set( app, -5.f , -3.0f );         // 5V source, 5mA compliance,
 
         // 9.8 no. 
 
