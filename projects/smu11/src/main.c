@@ -520,8 +520,8 @@ static irange_t range_current_next( irange_t irange, bool dir)
       case irange_10uA:   return irange_100uA;
       case irange_100uA:  return irange_1mA;
       case irange_1mA:    return irange_10mA;
-      case irange_10mA:   return irange_100mA; 
-      case irange_100mA:  return irange_1A; 
+      case irange_10mA:   return irange_100mA;
+      case irange_100mA:  return irange_1A;
       case irange_1A:     return irange_1A;   // no change
     };
   }
@@ -762,9 +762,9 @@ static void update_soft_500ms(app_t *app )
       if(fabs(i) < 0.1f) {
         // need to switch to lower range.  more resolution. higher value shunt. smaller current.
 
-        if(range_current_next( app->irange, 1 ) != app->irange) { 
+        if(range_current_next( app->irange, 1 ) != app->irange) {
 
-          usart_printf("switch lower\n");
+          usart_printf("switch lower range\n");
 
           mux_dac(app->spi);
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(11.f)) );
@@ -786,47 +786,24 @@ static void update_soft_500ms(app_t *app )
 
         irange_t higher = range_current_next( app->irange, 0);
 
-        if(higher != app->irange) { 
+        if(higher != app->irange) {
 
-          usart_printf("switch higher\n");
+          usart_printf("switch higher range\n");
 
-        if(higher == app->iset_range) {
-          // new range is set range, then use the set voltage
-          usart_printf("change - set dac value to range value %f\n", app->iset);
+          if(higher == app->iset_range) {
+            // new range is set range, then use the set voltage
+            usart_printf("change - set dac value to range value %f\n", app->iset);
 
-          mux_dac(app->spi);
-          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(app->iset)) );
-        }
+            mux_dac(app->spi);
+            spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(app->iset)) );
+          } else {
+            // leave at 11.f
 
-          // range_current_iterate(app, 0);
+          }
 
           range_current_set(app, higher);
         }
       }
-
-    // it
-
-      // now test the range...
-      // should do before changing...relays.
-#if 0 
-      if(last_irange != app->irange) {
-        // we changed range.
-
-        if(app->iset_range == app->irange) {
-          // new range is set range, then use the set voltage
-          usart_printf("change - set dac value to range value %f\n", app->iset);
-
-          mux_dac(app->spi);
-          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(app->iset)) );
-        }  else {
-          // we're on a lower range . (could also be higher range... but we should prevent this)...
-
-          usart_printf("change - set dac/ and regulation set point to 11.f \n");
-          mux_dac(app->spi);
-          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(11.f)) );
-        }
-      }
-#endif
 
 
       break;
