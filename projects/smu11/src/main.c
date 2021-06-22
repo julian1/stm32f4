@@ -753,15 +753,15 @@ static void update_soft_500ms(app_t *app )
         usart_printf("\n");
       }
 
-      usart_printf("i is %f\n", i);
+      // usart_printf("i is %f\n", i);
 
-      // irange_t   last_irange = app->irange;
 
       // will want to use the fast adc, and run every update
       // we have to set the dac value... as well...
-      if(fabs(i) < 0.1f) {
-        // need to switch to lower current range
 
+      if(fabs(i) < 0.1f && app->irange <= app->iset_range ) {
+
+        // need to switch to lower current range
         irange_t lower = range_current_next( app->irange, 1);
 
         if(lower != app->irange) {
@@ -774,9 +774,9 @@ static void update_soft_500ms(app_t *app )
           range_current_set(app, lower );
         }
       }
-      else if (fabs(i) > 10.5  && app->irange < app->iset_range  ) {
-        // switch out to a higher current range
+      else if (fabs(i) > 10.5 && app->irange < app->iset_range  ) {
 
+        // switch out to a higher current range
         irange_t higher = range_current_next( app->irange, 0);
 
         if(higher != app->irange) {
@@ -790,7 +790,7 @@ static void update_soft_500ms(app_t *app )
             mux_dac(app->spi);
             spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(app->iset)) );
           } else {
-            // leave at 11.f
+            // we're on a lower range, than the regulation, range so leave dac regulation value at 11.f
 
           }
 
