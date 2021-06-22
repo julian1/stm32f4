@@ -770,7 +770,6 @@ static void update_soft_500ms(app_t *app )
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(11.f)) );
 
           range_current_set(app, range_current_next( app->irange, 1 ) );
-
         }
         // range_current_iterate(app, 1);
       }
@@ -785,10 +784,24 @@ static void update_soft_500ms(app_t *app )
         // we don't want to switch to a higher range than the regulation range... *if we do we have to change*
         // the dac regulation value down.
 
+        irange_t higher = range_current_next( app->irange, 0);
 
+        if(higher != app->irange) { 
 
-        usart_printf("switch higher\n");
-        range_current_iterate(app, 0);
+          usart_printf("switch higher\n");
+
+        if(higher == app->iset_range) {
+          // new range is set range, then use the set voltage
+          usart_printf("change - set dac value to range value %f\n", app->iset);
+
+          mux_dac(app->spi);
+          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(app->iset)) );
+        }
+
+          // range_current_iterate(app, 0);
+
+          range_current_set(app, higher);
+        }
       }
 
     // it
