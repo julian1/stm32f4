@@ -477,11 +477,19 @@ static void range_current_set(app_t *app, irange_t irange)
 static void range_current_iterate(app_t *app, bool dir)
 {
   /*
+    lower value  range.    means smaller current. higher shunt value. 
+    higher value range.   larger current. lower shutn. less resolution. 
+
+
+    change name - iterate means all. where this is now a relative range change
+    range_current_change() jump() ...
+    thnk have the meaning invertkk
+
     change anme iterate.
     useful test function.
     IMPORTANT. this does *NOT* take into account output relay switching.
 
-    dir positive. go up in range to higher resistance range. for smaller currents.
+    dir positive. go down in range, for smaller current. smaller currents.
   */
   if(dir) {
     switch(app->irange)
