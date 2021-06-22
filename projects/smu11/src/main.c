@@ -276,21 +276,24 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
 
 static void range_voltage_iterate(app_t *app, bool dir)
 {
+  // dir positive/  go up.   meaning measure smaller voltages.
+
   if(dir) {
-    switch(app->vrange)
-    {
-      case vrange_100mV:  range_voltage_set(app, vrange_1V); break;
-      case vrange_1V:     range_voltage_set(app, vrange_10V); break;
-      case vrange_10V:    range_voltage_set(app, vrange_100V); break;
-      case vrange_100V:   break;
-    };
-  } else {
     switch(app->vrange)
     {
       case vrange_100mV:  break;
       case vrange_1V:     range_voltage_set(app, vrange_100mV); break;
       case vrange_10V:    range_voltage_set(app, vrange_1V); break;
       case vrange_100V:   range_voltage_set(app, vrange_10V); break;
+    };
+
+  } else {
+    switch(app->vrange)
+    {
+      case vrange_100mV:  range_voltage_set(app, vrange_1V); break;
+      case vrange_1V:     range_voltage_set(app, vrange_10V); break;
+      case vrange_10V:    range_voltage_set(app, vrange_100V); break;
+      case vrange_100V:   break;
     };
   }
 }
@@ -477,18 +480,10 @@ static void range_current_iterate(app_t *app, bool dir)
     change anme iterate.
     useful test function.
     IMPORTANT. this does *NOT* take into account output relay switching.
+
+    dir positive. go up in range to higher resistance range. for smaller currents.
   */
   if(dir) {
-    switch(app->irange)
-    {
-      case irange_10uA:   range_current_set(app, irange_100uA); break;
-      case irange_100uA:  range_current_set(app, irange_1mA); break;
-      case irange_1mA:    range_current_set(app, irange_10mA); break;
-      case irange_10mA:   range_current_set(app, irange_100mA); break;
-      case irange_100mA:   range_current_set(app, irange_1A); break;
-      case irange_1A: break;
-    };
-  } else {
     switch(app->irange)
     {
       case irange_10uA:   break;
@@ -497,6 +492,17 @@ static void range_current_iterate(app_t *app, bool dir)
       case irange_10mA:   range_current_set(app, irange_1mA); break;
       case irange_100mA:  range_current_set(app, irange_10mA); break;
       case irange_1A:     range_current_set(app, irange_100mA); break;
+    };
+
+  } else {
+    switch(app->irange)
+    {
+      case irange_10uA:   range_current_set(app, irange_100uA); break;
+      case irange_100uA:  range_current_set(app, irange_1mA); break;
+      case irange_1mA:    range_current_set(app, irange_10mA); break;
+      case irange_10mA:   range_current_set(app, irange_100mA); break;
+      case irange_100mA:   range_current_set(app, irange_1A); break;
+      case irange_1A: break;
     };
   }
 }
@@ -667,6 +673,7 @@ static void update_soft_500ms(app_t *app )
 
 
     case ANALOG_UP: {
+      // normal operation
 
       // ... ok.
       // how to return. pass by reference...
@@ -680,17 +687,11 @@ static void update_soft_500ms(app_t *app )
       */
       float x = 0.435;
 
-      // get values in standard unit. eg. volts or amps.
+      // convert to standard unit. eg. volts or amps.
       // change name range_voltage_si_coeff or similar
       float v = ar[0] * range_voltage_multiplier(app->vrange) * x;      // these are the current ranges....
       float i = ar[1] * range_current_multiplier(app->irange) * x;
 
-
-      if(i < 1.f) { 
-    
-        // range current down
-
-      }
 
 
       if(app->print_adc_values) {
@@ -717,15 +718,23 @@ static void update_soft_500ms(app_t *app )
 
 
         usart_printf("\n");
-
-
-  #if 0
-        usart_printf("adc %dV    %dA\n",
-          ar[0] ,
-          ar[1]
-        );
-  #endif
       }
+
+      // will want to use the fast adc, and run every update
+      if(i < 1.f) { 
+        // range current to higher resistance shunt/ or amplification. 
+
+        range_current_iterate(app, 1);
+
+      } else if (i > 10.5) {
+        // range current to lower resistance shunt/ or amplification.
+
+      }
+
+
+
+
+
 
       break;
     }
