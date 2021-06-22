@@ -158,17 +158,20 @@ static void adc_print_status_registers(uint32_t spi)
 {
   // uint32_t spi = ADC_SPI;
 
-  usart_printf("error_cnt %d\n", adc_read_register(spi, ERROR_CNT));
 
-  usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1));
+  usart_printf(" stat_1 %8b\n", adc_read_register(spi, STAT_1));
 
-  usart_printf("stat_p %8b\n", adc_read_register(spi, STAT_P));
-  usart_printf("stat_n %8b\n", adc_read_register(spi, STAT_N));
+  usart_printf(" stat_p %8b\n", adc_read_register(spi, STAT_P));
+  usart_printf(" stat_n %8b\n", adc_read_register(spi, STAT_N));
 
-  usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1)); // re-read
 
-  usart_printf("stat_s %8b\n", adc_read_register(spi, STAT_S));   // this should clear the value?????
-  usart_printf("stat_s %8b\n", adc_read_register(spi, STAT_S));   // this should clear the value?????
+  usart_printf(" stat_s %8b\n", adc_read_register(spi, STAT_S));   // this should clear the value?????
+
+  usart_printf(" error_cnt %d\n", adc_read_register(spi, ERROR_CNT));
+
+
+  // usart_printf(" stat_1 %8b\n", adc_read_register(spi, STAT_1)); // re-read
+  //usart_printf(" stat_s %8b\n", adc_read_register(spi, STAT_S));   // this should clear the value?????
   // usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1)); // re-read
 
 
@@ -420,7 +423,7 @@ int adc_init( uint32_t spi, uint8_t reg)
 
 
   // ok. think it's indicating that one of the F_ADCIN N or P bits is at fault.bits   (eg. high Z. comparator).
-  // adc_print_status_registers();
+  adc_print_status_registers(spi);
 
 
 
@@ -453,7 +456,7 @@ static void swapf(float *x, float *y)
 }
 
 
-uint32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
+int32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
 {
   UNUSED(n);
   // assert( n >= 2)
@@ -461,12 +464,42 @@ uint32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
   mux_adc(spi);
   spi_enable(spi);
 
-  // read code
-  uint32_t code = spi_xfer_24_16(spi, 0);     // this is just the 24_16 call... except without
-  if(code != 0x2220) {
-    usart_printf("adc, bad code %4x\n",  code);
-    // return -9999; // log and ignore ????
-                  // need better error handling here
+
+  // this locks things up??????
+  // ram???
+  // adc_print_status_registers(spi);
+  // usart_flush();
+  // OK. REGULATION should mean it doesn't go out of bound.
+  // so we should just return bad
+
+
+  // OR. what about looping. until it stabilizes?????
+
+    // NO. we cannot just loop. here. rather than wait for the interupt.
+    // read code
+    uint32_t code = spi_xfer_24_16(spi, 0);     // this is just the 24_16 call... except without
+    if(code != 0x2220) {
+      usart_printf("adc, bad code %4x\n",  code);
+      usart_flush();
+
+      // read registers to clear for next time
+      adc_print_status_registers(spi);
+      usart_flush();
+
+      /*
+        OK. it's regulating on set voltage of 11V and that appears to be outside the adc range.
+        and so its not ranging higher/ more current.
+
+        --------
+        with 10k/3k 9.7V is ok. 9.8V gives oob .
+
+        3 / (3 + 10 ) * 9.8  = 2.261538461538462
+        should be ok?
+      */
+
+      // bad code return error.
+      // so ignore until next time.
+      return -123;
   }
 
   // read values

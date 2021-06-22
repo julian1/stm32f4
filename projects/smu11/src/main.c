@@ -353,8 +353,6 @@ static void range_current_set(app_t *app, irange_t irange)
   app->irange = irange;
 
 
-
-
   switch(app->irange)
   {
 
@@ -691,7 +689,11 @@ static void update_soft_500ms(app_t *app )
       // ... ok.
       // how to return. pass by reference...
       float ar[4];
-      spi_adc_do_read(app->spi, ar, 4);
+      // spi_adc_do_read(app->spi, ar, 4);
+
+      int32_t ret = spi_adc_do_read(app->spi, ar, 4);
+      if(ret < 0) 
+        break;
 
       /*
         ranging and format precision are separate and vary independently.
@@ -702,7 +704,7 @@ static void update_soft_500ms(app_t *app )
       // convert to standard unit. eg. volts or amps.
       // change name range_voltage_si_coeff or similar
       float v = ar[0] * x;      // these are the current ranges....
-      float i = ar[1]  * x;
+      float i = ar[1] * x;
 
 
       if(app->print_adc_values) {
@@ -733,12 +735,12 @@ static void update_soft_500ms(app_t *app )
 
       // will want to use the fast adc, and run every update
       // we have to set the dac value... as well...
-      if(i < 0.1f) {
+      if(fabs(i) < 0.1f) {
         // lower range.  more resolution. higher value shunt. smaller current.
 
         usart_printf("switch lower\n");
         range_current_iterate(app, 1);
-      } else if (i > 10.5) {
+      } else if (fabs(i) > 10.5) {
         // TODO - test to avoid switching to higher range than the set range.
         // higher range - more current, lower resistance shunt / or amplification.
 
@@ -757,11 +759,10 @@ static void update_soft_500ms(app_t *app )
 
         if(app->iset_range == app->irange) {
           // new range is set range, then use the set voltage
-
-          usart_printf("change - set dac value to range value\n");
+          usart_printf("change - set dac value to range value %f\n", app->iset);
 
           mux_dac(app->spi);
-          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(app->vset)) );
+          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(app->iset)) );
         }  else {
           // we're on a lower range . (could also be higher range... but we should prevent this)...
 
@@ -1075,10 +1076,20 @@ static void update(app_t *app)
 
         // core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
         // core_set( app, 5.f , 3.f );         // 5V source, 5mA compliance,
-        core_set( app, 5.f , 3.f );         // 5V source, 5mA compliance,
+        core_set( app, 5.f , 9.7f );         // 5V source, 5mA compliance,
+
+        // 9.8 no. 
+
+        // 6.8V + 6.8mA = 13.6V which is +-15V limit.   OK. we're limited by supply headroom. for current sense drop and voltage drop. hmmm.
+        //
 
         app->vrange = vrange_10V;
         app->irange = irange_10mA;
+
+        app->vset_range = vrange_10V;
+        app->iset_range = irange_10mA;
+
+
 
         range_voltage_set(app, vrange_10V);
         range_current_set(app, irange_10mA);

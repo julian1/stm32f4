@@ -26,5 +26,5 @@ int adc_init( uint32_t spi, uint8_t reg);
 // change spi_adc_do_read()?
 // float spi_adc_do_read( uint32_t spi/*, uint8_t reg */);
 
-uint32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n); // pass array 4 bytes...
+int32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n); // pass array 4 bytes...
 
