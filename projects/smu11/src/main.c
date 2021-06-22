@@ -335,66 +335,8 @@ static vrange_t range_voltage_next( vrange_t vrange, bool dir)
 
 static void range_voltage_iterate(app_t *app, bool dir)
 {
-
   range_voltage_set(app, range_voltage_next( app->vrange, dir) );
-
-#if 0
-  // dir positive/  smaller .   meaning measure smaller voltages.
-  // lower for current means smaller currents.  lower for voltage should be the same
-
-  if(dir) {
-    switch(app->vrange)
-    {
-      case vrange_100mV:  return vrange_100mV;  // no change
-      case vrange_1V:     range_voltage_set(app, vrange_100mV); break;
-      case vrange_10V:    range_voltage_set(app, vrange_1V); break;
-      case vrange_100V:   range_voltage_set(app, vrange_10V); break;
-    };
-
-  } else {
-    switch(app->vrange)
-    {
-      case vrange_100mV:  range_voltage_set(app, vrange_1V); break;
-      case vrange_1V:     range_voltage_set(app, vrange_10V); break;
-      case vrange_10V:    range_voltage_set(app, vrange_100V); break;
-      case vrange_100V:   return vrange_100V;   // no change
-    };
-  }
-#endif
 }
-
-
-#if 0
-  if(dir) {
-    // lower current range. ie. higher value shunt resistor.
-    switch(irange)
-    {
-      case irange_10uA:   return irange_10uA;  // no change
-      case irange_100uA:  return irange_10uA;
-      case irange_1mA:    return irange_100uA;
-      case irange_10mA:   return irange_1mA;
-      case irange_100mA:  return irange_10mA;
-      case irange_1A:     return irange_100mA;
-    };
-
-  } else {
-    // higher current range. ie lower value shunt resistor
-    switch(irange)
-    {
-      case irange_10uA:   return irange_100uA;
-      case irange_100uA:  return irange_1mA;
-      case irange_1mA:    return irange_10mA;
-      case irange_10mA:   return irange_100mA;
-      case irange_100mA:  return irange_1A;
-      case irange_1A:     return irange_1A;   // no change
-    };
-  }
-
-  // suppress compiler warning...
-  return (irange_t)-9999;
-#endif
-
-
 
 
 
