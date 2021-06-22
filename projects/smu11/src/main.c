@@ -297,14 +297,55 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
 }
 
 
+
+
+
+
+
+static vrange_t range_voltage_next( vrange_t vrange, bool dir)
+{
+  // dir==1 ve == lower voltage == lower range
+
+  // can simplify - enum addition ... etc.
+  // but this makes it pretty clear
+
+  if(dir) {
+    switch(vrange)
+    {
+      case vrange_100mV:  return vrange_100mV;  // no change
+      case vrange_1V:     return vrange_100mV;
+      case vrange_10V:    return vrange_1V;
+      case vrange_100V:   return vrange_10V;
+    };
+  } else {
+    switch(vrange)
+    {
+      case vrange_100mV:  return vrange_1V;
+      case vrange_1V:     return vrange_10V;
+      case vrange_10V:    return vrange_100V;
+      case vrange_100V:   return vrange_100V; // no change
+    };
+  }
+
+  // suppress compiler warning...
+  return (vrange_t)-9999;
+}
+
+
+
 static void range_voltage_iterate(app_t *app, bool dir)
 {
-  // dir positive/  go up.   meaning measure smaller voltages.
+
+  range_voltage_set(app, range_voltage_next( app->vrange, dir) );
+
+#if 0
+  // dir positive/  smaller .   meaning measure smaller voltages.
+  // lower for current means smaller currents.  lower for voltage should be the same
 
   if(dir) {
     switch(app->vrange)
     {
-      case vrange_100mV:  break;
+      case vrange_100mV:  return vrange_100mV;  // no change
       case vrange_1V:     range_voltage_set(app, vrange_100mV); break;
       case vrange_10V:    range_voltage_set(app, vrange_1V); break;
       case vrange_100V:   range_voltage_set(app, vrange_10V); break;
@@ -316,10 +357,45 @@ static void range_voltage_iterate(app_t *app, bool dir)
       case vrange_100mV:  range_voltage_set(app, vrange_1V); break;
       case vrange_1V:     range_voltage_set(app, vrange_10V); break;
       case vrange_10V:    range_voltage_set(app, vrange_100V); break;
-      case vrange_100V:   break;
+      case vrange_100V:   return vrange_100V;   // no change
     };
   }
+#endif
 }
+
+
+#if 0
+  if(dir) {
+    // lower current range. ie. higher value shunt resistor.
+    switch(irange)
+    {
+      case irange_10uA:   return irange_10uA;  // no change
+      case irange_100uA:  return irange_10uA;
+      case irange_1mA:    return irange_100uA;
+      case irange_10mA:   return irange_1mA;
+      case irange_100mA:  return irange_10mA;
+      case irange_1A:     return irange_100mA;
+    };
+
+  } else {
+    // higher current range. ie lower value shunt resistor
+    switch(irange)
+    {
+      case irange_10uA:   return irange_100uA;
+      case irange_100uA:  return irange_1mA;
+      case irange_1mA:    return irange_10mA;
+      case irange_10mA:   return irange_100mA;
+      case irange_100mA:  return irange_1A;
+      case irange_1A:     return irange_1A;   // no change
+    };
+  }
+
+  // suppress compiler warning...
+  return (irange_t)-9999;
+#endif
+
+
+
 
 
 
@@ -519,6 +595,7 @@ static const char * range_current_string( irange_t irange)
 
 static irange_t range_current_next( irange_t irange, bool dir)
 {
+  /// dir==1 ve == lower current
   // can simplify - enum addition ... etc.
   // but this makes it pretty clear
 
