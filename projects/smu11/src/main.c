@@ -206,7 +206,12 @@ typedef struct app_t
 
 
   float     vset;   // ignoring range
+  vrange_t  vset_range;   
+
   float     iset;
+  irange_t  iset_range;
+
+
 
 } app_t;
 
@@ -491,7 +496,7 @@ static void range_current_iterate(app_t *app, bool dir)
 
     dir positive. go down in range, for smaller current. smaller currents.
   */
-  if(dir) {
+  if(dir) {   // go lower.
     switch(app->irange)
     {
       case irange_10uA:   break;
@@ -502,7 +507,7 @@ static void range_current_iterate(app_t *app, bool dir)
       case irange_1A:     range_current_set(app, irange_100mA); break;
     };
 
-  } else {
+  } else {  // go higher
     switch(app->irange)
     {
       case irange_10uA:   range_current_set(app, irange_100uA); break;
@@ -728,18 +733,35 @@ static void update_soft_500ms(app_t *app )
         usart_printf("\n");
       }
 
+
+      irange_t   last_irange = app->irange;
+
       // will want to use the fast adc, and run every update
+      // we have to set the dac value... as well...
       if(i < 1.f) { 
-        // range current to higher resistance shunt/ or amplification. 
-
+        // lower range. smaller current. more resolution 
         range_current_iterate(app, 1);
-
       } else if (i > 10.5) {
-        // range current to lower resistance shunt/ or amplification.
-
+        // higher range - more current, lower resistance shunt / or amplification.
+        range_current_iterate(app, 0);
       }
 
 
+      // now test the range...
+      // should do before changing...relays.
+
+      if(last_irange != app->irange) { 
+        // we changed range.
+
+        if(app->iset_range == app->irange) { 
+
+          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(app->vset)) );
+        }  else {
+
+          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(10.f)) );
+        }
+
+      }
 
 
 
@@ -1048,6 +1070,14 @@ static void update(app_t *app)
         // core_set( app, 5.f , 3.f );         // 5V source, 5mA compliance,
         core_set( app, 5.f , 3.f );         // 5V source, 5mA compliance,
 
+        app->vrange = vrange_10V;
+        app->irange = irange_10mA;
+
+        range_voltage_set(app, vrange_10V);
+        range_current_set(app, irange_10mA);
+
+
+
         // the voltage - is not actually changing with voltage set... ?/
 
         /////////////
@@ -1056,13 +1086,6 @@ static void update(app_t *app)
         spi_dac_write_register(app->spi, DAC_VOUT3_REGISTER, voltage_to_dac( 0.f ) );  // outputs 4V to tp11.
 
 
-        // mux_io(app->spi);
-        // clamps_set_source_pve(app->spi);
-
-
-        range_voltage_set(app, vrange_10V);
-
-        range_current_set(app, irange_10mA);
         // range_current_set(app, irange_1mA);
         // range_current_set(app, irange_100uA);
 
