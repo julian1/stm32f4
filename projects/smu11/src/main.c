@@ -693,7 +693,6 @@ static void update_soft_500ms(app_t *app )
       float ar[4];
       spi_adc_do_read(app->spi, ar, 4);
 
-
       /*
         ranging and format precision are separate and vary independently.
         so need to use common unit approach.
@@ -702,24 +701,21 @@ static void update_soft_500ms(app_t *app )
 
       // convert to standard unit. eg. volts or amps.
       // change name range_voltage_si_coeff or similar
-      float v = ar[0] * range_voltage_multiplier(app->vrange) * x;      // these are the current ranges....
-      float i = ar[1] * range_current_multiplier(app->irange) * x;
-
+      float v = ar[0] * x;      // these are the current ranges....
+      float i = ar[1]  * x;
 
 
       if(app->print_adc_values) {
 
         // when we set the range. we should set the default format.
         // the format prec wants to be able to user modified.
-
-
         /////////////////
         usart_printf("vset ");
         print_voltage(app->vrange, app->vset * range_voltage_multiplier(app->vrange));
 
 
         usart_printf(", vfb ");
-        print_voltage(app->vrange, v);
+        print_voltage(app->vrange, v * range_voltage_multiplier(app->vrange)  );
 
         /////////////////
         usart_printf("   ");
@@ -727,26 +723,31 @@ static void update_soft_500ms(app_t *app )
         print_current(app->irange, app->iset * range_current_multiplier(app->irange) );
 
         usart_printf(", ifb ");
-        print_current(app->irange, i);
-
-
+        print_current(app->irange, i * range_current_multiplier(app->irange));
         usart_printf("\n");
       }
 
+      usart_printf("i is %f\n", i);
 
       irange_t   last_irange = app->irange;
 
       // will want to use the fast adc, and run every update
       // we have to set the dac value... as well...
-      if(i < 1.f) {
+      if(i < 0.1f) {
         // lower range.  more resolution. higher value shunt. smaller current.
+
+        usart_printf("switch lower\n");
         range_current_iterate(app, 1);
       } else if (i > 10.5) {
         // TODO - test to avoid switching to higher range than the set range.
         // higher range - more current, lower resistance shunt / or amplification.
+
+        usart_printf("switch higher\n");
         range_current_iterate(app, 0);
+
       }
 
+    // it
 
       // now test the range...
       // should do before changing...relays.
@@ -756,10 +757,17 @@ static void update_soft_500ms(app_t *app )
 
         if(app->iset_range == app->irange) {
           // new range is set range, then use the set voltage
+
+          usart_printf("change - set dac value to range value\n");
+
+          mux_dac(app->spi);
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(app->vset)) );
         }  else {
           // we're on a lower range . (could also be higher range... but we should prevent this)...
-          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(10.f)) );
+
+          usart_printf("change - set dac value to 11.f \n");
+          mux_dac(app->spi);
+          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(11.f)) );
         }
       }
 
