@@ -473,38 +473,11 @@ int32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
   // so we should just return bad
 
 
-  // OR. what about looping. until it stabilizes?????
 
-    // NO. we cannot just loop. here. rather than wait for the interupt.
-    // read code
-    uint32_t code = spi_xfer_24_16(spi, 0);     // this is just the 24_16 call... except without
-    if(code != 0x2220) {
-      usart_printf("adc, bad code %4x\n",  code);
-      usart_flush();
+  // read status code
+  uint32_t code = spi_xfer_24_16(spi, 0);     // this is just the 24_16 call... except without
 
-      // read registers to clear for next time
-      adc_print_status_registers(spi);
-      usart_flush();
-
-      /*
-        OK. it's regulating on set voltage of 11V and that appears to be outside the adc range.
-        and so its not ranging higher/ more current.
-        --------
-        with 10k/3k 9.7V is ok. 9.8V gives oob .
-
-        3 / (3 + 10 ) * 9.8  = 2.261538461538462
-        should be ok?
-
-        So we want 2.5k to range to 11
-        2.5 / (2.5 + 10 ) * 11 =  2.2
-      */
-
-      // bad code return error.
-      // so ignore until next time.
-      return -123;
-  }
-
-  // read values
+  // read values   regardless of error
   // /*MIN(n, 1)*/;
   for(unsigned j = 0; j < 2; ++j)
   {
@@ -515,10 +488,41 @@ int32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
 
     ar[j] =  ((double)x) / 299410;    // 10k/2.5k
   }
+
+
+
+
+  if(code != 0x2220) {
+    usart_printf("adc, bad code %4x\n",  code);
+    usart_flush();
+
+    // read registers to clear for next time
+    adc_print_status_registers(spi);
+    usart_flush();
+
+    /*
+      OK. it's regulating on set voltage of 11V and that appears to be outside the adc range.
+      and so its not ranging higher/ more current.
+      --------
+      with 10k/3k 9.7V is ok. 9.8V gives oob .
+
+      3 / (3 + 10 ) * 9.8  = 2.261538461538462
+      should be ok?
+
+      So we want 2.5k to range to 11
+      2.5 / (2.5 + 10 ) * 11 =  2.2
+    */
+
+    // bad code return error.
+    // so ignore until next time.
+
+    // avoid reading values, which will lock up
+    return 0;
+  }
+
+
   spi_disable( spi );
 
-  // SWAP ar[0] and ar[1] to return vfb, followed by ifb. due to bad schematic ordering
-  // swapf(&ar[0], &ar[1]);
 
   return 0;
 }

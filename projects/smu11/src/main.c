@@ -856,9 +856,14 @@ static void update_soft_500ms(app_t *app )
       // why is it out of range at 11V????
 
       // why does the adc give an error at 10.6V
-      // does the adc have an ovc register setting?
+      // - does the adc have an ovc register setting?
+      // - adc is damaged... 
 
-      ///////////////////////////////////////////
+      // OK. 10.2f seems ok.
+      // 10.3 fails. giving 2.06V to adc???
+      
+
+      //////////////////////://///////////////////
       usart_printf("V is %f\n", v);
       // this is wrong.... it's a value < 1
 
@@ -873,7 +878,7 @@ static void update_soft_500ms(app_t *app )
 
           mux_dac(app->spi);
           // spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs(11.f)) );
-          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs(10.6f)) );
+          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs(10.3f)) );
 
           range_voltage_set(app, lower);
         }
