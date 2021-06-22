@@ -339,19 +339,30 @@ static void range_voltage_iterate(app_t *app, bool dir)
 }
 
 
-
+static const char * range_voltage_string(vrange_t vrange)
+{
+  switch(vrange)
+  {
+    case vrange_100V:   return "100V";
+    case vrange_10V:    return "10V";
+    case vrange_1V:     return "1V";
+    case vrange_100mV:  return "100mV";
+  }
+  // suppress compiler warning...
+  return "error";
+}
 
 
 static float range_voltage_multiplier( vrange_t vrange)
 {
-    // ie expressed on 10V range
-    switch(vrange)
-    {
-      case vrange_100V:   return 10.f;
-      case vrange_10V:    return 1.f;   // we're actually on a 10V range by default
-      case vrange_1V:     return 0.1f;
-      case vrange_100mV:  return 0.01f;
-    }
+  // ie expressed on 10V range
+  switch(vrange)
+  {
+    case vrange_100V:   return 10.f;
+    case vrange_10V:    return 1.f;   // we're actually on a 10V range by default
+    case vrange_1V:     return 0.1f;
+    case vrange_100mV:  return 0.01f;
+  }
 
   // invalid
   return -99999;
@@ -505,10 +516,7 @@ static void range_current_set(app_t *app, irange_t irange)
       msleep(1);
       output_set(app, app->irange, app->output);
       break;
-
   }
-
-
 }
 
 
@@ -780,20 +788,20 @@ static void update_soft_500ms(app_t *app )
 
         // static const char * range_current_string( irange_t irange)
 
-        usart_printf("range: %s", range_current_string(app->irange));
-
+        usart_printf("range: %s", range_voltage_string(app->vrange));
         usart_printf(", vset ");
         print_voltage(app->vrange, app->vset * range_voltage_multiplier(app->vrange));
-
-
         usart_printf(", vfb ");
         print_voltage(app->vrange, v * range_voltage_multiplier(app->vrange)  );
 
         /////////////////
-        usart_printf(",   ");
-        usart_printf("iset ");
-        print_current(app->irange, app->iset * range_current_multiplier(app->irange) );
 
+        usart_printf("    ");
+
+
+        usart_printf("range: %s", range_current_string(app->irange));
+        usart_printf(", iset ");
+        print_current(app->irange, app->iset * range_current_multiplier(app->irange) );
         usart_printf(", ifb ");
         print_current(app->irange, i * range_current_multiplier(app->irange));
         usart_printf("\n");
