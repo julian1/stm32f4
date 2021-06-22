@@ -890,9 +890,9 @@ static void update_soft_500ms(app_t *app )
           range_voltage_set(app, lower);
         }
       }
-      else if (fabs(v) > 10.5 /*&& app->vrange < app->vset_range */) {  // when 
+      else if (fabs(v) > 10.5 && app->vrange > app->vset_range) {  // when 
 
-        // switch out to a higher current range
+        // switch out to a higher voltage range
         vrange_t higher = range_voltage_next( app->vrange, 0);
 
         usart_printf("now  vrange %s\n", range_voltage_string( app->vrange) );
