@@ -495,6 +495,24 @@ static void range_current_set(app_t *app, irange_t irange)
 
 
 
+static const char * range_current_string( irange_t irange)
+{
+  // can simplify - enum addition ... etc.
+
+  switch(irange)
+  {
+    case irange_10uA:   return "10uA" ;
+    case irange_100uA:  return "100uA";
+    case irange_1mA:    return "1mA";
+    case irange_10mA:   return "10mA";
+    case irange_100mA:  return "100mA";
+    case irange_1A:     return "1A";
+  };
+
+  // suppress compiler warning...
+  return "error";
+}
+
 
 
 
@@ -640,7 +658,7 @@ static void print_current(irange_t irange, float val)
       enourage drill to a higher range.
 
   */
-  usart_printf(" here " );
+  // usart_printf(" here " );
 
   switch( irange)
   {
@@ -736,7 +754,13 @@ static void update_soft_500ms(app_t *app )
         // when we set the range. we should set the default format.
         // the format prec wants to be able to user modified.
         /////////////////
-        usart_printf("vset ");
+
+
+        // static const char * range_current_string( irange_t irange)
+
+        usart_printf("range: %s", range_current_string(app->irange));
+
+        usart_printf(", vset ");
         print_voltage(app->vrange, app->vset * range_voltage_multiplier(app->vrange));
 
 
@@ -744,7 +768,7 @@ static void update_soft_500ms(app_t *app )
         print_voltage(app->vrange, v * range_voltage_multiplier(app->vrange)  );
 
         /////////////////
-        usart_printf("   ");
+        usart_printf(",   ");
         usart_printf("iset ");
         print_current(app->irange, app->iset * range_current_multiplier(app->irange) );
 
