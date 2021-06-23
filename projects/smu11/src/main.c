@@ -785,8 +785,12 @@ static void update_soft_500ms(app_t *app )
         /////////////////
 
         usart_printf("vrange: %s", range_voltage_string(app->vrange));
-        usart_printf(", vset ");
-        print_voltage(app->vrange, app->vset * range_voltage_multiplier(app->vrange));
+
+        if(app->vrange == app->vset_range) {
+          usart_printf("*");
+          usart_printf(", vset ");
+          print_voltage(app->vrange, app->vset * range_voltage_multiplier(app->vrange));
+        }
         usart_printf(", vfb ");
         print_voltage(app->vrange, v * range_voltage_multiplier(app->vrange)  );
 
@@ -796,8 +800,11 @@ static void update_soft_500ms(app_t *app )
 
 
         usart_printf("irange: %s", range_current_string(app->irange));
-        usart_printf(", iset ");
-        print_current(app->irange, app->iset * range_current_multiplier(app->irange) );
+        if(app->irange == app->iset_range) {
+          usart_printf("*");
+          usart_printf(", iset ");
+          print_current(app->irange, app->iset * range_current_multiplier(app->irange) );
+        }
         usart_printf(", ifb ");
         print_current(app->irange, i * range_current_multiplier(app->irange));
         usart_printf("\n");
@@ -806,7 +813,7 @@ static void update_soft_500ms(app_t *app )
       // usart_printf("i is %f\n", i);
 
 
-#if 0
+#if 1
 
       ///////////////////////////////////////////
       // will want to use the fast adc, and run every update
@@ -885,7 +892,6 @@ static void update_soft_500ms(app_t *app )
 
           mux_dac(app->spi);
           spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs(11.f)) );
-          // spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs(10.3f)) );
 
           range_voltage_set(app, lower);
         }
@@ -894,9 +900,6 @@ static void update_soft_500ms(app_t *app )
 
         // switch out to a higher voltage range
         vrange_t higher = range_voltage_next( app->vrange, 0);
-
-        usart_printf("now  vrange %s\n", range_voltage_string( app->vrange) );
-        usart_printf("next vrange %s\n", range_voltage_string( higher ) );
 
         if(higher != app->vrange) {
 
