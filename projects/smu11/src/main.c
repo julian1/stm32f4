@@ -65,6 +65,8 @@
 
       - test if can regulate on 10.4V...  or if adc generates errors.
 
+      - add the halt current condition. on the 1A range. actually maybe add the 10A range. first. to get it correct.
+
       - use fast loop, for adc range / and auto range.
         - this is more complicated. actually need interupt / register on the fpga/ spi interupt line.
         - actually could probably poll/read fpga.
