@@ -623,7 +623,7 @@ static void range_current_auto(app_t *app, float i)
 
     if(lower != app->irange) {
 
-      usart_printf("switch lower range\n");
+      usart_printf("current, switch lower range   %s -> %s\n", range_current_string(app->irange), range_current_string(lower));
 
       mux_dac(app->spi);
       spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(11.f)) );
@@ -638,7 +638,7 @@ static void range_current_auto(app_t *app, float i)
 
     if(higher != app->irange) {
 
-      usart_printf("switch higher range\n");
+      usart_printf("current, switch higher range   %s -> %s\n", range_current_string(app->irange), range_current_string(higher));
 
       if(higher == app->iset_range) {
         // new range is set range, then use the set voltage
@@ -661,22 +661,22 @@ static void range_current_auto(app_t *app, float i)
 static void range_voltage_auto(app_t *app, float v)
 {
 
- 
+
 
   //////////////////////://///////////////////
-  usart_printf("V is %f\n", v);
+  // usart_printf("V is %f\n", v);
   // this is wrong.... it's a value < 1
 
   if(fabs(v) < 1.f && app->vrange >= app->vset_range) {
 
-    usart_printf("here xxx \n");
+    usart_printf("v is %f\n", v);
 
     // need to switch to lower current range
     vrange_t lower = range_voltage_next( app->vrange, 1);
 
     if(lower != app->vrange) {
 
-      usart_printf("switch lower voltage range\n");
+      usart_printf("voltage, switch lower range   %s -> %s\n", range_voltage_string(app->vrange), range_voltage_string(lower));
 
       mux_dac(app->spi);
       spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs(11.f)) );
@@ -684,23 +684,25 @@ static void range_voltage_auto(app_t *app, float v)
       range_voltage_set(app, lower);
     }
   }
-  else if (fabs(v) > 10.5 && app->vrange > app->vset_range) {  // when 
+  else if (fabs(v) > 10.5 && app->vrange > app->vset_range) {  // when
+
+    usart_printf("v is %f\n", v);
 
     // switch out to a higher voltage range
     vrange_t higher = range_voltage_next( app->vrange, 0);
 
     if(higher != app->vrange) {
 
-      usart_printf("switch higher range \n" );
+      usart_printf("voltage, switch higher range   %s -> %s\n", range_voltage_string(app->vrange), range_voltage_string(higher));
 
       if(higher == app->vset_range) {
         // new range is set range, then use the set voltage
-        usart_printf("on regulation range, restore dac value %f\n", app->vset);
+        usart_printf("at regulation range, so restore dac value %f\n", app->vset);
 
         mux_dac(app->spi);
         spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs(app->vset)) );
       } else {
-        // we're on a lower range, 
+        // we're on a lower range,
       }
 
       range_voltage_set(app, higher);
@@ -929,121 +931,10 @@ static void update_soft_500ms(app_t *app )
       }
 
       // usart_printf("i is %f\n", i);
+      // usart_printf("v is %f\n", v);
 
       range_current_auto(app, i );
       range_voltage_auto(app, v);
-
-#if 0
-
-      ///////////////////////////////////////////
-      // will want to use the fast adc, and run every update
-      // we have to set the dac value... as well...
-
-      if(fabs(i) < 1.f && app->irange <= app->iset_range ) {
-
-        // need to switch to lower current range
-        irange_t lower = range_current_next( app->irange, 1);
-
-        if(lower != app->irange) {
-
-          usart_printf("switch lower range\n");
-
-          mux_dac(app->spi);
-          spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(11.f)) );
-
-          range_current_set(app, lower);
-        }
-      }
-      else if (fabs(i) > 10.5 && app->irange < app->iset_range  ) {
-
-        // switch out to a higher current range
-        irange_t higher = range_current_next( app->irange, 0);
-
-        if(higher != app->irange) {
-
-          usart_printf("switch higher range\n");
-
-          if(higher == app->iset_range) {
-            // new range is set range, then use the set voltage
-            usart_printf("on regulation range, restore dac value %f\n", app->iset);
-
-            mux_dac(app->spi);
-            spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(app->iset)) );
-          } else {
-            // we're on a lower range, than the regulation, range so leave dac regulation value at 11.f
-
-          }
-
-          range_current_set(app, higher);
-        }
-      }
-#endif
-
-
-#if 0
-
-      // from lower range (eg. 100mV). so we turn output off. and voltage jumps wildly out of range value....
-      // how to handle, without triggering instability?
-      // No. its's regulating nicely on 11V. there's some other error...
-      // why is it out of range at 11V????
-
-      // why does the adc give an error at 10.6V
-      // - does the adc have an ovc register setting?
-      // - adc is damaged... 
-
-      // OK. 10.2f seems ok.
-      // 10.3 fails. giving 2.06V to adc???
-      
-
-      //////////////////////://///////////////////
-      usart_printf("V is %f\n", v);
-      // this is wrong.... it's a value < 1
-
-      if(fabs(v) < 1.f && app->vrange >= app->vset_range) {
-
-        usart_printf("here xxx \n");
-
-        // need to switch to lower current range
-        vrange_t lower = range_voltage_next( app->vrange, 1);
-
-        if(lower != app->vrange) {
-
-          usart_printf("switch lower voltage range\n");
-
-          mux_dac(app->spi);
-          spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs(11.f)) );
-
-          range_voltage_set(app, lower);
-        }
-      }
-      else if (fabs(v) > 10.5 && app->vrange > app->vset_range) {  // when 
-
-        // switch out to a higher voltage range
-        vrange_t higher = range_voltage_next( app->vrange, 0);
-
-        if(higher != app->vrange) {
-
-          usart_printf("switch higher range \n" );
-
-          if(higher == app->vset_range) {
-            // new range is set range, then use the set voltage
-            usart_printf("on regulation range, restore dac value %f\n", app->vset);
-
-            mux_dac(app->spi);
-            spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs(app->vset)) );
-          } else {
-            // we're on a lower range, 
-          }
-
-          range_voltage_set(app, higher);
-        }
-      }
-
-
-
-#endif
-
-
 
       break;
     }
