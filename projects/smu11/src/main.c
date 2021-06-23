@@ -64,10 +64,14 @@
       - done - get V auto ranging also.  eg. down to 30mV when on. up to 5V when off.
 
       - test if can regulate on 10.4V...  or if adc generates errors.
+            could be old errors. due to slow read rate.
+
+      - we may need an adc filter. lowpass for the ranging. 
 
       - add the halt current condition. on the 1A range. actually maybe add the 10A range. first. to get it correct.
 
       - state changes should be functions.  eg.  state_analog_up( ) should encode wha'ts needed then set the app->state var.
+
 
       - use fast loop, for adc range / and auto range.
         - this is more complicated. actually need interupt / register on the fpga/ spi interupt line.
