@@ -63,6 +63,8 @@
       - done - if vset_irange == irange then print vset. else print 1.1
       - done - get V auto ranging also.  eg. down to 30mV when on. up to 5V when off.
 
+      - test if can regulate on 10.4V...  or if adc generates errors.
+
       - use fast loop, for adc range / and auto range.
         - this is more complicated. actually need interupt / register on the fpga/ spi interupt line.
         - actually could probably poll/read fpga.
@@ -75,7 +77,10 @@
       - think that using the slow adc. for autoranging may actually be better.
           can also mix fast and slow reading.
 
-      - operation vs compliance.
+      - naming modes.    operation vs compliance.
+
+      - need to test the fpga high-z state. with a 10k pull-up. and see what values we get. eg. to test fpga witing flash.
+
     --------------
 
     A value like 1.02V needs to be able to be regulate on either range (either 1.02 or 0.102). else won't get range switch stability.
