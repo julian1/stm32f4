@@ -63,7 +63,10 @@
       - done - if vset_irange == irange then print vset. else print 1.1
       - done - get V auto ranging also.  eg. down to 30mV when on. up to 5V when off.
 
-      - do auto range. on fast loop. not 500ms. loop.
+      - use fast loop, for adc range / and auto range.
+        - this is more complicated. actually need interupt / register on the fpga/ spi interupt line.
+        - actually could probably poll/read fpga.
+        - need to propagate through fpga. pin. is on the the mcu gpio. so use mcu interupt.
 
       - change to 40k count dac.
       - use wrapper functions for setting dac values - actually maybe not.  but need to handle vset.
