@@ -74,7 +74,7 @@
       - we may need an adc filter. lowpass for the ranging.
 
 
-      - add the halt current condition. on any range. 
+      - add the halt current condition. on any range.
 
       - state changes should be functions.  eg.  state_analog_up( ) should encode wha'ts needed then set the app->state var.
 
@@ -503,7 +503,11 @@ static void range_current_set(app_t *app, irange_t irange)
     case irange_1A:
     case irange_100mA:
     case irange_10mA:
-      
+
+      // VERY IMPORTANT - ensure high current output relay is on. before any switch change that might increase current.
+      output_set(app, app->irange, app->output);
+      msleep(1);
+
       // turn on current range x
       io_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
 
@@ -514,18 +518,15 @@ static void range_current_set(app_t *app, irange_t irange)
 
         case irange_10A:
         case irange_1A:
-          // ensure sure the high current relay is on. before switching
-          output_set(app, app->irange, app->output);
-          msleep(1);
           // usart_printf("1A range \n");
 
-          switch( app->irange) {
+          switch(app->irange) {
+            // gain 10x on 0.1ohm, for 10V range. active low
             case irange_10A:
-              // gain 10x active low
               io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);
               break;
+            // gain 100x on 0.1ohm.  active low
             case irange_1A:
-              // gain 100x active low
               io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);
               break;
             default:
@@ -536,17 +537,14 @@ static void range_current_set(app_t *app, irange_t irange)
 
           // turn on sense amplifier 1
           io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX1_CTL);
-          // turn on first large switch fets.
+          // turn on first set of big fets.
           io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW1_CTL);
           break;
 
 
-       // using 10ohm resistor. for 10V swing.
+        // 10ohm resistor. for 10V swing.
         case irange_100mA:
           // ensure sure the high current relay is on. before switching
-          output_set(app, app->irange, app->output);
-          msleep(1);
-          // usart_printf("100mA range \n");
           // gain 10x active low
           io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);
           // turn on sense amplifier 2
@@ -555,18 +553,14 @@ static void range_current_set(app_t *app, irange_t irange)
           io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW2_CTL);
           break;
 
-        // using 1k resistor. for 10V swing.
+        // 1k resistor. for 10V swing.
         case irange_10mA:
-          // usart_printf("10mA range \n");
           // gain 1x active low
           io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
           // turn on sense amplifier 3
           io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
           // turn on 4th switch fets.
           io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW4_CTL);
-          // if output on, make sure low current relay is on.. only switch after reducing current.
-          msleep(1);
-          output_set(app, app->irange, app->output);
           break;
 
         default:
@@ -575,16 +569,14 @@ static void range_current_set(app_t *app, irange_t irange)
           return;
       }
       return;
-  
 
-    // it's actually tricky to do this....
-    // need to turn things off.
 
-    // using 10k resistor. for 10V swing
+
+    // 10k resistor. for 10V swing
     case irange_1mA:
-    // using 100k resistor with 10V swing.
+    // 100k resistor for 10V swing.
     case irange_100uA:
-    // 1M resistor  on 10V swing.
+    // 1M resistor for 10V swing.
     case irange_10uA:
 
       // turn on current range relay y
@@ -601,26 +593,23 @@ static void range_current_set(app_t *app, irange_t irange)
       switch( app->irange) {
         case irange_1mA:
           // turn on jfet 1
-          // usart_printf("1mA range \n");
           io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);
           break;
         case irange_100uA:
           // turn on jfet 2
-          // usart_printf("100uA range \n");
           io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);
           break;
         case irange_10uA:
           // turn on jfet 2
-          // usart_printf("10uA range \n");
           io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW3_CTL);
           break;
-
-        default:;
+        default:
           // cannot be here.
           critical_error_blink();
           return;
       }
 
+      // turn off high current output relay... if need be. only after new range in effect
       msleep(1);
       output_set(app, app->irange, app->output);
       break;
