@@ -241,63 +241,6 @@ static void output_set(app_t *app, irange_t irange, uint8_t val);
 
 
 
-static void range_voltage_set(app_t *app, vrange_t vrange)
-{
-  mux_io(app->spi);   // would be better to avoid calling if don't need.
-
-  app->vrange = vrange;
-
-  switch(app->vrange)
-  {
-
-    case vrange_10V:
-      usart_printf("10V range \n");
-      // flutters at 5 digit. nice.
-      // 6th digit. with 9V and 0V.
-      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // no atten
-      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                  // x1 direct feedback. works.
-      break;
-
-
-    case vrange_1V:
-      usart_printf("1V range \n");
-      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // no atten
-      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                  // 10x gain
-      break;
-
-    case vrange_100mV:
-
-      usart_printf("100mV range \n");
-      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // no atten
-      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);                  // 100x gain
-      break;
-
-
-  case vrange_100V:
-      usart_printf("100V range \n");
-      // flutters at 4th digit. with mV.  but this is on mV. range... so ok?
-      // at 6th digit with V.  eg. 9V and 0.1V. - very good - will work for hv.
-      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
-      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                  // x1 direct feedback. works.
-      break;
-
-
-    // IMPORTANT - remember have the other attenuation possibility... of just turning on/off sw3.
-#if 0
-  case vrange_10V_2:
-      // flutters at 4th digit.
-      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
-      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                   // x10 . works.
-      // vmultiplier = 1.f;
-      break;
-#endif
-
-  };
-
-}
-
-
-
 
 
 
@@ -333,11 +276,6 @@ static vrange_t range_voltage_next( vrange_t vrange, bool dir)
 
 
 
-static void range_voltage_iterate(app_t *app, bool dir)
-{
-  range_voltage_set(app, range_voltage_next( app->vrange, dir) );
-}
-
 
 static const char * range_voltage_string(vrange_t vrange)
 {
@@ -371,6 +309,70 @@ static float range_voltage_multiplier( vrange_t vrange)
 
 
 
+static void range_voltage_set(app_t *app, vrange_t vrange)
+{
+  usart_printf("voltage , switch %s -> %s\n", range_voltage_string(app->vrange), range_voltage_string(vrange));
+
+  mux_io(app->spi);   // would be better to avoid calling if don't need.
+
+  app->vrange = vrange;
+
+  switch(app->vrange)
+  {
+
+    case vrange_10V:
+      // usart_printf("10V range \n");
+      // flutters at 5 digit. nice.
+      // 6th digit. with 9V and 0V.
+      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // no atten
+      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                  // x1 direct feedback. works.
+      break;
+
+
+    case vrange_1V:
+      // usart_printf("1V range \n");
+      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // no atten
+      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                  // 10x gain
+      break;
+
+    case vrange_100mV:
+
+      // usart_printf("100mV range \n");
+      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // no atten
+      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);                  // 100x gain
+      break;
+
+
+  case vrange_100V:
+      // usart_printf("100V range \n");
+      // flutters at 4th digit. with mV.  but this is on mV. range... so ok?
+      // at 6th digit with V.  eg. 9V and 0.1V. - very good - will work for hv.
+      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
+      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                  // x1 direct feedback. works.
+      break;
+
+
+    // IMPORTANT - remember have the other attenuation possibility... of just turning on/off sw3.
+#if 0
+  case vrange_10V_2:
+      // flutters at 4th digit.
+      io_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
+      io_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                   // x10 . works.
+      // vmultiplier = 1.f;
+      break;
+#endif
+
+  };
+
+}
+
+static void range_voltage_iterate(app_t *app, bool dir)
+{
+  range_voltage_set(app, range_voltage_next( app->vrange, dir) );
+}
+
+
+
 
 /*
 
@@ -380,144 +382,6 @@ static float range_voltage_multiplier( vrange_t vrange)
   change 200 and 20ohm to era. thin film. for lower noise.
 */
 
-/*
-  Extreme. we should turn on 5V digital. so that dg444 inputs don't just sink.
-  eg. turn on 5V.
-  then configure.
-*/
-
-static void range_current_set(app_t *app, irange_t irange)
-{
-  /*
-    this is doing two things. muxing the sense input. and amplification.
-
-    TODO IMPORTANT.
-    if output is on. then we also have to change the output relay...
-  */
-
-  mux_io(app->spi);   // would be better to avoid calling if don't need.
-
-  app->irange = irange;
-
-
-  switch(app->irange)
-  {
-
-    case irange_1A:
-      // ensure sure the high current relay is on. before switching
-      output_set(app, app->irange, app->output);
-      msleep(1);
-      usart_printf("1A range \n");
-      // gain 100x active low
-      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);
-      // turn on sense amplifier 1
-      io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX1_CTL);
-      // turn on current range x
-      io_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
-      // turn on 2nd switch fets.
-      io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW1_CTL);
-
-      // TODO turn off jfets.
-      break;
-
-
-
-   // using 10ohm resistor. for 10V swing.
-    case irange_100mA:
-      // ensure sure the high current relay is on. before switching
-      output_set(app, app->irange, app->output);
-      msleep(1);
-      usart_printf("100mA range \n");
-      // gain 10x active low
-      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);
-      // turn on sense amplifier 2
-      io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX2_CTL);
-      // turn on current range x
-      io_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
-      // turn on 2nd switch fets.
-      io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW2_CTL);
-
-      // TODO turn off jfets.
-      // mult
-      // we don't need this... can infer multiplier locally, wfrom irange if needed.
-      // imultiplier = 1.f;
-
-      break;
-
-
-
-    // using 1k resistor. for 10V swing.
-    case irange_10mA:
-
-      usart_printf("10mA range \n");
-
-      // gain 1x active low
-      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
-      // turn on sense amplifier 3
-      io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
-      // turn on current range x
-      io_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
-      // turn on 4th switch fets.
-      io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW4_CTL);
-
-      // TODO turn off jfets.
-      // mult
-      // we don't need this... can infer multiplier locally, wfrom irange if needed.
-      // imultiplier = 1.f;
-
-      // if output on, make sure low current relay is on.. only switch after reducing current.
-      msleep(1);
-      output_set(app, app->irange, app->output);
-
-      break;
-
-
-    // it's actually tricky to do this....
-    // need to turn things off.
-
-    // using 10k resistor. for 10V swing
-    case irange_1mA:
-    // using 100k resistor with 10V swing.
-    case irange_100uA:
-    // 1M resistor  on 10V swing.
-    case irange_10uA:
-
-      // gain 1x active low
-      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
-      // turn on sense amplifier 3
-      io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
-      // turn on current range relay y
-      io_write(app->spi, REG_RELAY_COM,  RELAY_COM_Y);
-      // turn off all fets
-      io_write(app->spi, REG_IRANGE_X_SW, 0 );
-
-      switch( app->irange) {
-        case irange_1mA:
-          // turn on jfet 1
-
-          usart_printf("1mA range \n");
-          io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);
-          break;
-        case irange_100uA:
-          // turn on jfet 2
-          usart_printf("100uA range \n");
-          io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);
-          break;
-        case irange_10uA:
-          // turn on jfet 2
-          usart_printf("10uA range \n");
-          io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW3_CTL);
-          break;
-
-        default:;
-
-      }
-
-      msleep(1);
-      output_set(app, app->irange, app->output);
-      break;
-  }
-}
 
 
 
@@ -580,6 +444,150 @@ static irange_t range_current_next( irange_t irange, bool dir)
 
 
 
+/*
+  Extreme. we should turn on 5V digital. so that dg444 inputs don't just sink.
+  eg. turn on 5V.
+  then configure.
+*/
+
+static void range_current_set(app_t *app, irange_t irange)
+{
+  /*
+    this is doing two things. muxing the sense input. and amplification.
+
+    TODO IMPORTANT.
+    if output is on. then we also have to change the output relay...
+  */
+
+  usart_printf("current, switch %s -> %s\n", range_current_string(app->irange), range_current_string(irange));
+
+  mux_io(app->spi);   // would be better to avoid calling if don't need.
+
+  app->irange = irange;
+
+
+  switch(app->irange)
+  {
+
+    case irange_1A:
+      // ensure sure the high current relay is on. before switching
+      output_set(app, app->irange, app->output);
+      msleep(1);
+      // usart_printf("1A range \n");
+      // gain 100x active low
+      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);
+      // turn on sense amplifier 1
+      io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX1_CTL);
+      // turn on current range x
+      io_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
+      // turn on 2nd switch fets.
+      io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW1_CTL);
+
+      // TODO turn off jfets.
+      break;
+
+
+
+   // using 10ohm resistor. for 10V swing.
+    case irange_100mA:
+      // ensure sure the high current relay is on. before switching
+      output_set(app, app->irange, app->output);
+      msleep(1);
+      // usart_printf("100mA range \n");
+      // gain 10x active low
+      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);
+      // turn on sense amplifier 2
+      io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX2_CTL);
+      // turn on current range x
+      io_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
+      // turn on 2nd switch fets.
+      io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW2_CTL);
+
+      // TODO turn off jfets.
+      // mult
+      // we don't need this... can infer multiplier locally, wfrom irange if needed.
+      // imultiplier = 1.f;
+
+      break;
+
+
+
+    // using 1k resistor. for 10V swing.
+    case irange_10mA:
+
+      // usart_printf("10mA range \n");
+
+      // gain 1x active low
+      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
+      // turn on sense amplifier 3
+      io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
+      // turn on current range x
+      io_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
+      // turn on 4th switch fets.
+      io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW4_CTL);
+
+      // TODO turn off jfets.
+      // mult
+      // we don't need this... can infer multiplier locally, wfrom irange if needed.
+      // imultiplier = 1.f;
+
+      // if output on, make sure low current relay is on.. only switch after reducing current.
+      msleep(1);
+      output_set(app, app->irange, app->output);
+
+      break;
+
+
+    // it's actually tricky to do this....
+    // need to turn things off.
+
+    // using 10k resistor. for 10V swing
+    case irange_1mA:
+    // using 100k resistor with 10V swing.
+    case irange_100uA:
+    // 1M resistor  on 10V swing.
+    case irange_10uA:
+
+      // gain 1x active low
+      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
+      // turn on sense amplifier 3
+      io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
+      // turn on current range relay y
+      io_write(app->spi, REG_RELAY_COM,  RELAY_COM_Y);
+      // turn off all fets
+      io_write(app->spi, REG_IRANGE_X_SW, 0 );
+
+      switch( app->irange) {
+        case irange_1mA:
+          // turn on jfet 1
+
+          // usart_printf("1mA range \n");
+          io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);
+          break;
+        case irange_100uA:
+          // turn on jfet 2
+          // usart_printf("100uA range \n");
+          io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);
+          break;
+        case irange_10uA:
+          // turn on jfet 2
+          // usart_printf("10uA range \n");
+          io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW3_CTL);
+          break;
+
+        default:;
+
+      }
+
+      msleep(1);
+      output_set(app, app->irange, app->output);
+      break;
+  }
+}
+
+
+
+
 static void range_current_iterate(app_t *app, bool dir)
 {
   /*
@@ -623,7 +631,7 @@ static void range_current_auto(app_t *app, float i)
 
     if(lower != app->irange) {
 
-      usart_printf("current, switch lower range   %s -> %s\n", range_current_string(app->irange), range_current_string(lower));
+      usart_printf("current, switch lower\n");
 
       mux_dac(app->spi);
       spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(11.f)) );
@@ -638,7 +646,7 @@ static void range_current_auto(app_t *app, float i)
 
     if(higher != app->irange) {
 
-      usart_printf("current, switch higher range   %s -> %s\n", range_current_string(app->irange), range_current_string(higher));
+      usart_printf("current, switch higher range\n");
 
       if(higher == app->iset_range) {
         // new range is set range, then use the set voltage
@@ -676,7 +684,7 @@ static void range_voltage_auto(app_t *app, float v)
 
     if(lower != app->vrange) {
 
-      usart_printf("voltage, switch lower range   %s -> %s\n", range_voltage_string(app->vrange), range_voltage_string(lower));
+      usart_printf("voltage, switch lower range\n");
 
       mux_dac(app->spi);
       spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs(11.f)) );
@@ -693,7 +701,7 @@ static void range_voltage_auto(app_t *app, float v)
 
     if(higher != app->vrange) {
 
-      usart_printf("voltage, switch higher range   %s -> %s\n", range_voltage_string(app->vrange), range_voltage_string(higher));
+      usart_printf("voltage, switch higher range\n");
 
       if(higher == app->vset_range) {
         // new range is set range, then use the set voltage
