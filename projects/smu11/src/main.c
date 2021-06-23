@@ -69,15 +69,13 @@
 
       - done - actually maybe add the 10A range. first. to get it correct.
 
-      - range refactoring. eg. comX,comy etc.
+      - done - range refactoring. eg. comX,comy etc.
+      - done - state changes should be functions.  eg.  state_analog_up( ) should encode wha'ts needed then set the app->state var.
+          state_change_()
 
       - we may need an adc filter. lowpass for the ranging.
 
-
-      - add the halt current condition. on any range.
-
-      - state changes should be functions.  eg.  state_analog_up( ) should encode wha'ts needed then set the app->state var.
-
+      - add a adc halt current condition. on any range.
 
       - use fast loop, for adc range / and auto range.
         - this is more complicated. actually need interupt / register on the fpga/ spi interupt line.
@@ -171,7 +169,7 @@
 typedef enum state_t {
   FIRST,        // INITIAL
   DIGITAL_UP,   // DIGIAL_DIGITAL_UP
-  ERROR,
+  // ERROR,
   ANALOG_UP,
   HALT
 } state_t;
@@ -193,9 +191,9 @@ typedef enum state_t {
 
 typedef enum vrange_t
 {
-  vrange_10V = 3,
+  vrange_100mV = 3,
   vrange_1V,
-  vrange_100mV,
+  vrange_10V,
   vrange_100V // ,
 
   // vrange_10V_2,
@@ -228,7 +226,30 @@ typedef enum irange_t
 } irange_t;
 
 
+#if 0
+typedef struct core_t
+{
+  // having this as a separate strucutre localizes state extent.
 
+
+  // uint32_t  spi;
+
+  // the current measurement/regulation range.
+  // float     vdac;
+  // float     idac;
+  vrange_t  vrange;
+  irange_t  irange;
+
+
+  // the set regulation range.
+  float     vset;
+  vrange_t  vset_range;
+
+  float     iset;
+  irange_t  iset_range;
+
+} core_t;
+#endif
 
 
 
@@ -238,32 +259,43 @@ typedef struct app_t
 
   state_t   state;
 
+  ////////////////
+  // the currently used ranges used for regulation and measurement.
+  // may be narrower than the set range
   vrange_t  vrange;
   irange_t  irange;
 
-  bool      print_adc_values;
-
-
-  // bool      last_char_newline; // last console char
-  // we could eliminate this. if we were to read the relay register...
-  bool      output;   // whether output on/off
-
-
-  float     vset;   // ignoring range
+  ////////////////
+  // core
+  float     vset;
   vrange_t  vset_range;
 
   float     iset;
   irange_t  iset_range;
 
 
+  bool      print_adc_values;
+
+  bool      auto_range_measurement;   // use 'a' to toggle. would be useful to test.
+                                      // when turn off. will need a core reset?
+
+  // bool      last_char_newline; // last console char
+  // we could eliminate this. if we were to read the relay register...
+  bool      output;   // whether output on/off
+
+
 
 } app_t;
 
 
-
+//////////////////////////
 
 static void output_set(app_t *app, irange_t irange, uint8_t val);
 
+
+static void state_change(app_t *app, state_t state );
+
+static void core_set( app_t *app, float v, float i, vrange_t vrange, irange_t irange);
 
 
 
@@ -335,9 +367,68 @@ static float range_voltage_multiplier( vrange_t vrange)
 
 
 
+static void error(app_t *app, const char *msg)
+{
+  // actually going to halt condition. is better...  except we have to pass the app argument...
+  // critical_error_blink();
+
+  usart_printf("error\n");
+  usart_printf( msg);
+  usart_printf("\n");
+  state_change(app, HALT);
+}
+
+
+
+static void dac_current_set(app_t *app, float v)
+{
+  // wrapper over raw spi is good ...
+  // can record the value
+  // dac_vset, dac_iset.
+
+
+  // value should always be positive...
+  if(v < 0) {
+    error(app, "dac_current set i negative");
+    return;
+  }
+
+  mux_dac(app->spi);
+  spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( v ));
+}
+
+
+static void dac_voltage_set(app_t *app, float v)
+{
+  // wrapper over raw spi is good ...
+  // can record the value
+  // dac_vset, dac_iset.
+
+
+  // value should always be positive...
+  if(v < 0) {
+    error(app, "dac_voltage set v negative");
+    return;
+  }
+
+  mux_dac(app->spi);
+  // spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs( v )) );
+  spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( v ));
+}
+
+
+
+
 
 static void range_voltage_set(app_t *app, vrange_t vrange)
 {
+/*
+  shouldn't be called directly
+  because autoranging - means we may be off the range. and dac value is 11.
+
+  we need a function to set the voltage range. and set the dac value.
+
+*/
   usart_printf("voltage , switch %s -> %s\n", range_voltage_string(app->vrange), range_voltage_string(vrange));
 
   mux_io(app->spi);   // would be better to avoid calling if don't need.
@@ -391,11 +482,7 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
 
   };
 
-}
 
-static void range_voltage_iterate(app_t *app, bool dir)
-{
-  range_voltage_set(app, range_voltage_next( app->vrange, dir) );
 }
 
 
@@ -619,15 +706,6 @@ static void range_current_set(app_t *app, irange_t irange)
 
 
 
-static void range_current_iterate(app_t *app, bool dir)
-{
-  /*
-    Think we can remove this entirely.
-  */
-
-  range_current_set(app, range_current_next( app->irange, dir) );
-}
-
 
 
 static float range_current_multiplier( irange_t irange)
@@ -649,50 +727,71 @@ static float range_current_multiplier( irange_t irange)
 
 
 
+#if 0
+static void sync(app_t *app)
+{
+  /*
+    No. it's better to make changes correctlu.
+  */
+  // ranges and values can be changed outside our control...
+  // variables out of sync with hardware state.
+
+  if(app->irange == app->iset_range) {
+      dac_current_set( fabs(app->iset));
+
+  } else if( app->irange < app->iset_range ) {
+      dac_current_set( 11.f );
+  } else {
+
+    // bad condition reset. to rh
+    // should avoid.  rather than calling range_current_set() which will switch relays
+  }
+}
+#endif
 
 
 static void range_current_auto(app_t *app, float i)
 {
-  return;
+  bool changed = false;
 
-      // we have to set the dac value... as well...
-
-  if(fabs(i) < 1.f && app->irange <= app->iset_range ) {
+  if(fabs(i) < 1.f) {
 
     // need to switch to lower current range
     irange_t lower = range_current_next( app->irange, 1);
-
     if(lower != app->irange) {
-
-      usart_printf("current, switch lower\n");
-
-      mux_dac(app->spi);
-      spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(11.f)) );
-
+      usart_printf("ZOOM IN current.\n");
       range_current_set(app, lower);
+      changed  = true;
     }
   }
-  else if (fabs(i) > 10.5 && app->irange < app->iset_range  ) {
+  else if (fabs(i) > 10.5 && app->irange < app->iset_range) {
 
     // switch out to a higher current range
     irange_t higher = range_current_next( app->irange, 0);
-
     if(higher != app->irange) {
-
-      usart_printf("current, switch higher range\n");
-
-      if(higher == app->iset_range) {
-        // new range is set range, then use the set voltage
-        usart_printf("on regulation range, restore dac value %f\n", app->iset);
-
-        mux_dac(app->spi);
-        spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs(app->iset)) );
-      } else {
-        // we're on a lower range, than the regulation, range so leave dac regulation value at 11.f
-
-      }
-
+      usart_printf("ZOOM OUT current\n");
       range_current_set(app, higher);
+      changed = true;
+    }
+  }
+
+
+  if(changed == true)
+  {
+    if(app->irange == app->iset_range) {
+
+      // ranges the same
+      usart_printf("use regulation current %f\n", app->iset);
+      dac_current_set(app, fabs(app->iset));
+    } else if( app->irange < app->iset_range ) {
+
+      // we're zoomed in,
+      usart_printf("use zoomed in current %f\n", 11.f);
+      dac_current_set(app, 11.f );
+
+    } else {
+      // bad condition
+      usart_printf("BAD\n");
     }
   }
 }
@@ -701,57 +800,53 @@ static void range_current_auto(app_t *app, float i)
 
 static void range_voltage_auto(app_t *app, float v)
 {
+  /*
+    rules are.
+      that we can jump around in higher resoution measurement ranges
+      for more accurate measurement,
+      without compromising operation and complianc values.
+  */
 
-  return;
+  bool changed = false;
 
+  if(fabs(v) < 1.f) {
 
-  //////////////////////://///////////////////
-  // usart_printf("V is %f\n", v);
-  // this is wrong.... it's a value < 1
-
-  if(fabs(v) < 1.f && app->vrange >= app->vset_range) {
-
-    usart_printf("v is %f\n", v);
-
-    // need to switch to lower current range
+    // need to switch to lower voltage range
     vrange_t lower = range_voltage_next( app->vrange, 1);
+    if(lower != app->vrange) {  // eg. there is a lower range.
 
-    if(lower != app->vrange) {
-
-      usart_printf("voltage, switch lower range\n");
-
-      mux_dac(app->spi);
-      spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs(11.f)) );
-
+      usart_printf("ZOOM in voltage\n");
       range_voltage_set(app, lower);
+      changed = true;
     }
   }
-  else if (fabs(v) > 10.5 && app->vrange > app->vset_range) {  // when
-
-    usart_printf("v is %f\n", v);
-
-    // switch out to a higher voltage range
+  else if (fabs(v) > 10.5 && app->vrange > app->vset_range )   // we have to jump out... but don't jump out past the actual regulation range (vset_range)
+  {                                                             // else we'll be regulating on higher range than the set range
     vrange_t higher = range_voltage_next( app->vrange, 0);
+    if(higher != app->vrange) {     // there is a higher range.
 
-    if(higher != app->vrange) {
-
-      usart_printf("voltage, switch higher range\n");
-
-      if(higher == app->vset_range) {
-        // new range is set range, then use the set voltage
-        usart_printf("at regulation range, so restore dac value %f\n", app->vset);
-
-        mux_dac(app->spi);
-        spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs(app->vset)) );
-      } else {
-        // we're on a lower range,
-      }
-
+      usart_printf("ZOOM out voltage\n");
       range_voltage_set(app, higher);
+      changed = true;
     }
   }
 
 
+  if(changed == true ) {
+
+    if(app->vrange == app->vset_range) {
+
+      usart_printf("use regulation voltage %f\n", app->vset);
+      dac_voltage_set(app, fabs(app->vset));
+    } else if (  app->vrange < app->vset_range   ) {
+
+      usart_printf("use zoomed in voltage%f\n", 11.f);
+      dac_voltage_set(app, 11.f );
+    } else {
+      // bad condition.
+      usart_printf("HERE BAD v.\n");
+    }
+  }
 
 }
 
@@ -831,15 +926,6 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
 
 
 
-
-
-static void halt(app_t *app )
-{
-  // should do the actions here.
-  app->state = HALT;
-
-
-}
 
 
 
@@ -956,6 +1042,7 @@ static void update_soft_500ms(app_t *app )
         /////////////////
 
         usart_printf("vrange: %s", range_voltage_string(app->vrange));
+        usart_printf("(%s)",       range_voltage_string(app->vset_range));
 
         if(app->vrange == app->vset_range) {
           usart_printf("*");
@@ -971,6 +1058,8 @@ static void update_soft_500ms(app_t *app )
 
 
         usart_printf("irange: %s", range_current_string(app->irange));
+        usart_printf("(%s)",       range_current_string(app->iset_range));
+
         if(app->irange == app->iset_range) {
           usart_printf("*");
           usart_printf(", iset ");
@@ -993,7 +1082,6 @@ static void update_soft_500ms(app_t *app )
     default: ;
   };
 }
-
 
 /*
   EXTREME.
@@ -1019,19 +1107,35 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
   while((ch = cBufPop(console_in)) >= 0) {
     // got a character
 
+    /*
+      these are not actually useful UI functions....
+    */
+    // change the actual current range
+    if(ch == 'u' || ch == 'i') {
 
-    // current range iteration
-    if(ch == 'u')
-        range_current_iterate(app, 1);
-    else if(ch == 'i')
-        range_current_iterate(app, 0);
+        irange_t new_irange = range_current_next( app->iset_range, ch == 'u' );
+        if(new_irange != app->iset_range) {
+          usart_printf("change iset_range %s\n", range_current_string(new_irange) );
+          app->iset_range = app->irange = new_irange;
+          range_current_set(app, new_irange);
+          dac_current_set(app, fabs(app->iset));
+         //  core_set( app, app->vset, app->iset, app->vset_range, new_irange );
+        }
+    }
 
+    // for voltage
+    if(ch == 'j' || ch == 'k') {
 
-    // current range iteration
-    else if(ch == 'j')
-        range_voltage_iterate(app, 1);
-    else if(ch == 'k')
-        range_voltage_iterate(app, 0);
+      vrange_t new_vrange = range_voltage_next( app->vset_range, ch == 'j' );
+      if(new_vrange != app->vset_range) {
+        usart_printf("change vset_range %s\n", range_voltage_string(new_vrange ) );
+        app->vset_range = app->vrange = new_vrange;
+        range_voltage_set(app, new_vrange);
+        dac_voltage_set(app, fabs(app->vset));
+        // core_set( app, app->vset, app->iset, new_vrange, app->iset_range );
+      }
+    }
+
 
     // toggle output... on/off. must only process char once. avoid relay oscillate
     else if( ch == 'o') {
@@ -1048,11 +1152,13 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
     }
 
     else if(ch == 'h') {
-      // go to halt state
-      // TODO . This is wrong. should call a function. that handles the transition.
-      // not interpret the state variable.
       usart_printf("halt \n");
-      halt(app);
+      state_change(app, HALT);
+      return;
+    }
+    else if(ch == 'r') {
+      usart_printf("restart\n"); // not resume
+      state_change(app, FIRST);
       return;
     }
 
@@ -1094,8 +1200,10 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
 
     if(strcmp(tmp, ":halt") == 0) {
       // go to halt state
-      usart_printf("switch off\n");
-      app->state = HALT;
+      // usart_printf("switch off\n");
+      // app->state = HALT;
+
+      state_change( app, HALT);
       return;
     }
 
@@ -1129,24 +1237,226 @@ static void quadrant_set( app_t *app, bool v, bool i)
 
 
 // so can have another function. that tests the values.... v > 0 etc.
+// need to hide
 
-static void core_set( app_t *app, float v, float i)
+static void core_set( app_t *app, float v, float i, vrange_t vrange, irange_t irange)
 {
 
-    mux_dac(app->spi);
 
     // voltage
-    spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs( v)) );
-    // current
-    spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( fabs( i)) );
+    dac_voltage_set(app, fabs( v));
+    dac_current_set(app, fabs( i));
 
 
     quadrant_set( app, v > 0.f, i > 0.f ) ;
 
-
     // ignoring range
     app->vset = v;
     app->iset = i;
+
+    app->vset_range = vrange;// vrange_10V;
+    app->iset_range = irange;// irange_10mA;
+
+    range_voltage_set(app, app->vset_range);
+    range_current_set(app, app->iset_range);
+
+}
+
+
+
+
+
+
+
+static void state_change(app_t *app, state_t state )
+{
+  switch(state) {
+
+    case FIRST:
+      usart_printf("-------------\n" );
+      usart_printf("first\n" );
+
+
+      app->state = FIRST;
+      break;
+
+
+    case HALT: {
+
+      usart_printf("-------------\n" );
+      usart_printf("change to halt state\n" );
+
+      mux_io(app->spi);
+      // turn off power
+      io_clear(app->spi, REG_RAILS, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
+
+      // turn off output relays
+      output_set(app, app->irange, false );
+      app->state = HALT;
+      break;
+    }
+
+
+    case DIGITAL_UP: {
+
+      // if any of these fail, this should progress to error
+      usart_printf("-----------\n");
+      usart_printf("digital start\n" );
+
+      mux_io(app->spi);
+
+      ////////////
+      // soft reset is much better here.
+      // avoid defining initial condition. in more than one place
+      // so define in fpga.
+      io_clear(app->spi, CORE_SOFT_RST, 0);    // any value addressing this register.. to clear
+
+      // no. needs dg444/mux stuff. pulled high. for off.
+      // BUT I THINK we should probably hold RAILS_OE high / deasserted.
+
+
+      // test the flash
+      // TODO. check responses.
+      mux_w25(app->spi);
+      spi_w25_get_data(app->spi);
+
+      // dac init
+      int ret = dac_init(app->spi, REG_DAC); // bad name?
+      if(ret != 0) {
+        state_change(app, HALT);
+        // app->state = ERROR;
+        return;
+      }
+
+      // TODO remove.... fix regualte on vfb.
+      usart_printf("-------------\n" );
+/*
+      usart_printf("set voltage range\n" );
+      range_voltage_set(app, vrange_10V);
+
+      usart_printf("set current range\n" );
+      range_current_set(app, irange_10mA);
+*/
+      // progress to digital up?
+      usart_printf("digital up ok\n" );
+      app->state = DIGITAL_UP;
+      break;
+    }
+
+
+    case ANALOG_UP: {
+
+      usart_printf("turn on lp5v\n" );
+      mux_io(app->spi);
+      // assert rails oe
+      io_clear(app->spi, REG_RAILS_OE, RAILS_OE);
+
+      // turn on 5V digital rails
+      io_set(app->spi, REG_RAILS, RAILS_LP5V );
+      msleep(50);
+
+      // turn on +-15V rails
+      usart_printf("turn on analog rails - lp15v\n" );
+      io_set(app->spi, REG_RAILS, RAILS_LP15V );
+      msleep(50);
+
+      // LP30 - needed to power the vfb topside op amp. ltc6090/ bootstrapped
+      // io_set(spi, REG_RAILS, RAILS_LP30V );
+      // msleep(50);
+       /*
+      io_set(spi, REG_RAILS, RAILS_LP60V );
+       */
+
+#if 0
+      // TODO EXTREME . set the gain switches before turning on rails.
+      // IMPORTANT - should probably do this. before switching on the supplies.
+      // so that vrange ops are not high-Z
+      usart_printf("turn on voltage range\n" );
+      range_voltage_set(spi);
+
+      usart_printf("turn on current range\n" );
+      range_current_set(spi);
+#endif
+
+      // turn on refs for dac
+      //mux_dac(spi);
+      usart_printf("turn on ref a for dac\n" );
+      mux_io(app->spi);
+      io_write(app->spi, REG_DAC_REF_MUX, ~(DAC_REF_MUX_A | DAC_REF_MUX_B)); // active lo
+
+      // dac naked register references should be wrapped by functions
+      // unipolar.
+      // voltage
+
+      /*
+        https://www.youtube.com/watch?v=qFVhe_uzxnE
+        source current. 100mA.   with compliance +21V.   DUT resistive load.
+        source current -100mA.   with compliance +21V.   with power supply.
+      */
+
+      // range iteration changes the meaning of the set voltage.
+
+      // regulating on 10V ok. 10.5V also ok. 11V. also ok. great.
+      // 11.5V reads correctly, but also ovp
+      // 11.2 ovp .
+      // 11.1 ok.
+
+      // core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
+      core_set( app, 5.f , 3.f, vrange_10V, irange_10mA );         // 5V source, 5mA compliance,
+      // core_set( app, 11.0f , 3.0f );         // 5V source, 5mA compliance,
+      // core_set( app, -5.f , -3.0f );         // 5V source, 5mA compliance,
+
+      // 9.8 no.
+
+      // 6.8V + 6.8mA = 13.6V which is +-15V limit.   OK. we're limited by supply headroom. for current sense drop and voltage drop. hmmm.
+      //
+/*
+      app->vset_range = vrange_10V;
+      app->iset_range = irange_10mA;
+
+      range_voltage_set(app, vrange_10V);
+      range_current_set(app, irange_10mA);
+*/
+
+      // the voltage - is not actually changing with voltage set... ?/
+
+      /////////////
+      // working as bipolar.
+      spi_dac_write_register(app->spi, DAC_VOUT2_REGISTER, voltage_to_dac( -2.f ) );  // outputs -4V to tp15.  two's complement works. TODO but need to change gain flag?
+      spi_dac_write_register(app->spi, DAC_VOUT3_REGISTER, voltage_to_dac( 0.f ) );  // outputs 4V to tp11.
+
+
+
+      // change namem output relay?
+      output_set(app, app->irange, true );   // turn on
+
+
+
+      /////////////////
+      // adc init has to be done after rails are up...
+      // but doesn't need xtal, to respond to spi.
+      // adc init
+      int ret = adc_init(app->spi, REG_ADC);
+      if(ret != 0) {
+        // app->state = ERROR;
+
+        state_change(app, HALT );
+        return;
+      }
+
+
+      app->state = ANALOG_UP;
+
+    }
+
+
+    default:;
+
+  }
+  // should do the actions here.
+  // app->state = HALT;
+
+
 }
 
 
@@ -1174,246 +1484,40 @@ static void update(app_t *app)
 
   switch(app->state) {
 
-    case FIRST:  {
-      // if any of these fail, this should progress to error
+    case FIRST:
 
-      usart_printf("-----------\n");
-      usart_printf("digital init start\n" );
-
-      mux_io(app->spi);
-
-      ////////////
-      // soft reset is much better here.
-      // avoid defining initial condition. in more than one place
-      // so define in fpga.
-      io_clear(app->spi, CORE_SOFT_RST, 0);    // any value addressing this register.. to clear
-
-      // no. needs dg444/mux stuff. pulled high. for off.
-      // BUT I THINK we should probably hold RAILS_OE high / deasserted.
-
-
-      // test the flash
-      // TODO. check responses.
-      mux_w25(app->spi);
-      spi_w25_get_data(app->spi);
-
-#if 1
-      // dac init
-      int ret = dac_init(app->spi, REG_DAC); // bad name?
-      if(ret != 0) {
-        app->state = ERROR;
-        return;
-      }
-#endif
-
-      // TODO remove.... fix regualte on vfb.
-      usart_printf("-------------\n" );
-
-      usart_printf("set voltage range\n" );
-      range_voltage_set(app, vrange_10V);
-
-      usart_printf("set current range\n" );
-      range_current_set(app, irange_10mA);
-
-      // progress to digital up?
-      usart_printf("digital init done/ok\n" );
-      app->state = DIGITAL_UP;
+      state_change(app, DIGITAL_UP);
       break;
-    }
 
 
     case DIGITAL_UP:
-
-
       if(lp15v > 15.0 && ln15v > 15.0 )
       {
         usart_printf("-----------\n");
 
-        usart_printf("doing analog init -  supplies ok \n");
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
-
-
-        usart_printf("turn on lp5v\n" );
-        mux_io(app->spi);
-        // assert rails oe
-        io_clear(app->spi, REG_RAILS_OE, RAILS_OE);
-
-        // turn on 5V digital rails
-        io_set(app->spi, REG_RAILS, RAILS_LP5V );
-        msleep(50);
-
-        // turn on +-15V rails
-        usart_printf("turn on analog rails - lp15v\n" );
-        io_set(app->spi, REG_RAILS, RAILS_LP15V );
-        msleep(50);
-
-        // LP30 - needed to power the vfb topside op amp. ltc6090/ bootstrapped
-        // io_set(spi, REG_RAILS, RAILS_LP30V );
-        // msleep(50);
-   /*
-        io_set(spi, REG_RAILS, RAILS_LP60V );
-   */
-
-
-#if 0
-        // TODO EXTREME . set the gain switches before turning on rails.
-        // IMPORTANT - should probably do this. before switching on the supplies.
-        // so that vrange ops are not high-Z
-        usart_printf("turn on voltage range\n" );
-        range_voltage_set(spi);
-
-        usart_printf("turn on current range\n" );
-        range_current_set(spi);
-
-#endif
-
-
-        // turn on refs for dac
-        //mux_dac(spi);
-        usart_printf("turn on ref a for dac\n" );
-        mux_io(app->spi);
-        io_write(app->spi, REG_DAC_REF_MUX, ~(DAC_REF_MUX_A | DAC_REF_MUX_B)); // active lo
-
-        // dac naked register references should be wrapped by functions
-        // unipolar.
-        // voltage
-
-        /*
-          https://www.youtube.com/watch?v=qFVhe_uzxnE
-          source current. 100mA.   with compliance +21V.   DUT resistive load.
-          source current -100mA.   with compliance +21V.   with power supply.
-        */
-
-
-      // range iteration changes the meaning of the set voltage.
-
-        // regulating on 10V ok. 10.5V also ok. 11V. also ok. great.
-        // 11.5V reads correctly, but also ovp
-        // 11.2 ovp .
-        // 11.1 ok.
-
-        // core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
-        core_set( app, 5.f , 3.f );         // 5V source, 5mA compliance,
-        // core_set( app, 11.0f , 3.0f );         // 5V source, 5mA compliance,
-        // core_set( app, -5.f , -3.0f );         // 5V source, 5mA compliance,
-
-        // 9.8 no.
-
-        // 6.8V + 6.8mA = 13.6V which is +-15V limit.   OK. we're limited by supply headroom. for current sense drop and voltage drop. hmmm.
-        //
-
-
-        app->vset_range = vrange_10V;
-        app->iset_range = irange_10mA;
-
-        range_voltage_set(app, vrange_10V);
-        range_current_set(app, irange_10mA);
-
-        // the voltage - is not actually changing with voltage set... ?/
-
-        /////////////
-        // working as bipolar.
-        spi_dac_write_register(app->spi, DAC_VOUT2_REGISTER, voltage_to_dac( -2.f ) );  // outputs -4V to tp15.  two's complement works. TODO but need to change gain flag?
-        spi_dac_write_register(app->spi, DAC_VOUT3_REGISTER, voltage_to_dac( 0.f ) );  // outputs 4V to tp11.
-
-
-
-        // change namem output relay?
-        output_set(app, app->irange, true );   // turn on
-
-
-
-        /////////////////
-        // adc init has to be done after rails are up...
-        // but doesn't need xtal, to respond to spi.
-        // adc init
-        int ret = adc_init(app->spi, REG_ADC);
-        if(ret != 0) {
-          app->state = ERROR;
-          return;
-        }
-
-
-        app->state = ANALOG_UP;
+        usart_printf("doing analog up -  supplies ok \n");
+        state_change(app, ANALOG_UP);
       }
+
       break ;
 
 
     case ANALOG_UP:
 
-#if 1
       if((lp15v < 14.7 || ln15v < 14.7)  ) {
 
-        mux_io(app->spi);
         usart_printf("supplies bad - turn off rails\n");
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
-        // turn off power
-        io_clear(app->spi, REG_RAILS, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
-
-        // TODO use the function that turns off both relays.
-        // eg. write not read.
-        // turn off output relay
-        // io_clear(spi, REG_RELAY, RELAY_OUTCOM);
-
-        output_set(app, app->irange, false );
-
-        // go to state error
-        app->state = ERROR;
+        state_change(app, HALT);
       }
-#endif
 
       break;
-/*
-      // timeout to turn off...
-      if( system_millis > timeout_off_millis) {
-        state = INIT;
-        usart_printf("timeout - turning off \n");
-      }
- */
-
-    case ERROR: {
-
-      // should power down rails if up. but want to avoid looping. so need to read
-      // or use a state variable
-      // but need to be able to read res
-      // actually should perrhaps go to a power down state? after error
-
-      // TODO improve.
-      static int first = 0;
-      if(!first) {
-        first = 1;
-        usart_printf("entered error state\n" );
-
-        // turn off output relay
-        io_clear(app->spi, REG_RELAY, RELAY_OUTCOM);
-
-        // turn off 5V digital and all analog power
-        io_clear(app->spi, REG_RAILS, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
-      }
-      // stay in error state.
-    }
-    break;
 
 
-    case HALT: {
-
-      static int first = 0;
-      if(!first) {
-        first = 1;
-        usart_printf("entered halt state\n" );
-
-        mux_io(app->spi);
-        // turn off output relay
-        io_clear(app->spi, REG_RELAY, RELAY_OUTCOM);
-
-        // turn off 5V digital and all analog power
-        io_clear(app->spi, REG_RAILS, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
-      }
-    }
-    break;
-
-
+    case HALT:
+      break;
 
 
     default:
@@ -1552,9 +1656,12 @@ int main(void)
   memset(&app, 0, sizeof(app_t));
 
   app.spi = SPI_ICE40;
-  app.state = FIRST;
   app.print_adc_values = true;
   app.output = false;
+
+
+  // app.state = FIRST;
+  state_change(&app, FIRST );
 
   loop(&app);
 
