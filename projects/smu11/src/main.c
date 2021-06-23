@@ -58,12 +58,15 @@
     -------------------
 
     TODO
-      - print string of current range.
-      - suppress the continuous printing.  - only print the state changes.
-      - if vset_irange == irange then print vset. else print 1.1
-      - get V auto ranging also.  eg. down to 30mV when on. up to 5V when off.
+      - done - print string of current range.
+      - done - suppress the continuous printing.  - only print the state changes. eg. with 'p' key
+      - done - if vset_irange == irange then print vset. else print 1.1
+      - done - get V auto ranging also.  eg. down to 30mV when on. up to 5V when off.
+
+      - do auto range. on fast loop. not 500ms. loop.
+
       - change to 40k count dac.
-      - functions for setting dac values - actually maybe not.  but need to handle vset.
+      - use wrapper functions for setting dac values - actually maybe not.  but need to handle vset.
       - get adc slope and offset. working. should then be able to do a two point cal.
 
       - think that using the slow adc. for autoranging may actually be better.

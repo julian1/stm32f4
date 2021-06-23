@@ -465,20 +465,12 @@ int32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
   spi_enable(spi);
 
 
-  // this locks things up??????
-  // ram???
-  // adc_print_status_registers(spi);
-  // usart_flush();
-  // OK. REGULATION should mean it doesn't go out of bound.
-  // so we should just return bad
-
-
 
   // read status code
   uint32_t code = spi_xfer_24_16(spi, 0);     // this is just the 24_16 call... except without
 
   // read/consume values regardless of error
-  // /*MIN(n, 1)*/;
+  // MIN(n, 1);
   for(unsigned j = 0; j < 2; ++j)
   {
     int32_t x = spi_xfer_24(spi, 0);
@@ -491,7 +483,7 @@ int32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
 
 
 
-
+  // deal with error
   if(code != 0x2220) {
     usart_printf("adc, bad code %4x\n",  code);
     usart_flush();
