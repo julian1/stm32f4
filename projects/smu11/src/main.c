@@ -507,7 +507,8 @@ static void range_current_set(app_t *app, irange_t irange)
       // turn on current range x
       io_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
 
-          // TODO turn off jfets.
+      // turn off jfets switches for Y and Z ranges.
+      io_write(app->spi, REG_IRANGE_YZ_SW, 0);
 
       switch(app->irange) {
 
@@ -588,12 +589,14 @@ static void range_current_set(app_t *app, irange_t irange)
 
       // turn on current range relay y
       io_write(app->spi, REG_RELAY_COM,  RELAY_COM_Y);
+
+      // turn off all fets used on comx range
+      io_write(app->spi, REG_IRANGE_X_SW, 0 );
+
       // gain 1x active low
       io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
       // turn on sense amplifier 3
       io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
-      // turn off all fets
-      io_write(app->spi, REG_IRANGE_X_SW, 0 );
 
       switch( app->irange) {
         case irange_1mA:
