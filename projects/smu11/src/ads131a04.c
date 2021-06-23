@@ -482,6 +482,10 @@ int32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
   }
 
 
+  /*
+    we need to distinguish ovp ovn  condition from other possible
+    errors. eg. ovp/ovn we still want to return the value. to enable ranging to a better range.
+  */
 
   // deal with error
   if(code != 0x2220) {
