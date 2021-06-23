@@ -67,7 +67,7 @@
             could be old errors. due to slow read rate.
             11V ok. can read. 11.2 fails. good.
 
-      - we may need an adc filter. lowpass for the ranging. 
+      - we may need an adc filter. lowpass for the ranging.
 
       - add the halt current condition. on the 1A range. actually maybe add the 10A range. first. to get it correct.
 
@@ -217,7 +217,8 @@ typedef enum irange_t
   irange_1mA,
   irange_10mA,
   irange_100mA,
-  irange_1A
+  irange_1A,
+  irange_10A
 
 } irange_t;
 
@@ -417,6 +418,7 @@ static const char * range_current_string( irange_t irange)
     case irange_10mA:   return "10mA";
     case irange_100mA:  return "100mA";
     case irange_1A:     return "1A";
+    case irange_10A:    return "10A";
   };
 
   // suppress compiler warning...
@@ -443,6 +445,7 @@ static irange_t range_current_next( irange_t irange, bool dir)
       case irange_10mA:   return irange_1mA;
       case irange_100mA:  return irange_10mA;
       case irange_1A:     return irange_100mA;
+      case irange_10A:    return irange_1A;
     };
 
   } else {
@@ -454,7 +457,8 @@ static irange_t range_current_next( irange_t irange, bool dir)
       case irange_1mA:    return irange_10mA;
       case irange_10mA:   return irange_100mA;
       case irange_100mA:  return irange_1A;
-      case irange_1A:     return irange_1A;   // no change
+      case irange_1A:     return irange_10A;
+      case irange_10A:    return irange_10A;   // no change
     };
   }
 
@@ -489,23 +493,36 @@ static void range_current_set(app_t *app, irange_t irange)
   switch(app->irange)
   {
 
+
+    case irange_10A:
     case irange_1A:
       // ensure sure the high current relay is on. before switching
       output_set(app, app->irange, app->output);
       msleep(1);
       // usart_printf("1A range \n");
-      // gain 100x active low
-      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);
+
+      switch( app->irange) {
+        case irange_10A:
+          // gain 10x active low
+          io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);
+          break;
+        case irange_1A:
+          // gain 100x active low
+          io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);
+          break;
+        default:;
+          // cannot be here...
+      };
+
       // turn on sense amplifier 1
       io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX1_CTL);
       // turn on current range x
       io_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
-      // turn on 2nd switch fets.
+      // turn on first large switch fets.
       io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW1_CTL);
 
       // TODO turn off jfets.
       break;
-
 
 
    // using 10ohm resistor. for 10V swing.
@@ -527,22 +544,20 @@ static void range_current_set(app_t *app, irange_t irange)
       // mult
       // we don't need this... can infer multiplier locally, wfrom irange if needed.
       // imultiplier = 1.f;
-
       break;
 
 
 
     // using 1k resistor. for 10V swing.
     case irange_10mA:
+      // turn on current range x
+      io_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
 
       // usart_printf("10mA range \n");
-
       // gain 1x active low
       io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
       // turn on sense amplifier 3
       io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
-      // turn on current range x
-      io_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
       // turn on 4th switch fets.
       io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW4_CTL);
 
@@ -554,7 +569,6 @@ static void range_current_set(app_t *app, irange_t irange)
       // if output on, make sure low current relay is on.. only switch after reducing current.
       msleep(1);
       output_set(app, app->irange, app->output);
-
       break;
 
 
@@ -568,12 +582,12 @@ static void range_current_set(app_t *app, irange_t irange)
     // 1M resistor  on 10V swing.
     case irange_10uA:
 
+      // turn on current range relay y
+      io_write(app->spi, REG_RELAY_COM,  RELAY_COM_Y);
       // gain 1x active low
       io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
       // turn on sense amplifier 3
       io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
-      // turn on current range relay y
-      io_write(app->spi, REG_RELAY_COM,  RELAY_COM_Y);
       // turn off all fets
       io_write(app->spi, REG_IRANGE_X_SW, 0 );
 
@@ -630,7 +644,7 @@ static float range_current_multiplier( irange_t irange)
     case irange_10mA:   return 0.001f;
     case irange_100mA:  return 0.01f;
     case irange_1A:     return 0.1f;
-
+    case irange_10A:    return 1.f;
   };
 
   return -9999;
@@ -791,6 +805,7 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
         case irange_10mA:
         case irange_100mA:
         case irange_1A:
+        case irange_10A:
           // high current relay
           io_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
           io_clear(app->spi, REG_LED, LED2);
@@ -853,8 +868,16 @@ static void print_current(irange_t irange, float val)
     case irange_10mA:
     case irange_100mA:
     case irange_1A:
-      usart_printf("%fmA", val * 1000.f);
+      usart_printf("%fmA", val * 1000.f);   // TODO 0.7A better as 0.7A. 0.6A better as 600mA. think..
       break;
+
+
+    // case irange_1A:
+    case irange_10A:
+      usart_printf("%fA", val);
+      break;
+
+
   }
 }
 
@@ -1282,14 +1305,12 @@ static void update(app_t *app)
         // 6.8V + 6.8mA = 13.6V which is +-15V limit.   OK. we're limited by supply headroom. for current sense drop and voltage drop. hmmm.
         //
 
-        // app->vrange = vrange_10V;
-        // app->irange = irange_100mA;
 
         app->vset_range = vrange_10V;
-        app->iset_range = irange_100mA;
+        app->iset_range = irange_10mA;
 
         range_voltage_set(app, vrange_10V);
-        range_current_set(app, irange_100mA);
+        range_current_set(app, irange_10mA);
 
         // the voltage - is not actually changing with voltage set... ?/
 
