@@ -297,6 +297,7 @@ static vrange_t range_voltage_next( vrange_t vrange, bool dir)
   }
 
   // suppress compiler warning...
+  critical_error_blink();
   return (vrange_t)-9999;
 }
 
@@ -528,6 +529,7 @@ static void range_current_set(app_t *app, irange_t irange)
               break;
             default:
               // cannot be here...
+              critical_error_blink();
               return;
           };
 
@@ -568,6 +570,7 @@ static void range_current_set(app_t *app, irange_t irange)
 
         default:
           // cannot be here.
+          critical_error_blink();
           return;
       }
       return;
@@ -595,7 +598,6 @@ static void range_current_set(app_t *app, irange_t irange)
       switch( app->irange) {
         case irange_1mA:
           // turn on jfet 1
-
           // usart_printf("1mA range \n");
           io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);
           break;
@@ -611,7 +613,9 @@ static void range_current_set(app_t *app, irange_t irange)
           break;
 
         default:;
-
+          // cannot be here.
+          critical_error_blink();
+          return;
       }
 
       msleep(1);
