@@ -67,6 +67,8 @@
 
       - add the halt current condition. on the 1A range. actually maybe add the 10A range. first. to get it correct.
 
+      - state changes should be functions.  eg.  state_analog_up( ) should encode wha'ts needed then set the app->state var.
+
       - use fast loop, for adc range / and auto range.
         - this is more complicated. actually need interupt / register on the fpga/ spi interupt line.
         - actually could probably poll/read fpga.
