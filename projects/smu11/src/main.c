@@ -63,8 +63,9 @@
       - done - if vset_irange == irange then print vset. else print 1.1
       - done - get V auto ranging also.  eg. down to 30mV when on. up to 5V when off.
 
-      - test if can regulate on 10.4V...  or if adc generates errors.
+      - done - test if can regulate on 10.4V...  or if adc generates errors.
             could be old errors. due to slow read rate.
+            11V ok. can read. 11.2 fails. good.
 
       - we may need an adc filter. lowpass for the ranging. 
 
@@ -641,6 +642,8 @@ static float range_current_multiplier( irange_t irange)
 
 static void range_current_auto(app_t *app, float i)
 {
+  return;
+
       // we have to set the dac value... as well...
 
   if(fabs(i) < 1.f && app->irange <= app->iset_range ) {
@@ -688,6 +691,7 @@ static void range_current_auto(app_t *app, float i)
 static void range_voltage_auto(app_t *app, float v)
 {
 
+  return;
 
 
   //////////////////////://///////////////////
@@ -1263,9 +1267,14 @@ static void update(app_t *app)
 
       // range iteration changes the meaning of the set voltage.
 
+        // regulating on 10V ok. 10.5V also ok. 11V. also ok. great.
+        // 11.5V reads correctly, but also ovp
+        // 11.2 ovp .
+        // 11.1 ok.
+
         // core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
-        // core_set( app, 5.f , 3.f );         // 5V source, 5mA compliance,
-        core_set( app, 5.f , 3.0f );         // 5V source, 5mA compliance,
+        core_set( app, 5.f , 3.f );         // 5V source, 5mA compliance,
+        // core_set( app, 11.0f , 3.0f );         // 5V source, 5mA compliance,
         // core_set( app, -5.f , -3.0f );         // 5V source, 5mA compliance,
 
         // 9.8 no.
@@ -1273,16 +1282,14 @@ static void update(app_t *app)
         // 6.8V + 6.8mA = 13.6V which is +-15V limit.   OK. we're limited by supply headroom. for current sense drop and voltage drop. hmmm.
         //
 
-        app->vrange = vrange_10V;
-        app->irange = irange_10mA;
+        // app->vrange = vrange_10V;
+        // app->irange = irange_100mA;
 
         app->vset_range = vrange_10V;
-        app->iset_range = irange_10mA;
-
-
+        app->iset_range = irange_100mA;
 
         range_voltage_set(app, vrange_10V);
-        range_current_set(app, irange_10mA);
+        range_current_set(app, irange_100mA);
 
         // the voltage - is not actually changing with voltage set... ?/
 
