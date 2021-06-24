@@ -73,6 +73,10 @@
       - done - state changes should be functions.  eg.  state_analog_up( ) should encode wha'ts needed then set the app->state var.
           state_change_()
 
+      - oranganize high/low level. even if share same data structures . 
+          console processing. from low level core control.
+          use files.
+
       - we may need an adc filter. lowpass for the ranging.
 
       - add a adc halt current condition. on any range.
