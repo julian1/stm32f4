@@ -14,11 +14,12 @@
 #include "util.h"
 #include "buffer.h"
 #include "usart2.h"
-#include "miniprintf2.h" // internal_vprint
+// #include "miniprintf2.h" // internal_vprint
 
 
 #include <stddef.h> // size_t
 #include <stdarg.h> // va_starrt etc
+#include <stdio.h>  // vsprintf
 
 
 
@@ -141,18 +142,43 @@ void usart_printf_init( CBuf *output)
 
 void usart_printf( const char *format, ... )
 {
-/*
-  if(!console_in || !console_out)
-    critical_error_blink();
-*/
+  /*
+    if(!console_out)
+      critical_error_blink();
+  */
 
+#if 0
   // cannot rename to just printf... it's not the responsibiilty of user to know context
   // because different formatting chars, conflict with gcc printf builtins
 	va_list args;
-
-	va_start(args,format);
+	va_start(args, format);
 	internal_vprintf((void *)cBufPut, console_out, format, args);
 	va_end(args);
+#endif
+
+  /*
+    - this is not great. but allows using arm-gcc libc sprintf
+    if uses 1000 chars. need to report buffer overflow.
+    - also could overflow the console buffer.
+    - would be better if could write to the console output directly. but we would have to implement the FILE structure.
+  */
+
+  char buf[1000];
+	va_list args;
+	va_start(args, format);
+	int n = vsnprintf(buf, 1000, format, args);
+	va_end(args);
+
+  char *p = buf;
+  while(p < buf + n)  {
+
+    if(*p == '\n')
+      cBufPut(console_out, '\r');
+
+    cBufPut(console_out, *p);
+
+    ++p;
+  }
 }
 
 

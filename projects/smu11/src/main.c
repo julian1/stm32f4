@@ -73,7 +73,18 @@
       - done - state changes should be functions.  eg.  state_analog_up( ) should encode wha'ts needed then set the app->state var.
           state_change_()
 
-      - oranganize high/low level. even if share same data structures . 
+      - check we're actually using hsi. clocks.
+
+      - promopt for number eg.    'v 30.1mA'. 1A  etc.  then select range etc.
+          need sscanf...
+
+          using gnu libc. vsnprintf etc.
+           text    data     bss     dec     hex filename
+          31864    2484    4168   38516    9674 main.elf
+
+
+
+      - oranganize high/low level. even if share same data structures .
           console processing. from low level core control.
           use files.
 
@@ -124,12 +135,11 @@
 
 #include <stddef.h> // size_t
 #include <math.h> // nanf   fabs
-//#include <stdio.h>
+#include <stdio.h>    // sscanf
 #include <string.h>   // strcmp
 
 
 #include "buffer.h"
-#include "miniprintf2.h"
 #include "usart2.h"
 #include "util.h"
 
@@ -595,7 +605,7 @@ static void range_current_set(app_t *app, irange_t irange)
     case irange_100mA:
     case irange_10mA:
 
-      // VERY IMPORTANT - ensure high current output relay is on. and low current relay off. 
+      // VERY IMPORTANT - ensure high current output relay is on. and low current relay off.
       // before make changes that might increase current.
       output_set(app, app->irange, app->output);
       msleep(1);
@@ -1024,6 +1034,28 @@ static void update_soft_500ms(app_t *app )
     case ANALOG_UP: {
       // normal operation
 
+#if 0
+      usart_printf("=================\n" );
+      char buf[1000];
+      // ok. nice  we have libc snprintf
+      // No. i think this might be linking against the snprintf in miniprintf2. yes.
+      // because sprintf which we have not got implemented works.
+      // %.5f doesn't work?
+      sprintf(buf, "whoot %.5f yyy\n", 123.456);
+      usart_printf(buf);
+
+      float val;
+      sscanf("999.1234", "%f", &val);
+
+      usart_printf("val is %f\n", val );
+      usart_printf("=================\n" );
+
+      // so the issue is that usart_printf writes to a char taking function and doesn't block.
+      // but we don't have that.
+
+#endif
+
+
       // ... ok.
       // how to return. pass by reference...
       float ar[4];
@@ -1228,6 +1260,7 @@ static void state_change(app_t *app, state_t state )
 
 
     case ANALOG_UP: {
+
 
       usart_printf("turn on lp5v\n" );
       mux_io(app->spi);
