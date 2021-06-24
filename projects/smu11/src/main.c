@@ -595,7 +595,8 @@ static void range_current_set(app_t *app, irange_t irange)
     case irange_100mA:
     case irange_10mA:
 
-      // VERY IMPORTANT - ensure high current output relay is on. before any switch change that might increase current.
+      // VERY IMPORTANT - ensure high current output relay is on. and low current relay off. 
+      // before make changes that might increase current.
       output_set(app, app->irange, app->output);
       msleep(1);
 
@@ -1093,136 +1094,6 @@ static void update_soft_500ms(app_t *app )
   };
 }
 
-/*
-  EXTREME.
-
-  we need functions to handle transition.  not set the state variable. and interpret.
-  but setting the state variable. at the end of code, for the new state is ok. eg. even if embedded.
-
-  need better error handling.
-
-*/
-
-static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, CBuf *cmd_in )
-{
-  /*
-    TODO
-    put these buffers. in the app structure.
-    Actually. no. it's neater that they're not.
-  */
-
-
-  int32_t ch;
-
-  while((ch = cBufPop(console_in)) >= 0) {
-    // got a character
-
-    /*
-      these are not actually useful UI functions....
-    */
-    // change the actual current range
-    if(ch == 'u' || ch == 'i') {
-
-        irange_t new_irange = range_current_next( app->iset_range, ch == 'u' );
-        if(new_irange != app->iset_range) {
-          usart_printf("change iset_range %s\n", range_current_string(new_irange) );
-          app->iset_range = app->irange = new_irange;
-          range_current_set(app, new_irange);
-          dac_current_set(app, fabs(app->iset));
-         //  core_set( app, app->vset, app->iset, app->vset_range, new_irange );
-        }
-    }
-
-    // for voltage
-    if(ch == 'j' || ch == 'k') {
-
-      vrange_t new_vrange = range_voltage_next( app->vset_range, ch == 'j' );
-      if(new_vrange != app->vset_range) {
-        usart_printf("change vset_range %s\n", range_voltage_string(new_vrange ) );
-        app->vset_range = app->vrange = new_vrange;
-        range_voltage_set(app, new_vrange);
-        dac_voltage_set(app, fabs(app->vset));
-        // core_set( app, app->vset, app->iset, new_vrange, app->iset_range );
-      }
-    }
-
-
-    // toggle output... on/off. must only process char once. avoid relay oscillate
-    else if( ch == 'o') {
-      usart_printf("output \n", (!app->output) ? "on" : "off" );
-      mux_io(app->spi);
-      output_set(app, app->irange, !app->output);
-      cBufPut(console_out, '\n');
-
-
-    }
-
-    // toggle printing of adc values.
-    else if( ch == 'p') {
-      app->print_adc_values = ! app->print_adc_values;
-      cBufPut(console_out, '\n');
-    }
-
-    else if(ch == 'h') {
-      usart_printf("halt \n");
-      state_change(app, HALT);
-      return;
-    }
-    else if(ch == 'r') {
-      usart_printf("restart\n"); // not resume
-      state_change(app, FIRST);
-      return;
-    }
-
-
-    else {
-
-      /////////////////////////////////
-      // TODO for single character responses. then we probably don't want to
-      // copy to buffer. or output.
-
-      // copy to command buffer
-      cBufPut(cmd_in, ch);
-
-      // handling newlines...
-      if(ch == '\r') {
-        cBufPut(console_out, '\n');
-      }
-      // output char to console
-      cBufPut(console_out, ch);
-
-    }
-
-  }
-
-  // ok. this doesn't quite work.
-  // need a variable. in_command. for a long sequence command.
-
-
-  if(cBufPeekLast(cmd_in) == '\r') {
-
-    // we got a carriage return
-    static char tmp[1000];
-    size_t n = cBufCopy(cmd_in, tmp, sizeof(tmp));
-    tmp[n - 1] = 0;   // drop tailing line feed
-
-    // usart_printf("got command '%s'   %d\n", tmp, n);
-    usart_printf("command '%s'\n", tmp);
-
-
-    if(strcmp(tmp, ":halt") == 0) {
-      // go to halt state
-      // usart_printf("switch off\n");
-      // app->state = HALT;
-
-      state_change( app, HALT);
-      return;
-    }
-
-
-  }
-}
-
 
 
 
@@ -1536,17 +1407,150 @@ static void update(app_t *app)
       ;
   };
 
-  // OK. setting it in the fpga works???
+}
+
+
+
+
 
 
 /*
-  ok. so get the ref mux in. so we can test outputting a voltage.
-  don't need ref. use siggen for ref?
-  then do ads131.
+  EXTREME.
+
+  we need functions to handle transition.  not set the state variable. and interpret.
+  but setting the state variable. at the end of code, for the new state is ok. eg. even if embedded.
+
+  need better error handling.
 
 */
 
+static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, CBuf *cmd_in )
+{
+  /*
+    TODO
+    put these buffers. in the app structure.
+    Actually. no. it's neater that they're not.
+  */
+
+
+  int32_t ch;
+
+  while((ch = cBufPop(console_in)) >= 0) {
+    // got a character
+
+    /*
+      these are not actually useful UI functions....
+    */
+    // change the actual current range
+    if(ch == 'u' || ch == 'i') {
+
+        irange_t new_irange = range_current_next( app->iset_range, ch == 'u' );
+        if(new_irange != app->iset_range) {
+          usart_printf("change iset_range %s\n", range_current_string(new_irange) );
+          app->iset_range = app->irange = new_irange;
+          range_current_set(app, new_irange);
+          dac_current_set(app, fabs(app->iset));
+         //  core_set( app, app->vset, app->iset, app->vset_range, new_irange );
+        }
+    }
+
+    // for voltage
+    if(ch == 'j' || ch == 'k') {
+
+      vrange_t new_vrange = range_voltage_next( app->vset_range, ch == 'j' );
+      if(new_vrange != app->vset_range) {
+        usart_printf("change vset_range %s\n", range_voltage_string(new_vrange ) );
+        app->vset_range = app->vrange = new_vrange;
+        range_voltage_set(app, new_vrange);
+        dac_voltage_set(app, fabs(app->vset));
+        // core_set( app, app->vset, app->iset, new_vrange, app->iset_range );
+      }
+    }
+
+
+    // toggle output... on/off. must only process char once. avoid relay oscillate
+    else if( ch == 'o') {
+      usart_printf("output \n", (!app->output) ? "on" : "off" );
+      mux_io(app->spi);
+      output_set(app, app->irange, !app->output);
+      cBufPut(console_out, '\n');
+
+
+    }
+
+    // toggle printing of adc values.
+    else if( ch == 'p') {
+      app->print_adc_values = ! app->print_adc_values;
+      cBufPut(console_out, '\n');
+    }
+
+    else if(ch == 'h') {
+      usart_printf("halt \n");
+      state_change(app, HALT);
+      return;
+    }
+    else if(ch == 'r') {
+      usart_printf("restart\n"); // not resume
+      state_change(app, FIRST);
+      return;
+    }
+
+
+    else {
+
+      /////////////////////////////////
+      // TODO for single character responses. then we probably don't want to
+      // copy to buffer. or output.
+
+      // copy to command buffer
+      cBufPut(cmd_in, ch);
+
+      // handling newlines...
+      if(ch == '\r') {
+        cBufPut(console_out, '\n');
+      }
+      // output char to console
+      cBufPut(console_out, ch);
+
+    }
+
+  }
+
+  // ok. this doesn't quite work.
+  // need a variable. in_command. for a long sequence command.
+
+
+  if(cBufPeekLast(cmd_in) == '\r') {
+
+    // we got a carriage return
+    static char tmp[1000];
+    size_t n = cBufCopy(cmd_in, tmp, sizeof(tmp));
+    tmp[n - 1] = 0;   // drop tailing line feed
+
+    // usart_printf("got command '%s'   %d\n", tmp, n);
+    usart_printf("command '%s'\n", tmp);
+
+
+    if(strcmp(tmp, ":halt") == 0) {
+      // go to halt state
+      // usart_printf("switch off\n");
+      // app->state = HALT;
+
+      state_change( app, HALT);
+      return;
+    }
+
+
+  }
 }
+
+
+
+
+
+
+
+
 
 
 /*
