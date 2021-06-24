@@ -820,8 +820,9 @@ static void range_voltage_auto(app_t *app, float v)
       changed = true;
     }
   }
-  else if (fabs(v) > 10.5 && app->vrange > app->vset_range )   // we have to jump out... but don't jump out past the actual regulation range (vset_range)
+  else if (fabs(v) > 10.5 && app->vrange < app->vset_range )   // we have to jump out... but don't jump out past the actual regulation range (vset_range)
   {                                                             // else we'll be regulating on higher range than the set range
+
     vrange_t higher = range_voltage_next( app->vrange, 0);
     if(higher != app->vrange) {     // there is a higher range.
 
@@ -850,6 +851,11 @@ static void range_voltage_auto(app_t *app, float v)
 
 }
 
+/*
+  express ranging as local state machine?
+  iset_range   and imeas_range
+
+*/
 
 
 // shoudl we pass the irange?
@@ -1143,6 +1149,8 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
       mux_io(app->spi);
       output_set(app, app->irange, !app->output);
       cBufPut(console_out, '\n');
+
+
     }
 
     // toggle printing of adc values.
