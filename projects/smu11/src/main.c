@@ -73,20 +73,37 @@
       - done - state changes should be functions.  eg.  state_analog_up( ) should encode wha'ts needed then set the app->state var.
           state_change_()
 
-      - check we're actually using hsi. clocks.
+      - support console,  input values for vset, iset. then we have a working unit.
+        perhaps numeric num system.
+
+      - use case stmt with float format to control output digits
 
       - promopt for number eg.    'v 30.1mA'. 1A  etc.  then select range etc.
           need sscanf...
 
-          using gnu libc. vsnprintf etc.
+      - check we're actually using hsi. clocks.  we're using 16MHz. i think because that's the systick divider.
+          check spi performance.
+
+      - update to libc print format
+        sizes,
+        using miniprintf code.
+           text    data     bss     dec     hex filename
+          13860       8    4072   17940    4614 main.elf
+          353K  main.elf
+
+          using gnu libc. vsnprintf, sscanf etc.
            text    data     bss     dec     hex filename
           31864    2484    4168   38516    9674 main.elf
+          354K   main.elf
 
+      - small cheap bipolar 12bit dac.  would be better than adg333 and prec resistors. for offset nulling . for voltage ranging.
+          or use the dac8734
 
 
       - oranganize high/low level. even if share same data structures .
           console processing. from low level core control.
           use files.
+          regulate.c   operation.c 
 
       - we may need an adc filter. lowpass for the ranging.
 
