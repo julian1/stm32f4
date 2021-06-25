@@ -73,6 +73,9 @@
       - done - state changes should be functions.  eg.  state_analog_up( ) should encode wha'ts needed then set the app->state var.
           state_change_()
 
+
+      - note. input bias currents - on schematic - next to ops, and jfets.
+
       - support console,  input values for vset, iset. then we have a working unit.
         perhaps numeric num system.
 
@@ -1520,7 +1523,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
 
     // toggle output... on/off. must only process char once. avoid relay oscillate
     else if( ch == 'o') {
-      usart_printf("output \n", (!app->output) ? "on" : "off" );
+      usart_printf("output %s\n", (!app->output) ? "on" : "off" );
       mux_io(app->spi);
       output_set(app, app->irange, !app->output);
       cBufPut(console_out, '\n');
@@ -1530,6 +1533,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
 
     // toggle printing of adc values.
     else if( ch == 'p') {
+      usart_printf("printing %s\n", (!app->print_adc_values) ? "on" : "off" );
       app->print_adc_values = ! app->print_adc_values;
       cBufPut(console_out, '\n');
     }
