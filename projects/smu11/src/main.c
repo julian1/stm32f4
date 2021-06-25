@@ -1475,6 +1475,8 @@ static void update(app_t *app)
 
   need better error handling.
 
+
+  cmd_in should be in app.  but not other vars.
 */
 
 static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, CBuf *cmd_in )
@@ -1494,63 +1496,9 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
     /*
       these are not actually useful UI functions....
     */
-    // change the actual current range
-    if(ch == 'u' || ch == 'i') {
 
-        irange_t new_irange = range_current_next( app->iset_range, ch == 'u' );
-        if(new_irange != app->iset_range) {
-          usart_printf("change iset_range %s\n", range_current_string(new_irange) );
-          app->iset_range = app->irange = new_irange;
-          range_current_set(app, new_irange);
-          dac_current_set(app, fabs(app->iset));
-         //  core_set( app, app->vset, app->iset, app->vset_range, new_irange );
-        }
-    }
-
-    // for voltage
-    if(ch == 'j' || ch == 'k') {
-
-      vrange_t new_vrange = range_voltage_next( app->vset_range, ch == 'j' );
-      if(new_vrange != app->vset_range) {
-        usart_printf("change vset_range %s\n", range_voltage_string(new_vrange ) );
-        app->vset_range = app->vrange = new_vrange;
-        range_voltage_set(app, new_vrange);
-        dac_voltage_set(app, fabs(app->vset));
-        // core_set( app, app->vset, app->iset, new_vrange, app->iset_range );
-      }
-    }
-
-
-    // toggle output... on/off. must only process char once. avoid relay oscillate
-    else if( ch == 'o') {
-      usart_printf("output %s\n", (!app->output) ? "on" : "off" );
-      mux_io(app->spi);
-      output_set(app, app->irange, !app->output);
-      cBufPut(console_out, '\n');
-
-
-    }
-
-    // toggle printing of adc values.
-    else if( ch == 'p') {
-      usart_printf("printing %s\n", (!app->print_adc_values) ? "on" : "off" );
-      app->print_adc_values = ! app->print_adc_values;
-      cBufPut(console_out, '\n');
-    }
-
-    else if(ch == 'h') {
-      usart_printf("halt \n");
-      state_change(app, HALT);
-      return;
-    }
-    else if(ch == 'r') {
-      usart_printf("restart\n"); // not resume
-      state_change(app, FIRST);
-      return;
-    }
-
-
-    else {
+    // we're in a command
+    if( cBufPeekFirst(cmd_in) == ':') {
 
       /////////////////////////////////
       // TODO for single character responses. then we probably don't want to
@@ -1558,14 +1506,84 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
 
       // copy to command buffer
       cBufPut(cmd_in, ch);
-
+/*
       // handling newlines...
       if(ch == '\r') {
         cBufPut(console_out, '\n');
       }
+*/
       // output char to console
       cBufPut(console_out, ch);
+    }
 
+
+    // not in a command...  so ch process
+    else {
+
+      // start a command
+      if(ch == ':') {
+
+        // start a command
+        cBufPut(cmd_in, ch);
+
+        // output char to console
+        cBufPut(console_out, ch);
+      }
+
+      // change the actual current range
+      else if(ch == 'u' || ch == 'i') {
+
+          irange_t new_irange = range_current_next( app->iset_range, ch == 'u' );
+          if(new_irange != app->iset_range) {
+            usart_printf("change iset_range %s\n", range_current_string(new_irange) );
+            app->iset_range = app->irange = new_irange;
+            range_current_set(app, new_irange);
+            dac_current_set(app, fabs(app->iset));
+           //  core_set( app, app->vset, app->iset, app->vset_range, new_irange );
+          }
+      }
+
+      // for voltage
+      else if(ch == 'j' || ch == 'k') {
+
+        vrange_t new_vrange = range_voltage_next( app->vset_range, ch == 'j' );
+        if(new_vrange != app->vset_range) {
+          usart_printf("change vset_range %s\n", range_voltage_string(new_vrange ) );
+          app->vset_range = app->vrange = new_vrange;
+          range_voltage_set(app, new_vrange);
+          dac_voltage_set(app, fabs(app->vset));
+          // core_set( app, app->vset, app->iset, new_vrange, app->iset_range );
+        }
+      }
+
+
+      // toggle output... on/off. must only process char once. avoid relay oscillate
+      else if( ch == 'o') {
+        usart_printf("output %s\n", (!app->output) ? "on" : "off" );
+        mux_io(app->spi);
+        output_set(app, app->irange, !app->output);
+        // cBufPut(console_out, '\n');
+
+
+      }
+      // toggle printing of adc values.
+      else if( ch == 'p') {
+        usart_printf("printing %s\n", (!app->print_adc_values) ? "on" : "off" );
+        app->print_adc_values = ! app->print_adc_values;
+        // cBufPut(console_out, '\n');
+      }
+      // halt
+      else if(ch == 'h') {
+        usart_printf("halt \n");
+        state_change(app, HALT);
+        return;
+      }
+      // restart
+      else if(ch == 'r') {
+        usart_printf("restart\n"); // not resume
+        state_change(app, FIRST);
+        return;
+      }
     }
 
   }
@@ -1580,9 +1598,10 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
     static char tmp[1000];
     size_t n = cBufCopy(cmd_in, tmp, sizeof(tmp));
     tmp[n - 1] = 0;   // drop tailing line feed
+                      // TODO. cBufCopy should potentially do this...
 
     // usart_printf("got command '%s'   %d\n", tmp, n);
-    usart_printf("command '%s'\n", tmp);
+    usart_printf("got command '%s'\n", tmp);
 
 
     if(strcmp(tmp, ":halt") == 0) {
