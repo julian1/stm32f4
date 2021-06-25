@@ -106,7 +106,7 @@
       - oranganize high/low level. even if share same data structures .
           console processing. from low level core control.
           use files.
-          regulate.c   operation.c 
+          regulate.c   operation.c
 
       - we may need an adc filter. lowpass for the ranging.
 
@@ -1499,37 +1499,24 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
 
     // we're in a command
     if( cBufPeekFirst(cmd_in) == ':') {
-
-      /////////////////////////////////
-      // TODO for single character responses. then we probably don't want to
-      // copy to buffer. or output.
-
-      // copy to command buffer
+      // only push chars if we're in a command that starts with ':'
+      // push ch to cmd buffer
       cBufPut(cmd_in, ch);
-/*
-      // handling newlines...
-      if(ch == '\r') {
-        cBufPut(console_out, '\n');
-      }
-*/
-      // output char to console
+      // echo the char to console
       cBufPut(console_out, ch);
     }
 
 
-    // not in a command...  so ch process
+    // not in a command...  so process ch
     else {
 
       // start a command
       if(ch == ':') {
-
-        // start a command
+        // push ch to cmd buffer
         cBufPut(cmd_in, ch);
-
-        // output char to console
+        // echo the char to console
         cBufPut(console_out, ch);
       }
-
       // change the actual current range
       else if(ch == 'u' || ch == 'i') {
 
@@ -1542,7 +1529,6 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
            //  core_set( app, app->vset, app->iset, app->vset_range, new_irange );
           }
       }
-
       // for voltage
       else if(ch == 'j' || ch == 'k') {
 
@@ -1555,16 +1541,12 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
           // core_set( app, app->vset, app->iset, new_vrange, app->iset_range );
         }
       }
-
-
       // toggle output... on/off. must only process char once. avoid relay oscillate
       else if( ch == 'o') {
         usart_printf("output %s\n", (!app->output) ? "on" : "off" );
         mux_io(app->spi);
         output_set(app, app->irange, !app->output);
         // cBufPut(console_out, '\n');
-
-
       }
       // toggle printing of adc values.
       else if( ch == 'p') {
@@ -1585,14 +1567,12 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
         return;
       }
     }
-
   }
-
-  // ok. this doesn't quite work.
-  // need a variable. in_command. for a long sequence command.
 
 
   if(cBufPeekLast(cmd_in) == '\r') {
+
+    usart_printf("got CR\n");
 
     // we got a carriage return
     static char tmp[1000];
@@ -1733,6 +1713,11 @@ int main(void)
 
   usart_printf("\n--------\n");
   usart_printf("starting loop\n");
+
+  printf("sizeof float  %u\n", sizeof(float));
+  printf("sizeof double %u\n", sizeof(double));
+  printf("sizeof bool   %u\n", sizeof(bool));
+
   usart_flush();
   // usart_printf("size %d\n", sizeof(fbuf) / sizeof(float));
 
