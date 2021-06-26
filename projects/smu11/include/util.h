@@ -3,6 +3,9 @@
   because might change
 */
 
+#include <stddef.h> // size_t
+
+extern char * uint_to_bits(char *buf, size_t width, uint32_t value);
 
 extern void led_setup(void);
 extern void led_toggle(void);

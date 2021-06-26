@@ -468,7 +468,7 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
   we need a function to set the voltage range. and set the dac value.
 
 */
-  usart_printf("voltage , switch %s -> %s\n", range_voltage_string(app->vrange), range_voltage_string(vrange));
+  usart_printf("range_voltage_set %s -> %s\n", range_voltage_string(app->vrange), range_voltage_string(vrange));
 
   mux_io(app->spi);   // would be better to avoid calling if don't need.
 
@@ -615,7 +615,7 @@ static void range_current_set(app_t *app, irange_t irange)
     if output is on. then we also have to change the output relay...
   */
 
-  usart_printf("current, switch %s -> %s\n", range_current_string(app->irange), range_current_string(irange));
+  usart_printf("range_current_switch %s -> %s\n", range_current_string(app->irange), range_current_string(irange));
 
   mux_io(app->spi);   // would be better to avoid calling if don't need.
 
@@ -1583,6 +1583,8 @@ static void process_cmd(app_t *app, const char *s )
 
 static void process_ch(app_t *app, const char ch )
 {
+
+  usart_printf("char code %d\n", ch );
 
   // change the actual current range
   if(ch == 'u' || ch == 'i') {

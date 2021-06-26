@@ -14,6 +14,12 @@ make
 
 # eg. uart
 screen /dev/ttyUSB0 115200
+(ctrl-a ctrk-k to exit)
+or
+picocom --baud 115200 /dev/ttyUSB0
+(ctrl-a ctrk-x to exit)
+
+
 
 cd projects/xxx
 make clobber
