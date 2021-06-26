@@ -12,12 +12,19 @@ make
 # or git submodules init for libopencm3 etc.
 
 
-# eg. uart
+# serial connection
+
+rlwrap -a picocom --baud 115200 /dev/ttyUSB0
+(ctrl-c ctrl-c  to exit)
+
+or
 screen /dev/ttyUSB0 115200
 (ctrl-a ctrk-k to exit)
 or
 picocom --baud 115200 /dev/ttyUSB0
 (ctrl-a ctrk-x to exit)
+
+etc.
 
 
 
@@ -27,7 +34,7 @@ make
 
 
 # stlink
-# actually, better in separate windows, avoid accidently swapping
+# actually, better in separate windows, avoids accidently swapping wrong context
 openocd -f openocd.cfg
 rlwrap nc localhost 4444
 > reset
