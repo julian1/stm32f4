@@ -73,6 +73,9 @@
       - done - state changes should be functions.  eg.  state_analog_up( ) should encode wha'ts needed then set the app->state var.
           state_change_()
 
+      - add a logic check somewhere. that comz is not on and output lc relay. 
+
+      - change the output relay logic.  if on, then large relay always on. just turn the lc relay off if on high-current range to protect it.
 
       - note. input bias currents - on schematic - next to ops, and jfets.
 
@@ -341,8 +344,10 @@ static vrange_t range_voltage_next( vrange_t vrange, bool dir)
 {
   // dir==1 ve == lower voltage == lower range
 
-  // can simplify - enum addition ... etc.
-  // but this makes it pretty clear
+  /* could just use addition - enum addition ... etc.
+    but this makes things clearer. 
+    and enables encoding ranges that don't support iterating.
+  */
 
   if(dir) {
     switch(vrange)
@@ -414,7 +419,7 @@ static void error(app_t *app, const char *msg)
 
 
 
-static void dac_current_set(app_t *app, float v)
+static void dac_current_set(app_t *app, float i)
 {
   // wrapper over raw spi is good ...
   // can record the value
@@ -422,13 +427,13 @@ static void dac_current_set(app_t *app, float v)
 
 
   // value should always be positive...
-  if(v < 0) {
+  if(i < 0) {
     error(app, "dac_current set i negative");
     return;
   }
 
   mux_dac(app->spi);
-  spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( v ));
+  spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( i ));
 }
 
 
@@ -1465,19 +1470,174 @@ static void update(app_t *app)
 
 
 
+////////////////////////////////////////////
 
 
-/*
-  EXTREME.
-
-  we need functions to handle transition.  not set the state variable. and interpret.
-  but setting the state variable. at the end of code, for the new state is ok. eg. even if embedded.
-
-  need better error handling.
+static bool strequal(const char *s1, const char *s2)
+{
+  return (strcmp(s1, s2) == 0);
+}
 
 
-  cmd_in should be in app.  but not other vars.
-*/
+
+static int range_and_vset_from_voltage(float v, vrange_t *vrange, float *vset)
+{
+  // range and vset from
+  // we have to extract the range and the adjusted float value...
+  if(v > 100) {
+    // error
+    *vrange = 0;
+    *vset = 0;
+    return -123;
+  } else if(v > 10) {
+    *vrange = vrange_100V;
+    *vset = v * 0.1;
+  } else if(v > 1) {
+    *vset = v * 1;
+    *vrange = vrange_10V;
+  } else if(v > 0.1) {
+    *vrange = vrange_1V;
+    *vset = v * 10; 
+  } else  {
+    *vrange = vrange_100mV;
+    *vset = v * 100;
+  }
+  return 0;
+}
+
+static int voltage_from_unit(float v, const char *unit,  float *vv)
+{
+  // no unit, then assume voltage?
+
+  if(strequal(unit, "V")) {
+    *vv = v;
+  } else if(strequal(unit, "mV")) {
+    *vv = v * 1e-3f ;
+  } else if(strequal(unit, "uV")) {
+    *vv = v * 1e-6f ;
+  } else {
+    printf("unknown unit\n");
+    // TODO error...
+    *vv = 0;
+    return -123;
+  }
+  return 0;
+}
+
+
+
+
+static void process_cmd(app_t *app, const char *s )
+{
+  UNUSED(app);
+
+ // interesting.
+  char  cmd[100];  *cmd = 0;
+  char  param[100]; *param = 0;
+  float value ;
+  char  unit[100];  *unit = 0;
+
+  // strtok. would be better, but will fail to distinguish value and unit without whitespace.
+  // strtok, also modifies it's argument which isn't nice.
+  // ie. ":set  v  123.4mV"
+  // int n = sscanf(":set  v  123.45mV", "%100s %100s %f %100s", cmd, param, &value, unit);
+  int n = sscanf(s, "%100s %100s %f %100s", cmd, param, &value, unit);
+  if(n == 4 && strequal(cmd, ":set") && strequal(param, "v") ) {
+
+    // lower(value);
+    float v;
+
+    if(voltage_from_unit(value, unit,  &v ) < 0) {
+      usart_printf("error converting voltage and unit\n");
+      return;
+    }
+    usart_printf("voltage %gV\n", v);
+
+
+    vrange_t vset_range;
+    float vset;
+
+    if(range_and_vset_from_voltage(v, &vset_range, &vset) < 0) {
+      usart_printf("error converting voltage to range and vset\n");
+      return;
+    }
+
+    usart_printf("vrange %s, vset %gV\n", range_voltage_string(vset_range), vset);
+
+    // OK. now we have to do a set core. if the sign changes....
+    // that's a bit more complicated than we want.
+
+    // think 
+
+    core_set( app, vset, app->iset, vset_range, app->iset_range);
+  
+
+  } else {
+
+      usart_printf("unrecognized command '%s'   tokens=%d, cmd='%s' param='%s'\n", s, n, cmd, param);
+  }
+}
+
+
+
+
+static void process_ch(app_t *app, const char ch )
+{
+
+  // change the actual current range
+  if(ch == 'u' || ch == 'i') {
+
+      irange_t new_irange = range_current_next( app->iset_range, ch == 'u' );
+      if(new_irange != app->iset_range) {
+        usart_printf("change iset_range %s\n", range_current_string(new_irange) );
+        app->iset_range = app->irange = new_irange;
+        range_current_set(app, new_irange);
+        dac_current_set(app, fabs(app->iset));
+       //  core_set( app, app->vset, app->iset, app->vset_range, new_irange );
+      }
+  }
+  // for voltage
+  else if(ch == 'j' || ch == 'k') {
+
+    vrange_t new_vrange = range_voltage_next( app->vset_range, ch == 'j' );
+    if(new_vrange != app->vset_range) {
+      usart_printf("change vset_range %s\n", range_voltage_string(new_vrange ) );
+      app->vset_range = app->vrange = new_vrange;
+      range_voltage_set(app, new_vrange);
+      dac_voltage_set(app, fabs(app->vset));
+      // core_set( app, app->vset, app->iset, new_vrange, app->iset_range );
+    }
+  }
+  // toggle output... on/off. must only process char once. avoid relay oscillate
+  else if( ch == 'o') {
+    usart_printf("output %s\n", (!app->output) ? "on" : "off" );
+    mux_io(app->spi);
+    output_set(app, app->irange, !app->output);
+    // cBufPut(console_out, '\n');
+  }
+  // toggle printing of adc values.
+  else if( ch == 'p') {
+    usart_printf("printing %s\n", (!app->print_adc_values) ? "on" : "off" );
+    app->print_adc_values = ! app->print_adc_values;
+    // cBufPut(console_out, '\n');
+  }
+  // halt
+  else if(ch == 'h') {
+    usart_printf("halt \n");
+    state_change(app, HALT);
+    return;
+  }
+  // restart
+  else if(ch == 'r') {
+    usart_printf("restart\n"); // not resume
+    state_change(app, FIRST);
+    return;
+  }
+
+
+}
+
+
 
 static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, CBuf *cmd_in )
 {
@@ -1517,6 +1677,10 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
         // echo the char to console
         cBufPut(console_out, ch);
       }
+
+      process_ch(app, ch );
+
+#if 0
       // change the actual current range
       else if(ch == 'u' || ch == 'i') {
 
@@ -1566,24 +1730,28 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
         state_change(app, FIRST);
         return;
       }
+#endif
     }
   }
 
 
   if(cBufPeekLast(cmd_in) == '\r') {
 
-    usart_printf("got CR\n");
+    // usart_printf("got CR\n");
 
     // we got a carriage return
     static char tmp[1000];
     size_t n = cBufCopy(cmd_in, tmp, sizeof(tmp));
     tmp[n - 1] = 0;   // drop tailing line feed
                       // TODO. cBufCopy should potentially do this...
+                      // no. if want non-sentinal terminaed raw bytes. eg. for network code...
 
     // usart_printf("got command '%s'   %d\n", tmp, n);
     usart_printf("got command '%s'\n", tmp);
 
+    process_cmd(app, tmp);
 
+#if 0
     if(strcmp(tmp, ":halt") == 0) {
       // go to halt state
       // usart_printf("switch off\n");
@@ -1592,7 +1760,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
       state_change( app, HALT);
       return;
     }
-
+#endif
 
   }
 }
@@ -1714,9 +1882,9 @@ int main(void)
   usart_printf("\n--------\n");
   usart_printf("starting loop\n");
 
+  printf("sizeof bool   %u\n", sizeof(bool));
   printf("sizeof float  %u\n", sizeof(float));
   printf("sizeof double %u\n", sizeof(double));
-  printf("sizeof bool   %u\n", sizeof(bool));
 
   usart_flush();
   // usart_printf("size %d\n", sizeof(fbuf) / sizeof(float));
