@@ -73,7 +73,7 @@
       - done - state changes should be functions.  eg.  state_analog_up( ) should encode wha'ts needed then set the app->state var.
           state_change_()
 
-      - add a logic check somewhere. that comz is not on and output lc relay. 
+      - add a logic check somewhere. that comz is not on and output lc relay.
 
       - change the output relay logic.  if on, then large relay always on. just turn the lc relay off if on high-current range to protect it.
 
@@ -204,7 +204,7 @@
 
 
 typedef enum state_t {
-  FIRST,        // INITIAL
+  FIRST,        // change name INITIAL?
   DIGITAL_UP,   // DIGIAL_DIGITAL_UP
   // ERROR,
   ANALOG_UP,
@@ -345,7 +345,7 @@ static vrange_t range_voltage_next( vrange_t vrange, bool dir)
   // dir==1 ve == lower voltage == lower range
 
   /* could just use addition - enum addition ... etc.
-    but this makes things clearer. 
+    but this makes things clearer.
     and enables encoding ranges that don't support iterating.
   */
 
@@ -1156,23 +1156,23 @@ static void update_soft_500ms(app_t *app )
 
 static void quadrant_set( app_t *app, bool v, bool i)
 {
-    // RULES.
-    // so. if voltage is positive use clamp max.  clamp min/max follows voltage.
-    // negative current. can still be source or sink. depending on polarity.
-    // ie. clamp direction min/max following voltage.
+  // RULES.
+  // so. if voltage is positive use clamp max.  clamp min/max follows voltage.
+  // negative current. can still be source or sink. depending on polarity.
+  // ie. clamp direction min/max following voltage.
 
-    mux_io(app->spi);
+  mux_io(app->spi);
 
-    uint32_t vv = v ? CLAMP1_VSET_INV : CLAMP1_VSET;
-    uint32_t ii = i ? CLAMP1_ISET_INV : CLAMP1_ISET;
-
-
-    io_write(app->spi, REG_CLAMP1, ~(vv | ii ));
+  uint32_t vv = v ? CLAMP1_VSET_INV : CLAMP1_VSET;
+  uint32_t ii = i ? CLAMP1_ISET_INV : CLAMP1_ISET;
 
 
-    uint32_t minmax = v ?  CLAMP2_MAX : CLAMP2_MIN;
+  io_write(app->spi, REG_CLAMP1, ~(vv | ii ));
 
-    io_write(app->spi, REG_CLAMP2, ~( minmax ) );     // min of current or voltage
+
+  uint32_t minmax = v ?  CLAMP2_MAX : CLAMP2_MIN;
+
+  io_write(app->spi, REG_CLAMP2, ~( minmax ) );     // min of current or voltage
 }
 
 
@@ -1181,25 +1181,25 @@ static void quadrant_set( app_t *app, bool v, bool i)
 
 static void core_set( app_t *app, float v, float i, vrange_t vrange, irange_t irange)
 {
+  // TODO change arg order.
 
 
-    // voltage
-    dac_voltage_set(app, fabs( v));
-    dac_current_set(app, fabs( i));
+  // voltage
+  dac_voltage_set(app, fabs( v));
+  dac_current_set(app, fabs( i));
 
 
-    quadrant_set( app, v > 0.f, i > 0.f ) ;
+  quadrant_set( app, v > 0.f, i > 0.f ) ;
 
-    // ignoring range
-    app->vset = v;
-    app->iset = i;
+  // ignoring range
+  app->vset = v;
+  app->iset = i;
 
-    app->vset_range = vrange;// vrange_10V;
-    app->iset_range = irange;// irange_10mA;
+  app->vset_range = vrange;// vrange_10V;
+  app->iset_range = irange;// irange_10mA;
 
-    range_voltage_set(app, app->vset_range);
-    range_current_set(app, app->iset_range);
-
+  range_voltage_set(app, app->vset_range);
+  range_current_set(app, app->iset_range);
 }
 
 
@@ -1473,11 +1473,6 @@ static void update(app_t *app)
 ////////////////////////////////////////////
 
 
-static bool strequal(const char *s1, const char *s2)
-{
-  return (strcmp(s1, s2) == 0);
-}
-
 
 
 static int range_and_vset_from_voltage(float v, vrange_t *vrange, float *vset)
@@ -1497,7 +1492,7 @@ static int range_and_vset_from_voltage(float v, vrange_t *vrange, float *vset)
     *vrange = vrange_10V;
   } else if(v > 0.1) {
     *vrange = vrange_1V;
-    *vset = v * 10; 
+    *vset = v * 10;
   } else  {
     *vrange = vrange_100mV;
     *vset = v * 100;
@@ -1567,10 +1562,10 @@ static void process_cmd(app_t *app, const char *s )
     // OK. now we have to do a set core. if the sign changes....
     // that's a bit more complicated than we want.
 
-    // think 
+    // think
 
     core_set( app, vset, app->iset, vset_range, app->iset_range);
-  
+
 
   } else {
 

@@ -20,6 +20,7 @@
 #include <stddef.h> // size_t
 #include <stdarg.h> // va_starrt etc
 #include <stdio.h>  // vsprintf
+#include <string.h>  // strcmp
 
 
 
@@ -41,6 +42,13 @@ char * uint_to_bits(char *buf, size_t width, uint32_t value)
 }
 
 
+bool strequal(const char *s1, const char *s2)
+{
+  return (strcmp(s1, s2) == 0);
+}
+
+
+
 
 ////////////////////////////////////////////////////////
 
@@ -50,7 +58,7 @@ char * uint_to_bits(char *buf, size_t width, uint32_t value)
 #define LED_PORT      GPIOE
 #define LED_OUT       GPIO0
 
-
+// move this stuff back to main.c and setup...
 
 void led_setup(void)
 {
@@ -150,14 +158,16 @@ static CBuf *console_out = NULL;
 
 
 
-void usart_printf_init( CBuf *output)
+void usart_printf_init(CBuf *output)
 {
+  // change name usart_init_console... not sure.
+
   console_out = output;
 }
 
 
 
-void usart_printf( const char *format, ... )
+void usart_printf(const char *format, ...)
 {
   /*
     if(!console_out)
@@ -199,7 +209,7 @@ void usart_printf( const char *format, ... )
 }
 
 
-void usart_flush( void)
+void usart_flush(void)
 {
   // this avoids having to pull in usart.h stuff as dependency
   // don't think we need this as a separrate function
