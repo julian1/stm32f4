@@ -73,7 +73,9 @@
       - done - state changes should be functions.  eg.  state_analog_up( ) should encode wha'ts needed then set the app->state var.
           state_change_()
 
-      - add a logic check somewhere. that comz is not on and output lc relay.
+
+      - add a logic check somewhere. that comz relay is not on and output lc relay also on.
+          in main update loop. should be simple.
 
       - change the output relay logic.  if on, then large relay always on. just turn the lc relay off if on high-current range to protect it.
 
@@ -1475,7 +1477,26 @@ static void update(app_t *app)
 
 
 
-static int range_and_vset_from_voltage(float v, vrange_t *vrange, float *vset)
+static int voltage_from_unit(float v, const char *unit,  float *vv)
+{
+  // no unit, then assume voltage?
+
+  if(strequal(unit, "V")) {
+    *vv = v;
+  } else if(strequal(unit, "mV")) {
+    *vv = v * 1e-3f ;
+  } else if(strequal(unit, "uV")) {
+    *vv = v * 1e-6f ;
+  } else {
+    printf("unknown unit\n");
+    // TODO error...
+    *vv = 0;
+    return -123;
+  }
+  return 0;
+}
+
+static int vrange_and_vset_from_voltage(float v, vrange_t *vrange, float *vset)
 {
   // range and vset from
   // we have to extract the range and the adjusted float value...
@@ -1500,24 +1521,8 @@ static int range_and_vset_from_voltage(float v, vrange_t *vrange, float *vset)
   return 0;
 }
 
-static int voltage_from_unit(float v, const char *unit,  float *vv)
-{
-  // no unit, then assume voltage?
 
-  if(strequal(unit, "V")) {
-    *vv = v;
-  } else if(strequal(unit, "mV")) {
-    *vv = v * 1e-3f ;
-  } else if(strequal(unit, "uV")) {
-    *vv = v * 1e-6f ;
-  } else {
-    printf("unknown unit\n");
-    // TODO error...
-    *vv = 0;
-    return -123;
-  }
-  return 0;
-}
+
 
 
 
@@ -1552,7 +1557,7 @@ static void process_cmd(app_t *app, const char *s )
     vrange_t vset_range;
     float vset;
 
-    if(range_and_vset_from_voltage(v, &vset_range, &vset) < 0) {
+    if(vrange_and_vset_from_voltage(v, &vset_range, &vset) < 0) {
       usart_printf("error converting voltage to range and vset\n");
       return;
     }
@@ -1561,11 +1566,9 @@ static void process_cmd(app_t *app, const char *s )
 
     // OK. now we have to do a set core. if the sign changes....
     // that's a bit more complicated than we want.
-
     // think
 
     core_set( app, vset, app->iset, vset_range, app->iset_range);
-
 
   } else {
 
