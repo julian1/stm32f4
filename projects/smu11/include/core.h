@@ -49,14 +49,7 @@
 #define RAILS_LP30V     (1<<2)
 #define RAILS_LP60V     (1<<3)
 
-
-#define REG_RAILS_OE    24
-#define RAILS_OE        (1<<0)
-
-
-// 11 is soft reset
 #define CORE_SOFT_RST   11
-
 
 
 #define REG_DAC_REF_MUX   12
@@ -115,6 +108,10 @@
 
 
 
+#define REG_RAILS_OE      24
+#define RAILS_OE          (1<<0)
+
+
 /////////////////////////
 // smu10
 #define REG_INA_VFB_SW    25
@@ -137,10 +134,10 @@
 #define INA_IFB_SW3_CTL   (1<<2)
 
 
-#define REG_INA_VFB_ATTEN_SW   29
-#define INA_VFB_ATTEN_SW1_CTL   (1<<0)
-#define INA_VFB_ATTEN_SW2_CTL   (1<<1)
-#define INA_VFB_ATTEN_SW3_CTL   (1<<2)
+#define REG_INA_VFB_ATTEN_SW  29
+#define INA_VFB_ATTEN_SW1_CTL (1<<0)
+#define INA_VFB_ATTEN_SW2_CTL (1<<1)
+#define INA_VFB_ATTEN_SW3_CTL (1<<2)
 
 
 #define REG_ISENSE_MUX    30
