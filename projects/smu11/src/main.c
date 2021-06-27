@@ -1081,27 +1081,6 @@ static void update_soft_500ms(app_t *app )
     case ANALOG_UP: {
       // normal operation
 
-#if 0
-      usart_printf("=================\n" );
-      char buf[1000];
-      // ok. nice  we have libc snprintf
-      // No. i think this might be linking against the snprintf in miniprintf2. yes.
-      // because sprintf which we have not got implemented works.
-      // %.5f doesn't work?
-      sprintf(buf, "whoot %.5f yyy\n", 123.456);
-      usart_printf(buf);
-
-      float val;
-      sscanf("999.1234", "%f", &val);
-
-      usart_printf("val is %f\n", val );
-      usart_printf("=================\n" );
-
-      // so the issue is that usart_printf writes to a char taking function and doesn't block.
-      // but we don't have that.
-
-#endif
-
 
       // ... ok.
       // how to return. pass by reference...
@@ -1164,7 +1143,7 @@ static void update_soft_500ms(app_t *app )
       // usart_printf("v is %f\n", v);
 
 
-      // switching coto relays is oscilating...
+      // TODO. change back so that can change both together,
 
       bool changed_current = range_current_auto(app, i );
       if(!changed_current)
@@ -1957,6 +1936,31 @@ int main(void)
 	for (;;);
 	return 0;
 }
+
+
+
+
+#if 0
+      usart_printf("=================\n" );
+      char buf[1000];
+      // ok. nice  we have libc snprintf
+      // No. i think this might be linking against the snprintf in miniprintf2. yes.
+      // because sprintf which we have not got implemented works.
+      // %.5f doesn't work?
+      sprintf(buf, "whoot %.5f yyy\n", 123.456);
+      usart_printf(buf);
+
+      float val;
+      sscanf("999.1234", "%f", &val);
+
+      usart_printf("val is %f\n", val );
+      usart_printf("=================\n" );
+
+      // so the issue is that usart_printf writes to a char taking function and doesn't block.
+      // but we don't have that.
+
+#endif
+
 
 
 #if 0
