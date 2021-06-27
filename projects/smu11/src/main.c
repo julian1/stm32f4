@@ -84,6 +84,7 @@
           active_range_voltage_set()...
 
 
+    - // want a function that can print max of 4,5,6 digits...
 
       - add a logic check somewhere. that comz relay is not on and output lc relay also on.
           in main update loop. should be simple.
@@ -969,7 +970,7 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
 
 
 
-
+// want a function that can print max of 4,5,6 digits...
 
 
 
@@ -987,10 +988,15 @@ static void print_current(irange_t irange, float val)
 
   switch( irange)
   {
-
+    // not sure whether we should care about this...
 
     case irange_1uA:
-      usart_printf("%fnA", val * 1e9f);
+      // when power is off... kind of nice to report...
+      if(fabs(val) * 1e9f > 1)
+        usart_printf("%fnA", val * 1e9f);
+      else
+        // this will be more valid, with a higher valued resistor 100M or 1G. 
+        usart_printf("%fpA", val * 1e12f);
       break;
 
 
@@ -1355,7 +1361,8 @@ static void state_change(app_t *app, state_t state )
       // core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
       // core_set( app, 5.f , 3.f, vrange_10V, irange_10mA );         // 5V source, 5mA compliance,
       // core_set( app, 0.5f , 3.f, vrange_10V, irange_10mA );         // oscillates.
-      core_set( app, 5.f , 3.f, vrange_1V, irange_10mA );         // 5V source, 5mA compliance,
+      // core_set( app, 5.f , 3.f, vrange_1V, irange_10mA );         // 5V source, 5mA compliance,
+      core_set( app, -5.f , -3.f, vrange_1V, irange_10mA );         // 5V source, 5mA compliance,
       // core_set( app, 11.0f , 3.0f );         // 5V source, 5mA compliance,
       // core_set( app, -5.f , -3.0f );         // 5V source, 5mA compliance,
 
