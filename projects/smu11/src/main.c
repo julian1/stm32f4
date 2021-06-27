@@ -1052,6 +1052,9 @@ static void print_voltage(vrange_t vrange, float val)
   and accumulate or filter the adc.
 
 
+  but we need to have the adc read, on the adc interupt.
+  then have this soft range update. use the last recorded adc value , rather than read the adc here.
+
 */
 
 static void update_soft_500ms(app_t *app )
