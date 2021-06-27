@@ -265,7 +265,9 @@ typedef enum irange_t
 {
   // TODO rename range_current_none, range_current_1x etc.
 
-  irange_10uA = 3,
+  irange_1uA = 3,
+
+  irange_10uA ,
   irange_100uA,
   irange_1mA,
   irange_10mA,
@@ -275,31 +277,6 @@ typedef enum irange_t
 
 } irange_t;
 
-
-#if 0
-typedef struct core_t
-{
-  // having this as a separate strucutre localizes state extent.
-
-
-  // uint32_t  spi;
-
-  // the current measurement/regulation range.
-  // float     vdac;
-  // float     idac;
-  vrange_t  vrange;
-  irange_t  irange;
-
-
-  // the set regulation range.
-  float     vset;
-  vrange_t  vset_range;
-
-  float     iset;
-  irange_t  iset_range;
-
-} core_t;
-#endif
 
 
 
@@ -557,6 +534,9 @@ static const char * range_current_string( irange_t irange)
 
   switch(irange)
   {
+
+    case irange_1uA:    return "1uA" ;
+
     case irange_10uA:   return "10uA" ;
     case irange_100uA:  return "100uA";
     case irange_1mA:    return "1mA";
@@ -584,7 +564,9 @@ static irange_t range_current_next( irange_t irange, bool dir)
     // lower current range. ie. higher value shunt resistor.
     switch(irange)
     {
-      case irange_10uA:   return irange_10uA;  // no change
+      case irange_1uA:   return irange_1uA;  // no change
+
+      case irange_10uA:   return irange_1uA;
       case irange_100uA:  return irange_10uA;
       case irange_1mA:    return irange_100uA;
       case irange_10mA:   return irange_1mA;
@@ -597,6 +579,8 @@ static irange_t range_current_next( irange_t irange, bool dir)
     // higher current range. ie lower value shunt resistor
     switch(irange)
     {
+      case irange_1uA:   return irange_10uA;  
+
       case irange_10uA:   return irange_100uA;
       case irange_100uA:  return irange_1mA;
       case irange_1mA:    return irange_10mA;
@@ -718,13 +702,10 @@ static void range_current_set(app_t *app, irange_t irange)
     case irange_100uA:
     // 1M resistor for 10V swing.
     case irange_10uA:
-
       // turn on current range relay y
       io_write(app->spi, REG_RELAY_COM,  RELAY_COM_Y);
-
       // turn off all fets used on comx range
       io_write(app->spi, REG_IRANGE_X_SW, 0 );
-
       // gain 1x active low
       io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
       // turn on sense amplifier 3
@@ -753,6 +734,27 @@ static void range_current_set(app_t *app, irange_t irange)
       msleep(1);
       output_set(app, app->irange, app->output);
       break;
+
+
+    case irange_1uA:
+      // turn on current range relay Z
+      io_write(app->spi, REG_RELAY_COM,  RELAY_COM_Z);
+      // turn off all fets used on comx range
+      io_write(app->spi, REG_IRANGE_X_SW, 0 );
+      // gain 1x active low
+      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
+      // turn on sense amplifier 3
+      io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
+
+      // turn on jfet 1
+      io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);
+
+      // turn off high current output relay... if need be. only after new range in effect
+      msleep(1);
+      output_set(app, app->irange, app->output);
+      break;
+
+
   }
 }
 
@@ -766,6 +768,9 @@ static float range_current_multiplier( irange_t irange)
   switch(irange)
   {
     // ie. expressed on 10V range
+
+    case irange_1uA:    return 1e-7f;
+
     case irange_10uA:   return 0.000001f;
     case irange_100uA:  return 0.00001f;
     case irange_1mA:    return 0.0001f;
@@ -778,29 +783,6 @@ static float range_current_multiplier( irange_t irange)
   return -9999;
 }
 
-
-
-#if 0
-static void sync(app_t *app)
-{
-  /*
-    No. it's better to make changes correctlu.
-  */
-  // ranges and values can be changed outside our control...
-  // variables out of sync with hardware state.
-
-  if(app->irange == app->iset_range) {
-      dac_current_set( fabs(app->iset));
-
-  } else if( app->irange < app->iset_range ) {
-      dac_current_set( 11.f );
-  } else {
-
-    // bad condition reset. to rh
-    // should avoid.  rather than calling range_current_set() which will switch relays
-  }
-}
-#endif
 
 
 static void range_current_auto(app_t *app, float i)
@@ -927,14 +909,6 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
 
   app->output = val;
 
-  /*
-  // change to LC only
-  if(app->output)
-    io_set(app->spi, REG_LED, LED2);
-  else
-    io_clear(app->spi, REG_LED, LED2);
-  */
-
   // ok. this is called when changing ranges.
   // usart_printf("output %s\n", app->output ? "on" : "off"  );
 
@@ -943,6 +917,7 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
       // switch( app->irange)
       switch( irange)
       {
+        case irange_1uA:
 
         case irange_10uA:
         case irange_100uA:
@@ -1000,6 +975,12 @@ static void print_current(irange_t irange, float val)
 
   switch( irange)
   {
+
+
+    case irange_1uA:
+      usart_printf("%fnA", val * 1e9f);
+      break;
+
 
     case irange_10uA:
     case irange_100uA:
@@ -1153,6 +1134,9 @@ static void update_soft_500ms(app_t *app )
 
       // usart_printf("i is %f\n", i);
       // usart_printf("v is %f\n", v);
+
+
+      // switching coto relays is oscilating...
 
       range_current_auto(app, i );
       range_voltage_auto(app, v);
@@ -1942,6 +1926,54 @@ int main(void)
 	return 0;
 }
 
+
+#if 0
+static void sync(app_t *app)
+{
+  /*
+    No. it's better to make changes correctlu.
+  */
+  // ranges and values can be changed outside our control...
+  // variables out of sync with hardware state.
+
+  if(app->irange == app->iset_range) {
+      dac_current_set( fabs(app->iset));
+
+  } else if( app->irange < app->iset_range ) {
+      dac_current_set( 11.f );
+  } else {
+
+    // bad condition reset. to rh
+    // should avoid.  rather than calling range_current_set() which will switch relays
+  }
+}
+#endif
+
+
+#if 0
+typedef struct core_t
+{
+  // having this as a separate strucutre localizes state extent.
+
+
+  // uint32_t  spi;
+
+  // the current measurement/regulation range.
+  // float     vdac;
+  // float     idac;
+  vrange_t  vrange;
+  irange_t  irange;
+
+
+  // the set regulation range.
+  float     vset;
+  vrange_t  vset_range;
+
+  float     iset;
+  irange_t  iset_range;
+
+} core_t;
+#endif
 
 
 #if 0
