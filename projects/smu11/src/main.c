@@ -74,6 +74,17 @@
           state_change_()
 
 
+      - irange, vrange should be set in range_current_set()... eg. they follow calls to this functino.
+          because range_current_set()   is the setting of the measure range.
+
+          IMPORTNAT
+          active_irange.
+          active_vrange.
+          active_range_current_set()...
+          active_range_voltage_set()...
+
+
+
       - add a logic check somewhere. that comz relay is not on and output lc relay also on.
           in main update loop. should be simple.
 
@@ -828,7 +839,7 @@ static void range_current_auto(app_t *app, float i)
     } else if( app->irange < app->iset_range ) {
 
       // we're zoomed in,
-      usart_printf("use zoomed in current %f\n", 11.f);
+      usart_printf("use zoomed in current 11V on range\n");
       dac_current_set(app, 11.f );
 
     } else {
@@ -883,7 +894,7 @@ static void range_voltage_auto(app_t *app, float v)
       dac_voltage_set(app, fabs(app->vset));
     } else if (  app->vrange < app->vset_range   ) {
 
-      usart_printf("use zoomed in voltage%f\n", 11.f);
+      usart_printf("use zoomed in voltage 11V on range\n");
       dac_voltage_set(app, 11.f );
     } else {
       // bad condition.
@@ -1477,6 +1488,80 @@ static void update(app_t *app)
 
 
 
+
+static int current_from_unit(float i, const char *unit,  float *ii)
+{
+  // no unit, then assume voltage?
+
+  if(strequal(unit, "A")) {
+    *ii = i;
+  } else if(strequal(unit, "mA")) {
+    *ii = i * 1e-3f ;
+  } else if(strequal(unit, "uA")) {
+    *ii = i * 1e-6f ;
+  } else if(strequal(unit, "nA")) {
+    *ii = i * 1e-9f ;
+  } else if(strequal(unit, "pA")) {
+    *ii = i * 1e-12f ;
+  } else {
+    printf("unknown unit\n");
+    // TODO error...
+    *ii = 0;
+    return -123;
+  }
+  return 0;
+}
+
+
+static int irange_and_iset_from_current(float i, irange_t *irange, float *iset)
+{
+  // range and iset from
+  // we haie to extract the range and the adjusted float ialue...
+#if 0
+  if(i > 100) {
+    // error
+    *irange = 0;
+    *iset = 0;
+    return -123;
+  } else
+#endif
+  if(i > 3.f ) {
+    *irange = 0;
+    *iset = 0;
+    return -123;
+    // *irange = irange_100V;
+    // *iset = i * 0.1;
+  } else if(i > 1) {
+    *iset = i * 1;
+    *irange = irange_10A;
+  } else if(i > 1e-1f) {
+    *irange = irange_1A;
+    *iset = i * 1e+1f;
+  } else if(i > 1e-2f)  {
+    *irange = irange_100mA;
+    *iset = i * 1e+2f;
+  } else if(i > 1e-3f)  {
+    *irange = irange_10mA;
+    *iset = i * 1e+3f;
+
+  } else if(i > 1e-4f)  {
+    *irange = irange_1mA;
+    *iset = i * 1e+4f;
+
+  } else if(i > 1e-5f)  {
+    *irange = irange_100uA;
+    *iset = i * 1e+5f;
+
+  } else { // if(i > 1e-6f)  {
+    *irange = irange_10uA;
+    *iset = i * 1e+6f;
+  }
+
+  return 0;
+}
+
+
+
 static int voltage_from_unit(float v, const char *unit,  float *vv)
 {
   // no unit, then assume voltage?
@@ -1524,9 +1609,6 @@ static int vrange_and_vset_from_voltage(float v, vrange_t *vrange, float *vset)
 
 
 
-
-
-
 static void process_cmd(app_t *app, const char *s )
 {
   UNUSED(app);
@@ -1542,33 +1624,45 @@ static void process_cmd(app_t *app, const char *s )
   // ie. ":set  v  123.4mV"
   // int n = sscanf(":set  v  123.45mV", "%100s %100s %f %100s", cmd, param, &value, unit);
   int n = sscanf(s, "%100s %100s %f %100s", cmd, param, &value, unit);
-  if(n == 4 && strequal(cmd, ":set") && strequal(param, "v") ) {
+  if(n == 4 && strequal(cmd, ":set")  ) {
 
-    // lower(value);
-    float v;
-
-    if(voltage_from_unit(value, unit,  &v ) < 0) {
-      usart_printf("error converting voltage and unit\n");
-      return;
+    if(strequal(param, "v")) {
+      // lower(value);
+      float v;
+      if(voltage_from_unit(value, unit,  &v ) < 0) {
+        usart_printf("error converting voltage and unit\n");
+        return;
+      }
+      usart_printf("voltage %gV\n", v);
+      vrange_t vset_range;
+      float vset;
+      if(vrange_and_vset_from_voltage(v, &vset_range, &vset) < 0) {
+        usart_printf("error converting voltage to range and vset\n");
+        return;
+      }
+      usart_printf("vrange %s, vset %gV\n", range_voltage_string(vset_range), vset);
+      core_set( app, vset, app->iset, vset_range, app->iset_range);
     }
-    usart_printf("voltage %gV\n", v);
-
-
-    vrange_t vset_range;
-    float vset;
-
-    if(vrange_and_vset_from_voltage(v, &vset_range, &vset) < 0) {
-      usart_printf("error converting voltage to range and vset\n");
-      return;
+    else if(strequal(param, "i")) {
+      float i;
+      if(current_from_unit(value, unit,  &i ) < 0) {
+        usart_printf("error converting current and unit\n");
+        return;
+      }
+      usart_printf("current %gV\n", i);
+      irange_t iset_range;
+      float iset;
+      if(irange_and_iset_from_current(i, &iset_range, &iset) < 0) {
+        usart_printf("error converting current to range and iset\n");
+        return;
+      }
+      usart_printf("irange %s, iset %gV\n", range_current_string(iset_range), iset);
+      core_set( app, app->vset, iset, app->vset_range, iset_range);
     }
+    else {
 
-    usart_printf("vrange %s, vset %gV\n", range_voltage_string(vset_range), vset);
-
-    // OK. now we have to do a set core. if the sign changes....
-    // that's a bit more complicated than we want.
-    // think
-
-    core_set( app, vset, app->iset, vset_range, app->iset_range);
+      usart_printf("unrecognized parameter '%s'\n", param);
+    }
 
   } else {
 
@@ -1582,7 +1676,7 @@ static void process_cmd(app_t *app, const char *s )
 static void process_ch(app_t *app, const char ch )
 {
 
-  usart_printf("char code %d\n", ch );
+  // usart_printf("char code %d\n", ch );
 
   // change the actual current range
   if(ch == 'u' || ch == 'i') {
