@@ -74,7 +74,7 @@
           state_change_()
 
 
-      - irange, vrange should be set in range_current_set()... eg. they follow calls to this functino.
+      - done - irange, vrange should be set in range_current_set()... eg. they follow calls to this functino.
           because range_current_set()   is the setting of the measure range.
 
           IMPORTNAT
@@ -287,13 +287,12 @@ typedef struct app_t
   state_t   state;
 
   ////////////////
-  // the currently used ranges used for regulation and measurement.
+  // the current active ranges used for regulation and measurement.
   // may be narrower than the set range
   vrange_t  vrange;
   irange_t  irange;
 
   ////////////////
-  // core
   float     vset;
   vrange_t  vset_range;
 
@@ -735,8 +734,9 @@ static void range_current_set(app_t *app, irange_t irange)
       output_set(app, app->irange, app->output);
       break;
 
-
+    // 10M for 10V swing.
     case irange_1uA:
+      // IMPORTANT DONT forget to add star jumper to star gnd!!!.
       // turn on current range relay Z
       io_write(app->spi, REG_RELAY_COM,  RELAY_COM_Z);
       // turn off all fets used on comx range
@@ -772,9 +772,8 @@ static float range_current_multiplier( irange_t irange)
   {
     // ie. expressed on 10V range
 
-    // case irange_1uA:    return 1e-7f;
-
-    case irange_1uA:    return 0.0000001f;
+    case irange_1uA:    return 1e-7f;
+    // case irange_1uA:    return 0.0000001f;
 
     case irange_10uA:   return 0.000001f;
     case irange_100uA:  return 0.00001f;
@@ -1354,7 +1353,9 @@ static void state_change(app_t *app, state_t state )
       // 11.1 ok.
 
       // core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
-      core_set( app, 5.f , 3.f, vrange_10V, irange_10mA );         // 5V source, 5mA compliance,
+      // core_set( app, 5.f , 3.f, vrange_10V, irange_10mA );         // 5V source, 5mA compliance,
+      // core_set( app, 0.5f , 3.f, vrange_10V, irange_10mA );         // oscillates.
+      core_set( app, 5.f , 3.f, vrange_1V, irange_10mA );         // 5V source, 5mA compliance,
       // core_set( app, 11.0f , 3.0f );         // 5V source, 5mA compliance,
       // core_set( app, -5.f , -3.0f );         // 5V source, 5mA compliance,
 
