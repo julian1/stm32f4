@@ -83,6 +83,7 @@
           active_range_current_set()...
           active_range_voltage_set()...
 
+    - test bav199 with 10G input impedance of 34401a.
 
     - // want a function that can print max of 4,5,6 digits...
 
@@ -995,7 +996,7 @@ static void print_current(irange_t irange, float val)
       if(fabs(val) * 1e9f > 1)
         usart_printf("%fnA", val * 1e9f);
       else
-        // this will be more valid, with a higher valued resistor 100M or 1G. 
+        // this will be more valid, with a higher valued resistor 100M or 1G.
         usart_printf("%fpA", val * 1e12f);
       break;
 
@@ -1042,7 +1043,16 @@ static void print_voltage(vrange_t vrange, float val)
 }
 
 
+/*
+  EXTR.
+  This 500ms. update. is very good. allows relays to all settle
+  before consider ranging again.
 
+  can speed it up. eg. 50ms. for more prod like.
+  and accumulate or filter the adc.
+
+
+*/
 
 static void update_soft_500ms(app_t *app )
 {
@@ -1361,8 +1371,8 @@ static void state_change(app_t *app, state_t state )
       // core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
       // core_set( app, 5.f , 3.f, vrange_10V, irange_10mA );         // 5V source, 5mA compliance,
       // core_set( app, 0.5f , 3.f, vrange_10V, irange_10mA );         // oscillates.
-      // core_set( app, 5.f , 3.f, vrange_1V, irange_10mA );         // 5V source, 5mA compliance,
-      core_set( app, -5.f , -3.f, vrange_1V, irange_10mA );         // 5V source, 5mA compliance,
+      core_set( app, 5.f , 3.f, vrange_1V, irange_10mA );         // 5V source, 5mA compliance,
+      // core_set( app, -5.f , -3.f, vrange_1V, irange_10mA );         // 5V source, 5mA compliance,
       // core_set( app, 11.0f , 3.0f );         // 5V source, 5mA compliance,
       // core_set( app, -5.f , -3.0f );         // 5V source, 5mA compliance,
 
