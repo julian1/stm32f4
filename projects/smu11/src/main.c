@@ -579,7 +579,7 @@ static irange_t range_current_next( irange_t irange, bool dir)
     // higher current range. ie lower value shunt resistor
     switch(irange)
     {
-      case irange_1uA:   return irange_10uA;  
+      case irange_1uA:   return irange_10uA;
 
       case irange_10uA:   return irange_100uA;
       case irange_100uA:  return irange_1mA;
@@ -758,9 +758,12 @@ static void range_current_set(app_t *app, irange_t irange)
   }
 }
 
+/*
+  OK. perhaps to prevent range change instability.
+  we don't zoom away from the operation range. beit voltage or current?
 
 
-
+*/
 
 
 static float range_current_multiplier( irange_t irange)
@@ -769,7 +772,9 @@ static float range_current_multiplier( irange_t irange)
   {
     // ie. expressed on 10V range
 
-    case irange_1uA:    return 1e-7f;
+    // case irange_1uA:    return 1e-7f;
+
+    case irange_1uA:    return 0.0000001f;
 
     case irange_10uA:   return 0.000001f;
     case irange_100uA:  return 0.00001f;
@@ -785,15 +790,18 @@ static float range_current_multiplier( irange_t irange)
 
 
 
-static void range_current_auto(app_t *app, float i)
+static bool range_current_auto(app_t *app, float i)
 {
   bool changed = false;
+
+
 
   if(fabs(i) < 1.f) {
 
     // need to switch to lower current range
     irange_t lower = range_current_next( app->irange, 1);
     if(lower != app->irange) {
+      usart_printf("i is %f\n", i);
       usart_printf("ZOOM IN current.\n");
       range_current_set(app, lower);
       changed  = true;
@@ -804,6 +812,7 @@ static void range_current_auto(app_t *app, float i)
     // switch out to a higher current range
     irange_t higher = range_current_next( app->irange, 0);
     if(higher != app->irange) {
+      usart_printf("i is %f\n", i);
       usart_printf("ZOOM OUT current\n");
       range_current_set(app, higher);
       changed = true;
@@ -829,11 +838,13 @@ static void range_current_auto(app_t *app, float i)
       usart_printf("BAD\n");
     }
   }
+
+  return changed;
 }
 
 
 
-static void range_voltage_auto(app_t *app, float v)
+static bool range_voltage_auto(app_t *app, float v)
 {
   /*
     rules are.
@@ -849,18 +860,19 @@ static void range_voltage_auto(app_t *app, float v)
     // need to switch to lower voltage range
     vrange_t lower = range_voltage_next( app->vrange, 1);
     if(lower != app->vrange) {  // eg. there is a lower range.
-
+      usart_printf("v is %f\n", v);
       usart_printf("ZOOM in voltage\n");
       range_voltage_set(app, lower);
       changed = true;
     }
   }
-  else if (fabs(v) > 10.5 && app->vrange < app->vset_range )   // we have to jump out... but don't jump out past the actual regulation range (vset_range)
-  {                                                             // else we'll be regulating on higher range than the set range
-
+  else if (fabs(v) > 10.5 && app->vrange < app->vset_range )
+  {
+    // we have to jump out... but don't jump out past the actual regulation range (vset_range)
+    // else we'll be regulating on higher range than the set range
     vrange_t higher = range_voltage_next( app->vrange, 0);
     if(higher != app->vrange) {     // there is a higher range.
-
+      usart_printf("v is %f\n", v);
       usart_printf("ZOOM out voltage\n");
       range_voltage_set(app, higher);
       changed = true;
@@ -884,6 +896,7 @@ static void range_voltage_auto(app_t *app, float v)
     }
   }
 
+  return changed;
 }
 
 /*
@@ -1138,8 +1151,9 @@ static void update_soft_500ms(app_t *app )
 
       // switching coto relays is oscilating...
 
-      range_current_auto(app, i );
-      range_voltage_auto(app, v);
+      bool changed_current = range_current_auto(app, i );
+      if(!changed_current)
+        range_voltage_auto(app, v);
 
       break;
     }
