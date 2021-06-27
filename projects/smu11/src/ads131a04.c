@@ -134,10 +134,11 @@ static uint32_t sign_extend_24_32(uint32_t x)
 
 
 
-// change prefix SR ?
-#define STAT_1    0x02
-#define STAT_P    0x03
-#define STAT_N    0x04
+// TODO add/change prefix SR_ ?
+// check datasheet
+#define STAT_1    0x02      // general?
+#define STAT_P    0x03      // positive
+#define STAT_N    0x04      // negative
 #define STAT_S    0x05      // spi.
 #define ERROR_CNT 0x06
 
