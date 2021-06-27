@@ -92,19 +92,19 @@
 
 
 
-#define REG_RELAY         19
-#define RELAY_VRANGE      (1<<0)
-#define RELAY_OUTCOM      (1<<1)
-#define RELAY_SENSE       (1<<2)
+//#define REG_RELAY         19
+//#define RELAY_VRANGE      (1<<0)
+// #define RELAY_OUTCOM      (1<<1)
+// #define RELAY_SENSE       (1<<2)
 
 
 // better name? just irange_sense does not communicate its a mux
 // #define IRANGE_MUX2_SENSE  20
-#define REG_IRANGE_SENSE  20
-#define IRANGE_SENSE1     (1<<0)
-#define IRANGE_SENSE2     (1<<1)
-#define IRANGE_SENSE3     (1<<2)
-#define IRANGE_SENSE4     (1<<3)  // unused
+//#define REG_IRANGE_SENSE  20
+// #define IRANGE_SENSE1     (1<<0)
+// #define IRANGE_SENSE2     (1<<1)
+// #define IRANGE_SENSE3     (1<<2)
+// #define IRANGE_SENSE4     (1<<3)  // unused
 
 
 
