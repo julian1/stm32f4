@@ -1880,7 +1880,14 @@ static void spi1_interupt(void *ctx)
 {
   UNUSED(ctx);
 
+  
+  // usart_printf("u");
+
 }
+
+
+
+
 
 int main(void)
 {
