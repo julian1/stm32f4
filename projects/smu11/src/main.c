@@ -1054,8 +1054,18 @@ static void print_voltage(vrange_t vrange, float val)
 
   but we need to have the adc read, on the adc interupt.
   then have this soft range update. use the last recorded adc value , rather than read the adc here.
+*/
+
+
+/*
+  OK. the DRDY propagated through ice40.
+  it's only a 2uS. pulse. every 10ms.
+  So we will have to be interupt to guarantee catching it.
+
+  should be an exposed test-point.
 
 */
+
 
 static void update_soft_500ms(app_t *app )
 {
