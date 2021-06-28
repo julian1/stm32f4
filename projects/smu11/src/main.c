@@ -1837,6 +1837,7 @@ static void loop(app_t *app)
 
   // move this into the app var.
   static uint32_t soft_500ms = 0;
+  UNUSED(soft_500ms);
 
 
 
@@ -1856,10 +1857,12 @@ static void loop(app_t *app)
 
     update(app);
 
+#if 1
     // 500ms soft timer
     if( system_millis > soft_500ms) {
       soft_500ms = system_millis + 500;
       update_soft_500ms(app);
+#endif
     }
 
 
@@ -1912,6 +1915,7 @@ int main(void)
 
   ////////////////
   spi1_port_setup();
+  spi1_interupt_gpio_setup();
   spi1_special_gpio_setup();
 
 
