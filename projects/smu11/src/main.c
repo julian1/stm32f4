@@ -83,6 +83,12 @@
           active_range_current_set()...
           active_range_voltage_set()...
 
+      - want to count the number of adc interupts/s. 
+
+        - also want to check that we service them all. unbalanced.
+        - also want freq control over adc.  so can do interval of 50/60ms.
+      - also count /s the number of times update is called. and we sample. the rails monitors.
+
     - test bav199 with 10G input impedance of 34401a.
 
     - // want a function that can print max of 4,5,6 digits...
@@ -1870,7 +1876,11 @@ static void loop(app_t *app)
 }
 
 
+static void spi1_interupt(void *ctx)
+{
+  UNUSED(ctx);
 
+}
 
 int main(void)
 {
@@ -1915,8 +1925,8 @@ int main(void)
 
   ////////////////
   spi1_port_setup();
-  spi1_interupt_gpio_setup();
   spi1_special_gpio_setup();
+  spi1_interupt_gpio_setup( spi1_interupt, NULL);
 
 
   ////////////////////
