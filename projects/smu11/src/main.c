@@ -96,11 +96,22 @@
         - also want freq control over adc.  so can do interval of 50/60ms.
       - also count /s the number of times update is called. and we sample. the rails monitors.
 
+    - smartsmu. quicksmu.
+
+    - 10^4 gain. use for LNA noise measurement. of vrefs?  just need large AC blocking caps.
+        we can bodge. by lifting the amp03 ref pin - and connecting the dac to it.
+        set to sink current. and it should go into voltage compliance mode. if connected to a cap. to measure noise.
+        - actually just measure on the sense input. no need to source or sink. 
+        - adc using 24 bit adc.
+        - low pass. using adc values.
+
     - mcp3208 - driven by spi. Can we make it so that the spi never blocks. no. because we use same spi channel for all other coms.
         we have to offload it to the fpga. if want high speed continuous.
 
     - think calibration - is easy. just do the offset. for zero V.  then adjust slope.
         both dac, and adc. get done the same way.
+
+    - use uint64_t ? if available for systick? to avoid rollover?
 
     - using 74hc4094 if we need it is easy. we just do the mux_io thing.  and then toggle nss as a strobe instead of cs. using gpio.
         simple. eg. we recognifure spi in other contexts so don't see there's any issue.
