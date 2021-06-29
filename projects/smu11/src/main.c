@@ -83,11 +83,27 @@
           active_range_current_set()...
           active_range_voltage_set()...
 
-      - want to count the number of adc interupts/s. 
+      - want to count the number of adc interupts/s.
+
+      - should populate and test the single-ended gain stage.
+          good to be complete - and see in practice.  even if offset voltage is not adjusted.
+          could  probably even bodge a dac output - to the amp03 ref .
+          no. because want resistor divider/ and op-amp for more prec than the dac.
+          actually could try without.
+
 
         - also want to check that we service them all. unbalanced.
         - also want freq control over adc.  so can do interval of 50/60ms.
       - also count /s the number of times update is called. and we sample. the rails monitors.
+
+    - mcp3208 - driven by spi. Can we make it so that the spi never blocks. no. because we use same spi channel for all other coms.
+        we have to offload it to the fpga. if want high speed continuous.
+
+    - think calibration - is easy. just do the offset. for zero V.  then adjust slope.
+        both dac, and adc. get done the same way.
+
+    - using 74hc4094 if we need it is easy. we just do the mux_io thing.  and then toggle nss as a strobe instead of cs. using gpio.
+        simple. eg. we recognifure spi in other contexts so don't see there's any issue.
 
     - test bav199 with 10G input impedance of 34401a.
 
@@ -1880,7 +1896,7 @@ static void spi1_interupt(void *ctx)
 {
   UNUSED(ctx);
 
-  
+
   // usart_printf("u");
 
 }
