@@ -351,6 +351,8 @@ typedef struct app_t
   // adc data ready, given by interupt
   bool      adc_drdy; 
   uint32_t  adc_drdy_count;
+  uint32_t    adc_read_count ;
+
   // adc read values
   float     vfb;
   float     ifb;
@@ -1086,6 +1088,69 @@ static void print_voltage(vrange_t vrange, float val)
 }
 
 
+
+
+
+
+
+static void quadrant_set( app_t *app, bool v, bool i)
+{
+  // RULES.
+  // so. if voltage is positive use clamp max.  clamp min/max follows voltage.
+  // negative current. can still be source or sink. depending on polarity.
+  // ie. clamp direction min/max following voltage.
+
+  mux_io(app->spi);
+
+  uint32_t vv = v ? CLAMP1_VSET_INV : CLAMP1_VSET;
+  uint32_t ii = i ? CLAMP1_ISET_INV : CLAMP1_ISET;
+
+
+  io_write(app->spi, REG_CLAMP1, ~(vv | ii ));
+
+
+  uint32_t minmax = v ?  CLAMP2_MAX : CLAMP2_MIN;
+
+  io_write(app->spi, REG_CLAMP2, ~( minmax ) );     // min of current or voltage
+}
+
+
+// so can have another function. that tests the values.... v > 0 etc.
+// need to hide
+
+static void core_set( app_t *app, float v, float i, vrange_t vrange, irange_t irange)
+{
+  // TODO change arg order.
+
+
+  // voltage
+  dac_voltage_set(app, fabs( v));
+  dac_current_set(app, fabs( i));
+
+
+  quadrant_set( app, v > 0.f, i > 0.f ) ;
+
+  // ignoring range
+  app->vset = v;
+  app->iset = i;
+
+  app->vset_range = vrange;// vrange_10V;
+  app->iset_range = irange;// irange_10mA;
+
+  range_voltage_set(app, app->vset_range);
+  range_current_set(app, app->iset_range);
+}
+
+
+
+
+
+
+
+
+
+////////////////////////////////
+
 /*
   EXTR.
   This 500ms. update. is very good. allows relays to all settle
@@ -1120,15 +1185,36 @@ static void print_voltage(vrange_t vrange, float val)
 */
 
 
+
+
+static void spi1_interupt(app_t *app)
+{
+  // interupt context. avoid work here...
+  // UNUSED(app);
+
+
+  ++app->adc_drdy_count;
+
+  app->adc_drdy = true;
+
+  // usart_printf("u");
+
+}
+
+
+
 static void update_soft_1s(app_t *app )
 {
   UNUSED(app);
 
   // usart_printf("soft 1s \n");
-  usart_printf("soft 1s drdy_count %u    update_count %u\n", app->adc_drdy_count, app->update_count);
+  // usart_printf("soft 1s drdy_count %u    update_count %u\n", app->adc_drdy_count, app->update_count);
+  usart_printf("soft 1s adc_drdy_count %u  adc_read_count %u   update_count %u\n", app->adc_drdy_count, app->adc_read_count, app->update_count);
 
   // this won't be accurate enough...
   app->adc_drdy_count  = 0;
+  app->adc_read_count  = 0;
+
   app->update_count = 0;
 
 }
@@ -1213,62 +1299,6 @@ static void update_soft_500ms(app_t *app )
     default: ;
   };
 }
-
-
-
-
-static void quadrant_set( app_t *app, bool v, bool i)
-{
-  // RULES.
-  // so. if voltage is positive use clamp max.  clamp min/max follows voltage.
-  // negative current. can still be source or sink. depending on polarity.
-  // ie. clamp direction min/max following voltage.
-
-  mux_io(app->spi);
-
-  uint32_t vv = v ? CLAMP1_VSET_INV : CLAMP1_VSET;
-  uint32_t ii = i ? CLAMP1_ISET_INV : CLAMP1_ISET;
-
-
-  io_write(app->spi, REG_CLAMP1, ~(vv | ii ));
-
-
-  uint32_t minmax = v ?  CLAMP2_MAX : CLAMP2_MIN;
-
-  io_write(app->spi, REG_CLAMP2, ~( minmax ) );     // min of current or voltage
-}
-
-
-// so can have another function. that tests the values.... v > 0 etc.
-// need to hide
-
-static void core_set( app_t *app, float v, float i, vrange_t vrange, irange_t irange)
-{
-  // TODO change arg order.
-
-
-  // voltage
-  dac_voltage_set(app, fabs( v));
-  dac_current_set(app, fabs( i));
-
-
-  quadrant_set( app, v > 0.f, i > 0.f ) ;
-
-  // ignoring range
-  app->vset = v;
-  app->iset = i;
-
-  app->vset_range = vrange;// vrange_10V;
-  app->iset_range = irange;// irange_10mA;
-
-  range_voltage_set(app, app->vset_range);
-  range_current_set(app, app->iset_range);
-}
-
-
-
-
-
 
 
 static void state_change(app_t *app, state_t state )
@@ -1484,7 +1514,7 @@ static void update(app_t *app)
   // value is available on adc we can read this at any time.
   // but aggregating values is sensitive.
   
-  if(app->adc_drdy && app->state == ANALOG_UP) { 
+  if(app->adc_drdy)  { // && app->state == ANALOG_UP) { 
 
     /*
     16384000Hz / 4096
@@ -1495,7 +1525,15 @@ static void update(app_t *app)
     float ar[4];
     // note, this calls mux_adc(spi)...
     int32_t ret = spi_adc_do_read(app->spi, ar, 4);
+
+    // what the hell???
+    // is reading really slow. and we are missing values?
+    // put an in_read...
+    
     app->adc_drdy = false;
+
+    ++app->adc_read_count ;
+
     if(ret < 0) {
       // error
 
@@ -1912,28 +1950,13 @@ static void loop(app_t *app)
 
   // move this into the app var structure ?.
   static uint32_t soft_500ms = 0;
-
   static uint32_t soft_1s = 0;
-
 
   /*
     Think all of this should be done/moved to update()...
 
   */
   while(true) {
-
-    // EXTREME - could actually call update at any time, in a yield()...
-    // so long as we wrap calls with a mechanism to avoid stack reentrancy
-    // led_update(); in systick.
-    // but better just to flush() cocnsole queues.conin/out
-
-    // not sure should be done first...
-    usart_output_update();
-
-    update_console_cmd(app, &console_in, &console_out, &cmd_in);
-
-    update(app);
-
 
     // 500ms soft timer. should handle wrap around
     if( (system_millis - soft_500ms) > 500) {
@@ -1947,22 +1970,21 @@ static void loop(app_t *app)
     }
 
 
+    // EXTREME - could actually call update at any time, in a yield()...
+    // so long as we wrap calls with a mechanism to avoid stack reentrancy
+    // led_update(); in systick.
+    // but better just to flush() cocnsole queues.conin/out
+
+    update(app);
+
+    // not sure should be done first...
+    usart_output_update();
+
+    update_console_cmd(app, &console_in, &console_out, &cmd_in);
+
   }
 }
 
-
-static void spi1_interupt(app_t *app)
-{
-  // UNUSED(app);
-
-
-  ++ app->adc_drdy_count ;
-
-  app->adc_drdy = true;
-
-  // usart_printf("u");
-
-}
 
 
 
