@@ -1,14 +1,20 @@
 
+#include "bits.h"
 
-// bit manipulation
 
 
-#define MASK(width)                           ((1<<(width)) - 1)
+char * uint_to_bits(char *buf, size_t width, uint32_t value)
+{
+  // passing the buf, means can use more than once in printf expression. using separate bufs
+  char *s = buf;
 
-#define SETFIELD(data, width, offset, val)    (((data) & ~(MASK(width) << (offset))) | (((val) & MASK(width)) << (offset)))
+  for(int i = width - 1; i >= 0; --i) {
+    *s++ = value & (1 << i) ? '1' : '0';
+  }
 
-#define GETFIELD(data, width, offset)         ((data) >> (offset)) & MASK(width)
-
+  *s = 0;
+  return buf;
+}
 
 
 /*

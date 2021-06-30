@@ -3,7 +3,9 @@
 #include <libopencm3/stm32/spi.h>
 
 #include "ads131a04.h"
-#include "util.h"
+
+#include "bits.h"
+#include "util.h"   // usart_printf
 
 #include "core.h"
 

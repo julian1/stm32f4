@@ -83,7 +83,19 @@
           active_range_current_set()...
           active_range_voltage_set()...
 
-      - want to count the number of adc interupts/s.
+      - separate the float and char circular buffers - to separate files.
+
+      - Should an isolated power supply design switch both (high and lo) terminal outputs to the DUT with a dpdt relay. or is switching is a single terminal (high) enough? 
+          I know at least one design that only switches the high.
+          There is an opportunity to simplify / eliminate relays, by combining  
+          
+
+      - done - want to count the number of adc interupts/s.
+
+      - want to display the clk registers in the register output.
+          want bitmask and offset to read and write registers.
+
+
 
       - should populate and test the single-ended gain stage.
           good to be complete - and see in practice.  even if offset voltage is not adjusted.
@@ -97,6 +109,7 @@
       - also count /s the number of times update is called. and we sample. the rails monitors.
 
     - smartsmu. quicksmu.
+      good names.
 
     - 10^4 gain. use for LNA noise measurement. of vrefs?  just need large AC blocking caps.
         we can bodge. by lifting the amp03 ref pin - and connecting the dac to it.
@@ -1175,7 +1188,8 @@ static void core_set( app_t *app, float v, float i, vrange_t vrange, irange_t ir
   1 / 16.384
   0.06103515625
 
-  clk1... is two bits. eg. 4x
+  clkdiv ... is two bits. eg. 4x
+  iclkdiv  is another two bits.
 
   If only read two values... is it faster?
 

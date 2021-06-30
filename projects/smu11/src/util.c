@@ -26,22 +26,6 @@
 
 
 
-
-
-char * uint_to_bits(char *buf, size_t width, uint32_t value)
-{
-  // passing the buf, means can use more than once in printf expression. using separate bufs
-  char *s = buf;
-
-  for(int i = width - 1; i >= 0; --i) {
-    *s++ = value & (1 << i) ? '1' : '0';
-  }
-
-  *s = 0;
-  return buf;
-}
-
-
 bool strequal(const char *s1, const char *s2)
 {
   return (strcmp(s1, s2) == 0);
