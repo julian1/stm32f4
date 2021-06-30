@@ -345,6 +345,7 @@ typedef struct app_t
   bool      output;   // whether output on/off
 
   uint32_t  adc_dydr_count;
+  uint32_t  update_count;
 
 
 } app_t;
@@ -1100,6 +1101,11 @@ static void print_voltage(vrange_t vrange, float val)
 
 */
 
+/*
+  ok. update count is about 4.3kHz.  presumably mostly the mcp3208 reading.
+  adc read is 126Hz
+
+*/
 
 
 static void update_soft_1s(app_t *app )
@@ -1108,10 +1114,11 @@ static void update_soft_1s(app_t *app )
 
   // usart_printf("soft 1s \n");
 
-  usart_printf("soft 1s %d\n", app->adc_dydr_count);
+  usart_printf("soft 1s dydr_count %u    update_count %u\n", app->adc_dydr_count, app->update_count);
 
   // this won't be accurate enough...
   app->adc_dydr_count  = 0;
+  app->update_count = 0;
 
 }
 
@@ -1481,6 +1488,8 @@ static void update(app_t *app)
     so it should only be done in soft timer eg. 10ms is probably enough.
     preferrably should offload to fpga with set voltages, -  and fpga can raise an interupt.
   */
+
+  ++app->update_count;
 
   // get supply voltages,
   mux_adc03(app->spi);
