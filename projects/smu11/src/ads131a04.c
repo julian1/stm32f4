@@ -328,7 +328,7 @@ int adc_init( uint32_t spi, uint8_t reg)
   }
 
   // eg. approx 1288Hz. without. 128Hz. with 16.384 MHz xtal
-  // but 16384000 / 4096 = 4000?
+  // but 16,384000 / 4096 = 4000?
   
   // set OSR to max
   adc_write_register(spi, CLK2, clk2 & (0b1111 << 4)  );    // clear lower 4 bits, for max OSR

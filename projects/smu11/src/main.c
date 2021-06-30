@@ -1174,6 +1174,15 @@ static void core_set( app_t *app, float v, float i, vrange_t vrange, irange_t ir
 
   1 / 16.384
   0.06103515625
+
+  clk1... is two bits. eg. 4x
+
+  If only read two values... is it faster?
+
+  -----------------
+  16.384 / 4096 / 4
+  = 0.001
+  eg. 1000Hz...
 */
 
 
