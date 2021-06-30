@@ -1505,7 +1505,6 @@ static void update(app_t *app)
   switch(app->state) {
 
     case FIRST:
-
       state_change(app, DIGITAL_UP);
       break;
 
@@ -1519,9 +1518,7 @@ static void update(app_t *app)
         usart_printf("doing analog up -  supplies ok \n");
         state_change(app, ANALOG_UP);
       }
-
       break ;
-
 
     case ANALOG_UP:
 
@@ -1532,9 +1529,7 @@ static void update(app_t *app)
 
         state_change(app, HALT);
       }
-
       break;
-
 
     case HALT:
       break;
@@ -1543,7 +1538,6 @@ static void update(app_t *app)
     default:
       ;
   };
-
 }
 
 
