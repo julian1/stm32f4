@@ -1873,7 +1873,7 @@ static void loop(app_t *app)
   UNUSED(soft_500ms);
 
   /*
-    Think all of this should be done in update()...
+    Think all of this should be done/moved to update()...
 
   */
   while(true) {
@@ -1890,16 +1890,11 @@ static void loop(app_t *app)
 
     update(app);
 
-#if 1
-    // would be better to set this flag in the interupt...
-    // use the same elapsed_time to handle wrap around
 
     // 500ms soft timer. should handle wrap around
     if( (system_millis - soft_500ms) > 500) {
-      // soft_500ms = system_millis + 500;
       soft_500ms += 500;
       update_soft_500ms(app);
-#endif
     }
 
 
