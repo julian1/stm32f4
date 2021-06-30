@@ -1868,12 +1868,14 @@ static CBuf cmd_in;
 static void loop(app_t *app)
 {
 
-  // move this into the app var.
+  // move this into the app var structure ?.
   static uint32_t soft_500ms = 0;
   UNUSED(soft_500ms);
 
+  /*
+    Think all of this should be done in update()...
 
-
+  */
   while(true) {
 
     // EXTREME - could actually call update at any time, in a yield()...
@@ -1881,19 +1883,21 @@ static void loop(app_t *app)
     // led_update(); in systick.
     // but better just to flush() cocnsole queues.conin/out
 
-
-    // usart_input_update();
+    // not sure should be done first...
     usart_output_update();
 
-    // update_console_cmd(spi, &console_in);
     update_console_cmd(app, &console_in, &console_out, &cmd_in);
 
     update(app);
 
 #if 1
-    // 500ms soft timer
-    if( system_millis > soft_500ms) {
-      soft_500ms = system_millis + 500;
+    // would be better to set this flag in the interupt...
+    // use the same elapsed_time to handle wrap around
+
+    // 500ms soft timer. should handle wrap around
+    if( (system_millis - soft_500ms) > 500) {
+      // soft_500ms = system_millis + 500;
+      soft_500ms += 500;
       update_soft_500ms(app);
 #endif
     }

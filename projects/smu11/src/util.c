@@ -135,6 +135,13 @@ void sys_tick_handler(void)
 }
 
 
+
+/*
+  https://arduino.stackexchange.com/questions/12587/how-can-i-handle-the-millis-rollover
+  https://hsel.co.uk/2014/06/20/stm32f0-tutorial-2-systick/
+*/
+
+
 /*
 // test code for integer wrap around
 
@@ -181,11 +188,6 @@ void msleep(uint32_t delay)
 }
 
 
-
-/*
-  https://arduino.stackexchange.com/questions/12587/how-can-i-handle-the-millis-rollover
-  https://hsel.co.uk/2014/06/20/stm32f0-tutorial-2-systick/
-*/
 
 
 
