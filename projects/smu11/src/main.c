@@ -349,9 +349,9 @@ typedef struct app_t
   uint32_t  update_count;
 
   // adc data ready, given by interupt
-  volatile bool      adc_drdy;
+  bool      adc_drdy;
   uint32_t  adc_drdy_count;
-  uint32_t    adc_read_count ;
+  uint32_t  adc_read_count ;
 
   // adc read values
   float     vfb;
@@ -1503,15 +1503,11 @@ static void update(app_t *app)
 {
   // called as often as possible
 
-  /*
-    querying adc03 via spi, is slow (eg. we also clock spi slower to match read speed) .
-    so it should only be done in soft timer eg. 10ms is probably enough.
-    preferrably should offload to fpga with set voltages, -  and fpga can raise an interupt.
-  */
-
-
   ++app->update_count;
 
+  /*
+    read main adc
+  */
   if(app->adc_drdy && app->state == ANALOG_UP) {
     /*
     16384000Hz / 4096
@@ -1533,12 +1529,17 @@ static void update(app_t *app)
         so need to use common unit approach.
       */
       float x = 0.435;
-      app->vfb = ar[0] * x;      // these are the current ranges....
+      app->vfb = ar[0] * x;
       app->ifb = ar[1] * x;
     }
   }
 
 
+  /*
+    querying adc03 via spi, is slow (eg. we also clock spi slower to match read speed) .
+    so it should only be done in soft timer eg. 10ms is probably enough.
+    preferrably should offload to fpga with set voltages, -  and fpga can raise an interupt.
+  */
 
   // read supply voltages,
   // these block... while value is read
