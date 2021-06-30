@@ -349,7 +349,7 @@ typedef struct app_t
   uint32_t  update_count;
 
   // adc data ready, given by interupt
-  volatile bool      adc_drdy; 
+  volatile bool      adc_drdy;
   uint32_t  adc_drdy_count;
   uint32_t    adc_read_count ;
 
@@ -1166,43 +1166,24 @@ static void core_set( app_t *app, float v, float i, vrange_t vrange, irange_t ir
 
 
 /*
-  OK. the DRDY propagated through ice40.
-  it's only a 2uS. pulse. every 10ms.
-  So we will have to be interupt to guarantee catching it.
 
-  should be an exposed test-point.
+  soft 1s adc_drdy_count 63  adc_read_count 63   update_count 4284
+  63Hz/62Hz with 16.384 xtal, and 4096 divisor...
 
+  it's somet
+
+  1 / 16.384
+  0.06103515625
 */
-
-/*
-  ok. update count is about 4.3kHz.  presumably mostly the mcp3208 reading.
-  adc read is 126Hz
-  --------------
-
-  ok. adc values. looking a lot more noisy. less stable?????
-  we want to read adc on precise timing boundary... for 
-
-*/
-
-
 
 
 static void spi1_interupt(app_t *app)
 {
   // interupt context. avoid work here...
-  // UNUSED(app);
-
 
   ++app->adc_drdy_count;
 
   app->adc_drdy = true;
-
-  /*
-    ok. this is getting called twice?
-    why. two values available?
-    doesn't appear like spikes on a scope?
-  */
-  // usart_printf("i");
 
 }
 
@@ -1212,16 +1193,17 @@ static void update_soft_1s(app_t *app )
 {
   UNUSED(app);
 
-  // usart_printf("soft 1s \n");
-  // usart_printf("soft 1s drdy_count %u    update_count %u\n", app->adc_drdy_count, app->update_count);
-  usart_printf("soft 1s adc_drdy_count %u  adc_read_count %u   update_count %u\n", app->adc_drdy_count, app->adc_read_count, app->update_count);
+  if(app->adc_drdy_count != app->adc_read_count) {
+    usart_printf("soft 1s adc_drdy_count %u  adc_read_count %u   update_count %u\n", app->adc_drdy_count, app->adc_read_count, app->update_count);
+  }
 
-  // this won't be accurate enough...
+  // static uint32_t count = 0;
+  // usart_printf("count %u\n", count++ );
+
+  // reset the housekeeping counts
   app->adc_drdy_count  = 0;
   app->adc_read_count  = 0;
-
   app->update_count = 0;
-
 }
 
 
@@ -1511,7 +1493,7 @@ static void state_change(app_t *app, state_t state )
 
   - or it's staying high - because we only read 2 of  4 regs?
 
-  
+
 
 
 */
@@ -1530,41 +1512,20 @@ static void update(app_t *app)
 
   ++app->update_count;
 
-  // VOLATILE????????
-
-
-  // usart_printf("u");
-
-
-  // value is available on adc we can read this at any time.
-  // but aggregating values is sensitive.
-  
-  if(app->adc_drdy)  { // && app->state == ANALOG_UP) { 
-
+  if(app->adc_drdy && app->state == ANALOG_UP) {
     /*
     16384000Hz / 4096
-     = 4000
+     = 4000?
     */
-
-
     // usart_printf("b");
 
     float ar[4];
     int32_t ret = spi_adc_do_read(app->spi, ar, 4);
-
-    usart_printf("x");
-
-    app->adc_drdy = false;  // ok. moving this up before the read... means we get more values...  62,64 reads.  .. 58/59/60 without.
+    app->adc_drdy = false;
     ++app->adc_read_count ;
-
-
-    // what the hell???
-    // is reading really slow. and we are missing values?
-    // put an in_read...
-    
     if(ret < 0) {
       // error
-
+      usart_printf("adc error\n");
     }
     else  {
       /*
@@ -1585,11 +1546,7 @@ static void update(app_t *app)
   // TODO put cal values in state
   float lp15v = spi_mcp3208_get_data(app->spi, 0) * 0.92 * 10.;
   float ln15v = spi_mcp3208_get_data(app->spi, 1) * 0.81 * 10.;
-  // UNUSED(lp15v);
-  // UNUSED(ln15v);
   // usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
-
-
 
   switch(app->state) {
 
@@ -1955,7 +1912,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
 
   such that we miss... the adc read??
 
-  
+
 */
 
 
@@ -1999,7 +1956,7 @@ static void loop(app_t *app)
 
     if( (system_millis - soft_1s) > 1000 ) {
 
-      // THIS IS FUNNY.... 
+      // THIS IS FUNNY....
       soft_1s += 1000;
       update_soft_1s(app);
     }
@@ -2030,6 +1987,7 @@ int main(void)
   // high speed internal!!!
   // TODO. not using.
 
+  // this is the mcu clock.  not the adc clock. or the fpga clock.
   systick_setup(16000);
 
 
