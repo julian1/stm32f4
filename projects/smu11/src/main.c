@@ -1125,7 +1125,7 @@ static void update_soft_1s(app_t *app )
   UNUSED(app);
 
   // usart_printf("soft 1s \n");
-  // usart_printf("soft 1s drdy_count %u    update_count %u\n", app->adc_drdy_count, app->update_count);
+  usart_printf("soft 1s drdy_count %u    update_count %u\n", app->adc_drdy_count, app->update_count);
 
   // this won't be accurate enough...
   app->adc_drdy_count  = 0;
@@ -1478,21 +1478,22 @@ static void update(app_t *app)
     preferrably should offload to fpga with set voltages, -  and fpga can raise an interupt.
   */
 
-
-
   ++app->update_count;
 
 
+  // value is available on adc we can read this at any time.
+  // but aggregating values is sensitive.
   
-  if(app->adc_drdy) { 
+  if(app->adc_drdy && app->state == ANALOG_UP) { 
 
-    // ... ok.
+    /*
+    16384000Hz / 4096
+     = 4000
+    */
+    // adc has data
     // how to return. pass by reference...
     float ar[4];
-    // change name adc_spi_do_read
-    // spi_adc_do_read(app->spi, ar, 4);
-
-    // this calls mux_adc
+    // note, this calls mux_adc(spi)...
     int32_t ret = spi_adc_do_read(app->spi, ar, 4);
     app->adc_drdy = false;
     if(ret < 0) {
@@ -1505,21 +1506,15 @@ static void update(app_t *app)
         so need to use common unit approach.
       */
       float x = 0.435;
-
-      // convert to standard unit. eg. volts or amps.
-      // change name range_voltage_si_coeff or similar
-      // float v = ar[0] * x;      // these are the current ranges....
-      // float i = ar[1] * x;
-
       app->vfb = ar[0] * x;      // these are the current ranges....
       app->ifb = ar[1] * x;
     }
-
   }
 
 
 
   // read supply voltages,
+  // these block... while value is read
   mux_adc03(app->spi);
   // TODO put cal values in state
   float lp15v = spi_mcp3208_get_data(app->spi, 0) * 0.92 * 10.;
