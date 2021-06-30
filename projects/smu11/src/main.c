@@ -344,8 +344,16 @@ typedef struct app_t
   // we could eliminate this. if we were to read the relay register...
   bool      output;   // whether output on/off
 
-  uint32_t  adc_dydr_count;
+
+  // ho
   uint32_t  update_count;
+
+  // adc data ready, given by interupt
+  bool      adc_drdy; 
+  uint32_t  adc_drdy_count;
+  // adc read values
+  float     vfb;
+  float     ifb;
 
 
 } app_t;
@@ -1104,6 +1112,10 @@ static void print_voltage(vrange_t vrange, float val)
 /*
   ok. update count is about 4.3kHz.  presumably mostly the mcp3208 reading.
   adc read is 126Hz
+  --------------
+
+  ok. adc values. looking a lot more noisy. less stable?????
+  we want to read adc on precise timing boundary... for 
 
 */
 
@@ -1113,11 +1125,10 @@ static void update_soft_1s(app_t *app )
   UNUSED(app);
 
   // usart_printf("soft 1s \n");
-
-  usart_printf("soft 1s dydr_count %u    update_count %u\n", app->adc_dydr_count, app->update_count);
+  // usart_printf("soft 1s drdy_count %u    update_count %u\n", app->adc_drdy_count, app->update_count);
 
   // this won't be accurate enough...
-  app->adc_dydr_count  = 0;
+  app->adc_drdy_count  = 0;
   app->update_count = 0;
 
 }
@@ -1151,28 +1162,6 @@ static void update_soft_500ms(app_t *app )
       // normal operation
 
 
-      // ... ok.
-      // how to return. pass by reference...
-      float ar[4];
-      // change name adc_spi_do_read
-      // spi_adc_do_read(app->spi, ar, 4);
-
-      int32_t ret = spi_adc_do_read(app->spi, ar, 4);
-      if(ret < 0)
-        break;
-
-      /*
-        ranging and format precision are separate and vary independently.
-        so need to use common unit approach.
-      */
-      float x = 0.435;
-
-      // convert to standard unit. eg. volts or amps.
-      // change name range_voltage_si_coeff or similar
-      float v = ar[0] * x;      // these are the current ranges....
-      float i = ar[1] * x;
-
-
       if(app->print_adc_values) {
 
         // when we set the range. we should set the default format.
@@ -1188,7 +1177,7 @@ static void update_soft_500ms(app_t *app )
           print_voltage(app->vrange, app->vset * range_voltage_multiplier(app->vrange));
         }
         usart_printf(", vfb ");
-        print_voltage(app->vrange, v * range_voltage_multiplier(app->vrange)  );
+        print_voltage(app->vrange, app->vfb * range_voltage_multiplier(app->vrange)  );
 
         /////////////////
 
@@ -1204,7 +1193,7 @@ static void update_soft_500ms(app_t *app )
           print_current(app->irange, app->iset * range_current_multiplier(app->irange) );
         }
         usart_printf(", ifb ");
-        print_current(app->irange, i * range_current_multiplier(app->irange));
+        print_current(app->irange, app->ifb * range_current_multiplier(app->irange));
         usart_printf("\n");
       }
 
@@ -1214,9 +1203,9 @@ static void update_soft_500ms(app_t *app )
 
       // TODO. change back so that can change both together,
 
-      bool changed_current = range_current_auto(app, i );
+      bool changed_current = range_current_auto(app, app->ifb );
       if(!changed_current)
-        range_voltage_auto(app, v);
+        range_voltage_auto(app, app->vfb);
 
       break;
     }
@@ -1489,9 +1478,48 @@ static void update(app_t *app)
     preferrably should offload to fpga with set voltages, -  and fpga can raise an interupt.
   */
 
+
+
   ++app->update_count;
 
-  // get supply voltages,
+
+  
+  if(app->adc_drdy) { 
+
+    // ... ok.
+    // how to return. pass by reference...
+    float ar[4];
+    // change name adc_spi_do_read
+    // spi_adc_do_read(app->spi, ar, 4);
+
+    // this calls mux_adc
+    int32_t ret = spi_adc_do_read(app->spi, ar, 4);
+    app->adc_drdy = false;
+    if(ret < 0) {
+      // error
+
+    }
+    else  {
+      /*
+        ranging and format precision are separate and vary independently.
+        so need to use common unit approach.
+      */
+      float x = 0.435;
+
+      // convert to standard unit. eg. volts or amps.
+      // change name range_voltage_si_coeff or similar
+      // float v = ar[0] * x;      // these are the current ranges....
+      // float i = ar[1] * x;
+
+      app->vfb = ar[0] * x;      // these are the current ranges....
+      app->ifb = ar[1] * x;
+    }
+
+  }
+
+
+
+  // read supply voltages,
   mux_adc03(app->spi);
   // TODO put cal values in state
   float lp15v = spi_mcp3208_get_data(app->spi, 0) * 0.92 * 10.;
@@ -1933,7 +1961,9 @@ static void spi1_interupt(app_t *app)
   // UNUSED(app);
 
 
-  ++ app->adc_dydr_count ;
+  ++ app->adc_drdy_count ;
+
+  app->adc_drdy = true;
 
   // usart_printf("u");
 
