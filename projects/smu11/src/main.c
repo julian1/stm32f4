@@ -101,7 +101,7 @@
     - 10^4 gain. use for LNA noise measurement. of vrefs?  just need large AC blocking caps.
         we can bodge. by lifting the amp03 ref pin - and connecting the dac to it.
         set to sink current. and it should go into voltage compliance mode. if connected to a cap. to measure noise.
-        - actually just measure on the sense input. no need to source or sink. 
+        - actually just measure on the sense input. no need to source or sink.
         - adc using 24 bit adc.
         - low pass. using adc values.
 
@@ -344,6 +344,7 @@ typedef struct app_t
   // we could eliminate this. if we were to read the relay register...
   bool      output;   // whether output on/off
 
+  uint32_t  adc_dydr_count;
 
 
 } app_t;
@@ -1098,6 +1099,21 @@ static void print_voltage(vrange_t vrange, float val)
   should be an exposed test-point.
 
 */
+
+
+
+static void update_soft_1s(app_t *app )
+{
+  UNUSED(app);
+
+  // usart_printf("soft 1s \n");
+
+  usart_printf("soft 1s %d\n", app->adc_dydr_count);
+
+  // this won't be accurate enough...
+  app->adc_dydr_count  = 0;
+
+}
 
 
 static void update_soft_500ms(app_t *app )
@@ -1870,7 +1886,9 @@ static void loop(app_t *app)
 
   // move this into the app var structure ?.
   static uint32_t soft_500ms = 0;
-  UNUSED(soft_500ms);
+
+  static uint32_t soft_1s = 0;
+
 
   /*
     Think all of this should be done/moved to update()...
@@ -1897,15 +1915,22 @@ static void loop(app_t *app)
       update_soft_500ms(app);
     }
 
+    if( (system_millis - soft_1s) > 1000 ) {
+      soft_1s += 1000;
+      update_soft_1s(app);
+    }
+
 
   }
 }
 
 
-static void spi1_interupt(void *ctx)
+static void spi1_interupt(app_t *app)
 {
-  UNUSED(ctx);
+  // UNUSED(app);
 
+
+  ++ app->adc_dydr_count ;
 
   // usart_printf("u");
 
@@ -1957,10 +1982,21 @@ int main(void)
   usart_printf_init(&console_out);
 
 
+
+
+
+  //////////////////////
+  app_t app;
+  memset(&app, 0, sizeof(app_t));
+  app.spi = SPI_ICE40;
+  app.print_adc_values = true;
+  app.output = false;
+
+
   ////////////////
   spi1_port_setup();
   spi1_special_gpio_setup();
-  spi1_interupt_gpio_setup( spi1_interupt, NULL);
+  spi1_interupt_gpio_setup( (void (*) (void *) )spi1_interupt, &app );
 
 
   ////////////////////
@@ -1979,15 +2015,6 @@ int main(void)
   ////////
   // put this in spi1.h.  i think....
   // uint32_t spi = SPI_ICE40;
-
-
-  app_t app;
-  memset(&app, 0, sizeof(app_t));
-
-  app.spi = SPI_ICE40;
-  app.print_adc_values = true;
-  app.output = false;
-
 
   // app.state = FIRST;
   state_change(&app, FIRST );
