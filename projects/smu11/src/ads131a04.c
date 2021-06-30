@@ -519,9 +519,7 @@ int32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
     return 0;
   }
 
-
   spi_disable( spi );
-
 
   return 0;
 }

@@ -1223,11 +1223,6 @@ static void update_soft_1s(app_t *app )
 static void update_soft_500ms(app_t *app )
 {
 
-
-  static uint32_t count = 0; // -1
-  ++count;    // increment first. because state machine funcs return early.
-
-
   // blink mcu led
   led_toggle();
 
@@ -1520,20 +1515,19 @@ static void update(app_t *app)
     16384000Hz / 4096
      = 4000
     */
-    // adc has data
-    // how to return. pass by reference...
+
+
     float ar[4];
-    // note, this calls mux_adc(spi)...
     int32_t ret = spi_adc_do_read(app->spi, ar, 4);
+
+    app->adc_drdy = false;  // ok. moving this up before the read... means we get more values...  62,64 reads.  .. 58/59/60 without.
+    ++app->adc_read_count ;
+
 
     // what the hell???
     // is reading really slow. and we are missing values?
     // put an in_read...
     
-    app->adc_drdy = false;
-
-    ++app->adc_read_count ;
-
     if(ret < 0) {
       // error
 
