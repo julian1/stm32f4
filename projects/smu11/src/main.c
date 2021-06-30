@@ -349,7 +349,7 @@ typedef struct app_t
   uint32_t  update_count;
 
   // adc data ready, given by interupt
-  bool      adc_drdy; 
+  volatile bool      adc_drdy; 
   uint32_t  adc_drdy_count;
   uint32_t    adc_read_count ;
 
@@ -1197,7 +1197,12 @@ static void spi1_interupt(app_t *app)
 
   app->adc_drdy = true;
 
-  // usart_printf("u");
+  /*
+    ok. this is getting called twice?
+    why. two values available?
+    doesn't appear like spikes on a scope?
+  */
+  // usart_printf("i");
 
 }
 
@@ -1492,6 +1497,25 @@ static void state_change(app_t *app, state_t state )
 }
 
 
+/*
+  issue?
+  - volatile.
+  - or we get an interupt for all four adc values that are read?
+
+  - get two interupts. start read.
+    - get next two interupts while reading.
+
+    and it all gets confused.
+
+  - BUT interupts aren't really matching what we see on the scope.
+
+  - or it's staying high - because we only read 2 of  4 regs?
+
+  
+
+
+*/
+
 
 static void update(app_t *app)
 {
@@ -1503,7 +1527,13 @@ static void update(app_t *app)
     preferrably should offload to fpga with set voltages, -  and fpga can raise an interupt.
   */
 
+
   ++app->update_count;
+
+  // VOLATILE????????
+
+
+  // usart_printf("u");
 
 
   // value is available on adc we can read this at any time.
@@ -1517,8 +1547,12 @@ static void update(app_t *app)
     */
 
 
+    // usart_printf("b");
+
     float ar[4];
     int32_t ret = spi_adc_do_read(app->spi, ar, 4);
+
+    usart_printf("x");
 
     app->adc_drdy = false;  // ok. moving this up before the read... means we get more values...  62,64 reads.  .. 58/59/60 without.
     ++app->adc_read_count ;
@@ -1915,9 +1949,14 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
 
 
 
+/*
+  is there something taking a really long time? async flush?
+  OR are we blocking???? in the flush?
 
+  such that we miss... the adc read??
 
-
+  
+*/
 
 
 /*
@@ -1959,6 +1998,8 @@ static void loop(app_t *app)
     }
 
     if( (system_millis - soft_1s) > 1000 ) {
+
+      // THIS IS FUNNY.... 
       soft_1s += 1000;
       update_soft_1s(app);
     }

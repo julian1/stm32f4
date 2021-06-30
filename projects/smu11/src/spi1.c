@@ -102,15 +102,22 @@ void exti2_isr(void)
 {
   // interupt from ice40/fpga.
 
-  // usart_printf("x");
+  /* 
+    EXTREME
+    OK. bizarre. resetting immediately, prevents being called a second time 
+  */
+  exti_reset_request(EXTI2);
+
 
   if(spi1_interupt) {
     spi1_interupt(spi1_ctx);
   }
 
-  exti_reset_request(EXTI2);
 }
 
+/*
+ads131a04  DYDR Data ready; active low; host interrupt and synchronization for multi-devices 
+*/
 
 void spi1_interupt_gpio_setup(void (*pfunc)(void *),  void *ctx)
 {
@@ -121,12 +128,15 @@ void spi1_interupt_gpio_setup(void (*pfunc)(void *),  void *ctx)
 
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_ICE40_INTERUPT);
 
+  // gpio_set_output_options(SPI_ICE40_PORT, GPIO_ITYPE, GPIO_ISPEED_50MHZ, SPI_ICE40_SPECIAL);   is there a way to set the speed?
+                                                                                                  // looks like GPIO_ITYPE is recognized.
+
   // ie. use exti2 for pa2
   nvic_enable_irq(NVIC_EXTI2_IRQ);
   // nvic_set_priority(NVIC_EXTI2_IRQ, 5 );
 
   exti_select_source(EXTI2, SPI_ICE40_PORT);
-  exti_set_trigger(EXTI2 , EXTI_TRIGGER_RISING);
+  exti_set_trigger(EXTI2 , EXTI_TRIGGER_FALLING);
   exti_enable_request(EXTI2);
 }
 

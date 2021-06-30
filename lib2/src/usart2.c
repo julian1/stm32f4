@@ -126,6 +126,7 @@ void usart_output_update()
     if(ch == -1)
       return;
 
+    // does this block?????
     usart_send(USART1,ch);
   }
 }
