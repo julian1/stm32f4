@@ -320,7 +320,13 @@ int adc_init( uint32_t spi, uint8_t reg)
   }
 
 
+/*
+  // eg. with 16.384 MHz xtal
+  // 16384000 / 4096 / 8 /8 =  62.5
+  // 16384000 / 4096 / 10 /8 = 50Hz
 
+  how to do 60Hz.
+*/
 
 
   //////////////////////
@@ -334,17 +340,13 @@ int adc_init( uint32_t spi, uint8_t reg)
 
 #define CLK_DIV_WIDTH  3
 #define CLK_DIV_OFF    1
-// #define CLK_DIV_VAL   0b100 // default== 4 // 100 : fICLK = fCLKIN / 8 (default)
-                              //   101 : fICLK = fCLKIN / 10
-#define CLK_DIV_VAL    4
-                            //
+// #define CLK_DIV_VAL 4      // 0b100 // default== 4 // 100 : fICLK = fCLKIN / 8 (default)
+#define CLK_DIV_VAL    5      // 101 : fICLK = fCLKIN / 10
+
   // usart_printf("clk_div val %u\n", GETFIELD(clk1, CLK_DIV_WIDTH, CLK_DIV_OFF));
   clk1 = SETFIELD(clk1, CLK_DIV_WIDTH, CLK_DIV_OFF, CLK_DIV_VAL);
 
   adc_write_register(spi, CLK1, clk1);
-
-
-
 
 
   //////////////////////
@@ -357,8 +359,6 @@ int adc_init( uint32_t spi, uint8_t reg)
     return -1;
   }
 
-  // eg. approx 1288Hz. without. 128Hz. with 16.384 MHz xtal
-  // but 16,384000 / 4096 = 4000?
 
 #define OSR_WIDTH     4
 #define OSR_OFF       0
