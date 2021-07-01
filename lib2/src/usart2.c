@@ -94,18 +94,18 @@ void usart1_isr(void)
     /* Retrieve the data from the peripheral.
       and clear flags.
      */
-    char ch = usart_recv(USART1);
 
     // write the input buffer
+    char ch = usart_recv(USART1);
     cBufPut(input_buf, ch);
   }
 
 
-#if 1
-/*
-  https://github.com/libopencm3/libopencm3-examples/blob/master/examples/stm32/f4/stm32f429i-discovery/usart_irq/usart_irq.c
-  https://src.xengineering.eu/xengineering/stm32f103c8-examples/src/commit/a68a6b6a088cac53231e3910947d88e9167a3962/libraries/usart.c
-*/
+  /*
+    eg.
+    https://github.com/libopencm3/libopencm3-examples/blob/master/examples/stm32/f4/stm32f429i-discovery/usart_irq/usart_irq.c
+    https://src.xengineering.eu/xengineering/stm32f103c8-examples/src/commit/a68a6b6a088cac53231e3910947d88e9167a3962/libraries/usart.c
+  */
 
   /* Check if we were called because of TXE. */
   if (((USART_CR1(USART1) & USART_CR1_TXEIE) != 0) &&
@@ -113,24 +113,16 @@ void usart1_isr(void)
 
     if(cBufisEmpty(output_buf)) {
       // no more chars
+      // disable transmit interupt
       usart_disable_tx_interrupt(USART1);
       return;
     }
 
-    // else send char
+    // else send next char
     int ch = cBufPop(output_buf);
-    // non blocking?????
     usart_send(USART1,ch);
-
-
-    /* Put data into the transmit register. */
-    // usart_send(USART1, data);
-
-    /* Disable the TXE interrupt as we don't need it anymore. */
-    // usart_disable_tx_interrupt(USART1);
   }
 
-#endif
 
   return ;
 }
@@ -138,120 +130,26 @@ void usart1_isr(void)
 
 
 
-
-
-/////////////////////////////////////////////
-
-/*
-  TODO.
-    OK. think this can be done better.
-
-    update() being called at 4kHz. but usart is 115k baud.
-    so superloop update() is effectively blocking transmission.
-
-    Use an interupt. whenever the TXE is empty...
-    on interupt for txe, pop the ring buffer and push next char.
-
-    We still have to manually call in update, to prime for first char in the circular buffer.
-
-    Or else just enable the tx_interupt. whenever we push a char to the ring buffer?
-
-
-    void usart_enable_tx_interrupt(uint32_t usart)
-    void usart_enable_tx_complete_interrupt(uint32_t usart)
-    --------
-
-*/
-
-// maybe change name update_usart_output() ?  no.
-
 void usart_output_update()
 {
-
-    if(!cBufisEmpty(output_buf)) {
-      usart_enable_tx_interrupt(USART1);
-    }
-
-
-
-#if 0
-  // eg. called from superloop.
-  // disadvantage, is superloop timing.
-
-  while(true) {
-    // if tx queue not empty, nothing todo, just return
-    if(!usart_get_flag(USART1,USART_SR_TXE))
-      return;
-
-    // check for output to flush...
-    int32_t ch = cBufPop(output_buf);
-    if(ch == -1)
-      return;
-
-    // non blocking?????
-    usart_send(USART1,ch);
+  if(!cBufisEmpty(output_buf)) {
+    usart_enable_tx_interrupt(USART1);
   }
-#endif
 }
 
 
-/*
-  OK. EXTREME.
-    when logging from a long func,
-    we do not need to wait for control to return to superloop, in order to flush the console output
-    we can sync/flush anytime
-    or even automatically on '\n' line buffered...
 
-    change name sync_flush();
-*/
 
 void usart_sync_flush()
 {
-#if 0
-  while(true) {
+  // useful when logging from a long/blocking init function.
+  // avoid waiting until update() called, to configure the tx interupt handler, to restart transmit
 
-    // check for output to flush...
-    int32_t ch = cBufPop(output_buf);
-    if(ch == -1)
-      return;
-
-    // block, until tx empty
-    while(!usart_get_flag(USART1,USART_SR_TXE));
-
-    usart_send(USART1,ch);
-  }
-#endif
+  usart_output_update();
 }
 
 
-#if 0
-
-// this consumes the input queue, which means other code cannot process it...
-// don't think we want.
-
-void usart_input_update()
-{
-  // just transfer any input chars to output so that they appear on output
-  // note that this consumes input.
-  // more an example, can do line buffering etc, fsm on input also.
-  while(true) {
-
-    // read input buf
-    int32_t ch = cBufPop(input_buf);
-    if(ch == -1)
-      return;
-
-    // echo, by transfering to output buf
-    // handle line return
-    if(ch == '\r') {
-      cBufPut(output_buf, '\n');
-    }
-
-    cBufPut(output_buf, ch);
-  }
-}
-#endif
-
+/////////////////////////////
 
 
 
