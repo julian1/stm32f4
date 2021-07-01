@@ -90,6 +90,11 @@
       - done - adc want to display the clk registers in the register output.
           want bitmask and offset to read and write registers.
 
+
+      - rather than report vfb ifb every 500ms etc.
+          - should report it as a multiple of the adc interupt count. eg. NPLC.
+          - NPLC=1/50th.  setting for 50=1s, 10=1/5th s, 100=2s etc.
+
       - want a adc value buffer.  for stddev. etc.
 
 

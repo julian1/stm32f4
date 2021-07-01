@@ -2,7 +2,7 @@
 #ifndef F_BUFFER_H
 #define F_BUFFER_H
 
-// #include <stdint.h>   // int32_t
+#include <stdint.h>   // int32_t
 #include <stddef.h>   // size_t
 #include <stdbool.h>  // bool
 
@@ -20,6 +20,10 @@ void fBufInit(FBuf *a, float *p, size_t sz);
 void fBufPut(FBuf *a, float val);
 bool fBufisEmpty(FBuf *a);
 float fBufPop(FBuf *a);
+
+
+int32_t fBufCopy(FBuf *a, float *p, size_t n);
+
 
 // want a copy interface func. and a reset interface func.
 

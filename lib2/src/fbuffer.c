@@ -23,6 +23,7 @@
 */
 
 
+#include <float.h>    // FLT_MAX ughhh
 #include "fbuffer.h"
 
 // TODO rename write() to put(), read() to get(), or even push() and pop()
@@ -55,9 +56,10 @@ bool fBufisEmpty(FBuf *a)
 
 float fBufPop(FBuf *a)
 {
-  // THIS AINT MUCH GOOD.... need a separate isEmpty...
+  // messy, but shouldn't be called
   if(a->ri == a->wi)
-    return -999999999;  // MAX_FLOAT?
+    return FLT_MAX ;
+    // return NAN;       // math.h
 
   // read then update index. - but could be reordered by compiler
   float ret = (a->p)[a->ri];
@@ -67,3 +69,11 @@ float fBufPop(FBuf *a)
 }
 
 
+int32_t fBufCopy(FBuf *a, float *p, size_t n)
+{
+  size_t i = 0;
+  while(i < n && !fBufisEmpty(a))
+    p[i++] = fBufPop(a);
+
+  return i;
+}
