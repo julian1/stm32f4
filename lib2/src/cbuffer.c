@@ -86,12 +86,13 @@ int32_t cBufPeekLast(CBuf *a)
 
 int32_t cBufCopy(CBuf *a, char *p, size_t n)
 {
-  // copy and consume? 
+  // copy and consume
+  // could use cBufIsEmpty(), but the sential is guaranteed for chars.
 
-  // not tested...
+  // not tested much...
   int32_t ch;
   size_t i = 0;
-  while( i < n && (ch = cBufPop(a)) >= 0) {
+  while(i < n && (ch = cBufPop(a)) >= 0) {
     p[i++] = ch;
   }
   return i;
