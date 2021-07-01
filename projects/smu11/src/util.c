@@ -238,9 +238,34 @@ void usart_printf(const char *format, ...)
 
 void usart_flush(void)
 {
+  // blocks...
   // this avoids having to pull in usart.h stuff as dependency
   // don't think we need this as a separrate function
   usart_sync_flush();
 }
+
+////////////////////////////
+
+
+
+
+void assert_simple(const char *file, int line, const char *func, const char *expr)
+{
+
+  usart_printf("\nassert failed %s %d %s '%s'\n", file, line, func, expr);
+  usart_flush();
+  critical_error_blink();
+/*
+  either,
+  critical_error_blink()...
+  or go to halt state
+
+  need to setup the assert with a callback, so can transition to halt status.
+  have another assert that takes
+*/
+}
+
+
+
 
 

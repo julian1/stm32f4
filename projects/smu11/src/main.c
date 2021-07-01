@@ -418,8 +418,8 @@ static vrange_t range_voltage_next( vrange_t vrange, bool dir)
     };
   }
 
+  ASSERT(0);
   // suppress compiler warning...
-  critical_error_blink();
   return (vrange_t)-9999;
 }
 
@@ -1530,6 +1530,63 @@ static void state_change(app_t *app, state_t state )
 
 */
 
+static void adc_update(app_t *app)
+{
+
+  if(! (app->adc_drdy && app->state == ANALOG_UP))
+    return;
+
+
+
+  float ar[4];
+  int32_t ret = spi_adc_do_read(app->spi, ar, 4);
+  app->adc_drdy = false;
+
+  if(ret < 0) {
+    // error
+    usart_printf("adc error\n");
+  }
+  else  {
+    /*
+      ranging needs the actual value (not adjusted for gain/attenuation
+      so need to record and use in common units
+    */
+    /*
+      OK. we don't actually need a ring buffer for the adc, just an array is fine.
+    */
+
+#if 0
+      /*
+      This applies to the 34401A, 34970A, and 34980A products
+      NPLC values: {0.02|0.2|1|2|10|20|100|200}.
+
+      But. it is possible that interupt could fail and we miss a value.  so we have to check with max size...
+      // push values into buffer.
+      // if buffer size == nplc. then we will clear and print.
+
+      */
+
+      if(app->adc_read_count < ARRAY_SIZE(app->vfb) )
+      {
+        float x = 0.435;
+        // app->vfb[ adc_read_count ] = ar[0] * x;
+        // app->ifb[ adc_read_count ] = ar[1] * x;
+      }
+      ++adc_read_count;
+
+
+      if(adc_read_count == 50) {  // ie. 50 nplc
+
+        calc mean,std...
+
+        app->adc_read_count = 0;
+      }
+#endif
+  }
+}
+
+
+
 
 static void update(app_t *app)
 {
@@ -1553,39 +1610,12 @@ static void update(app_t *app)
     }
     else  {
       /*
-        ranging and format precision are separate and vary independently.
-        so need to use common unit approach.
+        ranging needs the actual value (not adjusted for gain/attenuation
+        so need to record and use in common units
       */
       float x = 0.435;
       app->vfb = ar[0] * x;
       app->ifb = ar[1] * x;
-
-      // push values into buffer.
-      // if buffer size == nplc. then we will clear and print.
-      /*
-        This applies to the 34401A, 34970A, and 34980A products
-        NPLC values: {0.02|0.2|1|2|10|20|100|200}.
-
-        OK. hang on we don't actually need a ring buffer for the adc,
-        But. it is possible that interupt could fail and we miss a value.  so we have to check with max size...
-
-        if(adc_read_count < ARRAY_SIZE(app->vfb) )
-        {
-          app->vfb[ adc_read_count ] = ar[0] * x;
-          app->ifb[ adc_read_count ] = ar[1] * x;
-        }
-        ++adc_read_count;
-
-
-        if(adc_read_count == 50) {  // ie. 50 nplc
-
-          calc mean,std...
-
-          adc_read_count = 0;
-        }
-
-      */
-
     }
   }
 
@@ -1991,9 +2021,10 @@ static char buf3[1000];
 static CBuf cmd_in;
 
 
+
+
 static void loop(app_t *app)
 {
-
   // move this into the app var structure ?.
   static uint32_t soft_500ms = 0;
   static uint32_t soft_1s = 0;
@@ -2085,7 +2116,10 @@ int main(void)
 
 
   //////////////////////
+
+  // TODO move off of the stack?
   app_t app;
+
   memset(&app, 0, sizeof(app_t));
   app.spi = SPI_ICE40;
   app.print_adc_values = true;
