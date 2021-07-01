@@ -149,7 +149,7 @@ static uint32_t sign_extend_24_32(uint32_t x)
 
 
 #define CLK1      0x0D  // default 0x08
-#define CLK2      0x0E  // default 0x86 
+#define CLK2      0x0E  // default 0x86
 #define ADC_ENA   0x0F
 
 
@@ -320,6 +320,12 @@ int adc_init( uint32_t spi, uint8_t reg)
   }
 
 
+
+
+
+
+
+
   //////////////////////
   // clk2
   uint8_t clk2 = adc_read_register(spi, CLK2);
@@ -332,15 +338,29 @@ int adc_init( uint32_t spi, uint8_t reg)
 
   // eg. approx 1288Hz. without. 128Hz. with 16.384 MHz xtal
   // but 16,384000 / 4096 = 4000?
-  
+
   // set OSR to max
-  adc_write_register(spi, CLK2, clk2 & (0b1111 << 4)  );    // clear lower 4 bits, for max OSR
-                                                            // better way to do this?
+  // adc_write_register(spi, CLK2, clk2 & (0b1111 << 4)  );    // clear lower 4 bits, for max OSR
 
-  usart_printf("clk2 now %s\n", uint_to_bits(buf, 8, adc_read_register(spi, CLK2 )));   //  10000000
+  // #define SETFIELD(data, width, offset, val)
+
+#define OSR_WIDTH 4
+#define OSR_OFF   0
+  clk2 = SETFIELD(clk2, OSR_WIDTH, OSR_OFF, 0 );
+
+#define ICLK_DIV_WIDTH 3
+#define ICLK_DIV_OFF   5
+  clk2 = SETFIELD(clk2, ICLK_DIV_WIDTH, ICLK_DIV_OFF, 0b100 );  // default value
+
+  adc_write_register(spi, CLK2, clk2 );
+
+  clk2 = adc_read_register(spi, CLK2);
+  usart_printf("clk2 now %s\n", uint_to_bits(buf, 8, clk2));   //  10000000
 
 
-
+// OK.  can we OR together multiple bits????.... we can with nesting...
+// but that's ugly.
+  ///////////////////////////////
 
 
 
