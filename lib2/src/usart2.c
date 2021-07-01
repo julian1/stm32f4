@@ -100,6 +100,23 @@ void usart1_isr(void)
     cBufPut(input_buf, ch);
   }
 
+
+#if 0
+  https://github.com/libopencm3/libopencm3-examples/blob/master/examples/stm32/f4/stm32f429i-discovery/usart_irq/usart_irq.c
+
+  /* Check if we were called because of TXE. */
+  if (((USART_CR1(USART1) & USART_CR1_TXEIE) != 0) &&
+      ((USART_SR(USART1) & USART_SR_TXE) != 0)) {
+
+    /* Put data into the transmit register. */
+    usart_send(USART1, data);
+
+    /* Disable the TXE interrupt as we don't need it anymore. */
+    usart_disable_tx_interrupt(USART1);
+  }
+
+#endif
+
   return ;
 }
 
@@ -114,11 +131,20 @@ void usart1_isr(void)
   TODO.
     OK. think this can be done better.
 
+    update() being called at 4kHz. but usart is 115k baud.
+    so superloop update() is effectively blocking transmission.
+
     Use an interupt. whenever the TXE is empty...
     on interupt for txe, pop the ring buffer and push next char.
 
-    We would have to manually call it, when first push to buffer
-    Or manually configure the interupt to fire.
+    We would have to manually call it, to prime the first char in the circular buffer.
+    Actually we would still prime, intially by calling this function. in the superloop update().
+    NOte,
+
+    void usart_enable_tx_interrupt(uint32_t usart)
+    void usart_enable_tx_complete_interrupt(uint32_t usart)
+    --------
+
 */
 
 // maybe change name update_usart_output() ?  no.
