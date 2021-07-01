@@ -346,11 +346,13 @@ int adc_init( uint32_t spi, uint8_t reg)
 
 #define OSR_WIDTH 4
 #define OSR_OFF   0
-  clk2 = SETFIELD(clk2, OSR_WIDTH, OSR_OFF, 0 );
+#define OSR_VALUE 0     // max oversampling rate 4096
+  clk2 = SETFIELD(clk2, OSR_WIDTH, OSR_OFF, OSR_VALUE);
 
 #define ICLK_DIV_WIDTH 3
 #define ICLK_DIV_OFF   5
-  clk2 = SETFIELD(clk2, ICLK_DIV_WIDTH, ICLK_DIV_OFF, 0b100 );  // default value
+#define ICLK_DIV_VALUE 0b100  // default
+  clk2 = SETFIELD(clk2, ICLK_DIV_WIDTH, ICLK_DIV_OFF, ICLK_DIV_VALUE);
 
   adc_write_register(spi, CLK2, clk2 );
 
