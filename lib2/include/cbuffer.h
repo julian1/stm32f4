@@ -6,22 +6,6 @@
 #include <stddef.h>   // size_t
 #include <stdbool.h>  // bool
 
-typedef struct FBuf
-{
-  float *p;
-  size_t sz;
-  size_t wi;
-  size_t ri;
-  // overflow
-} FBuf;
-
-
-void fBufInit(FBuf *a, float *p, size_t sz);
-void fBufPut(FBuf *a, float val);
-bool fBufEmpty(FBuf *a);
-float fBufPop(FBuf *a);
-
-/////////
 
 typedef struct CBuf
 {

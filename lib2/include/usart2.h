@@ -1,9 +1,9 @@
 
 #include <stddef.h> // size_t
 
-#include "buffer.h"
+// #include "cbuffer.h"
 
-
+typedef struct CBuf  CBuf;
 
 
 

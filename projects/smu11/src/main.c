@@ -223,7 +223,7 @@
 #include <string.h>   // strcmp
 
 
-#include "buffer.h"
+#include "cbuffer.h"
 #include "usart2.h"
 #include "util.h"
 

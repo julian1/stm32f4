@@ -12,7 +12,7 @@
 #include <libopencm3/stm32/gpio.h>
 
 #include "util.h"
-#include "buffer.h"
+#include "cbuffer.h"
 #include "usart2.h"
 // #include "miniprintf2.h" // internal_vprint
 

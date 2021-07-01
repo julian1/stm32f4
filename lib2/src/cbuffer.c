@@ -23,49 +23,9 @@
 */
 
 
-#include "buffer.h"
+#include "cbuffer.h"
 
 // TODO rename write() to put(), read() to get(), or even push() and pop()
-
-// float buffer...
-
-void fBufInit(FBuf *a, float *p, size_t sz)
-{
-  a->p = p;
-  a->sz = sz;
-  a->wi = 0;
-  a->ri = 0;
-}
-
-void fBufPut(FBuf *a, float val)
-{
-  // update val, then increment index
-  (a->p)[ a->wi] = val;
-  a->wi = (a->wi + 1) % a->sz;
-}
-
-
-bool fBufEmpty(FBuf *a)
-{
-  // TODO change name IsEmpty
-  return a->ri == a->wi;
-}
-
-
-float fBufPop(FBuf *a)
-{
-  // THIS AINT MUCH GOOD.... need a separate isEmpty...
-  if(a->ri == a->wi)
-    return -999999999;  // MAX_FLOAT?
-
-  // read then update index. - but could be reordered by compiler
-  float ret = (a->p)[a->ri];
-  a->ri = (a->ri + 1) % a->sz;
-
-  return ret;
-}
-
-////////////////////
 
 
 // char buffer
