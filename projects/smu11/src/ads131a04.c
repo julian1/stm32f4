@@ -128,7 +128,7 @@ static uint32_t sign_extend_24_32(uint32_t x)
 
 
 
-
+// TODO prefix SR_
 #define UNLOCK  0x0655
 #define LOCK    0x0555
 #define WAKEUP  0x0033
@@ -323,6 +323,27 @@ int adc_init( uint32_t spi, uint8_t reg)
 
 
 
+  //////////////////////
+  // clk1
+  uint8_t clk1 = adc_read_register(spi, CLK1);
+  usart_printf("clk1 %s\n", uint_to_bits(buf, 8, clk1));
+  if(clk1 != 0x08) {
+    usart_printf("clk1 not expected default\n");
+    return -1;
+  }
+
+#define CLK_DIV_WIDTH  3
+#define CLK_DIV_OFF    1
+// #define CLK_DIV_VAL   0b100 // default== 4 // 100 : fICLK = fCLKIN / 8 (default)
+                              //   101 : fICLK = fCLKIN / 10
+#define CLK_DIV_VAL    4
+                            //
+  // usart_printf("clk_div val %u\n", GETFIELD(clk1, CLK_DIV_WIDTH, CLK_DIV_OFF));
+  clk1 = SETFIELD(clk1, CLK_DIV_WIDTH, CLK_DIV_OFF, CLK_DIV_VAL);
+
+  adc_write_register(spi, CLK1, clk1);
+
+
 
 
 
@@ -339,22 +360,18 @@ int adc_init( uint32_t spi, uint8_t reg)
   // eg. approx 1288Hz. without. 128Hz. with 16.384 MHz xtal
   // but 16,384000 / 4096 = 4000?
 
-  // set OSR to max
-  // adc_write_register(spi, CLK2, clk2 & (0b1111 << 4)  );    // clear lower 4 bits, for max OSR
+#define OSR_WIDTH     4
+#define OSR_OFF       0
+#define OSR_VAL       0     // max oversampling rate 4096
+  clk2 = SETFIELD(clk2, OSR_WIDTH, OSR_OFF, OSR_VAL);
 
-  // #define SETFIELD(data, width, offset, val)
+#define ICLK_DIV_WIDTH  3
+#define ICLK_DIV_OFF    5
+#define ICLK_DIV_VAL    4 // 0b100  == 4. // table 29. default  100 : fMOD = fICLK / 8 (default)
+                          // 101 : fMOD = fICLK / 10
+  clk2 = SETFIELD(clk2, ICLK_DIV_WIDTH, ICLK_DIV_OFF, ICLK_DIV_VAL);
 
-#define OSR_WIDTH 4
-#define OSR_OFF   0
-#define OSR_VALUE 0     // max oversampling rate 4096
-  clk2 = SETFIELD(clk2, OSR_WIDTH, OSR_OFF, OSR_VALUE);
-
-#define ICLK_DIV_WIDTH 3
-#define ICLK_DIV_OFF   5
-#define ICLK_DIV_VALUE 0b100  // default
-  clk2 = SETFIELD(clk2, ICLK_DIV_WIDTH, ICLK_DIV_OFF, ICLK_DIV_VALUE);
-
-  adc_write_register(spi, CLK2, clk2 );
+  adc_write_register(spi, CLK2, clk2);
 
   clk2 = adc_read_register(spi, CLK2);
   usart_printf("clk2 now %s\n", uint_to_bits(buf, 8, clk2));   //  10000000
