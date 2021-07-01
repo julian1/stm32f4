@@ -21,5 +21,6 @@ void fBufPut(FBuf *a, float val);
 bool fBufisEmpty(FBuf *a);
 float fBufPop(FBuf *a);
 
+// want a copy interface func. and a reset interface func.
 
 #endif

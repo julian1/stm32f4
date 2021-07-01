@@ -49,7 +49,6 @@ void fBufPut(FBuf *a, float val)
 
 bool fBufisEmpty(FBuf *a)
 {
-  // TODO change name IsEmpty
   return a->ri == a->wi;
 }
 
