@@ -1208,6 +1208,7 @@ static void spi1_interupt(app_t *app)
 
   ++app->adc_drdy_count;
 
+  // set update to read...
   app->adc_drdy = true;
 
 }
@@ -1218,9 +1219,11 @@ static void update_soft_1s(app_t *app )
 {
   UNUSED(app);
 
+#if 0
   if(app->adc_drdy_count != app->adc_read_count) {
     usart_printf("soft 1s adc_drdy_count %u  adc_read_count %u   update_count %u\n", app->adc_drdy_count, app->adc_read_count, app->update_count);
   }
+#endif
 
   // static uint32_t count = 0;
   // usart_printf("count %u\n", count++ );
@@ -1535,14 +1538,10 @@ static void update(app_t *app)
   ++app->update_count;
 
   /*
-    read main adc
+      main adc, ready to be read
+      whole thing should be put into a separate function?
   */
   if(app->adc_drdy && app->state == ANALOG_UP) {
-    /*
-    16384000Hz / 4096
-     = 4000?
-    */
-    // usart_printf("b");
 
     float ar[4];
     int32_t ret = spi_adc_do_read(app->spi, ar, 4);
@@ -1560,6 +1559,33 @@ static void update(app_t *app)
       float x = 0.435;
       app->vfb = ar[0] * x;
       app->ifb = ar[1] * x;
+
+      // push values into buffer.
+      // if buffer size == nplc. then we will clear and print.
+      /*
+        This applies to the 34401A, 34970A, and 34980A products
+        NPLC values: {0.02|0.2|1|2|10|20|100|200}.
+
+        OK. hang on we don't actually need a ring buffer for the adc,
+        But. it is possible that interupt could fail and we miss a value.  so we have to check with max size...
+
+        if(adc_read_count < ARRAY_SIZE(app->vfb) )
+        {
+          app->vfb[ adc_read_count ] = ar[0] * x;
+          app->ifb[ adc_read_count ] = ar[1] * x;
+        }
+        ++adc_read_count;
+
+
+        if(adc_read_count == 50) {  // ie. 50 nplc
+
+          calc mean,std...
+
+          adc_read_count = 0;
+        }
+
+      */
+
     }
   }
 

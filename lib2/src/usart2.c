@@ -103,6 +103,7 @@ void usart1_isr(void)
 
 #if 0
   https://github.com/libopencm3/libopencm3-examples/blob/master/examples/stm32/f4/stm32f429i-discovery/usart_irq/usart_irq.c
+  https://src.xengineering.eu/xengineering/stm32f103c8-examples/src/commit/a68a6b6a088cac53231e3910947d88e9167a3962/libraries/usart.c
 
   /* Check if we were called because of TXE. */
   if (((USART_CR1(USART1) & USART_CR1_TXEIE) != 0) &&
@@ -137,9 +138,10 @@ void usart1_isr(void)
     Use an interupt. whenever the TXE is empty...
     on interupt for txe, pop the ring buffer and push next char.
 
-    We would have to manually call it, to prime the first char in the circular buffer.
-    Actually we would still prime, intially by calling this function. in the superloop update().
-    NOte,
+    We still have to manually call in update, to prime for first char in the circular buffer.
+
+    Or else just enable the tx_interupt. whenever we push a char to the ring buffer?
+
 
     void usart_enable_tx_interrupt(uint32_t usart)
     void usart_enable_tx_complete_interrupt(uint32_t usart)
