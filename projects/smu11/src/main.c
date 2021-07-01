@@ -362,12 +362,13 @@ typedef struct app_t
   // ho
   uint32_t  update_count;
 
+  /////////////////////////
   // adc data ready, given by interupt
   bool      adc_drdy;
   uint32_t  adc_drdy_count;
   uint32_t  adc_read_count ;
 
-  // adc read values
+  // adc last read values
   float     vfb;
   float     ifb;
 

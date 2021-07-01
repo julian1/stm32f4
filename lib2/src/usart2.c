@@ -18,11 +18,11 @@ static CBuf *output_buf = NULL;
 static CBuf *input_buf = NULL;
 
 
-// TODO change name usart1_setup_portB  
+// TODO change name usart1_setup_portB
 
 void usart_setup_gpio_portB(void)
 {
-  // we moved usart 1 for stm32f410. to different pins, 
+  // we moved usart 1 for stm32f410. to different pins,
   // PB6 = tx, PB7=rx
   // still AF7
   gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO6 | GPIO7);
@@ -110,14 +110,26 @@ void usart1_isr(void)
 
 /////////////////////////////////////////////
 
-// maybe change name to flush out()?
+/*
+  TODO.
+    OK. think this can be done better.
+
+    Use an interupt. whenever the TXE is empty...
+    on interupt for txe, pop the ring buffer and push next char.
+
+    We would have to manually call it, when first push to buffer
+    Or manually configure the interupt to fire.
+*/
+
+// maybe change name update_usart_output() ?  no.
 
 void usart_output_update()
 {
-  // eg. superloop.
+  // eg. called from superloop.
+  // disadvantage, is superloop timing.
 
   while(true) {
-    // if tx queue empty - do nothing, just return
+    // if tx queue not empty, nothing todo, just return
     if(!usart_get_flag(USART1,USART_SR_TXE))
       return;
 
@@ -126,7 +138,7 @@ void usart_output_update()
     if(ch == -1)
       return;
 
-    // does this block?????
+    // non blocking?????
     usart_send(USART1,ch);
   }
 }
