@@ -83,18 +83,14 @@
           active_range_current_set()...
           active_range_voltage_set()...
 
-      - separate the float and char circular buffers - to separate files.
-
-      - Should an isolated power supply design switch both (high and lo) terminal outputs to the DUT with a dpdt relay. or is switching is a single terminal (high) enough? 
-          I know at least one design that only switches the high.
-          There is an opportunity to simplify / eliminate relays, by combining  
-          
+      - done - separate the float and char circular buffers - to separate files.
 
       - done - want to count the number of adc interupts/s.
 
-      - want to display the clk registers in the register output.
+      - done - adc want to display the clk registers in the register output.
           want bitmask and offset to read and write registers.
 
+      - want a adc value buffer.  for stddev. etc.
 
 
       - should populate and test the single-ended gain stage.

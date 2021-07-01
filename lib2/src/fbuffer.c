@@ -31,6 +31,7 @@
 
 void fBufInit(FBuf *a, float *p, size_t sz)
 {
+  // memset()
   a->p = p;
   a->sz = sz;
   a->wi = 0;
@@ -39,13 +40,14 @@ void fBufInit(FBuf *a, float *p, size_t sz)
 
 void fBufPut(FBuf *a, float val)
 {
-  // update val, then increment index
+  // update val,
   (a->p)[ a->wi] = val;
+  // then increment index
   a->wi = (a->wi + 1) % a->sz;
 }
 
 
-bool fBufEmpty(FBuf *a)
+bool fBufisEmpty(FBuf *a)
 {
   // TODO change name IsEmpty
   return a->ri == a->wi;
