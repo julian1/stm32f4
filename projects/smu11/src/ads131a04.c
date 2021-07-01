@@ -321,9 +321,42 @@ int adc_init( uint32_t spi, uint8_t reg)
 
 
 /*
+  NPLC 1 or greater. then we reject power-line noise.
+  less than 1 and we do not.
+    https://www.youtube.com/watch?v=ld3ju6EOdZA
+
+  --------------
   // eg. with 16.384 MHz xtal
   // 16384000 / 4096 / 8 /8 =  62.5
   // 16384000 / 4096 / 10 /8 = 50Hz
+
+  //////////////////
+  50 * 60 * 4096 =  12288000
+  12288000 / 4096 / 10 / 6 = 50 ok.
+  there are a lot of 12.288MHz. xtals.
+
+  // but we don't have 5 as a clock divser
+  // unless scaled
+  12288000 / 4096 / 10 / 5
+  =60
+  // we could use lower OSR
+  12288000 / 2048 / (10 * 10)
+  =60
+
+  using ice40 to do 25 count...
+  12288000 / 4096 / 25  / 2 / 2
+  = 30
+
+  //////////////////
+  minimum divider is 2. really messy...
+  could do it
+
+  24576000 / 4096 / 10 / 12 = 50
+  24576000 / 4096 / 10 / 10 = 60.
+
+  24.576MHz
+  OK. we need to buy one to test.
+  //////////////////
 
   note we have 2,4,6,8,10,12,14 divisors. and no 1x.
 

@@ -12,7 +12,7 @@
 
 #define GETFIELD(data, width, offset)         ((data) >> (offset)) & MASK(width)
 
-// change name uint_format_bits()
+// better name? uint_format_bits()
 extern char * uint_to_bits(char *buf, size_t width, uint32_t value);
 
 
