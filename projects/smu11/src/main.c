@@ -1285,8 +1285,12 @@ static void update_soft_500ms(app_t *app )
         }
         usart_printf(", ifb ");
         print_current(app->irange, app->ifb * range_current_multiplier(app->irange));
-        usart_printf("\n");
       }
+
+
+
+      usart_printf(", %u (%u) %u", app->adc_drdy_count, app->adc_read_count, app->update_count);
+        usart_printf("\n");
 
       // usart_printf("i is %f\n", i);
       // usart_printf("v is %f\n", v);

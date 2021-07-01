@@ -148,7 +148,8 @@ static uint32_t sign_extend_24_32(uint32_t x)
 #define D_SYS_CFG 0x0C
 
 
-#define CLK2      0x0E
+#define CLK1      0x0D  // default 0x08
+#define CLK2      0x0E  // default 0x86 
 #define ADC_ENA   0x0F
 
 
@@ -321,7 +322,7 @@ int adc_init( uint32_t spi, uint8_t reg)
 
   //////////////////////
   // clk2
-  uint8_t clk2 = adc_read_register(spi, CLK2 );
+  uint8_t clk2 = adc_read_register(spi, CLK2);
   // usart_printf("clk2 %2x\n", clk2);
   usart_printf("clk2 %s\n", uint_to_bits(buf, 8, clk2)); // 10000110
   if(clk2 != 0x86) {
