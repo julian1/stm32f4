@@ -14,7 +14,12 @@ make
 
 # serial connection
 
-rlwrap -a picocom --baud 115200 /dev/ttyUSB0
+
+rlwrap -a picocom  -q -b 115200 /dev/ttyUSB0
+or
+rlwrap -a picocom  -q -b 115200 /dev/ttyUSB0 | tee out.log
+etc
+
 (ctrl-c ctrl-c  to exit)
 
 or
