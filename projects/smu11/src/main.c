@@ -1288,12 +1288,12 @@ static void update_soft_500ms(app_t *app )
       }
 
 
+    // note, these vals computed once/sec. not once/500ms.
+    usart_printf(", %u (%u) %u", app->adc_drdy_count, app->adc_read_count, app->update_count);
+    usart_printf("\n");
 
-      usart_printf(", %u (%u) %u", app->adc_drdy_count, app->adc_read_count, app->update_count);
-        usart_printf("\n");
-
-      // usart_printf("i is %f\n", i);
-      // usart_printf("v is %f\n", v);
+    // usart_printf("i is %f\n", app->ifb);
+    // usart_printf("v is %f\n", app->vfb);
 
 
       // TODO. change back so that can change both together,
