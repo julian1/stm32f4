@@ -45,6 +45,14 @@ void cBufPut(CBuf *a, char val)
   a->wi = (a->wi + 1) % a->sz;
 }
 
+bool cBufisEmpty(CBuf *a)
+{
+  return a->ri == a->wi;
+}
+
+
+
+
 int32_t cBufPop(CBuf *a)
 {
   // sentinal value...
@@ -57,6 +65,8 @@ int32_t cBufPop(CBuf *a)
 
   return ret;
 }
+
+
 
 
 

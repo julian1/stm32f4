@@ -101,19 +101,33 @@ void usart1_isr(void)
   }
 
 
-#if 0
+#if 1
+/*
   https://github.com/libopencm3/libopencm3-examples/blob/master/examples/stm32/f4/stm32f429i-discovery/usart_irq/usart_irq.c
   https://src.xengineering.eu/xengineering/stm32f103c8-examples/src/commit/a68a6b6a088cac53231e3910947d88e9167a3962/libraries/usart.c
+*/
 
   /* Check if we were called because of TXE. */
   if (((USART_CR1(USART1) & USART_CR1_TXEIE) != 0) &&
       ((USART_SR(USART1) & USART_SR_TXE) != 0)) {
 
+    if(cBufisEmpty(output_buf)) {
+      // no more chars
+      usart_disable_tx_interrupt(USART1);
+      return;
+    }
+
+    // else send char
+    int ch = cBufPop(output_buf);
+    // non blocking?????
+    usart_send(USART1,ch);
+
+
     /* Put data into the transmit register. */
-    usart_send(USART1, data);
+    // usart_send(USART1, data);
 
     /* Disable the TXE interrupt as we don't need it anymore. */
-    usart_disable_tx_interrupt(USART1);
+    // usart_disable_tx_interrupt(USART1);
   }
 
 #endif
@@ -153,6 +167,14 @@ void usart1_isr(void)
 
 void usart_output_update()
 {
+
+    if(!cBufisEmpty(output_buf)) {
+      usart_enable_tx_interrupt(USART1);
+    }
+
+
+
+#if 0
   // eg. called from superloop.
   // disadvantage, is superloop timing.
 
@@ -169,6 +191,7 @@ void usart_output_update()
     // non blocking?????
     usart_send(USART1,ch);
   }
+#endif
 }
 
 
@@ -184,7 +207,7 @@ void usart_output_update()
 
 void usart_sync_flush()
 {
-
+#if 0
   while(true) {
 
     // check for output to flush...
@@ -197,6 +220,7 @@ void usart_sync_flush()
 
     usart_send(USART1,ch);
   }
+#endif
 }
 
 
