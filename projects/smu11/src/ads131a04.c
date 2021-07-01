@@ -325,7 +325,11 @@ int adc_init( uint32_t spi, uint8_t reg)
   // 16384000 / 4096 / 8 /8 =  62.5
   // 16384000 / 4096 / 10 /8 = 50Hz
 
-  how to do 60Hz.
+  note we have 2,4,6,8,10,12,14 divisors. and no 1x.
+
+  9830400 / 4096 / 10 / 4
+  = 60   exact.
+  9.8304MHz  mouser has.
 */
 
 
