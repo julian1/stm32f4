@@ -1334,6 +1334,7 @@ static void update_soft_500ms(app_t *app )
         // print the current console input buffer 
         // OK... No...
 
+        usart_printf("> ");
 
         char buf[100];
         cBufCopy2(&app->cmd_in, buf, 100);
