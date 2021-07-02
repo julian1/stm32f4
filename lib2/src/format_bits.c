@@ -2,6 +2,7 @@
 #include "format_bits.h"
 
 
+// input needs to be width + 1 for sentinel
 
 char * format_bits(char *buf, size_t width, uint32_t value)
 {
