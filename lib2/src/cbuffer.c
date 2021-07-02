@@ -94,7 +94,7 @@ int32_t cBufPeekLast(CBuf *a)
 }
 
 
-int32_t cBufCopy(CBuf *a, char *p, size_t n)
+int32_t cBufCopyString(CBuf *a, char *p, size_t n)
 {
   // needs more testing
   // copy and consume
@@ -117,7 +117,7 @@ int32_t cBufCopy(CBuf *a, char *p, size_t n)
 // if this is used for chars
 
 
-int32_t cBufCopy2(CBuf *a, char *p, size_t n)
+int32_t cBufCopyString2(CBuf *a, char *p, size_t n)
 {
   // needs more testing
   // copy without consuming

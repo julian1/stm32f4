@@ -21,15 +21,14 @@ typedef struct CBuf
 void cBufInit(CBuf *a, char *p, size_t sz);
 void cBufPut(CBuf *a, char val);
 
-bool cBufisEmpty(CBuf *a);
+bool    cBufisEmpty(CBuf *a);
 int32_t cBufPop(CBuf *a);
 int32_t cBufPeekFirst(CBuf *a);
 int32_t cBufPeekLast(CBuf *a);
 
-int32_t cBufCopy(CBuf *a, char *p, size_t n);
+int32_t cBufCopyString(CBuf *a, char *p, size_t n);
+int32_t cBufCopyString2(CBuf *a, char *p, size_t n);
 
-
-int32_t cBufCopy2(CBuf *a, char *p, size_t n);
-
+// can implement non-string copy funcs also, without sentinel
 
 #endif

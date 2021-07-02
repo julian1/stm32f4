@@ -1344,7 +1344,7 @@ static void update_soft_500ms(app_t *app )
         usart_printf("> ");
 
         char buf[100];
-        cBufCopy2(&app->cmd_in, buf, 100);
+        cBufCopyString2(&app->cmd_in, buf, 100);
         usart_printf("%s", buf);
 
         // perhaps we can print the current command buffer also....
@@ -2042,9 +2042,9 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out/*
 
     // we got a carriage return
     static char tmp[1000];
-    size_t n = cBufCopy(cmd_in, tmp, sizeof(tmp));
+    size_t n = cBufCopyString(cmd_in, tmp, sizeof(tmp));
     tmp[n - 1] = 0;   // drop tailing line feed
-                      // TODO. cBufCopy should potentially do this...
+                      // TODO. cBufCopyString should potentially do this...
                       // no. if want non-sentinal terminaed raw bytes. eg. for network code...
 
     // usart_printf("got command '%s'   %d\n", tmp, n);
