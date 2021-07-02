@@ -90,6 +90,7 @@
       - done - adc want to display the clk registers in the register output.
           want bitmask and offset to read and write registers.
 
+      - terminal char - to clear screen. for better logging.
 
       - rather than report vfb ifb every 500ms etc.
           - should report it as a multiple of the adc interupt count. eg. NPLC.
@@ -1260,42 +1261,72 @@ static void update_soft_500ms(app_t *app )
 
       if(app->print_adc_values) {
 
+        // works in screen and picocom
+        // https://stackoverflow.com/questions/60293014/how-to-clear-screen-of-minicom-terminal-using-serial-uart
+        // usart_printf("%c%c%c%c",0x1B,0x5B,0x32,0x4A);
+        // https://electronics.stackexchange.com/questions/8874/is-it-possible-to-send-characters-through-serial-to-go-up-a-line-on-the-console
+
+        usart_printf("\033[2J");    // clear screen
+        usart_printf("\033[0;0H");  // cursor to top left
+        // usart_printf("\033[10B");   // move cursor down 10 lines ... works
+        // usart_printf("\033[3B");   // move cursor down 3 lines ... works
+
+
+        // position cursor top left?
+
         // when we set the range. we should set the default format.
         // the format prec wants to be able to user modified.
         /////////////////
 
-        usart_printf("vrange: %s", range_voltage_string(app->vrange));
-        usart_printf("(%s)",       range_voltage_string(app->vset_range));
+        usart_printf("source measure unit\n");
+        usart_printf("\n");
+
+        usart_printf("vfb ");
+        print_voltage(app->vrange, app->vfb * range_voltage_multiplier(app->vrange)  );
+
+        usart_printf("\t");
+        usart_printf("vset ");
+        print_voltage(app->vrange, app->vset * range_voltage_multiplier(app->vrange));
+
+        usart_printf("\t");
+        usart_printf("vset_range: %s",  range_voltage_string(app->vset_range));
+        usart_printf("\t");
+        usart_printf("vrange: %s",      range_voltage_string(app->vrange)); // measure range
 
         if(app->vrange == app->vset_range) {
           usart_printf("*");
-          usart_printf(", vset ");
-          print_voltage(app->vrange, app->vset * range_voltage_multiplier(app->vrange));
         }
-        usart_printf(", vfb ");
-        print_voltage(app->vrange, app->vfb * range_voltage_multiplier(app->vrange)  );
+
 
         /////////////////
 
-        usart_printf("    ");
+        usart_printf("\n\n");
 
+        usart_printf("ifb ");
+        print_current(app->irange, app->ifb * range_current_multiplier(app->irange));
 
-        usart_printf("irange: %s", range_current_string(app->irange));
-        usart_printf("(%s)",       range_current_string(app->iset_range));
+        usart_printf("\t");
+        usart_printf("iset ");
+        print_current(app->irange, app->iset * range_current_multiplier(app->irange) );
+
+        usart_printf("\t");
+        usart_printf("iset_range: %s",  range_current_string(app->iset_range));
+        usart_printf("\t");
+        usart_printf("irange: %s",      range_current_string(app->irange));
 
         if(app->irange == app->iset_range) {
           usart_printf("*");
-          usart_printf(", iset ");
-          print_current(app->irange, app->iset * range_current_multiplier(app->irange) );
         }
-        usart_printf(", ifb ");
-        print_current(app->irange, app->ifb * range_current_multiplier(app->irange));
+
+        usart_printf("\n\n");
+
+        usart_printf("output %s\n", (app->output) ? "on" : "off" );
+
+        // note, these vals computed once/sec. not once/500ms.
+        // usart_printf("\n\n");
+        // usart_printf("%u (%u) %u", app->adc_drdy_count, app->adc_read_count, app->update_count);
       }
 
-
-    // note, these vals computed once/sec. not once/500ms.
-    usart_printf(", %u (%u) %u", app->adc_drdy_count, app->adc_read_count, app->update_count);
-    usart_printf("\n");
 
     // usart_printf("i is %f\n", app->ifb);
     // usart_printf("v is %f\n", app->vfb);
@@ -2036,8 +2067,8 @@ static void loop(app_t *app)
   while(true) {
 
     // 500ms soft timer. should handle wrap around
-    if( (system_millis - soft_500ms) > 500) {
-      soft_500ms += 500;
+    if( (system_millis - soft_500ms) > 1000) {
+      soft_500ms += 1000;
       update_soft_500ms(app);
     }
 

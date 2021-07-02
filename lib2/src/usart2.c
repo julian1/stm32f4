@@ -6,7 +6,7 @@
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/cm3/nvic.h>
 
-#include <stddef.h> // size_t
+// #include <stddef.h> // size_t
 
 #include "usart2.h"
 #include "cbuffer.h"
@@ -149,7 +149,6 @@ void usart_sync_flush()
 }
 
 
-/////////////////////////////
 
 
 
