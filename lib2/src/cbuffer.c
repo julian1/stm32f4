@@ -96,17 +96,19 @@ int32_t cBufPeekLast(CBuf *a)
 
 int32_t cBufCopy(CBuf *a, char *p, size_t n)
 {
+  // needs more testing
   // copy and consume
-  // could use cBufIsEmpty(), but the sential is guaranteed for chars.
+  // for c-style strings, so handle sentinel
 
-  // we should do the sentinal....  this is for char arrays
 
-  // not tested much...
   int32_t ch;
   size_t i = 0;
-  while(i < n && (ch = cBufPop(a)) >= 0) {
+  while(i < (n - 1) && (ch = cBufPop(a)) >= 0) {
     p[i++] = ch;
   }
+
+  // sentinel
+  p[i] = 0;
   return i;
 }
 
@@ -117,17 +119,21 @@ int32_t cBufCopy(CBuf *a, char *p, size_t n)
 
 int32_t cBufCopy2(CBuf *a, char *p, size_t n)
 {
+  // needs more testing
+  // copy without consuming
+  // for c-style strings, so handle sentinel
 
   size_t i = a->ri;
   size_t u = 0;
 
-  while((i % a->sz) != a->wi && u < n - 1) {
+  while((i % a->sz) != a->wi && u < (n - 1)) {
 
     p[u++] = (a->p)[i];
     ++i;
   }
 
-  p[u] = 0;   // sentinel
+  // sentinel
+  p[u] = 0;
   return u;
 }
 
