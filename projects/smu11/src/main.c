@@ -90,6 +90,13 @@
       - done - adc want to display the clk registers in the register output.
           want bitmask and offset to read and write registers.
 
+      - it ought to be possible to cal both voltage, and current (using the 10M and 10G voltage ranges).
+
+      - should be trying to restrict the scope of some functions.
+          - eg. struct core. rather than struct app. even if put output bool inside core. etc.
+          - or have to inject a few vars.
+          - likewise adc functionality.
+
       - terminal char - to clear screen. for better logging.
 
       - rather than report vfb ifb every 500ms etc.
@@ -1341,6 +1348,8 @@ static void update_soft_500ms(app_t *app )
         usart_printf("%s", buf);
 
         // perhaps we can print the current command buffer also....
+
+        // IMPORTANT could print the log of last commands... underneath the prompt.
 
         // note, these vals computed once/sec. not once/500ms.
         // usart_printf("\n\n");
