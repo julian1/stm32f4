@@ -1327,6 +1327,17 @@ static void update_soft_500ms(app_t *app )
 
         usart_printf("output %s\n", (app->output) ? "on" : "off" );
 
+        usart_printf("\n\n");
+       
+
+ 
+        // print the current console input buffer 
+        // OK... No...
+
+
+        char buf[100];
+        cBufCopy2(&app->cmd_in, buf, 100);
+        usart_printf("%s", buf);
 
         // perhaps we can print the current command buffer also....
 
@@ -1904,9 +1915,9 @@ static void process_cmd(app_t *app, const char *s )
 
 
 
-static void process_ch(app_t *app, const char ch )
+static void update_console_ch(app_t *app, const char ch )
 {
-
+  // hange name update_console_ch() 
   // usart_printf("char code %d\n", ch );
 
   // change the actual current range
@@ -1958,13 +1969,11 @@ static void process_ch(app_t *app, const char ch )
     state_change(app, FIRST);
     return;
   }
-
-
 }
 
 
 
-static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, CBuf *cmd_in )
+static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out/*, CBuf *cmd_in */)
 {
   /*
     TODO
@@ -1976,6 +1985,8 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
     Actually. no. it's neater that they're not.
   */
 
+  CBuf *cmd_in = &app->cmd_in;
+  ASSERT(cmd_in);
 
   int32_t ch;
 
@@ -1985,6 +1996,9 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
     /*
       these are not actually useful UI functions....
     */
+
+    // OK... we need to copy out the input buffer without consuming it...
+    // or change this.... 
 
     // we're in a command
     if( cBufPeekFirst(cmd_in) == ':') {
@@ -2007,7 +2021,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
         cBufPut(console_out, ch);
       }
 
-      process_ch(app, ch );
+      update_console_ch(app, ch );
     }
   }
 
@@ -2102,7 +2116,7 @@ static void loop(app_t *app)
     // not sure should be done first...
     usart_output_update();
 
-    update_console_cmd(app, &console_in, &console_out, &app->cmd_in);
+    update_console_cmd(app, &console_in, &console_out/*, &app->cmd_in*/);
 
   }
 }

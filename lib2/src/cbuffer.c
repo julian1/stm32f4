@@ -99,6 +99,8 @@ int32_t cBufCopy(CBuf *a, char *p, size_t n)
   // copy and consume
   // could use cBufIsEmpty(), but the sential is guaranteed for chars.
 
+  // we should do the sentinal....  this is for char arrays
+
   // not tested much...
   int32_t ch;
   size_t i = 0;
@@ -107,5 +109,31 @@ int32_t cBufCopy(CBuf *a, char *p, size_t n)
   }
   return i;
 }
+
+
+// we really need to be able to copy out the buffer... so we have a nice string without consuming.
+// if this is used for chars
+
+
+int32_t cBufCopy2(CBuf *a, char *p, size_t n)
+{
+
+  size_t i = a->ri;
+  size_t u = 0;
+
+  while((i % a->sz) != a->wi && u < n - 1) {
+
+    p[u++] = (a->p)[i];
+    ++i;
+  }
+
+  p[u] = 0;   // sentinel
+  return u;
+}
+
+
+
+
+
 
 

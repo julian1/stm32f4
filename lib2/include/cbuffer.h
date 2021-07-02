@@ -29,4 +29,7 @@ int32_t cBufPeekLast(CBuf *a);
 int32_t cBufCopy(CBuf *a, char *p, size_t n);
 
 
+int32_t cBufCopy2(CBuf *a, char *p, size_t n);
+
+
 #endif
