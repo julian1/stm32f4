@@ -374,6 +374,11 @@ typedef struct app_t
   float     ifb;
 
 
+
+  //// 
+  CBuf    cmd_in;
+
+
 } app_t;
 
 
@@ -1291,7 +1296,7 @@ static void update_soft_500ms(app_t *app )
         usart_printf("\t");
         usart_printf("vset_range: %s",  range_voltage_string(app->vset_range));
         usart_printf("\t");
-        usart_printf("vrange: %s",      range_voltage_string(app->vrange)); // measure range
+        usart_printf("vrange: %s",      range_voltage_string(app->vrange)); // measure/active range
 
         if(app->vrange == app->vset_range) {
           usart_printf("*");
@@ -1312,7 +1317,7 @@ static void update_soft_500ms(app_t *app )
         usart_printf("\t");
         usart_printf("iset_range: %s",  range_current_string(app->iset_range));
         usart_printf("\t");
-        usart_printf("irange: %s",      range_current_string(app->irange));
+        usart_printf("irange: %s",      range_current_string(app->irange));   // measure/active range
 
         if(app->irange == app->iset_range) {
           usart_printf("*");
@@ -1321,6 +1326,9 @@ static void update_soft_500ms(app_t *app )
         usart_printf("\n\n");
 
         usart_printf("output %s\n", (app->output) ? "on" : "off" );
+
+
+        // perhaps we can print the current command buffer also....
 
         // note, these vals computed once/sec. not once/500ms.
         // usart_printf("\n\n");
@@ -1960,6 +1968,10 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out, 
 {
   /*
     TODO
+
+    should pass the app structure. 
+    for app->cmd_in at least
+
     put these buffers. in the app structure.
     Actually. no. it's neater that they're not.
   */
@@ -2049,7 +2061,7 @@ static CBuf console_out;
 
 // should probably be in the app structure...
 static char buf3[1000];
-static CBuf cmd_in;
+// static CBuf cmd_in;
 
 
 
@@ -2090,7 +2102,7 @@ static void loop(app_t *app)
     // not sure should be done first...
     usart_output_update();
 
-    update_console_cmd(app, &console_in, &console_out, &cmd_in);
+    update_console_cmd(app, &console_in, &console_out, &app->cmd_in);
 
   }
 }
@@ -2135,7 +2147,6 @@ int main(void)
   cBufInit(&console_out, buf2, sizeof(buf2));
 
 
-  cBufInit(&cmd_in, buf3, sizeof(buf3));
 
 
   usart_setup_gpio_portA();
@@ -2149,6 +2160,8 @@ int main(void)
   //////////////////////
 
   // TODO move off of the stack?
+
+  // PUT THIS IN A DAMN FUNCTION....
   app_t app;
 
   memset(&app, 0, sizeof(app_t));
@@ -2156,6 +2169,7 @@ int main(void)
   app.print_adc_values = true;
   app.output = false;
 
+  cBufInit(&app.cmd_in, buf3, sizeof(buf3));
 
   ////////////////
   spi1_port_setup();
