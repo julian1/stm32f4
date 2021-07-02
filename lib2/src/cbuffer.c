@@ -123,18 +123,18 @@ int32_t cBufCopyString2(CBuf *a, char *p, size_t n)
   // copy without consuming
   // for c-style strings, so handle sentinel
 
-  size_t i = a->ri;
-  size_t u = 0;
+  size_t ri = a->ri;
+  size_t i = 0;
 
-  while((i % a->sz) != a->wi && u < (n - 1)) {
+  while((ri % a->sz) != a->wi && i < (n - 1)) {
 
-    p[u++] = (a->p)[i];
-    ++i;
+    p[i++] = (a->p)[ri];
+    ++ri;
   }
 
   // sentinel
-  p[u] = 0;
-  return u;
+  p[i] = 0;
+  return i;
 }
 
 
