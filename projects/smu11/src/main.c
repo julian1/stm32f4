@@ -1060,6 +1060,8 @@ static void print_current(irange_t irange, float val)
       enourage drill to a higher range.
   */
 
+  char buf[100];
+
 
   // usart_printf(" here " );
 
@@ -1070,29 +1072,34 @@ static void print_current(irange_t irange, float val)
     case irange_1uA:
       // when power is off... kind of nice to report...
       if(fabs(val) * 1e9f > 1)
-        usart_printf("%fnA", val * 1e9f);
+        // usart_printf("%fnA", val * 1e9f);
+        usart_printf("%snA", format_float(buf, ARRAY_SIZE(buf), val * 1e+9f, 6) ); // 6 digits
       else
         // this will be more valid, with a higher valued resistor 100M or 1G.
-        usart_printf("%fpA", val * 1e12f);
+        // usart_printf("%fpA", val * 1e12f);
+        usart_printf("%spA", format_float(buf, ARRAY_SIZE(buf), val * 1e+12f, 6) ); // 6 digits
       break;
 
 
     case irange_10uA:
     case irange_100uA:
     case irange_1mA:
-      usart_printf("%fuA", val * 1000000.f);
+      // usart_printf("%fuA", val * 1000000.f);
+      usart_printf("%suA", format_float(buf, ARRAY_SIZE(buf), val * 1e+6f, 6) ); // 6 digits
       break;
 
     case irange_10mA:
     case irange_100mA:
     case irange_1A:
-      usart_printf("%fmA", val * 1000.f);   // TODO 0.7A better as 0.7A. 0.6A better as 600mA. think..
+      // usart_printf("%fmA", val * 1000.f);   // TODO 0.7A better as 0.7A. 0.6A better as 600mA. think..
+      usart_printf("%smA", format_float(buf, ARRAY_SIZE(buf), val * 1e+3f, 6) ); // 6 digits
       break;
 
 
     // case irange_1A:
     case irange_10A:
-      usart_printf("%fA", val);
+      // usart_printf("%fA", val);
+      usart_printf("%sA", format_float(buf, ARRAY_SIZE(buf), val, 6) ); // 6 digits
       break;
 
 
