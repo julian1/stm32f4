@@ -1039,10 +1039,14 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
 
 
 
+/*
+  OK. something wrong.
 
+  set to 20nA on 10uA range. 
 
+  but its giving 300nA on 1uA range.
 
-
+*/
 
 
 
