@@ -5,6 +5,7 @@
 #include "ads131a04.h"
 
 #include "bits.h"
+#include "format_bits.h"
 #include "util.h"   // usart_printf
 
 #include "core.h"
@@ -164,17 +165,17 @@ static void adc_print_status_registers(uint32_t spi)
   char buf[100];
 
 
-  usart_printf(" stat_1 %s\n",  uint_to_bits(buf, 8, adc_read_register(spi, STAT_1)));
-  usart_printf(" stat_p %s\n", uint_to_bits(buf, 8, adc_read_register(spi, STAT_P)));
-  usart_printf(" stat_n %s\n", uint_to_bits(buf, 8, adc_read_register(spi, STAT_N)));
-  usart_printf(" stat_s %s\n", uint_to_bits(buf, 8, adc_read_register(spi, STAT_S)));   // this should clear the value?????
+  usart_printf(" stat_1 %s\n",  format_bits(buf, 8, adc_read_register(spi, STAT_1)));
+  usart_printf(" stat_p %s\n", format_bits(buf, 8, adc_read_register(spi, STAT_P)));
+  usart_printf(" stat_n %s\n", format_bits(buf, 8, adc_read_register(spi, STAT_N)));
+  usart_printf(" stat_s %s\n", format_bits(buf, 8, adc_read_register(spi, STAT_S)));   // this should clear the value?????
 
   usart_printf(" error_cnt %d\n", adc_read_register(spi, ERROR_CNT));
 
 
-  // usart_printf(" stat_1 %s\n", uint_to_bits(buf, 8, adc_read_register(spi, STAT_1))); // re-read
-  //usart_printf(" stat_s %s\n", uint_to_bits(buf, 8, adc_read_register(spi, STAT_S)));   // this should clear the value?????
-  // usart_printf("stat_1 %s\n", uint_to_bits(buf, 8, adc_read_register(spi, STAT_1))); // re-read
+  // usart_printf(" stat_1 %s\n", format_bits(buf, 8, adc_read_register(spi, STAT_1))); // re-read
+  //usart_printf(" stat_s %s\n", format_bits(buf, 8, adc_read_register(spi, STAT_S)));   // this should clear the value?????
+  // usart_printf("stat_1 %s\n", format_bits(buf, 8, adc_read_register(spi, STAT_1))); // re-read
 
 
 /*
@@ -290,7 +291,7 @@ int adc_init( uint32_t spi, uint8_t reg)
   // read a_sys_cfg
   uint8_t a_sys_cfg = adc_read_register(spi, A_SYS_CFG );
   // usart_printf("a_sys_cfg %2x\n", a_sys_cfg);
-  usart_printf("a_sys_cfg %s\n", uint_to_bits(buf, 8, a_sys_cfg));
+  usart_printf("a_sys_cfg %s\n", format_bits(buf, 8, a_sys_cfg));
   if(a_sys_cfg != 0x60) {
     usart_printf("a_sys_cfg not expected default\n");
     return -1;
@@ -313,7 +314,7 @@ int adc_init( uint32_t spi, uint8_t reg)
   // read d_sys_cfg
   uint8_t d_sys_cfg = adc_read_register(spi, D_SYS_CFG );
   // usart_printf("d_sys_cfg %02x\n", d_sys_cfg);
-  usart_printf("d_sys_cfg %s\n", uint_to_bits(buf, 8, d_sys_cfg));
+  usart_printf("d_sys_cfg %s\n", format_bits(buf, 8, d_sys_cfg));
   if(d_sys_cfg != 0x3c) {
     usart_printf("d_sys_cfg not expected default\n");
     return -1;
@@ -369,7 +370,7 @@ int adc_init( uint32_t spi, uint8_t reg)
   //////////////////////
   // clk1
   uint8_t clk1 = adc_read_register(spi, CLK1);
-  usart_printf("clk1 %s\n", uint_to_bits(buf, 8, clk1));
+  usart_printf("clk1 %s\n", format_bits(buf, 8, clk1));
   if(clk1 != 0x08) {
     usart_printf("clk1 not expected default\n");
     return -1;
@@ -390,7 +391,7 @@ int adc_init( uint32_t spi, uint8_t reg)
   // clk2
   uint8_t clk2 = adc_read_register(spi, CLK2);
   // usart_printf("clk2 %2x\n", clk2);
-  usart_printf("clk2 %s\n", uint_to_bits(buf, 8, clk2)); // 10000110
+  usart_printf("clk2 %s\n", format_bits(buf, 8, clk2)); // 10000110
   if(clk2 != 0x86) {
     usart_printf("clk2 not expected default\n");
     return -1;
@@ -411,7 +412,7 @@ int adc_init( uint32_t spi, uint8_t reg)
   adc_write_register(spi, CLK2, clk2);
 
   clk2 = adc_read_register(spi, CLK2);
-  usart_printf("clk2 now %s\n", uint_to_bits(buf, 8, clk2));   //  10000000
+  usart_printf("clk2 now %s\n", format_bits(buf, 8, clk2));   //  10000000
 
 
 // OK.  can we OR together multiple bits????.... we can with nesting...
@@ -449,8 +450,8 @@ int adc_init( uint32_t spi, uint8_t reg)
 #if 0
   usart_printf("here0\n");
   usart_printf("-------\nhere0\n");
-  usart_printf("stat_1 %s\n", uint_to_bits(buf, 8, adc_read_register(spi, STAT_1)));
-  usart_printf("stat_p %s\n", uint_to_bits(buf, 8, adc_read_register(spi, STAT_P)));
+  usart_printf("stat_1 %s\n", format_bits(buf, 8, adc_read_register(spi, STAT_1)));
+  usart_printf("stat_p %s\n", format_bits(buf, 8, adc_read_register(spi, STAT_P)));
 #endif
 
 

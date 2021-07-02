@@ -1,9 +1,9 @@
 
-#include "bits.h"
+#include "format_bits.h"
 
 
 
-char * uint_to_bits(char *buf, size_t width, uint32_t value)
+char * format_bits(char *buf, size_t width, uint32_t value)
 {
   // passing the buf, means can use more than once in printf expression. using separate bufs
   char *s = buf;
