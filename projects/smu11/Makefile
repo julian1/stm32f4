@@ -15,7 +15,9 @@ BINARY		= main
 SRCFILES	= flash.c  util.c \
 
 SRCFILES	= src/main.c  src/mcp3208.c src/w25.c src/dac8734.c src/ads131a04.c src/ice40.c src/spi1.c src/core.c src/util.c \
+              src/format_float.c  \
               ${LIB2SRC}/cbuffer.c  ${LIB2SRC}/fbuffer.c ${LIB2SRC}/usart2.c  ${LIB2SRC}/flash.c  ${LIB2SRC}/bits.c
+
 
 
 # ${LIB2SRC}/miniprintf2.c
@@ -34,7 +36,8 @@ TGT_CFLAGS  += -Wno-unused-function   \
 TGT_CFLAGS	+= -I${LIB2INC}
 TGT_CFLAGS	+= -I./include    # FIXME, should be before lib2inc
 
-#LDLIBS		+= -lm
+# pow()
+LDLIBS		+= -lm
 
 
 include ${TOP}/Makefile.incl

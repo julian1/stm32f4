@@ -243,6 +243,8 @@
 #include "dac8734.h"
 #include "ads131a04.h"
 
+#include "format_float.h"
+
 #include "core.h"   // some of the above files include core.h. need header guards.
 
 #define UNUSED(x) (void)(x)
@@ -1056,8 +1058,9 @@ static void print_current(irange_t irange, float val)
     improtant.
       formatting measured values, according to selected range (rather than value) is correct.
       enourage drill to a higher range.
-
   */
+
+
   // usart_printf(" here " );
 
   switch( irange)
@@ -1099,17 +1102,22 @@ static void print_current(irange_t irange, float val)
 
 static void print_voltage(vrange_t vrange, float val)
 {
+  char buf[100];
+
   // ie expressed on 10V range
   switch(vrange)
   {
     case vrange_100V:
     case vrange_10V:
-      usart_printf("%fV", val);
+      // usart_printf("%fV", val);
+      usart_printf("%sV", format_float(buf, ARRAY_SIZE(buf), val, 6) ); // 6 digits
       break;
 
     case vrange_1V:
     case vrange_100mV:
-      usart_printf("%fmV", val * 1000.f);
+      // usart_printf("%fmV", val * 1000.f);
+      // TODO 1e+3f
+      usart_printf("%smV", format_float(buf, ARRAY_SIZE(buf), val * 1000, 6) ); // 6 digits
       break;
 
   }
@@ -1344,7 +1352,7 @@ static void update_soft_500ms(app_t *app )
         usart_printf("> ");
 
         char buf[100];
-        cBufCopyString2(&app->cmd_in, buf, 100);
+        cBufCopyString2(&app->cmd_in, buf, ARRAY_SIZE(buf));
         usart_printf("%s", buf);
 
         // perhaps we can print the current command buffer also....
@@ -2042,7 +2050,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out/*
 
     // we got a carriage return
     static char tmp[1000];
-    size_t n = cBufCopyString(cmd_in, tmp, sizeof(tmp));
+    size_t n = cBufCopyString(cmd_in, tmp, ARRAY_SIZE(tmp));
     tmp[n - 1] = 0;   // drop tailing line feed
                       // TODO. cBufCopyString should potentially do this...
                       // no. if want non-sentinal terminaed raw bytes. eg. for network code...
@@ -2169,8 +2177,6 @@ int main(void)
   // uart/console
   cBufInit(&console_in,  buf1, sizeof(buf1));
   cBufInit(&console_out, buf2, sizeof(buf2));
-
-
 
 
   usart_setup_gpio_portA();
