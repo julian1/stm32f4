@@ -593,7 +593,7 @@ int32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
     clear_status_registers(spi);
     // usart_flush();
 
-    usart_printf("x");
+    // usart_printf("x");
 
     ret = -123;
   }

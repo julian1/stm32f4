@@ -849,7 +849,6 @@ static bool range_current_auto(app_t *app, float i)
   bool changed = false;
 
 
-
   if(fabs(i) < 1.f) {
 
     // need to switch to lower current range
@@ -1419,14 +1418,12 @@ static void update_soft_500ms(app_t *app )
 
 
 
-        usart_printf("adc ov %d\n", app->adc_ov_count);
-
-
         usart_printf("\n\n");
+        usart_printf("adc ov %d\n", app->adc_ov_count);
 
         usart_printf("output %s\n", (app->output) ? "on" : "off" );
 
-        usart_printf("\n\n");
+        usart_printf("\n");
 
 
 
@@ -1606,25 +1603,11 @@ static void state_change(app_t *app, state_t state )
       // 11.2 ovp .
       // 11.1 ok.
 
+      // INITIAL
       // core_set( app, -5.f , -5.f );    // -5V compliance, -1mA  sink.
       // core_set( app, 5.f , 3.f, vrange_10V, irange_10mA );         // 5V source, 5mA compliance,
       // core_set( app, 0.5f , 3.f, vrange_10V, irange_10mA );         // oscillates.
-      core_set( app, 5.f , 3.f, vrange_1V, irange_10mA );         // 5V source, 5mA compliance,
-      // core_set( app, -5.f , -3.f, vrange_1V, irange_10mA );         // 5V source, 5mA compliance,
-      // core_set( app, 11.0f , 3.0f );         // 5V source, 5mA compliance,
-      // core_set( app, -5.f , -3.0f );         // 5V source, 5mA compliance,
-
-      // 9.8 no.
-
-      // 6.8V + 6.8mA = 13.6V which is +-15V limit.   OK. we're limited by supply headroom. for current sense drop and voltage drop. hmmm.
-      //
-/*
-      app->vset_range = vrange_10V;
-      app->iset_range = irange_10mA;
-
-      range_voltage_set(app, vrange_10V);
-      range_current_set(app, irange_10mA);
-*/
+      core_set( app, 5.f , 3.f, vrange_10V, irange_10mA );         // 5V source, 5mA compliance,
 
       // the voltage - is not actually changing with voltage set... ?/
 
