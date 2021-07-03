@@ -1296,7 +1296,7 @@ static void update_soft_500ms(app_t *app )
         // https://stackoverflow.com/questions/60293014/how-to-clear-screen-of-minicom-terminal-using-serial-uart
         // usart_printf("%c%c%c%c",0x1B,0x5B,0x32,0x4A);
         // https://electronics.stackexchange.com/questions/8874/is-it-possible-to-send-characters-through-serial-to-go-up-a-line-on-the-console
-#if 0
+#if 1
         usart_printf("\033[2J");    // clear screen
         usart_printf("\033[0;0H");  // cursor to top left
         // usart_printf("\033[10B");   // move cursor down 10 lines ... works
@@ -1382,11 +1382,14 @@ static void update_soft_500ms(app_t *app )
 
 
       // TODO. change back so that can change both together,
+      range_current_auto(app, app->ifb );
+      range_voltage_auto(app, app->vfb);
 
+/*
       bool changed_current = range_current_auto(app, app->ifb );
       if(!changed_current)
         range_voltage_auto(app, app->vfb);
-
+*/
       break;
     }
 
@@ -1610,62 +1613,6 @@ static void state_change(app_t *app, state_t state )
 
 */
 
-static void adc_update(app_t *app)
-{
-
-  if(! (app->adc_drdy && app->state == ANALOG_UP))
-    return;
-
-
-
-  float ar[4];
-  int32_t ret = spi_adc_do_read(app->spi, ar, 4);
-  app->adc_drdy = false;
-
-  if(ret < 0) {
-    // error
-    usart_printf("adc error\n");
-  }
-  else  {
-    /*
-      ranging needs the actual value (not adjusted for gain/attenuation
-      so need to record and use in common units
-    */
-    /*
-      OK. we don't actually need a ring buffer for the adc, just an array is fine.
-    */
-
-#if 0
-      /*
-      This applies to the 34401A, 34970A, and 34980A products
-      NPLC values: {0.02|0.2|1|2|10|20|100|200}.
-
-      But. it is possible that interupt could fail and we miss a value.  so we have to check with max size...
-      // push values into buffer.
-      // if buffer size == nplc. then we will clear and print.
-
-      */
-
-      if(app->adc_read_count < ARRAY_SIZE(app->vfb) )
-      {
-        float x = 0.435;
-        // app->vfb[ adc_read_count ] = ar[0] * x;
-        // app->ifb[ adc_read_count ] = ar[1] * x;
-      }
-      ++adc_read_count;
-
-
-      if(adc_read_count == 50) {  // ie. 50 nplc
-
-        calc mean,std...
-
-        app->adc_read_count = 0;
-      }
-#endif
-  }
-}
-
-
 
 
 static void update(app_t *app)
@@ -1688,15 +1635,19 @@ static void update(app_t *app)
       // error
       usart_printf("adc error\n");
     }
-    else  {
-      /*
-        ranging needs the actual value (not adjusted for gain/attenuation
-        so need to record and use in common units
-      */
-      float x = 0.435;
-      app->vfb = ar[0] * x;
-      app->ifb = ar[1] * x;
-    }
+
+    /*
+    // must continue to do ranging. even if adc error. else won't get to a valid range
+    // that won't generate errors.
+    */
+
+    /*
+      ranging needs the actual value (not adjusted for gain/attenuation
+      so need to record and use in common units
+    */
+    float x = 0.435;
+    app->vfb = ar[0] * x;
+    app->ifb = ar[1] * x;
   }
 
 
@@ -1789,6 +1740,9 @@ static int irange_and_iset_from_current(float i, irange_t *irange, float *iset)
 {
   // range and iset from
   // we haie to extract the range and the adjusted float ialue...
+
+  ASSERT(i >= 0);
+
 #if 0
   if(i > 100) {
     // error
@@ -1858,6 +1812,8 @@ static int voltage_from_unit(float v, const char *unit,  float *vv)
 
 static int vrange_and_vset_from_voltage(float v, vrange_t *vrange, float *vset)
 {
+  ASSERT(v >= 0);
+
   // range and vset from
   // we have to extract the range and the adjusted float value...
   if(v > 100) {

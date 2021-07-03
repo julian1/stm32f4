@@ -570,35 +570,21 @@ int32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
     errors. eg. ovp/ovn we still want to return the value. to enable ranging to a better range.
   */
 
-  // deal with error
+  // bool ret = true;
+  // we always return okk...
+
+  // log any errors
   if(code != 0x2220) {
     usart_printf("adc, bad code %4x\n",  code);
-    usart_flush();
+//    usart_flush();
 
     // read registers to clear for next time
     adc_print_status_registers(spi);
-    usart_flush();
+ //   usart_flush();
 
-    /*
-      OK. it's regulating on set voltage of 11V and that appears to be outside the adc range.
-      and so its not ranging higher/ more current.
-      --------
-      with 10k/3k 9.7V is ok. 9.8V gives oob .
-
-      3 / (3 + 10 ) * 9.8  = 2.261538461538462
-      should be ok?
-
-      So we want 2.5k to range to 11
-      2.5 / (2.5 + 10 ) * 11 =  2.2
-    */
-
-    // bad code return error.
-    // so ignore until next time.
-
-    // avoid reading values, which will lock up
-    return 0;
   }
 
+  // don't return early
   spi_disable( spi );
 
   return 0;
