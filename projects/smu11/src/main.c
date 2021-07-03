@@ -931,7 +931,12 @@ static bool range_voltage_auto(app_t *app, float v)
       changed = true;
     }
   }
+  else if( fabs(v) > 10.5) {
 
+    // we are not zoomed in... but there is an excursion...... on opposite polarity....
+    usart_printf("WHOOT here.\n");
+
+  }
 
   if(changed == true ) {
 
@@ -1243,6 +1248,22 @@ static void update_soft_1s(app_t *app )
   app->update_count = 0;
 }
 
+
+
+/*
+  OK. :set v -5V
+
+  and adc is showing ovp flags... on current 12.786V....
+
+  because why? 
+  if DUT is a sink????
+  ----------------------
+  perhaps it's not a user error condition.... eg. it just cannot sink.
+  SO....
+
+  BUT.... it should be detectable on autoranging....
+  
+*/
 
 static void update_soft_500ms(app_t *app )
 {
