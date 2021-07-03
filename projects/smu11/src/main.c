@@ -377,6 +377,7 @@ typedef struct app_t
   bool      adc_drdy;
   uint32_t  adc_drdy_count;
   uint32_t  adc_read_count ;
+  uint32_t  adc_ov_count;
 
   // adc last read values
   float     vfb;
@@ -923,7 +924,7 @@ static bool range_current_auto(app_t *app, float i)
   But it's trying to pump -12V...  eg. the opposite direction.
   So we should be switching out to the -100V range...
 
-  So we need to account for direction....   
+  So we need to account for direction....
   Bloody hell....
   ---------------------------
 
@@ -931,6 +932,21 @@ static bool range_current_auto(app_t *app, float i)
   eg. when turned off...
 
   We could jump out... and set the dac 10x tighter...
+  -----------------
+
+  OR.... do we just have the core wrong. somehow.
+  No. if set to sink current. then a limit of 5V. then -99V is what is expected .
+
+  IMPORTANT.
+  OR. its actually good as it is... eg. don't come off the regulation range...
+  even if we're on the wrong range.
+
+  Albeit it would be better if adc didn't go into ovp.
+  But maybe it's ok. eg. 12V.
+  -14.1V   - is giving us -2.83V on the ADC.
+  -----
+
+  So perhaps just ignore the ovp???
 
 */
 
@@ -1165,8 +1181,8 @@ static void quadrant_set( app_t *app, bool v, bool i)
 
   io_write(app->spi, REG_CLAMP1, ~(vv | ii ));
 
-
-  uint32_t minmax = v ?  CLAMP2_MAX : CLAMP2_MIN;
+  // rembmer inverse
+  uint32_t minmax = v ? CLAMP2_MAX : CLAMP2_MIN;
 
   io_write(app->spi, REG_CLAMP2, ~( minmax ) );     // min of current or voltage
 }
@@ -1175,7 +1191,28 @@ static void quadrant_set( app_t *app, bool v, bool i)
 // so can have another function. that tests the values.... v > 0 etc.
 // need to hide
 
-static void core_set( app_t *app, float v, float i, vrange_t vrange, irange_t irange)
+/*
+  clamp direction follows voltage.
+
+              clamp min  <->  clamp max
+
+                           |+i
+             (2)           |           (1)
+             sink          |           source
+                           |
+                           |
+                           |
+         -ve --------------+-------------- +ve
+                           |
+                           |
+                           |
+             source        |           sink
+             (3)           |           (4)
+                           |-i
+
+*/
+
+static void core_set(app_t *app, float v, float i, vrange_t vrange, irange_t irange)
 {
 
   usart_printf("---------------\n");
@@ -1380,6 +1417,11 @@ static void update_soft_500ms(app_t *app )
           usart_printf("*");
         }
 
+
+
+        usart_printf("adc ov %d\n", app->adc_ov_count);
+
+
         usart_printf("\n\n");
 
         usart_printf("output %s\n", (app->output) ? "on" : "off" );
@@ -1406,6 +1448,8 @@ static void update_soft_500ms(app_t *app )
         // usart_printf("%u (%u) %u", app->adc_drdy_count, app->adc_read_count, app->update_count);
       }
 
+
+    app->adc_ov_count = 0;
 
     // usart_printf("i is %f\n", app->ifb);
     // usart_printf("v is %f\n", app->vfb);
@@ -1663,16 +1707,16 @@ static void update(app_t *app)
     ++app->adc_read_count ;
     if(ret < 0) {
       // error
-      usart_printf("adc error\n");
+      // usart_printf("adc error\n");
+
+      ++app->adc_ov_count;  // change name ov_count = 0;
+    } else {
+      // no errors.
     }
 
     /*
-    // must continue to do ranging. even if adc error. else won't get to a valid range
-    // that won't generate errors.
-    */
-
-    /*
-      ranging needs the actual value (not adjusted for gain/attenuation
+      - must continue evein if adc out-of-bound. so we get to a valid range.
+      - ranging needs the actual value (not adjusted for gain/attenuation
       so need to record and use in common units
     */
     float x = 0.435;

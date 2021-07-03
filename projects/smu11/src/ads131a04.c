@@ -579,13 +579,11 @@ int32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
     we need to distinguish ovp ovn  condition from other possible
     errors. eg. ovp/ovn we still want to return the value. to enable ranging to a better range.
   */
-
-  // bool ret = true;
-  // we always return okk...
+  int ret = 0;
 
   // log any errors
   if(code != 0x2220) {
-  
+
 #if 0
     usart_printf("adc, bad code %4x\n",  code);
     // usart_flush();
@@ -597,12 +595,13 @@ int32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
 
     usart_printf("x");
 
+    ret = -123;
   }
 
   // don't return early
   spi_disable( spi );
 
-  return 0;
+  return ret;
 }
 
 
