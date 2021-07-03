@@ -472,17 +472,6 @@ static float range_voltage_multiplier( vrange_t vrange)
 
 
 
-static void error(app_t *app, const char *msg)
-{
-  // actually going to halt condition. is better...  except we have to pass the app argument...
-  // critical_error_blink();
-
-  usart_printf("error\n");
-  usart_printf( msg);
-  usart_printf("\n");
-  state_change(app, HALT);
-}
-
 
 
 static void dac_current_set(app_t *app, float i)
@@ -491,13 +480,7 @@ static void dac_current_set(app_t *app, float i)
   // can record the value
   // dac_vset, dac_iset.
 
-
-  // value should always be positive...
-  if(i < 0) {
-    error(app, "dac_current set i negative");
-    return;
-  }
-
+  ASSERT(i >= 0);
   mux_dac(app->spi);
   spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( i ));
 }
@@ -509,13 +492,7 @@ static void dac_voltage_set(app_t *app, float v)
   // can record the value
   // dac_vset, dac_iset.
 
-
-  // value should always be positive...
-  if(v < 0) {
-    error(app, "dac_voltage set v negative");
-    return;
-  }
-
+  ASSERT(v >= 0);
   mux_dac(app->spi);
   // spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs( v )) );
   spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( v ));
