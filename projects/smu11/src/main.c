@@ -849,8 +849,8 @@ static float range_current_multiplier( irange_t irange)
   {
     // ie. expressed on 10V range
 
-    case irange_1uA:    return 1e-7f;
-    // case irange_1uA:    return 0.0000001f;
+    // case irange_1uA:    return 1e-7f;
+    case irange_1uA:    return 0.0000001f;
 
     case irange_10uA:   return 0.000001f;
     case irange_100uA:  return 0.00001f;
@@ -1296,11 +1296,12 @@ static void update_soft_500ms(app_t *app )
         // https://stackoverflow.com/questions/60293014/how-to-clear-screen-of-minicom-terminal-using-serial-uart
         // usart_printf("%c%c%c%c",0x1B,0x5B,0x32,0x4A);
         // https://electronics.stackexchange.com/questions/8874/is-it-possible-to-send-characters-through-serial-to-go-up-a-line-on-the-console
-
+#if 0
         usart_printf("\033[2J");    // clear screen
         usart_printf("\033[0;0H");  // cursor to top left
         // usart_printf("\033[10B");   // move cursor down 10 lines ... works
         // usart_printf("\033[3B");   // move cursor down 3 lines ... works
+#endif
 
 
         // position cursor top left?
@@ -1823,9 +1824,12 @@ static int irange_and_iset_from_current(float i, irange_t *irange, float *iset)
     *irange = irange_100uA;
     *iset = i * 1e+5f;
 
-  } else { // if(i > 1e-6f)  {
+  } else if(i > 1e-6f)  {
     *irange = irange_10uA;
     *iset = i * 1e+6f;
+  } else {
+    *irange = irange_1uA;
+    *iset = i * 1e+7f;
   }
 
   return 0;
@@ -1914,6 +1918,7 @@ static void process_cmd(app_t *app, const char *s )
       usart_printf("vrange %s, vset %gV\n", range_voltage_string(vset_range), vset);
       core_set( app, vset, app->iset, vset_range, app->iset_range);
     }
+
     else if(strequal(param, "i")) {
       float i;
       if(current_from_unit(value, unit,  &i ) < 0) {
