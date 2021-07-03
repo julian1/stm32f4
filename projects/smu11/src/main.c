@@ -90,6 +90,9 @@
       - done - adc want to display the clk registers in the register output.
           want bitmask and offset to read and write registers.
 
+      - maybe. change so cmd input buffer. maybe need ':' char. just test if non empty (meaning not consumed by single char action).
+        and then treat as a command.
+
       - it ought to be possible to cal both voltage, and current (using the 10M and 10G voltage ranges).
 
       - should be trying to restrict the scope of some functions.
