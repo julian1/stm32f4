@@ -1295,7 +1295,7 @@ static void update_soft_500ms(app_t *app )
 
         usart_printf("\t");
         usart_printf("vset ");
-        print_voltage(app->vrange, app->vset * range_voltage_multiplier(app->vrange));
+        print_voltage(app->vset_range, app->vset * range_voltage_multiplier(app->vset_range));
 
         usart_printf("\t");
         usart_printf("vset_range: %s",  range_voltage_string(app->vset_range));
@@ -1316,7 +1316,7 @@ static void update_soft_500ms(app_t *app )
 
         usart_printf("\t");
         usart_printf("iset ");
-        print_current(app->irange, app->iset * range_current_multiplier(app->irange) );
+        print_current(app->iset_range, app->iset * range_current_multiplier(app->iset_range) );
 
         usart_printf("\t");
         usart_printf("iset_range: %s",  range_current_string(app->iset_range));
@@ -1718,7 +1718,8 @@ static int irange_and_iset_from_current(float i, irange_t *irange, float *iset)
   // range and iset from
   // we haie to extract the range and the adjusted float ialue...
 
-  ASSERT(i >= 0);
+  // ASSERT(i >= 0);
+  float ai = fabs(i);
 
 #if 0
   if(i > 100) {
@@ -1728,37 +1729,42 @@ static int irange_and_iset_from_current(float i, irange_t *irange, float *iset)
     return -123;
   } else
 #endif
-  if(i > 3.f ) {
+  if(ai > 3.f ) {
     *irange = 0;
     *iset = 0;
     return -123;
     // *irange = irange_100V;
     // *iset = i * 0.1;
-  } else if(i > 1) {
+  } 
+  else if(ai > 1) {
     *iset = i * 1;
     *irange = irange_10A;
-  } else if(i > 1e-1f) {
+  } 
+  else if(ai > 1e-1f) {
     *irange = irange_1A;
     *iset = i * 1e+1f;
-  } else if(i > 1e-2f)  {
+  } 
+  else if(ai > 1e-2f)  {
     *irange = irange_100mA;
     *iset = i * 1e+2f;
-  } else if(i > 1e-3f)  {
+  } 
+  else if(ai > 1e-3f)  {
     *irange = irange_10mA;
     *iset = i * 1e+3f;
-
-  } else if(i > 1e-4f)  {
+  } 
+  else if(ai > 1e-4f)  {
     *irange = irange_1mA;
     *iset = i * 1e+4f;
-
-  } else if(i > 1e-5f)  {
+  } 
+  else if(ai > 1e-5f)  {
     *irange = irange_100uA;
     *iset = i * 1e+5f;
-
-  } else if(i > 1e-6f)  {
+  } 
+  else if(ai > 1e-6f)  {
     *irange = irange_10uA;
     *iset = i * 1e+6f;
-  } else {
+  } 
+  else {
     *irange = irange_1uA;
     *iset = i * 1e+7f;
   }
@@ -1789,25 +1795,30 @@ static int voltage_from_unit(float v, const char *unit,  float *vv)
 
 static int vrange_and_vset_from_voltage(float v, vrange_t *vrange, float *vset)
 {
-  ASSERT(v >= 0);
+  // ASSERT(v >= 0);
+  float av = fabs(v);
 
   // range and vset from
   // we have to extract the range and the adjusted float value...
-  if(v > 100) {
+  if(av > 100) {
     // error
     *vrange = 0;
     *vset = 0;
     return -123;
-  } else if(v > 10) {
+  } 
+  else if(av > 10) {
     *vrange = vrange_100V;
     *vset = v * 0.1;
-  } else if(v > 1) {
+  } 
+  else if(av > 1) {
     *vset = v * 1;
     *vrange = vrange_10V;
-  } else if(v > 0.1) {
+  } 
+  else if(av > 0.1) {
     *vrange = vrange_1V;
     *vset = v * 10;
-  } else  {
+  } 
+  else  {
     *vrange = vrange_100mV;
     *vset = v * 100;
   }
