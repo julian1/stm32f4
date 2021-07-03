@@ -384,7 +384,7 @@ typedef struct app_t
 
 
 
-  //// 
+  ////
   CBuf    cmd_in;
 
 
@@ -896,6 +896,47 @@ static bool range_current_auto(app_t *app, float i)
 }
 
 
+/*
+  ok, we set the output to -5V and it tries to output 12V?????
+  is this a set_core problem?
+
+  and it's not sinking either?
+
+  tried to output -12V....
+  my goodness...
+
+*/
+
+
+/*
+  We had battery around the wrong way.
+  Ok. sourcing into battery is working. 1.5V   3mA.
+  And so is sinking.                    1.5V  -3mA.
+
+  but then we get bad state. when we turn off and it outputs -12V... to try to get it to sink...
+  perhaps we should be jumping out a range...
+
+  So. the off condition fails...
+
+  OK. because it's going
+  We should range change.  eg. we limit at +5V...
+  But it's trying to pump -12V...  eg. the opposite direction.
+  So we should be switching out to the -100V range...
+
+  So we need to account for direction....   
+  Bloody hell....
+  ---------------------------
+
+  Or should we always jump out .... no. we cant ...
+  eg. when turned off...
+
+  We could jump out... and set the dac 10x tighter...
+
+*/
+
+
+
+
 
 static bool range_voltage_auto(app_t *app, float v)
 {
@@ -921,6 +962,7 @@ static bool range_voltage_auto(app_t *app, float v)
   }
   else if (fabs(v) > 10.5 && app->vrange < app->vset_range )
   {
+    // zoomed in. and out of range.
     // we have to jump out... but don't jump out past the actual regulation range (vset_range)
     // else we'll be regulating on higher range than the set range
     vrange_t higher = range_voltage_next( app->vrange, 0);
@@ -1026,22 +1068,6 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
 
 
 
-/*
-  OK. something wrong.
-
-  set to 20nA on 10uA range. 
-
-  but its giving 300nA on 1uA range.
-
-*/
-
-
-
-// want a function that can print max of 4,5,6 digits...
-
-
-
-
 
 static void print_current(irange_t irange, float val)
 {
@@ -1124,9 +1150,6 @@ static void print_voltage(vrange_t vrange, float val)
 
 
 
-
-
-
 static void quadrant_set( app_t *app, bool v, bool i)
 {
   // RULES.
@@ -1154,6 +1177,10 @@ static void quadrant_set( app_t *app, bool v, bool i)
 
 static void core_set( app_t *app, float v, float i, vrange_t vrange, irange_t irange)
 {
+
+  usart_printf("---------------\n");
+  usart_printf("core set\n");
+
   // TODO change arg order.
 
 
@@ -1260,14 +1287,14 @@ static void update_soft_1s(app_t *app )
 
   and adc is showing ovp flags... on current 12.786V....
 
-  because why? 
+  because why?
   if DUT is a sink????
   ----------------------
   perhaps it's not a user error condition.... eg. it just cannot sink.
   SO....
 
   BUT.... it should be detectable on autoranging....
-  
+
 */
 
 static void update_soft_500ms(app_t *app )
@@ -1358,10 +1385,10 @@ static void update_soft_500ms(app_t *app )
         usart_printf("output %s\n", (app->output) ? "on" : "off" );
 
         usart_printf("\n\n");
-       
 
- 
-        // print the current console input buffer 
+
+
+        // print the current console input buffer
         // OK... No...
 
         usart_printf("> ");
@@ -1761,35 +1788,35 @@ static int irange_and_iset_from_current(float i, irange_t *irange, float *iset)
     return -123;
     // *irange = irange_100V;
     // *iset = i * 0.1;
-  } 
+  }
   else if(ai > 1) {
     *iset = i * 1;
     *irange = irange_10A;
-  } 
+  }
   else if(ai > 1e-1f) {
     *irange = irange_1A;
     *iset = i * 1e+1f;
-  } 
+  }
   else if(ai > 1e-2f)  {
     *irange = irange_100mA;
     *iset = i * 1e+2f;
-  } 
+  }
   else if(ai > 1e-3f)  {
     *irange = irange_10mA;
     *iset = i * 1e+3f;
-  } 
+  }
   else if(ai > 1e-4f)  {
     *irange = irange_1mA;
     *iset = i * 1e+4f;
-  } 
+  }
   else if(ai > 1e-5f)  {
     *irange = irange_100uA;
     *iset = i * 1e+5f;
-  } 
+  }
   else if(ai > 1e-6f)  {
     *irange = irange_10uA;
     *iset = i * 1e+6f;
-  } 
+  }
   else {
     *irange = irange_1uA;
     *iset = i * 1e+7f;
@@ -1831,19 +1858,19 @@ static int vrange_and_vset_from_voltage(float v, vrange_t *vrange, float *vset)
     *vrange = 0;
     *vset = 0;
     return -123;
-  } 
+  }
   else if(av > 10) {
     *vrange = vrange_100V;
     *vset = v * 0.1;
-  } 
+  }
   else if(av > 1) {
     *vset = v * 1;
     *vrange = vrange_10V;
-  } 
+  }
   else if(av > 0.1) {
     *vrange = vrange_1V;
     *vset = v * 10;
-  } 
+  }
   else  {
     *vrange = vrange_100mV;
     *vset = v * 100;
@@ -1921,7 +1948,7 @@ static void process_cmd(app_t *app, const char *s )
 
 static void update_console_ch(app_t *app, const char ch )
 {
-  // hange name update_console_ch() 
+  // hange name update_console_ch()
   // usart_printf("char code %d\n", ch );
 
   // change the actual current range
@@ -1982,7 +2009,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out/*
   /*
     TODO
 
-    should pass the app structure. 
+    should pass the app structure.
     for app->cmd_in at least
 
     put these buffers. in the app structure.
@@ -2002,7 +2029,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out/*
     */
 
     // OK... we need to copy out the input buffer without consuming it...
-    // or change this.... 
+    // or change this....
 
     // we're in a command
     if( cBufPeekFirst(cmd_in) == ':') {
