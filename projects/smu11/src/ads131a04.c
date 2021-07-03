@@ -156,6 +156,16 @@ static uint32_t sign_extend_24_32(uint32_t x)
 
 
 
+static void clear_status_registers(uint32_t spi)
+{
+  // which regs need to be read???
+
+  adc_read_register(spi, STAT_1);
+
+  adc_read_register(spi, STAT_P);
+  adc_read_register(spi, STAT_N);
+  adc_read_register(spi, STAT_S);   // this should clear the value?????
+}
 
 
 
@@ -575,12 +585,17 @@ int32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
 
   // log any errors
   if(code != 0x2220) {
+  
+#if 0
     usart_printf("adc, bad code %4x\n",  code);
-//    usart_flush();
-
+    // usart_flush();
     // read registers to clear for next time
-    adc_print_status_registers(spi);
- //   usart_flush();
+#endif
+    // adc_print_status_registers(spi);
+    clear_status_registers(spi);
+    // usart_flush();
+
+    usart_printf("x");
 
   }
 
