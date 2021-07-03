@@ -934,7 +934,12 @@ static bool range_voltage_auto(app_t *app, float v)
   else if( fabs(v) > 10.5) {
 
     // we are not zoomed in... but there is an excursion...... on opposite polarity....
-    usart_printf("WHOOT here.\n");
+    // eg. cannot regulate on this claamp.
+    // eg. set -5V, +3mA   on resistor.
+    usart_printf("WHOOT bad state here.\n");
+
+    // switching off? probably won't help...   but we can invalidate.
+    // but can switch off. and stop.
 
   }
 
