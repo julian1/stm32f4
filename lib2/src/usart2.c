@@ -131,8 +131,12 @@ void usart1_isr(void)
 
 void usart_output_update()
 {
-  // if have data to send, then re-enable tx interupt
+  /*
+    note. we check in the interupt handler if more data in output buffer.
+    and explicitly de-enable interupt there. so don't do it here.
+  */
 
+  // data in buf, then ensure that txe interupt is enabled to process
   if(!cBufisEmpty(output_buf)) {
     usart_enable_tx_interrupt(USART1);
   }
