@@ -75,6 +75,10 @@ static void soft_500ms_update(void)
 }
 
 
+
+#if 0
+
+
 static void loop(void)
 {
 
@@ -103,7 +107,6 @@ static void loop(void)
 }
 
 
-#if 0
 int main(void)
 {
   // need to test high speed internal!!!

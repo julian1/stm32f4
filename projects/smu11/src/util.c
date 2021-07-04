@@ -233,8 +233,15 @@ void usart_printf(const char *format, ...)
 
     ++p;
   }
+
+
+  // eg. set tx interupt... if needed
+  usart_output_update();
 }
 
+
+
+#if 0
 
 void usart_flush(void)
 {
@@ -243,6 +250,8 @@ void usart_flush(void)
   // don't think we need this as a separrate function
   usart_sync_flush();
 }
+#endif
+
 
 ////////////////////////////
 
@@ -253,7 +262,7 @@ void assert_simple(const char *file, int line, const char *func, const char *exp
 {
 
   usart_printf("\nassert failed %s %d %s '%s'\n", file, line, func, expr);
-  usart_flush();
+  // usart_flush();
   critical_error_blink();
 /*
   either,

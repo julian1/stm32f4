@@ -138,7 +138,7 @@ void usart_output_update()
 }
 
 
-
+#if 0
 
 void usart_sync_flush()
 {
@@ -148,7 +148,6 @@ void usart_sync_flush()
   usart_output_update();
 }
 
-
-
+#endif
 
 

@@ -2203,6 +2203,11 @@ static void loop(app_t *app)
     update(app);
 
     // not sure should be done first...
+    /*
+      TODO.
+      we don't really need this...
+      Whenever we call usart_printf() and there are output chars, then enable the tx interupt.
+    */
     usart_output_update();
 
     update_console_cmd(app, &console_in, &console_out/*, &app->cmd_in*/);
@@ -2288,7 +2293,7 @@ int main(void)
   printf("sizeof float  %u\n", sizeof(float));
   printf("sizeof double %u\n", sizeof(double));
 
-  usart_flush();
+  // usart_flush();
   // usart_printf("size %d\n", sizeof(fbuf) / sizeof(float));
 
   ////////

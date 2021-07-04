@@ -125,6 +125,22 @@ static void soft_500ms_update(void)
 }
 
 
+
+
+
+/*
+  OK. so we can share cs,clk,mosi.  for more than one peripheral
+
+  but fpga doesn't want to share miso.  because more than one driver.
+  so think we have to mux it.
+*/
+
+#if 0
+
+
+
+
+
 static void loop(void)
 {
 
@@ -150,14 +166,9 @@ static void loop(void)
 }
 
 
-/*
-  OK. so we can share cs,clk,mosi.  for more than one peripheral
 
-  but fpga doesn't want to share miso.  because more than one driver.
-  so think we have to mux it.
-*/
 
-#if 0
+
 int main(void)
 {
   // high speed internal!!!

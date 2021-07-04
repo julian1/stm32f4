@@ -260,7 +260,7 @@ int adc_init( uint32_t spi, uint8_t reg)
     val = spi_xfer_24_16_cs( spi, 0 );
     usart_printf("register %04x\n", val);
     // flush, to see usart log
-    usart_flush();
+    // usart_flush();
     msleep(20);
   }
   while(val != 0xff04) ;
