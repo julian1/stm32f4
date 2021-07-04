@@ -118,6 +118,7 @@ static size_t mark(K *k)
 
 static void reverse2(char *begin, char *end)
 {
+  // note. assuming begin is within range.
   // argument end is one past the last char. same as c++ stl...
   --end;
 
