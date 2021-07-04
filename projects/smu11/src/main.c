@@ -93,6 +93,18 @@
       - maybe. change so cmd input buffer. maybe need ':' char. just test if non empty (meaning not consumed by single char action).
         and then treat as a command.
 
+      - get the stddev of vfb. etc. on raw values? 1-10.5V. for test of adc.
+      - should report v and i also... it's simple to do.
+
+      - print the rails voltages as well.
+      - ncurses?
+          https://github.com/infinnovation-dev/incurses
+          https://www.youtube.com/watch?v=g7Woz3YVgvQ
+
+          https://github.com/ChrisMicro/mcurses
+  
+      - range switching...
+
       - it ought to be possible to cal both voltage, and current (using the 10M and 10G voltage ranges).
 
       - should be trying to restrict the scope of some functions.
@@ -846,6 +858,12 @@ static float range_current_multiplier( irange_t irange)
 }
 
 
+/*
+  We need to change this. so that it can correct for bad logic - 
+    whereby we end up on a wrong range.
+
+  the only way to do that is to store the current dac value.
+*/
 
 static bool range_current_auto(app_t *app, float i)
 {
@@ -1400,6 +1418,14 @@ static void update_soft_500ms(app_t *app )
 
 
         /////////////////
+        // to format this stuff...  actually add a fixed space for '-' and 'V' instead of 'mV' etc?
+        // no.
+        // it would be useful to be have a mark function ....   which returns the line offset.
+        // actually ought to be easy...
+        // printf char position in line
+        // actually just a mark()   would work. if count output chars. from start.
+
+        // or does vt100 or ansi terminal support pos in line?
 
         usart_printf("\n\n");
 
@@ -1419,9 +1445,11 @@ static void update_soft_500ms(app_t *app )
           usart_printf("*");
         }
 
-
-
         usart_printf("\n\n");
+
+        usart_printf("%f\n", app->vfb);
+        usart_printf("%f\n", app->ifb);
+
         usart_printf("adc ov %d\n", app->adc_ov_count);
 
         usart_printf("output %s\n", (app->output) ? "on" : "off" );

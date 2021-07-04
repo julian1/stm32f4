@@ -30,6 +30,10 @@ extern void usart_printf_init(CBuf *output);
 extern void usart_printf(const char *format, ... );
 extern void usart_flush(void);
 
+extern size_t usart_mark(void);
+
+
+
 #define UNUSED(x) (void)(x)
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
