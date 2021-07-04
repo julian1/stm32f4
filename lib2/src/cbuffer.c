@@ -101,10 +101,14 @@ int32_t cBufCopyString(CBuf *a, char *p, size_t n)
   // for c-style strings, so handle sentinel
 
 
-  int32_t ch;
+  // int32_t ch;
   size_t i = 0;
-  while(i < (n - 1) && (ch = cBufPop(a)) >= 0) {
-    p[i++] = ch;
+
+
+  while(i < (n - 1) && !cBufisEmpty(a)) {
+//  while(i < (n - 1) && (ch = cBufPop(a)) >= 0) {
+//    p[i++] = ch;
+    p[i++] = cBufPop(a);
   }
 
   // sentinel
