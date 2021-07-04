@@ -187,8 +187,6 @@ static CBuf *console_out = NULL;
 
 void usart_printf_init(CBuf *output)
 {
-  // change name usart_init_console... not sure.
-
   console_out = output;
 }
 
@@ -217,6 +215,9 @@ void usart_printf(const char *format, ...)
     - would be better if could write to the console output directly. but we would have to implement the FILE structure.
   */
 
+  /*
+      TODO can be reworked to avoid the copy to the circular buffer?
+  */
   char buf[1000];
 	va_list args;
 	va_start(args, format);
@@ -235,22 +236,10 @@ void usart_printf(const char *format, ...)
   }
 
 
-  // eg. set tx interupt... if needed
+  // re-enable tx interupt... if needed
   usart_output_update();
 }
 
-
-
-#if 0
-
-void usart_flush(void)
-{
-  // blocks...
-  // this avoids having to pull in usart.h stuff as dependency
-  // don't think we need this as a separrate function
-  usart_sync_flush();
-}
-#endif
 
 
 ////////////////////////////
@@ -262,15 +251,12 @@ void assert_simple(const char *file, int line, const char *func, const char *exp
 {
 
   usart_printf("\nassert failed %s %d %s '%s'\n", file, line, func, expr);
-  // usart_flush();
+  // note tx-interupt should continue to work to flush output buffer, even jump to critical_error_blink()
   critical_error_blink();
 /*
   either,
   critical_error_blink()...
-  or go to halt state
-
-  need to setup the assert with a callback, so can transition to halt status.
-  have another assert that takes
+  TODO - for prod, go to halt state
 */
 }
 

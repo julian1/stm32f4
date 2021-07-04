@@ -259,8 +259,6 @@ int adc_init( uint32_t spi, uint8_t reg)
   do {
     val = spi_xfer_24_16_cs( spi, 0 );
     usart_printf("register %04x\n", val);
-    // flush, to see usart log
-    // usart_flush();
     msleep(20);
   }
   while(val != 0xff04) ;
@@ -560,13 +558,10 @@ int32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
 
 #if 0
     usart_printf("adc, bad code %4x\n",  code);
-    // usart_flush();
-    // read registers to clear for next time
 #endif
+    // must registers to clear for next time
     // adc_print_status_registers(spi);
     clear_status_registers(spi);
-    // usart_flush();
-
     // usart_printf("x");
 
     ret = -123;

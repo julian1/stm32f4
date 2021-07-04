@@ -1,12 +1,11 @@
-////////////////////////////////////////////////////////
+
+
 
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
-
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/cm3/nvic.h>
 
-// #include <stddef.h> // size_t
 
 #include "usart2.h"
 #include "cbuffer.h"
@@ -15,7 +14,7 @@
 
 
 static CBuf *output_buf = NULL;
-static CBuf *input_buf = NULL;
+static CBuf *input_buf  = NULL;
 
 
 // TODO change name usart1_setup_portB
@@ -132,22 +131,12 @@ void usart1_isr(void)
 
 void usart_output_update()
 {
+  // if have data to send, then re-enable tx interupt
+
   if(!cBufisEmpty(output_buf)) {
     usart_enable_tx_interrupt(USART1);
   }
 }
 
-
-#if 0
-
-void usart_sync_flush()
-{
-  // useful when logging from a long/blocking init function.
-  // avoid waiting until update() called, to configure the tx interupt handler, to restart transmit
-
-  usart_output_update();
-}
-
-#endif
 
 
