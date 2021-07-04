@@ -15,6 +15,7 @@ void usart_setup(CBuf *input, CBuf *output);
 
 
 /*
+  non-blocking.
   use only for printf()/puts()  etc
   to re-enable tx interupt
 */

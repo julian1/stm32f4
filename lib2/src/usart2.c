@@ -128,7 +128,7 @@ void usart1_isr(void)
 
 
 
-
+// TODO this is non blocking. change name usart_output_reenable() to indicate...
 void usart_output_update()
 {
   /*
