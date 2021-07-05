@@ -265,7 +265,7 @@
 #define UNUSED(x) (void)(x)
 
 // here? or in mux.h.
-#define SPI_ICE40       SPI1
+// #define SPI_ICE40       SPI1
 
 
 
@@ -2271,7 +2271,7 @@ int main(void)
 
   memset(&app, 0, sizeof(app_t));
 
-  app.spi = SPI_ICE40;
+  app.spi = SPI1 ;
   app.print_adc_values = true;
   app.output = false;
 
