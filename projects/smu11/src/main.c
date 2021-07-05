@@ -248,6 +248,7 @@
 
 
 #include "cbuffer.h"
+#include "fbuffer.h"
 #include "usart2.h"
 #include "util.h"
 
@@ -402,6 +403,9 @@ typedef struct app_t
   // adc last read values
   float     vfb;
   float     ifb;
+
+
+  FBuf      vfb_cbuf;
 
 
 
@@ -1316,6 +1320,8 @@ static void spi1_interupt(app_t *app)
 
   ++app->adc_drdy_count;
 
+
+
   // set update to read...
   app->adc_drdy = true;
 
@@ -1730,6 +1736,8 @@ static void update(app_t *app)
     int32_t ret = spi_adc_do_read(app->spi, ar, 4);
     app->adc_drdy = false;
     ++app->adc_read_count ;
+
+
     if(ret < 0) {
       // error
       // usart_printf("adc error\n");
@@ -1747,6 +1755,10 @@ static void update(app_t *app)
     float x = 0.435;
     app->vfb = ar[0] * x;
     app->ifb = ar[1] * x;
+
+    // push onto the queue
+    // OK. this seems to screw things up...
+    fBufPut(&app->vfb_cbuf, app->vfb );
   }
 
 
@@ -2134,11 +2146,16 @@ static void update_console_cmd(app_t *app)
 
     // we got a carriage return
     static char tmp[1000];
+
+    size_t nn = cBufElements(&app->cmd_in);
+
     size_t n = cBufCopyString(&app->cmd_in, tmp, ARRAY_SIZE(tmp));
     ASSERT(n <= sizeof(tmp));
     ASSERT(tmp[n - 1] == 0);
 
-    // TODO first char 'g' gets chopped here, why? CR handling?
+    ASSERT( nn == n - 1);
+
+    // TODO first char 'g' gets omitted/chopped here, why? CR handling?
     usart_printf("got command '%s'\n", tmp);
 
     process_cmd(app, tmp);
@@ -2216,9 +2233,15 @@ static char buf_console_out[1000];
 
 static char buf_cmds[1000];
 
+
+
+
+static float buf_vfb[100];
+
 // move init to a function?
 // no... because we collect/assemble dependencies. ok in main()
 static app_t app;
+
 
 
 /*
@@ -2278,6 +2301,10 @@ int main(void)
 
   // command buffer
   cBufInit(&app.cmd_in, buf_cmds, sizeof(buf_cmds));
+
+  // vfb buffer
+  fBufInit(&app.vfb_cbuf, buf_vfb, ARRAY_SIZE(buf_vfb));
+
 
 
   // setup buffers
