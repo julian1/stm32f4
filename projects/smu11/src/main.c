@@ -2087,10 +2087,13 @@ static void update_console_cmd(app_t *app)
 
   ASSERT(&app->cmd_in);
 
-  int32_t ch;
 
-  while((ch = cBufPop(&app->console_in)) >= 0) {
+  while( ! cBufisEmpty(&app->console_in)) {
+
     // got a character
+    int32_t ch = cBufPop(&app->console_in);
+    ASSERT(ch >= 0);
+
 
     /*
       these are not actually useful UI functions....
