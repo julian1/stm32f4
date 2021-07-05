@@ -1278,43 +1278,6 @@ static void core_set(app_t *app, float v, float i, vrange_t vrange, irange_t ira
 
 
 
-////////////////////////////////
-
-/*
-  EXTR.
-  This 500ms. update. is very good. allows relays to all settle
-  before consider ranging again.
-
-  can speed it up. eg. 50ms. for more prod like.
-  and accumulate or filter the adc.
-
-
-  but we need to have the adc read, on the adc interupt.
-  then have this soft range update. use the last recorded adc value , rather than read the adc here.
-*/
-
-
-/*
-
-  soft 1s adc_drdy_count 63  adc_read_count 63   update_count 4284
-  63Hz/62Hz with 16.384 xtal, and 4096 divisor...
-
-  it's somet
-
-  1 / 16.384
-  0.06103515625
-
-  clkdiv ... is two bits. eg. 4x
-  iclkdiv  is another two bits.
-
-  If only read two values... is it faster?
-
-  -----------------
-  16.384 / 4096 / 4
-  = 0.001
-  eg. 1000Hz...
-*/
-
 
 static void spi1_interupt(app_t *app)
 {
@@ -1322,16 +1285,13 @@ static void spi1_interupt(app_t *app)
 
   ++app->adc_drdy_count;
 
-
-
   // set update to read...
   app->adc_drdy = true;
-
 }
 
 
 
-static void update_soft_1s(app_t *app )
+static void update_soft_1s(app_t *app)
 {
   UNUSED(app);
 
@@ -1342,34 +1302,19 @@ static void update_soft_1s(app_t *app )
 
 
 
-/*
-  OK. :set v -5V
-
-  and adc is showing ovp flags... on current 12.786V....
-
-  because why?
-  if DUT is a sink????
-  ----------------------
-  perhaps it's not a user error condition.... eg. it just cannot sink.
-  SO....
-
-  BUT.... it should be detectable on autoranging....
-
-*/
 
 
-static void update_soft_500ms(app_t *app )
+static void update_soft_500ms(app_t *app)
 {
+  UNUSED(app);
 
+#if 0
   // blink mcu led
   led_toggle();
+#endif
+
 
   mux_io(app->spi);
-
-  ////////////////////////////////
-  // clear led1
-
-
   io_toggle(app->spi, REG_LED, LED1);
 
 }
@@ -2216,19 +2161,6 @@ static void loop(app_t *app)
   */
   while(true) {
 
-    // 500ms soft timer. should handle wrap around
-    if( (system_millis - soft_500ms) > 1000) {
-      soft_500ms += 1000;
-      update_soft_500ms(app);
-    }
-
-    if( (system_millis - soft_1s) > 1000 ) {
-
-      // THIS IS FUNNY....
-      soft_1s += 1000;
-      update_soft_1s(app);
-    }
-
 
     // EXTREME - could actually call update at any time, in a yield()...
     // so long as we wrap calls with a mechanism to avoid stack reentrancy
@@ -2240,6 +2172,23 @@ static void loop(app_t *app)
 
     // update_console_cmd(app, &app->console_in, &app->console_out);
     update_console_cmd(app);
+
+
+
+    // 500ms soft timer. should handle wrap around
+    if( (system_millis - soft_500ms) > 500) {
+      soft_500ms += 500;
+      update_soft_500ms(app);
+    }
+
+    if( (system_millis - soft_1s) > 1000 ) {
+
+      // THIS IS FUNNY....
+      soft_1s += 1000;
+      update_soft_1s(app);
+    }
+
+
 
   }
 }
@@ -2321,7 +2270,7 @@ int main(void)
   app.print_adc_values = true;
   app.output = false;
 
-  app.adc_nplc = 20;
+  app.adc_nplc = 50;
 
   // uart/console
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
