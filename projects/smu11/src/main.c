@@ -1447,8 +1447,8 @@ static void update_soft_500ms(app_t *app )
 
         usart_printf("\n\n");
 
-        usart_printf("%f\n", app->vfb);
-        usart_printf("%f\n", app->ifb);
+        usart_printf("vfb=%f\n", app->vfb);
+        usart_printf("ifb=%f\n", app->ifb);
 
         usart_printf("adc ov %d\n", app->adc_ov_count);
 
@@ -2151,7 +2151,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out/*
 /*
   TODO.
   Move. these into the app structure.
-  and mvoe the app structure off the stack.
+  and then move the app structure off the stack.
 */
 
 // should pass the console to routines that need it...
@@ -2266,7 +2266,6 @@ int main(void)
   //////////////////////
 
   // TODO move off of the stack?
-
   // PUT THIS IN A DAMN FUNCTION....
   app_t app;
 
@@ -2277,10 +2276,14 @@ int main(void)
 
   cBufInit(&app.cmd_in, buf3, sizeof(buf3));
 
+
+
+
+
   ////////////////
   spi1_port_setup();
   spi1_special_gpio_setup();
-  spi1_interupt_gpio_setup( (void (*) (void *) )spi1_interupt, &app );
+  spi1_interupt_gpio_setup( (void (*) (void *))spi1_interupt, &app);
 
 
   ////////////////////
