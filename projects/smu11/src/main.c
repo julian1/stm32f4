@@ -2073,7 +2073,7 @@ static void update_console_ch(app_t *app, const char ch )
 
 
 
-static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out/*, CBuf *cmd_in */)
+static void update_console_cmd(app_t *app)
 {
   /*
     TODO
@@ -2090,7 +2090,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out/*
 
   int32_t ch;
 
-  while((ch = cBufPop(console_in)) >= 0) {
+  while((ch = cBufPop(&app->console_in)) >= 0) {
     // got a character
 
     /*
@@ -2106,7 +2106,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out/*
       // push ch to cmd buffer
       cBufPut(cmd_in, ch);
       // echo the char to console
-      cBufPut(console_out, ch);
+      cBufPut(&app->console_out, ch);
     }
 
 
@@ -2118,7 +2118,7 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out/*
         // push ch to cmd buffer
         cBufPut(cmd_in, ch);
         // echo the char to console
-        cBufPut(console_out, ch);
+        cBufPut(&app->console_out, ch);
       }
 
       update_console_ch(app, ch );
@@ -2194,7 +2194,8 @@ static void loop(app_t *app)
     update(app);
 
 
-    update_console_cmd(app, &app->console_in, &app->console_out);
+    // update_console_cmd(app, &app->console_in, &app->console_out);
+    update_console_cmd(app);
 
   }
 }
@@ -2221,13 +2222,18 @@ static char buf_cmds[1000];
 
 
 // move init to a function?
-// no... because it's assembling dependencies. ok in main...
+// no... because we collect/assemble dependencies. ok in main()
 static app_t app;
 
 
+/*
+  TODO.
+  OK. it would be very nice to know how many values are in the
+  float circular buffer...
 
+  So. that we can process on nice round nplc values.
 
-
+*/
 
 int main(void)
 {
@@ -2263,6 +2269,7 @@ int main(void)
 
 
   //////////////////////
+  // main app setup
 
   memset(&app, 0, sizeof(app_t));
 
