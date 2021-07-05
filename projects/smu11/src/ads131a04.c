@@ -339,11 +339,18 @@ int adc_init( uint32_t spi, uint8_t reg)
   // 16384000 / 4096 / 8 /8 =  62.5
   // 16384000 / 4096 / 10 /8 = 50Hz
 
+  // with ice40 divider
   // min on-die divider is 2
   // eg. 2 * 2 * 4096 * 3000 = 49152000
   float u = 49152000  / 4096 / ia[i] / ia[j] / m ;        // works i=2 j=2  m=60 f=50.000000,   i=2 j=2  m=50 f=60.000000
   // float u = 24576000/ 4096 / ia[i] / ia[j] / m ;       // works i=2 j=2  m=30 f=50.000000,   i=2 j=2  m=25 f=60.000000
   ie.  4.9152MHz
+
+  // using just the ads dividers
+  // (50 * 60  * 4096 * 2) =  24576000   = 24.576MHz
+  // float u = (50 * 60  * 4096 * 2)  / 4096 / ia[i] / ia[j];    // works for both 50 and 60hz.
+    10 10 60.000000
+    10 12 50.000000
 
 
 */
