@@ -102,7 +102,7 @@
           https://www.youtube.com/watch?v=g7Woz3YVgvQ
 
           https://github.com/ChrisMicro/mcurses
-  
+
       - range switching...
 
       - it ought to be possible to cal both voltage, and current (using the 10M and 10G voltage ranges).
@@ -864,7 +864,7 @@ static float range_current_multiplier( irange_t irange)
 
 
 /*
-  We need to change this. so that it can correct for bad logic - 
+  We need to change this. so that it can correct for bad logic -
     whereby we end up on a wrong range.
 
   the only way to do that is to store the current dac value.
@@ -1457,7 +1457,7 @@ static void update_soft_500ms(app_t *app )
         usart_printf("adc ov %d\n", app->adc_ov_count);
         usart_printf("output %s\n", (app->output) ? "on" : "off" );
 
-        #if 0 
+        #if 0
         usart_printf("\n");
         usart_printf("update_count=%u\n", app->update_count);
         usart_printf("adc_drdy_count=%u\n", app->adc_drdy_count);
@@ -2262,8 +2262,6 @@ int main(void)
 
 
 
-
-
   //////////////////////
 
   memset(&app, 0, sizeof(app_t));
@@ -2276,19 +2274,22 @@ int main(void)
   cBufInit(&app.console_in,  buf1, sizeof(buf1));
   cBufInit(&app.console_out, buf2, sizeof(buf2));
 
+  // command buffer
   cBufInit(&app.cmd_in, buf3, sizeof(buf3));
 
 
+  // setup buffers
   usart_setup_gpio_portA();
   usart_setup(&app.console_in, &app.console_out);
 
+  // setup print
   usart_printf_init(&app.console_out);
-
 
 
   ////////////////
   spi1_port_setup();
   spi1_special_gpio_setup();
+  // adc interupt...
   spi1_interupt_gpio_setup( (void (*) (void *))spi1_interupt, &app);
 
 
@@ -2302,14 +2303,7 @@ int main(void)
   printf("sizeof float  %u\n", sizeof(float));
   printf("sizeof double %u\n", sizeof(double));
 
-  // usart_flush();
-  // usart_printf("size %d\n", sizeof(fbuf) / sizeof(float));
 
-  ////////
-  // put this in spi1.h.  i think....
-  // uint32_t spi = SPI_ICE40;
-
-  // app.state = FIRST;
   state_change(&app, FIRST );
 
   loop(&app);
