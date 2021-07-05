@@ -4,6 +4,8 @@
 */
 
 #include <stddef.h> // size_t
+#include <stdbool.h> // bool
+#include <stdint.h> // uint32_t
 
 extern bool strequal(const char *s1, const char *s2);
 
@@ -35,18 +37,6 @@ extern void usart_printf(const char *format, ... );
 #define UNUSED(x) (void)(x)
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-
-
-
-/*
-  add an assert with critical error blink...
-  can still try to log to usart.
-  probably want a critical_usart_write() 
-*/
-
-extern void assert_simple(const char *file, int line, const char *func, const char *expr);
-
-#define ASSERT(expr)    ((expr) ? ((void)0) : assert_simple(__FILE__, __LINE__, __func__, #expr))
 
 
 

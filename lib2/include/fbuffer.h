@@ -23,6 +23,8 @@ bool fBufisEmpty(FBuf *a);
 
 size_t fBufElements(FBuf *a);
 
+float fBufPeekLast(FBuf *a);
+
 float fBufPop(FBuf *a);
 
 

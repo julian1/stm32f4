@@ -247,19 +247,6 @@ void usart_printf(const char *format, ...)
 
 
 
-void assert_simple(const char *file, int line, const char *func, const char *expr)
-{
-
-  usart_printf("\nassert failed %s %d %s '%s'\n", file, line, func, expr);
-  // note tx-interupt should continue to work to flush output buffer, even jump to critical_error_blink()
-  critical_error_blink();
-/*
-  either,
-  critical_error_blink()...
-  TODO - for prod, go to halt state
-*/
-}
-
 
 
 

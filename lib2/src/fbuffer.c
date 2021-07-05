@@ -25,6 +25,7 @@
 
 #include <float.h>    // FLT_MAX ughhh
 #include "fbuffer.h"
+#include "assert.h"
 
 // TODO rename write() to put(), read() to get(), or even push() and pop()
 
@@ -65,14 +66,27 @@ size_t fBufElements(FBuf *a)
 }
 
 
+float fBufPeekLast(FBuf *a)
+{
+  ASSERT(a->ri != a->wi );
+  // if(a->ri == a->wi)
+  //  return FLT_MAX;
+
+  // this kind of needs some tests
+  if(a->wi == 0) {
+    return (a->p)[a->sz - 1];
+  }
+  else
+    return (a->p)[a->wi - 1];
+}
 
 
 float fBufPop(FBuf *a)
 {
-  // messy, but shouldn't be called
-  if(a->ri == a->wi)
-    return FLT_MAX ;
-    // return NAN;       // math.h
+  ASSERT(a->ri != a->wi );
+
+  // if(a->ri == a->wi)
+  //  return FLT_MAX ;
 
   // read then update index. - but could be reordered by compiler
   float ret = (a->p)[a->ri];
@@ -90,3 +104,7 @@ int32_t fBufCopy(FBuf *a, float *p, size_t n)
 
   return i;
 }
+
+
+
+

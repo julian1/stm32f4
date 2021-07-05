@@ -247,6 +247,7 @@
 #include <string.h>   // strcmp
 
 
+#include "assert.h"
 #include "cbuffer.h"
 #include "fbuffer.h"
 #include "usart2.h"
@@ -1763,12 +1764,15 @@ static void update(app_t *app)
       so need to record and use in common units
     */
     float x = 0.435;
+    // shouldn't record twice...
     app->vfb = ar[0] * x;
     app->ifb = ar[1] * x;
 
     // push onto the queue
     // OK. this seems to screw things up...
     fBufPut(&app->vfb_cbuf, app->vfb );
+
+    ASSERT(fBufPeekLast(&app->vfb_cbuf) == app->vfb );
 
     size_t adc_elts = fBufElements(&app->vfb_cbuf);
 
