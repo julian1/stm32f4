@@ -356,6 +356,11 @@ typedef enum irange_t
 
 typedef struct app_t
 {
+
+  CBuf console_in;
+  CBuf console_out;
+
+
   uint32_t spi;
 
   state_t   state;
@@ -2148,26 +2153,6 @@ static void update_console_cmd(app_t *app, CBuf *console_in, CBuf* console_out/*
 */
 
 
-/*
-  TODO.
-  Move. these into the app structure.
-  and then move the app structure off the stack.
-*/
-
-// should pass the console to routines that need it...
-static char buf1[1000];
-static char buf2[1000];
-
-static CBuf console_in;
-static CBuf console_out;
-
-
-// should probably be in the app structure...
-static char buf3[1000];
-// static CBuf cmd_in;
-
-
-
 
 static void loop(app_t *app)
 {
@@ -2208,12 +2193,37 @@ static void loop(app_t *app)
       we don't really need this...
       Whenever we call usart_printf() and there are output chars, then enable the tx interupt.
     */
-    usart_output_update();
+    // usart_output_update();
 
-    update_console_cmd(app, &console_in, &console_out/*, &app->cmd_in*/);
+    update_console_cmd(app, &app->console_in, &app->console_out);
 
   }
 }
+
+
+
+
+
+/////////////////////////
+/*
+  TODO.
+  Move. these into the app structure.
+  and then move the app structure off the stack.
+*/
+
+// should pass the console to routines that need it...
+static char buf1[1000];
+static char buf2[1000];
+
+
+// should probably be in the app structure...
+static char buf3[1000];
+
+
+
+// TODO move off of the stack?
+// PUT THIS IN A DAMN FUNCTION....
+static app_t app;
 
 
 
@@ -2250,14 +2260,6 @@ int main(void)
   // led
   led_setup();
 
-  // uart/console
-  cBufInit(&console_in,  buf1, sizeof(buf1));
-  cBufInit(&console_out, buf2, sizeof(buf2));
-
-
-  usart_setup_gpio_portA();
-  usart_setup(&console_in, &console_out);
-  usart_printf_init(&console_out);
 
 
 
@@ -2265,18 +2267,23 @@ int main(void)
 
   //////////////////////
 
-  // TODO move off of the stack?
-  // PUT THIS IN A DAMN FUNCTION....
-  app_t app;
-
   memset(&app, 0, sizeof(app_t));
+
   app.spi = SPI_ICE40;
   app.print_adc_values = true;
   app.output = false;
 
+  // uart/console
+  cBufInit(&app.console_in,  buf1, sizeof(buf1));
+  cBufInit(&app.console_out, buf2, sizeof(buf2));
+
   cBufInit(&app.cmd_in, buf3, sizeof(buf3));
 
 
+  usart_setup_gpio_portA();
+  usart_setup(&app.console_in, &app.console_out);
+
+  usart_printf_init(&app.console_out);
 
 
 
