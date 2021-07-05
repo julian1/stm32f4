@@ -53,6 +53,7 @@ bool cBufisEmpty(CBuf *a)
 
 size_t cBufElements(CBuf *a)
 {
+  // note, not correct if overflows...
   int n = a->wi - a->ri;
   if(n < 0)
     n += a->sz;
