@@ -1454,10 +1454,16 @@ static void update_soft_500ms(app_t *app )
 
         usart_printf("vfb=%f\n", app->vfb);
         usart_printf("ifb=%f\n", app->ifb);
-
         usart_printf("adc ov %d\n", app->adc_ov_count);
-
         usart_printf("output %s\n", (app->output) ? "on" : "off" );
+
+        #if 0 
+        usart_printf("\n");
+        usart_printf("update_count=%u\n", app->update_count);
+        usart_printf("adc_drdy_count=%u\n", app->adc_drdy_count);
+        usart_printf("adc_read_count=%u\n", app->adc_read_count);
+        #endif
+
 
         usart_printf("\n");
 
@@ -2187,13 +2193,6 @@ static void loop(app_t *app)
 
     update(app);
 
-    // not sure should be done first...
-    /*
-      TODO.
-      we don't really need this...
-      Whenever we call usart_printf() and there are output chars, then enable the tx interupt.
-    */
-    // usart_output_update();
 
     update_console_cmd(app, &app->console_in, &app->console_out);
 
