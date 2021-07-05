@@ -24,6 +24,7 @@
 
 
 #include "cbuffer.h"
+#include "assert.h"
 
 // TODO rename write() to put(), read() to get(), or even push() and pop()
 
@@ -64,9 +65,10 @@ size_t cBufElements(CBuf *a)
 
 int32_t cBufPop(CBuf *a)
 {
+  ASSERT(a->ri != a->wi);
   // sentinal value...
-  if(a->ri == a->wi)
-    return -1;
+  // if(a->ri == a->wi)
+  //  return -1;
 
   // read then update index. - but could be reordered by compiler
   char ret = (a->p)[ a->ri];
@@ -77,22 +79,22 @@ int32_t cBufPop(CBuf *a)
 
 
 
-
-
 int32_t cBufPeekFirst(CBuf *a)
 {
+  ASSERT(a->ri != a->wi);
   // sentinal value...
-  if(a->ri == a->wi)
-    return -1;
+  // if(a->ri == a->wi)
+  //  return -1;
 
   return (a->p)[a->ri];
 }
 
 int32_t cBufPeekLast(CBuf *a)
 {
+  ASSERT(a->ri != a->wi);
   // sentinal value...
-  if(a->ri == a->wi)
-    return -1;
+  // if(a->ri == a->wi)
+  //  return -1;
 
   // this kind of needs some tests
   if(a->wi == 0) {

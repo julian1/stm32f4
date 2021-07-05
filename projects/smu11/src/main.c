@@ -2141,7 +2141,7 @@ static void update_console_cmd(app_t *app)
     // or change this....
 
     // we're in a command
-    if(cBufPeekFirst(&app->cmd_in) == ':') {
+    if( !cBufisEmpty(&app->cmd_in) && cBufPeekFirst(&app->cmd_in) == ':') {
       // only push chars if we're in a command that starts with ':'
       // push ch to cmd buffer
       cBufPut(&app->cmd_in, ch);
@@ -2166,7 +2166,7 @@ static void update_console_cmd(app_t *app)
   }
 
 
-  if(cBufPeekLast(&app->cmd_in) == '\r') {
+  if( !cBufisEmpty(&app->cmd_in) && cBufPeekLast(&app->cmd_in) == '\r') {
 
     // usart_printf("got CR\n");
 
