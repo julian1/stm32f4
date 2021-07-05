@@ -2321,7 +2321,7 @@ int main(void)
   app.print_adc_values = true;
   app.output = false;
 
-  app.adc_nplc = 50;
+  app.adc_nplc = 20;
 
   // uart/console
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
