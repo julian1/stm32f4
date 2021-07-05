@@ -54,6 +54,19 @@ bool fBufisEmpty(FBuf *a)
 }
 
 
+
+size_t fBufElements(FBuf *a)
+{
+  int n = a->wi - a->ri;
+  if(n < 0)
+    n += a->sz;
+
+  return n;
+}
+
+
+
+
 float fBufPop(FBuf *a)
 {
   // messy, but shouldn't be called

@@ -19,6 +19,10 @@ typedef struct FBuf
 void fBufInit(FBuf *a, float *p, size_t sz);
 void fBufPut(FBuf *a, float val);
 bool fBufisEmpty(FBuf *a);
+
+
+size_t fBufElements(FBuf *a);
+
 float fBufPop(FBuf *a);
 
 

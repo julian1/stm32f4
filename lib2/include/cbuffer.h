@@ -22,6 +22,10 @@ void cBufInit(CBuf *a, char *p, size_t sz);
 void cBufPut(CBuf *a, char val);
 
 bool    cBufisEmpty(CBuf *a);
+
+
+size_t cBufElements(CBuf *a);
+
 int32_t cBufPop(CBuf *a);
 int32_t cBufPeekFirst(CBuf *a);
 int32_t cBufPeekLast(CBuf *a);

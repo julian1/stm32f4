@@ -41,7 +41,7 @@ void cBufInit(CBuf *a, char *p, size_t sz)
 
 void cBufPut(CBuf *a, char val)
 {
-  (a->p)[ a->wi] = val;
+  (a->p)[a->wi] = val;
   a->wi = (a->wi + 1) % a->sz;
 }
 
@@ -51,6 +51,14 @@ bool cBufisEmpty(CBuf *a)
 }
 
 
+size_t cBufElements(CBuf *a)
+{
+  int n = a->wi - a->ri;
+  if(n < 0)
+    n += a->sz;
+
+  return n;
+}
 
 
 int32_t cBufPop(CBuf *a)
