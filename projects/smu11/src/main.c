@@ -405,6 +405,7 @@ typedef struct app_t
   float     ifb;
 
 
+  uint32_t  adc_nplc;
   FBuf      vfb_cbuf;
 
 
@@ -1462,8 +1463,11 @@ static void update_nplc(app_t *app)
 
     // GOOD...
     float p[100];
+
+    ASSERT(app->adc_nplc < ARRAY_SIZE(p));
+
     size_t n = fBufCopy(&app->vfb_cbuf, p, ARRAY_SIZE(p));
-    ASSERT(n == 50);
+    ASSERT(n == app->adc_nplc);
 
 
 
@@ -1766,8 +1770,11 @@ static void update(app_t *app)
     // OK. this seems to screw things up...
     fBufPut(&app->vfb_cbuf, app->vfb );
 
-    if(fBufElements(&app->vfb_cbuf) == 50) {
+    size_t adc_elts = fBufElements(&app->vfb_cbuf);
 
+    ASSERT(adc_elts <= app->adc_nplc);
+
+    if(adc_elts == app->adc_nplc) {
       update_nplc(app);
 
       // ASSERT( fBufElements(&app->vfb_cbuf) == 0);
@@ -2309,6 +2316,8 @@ int main(void)
   app.spi = SPI1 ;
   app.print_adc_values = true;
   app.output = false;
+
+  app.adc_nplc = 50;
 
   // uart/console
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
