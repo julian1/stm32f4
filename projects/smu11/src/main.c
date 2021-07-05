@@ -2085,8 +2085,7 @@ static void update_console_cmd(app_t *app)
     Actually. no. it's neater that they're not.
   */
 
-  CBuf *cmd_in = &app->cmd_in;
-  ASSERT(cmd_in);
+  ASSERT(&app->cmd_in);
 
   int32_t ch;
 
@@ -2101,10 +2100,10 @@ static void update_console_cmd(app_t *app)
     // or change this....
 
     // we're in a command
-    if( cBufPeekFirst(cmd_in) == ':') {
+    if(cBufPeekFirst(&app->cmd_in) == ':') {
       // only push chars if we're in a command that starts with ':'
       // push ch to cmd buffer
-      cBufPut(cmd_in, ch);
+      cBufPut(&app->cmd_in, ch);
       // echo the char to console
       cBufPut(&app->console_out, ch);
     }
@@ -2116,7 +2115,7 @@ static void update_console_cmd(app_t *app)
       // start a command
       if(ch == ':') {
         // push ch to cmd buffer
-        cBufPut(cmd_in, ch);
+        cBufPut(&app->cmd_in, ch);
         // echo the char to console
         cBufPut(&app->console_out, ch);
       }
@@ -2126,18 +2125,17 @@ static void update_console_cmd(app_t *app)
   }
 
 
-  if(cBufPeekLast(cmd_in) == '\r') {
+  if(cBufPeekLast(&app->cmd_in) == '\r') {
 
     // usart_printf("got CR\n");
 
     // we got a carriage return
     static char tmp[1000];
-    size_t n = cBufCopyString(cmd_in, tmp, ARRAY_SIZE(tmp));
-    tmp[n - 1] = 0;   // drop tailing line feed
-                      // TODO. cBufCopyString should potentially do this...
-                      // no. if want non-sentinal terminaed raw bytes. eg. for network code...
+    size_t n = cBufCopyString(&app->cmd_in, tmp, ARRAY_SIZE(tmp));
+    ASSERT(n <= sizeof(tmp));
+    ASSERT(tmp[n - 1] == 0);
 
-    // usart_printf("got command '%s'   %d\n", tmp, n);
+    // TODO first char 'g' gets chopped here, why? CR handling?
     usart_printf("got command '%s'\n", tmp);
 
     process_cmd(app, tmp);
