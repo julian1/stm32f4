@@ -107,18 +107,16 @@ int32_t cBufCopyString(CBuf *a, char *p, size_t n)
   }
 
   // sentinel
-  p[i] = 0;
+  p[i++] = 0;
   return i;
 }
 
 
-// we really need to be able to copy out the buffer... so we have a nice string without consuming.
-// if this is used for chars
 
 
 int32_t cBufCopyString2(CBuf *a, char *p, size_t n)
 {
-  // needs more testing
+  // could use more testing
   // copy without consuming
   // for c-style strings, so handle sentinel
 
@@ -132,7 +130,7 @@ int32_t cBufCopyString2(CBuf *a, char *p, size_t n)
   }
 
   // sentinel
-  p[i] = 0;
+  p[i++] = 0;
   return i;
 }
 
