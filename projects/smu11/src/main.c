@@ -2211,12 +2211,12 @@ static void loop(app_t *app)
 */
 
 // should pass the console to routines that need it...
-static char buf1[1000];
-static char buf2[1000];
+static char buf_console_in[1000];
+static char buf_console_out[1000];
 
 
 // should probably be in the app structure...
-static char buf3[1000];
+static char buf_cmds[1000];
 
 
 
@@ -2271,11 +2271,11 @@ int main(void)
   app.output = false;
 
   // uart/console
-  cBufInit(&app.console_in,  buf1, sizeof(buf1));
-  cBufInit(&app.console_out, buf2, sizeof(buf2));
+  cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
+  cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
 
   // command buffer
-  cBufInit(&app.cmd_in, buf3, sizeof(buf3));
+  cBufInit(&app.cmd_in, buf_cmds, sizeof(buf_cmds));
 
 
   // setup buffers
