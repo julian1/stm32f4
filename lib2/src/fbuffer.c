@@ -33,6 +33,9 @@
 
 void fBufInit(FBuf *a, float *p, size_t sz)
 {
+  ASSERT(a);
+  ASSERT(p);
+
   // memset()
   a->p = p;
   a->sz = sz;

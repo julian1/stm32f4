@@ -34,6 +34,8 @@
 
 void cBufInit(CBuf *a, char *p, size_t sz)
 {
+  ASSERT(a);
+  ASSERT(p);
   a->p = p;
   a->sz = sz;
   a->wi = 0;
@@ -66,9 +68,6 @@ size_t cBufElements(CBuf *a)
 int32_t cBufPop(CBuf *a)
 {
   ASSERT(a->ri != a->wi);
-  // sentinal value...
-  // if(a->ri == a->wi)
-  //  return -1;
 
   // read then update index. - but could be reordered by compiler
   char ret = (a->p)[ a->ri];
@@ -81,10 +80,8 @@ int32_t cBufPop(CBuf *a)
 
 int32_t cBufPeekFirst(CBuf *a)
 {
+  // maybe change name to just cBufPeek()
   ASSERT(a->ri != a->wi);
-  // sentinal value...
-  // if(a->ri == a->wi)
-  //  return -1;
 
   return (a->p)[a->ri];
 }
@@ -92,9 +89,6 @@ int32_t cBufPeekFirst(CBuf *a)
 int32_t cBufPeekLast(CBuf *a)
 {
   ASSERT(a->ri != a->wi);
-  // sentinal value...
-  // if(a->ri == a->wi)
-  //  return -1;
 
   // this kind of needs some tests
   if(a->wi == 0) {
@@ -144,10 +138,5 @@ int32_t cBufCopyString2(CBuf *a, char *p, size_t n)
   p[i++] = 0;
   return i;
 }
-
-
-
-
-
 
 
