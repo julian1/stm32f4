@@ -2211,7 +2211,7 @@ static char buf_cmds[1000];
 
 
 
-static float buf_vfb[100];
+static float buf_vfb[99];
 
 // move init to a function?
 // no... because we collect/assemble dependencies. ok in main()
@@ -2270,7 +2270,7 @@ int main(void)
   app.print_adc_values = true;
   app.output = false;
 
-  app.adc_nplc = 50;
+  app.adc_nplc = 20;
 
   // uart/console
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
