@@ -2220,8 +2220,8 @@ static char buf3[1000];
 
 
 
-// TODO move off of the stack?
-// PUT THIS IN A DAMN FUNCTION....
+// move init to a function?
+// no... because it's assembling dependencies. ok in main...
 static app_t app;
 
 
