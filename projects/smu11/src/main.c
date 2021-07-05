@@ -2205,19 +2205,13 @@ static void loop(app_t *app)
 /////////////////////////
 /*
   TODO.
-  Move. these into the app structure.
-  and then move the app structure off the stack.
+  Maybe move raw buffers into app structure?
 */
 
-// should pass the console to routines that need it...
 static char buf_console_in[1000];
 static char buf_console_out[1000];
 
-
-// should probably be in the app structure...
 static char buf_cmds[1000];
-
-
 
 // move init to a function?
 // no... because we collect/assemble dependencies. ok in main()
@@ -2229,7 +2223,7 @@ static app_t app;
   OK. it would be very nice to know how many values are in the
   float circular buffer...
 
-  So. that we can process on nice round nplc values.
+  Rather than counting interupts in a separate var .
 
 */
 
