@@ -1307,11 +1307,13 @@ static void spi1_interupt(app_t *app)
 
 static void update_soft_1s(app_t *app)
 {
+  // maybe review this...
   UNUSED(app);
 
   // reset the housekeeping counts
+  // IMPORTANT keep. we can report this stuff easily on 1s interval - if use ncurses.
   app->adc_drdy_count  = 0;
-  app->update_count = 0;
+  app->update_count    = 0;
 }
 
 
@@ -1322,32 +1324,22 @@ static void update_soft_500ms(app_t *app)
 {
   UNUSED(app);
 
-#if 0
-  // blink mcu led
-  led_toggle();
-#endif
-
-
   mux_io(app->spi);
   io_toggle(app->spi, REG_LED, LED1);
-
 }
 
-
-// change name to update_measure_nplc()?
-// indicating we hit the number for measurement reporting.
 
 
 static void update_nplc_measure(app_t *app)
 {
 
   ASSERT(app->state ==  ANALOG_UP);
+
+  ASSERT(fBufCount(&app->vfb_measure) == app->adc_nplc_measure);
   ASSERT(fBufCount(&app->vfb_measure) > 0);
   ASSERT(fBufCount(&app->ifb_measure) == fBufCount(&app->vfb_measure));
 
-      // normal operation
-
-
+  // normal operation
   if(app->print_adc_values) {
 
     // works in screen and picocom
@@ -1422,14 +1414,8 @@ static void update_nplc_measure(app_t *app)
 
     usart_printf("\n\n");
 
-    // usart_printf("vfb last=%f\n", vfb);
-    // usart_printf("ifb=%f\n", ifb);
-
-
-    ///////////////////////////////////
-    // usart_printf("app->adc_read_count =%u\n", app->adc_read_count);
-    // usart_printf("vfb_cbuf elements =%u\n", fBufCount(&app->vfb_cbuf));
-
+  /////////////////////
+// stats
     // GOOD...
     float vs[100];
     float is[100];
@@ -1452,21 +1438,12 @@ static void update_nplc_measure(app_t *app)
     usart_printf("ifb last %f    imean %f    istddev %f\n", ifb, imean, isd);
 
 
+    usart_printf("adc_nplc_measure %d\n",app->adc_nplc_measure);
 
     usart_printf("adc ov %d\n", app->adc_ov_count);
     usart_printf("output %s\n", (app->output) ? "on" : "off" );
 
-    #if 0
     usart_printf("\n");
-    usart_printf("update_count=%u\n", app->update_count);
-    usart_printf("adc_drdy_count=%u\n", app->adc_drdy_count);
-    usart_printf("adc_read_count=%u\n", app->adc_read_count);
-    #endif
-
-
-    usart_printf("\n");
-
-
 
     // print the current console input buffer
     // OK... No...
@@ -1479,27 +1456,6 @@ static void update_nplc_measure(app_t *app)
 
     // perhaps we can print the current command buffer also....
 
-    // IMPORTANT could print the log of last commands... underneath the prompt.
-
-    // note, these vals computed once/sec. not once/500ms.
-    // usart_printf("\n\n");
-    // usart_printf("%u (%u) %u", app->adc_drdy_count, app->adc_read_count, app->update_count);
-
-
-
-
-    // MOVE THIS...
-    app->adc_ov_count = 0;
-
-    // usart_printf("i is %f\n", app->ifb);
-    // usart_printf("v is %f\n", app->vfb);
-
-
-    // TODO. change back so that can change both together,
-    range_current_auto(app, ifb );
-    range_voltage_auto(app, vfb);
-
-
   }
 
 
@@ -1507,6 +1463,29 @@ static void update_nplc_measure(app_t *app)
 
 
 
+static void update_nplc_range(app_t *app)
+{
+  ASSERT(app->state ==  ANALOG_UP);
+
+  ASSERT(fBufCount(&app->vfb_range) == app->adc_nplc_range);
+  ASSERT(fBufCount(&app->vfb_range) > 0);
+  ASSERT(fBufCount(&app->ifb_range) == fBufCount(&app->vfb_range));
+
+
+  // most recent rangements
+  float vfb = fBufPeekLast(&app->vfb_range);
+  float ifb = fBufPeekLast(&app->ifb_range);
+
+  // TODO. change back so that can change both together,
+  range_current_auto(app, ifb );
+  range_voltage_auto(app, vfb);
+
+
+
+  fBufClear(&app->vfb_range);
+  fBufClear(&app->ifb_range);
+
+}
 
 
 
@@ -1750,30 +1729,26 @@ static void update(app_t *app)
     float vfb = ar[0] * x;
     float ifb = ar[1] * x;
 
-    // float vfb = ar[0] * x;
-    // float ifb = ar[1] * x;
-
-
-
-    // push onto the queue
-    // OK. this seems to screw things up...
     fBufPush(&app->vfb_measure, vfb );
-    ASSERT(fBufPeekLast(&app->vfb_measure) == vfb);
-
     fBufPush(&app->ifb_measure, ifb);
+
+    ASSERT(fBufPeekLast(&app->vfb_measure) == vfb);
     ASSERT(fBufPeekLast(&app->ifb_measure) == ifb);
+    ASSERT(fBufCount(&app->vfb_measure) ==  fBufCount(&app->ifb_measure));
+
+    fBufPush(&app->vfb_range, vfb );
+    fBufPush(&app->ifb_range, ifb);
+    ASSERT(fBufPeekLast(&app->vfb_range) == vfb);
+    ASSERT(fBufPeekLast(&app->ifb_range) == ifb);
+    ASSERT(fBufCount(&app->vfb_range) ==  fBufCount(&app->ifb_range));
 
 
-    ASSERT( fBufCount(&app->vfb_measure) ==  fBufCount(&app->ifb_measure));
-
-    // size_t adc_elts = fBufCount(&app->vfb_cbuf);
-    // ASSERT(adc_elts <= app->adc_nplc_measure);
 
     /*
       think we should record adc measurements twice.
       eg.
-        once for measure, and once for range switching.
-        once for ranging.
+        - once for measure, and once for range switching.
+        - once for ranging.
       even if choose to use only use/peek for most recent value for range switching.
       don't particularly see why need the circular buffer.  rather than a buffer?
       void push(buf, n, val ) // do range chanch
@@ -1782,21 +1757,24 @@ static void update(app_t *app)
     */
 
 
+    // do measure reporting
     if(fBufCount(&app->vfb_measure) == app->adc_nplc_measure)
     {
       update_nplc_measure(app);
-      ASSERT( fBufCount(&app->vfb_measure) == 0);
-      ASSERT( fBufCount(&app->ifb_measure) == 0);
+      // should be done where?...
+      // change name measure_ov...  should
+      app->adc_ov_count = 0;
+      ASSERT(fBufCount(&app->vfb_measure) == 0);
+      ASSERT(fBufCount(&app->ifb_measure) == 0);
+    }
 
-      // app->adc_read_count = 0;
-    }
-#if 0
-    if(adc_elts == app->adc_nplc_range)
+    // do ranging
+    if( fBufCount(&app->vfb_range) == app->adc_nplc_range)
     {
-      // do auto ranging... based on vfb,ifb values...
-      // update_range_
+      update_nplc_range(app);
+      ASSERT(fBufCount(&app->vfb_range) == 0);
+      ASSERT(fBufCount(&app->ifb_range) == 0);
     }
-#endif
 
   }
 

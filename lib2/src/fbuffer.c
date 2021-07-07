@@ -100,6 +100,15 @@ float fBufPop(FBuf *a)
 }
 
 
+
+void fBufClear(FBuf *a)
+{
+  // eg. discard
+
+  a->ri = a->wi;
+
+}
+
 int32_t fBufCopy(FBuf *a, float *p, size_t n)
 {
   size_t i = 0;

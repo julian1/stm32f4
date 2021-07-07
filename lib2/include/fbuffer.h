@@ -28,6 +28,9 @@ float fBufPeekLast(FBuf *a);
 
 float fBufPop(FBuf *a);
 
+
+void fBufClear(FBuf *a);
+
 // consumes...
 int32_t fBufCopy(FBuf *a, float *p, size_t n);
 
