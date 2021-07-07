@@ -1415,7 +1415,7 @@ static void update_nplc_measure(app_t *app)
 
     ///////////////////////////////////
     usart_printf("app->adc_read_count =%u\n", app->adc_read_count);
-    usart_printf("vfb_cbuf elements =%u\n", fBufElements(&app->vfb_cbuf));
+    usart_printf("vfb_cbuf elements =%u\n", fBufCount(&app->vfb_cbuf));
 
     // GOOD...
     float p[100];
@@ -1725,11 +1725,11 @@ static void update(app_t *app)
 
     // push onto the queue
     // OK. this seems to screw things up...
-    fBufPut(&app->vfb_cbuf, app->vfb );
+    fBufPush(&app->vfb_cbuf, app->vfb );
 
     ASSERT(fBufPeekLast(&app->vfb_cbuf) == app->vfb );
 
-    size_t adc_elts = fBufElements(&app->vfb_cbuf);
+    size_t adc_elts = fBufCount(&app->vfb_cbuf);
 
     ASSERT(adc_elts <= app->adc_nplc_measure);
 
@@ -1754,7 +1754,7 @@ static void update(app_t *app)
     {
       update_nplc_measure(app);
 
-      // ASSERT( fBufElements(&app->vfb_cbuf) == 0);
+      // ASSERT( fBufCount(&app->vfb_cbuf) == 0);
       app->adc_read_count  = 0;
     }
 
@@ -2066,13 +2066,13 @@ static void update_console_ch(app_t *app, const char ch )
     usart_printf("output %s\n", (!app->output) ? "on" : "off" );
     mux_io(app->spi);
     output_set(app, app->irange, !app->output);
-    // cBufPut(console_out, '\n');
+    // cBufPush(console_out, '\n');
   }
   // toggle printing of adc values.
   else if( ch == 'p') {
     usart_printf("printing %s\n", (!app->print_adc_values) ? "on" : "off" );
     app->print_adc_values = ! app->print_adc_values;
-    // cBufPut(console_out, '\n');
+    // cBufPush(console_out, '\n');
   }
   // halt
   else if(ch == 'h') {
@@ -2123,9 +2123,9 @@ static void update_console_cmd(app_t *app)
     if( !cBufisEmpty(&app->cmd_in) && cBufPeekFirst(&app->cmd_in) == ':') {
       // only push chars if we're in a command that starts with ':'
       // push ch to cmd buffer
-      cBufPut(&app->cmd_in, ch);
+      cBufPush(&app->cmd_in, ch);
       // echo the char to console
-      cBufPut(&app->console_out, ch);
+      cBufPush(&app->console_out, ch);
     }
 
 
@@ -2135,9 +2135,9 @@ static void update_console_cmd(app_t *app)
       // start a command
       if(ch == ':') {
         // push ch to cmd buffer
-        cBufPut(&app->cmd_in, ch);
+        cBufPush(&app->cmd_in, ch);
         // echo the char to console
-        cBufPut(&app->console_out, ch);
+        cBufPush(&app->console_out, ch);
       }
 
       update_console_ch(app, ch );
@@ -2152,7 +2152,7 @@ static void update_console_cmd(app_t *app)
     // we got a carriage return
     static char tmp[1000];
 
-    size_t nn = cBufElements(&app->cmd_in);
+    size_t nn = cBufCount(&app->cmd_in);
 
     size_t n = cBufCopyString(&app->cmd_in, tmp, ARRAY_SIZE(tmp));
     ASSERT(n <= sizeof(tmp));

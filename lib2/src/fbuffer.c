@@ -35,6 +35,7 @@ void fBufInit(FBuf *a, float *p, size_t sz)
 {
   ASSERT(a);
   ASSERT(p);
+  ASSERT(sz > 0);
 
   // memset()
   a->p = p;
@@ -43,7 +44,7 @@ void fBufInit(FBuf *a, float *p, size_t sz)
   a->ri = 0;
 }
 
-void fBufPut(FBuf *a, float val)
+void fBufPush(FBuf *a, float val)
 {
   // update val,
   (a->p)[ a->wi] = val;
@@ -59,7 +60,7 @@ bool fBufisEmpty(FBuf *a)
 
 
 
-size_t fBufElements(FBuf *a)
+size_t fBufCount(FBuf *a)
 {
   int n = a->wi - a->ri;
   if(n < 0)
@@ -72,8 +73,11 @@ size_t fBufElements(FBuf *a)
 float fBufPeekLast(FBuf *a)
 {
   ASSERT(a->ri != a->wi);
-  // if(a->ri == a->wi)
-  //  return FLT_MAX;
+
+  // this code is doing something slightly different...
+  // int ia = (a->wi - 1) % a->sz ;
+  // return (a->p)[ia];
+
 
   // this kind of needs some tests
   if(a->wi == 0) {
@@ -87,9 +91,6 @@ float fBufPeekLast(FBuf *a)
 float fBufPop(FBuf *a)
 {
   ASSERT(a->ri != a->wi);
-
-  // if(a->ri == a->wi)
-  //  return FLT_MAX ;
 
   // read then update index. - but could be reordered by compiler
   float ret = (a->p)[a->ri];

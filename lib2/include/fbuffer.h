@@ -17,14 +17,14 @@ typedef struct FBuf
 
 
 void fBufInit(FBuf *a, float *p, size_t sz);
-void fBufPut(FBuf *a, float val);
+void fBufPush(FBuf *a, float val);
 bool fBufisEmpty(FBuf *a);
 
 
-size_t fBufElements(FBuf *a);
+size_t fBufCount(FBuf *a);
 
-float fBufPeekLast(FBuf *a);  // peek() should be the most recent...
-                              // peekFirst is the first. 
+float fBufPeekLast(FBuf *a);
+
 
 float fBufPop(FBuf *a);
 

@@ -96,7 +96,7 @@ void usart1_isr(void)
 
     // write the input buffer
     char ch = usart_recv(USART1);
-    cBufPut(input_buf, ch);
+    cBufPush(input_buf, ch);
   }
 
 

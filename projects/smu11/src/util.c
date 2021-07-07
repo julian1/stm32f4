@@ -204,7 +204,7 @@ void usart_printf(const char *format, ...)
   // because different formatting chars, conflict with gcc printf builtins
 	va_list args;
 	va_start(args, format);
-	internal_vprintf((void *)cBufPut, console_out, format, args);
+	internal_vprintf((void *)cBufPush, console_out, format, args);
 	va_end(args);
 #endif
   /*
@@ -231,9 +231,9 @@ void usart_printf(const char *format, ...)
   while(p < buf + n)  {
 
     if(*p == '\n')
-      cBufPut(console_out, '\r');
+      cBufPush(console_out, '\r');
 
-    cBufPut(console_out, *p);
+    cBufPush(console_out, *p);
 
     ++p;
   }

@@ -36,13 +36,14 @@ void cBufInit(CBuf *a, char *p, size_t sz)
 {
   ASSERT(a);
   ASSERT(p);
+  ASSERT(sz > 0);
   a->p = p;
   a->sz = sz;
   a->wi = 0;
   a->ri = 0;
 }
 
-void cBufPut(CBuf *a, char val)
+void cBufPush(CBuf *a, char val)
 {
   (a->p)[a->wi] = val;
   a->wi = (a->wi + 1) % a->sz;
@@ -54,7 +55,7 @@ bool cBufisEmpty(CBuf *a)
 }
 
 
-size_t cBufElements(CBuf *a)
+size_t cBufCount(CBuf *a)
 {
   // note, not correct if overflows...
   int n = a->wi - a->ri;
@@ -67,6 +68,7 @@ size_t cBufElements(CBuf *a)
 
 int32_t cBufPop(CBuf *a)
 {
+  // ie as fifo. pop first
   ASSERT(a->ri != a->wi);
 
   // read then update index. - but could be reordered by compiler
@@ -77,17 +79,20 @@ int32_t cBufPop(CBuf *a)
 }
 
 
-
 int32_t cBufPeekFirst(CBuf *a)
 {
-  // maybe change name to just cBufPeek()
+  // maybe change name to just cBufPeekLast()
   ASSERT(a->ri != a->wi);
 
   return (a->p)[a->ri];
 }
 
+
+// No. our Peek chage is wrong... pop should be the same as peek...
+
 int32_t cBufPeekLast(CBuf *a)
 {
+  // last item to be pushed...
   ASSERT(a->ri != a->wi);
 
   // this kind of needs some tests

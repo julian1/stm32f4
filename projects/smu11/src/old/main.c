@@ -96,10 +96,10 @@ void usart_input_update()
     // echo, by transfering to output buf
     // handle line return
     if(ch == '\r') {
-      cBufPut(output_buf, '\n');
+      cBufPush(output_buf, '\n');
     }
 
-    cBufPut(output_buf, ch);
+    cBufPush(output_buf, ch);
   }
 }
 #endif
