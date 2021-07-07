@@ -1541,9 +1541,9 @@ static void update_adc_drdy(app_t *app)
 
   if(ifb > 1.f /*3.f*/ && app->irange == irange_10A) {
 
+    usart_printf("unknown overcurrent condition\n");
     // unknown over-current condition
     // probable hardware condition
-
     ASSERT(0);
   }
 
@@ -1590,11 +1590,8 @@ static void update(app_t *app)
 
   /*
       main adc, ready to be read
-      whole thing should be put into a separate function?
   */
   if(app->adc_drdy && app->state == ANALOG_UP) {
-
-    // factor this into function
 
     update_adc_drdy(app);
   }
@@ -1620,25 +1617,21 @@ static void update(app_t *app)
       state_change(app, DIGITAL_UP);
       break;
 
-
     case DIGITAL_UP:
       if(lp15v > 15.0 && ln15v > 15.0 )
       {
         usart_printf("-----------\n");
-
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
-        usart_printf("doing analog up -  supplies ok \n");
+        usart_printf("state change analog up -  supplies ok \n");
         state_change(app, ANALOG_UP);
       }
       break ;
 
     case ANALOG_UP:
-
-      if((lp15v < 14.7 || ln15v < 14.7)  ) {
-
-        usart_printf("supplies bad - turn off rails\n");
+      if((lp15v < 14.7 || ln15v < 14.7)  )
+      {
         usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
-
+        usart_printf("supplies bad - state change halt\n");
         state_change(app, HALT);
       }
       break;
