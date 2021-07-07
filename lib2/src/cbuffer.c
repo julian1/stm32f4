@@ -81,7 +81,7 @@ int32_t cBufPop(CBuf *a)
 
 int32_t cBufPeekFirst(CBuf *a)
 {
-  // maybe change name to just cBufPeekLast()
+  // ie. peek first char to be pushed, considered as fifo.
   ASSERT(a->ri != a->wi);
 
   return (a->p)[a->ri];

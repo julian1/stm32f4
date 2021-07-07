@@ -404,17 +404,23 @@ typedef struct app_t
   // adc data ready, given by interupt
   bool      adc_drdy;
   uint32_t  adc_drdy_count;
-  uint32_t  adc_read_count ;
+  // uint32_t  adc_read_count ;
   uint32_t  adc_ov_count;
 
   // adc last read values
-  float     vfb;
-  float     ifb;
+  // float     vfb;
+  // float     ifb;
 
-
+  /////////////
   uint32_t  adc_nplc_measure;
   uint32_t  adc_nplc_range;
-  FBuf      vfb_cbuf;
+
+
+  FBuf      vfb_measure;
+  FBuf      vfb_range;
+
+  FBuf      ifb_measure;
+  FBuf      ifb_range;
 
 
 
@@ -1334,7 +1340,9 @@ static void update_soft_500ms(app_t *app)
 static void update_nplc_measure(app_t *app)
 {
 
-  ASSERT( app->state ==  ANALOG_UP);
+  ASSERT(app->state ==  ANALOG_UP);
+  ASSERT(fBufCount(&app->vfb_measure) > 0);
+  ASSERT(fBufCount(&app->ifb_measure) == fBufCount(&app->vfb_measure));
 
       // normal operation
 
@@ -1359,11 +1367,15 @@ static void update_nplc_measure(app_t *app)
     // the format prec wants to be able to user modified.
     /////////////////
 
+    // most recent measurements
+    float vfb = fBufPeekLast(&app->vfb_measure);
+    float ifb = fBufPeekLast(&app->ifb_measure);
+
     usart_printf("source measure unit\n");
     usart_printf("\n");
 
     usart_printf("vfb ");
-    print_voltage(app->vrange, app->vfb * range_voltage_multiplier(app->vrange)  );
+    print_voltage(app->vrange, vfb * range_voltage_multiplier(app->vrange)  );
 
     usart_printf("\t");
     usart_printf("vset ");
@@ -1392,7 +1404,7 @@ static void update_nplc_measure(app_t *app)
     usart_printf("\n\n");
 
     usart_printf("ifb ");
-    print_current(app->irange, app->ifb * range_current_multiplier(app->irange));
+    print_current(app->irange, ifb * range_current_multiplier(app->irange));
 
     usart_printf("\t");
     usart_printf("iset ");
@@ -1409,21 +1421,25 @@ static void update_nplc_measure(app_t *app)
 
     usart_printf("\n\n");
 
-    usart_printf("vfb=%f\n", app->vfb);
-    usart_printf("ifb=%f\n", app->ifb);
+    usart_printf("vfb=%f\n", vfb);
+    usart_printf("ifb=%f\n", ifb);
 
 
     ///////////////////////////////////
-    usart_printf("app->adc_read_count =%u\n", app->adc_read_count);
-    usart_printf("vfb_cbuf elements =%u\n", fBufCount(&app->vfb_cbuf));
+    // usart_printf("app->adc_read_count =%u\n", app->adc_read_count);
+    // usart_printf("vfb_cbuf elements =%u\n", fBufCount(&app->vfb_cbuf));
 
     // GOOD...
-    float p[100];
+    float vs[100];
+    float is[100];
 
-    ASSERT(app->adc_nplc_measure < ARRAY_SIZE(p));
+    size_t n = fBufCopy(&app->vfb_measure, vs, ARRAY_SIZE(vs));
+    ASSERT(n >= 1);
 
-    size_t n = fBufCopy(&app->vfb_cbuf, p, ARRAY_SIZE(p));
-    ASSERT(n == app->adc_nplc_measure);
+    n = fBufCopy(&app->ifb_measure, is, ARRAY_SIZE(is));
+    ASSERT(n >= 1);
+
+
 
 
 
@@ -1458,24 +1474,25 @@ static void update_nplc_measure(app_t *app)
     // note, these vals computed once/sec. not once/500ms.
     // usart_printf("\n\n");
     // usart_printf("%u (%u) %u", app->adc_drdy_count, app->adc_read_count, app->update_count);
+
+
+
+
+    // MOVE THIS...
+    app->adc_ov_count = 0;
+
+    // usart_printf("i is %f\n", app->ifb);
+    // usart_printf("v is %f\n", app->vfb);
+
+
+    // TODO. change back so that can change both together,
+    range_current_auto(app, ifb );
+    range_voltage_auto(app, vfb);
+
+
   }
 
 
-  app->adc_ov_count = 0;
-
-  // usart_printf("i is %f\n", app->ifb);
-  // usart_printf("v is %f\n", app->vfb);
-
-
-  // TODO. change back so that can change both together,
-  range_current_auto(app, app->ifb );
-  range_voltage_auto(app, app->vfb);
-
-/*
-      bool changed_current = range_current_auto(app, app->ifb );
-      if(!changed_current)
-        range_voltage_auto(app, app->vfb);
-*/
 }
 
 
@@ -1703,7 +1720,7 @@ static void update(app_t *app)
     float ar[4];
     int32_t ret = spi_adc_do_read(app->spi, ar, 4);
     app->adc_drdy = false;
-    ++app->adc_read_count;
+    // ++app->adc_read_count;
 
     if(ret < 0) {
       // error
@@ -1720,18 +1737,27 @@ static void update(app_t *app)
     */
     float x = 0.435;
     // shouldn't record twice...
-    app->vfb = ar[0] * x;
-    app->ifb = ar[1] * x;
+    float vfb = ar[0] * x;
+    float ifb = ar[1] * x;
+
+    // float vfb = ar[0] * x;
+    // float ifb = ar[1] * x;
+
+
 
     // push onto the queue
     // OK. this seems to screw things up...
-    fBufPush(&app->vfb_cbuf, app->vfb );
+    fBufPush(&app->vfb_measure, vfb );
+    ASSERT(fBufPeekLast(&app->vfb_measure) == vfb);
 
-    ASSERT(fBufPeekLast(&app->vfb_cbuf) == app->vfb );
+    fBufPush(&app->ifb_measure, ifb);
+    ASSERT(fBufPeekLast(&app->ifb_measure) == ifb);
 
-    size_t adc_elts = fBufCount(&app->vfb_cbuf);
 
-    ASSERT(adc_elts <= app->adc_nplc_measure);
+    ASSERT( fBufCount(&app->vfb_measure) ==  fBufCount(&app->ifb_measure));
+
+    // size_t adc_elts = fBufCount(&app->vfb_cbuf);
+    // ASSERT(adc_elts <= app->adc_nplc_measure);
 
     /*
       think we should record adc measurements twice.
@@ -1739,30 +1765,28 @@ static void update(app_t *app)
         once for measure, and once for range switching.
         once for ranging.
       even if choose to use only use/peek for most recent value for range switching.
-
       don't particularly see why need the circular buffer.  rather than a buffer?
-
       void push(buf, n, val ) // do range chanch
       push(buf, ARRAY_SIZE(buf), val);
-
       use two - and we can use the element count for both
-
     */
 
 
-    if(adc_elts == app->adc_nplc_measure)
+    if(fBufCount(&app->vfb_measure) == app->adc_nplc_measure)
     {
       update_nplc_measure(app);
+      ASSERT( fBufCount(&app->vfb_measure) == 0);
+      ASSERT( fBufCount(&app->ifb_measure) == 0);
 
-      // ASSERT( fBufCount(&app->vfb_cbuf) == 0);
-      app->adc_read_count  = 0;
+      // app->adc_read_count = 0;
     }
-
+#if 0
     if(adc_elts == app->adc_nplc_range)
     {
       // do auto ranging... based on vfb,ifb values...
       // update_range_
     }
+#endif
 
   }
 
@@ -2245,7 +2269,16 @@ static char buf_cmds[1000];
 
 
 
-static float buf_vfb[99];
+static float buf_vfb_measure[100];
+static float buf_ifb_measure[100];
+
+
+static float buf_vfb_range[100];
+static float buf_ifb_range[100];
+
+
+
+
 
 // move init to a function?
 // no... because we collect/assemble dependencies. ok in main()
@@ -2315,9 +2348,25 @@ int main(void)
   cBufInit(&app.cmd_in, buf_cmds, sizeof(buf_cmds));
 
   // vfb buffer
-  fBufInit(&app.vfb_cbuf, buf_vfb, ARRAY_SIZE(buf_vfb));
+  // fBufInit(&app.vfb_cbuf, buf_vfb, ARRAY_SIZE(buf_vfb));
+
+  // measure
+  fBufInit(&app.vfb_measure, buf_vfb_measure, ARRAY_SIZE(buf_vfb_measure));
+  fBufInit(&app.ifb_measure, buf_ifb_measure, ARRAY_SIZE(buf_ifb_measure));
+
+  // range
+  fBufInit(&app.vfb_range, buf_vfb_range, ARRAY_SIZE(buf_vfb_range));
+  fBufInit(&app.ifb_range, buf_ifb_range, ARRAY_SIZE(buf_ifb_range));
 
 
+/*
+static float buf_vfb_measure[100];
+static float buf_ifb_measure[100];
+
+
+static float buf_vfb_range[100];
+static float buf_ifb_range[
+*/
 
   // setup buffers
   usart_setup_gpio_portA();
