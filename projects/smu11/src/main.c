@@ -90,19 +90,30 @@
       - done - adc want to display the clk registers in the register output.
           want bitmask and offset to read and write registers.
 
+
+      - done - get the stddev of vfb. etc. on raw values? 1-10.5V. for test of adc.
+      - done - should report v and i also... it's simple to do.
+
+      - done - terminal char - to clear screen. for better logging.
+
       -       FILE *fopencookie(void *cookie, const char *mode,
                          cookie_io_functions_t io_funcs);
               Nice. allows a structure of custom functions. to impement.
               cookie is just the context... that then gets past.
 
+      - done - rather than report vfb ifb every 500ms etc.
+          - should report it as a multiple of the adc interupt count. eg. NPLC.
+          - NPLC=1/50th.  setting for 50=1s, 10=1/5th s, 100=2s etc.
+
+      - done - want a adc value buffer.  for stddev. etc.
+
 
       - maybe. change so cmd input buffer. maybe need ':' char. just test if non empty (meaning not consumed by single char action).
         and then treat as a command.
 
-      - get the stddev of vfb. etc. on raw values? 1-10.5V. for test of adc.
-      - should report v and i also... it's simple to do.
 
-      - print the rails voltages as well.
+      - print the rails voltages as well. maybe.
+
       - ncurses?
           https://github.com/infinnovation-dev/incurses
           https://www.youtube.com/watch?v=g7Woz3YVgvQ
@@ -117,14 +128,6 @@
           - eg. struct core. rather than struct app. even if put output bool inside core. etc.
           - or have to inject a few vars.
           - likewise adc functionality.
-
-      - terminal char - to clear screen. for better logging.
-
-      - rather than report vfb ifb every 500ms etc.
-          - should report it as a multiple of the adc interupt count. eg. NPLC.
-          - NPLC=1/50th.  setting for 50=1s, 10=1/5th s, 100=2s etc.
-
-      - want a adc value buffer.  for stddev. etc.
 
 
       - should populate and test the single-ended gain stage.
