@@ -401,8 +401,12 @@ typedef struct app_t
   bool      output;   // whether output on/off
 
 
-  // ho
+  /////////////////////////
   uint32_t  update_count;
+
+  float     lp15v;
+  float     ln15v;
+
 
   /////////////////////////
   // adc data ready, given by interupt
@@ -740,6 +744,12 @@ static void range_current_set(app_t *app, irange_t irange)
         case irange_1A:
           // usart_printf("1A range \n");
 
+          // turn on sense amplifier 1
+          io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX1_CTL);
+          // turn on first set of big fets.
+          io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW1_CTL);
+          // break;
+
           switch(app->irange) {
             // gain 10x on 0.1ohm, for 10V range. active low
             case irange_10A:
@@ -751,34 +761,31 @@ static void range_current_set(app_t *app, irange_t irange)
               break;
             default:
               // cannot be here...
-              critical_error_blink();
-              return;
+              ASSERT(0);
+              // critical_error_blink();
+              // return;
+              break;
           };
-
-          // turn on sense amplifier 1
-          io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX1_CTL);
-          // turn on first set of big fets.
-          io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW1_CTL);
           break;
-
 
         // 10ohm resistor. for 10V swing.
         case irange_100mA:
+          // turn on sense amplifier 2
+          io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX2_CTL);
+
           // ensure sure the high current relay is on. before switching
           // gain 10x active low
           io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);
-          // turn on sense amplifier 2
-          io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX2_CTL);
           // turn on 2nd switch fets.
           io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW2_CTL);
           break;
 
         // 1k resistor. for 10V swing.
         case irange_10mA:
-          // gain 1x active low
-          io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
           // turn on sense amplifier 3
           io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
+          // gain 1x active low
+          io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
           // turn on 4th switch fets.
           io_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW4_CTL);
           break;
@@ -791,15 +798,14 @@ static void range_current_set(app_t *app, irange_t irange)
       return;
 
 
-
-    // 10k resistor. for 10V swing
+    // x
     case irange_1mA:
-    // 100k resistor for 10V swing.
     case irange_100uA:
-    // 1M resistor for 10V swing.
     case irange_10uA:
-      // turn on current range relay y
-      io_write(app->spi, REG_RELAY_COM,  RELAY_COM_Y);
+    // y
+    case irange_1uA:
+ 
+
       // turn off all fets used on comx range
       io_write(app->spi, REG_IRANGE_X_SW, 0 );
       // gain 1x active low
@@ -807,49 +813,57 @@ static void range_current_set(app_t *app, irange_t irange)
       // turn on sense amplifier 3
       io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
 
-      switch( app->irange) {
+      // turn off high current output relay... if need be. only after new range in effect
+      msleep(1);
+      output_set(app, app->irange, app->output);
+
+
+      switch(app->irange) {
+
+        // 10k resistor. for 10V swing
         case irange_1mA:
+        // 100k resistor for 10V swing.
+        case irange_100uA:
+        // 1M resistor for 10V swing.
+        case irange_10uA:
+          // turn on current range relay y
+          io_write(app->spi, REG_RELAY_COM,  RELAY_COM_Y);
+          switch( app->irange) {
+            case irange_1mA:
+              // turn on jfet 1
+              io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);
+              break;
+            case irange_100uA:
+              // turn on jfet 2
+              io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);
+              break;
+            case irange_10uA:
+              // turn on jfet 2
+              io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW3_CTL);
+              break;
+            default:
+              // cannot be here.
+              ASSERT(0);
+              // critical_error_blink();
+              // return;
+          }
+          break;
+
+        // 10M for 10V swing.
+        case irange_1uA:
+          // IMPORTANT DONT forget to add star jumper to star gnd!!!.
+          // turn on current range relay Z
+          io_write(app->spi, REG_RELAY_COM,  RELAY_COM_Z);
+
           // turn on jfet 1
           io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);
           break;
-        case irange_100uA:
-          // turn on jfet 2
-          io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);
-          break;
-        case irange_10uA:
-          // turn on jfet 2
-          io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW3_CTL);
-          break;
+
+
         default:
-          // cannot be here.
-          critical_error_blink();
-          return;
+          ASSERT(0);
+
       }
-
-      // turn off high current output relay... if need be. only after new range in effect
-      msleep(1);
-      output_set(app, app->irange, app->output);
-      break;
-
-    // 10M for 10V swing.
-    case irange_1uA:
-      // IMPORTANT DONT forget to add star jumper to star gnd!!!.
-      // turn on current range relay Z
-      io_write(app->spi, REG_RELAY_COM,  RELAY_COM_Z);
-      // turn off all fets used on comx range
-      io_write(app->spi, REG_IRANGE_X_SW, 0 );
-      // gain 1x active low
-      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
-      // turn on sense amplifier 3
-      io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
-
-      // turn on jfet 1
-      io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);
-
-      // turn off high current output relay... if need be. only after new range in effect
-      msleep(1);
-      output_set(app, app->irange, app->output);
-      break;
 
 
   }
@@ -1448,6 +1462,13 @@ static void update_nplc_measure(app_t *app)
     usart_printf("adc_nplc_range   %d\n",app->adc_nplc_range);
 
     usart_printf("adc ov %d\n", app->adc_ov_count);
+
+
+    // char buf[100];
+    // usart_printf("%sV", format_float(buf, ARRAY_SIZE(buf), val, 5) ); // 6 digits
+ 
+    usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
+
     usart_printf("output %s\n", (app->output) ? "on" : "off" );
 
     usart_printf("\n");
@@ -1600,17 +1621,13 @@ static void update(app_t *app)
 
 
   /*
-    querying adc03 via spi, is slow (eg. we also clock spi slower to match read speed) .
-    so it should only be done in soft timer eg. 10ms is probably enough.
-    preferrably should offload to fpga with set voltages, -  and fpga can raise an interupt.
+    these block... while value is read, and is the main source if this loop being slow. which also doesn't matter.
+    could offload spi reading ot the fpga. along with test against threshold values.
   */
-
-  // read supply voltages,
-  // these block... while value is read
   mux_adc03(app->spi);
-  // TODO put cal values in state
-  float lp15v = spi_mcp3208_get_data(app->spi, 0) * 0.92 * 10.;
-  float ln15v = spi_mcp3208_get_data(app->spi, 1) * 0.81 * 10.;
+  app->lp15v = spi_mcp3208_get_data(app->spi, 0) * 0.92 * 10.;
+  app->ln15v = spi_mcp3208_get_data(app->spi, 1) * 0.81 * 10.;
+
   // usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
   switch(app->state) {
@@ -1620,20 +1637,20 @@ static void update(app_t *app)
       break;
 
     case DIGITAL_UP:
-      if(lp15v > 15.0 && ln15v > 15.0 )
+      if(app->lp15v > 15.0 && app->ln15v > 15.0 )
       {
         usart_printf("-----------\n");
-        usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
-        usart_printf("state change analog up -  supplies ok \n");
+        usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
+        usart_printf("15V analog rails ok - state change analog-up\n");
         state_change(app, ANALOG_UP);
       }
       break ;
 
     case ANALOG_UP:
-      if((lp15v < 14.7 || ln15v < 14.7)  )
+      if((app->lp15v < 14.7 || app->ln15v < 14.7)  )
       {
-        usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
-        usart_printf("supplies bad - state change halt\n");
+        usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
+        usart_printf("15V analog rails low - state change halt\n");
         state_change(app, HALT);
       }
       break;
