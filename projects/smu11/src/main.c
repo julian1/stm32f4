@@ -267,6 +267,7 @@
 #include "ads131a04.h"
 
 #include "format_float.h"
+#include "stats.h"
 
 #include "core.h"   // some of the above files include core.h. need header guards.
 
@@ -1421,8 +1422,8 @@ static void update_nplc_measure(app_t *app)
 
     usart_printf("\n\n");
 
-    usart_printf("vfb=%f\n", vfb);
-    usart_printf("ifb=%f\n", ifb);
+    // usart_printf("vfb last=%f\n", vfb);
+    // usart_printf("ifb=%f\n", ifb);
 
 
     ///////////////////////////////////
@@ -1440,6 +1441,15 @@ static void update_nplc_measure(app_t *app)
     ASSERT(in >= 1);
 
     ASSERT(vn == in);
+
+
+    float vmean = mean(vs, vn);
+    float vsd =  stddev(vs, vn);
+    usart_printf("vfb last %f    vmean %f    vstddev %f\n", vfb, vmean, vsd);
+
+    float imean = mean(is, in);
+    float isd =  stddev(is, in);
+    usart_printf("ifb last %f    imean %f    istddev %f\n", ifb, imean, isd);
 
 
 
@@ -2337,7 +2347,7 @@ int main(void)
   app.print_adc_values = true;
   app.output = false;
 
-  app.adc_nplc_measure = 20;
+  app.adc_nplc_measure = 50;
   app.adc_nplc_range   = 20;
 
   // uart/console
