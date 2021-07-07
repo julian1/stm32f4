@@ -408,7 +408,6 @@ typedef struct app_t
   // adc data ready, given by interupt
   bool      adc_drdy;
   uint32_t  adc_drdy_count;
-  // uint32_t  adc_read_count ;
   uint32_t  adc_ov_count;
 
   // adc last read values
@@ -1317,6 +1316,10 @@ static void update_soft_1s(app_t *app)
   // IMPORTANT keep. we can report this stuff easily on 1s interval - if use ncurses.
   app->adc_drdy_count  = 0;
   app->update_count    = 0;
+
+  // TODO should be checking adc_read count matches what we expect, on 1s interval.
+  // but we have removed this var...
+
 }
 
 
@@ -1505,20 +1508,19 @@ static void update_adc_drdy(app_t *app)
   float ar[4];
   int32_t ret = spi_adc_do_read(app->spi, ar, 4);
   app->adc_drdy = false;
-  // ++app->adc_read_count;
 
   if(ret < 0) {
     // error
     // usart_printf("adc error\n");
-    ++app->adc_ov_count;  // change name ov_count = 0;
+    ++app->adc_ov_count;
   } else {
     // no errors.
   }
 
   /*
-    - must continue evein if adc out-of-bound. so we get to a valid range.
+    - must continue eve in presence of adc out-of-bound. in order to run ranging to get to a valid range
     - ranging needs the actual value (not adjusted for gain/attenuation
-    so need to record and use in common units
+      so record and use in common units
   */
   float x = 0.435;
   // shouldn't record twice...
