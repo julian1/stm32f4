@@ -108,6 +108,17 @@
       - done - want a adc value buffer.  for stddev. etc.
 
 
+    rename vars to just nplc_measure and nplc_range
+    because it's nothing to do with adc.
+          adc_nplc_measure 50
+          adc_nplc_range   20
+
+    use resolution and add units. and add 'rails' field in output formatting.
+      rails_lp15v
+      lp15v 15.179769    ln15v 15.105192
+
+
+
       - maybe. change so cmd input buffer. maybe need ':' char. just test if non empty (meaning not consumed by single char action).
         and then treat as a command.
 
