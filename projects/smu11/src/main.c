@@ -1439,6 +1439,7 @@ static void update_nplc_measure(app_t *app)
 
 
     usart_printf("adc_nplc_measure %d\n",app->adc_nplc_measure);
+    usart_printf("adc_nplc_range   %d\n",app->adc_nplc_range);
 
     usart_printf("adc ov %d\n", app->adc_ov_count);
     usart_printf("output %s\n", (app->output) ? "on" : "off" );
