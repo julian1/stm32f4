@@ -90,6 +90,12 @@
       - done - adc want to display the clk registers in the register output.
           want bitmask and offset to read and write registers.
 
+      -       FILE *fopencookie(void *cookie, const char *mode,
+                         cookie_io_functions_t io_funcs);
+              Nice. allows a structure of custom functions. to impement.
+              cookie is just the context... that then gets past.
+
+
       - maybe. change so cmd input buffer. maybe need ':' char. just test if non empty (meaning not consumed by single char action).
         and then treat as a command.
 
@@ -406,7 +412,8 @@ typedef struct app_t
   float     ifb;
 
 
-  uint32_t  adc_nplc;
+  uint32_t  adc_nplc_measure;
+  uint32_t  adc_nplc_range;
   FBuf      vfb_cbuf;
 
 
@@ -1320,8 +1327,11 @@ static void update_soft_500ms(app_t *app)
 }
 
 
+// change name to update_measure_nplc()?
+// indicating we hit the number for measurement reporting.
 
-static void update_nplc(app_t *app)
+
+static void update_nplc_measure(app_t *app)
 {
 
   ASSERT( app->state ==  ANALOG_UP);
@@ -1410,10 +1420,10 @@ static void update_nplc(app_t *app)
     // GOOD...
     float p[100];
 
-    ASSERT(app->adc_nplc < ARRAY_SIZE(p));
+    ASSERT(app->adc_nplc_measure < ARRAY_SIZE(p));
 
     size_t n = fBufCopy(&app->vfb_cbuf, p, ARRAY_SIZE(p));
-    ASSERT(n == app->adc_nplc);
+    ASSERT(n == app->adc_nplc_measure);
 
 
 
@@ -1453,8 +1463,8 @@ static void update_nplc(app_t *app)
 
   app->adc_ov_count = 0;
 
-// usart_printf("i is %f\n", app->ifb);
-// usart_printf("v is %f\n", app->vfb);
+  // usart_printf("i is %f\n", app->ifb);
+  // usart_printf("v is %f\n", app->vfb);
 
 
   // TODO. change back so that can change both together,
@@ -1721,13 +1731,37 @@ static void update(app_t *app)
 
     size_t adc_elts = fBufElements(&app->vfb_cbuf);
 
-    ASSERT(adc_elts <= app->adc_nplc);
+    ASSERT(adc_elts <= app->adc_nplc_measure);
 
-    if(adc_elts == app->adc_nplc) {
-      update_nplc(app);
+    /*
+      think we should record adc measurements twice.
+      eg.
+        once for measure, and once for range switching.
+        once for ranging.
+      even if choose to use only use/peek for most recent value for range switching.
+
+      don't particularly see why need the circular buffer.  rather than a buffer?
+
+      void push(buf, n, val ) // do range chanch
+      push(buf, ARRAY_SIZE(buf), val);
+
+      use two - and we can use the element count for both
+
+    */
+
+
+    if(adc_elts == app->adc_nplc_measure)
+    {
+      update_nplc_measure(app);
 
       // ASSERT( fBufElements(&app->vfb_cbuf) == 0);
       app->adc_read_count  = 0;
+    }
+
+    if(adc_elts == app->adc_nplc_range)
+    {
+      // do auto ranging... based on vfb,ifb values...
+      // update_range_
     }
 
   }
@@ -2270,7 +2304,8 @@ int main(void)
   app.print_adc_values = true;
   app.output = false;
 
-  app.adc_nplc = 20;
+  app.adc_nplc_measure = 20;
+  app.adc_nplc_range   = 20;
 
   // uart/console
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));

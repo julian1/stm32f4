@@ -23,7 +23,8 @@ bool fBufisEmpty(FBuf *a);
 
 size_t fBufElements(FBuf *a);
 
-float fBufPeekLast(FBuf *a);
+float fBufPeekLast(FBuf *a);  // peek() should be the most recent...
+                              // peekFirst is the first. 
 
 float fBufPop(FBuf *a);
 

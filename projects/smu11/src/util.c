@@ -207,6 +207,9 @@ void usart_printf(const char *format, ...)
 	internal_vprintf((void *)cBufPut, console_out, format, args);
 	va_end(args);
 #endif
+  /*
+    see, fopencookie for a better way to do this,
+  */
 
   /*
     - this is not great. but allows using arm-gcc libc sprintf

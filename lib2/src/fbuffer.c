@@ -71,7 +71,7 @@ size_t fBufElements(FBuf *a)
 
 float fBufPeekLast(FBuf *a)
 {
-  ASSERT(a->ri != a->wi );
+  ASSERT(a->ri != a->wi);
   // if(a->ri == a->wi)
   //  return FLT_MAX;
 
@@ -86,7 +86,7 @@ float fBufPeekLast(FBuf *a)
 
 float fBufPop(FBuf *a)
 {
-  ASSERT(a->ri != a->wi );
+  ASSERT(a->ri != a->wi);
 
   // if(a->ri == a->wi)
   //  return FLT_MAX ;

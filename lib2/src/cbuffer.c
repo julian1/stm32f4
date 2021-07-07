@@ -99,6 +99,12 @@ int32_t cBufPeekLast(CBuf *a)
 }
 
 
+/*
+  really think these should be returning size_t.
+  due to no return error codes...
+  but leave for future
+*/
+
 int32_t cBufCopyString(CBuf *a, char *p, size_t n)
 {
   // could use more testing
@@ -117,21 +123,21 @@ int32_t cBufCopyString(CBuf *a, char *p, size_t n)
 }
 
 
-
-
 int32_t cBufCopyString2(CBuf *a, char *p, size_t n)
 {
   // could use more testing
-  // copy without consuming
+  // copy and leave intact without consuming
   // for c-style strings, so handle sentinel
 
   size_t ri = a->ri;
   size_t i = 0;
 
-  while((ri % a->sz) != a->wi && i < (n - 1)) {
+  while(ri != a->wi && i < (n - 1)) {
 
+    ASSERT(ri < a->sz);
     p[i++] = (a->p)[ri];
-    ++ri;
+
+    ri = (ri + 1) % a->sz;
   }
 
   // sentinel

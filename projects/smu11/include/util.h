@@ -39,5 +39,6 @@ extern void usart_printf(const char *format, ... );
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 
+#define MIN(A, B) ((A) < (B) ? (A) : (B))
 
 
