@@ -1433,13 +1433,13 @@ static void update_nplc_measure(app_t *app)
     float vs[100];
     float is[100];
 
-    size_t n = fBufCopy(&app->vfb_measure, vs, ARRAY_SIZE(vs));
-    ASSERT(n >= 1);
+    size_t vn = fBufCopy(&app->vfb_measure, vs, ARRAY_SIZE(vs));
+    ASSERT(vn >= 1);
 
-    n = fBufCopy(&app->ifb_measure, is, ARRAY_SIZE(is));
-    ASSERT(n >= 1);
+    size_t in = fBufCopy(&app->ifb_measure, is, ARRAY_SIZE(is));
+    ASSERT(in >= 1);
 
-
+    ASSERT(vn == in);
 
 
 
