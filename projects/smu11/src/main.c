@@ -1495,6 +1495,165 @@ static void update_nplc_range(app_t *app)
 
 
 
+
+static void update_adc_drdy(app_t *app)
+{
+
+  ASSERT(app->adc_drdy && app->state == ANALOG_UP);
+
+
+  float ar[4];
+  int32_t ret = spi_adc_do_read(app->spi, ar, 4);
+  app->adc_drdy = false;
+  // ++app->adc_read_count;
+
+  if(ret < 0) {
+    // error
+    // usart_printf("adc error\n");
+    ++app->adc_ov_count;  // change name ov_count = 0;
+  } else {
+    // no errors.
+  }
+
+  /*
+    - must continue evein if adc out-of-bound. so we get to a valid range.
+    - ranging needs the actual value (not adjusted for gain/attenuation
+    so need to record and use in common units
+  */
+  float x = 0.435;
+  // shouldn't record twice...
+  float vfb = ar[0] * x;
+  float ifb = ar[1] * x;
+
+  fBufPush(&app->vfb_measure, vfb );
+  fBufPush(&app->ifb_measure, ifb);
+
+  ASSERT(fBufPeekLast(&app->vfb_measure) == vfb);
+  ASSERT(fBufPeekLast(&app->ifb_measure) == ifb);
+  ASSERT(fBufCount(&app->vfb_measure) ==  fBufCount(&app->ifb_measure));
+
+  fBufPush(&app->vfb_range, vfb );
+  fBufPush(&app->ifb_range, ifb);
+  ASSERT(fBufPeekLast(&app->vfb_range) == vfb);
+  ASSERT(fBufPeekLast(&app->ifb_range) == ifb);
+  ASSERT(fBufCount(&app->vfb_range) ==  fBufCount(&app->ifb_range));
+
+
+  if(ifb > 1.f /*3.f*/ && app->irange == irange_10A) {
+
+    // unknown over-current condition
+    // probable hardware condition
+
+    ASSERT(0);
+  }
+
+  /*
+    think we should record adc measurements twice.
+    eg.
+      - once for measure, and once for range switching.
+      - once for ranging.
+    even if choose to use only use/peek for most recent value for range switching.
+    don't particularly see why need the circular buffer.  rather than a buffer?
+    void push(buf, n, val ) // do range chanch
+    push(buf, ARRAY_SIZE(buf), val);
+    use two - and we can use the element count for both
+  */
+
+
+  // do measure reporting
+  if(fBufCount(&app->vfb_measure) == app->adc_nplc_measure)
+  {
+    update_nplc_measure(app);
+    // should be done where?...
+    // change name measure_ov...  should
+    app->adc_ov_count = 0;
+    ASSERT(fBufCount(&app->vfb_measure) == 0);
+    ASSERT(fBufCount(&app->ifb_measure) == 0);
+  }
+
+  // do ranging
+  if( fBufCount(&app->vfb_range) == app->adc_nplc_range)
+  {
+    update_nplc_range(app);
+    ASSERT(fBufCount(&app->vfb_range) == 0);
+    ASSERT(fBufCount(&app->ifb_range) == 0);
+  }
+
+}
+
+
+static void update(app_t *app)
+{
+  // called as often as possible
+
+  ++app->update_count;
+
+  /*
+      main adc, ready to be read
+      whole thing should be put into a separate function?
+  */
+  if(app->adc_drdy && app->state == ANALOG_UP) {
+
+    // factor this into function
+
+    update_adc_drdy(app);
+  }
+
+
+  /*
+    querying adc03 via spi, is slow (eg. we also clock spi slower to match read speed) .
+    so it should only be done in soft timer eg. 10ms is probably enough.
+    preferrably should offload to fpga with set voltages, -  and fpga can raise an interupt.
+  */
+
+  // read supply voltages,
+  // these block... while value is read
+  mux_adc03(app->spi);
+  // TODO put cal values in state
+  float lp15v = spi_mcp3208_get_data(app->spi, 0) * 0.92 * 10.;
+  float ln15v = spi_mcp3208_get_data(app->spi, 1) * 0.81 * 10.;
+  // usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
+
+  switch(app->state) {
+
+    case FIRST:
+      state_change(app, DIGITAL_UP);
+      break;
+
+
+    case DIGITAL_UP:
+      if(lp15v > 15.0 && ln15v > 15.0 )
+      {
+        usart_printf("-----------\n");
+
+        usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
+        usart_printf("doing analog up -  supplies ok \n");
+        state_change(app, ANALOG_UP);
+      }
+      break ;
+
+    case ANALOG_UP:
+
+      if((lp15v < 14.7 || ln15v < 14.7)  ) {
+
+        usart_printf("supplies bad - turn off rails\n");
+        usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
+
+        state_change(app, HALT);
+      }
+      break;
+
+    case HALT:
+      break;
+
+
+    default:
+      ;
+  };
+}
+
+
+
 static void state_change(app_t *app, state_t state )
 {
   switch(state) {
@@ -1675,167 +1834,6 @@ static void state_change(app_t *app, state_t state )
 
 
 }
-
-
-/*
-  issue?
-  - volatile.
-  - or we get an interupt for all four adc values that are read?
-
-  - get two interupts. start read.
-    - get next two interupts while reading.
-
-    and it all gets confused.
-
-  - BUT interupts aren't really matching what we see on the scope.
-
-  - or it's staying high - because we only read 2 of  4 regs?
-
-
-
-
-*/
-
-
-
-static void update(app_t *app)
-{
-  // called as often as possible
-
-  ++app->update_count;
-
-  /*
-      main adc, ready to be read
-      whole thing should be put into a separate function?
-  */
-  if(app->adc_drdy && app->state == ANALOG_UP) {
-
-    float ar[4];
-    int32_t ret = spi_adc_do_read(app->spi, ar, 4);
-    app->adc_drdy = false;
-    // ++app->adc_read_count;
-
-    if(ret < 0) {
-      // error
-      // usart_printf("adc error\n");
-      ++app->adc_ov_count;  // change name ov_count = 0;
-    } else {
-      // no errors.
-    }
-
-    /*
-      - must continue evein if adc out-of-bound. so we get to a valid range.
-      - ranging needs the actual value (not adjusted for gain/attenuation
-      so need to record and use in common units
-    */
-    float x = 0.435;
-    // shouldn't record twice...
-    float vfb = ar[0] * x;
-    float ifb = ar[1] * x;
-
-    fBufPush(&app->vfb_measure, vfb );
-    fBufPush(&app->ifb_measure, ifb);
-
-    ASSERT(fBufPeekLast(&app->vfb_measure) == vfb);
-    ASSERT(fBufPeekLast(&app->ifb_measure) == ifb);
-    ASSERT(fBufCount(&app->vfb_measure) ==  fBufCount(&app->ifb_measure));
-
-    fBufPush(&app->vfb_range, vfb );
-    fBufPush(&app->ifb_range, ifb);
-    ASSERT(fBufPeekLast(&app->vfb_range) == vfb);
-    ASSERT(fBufPeekLast(&app->ifb_range) == ifb);
-    ASSERT(fBufCount(&app->vfb_range) ==  fBufCount(&app->ifb_range));
-
-
-
-    /*
-      think we should record adc measurements twice.
-      eg.
-        - once for measure, and once for range switching.
-        - once for ranging.
-      even if choose to use only use/peek for most recent value for range switching.
-      don't particularly see why need the circular buffer.  rather than a buffer?
-      void push(buf, n, val ) // do range chanch
-      push(buf, ARRAY_SIZE(buf), val);
-      use two - and we can use the element count for both
-    */
-
-
-    // do measure reporting
-    if(fBufCount(&app->vfb_measure) == app->adc_nplc_measure)
-    {
-      update_nplc_measure(app);
-      // should be done where?...
-      // change name measure_ov...  should
-      app->adc_ov_count = 0;
-      ASSERT(fBufCount(&app->vfb_measure) == 0);
-      ASSERT(fBufCount(&app->ifb_measure) == 0);
-    }
-
-    // do ranging
-    if( fBufCount(&app->vfb_range) == app->adc_nplc_range)
-    {
-      update_nplc_range(app);
-      ASSERT(fBufCount(&app->vfb_range) == 0);
-      ASSERT(fBufCount(&app->ifb_range) == 0);
-    }
-
-  }
-
-
-  /*
-    querying adc03 via spi, is slow (eg. we also clock spi slower to match read speed) .
-    so it should only be done in soft timer eg. 10ms is probably enough.
-    preferrably should offload to fpga with set voltages, -  and fpga can raise an interupt.
-  */
-
-  // read supply voltages,
-  // these block... while value is read
-  mux_adc03(app->spi);
-  // TODO put cal values in state
-  float lp15v = spi_mcp3208_get_data(app->spi, 0) * 0.92 * 10.;
-  float ln15v = spi_mcp3208_get_data(app->spi, 1) * 0.81 * 10.;
-  // usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
-
-  switch(app->state) {
-
-    case FIRST:
-      state_change(app, DIGITAL_UP);
-      break;
-
-
-    case DIGITAL_UP:
-      if(lp15v > 15.0 && ln15v > 15.0 )
-      {
-        usart_printf("-----------\n");
-
-        usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
-        usart_printf("doing analog up -  supplies ok \n");
-        state_change(app, ANALOG_UP);
-      }
-      break ;
-
-    case ANALOG_UP:
-
-      if((lp15v < 14.7 || ln15v < 14.7)  ) {
-
-        usart_printf("supplies bad - turn off rails\n");
-        usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
-
-        state_change(app, HALT);
-      }
-      break;
-
-    case HALT:
-      break;
-
-
-    default:
-      ;
-  };
-}
-
-
 
 
 ////////////////////////////////////////////
