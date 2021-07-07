@@ -351,7 +351,8 @@ typedef enum irange_t
 {
   // TODO rename range_current_none, range_current_1x etc.
 
-  irange_1uA = 3,
+  irange_100nA = 3,
+  irange_1uA,
 
   irange_10uA ,
   irange_100uA,
@@ -635,6 +636,7 @@ static const char * range_current_string( irange_t irange)
   switch(irange)
   {
 
+    case irange_100nA:  return "100nA" ;
     case irange_1uA:    return "1uA" ;
 
     case irange_10uA:   return "10uA" ;
@@ -658,13 +660,15 @@ static irange_t range_current_next( irange_t irange, bool dir)
 {
   /// dir==1 ve == lower current
   // can simplify - enum addition ... etc.
-  // but this makes it pretty clear
+  // but this is kind of cleaner. allows independent ranges.
 
   if(dir) {
     // lower current range. ie. higher value shunt resistor.
     switch(irange)
     {
-      case irange_1uA:   return irange_1uA;  // no change
+
+      case irange_100nA:  return irange_100nA;
+      case irange_1uA:    return irange_100nA;  // no change
 
       case irange_10uA:   return irange_1uA;
       case irange_100uA:  return irange_10uA;
@@ -679,7 +683,8 @@ static irange_t range_current_next( irange_t irange, bool dir)
     // higher current range. ie lower value shunt resistor
     switch(irange)
     {
-      case irange_1uA:   return irange_10uA;
+      case irange_100nA:  return irange_1uA;
+      case irange_1uA:    return irange_10uA;
 
       case irange_10uA:   return irange_100uA;
       case irange_100uA:  return irange_1mA;
@@ -772,7 +777,6 @@ static void range_current_set(app_t *app, irange_t irange)
         case irange_100mA:
           // turn on sense amplifier 2
           io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX2_CTL);
-
           // ensure sure the high current relay is on. before switching
           // gain 10x active low
           io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);
@@ -804,18 +808,18 @@ static void range_current_set(app_t *app, irange_t irange)
     case irange_10uA:
     // y
     case irange_1uA:
-
+    case irange_100nA:
 
       // turn off all fets used on comx range
       io_write(app->spi, REG_IRANGE_X_SW, 0 );
-      // gain 1x active low
-      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
       // turn on sense amplifier 3
       io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
+      // gain 1x active low
+      io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
 
+      // we'll turn lc relay on if need be, after switching to lc range.
 
       switch(app->irange) {
-
         // 10k resistor. for 10V swing
         case irange_1mA:
         // 100k resistor for 10V swing.
@@ -842,32 +846,44 @@ static void range_current_set(app_t *app, irange_t irange)
               ASSERT(0);
               // critical_error_blink();
               // return;
+
           }
           break;
 
-        // 10M for 10V swing.
+
         case irange_1uA:
+        case irange_100nA:
           // IMPORTANT DONT forget to add star jumper to star gnd!!!.
           // turn on current range relay Z
           io_write(app->spi, REG_RELAY_COM,  RELAY_COM_Z);
 
-          // turn on jfet 1
-          io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);
-          break;
-
+          switch( app->irange) {
+            // 10M for 10V swing.
+            case irange_1uA:
+              // turn on jfet 1
+              io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);
+              break;
+            // 100M for 10V swing.
+            case irange_100nA:
+              // turn on jfet 2
+              io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);
+              break;
+            default:
+              ASSERT(0);
+          }
+        break;
 
         default:
           ASSERT(0);
-
       }
 
-      // wait until have settled at lower current before turn off big relay, and on the reed relay. if coming from high-current range.
+      // wait until settled at lc before turn off big relay, and turn on the reed relay.
       // eg. should be done last.
-      output_set(app, app->irange, app->output);
       msleep(1);
+      output_set(app, app->irange, app->output);
 
       break;
-    
+
 
 
 
@@ -883,15 +899,17 @@ static void range_current_set(app_t *app, irange_t irange)
 */
 
 
-static float range_current_multiplier( irange_t irange)
+static float range_current_multiplier(irange_t irange)
 {
+
+
+  ASSERT( 1e-7f == 0.0000001f);
+
   switch(irange)
   {
     // ie. expressed on 10V range
-
-    // case irange_1uA:    return 1e-7f;
-    case irange_1uA:    return 0.0000001f;
-
+    case irange_100nA:  return 1e-8f;
+    case irange_1uA:    return 1e-7f;
     case irange_10uA:   return 0.000001f;
     case irange_100uA:  return 0.00001f;
     case irange_1mA:    return 0.0001f;
@@ -901,6 +919,7 @@ static float range_current_multiplier( irange_t irange)
     case irange_10A:    return 1.f;
   };
 
+  ASSERT(0);
   return -9999;
 }
 
@@ -1118,8 +1137,8 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
       // switch( app->irange)
       switch( irange)
       {
+        case irange_100nA:
         case irange_1uA:
-
         case irange_10uA:
         case irange_100uA:
         case irange_1mA:
@@ -1159,9 +1178,7 @@ static void print_current(irange_t irange, float val)
       formatting measured values, according to selected range (rather than value) is correct.
       enourage drill to a higher range.
   */
-
   char buf[100];
-
 
   // usart_printf(" here " );
 
@@ -1169,9 +1186,9 @@ static void print_current(irange_t irange, float val)
   {
     // not sure whether we should care about this...
 
-    case irange_1uA:
+    case irange_100nA:
       // when power is off... kind of nice to report...
-      if(fabs(val) * 1e9f > 1)
+      if(fabs(val) * 1e10f > 1.f)
         // usart_printf("%fnA", val * 1e9f);
         usart_printf("%snA", format_float(buf, ARRAY_SIZE(buf), val * 1e+9f, 6) ); // 6 digits
       else
@@ -1180,6 +1197,10 @@ static void print_current(irange_t irange, float val)
         usart_printf("%spA", format_float(buf, ARRAY_SIZE(buf), val * 1e+12f, 6) ); // 6 digits
       break;
 
+
+    case irange_1uA:
+      usart_printf("%snA", format_float(buf, ARRAY_SIZE(buf), val * 1e+9f, 6) ); // 6 digits
+      break;
 
     case irange_10uA:
     case irange_100uA:
@@ -1348,11 +1369,12 @@ static void update_soft_1s(app_t *app)
 
 static void update_soft_500ms(app_t *app)
 {
-  UNUSED(app);
-
+  // blink led
   mux_io(app->spi);
   io_toggle(app->spi, REG_LED, LED1);
 }
+
+
 
 
 
@@ -1472,7 +1494,7 @@ static void update_nplc_measure(app_t *app)
 
     // char buf[100];
     // usart_printf("%sV", format_float(buf, ARRAY_SIZE(buf), val, 5) ); // 6 digits
- 
+
     usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
 
     usart_printf("output %s\n", (app->output) ? "on" : "off" );
@@ -1935,9 +1957,13 @@ static int irange_and_iset_from_current(float i, irange_t *irange, float *iset)
     *irange = irange_10uA;
     *iset = i * 1e+6f;
   }
-  else {
+  else if(ai > 1e-7f)  {
     *irange = irange_1uA;
     *iset = i * 1e+7f;
+  }
+  else {
+    *irange = irange_100nA;
+    *iset = i * 1e+8f;
   }
 
   return 0;
