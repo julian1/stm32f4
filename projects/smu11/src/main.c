@@ -107,6 +107,12 @@
 
       - done - want a adc value buffer.  for stddev. etc.
 
+    Ext. DRIVEN guard.
+      think the low-guard - could be used as on pcb driven guard. to protect com. 
+      BECAUSE. at very low current - these become the same.
+      - and it *is* com anyway when not using 4-wire.
+
+
 
     rename vars to just nplc_measure and nplc_range
     because it's nothing to do with adc.
