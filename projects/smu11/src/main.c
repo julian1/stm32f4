@@ -727,7 +727,7 @@ static void range_current_set(app_t *app, irange_t irange)
     case irange_100mA:
     case irange_10mA:
 
-      // VERY IMPORTANT - ensure high current output relay is on. and low current relay off.
+      // VERY IMPORTANT - ensure high current output relay is on. and low current relay off. before open big fets.
       // before make changes that might increase current.
       output_set(app, app->irange, app->output);
       msleep(1);
@@ -804,7 +804,7 @@ static void range_current_set(app_t *app, irange_t irange)
     case irange_10uA:
     // y
     case irange_1uA:
- 
+
 
       // turn off all fets used on comx range
       io_write(app->spi, REG_IRANGE_X_SW, 0 );
@@ -812,10 +812,6 @@ static void range_current_set(app_t *app, irange_t irange)
       io_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
       // turn on sense amplifier 3
       io_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
-
-      // turn off high current output relay... if need be. only after new range in effect
-      msleep(1);
-      output_set(app, app->irange, app->output);
 
 
       switch(app->irange) {
@@ -864,6 +860,16 @@ static void range_current_set(app_t *app, irange_t irange)
           ASSERT(0);
 
       }
+
+      // wait until have settled at lower current before turn off big relay, and on the reed relay. if coming from high-current range.
+      // eg. should be done last.
+      output_set(app, app->irange, app->output);
+      msleep(1);
+
+      break;
+    
+
+
 
 
   }
