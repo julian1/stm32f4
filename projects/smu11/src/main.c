@@ -370,7 +370,8 @@ typedef enum irange_t
 {
   // TODO rename range_current_none, range_current_1x etc.
 
-  irange_100nA = 3,
+  irange_10nA = 3,
+  irange_100nA,
   irange_1uA,
 
   irange_10uA ,
@@ -654,10 +655,9 @@ static const char * range_current_string( irange_t irange)
 
   switch(irange)
   {
-
+    case irange_10nA:   return "10nA";
     case irange_100nA:  return "100nA" ;
     case irange_1uA:    return "1uA" ;
-
     case irange_10uA:   return "10uA" ;
     case irange_100uA:  return "100uA";
     case irange_1mA:    return "1mA";
@@ -667,8 +667,10 @@ static const char * range_current_string( irange_t irange)
     case irange_10A:    return "10A";
   };
 
+  usart_printf("error. range_current irange is %d\n", irange );
   // suppress compiler warning...
-  return "error";
+  // ASSERT(0);
+  return "irange error";
 }
 
 
@@ -685,10 +687,9 @@ static irange_t range_current_next( irange_t irange, bool dir)
     // lower current range. ie. higher value shunt resistor.
     switch(irange)
     {
-
-      case irange_100nA:  return irange_100nA;
-      case irange_1uA:    return irange_100nA;  // no change
-
+      case irange_10nA:   return irange_10nA; // no change
+      case irange_100nA:  return irange_10nA;
+      case irange_1uA:    return irange_100nA;
       case irange_10uA:   return irange_1uA;
       case irange_100uA:  return irange_10uA;
       case irange_1mA:    return irange_100uA;
@@ -697,14 +698,13 @@ static irange_t range_current_next( irange_t irange, bool dir)
       case irange_1A:     return irange_100mA;
       case irange_10A:    return irange_1A;
     };
-
   } else {
     // higher current range. ie lower value shunt resistor
     switch(irange)
     {
+      case irange_10nA:   return irange_100nA;
       case irange_100nA:  return irange_1uA;
       case irange_1uA:    return irange_10uA;
-
       case irange_10uA:   return irange_100uA;
       case irange_100uA:  return irange_1mA;
       case irange_1mA:    return irange_10mA;
@@ -716,6 +716,7 @@ static irange_t range_current_next( irange_t irange, bool dir)
   }
 
   // suppress compiler warning...
+  ASSERT(0);
   return (irange_t)-9999;
 }
 
@@ -828,6 +829,7 @@ static void range_current_set(app_t *app, irange_t irange)
     // y
     case irange_1uA:
     case irange_100nA:
+    case irange_10nA:
 
       // turn off all fets used on comx range
       io_write(app->spi, REG_IRANGE_X_SW, 0 );
@@ -869,9 +871,10 @@ static void range_current_set(app_t *app, irange_t irange)
           }
           break;
 
-
         case irange_1uA:
         case irange_100nA:
+        case irange_10nA:
+
           // IMPORTANT DONT forget to add star jumper to star gnd!!!.
           // turn on current range relay Z
           io_write(app->spi, REG_RELAY_COM,  RELAY_COM_Z);
@@ -886,6 +889,10 @@ static void range_current_set(app_t *app, irange_t irange)
             case irange_100nA:
               // turn on jfet 2
               io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);
+              break;
+            case irange_10nA:
+              // turn on jfet 3
+              io_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW3_CTL);
               break;
             default:
               ASSERT(0);
@@ -902,10 +909,6 @@ static void range_current_set(app_t *app, irange_t irange)
       output_set(app, app->irange, app->output);
 
       break;
-
-
-
-
 
   }
 }
@@ -927,6 +930,8 @@ static float range_current_multiplier(irange_t irange)
   switch(irange)
   {
     // ie. expressed on 10V range
+
+    case irange_10nA:   return 1e-9f;
     case irange_100nA:  return 1e-8f;
     case irange_1uA:    return 1e-7f;
     case irange_10uA:   return 0.000001f;
@@ -1156,6 +1161,7 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
       // switch( app->irange)
       switch( irange)
       {
+        case irange_10nA:
         case irange_100nA:
         case irange_1uA:
         case irange_10uA:
@@ -1199,24 +1205,21 @@ static void print_current(irange_t irange, float val)
   */
   char buf[100];
 
-  // usart_printf(" here " );
-
   switch( irange)
   {
-    // not sure whether we should care about this...
+    // not sure whether we should care about the range....
+    // looks like 34401a does. value 120mV versus 0.12V depends on active range.
+    case irange_10nA:
 
-    case irange_100nA:
       // when power is off... kind of nice to report...
       if(fabs(val) * 1e10f > 1.f)
-        // usart_printf("%fnA", val * 1e9f);
         usart_printf("%snA", format_float(buf, ARRAY_SIZE(buf), val * 1e+9f, 6) ); // 6 digits
       else
-        // this will be more valid, with a higher valued resistor 100M or 1G.
-        // usart_printf("%fpA", val * 1e12f);
         usart_printf("%spA", format_float(buf, ARRAY_SIZE(buf), val * 1e+12f, 6) ); // 6 digits
       break;
 
 
+    case irange_100nA:
     case irange_1uA:
       usart_printf("%snA", format_float(buf, ARRAY_SIZE(buf), val * 1e+9f, 6) ); // 6 digits
       break;
@@ -1983,9 +1986,13 @@ static int irange_and_iset_from_current(float i, irange_t *irange, float *iset)
     *irange = irange_1uA;
     *iset = i * 1e+7f;
   }
-  else {
+  else if(ai > 1e-8f)  {
     *irange = irange_100nA;
     *iset = i * 1e+8f;
+  }
+  else { 
+    *irange = irange_10nA;
+    *iset = i * 1e+9f;
   }
 
   return 0;
