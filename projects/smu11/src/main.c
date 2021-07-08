@@ -113,6 +113,12 @@
               nplc_measure 50
               nplc_range   20
 
+     -------------
+      - need to take some pics of mean,sd on different ranges.
+          before try on higher current external linear/toroid supply.
+
+
+      - EXT. need to test with the usb ftdi - for fpga programming (with possible coupled) noise - on the gnd plane.
 
       Ext. DRIVEN guard.
         think the low-guard - could be used as on pcb driven guard. to protect com.
@@ -130,8 +136,6 @@
 
       - maybe. change so cmd input buffer. maybe need ':' char. just test if non empty (meaning not consumed by single char action).
         and then treat as a command.
-
-      - need to take some pics of mean,sd on different ranges.  then test on external toroid.
 
       - ncurses?
           https://github.com/infinnovation-dev/incurses
@@ -1990,7 +1994,7 @@ static int irange_and_iset_from_current(float i, irange_t *irange, float *iset)
     *irange = irange_100nA;
     *iset = i * 1e+8f;
   }
-  else { 
+  else {
     *irange = irange_10nA;
     *iset = i * 1e+9f;
   }
