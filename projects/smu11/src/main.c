@@ -1514,6 +1514,7 @@ static void update_nplc_measure(app_t *app)
     // rails
     char buf1[100];
     // usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
+    // Math.log10( Math.pow(2, 12) ) == 3.6 digits for 12 bits rep.
     usart_printf("lp15v %sV\n", format_float(buf1, sizeof(buf1), app->lp15v, 4) ); // 4 digits
     usart_printf("ln15v %sV\n", format_float(buf1, sizeof(buf1), app->ln15v, 4) ); // 4 digits
 
