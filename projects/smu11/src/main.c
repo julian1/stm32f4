@@ -131,7 +131,7 @@
       - maybe. change so cmd input buffer. maybe need ':' char. just test if non empty (meaning not consumed by single char action).
         and then treat as a command.
 
-
+      - need to take some pics of mean,sd on different ranges.  then test on external toroid.
 
       - ncurses?
           https://github.com/infinnovation-dev/incurses
@@ -1615,7 +1615,7 @@ static void update_adc_drdy(app_t *app)
   ASSERT(fBufCount(&app->vfb_range) ==  fBufCount(&app->ifb_range));
 
 
-  if(ifb > 1.f /*3.f*/ && app->irange == irange_10A) {
+  if(fabs(ifb) > 1.f /*3.f*/ && app->irange == irange_10A) {
 
     usart_printf("unknown overcurrent condition\n");
     // unknown over-current condition
