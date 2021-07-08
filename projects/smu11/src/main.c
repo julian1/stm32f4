@@ -96,40 +96,42 @@
 
       - done - terminal char - to clear screen. for better logging.
 
-      -       FILE *fopencookie(void *cookie, const char *mode,
-                         cookie_io_functions_t io_funcs);
-              Nice. allows a structure of custom functions. to impement.
-              cookie is just the context... that then gets past.
-
       - done - rather than report vfb ifb every 500ms etc.
           - should report it as a multiple of the adc interupt count. eg. NPLC.
           - NPLC=1/50th.  setting for 50=1s, 10=1/5th s, 100=2s etc.
 
       - done - want a adc value buffer.  for stddev. etc.
 
-    Ext. DRIVEN guard.
-      think the low-guard - could be used as on pcb driven guard. to protect com. 
-      BECAUSE. at very low current - these become the same.
-      - and it *is* com anyway when not using 4-wire.
+      - done - print the rails voltages as well. maybe.
+
+      - done - use resolution and add units. and add 'rails' field in output formatting.
+              rails_lp15v
+              lp15v 15.179769    ln15v 15.105192
+
+      - done - rename vars to just nplc_measure and nplc_range
+        because it's nothing to do with adc.
+              nplc_measure 50
+              nplc_range   20
 
 
+      Ext. DRIVEN guard.
+        think the low-guard - could be used as on pcb driven guard. to protect com.
+        BECAUSE. at very low current - these become the same.
+        - and it *is* com anyway when not using 4-wire.
 
-    rename vars to just nplc_measure and nplc_range
-    because it's nothing to do with adc.
-          adc_nplc_measure 50
-          adc_nplc_range   20
 
-    use resolution and add units. and add 'rails' field in output formatting.
-      rails_lp15v
-      lp15v 15.179769    ln15v 15.105192
-
+      - FILE *fopencookie(void *cookie, const char *mode,
+                         cookie_io_functions_t io_funcs);
+              Nice. allows a structure of custom functions. to impement.
+              alterantive to va_arg etc...
+              and avoid double buffering.
+              cookie is just the context... that then gets past.
 
 
       - maybe. change so cmd input buffer. maybe need ':' char. just test if non empty (meaning not consumed by single char action).
         and then treat as a command.
 
 
-      - print the rails voltages as well. maybe.
 
       - ncurses?
           https://github.com/infinnovation-dev/incurses
@@ -138,6 +140,7 @@
           https://github.com/ChrisMicro/mcurses
 
       - range switching...
+          code change - so that record dac value changes. and can always correct an incorrect range.
 
       - it ought to be possible to cal both voltage, and current (using the 10M and 10G voltage ranges).
 
@@ -145,7 +148,6 @@
           - eg. struct core. rather than struct app. even if put output bool inside core. etc.
           - or have to inject a few vars.
           - likewise adc functionality.
-
 
       - should populate and test the single-ended gain stage.
           good to be complete - and see in practice.  even if offset voltage is not adjusted.
@@ -437,8 +439,8 @@ typedef struct app_t
   // float     ifb;
 
   /////////////
-  uint32_t  adc_nplc_measure;
-  uint32_t  adc_nplc_range;
+  uint32_t  nplc_measure;
+  uint32_t  nplc_range;
 
 
   FBuf      vfb_measure;
@@ -1400,7 +1402,7 @@ static void update_nplc_measure(app_t *app)
 
   ASSERT(app->state ==  ANALOG_UP);
 
-  ASSERT(fBufCount(&app->vfb_measure) == app->adc_nplc_measure);
+  ASSERT(fBufCount(&app->vfb_measure) == app->nplc_measure);
   ASSERT(fBufCount(&app->vfb_measure) > 0);
   ASSERT(fBufCount(&app->ifb_measure) == fBufCount(&app->vfb_measure));
 
@@ -1503,16 +1505,18 @@ static void update_nplc_measure(app_t *app)
     usart_printf("ifb last %f    imean %f    istddev %f\n", ifb, imean, isd);
 
 
-    usart_printf("adc_nplc_measure %d\n",app->adc_nplc_measure);
-    usart_printf("adc_nplc_range   %d\n",app->adc_nplc_range);
+    usart_printf("nplc_measure %d\n",app->nplc_measure);
+    usart_printf("nplc_range   %d\n",app->nplc_range);
 
     usart_printf("adc ov %d\n", app->adc_ov_count);
 
 
-    // char buf[100];
-    // usart_printf("%sV", format_float(buf, ARRAY_SIZE(buf), val, 5) ); // 6 digits
+    // rails
+    char buf1[100];
+    // usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
+    usart_printf("lp15v %sV\n", format_float(buf1, sizeof(buf1), app->lp15v, 4) ); // 4 digits
+    usart_printf("ln15v %sV\n", format_float(buf1, sizeof(buf1), app->ln15v, 4) ); // 4 digits
 
-    usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
 
     usart_printf("output %s\n", (app->output) ? "on" : "off" );
 
@@ -1540,7 +1544,7 @@ static void update_nplc_range(app_t *app)
 {
   ASSERT(app->state ==  ANALOG_UP);
 
-  ASSERT(fBufCount(&app->vfb_range) == app->adc_nplc_range);
+  ASSERT(fBufCount(&app->vfb_range) == app->nplc_range);
   ASSERT(fBufCount(&app->vfb_range) > 0);
   ASSERT(fBufCount(&app->ifb_range) == fBufCount(&app->vfb_range));
 
@@ -1629,7 +1633,7 @@ static void update_adc_drdy(app_t *app)
 
 
   // do measure reporting
-  if(fBufCount(&app->vfb_measure) == app->adc_nplc_measure)
+  if(fBufCount(&app->vfb_measure) == app->nplc_measure)
   {
     update_nplc_measure(app);
     // should be done where?...
@@ -1640,7 +1644,7 @@ static void update_adc_drdy(app_t *app)
   }
 
   // do ranging
-  if( fBufCount(&app->vfb_range) == app->adc_nplc_range)
+  if( fBufCount(&app->vfb_range) == app->nplc_range)
   {
     update_nplc_range(app);
     ASSERT(fBufCount(&app->vfb_range) == 0);
@@ -2388,8 +2392,8 @@ int main(void)
   app.print_adc_values = true;
   app.output = false;
 
-  app.adc_nplc_measure = 50;
-  app.adc_nplc_range   = 20;
+  app.nplc_measure = 50;
+  app.nplc_range   = 20;
 
   // uart/console
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
