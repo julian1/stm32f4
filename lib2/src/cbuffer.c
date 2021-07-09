@@ -22,11 +22,13 @@
  45       this is where the update of the index, and the write of the value can go wrong.
 */
 
+#define _GNU_SOURCE     // required for cookie_io_functions_t
+#include <stdio.h>
+
 
 #include "cbuffer.h"
 #include "assert.h"
 
-// TODO rename write() to put(), read() to get(), or even push() and pop()
 
 
 // char buffer
@@ -37,6 +39,7 @@ void cBufInit(CBuf *a, char *p, size_t sz)
   ASSERT(a);
   ASSERT(p);
   ASSERT(sz > 0);
+
   a->p = p;
   a->sz = sz;
   a->wi = 0;
@@ -45,30 +48,22 @@ void cBufInit(CBuf *a, char *p, size_t sz)
 
 void cBufPush(CBuf *a, char val)
 {
+/*
+  ASSERT(a);
+  ASSERT(a->p);
+  ASSERT(a->wi < a->sz );
+  ASSERT( a->sz > 0);
+*/
+
   (a->p)[a->wi] = val;
   a->wi = (a->wi + 1) % a->sz;
 }
 
-bool cBufisEmpty(CBuf *a)
-{
-  return a->ri == a->wi;
-}
-
-
-size_t cBufCount(CBuf *a)
-{
-  // note, not correct if overflows...
-  int n = a->wi - a->ri;
-  if(n < 0)
-    n += a->sz;
-
-  return n;
-}
 
 
 int32_t cBufPop(CBuf *a)
 {
-  // ie as fifo. pop first
+  // ie as fifo. pop first pushed. *not* most recent.
   ASSERT(a->ri != a->wi);
 
   // read then update index. - but could be reordered by compiler
@@ -79,18 +74,38 @@ int32_t cBufPop(CBuf *a)
 }
 
 
-int32_t cBufPeekFirst(CBuf *a)
+
+
+bool cBufisEmpty(const CBuf *a)
+{
+  return a->ri == a->wi;
+}
+
+
+size_t cBufCount(const CBuf *a)
+{
+  // note, not correct if overflows...
+  int n = a->wi - a->ri;
+  if(n < 0)
+    n += a->sz;
+
+  return n;
+}
+
+
+int32_t cBufPeekFirst(const CBuf *a)
 {
   // ie. peek first char to be pushed, considered as fifo.
+  // eg. char that will be popped
+  // TODO rename cBufPeek()
   ASSERT(a->ri != a->wi);
 
   return (a->p)[a->ri];
 }
 
 
-// No. our Peek chage is wrong... pop should be the same as peek...
 
-int32_t cBufPeekLast(CBuf *a)
+int32_t cBufPeekLast(const CBuf *a)
 {
   // last item to be pushed...
   ASSERT(a->ri != a->wi);
@@ -128,10 +143,10 @@ int32_t cBufCopyString(CBuf *a, char *p, size_t n)
 }
 
 
-int32_t cBufCopyString2(CBuf *a, char *p, size_t n)
+int32_t cBufCopyString2(const CBuf *a, char *p, size_t n)
 {
   // could use more testing
-  // copy and leave intact without consuming
+  // copy and leave and don't consume, leaving buf intact
   // for c-style strings, so handle sentinel
 
   size_t ri = a->ri;
@@ -149,5 +164,115 @@ int32_t cBufCopyString2(CBuf *a, char *p, size_t n)
   p[i++] = 0;
   return i;
 }
+
+
+
+///////////////////
+
+// consumes...
+// no sentinel
+
+/*
+  for use with cookie_io_functions_t
+*/
+
+int32_t cBufRead(CBuf *a, char *p, size_t n)
+{
+
+  // read from the buf
+  size_t i = 0;
+
+  while(i < n && !cBufisEmpty(a)) {
+    p[i++] = cBufPop(a);
+  }
+
+  return i;
+}
+
+
+ssize_t cBufWrite(CBuf *x, const char *buf, size_t size)
+{
+  /* more conventional interface
+  */
+  ASSERT(x->sz);
+
+  for(size_t i = 0; i < size; ++i)
+    cBufPush(x, buf[i]);
+
+  return size;
+}
+
+
+
+
+FILE * cBufMakeStream( CBuf *x )
+{
+  static cookie_io_functions_t  memfile_func = {
+       .read  = (void *) cBufRead,
+       .write = (void *) cBufWrite,
+       .seek  = NULL, // (void *) xseek,      // think seek might be needed to read...
+       .close = NULL  // close
+   };
+
+  // FILE *f = fopencookie(x, "w+", memfile_func);
+  // FILE *f = fopencookie(x, "w+", memfile_func);
+  FILE *f = fopencookie(x, "r+", memfile_func);
+  // FILE *f = fopencookie(x, "a+", memfile_func);
+
+  // WE MUST close this later...
+  return f;
+}
+
+
+///////////////
+
+
+#include <stdarg.h>     // vprintf, va_starrt etc
+
+
+void cBufprintf( CBuf *cookie,
+  ssize_t (*cBufWrite_)(CBuf *x, const char *buf, size_t size),
+  const char *format, ...)
+{
+  /*
+    printf like formatting to cBuf
+    - set up the stream, as required.
+    but how expensive is this? versus passing the stream cookie to multiple formatting calls?
+    - note that we can actually pass a context as well if we want...
+  */
+  cookie_io_functions_t  memfile_func = {
+       .read  = NULL, // read
+       .write = (void *) cBufWrite_,
+       .seek  = NULL, // seek,
+       .close = NULL  // close
+   };
+
+  FILE *f = fopencookie(cookie, "w", memfile_func);
+  ASSERT(f);
+
+  va_list args;
+  va_start(args, format);
+  vfprintf(f, format, args);
+  va_end(args);
+
+  /* OK. closing f, fixes seg fault. even if occurs after expected seg.
+    perhaps due to the way all streams is flushed by os on process term?
+  */
+  fclose(f);
+}
+
+
+void cBufWriteStream(CBuf *x, FILE *stream)
+{
+  // read from buf, and write to stream
+  char buf[1000];
+  ssize_t n;
+  do {
+    n = cBufRead(x, buf, sizeof(buf));
+    fwrite(buf, 1, n, stream);
+  } while (n > 0);
+}
+
+
 
 
