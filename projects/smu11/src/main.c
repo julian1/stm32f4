@@ -114,8 +114,21 @@
               nplc_range   20
 
      -------------
+
+      - linux vt100/ansi temerinal codes.      man console_codes
+
+      - if we had a mark() function on usart_out, then could do reasonable spacing...
+          - issue is formatting chars...
+          lseek() only works on filedescriptors. not FILE structure.
+          no. think should be using vt100 or ansi terminal commands.
+
+      - dac - calibration registers test.
+      - need to report against range whether its dac calibrated/ adc calibrated ...
+
       - need to take some pics of mean,sd on different ranges.
           before try on higher current external linear/toroid supply.
+
+          - or pause screen output. so can just copy&paste. text.
 
 
       - EXT. need to test with the usb ftdi - for fpga programming (with possible coupled) noise - on the gnd plane.
@@ -1197,11 +1210,30 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
 
 
 
+/*
+  - we should be passing either buf,size or else some kind of streaming interface...
+  - eg. console_cookie
+  - a FILE is the most generic stream  ie. cookie.
+  - fprintf(stream, )
+  --------------------
 
+  if we want to be able to left and right indent this stuff... (without vt100,ansi terminal commands )
+  then we need a much better interface...
 
+  ALTERNATIVELY. if have a get()
+    then we don't require the reverse() function... for float/integer formatting
+  --------
 
-static void print_current(irange_t irange, float val)
+  // snprintf(%s
+  // once have a string.
+  // can indent it, quite easily.  just using sprintf...
+
+*/
+
+static void print_current(/*char *p, size_t sz,*/ irange_t irange, float val)
 {
+
+  // snprintf(p, sz, "%snA", format_float(buf, ARRAY_SIZE(buf), val * 1e+9f, 6) ); // 6 digits
   /*
     improtant.
       formatting measured values, according to selected range (rather than value) is correct.
@@ -1248,14 +1280,20 @@ static void print_current(irange_t irange, float val)
       // usart_printf("%fA", val);
       usart_printf("%sA", format_float(buf, ARRAY_SIZE(buf), val, 6) ); // 6 digits
       break;
-
-
   }
 }
 
 
 static void print_voltage(vrange_t vrange, float val)
 {
+/*
+  - we need to pass in the buffer. and probably return it. and the number of digits. as well as the range.
+
+  - ALTERNATIVELY we pass in the streaming interface...  with mark() reverse() etc...
+  - snprintf can be modified to write to it also.
+
+*/
+
   char buf[100];
 
   // ie expressed on 10V range

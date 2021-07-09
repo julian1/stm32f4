@@ -21,8 +21,7 @@ typedef struct CBuf
 void cBufInit(CBuf *a, char *p, size_t sz);
 void cBufPush(CBuf *a, char val);
 
-bool    cBufisEmpty(CBuf *a);
-
+bool cBufisEmpty(CBuf *a);
 
 size_t cBufCount(CBuf *a);
 

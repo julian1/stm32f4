@@ -16,17 +16,50 @@
 
 // #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
+/*
+  for clean log formatting (without vt100, ansi terminal), then more control is good. 
+  it needs a get() function also to get contents. if want to consume()
 
+*/
 
+/*
+  This interface is pretty useful.
+  for - cookie printf based print functions
+  and for indenting left and right - complicated text
+  ------------- 
+
+  to be able to be consumed as a source... however... it needs more
+*/
 
 typedef struct J J;
 
 typedef struct J
 {
   void (*push)(J *ctx, unsigned ch);
+  // write(J *ctx, char *, size_t n )                 <- for efficiency. makes a more useful generalized stream interface. for format_bits, format_float , snprintf
+                                                      // actually push can be rewritten in terms of write(j,  &ch, 1); for better efficiency
   void (*reverse)(J *ctx, int count);
   size_t (*mark)(J *ctx);
 } J;
+
+
+// wrapper functions push(), mark(), reverse() make the interface easier and more opaque, to use regardless.
+// not sure.
+
+/*
+  ALTERNATIVELY. if have a get()  consume()  and separate buffers. 
+    then we don't require the reverse() function... for float/integer formatting
+*/
+
+
+
+#if 0
+
+void push(J *j, unsigned ch)
+{
+  j->write(j, &ch, 1);
+}
+#endif
 
 
 static void format_integer(J *j,  unsigned int x)
