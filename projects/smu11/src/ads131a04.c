@@ -5,8 +5,9 @@
 #include "ads131a04.h"
 
 #include "bits.h"
-#include "format_bits.h"
+// #include "format_bits.h"
 #include "util.h"   // usart_printf
+#include "str.h"   // format_bits()
 
 #include "core.h"
 

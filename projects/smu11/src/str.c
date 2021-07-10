@@ -1,7 +1,7 @@
 
 //
 #include <stdio.h>
-#include <stdarg.h> // va_starrt etc
+#include <stdarg.h> // va_start etc
 
 #include "assert.h"
 #include "str.h"
@@ -53,11 +53,24 @@ char * format_float(char *s, size_t sz, double value, int digits)
     printf("%0.*g\n",  5, -12.3456789 );     // -12.346
   */
 
-  ASSERT( digits < ((int)sz) - 2);  // basic basic check ... TODO review...
+  ASSERT( digits < ((int)sz) - 2);  // basic sanity check ... TODO review...
 
   snprintf(s, sz, "%0.*g\n",  digits, value);
   return s;
 }
 
+
+char * format_bits(char *buf, size_t width, uint32_t value)
+{
+  // passing the buf, means can use more than once in printf expression. using separate bufs
+  char *s = buf;
+
+  for(int i = width - 1; i >= 0; --i) {
+    *s++ = value & (1 << i) ? '1' : '0';
+  }
+
+  *s = 0;
+  return buf;
+}
 
 
