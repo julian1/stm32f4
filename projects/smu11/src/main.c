@@ -1524,7 +1524,7 @@ static void update_nplc_measure(app_t *app)
     float ifb = fBufPeekLast(&app->ifb_measure);
 
     char buf[100];
-    char buf2[100];
+    // char buf2[100];
 
 
     usart_printf("smart source measure unit\n");
@@ -1578,28 +1578,43 @@ static void update_nplc_measure(app_t *app)
 
     //////////
     usart_printf("\n\n");
+/*
     usart_printf( indent_left(buf, sizeof(buf), 4, "ifb:"));
 
     usart_printf(
       indent_right(buf2, sizeof(buf2), 10,
         format_current(buf, sizeof(buf), app->irange, ifb * range_current_multiplier(app->irange), 6)
       ));
+*/
+    usart_print_kv( "ifb:", 4, format_current(buf, sizeof(buf), app->irange, ifb * range_current_multiplier(app->irange), 6), 10 );
+
 
     usart_printf("  ");
+/*
     usart_printf( indent_left(buf, sizeof(buf), 4, "iset:"));
 
     usart_printf(
       indent_right(buf2, sizeof(buf2), 10,
         format_current(buf, sizeof(buf), app->iset_range, app->iset * range_current_multiplier(app->iset_range), 6)
       ));
+*/
+    usart_print_kv( "iset:", 4, format_current(buf, sizeof(buf), app->iset_range, app->iset * range_current_multiplier(app->iset_range), 6), 10 );
 
     usart_printf("  ");
+/*
     usart_printf( indent_left(buf, sizeof(buf), 10, "iset_range:"));
     usart_printf(indent_right(buf, sizeof(buf), 5, range_current_string(app->iset_range)));
+*/
+
+    usart_print_kv( "iset_range:", 10, range_current_string(app->iset_range), 5 );
 
     usart_printf("  ");
+/*
     usart_printf( indent_left(buf, sizeof(buf), 10, "irange:"));
     usart_printf(indent_right(buf, sizeof(buf), 5, range_current_string(app->irange)));
+*/
+
+    usart_print_kv( "irange:", 10, range_current_string(app->irange), 5 );
 
     if(app->irange == app->iset_range) {
       usart_printf("*");
