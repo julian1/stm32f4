@@ -341,10 +341,8 @@
 
 #define UNUSED(x) (void)(x)
 
-// here? or in mux.h.
+// define here? or in mux.h.
 // #define SPI_ICE40       SPI1
-
-
 
 
 
@@ -362,7 +360,7 @@
 
 
 
-// TODO prefix these... ST_FIRST... etc.
+// TODO maybe prefix these... ST_FIRST, ST_DIGITAL_UP ... etc.
 // also want a DONE state.
 
 
