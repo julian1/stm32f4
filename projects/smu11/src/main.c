@@ -1539,9 +1539,8 @@ static void update_nplc_measure(app_t *app)
     // or does vt100 or ansi terminal support pos in line?
 
     usart_printf("\n\n");
-
     usart_printf("ifb ");
-    // print_current(app->irange, ifb * range_current_multiplier(app->irange));
+
     char buf[100];
     char buf2[100];
 
@@ -1552,8 +1551,6 @@ static void update_nplc_measure(app_t *app)
 
     usart_printf("\t");
     usart_printf("iset ");
-    // print_current(app->iset_range, app->iset * range_current_multiplier(app->iset_range) );
-    // usart_printf( format_current(buf, sizeof(buf), app->iset_range, app->iset * range_current_multiplier(app->iset_range) ));
 
     usart_printf(
       indent_right(buf2, sizeof(buf2), 10,
