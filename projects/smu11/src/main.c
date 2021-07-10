@@ -113,9 +113,23 @@
               nplc_measure 50
               nplc_range   20
 
-     -------------
-      - we just need left and right indentation for values...  can do with %xs and  %-xs.
+      - done - we just need left and right indentation for values...  can do with %xs and  %-xs.
           field names left indent, values right indent
+
+
+     -------------
+
+      - want to output. current pl freq .    even if hard code.
+      - want to report the mean values for vfb, ifb.   maybe use vfbm ifbm names for vars.
+          - also test that values are correct.
+
+      -  use 5ohm power r. for load. eg. 5V 1A.
+
+      - need to copy paste mean,sd on different ranges. (or take pics) as a baseline for performance. 
+          before try on higher current external linear/toroid supply.
+
+          - or pause screen output. so can just copy&paste. text.
+
 
       - if don't clear the screen. then should be a lot easier. to print the main stuff.
         and we don't have to print the command prompt.
@@ -131,11 +145,6 @@
 
       - dac - calibration registers test.
       - need to report against range whether its dac calibrated/ adc calibrated ...
-
-      - need to take some pics of mean,sd on different ranges.
-          before try on higher current external linear/toroid supply.
-
-          - or pause screen output. so can just copy&paste. text.
 
 
       - EXT. need to test with the usb ftdi - for fpga programming (with possible coupled) noise - on the gnd plane.
@@ -780,6 +789,7 @@ static void range_current_set(app_t *app, irange_t irange)
 
       // VERY IMPORTANT - ensure high current output relay is on. and low current relay off. before open big fets.
       // before make changes that might increase current.
+      // make before break.
       output_set(app, app->irange, app->output);
       msleep(1);
 
