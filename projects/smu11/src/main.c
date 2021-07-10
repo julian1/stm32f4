@@ -1518,12 +1518,11 @@ static void update_nplc_measure(app_t *app)
     char buf2[100];
 
 
-
     usart_printf("smart source measure unit\n");
     usart_printf("\n");
 
     //////////
-    usart_printf(indent_left(buf, sizeof(buf), 10, "vfb"));
+    usart_printf(indent_left(buf, sizeof(buf), 4, "vfb:"));
 
     usart_printf(
       indent_right(buf2, sizeof(buf2), 10,
@@ -1531,7 +1530,7 @@ static void update_nplc_measure(app_t *app)
       ));
 
     usart_printf("  ");
-    usart_printf(indent_left(buf, sizeof(buf), 10, "vset"));
+    usart_printf(indent_left(buf, sizeof(buf), 4, "vset:"));
 
     usart_printf(
       indent_right(buf2, sizeof(buf2), 10,
@@ -1540,11 +1539,11 @@ static void update_nplc_measure(app_t *app)
 
     usart_printf("  ");
     usart_printf(indent_left( buf, sizeof(buf), 10, "vset_range:"));
-    usart_printf(indent_right(buf, sizeof(buf), 10, range_voltage_string(app->vset_range)));
+    usart_printf(indent_right(buf, sizeof(buf), 5, range_voltage_string(app->vset_range)));
 
     usart_printf("  ");
     usart_printf(indent_left( buf, sizeof(buf), 10, "vrange:"));
-    usart_printf(indent_right(buf, sizeof(buf), 10, range_voltage_string(app->vrange)));
+    usart_printf(indent_right(buf, sizeof(buf), 5, range_voltage_string(app->vrange)));
 
     if(app->vrange == app->vset_range) {
       usart_printf("*");
@@ -1552,7 +1551,7 @@ static void update_nplc_measure(app_t *app)
 
     //////////
     usart_printf("\n\n");
-    usart_printf( indent_left(buf, sizeof(buf), 10, "ifb"));
+    usart_printf( indent_left(buf, sizeof(buf), 4, "ifb:"));
 
     usart_printf(
       indent_right(buf2, sizeof(buf2), 10,
@@ -1560,7 +1559,7 @@ static void update_nplc_measure(app_t *app)
       ));
 
     usart_printf("  ");
-    usart_printf( indent_left(buf, sizeof(buf), 10, "iset"));
+    usart_printf( indent_left(buf, sizeof(buf), 4, "iset:"));
 
     usart_printf(
       indent_right(buf2, sizeof(buf2), 10,
@@ -1569,11 +1568,11 @@ static void update_nplc_measure(app_t *app)
 
     usart_printf("  ");
     usart_printf( indent_left(buf, sizeof(buf), 10, "iset_range:"));
-    usart_printf(indent_right(buf, sizeof(buf), 10, range_current_string(app->iset_range)));
+    usart_printf(indent_right(buf, sizeof(buf), 5, range_current_string(app->iset_range)));
 
     usart_printf("  ");
     usart_printf( indent_left(buf, sizeof(buf), 10, "irange:"));
-    usart_printf(indent_right(buf, sizeof(buf), 10, range_current_string(app->irange)));
+    usart_printf(indent_right(buf, sizeof(buf), 5, range_current_string(app->irange)));
 
     if(app->irange == app->iset_range) {
       usart_printf("*");
