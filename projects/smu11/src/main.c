@@ -1478,6 +1478,15 @@ static void update_soft_500ms(app_t *app)
 
 
 
+static void usart_print_kv( const char *fs, int fwidth, const char *vs, int vwidth )
+{
+  char buf[100];
+
+  usart_printf(indent_left(buf, sizeof(buf), fwidth, fs));
+
+  usart_printf( indent_right(buf, sizeof(buf), vwidth, vs));
+
+}
 
 
 static void update_nplc_measure(app_t *app)
@@ -1522,28 +1531,46 @@ static void update_nplc_measure(app_t *app)
     usart_printf("\n");
 
     //////////
+
+    usart_print_kv( "vfb:" , 4, format_voltage(buf, sizeof(buf), app->vrange, vfb * range_voltage_multiplier(app->vrange), 6 ), 10 );
+
+/*
     usart_printf(indent_left(buf, sizeof(buf), 4, "vfb:"));
 
     usart_printf(
       indent_right(buf2, sizeof(buf2), 10,
         format_voltage(buf, sizeof(buf), app->vrange, vfb * range_voltage_multiplier(app->vrange), 6 )
       ));
+*/
 
     usart_printf("  ");
+
+/*
     usart_printf(indent_left(buf, sizeof(buf), 4, "vset:"));
 
     usart_printf(
       indent_right(buf2, sizeof(buf2), 10,
         format_voltage(buf, sizeof(buf), app->vset_range, app->vset * range_voltage_multiplier(app->vset_range), 6)
       ));
+*/
+
+    usart_print_kv( "vset:" , 4, format_voltage(buf, sizeof(buf), app->vset_range, app->vset * range_voltage_multiplier(app->vset_range), 6), 10 );
 
     usart_printf("  ");
+/*
     usart_printf(indent_left( buf, sizeof(buf), 10, "vset_range:"));
     usart_printf(indent_right(buf, sizeof(buf), 5, range_voltage_string(app->vset_range)));
+*/
+
+    usart_print_kv( "vset_range:", 10,  range_voltage_string(app->vset_range), 5);
+
 
     usart_printf("  ");
+/*
     usart_printf(indent_left( buf, sizeof(buf), 10, "vrange:"));
     usart_printf(indent_right(buf, sizeof(buf), 5, range_voltage_string(app->vrange)));
+*/
+    usart_print_kv( "vrange:", 10,  range_voltage_string(app->vrange), 5);
 
     if(app->vrange == app->vset_range) {
       usart_printf("*");
