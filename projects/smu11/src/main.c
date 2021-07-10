@@ -317,7 +317,6 @@
 #include <stdio.h>    // sscanf
 #include <string.h>   // strcmp
 
-#include <stdarg.h> // va_starrt etc
 
 
 #include "assert.h"
@@ -333,7 +332,9 @@
 #include "dac8734.h"
 #include "ads131a04.h"
 
-#include "format_float.h"
+// #include "format_float.h"
+
+#include "str.h"
 #include "stats.h"
 
 #include "core.h"   // some of the above files include core.h. need header guards.
@@ -1268,6 +1269,62 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
 
 
 
+#if 0
+static char * indent_left(char *s, size_t sz, int indent, const char *string)
+{
+  // left indent, is pad to right, for field name
+  snprintf(s, sz, "%-*s", indent, string );
+  return s;
+}
+
+
+
+static char * indent_right(char *s, size_t sz, int indent, const char *string)
+{
+  // right indent, is pad to left, for field value
+  snprintf(s, sz, "%*s", indent, string);
+  return s;
+}
+
+
+
+static char * snprintf2(char *s, size_t sz, const char *format, ...)
+{
+  // same as snprintf but return the input buffer, as convenience for caller
+	va_list args;
+	va_start(args, format);
+	vsnprintf(s, sz, format, args);
+	va_end(args);
+
+  return s;
+}
+
+
+// char * format_float(char *s, size_t len, double value, int digits);
+
+#if 1
+
+static char * format_float(char *s, size_t sz, double value, int digits)
+{
+  /*
+    // eg. works
+    printf("%0.*g\n",  5, 123.456789 );      // 123.46
+    printf("%0.*g\n",  5, 12.3456789 );      // 12.346
+    printf("%0.*g\n",  5, -12.3456789 );     // -12.346
+  */
+
+  snprintf(s, sz, "%0.*g\n",  digits, value);
+  return s;
+}
+
+#endif
+
+#endif
+
+
+
+
+// extern char * format_float(char *buf, size_t len, double value, int digits);
 
 
 static char * format_current(char *s, size_t sz, irange_t irange, float val, int digits)
@@ -1315,6 +1372,9 @@ static char * format_current(char *s, size_t sz, irange_t irange, float val, int
     case irange_10A:
       snprintf(s, sz, "%sA", format_float(buf, sizeof(buf), val, digits));
       break;
+
+    default:
+      ASSERT(0);
   }
 
   return s;
@@ -1334,7 +1394,7 @@ static char * format_voltage(char *s, size_t sz, vrange_t vrange, float val, int
   {
     case vrange_100V:
     case vrange_10V:
-      snprintf(s, sz, "%sV", format_float(buf, ARRAY_SIZE(buf), val, digits));
+      snprintf(s, sz, "%sV", format_float(buf, sizeof(buf), val, digits));
       break;
 
     case vrange_1V:
@@ -1342,6 +1402,9 @@ static char * format_voltage(char *s, size_t sz, vrange_t vrange, float val, int
       // TODO 1e+3f
       snprintf(s, sz, "%smV", format_float(buf, sizeof(buf), val * 1000, digits));
       break;
+
+    default:
+      ASSERT(0);
   }
 
   return s;
@@ -1351,34 +1414,7 @@ static char * format_voltage(char *s, size_t sz, vrange_t vrange, float val, int
 
 
 
-static char * indent_left(char *s, size_t sz, int indent, const char *string)
-{
-  // left indent, is pad to right, for field name
-  snprintf(s, sz, "%-*s", indent, string );
-  return s;
-}
 
-
-
-static char * indent_right(char *s, size_t sz, int indent, const char *string)
-{
-  // right indent, is pad to left, for field value
-  snprintf(s, sz, "%*s", indent, string);
-  return s;
-}
-
-
-
-static char * snprintf2(char *s, size_t sz, const char *format, ...)
-{
-  // same as snprintf but return the input buffer, as convenience for caller
-	va_list args;
-	va_start(args, format);
-	vsnprintf(s, sz, format, args);
-	va_end(args);
-
-  return s;
-}
 
 
 static void usart_print_kv(int fwidth, const char *fs, int vwidth,  const char *vs)
