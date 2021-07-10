@@ -6,6 +6,17 @@
 #include "format_float.h"
 
 /*
+  TOO.
+  OK. float formatting does need rouding. and propagation 
+    eg. frequenly get 0.99999  instead of 1.0
+    because we are not rounding.
+
+  - this means we need a loop to run a separate buffer from lsd to hsd and propagate rounding up.
+  - and probably should work out all significant digits for the representation eg. 4 bit float, 8 bit double. 
+
+*/
+
+/*
   it's the ptr and bounds checkign that makes this ugly....
   issue is that we need to be able to reverse...
 */
