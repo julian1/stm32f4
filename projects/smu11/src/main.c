@@ -1468,6 +1468,12 @@ static void spi1_interupt(app_t *app)
 
   ++app->adc_drdy_count;
 
+  if(app->adc_drdy == true) {
+
+    // we missed reading last time...
+    usart_printf("missed adc read cycle\n");
+  }
+
   // set update to read...
   app->adc_drdy = true;
 }
@@ -1543,6 +1549,8 @@ static void update_nplc_measure(app_t *app)
 /*
   we need to know the cost of this calculation.
   since it's possible we could miss reading the adc on the power-line cycle.
+  ----
+  is there a way to tell... if we missed....
 
 */
     // most recent measurements
