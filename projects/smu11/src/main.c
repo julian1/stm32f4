@@ -1345,32 +1345,32 @@ static char * format_current(char *s, size_t sz, irange_t irange, float val, int
 
       // when power is off... kind of nice to report...
       if(fabs(val) * 1e10f > 1.f)
-        snprintf(s, sz, "%snA", format_float(buf, sizeof(buf), val * 1e+9f, digits));
+        snprintf(s, sz, "%snA", format_float(buf, sizeof(buf), digits, val * 1e+9f));
       else
-        snprintf(s, sz, "%spA", format_float(buf, sizeof(buf), val * 1e+12f, digits));
+        snprintf(s, sz, "%spA", format_float(buf, sizeof(buf), digits, val * 1e+12f));
       break;
 
 
     case irange_100nA:
     case irange_1uA:
-      snprintf(s, sz, "%snA", format_float(buf, sizeof(buf), val * 1e+9f, digits));
+      snprintf(s, sz, "%snA", format_float(buf, sizeof(buf), digits, val * 1e+9f));
       break;
 
     case irange_10uA:
     case irange_100uA:
     case irange_1mA:
-      snprintf(s, sz, "%suA", format_float(buf, sizeof(buf), val * 1e+6f, digits));
+      snprintf(s, sz, "%suA", format_float(buf, sizeof(buf), digits, val * 1e+6f));
       break;
 
     case irange_10mA:
     case irange_100mA:
     case irange_1A:
       // TODO 0.7A better as 0.7A. 0.6A better as 600mA. think..
-      snprintf(s, sz, "%smA", format_float(buf, sizeof(buf), val * 1e+3f, digits));
+      snprintf(s, sz, "%smA", format_float(buf, sizeof(buf), digits, val * 1e+3f));
       break;
 
     case irange_10A:
-      snprintf(s, sz, "%sA", format_float(buf, sizeof(buf), val, digits));
+      snprintf(s, sz, "%sA", format_float(buf, sizeof(buf), digits, val));
       break;
 
     default:
@@ -1394,13 +1394,12 @@ static char * format_voltage(char *s, size_t sz, vrange_t vrange, float val, int
   {
     case vrange_100V:
     case vrange_10V:
-      snprintf(s, sz, "%sV", format_float(buf, sizeof(buf), val, digits));
+      snprintf(s, sz, "%sV", format_float(buf, sizeof(buf), digits, val));
       break;
 
     case vrange_1V:
     case vrange_100mV:
-      // TODO 1e+3f
-      snprintf(s, sz, "%smV", format_float(buf, sizeof(buf), val * 1000, digits));
+      snprintf(s, sz, "%smV", format_float(buf, sizeof(buf), digits, val * 1e+3f));
       break;
 
     default:

@@ -44,7 +44,7 @@ char * snprintf2(char *s, size_t sz, const char *format, ...)
   so compiler is doing printf format checking on the inlined function.
 */
 
-char * format_float(char *s, size_t sz, double value, int digits)
+char * format_float(char *s, size_t sz, int digits, double value)
 {
   /*
     // eg. works
