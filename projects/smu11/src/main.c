@@ -1525,13 +1525,6 @@ static void update_nplc_measure(app_t *app)
     // https://stackoverflow.com/questions/60293014/how-to-clear-screen-of-minicom-terminal-using-serial-uart
     // usart_printf("%c%c%c%c",0x1B,0x5B,0x32,0x4A);
     // https://electronics.stackexchange.com/questions/8874/is-it-possible-to-send-characters-through-serial-to-go-up-a-line-on-the-console
-#if 1
-    usart_printf("\033[2J");    // clear screen
-    usart_printf("\033[0;0H");  // cursor to top left
-    // usart_printf("\033[10B");   // move cursor down 10 lines ... works
-    // usart_printf("\033[3B");   // move cursor down 3 lines ... works
-#endif
-
 
     // position cursor top left?
 
@@ -1565,6 +1558,16 @@ static void update_nplc_measure(app_t *app)
 
 
     char buf[100];
+
+    // clear screen only after calculation... for cleaner update
+#if 1
+    usart_printf("\033[2J");    // clear screen
+    usart_printf("\033[0;0H");  // cursor to top left
+    // usart_printf("\033[10B");   // move cursor down 10 lines ... works
+    // usart_printf("\033[3B");   // move cursor down 3 lines ... works
+#endif
+
+
 
     usart_printf("smart source measure unit\n");
     usart_printf("\n");
@@ -1640,6 +1643,20 @@ static void update_nplc_measure(app_t *app)
     // Math.log10( Math.pow(2, 12) ) == 3.6 digits for 12 bits rep.
     // appropriate format_voltage() function to format the rails voltages
     usart_printf("\n");
+
+    /*
+      // something weird here....  when set for output 3mA. output rises to 16.00V... error in formatting?
+
+      5V rail is at 4V. perhaps current draw from output relay is too much ...
+      should measure this.
+      -------
+      ok. 1mA, 1uA, 1nA holds 6th current digit just about still. with nplc 50.
+      that's pretty damn good.
+
+    */
+
+    // usart_printf("%f   %f\n", app->lp15v, app->ln15v);
+
     usart_print_kv( 15, "lp15v:", 6, format_voltage(buf, sizeof(buf), vrange_10V, app->lp15v, 4));
     usart_printf("\n");
     usart_print_kv( 15, "ln15v:", 6, format_voltage(buf, sizeof(buf), vrange_10V, app->ln15v, 4));
