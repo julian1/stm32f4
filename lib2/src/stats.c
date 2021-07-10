@@ -41,10 +41,10 @@ static double square(double x)
 }
 
 
-double sum(float *p, size_t n)
+double sum(const float *p, size_t n)
 {
   double sum = 0;
-  float *end = p + n;
+  const float *end = p + n;
   while(p < end)
     sum += *p++;
 
@@ -52,10 +52,10 @@ double sum(float *p, size_t n)
 }
 
 
-static double sumX2(float *p, size_t n)
+static double sumX2(const float *p, size_t n)
 {
   double sum = 0;
-  float *end = p + n;
+  const float *end = p + n;
   while(p < end)
     sum += square(*p++);
 
@@ -65,18 +65,18 @@ static double sumX2(float *p, size_t n)
 // mean, stddeve, rms are all the same values?????
 // so if they're the same then we return 0...
 
-double mean(float *p, size_t n)
+double mean(const float *p, size_t n)
 {
   return sum(p, n) / n;
 }
 
 
-double variance(float *p, size_t n)
+double variance(const float *p, size_t n)
 {
   double m = mean(p, n);
-
   double sum = 0;
-  float *end = p + n;
+
+  const float *end = p + n;
   while(p < end)
     sum += square(*p++ - m);
 
@@ -85,13 +85,13 @@ double variance(float *p, size_t n)
 
 // population. should probably be sample.
 
-double stddev(float *p, size_t n)
+double stddev(const float *p, size_t n)
 {
   return sqrt(variance(p, n));
 }
 
 
-double stddev2(float *p, size_t n)
+double stddev2(const float *p, size_t n)
 {
   // alternate calc approach. also works.
   double j = (sumX2(p, n) / n) - square(sum(p, n) / n);
@@ -100,7 +100,7 @@ double stddev2(float *p, size_t n)
 
 
 
-double rms(float *p, size_t n)
+double rms(const float *p, size_t n)
 {
   // seems like a problematic calculation if DC not blocked.
   return sqrt(sumX2(p, n) / n);
