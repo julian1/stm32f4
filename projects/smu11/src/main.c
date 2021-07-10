@@ -1568,7 +1568,7 @@ static void update_nplc_measure(app_t *app)
     usart_print_kv( 10,"vset_range:", 5, range_voltage_string(app->vset_range));
 
     usart_printf("  ");
-    usart_print_kv( 10, "vrange:", 5, range_voltage_string(app->vrange));
+    usart_print_kv( 8, "vrange:", 5, range_voltage_string(app->vrange));
 
     if(app->vrange == app->vset_range) {
       usart_printf("*");
@@ -1586,7 +1586,7 @@ static void update_nplc_measure(app_t *app)
     usart_print_kv( 10, "iset_range:", 5, range_current_string(app->iset_range));
 
     usart_printf("  ");
-    usart_print_kv( 10, "irange:", 5, range_current_string(app->irange));
+    usart_print_kv( 8, "irange:", 5, range_current_string(app->irange));
 
     if(app->irange == app->iset_range) {
       usart_printf("*");
@@ -1638,21 +1638,13 @@ static void update_nplc_measure(app_t *app)
     usart_printf("\n\n");
 
     // print the current console input buffer
-    // OK...
+    // If did not clear screen, then would not need to do this...
     usart_printf("> ");
 
 
-    // char buf[100];
     cBufCopyString2(&app->cmd_in, buf, sizeof(buf));
     usart_printf("%s", buf);
-
-
-
-    // perhaps we can print the current command buffer also....
-
   }
-
-
 }
 
 
