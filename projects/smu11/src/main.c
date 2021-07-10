@@ -1614,22 +1614,14 @@ static void update_nplc_measure(app_t *app)
 
 
     // rails
-    // char buf1[100];
     // usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
     // Math.log10( Math.pow(2, 12) ) == 3.6 digits for 12 bits rep.
 
-/*
-    case vrange_10V:
-static char * format_voltage(char *s, size_t sz, vrange_t vrange, float val, int digits)
-
-    format_voltage(buf, sizeof(buf), vrange_10V, app->lp15v, 4)
-{
-*/
-
+    // just appropriate format_voltage function to format the rails voltages
     usart_printf("\n");
-    usart_print_kv( 15, "lp15v:", 6, format_voltage(buf, sizeof(buf), vrange_10V, app->lp15v, 4));// format_float(buf, sizeof(buf), app->lp15v, 4));  // TODO need unit, add V suffix...
+    usart_print_kv( 15, "lp15v:", 6, format_voltage(buf, sizeof(buf), vrange_10V, app->lp15v, 4));
     usart_printf("\n");
-    usart_print_kv( 15, "ln15v:", 6, format_voltage(buf, sizeof(buf), vrange_10V, app->ln15v, 4));// format_float(buf, sizeof(buf), app->ln15v, 4)); 
+    usart_print_kv( 15, "ln15v:", 6, format_voltage(buf, sizeof(buf), vrange_10V, app->ln15v, 4));
 
 
     usart_printf("\n");
