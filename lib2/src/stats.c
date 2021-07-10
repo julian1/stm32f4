@@ -21,7 +21,8 @@
 */
 
 /*
-  code requires double prec.
+  code requires double prec accuracy.
+  through some of these calculations to carry meaninful precision.
   not quite sure where though
 
   the square() must be double...
