@@ -7,12 +7,16 @@
 
 /*
   TOO.
-  OK. float formatting does need rouding. and propagation 
+  OK. float formatting does need rouding. and propagation
     eg. frequenly get 0.99999  instead of 1.0
     because we are not rounding.
 
   - this means we need a loop to run a separate buffer from lsd to hsd and propagate rounding up.
-  - and probably should work out all significant digits for the representation eg. 4 bit float, 8 bit double. 
+  - and probably should work out all significant digits for the representation eg. 4 bit float, 8 bit double.
+  ------------
+  - TODO
+    - should propagete from the least significant bit of the mantissa using a binary accumulator/carry.
+    - this should also be a lot faster than current pow10() code.
 
 */
 
@@ -25,10 +29,9 @@
 
 #define SWAP(T, a, b) do { T tmp = a; a = b; b = tmp; } while (0)
 
-// #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 /*
-  for clean log formatting (without vt100, ansi terminal), then more control is good. 
+  for clean log formatting (without vt100, ansi terminal), then more control is good.
   it needs a get() function also to get contents. if want to consume()
 
 */
@@ -37,7 +40,7 @@
   This interface is pretty useful.
   for - cookie printf based print functions
   and for indenting left and right - complicated text
-  ------------- 
+  -------------
 
   to be able to be consumed as a source... however... it needs more
 */
@@ -58,7 +61,7 @@ typedef struct J
 // not sure.
 
 /*
-  ALTERNATIVELY. if have a get()  consume()  and separate buffers. 
+  ALTERNATIVELY. if have a get()  consume()  and separate buffers.
     then we don't require the reverse() function... for float/integer formatting
 */
 
