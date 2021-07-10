@@ -1589,7 +1589,6 @@ static void update_nplc_measure(app_t *app)
 
     size_t in = fBufCopy(&app->ifb_measure, is, ARRAY_SIZE(is));
     ASSERT(in >= 1);
-
     ASSERT(vn == in);
 
 
@@ -1604,49 +1603,47 @@ static void update_nplc_measure(app_t *app)
 
     // formatting an integer, we're going to have to pass in a buffer... uggy....
 
-    // usart_printf("nplc_measure %d\n",app->nplc_measure);
     usart_printf("\n");
-    usart_print_kv( 15, "nplc_measure:", 5, snprintf2(buf, sizeof(buf), "%d", app->nplc_measure));
-
-    // usart_printf("nplc_range   %d\n",app->nplc_range);
+    usart_print_kv( 15, "nplc_measure:", 6, snprintf2(buf, sizeof(buf), "%d", app->nplc_measure));
 
     usart_printf("\n");
-    usart_print_kv( 15, "nplc_range:", 5, snprintf2(buf, sizeof(buf), "%d", app->nplc_range));
+    usart_print_kv( 15, "nplc_range:",   6, snprintf2(buf, sizeof(buf), "%d", app->nplc_range));
 
-    // usart_printf("adc ov %d\n", app->adc_ov_count);
     usart_printf("\n");
-    usart_print_kv( 15, "adc ov:", 5, snprintf2(buf, sizeof(buf), "%d", app->adc_ov_count));
+    usart_print_kv( 15, "adc_ov_count:", 6, snprintf2(buf, sizeof(buf), "%d", app->adc_ov_count));
 
 
     // rails
     // char buf1[100];
     // usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
     // Math.log10( Math.pow(2, 12) ) == 3.6 digits for 12 bits rep.
-    // usart_printf("lp15v %sV\n", format_float(buf1, sizeof(buf1), app->lp15v, 4) ); // 4 digits
-    // usart_printf("ln15v %sV\n", format_float(buf1, sizeof(buf1), app->ln15v, 4) ); // 4 digits
+
+/*
+    case vrange_10V:
+static char * format_voltage(char *s, size_t sz, vrange_t vrange, float val, int digits)
+
+    format_voltage(buf, sizeof(buf), vrange_10V, app->lp15v, 4)
+{
+*/
+
+    usart_printf("\n");
+    usart_print_kv( 15, "lp15v:", 6, format_voltage(buf, sizeof(buf), vrange_10V, app->lp15v, 4));// format_float(buf, sizeof(buf), app->lp15v, 4));  // TODO need unit, add V suffix...
+    usart_printf("\n");
+    usart_print_kv( 15, "ln15v:", 6, format_voltage(buf, sizeof(buf), vrange_10V, app->ln15v, 4));// format_float(buf, sizeof(buf), app->ln15v, 4)); 
 
 
     usart_printf("\n");
-    usart_print_kv( 15, "lp15v:", 5, format_float(buf, sizeof(buf), app->lp15v, 4)); 
-    usart_printf("\n");
-    usart_print_kv( 15, "ln15v:", 5, format_float(buf, sizeof(buf), app->ln15v, 4)); 
+    usart_print_kv( 15, "output:", 6, (app->output) ? "on" : "off");
 
-
-    // usart_printf("output %s\n", (app->output) ? "on" : "off" );
-    usart_printf("\n");
-    usart_print_kv( 15, "output:", 5, (app->output) ? "on" : "off");
-
-    usart_printf("\n");
+    usart_printf("\n\n");
 
     // print the current console input buffer
-    // OK... No...
-
+    // OK...
     usart_printf("> ");
 
 
-
     // char buf[100];
-    cBufCopyString2(&app->cmd_in, buf, ARRAY_SIZE(buf));
+    cBufCopyString2(&app->cmd_in, buf, sizeof(buf));
     usart_printf("%s", buf);
 
 
