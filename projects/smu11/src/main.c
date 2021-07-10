@@ -1333,7 +1333,6 @@ static char * format_voltage(char *s, size_t sz, vrange_t vrange, float val, int
 
 
 
-// change name indent_left
 
 static char * indent_left(char *s, size_t sz, int indent, const char *string)
 {
@@ -1356,7 +1355,6 @@ static char * indent_right(char *s, size_t sz, int indent, const char *string)
 static char * snprintf2(char *s, size_t sz, const char *format, ...)
 {
   // same as snprintf but return the input buffer, as convenience for caller
-
 	va_list args;
 	va_start(args, format);
 	vsnprintf(s, sz, format, args);
@@ -1535,18 +1533,39 @@ static void update_nplc_measure(app_t *app)
     float vfb = fBufPeekLast(&app->vfb_measure);
     float ifb = fBufPeekLast(&app->ifb_measure);
 
+    /////////////////////
+    // stats
+    float vs[200];    // implies max nplc of 200
+    float is[200];
+
+    ASSERT(app->nplc_measure <= ARRAY_SIZE(vs));
+
+    size_t vn = fBufCopy(&app->vfb_measure, vs, ARRAY_SIZE(vs));
+    ASSERT(vn >= 1);
+
+    size_t in = fBufCopy(&app->ifb_measure, is, ARRAY_SIZE(is));
+    ASSERT(in >= 1);
+    ASSERT(vn == in);
+
+
+    float vmean = mean(vs, vn);
+    float vsd   = stddev(vs, vn);
+    float imean = mean(is, in);
+    float isd   = stddev(is, in);
+
+
     char buf[100];
 
     usart_printf("smart source measure unit\n");
     usart_printf("\n");
 
-    usart_print_kv( 5, "vfb:", 10, format_voltage(buf, sizeof(buf), app->vrange, vfb * range_voltage_multiplier(app->vrange), 6 ) );
+    usart_print_kv( 5, "vmean:", 10,  format_voltage(buf, sizeof(buf), app->vrange, /*vfb*/ vmean * range_voltage_multiplier(app->vrange), 6 ) );
 
     usart_printf("  ");
-    usart_print_kv( 5,"vset:" , 10, format_voltage(buf, sizeof(buf), app->vset_range, app->vset * range_voltage_multiplier(app->vset_range), 6) );
+    usart_print_kv( 5, "vset:" , 10,  format_voltage(buf, sizeof(buf), app->vset_range, app->vset * range_voltage_multiplier(app->vset_range), 6) );
 
     usart_printf("  ");
-    usart_print_kv( 10,"vset_range:", 5,  range_voltage_string(app->vset_range));
+    usart_print_kv( 10,"vset_range:", 5, range_voltage_string(app->vset_range));
 
     usart_printf("  ");
     usart_print_kv( 10, "vrange:", 5, range_voltage_string(app->vrange));
@@ -1558,10 +1577,10 @@ static void update_nplc_measure(app_t *app)
     //////////
     usart_printf("\n\n");
 
-    usart_print_kv( 5, "ifb:", 10, format_current(buf, sizeof(buf), app->irange, ifb * range_current_multiplier(app->irange), 6));
+    usart_print_kv( 5, "imean:", 10,  format_current(buf, sizeof(buf), app->irange, /*ifb*/ imean * range_current_multiplier(app->irange), 6));
 
     usart_printf("  ");
-    usart_print_kv( 5, "iset:", 10, format_current(buf, sizeof(buf), app->iset_range, app->iset * range_current_multiplier(app->iset_range), 6));
+    usart_print_kv( 5, "iset:", 10,   format_current(buf, sizeof(buf), app->iset_range, app->iset * range_current_multiplier(app->iset_range), 6));
 
     usart_printf("  ");
     usart_print_kv( 10, "iset_range:", 5, range_current_string(app->iset_range));
@@ -1575,24 +1594,7 @@ static void update_nplc_measure(app_t *app)
 
     usart_printf("\n\n");
 
-    /////////////////////
-    // stats
-    // GOOD...
-    float vs[100];
-    float is[100];
-
-    size_t vn = fBufCopy(&app->vfb_measure, vs, ARRAY_SIZE(vs));
-    ASSERT(vn >= 1);
-
-    size_t in = fBufCopy(&app->ifb_measure, is, ARRAY_SIZE(is));
-    ASSERT(in >= 1);
-    ASSERT(vn == in);
-
-
-    float vmean = mean(vs, vn);
-    float vsd =  stddev(vs, vn);
-    // usart_printf("vfb last %f    vmean %f    vstddev %f\n", vfb, vmean, vsd);
-
+    //
     usart_print_kv( 4, "vfb:",      10, snprintf2(buf, sizeof(buf), "%f", vfb));
     usart_printf("  ");
     usart_print_kv( 7, "v mean:",   10, snprintf2(buf, sizeof(buf), "%f", vmean));
@@ -1600,11 +1602,6 @@ static void update_nplc_measure(app_t *app)
     usart_print_kv( 9, "v stddev:", 10, snprintf2(buf, sizeof(buf), "%f", vsd));
     usart_printf("\n");
 
-
-
-    float imean = mean(is, in);
-    float isd =  stddev(is, in);
-    // usart_printf("ifb last %f    imean %f    istddev %f\n", ifb, imean, isd);
 
     usart_print_kv( 4, "ifb:",      10, snprintf2(buf, sizeof(buf), "%f", ifb));
     usart_printf("  ");
