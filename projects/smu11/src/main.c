@@ -114,6 +114,13 @@
               nplc_range   20
 
      -------------
+      - we just need left and right indentation for values...  can do with %xs and  %-xs.
+          field names left indent, values right indent
+
+      - if don't clear the screen. then should be a lot easier. to print the main stuff. 
+        and we don't have to print the command prompt.
+        on character - just move to command promopt. move to buffer size. and draw the next char.
+        - but how should we handle the scrolling buffer. more complicated. 
 
       - linux vt100/ansi temerinal codes.      man console_codes
 
