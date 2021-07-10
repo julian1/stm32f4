@@ -1524,52 +1524,20 @@ static void update_nplc_measure(app_t *app)
     float ifb = fBufPeekLast(&app->ifb_measure);
 
     char buf[100];
-    // char buf2[100];
-
 
     usart_printf("smart source measure unit\n");
     usart_printf("\n");
 
-    //////////
 
     usart_print_kv( "vfb:" , 4, format_voltage(buf, sizeof(buf), app->vrange, vfb * range_voltage_multiplier(app->vrange), 6 ), 10 );
 
-/*
-    usart_printf(indent_left(buf, sizeof(buf), 4, "vfb:"));
-
-    usart_printf(
-      indent_right(buf2, sizeof(buf2), 10,
-        format_voltage(buf, sizeof(buf), app->vrange, vfb * range_voltage_multiplier(app->vrange), 6 )
-      ));
-*/
-
     usart_printf("  ");
-
-/*
-    usart_printf(indent_left(buf, sizeof(buf), 4, "vset:"));
-
-    usart_printf(
-      indent_right(buf2, sizeof(buf2), 10,
-        format_voltage(buf, sizeof(buf), app->vset_range, app->vset * range_voltage_multiplier(app->vset_range), 6)
-      ));
-*/
-
     usart_print_kv( "vset:" , 4, format_voltage(buf, sizeof(buf), app->vset_range, app->vset * range_voltage_multiplier(app->vset_range), 6), 10 );
 
     usart_printf("  ");
-/*
-    usart_printf(indent_left( buf, sizeof(buf), 10, "vset_range:"));
-    usart_printf(indent_right(buf, sizeof(buf), 5, range_voltage_string(app->vset_range)));
-*/
-
     usart_print_kv( "vset_range:", 10,  range_voltage_string(app->vset_range), 5);
 
-
     usart_printf("  ");
-/*
-    usart_printf(indent_left( buf, sizeof(buf), 10, "vrange:"));
-    usart_printf(indent_right(buf, sizeof(buf), 5, range_voltage_string(app->vrange)));
-*/
     usart_print_kv( "vrange:", 10,  range_voltage_string(app->vrange), 5);
 
     if(app->vrange == app->vset_range) {
@@ -1578,42 +1546,16 @@ static void update_nplc_measure(app_t *app)
 
     //////////
     usart_printf("\n\n");
-/*
-    usart_printf( indent_left(buf, sizeof(buf), 4, "ifb:"));
 
-    usart_printf(
-      indent_right(buf2, sizeof(buf2), 10,
-        format_current(buf, sizeof(buf), app->irange, ifb * range_current_multiplier(app->irange), 6)
-      ));
-*/
     usart_print_kv( "ifb:", 4, format_current(buf, sizeof(buf), app->irange, ifb * range_current_multiplier(app->irange), 6), 10 );
 
-
     usart_printf("  ");
-/*
-    usart_printf( indent_left(buf, sizeof(buf), 4, "iset:"));
-
-    usart_printf(
-      indent_right(buf2, sizeof(buf2), 10,
-        format_current(buf, sizeof(buf), app->iset_range, app->iset * range_current_multiplier(app->iset_range), 6)
-      ));
-*/
     usart_print_kv( "iset:", 4, format_current(buf, sizeof(buf), app->iset_range, app->iset * range_current_multiplier(app->iset_range), 6), 10 );
 
     usart_printf("  ");
-/*
-    usart_printf( indent_left(buf, sizeof(buf), 10, "iset_range:"));
-    usart_printf(indent_right(buf, sizeof(buf), 5, range_current_string(app->iset_range)));
-*/
-
     usart_print_kv( "iset_range:", 10, range_current_string(app->iset_range), 5 );
 
     usart_printf("  ");
-/*
-    usart_printf( indent_left(buf, sizeof(buf), 10, "irange:"));
-    usart_printf(indent_right(buf, sizeof(buf), 5, range_current_string(app->irange)));
-*/
-
     usart_print_kv( "irange:", 10, range_current_string(app->irange), 5 );
 
     if(app->irange == app->iset_range) {
@@ -1622,8 +1564,8 @@ static void update_nplc_measure(app_t *app)
 
     usart_printf("\n\n");
 
-  /////////////////////
-// stats
+    /////////////////////
+    // stats
     // GOOD...
     float vs[100];
     float is[100];
