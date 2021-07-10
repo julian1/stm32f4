@@ -1522,32 +1522,21 @@ static void update_nplc_measure(app_t *app)
     usart_printf("smart source measure unit\n");
     usart_printf("\n");
 
-    // usart_printf("vfb ");
+    //////////
     usart_printf(indent_left(buf, sizeof(buf), 10, "vfb"));
 
-    // print_voltage(app->vrange, vfb * range_voltage_multiplier(app->vrange)  );
     usart_printf(
       indent_right(buf2, sizeof(buf2), 10,
         format_voltage(buf, sizeof(buf), app->vrange, vfb * range_voltage_multiplier(app->vrange), 6 )
       ));
 
-    // usart_printf("\t");
     usart_printf("  ");
-    // usart_printf("vset ");
     usart_printf(indent_left(buf, sizeof(buf), 10, "vset"));
 
-    // print_voltage(app->vset_range, app->vset * range_voltage_multiplier(app->vset_range));
     usart_printf(
       indent_right(buf2, sizeof(buf2), 10,
         format_voltage(buf, sizeof(buf), app->vset_range, app->vset * range_voltage_multiplier(app->vset_range), 6)
       ));
-
-/*
-    usart_printf("\t");
-    usart_printf("vset_range: %s",  range_voltage_string(app->vset_range));
-    usart_printf("\t");
-    usart_printf("vrange: %s",      range_voltage_string(app->vrange)); // measure/active range
-*/
 
     usart_printf("  ");
     usart_printf(indent_left( buf, sizeof(buf), 10, "vset_range:"));
@@ -1561,9 +1550,8 @@ static void update_nplc_measure(app_t *app)
       usart_printf("*");
     }
 
+    //////////
     usart_printf("\n\n");
-
-    // usart_printf("ifb ");
     usart_printf( indent_left(buf, sizeof(buf), 10, "ifb"));
 
     usart_printf(
@@ -1572,22 +1560,12 @@ static void update_nplc_measure(app_t *app)
       ));
 
     usart_printf("  ");
-    // usart_printf("\t");
-    // usart_printf("iset ");
-
     usart_printf( indent_left(buf, sizeof(buf), 10, "iset"));
 
     usart_printf(
       indent_right(buf2, sizeof(buf2), 10,
         format_current(buf, sizeof(buf), app->iset_range, app->iset * range_current_multiplier(app->iset_range), 6)
       ));
-
-/*
-    usart_printf("\t");
-    usart_printf("iset_range: %s",  range_current_string(app->iset_range));
-    usart_printf("\t");
-    usart_printf("irange: %s",      range_current_string(app->irange));   // measure/active range
-*/
 
     usart_printf("  ");
     usart_printf( indent_left(buf, sizeof(buf), 10, "iset_range:"));
