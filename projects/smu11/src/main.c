@@ -1241,7 +1241,7 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
 
 
 
-static char * format_current(char *s, size_t sz, irange_t irange, float val)
+static char * format_current(char *s, size_t sz, irange_t irange, float val, int digits)
 {
   // pass digits as argument
   // beccause we use %s   we could actually do the indentation in this call...
@@ -1262,36 +1262,36 @@ static char * format_current(char *s, size_t sz, irange_t irange, float val)
 
       // when power is off... kind of nice to report...
       if(fabs(val) * 1e10f > 1.f)
-        snprintf(s, sz, "%snA", format_float(buf, sizeof(buf), val * 1e+9f, 6) ); // 6 digits
+        snprintf(s, sz, "%snA", format_float(buf, sizeof(buf), val * 1e+9f, digits)); // 6 digits
       else
-        snprintf(s, sz, "%spA", format_float(buf, sizeof(buf), val * 1e+12f, 6) ); // 6 digits
+        snprintf(s, sz, "%spA", format_float(buf, sizeof(buf), val * 1e+12f, digits)); // 6 digits
       break;
 
 
     case irange_100nA:
     case irange_1uA:
-      snprintf(s, sz, "%snA", format_float(buf, sizeof(buf), val * 1e+9f, 6) ); // 6 digits
+      snprintf(s, sz, "%snA", format_float(buf, sizeof(buf), val * 1e+9f, digits)); // 6 digits
       break;
 
     case irange_10uA:
     case irange_100uA:
     case irange_1mA:
       // snprintf(s, sz), ("%fuA", val * 1000000.f);
-      snprintf(s, sz, "%suA", format_float(buf, sizeof(buf), val * 1e+6f, 6) ); // 6 digits
+      snprintf(s, sz, "%suA", format_float(buf, sizeof(buf), val * 1e+6f, digits)); // 6 digits
       break;
 
     case irange_10mA:
     case irange_100mA:
     case irange_1A:
       // snprintf(s, sz), ("%fmA", val * 1000.f);   // TODO 0.7A better as 0.7A. 0.6A better as 600mA. think..
-      snprintf(s, sz, "%smA", format_float(buf, sizeof(buf), val * 1e+3f, 6) ); // 6 digits
+      snprintf(s, sz, "%smA", format_float(buf, sizeof(buf), val * 1e+3f, digits)); // 6 digits
       break;
 
 
     // case irange_1A:
     case irange_10A:
       // snprintf(s, sz), ("%fA", val);
-      snprintf(s, sz, "%sA", format_float(buf, sizeof(buf), val, 6) ); // 6 digits
+      snprintf(s, sz, "%sA", format_float(buf, sizeof(buf), val, digits)); // 6 digits
       break;
   }
 
@@ -1299,14 +1299,13 @@ static char * format_current(char *s, size_t sz, irange_t irange, float val)
 }
 
 
-static void print_voltage(vrange_t vrange, float val)
+// static void print_voltage(vrange_t vrange, float val)
+static char * format_voltage(char *s, size_t sz, vrange_t vrange, float val, int digits)
 {
 /*
   - we need to pass in the buffer. and probably return it. and the number of digits. as well as the range.
-
   - ALTERNATIVELY we pass in the streaming interface...  with mark() reverse() etc...
   - snprintf can be modified to write to it also.
-
 */
 
   char buf[100];
@@ -1317,22 +1316,29 @@ static void print_voltage(vrange_t vrange, float val)
     case vrange_100V:
     case vrange_10V:
       // usart_printf("%fV", val);
-      usart_printf("%sV", format_float(buf, ARRAY_SIZE(buf), val, 6) ); // 6 digits
+      // usart_printf("%sV", format_float(buf, ARRAY_SIZE(buf), val, 6) ); // 6 digits
+      snprintf(s, sz, "%sV", format_float(buf, ARRAY_SIZE(buf), val, digits ) ); // 6 digits
       break;
 
     case vrange_1V:
     case vrange_100mV:
       // usart_printf("%fmV", val * 1000.f);
       // TODO 1e+3f
-      usart_printf("%smV", format_float(buf, ARRAY_SIZE(buf), val * 1000, 6) ); // 6 digits
+      // usart_printf("%smV", format_float(buf, ARRAY_SIZE(buf), val * 1000, 6) ); // 6 digits
+      snprintf(s, sz, "%smV", format_float(buf, ARRAY_SIZE(buf), val * 1000, digits) ); // 6 digits
       break;
 
   }
+
+  return s;
 }
+
+
+
 
 // change name indent_left
 
-static char * indent_left(char *s, size_t sz, int indent, char * string)
+static char * indent_left(char *s, size_t sz, int indent, const char *string)
 {
   // left indent, is pad to right, for field name
   snprintf(s, sz, "%-*s", indent, string );
@@ -1341,7 +1347,7 @@ static char * indent_left(char *s, size_t sz, int indent, char * string)
 
 
 
-static char * indent_right(char *s, size_t sz, int indent, char * string)
+static char * indent_right(char *s, size_t sz, int indent, const char *string)
 {
   // right indent, is pad to left, for field value
   snprintf(s, sz, "%*s", indent, string);
@@ -1508,62 +1514,88 @@ static void update_nplc_measure(app_t *app)
     float vfb = fBufPeekLast(&app->vfb_measure);
     float ifb = fBufPeekLast(&app->ifb_measure);
 
-    usart_printf("source measure unit\n");
+    char buf[100];
+    char buf2[100];
+
+
+
+    usart_printf("smart source measure unit\n");
     usart_printf("\n");
 
-    usart_printf("vfb ");
-    print_voltage(app->vrange, vfb * range_voltage_multiplier(app->vrange)  );
+    // usart_printf("vfb ");
+    usart_printf(indent_left(buf, sizeof(buf), 10, "vfb"));
 
-    usart_printf("\t");
-    usart_printf("vset ");
-    print_voltage(app->vset_range, app->vset * range_voltage_multiplier(app->vset_range));
+    // print_voltage(app->vrange, vfb * range_voltage_multiplier(app->vrange)  );
+    usart_printf(
+      indent_right(buf2, sizeof(buf2), 10,
+        format_voltage(buf, sizeof(buf), app->vrange, vfb * range_voltage_multiplier(app->vrange), 6 )
+      ));
 
+    // usart_printf("\t");
+    usart_printf("  ");
+    // usart_printf("vset ");
+    usart_printf(indent_left(buf, sizeof(buf), 10, "vset"));
+
+    // print_voltage(app->vset_range, app->vset * range_voltage_multiplier(app->vset_range));
+    usart_printf(
+      indent_right(buf2, sizeof(buf2), 10,
+        format_voltage(buf, sizeof(buf), app->vset_range, app->vset * range_voltage_multiplier(app->vset_range), 6)
+      ));
+
+/*
     usart_printf("\t");
     usart_printf("vset_range: %s",  range_voltage_string(app->vset_range));
     usart_printf("\t");
     usart_printf("vrange: %s",      range_voltage_string(app->vrange)); // measure/active range
+*/
+
+    usart_printf("  ");
+    usart_printf(indent_left( buf, sizeof(buf), 10, "vset_range:"));
+    usart_printf(indent_right(buf, sizeof(buf), 10, range_voltage_string(app->vset_range)));
+
+    usart_printf("  ");
+    usart_printf(indent_left( buf, sizeof(buf), 10, "vrange:"));
+    usart_printf(indent_right(buf, sizeof(buf), 10, range_voltage_string(app->vrange)));
 
     if(app->vrange == app->vset_range) {
       usart_printf("*");
     }
 
-
-    /////////////////
-    // to format this stuff...  actually add a fixed space for '-' and 'V' instead of 'mV' etc?
-    // no.
-    // it would be useful to be have a mark function ....   which returns the line offset.
-    // actually ought to be easy...
-    // printf char position in line
-    // actually just a mark()   would work. if count output chars. from start.
-
-    // or does vt100 or ansi terminal support pos in line?
-
     usart_printf("\n\n");
-    usart_printf("ifb ");
 
-    char buf[100];
-    char buf2[100];
-
-    usart_printf(
-      indent_right(buf2, sizeof(buf2), 10,
-        format_current(buf, sizeof(buf), app->irange, ifb * range_current_multiplier(app->irange))
-      ));
-
-    usart_printf("\t");
-    usart_printf("iset ");
+    // usart_printf("ifb ");
+    usart_printf( indent_left(buf, sizeof(buf), 10, "ifb"));
 
     usart_printf(
       indent_right(buf2, sizeof(buf2), 10,
-        format_current(buf, sizeof(buf), app->iset_range, app->iset * range_current_multiplier(app->iset_range) )
+        format_current(buf, sizeof(buf), app->irange, ifb * range_current_multiplier(app->irange), 6)
       ));
 
+    usart_printf("  ");
+    // usart_printf("\t");
+    // usart_printf("iset ");
 
+    usart_printf( indent_left(buf, sizeof(buf), 10, "iset"));
 
+    usart_printf(
+      indent_right(buf2, sizeof(buf2), 10,
+        format_current(buf, sizeof(buf), app->iset_range, app->iset * range_current_multiplier(app->iset_range), 6)
+      ));
 
+/*
     usart_printf("\t");
     usart_printf("iset_range: %s",  range_current_string(app->iset_range));
     usart_printf("\t");
     usart_printf("irange: %s",      range_current_string(app->irange));   // measure/active range
+*/
+
+    usart_printf("  ");
+    usart_printf( indent_left(buf, sizeof(buf), 10, "iset_range:"));
+    usart_printf(indent_right(buf, sizeof(buf), 10, range_current_string(app->iset_range)));
+
+    usart_printf("  ");
+    usart_printf( indent_left(buf, sizeof(buf), 10, "irange:"));
+    usart_printf(indent_right(buf, sizeof(buf), 10, range_current_string(app->irange)));
 
     if(app->irange == app->iset_range) {
       usart_printf("*");
@@ -1594,6 +1626,7 @@ static void update_nplc_measure(app_t *app)
     float isd =  stddev(is, in);
     usart_printf("ifb last %f    imean %f    istddev %f\n", ifb, imean, isd);
 
+    usart_printf("\n");
 
     usart_printf("nplc_measure %d\n",app->nplc_measure);
     usart_printf("nplc_range   %d\n",app->nplc_range);
