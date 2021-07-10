@@ -115,6 +115,7 @@ double rms(const float *p, size_t n)
 void push(float *p, size_t n, size_t *idx, float val)
 {
   // don't advance if idx == n, to support overflow detect
+  // ASSERT(*idx < n);
   if(*idx < n) {
     p[*idx] = val;
     ++(*idx);
