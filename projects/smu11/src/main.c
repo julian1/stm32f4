@@ -298,6 +298,8 @@
 #include <stdio.h>    // sscanf
 #include <string.h>   // strcmp
 
+#include <stdarg.h> // va_starrt etc
+
 
 #include "assert.h"
 #include "cbuffer.h"
@@ -1315,17 +1317,13 @@ static char * format_voltage(char *s, size_t sz, vrange_t vrange, float val, int
   {
     case vrange_100V:
     case vrange_10V:
-      // usart_printf("%fV", val);
-      // usart_printf("%sV", format_float(buf, ARRAY_SIZE(buf), val, 6) ); // 6 digits
       snprintf(s, sz, "%sV", format_float(buf, ARRAY_SIZE(buf), val, digits ) ); // 6 digits
       break;
 
     case vrange_1V:
     case vrange_100mV:
-      // usart_printf("%fmV", val * 1000.f);
       // TODO 1e+3f
-      // usart_printf("%smV", format_float(buf, ARRAY_SIZE(buf), val * 1000, 6) ); // 6 digits
-      snprintf(s, sz, "%smV", format_float(buf, ARRAY_SIZE(buf), val * 1000, digits) ); // 6 digits
+      snprintf(s, sz, "%smV", format_float(buf, sizeof(buf), val * 1000, digits) ); // 6 digits
       break;
 
   }
@@ -1353,6 +1351,23 @@ static char * indent_right(char *s, size_t sz, int indent, const char *string)
   snprintf(s, sz, "%*s", indent, string);
   return s;
 }
+
+
+
+static char * snprintf2(char *s, size_t sz, const char *format, ...)
+{
+  // same as snprintf but return the input buffer, as convenience for caller 
+
+	va_list args;
+	va_start(args, format);
+	vsnprintf(s, sz, format, args);
+	va_end(args);
+
+  return s;
+}
+
+
+
 
 
 
@@ -1476,9 +1491,9 @@ static void update_soft_500ms(app_t *app)
   io_toggle(app->spi, REG_LED, LED1);
 }
 
+// width should come before the string.
 
-
-static void usart_print_kv( const char *fs, int fwidth, const char *vs, int vwidth )
+static void usart_print_kv( int fwidth, const char *fs, int vwidth,  const char *vs )
 {
   char buf[100];
 
@@ -1528,17 +1543,16 @@ static void update_nplc_measure(app_t *app)
     usart_printf("smart source measure unit\n");
     usart_printf("\n");
 
-
-    usart_print_kv( "vfb:" , 4, format_voltage(buf, sizeof(buf), app->vrange, vfb * range_voltage_multiplier(app->vrange), 6 ), 10 );
-
-    usart_printf("  ");
-    usart_print_kv( "vset:" , 4, format_voltage(buf, sizeof(buf), app->vset_range, app->vset * range_voltage_multiplier(app->vset_range), 6), 10 );
+    usart_print_kv( 5, "vfb:", 10, format_voltage(buf, sizeof(buf), app->vrange, vfb * range_voltage_multiplier(app->vrange), 6 ) );
 
     usart_printf("  ");
-    usart_print_kv( "vset_range:", 10,  range_voltage_string(app->vset_range), 5);
+    usart_print_kv( 5,"vset:" , 10, format_voltage(buf, sizeof(buf), app->vset_range, app->vset * range_voltage_multiplier(app->vset_range), 6) );
 
     usart_printf("  ");
-    usart_print_kv( "vrange:", 10,  range_voltage_string(app->vrange), 5);
+    usart_print_kv( 10,"vset_range:", 5,  range_voltage_string(app->vset_range));
+
+    usart_printf("  ");
+    usart_print_kv( 10, "vrange:", 5, range_voltage_string(app->vrange));
 
     if(app->vrange == app->vset_range) {
       usart_printf("*");
@@ -1547,16 +1561,16 @@ static void update_nplc_measure(app_t *app)
     //////////
     usart_printf("\n\n");
 
-    usart_print_kv( "ifb:", 4, format_current(buf, sizeof(buf), app->irange, ifb * range_current_multiplier(app->irange), 6), 10 );
+    usart_print_kv( 5, "ifb:", 10, format_current(buf, sizeof(buf), app->irange, ifb * range_current_multiplier(app->irange), 6));
 
     usart_printf("  ");
-    usart_print_kv( "iset:", 4, format_current(buf, sizeof(buf), app->iset_range, app->iset * range_current_multiplier(app->iset_range), 6), 10 );
+    usart_print_kv( 5, "iset:", 10, format_current(buf, sizeof(buf), app->iset_range, app->iset * range_current_multiplier(app->iset_range), 6));
 
     usart_printf("  ");
-    usart_print_kv( "iset_range:", 10, range_current_string(app->iset_range), 5 );
+    usart_print_kv( 10, "iset_range:", 5, range_current_string(app->iset_range));
 
     usart_printf("  ");
-    usart_print_kv( "irange:", 10, range_current_string(app->irange), 5 );
+    usart_print_kv( 10, "irange:", 5, range_current_string(app->irange));
 
     if(app->irange == app->iset_range) {
       usart_printf("*");
@@ -1587,23 +1601,40 @@ static void update_nplc_measure(app_t *app)
     float isd =  stddev(is, in);
     usart_printf("ifb last %f    imean %f    istddev %f\n", ifb, imean, isd);
 
+
+    // formatting an integer, we're going to have to pass in a buffer... uggy....
+
+    // usart_printf("nplc_measure %d\n",app->nplc_measure);
     usart_printf("\n");
+    usart_print_kv( 15, "nplc_measure:", 5, snprintf2(buf, sizeof(buf), "%d", app->nplc_measure));
 
-    usart_printf("nplc_measure %d\n",app->nplc_measure);
-    usart_printf("nplc_range   %d\n",app->nplc_range);
+    // usart_printf("nplc_range   %d\n",app->nplc_range);
 
-    usart_printf("adc ov %d\n", app->adc_ov_count);
+    usart_printf("\n");
+    usart_print_kv( 15, "nplc_range:", 5, snprintf2(buf, sizeof(buf), "%d", app->nplc_range));
+
+    // usart_printf("adc ov %d\n", app->adc_ov_count);
+    usart_printf("\n");
+    usart_print_kv( 15, "adc ov:", 5, snprintf2(buf, sizeof(buf), "%d", app->adc_ov_count));
 
 
     // rails
-    char buf1[100];
+    // char buf1[100];
     // usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
     // Math.log10( Math.pow(2, 12) ) == 3.6 digits for 12 bits rep.
-    usart_printf("lp15v %sV\n", format_float(buf1, sizeof(buf1), app->lp15v, 4) ); // 4 digits
-    usart_printf("ln15v %sV\n", format_float(buf1, sizeof(buf1), app->ln15v, 4) ); // 4 digits
+    // usart_printf("lp15v %sV\n", format_float(buf1, sizeof(buf1), app->lp15v, 4) ); // 4 digits
+    // usart_printf("ln15v %sV\n", format_float(buf1, sizeof(buf1), app->ln15v, 4) ); // 4 digits
 
 
-    usart_printf("output %s\n", (app->output) ? "on" : "off" );
+    usart_printf("\n");
+    usart_print_kv( 15, "lp15v:", 5, format_float(buf, sizeof(buf), app->lp15v, 4)); 
+    usart_printf("\n");
+    usart_print_kv( 15, "ln15v:", 5, format_float(buf, sizeof(buf), app->ln15v, 4)); 
+
+
+    // usart_printf("output %s\n", (app->output) ? "on" : "off" );
+    usart_printf("\n");
+    usart_print_kv( 15, "output:", 5, (app->output) ? "on" : "off");
 
     usart_printf("\n");
 
