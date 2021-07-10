@@ -117,10 +117,10 @@
       - we just need left and right indentation for values...  can do with %xs and  %-xs.
           field names left indent, values right indent
 
-      - if don't clear the screen. then should be a lot easier. to print the main stuff. 
+      - if don't clear the screen. then should be a lot easier. to print the main stuff.
         and we don't have to print the command prompt.
         on character - just move to command promopt. move to buffer size. and draw the next char.
-        - but how should we handle the scrolling buffer. more complicated. 
+        - but how should we handle the scrolling buffer. more complicated.
 
       - linux vt100/ansi temerinal codes.      man console_codes
 
@@ -1237,8 +1237,14 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
 
 */
 
-static void print_current(/*char *p, size_t sz,*/ irange_t irange, float val)
+
+
+
+
+static char * format_current(char *s, size_t sz, irange_t irange, float val)
 {
+  // pass digits as argument
+  // beccause we use %s   we could actually do the indentation in this call...
 
   // snprintf(p, sz, "%snA", format_float(buf, ARRAY_SIZE(buf), val * 1e+9f, 6) ); // 6 digits
   /*
@@ -1256,38 +1262,40 @@ static void print_current(/*char *p, size_t sz,*/ irange_t irange, float val)
 
       // when power is off... kind of nice to report...
       if(fabs(val) * 1e10f > 1.f)
-        usart_printf("%snA", format_float(buf, ARRAY_SIZE(buf), val * 1e+9f, 6) ); // 6 digits
+        snprintf(s, sz, "%snA", format_float(buf, sizeof(buf), val * 1e+9f, 6) ); // 6 digits
       else
-        usart_printf("%spA", format_float(buf, ARRAY_SIZE(buf), val * 1e+12f, 6) ); // 6 digits
+        snprintf(s, sz, "%spA", format_float(buf, sizeof(buf), val * 1e+12f, 6) ); // 6 digits
       break;
 
 
     case irange_100nA:
     case irange_1uA:
-      usart_printf("%snA", format_float(buf, ARRAY_SIZE(buf), val * 1e+9f, 6) ); // 6 digits
+      snprintf(s, sz, "%snA", format_float(buf, sizeof(buf), val * 1e+9f, 6) ); // 6 digits
       break;
 
     case irange_10uA:
     case irange_100uA:
     case irange_1mA:
-      // usart_printf("%fuA", val * 1000000.f);
-      usart_printf("%suA", format_float(buf, ARRAY_SIZE(buf), val * 1e+6f, 6) ); // 6 digits
+      // snprintf(s, sz), ("%fuA", val * 1000000.f);
+      snprintf(s, sz, "%suA", format_float(buf, sizeof(buf), val * 1e+6f, 6) ); // 6 digits
       break;
 
     case irange_10mA:
     case irange_100mA:
     case irange_1A:
-      // usart_printf("%fmA", val * 1000.f);   // TODO 0.7A better as 0.7A. 0.6A better as 600mA. think..
-      usart_printf("%smA", format_float(buf, ARRAY_SIZE(buf), val * 1e+3f, 6) ); // 6 digits
+      // snprintf(s, sz), ("%fmA", val * 1000.f);   // TODO 0.7A better as 0.7A. 0.6A better as 600mA. think..
+      snprintf(s, sz, "%smA", format_float(buf, sizeof(buf), val * 1e+3f, 6) ); // 6 digits
       break;
 
 
     // case irange_1A:
     case irange_10A:
-      // usart_printf("%fA", val);
-      usart_printf("%sA", format_float(buf, ARRAY_SIZE(buf), val, 6) ); // 6 digits
+      // snprintf(s, sz), ("%fA", val);
+      snprintf(s, sz, "%sA", format_float(buf, sizeof(buf), val, 6) ); // 6 digits
       break;
   }
+
+  return s;
 }
 
 
@@ -1322,6 +1330,23 @@ static void print_voltage(vrange_t vrange, float val)
   }
 }
 
+// change name indent_left
+
+static char * indent_left(char *s, size_t sz, int indent, char * string)
+{
+  // left indent, is pad to right, for field name
+  snprintf(s, sz, "%-*s", indent, string );
+  return s;
+}
+
+
+
+static char * indent_right(char *s, size_t sz, int indent, char * string)
+{
+  // right indent, is pad to left, for field value
+  snprintf(s, sz, "%*s", indent, string);
+  return s;
+}
 
 
 
@@ -1516,11 +1541,15 @@ static void update_nplc_measure(app_t *app)
     usart_printf("\n\n");
 
     usart_printf("ifb ");
-    print_current(app->irange, ifb * range_current_multiplier(app->irange));
+    // print_current(app->irange, ifb * range_current_multiplier(app->irange));
+    char buf[100];
+    usart_printf( format_current(buf, sizeof(buf), app->irange, ifb * range_current_multiplier(app->irange)));
 
     usart_printf("\t");
     usart_printf("iset ");
-    print_current(app->iset_range, app->iset * range_current_multiplier(app->iset_range) );
+    // print_current(app->iset_range, app->iset * range_current_multiplier(app->iset_range) );
+    usart_printf( format_current(buf, sizeof(buf), app->iset_range, app->iset * range_current_multiplier(app->iset_range) ));
+
 
     usart_printf("\t");
     usart_printf("iset_range: %s",  range_current_string(app->iset_range));
@@ -1580,9 +1609,13 @@ static void update_nplc_measure(app_t *app)
 
     usart_printf("> ");
 
-    char buf[100];
+
+
+    // char buf[100];
     cBufCopyString2(&app->cmd_in, buf, ARRAY_SIZE(buf));
     usart_printf("%s", buf);
+
+
 
     // perhaps we can print the current command buffer also....
 
