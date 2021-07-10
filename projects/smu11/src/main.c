@@ -488,8 +488,11 @@ typedef struct app_t
 
 
   ////
-  CBuf    cmd_in;
+  CBuf      cmd_in;
 
+  //////////////
+
+  int       digits;
 
 } app_t;
 
@@ -1482,6 +1485,13 @@ static void update_soft_1s(app_t *app)
   // TODO should be checking adc_read count matches what we expect, on 1s interval.
   // but we have removed this var...
 
+  /*
+      can we keep a 1 sec  interval log. for display in the measure update,
+      by just recording values on the 1s interval.
+    eg.
+      app->adc_drdy_count_last   = app->adc_drdy_count;
+      app->update_count_last     = app->update_count ;
+  */
 }
 
 
@@ -1621,6 +1631,9 @@ static void update_nplc_measure(app_t *app)
 
     usart_printf("\n");
     usart_print_kv( 15, "adc_ov_count:", 6, snprintf2(buf, sizeof(buf), "%d", app->adc_ov_count));
+
+    usart_printf("\n");
+    usart_print_kv( 15, "digits:", 6,      snprintf2(buf, sizeof(buf), "%d", app->digits));
 
 
     // rails
@@ -2507,6 +2520,7 @@ int main(void)
 
   app.nplc_measure = 50;
   app.nplc_range   = 20;
+  app.digits = 6;
 
   // uart/console
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
