@@ -1594,11 +1594,31 @@ static void update_nplc_measure(app_t *app)
 
     float vmean = mean(vs, vn);
     float vsd =  stddev(vs, vn);
-    usart_printf("vfb last %f    vmean %f    vstddev %f\n", vfb, vmean, vsd);
+    // usart_printf("vfb last %f    vmean %f    vstddev %f\n", vfb, vmean, vsd);
+
+    usart_print_kv( 4, "vfb:",      10, snprintf2(buf, sizeof(buf), "%f", vfb));
+    usart_printf("  ");
+    usart_print_kv( 7, "v mean:",   10, snprintf2(buf, sizeof(buf), "%f", vmean));
+    usart_printf("  ");
+    usart_print_kv( 9, "v stddev:", 10, snprintf2(buf, sizeof(buf), "%f", vsd));
+    usart_printf("\n");
+
+
 
     float imean = mean(is, in);
     float isd =  stddev(is, in);
-    usart_printf("ifb last %f    imean %f    istddev %f\n", ifb, imean, isd);
+    // usart_printf("ifb last %f    imean %f    istddev %f\n", ifb, imean, isd);
+
+    usart_print_kv( 4, "ifb:",      10, snprintf2(buf, sizeof(buf), "%f", ifb));
+    usart_printf("  ");
+    usart_print_kv( 7, "i mean:",   10, snprintf2(buf, sizeof(buf), "%f", imean));
+    usart_printf("  ");
+    usart_print_kv( 9, "i stddev:", 10, snprintf2(buf, sizeof(buf), "%f", isd));
+    usart_printf("\n");
+
+
+
+
 
 
     // formatting an integer, we're going to have to pass in a buffer... uggy....
@@ -1614,7 +1634,6 @@ static void update_nplc_measure(app_t *app)
 
 
     // rails
-    // usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
     // Math.log10( Math.pow(2, 12) ) == 3.6 digits for 12 bits rep.
 
     // just appropriate format_voltage function to format the rails voltages
