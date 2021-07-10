@@ -119,7 +119,17 @@
 
      -------------
 
+      - need to check if 5V droop to 4V - is on the usb hub, or just stlink.
+
+      - want to output power. which is easy. just multiply range unit converted values...
+          and use arbitrary...
+          probably resistance also.
+
+
       - want to output. current pl freq .    even if hard code.
+            just to make the dependency clear.
+
+
       - want to report the mean values for vfb, ifb.   maybe use vfbm ifbm names for vars.
           - also test that values are correct.
 
@@ -560,6 +570,10 @@ static const char * range_voltage_string(vrange_t vrange)
   return "error";
 }
 
+/*
+  change  name
+  range_voltage_unit_convert
+*/
 
 static float range_voltage_multiplier( vrange_t vrange)
 {
@@ -1472,6 +1486,7 @@ static void spi1_interupt(app_t *app)
 
     // we missed reading last time...
     usart_printf("missed adc read cycle\n");
+    // ASSERT(0);
   }
 
   // set update to read...
@@ -1652,6 +1667,13 @@ static void update_nplc_measure(app_t *app)
 
     usart_printf("\n");
     usart_print_kv( 15, "nplc_range:",   6, snprintf2(buf, sizeof(buf), "%d", app->nplc_range));
+
+    usart_printf("\n");
+    usart_print_kv( 15, "pl_freq:",   6, "50");   // TODO
+
+
+
+
 
     usart_printf("\n");
     usart_print_kv( 15, "adc_ov_count:", 6, snprintf2(buf, sizeof(buf), "%d", app->adc_ov_count));
