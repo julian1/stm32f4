@@ -1462,7 +1462,9 @@ static void core_set(app_t *app, float v, float i, vrange_t vrange, irange_t ira
 
 static void spi1_interupt(app_t *app)
 {
-  // interupt context. avoid work here...
+  /*
+    interupt context. avoid doing work here...
+  */
 
   ++app->adc_drdy_count;
 
@@ -1489,8 +1491,14 @@ static void update_soft_1s(app_t *app)
       can we keep a 1 sec  interval log. for display in the measure update,
       by just recording values on the 1s interval.
     eg.
-      app->adc_drdy_count_last   = app->adc_drdy_count;
+
+      app->plfreq = app->adc_drdy_count - app->adc_drdy_count_last  ;
       app->update_count_last     = app->update_count ;
+      -------------
+
+      we no. we set plfreq.
+      just want a check of the adc_drdy_count each sec. and that we read it ok.
+
   */
 }
 
@@ -1532,6 +1540,11 @@ static void update_nplc_measure(app_t *app)
     // the format prec wants to be able to user modified.
     /////////////////
 
+/*
+  we need to know the cost of this calculation.
+  since it's possible we could miss reading the adc on the power-line cycle.
+
+*/
     // most recent measurements
     float vfb = fBufPeekLast(&app->vfb_measure);
     float ifb = fBufPeekLast(&app->ifb_measure);
@@ -1649,9 +1662,13 @@ static void update_nplc_measure(app_t *app)
 
       5V rail is at 4V. perhaps current draw from output relay is too much ...
       should measure this.
+      usb to 5V. barrel jack.
+      or could even be something short somewhere... really kind of need pwr supply monitor for 5V.
+
       -------
       ok. 1mA, 1uA, 1nA holds 6th current digit just about still. with nplc 50.
       that's pretty damn good.
+
 
     */
 
