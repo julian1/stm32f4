@@ -125,7 +125,7 @@
 
       -  use 5ohm power r. for load. eg. 5V 1A.
 
-      - need to copy paste mean,sd on different ranges. (or take pics) as a baseline for performance. 
+      - need to copy paste mean,sd on different ranges. (or take pics) as a baseline for performance.
           before try on higher current external linear/toroid supply.
 
           - or pause screen output. so can just copy&paste. text.
@@ -1255,10 +1255,7 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
 
 static char * format_current(char *s, size_t sz, irange_t irange, float val, int digits)
 {
-  // pass digits as argument
   // beccause we use %s   we could actually do the indentation in this call...
-
-  // snprintf(p, sz, "%snA", format_float(buf, ARRAY_SIZE(buf), val * 1e+9f, 6) ); // 6 digits
   /*
     improtant.
       formatting measured values, according to selected range (rather than value) is correct.
@@ -1274,36 +1271,32 @@ static char * format_current(char *s, size_t sz, irange_t irange, float val, int
 
       // when power is off... kind of nice to report...
       if(fabs(val) * 1e10f > 1.f)
-        snprintf(s, sz, "%snA", format_float(buf, sizeof(buf), val * 1e+9f, digits)); // 6 digits
+        snprintf(s, sz, "%snA", format_float(buf, sizeof(buf), val * 1e+9f, digits));
       else
-        snprintf(s, sz, "%spA", format_float(buf, sizeof(buf), val * 1e+12f, digits)); // 6 digits
+        snprintf(s, sz, "%spA", format_float(buf, sizeof(buf), val * 1e+12f, digits));
       break;
 
 
     case irange_100nA:
     case irange_1uA:
-      snprintf(s, sz, "%snA", format_float(buf, sizeof(buf), val * 1e+9f, digits)); // 6 digits
+      snprintf(s, sz, "%snA", format_float(buf, sizeof(buf), val * 1e+9f, digits));
       break;
 
     case irange_10uA:
     case irange_100uA:
     case irange_1mA:
-      // snprintf(s, sz), ("%fuA", val * 1000000.f);
-      snprintf(s, sz, "%suA", format_float(buf, sizeof(buf), val * 1e+6f, digits)); // 6 digits
+      snprintf(s, sz, "%suA", format_float(buf, sizeof(buf), val * 1e+6f, digits));
       break;
 
     case irange_10mA:
     case irange_100mA:
     case irange_1A:
-      // snprintf(s, sz), ("%fmA", val * 1000.f);   // TODO 0.7A better as 0.7A. 0.6A better as 600mA. think..
-      snprintf(s, sz, "%smA", format_float(buf, sizeof(buf), val * 1e+3f, digits)); // 6 digits
+      // TODO 0.7A better as 0.7A. 0.6A better as 600mA. think..
+      snprintf(s, sz, "%smA", format_float(buf, sizeof(buf), val * 1e+3f, digits));
       break;
 
-
-    // case irange_1A:
     case irange_10A:
-      // snprintf(s, sz), ("%fA", val);
-      snprintf(s, sz, "%sA", format_float(buf, sizeof(buf), val, digits)); // 6 digits
+      snprintf(s, sz, "%sA", format_float(buf, sizeof(buf), val, digits));
       break;
   }
 
@@ -1311,14 +1304,11 @@ static char * format_current(char *s, size_t sz, irange_t irange, float val, int
 }
 
 
-// static void print_voltage(vrange_t vrange, float val)
 static char * format_voltage(char *s, size_t sz, vrange_t vrange, float val, int digits)
 {
-/*
-  - we need to pass in the buffer. and probably return it. and the number of digits. as well as the range.
-  - ALTERNATIVELY we pass in the streaming interface...  with mark() reverse() etc...
-  - snprintf can be modified to write to it also.
-*/
+  /*
+    - ALTERNATIVELY could pass in a streaming interface...  with mark() reverse() etc...
+  */
 
   char buf[100];
 
@@ -1327,15 +1317,14 @@ static char * format_voltage(char *s, size_t sz, vrange_t vrange, float val, int
   {
     case vrange_100V:
     case vrange_10V:
-      snprintf(s, sz, "%sV", format_float(buf, ARRAY_SIZE(buf), val, digits ) ); // 6 digits
+      snprintf(s, sz, "%sV", format_float(buf, ARRAY_SIZE(buf), val, digits));
       break;
 
     case vrange_1V:
     case vrange_100mV:
       // TODO 1e+3f
-      snprintf(s, sz, "%smV", format_float(buf, sizeof(buf), val * 1000, digits) ); // 6 digits
+      snprintf(s, sz, "%smV", format_float(buf, sizeof(buf), val * 1000, digits));
       break;
-
   }
 
   return s;
