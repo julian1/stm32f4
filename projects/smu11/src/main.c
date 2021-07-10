@@ -1370,10 +1370,10 @@ static char * snprintf2(char *s, size_t sz, const char *format, ...)
 static void usart_print_kv(int fwidth, const char *fs, int vwidth,  const char *vs)
 {
   char buf[100];
-
-  usart_printf(indent_left(buf, sizeof(buf), fwidth, fs));
-
-  usart_printf( indent_right(buf, sizeof(buf), vwidth, vs));
+  // key/field
+  usart_printf( indent_left(buf, sizeof(buf), fwidth, fs));
+  // val
+  usart_printf(indent_right(buf, sizeof(buf), vwidth, vs));
 }
 
 
