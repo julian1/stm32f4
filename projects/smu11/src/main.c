@@ -1356,7 +1356,7 @@ static char * indent_right(char *s, size_t sz, int indent, const char *string)
 
 static char * snprintf2(char *s, size_t sz, const char *format, ...)
 {
-  // same as snprintf but return the input buffer, as convenience for caller 
+  // same as snprintf but return the input buffer, as convenience for caller
 
 	va_list args;
 	va_start(args, format);
@@ -1367,7 +1367,14 @@ static char * snprintf2(char *s, size_t sz, const char *format, ...)
 }
 
 
+static void usart_print_kv(int fwidth, const char *fs, int vwidth,  const char *vs)
+{
+  char buf[100];
 
+  usart_printf(indent_left(buf, sizeof(buf), fwidth, fs));
+
+  usart_printf( indent_right(buf, sizeof(buf), vwidth, vs));
+}
 
 
 
@@ -1491,17 +1498,8 @@ static void update_soft_500ms(app_t *app)
   io_toggle(app->spi, REG_LED, LED1);
 }
 
-// width should come before the string.
 
-static void usart_print_kv( int fwidth, const char *fs, int vwidth,  const char *vs )
-{
-  char buf[100];
 
-  usart_printf(indent_left(buf, sizeof(buf), fwidth, fs));
-
-  usart_printf( indent_right(buf, sizeof(buf), vwidth, vs));
-
-}
 
 
 static void update_nplc_measure(app_t *app)
@@ -1618,11 +1616,7 @@ static void update_nplc_measure(app_t *app)
 
 
 
-
-
-
-    // formatting an integer, we're going to have to pass in a buffer... uggy....
-
+    // other stats
     usart_printf("\n");
     usart_print_kv( 15, "nplc_measure:", 6, snprintf2(buf, sizeof(buf), "%d", app->nplc_measure));
 
@@ -1635,8 +1629,7 @@ static void update_nplc_measure(app_t *app)
 
     // rails
     // Math.log10( Math.pow(2, 12) ) == 3.6 digits for 12 bits rep.
-
-    // just appropriate format_voltage function to format the rails voltages
+    // appropriate format_voltage() function to format the rails voltages
     usart_printf("\n");
     usart_print_kv( 15, "lp15v:", 6, format_voltage(buf, sizeof(buf), vrange_10V, app->lp15v, 4));
     usart_printf("\n");
