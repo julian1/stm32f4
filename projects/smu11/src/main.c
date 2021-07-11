@@ -134,9 +134,15 @@
          75mA    4.6V   output off
         115mA.   4.4V   small relay on.
         140mA    4.3V   big relay on.
-        
+
           surprising.   we probably
           if used on-board 5V supply. then that would  alleviate drop over wires.
+
+        R=V/R
+        0.5V / 0.14A
+        = 3.5R ohms in the leads?
+        try other leads.
+
     -------------
 
       - want to output power. which is easy. just multiply range unit converted values...
