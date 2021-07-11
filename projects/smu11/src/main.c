@@ -1588,9 +1588,12 @@ static void update_soft_1s(app_t *app)
 
 static void update_soft_500ms(app_t *app)
 {
-  // blink led
+  // blink the fpga led
   mux_io(app->spi);
   io_toggle(app->spi, REG_LED, LED1);
+
+  // blink mcu led
+  led_toggle();
 }
 
 
