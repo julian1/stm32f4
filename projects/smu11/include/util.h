@@ -20,8 +20,10 @@ extern void critical_error_blink(void);
 /////////////////////
 
 
-extern void systick_setup(uint32_t tick_divider);
 extern volatile uint32_t system_millis;
+
+extern void systick_setup(uint32_t tick_divider);
+
 extern void msleep(uint32_t delay);
 
 ///////////////

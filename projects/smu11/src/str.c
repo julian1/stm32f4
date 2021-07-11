@@ -1,5 +1,7 @@
 
-//
+
+#include <ctype.h>    // isdigit
+#include <stdbool.h>    // true
 #include <stdio.h>
 #include <stdarg.h> // va_start etc
 
@@ -44,6 +46,7 @@ char * snprintf2(char *s, size_t sz, const char *format, ...)
   so compiler is doing printf format checking on the inlined function.
 */
 
+#if 0
 char * format_float(char *s, size_t sz, int digits, double value)
 {
   /*
@@ -62,6 +65,56 @@ char * format_float(char *s, size_t sz, int digits, double value)
   snprintf(s, sz, "%0.*g",  digits, value);
   return s;
 }
+#endif
+
+char * format_float(char *s, size_t sz, int digits, double value)
+{
+  /*
+  from man snprintf
+    %g The precision specifies the number of significant digits.  [...]
+    Trailing zeros are removed from the fractional part of the result; a decimal
+    point appears only if it is followed by at least one digit.  */
+
+
+  // format
+  size_t i = snprintf(s, sz, "%0.*g",  digits, value);
+
+  // count how many digits we got
+  int c = 0;
+  for(char *p = s; *p; ++p) {
+    if(isdigit((int)*p))
+      ++c;
+  }
+
+  // check for decimal decimal place...
+  bool dot = false;
+  for(char *p = s; *p; ++p) {
+    if(*p == '.')
+      dot = true;
+  }
+
+  // maybe add dot
+  if(!dot && i < (sz - 1)) {
+    s[i++] = '.';
+  }
+
+  // maybe add trailing zeros that were ignored/dropped
+  for(int k = c; k < digits && i < (sz - 1); ++k) {
+    s[i++] = '0';
+  }
+
+  // add new sentinel
+  ASSERT(i < sz);
+  s[i++] = 0;
+  return s;
+}
+
+
+
+
+
+
+
 
 
 char * format_bits(char *buf, size_t width, uint32_t value)

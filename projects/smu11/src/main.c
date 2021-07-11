@@ -122,6 +122,7 @@
       - done - want to report the mean values for vfb, ifb.   use vmean, imean  names
           - also test that values are correct.
 
+      - done print systick, to know millis interval since last measure()
 
      -------------
 
@@ -131,9 +132,19 @@
 
       - weird - other power supply gives 0.5V drop eg. 4.4V with sense connected to rear.
         maybe it's just sense.
-         75mA    4.6V   output off
+         34mA    4.9V   no mcu up.
+         52mA    4.9V   mcu connected - and blinking the led.
+         75mA    4.6V   output off/ both relays off.
         115mA.   4.4V   small relay on.
         140mA    4.3V   big relay on.
+        -------
+        ok. maybe bad conn.
+        150mA   4.5V.   better
+        --------
+        OK. issue was crappy leads/ connections. now.
+         80mA    4.97V.  output off/ both relays off.
+        160mA.   4.96V.  on.
+
 
           surprising.   we probably
           if used on-board 5V supply. then that would  alleviate drop over wires.
@@ -142,6 +153,7 @@
         0.5V / 0.14A
         = 3.5R ohms in the leads?
         try other leads.
+        or maybe our terminal connection is no good.
 
     -------------
 
@@ -501,6 +513,8 @@ typedef struct app_t
   // float     ifb;
 
   /////////////
+  uint32_t  measure_millis_last;
+
   uint32_t  nplc_measure;
   uint32_t  nplc_range;
 
@@ -1529,14 +1543,12 @@ static void spi1_interupt(app_t *app)
   /*
     interupt context. avoid doing work here...
   */
-
-
   if(app->adc_drdy == true) {
-
+    // still flagged from last time, then code is too slow, and we missed an adc read
     ++app->adc_drdy_missed;
   }
 
-  // set update to read...
+  // set adc_drdy flag so that update() knows to read the adc...
   app->adc_drdy = true;
 }
 
@@ -1718,6 +1730,11 @@ static void update_nplc_measure(app_t *app)
     usart_printf("\n");
     usart_print_kv( 15, "pl_freq:",   6, "50");   // TODO
 
+
+
+    usart_printf("\n");
+    usart_print_kv( 15, "millis", 6,      snprintf2(buf, sizeof(buf), "%d", system_millis - app->measure_millis_last));    // millis is 32 bit.
+    app->measure_millis_last = system_millis;
 
 
     usart_printf("\n");
