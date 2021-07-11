@@ -116,6 +116,12 @@
       - done - we just need left and right indentation for values...  can do with %xs and  %-xs.
           field names left indent, values right indent
 
+      - done - want to output. current pl freq .    even if hard code.
+            just to make the dependency clear.
+
+      - done - want to report the mean values for vfb, ifb.   use vmean, imean  names
+          - also test that values are correct.
+
 
      -------------
 
@@ -123,19 +129,22 @@
           rail is being pulled down, 4.36V. regardless of large relay output being on....
           although 3.3V output is ok without it.
 
+      - weird - other power supply gives 0.5V drop eg. 4.4V with sense connected to rear.
+        maybe it's just sense.
+         75mA    4.6V   output off
+        115mA.   4.4V   small relay on.
+        140mA    4.3V   big relay on.
+        
+          surprising.   we probably
+          if used on-board 5V supply. then that would  alleviate drop over wires.
+    -------------
+
       - want to output power. which is easy. just multiply range unit converted values...
           and use arbitrary...
           probably resistance also.
 
 
-      - want to output. current pl freq .    even if hard code.
-            just to make the dependency clear.
-
-
-      - want to report the mean values for vfb, ifb.   maybe use vfbm ifbm names for vars.
-          - also test that values are correct.
-
-      -  use 5ohm power r. for load. eg. 5V 1A.
+      -  use 5ohm power r. for higher load. eg. 5V 1A.
 
       - need to copy paste mean,sd on different ranges. (or take pics) as a baseline for performance.
           before try on higher current external linear/toroid supply.
