@@ -1670,10 +1670,10 @@ static void update_nplc_measure(app_t *app)
     usart_printf("smart source measure unit\n");
     usart_printf("\n");
 
-    usart_print_kv( 5, "vmean:", 10,  format_voltage(buf, sizeof(buf), app->vrange, /*vfb*/ vmean * range_voltage_multiplier(app->vrange), 6 ) );
+    usart_print_kv( 6, "vmean:",  11,  format_voltage(buf, sizeof(buf), app->vrange, /*vfb*/ vmean * range_voltage_multiplier(app->vrange), 6 ) );
 
     usart_printf("  ");
-    usart_print_kv( 5, "vset:" , 10,  format_voltage(buf, sizeof(buf), app->vset_range, app->vset * range_voltage_multiplier(app->vset_range), 6) );
+    usart_print_kv( 6, "vset:",   11,  format_voltage(buf, sizeof(buf), app->vset_range, app->vset * range_voltage_multiplier(app->vset_range), 6) );
 
     usart_printf("  ");
     usart_print_kv( 10,"vset_range:", 5, range_voltage_string(app->vset_range));
@@ -1686,12 +1686,13 @@ static void update_nplc_measure(app_t *app)
     }
 
     //////////
+    // 11 gdigits needed. eg. -999.999nA
     usart_printf("\n\n");
 
-    usart_print_kv( 5, "imean:", 10,  format_current(buf, sizeof(buf), app->irange, /*ifb*/ imean * range_current_multiplier(app->irange), 6));
+    usart_print_kv( 6, "imean:",  11,  format_current(buf, sizeof(buf), app->irange, /*ifb*/ imean * range_current_multiplier(app->irange), 6));
 
     usart_printf("  ");
-    usart_print_kv( 5, "iset:", 10,   format_current(buf, sizeof(buf), app->iset_range, app->iset * range_current_multiplier(app->iset_range), 6));
+    usart_print_kv( 6, "iset:",   11,   format_current(buf, sizeof(buf), app->iset_range, app->iset * range_current_multiplier(app->iset_range), 6));
 
     usart_printf("  ");
     usart_print_kv( 10, "iset_range:", 5, range_current_string(app->iset_range));
