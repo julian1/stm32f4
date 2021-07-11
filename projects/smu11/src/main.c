@@ -478,7 +478,7 @@ typedef struct app_t
   /////////////////////////
   // adc data ready, given by interupt
   bool      adc_drdy;
-  uint32_t  adc_drdy_count;
+  uint32_t  adc_drdy_missed;
   uint32_t  adc_ov_count;
 
   // adc last read values
@@ -1515,13 +1515,10 @@ static void spi1_interupt(app_t *app)
     interupt context. avoid doing work here...
   */
 
-  ++app->adc_drdy_count;
 
   if(app->adc_drdy == true) {
 
-    // we missed reading last time...
-    usart_printf("missed adc read cycle\n");
-    // ASSERT(0);
+    ++app->adc_drdy_missed;
   }
 
   // set update to read...
@@ -1537,7 +1534,7 @@ static void update_soft_1s(app_t *app)
 
   // reset the housekeeping counts
   // IMPORTANT keep. we can report this stuff easily on 1s interval - if use ncurses.
-  app->adc_drdy_count  = 0;
+  // app->adc_drdy_count  = 0;
   app->update_count    = 0;
 
   // TODO should be checking adc_read count matches what we expect, on 1s interval.
@@ -1707,6 +1704,10 @@ static void update_nplc_measure(app_t *app)
     usart_print_kv( 15, "pl_freq:",   6, "50");   // TODO
 
 
+
+    usart_printf("\n");
+    usart_print_kv( 15, "drdy_missed:", 6,      snprintf2(buf, sizeof(buf), "%d", app->adc_drdy_missed));
+    app->adc_drdy_missed = 0;
 
 
 
