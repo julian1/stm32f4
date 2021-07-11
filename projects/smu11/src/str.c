@@ -55,7 +55,11 @@ char * format_float(char *s, size_t sz, int digits, double value)
 
   ASSERT( digits < ((int)sz) - 2);  // basic sanity check ... TODO review...
 
-  snprintf(s, sz, "%0.*g\n",  digits, value);
+  /*
+    correct number of digits, but this doesn't add trailing 0...
+
+  */
+  snprintf(s, sz, "%0.*g",  digits, value);
   return s;
 }
 
