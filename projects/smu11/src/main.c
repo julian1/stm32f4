@@ -124,13 +124,13 @@
 
       - done print systick, to know millis interval since last measure()
 
-     -------------
 
-      - need to check if 5V droop to 4V - is on the usb hub, or just stlink.
+      - done - need to check if 5V droop to 4V - is on the usb hub, or just stlink.
           rail is being pulled down, 4.36V. regardless of large relay output being on....
           although 3.3V output is ok without it.
+        it's usb
 
-      - weird - other power supply gives 0.5V drop eg. 4.4V with sense connected to rear.
+      - done - weird - other power supply gives 0.5V drop eg. 4.4V with sense connected to rear.
         maybe it's just sense.
          34mA    4.9V   no mcu up.
          52mA    4.9V   mcu connected - and blinking the led.
@@ -145,24 +145,30 @@
          80mA    4.97V.  output off/ both relays off.
         160mA.   4.96V.  on.
 
+            surprising.   we probably
+            if used on-board 5V supply. then that would  alleviate drop over wires.
 
-          surprising.   we probably
-          if used on-board 5V supply. then that would  alleviate drop over wires.
-
-        R=V/R
-        0.5V / 0.14A
-        = 3.5R ohms in the leads?
-        try other leads.
-        or maybe our terminal connection is no good.
+          R=V/R
+          0.5V / 0.14A
+          = 3.5R ohms in the leads?
+          try other leads.
+          or maybe our terminal connection is no good.
 
     -------------
+
+    schaffner fn 322
+
+      - its strange that the systick is showing 993. instead of 1000. 
+          - try to move code to where the actual adc is read in update loop.
+          - could be HSI RC osc...
+          - need hse.  with prec timing.
 
       - want to output power. which is easy. just multiply range unit converted values...
           and use arbitrary...
           probably resistance also.
 
 
-      -  use 5ohm power r. for higher load. eg. 5V 1A.
+      - use 5ohm power r. for higher load. eg. 5V 1A.
 
       - need to copy paste mean,sd on different ranges. (or take pics) as a baseline for performance.
           before try on higher current external linear/toroid supply.
