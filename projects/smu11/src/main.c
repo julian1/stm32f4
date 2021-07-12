@@ -156,19 +156,20 @@
 
     -------------
 
-    schaffner fn 322
 
-      - its strange that the systick is showing 993. instead of 1000. 
+      - its strange that the systick is showing 993. instead of 1000.
           - try to move code to where the actual adc is read in update loop.
-          - could be HSI RC osc...
+          - could be HSI RC osc... instead of crystal.
           - need hse.  with prec timing.
 
       - want to output power. which is easy. just multiply range unit converted values...
           and use arbitrary...
           probably resistance also.
 
+      coroutines,
+        https://moosh.im/2020/07/coroutine-demonstration-with-setjmp-longjmp-stm32/
 
-      - use 5ohm power r. for higher load. eg. 5V 1A.
+      - use 5ohm power resistor. to test higher load. need sd of the 1A range.
 
       - need to copy paste mean,sd on different ranges. (or take pics) as a baseline for performance.
           before try on higher current external linear/toroid supply.
