@@ -174,8 +174,15 @@
           ---
           need to convert back to +-15V to test. everything again.
           0.5ohm and 3A. is only 1.5W???? there must be a short somewhere else...
+          ----------
+
+          we have no indication of the current.   that's the problem.
+          could buy some polyfuses and bodge them in.
+          ----
 
 
+
+      - need to check - noise on compliance. just AC couple with scope. should be simple.
 
 
       - its strange that the systick is showing 993. instead of 1000.
