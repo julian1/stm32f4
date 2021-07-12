@@ -1,0 +1,122 @@
+
+
+Using +-15V bench only.
+interested in current sd.
+------------------
+
+
+120mA - on 1A range.... great.... ifb.... sd.
+vmean:  82.9960mV  vset:    5.00000V  vset_range:  10V  vrange: 100mV
+imean:  120.089mA  iset:   120.000mA  iset_range:   1A  irange:    1A*
+
+vfb:  8.242453  v mean:  8.299600  v stddev:  0.036328
+ifb:  1.200919  i mean:  1.200889  i stddev:  0.000012
+
+nplc_measure:      50
+nplc_range:        20
+pl_freq:           50
+millis            991
+drdy_missed:        0
+adc_ov_count:       0
+digits:             6
+lp15v:         15.11V
+ln15v:         15.04V
+output:            on
+
+
+
+100mA.
+vmean:  71.7956mV  vset:    5.00000V  vset_range:  10V  vrange: 100mV
+imean:  99.9963mA  iset:   100.000mA  iset_range:100mA  irange: 100mA*
+
+vfb:  7.158278  v mean:  7.179561  v stddev:  0.020800
+ifb:  9.999619  i mean:  9.999635  i stddev:  0.000023
+
+nplc_measure:      50
+nplc_range:        20
+pl_freq:           50
+millis            990
+drdy_missed:        0
+adc_ov_count:       0
+digits:             6
+lp15v:         15.10V
+ln15v:         15.04V
+output:            on
+
+
+10mA
+vmean:   1.63703V  vset:    5.00000V  vset_range:  10V  vrange:   10V*
+imean:  10.0093mA  iset:   10.0000mA  iset_range:100mA  irange: 100mA*
+
+vfb:  1.637109  v mean:  1.637026  v stddev:  0.000045
+ifb:  1.000930  i mean:  1.000932  i stddev:  0.000009
+
+nplc_measure:      50
+nplc_range:        20
+pl_freq:           50
+millis            990
+drdy_missed:        0
+adc_ov_count:       0
+digits:             6
+lp15v:         15.12V
+ln15v:         15.04V
+output:            on
+
+
+
+1mA. into 1.5V battery
+vmean:   1.61604V  vset:    5.00000V  vset_range:  10V  vrange:   10V*
+imean:  999.985uA  iset:   1000.00uA  iset_range:  1mA  irange:   1mA*
+
+vfb:  1.616048  v mean:  1.616045  v stddev:  0.000009
+ifb:  9.999901  i mean:  9.999846  i stddev:  0.000019
+
+nplc_measure:      50
+nplc_range:        20
+pl_freq:           50
+millis            990
+drdy_missed:        0
+adc_ov_count:       0
+digits:             6
+lp15v:         15.15V
+ln15v:         15.04V
+output:            on
+
+
+1uA
+vmean:   1.61217V  vset:    5.00000V  vset_range:  10V  vrange:   10V*
+imean:  999.991nA  iset:   1000.00nA  iset_range:  1uA  irange:   1uA*
+
+vfb:  1.612143  v mean:  1.612173  v stddev:  0.000019
+ifb:  9.999902  i mean:  9.999906  i stddev:  0.000026
+
+nplc_measure:      50
+nplc_range:        20
+pl_freq:           50
+millis            990
+drdy_missed:        0
+adc_ov_count:       0
+digits:             6
+lp15v:         15.14V
+ln15v:         15.04V
+output:            on
+
+
+1nA
+vmean:   1.61179V  vset:    5.00000V  vset_range:  10V  vrange:   10V*
+imean:  1.00092nA  iset:   1.00000nA  iset_range: 10nA  irange:  10nA*
+
+vfb:  1.611797  v mean:  1.611793  v stddev:  0.000009
+ifb:  1.000908  i mean:  1.000921  i stddev:  0.000012
+
+nplc_measure:      50
+nplc_range:        20
+pl_freq:           50
+millis            991
+drdy_missed:        0
+adc_ov_count:       0
+digits:             6
+lp15v:         15.15V
+ln15v:         15.04V
+output:            on
+
