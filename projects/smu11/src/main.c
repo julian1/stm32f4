@@ -2073,6 +2073,14 @@ static void state_change(app_t *app, state_t state )
       io_set(app->spi, REG_RAILS, RAILS_LP15V );
       msleep(50);
 
+      // turn on +-30V rails. think this is ok here...
+      usart_printf("turn on power rails \n" );
+      io_set(app->spi, REG_RAILS, RAILS_LP30V );
+      msleep(50);
+
+
+
+
       // LP30 - needed to power the vfb topside op amp. ltc6090/ bootstrapped
       // io_set(spi, REG_RAILS, RAILS_LP30V );
       // msleep(50);
