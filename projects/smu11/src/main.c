@@ -157,6 +157,27 @@
     -------------
 
 
+      - we need SD/ divided by value. eg. relative sd.
+
+      - ok. 1A. at 36V = 36W. without heatsink. and blew the fuse.  seems strange.
+            perhaps we blew pass transisotr also???....
+          could be oscillation.
+
+          we have to try to connect +-15V and see what the draw is.
+          to-220 is measuring 7ohm. other is measuig 23ohm?
+          it's melted the solder joints.
+          -------------
+          need long piece of piano wire. to clean desolder tool.
+          ------------
+          R76. directly the output for the low side?
+          0.5A fuse blew. so 130W.  through 0.5ohm.   120W/36V=3A only?
+          ---
+          need to convert back to +-15V to test. everything again.
+          0.5ohm and 3A. is only 1.5W???? there must be a short somewhere else...
+
+
+
+
       - its strange that the systick is showing 993. instead of 1000.
           - try to move code to where the actual adc is read in update loop.
           - could be HSI RC osc... instead of crystal.

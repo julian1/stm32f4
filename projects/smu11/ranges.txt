@@ -1,9 +1,37 @@
 
 
+To use the output power section. We do need to be able to turn it off.
+  that makes using the fets.... but how are th
+
+  then we want to route current current forward - but bypassing. the conditioning.
+
+  Just need WP30V_HC  - note that we can use anything for this.
+
+
 Using +-15V bench only.
 interested in current sd.
 ------------------
 
+3mA. on 1k. resistor. switching power through power fets.
+
+vmean:   2.99438V  vset:    5.00000V  vset_range:  10V  vrange:   10V*
+imean:  3.00092mA  iset:   3.00000mA  iset_range: 10mA  irange:  10mA*
+
+vfb:  2.994390  v mean:  2.994376  v stddev:  0.000012
+ifb:  3.000933  i mean:  3.000923  i stddev:  0.000013
+
+nplc_measure:      50
+nplc_range:        20
+pl_freq:           50
+millis            992
+drdy_missed:        0
+adc_ov_count:       0
+digits:             6
+lp15v:         15.12V
+ln15v:         15.01V
+output:            on
+
+--------
 
 120mA - on 1A range.... great.... ifb.... sd.
 vmean:  82.9960mV  vset:    5.00000V  vset_range:  10V  vrange: 100mV
@@ -119,4 +147,141 @@ digits:             6
 lp15v:         15.15V
 ln15v:         15.04V
 output:            on
+-----------------------------
+
+---------------------------------------
+
+USING  +-36V power rails.  into resistor. need to use battery.
+off/on works.
+
+standard deviation looks good!!..
+
+
+3mA.
+vmean:   2.99449V  vset:    5.00000V  vset_range:  10V  vrange:   10V*
+imean:  3.00101mA  iset:   3.00000mA  iset_range: 10mA  irange:  10mA*
+
+vfb:  2.994490  v mean:  2.994490  v stddev:  0.000012
+ifb:  3.001020  i mean:  3.001013  i stddev:  0.000011
+
+nplc_measure:      50
+nplc_range:        20
+pl_freq:           50
+millis            992
+drdy_missed:        0
+adc_ov_count:       0
+digits:             6
+lp15v:         15.12V
+ln15v:         15.02V
+output:            on
+
+
+smart source measure unit
+
+1mA into battery
+vmean:   1.61032V  vset:    5.00000V  vset_range:  10V  vrange:   10V*
+imean:  999.957nA  iset:   1000.00nA  iset_range:  1uA  irange:   1uA*
+
+vfb:  1.610315  v mean:  1.610319  v stddev:  0.000008
+ifb:  9.999557  i mean:  9.999571  i stddev:  0.000018
+
+nplc_measure:      50
+nplc_range:        20
+pl_freq:           50
+millis            992
+drdy_missed:        0
+adc_ov_count:       0
+digits:             6
+lp15v:         15.15V
+ln15v:         15.04V
+output:            on
+
+
+1uA into battery
+vmean:   1.61040V  vset:    5.00000V  vset_range:  10V  vrange:   10V*
+imean:  999.953nA  iset:   1000.00nA  iset_range:  1uA  irange:   1uA*
+
+vfb:  1.610404  v mean:  1.610402  v stddev:  0.000008
+ifb:  9.999539  i mean:  9.999531  i stddev:  0.000015
+
+nplc_measure:      50
+nplc_range:        20
+pl_freq:           50
+millis            993
+drdy_missed:        0
+adc_ov_count:       0
+digits:             6
+lp15v:         15.15V
+ln15v:         15.04V
+output:            on
+
+
+1nA into battery.
+vmean:   1.61069V  vset:    5.00000V  vset_range:  10V  vrange:   10V*
+imean:  1.00081nA  iset:   1.00000nA  iset_range: 10nA  irange:  10nA*
+
+vfb:  1.610684  v mean:  1.610687  v stddev:  0.000007
+ifb:  1.000812  i mean:  1.000815  i stddev:  0.000012
+
+nplc_measure:      50
+nplc_range:        20
+pl_freq:           50
+millis            992
+drdy_missed:        0
+adc_ov_count:       0
+digits:             6
+lp15v:         15.15V
+ln15v:         15.04V
+output:            on
+
+all looks good!!.
+
+
+30mA into battery..
+v stddev has gone up a lot. 122.
+
+vmean:   1.65851V  vset:    5.00000V  vset_range:  10V  vrange:   10V*
+imean:  30.0091mA  iset:   30.0000mA  iset_range:100mA  irange: 100mA*
+
+vfb:  1.658718  v mean:  1.658509  v stddev:  0.000122
+ifb:  3.000919  i mean:  3.000910  i stddev:  0.000014
+
+nplc_measure:      50
+nplc_range:        20
+pl_freq:           50
+millis            992
+drdy_missed:        0
+adc_ov_count:       0
+digits:             6
+lp15v:         15.12V
+ln15v:         15.01V
+output:            on
+
+
+-------------------------------
+
+100mA into battery.
+ok. stddev is actually lower than the bench however.  0.000346 +-36V   versus 0.020800 +-15V
+so it's better?
+ifb is GREAT.  vfb is compliance - and can chaange depending on battery temp.... THIS IS VERY GOOD.
+
+vmean:   1.74897V  vset:    5.00000V  vset_range:  10V  vrange:   10V*
+imean:  99.9973mA  iset:   100.000mA  iset_range:100mA  irange: 100mA*
+
+vfb:  1.749539  v mean:  1.748970  v stddev:  0.000346
+ifb:  9.999710  i mean:  9.999727  i stddev:  0.000018
+
+nplc_measure:      50
+nplc_range:        20
+pl_freq:           50
+millis            993
+drdy_missed:        0
+adc_ov_count:       0
+digits:             6
+lp15v:         15.12V
+ln15v:         15.02V
+output:            on
+
+
+
 
