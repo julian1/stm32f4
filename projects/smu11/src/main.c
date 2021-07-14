@@ -1,4 +1,18 @@
 /*
+  nix-shell ~/devel/nixos-config/examples/arm.nix
+  rlwrap -a picocom -b 115200 /dev/ttyUSB0
+
+  nix-shell ~/devel/nixos-config/examples/arm.nix
+  make
+
+  nix-shell ~/devel/nixos-config/examples/arm.nix
+  openocd -f ../../openocd.cfg
+
+  rlwrap nc localhost 4444
+   reset halt ; flash write_image erase unlock ./main.elf; sleep 1500; reset run  
+
+
+  --------------
   TODO
   - clear the bad code.  on adc OV. which happens when change range.
   - drill in range. that puts compliance at max of range.
