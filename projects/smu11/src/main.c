@@ -159,6 +159,12 @@
 
       - we need SD/ divided by value. eg. relative sd.
 
+
+      - also non-range based formatting of values. 20uV. for sd.
+
+
+
+
       - ok. 1A. at 36V = 36W. without heatsink. and blew the fuse.  seems strange.
             perhaps we blew pass transisotr also???....
           could be oscillation.
@@ -180,6 +186,13 @@
           could buy some polyfuses and bodge them in.
           ----
 
+          0.5ohm resistors - measure 33 and 22 (completely melted one) ohm.
+
+      - change name ovl   ovd  or ovld  or ov.ld
+
+      - Keith. 2002. 10plc = 200ms. for 8.5digit reading.  + digital filter. for 2 second reading.
+      ---- EXTR.
+        filter. can be moving filter. so that update still appears fast. and varation appears lower.
 
 
       - need to check - noise on compliance. just AC couple with scope. should be simple.
