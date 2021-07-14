@@ -1,5 +1,11 @@
 
 
+----------------
+ALL these tests were done without VBE multiplier connected.
+
+
+
+
 To use the output power section. We do need to be able to turn it off.
   that makes using the fets.... but how are th
 
