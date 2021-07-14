@@ -6,10 +6,12 @@
   make
 
   nix-shell ~/devel/nixos-config/examples/arm.nix
+  cd smu11
   openocd -f ../../openocd.cfg
 
+  nix-shell ~/devel/nixos-config/examples/arm.nix
   rlwrap nc localhost 4444
-   reset halt ; flash write_image erase unlock ./main.elf; sleep 1500; reset run  
+  reset halt ; flash write_image erase unlock ./main.elf; sleep 1500; reset run
 
 
   --------------
