@@ -911,7 +911,7 @@ static void range_current_set(app_t *app, irange_t irange)
       io_write(app->spi, REG_IRANGE_YZ_SW, 0);
 
       switch(app->irange) {
-
+      
         case irange_10A:
         case irange_1A:
           // usart_printf("1A range \n");
@@ -934,8 +934,6 @@ static void range_current_set(app_t *app, irange_t irange)
             default:
               // cannot be here...
               ASSERT(0);
-              // critical_error_blink();
-              // return;
               break;
           };
           break;
@@ -963,8 +961,8 @@ static void range_current_set(app_t *app, irange_t irange)
 
         default:
           // cannot be here.
-          critical_error_blink();
-          return;
+          ASSERT(0);
+          break;
       }
       return;
 
@@ -1012,9 +1010,7 @@ static void range_current_set(app_t *app, irange_t irange)
             default:
               // cannot be here.
               ASSERT(0);
-              // critical_error_blink();
-              // return;
-
+              break;
           }
           break;
 
@@ -1932,10 +1928,18 @@ static void update_adc_drdy(app_t *app)
   ASSERT(fBufPeekLast(&app->ifb_range) == ifb);
   ASSERT(fBufCount(&app->vfb_range) ==  fBufCount(&app->ifb_range)); // if ov error reading... should perhaps be text error?
 
+  // user input verification - shoudl already be done
 
-  if(fabs(ifb) > 1.f /*3.f*/ && app->irange == irange_10A) {
+  /*
+    OK. weirdness...
+    this jjjjj
+  */
+  if(fabs(ifb) > 1.3f && app->irange == irange_10A) {
+  // if(fabs(ifb) > 1.f /*3.f*/ && japp->irange == irange_10A) {
 
-    usart_printf("unknown overcurrent condition\n");
+    // ifb == 3. but that's 3 amps?
+    usart_printf("ifb is %f\n", ifb);
+    usart_printf("current > 1.3A, unknown overcurrent condition\n");
     // unknown over-current condition
     // probable hardware condition
     // this didn't stop...
@@ -2023,8 +2027,8 @@ static void update(app_t *app)
       if((app->lp15v < 14.7 || app->ln15v < 14.7)  )
       {
         usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
-        usart_printf("15V analog rails low - state change halt\n");
-        ASSERT(0);
+        usart_printf("15V analog rails low - calling assert\n");
+        ASSERT("rails low");
         // state_change(app, HALT);
       }
       break;
