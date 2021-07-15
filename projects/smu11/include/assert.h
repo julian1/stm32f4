@@ -7,6 +7,9 @@
   probably want a critical_usart_write() 
 */
 
+
+extern void assert_setup(void (*pf)(void *), void *ctx );
+
 extern void assert_simple(const char *file, int line, const char *func, const char *expr);
 
 #define ASSERT(expr)    ((expr) ? ((void)0) : assert_simple(__FILE__, __LINE__, __func__, #expr))

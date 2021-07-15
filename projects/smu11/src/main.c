@@ -11,7 +11,7 @@
 
   nix-shell ~/devel/nixos-config/examples/arm.nix
   rlwrap nc localhost 4444
-  reset halt ; flash write_image erase unlock ./main.elf; sleep 1500; reset run
+  /eset halt ; flash write_image erase unlock ./main.elf; sleep 1500; reset run
 
 
   --------------
@@ -1930,7 +1930,7 @@ static void update_adc_drdy(app_t *app)
   fBufPush(&app->ifb_range, ifb);
   ASSERT(fBufPeekLast(&app->vfb_range) == vfb);
   ASSERT(fBufPeekLast(&app->ifb_range) == ifb);
-  ASSERT(fBufCount(&app->vfb_range) ==  fBufCount(&app->ifb_range));
+  ASSERT(fBufCount(&app->vfb_range) ==  fBufCount(&app->ifb_range)); // if ov error reading... should perhaps be text error?
 
 
   if(fabs(ifb) > 1.f /*3.f*/ && app->irange == irange_10A) {
@@ -1938,6 +1938,8 @@ static void update_adc_drdy(app_t *app)
     usart_printf("unknown overcurrent condition\n");
     // unknown over-current condition
     // probable hardware condition
+    // this didn't stop...
+      // OK. issue
     ASSERT(0);
   }
 
@@ -2022,7 +2024,8 @@ static void update(app_t *app)
       {
         usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
         usart_printf("15V analog rails low - state change halt\n");
-        state_change(app, HALT);
+        ASSERT(0);
+        // state_change(app, HALT);
       }
       break;
 
@@ -2644,6 +2647,22 @@ static void loop(app_t *app)
 
 
 
+static void state_change_halt(app_t *app)
+{
+
+  state_change(app, HALT );
+
+
+}
+
+
+
+
+
+
+
+
+
 /////////////////////////
 /*
   TODO.
@@ -2683,6 +2702,17 @@ static app_t app;
   Rather than counting interupts in a separate var .
 
 */
+
+
+
+
+
+
+
+
+
+
+
 
 int main(void)
 {
@@ -2749,17 +2779,17 @@ int main(void)
   fBufInit(&app.ifb_range, buf_ifb_range, ARRAY_SIZE(buf_ifb_range));
 
 
-/*
-static float buf_vfb_measure[100];
-static float buf_ifb_measure[100];
 
 
-static float buf_vfb_range[100];
-static float buf_ifb_range[
-*/
+  // setup assert handleer
+  // TODO rename - setup_handler
+  assert_setup( (void (*)(void *)) state_change_halt, &app );
+
+
 
   // setup buffers
   usart_setup_gpio_portA();
+  // TODO rename setup handler?
   usart_setup(&app.console_in, &app.console_out);
 
   // setup print
