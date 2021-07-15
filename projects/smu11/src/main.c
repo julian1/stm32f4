@@ -170,18 +170,7 @@
           try other leads.
           or maybe our terminal connection is no good.
 
-    -------------
-
-
-      - we need SD/ divided by value. eg. relative sd.
-
-
-      - also non-range based formatting of values. 20uV. for sd.
-
-
-
-
-      - ok. 1A. at 36V = 36W. without heatsink. and blew the fuse.  seems strange.
+      - done fixed - ok. 1A. at 36V = 36W. without heatsink. and blew the fuse.  seems strange.
             perhaps we blew pass transisotr also???....
           could be oscillation.
 
@@ -204,14 +193,34 @@
 
           0.5ohm resistors - measure 33 and 22 (completely melted one) ohm.
 
+      - done - 10A range tested.
+
+      - done- need to check - noise on compliance. just AC couple with scope. should be simple.
+          SD on compliance is high due to DUT TC.
+
+
+    -------------
+
+      - DAC calibration.
+      - check loop performance / using unregulated supply.   should just need input fuse protection.
+
+      - check 100V range.  we can actually do this..
+
+
+      - we need SD/ divided by value. eg. relative sd. not sure.
+
+
+      - also non-range based formatting of values. 20uV. for sd.
+
+
+
+
       - change name ovl   ovd  or ovld  or ov.ld
 
       - Keith. 2002. 10plc = 200ms. for 8.5digit reading.  + digital filter. for 2 second reading.
       ---- EXTR.
         filter. can be moving filter. so that update still appears fast. and varation appears lower.
 
-
-      - need to check - noise on compliance. just AC couple with scope. should be simple.
 
 
       - its strange that the systick is showing 993. instead of 1000.
@@ -453,23 +462,14 @@
 
 
 
-// TODO maybe prefix these... ST_FIRST, ST_DIGITAL_UP ... etc.
-// also want a DONE state.
-
-
-
 typedef enum state_t {
-  FIRST,        // change name INITIAL?
-  DIGITAL_UP,   // DIGIAL_DIGITAL_UP
-  // ERROR,
-  ANALOG_UP,
-  HALT
+/*  enum should change to lower case. But do later.
+*/
+  STATE_FIRST,    // change name initial
+  STATE_DIGITAL_UP,
+  STATE_ANALOG_UP,
+  STATE_HALT
 } state_t;
-
-// static
-// should probably be put in state record structure, rather than on the stack?
-// except would need to pass by reference.
-// static state_t state = FIRST;
 
 
 
@@ -1663,7 +1663,7 @@ static void update_soft_500ms(app_t *app)
 static void update_nplc_measure(app_t *app)
 {
 
-  ASSERT(app->state ==  ANALOG_UP);
+  ASSERT(app->state ==  STATE_ANALOG_UP);
 
   ASSERT(fBufCount(&app->vfb_measure) == app->nplc_measure);
   ASSERT(fBufCount(&app->vfb_measure) > 0);
@@ -1860,7 +1860,7 @@ static void update_nplc_measure(app_t *app)
 
 static void update_nplc_range(app_t *app)
 {
-  ASSERT(app->state ==  ANALOG_UP);
+  ASSERT(app->state ==  STATE_ANALOG_UP);
 
   ASSERT(fBufCount(&app->vfb_range) == app->nplc_range);
   ASSERT(fBufCount(&app->vfb_range) > 0);
@@ -1890,7 +1890,7 @@ static void update_nplc_range(app_t *app)
 static void update_adc_drdy(app_t *app)
 {
 
-  ASSERT(app->adc_drdy && app->state == ANALOG_UP);
+  ASSERT(app->adc_drdy && app->state == STATE_ANALOG_UP);
 
 
   float ar[4];
@@ -1994,7 +1994,7 @@ static void update(app_t *app)
   /*
       main adc, ready to be read
   */
-  if(app->adc_drdy && app->state == ANALOG_UP) {
+  if(app->adc_drdy && app->state == STATE_ANALOG_UP) {
 
     update_adc_drdy(app);
   }
@@ -2012,31 +2012,31 @@ static void update(app_t *app)
 
   switch(app->state) {
 
-    case FIRST:
-      state_change(app, DIGITAL_UP);
+    case STATE_FIRST:
+      state_change(app, STATE_DIGITAL_UP);
       break;
 
-    case DIGITAL_UP:
+    case STATE_DIGITAL_UP:
       if(app->lp15v > 15.0 && app->ln15v > 15.0 )
       {
         usart_printf("-----------\n");
         usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
         usart_printf("15V analog rails ok - state change analog-up\n");
-        state_change(app, ANALOG_UP);
+        state_change(app, STATE_ANALOG_UP);
       }
       break ;
 
-    case ANALOG_UP:
+    case STATE_ANALOG_UP:
       if((app->lp15v < 14.7 || app->ln15v < 14.7)  )
       {
         usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
         usart_printf("15V analog rails low - calling assert\n");
         ASSERT("rails low");
-        // state_change(app, HALT);
+        // state_change(app, STATE_HALT);
       }
       break;
 
-    case HALT:
+    case STATE_HALT:
       break;
 
 
@@ -2051,16 +2051,16 @@ static void state_change(app_t *app, state_t state )
 {
   switch(state) {
 
-    case FIRST:
+    case STATE_FIRST:
       usart_printf("-------------\n" );
       usart_printf("first\n" );
 
 
-      app->state = FIRST;
+      app->state = STATE_FIRST;
       break;
 
 
-    case HALT: {
+    case STATE_HALT: {
 
       usart_printf("-------------\n" );
       usart_printf("change to halt state\n" );
@@ -2071,12 +2071,12 @@ static void state_change(app_t *app, state_t state )
 
       // turn off output relays
       output_set(app, app->irange, false );
-      app->state = HALT;
+      app->state = STATE_HALT;
       break;
     }
 
 
-    case DIGITAL_UP: {
+    case STATE_DIGITAL_UP: {
 
       // if any of these fail, this should progress to error
       usart_printf("-----------\n");
@@ -2102,7 +2102,7 @@ static void state_change(app_t *app, state_t state )
       // dac init
       int ret = dac_init(app->spi, REG_DAC); // bad name?
       if(ret != 0) {
-        state_change(app, HALT);
+        state_change(app, STATE_HALT);
         // app->state = ERROR;
         return;
       }
@@ -2118,12 +2118,12 @@ static void state_change(app_t *app, state_t state )
 */
       // progress to digital up?
       usart_printf("digital up ok\n" );
-      app->state = DIGITAL_UP;
+      app->state = STATE_DIGITAL_UP;
       break;
     }
 
 
-    case ANALOG_UP: {
+    case STATE_ANALOG_UP: {
 
 
       usart_printf("turn on lp5v\n" );
@@ -2217,12 +2217,12 @@ static void state_change(app_t *app, state_t state )
       if(ret != 0) {
         // app->state = ERROR;
 
-        state_change(app, HALT );
+        state_change(app, STATE_HALT );
         return;
       }
 
 
-      app->state = ANALOG_UP;
+      app->state = STATE_ANALOG_UP;
 
     }
 
@@ -2231,7 +2231,7 @@ static void state_change(app_t *app, state_t state )
 
   }
   // should do the actions here.
-  // app->state = HALT;
+  // app->state = STATE_HALT;
 
 
 }
@@ -2500,13 +2500,13 @@ static void update_console_ch(app_t *app, const char ch )
   // halt
   else if(ch == 'h') {
     usart_printf("halt \n");
-    state_change(app, HALT);
+    state_change(app, STATE_HALT);
     return;
   }
   // restart
   else if(ch == 'r') {
     usart_printf("restart\n"); // not resume
-    state_change(app, FIRST);
+    state_change(app, STATE_FIRST);
     return;
   }
 }
@@ -2656,9 +2656,7 @@ static void loop(app_t *app)
 
 static void state_change_halt(app_t *app)
 {
-
-  state_change(app, HALT );
-
+  state_change(app, STATE_HALT );
 
 }
 
@@ -2821,7 +2819,7 @@ int main(void)
   printf("sizeof double %u\n", sizeof(double));
 
 
-  state_change(&app, FIRST );
+  state_change(&app, STATE_FIRST );
 
   loop(&app);
 
