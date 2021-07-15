@@ -201,7 +201,20 @@
 
     -------------
 
-      - DAC calibration.
+      Want to measure hfe and VBE of to 247 bjts.
+      1A*37V=37W  near 50W limit of mje15034G .
+        hFE of 15034G at 0.5A is 100min. which is decent.
+
+      can measure - mains impress - by using a different powerline cycle multiple.
+
+      ==========
+      - EXTR. ok. all the higher current ranges (10,1,0.1) all use 1V or less range on current.
+          that means a 24V supply could give us +-20V for the high-current ranges.
+          without the 10V drop on the amps range..
+      ==========
+
+      - DAC calibration.  indexed by range enum. slope/off for dac and adc.
+
       - check loop performance / using unregulated supply.   should just need input fuse protection.
 
       - check 100V range.  we can actually do this..
@@ -911,6 +924,8 @@ static void range_current_set(app_t *app, irange_t irange)
       io_write(app->spi, REG_IRANGE_YZ_SW, 0);
 
       switch(app->irange) {
+
+        // TODO add the actual power.
 
         case irange_10A:
         case irange_1A:
