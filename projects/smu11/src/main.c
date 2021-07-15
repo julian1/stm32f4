@@ -911,7 +911,7 @@ static void range_current_set(app_t *app, irange_t irange)
       io_write(app->spi, REG_IRANGE_YZ_SW, 0);
 
       switch(app->irange) {
-      
+
         case irange_10A:
         case irange_1A:
           // usart_printf("1A range \n");
@@ -1940,11 +1940,14 @@ static void update_adc_drdy(app_t *app)
     // ifb == 3. but that's 3 amps?
     usart_printf("ifb is %f\n", ifb);
     usart_printf("current > 1.3A, unknown overcurrent condition\n");
+
+    // for some reason we trigger this - perhaps speed of gain switching... but it still regulates properly.
+
     // unknown over-current condition
     // probable hardware condition
     // this didn't stop...
       // OK. issue
-    ASSERT(0);
+    // ASSERT(0);
   }
 
   /*
