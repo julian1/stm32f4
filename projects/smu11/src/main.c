@@ -1932,23 +1932,20 @@ static void update_fault_check(app_t *app)
     /*
       OK. weirdness...
       this gets triggered - before it settles down.
-      But not this is being checked on every adc sample. so time could be 1000/50  = 20x second
+      indicative of feedback stability issue on 10A range?..
     */
     usart_printf("ifb is %f\n", ifb);
     usart_printf("current > 1.3A, unknown overcurrent condition\n");
 
-    /*
-      for some reason we trigger this - perhaps speed of gain switching... but it still regulates properly.
-      takes time to settle.
-      indicative of feedback stability issue on 10A range?..
-    */
-
     state_change(app, STATE_HALT);
     ASSERT(0);
   }
-
-
 }
+
+
+
+
+
 
 static void update_adc_drdy(app_t *app)
 {
