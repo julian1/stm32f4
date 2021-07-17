@@ -200,6 +200,11 @@
 
 
     -------------
+      Rohde & Schwarz NGU201 vs NGU401 Source Measure Units Comparison
+        https://www.youtube.com/watch?v=uo_F9a6P4iU
+
+      oHMEter (this is just a calculation done on sourcing/measuring V/I or I/V)
+
 
       Want to measure hfe and VBE of to 247 bjts.
       1A*37V=37W  near 50W limit of mje15034G .
@@ -1899,8 +1904,51 @@ static void update_nplc_range(app_t *app)
 
 
 
+static void update_fault_check(app_t *app)
+{
+  /* called on every read of slow-adc. eg. 50 or 60Hz
+  */
+
+  // float vfb = fBufPeekLast(&app->vfb_measure);
+  float ifb = fBufPeekLast(&app->ifb_measure);
+ 
+
+  if(fabs(ifb) > 1.2f)
+  {
+    /*
+      hardware loop should hold at abs max ifb=+-11V. because iset=+-11V.
+      A value outside this range on should be treated as immediate fault.
+    */
+    usart_printf("current > 1.3A, unknown overcurrent condition\n");
+    state_change(app, STATE_HALT);
+    ASSERT(0);
+  }
+
+  if(fabs(ifb) > 1.3f && app->irange == irange_10A)
+  {
+    /* unknown over-current condition
+      probable hardware condition
+    */
+    /*
+      OK. weirdness...
+      this gets triggered - before it settles down.
+      But not this is being checked on every adc sample. so time could be 1000/50  = 20x second
+    */
+    usart_printf("ifb is %f\n", ifb);
+    usart_printf("current > 1.3A, unknown overcurrent condition\n");
+
+    /*
+      for some reason we trigger this - perhaps speed of gain switching... but it still regulates properly.
+      takes time to settle.
+      indicative of feedback stability issue on 10A range?..
+    */
+
+    state_change(app, STATE_HALT);
+    ASSERT(0);
+  }
 
 
+}
 
 static void update_adc_drdy(app_t *app)
 {
@@ -1937,45 +1985,22 @@ static void update_adc_drdy(app_t *app)
   ASSERT(fBufPeekLast(&app->ifb_measure) == ifb);
   ASSERT(fBufCount(&app->vfb_measure) ==  fBufCount(&app->ifb_measure));
 
+  /*
+    we record adc values twice. for separate application
+      - once for measure,
+      - once for ranging.
+  */
+
   fBufPush(&app->vfb_range, vfb );
   fBufPush(&app->ifb_range, ifb);
+
   ASSERT(fBufPeekLast(&app->vfb_range) == vfb);
   ASSERT(fBufPeekLast(&app->ifb_range) == ifb);
   ASSERT(fBufCount(&app->vfb_range) ==  fBufCount(&app->ifb_range)); // if ov error reading... should perhaps be text error?
 
-  // user input verification - shoudl already be done
 
-  /*
-    OK. weirdness...
-    this jjjjj
-  */
-  if(fabs(ifb) > 1.3f && app->irange == irange_10A) {
-  // if(fabs(ifb) > 1.f /*3.f*/ && japp->irange == irange_10A) {
-
-    // ifb == 3. but that's 3 amps?
-    usart_printf("ifb is %f\n", ifb);
-    usart_printf("current > 1.3A, unknown overcurrent condition\n");
-
-    // for some reason we trigger this - perhaps speed of gain switching... but it still regulates properly.
-
-    // unknown over-current condition
-    // probable hardware condition
-    // this didn't stop...
-      // OK. issue
-    // ASSERT(0);
-  }
-
-  /*
-    think we should record adc measurements twice.
-    eg.
-      - once for measure, and once for range switching.
-      - once for ranging.
-    even if choose to use only use/peek for most recent value for range switching.
-    don't particularly see why need the circular buffer.  rather than a buffer?
-    void push(buf, n, val ) // do range chanch
-    push(buf, ARRAY_SIZE(buf), val);
-    use two - and we can use the element count for both
-  */
+  // check for fault conditions
+  update_fault_check(app);
 
 
   // do measure reporting
@@ -2042,12 +2067,15 @@ static void update(app_t *app)
       break ;
 
     case STATE_ANALOG_UP:
+      // this is the high speed fault detection
       if((app->lp15v < 14.7 || app->ln15v < 14.7)  )
       {
         usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
         usart_printf("15V analog rails low - calling assert\n");
-        ASSERT("rails low");
-        // state_change(app, STATE_HALT);
+
+        // THIS DIDN"T KILL POWER PROPERLY.... must be ASSERT(0); not assert a pointer.
+        ASSERT(0);
+        state_change(app, STATE_HALT);
       }
       break;
 
@@ -2155,11 +2183,12 @@ static void state_change(app_t *app, state_t state )
       io_set(app->spi, REG_RAILS, RAILS_LP15V );
       msleep(50);
 
+#if 1
       // turn on +-30V rails. think this is ok here...
       usart_printf("turn on power rails \n" );
       io_set(app->spi, REG_RAILS, RAILS_LP30V );
       msleep(50);
-
+#endif
 
 
 
