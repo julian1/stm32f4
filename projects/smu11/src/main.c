@@ -2119,12 +2119,26 @@ static void state_change(app_t *app, state_t state )
 
       mux_io(app->spi);
 
-      // turn off power
-      // SHOULD TURN POWER OFF the 5V rails as well
-      io_clear(app->spi, REG_RAILS, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V /*| RAILS_LP60V */);
-
-      // turn off output relays
+       // disconnect output
+      usart_printf("turn off output\n" );
       output_set(app, app->irange, false );
+      msleep(20);
+
+      // turn off high power rails
+      usart_printf("turn off rails 30V\n" );
+      io_clear(app->spi, REG_RAILS, RAILS_LP30V );
+      msleep(10);
+
+      // analog rails
+      usart_printf("turn off rails +-15V\n" );
+      io_clear(app->spi, REG_RAILS, RAILS_LP15V);
+      msleep(10);
+
+      // 5V
+      usart_printf("turn off rails +5V\n" );
+      io_clear(app->spi, REG_RAILS, RAILS_LP5V);
+      msleep(10);
+
       app->state = STATE_HALT;
       break;
     }
