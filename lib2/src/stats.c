@@ -31,6 +31,7 @@
 
 
 #include <math.h>   // sqrt,sqrtf
+// #include <float.h>   // FLT_MAX, FLT_MIN
 #include "stats.h"
 
 
@@ -44,6 +45,11 @@ static double square(double x)
 
 double sum(const float *p, size_t n)
 {
+/*
+  this is valid C99
+  for( const float *end = p + n; p < end; ++p)
+*/
+
   double sum = 0;
   const float *end = p + n;
   while(p < end)
@@ -106,6 +112,30 @@ double rms(const float *p, size_t n)
   // seems like a problematic calculation if DC not blocked.
   return sqrt(sumX2(p, n) / n);
 }
+
+
+
+
+
+
+void minmax(const float *p, size_t n, float *min, float *max)
+{
+  // assert( n > 0);
+  *min = *p;
+  *max = *p;
+
+  for(const float *end = p + n; p < end; ++p)
+  {
+    if(*p > *max)
+      *max = *p;
+
+    if(*p < *min)
+      *min = *p;
+  }
+}
+
+
+
 
 
 

@@ -1709,10 +1709,17 @@ static void update_nplc_measure(app_t *app)
     ASSERT(vn == in);
 
 
+    /* TODO a single stats core function that computes all of these
+    */
     float vmean = mean(vs, vn);
     float vsd   = stddev(vs, vn);
+    float vmin, vmax;
+    minmax(vs, vn, &vmin, &vmax);
+
     float imean = mean(is, in);
     float isd   = stddev(is, in);
+    float imin, imax;
+    minmax(is, in, &imin, &imax);
 
 
     char buf[100];
@@ -1766,20 +1773,24 @@ static void update_nplc_measure(app_t *app)
 
     usart_printf("\n\n");
 
-    //
-    usart_print_kv( 4, "vfb:",      10, snprintf2(buf, sizeof(buf), "%f", vfb));
-    usart_printf("  ");
-    usart_print_kv( 7, "v mean:",   10, snprintf2(buf, sizeof(buf), "%f", vmean));
-    usart_printf("  ");
-    usart_print_kv( 9, "v stddev:", 10, snprintf2(buf, sizeof(buf), "%f", vsd));
+    usart_printf("raw\n");
+    // raw vals
+    usart_printf("v");
+    usart_print_kv( 4, "  fb:",      9, snprintf2(buf, sizeof(buf), "%f", vfb));
+    usart_print_kv( 7, "  mean:",   9, snprintf2(buf, sizeof(buf), "%f", vmean));
+    usart_print_kv( 9, "  stddev:", 9, snprintf2(buf, sizeof(buf), "%f", vsd));
+    usart_print_kv( 5, "  min:",    9, snprintf2(buf, sizeof(buf), "%f", vmin));
+    usart_print_kv( 5, "  max:",    9, snprintf2(buf, sizeof(buf), "%f", vmax));
     usart_printf("\n");
 
 
-    usart_print_kv( 4, "ifb:",      10, snprintf2(buf, sizeof(buf), "%f", ifb));
-    usart_printf("  ");
-    usart_print_kv( 7, "i mean:",   10, snprintf2(buf, sizeof(buf), "%f", imean));
-    usart_printf("  ");
-    usart_print_kv( 9, "i stddev:", 10, snprintf2(buf, sizeof(buf), "%f", isd));
+    usart_printf("i");
+    usart_print_kv( 4, "  fb:",      9, snprintf2(buf, sizeof(buf), "%f", ifb));
+    usart_print_kv( 7, "  mean:",   9, snprintf2(buf, sizeof(buf), "%f", imean));
+    usart_print_kv( 9, "  stddev:", 9, snprintf2(buf, sizeof(buf), "%f", isd));
+    usart_print_kv( 5, "  min:",    9, snprintf2(buf, sizeof(buf), "%f", imin));
+    usart_print_kv( 5, "  max:",    9, snprintf2(buf, sizeof(buf), "%f", imax));
+
     usart_printf("\n");
 
 
