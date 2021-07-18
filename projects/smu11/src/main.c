@@ -1911,15 +1911,14 @@ static void update_fault_check(app_t *app)
 
   // float vfb = fBufPeekLast(&app->vfb_measure);
   float ifb = fBufPeekLast(&app->ifb_measure);
- 
 
-  if(fabs(ifb) > 11.5f)    // 11V is the dac hold value.  10.5 the limit. 11.5 fault.
+
+  if(fabs(ifb) > 11.5f)
   {
     /*
-      hardware loop should hold at abs max ifb=+-11V. because iset=+-11V.
-      A value outside this range on should be treated as immediate fault.
+      11V is the dac hold value.  10.5 current range trigger. 11.5 is fault.
     */
-    usart_printf("ifb > 12V, unknown overcurrent condition\n");
+    usart_printf("ifb > 11.5V, fault current condition\n");
     state_change(app, STATE_HALT);
     ASSERT(0);
   }
@@ -1935,7 +1934,7 @@ static void update_fault_check(app_t *app)
       indicative of feedback stability issue on 10A range?..
     */
     usart_printf("ifb is %f\n", ifb);
-    usart_printf("current > 1.3A, unknown overcurrent condition\n");
+    usart_printf("current > 1.3A, fault overcurrent condition\n");
 
     state_change(app, STATE_HALT);
     ASSERT(0);
