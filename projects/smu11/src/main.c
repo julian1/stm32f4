@@ -1877,10 +1877,10 @@ static void update_nplc_range(app_t *app)
   float vfb = fBufPeekLast(&app->vfb_range);
   float ifb = fBufPeekLast(&app->ifb_range);
 
-  // TODO. change back so that can change both together,
-  range_current_auto(app, ifb );
-  range_voltage_auto(app, vfb);
-
+  if(0) {
+    range_current_auto(app, ifb );
+    range_voltage_auto(app, vfb);
+  }
 
 
   fBufClear(&app->vfb_range);
@@ -2264,7 +2264,7 @@ static void state_change(app_t *app, state_t state )
         starting from off. means it has more work to do, jumping up through ranges...
         unless
       */
-      output_set(app, app->irange, true );   // turn off by default...
+      output_set(app, app->irange, false );   // turn off by default...
 
 
 
@@ -2522,7 +2522,8 @@ static void update_console_ch(app_t *app, const char ch )
   // change the actual current range
   if(ch == 'u' || ch == 'i') {
 
-      irange_t new_irange = range_current_next( app->iset_range, ch == 'u' );
+      // u - left is higher current, i right is lower
+      irange_t new_irange = range_current_next( app->iset_range, ch == 'i' );
       if(new_irange != app->iset_range) {
         usart_printf("change iset_range %s\n", range_current_string(new_irange) );
         app->iset_range = app->irange = new_irange;
@@ -2534,7 +2535,8 @@ static void update_console_ch(app_t *app, const char ch )
   // for voltage
   else if(ch == 'j' || ch == 'k') {
 
-    vrange_t new_vrange = range_voltage_next( app->vset_range, ch == 'j' );
+    // left is higher voltage, right is lower voltage.
+    vrange_t new_vrange = range_voltage_next( app->vset_range, ch == 'k' );
     if(new_vrange != app->vset_range) {
       usart_printf("change vset_range %s\n", range_voltage_string(new_vrange ) );
       app->vset_range = app->vrange = new_vrange;
