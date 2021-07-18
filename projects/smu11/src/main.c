@@ -1639,27 +1639,7 @@ static void update_soft_1s(app_t *app)
   // maybe review this...
   UNUSED(app);
 
-  // reset the housekeeping counts
-  // IMPORTANT keep. we can report this stuff easily on 1s interval - if use ncurses.
-  // app->adc_drdy_count  = 0;
-  app->update_count    = 0;
 
-  // TODO should be checking adc_read count matches what we expect, on 1s interval.
-  // but we have removed this var...
-
-  /*
-      can we keep a 1 sec  interval log. for display in the measure update,
-      by just recording values on the 1s interval.
-    eg.
-
-      app->plfreq = app->adc_drdy_count - app->adc_drdy_count_last  ;
-      app->update_count_last     = app->update_count ;
-      -------------
-
-      we no. we set plfreq.
-      just want a check of the adc_drdy_count each sec. and that we read it ok.
-
-  */
 }
 
 
@@ -1819,6 +1799,12 @@ static void update_nplc_measure(app_t *app)
     usart_printf("\n");
     usart_print_kv( 15, "millis", 6,      snprintf2(buf, sizeof(buf), "%d", system_millis - app->measure_millis_last));    // millis is 32 bit.
     app->measure_millis_last = system_millis;
+
+
+    usart_printf("\n");
+    usart_print_kv( 15, "update_count:", 6,      snprintf2(buf, sizeof(buf), "%d", app->update_count));
+    app->update_count = 0;
+
 
 
     usart_printf("\n");
@@ -2041,10 +2027,10 @@ static void update(app_t *app)
     could offload spi reading ot the fpga. along with test against threshold values.
   */
 
-
   if(app->state == STATE_HALT) {
 
     // no need to read rails in halt state
+    // more useful, to know ice40 current
     app->lp15v = 0.f;
     app->ln15v = 0.f;
   } else {
@@ -2276,9 +2262,9 @@ static void state_change(app_t *app, state_t state )
       // change namem output relay?
       /*
         starting from off. means it has more work to do, jumping up through ranges...
-        unless 
+        unless
       */
-      output_set(app, app->irange, false );   // turn off by default...
+      output_set(app, app->irange, true );   // turn off by default...
 
 
 
