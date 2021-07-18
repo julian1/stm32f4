@@ -2053,10 +2053,11 @@ static void update(app_t *app)
     mux_adc03(app->spi);
     app->lp15v = spi_mcp3208_get_data(app->spi, 0) * 0.92 * 10.;
     app->ln15v = spi_mcp3208_get_data(app->spi, 1) * 0.81 * 10.;
+
+    // usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
   }
 
 
-  // usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
   switch(app->state) {
 
