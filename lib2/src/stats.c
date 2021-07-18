@@ -33,11 +33,12 @@
 #include <math.h>   // sqrt,sqrtf
 // #include <float.h>   // FLT_MAX, FLT_MIN
 #include "stats.h"
+#include "assert.h"
 
 
-static double square(double x)
+static inline double square(double x)
 {
-  // must be double prec.
+  // force double prec. must be double prec to carry enough prec.
   // return pow(x, 2);
   return x * x;
 }
@@ -45,10 +46,10 @@ static double square(double x)
 
 double sum(const float *p, size_t n)
 {
-/*
-  this is valid C99
-  for( const float *end = p + n; p < end; ++p)
-*/
+  /*
+    for initializer is valid C99
+    for( const float *end = p + n; p < end; ++p)
+  */
 
   double sum = 0;
   const float *end = p + n;
@@ -115,12 +116,13 @@ double rms(const float *p, size_t n)
 
 
 
-
-
+/*
+#define min(a, b) ((a) < (b) ? (a) : (b))
+*/
 
 void minmax(const float *p, size_t n, float *min, float *max)
 {
-  // assert( n > 0);
+  ASSERT(n > 0);
   *min = *p;
   *max = *p;
 

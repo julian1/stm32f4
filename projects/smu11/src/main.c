@@ -1827,6 +1827,7 @@ static void update_nplc_measure(app_t *app)
     usart_printf("\n");
     usart_print_kv( 15, "adc_ov_count:", 6, snprintf2(buf, sizeof(buf), "%d", app->adc_ov_count));
 
+    // change name display_digits?
     usart_printf("\n");
     usart_print_kv( 15, "digits:", 6,      snprintf2(buf, sizeof(buf), "%d", app->digits));
 
