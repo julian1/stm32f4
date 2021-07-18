@@ -2037,12 +2037,23 @@ static void update(app_t *app)
 
 
   /*
-    these block... while value is read, and is the main source if this loop being slow. which also doesn't matter.
+    - these block... while value is read, and is the main source if this loop being slow. which also doesn't matter.
     could offload spi reading ot the fpga. along with test against threshold values.
   */
-  mux_adc03(app->spi);
-  app->lp15v = spi_mcp3208_get_data(app->spi, 0) * 0.92 * 10.;
-  app->ln15v = spi_mcp3208_get_data(app->spi, 1) * 0.81 * 10.;
+
+#if 1
+    mux_adc03(app->spi);
+    app->lp15v = spi_mcp3208_get_data(app->spi, 0) * 0.92 * 10.;
+    app->ln15v = spi_mcp3208_get_data(app->spi, 1) * 0.81 * 10.;
+#else
+    /*
+      fpga seems to use 75mA. just reading/running this code.
+      50mA. doing nothing...
+    */
+    app->lp15v = 0.f;
+    app->ln15v = 0.f;
+#endif
+
 
   // usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
