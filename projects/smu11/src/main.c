@@ -2125,7 +2125,7 @@ static void state_change(app_t *app, state_t state )
       msleep(20);
 
       // turn off high power rails
-      usart_printf("turn off rails 30V\n" );
+      usart_printf("turn off rails +-30V\n" );
       io_clear(app->spi, REG_RAILS, RAILS_LP30V );
       msleep(10);
 
