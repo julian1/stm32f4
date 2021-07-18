@@ -2028,7 +2028,7 @@ static void update(app_t *app)
   ++app->update_count;
 
   /*
-      main adc, ready to be read
+      main adc, ready to be read, do first
   */
   if(app->adc_drdy && app->state == STATE_ANALOG_UP) {
 
@@ -2074,7 +2074,7 @@ static void update(app_t *app)
       break ;
 
     case STATE_ANALOG_UP:
-      // this is the high speed fault detection
+      // this is the high speed adc, rails fault detection
       if((app->lp15v < 14.7 || app->ln15v < 14.7)  )
       {
         usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
