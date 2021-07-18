@@ -1917,7 +1917,7 @@ static void update_fault_check(app_t *app)
     /*
       OK. weirdness...
       this gets triggered - before it settles down.
-      indicative of feedback stability issue on 10A range?..
+      possible indicative of feedback stability on 10A range?..
     */
     usart_printf("ifb is %f\n", ifb);
     usart_printf("current > 1.3A, fault overcurrent condition\n");
