@@ -920,7 +920,7 @@ static void range_current_set(app_t *app, irange_t irange)
       // before make changes that might increase current.
       // make before break.
       output_set(app, app->irange, app->output);
-      msleep(1);
+      msleep(3);
 
       // turn on current range x
       io_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
@@ -2274,7 +2274,11 @@ static void state_change(app_t *app, state_t state )
 
 
       // change namem output relay?
-      output_set(app, app->irange, true );   // turn on
+      /*
+        starting from off. means it has more work to do, jumping up through ranges...
+        unless 
+      */
+      output_set(app, app->irange, false );   // turn off by default...
 
 
 
