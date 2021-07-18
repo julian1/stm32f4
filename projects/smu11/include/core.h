@@ -47,7 +47,7 @@
 #define RAILS_LP5V      (1<<0)
 #define RAILS_LP15V     (1<<1)
 #define RAILS_LP30V     (1<<2)
-#define RAILS_LP60V     (1<<3)
+// #define RAILS_LP60V     (1<<3)
 
 #define CORE_SOFT_RST   11
 

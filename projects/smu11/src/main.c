@@ -1913,13 +1913,13 @@ static void update_fault_check(app_t *app)
   float ifb = fBufPeekLast(&app->ifb_measure);
  
 
-  if(fabs(ifb) > 1.2f)
+  if(fabs(ifb) > 11.5f)    // 11V is the dac hold value.  10.5 the limit. 11.5 fault.
   {
     /*
       hardware loop should hold at abs max ifb=+-11V. because iset=+-11V.
       A value outside this range on should be treated as immediate fault.
     */
-    usart_printf("current > 1.3A, unknown overcurrent condition\n");
+    usart_printf("ifb > 12V, unknown overcurrent condition\n");
     state_change(app, STATE_HALT);
     ASSERT(0);
   }
@@ -2106,8 +2106,10 @@ static void state_change(app_t *app, state_t state )
       usart_printf("change to halt state\n" );
 
       mux_io(app->spi);
+
       // turn off power
-      io_clear(app->spi, REG_RAILS, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
+      // SHOULD TURN POWER OFF the 5V rails as well
+      io_clear(app->spi, REG_RAILS, RAILS_LP5V | RAILS_LP15V | RAILS_LP30V /*| RAILS_LP60V */);
 
       // turn off output relays
       output_set(app, app->irange, false );
