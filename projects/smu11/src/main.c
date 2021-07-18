@@ -2030,7 +2030,7 @@ static void update(app_t *app)
   /*
       main adc, ready to be read, do first
   */
-  if(app->adc_drdy && app->state == STATE_ANALOG_UP) {
+  if(app->state == STATE_ANALOG_UP && app->adc_drdy) {
 
     update_adc_drdy(app);
   }
@@ -2041,18 +2041,19 @@ static void update(app_t *app)
     could offload spi reading ot the fpga. along with test against threshold values.
   */
 
-#if 1
+
+  if(app->state == STATE_HALT) {
+
+    // no need to read rails in halt state
+    app->lp15v = 0.f;
+    app->ln15v = 0.f;
+  } else {
+
+    // otherwise read rails
     mux_adc03(app->spi);
     app->lp15v = spi_mcp3208_get_data(app->spi, 0) * 0.92 * 10.;
     app->ln15v = spi_mcp3208_get_data(app->spi, 1) * 0.81 * 10.;
-#else
-    /*
-      fpga seems to use 75mA. just reading/running this code.
-      50mA. doing nothing...
-    */
-    app->lp15v = 0.f;
-    app->ln15v = 0.f;
-#endif
+  }
 
 
   // usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
