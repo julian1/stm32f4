@@ -1115,7 +1115,7 @@ static float range_current_multiplier(irange_t irange)
   We need to change this. so that it can correct for bad logic -
     whereby we end up on a wrong range.
 
-  the only way to do that is to store the current dac value.
+  the only way to do that is to store the current dac value. why do we need current dac value?
 */
 /*
   instead of using a filter/lagged/aggregated value - to avoid instability triggering range change.
@@ -1162,11 +1162,12 @@ static bool range_current_auto(app_t *app, float i)
       dac_current_set(app, fabs(app->iset));
     } else if( app->irange < app->iset_range ) {
 
-      // we're zoomed in,
+      // we're zoomed in, and in compliance
       usart_printf("use zoomed in current 11V on range\n");
       dac_current_set(app, 11.f );
 
     } else {
+      // zoomed out past the range we should be on. this is error condition.
       // bad condition
       usart_printf("BAD\n");
     }
