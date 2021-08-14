@@ -1117,6 +1117,12 @@ static float range_current_multiplier(irange_t irange)
 
   the only way to do that is to store the current dac value.
 */
+/*
+  instead of using a filter/lagged/aggregated value - to avoid instability triggering range change.
+
+  should instead check /variance/standard deviation - and only range switch if output is stable. 
+
+*/
 
 static bool range_current_auto(app_t *app, float i)
 {
