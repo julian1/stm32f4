@@ -1115,12 +1115,17 @@ static float range_current_multiplier(irange_t irange)
   We need to change this. so that it can correct for bad logic -
     whereby we end up on a wrong range.
 
-  the only way to do that is to store the current dac value. why do we need current dac value?
+  the only way to do that is to store the current dac value.
+  why do we need current dac value?
+
+  if it's on a (invalid) higher (voltage or current) range - we should always just use the set voltage.
+
+  the issue may be stability.
 */
 /*
   instead of using a filter/lagged/aggregated value - to avoid instability triggering range change.
 
-  should instead check /variance/standard deviation - and only range switch if output is stable. 
+  should instead check /variance/standard deviation - and only range switch if output is stable.
 
 */
 
@@ -1140,9 +1145,22 @@ static bool range_current_auto(app_t *app, float i)
       changed  = true;
     }
   }
+
+#if 0
+  else if (fabs(i) > 10.5)  {
+
+    if(app->irange < app->iset_range) {
+    } else {
+
+    }
+  }
+#endif
+
   else if (fabs(i) > 10.5 && app->irange < app->iset_range) {
 
-    // switch out to a higher current range
+    // put test here
+
+    // switch out from a lower range back to a higher current range
     irange_t higher = range_current_next( app->irange, 0);
     if(higher != app->irange) {
       usart_printf("i is %f\n", i);
