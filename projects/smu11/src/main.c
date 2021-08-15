@@ -1137,7 +1137,6 @@ static bool range_current_auto(app_t *app, float i)
 {
   bool changed = false;
 
-
   if(fabs(i) < 1.f) {
 
     // need to switch to lower current range
@@ -1149,20 +1148,7 @@ static bool range_current_auto(app_t *app, float i)
       changed  = true;
     }
   }
-
-#if 0
-  else if (fabs(i) > 10.5)  {
-
-    if(app->irange < app->iset_range) {
-    } else {
-
-    }
-  }
-#endif
-
   else if (fabs(i) > 10.5 && app->irange < app->iset_range) {
-
-    // put test here
 
     // switch out from a lower range back to a higher current range
     irange_t higher = range_current_next( app->irange, 0);
@@ -1189,7 +1175,7 @@ static bool range_current_auto(app_t *app, float i)
       dac_current_set(app, 11.f );
 
     } else {
-      // zoomed out past the range we should be on. this is error condition.
+      // zoomed out past the range we should be on. this is a fault condition.
       // bad condition
       usart_printf("BAD\n");
     }
@@ -1918,7 +1904,7 @@ static void update_nplc_range(app_t *app)
   float vfb = fBufPeekLast(&app->vfb_range);
   float ifb = fBufPeekLast(&app->ifb_range);
 
-  if(0) {
+  if(1) {
     range_current_auto(app, ifb );
     range_voltage_auto(app, vfb);
   }
