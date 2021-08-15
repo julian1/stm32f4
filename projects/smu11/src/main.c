@@ -761,10 +761,10 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
     app->vrange != 0 ? range_voltage_string(app->vrange) : "none", 
     range_voltage_string(vrange)
   );
+  app->vrange = vrange;
 
   mux_io(app->spi);   // would be better to avoid calling if don't need.
 
-  app->vrange = vrange;
 
   switch(app->vrange)
   {
@@ -922,10 +922,9 @@ static void range_current_set(app_t *app, irange_t irange)
     app->irange != 0 ? range_current_string(app->irange) : "none", 
     range_current_string(irange)
   );
-
-  mux_io(app->spi);   // would be better to avoid calling if don't need.
-
   app->irange = irange;
+
+  mux_io(app->spi);   
 
 
   switch(app->irange)
