@@ -18,3 +18,6 @@ int adc_init(uint32_t spi, uint8_t reg);
 
 int32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n); // pass array 4 bytes...
 
+
+int adc_reset( uint32_t spi, uint8_t reg);
+

@@ -200,6 +200,31 @@ static void adc_print_status_registers(uint32_t spi)
   // keep latch low, and unused, unless chaining
 
 
+int adc_reset( uint32_t spi, uint8_t reg)
+{
+  /* in a fault condition. to avoid interupt generating supriou
+    only callable after 
+  */
+
+  mux_io(spi);
+
+
+  ////////////
+  // reset
+  usart_printf("adc assert reset\n");
+  io_clear(spi, reg, ADC_RST);
+
+  usart_printf("adc before msleep\n");
+  msleep(20);
+  usart_printf("adc after msleep\n");
+
+  return 0;
+}
+
+
+
+
+
 int adc_init( uint32_t spi, uint8_t reg)
 {
 

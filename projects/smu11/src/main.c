@@ -682,6 +682,10 @@ static const char * range_voltage_string(vrange_t vrange)
     case vrange_1V:     return "1V";
     case vrange_100mV:  return "100mV";
   }
+
+
+  usart_printf("bad vrange is %d\n", vrange);
+  ASSERT(0);
   // suppress compiler warning...
   return "error";
 }
@@ -2131,6 +2135,14 @@ static void state_change(app_t *app, state_t state )
       usart_printf("-------------\n" );
       usart_printf("change to halt state\n" );
 
+      /*
+        IMPORTANT.
+        OK. we have to be turn off the adc as well which is complicated....
+        else it keeps outputting data...
+        or disable the interupt.
+
+      */
+
       mux_io(app->spi);
 
        // disconnect output
@@ -2152,6 +2164,14 @@ static void state_change(app_t *app, state_t state )
       usart_printf("turn off rails +5V\n" );
       io_clear(app->spi, REG_RAILS, RAILS_LP5V);
       msleep(10);
+
+
+      usart_printf("turn off adc\n" );
+      // hardware reset adc, to stop generating interupts on read
+      adc_reset( app->spi, REG_ADC);
+
+
+      mux_io(app->spi);
 
       app->state = STATE_HALT;
       break;
@@ -2307,6 +2327,7 @@ static void state_change(app_t *app, state_t state )
         state_change(app, STATE_HALT );
         return;
       }
+
 
 
       app->state = STATE_ANALOG_UP;
@@ -2743,11 +2764,22 @@ static void loop(app_t *app)
 
 
 
-static void state_change_halt(app_t *app)
+
+static void assert_app(app_t *app, const char *file, int line, const char *func, const char *expr)
 {
+
+  usart_printf("\nassert_app failed %s: %d: %s: '%s'\n", file, line, func, expr);
+  // note tx-interupt should continue to work to flush output buffer, even jump to critical_error_blink()
+
   state_change(app, STATE_HALT );
 
+  // we have to do a critical error here... else caller code will just progress, 
+  // could also be being called from within a state transition. 
+  // eg. we have an issue where 
+  critical_error_blink();
+
 }
+
 
 
 
@@ -2877,7 +2909,7 @@ int main(void)
 
   // setup assert handleer
   // TODO rename - setup_handler
-  assert_setup( (void (*)(void *)) state_change_halt, &app );
+  assert_setup( (void *) assert_app, &app );
 
 
 

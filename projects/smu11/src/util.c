@@ -63,7 +63,7 @@ void critical_error_blink(void)
   // needs the led port config.
   // avoid passing arguments, consuming stack.
 	for (;;) {
-		gpio_toggle(LED_PORT,LED_OUT);
+		gpio_toggle(LED_PORT, LED_OUT);
 		for(uint32_t i = 0; i < 500000; ++i)
        __asm__("nop");
 	}

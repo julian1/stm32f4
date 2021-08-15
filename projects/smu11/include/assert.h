@@ -4,11 +4,12 @@
 /*
   add an assert with critical error blink...
   can still try to log to usart.
-  probably want a critical_usart_write() 
+  probably want a critical_usart_write()
 */
 
+// typedef (*assertf) const char *file, int line, const char *func, const char *expr
 
-extern void assert_setup(void (*pf)(void *), void *ctx );
+extern void assert_setup(void (*pf)(void *ctx, const char *file, int line, const char *func, const char *expr ), void *ctx );
 
 extern void assert_simple(const char *file, int line, const char *func, const char *expr);
 
