@@ -414,6 +414,9 @@
 
     5V 1A. to220 very hot. +-36V supplies. dissipating 30W.  but it works. at least without autoranging.
     need to look at stddev(V).
+    -----------------
+    OKk. it's working on +-36V supplies with autoranging. and 100pA to 1A. that's good.
+    we're disspating near the max current of the output bjt with 36V however.
 
 */
 // vim :colorscheme default. loooks good.
@@ -542,7 +545,7 @@ typedef enum irange_t
   irange_10mA,
   irange_100mA,
   irange_1A,
-  irange_10A, 
+  irange_10A,
 
   // irange_none
 
@@ -757,8 +760,8 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
   we need a function to set the voltage range. and set the dac value.
 
 */
-  usart_printf("range_voltage_set %s -> %s\n", 
-    app->vrange != 0 ? range_voltage_string(app->vrange) : "none", 
+  usart_printf("range_voltage_set %s -> %s\n",
+    app->vrange != 0 ? range_voltage_string(app->vrange) : "none",
     range_voltage_string(vrange)
   );
   app->vrange = vrange;
@@ -918,13 +921,13 @@ static void range_current_set(app_t *app, irange_t irange)
     if output is on. then we also have to change the output relay...
   */
 
-  usart_printf("range_current_switch %s -> %s\n", 
-    app->irange != 0 ? range_current_string(app->irange) : "none", 
+  usart_printf("range_current_switch %s -> %s\n",
+    app->irange != 0 ? range_current_string(app->irange) : "none",
     range_current_string(irange)
   );
   app->irange = irange;
 
-  mux_io(app->spi);   
+  mux_io(app->spi);
 
 
   switch(app->irange)
