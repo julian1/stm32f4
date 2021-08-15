@@ -11,7 +11,7 @@
 
   nix-shell ~/devel/nixos-config/examples/arm.nix
   rlwrap nc localhost 4444
-  /eset halt ; flash write_image erase unlock ./main.elf; sleep 1500; reset run
+  reset halt ; flash write_image erase unlock ./main.elf; sleep 1500; reset run
 
 
   --------------
@@ -410,6 +410,10 @@
     --------------
 
     A value like 1.02V needs to be able to be regulate on either range (either 1.02 or 0.102). else won't get range switch stability.
+    ---------
+
+    5V 1A. to220 very hot. +-36V supplies. dissipating 30W.  but it works. at least without autoranging.
+    need to look at stddev(V). 
 
 */
 // vim :colorscheme default. loooks good.
