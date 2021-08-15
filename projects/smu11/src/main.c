@@ -417,6 +417,13 @@
     -----------------
     OKk. it's working on +-36V supplies with autoranging. and 100pA to 1A. that's good.
     we're disspating near the max current of the output bjt with 36V however.
+    -----------------
+    OK. tested sink -1A ok.
+      then turned output off. and held -12V. which is odd. should be -36V.
+
+      now cannot bring up analog rails. and appears there's a short somewhere.
+
+
 
 */
 // vim :colorscheme default. loooks good.
@@ -1300,6 +1307,8 @@ static bool range_voltage_auto(app_t *app, float v)
     // eg. cannot regulate on this claamp.
     // eg. set -5V, +3mA   on resistor.
     usart_printf("WHOOT bad state here.\n");
+
+    // no this happens if sinking and power is off....
 
     // switching off? probably won't help...   but we can invalidate.
     // but can switch off. and stop.
