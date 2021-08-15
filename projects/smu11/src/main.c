@@ -422,7 +422,48 @@
       then turned output off. and held -12V. which is odd. should be -36V.
 
       now cannot bring up analog rails. and appears there's a short somewhere.
+      U28.  slightly lesser extent. U27.
+      Note. can remove without replacing. to see if removes short.
 
+      removed u28. now have no blinky.
+      so it's failing before analog rails get turned on.
+      Ok. had to reflash fpga. but appears working again.
+
+    Ok. if ranging doesn't give good fb. then o
+
+
+    Ok. bodged in 10k resistors.
+    think the fets are no good.
+
+    --------
+    delays in switching current switch fets - means that voltage can spike on
+
+    ok. sot23 fet 337. is rated at 30V. so if gets 36V. it's in trouble.
+      eg. relay on. fet off. fb too slow.
+    OK. U64 is hot as well? why?  it has 10k protection?
+
+    OK. yes. remove U64. current has dropped from 100/120mA to 50/60mA.
+    GOOD.
+
+    But why did it die?
+    Need to try replacing with mc33172.
+
+    -------
+    As soon as we try to turn on. then rails fall.
+    current is measuring 2mA.  and there is -14V on the resistor. doesn't make sense?
+    -----------
+
+    - lower current ranges won't work - because removed. op. u64 for general current.
+    - maybe issue  with fets on the comx range and resistor
+
+    - it would be a lot easier with 24V. instead.
+    - why would the op blow - if protected with resistor?  OR maybe there is some other condition making it draw power.
+        100ohm.
+    - why would it fail - when try to turn on power.
+    - the output off current is wrong.  2mA. should be 0. - the op may be ok. or not. but there's something else going on.
+
+    - u64 was broken from last time?
+      - or maybe it is not handling high differential input current?
 
 
 */
@@ -1151,7 +1192,6 @@ static float range_current_multiplier(irange_t irange)
 */
 /*
   instead of using a filter/lagged/aggregated value - to avoid instability triggering range change.
-
   should instead check /variance/standard deviation - and only range switch if output is stable.
 
 */
@@ -1173,7 +1213,7 @@ static bool range_current_auto(app_t *app, float i)
   }
   else if (fabs(i) > 10.5 && app->irange < app->iset_range) {
 
-    // switch out from a lower range back to a higher current range
+    // switch (back) to a higher current range
     irange_t higher = range_current_next( app->irange, 0);
     if(higher != app->irange) {
       usart_printf("i is %f\n", i);
@@ -1328,6 +1368,7 @@ static bool range_voltage_auto(app_t *app, float v)
     } else {
       // bad condition.
       usart_printf("HERE BAD v.\n");
+      // ASSERT(0);
     }
   }
 
@@ -1930,7 +1971,7 @@ static void update_nplc_range(app_t *app)
   float vfb = fBufPeekLast(&app->vfb_range);
   float ifb = fBufPeekLast(&app->ifb_range);
 
-  if(1) {
+  if(0) {
     range_current_auto(app, ifb );
     range_voltage_auto(app, vfb);
   }
@@ -2119,11 +2160,14 @@ static void update(app_t *app)
       if((app->lp15v < 14.7 || app->ln15v < 14.7)  )
       {
         usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
-        usart_printf("15V analog rails low - calling assert\n");
-
-        // THIS DIDN"T KILL POWER PROPERLY.... must be ASSERT(0); not assert a pointer.
+        usart_printf("15V analog rails undervoltage condition\n");
         ASSERT(0);
-        state_change(app, STATE_HALT);
+      }
+      else if((app->lp15v > 15.3 || app->ln15v > 15.3)  )
+      {
+        usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
+        usart_printf("15V analog rails overvoltage condition\n");
+        ASSERT(0);
       }
       break;
 
@@ -2186,13 +2230,12 @@ static void state_change(app_t *app, state_t state )
       io_clear(app->spi, REG_RAILS, RAILS_LP5V);
       msleep(10);
 
-
+#if 1
       usart_printf("turn off adc\n" );
       // hardware reset adc, to stop generating interupts on read
       adc_reset( app->spi, REG_ADC);
-
-
       mux_io(app->spi);
+#endif
 
       app->state = STATE_HALT;
       break;
@@ -2758,9 +2801,7 @@ static void loop(app_t *app)
     update(app);
 
 
-    // update_console_cmd(app, &app->console_in, &app->console_out);
     update_console_cmd(app);
-
 
 
     // 500ms soft timer. should handle wrap around
