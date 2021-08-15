@@ -413,7 +413,7 @@
     ---------
 
     5V 1A. to220 very hot. +-36V supplies. dissipating 30W.  but it works. at least without autoranging.
-    need to look at stddev(V). 
+    need to look at stddev(V).
 
 */
 // vim :colorscheme default. loooks good.
@@ -2767,17 +2767,17 @@ static void loop(app_t *app)
 
 static void assert_app(app_t *app, const char *file, int line, const char *func, const char *expr)
 {
-
+  /*
+    note the usart tx interupt will continue to flush output buffer,
+    even after jump to critical_error_blink()
+  */
   usart_printf("\nassert_app failed %s: %d: %s: '%s'\n", file, line, func, expr);
-  // note tx-interupt should continue to work to flush output buffer, even jump to critical_error_blink()
 
   state_change(app, STATE_HALT );
 
-  // we have to do a critical error here... else caller code will just progress, 
-  // could also be being called from within a state transition. 
-  // eg. we have an issue where 
+  // we have to do a critical error here... else caller code will just progress,
+  // if we were in a state transition, then it will continue to just progress...
   critical_error_blink();
-
 }
 
 
