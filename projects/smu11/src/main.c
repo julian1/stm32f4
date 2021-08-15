@@ -508,7 +508,10 @@ typedef enum vrange_t
   vrange_100mV = 3,
   vrange_1V,
   vrange_10V,
-  vrange_100V // ,
+  vrange_100V,
+
+  // vrange_none,    // initial condition on start...
+
 
   // vrange_10V_2,
 
@@ -539,7 +542,9 @@ typedef enum irange_t
   irange_10mA,
   irange_100mA,
   irange_1A,
-  irange_10A
+  irange_10A, 
+
+  // irange_none
 
 } irange_t;
 
@@ -675,6 +680,7 @@ static vrange_t range_voltage_next( vrange_t vrange, bool dir)
 
 static const char * range_voltage_string(vrange_t vrange)
 {
+
   switch(vrange)
   {
     case vrange_100V:   return "100V";
@@ -682,7 +688,6 @@ static const char * range_voltage_string(vrange_t vrange)
     case vrange_1V:     return "1V";
     case vrange_100mV:  return "100mV";
   }
-
 
   usart_printf("bad vrange is %d\n", vrange);
   ASSERT(0);
@@ -707,6 +712,7 @@ static float range_voltage_multiplier( vrange_t vrange)
   }
 
   // invalid
+  ASSERT(0);
   return -99999;
 }
 
@@ -751,7 +757,10 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
   we need a function to set the voltage range. and set the dac value.
 
 */
-  usart_printf("range_voltage_set %s -> %s\n", range_voltage_string(app->vrange), range_voltage_string(vrange));
+  usart_printf("range_voltage_set %s -> %s\n", 
+    app->vrange != 0 ? range_voltage_string(app->vrange) : "none", 
+    range_voltage_string(vrange)
+  );
 
   mux_io(app->spi);   // would be better to avoid calling if don't need.
 
@@ -839,9 +848,9 @@ static const char * range_current_string( irange_t irange)
     case irange_10A:    return "10A";
   };
 
-  usart_printf("error. range_current irange is %d\n", irange );
+  usart_printf("error. unknown range_current irange is %d\n", irange );
   // suppress compiler warning...
-  // ASSERT(0);
+  ASSERT(0);
   return "irange error";
 }
 
@@ -909,7 +918,10 @@ static void range_current_set(app_t *app, irange_t irange)
     if output is on. then we also have to change the output relay...
   */
 
-  usart_printf("range_current_switch %s -> %s\n", range_current_string(app->irange), range_current_string(irange));
+  usart_printf("range_current_switch %s -> %s\n", 
+    app->irange != 0 ? range_current_string(app->irange) : "none", 
+    range_current_string(irange)
+  );
 
   mux_io(app->spi);   // would be better to avoid calling if don't need.
 
@@ -1094,8 +1106,6 @@ static void range_current_set(app_t *app, irange_t irange)
 
 static float range_current_multiplier(irange_t irange)
 {
-
-
   ASSERT( 1e-7f == 0.0000001f);
 
   switch(irange)
@@ -2885,6 +2895,9 @@ int main(void)
   app.nplc_measure = 50;
   app.nplc_range   = 20;
   app.digits = 6;
+
+  // app.vrange = 0;
+  // app.irange = 0;
 
   // uart/console
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
