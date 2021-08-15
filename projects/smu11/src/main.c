@@ -1178,6 +1178,7 @@ static bool range_current_auto(app_t *app, float i)
       // zoomed out past the range we should be on. this is a fault condition.
       // bad condition
       usart_printf("BAD\n");
+      ASSERT(0);
     }
   }
 
