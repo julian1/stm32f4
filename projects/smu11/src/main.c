@@ -1240,7 +1240,7 @@ static bool range_current_auto(app_t *app, float i)
     } else {
       // zoomed out past the range we should be on. this is a fault condition.
       // bad condition
-      usart_printf("BAD\n");
+      usart_printf("on wrong range\n");
       ASSERT(0);
     }
   }
@@ -1367,8 +1367,8 @@ static bool range_voltage_auto(app_t *app, float v)
       dac_voltage_set(app, 11.f );
     } else {
       // bad condition.
-      usart_printf("HERE BAD v.\n");
-      // ASSERT(0);
+      usart_printf("on wrong voltage range\n");
+      ASSERT(0);
     }
   }
 
