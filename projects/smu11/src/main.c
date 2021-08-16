@@ -464,6 +464,36 @@
 
     - u64 was broken from last time?
       - or maybe it is not handling high differential input current?
+    - something is pulling to -14VDC. on comx. range even when relay not in effect.
+        - need higher voltage fets.
+    -------------
+    OK. it's not regulating at all. outputting 12V. when should regulate at 5V???
+    OK. with power on it's ok. 
+    10uA range works.
+    ------
+    trying to turn on. we have an overvoltage condition.
+    ----------
+    OK. current is completely wrong. it's switched off. current shows -3.6V....
+    there's -14V on the comx sense resistors.
+    ----------
+    something completely screwed... on comx range. -14V on sense with or without the op.
+    high current fets. or high current op?  is spewing it out.
+
+    OK. this is a reason to use double relay...
+    
+    why is there -14V on comx.   but there's something really weird.
+    ----------------
+    OK. it was the op-amp for the highest current range.
+
+    OK. +-15V rails now using 40mA.  
+    3mA, 30mA works.   3uA, 30uA work.
+    OK. and replaced U27 and added 10k. and higher current ranges are now work.
+
+    analog rails draw 40/40mA. nice.  5V draw 100mA.
+
+
+
+
 
 
 */
