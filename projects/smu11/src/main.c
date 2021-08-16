@@ -410,6 +410,7 @@
     --------------
 
     A value like 1.02V needs to be able to be regulate on either range (either 1.02 or 0.102). else won't get range switch stability.
+    ===================================
     ---------
 
     5V 1A. to220 very hot. +-36V supplies. dissipating 30W.  but it works. at least without autoranging.
@@ -468,7 +469,7 @@
         - need higher voltage fets.
     -------------
     OK. it's not regulating at all. outputting 12V. when should regulate at 5V???
-    OK. with power on it's ok. 
+    OK. with power on it's ok.
     10uA range works.
     ------
     trying to turn on. we have an overvoltage condition.
@@ -480,20 +481,113 @@
     high current fets. or high current op?  is spewing it out.
 
     OK. this is a reason to use double relay...
-    
+
     why is there -14V on comx.   but there's something really weird.
     ----------------
     OK. it was the op-amp for the highest current range.
 
-    OK. +-15V rails now using 40mA.  
+    OK. +-15V rails now using 40mA.
     3mA, 30mA works.   3uA, 30uA work.
     OK. and replaced U27 and added 10k. and higher current ranges are now work.
 
     analog rails draw 40/40mA. nice.  5V draw 100mA.
 
+    ----
+    OKK. off sink negative current. and the 1k sizzled and popped. but still seems to work?
+    No. i think it is the 10ohm.
 
+    ----
+    After sinking when off.
+    10ohm is measuring 4 ohm. and fets are hot.
+    q22  dies on the negative voltage.  and shorts. need a different fet.
+    -----------
+    replaced with 100V b2b fets. works
+    works to sink -3mA and -30mA . off or on.   analog rails still 40/40mA.    good.
+    ---
 
+    Ok. -300mA off. doesn't work.
+    Ok. something has blown again... off doesn't work.  leakage through one of the resistors?
+    off is showing -7mA????
 
+    30mA and 300mA are both showing high negative current. 3mA is ok.
+    --------
+
+    No there's some logic that's wrong. eg. set -30uA. works off on. then fails but if restart it's ok.
+    there's some strange stability issue.
+    reset on then -3mA ok. but off then on and it's not.
+    ---
+    No. i think we were not setting to source a -ve voltage.
+
+    ok. it gets into bad situation - and we have -0.6o
+    ok. going to -3mA off to on. and it doesn't look good.  voltage is -9.7V and current not negative enough.
+    -300uA. no good
+
+    - off to on transition.
+      - shit. there is -35V on the top of the resistor. of comx.
+
+      - SO THE OP-AMP implementing the discrete ina, cannot output a good fb signal for current
+          it's outputting too low.
+          its some kind of lock up up condition.
+
+      confirmed.
+
+      if we transition from +3mA to -3mA. with output on. then its ok.
+      at least the fets and ops are now surviving.  but 35V/10ohm=3.5A...
+    ----------------
+
+    must make sure *not* to test on 10ohm resistor.  because too much current. eg. 3mA is 1k/10mA range.
+
+    diode ring. just need to hold voltage long enough for the op-amp *not* to overload...
+    must be after resistor.
+    could do on a test board.
+    hold at 12V. etc.
+
+    - ok. adding extra diodes. may only contribute to input offset error (due to leakage). which we don't care about much.
+      - issue with diodes, is that reverse leakage current increases exponentially.
+
+    - do a board. with diode ring and b2b diodes.
+
+    --------------------
+    what happens if I exceed the maximum rating of the drain-to-source voltage of an N-MOSFET
+    I am using NTNS3C94NZ so 12 V in this case
+    datasheet: https://www.onsemi.com/pub/Collateral/NTNS3C94NZ-D.PDF
+    does it act as a zener? as a short? is it destructive? what voltage/current can it handle?
+    I did the test with 20 V, it seems that the over-voltage on the drain leaks to the gate, enables the transistor, that start conducting and pulls the drain low.
+    Like you said, it starts to act as a zener and if power dissipation isn’t limited, fail shortly after.
+    -------------
+
+    - problem happens out is sourcing negative voltage -14V.   and then relays open and the current-sense resistor - immediately sees that voltage across it.
+      SOLUTION,
+      A solution - would be to reset to stable condition and then turn on output relays.
+
+    SOLUTION use a HV comparator.
+      use a zener across the op. that pushes
+
+    the problem is the phase reversal of the op amp.
+    we need to note all of the voltages.
+    -------------------------
+
+    SOLUTION - use the diodes to rails approach - but to 12V rails.
+
+      alterantively check external PN diode. or Jfet with tied. will work.  to +-15V rails. to prevent.
+      need to check 33172 and opa2140.
+
+    ----------
+    opa2140 states. No phase reversal?????    think we need to need again.
+
+    OK. opa2140 works....   no phase reversal.
+    OK. need to replace fets under the 1k.  No. if it sinks on temporary overvoltage condition. that's ok.
+
+    and -30mA. off/on works. on 10ohm. using opa2140. also.
+    -------
+
+    Ok. switching on 1.05A on 10A range. positive sometimes triggers fault. always on negative range.
+    > output on
+    ifb is -2.107615
+    current > 1.3A, fault overcurrent condition
+    -------------
+
+    OK. tested +- 1.5A  and 100V range. works.
 
 
 */
@@ -2033,10 +2127,16 @@ static void update_fault_check(app_t *app)
     ASSERT(0);
   }
 
-  if(fabs(ifb) > 1.3f && app->irange == irange_10A)
+  // Think this is problematic..
+  // 2 doesn't hold it.
+  // OK. 3A works for -1.05A on ...
+  // but sometimes triggers analog ovp...
+
+  if(fabs(ifb) > 3.0f && app->irange == irange_10A)
   {
     /* unknown over-current condition
       probable hardware condition
+      This gets triggered... on relay turn on.
     */
     /*
       OK. weirdness...
@@ -2044,7 +2144,7 @@ static void update_fault_check(app_t *app)
       possible indicative of feedback stability on 10A range?..
     */
     usart_printf("ifb is %f\n", ifb);
-    usart_printf("current > 1.3A, fault overcurrent condition\n");
+    usart_printf("fault overcurrent condition\n");
 
     state_change(app, STATE_HALT);
     ASSERT(0);

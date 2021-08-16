@@ -1,7 +1,7 @@
 
 /*
   we can optimize to compute all of these in one go.
-  to avoid recalculation.
+  and avoid recalculation.
 */
 
 double sum(const float *p, size_t n);
