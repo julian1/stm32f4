@@ -18,8 +18,10 @@
 // TODO change return value to uint32_t?
 int voltage_to_dac( float x)
 {
-  return x / 2.0 * 10000;  // this uses 50k points of 65535.
-                              // ie. vset=10V,  10/2*10k = 50000
+  /* this uses 50k points of 65535.
+    ie. vset=10V,  10/2*10k = 50000
+  */
+  return x / 2.0 * 10000;
 /*
   For unipolar mode: AVDD ≥ Gain × VREF + 1V, and AVSS ≤ –2 × VREF – 1V.
   2 * 8.192 + 1 => rails = +-17.3V.
@@ -114,14 +116,13 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   // unipolar output on a
   io_set(spi, reg, DAC_UNI_BIP_A /*| DAC_UNIBIPB */);
 
-  // we haven't set the gain bit???
-
-  // FIX ME!.
+  //////////////
   /*
   To set the gain = 4, connect RFB1-x to VOUT-x with RFB2-x left open, and set the gain bit for that channel to '1' in the Command Register.
   To set the gain = 2, connect both RFB1-x and RFB2-x to VOUT-x, and set the gain bit for that channel to '0'.
-
   The gain bits in the Command Register are set to '1' by default at power-on or reset, and must be cleared to '0' for gain = 2.
+
+    we set gain when write 0 into main reg.
   */
 
 
@@ -138,36 +139,26 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   // see if we can toggle the dac gpio0 output
   mux_dac(spi);
   uint32_t u1 = spi_dac_read_register(spi, DAC_CMD_REG);
-  
-  // default value
-  ASSERT(u1 == 0x80033c); 
 
+  // default value
+  usart_printf("u1 %x\n", u1);
+
+  // test default values...
+  ASSERT(u1 == 0x80033c);
+
+  usart_printf("gpio gain out0 %d,  out1 %d\n", (u1 & DAC_GAIN_BIT0) != 0, (u1 & DAC_GAIN_BIT1) != 0);
   ASSERT(u1 & DAC_GAIN_BIT0);
   ASSERT(u1 & DAC_GAIN_BIT1);
 
-
-  usart_printf("u1 %u\n", u1);
-  usart_printf("u1 %x\n", u1);
-  // ASSERT(u1 == 
-    
-  // should test and assert the default values...
-
-
-
   usart_printf("gpio test set %d %d\n", (u1 & DAC_GPIO1) != 0, (u1 & DAC_GPIO1) != 0);
 
-  usart_printf("gpio gain out0 %d,  out1 %d\n", (u1 & DAC_GAIN_BIT0) != 0, (u1 & DAC_GAIN_BIT1) != 0);
-
   /*
+    clear main reg.
     IMPORTANT....
-    this clears the gain regsiters. needed for x2.
+    this also clears the gain regsiters. needed for x2.
     but should really be explicit and using masks.
   */
-
-  // startup has the gpio bits set.
-  // spi_dac_write_register(spi, DAC_CMD_REG, DAC_GPIO0 | DAC_GPIO1); // measure 0.1V. eg. high-Z without pu.
-  spi_dac_write_register(spi, DAC_CMD_REG, 0 );                 // measure 0V
-
+  spi_dac_write_register(spi, DAC_CMD_REG, 0 );
 
 
   uint32_t u2 = spi_dac_read_register(spi, DAC_CMD_REG);

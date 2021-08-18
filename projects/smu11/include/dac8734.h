@@ -21,15 +21,17 @@ extern int dac_init(uint32_t spi, uint8_t reg);  // bad name?
 #define DAC_VOUT3_REGISTER 0x07
 
 
-#define DAC_GPIO0 (1 << 8)
-#define DAC_GPIO1 (1 << 9)
-
-
+// we don't reall
 // These are CMD gain. 2x or 4x.  set by hardware. not register values.
 #define DAC_GAIN_BIT0 (1 << 2)  // DB2-DB5
 #define DAC_GAIN_BIT1 (1 << 3)
 #define DAC_GAIN_BIT3 (1 << 4)
 #define DAC_GAIN_BIT4 (1 << 5)
+
+
+#define DAC_GPIO0 (1 << 8)
+#define DAC_GPIO1 (1 << 9)
+
 
 
 #define DAC_MON_REGISTER 0x01   // DB11, DB12-DB15
