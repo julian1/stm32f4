@@ -917,7 +917,11 @@ static void dac_voltage_set(app_t *app, float v)
   mux_dac(app->spi);
   spi_dac_write_register(app->spi, DAC_DAC0_REGISTER, voltage_to_dac( v ));
 
-//  spi_dac_write_register(app->spi, DAC_DAC0_REGISTER, voltage_to_dac( v ));
+  /*
+    OK. this works to set gain on voltage. great...
+  */
+  // 7 bits...
+  spi_dac_write_register(app->spi, DAC_GAIN_REGISTER0, -0x7f );
 
 }
 
