@@ -14,12 +14,20 @@
   without having analog power
 */
 
-// TODO change to uint32_t
+// TODO change return value to uint32_t?
 int voltage_to_dac( float x)
 {
-  // return x / (6.5769 * 2) * 65535;
-  // eg.
-  return x / 2.0 * 10000;  // need to add ptf56 60ohm, and then use dac trim registers.
+  return x / 2.0 * 10000;  // this uses 50k points of 65535.
+                              // ie. vset=10V,  10/2*10k = 50000
+/*
+  For unipolar mode: AVDD ≥ Gain × VREF + 1V, and AVSS ≤ –2 × VREF – 1V.
+  2 * 8.192 + 1 => rails = +-17.3V.
+
+  15V    get 4.44V.
+  16V    get 4.73V      (needs *both* +- rails )
+*/
+  // ie. vset=10V => 10/2*8k = 40000.
+  // return x / 2.f * 8000;
 }
 
 
@@ -105,6 +113,16 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   // unipolar output on a
   io_set(spi, reg, DAC_UNI_BIP_A /*| DAC_UNIBIPB */);
 
+  // we haven't set the gain bit???
+
+  // FIX ME!.
+  /*
+  To set the gain = 4, connect RFB1-x to VOUT-x with RFB2-x left open, and set the gain bit for that channel to '1' in the Command Register.
+  To set the gain = 2, connect both RFB1-x and RFB2-x to VOUT-x, and set the gain bit for that channel to '0'.
+
+  The gain bits in the Command Register are set to '1' by default at power-on or reset, and must be cleared to '0' for gain = 2.
+  */
+
 
   // toggle reset pin
   usart_printf("doing dac reset\n");
@@ -114,15 +132,26 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   msleep(20);
 
 
+  // DAC_CMD_REG
+
   // see if we can toggle the dac gpio0 output
   mux_dac(spi);
   uint32_t u1 = spi_dac_read_register(spi, 0);
   usart_printf("gpio test set %d %d\n", (u1 & DAC_GPIO1) != 0, (u1 & DAC_GPIO1) != 0);
 
+  usart_printf("gpio gain out0 %d,  out1 %d\n", (u1 & DAC_GAIN_OUT0) != 0, (u1 & DAC_GAIN_OUT1) != 0);
+
+  /*
+    IMPORTANT....
+    this clears the gain regsiters. needed for x2.
+    but should really be explicit and using masks.
+  */
 
   // startup has the gpio bits set.
   // spi_dac_write_register(spi, 0, DAC_GPIO0 | DAC_GPIO1); // measure 0.1V. eg. high-Z without pu.
   spi_dac_write_register(spi, 0, 0 );                 // measure 0V
+
+
 
   uint32_t u2 = spi_dac_read_register(spi, 0);
   usart_printf("gpio test set %d %d\n", (u2 & DAC_GPIO1) != 0, (u2 & DAC_GPIO1) != 0);
