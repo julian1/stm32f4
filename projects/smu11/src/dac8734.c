@@ -136,7 +136,7 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
 
   // see if we can toggle the dac gpio0 output
   mux_dac(spi);
-  uint32_t u1 = spi_dac_read_register(spi, 0);
+  uint32_t u1 = spi_dac_read_register(spi, DAC_CMD_REG);
   usart_printf("gpio test set %d %d\n", (u1 & DAC_GPIO1) != 0, (u1 & DAC_GPIO1) != 0);
 
   usart_printf("gpio gain out0 %d,  out1 %d\n", (u1 & DAC_GAIN_OUT0) != 0, (u1 & DAC_GAIN_OUT1) != 0);
@@ -148,12 +148,12 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   */
 
   // startup has the gpio bits set.
-  // spi_dac_write_register(spi, 0, DAC_GPIO0 | DAC_GPIO1); // measure 0.1V. eg. high-Z without pu.
-  spi_dac_write_register(spi, 0, 0 );                 // measure 0V
+  // spi_dac_write_register(spi, DAC_CMD_REG, DAC_GPIO0 | DAC_GPIO1); // measure 0.1V. eg. high-Z without pu.
+  spi_dac_write_register(spi, DAC_CMD_REG, 0 );                 // measure 0V
 
 
 
-  uint32_t u2 = spi_dac_read_register(spi, 0);
+  uint32_t u2 = spi_dac_read_register(spi, DAC_CMD_REG);
   usart_printf("gpio test set %d %d\n", (u2 & DAC_GPIO1) != 0, (u2 & DAC_GPIO1) != 0);
 
   /* OK. to read gpio0 and gpio1 hi vals. we must have pullups.
