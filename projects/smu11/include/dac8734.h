@@ -12,7 +12,7 @@ extern uint32_t spi_dac_read_register(uint32_t spi, uint8_t r);
 
 extern int dac_init(uint32_t spi, uint8_t reg);  // bad name?
 
-#define DAC_CMD_REG       0x0 
+#define DAC_CMD_REGISTER       0x0 
 
 // keep registers names specific to dac8734, not application
 #define DAC_DAC0_REGISTER 0x04 

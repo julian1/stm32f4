@@ -134,11 +134,11 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   msleep(20);
 
 
-  // DAC_CMD_REG
+  // DAC_CMD_REGISTER
 
   // see if we can toggle the dac gpio0 output
   mux_dac(spi);
-  uint32_t u1 = spi_dac_read_register(spi, DAC_CMD_REG);
+  uint32_t u1 = spi_dac_read_register(spi, DAC_CMD_REGISTER);
 
   // default value
   usart_printf("u1 %x\n", u1);
@@ -158,10 +158,10 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
     this also clears the gain regsiters. needed for x2.
     but should really be explicit and using masks.
   */
-  spi_dac_write_register(spi, DAC_CMD_REG, 0 );
+  spi_dac_write_register(spi, DAC_CMD_REGISTER, 0 );
 
 
-  uint32_t u2 = spi_dac_read_register(spi, DAC_CMD_REG);
+  uint32_t u2 = spi_dac_read_register(spi, DAC_CMD_REGISTER);
   usart_printf("gpio test set %d %d\n", (u2 & DAC_GPIO1) != 0, (u2 & DAC_GPIO1) != 0);
 
   /* OK. to read gpio0 and gpio1 hi vals. we must have pullups.
