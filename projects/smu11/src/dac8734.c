@@ -156,9 +156,9 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
     clear main reg.
     IMPORTANT....
     this also clears the gain regsiters. needed for x2.
-    but should really be explicit and using masks.
+    but should really be explicit and use masks
   */
-  spi_dac_write_register(spi, DAC_CMD_REGISTER, 0 );
+  spi_dac_write_register(spi, DAC_CMD_REGISTER, 0);
 
 
   uint32_t u2 = spi_dac_read_register(spi, DAC_CMD_REGISTER);
