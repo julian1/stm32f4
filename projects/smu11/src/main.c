@@ -2399,19 +2399,14 @@ static void state_change(app_t *app, state_t state )
       int ret = dac_init(app->spi, REG_DAC); // bad name?
       if(ret != 0) {
         state_change(app, STATE_HALT);
-        // app->state = ERROR;
         return;
       }
+      
+      ASSERT(0);
 
       // TODO remove.... fix regualte on vfb.
       usart_printf("-------------\n" );
-/*
-      usart_printf("set voltage range\n" );
-      range_voltage_set(app, vrange_10V);
 
-      usart_printf("set current range\n" );
-      range_current_set(app, irange_10mA);
-*/
       // progress to digital up?
       usart_printf("digital up ok\n" );
       app->state = STATE_DIGITAL_UP;

@@ -5,6 +5,7 @@
 
 #include "core.h"
 #include "util.h" // usart_printf
+#include "assert.h" // usart_printf
 
 
 #include "dac8734.h"
@@ -137,9 +138,25 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   // see if we can toggle the dac gpio0 output
   mux_dac(spi);
   uint32_t u1 = spi_dac_read_register(spi, DAC_CMD_REG);
+  
+  // default value
+  ASSERT(u1 == 0x80033c); 
+
+  ASSERT(u1 & DAC_GAIN_BIT0);
+  ASSERT(u1 & DAC_GAIN_BIT1);
+
+
+  usart_printf("u1 %u\n", u1);
+  usart_printf("u1 %x\n", u1);
+  // ASSERT(u1 == 
+    
+  // should test and assert the default values...
+
+
+
   usart_printf("gpio test set %d %d\n", (u1 & DAC_GPIO1) != 0, (u1 & DAC_GPIO1) != 0);
 
-  usart_printf("gpio gain out0 %d,  out1 %d\n", (u1 & DAC_GAIN_OUT0) != 0, (u1 & DAC_GAIN_OUT1) != 0);
+  usart_printf("gpio gain out0 %d,  out1 %d\n", (u1 & DAC_GAIN_BIT0) != 0, (u1 & DAC_GAIN_BIT1) != 0);
 
   /*
     IMPORTANT....
