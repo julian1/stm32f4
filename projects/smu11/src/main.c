@@ -920,9 +920,33 @@ static void dac_voltage_set(app_t *app, float v)
   /*
     OK. this works to set gain on voltage. great...
   */
-  // 7 bits...
-  spi_dac_write_register(app->spi, DAC_GAIN_REGISTER0, -0x7f );
+  // gain. 8 bits, twos complement for gain...
+  /*
+  The Gain Register stores the user-calibration data that are used to eliminate the gain error. The data are eight
+  bits wide, 1 LSB/step, and the total adjustment is typically –128 LSB to +127 LSB, or ±0.195% of full-scale
+  range.
+  */
+  // spi_dac_write_register(app->spi, DAC_GAIN_REGISTER0, -0x7f );
+  // spi_dac_write_register(app->spi, DAC_GAIN_REGISTER0, 0 ); // -128 min. 129 overflows... good.
+  // spi_dac_write_register(app->spi, DAC_GAIN_REGISTER0, -31 );
 
+  // zero register is 9 bits
+  /*
+  The Zero Register stores the user-calibration data that are used to eliminate the offset error. The data are nine
+  bits wide, 0.125 LSB/step, and the total adjustment is typically –32 LSB to +31.875 LSB, or ±0.0488% of
+  full-scale range.
+  */
+  spi_dac_write_register(app->spi, DAC_ZERO_REGISTER0, +255 ); // 255 ok. 256 overflows.
+
+  // we want the ability to set these values in the  gui...
+
+  /*
+    int8 max 127
+    int8 min -128
+  */
+  usart_printf("int8 max %d  %d\n", INT8_MAX);
+  usart_printf("int8 min %d\n", INT8_MIN);
+  // ASSERT(0);
 }
 
 
@@ -2407,7 +2431,7 @@ static void state_change(app_t *app, state_t state )
         state_change(app, STATE_HALT);
         return;
       }
-      
+
       // TODO remove.... fix regualte on vfb.
       usart_printf("-------------\n" );
 
