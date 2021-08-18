@@ -903,7 +903,7 @@ static void dac_current_set(app_t *app, float i)
 
   ASSERT(i >= 0);
   mux_dac(app->spi);
-  spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( i ));
+  spi_dac_write_register(app->spi, DAC_DAC1_REGISTER, voltage_to_dac( i ));
 }
 
 
@@ -915,8 +915,10 @@ static void dac_voltage_set(app_t *app, float v)
 
   ASSERT(v >= 0);
   mux_dac(app->spi);
-  // spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( fabs( v )) );
-  spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( v ));
+  spi_dac_write_register(app->spi, DAC_DAC0_REGISTER, voltage_to_dac( v ));
+
+//  spi_dac_write_register(app->spi, DAC_DAC0_REGISTER, voltage_to_dac( v ));
+
 }
 
 
@@ -2402,8 +2404,6 @@ static void state_change(app_t *app, state_t state )
         return;
       }
       
-      ASSERT(0);
-
       // TODO remove.... fix regualte on vfb.
       usart_printf("-------------\n" );
 
@@ -2491,8 +2491,8 @@ static void state_change(app_t *app, state_t state )
 
       /////////////
       // working as bipolar.
-      spi_dac_write_register(app->spi, DAC_VOUT2_REGISTER, voltage_to_dac( -2.f ) );  // outputs -4V to tp15.  two's complement works. TODO but need to change gain flag?
-      spi_dac_write_register(app->spi, DAC_VOUT3_REGISTER, voltage_to_dac( 0.f ) );  // outputs 4V to tp11.
+      spi_dac_write_register(app->spi, DAC_DAC2_REGISTER, voltage_to_dac( -2.f ) );  // outputs -4V to tp15.  two's complement works. TODO but need to change gain flag?
+      spi_dac_write_register(app->spi, DAC_DAC3_REGISTER, voltage_to_dac( 0.f ) );  // outputs 4V to tp11.
 
 
 

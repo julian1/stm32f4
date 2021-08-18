@@ -15,10 +15,10 @@ extern int dac_init(uint32_t spi, uint8_t reg);  // bad name?
 #define DAC_CMD_REG       0x0 
 
 // keep registers names specific to dac8734, not application
-#define DAC_VOUT0_REGISTER 0x04 
-#define DAC_VOUT1_REGISTER 0x05
-#define DAC_VOUT2_REGISTER 0x06 
-#define DAC_VOUT3_REGISTER 0x07
+#define DAC_DAC0_REGISTER 0x04 
+#define DAC_DAC1_REGISTER 0x05
+#define DAC_DAC2_REGISTER 0x06 
+#define DAC_DAC3_REGISTER 0x07
 
 
 // we don't reall
@@ -44,4 +44,16 @@ extern int dac_init(uint32_t spi, uint8_t reg);  // bad name?
 
 
 
+#define DAC_MON_REGISTER 0x01   // DB11, DB12-DB15
+#define DAC_MON_AIN   (1 << 11)
+#define DAC_MON_MDAC0 (1 << 12)
+#define DAC_MON_MDAC1 (1 << 13)
+#define DAC_MON_MDAC2 (1 << 14)
+#define DAC_MON_MDAC3 (1 << 13)
+
+
+
+#define DAC_ZERO_REGISTER0  0b1000
+
+#define DAC_GAIN_REGISTER0  0b1100
 
