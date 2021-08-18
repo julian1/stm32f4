@@ -927,8 +927,8 @@ static void dac_voltage_set(app_t *app, float v)
   range.
   */
   // spi_dac_write_register(app->spi, DAC_GAIN_REGISTER0, -0x7f );
-  // spi_dac_write_register(app->spi, DAC_GAIN_REGISTER0, 0 ); // -128 min. 129 overflows... good.
-  // spi_dac_write_register(app->spi, DAC_GAIN_REGISTER0, -31 );
+  // spi_dac_write_register(app->spi, DAC_GAIN_REGISTER0, -31 );  // -128 min. 129 overflows... good.
+  // spi_dac_write_register(app->spi, DAC_GAIN_REGISTER0, 0 ); 
 
   // zero register is 9 bits
   /*
@@ -936,7 +936,8 @@ static void dac_voltage_set(app_t *app, float v)
   bits wide, 0.125 LSB/step, and the total adjustment is typically –32 LSB to +31.875 LSB, or ±0.0488% of
   full-scale range.
   */
-  spi_dac_write_register(app->spi, DAC_ZERO_REGISTER0, +255 ); // 255 ok. 256 overflows.
+  // spi_dac_write_register(app->spi, DAC_ZERO_REGISTER0, +255 ); // 255 ok. 256 overflows.
+  // spi_dac_write_register(app->spi, DAC_ZERO_REGISTER0, 0 ); // 255 ok. 256 overflows.
 
   // we want the ability to set these values in the  gui...
 
