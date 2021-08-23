@@ -796,6 +796,9 @@ typedef struct app_t
   ////
   CBuf      cmd_in;
 
+
+  // led blink off/on.
+
   //////////////
 
   int       digits;
@@ -928,7 +931,7 @@ static void dac_voltage_set(app_t *app, float v)
   */
   // spi_dac_write_register(app->spi, DAC_GAIN_REGISTER0, -0x7f );
   // spi_dac_write_register(app->spi, DAC_GAIN_REGISTER0, -31 );  // -128 min. 129 overflows... good.
-  // spi_dac_write_register(app->spi, DAC_GAIN_REGISTER0, 0 ); 
+  // spi_dac_write_register(app->spi, DAC_GAIN_REGISTER0, 0 );
 
   // zero register is 9 bits
   /*
@@ -3062,6 +3065,7 @@ int main(void)
   // TODO. not using.
 
   // this is the mcu clock.  not the adc clock. or the fpga clock.
+  // TODO move to before led_setup()
   systick_setup(16000);
 
 
