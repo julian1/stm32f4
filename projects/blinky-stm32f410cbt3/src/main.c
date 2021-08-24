@@ -148,13 +148,9 @@ int main(void)
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
   cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
 
-
-
-  // setup buffers
   // usart_setup_gpio_portA();
   usart_setup_gpio_portB();
 
-  // TODO rename usart_set_buffer()
   usart_set_buffers(&app.console_in, &app.console_out);
 
   // setup print
