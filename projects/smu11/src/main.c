@@ -3132,14 +3132,14 @@ int main(void)
 
   // setup assert handleer
   // TODO rename - setup_handler
-  assert_setup( (void *) assert_app, &app );
+  assert_set_handler( (void *) assert_app, &app );
 
 
 
   // setup buffers
   usart_setup_gpio_portA();
   // TODO rename setup handler?
-  usart_setup(&app.console_in, &app.console_out);
+  usart_set_buffers(&app.console_in, &app.console_out);
 
   // setup print
   usart_printf_init(&app.console_out);
