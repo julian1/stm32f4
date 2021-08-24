@@ -10,9 +10,9 @@
 // typedef (*assertf) const char *file, int line, const char *func, const char *expr
 
 // better name assert_pf_t()
-typedef void assert_t(void *ctx, const char *file, int line, const char *func, const char *expr);
+typedef void assert_pf_t(void *ctx, const char *file, int line, const char *func, const char *expr);
 
-extern void assert_set_handler( assert_t *pf, void *ctx );
+extern void assert_set_handler( assert_pf_t *pf, void *ctx );
 
 extern void assert_simple(const char *file, int line, const char *func, const char *expr);
 
