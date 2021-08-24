@@ -11,6 +11,7 @@
 #include "cbuffer.h"
 
 
+// rename usart_set_buffers()...
 
 // TODO rename buf_output?
 static CBuf *output_buf = NULL;

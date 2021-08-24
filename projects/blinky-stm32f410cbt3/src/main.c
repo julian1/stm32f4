@@ -154,10 +154,11 @@ int main(void)
   // usart_setup_gpio_portA();
   usart_setup_gpio_portB();
 
-  // TODO rename setup handler?
+  // TODO rename usart_set_buffer()
   usart_setup(&app.console_in, &app.console_out);
 
   // setup print
+  // usart_printf_set_buffer() 
   usart_printf_init(&app.console_out);
 
 
