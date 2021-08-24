@@ -12,7 +12,7 @@
 
 
 
-
+// TODO rename buf_output?
 static CBuf *output_buf = NULL;
 static CBuf *input_buf  = NULL;
 
