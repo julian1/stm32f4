@@ -7,13 +7,9 @@ void usart_setup_gpio_portA(void);
 void usart_setup_gpio_portB(void);
 
 
-/*
-  TODO
-  maybe use separate functions to set the buffers/queues
 
-  rename usart_set_buffers()...
-*/
-void usart_setup(CBuf *input, CBuf *output);
+//   TODO maybe use separate functions to set the buffers/queues
+void usart_set_buffers(CBuf *input, CBuf *output);
 
 
 /*

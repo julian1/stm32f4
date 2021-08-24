@@ -155,7 +155,7 @@ int main(void)
   usart_setup_gpio_portB();
 
   // TODO rename usart_set_buffer()
-  usart_setup(&app.console_in, &app.console_out);
+  usart_set_buffers(&app.console_in, &app.console_out);
 
   // setup print
   // usart_printf_set_buffer() 
