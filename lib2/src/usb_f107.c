@@ -67,9 +67,10 @@ static usbd_device *stm32f107_usbd_init(void)
 		OTG_FS_GCCFG |= OTG_GCCFG_VBDEN | OTG_GCCFG_PWRDWN;
 	} else {
 		/* Enable VBUS sensing in device mode and power up the PHY. */
-		// OTG_FS_GCCFG |= OTG_GCCFG_VBUSBSEN | OTG_GCCFG_PWRDWN;
 
-    OTG_FS_GCCFG |= OTG_GCCFG_NOVBUSSENS | OTG_GCCFG_PWRDWN; // JA   needs hard recompile.
+    // JA
+		// OTG_FS_GCCFG |= OTG_GCCFG_VBUSBSEN | OTG_GCCFG_PWRDWN;   // JA original
+    OTG_FS_GCCFG |= OTG_GCCFG_NOVBUSSENS | OTG_GCCFG_PWRDWN; // JA   modified
 
 	}
 	/* Explicitly enable DP pullup (not all cores do this by default) */
