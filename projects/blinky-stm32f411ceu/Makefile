@@ -14,7 +14,8 @@ LIB2INC=${TOP}/lib2/include
 
 BINARY		= main
 SRCFILES	= ./src/main.c src/util.c  \
-              ${LIB2SRC}/assert.c ${LIB2SRC}/cbuffer.c   ${LIB2SRC}/usart2.c  ${LIB2SRC}/cdcacm.c
+              ${LIB2SRC}/assert.c ${LIB2SRC}/cbuffer.c   ${LIB2SRC}/usart2.c  \
+              ${LIB2SRC}/cdcacm.c ${LIB2SRC}/usb_f107.c
 
 
 
@@ -26,8 +27,10 @@ TGT_CFLAGS  += -Wno-unused-function   \
               -Werror-implicit-function-declaration \
               -Werror
 
+# ../../libopencm3/lib/usb/usb_private.h
 
-
+# for usb_private.h, required by usb_f107.c
+TGT_CFLAGS	+= -I../../libopencm3/lib/usb/
 
 TGT_CFLAGS	+= -I${LIB2INC}
 TGT_CFLAGS	+= -I./include    # FIXME, should be before lib2inc
