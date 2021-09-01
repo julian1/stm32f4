@@ -2,6 +2,9 @@
   serial,
   rlwrap -a picocom -b 115200 /dev/ttyUSB0
 
+  usb
+  screen /dev/ttyACM0 115200
+
   screen
   openocd -f openocd.cfg
   rlwrap nc localhost 4444  # in new window
@@ -122,29 +125,22 @@ static app_t app;
 
 int main(void)
 {
-  // hsi setup high speed internal!!!
-  // TODO. not using.
 
-
-
+  // required for usb
 	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz.
-                                                                // required for usb
-
-  // http://libopencm3.org/docs/latest/stm32f4/html/f4_2rcc_8h.html
-  // note there is a single 25MHz entry for rcc_hse_25mhz_3v3[RCC_CLOCK_3V3_END]   perhaps 4x for 100MHz.
 
   /*
-    see here for rcc.c example, defining 100MHz,
+  // http://libopencm3.org/docs/latest/stm32f4/html/f4_2rcc_8h.html
+
+    see here for rcc.c example, defining 100MHz, using 25MHz xtal.
       https://github.com/insane-adding-machines/unicore-mx/blob/master/lib/stm32/f4/rcc.c
   */
-
-
 
   // clocks
   rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
 
   // LED
-  rcc_periph_clock_enable(RCC_GPIOA); // f410 led.
+  rcc_periph_clock_enable(RCC_GPIOA); // f410/f411 led.
 
   // USART
   // rcc_periph_clock_enable(RCC_GPIOA);     // f407
@@ -203,12 +199,11 @@ int main(void)
   usart_printf("sizeof bool   %u\n", sizeof(bool));
   usart_printf("sizeof float  %u\n", sizeof(float));
   usart_printf("sizeof double %u\n", sizeof(double));
-
+  // test assert
   ASSERT(1 == 2);
 
   usart_printf("a float formatted %g\n", 123.456f );
 
-  // state_change(&app, STATE_FIRST );
 
   loop(&app);
 }
