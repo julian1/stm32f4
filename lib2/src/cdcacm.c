@@ -36,6 +36,16 @@ what is the maximum speed of the STM32 USB CDC?
   The 64KByte/s limit applies for USB HID which uses interrupt endpoints. USB CDC
   interface uses faster bulk endpoints.
 
+  --
+  USB FS frame is 1ms so if you put 64 bytes to the buffer (using the HAL
+  function) - it will send those 64 bytes in the next frame. And it will not send
+  any more data until another 1ms frame
+
+  How to increase this speed -> aggregate your data in larger chunks and send
+  more data in the one transaction (up to 8kB using HAL libraries).
+
+
+
 */
 
 #include <stdlib.h>
