@@ -24,7 +24,19 @@ need fix in usb_f107.c in libopencm3 and recompile of libopencm3 library ...
 brings up /dev/ttyACM0
 
 
- */
+
+
+what is the maximum speed of the STM32 USB CDC?
+  https://stackoverflow.com/questions/44275560/what-is-the-maximum-speed-of-the-stm32-usb-cdc
+
+  Nope. If your code is "fast enough", the maximum CDC speed is about 1MByte/sec.
+  This may require a big (>1KB) FIFO on the device side. Oh, and the PC side must
+  be able to read the data fast enough, e.g. with big buffers.
+
+  The 64KByte/s limit applies for USB HID which uses interrupt endpoints. USB CDC
+  interface uses faster bulk endpoints.
+
+*/
 
 #include <stdlib.h>
 #include <libopencm3/stm32/rcc.h>
