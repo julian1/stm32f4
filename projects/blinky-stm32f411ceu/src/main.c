@@ -22,6 +22,10 @@
 #include <libopencm3/cm3/systick.h>
 
 
+
+#include <libopencm3/usb/usbd.h>
+
+
 #include <stddef.h> // size_t
 //#include <math.h> // nanf
 //#include <stdio.h>
@@ -32,6 +36,7 @@
 #include "usart2.h"
 #include "util.h"
 #include "assert.h"
+#include "cdcacm.h"
 
 
 
@@ -41,6 +46,7 @@ typedef struct app_t
   CBuf console_in;
   CBuf console_out;
 
+  usbd_device *usbd_dev ;
 
 } app_t;
 
@@ -86,6 +92,9 @@ static void loop(app_t *app)
 
   while(true) {
 
+
+		usbd_poll(app->usbd_dev);
+
     update_console_cmd(app);
 
     // usart_output_update(); // shouldn't be necessary
@@ -130,10 +139,6 @@ int main(void)
   */
 
 
-	rcc_periph_clock_enable(RCC_GPIOA);
-	rcc_periph_clock_enable(RCC_OTGFS);
-
-
 
   // clocks
   rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
@@ -146,6 +151,10 @@ int main(void)
   rcc_periph_clock_enable(RCC_GPIOB); // F410/f411
   rcc_periph_clock_enable(RCC_USART1);
 
+
+  // USB
+	// rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_OTGFS);
 
   // spi / ice40
   // rcc_periph_clock_enable(RCC_SPI1);
@@ -179,6 +188,14 @@ int main(void)
   // setup print
   // usart_printf_set_buffer()
   usart_printf_init(&app.console_out);
+
+
+  ////////////////////////////
+  // usb
+  // might be better to pass as handler?
+	app.usbd_dev = usb_setup();
+  ASSERT(app.usbd_dev);
+
 
 
   usart_printf("\n--------\n");
