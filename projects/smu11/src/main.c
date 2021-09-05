@@ -608,7 +608,7 @@
 //#include <libopencm3/stm32/exti.h>
 //#include <libopencm3/stm32/timer.h>
 //#include <libopencm3/cm3/scb.h>
-#include <libopencm3/stm32/spi.h>
+#include <libopencm3/stm32/spi.h>   // SPI1
 
 
 #include <stddef.h> // size_t

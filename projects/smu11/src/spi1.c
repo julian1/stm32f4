@@ -1,4 +1,9 @@
+/*
+  rename. 
+  Code is shared for smu and adc
+  should it be put in a shared library?
 
+*/
 
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
