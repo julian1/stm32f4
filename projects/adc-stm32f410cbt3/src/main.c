@@ -19,7 +19,9 @@
 #include <libopencm3/stm32/gpio.h>
 
 // #include <libopencm3/cm3/nvic.h>
-#include <libopencm3/cm3/systick.h>
+// #include <libopencm3/cm3/systick.h>
+
+#include <libopencm3/stm32/spi.h>   // SPI1
 
 
 #include <stddef.h> // size_t
@@ -33,6 +35,8 @@
 #include "util.h"
 #include "assert.h"
 
+#include "spi1.h"
+#include "ice40.h"
 
 
 
@@ -94,8 +98,13 @@ static void loop(app_t *app)
     // 500ms soft timer. should handle wrap around
     if( (system_millis - soft_500ms) > 500) {
       soft_500ms += 500;
+
+      //
       led_toggle();
       usart_printf("here\n");
+
+      spi_ice40_reg_set( SPI1, 7, 0xff);
+
     }
 
   }
@@ -128,9 +137,10 @@ int main(void)
   rcc_periph_clock_enable(RCC_GPIOB); // F410
   rcc_periph_clock_enable(RCC_USART1);
 
-
   // spi / ice40
-  // rcc_periph_clock_enable(RCC_SPI1);
+  rcc_periph_clock_enable(RCC_SPI1);
+
+
 
   //////////////////////
   // setup
@@ -144,10 +154,13 @@ int main(void)
 
   memset(&app, 0, sizeof(app_t));
 
+  ///////
   // uart/console
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
   cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
 
+  //////////////
+  // uart
   // usart_setup_gpio_portA();
   usart_setup_gpio_portB();
 
@@ -156,6 +169,19 @@ int main(void)
   // setup print
   // usart_printf_set_buffer() 
   usart_printf_init(&app.console_out);
+
+
+  ////////////////
+  // spi1/ice40
+  spi1_port_setup();
+  spi1_special_gpio_setup();
+  // adc interupt...
+  // spi1_interupt_gpio_setup( (void (*) (void *))spi1_interupt, &app);
+
+  
+  spi_ice40_setup(SPI1);
+
+
 
 
   usart_printf("\n--------\n");
