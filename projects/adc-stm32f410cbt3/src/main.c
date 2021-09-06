@@ -45,6 +45,7 @@ typedef struct app_t
   CBuf console_in;
   CBuf console_out;
 
+  bool data_ready ;
 
 } app_t;
 
@@ -76,7 +77,64 @@ static void update_console_cmd(app_t *app)
   }
 }
 
+/*
+  after a 5 seecond integration at 20MHz. quite good.
+    - disconnecting scope leads, meter leads. helps.
+    - can turn off the leds.
+    - can provide a space to read values. before start next integration
+    - can short the integrator
+    - noise ...
 
+  - very preliminary tests - using same high-current for rundown are encouraging.
+
+    - strengths
+      - 20MHz canned cmos oscillator
+      - 74hc175 syncronization and 74hc4053 switch (nexperia). - 5V supplies derived from ref voltage/ for consistent discrete cmos voltage levels.
+      - lt1016 10ns comparator. datasheet says has GHz GBW. running from +-5V supplies.
+      - opa2140 compound gain integrator. with 10k/2k divider.
+      - lt1358 slope amp. 25MHz/600V/uS. no gain, just diode range limit. use comparator gain instead.
+      - 2x lt5400 10k for ladder, and current.
+      - lm399 and opa2777 for ref, current source.
+      - separate agnd/dgnd/int current gnd. 
+      - stm32/adum/ice40 for isolation/control.
+
+    - current limitation/weaknesses - used for initial tests
+      - mlcc 100nF cap. for itnegrator.
+      - slow 2kHz waveform.
+      - not using slow rundown current - eg. stretch integration to 5 sec.
+      - no initial reset/shorting of integrator at start. instead start after prior integration after zero-cross.
+      - high current 1.3mA due to ltc5400 10k resistors. resistor heating.
+      - compound integrator - divider 10k/2k. susumu rr.   TC. not as good as could be.
+      - need comparator latch code. to avoid some output bouncing
+      - spi reading values at end/start coincides with actual integration period. want pause.
+      - plc not multiple of mains freq. albeit 5sec. is.
+      - soic 4053 choice. limiting not ad633.
+
+
+5 sec integration time = 100M count period.
+(5000 * 10000 + 5000 * 10000) / 20MHz =  5 sec.
+
+count_up 5000      count_down 5000    count_rundown 6717
+count_up 5000      count_down 5000    count_rundown 6718
+count_up 5000      count_down 5000    count_rundown 6718
+count_up 5000      count_down 5000    count_rundown 6721
+count_up 5000      count_down 5000    count_rundown 6715
+count_up 5000      count_down 5000    count_rundown 6721
+count_up 5000      count_down 5000    count_rundown 6720
+count_up 5000      count_down 5000    count_rundown 6720
+count_up 4999      count_down 5001    count_rundown 6721
+count_up 5000      count_down 5000    count_rundown 6720
+
+reg 8 207
+reg 8 206
+reg 8 207
+reg 8 208
+reg 8 209
+reg 8 209
+reg 8 207
+
+
+*/
 
 
 static void loop(app_t *app)
@@ -90,6 +148,20 @@ static void loop(app_t *app)
 
   while(true) {
 
+
+    if(app->data_ready) {
+      // in priority
+
+      usart_printf("count_up %u      ", spi_reg_read_24(SPI1, 9 ));
+      usart_printf("count_down %u    ", spi_reg_read_24(SPI1, 10 ));
+      usart_printf("count_rundown %u ", spi_reg_read_24(SPI1, 11 ));
+      usart_printf("\n");
+
+
+      app->data_ready = false;
+    }
+
+
     update_console_cmd(app);
 
     // usart_output_update(); // shouldn't be necessary
@@ -102,7 +174,7 @@ static void loop(app_t *app)
       //
       led_toggle();
 
-#if 1
+#if 0
       static int count = 0;
       uint32_t ret = spi_reg_xfer_24(SPI1, 7, count );
       usart_printf("here %u  %u\n", count ,  ret);
@@ -118,7 +190,7 @@ static void loop(app_t *app)
 static void spi1_interupt(app_t *app )
 {
   UNUSED(app);
-  usart_printf("*****int \n");
+  app->data_ready = true;
 
 }
 
@@ -213,14 +285,15 @@ int main(void)
   ret = spi_reg_read_24(SPI1, 7);
   ASSERT(ret == 0xffffff);
 
-
   spi_reg_xfer_24(SPI1, 7, 0xff00ff );
   ret = spi_reg_read_24(SPI1, 7);
   ASSERT(ret == 0xff00ff);
 
-  spi_reg_xfer_24(SPI1, 7, 126371 );
-  ret = spi_reg_read_24(SPI1, 7);
-  ASSERT(ret == 126371 );
+  for(uint32_t i = 0; i < 32; ++i) {
+    spi_reg_xfer_24(SPI1, 7, i );
+    ret = spi_reg_read_24(SPI1, 7);
+    ASSERT(ret == i );
+  }
 #endif
 
 
