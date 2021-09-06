@@ -122,11 +122,11 @@ static void loop(app_t *app)
       ret = spi_reg_write_24(SPI1, 7, count );   
       ASSERT(ret == 126371 );
 
+      // ok. 
 
-
-#if 0
-      uint32_t ret = spi_reg_write_24(SPI1, 7, count );   
-      usart_printf("here %d (%d)  %d\n", count ,  count & 0xf,  ret);
+#if 1
+      ret = spi_reg_write_24(SPI1, 7, count );   
+      usart_printf("here %u  %u\n", count ,  ret);
       ++count;
 #endif
 
