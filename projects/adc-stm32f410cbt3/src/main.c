@@ -102,48 +102,10 @@ static void loop(app_t *app)
       //
       led_toggle();
 
+#if 1
       static int count = 0;
-      uint32_t ret ;
-
-#if 1
-      // ok. seems to work.
-      usart_printf("whoot\n");
-
-      spi_reg_xfer_24(SPI1, 7, 0xffffff );
-      ret = spi_reg_xfer_24(SPI1, 7, count );
-      ASSERT(ret == 0xffffff);
-
-
-      spi_reg_xfer_24(SPI1, 7, 0xff00ff );
-      ret = spi_reg_xfer_24(SPI1, 7, count );
-      ASSERT(ret == 0xff00ff);
-
-      spi_reg_xfer_24(SPI1, 7, 126371 );
-      ret = spi_reg_xfer_24(SPI1, 7, count );
-      ASSERT(ret == 126371 );
-#endif
-      // ok.
-
-    // OK. it's working but the read is'nt working...
-
-      usart_printf("--\n");
-      spi_reg_xfer_24(SPI1, 7, count );
-      // spi_reg_xfer_24(SPI1, 7, 0b010);
-
-#if 1
-      // try to do reads by setting the hi bit
-      // ret = spi_reg_read_24(SPI1, 7 );
-
-      // ok. the reading is not working.
-
-      ret = spi_reg_read_24(SPI1, 7 );
+      uint32_t ret = spi_reg_xfer_24(SPI1, 7, count );
       usart_printf("here %u  %u\n", count ,  ret);
-
-      ret = spi_reg_read_24(SPI1, 7 );
-      usart_printf("here %u  %u\n", count ,  ret);
-
-
-
       ++count;
 #endif
 
@@ -237,9 +199,30 @@ int main(void)
   usart_printf("sizeof float  %u\n", sizeof(float));
   usart_printf("sizeof double %u\n", sizeof(double));
 
-  ASSERT(1 == 2);
+  // ASSERT(1 == 2);
 
   usart_printf("a float formatted %g\n", 123.456f );
+
+#if 1
+  // test ice40 register read/write
+  // ok. seems to work.
+  usart_printf("whoot\n");
+  uint32_t ret;
+
+  spi_reg_xfer_24(SPI1, 7, 0xffffff );
+  ret = spi_reg_read_24(SPI1, 7);
+  ASSERT(ret == 0xffffff);
+
+
+  spi_reg_xfer_24(SPI1, 7, 0xff00ff );
+  ret = spi_reg_read_24(SPI1, 7);
+  ASSERT(ret == 0xff00ff);
+
+  spi_reg_xfer_24(SPI1, 7, 126371 );
+  ret = spi_reg_read_24(SPI1, 7);
+  ASSERT(ret == 126371 );
+#endif
+
 
   // state_change(&app, STATE_FIRST );
 
