@@ -103,20 +103,32 @@ static void loop(app_t *app)
       led_toggle();
 
       static int count = 0;
+      uint32_t ret ; 
+
+
+      // ok. seems to work. 
+      usart_printf("here\n");
+
+      spi_reg_write_24(SPI1, 7, 0xffffff );   
+      ret = spi_reg_write_24(SPI1, 7, count );   
+      ASSERT(ret == 0xffffff);
+
+
+      spi_reg_write_24(SPI1, 7, 0xff00ff );   
+      ret = spi_reg_write_24(SPI1, 7, count );   
+      ASSERT(ret == 0xff00ff);
+
+      spi_reg_write_24(SPI1, 7, 126371 );   
+      ret = spi_reg_write_24(SPI1, 7, count );   
+      ASSERT(ret == 126371 );
 
 
 
-      // uint16_t ret = spi_ice40_reg_write( SPI1 , 7, count);
-
-
-      // uint32_t ret = spi_reg_write_24(SPI1, 7, count << 24);
-      // uint32_t ret = spi_reg_write_24(SPI1, 7, 0xffffff );
+#if 0
       uint32_t ret = spi_reg_write_24(SPI1, 7, count );   
-
-
       usart_printf("here %d (%d)  %d\n", count ,  count & 0xf,  ret);
-
       ++count;
+#endif
 
     }
 
