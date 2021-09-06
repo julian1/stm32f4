@@ -153,7 +153,12 @@ static void loop(app_t *app)
 }
 
 
+static void spi1_interupt(app_t *app )
+{
+  UNUSED(app);
+  usart_printf("*****int \n");
 
+}
 
 static char buf_console_in[1000];
 static char buf_console_out[1000];
@@ -218,7 +223,7 @@ int main(void)
   spi1_port_setup();
   spi1_special_gpio_setup();
   // adc interupt...
-  // spi1_interupt_gpio_setup( (void (*) (void *))spi1_interupt, &app);
+  spi1_interupt_gpio_setup( (void (*) (void *))spi1_interupt, &app);
 
 
   spi_ice40_setup(SPI1);
