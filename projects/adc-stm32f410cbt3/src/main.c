@@ -105,31 +105,37 @@ static void loop(app_t *app)
       static int count = 0;
       uint32_t ret ;
 
-#if 0
+#if 1
       // ok. seems to work.
-      usart_printf("here\n");
+      usart_printf("whoot\n");
 
-      spi_reg_write_24(SPI1, 7, 0xffffff );
-      ret = spi_reg_write_24(SPI1, 7, count );
+      spi_reg_xfer_24(SPI1, 7, 0xffffff );
+      ret = spi_reg_xfer_24(SPI1, 7, count );
       ASSERT(ret == 0xffffff);
 
 
-      spi_reg_write_24(SPI1, 7, 0xff00ff );
-      ret = spi_reg_write_24(SPI1, 7, count );
+      spi_reg_xfer_24(SPI1, 7, 0xff00ff );
+      ret = spi_reg_xfer_24(SPI1, 7, count );
       ASSERT(ret == 0xff00ff);
 
-      spi_reg_write_24(SPI1, 7, 126371 );
-      ret = spi_reg_write_24(SPI1, 7, count );
+      spi_reg_xfer_24(SPI1, 7, 126371 );
+      ret = spi_reg_xfer_24(SPI1, 7, count );
       ASSERT(ret == 126371 );
 #endif
       // ok.
 
+    // OK. it's working but the read is'nt working...
 
       usart_printf("--\n");
       spi_reg_xfer_24(SPI1, 7, count );
+      // spi_reg_xfer_24(SPI1, 7, 0b010);
 
 #if 1
       // try to do reads by setting the hi bit
+      // ret = spi_reg_read_24(SPI1, 7 );
+
+      // ok. the reading is not working.
+
       ret = spi_reg_read_24(SPI1, 7 );
       usart_printf("here %u  %u\n", count ,  ret);
 
