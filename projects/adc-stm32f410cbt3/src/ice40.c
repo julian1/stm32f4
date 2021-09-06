@@ -24,6 +24,8 @@ void spi_ice40_setup(uint32_t spi)
 }
 
 
+#if 0
+
 static uint32_t spi_xfer_register_16(uint32_t spi, uint32_t r)
 {
   // TODO change name. remove register
@@ -96,10 +98,11 @@ void spi_ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t v)
   uint8_t x = ((~v << 4) & (mask << 4)) | ((v & 0xF ) & mask);
   spi_ice40_xfer2(spi, r, x);
 }
-
+#endif
 
 ////////////////
 
+// think these should be prefixed spi_ice40_ ... etc.
 
 static uint32_t spi_xfer_32(uint32_t spi, uint32_t val)
 {
@@ -117,14 +120,19 @@ static uint32_t spi_xfer_32(uint32_t spi, uint32_t val)
 
 
 
-uint32_t spi_reg_write_24(uint32_t spi, uint8_t reg, uint32_t val)
+uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
 {
-  // or +
+  // for write, or transfer
   return spi_xfer_32(spi, reg << 24 | val);
 
 }
 
-
+uint32_t spi_reg_read_24(uint32_t spi, uint8_t reg)
+{
+  // set the hi bit of the register
+  // allows read, without value overwrite
+  return spi_reg_xfer_24(spi, reg | (1 << 7), 0);
+}
 
 
 

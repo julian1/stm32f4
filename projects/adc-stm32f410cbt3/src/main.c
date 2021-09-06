@@ -103,30 +103,41 @@ static void loop(app_t *app)
       led_toggle();
 
       static int count = 0;
-      uint32_t ret ; 
+      uint32_t ret ;
 
-
-      // ok. seems to work. 
+#if 0
+      // ok. seems to work.
       usart_printf("here\n");
 
-      spi_reg_write_24(SPI1, 7, 0xffffff );   
-      ret = spi_reg_write_24(SPI1, 7, count );   
+      spi_reg_write_24(SPI1, 7, 0xffffff );
+      ret = spi_reg_write_24(SPI1, 7, count );
       ASSERT(ret == 0xffffff);
 
 
-      spi_reg_write_24(SPI1, 7, 0xff00ff );   
-      ret = spi_reg_write_24(SPI1, 7, count );   
+      spi_reg_write_24(SPI1, 7, 0xff00ff );
+      ret = spi_reg_write_24(SPI1, 7, count );
       ASSERT(ret == 0xff00ff);
 
-      spi_reg_write_24(SPI1, 7, 126371 );   
-      ret = spi_reg_write_24(SPI1, 7, count );   
+      spi_reg_write_24(SPI1, 7, 126371 );
+      ret = spi_reg_write_24(SPI1, 7, count );
       ASSERT(ret == 126371 );
+#endif
+      // ok.
 
-      // ok. 
+
+      usart_printf("--\n");
+      spi_reg_xfer_24(SPI1, 7, count );
 
 #if 1
-      ret = spi_reg_write_24(SPI1, 7, count );   
+      // try to do reads by setting the hi bit
+      ret = spi_reg_read_24(SPI1, 7 );
       usart_printf("here %u  %u\n", count ,  ret);
+
+      ret = spi_reg_read_24(SPI1, 7 );
+      usart_printf("here %u  %u\n", count ,  ret);
+
+
+
       ++count;
 #endif
 
@@ -192,7 +203,7 @@ int main(void)
   usart_set_buffers(&app.console_in, &app.console_out);
 
   // setup print
-  // usart_printf_set_buffer() 
+  // usart_printf_set_buffer()
   usart_printf_init(&app.console_out);
 
 
@@ -203,7 +214,7 @@ int main(void)
   // adc interupt...
   // spi1_interupt_gpio_setup( (void (*) (void *))spi1_interupt, &app);
 
-  
+
   spi_ice40_setup(SPI1);
 
 
