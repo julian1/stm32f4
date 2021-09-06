@@ -26,6 +26,8 @@ void spi_ice40_setup(uint32_t spi)
 
 static uint32_t spi_xfer_register_16(uint32_t spi, uint32_t r)
 {
+  // TODO change name. remove register
+  // and rename r to val.
   uint8_t a = spi_xfer( spi, (r >> 8) & 0xff  );
   uint8_t b = spi_xfer( spi, r & 0xff  );
 
@@ -38,6 +40,7 @@ static uint32_t spi_xfer_register_16(uint32_t spi, uint32_t r)
 
 static uint16_t spi_ice40_xfer(uint32_t spi, uint32_t r)
 {
+  // TODO rename xfer_16
   spi_special_flag_clear(spi);
   spi_enable(spi);
   uint16_t ret = spi_xfer_register_16(spi, r );
@@ -93,5 +96,38 @@ void spi_ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t v)
   uint8_t x = ((~v << 4) & (mask << 4)) | ((v & 0xF ) & mask);
   spi_ice40_xfer2(spi, r, x);
 }
+
+
+////////////////
+
+
+static uint32_t spi_xfer_32(uint32_t spi, uint32_t val)
+{
+  spi_enable(spi);
+  uint8_t a = spi_xfer( spi, (val >> 24) & 0xff );  // correct reg should be the first bit that is sent.
+  uint8_t b = spi_xfer( spi, (val >> 16) & 0xff );
+  uint8_t c = spi_xfer( spi, (val >> 8)  & 0xff  );
+  uint8_t d = spi_xfer( spi,  val        & 0xff  );
+  spi_disable(spi);
+
+  // fixed this.
+  // + or | 
+  return (a << 24) + (b << 16) + (c << 8) + d;        // this is better. needs no on reading value .
+}
+
+
+
+uint32_t spi_reg_write_24(uint32_t spi, uint8_t reg, uint32_t val)
+{
+  // or +
+  return spi_xfer_32(spi, reg << 24 | val);
+
+}
+
+
+
+
+
+
 
 

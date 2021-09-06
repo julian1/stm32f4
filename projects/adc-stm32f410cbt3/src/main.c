@@ -105,9 +105,14 @@ static void loop(app_t *app)
       static int count = 0;
 
 
-      // spi_ice40_reg_write_mask( SPI1, 7, 0xff, count );
 
-      uint16_t ret = spi_ice40_reg_write( SPI1 , 7, count);
+      // uint16_t ret = spi_ice40_reg_write( SPI1 , 7, count);
+
+
+      // uint32_t ret = spi_reg_write_24(SPI1, 7, count << 24);
+      // uint32_t ret = spi_reg_write_24(SPI1, 7, 0xffffff );
+      uint32_t ret = spi_reg_write_24(SPI1, 7, count );   
+
 
       usart_printf("here %d (%d)  %d\n", count ,  count & 0xf,  ret);
 
