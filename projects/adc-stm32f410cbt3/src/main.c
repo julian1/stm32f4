@@ -103,11 +103,15 @@ static void loop(app_t *app)
       led_toggle();
 
       static int count = 0;
-      usart_printf("here %u\n", ++count);
 
 
-      spi_ice40_reg_write_mask( SPI1, 7, 0xff, count );
+      // spi_ice40_reg_write_mask( SPI1, 7, 0xff, count );
 
+      uint16_t ret = spi_ice40_reg_write( SPI1 , 7, count);
+
+      usart_printf("here %d (%d)  %d\n", count ,  count & 0xf,  ret);
+
+      ++count;
 
     }
 

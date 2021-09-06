@@ -71,10 +71,10 @@ void spi_ice40_reg_clear( uint32_t spi, uint8_t r, uint8_t v)
 
 // OK. don't think we need a separate hardware register...
 
-void spi_ice40_reg_write( uint32_t spi, uint8_t r, uint8_t v)
+uint16_t spi_ice40_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 {
   uint8_t x = (~v << 4) | (v & 0xF );
-  spi_ice40_xfer2(spi, r, x);
+  return spi_ice40_xfer2(spi, r, x);
 }
 
 
