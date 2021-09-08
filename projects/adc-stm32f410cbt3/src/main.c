@@ -85,7 +85,10 @@ static void update_console_cmd(app_t *app)
     - can short the integrator
     - noise ...
 
+  - IMPORTANT. 5/1 gain. good for same speed ops. but is useful way to trim the output range without adjusting current or integrator cap.
+
   - very preliminary tests - using same high-current for rundown are encouraging.
+      takes some 30sec to settle - DA or TC influence somewhere, that need to investigate.
 
     - strengths
       - 20MHz canned cmos oscillator
@@ -98,7 +101,9 @@ static void update_console_cmd(app_t *app)
       - separate agnd/dgnd/int current gnd. 
       - stm32/adum/ice40 for isolation/control.
 
-    - current limitation/weaknesses - used for initial tests
+    - limitation/weaknesses - used for initial tests
+      - sprayed isopropul around comparator integrator/ and no longer stable. hmmm
+      - 30sec to settle, could just be the ref.
       - mlcc 100nF cap. for itnegrator.
       - slow 2kHz waveform.
       - not using slow rundown current - eg. stretch integration to 5 sec.
@@ -111,8 +116,9 @@ static void update_console_cmd(app_t *app)
       - soic 4053 choice. limiting not ad633.
 
 
-5 sec integration time = 100M count period.
+5 sec integration time at 20MHz = 100M count period.
 (5000 * 10000 + 5000 * 10000) / 20MHz =  5 sec.
+10kcount/20MHz = 500uS. phase.
 
 count_up 5000      count_down 5000    count_rundown 6717
 count_up 5000      count_down 5000    count_rundown 6718
