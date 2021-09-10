@@ -179,13 +179,13 @@ static void loop(app_t *app)
     if(app->data_ready) {
       // in priority
 
-      usart_printf("count_up %u      ", spi_reg_read_24(SPI1, 9 ));
-      usart_printf("count_down %u    ", spi_reg_read_24(SPI1, 10 ));
-      usart_printf("count_rundown %u ", spi_reg_read_24(SPI1, 11 ));
+      usart_printf("count_up %u,   ", spi_reg_read_24(SPI1, 9 ));
+      usart_printf("count_down %u  ", spi_reg_read_24(SPI1, 10 ));
+      usart_printf("rundown %u     ", spi_reg_read_24(SPI1, 11 ));
 
 
-      usart_printf("trans_up %u ", spi_reg_read_24(SPI1, 12 ));
-      usart_printf("trans_down %u ", spi_reg_read_24(SPI1, 14 ));
+      usart_printf("trans_up %u    ", spi_reg_read_24(SPI1, 12 ));
+      usart_printf("trans_down %u  ", spi_reg_read_24(SPI1, 14 ));
 
       usart_printf("\n");
 
