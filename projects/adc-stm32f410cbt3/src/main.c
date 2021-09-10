@@ -98,7 +98,7 @@ static void update_console_cmd(app_t *app)
       - lt1358 slope amp. 25MHz/600V/uS. no gain, just diode range limit. use comparator gain instead.
       - 2x lt5400 10k for ladder, and current.
       - lm399 and opa2777 for ref, current source.
-      - separate agnd/dgnd/int current gnd. 
+      - separate agnd/dgnd/int current gnd.
       - stm32/adum/ice40 for isolation/control.
 
     - limitation/weaknesses - used for initial tests
@@ -140,25 +140,36 @@ reg 8 209
 reg 8 207
 
 warm start - eg. flash fpga .
-count_up 0      count_down 0    count_rundown 0 
-count_up 4999      count_down 5001    count_rundown 1267 
-count_up 5000      count_down 5000    count_rundown 6213 
-count_up 5000      count_down 5000    count_rundown 6643 
-count_up 5000      count_down 5000    count_rundown 6671 
-count_up 5000      count_down 5000    count_rundown 6678 
-count_up 5000      count_down 5000    count_rundown 6682 
-count_up 5000      count_down 5000    count_rundown 6684 
-count_up 4999      count_down 5000    count_rundown 6680 
-count_up 5000      count_down 5000    count_rundown 6683 
-count_up 5000      count_down 5000    count_rundown 6684 
-count_up 5000      count_down 5000    count_rundown 6685 
-count_up 5000      count_down 5000    count_rundown 6683 
-count_up 5000      count_down 5000    count_rundown 6683 
-count_up 5000      count_down 5000    count_rundown 6682 
-count_up 5000      count_down 5000    count_rundown 6683 
-count_up 5000      count_down 5000    count_rundown 6684 
+count_up 0      count_down 0    count_rundown 0
+count_up 4999      count_down 5001    count_rundown 1267
+count_up 5000      count_down 5000    count_rundown 6213
+count_up 5000      count_down 5000    count_rundown 6643
+count_up 5000      count_down 5000    count_rundown 6671
+count_up 5000      count_down 5000    count_rundown 6678
+count_up 5000      count_down 5000    count_rundown 6682
+count_up 5000      count_down 5000    count_rundown 6684
+count_up 4999      count_down 5000    count_rundown 6680
+count_up 5000      count_down 5000    count_rundown 6683
+count_up 5000      count_down 5000    count_rundown 6684
+count_up 5000      count_down 5000    count_rundown 6685
+count_up 5000      count_down 5000    count_rundown 6683
+count_up 5000      count_down 5000    count_rundown 6683
+count_up 5000      count_down 5000    count_rundown 6682
+count_up 5000      count_down 5000    count_rundown 6683
+count_up 5000      count_down 5000    count_rundown 6684
 
 takes a while to converge. even if ref warm. so perhaps DA of caps. or TC of switch.
+
+count_up 5125,   count_down 4876  rundown 3196     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3196     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3196     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3197     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3198     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3196     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3198     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3198     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3198     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3195     trans_up 5001    trans_down 5001
 
 
 */
