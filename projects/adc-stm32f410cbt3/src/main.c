@@ -139,6 +139,27 @@ reg 8 209
 reg 8 209
 reg 8 207
 
+warm start - eg. flash fpga .
+count_up 0      count_down 0    count_rundown 0 
+count_up 4999      count_down 5001    count_rundown 1267 
+count_up 5000      count_down 5000    count_rundown 6213 
+count_up 5000      count_down 5000    count_rundown 6643 
+count_up 5000      count_down 5000    count_rundown 6671 
+count_up 5000      count_down 5000    count_rundown 6678 
+count_up 5000      count_down 5000    count_rundown 6682 
+count_up 5000      count_down 5000    count_rundown 6684 
+count_up 4999      count_down 5000    count_rundown 6680 
+count_up 5000      count_down 5000    count_rundown 6683 
+count_up 5000      count_down 5000    count_rundown 6684 
+count_up 5000      count_down 5000    count_rundown 6685 
+count_up 5000      count_down 5000    count_rundown 6683 
+count_up 5000      count_down 5000    count_rundown 6683 
+count_up 5000      count_down 5000    count_rundown 6682 
+count_up 5000      count_down 5000    count_rundown 6683 
+count_up 5000      count_down 5000    count_rundown 6684 
+
+takes a while to converge. even if ref warm. so perhaps DA of caps. or TC of switch.
+
 
 */
 
@@ -161,6 +182,11 @@ static void loop(app_t *app)
       usart_printf("count_up %u      ", spi_reg_read_24(SPI1, 9 ));
       usart_printf("count_down %u    ", spi_reg_read_24(SPI1, 10 ));
       usart_printf("count_rundown %u ", spi_reg_read_24(SPI1, 11 ));
+
+
+      usart_printf("trans_up %u ", spi_reg_read_24(SPI1, 12 ));
+      usart_printf("trans_down %u ", spi_reg_read_24(SPI1, 14 ));
+
       usart_printf("\n");
 
 
