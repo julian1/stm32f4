@@ -209,6 +209,7 @@ count_up 5125,   count_down 4876  rundown 3286     trans_up 5001    trans_down 5
 count_up 5125,   count_down 4876  rundown 3287     trans_up 5001    trans_down 5001
 
 get a syringe with isopropyl.
+can drop it on part. or on board - in different places.
 
 */
 
