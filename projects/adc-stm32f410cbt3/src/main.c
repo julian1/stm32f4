@@ -171,6 +171,44 @@ count_up 5125,   count_down 4876  rundown 3198     trans_up 5001    trans_down 5
 count_up 5125,   count_down 4876  rundown 3198     trans_up 5001    trans_down 5001
 count_up 5125,   count_down 4876  rundown 3195     trans_up 5001    trans_down 5001
 
+----------
+switch from mlcc to vishay c0g.  actually worse... although board started from cold.
+count_up 5125,   count_down 4876  rundown 3458     trans_up 5001    trans_down 5001
+count_up 5126,   count_down 4875  rundown 3447     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3433     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3427     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3422     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3417     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3413     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3407     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3403     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3401     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3393     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3392     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3387     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3385     trans_up 5001    trans_down 5001
+
+vishay c0g. warm start (eg. just flash ice40., much better.
+
+count_up 5124,   count_down 4877  rundown 922     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3287     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3288     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3288     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3289     trans_up 5001    trans_down 5001
+
+So there's a strong TC with board temperature.
+yes. starts great.
+
+count_up 0,   count_down 0  rundown 0     trans_up 0    trans_down 0
+count_up 5124,   count_down 4877  rundown 924     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3287     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3289     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3289     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3289     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3286     trans_up 5001    trans_down 5001
+count_up 5125,   count_down 4876  rundown 3287     trans_up 5001    trans_down 5001
+
+get a syringe with isopropyl.
 
 */
 
@@ -324,13 +362,28 @@ int main(void)
   usart_printf("whoot\n");
   uint32_t ret;
 
+/*
   spi_reg_xfer_24(SPI1, 7, 0xffffff );
   ret = spi_reg_read_24(SPI1, 7);
   ASSERT(ret == 0xffffff);
+*/
 
+  // fails... with new spi target, and deferred assignment
   spi_reg_xfer_24(SPI1, 7, 0xff00ff );
   ret = spi_reg_read_24(SPI1, 7);
   ASSERT(ret == 0xff00ff);
+
+  // this works... eg. allowing high bit to be off.
+  spi_reg_xfer_24(SPI1, 7, 0x7f00ff );
+  ret = spi_reg_read_24(SPI1, 7);
+  ASSERT(ret == 0x7f00ff);
+
+  ///////////////////
+  ret = spi_reg_read_24(SPI1, 15);
+  usart_printf("reg 15 %u %x\n", ret, ret);
+  ASSERT(ret == 0xffffff );
+
+
 
   for(uint32_t i = 0; i < 32; ++i) {
     spi_reg_xfer_24(SPI1, 7, i );
