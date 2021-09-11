@@ -237,6 +237,8 @@ static void loop(app_t *app)
       usart_printf("trans_up %u    ", spi_reg_read_24(SPI1, 12 ));
       usart_printf("trans_down %u  ", spi_reg_read_24(SPI1, 14 ));
 
+      usart_printf("rundown_dir %u ", spi_reg_read_24(SPI1, 16 ));
+
       usart_printf("\n");
 
 
