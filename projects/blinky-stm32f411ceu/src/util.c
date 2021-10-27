@@ -49,11 +49,8 @@ bool strequal(const char *s1, const char *s2)
 // stm32f410cbt3
 
 #define LED_PORT  GPIOA
-#define LED_OUT   GPIO15
-
-
-
-
+// #define LED_OUT   GPIO15
+#define LED_OUT   GPIO9 // stm32f411...
 
 
 

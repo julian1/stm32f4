@@ -1,4 +1,7 @@
 /*
+  nix-shell ~/devel/nixos-config/examples/arm.nix
+  make
+
   serial,
   rlwrap -a picocom -b 115200 /dev/ttyUSB0
 
@@ -199,7 +202,7 @@ int main(void)
   usart_printf("sizeof bool   %u\n", sizeof(bool));
   usart_printf("sizeof float  %u\n", sizeof(float));
   usart_printf("sizeof double %u\n", sizeof(double));
-  // test assert
+  // test assert failure
   ASSERT(1 == 2);
 
   usart_printf("a float formatted %g\n", 123.456f );
