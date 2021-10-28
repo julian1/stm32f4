@@ -1892,12 +1892,12 @@ static void update_soft_500ms(app_t *app)
   mux_io(app->spi);
   io_toggle(app->spi, REG_LED, LED1);
 
-
+/*
   // try w25 chip
   mux_w25(app->spi);
   msleep(20);
   spi_w25_get_data(app->spi);
- 
+*/ 
 
 
   // blink stm32/mcu led
@@ -2296,7 +2296,7 @@ static void update(app_t *app)
     could offload spi reading ot the fpga. along with test against threshold values.
   */
 
-  if( false && app->state == STATE_HALT) {
+  if( /*false &&*/ app->state == STATE_HALT) {
 
     // no need to read rails in halt state
     // more useful, to know ice40 current
@@ -3006,7 +3006,7 @@ static void assert_app(app_t *app, const char *file, int line, const char *func,
 
   state_change(app, STATE_HALT );
 
-#if 0
+#if 1
   // we have to do a critical error here... else caller code will just progress,
   // if we were in a state transition, then it will continue to just progress...
   critical_error_blink();
