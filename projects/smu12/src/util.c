@@ -51,6 +51,7 @@ bool strequal(const char *s1, const char *s2)
 
 
 // move this stuff back to main.c and setup...
+// But this code is all identical, except for the led.
 
 void led_setup(void)
 {
@@ -93,12 +94,8 @@ volatile uint32_t system_millis = 0;
   just use a uint64_t ?
 */
 
-// static void systick_setup(void)
 void systick_setup(uint32_t tick_divider)
 {
-  // TODO change name systick_setup().
-  // TODO pass clock reload divider as argument, to localize.
-
   /* clock rate / 168000 to get 1mS interrupt rate */
   // systick_set_reload(168000);
   systick_set_reload(tick_divider);
@@ -119,11 +116,6 @@ void sys_tick_handler(void)
 
   system_millis++;
 
-  /*
-    if(system_millis % 1000 == 0) {
-      app->soft_timer_1sec = true; ...
-    }
-  */
 }
 
 
