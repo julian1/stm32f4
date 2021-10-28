@@ -69,8 +69,15 @@ void mux_adc03(uint32_t spi)
 
 void mux_dac(uint32_t spi)
 {
+/*
   spi_ice40_setup(spi);
   spi_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_DAC);
+  spi_dac_setup(spi);
+*/
+  mux_fpga(spi);
+  spi_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_DAC);
+ 
+  spi1_port_setup2();
   spi_dac_setup(spi);
 }
 
