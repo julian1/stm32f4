@@ -7,6 +7,20 @@
 #include "dac8734.h"
 #include "ads131a04.h"
 
+/*
+  OK. we need to think about all this...
+
+  to switch from ice40 to alternate. 
+    cs to cs2. 
+    then use the appropriate functions.
+
+  so we have two alternate setup functions.
+
+  spi_ice40_setup_cs1(spi);
+  spi_ice40_setup_cs2(spi);
+
+*/
+
 // one bit
 // put all these
 

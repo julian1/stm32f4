@@ -1,5 +1,5 @@
 /*
-  rename. 
+  rename.
   Code is shared for smu and adc
   should it be put in a shared library?
 
@@ -32,6 +32,10 @@
 #define SPI_ICE40_MOSI  GPIO7     // PA7
 #define SPI_ICE40_MISO  GPIO6     // PA6
 
+
+
+#define SPI_ICE40_CS2   GPIO15   // PA15 nss 2. moved.
+
 #if 0
 // output reg.
 #define SPI_ICE40_SPECIAL GPIO3   // PA4
@@ -45,18 +49,44 @@
 
 void spi1_port_setup(void)
 {
-  // same...
+  // rcc_periph_clock_enable(RCC_SPI1);
+
+  // setup spi with cs ...
   uint16_t out = SPI_ICE40_CLK | SPI_ICE40_CS | SPI_ICE40_MOSI ; // not MISO
   uint16_t all = out | SPI_ICE40_MISO;
-
-  // rcc_periph_clock_enable(RCC_SPI1);
 
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
   gpio_set_af(SPI_ICE40_PORT, GPIO_AF5, all); // af 5
   gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out);
 
+  // we should be able to simplify this. to non configured or input.
+  // http://libopencm3.org/docs/latest/gd32f1x0/html/group__gpio__mode.html
+
+  /*
+
+  ''During and just after reset, the alternate functions are not active and the I/O ports are configured in Input Floating mode (CNFx[1:0]=01b, MODEx[1:0]=00b).''
+  */
+  // set cs2 hi - with external pullup.
+  gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_ICE40_CS2);
 }
 
+#if 0
+void spi1_port_setup2(void)
+{
+  // rcc_periph_clock_enable(RCC_SPI1);
+
+  // setup spi with cs ...
+  uint16_t out = SPI_ICE40_CLK | SPI_ICE40_CS2 | SPI_ICE40_MOSI ; // not MISO
+  uint16_t all = out | SPI_ICE40_MISO;
+
+  gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
+  gpio_set_af(SPI_ICE40_PORT, GPIO_AF5, all); // af 5
+  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out); // probably need to reset each time.
+
+  // set cs1 hi - with external pullup.
+  gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_ICE40_CS);
+}
+#endif
 
 
 #if 0
@@ -110,9 +140,9 @@ void exti2_isr(void)
 {
   // interupt from ice40/fpga.
 
-  /* 
+  /*
     EXTREME
-    OK. bizarre. resetting immediately, prevents being called a second time 
+    OK. bizarre. resetting immediately, prevents being called a second time
   */
   exti_reset_request(EXTI2);
 
@@ -124,7 +154,7 @@ void exti2_isr(void)
 }
 
 /*
-ads131a04  DYDR Data ready; active low; host interrupt and synchronization for multi-devices 
+ads131a04  DYDR Data ready; active low; host interrupt and synchronization for multi-devices
 */
 
 void spi1_interupt_gpio_setup(void (*pfunc)(void *),  void *ctx)
