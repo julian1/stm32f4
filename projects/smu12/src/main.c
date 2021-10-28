@@ -1882,9 +1882,9 @@ static void update_soft_1s(app_t *app)
 
 }
 
-
-
-
+/*
+    need to do the spi setup...
+*/
 
 static void update_soft_500ms(app_t *app)
 {
@@ -3154,7 +3154,9 @@ int main(void)
 
   ////////////////
   spi1_port_setup();
+#if 0
   spi1_special_gpio_setup();
+#endif
   // adc interupt...
   spi1_interupt_gpio_setup( (void (*) (void *))spi1_interupt, &app);
 

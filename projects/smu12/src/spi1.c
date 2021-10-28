@@ -32,8 +32,10 @@
 #define SPI_ICE40_MOSI  GPIO7     // PA7
 #define SPI_ICE40_MISO  GPIO6     // PA6
 
+#if 0
 // output reg.
 #define SPI_ICE40_SPECIAL GPIO3   // PA4
+#endif
 
 #define SPI_ICE40_INTERUPT GPIO2   // PA2
 
@@ -57,6 +59,7 @@ void spi1_port_setup(void)
 
 
 
+#if 0
 void spi1_special_gpio_setup(void)
 {
   // TODO change name this is not spi....
@@ -83,7 +86,7 @@ void spi_special_flag_clear(uint32_t spi)
   gpio_clear(SPI_ICE40_PORT, SPI_ICE40_SPECIAL ); // assert special, active low...
 }
 
-
+#endif
 
 
 

@@ -38,11 +38,11 @@ static uint32_t spi_xfer_register_16(uint32_t spi, uint32_t r)
 
 static uint16_t spi_ice40_xfer(uint32_t spi, uint32_t r)
 {
-  spi_special_flag_clear(spi);
+//  spi_special_flag_clear(spi);
   spi_enable(spi);
   uint16_t ret = spi_xfer_register_16(spi, r );
   spi_disable(spi);
-  spi_special_flag_set(spi);
+//  spi_special_flag_set(spi);
   return ret;
 }
 
