@@ -1,4 +1,9 @@
 
+/*
+  ice40 spi is just one of multiple targets, like adc,dac,w25q etc.
+
+*/
+
 #include <libopencm3/stm32/spi.h>
 
 #include "ice40.h"

@@ -1,7 +1,9 @@
 
-#include "core.h"
-#include "ice40.h"
 
+#include "spi1.h"
+#include "core.h"
+
+#include "ice40.h"
 #include "mcp3208.h"
 #include "w25.h"
 #include "dac8734.h"
@@ -29,23 +31,40 @@ void mux_fpga(uint32_t spi)
 {
   // spi on mcu side, must be correctly configured
   // in addition, relies on the special flag to mux
+
+  spi1_port_setup();
   spi_ice40_setup(spi);
 }
 #endif
 
-void mux_adc03(uint32_t spi)
-{
-  spi_ice40_setup(spi);
-  spi_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_ADC03);
-  spi_mcp3208_setup(spi);
-}
+
+
 
 void mux_w25(uint32_t spi)
 {
-  spi_ice40_setup(spi);
+  // mux fpga, to write the reg.
+  mux_fpga(spi);
   spi_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_FLASH);
+
+  // now mux the device
+  spi1_port_setup2();
   spi_w25_setup(spi);
 }
+
+void mux_adc03(uint32_t spi)
+{
+  // spi_ice40_setup(spi);
+
+  // mux fpga, to write the reg.
+  mux_fpga(spi);
+  spi_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_ADC03);
+
+  // now mux the device
+  spi1_port_setup2();
+  spi_mcp3208_setup(spi);
+}
+
+
 
 
 void mux_dac(uint32_t spi)

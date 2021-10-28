@@ -1892,8 +1892,19 @@ static void update_soft_500ms(app_t *app)
   mux_io(app->spi);
   io_toggle(app->spi, REG_LED, LED1);
 
-  // blink mcu led
+
+  // try w25 chip
+  mux_w25(app->spi);
+  msleep(20);
+  spi_w25_get_data(app->spi);
+ 
+
+
+  // blink stm32/mcu led
   led_toggle();
+
+
+
 }
 
 
@@ -2285,7 +2296,7 @@ static void update(app_t *app)
     could offload spi reading ot the fpga. along with test against threshold values.
   */
 
-  if(app->state == STATE_HALT) {
+  if( false && app->state == STATE_HALT) {
 
     // no need to read rails in halt state
     // more useful, to know ice40 current
@@ -2298,7 +2309,7 @@ static void update(app_t *app)
     app->lp15v = spi_mcp3208_get_data(app->spi, 0) * 0.92 * 10.;
     app->ln15v = spi_mcp3208_get_data(app->spi, 1) * 0.81 * 10.;
 
-    // usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
+    // usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
   }
 
 
@@ -2428,6 +2439,7 @@ static void state_change(app_t *app, state_t state )
       // TODO. check responses.
       mux_w25(app->spi);
       spi_w25_get_data(app->spi);
+
 
       // dac init
       int ret = dac_init(app->spi, REG_DAC); // bad name?

@@ -70,7 +70,6 @@ void spi1_port_setup(void)
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_ICE40_CS2);
 }
 
-#if 0
 void spi1_port_setup2(void)
 {
   // rcc_periph_clock_enable(RCC_SPI1);
@@ -86,7 +85,6 @@ void spi1_port_setup2(void)
   // set cs1 hi - with external pullup.
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_ICE40_CS);
 }
-#endif
 
 
 #if 0
