@@ -638,6 +638,9 @@
 
 #include "mux.h"   // some of the above files include core.h. need header guards.
 
+
+#include "reg.h"
+
 #define UNUSED(x) (void)(x)
 
 // define here? or in mux.h.

@@ -10,6 +10,9 @@
 #include "str.h"   // format_bits()
 
 #include "mux.h"
+#include "reg.h"
+
+
 
 
 

@@ -2,12 +2,15 @@
 
 #include "spi1.h"
 #include "mux.h"
+#include "reg.h"
 
 #include "spi-ice40.h"
 #include "mcp3208.h"
 #include "w25.h"
 #include "dac8734.h"
 #include "ads131a04.h"
+
+
 
 /*
   OK. we need to think about all this...

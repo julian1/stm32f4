@@ -3,10 +3,11 @@
 #include <libopencm3/stm32/spi.h>
 
 
-#include "mux.h"
 #include "util.h" // usart_printf
 #include "assert.h" // usart_printf
 
+#include "mux.h"
+#include "reg.h"
 
 #include "dac8734.h"
 
