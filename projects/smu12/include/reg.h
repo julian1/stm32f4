@@ -1,5 +1,7 @@
 
 
+#include <stdint.h>
+
 
 extern void reg_set( uint32_t spi, uint8_t r, uint8_t v);
 extern void reg_clear( uint32_t spi, uint8_t r, uint8_t v);
