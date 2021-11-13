@@ -637,7 +637,7 @@ static void range_voltage_set_1V(uint32_t spi)
         // turn on set voltages 2V and 4V outputs. works.
 
         /*
-          OK. can talk to fpga for io, or peripheral, without having to intersperse calls to mux_io() and mux_dac()
+          OK. can talk to fpga for io, or peripheral, without having to intersperse calls to mux_fpga() and mux_dac()
             special is asserted for io.
             ---
             but issue is the spi parameters might change for ice40 versus peripheral.
@@ -646,7 +646,7 @@ static void range_voltage_set_1V(uint32_t spi)
         //////////////////////////////////
         // set up clamps
 
-        mux_io(spi);
+        mux_fpga(spi);
         clamps_set_source_pve(spi);
 
         // WE DO need the mux() calls. to setup the spi parameters which may differ.
@@ -656,7 +656,7 @@ static void range_voltage_set_1V(uint32_t spi)
         mux_dac(spi);
         spi_dac_write_register(spi, REG_DAC_VSET, voltage_to_dac( 1.f ) ); // 10V
 
-        mux_io(spi);
+        mux_fpga(spi);
         // range_voltage_set_100V(spi);       // ie. 1.2  = 12V, 1.5=15V etc
         range_voltage_set_10V(spi);           // ie 1.2 = 1.2V
         // range_voltage_set_1V(spi);         // ie 1.2 = 0.12V
@@ -665,7 +665,7 @@ static void range_voltage_set_1V(uint32_t spi)
         mux_dac(spi);
         spi_dac_write_register(spi, REG_DAC_ISET, voltage_to_dac( 1.f ) );  // 5.f
 
-        mux_io(spi);
+        mux_fpga(spi);
         // range_current_set_10A(spi);           // ie 1=1A, 0.5=0.5A, 0.1=0.1V
         // range_current_set_1A(spi);         // ie. 1=0.1A,10=1A
         // range_current_set_100mA(spi);      // 1=10mA, 10=100mA.
@@ -694,7 +694,7 @@ static void range_voltage_set_1V(uint32_t spi)
         ////////////////////
         // power rails
         usart_printf("turn on power rails - lp30v\n" );
-        mux_io(spi);
+        mux_fpga(spi);
         // reg_set(spi, REG_RAILS, RAILS_LP30V );
         reg_set(spi, REG_RAILS, RAILS_LP60V );  // actually 15V
         msleep(50);
@@ -817,7 +817,7 @@ static void clamps_set_source_pve(uint32_t spi)
           spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.f  ) ); // 3V
           // current
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 2.0f ) );  // 2mA.
-          mux_io(app->spi);
+          mux_fpga(app->spi);
           reg_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET_INV));   // positive voltage and current.
           reg_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
         }
@@ -834,7 +834,7 @@ static void clamps_set_source_pve(uint32_t spi)
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 5.0f ) );      // -1mA. resistor or battery
 
 
-          mux_io(app->spi);
+          mux_fpga(app->spi);
           reg_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));   // positive voltage and current.
           reg_write(app->spi, REG_CLAMP2, ~CLAMP2_MIN );     // min of current or voltage
         }
@@ -851,7 +851,7 @@ static void clamps_set_source_pve(uint32_t spi)
           // current
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 1.0f ) );      // -1mA. resistor or battery
 
-          mux_io(app->spi);
+          mux_fpga(app->spi);
           reg_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));   // positive voltage and current.
           reg_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
 
@@ -1395,7 +1395,7 @@ static void range_voltage_set_1V(uint32_t spi)
         // turn on set voltages 2V and 4V outputs. works.
 
         /*
-          OK. can talk to fpga for io, or peripheral, without having to intersperse calls to mux_io() and mux_dac()
+          OK. can talk to fpga for io, or peripheral, without having to intersperse calls to mux_fpga() and mux_dac()
             special is asserted for io.
             ---
             but issue is the spi parameters might change for ice40 versus peripheral.
@@ -1404,7 +1404,7 @@ static void range_voltage_set_1V(uint32_t spi)
         //////////////////////////////////
         // set up clamps
 
-        mux_io(spi);
+        mux_fpga(spi);
         clamps_set_source_pve(spi);
 
         // WE DO need the mux() calls. to setup the spi parameters which may differ.
@@ -1414,7 +1414,7 @@ static void range_voltage_set_1V(uint32_t spi)
         mux_dac(spi);
         spi_dac_write_register(spi, REG_DAC_VSET, voltage_to_dac( 1.f ) ); // 10V
 
-        mux_io(spi);
+        mux_fpga(spi);
         // range_voltage_set_100V(spi);       // ie. 1.2  = 12V, 1.5=15V etc
         range_voltage_set_10V(spi);           // ie 1.2 = 1.2V
         // range_voltage_set_1V(spi);         // ie 1.2 = 0.12V
@@ -1423,7 +1423,7 @@ static void range_voltage_set_1V(uint32_t spi)
         mux_dac(spi);
         spi_dac_write_register(spi, REG_DAC_ISET, voltage_to_dac( 1.f ) );  // 5.f
 
-        mux_io(spi);
+        mux_fpga(spi);
         // range_current_set_10A(spi);           // ie 1=1A, 0.5=0.5A, 0.1=0.1V
         // range_current_set_1A(spi);         // ie. 1=0.1A,10=1A
         // range_current_set_100mA(spi);      // 1=10mA, 10=100mA.
@@ -1452,7 +1452,7 @@ static void range_voltage_set_1V(uint32_t spi)
         ////////////////////
         // power rails
         usart_printf("turn on power rails - lp30v\n" );
-        mux_io(spi);
+        mux_fpga(spi);
         // reg_set(spi, REG_RAILS, RAILS_LP30V );
         reg_set(spi, REG_RAILS, RAILS_LP60V );  // actually 15V
         msleep(50);
@@ -1575,7 +1575,7 @@ static void clamps_set_source_pve(uint32_t spi)
           spi_dac_write_register(app->spi, DAC_VOUT0_REGISTER, voltage_to_dac( 3.f  ) ); // 3V
           // current
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 2.0f ) );  // 2mA.
-          mux_io(app->spi);
+          mux_fpga(app->spi);
           reg_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET_INV));   // positive voltage and current.
           reg_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
         }
@@ -1592,7 +1592,7 @@ static void clamps_set_source_pve(uint32_t spi)
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 5.0f ) );      // -1mA. resistor or battery
 
 
-          mux_io(app->spi);
+          mux_fpga(app->spi);
           reg_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));   // positive voltage and current.
           reg_write(app->spi, REG_CLAMP2, ~CLAMP2_MIN );     // min of current or voltage
         }
@@ -1609,7 +1609,7 @@ static void clamps_set_source_pve(uint32_t spi)
           // current
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 1.0f ) );      // -1mA. resistor or battery
 
-          mux_io(app->spi);
+          mux_fpga(app->spi);
           reg_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));   // positive voltage and current.
           reg_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
 

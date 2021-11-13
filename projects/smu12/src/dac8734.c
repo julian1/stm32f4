@@ -109,7 +109,7 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
     fail early if something goes wrong
   */
 
-  mux_io(spi);
+  mux_fpga(spi);
 
   // keep latch low, and unused, unless chaining
   reg_clear(spi, reg, DAC_LDAC);

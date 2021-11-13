@@ -23,7 +23,8 @@ extern void mux_adc(uint32_t spi);
 // probably belong in a different file.
 // prefix with reg_ instead of io.
 
-extern void mux_io(uint32_t spi);
+// extern void mux_io(uint32_t spi);
+
 extern void reg_set( uint32_t spi, uint8_t r, uint8_t v);
 extern void reg_clear( uint32_t spi, uint8_t r, uint8_t v);
 extern void reg_write( uint32_t spi, uint8_t r, uint8_t v);

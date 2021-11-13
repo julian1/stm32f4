@@ -341,7 +341,7 @@
 
     - use uint64_t ? if available for systick? to avoid rollover?
 
-    - using 74hc4094 if we need it is easy. we just do the mux_io thing.  and then toggle nss as a strobe instead of cs. using gpio.
+    - using 74hc4094 if we need it is easy. we just do the mux_fpga thing.  and then toggle nss as a strobe instead of cs. using gpio.
         simple. eg. we recognifure spi in other contexts so don't see there's any issue.
 
     - test bav199 with 10G input impedance of 34401a.
@@ -981,7 +981,7 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
   );
   app->vrange = vrange;
 
-  mux_io(app->spi);   // would be better to avoid calling if don't need.
+  mux_fpga(app->spi);   // would be better to avoid calling if don't need.
 
 
   switch(app->vrange)
@@ -1142,7 +1142,7 @@ static void range_current_set(app_t *app, irange_t irange)
   );
   app->irange = irange;
 
-  mux_io(app->spi);
+  mux_fpga(app->spi);
 
 
   switch(app->irange)
@@ -1792,7 +1792,7 @@ static void quadrant_set( app_t *app, bool v, bool i)
   // negative current. can still be source or sink. depending on polarity.
   // ie. clamp direction min/max following voltage.
 
-  mux_io(app->spi);
+  mux_fpga(app->spi);
 
   uint32_t vv = v ? CLAMP1_VSET_INV : CLAMP1_VSET;
   uint32_t ii = i ? CLAMP1_ISET_INV : CLAMP1_ISET;
@@ -1898,7 +1898,7 @@ static void update_soft_1s(app_t *app)
 static void update_soft_500ms(app_t *app)
 {
   // blink the fpga led
-  mux_io(app->spi);
+  mux_fpga(app->spi);
   reg_toggle(app->spi, REG_LED, LED1);
 
 /*
@@ -2393,7 +2393,7 @@ static void state_change(app_t *app, state_t state )
 
       */
 
-      mux_io(app->spi);
+      mux_fpga(app->spi);
 
        // disconnect output
       usart_printf("turn off output\n" );
@@ -2419,7 +2419,7 @@ static void state_change(app_t *app, state_t state )
       usart_printf("turn off adc\n" );
       // hardware reset adc, to stop generating interupts on read
       adc_reset( app->spi, REG_ADC);
-      mux_io(app->spi);
+      mux_fpga(app->spi);
 #endif
 
       app->state = STATE_HALT;
@@ -2433,7 +2433,7 @@ static void state_change(app_t *app, state_t state )
       usart_printf("-----------\n");
       usart_printf("digital start\n" );
 
-      mux_io(app->spi);
+      mux_fpga(app->spi);
 
       ////////////
       // soft reset is much better here.
@@ -2473,7 +2473,7 @@ static void state_change(app_t *app, state_t state )
 
 
       usart_printf("turn on lp5v\n" );
-      mux_io(app->spi);
+      mux_fpga(app->spi);
       // assert rails oe
       reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
 
@@ -2516,7 +2516,7 @@ static void state_change(app_t *app, state_t state )
       // turn on refs for dac
       //mux_dac(spi);
       usart_printf("turn on ref a for dac\n" );
-      mux_io(app->spi);
+      mux_fpga(app->spi);
       reg_write(app->spi, REG_DAC_REF_MUX, ~(DAC_REF_MUX_A | DAC_REF_MUX_B)); // active lo
 
       // dac naked register references should be wrapped by functions
@@ -2842,7 +2842,7 @@ static void update_console_ch(app_t *app, const char ch )
   // toggle output... on/off. must only process char once. avoid relay oscillate
   else if( ch == 'o') {
     usart_printf("output %s\n", (!app->output) ? "on" : "off" );
-    mux_io(app->spi);
+    mux_fpga(app->spi);
     output_set(app, app->irange, !app->output);
     // cBufPush(console_out, '\n');
   }

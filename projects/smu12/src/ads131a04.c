@@ -209,7 +209,7 @@ int adc_reset( uint32_t spi, uint8_t reg)
     only callable after 
   */
 
-  mux_io(spi);
+  mux_fpga(spi);
 
 
   ////////////
@@ -235,7 +235,7 @@ int adc_init( uint32_t spi, uint8_t reg)
   usart_printf("ads131a04 init\n");
 
 
-  mux_io(spi);
+  mux_fpga(spi);
 
   // GND:Synchronousmastermode
   // IOVDD:Asynchronousinterruptmode

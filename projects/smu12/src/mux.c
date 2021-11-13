@@ -99,7 +99,7 @@ void mux_adc(uint32_t spi)
 }
 
 
-
+#if 0
 // TODO remove. it's just a wrapper around mux_fpga().
 
 // is this even needed
@@ -107,12 +107,12 @@ void mux_adc(uint32_t spi)
 
 #define UNUSED(x) (void)(x)
 
-void mux_io(uint32_t spi)
+void mux_fpga(uint32_t spi)
 {
   // UNUSED(spi);
   mux_fpga(spi);
 }
-
+#endif
 
 /////////////////////////////
 
