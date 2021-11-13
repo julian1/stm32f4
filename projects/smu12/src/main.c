@@ -2550,7 +2550,7 @@ static void state_change(app_t *app, state_t state )
       output_set(app, app->irange, false );   // turn off by default...
 
 
-#if 0
+#if 1
       // EXTR. TODO. move this. to initialize adc before setting the core.
       /////////////////
       // adc init has to be done after rails are up...
