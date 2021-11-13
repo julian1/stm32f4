@@ -1,35 +1,5 @@
 
 
-
-/*
-  all these registers - are the ice40/fpga verilog
-  they are relevant to the application and ice40 
-  not generic ice40 comms.
-
-  
-*/
-
-
-
-// REGISTER_DAC?
-// change name REG_REG_DAC not DAC etc
-// maybe RENAME OR = output register and SRR set reset register
-
-/*
-  include specific part,  DAC8734, MCP3208, W25 etc.  maybe not
-  because they will be repeated if have more than one.
-  No. naming follows schematic labels. and verilog.  mostly.
-  -------
-
-  using 'reg' we don't have to pass these around
-*/
-
-/*
-  move these register addresses.
-  
-*/
-
-
 #define REG_LED         7
 #define LED1            (1<<0)
 #define LED2            (1<<1)
