@@ -7,6 +7,7 @@
 #include "assert.h" // usart_printf
 
 #include "mux.h"
+#include "spi-ice40.h"
 #include "reg.h"
 
 #include "dac8734.h"
@@ -112,10 +113,10 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   mux_fpga(spi);
 
   // keep latch low, and unused, unless chaining
-  reg_clear(spi, reg, DAC_LDAC);
+  ice40_reg_clear(spi, reg, DAC_LDAC);
 
   // unipolar output on a
-  reg_set(spi, reg, DAC_UNI_BIP_A /*| DAC_UNIBIPB */);
+  ice40_reg_set(spi, reg, DAC_UNI_BIP_A /*| DAC_UNIBIPB */);
 
   //////////////
   /*
@@ -129,9 +130,9 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
 
   // toggle reset pin
   usart_printf("doing dac reset\n");
-  reg_clear(spi, reg, DAC_RST);
+  ice40_reg_clear(spi, reg, DAC_RST);
   msleep(20);
-  reg_set( spi, reg, DAC_RST);
+  ice40_reg_set( spi, reg, DAC_RST);
   msleep(20);
 
 

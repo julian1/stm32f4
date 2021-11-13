@@ -45,7 +45,7 @@ void mux_w25(uint32_t spi)
 {
   // mux fpga, to write the reg.
   mux_fpga(spi);
-  spi_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_FLASH);
+  ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_FLASH);
 
   // now mux the device
   spi1_port_setup2();
@@ -58,7 +58,7 @@ void mux_adc03(uint32_t spi)
 
   // mux fpga, to write the reg.
   mux_fpga(spi);
-  spi_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_ADC03);
+  ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_ADC03);
 
   // now mux the device
   spi1_port_setup2();
@@ -72,11 +72,11 @@ void mux_dac(uint32_t spi)
 {
 /*
   spi_ice40_setup(spi);
-  spi_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_DAC);
+  spi_ice40_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_DAC);
   spi_dac_setup(spi);
 */
   mux_fpga(spi);
-  spi_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_DAC);
+  ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_DAC);
  
   spi1_port_setup2();
   spi_dac_setup(spi);
@@ -86,11 +86,11 @@ void mux_adc(uint32_t spi)
 {
 /*
   spi_ice40_setup(spi);
-  spi_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_ADC);
+  spi_ice40_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_ADC);
   spi_adc_setup(spi);
 */
   mux_fpga(spi);
-  spi_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_ADC);
+  ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_ADC);
 
   spi1_port_setup2();
   spi_adc_setup(spi);

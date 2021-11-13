@@ -205,32 +205,32 @@ typedef struct core_t
 #if 0
   if(count % 2 == 0)
   {
-    // reg_toggle(spi, REG_INA_VFB_SW, INA_VFB_SW1_CTL | INA_VFB_SW2_CTL | INA_VFB_SW3_CTL);
-    // reg_toggle(spi, REG_INA_DIFF_SW, INA_DIFF_SW1_CTL | INA_DIFF_SW2_CTL);
-    // reg_toggle(spi, REG_INA_ISENSE_SW,   ISENSE_SW1_CTL | ISENSE_SW2_CTL | ISENSE_SW3_CTL);
-    // reg_toggle(spi, REG_INA_IFB_SW1_CTL, INA_IFB_SW1_CTL | INA_IFB_SW2_CTL | INA_IFB_SW3_CTL);
+    // ice40_reg_toggle(spi, REG_INA_VFB_SW, INA_VFB_SW1_CTL | INA_VFB_SW2_CTL | INA_VFB_SW3_CTL);
+    // ice40_reg_toggle(spi, REG_INA_DIFF_SW, INA_DIFF_SW1_CTL | INA_DIFF_SW2_CTL);
+    // ice40_reg_toggle(spi, REG_INA_ISENSE_SW,   ISENSE_SW1_CTL | ISENSE_SW2_CTL | ISENSE_SW3_CTL);
+    // ice40_reg_toggle(spi, REG_INA_IFB_SW1_CTL, INA_IFB_SW1_CTL | INA_IFB_SW2_CTL | INA_IFB_SW3_CTL);
 
-    // reg_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
+    // ice40_reg_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
 
-    // reg_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
+    // ice40_reg_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
 
     // #define REG_RELAY_OUT         31
     // #define RELAY_OUT_COM_HC    (1<<0)
 
 
-    // reg_toggle(spi, REG_RELAY_VSENSE, RELAY_VSENSE_CTL);
+    // ice40_reg_toggle(spi, REG_RELAY_VSENSE, RELAY_VSENSE_CTL);
 
 
 
-    // reg_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
-    /////// CAREFUL reg_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);    // dangerous if on high-current range.
+    // ice40_reg_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
+    /////// CAREFUL ice40_reg_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);    // dangerous if on high-current range.
 
-    // reg_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW4_CTL);
+    // ice40_reg_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW4_CTL);
 
-    // reg_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW4_CTL); // ok.
-    // reg_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW3_CTL);  ok.
-    // reg_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);    // 1.92V.  and toggles both ina1 and ina2 . bridge on switch or fpga?
-    // reg_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);     // fixed bridge.
+    // ice40_reg_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW4_CTL); // ok.
+    // ice40_reg_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW3_CTL);  ok.
+    // ice40_reg_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);    // 1.92V.  and toggles both ina1 and ina2 . bridge on switch or fpga?
+    // ice40_reg_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);     // fixed bridge.
 
   }
 #endif
@@ -245,31 +245,31 @@ typedef struct core_t
 
  // tests
 
-  // reg_write(app->spi, REG_IRANGE_YZ_SW, count);
+  // ice40_reg_write(app->spi, REG_IRANGE_YZ_SW, count);
 
-  // reg_write(spi, REG_ISENSE_MUX,  count);    // works
-  // reg_write(spi, REG_INA_IFB_SW_CTL,  count);    // works
-  // reg_write(spi, REG_INA_VFB_ATTEN_SW, count);    // works
+  // ice40_reg_write(spi, REG_ISENSE_MUX,  count);    // works
+  // ice40_reg_write(spi, REG_INA_IFB_SW_CTL,  count);    // works
+  // ice40_reg_write(spi, REG_INA_VFB_ATTEN_SW, count);    // works
 
-  // reg_write(spi, REG_CLAMP1, count);  // works
-  // reg_write(spi, REG_CLAMP2, count);  // works
-  // reg_write(spi, REG_RELAY_COM, count);
-  // reg_write(spi, REG_IRANGE_X_SW, count);
-  // reg_write(spi, REG_IRANGE_SENSE, count);
+  // ice40_reg_write(spi, REG_CLAMP1, count);  // works
+  // ice40_reg_write(spi, REG_CLAMP2, count);  // works
+  // ice40_reg_write(spi, REG_RELAY_COM, count);
+  // ice40_reg_write(spi, REG_IRANGE_X_SW, count);
+  // ice40_reg_write(spi, REG_IRANGE_SENSE, count);
 
 
-  // reg_write(spi, REG_GAIN_IFB, count);
-  // reg_write(spi, REG_GAIN_VFB, count);
+  // ice40_reg_write(spi, REG_GAIN_IFB, count);
+  // ice40_reg_write(spi, REG_GAIN_VFB, count);
 
   // test
 
   // usart_printf("count %d\n", count);
-  // reg_write(spi, REG_IRANGE_X_SW58, count);
+  // ice40_reg_write(spi, REG_IRANGE_X_SW58, count);
 
-  // reg_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
-  // reg_toggle(spi, REG_RELAY, RELAY_VRANGE);
-  // reg_toggle(spi, REG_RELAY, RELAY_OUTCOM);
-  // reg_toggle(spi, REG_RELAY, RELAY_SENSE);
+  // ice40_reg_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
+  // ice40_reg_toggle(spi, REG_RELAY, RELAY_VRANGE);
+  // ice40_reg_toggle(spi, REG_RELAY, RELAY_OUTCOM);
+  // ice40_reg_toggle(spi, REG_RELAY, RELAY_SENSE);
 
 
 
@@ -325,15 +325,15 @@ static void clamps_set_source_pve(uint32_t spi)
   // bahaves correctly relay on or off
   // OK. this can also source or sink... depending on voltage.
   // this sources a positive voltage. eg. the min or +ve v or +ve current.
-  reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET_INV));
-  reg_write(spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
+  ice40_reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET_INV));
+  ice40_reg_write(spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
                                                 // MAX is min. eg. min or 3V,1mA. is 1mA. sourcing.
 #endif
 
 #if 0
   // this sources a negative voltage. eg. the min or +ve v or +ve current.
-  reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));
-  reg_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
+  ice40_reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));
+  ice40_reg_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
 #endif
 
 // where are our little wires.
@@ -347,8 +347,8 @@ static void clamps_set_source_pve(uint32_t spi)
 
   // not sure.
 
-  reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
-  reg_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // the max of current or voltage. where current is negative
+  ice40_reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
+  ice40_reg_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // the max of current or voltage. where current is negative
 #endif
 
   /*
@@ -396,9 +396,9 @@ static void clamps_set_source_pve(uint32_t spi)
 
 /*
   OLD
-  reg_write(spi, REG_INA_VFB_SW, INA_VFB_SW1_CTL);
-  // reg_write(spi, REG_INA_DIFF_SW, INA_DIFF_SW1_CTL); // ina154
-  // reg_write(spi, REG_INA_DIFF_SW, INA_DIFF_SW2_CTL); // ina143
+  ice40_reg_write(spi, REG_INA_VFB_SW, INA_VFB_SW1_CTL);
+  // ice40_reg_write(spi, REG_INA_DIFF_SW, INA_DIFF_SW1_CTL); // ina154
+  // ice40_reg_write(spi, REG_INA_DIFF_SW, INA_DIFF_SW2_CTL); // ina143
 */
 
 
@@ -415,17 +415,17 @@ static void range_current_set_1A(uint32_t spi)
   // write() writes all the bits.
 
   // turn on current relay range X.
-  reg_write(spi, REG_RELAY_COM, RELAY_COM_X);
+  ice40_reg_write(spi, REG_RELAY_COM, RELAY_COM_X);
 
 
   // turn on 1st b2b fets.
-  reg_write(spi, REG_IRANGE_X_SW, IRANGE_X_SW1 | IRANGE_X_SW2);
+  ice40_reg_write(spi, REG_IRANGE_X_SW, IRANGE_X_SW1 | IRANGE_X_SW2);
 
   // turn on current sense ina 1
-  reg_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE1);
+  ice40_reg_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE1);
 
   // active lo. turn on ifb gain op1, x10
-  reg_write(spi, REG_GAIN_IFB, ~GAIN_IFB_OP1);
+  ice40_reg_write(spi, REG_GAIN_IFB, ~GAIN_IFB_OP1);
 
 
   imultiplier = 0.1f;
@@ -444,7 +444,7 @@ static void range_current_set_10A(uint32_t spi)
 
   // active lo. turn off both ifb gain stages...
   // using 10x gain from ina, on 0.1R only.
-  reg_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
+  ice40_reg_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
 
   imultiplier = 1.0f;
 }
@@ -459,18 +459,18 @@ static void range_current_set_100mA(uint32_t spi)
   // adc imultiplier should be 0.1.
 
   // turn on current relay range X.
-  reg_write(spi, REG_RELAY_COM, RELAY_COM_X);
+  ice40_reg_write(spi, REG_RELAY_COM, RELAY_COM_X);
 
 
   // turn on 2nd b2b fets.
-  reg_write(spi, REG_IRANGE_X_SW, IRANGE_X_SW3 | IRANGE_X_SW4);
+  ice40_reg_write(spi, REG_IRANGE_X_SW, IRANGE_X_SW3 | IRANGE_X_SW4);
 
 
   // active lo, current sense 2
-  reg_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE2);
+  ice40_reg_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE2);
 
   // active lo. turn off both current gain ops
-  reg_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
+  ice40_reg_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
 
   imultiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
 }
@@ -489,17 +489,17 @@ static void range_current_set_10mA(uint32_t spi)
 
 
   // turn on current relay range X.
-  reg_write(spi, REG_RELAY_COM, RELAY_COM_X);
+  ice40_reg_write(spi, REG_RELAY_COM, RELAY_COM_X);
 
   // turn off other fets
-  reg_write(spi, REG_IRANGE_X_SW, 0);
+  ice40_reg_write(spi, REG_IRANGE_X_SW, 0);
 
 
   // active lo, current sense 3
-  reg_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE3);
+  ice40_reg_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE3);
 
   // active lo, turn off both current gain ops
-  reg_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
+  ice40_reg_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
 
   imultiplier = 0.001f;
 }
@@ -516,11 +516,11 @@ static void range_voltage_set_100V(uint32_t spi)
 {
   // now using ina 143. with 1:10 divide by default
 
-  reg_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
+  ice40_reg_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
 
 
   // active lo, turn both vfb gain stages off
-  reg_write(spi, REG_GAIN_VFB, GAIN_VFB_OP1 | GAIN_VFB_OP2 );
+  ice40_reg_write(spi, REG_GAIN_VFB, GAIN_VFB_OP1 | GAIN_VFB_OP2 );
 
   vmultiplier = 10.f;
 }
@@ -530,10 +530,10 @@ static void range_voltage_set_10V(uint32_t spi)
 {
   // now using ina 143. with 1:10 divide by default
 
-  reg_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
+  ice40_reg_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
 
   // active lo. turn on OP1
-  reg_write(spi, REG_GAIN_VFB, ~GAIN_VFB_OP1 );
+  ice40_reg_write(spi, REG_GAIN_VFB, ~GAIN_VFB_OP1 );
 
   vmultiplier = 1.f;
 }
@@ -543,10 +543,10 @@ static void range_voltage_set_1V(uint32_t spi)
 {
   // now using ina 143. with 1:10 divide by default
 
-  reg_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
+  ice40_reg_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
 
   // active lo.  turn on both OP1 and OP2
-  reg_write(spi, REG_GAIN_VFB, ~(GAIN_VFB_OP1 | GAIN_VFB_OP2) );
+  ice40_reg_write(spi, REG_GAIN_VFB, ~(GAIN_VFB_OP1 | GAIN_VFB_OP2) );
 
   vmultiplier = 0.1f;
 }
@@ -554,14 +554,14 @@ static void range_voltage_set_1V(uint32_t spi)
 
 #if 0
 
-  // reg_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // atten = non = 1x
-  reg_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
+  // ice40_reg_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // atten = non = 1x
+  ice40_reg_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
 
 
   // fix in fpga code. init should be 0b4
-  // reg_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);    // x1 direct feedback. works.
-  reg_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);    // x10 . works.
-  // reg_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);       // x100  works. 0.1V diff gives  8.75V out.
+  // ice40_reg_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);    // x1 direct feedback. works.
+  ice40_reg_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);    // x10 . works.
+  // ice40_reg_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);       // x100  works. 0.1V diff gives  8.75V out.
 
   // 9.1 - 9.0 -> *.1*100 = 0.818.
   // 1.1 - 1.0 -> *.1 x100 = 0.859
@@ -569,21 +569,21 @@ static void range_voltage_set_1V(uint32_t spi)
 
 #endif
   // try it without the atten...
-  // reg_write(spi, REG_INA_IFB_SW1_CTL,  count);    // works
+  // ice40_reg_write(spi, REG_INA_IFB_SW1_CTL,  count);    // works
 
 #if 0
   // turn on sense dual op, for high-current range b2b fets
-  reg_write(spi, REG_INA_ISENSE_SW,  ~ISENSE_SW1_CTL);
+  ice40_reg_write(spi, REG_INA_ISENSE_SW,  ~ISENSE_SW1_CTL);
 
   // turn on no resistor divider fb for gain = 1x.
-  // reg_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW1_CTL); // 1x gain.
-  // reg_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW2_CTL);    // 10x gain.
-  reg_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW3_CTL);    // 100x gain.
+  // ice40_reg_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW1_CTL); // 1x gain.
+  // ice40_reg_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW2_CTL);    // 10x gain.
+  ice40_reg_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW3_CTL);    // 100x gain.
 
 #endif
-  // reg_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX1_CTL);    // select dedicated 0.1 ohm sense resistor and op. active lo
-  // reg_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX2_CTL);    // select dedicated 10 ohm sense resistor and op. active lo
-  // reg_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX3_CTL);        // select any other range resistor
+  // ice40_reg_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX1_CTL);    // select dedicated 0.1 ohm sense resistor and op. active lo
+  // ice40_reg_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX2_CTL);    // select dedicated 10 ohm sense resistor and op. active lo
+  // ice40_reg_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX3_CTL);        // select any other range resistor
 
   // 100x. is stable flickers at 6th digit. nice!!!...
 
@@ -594,18 +594,18 @@ static void range_voltage_set_1V(uint32_t spi)
   {
 
     case irange_1x:
-      reg_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  active low
+      ice40_reg_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  active low
       imultiplier = 1.f;
       break;
 
     case irange_10x:
-      reg_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);   //  active low
+      ice40_reg_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);   //  active low
       imultiplier = 10.f;
       break;
 
 
     case irange_100x:
-      reg_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);   //  active low
+      ice40_reg_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);   //  active low
       imultiplier = 100.f;
       break;
 
@@ -617,9 +617,9 @@ static void range_voltage_set_1V(uint32_t spi)
 #if 0
       // change name GAIN_IFB_OP1 ... GAIN_VFB_OP2   etcc
       // eg. clear ifb regs.
-      reg_write_mask(spi, REG_GAIN_FB, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2);
-      reg_write_mask(spi, REG_GAIN_FB, GAIN_VFB_OP1 | GAIN_VFB_OP2,  GAIN_VFB_OP1 | GAIN_VFB_OP2);
-      reg_write_mask(spi, REG_GAIN_FB, GAIN_IFB_OP1 | GAIN_IFB_OP2, 0 );
+      ice40_reg_write_mask(spi, REG_GAIN_FB, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2);
+      ice40_reg_write_mask(spi, REG_GAIN_FB, GAIN_VFB_OP1 | GAIN_VFB_OP2,  GAIN_VFB_OP1 | GAIN_VFB_OP2);
+      ice40_reg_write_mask(spi, REG_GAIN_FB, GAIN_IFB_OP1 | GAIN_IFB_OP2, 0 );
       state = HALT;
       return;
 #endif
@@ -673,7 +673,7 @@ static void range_voltage_set_1V(uint32_t spi)
         // range_current_set_none(spi);       // won't work. there's no circuit.
 
         // turn on output relay
-        reg_set(spi, REG_RELAY, RELAY_OUTCOM);
+        ice40_reg_set(spi, REG_RELAY, RELAY_OUTCOM);
 
 
         /////////////////
@@ -695,8 +695,8 @@ static void range_voltage_set_1V(uint32_t spi)
         // power rails
         usart_printf("turn on power rails - lp30v\n" );
         mux_fpga(spi);
-        // reg_set(spi, REG_RAILS, RAILS_LP30V );
-        reg_set(spi, REG_RAILS, RAILS_LP60V );  // actually 15V
+        // ice40_reg_set(spi, REG_RAILS, RAILS_LP30V );
+        ice40_reg_set(spi, REG_RAILS, RAILS_LP60V );  // actually 15V
         msleep(50);
 #endif
 
@@ -730,15 +730,15 @@ static void clamps_set_source_pve(uint32_t spi)
   */
 #if 0
   // source a positive voltage. on +2mA. off +5V.
-  reg_write(spi, REG_CLAMP1, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
-  reg_write(spi, REG_CLAMP2, CLAMP2_MAX);    // TODO this is terrible register naming.
+  ice40_reg_write(spi, REG_CLAMP1, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
+  ice40_reg_write(spi, REG_CLAMP2, CLAMP2_MAX);    // TODO this is terrible register naming.
 #endif
 
 #if 0
   // this works.
   // source a negative voltage. on its -2mA. off its -5V.
-  reg_write(spi, REG_CLAMP1, CLAMP1_VSET | CLAMP1_ISET);
-  reg_write(spi, REG_CLAMP2, CLAMP2_MIN  );    // TODO this is terrible register naming.
+  ice40_reg_write(spi, REG_CLAMP1, CLAMP1_VSET | CLAMP1_ISET);
+  ice40_reg_write(spi, REG_CLAMP2, CLAMP2_MIN  );    // TODO this is terrible register naming.
 #endif
 
 #if 1
@@ -752,12 +752,12 @@ static void clamps_set_source_pve(uint32_t spi)
 
   // lower voltage == sink more current (eg. more of a short). it's confusing.
   // this is correct. limit at the min... means whatever will produce the lowest current. eg. if -2mA is limit use that.
-  // reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
-  // reg_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
+  // ice40_reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
+  // ice40_reg_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
 
 
-  reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
-  reg_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
+  ice40_reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
+  ice40_reg_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
 
 
 #endif
@@ -794,8 +794,8 @@ static void clamps_set_source_pve(uint32_t spi)
 
   // sink negative. shows negative voltage. and positive current. but limits correctly.
 #if 0
-  reg_write(spi, REG_CLAMP1, CLAMP1_VSET | CLAMP1_ISET_INV);
-  reg_write(spi, REG_CLAMP2, CLAMP2_MAX );  // retest.
+  ice40_reg_write(spi, REG_CLAMP1, CLAMP1_VSET | CLAMP1_ISET_INV);
+  ice40_reg_write(spi, REG_CLAMP2, CLAMP2_MAX );  // retest.
 
 #endif
 
@@ -818,8 +818,8 @@ static void clamps_set_source_pve(uint32_t spi)
           // current
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 2.0f ) );  // 2mA.
           mux_fpga(app->spi);
-          reg_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET_INV));   // positive voltage and current.
-          reg_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
+          ice40_reg_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET_INV));   // positive voltage and current.
+          ice40_reg_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
         }
 
         // Q3  source neg voltage, or neg current.   correct if DUT = resistive load.
@@ -835,8 +835,8 @@ static void clamps_set_source_pve(uint32_t spi)
 
 
           mux_fpga(app->spi);
-          reg_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));   // positive voltage and current.
-          reg_write(app->spi, REG_CLAMP2, ~CLAMP2_MIN );     // min of current or voltage
+          ice40_reg_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));   // positive voltage and current.
+          ice40_reg_write(app->spi, REG_CLAMP2, ~CLAMP2_MIN );     // min of current or voltage
         }
         // source pos voltage. and sink current. for DUT.   Q4.
         // will source neg voltage. sink current. for resistor.   Q3.
@@ -852,8 +852,8 @@ static void clamps_set_source_pve(uint32_t spi)
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 1.0f ) );      // -1mA. resistor or battery
 
           mux_fpga(app->spi);
-          reg_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));   // positive voltage and current.
-          reg_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
+          ice40_reg_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));   // positive voltage and current.
+          ice40_reg_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
 
            }
 #endif
@@ -963,32 +963,32 @@ typedef struct core_t
 #if 0
   if(count % 2 == 0)
   {
-    // reg_toggle(spi, REG_INA_VFB_SW, INA_VFB_SW1_CTL | INA_VFB_SW2_CTL | INA_VFB_SW3_CTL);
-    // reg_toggle(spi, REG_INA_DIFF_SW, INA_DIFF_SW1_CTL | INA_DIFF_SW2_CTL);
-    // reg_toggle(spi, REG_INA_ISENSE_SW,   ISENSE_SW1_CTL | ISENSE_SW2_CTL | ISENSE_SW3_CTL);
-    // reg_toggle(spi, REG_INA_IFB_SW1_CTL, INA_IFB_SW1_CTL | INA_IFB_SW2_CTL | INA_IFB_SW3_CTL);
+    // ice40_reg_toggle(spi, REG_INA_VFB_SW, INA_VFB_SW1_CTL | INA_VFB_SW2_CTL | INA_VFB_SW3_CTL);
+    // ice40_reg_toggle(spi, REG_INA_DIFF_SW, INA_DIFF_SW1_CTL | INA_DIFF_SW2_CTL);
+    // ice40_reg_toggle(spi, REG_INA_ISENSE_SW,   ISENSE_SW1_CTL | ISENSE_SW2_CTL | ISENSE_SW3_CTL);
+    // ice40_reg_toggle(spi, REG_INA_IFB_SW1_CTL, INA_IFB_SW1_CTL | INA_IFB_SW2_CTL | INA_IFB_SW3_CTL);
 
-    // reg_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
+    // ice40_reg_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
 
-    // reg_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
+    // ice40_reg_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
 
     // #define REG_RELAY_OUT         31
     // #define RELAY_OUT_COM_HC    (1<<0)
 
 
-    // reg_toggle(spi, REG_RELAY_VSENSE, RELAY_VSENSE_CTL);
+    // ice40_reg_toggle(spi, REG_RELAY_VSENSE, RELAY_VSENSE_CTL);
 
 
 
-    // reg_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
-    /////// CAREFUL reg_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);    // dangerous if on high-current range.
+    // ice40_reg_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
+    /////// CAREFUL ice40_reg_toggle(spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);    // dangerous if on high-current range.
 
-    // reg_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW4_CTL);
+    // ice40_reg_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW4_CTL);
 
-    // reg_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW4_CTL); // ok.
-    // reg_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW3_CTL);  ok.
-    // reg_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);    // 1.92V.  and toggles both ina1 and ina2 . bridge on switch or fpga?
-    // reg_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);     // fixed bridge.
+    // ice40_reg_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW4_CTL); // ok.
+    // ice40_reg_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW3_CTL);  ok.
+    // ice40_reg_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);    // 1.92V.  and toggles both ina1 and ina2 . bridge on switch or fpga?
+    // ice40_reg_toggle(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);     // fixed bridge.
 
   }
 #endif
@@ -1003,31 +1003,31 @@ typedef struct core_t
 
  // tests
 
-  // reg_write(app->spi, REG_IRANGE_YZ_SW, count);
+  // ice40_reg_write(app->spi, REG_IRANGE_YZ_SW, count);
 
-  // reg_write(spi, REG_ISENSE_MUX,  count);    // works
-  // reg_write(spi, REG_INA_IFB_SW_CTL,  count);    // works
-  // reg_write(spi, REG_INA_VFB_ATTEN_SW, count);    // works
+  // ice40_reg_write(spi, REG_ISENSE_MUX,  count);    // works
+  // ice40_reg_write(spi, REG_INA_IFB_SW_CTL,  count);    // works
+  // ice40_reg_write(spi, REG_INA_VFB_ATTEN_SW, count);    // works
 
-  // reg_write(spi, REG_CLAMP1, count);  // works
-  // reg_write(spi, REG_CLAMP2, count);  // works
-  // reg_write(spi, REG_RELAY_COM, count);
-  // reg_write(spi, REG_IRANGE_X_SW, count);
-  // reg_write(spi, REG_IRANGE_SENSE, count);
+  // ice40_reg_write(spi, REG_CLAMP1, count);  // works
+  // ice40_reg_write(spi, REG_CLAMP2, count);  // works
+  // ice40_reg_write(spi, REG_RELAY_COM, count);
+  // ice40_reg_write(spi, REG_IRANGE_X_SW, count);
+  // ice40_reg_write(spi, REG_IRANGE_SENSE, count);
 
 
-  // reg_write(spi, REG_GAIN_IFB, count);
-  // reg_write(spi, REG_GAIN_VFB, count);
+  // ice40_reg_write(spi, REG_GAIN_IFB, count);
+  // ice40_reg_write(spi, REG_GAIN_VFB, count);
 
   // test
 
   // usart_printf("count %d\n", count);
-  // reg_write(spi, REG_IRANGE_X_SW58, count);
+  // ice40_reg_write(spi, REG_IRANGE_X_SW58, count);
 
-  // reg_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
-  // reg_toggle(spi, REG_RELAY, RELAY_VRANGE);
-  // reg_toggle(spi, REG_RELAY, RELAY_OUTCOM);
-  // reg_toggle(spi, REG_RELAY, RELAY_SENSE);
+  // ice40_reg_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
+  // ice40_reg_toggle(spi, REG_RELAY, RELAY_VRANGE);
+  // ice40_reg_toggle(spi, REG_RELAY, RELAY_OUTCOM);
+  // ice40_reg_toggle(spi, REG_RELAY, RELAY_SENSE);
 
 
 
@@ -1083,15 +1083,15 @@ static void clamps_set_source_pve(uint32_t spi)
   // bahaves correctly relay on or off
   // OK. this can also source or sink... depending on voltage.
   // this sources a positive voltage. eg. the min or +ve v or +ve current.
-  reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET_INV));
-  reg_write(spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
+  ice40_reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET_INV));
+  ice40_reg_write(spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
                                                 // MAX is min. eg. min or 3V,1mA. is 1mA. sourcing.
 #endif
 
 #if 0
   // this sources a negative voltage. eg. the min or +ve v or +ve current.
-  reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));
-  reg_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
+  ice40_reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));
+  ice40_reg_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
 #endif
 
 // where are our little wires.
@@ -1105,8 +1105,8 @@ static void clamps_set_source_pve(uint32_t spi)
 
   // not sure.
 
-  reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
-  reg_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // the max of current or voltage. where current is negative
+  ice40_reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
+  ice40_reg_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // the max of current or voltage. where current is negative
 #endif
 
   /*
@@ -1154,9 +1154,9 @@ static void clamps_set_source_pve(uint32_t spi)
 
 /*
   OLD
-  reg_write(spi, REG_INA_VFB_SW, INA_VFB_SW1_CTL);
-  // reg_write(spi, REG_INA_DIFF_SW, INA_DIFF_SW1_CTL); // ina154
-  // reg_write(spi, REG_INA_DIFF_SW, INA_DIFF_SW2_CTL); // ina143
+  ice40_reg_write(spi, REG_INA_VFB_SW, INA_VFB_SW1_CTL);
+  // ice40_reg_write(spi, REG_INA_DIFF_SW, INA_DIFF_SW1_CTL); // ina154
+  // ice40_reg_write(spi, REG_INA_DIFF_SW, INA_DIFF_SW2_CTL); // ina143
 */
 
 
@@ -1173,17 +1173,17 @@ static void range_current_set_1A(uint32_t spi)
   // write() writes all the bits.
 
   // turn on current relay range X.
-  reg_write(spi, REG_RELAY_COM, RELAY_COM_X);
+  ice40_reg_write(spi, REG_RELAY_COM, RELAY_COM_X);
 
 
   // turn on 1st b2b fets.
-  reg_write(spi, REG_IRANGE_X_SW, IRANGE_X_SW1 | IRANGE_X_SW2);
+  ice40_reg_write(spi, REG_IRANGE_X_SW, IRANGE_X_SW1 | IRANGE_X_SW2);
 
   // turn on current sense ina 1
-  reg_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE1);
+  ice40_reg_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE1);
 
   // active lo. turn on ifb gain op1, x10
-  reg_write(spi, REG_GAIN_IFB, ~GAIN_IFB_OP1);
+  ice40_reg_write(spi, REG_GAIN_IFB, ~GAIN_IFB_OP1);
 
 
   imultiplier = 0.1f;
@@ -1202,7 +1202,7 @@ static void range_current_set_10A(uint32_t spi)
 
   // active lo. turn off both ifb gain stages...
   // using 10x gain from ina, on 0.1R only.
-  reg_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
+  ice40_reg_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
 
   imultiplier = 1.0f;
 }
@@ -1217,18 +1217,18 @@ static void range_current_set_100mA(uint32_t spi)
   // adc imultiplier should be 0.1.
 
   // turn on current relay range X.
-  reg_write(spi, REG_RELAY_COM, RELAY_COM_X);
+  ice40_reg_write(spi, REG_RELAY_COM, RELAY_COM_X);
 
 
   // turn on 2nd b2b fets.
-  reg_write(spi, REG_IRANGE_X_SW, IRANGE_X_SW3 | IRANGE_X_SW4);
+  ice40_reg_write(spi, REG_IRANGE_X_SW, IRANGE_X_SW3 | IRANGE_X_SW4);
 
 
   // active lo, current sense 2
-  reg_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE2);
+  ice40_reg_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE2);
 
   // active lo. turn off both current gain ops
-  reg_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
+  ice40_reg_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
 
   imultiplier = 0.01f; // sense gain = x10 (10ohm) and x10 gain.
 }
@@ -1247,17 +1247,17 @@ static void range_current_set_10mA(uint32_t spi)
 
 
   // turn on current relay range X.
-  reg_write(spi, REG_RELAY_COM, RELAY_COM_X);
+  ice40_reg_write(spi, REG_RELAY_COM, RELAY_COM_X);
 
   // turn off other fets
-  reg_write(spi, REG_IRANGE_X_SW, 0);
+  ice40_reg_write(spi, REG_IRANGE_X_SW, 0);
 
 
   // active lo, current sense 3
-  reg_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE3);
+  ice40_reg_write(spi, REG_IRANGE_SENSE, ~IRANGE_SENSE3);
 
   // active lo, turn off both current gain ops
-  reg_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
+  ice40_reg_write(spi, REG_GAIN_IFB, GAIN_IFB_OP1 | GAIN_IFB_OP2 );
 
   imultiplier = 0.001f;
 }
@@ -1274,11 +1274,11 @@ static void range_voltage_set_100V(uint32_t spi)
 {
   // now using ina 143. with 1:10 divide by default
 
-  reg_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
+  ice40_reg_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
 
 
   // active lo, turn both vfb gain stages off
-  reg_write(spi, REG_GAIN_VFB, GAIN_VFB_OP1 | GAIN_VFB_OP2 );
+  ice40_reg_write(spi, REG_GAIN_VFB, GAIN_VFB_OP1 | GAIN_VFB_OP2 );
 
   vmultiplier = 10.f;
 }
@@ -1288,10 +1288,10 @@ static void range_voltage_set_10V(uint32_t spi)
 {
   // now using ina 143. with 1:10 divide by default
 
-  reg_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
+  ice40_reg_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
 
   // active lo. turn on OP1
-  reg_write(spi, REG_GAIN_VFB, ~GAIN_VFB_OP1 );
+  ice40_reg_write(spi, REG_GAIN_VFB, ~GAIN_VFB_OP1 );
 
   vmultiplier = 1.f;
 }
@@ -1301,10 +1301,10 @@ static void range_voltage_set_1V(uint32_t spi)
 {
   // now using ina 143. with 1:10 divide by default
 
-  reg_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
+  ice40_reg_clear(spi, REG_RELAY, RELAY_VRANGE ); // no longer used. must be off.
 
   // active lo.  turn on both OP1 and OP2
-  reg_write(spi, REG_GAIN_VFB, ~(GAIN_VFB_OP1 | GAIN_VFB_OP2) );
+  ice40_reg_write(spi, REG_GAIN_VFB, ~(GAIN_VFB_OP1 | GAIN_VFB_OP2) );
 
   vmultiplier = 0.1f;
 }
@@ -1312,14 +1312,14 @@ static void range_voltage_set_1V(uint32_t spi)
 
 #if 0
 
-  // reg_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // atten = non = 1x
-  reg_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
+  // ice40_reg_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);                         // atten = non = 1x
+  ice40_reg_write(spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
 
 
   // fix in fpga code. init should be 0b4
-  // reg_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);    // x1 direct feedback. works.
-  reg_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);    // x10 . works.
-  // reg_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);       // x100  works. 0.1V diff gives  8.75V out.
+  // ice40_reg_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);    // x1 direct feedback. works.
+  ice40_reg_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);    // x10 . works.
+  // ice40_reg_write(spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);       // x100  works. 0.1V diff gives  8.75V out.
 
   // 9.1 - 9.0 -> *.1*100 = 0.818.
   // 1.1 - 1.0 -> *.1 x100 = 0.859
@@ -1327,21 +1327,21 @@ static void range_voltage_set_1V(uint32_t spi)
 
 #endif
   // try it without the atten...
-  // reg_write(spi, REG_INA_IFB_SW1_CTL,  count);    // works
+  // ice40_reg_write(spi, REG_INA_IFB_SW1_CTL,  count);    // works
 
 #if 0
   // turn on sense dual op, for high-current range b2b fets
-  reg_write(spi, REG_INA_ISENSE_SW,  ~ISENSE_SW1_CTL);
+  ice40_reg_write(spi, REG_INA_ISENSE_SW,  ~ISENSE_SW1_CTL);
 
   // turn on no resistor divider fb for gain = 1x.
-  // reg_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW1_CTL); // 1x gain.
-  // reg_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW2_CTL);    // 10x gain.
-  reg_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW3_CTL);    // 100x gain.
+  // ice40_reg_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW1_CTL); // 1x gain.
+  // ice40_reg_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW2_CTL);    // 10x gain.
+  ice40_reg_write(spi, REG_INA_IFB_SW1_CTL, ~INA_IFB_SW3_CTL);    // 100x gain.
 
 #endif
-  // reg_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX1_CTL);    // select dedicated 0.1 ohm sense resistor and op. active lo
-  // reg_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX2_CTL);    // select dedicated 10 ohm sense resistor and op. active lo
-  // reg_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX3_CTL);        // select any other range resistor
+  // ice40_reg_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX1_CTL);    // select dedicated 0.1 ohm sense resistor and op. active lo
+  // ice40_reg_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX2_CTL);    // select dedicated 10 ohm sense resistor and op. active lo
+  // ice40_reg_write(spi, REG_ISENSE_MUX,  ~ ISENSE_MUX3_CTL);        // select any other range resistor
 
   // 100x. is stable flickers at 6th digit. nice!!!...
 
@@ -1352,18 +1352,18 @@ static void range_voltage_set_1V(uint32_t spi)
   {
 
     case irange_1x:
-      reg_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  active low
+      ice40_reg_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);   //  active low
       imultiplier = 1.f;
       break;
 
     case irange_10x:
-      reg_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);   //  active low
+      ice40_reg_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);   //  active low
       imultiplier = 10.f;
       break;
 
 
     case irange_100x:
-      reg_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);   //  active low
+      ice40_reg_write(spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);   //  active low
       imultiplier = 100.f;
       break;
 
@@ -1375,9 +1375,9 @@ static void range_voltage_set_1V(uint32_t spi)
 #if 0
       // change name GAIN_IFB_OP1 ... GAIN_VFB_OP2   etcc
       // eg. clear ifb regs.
-      reg_write_mask(spi, REG_GAIN_FB, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2);
-      reg_write_mask(spi, REG_GAIN_FB, GAIN_VFB_OP1 | GAIN_VFB_OP2,  GAIN_VFB_OP1 | GAIN_VFB_OP2);
-      reg_write_mask(spi, REG_GAIN_FB, GAIN_IFB_OP1 | GAIN_IFB_OP2, 0 );
+      ice40_reg_write_mask(spi, REG_GAIN_FB, GAIN_IFB_OP1 | GAIN_IFB_OP2, GAIN_IFB_OP1 | GAIN_IFB_OP2);
+      ice40_reg_write_mask(spi, REG_GAIN_FB, GAIN_VFB_OP1 | GAIN_VFB_OP2,  GAIN_VFB_OP1 | GAIN_VFB_OP2);
+      ice40_reg_write_mask(spi, REG_GAIN_FB, GAIN_IFB_OP1 | GAIN_IFB_OP2, 0 );
       state = HALT;
       return;
 #endif
@@ -1431,7 +1431,7 @@ static void range_voltage_set_1V(uint32_t spi)
         // range_current_set_none(spi);       // won't work. there's no circuit.
 
         // turn on output relay
-        reg_set(spi, REG_RELAY, RELAY_OUTCOM);
+        ice40_reg_set(spi, REG_RELAY, RELAY_OUTCOM);
 
 
         /////////////////
@@ -1453,8 +1453,8 @@ static void range_voltage_set_1V(uint32_t spi)
         // power rails
         usart_printf("turn on power rails - lp30v\n" );
         mux_fpga(spi);
-        // reg_set(spi, REG_RAILS, RAILS_LP30V );
-        reg_set(spi, REG_RAILS, RAILS_LP60V );  // actually 15V
+        // ice40_reg_set(spi, REG_RAILS, RAILS_LP30V );
+        ice40_reg_set(spi, REG_RAILS, RAILS_LP60V );  // actually 15V
         msleep(50);
 #endif
 
@@ -1488,15 +1488,15 @@ static void clamps_set_source_pve(uint32_t spi)
   */
 #if 0
   // source a positive voltage. on +2mA. off +5V.
-  reg_write(spi, REG_CLAMP1, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
-  reg_write(spi, REG_CLAMP2, CLAMP2_MAX);    // TODO this is terrible register naming.
+  ice40_reg_write(spi, REG_CLAMP1, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
+  ice40_reg_write(spi, REG_CLAMP2, CLAMP2_MAX);    // TODO this is terrible register naming.
 #endif
 
 #if 0
   // this works.
   // source a negative voltage. on its -2mA. off its -5V.
-  reg_write(spi, REG_CLAMP1, CLAMP1_VSET | CLAMP1_ISET);
-  reg_write(spi, REG_CLAMP2, CLAMP2_MIN  );    // TODO this is terrible register naming.
+  ice40_reg_write(spi, REG_CLAMP1, CLAMP1_VSET | CLAMP1_ISET);
+  ice40_reg_write(spi, REG_CLAMP2, CLAMP2_MIN  );    // TODO this is terrible register naming.
 #endif
 
 #if 1
@@ -1510,12 +1510,12 @@ static void clamps_set_source_pve(uint32_t spi)
 
   // lower voltage == sink more current (eg. more of a short). it's confusing.
   // this is correct. limit at the min... means whatever will produce the lowest current. eg. if -2mA is limit use that.
-  // reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
-  // reg_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
+  // ice40_reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
+  // ice40_reg_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
 
 
-  reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
-  reg_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
+  ice40_reg_write(spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));
+  ice40_reg_write(spi, REG_CLAMP2, ~CLAMP2_MIN );     // min is max due to integration inverter
 
 
 #endif
@@ -1552,8 +1552,8 @@ static void clamps_set_source_pve(uint32_t spi)
 
   // sink negative. shows negative voltage. and positive current. but limits correctly.
 #if 0
-  reg_write(spi, REG_CLAMP1, CLAMP1_VSET | CLAMP1_ISET_INV);
-  reg_write(spi, REG_CLAMP2, CLAMP2_MAX );  // retest.
+  ice40_reg_write(spi, REG_CLAMP1, CLAMP1_VSET | CLAMP1_ISET_INV);
+  ice40_reg_write(spi, REG_CLAMP2, CLAMP2_MAX );  // retest.
 
 #endif
 
@@ -1576,8 +1576,8 @@ static void clamps_set_source_pve(uint32_t spi)
           // current
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 2.0f ) );  // 2mA.
           mux_fpga(app->spi);
-          reg_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET_INV));   // positive voltage and current.
-          reg_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
+          ice40_reg_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET_INV));   // positive voltage and current.
+          ice40_reg_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
         }
 
         // Q3  source neg voltage, or neg current.   correct if DUT = resistive load.
@@ -1593,8 +1593,8 @@ static void clamps_set_source_pve(uint32_t spi)
 
 
           mux_fpga(app->spi);
-          reg_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));   // positive voltage and current.
-          reg_write(app->spi, REG_CLAMP2, ~CLAMP2_MIN );     // min of current or voltage
+          ice40_reg_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET | CLAMP1_ISET));   // positive voltage and current.
+          ice40_reg_write(app->spi, REG_CLAMP2, ~CLAMP2_MIN );     // min of current or voltage
         }
         // source pos voltage. and sink current. for DUT.   Q4.
         // will source neg voltage. sink current. for resistor.   Q3.
@@ -1610,8 +1610,8 @@ static void clamps_set_source_pve(uint32_t spi)
           spi_dac_write_register(app->spi, DAC_VOUT1_REGISTER, voltage_to_dac( 1.0f ) );      // -1mA. resistor or battery
 
           mux_fpga(app->spi);
-          reg_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));   // positive voltage and current.
-          reg_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
+          ice40_reg_write(app->spi, REG_CLAMP1, ~(CLAMP1_VSET_INV | CLAMP1_ISET));   // positive voltage and current.
+          ice40_reg_write(app->spi, REG_CLAMP2, ~CLAMP2_MAX );     // min of current or voltage
 
            }
 #endif

@@ -639,6 +639,7 @@
 #include "mux.h"   // some of the above files include core.h. need header guards.
 
 
+#include "spi-ice40.h"
 #include "reg.h"
 
 #define UNUSED(x) (void)(x)
@@ -991,22 +992,22 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
       // usart_printf("10V range \n");
       // flutters at 5 digit. nice.
       // 6th digit. with 9V and 0V.
-      reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // no atten
-      reg_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                  // x1 direct feedback. works.
+      ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // no atten
+      ice40_reg_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                  // x1 direct feedback. works.
       break;
 
 
     case vrange_1V:
       // usart_printf("1V range \n");
-      reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // no atten
-      reg_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                  // 10x gain
+      ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // no atten
+      ice40_reg_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                  // 10x gain
       break;
 
     case vrange_100mV:
 
       // usart_printf("100mV range \n");
-      reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // no atten
-      reg_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);                  // 100x gain
+      ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // no atten
+      ice40_reg_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);                  // 100x gain
       break;
 
 
@@ -1014,8 +1015,8 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
       // usart_printf("100V range \n");
       // flutters at 4th digit. with mV.  but this is on mV. range... so ok?
       // at 6th digit with V.  eg. 9V and 0.1V. - very good - will work for hv.
-      reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
-      reg_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                  // x1 direct feedback. works.
+      ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
+      ice40_reg_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW1_CTL);                  // x1 direct feedback. works.
       break;
 
 
@@ -1023,8 +1024,8 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
 #if 0
   case vrange_10V_2:
       // flutters at 4th digit.
-      reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
-      reg_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                   // x10 . works.
+      ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
+      ice40_reg_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                                   // x10 . works.
       // vmultiplier = 1.f;
       break;
 #endif
@@ -1160,10 +1161,10 @@ static void range_current_set(app_t *app, irange_t irange)
       msleep(3);
 
       // turn on current range x
-      reg_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
+      ice40_reg_write(app->spi, REG_RELAY_COM,  RELAY_COM_X);
 
       // turn off jfets switches for Y and Z ranges.
-      reg_write(app->spi, REG_IRANGE_YZ_SW, 0);
+      ice40_reg_write(app->spi, REG_IRANGE_YZ_SW, 0);
 
       switch(app->irange) {
 
@@ -1174,19 +1175,19 @@ static void range_current_set(app_t *app, irange_t irange)
           // usart_printf("1A range \n");
 
           // turn on sense amplifier 1
-          reg_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX1_CTL);
+          ice40_reg_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX1_CTL);
           // turn on first set of big fets.
-          reg_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW1_CTL);
+          ice40_reg_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW1_CTL);
           // break;
 
           switch(app->irange) {
             // gain 10x on 0.1ohm, for 10V range. active low
             case irange_10A:
-              reg_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);
+              ice40_reg_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);
               break;
             // gain 100x on 0.1ohm.  active low
             case irange_1A:
-              reg_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);
+              ice40_reg_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW3_CTL);
               break;
             default:
               // cannot be here...
@@ -1198,22 +1199,22 @@ static void range_current_set(app_t *app, irange_t irange)
         // 10ohm resistor. for 10V swing.
         case irange_100mA:
           // turn on sense amplifier 2
-          reg_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX2_CTL);
+          ice40_reg_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX2_CTL);
           // ensure sure the high current relay is on. before switching
           // gain 10x active low
-          reg_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);
+          ice40_reg_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW2_CTL);
           // turn on 2nd switch fets.
-          reg_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW2_CTL);
+          ice40_reg_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW2_CTL);
           break;
 
         // 1k resistor. for 10V swing.
         case irange_10mA:
           // turn on sense amplifier 3
-          reg_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
+          ice40_reg_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
           // gain 1x active low
-          reg_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
+          ice40_reg_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
           // turn on 4th switch fets.
-          reg_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW4_CTL);
+          ice40_reg_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW4_CTL);
           break;
 
         default:
@@ -1234,11 +1235,11 @@ static void range_current_set(app_t *app, irange_t irange)
     case irange_10nA:
 
       // turn off all fets used on comx range
-      reg_write(app->spi, REG_IRANGE_X_SW, 0 );
+      ice40_reg_write(app->spi, REG_IRANGE_X_SW, 0 );
       // turn on sense amplifier 3
-      reg_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
+      ice40_reg_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX3_CTL);
       // gain 1x active low
-      reg_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
+      ice40_reg_write(app->spi, REG_INA_IFB_SW,  ~INA_IFB_SW1_CTL);
 
       // we'll turn lc relay on if need be, after switching to lc range.
 
@@ -1250,19 +1251,19 @@ static void range_current_set(app_t *app, irange_t irange)
         // 1M resistor for 10V swing.
         case irange_10uA:
           // turn on current range relay y
-          reg_write(app->spi, REG_RELAY_COM,  RELAY_COM_Y);
+          ice40_reg_write(app->spi, REG_RELAY_COM,  RELAY_COM_Y);
           switch( app->irange) {
             case irange_1mA:
               // turn on jfet 1
-              reg_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);
+              ice40_reg_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);
               break;
             case irange_100uA:
               // turn on jfet 2
-              reg_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);
+              ice40_reg_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);
               break;
             case irange_10uA:
               // turn on jfet 2
-              reg_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW3_CTL);
+              ice40_reg_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW3_CTL);
               break;
             default:
               // cannot be here.
@@ -1277,22 +1278,22 @@ static void range_current_set(app_t *app, irange_t irange)
 
           // IMPORTANT DONT forget to add star jumper to star gnd!!!.
           // turn on current range relay Z
-          reg_write(app->spi, REG_RELAY_COM,  RELAY_COM_Z);
+          ice40_reg_write(app->spi, REG_RELAY_COM,  RELAY_COM_Z);
 
           switch( app->irange) {
             // 10M for 10V swing.
             case irange_1uA:
               // turn on jfet 1
-              reg_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);
+              ice40_reg_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW1_CTL);
               break;
             // 100M for 10V swing.
             case irange_100nA:
               // turn on jfet 2
-              reg_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);
+              ice40_reg_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW2_CTL);
               break;
             case irange_10nA:
               // turn on jfet 3
-              reg_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW3_CTL);
+              ice40_reg_write(app->spi, REG_IRANGE_YZ_SW, IRANGE_YZ_SW3_CTL);
               break;
             default:
               ASSERT(0);
@@ -1581,8 +1582,8 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
         case irange_1mA:
           // turn on read relay
           // and turn off the hc relay.
-          reg_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
-          reg_set(app->spi, REG_LED, LED2);
+          ice40_reg_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
+          ice40_reg_set(app->spi, REG_LED, LED2);
           break;
 
         case irange_10mA:
@@ -1590,16 +1591,16 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
         case irange_1A:
         case irange_10A:
           // high current relay
-          reg_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
-          reg_clear(app->spi, REG_LED, LED2);
+          ice40_reg_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
+          ice40_reg_clear(app->spi, REG_LED, LED2);
           break;
       }
   }
   else {
 
 
-    reg_write(app->spi, REG_RELAY_OUT, 0 ); // both relays off
-    reg_clear(app->spi, REG_LED, LED2);
+    ice40_reg_write(app->spi, REG_RELAY_OUT, 0 ); // both relays off
+    ice40_reg_clear(app->spi, REG_LED, LED2);
   }
 }
 
@@ -1798,12 +1799,12 @@ static void quadrant_set( app_t *app, bool v, bool i)
   uint32_t ii = i ? CLAMP1_ISET_INV : CLAMP1_ISET;
 
 
-  reg_write(app->spi, REG_CLAMP1, ~(vv | ii ));
+  ice40_reg_write(app->spi, REG_CLAMP1, ~(vv | ii ));
 
   // rembmer inverse
   uint32_t minmax = v ? CLAMP2_MAX : CLAMP2_MIN;
 
-  reg_write(app->spi, REG_CLAMP2, ~( minmax ) );     // min of current or voltage
+  ice40_reg_write(app->spi, REG_CLAMP2, ~( minmax ) );     // min of current or voltage
 }
 
 
@@ -1899,7 +1900,7 @@ static void update_soft_500ms(app_t *app)
 {
   // blink the fpga led
   mux_fpga(app->spi);
-  reg_toggle(app->spi, REG_LED, LED1);
+  ice40_reg_toggle(app->spi, REG_LED, LED1);
 
 /*
   // try w25 chip
@@ -2402,17 +2403,17 @@ static void state_change(app_t *app, state_t state )
 
       // turn off high power rails
       usart_printf("turn off rails +-30V\n" );
-      reg_clear(app->spi, REG_RAILS, RAILS_LP30V );
+      ice40_reg_clear(app->spi, REG_RAILS, RAILS_LP30V );
       msleep(10);
 
       // analog rails
       usart_printf("turn off rails +-15V\n" );
-      reg_clear(app->spi, REG_RAILS, RAILS_LP15V);
+      ice40_reg_clear(app->spi, REG_RAILS, RAILS_LP15V);
       msleep(10);
 
       // 5V
       usart_printf("turn off rails +5V\n" );
-      reg_clear(app->spi, REG_RAILS, RAILS_LP5V);
+      ice40_reg_clear(app->spi, REG_RAILS, RAILS_LP5V);
       msleep(10);
 
 #if 1
@@ -2439,7 +2440,7 @@ static void state_change(app_t *app, state_t state )
       // soft reset is much better here.
       // avoid defining initial condition. in more than one place
       // so define in fpga.
-      reg_clear(app->spi, CORE_SOFT_RST, 0);    // any value addressing this register.. to clear
+      ice40_reg_clear(app->spi, CORE_SOFT_RST, 0);    // any value addressing this register.. to clear
 
       // no. needs dg444/mux stuff. pulled high. for off.
       // BUT I THINK we should probably hold RAILS_OE high / deasserted.
@@ -2475,31 +2476,31 @@ static void state_change(app_t *app, state_t state )
       usart_printf("turn on lp5v\n" );
       mux_fpga(app->spi);
       // assert rails oe
-      reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
+      ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
 
       // turn on 5V digital rails
-      reg_set(app->spi, REG_RAILS, RAILS_LP5V );
+      ice40_reg_set(app->spi, REG_RAILS, RAILS_LP5V );
       msleep(50);
 
       // turn on +-15V rails
       usart_printf("turn on analog rails - lp15v\n" );
-      reg_set(app->spi, REG_RAILS, RAILS_LP15V );
+      ice40_reg_set(app->spi, REG_RAILS, RAILS_LP15V );
       msleep(50);
 
 #if 1
       // turn on +-30V rails. think this is ok here...
       usart_printf("turn on power rails \n" );
-      reg_set(app->spi, REG_RAILS, RAILS_LP30V );
+      ice40_reg_set(app->spi, REG_RAILS, RAILS_LP30V );
       msleep(50);
 #endif
 
 
 
       // LP30 - needed to power the vfb topside op amp. ltc6090/ bootstrapped
-      // reg_set(spi, REG_RAILS, RAILS_LP30V );
+      // ice40_reg_set(spi, REG_RAILS, RAILS_LP30V );
       // msleep(50);
        /*
-      reg_set(spi, REG_RAILS, RAILS_LP60V );
+      ice40_reg_set(spi, REG_RAILS, RAILS_LP60V );
        */
 
 #if 0
@@ -2517,7 +2518,7 @@ static void state_change(app_t *app, state_t state )
       //mux_dac(spi);
       usart_printf("turn on ref a for dac\n" );
       mux_fpga(app->spi);
-      reg_write(app->spi, REG_DAC_REF_MUX, ~(DAC_REF_MUX_A | DAC_REF_MUX_B)); // active lo
+      ice40_reg_write(app->spi, REG_DAC_REF_MUX, ~(DAC_REF_MUX_A | DAC_REF_MUX_B)); // active lo
 
       // dac naked register references should be wrapped by functions
       // unipolar.

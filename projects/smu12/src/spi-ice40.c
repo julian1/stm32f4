@@ -64,21 +64,24 @@ static uint16_t spi_ice40_xfer2( uint32_t spi, uint8_t r, uint8_t v)
   return ret;
 }
 
+
+
+
 // consumers should use the reg_ functions.
 
-void spi_ice40_reg_set( uint32_t spi, uint8_t r, uint8_t v)
+void ice40_reg_set( uint32_t spi, uint8_t r, uint8_t v)
 {
   spi_ice40_xfer2(spi, r, (v & 0xF)); // ie. lo 4 bits
 }
 
-void spi_ice40_reg_clear( uint32_t spi, uint8_t r, uint8_t v)
+void ice40_reg_clear( uint32_t spi, uint8_t r, uint8_t v)
 {
   spi_ice40_xfer2(spi, r, v << 4);    // ie. hi 4 bits
 }
 
 // OK. don't think we need a separate hardware register...
 
-void spi_ice40_reg_write( uint32_t spi, uint8_t r, uint8_t v)
+void ice40_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 {
   uint8_t x = (~v << 4) | (v & 0xF );
   spi_ice40_xfer2(spi, r, x);
@@ -86,14 +89,14 @@ void spi_ice40_reg_write( uint32_t spi, uint8_t r, uint8_t v)
 
 
 
-void spi_ice40_reg_toggle( uint32_t spi, uint8_t r, uint8_t v)
+void ice40_reg_toggle( uint32_t spi, uint8_t r, uint8_t v)
 {
   uint8_t x = (v << 4) | (v & 0xF );
   spi_ice40_xfer2(spi, r, x);
 }
 
 
-void spi_ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t v)
+void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t v)
 {
   mask = mask & 0xf;
 
