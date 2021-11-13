@@ -813,6 +813,12 @@ static void output_set(app_t *app, irange_t irange, uint8_t val);
 
 static void state_change(app_t *app, state_t state );
 
+
+/*
+// TODO must change the name of this.
+// conflicts with core.c core.h functions
+// just rename core.c to mux.c.  because that's the function prefix of that module
+*/
 static void core_set( app_t *app, float v, float i, vrange_t vrange, irange_t irange);
 
 

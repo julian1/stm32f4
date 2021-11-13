@@ -95,6 +95,10 @@ void mux_adc(uint32_t spi)
   spi_adc_setup(spi);
 }
 
+
+
+// TODO remove. it's just a wrapper around mux_fpga().
+
 // is this even needed
 // sp
 
@@ -114,6 +118,9 @@ void mux_io(uint32_t spi)
 
 
 ////////////////////////////////
+
+
+// TODO. wrapping/exposing this. is wrong i think.
 
 void io_set( uint32_t spi, uint8_t r, uint8_t v)
 {
