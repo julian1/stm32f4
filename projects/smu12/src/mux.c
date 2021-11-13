@@ -29,7 +29,6 @@
 // one bit
 // put all these
 
-#if 1
 void mux_fpga(uint32_t spi)
 {
   // spi on mcu side, must be correctly configured
@@ -38,7 +37,6 @@ void mux_fpga(uint32_t spi)
   spi1_port_setup();
   spi_ice40_setup(spi);
 }
-#endif
 
 
 
@@ -99,28 +97,7 @@ void mux_adc(uint32_t spi)
 }
 
 
-#if 0
-// TODO remove. it's just a wrapper around mux_fpga().
 
-// is this even needed
-// sp
-
-#define UNUSED(x) (void)(x)
-
-void mux_fpga(uint32_t spi)
-{
-  // UNUSED(spi);
-  mux_fpga(spi);
-}
-#endif
-
-/////////////////////////////
-
-// Not sure if should not just change, the name of the ice40 functions,
-// but this differentiates the abstraction for consumers from underlying method.
-
-
-////////////////////////////////
 
 
 // TODO. wrapping/exposing this. is wrong i think.
