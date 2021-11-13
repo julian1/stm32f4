@@ -2310,7 +2310,7 @@ static void update(app_t *app)
     app->lp15v = spi_mcp3208_get_data(app->spi, 0) * 1.00 * 10.;
     app->ln15v = spi_mcp3208_get_data(app->spi, 1) * 0.9  * 10.;
 
-    usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
+    // usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
   }
 
 
@@ -2565,9 +2565,8 @@ static void state_change(app_t *app, state_t state )
       }
 #endif
 
-    while(true);
 
-//      app->state = STATE_ANALOG_UP;
+      app->state = STATE_ANALOG_UP;
 
     }
 
