@@ -110,7 +110,7 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
     fail early if something goes wrong
   */
 
-  mux_fpga(spi);
+  mux_ice40(spi);
 
   // keep latch low, and unused, unless chaining
   ice40_reg_clear(spi, reg, DAC_LDAC);

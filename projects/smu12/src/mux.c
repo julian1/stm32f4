@@ -29,7 +29,7 @@
 // one bit
 // put all these
 
-void mux_fpga(uint32_t spi)
+void mux_ice40(uint32_t spi)
 {
   // spi on mcu side, must be correctly configured
   // in addition, relies on the special flag to mux
@@ -44,7 +44,7 @@ void mux_fpga(uint32_t spi)
 void mux_w25(uint32_t spi)
 {
   // mux fpga, to write the reg.
-  mux_fpga(spi);
+  mux_ice40(spi);
   ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_FLASH);
 
   // now mux the device
@@ -57,7 +57,7 @@ void mux_adc03(uint32_t spi)
   // spi_ice40_setup(spi);
 
   // mux fpga, to write the reg.
-  mux_fpga(spi);
+  mux_ice40(spi);
   ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_ADC03);
 
   // now mux the device
@@ -75,7 +75,7 @@ void mux_dac(uint32_t spi)
   spi_ice40_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_DAC);
   spi_dac_setup(spi);
 */
-  mux_fpga(spi);
+  mux_ice40(spi);
   ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_DAC);
  
   spi1_port_setup2();
@@ -89,7 +89,7 @@ void mux_adc(uint32_t spi)
   spi_ice40_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_ADC);
   spi_adc_setup(spi);
 */
-  mux_fpga(spi);
+  mux_ice40(spi);
   ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_ADC);
 
   spi1_port_setup2();
