@@ -9,7 +9,7 @@
 #include "util.h"   // usart_printf
 #include "str.h"   // format_bits()
 
-#include "core.h"
+#include "mux.h"
 
 
 

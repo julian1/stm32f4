@@ -1,9 +1,9 @@
 
 
 #include "spi1.h"
-#include "core.h"
+#include "mux.h"
 
-#include "ice40.h"
+#include "spi-ice40.h"
 #include "mcp3208.h"
 #include "w25.h"
 #include "dac8734.h"
@@ -121,6 +121,7 @@ void mux_io(uint32_t spi)
 
 
 // TODO. wrapping/exposing this. is wrong i think.
+// remove these.
 
 void io_set( uint32_t spi, uint8_t r, uint8_t v)
 {

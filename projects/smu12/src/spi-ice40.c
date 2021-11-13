@@ -2,11 +2,13 @@
 /*
   ice40 spi is just one of multiple targets, like adc,dac,w25q etc.
 
+  spi_ice40_
+
 */
 
 #include <libopencm3/stm32/spi.h>
 
-#include "ice40.h"
+#include "spi-ice40.h"
 #include "spi1.h"
 
 // fpga as a target

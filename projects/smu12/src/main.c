@@ -636,7 +636,7 @@
 #include "str.h"
 #include "stats.h"
 
-#include "core.h"   // some of the above files include core.h. need header guards.
+#include "mux.h"   // some of the above files include core.h. need header guards.
 
 #define UNUSED(x) (void)(x)
 

@@ -21,6 +21,11 @@
   using 'reg' we don't have to pass these around
 */
 
+/*
+  move these register addresses.
+  
+*/
+
 
 #define REG_LED         7
 #define LED1            (1<<0)
