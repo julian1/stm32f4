@@ -112,10 +112,10 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   mux_io(spi);
 
   // keep latch low, and unused, unless chaining
-  io_clear(spi, reg, DAC_LDAC);
+  reg_clear(spi, reg, DAC_LDAC);
 
   // unipolar output on a
-  io_set(spi, reg, DAC_UNI_BIP_A /*| DAC_UNIBIPB */);
+  reg_set(spi, reg, DAC_UNI_BIP_A /*| DAC_UNIBIPB */);
 
   //////////////
   /*
@@ -129,9 +129,9 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
 
   // toggle reset pin
   usart_printf("doing dac reset\n");
-  io_clear(spi, reg, DAC_RST);
+  reg_clear(spi, reg, DAC_RST);
   msleep(20);
-  io_set( spi, reg, DAC_RST);
+  reg_set( spi, reg, DAC_RST);
   msleep(20);
 
 

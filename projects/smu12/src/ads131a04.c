@@ -215,7 +215,7 @@ int adc_reset( uint32_t spi, uint8_t reg)
   ////////////
   // reset
   usart_printf("adc assert reset\n");
-  io_clear(spi, reg, ADC_RST);
+  reg_clear(spi, reg, ADC_RST);
 
   usart_printf("adc before msleep\n");
   msleep(20);
@@ -240,25 +240,25 @@ int adc_init( uint32_t spi, uint8_t reg)
   // GND:Synchronousmastermode
   // IOVDD:Asynchronousinterruptmode
   // gpio_set(ADC_GPIO_PORT, ADC_M0);
-  io_set(spi, reg, ADC_M0);
+  reg_set(spi, reg, ADC_M0);
 
   // SPI word transfersize
   // GND:24 bit
   // No connection:16 bit
   // appears to be controllable on reset. not just power up, as indicated in datasheet.
   // gpio_clear(ADC_GPIO_PORT, ADC_M1);
-  io_clear(spi, reg, ADC_M1);
+  reg_clear(spi, reg, ADC_M1);
 
   // GND: Hamming code word validation off
   // gpio_clear(ADC_GPIO_PORT, ADC_M2);
-  io_clear(spi, reg, ADC_M2);
+  reg_clear(spi, reg, ADC_M2);
 
 
   ////////////
   // reset
   usart_printf("assert reset\n");
   // gpio_clear(ADC_GPIO_PORT, ADC_RESET);
-  io_clear(spi, reg, ADC_RST);
+  reg_clear(spi, reg, ADC_RST);
 
   usart_printf("before msleep\n");
   msleep(20);
@@ -267,7 +267,7 @@ int adc_init( uint32_t spi, uint8_t reg)
 
   // usart_printf("drdy %d done %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY), gpio_get(ADC_GPIO_PORT, ADC_DONE));
   // gpio_set(ADC_GPIO_PORT, ADC_RESET);
-  io_set(spi, reg, ADC_RST);
+  reg_set(spi, reg, ADC_RST);
   msleep(20);
 
 

@@ -64,7 +64,7 @@ static uint16_t spi_ice40_xfer2( uint32_t spi, uint8_t r, uint8_t v)
   return ret;
 }
 
-// consumers should use the io_ functions.
+// consumers should use the reg_ functions.
 
 void spi_ice40_reg_set( uint32_t spi, uint8_t r, uint8_t v)
 {

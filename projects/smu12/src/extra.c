@@ -25,12 +25,12 @@
 #if 0
   // toggle led2
   if(count % 2 == 0) {
-    io_set(spi, LED_REGISTER, LED2);
-    // io_set(spi, ADC_REGISTER, ADC_RST);
+    reg_set(spi, LED_REGISTER, LED2);
+    // reg_set(spi, ADC_REGISTER, ADC_RST);
   }
   else {
-    io_clear(spi, LED_REGISTER, LED2);
-    // io_clear(spi, ADC_REGISTER, ADC_RST);
+    reg_clear(spi, LED_REGISTER, LED2);
+    // reg_clear(spi, ADC_REGISTER, ADC_RST);
   }
 #endif
 
@@ -54,15 +54,15 @@
     #if 0
         // source -ve current/voltage.
         // should be write(  ~CLAMP1_VSET | CLAMP1_ISET) etc.
-        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET | CLAMP1_ISET);    // inv for +ve voltage, non invert for negative
-        io_clear(spi, CLAMP2_REGISTER, CLAMP2_MIN);             // max.   for source +ve voltage, min for source -ve voltage
+        reg_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET | CLAMP1_ISET);    // inv for +ve voltage, non invert for negative
+        reg_clear(spi, CLAMP2_REGISTER, CLAMP2_MIN);             // max.   for source +ve voltage, min for source -ve voltage
     #endif
 
     #if 0
         // sourcing, charging adc val 1.616501V
         // source +ve current/voltage.
-        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
-        io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);
+        reg_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
+        reg_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);
     #endif
 
 
@@ -71,12 +71,12 @@
         // but I don't think V is set correctly
         // except I think V set would have to be negative as well to hold.
         // not sure. set it to 1V and it works. but it goes out of range?
-        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV | CLAMP1_ISET);
-        io_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);
+        reg_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV | CLAMP1_ISET);
+        reg_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);
 #endif
 
 
-        // io_set(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn on vrange register
+        // reg_set(spi, RELAY_REGISTER, RELAY_VRANGE ); // turn on vrange register
 
         // should ok for 12V. perhaps we're running into a limit of voltage drops on output
 
@@ -98,12 +98,12 @@
 
         // new approach where fb is always active/routed through.
         // 3V sig-gen. vset=4V, Iset=2V.
-        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV); // active lo. works. 3V -4V = -1V  source a positive voltage.
-        io_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET);     // active lo. works. 3V +4V = 7V.  source a negative voltage.
+        // reg_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV); // active lo. works. 3V -4V = -1V  source a positive voltage.
+        reg_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET);     // active lo. works. 3V +4V = 7V.  source a negative voltage.
         // nothing.                                                              3V * 2= 6V
 
-        // io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET_INV); // active lo. works. 3V -2V = 1V
-        io_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET);     // active lo. works. 3V +2V = 5V
+        // reg_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET_INV); // active lo. works. 3V -2V = 1V
+        reg_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET);     // active lo. works. 3V +2V = 5V
         // nothing.                                                              3V * 2 = 6V.
         // with no clamps open. we get VERR and IERR = 0. GOOD!!!. makes it easy, to test/use comparison
         // this also means can pass vfb (or vfb_inv) straight through to hold output at 0. (x2 doesn't matter, on integrator).
