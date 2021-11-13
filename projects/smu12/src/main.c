@@ -2451,6 +2451,26 @@ static void state_change(app_t *app, state_t state )
       // TODO remove.... fix regualte on vfb.
       usart_printf("-------------\n" );
 
+
+
+
+      /////////////////
+      /*
+      // adc init has to be done after rails are up...
+      // but doesn't need xtal, to respond to spi.
+        */
+
+      // adc init
+      ret = adc_init(app->spi, REG_ADC);
+      if(ret != 0) {
+        // app->state = ERROR;
+
+        state_change(app, STATE_HALT );
+        return;
+      }
+
+
+
       // progress to digital up?
       usart_printf("digital up ok\n" );
       app->state = STATE_DIGITAL_UP;

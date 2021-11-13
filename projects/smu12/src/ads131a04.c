@@ -286,6 +286,8 @@ int adc_init( uint32_t spi, uint8_t reg)
     val = spi_xfer_24_16_cs( spi, 0 );
     usart_printf("register %04x\n", val);
     msleep(20);
+    // adc is returning 0000. with only digital power.
+    // but doesn't need xtal, to respond to spi.
   }
   while(val != 0xff04) ;
 
