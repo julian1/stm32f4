@@ -2305,11 +2305,12 @@ static void update(app_t *app)
   } else {
 
     // otherwise read rails
+    // 9k/1k dividers.
     mux_adc03(app->spi);
-    app->lp15v = spi_mcp3208_get_data(app->spi, 0) * 0.92 * 10.;
-    app->ln15v = spi_mcp3208_get_data(app->spi, 1) * 0.81 * 10.;
+    app->lp15v = spi_mcp3208_get_data(app->spi, 0) * 1.00 * 10.;
+    app->ln15v = spi_mcp3208_get_data(app->spi, 1) * 0.9  * 10.;
 
-    // usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
+    usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
   }
 
 
@@ -2452,25 +2453,6 @@ static void state_change(app_t *app, state_t state )
       usart_printf("-------------\n" );
 
 
-
-
-      /////////////////
-      /*
-      // adc init has to be done after rails are up...
-      // but doesn't need xtal, to respond to spi.
-        */
-
-      // adc init
-      ret = adc_init(app->spi, REG_ADC);
-      if(ret != 0) {
-        // app->state = ERROR;
-
-        state_change(app, STATE_HALT );
-        return;
-      }
-
-
-
       // progress to digital up?
       usart_printf("digital up ok\n" );
       app->state = STATE_DIGITAL_UP;
@@ -2568,7 +2550,8 @@ static void state_change(app_t *app, state_t state )
       output_set(app, app->irange, false );   // turn off by default...
 
 
-
+#if 0
+      // EXTR. TODO. move this. to initialize adc before setting the core.
       /////////////////
       // adc init has to be done after rails are up...
       // but doesn't need xtal, to respond to spi.
@@ -2580,10 +2563,11 @@ static void state_change(app_t *app, state_t state )
         state_change(app, STATE_HALT );
         return;
       }
+#endif
 
+    while(true);
 
-
-      app->state = STATE_ANALOG_UP;
+//      app->state = STATE_ANALOG_UP;
 
     }
 
