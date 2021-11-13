@@ -100,33 +100,3 @@ void mux_adc(uint32_t spi)
 
 
 
-// TODO. wrapping/exposing this. is wrong i think.
-// remove these.
-
-void reg_set( uint32_t spi, uint8_t r, uint8_t v)
-{
-  spi_ice40_reg_set( spi, r, v);
-}
-
-void reg_clear( uint32_t spi, uint8_t r, uint8_t v)
-{
-  spi_ice40_reg_clear( spi, r, v);
-}
-
-
-void reg_write( uint32_t spi, uint8_t r, uint8_t v)
-{
-  spi_ice40_reg_write( spi, r, v);
-}
-
-void reg_toggle( uint32_t spi, uint8_t r, uint8_t v)
-{
-  spi_ice40_reg_toggle( spi, r, v);
-}
-
-void reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t v)
-{
-  spi_ice40_reg_write_mask( spi, r, mask, v);
-}
-
-

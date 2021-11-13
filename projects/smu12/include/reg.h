@@ -1,5 +1,15 @@
 
 
+
+extern void reg_set( uint32_t spi, uint8_t r, uint8_t v);
+extern void reg_clear( uint32_t spi, uint8_t r, uint8_t v);
+extern void reg_write( uint32_t spi, uint8_t r, uint8_t v);
+extern void reg_toggle( uint32_t spi, uint8_t r, uint8_t v);
+
+extern void reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t v);
+
+
+
 #define REG_LED         7
 #define LED1            (1<<0)
 #define LED2            (1<<1)
