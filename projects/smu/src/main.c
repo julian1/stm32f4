@@ -2347,7 +2347,7 @@ static void update(app_t *app)
       {
         usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
         usart_printf("15V analog rails undervoltage condition\n");
-        ASSERT(0);
+        // ASSERT(0);
       }
       else if((app->lp15v > 15.3 || app->ln15v > 15.3)  )
       {
