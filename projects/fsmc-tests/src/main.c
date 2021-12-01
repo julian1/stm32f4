@@ -132,16 +132,16 @@ static app_t app;
 
 
 
-
-
-
 #include <libopencm3/stm32/fsmc.h>
 
 
 
 static void fsmc_setup(void)
-
 {
+
+  /*
+    https://titanwolf.org/Network/Articles/Article?AID=198f4410-66a4-4bee-a263-bfbb244dbc45
+  */
 
  /* Enable PORTD and PORTE */
   rcc_periph_clock_enable(RCC_GPIOD);
@@ -154,7 +154,7 @@ static void fsmc_setup(void)
 
 
  /* config FSMC data lines */
-
+#if 0
   uint16_t portd_gpios = GPIO0 | GPIO1 | GPIO8 | GPIO9 | GPIO10 | GPIO14 | GPIO15;
 
   gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, portd_gpios);
@@ -179,6 +179,7 @@ static void fsmc_setup(void)
 
  /* config FSMC A16 for D/C (select Data/Command ) */
   gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO11);
+#endif
 
 
  /* config FSMC register */
@@ -194,10 +195,54 @@ static void fsmc_setup(void)
   FSMC_BCR(0) = FSMC_BCR_WREN | FSMC_BCR_MWID | FSMC_BCR_MBKEN;
 
 }
- 
+
+// JA
+#define __IO volatile
+
+/*
+  __IO flag appears undefined.
+*/
+ typedef struct
+ {
+
+  __IO uint16_t LCD_REG;
+
+  __IO uint16_t LCD_RAM;
+ } LCD_TypeDef;
+
+// #define LCD_BASE    ((uint32_t)(0x60000000 | 0x00020000 -2 ) )
+// JA
+#define LCD_BASE    ((uint32_t)(0x60000000 | (0x00020000 -2) ) )
+
+/* JA
+  >  (0x60000000 | (0x00020000 -2)).toString(16)
+  "6001fffe"
+  > (0x60000000 | (0x00020000 )).toString(16)
+  "60020000"
+*/
+
+/*
+When you access A16 becomes zero in the LCD-> LCD_REG. (Address 0x6001FFFE)
+When you access A16 is 1 in LCD-> LCD_RAM. (Address 0x60020000)
+*/
+
+#define LCD         ((LCD_TypeDef *) LCD_BASE)
 
 
+static uint16_t LCD_ReadRAM(void)
+ {
 
+  /* Write 16-bit Index (then Read Reg) */
+
+  // LCD->LCD_REG = R34 /* Select GRAM Reg */
+
+  // JA
+  LCD->LCD_REG = 34; /* Select GRAM Reg */
+
+  /* Read 16-bit Reg */
+
+  return LCD->LCD_RAM;
+ }
 
 
 
