@@ -1,0 +1,38 @@
+
+Andy
+https://github.com/andysworkshop/stm32plus/blob/master/examples/ssd1963/ssd1963.cpp
+
+/**
+ * SSD1963 480x272 LCD test, show a looping graphics demo
+ *
+ * The SSD1963_480x272PanelTraits panel traits class sets
+ * up the SSD1963 PLL to run at 100Mhz with a pixel clock
+ * of approximately 9MHz for the panel.
+ *
+ * The SSD1963 driver is configured to transfer data using
+ * D0..D11. Therefore you will need to do the following
+ * wiring:
+ *
+ * PE1  => RESET
+ * PD11 => RS (D/CX)
+ * PD7  => CS
+ * PD4  => RD
+ * PD5  => WR
+ * PD14 => D0
+ * PD15 => D1
+ * PD0  => D2
+ * PD1  => D3
+ * PE7  => D4
+ * PE8  => D5
+ * PE9  => D6
+ * PE10 => D7
+ * PE11 => D8
+ * PE12 => D9
+ * PE13 => D10
+ * PE14 => D11
+ * PD13 => Backlight PWM (if variable backlight)
+ *
+ * Do not connect FSMC pins D12..D15.
+ *
+ * The code works without structural change on both
+ * the F1 and F4.
