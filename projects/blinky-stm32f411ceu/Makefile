@@ -20,7 +20,7 @@ SRCFILES	= ./src/main.c src/util.c  \
 
 
 # TODO - update to use 512k. 
-LDSCRIPT	= ${TOP}/f410.ld
+LDSCRIPT	= ${TOP}/f411.ld
 
 
 TGT_CFLAGS  += -Wno-unused-function   \
