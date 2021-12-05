@@ -13,9 +13,10 @@ LIB2INC=${TOP}/lib2/include
 
 
 BINARY		= main
-SRCFILES	= ./src/main.c src/util.c   src/ice40.c \
+SRCFILES	= ./src/main.c src/util.c   src/ice40.c src/spi1.c \
               ${LIB2SRC}/assert.c ${LIB2SRC}/cbuffer.c   ${LIB2SRC}/usart2.c \
-              ${LIB2SRC}/spi1.c
+
+#              ${LIB2SRC}/spi1.c
 
 # it's messy having spi1 in lib2... and other code locally?
 # actually we don't need the core. we can just write registers directly...

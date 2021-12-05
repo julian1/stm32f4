@@ -193,6 +193,8 @@ int main(void)
   // hsi setup high speed internal!!!
   // TODO. not using.
 
+	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz.
+
 
   // clocks
   rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
@@ -214,7 +216,8 @@ int main(void)
   // setup
 
   // 16MHz. from hsi datasheet.
-  systick_setup(16000);
+  // systick_setup(16000);
+  systick_setup(84000);
 
   // led
   led_setup();
@@ -242,12 +245,14 @@ int main(void)
   ////////////////
   // spi1/ice40
   spi1_port_setup();
+#if 0
   spi1_special_gpio_setup();
-  // adc interupt...
-  spi1_interupt_gpio_setup( (void (*) (void *))spi1_interupt, &app);
-
+#endif
 
   spi_ice40_setup(SPI1);
+
+  // adc interupt...
+  spi1_interupt_gpio_setup( (void (*) (void *))spi1_interupt, &app);
 
 
 
