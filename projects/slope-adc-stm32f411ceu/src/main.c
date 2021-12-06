@@ -237,7 +237,7 @@ static void spi1_interupt(app_t *app )
 static char buf_console_in[1000];
 static char buf_console_out[1000];
 
-static float buf_rundown[5];
+static float buf_rundown[6];
 
 static app_t app;
 
