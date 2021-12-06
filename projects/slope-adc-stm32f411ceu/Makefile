@@ -14,7 +14,8 @@ LIB2INC=${TOP}/lib2/include
 
 BINARY		= main
 SRCFILES	= ./src/main.c src/util.c   src/ice40.c src/spi1.c \
-              ${LIB2SRC}/assert.c ${LIB2SRC}/cbuffer.c   ${LIB2SRC}/usart2.c \
+              ${LIB2SRC}/assert.c ${LIB2SRC}/cbuffer.c  ${LIB2SRC}/usart2.c \
+              ${LIB2SRC}/fbuffer.c ${LIB2SRC}/stats.c
 
 #              ${LIB2SRC}/spi1.c
 

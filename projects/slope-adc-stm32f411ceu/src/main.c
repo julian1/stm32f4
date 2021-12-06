@@ -35,6 +35,13 @@
 #include "util.h"
 #include "assert.h"
 
+
+#include "fbuffer.h"
+#include "stats.h"
+
+
+
+
 #include "spi1.h"
 #include "ice40.h"
 
@@ -46,6 +53,11 @@ typedef struct app_t
   CBuf console_out;
 
   bool data_ready ;
+
+
+  FBuf      measure_rundown;
+
+
 
 } app_t;
 
@@ -134,7 +146,17 @@ static void loop(app_t *app)
 
       usart_printf("count_up %u,   ", spi_reg_read_24(SPI1, 9 ));
       usart_printf("count_down %u  ", spi_reg_read_24(SPI1, 10 ));
-      usart_printf("rundown %u     ", spi_reg_read_24(SPI1, 11 ));
+
+      uint32_t count_rundown = spi_reg_read_24(SPI1, 11 );
+      usart_printf("count_rundown %u     ", count_rundown);
+
+      // push value onto circ buffer. taking care pop last value off...
+      size_t sz  = fBufCount(&app->measure_rundown);
+      // usart_printf("size %u ", sz);
+      if(sz == fBufReserve(&app->measure_rundown) - 1)
+        fBufPop(&app->measure_rundown);
+      fBufPush(&app->measure_rundown, (float)count_rundown);
+
 
 
       usart_printf("trans_up %u    ", spi_reg_read_24(SPI1, 12 ));
@@ -142,7 +164,38 @@ static void loop(app_t *app)
 
       usart_printf("rundown_dir %u ", spi_reg_read_24(SPI1, 16 ));
 
+      ////////////////////////
+      ///////// stats
+
+
+
+#if 1
+
+      // usart_printf("\n");
+      float vs[10];
+
+      // Copy empties i think.
+      size_t vn = fBufCopy2(&app->measure_rundown, vs, ARRAY_SIZE(vs));
+      // ASSERT(vn >= 1);
+
+      // for(size_t i = 0; i < vn; ++i) {
+        // usart_printf(" %f ", vs[i] );
+      // }
+
+      /* TODO a single stats core function that computes all of these
+      */
+      // float vmean = mean(vs, vn);
+      float vsd   = stddev(vs, vn);
+      // float vmin, vmax;
+      // minmax(vs, vn, &vmin, &vmax);
+
+      usart_printf("stddev_rundown(%u) %.2f", vn, vsd );
+    /////////////////////
+#endif
+
+
       usart_printf("\n");
+
 
 
       app->data_ready = false;
@@ -184,6 +237,7 @@ static void spi1_interupt(app_t *app )
 static char buf_console_in[1000];
 static char buf_console_out[1000];
 
+static float buf_rundown[5];
 
 static app_t app;
 
@@ -229,6 +283,11 @@ int main(void)
   // uart/console
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
   cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
+
+
+  // buffer of measurements.
+  fBufInit(&app.measure_rundown, buf_rundown, ARRAY_SIZE(buf_rundown));
+
 
   //////////////
   // uart

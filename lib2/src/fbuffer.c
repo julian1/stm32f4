@@ -59,6 +59,10 @@ bool fBufisEmpty(FBuf *a)
 }
 
 
+size_t fBufReserve(FBuf *a)
+{
+  return a->sz;
+}
 
 size_t fBufCount(FBuf *a)
 {
@@ -118,6 +122,26 @@ int32_t fBufCopy(FBuf *a, float *p, size_t n)
   return i;
 }
 
+
+
+
+int32_t fBufCopy2(const FBuf *a, float *p, size_t n)
+{
+  // could use more testing
+
+  size_t ri = a->ri;
+  size_t i = 0;
+
+  while(ri != a->wi && i < (n - 1)) {
+
+    ASSERT(ri < a->sz);
+    p[i++] = (a->p)[ri];
+
+    ri = (ri + 1) % a->sz;
+  }
+
+  return i;
+}
 
 
 
