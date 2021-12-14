@@ -426,9 +426,11 @@ int main(void)
   volatile uint16_t x;
 
 
-  ///////////  EXTR. 0A read works.   but only on the second try. 
+  ///////////  EXTR. 0A == 1000   correct.  read works.   but only on the second try. 
+  //                 0D == 0011   correct. read works but only on second time.
   while(1) {
-    reg = 0x0A;
+    // reg = 0x0A;
+    reg = 0x0D;
     x = LCD_ReadReg( reg );
     usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
     msleep(1000);
