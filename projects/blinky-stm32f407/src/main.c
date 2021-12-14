@@ -126,6 +126,159 @@ static char buf_console_out[1000];
 static app_t app;
 
 
+
+static void tft_gpio_init(void)
+{
+  /*
+    OK. first goal should be to read and write a register using fsmc and bus .
+    probably want the reset also.
+
+    see. kicad5/projects/control-panel-2/notes.tx
+  /projects/fsmc-tests/doc/andy.txt
+  */
+
+  // clocks are external
+  // SHOULD PUT ALL TFT stuff in header... or at least predeclare.
+  // parallel tft / ssd1963
+  // rcc_periph_clock_enable(RCC_GPIOD);
+  // rcc_periph_clock_enable(RCC_GPIOE);
+
+
+  #define TFT_GPIO_PORT       GPIOE
+  #define TFT_LED_A           GPIO2
+  #define TFT_REST            GPIO1
+
+  gpio_mode_setup(TFT_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, TFT_LED_A | TFT_REST);
+  gpio_set( TFT_GPIO_PORT, TFT_LED_A ); // turn on backlight. works!!!
+
+
+  // reset. pull lo then high.
+  gpio_clear( TFT_GPIO_PORT, TFT_REST); 
+  msleep(20);
+  gpio_set( TFT_GPIO_PORT, TFT_REST);
+
+}
+
+
+
+#include <libopencm3/stm32/fsmc.h>
+
+
+
+static void fsmc_setup(void)
+{
+
+  /*
+    https://titanwolf.org/Network/Articles/Article?AID=198f4410-66a4-4bee-a263-bfbb244dbc45
+  */
+
+ /* Enable PORTD and PORTE */
+  rcc_periph_clock_enable(RCC_GPIOD);
+
+  rcc_periph_clock_enable(RCC_GPIOE);
+
+
+ /* Enable FSMC */
+  rcc_periph_clock_enable(RCC_FSMC);
+
+
+ /* config FSMC data lines */
+#if 0
+  uint16_t portd_gpios = GPIO0 | GPIO1 | GPIO8 | GPIO9 | GPIO10 | GPIO14 | GPIO15;
+
+  gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, portd_gpios);
+
+
+  uint16_t porte_gpios = GPIO7 | GPIO8 | GPIO9 | GPIO10 | GPIO11 | GPIO12 | GPIO13 | GPIO14 | GPIO15;
+
+  gpio_set_mode(GPIOE, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, porte_gpios);
+
+
+ /* config FSMC NOE */
+  gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO4);
+
+
+ /* config FSMC NWE */
+  gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO5);
+
+
+ /* config FSMC NE1 */
+  gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO7);
+
+
+ /* config FSMC A16 for D/C (select Data/Command ) */
+  gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO11);
+#endif
+
+
+ /* config FSMC register */
+  FSMC_BTR(0) = FSMC_BTR_ACCMODx(FSMC_BTx_ACCMOD_B) |
+                FSMC_BTR_DATLATx(0)  |
+                FSMC_BTR_CLKDIVx(0)  |
+                FSMC_BTR_BUSTURNx(0) |
+                FSMC_BTR_DATASTx(5)  |
+                FSMC_BTR_ADDHLDx(0)  |
+                FSMC_BTR_ADDSETx(1);
+
+
+  FSMC_BCR(0) = FSMC_BCR_WREN | FSMC_BCR_MWID | FSMC_BCR_MBKEN;
+
+}
+
+// JA
+#define __IO volatile
+
+/*
+  __IO flag appears undefined.
+*/
+ typedef struct
+ {
+
+  __IO uint16_t LCD_REG;
+
+  __IO uint16_t LCD_RAM;
+ } LCD_TypeDef;
+
+// #define LCD_BASE    ((uint32_t)(0x60000000 | 0x00020000 -2 ) )
+// JA
+#define LCD_BASE    ((uint32_t)(0x60000000 | (0x00020000 -2) ) )
+
+/* JA
+  >  (0x60000000 | (0x00020000 -2)).toString(16)
+  "6001fffe"
+  > (0x60000000 | (0x00020000 )).toString(16)
+  "60020000"
+*/
+
+/*
+When you access A16 becomes zero in the LCD-> LCD_REG. (Address 0x6001FFFE)
+When you access A16 is 1 in LCD-> LCD_RAM. (Address 0x60020000)
+*/
+
+#define LCD         ((LCD_TypeDef *) LCD_BASE)
+
+
+static uint16_t LCD_ReadRAM(void)
+ {
+
+  /* Write 16-bit Index (then Read Reg) */
+
+  // LCD->LCD_REG = R34 /* Select GRAM Reg */
+
+  // JA
+  LCD->LCD_REG = 34; /* Select GRAM Reg */
+
+  /* Read 16-bit Reg */
+
+  return LCD->LCD_RAM;
+ }
+
+
+
+
+
+
+
 int main(void)
 {
 
@@ -162,12 +315,6 @@ int main(void)
   rcc_periph_clock_enable(RCC_GPIOE);
   rcc_periph_clock_enable(RCC_GPIOD);
 
-
-  #define TFT_GPIO_PORT       GPIOE
-  #define TFT_LED_A            GPIO2
-
-  gpio_mode_setup(TFT_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, TFT_LED_A);
-  gpio_set( TFT_GPIO_PORT, TFT_LED_A ); // turn on backlight. works!!!
 
 
   // spi / ice40
@@ -211,6 +358,12 @@ int main(void)
 	app.usbd_dev = usb_setup();
   ASSERT(app.usbd_dev);
 
+
+  // make sure have access to usart_printf
+  fsmc_setup();
+
+  // do the reset.
+  tft_gpio_init();
 
 
   usart_printf("\n--------\n");
