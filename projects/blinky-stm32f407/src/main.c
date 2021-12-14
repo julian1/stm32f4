@@ -456,9 +456,22 @@ int main(void)
     x = LCD_ReadReg( reg );
     // usart_printf("reg %u (%x)  read %u   %s\n", reg, reg, x, format_bits(buf, 16, x));
     // EXTR... there's a memory issue is this string gets too long?
-    usart_printf("reg %u (%x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
-    msleep(1);
+    usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
+    msleep(10);
   }
+
+/*
+  usart_printf("----\n");
+  msleep(20);
+  for(reg = 0x0A; reg < 72 ; reg++) {
+    x = LCD_ReadReg( reg );
+    // usart_printf("reg %u (%x)  read %u   %s\n", reg, reg, x, format_bits(buf, 16, x));
+    // EXTR... there's a memory issue is this string gets too long?
+    usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
+    msleep(10);
+  }
+*/
+
 
   /*
     OK. the bottom two bits of 0x0D  get_display_mode should be hi. according to doc.
@@ -483,8 +496,28 @@ int main(void)
 
     - make sure we are not sending a parameter. which could throw things off.
     - need to probe everything.
+
+first time.
+  reg 10 (a)  r 0  0000000000000000
+  reg 11 (b)  r 8  0000000000001000
+  reg 12 (c)  r 0  0000000000000000
+  reg 13 (d)  r 0  0000000000000000
+  reg 14 (e)  r 3  0000000000000011
+  reg 15 (f)  r 0  0000000000000000
+  reg 16 (10)  r 0  0000000000000000
+
   
-  */
+second time.
+  reg 10 (a)  r 0  0000000000000000
+  reg 11 (b)  r 92  0000000001011100
+  reg 12 (c)  r 0  0000000000000000
+  reg 13 (d)  r 0  0000000000000000
+  reg 14 (e)  r 35  0000000000100011
+  reg 15 (f)  r 0  0000000000000000
+
+
+  so reading is changing values somehow...
+*/
 
 /*
   /////////////
