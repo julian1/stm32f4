@@ -435,9 +435,17 @@ int main(void)
   // ok. its an interleaving issue. the value read. is getting the value from the previous register read ...
   // because 16/8 bit issue?
 
+  // is our fsmc configured as 16 bit or 8 bit?
+
   ///////////  EXTR. 0A == 1000   correct.  read works.   but only on the second try. 
   //                 0D == 0011   correct. read works but only on second time.
-  // we may need to intersperse read and write. 
+  // we may need to intersperse read and write. or pad it... 
+  // interleaving?
+  // OR. are we not handling correctly - when expect a parameter
+  // OR. ccould be fsmc setup.
+
+  // LCD_ReadReg( 0x00 );  // nop
+
   while(1) {
     // reg = 0x0A;
     reg = 0x0D;
@@ -512,6 +520,8 @@ int main(void)
 
     - setup on loop.  just on the d register...
         nothing else - that could be interpreted differently as a write.
+
+    - review what other fsmc for ssd1936 uses.
 
 first time.
   reg 10 (a)  r 0  0000000000000000
