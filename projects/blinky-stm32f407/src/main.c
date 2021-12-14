@@ -154,7 +154,7 @@ static void tft_gpio_init(void)
 
 
   // reset. pull lo then high.
-  gpio_clear( TFT_GPIO_PORT, TFT_REST); 
+  gpio_clear( TFT_GPIO_PORT, TFT_REST);
   msleep(20);
   gpio_set( TFT_GPIO_PORT, TFT_REST);
   msleep(200);
@@ -229,7 +229,7 @@ static void fsmc_setup(void)
 
 
  /* config FSMC A16 for D/C (select Data/Command ) */
-  /* JA PD11  RS */ 
+  /* JA PD11  RS */
   // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO11);
   gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11);
   gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO11);
@@ -301,7 +301,7 @@ static uint16_t LCD_ReadRAM(void)
   // JA
   LCD->LCD_REG = 0x0A ; /* Select GRAM Reg */
                           // 0x0A get power mode....
-                          // hang on. these are commands... that accept parameters... 
+                          // hang on. these are commands... that accept parameters...
 
   /* Read 16-bit Reg */
 
@@ -417,11 +417,11 @@ int main(void)
   usart_printf("\n--------");
   usart_printf("\nstarting\n");
 
-  // 0x0A is the power mode?????   - we could test if power 
+  // 0x0A is the power mode?????   - we could test if power
   // need bit presentation
 
   char buf[100];
-  // uint16_t reg = 0x0A; // get_power_mode.   successive read can change 4th bit. 
+  // uint16_t reg = 0x0A; // get_power_mode.   successive read can change 4th bit.
   uint16_t reg = 0x0B;  // get_address_mode.  nothing changes????
   volatile uint16_t x;
 
@@ -465,7 +465,7 @@ int main(void)
     manual states on 8bits used.
 
     TRY
-    - should try a write - and see which values get written. 
+    - should try a write - and see which values get written.
     - should read all registers twice. make sure nothing changes.
 
     - make sure we are not sending a parameter. which could throw things off.
@@ -475,10 +475,13 @@ int main(void)
 
     - does it need an entry in the linker script?
 
-    - we need to understand how arguments are presented.  
+    - we need to understand how arguments are presented.
         is it a series of writes.
 
     - is a write with no arguments the same as a read.
+
+    - setup on loop.  just on the d register...
+        nothing else - that could be interpreted differently as a write.
 
 first time.
   reg 10 (a)  r 0  0000000000000000
@@ -489,8 +492,9 @@ first time.
   reg 15 (f)  r 0  0000000000000000
   reg 16 (10)  r 0  0000000000000000
 
-  
-second time.
+
+second time. (think that just accessing a address - may be a command,  )...
+should try a loop for the same address...
   reg 10 (a)  r 0  0000000000000000
   reg 11 (b)  r 92  0000000001011100
   reg 12 (c)  r 0  0000000000000000
@@ -557,14 +561,14 @@ second time.
 #endif
 
 
-  // so a write 
+  // so a write
 
 
 
 /*
     - should try a soft reset command. and see if it clears it?
 
-    - also need to probe the scope - to make sure all bits/ are soldered ok. 
+    - also need to probe the scope - to make sure all bits/ are soldered ok.
 */
 
 /*
