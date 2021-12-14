@@ -432,18 +432,26 @@ int main(void)
   usart_printf("\n--------");
   usart_printf("\nstarting\n");
 
+  // 0x0A is the power mode?????   - we could test if power 
+  // need bit presentation
+
+  uint16_t reg = 0x0A;
   uint16_t x;
-  x = LCD_ReadReg(0x0A );
+  x = LCD_ReadReg( reg );
   usart_printf("read %u\n\n", x);
 
   usart_printf("write ram \n");
-  LCD_WriteReg(0x0A , 0xff );
+  LCD_WriteReg( reg , 0xff );
   x = LCD_ReadReg(0x0A );
   usart_printf("read %u\n\n", x);
 
-  x = LCD_ReadReg(0x0A );
+  x = LCD_ReadReg( reg );
   usart_printf("read %u\n\n", x);
   // prints 8? after writing??.
+
+/*
+    should try a soft reset command. and see if it clears it?
+*/
 
 /*
   usart_printf("\n--------\n");
