@@ -220,6 +220,7 @@ static void fsmc_setup(void)
 
 
  /* config FSMC NE1 */
+  /* JA PD7 CS */
   // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO7);
   gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO7);
   gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO7);
@@ -228,6 +229,7 @@ static void fsmc_setup(void)
 
 
  /* config FSMC A16 for D/C (select Data/Command ) */
+  /* JA PD11  RS */ 
   // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO11);
   gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11);
   gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO11);
@@ -306,6 +308,14 @@ static uint16_t LCD_ReadRAM(void)
  }
 #endif
 
+
+static uint16_t LCD_ReadReg(uint8_t LCD_Reg);
+
+static void LCD_WriteReg(uint8_t LCD_Reg, uint16_t LCD_RegValue);
+
+
+
+// put the code after the function. to prevent inlining.
 
 static uint16_t LCD_ReadReg(uint8_t LCD_Reg)
  {
@@ -442,7 +452,7 @@ int main(void)
   volatile uint16_t x;
 
 
-  for(reg = 0x0A; reg < 72 ; ++reg) {
+  for(reg = 0x0A; reg < 72 ; reg++) {
     x = LCD_ReadReg( reg );
     // usart_printf("reg %u (%x)  read %u   %s\n", reg, reg, x, format_bits(buf, 16, x));
     // EXTR... there's a memory issue is this string gets too long?
@@ -466,6 +476,14 @@ int main(void)
 
     possible high byte of register - should be configured differently?
     manual states on 8bits used.
+
+    TRY
+    - should try a write - and see which values get written. 
+    - should read all registers twice. make sure nothing changes.
+
+    - make sure we are not sending a parameter. which could throw things off.
+    - need to probe everything.
+  
   */
 
 /*
