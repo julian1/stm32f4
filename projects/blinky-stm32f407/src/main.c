@@ -428,8 +428,8 @@ int main(void)
 
 
   
-  LCD_TouchReg( 0x01 );  // soft reset
-  LCD_TouchReg( 0x01 );  // soft reset
+  // LCD_TouchReg( 0x01 );  // soft reset
+  // LCD_TouchReg( 0x01 );  // soft reset
   msleep(1000);
 
   // ok. its an interleaving issue. the value read. is getting the value from the previous register read ...
@@ -643,11 +643,9 @@ static uint16_t LCD_ReadReg(uint8_t LCD_Reg)
  {
 
   /* Write 16-bit Index (then Read Reg) */
-
   LCD->LCD_REG = LCD_Reg;
 
   /* Read 16-bit Reg */
-
   return (LCD->LCD_RAM);
  }
 
@@ -656,11 +654,9 @@ static void LCD_WriteReg(uint8_t LCD_Reg, uint16_t LCD_RegValue)
  {
 
   /* Write 16-bit Index, then Write Reg */
-
   LCD->LCD_REG = LCD_Reg;
 
   /* Write 16-bit Reg */
-
   LCD->LCD_RAM = LCD_RegValue;
  }
 
