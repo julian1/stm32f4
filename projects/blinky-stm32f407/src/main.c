@@ -153,13 +153,19 @@ static void tft_gpio_init(void)
   gpio_set( TFT_GPIO_PORT, TFT_LED_A ); // turn on backlight. works!!!
 
 
+  usart_printf("pull reset lo\n");
   // reset. pull lo then high.
   gpio_clear( TFT_GPIO_PORT, TFT_REST);
-  msleep(20);
+  msleep(1000);
+  usart_printf("pull reset hi\n");
   gpio_set( TFT_GPIO_PORT, TFT_REST);
-  msleep(200);
+  msleep(1000);
 
 }
+
+
+
+
 
 
 
@@ -328,7 +334,7 @@ int main(void)
 
   // required for usb
 	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz. works stm32f407 too.
-	// rcc_clock_setup_pll(&rcc_hse_12mhz_3v3[RCC_CLOCK_3V3_168MHZ] );  // stm32f407
+	// rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ] );  // stm32f407
 
   /*
   // http://libopencm3.org/docs/latest/stm32f4/html/f4_2rcc_8h.html
@@ -373,6 +379,7 @@ int main(void)
 */
   // 84MHz.
   systick_setup(84000);
+  // systick_setup(168000);
   // systick_setup(16000);
 
 
