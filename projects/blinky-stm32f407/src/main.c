@@ -45,6 +45,7 @@
 #include "cdcacm.h"
 
 
+#include "str.h"  //format_bits
 
 
 typedef struct app_t
@@ -190,7 +191,7 @@ static void fsmc_setup(void)
   uint16_t portd_gpios = GPIO0 | GPIO1 | GPIO8 | GPIO9 | GPIO10 | GPIO14 | GPIO15;
   // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, portd_gpios);
   gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, portd_gpios);
-  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, portd_gpios);
+  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, portd_gpios);
   gpio_set_af(GPIOD, GPIO_AF12, portd_gpios);
 
 
@@ -198,7 +199,7 @@ static void fsmc_setup(void)
   uint16_t porte_gpios = GPIO7 | GPIO8 | GPIO9 | GPIO10 | GPIO11 | GPIO12 | GPIO13 | GPIO14 | GPIO15;
   // gpio_set_mode(GPIOE, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, porte_gpios);
   gpio_mode_setup(GPIOE, GPIO_MODE_AF, GPIO_PUPD_NONE, porte_gpios);
-  gpio_set_output_options(GPIOE, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, porte_gpios);
+  gpio_set_output_options(GPIOE, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, porte_gpios);
   gpio_set_af(GPIOE, GPIO_AF12, porte_gpios);
 
 
@@ -207,21 +208,21 @@ static void fsmc_setup(void)
  /* config FSMC NOE */
   // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO4);
   gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO4);
-  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO4);
+  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO4);
   gpio_set_af(GPIOD, GPIO_AF12, GPIO4);
 
 
  /* config FSMC NWE */
   // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO5);
   gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO5);
-  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO5);
+  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO5);
   gpio_set_af(GPIOD, GPIO_AF12, GPIO5);
 
 
  /* config FSMC NE1 */
   // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO7);
   gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO7);
-  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO7);
+  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO7);
   gpio_set_af(GPIOD, GPIO_AF12, GPIO7);
 
 
@@ -229,7 +230,7 @@ static void fsmc_setup(void)
  /* config FSMC A16 for D/C (select Data/Command ) */
   // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO11);
   gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11);
-  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO11);
+  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO11);
   gpio_set_af(GPIOD, GPIO_AF12, GPIO11);
 
 
@@ -417,12 +418,12 @@ int main(void)
 
 
 
-  // do the reset.
-  tft_gpio_init();
-
 
   // make sure have access to usart_printf
   fsmc_setup();
+
+  // do the reset.
+  tft_gpio_init();
 
 
   // uint16_t x = LCD_ReadRAM();
@@ -435,19 +436,96 @@ int main(void)
   // 0x0A is the power mode?????   - we could test if power 
   // need bit presentation
 
-  uint16_t reg = 0x0A;
-  uint16_t x;
-  x = LCD_ReadReg( reg );
-  usart_printf("read %u\n\n", x);
+  char buf[100];
+  // uint16_t reg = 0x0A; // get_power_mode.   successive read can change 4th bit. 
+  uint16_t reg = 0x0B;  // get_address_mode.  nothing changes????
+  volatile uint16_t x;
 
+
+  for(reg = 0x0A; reg < 72 ; ++reg) {
+    x = LCD_ReadReg( reg );
+    // usart_printf("reg %u (%x)  read %u   %s\n", reg, reg, x, format_bits(buf, 16, x));
+    // EXTR... there's a memory issue is this string gets too long?
+    usart_printf("reg %u (%x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
+    msleep(1);
+  }
+
+  /*
+    OK. the bottom two bits of 0x0D  get_display_mode should be hi. according to doc.
+    while our code. bottom bits of 0x0E are high.
+
+    because the sequencing is out of alignment???
+    NOP (0) and soft reset (1) take no parameters
+    --------------
+
+    bits are mixed up.  reg 0x0a should have D3. on at POR.
+    instead             reg 0x0b has this bit.
+
+                        reg 0x0d should have D0 and D1 at POR
+    instead             reg 0x0e has these set.
+
+    possible high byte of register - should be configured differently?
+    manual states on 8bits used.
+  */
+
+/*
+  /////////////
+  usart_printf("reset cmd\n");
+  LCD_WriteReg( 0x01 , 0x0 ); // soft reset. takes no parameter. but we are giving it one.
+  msleep(10); // sleep is required.
+*/
+
+
+
+  // conssequtive reads and the value changes...
+#if 0
+  x = LCD_ReadReg( reg );
+  usart_printf("read %u   %s\n", x, format_bits(buf, 8, x));
+
+  x = LCD_ReadReg( reg );
+  usart_printf("read %u   %s\n", x, format_bits(buf, 8, x));
+
+
+  // any kind of write value... sets a bit...
   usart_printf("write ram \n");
-  LCD_WriteReg( reg , 0xff );
-  x = LCD_ReadReg(0x0A );
-  usart_printf("read %u\n\n", x);
+  LCD_WriteReg( reg , 0x00 );
 
   x = LCD_ReadReg( reg );
-  usart_printf("read %u\n\n", x);
-  // prints 8? after writing??.
+  usart_printf("read %u   %s\n", x, format_bits(buf, 8, x));
+
+  x = LCD_ReadReg( reg );
+  usart_printf("read %u   %s\n", x, format_bits(buf, 8, x));
+
+  /////////////
+  usart_printf("reset cmd\n");
+  LCD_WriteReg( 0x01 , 0x0 ); // soft reset. takes no parameter. but we are giving it one.
+  msleep(10); // sleep is required.
+
+  x = LCD_ReadReg( reg );
+  usart_printf("read %u   %s\n", x, format_bits(buf, 8, x));
+
+
+
+  // ok writing a 0, and we end up with a value...
+  // no it appears the second time we read... it changes the value....
+
+  usart_printf("write 0 \n");
+  LCD_WriteReg( reg , 0x00 );
+  x = LCD_ReadReg( reg );
+
+  x = LCD_ReadReg( reg );
+  usart_printf("read %u   %s\n", x, format_bits(buf, 8, x));
+
+  x = LCD_ReadReg( reg );
+  usart_printf("read %u   %s\n", x, format_bits(buf, 8, x));
+
+
+#endif
+
+
+  // so a write 
+
+
 
 /*
     - should try a soft reset command. and see if it clears it?
