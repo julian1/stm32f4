@@ -310,6 +310,8 @@ static uint16_t LCD_ReadRAM(void)
 #endif
 
 
+static void LCD_TouchReg(uint8_t LCD_Reg);
+
 static uint16_t LCD_ReadReg(uint8_t LCD_Reg);
 
 static void LCD_WriteReg(uint8_t LCD_Reg, uint16_t LCD_RegValue);
@@ -410,7 +412,6 @@ int main(void)
   tft_gpio_init();
 
 
-  // uint16_t x = LCD_ReadRAM();
 
 
 
@@ -426,14 +427,30 @@ int main(void)
   volatile uint16_t x;
 
 
+  
+  LCD_TouchReg( 0x01 );  // soft reset
+  LCD_TouchReg( 0x01 );  // soft reset
+  msleep(1000);
+
+  // ok. its an interleaving issue. the value read. is getting the value from the previous register read ...
+  // because 16/8 bit issue?
+
   ///////////  EXTR. 0A == 1000   correct.  read works.   but only on the second try. 
   //                 0D == 0011   correct. read works but only on second time.
+  // we may need to intersperse read and write. 
   while(1) {
     // reg = 0x0A;
     reg = 0x0D;
     x = LCD_ReadReg( reg );
     usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
     msleep(1000);
+
+    reg = 0x0A;
+    x = LCD_ReadReg( reg );
+    usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
+    msleep(1000);
+
+
   }
 
 
@@ -601,6 +618,16 @@ should try a loop for the same address...
 }
 
 // put the code after the function. to prevent inlining.
+
+
+
+static void LCD_TouchReg(uint8_t LCD_Reg)
+{
+  /* Write 16-bit Index (then Read Reg) */
+  LCD->LCD_REG = LCD_Reg;
+
+
+}
 
 static uint16_t LCD_ReadReg(uint8_t LCD_Reg)
  {
