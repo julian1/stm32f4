@@ -450,7 +450,9 @@ int main(void)
   // prints 8? after writing??.
 
 /*
-    should try a soft reset command. and see if it clears it?
+    - should try a soft reset command. and see if it clears it?
+
+    - also need to probe the scope - to make sure all bits/ are soldered ok. 
 */
 
 /*
