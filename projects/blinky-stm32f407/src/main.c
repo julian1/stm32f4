@@ -110,7 +110,7 @@ static void loop(app_t *app)
     if( (system_millis - soft_500ms) > 500) {
       soft_500ms += 500;
       led_toggle();
-      usart_printf("here\n");
+      // usart_printf("here\n");
     }
 
   }
@@ -156,6 +156,7 @@ static void tft_gpio_init(void)
   gpio_clear( TFT_GPIO_PORT, TFT_REST); 
   msleep(20);
   gpio_set( TFT_GPIO_PORT, TFT_REST);
+  msleep(200);
 
 }
 
@@ -182,32 +183,58 @@ static void fsmc_setup(void)
   rcc_periph_clock_enable(RCC_FSMC);
 
 
- /* config FSMC data lines */
-#if 0
-  uint16_t portd_gpios = GPIO0 | GPIO1 | GPIO8 | GPIO9 | GPIO10 | GPIO14 | GPIO15;
 
-  gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, portd_gpios);
+
+ /* config FSMC data lines */
+
+  uint16_t portd_gpios = GPIO0 | GPIO1 | GPIO8 | GPIO9 | GPIO10 | GPIO14 | GPIO15;
+  // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, portd_gpios);
+  gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, portd_gpios);
+  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, portd_gpios);
+  gpio_set_af(GPIOD, GPIO_AF12, portd_gpios);
+
 
 
   uint16_t porte_gpios = GPIO7 | GPIO8 | GPIO9 | GPIO10 | GPIO11 | GPIO12 | GPIO13 | GPIO14 | GPIO15;
+  // gpio_set_mode(GPIOE, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, porte_gpios);
+  gpio_mode_setup(GPIOE, GPIO_MODE_AF, GPIO_PUPD_NONE, porte_gpios);
+  gpio_set_output_options(GPIOE, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, porte_gpios);
+  gpio_set_af(GPIOE, GPIO_AF12, porte_gpios);
 
-  gpio_set_mode(GPIOE, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, porte_gpios);
 
+  // these could be consolidated...
 
  /* config FSMC NOE */
-  gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO4);
+  // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO4);
+  gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO4);
+  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO4);
+  gpio_set_af(GPIOD, GPIO_AF12, GPIO4);
 
 
  /* config FSMC NWE */
-  gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO5);
+  // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO5);
+  gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO5);
+  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO5);
+  gpio_set_af(GPIOD, GPIO_AF12, GPIO5);
 
 
  /* config FSMC NE1 */
-  gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO7);
+  // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO7);
+  gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO7);
+  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO7);
+  gpio_set_af(GPIOD, GPIO_AF12, GPIO7);
+
 
 
  /* config FSMC A16 for D/C (select Data/Command ) */
-  gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO11);
+  // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO11);
+  gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11);
+  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO11);
+  gpio_set_af(GPIOD, GPIO_AF12, GPIO11);
+
+
+
+#if 0
 #endif
 
 
@@ -258,6 +285,8 @@ When you access A16 is 1 in LCD-> LCD_RAM. (Address 0x60020000)
 #define LCD         ((LCD_TypeDef *) LCD_BASE)
 
 
+#if 0
+
 static uint16_t LCD_ReadRAM(void)
  {
 
@@ -266,13 +295,41 @@ static uint16_t LCD_ReadRAM(void)
   // LCD->LCD_REG = R34 /* Select GRAM Reg */
 
   // JA
-  LCD->LCD_REG = 34; /* Select GRAM Reg */
+  LCD->LCD_REG = 0x0A ; /* Select GRAM Reg */
+                          // 0x0A get power mode....
+                          // hang on. these are commands... that accept parameters... 
 
   /* Read 16-bit Reg */
 
   return LCD->LCD_RAM;
  }
+#endif
 
+
+static uint16_t LCD_ReadReg(uint8_t LCD_Reg)
+ {
+
+  /* Write 16-bit Index (then Read Reg) */
+
+  LCD->LCD_REG = LCD_Reg;
+
+  /* Read 16-bit Reg */
+
+  return (LCD->LCD_RAM);
+ }
+
+
+static void LCD_WriteReg(uint8_t LCD_Reg, uint16_t LCD_RegValue)
+ {
+
+  /* Write 16-bit Index, then Write Reg */
+
+  LCD->LCD_REG = LCD_Reg;
+
+  /* Write 16-bit Reg */
+
+  LCD->LCD_RAM = LCD_RegValue;
+ }
 
 
 
@@ -359,18 +416,42 @@ int main(void)
   ASSERT(app.usbd_dev);
 
 
-  // make sure have access to usart_printf
-  fsmc_setup();
 
   // do the reset.
   tft_gpio_init();
 
 
+  // make sure have access to usart_printf
+  fsmc_setup();
+
+
+  // uint16_t x = LCD_ReadRAM();
+
+
+
+  usart_printf("\n--------");
+  usart_printf("\nstarting\n");
+
+  uint16_t x;
+  x = LCD_ReadReg(0x0A );
+  usart_printf("read %u\n\n", x);
+
+  usart_printf("write ram \n");
+  LCD_WriteReg(0x0A , 0xff );
+  x = LCD_ReadReg(0x0A );
+  usart_printf("read %u\n\n", x);
+
+  x = LCD_ReadReg(0x0A );
+  usart_printf("read %u\n\n", x);
+  // prints 8? after writing??.
+
+/*
   usart_printf("\n--------\n");
   usart_printf("starting loop\n");
   usart_printf("sizeof bool   %u\n", sizeof(bool));
   usart_printf("sizeof float  %u\n", sizeof(float));
   usart_printf("sizeof double %u\n", sizeof(double));
+*/
   // test assert failure
   ASSERT(1 == 2);
 

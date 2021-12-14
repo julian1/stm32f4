@@ -237,7 +237,7 @@ static uint16_t LCD_ReadRAM(void)
   // LCD->LCD_REG = R34 /* Select GRAM Reg */
 
   // JA
-  LCD->LCD_REG = 34; /* Select GRAM Reg */
+  LCD->LCD_REG = 0; /* Select GRAM Reg */
 
   /* Read 16-bit Reg */
 
