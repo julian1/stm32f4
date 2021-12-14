@@ -157,6 +157,19 @@ int main(void)
 	// rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_OTGFS);
 
+  // SHOULD PUT ALL TFT stuff in header... or at least predeclare.
+  // parallel tft / ssd1963
+  rcc_periph_clock_enable(RCC_GPIOE);
+  rcc_periph_clock_enable(RCC_GPIOD);
+
+
+  #define TFT_GPIO_PORT       GPIOE
+  #define TFT_LED_A            GPIO2
+
+  gpio_mode_setup(TFT_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, TFT_LED_A);
+  gpio_set( TFT_GPIO_PORT, TFT_LED_A ); // turn on backlight. works!!!
+
+
   // spi / ice40
   // rcc_periph_clock_enable(RCC_SPI1);
 
