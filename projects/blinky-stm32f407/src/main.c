@@ -466,6 +466,14 @@ int main(void)
     msleep(1000);
 
 
+
+    reg = 0x26;   // == 1000
+    x = LCD_ReadReg( reg );
+    usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
+    msleep(1000);
+
+
+
   }
 
 
