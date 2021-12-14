@@ -245,6 +245,7 @@ static void fsmc_setup(void)
   FSMC_BTR(0) = FSMC_BTR_ACCMODx(FSMC_BTx_ACCMOD_B) |
                 FSMC_BTR_DATLATx(0)  |
                 FSMC_BTR_CLKDIVx(0)  |
+                // FSMC_BTR_CLKDIVx(16)  |
                 FSMC_BTR_BUSTURNx(0) |
                 FSMC_BTR_DATASTx(5)  |
                 FSMC_BTR_ADDHLDx(0)  |
@@ -314,33 +315,6 @@ static uint16_t LCD_ReadReg(uint8_t LCD_Reg);
 static void LCD_WriteReg(uint8_t LCD_Reg, uint16_t LCD_RegValue);
 
 
-
-// put the code after the function. to prevent inlining.
-
-static uint16_t LCD_ReadReg(uint8_t LCD_Reg)
- {
-
-  /* Write 16-bit Index (then Read Reg) */
-
-  LCD->LCD_REG = LCD_Reg;
-
-  /* Read 16-bit Reg */
-
-  return (LCD->LCD_RAM);
- }
-
-
-static void LCD_WriteReg(uint8_t LCD_Reg, uint16_t LCD_RegValue)
- {
-
-  /* Write 16-bit Index, then Write Reg */
-
-  LCD->LCD_REG = LCD_Reg;
-
-  /* Write 16-bit Reg */
-
-  LCD->LCD_RAM = LCD_RegValue;
- }
 
 
 
@@ -497,6 +471,15 @@ int main(void)
     - make sure we are not sending a parameter. which could throw things off.
     - need to probe everything.
 
+    - bitbang as gpio. eg. just try to read a copule of registers.
+
+    - does it need an entry in the linker script?
+
+    - we need to understand how arguments are presented.  
+        is it a series of writes.
+
+    - is a write with no arguments the same as a read.
+
 first time.
   reg 10 (a)  r 0  0000000000000000
   reg 11 (b)  r 8  0000000000001000
@@ -599,5 +582,32 @@ second time.
 
   loop(&app);
 }
+
+// put the code after the function. to prevent inlining.
+
+static uint16_t LCD_ReadReg(uint8_t LCD_Reg)
+ {
+
+  /* Write 16-bit Index (then Read Reg) */
+
+  LCD->LCD_REG = LCD_Reg;
+
+  /* Read 16-bit Reg */
+
+  return (LCD->LCD_RAM);
+ }
+
+
+static void LCD_WriteReg(uint8_t LCD_Reg, uint16_t LCD_RegValue)
+ {
+
+  /* Write 16-bit Index, then Write Reg */
+
+  LCD->LCD_REG = LCD_Reg;
+
+  /* Write 16-bit Reg */
+
+  LCD->LCD_RAM = LCD_RegValue;
+ }
 
 
