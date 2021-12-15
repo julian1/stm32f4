@@ -324,6 +324,7 @@ static void LCD_Init(void)
 */
 
 
+/*
   // and when we read the register 
   // probe cannot pick up any clock on pin 30 of tft.
                           // 73727
@@ -331,10 +332,10 @@ static void LCD_Init(void)
   LCD_Write_DATA(0x01);
   LCD_Write_DATA(0x1F);
   LCD_Write_DATA(0xFF);
+*/
 
 
 
-/*
   // we really need to scope this... somehow
   // to see if writing works.
   // JA 105000 ==  19A28
@@ -344,7 +345,7 @@ static void LCD_Init(void)
   LCD_Write_DATA(0x01);
   LCD_Write_DATA(0xA2);
   LCD_Write_DATA(0x28);
-*/
+
 
 
   LCD_Write_COM(0xB0);    //LCD SPECIFICATION
@@ -419,6 +420,7 @@ static void LCD_Init(void)
   for( int i  = 0; i < 480*272 ; ++i ) {
     LCD_Write_DATA(0x06);
     LCD_Write_DATA(0xff);
+    LCD_Write_DATA(0x7f);
   }
  
   // break;
