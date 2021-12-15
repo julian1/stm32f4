@@ -390,8 +390,8 @@ static void LCD_Init(void)
 
 
   LCD_Write_COM(0xF0);    //pixel data interface
-  //LCD_Write_DATA(0x03);       // JA 101 24-bit default.
-  LCD_Write_DATA(0b101 );       // JA 101 24-bit default.
+  LCD_Write_DATA(0x03);       // 
+  // LCD_Write_DATA(0b101 );       // JA 101 24-bit default.
 
 
 
@@ -432,11 +432,43 @@ static void LCD_Init(void)
   for( int i  = 20 * 20 ; i < 100 * 200; ++i ) {
 
     // NO. should be 16bit values.... not 8 bit. eg. only registers use lower 8 bits of 16 bit bus. 
-    LCD_Write_DATA(0xff << 8 | 0x00 );
-    LCD_Write_DATA(0xff << 8 | 0x00 );
-    LCD_Write_DATA(0xff << 8 | 0x00 );
+    // LCD_Write_DATA(0xff << 6 | 0x00 );
+    // LCD_Write_DATA(0x0 << 8 | 0x00 );
+    // LCD_Write_DATA(0xff << 8 | 0x00 );
     // LCD_Write_DATA(0x00); // hmmmmm
     // LCD_Write_DATA(0xff );
+  
+    // this is bright red
+    // LCD_Write_DATA(  0x00 | 0xff >> 5);
+
+    // 
+    // 11111 = 1F
+    // 111111 == 3F 
+
+    // bright red
+    // LCD_Write_DATA(   (0x1f ) ) ;
+
+    // bright yellow
+    // LCD_Write_DATA(   (0x1fu ) << 11) ;
+
+    // 101 = 565 format
+    uint16_t r = 0x0, g = 0x00, b = 0xff; 
+    // white/ grety
+    // LCD_Write_DATA(   0xffff   ) ;
+
+    /*
+    // using 6 values like this gives two colors...
+    LCD_Write_DATA(   r << 8 | g  ) ;
+    LCD_Write_DATA(   b << 8 | r ) ;
+    LCD_Write_DATA(   g << 8 | b ) ;
+    */
+
+    LCD_Write_DATA(   (r & 0x1f) << 11 | (g & 0x3f << 6) | (b & 0x1f ) ) ;
+    // LCD_Write_DATA(   b ) ;
+//     LCD_Write_DATA(   b << 8 | r ) ;
+//     LCD_Write_DATA(   g << 8 | b ) ;
+ 
+
   }
 
 
