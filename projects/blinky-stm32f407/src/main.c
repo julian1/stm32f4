@@ -306,6 +306,8 @@ int main(void)
 
       data setup is slowed. divider == 12 initially.
       FSMC_NORSRAMTimingInitStructureRead.FSMC_DataSetupTime = 5 * divider;
+
+      then later does a full speed reconfig with divider == 1.
   */
 
   while(1) {
