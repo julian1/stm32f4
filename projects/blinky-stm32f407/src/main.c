@@ -269,7 +269,7 @@ int main(void)
 
   */
 
-#if 1
+#if 0
   while(1) {
 
     // also see read_ddb. a lot of serial stuff. 
@@ -317,6 +317,7 @@ int main(void)
       then later does a full speed reconfig with divider == 1.
   */
 
+#if 0
   while(1) {
 
     // also see read_ddb. a lot of serial stuff. 
@@ -324,14 +325,15 @@ int main(void)
     reg = 0x0A;   // == 1000
 
     LCD_SetAddr(reg );
-    usart_printf("reg %u (%02x)  r\n", reg,  reg);
     x = LCD_ReadData();   // EXTR. OK. interleaving the write, and read data with printf... slows things down enough to get the correct response.
+                          // unless one changes the setup time.
+    usart_printf("reg %u (%02x)  r\n", reg,  reg);
     usart_printf("%03u  %s\n", x, format_bits(buf, 16, x));
 
 
     msleep(1000);
   }
-
+#endif
 
 
 
@@ -350,33 +352,43 @@ int main(void)
 
     // also see read_ddb. a lot of serial stuff. 
 
+    usart_printf("---------\n");
+#if 1
     reg = 0x0A;   // == 1000
     LCD_SetAddr(reg );
-    // x = LCD_ReadReg( reg );
     x = LCD_ReadData();
     usart_printf("reg %u (%02x)", reg,  reg);
     usart_printf("%03u  %s\n", x, format_bits(buf, 16, x)); // maybe the printf buf. is not being copied???? 
-    msleep(1000);
+    // msleep(1000);
 
-    // reg = 0x0A;
     reg = 0x0D;   // == 11
     LCD_SetAddr(reg );
-    // x = LCD_ReadReg( reg );
     x = LCD_ReadData();
     usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
-    msleep(1000);
+    // msleep(1000);
 
-/*
+    reg = 0x0A;   // == 1000
+    LCD_SetAddr(reg );
+    x = LCD_ReadData();
+    usart_printf("reg %u (%02x)", reg,  reg);
+    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x)); // maybe the printf buf. is not being copied???? 
 
-  // wrong....
-  // does it take parameters???? though... 
-    reg = 0x26;   // == 1000
+
+    msleep(200);
+
+
+
+#endif
+
+    /* this reg is weird.
+    reg = 0x26;   
     LCD_SetAddr(reg );
     // x = LCD_ReadReg( reg );
     x = LCD_ReadData();
     usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
     msleep(1000);
-*/
+    */
+
 
 
   }
