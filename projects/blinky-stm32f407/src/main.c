@@ -133,12 +133,15 @@ static app_t app;
 /*********************************************************/
 static void LCD_Init(void) 
 {
+  usart_printf("-----------\n");
+  usart_printf("LCD_Init\n");
 
   // LCD_Configuration();
+  // fsmc_gpio_setup();
   fsmc_setup(12);
   tft_reset();
 
-#if 0
+#if 1
   /* Set MN(multipliers) of PLL, VCO = crystal freq * (N+1) */
   /* PLL freq = VCO/M with 250MHz < VCO < 800MHz */
   /* The max PLL freq is around 120MHz. To obtain 120MHz as the PLL freq */
@@ -246,10 +249,10 @@ int main(void)
 
   fsmc_gpio_setup();
 
-  fsmc_setup(12);
-  tft_reset();
+  // fsmc_setup(12);
+  // tft_reset();
 
-
+  LCD_Init(); 
 
 
 
@@ -281,7 +284,6 @@ int main(void)
     reg = 0xA1;   // read_ddb,    5 parameter register.
 
     LCD_SetAddr(reg );
-    usart_printf("reg %u (%02x)  r\n", reg,  reg);
 
     uint16_t x1 = LCD_ReadData();
     uint16_t x2 = LCD_ReadData();
@@ -289,6 +291,7 @@ int main(void)
     uint16_t x4 = LCD_ReadData();
     uint16_t x5 = LCD_ReadData();
 
+    usart_printf("reg %u (%02x)  r\n", reg,  reg);
     usart_printf("%03u  %s\n", x1, format_bits(buf, 16, x1));
     usart_printf("%03u  %s\n", x2, format_bits(buf, 16, x2));
     usart_printf("%03u  %s\n", x3, format_bits(buf, 16, x3));
@@ -301,7 +304,6 @@ int main(void)
 
 
 
-  // THIS LOOP is now no longer working????
 
 
   LCD_SetAddr( 0x01 );

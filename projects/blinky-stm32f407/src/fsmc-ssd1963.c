@@ -192,26 +192,6 @@ When you access A16 is 1 in LCD-> LCD_RAM. (Address 0x60020000)
 #define LCD         ((LCD_TypeDef *) LCD_BASE)
 
 
-#if 0
-
-static uint16_t LCD_ReadRAM(void)
- {
-
-  /* Write 16-bit Index (then Read Reg) */
-
-  // LCD->LCD_REG = R34 /* Select GRAM Reg */
-
-  // JA
-  LCD->LCD_REG = 0x0A ; /* Select GRAM Reg */
-                          // 0x0A get power mode....
-                          // hang on. these are commands... that accept parameters...
-
-  /* Read 16-bit Reg */
-
-  return LCD->LCD_RAM;
- }
-#endif
-
 
 
 
@@ -220,17 +200,42 @@ void LCD_SetAddr(uint8_t LCD_Reg)
 {
   /* Write 16-bit Index (then Read Reg) */
   LCD->LCD_REG = LCD_Reg;
-
-
 }
 
 
-uint16_t LCD_ReadData()
-{
-  /* Read 16-bit Reg */
+
+
+
+//////////
+/* 
+  TODO.
+  should be static incline...
+  change later. 
+
+*/
+
+
+
+void LCD_WriteCommand(uint16_t cmd) {
+  /* Write cmd */
+  // LCD_REG = cmd;
+  LCD->LCD_REG = cmd;
+}
+
+void LCD_WriteData(uint16_t data) {
+  /* Write 16-bit data */
+  // LCD_RAM = data;
+  LCD->LCD_RAM = data;
+}
+
+uint16_t LCD_ReadData(void) {
+  /* Read 16-bit data */
+  // return LCD_RAM;
   return (LCD->LCD_RAM);
-
 }
+
+
+
 
 //////////////////
 
