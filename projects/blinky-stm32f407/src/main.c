@@ -155,6 +155,8 @@ static app_t app;
 
     LCDC_FPR  = 12MHz.  which good for spec.
 
+  screen datasheet.
+    GL043036C0-40
       https://chfile.cn.gcimg.net/gcwthird/day_20170726/efe81a3b93u32f90950f5i86c0104575.pdf
   search on
 
