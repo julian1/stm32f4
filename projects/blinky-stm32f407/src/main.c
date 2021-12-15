@@ -452,22 +452,16 @@ static void LCD_Init(void)
     // LCD_Write_DATA(   (0x1fu ) << 11) ;
 
     // 101 = 565 format
-    uint16_t r = 0x0, g = 0x00, b = 0xff; 
+    uint16_t r = 0x0, g = 0xff, b = 0x00; 
     // white/ grety
     // LCD_Write_DATA(   0xffff   ) ;
 
-    /*
-    // using 6 values like this gives two colors...
-    LCD_Write_DATA(   r << 8 | g  ) ;
-    LCD_Write_DATA(   b << 8 | r ) ;
-    LCD_Write_DATA(   g << 8 | b ) ;
-    */
 
-    LCD_Write_DATA(   (r & 0x1f) << 11 | (g & 0x3f << 6) | (b & 0x1f ) ) ;
-    // LCD_Write_DATA(   b ) ;
-//     LCD_Write_DATA(   b << 8 | r ) ;
-//     LCD_Write_DATA(   g << 8 | b ) ;
- 
+  
+    // rgb 565
+    // rgb555
+    LCD_Write_DATA(   (r & 0x1f) << 11 | (g & 0x1f << 5) | (b & 0x1f ) ) ;
+
 
   }
 
