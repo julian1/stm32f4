@@ -44,6 +44,7 @@ void tft_gpio_init(void)
   #define TFT_GPIO_PORT       GPIOE
   #define TFT_LED_A           GPIO2
   #define TFT_REST            GPIO1
+  // TFT_T_IRQ
 
   gpio_mode_setup(TFT_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, TFT_LED_A | TFT_REST);
 
