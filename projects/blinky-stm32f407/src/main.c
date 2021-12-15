@@ -157,6 +157,7 @@ static app_t app;
 
   screen datasheet.
     GL043036C0-40
+    see table 9. for timing characteristics
       https://chfile.cn.gcimg.net/gcwthird/day_20170726/efe81a3b93u32f90950f5i86c0104575.pdf
   search on
 
