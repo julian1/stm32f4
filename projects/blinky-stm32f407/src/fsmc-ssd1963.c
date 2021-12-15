@@ -24,15 +24,12 @@
 
 
 
-void tft_gpio_init(void)
-{
-  /*
-    OK. first goal should be to read and write a register using fsmc and bus .
-    probably want the reset also.
 
-    see. kicad5/projects/control-panel-2/notes.tx
-  /projects/fsmc-tests/doc/andy.txt
-  */
+
+
+void fsmc_gpio_setup()
+{
+  // Do pin setup separately from the fsmc setup. because we call fsmc setup twice once for slow/hi speed operation.
 
   // clocks are external
   // SHOULD PUT ALL TFT stuff in header... or at least predeclare.
@@ -41,56 +38,6 @@ void tft_gpio_init(void)
   // rcc_periph_clock_enable(RCC_GPIOE);
 
 
-  #define TFT_GPIO_PORT       GPIOE
-  #define TFT_LED_A           GPIO2
-  #define TFT_REST            GPIO1
-  // TFT_T_IRQ
-
-  gpio_mode_setup(TFT_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, TFT_LED_A | TFT_REST);
-
-
-}
-
-
-
-void tft_reset(void )
-{
-
-  usart_printf("pull reset lo\n");
-  // reset. pull lo then high.
-  gpio_clear( TFT_GPIO_PORT, TFT_REST);
-  msleep(20);
-  usart_printf("pull reset hi\n");
-  gpio_set( TFT_GPIO_PORT, TFT_REST);
-  msleep(20);
-
-
-  gpio_set( TFT_GPIO_PORT, TFT_LED_A ); // turn on backlight. works!!!
-}
-
-
-void fsmc_setup(uint8_t divider)
-{
-
-  /*
-    https://titanwolf.org/Network/Articles/Article?AID=198f4410-66a4-4bee-a263-bfbb244dbc45
-
-    https://github.com/stm32f4/library/blob/master/SSD1963/GLCD.c
-
-    https://community.st.com/s/question/0D50X00009XkgSPSAZ/stm32f4-discovery-ssd1963-fsmc
-
-  FSMC_NORSRAMTimingInitStructureRead.FSMC_DataSetupTime = 5 * divider;
-  FSMC_NORSRAMTimingInitStructureWrite.FSMC_DataSetupTime = 1 * divider;
-  */
-
-#if 0
- /* Enable PORTD and PORTE */
-  rcc_periph_clock_enable(RCC_GPIOD);
-  rcc_periph_clock_enable(RCC_GPIOE);
-
- /* Enable FSMC */
-  rcc_periph_clock_enable(RCC_FSMC);
-#endif
 
   // uint8_t speed = GPIO_OSPEED_25MHZ;
   uint8_t speed = GPIO_OSPEED_100MHZ;
@@ -144,8 +91,63 @@ void fsmc_setup(uint8_t divider)
   gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, speed, GPIO11);
   gpio_set_af(GPIOD, GPIO_AF12, GPIO11);
 
+  /////////////////
 
 
+
+  #define TFT_GPIO_PORT       GPIOE
+  #define TFT_LED_A           GPIO2
+  #define TFT_REST            GPIO1
+  // TFT_T_IRQ
+
+  gpio_mode_setup(TFT_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, TFT_LED_A | TFT_REST);
+
+
+}
+
+
+
+
+
+void tft_reset(void )
+{
+
+  usart_printf("pull reset lo\n");
+  // reset. pull lo then high.
+  gpio_clear( TFT_GPIO_PORT, TFT_REST);
+  msleep(20);
+  usart_printf("pull reset hi\n");
+  gpio_set( TFT_GPIO_PORT, TFT_REST);
+  msleep(20);
+
+
+  gpio_set( TFT_GPIO_PORT, TFT_LED_A ); // turn on backlight. works!!!
+}
+
+
+
+void fsmc_setup(uint8_t divider)
+{
+
+  /*
+    https://titanwolf.org/Network/Articles/Article?AID=198f4410-66a4-4bee-a263-bfbb244dbc45
+
+    https://github.com/stm32f4/library/blob/master/SSD1963/GLCD.c
+
+    https://community.st.com/s/question/0D50X00009XkgSPSAZ/stm32f4-discovery-ssd1963-fsmc
+
+  FSMC_NORSRAMTimingInitStructureRead.FSMC_DataSetupTime = 5 * divider;
+  FSMC_NORSRAMTimingInitStructureWrite.FSMC_DataSetupTime = 1 * divider;
+  */
+
+#if 0
+ /* Enable PORTD and PORTE */
+  rcc_periph_clock_enable(RCC_GPIOD);
+  rcc_periph_clock_enable(RCC_GPIOE);
+
+ /* Enable FSMC */
+  rcc_periph_clock_enable(RCC_FSMC);
+#endif
 
 
  /* config FSMC register */

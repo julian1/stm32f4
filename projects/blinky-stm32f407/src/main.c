@@ -130,6 +130,28 @@ static app_t app;
 
 
 
+/*********************************************************/
+static void LCD_Init(void) 
+{
+
+  // LCD_Configuration();
+  fsmc_setup(12);
+  tft_reset();
+
+#if 0
+  /* Set MN(multipliers) of PLL, VCO = crystal freq * (N+1) */
+  /* PLL freq = VCO/M with 250MHz < VCO < 800MHz */
+  /* The max PLL freq is around 120MHz. To obtain 120MHz as the PLL freq */
+  LCD_WriteCommand(0xE2); /* Set PLL with OSC = 10MHz (hardware) */
+  /* Multiplier N = 35, VCO (>250MHz)= OSC*(N+1), VCO = 360MHz */
+  LCD_WriteData(0x23);
+  LCD_WriteData(0x02); /* Divider M = 2, PLL = 360/(M+1) = 120MHz */
+  LCD_WriteData(0x54); /* Validate M and N values */
+#endif
+
+}
+
+
 
 int main(void)
 {
@@ -218,13 +240,13 @@ int main(void)
 
 
   // make sure have access to usart_printf
-  // fsmc_setup();
+  
+
+
+
+  fsmc_gpio_setup();
 
   fsmc_setup(12);
-
-  // do the reset.
-  tft_gpio_init();
-  
   tft_reset();
 
 
