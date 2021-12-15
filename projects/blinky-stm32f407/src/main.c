@@ -137,14 +137,14 @@ static app_t app;
   google search.
 
   DISP_HOR_RESOLUTION 800 ssd1963
-    
+
     https://arm-stm.blogspot.com/2016/12/ssd1963-init-collection.html
-    https://os.mbed.com/teams/TECHSTEP/code/Nucleo_display_ssd1963/file/2714fcd95190/SSD1963/SSD1963.h/ 
+    https://os.mbed.com/teams/TECHSTEP/code/Nucleo_display_ssd1963/file/2714fcd95190/SSD1963/SSD1963.h/
 
   actually think it's 4.3" 480x272
     xtal is 10MHz.
   search on gl043036c0-40
-    matches. 
+    matches.
     https://chfile.cn.gcimg.net/gcwthird/day_20170726/efe81a3b93u32f90950f5i86c0104575.pdf
 
     like this.
@@ -153,16 +153,16 @@ static app_t app;
   good code here. 480x272.
     https://community.nxp.com/t5/Kinetis-Microcontrollers/Kinetics-with-SSD1963-interface/m-p/782183
 
-    LCDC_FPR  = 12MHz.  which good for spec. 
+    LCDC_FPR  = 12MHz.  which good for spec.
 
       https://chfile.cn.gcimg.net/gcwthird/day_20170726/efe81a3b93u32f90950f5i86c0104575.pdf
-  search on 
-    
+  search on
+
 */
 
 /*********************************************************/
 #if 0
-static void LCD_Init(void) 
+static void LCD_Init(void)
 {
   usart_printf("-----------\n");
   usart_printf("LCD_Init\n");
@@ -199,7 +199,7 @@ static void LCD_Init(void)
   msleep(10);
 
 
-  
+
   /* Set LSHIFT freq, i.e. the DCLK with PLL freq 120MHz set previously */
   /* Typical DCLK for TYX350TFT320240 is 6.5MHz in 24 bit format */
   /* 6.5MHz = 120MHz*(LCDC_FPR+1)/2^20 */
@@ -268,7 +268,7 @@ static void setXY(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2 )
   // break;
 }
 
-static void LCD_Init(void) 
+static void LCD_Init(void)
 {
 
   usart_printf("-----------\n");
@@ -333,8 +333,8 @@ static void LCD_Init(void)
 */
 
 
-  
-  // this works dclk is pin30 of the flex cable to the screen. 
+
+  // this works dclk is pin30 of the flex cable to the screen.
   // probed 12MHz on scope.
   // JA 105000 ==  19A28
   // 120 * (   105000 + 1 ) / Math.pow(2, 20)
@@ -384,11 +384,11 @@ static void LCD_Init(void)
   LCD_Write_COM(0x36);    //rotation
   LCD_Write_DATA(0x22);
 
-  
+
   LCD_Write_COM(0xF0);    //pixel data interface
   //LCD_Write_DATA(0x03);       // JA 101 24-bit default.
   LCD_Write_DATA(0b101 );       // JA 101 24-bit default.
-  
+
 
 
   // delay(1);
@@ -407,7 +407,7 @@ static void LCD_Init(void)
   LCD_Write_DATA(0x00);
 
   LCD_Write_COM(0xd0);   // JA set dynamic backlight configuration
-  LCD_Write_DATA(0x0d); 
+  LCD_Write_DATA(0x0d);
 */
 
 
@@ -415,7 +415,7 @@ static void LCD_Init(void)
   usart_printf("writing some data\n");
 
   /*
-    it's hard to see the change against background unless, 
+    it's hard to see the change against background unless,
 
 
   */
@@ -431,7 +431,7 @@ static void LCD_Init(void)
     LCD_Write_DATA(0xff );
   }
 
- 
+
   // break;
 }
 
@@ -524,7 +524,7 @@ int main(void)
 
 
   // make sure have access to usart_printf
-  
+
 
 
 
@@ -533,29 +533,27 @@ int main(void)
   fsmc_setup(1);
   tft_reset();
 
-  LCD_Init(); 
+  LCD_Init();
 
 
 
   usart_printf("\n--------");
   usart_printf("\nstarting\n");
 
-  // char buf[100];
+  char buf[100];
+  UNUSED(buf);
 
   // OK. looks like we have not successfully written any values....
-  // but it appeared that 
+  // but it appeared that
   // EXTR. Not sure. unless we do the init sequence. then setting divider == 1. means reads fail.
+
 
 #if 0
   while(1) {
-    uint16_t reg = 0xE2;   // 
 
-    // writing is not working?
-    LCD_SetAddr(reg );
-    LCD_WriteData( 0xffff  );
-    LCD_WriteData( 0x02);
-    LCD_WriteData( 0x03);
- 
+    // weird - attempting to read the register kills it ????
+    // why?
+    uint16_t reg = 0xE2;   //
 
     LCD_SetAddr(reg );
     uint16_t x1 = LCD_ReadData();
@@ -572,10 +570,10 @@ int main(void)
 
 
 
-#if 0
+#if 1
   while(1) {
     /*
-    // read_ddb. a lot of serial stuff. 
+    // read_ddb. a lot of serial stuff.
     reg 161 (a1)  r
       001  0000000000000001
       087  0000000001010111
@@ -586,7 +584,7 @@ int main(void)
 
     // reg = 0x0A;   // == 1000
     uint16_t reg = 0xA1;   // read_ddb,    5 parameter register.
-    //uint16_t reg = 0xE2;   // 
+    //uint16_t reg = 0xE2;   //
 
     LCD_SetAddr(reg );
 
