@@ -231,7 +231,7 @@ uint16_t LCD_ReadData()
 //////////////////
 
 
-
+#if 0
 
 uint16_t LCD_ReadReg(uint8_t LCD_Reg)
  {
@@ -257,4 +257,4 @@ void LCD_WriteReg(uint8_t LCD_Reg, uint16_t LCD_RegValue)
   LCD->LCD_RAM = LCD_RegValue;
  }
 
-
+#endif

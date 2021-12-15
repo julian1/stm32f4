@@ -262,6 +262,7 @@ int main(void)
 
   */
 
+#if 0
   while(1) {
 
     // also see read_ddb. a lot of serial stuff. 
@@ -289,32 +290,84 @@ int main(void)
 
     msleep(1000);
   }
+#endif
 
 
+  /*
+    there are timing issues.
+    maybe related to initial setup. maybe related to the tft 1963 pll.
+    see.  resets the timing 
+      https://github.com/andysworkshop/stm32plus/blob/master/examples/ssd1963/ssd1963.cpp
+    and here, where change pll.
+      https://community.st.com/s/question/0D50X00009XkgSPSAZ/stm32f4-discovery-ssd1963-fsmc
+
+    stm32f4 code for fsmc here.  EXTR.
+      https://github.com/stm32f4/library/blob/master/SSD1963/GLCD.c
+
+      data setup is slowed. divider == 12 initially.
+      FSMC_NORSRAMTimingInitStructureRead.FSMC_DataSetupTime = 5 * divider;
+  */
 
   while(1) {
 
     // also see read_ddb. a lot of serial stuff. 
 
     reg = 0x0A;   // == 1000
-    x = LCD_ReadReg( reg );
-    usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
+
+    LCD_SetAddr(reg );
+    usart_printf("reg %u (%02x)  r\n", reg,  reg);
+    x = LCD_ReadData();   // EXTR. OK. interleaving the write, and read data with printf... slows things down enough to get the correct response.
+    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x));
+
+
+    msleep(1000);
+  }
+
+
+
+
+
+
+  // THIS LOOP is now no longer working????
+
+
+  LCD_SetAddr( 0x01 );
+  LCD_SetAddr( 0x01 );
+  LCD_SetAddr( 0x01 );
+  LCD_SetAddr( 0x01 );
+  msleep(50);
+
+  while(1) {
+
+    // also see read_ddb. a lot of serial stuff. 
+
+    reg = 0x0A;   // == 1000
+    LCD_SetAddr(reg );
+    // x = LCD_ReadReg( reg );
+    x = LCD_ReadData();
+    usart_printf("reg %u (%02x)", reg,  reg);
+    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x)); // maybe the printf buf. is not being copied???? 
     msleep(1000);
 
     // reg = 0x0A;
     reg = 0x0D;   // == 11
-    x = LCD_ReadReg( reg );
+    LCD_SetAddr(reg );
+    // x = LCD_ReadReg( reg );
+    x = LCD_ReadData();
     usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
     msleep(1000);
 
+/*
 
   // wrong....
   // does it take parameters???? though... 
     reg = 0x26;   // == 1000
-    x = LCD_ReadReg( reg );
+    LCD_SetAddr(reg );
+    // x = LCD_ReadReg( reg );
+    x = LCD_ReadData();
     usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
     msleep(1000);
-
+*/
 
 
   }
