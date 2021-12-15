@@ -271,8 +271,15 @@ int main(void)
 
 #if 1
   while(1) {
-
-    // also see read_ddb. a lot of serial stuff. 
+    /*
+    // read_ddb. a lot of serial stuff. 
+    reg 161 (a1)  r
+      001  0000000000000001
+      087  0000000001010111
+      097  0000000001100001
+      001  0000000000000001
+      255  0000000011111111
+    */
 
     // reg = 0x0A;   // == 1000
     reg = 0xA1;   // read_ddb,    5 parameter register.
@@ -281,18 +288,15 @@ int main(void)
     usart_printf("reg %u (%02x)  r\n", reg,  reg);
 
     uint16_t x1 = LCD_ReadData();
-    usart_printf("%03u  %s\n", x1, format_bits(buf, 16, x1));
-
     uint16_t x2 = LCD_ReadData();
-    usart_printf("%03u  %s\n", x2, format_bits(buf, 16, x2));
-
     uint16_t x3 = LCD_ReadData();
-    usart_printf("%03u  %s\n", x3, format_bits(buf, 16, x3));
-
     uint16_t x4 = LCD_ReadData();
-    usart_printf("%03u  %s\n", x4, format_bits(buf, 16, x4));
-
     uint16_t x5 = LCD_ReadData();
+
+    usart_printf("%03u  %s\n", x1, format_bits(buf, 16, x1));
+    usart_printf("%03u  %s\n", x2, format_bits(buf, 16, x2));
+    usart_printf("%03u  %s\n", x3, format_bits(buf, 16, x3));
+    usart_printf("%03u  %s\n", x4, format_bits(buf, 16, x4));
     usart_printf("%03u  %s\n", x5, format_bits(buf, 16, x5));
 
     msleep(1000);
