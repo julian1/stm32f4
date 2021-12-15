@@ -377,6 +377,7 @@ static void LCD_Init(void)
   LCD_Write_DATA(0x00);   //Set FPS 2
   LCD_Write_DATA(0x02);
 
+/*
   // TODO remove
   LCD_Write_COM(0xBA);  // JA set_gpio_value
   LCD_Write_DATA(0x0F);   //GPIO[3:0] out 1
@@ -384,13 +385,14 @@ static void LCD_Init(void)
   LCD_Write_COM(0xB8);  // JA set_gpio_conf
   LCD_Write_DATA(0x07);     //GPIO3=input, GPIO[2:0]=output
   LCD_Write_DATA(0x01);   //GPIO0 normal
+*/
 
   LCD_Write_COM(0x36);    //rotation
   LCD_Write_DATA(0x22);
 
 
   LCD_Write_COM(0xF0);    //pixel data interface
-  LCD_Write_DATA(0x03);       // 
+  LCD_Write_DATA(0x03);       // 3 == 011 == 16bit 565  
   // LCD_Write_DATA(0b101 );       // JA 101 24-bit default.
 
 
@@ -452,7 +454,8 @@ static void LCD_Init(void)
     // LCD_Write_DATA(   (0x1fu ) << 11) ;
 
     // 101 = 565 format
-    uint16_t r = 0x0, g = 0xff, b = 0x00; 
+    // uint16_t r = 0xff, g = 0xff, b = 0xff; 
+    uint16_t r = 0x00, g = 0x0, b = 0xff; 
     // white/ grety
     // LCD_Write_DATA(   0xffff   ) ;
 
@@ -460,7 +463,7 @@ static void LCD_Init(void)
   
     // rgb 565
     // rgb555
-    LCD_Write_DATA(   (r & 0x1f) << 11 | (g & 0x1f << 5) | (b & 0x1f ) ) ;
+    LCD_Write_DATA(   (r & 0x1f) << 11 | (g & 0x3f << 5) | (b & 0x1f ) ) ;
 
 
   }
