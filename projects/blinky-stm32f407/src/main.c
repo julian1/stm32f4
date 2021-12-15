@@ -377,10 +377,11 @@ static void LCD_Init(void)
   LCD_Write_DATA(0x00);   //Set FPS 2
   LCD_Write_DATA(0x02);
 
-  LCD_Write_COM(0xBA);
+  // TODO remove
+  LCD_Write_COM(0xBA);  // JA set_gpio_value
   LCD_Write_DATA(0x0F);   //GPIO[3:0] out 1
 
-  LCD_Write_COM(0xB8);
+  LCD_Write_COM(0xB8);  // JA set_gpio_conf
   LCD_Write_DATA(0x07);     //GPIO3=input, GPIO[2:0]=output
   LCD_Write_DATA(0x01);   //GPIO0 normal
 
@@ -431,9 +432,11 @@ static void LCD_Init(void)
   for( int i  = 20 * 20 ; i < 100 * 200; ++i ) {
 
     // NO. should be 16bit values.... not 8 bit. eg. only registers use lower 8 bits of 16 bit bus. 
-    LCD_Write_DATA(0x00);
-    LCD_Write_DATA(0x00); // hmmmmm
-    LCD_Write_DATA(0xff );
+    LCD_Write_DATA(0xff << 8 | 0x00 );
+    LCD_Write_DATA(0xff << 8 | 0x00 );
+    LCD_Write_DATA(0xff << 8 | 0x00 );
+    // LCD_Write_DATA(0x00); // hmmmmm
+    // LCD_Write_DATA(0xff );
   }
 
 
