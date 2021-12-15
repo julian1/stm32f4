@@ -1,4 +1,60 @@
 
+
+
+
+
+
+  LCD_SetAddr( 0x01 );
+  LCD_SetAddr( 0x01 );
+  LCD_SetAddr( 0x01 );
+  LCD_SetAddr( 0x01 );
+  msleep(50);
+
+  while(1) {
+
+    // also see read_ddb. a lot of serial stuff. 
+
+    usart_printf("---------\n");
+
+#if 1
+    reg = 0x0A;   // == 1000
+    LCD_SetAddr(reg );
+    x = LCD_ReadData();
+    usart_printf("reg %u (%02x)", reg,  reg);
+    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x)); // maybe the printf buf. is not being copied???? 
+    // msleep(1000);
+
+    reg = 0x0D;   // == 11
+    LCD_SetAddr(reg );
+    x = LCD_ReadData();
+    usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
+    // msleep(1000);
+
+    reg = 0x0A;   // == 1000
+    LCD_SetAddr(reg );
+    x = LCD_ReadData();
+    usart_printf("reg %u (%02x)", reg,  reg);
+    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x)); // maybe the printf buf. is not being copied???? 
+
+
+    msleep(200);
+
+
+
+#endif
+
+    /* this reg is weird.
+    reg = 0x26;   
+    LCD_SetAddr(reg );
+    // x = LCD_ReadReg( reg );
+    x = LCD_ReadData();
+    usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
+    msleep(1000);
+    */
+
+
+
+
 #if 0
   while(1) {
 

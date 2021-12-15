@@ -127,10 +127,41 @@ static char buf_console_out[1000];
 
 static app_t app;
 
+/*
+  800x480.
+  https://www.ebay.com.au/itm/331825585247
+    we need the timings to use.
 
+  https://github.com/stm32f4/library/blob/master/SSD1963/GLCD.c#L230
 
+  google search.
+
+  DISP_HOR_RESOLUTION 800 ssd1963
+    
+    https://arm-stm.blogspot.com/2016/12/ssd1963-init-collection.html
+    https://os.mbed.com/teams/TECHSTEP/code/Nucleo_display_ssd1963/file/2714fcd95190/SSD1963/SSD1963.h/ 
+
+  actually think it's 4.3" 480x272
+    xtal is 10MHz.
+  search on gl043036c0-40
+    matches. 
+    https://chfile.cn.gcimg.net/gcwthird/day_20170726/efe81a3b93u32f90950f5i86c0104575.pdf
+
+    like this.
+      https://www.ebay.com.au/itm/164555517828
+
+  good code here. 480x272.
+    https://community.nxp.com/t5/Kinetis-Microcontrollers/Kinetics-with-SSD1963-interface/m-p/782183
+
+    LCDC_FPR  = 12MHz.  which good for spec. 
+
+      https://chfile.cn.gcimg.net/gcwthird/day_20170726/efe81a3b93u32f90950f5i86c0104575.pdf
+  search on 
+    
+*/
 
 /*********************************************************/
+#if 0
 static void LCD_Init(void) 
 {
   usart_printf("-----------\n");
@@ -141,7 +172,7 @@ static void LCD_Init(void)
   fsmc_setup(12);
   tft_reset();
 
-#if 1
+
   /* Set MN(multipliers) of PLL, VCO = crystal freq * (N+1) */
   /* PLL freq = VCO/M with 250MHz < VCO < 800MHz */
   /* The max PLL freq is around 120MHz. To obtain 120MHz as the PLL freq */
@@ -150,8 +181,221 @@ static void LCD_Init(void)
   LCD_WriteData(0x23);
   LCD_WriteData(0x02); /* Divider M = 2, PLL = 360/(M+1) = 120MHz */
   LCD_WriteData(0x54); /* Validate M and N values */
+
+  LCD_WriteCommand(0xE0); /* Start PLL command */
+  LCD_WriteData(0x01); /* enable PLL */
+  // JA delay_ms(10); /* wait stabilization */
+  msleep(10);
+
+  LCD_WriteCommand(0xE0); /* Start PLL command again */
+  LCD_WriteData(0x03); /* now, use PLL output as system clock */
+
+  // JA LCD_FSMCConfig(1); /* Set FSMC full speed now */
+  fsmc_setup(1);
+
+  /* once PLL locked (at 120MHz), the data hold time is shortened */
+  LCD_WriteCommand(0x01); /* Soft reset */
+  // JA delay_ms(10);
+  msleep(10);
+
+
+  
+  /* Set LSHIFT freq, i.e. the DCLK with PLL freq 120MHz set previously */
+  /* Typical DCLK for TYX350TFT320240 is 6.5MHz in 24 bit format */
+  /* 6.5MHz = 120MHz*(LCDC_FPR+1)/2^20 */
+  /* LCDC_FPR = 56796 (0x00DDDC) */
+  LCD_WriteCommand(0xE6);
+  LCD_WriteData(0x00);
+  LCD_WriteData(0xDD);
+  LCD_WriteData(0xDC);
+
+
+     // for 4.3 inch lcd 12 MHz
+    // Typical DCLK TRULY is max 12MHz
+    // 12 = 100 * (LCDC_FPR + 1) / 2^20
+    // LCD_FPR = 125828 (0x1EB84)
+    (void)D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x01);
+    (void)D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0xeb);
+    (void)D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x84);
+
+
+  /* Set panel mode, varies from individual manufacturer */
+  LCD_WriteCommand(0xB0);
+  LCD_WriteData(0x20); /* Set 24-bit 3.5" TFT Panel */
+  LCD_WriteData(0x00); /* set Hsync+Vsync mode */
+  LCD_WriteData((DISP_HOR_RESOLUTION - 1) >> 8 & 0x07); /* Set panel size */
+  LCD_WriteData((DISP_HOR_RESOLUTION - 1) & 0xff);
+  LCD_WriteData((DISP_VER_RESOLUTION - 1) >> 8 & 0x07);
+  LCD_WriteData((DISP_VER_RESOLUTION - 1) & 0xff);
+  LCD_WriteData(0x00); /* RGB sequence */
+
+  /* Set horizontal period */
+  LCD_WriteCommand(0xB4);
+}
 #endif
 
+
+static void LCD_Write_COM(uint16_t cmd)
+{
+ LCD_WriteCommand(cmd) ;
+}
+
+static void  LCD_Write_DATA(uint16_t data)
+{
+  LCD_WriteData(data) ;
+}
+
+#define SWAP(a, b) do { typeof(a) temp = a; a = b; b = temp; } while (0)
+// #define swap(a,b) SWAP(a,b)
+
+static void setXY(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2 )
+{
+//case SSD1963_480:
+//   swap(word, x1, y1);
+//   swap(word, x2, y2);
+
+  LCD_Write_COM(0x2a); 
+    LCD_Write_DATA(x1>>8);
+    LCD_Write_DATA(x1);
+    LCD_Write_DATA(x2>>8);
+    LCD_Write_DATA(x2);
+  LCD_Write_COM(0x2b); 
+    LCD_Write_DATA(y1>>8);
+    LCD_Write_DATA(y1);
+    LCD_Write_DATA(y2>>8);
+    LCD_Write_DATA(y2);
+  LCD_Write_COM(0x2c); 
+  // break;
+}
+
+static void LCD_Init(void) 
+{
+
+  usart_printf("-----------\n");
+  usart_printf("LCD_Init\n");
+
+  // LCD_Configuration();
+  // fsmc_gpio_setup();
+  fsmc_setup(12);
+  tft_reset();
+
+
+  /* Set MN(multipliers) of PLL, VCO = crystal freq * (N+1) */
+  /* PLL freq = VCO/M with 250MHz < VCO < 800MHz */
+  /* The max PLL freq is around 120MHz. To obtain 120MHz as the PLL freq */
+  LCD_WriteCommand(0xE2); /* Set PLL with OSC = 10MHz (hardware) */
+  /* Multiplier N = 35, VCO (>250MHz)= OSC*(N+1), VCO = 360MHz */
+  LCD_WriteData(0x23);
+  LCD_WriteData(0x02); /* Divider M = 2, PLL = 360/(M+1) = 120MHz */
+  LCD_WriteData(0x54); /* Validate M and N values */
+
+  LCD_WriteCommand(0xE0); /* Start PLL command */
+  LCD_WriteData(0x01); /* enable PLL */
+  // JA delay_ms(10); /* wait stabilization */
+  msleep(10);
+
+  LCD_WriteCommand(0xE0); /* Start PLL command again */
+  LCD_WriteData(0x03); /* now, use PLL output as system clock */
+
+  // JA LCD_FSMCConfig(1); /* Set FSMC full speed now */
+  fsmc_setup(1);
+
+  // https://github.com/jscrane/UTFT-Energia/blob/master/tft_drivers/ssd1963/480/initlcd.h
+// case SSD1963_480:
+
+/*
+  LCD_Write_COM(0xE2);    //PLL multiplier, set PLL clock to 120M
+  LCD_Write_DATA(0x23);     //N=0x36 for 6.5M, 0x23 for 10M crystal
+  LCD_Write_DATA(0x02);
+  LCD_Write_DATA(0x54);
+
+  LCD_Write_COM(0xE0);    // PLL enable
+  LCD_Write_DATA(0x01);
+  delay(10);
+  LCD_Write_COM(0xE0);
+  LCD_Write_DATA(0x03);
+  delay(10);
+  LCD_Write_COM(0x01);    // software reset
+  delay(100);
+*/
+
+  LCD_Write_COM(0xE6);    //PLL setting for PCLK, depends on resolution
+  LCD_Write_DATA(0x01);
+  LCD_Write_DATA(0x1F);
+  LCD_Write_DATA(0xFF);
+
+  LCD_Write_COM(0xB0);    //LCD SPECIFICATION
+  LCD_Write_DATA(0x20);
+  LCD_Write_DATA(0x00);
+  LCD_Write_DATA(0x01);   //Set HDP 479
+  LCD_Write_DATA(0xDF);
+  LCD_Write_DATA(0x01);   //Set VDP 271
+  LCD_Write_DATA(0x0F);
+  LCD_Write_DATA(0x00);
+
+  LCD_Write_COM(0xB4);    //HSYNC
+  LCD_Write_DATA(0x02);   //Set HT  531
+  LCD_Write_DATA(0x13);
+  LCD_Write_DATA(0x00);   //Set HPS 8
+  LCD_Write_DATA(0x08);
+  LCD_Write_DATA(0x2B);   //Set HPW 43
+  LCD_Write_DATA(0x00);   //Set LPS 2
+  LCD_Write_DATA(0x02);
+  LCD_Write_DATA(0x00);
+
+  LCD_Write_COM(0xB6);    //VSYNC
+  LCD_Write_DATA(0x01);   //Set VT  288
+  LCD_Write_DATA(0x20);
+  LCD_Write_DATA(0x00);   //Set VPS 4
+  LCD_Write_DATA(0x04);
+  LCD_Write_DATA(0x0c);   //Set VPW 12
+  LCD_Write_DATA(0x00);   //Set FPS 2
+  LCD_Write_DATA(0x02);
+
+  LCD_Write_COM(0xBA);
+  LCD_Write_DATA(0x0F);   //GPIO[3:0] out 1
+
+  LCD_Write_COM(0xB8);
+  LCD_Write_DATA(0x07);     //GPIO3=input, GPIO[2:0]=output
+  LCD_Write_DATA(0x01);   //GPIO0 normal
+
+  LCD_Write_COM(0x36);    //rotation
+  LCD_Write_DATA(0x22);
+
+  LCD_Write_COM(0xF0);    //pixel data interface
+  LCD_Write_DATA(0x03);
+
+
+  // delay(1);
+  // delay(1);
+  msleep(1);
+
+  setXY(0, 0, 479, 271);
+  LCD_Write_COM(0x29);    //display on
+
+/*
+  LCD_Write_COM(0xBE);    //set PWM for B/L
+  LCD_Write_DATA(0x06);
+  LCD_Write_DATA(0xf0);
+  LCD_Write_DATA(0x01);
+  LCD_Write_DATA(0xf0);
+  LCD_Write_DATA(0x00);
+  LCD_Write_DATA(0x00);
+
+  LCD_Write_COM(0xd0);   // JA set dynamic backlight configuration
+  LCD_Write_DATA(0x0d); 
+*/
+
+
+
+  usart_printf("writing some data\n");
+
+  LCD_Write_COM(0x2C);    // JA write memory start
+  for( int i  = 0; i < 480*272 ; ++i ) {
+  LCD_Write_DATA(0x06);
+  }
+ 
+  // break;
 }
 
 
@@ -259,13 +503,20 @@ int main(void)
   usart_printf("\n--------");
   usart_printf("\nstarting\n");
 
+  msleep(2000);
   // 0x0A is the power mode?????   - we could test if power
   // need bit presentation
 
   char buf[100];
   // uint16_t reg = 0x0A; // get_power_mode.   successive read can change 4th bit.
-  uint16_t reg = 0x0B;  // get_address_mode.  nothing changes????
-  volatile uint16_t x;
+  // uint16_t reg = 0x0B;  // get_address_mode.  nothing changes????
+
+
+
+
+
+
+// OK. looks like we have not successfully written any values....
 
 
 #if 1
@@ -281,82 +532,30 @@ int main(void)
     */
 
     // reg = 0x0A;   // == 1000
-    reg = 0xA1;   // read_ddb,    5 parameter register.
+    // uint16_t reg = 0xA1;   // read_ddb,    5 parameter register.
+    uint16_t reg = 0xE2;   // read_ddb,    3 parameter register.
 
     LCD_SetAddr(reg );
 
     uint16_t x1 = LCD_ReadData();
     uint16_t x2 = LCD_ReadData();
     uint16_t x3 = LCD_ReadData();
-    uint16_t x4 = LCD_ReadData();
-    uint16_t x5 = LCD_ReadData();
+    // uint16_t x4 = LCD_ReadData();
+    // uint16_t x5 = LCD_ReadData();
 
     usart_printf("reg %u (%02x)  r\n", reg,  reg);
     usart_printf("%03u  %s\n", x1, format_bits(buf, 16, x1));
     usart_printf("%03u  %s\n", x2, format_bits(buf, 16, x2));
     usart_printf("%03u  %s\n", x3, format_bits(buf, 16, x3));
-    usart_printf("%03u  %s\n", x4, format_bits(buf, 16, x4));
-    usart_printf("%03u  %s\n", x5, format_bits(buf, 16, x5));
+    // usart_printf("%03u  %s\n", x4, format_bits(buf, 16, x4));
+    // usart_printf("%03u  %s\n", x5, format_bits(buf, 16, x5));
 
-    msleep(1000);
+    msleep(2000);
   }
 #endif
 
 
 
-
-
-  LCD_SetAddr( 0x01 );
-  LCD_SetAddr( 0x01 );
-  LCD_SetAddr( 0x01 );
-  LCD_SetAddr( 0x01 );
-  msleep(50);
-
-  while(1) {
-
-    // also see read_ddb. a lot of serial stuff. 
-
-    usart_printf("---------\n");
-
-#if 1
-    reg = 0x0A;   // == 1000
-    LCD_SetAddr(reg );
-    x = LCD_ReadData();
-    usart_printf("reg %u (%02x)", reg,  reg);
-    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x)); // maybe the printf buf. is not being copied???? 
-    // msleep(1000);
-
-    reg = 0x0D;   // == 11
-    LCD_SetAddr(reg );
-    x = LCD_ReadData();
-    usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
-    // msleep(1000);
-
-    reg = 0x0A;   // == 1000
-    LCD_SetAddr(reg );
-    x = LCD_ReadData();
-    usart_printf("reg %u (%02x)", reg,  reg);
-    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x)); // maybe the printf buf. is not being copied???? 
-
-
-    msleep(200);
-
-
-
-#endif
-
-    /* this reg is weird.
-    reg = 0x26;   
-    LCD_SetAddr(reg );
-    // x = LCD_ReadReg( reg );
-    x = LCD_ReadData();
-    usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
-    msleep(1000);
-    */
-
-
-
-  }
 
 
 
