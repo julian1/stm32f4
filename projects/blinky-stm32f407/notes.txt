@@ -62,11 +62,16 @@ antigrain.
   To draw directly... then we would gain the entire agg rendering pipeline.
 
   May be better to do it on laptop. and pre-render.
- 
   reading the font. true type is going to be a pain. 
 
   if we want to prerender.
 
+  just need a glyph structure.
+  we can pass in the blend color (for antialiasing).    and have a data structure to do the edge blending on the fly.. 
+    this could be a lot simpler than think.
+
+  eg. directly write compilable embedded c files. with the glyphs.
+  ------------------------
   
 
 font viewer.  web based, but opens local files
