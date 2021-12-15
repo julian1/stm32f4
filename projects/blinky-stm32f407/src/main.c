@@ -113,7 +113,65 @@ static void loop(app_t *app)
       soft_500ms += 500;
       led_toggle();
       // usart_printf("here\n");
+    
+
+#if 0
+    {
+    // weird - attempting to read the register kills it ????
+    // why? because the asserting of the address is treated as a command.
+
+    char buf[100];
+    uint16_t reg = 0xE2;   //
+
+    LCD_SetAddr(reg );
+    uint16_t x1 = LCD_ReadData();
+    uint16_t x2 = LCD_ReadData();
+    uint16_t x3 = LCD_ReadData();
+    usart_printf("reg %u (%02x)  r\n", reg,  reg);
+    usart_printf("%03u  %s\n", x1, format_bits(buf, 16, x1));
+    usart_printf("%03u  %s\n", x2, format_bits(buf, 16, x2));
+    usart_printf("%03u  %s\n", x3, format_bits(buf, 16, x3));
     }
+#endif
+
+
+
+#if 1
+    {
+    /*
+    // read_ddb. a lot of serial stuff.
+    reg 161 (a1)  r
+      001  0000000000000001
+      087  0000000001010111
+      097  0000000001100001
+      001  0000000000000001
+      255  0000000011111111
+    */
+
+    // reg = 0x0A;   // == 1000
+    char buf[100];
+    uint16_t reg = 0xA1;   // read_ddb,    5 parameter register.
+    //uint16_t reg = 0xE2;   //
+
+    LCD_SetAddr(reg );
+
+    uint16_t x1 = LCD_ReadData();
+    uint16_t x2 = LCD_ReadData();
+    uint16_t x3 = LCD_ReadData();
+    uint16_t x4 = LCD_ReadData();
+    uint16_t x5 = LCD_ReadData();
+
+    usart_printf("reg %u (%02x)  r\n", reg,  reg);
+    usart_printf("%03u  %s\n", x1, format_bits(buf, 16, x1));
+    usart_printf("%03u  %s\n", x2, format_bits(buf, 16, x2));
+    usart_printf("%03u  %s\n", x3, format_bits(buf, 16, x3));
+    usart_printf("%03u  %s\n", x4, format_bits(buf, 16, x4));
+    usart_printf("%03u  %s\n", x5, format_bits(buf, 16, x5));
+  }
+#endif
+
+  }
+
 
   }
 }
@@ -457,6 +515,7 @@ static void LCD_Init(void)
     // uint16_t r = 0xff, g = 0xff, b = 0xff; 
     // uint16_t r = 0x00, g = 0x0, b = 0x0;    // black
     uint16_t r = 0xff, g = 0xff, b = 0xff;    // white
+    // uint16_t r = 0x0, g = 0x0, b = 0xff;    // blue
     UNUSED(r);
     UNUSED(g);
     UNUSED(b);
@@ -587,63 +646,6 @@ int main(void)
   // but it appeared that
   // EXTR. Not sure. unless we do the init sequence. then setting divider == 1. means reads fail.
 
-
-#if 0
-  while(1) {
-
-    // weird - attempting to read the register kills it ????
-    // why?
-    uint16_t reg = 0xE2;   //
-
-    LCD_SetAddr(reg );
-    uint16_t x1 = LCD_ReadData();
-    uint16_t x2 = LCD_ReadData();
-    uint16_t x3 = LCD_ReadData();
-    usart_printf("reg %u (%02x)  r\n", reg,  reg);
-    usart_printf("%03u  %s\n", x1, format_bits(buf, 16, x1));
-    usart_printf("%03u  %s\n", x2, format_bits(buf, 16, x2));
-    usart_printf("%03u  %s\n", x3, format_bits(buf, 16, x3));
-
-    msleep(2000);
-  }
-#endif
-
-
-
-#if 1
-  while(1) {
-    /*
-    // read_ddb. a lot of serial stuff.
-    reg 161 (a1)  r
-      001  0000000000000001
-      087  0000000001010111
-      097  0000000001100001
-      001  0000000000000001
-      255  0000000011111111
-    */
-
-    // reg = 0x0A;   // == 1000
-    uint16_t reg = 0xA1;   // read_ddb,    5 parameter register.
-    //uint16_t reg = 0xE2;   //
-
-    LCD_SetAddr(reg );
-
-    uint16_t x1 = LCD_ReadData();
-    uint16_t x2 = LCD_ReadData();
-    uint16_t x3 = LCD_ReadData();
-    uint16_t x4 = LCD_ReadData();
-    uint16_t x5 = LCD_ReadData();
-
-    usart_printf("reg %u (%02x)  r\n", reg,  reg);
-    usart_printf("%03u  %s\n", x1, format_bits(buf, 16, x1));
-    usart_printf("%03u  %s\n", x2, format_bits(buf, 16, x2));
-    usart_printf("%03u  %s\n", x3, format_bits(buf, 16, x3));
-    usart_printf("%03u  %s\n", x4, format_bits(buf, 16, x4));
-    usart_printf("%03u  %s\n", x5, format_bits(buf, 16, x5));
-
-    msleep(2000);
-  }
-#endif
 
 
 
