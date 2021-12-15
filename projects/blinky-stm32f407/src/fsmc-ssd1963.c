@@ -29,15 +29,18 @@
 
 void fsmc_gpio_setup()
 {
-  // Do pin setup separately from the fsmc setup. because we call fsmc setup twice once for slow/hi speed operation.
+/*
+  // Do pin setup separately from the fsmc peripheral setup. because we will call fsmc setup
+  twice once for slow/hi speed operation.
 
-  // clocks are external
-  // SHOULD PUT ALL TFT stuff in header... or at least predeclare.
-  // parallel tft / ssd1963
-  // rcc_periph_clock_enable(RCC_GPIOD);
-  // rcc_periph_clock_enable(RCC_GPIOE);
+  // Enable PORTD and PORTE 
+  rcc_periph_clock_enable(RCC_GPIOD);
+  rcc_periph_clock_enable(RCC_GPIOE);
 
+  // Enable FSMC 
+  rcc_periph_clock_enable(RCC_FSMC);
 
+*/
 
   // uint8_t speed = GPIO_OSPEED_25MHZ;
   uint8_t speed = GPIO_OSPEED_100MHZ;
@@ -101,6 +104,7 @@ void fsmc_gpio_setup()
   // TFT_T_IRQ
 
   gpio_mode_setup(TFT_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, TFT_LED_A | TFT_REST);
+  // speed.
 
 
 }
@@ -140,21 +144,11 @@ void fsmc_setup(uint8_t divider)
   FSMC_NORSRAMTimingInitStructureWrite.FSMC_DataSetupTime = 1 * divider;
   */
 
-#if 0
- /* Enable PORTD and PORTE */
-  rcc_periph_clock_enable(RCC_GPIOD);
-  rcc_periph_clock_enable(RCC_GPIOE);
-
- /* Enable FSMC */
-  rcc_periph_clock_enable(RCC_FSMC);
-#endif
-
 
  /* config FSMC register */
   FSMC_BTR(0) = FSMC_BTR_ACCMODx(FSMC_BTx_ACCMOD_B) |
                 FSMC_BTR_DATLATx(0)  |
                 FSMC_BTR_CLKDIVx(0)  | // note. 0 not divider
-                // FSMC_BTR_CLKDIVx(16)  |
                 FSMC_BTR_BUSTURNx(0) |
                 FSMC_BTR_DATASTx(5 * divider)  |
                 FSMC_BTR_ADDHLDx(0)  |
