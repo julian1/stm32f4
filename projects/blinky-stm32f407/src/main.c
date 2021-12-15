@@ -269,7 +269,7 @@ int main(void)
 
   */
 
-#if 0
+#if 1
   while(1) {
 
     // also see read_ddb. a lot of serial stuff. 
@@ -280,20 +280,20 @@ int main(void)
     LCD_SetAddr(reg );
     usart_printf("reg %u (%02x)  r\n", reg,  reg);
 
-    x = LCD_ReadData();
-    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x));
+    uint16_t x1 = LCD_ReadData();
+    usart_printf("%03u  %s\n", x1, format_bits(buf, 16, x1));
 
-    x = LCD_ReadData();
-    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x));
+    uint16_t x2 = LCD_ReadData();
+    usart_printf("%03u  %s\n", x2, format_bits(buf, 16, x2));
 
-    x = LCD_ReadData();
-    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x));
+    uint16_t x3 = LCD_ReadData();
+    usart_printf("%03u  %s\n", x3, format_bits(buf, 16, x3));
 
-    x = LCD_ReadData();
-    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x));
+    uint16_t x4 = LCD_ReadData();
+    usart_printf("%03u  %s\n", x4, format_bits(buf, 16, x4));
 
-    x = LCD_ReadData();
-    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x));
+    uint16_t x5 = LCD_ReadData();
+    usart_printf("%03u  %s\n", x5, format_bits(buf, 16, x5));
 
     msleep(1000);
   }
