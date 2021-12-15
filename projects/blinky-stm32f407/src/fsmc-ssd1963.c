@@ -4,7 +4,7 @@
 
 
 
-#include <libopencm3/stm32/rcc.h>
+//#include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 
 
@@ -76,6 +76,8 @@ void fsmc_setup(uint8_t divider)
     https://titanwolf.org/Network/Articles/Article?AID=198f4410-66a4-4bee-a263-bfbb244dbc45
 
     https://github.com/stm32f4/library/blob/master/SSD1963/GLCD.c
+
+    https://community.st.com/s/question/0D50X00009XkgSPSAZ/stm32f4-discovery-ssd1963-fsmc
 
   FSMC_NORSRAMTimingInitStructureRead.FSMC_DataSetupTime = 5 * divider;
   FSMC_NORSRAMTimingInitStructureWrite.FSMC_DataSetupTime = 1 * divider;
