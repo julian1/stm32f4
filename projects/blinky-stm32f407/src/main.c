@@ -256,6 +256,11 @@ int main(void)
 
   // LCD_ReadReg( 0x00 );  // nop
 
+  /*
+    EXTR. doing things in separate calls. gets a different result. due to timing differences?
+    or compiler not optimizing the accesses?
+
+  */
 
   while(1) {
 
@@ -266,6 +271,9 @@ int main(void)
 
     LCD_SetAddr(reg );
     usart_printf("reg %u (%02x)  r\n", reg,  reg);
+
+    x = LCD_ReadData();
+    usart_printf("%02u  %s\n", x, format_bits(buf, 16, x));
 
     x = LCD_ReadData();
     usart_printf("%02u  %s\n", x, format_bits(buf, 16, x));
