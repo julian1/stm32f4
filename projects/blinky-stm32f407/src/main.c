@@ -325,8 +325,6 @@ static void LCD_Init(void)
 
 
 /*
-  // and when we read the register 
-  // probe cannot pick up any clock on pin 30 of tft.
                           // 73727
   LCD_Write_COM(0xE6);    //PLL setting for PCLK, depends on resolution
   LCD_Write_DATA(0x01);
@@ -335,9 +333,9 @@ static void LCD_Init(void)
 */
 
 
-
-  // we really need to scope this... somehow
-  // to see if writing works.
+  
+  // this works dclk is pin30 of the flex cable to the screen. 
+  // probed 12MHz on scope.
   // JA 105000 ==  19A28
   // 120 * (   105000 + 1 ) / Math.pow(2, 20)
   // ==  12.016410827636719 == 12MHz.
@@ -422,15 +420,15 @@ static void LCD_Init(void)
 
   */
   // setXY(20, 20, 479, 271);
-  setXY(20, 20, 100, 100);
+  setXY(20, 20, 100, 200);
   // setXY(20, 20, 100, 100);
   // setXY(100, 100, 20, 20);
 
   // LCD_Write_COM(0x2C);    // JA write memory start
-  for( int i  = 0; i < 100 * 100; ++i ) {
-    LCD_Write_DATA(0xff);
-    LCD_Write_DATA(0x07);
-    LCD_Write_DATA(0x00 );
+  for( int i  = 20 * 20 ; i < 100 * 200; ++i ) {
+    LCD_Write_DATA(0x00);
+    LCD_Write_DATA(0x00); // hmmmmm
+    LCD_Write_DATA(0xff );
   }
 
  
