@@ -493,30 +493,44 @@ int main(void)
 
   fsmc_gpio_setup();
 
-  // fsmc_setup(12);
-  // tft_reset();
+  fsmc_setup(12);
+  tft_reset();
 
-  LCD_Init(); 
+  // LCD_Init(); 
 
 
 
   usart_printf("\n--------");
   usart_printf("\nstarting\n");
 
-  msleep(2000);
-  // 0x0A is the power mode?????   - we could test if power
-  // need bit presentation
-
   char buf[100];
-  // uint16_t reg = 0x0A; // get_power_mode.   successive read can change 4th bit.
-  // uint16_t reg = 0x0B;  // get_address_mode.  nothing changes????
-
-
-
-
-
 
 // OK. looks like we have not successfully written any values....
+
+#if 1
+  while(1) {
+    uint16_t reg = 0xE2;   // 
+
+    // writing is not working?
+    LCD_SetAddr(reg );
+    LCD_WriteData( 0xffff  );
+    LCD_WriteData( 0x02);
+    LCD_WriteData( 0x03);
+ 
+
+    LCD_SetAddr(reg );
+    uint16_t x1 = LCD_ReadData();
+    uint16_t x2 = LCD_ReadData();
+    uint16_t x3 = LCD_ReadData();
+    usart_printf("reg %u (%02x)  r\n", reg,  reg);
+    usart_printf("%03u  %s\n", x1, format_bits(buf, 16, x1));
+    usart_printf("%03u  %s\n", x2, format_bits(buf, 16, x2));
+    usart_printf("%03u  %s\n", x3, format_bits(buf, 16, x3));
+
+    msleep(2000);
+  }
+#endif
+
 
 
 #if 1
@@ -532,23 +546,23 @@ int main(void)
     */
 
     // reg = 0x0A;   // == 1000
-    // uint16_t reg = 0xA1;   // read_ddb,    5 parameter register.
-    uint16_t reg = 0xE2;   // read_ddb,    3 parameter register.
+    uint16_t reg = 0xA1;   // read_ddb,    5 parameter register.
+    //uint16_t reg = 0xE2;   // 
 
     LCD_SetAddr(reg );
 
     uint16_t x1 = LCD_ReadData();
     uint16_t x2 = LCD_ReadData();
     uint16_t x3 = LCD_ReadData();
-    // uint16_t x4 = LCD_ReadData();
-    // uint16_t x5 = LCD_ReadData();
+    uint16_t x4 = LCD_ReadData();
+    uint16_t x5 = LCD_ReadData();
 
     usart_printf("reg %u (%02x)  r\n", reg,  reg);
     usart_printf("%03u  %s\n", x1, format_bits(buf, 16, x1));
     usart_printf("%03u  %s\n", x2, format_bits(buf, 16, x2));
     usart_printf("%03u  %s\n", x3, format_bits(buf, 16, x3));
-    // usart_printf("%03u  %s\n", x4, format_bits(buf, 16, x4));
-    // usart_printf("%03u  %s\n", x5, format_bits(buf, 16, x5));
+    usart_printf("%03u  %s\n", x4, format_bits(buf, 16, x4));
+    usart_printf("%03u  %s\n", x5, format_bits(buf, 16, x5));
 
     msleep(2000);
   }

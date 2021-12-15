@@ -160,7 +160,8 @@ void fsmc_setup(uint8_t divider)
 }
 
 // JA
-#define __IO volatile
+// #define __IO volatile
+#define __IO 
 
 /*
   __IO flag appears undefined.
@@ -194,14 +195,14 @@ When you access A16 is 1 in LCD-> LCD_RAM. (Address 0x60020000)
 
 
 
-
+#if 1
 
 void LCD_SetAddr(uint8_t LCD_Reg)
 {
   /* Write 16-bit Index (then Read Reg) */
   LCD->LCD_REG = LCD_Reg;
 }
-
+#endif
 
 
 
@@ -211,6 +212,11 @@ void LCD_SetAddr(uint8_t LCD_Reg)
   TODO.
   should be static incline...
   change later. 
+  ----------
+
+  it appears register writing isn't working.
+  but the write command is 
+  are we sure the registers.
 
 */
 
