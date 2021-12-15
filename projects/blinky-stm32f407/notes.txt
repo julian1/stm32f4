@@ -1,0 +1,77 @@
+
+done - led has stopped blinking. but usart still working?
+  - because we are looping in the get_ddb data loop
+
+
+
+Ok.
+
+- there is not enough memory to store raw bitmaps.
+
+  480 * 272 * 4 / 1024000 = 0.5MB.
+  and we have 0.5MB or 1MB on mcu, and 1MB on tft.
+
+  we could *just* bitmap the screen in the mcu memory. and run antigrain - but not clear that there's any advantage to this.
+    bliting slow.
+
+- drawing chars using arrays of hlines, is efficient.
+
+- so options are.
+
+    prerender the horizontal lines.
+    or commands to draw them. as series of squares / or lines.
+    y1. x1, x2.
+    then we would do the color. or blend it ourselves..
+    ---
+    but this loses sub pixel accuracy of placement.
+    OK. just align on pixel boundary.
+
+
+- if use antigrain.
+    - have to read the actual raw font structure ttf.   maybe can do with tft.
+    - antigrain converts to horizontal. sections.
+    - IMPORTANT - antigrain alpha blends the entire hline - in order to manage transparency. 
+    - not just the edges.
+
+
+- render antigrain - on laptop .
+
+
+- use arduino - extra fonts.  these are almost certainly fast.
+    - need to understand how these structures work better. 
+    - is there a standard hline structure.
+
+
+------------------
+  hline structure.
+  maybe with a blend.
+------------------
+
+antigrain.
+  see.
+
+  pixel_formats_rgb24
+  http://agg.sourceforge.net/antigrain.com/doc/basic_renderers/basic_renderers.agdoc.html
+
+  void copy_hline(int x, int y, unsigned len, const color_type& c);
+  void blend_hline(int x, int y, unsigned len, const color_type& c, int8u cover);
+
+  etc.
+
+  OK. if we could overload these.  
+  To draw directly... then we would gain the entire agg rendering pipeline.
+
+  May be better to do it on laptop. and pre-render.
+ 
+  reading the font. true type is going to be a pain. 
+
+  if we want to prerender.
+
+  
+
+font viewer.  web based, but opens local files
+  http://mathew-kurian.github.io/CharacterMap/
+
+  eg.
+   /nix/store/nbw7mbhirwmmgqzm3s97r05vpm93iz26-imlib2-1.7.0/share/imlib2/data/fonts/cinema.ttf
+
