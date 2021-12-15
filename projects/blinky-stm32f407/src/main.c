@@ -418,13 +418,15 @@ static void LCD_Init(void)
 
 
   // setXY(20, 20, 479, 271);
-  setXY(0, 0, 100, 100);
+  setXY(20, 20, 100, 100);
+  // setXY(20, 20, 100, 100);
+  // setXY(100, 100, 20, 20);
 
-  LCD_Write_COM(0x2C);    // JA write memory start
-  for( int i  = 0; i < 480*272 ; ++i ) {
-    LCD_Write_DATA(0x06);
-    LCD_Write_DATA(0x06);
-    LCD_Write_DATA(0x06 );
+  // LCD_Write_COM(0x2C);    // JA write memory start
+  for( int i  = 0; i < 100 * 100; ++i ) {
+    LCD_Write_DATA(0xff);
+    LCD_Write_DATA(0x07);
+    LCD_Write_DATA(0x00 );
   }
 
  
