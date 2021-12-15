@@ -273,19 +273,19 @@ int main(void)
     usart_printf("reg %u (%02x)  r\n", reg,  reg);
 
     x = LCD_ReadData();
-    usart_printf("%02u  %s\n", x, format_bits(buf, 16, x));
+    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x));
 
     x = LCD_ReadData();
-    usart_printf("%02u  %s\n", x, format_bits(buf, 16, x));
+    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x));
 
     x = LCD_ReadData();
-    usart_printf("%02u  %s\n", x, format_bits(buf, 16, x));
+    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x));
 
     x = LCD_ReadData();
-    usart_printf("%02u  %s\n", x, format_bits(buf, 16, x));
+    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x));
 
     x = LCD_ReadData();
-    usart_printf("%02u  %s\n", x, format_bits(buf, 16, x));
+    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x));
 
     msleep(1000);
   }
