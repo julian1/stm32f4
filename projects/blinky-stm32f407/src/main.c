@@ -386,17 +386,17 @@ static void LCD_Init(void)
   LCD_Write_COM(0x36);    //rotation
   LCD_Write_DATA(0x22);
 
-  /*
+  
   LCD_Write_COM(0xF0);    //pixel data interface
-  LCD_Write_DATA(0x03);       // JA 101 24-bit default.
-  */
+  //LCD_Write_DATA(0x03);       // JA 101 24-bit default.
+  LCD_Write_DATA(0b101 );       // JA 101 24-bit default.
+  
 
 
   // delay(1);
   // delay(1);
   msleep(1);
 
-  setXY(0, 0, 479, 271);
   LCD_Write_COM(0x29);    //display on
 
 /*
@@ -416,12 +416,17 @@ static void LCD_Init(void)
 
   usart_printf("writing some data\n");
 
+
+  // setXY(20, 20, 479, 271);
+  setXY(0, 0, 100, 100);
+
   LCD_Write_COM(0x2C);    // JA write memory start
   for( int i  = 0; i < 480*272 ; ++i ) {
     LCD_Write_DATA(0x06);
-    LCD_Write_DATA(0xff);
-    LCD_Write_DATA(0x7f);
+    LCD_Write_DATA(0x06);
+    LCD_Write_DATA(0x06 );
   }
+
  
   // break;
 }
@@ -531,13 +536,13 @@ int main(void)
   usart_printf("\n--------");
   usart_printf("\nstarting\n");
 
-  char buf[100];
+  // char buf[100];
 
   // OK. looks like we have not successfully written any values....
   // but it appeared that 
   // EXTR. Not sure. unless we do the init sequence. then setting divider == 1. means reads fail.
 
-#if 1
+#if 0
   while(1) {
     uint16_t reg = 0xE2;   // 
 
@@ -563,7 +568,7 @@ int main(void)
 
 
 
-#if 1
+#if 0
   while(1) {
     /*
     // read_ddb. a lot of serial stuff. 
