@@ -80,3 +80,19 @@ font viewer.  web based, but opens local files
   eg.
    /nix/store/nbw7mbhirwmmgqzm3s97r05vpm93iz26-imlib2-1.7.0/share/imlib2/data/fonts/cinema.ttf
 
+  
+  ------------
+
+  gfx fonts. might actually be bitmaps.   even if drawn with squares.
+    "The included fonts are in a bitmap format, not scalable vectors,"
+    https://learn.adafruit.com/adafruit-gfx-graphics-library/using-fonts
+
+
+  rre fonts.
+  https://github.com/cbm80amiga/RREFont
+
+    https://www.youtube.com/watch?v=C6NsHxKbiVg
+
+    stm32 running rre fonts
+    https://www.youtube.com/watch?v=DAAbDGCeQ1o
+
