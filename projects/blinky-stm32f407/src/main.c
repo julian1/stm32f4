@@ -254,17 +254,17 @@ static void setXY(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2 )
 //   swap(word, x1, y1);
 //   swap(word, x2, y2);
 
-  LCD_Write_COM(0x2a); 
+  LCD_Write_COM(0x2a);  // JA set_column_address
     LCD_Write_DATA(x1>>8);
     LCD_Write_DATA(x1);
     LCD_Write_DATA(x2>>8);
     LCD_Write_DATA(x2);
-  LCD_Write_COM(0x2b); 
+  LCD_Write_COM(0x2b);  // JA set_page_address
     LCD_Write_DATA(y1>>8);
     LCD_Write_DATA(y1);
     LCD_Write_DATA(y2>>8);
     LCD_Write_DATA(y2);
-  LCD_Write_COM(0x2c); 
+  LCD_Write_COM(0x2c); // write_memory_start
   // break;
 }
 
@@ -276,7 +276,7 @@ static void LCD_Init(void)
 
   // LCD_Configuration();
   // fsmc_gpio_setup();
-  fsmc_setup(12);
+  fsmc_setup(12);   // slow.
   tft_reset();
 
 
@@ -299,6 +299,10 @@ static void LCD_Init(void)
 
   // JA LCD_FSMCConfig(1); /* Set FSMC full speed now */
   fsmc_setup(1);
+  msleep(10);
+
+  LCD_Write_COM(0x01);    // software reset
+  msleep(100);
 
   // https://github.com/jscrane/UTFT-Energia/blob/master/tft_drivers/ssd1963/480/initlcd.h
 // case SSD1963_480:
@@ -319,10 +323,29 @@ static void LCD_Init(void)
   delay(100);
 */
 
+
+  // and when we read the register 
+  // probe cannot pick up any clock on pin 30 of tft.
+                          // 73727
   LCD_Write_COM(0xE6);    //PLL setting for PCLK, depends on resolution
   LCD_Write_DATA(0x01);
   LCD_Write_DATA(0x1F);
   LCD_Write_DATA(0xFF);
+
+
+
+/*
+  // we really need to scope this... somehow
+  // to see if writing works.
+  // JA 105000 ==  19A28
+  // 120 * (   105000 + 1 ) / Math.pow(2, 20)
+  // ==  12.016410827636719 == 12MHz.
+  LCD_Write_COM(0xE6);    //PLL setting for PCLK, depends on resolution
+  LCD_Write_DATA(0x01);
+  LCD_Write_DATA(0xA2);
+  LCD_Write_DATA(0x28);
+*/
+
 
   LCD_Write_COM(0xB0);    //LCD SPECIFICATION
   LCD_Write_DATA(0x20);
@@ -362,8 +385,10 @@ static void LCD_Init(void)
   LCD_Write_COM(0x36);    //rotation
   LCD_Write_DATA(0x22);
 
+  /*
   LCD_Write_COM(0xF0);    //pixel data interface
-  LCD_Write_DATA(0x03);
+  LCD_Write_DATA(0x03);       // JA 101 24-bit default.
+  */
 
 
   // delay(1);
@@ -392,7 +417,8 @@ static void LCD_Init(void)
 
   LCD_Write_COM(0x2C);    // JA write memory start
   for( int i  = 0; i < 480*272 ; ++i ) {
-  LCD_Write_DATA(0x06);
+    LCD_Write_DATA(0x06);
+    LCD_Write_DATA(0xff);
   }
  
   // break;
@@ -493,10 +519,10 @@ int main(void)
 
   fsmc_gpio_setup();
 
-  fsmc_setup(12);
+  fsmc_setup(1);
   tft_reset();
 
-  // LCD_Init(); 
+  LCD_Init(); 
 
 
 
@@ -505,7 +531,9 @@ int main(void)
 
   char buf[100];
 
-// OK. looks like we have not successfully written any values....
+  // OK. looks like we have not successfully written any values....
+  // but it appeared that 
+  // EXTR. Not sure. unless we do the init sequence. then setting divider == 1. means reads fail.
 
 #if 1
   while(1) {
