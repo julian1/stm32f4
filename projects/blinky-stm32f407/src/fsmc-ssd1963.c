@@ -242,6 +242,7 @@ uint16_t LCD_ReadReg(uint8_t LCD_Reg)
   msleep(1);
 
   /* Read 16-bit Reg */
+
   return (LCD->LCD_RAM);
  }
 

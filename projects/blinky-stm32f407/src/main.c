@@ -256,6 +256,30 @@ int main(void)
 
   // LCD_ReadReg( 0x00 );  // nop
 
+
+  while(1) {
+
+    // also see read_ddb. a lot of serial stuff. 
+
+    // reg = 0x0A;   // == 1000
+    reg = 0xA1;   // 6 parameter register.
+
+    LCD_SetAddr(reg );
+    usart_printf("reg %u (%02x)  r\n", reg,  reg);
+
+    x = LCD_ReadData();
+    usart_printf("%u  %s\n", x, format_bits(buf, 16, x));
+
+    x = LCD_ReadData();
+    usart_printf("%u  %s\n", x, format_bits(buf, 16, x));
+
+
+    msleep(1000);
+
+  }
+
+
+
   while(1) {
 
     // also see read_ddb. a lot of serial stuff. 
