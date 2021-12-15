@@ -301,7 +301,7 @@ static void LCD_Init(void)
   fsmc_setup(1);
   msleep(10);
 
-  LCD_Write_COM(0x01);    // software reset
+  LCD_Write_COM(0x01);    // software reset (JA requiredJ).
   msleep(100);
 
   // https://github.com/jscrane/UTFT-Energia/blob/master/tft_drivers/ssd1963/480/initlcd.h
@@ -416,7 +416,11 @@ static void LCD_Init(void)
 
   usart_printf("writing some data\n");
 
+  /*
+    it's hard to see the change against background unless, 
 
+
+  */
   // setXY(20, 20, 479, 271);
   setXY(20, 20, 100, 100);
   // setXY(20, 20, 100, 100);
