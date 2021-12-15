@@ -426,6 +426,8 @@ static void LCD_Init(void)
 
   // LCD_Write_COM(0x2C);    // JA write memory start
   for( int i  = 20 * 20 ; i < 100 * 200; ++i ) {
+
+    // NO. should be 16bit values.... not 8 bit. eg. only registers use lower 8 bits of 16 bit bus. 
     LCD_Write_DATA(0x00);
     LCD_Write_DATA(0x00); // hmmmmm
     LCD_Write_DATA(0xff );
