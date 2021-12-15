@@ -46,8 +46,14 @@ void tft_gpio_init(void)
   #define TFT_REST            GPIO1
 
   gpio_mode_setup(TFT_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, TFT_LED_A | TFT_REST);
-  gpio_set( TFT_GPIO_PORT, TFT_LED_A ); // turn on backlight. works!!!
 
+
+}
+
+
+
+void tft_reset(void )
+{
 
   usart_printf("pull reset lo\n");
   // reset. pull lo then high.
@@ -57,28 +63,27 @@ void tft_gpio_init(void)
   gpio_set( TFT_GPIO_PORT, TFT_REST);
   msleep(1000);
 
+
+  gpio_set( TFT_GPIO_PORT, TFT_LED_A ); // turn on backlight. works!!!
 }
 
 
-
-
-
-
-
-
-void fsmc_setup(void)
+void fsmc_setup(uint8_t divider)
 {
 
   /*
     https://titanwolf.org/Network/Articles/Article?AID=198f4410-66a4-4bee-a263-bfbb244dbc45
+
+    https://github.com/stm32f4/library/blob/master/SSD1963/GLCD.c
+
+  FSMC_NORSRAMTimingInitStructureRead.FSMC_DataSetupTime = 5 * divider;
+  FSMC_NORSRAMTimingInitStructureWrite.FSMC_DataSetupTime = 1 * divider;
   */
 
 #if 0
  /* Enable PORTD and PORTE */
   rcc_periph_clock_enable(RCC_GPIOD);
-
   rcc_periph_clock_enable(RCC_GPIOE);
-
 
  /* Enable FSMC */
   rcc_periph_clock_enable(RCC_FSMC);
@@ -138,19 +143,17 @@ void fsmc_setup(void)
 
 
 
-#if 0
-#endif
 
 
  /* config FSMC register */
   FSMC_BTR(0) = FSMC_BTR_ACCMODx(FSMC_BTx_ACCMOD_B) |
                 FSMC_BTR_DATLATx(0)  |
-                FSMC_BTR_CLKDIVx(0)  |
+                FSMC_BTR_CLKDIVx(0)  | // note. 0 not divider
                 // FSMC_BTR_CLKDIVx(16)  |
                 FSMC_BTR_BUSTURNx(0) |
-                FSMC_BTR_DATASTx(5)  |
+                FSMC_BTR_DATASTx(5 * divider)  |
                 FSMC_BTR_ADDHLDx(0)  |
-                FSMC_BTR_ADDSETx(1);
+                FSMC_BTR_ADDSETx(1 * divider);
 
 
   FSMC_BCR(0) = FSMC_BCR_WREN | FSMC_BCR_MWID | FSMC_BCR_MBKEN;

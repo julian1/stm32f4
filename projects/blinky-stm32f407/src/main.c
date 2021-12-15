@@ -218,10 +218,14 @@ int main(void)
 
 
   // make sure have access to usart_printf
-  fsmc_setup();
+  // fsmc_setup();
+
+  fsmc_setup(12);
 
   // do the reset.
   tft_gpio_init();
+  
+  tft_reset();
 
 
 
@@ -265,7 +269,7 @@ int main(void)
 
   */
 
-#if 0
+#if 1
   while(1) {
 
     // also see read_ddb. a lot of serial stuff. 

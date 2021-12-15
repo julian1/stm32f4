@@ -2,7 +2,10 @@
 
 void tft_gpio_init(void);
 
-void fsmc_setup(void);
+void tft_reset(void );
+
+
+void fsmc_setup(uint8_t divider);
 
 
 uint16_t LCD_ReadReg(uint8_t LCD_Reg);
