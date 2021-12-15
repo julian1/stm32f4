@@ -267,7 +267,7 @@ int main(void)
     // also see read_ddb. a lot of serial stuff. 
 
     // reg = 0x0A;   // == 1000
-    reg = 0xA1;   // 6 parameter register.
+    reg = 0xA1;   // read_ddb,    5 parameter register.
 
     LCD_SetAddr(reg );
     usart_printf("reg %u (%02x)  r\n", reg,  reg);
@@ -281,9 +281,13 @@ int main(void)
     x = LCD_ReadData();
     usart_printf("%02u  %s\n", x, format_bits(buf, 16, x));
 
+    x = LCD_ReadData();
+    usart_printf("%02u  %s\n", x, format_bits(buf, 16, x));
+
+    x = LCD_ReadData();
+    usart_printf("%02u  %s\n", x, format_bits(buf, 16, x));
 
     msleep(1000);
-
   }
 
 
