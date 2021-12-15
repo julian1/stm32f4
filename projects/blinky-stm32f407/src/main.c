@@ -162,11 +162,14 @@ int main(void)
 	// rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_OTGFS);
 
+
+  // TFT
   // SHOULD PUT ALL TFT stuff in header... or at least predeclare.
   // parallel tft / ssd1963
-  rcc_periph_clock_enable(RCC_GPIOE);
   rcc_periph_clock_enable(RCC_GPIOD);
+  rcc_periph_clock_enable(RCC_GPIOE);
 
+  rcc_periph_clock_enable(RCC_FSMC);
 
 
   // spi / ice40

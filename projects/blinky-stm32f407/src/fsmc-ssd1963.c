@@ -73,6 +73,7 @@ void fsmc_setup(void)
     https://titanwolf.org/Network/Articles/Article?AID=198f4410-66a4-4bee-a263-bfbb244dbc45
   */
 
+#if 0
  /* Enable PORTD and PORTE */
   rcc_periph_clock_enable(RCC_GPIOD);
 
@@ -81,16 +82,17 @@ void fsmc_setup(void)
 
  /* Enable FSMC */
   rcc_periph_clock_enable(RCC_FSMC);
+#endif
 
-
-
+  // uint8_t speed = GPIO_OSPEED_25MHZ;
+  uint8_t speed = GPIO_OSPEED_100MHZ;
 
  /* config FSMC data lines */
 
   uint16_t portd_gpios = GPIO0 | GPIO1 | GPIO8 | GPIO9 | GPIO10 | GPIO14 | GPIO15;
   // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, portd_gpios);
   gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, portd_gpios);
-  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, portd_gpios);
+  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, speed, portd_gpios);
   gpio_set_af(GPIOD, GPIO_AF12, portd_gpios);
 
 
@@ -98,7 +100,7 @@ void fsmc_setup(void)
   uint16_t porte_gpios = GPIO7 | GPIO8 | GPIO9 | GPIO10 | GPIO11 | GPIO12 | GPIO13 | GPIO14 | GPIO15;
   // gpio_set_mode(GPIOE, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, porte_gpios);
   gpio_mode_setup(GPIOE, GPIO_MODE_AF, GPIO_PUPD_NONE, porte_gpios);
-  gpio_set_output_options(GPIOE, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, porte_gpios);
+  gpio_set_output_options(GPIOE, GPIO_OTYPE_PP, speed, porte_gpios);
   gpio_set_af(GPIOE, GPIO_AF12, porte_gpios);
 
 
@@ -107,14 +109,14 @@ void fsmc_setup(void)
  /* config FSMC NOE */
   // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO4);
   gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO4);
-  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO4);
+  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, speed, GPIO4);
   gpio_set_af(GPIOD, GPIO_AF12, GPIO4);
 
 
  /* config FSMC NWE */
   // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO5);
   gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO5);
-  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO5);
+  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, speed, GPIO5);
   gpio_set_af(GPIOD, GPIO_AF12, GPIO5);
 
 
@@ -122,7 +124,7 @@ void fsmc_setup(void)
   /* JA PD7 CS */
   // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO7);
   gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO7);
-  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO7);
+  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, speed, GPIO7);
   gpio_set_af(GPIOD, GPIO_AF12, GPIO7);
 
 
@@ -131,7 +133,7 @@ void fsmc_setup(void)
   /* JA PD11  RS */
   // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO11);
   gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11);
-  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO11);
+  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, speed, GPIO11);
   gpio_set_af(GPIOD, GPIO_AF12, GPIO11);
 
 
