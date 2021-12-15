@@ -212,13 +212,26 @@ static uint16_t LCD_ReadRAM(void)
 
 
 
-void LCD_TouchReg(uint8_t LCD_Reg)
+void LCD_SetAddr(uint8_t LCD_Reg)
 {
   /* Write 16-bit Index (then Read Reg) */
   LCD->LCD_REG = LCD_Reg;
 
 
 }
+
+
+uint16_t LCD_ReadData()
+{
+  /* Read 16-bit Reg */
+  return (LCD->LCD_RAM);
+
+}
+
+//////////////////
+
+
+
 
 uint16_t LCD_ReadReg(uint8_t LCD_Reg)
  {

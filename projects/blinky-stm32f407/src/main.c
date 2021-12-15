@@ -236,10 +236,11 @@ int main(void)
   volatile uint16_t x;
 
 
-  
+ /* 
   // LCD_TouchReg( 0x01 );  // soft reset
   LCD_TouchReg( 0x01 );  // soft reset
   msleep(1000);
+*/
 
   // ok. its an interleaving issue. the value read. is getting the value from the previous register read ...
   // because 16/8 bit issue?
@@ -272,6 +273,7 @@ int main(void)
 
 
   // wrong....
+  // does it take parameters???? though... 
     reg = 0x26;   // == 1000
     x = LCD_ReadReg( reg );
     usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
