@@ -99,16 +99,13 @@ public:
                                    unsigned len,
                                    const color_type& c)
         {
-/*
+        /*
           // std::cout << "copy_hline       x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  << std::endl;
-*/
+        */
           setXY(x, y, x + len, y + 1);   // y + 1 ????
           for( int i = 0; i < len; ++i ) {
             LCD_WriteData(   packRGB565( c.r, c.g, c.b)  ) ; 
           }
-
-                          
-
 
         }
 
@@ -128,7 +125,7 @@ public:
           std::cout << std::endl;
           */
 
-          setXY(x, y, x + len, y );   // y + 1 ????
+          setXY(x, y, x + len, y + 1);   // how is this working without y + 1 ????
           for( int i = 0; i < len; ++i ) {
             LCD_WriteData(   packRGB565( c.r, c.g, c.b)  ) ; 
           }
@@ -141,9 +138,14 @@ public:
                          const color_type& c,
                          int8u cover)
         {
-/*
+        /*
           std::cout << "blend_hline       x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  << " cover " << int(cover) << std::endl;
-*/
+        */
+          setXY(x, y, x + len, y + 1);   // how is this working without y + 1 ????
+          for( int i = 0; i < len; ++i ) {
+            LCD_WriteData(   packRGB565( c.r, c.g, c.b)  ) ; 
+          }
+
         }
 
 
