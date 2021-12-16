@@ -13,8 +13,8 @@ GFXSRC=./gfx/src
 GFXINC=./gfx/include
 
 
-AGGSRC=./agg-svn-r138-agg-2.4/examples
-AGGINC=./agg-svn-r138-agg-2.4/include/ 
+AGGSRC=${TOP}/agg-svn-r138-agg-2.4/examples
+AGGINC=${TOP}/agg-svn-r138-agg-2.4/include/ 
 
 
 
