@@ -46,6 +46,18 @@
 
 
 
+#include "fsmc-ssd1963.h"
+
+
+  
+
+
+
+
+
+
+
+
 
 
 
@@ -104,16 +116,25 @@ public:
                                const color_type& c,
                                const int8u* covers)
         {
-/*
+          /*
           std::cout << "blend_solid_hspan x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  ;
-
-
           std::cout << " covers ";
           for(unsigned i = 0; i < len; ++i ) {
             std::cout << int(covers[i]) << ", ";
           }
           std::cout << std::endl;
-*/
+          */
+
+          setXY(x, y, x + len, y );   // y + 1 ????
+          for( int i = 0; i < len; ++i ) {
+            uint16_t r = 0xff, g = 0xff, b = 0xff;    // white
+            // UNUSED(r); UNUSED(g); UNUSED(b);
+            // rgb 565
+
+            LCD_WriteData(    (r & 0x1f ) << 11 | (g & 0x3f) << 5 | (b & 0x1f)  ) ; 
+          }
+
+
         }
 
         void blend_hline(int x, int y,
