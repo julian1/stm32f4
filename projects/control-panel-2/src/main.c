@@ -312,6 +312,10 @@ int main(void)
 
   LCD_fillRect(1, 20, 480 -1, 30 , packRGB565( 0xff , 0xff, 0xff));
 
+
+  // LCD_fillRect(1, 50, 480 -1, 50 , packRGB565( 0xff , 0xff, 0xff)); // height of 0. draws nothing
+  LCD_fillRect(1, 50, 480 -1, 51 , packRGB565( 0xff , 0xff, 0xff)); // height of 1. draws
+
   // it flashes - and then disappears. something overriding
   
   // LCD_fillRect(20, 20, 100, 200, packRGB565( 0xff , 0xff, 0xff));
