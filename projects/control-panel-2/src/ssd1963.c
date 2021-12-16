@@ -127,6 +127,8 @@ static void  LCD_Write_DATA(uint16_t data)
 }
 
 // #define SWAP(a, b) do { typeof(a) temp = a; a = b; b = temp; } while (0)
+
+#define SWAP(t, a, b) do { t temp = a; a = b; b = temp; } while (0)
 // #define swap(a,b) SWAP(a,b)
 
 
@@ -144,16 +146,41 @@ void setXY(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2 )
   LCD_Write_COM(0x2a);  // JA set_column_address
     LCD_Write_DATA(x1>>8);
     LCD_Write_DATA(x1);
-    LCD_Write_DATA(x2>>8);
-    LCD_Write_DATA(x2);
+    LCD_Write_DATA((x2-1)>>8);
+    LCD_Write_DATA(x2-1);
   LCD_Write_COM(0x2b);  // JA set_page_address
     LCD_Write_DATA(y1>>8);
     LCD_Write_DATA(y1);
-    LCD_Write_DATA(y2>>8);
-    LCD_Write_DATA(y2);
+    LCD_Write_DATA((y2 - 1)>>8);
+    LCD_Write_DATA(y2-1);
   LCD_Write_COM(0x2c); // write_memory_start
   // break;
 }
+
+
+
+/*
+
+void SSD1963_WindowSet(u16 S_X,u16 S_Y,u16 E_X,u16 E_Y)       
+{
+
+  LCD_RS0_WR( 0x2a);
+  LCD_RS1_WR( (u8)((S_X>>8)) );
+  LCD_RS1_WR( (u8)(S_X   )   );
+  LCD_RS1_WR( (u8)((E_X-1)>>8) );
+  LCD_RS1_WR( (u8)(E_X-1)    ); 
+   
+    //Set Y Address
+  LCD_RS0_WR( 0x2b);
+  LCD_RS1_WR( (u8)((S_Y>>8))   );
+  LCD_RS1_WR( (u8)(S_Y   )   );
+  LCD_RS1_WR( (u8)((E_Y-1)>>8) );
+  LCD_RS1_WR( (u8)(E_Y-1)    ); 
+}
+*/
+
+
+
 
 void LCD_Init(void)
 {
@@ -318,20 +345,37 @@ uint16_t packRGB565( uint16_t r, uint16_t g, uint16_t b)
 void LCD_fillRect(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2, uint16_t c )
 {
 
-  int len =  x2 * y2 - x1 * y1;  // 19600
-  usart_printf("len %u\n", len);
+  // int len =  x2 * y2 - x1 * y1;  // 19600
+  // usart_printf("len %u\n", len);
 
-  int len2 =  (x2 - x1) * (y2 - y1 );  // 14400
-  usart_printf("len %u\n", len2);
-
+ int len =  (x2 - x1) * (y2 - y1 );  // 14400
+//  usart_printf("len %u\n", len2);
 
 
   setXY(x1, y1, x2, y2);
-  for( int i  = 0; i < len2 ; ++i ) { // x1 * y1 ; i < x2 * y2; ++i ) { // review
-  // for( int i  = (x2 - x1) * (y2 - y1); ++i ) { // review
+  // setXY(x2, y2, x1, y1);
+  // setXY(y1, x1, y2, x1);
+
+
+  for( int i  = 0; i < len ; ++i ) { 
     LCD_Write_DATA(   c  ) ;
   }
 
+
+/*
+  int k, l;
+
+for(k=y1;k<y2;k++)
+  
+   { 
+    for(l=x1;l<x2;l++)
+     {   
+
+    LCD_Write_DATA(   c  ) ;
+    // LCD_RS1_WR(color);
+    }
+   }
+*/
 
 }
  

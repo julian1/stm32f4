@@ -301,7 +301,20 @@ int main(void)
 
   LCD_Init();
 
-  LCD_fillRect(20, 20, 100, 200, packRGB565( 0xff , 0xff, 0xff));
+  // this is not quite right
+  // LCD_fillRect(0, 0, 480 -1, 272 -1 , packRGB565( 0xff , 0xff, 0xff));
+
+  // this is too weird...
+  LCD_fillRect(1, 1, 480 -1, 10 , packRGB565( 0xff , 0xff, 0xff));
+
+
+
+
+  LCD_fillRect(1, 20, 480 -1, 30 , packRGB565( 0xff , 0xff, 0xff));
+
+  // it flashes - and then disappears. something overriding
+  
+  // LCD_fillRect(20, 20, 100, 200, packRGB565( 0xff , 0xff, 0xff));
  
 
   /*
