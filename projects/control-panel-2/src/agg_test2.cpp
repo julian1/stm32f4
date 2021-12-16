@@ -102,11 +102,12 @@ public:
 /*
           // std::cout << "copy_hline       x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  << std::endl;
 */
-          setXY(x, y, x + len, y );   // y + 1 ????
+          setXY(x, y, x + len, y + 1);   // y + 1 ????
           for( int i = 0; i < len; ++i ) {
-           // rgb 565
-            LCD_WriteData(    (c.r & 0x1f ) << 11 | (c.g & 0x3f) << 5 | (c.b & 0x1f)  ) ; 
+            LCD_WriteData(   packRGB565( c.r, c.g, c.b)  ) ; 
           }
+
+                          
 
 
         }
@@ -129,8 +130,7 @@ public:
 
           setXY(x, y, x + len, y );   // y + 1 ????
           for( int i = 0; i < len; ++i ) {
-           // rgb 565
-            LCD_WriteData(    (c.r & 0x1f ) << 11 | (c.g & 0x3f) << 5 | (c.b & 0x1f)  ) ; 
+            LCD_WriteData(   packRGB565( c.r, c.g, c.b)  ) ; 
           }
 
 
