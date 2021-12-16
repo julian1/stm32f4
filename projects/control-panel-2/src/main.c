@@ -301,8 +301,17 @@ int main(void)
 
   LCD_Init();
 
+  LCD_fillRect(20, 20, 100, 200, packRGB565( 0xff , 0xff, 0xff));
+ 
 
-  agg_test2();
+  /*
+    it's hard to see the change against background unless,
+
+
+  */
+
+
+  // agg_test2();
 
   usart_printf("\n--------");
   usart_printf("\nstarting\n");

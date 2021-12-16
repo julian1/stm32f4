@@ -302,6 +302,35 @@ void LCD_Init(void)
 
 
 
+  // break;
+}
+
+
+
+
+uint16_t packRGB565( uint16_t r, uint16_t g, uint16_t b)
+{
+
+  return (r & 0x1f ) << 11 | (g & 0x3f) << 5 | (b & 0x1f) ;
+
+}
+
+void LCD_fillRect(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2, uint16_t c )
+{
+
+  setXY(x1, y1, x2, y2);
+  for( int i  = x1 * y1 ; i < x2 * y2; ++i ) { // review
+  // for( int i  = (x2 - x1) * (y2 - y1); ++i ) { // review
+    LCD_Write_DATA(   c  ) ;
+  }
+
+
+}
+ 
+#if 0
+void LCD_fillRect(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2, uint16_t c )
+{
+
   usart_printf("writing some data\n");
 
   /*
@@ -340,24 +369,25 @@ void LCD_Init(void)
     // 101 = 565 format
     // uint16_t r = 0xff, g = 0xff, b = 0xff;
     // uint16_t r = 0x00, g = 0x0, b = 0x0;    // black
-    uint16_t r = 0xff, g = 0xff, b = 0xff;    // white
+    // uint16_t r = 0xff, g = 0xff, b = 0xff;    // white
     // uint16_t r = 0x0, g = 0x0, b = 0xff;    // blue
+/*
     UNUSED(r);
     UNUSED(g);
     UNUSED(b);
-
+*/
     // rgb 565
     // LCD_Write_DATA(   (r & 0x1f ) << 11 /* | (g & 0x3f << 5) */  /*| (b & 0x1f )*/ ) ; // bright red. good.
     // LCD_Write_DATA(   0xffff  ) ; // works.
 
     // LCD_Write_DATA(    ((g & 0x3f) << 5)  ) ;   // bright green ???
 
-    LCD_Write_DATA(   (r & 0x1f ) << 11 | (g & 0x3f) << 5 | (b & 0x1f)  ) ;
+    // LCD_Write_DATA(   (r & 0x1f ) << 11 | (g & 0x3f) << 5 | (b & 0x1f)  ) ;
+
+    LCD_Write_DATA(   c  ) ;
 
   }
-
-
-  // break;
 }
+#endif
 
 
