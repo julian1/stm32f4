@@ -6,18 +6,10 @@
 
 //#include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
-
-
 #include <libopencm3/stm32/fsmc.h>
 
 
-
-#include "fsmc-ssd1963.h"
-
-
-// #include "usart2.h"
-// #include "cbuffer.h"
-
+#include "fsmc.h"
 #include "util.h"   // printf, msleep
 
 
@@ -159,6 +151,11 @@ void fsmc_setup(uint8_t divider)
 
 }
 
+
+
+
+
+
 // JA
 // #define __IO volatile
 #define __IO 
@@ -214,9 +211,11 @@ void LCD_SetAddr(uint8_t LCD_Reg)
   change later. 
   ----------
 
-  it appears register writing isn't working.
-  but the write command is 
-  are we sure the registers.
+  these need to be isolated to separate file, to avoid inlining.
+  issue 
+    1. with compiler optimisation. review.
+    2. too fast a timing setup. need to increase setup times.
+    3. volatile not being respected. (we removed the specifier).
 
 */
 

@@ -12,7 +12,7 @@
   openocd -f openocd.cfg
   rlwrap nc localhost 4444  # in new window
 
-   reset halt ; flash write_image erase unlock ../blinky-stm32f410cbt3/main.elf; sleep 1500; reset run
+  reset halt ; flash write_image erase unlock /home/me/devel/stm32/stm32f4/projects/control-panel-2/main.elf; sleep 1; reset run
 
   *********
   with gnu sprintf, and floating point code, this still fits in 27k, tested by editing f410.ld.  good!!
@@ -47,8 +47,9 @@
 
 #include "str.h"  //format_bits
 
-#include "fsmc-ssd1963.h"
+#include "fsmc.h"
 #include "ssd1963.h"
+#include "agg_test2.h"
 
 typedef struct app_t
 {
@@ -114,7 +115,7 @@ static void loop(app_t *app)
       soft_500ms += 500;
       led_toggle();
       // usart_printf("here\n");
-    
+
 
 #if 0
     {
@@ -189,7 +190,7 @@ static char buf_console_out[1000];
 static app_t app;
 
 
-/* 
+/*
 // - Color RGB R5 G6 B5 -------------------------------------------------------
 uint16_t SSD1963::Color565(uint8_t r, uint8_t g, uint8_t b) {
   uint16_t c;
@@ -200,14 +201,22 @@ uint16_t SSD1963::Color565(uint8_t r, uint8_t g, uint8_t b) {
   c |= b >> 3;
   return c;
 }
-*/ 
+*/
+
+
+
+
+/*
+  Ok, vertical is ok.   but we want to flip the horizontal origin.
+  to draw from top left. that shoudl be good for fillRect, and for agg letter.
+*/
 
 int main(void)
 {
 
   // required for usb
-	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz. works stm32f407 too.
-	// rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ] );  // stm32f407
+	// rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz. works stm32f407 too.
+	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ] );  // stm32f407
 
   /*
   // http://libopencm3.org/docs/latest/stm32f4/html/f4_2rcc_8h.html
@@ -253,10 +262,10 @@ int main(void)
   // 16MHz. from hsi datasheet.
   systick_setup(16000);
 */
-  // 84MHz.
-  systick_setup(84000);
-  // systick_setup(168000);
+
   // systick_setup(16000);
+  // systick_setup(84000);  // 84MHz.
+  systick_setup(168000);
 
 
   // led
@@ -300,6 +309,21 @@ int main(void)
 
   LCD_Init();
 
+  // put in function. LCD_testFill.
+
+  LCD_fillRect(1, 1, 480 -1, 10 , packRGB565( 0xff , 0xff, 0xff));
+
+  LCD_fillRect(1, 20, 480 -1, 30 , packRGB565( 0xff , 0xff, 0xff));
+
+
+  // LCD_fillRect(1, 50, 480 -1, 50 , packRGB565( 0xff , 0xff, 0xff)); // height of 0. draws nothing
+  LCD_fillRect(1, 50, 480 -1, 51 , packRGB565( 0xff , 0xff, 0xff)); // height of 1. draws
+
+
+  LCD_fillRect(5, 5, 50, 50, packRGB565( 0x0, 0x0, 0xff));
+
+
+  agg_test2();
 
 
   usart_printf("\n--------");

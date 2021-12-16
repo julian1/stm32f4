@@ -9,18 +9,18 @@ TOP=../../
 LIB2SRC=${TOP}/lib2/src
 LIB2INC=${TOP}/lib2/include
 
-AGGSRC=${TOP}/agg-svn-r138-agg-2.4/examples
+AGGSRC=${TOP}/agg-svn-r138-agg-2.4/src
 AGGINC=${TOP}/agg-svn-r138-agg-2.4/include/
 
 
 
 
 BINARY		= main
-SRCFILES	= ./src/main.c src/util.c src/fsmc-ssd1963.c src/ssd1963.c src/agg_test2.cpp \
+SRCFILES	= ./src/main.c src/util.c src/fsmc.c src/ssd1963.c src/agg_test2.cpp src/arial.cpp \
               ${LIB2SRC}/assert.c ${LIB2SRC}/cbuffer.c   ${LIB2SRC}/usart2.c  \
               ${LIB2SRC}/str.c \
-              ${LIB2SRC}/cdcacm.c ${LIB2SRC}/usb_f107.c
-
+              ${LIB2SRC}/cdcacm.c ${LIB2SRC}/usb_f107.c \
+              ${AGGSRC}/agg_trans_affine.cpp  ${AGGSRC}//agg_curves.cpp 
 
 
 # TODO - update to use 512k.
@@ -44,7 +44,7 @@ TGT_CXXFLAGS += -I./include
 
 
 
-LDLIBS		+= -lm
+LDLIBS		+= -lm -lstdc++
 # LDLIBS		+= -lm  -lstdc++  #-static-libstdc++
 
 include ${TOP}/Makefile.incl
