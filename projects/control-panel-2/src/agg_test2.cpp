@@ -102,6 +102,13 @@ public:
 /*
           // std::cout << "copy_hline       x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  << std::endl;
 */
+          setXY(x, y, x + len, y );   // y + 1 ????
+          for( int i = 0; i < len; ++i ) {
+           // rgb 565
+            LCD_WriteData(    (c.r & 0x1f ) << 11 | (c.g & 0x3f) << 5 | (c.b & 0x1f)  ) ; 
+          }
+
+
         }
 
 
@@ -122,10 +129,7 @@ public:
 
           setXY(x, y, x + len, y );   // y + 1 ????
           for( int i = 0; i < len; ++i ) {
-            // uint16_t r = 0xff, g = 0xff, b = 0xff;    // white
-            // UNUSED(r); UNUSED(g); UNUSED(b);
-            // rgb 565
-
+           // rgb 565
             LCD_WriteData(    (c.r & 0x1f ) << 11 | (c.g & 0x3f) << 5 | (c.b & 0x1f)  ) ; 
           }
 
@@ -643,7 +647,7 @@ int agg_test2()
 
      agg::renderer_base<pixfmt_t>   rb(pixf);
 
-     rb.clear(agg::rgba(1,0,0));     // red.
+     rb.clear(agg::rgba(0,0,1));     // blue.
 
 
     agg::path_storage            m_path;
