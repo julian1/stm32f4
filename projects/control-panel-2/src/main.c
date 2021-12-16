@@ -49,6 +49,7 @@
 
 #include "fsmc.h"
 #include "ssd1963.h"
+#include "agg_test2.h"
 
 typedef struct app_t
 {
@@ -301,6 +302,7 @@ int main(void)
   LCD_Init();
 
 
+  agg_test2();
 
   usart_printf("\n--------");
   usart_printf("\nstarting\n");

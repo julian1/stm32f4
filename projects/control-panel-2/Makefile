@@ -44,7 +44,7 @@ TGT_CXXFLAGS += -I./include
 
 
 
-LDLIBS		+= -lm
+LDLIBS		+= -lm -lstdc++
 # LDLIBS		+= -lm  -lstdc++  #-static-libstdc++
 
 include ${TOP}/Makefile.incl

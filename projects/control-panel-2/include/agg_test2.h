@@ -2,8 +2,17 @@
 
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-extern "C" int agg_test2(void);
 
+
+int agg_test2(void);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 
