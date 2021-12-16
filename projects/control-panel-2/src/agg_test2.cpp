@@ -42,6 +42,12 @@
 
 // #include <iostream>
 
+#include "agg_test2.h"
+
+
+
+
+
 
 using namespace agg;
 
@@ -609,7 +615,7 @@ public:
 
 */
 
-int main2()
+int agg_test2()
 {
 
     // packed rgb565 

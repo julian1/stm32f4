@@ -10,7 +10,7 @@ LIB2SRC=${TOP}/lib2/src
 LIB2INC=${TOP}/lib2/include
 
 AGGSRC=${TOP}/agg-svn-r138-agg-2.4/examples
-AGGINC=${TOP}/agg-svn-r138-agg-2.4/include/ 
+AGGINC=${TOP}/agg-svn-r138-agg-2.4/include/
 
 
 
@@ -19,11 +19,11 @@ BINARY		= main
 SRCFILES	= ./src/main.c src/util.c src/fsmc-ssd1963.c  src/agg_test2.cpp \
               ${LIB2SRC}/assert.c ${LIB2SRC}/cbuffer.c   ${LIB2SRC}/usart2.c  \
               ${LIB2SRC}/str.c \
-              ${LIB2SRC}/cdcacm.c ${LIB2SRC}/usb_f107.c   
+              ${LIB2SRC}/cdcacm.c ${LIB2SRC}/usb_f107.c
 
 
 
-# TODO - update to use 512k. 
+# TODO - update to use 512k.
 LDSCRIPT	= ${TOP}/f411.ld
 
 
@@ -40,6 +40,9 @@ TGT_CFLAGS	+= -I${LIB2INC}
 TGT_CFLAGS	+= -I./include    # FIXME, should be before lib2inc
 
 TGT_CXXFLAGS += -I${AGGINC}
+TGT_CXXFLAGS += -I./include
+
+
 
 LDLIBS		+= -lm
 # LDLIBS		+= -lm  -lstdc++  #-static-libstdc++
