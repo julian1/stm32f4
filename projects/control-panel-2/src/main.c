@@ -47,7 +47,7 @@
 
 #include "str.h"  //format_bits
 
-#include "fsmc-ssd1963.h"
+#include "fsmc.h"
 #include "ssd1963.h"
 
 typedef struct app_t

@@ -6,18 +6,10 @@
 
 //#include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
-
-
 #include <libopencm3/stm32/fsmc.h>
 
 
-
-#include "fsmc-ssd1963.h"
-
-
-// #include "usart2.h"
-// #include "cbuffer.h"
-
+#include "fsmc.h"
 #include "util.h"   // printf, msleep
 
 
@@ -214,9 +206,8 @@ void LCD_SetAddr(uint8_t LCD_Reg)
   change later. 
   ----------
 
-  it appears register writing isn't working.
-  but the write command is 
-  are we sure the registers.
+  these need to be isolated. and not inlined.
+  issue with compiler optimisation. review.
 
 */
 

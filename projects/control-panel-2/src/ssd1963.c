@@ -5,8 +5,8 @@
 
 #include <stdint.h>
 
+#include "fsmc.h"
 #include "ssd1963.h"
-#include "fsmc-ssd1963.h"
 
 #include "util.h"   // printf, msleep
 
