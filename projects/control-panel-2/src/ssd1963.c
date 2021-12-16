@@ -318,8 +318,16 @@ uint16_t packRGB565( uint16_t r, uint16_t g, uint16_t b)
 void LCD_fillRect(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2, uint16_t c )
 {
 
+  int len =  x2 * y2 - x1 * y1;  // 19600
+  usart_printf("len %u\n", len);
+
+  int len2 =  (x2 - x1) * (y2 - y1 );  // 14400
+  usart_printf("len %u\n", len2);
+
+
+
   setXY(x1, y1, x2, y2);
-  for( int i  = x1 * y1 ; i < x2 * y2; ++i ) { // review
+  for( int i  = 0; i < len2 ; ++i ) { // x1 * y1 ; i < x2 * y2; ++i ) { // review
   // for( int i  = (x2 - x1) * (y2 - y1); ++i ) { // review
     LCD_Write_DATA(   c  ) ;
   }
