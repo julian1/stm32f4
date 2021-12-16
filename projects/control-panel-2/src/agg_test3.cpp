@@ -1,40 +1,32 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdio.h> // snprintf
 // #include "agg_pixfmt_rgb24.h"
 // #include "agg_pixfmt_rgb.h"
-#include "agg_pixfmt_rgb_packed.h"  // rgb565
 
 #include "agg_conv_curve.h"
 #include "agg_conv_contour.h"
 
 
-#include "agg_basics.h"
+// #include "agg_basics.h"
 // #include "agg_rendering_buffer.h"
 
-#include "agg_rendering_buffer.h"
-
 #include "agg_rasterizer_scanline_aa.h"
-
 #include "agg_scanline_p.h"
 #include "agg_renderer_scanline.h"
 
-
+// for fonts
 #include "agg_path_storage.h"
-// #include "agg_basics.h"
-
 #include "agg_path_storage_integer.h"
 
 
-// #include <iostream>
 
-#include "agg_test2.h"
+#include "agg_test3.h"
 
 
 
 #include "assert.h"
-#include "fsmc.h"
-#include "ssd1963.h"
 #include "util.h"
 
 
@@ -48,138 +40,6 @@ extern int arial_glyph_advance_y[256] ;
 
 
 
-
-
-using namespace agg;
-
-//===========================================pixfmt_alpha_blend_rgb_packed
-template<class Blender,  class RenBuf> class pixfmt_alpha_blend_rgb_packed
-{
-  // eg. from agg_pixfmt_rgb_packed.h
-public:
-
-    // for consumers
-    typedef RenBuf   rbuf_type;
-    typedef typename rbuf_type::row_data row_data;
-    typedef Blender  blender_type;
-    typedef typename blender_type::color_type color_type;
-/*
-    typedef typename blender_type::pixel_type pixel_type;
-    typedef int                               order_type; // A fake one
-    typedef typename color_type::value_type   value_type;
-    typedef typename color_type::calc_type    calc_type;
-    enum base_scale_e
-    {
-        base_shift = color_type::base_shift,
-        base_scale = color_type::base_scale,
-        base_mask  = color_type::base_mask,
-        pix_width  = sizeof(pixel_type),
-    };
-
-*/
-
-
-public:
-  /*
-    EXTR. IMPORTANT
-    - So. we could actually do a memory read of the pixel data. for the line.
-    - to do proper blending.
-    - in order that we do not have to pass an additional fake background color.
-    - this is in fact a real advantage of using a bitmap rather than blt fill operations.
-    - most stuff is sold fill though - so reading shouldn't be too costly.
-    ------
-    alternatively we could do a gamma threshold of the coverage/ for non aa.
-  */
-
-    /*
-      EXTR.
-        need to fill a rect. with agg.
-        it may be better to affine rotate the character... maybe on load.
-        see rb.copy_bar()
-
-      - need to handle vertical reversed . how is this done normally with agg. with the render buffer?
-      - not sure. if we used bottom left. then everything would be nice.
-      arduino gfx.
-        The coordinate system places the origin (0,0) at the top left corner, with positive X increasing to the right and positive Y increasing downward.
-      EXTR.
-        i think that always rendering is equivalent to gamma==1.
-      EXTR.
-        need to invert the char geometry.
-
-    */
-
-    explicit pixfmt_alpha_blend_rgb_packed(/* rbuf_type& rb */) //:
-        // m_rbuf(&rb)
-    {}
-
-
-    AGG_INLINE unsigned width()  const { return 480;  }
-    AGG_INLINE unsigned height() const { return 272; }
-    // AGG_INLINE int      stride() const { return m_rbuf->stride(); }
-
-    AGG_INLINE void copy_hline(int x, int y,
-                               unsigned len,
-                               const color_type& c)
-    {
-    /*
-      // std::cout << "copy_hline       x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  << std::endl;
-    */
-      setXY(x, y, x + len, y + 1);   // y + 1 ????
-      for( int i = 0; i < len; ++i ) {
-        LCD_WriteData(   packRGB565( c.r, c.g, c.b)  ) ;
-      }
-
-    }
-
-
-
-    void blend_solid_hspan(int x, int y,
-                           unsigned len,
-                           const color_type& c,
-                           const int8u* covers)
-    {
-      /*
-      std::cout << "blend_solid_hspan x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  ;
-      std::cout << " covers ";
-      for(unsigned i = 0; i < len; ++i ) {
-        std::cout << int(covers[i]) << ", ";
-      }
-      std::cout << std::endl;
-      */
-
-      setXY(x, y, x + len, y + 1);   // how is this working without y + 1 ????
-      for( int i = 0; i < len; ++i ) {
-        LCD_WriteData(   packRGB565( c.r, c.g, c.b)  ) ;
-      }
-
-
-    }
-
-    void blend_hline(int x, int y,
-                     unsigned len,
-                     const color_type& c,
-                     int8u cover)
-    {
-    /*
-      std::cout << "blend_hline       x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  << " cover " << int(cover) << std::endl;
-    */
-      setXY(x, y, x + len, y + 1);   // how is this working without y + 1 ????
-      for( int i = 0; i < len; ++i ) {
-        LCD_WriteData(   packRGB565( c.r, c.g, c.b)  ) ;
-      }
-
-    }
-
-};
-
-
-
-
-
-// packed rgb565
-typedef ::pixfmt_alpha_blend_rgb_packed<agg::blender_rgb565, agg::rendering_buffer> pixfmt_t;
-
-typedef agg::renderer_base<pixfmt_t>   rb_t ;
 
 /*
   so we would move this into an include file? ....
@@ -200,7 +60,7 @@ void drawText(rb_t & rb , agg::trans_affine &mtx, const char *s)
 
     int x  = 0;
 
-   uint32_t start = system_millis;
+   // uint32_t start = system_millis;
 
     for( const char *p = s; *p; ++p)  {
 
@@ -208,6 +68,10 @@ void drawText(rb_t & rb , agg::trans_affine &mtx, const char *s)
 
         // whoot it links
         font_path_type *path = arial_glyph[ ch ];
+        if(!path) {
+          x += 10;
+          continue;
+        }
         assert( path );
 
         // TODO add a translate() method... or add an adapter
@@ -227,59 +91,115 @@ void drawText(rb_t & rb , agg::trans_affine &mtx, const char *s)
     }
 
 
-    usart_printf("agg text draw %ums\n", system_millis - start );
+    // usart_printf("agg text draw %ums\n", system_millis - start );
+
+    // nothing is displayed????
 
 
 }
 
 
-int agg_test2()
+/*
+  ok. so drawing a clear background, then drawing over the top, will always produces flicker.
+
+  so use paging/scrolling.
+  actually the speed will be just the same.
+  drawing optimisation (eg. fill or character buffering etc) can still be used to improve speed.
+  ---
+
+  setBufferA/B.
+    should do two things - set a y offet for current drawing. and set the scroll to the other page.
+    We can concentrate the Y offet. not in the agg part. but in the setXY call.
+    excellent.
+
+
+
+*/
+
+
+/*
+  (800 * 480) / (480 * 272)
+  2.941
+  == 3x the number of pixels.
+
+  eg. drawtime will go from 50ms to 150ms.
+  not very nice.
+*/
+
+
+extern "C" int agg_test3(  )
 {
 
-
-    pixfmt_t  pixf;
-
-
-    agg::renderer_base<pixfmt_t>   rb(pixf);
-
-    uint32_t start;
-
-    start = system_millis;
-    rb.clear(agg::rgba(1,1,1));     // white .
-    usart_printf("rb.clear() %ums\n", system_millis - start );
+  // persist the page that we need to draw
+  static int page = 0; // page to use
+  page = ! page;
 
 
-    // EXTR. this is a clear/fillRect that is not subpixel, and simple.
-    // see, agg_renderer_base.h.
-    start = system_millis;
-    rb.copy_bar(20, 20, 100, 200, agg::rgba(1,0,0));
-    usart_printf("copy_bar()  %ums\n", system_millis - start );
-
-    // EXTR. IMPORTANT confirm we have floating point enabled.
-    // looks ok.
+  // set up our buffer
+  pixfmt_t  pixf(  page *  272 );
+  agg::renderer_base<pixfmt_t>   rb(pixf);
 
 
-    // http://agg.sourceforge.net/antigrain.com/demo/conv_contour.cpp.html
-    // https://coconut2015.github.io/agg-tutorial/agg__trans__affine_8h_source.html
-    agg::trans_affine mtx;
-    // mtx.flip_y();
-    // mtx *= agg::trans_affine_scaling(1.0, -1); // this inverts/flips the glyph, relative to origin. but not in place.
-    mtx *= agg::trans_affine_translation(50, 50);   // this moves from above origin, back into the screen.
-    mtx *= agg::trans_affine_rotation(10.0 * 3.1415926 / 180.0);
-    mtx *= agg::trans_affine_scaling(2.0); // now scale it
 
 
-    const char *s = "hello123";
-    drawText(rb , mtx, s );
+  uint32_t start = system_millis;
 
 
-    // non anti aliased.
-    // agg::renderer_scanline_bin_solid(
+  rb.clear(agg::rgba(1,1,1));     // white .
+  //   usart_printf("rb.clear() %ums\n", system_millis - start );
 
 
-    // setOriginBottomLeft(); // cartesion/ fonts/ postscript
+  // EXTR. this is a clear/fillRect that is not subpixel, and simple.
+  // see, agg_renderer_base.h.
+  rb.copy_bar(20, 20, 100, 200, agg::rgba(1,0,0));
 
-    // agg::path_storage            m_path2;
+  // fill  for background text
+  // rb.copy_bar(40, 40, 400, 200, agg::rgba(1,1,1));
+
+
+  // EXTR. IMPORTANT confirm we have floating point enabled.
+  // looks ok.
+
+
+  // http://agg.sourceforge.net/antigrain.com/demo/conv_contour.cpp.html
+  // https://coconut2015.github.io/agg-tutorial/agg__trans__affine_8h_source.html
+  agg::trans_affine mtx;
+  // mtx.flip_y();
+  // mtx *= agg::trans_affine_scaling(1.0, -1); // this inverts/flips the glyph, relative to origin. but not in place.
+  mtx *= agg::trans_affine_translation(50, 50);   // this moves from above origin, back into the screen.
+  mtx *= agg::trans_affine_rotation(10.0 * 3.1415926 / 180.0);
+  mtx *= agg::trans_affine_scaling(2.0); // now scale it
+
+
+  // check if font has a space char...
+  // missing the '7' char/ aparently.
+
+  static int count = 0;
+  char buf[100];
+  snprintf(buf, 100, "whoot%u", count++);
+
+  // const char *s = "hello123";
+  drawText(rb , mtx, buf );
+
+
+  usart_printf("total draw time %ums\n", system_millis - start );
+
+
+  // flip the newly drawn page in
+  setScrollStart( page *  272 );
+
+
+
+
+
+
+  // non anti aliased.
+  // agg::renderer_scanline_bin_solid(
+
+
+  // setOriginBottomLeft(); // cartesion/ fonts/ postscript
+
+  // agg::path_storage            m_path2;
 #if 0
       m_path.remove_all();
       m_path.move_to(10, 10);

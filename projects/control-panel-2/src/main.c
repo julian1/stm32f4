@@ -12,7 +12,7 @@
   openocd -f openocd.cfg
   rlwrap nc localhost 4444  # in new window
 
-   reset halt ; flash write_image erase unlock ../blinky-stm32f410cbt3/main.elf; sleep 1500; reset run
+  reset halt ; flash write_image erase unlock /home/me/devel/stm32/stm32f4/projects/control-panel-2/main.elf; sleep 1; reset run
 
   *********
   with gnu sprintf, and floating point code, this still fits in 27k, tested by editing f410.ld.  good!!
@@ -47,8 +47,9 @@
 
 #include "str.h"  //format_bits
 
-#include "fsmc-ssd1963.h"
+#include "fsmc.h"
 #include "ssd1963.h"
+#include "agg_test2.h"
 
 typedef struct app_t
 {
@@ -90,6 +91,12 @@ static void update_console_cmd(app_t *app)
 
 
 
+// from agg_test3.cpp
+int agg_test3( void );
+
+
+
+
 static void loop(app_t *app)
 {
   /*
@@ -114,67 +121,12 @@ static void loop(app_t *app)
       soft_500ms += 500;
       led_toggle();
       // usart_printf("here\n");
-    
 
-#if 0
-    {
-    // weird - attempting to read the register kills it ????
-    // why? because the asserting of the address is treated as a command.
-
-    char buf[100];
-    uint16_t reg = 0xE2;   //
-
-    LCD_SetAddr(reg );
-    uint16_t x1 = LCD_ReadData();
-    uint16_t x2 = LCD_ReadData();
-    uint16_t x3 = LCD_ReadData();
-    usart_printf("reg %u (%02x)  r\n", reg,  reg);
-    usart_printf("%03u  %s\n", x1, format_bits(buf, 16, x1));
-    usart_printf("%03u  %s\n", x2, format_bits(buf, 16, x2));
-    usart_printf("%03u  %s\n", x3, format_bits(buf, 16, x3));
+      // LCD_Read_DDB();
     }
-#endif
 
 
-
-#if 0
-    {
-    /*
-    // read_ddb. a lot of serial stuff.
-    reg 161 (a1)  r
-      001  0000000000000001
-      087  0000000001010111
-      097  0000000001100001
-      001  0000000000000001
-      255  0000000011111111
-    */
-
-    // reg = 0x0A;   // == 1000
-    char buf[100];
-    uint16_t reg = 0xA1;   // read_ddb,    5 parameter register.
-    //uint16_t reg = 0xE2;   //
-
-    //  LCD_SetAddr(reg );
-    LCD_WriteCommand( reg ) ;
-
-
-    uint16_t x1 = LCD_ReadData();
-    uint16_t x2 = LCD_ReadData();
-    uint16_t x3 = LCD_ReadData();
-    uint16_t x4 = LCD_ReadData();
-    uint16_t x5 = LCD_ReadData();
-
-    usart_printf("reg %u (%02x)  r\n", reg,  reg);
-    usart_printf("%03u  %s\n", x1, format_bits(buf, 16, x1));
-    usart_printf("%03u  %s\n", x2, format_bits(buf, 16, x2));
-    usart_printf("%03u  %s\n", x3, format_bits(buf, 16, x3));
-    usart_printf("%03u  %s\n", x4, format_bits(buf, 16, x4));
-    usart_printf("%03u  %s\n", x5, format_bits(buf, 16, x5));
-  }
-#endif
-
-  }
-
+    agg_test3( );
 
   }
 }
@@ -189,25 +141,24 @@ static char buf_console_out[1000];
 static app_t app;
 
 
-/* 
-// - Color RGB R5 G6 B5 -------------------------------------------------------
-uint16_t SSD1963::Color565(uint8_t r, uint8_t g, uint8_t b) {
-  uint16_t c;
-  c = r >> 3;
-  c <<= 6;
-  c |= g >> 2;
-  c <<= 5;
-  c |= b >> 3;
-  return c;
-}
-*/ 
+
+//                agg_test3( );
+
+// extern "C" int agg_test3(  )
+
+
+
+/*
+  Ok, vertical is ok.   but we want to flip the horizontal origin.
+  to draw from top left. that shoudl be good for fillRect, and for agg letter.
+*/
 
 int main(void)
 {
 
   // required for usb
-	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz. works stm32f407 too.
-	// rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ] );  // stm32f407
+	// rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz. works stm32f407 too.
+	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ] );  // stm32f407
 
   /*
   // http://libopencm3.org/docs/latest/stm32f4/html/f4_2rcc_8h.html
@@ -249,14 +200,12 @@ int main(void)
   //////////////////////
   // setup
 
-/*
+
   // 16MHz. from hsi datasheet.
-  systick_setup(16000);
-*/
-  // 84MHz.
-  systick_setup(84000);
-  // systick_setup(168000);
   // systick_setup(16000);
+  // systick_setup(16000);
+  // systick_setup(84000);  // 84MHz.
+  systick_setup(168000);
 
 
   // led
@@ -288,33 +237,20 @@ int main(void)
 
 
 
-  // make sure have access to usart_printf
-
-
-
-
   fsmc_gpio_setup();
 
   fsmc_setup(1);
   tft_reset();
 
   LCD_Init();
+  // LCD_TestFill();
 
+
+  // agg_test3( );
 
 
   usart_printf("\n--------");
   usart_printf("\nstarting\n");
-
-  char buf[100];
-  UNUSED(buf);
-
-  // OK. looks like we have not successfully written any values....
-  // but it appeared that
-  // EXTR. Not sure. unless we do the init sequence. then setting divider == 1. means reads fail.
-
-
-
-
 
 
 
@@ -326,8 +262,7 @@ int main(void)
   usart_printf("sizeof double %u\n", sizeof(double));
 */
   // test assert failure
-  ASSERT(1 == 2);
-
+  // ASSERT(1 == 2);
   usart_printf("a float formatted %g\n", 123.456f );
 
 

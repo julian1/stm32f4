@@ -1,5 +1,12 @@
 
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
 typedef struct CBuf CBuf;
 
 
@@ -18,5 +25,10 @@ void usart_set_buffers(CBuf *input, CBuf *output);
   to re-enable tx interupt
 */
 void usart_output_update(void);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 

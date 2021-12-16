@@ -1,4 +1,9 @@
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 
 // bit manipulation
 
@@ -9,6 +14,10 @@
 
 #define GETFIELD(data, width, offset)         ((data) >> (offset)) & MASK(width)
 
+
+#ifdef __cplusplus
+}
+#endif
 
 
 
