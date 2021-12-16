@@ -151,6 +151,11 @@ void fsmc_setup(uint8_t divider)
 
 }
 
+
+
+
+
+
 // JA
 // #define __IO volatile
 #define __IO 
@@ -206,8 +211,11 @@ void LCD_SetAddr(uint8_t LCD_Reg)
   change later. 
   ----------
 
-  these need to be isolated. and not inlined.
-  issue with compiler optimisation. review.
+  these need to be isolated to separate file, to avoid inlining.
+  issue 
+    1. with compiler optimisation. review.
+    2. too fast a timing setup. need to increase setup times.
+    3. volatile not being respected. (we removed the specifier).
 
 */
 

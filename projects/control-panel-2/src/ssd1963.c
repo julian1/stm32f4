@@ -1,6 +1,6 @@
 /*
   We put this code out of the fsmc code.
-  because having it inlined causes problems with aggressive optimisation. of the bus addresses. 
+  because having it inlined causes problems with aggressive optimisation. of the bus addresses.
 */
 
 #include <stdint.h>
@@ -12,6 +12,12 @@
 
 
 /*
+  datasheet
+  https://www.seacomp.com/sites/default/files/references/Solomon-Systech-SSD1963.pdf
+
+  good video on front porch/back porch etc.
+    https://www.youtube.com/watch?v=SgtP4MZ9Hys
+
   actually think it's 4.3" 480x272
     xtal is 10MHz.
   search on gl043036c0-40
@@ -24,13 +30,14 @@
   good code here. 480x272.
     https://community.nxp.com/t5/Kinetis-Microcontrollers/Kinetics-with-SSD1963-interface/m-p/782183
 
+  http://www.ampdisplay.com/documents/pdf/SSD1963%20800480S.txt
+
     LCDC_FPR  = 12MHz.  which good for spec.
 
   screen datasheet.
     GL043036C0-40
     see table 9. for timing characteristics
       https://chfile.cn.gcimg.net/gcwthird/day_20170726/efe81a3b93u32f90950f5i86c0104575.pdf
-  search on
 
 */
 
@@ -119,7 +126,7 @@ static void  LCD_Write_DATA(uint16_t data)
   LCD_WriteData(data) ;
 }
 
-#define SWAP(a, b) do { typeof(a) temp = a; a = b; b = temp; } while (0)
+// #define SWAP(a, b) do { typeof(a) temp = a; a = b; b = temp; } while (0)
 // #define swap(a,b) SWAP(a,b)
 
 
@@ -127,6 +134,9 @@ static void  LCD_Write_DATA(uint16_t data)
 
 void setXY(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2 )
 {
+// https://github.com/jscrane/UTFT-Energia/blob/master/tft_drivers/ssd1963/480/setxy.h
+// https://github.com/stm32f4/library/blob/master/SSD1963/GLCD.c
+
 //case SSD1963_480:
 //   swap(word, x1, y1);
 //   swap(word, x2, y2);
@@ -266,7 +276,7 @@ void LCD_Init(void)
 
 
   LCD_Write_COM(0xF0);    //pixel data interface
-  LCD_Write_DATA(0x03);       // 3 == 011 == 16bit 565  
+  LCD_Write_DATA(0x03);       // 3 == 011 == 16bit 565
   // LCD_Write_DATA(0b101 );       // JA 101 24-bit default.
 
 
@@ -307,19 +317,19 @@ void LCD_Init(void)
   // LCD_Write_COM(0x2C);    // JA write memory start
   for( int i  = 20 * 20 ; i < 100 * 200; ++i ) {
 
-    // NO. should be 16bit values.... not 8 bit. eg. only registers use lower 8 bits of 16 bit bus. 
+    // NO. should be 16bit values.... not 8 bit. eg. only registers use lower 8 bits of 16 bit bus.
     // LCD_Write_DATA(0xff << 6 | 0x00 );
     // LCD_Write_DATA(0x0 << 8 | 0x00 );
     // LCD_Write_DATA(0xff << 8 | 0x00 );
     // LCD_Write_DATA(0x00); // hmmmmm
     // LCD_Write_DATA(0xff );
-  
+
     // this is bright red
     // LCD_Write_DATA(  0x00 | 0xff >> 5);
 
-    // 
+    //
     // 11111 = 1F
-    // 111111 == 3F 
+    // 111111 == 3F
 
     // bright red
     // LCD_Write_DATA(   (0x1f ) ) ;
@@ -328,21 +338,21 @@ void LCD_Init(void)
     // LCD_Write_DATA(   (0x1fu ) << 11) ;
 
     // 101 = 565 format
-    // uint16_t r = 0xff, g = 0xff, b = 0xff; 
+    // uint16_t r = 0xff, g = 0xff, b = 0xff;
     // uint16_t r = 0x00, g = 0x0, b = 0x0;    // black
     uint16_t r = 0xff, g = 0xff, b = 0xff;    // white
     // uint16_t r = 0x0, g = 0x0, b = 0xff;    // blue
     UNUSED(r);
     UNUSED(g);
     UNUSED(b);
-  
+
     // rgb 565
     // LCD_Write_DATA(   (r & 0x1f ) << 11 /* | (g & 0x3f << 5) */  /*| (b & 0x1f )*/ ) ; // bright red. good.
     // LCD_Write_DATA(   0xffff  ) ; // works.
 
     // LCD_Write_DATA(    ((g & 0x3f) << 5)  ) ;   // bright green ???
 
-    LCD_Write_DATA(   (r & 0x1f ) << 11 | (g & 0x3f) << 5 | (b & 0x1f)  ) ; 
+    LCD_Write_DATA(   (r & 0x1f ) << 11 | (g & 0x3f) << 5 | (b & 0x1f)  ) ;
 
   }
 

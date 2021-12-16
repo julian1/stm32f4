@@ -122,11 +122,11 @@ public:
 
           setXY(x, y, x + len, y );   // y + 1 ????
           for( int i = 0; i < len; ++i ) {
-            uint16_t r = 0xff, g = 0xff, b = 0xff;    // white
+            // uint16_t r = 0xff, g = 0xff, b = 0xff;    // white
             // UNUSED(r); UNUSED(g); UNUSED(b);
             // rgb 565
 
-            LCD_WriteData(    (r & 0x1f ) << 11 | (g & 0x3f) << 5 | (b & 0x1f)  ) ; 
+            LCD_WriteData(    (c.r & 0x1f ) << 11 | (c.g & 0x3f) << 5 | (c.b & 0x1f)  ) ; 
           }
 
 
