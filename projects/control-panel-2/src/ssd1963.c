@@ -1,3 +1,7 @@
+/*
+  We put this code out of the fsmc code.
+  because having it inlined causes problems with aggressive optimisation. of the bus addresses. 
+*/
 
 #include <stdint.h>
 
