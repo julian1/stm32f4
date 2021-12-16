@@ -258,6 +258,7 @@ void usart_printf(const char *format, ...)
 
 
   // re-enable tx interupt... if needed
+  // TODO . rename.  usart_txe_interupt_enable()
   usart_output_update();
 }
 

@@ -2,6 +2,10 @@
   helper stuff that belongs in separate file, but not in separate library
   because might change
 */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 #include <stddef.h> // size_t
 #include <stdbool.h> // bool
@@ -40,7 +44,12 @@ extern void usart_printf(const char *format, ... );
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
-
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
+
+
+
+#ifdef __cplusplus
+}
+#endif
 
 

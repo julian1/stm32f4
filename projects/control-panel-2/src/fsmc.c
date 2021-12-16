@@ -6,20 +6,33 @@
 
 //#include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
-
-
 #include <libopencm3/stm32/fsmc.h>
 
 
-
-#include "fsmc-ssd1963.h"
-
-
-// #include "usart2.h"
-// #include "cbuffer.h"
-
+#include "fsmc.h"
 #include "util.h"   // printf, msleep
 
+
+
+
+#define TFT_GPIO_PORT       GPIOE
+#define TFT_REST            GPIO1
+#define TFT_LED_A           GPIO2   // unused, due to jumper.
+
+
+/*
+  pin only shows a 1.5V signal...
+
+  TE  p50 ssd1963 ref voltage is VDDLCD
+  LCD interface supply power (VDDLCD): 1.65V to 3.6V
+  ----
+  Issue is that pin was bridged.
+  Also old bodge was tied to interupt of xt2046.
+*/
+
+// Mapped to spi2 nss2 unused. using bodge wire.  ssd1963 TE tear interupt pin.
+#define TEAR_PORT           GPIOB
+#define TEAR_IRQ            GPIO9
 
 
 
@@ -33,11 +46,11 @@ void fsmc_gpio_setup()
   // Do pin setup separately from the fsmc peripheral setup. because we will call fsmc setup
   twice once for slow/hi speed operation.
 
-  // Enable PORTD and PORTE 
+  // Enable PORTD and PORTE
   rcc_periph_clock_enable(RCC_GPIOD);
   rcc_periph_clock_enable(RCC_GPIOE);
 
-  // Enable FSMC 
+  // Enable FSMC
   rcc_periph_clock_enable(RCC_FSMC);
 
 */
@@ -97,19 +110,23 @@ void fsmc_gpio_setup()
   /////////////////
 
 
+  // led is required....
+  gpio_mode_setup(TFT_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, TFT_LED_A |  TFT_REST);
 
-  #define TFT_GPIO_PORT       GPIOE
-  #define TFT_LED_A           GPIO2
-  #define TFT_REST            GPIO1
-  // TFT_T_IRQ
-
-  gpio_mode_setup(TFT_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, TFT_LED_A | TFT_REST);
-  // speed.
-
+  // ssd1963 tear irq. bodge wire.
+  gpio_mode_setup(TEAR_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, TEAR_IRQ);
 
 }
 
 
+
+bool getTear()
+{
+  // TODO better prefix name. tft_get_tear() ?
+  // hi tft stopped, means we should draw . 
+  // return gpio_get(TFT_GPIO_PORT, TFT_T_IRQ) & (0x01 << 3); 
+  return gpio_get(TEAR_PORT, TEAR_IRQ) != 0 ; 
+}
 
 
 
@@ -124,7 +141,7 @@ void tft_reset(void )
   gpio_set( TFT_GPIO_PORT, TFT_REST);
   msleep(20);
 
-
+  // backlight must be on, to see anything.
   gpio_set( TFT_GPIO_PORT, TFT_LED_A ); // turn on backlight. works!!!
 }
 
@@ -150,7 +167,8 @@ void fsmc_setup(uint8_t divider)
                 FSMC_BTR_DATLATx(0)  |
                 FSMC_BTR_CLKDIVx(0)  | // note. 0 not divider
                 FSMC_BTR_BUSTURNx(0) |
-                FSMC_BTR_DATASTx(5 * divider)  |
+                // FSMC_BTR_DATASTx(5 * divider)  |
+                FSMC_BTR_DATASTx(1 * divider)  |   // JA seems ok. f4. 168MHz.
                 FSMC_BTR_ADDHLDx(0)  |
                 FSMC_BTR_ADDSETx(1 * divider);
 
@@ -159,117 +177,8 @@ void fsmc_setup(uint8_t divider)
 
 }
 
-// JA
-// #define __IO volatile
-#define __IO 
-
-/*
-  __IO flag appears undefined.
-*/
- typedef struct
- {
-
-  __IO uint16_t LCD_REG;
-
-  __IO uint16_t LCD_RAM;
- } LCD_TypeDef;
-
-// #define LCD_BASE    ((uint32_t)(0x60000000 | 0x00020000 -2 ) )
-// JA
-#define LCD_BASE    ((uint32_t)(0x60000000 | (0x00020000 -2) ) )
-
-/* JA
-  >  (0x60000000 | (0x00020000 -2)).toString(16)
-  "6001fffe"
-  > (0x60000000 | (0x00020000 )).toString(16)
-  "60020000"
-*/
-
-/*
-When you access A16 becomes zero in the LCD-> LCD_REG. (Address 0x6001FFFE)
-When you access A16 is 1 in LCD-> LCD_RAM. (Address 0x60020000)
-*/
-
-#define LCD         ((LCD_TypeDef *) LCD_BASE)
 
 
 
 
-#if 1
 
-void LCD_SetAddr(uint8_t LCD_Reg)
-{
-  /* Write 16-bit Index (then Read Reg) */
-  LCD->LCD_REG = LCD_Reg;
-}
-#endif
-
-
-
-
-//////////
-/* 
-  TODO.
-  should be static incline...
-  change later. 
-  ----------
-
-  it appears register writing isn't working.
-  but the write command is 
-  are we sure the registers.
-
-*/
-
-
-
-void LCD_WriteCommand(uint16_t cmd) {
-  /* Write cmd */
-  // LCD_REG = cmd;
-  LCD->LCD_REG = cmd;
-}
-
-void LCD_WriteData(uint16_t data) {
-  /* Write 16-bit data */
-  // LCD_RAM = data;
-  LCD->LCD_RAM = data;
-}
-
-uint16_t LCD_ReadData(void) {
-  /* Read 16-bit data */
-  // return LCD_RAM;
-  return (LCD->LCD_RAM);
-}
-
-
-
-
-//////////////////
-
-
-#if 0
-
-uint16_t LCD_ReadReg(uint8_t LCD_Reg)
- {
-
-  /* Write 16-bit Index (then Read Reg) */
-  LCD->LCD_REG = LCD_Reg;
-
-  msleep(1);
-
-  /* Read 16-bit Reg */
-
-  return (LCD->LCD_RAM);
- }
-
-
-void LCD_WriteReg(uint8_t LCD_Reg, uint16_t LCD_RegValue)
- {
-
-  /* Write 16-bit Index, then Write Reg */
-  LCD->LCD_REG = LCD_Reg;
-
-  /* Write 16-bit Reg */
-  LCD->LCD_RAM = LCD_RegValue;
- }
-
-#endif

@@ -1,4 +1,10 @@
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 /*
   we can optimize to compute all of these in one go.
   and avoid recalculation.
@@ -19,3 +25,11 @@ double rms(const float *p, size_t n);
 
 
 void minmax(const float *p, size_t n, float *min, float *max);
+
+
+
+#ifdef __cplusplus
+}
+#endif
+
+

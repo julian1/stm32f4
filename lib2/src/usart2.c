@@ -128,7 +128,11 @@ void usart1_isr(void)
 }
 
 
+/*
+  TODO rename
 
+  // TODO . rename.  usart_txe_interupt_enable()
+*/
 // TODO this is non blocking. change name usart_output_reenable() to indicate...
 void usart_output_update()
 {
