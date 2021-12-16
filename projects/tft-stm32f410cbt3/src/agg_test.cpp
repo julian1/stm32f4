@@ -187,7 +187,8 @@ void agg_test(void)
     // rb.clear(agg::rgba(0.8,0.8,0.8));     // green.
     rb.clear(agg::rgba(1,1,0.8));     // green.
 
-    // it's brg
+    // hmmmmm....   
+    // maybe it expects an actual bitmap...
 
 #endif
   ///////////////////////////

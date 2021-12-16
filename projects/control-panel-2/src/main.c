@@ -186,19 +186,6 @@ static char buf_console_out[1000];
 static app_t app;
 
 /*
-  800x480.
-  https://www.ebay.com.au/itm/331825585247
-    we need the timings to use.
-
-  https://github.com/stm32f4/library/blob/master/SSD1963/GLCD.c#L230
-
-  google search.
-
-  DISP_HOR_RESOLUTION 800 ssd1963
-
-    https://arm-stm.blogspot.com/2016/12/ssd1963-init-collection.html
-    https://os.mbed.com/teams/TECHSTEP/code/Nucleo_display_ssd1963/file/2714fcd95190/SSD1963/SSD1963.h/
-
   actually think it's 4.3" 480x272
     xtal is 10MHz.
   search on gl043036c0-40
@@ -535,6 +522,19 @@ static void LCD_Init(void)
 }
 
 
+
+/* 
+// - Color RGB R5 G6 B5 -------------------------------------------------------
+uint16_t SSD1963::Color565(uint8_t r, uint8_t g, uint8_t b) {
+  uint16_t c;
+  c = r >> 3;
+  c <<= 6;
+  c |= g >> 2;
+  c <<= 5;
+  c |= b >> 3;
+  return c;
+}
+*/ 
 
 int main(void)
 {
