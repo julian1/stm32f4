@@ -42,7 +42,7 @@ TGT_CFLAGS	+= -I./include    # FIXME, should be before lib2inc
 TGT_CXXFLAGS += -I${AGGINC}
 
 LDLIBS		+= -lm
-
+# LDLIBS		+= -lm  -lstdc++  #-static-libstdc++
 
 include ${TOP}/Makefile.incl
 
