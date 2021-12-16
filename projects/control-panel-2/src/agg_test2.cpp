@@ -91,8 +91,8 @@ public:
         {}
 
 
-        AGG_INLINE unsigned width()  const { return 100;  }
-        AGG_INLINE unsigned height() const { return 100; }
+        AGG_INLINE unsigned width()  const { return 480;  }
+        AGG_INLINE unsigned height() const { return 272; }
         // AGG_INLINE int      stride() const { return m_rbuf->stride(); }
 
         AGG_INLINE void copy_hline(int x, int y,

@@ -207,8 +207,8 @@ int main(void)
 {
 
   // required for usb
-	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz. works stm32f407 too.
-	// rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ] );  // stm32f407
+	// rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz. works stm32f407 too.
+	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ] );  // stm32f407
 
   /*
   // http://libopencm3.org/docs/latest/stm32f4/html/f4_2rcc_8h.html
@@ -254,10 +254,10 @@ int main(void)
   // 16MHz. from hsi datasheet.
   systick_setup(16000);
 */
-  // 84MHz.
-  systick_setup(84000);
-  // systick_setup(168000);
+  
   // systick_setup(16000);
+  // systick_setup(84000);  // 84MHz.
+  systick_setup(168000);
 
 
   // led
