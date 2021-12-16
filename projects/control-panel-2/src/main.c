@@ -48,6 +48,7 @@
 #include "str.h"  //format_bits
 
 #include "fsmc-ssd1963.h"
+#include "ssd1963.h"
 
 typedef struct app_t
 {
@@ -136,7 +137,7 @@ static void loop(app_t *app)
 
 
 
-#if 1
+#if 0
     {
     /*
     // read_ddb. a lot of serial stuff.

@@ -16,7 +16,7 @@ AGGINC=${TOP}/agg-svn-r138-agg-2.4/include/
 
 
 BINARY		= main
-SRCFILES	= ./src/main.c src/util.c src/fsmc-ssd1963.c  src/agg_test2.cpp \
+SRCFILES	= ./src/main.c src/util.c src/fsmc-ssd1963.c src/ssd1963.c src/agg_test2.cpp \
               ${LIB2SRC}/assert.c ${LIB2SRC}/cbuffer.c   ${LIB2SRC}/usart2.c  \
               ${LIB2SRC}/str.c \
               ${LIB2SRC}/cdcacm.c ${LIB2SRC}/usb_f107.c

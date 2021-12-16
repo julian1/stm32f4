@@ -47,6 +47,7 @@
 
 
 #include "fsmc-ssd1963.h"
+#include "ssd1963.h"
 
 
   
