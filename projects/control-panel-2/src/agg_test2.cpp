@@ -58,7 +58,7 @@
 
 
 
-typedef agg::serialized_integer_path_adaptor<short int, 6>  font_path_type; 
+typedef agg::serialized_integer_path_adaptor<short int, 6>  font_path_type;
 
 extern font_path_type *arial_glyph[256];
 extern int arial_glyph_advance_x[256] ;
@@ -251,7 +251,7 @@ int agg_test2()
 
 
     // EXTR. IMPORTANT confirm we have floating point enabled.
-    
+
 
     typedef agg::path_storage path_type2;
     agg::path_storage m_path;
@@ -263,10 +263,13 @@ int agg_test2()
     // OK. so each glyph kind of wants to be locally transformed first
     // ok. this
 
-    // think might be clockwise/ counter clockwise...  not quite drawing correctly. eg. dot of j. 
+    ////////////////////////
+    // - think might be clockwise/ counter clockwise...  not quite drawing correctly. eg. dot of j.
+    // - the join_path() or something. only one path. perhaps?
+    // - or point translate is not working.
+    // - can try running on laptop - and see if get different result.
 
-    // the join_path() or something.
-    // 
+    // can try just adding everything to the rasterizer...
 
     // memory issues?
     const char *s = "hello123";
@@ -279,20 +282,20 @@ int agg_test2()
 
       // whoot it links
       font_path_type *path = arial_glyph[ ch ];
-      assert( path ); 
+      assert( path );
 
       // no there is a local translate on the serialization structure...
       // path->translate( 10, 10);
       // ok. this sets the structure before we copy the path...  so even if same letter is repeated and the glyph mem shared it's ok.
       // requires making the member public
-      // should add a method translate( dx, dy ); 
+      // should add a method translate( dx, dy );
       path->m_dx = x;
-       
-      // think there may be issue with join_path... not multiple segments?  
-      m_path.join_path( *path ); 
+
+      // think there may be issue with join_path... not multiple segments?
+      m_path.join_path( *path /*, 0, 0 */ );
 
       x += arial_glyph_advance_x[ ch ];
-    } 
+    }
 
 
 
