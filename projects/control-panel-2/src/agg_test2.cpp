@@ -263,11 +263,22 @@ int agg_test2()
     // OK. so each glyph kind of wants to be locally transformed first
     // ok. this
 
+    // think might be clockwise/ counter clockwise...  not quite drawing correctly. eg. dot of j. 
+
+    // the join_path() or something.
+    // 
+
+    // memory issues?
+    const char *s = "hello123";
+
     int x  = 0;
-    for( char *p = "hello"; *p; ++p)  {
+    for( const char *p = s; *p; ++p)  {
+    // for( unsigned i = 0; i < strlen( "1234"); ++i ) { // ; *p; ++p)  {
+
+      char ch = *p;
 
       // whoot it links
-      font_path_type *path = arial_glyph[ *p ];
+      font_path_type *path = arial_glyph[ ch ];
       assert( path ); 
 
       // no there is a local translate on the serialization structure...
@@ -276,9 +287,11 @@ int agg_test2()
       // requires making the member public
       // should add a method translate( dx, dy ); 
       path->m_dx = x;
-      
+       
+      // think there may be issue with join_path... not multiple segments?  
       m_path.join_path( *path ); 
-      x += arial_glyph_advance_x[ *p ];
+
+      x += arial_glyph_advance_x[ ch ];
     } 
 
 
@@ -290,13 +303,11 @@ int agg_test2()
     // mtx *= agg::trans_affine_scaling(1.0, -1); // this inverts/flips the glyph, relative to origin. but not in place.
     mtx *= agg::trans_affine_translation(50, 50);   // this moves from above origin, back into the screen.
     // mtx *= agg::trans_affine_rotation(10.0 * 3.1415926 / 180.0);
-    mtx *= agg::trans_affine_scaling(3.0); // now scale it
+ //   mtx *= agg::trans_affine_scaling(2.0); // now scale it
 
 
-
-
-      agg::conv_transform<path_type2> trans(m_path, mtx);
-      agg::conv_curve<agg::conv_transform<  path_type2 > > curve(trans);
+    agg::conv_transform<path_type2> trans(m_path, mtx);
+    agg::conv_curve<agg::conv_transform<  path_type2 > > curve(trans);
 
     /*
       OK. it's possible we may want the origin at bottom left.  if it makes handling fonts easier.
