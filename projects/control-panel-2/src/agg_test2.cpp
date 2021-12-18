@@ -254,7 +254,9 @@ int agg_test2()
     agg::trans_affine mtx;
     // mtx.flip_y();
     // mtx *= agg::trans_affine_scaling(1.0, -1); // this inverts/flips the glyph, relative to origin. but not in place.
+
     mtx *= agg::trans_affine_translation(50, 50);   // this moves from above origin, back into the screen.
+    mtx *= agg::trans_affine_rotation(10.0 * 3.1415926 / 180.0);
     mtx *= agg::trans_affine_scaling(3.0); // now scale it
 
     // we need other letters 'j' with hanging to
