@@ -270,19 +270,28 @@ int agg_test2()
     // we can render all in one go..
 
     // OK. so each glyph kind of wants to be locally transformed first
+    // ok. this
 
+
+    int x  = 0;
     for( char *p = "hello"; *p; ++p)  {
 
       // whoot it links
       path_type *path = arial_glyph[ *p ];
       assert( path ); 
 
-      // ok. 
+      // no there is a local translate on the serialization structure...
+      // path->translate( 10, 10);
+
+
+      // ok. this sets the structure before we copy the path... 
+      path->m_dx = x;
       
       m_path.join_path( *path ); 
 
+      x += arial_glyph_advance_x[ *p ];
 
-  } 
+    } 
 
     typedef agg::path_storage path_type2;
 
