@@ -283,8 +283,9 @@ int agg_test2()
       // no there is a local translate on the serialization structure...
       // path->translate( 10, 10);
 
-
-      // ok. this sets the structure before we copy the path... 
+      // ok. this sets the structure before we copy the path...  so even if same letter is repeated and the glyph mem shared it's ok.
+      // requires making the member public
+      // should add a method translate( dx, dy ); 
       path->m_dx = x;
       
       m_path.join_path( *path ); 
