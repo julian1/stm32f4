@@ -58,9 +58,9 @@
 
 
 
-typedef agg::serialized_integer_path_adaptor<short int, 6>  path_type; 
+typedef agg::serialized_integer_path_adaptor<short int, 6>  font_path_type; 
 
-extern path_type *arial_glyph[256];
+extern font_path_type *arial_glyph[256];
 extern int arial_glyph_advance_x[256] ;
 extern int arial_glyph_advance_y[256] ;
 
@@ -249,22 +249,11 @@ int agg_test2()
      rb.clear(agg::rgba(1,1,1));     // white .
 
 
-    // http://agg.sourceforge.net/antigrain.com/demo/conv_contour.cpp.html
-    // https://coconut2015.github.io/agg-tutorial/agg__trans__affine_8h_source.html
-    agg::trans_affine mtx;
-    // mtx.flip_y();
-    // mtx *= agg::trans_affine_scaling(1.0, -1); // this inverts/flips the glyph, relative to origin. but not in place.
-
-    mtx *= agg::trans_affine_translation(50, 50);   // this moves from above origin, back into the screen.
-    mtx *= agg::trans_affine_rotation(10.0 * 3.1415926 / 180.0);
-    mtx *= agg::trans_affine_scaling(3.0); // now scale it
-
-    // we need other letters 'j' with hanging to
 
     // EXTR. IMPORTANT confirm we have floating point enabled.
     
-    // const char *s = "hello";
 
+    typedef agg::path_storage path_type2;
     agg::path_storage m_path;
 
 
@@ -274,29 +263,37 @@ int agg_test2()
     // OK. so each glyph kind of wants to be locally transformed first
     // ok. this
 
-
     int x  = 0;
     for( char *p = "hello"; *p; ++p)  {
 
       // whoot it links
-      path_type *path = arial_glyph[ *p ];
+      font_path_type *path = arial_glyph[ *p ];
       assert( path ); 
 
       // no there is a local translate on the serialization structure...
       // path->translate( 10, 10);
-
       // ok. this sets the structure before we copy the path...  so even if same letter is repeated and the glyph mem shared it's ok.
       // requires making the member public
       // should add a method translate( dx, dy ); 
       path->m_dx = x;
       
       m_path.join_path( *path ); 
-
       x += arial_glyph_advance_x[ *p ];
-
     } 
 
-    typedef agg::path_storage path_type2;
+
+
+    // http://agg.sourceforge.net/antigrain.com/demo/conv_contour.cpp.html
+    // https://coconut2015.github.io/agg-tutorial/agg__trans__affine_8h_source.html
+    agg::trans_affine mtx;
+    // mtx.flip_y();
+    // mtx *= agg::trans_affine_scaling(1.0, -1); // this inverts/flips the glyph, relative to origin. but not in place.
+    mtx *= agg::trans_affine_translation(50, 50);   // this moves from above origin, back into the screen.
+    // mtx *= agg::trans_affine_rotation(10.0 * 3.1415926 / 180.0);
+    mtx *= agg::trans_affine_scaling(3.0); // now scale it
+
+
+
 
       agg::conv_transform<path_type2> trans(m_path, mtx);
       agg::conv_curve<agg::conv_transform<  path_type2 > > curve(trans);
