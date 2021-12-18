@@ -259,7 +259,8 @@ int agg_test2()
 
     // we need other letters 'j' with hanging to
 
-
+    // EXTR. IMPORTANT confirm we have floating point enabled.
+    
     // const char *s = "hello";
 
     agg::path_storage m_path;
