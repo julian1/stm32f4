@@ -253,8 +253,8 @@ int agg_test2()
     // EXTR. IMPORTANT confirm we have floating point enabled.
 
 
-    typedef agg::path_storage path_type2;
-    agg::path_storage m_path;
+    // typedef agg::path_storage path_type2;
+    // agg::path_storage m_path;
 
 
     // how do we do the advance
@@ -265,11 +265,28 @@ int agg_test2()
 
     ////////////////////////
     // - think might be clockwise/ counter clockwise...  not quite drawing correctly. eg. dot of j.
-    // - the join_path() or something. only one path. perhaps?
+    // - the join_path() or something. only one path. perhaps?  because it's supposed to extend?
     // - or point translate is not working.
     // - can try running on laptop - and see if get different result.
+    // - its a geometry issue.
 
     // can try just adding everything to the rasterizer...
+
+
+
+      // http://agg.sourceforge.net/antigrain.com/demo/conv_contour.cpp.html
+      // https://coconut2015.github.io/agg-tutorial/agg__trans__affine_8h_source.html
+      agg::trans_affine mtx;
+      // mtx.flip_y();
+      // mtx *= agg::trans_affine_scaling(1.0, -1); // this inverts/flips the glyph, relative to origin. but not in place.
+      mtx *= agg::trans_affine_translation(50, 50);   // this moves from above origin, back into the screen.
+      mtx *= agg::trans_affine_rotation(10.0 * 3.1415926 / 180.0);
+      mtx *= agg::trans_affine_scaling(2.0); // now scale it
+
+      // we can move these out of loop if desired...
+      agg::rasterizer_scanline_aa<> ras;
+      agg::scanline_p8 sl;
+
 
     // memory issues?
     const char *s = "hello123";
@@ -292,38 +309,26 @@ int agg_test2()
       path->m_dx = x;
 
       // think there may be issue with join_path... not multiple segments?
-      m_path.join_path( *path /*, 0, 0 */ );
+      // m_path.join_path( *path /*, 0, 0 */ );
+      // m_path.add_path( *path /*, 0, 0 */ );
 
       x += arial_glyph_advance_x[ ch ];
+
+
+      agg::conv_transform<font_path_type> trans( *path, mtx);
+      agg::conv_curve<agg::conv_transform<  font_path_type > > curve(trans);
+
+      ras.reset();
+      ras.add_path( curve );
+      agg::render_scanlines_aa_solid(ras, sl, rb, agg::rgba(0,0,1));
+
+
+
     }
 
 
 
-    // http://agg.sourceforge.net/antigrain.com/demo/conv_contour.cpp.html
-    // https://coconut2015.github.io/agg-tutorial/agg__trans__affine_8h_source.html
-    agg::trans_affine mtx;
-    // mtx.flip_y();
-    // mtx *= agg::trans_affine_scaling(1.0, -1); // this inverts/flips the glyph, relative to origin. but not in place.
-    mtx *= agg::trans_affine_translation(50, 50);   // this moves from above origin, back into the screen.
-    // mtx *= agg::trans_affine_rotation(10.0 * 3.1415926 / 180.0);
- //   mtx *= agg::trans_affine_scaling(2.0); // now scale it
 
-
-    agg::conv_transform<path_type2> trans(m_path, mtx);
-    agg::conv_curve<agg::conv_transform<  path_type2 > > curve(trans);
-
-    /*
-      OK. it's possible we may want the origin at bottom left.  if it makes handling fonts easier.
-      we can probably flip o
-      what does postscript do.
-      Note that we can flip the origin on the fly.
-    */
-
-    agg::rasterizer_scanline_aa<> ras;
-    agg::scanline_p8 sl;
-
-    ras.add_path( curve );
-    agg::render_scanlines_aa_solid(ras, sl, rb, agg::rgba(0,0,1));
 
     // non anti aliased.
     // agg::renderer_scanline_bin_solid(
@@ -349,4 +354,14 @@ int agg_test2()
 
     return 0;
 }
+
+
+
+    /*
+      OK. it's possible we may want the origin at bottom left.  if it makes handling fonts easier.
+      we can probably flip o
+      what does postscript do.
+      Note that we can flip the origin on the fly.
+    */
+
 
