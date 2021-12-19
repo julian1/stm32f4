@@ -14,6 +14,11 @@
       used to compare speed.
 
     http://agg.sourceforge.net/antigrain.com/demo/rasterizers2.cpp.html
+  ---------------------
+
+  rb.clear() 22ms
+  agg text draw 21ms
+
 */
 
 
@@ -262,34 +267,12 @@ int agg_test2()
 
 
     // agg_renderer_base.h.
-    // think this is a rect fill in pixel coordinates
+    // EXTR. we want a clear/fillRect that is not subpixel, and simple.
+    // this is a rect fill in pixel coordinates
     rb.copy_bar(20, 20, 100, 200, agg::rgba(1,0,0));
 
-    // EXTR. we want a clear/fillRect that is not subpixel, and simple.
-
-
     // EXTR. IMPORTANT confirm we have floating point enabled.
-
-
-    // typedef agg::path_storage path_type2;
-    // agg::path_storage m_path;
-
-
-    // how do we do the advance
-    // we can render all in one go..
-
-    // OK. so each glyph kind of wants to be locally transformed first
-    // ok. this
-
-    ////////////////////////
-    // - think might be clockwise/ counter clockwise...  not quite drawing correctly. eg. dot of j.
-    // - the join_path() or something. only one path. perhaps?  because it's supposed to extend?
-    // - or point translate is not working.
-    // - can try running on laptop - and see if get different result.
-    // - its a geometry issue.
-
-    // can try just adding everything to the rasterizer...
-
+    // looks ok.
 
 
     // http://agg.sourceforge.net/antigrain.com/demo/conv_contour.cpp.html
@@ -312,7 +295,6 @@ int agg_test2()
     start = system_millis;
 
     for( const char *p = s; *p; ++p)  {
-      // for( unsigned i = 0; i < strlen( "1234"); ++i ) { // ; *p; ++p)  {
 
         char ch = *p;
 
@@ -320,16 +302,9 @@ int agg_test2()
         font_path_type *path = arial_glyph[ ch ];
         assert( path );
 
-        // no there is a local translate on the serialization structure...
-        // path->translate( 10, 10);
-        // ok. this sets the structure before we copy the path...  so even if same letter is repeated and the glyph mem shared it's ok.
-        // requires making the member public
+        // TODO add a translate() method... or add an adapter
         // should add a method translate( dx, dy );
         path->m_dx = x;
-
-        // think there may be issue with join_path... not multiple segments?
-        // m_path.join_path( *path /*, 0, 0 */ );
-        // m_path.add_path( *path /*, 0, 0 */ );
 
         x += arial_glyph_advance_x[ ch ];
 
