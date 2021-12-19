@@ -17,19 +17,43 @@
   ---------------------
 
   rb.clear() 22ms
-  agg text draw 21ms
+  agg text draw 21ms <- large
 
   reduced text size scale transform - from 2 to 1. and get half render speed.  good.
   rb.clear() 22ms
-  agg text draw 13ms
+  agg text draw 13ms  <- small
   ----------
 
-  make the screen mcu the spi slave - dedicated to just rendering.  not supervisory.
-  eg. board cpu can just send simple spi rendering commands. and receive pot and other inputs over spi (screen mcu raises interupt).
+  dumb screen client - mcu can be spi slave
+    - dedicated to just rendering.  not supervisory.
+    eg. board cpu can just send simple spi rendering commands. and receive pot and other inputs over spi (screen mcu raises interupt).
+    - simple primitives. drawBar(pos); darwText(font, sisze, pos, text);  etc.  drawButton(font, pos, text);
+    - and simple reverse inputs  screenprimitives
+    - what about hit-testing. touchscreen / and mapping buttons/controls back.
+    ------
+    like xwindows / queue. just some simple serialized screen primitives.
+    then put in a queue.  <- GOOD.    to match the data generation and the screen display.
+    ------
+    screen display has to manage paging timinng/ tear timing ..
+    ------------
+
+    we can test this functionality fairly simply. by replaying commands ... which is good.
+    ---------
+    EXTR. the spi send.   does not need to wait for the send. just put in a buffer - and use interupts to process the next byte.
+    
+
+  screen mcu v hardware mcu.
   ------
   or if only need to respond - when reading the dac (every 1/10th sec etc). then it's ok.
-    ranging depends on dac update. 
-    so everything really depends on if we can draw faster than the dac udpate rate. 
+    ranging depends on dac update.
+    so everything really depends on if we can draw faster than the dac udpate rate.
+
+  -------
+  or use coroutines. in the drawing loop...
+
+
+  -
+  rate
 */
 
 
