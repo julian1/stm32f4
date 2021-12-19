@@ -48,6 +48,7 @@
 
   paging
     https://www.microchip.com/forums/m633574.aspx
+    https://www.avrfreaks.net/forum/ssd1963-tft-paging
 
       Yes, this is possible. I recently started experimenting with the SSD1963 and a 480x272 display and was able to accomplish this.
 
@@ -58,6 +59,9 @@
 
       Then you set the value in Set Scroll Start to the line in the frame buffer where you want to start displaying from.
       Switching between pages is very quick, no noticeable flashing. 
+
+      ---
+      note that - this could be done in the actual render_bu. doing the copy_hline operations etc.
 
   timing
     we can just use the systick timer 
