@@ -54,6 +54,7 @@
 #include "assert.h"
 #include "fsmc.h"
 #include "ssd1963.h"
+#include "util.h"
 
 
 
@@ -252,7 +253,13 @@ int agg_test2()
 
     agg::renderer_base<pixfmt_t>   rb(pixf);
 
+
+    uint32_t start = system_millis;
+
     rb.clear(agg::rgba(1,1,1));     // white .
+
+    usart_printf("rb.clear() %ums\n", system_millis - start );
+
 
     // agg_renderer_base.h.
     // think this is a rect fill in pixel coordinates
@@ -299,44 +306,45 @@ int agg_test2()
     agg::scanline_p8 sl;
 
 
-  const char *s = "hello123";
-
+    const char *s = "hello123";
     int x  = 0;
+
+    start = system_millis;
+
     for( const char *p = s; *p; ++p)  {
-    // for( unsigned i = 0; i < strlen( "1234"); ++i ) { // ; *p; ++p)  {
+      // for( unsigned i = 0; i < strlen( "1234"); ++i ) { // ; *p; ++p)  {
 
-      char ch = *p;
+        char ch = *p;
 
-      // whoot it links
-      font_path_type *path = arial_glyph[ ch ];
-      assert( path );
+        // whoot it links
+        font_path_type *path = arial_glyph[ ch ];
+        assert( path );
 
-      // no there is a local translate on the serialization structure...
-      // path->translate( 10, 10);
-      // ok. this sets the structure before we copy the path...  so even if same letter is repeated and the glyph mem shared it's ok.
-      // requires making the member public
-      // should add a method translate( dx, dy );
-      path->m_dx = x;
+        // no there is a local translate on the serialization structure...
+        // path->translate( 10, 10);
+        // ok. this sets the structure before we copy the path...  so even if same letter is repeated and the glyph mem shared it's ok.
+        // requires making the member public
+        // should add a method translate( dx, dy );
+        path->m_dx = x;
 
-      // think there may be issue with join_path... not multiple segments?
-      // m_path.join_path( *path /*, 0, 0 */ );
-      // m_path.add_path( *path /*, 0, 0 */ );
+        // think there may be issue with join_path... not multiple segments?
+        // m_path.join_path( *path /*, 0, 0 */ );
+        // m_path.add_path( *path /*, 0, 0 */ );
 
-      x += arial_glyph_advance_x[ ch ];
-
-
-      agg::conv_transform<font_path_type> trans( *path, mtx);
-      agg::conv_curve<agg::conv_transform<  font_path_type > > curve(trans);
-
-      ras.reset();
-      ras.add_path( curve );
-      agg::render_scanlines_aa_solid(ras, sl, rb, agg::rgba(0,0,1));
+        x += arial_glyph_advance_x[ ch ];
 
 
+        agg::conv_transform<font_path_type> trans( *path, mtx);
+        agg::conv_curve<agg::conv_transform<  font_path_type > > curve(trans);
+
+        ras.reset();
+        ras.add_path( curve );
+        agg::render_scanlines_aa_solid(ras, sl, rb, agg::rgba(0,0,1));
 
     }
 
 
+    usart_printf("agg text draw %ums\n", system_millis - start );
 
 
 

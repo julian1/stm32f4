@@ -41,12 +41,14 @@
 
   -------------
 
-  7.1.5  explains tear.
-    feedback from lcd to mcu. with timing information. 
+  - tear sync
+    7.1.5  explains tear.
+    feedback from lcd to mcu. with timing information.
     can also get it by reading the get_tear_effect_status
-    if cpu > lcd 
+    if cpu > lcd
+    gpio interupt.  but poll good in a loop() waiting for redraw.
 
-  paging
+  - paging
     https://www.microchip.com/forums/m633574.aspx
     https://www.avrfreaks.net/forum/ssd1963-tft-paging
 
@@ -58,16 +60,18 @@
       Writing to lines between 544 and 815 are the 3rd page.
 
       Then you set the value in Set Scroll Start to the line in the frame buffer where you want to start displaying from.
-      Switching between pages is very quick, no noticeable flashing. 
+      Switching between pages is very quick, no noticeable flashing.
 
       ---
       note that - this could be done in the actual render_bu. doing the copy_hline operations etc.
 
-  timing
-    we can just use the systick timer 
+  - timing
+    we can just use the systick timer
       - to determine how long something takes to draw. eg. down to the ms.
       - to write the blit/clear the whole screen.
-    awesome.
+      awesome.
+
+
 
 */
 
