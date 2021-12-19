@@ -261,18 +261,18 @@ int agg_test2()
 
     agg::renderer_base<pixfmt_t>   rb(pixf);
 
+    uint32_t start;
 
-    uint32_t start = system_millis;
-
+    start = system_millis;
     rb.clear(agg::rgba(1,1,1));     // white .
-
     usart_printf("rb.clear() %ums\n", system_millis - start );
 
 
-    // agg_renderer_base.h.
-    // EXTR. we want a clear/fillRect that is not subpixel, and simple.
-    // this is a rect fill in pixel coordinates
+    // EXTR. this is a clear/fillRect that is not subpixel, and simple.
+    // see, agg_renderer_base.h.
+    start = system_millis;
     rb.copy_bar(20, 20, 100, 200, agg::rgba(1,0,0));
+    usart_printf("copy_bar()  %ums\n", system_millis - start );
 
     // EXTR. IMPORTANT confirm we have floating point enabled.
     // looks ok.
