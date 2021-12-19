@@ -100,7 +100,8 @@ public:
         - So. we could actually do a memory read of the pixel data. for the line.
         - to do proper blending.
         - in order that we do not have to pass an additional fake background color.
-        - this is in fact a real advantage of using a bitmap without fill operations.
+        - this is in fact a real advantage of using a bitmap rather than blt fill operations.
+        - most stuff is sold fill though - so reading shouldn't be too costly.
         ------
         alternatively we could do a gamma threshold of the coverage/ for non aa.
       */
@@ -109,6 +110,7 @@ public:
           EXTR.
             need to fill a rect. with agg.
             it may be better to affine rotate the character... maybe on load.
+            see rb.copy_bar()
 
           - need to handle vertical reversed . how is this done normally with agg. with the render buffer?
           - not sure. if we used bottom left. then everything would be nice.
@@ -229,9 +231,13 @@ public:
       - inject a struct with needed data - into the view render code.
       - use local switch - to flip tabs etc.
       - use update flags - indicating if have to rerender
-
   ------------
+*/
 
+/*
+  TODO. could add a footprint square - to erase the character for redrawing.
+        eg. just hold min/max dimensions.
+        bit complicated because depends on mtx.
 */
 
 int agg_test2()
@@ -244,10 +250,15 @@ int agg_test2()
     pixfmt_t  pixf;
 
 
-     agg::renderer_base<pixfmt_t>   rb(pixf);
+    agg::renderer_base<pixfmt_t>   rb(pixf);
 
-     rb.clear(agg::rgba(1,1,1));     // white .
+    rb.clear(agg::rgba(1,1,1));     // white .
 
+    // agg_renderer_base.h.
+    // think this is a rect fill in pixel coordinates
+    rb.copy_bar(20, 20, 100, 200, agg::rgba(1,0,0));
+
+    // EXTR. we want a clear/fillRect that is not subpixel, and simple.
 
 
     // EXTR. IMPORTANT confirm we have floating point enabled.
@@ -274,22 +285,21 @@ int agg_test2()
 
 
 
-      // http://agg.sourceforge.net/antigrain.com/demo/conv_contour.cpp.html
-      // https://coconut2015.github.io/agg-tutorial/agg__trans__affine_8h_source.html
-      agg::trans_affine mtx;
-      // mtx.flip_y();
-      // mtx *= agg::trans_affine_scaling(1.0, -1); // this inverts/flips the glyph, relative to origin. but not in place.
-      mtx *= agg::trans_affine_translation(50, 50);   // this moves from above origin, back into the screen.
-      mtx *= agg::trans_affine_rotation(10.0 * 3.1415926 / 180.0);
-      mtx *= agg::trans_affine_scaling(2.0); // now scale it
+    // http://agg.sourceforge.net/antigrain.com/demo/conv_contour.cpp.html
+    // https://coconut2015.github.io/agg-tutorial/agg__trans__affine_8h_source.html
+    agg::trans_affine mtx;
+    // mtx.flip_y();
+    // mtx *= agg::trans_affine_scaling(1.0, -1); // this inverts/flips the glyph, relative to origin. but not in place.
+    mtx *= agg::trans_affine_translation(50, 50);   // this moves from above origin, back into the screen.
+    mtx *= agg::trans_affine_rotation(10.0 * 3.1415926 / 180.0);
+    mtx *= agg::trans_affine_scaling(2.0); // now scale it
 
-      // we can move these out of loop if desired...
-      agg::rasterizer_scanline_aa<> ras;
-      agg::scanline_p8 sl;
+    // we can move these out of loop if desired...
+    agg::rasterizer_scanline_aa<> ras;
+    agg::scanline_p8 sl;
 
 
-    // memory issues?
-    const char *s = "hello123";
+  const char *s = "hello123";
 
     int x  = 0;
     for( const char *p = s; *p; ++p)  {

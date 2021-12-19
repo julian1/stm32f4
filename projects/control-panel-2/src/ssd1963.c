@@ -39,6 +39,32 @@
     see table 9. for timing characteristics
       https://chfile.cn.gcimg.net/gcwthird/day_20170726/efe81a3b93u32f90950f5i86c0104575.pdf
 
+  -------------
+
+  7.1.5  explains tear.
+    feedback from lcd to mcu. with timing information. 
+    can also get it by reading the get_tear_effect_status
+    if cpu > lcd 
+
+  paging
+    https://www.microchip.com/forums/m633574.aspx
+
+      Yes, this is possible. I recently started experimenting with the SSD1963 and a 480x272 display and was able to accomplish this.
+
+      The frame buffer appears as several pages stacked on top of each other.
+      Writing to lines between 0 and 271 are the 1st page.
+      Writing to lines between 272 and 543 are the 2nd page.
+      Writing to lines between 544 and 815 are the 3rd page.
+
+      Then you set the value in Set Scroll Start to the line in the frame buffer where you want to start displaying from.
+      Switching between pages is very quick, no noticeable flashing. 
+
+  timing
+    we can just use the systick timer 
+      - to determine how long something takes to draw. eg. down to the ms.
+      - to write the blit/clear the whole screen.
+    awesome.
+
 */
 
 /*********************************************************/
