@@ -111,14 +111,14 @@ extern int arial_glyph_advance_y[256] ;
 
 
 
+
+
 using namespace agg;
-
-
-// eg. from agg_pixfmt_rgb_packed.h
 
 //===========================================pixfmt_alpha_blend_rgb_packed
 template<class Blender,  class RenBuf> class pixfmt_alpha_blend_rgb_packed
 {
+  // eg. from agg_pixfmt_rgb_packed.h
 public:
 
     // for consumers
@@ -236,64 +236,6 @@ public:
 };
 
 
-
-
-
-
-/*
-  if rgb565 doesn't work.  ssd1963 can do 24 bit color. have conversions...
-  should try to compile this and see if can implement
-
-  actually how the fill operations workk - separate from the bitmap blting.
-  possible exactly the same.
-  --------------
-
-  hmmmm...
-  it supports bliting bitmap.   but has no actual fill function?.
-
-  ssd1936 (not ssd1963)  has filled rectangle draw.
-  ook.  but then how does Andy do it?   check code.
-
-  well we could still test it. I suppose.
-  -----------
-
-  on an arduino - one just asserts the color on the bus. and then pulse the wr pin. which is pretty fast. maybe faster than bus mode.
-    https://www.avrfreaks.net/forum/slow-working-lcd-ssd1963-controller-board
-  ---------
-
-  EXTR. it might
-
-  ------------
-  stm32 100MHz / 5 (bus data setup ) = 20MHz.
-  480 * 272 * 2 =  261120 = 260000.
-  So write speed should be 77fps.
-  ------------
-
-
-  EXTR. should just do all drawing with transforms... and using native agg primitives.
-      - avoid a sizing/layout engine.
-      - if have different screens then just draw them independently.
-      -------
-      eg. document html/ ps type model.
-
-      - inject a struct with needed data - into the view render code.
-      - use local switch - to flip tabs etc.
-      - use update flags - indicating if have to rerender
-  ------------
-*/
-
-/*
-  TODO. could add a footprint square - to erase the character for redrawing.
-        eg. just hold min/max dimensions.
-        bit complicated because depends on mtx.
-*/
-
-
-
-/*
-  What should we pass around????? the pixfmt???
-  perhaps yes. so if we ever want to store state on it we can.
-*/
 
 
 
@@ -418,6 +360,67 @@ int agg_test2()
 
     return 0;
 }
+
+
+
+
+
+
+/*
+  if rgb565 doesn't work.  ssd1963 can do 24 bit color. have conversions...
+  should try to compile this and see if can implement
+
+  actually how the fill operations workk - separate from the bitmap blting.
+  possible exactly the same.
+  --------------
+
+  hmmmm...
+  it supports bliting bitmap.   but has no actual fill function?.
+
+  ssd1936 (not ssd1963)  has filled rectangle draw.
+  ook.  but then how does Andy do it?   check code.
+
+  well we could still test it. I suppose.
+  -----------
+
+  on an arduino - one just asserts the color on the bus. and then pulse the wr pin. which is pretty fast. maybe faster than bus mode.
+    https://www.avrfreaks.net/forum/slow-working-lcd-ssd1963-controller-board
+  ---------
+
+  EXTR. it might
+
+  ------------
+  stm32 100MHz / 5 (bus data setup ) = 20MHz.
+  480 * 272 * 2 =  261120 = 260000.
+  So write speed should be 77fps.
+  ------------
+
+
+  EXTR. should just do all drawing with transforms... and using native agg primitives.
+      - avoid a sizing/layout engine.
+      - if have different screens then just draw them independently.
+      -------
+      eg. document html/ ps type model.
+
+      - inject a struct with needed data - into the view render code.
+      - use local switch - to flip tabs etc.
+      - use update flags - indicating if have to rerender
+  ------------
+*/
+
+/*
+  TODO. could add a footprint square - to erase the character for redrawing.
+        eg. just hold min/max dimensions.
+        bit complicated because depends on mtx.
+*/
+
+
+
+/*
+  What should we pass around????? the pixfmt???
+  perhaps yes. so if we ever want to store state on it we can.
+*/
+
 
 
 
