@@ -40,6 +40,8 @@
     we can test this functionality fairly simply. by replaying commands ... which is good.
     ---------
     EXTR. the spi send.   does not need to wait for the send. just put in a buffer - and use interupts to process the next byte.
+      so there is no waiting on the spi output.  good.
+    - like using a queue to communicate info between two separate threads.
     
 
   screen mcu v hardware mcu.

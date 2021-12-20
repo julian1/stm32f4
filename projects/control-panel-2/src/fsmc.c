@@ -25,11 +25,11 @@ void fsmc_gpio_setup()
   // Do pin setup separately from the fsmc peripheral setup. because we will call fsmc setup
   twice once for slow/hi speed operation.
 
-  // Enable PORTD and PORTE 
+  // Enable PORTD and PORTE
   rcc_periph_clock_enable(RCC_GPIOD);
   rcc_periph_clock_enable(RCC_GPIOE);
 
-  // Enable FSMC 
+  // Enable FSMC
   rcc_periph_clock_enable(RCC_FSMC);
 
 */
@@ -142,6 +142,7 @@ void fsmc_setup(uint8_t divider)
                 FSMC_BTR_DATLATx(0)  |
                 FSMC_BTR_CLKDIVx(0)  | // note. 0 not divider
                 FSMC_BTR_BUSTURNx(0) |
+                // FSMC_BTR_DATASTx(1 * divider)  |  works also. but doesn't seem to affect draw speed.
                 FSMC_BTR_DATASTx(5 * divider)  |
                 FSMC_BTR_ADDHLDx(0)  |
                 FSMC_BTR_ADDSETx(1 * divider);
@@ -158,7 +159,7 @@ void fsmc_setup(uint8_t divider)
 
 // JA
 // #define __IO volatile
-#define __IO 
+#define __IO
 
 /*
   __IO flag appears undefined.
@@ -205,14 +206,14 @@ void LCD_SetAddr(uint8_t LCD_Reg)
 
 
 //////////
-/* 
+/*
   TODO.
   should be static incline...
-  change later. 
+  change later.
   ----------
 
   these need to be isolated to separate file, to avoid inlining.
-  issue 
+  issue
     1. with compiler optimisation. review.
     2. too fast a timing setup. need to increase setup times.
     3. volatile not being respected. (we removed the specifier).
