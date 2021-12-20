@@ -24,7 +24,7 @@
   agg text draw 13ms  <- small
   ----------
 
-  dumb screen client - mcu can be spi slave
+  - dumb screen client - mcu can be spi slave
     - dedicated to just rendering.  not supervisory.
     eg. board cpu can just send simple spi rendering commands. and receive pot and other inputs over spi (screen mcu raises interupt).
     - simple primitives. drawBar(pos); darwText(font, sisze, pos, text);  etc.  drawButton(font, pos, text);
@@ -44,9 +44,11 @@
     - like using a queue to communicate info between two separate threads.
     
 
+  - use coroutine. on the draw. and/or perhaps queue of drawing operations. 
+
   screen mcu v hardware mcu.
   ------
-  or if only need to respond - when reading the dac (every 1/10th sec etc). then it's ok.
+  - or if only need to respond - when reading the dac (every 1/10th sec etc). then it's ok.
     ranging depends on dac update.
     so everything really depends on if we can draw faster than the dac udpate rate.
 

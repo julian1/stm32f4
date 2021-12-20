@@ -1,6 +1,8 @@
 
 // string support
 
+// should rename to format.h.
+
 
 
 extern char * indent_left(char *s, size_t sz, int indent, const char *string);

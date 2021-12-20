@@ -18,7 +18,6 @@
 
 
 
-
 void fsmc_gpio_setup()
 {
 /*

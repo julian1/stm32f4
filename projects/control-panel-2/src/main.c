@@ -116,65 +116,8 @@ static void loop(app_t *app)
       led_toggle();
       // usart_printf("here\n");
 
-
-#if 0
-    {
-    // weird - attempting to read the register kills it ????
-    // why? because the asserting of the address is treated as a command.
-
-    char buf[100];
-    uint16_t reg = 0xE2;   //
-
-    LCD_SetAddr(reg );
-    uint16_t x1 = LCD_ReadData();
-    uint16_t x2 = LCD_ReadData();
-    uint16_t x3 = LCD_ReadData();
-    usart_printf("reg %u (%02x)  r\n", reg,  reg);
-    usart_printf("%03u  %s\n", x1, format_bits(buf, 16, x1));
-    usart_printf("%03u  %s\n", x2, format_bits(buf, 16, x2));
-    usart_printf("%03u  %s\n", x3, format_bits(buf, 16, x3));
+      // LCD_Read_DDB();
     }
-#endif
-
-
-
-#if 0
-    {
-    /*
-    // read_ddb. a lot of serial stuff.
-    reg 161 (a1)  r
-      001  0000000000000001
-      087  0000000001010111
-      097  0000000001100001
-      001  0000000000000001
-      255  0000000011111111
-    */
-
-    // reg = 0x0A;   // == 1000
-    char buf[100];
-    uint16_t reg = 0xA1;   // read_ddb,    5 parameter register.
-    //uint16_t reg = 0xE2;   //
-
-    //  LCD_SetAddr(reg );
-    LCD_WriteCommand( reg ) ;
-
-
-    uint16_t x1 = LCD_ReadData();
-    uint16_t x2 = LCD_ReadData();
-    uint16_t x3 = LCD_ReadData();
-    uint16_t x4 = LCD_ReadData();
-    uint16_t x5 = LCD_ReadData();
-
-    usart_printf("reg %u (%02x)  r\n", reg,  reg);
-    usart_printf("%03u  %s\n", x1, format_bits(buf, 16, x1));
-    usart_printf("%03u  %s\n", x2, format_bits(buf, 16, x2));
-    usart_printf("%03u  %s\n", x3, format_bits(buf, 16, x3));
-    usart_printf("%03u  %s\n", x4, format_bits(buf, 16, x4));
-    usart_printf("%03u  %s\n", x5, format_bits(buf, 16, x5));
-  }
-#endif
-
-  }
 
 
   }
@@ -189,19 +132,6 @@ static char buf_console_out[1000];
 
 static app_t app;
 
-
-/*
-// - Color RGB R5 G6 B5 -------------------------------------------------------
-uint16_t SSD1963::Color565(uint8_t r, uint8_t g, uint8_t b) {
-  uint16_t c;
-  c = r >> 3;
-  c <<= 6;
-  c |= g >> 2;
-  c <<= 5;
-  c |= b >> 3;
-  return c;
-}
-*/
 
 
 
@@ -258,11 +188,9 @@ int main(void)
   //////////////////////
   // setup
 
-/*
-  // 16MHz. from hsi datasheet.
-  systick_setup(16000);
-*/
 
+  // 16MHz. from hsi datasheet.
+  // systick_setup(16000);
   // systick_setup(16000);
   // systick_setup(84000);  // 84MHz.
   systick_setup(168000);
@@ -297,48 +225,20 @@ int main(void)
 
 
 
-  // make sure have access to usart_printf
-
-
-
-
   fsmc_gpio_setup();
 
   fsmc_setup(1);
   tft_reset();
 
   LCD_Init();
-
-  // put in function. LCD_testFill.
-
-  LCD_fillRect(1, 1, 480 -1, 10 , packRGB565( 0xff , 0xff, 0xff));
-
-  LCD_fillRect(1, 20, 480 -1, 30 , packRGB565( 0xff , 0xff, 0xff));
+  // LCD_TestFill();
 
 
-  // LCD_fillRect(1, 50, 480 -1, 50 , packRGB565( 0xff , 0xff, 0xff)); // height of 0. draws nothing
-  LCD_fillRect(1, 50, 480 -1, 51 , packRGB565( 0xff , 0xff, 0xff)); // height of 1. draws
-
-
-  LCD_fillRect(5, 5, 50, 50, packRGB565( 0x0, 0x0, 0xff));
-
-
-  agg_test2();
+   agg_test2();
 
 
   usart_printf("\n--------");
   usart_printf("\nstarting\n");
-
-  char buf[100];
-  UNUSED(buf);
-
-  // OK. looks like we have not successfully written any values....
-  // but it appeared that
-  // EXTR. Not sure. unless we do the init sequence. then setting divider == 1. means reads fail.
-
-
-
-
 
 
 
@@ -350,8 +250,7 @@ int main(void)
   usart_printf("sizeof double %u\n", sizeof(double));
 */
   // test assert failure
-  ASSERT(1 == 2);
-
+  // ASSERT(1 == 2);
   usart_printf("a float formatted %g\n", 123.456f );
 
 

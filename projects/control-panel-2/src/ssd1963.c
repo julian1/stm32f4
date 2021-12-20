@@ -9,6 +9,9 @@
 #include "ssd1963.h"
 
 #include "util.h"   // printf, msleep
+#include "str.h"  //format_bits. should rename
+
+
 
 
 /*
@@ -295,6 +298,22 @@ void setOriginBottomLeft()
 
 
 
+
+
+/*
+// - Color RGB R5 G6 B5 -------------------------------------------------------
+uint16_t SSD1963::Color565(uint8_t r, uint8_t g, uint8_t b) {
+  uint16_t c;
+  c = r >> 3;
+  c <<= 6;
+  c |= g >> 2;
+  c <<= 5;
+  c |= b >> 3;
+  return c;
+}
+*/
+
+
 uint16_t packRGB565( uint16_t r, uint16_t g, uint16_t b)
 {
 
@@ -314,6 +333,80 @@ void LCD_fillRect(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2, uint16_t 
   }
 
 }
+
+
+void LCD_Read_DDB()
+{
+
+  /*
+  // read_ddb. a lot of serial stuff.
+  reg 161 (a1)  r
+    001  0000000000000001
+    087  0000000001010111
+    097  0000000001100001
+    001  0000000000000001
+    255  0000000011111111
+  */
+
+  // reg = 0x0A;   // == 1000
+  char buf[100];
+  uint16_t reg = 0xA1;   // read_ddb,    5 parameter register.
+  //uint16_t reg = 0xE2;   //
+
+  //  LCD_SetAddr(reg );
+  LCD_WriteCommand( reg ) ;
+
+
+  uint16_t x1 = LCD_ReadData();
+  uint16_t x2 = LCD_ReadData();
+  uint16_t x3 = LCD_ReadData();
+  uint16_t x4 = LCD_ReadData();
+  uint16_t x5 = LCD_ReadData();
+
+  usart_printf("reg %u (%02x)  r\n", reg,  reg);
+  usart_printf("%03u  %s\n", x1, format_bits(buf, 16, x1));
+  usart_printf("%03u  %s\n", x2, format_bits(buf, 16, x2));
+  usart_printf("%03u  %s\n", x3, format_bits(buf, 16, x3));
+  usart_printf("%03u  %s\n", x4, format_bits(buf, 16, x4));
+  usart_printf("%03u  %s\n", x5, format_bits(buf, 16, x5));
+
+}
+
+
+
+
+
+
+void  LCD_TestFill()
+{
+  // avoid filling corners - so can see that works.
+
+  // put in function. LCD_testFill.
+
+  LCD_fillRect(1, 1, 480 -1, 10 , packRGB565( 0xff , 0xff, 0xff));
+
+  LCD_fillRect(1, 20, 480 -1, 30 , packRGB565( 0xff , 0xff, 0xff));
+
+
+  // LCD_fillRect(1, 50, 480 -1, 50 , packRGB565( 0xff , 0xff, 0xff)); // height of 0. draws nothing
+  LCD_fillRect(1, 50, 480 -1, 51 , packRGB565( 0xff , 0xff, 0xff)); // height of 1. draws
+
+
+  LCD_fillRect(5, 5, 50, 50, packRGB565( 0x0, 0x0, 0xff));
+
+
+//   agg_test2();
+
+}
+
+
+
+
+
+
+
+
+
 
 
 

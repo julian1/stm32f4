@@ -23,6 +23,11 @@ uint16_t packRGB565( uint16_t r, uint16_t g, uint16_t b);
 void setOriginTopLeft(void);    // conventional 
 void setOriginBottomLeft(void); // cartesion/ fonts/ postscript 
 
+
+
+void  LCD_TestFill(void);
+
+void  LCD_Read_DDB(void);
 /* 
   antigrain font loading. appears to use flip_y on load
   https://coconut2015.github.io/agg-tutorial/tutorial__font__1_8cpp_source.htm
