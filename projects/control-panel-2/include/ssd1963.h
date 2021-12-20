@@ -1,5 +1,6 @@
 
-
+#ifndef SSD1963_H
+#define SSD1963_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,5 +41,6 @@ void  LCD_Read_DDB(void);
 }
 #endif
 
+#endif
 
 

@@ -1,4 +1,7 @@
 
+#ifndef FSMC_H
+#define FSMC_H
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,4 +25,4 @@ uint16_t LCD_ReadData(void) ;
 }
 #endif
 
-
+#endif

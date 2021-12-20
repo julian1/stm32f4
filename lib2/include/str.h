@@ -1,4 +1,10 @@
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 // string support
 
 // should rename to format.h.
@@ -13,5 +19,10 @@ extern char * snprintf2(char *s, size_t sz, const char *format, ...);
 extern char * format_float(char *s, size_t sz, int digits, double value);
 
 extern char * format_bits(char *buf, size_t width, uint32_t value);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 

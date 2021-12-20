@@ -2,6 +2,13 @@
 #ifndef F_BUFFER_H
 #define F_BUFFER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
+
 #include <stdint.h>   // int32_t
 #include <stddef.h>   // size_t
 #include <stdbool.h>  // bool
@@ -40,4 +47,15 @@ int32_t fBufCopy2(const FBuf *a, float *p, size_t n);
 
 // want a copy interface func. and a reset interface func.
 
+
+
+#ifdef __cplusplus
+}
 #endif
+
+
+
+
+#endif
+
+

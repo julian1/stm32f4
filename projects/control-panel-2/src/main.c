@@ -91,6 +91,12 @@ static void update_console_cmd(app_t *app)
 
 
 
+// from agg_test3.cpp
+int agg_test3( void );
+
+
+
+
 static void loop(app_t *app)
 {
   /*
@@ -120,6 +126,8 @@ static void loop(app_t *app)
     }
 
 
+    agg_test3( );
+
   }
 }
 
@@ -133,6 +141,10 @@ static char buf_console_out[1000];
 static app_t app;
 
 
+
+//                agg_test3( );
+
+// extern "C" int agg_test3(  )
 
 
 
@@ -234,7 +246,7 @@ int main(void)
   // LCD_TestFill();
 
 
-   agg_test2();
+  // agg_test3( );
 
 
   usart_printf("\n--------");

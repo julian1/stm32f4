@@ -13,10 +13,10 @@ AGGSRC=${TOP}/agg-svn-r138-agg-2.4/src
 AGGINC=${TOP}/agg-svn-r138-agg-2.4/include/
 
 
-
+# src/agg_test2.cpp
 
 BINARY		= main
-SRCFILES	= ./src/main.c src/util.c src/fsmc.c src/ssd1963.c src/agg_test2.cpp src/arial.cpp \
+SRCFILES	= ./src/main.c src/util.c src/fsmc.c src/ssd1963.c  src/agg_test3.cpp src/arial.cpp \
               ${LIB2SRC}/assert.c ${LIB2SRC}/cbuffer.c   ${LIB2SRC}/usart2.c  \
               ${LIB2SRC}/str.c \
               ${LIB2SRC}/cdcacm.c ${LIB2SRC}/usb_f107.c \
@@ -39,8 +39,8 @@ TGT_CFLAGS	+= -I../../libopencm3/lib/usb/
 TGT_CFLAGS	+= -I${LIB2INC}
 TGT_CFLAGS	+= -I./include    # FIXME, should be before lib2inc
 
+TGT_CXXFLAGS += -I${LIB2INC} -I./include
 TGT_CXXFLAGS += -I${AGGINC}
-TGT_CXXFLAGS += -I./include
 
 
 

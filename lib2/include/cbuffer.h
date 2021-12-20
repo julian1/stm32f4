@@ -2,10 +2,17 @@
 #ifndef C_BUFFER_H
 #define C_BUFFER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #include <stdio.h>    // FILE
 #include <stdint.h>   // int32_t
 #include <stddef.h>   // size_t
 #include <stdbool.h>  // bool
+
+
 
 
 typedef struct CBuf
@@ -64,6 +71,11 @@ void cBufWriteStream(CBuf *x, FILE *stream);
 
 
 
+
+
+#ifdef __cplusplus
+}
+#endif
 
 
 
