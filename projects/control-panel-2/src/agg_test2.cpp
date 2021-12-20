@@ -300,6 +300,7 @@ public:
 // packed rgb565
 typedef ::pixfmt_alpha_blend_rgb_packed<agg::blender_rgb565, agg::rendering_buffer> pixfmt_t;
 
+typedef agg::renderer_base<pixfmt_t>   rb_t ;
 
 /*
   so we would move this into an include file? ....
@@ -307,12 +308,11 @@ typedef ::pixfmt_alpha_blend_rgb_packed<agg::blender_rgb565, agg::rendering_buff
 */
 
 // template< class T>
-void drawText(pixfmt_t &pixf, agg::trans_affine &mtx, const char *s)
+void drawText(rb_t & rb , agg::trans_affine &mtx, const char *s)
 {
   // not even sure if it makes sense to factor this
 
 
-    agg::renderer_base<pixfmt_t>   rb(pixf);
 
     // we can move these out of loop if desired...
     agg::rasterizer_scanline_aa<> ras;
@@ -391,7 +391,7 @@ int agg_test2()
 
 
     const char *s = "hello123";
-    drawText(pixf, mtx, s );
+    drawText(rb , mtx, s );
 
 
     // non anti aliased.
