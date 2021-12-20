@@ -107,7 +107,10 @@ void drawText(rb_t & rb , agg::trans_affine &mtx, const char *s)
   drawing optimisation (eg. fill or character buffering etc) can still be used to improve speed.
   ---
 
-  setBufferA/B.   should do two things - set a y offet for current drawing. and set the scroll to the other page.
+  setBufferA/B.   
+    should do two things - set a y offet for current drawing. and set the scroll to the other page.
+    We can concentrate the Y offet. not in the agg part. but in the setXY call.  
+    excellent.
   
   
 

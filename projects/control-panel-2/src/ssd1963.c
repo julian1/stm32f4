@@ -260,6 +260,10 @@ void LCD_Init(void)
 
 void setXY(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2 )
 {
+/*
+  passing in a scroll offset context - would be very useful for paging/double buffering
+*/
+
 // https://github.com/jscrane/UTFT-Energia/blob/master/tft_drivers/ssd1963/480/setxy.h
 // https://github.com/stm32f4/library/blob/master/SSD1963/GLCD.c
 
