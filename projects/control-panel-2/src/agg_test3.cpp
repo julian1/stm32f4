@@ -116,6 +116,17 @@ void drawText(rb_t & rb , agg::trans_affine &mtx, const char *s)
 
 */
 
+
+/*
+  (800 * 480) / (480 * 272)
+  2.941
+  == 3x the number of pixels.
+
+  eg. drawtime will go from 50ms to 150ms.
+  not very nice.
+*/
+
+
 extern "C" int agg_test3(  )
 {
 
