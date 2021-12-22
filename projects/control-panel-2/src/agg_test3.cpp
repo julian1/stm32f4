@@ -140,7 +140,7 @@ extern "C" int agg_test3(  )
 
   // EXTR. this is a clear/fillRect that is not subpixel, and simple.
   // see, agg_renderer_base.h.
-  // rb.copy_bar(20, 20, 100, 200, agg::rgba(1,0,0));
+  rb.copy_bar(20, 20, 100, 200, agg::rgba(1,0,0));
 
   // fill  for background text
   // rb.copy_bar(40, 40, 400, 200, agg::rgba(1,1,1));
