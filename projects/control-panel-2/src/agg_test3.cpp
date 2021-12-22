@@ -60,7 +60,7 @@ void drawText(rb_t & rb , agg::trans_affine &mtx, const char *s)
 
     int x  = 0;
 
-   uint32_t start = system_millis;
+   // uint32_t start = system_millis;
 
     for( const char *p = s; *p; ++p)  {
 
@@ -91,7 +91,7 @@ void drawText(rb_t & rb , agg::trans_affine &mtx, const char *s)
     }
 
 
-    usart_printf("agg text draw %ums\n", system_millis - start );
+    // usart_printf("agg text draw %ums\n", system_millis - start );
 
     // nothing is displayed????
 
@@ -119,54 +119,32 @@ void drawText(rb_t & rb , agg::trans_affine &mtx, const char *s)
 extern "C" int agg_test3(  )
 {
 
-  // there's something weird here...
-  // why is it wrapping around??
-  // No. don't think it is.
-
-/*
-  alternate buffers.
-  static int y = 0;
-  setScrollStart( y % 2 == 0 ? 0 : 272 );
-  y = y + 1;
- */
-
-  // setScrollStart( 272  - 1  ); // draws. adjusted by 1.
-
-  // setScrollStart( 272  );     // empty.  eg. entirely new page.
-
-                                // because setScrollArea?
-
-  // we ca instantiate the scross start
-
+  // persist the page that we need to draw
   static int page = 0; // page to use
   page = ! page;
 
-  usart_printf("page is %u\n", page);
 
-
+  // set up our buffer
   pixfmt_t  pixf(  page *  272 );
   agg::renderer_base<pixfmt_t>   rb(pixf);
 
 
 
 
-  uint32_t start;
+  uint32_t start = system_millis;
 
 
-  start = system_millis;
-  // rb.clear(agg::rgba(1,1,1));     // white .
-//   usart_printf("rb.clear() %ums\n", system_millis - start );
+  rb.clear(agg::rgba(1,1,1));     // white .
+  //   usart_printf("rb.clear() %ums\n", system_millis - start );
 
 
   // EXTR. this is a clear/fillRect that is not subpixel, and simple.
   // see, agg_renderer_base.h.
-  start = system_millis;
   // rb.copy_bar(20, 20, 100, 200, agg::rgba(1,0,0));
 
   // fill  for background text
-  rb.copy_bar(40, 40, 400, 200, agg::rgba(1,1,1));
+  // rb.copy_bar(40, 40, 400, 200, agg::rgba(1,1,1));
 
-//    usart_printf("copy_bar()  %ums\n", system_millis - start );
 
   // EXTR. IMPORTANT confirm we have floating point enabled.
   // looks ok.
@@ -193,8 +171,10 @@ extern "C" int agg_test3(  )
   drawText(rb , mtx, buf );
 
 
+  usart_printf("total draw time %ums\n", system_millis - start );
 
-  // flip the page in
+
+  // flip the newly drawn page in
   setScrollStart( page *  272 );
 
 
