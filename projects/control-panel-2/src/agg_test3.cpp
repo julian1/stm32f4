@@ -101,78 +101,114 @@ void drawText(rb_t & rb , agg::trans_affine &mtx, const char *s)
 
 /*
   ok. so drawing a clear background, then drawing over the top, will always produces flicker.
-  
-  so use paging/scrolling. 
+
+  so use paging/scrolling.
   actually the speed will be just the same.
   drawing optimisation (eg. fill or character buffering etc) can still be used to improve speed.
   ---
 
-  setBufferA/B.   
+  setBufferA/B.
     should do two things - set a y offet for current drawing. and set the scroll to the other page.
-    We can concentrate the Y offet. not in the agg part. but in the setXY call.  
+    We can concentrate the Y offet. not in the agg part. but in the setXY call.
     excellent.
-  
-  
+
+
 
 */
 
 extern "C" int agg_test3(  )
 {
 
+  // there's something weird here...
+  // why is it wrapping around??
+  // No. don't think it is.
 
-    pixfmt_t  pixf;
-    agg::renderer_base<pixfmt_t>   rb(pixf);
+/*
+  alternate buffers.
+  static int y = 0;
+  setScrollStart( y % 2 == 0 ? 0 : 272 );
+  y = y + 1;
+ */
 
-    uint32_t start;
+  // setScrollStart( 272  - 1  ); // draws. adjusted by 1.
+
+  // setScrollStart( 272  );     // empty.  eg. entirely new page.
+
+                                // because setScrollArea?
+
+  // we ca instantiate the scross start
+
+  static int page = 0; // page to use
+  page = ! page;
+
+  usart_printf("page is %u\n", page);
 
 
-    start = system_millis;
-    // rb.clear(agg::rgba(1,1,1));     // white .
- //   usart_printf("rb.clear() %ums\n", system_millis - start );
+  pixfmt_t  pixf(  page *  272 );
+  agg::renderer_base<pixfmt_t>   rb(pixf);
 
 
-    // EXTR. this is a clear/fillRect that is not subpixel, and simple.
-    // see, agg_renderer_base.h.
-    start = system_millis;
-    // rb.copy_bar(20, 20, 100, 200, agg::rgba(1,0,0));
 
-    // fill  for background text
-    rb.copy_bar(40, 40, 400, 200, agg::rgba(1,1,1));
+
+  uint32_t start;
+
+
+  start = system_millis;
+  // rb.clear(agg::rgba(1,1,1));     // white .
+//   usart_printf("rb.clear() %ums\n", system_millis - start );
+
+
+  // EXTR. this is a clear/fillRect that is not subpixel, and simple.
+  // see, agg_renderer_base.h.
+  start = system_millis;
+  // rb.copy_bar(20, 20, 100, 200, agg::rgba(1,0,0));
+
+  // fill  for background text
+  rb.copy_bar(40, 40, 400, 200, agg::rgba(1,1,1));
 
 //    usart_printf("copy_bar()  %ums\n", system_millis - start );
 
-    // EXTR. IMPORTANT confirm we have floating point enabled.
-    // looks ok.
+  // EXTR. IMPORTANT confirm we have floating point enabled.
+  // looks ok.
 
 
-    // http://agg.sourceforge.net/antigrain.com/demo/conv_contour.cpp.html
-    // https://coconut2015.github.io/agg-tutorial/agg__trans__affine_8h_source.html
-    agg::trans_affine mtx;
-    // mtx.flip_y();
-    // mtx *= agg::trans_affine_scaling(1.0, -1); // this inverts/flips the glyph, relative to origin. but not in place.
-    mtx *= agg::trans_affine_translation(50, 50);   // this moves from above origin, back into the screen.
-    mtx *= agg::trans_affine_rotation(10.0 * 3.1415926 / 180.0);
-    mtx *= agg::trans_affine_scaling(2.0); // now scale it
+  // http://agg.sourceforge.net/antigrain.com/demo/conv_contour.cpp.html
+  // https://coconut2015.github.io/agg-tutorial/agg__trans__affine_8h_source.html
+  agg::trans_affine mtx;
+  // mtx.flip_y();
+  // mtx *= agg::trans_affine_scaling(1.0, -1); // this inverts/flips the glyph, relative to origin. but not in place.
+  mtx *= agg::trans_affine_translation(50, 50);   // this moves from above origin, back into the screen.
+  mtx *= agg::trans_affine_rotation(10.0 * 3.1415926 / 180.0);
+  mtx *= agg::trans_affine_scaling(2.0); // now scale it
 
 
-    // check if font has a space char...
-    // missing the '7' char/ aparently.
+  // check if font has a space char...
+  // missing the '7' char/ aparently.
 
-    static int count = 0;
-    char buf[100];
-    snprintf(buf, 100, "whoot%u", count++); 
+  static int count = 0;
+  char buf[100];
+  snprintf(buf, 100, "whoot%u", count++);
 
-    // const char *s = "hello123";
-    drawText(rb , mtx, buf );
-
-
-    // non anti aliased.
-    // agg::renderer_scanline_bin_solid(
+  // const char *s = "hello123";
+  drawText(rb , mtx, buf );
 
 
-    // setOriginBottomLeft(); // cartesion/ fonts/ postscript
 
-    // agg::path_storage            m_path2;
+  // flip the page in
+  setScrollStart( page *  272 );
+
+
+
+
+
+
+  // non anti aliased.
+  // agg::renderer_scanline_bin_solid(
+
+
+  // setOriginBottomLeft(); // cartesion/ fonts/ postscript
+
+  // agg::path_storage            m_path2;
 #if 0
       m_path.remove_all();
       m_path.move_to(10, 10);

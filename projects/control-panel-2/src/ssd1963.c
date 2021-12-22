@@ -258,6 +258,18 @@ void LCD_Init(void)
 
 
 
+
+void setScrollStart(uint16_t y)
+{
+  LCD_Write_COM(0x37);  
+    LCD_Write_DATA(y>>8);
+    LCD_Write_DATA(y);
+}
+
+
+
+
+
 void setXY(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2 )
 {
 /*

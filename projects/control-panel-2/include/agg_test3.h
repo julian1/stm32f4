@@ -1,11 +1,11 @@
-/* 
-  
+/*
+
   rename,  this creates the generalized render structure.
     that we pass around
 
   prehaps use hpp suffix.
 
-  OK. there's a issue 
+  OK. there's a issue
   To have a templated rendering buffer.
   We need c++ linkage.
   hmmmm.
@@ -57,12 +57,14 @@ public:
 
 */
 
-
+private:
+    int scroll_start;
 public:
 
-    explicit pixfmt_alpha_blend_rgb_packed(/* rbuf_type& rb */) //:
-        // m_rbuf(&rb)
+    explicit pixfmt_alpha_blend_rgb_packed( int scroll_start_ )
+      : scroll_start( scroll_start_ )
     {}
+
 
 
     AGG_INLINE unsigned width()  const { return 480;  }
@@ -76,6 +78,10 @@ public:
     /*
       // std::cout << "copy_hline       x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  << std::endl;
     */
+
+      // we could use y += page * height(); 
+
+      y += scroll_start;
       setXY(x, y, x + len, y + 1);   // y + 1 ????
       for( int i = 0; i < len; ++i ) {
         LCD_WriteData(   packRGB565( c.r, c.g, c.b)  ) ;
@@ -98,6 +104,7 @@ public:
       }
       std::cout << std::endl;
       */
+      y += scroll_start;
 
       setXY(x, y, x + len, y + 1);   // how is this working without y + 1 ????
       for( int i = 0; i < len; ++i ) {
@@ -115,6 +122,9 @@ public:
     /*
       std::cout << "blend_hline       x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  << " cover " << int(cover) << std::endl;
     */
+
+      y += scroll_start;
+
       setXY(x, y, x + len, y + 1);   // how is this working without y + 1 ????
       for( int i = 0; i < len; ++i ) {
         LCD_WriteData(   packRGB565( c.r, c.g, c.b)  ) ;

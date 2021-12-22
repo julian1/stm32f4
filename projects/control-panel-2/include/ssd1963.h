@@ -15,6 +15,8 @@ void LCD_Init(void);
 void LCD_fillRect(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2, uint16_t c );
 
 
+void setScrollStart(uint16_t y);
+
 
 void setXY(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2 );
 
@@ -23,6 +25,7 @@ uint16_t packRGB565( uint16_t r, uint16_t g, uint16_t b);
 // cannot interleave to switch on the fly. since governs 1963 memory to screen. not blt operations. 
 void setOriginTopLeft(void);    // conventional 
 void setOriginBottomLeft(void); // cartesion/ fonts/ postscript 
+
 
 
 
