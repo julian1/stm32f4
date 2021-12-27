@@ -66,6 +66,11 @@ void xpt2046_gpio_setup()
 
 // why pass spi2...
 
+// TODO. 
+// RENAME spi1_port_setup()
+// because it's completely generic.
+// TODO. also last argument of gpio_set_output_options() should be 'out'
+
 void xpt2046_spi_port_setup()
 {
   uint32_t out = ADC_CS | ADC_SCLK | ADC_MOSI;
@@ -82,7 +87,7 @@ void xpt2046_spi_port_setup()
   // OK.. THIS MADE SPI WORK AGAIN....
   // note, need harder edges for signal integrity. or else different speed just helps suppress parasitic components
   // see, https://www.eevblog.com/forum/microcontrollers/libopencm3-stm32l100rc-discovery-and-spi-issues/
-  gpio_set_output_options(ADC_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, ADC_CS | ADC_SCLK |  ADC_MOSI);
+  gpio_set_output_options(ADC_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, ADC_CS | ADC_SCLK |  ADC_MOSI /* FIXME */); 
 
 }
 
