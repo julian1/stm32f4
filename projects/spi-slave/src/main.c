@@ -1,11 +1,5 @@
 /*
 
-  - dummy text - to test draw time.
-  - coroutines.
-  - spi slave - test on other board
-  - do storage for actual horizontal.
-
-
 
   ------------
   nix-shell ~/devel/nixos-config/examples/arm.nix
@@ -165,6 +159,7 @@ static void spi_setup(uint32_t spi)
 // SLAVE
 // spi2
 
+// spi_set_slave_mode() <- good function to search on.
 // https://community.st.com/s/question/0D50X0000A4neCu/spi-communication-between-two-stm32-gives-different-values-after-reset-button-pressed
 
 
@@ -193,10 +188,32 @@ static void spi2_port_setup(void)
 
 void spi2_isr(void)
 {
-  uint8_t i = spi_xfer(SPI2, 0);
+  static uint8_t last = 0;
 
-  usart_printf("spi2 interupt !!!! %u\n", i);
+  /*
+    isr gets called for each recived byte. so we need a way to work out start/end
+    we have to respond to the command val.
+    so just needs a simple state machine. with a counter for the byte.
+    eg. 0x80 command. 0x0 expecting more data.
+  */
+  // So, if wanted to receive more than one byte... we call twice here???
+  // OKK. 255 gets sent in return ok.
+  // and 0 gets sent ok.
+  // 1 returns 128
+  // Weird.
+  last = spi_xfer(SPI2, last );
+
+  // send a response
+  // spi_xfer(SPI2, 0);
+  // UNUSED(i);
+  usart_printf("spi2 interupt got !!!! %u\n", last );
 }
+
+
+
+
+
+
 
 static void spi_slave_setup(uint32_t spi)
 {
@@ -207,22 +224,24 @@ static void spi_slave_setup(uint32_t spi)
   nvic_enable_irq(NVIC_SPI2_IRQ);
 
   spi_set_slave_mode(spi);
-/*
-  spi_set_baudrate_prescaler(spi, SPI_CR1_BR_FPCLK_DIV_8); // SPI_CR1_BAUDRATE_FPCLK_DIV_4,
+
+  // spi_set_baudrate_prescaler(spi, SPI_CR1_BR_FPCLK_DIV_8); // SPI_CR1_BAUDRATE_FPCLK_DIV_4,
+  // spi_set_baudrate_prescaler(spi, SPI_CR1_BAUDRATE_FPCLK_DIV_4); // SPI_CR1_BAUDRATE_FPCLK_DIV_4,
 
   spi_set_full_duplex_mode(spi);
-  spi_set_clock_polarity_1(spi);
+  spi_set_clock_polarity_0(spi);    // JA required.
   spi_set_clock_phase_1(spi);
   spi_set_dff_8bit(spi);
   spi_send_msb_first(spi);
-  spi_enable_software_slave_management(spi);
-*/
+  // spi_disable_software_slave_management(spi); // doesnt matter
+/**/
 
+/*
   spi_set_clock_polarity_1(spi);
   spi_set_clock_phase_1(spi);
+*/
 
-
-  spi_enable_rx_buffer_not_empty_interrupt(spi);  // WILL GIVE US AN INTERUPT ?
+  spi_enable_rx_buffer_not_empty_interrupt(spi);  // WILL GIVE US AN INTERUPT!
   spi_enable(spi);
 
 }
@@ -239,6 +258,7 @@ static void loop(app_t *app)
     loop() subsumes update()
   */
 
+  static unsigned count = 0;
   // TODO move to app_t structure?.
   static uint32_t soft_500ms = 0;
 
@@ -258,13 +278,18 @@ static void loop(app_t *app)
       led_toggle();
 
 
-      usart_printf("xfer on spi1\n");
+      usart_printf("spi1 master xfer on spi1\n");
+      /// flush....
 
       spi_enable( SPI1 );
-      uint8_t val = spi_xfer(SPI1, 0xff );
-      UNUSED(val);
+      uint8_t val =  spi_xfer(SPI1, 0x80 ); // commmand.
+      uint8_t val2 = spi_xfer(SPI1, count );
+
+
+      usart_printf("spi1 master xfer got %u %u\n", val, val2 );
       spi_disable( SPI1 );
 
+      ++count;
 
     }
 
@@ -373,26 +398,6 @@ int main(void)
   // might be better to pass as handler?
 	app.usbd_dev = usb_setup();
   ASSERT(app.usbd_dev);
-
-
-
-#if 0
-  fsmc_gpio_setup();
-
-  fsmc_setup(1);
-  tft_reset();
-
-  LCD_Init();
-  LCD_SetTearOn();
-  // LCD_TestFill();
-
-
-  xpt2046_gpio_setup();
-  xpt2046_spi_port_setup();
-  xpt2046_spi_setup( XPT2046_SPI );
-
-  xpt2046_reset( XPT2046_SPI);
-#endif
 
 
   usart_printf("\n--------");
