@@ -207,6 +207,7 @@ static void spi_slave_setup(uint32_t spi)
   nvic_enable_irq(NVIC_SPI2_IRQ);
 
   spi_set_slave_mode(spi);
+/*
   spi_set_baudrate_prescaler(spi, SPI_CR1_BR_FPCLK_DIV_8); // SPI_CR1_BAUDRATE_FPCLK_DIV_4,
 
   spi_set_full_duplex_mode(spi);
@@ -215,6 +216,11 @@ static void spi_slave_setup(uint32_t spi)
   spi_set_dff_8bit(spi);
   spi_send_msb_first(spi);
   spi_enable_software_slave_management(spi);
+*/
+
+  spi_set_clock_polarity_1(spi);
+  spi_set_clock_phase_1(spi);
+
 
   spi_enable_rx_buffer_not_empty_interrupt(spi);  // WILL GIVE US AN INTERUPT ?
   spi_enable(spi);
