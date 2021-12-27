@@ -344,6 +344,7 @@ int main(void)
   // LED
   rcc_periph_clock_enable(RCC_GPIOA); // f410/f411 led.
   rcc_periph_clock_enable(RCC_GPIOB); // f410/f411 led.
+  rcc_periph_clock_enable(RCC_GPIOE); // led cjmcu
 
   // USART
   rcc_periph_clock_enable(RCC_GPIOB); // F410/f411
