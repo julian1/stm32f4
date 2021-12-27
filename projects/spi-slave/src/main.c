@@ -1,5 +1,6 @@
 /*
 
+  spi master and slave on the same device.
 
   ------------
   nix-shell ~/devel/nixos-config/examples/arm.nix
