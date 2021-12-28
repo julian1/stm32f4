@@ -120,6 +120,7 @@
 int agg_test2( void );
 int agg_test3( void );
 int agg_test4( void );
+int agg_test5( void );
 
 
 
@@ -196,7 +197,9 @@ static void loop(app_t *app)
 
     // agg_test2();
     // agg_test3();
-    agg_test4();
+    // agg_test4();
+    agg_test5();
+    msleep(1000);
 
     // xpt2046_read();
 
@@ -207,7 +210,7 @@ static void loop(app_t *app)
 
 
 static char buf_console_in[1000];
-static char buf_console_out[1000];
+static char buf_console_out[2000]; // setting to 10000. and it fails??? werid.
 
 
 static app_t app;

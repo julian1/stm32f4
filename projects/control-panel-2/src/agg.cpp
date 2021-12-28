@@ -24,10 +24,8 @@
 
 #include "agg.h"
 
-
-
 #include "assert.h"
-#include "util.h"
+// #include "util.h"
 
 
 
@@ -50,7 +48,11 @@ extern int arial_glyph_advance_y[256] ;
 
 void drawText(rb_t & rb, agg::trans_affine &mtx, const agg::rgba &color, const char *s)
 {
+  // TODO change namem drawOutlineText...
   // not even sure if it makes sense to factor this
+
+
+  // rb.copy_hline(0, 0, 0, color );
 
 
   // we can move these out of loop if desired...
@@ -94,12 +96,74 @@ void drawText(rb_t & rb, agg::trans_affine &mtx, const agg::rgba &color, const c
 
   }
 
-
   // usart_printf("agg text draw %ums\n", system_millis - start );
-
   // nothing is displayed????
 
-
 }
+
+
+
+
+void drawSpans( rb_t & rb,  const agg::rgba &color,  const uint8_t *spans )
+{
+  // TODO change name drawSpanText
+  // rb.copy_hline(0, 0, 0, color );
+
+  const uint8_t *p = spans;
+
+  bool done = false;
+
+  while(!done)
+    switch(*p) {
+
+      case (0x01 << 7):   {
+        // usart_printf("got blend_solid_hspan\n");
+
+        // void blend_solid_hspan(int x, int y, unsigned len, const color_type& c, const int8u* covers)
+        p++;
+        uint8_t x = *p++;
+        int8_t y = *p++;     // y at least needs to be interpreted as signed.
+        uint8_t len = *p++;
+        const uint8_t *covers = p;    // no array copying nice/fast versus other solutions
+
+        p += len;
+
+        rb.blend_solid_hspan(x, y, len, color, covers);
+        break;
+      }
+
+      case (0x01 << 6):   {
+        // usart_printf("got blend_hline\n");
+        // void blend_hline(int x, int y, unsigned len, const color_type& c, int8u cover)
+        p++;
+
+        int x = *p++;
+        int y = *p++;     // y at least needs to be interpreted as signed.
+        int len = *p++;
+        const uint8_t cover = *p++;    // no array copying nice/fast versus other solutions
+
+  
+        // careful  .blend_hline() interface for x is different for rendering_base versus pxfmt
+        rb.blend_hline( x, y, x + len, color, cover ); // x1, x2
+        break;
+      }
+
+      case (0x01 << 5): { 
+        // sentinel, we are done.
+        done = true;
+        break;
+      }
+
+      default:
+        usart_printf("unknwon char in drawSpans()\n");
+        assert(0);
+
+    }
+}
+
+
+
+
+
 
 

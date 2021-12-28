@@ -46,6 +46,20 @@ void cBufInit(CBuf *a, char *p, size_t sz)
   a->ri = 0;
 }
 
+
+void cBufClear(CBuf *a)
+{
+  ASSERT(a);
+
+  a->wi = 0;
+  a->ri = 0;
+}
+
+
+
+
+
+
 void cBufPush(CBuf *a, char val)
 {
 /*

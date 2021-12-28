@@ -209,6 +209,15 @@ void usart_printf_init(CBuf *output)
 }
 
 
+void usart_clear()
+{
+
+  cBufClear(console_out);
+
+}
+
+
+
 
 void usart_printf(const char *format, ...)
 {

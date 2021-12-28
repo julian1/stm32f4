@@ -27,6 +27,10 @@ typedef struct CBuf
 
 
 void cBufInit(CBuf *a, char *p, size_t sz);
+
+void cBufClear(CBuf *a);
+
+
 void cBufPush(CBuf *a, char val);
 
 bool cBufisEmpty(const CBuf *a);

@@ -28,6 +28,7 @@ extern "C" {
 
 #include "fsmc.h"       // LCD_WriteData()
 #include "ssd1963.h"    // setXY
+#include "util.h"    // usart_printf
 
 
 
@@ -42,6 +43,7 @@ public:
     // for consumers
     typedef RenBuf   rbuf_type;
     typedef typename rbuf_type::row_data row_data;
+
     typedef Blender  blender_type;
     typedef typename blender_type::color_type color_type;
 /*
@@ -81,7 +83,7 @@ public:
       // std::cout << "copy_hline       x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  << std::endl;
     */
 
-      // we could use y += page * height(); 
+      // we could use y += page * height();
 
       y += scroll_start;
       setXY(x, y, x + len, y + 1);   // y + 1 ????
@@ -92,12 +94,16 @@ public:
     }
 
 
+  // linking error???
 
-    void blend_solid_hspan(int x, int y,
+    inline void blend_solid_hspan(int x, int y,
                            unsigned len,
                            const color_type& c,
                            const int8u* covers)
     {
+
+      // usart_printf("   blend_hline x=%u y=%u len=%u \n", x, y, len );
+
       /*
       std::cout << "blend_solid_hspan x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  ;
       std::cout << " covers ";
@@ -108,7 +114,7 @@ public:
       */
       y += scroll_start;
 
-      setXY(x, y, x + len, y + 1);   // how is this working without y + 1 ????
+      setXY(x, y, x + len, y + 1);
       for( unsigned i = 0; i < len; ++i ) {
         LCD_WriteData(   packRGB565( c.r, c.g, c.b)  ) ;
       }
@@ -116,18 +122,19 @@ public:
 
     }
 
-    void blend_hline(int x, int y,
+    inline void blend_hline(int x, int y,
                      unsigned len,
                      const color_type& c,
                      int8u cover)
     {
-    /*
-      std::cout << "blend_hline       x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  << " cover " << int(cover) << std::endl;
-    */
+      /*
+        std::cout << "blend_hline       x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  << " cover " << int(cover) << std::endl;
+      */
+      // usart_printf( "x=%u, %y=%u, len=%u, cover=%u\n", x, y, len, cover);
 
       y += scroll_start;
 
-      setXY(x, y, x + len, y + 1);   // how is this working without y + 1 ????
+      setXY(x, y, x + len, y + 1);
       for( unsigned i = 0; i < len; ++i ) {
         LCD_WriteData(   packRGB565( c.r, c.g, c.b)  ) ;
       }
@@ -140,43 +147,49 @@ public:
 // packed rgb565
 typedef ::pixfmt_alpha_blend_rgb_packed<agg::blender_rgb565, agg::rendering_buffer> pixfmt_t;
 
+
+// how does render_base delegate to the pixel buf???
 typedef agg::renderer_base<pixfmt_t>   rb_t ;
 
 
 
 
 void drawText(rb_t & rb, agg::trans_affine &mtx, const agg::rgba &color, const char *s);
-// void drawText(rb_t & rb , agg::trans_affine &mtx, const char *s);
 
 
+
+
+void drawSpans( rb_t & rb,  const agg::rgba &color,  const uint8_t *spans ) ;
+
+
+
+/*
+  EXTR. IMPORTANT
+  - So. we could actually do a memory read of the pixel data. for the line.
+  - to do proper blending.
+  - in order that we do not have to pass an additional fake background color.
+  - this is in fact a real advantage of using a bitmap rather than blt fill operations.
+  - most stuff is sold fill though - so reading shouldn't be too costly.
+  ------
+  alternatively we could do a gamma threshold of the coverage/ for non aa.
+*/
 
   /*
-    EXTR. IMPORTANT
-    - So. we could actually do a memory read of the pixel data. for the line.
-    - to do proper blending.
-    - in order that we do not have to pass an additional fake background color.
-    - this is in fact a real advantage of using a bitmap rather than blt fill operations.
-    - most stuff is sold fill though - so reading shouldn't be too costly.
-    ------
-    alternatively we could do a gamma threshold of the coverage/ for non aa.
+    EXTR.
+      need to fill a rect. with agg.
+      it may be better to affine rotate the character... maybe on load.
+      see rb.copy_bar()
+
+    - need to handle vertical reversed . how is this done normally with agg. with the render buffer?
+    - not sure. if we used bottom left. then everything would be nice.
+    arduino gfx.
+      The coordinate system places the origin (0,0) at the top left corner, with positive X increasing to the right and positive Y increasing downward.
+    EXTR.
+      i think that always rendering is equivalent to gamma==1.
+    EXTR.
+      need to invert the char geometry.
+
   */
-
-    /*
-      EXTR.
-        need to fill a rect. with agg.
-        it may be better to affine rotate the character... maybe on load.
-        see rb.copy_bar()
-
-      - need to handle vertical reversed . how is this done normally with agg. with the render buffer?
-      - not sure. if we used bottom left. then everything would be nice.
-      arduino gfx.
-        The coordinate system places the origin (0,0) at the top left corner, with positive X increasing to the right and positive Y increasing downward.
-      EXTR.
-        i think that always rendering is equivalent to gamma==1.
-      EXTR.
-        need to invert the char geometry.
-
-    */
 
 
 
