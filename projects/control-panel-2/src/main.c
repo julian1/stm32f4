@@ -199,7 +199,6 @@ static void loop(app_t *app)
     // agg_test3();
     // agg_test4();
     agg_test5();
-    msleep(1000);
 
     // xpt2046_read();
 
