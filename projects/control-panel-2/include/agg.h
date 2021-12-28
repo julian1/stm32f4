@@ -171,6 +171,8 @@ void drawText(rb_t & rb, agg::trans_affine &mtx, const agg::rgba &color, const c
 
 void drawSpans( rb_t & rb, int dx, int dy,  const agg::rgba &color,  const uint8_t *spans );
 
+void drawSpanText(rb_t & rb, int x1, int y1, const agg::rgba &color, const char *s);
+
 
 
 /*
