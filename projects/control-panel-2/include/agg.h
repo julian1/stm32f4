@@ -42,91 +42,91 @@ class pixfmt_alpha_blend_rgb_packed
   // eg. from agg_pixfmt_rgb_packed.h
 public:
 
-  typedef const_row_info<int8u> row_data;
-
-  typedef typename agg::blender_rgb565::color_type color_type;
-
-
-
-private:
-  int scroll_start;
-public:
-
-  explicit pixfmt_alpha_blend_rgb_packed( int scroll_start_ )
-    : scroll_start( scroll_start_ )
-  {}
+    // used by the renderer_base
+    typedef const_row_info<int8u>                     row_data;
+    typedef typename agg::blender_rgb565::color_type  color_type;
 
 
 
-  AGG_INLINE unsigned width()  const { return 480;  }
-  AGG_INLINE unsigned height() const { return 272; }
-  // AGG_INLINE int      stride() const { return m_rbuf->stride(); }
+  private:
+    int scroll_start;
+  public:
 
-  AGG_INLINE void copy_hline(int x, int y,
-                             unsigned len,
-                             const color_type& c)
-  {
-  /*
-    // std::cout << "copy_hline       x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  << std::endl;
-  */
-
-    // we could use y += page * height();
-
-    y += scroll_start;
-    setXY(x, y, x + len, y + 1);   // y + 1 ????
-    for( unsigned i = 0; i < len; ++i ) {
-      LCD_WriteData(   packRGB565( c.r, c.g, c.b)  ) ;
-    }
-
-  }
+    explicit pixfmt_alpha_blend_rgb_packed( int scroll_start_ )
+      : scroll_start( scroll_start_ )
+    {}
 
 
-// linking error???
 
-  inline void blend_solid_hspan(int x, int y,
-                         unsigned len,
-                         const color_type& c,
-                         const int8u* covers)
-  {
+    AGG_INLINE unsigned width()  const { return 480;  }
+    AGG_INLINE unsigned height() const { return 272; }
+    // AGG_INLINE int      stride() const { return m_rbuf->stride(); }
 
-    // usart_printf("   blend_hline x=%u y=%u len=%u \n", x, y, len );
-
+    AGG_INLINE void copy_hline(int x, int y,
+                               unsigned len,
+                               const color_type& c)
+    {
     /*
-    std::cout << "blend_solid_hspan x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  ;
-    std::cout << " covers ";
-    for(unsigned i = 0; i < len; ++i ) {
-      std::cout << int(covers[i]) << ", ";
-    }
-    std::cout << std::endl;
+      // std::cout << "copy_hline       x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  << std::endl;
     */
-    y += scroll_start;
 
-    setXY(x, y, x + len, y + 1);
-    for( unsigned i = 0; i < len; ++i ) {
-      LCD_WriteData(   packRGB565( c.r, c.g, c.b)  ) ;
+      // we could use y += page * height();
+
+      y += scroll_start;
+      setXY(x, y, x + len, y + 1);   // y + 1 ????
+      for( unsigned i = 0; i < len; ++i ) {
+        LCD_WriteData(   packRGB565( c.r, c.g, c.b)  ) ;
+      }
+
     }
 
 
-  }
+  // linking error???
 
-  inline void blend_hline(int x, int y,
-                   unsigned len,
-                   const color_type& c,
-                   int8u cover)
-  {
-    /*
-      std::cout << "blend_hline       x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  << " cover " << int(cover) << std::endl;
-    */
-    // usart_printf( "x=%u, %y=%u, len=%u, cover=%u\n", x, y, len, cover);
+    inline void blend_solid_hspan(int x, int y,
+                           unsigned len,
+                           const color_type& c,
+                           const int8u* covers)
+    {
 
-    y += scroll_start;
+      // usart_printf("   blend_hline x=%u y=%u len=%u \n", x, y, len );
 
-    setXY(x, y, x + len, y + 1);
-    for( unsigned i = 0; i < len; ++i ) {
-      LCD_WriteData(   packRGB565( c.r, c.g, c.b)  ) ;
+      /*
+      std::cout << "blend_solid_hspan x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  ;
+      std::cout << " covers ";
+      for(unsigned i = 0; i < len; ++i ) {
+        std::cout << int(covers[i]) << ", ";
+      }
+      std::cout << std::endl;
+      */
+      y += scroll_start;
+
+      setXY(x, y, x + len, y + 1);
+      for( unsigned i = 0; i < len; ++i ) {
+        LCD_WriteData(   packRGB565( c.r, c.g, c.b)  ) ;
+      }
+
+
     }
 
-  }
+    inline void blend_hline(int x, int y,
+                     unsigned len,
+                     const color_type& c,
+                     int8u cover)
+    {
+      /*
+        std::cout << "blend_hline       x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  << " cover " << int(cover) << std::endl;
+      */
+      // usart_printf( "x=%u, %y=%u, len=%u, cover=%u\n", x, y, len, cover);
+
+      y += scroll_start;
+
+      setXY(x, y, x + len, y + 1);
+      for( unsigned i = 0; i < len; ++i ) {
+        LCD_WriteData(   packRGB565( c.r, c.g, c.b)  ) ;
+      }
+
+    }
 
 };
 
