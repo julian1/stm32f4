@@ -135,6 +135,17 @@ char * format_float(char *s, size_t sz, int digits, double value)
     this will zero pad to the right if needed.
     it also only formats the prec after the decimal point.
     this is probably mostly what we want. eg. 6 digits of uV.
+    -------------
+    EXTR.
+    
+      when we draw graphically. we want to draw from rhs digit to lhs digit.
+      eg.  so if the most significant digit changes adds a digit. 
+      then it does not disturb the precision of the lower bits.
+
+      this is a bit difficult with glyph advance which assumes right direction.
+
+      eg.
+        from 7.123  to 17.123.    the 123 should be aligned.
   */
   snprintf(s, sz, "%.*fV", digits, value);
   return s;
