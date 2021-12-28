@@ -2,15 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdio.h> // snprintf
-// #include "agg_pixfmt_rgb24.h"
-// #include "agg_pixfmt_rgb.h"
 
 #include "agg_conv_curve.h"
 #include "agg_conv_contour.h"
 
-
-// #include "agg_basics.h"
-// #include "agg_rendering_buffer.h"
 
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_scanline_p.h"
@@ -27,61 +22,32 @@
 #include "fonts.h"
 
 
-/*
-  TODO
-  prototypes should be put in arial.h
-  And then also pass the glyph structures.
-*/
-/*
-typedef agg::serialized_integer_path_adaptor<short int, 6>  font_path_type;
 
-extern font_path_type *arial_glyph[256];
-extern int arial_glyph_advance_x[256] ;
-extern int arial_glyph_advance_y[256] ;
-
-*/
 
 
 
 void drawOutlineText(rb_t & rb, const FontOutline &font_outline, agg::trans_affine &mtx, const agg::rgba &color, const char *s)
-
-// void drawText(rb_t & rb, agg::trans_affine &mtx, const agg::rgba &color, const char *s)
 {
-  // TODO change namem drawOutlineText...
-  // not even sure if it makes sense to factor this
-  // rb.copy_hline(0, 0, 0, color );
 
-
-  // we can move these out of loop if desired...
   agg::rasterizer_scanline_aa<> ras;
   agg::scanline_p8 sl;
 
-
   int x  = 0;
 
- // uint32_t start = system_millis;
 
   for( const char *p = s; *p; ++p)  {
 
       char ch = *p;
 
-      // whoot it links
       font_path_type *path = font_outline.glyph_outline[ ch ];
-/*
-      if(!path) {
-        x += 10;
-        continue;
-      }
-*/
       assert( path );
 
       // TODO add a translate() method... or add an adapter
       // should add a method translate( dx, dy );
       path->m_dx = x;
 
+      // advance for next time
       x += font_outline.glyph_advance_x[ ch ];
-      // y += arial_glyph_advance_y[ ch ];  ie. if lang uses vertical glyphs
-
 
       agg::conv_transform<font_path_type> trans( *path, mtx);
       agg::conv_curve<agg::conv_transform<  font_path_type > > curve(trans);
@@ -90,31 +56,15 @@ void drawOutlineText(rb_t & rb, const FontOutline &font_outline, agg::trans_affi
       ras.add_path( curve );
       // agg::render_scanlines_aa_solid(ras, sl, rb, agg::rgba(0,0,1));
       agg::render_scanlines_aa_solid(ras, sl, rb, color );
-
   }
-
-  // usart_printf("agg text draw %ums\n", system_millis - start );
-  // nothing is displayed????
-
 }
 
 
-/*
-  - OK. we need to support an x,y translation offset here...
-  to be able to draw text.
 
-  - don't use mtx. because spans cannot be affine.
-
-*/
 
 
 void drawSpans( rb_t & rb, int dx, int dy,  const agg::rgba &color,  const uint8_t *spans )
 {
-  // TODO change name drawSpanText
-  // actually no, since it will work on any span data.
-  // dx,dy
-  // rb.copy_hline(0, 0, 0, color );
-
   const uint8_t *p = spans;
 
   bool done = false;
@@ -173,40 +123,25 @@ void drawSpans( rb_t & rb, int dx, int dy,  const agg::rgba &color,  const uint8
 
 
 
-// PUT THIS IN A STRUCT - WHEN GENERATE. THEN WE CAN PASS IT AROUND.
-
-// TODO fixme
-// arial-span-1.8
-// extern uint8_t *glyph[256] ;
-// extern int glyph_advance_x[256] ;
-
-
-
-
 
 void drawSpanText(rb_t & rb, const FontSpans &font_spans, int x1, int y1, const agg::rgba &color, const char *s)
 {
   int x  = x1;
   int y  = y1;
 
- // uint32_t start = system_millis;
 
   for( const char *p = s; *p; ++p)  {
 
-      char ch = *p;
+    char ch = *p;
 
+    uint8_t *spans = font_spans.glyph_spans[ ch ];
+    assert(spans);
 
-      // uint8_t *spans = glyph[ ch ];
-      // assert(spans);
+    drawSpans( rb, x, y,  agg::rgba(0,0,1), spans);
 
-      // usart_printf("before drawSpans() \n");
-      drawSpans( rb, x, y,  agg::rgba(0,0,1),  font_spans.glyph_spans[ ch ]  );
-
-      x += font_spans.glyph_advance_x[ ch ];
+    x += font_spans.glyph_advance_x[ ch ];
 
   }
-
-
 }
 
 
