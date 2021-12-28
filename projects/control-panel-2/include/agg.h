@@ -139,7 +139,6 @@ public:
 template<class PixelFormat> class renderer_base_no_clip
 {
 /*
-  change name renderer_base_no_clip
   renderer_base without a clipbox.
 
   no clip - supports negative coordinates needed for font  spans.
@@ -196,6 +195,8 @@ public:
             }
         }
     }
+
+    // void copy_bar() etc
 
 };
 
