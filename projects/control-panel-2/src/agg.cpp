@@ -178,11 +178,15 @@ void drawSpans( rb_t & rb, int dx, int dy,  const agg::rgba &color,  const uint8
 
 // TODO fixme
 // arial-span-1.8
-extern uint8_t *glyph[256] ;
-extern int glyph_advance_x[256] ;
+// extern uint8_t *glyph[256] ;
+// extern int glyph_advance_x[256] ;
 
 
-void drawSpanText(rb_t & rb, int x1, int y1, const agg::rgba &color, const char *s)
+
+#include "font_spans.h"
+
+
+void drawSpanText(rb_t & rb, const FontSpans &font_spans, int x1, int y1, const agg::rgba &color, const char *s)
 {
   int x  = x1;
   int y  = y1;
@@ -194,13 +198,13 @@ void drawSpanText(rb_t & rb, int x1, int y1, const agg::rgba &color, const char 
       char ch = *p;
 
 
-      uint8_t *spans = glyph[ ch ];
-      assert(spans);
+      // uint8_t *spans = glyph[ ch ];
+      // assert(spans);
 
       // usart_printf("before drawSpans() \n");
-      drawSpans( rb, x, y,  agg::rgba(0,0,1),  spans );
+      drawSpans( rb, x, y,  agg::rgba(0,0,1),  font_spans.glyph_spans[ ch ]  );
 
-      x += glyph_advance_x[ ch ];
+      x += font_spans.glyph_advance_x[ ch ];
 
   }
 

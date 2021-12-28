@@ -12,10 +12,11 @@
 #include "util.h"
 #include "format.h"
 
+#include "font_spans.h"
 
 
 // arial-span-1.8
-extern uint8_t *glyph[256] ;
+// extern uint8_t *glyph[256] ;
 
 
 extern "C" int agg_test5()
@@ -36,8 +37,8 @@ extern "C" int agg_test5()
   rb.clear(agg::rgba(1,1,1));     // white .
 
 
-  uint8_t *spans = glyph['9'];
-  assert(spans);
+  // uint8_t *spans = glyph['9'];
+  // assert(spans);
 
 
   uint32_t start = system_millis;
@@ -48,7 +49,8 @@ extern "C" int agg_test5()
   double volts = double(count) / 100000.f;
   char buf[100];
   format_float(buf, 100, 5, volts );
-  drawSpanText(rb, 50, 50 , agg::rgba(0,0,1), buf );
+
+  drawSpanText(rb,  arial_span_1p8,    50, 50 , agg::rgba(0,0,1), buf );
 
 
   usart_printf("spans time  %u\n", system_millis - start);
