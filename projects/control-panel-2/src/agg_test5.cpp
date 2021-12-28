@@ -44,7 +44,7 @@ extern "C" int agg_test5()
   char buf[100];
   format_float(buf, 100, 5, volts );
 
-  drawSpanText(rb,  arial_span_1p8,    50, 100 , agg::rgba(0,0,1), buf );
+  drawSpanText(rb,  arial_span_72,    50, 100 , agg::rgba(0,0,1), buf );
 
 
   usart_printf("spans time  %u\n", system_millis - start);
