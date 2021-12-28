@@ -36,7 +36,7 @@ using namespace agg;
 
 
 
-template<class Blender,  class RenBuf> class pixfmt_alpha_blend_rgb_packed
+class pixfmt_alpha_blend_rgb_packed
 {
 
   /*
@@ -47,7 +47,7 @@ template<class Blender,  class RenBuf> class pixfmt_alpha_blend_rgb_packed
 
   // eg. from agg_pixfmt_rgb_packed.h
 public:
-
+#if 0
     // for consumers
     typedef RenBuf   rbuf_type;
     typedef typename rbuf_type::row_data row_data;
@@ -68,6 +68,13 @@ public:
     };
 
 */
+#endif
+
+      typedef const_row_info<int8u> row_data;
+
+    typedef typename agg::blender_rgb565::color_type color_type;
+
+
 
 private:
     int scroll_start;
@@ -153,7 +160,7 @@ public:
 
 
 // packed rgb565
-typedef ::pixfmt_alpha_blend_rgb_packed<agg::blender_rgb565, agg::rendering_buffer> pixfmt_t;
+typedef ::pixfmt_alpha_blend_rgb_packed pixfmt_t;
 
 
 // how does render_base delegate to the pixel buf???
