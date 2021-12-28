@@ -21,12 +21,9 @@
 #include "agg_path_storage_integer.h"
 
 
+#include "assert.h"
 
 #include "agg.h"
-
-#include "assert.h"
-// #include "util.h"
-
 #include "fonts.h"
 
 
@@ -35,19 +32,20 @@
   prototypes should be put in arial.h
   And then also pass the glyph structures.
 */
-
+/*
 typedef agg::serialized_integer_path_adaptor<short int, 6>  font_path_type;
 
 extern font_path_type *arial_glyph[256];
 extern int arial_glyph_advance_x[256] ;
 extern int arial_glyph_advance_y[256] ;
 
+*/
 
 
 
+void drawOutlineText(rb_t & rb, const FontOutline &font_outline, agg::trans_affine &mtx, const agg::rgba &color, const char *s)
 
-
-void drawText(rb_t & rb, agg::trans_affine &mtx, const agg::rgba &color, const char *s)
+// void drawText(rb_t & rb, agg::trans_affine &mtx, const agg::rgba &color, const char *s)
 {
   // TODO change namem drawOutlineText...
   // not even sure if it makes sense to factor this
@@ -68,7 +66,7 @@ void drawText(rb_t & rb, agg::trans_affine &mtx, const agg::rgba &color, const c
       char ch = *p;
 
       // whoot it links
-      font_path_type *path = arial_glyph[ ch ];
+      font_path_type *path = font_outline.glyph_outline[ ch ];
 /*
       if(!path) {
         x += 10;
@@ -81,7 +79,7 @@ void drawText(rb_t & rb, agg::trans_affine &mtx, const agg::rgba &color, const c
       // should add a method translate( dx, dy );
       path->m_dx = x;
 
-      x += arial_glyph_advance_x[ ch ];
+      x += font_outline.glyph_advance_x[ ch ];
       // y += arial_glyph_advance_y[ ch ];  ie. if lang uses vertical glyphs
 
 

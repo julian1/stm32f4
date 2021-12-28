@@ -3,7 +3,7 @@
 
 #include "agg_path_storage_integer.h"
 
-typedef agg::serialized_integer_path_adaptor<short int, 6>  path_type;
+typedef agg::serialized_integer_path_adaptor<short int, 6>  font_path_type;
 
 
 struct FontSpans
@@ -17,7 +17,7 @@ struct FontSpans
 
 struct FontOutline
 {
-  path_type *glyph[256];
+  font_path_type *glyph_outline[256];
   int glyph_advance_x[256];
   int glphy_advance_y[256];
 };

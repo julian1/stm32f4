@@ -5,11 +5,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "agg.h"
 
 #include "assert.h"
 #include "util.h"
 
+#include "agg.h"
+#include "fonts.h"
 
 
 extern "C" int agg_test2()
@@ -51,7 +52,8 @@ extern "C" int agg_test2()
 
 
   const char *s = "hello123";
-  drawText(rb , mtx, agg::rgba(0,0,1), s );
+  // drawText(rb , mtx, agg::rgba(0,0,1), s );
+  drawOutlineText(rb, arial_outline, mtx, agg::rgba(0,0,1), s);
 
 
   // non anti aliased.

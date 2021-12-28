@@ -15,9 +15,6 @@
 #include "fonts.h"
 
 
-// arial-span-1.8
-// extern uint8_t *glyph[256] ;
-
 
 extern "C" int agg_test5()
 {

@@ -161,18 +161,12 @@ typedef agg::renderer_base<pixfmt_t>   rb_t ;
 
 
 
-
-void drawText(rb_t & rb, agg::trans_affine &mtx, const agg::rgba &color, const char *s);
-
-
-
-
-// void drawSpans( rb_t & rb,  const agg::rgba &color,  const uint8_t *spans ) ;
-// void drawSpans( rb_t & rb, int dx, int dy,  const agg::rgba &color,  const uint8_t *spans );
-// void drawSpanText(rb_t & rb, int x1, int y1, const agg::rgba &color, const char *s);
-
-
+// front fonts.h
+struct FontOutline;
 struct FontSpans;
+
+void drawOutlineText(rb_t & rb, const FontOutline &font_outline, agg::trans_affine &mtx, const agg::rgba &color, const char *s);
+
 
 void drawSpanText(rb_t & rb, const FontSpans &font_spans, int x1, int y1, const agg::rgba &color, const char *s);
 

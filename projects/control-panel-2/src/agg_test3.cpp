@@ -4,19 +4,14 @@
 #include <stdio.h> // snprintf
 
 
-#include "agg.h"
-
-
-
 
 #include "fsmc.h" // TFT_
 #include "assert.h"
 #include "util.h"
 
 
-// #include <libopencm3/stm32/gpio.h>
-
-
+#include "agg.h"
+#include "fonts.h"
 
 
 extern "C" int agg_test3(  )
@@ -80,7 +75,8 @@ extern "C" int agg_test3(  )
   snprintf(buf, 100, "whoot %u", count++);
 
   // const char *s = "hello123";
-  drawText(rb, mtx, agg::rgba(0,0,1), buf );
+  // drawText(rb, mtx, agg::rgba(0,0,1), buf );
+  drawOutlineText(rb, arial_outline, mtx, agg::rgba(0,0,1), buf);
 
 
   // msleep(40); slower draw. maybe slightly less tearing.
