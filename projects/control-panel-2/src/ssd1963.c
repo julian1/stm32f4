@@ -9,7 +9,7 @@
 #include "ssd1963.h"
 
 #include "util.h"   // printf, msleep
-#include "str.h"  //format_bits. should rename
+#include "format.h"  //format_bits. should rename
 
 
 

@@ -631,9 +631,8 @@
 #include "dac8734.h"
 #include "ads131a04.h"
 
-// #include "format_float.h"
 
-#include "str.h"
+#include "format.h"
 #include "stats.h"
 
 #include "mux.h"   // some of the above files include core.h. need header guards.

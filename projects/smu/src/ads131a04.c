@@ -7,7 +7,7 @@
 #include "bits.h"
 // #include "format_bits.h"
 #include "util.h"   // usart_printf
-#include "str.h"   // format_bits()
+#include "format.h"   // format_bits()
 
 #include "mux.h"
 

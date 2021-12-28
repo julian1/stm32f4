@@ -109,7 +109,7 @@
 #include "cdcacm.h"
 
 
-#include "str.h"  //format_bits
+// #include "str.h"  //format_bits
 
 #include "fsmc.h"
 #include "ssd1963.h"

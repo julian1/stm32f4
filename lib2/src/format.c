@@ -6,7 +6,7 @@
 #include <stdarg.h> // va_start etc
 
 #include "assert.h"
-#include "str.h"
+#include "format.h"
 
 
 char * indent_left(char *s, size_t sz, int indent, const char *string)
