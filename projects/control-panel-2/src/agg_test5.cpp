@@ -12,7 +12,7 @@
 #include "util.h"
 #include "format.h"
 
-#include "font_spans.h"
+#include "fonts.h"
 
 
 // arial-span-1.8

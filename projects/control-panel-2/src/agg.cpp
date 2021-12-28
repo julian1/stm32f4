@@ -27,6 +27,7 @@
 #include "assert.h"
 // #include "util.h"
 
+#include "fonts.h"
 
 
 /*
@@ -183,7 +184,6 @@ void drawSpans( rb_t & rb, int dx, int dy,  const agg::rgba &color,  const uint8
 
 
 
-#include "font_spans.h"
 
 
 void drawSpanText(rb_t & rb, const FontSpans &font_spans, int x1, int y1, const agg::rgba &color, const char *s)

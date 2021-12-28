@@ -5448,7 +5448,7 @@ static uint8_t glyph_87[] = {
 128, 93, 39, 1, 39, 
 32
 };
-#include "font_spans.h"
+#include "fonts.h"
 
 FontSpans arial_span_1p8 = {
 {
