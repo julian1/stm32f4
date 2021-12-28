@@ -195,9 +195,9 @@ static void loop(app_t *app)
       // LCD_Read_DDB();
     }
 
-    agg_test2();
+    // agg_test2();
     // agg_test3();
-    // agg_test4();
+    agg_test4();
     // agg_test5();
 
     // xpt2046_read();

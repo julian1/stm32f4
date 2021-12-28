@@ -34,9 +34,6 @@ extern "C" int agg_test5()
   rb.clear(agg::rgba(1,1,1));     // white .
 
 
-  // uint8_t *spans = glyph['9'];
-  // assert(spans);
-
 
   uint32_t start = system_millis;
 

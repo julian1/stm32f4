@@ -43,8 +43,6 @@ extern "C" int agg_test4()
   mtx *= agg::trans_affine_translation(30, 70);
   static double volts = 7.159884 + (rand() % 3);
   snprintf(buf, 100, "%gV", volts);
-  // const char *s = "hello123";
-  // drawText(rb, mtx, agg::rgba(0,0,1), buf );
   drawOutlineText(rb, arial_outline, mtx, agg::rgba(0,0,1), buf);
 
 
@@ -54,7 +52,6 @@ extern "C" int agg_test4()
   mtx *= agg::trans_affine_scaling(1.8);
   mtx *= agg::trans_affine_translation(30, 140);
   snprintf(buf, 100, "%gmA", 3.0194 );
-  // drawText(rb, mtx, agg::rgba(0,0,1), buf );
   drawOutlineText(rb, arial_outline, mtx, agg::rgba(0,0,1), buf);
 
 
@@ -62,10 +59,8 @@ extern "C" int agg_test4()
   mtx.reset();
   mtx *= agg::trans_affine_translation(50, 180);
   snprintf(buf, 100, "%ums", system_millis - start);
-  // drawText(rb, mtx, agg::rgba(0,0,1), buf );
   drawOutlineText(rb, arial_outline, mtx, agg::rgba(0,0,1), buf);
 
-  //
 
   usart_printf("time %u\n", system_millis - start);
 

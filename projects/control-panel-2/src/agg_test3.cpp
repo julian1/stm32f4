@@ -74,8 +74,6 @@ extern "C" int agg_test3(  )
   char buf[100];
   snprintf(buf, 100, "whoot %u", count++);
 
-  // const char *s = "hello123";
-  // drawText(rb, mtx, agg::rgba(0,0,1), buf );
   drawOutlineText(rb, arial_outline, mtx, agg::rgba(0,0,1), buf);
 
 
