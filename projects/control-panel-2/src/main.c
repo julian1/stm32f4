@@ -1,9 +1,9 @@
 /*
   
-  - dummy text - to test draw time. 
-  - coroutines.
-  - spi slave - test on other board
-  - do storage for actual horizontal. 
+  - done - dummy text - to test draw time. 
+  - coroutines. done x86
+  - doen - spi slave - test on other board
+  - done - do storage for span data. 
 
   ----
   xpt2046

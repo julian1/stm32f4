@@ -143,6 +143,9 @@ char * format_float(char *s, size_t sz, int digits, double value)
       then it does not disturb the precision of the lower bits.
 
       this is a bit difficult with glyph advance which assumes right direction.
+    ---------------
+    
+  
 
       eg.
         from 7.123  to 17.123.    the 123 should be aligned.
