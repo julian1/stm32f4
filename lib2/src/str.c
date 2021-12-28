@@ -67,8 +67,25 @@ char * format_float(char *s, size_t sz, int digits, double value)
 }
 #endif
 
+
+
+
+/*
+  for a certain amount of prec.
+  why not just take the decimal past section and multiply eg. 1000 for 3 digits. and format as an int?
+  OR.
+  just print with extra digits and then truncate.
+*/
+
+#if 0
+
 char * format_float(char *s, size_t sz, int digits, double value)
 {
+  // this isn't working as we want.
+  // leading digits are included.
+  // So if we can determine
+
+
   /*
   from man snprintf
     %g The precision specifies the number of significant digits.  [...]
@@ -109,11 +126,19 @@ char * format_float(char *s, size_t sz, int digits, double value)
   return s;
 }
 
+#endif
 
 
-
-
-
+char * format_float(char *s, size_t sz, int digits, double value)
+{
+  /*
+    this will zero pad to the right if needed.
+    it also only formats the prec after the decimal point.
+    this is probably mostly what we want. eg. 6 digits of uV.
+  */
+  snprintf(s, sz, "%.*fV", digits, value);
+  return s;
+}
 
 
 

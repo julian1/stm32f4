@@ -59,6 +59,9 @@ extern "C" int agg_test4()
   mtx *= agg::trans_affine_translation(50, 180);
   snprintf(buf, 100, "%ums", system_millis - start);
   drawText(rb, mtx, agg::rgba(0,0,1), buf );
+
+  //
+
   usart_printf("time %u\n", system_millis - start);
 
 

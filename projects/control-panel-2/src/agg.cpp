@@ -173,6 +173,9 @@ void drawSpans( rb_t & rb, int dx, int dy,  const agg::rgba &color,  const uint8
 
 
 
+
+// PUT THIS IN A STRUCT - WHEN GENERATE. THEN WE CAN PASS IT AROUND.
+
 // TODO fixme
 // arial-span-1.8
 extern uint8_t *glyph[256] ;
