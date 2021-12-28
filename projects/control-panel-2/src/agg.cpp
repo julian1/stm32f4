@@ -50,8 +50,6 @@ void drawText(rb_t & rb, agg::trans_affine &mtx, const agg::rgba &color, const c
 {
   // TODO change namem drawOutlineText...
   // not even sure if it makes sense to factor this
-
-
   // rb.copy_hline(0, 0, 0, color );
 
 
@@ -102,11 +100,20 @@ void drawText(rb_t & rb, agg::trans_affine &mtx, const agg::rgba &color, const c
 }
 
 
+/*
+  - OK. we need to support an x,y translation offset here...
+  to be able to draw text.
+
+  - don't use mtx. because spans cannot be affine.
+
+*/
 
 
-void drawSpans( rb_t & rb,  const agg::rgba &color,  const uint8_t *spans )
+void drawSpans( rb_t & rb, int dx, int dy,  const agg::rgba &color,  const uint8_t *spans )
 {
   // TODO change name drawSpanText
+  // actually no, since it will work on any span data.
+  // dx,dy
   // rb.copy_hline(0, 0, 0, color );
 
   const uint8_t *p = spans;
@@ -121,12 +128,14 @@ void drawSpans( rb_t & rb,  const agg::rgba &color,  const uint8_t *spans )
 
         // void blend_solid_hspan(int x, int y, unsigned len, const color_type& c, const int8u* covers)
         p++;
-        int x = *p++;
-        int y = *p++;     // y at least needs to be interpreted as signed.
+        int x = (int8_t) *p++;
+        int y = (int8_t) *p++;     // y at least needs to be interpreted as signed.
         int len = *p++;
         const uint8_t *covers = p;    // no array copying nice/fast versus other solutions
-
         p += len;
+
+        x += dx;
+        y += dy;
 
         rb.blend_solid_hspan(x, y, len, color, covers);
         break;
@@ -136,13 +145,14 @@ void drawSpans( rb_t & rb,  const agg::rgba &color,  const uint8_t *spans )
         // usart_printf("got blend_hline\n");
         // void blend_hline(int x, int y, unsigned len, const color_type& c, int8u cover)
         p++;
-
-        int x = *p++;
-        int y = *p++;     // y at least needs to be interpreted as signed.
+        int x = (int8_t)*p++;
+        int y = (int8_t) *p++;     // y at least needs to be interpreted as signed.
         int len = *p++;
         const uint8_t cover = *p++;    // no array copying nice/fast versus other solutions
 
-  
+        x += dx;
+        y += dy;
+
         // careful  .blend_hline() interface for x is different for rendering_base versus pxfmt
         rb.blend_hline( x, y, x + len, color, cover ); // x1, x2
         break;
