@@ -19,6 +19,7 @@ extern "C" int agg_test2()
 
   // set up our buffer
   pixfmt_t  pixf(  0  );
+  // rb_t    rb(pixf);
   agg::renderer_base<pixfmt_t>   rb(pixf);
 
   while( ! getTear() ); // wait for tear to go high...

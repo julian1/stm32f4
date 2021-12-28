@@ -2,6 +2,10 @@
   helper stuff that belongs in separate file, but not in separate library
   because might change
 */
+
+#ifndef UTIL_H
+#define UTIL_H
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -56,4 +60,4 @@ extern void  usart_clear(void);
 }
 #endif
 
-
+#endif

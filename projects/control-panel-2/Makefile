@@ -16,13 +16,16 @@ AGGINC=${TOP}/agg-svn-r138-agg-2.4/include/
 # there's a weird drawing regression when agg_test2.cpp is inlcluded
 # src/agg_test2.cpp
 
+#
+
 BINARY		= main
-SRCFILES	= ./src/main.c src/util.c src/fsmc.c src/ssd1963.c src/agg.cpp src/agg_test2.cpp src/agg_test3.cpp src/agg_test4.cpp src/agg_test5.cpp \
+SRCFILES	=   ./src/main.c src/util.c src/fsmc.c src/ssd1963.c src/agg.cpp \
+              src/agg_test2.cpp src/agg_test3.cpp src/agg_test4.cpp src/agg_test5.cpp \
               src/arial-outline.cpp src/arial-span-72.cpp src/xpt2046.c  \
               ${LIB2SRC}/assert.c ${LIB2SRC}/cbuffer.c   ${LIB2SRC}/usart2.c  \
               ${LIB2SRC}/format.c    ${LIB2SRC}/gpio.c \
               ${LIB2SRC}/cdcacm.c ${LIB2SRC}/usb_f107.c \
-              ${AGGSRC}/agg_trans_affine.cpp  ${AGGSRC}//agg_curves.cpp 
+              ${AGGSRC}/agg_trans_affine.cpp  ${AGGSRC}//agg_curves.cpp
 
 
 # TODO - update to use 512k.

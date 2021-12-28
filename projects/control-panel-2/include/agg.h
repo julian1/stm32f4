@@ -36,7 +36,7 @@ using namespace agg;
 
 
 
-class pixfmt_alpha_blend_rgb_packed
+class pixfmt_tft_writer
 {
 
   // eg. from agg_pixfmt_rgb_packed.h
@@ -52,7 +52,7 @@ public:
     int scroll_start;
   public:
 
-    explicit pixfmt_alpha_blend_rgb_packed( int scroll_start_ )
+    explicit pixfmt_tft_writer( int scroll_start_ )
       : scroll_start( scroll_start_ )
     {}
 
@@ -131,12 +131,92 @@ public:
 };
 
 
+
+
+
+
+
+template<class PixelFormat> class renderer_base_no_clip
+{
+/*
+  change name renderer_base_no_clip
+  renderer_base without a clipbox.
+
+  no clip - supports negative coordinates needed for font  spans.
+          - also should be faster, if we know drawing will not extend past bounds. 
+
+  // speed for drawing text not a lot different 9-10ms. to 8-10ms.
+
+*/
+  // adapted from agg_renderer_base.h
+public:
+    typedef PixelFormat pixfmt_type;
+    typedef typename pixfmt_type::color_type color_type;
+    typedef typename pixfmt_type::row_data row_data;
+
+
+    explicit renderer_base_no_clip(pixfmt_type& ren) :
+        m_ren(&ren)
+    {}
+
+  ////////
+
+    pixfmt_type* m_ren;
+
+
+    void blend_solid_hspan(int x, int y, int len,
+                           const color_type& c,
+                           const cover_type* covers)
+    { 
+      // no clip 
+      m_ren->blend_solid_hspan(x, y, len, c, covers);
+    }
+
+
+    void blend_hline(int x1, int y, int x2,
+                     const color_type& c, cover_type cover)
+    { 
+      // no clip
+      m_ren->blend_hline(x1, y, x2 - x1 + 1, c, cover);
+    }
+
+
+    unsigned width()  const { return m_ren->width();  }
+    unsigned height() const { return m_ren->height(); }
+
+
+    void clear(const color_type& c)
+    {
+        unsigned y;
+        if(width())
+        {
+            for(y = 0; y < height(); y++)
+            {
+                m_ren->copy_hline(0, y, width(), c);
+            }
+        }
+    }
+
+};
+
+
+
+
+
+
+
+
+
+
+
+
 // packed rgb565
-typedef ::pixfmt_alpha_blend_rgb_packed pixfmt_t;
+typedef pixfmt_tft_writer             pixfmt_t;
 
 
 // how does render_base delegate to the pixel buf???
 typedef agg::renderer_base<pixfmt_t>   rb_t ;
+// typedef renderer_base_no_clip<pixfmt_t>   rb_t ;
 
 
 
