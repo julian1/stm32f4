@@ -34,9 +34,17 @@ extern "C" {
 
 using namespace agg;
 
-//===========================================pixfmt_alpha_blend_rgb_packed
+
+
 template<class Blender,  class RenBuf> class pixfmt_alpha_blend_rgb_packed
 {
+
+  /*
+  // TODO 
+  // remove the template arguments that we don't use at all. 
+  // and fix/set the row_data and color_type explicitly.
+  */
+
   // eg. from agg_pixfmt_rgb_packed.h
 public:
 

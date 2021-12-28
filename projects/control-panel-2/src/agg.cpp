@@ -121,9 +121,9 @@ void drawSpans( rb_t & rb,  const agg::rgba &color,  const uint8_t *spans )
 
         // void blend_solid_hspan(int x, int y, unsigned len, const color_type& c, const int8u* covers)
         p++;
-        uint8_t x = *p++;
-        int8_t y = *p++;     // y at least needs to be interpreted as signed.
-        uint8_t len = *p++;
+        int x = *p++;
+        int y = *p++;     // y at least needs to be interpreted as signed.
+        int len = *p++;
         const uint8_t *covers = p;    // no array copying nice/fast versus other solutions
 
         p += len;
