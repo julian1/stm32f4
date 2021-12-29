@@ -1,22 +1,127 @@
 /*
+  same interface ... for drawing outlnie text, as span text.
+    eg. point size   int(72 / 20.f ) .
+    and without having to pass mtx.
 
+    and return x position. so
+    -------
+    allow us to use interchangeably.
+
+  ncurses/ vt100 terminal.
+    - but with some characters. different font size.
+    - ability to pass callback
+    ----------
+  ================
+    - to manage
+        x,y position (eg. can uniform space)uniform space)
+        color
+        focus glyph/invert.  blinking (easy).
+        maybe veritical/horitzonal lines.
+        symbols - can be embedded with codes/indexes like fonts. we have simple svg.
+        symbols - can also pre-render span data.
+        -----
+        hit-testing - becomes easy. just use cursor positon for focus. and
+          can then index - the actual text as well.  <- interesting.
+
+        optimisation - avoiding drawing.
+          - can test - if last char changes/ to avoid drawing.
+          - yes. write into a buffer. then diff the buffer for change. to enable minimal change.
+             eg. so every char - should get font-size, and char data.
+          - but can still use proportional space fonts.
+
+        - cursor mapping space - very good (
+            - for optimizing/computing change delta,
+            - for hittesting,
+            - for font size / mapping for prominance.
+            - for indent left, and indent right.
+
+        write(x,y, "whoot", ).
+        cursor(3,4)   not generic move.
+        color(green )
+        write(3,4, "whoot", ).   moves to pos 3,4, but then text is written with proportional spacing.
+
+        Need same structure repeated - for old/new.  in order to do delta.
+
+        would be good enough for something
+          like this https://www.youtube.com/watch?v=SMK4kkf7jmM
+
+        ---------------
+        cursor coordinate scheme is a way to carve up space. font-size affects this. so font size is recorded.
+
+        notional_x[ 100* 100 ];   <- note that we can map this how every we want. (eg. a big middle section with larger fonts - could be treated as extra rows at the bottom).
+        notional_y[ 100* 100 ];
+        fontsize[ 100 * 100 ] ;
+
+        ----
+        derived. eg. filled in by the actual drawing commands.
+        colorindex[ 100 * 100 ] ;
+        color[ 100 * 100 ] ;
+        character[ 100 * 100 ] ;
+        actual_x[ 100* 100 ];   // for the actual character position. for hittest. and focus. and delta.
+        actual_y[ 100* 100 ];   // for the actual character position. for hittest. and focus. and delta.
+
+        ---------------
+        for drawing horizontal
+
+        notational concept.  of cursor positioning.
+        notational = starting text position. GOOD. first char aligned.
+
+          must loop once to determine.
+          eg. if row 3 has larger size font - then row 3 will affect all y positions.
+          so must map
+
+        int cursor_to_fontsize [ 100 * 100 ] ; <- use this to generate the cursor_to_screen
+
+        100x100.
+        stride== 100.
+        int cursor_to_screen_x[ 100 * 100 ] ;  (x + y * stride)
+        int cursor_to_screen_y[ 100 * 100 ] ;
+
+        - simple commands are equally good.
+
+
+        - need indent left/right.
+
+        - pre-determine font size mapping - for the cursor space.  eg. 100x100.
+          - so that when displaying text - we know the font size. so for any position.
+          - EXTR.    actually  we might make character map the entire cursor space. for the font size.
+          - also potentially with whether that space can have
+
+
+        - function  - cursor mapping / for any cursor pos - need the font-size. and text position.
+            to easily - draw characters.
+            eg. draw text -  will use this.
+
+        we probably want it,
+          for showing large amounts of text numeric data/ regardless.
+          for showing general flowing text.
+
+      mcurses for microcontrollers,
+        https://github.com/ChrisMicro/mcurses
+
+  ================
+
+
+
+
+  ---------
   simple menu system.
-    - when draw something - should potentiallly also add a an element to a hit selection structure. fairly simple. then can easily search for bounds. 
+    - when draw something - should potentiallly also add a an element to a hit selection structure. fairly simple. then can easily search for bounds.
     - keep flat. page style.
 
     - keypad. for number entry.
         or.  select digit. and provide ability to change it.
         single keypad. o
-        no. just write the set v & i. underneath. and then cursor. on it. 
+        no. just write the set v & i. underneath. and then cursor. on it.
 
 
 
 
-  ---------------  
-  - done - dummy text - to test draw time. 
+  ---------------
+  - done - dummy text - to test draw time.
   - coroutines. done x86
   - doen - spi slave - test on other board
-  - done - do storage for span data. 
+  - done - do storage for span data.
 
   ----
   xpt2046
@@ -286,8 +391,8 @@ int main(void)
 
   // spi / ice40
   // rcc_periph_clock_enable(RCC_SPI1);
-  
-  // xpt2046 
+
+  // xpt2046
   rcc_periph_clock_enable(RCC_SPI2);
 
 
@@ -345,7 +450,7 @@ int main(void)
   xpt2046_spi_port_setup();
   xpt2046_spi_setup( XPT2046_SPI );
 
-  xpt2046_reset( XPT2046_SPI); 
+  xpt2046_reset( XPT2046_SPI);
 
 
 
