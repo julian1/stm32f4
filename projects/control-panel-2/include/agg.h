@@ -232,6 +232,44 @@ void drawSpanText(rb_t & rb, const FontSpans &font_spans, int x1, int y1, const 
 
 
 
+
+
+
+
+//#include "agg_trans_affine.h"
+#include "agg_conv_transform.h"
+#include "agg_conv_curve.h"
+#include "agg_conv_stroke.h"
+#include "agg_rasterizer_scanline_aa.h"
+#include "agg_scanline_p.h"
+#include "agg_renderer_scanline.h"
+
+// change name drawCurvePath
+
+template< class PathType >
+void drawPath(rb_t & rb, PathType & path , agg::trans_affine &mtx, const agg::rgba &color)
+{
+  // should probably return x,y so can continue text
+
+  agg::rasterizer_scanline_aa<> ras;
+  agg::scanline_p8 sl;
+
+
+  agg::conv_transform<PathType > trans( path, mtx);
+  agg::conv_curve<agg::conv_transform<  PathType > > curve(trans);
+
+  ras.reset();
+  ras.add_path( curve /*trans*/ );
+  // agg::render_scanlines_aa_solid(ras, sl, rb, agg::rgba(0,0,1));
+  agg::render_scanlines_aa_solid(ras, sl, rb, color );
+
+}
+
+
+
+
+
+
 /*
   EXTR. IMPORTANT
   - So. we could actually do a memory read of the pixel data. for the line.

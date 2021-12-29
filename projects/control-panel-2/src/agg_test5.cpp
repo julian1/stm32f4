@@ -15,6 +15,25 @@
 #include "fonts.h"
 
 
+/*
+
+  A single moveable cursor/focusc. that could move across digits - would allow us to set anything. 
+
+  - important. keep the text drawing - just with a flag as to if a focus.  just to 
+  - then draw rounded rect around it.
+  - don't need hit testing. just need a way for focus to move in a range - between digits.
+  --------------
+
+  need rounded rect.
+
+  ncurses/   terminal approach - where embedded ctrl in text.  (men u
+  page      html approach/ hittest.
+  ----
+  we can easily draw inverse - using the square of the font-outline.  eg. just add it to the path.
+  we can see what the path looks like.
+  - eg. just load both glyphs and then combine them. don't need to pre-render. albeit might be easier.
+*/
+
 
 extern "C" int agg_test5()
 {
@@ -45,6 +64,13 @@ extern "C" int agg_test5()
   format_float(buf, 100, 5, volts );
 
   drawSpanText(rb,  arial_span_72,    50, 100 , agg::rgba(0,0,1), buf );
+
+  
+
+  drawSpanText(rb,  arial_span_18,    50, 150 , agg::rgba(0,0,1), "7.000V" );
+
+
+
 
 
   usart_printf("spans time  %u\n", system_millis - start);

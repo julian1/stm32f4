@@ -26,8 +26,11 @@
 
 
 
+
+
 void drawOutlineText(rb_t & rb, const FontOutline &font_outline, agg::trans_affine &mtx, const agg::rgba &color, const char *s)
 {
+  // should probably return x,y so can continue text
 
   agg::rasterizer_scanline_aa<> ras;
   agg::scanline_p8 sl;
@@ -114,7 +117,7 @@ void drawSpans( rb_t & rb, int dx, int dy,  const agg::rgba &color,  const uint8
       }
 
       default:
-        usart_printf("unknwon char in drawSpans()\n");
+        usart_printf("bad command in drawSpans()\n");
         assert(0);
 
     }
@@ -126,6 +129,8 @@ void drawSpans( rb_t & rb, int dx, int dy,  const agg::rgba &color,  const uint8
 
 void drawSpanText(rb_t & rb, const FontSpans &font_spans, int x1, int y1, const agg::rgba &color, const char *s)
 {
+  // should probably return x,y so can continue text
+
   int x  = x1;
   int y  = y1;
 

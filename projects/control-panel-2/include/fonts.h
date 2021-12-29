@@ -29,5 +29,6 @@ extern FontOutline arial_outline;
 
 
 extern FontSpans arial_span_72;
+extern FontSpans arial_span_18;
 
 

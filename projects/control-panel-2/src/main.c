@@ -1,5 +1,18 @@
 /*
-  
+
+  simple menu system.
+    - when draw something - should potentiallly also add a an element to a hit selection structure. fairly simple. then can easily search for bounds. 
+    - keep flat. page style.
+
+    - keypad. for number entry.
+        or.  select digit. and provide ability to change it.
+        single keypad. o
+        no. just write the set v & i. underneath. and then cursor. on it. 
+
+
+
+
+  ---------------  
   - done - dummy text - to test draw time. 
   - coroutines. done x86
   - doen - spi slave - test on other board
@@ -121,6 +134,7 @@ int agg_test2( void );
 int agg_test3( void );
 int agg_test4( void );
 int agg_test5( void );
+int agg_test6( void );
 
 
 
@@ -196,9 +210,10 @@ static void loop(app_t *app)
     }
 
     // agg_test2();
-    agg_test3();
+    // agg_test3();
     // agg_test4();
     // agg_test5();
+    agg_test6();
 
     // xpt2046_read();
 
