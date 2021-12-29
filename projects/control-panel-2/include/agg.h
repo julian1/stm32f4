@@ -66,6 +66,7 @@ public:
                                unsigned len,
                                const color_type& c)
     {
+
     /*
       // std::cout << "copy_hline       x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  << std::endl;
     */
@@ -88,6 +89,7 @@ public:
                            const color_type& c,
                            const int8u* covers)
     {
+      UNUSED(covers);
 
       // usart_printf("   blend_hline x=%u y=%u len=%u \n", x, y, len );
 
@@ -114,6 +116,7 @@ public:
                      const color_type& c,
                      int8u cover)
     {
+      UNUSED(cover);
       /*
         std::cout << "blend_hline       x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  << " cover " << int(cover) << std::endl;
       */
@@ -133,7 +136,7 @@ public:
 
 
 
-
+#if 0
 
 
 template<class PixelFormat> class renderer_base_no_clip
@@ -201,7 +204,7 @@ public:
 };
 
 
-
+#endif
 
 
 
@@ -233,7 +236,7 @@ void drawSpanText(rb_t & rb, const FontSpans &font_spans, int x1, int y1, const 
 
 
 
-
+#if 0
 
 
 //#include "agg_trans_affine.h"
@@ -265,7 +268,7 @@ void drawPath(rb_t & rb, PathType & path , agg::trans_affine &mtx, const agg::rg
 
 }
 
-
+#endif
 
 
 

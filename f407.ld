@@ -22,8 +22,8 @@
 /* Define memory regions. */
 MEMORY
 {
-	rom (rx) : ORIGIN = 0x08000000, LENGTH = 512K /* VGT == 1MB, VET==500kB  */
-	ram (rwx) : ORIGIN = 0x20000000, LENGTH = 128K  /* 192 */
+	rom (rx) : ORIGIN = 0x08000000, LENGTH = 512K   /*  512K  VGT == 1MB, VET==500kB  */
+	ram (rwx) : ORIGIN = 0x20000000, LENGTH = 128K  /* 192 fails ?? */
 }
 
 /* Include the common ld script. */

@@ -17,6 +17,7 @@
 
 
 #include "assert.h"
+#include "util.h"
 
 #include "agg.h"
 #include "fonts.h"
@@ -69,7 +70,6 @@ void drawOutlineText(rb_t & rb, const FontOutline &font_outline, agg::trans_affi
 void drawSpans( rb_t & rb, int dx, int dy,  const agg::rgba &color,  const uint8_t *spans )
 {
   const uint8_t *p = spans;
-
   bool done = false;
 
   while(!done)
@@ -129,6 +129,7 @@ void drawSpans( rb_t & rb, int dx, int dy,  const agg::rgba &color,  const uint8
 
 void drawSpanText(rb_t & rb, const FontSpans &font_spans, int x1, int y1, const agg::rgba &color, const char *s)
 {
+  
   // should probably return x,y so can continue text
 
   int x  = x1;
@@ -139,13 +140,12 @@ void drawSpanText(rb_t & rb, const FontSpans &font_spans, int x1, int y1, const 
 
     char ch = *p;
 
-    uint8_t *spans = font_spans.glyph_spans[ ch ];
+    const uint8_t *spans = font_spans.glyph_spans[ ch ];
     assert(spans);
 
-    drawSpans( rb, x, y,  agg::rgba(0,0,1), spans);
+    drawSpans( rb, x, y, color , spans);
 
     x += font_spans.glyph_advance_x[ ch ];
-
   }
 }
 

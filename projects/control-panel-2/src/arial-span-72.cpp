@@ -1,6 +1,6 @@
 #include <stdint.h> // uint8_t
 // '1'
-static uint8_t glyph_49[] = { 
+static const uint8_t glyph_49[] = { 
 128, 22, 204, 1, 88, 
 64, 23, 204, 3, 188, 
 128, 26, 204, 1, 156, 
@@ -181,7 +181,7 @@ static uint8_t glyph_49[] = {
 32
 };
 // '2'
-static uint8_t glyph_50[] = { 
+static const uint8_t glyph_50[] = { 
 128, 14, 204, 12, 15, 70, 107, 144, 174, 184, 185, 177, 149, 110, 70, 20, 
 128, 11, 205, 4, 9, 97, 181, 250, 
 64, 15, 205, 10, 255, 
@@ -371,7 +371,7 @@ static uint8_t glyph_50[] = {
 32
 };
 // '3'
-static uint8_t glyph_51[] = { 
+static const uint8_t glyph_51[] = { 
 128, 14, 204, 10, 12, 79, 136, 157, 176, 184, 170, 142, 83, 24, 
 128, 11, 205, 4, 10, 107, 185, 249, 
 64, 15, 205, 8, 255, 
@@ -590,7 +590,7 @@ static uint8_t glyph_51[] = {
 32
 };
 // '4'
-static uint8_t glyph_52[] = { 
+static const uint8_t glyph_52[] = { 
 128, 24, 204, 1, 102, 
 64, 25, 204, 4, 136, 
 128, 29, 204, 1, 83, 
@@ -826,7 +826,7 @@ static uint8_t glyph_52[] = {
 32
 };
 // '5'
-static uint8_t glyph_53[] = { 
+static const uint8_t glyph_53[] = { 
 128, 8, 205, 2, 2, 205, 
 64, 10, 205, 24, 212, 
 128, 34, 205, 1, 156, 
@@ -1040,7 +1040,7 @@ static uint8_t glyph_53[] = {
 32
 };
 // '6'
-static uint8_t glyph_54[] = { 
+static const uint8_t glyph_54[] = { 
 128, 16, 204, 10, 25, 76, 128, 167, 180, 183, 165, 146, 105, 30, 
 128, 13, 205, 4, 11, 109, 219, 255, 
 64, 17, 205, 8, 255, 
@@ -1312,7 +1312,7 @@ static uint8_t glyph_54[] = {
 32
 };
 // '7'
-static uint8_t glyph_55[] = { 
+static const uint8_t glyph_55[] = { 
 128, 3, 205, 1, 131, 
 64, 4, 205, 32, 220, 
 128, 36, 205, 1, 172, 
@@ -1471,7 +1471,7 @@ static uint8_t glyph_55[] = {
 32
 };
 // '8'
-static uint8_t glyph_56[] = { 
+static const uint8_t glyph_56[] = { 
 128, 14, 204, 11, 8, 65, 106, 147, 176, 186, 182, 167, 130, 89, 41, 
 128, 12, 205, 3, 61, 158, 241, 
 64, 15, 205, 10, 255, 
@@ -1743,7 +1743,7 @@ static uint8_t glyph_56[] = {
 32
 };
 // '9'
-static uint8_t glyph_57[] = { 
+static const uint8_t glyph_57[] = { 
 128, 14, 204, 10, 25, 74, 122, 165, 181, 183, 166, 145, 82, 13, 
 128, 11, 205, 4, 4, 82, 188, 255, 
 64, 15, 205, 8, 255, 
@@ -2015,7 +2015,7 @@ static uint8_t glyph_57[] = {
 32
 };
 // '0'
-static uint8_t glyph_48[] = { 
+static const uint8_t glyph_48[] = { 
 128, 15, 204, 10, 15, 91, 147, 165, 183, 179, 165, 121, 62, 9, 
 128, 12, 205, 4, 19, 98, 181, 249, 
 64, 16, 205, 8, 255, 
@@ -2301,11 +2301,11 @@ static uint8_t glyph_48[] = {
 32
 };
 // ' '
-static uint8_t glyph_32[] = { 
+static const uint8_t glyph_32[] = { 
 32
 };
 // '.'
-static uint8_t glyph_46[] = { 
+static const uint8_t glyph_46[] = { 
 128, 6, 248, 1, 22, 
 64, 7, 248, 6, 48, 
 128, 13, 248, 1, 36, 
@@ -2333,7 +2333,7 @@ static uint8_t glyph_46[] = {
 32
 };
 // '+'
-static uint8_t glyph_43[] = { 
+static const uint8_t glyph_43[] = { 
 128, 18, 213, 1, 97, 
 64, 19, 213, 5, 100, 
 128, 24, 213, 1, 2, 
@@ -2450,7 +2450,7 @@ static uint8_t glyph_43[] = {
 32
 };
 // '-'
-static uint8_t glyph_45[] = { 
+static const uint8_t glyph_45[] = { 
 128, 2, 234, 1, 150, 
 64, 3, 234, 18, 208, 
 128, 21, 234, 1, 153, 
@@ -2475,7 +2475,7 @@ static uint8_t glyph_45[] = {
 32
 };
 // 'M'
-static uint8_t glyph_77[] = { 
+static const uint8_t glyph_77[] = { 
 128, 5, 204, 1, 90, 
 64, 6, 204, 9, 136, 
 128, 15, 204, 1, 95, 
@@ -3020,7 +3020,7 @@ static uint8_t glyph_77[] = {
 32
 };
 // 'k'
-static uint8_t glyph_107[] = { 
+static const uint8_t glyph_107[] = { 
 128, 4, 204, 1, 30, 
 64, 5, 204, 6, 136, 
 128, 11, 204, 1, 15, 
@@ -3283,7 +3283,7 @@ static uint8_t glyph_107[] = {
 32
 };
 // 'm'
-static uint8_t glyph_109[] = { 
+static const uint8_t glyph_109[] = { 
 128, 19, 217, 5, 4, 27, 40, 34, 18, 
 128, 41, 217, 6, 2, 25, 39, 32, 13, 1, 
 128, 4, 218, 1, 21, 
@@ -3634,7 +3634,7 @@ static uint8_t glyph_109[] = {
 32
 };
 // 'u'
-static uint8_t glyph_117[] = { 
+static const uint8_t glyph_117[] = { 
 128, 4, 218, 1, 33, 
 64, 5, 218, 5, 84, 
 128, 10, 218, 1, 79, 
@@ -3869,7 +3869,7 @@ static uint8_t glyph_117[] = {
 32
 };
 // 'p'
-static uint8_t glyph_112[] = { 
+static const uint8_t glyph_112[] = { 
 128, 19, 217, 5, 14, 34, 40, 25, 8, 
 128, 4, 218, 1, 21, 
 64, 5, 218, 5, 84, 
@@ -4147,7 +4147,7 @@ static uint8_t glyph_112[] = {
 32
 };
 // 'f'
-static uint8_t glyph_102[] = { 
+static const uint8_t glyph_102[] = { 
 128, 13, 203, 8, 15, 69, 91, 101, 92, 77, 58, 20, 
 128, 10, 204, 4, 27, 140, 207, 253, 
 64, 14, 204, 7, 255, 
@@ -4316,7 +4316,7 @@ static uint8_t glyph_102[] = {
 32
 };
 // 'V'
-static uint8_t glyph_86[] = { 
+static const uint8_t glyph_86[] = { 
 128, 0, 204, 1, 80, 
 64, 1, 204, 6, 136, 
 128, 7, 204, 1, 109, 
@@ -4613,7 +4613,7 @@ static uint8_t glyph_86[] = {
 32
 };
 // 'A'
-static uint8_t glyph_65[] = { 
+static const uint8_t glyph_65[] = { 
 128, 19, 204, 1, 57, 
 64, 20, 204, 7, 136, 
 128, 27, 204, 1, 19, 
@@ -4897,7 +4897,7 @@ static uint8_t glyph_65[] = {
 32
 };
 // 'W'
-static uint8_t glyph_87[] = { 
+static const uint8_t glyph_87[] = { 
 128, 0, 204, 2, 8, 136, 
 64, 2, 204, 5, 136, 
 128, 7, 204, 1, 128, 
@@ -5451,7 +5451,7 @@ static uint8_t glyph_87[] = {
 };
 #include "fonts.h"
 
-FontSpans arial_span_72 = {
+const FontSpans arial_span_72 = {
 {
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, glyph_32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, glyph_43, 0, glyph_45, glyph_46, 0, glyph_48, glyph_49, glyph_50, glyph_51, glyph_52, glyph_53, glyph_54, glyph_55, glyph_56, glyph_57, 0, 0, 0, 0, 0, 0, 0, glyph_65, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, glyph_77, 0, 0, 0, 0, 0, 0, 0, 0, glyph_86, glyph_87, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, glyph_102, 0, 0, 0, 0, glyph_107, 0, glyph_109, 0, 0, glyph_112, 0, 0, 0, 0, glyph_117, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 
