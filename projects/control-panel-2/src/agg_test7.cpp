@@ -98,12 +98,18 @@ void cursor_to( A &a, int x, int y)
   a.cursor_y = y;
 }
 
-void cursor_down( A &a) 
+void down( A &a, int dy) 
 {
-  // move next line down
-
-  ++ a.cursor_y ;
+  a.cursor_y += dy;
 }
+
+void right( A &a, int dx) 
+{
+  // x arg can be negative
+  a.cursor_x += dx;
+}
+
+
 
 
 void set_notional(A &a, int nx, int ny )
@@ -136,19 +142,20 @@ void text( A &a, const char *s)
 {
   // eg. text expand right.
 
-  int i = a.cursor_x + a.cursor_y * a.stride;
+  // we need to upgrade the cursor position as we write text.
+
 
   while(*s) {
 
       // if(x > a.stride) {
       // could clip
       // }
+
+      int i = a.cursor_x + a.cursor_y * a.stride;
+
       a.character[i] = *s;
 
-      // we can actually wrap here.... kkkkk
-
-      // should also set current color. and current effect.
-      i++;
+      ++a.cursor_x ;
       s++;
   }
 }
@@ -191,6 +198,8 @@ void init_cursor_coordinates( A & a)
 
 
 // hmmmm....
+// OK. now we want to loop.
+// and only print the actual data...
 
 
 void set_callback( A &a, void *func, void *arg)
@@ -209,8 +218,16 @@ void render( A &a, rb_t &rb )
     int x = a.notional_x[ i];
     int y = a.notional_y[ i];
 
-    // want a drawSpanChar
-    drawSpanChar(rb,  arial_span_18, x, y, agg::rgba(0,0,1), i % 0xff  ); // 
+    // fill screen with chars
+    // drawSpanChar(rb,  arial_span_18, x, y, agg::rgba(0,0,1), i % 0xff  ); // 
+
+
+    uint16_t ch = a.character[ i ];
+    if(ch != 0) {
+
+      drawSpanChar(rb,  arial_span_18, x, y, agg::rgba(0,0,1), ch  ); // 
+    }
+
   }
 
 
@@ -252,6 +269,22 @@ extern "C" int agg_test7()
   uint32_t start = system_millis;
   // ok, this works. so maybe there is memory corruption somewhere.
 
+
+  cursor_to(a, 5, 5);
+  text(a, "whoot");
+  cursor_to(a, 12, 5);
+  // right(a, 3);
+  text(a, "123.4");
+
+
+  cursor_to(a, 5, 6);
+  text(a, "foo");
+  cursor_to(a, 12, 6);
+  text(a, "777");
+
+
+
+  // ok. now move a couple more chars right. and a number
 
   render( a , rb );
 
