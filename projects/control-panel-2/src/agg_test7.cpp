@@ -62,11 +62,20 @@ struct A
   /////////////////////////////////////
   // character
   uint16_t character[ 50* 20 ];
-  uint16_t color[ 50* 20 ];
+
+  // so this thing is memory intensive
+  // and needs constructor
+  agg::rgba color[ 50* 20 ];
+
+
+
   // effect. effects - like background color are going to be hard.
   uint16_t effect[ 50* 20 ];
 
-  // void (*pf[50 * 20 ] )(void )     callback
+  uint16_t blinking[ 50* 20 ];
+
+  // void (*callback[50 * 20 ] )(void )     not sure if desirable. or if should be by word.
+                                              
 
   // where text was actually placed, due to proportionate font spacing.
   // uint16_t text_x[ 50* 20 ]; // text actual position.
@@ -79,19 +88,21 @@ struct A
   // draw cursor
   uint16_t cursor_x;
   uint16_t cursor_y;
-
+  
+  // draw color
+  agg::rgba cursor_color;
 
 };
 
 
 /*
   EXTR. if using double buffering. then any write - would be done on BOTH structures.
-  we want cursor_to () rather than text... to enable chaining.
+  we want to () rather than text... to enable chaining.
 
   this would mean we have 4 of these structures. which is ok. eg. current/new for each screen flip.
 */
 
-void cursor_to( A &a, int x, int y)
+void to( A &a, int x, int y)
 {
   // use this instead of set_notional
   a.cursor_x = x;
@@ -107,6 +118,12 @@ void right( A &a, int dx)
 {
   // x arg can be negative
   a.cursor_x += dx;
+}
+
+void color( A &a, const agg::rgba &color) 
+{
+  // x arg can be negative
+  a.cursor_color = color;
 }
 
 
@@ -140,6 +157,9 @@ void get_notional(const A &a, int *x, int *y)
 
 void text( A &a, const char *s)
 {
+  /*
+    this is like 
+  */
   // eg. text expand right.
 
   // we need to upgrade the cursor position as we write text.
@@ -154,6 +174,7 @@ void text( A &a, const char *s)
       int i = a.cursor_x + a.cursor_y * a.stride;
 
       a.character[i] = *s;
+      a.color[i] = a.cursor_color; 
 
       ++a.cursor_x ;
       s++;
@@ -173,14 +194,20 @@ void init_cursor_coordinates( A & a)
   a.stride = 33;
   a.ny = 19;
 
-  int y_accum = 0;
+  // current state
+  a.cursor_color = agg::rgba(0,0,1);
+  a.cursor_x = 0;
+  a.cursor_y = 0;
 
+
+  // initialize the notational coordinate grid.
+  int y_accum = 0;
   for(unsigned y = 0; y < 20; ++y )  {
 
     int x_accum = 0;
     for(unsigned x = 0; x < a.stride; ++x )  {
 
-      cursor_to(a, x, y);
+      to(a, x, y);
       set_notional(a, x_accum, y_accum );
       /*
       std::cout <<  x << ", " << y << "    ";
@@ -221,11 +248,12 @@ void render( A &a, rb_t &rb )
     // fill screen with chars
     // drawSpanChar(rb,  arial_span_18, x, y, agg::rgba(0,0,1), i % 0xff  ); // 
 
-
     uint16_t ch = a.character[ i ];
+    const agg::rgba & color = a.color[ i ];
+
     if(ch != 0) {
 
-      drawSpanChar(rb,  arial_span_18, x, y, agg::rgba(0,0,1), ch  ); // 
+      drawSpanChar(rb,  arial_span_18, x, y, color , ch  ); // 
     }
 
   }
@@ -269,17 +297,20 @@ extern "C" int agg_test7()
   uint32_t start = system_millis;
   // ok, this works. so maybe there is memory corruption somewhere.
 
+  // so we can diff the structure with the last structure to see if anything changed.
 
-  cursor_to(a, 5, 5);
+  color(a, agg::rgba( 0,0,1));
+  to(a, 5, 5);
   text(a, "whoot");
-  cursor_to(a, 12, 5);
+  to(a, 12, 5);
   // right(a, 3);
   text(a, "123.4");
 
 
-  cursor_to(a, 5, 6);
+  to(a, 5, 6);
+  color(a, agg::rgba( 1,0,0));
   text(a, "foo");
-  cursor_to(a, 12, 6);
+  to(a, 12, 6);
   text(a, "777");
 
 
