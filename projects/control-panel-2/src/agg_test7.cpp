@@ -68,8 +68,8 @@ struct A
   agg::rgba color[ 50* 20 ];
 
 
-
   // effect. effects - like background color are going to be hard.
+  // should potentially be a bitfield.
   uint16_t effect[ 50* 20 ];
 
   /*
@@ -79,6 +79,8 @@ struct A
     -- 
     no effect should be treated as bool. then we do analysis pass. and change based on millisecond.
     or else we record the millisec interval for blink and 
+    --
+    or for different blink rates. record once. the start and once the interval.
   */
   uint16_t blinking[ 50* 20 ];
 
