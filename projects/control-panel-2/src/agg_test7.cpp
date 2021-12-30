@@ -53,6 +53,7 @@ struct A
 
   // these positions are determined by fontsize, and our layout which may not be cartesian
   // can be pointers. and allocate later.
+  // - SHOULD BE SEPARATE STRUCTURE. perhaps. because does not change on redraw
   uint16_t notional_x[ 50* 20 ];
   uint16_t notional_y[ 50* 20 ];
 
@@ -60,7 +61,7 @@ struct A
   uint8_t fontsize[ 50 * 20 ] ; 
 
   /////////////////////////////////////
-  // character
+  // character - dominant. only check other flags.
   uint16_t character[ 50* 20 ];
 
   // so this thing is memory intensive
@@ -94,7 +95,8 @@ struct A
   // NO. we diff compare - to evaluate what needs to be redrawn.
   // bool changed [ 50 * 20 ] ;
 
-
+  //////////////////////////////
+  // state when drawing.
   // draw cursor
   uint16_t cursor_x;
   uint16_t cursor_y;
