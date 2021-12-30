@@ -72,6 +72,14 @@ struct A
   // effect. effects - like background color are going to be hard.
   uint16_t effect[ 50* 20 ];
 
+  /*
+    could write the millisec time. that it was last written... 
+    not sure. millisec, should be set once. so can determine whether to write.
+    must be interpreed. cannot
+    -- 
+    no effect should be treated as bool. then we do analysis pass. and change based on millisecond.
+    or else we record the millisec interval for blink and 
+  */
   uint16_t blinking[ 50* 20 ];
 
   // void (*callback[50 * 20 ] )(void )     not sure if desirable. or if should be by word.
