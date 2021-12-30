@@ -231,6 +231,8 @@ struct FontSpans;
 void drawOutlineText(rb_t & rb, const FontOutline &font_outline, agg::trans_affine &mtx, const agg::rgba &color, const char *s);
 
 
+void drawSpanChar(rb_t & rb, const FontSpans &font_spans, int x1, int y1, const agg::rgba &color, const char ch);
+
 void drawSpanText(rb_t & rb, const FontSpans &font_spans, int x1, int y1, const agg::rgba &color, const char *s);
 
 

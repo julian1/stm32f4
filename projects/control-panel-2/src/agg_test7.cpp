@@ -210,7 +210,7 @@ void render( A &a, rb_t &rb )
     int y = a.notional_y[ i];
 
     // want a drawSpanChar
-    drawSpanText(rb,  arial_span_18, x, y, agg::rgba(0,0,1), "a" ); // 
+    drawSpanChar(rb,  arial_span_18, x, y, agg::rgba(0,0,1), i % 0xff  ); // 
   }
 
 
