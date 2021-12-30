@@ -240,6 +240,7 @@ int agg_test3( void );
 int agg_test4( void );
 int agg_test5( void );
 int agg_test6( void );
+int agg_test7( void );
 
 
 
@@ -318,7 +319,8 @@ static void loop(app_t *app)
     // agg_test3();
     // agg_test4();
     // agg_test5();
-    agg_test6();
+    // agg_test6();
+    agg_test7();
 
     // xpt2046_read();
 
