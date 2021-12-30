@@ -1,3 +1,6 @@
+/*
+  simple curses like char output
+*/
 
 #include <stdio.h>
 #include <string.h>
@@ -24,14 +27,32 @@
 #include "agg_renderer_scanline.h"
 
 
+/*
+  - we have the highlight now. eg. inverted.
+    so we could try hittesting.
+    or a focus.
+
+  - should try to draw larger chars on another grid
+  - draw a border / divider.
+  - if do a numeric keypad? - then can enter values.
+  - if add digital pot - then button can toggle - shift focus/ shift value.  
+      toggling the unit. not so fun.
+  ---------
+
+  // having a switch statement for focus navigation
+  // eg. if x has focus now and get down key etc.
+  // i think would be easier. issue of individual digits. having focus versus word.
+ /////////////////
+  // ok. now move a couple more chars right. and a number
 
 
 
-
+*/
 
 
 
 /*
+  ---
   like vt100, mcurses, terminal
   - cursor notional grid space.
     - for diff/delta optimisation
@@ -41,70 +62,195 @@
   ------
   possible a button - could be drawn as similar effect. eg. like background color. but rounded corners.
   a larger grid in a different view - for numeric keypad.
+  -------------
+
+  need highlight effect. can then test focus/hit test. in order to change set values.
+  ----------
+
+  possible outline fonts will be fast enough.
+    because most values will only change in the last one or two digits..
+    eg. so maybe 3 digits need to be redrawn. for V,A,W.
+  --------------
+
+  need to try to draw border. very important.   using hor. and vert. and corner glyphs.
+    but not with anti antialiased - lines - want fixed pixel.
+    might be able to do this easily without glyphs. by just using.  still need
+    - either font/overloaded glyph.   or another array.
+
+  -------------------
+
+  ----- HMMMMM.....
+    we cannot just render small text area. unless can correctly clear that area with background color.
+      - problem of rb.clear. means need to redraw everything. to get the white background under the text.
+      - if use porportionate spacing. then we would need to clear the old first.  to avoid the clear/redraw everything.
+      --------------------
+      EXTR. no it's easy./ EXCELLENT>
+        ******** if a char changes - then we use the spans and render in the background color ********
+        - this will work for proportionate fonts.
+
+  is there a character that takes the entire space. then can
+  no.   might need pixel level drawing underneath.
+
+  - we need an effect. to do focus.
+  - if each font was determined by two colors. ...  then could just invert the drawing.
+
+
+  -------------------
+  // we should do fg/bg - even if don't use it finally.
+  // Also special glphys.
+*/
+
+
+/*
+  generating a list o...
+    - is much same effec
+
+  setOrigin( )
+  setCursorDxDy( 10, 10).  -- eg. for easier font. positioning. even if use proportional width.
+  down()
+  right(5)
+  color()
+  effect( blink);
+  text( "whoot"); // advance  (argument doesn't propagate to affect others ) .
+
+  - this kind of thing should be much better - for drawing buttons/ .
+
+  - when something changes - then everything after changes.
+  - this enables us to serialize() - and compare - to create deltas.
+  - it is basically only text values that will change. and effects like blinking.
+
+
 
 */
+
+#define MAXCELLS (33 * 17)
 
 struct A
 {
 
-  uint16_t ny; 
-  uint16_t stride; // x dim
+  explicit A( 
+    uint16_t stride_,
+    uint16_t ny_,
+    uint16_t pdx_,
+    uint16_t pdy_ ) 
+    :
+    stride(stride_),
+    ny(ny_),
+    pdx(pdx_),
+    pdy(pdy_)
+  {  } 
 
 
-  // these positions are determined by fontsize, and our layout which may not be cartesian
-  // can be pointers. and allocate later.
-  // - SHOULD BE SEPARATE STRUCTURE. perhaps. because does not change on redraw
-  uint16_t notional_x[ 50* 20 ];
-  uint16_t notional_y[ 50* 20 ];
+  uint16_t stride; // nx
+  uint16_t ny;
 
-  // required in order to draw
-  uint8_t fontsize[ 50 * 20 ] ; 
+  // pixel dx,dy.
+  uint16_t pdx;
+  uint16_t pdy;
+
+  // no concept of font size here.
 
   /////////////////////////////////////
   // character - dominant. only check other flags.
-  uint16_t character[ 50* 20 ];
+  // should be refreshed between draws.
+  uint16_t character[ MAXCELLS ];
 
-  // so this thing is memory intensive
-  // and needs constructor
-  agg::rgba color[ 50* 20 ];
-
-
-  // effect. effects - like background color are going to be hard.
-  // should potentially be a bitfield.
-  uint16_t effect[ 50* 20 ];
+  // font to use. 0. for special glyph drawing actions
+  const FontSpans *font[ MAXCELLS ];
 
   /*
-    could write the millisec time. that it was last written... 
-    not sure. millisec, should be set once. so can determine whether to write.
-    must be interpreed. cannot
-    -- 
-    no effect should be treated as bool. then we do analysis pass. and change based on millisecond.
-    or else we record the millisec interval for blink and 
-    --
-    or for different blink rates. record once. the start and once the interval.
+    EXTR.
+    having fg/bg colors are very powerful concept.  means can do,
+        - inverted fg/bg for focus/ emphasis. blink.
+        - alpha blending/sub-pixel accuracy - without having to read the LCD hardware screen memory / faster. less complicated.
+        - delta change drawing - by drawing spans in bg color to clear them - to avoid full screen clear() /and redraw everything.
   */
-  uint16_t blinking[ 50* 20 ];
+  // so this thing is memory intensive
+  // and needs constructor
+  agg::rgba color[ MAXCELLS ];
+  agg::rgba color_bg[ MAXCELLS ];
+
+  // effect. effects
+  // invert fg/bg == 0x01   blink == 0x10
+  uint16_t effect[ MAXCELLS ];
+
+
+  // uint16_t callback_id[ 50 * 20];  // id might be easier than function ptr.
 
   // void (*callback[50 * 20 ] )(void )     not sure if desirable. or if should be by word.
-                                              
-
-  // where text was actually placed, due to proportionate font spacing.
-  // uint16_t text_x[ 50* 20 ]; // text actual position.
-  // uint16_t text_y[ 50* 20 ];
-
-  // NO. we diff compare - to evaluate what needs to be redrawn.
-  // bool changed [ 50 * 20 ] ;
 
   //////////////////////////////
-  // state when drawing.
+  // cursor == current attributes to draw with - should use separate structure.
   // draw cursor
   uint16_t cursor_x;
   uint16_t cursor_y;
-  
+
+  const FontSpans *cursor_font;
+
   // draw color
   agg::rgba cursor_color;
+  agg::rgba cursor_color_bg;
+
+  uint16_t cursor_effect;
+
+  // rather than copy all these individually. might have a cell structure
+
 
 };
+
+
+
+
+
+
+
+// order?????
+int index( A &a, int x, int y )
+{
+  int i = (y * a.stride ) + x   ;
+  assert(i < MAXCELLS);
+  // return (y * a.stride ) + x   ;
+  return i;
+}
+
+
+
+
+
+void init( A & a)
+{
+  // change name init().
+/*
+  // dims
+  a.stride = 33;
+  a.ny = 17;
+  a.pdx = 14;
+  a.pdy = 16;
+*/
+  // defaults/current state
+  a.cursor_font = & arial_span_18;
+  a.cursor_color = agg::rgba(0,0,1);
+  a.cursor_x = 0;
+  a.cursor_y = 0;
+
+  usart_printf("stride=%u, ny=%u\n" , a.stride, a.ny);
+
+  for(unsigned y = 0; y < a.ny; ++y)
+  for(unsigned x = 0; x < a.stride; ++x) {
+
+      int i = index(a, x, y);
+
+      a.character[i] = 0;
+      a.font[i] = 0;
+      a.effect[i] = 0;
+
+  }
+}
+
+
+
+
+
 
 
 /*
@@ -121,42 +267,50 @@ void to( A &a, int x, int y)
   a.cursor_y = y;
 }
 
-void down( A &a, int dy) 
-{
-  a.cursor_y += dy;
-}
 
-void right( A &a, int dx) 
+
+void right( A &a, int dx)
 {
-  // x arg can be negative
+  // chage name horiz() or horiz_to( ); etc
   a.cursor_x += dx;
 }
 
-void color( A &a, const agg::rgba &color) 
+void down( A &a, int dy)
 {
-  // x arg can be negative
+  // TODO change name vert()
+  // can have +/- args
+  a.cursor_y += dy;
+}
+
+void color( A &a, const agg::rgba &color)
+{
   a.cursor_color = color;
 }
 
-
-
-
-void set_notional(A &a, int nx, int ny )
+void color_bg( A &a, const agg::rgba &color)
 {
-  int i = a.cursor_x + a.cursor_y * a.stride;
-  a.notional_x[ i] = nx;
-  a.notional_y[ i] = ny;
+  a.cursor_color_bg = color;
+}
+
+void font( A &a, const FontSpans *font)
+{
+  a.cursor_font = font;
+  // const FontSpans *font[ 50* 20 ];
+}
+
+void effect( A &a, uint16_t v )
+{
+  a.cursor_effect = v;
 }
 
 
-#if 0
-void get_notional(const A &a, int *x, int *y)
-{
-  int i = a.cursor_x + a.cursor_y * a.stride;
-  *x = a.notional_x[ i]
-  *y = a.notional_y[ i]
-}
-#endif
+
+
+
+
+
+
+//////////////////////
 
 
 // if the effect is blinking. or inverse.
@@ -167,78 +321,42 @@ void get_notional(const A &a, int *x, int *y)
 // compute actual positions of everything. first.
 
 
-void text( A &a, const char *s)
+void text( A &a, const char *s, int dir)
 {
-  /*
-    this is like 
-  */
-  // eg. text expand right.
+  assert(dir == 1 || dir == -1);
 
-  // we need to upgrade the cursor position as we write text.
+  // usart_printf("char before '%c'   ", *s );
+  unsigned len = strlen(s);
+  if(dir < 0) {
+    // position at end
+    s += len - 1; // what the fucking fuck.
+  }
 
-
-  while(*s) {
-
-      // if(x > a.stride) {
+  for(unsigned j = 0; j < len; ++j)
+  {
       // could clip
-      // }
+      // if(x > a.stride) ...
 
-      int i = a.cursor_x + a.cursor_y * a.stride;
+      int i = index( a, a.cursor_x , a.cursor_y);
+      assert(i < 50 * 20);
 
+      // set state
       a.character[i] = *s;
-      a.color[i] = a.cursor_color; 
+      a.color[i] =    a.cursor_color;
+      a.color_bg[i] = a.cursor_color_bg;
+      a.font[i] =     a.cursor_font;
+      a.effect[i] =   a.cursor_effect;
 
-      ++a.cursor_x ;
-      s++;
+      // we can pass the stride to use... as argument.
+      a.cursor_x += dir;
+      s += dir;
   }
 }
 
 
-void text_indentright( A &a, const char *s)
-{
-  // eg. expand left.
-
-}
 
 
-void init_cursor_coordinates( A & a)
-{
-  a.stride = 33;
-  a.ny = 19;
 
-  // current state
-  a.cursor_color = agg::rgba(0,0,1);
-  a.cursor_x = 0;
-  a.cursor_y = 0;
-
-
-  // initialize the notational coordinate grid.
-  int y_accum = 0;
-  for(unsigned y = 0; y < 20; ++y )  {
-
-    int x_accum = 0;
-    for(unsigned x = 0; x < a.stride; ++x )  {
-
-      to(a, x, y);
-      set_notional(a, x_accum, y_accum );
-      /*
-      std::cout <<  x << ", " << y << "    ";
-      get_notional(a);
-      std::cout << "\n";
-      */
-
-      // the font is 18...
-      x_accum +=  14;
-    }
-    y_accum += 14;
-  }
-
-}
-
-
-// hmmmm....
-// OK. now we want to loop.
-// and only print the actual data...
 
 
 void set_callback( A &a, void *func, void *arg)
@@ -247,47 +365,168 @@ void set_callback( A &a, void *func, void *arg)
 }
 
 
-
-void render( A &a, rb_t &rb )
+void render_test_charset( A &a, rb_t &rb )
 {
+  // fill screen with chars
+  // useful for test, check sizing, see what chars exist in a fontface
+  int i = 0;
+  for(unsigned y = 0; y < a.ny; ++y)
+  for(unsigned x = 0; x < a.stride; ++x) {
 
-  for( unsigned i = 0; i < a.ny * a.stride ; ++i ) {
-  
-    // eg. 0,0 
-    int x = a.notional_x[ i];
-    int y = a.notional_y[ i];
 
-    // fill screen with chars
-    // drawSpanChar(rb,  arial_span_18, x, y, agg::rgba(0,0,1), i % 0xff  ); // 
+    int x1 = x * a.pdx;
+    int y1 = y * a.pdy;
+
+    drawSpanChar(rb,  arial_span_18, x1, y1, agg::rgba(0,0,1), i++ % 0xff);
+  }
+}
+
+
+
+void render( A &a, rb_t &rb, bool blink )
+{
+  // change name renderChars?
+
+  for(unsigned y = 0; y < a.ny; ++y)
+  for(unsigned x = 0; x < a.stride; ++x) {
+
+    int i = index(a, x, y);
+    assert(i < 50 * 20);
 
     uint16_t ch = a.character[ i ];
     const agg::rgba & color = a.color[ i ];
+    const agg::rgba & color_bg = a.color_bg[ i ];
+    const FontSpans *font = a.font[ i];
+    uint16_t effect = a.effect[ i];
 
     if(ch != 0) {
 
-      drawSpanChar(rb,  arial_span_18, x, y, color , ch  ); // 
+      assert(font);
+
+      int x1 = x * a.pdx;
+      int y1 = y * a.pdy;
+
+      // usart_printf( "x=%u y=%u\n", x1, y1);
+
+      // blink effect on on and blink set
+      if( (effect & (0x01 << 2)) == 0
+        || (effect & (0x01 << 2) && blink)
+      ) {
+
+
+        if(( effect & 0x01) == 0 ) {
+          // not inverted flag off
+          // draw background
+          rb.copy_bar(x1, y1, (x1 + 14) - 1, (y1 - 16) + 1,   color_bg );
+          // draw char
+          drawSpanChar(rb, *font, x1, y1 - 1, color, ch  );
+        }
+        else if ( effect & 0x01) {
+          // draw inverted
+          rb.copy_bar(x1, y1, (x1 + 14) - 1, (y1 - 16) + 1,   color );
+          drawSpanChar(rb, *font, x1, y1 - 1, color_bg, ch  );
+        }
+
+      }
+
     }
-
   }
+}
 
+
+
+void render_test1(A &a )
+{
+
+  // terminfo codes, 
+  // https://invisible-island.net/ncurses/man/terminfo.5.html
+  // fonts for vt100..  has vert/horz. and corners. 
+  // https://blog.adafruit.com/2019/03/29/raster-crt-typography-the-glyphs-drawn-by-dec-vt100-and-vt220-terminals-typeography-dec-vintagecomputing-fonts/
+
+  // so we can diff the structure with the last structure to see if anything changed.
+  font(a, &arial_span_18 );
+  color(a, agg::rgba( 0,0,1));
+  color_bg(a, agg::rgba( 1,1,1)); // white
+
+  // 0x6a
+  to(a, 5, 4);
+  // text(a, "-------|-----------\x6a", 1);
+  effect(a, 0x01);  // invert
+  text(a, "     settings     ", 1);
+  effect(a, 0x00);  // normal
+
+  to(a, 5, 5);
+  text(a, "whootj", 1);
+  to(a, 18, 5);
+  // right(a, 3);
+  text(a, "123.49", -1);
+
+
+  to(a, 5, 6);
+  color(a, agg::rgba( 1,0,0));
+
+  // focus...
+  // if(x_has_focus)
+  effect(a, 0x01);  // invert
+  text(a, "foobar", 1);
+  effect(a, 0x00);
+
+  to(a, 18, 6);
+
+  effect(a, 0x01 << 2);   // blink
+  text(a, "678mV", -1);
+  effect(a, 0x00);
+
+  // larger font
+  font(a, &arial_span_72 );
+  color(a, agg::rgba( 0.7,0.7,1));
+  to(a, 10, 10);
+  text(a, "99", +1);
 
 }
 
-// so we want the full alphabet for 18 font. see how the squares fit.
-// actually drawing the alphabet would be interesting.
 
 
+void render_test2(A &a )
+{
+  font(a, &arial_span_72 ); // large font
+  to(a, 1, 1);
+  text(a, "123", 1);
+  to(a, 1, 2);
+  text(a, "456m", 1);
+  to(a, 1, 3);
+  text(a, "789u", 1);
+  to(a, 1, 4);
+  text(a, "-0.", 1);
 
+}
+
+
+// 72 size text is much too spaced out.
 
 extern "C" int agg_test7()
 {
 
-  static A a;
-  static bool first = true;
-  if(first) { 
-    
-    init_cursor_coordinates( a);
+  static A a(33, 17, 14, 16  );
+  static A b(6,5, 60, 60  );
 
+/*
+  a.stride = 33;
+  a.ny = 17;
+  a.pdx = 14;
+  a.pdy = 16;
+*/
+
+  static bool first = true;
+  if(first) {
+    // move these to constructor?
+//    init( a);
+
+    init( b);   // hangs with no output. weird. run out of sram?
+                    // because static initialization constructor runs before - we have usart configured?
+                    // by itself we can initialize
+    UNUSED(b);
+                    // but 
     first = false;
   }
 
@@ -304,32 +543,26 @@ extern "C" int agg_test7()
   rb_t    rb(pixf);
 
 
-  rb.clear(agg::rgba(1,1,1));     // white .
+  rb.clear(agg::rgba(1,1,1));     // bg white .
+
 
   uint32_t start = system_millis;
   // ok, this works. so maybe there is memory corruption somewhere.
 
-  // so we can diff the structure with the last structure to see if anything changed.
+  ////////////////////////////////////
 
-  color(a, agg::rgba( 0,0,1));
-  to(a, 5, 5);
-  text(a, "whoot");
-  to(a, 12, 5);
-  // right(a, 3);
-  text(a, "123.4");
+  // render_test1(a );
+  render_test2(b );
 
-
-  to(a, 5, 6);
-  color(a, agg::rgba( 1,0,0));
-  text(a, "foo");
-  to(a, 12, 6);
-  text(a, "777");
+  int blink = (system_millis / 500) % 2;
+  // usart_printf("blink %u\n", blink );
 
 
+  // render( a , rb,  blink );
+  render( b , rb,  blink );
 
-  // ok. now move a couple more chars right. and a number
 
-  render( a , rb );
+  // render_test_charset( a, rb );
 
 
   usart_printf("draw time  %u\n", system_millis - start);
