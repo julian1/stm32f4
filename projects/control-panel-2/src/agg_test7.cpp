@@ -209,8 +209,8 @@ void render( A &a, rb_t &rb )
     int x = a.notional_x[ i];
     int y = a.notional_y[ i];
 
-    // need a single character drawer also
-    drawSpanText(rb,  arial_span_18, x, y, agg::rgba(0,0,1), "2" ); // 
+    // want a drawSpanChar
+    drawSpanText(rb,  arial_span_18, x, y, agg::rgba(0,0,1), "a" ); // 
   }
 
 
