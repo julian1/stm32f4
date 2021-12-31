@@ -1,5 +1,20 @@
 /*
+  what we have might be enough to progress. if can set values.
+  ---
+  - look at 2450. etc. most things could be done with a double cursor coordinate approach.
+  - simple rgba color mapping of cursor gridding still results in a 40k data structure.
+  ----------
+
+  So. focus navigation.  could be done per character. 
+
+  Actually - we could cursor map the focus naviation. (or use switch statement).
+  eg.    right[ ] ->  pos; // new x,y position 
+  and then auto fill or fill as we call text.
+  -------
+  No. switch is better. can be modal - from highlighting entire row, to word, to individual text. with a click.
+
   simple curses like char output
+  character mapped display.
 */
 
 #include <stdio.h>
@@ -35,7 +50,7 @@
   - should try to draw larger chars on another grid
   - draw a border / divider.
   - if do a numeric keypad? - then can enter values.
-  - if add digital pot - then button can toggle - shift focus/ shift value.  
+  - if add digital pot - then button can toggle - shift focus/ shift value.
       toggling the unit. not so fun.
   ---------
 
@@ -102,7 +117,9 @@
 
 
 /*
-  generating a list o...
+  EXTR.
+
+  draw sequenece - can use similar deta draw strategy
     - is much same effec
 
   setOrigin( )
@@ -118,27 +135,43 @@
   - when something changes - then everything after changes.
   - this enables us to serialize() - and compare - to create deltas.
   - it is basically only text values that will change. and effects like blinking.
+  ----------------------
+
+  EXTR. hittesting.
+    - we don not need an intermediate bounded rectable structure - structure for hittesting.
+    - just play through the draw instructions - and calculate and test the bounds. as to what gets hit.
+    - can play through - to test a hit point.
 
 
 
 */
 
+
+/*
+  - could use a sparse array.
+
+*/
+
+
+// 33 * 17 == 561
 #define MAXCELLS (33 * 17)
+
+#define MAXCOLORPAIRS 8
 
 struct A
 {
 
-  explicit A( 
+  explicit A(
     uint16_t stride_,
     uint16_t ny_,
     uint16_t pdx_,
-    uint16_t pdy_ ) 
+    uint16_t pdy_ )
     :
     stride(stride_),
     ny(ny_),
     pdx(pdx_),
     pdy(pdy_)
-  {  } 
+  {  }
 
 
   uint16_t stride; // nx
@@ -148,7 +181,22 @@ struct A
   uint16_t pdx;
   uint16_t pdy;
 
-  // no concept of font size here.
+  // no concept of font size here, only font.
+
+  /*
+    EXTR.
+      structure of arrays has much lower/better memory needs - than array of structs, due to field padding/alignment.
+  */
+  /*
+    EXTR.
+    having fg/bg colors are very powerful concept.  means can do,
+        - inverted fg/bg for focus/ emphasis. blink.
+        - alpha blending/sub-pixel accuracy - without having to read the LCD hardware screen memory / faster. less complicated.
+        - delta change drawing - by drawing spans in bg color to clear them - to avoid full screen clear() /and redraw everything.
+  */
+  agg::rgba color_fg[ MAXCOLORPAIRS ];  // agg::rgba == 32 bytes. 8 * 32 = 256 bytes.
+  agg::rgba color_bg[ MAXCOLORPAIRS ];
+
 
   /////////////////////////////////////
   // character - dominant. only check other flags.
@@ -158,17 +206,8 @@ struct A
   // font to use. 0. for special glyph drawing actions
   const FontSpans *font[ MAXCELLS ];
 
-  /*
-    EXTR.
-    having fg/bg colors are very powerful concept.  means can do,
-        - inverted fg/bg for focus/ emphasis. blink.
-        - alpha blending/sub-pixel accuracy - without having to read the LCD hardware screen memory / faster. less complicated.
-        - delta change drawing - by drawing spans in bg color to clear them - to avoid full screen clear() /and redraw everything.
-  */
-  // so this thing is memory intensive
-  // and needs constructor
-  agg::rgba color[ MAXCELLS ];
-  agg::rgba color_bg[ MAXCELLS ];
+  uint8_t  color_pair_idx[ MAXCELLS ]; // use 8.
+
 
   // effect. effects
   // invert fg/bg == 0x01   blink == 0x10
@@ -188,8 +227,9 @@ struct A
   const FontSpans *cursor_font;
 
   // draw color
-  agg::rgba cursor_color;
-  agg::rgba cursor_color_bg;
+  uint8_t cursor_color_pair_idx;
+//  agg::rgba cursor_color;
+//  agg::rgba cursor_color_bg;
 
   uint16_t cursor_effect;
 
@@ -229,9 +269,36 @@ void init( A & a)
 */
   // defaults/current state
   a.cursor_font = & arial_span_18;
-  a.cursor_color = agg::rgba(0,0,1);
+  // a.cursor_color = agg::rgba(0,0,1);
+
+
+  a.cursor_color_pair_idx = 0;  // blue white
+
   a.cursor_x = 0;
   a.cursor_y = 0;
+
+#if 0
+  // set up color pairs
+  a.color_fg[ 0 ] = agg::rgba( 0,0,1); // blue
+  a.color_bg[ 0 ] = agg::rgba( 1,1,1); // white
+
+  a.color_fg[ 1 ] = agg::rgba( 1,0,0); // red
+  a.color_bg[ 1]  = agg::rgba( 1,1,1); // white
+#endif
+
+#if 1
+  // set up color pairs
+  //a.color_fg[ 0 ] = agg::rgba( 1,1,0); // yellow
+  a.color_fg[ 0 ] = agg::rgba( 1,0.90,0); // yellowy orange
+  a.color_bg[ 0 ] = agg::rgba( 0,0,0); // black
+
+  a.color_fg[ 1 ] = agg::rgba( 1,0,0); // red
+  a.color_bg[ 1]  = agg::rgba( 0,0,0); // black
+#endif
+
+ 
+
+  /////////
 
   usart_printf("stride=%u, ny=%u\n" , a.stride, a.ny);
 
@@ -282,20 +349,17 @@ void down( A &a, int dy)
   a.cursor_y += dy;
 }
 
-void color( A &a, const agg::rgba &color)
+void color_pair_idx( A &a, uint8_t color_pair_idx )
 {
-  a.cursor_color = color;
+  // usart_printf("setting cursor_color_pair %u\n", color_pair_idx );
+  a.cursor_color_pair_idx = color_pair_idx;
 }
 
-void color_bg( A &a, const agg::rgba &color)
-{
-  a.cursor_color_bg = color;
-}
+
 
 void font( A &a, const FontSpans *font)
 {
   a.cursor_font = font;
-  // const FontSpans *font[ 50* 20 ];
 }
 
 void effect( A &a, uint16_t v )
@@ -338,14 +402,12 @@ void text( A &a, const char *s, int dir)
       // if(x > a.stride) ...
 
       int i = index( a, a.cursor_x , a.cursor_y);
-      assert(i < 50 * 20);
 
       // set state
-      a.character[i] = *s;
-      a.color[i] =    a.cursor_color;
-      a.color_bg[i] = a.cursor_color_bg;
-      a.font[i] =     a.cursor_font;
-      a.effect[i] =   a.cursor_effect;
+      a.character[i] =      *s;
+      a.font[i] =           a.cursor_font;
+      a.effect[i] =         a.cursor_effect;
+      a.color_pair_idx[i] = a.cursor_color_pair_idx;
 
       // we can pass the stride to use... as argument.
       a.cursor_x += dir;
@@ -365,7 +427,7 @@ void set_callback( A &a, void *func, void *arg)
 }
 
 
-void render_test_charset( A &a, rb_t &rb )
+void draw_test_charset( A &a, rb_t &rb )
 {
   // fill screen with chars
   // useful for test, check sizing, see what chars exist in a fontface
@@ -390,21 +452,26 @@ void render( A &a, rb_t &rb, bool blink )
   for(unsigned y = 0; y < a.ny; ++y)
   for(unsigned x = 0; x < a.stride; ++x) {
 
-    int i = index(a, x, y);
-    assert(i < 50 * 20);
-
+    int i       = index(a, x, y);
     uint16_t ch = a.character[ i ];
-    const agg::rgba & color = a.color[ i ];
-    const agg::rgba & color_bg = a.color_bg[ i ];
-    const FontSpans *font = a.font[ i];
-    uint16_t effect = a.effect[ i];
 
     if(ch != 0) {
+
+      uint8_t color_pair_idx = a.color_pair_idx[i];
+      assert(color_pair_idx < MAXCOLORPAIRS);
+
+      const agg::rgba & color_fg = a.color_fg[ color_pair_idx ];
+      const agg::rgba & color_bg = a.color_bg[ color_pair_idx ];
+
+      const FontSpans *font = a.font[ i];
+      uint16_t effect = a.effect[ i];
+
 
       assert(font);
 
       int x1 = x * a.pdx;
       int y1 = y * a.pdy;
+
 
       // usart_printf( "x=%u y=%u\n", x1, y1);
 
@@ -417,13 +484,15 @@ void render( A &a, rb_t &rb, bool blink )
         if(( effect & 0x01) == 0 ) {
           // not inverted flag off
           // draw background
-          rb.copy_bar(x1, y1, (x1 + 14) - 1, (y1 - 16) + 1,   color_bg );
+          // rb.copy_bar(x1, y1, (x1 + 14) - 1, (y1 - 16) + 1,   color_bg );
+          rb.copy_bar(x1, y1, (x1 + a.pdx) - 1, (y1 - a.pdy) + 1,   color_bg );
           // draw char
-          drawSpanChar(rb, *font, x1, y1 - 1, color, ch  );
+          drawSpanChar(rb, *font, x1, y1 - 1, color_fg, ch  );
         }
         else if ( effect & 0x01) {
           // draw inverted
-          rb.copy_bar(x1, y1, (x1 + 14) - 1, (y1 - 16) + 1,   color );
+          // rb.copy_bar(x1, y1, (x1 + 14) - 1, (y1 - 16) + 1,   color_fg );
+          rb.copy_bar(x1, y1, (x1 + a.pdx) - 1, (y1 - a.pdy) + 1,   color_fg );
           drawSpanChar(rb, *font, x1, y1 - 1, color_bg, ch  );
         }
 
@@ -435,20 +504,21 @@ void render( A &a, rb_t &rb, bool blink )
 
 
 
-void render_test1(A &a )
+static uint32_t last_draw_time = 0; 
+
+void draw_test1(A &a )
 {
 
-  // terminfo codes, 
+  // terminfo codes,
   // https://invisible-island.net/ncurses/man/terminfo.5.html
-  // fonts for vt100..  has vert/horz. and corners. 
+  // fonts for vt100..  has vert/horz. and corners.
   // https://blog.adafruit.com/2019/03/29/raster-crt-typography-the-glyphs-drawn-by-dec-vt100-and-vt220-terminals-typeography-dec-vintagecomputing-fonts/
 
   // so we can diff the structure with the last structure to see if anything changed.
   font(a, &arial_span_18 );
-  color(a, agg::rgba( 0,0,1));
-  color_bg(a, agg::rgba( 1,1,1)); // white
+  color_pair_idx(a, 0 );  // blue,white
 
-  // 0x6a
+  //////////
   to(a, 5, 4);
   // text(a, "-------|-----------\x6a", 1);
   effect(a, 0x01);  // invert
@@ -462,33 +532,49 @@ void render_test1(A &a )
   text(a, "123.49", -1);
 
 
+  //////////
   to(a, 5, 6);
-  color(a, agg::rgba( 1,0,0));
-
+  color_pair_idx(a, 1); // red/white
   // focus...
   // if(x_has_focus)
-  effect(a, 0x01);  // invert
+  effect(a, 0x01);        // invert
   text(a, "foobar", 1);
   effect(a, 0x00);
 
   to(a, 18, 6);
-
   effect(a, 0x01 << 2);   // blink
   text(a, "678mV", -1);
   effect(a, 0x00);
 
+
+  //////////
+  effect(a, 0x00);      // no effet
+  to(a, 5, 7);
+  color_pair_idx(a, 0); // blue/white
+  text(a, "drawtime", 1);
+  effect(a, 0x00);
+  to(a, 18, 7);
+  char buf[100];
+  snprintf(buf, 100, "%ums", last_draw_time);
+  text(a, buf, -1);
+  effect(a, 0x00);
+
+/*
   // larger font
   font(a, &arial_span_72 );
-  color(a, agg::rgba( 0.7,0.7,1));
+  color_pair_idx( a, 0 );      // blue white
   to(a, 10, 10);
   text(a, "99", +1);
+*/
 
 }
 
 
 
-void render_test2(A &a )
+void draw_keypad_test(A &a )
 {
+  // draw a kepad
+  color_pair_idx(a, 0); // blue/white
   font(a, &arial_span_72 ); // large font
   to(a, 1, 1);
   text(a, "123", 1);
@@ -501,14 +587,49 @@ void render_test2(A &a )
 
 }
 
+void draw_test2(A &a )
+{
+  // grid spacing for text is quite different than for keypad button spacing.
+  color_pair_idx(a, 0); // blue/white
+  //effect(a, 0x01);        // invert
+  effect(a, 0x00);        // normal
+  font(a, &arial_span_72 ); // large font
+  to(a, 0, 4);
+  text(a, "+23.456mV", 1);
+
+  effect(a, 0x00);        // normal
+  to(a, 1, 5);
+  text(a, "3.4mA", 1);
+
+
+}
+
+
+
+
+
+
+
+void print_stack_pointer()
+{
+  // https://stackoverflow.com/questions/20059673/print-out-value-of-stack-pointer
+  // non-portable.
+  void* p = NULL;
+  usart_printf("%p   %d\n", (void*)&p,  ( (unsigned)(void*)&p)  - 0x20000000   );
+  // return &p;
+}
+
+
+
 
 // 72 size text is much too spaced out.
 
 extern "C" int agg_test7()
 {
 
-  static A a(33, 17, 14, 16  );
-  static A b(6,5, 60, 60  );
+  static A a( 33, 17, 14, 16 );
+  // static A b(6,5, 60, 60  );
+  static A b(10,6, 45, 50  );
 
 /*
   a.stride = 33;
@@ -516,17 +637,40 @@ extern "C" int agg_test7()
   a.pdx = 14;
   a.pdy = 16;
 */
+/*
+  sizeof(A) 40488 40k. hmmm.
+  sizeof(agg::rgba) 32
+
+  18k is the rgb data.
+
+  sizeof(A) 5584  now 5.5k. after fixing color space. good.
+  -------
+
+  struct a only
+  0x2001ffa4   130980
+
+  struct a , b 
+  0x2001ff9c   130972
+
+  so don't think it's working. or we already hit limit?
+*/
 
   static bool first = true;
   if(first) {
     // move these to constructor?
-//    init( a);
 
+    // trying to init both of these hangs...
+
+    usart_printf("sizeof(agg::rgba) %u\n", sizeof(agg::rgba));
+    usart_printf("sizeof(A) %u\n", sizeof(A));
+
+
+    init( a);
     init( b);   // hangs with no output. weird. run out of sram?
                     // because static initialization constructor runs before - we have usart configured?
                     // by itself we can initialize
-    UNUSED(b);
-                    // but 
+    // UNUSED(b);
+                    // but
     first = false;
   }
 
@@ -537,13 +681,13 @@ extern "C" int agg_test7()
 
 
 
-
   // set up our buffer
   pixfmt_t  pixf(  page *  272 );
   rb_t    rb(pixf);
 
 
-  rb.clear(agg::rgba(1,1,1));     // bg white .
+  // rb.clear(agg::rgba(1,1,1));     // bg white .
+  rb.clear(agg::rgba(0,0,0));       // bg black
 
 
   uint32_t start = system_millis;
@@ -551,21 +695,25 @@ extern "C" int agg_test7()
 
   ////////////////////////////////////
 
-  // render_test1(a );
-  render_test2(b );
+
+  // print_stack_pointer();
+
+  // need a better name. this is not render
+  draw_test1(a );
+  draw_test2(b );
 
   int blink = (system_millis / 500) % 2;
   // usart_printf("blink %u\n", blink );
 
 
-  // render( a , rb,  blink );
+  render( a , rb,  blink );
   render( b , rb,  blink );
 
+  // draw_test_charset( a, rb );
 
-  // render_test_charset( a, rb );
 
-
-  usart_printf("draw time  %u\n", system_millis - start);
+  // usart_printf("draw time  %u\n", system_millis - start);
+  last_draw_time = system_millis - start;
 
   // usart_printf("done drawSpans() \n");
 
