@@ -18,8 +18,20 @@
 
   EXTR.
     - having 
-      focus map grid - for moving between items. 
-      then another one      - for moving inside items.  
+      focus map grid      - for moving between items. 
+      then another one      - for moving inside items.  eg characters in set value.
+      then we edit the value.
+      - switch between by clicking centre knob. 
+
+      EXTR. advantage - is that can localize the maps with the draw code.
+        eg. static. and  
+
+      EXTR
+        might need to be sparse.  eg. to handle a word. with multiple cells.
+
+      EXTR.
+        use a bitfield. greatly reduces memory.
+        0x0000. for the four directions.
   
     - then doulbe click button. to shift between them.
       nice.
