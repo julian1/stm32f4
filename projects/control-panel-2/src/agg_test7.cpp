@@ -12,9 +12,26 @@
   and then auto fill or fill as we call text.
   -------
   No. switch is better. can be modal - from highlighting entire row, to word, to individual text. with a click.
-
   simple curses like char output
   character mapped display.
+  ------------
+
+  EXTR.
+    - having 
+      focus map grid - for moving between items. 
+      then another one      - for moving inside items.  
+  
+    - then doulbe click button. to shift between them.
+      nice.
+    - we would need to set the invert flag for the cell also for drawing.
+  --------------- 
+
+  rather than use a separate grid - for large text.  why not use free placement. and with proportionate spacing.
+  as test.
+  but still have 
+  ----
+  button colors / gradients . should perhaps be pixmaps. not rendered.
+
 */
 
 #include <stdio.h>
@@ -158,6 +175,7 @@
 
 #define MAXCOLORPAIRS 8
 
+// we could template the maxcells argument. when want to instantiate for different sizes. 
 struct A
 {
 
