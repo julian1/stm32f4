@@ -5,10 +5,10 @@
   - simple rgba color mapping of cursor gridding still results in a 40k data structure.
   ----------
 
-  So. focus navigation.  could be done per character. 
+  So. focus navigation.  could be done per character.
 
   Actually - we could cursor map the focus naviation. (or use switch statement).
-  eg.    right[ ] ->  pos; // new x,y position 
+  eg.    right[ ] ->  pos; // new x,y position
   and then auto fill or fill as we call text.
   -------
   No. switch is better. can be modal - from highlighting entire row, to word, to individual text. with a click.
@@ -17,30 +17,32 @@
   ------------
 
   EXTR.
-    - having 
-      focus map grid      - for moving between items. 
+    - having
+      focus map grid      - for moving between items.
       then another one      - for moving inside items.  eg characters in set value.
       then we edit the value.
-      - switch between by clicking centre knob. 
+      - switch between by clicking centre knob.
 
       EXTR. advantage - is that can localize the maps with the draw code.
-        eg. static. and  
+        eg. static. and
 
       EXTR
         might need to be sparse.  eg. to handle a word. with multiple cells.
+      EXTR
+        no i think a switch might be easiest.   or 4. for each direction.
+        and use an id for words.   or else scan the text.
 
-      EXTR.
-        use a bitfield. greatly reduces memory.
-        0x0000. for the four directions.
-  
+
+
+
     - then doulbe click button. to shift between them.
       nice.
     - we would need to set the invert flag for the cell also for drawing.
-  --------------- 
+  ---------------
 
   rather than use a separate grid - for large text.  why not use free placement. and with proportionate spacing.
   as test.
-  but still have 
+  but still have
   ----
   button colors / gradients . should perhaps be pixmaps. not rendered.
 
@@ -187,7 +189,14 @@
 
 #define MAXCOLORPAIRS 8
 
-// we could template the maxcells argument. when want to instantiate for different sizes. 
+// we could template the maxcells argument. when want to instantiate for different sizes.
+
+/*
+  - this could be sparse and work just as well.
+  and would work as well for proportional font draw sequences.
+  - remember - fg/bg glyph sizes can probably work to do focused rederaw.
+*/
+
 struct A
 {
 
@@ -326,7 +335,7 @@ void init( A & a)
   a.color_bg[ 1]  = agg::rgba( 0,0,0); // black
 #endif
 
- 
+
 
   /////////
 
@@ -534,7 +543,7 @@ void render( A &a, rb_t &rb, bool blink )
 
 
 
-static uint32_t last_draw_time = 0; 
+static uint32_t last_draw_time = 0;
 
 void draw_test1(A &a )
 {
@@ -598,6 +607,48 @@ void draw_test1(A &a )
 */
 
 }
+
+
+// Draw state.   showingc
+
+
+// possible that a single switch - could handle submenu items. eg. text.
+// eg. we get an event that is the button. and then we switch
+
+// static state machine...
+
+enum Menu1 {
+
+  // MENU1_none;
+  MENU1_item1 = 1,
+  MENU1_item2
+
+};
+
+void menu1_ ( int rotary_dir )
+{
+  static Menu1  s = MENU1_item1;
+
+  switch(s) {
+
+    case MENU1_item1:
+      if(rotary_dir > 0)
+        s = MENU1_item2;
+      // else   // cannot go backwards
+      //  s = MENU1_item1;
+
+  }
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -679,7 +730,7 @@ extern "C" int agg_test7()
   struct a only
   0x2001ffa4   130980
 
-  struct a , b 
+  struct a , b
   0x2001ff9c   130972
 
   so don't think it's working. or we already hit limit?
