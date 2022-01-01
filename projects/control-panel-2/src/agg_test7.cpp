@@ -608,8 +608,16 @@ void draw_test1(A &a )
 
 }
 
+/*
+  - navigation,
+    - page
+    - menus
+    - submenus (a different page)
+    - editable fields
 
+  - showing the navigation / and switching the menu item with focus.
 
+*/
 // Draw state.   showingc
 
 // possible that a single switch - could handle submenu items. eg. text.
