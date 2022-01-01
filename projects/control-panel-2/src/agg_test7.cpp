@@ -609,25 +609,36 @@ void draw_test1(A &a )
 }
 
 
-// Draw state.   showingc
 
+// Draw state.   showingc
 
 // possible that a single switch - could handle submenu items. eg. text.
 // eg. we get an event that is the button. and then we switch
 
 // static state machine...
 
+// SHOULD THIS CONTROL THE draw sequence well WELL.
+// eg. if active drwa
+
 enum Menu1 {
 
-  // MENU1_none;
-  MENU1_item1 = 1,
-  MENU1_item2
+  MENU1_none = 1,
+  MENU1_item1,
+  MENU1_item2,
+
+  TEXT_item   // need the character as well.
 
 };
 
-void menu1_ ( int rotary_dir )
+// active menu item.
+static int page = 0;
+static Menu1  s = MENU1_item1;
+static int      pos = 0;  // if
+
+
+void menu1_on_event( int rotary_dir )
 {
-  static Menu1  s = MENU1_item1;
+  // adjust state - due to rotary input
 
   switch(s) {
 
@@ -640,11 +651,26 @@ void menu1_ ( int rotary_dir )
   }
 }
 
+// decorate the cursor with the active ...
+void draw_focus(A &a )
+{
+  switch(s) {
 
+    case MENU1_item1:
+      // invert item
+      // need to mark the effect over several chars. just add a function. ok.
+      to(a, 3,3);
+      effect( a, 0x01 << 1 ); // invert
+      break;
 
+    case MENU1_item2:
+      // invert item
+      to(a, 3,3);
+      effect( a, 0x01 << 1 ); // invert
+      break;
 
-
-
+  }
+}
 
 
 
