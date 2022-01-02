@@ -547,6 +547,12 @@ static uint32_t last_draw_time = 0;
 
 void draw_test1(A &a )
 {
+  /*
+    should switch the page state.
+    to determine which page we are drawing.
+    --
+    So. we should be passing the state as an argument.
+  */
 
   // terminfo codes,
   // https://invisible-island.net/ncurses/man/terminfo.5.html
@@ -574,8 +580,11 @@ void draw_test1(A &a )
   //////////
   to(a, 5, 6);
   color_pair_idx(a, 1); // red/white
-  // focus...
-  // if(x_has_focus)
+  /*
+    focus...
+    if(state.menu_item =)  // set effect.  
+    else if (state_menu_item_char_focus )  then we need to set an effect on a single character.
+  */
   effect(a, 0x01);        // invert
   text(a, "foobar", 1);
   effect(a, 0x00);
@@ -616,6 +625,8 @@ void draw_test1(A &a )
     - editable fields
 
   - showing the navigation / and switching the menu item with focus.
+  - eg. bitfields representing navitation paths  - jump between menu/ submenu or when scrolling menu entries
+  - 
 
 */
 // Draw state.   showingc
