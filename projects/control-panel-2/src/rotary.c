@@ -15,18 +15,24 @@
 /*
   just poll timer_get_counter() . interupt not useful, since hw preserves count state.
 */
- 
+
 
 int initRotaryEncoderTimer(
-  uint32_t tim, 
-  uint32_t portA, uint16_t pinA, uint8_t afA, 
+  uint32_t tim,
+  uint32_t portA, uint16_t pinA, uint8_t afA,
   uint32_t portB, uint16_t pinB, uint8_t afB
 ) {
   /*
     https://gitlab.cs.fau.de/diy/wiki/-/wikis/Inkrementaldrehgeber
-
     ok, this works...
+
+
+    rcc_periph_clock_enable(RCC_GPIOA); // gpio
+    rcc_periph_clock_enable(RCC_TIM1);
+
   */
+
+
 
   gpio_mode_setup(portA, GPIO_MODE_AF, GPIO_PUPD_PULLUP, pinA);
   gpio_set_af(portA, afA, pinA);
@@ -54,8 +60,8 @@ int initRotaryEncoderTimer(
   timer_ic_disable(tim, TIM_IC1);
   timer_ic_disable(tim, TIM_IC2);
 
-  
-  // TIM_IC_IN_TI1  The direction of the channel (input/output) as well as the input used. 
+
+  // TIM_IC_IN_TI1  The direction of the channel (input/output) as well as the input used.
   timer_ic_set_input(tim, TIM_IC1, TIM_IC_IN_TI1);
   timer_ic_set_input(tim, TIM_IC2, TIM_IC_IN_TI1);
 

@@ -208,6 +208,7 @@
 // #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/systick.h>
 
+#include <libopencm3/stm32/timer.h> // rotary
 
 
 #include <libopencm3/usb/usbd.h>
@@ -232,6 +233,7 @@
 #include "fsmc.h"
 #include "ssd1963.h"
 #include "xpt2046.h"
+#include "rotary.h"
 
 
 // put prototypes here to avoid pulling in template c++ headers in c code.
@@ -313,6 +315,11 @@ static void loop(app_t *app)
       led_toggle();
       // usart_printf("here\n");
       // LCD_Read_DDB();
+
+      int count = timer_get_counter(TIM1);
+      usart_printf("timer count %u\n", count);
+
+
     }
 
     // agg_test2();
@@ -321,6 +328,9 @@ static void loop(app_t *app)
     // agg_test5();
     // agg_test6();
     agg_test7();
+
+
+
 
     // xpt2046_read();
 
@@ -367,12 +377,12 @@ int main(void)
   rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
 
   // LED
-  // rcc_periph_clock_enable(RCC_GPIOA); // f410/f411 led.
-  rcc_periph_clock_enable(RCC_GPIOB); // f410/f411 led.
+  rcc_periph_clock_enable(RCC_GPIOA); // rotary/buttongs
+  rcc_periph_clock_enable(RCC_GPIOB);
 
   // USART
-  // rcc_periph_clock_enable(RCC_GPIOA);     // f407
-  rcc_periph_clock_enable(RCC_GPIOB); // F410/f411
+  // rcc_periph_clock_enable(RCC_GPIOA);
+  rcc_periph_clock_enable(RCC_GPIOB);
   rcc_periph_clock_enable(RCC_USART1);
 
 
@@ -453,6 +463,11 @@ int main(void)
   xpt2046_spi_setup( XPT2046_SPI );
 
   xpt2046_reset( XPT2046_SPI);
+
+
+  // tim1
+  rcc_periph_clock_enable(RCC_TIM1);
+  initRotaryEncoderTimer(TIM1, GPIOA, GPIO8, GPIO_AF1, GPIOA, GPIO9, GPIO_AF1) ;
 
 
 
