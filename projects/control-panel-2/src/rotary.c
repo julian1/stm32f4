@@ -17,11 +17,39 @@
 */
 
 
-int initRotaryEncoderTimer(
-  uint32_t tim,
+
+void rotary_setup_gpio_portA()
+{
+  // change name setup_tim1_gpio_portA() ??
+
+  // initRotaryEncoderTimer(TIM1, GPIOA, GPIO8, GPIO_AF1, GPIOA, GPIO9, GPIO_AF1) ;
+
+  // tim1
+  uint16_t in = GPIO8 | GPIO9;
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, in );
+  gpio_set_af(GPIOA, GPIO_AF1, in);
+
+/*
+  gpio_mode_setup(portA, GPIO_MODE_AF, GPIO_PUPD_PULLUP, pinA);
+  gpio_set_af(portA, afA, pinA);
+
+  gpio_mode_setup(portB, GPIO_MODE_AF, GPIO_PUPD_PULLUP, pinB);
+  gpio_set_af(portB, afB, pinB);
+*/
+
+
+}
+
+
+/*
+int initRotaryEncoderTimer( uint32_t tim,
   uint32_t portA, uint16_t pinA, uint8_t afA,
   uint32_t portB, uint16_t pinB, uint8_t afB
-) {
+*/
+
+
+int rotary_init_timer( uint32_t tim )
+{
   /*
     https://gitlab.cs.fau.de/diy/wiki/-/wikis/Inkrementaldrehgeber
     ok, this works...
@@ -32,13 +60,14 @@ int initRotaryEncoderTimer(
 
   */
 
-
+/*
 
   gpio_mode_setup(portA, GPIO_MODE_AF, GPIO_PUPD_PULLUP, pinA);
   gpio_set_af(portA, afA, pinA);
 
   gpio_mode_setup(portB, GPIO_MODE_AF, GPIO_PUPD_PULLUP, pinB);
   gpio_set_af(portB, afB, pinB);
+*/
 
   // timer_reset(tim);
   rcc_periph_reset_pulse(tim); //

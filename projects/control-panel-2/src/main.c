@@ -467,7 +467,12 @@ int main(void)
 
   // tim1
   rcc_periph_clock_enable(RCC_TIM1);
-  initRotaryEncoderTimer(TIM1, GPIOA, GPIO8, GPIO_AF1, GPIOA, GPIO9, GPIO_AF1) ;
+
+  rotary_setup_gpio_portA();
+  rotary_init_timer( TIM1 ); 
+
+
+  // initRotaryEncoderTimer(TIM1, GPIOA, GPIO8, GPIO_AF1, GPIOA, GPIO9, GPIO_AF1) ;
 
 
 
