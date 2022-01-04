@@ -584,6 +584,9 @@ void draw_test1(A &a )
     focus...
     if(state.menu_item =)  // set effect.  
     else if (state_menu_item_char_focus )  then we need to set an effect on a single character.
+      
+      to( 5 + 3, 4);  effect( 0x10 ) // for effect on a single char.  eg. dont pass the location.
+
   */
   effect(a, 0x01);        // invert
   text(a, "foobar", 1);

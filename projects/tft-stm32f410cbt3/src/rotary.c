@@ -53,6 +53,8 @@ int initRotaryEncoderTimer(
   timer_ic_disable(tim, TIM_IC1);
   timer_ic_disable(tim, TIM_IC2);
 
+  
+  // TIM_IC_IN_TI1  The direction of the channel (input/output) as well as the input used. 
   timer_ic_set_input(tim, TIM_IC1, TIM_IC_IN_TI1);
   timer_ic_set_input(tim, TIM_IC2, TIM_IC_IN_TI1);
 
