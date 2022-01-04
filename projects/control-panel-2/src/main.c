@@ -474,8 +474,21 @@ int main(void)
   /*
       use % 4  - to get single step increment.
       use % 3 - for 3 menu items.
-  
       do not have to clamp the value.
+
+      use enum - with 0.    or   don't bother to code the menu items.
+
+      use the same variable.  regardless of what menu is being navigated.
+
+      menulevel.
+      menuitem. <- 
+    --------
+      the state is the counter timer.
+      
+      if the menu list is being drawn. then just use get_counter() % 4 % n      
+      - we don't need any more.
+      - if we are editing an entry. then we would need a flag.
+
   */
 
   // initRotaryEncoderTimer(TIM1, GPIOA, GPIO8, GPIO_AF1, GPIOA, GPIO9, GPIO_AF1) ;
