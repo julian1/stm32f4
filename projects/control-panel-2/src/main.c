@@ -471,6 +471,12 @@ int main(void)
   rotary_setup_gpio_portA();
   rotary_init_timer( TIM1 ); 
 
+  /*
+      use % 4  - to get single step increment.
+      use % 3 - for 3 menu items.
+  
+      do not have to clamp the value.
+  */
 
   // initRotaryEncoderTimer(TIM1, GPIOA, GPIO8, GPIO_AF1, GPIOA, GPIO9, GPIO_AF1) ;
 
