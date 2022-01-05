@@ -316,8 +316,9 @@ static void loop(app_t *app)
       // usart_printf("here\n");
       // LCD_Read_DDB();
 
-      int count = timer_get_counter(TIM1);
-      usart_printf("timer count %u\n", count);
+      
+      // int count = timer_get_counter(TIM1);
+      // usart_printf("timer count %u\n", count);
 
 
     }

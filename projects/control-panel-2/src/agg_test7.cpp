@@ -63,15 +63,13 @@
 
 #include "fonts.h"
 
-#include "agg_rounded_rect.h"
-#include "agg_ellipse.h"
-
-
+// #include "agg_rounded_rect.h"
+// #include "agg_ellipse.h"
 #include "agg_scanline_p.h"
 #include "agg_rasterizer_scanline_aa.h"
-
 #include "agg_renderer_scanline.h"
 
+#include <libopencm3/stm32/timer.h>
 
 /*
   - we have the highlight now. eg. inverted.
@@ -424,8 +422,26 @@ void effect( A &a, uint16_t v )
 // compute actual positions of everything. first.
 
 
+
+void textch( A &a, uint16_t ch)
+{
+  // does not increment cursor.
+  int i = index( a, a.cursor_x , a.cursor_y);
+
+  // set state
+  a.character[i] =      ch;
+  a.font[i] =           a.cursor_font;
+  a.effect[i] =         a.cursor_effect;
+  a.color_pair_idx[i] = a.cursor_color_pair_idx;
+}
+
+
+
+
 void text( A &a, const char *s, int dir)
 {
+  // increments the cursor as it writes
+
   assert(dir == 1 || dir == -1);
 
   // usart_printf("char before '%c'   ", *s );
@@ -440,6 +456,10 @@ void text( A &a, const char *s, int dir)
       // could clip
       // if(x > a.stride) ...
 
+
+
+      textch( a, *s);
+/*
       int i = index( a, a.cursor_x , a.cursor_y);
 
       // set state
@@ -447,6 +467,7 @@ void text( A &a, const char *s, int dir)
       a.font[i] =           a.cursor_font;
       a.effect[i] =         a.cursor_effect;
       a.color_pair_idx[i] = a.cursor_color_pair_idx;
+*/
 
       // we can pass the stride to use... as argument.
       a.cursor_x += dir;
@@ -559,56 +580,65 @@ void draw_test1(A &a )
   // fonts for vt100..  has vert/horz. and corners.
   // https://blog.adafruit.com/2019/03/29/raster-crt-typography-the-glyphs-drawn-by-dec-vt100-and-vt220-terminals-typeography-dec-vintagecomputing-fonts/
 
+
+  int rotary = timer_get_counter(TIM1);
+  int focus = (rotary / 4 ) %  5;
+
+  char buf[100];
+
+  // usart_printf("rotary %d   ", rotary  );    // weird always 0...
+  // usart_printf("rotary mod 16 %d\n", (rotary / 4 ) %  4  );
+
+
+
   // so we can diff the structure with the last structure to see if anything changed.
   font(a, &arial_span_18 );
   color_pair_idx(a, 0 );  // blue,white
 
   //////////
   to(a, 5, 4);
-  // text(a, "-------|-----------\x6a", 1);
-  effect(a, 0x01);  // invert
+  (focus == 0) ? effect(a, 0x01) : effect(a, 0x00);
   text(a, "     settings     ", 1);
-  effect(a, 0x00);  // normal
 
   to(a, 5, 5);
+  (focus  == 1) ? effect(a, 0x01) : effect(a, 0x00);
   text(a, "whootj", 1);
   to(a, 18, 5);
-  // right(a, 3);
   text(a, "123.49", -1);
 
 
   //////////
   to(a, 5, 6);
   color_pair_idx(a, 1); // red/white
-  /*
-    focus...
-    if(state.menu_item =)  // set effect.  
-    else if (state_menu_item_char_focus )  then we need to set an effect on a single character.
-      
-      to( 5 + 3, 4);  effect( 0x10 ) // for effect on a single char.  eg. dont pass the location.
-
-  */
-  effect(a, 0x01);        // invert
+  (focus == 2) ? effect(a, 0x01) : effect(a, 0x00);
   text(a, "foobar", 1);
-  effect(a, 0x00);
 
   to(a, 18, 6);
   effect(a, 0x01 << 2);   // blink
   text(a, "678mV", -1);
-  effect(a, 0x00);
 
 
   //////////
-  effect(a, 0x00);      // no effet
   to(a, 5, 7);
   color_pair_idx(a, 0); // blue/white
+  (focus  == 3) ? effect(a, 0x01) : effect(a, 0x00);
   text(a, "drawtime", 1);
-  effect(a, 0x00);
+  // effect(a, 0x00);
   to(a, 18, 7);
-  char buf[100];
   snprintf(buf, 100, "%ums", last_draw_time);
   text(a, buf, -1);
-  effect(a, 0x00);
+  // effect(a, 0x00);
+
+
+  
+  to(a, 5, 8);
+  color_pair_idx(a, 0); // blue/white
+  (focus  == 4) ? effect(a, 0x01) : effect(a, 0x00);
+  text(a, "rotary", 1);
+  to(a, 18, 8);
+  snprintf(buf, 100, "%d %d", rotary, focus );
+  text(a, buf, -1);
+
 
 /*
   // larger font
@@ -620,6 +650,146 @@ void draw_test1(A &a )
 
 }
 
+
+
+
+////////////////////////
+  // (x % 9)  + '0'    // to get digits.     actually we have to take the number.
+                    // we actually edit the underlying value.
+                    // or edit a textfield.  and only after edit, convert to digit.
+                    // need a cancel.
+
+                    // HAVE a SINGLE edit buffer. so that if item is selected. we copy value into that.
+                    // then we edit it.
+                    // rather than printing the value.
+                    // will need to be static.
+                    // need to test in isolation.
+
+                    // doesn't even need to be a buffer. could be a value that we edit.
+
+                    // copy once.
+                    // fuck. it's getting complicated.
+                    // integer or double?
+
+                    // when we change the character then we want that
+                    // we kind of have to have events. onfocus() onleavefocus() etc.
+
+                    // OR.      we don't edit the copied value - instead a delta value (delta buf, or delta double/integer). and we just spin characters on that.
+                    // then we don't need the events.
+
+                    // not so easy. need to deal to rotate mV, uV, nV. etc.
+                    // -----------------
+                    // EXTR.  inject menu structure into controller / like pattern.
+              
+
+  // char delta_buf = '000.0000'
+/*
+  len = strlen(editbuf);
+  for(unsigned i = 0; i < len; ++i ) {
+    move_to( a, 5 + len, 8);
+    ( i == focus ) ?  effect(a, 0x01) : effect(a, 0x00);
+
+    // do we want a sinigle character?
+    text(a, "rotary", 1);
+  }
+*/
+
+
+
+void draw_test3(A &a )
+{
+  /*
+      - needs to be separately editable buffer.  eg. edit then commit.
+      which may require an enter button. and  a cancel button.
+    - edit buf should be injected/ static
+    - eg. we generically edit
+    -------------------
+    it's highly modal.   eg. dial adjusts menu item, then dial adjusts position in string. then dial adjusts value.
+    suggests event state machine.
+  */
+
+  //////////
+  // mode  change edit position
+
+  // using an index is an easier way to set an effect.
+
+  static int rotary_last = 0; 
+
+  static char buf[100];
+  bool first = true;
+  if(first) {
+    snprintf(buf, 100, "123456" ); 
+
+    // rotary_last = timer_get_counter(TIM1) ;
+
+    // timer_set_counter(TIM1,  3 * 4) ;
+    // timer_enable_timer(TIM1);
+
+
+    first = false;
+  }
+
+  // ok. maybe last doesn't work. 
+  // (rotary - rotary_last) is always zero ??? why ... 
+
+  // Or . we just set the intitial timer value?
+  // set it to the value 
+  // '0' + (rotary / 4) % 9
+
+  // try to edit
+  int rotary = timer_get_counter(TIM1) ;
+  
+  // usart_printf("%d %d %d\n", rotary, rotary_last , (rotary - rotary_last) );
+
+  // buf[ 3 ] += ((rotary  - rotary_last) / 4 ) % 9;   // this will go past the value that we want 
+  // buf[ 3 ] += ((rotary  ) / 4 ) % 9;   // this will go past the value that we want 
+
+  // directly coupling
+  buf[ 3 ] = '0' + (rotary / 4) % 10;
+
+  rotary_last = rotary;
+
+
+  /////////////////////
+  to(a, 5, 6);
+  color_pair_idx(a, 0); // red/white
+
+  unsigned len = strlen(buf);
+
+  for(unsigned i = 0; i < len; ++i) { 
+  
+    to(a, 5 + i, 6);
+  
+    // dial focus.
+    if( i == 3) 
+      effect(a, 0x01) ;
+    else 
+      effect(a, 0x00);
+
+    // output the character
+    textch( a, buf[ i] );
+  }
+
+  //////////////////////////
+  // edit value. we will edit the buffer. need to make it static. 
+  
+  // how do we couple/edit a value????    use a delta. No. 
+
+  // take counter_pos at time we enter. 
+  // it would be much easier if we could directly change the value.  by coupling. 
+  // use an interupt?
+
+  // EASY.
+  // adjust between, timer_counter and last_timer_counter  - update teh value.
+  // eg. just do it every time.
+
+}
+
+
+
+
+
+
 /*
   - navigation,
     - page
@@ -629,7 +799,7 @@ void draw_test1(A &a )
 
   - showing the navigation / and switching the menu item with focus.
   - eg. bitfields representing navitation paths  - jump between menu/ submenu or when scrolling menu entries
-  - 
+  -
 
 */
 // Draw state.   showingc
@@ -828,8 +998,10 @@ extern "C" int agg_test7()
   // print_stack_pointer();
 
   // need a better name. this is not render
-  draw_test1(a );
+  // draw_test1(a );
   draw_test2(b );
+
+  draw_test3(a );
 
   int blink = (system_millis / 500) % 2;
   // usart_printf("blink %u\n", blink );
