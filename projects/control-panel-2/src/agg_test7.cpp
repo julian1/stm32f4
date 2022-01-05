@@ -711,9 +711,6 @@ void draw_test3(A &a )
   //////////
   // mode  change edit position
 
-  // using an index is an easier way to set an effect.
-
-  static int rotary_last = 0; 
 
   static char buf[100];
   bool first = true;
@@ -729,25 +726,18 @@ void draw_test3(A &a )
     first = false;
   }
 
-  // ok. maybe last doesn't work. 
-  // (rotary - rotary_last) is always zero ??? why ... 
-
-  // Or . we just set the intitial timer value?
-  // set it to the value 
-  // '0' + (rotary / 4) % 9
-
   // try to edit
-  int rotary = timer_get_counter(TIM1) ;
+  // IMOPRTANT negative numbers are really not working well. because of modulo? 
+  int16_t rotary = timer_get_counter(TIM1) ;
   
   // usart_printf("%d %d %d\n", rotary, rotary_last , (rotary - rotary_last) );
 
-  // buf[ 3 ] += ((rotary  - rotary_last) / 4 ) % 9;   // this will go past the value that we want 
-  // buf[ 3 ] += ((rotary  ) / 4 ) % 9;   // this will go past the value that we want 
+  // negative numbers go modulo in negative direction....
+  
+  usart_printf("%d \n", (rotary / 4) % 10 );
 
   // directly coupling
   buf[ 3 ] = '0' + (rotary / 4) % 10;
-
-  rotary_last = rotary;
 
 
   /////////////////////
