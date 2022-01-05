@@ -717,11 +717,13 @@ void draw_test3(A &a )
   if(first) {
     snprintf(buf, 100, "123456" ); 
 
-    // rotary_last = timer_get_counter(TIM1) ;
-
-    // timer_set_counter(TIM1,  3 * 4) ;
-    // timer_enable_timer(TIM1);
-
+    // if we try to write timer. it stops updating...
+    /*
+    timer_disable_counter(TIM1);
+    timer_set_counter(TIM1, 3 * 4) ;
+    timer_enable_counter(TIM1);
+    */
+    // but perhaps we could record a delta?
 
     first = false;
   }
