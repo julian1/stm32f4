@@ -630,7 +630,7 @@ void draw_test1(A &a )
   // effect(a, 0x00);
 
 
-  
+
   to(a, 5, 8);
   color_pair_idx(a, 0); // blue/white
   (focus  == 4) ? effect(a, 0x01) : effect(a, 0x00);
@@ -680,7 +680,7 @@ void draw_test1(A &a )
                     // not so easy. need to deal to rotate mV, uV, nV. etc.
                     // -----------------
                     // EXTR.  inject menu structure into controller / like pattern.
-              
+
 
   // char delta_buf = '000.0000'
 /*
@@ -706,6 +706,31 @@ void draw_test3(A &a )
     -------------------
     it's highly modal.   eg. dial adjusts menu item, then dial adjusts position in string. then dial adjusts value.
     suggests event state machine.
+    -------------------
+
+    3x separate controllers - for menu item.
+        not nice. means three sepaate pointer structures.
+
+    but an index is required for
+      - 1. page, 2. menuitem, 3. digit/edit buf.
+
+    events. eg. for switching mode. ef. finished edit - need ok or cancel.
+      then shift from diti/edit buf.
+
+    state machine is easier.
+      - with index for page, menuitem, digit
+      - events for - ok, cancel. shifting between modes.   (use buttons)
+      ----------------
+
+    potentially. need more than one level of nesting.
+
+    This means a linked structure. that can navigate.
+
+    menu level 1 - index 3
+    menu level 2 - index 4
+    editfield    - index 6.
+
+
   */
 
   //////////
@@ -715,7 +740,7 @@ void draw_test3(A &a )
   static char buf[100];
   bool first = true;
   if(first) {
-    snprintf(buf, 100, "123456" ); 
+    snprintf(buf, 100, "123456" );
 
     // if we try to write timer. it stops updating...
     /*
@@ -729,13 +754,13 @@ void draw_test3(A &a )
   }
 
   // try to edit
-  // IMOPRTANT negative numbers are really not working well. because of modulo? 
+  // IMOPRTANT negative numbers are really not working well. because of modulo?
   int16_t rotary = timer_get_counter(TIM1) ;
-  
+
   // usart_printf("%d %d %d\n", rotary, rotary_last , (rotary - rotary_last) );
 
   // negative numbers go modulo in negative direction....
-  
+
   usart_printf("%d \n", (rotary / 4) % 10 );
 
   // directly coupling
@@ -748,14 +773,14 @@ void draw_test3(A &a )
 
   unsigned len = strlen(buf);
 
-  for(unsigned i = 0; i < len; ++i) { 
-  
+  for(unsigned i = 0; i < len; ++i) {
+
     to(a, 5 + i, 6);
-  
+
     // dial focus.
-    if( i == 3) 
+    if( i == 3)
       effect(a, 0x01) ;
-    else 
+    else
       effect(a, 0x00);
 
     // output the character
@@ -763,12 +788,12 @@ void draw_test3(A &a )
   }
 
   //////////////////////////
-  // edit value. we will edit the buffer. need to make it static. 
-  
-  // how do we couple/edit a value????    use a delta. No. 
+  // edit value. we will edit the buffer. need to make it static.
 
-  // take counter_pos at time we enter. 
-  // it would be much easier if we could directly change the value.  by coupling. 
+  // how do we couple/edit a value????    use a delta. No.
+
+  // take counter_pos at time we enter.
+  // it would be much easier if we could directly change the value.  by coupling.
   // use an interupt?
 
   // EASY.
