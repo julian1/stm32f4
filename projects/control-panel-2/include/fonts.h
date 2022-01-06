@@ -1,4 +1,6 @@
 
+#ifndef FONTS_H
+#define FONTS_H
   /*
     unreferenced 72 point arial,
 
@@ -55,3 +57,4 @@ extern const FontSpans arial_span_72;
 extern const FontSpans arial_span_18;
 
 
+#endif // FONTS_H

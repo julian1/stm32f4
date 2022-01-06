@@ -1,3 +1,7 @@
+
+#ifndef AGG_H
+#define AGG_H
+
 /*
 
   rename,  this creates the generalized render structure.
@@ -19,6 +23,8 @@
 extern "C" {
 #endif
 */
+
+#include <stdio.h>
 
 
 #include "agg_pixfmt_rgb_packed.h"  // rgb565
@@ -236,6 +242,7 @@ void drawSpanChar(rb_t & rb, const FontSpans &font_spans, int x1, int y1, const 
 void drawSpanText(rb_t & rb, const FontSpans &font_spans, int x1, int y1, const agg::rgba &color, const char *s);
 
 
+#endif // AGG_H
 
 
 #if 0
