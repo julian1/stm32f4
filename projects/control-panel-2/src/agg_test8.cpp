@@ -43,8 +43,32 @@ struct X
 
 
 
+struct IntegerSelector;
+struct UnitSelector;
+
+struct ListSelector
+{
+  // eg list of menu items.
+  // when one is active to edit we will stuff it into the integer selector (to edit individual digits.
+
+  IntegerSelector   & integer_selector;
+  UnitSelector      & unit_selector;
+
+  // name, value pairs.
+  // std::vector<
+
+
+
+};
+
+
+
+
+
+
+
 // polymorphism via virtual functions or just a regular enum argumented function
-// actually we do need the buf - for the exploded view. or at  
+// actually we do need the buf - for the exploded view. or at
 
 struct IntegerSelector
 {
@@ -58,12 +82,15 @@ struct IntegerSelector
   // unsigned x, y;  position.
   unsigned select_idx;
 
-  explicit IntegerSelector(A &a, int &value)
+  explicit IntegerSelector(A &a)
     : a(a),
     value(value),
     edit_value(0),
     select_idx(0)
     {  }
+
+  // when item becomes active.
+  void set_value( int value_ , int x, int y ) { value = value_; }
 };
 
 
@@ -72,7 +99,7 @@ struct IntegerSelector
 void draw ( IntegerSelector & s)
 {
   /*
-    if we are not editing it. then don't draw it.  
+    if we are not editing it. then don't draw it.
     let the item list view draw the value.
   maybe
 
@@ -109,16 +136,28 @@ void rotary_event( IntegerSelector & s )
 
 
 /*
+  think we have a single one of these.
+
+  - game programming controller - manage a list of items.
+      - eg. we don't want to be creating controllers.
+
+  - when the list item becomes active.   it's going to have to insert the elements into the value controller editor.
+
+  - we cannot
+
+
+  -----------------
   begin_edit
     copy the rotary delta.
     select which digit we are going to edit.
     copy value to edit value .
 
   cancel_edit
-    
+
   commit_edit
-    copy edited val to real value. 
+    copy edited val to real value.
     this is going to have to apply to ( unit & value ) .   perhaps the entire page. with separate cancel /  OK. buttons
+  -----------------
 
 */
 
