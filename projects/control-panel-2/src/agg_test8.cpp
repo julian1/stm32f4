@@ -60,10 +60,14 @@ struct IntegerSelector
 
   explicit IntegerSelector(A &a, int &value)
     : a(a),
-    select_idx(0),
-    value(value)
+    value(value),
+    edit_value(0),
+    select_idx(0)
     {  }
 };
+
+
+// treat non-virtual functions as functions.
 
 void draw ( IntegerSelector & s)
 {

@@ -103,7 +103,9 @@ struct A
 };
 
 
-// int index( A &a, int x, int y );
+
+
+// treat non-virtual functions as functions.
 
 void init( A & a);
 
