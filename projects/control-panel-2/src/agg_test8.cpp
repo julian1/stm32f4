@@ -21,6 +21,7 @@
 
 */
 
+#if 0
 struct X
 {
   // get the values to display from the tree.
@@ -38,7 +39,7 @@ struct X
   // draw the children.
 
 };
-
+#endif
 
 
 
@@ -47,28 +48,28 @@ struct X
 
 struct IntegerSelector
 {
-  // b
   A &a;
 
   // this is the exploded view of the value
   // Integer selector. need a different one for double. with a dot'
-  int value;
-  int edit_value; // value being edited.
+  int & value;
+  int edit_value; // value being edited. precomitted_value;
 
   // unsigned x, y;  position.
   unsigned select_idx;
 
-  explicit IntegerSelector(A &a)
+  explicit IntegerSelector(A &a, int &value)
     : a(a),
-    select_idx(0)
+    select_idx(0),
+    value(value)
     {  }
-
 };
 
 void draw ( IntegerSelector & s)
 {
   /*
-    if we are not editing it. then don't draw it.  let something else draw the value.
+    if we are not editing it. then don't draw it.  
+    let the item list view draw the value.
   maybe
 
   */
@@ -107,12 +108,13 @@ void rotary_event( IntegerSelector & s )
   begin_edit
     copy the rotary delta.
     select which digit we are going to edit.
-    copy value to temp buf.
+    copy value to edit value .
 
   cancel_edit
     
   commit_edit
     copy edited val to real value. 
+    this is going to have to apply to ( unit & value ) .   perhaps the entire page. with separate cancel /  OK. buttons
 
 */
 
@@ -120,7 +122,7 @@ struct VRangeSelector
 {
 
 
-}
+};
 
 
 
