@@ -48,8 +48,12 @@ struct UnitSelector;
 
 struct ListSelector
 {
+  /*
   // eg list of menu items.
   // when one is active to edit we will stuff it into the integer selector (to edit individual digits.
+    can scroll them / focus.
+    when one focused and hit right button - then we put item into the individual digit selector/unit selector as needed.unit se
+  */
 
   IntegerSelector   & integer_selector;
   UnitSelector      & unit_selector;
@@ -78,6 +82,7 @@ struct IntegerSelector
   // Integer selector. need a different one for double. with a dot'
   int & value;
   int edit_value; // value being edited. precomitted_value;
+                      // if we are going to edit multiple values...
 
   // unsigned x, y;  position.
   unsigned select_idx;
@@ -127,9 +132,34 @@ void draw ( IntegerSelector & s)
 
 // begin_edit/ end edit ?
 
+
+// https://stackoverflow.com/questions/29787310/does-pow-work-for-int-data-type-in-c
+
+static int int_pow(int base, int exp)
+{
+    int result = 1;
+    while (exp)
+    {
+        if (exp % 2)
+           result *= base;
+        exp /= 2;
+        base *= base;
+    }
+    return result;
+}
+
+
+
+
 void rotary_event( IntegerSelector & s )
 {
 
+  // take the rotary value ... 
+  //    we don't need to use 'a' and adding .... just rotate  
+
+  a.value +=  ( int_pow( 10, s.select_idx )  *   rotary )   ;  // we want to change the decimal value...  
+
+  // s.value = 
 
 
 }
