@@ -19,6 +19,10 @@
 
 /*
   just poll timer_get_counter() . interupt not useful, since hw preserves count state.
+
+  EXTR
+    getting events on timer change doesn't matter.  because we want to record it at on_begin_edit(). and then
+    use that initial value.
 */
 
 
@@ -32,15 +36,9 @@ void rotary_setup_gpio_portA()
   uint16_t in = GPIO8 | GPIO9;
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, in );
   gpio_set_af(GPIOA, GPIO_AF1, in);
-
 }
 
 
-/*
-int initRotaryEncoderTimer( uint32_t tim,
-  uint32_t portA, uint16_t pinA, uint8_t afA,
-  uint32_t portB, uint16_t pinB, uint8_t afB
-*/
 
 
 int rotary_init_timer( uint32_t tim )
@@ -94,6 +92,53 @@ int rotary_init_timer( uint32_t tim )
 
 
 
+#if 0
+  // directly tapping the input pins works.  but the get_timer_count() is slightly wrong when read in the interupt.
+  // would need
+
+{
+
+  EXTR
+    getting events on timer change doesnt matter.  because we want to record it at on_begin_edit(). and then
+    use that initial value.
+
+
+  ///////////
+  // setup interupt. directly on the rotary encoder input pins.
+  // gets triggered, but the value read in the interupt is slighly wrong. hmmm...
+
+  // ie. use exti9-5 for pa8
+  nvic_enable_irq(NVIC_EXTI9_5_IRQ);
+
+/*
+  exti_select_source(EXTI8, GPIOA);
+  exti_set_trigger(EXTI8, EXTI_TRIGGER_FALLING);
+  exti_enable_request(EXTI8);
+*/
+
+  exti_select_source(EXTI9, GPIOA);
+  exti_set_trigger(EXTI9, EXTI_TRIGGER_FALLING);
+  exti_enable_request(EXTI9);
+}
+
+
+void exti9_5_isr(void)
+{
+  exti_reset_request(EXTI8 | EXTI9);
+
+  usart_printf("got interupt on 8 or 9 \n");
+
+  // ok. the count is one behind.
+  usart_printf("timer_get_counter in interupt %d\n\r", timer_get_counter( TIM1 ));
+}
+#endif
+
+
+
+
+
+
+#if 0
 
 void rotary_setup_interupt(void)
 {
@@ -138,7 +183,7 @@ void tim1_cc_isr(void)
 }
 
 
-
+#endif
 
 
 

@@ -243,7 +243,7 @@ int agg_test4( void );
 int agg_test5( void );
 int agg_test6( void );
 int agg_test7( void );
-int agg_test8( void );
+extern "C"  int agg_test8( void );
 
 
 
@@ -473,7 +473,7 @@ int main(void)
 
   rotary_setup_gpio_portA();
   rotary_init_timer( TIM1 ); 
-  rotary_setup_interupt();
+  // rotary_setup_interupt();
 
   /*
       use % 4  - to get single step increment.
@@ -510,7 +510,7 @@ int main(void)
   usart_printf("sizeof float  %u\n", sizeof(float));
   usart_printf("sizeof double %u\n", sizeof(double));
 
-  usart_printf("sizeof setjmp %u\n", sizeof(setjmp)); // 1.
+  // usart_printf("sizeof setjmp %u\n", sizeof(setjmp)); // 1.
 
   // test assert failure
   // ASSERT(1 == 2);
