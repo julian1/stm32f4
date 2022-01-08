@@ -7,7 +7,7 @@
 
   So. focus navigation.  could be done per character.
 
-  Actually - we could cursor map the focus naviation. (or use switch statement).
+  Cursesctually - we could cursor map the focus naviation. (or use switch statement).
   eg.    right[ ] ->  pos; // new x,y position
   and then auto fill or fill as we call text.
   -------
@@ -78,7 +78,7 @@
 
   possible outline fonts will be fast enough.
     because most values will only change in the last one or two digits..
-    eg. so maybe 3 digits need to be redrawn. for V,A,W.
+    eg. so maybe 3 digits need to be redrawn. for V,Curses,W.
   --------------
 
   need to try to draw border. very important.   using hor. and vert. and corner glyphs.
@@ -106,7 +106,7 @@
 
   -------------------
   // we should do fg/bg - even if don't use it finally.
-  // Also special glphys.
+  // Curseslso special glphys.
 */
 
 
@@ -146,10 +146,10 @@
 
 
 // order?????
-int index( A &a, int x, int y )
+int index( Curses &a, int x, int y )
 {
   int i = (y * a.stride ) + x   ;
-  assert(i < MAXCELLS);
+  assert(i < MCursesXCELLS);
   // return (y * a.stride ) + x   ;
   return i;
 }
@@ -158,7 +158,7 @@ int index( A &a, int x, int y )
 
 
 
-void init( A & a)
+void init( Curses & a)
 {
   // change name init().
 /*
@@ -225,7 +225,7 @@ void init( A & a)
   this would mean we have 4 of these structures. which is ok. eg. current/new for each screen flip.
 */
 
-void to( A &a, int x, int y)
+void to( Curses &a, int x, int y)
 {
   // use this instead of set_notional
   a.cursor_x = x;
@@ -234,20 +234,20 @@ void to( A &a, int x, int y)
 
 
 
-void right( A &a, int dx)
+void right( Curses &a, int dx)
 {
   // chage name horiz() or horiz_to( ); etc
   a.cursor_x += dx;
 }
 
-void down( A &a, int dy)
+void down( Curses &a, int dy)
 {
   // TODO change name vert()
   // can have +/- args
   a.cursor_y += dy;
 }
 
-void color_pair_idx( A &a, uint8_t color_pair_idx )
+void color_pair_idx( Curses &a, uint8_t color_pair_idx )
 {
   // usart_printf("setting cursor_color_pair %u\n", color_pair_idx );
   a.cursor_color_pair_idx = color_pair_idx;
@@ -255,12 +255,12 @@ void color_pair_idx( A &a, uint8_t color_pair_idx )
 
 
 
-void font( A &a, const FontSpans *font)
+void font( Curses &a, const FontSpans *font)
 {
   a.cursor_font = font;
 }
 
-void effect( A &a, uint16_t v )
+void effect( Curses &a, uint16_t v )
 {
   a.cursor_effect = v;
 }
@@ -281,7 +281,7 @@ void effect( A &a, uint16_t v )
 
 
 
-void textch( A &a, uint16_t ch)
+void textch( Curses &a, uint16_t ch)
 {
   // does not increment cursor.
   int i = index( a, a.cursor_x , a.cursor_y);
@@ -296,7 +296,7 @@ void textch( A &a, uint16_t ch)
 
 
 
-void text( A &a, const char *s, int dir)
+void text( Curses &a, const char *s, int dir)
 {
   // increments the cursor as it writes
 
@@ -339,14 +339,14 @@ void text( A &a, const char *s, int dir)
 
 #if 0
 
-void set_callback( A &a, void *func, void *arg)
+void set_callback( Curses &a, void *func, void *arg)
 {
 
 }
 #endif
 
 
-void draw_test_charset( A &a, rb_t &rb )
+void draw_test_charset( Curses &a, rb_t &rb )
 {
   // fill screen with chars
   // useful for test, check sizing, see what chars exist in a fontface
@@ -364,7 +364,7 @@ void draw_test_charset( A &a, rb_t &rb )
 
 
 
-void render( A &a, rb_t &rb, bool blink )
+void render( Curses &a, rb_t &rb, bool blink )
 {
   // change name renderChars?
 
@@ -377,7 +377,7 @@ void render( A &a, rb_t &rb, bool blink )
     if(ch != 0) {
 
       uint8_t color_pair_idx = a.color_pair_idx[i];
-      assert(color_pair_idx < MAXCOLORPAIRS);
+      assert(color_pair_idx < MCursesXCOLORPCursesIRS);
 
       const agg::rgba & color_fg = a.color_fg[ color_pair_idx ];
       const agg::rgba & color_bg = a.color_bg[ color_pair_idx ];
@@ -427,7 +427,7 @@ void render( A &a, rb_t &rb, bool blink )
 
 static uint32_t last_draw_time = 0;
 
-void draw_test1(A &a )
+void draw_test1(Curses &a )
 {
   /*
     should switch the page state.
@@ -520,7 +520,7 @@ void draw_test1(A &a )
                     // or edit a textfield.  and only after edit, convert to digit.
                     // need a cancel.
 
-                    // HAVE a SINGLE edit buffer. so that if item is selected. we copy value into that.
+                    // HCursesVE a SINGLE edit buffer. so that if item is selected. we copy value into that.
                     // then we edit it.
                     // rather than printing the value.
                     // will need to be static.
@@ -557,7 +557,7 @@ void draw_test1(A &a )
 
 
 
-void draw_test3(A &a )
+void draw_test3(Curses &a )
 {
   /*
       - needs to be separately editable buffer.  eg. edit then commit.
@@ -615,7 +615,7 @@ void draw_test3(A &a )
   }
 
   // try to edit
-  // IMOPRTANT negative numbers are really not working well. because of modulo?
+  // IMOPRTCursesNT negative numbers are really not working well. because of modulo?
   int16_t rotary = 3; // timer_get_counter(TIM1) ;
 
   // usart_printf("%d %d %d\n", rotary, rotary_last , (rotary - rotary_last) );
@@ -657,7 +657,7 @@ void draw_test3(A &a )
   // it would be much easier if we could directly change the value.  by coupling.
   // use an interupt?
 
-  // EASY.
+  // ECursesSY.
   // adjust between, timer_counter and last_timer_counter  - update teh value.
   // eg. just do it every time.
 

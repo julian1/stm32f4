@@ -8,6 +8,22 @@
 
 #include "curses.h"
 
+/*
+  ok. - so how to treat events - need to route.  directly  or queue.
+      - we cannot get the timer value in the interupt.
+      - also provides a queue for update.
+    ------------
+    inject a mode enum. for which selector/controller is active.
+
+
+
+  -------------
+  controller for position and draw.
+  controller for edit.
+  --
+  have a queue for events.   button press, rotary ?  can then just process in the main loop.
+
+*/
 
 struct IntegerSelector;
 struct UnitSelector;
@@ -38,7 +54,7 @@ struct ListSelector
 
 struct IntegerSelector
 {
-  A &a;
+  Curses &a;
 
   // this is the exploded view of the value
   // Integer selector. need a different one for double. with a dot'
@@ -49,15 +65,34 @@ struct IntegerSelector
   // unsigned x, y;  position.
   unsigned select_idx;
 
-  explicit IntegerSelector(A &a)
+  unsigned rotary_on_begin;  // rotary value at beginning of edit
+
+  explicit IntegerSelector(Curses &a)
     : a(a),
     value(value),
     edit_value(0),
-    select_idx(0)
+    select_idx(0),
+    rotary_on_begin(0)
     {  }
 
   // when item becomes active.
   void set_value( int value_ , int x, int y ) { value = value_; }
+
+  void begin_edit(  ) 
+  {  
+    rotary_on_begin = timer_get_counter(TIM1);
+  }
+
+  void event( int ch)
+  {
+    switch(ch) { 
+
+
+
+    };
+
+  }
+
 };
 
 
@@ -95,6 +130,7 @@ void draw ( IntegerSelector & s)
 // begin_edit/ end edit ?
 
 
+#if 0
 // https://stackoverflow.com/questions/29787310/does-pow-work-for-int-data-type-in-c
 
 static int int_pow(int base, int exp)
@@ -110,28 +146,34 @@ static int int_pow(int base, int exp)
     return result;
 }
 
-
+#endif
 
 
 void rotary_event( IntegerSelector & s )
 {
 
-  // take the rotary value ... 
-  //    we don't need to use 'a' and adding .... just rotate  
+  // take the rotary value ...
+  //    we don't need to use 'a' and adding .... just rotate
 
   int rotary = timer_get_counter(TIM1);
 
-  s.value +=  ( int_pow( 10, s.select_idx )  *   rotary )   ;  // we want to change the decimal value...  
+  // s.value +=  ( int_pow( 10, s.select_idx )  *   rotary )   ;  // we want to change the decimal value...
 
-  // s.value = 
+  // s.value =
 
 
 }
 
 
+/*
+  - actually can use a strategy pattern.
+  - eg. just use an interface and swap the strategy.
+
+*/
+// think we just pass  events down. 
 
 
-static void draw_test2(A &a )
+static void draw_test2(Curses &a )
 {
   // grid spacing for text is quite different than for keypad button spacing.
   color_pair_idx(a, 0); // blue/white
@@ -147,18 +189,26 @@ static void draw_test2(A &a )
   effect(a, 0x00);        // normal
   to(a, 1, 5);
   text(a, buf , 1);
-  // text(a, "3.4mA", 1);
-
-
+  // text(a, "3.4mCurses", 1);
 }
 
+/*
+// so pass the event stream...
+
+  - have a list controller.
+  - and a digits in value controller.
+  - and try to use the buttons to alternate between them.
 
 
-extern "C" int agg_test8()
+*/
+
+
+extern int agg_test8(  Curses &a )
 {
 
-  static A a( 33, 17, 14, 16 );
+  // static Curses a( 33, 17, 14, 16 );
 
+#if 0
   static bool first = true;
   if(first) {
     // move these to constructor?
@@ -166,13 +216,14 @@ extern "C" int agg_test8()
     // trying to init both of these hangs...
 
     usart_printf("sizeof(agg::rgba) %u\n", sizeof(agg::rgba));
-    usart_printf("sizeof(A) %u\n", sizeof(A));
+    usart_printf("sizeof(Curses) %u\n", sizeof(Curses));
 
     // should not be initializing here, like this
     init( a);
                    // but
     first = false;
   }
+#endif
 
   // persist the page that we need to draw
   static int page = 0; // page to use
@@ -249,7 +300,7 @@ struct X
   bool child_is_exploded;
   unsigned exploded_idx;
 
-  A &a;
+  Curses &a;
 
 
   // draw the children.

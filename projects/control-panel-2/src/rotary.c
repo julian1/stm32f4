@@ -4,13 +4,12 @@
 
 #include <stdio.h>
 
-#include <libopencm3/cm3/nvic.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/timer.h>
 
-#include <libopencm3/cm3/nvic.h>
-#include <libopencm3/stm32/exti.h>
+// #include <libopencm3/cm3/nvic.h>
+// #include <libopencm3/stm32/exti.h>
 
 
 
@@ -23,6 +22,10 @@
   EXTR
     getting events on timer change doesn't matter.  because we want to record it at on_begin_edit(). and then
     use that initial value.
+
+    ----
+    no getting the event is useful.  even if have to delay getting the timer value.
+
 */
 
 
@@ -89,101 +92,6 @@ int rotary_init_timer( uint32_t tim )
 
 
 
-
-
-
-#if 0
-  // directly tapping the input pins works.  but the get_timer_count() is slightly wrong when read in the interupt.
-  // would need
-
-{
-
-  EXTR
-    getting events on timer change doesnt matter.  because we want to record it at on_begin_edit(). and then
-    use that initial value.
-
-
-  ///////////
-  // setup interupt. directly on the rotary encoder input pins.
-  // gets triggered, but the value read in the interupt is slighly wrong. hmmm...
-
-  // ie. use exti9-5 for pa8
-  nvic_enable_irq(NVIC_EXTI9_5_IRQ);
-
-/*
-  exti_select_source(EXTI8, GPIOA);
-  exti_set_trigger(EXTI8, EXTI_TRIGGER_FALLING);
-  exti_enable_request(EXTI8);
-*/
-
-  exti_select_source(EXTI9, GPIOA);
-  exti_set_trigger(EXTI9, EXTI_TRIGGER_FALLING);
-  exti_enable_request(EXTI9);
-}
-
-
-void exti9_5_isr(void)
-{
-  exti_reset_request(EXTI8 | EXTI9);
-
-  usart_printf("got interupt on 8 or 9 \n");
-
-  // ok. the count is one behind.
-  usart_printf("timer_get_counter in interupt %d\n\r", timer_get_counter( TIM1 ));
-}
-#endif
-
-
-
-
-
-
-#if 0
-
-void rotary_setup_interupt(void)
-{
-  /*
-    OK. we get an event - only when value goes through 0/65535.
-    but not when the value changes.
-    so this interupt code is not really useful.
-    ----------------
-    BUT. can we configure a timer on the raw gpio pins?
-  */
-
-  usart_printf("****** rotary_setup interupt\n");
-
-  nvic_enable_irq(NVIC_TIM1_CC_IRQ);
-
-
-  // timer_enable_irq(TIM1, TIM_DIER_CC1IE | TIM_DIER_CC2IE | TIM_DIER_CC3IE | TIM_DIER_CC4IE); // CC triggered only when value hits 0
-  // timer_enable_irq(TIM1, TIM_DIER_UIE ); // update interupt. would think it would work.
-  // timer_enable_irq(TIM1, TIM_DIER_TIE);
-  // timer_enable_irq(TIM1, TIM_DIER_BIE);   // break interupt
-
-}
-
-
-void tim1_cc_isr(void)
-{
-  // CC == capture compare
-  // UIE = update interupt.
-
-  // seems to clear ared.
-  // timer_clear_flag(TIM1, TIM_DIER_CC1IE | TIM_DIER_CC2IE | TIM_DIER_CC3IE | TIM_DIER_CC4IE  );
-  // timer_clear_flag(TIM1, TIM_DIER_UIE);
-  // timer_clear_flag(TIM1, TIM_DIER_TIE);
-  // timer_clear_flag(TIM1, TIM_DIER_BIE);
-
-  uint32_t flags = timer_get_flag(TIM1, 0 );
-  // if( timer_clear_flag(TIM1, TIM_DIER_CC1IE | TIM_DIER_CC2IE | TIM_DIER_CC3IE | TIM_DIER_CC4IE  );
-
-  usart_printf("flags %d\n\r", flags );
-
-  usart_printf("tim3 interrupt %d\n\r", timer_get_counter( TIM1 ));
-}
-
-
-#endif
 
 
 

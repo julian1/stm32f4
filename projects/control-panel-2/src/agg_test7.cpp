@@ -24,13 +24,13 @@ flash space at all.
 
 Global and static variables that are not declared const go either into the
 .data section if they require startup initialisation or into .bss if they
-don't. Both of those segments are placed into SRAM by your linker script. If
+don't. Both of those segments are placed into SRCursesM by your linker script. If
 you're doing C++ then static C++ classes end up in .bss.
 
 If you do declare them const then they'll be placed into the .rodata section
 which, if you consult your linker script you should find being located into a
 subsection of .text which is in flash. Flash is usually more plentiful than
-SRAM so do make use of const where you can.
+SRCursesM so do make use of const where you can.
 
 Finally, the optimizer can come along and totally rearrange anything it sees
 fit, including the elimination of storage in favour of inlining.
@@ -45,7 +45,7 @@ fit, including the elimination of storage in favour of inlining.
 
 
 
-static void draw_keypad_test(A &a )
+static void draw_keypad_test(Curses &a )
 {
   // draw a kepad
   color_pair_idx(a, 0); // blue/white
@@ -61,7 +61,7 @@ static void draw_keypad_test(A &a )
 
 }
 
-static void draw_test2(A &a )
+static void draw_test2(Curses &a )
 {
   // grid spacing for text is quite different than for keypad button spacing.
   color_pair_idx(a, 0); // blue/white
@@ -73,7 +73,7 @@ static void draw_test2(A &a )
 
   effect(a, 0x00);        // normal
   to(a, 1, 5);
-  text(a, "3.4mA", 1);
+  text(a, "3.4mCurses", 1);
 
 
 }
@@ -101,16 +101,16 @@ void print_stack_pointer()
 extern "C" int agg_test7()
 {
 
-  static A a( 33, 17, 14, 16 );
-  // static A b(6,5, 60, 60  );
-  static A b(10,6, 45, 50  );
+  static Curses a( 33, 17, 14, 16 );
+  // static Curses b(6,5, 60, 60  );
+  static Curses b(10,6, 45, 50  );
 /*
-  sizeof(A) 40488 40k. hmmm.
+  sizeof(Curses) 40488 40k. hmmm.
   sizeof(agg::rgba) 32
 
   18k is the rgb data.
 
-  sizeof(A) 5584  now 5.5k. after fixing color space. good.
+  sizeof(Curses) 5584  now 5.5k. after fixing color space. good.
   -------
 
   struct a only
@@ -129,7 +129,7 @@ extern "C" int agg_test7()
     // trying to init both of these hangs...
 
     usart_printf("sizeof(agg::rgba) %u\n", sizeof(agg::rgba));
-    usart_printf("sizeof(A) %u\n", sizeof(A));
+    usart_printf("sizeof(Curses) %u\n", sizeof(Curses));
 
 
     init( a);

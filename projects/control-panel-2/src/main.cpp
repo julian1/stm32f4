@@ -218,7 +218,7 @@
 #include <stddef.h> // size_t
 //#include <math.h> // nanf
 //#include <stdio.h>
-#include <string.h>   // memset
+// #include <string.h>   // memset
 
 
 #include "cbuffer.h"
@@ -234,8 +234,12 @@
 #include "ssd1963.h"
 #include "xpt2046.h"
 #include "rotary.h"
+#include "ui_events.h"
+#include "curses.h"
+#include "menu.h"
 
 
+/*
 // put prototypes here to avoid pulling in template c++ headers in c code.
 int agg_test2( void );
 int agg_test3( void );
@@ -243,23 +247,44 @@ int agg_test4( void );
 int agg_test5( void );
 int agg_test6( void );
 int agg_test7( void );
-extern "C"  int agg_test8( void );
+extern "C" int agg_test8( void );
+*/
 
 
+extern int agg_test8(  Curses &a );
 
+// if we want to pass buffers to things...
+// Gahhh.
+// c initialization, is so different from c++ initialization.
+// eg. if want to pass CBuf to jjjjjjj
 
 typedef struct app_t
 {
+
+  app_t( MenuController & menu_controller)
+     : menu_controller ( menu_controller)
+  { }
+
+
   CBuf console_in;
   CBuf console_out;
 
   usbd_device *usbd_dev ;
+
+
+  // use to intermediate context.
+  CBuf ui_events_in; //
+
+  ////////
+
+  MenuController & menu_controller ;
 
 } app_t;
 
 
 static void update_console_cmd(app_t *app)
 {
+  // TODO change name update_console_in().
 
   if( !cBufisEmpty(&app->console_in) && cBufPeekLast(&app->console_in) == '\r') {
 
@@ -287,6 +312,30 @@ static void update_console_cmd(app_t *app)
 
 
 
+static void update_ui_events_in(app_t *app)
+{
+
+
+  while(!cBufisEmpty(&app->ui_events_in)) {
+
+    // want to keep consuming rotary inputs until get the most recent.
+
+
+    int event = cBufPop(&app->ui_events_in) ;
+
+    // consume successive rotary inputs.
+    if(event == ui_events_rotary_change
+      && !cBufisEmpty(&app->ui_events_in)
+      && cBufPeekFirst(&app->ui_events_in) == ui_events_rotary_change)
+      continue;
+
+    // usart_printf("main got ui event %d\n", event );
+
+    app->menu_controller.event( event );
+
+  }
+}
+
 
 
 
@@ -307,6 +356,9 @@ static void loop(app_t *app)
 
     update_console_cmd(app);
 
+
+    update_ui_events_in(app);
+
     // usart_output_update(); // shouldn't be necessary
 
 
@@ -317,7 +369,7 @@ static void loop(app_t *app)
       // usart_printf("here\n");
       // LCD_Read_DDB();
 
-      
+
       // int count = timer_get_counter(TIM1);
       // usart_printf("timer count %u\n", count);
 
@@ -330,7 +382,10 @@ static void loop(app_t *app)
     // agg_test5();
     // agg_test6();
     // agg_test7();
-    agg_test8();
+    // agg_test8( app->curses );
+
+    // should be 
+    app->menu_controller.draw();
 
 
 
@@ -347,7 +402,10 @@ static char buf_console_in[1000];
 static char buf_console_out[2000]; // setting to 10000. and it fails??? werid.
 
 
-static app_t app;
+static char buf_ui_events_in [100];
+
+// TODO should be initialized, instantiated in main. on stack.
+// in order for c++ constructors. to be called
 
 
 
@@ -369,6 +427,39 @@ int main(void)
 	// rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz. works stm32f407 too.
 	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ] );  // stm32f407
 
+
+
+  //////////////////////
+
+
+  Curses curses( 33, 17, 14, 16 );
+  // Curses curses;
+
+  int32_t    item_idx = 0; // first digit, need negative to support after float 
+
+  ListController  list_controller;
+
+  double value = 123.456;
+  double value_begin = 0;
+  ItemController  item_controller(item_idx, value, value_begin);
+  DigitController digit_controller(item_idx, value, value_begin);
+
+  MenuController  menu_controller( curses, list_controller, item_controller, digit_controller);
+
+  app_t app( menu_controller ) ;
+
+  // uart/console
+  cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
+  cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
+
+
+  // ui events
+  cBufInit(&app.ui_events_in, buf_ui_events_in, sizeof(buf_ui_events_in));
+
+
+  //////////////////////
+
+
   /*
   // http://libopencm3.org/docs/latest/stm32f4/html/f4_2rcc_8h.html
 
@@ -379,13 +470,13 @@ int main(void)
   // clocks
   rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
 
-  // LED
   rcc_periph_clock_enable(RCC_GPIOA); // rotary/buttongs
   rcc_periph_clock_enable(RCC_GPIOB);
+  rcc_periph_clock_enable(RCC_GPIOC); // buttons
 
   // USART
   // rcc_periph_clock_enable(RCC_GPIOA);
-  rcc_periph_clock_enable(RCC_GPIOB);
+  // rcc_periph_clock_enable(RCC_GPIOB);
   rcc_periph_clock_enable(RCC_USART1);
 
 
@@ -399,7 +490,7 @@ int main(void)
   // parallel tft / ssd1963
   rcc_periph_clock_enable(RCC_GPIOD);
   rcc_periph_clock_enable(RCC_GPIOE);
-  rcc_periph_clock_enable(RCC_GPIOB); // TEAR_PORT/TEAR gpio. on PB9.
+  // rcc_periph_clock_enable(RCC_GPIOB); // TEAR_PORT/TEAR gpio. on PB9.
 
   rcc_periph_clock_enable(RCC_FSMC);
 
@@ -425,12 +516,10 @@ int main(void)
   // led
   led_setup();
 
+  // TODO. arguably we should set up buffers - first before - running constructors.
+  // TODO will not work for c++...
+  // memset(&app, 0, sizeof(app_t));
 
-  memset(&app, 0, sizeof(app_t));
-
-  // uart/console
-  cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
-  cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
 
   // usart_setup_gpio_portA();
   usart_setup_gpio_portB();
@@ -440,6 +529,10 @@ int main(void)
   // setup print
   // usart_printf_set_buffer()
   usart_printf_init(&app.console_out);
+
+
+  ui_events_init( &app.ui_events_in);
+
 
 
   ////////////////////////////
@@ -472,8 +565,19 @@ int main(void)
   rcc_periph_clock_enable(RCC_TIM1);
 
   rotary_setup_gpio_portA();
-  rotary_init_timer( TIM1 ); 
+  rotary_init_timer( TIM1 );
   // rotary_setup_interupt();
+
+
+
+  // change name curses_init ? or make a method?
+  // fails
+  init( curses );
+
+
+
+
+
 
   /*
       use % 4  - to get single step increment.
@@ -485,11 +589,11 @@ int main(void)
       use the same variable.  regardless of what menu is being navigated.
 
       menulevel.
-      menuitem. <- 
+      menuitem. <-
     --------
       the state is the counter timer.
-      
-      if the menu list is being drawn. then just use get_counter() % 4 % n      
+
+      if the menu list is being drawn. then just use get_counter() % 4 % n
       - we don't need any more.
       - if we are editing an entry. then we would need a flag.
 

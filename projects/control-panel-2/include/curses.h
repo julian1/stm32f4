@@ -12,9 +12,9 @@
 
 
 // 33 * 17 == 561
-#define MAXCELLS (33 * 17)
+#define MCursesXCELLS (33 * 17)
 
-#define MAXCOLORPAIRS 8
+#define MCursesXCOLORPCursesIRS 8
 
 // we could template the maxcells argument. when want to instantiate for different sizes.
 
@@ -28,10 +28,10 @@
     unless compile with cpp...
 */
 
-struct A
+struct Curses
 {
 
-  explicit A(
+  explicit Curses(
     uint16_t stride_,
     uint16_t ny_,
     uint16_t pdx_,
@@ -64,23 +64,23 @@ struct A
         - alpha blending/sub-pixel accuracy - without having to read the LCD hardware screen memory / faster. less complicated.
         - delta change drawing - by drawing spans in bg color to clear them - to avoid full screen clear() /and redraw everything.
   */
-  agg::rgba color_fg[ MAXCOLORPAIRS ];  // agg::rgba == 32 bytes. 8 * 32 = 256 bytes.
-  agg::rgba color_bg[ MAXCOLORPAIRS ];
+  agg::rgba color_fg[ MCursesXCOLORPCursesIRS ];  // agg::rgba == 32 bytes. 8 * 32 = 256 bytes.
+  agg::rgba color_bg[ MCursesXCOLORPCursesIRS ];
 
 
   /////////////////////////////////////
   // character - dominant. only check other flags.
   // should be refreshed between draws.
-  uint16_t character[ MAXCELLS ];
+  uint16_t character[ MCursesXCELLS ];
 
   // font to use. 0. for special glyph drawing actions
-  const FontSpans *font[ MAXCELLS ];
+  const FontSpans *font[ MCursesXCELLS ];
 
-  uint8_t  color_pair_idx[ MAXCELLS ];
+  uint8_t  color_pair_idx[ MCursesXCELLS ];
 
   // effect. effects
   // invert fg/bg == 0x01   blink == 0x10
-  uint16_t effect[ MAXCELLS ];
+  uint16_t effect[ MCursesXCELLS ];
 
   // uint16_t callback_id[ 50 * 20];  // id might be easier than function ptr.
   // void (*callback[50 * 20 ] )(void )     not sure if desirable. or if should be by word.
@@ -107,28 +107,28 @@ struct A
 
 // treat non-virtual functions as functions.
 
-void init( A & a);
+void init( Curses & a);
 
-void to( A &a, int x, int y);
+void to( Curses &a, int x, int y);
 
-void right( A &a, int dx);
+void right( Curses &a, int dx);
 
-void down( A &a, int dy);
+void down( Curses &a, int dy);
 
-void color_pair_idx( A &a, uint8_t color_pair_idx );
+void color_pair_idx( Curses &a, uint8_t color_pair_idx );
 
-void font( A &a, const FontSpans *font);
+void font( Curses &a, const FontSpans *font);
 
-void effect( A &a, uint16_t v );
+void effect( Curses &a, uint16_t v );
 
-void textch( A &a, uint16_t ch);
+void textch( Curses &a, uint16_t ch);
 
-void text( A &a, const char *s, int dir);
+void text( Curses &a, const char *s, int dir);
 
-void render( A &a, rb_t &rb, bool blink );
+void render( Curses &a, rb_t &rb, bool blink );
 
-void draw_test1(A &a );
-void draw_test3(A &a );
+void draw_test1(Curses &a );
+void draw_test3(Curses &a );
 
 
 #endif // CURSES_H
