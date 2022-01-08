@@ -1,46 +1,8 @@
 
 
+#include <libopencm3/stm32/timer.h>
+
 #include "curses.h"
-
-// we need the interupts as events . so we can change the state.
-
-
-/*
-  make controllers for,
-    unit selector
-    number selector
-    list selector
-
-    then inject some test values in.
-
-    then events - need to be controlled - to shift between them . just need to coordinate which one is active.
-    use a state machien to switch between them
-    ---
-
-  these are wanted - for when we are not using a standard editing layout.
-
-*/
-
-#if 0
-struct X
-{
-  // get the values to display from the tree.
-  // but control how we display
-  // Tree * parent
-
-  unsigned child_idx;
-
-  bool child_is_exploded;
-  unsigned exploded_idx;
-
-  A &a;
-
-
-  // draw the children.
-
-};
-#endif
-
 
 
 struct IntegerSelector;
@@ -64,10 +26,6 @@ struct ListSelector
 
 
 };
-
-
-
-
 
 
 
@@ -157,45 +115,12 @@ void rotary_event( IntegerSelector & s )
   // take the rotary value ... 
   //    we don't need to use 'a' and adding .... just rotate  
 
-  a.value +=  ( int_pow( 10, s.select_idx )  *   rotary )   ;  // we want to change the decimal value...  
+  int rotary = timer_get_counter(TIM1);
+
+  s.value +=  ( int_pow( 10, s.select_idx )  *   rotary )   ;  // we want to change the decimal value...  
 
   // s.value = 
-
-
 }
-
-
-/*
-  think we have a single one of these.
-
-  - game programming controller - manage a list of items.
-      - eg. we don't want to be creating controllers.
-
-  - when the list item becomes active.   it's going to have to insert the elements into the value controller editor.
-
-  - we cannot
-
-
-  -----------------
-  begin_edit
-    copy the rotary delta.
-    select which digit we are going to edit.
-    copy value to edit value .
-
-  cancel_edit
-
-  commit_edit
-    copy edited val to real value.
-    this is going to have to apply to ( unit & value ) .   perhaps the entire page. with separate cancel /  OK. buttons
-  -----------------
-
-*/
-
-struct VRangeSelector
-{
-
-
-};
 
 
 
@@ -276,6 +201,89 @@ extern "C" int agg_test8()
 
     return 0;
 }
+
+
+
+
+
+
+
+// we need the interupts as events . so we can change the state.
+
+
+/*
+  make controllers for,
+    unit selector
+    number selector
+    list selector
+
+    then inject some test values in.
+
+    then events - need to be controlled - to shift between them . just need to coordinate which one is active.
+    use a state machien to switch between them
+    ---
+
+  these are wanted - for when we are not using a standard editing layout.
+
+*/
+
+#if 0
+struct X
+{
+  // get the values to display from the tree.
+  // but control how we display
+  // Tree * parent
+
+  unsigned child_idx;
+
+  bool child_is_exploded;
+  unsigned exploded_idx;
+
+  A &a;
+
+
+  // draw the children.
+
+};
+#endif
+
+
+
+
+
+/*
+  think we have a single one of these.
+
+  - game programming controller - manage a list of items.
+      - eg. we don't want to be creating controllers.
+
+  - when the list item becomes active.   it's going to have to insert the elements into the value controller editor.
+
+  - we cannot
+
+
+  -----------------
+  begin_edit
+    copy the rotary delta.
+    select which digit we are going to edit.
+    copy value to edit value .
+
+  cancel_edit
+
+  commit_edit
+    copy edited val to real value.
+    this is going to have to apply to ( unit & value ) .   perhaps the entire page. with separate cancel /  OK. buttons
+  -----------------
+
+*/
+
+struct VRangeSelector
+{
+
+
+};
+
+
 
 
 
