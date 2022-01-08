@@ -98,23 +98,23 @@ int rotary_init_timer( uint32_t tim )
 void rotary_setup_interupt(void)
 {
   /*
-    OK. we get an event - only when value goes through 0/65535.  
+    OK. we get an event - only when value goes through 0/65535.
     but not when the value changes.
     so this interupt code is not really useful.
+    ----------------
+    BUT. can we configure a timer on the raw gpio pins?
   */
 
   usart_printf("****** rotary_setup interupt\n");
 
   nvic_enable_irq(NVIC_TIM1_CC_IRQ);
-   
 
-  // timer_enable_irq(TIM1, TIM_DIER_CC1IE);
-  // timer_enable_irq(TIM1, TIM_DIER_CC1IE | TIM_DIER_CC2IE | TIM_DIER_CC3IE | TIM_DIER_CC4IE); // works a bit. but value is wront.
-  timer_enable_irq(TIM1, TIM_DIER_UIE );
+
+  // timer_enable_irq(TIM1, TIM_DIER_CC1IE | TIM_DIER_CC2IE | TIM_DIER_CC3IE | TIM_DIER_CC4IE); // CC triggered only when value hits 0
+  // timer_enable_irq(TIM1, TIM_DIER_UIE ); // update interupt. would think it would work.
   // timer_enable_irq(TIM1, TIM_DIER_TIE);
+  // timer_enable_irq(TIM1, TIM_DIER_BIE);   // break interupt
 
-
-  // TIM_DIER_UIE   update interupt. would think it would work.
 }
 
 
@@ -122,13 +122,14 @@ void tim1_cc_isr(void)
 {
   // CC == capture compare
   // UIE = update interupt.
-    
+
   // seems to clear ared.
   // timer_clear_flag(TIM1, TIM_DIER_CC1IE | TIM_DIER_CC2IE | TIM_DIER_CC3IE | TIM_DIER_CC4IE  );
-  timer_clear_flag(TIM1, TIM_DIER_UIE);  
-  // timer_clear_flag(TIM1, TIM_DIER_TIE);  
+  // timer_clear_flag(TIM1, TIM_DIER_UIE);
+  // timer_clear_flag(TIM1, TIM_DIER_TIE);
+  // timer_clear_flag(TIM1, TIM_DIER_BIE);
 
-  uint32_t flags = timer_get_flag(TIM1, 0 );  
+  uint32_t flags = timer_get_flag(TIM1, 0 );
   // if( timer_clear_flag(TIM1, TIM_DIER_CC1IE | TIM_DIER_CC2IE | TIM_DIER_CC3IE | TIM_DIER_CC4IE  );
 
   usart_printf("flags %d\n\r", flags );
