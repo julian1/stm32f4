@@ -141,9 +141,13 @@ static void draw_test2(A &a )
   to(a, 0, 4);
   text(a, "+23.456mV", 1);
 
+  char buf[100];
+  snprintf(buf, 100, "%d   ", timer_get_counter(TIM1));
+
   effect(a, 0x00);        // normal
   to(a, 1, 5);
-  text(a, "3.4mA", 1);
+  text(a, buf , 1);
+  // text(a, "3.4mA", 1);
 
 
 }
