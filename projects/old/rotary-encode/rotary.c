@@ -57,6 +57,12 @@ int rotary_setup(uint32_t tim, uint32_t portA, uint16_t pinA, uint8_t afA, uint3
 
 
 
+
+
+
+
+
+
 #if 0
 
 // Seems impossible to do interrupts. because interrupts occur on stuff like

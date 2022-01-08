@@ -473,6 +473,7 @@ int main(void)
 
   rotary_setup_gpio_portA();
   rotary_init_timer( TIM1 ); 
+  rotary_setup_interupt();
 
   /*
       use % 4  - to get single step increment.

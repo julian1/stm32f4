@@ -2,6 +2,10 @@
 
 #include <libopencm3/stm32/timer.h>
 
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/stm32/exti.h>
+
+
 #include "curses.h"
 
 
@@ -120,6 +124,8 @@ void rotary_event( IntegerSelector & s )
   s.value +=  ( int_pow( 10, s.select_idx )  *   rotary )   ;  // we want to change the decimal value...  
 
   // s.value = 
+
+
 }
 
 

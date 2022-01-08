@@ -9,8 +9,13 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/timer.h>
 
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/stm32/exti.h>
+
+
 
 #include "rotary.h"
+#include "util.h"
 
 /*
   just poll timer_get_counter() . interupt not useful, since hw preserves count state.
@@ -83,6 +88,57 @@ int rotary_init_timer( uint32_t tim )
 
   return 0;
 }
+
+
+
+
+
+
+
+
+void rotary_setup_interupt(void)
+{
+
+  usart_printf("****** rotary_setup interupt\n");
+
+  // timer_continuous_mode( TIM1);
+
+  // There seems to be no 
+
+  // Ahhh interupt - cannot be set
+  // nvic_enable_irq(NVIC_TIM3_IRQ);
+
+  nvic_enable_irq(NVIC_TIM1_CC_IRQ);
+   
+
+  // timer_enable_irq(TIM1, TIM_DIER_CC1IE);
+  // timer_enable_irq(TIM1, TIM_DIER_CC1IE | TIM_DIER_CC2IE | TIM_DIER_CC3IE | TIM_DIER_CC4IE);
+
+  timer_enable_irq(TIM1, TIM_DIER_CC1IE | TIM_DIER_CC2IE | TIM_DIER_CC3IE | TIM_DIER_CC4IE);  // this also gets an occasional value...
+
+  // timer_enable_irq(TIM1, TIM_DIER_UIE );  // this also gets an occasional value...
+
+  // TIM_DIER_UIE
+}
+
+
+// void tim3_isr(void)
+void tim1_cc_isr(void)
+{
+  // there seems to be no interupt for TIM1.  unless its shared.
+  // timer_clear_flag(TIM1, TIM_DIER_UIE );  // not clearing the interrupt will freeze it.
+
+  // gpio_toggle(GPIOE,GPIO0);
+  usart_printf("tim3 interrupt %d\n\r", timer_get_counter( TIM1 ));
+  timer_clear_flag(TIM1, TIM_DIER_UIE);
+}
+
+
+
+
+
+
+
 
 
 
