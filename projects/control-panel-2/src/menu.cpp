@@ -94,8 +94,8 @@ todo.
 // need highlight the digit being editing and highlighting the position on screen.
 // thne maybe try to add sign/unit.
 
-  transition 
-    - from block/invert highlight for item. 
+  transition
+    - from block/invert highlight for item.
     - to blinking to digit edit.
 */
 
@@ -126,6 +126,39 @@ void DigitController::rotary_change(int32_t rotary)
 
 }
 
+/*
+  // shifting the value right. while editing is ok. in order that the rhs fields align.
+*/
+
+static size_t dot_position( char *s )
+{
+  char *p = s;
+  while(*p && *p != '.')
+    ++p;
+
+  return p - s;
+}
+
+
+static char * format_float(char *s, size_t sz, int suffix_digits, double value)
+{
+  /*
+    %f. always adds '.' and suffix '0' even input is rounded.
+    this will prefix with '-'
+  */
+  // format
+  size_t n = snprintf(s, sz, "%.*f",  suffix_digits, value);
+  return s;
+}
+
+
+
+
+
+
+
+
+
 
 void DigitController::draw(Curses &curses)
 {
@@ -145,6 +178,9 @@ void DigitController::draw(Curses &curses)
   // now we want to place an effect on the active digit.
   // OK. position has to be where the decimal dot is.  and then negative
   // want a function to give us the offset of the '0' character.
+  // and the idx bounds also.    perhaps just print into a buffer? and return all of this.
+  // no. better to specify prefix/postfix digit count.
+  // but also have issue of prefix sign.
   to(curses, 0 + this->idx, 4);
   effect( curses, 0x01 ); // invert
   text(curses,  "a", 1);
