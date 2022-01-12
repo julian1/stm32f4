@@ -127,7 +127,8 @@ void DigitController::rotary_change(int32_t rotary)
 }
 
 /*
-  // shifting the value right. while editing is ok. in order that the rhs fields align.
+  // shifting the value right depending how many digits are on the rhs of
+  decimal point. while editing is ok. in order that the rhs fields of list align.
 */
 
 static size_t dot_position( char *s )
@@ -147,7 +148,7 @@ static char * format_float(char *s, size_t sz, int suffix_digits, double value)
     this will prefix with '-'
   */
   // format
-  size_t n = snprintf(s, sz, "%.*f",  suffix_digits, value);
+  size_t n = snprintf(s, sz, "%.*f", suffix_digits, value);
   return s;
 }
 
@@ -172,7 +173,9 @@ void DigitController::draw(Curses &curses)
   effect(curses, 0x00);        // normal
   font(curses, &arial_span_18 ); // large font
   to(curses, 0, 4);
-  snprintf(buf, 100, "%f ", this->value);  // our edited value... NOTE. needs extra of active digit etc..
+  // snprintf(buf, 100, "%f ", this->value);  // our edited value... NOTE. needs extra of active digit etc..
+
+  format_float(buf, 100, 6, this->value);
   text(curses,  buf , 1);
 
   // now we want to place an effect on the active digit.
@@ -181,7 +184,11 @@ void DigitController::draw(Curses &curses)
   // and the idx bounds also.    perhaps just print into a buffer? and return all of this.
   // no. better to specify prefix/postfix digit count.
   // but also have issue of prefix sign.
-  to(curses, 0 + this->idx, 4);
+
+
+  size_t dot_x = dot_position( buf );
+
+  to(curses, 0 + dot_x - this->idx, 4);
   effect( curses, 0x01 ); // invert
   text(curses,  "a", 1);
 
