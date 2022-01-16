@@ -25,6 +25,58 @@ void spi_ice40_setup(uint32_t spi)
 }
 
 
+
+////////////////
+
+// think these should be prefixed spi_ice40_ ... etc.
+
+static uint32_t spi_xfer_32(uint32_t spi, uint32_t val)
+{
+  spi_enable(spi);
+  uint8_t a = spi_xfer( spi, (val >> 24) & 0xff );  // correct reg should be the first bit that is sent.
+  uint8_t b = spi_xfer( spi, (val >> 16) & 0xff );
+  uint8_t c = spi_xfer( spi, (val >> 8)  & 0xff  );
+  uint8_t d = spi_xfer( spi,  val        & 0xff  );
+  spi_disable(spi);
+
+  // fixed this.
+  // + or |
+  return (a << 24) + (b << 16) + (c << 8) + d;        // this is better. needs no on reading value .
+}
+
+
+
+static uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
+{
+  // for write, or transfer
+  return spi_xfer_32(spi, reg << 24 | val);
+
+}
+
+uint32_t spi_reg_read(uint32_t spi, uint8_t reg)
+{
+  // TODO. maybe rename to drop the 24. since 24 refers to val.
+  // set the hi bit of the register
+  // allows read, without value overwrite
+  return spi_reg_xfer_24(spi, reg | (1 << 7), 0);
+}
+
+
+uint32_t spi_reg_write(uint32_t spi, uint8_t reg, uint32_t val)
+{
+  // spi_reg_xfer_24(SPI1, 7, 0x7f00ff );
+  return spi_reg_xfer_24(spi, reg , val );
+}
+
+
+
+
+
+
+
+
+
+
 #if 0
 
 static uint32_t spi_xfer_register_16(uint32_t spi, uint32_t r)
@@ -100,49 +152,4 @@ void spi_ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t v)
   spi_ice40_xfer2(spi, r, x);
 }
 #endif
-
-////////////////
-
-// think these should be prefixed spi_ice40_ ... etc.
-
-static uint32_t spi_xfer_32(uint32_t spi, uint32_t val)
-{
-  spi_enable(spi);
-  uint8_t a = spi_xfer( spi, (val >> 24) & 0xff );  // correct reg should be the first bit that is sent.
-  uint8_t b = spi_xfer( spi, (val >> 16) & 0xff );
-  uint8_t c = spi_xfer( spi, (val >> 8)  & 0xff  );
-  uint8_t d = spi_xfer( spi,  val        & 0xff  );
-  spi_disable(spi);
-
-  // fixed this.
-  // + or |
-  return (a << 24) + (b << 16) + (c << 8) + d;        // this is better. needs no on reading value .
-}
-
-
-
-static uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
-{
-  // for write, or transfer
-  return spi_xfer_32(spi, reg << 24 | val);
-
-}
-
-uint32_t spi_reg_read_24(uint32_t spi, uint8_t reg)
-{
-  // TODO. maybe rename to drop the 24. since 24 refers to val.
-  // set the hi bit of the register
-  // allows read, without value overwrite
-  return spi_reg_xfer_24(spi, reg | (1 << 7), 0);
-}
-
-
-uint32_t spi_reg_write(uint32_t spi, uint8_t reg, uint32_t val)
-{
-  // spi_reg_xfer_24(SPI1, 7, 0x7f00ff );
-  return spi_reg_xfer_24(spi, reg , val );
-}
-
-
-
 

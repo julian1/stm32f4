@@ -150,10 +150,10 @@ static void loop(app_t *app)
     if(app->data_ready) {
       // in priority
 
-      usart_printf("count_up %u,   ", spi_reg_read_24(SPI1, 9 ));
-      usart_printf("count_down %u  ", spi_reg_read_24(SPI1, 10 ));
+      usart_printf("count_up %u,   ", spi_reg_read(SPI1, 9 ));
+      usart_printf("count_down %u  ", spi_reg_read(SPI1, 10 ));
 
-      uint32_t count_rundown = spi_reg_read_24(SPI1, 11 );
+      uint32_t count_rundown = spi_reg_read(SPI1, 11 );
       usart_printf("count_rundown %u     ", count_rundown);
 
       // push value onto circ buffer. taking care pop last value off...
@@ -165,10 +165,10 @@ static void loop(app_t *app)
 
 
 
-      usart_printf("trans_up %u    ", spi_reg_read_24(SPI1, 12 ));
-      usart_printf("trans_down %u  ", spi_reg_read_24(SPI1, 14 ));
+      usart_printf("trans_up %u    ", spi_reg_read(SPI1, 12 ));
+      usart_printf("trans_down %u  ", spi_reg_read(SPI1, 14 ));
 
-      usart_printf("rundown_dir %u ", spi_reg_read_24(SPI1, 16 ));
+      usart_printf("rundown_dir %u ", spi_reg_read(SPI1, 16 ));
 
       ////////////////////////
       ///////// stats
@@ -340,25 +340,23 @@ int main(void)
 
 /*
   spi_reg_xfer_24(SPI1, 7, 0xffffff );
-  ret = spi_reg_read_24(SPI1, 7);
+  ret = spi_reg_read(SPI1, 7);
   ASSERT(ret == 0xffffff);
 */
 
   // fails... with new spi target, and deferred assignment
 
   spi_reg_write(SPI1, 7 , 0xff00ff);
-  // spi_reg_xfer_24(SPI1, 7, 0xff00ff );
-  ret = spi_reg_read_24(SPI1, 7);
+  ret = spi_reg_read(SPI1, 7);
   ASSERT(ret == 0xff00ff);
 
   // this works... eg. allowing high bit to be off.
   spi_reg_write(SPI1, 7 , 0x7f00ff);
-  // spi_reg_xfer_24(SPI1, 7, 0x7f00ff );
-  ret = spi_reg_read_24(SPI1, 7);
+  ret = spi_reg_read(SPI1, 7);
   ASSERT(ret == 0x7f00ff);
 
   ///////////////////
-  ret = spi_reg_read_24(SPI1, 15);
+  ret = spi_reg_read(SPI1, 15);
   usart_printf("reg 15 %u %x\n", ret, ret);
   ASSERT(ret == 0xffffff );
 
@@ -368,7 +366,7 @@ int main(void)
 
     spi_reg_write(SPI1, 7 , i );
     // spi_reg_xfer_24(SPI1, 7, i );
-    ret = spi_reg_read_24(SPI1, 7);
+    ret = spi_reg_read(SPI1, 7);
     ASSERT(ret == i );
   }
 #endif

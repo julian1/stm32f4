@@ -13,7 +13,9 @@ extern void spi_ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uin
 
 // uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val);
 
-uint32_t spi_reg_read_24(uint32_t spi, uint8_t reg);
+// these are 24 bit values. read and write.
+
+uint32_t spi_reg_read(uint32_t spi, uint8_t reg);
 
 uint32_t spi_reg_write(uint32_t spi, uint8_t reg, uint32_t val);
 
