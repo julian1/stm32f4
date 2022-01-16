@@ -115,13 +115,13 @@ static uint32_t spi_xfer_32(uint32_t spi, uint32_t val)
   spi_disable(spi);
 
   // fixed this.
-  // + or | 
+  // + or |
   return (a << 24) + (b << 16) + (c << 8) + d;        // this is better. needs no on reading value .
 }
 
 
 
-uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
+static uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
 {
   // for write, or transfer
   return spi_xfer_32(spi, reg << 24 | val);
@@ -130,12 +130,18 @@ uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
 
 uint32_t spi_reg_read_24(uint32_t spi, uint8_t reg)
 {
+  // TODO. maybe rename to drop the 24. since 24 refers to val.
   // set the hi bit of the register
   // allows read, without value overwrite
   return spi_reg_xfer_24(spi, reg | (1 << 7), 0);
 }
 
 
+uint32_t spi_reg_write(uint32_t spi, uint8_t reg, uint32_t val)
+{
+  // spi_reg_xfer_24(SPI1, 7, 0x7f00ff );
+  return spi_reg_xfer_24(spi, reg , val );
+}
 
 
 

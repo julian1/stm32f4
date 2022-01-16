@@ -46,6 +46,12 @@
 #include "ice40.h"
 
 
+// spi
+#define REG_LED  7
+
+
+
+
 
 typedef struct app_t
 {
@@ -247,7 +253,7 @@ int main(void)
   // hsi setup high speed internal!!!
   // TODO. not using.
 
-	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz.
+  rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz.
 
 
   // clocks
@@ -339,12 +345,15 @@ int main(void)
 */
 
   // fails... with new spi target, and deferred assignment
-  spi_reg_xfer_24(SPI1, 7, 0xff00ff );
+
+  spi_reg_write(SPI1, 7 , 0xff00ff);
+  // spi_reg_xfer_24(SPI1, 7, 0xff00ff );
   ret = spi_reg_read_24(SPI1, 7);
   ASSERT(ret == 0xff00ff);
 
   // this works... eg. allowing high bit to be off.
-  spi_reg_xfer_24(SPI1, 7, 0x7f00ff );
+  spi_reg_write(SPI1, 7 , 0x7f00ff);
+  // spi_reg_xfer_24(SPI1, 7, 0x7f00ff );
   ret = spi_reg_read_24(SPI1, 7);
   ASSERT(ret == 0x7f00ff);
 
@@ -356,7 +365,9 @@ int main(void)
 
 
   for(uint32_t i = 0; i < 32; ++i) {
-    spi_reg_xfer_24(SPI1, 7, i );
+
+    spi_reg_write(SPI1, 7 , i );
+    // spi_reg_xfer_24(SPI1, 7, i );
     ret = spi_reg_read_24(SPI1, 7);
     ASSERT(ret == i );
   }
