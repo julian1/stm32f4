@@ -169,6 +169,7 @@ static void loop(app_t *app)
       usart_printf("trans_down %u  ", spi_reg_read(SPI1, 14 ));
 
       usart_printf("rundown_dir %u ", spi_reg_read(SPI1, 16 ));
+      usart_printf("flip %u ",        spi_reg_read(SPI1, 17 ));
 
       ////////////////////////
       ///////// stats
