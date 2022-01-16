@@ -361,11 +361,9 @@ int main(void)
   ASSERT(ret == 0xffffff );
 
 
-
   for(uint32_t i = 0; i < 32; ++i) {
 
     spi_reg_write(SPI1, 7 , i );
-    // spi_reg_xfer_24(SPI1, 7, i );
     ret = spi_reg_read(SPI1, 7);
     ASSERT(ret == i );
   }
