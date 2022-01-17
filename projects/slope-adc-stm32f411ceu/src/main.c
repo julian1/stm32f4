@@ -197,12 +197,21 @@ static void loop(app_t *app)
       float mean_ = mean(vs, n);
       usart_printf("mean (%u) %.2f", n, mean_ );
 
-#if 0
+#if 1
       // do we want to push the mean into a structure as well.
+    /*
+      reserve a max array.
+      but then use a local variable for n for modulus.
+      this makes it customizable/changeable at runtime.
+      use assert
+    */
 
-      static int i = 0; 
+      static int i = 0;
       static float means[ 5 ];
-      const int nn =  ARRAY_SIZE(means) ; 
+
+      size_t nn = 5;
+      ASSERT(nn <= ARRAY_SIZE(means));
+
 
       means[ i++ % nn  ] = mean_;
 
