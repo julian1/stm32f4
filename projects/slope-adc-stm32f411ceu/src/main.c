@@ -154,7 +154,9 @@ static void loop(app_t *app)
       usart_printf("count_down %u  ", spi_reg_read(SPI1, 10 ));
 
       uint32_t count_rundown = spi_reg_read(SPI1, 11 );
-      usart_printf("count_rundown %u     ", count_rundown);
+      usart_printf("clk_count_rundown %u     ", count_rundown);
+
+      // TODO fix this. just use a fixed array and modulo.
 
       // push value onto circ buffer. taking care pop last value off...
       size_t sz  = fBufCount(&app->measure_rundown);
@@ -182,21 +184,31 @@ static void loop(app_t *app)
       float vs[10];
 
       // Copy empties i think.
-      size_t vn = fBufCopy2(&app->measure_rundown, vs, ARRAY_SIZE(vs));
-      // ASSERT(vn >= 1);
-
-      // for(size_t i = 0; i < vn; ++i) {
+      size_t n = fBufCopy2(&app->measure_rundown, vs, ARRAY_SIZE(vs));
+      // ASSERT(n >= 1);
+      // for(size_t i = 0; i < n; ++i) {
         // usart_printf(" %f ", vs[i] );
       // }
-
       /* TODO a single stats core function that computes all of these
       */
-      // float vmean = mean(vs, vn);
-      float vsd   = stddev(vs, vn);
-      // float vmin, vmax;
-      // minmax(vs, vn, &vmin, &vmax);
+      // float vmean = mean(vs, n);
+      usart_printf("stddev_rundown(%u) %.2f", n, stddev(vs, n) );
 
-      usart_printf("stddev_rundown(%u) %.2f", vn, vsd );
+      float mean_ = mean(vs, n);
+      usart_printf("mean (%u) %.2f", n, mean_ );
+
+#if 0
+      // do we want to push the mean into a structure as well.
+
+      static int i = 0; 
+      static float means[ 5 ];
+      const int nn =  ARRAY_SIZE(means) ; 
+
+      means[ i++ % nn  ] = mean_;
+
+      usart_printf("stddev_means(%u) %.2f", nn, stddev(means, nn  ));
+#endif
+
     /////////////////////
 #endif
 
