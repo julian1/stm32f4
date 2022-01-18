@@ -150,11 +150,11 @@ static void loop(app_t *app)
     if(app->data_ready) {
       // in priority
 
-      usart_printf("count_up %u,   ", spi_reg_read(SPI1, 9 ));
-      usart_printf("count_down %u  ", spi_reg_read(SPI1, 10 ));
+      usart_printf("count_up/down %u %u, ", spi_reg_read(SPI1, 9 ), spi_reg_read(SPI1, 10 ));
+      // usart_printf("count_down %u  ", spi_reg_read(SPI1, 10 ));
 
       uint32_t count_rundown = spi_reg_read(SPI1, 11 );
-      usart_printf("clk_count_rundown %u     ", count_rundown);
+      usart_printf("clk_count_rundown %u, ", count_rundown);
 
       // TODO fix this. just use a fixed array and modulo.
 
@@ -167,11 +167,11 @@ static void loop(app_t *app)
 
 
 
-      usart_printf("trans_up %u    ", spi_reg_read(SPI1, 12 ));
-      usart_printf("trans_down %u  ", spi_reg_read(SPI1, 14 ));
+      usart_printf("trans_up/down %u %u, ", spi_reg_read(SPI1, 12 ),  spi_reg_read(SPI1, 14 ));
+      // usart_printf("trans_down %u  ", spi_reg_read(SPI1, 14 ));
 
-      usart_printf("rundown_dir %u ", spi_reg_read(SPI1, 16 ));
-      usart_printf("flip %u ",        spi_reg_read(SPI1, 17 ));
+      usart_printf("rundown_dir %u, ", spi_reg_read(SPI1, 16 ));
+      usart_printf("flip %u, ",        spi_reg_read(SPI1, 17 ));
 
       ////////////////////////
       ///////// stats
@@ -192,10 +192,10 @@ static void loop(app_t *app)
       /* TODO a single stats core function that computes all of these
       */
       // float vmean = mean(vs, n);
-      usart_printf("stddev_rundown(%u) %.2f", n, stddev(vs, n) );
+      usart_printf("stddev_rundown(%u) %.2f, ", n, stddev(vs, n) );
 
       float mean_ = mean(vs, n);
-      usart_printf("mean (%u) %.2f", n, mean_ );
+      usart_printf("mean (%u) %.2f, ", n, mean_ );
 
 #if 1
       // do we want to push the mean into a structure as well.
@@ -206,8 +206,10 @@ static void loop(app_t *app)
       use assert
     */
 
+      static float means[ 10 ];
+
+
       static int i = 0;
-      static float means[ 5 ];
 
       size_t nn = 5;
       ASSERT(nn <= ARRAY_SIZE(means));
@@ -215,7 +217,7 @@ static void loop(app_t *app)
 
       means[ i++ % nn  ] = mean_;
 
-      usart_printf("stddev_means(%u) %.2f", nn, stddev(means, nn  ));
+      usart_printf("stddev_means(%u) %.2f ", nn, stddev(means, nn  ));
 #endif
 
     /////////////////////
