@@ -153,8 +153,8 @@ static void loop(app_t *app)
       usart_printf("count_up/down %u %u, ", spi_reg_read(SPI1, 9 ), spi_reg_read(SPI1, 10 ));
       // usart_printf("count_down %u  ", spi_reg_read(SPI1, 10 ));
 
-      uint32_t count_rundown = spi_reg_read(SPI1, 11 );
-      usart_printf("clk_count_rundown %u, ", count_rundown);
+      uint32_t clk_count_rundown = spi_reg_read(SPI1, 11 );
+      usart_printf("clk_clk_count_rundown %u, ", clk_count_rundown);
 
       // TODO fix this. just use a fixed array and modulo.
 
@@ -163,7 +163,7 @@ static void loop(app_t *app)
       // usart_printf("size %u ", sz);
       if(sz == fBufReserve(&app->measure_rundown) - 1)
         fBufPop(&app->measure_rundown);
-      fBufPush(&app->measure_rundown, (float)count_rundown);
+      fBufPush(&app->measure_rundown, (float)clk_count_rundown);
 
 
 
