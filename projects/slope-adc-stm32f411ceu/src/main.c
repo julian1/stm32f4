@@ -161,7 +161,7 @@ static void loop(app_t *app)
        usart_printf("trans_up/down %u %u, ", spi_reg_read(SPI1, 12 ),  spi_reg_read(SPI1, 14 ));
       // usart_printf("trans_down %u  ", spi_reg_read(SPI1, 14 ));
 
-      usart_printf("rundown_dir %u, ", spi_reg_read(SPI1, 16 ));
+      // usart_printf("rundown_dir %u, ", spi_reg_read(SPI1, 16 ));
       usart_printf("count_flip %u, ",  spi_reg_read(SPI1, 17 ));
 
    
