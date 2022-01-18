@@ -61,7 +61,7 @@ typedef struct app_t
   bool data_ready ;
 
 
-  FBuf      measure_rundown;
+  // FBuf      measure_rundown;
 
 
 
@@ -154,75 +154,47 @@ static void loop(app_t *app)
       // usart_printf("count_down %u  ", spi_reg_read(SPI1, 10 ));
 
       uint32_t clk_count_rundown = spi_reg_read(SPI1, 11 );
-      usart_printf("clk_clk_count_rundown %u, ", clk_count_rundown);
+      usart_printf("clk_count_rundown %u, ", clk_count_rundown);
 
       // TODO fix this. just use a fixed array and modulo.
 
-      // push value onto circ buffer. taking care pop last value off...
-      size_t sz  = fBufCount(&app->measure_rundown);
-      // usart_printf("size %u ", sz);
-      if(sz == fBufReserve(&app->measure_rundown) - 1)
-        fBufPop(&app->measure_rundown);
-      fBufPush(&app->measure_rundown, (float)clk_count_rundown);
-
-
-
-      usart_printf("trans_up/down %u %u, ", spi_reg_read(SPI1, 12 ),  spi_reg_read(SPI1, 14 ));
+       usart_printf("trans_up/down %u %u, ", spi_reg_read(SPI1, 12 ),  spi_reg_read(SPI1, 14 ));
       // usart_printf("trans_down %u  ", spi_reg_read(SPI1, 14 ));
 
       usart_printf("rundown_dir %u, ", spi_reg_read(SPI1, 16 ));
       usart_printf("flip %u, ",        spi_reg_read(SPI1, 17 ));
 
+   
+    // data is wrong. until the buffers are full. 
+
+ 
+      static float clk_count_rundown_ar[ 10 ] ;  
+      size_t n = 5;
+      static int i = 0;
+  
+      float mean_; 
       ////////////////////////
       ///////// stats
 
+      usart_printf("imodn %u ", i % n);
 
+      {
+      ASSERT(n <= ARRAY_SIZE(clk_count_rundown_ar));
 
-#if 1
-
-      // usart_printf("\n");
-      float vs[10];
-
-      // Copy empties i think.
-      size_t n = fBufCopy2(&app->measure_rundown, vs, ARRAY_SIZE(vs));
-      // ASSERT(n >= 1);
-      // for(size_t i = 0; i < n; ++i) {
-        // usart_printf(" %f ", vs[i] );
-      // }
-      /* TODO a single stats core function that computes all of these
-      */
-      // float vmean = mean(vs, n);
-      usart_printf("stddev_rundown(%u) %.2f, ", n, stddev(vs, n) );
-
-      float mean_ = mean(vs, n);
+      clk_count_rundown_ar[ i % n ] =  clk_count_rundown;
+      usart_printf("stddev_rundown(%u) %.2f, ", n, stddev(clk_count_rundown_ar, n) );
+      mean_ = mean(clk_count_rundown_ar, n);
       usart_printf("mean (%u) %.2f, ", n, mean_ );
+      }
 
-#if 1
-      // do we want to push the mean into a structure as well.
-    /*
-      reserve a max array.
-      but then use a local variable for n for modulus.
-      this makes it customizable/changeable at runtime.
-      use assert
-    */
-
+      {
       static float means[ 10 ];
+      ASSERT(n <= ARRAY_SIZE(means));
+      means[ i % n  ] = mean_;
+      usart_printf("stddev_means(%u) %.2f ", n, stddev(means, n));
+      }
 
-
-      static int i = 0;
-
-      size_t nn = 5;
-      ASSERT(nn <= ARRAY_SIZE(means));
-
-
-      means[ i++ % nn  ] = mean_;
-
-      usart_printf("stddev_means(%u) %.2f ", nn, stddev(means, nn  ));
-#endif
-
-    /////////////////////
-#endif
-
+      ++i;
 
       usart_printf("\n");
 
@@ -267,7 +239,7 @@ static void spi1_interupt(app_t *app )
 static char buf_console_in[1000];
 static char buf_console_out[1000];
 
-static float buf_rundown[6];
+// static float buf_rundown[6];
 
 static app_t app;
 
@@ -316,7 +288,7 @@ int main(void)
 
 
   // buffer of measurements.
-  fBufInit(&app.measure_rundown, buf_rundown, ARRAY_SIZE(buf_rundown));
+  // fBufInit(&app.measure_rundown, buf_rundown, ARRAY_SIZE(buf_rundown));
 
 
   //////////////
