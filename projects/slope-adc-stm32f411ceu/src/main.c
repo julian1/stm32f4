@@ -176,7 +176,7 @@ static void loop(app_t *app)
       ////////////////////////
       ///////// stats
 
-      usart_printf("imodn %u ", i % n);
+      // usart_printf("imodn %u ", i % n);
 
       {
       ASSERT(n <= ARRAY_SIZE(clk_count_rundown_ar));
