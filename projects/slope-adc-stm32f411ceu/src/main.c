@@ -150,29 +150,42 @@ static void loop(app_t *app)
     if(app->data_ready) {
       // in priority
 
-      usart_printf("count_up/down %u %u, ", spi_reg_read(SPI1, 9 ), spi_reg_read(SPI1, 10 ));
-      // usart_printf("count_down %u  ", spi_reg_read(SPI1, 10 ));
+
+
+      // use separate lines (to make it easier to filter - for plugging into stats).
+      uint32_t count_up   = spi_reg_read(SPI1, 9 );
+      uint32_t count_down = spi_reg_read(SPI1, 10 );
+
+
+      usart_printf("count_up %u, ", count_up );
+      usart_printf("count_down %u, ", count_down );
 
       uint32_t clk_count_rundown = spi_reg_read(SPI1, 11 );
       usart_printf("clk_count_rundown %u, ", clk_count_rundown);
 
       // TODO fix this. just use a fixed array and modulo.
 
-       usart_printf("trans_up/down %u %u, ", spi_reg_read(SPI1, 12 ),  spi_reg_read(SPI1, 14 ));
+      usart_printf("trans_up/down %u %u, ", spi_reg_read(SPI1, 12 ),  spi_reg_read(SPI1, 14 ));
       // usart_printf("trans_down %u  ", spi_reg_read(SPI1, 14 ));
 
       // usart_printf("rundown_dir %u, ", spi_reg_read(SPI1, 16 ));
       usart_printf("count_flip %u, ",  spi_reg_read(SPI1, 17 ));
 
-   
-    // data is wrong. until the buffers are full. 
 
- 
-      static float clk_count_rundown_ar[ 10 ] ;  
+    // data is wrong. until the buffers are full.
+
+      // computed via octave
+      // double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-12 * clk_count_rundown); 
+      double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * clk_count_rundown); 
+      usart_printf("v %.7f, ", v );
+
+
+
+      static float clk_count_rundown_ar[ 10 ] ;
       size_t n = 5;
       static int i = 0;
-  
-      float mean_; 
+
+      float mean_;
       ////////////////////////
       ///////// stats
 
@@ -193,6 +206,13 @@ static void loop(app_t *app)
       means[ i % n  ] = mean_;
       usart_printf("stddev_means(%u) %.2f ", n, stddev(means, n));
       }
+
+
+      double v2 = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * mean_ ); 
+      usart_printf("v %.7f, ", v2 );
+
+
+
 
       ++i;
 
