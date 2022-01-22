@@ -142,6 +142,7 @@ static void loop(app_t *app)
   */
 
 
+  regression();
 
 
   // TODO move to app_t structure?.
