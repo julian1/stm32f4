@@ -3,48 +3,72 @@
 
 
 
+#include "regression.h"
 #include "assert.h"   // required.
 #include <matrix.h>
+
+typedef struct ITER ITER;
+typedef struct SPROW  SPROW;
+typedef struct SPMAT SPMAT;
+typedef struct ZVEC ZVEC;
+typedef struct ZMAT ZMAT;
+
+
+// int bd_free(BAND *A);
+int iter_free(ITER *ip);
+int sprow_free(SPROW *r);
+int sp_free(SPMAT *A);
+int zv_free(ZVEC *vec);
+int zm_free(ZMAT *mat);
+
+
 
 
 /* bd_free -- frees BAND matrix -- returns (-1) on error and 0 otherwise */
 int bd_free(BAND *A)
 {
+  UNUSED(A);
   assert(0);
+  return 0;
 }
 
-typedef struct ITER ITER;
 
 /* iter_free - release memory */
 int iter_free(ITER *ip)
 {
+  UNUSED(ip);
   assert(0);
+  return 0;
 }
 
-typedef struct SPROW  SPROW;
 int sprow_free(SPROW *r)
 {
+  UNUSED(r);
   assert(0);
+  return 0;
 }
 
 /* sp_free -- frees up the memory for a sparse matrix */
-typedef struct SPMAT SPMAT;
 int sp_free(SPMAT *A)
 {
+  UNUSED(A);
   assert(0);
+  return 0;
 }
 
-typedef struct ZVEC ZVEC;
 int zv_free(ZVEC *vec)
 {
+  UNUSED(vec);
   assert(0);
+  return 0;
 }
 
 
-typedef struct ZMAT ZMAT;
 int zm_free(ZMAT *mat)
 {
+  UNUSED(mat);
   assert(0);
+  return 0;
 }
 
 #if 1
@@ -57,6 +81,14 @@ int	ev_err(const char *file, int err_num, int line_num,
     it calls exit() which is problematic in exposing unlinked __fini symbol in embedded environment. 
     and also calls fprintf
   */
+
+
+  UNUSED(file);
+  UNUSED(err_num);
+  UNUSED(line_num);
+  UNUSED(fn_name);
+  UNUSED(list_num);
+
 
 }
 
@@ -73,4 +105,5 @@ void func()
 
     MAT   *A = m_get(3,4);
 
+    M_FREE(A);
 }
