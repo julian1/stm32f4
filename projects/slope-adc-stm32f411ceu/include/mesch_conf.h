@@ -5,7 +5,7 @@
 //            for cortex-m embedded system
 /////////////////////////////////////////////////////////
 
-#define __IS_EMBEDDED_SYSTEM
+//#define __IS_EMBEDDED_SYSTEM
 
 // JA #include "cmsis_compiler.h"
 
@@ -31,7 +31,7 @@ __STATIC_INLINE void __endless_loop()
 #endif
 
 /* error(E_TYPE,"myfunc") raises error type E_TYPE for function my_func() */
-#define	error(err_num,fn_name) __endless_loop()
+//#define	error(err_num,fn_name) __endless_loop()
 
 /* warning(WARN_TYPE,"myfunc") raises warning type WARN_TYPE for 
    function my_func() */
