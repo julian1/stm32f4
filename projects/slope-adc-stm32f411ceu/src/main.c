@@ -45,6 +45,7 @@
 #include "spi1.h"
 #include "ice40.h"
 
+#include "regression.h"
 
 // spi
 #define REG_LED  7

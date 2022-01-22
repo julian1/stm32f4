@@ -18,9 +18,8 @@ SRCFILES	= ./src/main.c src/util.c   src/ice40.c src/spi1.c src/regression.c \
               ${LIB2SRC}/fbuffer.c ${LIB2SRC}/stats.c \
               ${mesch12b}/copy.c  ${mesch12b}/init.c ${mesch12b}/matop.c ${mesch12b}/submat.c  \
               ${mesch12b}/memory.c ${mesch12b}/meminfo.c  \
-              ${mesch12b}/machine.c ${mesch12b}/ivecop.c  
-
-              # ${mesch12b}/err.c
+              ${mesch12b}/machine.c ${mesch12b}/ivecop.c \
+              ${mesch12b}/err.c
 
 
 

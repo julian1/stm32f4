@@ -1,4 +1,6 @@
 
-void func(void);
+#pragma once
+
+void regression(void);
 
 

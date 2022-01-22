@@ -71,12 +71,11 @@ int zm_free(ZMAT *mat)
   return 0;
 }
 
-#if 1
+#if 0
 
 int	ev_err(const char *file, int err_num, int line_num,
 	       const char *fn_name, int list_num)
 {
-
   /* see implementation in err.c 
     it calls exit() which is problematic in exposing unlinked __fini symbol in embedded environment. 
     and also calls fprintf
@@ -96,7 +95,7 @@ int	ev_err(const char *file, int err_num, int line_num,
 
 
 
-void func()
+void regression(void)
 {
   /*
     loop() subsumes update()
