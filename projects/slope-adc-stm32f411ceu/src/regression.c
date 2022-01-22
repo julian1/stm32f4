@@ -10,6 +10,11 @@
 // JA we need stub functions for these, because we don't compile them
 // TODO should put in mesch.c
 
+// likewise with 
+
+
+#define UNUSED(x) (void)(x)
+
 typedef struct ITER ITER;
 typedef struct SPROW  SPROW;
 typedef struct SPMAT SPMAT;
@@ -73,6 +78,38 @@ int zm_free(ZMAT *mat)
   assert(0);
   return 0;
 }
+
+
+
+int fileno(void *p) 
+{
+    UNUSED(p);
+    return 0;
+}
+
+#if 0
+static inline int isatty(int x) 
+{
+    UNUSED(x);
+    return 0;
+}
+#endif
+
+int isascii(int c) 
+{
+    UNUSED(c);
+    return 0;
+}
+
+void exit(int status) 
+{
+    // must intercept, to avoid link errors via linking standard library
+    UNUSED(status);
+}
+
+
+
+
 
 #if 0
 

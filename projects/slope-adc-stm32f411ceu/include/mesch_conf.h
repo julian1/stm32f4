@@ -2,41 +2,18 @@
 #define _H_MESCH_CONF
 
 /*
-  compiling err.c is useful. but we have to intercept a few calls for embedded.
+  compiling err.c saves having to override/code the error handling ourselves.
+  but we want to intercept a few calls for embedded.
   also see, alternative https://github.com/github0null/mesch/blob/master/port/mesch_conf.h
-  
-  
-
 */
 
-// JA. most of these are for err.c
-
-#define UNUSED(x) (void)(x)
-
-static inline int fileno(void *p) 
-{
-    UNUSED(p);
-    return 0;
-}
+int fileno(void *p) ;
 
 #if 0
-static inline int isatty(int x) 
-{
-    UNUSED(x);
-    return 0;
-}
+int isatty(int x) ;
 #endif
 
-static inline int isascii(int c) 
-{
-    UNUSED(c);
-    return 0;
-}
-
-static inline void exit(int status) 
-{
-    // must intercept, to avoid link errors via linking standard library
-    UNUSED(status);
-}
+int isascii(int c) ;
+void exit(int status) ;
 
 #endif
