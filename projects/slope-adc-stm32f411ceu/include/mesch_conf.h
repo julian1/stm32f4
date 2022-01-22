@@ -2,11 +2,8 @@
 #define _H_MESCH_CONF
 
 /*
-  Not compiling err.c 
-  but instead writing our own handler, saves a lot of redefining stuff here versus using defines,
-    https://github.com/github0null/mesch/blob/master/port/mesch_conf.h
-
-  actually compiling err.c is useful. but have to intercept a lot of the calls.
+  compiling err.c is useful. but we have to intercept a few calls for embedded.
+  also see, alternative https://github.com/github0null/mesch/blob/master/port/mesch_conf.h
   
   
 
