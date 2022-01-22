@@ -7,6 +7,9 @@
 #include "assert.h"   // required.
 #include <matrix.h>
 
+// JA we need stub functions for these, because we don't compile them
+// TODO should put in mesch.c
+
 typedef struct ITER ITER;
 typedef struct SPROW  SPROW;
 typedef struct SPMAT SPMAT;
