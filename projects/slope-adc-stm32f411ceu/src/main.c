@@ -353,7 +353,7 @@ int main(void)
 
   usart_printf("a float formatted %g\n", 123.456f );
 
-#if 1
+#if 0
   // test ice40 register read/write
   // ok. seems to work.
   usart_printf("whoot\n");

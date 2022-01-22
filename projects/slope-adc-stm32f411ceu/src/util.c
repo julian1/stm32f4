@@ -210,84 +210,28 @@ void usart_printf_init(CBuf *output)
 
 
 
-
-#if 0
-void usart_printf(const char *format, ...)
+static void output_char( int ch)
 {
-  /*
-    if(!console_out)
-      critical_error_blink();
-  */
-
-#if 0
-  // cannot rename to just printf... it's not the responsibiilty of user to know context
-  // because different formatting chars, conflict with gcc printf builtins
-	va_list args;
-	va_start(args, format);
-	internal_vprintf((void *)cBufPush, console_out, format, args);
-	va_end(args);
-#endif
-  /*
-    see, fopencookie for a better way to do this,
-  */
-
-  /*
-    - this is not great. but allows using arm-gcc libc sprintf
-    if uses 1000 chars. need to report buffer overflow.
-    - also could overflow the console buffer.
-    - would be better if could write to the console output directly. but we would have to implement the FILE structure.
-  */
-
-  /*
-      TODO can be reworked to avoid the copy to the circular buffer?
-  */
-  char buf[1000];
-	va_list args;
-	va_start(args, format);
-	int n = vsnprintf(buf, 1000, format, args);
-	va_end(args);
-
-  char *p = buf;
-  while(p < buf + n)  {
-
-    if(*p == '\n')
+    if(ch  == '\n') {
       cBufPush(console_out, '\r');
+    }
 
-    cBufPush(console_out, *p);
+    cBufPush(console_out, ch);
 
-    ++p;
-  }
-
-
-  // re-enable tx interupt... if needed
-  usart_output_update();
 }
-#endif
 
-
-
-static int printf_base(/* char *str, size_t size,*/ const char *format, va_list args)
+static int printf_base( const char *format, va_list args)
 {
 
   char buf[1000];
-//	va_list args;
-//	va_start(args, format);
 	int n = vsnprintf(buf, 1000, format, args);
-//	va_end(args);
 
-  char *p = buf;
-  while(p < buf + n)  {
-
-    if(*p == '\n')
-      cBufPush(console_out, '\r');
-
-    cBufPush(console_out, *p);
-
-    ++p;
+  for( char *p = buf;  p < buf + n; ++p)  {
+    output_char( *p);
   }
 
-
   // re-enable tx interupt... if needed
+  // could do line buffering here, if wanted.
   usart_output_update();
 
   return n;
@@ -297,7 +241,6 @@ void usart_printf(const char *format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	// int n = vsnprintf(buf, 1000, format, args);
   int ret = printf_base(format, args);
 	va_end(args);
   UNUSED(ret);
@@ -308,7 +251,6 @@ int printf(const char *format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	// int n = vsnprintf(buf, 1000, format, args);
   int ret = printf_base(format, args);
 	va_end(args);
   return ret;
@@ -321,16 +263,48 @@ int fprintf(FILE *stream, const char *format, ...)
 
 	va_list args;
 	va_start(args, format);
-	// int n = vsnprintf(buf, 1000, format, args);
   int ret = printf_base(format, args);
 	va_end(args);
   return ret;
 }
 
 
+#if 0
+// trying to override this just creates link errors, with libc version.
+
+// BETTER WAY. see what libc putc calls. and then over-ride that.
+
+eg. see
+  https://github.com/lattera/glibc/blob/master/libio/putc.c
+
+  _IO_putc 
+
+  TODO
+    rename machine.h  to mench_machine.h 
+
+
+  gsl matrix.  looks very lightweight.
+            code uses two.
+  https://github.com/AlisterH/gwc/blob/master/declick.c.new
+
+int putc(int c, FILE *stream)
+{
+}
+#endif
+
+// int _IO_putc (int c, FILE *fp)
 
 
 
+int mesch_putc(int c, void *stream)
+{
+  UNUSED(stream);
+
+  output_char( c);
+  usart_output_update();
+
+  return c;
+}
 
 ////////////////////////////
 
