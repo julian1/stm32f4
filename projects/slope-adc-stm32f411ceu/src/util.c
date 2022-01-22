@@ -209,6 +209,9 @@ void usart_printf_init(CBuf *output)
 
 
 
+
+
+#if 0
 void usart_printf(const char *format, ...)
 {
   /*
@@ -259,6 +262,73 @@ void usart_printf(const char *format, ...)
   // re-enable tx interupt... if needed
   usart_output_update();
 }
+#endif
+
+
+
+static int printf_base(/* char *str, size_t size,*/ const char *format, va_list args)
+{
+
+  char buf[1000];
+//	va_list args;
+//	va_start(args, format);
+	int n = vsnprintf(buf, 1000, format, args);
+//	va_end(args);
+
+  char *p = buf;
+  while(p < buf + n)  {
+
+    if(*p == '\n')
+      cBufPush(console_out, '\r');
+
+    cBufPush(console_out, *p);
+
+    ++p;
+  }
+
+
+  // re-enable tx interupt... if needed
+  usart_output_update();
+
+  return n;
+}
+
+void usart_printf(const char *format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	// int n = vsnprintf(buf, 1000, format, args);
+  int ret = printf_base(format, args);
+	va_end(args);
+  UNUSED(ret);
+}
+
+
+int printf(const char *format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	// int n = vsnprintf(buf, 1000, format, args);
+  int ret = printf_base(format, args);
+	va_end(args);
+  return ret;
+}
+
+
+int fprintf(FILE *stream, const char *format, ...)
+{
+  UNUSED(stream);
+
+	va_list args;
+	va_start(args, format);
+	// int n = vsnprintf(buf, 1000, format, args);
+  int ret = printf_base(format, args);
+	va_end(args);
+  return ret;
+}
+
+
+
 
 
 

@@ -108,6 +108,17 @@ void exit(int status)
 }
 
 
+/*
+  EXTR.
+  // if we override printf and fprintf. then we can make use of the existing matrix print instructions.
+  so they take preference in the linking. 
+  
+  put in util.c
+*/
+
+
+
+
 
 
 
