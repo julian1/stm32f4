@@ -6,9 +6,13 @@
 */
 
 
-#include "assert.h"   // assert_simple()
-#include "util.h"     // usart_printf()
+#include <stddef.h> // null
 
+
+#include "assert.h"   // assert_simple()
+#include "streams.h"     // usart_printf()
+
+#define UNUSED(x) (void)(x)
 
 
 

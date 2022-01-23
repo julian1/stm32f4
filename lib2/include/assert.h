@@ -6,6 +6,9 @@
 extern "C" {
 #endif
 
+/*
+  with new streams interface. we can do this a lot more simply
+*/
 
 
 /*

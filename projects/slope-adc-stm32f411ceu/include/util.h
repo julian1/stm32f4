@@ -33,6 +33,7 @@ extern void msleep(uint32_t delay);
 
 ///////////////
 
+/*
 typedef struct CBuf CBuf;
 
 void init_std_streams( CBuf *console_out ); 
@@ -40,7 +41,7 @@ void init_std_streams( CBuf *console_out );
 
 // extern void usart_printf_init(CBuf *output);
 extern void usart_printf(const char *format, ... );
-
+*/
 
 
 ///////////////

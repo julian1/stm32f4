@@ -32,6 +32,9 @@
 
 #include "cbuffer.h"
 #include "usart2.h"
+#include "streams.h"
+
+
 #include "util.h"
 #include "assert.h"
 
