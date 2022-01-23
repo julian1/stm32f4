@@ -22,12 +22,12 @@
  45       this is where the update of the index, and the write of the value can go wrong.
 */
 
-#define _GNU_SOURCE     // required for cookie_io_functions_t
-#include <stdio.h>
+// #define _GNU_SOURCE     // required for cookie_io_functions_t
+// #include <stdio.h>
 
 
 #include "cbuffer.h"
-#include "assert.h"
+#include <assert.h>
 
 
 
@@ -36,9 +36,9 @@
 
 void cBufInit(CBuf *a, char *p, size_t sz)
 {
-  ASSERT(a);
-  ASSERT(p);
-  ASSERT(sz > 0);
+  assert(a);
+  assert(p);
+  assert(sz > 0);
 
   a->p = p;
   a->sz = sz;
@@ -49,7 +49,7 @@ void cBufInit(CBuf *a, char *p, size_t sz)
 
 void cBufClear(CBuf *a)
 {
-  ASSERT(a);
+  assert(a);
 
   a->wi = 0;
   a->ri = 0;
@@ -63,10 +63,10 @@ void cBufClear(CBuf *a)
 void cBufPush(CBuf *a, char val)
 {
 /*
-  ASSERT(a);
-  ASSERT(a->p);
-  ASSERT(a->wi < a->sz );
-  ASSERT( a->sz > 0);
+  assert(a);
+  assert(a->p);
+  assert(a->wi < a->sz );
+  assert( a->sz > 0);
 */
 
   (a->p)[a->wi] = val;
@@ -78,7 +78,7 @@ void cBufPush(CBuf *a, char val)
 int32_t cBufPop(CBuf *a)
 {
   // ie as fifo. pop first pushed. *not* most recent.
-  ASSERT(a->ri != a->wi);
+  assert(a->ri != a->wi);
 
   // read then update index. - but could be reordered by compiler
   char ret = (a->p)[ a->ri];
@@ -112,7 +112,7 @@ int32_t cBufPeekFirst(const CBuf *a)
   // ie. peek first char to be pushed, considered as fifo.
   // eg. char that will be popped
   // TODO rename cBufPeek()
-  ASSERT(a->ri != a->wi);
+  assert(a->ri != a->wi);
 
   return (a->p)[a->ri];
 }
@@ -122,7 +122,7 @@ int32_t cBufPeekFirst(const CBuf *a)
 int32_t cBufPeekLast(const CBuf *a)
 {
   // last item to be pushed...
-  ASSERT(a->ri != a->wi);
+  assert(a->ri != a->wi);
 
   // this kind of needs some tests
   if(a->wi == 0) {
@@ -168,7 +168,7 @@ int32_t cBufCopyString2(const CBuf *a, char *p, size_t n)
 
   while(ri != a->wi && i < (n - 1)) {
 
-    ASSERT(ri < a->sz);
+    assert(ri < a->sz);
     p[i++] = (a->p)[ri];
 
     ri = (ri + 1) % a->sz;
@@ -208,7 +208,7 @@ ssize_t cBufWrite(CBuf *x, const char *buf, size_t size)
 {
   /* more conventional interface
   */
-  ASSERT(x->sz);
+  assert(x->sz);
 
   for(size_t i = 0; i < size; ++i)
     cBufPush(x, buf[i]);
@@ -217,7 +217,9 @@ ssize_t cBufWrite(CBuf *x, const char *buf, size_t size)
 }
 
 
+#if 0
 
+see streams instead
 
 FILE * cBufMakeStream( CBuf *x )
 {
@@ -262,7 +264,7 @@ void cBufprintf( CBuf *cookie,
    };
 
   FILE *f = fopencookie(cookie, "w", memfile_func);
-  ASSERT(f);
+  assert(f);
 
   va_list args;
   va_start(args, format);
@@ -288,5 +290,5 @@ void cBufWriteStream(CBuf *x, FILE *stream)
 }
 
 
-
+#endif
 

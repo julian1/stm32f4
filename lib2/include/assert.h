@@ -1,32 +1,32 @@
 
-// the advantage of assert.h in a separate file, is that we use it in library includes.
+/*
+  NOT deprecated. although assert.c is.
 
+  We cannot over-ride libc version at link time, because of strong link specifiers.
+
+  but we can include this file in the path, so it gets included with
+  #include <assert.h>
+    not just
+  #include "assert.h"
+
+  this way it's included for external libraries, so long as -E path is used.
+
+  // see, https://stackoverflow.com/questions/50915274/redirecting-assert-fail-messages
+
+*/
+
+
+
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/*
-  with new streams interface. we can do this a lot more simply
-*/
 
-
-/*
-  add an assert with critical error blink...
-  can still try to log to usart.
-  probably want a critical_usart_write()
-*/
-
-// typedef (*assertf) const char *file, int line, const char *func, const char *expr
-
-// better name assert_pf_t()
-typedef void assert_pf_t(void *ctx, const char *file, int line, const char *func, const char *expr);
-
-extern void assert_set_handler( assert_pf_t *pf, void *ctx );
-
+// implement in util.c because project specific
 extern void assert_simple(const char *file, int line, const char *func, const char *expr);
 
-#define ASSERT(expr)    ((expr) ? ((void)0) : assert_simple(__FILE__, __LINE__, __func__, #expr))
 #define assert(expr)    ((expr) ? ((void)0) : assert_simple(__FILE__, __LINE__, __func__, #expr))
 
 

@@ -7,7 +7,8 @@
 #include "matrix2.h"   // inverse
 
 #include "regression.h"
-#include "assert.h"
+
+#include <assert.h>
 
 
 

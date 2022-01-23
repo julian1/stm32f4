@@ -1,10 +1,15 @@
 /*
+  
+
+
   - The handler, with ctx, is needed
     eg. to pass app ctx, in order to do stuff like hardware shutdown/ power off for safety.
     or call critical_error_blink() to halt etc
 
 */
 
+DEPRECATED.
+  just put handler code (eg. report and loop) in project specific util.c
 
 #include <stddef.h> // null
 

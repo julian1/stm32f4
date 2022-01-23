@@ -28,6 +28,7 @@
 //#include <math.h> // nanf
 //#include <stdio.h>
 #include <string.h>   // memset
+#include <assert.h>
 
 
 #include "cbuffer.h"
@@ -36,7 +37,7 @@
 
 
 #include "util.h"
-#include "assert.h"
+// #include "assert.h"
 
 
 #include "fbuffer.h"
@@ -84,12 +85,12 @@ static void update_console_cmd(app_t *app)
 
     size_t nn = cBufCount(&app->console_in);
     size_t n = cBufCopyString(&app->console_in, tmp, ARRAY_SIZE(tmp));
-    ASSERT(n <= sizeof(tmp));
-    ASSERT(tmp[n - 1] == 0);
-    ASSERT( nn == n - 1);
+    assert(n <= sizeof(tmp));
+    assert(tmp[n - 1] == 0);
+    assert( nn == n - 1);
 
     // chop off the CR to make easier to print
-    ASSERT(((int) n) - 2 >= 0);
+    assert(((int) n) - 2 >= 0);
     tmp[n - 2] = 0;
 
     // TODO first char 'g' gets omitted/chopped here, why? CR handling?
@@ -200,7 +201,7 @@ static void loop(app_t *app)
       // usart_printf("imodn %u ", i % n);
 
       {
-      ASSERT(n <= ARRAY_SIZE(clk_count_rundown_ar));
+      assert(n <= ARRAY_SIZE(clk_count_rundown_ar));
 
       clk_count_rundown_ar[ i % n ] =  clk_count_rundown;
       usart_printf("stddev_rundown(%u) %.2f, ", n, stddev(clk_count_rundown_ar, n) );
@@ -210,7 +211,7 @@ static void loop(app_t *app)
 
       {
       static float means[ 10 ];
-      ASSERT(n <= ARRAY_SIZE(means));
+      assert(n <= ARRAY_SIZE(means));
       means[ i % n  ] = mean_;
       usart_printf("stddev_means(%u) %.2f ", n, stddev(means, n));
       }
@@ -335,6 +336,8 @@ int main(void)
   init_std_streams(  &app.console_out );
 
   printf("hi\n");
+
+  assert( 0);
 
 
   ////////////////

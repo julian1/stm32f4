@@ -31,9 +31,11 @@
 
 
 #include <math.h>   // sqrt,sqrtf
+#include <assert.h>
 // #include <float.h>   // FLT_MAX, FLT_MIN
+
+
 #include "stats.h"
-#include "assert.h"
 
 
 static inline double square(double x)
@@ -122,7 +124,7 @@ double rms(const float *p, size_t n)
 
 void minmax(const float *p, size_t n, float *min, float *max)
 {
-  ASSERT(n > 0);
+  assert(n > 0);
   *min = *p;
   *max = *p;
 
@@ -147,7 +149,7 @@ void minmax(const float *p, size_t n, float *min, float *max)
 void push(float *p, size_t n, size_t *idx, float val)
 {
   // don't advance if idx == n, to support overflow detect
-  // ASSERT(*idx < n);
+  // assert(*idx < n);
   if(*idx < n) {
     p[*idx] = val;
     ++(*idx);

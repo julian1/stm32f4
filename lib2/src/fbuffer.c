@@ -24,8 +24,10 @@
 
 
 #include <float.h>    // FLT_MAX ughhh
+#include <assert.h>
+
+
 #include "fbuffer.h"
-#include "assert.h"
 
 // TODO rename write() to put(), read() to get(), or even push() and pop()
 
@@ -33,9 +35,9 @@
 
 void fBufInit(FBuf *a, float *p, size_t sz)
 {
-  ASSERT(a);
-  ASSERT(p);
-  ASSERT(sz > 0);
+  assert(a);
+  assert(p);
+  assert(sz > 0);
 
   // memset()
   a->p = p;
@@ -76,7 +78,7 @@ size_t fBufCount(FBuf *a)
 
 float fBufPeekLast(FBuf *a)
 {
-  ASSERT(a->ri != a->wi);
+  assert(a->ri != a->wi);
 
   // this code is doing something slightly different...
   // int ia = (a->wi - 1) % a->sz ;
@@ -94,7 +96,7 @@ float fBufPeekLast(FBuf *a)
 
 float fBufPop(FBuf *a)
 {
-  ASSERT(a->ri != a->wi);
+  assert(a->ri != a->wi);
 
   // read then update index. - but could be reordered by compiler
   float ret = (a->p)[a->ri];
@@ -134,7 +136,7 @@ int32_t fBufCopy2(const FBuf *a, float *p, size_t n)
 
   while(ri != a->wi && i < (n - 1)) {
 
-    ASSERT(ri < a->sz);
+    assert(ri < a->sz);
     p[i++] = (a->p)[ri];
 
     ri = (ri + 1) % a->sz;

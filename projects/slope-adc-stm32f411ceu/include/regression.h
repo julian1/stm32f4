@@ -3,6 +3,6 @@
 
 // void regression(void);
 
-int func();
+int func(void);
 
 

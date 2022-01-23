@@ -1,14 +1,8 @@
 /*
-  helper stuff that belongs in separate file, but not in separate library
-  because might change
+  generalized helper stuff that is too specific to push to library code
 
-  also. port setup. eg. led blinker. that is very common. but different between stm32 series/part.
 */
 
-
-// MUST BE FIRST...
-// #define _GNU_SOURCE     // required for cookie_io_functions_t
-// #include <stdio.h>
 
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/systick.h>
@@ -19,17 +13,11 @@
 #include "util.h"
 #include "cbuffer.h"
 #include "usart2.h"
+#include "assert.h"
+#include "streams.h"
 // #include "miniprintf2.h" // internal_vprint
 
 #include <string.h>  // strcmp
-
-
-
-// #include <stddef.h> // size_t
-// #include <stdarg.h> // va_starrt etc
-// #include <stdio.h>  // vsprintf
-
-// #include <unistd.h>  // write
 
 
 
@@ -59,9 +47,6 @@ bool strequal(const char *s1, const char *s2)
 #define LED_PORT  GPIOA
 // #define LED_OUT   GPIO15
 #define LED_OUT   GPIO9 // f411
-
-
-
 
 
 
@@ -202,7 +187,71 @@ int main()
 
 
 
+
+
+
+// #include <stdio.h>
+// #include <assert.h>
+
+// extern void __assert_fail(const char * assertion, const char * file, unsigned int line, const char * function);
+
+/*
+  // this is *NOT* being called now????
+
+  - because libc version is not marked weak.
+  - the problem with a local assert.h other library code we don't control where assert is used.
+
+*/
+#if 0
+extern void __assert_fail (const char *__assertion, const char *__file,
+               unsigned int __line, const char *__function)
+__THROW __attribute__ ((__noreturn__));
+
+void __assert_fail(const char * assertion, const char * file, unsigned int line, const char * function)
+{
+  // this is *NOT* being called.
+  // SHOULD get linked in priority to libc version. 
+  // 
+  // fprintf(stderr, "My custom message\n");
+  usart_printf("\nwhoot assert failed %s: %d: %s: '%s'\n", file, line, function, assertion );
+  critical_error_blink();
+}
+  
+void exit( int jjkx )
+{
+
+} 
+#endif
+
+
+
+
+
 ////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+void assert_simple(const char *file, int line, const char *func, const char *expr)
+{
+  // see assert.h for explanation. works with external libraries/code
+  // see, https://stackoverflow.com/questions/50915274/redirecting-assert-fail-messages
+
+  // legacy version
+  usart_printf("\nassert simple failed %s: %d: %s: '%s'\n", file, line, func, expr);
+
+  critical_error_blink();
+}
+
+
+
+
+
 
 #if 0
 
