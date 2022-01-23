@@ -277,12 +277,6 @@ int fprintf(FILE *stream, const char *format, ...)
 eg. see
   https://github.com/lattera/glibc/blob/master/libio/putc.c
 
-  _IO_putc 
-
-  TODO
-    rename machine.h  to mench_machine.h 
-
-
   gsl matrix.  looks very lightweight.
             code uses two.
   https://github.com/AlisterH/gwc/blob/master/declick.c.new
@@ -292,7 +286,31 @@ int putc(int c, FILE *stream)
 }
 #endif
 
-// int _IO_putc (int c, FILE *fp)
+
+
+#if 0
+// none of this works.
+#undef _IO_putc
+
+int
+_IO_putc (int c, FILE *fp)
+{
+  UNUSED(fp);
+
+  output_char( c);
+  usart_output_update();
+}
+
+#undef putc
+
+putc (int c, FILE *fp)
+{
+  UNUSED(fp);
+
+  output_char( c);
+  usart_output_update();
+}
+#endif
 
 
 
@@ -305,6 +323,7 @@ int mesch_putc(int c, void *stream)
 
   return c;
 }
+
 
 ////////////////////////////
 
