@@ -224,6 +224,8 @@ void usart_printf_init(CBuf *output)
 
 ////////////////////////////////////////////////////////
 
+
+
 static void output_char( CBuf *console_out , int ch)
 {
   if(ch  == '\n') {
@@ -258,6 +260,8 @@ void init_std_streams( CBuf *console_out )
   /* 
     advantage of using this. is that we don't need intermediate handling and temp BUFFER.
     and vsnprintf. etc.
+    Also see,
+      https://www.openstm32.org/forumthread8113
   */
 
   cookie_io_functions_t  memfile_func = {
