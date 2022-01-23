@@ -327,25 +327,16 @@ int main(void)
 
   usart_set_buffers(&app.console_in, &app.console_out);
 
-  // setup print
-  // usart_printf_set_buffer()
-  // usart_printf_init(&app.console_out);
-
-
   // standard streams for printf, fprintf, putc.
   init_std_streams(  &app.console_out );
 
   printf("hi\n");
-
-  assert( 0);
+  // assert( 0);
 
 
   ////////////////
   // spi1/ice40
   spi1_port_setup();
-#if 0
-  spi1_special_gpio_setup();
-#endif
 
   spi_ice40_setup(SPI1);
 
