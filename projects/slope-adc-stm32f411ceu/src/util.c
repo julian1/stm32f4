@@ -258,8 +258,8 @@ static ssize_t mywrite(void *cookie, const char *buf, size_t size)
 void init_std_streams( CBuf *console_out )
 { 
   /* 
-    advantage of using this. is that we don't need intermediate handling and temp BUFFER.
-    and vsnprintf. etc.
+    advantage  is that we don't need intermediate handling and stack temp BUFFER.
+    for vsnprintf. etc.
     Also see,
       https://www.openstm32.org/forumthread8113
   */
