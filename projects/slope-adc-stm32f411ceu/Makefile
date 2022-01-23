@@ -21,7 +21,7 @@ SRCFILES	= ./src/main.c src/util.c   src/ice40.c src/spi1.c src/regression.c src
               ${mesch12b}/machine.c ${mesch12b}/ivecop.c \
               ${mesch12b}/err.c \
               ${mesch12b}/matrixio.c \
-
+              ${mesch12b}/lufactor.c ${mesch12b}/pxop.c ${mesch12b}/solve.c ${mesch12b}/memstat.c ${mesch12b}/norm.c \
 
 
 

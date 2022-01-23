@@ -143,7 +143,7 @@ static void loop(app_t *app)
   */
 
 
-  regression();
+  func();
 
 
   // TODO move to app_t structure?.

@@ -1,6 +1,8 @@
 
 #pragma once
 
-void regression(void);
+// void regression(void);
+
+int func();
 
 
