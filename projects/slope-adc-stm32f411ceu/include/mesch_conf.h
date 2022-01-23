@@ -11,10 +11,10 @@
 
 
 // hacky,
-// include stdio, which I think defines putc (not just declares).
+// include stdio,
 #include <stdio.h>
 
-// then redefine putc() to our own function.
+// now redefine putc() to our own function.
 int mesch_putc(int c, void *stream);
 #define putc(a,b) mesch_putc(a,b)
 
