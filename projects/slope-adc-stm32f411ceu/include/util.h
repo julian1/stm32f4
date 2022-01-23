@@ -10,7 +10,7 @@
 #include <stdio.h> // FILE
 
 
-#include <unistd.h>  // write
+// #include <unistd.h>  // write
 
 extern bool strequal(const char *s1, const char *s2);
 
