@@ -10,6 +10,7 @@
 */
 
 
+#if 0
 // hacky,
 // include stdio,
 #include <stdio.h>
@@ -17,6 +18,7 @@
 // now redefine putc() to our own function.
 int mesch_putc(int c, void *stream);
 #define putc(a,b) mesch_putc(a,b)
+#endif
 
 
 int fileno(void *p) ;

@@ -7,6 +7,11 @@
 #include <stdbool.h> // bool
 #include <stdint.h> // uint32_t
 
+#include <stdio.h> // FILE
+
+
+#include <unistd.h>  // write
+
 extern bool strequal(const char *s1, const char *s2);
 
 
@@ -29,8 +34,13 @@ extern void msleep(uint32_t delay);
 ///////////////
 
 typedef struct CBuf CBuf;
-extern void usart_printf_init(CBuf *output);
+
+void init_std_streams( CBuf *console_out ); 
+
+
+// extern void usart_printf_init(CBuf *output);
 extern void usart_printf(const char *format, ... );
+
 
 
 ///////////////

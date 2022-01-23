@@ -325,7 +325,13 @@ int main(void)
 
   // setup print
   // usart_printf_set_buffer()
-  usart_printf_init(&app.console_out);
+  // usart_printf_init(&app.console_out);
+
+
+  // standard streams for printf, fprintf, putc.
+  init_std_streams(  &app.console_out );
+
+  printf("hi\n");
 
 
   ////////////////
