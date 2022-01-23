@@ -44,9 +44,8 @@ TGT_CFLAGS  += -Wno-unused-function   \
 
 
 
-TGT_CFLAGS	+= -I./include    # FIXME, should be before lib2inc
+TGT_CFLAGS	+= -I./include
 TGT_CFLAGS	+= -I${LIB2INC}
-
 TGT_CFLAGS	+= -I${mesch12b}
 
 LDLIBS		+= -lm
