@@ -1,7 +1,7 @@
 #ifndef _H_MESCH_CONF
 #define _H_MESCH_CONF
 
-#pragma once
+// #pragma once
 
 /*
   compiling err.c saves having to override/code the error handling ourselves.
