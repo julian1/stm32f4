@@ -163,6 +163,22 @@ LO
 #define REG_CLK_COUNT_INT_N_HI 23
 
 
+
+
+#define REG_LED               7 
+
+#define REG_COUNT_UP          9 
+#define REG_COUNT_DOWN        10
+#define REG_CLK_COUNT_RUNDOWN 11
+#define REG_COUNT_TRANS_UP    12
+#define REG_COUNT_TRANS_DOWN  14
+
+#define REG_TEST              15     
+#define REG_RUNDOWN_DIR       16     
+#define REG_COUNT_FLIP        17     
+
+
+
 static void loop(app_t *app)
 {
   /*
@@ -205,23 +221,21 @@ static void loop(app_t *app)
 
 
       // use separate lines (to make it easier to filter - for plugging into stats).
-      uint32_t count_up   = spi_reg_read(SPI1, 9 );
-      uint32_t count_down = spi_reg_read(SPI1, 10 );
+      uint32_t count_up   = spi_reg_read(SPI1, REG_COUNT_UP );
+      uint32_t count_down = spi_reg_read(SPI1, REG_COUNT_DOWN );
 
 
       usart_printf("count_up %u, ", count_up );
       usart_printf("count_down %u, ", count_down );
 
-      uint32_t clk_count_rundown = spi_reg_read(SPI1, 11 );
+      uint32_t clk_count_rundown = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
       usart_printf("clk_count_rundown %u, ", clk_count_rundown);
 
       // TODO fix this. just use a fixed array and modulo.
 
-      usart_printf("trans_up/down %u %u, ", spi_reg_read(SPI1, 12 ),  spi_reg_read(SPI1, 14 ));
-      // usart_printf("trans_down %u  ", spi_reg_read(SPI1, 14 ));
+      usart_printf("trans_up/down %u %u, ", spi_reg_read(SPI1, REG_COUNT_TRANS_UP ),  spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN ));
 
-      // usart_printf("rundown_dir %u, ", spi_reg_read(SPI1, 16 ));
-      usart_printf("count_flip %u, ",  spi_reg_read(SPI1, 17 ));
+      usart_printf("count_flip %u, ",  spi_reg_read(SPI1, REG_COUNT_FLIP ));
 
 
     // data is wrong. until the buffers are full.
@@ -402,40 +416,40 @@ int main(void)
 
   usart_printf("a float formatted %g\n", 123.456f );
 
-#if 0
+#if 1
   // test ice40 register read/write
   // ok. seems to work.
   usart_printf("whoot\n");
   uint32_t ret;
 
 /*
-  spi_reg_xfer_24(SPI1, 7, 0xffffff );
-  ret = spi_reg_read(SPI1, 7);
+  spi_reg_xfer_24(SPI1, REG_LED, 0xffffff );
+  ret = spi_reg_read(SPI1, REG_LED );
   ASSERT(ret == 0xffffff);
 */
 
   // fails... with new spi target, and deferred assignment
 
-  spi_reg_write(SPI1, 7 , 0xff00ff);
-  ret = spi_reg_read(SPI1, 7);
-  ASSERT(ret == 0xff00ff);
+  spi_reg_write(SPI1, REG_LED , 0xff00ff);
+  ret = spi_reg_read(SPI1, REG_LED);
+  assert(ret == 0xff00ff);
 
   // this works... eg. allowing high bit to be off.
-  spi_reg_write(SPI1, 7 , 0x7f00ff);
-  ret = spi_reg_read(SPI1, 7);
-  ASSERT(ret == 0x7f00ff);
+  spi_reg_write(SPI1, REG_LED, 0x7f00ff);
+  ret = spi_reg_read(SPI1, REG_LED);
+  assert(ret == 0x7f00ff);
 
   ///////////////////
-  ret = spi_reg_read(SPI1, 15);
+  ret = spi_reg_read(SPI1, REG_TEST);
   usart_printf("reg 15 %u %x\n", ret, ret);
-  ASSERT(ret == 0xffffff );
+  assert(ret == 0xffffff );
 
 
   for(uint32_t i = 0; i < 32; ++i) {
 
-    spi_reg_write(SPI1, 7 , i );
-    ret = spi_reg_read(SPI1, 7);
-    ASSERT(ret == i );
+    spi_reg_write(SPI1, REG_LED , i );
+    ret = spi_reg_read(SPI1, REG_LED);
+    assert(ret == i );
   }
 #endif
 
