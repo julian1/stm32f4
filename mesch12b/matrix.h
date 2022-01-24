@@ -431,8 +431,8 @@ extern	VEC	*sv_mlt(double s,const VEC *x,VEC *out),	/* out <- s.x */
                                                  /* out[i] <- f(x[i]) */
 		*_v_map(double (*f)(void *,double),void *p,const VEC *x,VEC *y),
 #else
-		*v_map(double (*f)(),const VEC *,VEC *), /* out[i] <- f(x[i]) */
-		*_v_map(double (*f)(),void *,const VEC *,VEC *),
+		*v_map(double (*f)(void),const VEC *,VEC *), // JA /* out[i] <- f(x[i]) */  
+		*_v_map(double (*f)(void),void *,const VEC *,VEC *), // JA
 #endif /* PROTOTYPES_IN_STRUCT */
 		*v_lincomb(int,const VEC **,const Real *,VEC *),   
                                                  /* out <- sum_i s[i].x[i] */
