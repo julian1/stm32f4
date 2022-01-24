@@ -170,15 +170,9 @@ static void update_console_cmd(app_t *app)
 #define REG_HIMUX_SEL         25 
 
 
-static void loop(app_t *app)
+
+static void report_parameters(void )
 {
-  /*
-    loop() subsumes update()
-  */
-
-
-  func();
-
 
   usart_printf("clk_count_init_n  %u\n", spi_reg_read(SPI1, REG_CLK_COUNT_INIT_N ) );
   
@@ -205,8 +199,29 @@ static void loop(app_t *app)
   // char buf[100] char * format_bits(char *buf, size_t width, uint32_t value)
   char buf[10];
   usart_printf("himux_sel         %s\n", format_bits( buf, 4, spi_reg_read(SPI1, REG_HIMUX_SEL )) );
+}
 
 
+
+
+
+
+
+
+
+
+
+static void loop(app_t *app)
+{
+  /*
+    loop() subsumes update()
+  */
+
+
+  func();
+
+
+  report_stats();
 
 
   // TODO move to app_t structure?.
@@ -252,6 +267,7 @@ static void loop(app_t *app)
       static int i = 0;
 
       float mean_;
+      UNUSED(mean_);
       ////////////////////////
       ///////// stats
 
