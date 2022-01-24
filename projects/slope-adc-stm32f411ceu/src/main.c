@@ -289,6 +289,22 @@ static void loop(app_t *app)
   func();
 
 
+  uint32_t ret;
+
+  // this succeeds
+  spi_reg_write(SPI1, REG_LED , 0xff00ff);
+  ret = spi_reg_read(SPI1, REG_LED);
+  assert(ret == 0xff00ff);
+
+
+  // this fails.
+  // usart_printf("himux_sel         %s\n", format_bits( buf, 4, spi_reg_read(SPI1, REG_HIMUX_SEL )) );
+  spi_reg_write(SPI1, REG_HIMUX_SEL , 0x1101 ); // ref hi
+  ret = spi_reg_read(SPI1, REG_HIMUX_SEL);
+  assert(ret == 0x1101);
+
+
+
   report_params();
 
 
