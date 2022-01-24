@@ -173,7 +173,11 @@ static void update_console_cmd(app_t *app)
 
 static void report_params(void )
 {
+  char buf[10];
 
+  usart_printf("-------------\n");
+
+  usart_printf("reg_led           %s\n", format_bits( buf, 4, spi_reg_read(SPI1, REG_LED )) );
   usart_printf("clk_count_init_n  %u\n", spi_reg_read(SPI1, REG_CLK_COUNT_INIT_N ) );
   
   usart_printf("clk_count_fix_n   %u\n", spi_reg_read(SPI1, REG_CLK_COUNT_FIX_N ) );
@@ -197,9 +201,7 @@ static void report_params(void )
 
   // 
   // char buf[100] char * format_bits(char *buf, size_t width, uint32_t value)
-  char buf[10];
   usart_printf("himux_sel         %s\n", format_bits( buf, 4, spi_reg_read(SPI1, REG_HIMUX_SEL )) );
-  // usart_printf("reg_led           %s\n", format_bits( buf, 4, spi_reg_read(SPI1, REG_LED )) );
 }
 
 
