@@ -31,25 +31,24 @@
 #include <assert.h>
 
 
+
+
+
 #include "cbuffer.h"
 #include "usart2.h"
 #include "streams.h"
-
-
 #include "util.h"
 // #include "assert.h"
-
-
 #include "fbuffer.h"
 #include "stats.h"
 #include "format.h" // format_bits
 
-
-
-
 #include "spi1.h"
 #include "ice40.h"
 
+
+
+#include <matrix.h>
 #include "regression.h"
 
 // spi
@@ -217,77 +216,66 @@ static void report_params(void )
 }
 
 
+/*
+  - ok. think we want an intermediate structure...
+  so we can use this once
 
-static void report_run(void )
+  - could also record the configuration
+*/
+
+
+struct Run
 {
+  uint32_t count_up;
+  uint32_t count_down; 
+  uint32_t clk_count_rundown; 
+
+
+  uint32_t count_trans_up;
+  uint32_t count_trans_down;
+
+  // rundown_dir.
+  uint32_t count_flip;
+};
+
+typedef struct Run  Run;
+
+
+static void record_run( Run *run )
+{
+  assert(run); 
 
   // use separate lines (to make it easier to filter - for plugging into stats).
-  uint32_t count_up   = spi_reg_read(SPI1, REG_COUNT_UP );
-  uint32_t count_down = spi_reg_read(SPI1, REG_COUNT_DOWN );
+  run->count_up   = spi_reg_read(SPI1, REG_COUNT_UP );
+  run->count_down = spi_reg_read(SPI1, REG_COUNT_DOWN );
 
+  run->clk_count_rundown = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
 
-  usart_printf("count_up %u, ", count_up );
-  usart_printf("count_down %u, ", count_down );
+  run->count_trans_up = spi_reg_read(SPI1, REG_COUNT_TRANS_UP ); 
+  run->count_trans_down = spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN );
 
-  uint32_t clk_count_rundown = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
-  usart_printf("clk_count_rundown %u, ", clk_count_rundown);
-
-  // TODO fix this. just use a fixed array and modulo.
-
-  usart_printf("trans_up/down %u %u, ", spi_reg_read(SPI1, REG_COUNT_TRANS_UP ),  spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN ));
-
-  usart_printf("count_flip %u, ",  spi_reg_read(SPI1, REG_COUNT_FLIP ));
-
-
-// data is wrong. until the buffers are full.
-#if 0
-  // computed via octave
-  // double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-12 * clk_count_rundown);
-  double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * clk_count_rundown);
-  usart_printf("v %.7f, ", v );
-#endif
-
-
-#if 0
-  static float clk_count_rundown_ar[ 10 ] ;
-  size_t n = 5;
-  // static int i = 0;
-
-  float mean_;
-  UNUSED(mean_);
-  ////////////////////////
-  ///////// stats
-
-  // usart_printf("imodn %u ", i % n);
-
-  {
-  assert(n <= ARRAY_SIZE(clk_count_rundown_ar));
-
-  clk_count_rundown_ar[ i % n ] =  clk_count_rundown;
-  usart_printf("stddev_rundown(%u) %.2f, ", n, stddev(clk_count_rundown_ar, n) );
-
-
-  mean_ = mean(clk_count_rundown_ar, n);
-  usart_printf("mean (%u) %.2f, ", n, mean_ );
-  }
-
-#endif
-#if 0
-  {
-  static float means[ 10 ];
-  assert(n <= ARRAY_SIZE(means));
-  means[ i % n  ] = mean_;
-  usart_printf("stddev_means(%u) %.2f ", n, stddev(means, n));
-  }
-
-
-  double v2 = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * mean_ );
-  usart_printf("v %.7f, ", v2 );
-#endif
-
-
-
+  // rundown_dir.
+  run->count_flip = spi_reg_read(SPI1, REG_COUNT_FLIP);
 }
+
+
+
+
+static void report_run( Run *run )
+{
+  assert(run);
+
+  usart_printf("count_up %u, ",   run->count_up );
+  usart_printf("count_down %u, ", run->count_down );
+  usart_printf("clk_count_rundown %u, ", run->clk_count_rundown);
+  // TODO fix this. just use a fixed array and modulo.
+  usart_printf("trans_up/down %u %u, ", run->count_trans_up,  run->count_trans_down);
+  usart_printf("count_flip %u, ",  run->count_flip);
+  usart_printf("\n");
+}
+
+
+
 
 /*
   OK. there's an interesting thing. we get the dydr flag.
@@ -314,23 +302,30 @@ static void configure( uint32_t clk_count_int_n, bool use_slow_rundown, uint8_t 
 
 
 
-static void cal_loop(app_t *app)
+static void cal_loop(app_t *app, MAT *x, MAT *y )
 {
   // app argument is needed for data ready flag.
   // while loop has to be inner
 
+  // rows x cols 
+  unsigned row = 0;
+  m_resize( x , 5, 3 );
+  m_resize( y , 5, 1 );
+
   for(unsigned i = 0; i < 3; ++i )
   {
-
-
+    double target;
+    
     // switch integration configuration
     switch(i) {
 
       case 0:
         configure( 5 * 20000000, 1, HIMUX_SEL_REF_LO );
+        target = 0.0;
         break;
       case 1:
         configure( 5 * 20000000, 1, HIMUX_SEL_REF_HI );
+        target = 7.1;
         break;
 
       default:
@@ -344,19 +339,26 @@ static void cal_loop(app_t *app)
     } // switch
 
 
-    int obs = 0;
 
-    static uint32_t soft_250ms = 0;
+
+
+    ////
+
+    unsigned obs = 0;
 
     while(obs < 3) {
 
       // if we got data handle it.
       if(app->data_ready) {
         // in priority
-        report_run();
-        usart_printf("\n");
         app->data_ready = false;
+
+        Run run;
+        record_run(&run );
+        report_run(&run);
+
         ++obs;
+        // store in matrix.
       }
 
       // update_console_cmd(app);
@@ -364,12 +366,11 @@ static void cal_loop(app_t *app)
 
 
       // 250ms
+      static uint32_t soft_250ms = 0;
       if( (system_millis - soft_250ms) > 250) {
         soft_250ms += 250;
         led_toggle();
       }
-
-
 
 
     } // while
@@ -409,12 +410,9 @@ static void loop(app_t *app)
     if(app->data_ready) {
       // in priority
 
-
-      report_run();
-      // ++i;
-      usart_printf("\n");
-
-
+      Run run;
+      record_run(&run );
+      report_run(&run);
 
       app->data_ready = false;
     }
@@ -581,12 +579,79 @@ int main(void)
 
   // state_change(&app, STATE_FIRST );
 
+  // produces two return values. 
+  MAT *x = m_get(1,1);
+  MAT *y = m_get(1,1);
+
+  cal_loop(&app, x, y );
+
+  printf("x\n");
+  m_foutput(stdout, x );
+
+  printf("y\n");
+  m_foutput(stdout, y );
 
 
-  cal_loop(&app);
 
   loop(&app);
 }
+
+
+
+
+
+
+
+
+// data is wrong. until the buffers are full.
+#if 0
+  // computed via octave
+  // double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-12 * clk_count_rundown);
+  double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * clk_count_rundown);
+  usart_printf("v %.7f, ", v );
+#endif
+
+
+#if 0
+  static float clk_count_rundown_ar[ 10 ] ;
+  size_t n = 5;
+  // static int i = 0;
+
+  float mean_;
+  UNUSED(mean_);
+  ////////////////////////
+  ///////// stats
+
+  // usart_printf("imodn %u ", i % n);
+
+  {
+  assert(n <= ARRAY_SIZE(clk_count_rundown_ar));
+
+  clk_count_rundown_ar[ i % n ] =  clk_count_rundown;
+  usart_printf("stddev_rundown(%u) %.2f, ", n, stddev(clk_count_rundown_ar, n) );
+
+
+  mean_ = mean(clk_count_rundown_ar, n);
+  usart_printf("mean (%u) %.2f, ", n, mean_ );
+  }
+
+#endif
+#if 0
+  {
+  static float means[ 10 ];
+  assert(n <= ARRAY_SIZE(means));
+  means[ i % n  ] = mean_;
+  usart_printf("stddev_means(%u) %.2f ", n, stddev(means, n));
+  }
+
+
+  double v2 = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * mean_ );
+  usart_printf("v %.7f, ", v2 );
+#endif
+
+
+
+
 
 
 #if 0
