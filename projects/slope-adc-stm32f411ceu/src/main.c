@@ -178,6 +178,11 @@ static void update_console_cmd(app_t *app)
 
 
 
+
+
+
+
+
 static void report_params(void )
 {
   char buf[10];
@@ -284,9 +289,24 @@ static void report_run(void )
 
 }
 
+/*
+  OK. there's an interesting thing. we get the dydr flag.
+  But we can still transfer control from one loop - that eg. stores values. to a different loop. etc.
+  So we don't necessarily have to make the interupt handler defer to a context, depending on what we want to do.
+*/
 
+static void configure( uint32_t clk_count_int_n, bool use_slow_rundown, uint8_t himux_sel )
+{
+  // int configure
 
+  // encapsutate into a function.
+  // uint32_t t = 5 * 20000000;
 
+  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_HI, (clk_count_int_n >> 24) & 0xff );
+  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, clk_count_int_n & 0xffffff  );
+  spi_reg_write(SPI1, REG_USE_SLOW_RUNDOWN, use_slow_rundown );
+  spi_reg_write(SPI1, REG_HIMUX_SEL, himux_sel );
+}
 
 
 static void loop(app_t *app)
@@ -298,40 +318,12 @@ static void loop(app_t *app)
 
   // func();
 
-
-  uint32_t ret;
-
-  ///////////////////////////////////////////
-  // write the mux select
-  // himux_sel = 4'b1101;     // ref i
-  spi_reg_write(SPI1, REG_HIMUX_SEL , 0b1101 ); // doesn't work to set reg_himux_sel
-  ret = spi_reg_read(SPI1, REG_HIMUX_SEL);
-  assert(ret == 0b1101 );
-
-  spi_reg_write(SPI1, REG_CLK_COUNT_INIT_N, 20000 ); // doesn't work to set reg_himux_sel
-  ret = spi_reg_read(SPI1, REG_CLK_COUNT_INIT_N );
-  assert(ret == 20000);
-
-/*
-  spi_reg_write(SPI1, REG_CLK_COUNT_INIT_N, 20000 ); // doesn't work to set reg_himux_sel
-  ret = spi_reg_read(SPI1, REG_CLK_COUNT_INIT_N );
-  assert(ret == 20000);
-*/
-
-  // encapsutate into a function.
-  uint32_t t = 5 * 20000000;
-  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_HI, (t >> 24) & 0xff );
-  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, t & 0xffffff  );
-  spi_reg_write(SPI1, REG_USE_SLOW_RUNDOWN, 0 );
-  // spi_reg_write(SPI1, REG_HIMUX_SEL, HIMUX_SEL_REF_LO );
-  spi_reg_write(SPI1, REG_HIMUX_SEL, HIMUX_SEL_REF_HI );
-
-
-  char buf[10];
-  usart_printf("whoot %s\n", format_bits( buf, 10,  (0xf & ~(1 << 3))  ));
-  usart_printf("whoot %s\n", format_bits( buf, 10, 0xf ));
-
   assert( HIMUX_SEL_REF_LO ==  0b1011  );
+
+
+  configure( 5 * 20000000, 1, HIMUX_SEL_REF_LO );
+
+
 
   report_params();
 
@@ -521,5 +513,48 @@ int main(void)
 
   loop(&app);
 }
+
+
+#if 0
+
+  char buf[10];
+  usart_printf("whoot %s\n", format_bits( buf, 10,  (0xf & ~(1 << 3))  ));
+  usart_printf("whoot %s\n", format_bits( buf, 10, 0xf ));
+#endif
+
+
+#if 0
+  // encapsutate into a function.
+  uint32_t t = 5 * 20000000;
+  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_HI, (t >> 24) & 0xff );
+  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, t & 0xffffff  );
+  spi_reg_write(SPI1, REG_USE_SLOW_RUNDOWN, 0 );
+  // spi_reg_write(SPI1, REG_HIMUX_SEL, HIMUX_SEL_REF_LO );
+  spi_reg_write(SPI1, REG_HIMUX_SEL, HIMUX_SEL_REF_HI );
+#endif
+
+
+#if 0
+  uint32_t ret;
+
+  ///////////////////////////////////////////
+  // write the mux select
+  // himux_sel = 4'b1101;     // ref i
+  spi_reg_write(SPI1, REG_HIMUX_SEL , 0b1101 ); // doesn't work to set reg_himux_sel
+  ret = spi_reg_read(SPI1, REG_HIMUX_SEL);
+  assert(ret == 0b1101 );
+
+  spi_reg_write(SPI1, REG_CLK_COUNT_INIT_N, 20000 ); // doesn't work to set reg_himux_sel
+  ret = spi_reg_read(SPI1, REG_CLK_COUNT_INIT_N );
+  assert(ret == 20000);
+
+/*
+  spi_reg_write(SPI1, REG_CLK_COUNT_INIT_N, 20000 ); // doesn't work to set reg_himux_sel
+  ret = spi_reg_read(SPI1, REG_CLK_COUNT_INIT_N );
+  assert(ret == 20000);
+*/
+#endif
+
+
 
 

@@ -11,6 +11,7 @@ LIB2INC=${TOP}/lib2/include
 
 mesch12b=${TOP}/mesch12b
 
+# can probably manage mesch as a library. check other Makefile examples here.
 
 BINARY		= main
 SRCFILES	= ./src/main.c src/util.c   src/ice40.c src/spi1.c src/regression.c src/mesch.c \
