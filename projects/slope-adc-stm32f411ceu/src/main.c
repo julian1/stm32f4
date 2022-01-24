@@ -312,17 +312,10 @@ static void loop(app_t *app)
 */
 
   uint32_t t = 5 * 20000000;
-  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_HI, t >> 24 );
-  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, t & 24 );
-
+  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_HI, (t >> 24) & 0xff );
+  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, t & 0xffffff  );
   spi_reg_write(SPI1, REG_USE_SLOW_RUNDOWN, 0 );
-
-  spi_reg_write(SPI1, REG_HIMUX_SEL, 0b1011 );        // ref lo/agnd
-
-  // 0xff
-
-  // It's not working because it's not 32bits. it's 24 bits...
-
+  spi_reg_write(SPI1, REG_HIMUX_SEL, 0b1011 );    // ref lo/agnd
 
 
   report_params();
