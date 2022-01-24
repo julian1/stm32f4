@@ -40,6 +40,56 @@ char * snprintf2(char *s, size_t sz, const char *format, ...)
 
 
 
+
+char * format_float(char *s, size_t sz, int digits, double value)
+{
+  /*
+    this will zero pad to the right if needed.
+    it also only formats the prec after the decimal point.
+    this is probably mostly what we want. eg. 6 digits of uV.
+    -------------
+    EXTR.
+    
+      when we draw graphically. we want to draw from rhs digit to lhs digit.
+      eg.  so if the most significant digit changes adds a digit. 
+      then it does not disturb the precision of the lower bits.
+
+      this is a bit difficult with glyph advance which assumes right direction.
+    ---------------
+    
+  
+
+      eg.
+        from 7.123  to 17.123.    the 123 should be aligned.
+  */
+  snprintf(s, sz, "%.*fV", digits, value);
+  return s;
+}
+
+
+
+char * format_bits(char *buf, size_t width, uint32_t value)
+{
+  // passing the buf, means can use more than once in printf expression. using separate bufs
+  char *s = buf;
+
+  for(int i = width - 1; i >= 0; --i) {
+    *s++ = value & (1 << i) ? '1' : '0';
+  }
+
+  *s = 0;
+  return buf;
+}
+
+
+
+
+
+
+
+
+
+
 /*
   compiler issues warnings about callers of this func, if used in the same file. quite odd,
   i think because digit width takes priority over the input buffer length passed to snprintf
@@ -129,44 +179,5 @@ char * format_float(char *s, size_t sz, int digits, double value)
 #endif
 
 
-char * format_float(char *s, size_t sz, int digits, double value)
-{
-  /*
-    this will zero pad to the right if needed.
-    it also only formats the prec after the decimal point.
-    this is probably mostly what we want. eg. 6 digits of uV.
-    -------------
-    EXTR.
-    
-      when we draw graphically. we want to draw from rhs digit to lhs digit.
-      eg.  so if the most significant digit changes adds a digit. 
-      then it does not disturb the precision of the lower bits.
-
-      this is a bit difficult with glyph advance which assumes right direction.
-    ---------------
-    
-  
-
-      eg.
-        from 7.123  to 17.123.    the 123 should be aligned.
-  */
-  snprintf(s, sz, "%.*fV", digits, value);
-  return s;
-}
-
-
-
-char * format_bits(char *buf, size_t width, uint32_t value)
-{
-  // passing the buf, means can use more than once in printf expression. using separate bufs
-  char *s = buf;
-
-  for(int i = width - 1; i >= 0; --i) {
-    *s++ = value & (1 << i) ? '1' : '0';
-  }
-
-  *s = 0;
-  return buf;
-}
 
 
