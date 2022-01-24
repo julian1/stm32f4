@@ -182,12 +182,12 @@ static void loop(app_t *app)
 
 
     // data is wrong. until the buffers are full.
-
+#if 0
       // computed via octave
       // double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-12 * clk_count_rundown); 
       double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * clk_count_rundown); 
       usart_printf("v %.7f, ", v );
-
+#endif
 
 
       static float clk_count_rundown_ar[ 10 ] ;
@@ -205,10 +205,13 @@ static void loop(app_t *app)
 
       clk_count_rundown_ar[ i % n ] =  clk_count_rundown;
       usart_printf("stddev_rundown(%u) %.2f, ", n, stddev(clk_count_rundown_ar, n) );
+#if 0
       mean_ = mean(clk_count_rundown_ar, n);
       usart_printf("mean (%u) %.2f, ", n, mean_ );
+#endif
       }
 
+#if 0
       {
       static float means[ 10 ];
       assert(n <= ARRAY_SIZE(means));
@@ -219,7 +222,7 @@ static void loop(app_t *app)
 
       double v2 = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * mean_ ); 
       usart_printf("v %.7f, ", v2 );
-
+#endif
 
 
 
