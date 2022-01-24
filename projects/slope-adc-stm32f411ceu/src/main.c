@@ -141,27 +141,6 @@ static void update_console_cmd(app_t *app)
 
 
 
-/*
-LO   
-
-122               18: out = clk_count_init_n << 8;  // lo 24 bits
-123 
-124 
-125               20: out = clk_count_fix_n << 8;
-126               21: out = clk_count_var_n << 8;
-127               22: out = clk_count_int_n << 8;
-128             
-*/
-
-
-
-
-#define REG_CLK_COUNT_INIT_N  18  
-#define REG_CLK_COUNT_FIX_N   20
-#define REG_CLK_COUNT_VAR_N   21
-#define REG_CLK_COUNT_INT_N_LO   22
-#define REG_CLK_COUNT_INT_N_HI 23
-
 
 
 
@@ -177,6 +156,16 @@ LO
 #define REG_RUNDOWN_DIR       16     
 #define REG_COUNT_FLIP        17     
 
+
+// control parameters
+#define REG_CLK_COUNT_INIT_N  18  
+#define REG_CLK_COUNT_FIX_N   20
+#define REG_CLK_COUNT_VAR_N   21
+#define REG_CLK_COUNT_INT_N_LO   22
+#define REG_CLK_COUNT_INT_N_HI 23
+
+
+#define REG_USE_SLOW_RUNDOWN  24 
 
 
 static void loop(app_t *app)
@@ -206,6 +195,9 @@ static void loop(app_t *app)
   usart_printf("clk_count_int_n   %u\n", int_n );
   usart_printf("period            %fs\n", period);
   usart_printf("nplc              %.2f\n", nplc);
+
+
+  usart_printf("use_slow_rundown  %u\n", spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN) );
 
 
 
