@@ -227,15 +227,17 @@ static void report_params(void )
 struct Run
 {
   uint32_t count_up;
-  uint32_t count_down; 
-  uint32_t clk_count_rundown; 
+  uint32_t count_down;
+  uint32_t clk_count_rundown;
 
-
+  //
   uint32_t count_trans_up;
   uint32_t count_trans_down;
 
   // rundown_dir.
   uint32_t count_flip;
+
+  bool use_slow_rundown ; // eg. reread back.
 };
 
 typedef struct Run  Run;
@@ -243,19 +245,22 @@ typedef struct Run  Run;
 
 static void record_run( Run *run )
 {
-  assert(run); 
+  assert(run);
 
   // use separate lines (to make it easier to filter - for plugging into stats).
-  run->count_up   = spi_reg_read(SPI1, REG_COUNT_UP );
-  run->count_down = spi_reg_read(SPI1, REG_COUNT_DOWN );
+  run->count_up           = spi_reg_read(SPI1, REG_COUNT_UP );
+  run->count_down         = spi_reg_read(SPI1, REG_COUNT_DOWN );
 
-  run->clk_count_rundown = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
+  // WE could record slow_rundown separate to normal rundown.
+  run->clk_count_rundown  = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
 
-  run->count_trans_up = spi_reg_read(SPI1, REG_COUNT_TRANS_UP ); 
-  run->count_trans_down = spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN );
+  run->count_trans_up     = spi_reg_read(SPI1, REG_COUNT_TRANS_UP );
+  run->count_trans_down   = spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN );
 
   // rundown_dir.
-  run->count_flip = spi_reg_read(SPI1, REG_COUNT_FLIP);
+  run->count_flip         = spi_reg_read(SPI1, REG_COUNT_FLIP);
+
+  run->use_slow_rundown   = spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN);
 }
 
 
@@ -265,16 +270,38 @@ static void report_run( Run *run )
 {
   assert(run);
 
-  usart_printf("count_up %u, ",   run->count_up );
-  usart_printf("count_down %u, ", run->count_down );
+  usart_printf("count_up %u, ",         run->count_up );
+  usart_printf("count_down %u, ",       run->count_down );
   usart_printf("clk_count_rundown %u, ", run->clk_count_rundown);
-  // TODO fix this. just use a fixed array and modulo.
   usart_printf("trans_up/down %u %u, ", run->count_trans_up,  run->count_trans_down);
-  usart_printf("count_flip %u, ",  run->count_flip);
+  usart_printf("count_flip %u, ",       run->count_flip);
+  usart_printf("use_slow_rundown %u\n", run->use_slow_rundown);
   usart_printf("\n");
 }
 
 
+static MAT * run_to_matrix( Run *run, MAT * out )
+{
+  // compute value
+  m_resize(out, 1, 4);
+
+  m_set_val( out, 0, 0,  1.f );   // should be 1...
+  m_set_val( out, 0, 1,  run->count_up );
+  m_set_val( out, 0, 2,  run->count_down );
+
+  /*
+  - is this a way of generating extra data?
+  record in different fields.
+  if(run-> use_slow_rundown) {
+  }
+  else {
+  }
+  */
+
+  m_set_val( out, 0, 3,  run->clk_count_rundown );
+
+  return out;
+}
 
 
 /*
@@ -307,31 +334,130 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
   // app argument is needed for data ready flag.
   // while loop has to be inner
 
-  // rows x cols 
-  unsigned row = 0;
-  m_resize( x , 5, 3 );
-  m_resize( y , 5, 1 );
+  // might be easier to overside. and then resize.
 
-  for(unsigned i = 0; i < 3; ++i )
+  // rows x cols
+  unsigned row = 0;
+
+  #define MAX_OBS  30
+
+  #define X_COLS (1 + 3 )
+
+  m_resize( x , MAX_OBS, X_COLS ); // ones constant
+  m_resize( y , MAX_OBS, 1 );
+
+
+
+  /*
+    // dummy 0,0,0 -> 0. entry.   not correct due to buffer offset voltage
+    m_set_val( x, row, 0,  1 ); // ones. constant.
+    m_set_val( x, row, 1,  0 );
+    m_set_val( x, row, 2,  0 );
+    m_set_val( x, row, 3,  0 );
+    m_set_val( y, row, 0,  0 );   // this isn't right. due to buffer offset.
+    ++row;
+  */
+
+  for(unsigned i = 0; i < 10; ++i )
   {
     double target;
-    
+
+    /*
+      EXTR
+        8****
+        - i think as soon as we hit int period. eg. 1PLC. or 200ms. we must turn of input immediately.
+        - not wait until we we come to the end of a phase (var) . and then test whether we finished.
+        - eg. we must have the time of the input signal - to be absolutely constant between measurements.
+           - regardless we use fast rundown or slow rundown. 
+
+        ***
+
+        =========================
+        - should try to get the two parameter thing working. with rundown.   (non slow). 
+          eg.  fix pos + var pos + rundown.   and fix neg + var neg.
+          ----------
+          no. because in the rundown the input is turned off. so it must be a different variable. but maybe should be left on.
+        =========================
+
+        - combine fix and var.  eg. so have total pos total neg in raw clock counts, and then add the raw rundown.
+        - OR get the fpga - to count it up - in raw counts.
+        - would need to 0
+        - IMPORTNAT - then we have just two variables. if not using slow rundown. and three if are.
+
+        - our flip_count is wrong. and confusing things. with fixed amount.
+
+        - change names count_up , count_down.   count_fix_up,  count_var_up etc.  or cout_fix_pos.
+
+        - make sure not including rundown in counts.
+
+        - include the fix pos and neg counts
+            even though they are equal.
+            they are equal time.
+            but they are *not* equal current.
+            ---------
+
+            for a certain integration time/period.    they will be constant.
+            but we cannot create permutations with different integration times - if do not include.
+
+        - for a certain time. the pos + neg should be a constant.
+
+        - OR. instead of using counts. multiply by the times.
+            then we could generate permutations.
+            and then include the count * the limit.
+
+        - perhaps we need three points. and generating extra values by running  at multiple of nplc is insufficient.
+            for degrees freedom.
+
+        - could record slow_rundown as separate var to rundown. and thus
+          handle both options in the same calibration data.
+
+          - actually this is quite interesting - because it would generate the 0 data points.
+
+        - can/should  add a dummy observation.
+            eg. count_up 0 , count_down 0, rundown 0 == 0
+
+        - or perhaps better. without the slow slope.
+            eg. just plug in 0 for the rundown.
+
+        - think should probably not have constant.
+
+        - we need a function run -> x_ vector.
+
+        - perhaps try entire calibration without slow slope. as a first test.
+        - and then secondary calibration. using the predicted values as input.
+
+    */
     // switch integration configuration
     switch(i) {
 
       case 0:
-        configure( 5 * 20000000, 1, HIMUX_SEL_REF_LO );
-        target = 0.0;
-        break;
+        configure( 1 * 20000000, 1, HIMUX_SEL_REF_LO ); target = 0.0; break;
       case 1:
-        configure( 5 * 20000000, 1, HIMUX_SEL_REF_HI );
-        target = 7.1;
-        break;
+        configure( 1 * 20000000, 1, HIMUX_SEL_REF_HI ); target = 7.1; break;
+
+      case 2:
+        configure( 0.5 * 20000000, 1, HIMUX_SEL_REF_LO ); target = 0.0; break;
+      case 3:
+        configure( 0.5 * 20000000, 1, HIMUX_SEL_REF_HI ); target = 7.1; break;
+  /*
+      case 4:
+        configure( 0.4 * 20000000, 1, HIMUX_SEL_REF_LO ); target = 0.0; break;
+      case 5:
+        configure( 0.4 * 20000000, 1, HIMUX_SEL_REF_HI ); target = 7.1; break;
+*/
+
+      case 4:
+
 
       default:
         // we finished, getting all data
         // return here makes while loop simpler.
         usart_printf("done calibrating\n");
+
+        // shrink matrixes for the data
+        m_resize( x , row, X_COLS   );
+        m_resize( y , row, 1 );
+
         return;
         break;
 
@@ -339,26 +465,44 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
     } // switch
 
 
-
-
-
     ////
 
+    // obs per current configuration
     unsigned obs = 0;
 
-    while(obs < 3) {
+    while(obs < 5) {
 
       // if we got data handle it.
       if(app->data_ready) {
         // in priority
         app->data_ready = false;
 
+        // get run details
         Run run;
         record_run(&run );
         report_run(&run);
 
+        // ignore first obs
+        if(obs >= 1) {
+
+          // store in matrix.
+          assert(row < x->m); // < or <= ????
+          // TODO we could just add a one here. rather than add the extra column.
+          // then we could make the loading code generic. for calibration and predicted.
+          // SHOULD WE BE USING THE RATIO?
+
+          m_set_val( x, row, 0,  1 ); // ones. constant.
+          m_set_val( x, row, 1,  run.count_up );
+          m_set_val( x, row, 2,  run.count_down );
+          m_set_val( x, row, 3,  run.clk_count_rundown );
+
+          assert(row < y->m); // < or <= ????
+          m_set_val( y, row, 0,  target );
+
+          ++row;
+        }
+
         ++obs;
-        // store in matrix.
       }
 
       // update_console_cmd(app);
@@ -382,20 +526,24 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
 }
 
 
-static void loop(app_t *app)
+// hmmm weights are all off...
+
+
+static void loop(app_t *app, MAT *b)
 {
   /*
     loop() subsumes update()
   */
 
-
-  // func();
-
   assert( HIMUX_SEL_REF_LO ==  0b1011  );
 
 
-  configure( 5 * 20000000, 1, HIMUX_SEL_REF_LO );
+  // configure( 1 * 20000000, 1, HIMUX_SEL_REF_LO );     // ref hi. to check noise/variance
+  configure( 1 * 20000000, 1, HIMUX_SEL_REF_HI );     // ref hi. to check noise/variance
+  // configure( 1 * 20000000, 1, HIMUX_SEL_SIG_HI ); // now take input
 
+  // it's completely wrong on 5s int.
+  // configure( 5 * 20000000, 1, HIMUX_SEL_REF_LO );
 
 
   report_params();
@@ -413,6 +561,28 @@ static void loop(app_t *app)
       Run run;
       record_run(&run );
       report_run(&run);
+#if 1
+      // compute value
+      MAT *x = m_get(1, 4);
+      m_set_val( x, 0, 0,  1.f );   // should be 1...
+      m_set_val( x, 0, 1,  run.count_up );
+      m_set_val( x, 0, 2,  run.count_down );
+      m_set_val( x, 0, 3,  run.clk_count_rundown );
+#endif
+#if 0
+      // compute value
+      MAT *x = m_get(1, 3);
+      m_set_val( x, 0, 0,  run.count_up );
+      m_set_val( x, 0, 1,  run.count_down );
+      m_set_val( x, 0, 2,  run.clk_count_rundown );
+#endif
+
+
+      MAT *predicted = m_mlt(x, b, MNULL );
+      printf("predicted \n");
+      m_foutput(stdout, predicted );
+
+      M_FREE(predicted);
 
       app->data_ready = false;
     }
@@ -562,14 +732,14 @@ int main(void)
   ret = spi_reg_read(SPI1, REG_LED);
   assert(ret == 0x7f00ff);
 
+/*
   ///////////////////
   ret = spi_reg_read(SPI1, REG_TEST);
   usart_printf("reg 15 %u %x\n", ret, ret);
   assert(ret == 0xffffff );
-
+*/
 
   for(uint32_t i = 0; i < 32; ++i) {
-
     spi_reg_write(SPI1, REG_LED , i );
     ret = spi_reg_read(SPI1, REG_LED);
     assert(ret == i );
@@ -579,27 +749,108 @@ int main(void)
 
   // state_change(&app, STATE_FIRST );
 
-  // produces two return values. 
+  ////////////////////////////////////
+  // produces two return values.
+  // mnull for both args fails ...
+  // MAT *x_ = MNULL;
+  // MAT *y = MNULL;
+
   MAT *x = m_get(1,1);
   MAT *y = m_get(1,1);
 
   cal_loop(&app, x, y );
 
+
+  printf("==========\n");
+
+  // MAT *x =  concat_ones( x_, MNULL );
+  // MAT *x = x_;
+
+  // printf("x\n");
+  // m_foutput(stdout, x);
+
+
+  usart_flush();
+
+  MAT *b =  regression( x, y, MNULL );
+  printf("b\n");
+  m_foutput(stdout, b);
+
+  usart_flush();
+
+  MAT *predicted = m_mlt(x, b, MNULL );
+  printf("predicted \n");
+  m_foutput(stdout, predicted );
+  usart_flush();
+
+
+  // TODO clean up mem.
+  // TODO. our circular buffer does not handle overflow very nicely. - the result is truncated.
+
+
+/*
+  MAT *predicted = m_mlt(x, b, MNULL );
+  printf("predicted \n");
+  m_foutput(stdout, predicted );
+
+  M_FREE(x);
+  M_FREE(x_);
+  M_FREE(y);
+  M_FREE(b);
+  M_FREE(predicted);
+
+
+  ////////////////////////////////////
   printf("x\n");
   m_foutput(stdout, x );
 
   printf("y\n");
   m_foutput(stdout, y );
+*/
 
 
-
-  loop(&app);
+  loop(&app, b );
 }
 
 
 
 
+  //MAT *x = concat_ones( x_, MNULL );
 
+/*
+  printf("x\n");
+  m_foutput(stdout, x_ );
+
+  printf("y\n");
+  m_foutput(stdout, y );
+*/
+
+  // IMIPOORTANT -  perhaps the issue is cbuffer is overflowing????
+  // yes seems ok.
+
+  // printf("m is %u n",  x_->m );
+
+/*
+  // ths ones code looks buggy.
+  MAT *ones = m_ones( m_copy( x_, MNULL  ));
+  printf("ones\n");
+  m_foutput(stdout, ones );
+*/
+
+/*
+  MAT *j = m_get( x_-> m, 1 );
+  MAT *ones = m_ones( j );
+  printf("ones\n");
+  m_foutput(stdout, ones );
+*/
+
+/*
+  MAT *j = m_get( x_-> m, 1 );
+  MAT *ones = m_ones( j );
+
+  printf("ones\n");
+  m_foutput(stdout, ones );
+*/
 
 
 

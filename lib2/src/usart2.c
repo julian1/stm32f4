@@ -149,3 +149,16 @@ void usart_output_update()
 
 
 
+void usart_flush()
+{
+
+  usart_output_update();
+
+  while(!cBufisEmpty(output_buf));
+}
+
+
+
+
+
+

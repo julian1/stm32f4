@@ -26,6 +26,8 @@ void usart_set_buffers(CBuf *input, CBuf *output);
 */
 void usart_output_update(void);
 
+void usart_flush(void);
+
 
 #ifdef __cplusplus
 }

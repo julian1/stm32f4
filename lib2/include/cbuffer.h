@@ -1,3 +1,7 @@
+/*
+  TODO. our circular buffer does not handle overflow very nicely. - the result is truncated.
+
+*/
 
 #ifndef C_BUFFER_H
 #define C_BUFFER_H

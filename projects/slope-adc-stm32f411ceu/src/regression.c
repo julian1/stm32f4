@@ -29,7 +29,7 @@
 */
 
 
-static MAT *m_fill(  MAT *a, double *p )
+MAT *m_fill(  MAT *a, double *p )
 {
   // printf( "m=%u n=%u\n", a -> m, a->n );
   // get_row(a);
@@ -44,7 +44,7 @@ static MAT *m_fill(  MAT *a, double *p )
 
 
 
-static MAT *m_hconcat( MAT *a, MAT *b, MAT *out )
+MAT *m_hconcat( MAT *a, MAT *b, MAT *out )
 {
   // should probably take the output as argument, then resize it. if needed.
 
@@ -65,11 +65,38 @@ static MAT *m_hconcat( MAT *a, MAT *b, MAT *out )
 }
 
 
+void m_row_set( MAT *src, unsigned row, MAT *dst )
+{
+  // should probably take the output as argument, then resize it. if needed.
+  // rows x cols
 
-static MAT * concat_ones( MAT *x, MAT *out)
+  assert(src->m == 1);      // single row. could create variant.
+  assert(src->n == dst->n); // cols equal
+  assert(row < src->m);     // row exists
+
+   for(unsigned j = 0; j < src->n; ++j) {
+
+    m_set_val( dst, row, j,  m_get_val( src, row, j ) );
+  }
+
+}
+
+
+
+
+
+
+
+
+
+MAT * concat_ones( MAT *x, MAT *out)
 {
 
-  MAT *ones = m_ones( m_copy( x, MNULL  ));
+  // TODO review memory handling here.
+  MAT *j = m_get( x-> m, 1 ); 
+  MAT *ones = m_ones( j );
+
+  // MAT *ones = m_ones( m_copy( x, MNULL  ));
   // m_foutput(stdout, ones);
 
   MAT *ret =  m_hconcat( ones, x , out );
@@ -82,7 +109,7 @@ static MAT * concat_ones( MAT *x, MAT *out)
 
 
 
-static MAT * regression( MAT *x, MAT * y, MAT *out)
+MAT * regression( MAT *x, MAT * y, MAT *out)
 {
 
   MAT *xt =  m_transp( x, MNULL  );
@@ -100,8 +127,8 @@ static MAT * regression( MAT *x, MAT * y, MAT *out)
   // MAT *temp3 = m_mlt(  temp2 , temp1, MNULL );
   MAT *ret = m_mlt(  temp2 , temp1, out );
 
-  printf("b \n");
-  m_foutput(stdout, ret );
+  // printf("b \n");
+  // m_foutput(stdout, ret );
 
 
   M_FREE(xt);
@@ -113,7 +140,7 @@ static MAT * regression( MAT *x, MAT * y, MAT *out)
 }
 
 
-int func()
+int regression_test()
 {
   double xp[] = { 80, 100, 120, 140, 160, 180, 200, 220, 240, 260 };
 
@@ -127,6 +154,7 @@ int func()
 
   MAT *x =  concat_ones( x_, MNULL );
   MAT *b =  regression( x, y, MNULL );
+  // m_foutput(stdout, b);
 
 
   MAT *predicted = m_mlt(x, b, MNULL );
@@ -140,6 +168,7 @@ int func()
   M_FREE(b);
   M_FREE(predicted);
 
+  return 0;
 }
 
 
