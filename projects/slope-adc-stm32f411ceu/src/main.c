@@ -171,7 +171,7 @@ static void update_console_cmd(app_t *app)
 
 
 
-static void report_parameters(void )
+static void report_params(void )
 {
 
   usart_printf("clk_count_init_n  %u\n", spi_reg_read(SPI1, REG_CLK_COUNT_INIT_N ) );
@@ -203,8 +203,76 @@ static void report_parameters(void )
 
 
 
+static void report_run(void )
+{
+
+  // use separate lines (to make it easier to filter - for plugging into stats).
+  uint32_t count_up   = spi_reg_read(SPI1, REG_COUNT_UP );
+  uint32_t count_down = spi_reg_read(SPI1, REG_COUNT_DOWN );
 
 
+  usart_printf("count_up %u, ", count_up );
+  usart_printf("count_down %u, ", count_down );
+
+  uint32_t clk_count_rundown = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
+  usart_printf("clk_count_rundown %u, ", clk_count_rundown);
+
+  // TODO fix this. just use a fixed array and modulo.
+
+  usart_printf("trans_up/down %u %u, ", spi_reg_read(SPI1, REG_COUNT_TRANS_UP ),  spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN ));
+
+  usart_printf("count_flip %u, ",  spi_reg_read(SPI1, REG_COUNT_FLIP ));
+
+
+// data is wrong. until the buffers are full.
+#if 0
+  // computed via octave
+  // double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-12 * clk_count_rundown); 
+  double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * clk_count_rundown); 
+  usart_printf("v %.7f, ", v );
+#endif
+
+
+#if 0
+  static float clk_count_rundown_ar[ 10 ] ;
+  size_t n = 5;
+  // static int i = 0;
+
+  float mean_;
+  UNUSED(mean_);
+  ////////////////////////
+  ///////// stats
+
+  // usart_printf("imodn %u ", i % n);
+
+  {
+  assert(n <= ARRAY_SIZE(clk_count_rundown_ar));
+
+  clk_count_rundown_ar[ i % n ] =  clk_count_rundown;
+  usart_printf("stddev_rundown(%u) %.2f, ", n, stddev(clk_count_rundown_ar, n) );
+
+
+  mean_ = mean(clk_count_rundown_ar, n);
+  usart_printf("mean (%u) %.2f, ", n, mean_ );
+  }
+
+#endif
+#if 0
+  {
+  static float means[ 10 ];
+  assert(n <= ARRAY_SIZE(means));
+  means[ i % n  ] = mean_;
+  usart_printf("stddev_means(%u) %.2f ", n, stddev(means, n));
+  }
+
+
+  double v2 = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * mean_ ); 
+  usart_printf("v %.7f, ", v2 );
+#endif
+
+
+
+}
 
 
 
@@ -221,7 +289,7 @@ static void loop(app_t *app)
   func();
 
 
-  report_stats();
+  report_params();
 
 
   // TODO move to app_t structure?.
@@ -234,73 +302,8 @@ static void loop(app_t *app)
       // in priority
 
 
-
-      // use separate lines (to make it easier to filter - for plugging into stats).
-      uint32_t count_up   = spi_reg_read(SPI1, REG_COUNT_UP );
-      uint32_t count_down = spi_reg_read(SPI1, REG_COUNT_DOWN );
-
-
-      usart_printf("count_up %u, ", count_up );
-      usart_printf("count_down %u, ", count_down );
-
-      uint32_t clk_count_rundown = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
-      usart_printf("clk_count_rundown %u, ", clk_count_rundown);
-
-      // TODO fix this. just use a fixed array and modulo.
-
-      usart_printf("trans_up/down %u %u, ", spi_reg_read(SPI1, REG_COUNT_TRANS_UP ),  spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN ));
-
-      usart_printf("count_flip %u, ",  spi_reg_read(SPI1, REG_COUNT_FLIP ));
-
-
-    // data is wrong. until the buffers are full.
-#if 0
-      // computed via octave
-      // double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-12 * clk_count_rundown); 
-      double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * clk_count_rundown); 
-      usart_printf("v %.7f, ", v );
-#endif
-
-
-      static float clk_count_rundown_ar[ 10 ] ;
-      size_t n = 5;
-      static int i = 0;
-
-      float mean_;
-      UNUSED(mean_);
-      ////////////////////////
-      ///////// stats
-
-      // usart_printf("imodn %u ", i % n);
-
-      {
-      assert(n <= ARRAY_SIZE(clk_count_rundown_ar));
-
-      clk_count_rundown_ar[ i % n ] =  clk_count_rundown;
-      usart_printf("stddev_rundown(%u) %.2f, ", n, stddev(clk_count_rundown_ar, n) );
-#if 0
-      mean_ = mean(clk_count_rundown_ar, n);
-      usart_printf("mean (%u) %.2f, ", n, mean_ );
-#endif
-      }
-
-#if 0
-      {
-      static float means[ 10 ];
-      assert(n <= ARRAY_SIZE(means));
-      means[ i % n  ] = mean_;
-      usart_printf("stddev_means(%u) %.2f ", n, stddev(means, n));
-      }
-
-
-      double v2 = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * mean_ ); 
-      usart_printf("v %.7f, ", v2 );
-#endif
-
-
-
-      ++i;
-
+      report_run();
+      // ++i;
       usart_printf("\n");
 
 
