@@ -293,6 +293,7 @@ static void report_run(void )
   OK. there's an interesting thing. we get the dydr flag.
   But we can still transfer control from one loop - that eg. stores values. to a different loop. etc.
   So we don't necessarily have to make the interupt handler defer to a context, depending on what we want to do.
+  eg. we can pass control off from a calibration loop to another loop.
 */
 
 static void configure( uint32_t clk_count_int_n, bool use_slow_rundown, uint8_t himux_sel )
@@ -302,10 +303,81 @@ static void configure( uint32_t clk_count_int_n, bool use_slow_rundown, uint8_t 
   // encapsutate into a function.
   // uint32_t t = 5 * 20000000;
 
+  printf("configure %lu, %u, %u\n", clk_count_int_n,  use_slow_rundown, himux_sel );
+
   spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_HI, (clk_count_int_n >> 24) & 0xff );
   spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, clk_count_int_n & 0xffffff  );
   spi_reg_write(SPI1, REG_USE_SLOW_RUNDOWN, use_slow_rundown );
   spi_reg_write(SPI1, REG_HIMUX_SEL, himux_sel );
+}
+
+
+
+
+static void cal_loop(app_t *app)
+{
+  // app argument is needed for data ready flag.
+  // while loop has to be inner
+
+  for(unsigned i = 0; i < 3; ++i )
+  {
+
+
+    // switch integration configuration
+    switch(i) {
+
+      case 0:
+        configure( 5 * 20000000, 1, HIMUX_SEL_REF_LO );
+        break;
+      case 1:
+        configure( 5 * 20000000, 1, HIMUX_SEL_REF_HI );
+        break;
+
+      default:
+        // we finished, getting all data
+        // return here makes while loop simpler.
+        usart_printf("done calibrating\n");
+        return;
+        break;
+
+      // 2 case exits
+    } // switch
+
+
+    int obs = 0;
+
+    static uint32_t soft_250ms = 0;
+
+    while(obs < 3) {
+
+      // if we got data handle it.
+      if(app->data_ready) {
+        // in priority
+        report_run();
+        usart_printf("\n");
+        app->data_ready = false;
+        ++obs;
+      }
+
+      update_console_cmd(app);
+      // usart_output_update(); // shouldn't be necessary, now pumped by interupts.
+
+
+      // 250ms
+      if( (system_millis - soft_250ms) > 250) {
+        soft_250ms += 250;
+        led_toggle();
+      }
+
+
+
+
+    } // while
+
+
+
+  } // state for
+
 }
 
 
@@ -349,9 +421,7 @@ static void loop(app_t *app)
 
 
     update_console_cmd(app);
-
-    // usart_output_update(); // shouldn't be necessary
-
+    // usart_output_update(); // shouldn't be necessary, now pumped by interupts.
 
     // 500ms soft timer. should handle wrap around
     if( (system_millis - soft_500ms) > 500) {
@@ -510,6 +580,10 @@ int main(void)
 
 
   // state_change(&app, STATE_FIRST );
+
+
+
+  cal_loop(&app);
 
   loop(&app);
 }
