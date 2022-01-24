@@ -169,21 +169,13 @@ static void update_console_cmd(app_t *app)
 #define REG_USE_SLOW_RUNDOWN  24
 #define REG_HIMUX_SEL         25
 
-/*
-    // himux_sel      = 4'b1011;        // ref lo/agnd
-    // himux_sel      = 4'b1101;     // ref in
-    himux_sel         = 4'b1011;        // ref lo/agnd
-    assign { MUX_SLOPE_ANG_CTL, MUX_REF_LO_CTL, MUX_REF_HI_CTL, MUX_SIG_HI_CTL } = himux;
-*/
-
 // eg. bitwise, active lo.  avoid turning on more than one.
-// although switch has 1.5k impedance so doesn't matter.
+// although switch has 1.5k impedance so should not break
 #define HIMUX_SEL_SIG_HI      (0xf & ~(1 << 0))
 #define HIMUX_SEL_REF_HI      (0xf &~(1 << 1))
 #define HIMUX_SEL_REF_LO      (0xf &~(1 << 2))
 #define HIMUX_SEL_ANG         (0xf &~(1 << 3))
 
-//  assert( HIMUX_SEL_REF_LO ==  0b1011  );
 
 
 static void report_params(void )
@@ -326,6 +318,7 @@ static void loop(app_t *app)
   assert(ret == 20000);
 */
 
+  // encapsutate into a function.
   uint32_t t = 5 * 20000000;
   spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_HI, (t >> 24) & 0xff );
   spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, t & 0xffffff  );
