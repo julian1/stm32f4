@@ -145,29 +145,29 @@ static void update_console_cmd(app_t *app)
 
 
 
-#define REG_LED               7 
+#define REG_LED               7
 
-#define REG_COUNT_UP          9 
+#define REG_COUNT_UP          9
 #define REG_COUNT_DOWN        10
 #define REG_CLK_COUNT_RUNDOWN 11
 #define REG_COUNT_TRANS_UP    12
 #define REG_COUNT_TRANS_DOWN  14
 
-#define REG_TEST              15     
-#define REG_RUNDOWN_DIR       16     
-#define REG_COUNT_FLIP        17     
+#define REG_TEST              15
+#define REG_RUNDOWN_DIR       16
+#define REG_COUNT_FLIP        17
 
 
 // control parameters
-#define REG_CLK_COUNT_INIT_N  18  
+#define REG_CLK_COUNT_INIT_N  18
 #define REG_CLK_COUNT_FIX_N   20
 #define REG_CLK_COUNT_VAR_N   21
 #define REG_CLK_COUNT_INT_N_LO   22
 #define REG_CLK_COUNT_INT_N_HI 23
 
 
-#define REG_USE_SLOW_RUNDOWN  24 
-#define REG_HIMUX_SEL         25 
+#define REG_USE_SLOW_RUNDOWN  24
+#define REG_HIMUX_SEL         25
 
 
 
@@ -179,7 +179,7 @@ static void report_params(void )
 
   usart_printf("reg_led           %s\n", format_bits( buf, 4, spi_reg_read(SPI1, REG_LED )) );
   usart_printf("clk_count_init_n  %u\n", spi_reg_read(SPI1, REG_CLK_COUNT_INIT_N ) );
-  
+
   usart_printf("clk_count_fix_n   %u\n", spi_reg_read(SPI1, REG_CLK_COUNT_FIX_N ) );
   usart_printf("clk_count_var_n   %u\n", spi_reg_read(SPI1, REG_CLK_COUNT_VAR_N ) );
 
@@ -199,7 +199,7 @@ static void report_params(void )
 
   usart_printf("use_slow_rundown  %u\n", spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN) );
 
-  // 
+  //
   // char buf[100] char * format_bits(char *buf, size_t width, uint32_t value)
   usart_printf("himux_sel         %s\n", format_bits( buf, 4, spi_reg_read(SPI1, REG_HIMUX_SEL )) );
 }
@@ -230,8 +230,8 @@ static void report_run(void )
 // data is wrong. until the buffers are full.
 #if 0
   // computed via octave
-  // double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-12 * clk_count_rundown); 
-  double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * clk_count_rundown); 
+  // double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-12 * clk_count_rundown);
+  double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * clk_count_rundown);
   usart_printf("v %.7f, ", v );
 #endif
 
@@ -269,7 +269,7 @@ static void report_run(void )
   }
 
 
-  double v2 = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * mean_ ); 
+  double v2 = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * mean_ );
   usart_printf("v %.7f, ", v2 );
 #endif
 
@@ -294,14 +294,32 @@ static void loop(app_t *app)
 
   uint32_t ret;
 
-
-
+  ///////////////////////////////////////////
+  // write the mux select
   // himux_sel = 4'b1101;     // ref i
-  spi_reg_write(SPI1, REG_HIMUX_SEL , 0b1101 ); // doesn't work to set reg_himux_sel 
+  spi_reg_write(SPI1, REG_HIMUX_SEL , 0b1101 ); // doesn't work to set reg_himux_sel
   ret = spi_reg_read(SPI1, REG_HIMUX_SEL);
   assert(ret == 0b1101 );
 
+  spi_reg_write(SPI1, REG_CLK_COUNT_INIT_N, 20000 ); // doesn't work to set reg_himux_sel
+  ret = spi_reg_read(SPI1, REG_CLK_COUNT_INIT_N );
+  assert(ret == 20000);
 
+/*
+  spi_reg_write(SPI1, REG_CLK_COUNT_INIT_N, 20000 ); // doesn't work to set reg_himux_sel
+  ret = spi_reg_read(SPI1, REG_CLK_COUNT_INIT_N );
+  assert(ret == 20000);
+*/
+
+  uint32_t t = 5 * 20000000;
+  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_HI, t >> 24 );
+  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, t & 24 );
+
+  spi_reg_write(SPI1, REG_USE_SLOW_RUNDOWN, 0 );
+
+  spi_reg_write(SPI1, REG_HIMUX_SEL, 0b1011 );        // ref lo/agnd
+
+  // 0xff
 
   // It's not working because it's not 32bits. it's 24 bits...
 
