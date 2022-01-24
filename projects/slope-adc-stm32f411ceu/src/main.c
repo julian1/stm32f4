@@ -359,7 +359,7 @@ static void cal_loop(app_t *app)
         ++obs;
       }
 
-      update_console_cmd(app);
+      // update_console_cmd(app);
       // usart_output_update(); // shouldn't be necessary, now pumped by interupts.
 
 
