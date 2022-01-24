@@ -167,7 +167,7 @@ static void update_console_cmd(app_t *app)
 
 
 #define REG_USE_SLOW_RUNDOWN  24 
-#define REG_HIMUX_SEL         25 
+#define REG_HIMUX_SEL         6 
 
 
 
@@ -199,6 +199,7 @@ static void report_params(void )
   // char buf[100] char * format_bits(char *buf, size_t width, uint32_t value)
   char buf[10];
   usart_printf("himux_sel         %s\n", format_bits( buf, 4, spi_reg_read(SPI1, REG_HIMUX_SEL )) );
+  usart_printf("reg_led           %s\n", format_bits( buf, 4, spi_reg_read(SPI1, REG_LED )) );
 }
 
 
@@ -286,26 +287,46 @@ static void loop(app_t *app)
   */
 
 
-  func();
+  // func();
 
 
   uint32_t ret;
 
-  // this succeeds
-  spi_reg_write(SPI1, REG_LED , 0xff00ff);
-  ret = spi_reg_read(SPI1, REG_LED);
-  assert(ret == 0xff00ff);
 
-  // could be meta-instability issue.
-  // reg-led is declared wire rather than register????
+  /*
+    OK. neither reg led or himux sel are wroking...
+    No. reg_led is now working.
+    ----------
+    only difference is we inject reg_led into my_register_bank only?
 
-  // this fails.
-  // usart_printf("himux_sel         %s\n", format_bits( buf, 4, spi_reg_read(SPI1, REG_HIMUX_SEL )) );
-  spi_reg_write(SPI1, REG_HIMUX_SEL , 0x1101 ); // ref hi
-  ret = spi_reg_read(SPI1, REG_HIMUX_SEL);
+    so perhaps its only manipulating a local copy????
+
+  */
+#if 0
+  printf("==========\n");
+
+  spi_reg_write(SPI1, REG_LED,        0b0111 ); // ref hi works to set reg_led.
+  spi_reg_write(SPI1, REG_HIMUX_SEL , 0b0111 ); // doesn't work to set reg_himux_sel 
+
+
   char buf[10];
-  usart_printf("himux_sel         %s\n", format_bits( buf, 7, ret ));
-  assert(ret == 0x1101);
+  usart_printf("himux_sel         %s\n", format_bits( buf, 4, spi_reg_read(SPI1, REG_HIMUX_SEL )) );
+  usart_printf("reg_led           %s\n", format_bits( buf, 4, spi_reg_read(SPI1, REG_LED )) );  // ok. something wrong here...
+
+
+  ret = spi_reg_read(SPI1, REG_HIMUX_SEL);
+  assert(ret == 0b0111 );
+
+#endif
+
+  // himux_sel = 4'b1101;     // ref i
+  spi_reg_write(SPI1, REG_HIMUX_SEL , 0b1101 ); // doesn't work to set reg_himux_sel 
+  ret = spi_reg_read(SPI1, REG_HIMUX_SEL);
+  assert(ret == 0b1101 );
+
+
+
+  // It's not working because it's not 32bits. it's 24 bits...
 
 
 
