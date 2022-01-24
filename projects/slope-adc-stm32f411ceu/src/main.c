@@ -167,7 +167,7 @@ static void update_console_cmd(app_t *app)
 
 
 #define REG_USE_SLOW_RUNDOWN  24 
-#define REG_HIMUX_SEL         6 
+#define REG_HIMUX_SEL         25 
 
 
 
