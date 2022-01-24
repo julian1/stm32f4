@@ -296,11 +296,15 @@ static void loop(app_t *app)
   ret = spi_reg_read(SPI1, REG_LED);
   assert(ret == 0xff00ff);
 
+  // could be meta-instability issue.
+  // reg-led is declared wire rather than register????
 
   // this fails.
   // usart_printf("himux_sel         %s\n", format_bits( buf, 4, spi_reg_read(SPI1, REG_HIMUX_SEL )) );
   spi_reg_write(SPI1, REG_HIMUX_SEL , 0x1101 ); // ref hi
   ret = spi_reg_read(SPI1, REG_HIMUX_SEL);
+  char buf[10];
+  usart_printf("himux_sel         %s\n", format_bits( buf, 7, ret ));
   assert(ret == 0x1101);
 
 
