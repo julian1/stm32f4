@@ -15,7 +15,7 @@ mesch12b=${TOP}/mesch12b
 BINARY		= main
 SRCFILES	= ./src/main.c src/util.c   src/ice40.c src/spi1.c src/regression.c src/mesch.c \
               ${LIB2SRC}/cbuffer.c  ${LIB2SRC}/usart2.c \
-              ${LIB2SRC}/fbuffer.c ${LIB2SRC}/stats.c \
+              ${LIB2SRC}/fbuffer.c ${LIB2SRC}/stats.c  ${LIB2SRC}/format.c \
               ${LIB2SRC}/streams.c  \
               ${mesch12b}/copy.c  ${mesch12b}/init.c ${mesch12b}/matop.c ${mesch12b}/submat.c  \
               ${mesch12b}/memory.c ${mesch12b}/meminfo.c  \

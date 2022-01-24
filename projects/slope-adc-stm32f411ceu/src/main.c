@@ -42,6 +42,7 @@
 
 #include "fbuffer.h"
 #include "stats.h"
+#include "format.h" // format_bits
 
 
 
@@ -166,6 +167,7 @@ static void update_console_cmd(app_t *app)
 
 
 #define REG_USE_SLOW_RUNDOWN  24 
+#define REG_HIMUX_SEL         25 
 
 
 static void loop(app_t *app)
@@ -198,6 +200,12 @@ static void loop(app_t *app)
 
 
   usart_printf("use_slow_rundown  %u\n", spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN) );
+
+  // 
+  // char buf[100] char * format_bits(char *buf, size_t width, uint32_t value)
+  char buf[10];
+  usart_printf("himux_sel         %s\n", format_bits( buf, 4, spi_reg_read(SPI1, REG_HIMUX_SEL )) );
+
 
 
 

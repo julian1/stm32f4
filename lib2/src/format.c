@@ -70,6 +70,7 @@ char * format_float(char *s, size_t sz, int digits, double value)
 
 char * format_bits(char *buf, size_t width, uint32_t value)
 {
+  // eg. size_t == width + 1 for terminal.
   // passing the buf, means can use more than once in printf expression. using separate bufs
   char *s = buf;
 
