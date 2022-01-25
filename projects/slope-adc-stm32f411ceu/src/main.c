@@ -146,8 +146,8 @@ static void update_console_cmd(app_t *app)
 
 #define REG_LED               7
 
-#define REG_COUNT_VAR_NEG          9
-#define REG_COUNT_VAR_POS        10
+#define REG_COUNT_UP          9
+#define REG_COUNT_DOWN        10
 #define REG_CLK_COUNT_RUNDOWN 11
 #define REG_COUNT_TRANS_UP    12
 #define REG_COUNT_TRANS_DOWN  14
@@ -226,8 +226,8 @@ static void report_params(void )
 
 struct Run
 {
-  uint32_t count_var_neg;
-  uint32_t count_var_pos;
+  uint32_t count_up;
+  uint32_t count_down;
   uint32_t clk_count_rundown;
 
   //
@@ -248,8 +248,8 @@ static void record_run( Run *run )
   assert(run);
 
   // use separate lines (to make it easier to filter - for plugging into stats).
-  run->count_var_neg      = spi_reg_read(SPI1, REG_COUNT_VAR_NEG );
-  run->count_var_pos      = spi_reg_read(SPI1, REG_COUNT_VAR_POS );
+  run->count_up           = spi_reg_read(SPI1, REG_COUNT_UP );
+  run->count_down         = spi_reg_read(SPI1, REG_COUNT_DOWN );
 
   // WE could record slow_rundown separate to normal rundown.
   run->clk_count_rundown  = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
@@ -270,8 +270,8 @@ static void report_run( Run *run )
 {
   assert(run);
 
-  usart_printf("count_var_neg %u, ",         run->count_var_neg );
-  usart_printf("count_var_pos %u, ",       run->count_var_pos );
+  usart_printf("count_up %u, ",         run->count_up );
+  usart_printf("count_down %u, ",       run->count_down );
   usart_printf("clk_count_rundown %u, ", run->clk_count_rundown);
   usart_printf("trans_up/down %u %u, ", run->count_trans_up,  run->count_trans_down);
   usart_printf("count_flip %u, ",       run->count_flip);
@@ -292,7 +292,7 @@ static MAT * run_to_matrix( Run *run, MAT * out )
 
     EXTR IMPORTANT
     *******
-    rather than represent the slow rundown as an independent field .
+    2. rather than represent the slow rundown as an independent field .
     it could be represented - as a clk count of *both* pos and neg.
     likewise the fast rundown
 
@@ -305,14 +305,15 @@ static MAT * run_to_matrix( Run *run, MAT * out )
     So that the calculation collpases to just a two independent variable linear regression.
     And if fast runddown is used then it is just 0 clk.
 
+    =======
   */
 
   // compute value
   m_resize(out, 1, 4);
 
   m_set_val( out, 0, 0,  1.f );   // should be 1...
-  m_set_val( out, 0, 1,  run->count_var_neg );
-  m_set_val( out, 0, 2,  run->count_var_pos );
+  m_set_val( out, 0, 1,  run->count_up );
+  m_set_val( out, 0, 2,  run->count_down );
 
   /*
   - is this a way of generating extra data?
@@ -415,7 +416,7 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
 
         - our flip_count is wrong. and confusing things. with fixed amount.
 
-        - change names count_var_neg , count_var_pos.   count_fix_up,  count_var_up etc.  or cout_fix_pos.
+        - change names count_up , count_down.   count_fix_up,  count_var_up etc.  or cout_fix_pos.
 
         - make sure not including rundown in counts.
 
@@ -443,7 +444,7 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
           - actually this is quite interesting - because it would generate the 0 data points.
 
         - can/should  add a dummy observation.
-            eg. count_var_neg 0 , count_var_pos 0, rundown 0 == 0
+            eg. count_up 0 , count_down 0, rundown 0 == 0
 
         - or perhaps better. without the slow slope.
             eg. just plug in 0 for the rundown.
@@ -521,8 +522,8 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
           // SHOULD WE BE USING THE RATIO?
 
           m_set_val( x, row, 0,  1 ); // ones. constant.
-          m_set_val( x, row, 1,  run.count_var_neg );
-          m_set_val( x, row, 2,  run.count_var_pos );
+          m_set_val( x, row, 1,  run.count_up );
+          m_set_val( x, row, 2,  run.count_down );
           m_set_val( x, row, 3,  run.clk_count_rundown );
 
           assert(row < y->m); // < or <= ????
@@ -595,8 +596,8 @@ static void loop(app_t *app, MAT *bbbb )
       // compute value
       MAT *x = m_get(1, 4);
       m_set_val( x, 0, 0,  1.f );   // should be 1...
-      m_set_val( x, 0, 1,  run.count_var_neg );
-      m_set_val( x, 0, 2,  run.count_var_pos );
+      m_set_val( x, 0, 1,  run.count_up );
+      m_set_val( x, 0, 2,  run.count_down );
       m_set_val( x, 0, 3,  run.clk_count_rundown );
 
       MAT *predicted = m_mlt(x, b, MNULL );
@@ -880,8 +881,8 @@ int main(void)
 // data is wrong. until the buffers are full.
 #if 0
   // computed via octave
-  // double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_var_neg) + ( -3.1250e-02 * count_var_pos) + (-4.5475e-12 * clk_count_rundown);
-  double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_var_neg) + ( -3.1250e-02 * count_var_pos) + (-4.5475e-7 * clk_count_rundown);
+  // double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-12 * clk_count_rundown);
+  double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * clk_count_rundown);
   usart_printf("v %.7f, ", v );
 #endif
 
@@ -919,7 +920,7 @@ int main(void)
   }
 
 
-  double v2 = (-6.0000e+00 * 1) + (4.6875e-02 * count_var_neg) + ( -3.1250e-02 * count_var_pos) + (-4.5475e-7 * mean_ );
+  double v2 = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * mean_ );
   usart_printf("v %.7f, ", v2 );
 #endif
 
