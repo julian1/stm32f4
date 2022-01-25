@@ -151,14 +151,13 @@ static void update_console_cmd(app_t *app)
 #define REG_CLK_COUNT_RUNDOWN 11
 #define REG_COUNT_TRANS_UP    12
 #define REG_COUNT_TRANS_DOWN  14
-
 #define REG_COUNT_FIX_UP      26
 #define REG_COUNT_FIX_DOWN    27 
+#define REG_COUNT_FLIP        17
 
 
 #define REG_TEST              15
 #define REG_RUNDOWN_DIR       16
-#define REG_COUNT_FLIP        17
 
 
 // control parameters
@@ -236,12 +235,12 @@ struct Run
   uint32_t count_trans_down;
   uint32_t count_fix_up;
   uint32_t count_fix_down;
+  uint32_t count_flip;
+
+  // rundown_dir.
 
   uint32_t clk_count_rundown;
 
-
-  // rundown_dir.
-  uint32_t count_flip;
 
   bool use_slow_rundown ; // eg. reread back.
 };
@@ -263,12 +262,13 @@ static void record_run( Run *run )
   run->count_fix_up     = spi_reg_read(SPI1, REG_COUNT_FIX_UP);
   run->count_fix_down   = spi_reg_read(SPI1, REG_COUNT_FIX_DOWN);
 
+  run->count_flip         = spi_reg_read(SPI1, REG_COUNT_FLIP);
+
+
   // WE could record slow_rundown separate to normal rundown.
   run->clk_count_rundown  = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
 
-
   // rundown_dir.
-  run->count_flip         = spi_reg_read(SPI1, REG_COUNT_FLIP);
 
   run->use_slow_rundown   = spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN);
 }
@@ -284,15 +284,12 @@ static void report_run( Run *run )
   // usart_printf("count_down %u, ",       run->count_down );
 
   usart_printf("count_up/down %u, %u ", run->count_up, run->count_down );
-
-
   usart_printf("trans_up/down %u %u, ", run->count_trans_up,  run->count_trans_down);
-
   usart_printf("fix_up/down %u %u, ",   run->count_fix_up,  run->count_fix_down);
+  usart_printf("count_flip %u, ",       run->count_flip);
 
   usart_printf("clk_count_rundown %u, ", run->clk_count_rundown);
 
-  usart_printf("count_flip %u, ",       run->count_flip);
   usart_printf("use_slow_rundown %u",   run->use_slow_rundown);
   usart_printf("\n");
 }
@@ -750,11 +747,24 @@ int main(void)
 
   usart_printf("a float formatted %g\n", 123.456f );
 
-#if 1
+
+#if 0
   // test ice40 register read/write
   // ok. seems to work.
   usart_printf("whoot\n");
   uint32_t ret;
+
+  usart_flush();
+  msleep(1);
+
+
+
+/*
+  OK. i think these spi calls may fail when speed of design falls below 32MHz. 
+  because 
+
+*/
+
 
 /*
   spi_reg_xfer_24(SPI1, REG_LED, 0xffffff );
@@ -762,16 +772,26 @@ int main(void)
   ASSERT(ret == 0xffffff);
 */
 
-  // fails... with new spi target, and deferred assignment
+  /*
+    IMPORTANT.
+    OK. we removed reg_led from the verilog initial block.
+    and now we the values are correct. 
 
+  */
+
+#if 1
   spi_reg_write(SPI1, REG_LED , 0xff00ff);
+  msleep(1);
   ret = spi_reg_read(SPI1, REG_LED);
+  usart_printf("ret is %x\n", ret);
+  // ret value is completely wrong....
   assert(ret == 0xff00ff);
 
   // this works... eg. allowing high bit to be off.
   spi_reg_write(SPI1, REG_LED, 0x7f00ff);
   ret = spi_reg_read(SPI1, REG_LED);
   assert(ret == 0x7f00ff);
+#endif
 
 /*
   ///////////////////
