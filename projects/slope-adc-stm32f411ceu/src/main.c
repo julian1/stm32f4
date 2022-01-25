@@ -284,10 +284,26 @@ static MAT * run_to_matrix( Run *run, MAT * out )
 {
   /*
     EXTR. IMPORTANT.
-    must calculate the estimated  values before average rather than average raw inputs then cal estimated.
+    1. must calculate the estimator values before average rather than average raw inputs (rundown count etc) then cal estimated.
 
-    because the modulation could flutter around the hi count values. so that an average
-    does not accurately capture the combination with slow rundown count. 
+    - because the modulation could flutter around the hi count values. so that an average
+    does not accurately capture the combination with slow rundown count.
+    ------------
+
+    EXTR IMPORTANT
+    *******
+    rather than represent the slow rundown as an independent field .
+    it could be represented - as a clk count of *both* pos and neg.
+    likewise the fast rundown
+
+    eg. total current =
+    (fix pos + var pos + rundown pos) + (fix neg + var neg  + rundown neg )
+    = c + a * pos + b * neg
+
+    rather than 3 independent var linear regression, it collapses to a 2 var regression.
+
+    So that the calculation collpases to just a two independent variable linear regression.
+    And if fast runddown is used then it is just 0 clk.
 
   */
 
@@ -373,20 +389,20 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
 
     /*
       EXTR
-        fixed pos == fixed neg. so only record once - and it becomes a constant. 
+        fixed pos == fixed neg. so only record once - and it becomes a constant.
       -------
         8****
         - i think as soon as we hit int period. eg. 1PLC. or 200ms. we must turn of input immediately.
         - not wait until we we come to the end of a phase (var) . and then test whether we finished.
         - eg. we must have the time of the input signal - to be absolutely constant between measurements.
-           - regardless we use fast rundown or slow rundown. 
-        
-          - this means. being able to switch ref currents and signal independently. 
+           - regardless we use fast rundown or slow rundown.
+
+          - this means. being able to switch ref currents and signal independently.
 
         ***
 
         =========================
-        - should try to get the two parameter thing working. with rundown.   (non slow). 
+        - should try to get the two parameter thing working. with rundown.   (non slow).
           eg.  fix pos + var pos + rundown.   and fix neg + var neg.
           ----------
           no. because in the rundown the input is turned off. so it must be a different variable. but maybe should be left on.
