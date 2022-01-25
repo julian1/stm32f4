@@ -152,6 +152,10 @@ static void update_console_cmd(app_t *app)
 #define REG_COUNT_TRANS_UP    12
 #define REG_COUNT_TRANS_DOWN  14
 
+#define REG_COUNT_FIX_UP      26
+#define REG_COUNT_FIX_DOWN    27 
+
+
 #define REG_TEST              15
 #define REG_RUNDOWN_DIR       16
 #define REG_COUNT_FLIP        17
@@ -228,11 +232,13 @@ struct Run
 {
   uint32_t count_up;
   uint32_t count_down;
-  uint32_t clk_count_rundown;
-
-  //
   uint32_t count_trans_up;
   uint32_t count_trans_down;
+  uint32_t count_fix_up;
+  uint32_t count_fix_down;
+
+  uint32_t clk_count_rundown;
+
 
   // rundown_dir.
   uint32_t count_flip;
@@ -251,11 +257,15 @@ static void record_run( Run *run )
   run->count_up           = spi_reg_read(SPI1, REG_COUNT_UP );
   run->count_down         = spi_reg_read(SPI1, REG_COUNT_DOWN );
 
+  run->count_trans_up     = spi_reg_read(SPI1, REG_COUNT_TRANS_UP );
+  run->count_trans_down   = spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN );
+
+  run->count_fix_up     = spi_reg_read(SPI1, REG_COUNT_FIX_UP);
+  run->count_fix_down   = spi_reg_read(SPI1, REG_COUNT_FIX_DOWN);
+
   // WE could record slow_rundown separate to normal rundown.
   run->clk_count_rundown  = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
 
-  run->count_trans_up     = spi_reg_read(SPI1, REG_COUNT_TRANS_UP );
-  run->count_trans_down   = spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN );
 
   // rundown_dir.
   run->count_flip         = spi_reg_read(SPI1, REG_COUNT_FLIP);
@@ -270,12 +280,20 @@ static void report_run( Run *run )
 {
   assert(run);
 
-  usart_printf("count_up %u, ",         run->count_up );
-  usart_printf("count_down %u, ",       run->count_down );
-  usart_printf("clk_count_rundown %u, ", run->clk_count_rundown);
+  // usart_printf("count_up %u, ",         run->count_up );
+  // usart_printf("count_down %u, ",       run->count_down );
+
+  usart_printf("count_up/down %u, %u ", run->count_up, run->count_down );
+
+
   usart_printf("trans_up/down %u %u, ", run->count_trans_up,  run->count_trans_down);
+
+  usart_printf("fix_up/down %u %u, ",   run->count_fix_up,  run->count_fix_down);
+
+  usart_printf("clk_count_rundown %u, ", run->clk_count_rundown);
+
   usart_printf("count_flip %u, ",       run->count_flip);
-  usart_printf("use_slow_rundown %n",   run->use_slow_rundown);
+  usart_printf("use_slow_rundown %u",   run->use_slow_rundown);
   usart_printf("\n");
 }
 

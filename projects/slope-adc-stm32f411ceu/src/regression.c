@@ -65,6 +65,15 @@ MAT *m_hconcat( MAT *a, MAT *b, MAT *out )
 }
 
 
+
+/*
+  see. albeit these work with vec not mat.
+  set_row() Set the row of a matrix to a given vector
+  set_col() Set the column of a matrix to a given vector
+
+  having the mat is easier. unless have mat_to_vec 
+*/
+
 void m_row_set( MAT *src, unsigned row, MAT *dst )
 {
   // should probably take the output as argument, then resize it. if needed.
