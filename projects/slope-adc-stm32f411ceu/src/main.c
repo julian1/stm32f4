@@ -275,7 +275,7 @@ static void report_run( Run *run )
   usart_printf("clk_count_rundown %u, ", run->clk_count_rundown);
   usart_printf("trans_up/down %u %u, ", run->count_trans_up,  run->count_trans_down);
   usart_printf("count_flip %u, ",       run->count_flip);
-  usart_printf("use_slow_rundown %u\n", run->use_slow_rundown);
+  usart_printf("use_slow_rundown %n",   run->use_slow_rundown);
   usart_printf("\n");
 }
 
@@ -533,8 +533,9 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
 // hmmm weights are all off...
 
 
-static void loop(app_t *app, MAT *b)
+static void loop(app_t *app, MAT *bbbb )
 {
+  UNUSED(bbbb);
   /*
     loop() subsumes update()
   */
@@ -565,28 +566,20 @@ static void loop(app_t *app, MAT *b)
       Run run;
       record_run(&run );
       report_run(&run);
-#if 1
+#if 0
       // compute value
       MAT *x = m_get(1, 4);
       m_set_val( x, 0, 0,  1.f );   // should be 1...
       m_set_val( x, 0, 1,  run.count_up );
       m_set_val( x, 0, 2,  run.count_down );
       m_set_val( x, 0, 3,  run.clk_count_rundown );
-#endif
-#if 0
-      // compute value
-      MAT *x = m_get(1, 3);
-      m_set_val( x, 0, 0,  run.count_up );
-      m_set_val( x, 0, 1,  run.count_down );
-      m_set_val( x, 0, 2,  run.clk_count_rundown );
-#endif
-
 
       MAT *predicted = m_mlt(x, b, MNULL );
       printf("predicted \n");
       m_foutput(stdout, predicted );
 
       M_FREE(predicted);
+#endif
 
       app->data_ready = false;
     }
@@ -753,6 +746,7 @@ int main(void)
 
   // state_change(&app, STATE_FIRST );
 
+#if 0
   ////////////////////////////////////
   // produces two return values.
   // mnull for both args fails ...
@@ -786,7 +780,7 @@ int main(void)
   printf("predicted \n");
   m_foutput(stdout, predicted );
   usart_flush();
-
+#endif
 
   // TODO clean up mem.
   // TODO. our circular buffer does not handle overflow very nicely. - the result is truncated.
@@ -813,7 +807,7 @@ int main(void)
 */
 
 
-  loop(&app, b );
+  loop(&app, NULL );
 }
 
 
