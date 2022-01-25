@@ -364,11 +364,15 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
 
     /*
       EXTR
+        fixed pos == fixed neg. so only record once - and it becomes a constant. 
+      -------
         8****
         - i think as soon as we hit int period. eg. 1PLC. or 200ms. we must turn of input immediately.
         - not wait until we we come to the end of a phase (var) . and then test whether we finished.
         - eg. we must have the time of the input signal - to be absolutely constant between measurements.
            - regardless we use fast rundown or slow rundown. 
+        
+          - this means. being able to switch ref currents and signal independently. 
 
         ***
 
