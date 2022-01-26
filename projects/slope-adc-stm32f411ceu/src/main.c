@@ -343,7 +343,7 @@ static void run_report( Run *run )
   // usart_printf("count_up %u, ",         run->count_up );
   // usart_printf("count_down %u, ",       run->count_down );
 
-  usart_printf("count_up/down %u, %u ", run->count_up, run->count_down );
+  usart_printf("count_up/down %u %u, ", run->count_up, run->count_down );
   // usart_printf("trans_up/down %u %u, ", run->count_trans_up,  run->count_trans_down);
   usart_printf("fix_up/down %u %u, ",   run->count_fix_up,  run->count_fix_down);
   // usart_printf("count_flip %u, ",       run->count_flip);
@@ -436,6 +436,7 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
         params.himux_sel = HIMUX_SEL_REF_LO;
         target = 0.0;
 
+        params_report(&params);
         params_write_main(&params);
         break;
 
@@ -444,6 +445,7 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
         params.himux_sel = HIMUX_SEL_REF_LO;
         target = 0.0;
 
+        params_report(&params);
         params_write_main(& params);
         break;
 
