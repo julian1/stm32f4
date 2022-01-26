@@ -492,14 +492,10 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
         // ignore first obs
         if(obs >= 1) {
 
-          // do x
-
-          usart_printf("here!\n");
-          usart_flush();
           MAT *whoot = run_to_matrix( &params, &run, MNULL );
           assert(whoot);
 
-          m_foutput(stdout, whoot );
+          // m_foutput(stdout, whoot );
           m_row_set( x, row, whoot );
           M_FREE(whoot);
 
