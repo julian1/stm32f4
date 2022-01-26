@@ -306,8 +306,6 @@ struct Run
 
   uint32_t clk_count_rundown;
 
-
-  bool use_slow_rundown ; // eg. reread back.
 };
 
 typedef struct Run  Run;
@@ -333,9 +331,6 @@ static void run_read( Run *run )
   // WE could record slow_rundown separate to normal rundown.
   run->clk_count_rundown = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
 
-  /////////////////////
-  // parameters
-  run->use_slow_rundown = spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN);
 }
 
 
@@ -355,7 +350,6 @@ static void run_report( Run *run )
 
   usart_printf("clk_count_rundown %u, ", run->clk_count_rundown);
 
-  usart_printf("use_slow_rundown %u",   run->use_slow_rundown);
   usart_printf("\n");
 }
 
