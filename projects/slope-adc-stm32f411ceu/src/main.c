@@ -773,18 +773,13 @@ int main(void)
 
   cal_loop(&app, x, y );
 
-
-#if 0
-
-  // MAT *x =  concat_ones( x_, MNULL );
-  // MAT *x = x_;
-
-  // printf("x\n");
-  // m_foutput(stdout, x);
-
-
+  printf("x\n");
+  m_foutput(stdout, x);
   usart_flush();
 
+
+
+#if 0
   MAT *b =  regression( x, y, MNULL );
   printf("b\n");
   m_foutput(stdout, b);
