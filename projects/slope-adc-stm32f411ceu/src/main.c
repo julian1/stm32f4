@@ -251,7 +251,7 @@ static void params_report(Params * params )
 
 static void params_write_main( Params *params ) // uint32_t clk_count_int_n, bool use_slow_rundown, uint8_t himux_sel )
 {
-  // int params_set
+  // write the main parameter to device
 
   // encapsutate into a function.
   // uint32_t t = 5 * 20000000;
@@ -389,25 +389,14 @@ static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
   */
 
   UNUSED(params);
-  UNUSED(run );
 
   // compute value
-  m_resize(out, 1, 4);
+  m_resize(out, 1, 3);
 
-  m_set_val( out, 0, 0,  1.f );   // should be 1...
+  m_set_val( out, 0, 0,  run->count_fix_up );
   m_set_val( out, 0, 1,  run->count_up );
   m_set_val( out, 0, 2,  run->count_down );
 
-  /*
-  - is this a way of generating extra data?
-  record in different fields.
-  if(run-> use_slow_rundown) {
-  }
-  else {
-  }
-  */
-
-  m_set_val( out, 0, 3,  run->clk_count_rundown );
 
   return out;
 }
@@ -428,7 +417,7 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
   unsigned row = 0;
 
   #define MAX_OBS  30
-  #define X_COLS   3 
+  #define X_COLS   3
 
   m_resize( x , MAX_OBS, X_COLS );      // constant + pos clk + neg clk.
   m_resize( y , MAX_OBS, 1 );
@@ -473,7 +462,7 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
         // shrink matrixes for the data
         m_resize( x , row, X_COLS   );
         m_resize( y , row, 1 );
-      
+
         // we could do the cal here...
 
         return;
