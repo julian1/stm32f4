@@ -318,8 +318,8 @@ static void run_read( Run *run )
   assert(run);
 
   // use separate lines (to make it easier to filter - for plugging into stats).
-  run->count_up           = spi_reg_read(SPI1, REG_COUNT_UP );
-  run->count_down         = spi_reg_read(SPI1, REG_COUNT_DOWN );
+  run->count_up         = spi_reg_read(SPI1, REG_COUNT_UP );
+  run->count_down       = spi_reg_read(SPI1, REG_COUNT_DOWN );
 
   // run->count_trans_up     = spi_reg_read(SPI1, REG_COUNT_TRANS_UP );
   // run->count_trans_down   = spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN );
@@ -327,15 +327,15 @@ static void run_read( Run *run )
   run->count_fix_up     = spi_reg_read(SPI1, REG_COUNT_FIX_UP);
   run->count_fix_down   = spi_reg_read(SPI1, REG_COUNT_FIX_DOWN);
 
-  // run->count_flip         = spi_reg_read(SPI1, REG_COUNT_FLIP);
+  // run->count_flip    = spi_reg_read(SPI1, REG_COUNT_FLIP);
 
 
   // WE could record slow_rundown separate to normal rundown.
-  run->clk_count_rundown  = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
+  run->clk_count_rundown = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
 
   /////////////////////
   // parameters
-  run->use_slow_rundown   = spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN);
+  run->use_slow_rundown = spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN);
 }
 
 
@@ -360,7 +360,7 @@ static void run_report( Run *run )
 }
 
 
-static MAT * run_to_matrix( Run *run, MAT * out )
+static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
 {
   /*
     EXTR. IMPORTANT.
@@ -387,6 +387,9 @@ static MAT * run_to_matrix( Run *run, MAT * out )
 
     =======
   */
+
+  UNUSED(params);
+  UNUSED(run );
 
   // compute value
   m_resize(out, 1, 4);
@@ -419,30 +422,18 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
 {
   // app argument is needed for data ready flag.
   // while loop has to be inner
-
   // might be easier to overside. and then resize.
 
   // rows x cols
   unsigned row = 0;
 
   #define MAX_OBS  30
+  #define X_COLS   3 
 
-  #define X_COLS (1 + 3 )
-
-  m_resize( x , MAX_OBS, X_COLS ); // ones constant
+  m_resize( x , MAX_OBS, X_COLS );      // constant + pos clk + neg clk.
   m_resize( y , MAX_OBS, 1 );
 
 
-
-  /*
-    // dummy 0,0,0 -> 0. entry.   not correct due to buffer offset voltage
-    m_set_val( x, row, 0,  1 ); // ones. constant.
-    m_set_val( x, row, 1,  0 );
-    m_set_val( x, row, 2,  0 );
-    m_set_val( x, row, 3,  0 );
-    m_set_val( y, row, 0,  0 );   // this isn't right. due to buffer offset.
-    ++row;
-  */
 
   Params  params;
   params_read( &params );   // change name read_from_device ?
@@ -456,22 +447,18 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
     switch(i) {
 
       case 0:
-        params_set( 1 * 20000000, 1, HIMUX_SEL_REF_LO ); target = 0.0; break;
+        // params_set( 1 * 20000000, 1, HIMUX_SEL_REF_LO ); target = 0.0; break;
+        params.clk_count_int_n  = 1 * 20000000;
+        params.use_slow_rundown = 1;
+        params.himux_sel = HIMUX_SEL_REF_LO;
+        target = 0.0;
+        break;
+
       case 1:
-        params_set( 1 * 20000000, 1, HIMUX_SEL_REF_HI ); target = 7.1; break;
-
-      case 2:
-        params_set( 0.5 * 20000000, 1, HIMUX_SEL_REF_LO ); target = 0.0; break;
-      case 3:
-        params_set( 0.5 * 20000000, 1, HIMUX_SEL_REF_HI ); target = 7.1; break;
-  /*
-      case 4:
-        params_set( 0.4 * 20000000, 1, HIMUX_SEL_REF_LO ); target = 0.0; break;
-      case 5:
-        params_set( 0.4 * 20000000, 1, HIMUX_SEL_REF_HI ); target = 7.1; break;
-*/
-
-      case 4:
+        // same except
+        params.himux_sel = HIMUX_SEL_REF_LO;
+        target = 0.0;
+        break;
 
 
       default:
@@ -482,6 +469,8 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
         // shrink matrixes for the data
         m_resize( x , row, X_COLS   );
         m_resize( y , row, 1 );
+      
+        // we could do the cal here...
 
         return;
         break;
@@ -510,17 +499,12 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
         // ignore first obs
         if(obs >= 1) {
 
-          // store in matrix.
-          assert(row < x->m); // < or <= ????
-          // TODO we could just add a one here. rather than add the extra column.
-          // then we could make the loading code generic. for calibration and predicted.
-          // SHOULD WE BE USING THE RATIO?
+          // do x
+          MAT *whoot =  run_to_matrix( &params, &run, MNULL );
+          m_row_set( x, row, whoot );
+          M_FREE(whoot);
 
-          m_set_val( x, row, 0,  1 ); // ones. constant.
-          m_set_val( x, row, 1,  run.count_up );
-          m_set_val( x, row, 2,  run.count_down );
-          m_set_val( x, row, 3,  run.clk_count_rundown );
-
+          // do y
           assert(row < y->m); // < or <= ????
           m_set_val( y, row, 0,  target );
 
