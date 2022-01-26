@@ -357,27 +357,39 @@ static void run_report( Run *run )
 static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
 {
   /*
-    EXTR. IMPORTANT.
+    0.  very useful feature - how biased resistor ladder - means that modulation will cycle around to a stop point 
+          where 4 phase modulation ends up above  the cross. in order to do the rundown.
+          and will do this in a finite amount of time.
+
+      EXTR. IMPORTANT.
     1. must calculate the estimator values before average rather than average raw inputs (rundown count etc) then cal estimated.
 
-    - because the modulation could flutter around the hi count values. so that an average
-    does not accurately capture the combination with slow rundown count.
-    ------------
+      - because the modulation could flutter around the hi count values. so that an average
+      does not accurately capture the combination with slow rundown count.
+      ------------
 
-    EXTR IMPORTANT
-    *******
+      EXTR IMPORTANT
+      *******
     2. rather than represent the slow rundown as an independent field .
-    it could be represented - as a clk count of *both* pos and neg.
-    likewise the fast rundown
+      it could be represented - as a clk count of *both* pos and neg.
+      likewise the fast rundown
 
-    eg. total current =
-    (fix pos + var pos + rundown pos) + (fix neg + var neg  + rundown neg )
-    = c + a * pos + b * neg
+      eg. total current =
+      (fix pos + var pos + rundown pos) + (fix neg + var neg  + rundown neg )
+      = c + a * pos + b * neg
 
-    rather than 3 independent var linear regression, it collapses to a 2 var regression.
+      rather than 3 independent var linear regression, it collapses to a 2 var regression.
 
-    So that the calculation collpases to just a two independent variable linear regression.
-    And if fast runddown is used then it is just 0 clk.
+      So that the calculation collpases to just a two independent variable linear regression.
+      And if fast runddown is used then it is just 0 clk.
+
+    3. 
+      we may want a constant...
+    4. 
+      i think a valid implicit data point is -  count pos = 0, count neg = 0. should equal 0.
+    5. 
+      - think we need to simplify/combine  the cal_loop and main loop.
+      - have a generalized loop. that can just add to an empty array.  and then return control after a loop count
 
     =======
   */
@@ -385,7 +397,7 @@ static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
   UNUSED(params);
 
   if(out == MNULL)
-    out = m_get(1,1);
+    out = m_get(1,1); // TODO fix me.
 
 #if 0
   // compute value
@@ -395,11 +407,16 @@ static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
   m_set_val( out, 0, 2,  run->count_fix_up );
 #endif
 
+  /*
+    compared with an adc. we don't have to treat the residual charge on rundown - as an extra independent variable.
+  */
 
   // slow rundown uses both
 
+  double x0 = 1.0f;
+
   // negative current / slope up
-  double x1 = (run->count_up * params->clk_count_var_n) + (run->count_fix_up * params->clk_count_fix_n)  + run->clk_count_rundown;
+  double x1 = (run->count_up   * params->clk_count_var_n) + (run->count_fix_up   * params->clk_count_fix_n) + run->clk_count_rundown;
 
   // positive current. slope down.
   double x2 = (run->count_down * params->clk_count_var_n) + (run->count_fix_down * params->clk_count_fix_n) + run->clk_count_rundown;
@@ -488,7 +505,13 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
     } // switch
 
 
-    ////
+    /*
+      loop is the same for cal and main loop.
+      so should pass control.
+
+      get_readings ( n,   start_row, MAT  ) , 
+
+    */
 
     // obs per current configuration
     unsigned obs = 0;
