@@ -74,18 +74,22 @@ MAT *m_hconcat( MAT *a, MAT *b, MAT *out )
   having the mat is easier. unless have mat_to_vec 
 */
 
-void m_row_set( MAT *src, unsigned row, MAT *dst )
+void m_row_set( MAT *dst, unsigned row, MAT *src )  // note argument order is kind of reversed
 {
   // should probably take the output as argument, then resize it. if needed.
   // rows x cols
+  assert(dst);
+  assert(src);
 
   assert(src->m == 1);      // single row. could create variant.
   assert(src->n == dst->n); // cols equal
-  assert(row < src->m);     // row exists
+  assert(row < dst->m);     // row exists
 
-   for(unsigned j = 0; j < src->n; ++j) {
+  for(unsigned j = 0; j < src->n; ++j) {
+    
+    double x = m_get_val( src, 0, j );
 
-    m_set_val( dst, row, j,  m_get_val( src, row, j ) );
+    m_set_val( dst, row, j,  x );
   }
 
 }
