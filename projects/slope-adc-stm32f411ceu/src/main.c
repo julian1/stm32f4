@@ -654,21 +654,6 @@ static void loop(app_t *app, MAT *b)
 
       M_FREE(x);
 
-#if 0
-      // compute value
-      MAT *x = m_get(1, 4);
-      m_set_val( x, 0, 0,  1.f );   // should be 1...
-      m_set_val( x, 0, 1,  run.count_up );
-      m_set_val( x, 0, 2,  run.count_down );
-      m_set_val( x, 0, 3,  run.clk_count_rundown );
-
-      MAT *predicted = m_mlt(x, b, MNULL );
-      printf("predicted \n");
-      m_foutput(stdout, predicted );
-
-      M_FREE(predicted);
-#endif
-
       app->data_ready = false;
     }
 
