@@ -510,7 +510,6 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
 
           MAT *whoot = run_to_matrix( &params, &run, MNULL );
           assert(whoot);
-
           // m_foutput(stdout, whoot );
           m_row_set( x, row, whoot );
           M_FREE(whoot);
@@ -552,13 +551,12 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
 // hmmm weights are all off...
 
 
-static void loop(app_t *app, MAT *bbbb )
+static void loop(app_t *app, MAT *b)
 {
   usart_printf("=========\n");
   usart_printf("main loop\n");
 
 
-  UNUSED(bbbb);
   /*
     loop() subsumes update()
   */
@@ -594,6 +592,19 @@ static void loop(app_t *app, MAT *bbbb )
       Run run;
       run_read(&run );
       run_report(&run);
+
+
+      MAT *x = run_to_matrix( &params, &run, MNULL );
+      assert(x );
+
+
+      MAT *predicted = m_mlt(x, b, MNULL );
+      printf("predicted \n");
+      m_foutput(stdout, predicted );
+      usart_flush();
+
+      M_FREE(x);
+
 #if 0
       // compute value
       MAT *x = m_get(1, 4);
@@ -812,29 +823,17 @@ int main(void)
   // TODO clean up mem.
   // TODO. our circular buffer does not handle overflow very nicely. - the result is truncated.
 
-
 /*
-  MAT *predicted = m_mlt(x, b, MNULL );
-  printf("predicted \n");
-  m_foutput(stdout, predicted );
-
   M_FREE(x);
   M_FREE(x_);
   M_FREE(y);
   M_FREE(b);
   M_FREE(predicted);
 
-
-  ////////////////////////////////////
-  printf("x\n");
-  m_foutput(stdout, x );
-
-  printf("y\n");
-  m_foutput(stdout, y );
 */
 
 
-  loop(&app, NULL );
+  loop(&app, b );
 }
 
 
