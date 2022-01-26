@@ -386,7 +386,10 @@ static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
     3. 
       we may want a constant...
     4. 
-      i think a valid implicit data point is -  count pos = 0, count neg ==  reflo == 0. should equal 0.
+      i think there is a valid implicit data point is -  count pos = 0, count neg ==  reflo == 0. should equal 0.
+
+      we should compute the predicted value. with 0 counts. see what it says.
+
     5. 
       - think we need to simplify/combine  the cal_loop and main loop.
       - have a generalized loop. that can just add to an empty array.  and then return control after a loop count
@@ -414,6 +417,7 @@ static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
   // slow rundown uses both
 
   double x0 = 1.0f;
+  UNUSED(x0);
 
   // negative current / slope up
   double x1 = (run->count_up   * params->clk_count_var_n) + (run->count_fix_up   * params->clk_count_fix_n) + run->clk_count_rundown;
@@ -433,7 +437,77 @@ static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
 
 
 
+    // discard 2, get 5.
+//     row = gather_data(  row, 2, 5,  x, y );
 
+
+
+static unsigned gather_data( app_t *app, Params *params, unsigned row, unsigned discard, unsigned gather, MAT *x)
+{
+    /*
+      loop is the same for cal and main loop.
+      so should pass control.
+
+      get_readings ( n,   start_row, MAT  ) , 
+
+    */
+
+    // obs per current configuration
+    unsigned obs = 0;
+
+    while(obs < discard + gather) {
+
+      // if we got data handle it.
+      if(app->data_ready) {
+        // in priority
+        app->data_ready = false;
+
+        // get run details
+        Run run;
+        run_read(&run );
+        run_report(&run);
+
+        // ignore first obs
+        if(obs >= discard ) {
+
+          MAT *whoot = run_to_matrix( params, &run, MNULL );
+          assert(whoot);
+          // m_foutput(stdout, whoot );
+          m_row_set( x, row, whoot );
+          M_FREE(whoot);
+
+          /*
+          // cannot do y here.
+          // do y
+          assert(row < y->m); // < or <= ????
+          m_set_val( y, row, 0,  target );
+          */
+
+          ++row;
+        } else {
+          usart_printf("discard\n");
+
+        }
+
+        ++obs;
+      } // app->data_ready
+
+      // update_console_cmd(app);
+      // usart_output_update(); // shouldn't be necessary, now pumped by interupts.
+
+
+      // 250ms
+      static uint32_t soft_250ms = 0;
+      if( (system_millis - soft_250ms) > 250) {
+        soft_250ms += 250;
+        led_toggle();
+      }
+
+
+    } // while
+
+  return row;
+}
 
 
 static void cal_loop(app_t *app, MAT *x, MAT *y )
@@ -505,65 +579,15 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
     } // switch
 
 
-    /*
-      loop is the same for cal and main loop.
-      so should pass control.
+    // discard 2, get 5.
+    // row = gather_data(  row, 2, 5,  x, y );
 
-      get_readings ( n,   start_row, MAT  ) , 
+    for(unsigned j = 0; j < 5; ++j ) {
+      assert(row < y->m); // < or <= ????
+      m_set_val( y, row + j, 0,  target );
+    }
 
-    */
-
-    // obs per current configuration
-    unsigned obs = 0;
-
-    while(obs < 5) {
-
-      // if we got data handle it.
-      if(app->data_ready) {
-        // in priority
-        app->data_ready = false;
-
-        // get run details
-        Run run;
-        run_read(&run );
-        run_report(&run);
-
-        // ignore first obs
-        if(obs >= 1) {
-
-          MAT *whoot = run_to_matrix( &params, &run, MNULL );
-          assert(whoot);
-          // m_foutput(stdout, whoot );
-          m_row_set( x, row, whoot );
-          M_FREE(whoot);
-
-          // do y
-          assert(row < y->m); // < or <= ????
-          m_set_val( y, row, 0,  target );
-
-          ++row;
-        } else {
-          usart_printf("discard\n");
-
-        }
-
-        ++obs;
-      }
-
-      // update_console_cmd(app);
-      // usart_output_update(); // shouldn't be necessary, now pumped by interupts.
-
-
-      // 250ms
-      static uint32_t soft_250ms = 0;
-      if( (system_millis - soft_250ms) > 250) {
-        soft_250ms += 250;
-        led_toggle();
-      }
-
-
-    } // while
-
+    row = gather_data( app, &params, row, 2 , 5 , x ); 
 
 
   } // state for
