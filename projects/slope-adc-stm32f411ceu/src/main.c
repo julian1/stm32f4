@@ -152,7 +152,7 @@ static void update_console_cmd(app_t *app)
 #define REG_COUNT_TRANS_UP    12
 #define REG_COUNT_TRANS_DOWN  14
 #define REG_COUNT_FIX_UP      26
-#define REG_COUNT_FIX_DOWN    27 
+#define REG_COUNT_FIX_DOWN    27
 #define REG_COUNT_FLIP        17
 
 
@@ -182,27 +182,51 @@ static void update_console_cmd(app_t *app)
 
 
 
+struct Params
+{
+  // fix counts. are setup and written in
+  uint32_t reg_led ;
+  uint32_t clk_count_int_n;
+
+  uint32_t clk_count_init_n ;
+  uint32_t clk_count_fix_n ;
+  uint32_t clk_count_var_n ;
+  uint32_t use_slow_rundown;
+  uint32_t himux_sel;
+
+};
+
+typedef struct Params Params;
+
+
+// initialize. first read. then overwrite. then write again.
+
+static void params_read( Params * params )
+{
+  params->reg_led           = spi_reg_read(SPI1, REG_LED);
+
+  uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_INT_N_LO );
+  uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_INT_N_HI );
+  params->clk_count_int_n   = int_hi << 24 | int_lo;
+
+  params->clk_count_init_n  = spi_reg_read(SPI1, REG_CLK_COUNT_INIT_N);
+  params->clk_count_fix_n   = spi_reg_read(SPI1, REG_CLK_COUNT_FIX_N);
+  params->clk_count_var_n   = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_N);
+
+  params->use_slow_rundown  = spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN);
+  params->himux_sel         = spi_reg_read(SPI1, REG_HIMUX_SEL);
+}
 
 
 
-static void report_params(void )
+static void params_report(Params * params )
 {
   char buf[10];
 
   usart_printf("-------------\n");
+  usart_printf("reg_led           %s\n", format_bits( buf, 4, params->reg_led ) );
 
-  usart_printf("reg_led           %s\n", format_bits( buf, 4, spi_reg_read(SPI1, REG_LED )) );
-  usart_printf("clk_count_init_n  %u\n", spi_reg_read(SPI1, REG_CLK_COUNT_INIT_N ) );
-
-  usart_printf("clk_count_fix_n   %u\n", spi_reg_read(SPI1, REG_CLK_COUNT_FIX_N ) );
-  usart_printf("clk_count_var_n   %u\n", spi_reg_read(SPI1, REG_CLK_COUNT_VAR_N ) );
-
-  uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_INT_N_LO );
-  uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_INT_N_HI );
-  // usart_printf("clk_count_int_n_lo %u\n", int_lo );
-  // usart_printf("clk_count_int_n_hi %u\n", int_hi );
-
-  uint32_t int_n  = int_hi << 24 | int_lo;
+  uint32_t int_n  = params->clk_count_int_n ;
   double period = int_n / (double ) 20000000;
   double nplc     = period / (1.0 / 50);
 
@@ -210,13 +234,54 @@ static void report_params(void )
   usart_printf("period            %fs\n", period);
   usart_printf("nplc              %.2f\n", nplc);
 
+  usart_printf("clk_count_init_n  %u\n", params->clk_count_init_n);
+  usart_printf("clk_count_fix_n   %u\n", params->clk_count_fix_n);
+  usart_printf("clk_count_var_n   %u\n", params->clk_count_var_n);
 
-  usart_printf("use_slow_rundown  %u\n", spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN) );
+  usart_printf("use_slow_rundown  %u\n", params->use_slow_rundown);
 
   //
   // char buf[100] char * format_bits(char *buf, size_t width, uint32_t value)
-  usart_printf("himux_sel         %s\n", format_bits( buf, 4, spi_reg_read(SPI1, REG_HIMUX_SEL )) );
+  usart_printf("himux_sel         %s\n", format_bits( buf, 4, params->himux_sel));
 }
+
+
+
+
+
+static void params_set_main( Params *params ) // uint32_t clk_count_int_n, bool use_slow_rundown, uint8_t himux_sel )
+{
+  // int params_set
+
+  // encapsutate into a function.
+  // uint32_t t = 5 * 20000000;
+  // printf("params_set %lu, %u, %u\n", clk_count_int_n,  use_slow_rundown, himux_sel );
+
+  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_HI, (params->clk_count_int_n >> 24) & 0xff );
+  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, params->clk_count_int_n & 0xffffff  );
+  spi_reg_write(SPI1, REG_USE_SLOW_RUNDOWN, params->use_slow_rundown );
+  spi_reg_write(SPI1, REG_HIMUX_SEL, params->himux_sel );
+}
+
+
+
+#if 0
+static void params_set( uint32_t clk_count_int_n, bool use_slow_rundown, uint8_t himux_sel )
+{
+  // int params_set
+
+  // encapsutate into a function.
+  // uint32_t t = 5 * 20000000;
+
+  printf("params_set %lu, %u, %u\n", clk_count_int_n,  use_slow_rundown, himux_sel );
+
+  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_HI, (clk_count_int_n >> 24) & 0xff );
+  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, clk_count_int_n & 0xffffff  );
+  spi_reg_write(SPI1, REG_USE_SLOW_RUNDOWN, use_slow_rundown );
+  spi_reg_write(SPI1, REG_HIMUX_SEL, himux_sel );
+}
+#endif
+
 
 
 /*
@@ -248,7 +313,7 @@ struct Run
 typedef struct Run  Run;
 
 
-static void record_run( Run *run )
+static void run_read( Run *run )
 {
   assert(run);
 
@@ -256,27 +321,27 @@ static void record_run( Run *run )
   run->count_up           = spi_reg_read(SPI1, REG_COUNT_UP );
   run->count_down         = spi_reg_read(SPI1, REG_COUNT_DOWN );
 
-  run->count_trans_up     = spi_reg_read(SPI1, REG_COUNT_TRANS_UP );
-  run->count_trans_down   = spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN );
+  // run->count_trans_up     = spi_reg_read(SPI1, REG_COUNT_TRANS_UP );
+  // run->count_trans_down   = spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN );
 
   run->count_fix_up     = spi_reg_read(SPI1, REG_COUNT_FIX_UP);
   run->count_fix_down   = spi_reg_read(SPI1, REG_COUNT_FIX_DOWN);
 
-  run->count_flip         = spi_reg_read(SPI1, REG_COUNT_FLIP);
+  // run->count_flip         = spi_reg_read(SPI1, REG_COUNT_FLIP);
 
 
   // WE could record slow_rundown separate to normal rundown.
   run->clk_count_rundown  = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
 
-  // rundown_dir.
-
+  /////////////////////
+  // parameters
   run->use_slow_rundown   = spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN);
 }
 
 
 
 
-static void report_run( Run *run )
+static void run_report( Run *run )
 {
   assert(run);
 
@@ -345,27 +410,7 @@ static MAT * run_to_matrix( Run *run, MAT * out )
 }
 
 
-/*
-  OK. there's an interesting thing. we get the dydr flag.
-  But we can still transfer control from one loop - that eg. stores values. to a different loop. etc.
-  So we don't necessarily have to make the interupt handler defer to a context, depending on what we want to do.
-  eg. we can pass control off from a calibration loop to another loop.
-*/
 
-static void configure( uint32_t clk_count_int_n, bool use_slow_rundown, uint8_t himux_sel )
-{
-  // int configure
-
-  // encapsutate into a function.
-  // uint32_t t = 5 * 20000000;
-
-  printf("configure %lu, %u, %u\n", clk_count_int_n,  use_slow_rundown, himux_sel );
-
-  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_HI, (clk_count_int_n >> 24) & 0xff );
-  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, clk_count_int_n & 0xffffff  );
-  spi_reg_write(SPI1, REG_USE_SLOW_RUNDOWN, use_slow_rundown );
-  spi_reg_write(SPI1, REG_HIMUX_SEL, himux_sel );
-}
 
 
 
@@ -399,96 +444,31 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
     ++row;
   */
 
+  Params  params;
+  params_read( &params );   // change name read_from_device ?
+
   for(unsigned i = 0; i < 10; ++i )
   {
     double target;
 
-    /*
-      EXTR
-        fixed pos == fixed neg. so only record once - and it becomes a constant.
-      -------
-        8****
-        - i think as soon as we hit int period. eg. 1PLC. or 200ms. we must turn of input immediately.
-        - not wait until we we come to the end of a phase (var) . and then test whether we finished.
-        - eg. we must have the time of the input signal - to be absolutely constant between measurements.
-           - regardless we use fast rundown or slow rundown.
 
-          - this means. being able to switch ref currents and signal independently.
-
-        ***
-
-        =========================
-        - should try to get the two parameter thing working. with rundown.   (non slow).
-          eg.  fix pos + var pos + rundown.   and fix neg + var neg.
-          ----------
-          no. because in the rundown the input is turned off. so it must be a different variable. but maybe should be left on.
-        =========================
-
-        - combine fix and var.  eg. so have total pos total neg in raw clock counts, and then add the raw rundown.
-        - OR get the fpga - to count it up - in raw counts.
-        - would need to 0
-        - IMPORTNAT - then we have just two variables. if not using slow rundown. and three if are.
-
-        - our flip_count is wrong. and confusing things. with fixed amount.
-
-        - change names count_up , count_down.   count_fix_up,  count_var_up etc.  or cout_fix_pos.
-
-        - make sure not including rundown in counts.
-
-        - include the fix pos and neg counts
-            even though they are equal.
-            they are equal time.
-            but they are *not* equal current.
-            ---------
-
-            for a certain integration time/period.    they will be constant.
-            but we cannot create permutations with different integration times - if do not include.
-
-        - for a certain time. the pos + neg should be a constant.
-
-        - OR. instead of using counts. multiply by the times.
-            then we could generate permutations.
-            and then include the count * the limit.
-
-        - perhaps we need three points. and generating extra values by running  at multiple of nplc is insufficient.
-            for degrees freedom.
-
-        - could record slow_rundown as separate var to rundown. and thus
-          handle both options in the same calibration data.
-
-          - actually this is quite interesting - because it would generate the 0 data points.
-
-        - can/should  add a dummy observation.
-            eg. count_up 0 , count_down 0, rundown 0 == 0
-
-        - or perhaps better. without the slow slope.
-            eg. just plug in 0 for the rundown.
-
-        - think should probably not have constant.
-
-        - we need a function run -> x_ vector.
-
-        - perhaps try entire calibration without slow slope. as a first test.
-        - and then secondary calibration. using the predicted values as input.
-
-    */
     // switch integration configuration
     switch(i) {
 
       case 0:
-        configure( 1 * 20000000, 1, HIMUX_SEL_REF_LO ); target = 0.0; break;
+        params_set( 1 * 20000000, 1, HIMUX_SEL_REF_LO ); target = 0.0; break;
       case 1:
-        configure( 1 * 20000000, 1, HIMUX_SEL_REF_HI ); target = 7.1; break;
+        params_set( 1 * 20000000, 1, HIMUX_SEL_REF_HI ); target = 7.1; break;
 
       case 2:
-        configure( 0.5 * 20000000, 1, HIMUX_SEL_REF_LO ); target = 0.0; break;
+        params_set( 0.5 * 20000000, 1, HIMUX_SEL_REF_LO ); target = 0.0; break;
       case 3:
-        configure( 0.5 * 20000000, 1, HIMUX_SEL_REF_HI ); target = 7.1; break;
+        params_set( 0.5 * 20000000, 1, HIMUX_SEL_REF_HI ); target = 7.1; break;
   /*
       case 4:
-        configure( 0.4 * 20000000, 1, HIMUX_SEL_REF_LO ); target = 0.0; break;
+        params_set( 0.4 * 20000000, 1, HIMUX_SEL_REF_LO ); target = 0.0; break;
       case 5:
-        configure( 0.4 * 20000000, 1, HIMUX_SEL_REF_HI ); target = 7.1; break;
+        params_set( 0.4 * 20000000, 1, HIMUX_SEL_REF_HI ); target = 7.1; break;
 */
 
       case 4:
@@ -524,8 +504,8 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
 
         // get run details
         Run run;
-        record_run(&run );
-        report_run(&run);
+        run_read(&run );
+        run_report(&run);
 
         // ignore first obs
         if(obs >= 1) {
@@ -584,15 +564,17 @@ static void loop(app_t *app, MAT *bbbb )
   assert( HIMUX_SEL_REF_LO ==  0b1011  );
 
 
-  // configure( 1 * 20000000, 1, HIMUX_SEL_REF_LO );     // ref hi. to check noise/variance
-  configure( 1 * 20000000, 1, HIMUX_SEL_REF_HI );     // ref hi. to check noise/variance
-  // configure( 1 * 20000000, 1, HIMUX_SEL_SIG_HI ); // now take input
+  // params_set( 1 * 20000000, 1, HIMUX_SEL_REF_LO );     // ref hi. to check noise/variance
+  params_set( 1 * 20000000, 1, HIMUX_SEL_REF_HI );     // ref hi. to check noise/variance
+  // params_set( 1 * 20000000, 1, HIMUX_SEL_SIG_HI ); // now take input
 
   // it's completely wrong on 5s int.
-  // configure( 5 * 20000000, 1, HIMUX_SEL_REF_LO );
+  // params_set( 5 * 20000000, 1, HIMUX_SEL_REF_LO );
 
 
-  report_params();
+  Params  params;
+  params_read( &params );
+  params_report( &params);
 
 
   // TODO move to app_t structure?.
@@ -605,8 +587,8 @@ static void loop(app_t *app, MAT *bbbb )
       // in priority
 
       Run run;
-      record_run(&run );
-      report_run(&run);
+      run_read(&run );
+      run_report(&run);
 #if 0
       // compute value
       MAT *x = m_get(1, 4);
@@ -760,8 +742,8 @@ int main(void)
 
 
 /*
-  OK. i think these spi calls may fail when speed of design falls below 32MHz. 
-  because 
+  OK. i think these spi calls may fail when speed of design falls below 32MHz.
+  because
 
 */
 
@@ -775,7 +757,7 @@ int main(void)
   /*
     IMPORTANT.
     OK. we removed reg_led from the verilog initial block.
-    and now we the values are correct. 
+    and now we the values are correct.
 
   */
 
@@ -873,6 +855,90 @@ int main(void)
 
   loop(&app, NULL );
 }
+
+
+
+
+    /*
+      EXTR
+        fixed pos == fixed neg. so only record once - and it becomes a constant.
+      -------
+        8****
+        - i think as soon as we hit int period. eg. 1PLC. or 200ms. we must turn of input immediately.
+        - not wait until we we come to the end of a phase (var) . and then test whether we finished.
+        - eg. we must have the time of the input signal - to be absolutely constant between measurements.
+           - regardless we use fast rundown or slow rundown.
+
+          - this means. being able to switch ref currents and signal independently.
+
+        ***
+
+        =========================
+        - should try to get the two parameter thing working. with rundown.   (non slow).
+          eg.  fix pos + var pos + rundown.   and fix neg + var neg.
+          ----------
+          no. because in the rundown the input is turned off. so it must be a different variable. but maybe should be left on.
+        =========================
+
+        - combine fix and var.  eg. so have total pos total neg in raw clock counts, and then add the raw rundown.
+        - OR get the fpga - to count it up - in raw counts.
+        - would need to 0
+        - IMPORTNAT - then we have just two variables. if not using slow rundown. and three if are.
+
+        - our flip_count is wrong. and confusing things. with fixed amount.
+
+        - change names count_up , count_down.   count_fix_up,  count_var_up etc.  or cout_fix_pos.
+
+        - make sure not including rundown in counts.
+
+        - include the fix pos and neg counts
+            even though they are equal.
+            they are equal time.
+            but they are *not* equal current.
+            ---------
+
+            for a certain integration time/period.    they will be constant.
+            but we cannot create permutations with different integration times - if do not include.
+
+        - for a certain time. the pos + neg should be a constant.
+
+        - OR. instead of using counts. multiply by the times.
+            then we could generate permutations.
+            and then include the count * the limit.
+
+        - perhaps we need three points. and generating extra values by running  at multiple of nplc is insufficient.
+            for degrees freedom.
+
+        - could record slow_rundown as separate var to rundown. and thus
+          handle both options in the same calibration data.
+
+          - actually this is quite interesting - because it would generate the 0 data points.
+
+        - can/should  add a dummy observation.
+            eg. count_up 0 , count_down 0, rundown 0 == 0
+
+        - or perhaps better. without the slow slope.
+            eg. just plug in 0 for the rundown.
+
+        - think should probably not have constant.
+
+        - we need a function run -> x_ vector.
+
+        - perhaps try entire calibration without slow slope. as a first test.
+        - and then secondary calibration. using the predicted values as input.
+
+    */
+
+
+
+
+
+
+
+
+
+
+
 
 
 
