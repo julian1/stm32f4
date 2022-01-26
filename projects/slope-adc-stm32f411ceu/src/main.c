@@ -440,17 +440,15 @@ static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
 
 
 
-    // discard 2, get 5.
-//     row = gather_data(  row, 2, 5,  x, y );
-
 
 
 static unsigned gather_data( app_t *app, Params *params, unsigned row, unsigned discard, unsigned gather, MAT *x)
 {
+  // change name, get obs? 
     /*
+    
       loop is the same for cal and main loop.
       so should pass control.
-
       get_readings ( n,   start_row, MAT  ) , 
 
     */
@@ -536,7 +534,7 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
   Params  params;
   params_read( &params );   // change name read_from_device ?
 
-  for(unsigned i = 0; i < 10; ++i )
+  for(unsigned i = 0; /*i < 10*/; ++i )
   {
     double target;
 
@@ -573,7 +571,7 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
         m_resize( x , row, X_COLS   );
         m_resize( y , row, 1 );
 
-        // we could do the cal here...
+        // we could do the cal cal here...
 
         return;
         break;
@@ -640,15 +638,12 @@ static void loop(app_t *app, MAT *b)
 
     if(app->data_ready) {
       // in priority
-
       Run run;
       run_read(&run );
       run_report(&run);
 
-
       MAT *x = run_to_matrix( &params, &run, MNULL );
       assert(x );
-
 
       MAT *predicted = m_mlt(x, b, MNULL );
       printf("predicted \n");
@@ -856,6 +851,17 @@ int main(void)
   m_foutput(stdout, predicted );
   usart_flush();
 #endif
+
+
+  // make a zeros vector same length as b. to serve as origin
+  MAT *temp0 =  m_zero( m_copy( b, MNULL))  ; 
+  MAT *zeros = m_transp( temp0, MNULL);
+
+  MAT *origin = m_mlt(zeros, b, MNULL );
+  printf("origin predicted \n");
+  m_foutput(stdout, origin );
+
+
 
   // TODO clean up mem.
   // TODO. our circular buffer does not handle overflow very nicely. - the result is truncated.
