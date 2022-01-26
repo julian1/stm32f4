@@ -1,9 +1,9 @@
 
 
-#include <ctype.h>    // isdigit
 #include <stdbool.h>    // true
 #include <stdio.h>
 #include <stdarg.h> // va_start etc
+#include <ctype.h>    // isdigit
 
 #include "assert.h"
 #include "format.h"
@@ -11,6 +11,7 @@
 
 char * indent_left(char *s, size_t sz, int indent, const char *string)
 {
+  // TODO use pointer loop and remove dependency on snprintf()
   // left indent, is pad to right, for field name
   snprintf(s, sz, "%-*s", indent, string );
   return s;
@@ -55,16 +56,50 @@ char * format_float(char *s, size_t sz, int digits, double value)
       then it does not disturb the precision of the lower bits.
 
       this is a bit difficult with glyph advance which assumes right direction.
+      no. just draw with monospace font.
     ---------------
-    
-  
-
       eg.
         from 7.123  to 17.123.    the 123 should be aligned.
   */
   snprintf(s, sz, "%.*fV", digits, value);
   return s;
 }
+
+
+
+char * format_float_with_commas(char *s, size_t sz, int digits, double value)
+{ 
+  // assume we have plenty of working space in buffer
+  char *j = s + 50;
+  snprintf(j , sz - 50 , "%.*f", digits, value);
+
+  bool gotdot = false;
+  unsigned dotdigits = 0;
+  char *dst = s;
+
+  while(*j && dst < s + sz)   {
+
+    if( *j == '.')
+      gotdot = true;
+
+    if(gotdot && isdigit(*j))
+      ++dotdigits;
+
+    *dst++ = *j++;
+
+    // if(dotdigitdst == 6)
+    // eg. comma every third digit 
+    if( dotdigits != 0
+      && (dotdigits % 3) == 0
+      && dst < s + sz)
+      *dst++ = ',';
+  }
+
+  return s;
+}
+
+
+
 
 
 

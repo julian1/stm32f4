@@ -357,9 +357,13 @@ static void run_report( Run *run )
 static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
 {
   /*
-    0.  very useful feature - how biased resistor ladder - means that modulation will cycle around to a stop point 
-          where 4 phase modulation ends up above  the cross. in order to do the rundown.
-          and will do this in a finite amount of time.
+    0.  very useful feature - how biased resistor ladder - means that modulation will cycle around to a stop point
+          where 4 phase modulation ends up above  the cross, ready for rundown. 
+          and fix pos and fix neg are equal.
+          - and it will do this in a finite amount of time.
+          
+        3458a though. can do rundown from either side of the zero-cross. using a slow slope resistor. that's why doesn't need bias.
+
 
       EXTR. IMPORTANT.
     1. must calculate the estimator values before average rather than average raw inputs (rundown count etc) then cal estimated.
@@ -383,19 +387,47 @@ static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
       So that the calculation collpases to just a two independent variable linear regression.
       And if fast runddown is used then it is just 0 clk.
 
-    3. 
+    3.
       we may want a constant... / ones. functional specification.
 
-    4. 
+    4.
       - i think there is a valid implicit origin point -  count pos = 0, count neg ==  reflo == 0. should equal 0.
         included in regression sample data.
 
       - we should compute the predicted origin . with 0 counts. see what it says.
       and check val
 
-    5. 
+    5.
       - think we need to simplify/combine  the cal_loop and main loop.
       - have a generalized loop. that can just add to an empty array.  and then return control after a loop count
+    6.
+      - with simplified sum model. can do inl on 0V and 7.1V and
+          - permutations on integration time.
+          - permutations on fixed time. permutations on var time.
+
+          eg. the having the model work and be invariant to signal time/ pos/var - is an incredibly important property.
+
+        - this is a conseuqence of k2002/Kleinstein design -final rundown contribution - is just addition of +ve and -ve weight * clock.
+              except we take both.
+
+        - i think if residual adc is used - it has to be incorporated as an extra term in a regression model..
+          eg.
+              y = b0 + b1 * (var pos + fix pos) + b2 (var neg + fix neg) + b3 * residual;
+
+          versus
+              y = b0 + b1 * (var pos + fix pos + rundown) + b2 (var neg + fix neg + rundown);
+
+
+    7.
+      - so we can characterize INL - with permutations - and therefore test different functinoal specifications for calibration.
+
+    8. 
+      can destermine the resolution.
+      by just plugging in values to regression.  
+      eg.   predict( ...,  rundown) - predict( ..., rundown + 1);
+      and from there determine count.
+      -------
+      think would need values calculated near the input range of the integrator. eg. +-10V.  But could use 7.1V as proxy.
 
     =======
   */
@@ -442,14 +474,14 @@ static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
 
 
 
-static unsigned gather_data( app_t *app, Params *params, unsigned row, unsigned discard, unsigned gather, MAT *x)
+static unsigned collect_obs( app_t *app, Params *params, unsigned row, unsigned discard, unsigned gather, MAT *x)
 {
-  // change name, get obs? 
+  // change name, get obs?
     /*
-    
+
       loop is the same for cal and main loop.
       so should pass control.
-      get_readings ( n,   start_row, MAT  ) , 
+      get_readings ( n,   start_row, MAT  ) ,
 
     */
 
@@ -581,14 +613,14 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
 
 
     // discard 2, get 5.
-    // row = gather_data(  row, 2, 5,  x, y );
+    // row = collect_obs(  row, 2, 5,  x, y );
 
     for(unsigned j = 0; j < 5; ++j ) {
       assert(row < y->m); // < or <= ????
       m_set_val( y, row + j, 0,  target );
     }
 
-    row = gather_data( app, &params, row, 2 , 5 , x ); 
+    row = collect_obs( app, &params, row, 2 , 5 , x );
 
 
   } // state for
@@ -597,6 +629,18 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
 
 
 // hmmm weights are all off...
+
+
+__attribute__((naked)) void dummy_function(void)
+{
+   __asm(".global __initial_sp\n\t"
+         ".global __heap_base\n\t"
+//         ".global __heap_limit\n\t"
+         ".equ __initial_sp, STACK_BASE\n\t"
+         ".equ __heap_base, HEAP_BASE\n\t"
+ //        ".equ __heap_limit, (HEAP_BASE+HEAP_SIZE)\n\t"
+   );
+}
 
 
 static void loop(app_t *app, MAT *b)
@@ -637,6 +681,12 @@ static void loop(app_t *app, MAT *b)
 
 
     if(app->data_ready) {
+
+      // TODO - this to use the collect_obs() func - to get multiple observations. then average for desired period.
+      // then stddev()  
+      // clear
+      app->data_ready = false;
+
       // in priority
       Run run;
       run_read(&run );
@@ -646,13 +696,22 @@ static void loop(app_t *app, MAT *b)
       assert(x );
 
       MAT *predicted = m_mlt(x, b, MNULL );
-      printf("predicted \n");
-      m_foutput(stdout, predicted );
+  
+      // result is 1x1 matrix
+      assert(x->m == 0 && x->n == 0);
+      double value = m_get_val( predicted, 0, 0 );
+
+      // TODO predicted, rename. estimator? 
+      char buf[100];
+      printf("predicted %s\n", format_float_with_commas(buf, 100, 7, value));
+
+      // printf("predicted \n");
+      // m_foutput(stdout, predicted );
       usart_flush();
 
       M_FREE(x);
+      M_FREE(predicted);
 
-      app->data_ready = false;
     }
 
 
@@ -854,7 +913,7 @@ int main(void)
 
 
   // make a zeros vector same length as b. to serve as origin
-  MAT *temp0 =  m_zero( m_copy( b, MNULL))  ; 
+  MAT *temp0 =  m_zero( m_copy( b, MNULL))  ;
   MAT *zeros = m_transp( temp0, MNULL);
 
   MAT *origin = m_mlt(zeros, b, MNULL );

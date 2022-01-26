@@ -100,10 +100,10 @@ void m_row_set( MAT *dst, unsigned row, MAT *src )  // note argument order is ki
 
 
 
-
-
 MAT * concat_ones( MAT *x, MAT *out)
 {
+  // concat a ones field to lhs of mat. 
+  // note. probably avoid. and instead add constant at construction when populating rows
 
   // TODO review memory handling here.
   MAT *j = m_get( x-> m, 1 ); 
