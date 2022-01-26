@@ -384,11 +384,14 @@ static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
       And if fast runddown is used then it is just 0 clk.
 
     3. 
-      we may want a constant...
-    4. 
-      i think there is a valid implicit data point is -  count pos = 0, count neg ==  reflo == 0. should equal 0.
+      we may want a constant... / ones. functional specification.
 
-      we should compute the predicted value. with 0 counts. see what it says.
+    4. 
+      - i think there is a valid implicit origin point -  count pos = 0, count neg ==  reflo == 0. should equal 0.
+        included in regression sample data.
+
+      - we should compute the predicted origin . with 0 counts. see what it says.
+      and check val
 
     5. 
       - think we need to simplify/combine  the cal_loop and main loop.
