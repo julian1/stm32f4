@@ -384,13 +384,15 @@ static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
 
   UNUSED(params);
 
+  if(out == MNULL)
+    out = m_get(1,1);
+
   // compute value
   m_resize(out, 1, 3);
 
-  m_set_val( out, 0, 0,  run->count_fix_up );
-  m_set_val( out, 0, 1,  run->count_up );
-  m_set_val( out, 0, 2,  run->count_down );
-
+  m_set_val( out, 0, 0,  run->count_up );
+  m_set_val( out, 0, 1,  run->count_down );
+  m_set_val( out, 0, 2,  run->count_fix_up );
 
   return out;
 }
@@ -406,6 +408,9 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
   // app argument is needed for data ready flag.
   // while loop has to be inner
   // might be easier to overside. and then resize.
+
+  usart_printf("=========\n");
+  usart_printf("cal loop\n");
 
   // rows x cols
   unsigned row = 0;
@@ -489,9 +494,16 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
         if(obs >= 1) {
 
           // do x
+
+          usart_printf("here!\n");
+          usart_flush();
           MAT *whoot =  run_to_matrix( &params, &run, MNULL );
-          m_row_set( x, row, whoot );
-          M_FREE(whoot);
+
+          m_foutput(stdout, whoot );
+      
+
+          // m_row_set( x, row, whoot );
+          // M_FREE(whoot);
 
           // do y
           assert(row < y->m); // < or <= ????
@@ -529,6 +541,10 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
 
 static void loop(app_t *app, MAT *bbbb )
 {
+  usart_printf("=========\n");
+  usart_printf("main loop\n");
+
+
   UNUSED(bbbb);
   /*
     loop() subsumes update()
@@ -706,38 +722,23 @@ int main(void)
   usart_printf("a float formatted %g\n", 123.456f );
 
 
-#if 0
+// test writing reg led.
+#if 1
   // test ice40 register read/write
   // ok. seems to work.
-  usart_printf("whoot\n");
   uint32_t ret;
 
   usart_flush();
-  msleep(1);
-
-
 
 /*
   OK. i think these spi calls may fail when speed of design falls below 32MHz.
   because
 
+  IMPORTANT.
+  OK. we removed reg_led from the verilog initial block.
+  and now we the values are correct.
 */
 
-
-/*
-  spi_reg_xfer_24(SPI1, REG_LED, 0xffffff );
-  ret = spi_reg_read(SPI1, REG_LED );
-  ASSERT(ret == 0xffffff);
-*/
-
-  /*
-    IMPORTANT.
-    OK. we removed reg_led from the verilog initial block.
-    and now we the values are correct.
-
-  */
-
-#if 1
   spi_reg_write(SPI1, REG_LED , 0xff00ff);
   msleep(1);
   ret = spi_reg_read(SPI1, REG_LED);
@@ -749,14 +750,6 @@ int main(void)
   spi_reg_write(SPI1, REG_LED, 0x7f00ff);
   ret = spi_reg_read(SPI1, REG_LED);
   assert(ret == 0x7f00ff);
-#endif
-
-/*
-  ///////////////////
-  ret = spi_reg_read(SPI1, REG_TEST);
-  usart_printf("reg 15 %u %x\n", ret, ret);
-  assert(ret == 0xffffff );
-*/
 
   for(uint32_t i = 0; i < 32; ++i) {
     spi_reg_write(SPI1, REG_LED , i );
@@ -768,7 +761,7 @@ int main(void)
 
   // state_change(&app, STATE_FIRST );
 
-#if 0
+  printf("==========\n");
   ////////////////////////////////////
   // produces two return values.
   // mnull for both args fails ...
@@ -781,7 +774,7 @@ int main(void)
   cal_loop(&app, x, y );
 
 
-  printf("==========\n");
+#if 0
 
   // MAT *x =  concat_ones( x_, MNULL );
   // MAT *x = x_;
