@@ -386,7 +386,7 @@ static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
     3. 
       we may want a constant...
     4. 
-      i think a valid implicit data point is -  count pos = 0, count neg = 0. should equal 0.
+      i think a valid implicit data point is -  count pos = 0, count neg ==  reflo == 0. should equal 0.
     5. 
       - think we need to simplify/combine  the cal_loop and main loop.
       - have a generalized loop. that can just add to an empty array.  and then return control after a loop count
