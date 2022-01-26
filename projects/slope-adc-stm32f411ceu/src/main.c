@@ -575,8 +575,8 @@ static void loop(app_t *app, MAT *b)
   params.clk_count_int_n  = 1 * 20000000;
   params.use_slow_rundown = 1;
   // params.himux_sel = HIMUX_SEL_REF_LO;
-  // params.himux_sel = HIMUX_SEL_REF_HI;
-  params.himux_sel = HIMUX_SEL_SIG_HI;
+  params.himux_sel = HIMUX_SEL_REF_HI;
+  // params.himux_sel = HIMUX_SEL_SIG_HI;
   params_write_main(&params);
 
   params_report( &params);
