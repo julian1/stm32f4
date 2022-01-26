@@ -504,6 +504,9 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
           m_set_val( y, row, 0,  target );
 
           ++row;
+        } else {
+          usart_printf("discard\n");
+
         }
 
         ++obs;
