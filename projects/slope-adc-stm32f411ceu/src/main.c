@@ -249,7 +249,7 @@ static void params_report(Params * params )
 
 
 
-static void params_set_main( Params *params ) // uint32_t clk_count_int_n, bool use_slow_rundown, uint8_t himux_sel )
+static void params_write_main( Params *params ) // uint32_t clk_count_int_n, bool use_slow_rundown, uint8_t himux_sel )
 {
   // int params_set
 
@@ -349,9 +349,9 @@ static void run_report( Run *run )
   // usart_printf("count_down %u, ",       run->count_down );
 
   usart_printf("count_up/down %u, %u ", run->count_up, run->count_down );
-  usart_printf("trans_up/down %u %u, ", run->count_trans_up,  run->count_trans_down);
+  // usart_printf("trans_up/down %u %u, ", run->count_trans_up,  run->count_trans_down);
   usart_printf("fix_up/down %u %u, ",   run->count_fix_up,  run->count_fix_down);
-  usart_printf("count_flip %u, ",       run->count_flip);
+  // usart_printf("count_flip %u, ",       run->count_flip);
 
   usart_printf("clk_count_rundown %u, ", run->clk_count_rundown);
 
@@ -452,12 +452,16 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
         params.use_slow_rundown = 1;
         params.himux_sel = HIMUX_SEL_REF_LO;
         target = 0.0;
+
+        params_write_main(&params);
         break;
 
       case 1:
         // same except
         params.himux_sel = HIMUX_SEL_REF_LO;
         target = 0.0;
+
+        params_write_main(& params);
         break;
 
 
@@ -548,16 +552,19 @@ static void loop(app_t *app, MAT *bbbb )
   assert( HIMUX_SEL_REF_LO ==  0b1011  );
 
 
-  // params_set( 1 * 20000000, 1, HIMUX_SEL_REF_LO );     // ref hi. to check noise/variance
-  params_set( 1 * 20000000, 1, HIMUX_SEL_REF_HI );     // ref hi. to check noise/variance
-  // params_set( 1 * 20000000, 1, HIMUX_SEL_SIG_HI ); // now take input
-
-  // it's completely wrong on 5s int.
-  // params_set( 5 * 20000000, 1, HIMUX_SEL_REF_LO );
+ // params_set( 5 * 20000000, 1, HIMUX_SEL_REF_LO );
 
 
   Params  params;
   params_read( &params );
+
+  usart_printf("overwriting params\n");
+  // overwrite
+  params.clk_count_int_n  = 1 * 20000000;
+  params.use_slow_rundown = 1;
+  params.himux_sel = HIMUX_SEL_REF_LO;
+  params_write_main(&params);
+
   params_report( &params);
 
 
