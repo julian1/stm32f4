@@ -387,12 +387,28 @@ static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
   if(out == MNULL)
     out = m_get(1,1);
 
+#if 0
   // compute value
   m_resize(out, 1, 3);
-
   m_set_val( out, 0, 0,  run->count_up );
   m_set_val( out, 0, 1,  run->count_down );
   m_set_val( out, 0, 2,  run->count_fix_up );
+#endif
+
+
+  // slow rundown uses both
+
+  // negative current / slope up
+  double x1 = (run->count_up * params->clk_count_var_n) + (run->count_fix_up * params->clk_count_fix_n)  + run->clk_count_rundown;
+
+  // positive current. slope down.
+  double x2 = (run->count_down * params->clk_count_var_n) + (run->count_fix_down * params->clk_count_fix_n) + run->clk_count_rundown;
+
+
+  m_resize(out, 1, 2);
+  m_set_val( out, 0, 0,  x1  );
+  m_set_val( out, 0, 1,  x2  );
+
 
   return out;
 }
@@ -416,7 +432,7 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
   unsigned row = 0;
 
   #define MAX_OBS  30
-  #define X_COLS   3
+  #define X_COLS   2
 
   m_resize( x , MAX_OBS, X_COLS );      // constant + pos clk + neg clk.
   m_resize( y , MAX_OBS, 1 );
@@ -774,9 +790,13 @@ int main(void)
   m_foutput(stdout, x);
   usart_flush();
 
+  printf("y\n");
+  m_foutput(stdout, y);
+  usart_flush();
 
 
-#if 0
+
+#if 1
   MAT *b =  regression( x, y, MNULL );
   printf("b\n");
   m_foutput(stdout, b);
