@@ -643,6 +643,28 @@ __attribute__((naked)) void dummy_function(void)
 }
 
 
+
+
+
+static void permute_loop(app_t *app, MAT *b)
+{
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
 static void loop(app_t *app, MAT *b)
 {
   usart_printf("=========\n");
