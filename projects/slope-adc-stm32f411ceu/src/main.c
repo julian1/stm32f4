@@ -253,15 +253,22 @@ static void params_write_main( Params *params )
 {
   // write the main parameter to device
 
-  // encapsutate into a function.
-  // uint32_t t = 5 * 20000000;
-  // printf("params_set %lu, %u, %u\n", clk_count_int_n,  use_slow_rundown, himux_sel );
-
   spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_HI, (params->clk_count_int_n >> 24) & 0xff );
   spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, params->clk_count_int_n & 0xffffff  );
   spi_reg_write(SPI1, REG_USE_SLOW_RUNDOWN, params->use_slow_rundown );
   spi_reg_write(SPI1, REG_HIMUX_SEL, params->himux_sel );
 }
+
+
+static void params_write_extra( Params *params )
+{
+  // write the extra parameters to device
+
+  spi_reg_write(SPI1, REG_CLK_COUNT_INIT_N , params->clk_count_init_n );
+  spi_reg_write(SPI1, REG_CLK_COUNT_FIX_N,   params->clk_count_fix_n );
+  spi_reg_write(SPI1, REG_CLK_COUNT_VAR_N,   params->clk_count_var_n );
+}
+
 
 
 
@@ -273,23 +280,19 @@ static void params_set_main( Params *params,  uint32_t clk_count_int_n, bool use
 }
 
 
-
-#if 0
-static void params_set( uint32_t clk_count_int_n, bool use_slow_rundown, uint8_t himux_sel )
+static void params_set_extra( Params *params,  uint32_t clk_count_init_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_n)
 {
-  // int params_set
+  params->clk_count_init_n = clk_count_init_n;
+  params->clk_count_fix_n  = clk_count_fix_n;
+  params->clk_count_var_n  = clk_count_var_n;
 
-  // encapsutate into a function.
-  // uint32_t t = 5 * 20000000;
-
-  printf("params_set %lu, %u, %u\n", clk_count_int_n,  use_slow_rundown, himux_sel );
-
-  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_HI, (clk_count_int_n >> 24) & 0xff );
-  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, clk_count_int_n & 0xffffff  );
-  spi_reg_write(SPI1, REG_USE_SLOW_RUNDOWN, use_slow_rundown );
-  spi_reg_write(SPI1, REG_HIMUX_SEL, himux_sel );
+  // IMPORTNAT.
+  // there is a third kind of permutation - altering fix_pos_n and fix_neg_n individually. 
 }
-#endif
+
+
+
+
 
 
 
@@ -811,7 +814,9 @@ static void perm_collect_obs(app_t *app, MAT *x, MAT *y )
     // switch integration configuration
     switch(i) {
       case 0:
-        params_set_main( &params,  2 * 20000000, 1, HIMUX_SEL_REF_LO);
+        params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
+        params_set_extra( &params,  10000, 700, 5500);
+
         target = 0.0;
         params_report(&params);
         params_write_main(&params);
@@ -820,7 +825,8 @@ static void perm_collect_obs(app_t *app, MAT *x, MAT *y )
       case 1:
         // same except mux lo.
         // IMPORTANT. it might make sense to record y in here...
-        params_set_main( &params,  2 * 20000000, 1, HIMUX_SEL_REF_HI);
+        params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_HI);
+        params_set_extra( &params,  10000, 700, 5500);
         target = 7.1;
         params_report(&params);
         params_write_main(& params);
