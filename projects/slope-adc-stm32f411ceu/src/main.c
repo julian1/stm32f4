@@ -363,6 +363,11 @@ static void run_report( Run *run )
 }
 
 
+
+
+#define X_COLS   2
+
+
 static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
 {
   /*
@@ -466,13 +471,27 @@ static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
   // negative current / slope up
   double x1 = (run->count_up   * params->clk_count_var_n) + (run->count_fix_up   * params->clk_count_fix_n) + run->clk_count_rundown;
 
+  x1 /= params-> clk_count_int_n ; 
+
   // positive current. slope down.
   double x2 = (run->count_down * params->clk_count_var_n) + (run->count_fix_down * params->clk_count_fix_n) + run->clk_count_rundown;
 
+  x2 /= params-> clk_count_int_n ; 
 
+#if 1
+  // 2 variable model.
   m_resize(out, 1, 2);
   m_set_val( out, 0, 0,  x1  );
   m_set_val( out, 0, 1,  x2  );
+#endif
+
+#if 0
+  // three variable
+  m_resize(out, 1, X_COLS);
+  m_set_val( out, 0, 0,  1.f );
+  m_set_val( out, 0, 1,  x1  );
+  m_set_val( out, 0, 2,  x2  );
+#endif
 
 
   return out;
@@ -565,7 +584,6 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
   unsigned row = 0;
 
   #define MAX_OBS  30
-  #define X_COLS   2
 
   m_resize( x , MAX_OBS, X_COLS );      // constant + pos clk + neg clk.
   m_resize( y , MAX_OBS, 1 );
@@ -763,6 +781,11 @@ __attribute__((naked)) void dummy_function(void)
 
 static void perm_collect_obs(app_t *app, MAT *x, MAT *y )
 {
+  /*
+    ok. permuting the integration time - has about 1 /10k affect.
+    what about permute teh fix/var frequency.
+  */
+
   // gather obersevations
   // app argument is needed for data ready flag.
   // while loop has to be inner
@@ -775,7 +798,6 @@ static void perm_collect_obs(app_t *app, MAT *x, MAT *y )
   unsigned row = 0;
 
   #define MAX_OBS  30
-  #define X_COLS   2
 
   m_resize( x , MAX_OBS, X_COLS );      // constant + pos clk + neg clk.
   m_resize( y , MAX_OBS, 1 );
@@ -854,12 +876,13 @@ static void permute(app_t *app, MAT *b)
   // for 2 second integration.
   // row 6:     14.2035525
 
-  // Hmmm. with our integration. the predicted result is twice for twice the integration length.
-  // indicating poorly specified model? or we just need adjustment.
-
-  // or we should just divide by the relative integration lengtho?
   // 14.2035525  / 2
   // = 7.10177625
+  // 1mV on +-10V range. 1/10k.
+  // seems to be consistent for an integration period.
+  // what about permuting fix/var times.
+ 
+ 
 }
 
 
