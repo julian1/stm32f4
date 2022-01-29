@@ -95,6 +95,13 @@ char * format_float_with_commas(char *s, size_t sz, int digits, double value)
       *dst++ = ',';
   }
 
+  // should add terminal regardless.
+  if( dst < s + sz)
+    *dst = 0;
+  else
+    dst[sz - 1] = 0; 
+
+
   return s;
 }
 

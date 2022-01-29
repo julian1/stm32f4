@@ -718,17 +718,18 @@ static void loop(app_t *app, MAT *b)
       assert(x );
 
       MAT *predicted = m_mlt(x, b, MNULL );
-  
+      printf("predicted \n");
+      m_foutput(stdout, predicted );
+
+#if 1 
       // result is 1x1 matrix
-      assert(x->m == 0 && x->n == 0);
+      assert(predicted->m == 1 && predicted->n == 1);
       double value = m_get_val( predicted, 0, 0 );
 
       // TODO predicted, rename. estimator? 
       char buf[100];
       printf("predicted %s\n", format_float_with_commas(buf, 100, 7, value));
-
-      // printf("predicted \n");
-      // m_foutput(stdout, predicted );
+#endif
       usart_flush();
 
       M_FREE(x);
