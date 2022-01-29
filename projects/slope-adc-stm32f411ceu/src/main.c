@@ -617,7 +617,8 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
 static MAT * calibrate( app_t *app)
 {
 
-  // perhaps rather than
+  // We have to create rather than use MNULL, else there
+  // is no way to return pointers to the resized structure from the subroutine
   MAT *x = m_get(1,1); // TODO change MNULL
   MAT *y = m_get(1,1);
 
@@ -742,7 +743,7 @@ static MAT * calibrate( app_t *app)
 
 
 // hmmm weights are all off...
-
+#if 0
 
 __attribute__((naked)) void dummy_function(void)
 {
@@ -754,8 +755,10 @@ __attribute__((naked)) void dummy_function(void)
  //        ".equ __heap_limit, (HEAP_BASE+HEAP_SIZE)\n\t"
    );
 }
+#endif
 
 
+///////////////////////////////////////
 
 
 static void perm_collect_obs(app_t *app, MAT *x, MAT *y )
@@ -786,7 +789,7 @@ static void perm_collect_obs(app_t *app, MAT *x, MAT *y )
     // switch integration configuration
     switch(i) {
       case 0:
-        params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
+        params_set_main( &params,  2 * 20000000, 1, HIMUX_SEL_REF_LO);
         target = 0.0;
         params_report(&params);
         params_write_main(&params);
@@ -794,7 +797,8 @@ static void perm_collect_obs(app_t *app, MAT *x, MAT *y )
 
       case 1:
         // same except mux lo.
-        params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_HI);
+        // IMPORTANT. it might make sense to record y in here...
+        params_set_main( &params,  2 * 20000000, 1, HIMUX_SEL_REF_HI);
         target = 7.1;
         params_report(&params);
         params_write_main(& params);
@@ -823,7 +827,7 @@ static void perm_collect_obs(app_t *app, MAT *x, MAT *y )
 
 
 
-static void permute_loop(app_t *app, MAT *b)
+static void permute(app_t *app, MAT *b)
 {
   /*
     we want stderr of prediction.
@@ -832,12 +836,30 @@ static void permute_loop(app_t *app, MAT *b)
   assert(app);
   assert(b);
 
-
-  perm_collect_obs(app, MNULL, MNULL );
-
-
+  MAT *x = m_get(1,1); // TODO change MNULL
+  MAT *y = m_get(1,1);
 
 
+  // We have to create rather than use MNULL, else there
+  // is no way to return pointers to the resized structure from the subroutine
+  perm_collect_obs(app, x , y );
+
+  MAT *predicted = m_mlt(x, b, MNULL );
+  printf("permuted predicted \n");
+  m_foutput(stdout, predicted );
+  usart_flush();
+
+  // now calculate error of the predictors ..
+
+  // for 2 second integration.
+  // row 6:     14.2035525
+
+  // Hmmm. with our integration. the predicted result is twice for twice the integration length.
+  // indicating poorly specified model? or we just need adjustment.
+
+  // or we should just divide by the relative integration lengtho?
+  // 14.2035525  / 2
+  // = 7.10177625
 }
 
 
@@ -1051,14 +1073,17 @@ int main(void)
 
   usart_flush();
 
-/*
+  /*
   OK. i think these spi calls may fail when speed of design falls below 32MHz.
   because
 
   IMPORTANT.
-  OK. we removed reg_led from the verilog initial block.
-  and now we the values are correct.
-*/
+  - Also. removing reg_led from the verilog initial block.
+  indicating timing conflict.
+  and values are correct.
+  - but this could have just been due to timing.
+  - but no longer seems to have affect. now that speed is better.
+  */
 
   spi_reg_write(SPI1, REG_LED , 0xff00ff);
   msleep(1);
@@ -1080,16 +1105,12 @@ int main(void)
 #endif
 
 
-  // state_change(&app, STATE_FIRST );
 
   printf("==========\n");
   ////////////////////////////////////
-  // produces two return values.
-  // mnull for both args fails ...
-  // MAT *x_ = MNULL;
-  // MAT *y = MNULL;
-
   MAT *b =  calibrate( &app );
+
+  permute(&app, b);
 
   loop(&app, b );
 }
