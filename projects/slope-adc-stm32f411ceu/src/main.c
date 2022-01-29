@@ -185,7 +185,7 @@ static void update_console_cmd(app_t *app)
 struct Params
 {
   // fix counts. are setup and written in
-  uint32_t reg_led ;
+  // uint32_t reg_led ;
   uint32_t clk_count_int_n;
 
   uint32_t clk_count_init_n ;
@@ -203,7 +203,7 @@ typedef struct Params Params;
 
 static void params_read( Params * params )
 {
-  params->reg_led           = spi_reg_read(SPI1, REG_LED);
+  // params->reg_led           = spi_reg_read(SPI1, REG_LED);
 
   uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_INT_N_LO );
   uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_INT_N_HI );
@@ -224,7 +224,7 @@ static void params_report(Params * params )
   char buf[10];
 
   usart_printf("-------------\n");
-  usart_printf("reg_led           %s\n", format_bits( buf, 4, params->reg_led ) );
+  // usart_printf("reg_led           %s\n", format_bits( buf, 4, params->reg_led ) );
 
   uint32_t int_n  = params->clk_count_int_n ;
   double period = int_n / (double ) 20000000;
@@ -248,18 +248,48 @@ static void params_report(Params * params )
 
 
 
+static bool params_equal( Params *params0,  Params *params1 )
+{
 
-static void params_write_main( Params *params )
+  return 
+    params0->clk_count_int_n  ==  params1->clk_count_int_n
+    && params0->use_slow_rundown == params1->use_slow_rundown
+    && params0->himux_sel        == params1->himux_sel
+
+    && params0->clk_count_init_n == params1->clk_count_init_n
+    && params0->clk_count_fix_n  == params1->clk_count_fix_n
+    && params0->clk_count_var_n  == params1->clk_count_var_n
+  ;
+}
+
+
+
+static void params_write( Params *params )
 {
   // write the main parameter to device
-
   spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_HI, (params->clk_count_int_n >> 24) & 0xff );
   spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, params->clk_count_int_n & 0xffffff  );
   spi_reg_write(SPI1, REG_USE_SLOW_RUNDOWN, params->use_slow_rundown );
   spi_reg_write(SPI1, REG_HIMUX_SEL, params->himux_sel );
+
+  // write the extra parameters to device
+  spi_reg_write(SPI1, REG_CLK_COUNT_INIT_N , params->clk_count_init_n );
+  spi_reg_write(SPI1, REG_CLK_COUNT_FIX_N,   params->clk_count_fix_n );
+  spi_reg_write(SPI1, REG_CLK_COUNT_VAR_N,   params->clk_count_var_n );
+
+  Params  params2;
+  params_read( &params2 );
+
+  // ensure write successful.
+  assert(params_equal( params,  &params2 ));
 }
 
 
+
+
+
+
+#if 0
 static void params_write_extra( Params *params )
 {
   // write the extra parameters to device
@@ -268,7 +298,7 @@ static void params_write_extra( Params *params )
   spi_reg_write(SPI1, REG_CLK_COUNT_FIX_N,   params->clk_count_fix_n );
   spi_reg_write(SPI1, REG_CLK_COUNT_VAR_N,   params->clk_count_var_n );
 }
-
+#endif
 
 
 
@@ -287,7 +317,7 @@ static void params_set_extra( Params *params,  uint32_t clk_count_init_n, uint32
   params->clk_count_var_n  = clk_count_var_n;
 
   // IMPORTNAT.
-  // there is a third kind of permutation - altering fix_pos_n and fix_neg_n individually. 
+  // there is a third kind of permutation - altering fix_pos_n and fix_neg_n individually.
 }
 
 
@@ -474,12 +504,13 @@ static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
   // negative current / slope up
   double x1 = (run->count_up   * params->clk_count_var_n) + (run->count_fix_up   * params->clk_count_fix_n) + run->clk_count_rundown;
 
-  x1 /= params-> clk_count_int_n ; 
+  // not sure if we want to do this. may have to calibrate for a period. which would be ugly.
+  x1 /= params-> clk_count_int_n ;
 
   // positive current. slope down.
   double x2 = (run->count_down * params->clk_count_var_n) + (run->count_fix_down * params->clk_count_fix_n) + run->clk_count_rundown;
 
-  x2 /= params-> clk_count_int_n ; 
+  x2 /= params-> clk_count_int_n ;
 
 #if 1
   // 2 variable model.
@@ -592,7 +623,11 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
   m_resize( y , MAX_OBS, 1 );
 
   Params  params;
-  params_read( &params );   // change name read_from_device ?
+  params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
+  params_set_extra( &params,  10000, 700, 5500);
+  params_write( &params );
+
+
 
   for(unsigned i = 0; /*i < 10*/; ++i )
   {
@@ -603,7 +638,7 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
         params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
         target = 0.0;
         params_report(&params);
-        params_write_main(&params);
+        params_write(&params);
         break;
 
       case 1:
@@ -611,7 +646,7 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
         params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_HI);
         target = 7.1;
         params_report(&params);
-        params_write_main(& params);
+        params_write(& params);
         break;
 
       default:
@@ -806,7 +841,12 @@ static void perm_collect_obs(app_t *app, MAT *x, MAT *y )
   m_resize( y , MAX_OBS, 1 );
 
   Params  params;
-  params_read( &params );   // change name read_from_device ?
+  params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
+  params_set_extra( &params,  10000, 650, 5500);
+  params_write(&params);
+
+
+
 
   for(unsigned i = 0; /*i < 10*/; ++i )
   {
@@ -815,21 +855,21 @@ static void perm_collect_obs(app_t *app, MAT *x, MAT *y )
     switch(i) {
       case 0:
         params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
-        params_set_extra( &params,  10000, 700, 5500);
+        // params_set_extra( &params,  10000, 650, 5500);
 
         target = 0.0;
         params_report(&params);
-        params_write_main(&params);
+        params_write(&params);
         break;
 
       case 1:
         // same except mux lo.
         // IMPORTANT. it might make sense to record y in here...
         params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_HI);
-        params_set_extra( &params,  10000, 700, 5500);
+        // params_set_extra( &params,  10000, 650, 5500);
         target = 7.1;
         params_report(&params);
-        params_write_main(& params);
+        params_write(& params);
         break;
 
       default:
@@ -887,8 +927,8 @@ static void permute(app_t *app, MAT *b)
   // 1mV on +-10V range. 1/10k.
   // seems to be consistent for an integration period.
   // what about permuting fix/var times.
- 
- 
+
+
 }
 
 
@@ -925,7 +965,7 @@ static void loop(app_t *app, MAT *b)
   // params.himux_sel = HIMUX_SEL_REF_LO;
   params.himux_sel = HIMUX_SEL_REF_HI;
   // params.himux_sel = HIMUX_SEL_SIG_HI;
-  params_write_main(&params);
+  params_write(&params);
 
   params_report( &params);
 
