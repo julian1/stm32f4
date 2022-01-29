@@ -935,6 +935,10 @@ int main(void)
 #endif
 
 
+  {
+
+  printf("============\n");
+
   // make a zeros vector same length as b. to serve as origin
   MAT *temp0 =  m_zero( m_copy( b, MNULL))  ;
   MAT *zeros = m_transp( temp0, MNULL);
@@ -943,17 +947,62 @@ int main(void)
   printf("origin predicted \n");
   m_foutput(stdout, origin );
 
+  }
+
 
   // also want resolution by using one of the pluged in values and offset one..
 
   // we need a get row.
   // MAT *x = m_get(1,1);
   {
+  printf("============\n");
+  printf("resolution\n");
+
   MAT *xx =  m_row_get( x, 0, MNULL );
-  MAT *predicted = m_mlt(xx, b, MNULL );
+  printf("xx\n");
+  m_foutput(stdout, xx );
+
+  MAT *ones =  m_ones( m_copy( xx, MNULL))  ;
+  printf("ones\n");
+  m_foutput(stdout, ones);
+
+  // add delta of  1.
+  MAT *deltaxx =  m_add( xx, ones, MNULL );
+  printf("deltaxx \n");
+  m_foutput(stdout, deltaxx );
+
+  // predict
+  MAT *predicted0 = m_mlt(xx, b, MNULL );
+  printf("predicted0\n");
+  m_foutput(stdout, predicted0 );
+
+  // predict
+  MAT *predicted1 = m_mlt(deltaxx, b, MNULL );
+  printf("predicted1\n");
+  m_foutput(stdout, predicted1 );
+
+  MAT *diff =  m_sub( predicted0, predicted1, MNULL );
+  printf("diff\n");
+  m_foutput(stdout, diff);
+
+  // TODO rename diff to resolution.
+  assert(diff->m == 1 && diff->n == 1);
+  double value = m_get_val( diff, 0, 0 );
+  // TODO predicted, rename. estimator? 
+  char buf[100];
+  printf("diff %s\n", format_float_with_commas(buf, 100, 8, value));
+
+  // implied count 
+  int count = (10.0 + 10.0) / value;
+
+  printf("count %u\n", count ); 
+
+
+  // MAT *xx =  m_row_get( x, 0, MNULL );
+
+  // MAT *xx =  m_add( x, 0, MNULL );
+  // MAT *delta = m_mlt(xx, b, MNULL );
  
-  printf("delta\n");
-  m_foutput(stdout, predicted );
   }
 
 

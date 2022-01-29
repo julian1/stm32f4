@@ -52,9 +52,7 @@ MAT *m_hconcat( MAT *a, MAT *b, MAT *out )
   // MAT *ret  = m_get( a->m , a->n + b->n );
 
   MAT *ret = m_resize( out, a->m, a->n + b->n);
-
-  
-  assert(out == MNULL || ret == out);  // otherwise it's a leak??
+  assert(out == MNULL || ret == out);  // otherwise it's a potential leak??
 
   for(unsigned i = 0; i < a->m; ++i)
   for(unsigned j = 0; j < a->n; ++j)
@@ -100,8 +98,7 @@ MAT * m_row_get( MAT *src, unsigned row, MAT *out )
 {
 
   MAT *ret = m_resize( out, 1, src->n );
-
-  assert(out == MNULL || ret == out);  // otherwise it's a leak??
+  assert(out == MNULL || ret == out);  // otherwise it's a potential leak??
   
   for(unsigned j = 0; j < src->n; ++j) {
 
