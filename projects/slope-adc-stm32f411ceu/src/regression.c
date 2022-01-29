@@ -53,6 +53,9 @@ MAT *m_hconcat( MAT *a, MAT *b, MAT *out )
 
   MAT *ret = m_resize( out, a->m, a->n + b->n);
 
+  
+  assert(out == MNULL || ret == out);  // otherwise it's a leak??
+
   for(unsigned i = 0; i < a->m; ++i)
   for(unsigned j = 0; j < a->n; ++j)
     m_set_val( ret, i, j,  m_get_val( a, i, j ) );
@@ -88,17 +91,30 @@ void m_row_set( MAT *dst, unsigned row, MAT *src )  // note argument order is ki
   for(unsigned j = 0; j < src->n; ++j) {
     
     double x = m_get_val( src, 0, j );
-
     m_set_val( dst, row, j,  x );
   }
+}
 
+
+MAT * m_row_get( MAT *src, unsigned row, MAT *out )
+{
+
+  MAT *ret = m_resize( out, 1, src->n );
+
+  assert(out == MNULL || ret == out);  // otherwise it's a leak??
+  
+  for(unsigned j = 0; j < src->n; ++j) {
+
+    double x = m_get_val( src, row, j );
+    m_set_val( ret, 0, j,  x );
+  }
+
+  return ret;
 }
 
 
 
-
-
-
+#if 1
 
 MAT * concat_ones( MAT *x, MAT *out)
 {
@@ -119,7 +135,7 @@ MAT * concat_ones( MAT *x, MAT *out)
   return ret;
 }
 
-
+#endif
 
 
 MAT * regression( MAT *x, MAT * y, MAT *out)
@@ -173,6 +189,10 @@ int regression_test()
   MAT *predicted = m_mlt(x, b, MNULL );
   printf("predicted \n");
   m_foutput(stdout, predicted );
+
+
+  // TODO assert() values...
+
 
 
   M_FREE(x);

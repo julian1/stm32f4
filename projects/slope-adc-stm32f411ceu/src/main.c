@@ -944,6 +944,19 @@ int main(void)
   m_foutput(stdout, origin );
 
 
+  // also want resolution by using one of the pluged in values and offset one..
+
+  // we need a get row.
+  // MAT *x = m_get(1,1);
+  {
+  MAT *xx =  m_row_get( x, 0, MNULL );
+  MAT *predicted = m_mlt(xx, b, MNULL );
+ 
+  printf("delta\n");
+  m_foutput(stdout, predicted );
+  }
+
+
 
   // TODO clean up mem.
   // TODO. our circular buffer does not handle overflow very nicely. - the result is truncated.
