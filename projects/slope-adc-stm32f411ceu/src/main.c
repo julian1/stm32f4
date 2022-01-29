@@ -249,7 +249,7 @@ static void params_report(Params * params )
 
 
 
-static void params_write_main( Params *params ) // uint32_t clk_count_int_n, bool use_slow_rundown, uint8_t himux_sel )
+static void params_write_main( Params *params )
 {
   // write the main parameter to device
 
@@ -261,6 +261,15 @@ static void params_write_main( Params *params ) // uint32_t clk_count_int_n, boo
   spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, params->clk_count_int_n & 0xffffff  );
   spi_reg_write(SPI1, REG_USE_SLOW_RUNDOWN, params->use_slow_rundown );
   spi_reg_write(SPI1, REG_HIMUX_SEL, params->himux_sel );
+}
+
+
+
+static void params_set_main( Params *params,  uint32_t clk_count_int_n, bool use_slow_rundown, uint8_t himux_sel )
+{
+  params->clk_count_int_n  = clk_count_int_n;
+  params->use_slow_rundown = use_slow_rundown;
+  params->himux_sel        = himux_sel;
 }
 
 
@@ -358,10 +367,10 @@ static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
 {
   /*
     0.  very useful feature - how biased resistor ladder - means that modulation will cycle around to a stop point
-          where 4 phase modulation ends up above  the cross, ready for rundown. 
+          where 4 phase modulation ends up above  the cross, ready for rundown.
           and fix pos and fix neg are equal.
           - and it will do this in a finite amount of time.
-          
+
         3458a though. can do rundown from either side of the zero-cross. using a slow slope resistor. that's why doesn't need bias.
 
 
@@ -421,9 +430,9 @@ static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
     7.
       - so we can characterize INL - with permutations - and therefore test different functinoal specifications for calibration.
 
-    8. 
+    8.
       can destermine the resolution.
-      by just plugging in values to regression.  
+      by just plugging in values to regression.
       eg.   predict( ...,  rundown) - predict( ..., rundown + 1);
       and from there determine count.
       -------
@@ -468,7 +477,6 @@ static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
 
   return out;
 }
-
 
 
 
@@ -543,8 +551,9 @@ static unsigned collect_obs( app_t *app, Params *params, unsigned row, unsigned 
 }
 
 
-static void cal_loop(app_t *app, MAT *x, MAT *y )
+static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
 {
+  // gather obersevations
   // app argument is needed for data ready flag.
   // while loop has to be inner
   // might be easier to overside. and then resize.
@@ -561,59 +570,37 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
   m_resize( x , MAX_OBS, X_COLS );      // constant + pos clk + neg clk.
   m_resize( y , MAX_OBS, 1 );
 
-
-
   Params  params;
   params_read( &params );   // change name read_from_device ?
 
   for(unsigned i = 0; /*i < 10*/; ++i )
   {
     double target;
-
-
     // switch integration configuration
     switch(i) {
-
       case 0:
-        // params_set( 1 * 20000000, 1, HIMUX_SEL_REF_LO ); target = 0.0; break;
-        params.clk_count_int_n  = 1 * 20000000;
-        params.use_slow_rundown = 1;
-        params.himux_sel = HIMUX_SEL_REF_LO;
+        params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
         target = 0.0;
-
         params_report(&params);
         params_write_main(&params);
         break;
 
       case 1:
         // same except mux lo.
-        params.himux_sel = HIMUX_SEL_REF_HI;
+        params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_HI);
         target = 7.1;
-
         params_report(&params);
         params_write_main(& params);
         break;
 
       default:
-        // we finished, getting all data
-        // return here makes while loop simpler.
-        usart_printf("done calibrating\n");
-
+        // done
+        usart_printf("done collcting obs\n");
         // shrink matrixes for the data
         m_resize( x , row, X_COLS   );
         m_resize( y , row, 1 );
-
-        // we could do the cal cal here...
-
         return;
-        break;
-
-      // 2 case exits
     } // switch
-
-
-    // discard 2, get 5.
-    // row = collect_obs(  row, 2, 5,  x, y );
 
     for(unsigned j = 0; j < 5; ++j ) {
       assert(row < y->m); // < or <= ????
@@ -621,11 +608,137 @@ static void cal_loop(app_t *app, MAT *x, MAT *y )
     }
 
     row = collect_obs( app, &params, row, 2 , 5 , x );
-
-
   } // state for
+}
+
+
+
+
+static MAT * calibrate( app_t *app)
+{
+
+  // perhaps rather than
+  MAT *x = m_get(1,1); // TODO change MNULL
+  MAT *y = m_get(1,1);
+
+  cal_collect_obs (app, x, y );
+
+  printf("x\n");
+  m_foutput(stdout, x);
+  usart_flush();
+
+  printf("y\n");
+  m_foutput(stdout, y);
+  usart_flush();
+
+
+
+#if 1
+  MAT *b =  regression( x, y, MNULL );
+  printf("b\n");
+  m_foutput(stdout, b);
+
+  usart_flush();
+
+  MAT *predicted = m_mlt(x, b, MNULL );
+  printf("predicted \n");
+  m_foutput(stdout, predicted );
+  usart_flush();
+#endif
+
+
+  {
+
+  printf("============\n");
+
+  // make a zeros vector same length as b. to serve as origin
+  MAT *temp0 =  m_zero( m_copy( b, MNULL))  ;
+  MAT *zeros = m_transp( temp0, MNULL);
+
+  MAT *origin = m_mlt(zeros, b, MNULL );
+  printf("origin predicted \n");
+  m_foutput(stdout, origin );
+
+  }
+
+
+  // also want resolution by using one of the pluged in values and offset one..
+
+  // we need a get row.
+  // MAT *x = m_get(1,1);
+  {
+  printf("============\n");
+  printf("resolution/implied count\n");
+
+  MAT *xx =  m_row_get( x, 0, MNULL );
+  printf("xx\n");
+  m_foutput(stdout, xx );
+
+  MAT *ones =  m_ones( m_copy( xx, MNULL))  ;
+  printf("ones\n");
+  m_foutput(stdout, ones);
+
+  // add delta of  1.
+  MAT *deltaxx =  m_add( xx, ones, MNULL );
+  printf("deltaxx \n");
+  m_foutput(stdout, deltaxx );
+
+  // predict
+  MAT *predicted0 = m_mlt(xx, b, MNULL );
+  printf("predicted0\n");
+  m_foutput(stdout, predicted0 );
+
+  // predict
+  MAT *predicted1 = m_mlt(deltaxx, b, MNULL );
+  printf("predicted1\n");
+  m_foutput(stdout, predicted1 );
+
+  MAT *diff =  m_sub( predicted0, predicted1, MNULL );
+  printf("diff\n");
+  m_foutput(stdout, diff);
+
+  // TODO rename diff to resolution.
+  assert(diff->m == 1 && diff->n == 1);
+  double value = m_get_val( diff, 0, 0 );
+  // TODO predicted, rename. estimator?
+  char buf[100];
+  printf("diff %s\n", format_float_with_commas(buf, 100, 9, value));
+
+  // implied count
+  int count = (10.0 + 10.0) / value;
+
+  printf("count %u\n", count );
+
+
+  // MAT *xx =  m_row_get( x, 0, MNULL );
+
+  // MAT *xx =  m_add( x, 0, MNULL );
+  // MAT *delta = m_mlt(xx, b, MNULL );
+
+  }
+
+
+
+  // TODO clean up mem.
+  // TODO. our circular buffer does not handle overflow very nicely. - the result is truncated.
+
+/*
+  M_FREE(x);
+  M_FREE(x_);
+  M_FREE(y);
+  M_FREE(b);
+  M_FREE(predicted);
+
+*/
+
+  return b;
 
 }
+
+
+
+
+
 
 
 // hmmm weights are all off...
@@ -645,12 +758,82 @@ __attribute__((naked)) void dummy_function(void)
 
 
 
+static void perm_collect_obs(app_t *app, MAT *x, MAT *y )
+{
+  // gather obersevations
+  // app argument is needed for data ready flag.
+  // while loop has to be inner
+  // might be easier to overside. and then resize.
+
+  usart_printf("=========\n");
+  usart_printf("cal loop\n");
+
+  // rows x cols
+  unsigned row = 0;
+
+  #define MAX_OBS  30
+  #define X_COLS   2
+
+  m_resize( x , MAX_OBS, X_COLS );      // constant + pos clk + neg clk.
+  m_resize( y , MAX_OBS, 1 );
+
+  Params  params;
+  params_read( &params );   // change name read_from_device ?
+
+  for(unsigned i = 0; /*i < 10*/; ++i )
+  {
+    double target;
+    // switch integration configuration
+    switch(i) {
+      case 0:
+        params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
+        target = 0.0;
+        params_report(&params);
+        params_write_main(&params);
+        break;
+
+      case 1:
+        // same except mux lo.
+        params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_HI);
+        target = 7.1;
+        params_report(&params);
+        params_write_main(& params);
+        break;
+
+      default:
+        // done
+        usart_printf("done collcting obs\n");
+        // shrink matrixes for the data
+        m_resize( x , row, X_COLS   );
+        m_resize( y , row, 1 );
+        return;
+    } // switch
+
+    for(unsigned j = 0; j < 5; ++j ) {
+      assert(row < y->m); // < or <= ????
+      m_set_val( y, row + j, 0,  target );
+    }
+
+    row = collect_obs( app, &params, row, 2 , 5 , x );
+  } // state for
+}
+
+
+
+
+
 
 static void permute_loop(app_t *app, MAT *b)
 {
+  /*
+    we want stderr of prediction.
+  */
+
+  assert(app);
+  assert(b);
 
 
-
+  perm_collect_obs(app, MNULL, MNULL );
 
 
 
@@ -705,7 +888,7 @@ static void loop(app_t *app, MAT *b)
     if(app->data_ready) {
 
       // TODO - this to use the collect_obs() func - to get multiple observations. then average for desired period.
-      // then stddev()  
+      // then stddev()
       // clear
       app->data_ready = false;
 
@@ -723,11 +906,11 @@ static void loop(app_t *app, MAT *b)
       m_foutput(stdout, predicted );
 #endif
 
-#if 1 
+#if 1
       // result is 1x1 matrix
       assert(predicted->m == 1 && predicted->n == 1);
       double value = m_get_val( predicted, 0, 0 );
-      // TODO predicted, rename. estimator? 
+      // TODO predicted, rename. estimator?
       char buf[100];
       printf("predicted %s\n", format_float_with_commas(buf, 100, 7, value));
 #endif
@@ -906,119 +1089,7 @@ int main(void)
   // MAT *x_ = MNULL;
   // MAT *y = MNULL;
 
-  MAT *x = m_get(1,1);
-  MAT *y = m_get(1,1);
-
-  cal_loop(&app, x, y );
-
-  printf("x\n");
-  m_foutput(stdout, x);
-  usart_flush();
-
-  printf("y\n");
-  m_foutput(stdout, y);
-  usart_flush();
-
-
-
-#if 1
-  MAT *b =  regression( x, y, MNULL );
-  printf("b\n");
-  m_foutput(stdout, b);
-
-  usart_flush();
-
-  MAT *predicted = m_mlt(x, b, MNULL );
-  printf("predicted \n");
-  m_foutput(stdout, predicted );
-  usart_flush();
-#endif
-
-
-  {
-
-  printf("============\n");
-
-  // make a zeros vector same length as b. to serve as origin
-  MAT *temp0 =  m_zero( m_copy( b, MNULL))  ;
-  MAT *zeros = m_transp( temp0, MNULL);
-
-  MAT *origin = m_mlt(zeros, b, MNULL );
-  printf("origin predicted \n");
-  m_foutput(stdout, origin );
-
-  }
-
-
-  // also want resolution by using one of the pluged in values and offset one..
-
-  // we need a get row.
-  // MAT *x = m_get(1,1);
-  {
-  printf("============\n");
-  printf("resolution\n");
-
-  MAT *xx =  m_row_get( x, 0, MNULL );
-  printf("xx\n");
-  m_foutput(stdout, xx );
-
-  MAT *ones =  m_ones( m_copy( xx, MNULL))  ;
-  printf("ones\n");
-  m_foutput(stdout, ones);
-
-  // add delta of  1.
-  MAT *deltaxx =  m_add( xx, ones, MNULL );
-  printf("deltaxx \n");
-  m_foutput(stdout, deltaxx );
-
-  // predict
-  MAT *predicted0 = m_mlt(xx, b, MNULL );
-  printf("predicted0\n");
-  m_foutput(stdout, predicted0 );
-
-  // predict
-  MAT *predicted1 = m_mlt(deltaxx, b, MNULL );
-  printf("predicted1\n");
-  m_foutput(stdout, predicted1 );
-
-  MAT *diff =  m_sub( predicted0, predicted1, MNULL );
-  printf("diff\n");
-  m_foutput(stdout, diff);
-
-  // TODO rename diff to resolution.
-  assert(diff->m == 1 && diff->n == 1);
-  double value = m_get_val( diff, 0, 0 );
-  // TODO predicted, rename. estimator? 
-  char buf[100];
-  printf("diff %s\n", format_float_with_commas(buf, 100, 8, value));
-
-  // implied count 
-  int count = (10.0 + 10.0) / value;
-
-  printf("count %u\n", count ); 
-
-
-  // MAT *xx =  m_row_get( x, 0, MNULL );
-
-  // MAT *xx =  m_add( x, 0, MNULL );
-  // MAT *delta = m_mlt(xx, b, MNULL );
- 
-  }
-
-
-
-  // TODO clean up mem.
-  // TODO. our circular buffer does not handle overflow very nicely. - the result is truncated.
-
-/*
-  M_FREE(x);
-  M_FREE(x_);
-  M_FREE(y);
-  M_FREE(b);
-  M_FREE(predicted);
-
-*/
-
+  MAT *b =  calibrate( &app );
 
   loop(&app, b );
 }
