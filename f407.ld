@@ -23,6 +23,9 @@
 MEMORY
 {
 	rom (rx) : ORIGIN = 0x08000000, LENGTH = 512K   /*  512K  VGT == 1MB, VET==500kB  */
+
+      /* The 192k of RAM in the STM32F4 is not contiguous.  
+        https://github.com/stlink-org/stlink/issues/66 */
 	ram (rwx) : ORIGIN = 0x20000000, LENGTH = 128K  /* 192 fails ?? */
 }
 
