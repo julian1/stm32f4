@@ -135,6 +135,8 @@ static void update_console_cmd(app_t *app)
 
         // this function can be tested and be used to return early.
         // or set a flag. like cancel current command/action.
+  
+        // also - sometimes we want to change something - without setting the continuation.
 
         app->continuation_ctx = 0;
 
