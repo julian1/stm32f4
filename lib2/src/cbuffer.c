@@ -68,9 +68,18 @@ void cBufPush(CBuf *a, char val)
   assert(a->wi < a->sz );
   assert( a->sz > 0);
 */
-
+  // set val
   (a->p)[a->wi] = val;
+
+  // increment wi
   a->wi = (a->wi + 1) % a->sz;
+
+  // if we overflowed, then increment the ri
+  // so read reads the more recent data, and avoid treated as truncated/empty.
+  if(a->wi == a->ri) {
+
+    a->ri = (a->ri + 1) % a->sz;
+  }
 }
 
 
