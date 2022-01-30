@@ -76,6 +76,12 @@ typedef struct app_t
 static void update_console_cmd(app_t *app)
 {
 
+  /* using peekLast() like this wont work
+     since it could miss a character.
+    we kind of need to transfer all chars to another buffer. and test for '\n'.
+
+  */
+
   if( !cBufisEmpty(&app->console_in) && cBufPeekLast(&app->console_in) == '\r') {
 
     // usart_printf("got CR\n");
@@ -842,7 +848,10 @@ static void perm_collect_obs(app_t *app, MAT *x, MAT *y )
 
   Params  params;
   params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
+
+  // permutate
   params_set_extra( &params,  10000, 650, 5500);
+  params_set_extra( &params,  10000, 750, 5500);
   params_write(&params);
 
 
@@ -855,8 +864,6 @@ static void perm_collect_obs(app_t *app, MAT *x, MAT *y )
     switch(i) {
       case 0:
         params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
-        // params_set_extra( &params,  10000, 650, 5500);
-
         target = 0.0;
         params_report(&params);
         params_write(&params);
@@ -866,7 +873,6 @@ static void perm_collect_obs(app_t *app, MAT *x, MAT *y )
         // same except mux lo.
         // IMPORTANT. it might make sense to record y in here...
         params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_HI);
-        // params_set_extra( &params,  10000, 650, 5500);
         target = 7.1;
         params_report(&params);
         params_write(& params);
@@ -927,6 +933,7 @@ static void permute(app_t *app, MAT *b)
   // 1mV on +-10V range. 1/10k.
   // seems to be consistent for an integration period.
   // what about permuting fix/var times.
+
 
 
 }
