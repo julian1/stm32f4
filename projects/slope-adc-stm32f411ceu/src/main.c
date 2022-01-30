@@ -51,12 +51,9 @@
 #include <matrix.h>
 #include "regression.h"
 
-// spi
-#define REG_LED  7
 
 
-
-
+#define CMD_BUF_SZ  100
 
 typedef struct app_t
 {
@@ -69,8 +66,31 @@ typedef struct app_t
   // FBuf      measure_rundown;
 
 
+  /*
+    the command processor (called in deep instack) can configure this. ok.
+    continuation function.
+    so we can set this anywhere (eg. in command processor). and control will pass. 
+    and we can test this. 
+    - allows a stack to run to completion even if early termination -  to clean up resources.
+  */ 
+  void *continuation_ctx;
+  void (*continuation_f)(void *);
+
+  // need to initialize
+  char  cmd_buf[CMD_BUF_SZ ];
+  unsigned cmd_buf_i;
+
 
 } app_t;
+
+
+
+static void push_char( char *s, int *i, unsigned ch )
+{
+  s[ *i] = ch;
+  (*i)++;
+}
+
 
 
 static void update_console_cmd(app_t *app)
@@ -79,9 +99,56 @@ static void update_console_cmd(app_t *app)
   /* using peekLast() like this wont work
      since it could miss a character.
     we kind of need to transfer all chars to another buffer. and test for '\n'.
+    -----
+    No. the easiest way is to handle the interupt character. directly...
+    actually no. better to handle in main loop..
 
   */
 
+
+  while( ! cBufisEmpty(&app->console_in)) {
+
+    // got a character
+    int32_t ch = cBufPop(&app->console_in);
+    assert(ch >= 0);
+
+    if(ch != '\r' && app->cmd_buf_i < CMD_BUF_SZ - 1) {
+
+
+      // push_char(app->cmd_buf, &app->cmd_buf_i, ch );
+
+      // push onto a vector? or array?
+      app->cmd_buf[ app->cmd_buf_i++ ] = ch;
+      // app->cmd_buf[ app->cmd_buf_i ] = 0;
+
+    }  else {
+      // we got a command
+
+      app->cmd_buf[ app->cmd_buf_i ]  = 0;
+
+      if(strcmp(app->cmd_buf , "whoot") == 0) {
+        // So.  how do we handle changing modes????
+
+        // if we are in separate loops for calibration, permutation , etc.
+        // how do we cancel, break out. and start another?
+        // coroutines. not really an answer.
+
+        // this function can be tested and be used to return early.
+        // or set a flag. like cancel current command/action.
+
+        app->continuation_ctx = 0;
+
+      }
+
+
+      app->cmd_buf_i = 0;
+    }
+
+
+  }
+
+
+#if 0
   if( !cBufisEmpty(&app->console_in) && cBufPeekLast(&app->console_in) == '\r') {
 
     // usart_printf("got CR\n");
@@ -104,6 +171,9 @@ static void update_console_cmd(app_t *app)
 
     // process_cmd(app, tmp);
   }
+#endif
+
+
 }
 
 /*
@@ -257,7 +327,7 @@ static void params_report(Params * params )
 static bool params_equal( Params *params0,  Params *params1 )
 {
 
-  return 
+  return
     params0->clk_count_int_n  ==  params1->clk_count_int_n
     && params0->use_slow_rundown == params1->use_slow_rundown
     && params0->himux_sel        == params1->himux_sel
