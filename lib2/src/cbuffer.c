@@ -1,9 +1,11 @@
-
 /*
-  Actually better approach is just,
-    leave interrupt unenabled, until item is written (mem + index update), then reenable the interrupt.
+  point of circular buffer is thread safety.
 
-    this avoids a double interupt.
+  Actually better approach for handling uart could be
+  to leave interrupt unenabled, until after character is written (mem + index update),
+  then reenable the interrupt.
+
+  this avoids a double interupt.
 
     this doesn't get and put at the same time but ought to be enough.
     also write the value before updating the index.

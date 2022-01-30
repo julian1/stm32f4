@@ -126,6 +126,9 @@ static void update_console_cmd(app_t *app)
 
       app->cmd_buf[ app->cmd_buf_i ]  = 0;
 
+      usart_printf("got command '%s'\n", app->cmd_buf );
+
+
       if(strcmp(app->cmd_buf , "whoot") == 0) {
         // So.  how do we handle changing modes????
 
