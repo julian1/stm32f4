@@ -123,21 +123,13 @@ void update_console_cmd(app_t *app)
       // usart_printf("got command '%s'\n", app->cmd_buf );
 
       // flash write
-      if(strcmp(app->cmd_buf , "write") == 0) {
+      if(strcmp(app->cmd_buf , "flash write") == 0) {
         // flash_write();
       }
       // flash read
-      else if(strcmp(app->cmd_buf , "read") == 0) {
+      else if(strcmp(app->cmd_buf , "flash read") == 0) {
         // flash_read();
       }
-
-/*
-#define HIMUX_SEL_SIG_HI      (0xf & ~(1 << 0))
-#define HIMUX_SEL_REF_HI      (0xf &~(1 << 1))
-#define HIMUX_SEL_REF_LO      (0xf &~(1 << 2))
-#define HIMUX_SEL_ANG         (0xf &~(1 << 3))
-*/
-
 
       else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 || strcmp(app->cmd_buf , "mux com") == 0)  {
         app->params.himux_sel = HIMUX_SEL_REF_LO;
@@ -165,13 +157,15 @@ void update_console_cmd(app_t *app)
         params_report( &app->params);
       }
 
-      else if(strcmp(app->cmd_buf , "read params") == 0) {
-        // read params from the device
-        // should do this at startup. or from flash. so have somewhat valid starting point.
+      // think we need to rename thesei. distinct from the flash operations.
+
+      else if(strcmp(app->cmd_buf , "read") == 0) {
+        // read params from the device. actually a reset to default.
         params_read( &app->params );
       }
-      else if(strcmp(app->cmd_buf , "write params") == 0) {
+      else if(strcmp(app->cmd_buf , "write") == 0) {
         // write params to device
+        // should we do this on every value change?
         params_write( &app->params );
       }
       else if(strcmp(app->cmd_buf , "exit") == 0 || strcmp(app->cmd_buf , "halt") == 0) {
