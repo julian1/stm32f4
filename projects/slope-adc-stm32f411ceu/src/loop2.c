@@ -51,6 +51,11 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
   m_resize( x , MAX_OBS, X_COLS );      // constant + pos clk + neg clk.
   m_resize( y , MAX_OBS, 1 );
 
+  /*
+  
+    OK. we need much better fine control over parameters. eg. being ablle to change on. the himux_sel. 
+
+  */
   Params  params;
   params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
   params_set_extra( &params,  10000, 700, 5500);
@@ -64,6 +69,10 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
     // switch integration configuration
     switch(i) {
       case 0:
+/*
+  this code should only be changing HIMUX_SEL_REF_LO to swap inputs.
+*/
+
         params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
         target = 0.0;
         params_report(&params);
