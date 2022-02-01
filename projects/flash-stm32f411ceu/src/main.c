@@ -119,15 +119,6 @@ typedef struct app_t
 static void update_console_cmd(app_t *app)
 {
 
-  /* using peekLast() like this wont work
-     since it could miss a character.
-    we kind of need to transfer all chars to another buffer. and test for '\n'.
-    -----
-    No. the easiest way is to handle the interupt character. directly...
-    actually no. better to handle in main loop..
-
-  */
-
 
   while( ! cBufisEmpty(&app->console_in)) {
 
@@ -136,25 +127,25 @@ static void update_console_cmd(app_t *app)
     assert(ch >= 0);
 
     if(ch != '\r' && app->cmd_buf_i < CMD_BUF_SZ - 1) {
-
-
-      // push_char(app->cmd_buf, &app->cmd_buf_i, ch );
-
+      // character other than newline
       // push onto a vector? or array?
       app->cmd_buf[ app->cmd_buf_i++ ] = ch;
-      // app->cmd_buf[ app->cmd_buf_i ] = 0;
+
+      // echo to output. required for minicom.
+      putchar( ch);
 
     }  else {
       // we got a command
 
       app->cmd_buf[ app->cmd_buf_i ]  = 0;
 
-      usart_printf("got command '%s'\n", app->cmd_buf );
-      usart_printf("> " );
+      putchar('\n');
+      // usart_printf("got command '%s'\n", app->cmd_buf );
 
-
+      // flash write
       if(strcmp(app->cmd_buf , "write") == 0) {
 
+        // put in a command
         usart_printf("writing flash\n");
         flash_unlock();
         usart_printf("erasing sector \n");
@@ -167,24 +158,38 @@ static void update_console_cmd(app_t *app)
 
         flash_erase_sector(2 , 0 );
         unsigned char buf[] = "whoot";
+
+        usart_printf("writing\n");
         flash_program(0x08008000 , buf, sizeof(buf) );
-        usart_printf("lock\n");
         flash_lock();
+        usart_printf("done\n");
 
       }
 
-      if(strcmp(app->cmd_buf , "read") == 0) {
+      // flash read
+      else if(strcmp(app->cmd_buf , "read") == 0) {
 
         char *s = (char *) 0x08008000;
-
         printf( "flash char is '%c'\n", *s);
-
         // expect null terminator
         if(*s == 'w')
           printf( "string is '%s'\n", s );
       }
 
+      // unknown command
+      else {
 
+        printf( "unknown command '%s'\n", app->cmd_buf );
+      }
+
+      // reset buffer
+      app->cmd_buf_i = 0;
+      app->cmd_buf[ app->cmd_buf_i ]  = 0;
+
+      // issue new command prompt
+      usart_printf("> ");
+
+#if 0
       if(strcmp(app->cmd_buf , "whoot") == 0) {
         // So.  how do we handle changing modes????
 
@@ -199,9 +204,8 @@ static void update_console_cmd(app_t *app)
 
         app->continuation_ctx = 0;
       }
+#endif
 
-
-      app->cmd_buf_i = 0;
     }
 
 
