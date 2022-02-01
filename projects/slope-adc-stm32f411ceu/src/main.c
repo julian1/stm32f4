@@ -174,7 +174,7 @@ void update_console_cmd(app_t *app)
         // write params to device
         params_write( &app->params );
       }
-      else if(strcmp(app->cmd_buf , "exit") == 0) {
+      else if(strcmp(app->cmd_buf , "exit") == 0 || strcmp(app->cmd_buf , "halt") == 0) {
         // exit the current loop program
         app->continuation_f = (void (*)(void *)) loop_dispatcher;
         app->continuation_ctx = app;
@@ -268,7 +268,7 @@ void update_console_cmd(app_t *app)
 static void loop_dispatcher(app_t *app)
 {
   usart_printf("=========\n");
-  usart_printf("loop_dispatcher\n");
+  usart_printf("continuation dispatcher\n");
   usart_printf("> ");
 
  static uint32_t soft_500ms = 0;
@@ -286,10 +286,13 @@ static void loop_dispatcher(app_t *app)
     }
 
     if(app->continuation_f) {
-      printf("jumping to continuation\n");
+      printf("jump to continuation\n");
       void (*tmppf)(void *) = app->continuation_f;
       app->continuation_f = NULL;
       tmppf( app->continuation_ctx );
+
+      printf("continuation done\n");
+      usart_printf("> ");
     }
 
   }

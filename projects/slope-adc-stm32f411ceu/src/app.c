@@ -70,9 +70,19 @@ void params_report(Params * params )
 
   usart_printf("use_slow_rundown  %u\n", params->use_slow_rundown);
 
-  //
+
+  //////////
   // char buf[100] char * format_bits(char *buf, size_t width, uint32_t value)
-  usart_printf("himux_sel         %s\n", format_bits( buf, 4, params->himux_sel));
+  usart_printf("himux_sel         %s ", format_bits( buf, 4, params->himux_sel));
+
+  switch( params->himux_sel) {
+    case HIMUX_SEL_SIG_HI: usart_printf("sig-hi");  break;
+    case HIMUX_SEL_REF_HI: usart_printf("ref-hi");  break;
+    case HIMUX_SEL_REF_LO: usart_printf("ref-lo");  break;
+    case HIMUX_SEL_ANG:    usart_printf("ang");  break;
+  }
+  usart_printf("\n");
+
 }
 
 
@@ -357,7 +367,7 @@ unsigned collect_obs( app_t *app, Params *params, unsigned row, unsigned discard
         Run run;
         run_read(&run );
         run_report(&run);
-      
+
 
         // ignore first obs
         if(obs >= discard ) {
