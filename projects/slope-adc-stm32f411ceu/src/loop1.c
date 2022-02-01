@@ -51,34 +51,12 @@ void loop1 ( app_t *app)
 {
   usart_printf("=========\n");
   usart_printf("loop1\n");
-  usart_printf("> ");
 
   assert(app);
-
-  /*
-    app() subsumes update()
-  */
 
   assert( HIMUX_SEL_REF_LO ==  0b1011  );
 
 
- // params_set( 5 * 20000000, 1, HIMUX_SEL_REF_LO );
-
-#if 0
-  Params  params;
-  params_read( &params );
-
-  usart_printf("overwriting params\n");
-  // overwrite
-  params.clk_count_int_n  = 1 * 20000000;
-  params.use_slow_rundown = 1;
-  // params.himux_sel = HIMUX_SEL_REF_LO;
-  params.himux_sel = HIMUX_SEL_REF_HI;
-  // params.himux_sel = HIMUX_SEL_SIG_HI;
-  params_write(&params);
-
-  params_report( &params);
-#endif
 
   // TODO move to app_t structure?.
   static uint32_t soft_500ms = 0;
