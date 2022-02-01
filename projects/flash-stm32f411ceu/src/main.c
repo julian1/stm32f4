@@ -147,6 +147,25 @@ static void flash_read(void)
 }
 
 
+/*
+  an advantage of a continuation loop.
+  is that we can restrict the menu processing options.
+
+  ----------
+  - what about setting the exit continuation loop as well?
+  - eg. the cancel continuation - to return to the same point.
+  -----
+
+  alterantively we have one loop - and instead pass measurement obs abstract function on every read. 
+  and that can change.
+  or reset itself.
+
+  on_data ...
+
+  so the main command process - would set this, and could cancel it etc.
+
+*/
+
 static void loop2(app_t *app);
 static void loop(app_t *app);
 
