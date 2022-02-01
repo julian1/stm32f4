@@ -112,8 +112,43 @@ typedef struct app_t
 
 
 
+static void flash_write(void)
+{
+  // put in a command
+  usart_printf("writing flash\n");
+  flash_unlock();
+  usart_printf("erasing sector \n");
+
+  /*
+    A sector must:w first be fully erased before attempting to program it.
+    [in]  sector  (0 - 11 for some parts, 0-23 on others)
+    program_size  0 (8-bit), 1 (16-bit), 2 (32-bit), 3 (64-bit)
+  */
+
+  flash_erase_sector(2 , 0 );
+  unsigned char buf[] = "whoot";
+
+  usart_printf("writing\n");
+  flash_program(0x08008000 , buf, sizeof(buf) );
+  flash_lock();
+  usart_printf("done\n");
+
+}
 
 
+static void flash_read(void)
+{
+  char *s = (char *) 0x08008000;
+  printf( "flash char is '%c'\n", *s);
+  // expect null terminator
+  if(*s == 'w')
+    printf( "string is '%s'\n", s );
+
+}
+
+
+static void loop2(app_t *app);
+static void loop(app_t *app);
 
 
 static void update_console_cmd(app_t *app)
@@ -144,36 +179,22 @@ static void update_console_cmd(app_t *app)
 
       // flash write
       if(strcmp(app->cmd_buf , "write") == 0) {
-
-        // put in a command
-        usart_printf("writing flash\n");
-        flash_unlock();
-        usart_printf("erasing sector \n");
-
-        /*
-          A sector must:w first be fully erased before attempting to program it.
-          [in]  sector  (0 - 11 for some parts, 0-23 on others)
-          program_size  0 (8-bit), 1 (16-bit), 2 (32-bit), 3 (64-bit)
-        */
-
-        flash_erase_sector(2 , 0 );
-        unsigned char buf[] = "whoot";
-
-        usart_printf("writing\n");
-        flash_program(0x08008000 , buf, sizeof(buf) );
-        flash_lock();
-        usart_printf("done\n");
-
+        flash_write();
       }
-
       // flash read
       else if(strcmp(app->cmd_buf , "read") == 0) {
+        flash_read();
+      }
 
-        char *s = (char *) 0x08008000;
-        printf( "flash char is '%c'\n", *s);
-        // expect null terminator
-        if(*s == 'w')
-          printf( "string is '%s'\n", s );
+
+      else if(strcmp(app->cmd_buf , "loop") == 0) {
+        app->continuation_ctx = app;
+        app->continuation_f = (void (*)(void *)) loop;
+      }
+
+      else if(strcmp(app->cmd_buf , "loop2") == 0) {
+        app->continuation_ctx = app;
+        app->continuation_f = (void (*)(void *)) loop2;
       }
 
       // unknown command
@@ -214,6 +235,39 @@ static void update_console_cmd(app_t *app)
 
 
 
+static void loop2(app_t *app)
+{
+  usart_printf("=========\n");
+  usart_printf("loop 2\n");
+  usart_printf("> ");
+
+ static uint32_t soft_500ms = 0;
+
+  while(true) {
+
+    update_console_cmd(app);
+
+    // 500ms soft timer. should handle wrap around
+    if( (system_millis - soft_500ms) > 500) {
+      soft_500ms += 500;
+
+      //
+      led_toggle();
+    }
+
+    if(app->continuation_f) {
+      printf("jumping to continuation\n");
+      void (*tmppf)(void *) = app->continuation_f;
+      app->continuation_f = NULL;
+      tmppf( app->continuation_ctx ); 
+    }
+
+
+  }
+}
+
+
+
 
 static void loop(app_t *app)
 {
@@ -223,21 +277,24 @@ static void loop(app_t *app)
 
  static uint32_t soft_500ms = 0;
 
-
-  // NO. recompiling - overwrites the flash.
-
   while(true) {
 
     update_console_cmd(app);
-    // usart_output_update(); // shouldn't be necessary, now pumped by interupts.
 
     // 500ms soft timer. should handle wrap around
     if( (system_millis - soft_500ms) > 500) {
       soft_500ms += 500;
-
       //
       led_toggle();
     }
+
+    if(app->continuation_f) {
+      printf("jumping to continuation\n");
+      void (*tmppf)(void *) = app->continuation_f;
+      app->continuation_f = NULL;
+      tmppf( app->continuation_ctx ); 
+    }
+
   }
 }
 
