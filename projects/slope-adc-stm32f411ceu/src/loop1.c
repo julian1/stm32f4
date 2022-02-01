@@ -115,7 +115,7 @@ void loop1 ( app_t *app)
           double value = m_get_val( predicted, 0, 0 );
           // TODO predicted, rename. estimator?
           char buf[100];
-          printf("predicted %s\n", format_float_with_commas(buf, 100, 7, value));
+          printf("predicted %s", format_float_with_commas(buf, 100, 7, value));
           #endif
           usart_flush();
 

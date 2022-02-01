@@ -377,7 +377,7 @@ unsigned collect_obs( app_t *app, Params *params, unsigned row, unsigned discard
 
           ++row;
         } else {
-          usart_printf("discard\n");
+          usart_printf("discard");
 
         }
 
