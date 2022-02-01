@@ -5,6 +5,9 @@ extern "C" {
 #endif
 
 
+#include <stdint.h>  // uint32_t etc 
+#include <stddef.h>  // size_t
+
 // string support
 
 // should rename to format.h.

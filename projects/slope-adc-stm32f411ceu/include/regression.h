@@ -3,6 +3,11 @@
 
 // void regression(void);
 
+#include "matrix.h"   // MAT
+
+// typedef struct  MAT MAT;
+
+
 MAT *m_fill(  MAT *a, double *p );
 MAT *m_hconcat( MAT *a, MAT *b, MAT *out );
 

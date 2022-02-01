@@ -160,9 +160,12 @@ static void flash_read(void)
   and that can change.
   or reset itself.
 
-  on_data ...
+  on_data( app, localctx. counts ) 
 
   so the main command process - would set this, and could cancel it etc.
+  -----
+  kep issue is resource cleanup - eg. predictable cleanup - is easy with a linear function.
+  linear function can control all phases of what it wants to do.
 
 */
 
@@ -205,7 +208,6 @@ static void update_console_cmd(app_t *app)
         flash_read();
       }
 
-
       else if(strcmp(app->cmd_buf , "loop") == 0) {
         app->continuation_ctx = app;
         app->continuation_f = (void (*)(void *)) loop;
@@ -229,6 +231,13 @@ static void update_console_cmd(app_t *app)
       // issue new command prompt
       usart_printf("> ");
 
+    }
+  }
+}
+
+
+
+
 #if 0
       if(strcmp(app->cmd_buf , "whoot") == 0) {
         // So.  how do we handle changing modes????
@@ -245,13 +254,6 @@ static void update_console_cmd(app_t *app)
         app->continuation_ctx = 0;
       }
 #endif
-
-    }
-
-
-  }
-}
-
 
 
 static void loop2(app_t *app)
@@ -275,6 +277,7 @@ static void loop2(app_t *app)
     }
 
     if(app->continuation_f) {
+      // should just return and let dispatcher handle control.
       printf("jumping to continuation\n");
       void (*tmppf)(void *) = app->continuation_f;
       app->continuation_f = NULL;
@@ -393,6 +396,5 @@ int main(void)
 
   loop(&app);
 }
-
 
 

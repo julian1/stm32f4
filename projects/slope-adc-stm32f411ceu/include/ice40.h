@@ -1,4 +1,5 @@
 
+#include <stdint.h>
 
 extern void spi_ice40_setup(uint32_t spi);
 

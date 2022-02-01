@@ -384,7 +384,7 @@ static void loop(app_t *app)
     // agg_test7();
     // agg_test8( app->curses );
 
-    // should be 
+    // should be
     app->menu_controller.draw();
 
 
@@ -435,7 +435,7 @@ int main(void)
   Curses curses( 33, 17, 14, 16 );
   // Curses curses;
 
-  int32_t    item_idx = 0; // first digit, need negative to support after float 
+  int32_t    item_idx = 0; // first digit, need negative to support after float
 
   ListController  list_controller;
 

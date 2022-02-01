@@ -47,63 +47,57 @@
 #include "ice40.h"
 
 
-
 #include <matrix.h>
 #include "regression.h"
 
 
+#include "app.h"
 
-#define CMD_BUF_SZ  100
 
-typedef struct app_t
+
+static void loop_dispatcher(app_t *app);
+
+/*
+  we want the parameters for
+    ordinary running . to be same  as cal.
+    but also to be able to vary.
+    -------
+
+  point is that params for calibration and for running want to be the same.
+  OR. we want to run with permutations. but the same counts should work.
+
+  so we just need an extra set of parameters.
+
+  YAGNI.
+
+    - just try use app_t data structure instead of something separate.
+    - that means putting b. in app.
+
+  permutate.
+
+  mux hi
+  mux lo/com
+  mux sig
+
+  cal       - using current values
+  reset cal  - cal using default etc.
+  set fix
+  set var.    etc.
+
+  reset default.   eg. same as programmed.
+
+  its all
+
+*/
+
+/*
+  so the main need - is to be able to switch programs/tests from commands.
+  then can prototype more easily.
+*/
+
+
+void update_console_cmd(app_t *app)
 {
-  CBuf console_in;
-  CBuf console_out;
-
-  bool data_ready ;
-
-
-  // FBuf      measure_rundown;
-
-
-  /*
-    the command processor (called in deep instack) can configure this. ok.
-    continuation function.
-    so we can set this anywhere (eg. in command processor). and control will pass. 
-    and we can test this. 
-    - allows a stack to run to completion even if early termination -  to clean up resources.
-  */ 
-  void *continuation_ctx;
-  void (*continuation_f)(void *);
-
-  // need to initialize
-  char  cmd_buf[CMD_BUF_SZ ];
-  unsigned cmd_buf_i;
-
-
-} app_t;
-
-
-
-static void push_char( char *s, int *i, unsigned ch )
-{
-  s[ *i] = ch;
-  (*i)++;
-}
-
-
-
-static void update_console_cmd(app_t *app)
-{
-
-  /* using peekLast() like this wont work
-     since it could miss a character.
-    we kind of need to transfer all chars to another buffer. and test for '\n'.
-    -----
-    No. the easiest way is to handle the interupt character. directly...
-    actually no. better to handle in main loop..
-
-  */
 
 
   while( ! cBufisEmpty(&app->console_in)) {
@@ -113,73 +107,106 @@ static void update_console_cmd(app_t *app)
     assert(ch >= 0);
 
     if(ch != '\r' && app->cmd_buf_i < CMD_BUF_SZ - 1) {
-
-
-      // push_char(app->cmd_buf, &app->cmd_buf_i, ch );
-
+      // character other than newline
       // push onto a vector? or array?
       app->cmd_buf[ app->cmd_buf_i++ ] = ch;
-      // app->cmd_buf[ app->cmd_buf_i ] = 0;
+
+      // echo to output. required for minicom.
+      putchar( ch);
 
     }  else {
       // we got a command
 
       app->cmd_buf[ app->cmd_buf_i ]  = 0;
 
-      usart_printf("got command '%s'\n", app->cmd_buf );
+      putchar('\n');
+      // usart_printf("got command '%s'\n", app->cmd_buf );
 
-
-      if(strcmp(app->cmd_buf , "whoot") == 0) {
-        // So.  how do we handle changing modes????
-
-        // if we are in separate loops for calibration, permutation , etc.
-        // how do we cancel, break out. and start another?
-        // coroutines. not really an answer.
-
-        // this function can be tested and be used to return early.
-        // or set a flag. like cancel current command/action.
-  
-        // also - sometimes we want to change something - without setting the continuation.
-
-        app->continuation_ctx = 0;
-
+      // flash write
+      if(strcmp(app->cmd_buf , "write") == 0) {
+        // flash_write();
+      }
+      // flash read
+      else if(strcmp(app->cmd_buf , "read") == 0) {
+        // flash_read();
       }
 
+/*
+#define HIMUX_SEL_SIG_HI      (0xf & ~(1 << 0))
+#define HIMUX_SEL_REF_HI      (0xf &~(1 << 1))
+#define HIMUX_SEL_REF_LO      (0xf &~(1 << 2))
+#define HIMUX_SEL_ANG         (0xf &~(1 << 3))
+*/
 
+
+      else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 || strcmp(app->cmd_buf , "mux com") == 0)  {
+        app->params.himux_sel = HIMUX_SEL_REF_LO;
+      }// ref-lo/com...
+      else if(strcmp(app->cmd_buf , "mux ref-hi") == 0) {
+        app->params.himux_sel = HIMUX_SEL_REF_HI;
+      }
+     else if(strcmp(app->cmd_buf , "mux sig") == 0) {
+        app->params.himux_sel = HIMUX_SEL_SIG_HI;
+      }
+
+      // we may want to be able to read/store multiple calibrations. eg. array.
+      // but this is sufficient for the moment.
+
+      /*
+        - calibration b -  is mostly going to be invariant.
+        - basic steps.
+            - on bootup. - read the device characteristics.   or load from flash.
+            - can then run.  or calibrate.
+
+      */
+
+      else if(strcmp(app->cmd_buf , "show") == 0) {
+        // report params.
+        params_report( &app->params);
+      }
+
+      else if(strcmp(app->cmd_buf , "read params") == 0) {
+        // read params from the device
+        // should do this at startup. or from flash. so have somewhat valid starting point.
+        params_read( &app->params );
+      }
+      else if(strcmp(app->cmd_buf , "write params") == 0) {
+        // write params to device
+        params_write( &app->params );
+      }
+      else if(strcmp(app->cmd_buf , "exit") == 0) {
+        // exit the current loop program
+        app->continuation_f = (void (*)(void *)) loop_dispatcher;
+        app->continuation_ctx = app;
+      }
+      else if(strcmp(app->cmd_buf , "loop1") == 0) {
+        // start loop1.
+        app->continuation_f = (void (*)(void *)) loop1;
+        app->continuation_ctx = app;
+      }
+      else if(strcmp(app->cmd_buf , "loop2") == 0) {
+        app->continuation_f = (void (*)(void *)) loop2;
+        app->continuation_ctx = app;
+      }
+
+      // unknown command
+      else {
+        printf( "unknown command '%s'\n", app->cmd_buf );
+      }
+
+      // reset buffer
       app->cmd_buf_i = 0;
+      app->cmd_buf[ app->cmd_buf_i ]  = 0;
+
+      // issue new command prompt
+      usart_printf("> ");
+
     }
-
-
   }
-
-
-#if 0
-  if( !cBufisEmpty(&app->console_in) && cBufPeekLast(&app->console_in) == '\r') {
-
-    // usart_printf("got CR\n");
-
-    // we got a carriage return
-    static char tmp[1000];
-
-    size_t nn = cBufCount(&app->console_in);
-    size_t n = cBufCopyString(&app->console_in, tmp, ARRAY_SIZE(tmp));
-    assert(n <= sizeof(tmp));
-    assert(tmp[n - 1] == 0);
-    assert( nn == n - 1);
-
-    // chop off the CR to make easier to print
-    assert(((int) n) - 2 >= 0);
-    tmp[n - 2] = 0;
-
-    // TODO first char 'g' gets omitted/chopped here, why? CR handling?
-    usart_printf("got command '%s'\n", tmp);
-
-    // process_cmd(app, tmp);
-  }
-#endif
-
-
 }
+
+
+
 
 /*
   after a 5 seecond integration at 20MHz. quite good.
@@ -225,877 +252,30 @@ static void update_console_cmd(app_t *app)
 
 
 
-#define REG_LED               7
-
-#define REG_COUNT_UP          9
-#define REG_COUNT_DOWN        10
-#define REG_CLK_COUNT_RUNDOWN 11
-#define REG_COUNT_TRANS_UP    12
-#define REG_COUNT_TRANS_DOWN  14
-#define REG_COUNT_FIX_UP      26
-#define REG_COUNT_FIX_DOWN    27
-#define REG_COUNT_FLIP        17
-
-
-#define REG_TEST              15
-#define REG_RUNDOWN_DIR       16
-
-
-// control parameters
-#define REG_CLK_COUNT_INIT_N  18
-#define REG_CLK_COUNT_FIX_N   20
-#define REG_CLK_COUNT_VAR_N   21
-#define REG_CLK_COUNT_INT_N_LO   22
-#define REG_CLK_COUNT_INT_N_HI 23
-
-
-#define REG_USE_SLOW_RUNDOWN  24
-#define REG_HIMUX_SEL         25
-
-// eg. bitwise, active lo.  avoid turning on more than one.
-// although switch has 1.5k impedance so should not break
-#define HIMUX_SEL_SIG_HI      (0xf & ~(1 << 0))
-#define HIMUX_SEL_REF_HI      (0xf &~(1 << 1))
-#define HIMUX_SEL_REF_LO      (0xf &~(1 << 2))
-#define HIMUX_SEL_ANG         (0xf &~(1 << 3))
-
-
-
-
-
-struct Params
-{
-  // fix counts. are setup and written in
-  // uint32_t reg_led ;
-  uint32_t clk_count_int_n;
-
-  uint32_t clk_count_init_n ;
-  uint32_t clk_count_fix_n ;
-  uint32_t clk_count_var_n ;
-  uint32_t use_slow_rundown;
-  uint32_t himux_sel;
-
-};
-
-typedef struct Params Params;
-
-
 // initialize. first read. then overwrite. then write again.
 
-static void params_read( Params * params )
-{
-  // params->reg_led           = spi_reg_read(SPI1, REG_LED);
 
-  uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_INT_N_LO );
-  uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_INT_N_HI );
-  params->clk_count_int_n   = int_hi << 24 | int_lo;
 
-  params->clk_count_init_n  = spi_reg_read(SPI1, REG_CLK_COUNT_INIT_N);
-  params->clk_count_fix_n   = spi_reg_read(SPI1, REG_CLK_COUNT_FIX_N);
-  params->clk_count_var_n   = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_N);
 
-  params->use_slow_rundown  = spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN);
-  params->himux_sel         = spi_reg_read(SPI1, REG_HIMUX_SEL);
-}
 
 
 
-static void params_report(Params * params )
-{
-  char buf[10];
 
-  usart_printf("-------------\n");
-  // usart_printf("reg_led           %s\n", format_bits( buf, 4, params->reg_led ) );
 
-  uint32_t int_n  = params->clk_count_int_n ;
-  double period = int_n / (double ) 20000000;
-  double nplc     = period / (1.0 / 50);
 
-  usart_printf("clk_count_int_n   %u\n", int_n );
-  usart_printf("period            %fs\n", period);
-  usart_printf("nplc              %.2f\n", nplc);
 
-  usart_printf("clk_count_init_n  %u\n", params->clk_count_init_n);
-  usart_printf("clk_count_fix_n   %u\n", params->clk_count_fix_n);
-  usart_printf("clk_count_var_n   %u\n", params->clk_count_var_n);
 
-  usart_printf("use_slow_rundown  %u\n", params->use_slow_rundown);
-
-  //
-  // char buf[100] char * format_bits(char *buf, size_t width, uint32_t value)
-  usart_printf("himux_sel         %s\n", format_bits( buf, 4, params->himux_sel));
-}
-
-
-
-
-static bool params_equal( Params *params0,  Params *params1 )
-{
-
-  return
-    params0->clk_count_int_n  ==  params1->clk_count_int_n
-    && params0->use_slow_rundown == params1->use_slow_rundown
-    && params0->himux_sel        == params1->himux_sel
-
-    && params0->clk_count_init_n == params1->clk_count_init_n
-    && params0->clk_count_fix_n  == params1->clk_count_fix_n
-    && params0->clk_count_var_n  == params1->clk_count_var_n
-  ;
-}
-
-
-
-static void params_write( Params *params )
-{
-  // write the main parameter to device
-  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_HI, (params->clk_count_int_n >> 24) & 0xff );
-  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, params->clk_count_int_n & 0xffffff  );
-  spi_reg_write(SPI1, REG_USE_SLOW_RUNDOWN, params->use_slow_rundown );
-  spi_reg_write(SPI1, REG_HIMUX_SEL, params->himux_sel );
-
-  // write the extra parameters to device
-  spi_reg_write(SPI1, REG_CLK_COUNT_INIT_N , params->clk_count_init_n );
-  spi_reg_write(SPI1, REG_CLK_COUNT_FIX_N,   params->clk_count_fix_n );
-  spi_reg_write(SPI1, REG_CLK_COUNT_VAR_N,   params->clk_count_var_n );
-
-  Params  params2;
-  params_read( &params2 );
-
-  // ensure write successful.
-  assert(params_equal( params,  &params2 ));
-}
-
-
-
-
-
-
-#if 0
-static void params_write_extra( Params *params )
-{
-  // write the extra parameters to device
-
-  spi_reg_write(SPI1, REG_CLK_COUNT_INIT_N , params->clk_count_init_n );
-  spi_reg_write(SPI1, REG_CLK_COUNT_FIX_N,   params->clk_count_fix_n );
-  spi_reg_write(SPI1, REG_CLK_COUNT_VAR_N,   params->clk_count_var_n );
-}
-#endif
-
-
-
-static void params_set_main( Params *params,  uint32_t clk_count_int_n, bool use_slow_rundown, uint8_t himux_sel )
-{
-  params->clk_count_int_n  = clk_count_int_n;
-  params->use_slow_rundown = use_slow_rundown;
-  params->himux_sel        = himux_sel;
-}
-
-
-static void params_set_extra( Params *params,  uint32_t clk_count_init_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_n)
-{
-  params->clk_count_init_n = clk_count_init_n;
-  params->clk_count_fix_n  = clk_count_fix_n;
-  params->clk_count_var_n  = clk_count_var_n;
-
-  // IMPORTNAT.
-  // there is a third kind of permutation - altering fix_pos_n and fix_neg_n individually.
-}
-
-
-
-
-
-
-
-/*
-  - ok. think we want an intermediate structure...
-  so we can use this once
-
-  - could also record the configuration
-*/
-
-
-struct Run
-{
-  uint32_t count_up;
-  uint32_t count_down;
-  uint32_t count_trans_up;
-  uint32_t count_trans_down;
-  uint32_t count_fix_up;
-  uint32_t count_fix_down;
-  uint32_t count_flip;
-
-  // rundown_dir.
-
-  uint32_t clk_count_rundown;
-
-};
-
-typedef struct Run  Run;
-
-
-static void run_read( Run *run )
-{
-  assert(run);
-
-  // use separate lines (to make it easier to filter - for plugging into stats).
-  run->count_up         = spi_reg_read(SPI1, REG_COUNT_UP );
-  run->count_down       = spi_reg_read(SPI1, REG_COUNT_DOWN );
-
-  // run->count_trans_up     = spi_reg_read(SPI1, REG_COUNT_TRANS_UP );
-  // run->count_trans_down   = spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN );
-
-  run->count_fix_up     = spi_reg_read(SPI1, REG_COUNT_FIX_UP);
-  run->count_fix_down   = spi_reg_read(SPI1, REG_COUNT_FIX_DOWN);
-
-  // run->count_flip    = spi_reg_read(SPI1, REG_COUNT_FLIP);
-
-
-  // WE could record slow_rundown separate to normal rundown.
-  run->clk_count_rundown = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
-
-}
-
-
-
-
-static void run_report( Run *run )
-{
-  assert(run);
-
-  // usart_printf("count_up %u, ",         run->count_up );
-  // usart_printf("count_down %u, ",       run->count_down );
-
-  usart_printf("count_up/down %u %u, ", run->count_up, run->count_down );
-  // usart_printf("trans_up/down %u %u, ", run->count_trans_up,  run->count_trans_down);
-  usart_printf("fix_up/down %u %u, ",   run->count_fix_up,  run->count_fix_down);
-  // usart_printf("count_flip %u, ",       run->count_flip);
-
-  usart_printf("clk_count_rundown %u, ", run->clk_count_rundown);
-
-  usart_printf("\n");
-}
-
-
-
-
-#define X_COLS   2
-
-
-static MAT * run_to_matrix( Params *params, Run *run, MAT * out )
-{
-  /*
-    0.  very useful feature - how biased resistor ladder - means that modulation will cycle around to a stop point
-          where 4 phase modulation ends up above  the cross, ready for rundown.
-          and fix pos and fix neg are equal.
-          - and it will do this in a finite amount of time.
-
-        3458a though. can do rundown from either side of the zero-cross. using a slow slope resistor. that's why doesn't need bias.
-
-
-      EXTR. IMPORTANT.
-    1. must calculate the estimator values before average rather than average raw inputs (rundown count etc) then cal estimated.
-
-      - because the modulation could flutter around the hi count values. so that an average
-      does not accurately capture the combination with slow rundown count.
-      ------------
-
-      EXTR IMPORTANT
-      *******
-    2. rather than represent the slow rundown as an independent field .
-      it could be represented - as a clk count of *both* pos and neg.
-      likewise the fast rundown
-
-      eg. total current =
-      (fix pos + var pos + rundown pos) + (fix neg + var neg  + rundown neg )
-      = c + a * pos + b * neg
-
-      rather than 3 independent var linear regression, it collapses to a 2 var regression.
-
-      So that the calculation collpases to just a two independent variable linear regression.
-      And if fast runddown is used then it is just 0 clk.
-
-    3.
-      we may want a constant... / ones. functional specification.
-
-    4.
-      - i think there is a valid implicit origin point -  count pos = 0, count neg ==  reflo == 0. should equal 0.
-        included in regression sample data.
-
-      - we should compute the predicted origin . with 0 counts. see what it says.
-      and check val
-
-    5.
-      - think we need to simplify/combine  the cal_loop and main loop.
-      - have a generalized loop. that can just add to an empty array.  and then return control after a loop count
-    6.
-      - with simplified sum model. can do inl on 0V and 7.1V and
-          - permutations on integration time.
-          - permutations on fixed time. permutations on var time.
-
-          eg. the having the model work and be invariant to signal time/ pos/var - is an incredibly important property.
-
-        - this is a conseuqence of k2002/Kleinstein design -final rundown contribution - is just addition of +ve and -ve weight * clock.
-              except we take both.
-
-        - i think if residual adc is used - it has to be incorporated as an extra term in a regression model..
-          eg.
-              y = b0 + b1 * (var pos + fix pos) + b2 (var neg + fix neg) + b3 * residual;
-
-          versus
-              y = b0 + b1 * (var pos + fix pos + rundown) + b2 (var neg + fix neg + rundown);
-
-
-    7.
-      - so we can characterize INL - with permutations - and therefore test different functinoal specifications for calibration.
-
-    8.
-      can destermine the resolution.
-      by just plugging in values to regression.
-      eg.   predict( ...,  rundown) - predict( ..., rundown + 1);
-      and from there determine count.
-      -------
-      think would need values calculated near the input range of the integrator. eg. +-10V.  But could use 7.1V as proxy.
-
-    =======
-  */
-
-  UNUSED(params);
-
-  if(out == MNULL)
-    out = m_get(1,1); // TODO fix me.
-
-#if 0
-  // compute value
-  m_resize(out, 1, 3);
-  m_set_val( out, 0, 0,  run->count_up );
-  m_set_val( out, 0, 1,  run->count_down );
-  m_set_val( out, 0, 2,  run->count_fix_up );
-#endif
-
-  /*
-    compared with an adc. we don't have to treat the residual charge on rundown - as an extra independent variable.
-  */
-
-  // slow rundown uses both
-
-  double x0 = 1.0f;
-  UNUSED(x0);
-
-  // negative current / slope up
-  double x1 = (run->count_up   * params->clk_count_var_n) + (run->count_fix_up   * params->clk_count_fix_n) + run->clk_count_rundown;
-
-  // not sure if we want to do this. may have to calibrate for a period. which would be ugly.
-  x1 /= params-> clk_count_int_n ;
-
-  // positive current. slope down.
-  double x2 = (run->count_down * params->clk_count_var_n) + (run->count_fix_down * params->clk_count_fix_n) + run->clk_count_rundown;
-
-  x2 /= params-> clk_count_int_n ;
-
-#if 1
-  // 2 variable model.
-  m_resize(out, 1, 2);
-  m_set_val( out, 0, 0,  x1  );
-  m_set_val( out, 0, 1,  x2  );
-#endif
-
-#if 0
-  // three variable
-  m_resize(out, 1, X_COLS);
-  m_set_val( out, 0, 0,  1.f );
-  m_set_val( out, 0, 1,  x1  );
-  m_set_val( out, 0, 2,  x2  );
-#endif
-
-
-  return out;
-}
-
-
-
-
-
-static unsigned collect_obs( app_t *app, Params *params, unsigned row, unsigned discard, unsigned gather, MAT *x)
-{
-  // change name, get obs?
-    /*
-
-      loop is the same for cal and main loop.
-      so should pass control.
-      get_readings ( n,   start_row, MAT  ) ,
-
-    */
-
-    // obs per current configuration
-    unsigned obs = 0;
-
-    while(obs < discard + gather) {
-
-      // if we got data handle it.
-      if(app->data_ready) {
-        // in priority
-        app->data_ready = false;
-
-        // get run details
-        Run run;
-        run_read(&run );
-        run_report(&run);
-
-        // ignore first obs
-        if(obs >= discard ) {
-
-          MAT *whoot = run_to_matrix( params, &run, MNULL );
-          assert(whoot);
-          // m_foutput(stdout, whoot );
-          m_row_set( x, row, whoot );
-          M_FREE(whoot);
-
-          /*
-          // cannot do y here.
-          // do y
-          assert(row < y->m); // < or <= ????
-          m_set_val( y, row, 0,  target );
-          */
-
-          ++row;
-        } else {
-          usart_printf("discard\n");
-
-        }
-
-        ++obs;
-      } // app->data_ready
-
-      // update_console_cmd(app);
-      // usart_output_update(); // shouldn't be necessary, now pumped by interupts.
-
-
-      // 250ms
-      static uint32_t soft_250ms = 0;
-      if( (system_millis - soft_250ms) > 250) {
-        soft_250ms += 250;
-        led_toggle();
-      }
-
-
-    } // while
-
-  return row;
-}
-
-
-static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
-{
-  // gather obersevations
-  // app argument is needed for data ready flag.
-  // while loop has to be inner
-  // might be easier to overside. and then resize.
-
-  usart_printf("=========\n");
-  usart_printf("cal loop\n");
-
-  // rows x cols
-  unsigned row = 0;
-
-  #define MAX_OBS  30
-
-  m_resize( x , MAX_OBS, X_COLS );      // constant + pos clk + neg clk.
-  m_resize( y , MAX_OBS, 1 );
-
-  Params  params;
-  params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
-  params_set_extra( &params,  10000, 700, 5500);
-  params_write( &params );
-
-
-
-  for(unsigned i = 0; /*i < 10*/; ++i )
-  {
-    double target;
-    // switch integration configuration
-    switch(i) {
-      case 0:
-        params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
-        target = 0.0;
-        params_report(&params);
-        params_write(&params);
-        break;
-
-      case 1:
-        // same except mux lo.
-        params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_HI);
-        target = 7.1;
-        params_report(&params);
-        params_write(& params);
-        break;
-
-      default:
-        // done
-        usart_printf("done collcting obs\n");
-        // shrink matrixes for the data
-        m_resize( x , row, X_COLS   );
-        m_resize( y , row, 1 );
-        return;
-    } // switch
-
-    for(unsigned j = 0; j < 5; ++j ) {
-      assert(row < y->m); // < or <= ????
-      m_set_val( y, row + j, 0,  target );
-    }
-
-    row = collect_obs( app, &params, row, 2 , 5 , x );
-  } // state for
-}
-
-
-
-
-static MAT * calibrate( app_t *app)
-{
-
-  // We have to create rather than use MNULL, else there
-  // is no way to return pointers to the resized structure from the subroutine
-  MAT *x = m_get(1,1); // TODO change MNULL
-  MAT *y = m_get(1,1);
-
-  cal_collect_obs (app, x, y );
-
-  printf("x\n");
-  m_foutput(stdout, x);
-  usart_flush();
-
-  printf("y\n");
-  m_foutput(stdout, y);
-  usart_flush();
-
-
-
-#if 1
-  MAT *b =  regression( x, y, MNULL );
-  printf("b\n");
-  m_foutput(stdout, b);
-
-  usart_flush();
-
-  MAT *predicted = m_mlt(x, b, MNULL );
-  printf("predicted \n");
-  m_foutput(stdout, predicted );
-  usart_flush();
-#endif
-
-
-  {
-
-  printf("============\n");
-
-  // make a zeros vector same length as b. to serve as origin
-  MAT *temp0 =  m_zero( m_copy( b, MNULL))  ;
-  MAT *zeros = m_transp( temp0, MNULL);
-
-  MAT *origin = m_mlt(zeros, b, MNULL );
-  printf("origin predicted \n");
-  m_foutput(stdout, origin );
-
-  }
-
-
-  // also want resolution by using one of the pluged in values and offset one..
-
-  // we need a get row.
-  // MAT *x = m_get(1,1);
-  {
-  printf("============\n");
-  printf("resolution/implied count\n");
-
-  MAT *xx =  m_row_get( x, 0, MNULL );
-  printf("xx\n");
-  m_foutput(stdout, xx );
-
-  MAT *ones =  m_ones( m_copy( xx, MNULL))  ;
-  printf("ones\n");
-  m_foutput(stdout, ones);
-
-  // add delta of  1.
-  MAT *deltaxx =  m_add( xx, ones, MNULL );
-  printf("deltaxx \n");
-  m_foutput(stdout, deltaxx );
-
-  // predict
-  MAT *predicted0 = m_mlt(xx, b, MNULL );
-  printf("predicted0\n");
-  m_foutput(stdout, predicted0 );
-
-  // predict
-  MAT *predicted1 = m_mlt(deltaxx, b, MNULL );
-  printf("predicted1\n");
-  m_foutput(stdout, predicted1 );
-
-  MAT *diff =  m_sub( predicted0, predicted1, MNULL );
-  printf("diff\n");
-  m_foutput(stdout, diff);
-
-  // TODO rename diff to resolution.
-  assert(diff->m == 1 && diff->n == 1);
-  double value = m_get_val( diff, 0, 0 );
-  // TODO predicted, rename. estimator?
-  char buf[100];
-  printf("diff %s\n", format_float_with_commas(buf, 100, 9, value));
-
-  // implied count
-  int count = (10.0 + 10.0) / value;
-
-  printf("count %u\n", count );
-
-
-  // MAT *xx =  m_row_get( x, 0, MNULL );
-
-  // MAT *xx =  m_add( x, 0, MNULL );
-  // MAT *delta = m_mlt(xx, b, MNULL );
-
-  }
-
-
-
-  // TODO clean up mem.
-  // TODO. our circular buffer does not handle overflow very nicely. - the result is truncated.
-
-/*
-  M_FREE(x);
-  M_FREE(x_);
-  M_FREE(y);
-  M_FREE(b);
-  M_FREE(predicted);
-
-*/
-
-  return b;
-
-}
-
-
-
-
-
-
-
-// hmmm weights are all off...
-#if 0
-
-__attribute__((naked)) void dummy_function(void)
-{
-   __asm(".global __initial_sp\n\t"
-         ".global __heap_base\n\t"
-//         ".global __heap_limit\n\t"
-         ".equ __initial_sp, STACK_BASE\n\t"
-         ".equ __heap_base, HEAP_BASE\n\t"
- //        ".equ __heap_limit, (HEAP_BASE+HEAP_SIZE)\n\t"
-   );
-}
-#endif
-
-
-///////////////////////////////////////
-
-
-static void perm_collect_obs(app_t *app, MAT *x, MAT *y )
-{
-  /*
-    ok. permuting the integration time - has about 1 /10k affect.
-    what about permute teh fix/var frequency.
-  */
-
-  // gather obersevations
-  // app argument is needed for data ready flag.
-  // while loop has to be inner
-  // might be easier to overside. and then resize.
-
-  usart_printf("=========\n");
-  usart_printf("cal loop\n");
-
-  // rows x cols
-  unsigned row = 0;
-
-  #define MAX_OBS  30
-
-  m_resize( x , MAX_OBS, X_COLS );      // constant + pos clk + neg clk.
-  m_resize( y , MAX_OBS, 1 );
-
-  Params  params;
-  params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
-
-  // permutate
-  params_set_extra( &params,  10000, 650, 5500);
-  params_set_extra( &params,  10000, 750, 5500);
-  params_write(&params);
-
-
-
-
-  for(unsigned i = 0; /*i < 10*/; ++i )
-  {
-    double target;
-    // switch integration configuration
-    switch(i) {
-      case 0:
-        params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
-        target = 0.0;
-        params_report(&params);
-        params_write(&params);
-        break;
-
-      case 1:
-        // same except mux lo.
-        // IMPORTANT. it might make sense to record y in here...
-        params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_HI);
-        target = 7.1;
-        params_report(&params);
-        params_write(& params);
-        break;
-
-      default:
-        // done
-        usart_printf("done collcting obs\n");
-        // shrink matrixes for the data
-        m_resize( x , row, X_COLS   );
-        m_resize( y , row, 1 );
-        return;
-    } // switch
-
-    for(unsigned j = 0; j < 5; ++j ) {
-      assert(row < y->m); // < or <= ????
-      m_set_val( y, row + j, 0,  target );
-    }
-
-    row = collect_obs( app, &params, row, 2 , 5 , x );
-  } // state for
-}
-
-
-
-
-
-
-static void permute(app_t *app, MAT *b)
-{
-  /*
-    we want stderr of prediction.
-  */
-
-  assert(app);
-  assert(b);
-
-  MAT *x = m_get(1,1); // TODO change MNULL
-  MAT *y = m_get(1,1);
-
-
-  // We have to create rather than use MNULL, else there
-  // is no way to return pointers to the resized structure from the subroutine
-  perm_collect_obs(app, x , y );
-
-  MAT *predicted = m_mlt(x, b, MNULL );
-  printf("permuted predicted \n");
-  m_foutput(stdout, predicted );
-  usart_flush();
-
-  // now calculate error of the predictors ..
-
-  // for 2 second integration.
-  // row 6:     14.2035525
-
-  // 14.2035525  / 2
-  // = 7.10177625
-  // 1mV on +-10V range. 1/10k.
-  // seems to be consistent for an integration period.
-  // what about permuting fix/var times.
-
-
-
-}
-
-
-
-
-
-
-
-
-
-static void loop(app_t *app, MAT *b)
+static void loop_dispatcher(app_t *app)
 {
   usart_printf("=========\n");
-  usart_printf("main loop\n");
+  usart_printf("loop_dispatcher\n");
+  usart_printf("> ");
 
-
-  /*
-    loop() subsumes update()
-  */
-
-  assert( HIMUX_SEL_REF_LO ==  0b1011  );
-
-
- // params_set( 5 * 20000000, 1, HIMUX_SEL_REF_LO );
-
-
-  Params  params;
-  params_read( &params );
-
-  usart_printf("overwriting params\n");
-  // overwrite
-  params.clk_count_int_n  = 1 * 20000000;
-  params.use_slow_rundown = 1;
-  // params.himux_sel = HIMUX_SEL_REF_LO;
-  params.himux_sel = HIMUX_SEL_REF_HI;
-  // params.himux_sel = HIMUX_SEL_SIG_HI;
-  params_write(&params);
-
-  params_report( &params);
-
-
-  // TODO move to app_t structure?.
-  static uint32_t soft_500ms = 0;
+ static uint32_t soft_500ms = 0;
 
   while(true) {
 
-
-    if(app->data_ready) {
-
-      // TODO - this to use the collect_obs() func - to get multiple observations. then average for desired period.
-      // then stddev()
-      // clear
-      app->data_ready = false;
-
-      // in priority
-      Run run;
-      run_read(&run );
-      run_report(&run);
-
-      MAT *x = run_to_matrix( &params, &run, MNULL );
-      assert(x );
-
-      MAT *predicted = m_mlt(x, b, MNULL );
-#if 0
-      printf("predicted \n");
-      m_foutput(stdout, predicted );
-#endif
-
-#if 1
-      // result is 1x1 matrix
-      assert(predicted->m == 1 && predicted->n == 1);
-      double value = m_get_val( predicted, 0, 0 );
-      // TODO predicted, rename. estimator?
-      char buf[100];
-      printf("predicted %s\n", format_float_with_commas(buf, 100, 7, value));
-#endif
-      usart_flush();
-
-      M_FREE(x);
-      M_FREE(predicted);
-    }
-
-
     update_console_cmd(app);
-    // usart_output_update(); // shouldn't be necessary, now pumped by interupts.
 
     // 500ms soft timer. should handle wrap around
     if( (system_millis - soft_500ms) > 500) {
@@ -1103,18 +283,20 @@ static void loop(app_t *app, MAT *b)
 
       //
       led_toggle();
+    }
 
-#if 0
-      static int count = 0;
-      uint32_t ret = spi_reg_xfer_24(SPI1, 7, count );
-      usart_printf("here %u  %u\n", count ,  ret);
-      ++count;
-#endif
-
+    if(app->continuation_f) {
+      printf("jumping to continuation\n");
+      void (*tmppf)(void *) = app->continuation_f;
+      app->continuation_f = NULL;
+      tmppf( app->continuation_ctx );
     }
 
   }
 }
+
+
+
 
 
 static void spi1_interupt(app_t *app )
@@ -1130,6 +312,48 @@ static char buf_console_out[1000];
 // static float buf_rundown[6];
 
 static app_t app;
+
+
+
+
+static void reg_read_write_test(void)
+{
+  // test ice40 register read/write
+  // ok. seems to work.
+  uint32_t ret;
+
+
+  /*
+  OK. i think these spi calls may fail when speed of design falls below 32MHz.
+  because
+
+  IMPORTANT.
+  - Also. removing reg_led from the verilog initial block.
+  indicating timing conflict.
+  and values are correct.
+  - but this could have just been due to timing.
+  - but no longer seems to have affect. now that speed is better.
+  */
+
+  spi_reg_write(SPI1, REG_LED , 0xff00ff);
+  msleep(1);
+  ret = spi_reg_read(SPI1, REG_LED);
+  usart_printf("ret is %x\n", ret);
+  // ret value is completely wrong....
+  assert(ret == 0xff00ff);
+
+  // this works... eg. allowing high bit to be off.
+  spi_reg_write(SPI1, REG_LED, 0x7f00ff);
+  ret = spi_reg_read(SPI1, REG_LED);
+  assert(ret == 0x7f00ff);
+
+  for(uint32_t i = 0; i < 32; ++i) {
+    spi_reg_write(SPI1, REG_LED , i );
+    ret = spi_reg_read(SPI1, REG_LED);
+    assert(ret == i );
+  }
+
+}
 
 
 int main(void)
@@ -1216,272 +440,100 @@ int main(void)
   usart_printf("a float formatted %g\n", 123.456f );
 
 
-// test writing reg led.
-#if 1
-  // test ice40 register read/write
-  // ok. seems to work.
-  uint32_t ret;
+  usart_printf("\n--------\n");
+  usart_printf("addr main() %p\n", main );
 
   usart_flush();
 
-  /*
-  OK. i think these spi calls may fail when speed of design falls below 32MHz.
-  because
 
-  IMPORTANT.
-  - Also. removing reg_led from the verilog initial block.
-  indicating timing conflict.
-  and values are correct.
-  - but this could have just been due to timing.
-  - but no longer seems to have affect. now that speed is better.
-  */
+  // test device read/write
+  reg_read_write_test();
 
-  spi_reg_write(SPI1, REG_LED , 0xff00ff);
-  msleep(1);
-  ret = spi_reg_read(SPI1, REG_LED);
-  usart_printf("ret is %x\n", ret);
-  // ret value is completely wrong....
-  assert(ret == 0xff00ff);
-
-  // this works... eg. allowing high bit to be off.
-  spi_reg_write(SPI1, REG_LED, 0x7f00ff);
-  ret = spi_reg_read(SPI1, REG_LED);
-  assert(ret == 0x7f00ff);
-
-  for(uint32_t i = 0; i < 32; ++i) {
-    spi_reg_write(SPI1, REG_LED , i );
-    ret = spi_reg_read(SPI1, REG_LED);
-    assert(ret == i );
-  }
-#endif
-
-
+  // read main params from device - as starting point. should perhaps be flash
+  params_read( &app.params );
 
   printf("==========\n");
+
+
+
+#if 0
   ////////////////////////////////////
-  MAT *b =  calibrate( &app );
-
+  MAT *b = calibrate( &app );
   permute(&app, b);
+#endif
 
-  loop(&app, b );
+  // loop1(&app, b );
+
+  loop_dispatcher( &app);
+
 }
 
 
 
 
-    /*
-      EXTR
-        fixed pos == fixed neg. so only record once - and it becomes a constant.
-      -------
-        8****
-        - i think as soon as we hit int period. eg. 1PLC. or 200ms. we must turn of input immediately.
-        - not wait until we we come to the end of a phase (var) . and then test whether we finished.
-        - eg. we must have the time of the input signal - to be absolutely constant between measurements.
-           - regardless we use fast rundown or slow rundown.
-
-          - this means. being able to switch ref currents and signal independently.
-
-        ***
-
-        =========================
-        - should try to get the two parameter thing working. with rundown.   (non slow).
-          eg.  fix pos + var pos + rundown.   and fix neg + var neg.
-          ----------
-          no. because in the rundown the input is turned off. so it must be a different variable. but maybe should be left on.
-        =========================
-
-        - combine fix and var.  eg. so have total pos total neg in raw clock counts, and then add the raw rundown.
-        - OR get the fpga - to count it up - in raw counts.
-        - would need to 0
-        - IMPORTNAT - then we have just two variables. if not using slow rundown. and three if are.
-
-        - our flip_count is wrong. and confusing things. with fixed amount.
-
-        - change names count_up , count_down.   count_fix_up,  count_var_up etc.  or cout_fix_pos.
-
-        - make sure not including rundown in counts.
-
-        - include the fix pos and neg counts
-            even though they are equal.
-            they are equal time.
-            but they are *not* equal current.
-            ---------
-
-            for a certain integration time/period.    they will be constant.
-            but we cannot create permutations with different integration times - if do not include.
-
-        - for a certain time. the pos + neg should be a constant.
-
-        - OR. instead of using counts. multiply by the times.
-            then we could generate permutations.
-            and then include the count * the limit.
-
-        - perhaps we need three points. and generating extra values by running  at multiple of nplc is insufficient.
-            for degrees freedom.
-
-        - could record slow_rundown as separate var to rundown. and thus
-          handle both options in the same calibration data.
-
-          - actually this is quite interesting - because it would generate the 0 data points.
-
-        - can/should  add a dummy observation.
-            eg. count_up 0 , count_down 0, rundown 0 == 0
-
-        - or perhaps better. without the slow slope.
-            eg. just plug in 0 for the rundown.
-
-        - think should probably not have constant.
-
-        - we need a function run -> x_ vector.
-
-        - perhaps try entire calibration without slow slope. as a first test.
-        - and then secondary calibration. using the predicted values as input.
-
-    */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  //MAT *x = concat_ones( x_, MNULL );
-
-/*
-  printf("x\n");
-  m_foutput(stdout, x_ );
-
-  printf("y\n");
-  m_foutput(stdout, y );
-*/
-
-  // IMIPOORTANT -  perhaps the issue is cbuffer is overflowing????
-  // yes seems ok.
-
-  // printf("m is %u n",  x_->m );
-
-/*
-  // ths ones code looks buggy.
-  MAT *ones = m_ones( m_copy( x_, MNULL  ));
-  printf("ones\n");
-  m_foutput(stdout, ones );
-*/
-
-/*
-  MAT *j = m_get( x_-> m, 1 );
-  MAT *ones = m_ones( j );
-  printf("ones\n");
-  m_foutput(stdout, ones );
-*/
-
-/*
-  MAT *j = m_get( x_-> m, 1 );
-  MAT *ones = m_ones( j );
-
-  printf("ones\n");
-  m_foutput(stdout, ones );
-*/
-
-
-
-// data is wrong. until the buffers are full.
-#if 0
-  // computed via octave
-  // double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-12 * clk_count_rundown);
-  double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * clk_count_rundown);
-  usart_printf("v %.7f, ", v );
-#endif
 
 
 #if 0
-  static float clk_count_rundown_ar[ 10 ] ;
-  size_t n = 5;
-  // static int i = 0;
+void update_console_cmd(app_t *app)
+{
 
-  float mean_;
-  UNUSED(mean_);
-  ////////////////////////
-  ///////// stats
+  /* using peekLast() like this wont work
+     since it could miss a character.
+    we kind of need to transfer all chars to another buffer. and test for '\n'.
+    -----
+    No. the easiest way is to handle the interupt character. directly...
+    actually no. better to handle in main loop..
 
-  // usart_printf("imodn %u ", i % n);
-
-  {
-  assert(n <= ARRAY_SIZE(clk_count_rundown_ar));
-
-  clk_count_rundown_ar[ i % n ] =  clk_count_rundown;
-  usart_printf("stddev_rundown(%u) %.2f, ", n, stddev(clk_count_rundown_ar, n) );
+  */
 
 
-  mean_ = mean(clk_count_rundown_ar, n);
-  usart_printf("mean (%u) %.2f, ", n, mean_ );
+  while( ! cBufisEmpty(&app->console_in)) {
+
+    // got a character
+    int32_t ch = cBufPop(&app->console_in);
+    assert(ch >= 0);
+
+    if(ch != '\r' && app->cmd_buf_i < CMD_BUF_SZ - 1) {
+
+
+      // push_char(app->cmd_buf, &app->cmd_buf_i, ch );
+
+      // push onto a vector? or array?
+      app->cmd_buf[ app->cmd_buf_i++ ] = ch;
+      // app->cmd_buf[ app->cmd_buf_i ] = 0;
+
+    }  else {
+      // we got a command
+
+      app->cmd_buf[ app->cmd_buf_i ]  = 0;
+
+      usart_printf("got command '%s'\n", app->cmd_buf );
+
+
+      if(strcmp(app->cmd_buf , "whoot") == 0) {
+        // So.  how do we handle changing modes????
+
+        // if we are in separate loops for calibration, permutation , etc.
+        // how do we cancel, break out. and start another?
+        // coroutines. not really an answer.
+
+        // this function can be tested and be used to return early.
+        // or set a flag. like cancel current command/action.
+
+        // also - sometimes we want to change something - without setting the continuation.
+
+        app->continuation_ctx = 0;
+
+      }
+      app->cmd_buf_i = 0;
+    }
   }
-
-#endif
-#if 0
-  {
-  static float means[ 10 ];
-  assert(n <= ARRAY_SIZE(means));
-  means[ i % n  ] = mean_;
-  usart_printf("stddev_means(%u) %.2f ", n, stddev(means, n));
-  }
-
-
-  double v2 = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * mean_ );
-  usart_printf("v %.7f, ", v2 );
+}
 #endif
 
 
 
 
-
-
-#if 0
-
-  char buf[10];
-  usart_printf("whoot %s\n", format_bits( buf, 10,  (0xf & ~(1 << 3))  ));
-  usart_printf("whoot %s\n", format_bits( buf, 10, 0xf ));
-#endif
-
-
-#if 0
-  // encapsutate into a function.
-  uint32_t t = 5 * 20000000;
-  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_HI, (t >> 24) & 0xff );
-  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, t & 0xffffff  );
-  spi_reg_write(SPI1, REG_USE_SLOW_RUNDOWN, 0 );
-  // spi_reg_write(SPI1, REG_HIMUX_SEL, HIMUX_SEL_REF_LO );
-  spi_reg_write(SPI1, REG_HIMUX_SEL, HIMUX_SEL_REF_HI );
-#endif
-
-
-#if 0
-  uint32_t ret;
-
-  ///////////////////////////////////////////
-  // write the mux select
-  // himux_sel = 4'b1101;     // ref i
-  spi_reg_write(SPI1, REG_HIMUX_SEL , 0b1101 ); // doesn't work to set reg_himux_sel
-  ret = spi_reg_read(SPI1, REG_HIMUX_SEL);
-  assert(ret == 0b1101 );
-
-  spi_reg_write(SPI1, REG_CLK_COUNT_INIT_N, 20000 ); // doesn't work to set reg_himux_sel
-  ret = spi_reg_read(SPI1, REG_CLK_COUNT_INIT_N );
-  assert(ret == 20000);
-
-/*
-  spi_reg_write(SPI1, REG_CLK_COUNT_INIT_N, 20000 ); // doesn't work to set reg_himux_sel
-  ret = spi_reg_read(SPI1, REG_CLK_COUNT_INIT_N );
-  assert(ret == 20000);
-*/
-#endif
 
 
 
