@@ -9,6 +9,8 @@
 #include "util.h"   // system_millis
 
 
+#include "stats.h"    // stddev. should probably implement with mesch version 
+                      // 
 
 
 #include "regression.h"
@@ -47,14 +49,27 @@
 
 //void loop1(app_t *app, MAT *b)
 
+
+
+// TODO change name predict. to est. or estimator .
+
+
 void loop1 ( app_t *app)
 {
   usart_printf("=========\n");
   usart_printf("loop1\n");
 
   assert(app);
-
   assert( HIMUX_SEL_REF_LO ==  0b1011  );
+
+  // don't need static.
+  float predict_ar[ 10 ] ;
+  size_t n = 5;   // can change this.
+  int i = 0;
+
+  memset( predict_ar, 0, sizeof( predict_ar));
+
+
 
 
 
@@ -81,24 +96,23 @@ void loop1 ( app_t *app)
           MAT *x = run_to_matrix( &app->params, &run, MNULL );
           assert(x );
 
-          MAT *predicted = m_mlt(x, app->b, MNULL );
-          #if 0
-                printf("predicted \n");
-                m_foutput(stdout, predicted );
-          #endif
+          MAT *predict = m_mlt(x, app->b, MNULL );
 
-          #if 1
           // result is 1x1 matrix
-          assert(predicted->m == 1 && predicted->n == 1);
-          double value = m_get_val( predicted, 0, 0 );
-          // TODO predicted, rename. estimator?
+          assert(predict->m == 1 && predict->n == 1);
+          double value = m_get_val( predict, 0, 0 );
+          // TODO predict, rename. estimator?
           char buf[100];
-          printf("predicted %s", format_float_with_commas(buf, 100, 7, value));
-          #endif
-          usart_flush();
+          printf("predict %s ", format_float_with_commas(buf, 100, 7, value));
+
+
+          predict_ar[ i++ % n ] = value;
+          usart_printf("stddev(%u) %.2fuV, ", n, stddev(predict_ar, n) * 1000000 );   // multiply by 10^6. for uV ?
+
+          // usart_flush();
 
           M_FREE(x);
-          M_FREE(predicted);
+          M_FREE(predict);
       }
 
       usart_printf("\n");
