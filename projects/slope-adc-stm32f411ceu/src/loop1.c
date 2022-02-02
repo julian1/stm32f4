@@ -103,7 +103,7 @@ void loop1 ( app_t *app)
           double value = m_get_val( predict, 0, 0 );
           // TODO predict, rename. estimator?
           char buf[100];
-          printf("predict %s ", format_float_with_commas(buf, 100, 7, value));
+          printf("predict %sV ", format_float_with_commas(buf, 100, 7, value));
 
 
           predict_ar[ i++ % n ] = value;

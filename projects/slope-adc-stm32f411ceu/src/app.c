@@ -71,7 +71,7 @@ void params_report(Params * params )
 
   double mod_freq = 20000000.f / ( (params->clk_count_var_n  + params->clk_count_var_n) * 2 );
  
-  usart_printf("mod freq          %.0fHz\n", mod_freq );
+  usart_printf("nom mod freq      %.0fHz\n", mod_freq );
 
   usart_printf("use_slow_rundown  %u\n", params->use_slow_rundown);
 
