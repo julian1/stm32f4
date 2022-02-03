@@ -23,7 +23,7 @@ SECTIONS
 	.text : {
 		*(.vectors)	/* Vector table */
 
-    /* JA */
+    /* JA skip to sector 4 */
 		. = ALIGN(65536);  /* 16kB *4 */
 
 		*(.text*)	/* Program code */
