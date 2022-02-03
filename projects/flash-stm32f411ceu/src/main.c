@@ -139,7 +139,7 @@ static void flash_write(void)
 static void flash_read(void)
 {
   char *s = (char *) 0x08008000;
-  printf( "flash char is '%c'\n", *s);
+  printf( "flash char is '%c' %u\n", *s, *s);
   // expect null terminator
   if(*s == 'w')
     printf( "string is '%s'\n", s );
@@ -156,11 +156,11 @@ static void flash_read(void)
   - eg. the cancel continuation - to return to the same point.
   -----
 
-  alterantively we have one loop - and instead pass measurement obs abstract function on every read. 
+  alterantively we have one loop - and instead pass measurement obs abstract function on every read.
   and that can change.
   or reset itself.
 
-  on_data( app, localctx. counts ) 
+  on_data( app, localctx. counts )
 
   so the main command process - would set this, and could cancel it etc.
   -----
@@ -170,7 +170,7 @@ static void flash_read(void)
 */
 
 static void loop2(app_t *app);
-static void loop(app_t *app);
+static void loop1(app_t *app);
 
 
 static void update_console_cmd(app_t *app)
@@ -208,9 +208,9 @@ static void update_console_cmd(app_t *app)
         flash_read();
       }
 
-      else if(strcmp(app->cmd_buf , "loop") == 0) {
+      else if(strcmp(app->cmd_buf , "loop1") == 0) {
         app->continuation_ctx = app;
-        app->continuation_f = (void (*)(void *)) loop;
+        app->continuation_f = (void (*)(void *)) loop1;
       }
 
       else if(strcmp(app->cmd_buf , "loop2") == 0) {
@@ -281,7 +281,7 @@ static void loop2(app_t *app)
       printf("jumping to continuation\n");
       void (*tmppf)(void *) = app->continuation_f;
       app->continuation_f = NULL;
-      tmppf( app->continuation_ctx ); 
+      tmppf( app->continuation_ctx );
     }
 
 
@@ -291,10 +291,10 @@ static void loop2(app_t *app)
 
 
 
-static void loop(app_t *app)
+static void loop1(app_t *app)
 {
   usart_printf("=========\n");
-  usart_printf("main loop\n");
+  usart_printf("loop1\n");
   usart_printf("> ");
 
  static uint32_t soft_500ms = 0;
@@ -310,11 +310,12 @@ static void loop(app_t *app)
       led_toggle();
     }
 
+    // should be a single dispatch loop at the bottom of the stack
     if(app->continuation_f) {
       printf("jumping to continuation\n");
       void (*tmppf)(void *) = app->continuation_f;
       app->continuation_f = NULL;
-      tmppf( app->continuation_ctx ); 
+      tmppf( app->continuation_ctx );
     }
 
   }
@@ -394,7 +395,7 @@ int main(void)
 
   usart_flush();
 
-  loop(&app);
+  loop1(&app);
 }
 
 
