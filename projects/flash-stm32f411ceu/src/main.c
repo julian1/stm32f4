@@ -125,6 +125,10 @@ static void flash_write(void)
     program_size  0 (8-bit), 1 (16-bit), 2 (32-bit), 3 (64-bit)
   */
 
+  /*
+    it is unhnecessary to always erase. instead erase once, then use COW strategy, 
+    and seek forward until hit 0xff bytes, where can write updated data.
+  */
   flash_erase_sector(2 , 0 );
   unsigned char buf[] = "whoot";
 
