@@ -371,6 +371,12 @@ int main(void)
   // DONT do this in c++
   memset(&app, 0, sizeof(app_t));
 
+  // reset buffer
+  app->cmd_buf_i = 0;
+  app->cmd_buf[ app->cmd_buf_i ]  = 0;
+
+
+
   ///////
   // uart/console
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));

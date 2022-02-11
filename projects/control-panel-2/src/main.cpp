@@ -260,6 +260,12 @@ extern int agg_test8(  Curses &a );
 // c initialization, is so different from c++ initialization.
 // eg. if want to pass CBuf to jjjjjjj
 
+
+
+#define CMD_BUF_SZ  100
+
+
+
 typedef struct app_t
 {
 
@@ -270,6 +276,12 @@ typedef struct app_t
 
   CBuf console_in;
   CBuf console_out;
+
+  // need to initialize
+  char  cmd_buf[CMD_BUF_SZ ];
+  unsigned cmd_buf_i;
+
+
 
   usbd_device *usbd_dev ;
 
@@ -284,33 +296,68 @@ typedef struct app_t
 } app_t;
 
 
+
+
+
 static void update_console_cmd(app_t *app)
 {
-  // TODO change name update_console_in().
 
-  if( !cBufisEmpty(&app->console_in) && cBufPeekLast(&app->console_in) == '\r') {
 
-    // usart_printf("got CR\n");
+  while( ! cBufisEmpty(&app->console_in)) {
 
-    // we got a carriage return
-    static char tmp[1000];
+    // got a character
+    int32_t ch = cBufPop(&app->console_in);
+    assert(ch >= 0);
 
-    size_t nn = cBufCount(&app->console_in);
-    size_t n = cBufCopyString(&app->console_in, tmp, ARRAY_SIZE(tmp));
-    assert(n <= sizeof(tmp));
-    assert(tmp[n - 1] == 0);
-    assert( nn == n - 1);
+    if(ch != '\r' && app->cmd_buf_i < CMD_BUF_SZ - 1) {
+      // character other than newline
+      // push onto a vector? or array?
+      app->cmd_buf[ app->cmd_buf_i++ ] = ch;
 
-    // chop off the CR to make easier to print
-    assert(((int) n) - 2 >= 0);
-    tmp[n - 2] = 0;
+      // echo to output. required for minicom.
+      putchar( ch);
 
-    // TODO first char 'g' gets omitted/chopped here, why? CR handling?
-    usart_printf("got command '%s'\n", tmp);
+    }  else {
+      // we got a command
 
-    // process_cmd(app, tmp);
+      app->cmd_buf[ app->cmd_buf_i ]  = 0;
+
+      putchar('\n');
+      // usart_printf("got command '%s'\n", app->cmd_buf );
+
+      // flash write
+      if(strcmp(app->cmd_buf , "write") == 0) {
+        printf("got write\n");
+      }
+      // flash read
+      else if(strcmp(app->cmd_buf , "read") == 0) {
+        printf("got read\n");
+      }
+
+
+      // unknown command
+      else {
+
+        printf( "unknown command '%s'\n", app->cmd_buf );
+      }
+
+      // reset buffer
+      app->cmd_buf_i = 0;
+      app->cmd_buf[ app->cmd_buf_i ]  = 0;
+
+      // issue new command prompt
+      usart_printf("> ");
+
+    }
   }
 }
+
+
+
+
+
+
+
 
 
 
@@ -532,6 +579,10 @@ int main(void)
   usart_printf("\n--------\n");
   usart_printf("addr main() %p\n", main );
  
+
+  // reset cmd buffer
+  app.cmd_buf_i = 0;
+  app.cmd_buf[ app.cmd_buf_i ]  = 0;
 
 
 
