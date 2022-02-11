@@ -1,6 +1,7 @@
 
 
 #include "curses.h"
+#include "streams.h"
 
 
 /*

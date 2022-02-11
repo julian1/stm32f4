@@ -5,6 +5,7 @@
 #include "ui_events.h"
 #include "assert.h"
 
+#include "streams.h"
 
 
 

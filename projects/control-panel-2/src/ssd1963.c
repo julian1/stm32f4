@@ -8,7 +8,9 @@
 #include "fsmc.h"
 #include "ssd1963.h"
 
-#include "util.h"   // printf, msleep
+#include "util.h"       // msleep
+#include "streams.h"    // printf
+
 #include "format.h"  //format_bits. should rename
 
 

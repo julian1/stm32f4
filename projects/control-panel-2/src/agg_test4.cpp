@@ -9,6 +9,7 @@
 #include "fsmc.h" // TFT_
 #include "assert.h"
 #include "util.h"
+#include "streams.h"
 
 
 #include "agg.h"

@@ -10,6 +10,7 @@
 #include "fsmc.h" // TFT_
 #include "assert.h"
 #include "util.h"
+#include "streams.h"
 #include "format.h"
 
 #include "fonts.h"

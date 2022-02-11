@@ -8,7 +8,9 @@
 
 
 #include "xpt2046.h"
-#include "util.h" // usart_printf
+
+#include "streams.h"    // printf
+#include "util.h"     // UNUSED, msleep
 #include "assert.h"
 
 

@@ -11,10 +11,12 @@
 
 #include <libopencm3/stm32/gpio.h>
 
+
+
+
 #include "util.h"
-#include "cbuffer.h"
-#include "usart2.h"
-// #include "miniprintf2.h" // internal_vprint
+#include "streams.h"
+
 #include "assert.h"  // local
 
 
@@ -211,7 +213,7 @@ void assert_simple(const char *file, int line, const char *func, const char *exp
 
 ////////////////////////////////////////////////////////
 
-
+#if 0
 
 static CBuf *console_out = NULL;
 
@@ -285,7 +287,7 @@ void usart_printf(const char *format, ...)
   usart_output_update();
 }
 
-
+#endif
 
 ////////////////////////////
 

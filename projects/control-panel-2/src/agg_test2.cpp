@@ -8,6 +8,7 @@
 
 #include "assert.h"
 #include "util.h"
+#include "streams.h"
 
 #include "agg.h"
 #include "fonts.h"

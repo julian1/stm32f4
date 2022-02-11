@@ -368,7 +368,7 @@ int main(void)
   // led
   led_setup();
 
-
+  // DONT do this in c++
   memset(&app, 0, sizeof(app_t));
 
   ///////

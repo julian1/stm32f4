@@ -10,8 +10,9 @@
 
 
 #include "fsmc.h"
-#include "util.h"   // printf, msleep
 
+#include "util.h"      // msleep
+#include "streams.h"  // printf
 
 
 

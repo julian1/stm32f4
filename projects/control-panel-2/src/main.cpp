@@ -224,6 +224,8 @@
 #include "cbuffer.h"
 #include "usart2.h"
 #include "util.h"
+#include "streams.h"
+
 #include "assert.h"
 #include "cdcacm.h"
 
@@ -448,14 +450,6 @@ int main(void)
 
   app_t app( menu_controller ) ;
 
-  // uart/console
-  cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
-  cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
-
-
-  // ui events
-  cBufInit(&app.ui_events_in, buf_ui_events_in, sizeof(buf_ui_events_in));
-
 
   //////////////////////
 
@@ -516,19 +510,35 @@ int main(void)
   // led
   led_setup();
 
-  // TODO. arguably we should set up buffers - first before - running constructors.
-  // TODO will not work for c++...
-  // memset(&app, 0, sizeof(app_t));
 
 
+  ///////
+  // uart/console
+  cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
+  cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
+
+
+  //////////////
+  // uart
   // usart_setup_gpio_portA();
   usart_setup_gpio_portB();
 
   usart_set_buffers(&app.console_in, &app.console_out);
 
-  // setup print
-  // usart_printf_set_buffer()
-  usart_printf_init(&app.console_out);
+  // standard streams for printf, fprintf, putc.
+  init_std_streams(  &app.console_out );
+
+
+  usart_printf("\n--------\n");
+  usart_printf("addr main() %p\n", main );
+ 
+
+
+
+
+  // ui events
+  cBufInit(&app.ui_events_in, buf_ui_events_in, sizeof(buf_ui_events_in));
+
 
 
   ui_events_init( &app.ui_events_in);
@@ -620,6 +630,7 @@ int main(void)
   // assert(1 == 2);
   usart_printf("a float formatted %g\n", 123.456f );
 
+  usart_flush();
 
   loop(&app);
 }
