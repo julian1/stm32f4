@@ -10,6 +10,7 @@
 
 DEPRECATED.
   just put handler code (eg. report and loop) in project specific util.c
+  behavior depends on function. blink led. versus log and restart etc.
 
 #include <stddef.h> // null
 

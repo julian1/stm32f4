@@ -82,7 +82,7 @@ char * format_float_with_commas(char *s, size_t sz, int digits, double value)
     if( *j == '.')
       gotdot = true;
 
-    if(gotdot && isdigit(*j))
+    if(gotdot && isdigit( (int) *j))
       ++dotdigits;
 
     *dst++ = *j++;

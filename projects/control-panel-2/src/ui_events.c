@@ -110,7 +110,7 @@ void exti15_10_isr(void)
   uint32_t all = EXTI10 | EXTI13 | EXTI14 ;
 
   // note that this holds.
-  ASSERT(EXTI10 == GPIO10);
+  assert(EXTI10 == GPIO10);
 
   uint32_t flags = exti_get_flag_status ( all /*0xffffffff */);
 

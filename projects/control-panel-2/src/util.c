@@ -15,6 +15,7 @@
 #include "cbuffer.h"
 #include "usart2.h"
 // #include "miniprintf2.h" // internal_vprint
+#include "assert.h"  // local
 
 
 #include <stddef.h> // size_t
@@ -189,6 +190,19 @@ int main()
   msleep(15);
 }
 */
+
+
+void assert_simple(const char *file, int line, const char *func, const char *expr)
+{
+  // this works by using local "assert.h" with assert() macro definition
+  // see assert.h for explanation. works with external libraries/code
+  // see, https://stackoverflow.com/questions/50915274/redirecting-assert-fail-messages
+
+  // legacy version
+  usart_printf("\nassert simple failed %s: %d: %s: '%s'\n", file, line, func, expr);
+
+  critical_error_blink();
+}
 
 
 
