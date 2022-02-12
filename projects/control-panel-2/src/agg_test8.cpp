@@ -123,7 +123,7 @@ void draw ( IntegerSelector & s)
       effect(s.a, 0x00);
 
     // output the character
-    textch( s.a, buf[ i] );
+    ch_text( s.a, buf[ i] );
   }
 }
 

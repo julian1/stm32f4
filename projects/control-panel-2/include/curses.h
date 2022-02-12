@@ -121,7 +121,8 @@ void font( Curses &a, const FontSpans *font);
 
 void effect( Curses &a, uint16_t v );
 
-void textch( Curses &a, uint16_t ch);
+void ch_text( Curses &a, uint16_t ch);    // change character
+void ch_effect( Curses &a);  // change the effect only at position.
 
 void text( Curses &a, const char *s, int dir);
 

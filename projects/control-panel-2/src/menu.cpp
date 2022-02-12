@@ -192,10 +192,9 @@ void DigitController::draw(Curses &curses)
 
   to(curses, 0 + dot_x - this->idx, 4);
   effect( curses, 0x01 ); // invert.... this just sets the mode.
-
   // now we have to force the invert here.c:w  could do it with read_char then text.
-  
-  text(curses,  "x", 1);
+  ch_effect( curses);
+  // text(curses,  "x", 1);
 
 
 

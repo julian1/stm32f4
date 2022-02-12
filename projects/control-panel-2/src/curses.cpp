@@ -58,7 +58,7 @@
 #include "curses.h"
 
 
-#include "streams.h" // printf
+#include "streams.h"
 
 
 /*
@@ -281,9 +281,23 @@ void effect( Curses &a, uint16_t v )
 // compute actual positions of everything. first.
 
 
-
-void textch( Curses &a, uint16_t ch)
+void ch_effect( Curses &a)
 {
+  // change effect at current cur position, without changing character
+  // does not increment cursor.
+  int i = index( a, a.cursor_x , a.cursor_y);
+
+  // set state
+  a.effect[i] =         a.cursor_effect;
+}
+
+
+
+
+void ch_text( Curses &a, uint16_t ch)
+{
+  // change character, at current cur position
+
   // does not increment cursor.
   int i = index( a, a.cursor_x , a.cursor_y);
 
@@ -317,7 +331,7 @@ void text( Curses &a, const char *s, int dir)
 
 
 
-      textch( a, *s);
+      ch_text( a, *s);
 /*
       int i = index( a, a.cursor_x , a.cursor_y);
 
@@ -646,7 +660,7 @@ void draw_test3(Curses &a )
       effect(a, 0x00);
 
     // output the character
-    textch( a, buf[ i] );
+    ch_text( a, buf[ i] );
   }
 
   //////////////////////////
