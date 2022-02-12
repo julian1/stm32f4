@@ -378,8 +378,8 @@ int main(void)
 
   // command buffer
   cStringInit(&app.command, buf_command, buf_command + sizeof( buf_command));
-  assert(cStringReserve(&app.command) == 100);
-
+  assert(cStringReserve(&app.command) == sizeof( buf_command));
+  assert(cStringCount(&app.command) == 1); // null terminator
 
 
 

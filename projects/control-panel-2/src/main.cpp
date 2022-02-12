@@ -384,20 +384,20 @@ static void update_ui_events_in(app_t *app)
 
 static void loop(app_t *app)
 {
-  /*
-    loop() subsumes update()
-  */
+
+  usart_printf("=========\n");
+  usart_printf("loop\n");
+  usart_printf("> ");
+
 
   // TODO move to app_t structure?.
   static uint32_t soft_500ms = 0;
 
   while(true) {
 
-
 		usbd_poll(app->usbd_dev);
 
     update_console_cmd(app);
-
 
     update_ui_events_in(app);
 
@@ -591,14 +591,11 @@ int main(void)
   usart_printf("addr main() %p\n", main );
  
 
-  // reset cmd buffer
-  // app.command_i = 0;
-  // app.command[ app.command_i ]  = 0;
-
   
-
+  // command buffer
   cStringInit(&app.command, buf_command, buf_command + sizeof( buf_command));
-  assert(cStringReserve(&app.command) == 100);
+  assert(cStringReserve(&app.command) == sizeof( buf_command));
+  assert(cStringCount(&app.command) == 1); // null terminator
 
 
 
