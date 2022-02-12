@@ -1,5 +1,13 @@
 /*
-  point of circular buffer is thread safety.
+  TODO, Should change name cCircBuf 
+
+  ----------
+  point of circular buffer, with separate ri,wi is thread safety.
+    - interupt can write/push value, while in the middle of a read. 
+    - interupt can read value, while in the middle of a write
+  
+    - we won't ever index outsize the buffer.
+
 
   Actually better approach for handling uart could be
   to leave interrupt unenabled, until after character is written (mem + index update),
@@ -24,16 +32,10 @@
  45       this is where the update of the index, and the write of the value can go wrong.
 */
 
-// #define _GNU_SOURCE     // required for cookie_io_functions_t
-// #include <stdio.h>
-
 
 #include "cbuffer.h"
 #include <assert.h>
 
-
-
-// char buffer
 
 
 void cBufInit(CBuf *a, char *p, size_t sz)
@@ -49,6 +51,28 @@ void cBufInit(CBuf *a, char *p, size_t sz)
 }
 
 
+
+
+
+bool cBufisEmpty(const CBuf *a)
+{
+  return a->ri == a->wi;
+}
+
+
+size_t cBufCount(const CBuf *a)
+{
+  int n = a->wi - a->ri;
+  if(n < 0)
+    n += a->sz;
+
+  return n;
+}
+
+
+
+
+
 void cBufClear(CBuf *a)
 {
   assert(a);
@@ -56,9 +80,6 @@ void cBufClear(CBuf *a)
   a->wi = 0;
   a->ri = 0;
 }
-
-
-
 
 
 
@@ -70,14 +91,18 @@ void cBufPush(CBuf *a, char val)
   assert(a->wi < a->sz );
   assert( a->sz > 0);
 */
-  // set val
+  // update val
   (a->p)[a->wi] = val;
 
   // increment wi
   a->wi = (a->wi + 1) % a->sz;
 
-  // if we overflowed, then increment the ri
-  // so read reads the more recent data, and avoid treated as truncated/empty.
+  /* handle overflow more gracefully.
+    if overflow, increment the ri
+    so that subsequent reads will get more recent data, and avoid truncation/ empty.
+    ----------
+    IMPORTANT but for thread safety, this breaks assumption, that pushing will not touch the read index.
+  */
   if(a->wi == a->ri) {
 
     a->ri = (a->ri + 1) % a->sz;
@@ -99,23 +124,6 @@ int32_t cBufPop(CBuf *a)
 }
 
 
-
-
-bool cBufisEmpty(const CBuf *a)
-{
-  return a->ri == a->wi;
-}
-
-
-size_t cBufCount(const CBuf *a)
-{
-  // note, not correct if overflows...
-  int n = a->wi - a->ri;
-  if(n < 0)
-    n += a->sz;
-
-  return n;
-}
 
 
 int32_t cBufPeekFirst(const CBuf *a)
@@ -152,8 +160,8 @@ int32_t cBufPeekLast(const CBuf *a)
 
 int32_t cBufCopyString(CBuf *a, char *p, size_t n)
 {
-  // could use more testing
   // copy and consume
+  // could use more testing
   // interface is for for c-style strings, so must handle sentinel
 
   size_t i = 0;
@@ -170,8 +178,9 @@ int32_t cBufCopyString(CBuf *a, char *p, size_t n)
 
 int32_t cBufCopyString2(const CBuf *a, char *p, size_t n)
 {
+  // copy and and don't consume. leave buf intact
+
   // could use more testing
-  // copy and leave and don't consume, leaving buf intact
   // for c-style strings, so handle sentinel
 
   size_t ri = a->ri;
@@ -204,9 +213,7 @@ int32_t cBufCopyString2(const CBuf *a, char *p, size_t n)
 int32_t cBufRead(CBuf *a, char *p, size_t n)
 {
 
-  // read from the buf
   size_t i = 0;
-
   while(i < n && !cBufisEmpty(a)) {
     p[i++] = cBufPop(a);
   }
@@ -215,14 +222,12 @@ int32_t cBufRead(CBuf *a, char *p, size_t n)
 }
 
 
-ssize_t cBufWrite(CBuf *x, const char *buf, size_t size)
+ssize_t cBufWrite(CBuf *a, const char *buf, size_t size)
 {
-  /* more conventional interface
-  */
-  assert(x->sz);
+  assert(a->sz);
 
   for(size_t i = 0; i < size; ++i)
-    cBufPush(x, buf[i]);
+    cBufPush(a, buf[i]);
 
   return size;
 }
