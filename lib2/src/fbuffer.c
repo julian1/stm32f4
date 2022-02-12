@@ -46,14 +46,6 @@ void fBufInit(FBuf *a, float *p, size_t sz)
   a->ri = 0;
 }
 
-void fBufPush(FBuf *a, float val)
-{
-  // update val,
-  (a->p)[ a->wi] = val;
-  // then increment index
-  a->wi = (a->wi + 1) % a->sz;
-}
-
 
 bool fBufisEmpty(FBuf *a)
 {
@@ -94,6 +86,31 @@ float fBufPeekLast(FBuf *a)
 }
 
 
+
+void fBufPush(FBuf *a, float val)
+{
+  // update val,
+  (a->p)[ a->wi] = val;
+
+  // then increment index
+  a->wi = (a->wi + 1) % a->sz;
+
+  /* handle overflow more gracefully.
+    if overflow, increment the ri
+    so that subsequent reads will get more recent data, and avoid truncation/ empty.
+    ----------
+    IMPORTANT but for thread safety, this breaks assumption, that pushing will not touch the read index.
+  */
+  if(a->wi == a->ri) {
+
+    a->ri = (a->ri + 1) % a->sz;
+  }
+
+
+}
+
+
+
 float fBufPop(FBuf *a)
 {
   assert(a->ri != a->wi);
@@ -130,6 +147,8 @@ int32_t fBufCopy(FBuf *a, float *p, size_t n)
 int32_t fBufCopy2(const FBuf *a, float *p, size_t n)
 {
   // could use more testing
+
+  // NOT. very safe. eg. interupt could push value/overflow. while we read values.
 
   size_t ri = a->ri;
   size_t i = 0;
