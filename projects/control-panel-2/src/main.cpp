@@ -274,10 +274,14 @@ typedef struct app_t
   { }
 
 
+  // change name CBuf to CircBuf ... it's more meaningful. C implies class
+  // No. c is for character.
   CBuf console_in;
   CBuf console_out;
 
+  // Vec.  this is hideous.
   // need to initialize
+  // CVec. character vec? 
   char  cmd_buf[CMD_BUF_SZ ];
   unsigned cmd_buf_i;
 
@@ -558,6 +562,10 @@ int main(void)
   led_setup();
 
 
+  // ***********
+  // IMPORTANT - we need to set up memory structures before interrupts get enabled, that might call functions.
+  // that use those strucctures.
+  // that suggests the app structure should be done first.
 
   ///////
   // uart/console
