@@ -191,13 +191,14 @@ void DigitController::draw(Curses &curses)
   size_t dot_x = dot_position( buf );
 
   to(curses, 0 + dot_x - this->idx, 4);
-  effect( curses, 0x01 ); // invert.... this just sets the mode.
-  // effect( curses, 0x10 ); // blink. doesn't seem to work...
+  // effect( curses, 0x01 ); // invert.... this just sets the mode.
+  effect( curses, 0x11 ); // blink. doesn't seem to work...
   // set the effect at current position
   ch_effect( curses);
   // text(curses,  "x", 1);
 
-
+  // EXTR.
+  // blinking off/on is different to blinking from invert/non invert.
 
   effect(curses, 0x00);        // normal
   to(curses, 1, 5);
@@ -208,8 +209,9 @@ void DigitController::draw(Curses &curses)
 
 
 
-  color_pair_idx(curses, 1); // blue/white
+  color_pair_idx(curses, 1);  // blue/white
   to(curses, 0, 10);
+  effect( curses, 0x10 );     // blink
   text(curses,  "whoot", 1);
 }
 
@@ -339,7 +341,7 @@ void MenuController::draw()
 
 
   int blink = (system_millis / 500) % 2;
-  usart_printf("blink %u\n", blink );
+  // usart_printf("blink %u\n", blink );
 
   render( curses , rb,  blink );
 
@@ -351,10 +353,10 @@ void MenuController::draw()
   // flip the newly drawn page in
   setScrollStart( page *  272 );
 
-
-
-
 }
+
+
+
 
 #if 0
 // so we want a double.

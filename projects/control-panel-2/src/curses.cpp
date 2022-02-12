@@ -408,10 +408,16 @@ void render( Curses &a, rb_t &rb, bool blink )
 
 
       // usart_printf( "x=%u y=%u\n", x1, y1);
-
+/*
       // blink effect on on and blink set
       if( (effect & (0x01 << 2)) == 0
         || (effect & (0x01 << 2) && blink)
+      ) {
+*/
+      // check this logic. appears to work.
+     // blink effect on on and blink set
+      if( (effect & 0x10) == 0
+        || ((effect & 0x10 ) && blink)
       ) {
 
 
