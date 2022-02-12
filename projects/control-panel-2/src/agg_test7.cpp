@@ -101,10 +101,13 @@ void print_stack_pointer()
 
 extern "C" int agg_test7()
 {
-
+/*
+  making these static is a problem
+*/
   static Curses a( 33, 17, 14, 16 );
   // static Curses b(6,5, 60, 60  );
   static Curses b(10,6, 45, 50  );
+
 /*
   sizeof(Curses) 40488 40k. hmmm.
   sizeof(agg::rgba) 32

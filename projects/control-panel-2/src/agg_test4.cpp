@@ -34,13 +34,27 @@ extern "C" int agg_test4()
   uint32_t start = system_millis;
 
   rb.clear(agg::rgba(1,1,1));     // white .
-  usart_printf("rb.clear() time %u\n", system_millis - start);
+  // usart_printf("rb.clear() time %u\n", system_millis - start);
 
   char buf[100];
 
+/*
+  if scaling too large. then get memory problems.
+ 
+  1.8 was ok. before? 
+  1.5 bad.
+  1.4 ok.  no. runs for a while then calls bad_alloc....
+  1.3 ok.
+
+  the path_storage gets too large?
+  doesn't matter too much. if going to use the span text drawing.
+*/
+
+
+
   /////////////////////
   agg::trans_affine mtx;
-  mtx *= agg::trans_affine_scaling(1.8);
+  mtx *= agg::trans_affine_scaling(1.3);
   mtx *= agg::trans_affine_translation(30, 70);
   static double volts = 7.159884 + (rand() % 3);
   snprintf(buf, 100, "%gV", volts);
@@ -50,7 +64,7 @@ extern "C" int agg_test4()
 
   /////////////////////
   mtx.reset();
-  mtx *= agg::trans_affine_scaling(1.8);
+  mtx *= agg::trans_affine_scaling(1.3);
   mtx *= agg::trans_affine_translation(30, 140);
   snprintf(buf, 100, "%gmA", 3.0194 );
   drawOutlineText(rb, arial_outline, mtx, agg::rgba(0,0,1), buf);
@@ -63,7 +77,7 @@ extern "C" int agg_test4()
   drawOutlineText(rb, arial_outline, mtx, agg::rgba(0,0,1), buf);
 
 
-  usart_printf("time %u\n", system_millis - start);
+  // usart_printf("time %u\n", system_millis - start);
 
 
 /*

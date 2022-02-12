@@ -35,6 +35,12 @@ void drawOutlineText(rb_t & rb, const FontOutline &font_outline, agg::trans_affi
 {
   // should probably return x,y so can continue text
 
+  /*
+    if font is too large. determined by mtx. then we get crash.
+    because of path->m_dx ?
+    - not enough memory for the path / curve interpolation.  uses std::allocate. i think
+
+  */
   agg::rasterizer_scanline_aa<> ras;
   agg::scanline_p8 sl;
 

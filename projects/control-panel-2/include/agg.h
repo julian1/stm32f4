@@ -34,7 +34,8 @@ extern "C" {
 
 #include "fsmc.h"       // LCD_WriteData()
 #include "ssd1963.h"    // setXY
-#include "util.h"    // usart_printf
+#include "util.h"    // UNUSED()
+#include "streams.h"    // usart_printf
 
 
 

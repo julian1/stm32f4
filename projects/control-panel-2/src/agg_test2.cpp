@@ -14,14 +14,21 @@
 #include "fonts.h"
 
 
+
+
 extern "C" int agg_test2()
 {
+  // set scroll start to base of memory
+  setScrollStart( 0  );
 
+
+  // AHHHH....
+  // the scroll position is wrong?
 
   // set up our buffer
   pixfmt_t  pixf(  0  );
-  // rb_t    rb(pixf);
-  agg::renderer_base<pixfmt_t>   rb(pixf);
+  rb_t    rb(pixf);
+  // agg::renderer_base<pixfmt_t>   rb(pixf);
 
   while( ! getTear() ); // wait for tear to go high...
   // usart_printf("t_irq %u\n", getTear()  );
@@ -30,13 +37,14 @@ extern "C" int agg_test2()
 
   start = system_millis;
   rb.clear(agg::rgba(1,1,1));     // white .
+
   usart_printf("rb.clear() %ums\n", system_millis - start );
 
 
   // EXTR. this is a clear/fillRect that is not subpixel, and simple.
   // see, agg_renderer_base.h.
   start = system_millis;
-  rb.copy_bar(20, 20, 100, 200, agg::rgba(1,0,0));
+  rb.copy_bar(20, 20, 100, 200, agg::rgba(0,1,0));
   usart_printf("copy_bar()  %ums\n", system_millis - start );
 
   // EXTR. IMPORTANT confirm we have floating point enabled.
@@ -50,16 +58,27 @@ extern "C" int agg_test2()
   // mtx *= agg::trans_affine_scaling(1.0, -1); // this inverts/flips the glyph, relative to origin. but not in place.
   mtx *= agg::trans_affine_translation(50, 50);   // this moves from above origin, back into the screen.
   mtx *= agg::trans_affine_rotation(10.0 * 3.1415926 / 180.0);
-  mtx *= agg::trans_affine_scaling(2.0); // now scale it
+
+  /*
+    EXTR.
+    very hard to find bug.  combination  of font size. and scaling.  causes crashes.
+    why.
+    need a proper clipbox?
+    1.3 size is ok. may depend on available ram.
+  */
+  // mtx *= agg::trans_affine_scaling(1.0 ); // ok. 
+  // mtx *= agg::trans_affine_scaling(2.0 ); // crashes.
+  mtx *= agg::trans_affine_scaling(1.3 ); 
 
 
+
+
+  /*
+    it's the height of the glyph. and athe affine scale I think.
+  */
   const char *s = "hello123";
-  // drawText(rb , mtx, agg::rgba(0,0,1), s );
   drawOutlineText(rb, arial_outline, mtx, agg::rgba(0,0,1), s);
 
-
-  // non anti aliased.
-  // agg::renderer_scanline_bin_solid(
 
 
   // setOriginBottomLeft(); // cartesion/ fonts/ postscript

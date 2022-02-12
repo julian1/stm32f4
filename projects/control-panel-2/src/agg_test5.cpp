@@ -74,7 +74,7 @@ extern "C" int agg_test5()
 
 
 
-  usart_printf("spans time  %u\n", system_millis - start);
+  // usart_printf("spans time  %u\n", system_millis - start);
 
   // usart_printf("done drawSpans() \n");
 

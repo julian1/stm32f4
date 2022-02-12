@@ -242,16 +242,20 @@
 #include "menu.h"
 
 
-/*
+
 // put prototypes here to avoid pulling in template c++ headers in c code.
+
+extern "C"
+{
+
 int agg_test2( void );
 int agg_test3( void );
 int agg_test4( void );
 int agg_test5( void );
 int agg_test6( void );
 int agg_test7( void );
-extern "C" int agg_test8( void );
-*/
+// extern "C" int agg_test8( void );
+}
 
 
 extern int agg_test8(  Curses &a );
@@ -270,8 +274,9 @@ extern int agg_test8(  Curses &a );
 typedef struct app_t
 {
 
-  app_t( MenuController & menu_controller)
-     : menu_controller ( menu_controller)
+  app_t( Curses & curses, MenuController & menu_controller)
+     :  curses( curses),
+      menu_controller ( menu_controller)
   { }
 
 
@@ -282,6 +287,7 @@ typedef struct app_t
 
   CString    command;
 
+  unsigned  program;  // test program to run
 
   usbd_device *usbd_dev ;
 
@@ -291,6 +297,7 @@ typedef struct app_t
 
   ////////
 
+  Curses        & curses;
   MenuController & menu_controller ;
 
 } app_t;
@@ -322,7 +329,20 @@ static void update_console_cmd(app_t *app)
 
       char *cmd = cStringPtr(&app->command);
 
-      if(strcmp(cmd , "write") == 0) {
+      printf("cmd is '%s'\n", cmd);
+
+      if(strncmp(cmd , "test", 4) == 0) {
+
+        unsigned x = 0; 
+        unsigned n = sscanf(cmd + 4,  "%u", &x);
+        if(n == 1) { 
+          printf("got test %u\n", x);
+          app->program = x;
+        } else {
+          printf("badly formatted\n");
+        }
+      }
+      else if(strcmp(cmd , "write") == 0) {
         // flash write
         printf("got write - using cString\n");
       }
@@ -418,18 +438,29 @@ static void loop(app_t *app)
 
     }
 
-    // agg_test2();
-    // agg_test3();
-    // agg_test4();
-    // agg_test5();
-    // agg_test6();
-    // agg_test7();
-    // agg_test8( app->curses );
 
-    // should be
-    app->menu_controller.draw();
+    switch(app->program)
+    {
+
+      case 2: agg_test2(); break;   
+                                     
+      case 3: agg_test3(); break;
+
+      case 4: agg_test4(); break;   // ok
 
 
+      case 5: agg_test5(); break;   // ok.
+
+      case 6: agg_test6(); break; // ok.
+      // case 7: agg_test7(); break;  // just linking breaks stuff. because of the size of static Curses  structure
+
+      case 8: agg_test8( app->curses ); break;  // ok
+
+      case 9: app->menu_controller.draw(); break;
+
+      // default: 
+      //  printf("unrecognized test\n");
+    }
 
 
     // xpt2046_read();
@@ -476,7 +507,7 @@ static char buf_command[100];
   to draw from top left. that shoudl be good for fillRect, and for agg letter.
 */
 
-int main(void)
+int main(int arg0)
 {
 
   // required for usb
@@ -502,7 +533,7 @@ int main(void)
 
   MenuController  menu_controller( curses, list_controller, item_controller, digit_controller);
 
-  app_t app( menu_controller ) ;
+  app_t app( curses, menu_controller ) ;
 
 
   //////////////////////
@@ -591,6 +622,7 @@ int main(void)
   usart_printf("addr main() %p\n", main );
  
 
+  printf("main() arg0 %u \n", ((unsigned )(void *) &arg0 )  - 0x20000000  );
   
   // command buffer
   cStringInit(&app.command, buf_command, buf_command + sizeof( buf_command));
@@ -677,16 +709,14 @@ int main(void)
 
 
 
-  usart_printf("\n--------");
-  usart_printf("\nstarting\n");
-
-
 
   usart_printf("\n--------\n");
+/*
   usart_printf("starting loop\n");
   usart_printf("sizeof bool   %u\n", sizeof(bool));
   usart_printf("sizeof float  %u\n", sizeof(float));
   usart_printf("sizeof double %u\n", sizeof(double));
+*/
 
   // usart_printf("sizeof setjmp %u\n", sizeof(setjmp)); // 1.
 
@@ -695,6 +725,9 @@ int main(void)
   usart_printf("a float formatted %g\n", 123.456f );
 
   usart_flush();
+
+  // set program to run
+  app.program = 3;
 
   loop(&app);
 }
