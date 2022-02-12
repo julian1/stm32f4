@@ -55,7 +55,8 @@ void ItemController::rotary_change(int32_t rotary)
 
   // OK. we need to sign extend
 
-  this->idx = (int16_t(rotary) - this->rotary_begin) / 4 ;
+  // this->idx = (int16_t(rotary) - this->rotary_begin) / 4 ;
+  this->idx = ( this->rotary_begin - int16_t(rotary)  ) / 4 ;
 
   usart_printf("item controller rotary_change() idx  %d\n", this->idx );
 
@@ -190,8 +191,11 @@ void DigitController::draw(Curses &curses)
   size_t dot_x = dot_position( buf );
 
   to(curses, 0 + dot_x - this->idx, 4);
-  effect( curses, 0x01 ); // invert
-  text(curses,  "a", 1);
+  effect( curses, 0x01 ); // invert.... this just sets the mode.
+
+  // now we have to force the invert here.c:w  could do it with read_char then text.
+  
+  text(curses,  "x", 1);
 
 
 

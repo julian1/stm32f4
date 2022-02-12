@@ -458,6 +458,9 @@ static void loop(app_t *app)
 
       case 9: app->menu_controller.draw(); break;
 
+      // todo get working.
+      // case 10: draw_test1(app->curses );
+
       // default: 
       //  printf("unrecognized test\n");
     }
