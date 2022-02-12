@@ -63,22 +63,22 @@
 #include <libopencm3/stm32/flash.h>
 
 #include <stddef.h> // size_t
-//#include <stdio.h>
+#include <stdio.h>
 #include <string.h>   // memset
 #include <assert.h>   // directs to local assert.h
 
 
 
+#include "util.h"
 #include "cbuffer.h"
 #include "usart2.h"
 #include "streams.h"
-#include "util.h"
+#include "cstring.h"
 // #include "assert.h"
 
 
 
 
-#define CMD_BUF_SZ  100
 
 
 typedef struct app_t
@@ -102,9 +102,8 @@ typedef struct app_t
   void *continuation_ctx;
   void (*continuation_f)(void *);
 
-  // need to initialize
-  char  cmd_buf[CMD_BUF_SZ ];
-  unsigned cmd_buf_i;
+
+  CString    command;
 
 
 } app_t;
@@ -187,37 +186,37 @@ static void update_console_cmd(app_t *app)
     int32_t ch = cBufPop(&app->console_in);
     assert(ch >= 0);
 
-    if(ch != '\r' && app->cmd_buf_i < CMD_BUF_SZ - 1) {
-      // character other than newline
-      // push onto a vector? or array?
-      app->cmd_buf[ app->cmd_buf_i++ ] = ch;
 
+    if(ch != '\r' && cStringCount(&app->command) < cStringReserve(&app->command) ) {
+      // normal character      
+      cStringPush(&app->command, ch);
       // echo to output. required for minicom.
       putchar( ch);
 
     }  else {
-      // we got a command
 
-      app->cmd_buf[ app->cmd_buf_i ]  = 0;
 
+      // newline or overflow
       putchar('\n');
-      // usart_printf("got command '%s'\n", app->cmd_buf );
+
+      char *cmd = cStringPtr(&app->command);
+
 
       // flash write
-      if(strcmp(app->cmd_buf , "write") == 0) {
+      if(strcmp(cmd , "write") == 0) {
         flash_write();
       }
       // flash read
-      else if(strcmp(app->cmd_buf , "read") == 0) {
+      else if(strcmp(cmd , "read") == 0) {
         flash_read();
       }
 
-      else if(strcmp(app->cmd_buf , "loop1") == 0) {
+      else if(strcmp(cmd , "loop1") == 0) {
         app->continuation_ctx = app;
         app->continuation_f = (void (*)(void *)) loop1;
       }
 
-      else if(strcmp(app->cmd_buf , "loop2") == 0) {
+      else if(strcmp(cmd , "loop2") == 0) {
         app->continuation_ctx = app;
         app->continuation_f = (void (*)(void *)) loop2;
       }
@@ -225,12 +224,11 @@ static void update_console_cmd(app_t *app)
       // unknown command
       else {
 
-        printf( "unknown command '%s'\n", app->cmd_buf );
+        printf( "unknown command '%s'\n", cmd );
       }
 
       // reset buffer
-      app->cmd_buf_i = 0;
-      app->cmd_buf[ app->cmd_buf_i ]  = 0;
+      cStringClear( &app->command);
 
       // issue new command prompt
       usart_printf("> ");
@@ -331,7 +329,9 @@ static void loop1(app_t *app)
 static char buf_console_in[1000];
 static char buf_console_out[1000];
 
-// static float buf_rundown[6];
+
+
+static char buf_command[100];
 
 static app_t app;
 
@@ -371,9 +371,15 @@ int main(void)
   // DONT do this in c++
   memset(&app, 0, sizeof(app_t));
 
-  // reset buffer
-  app->cmd_buf_i = 0;
-  app->cmd_buf[ app->cmd_buf_i ]  = 0;
+  app.continuation_ctx = NULL;
+  app.continuation_f = NULL;
+
+
+
+  // command buffer
+  cStringInit(&app.command, buf_command, buf_command + sizeof( buf_command));
+  assert(cStringReserve(&app.command) == 100);
+
 
 
 
@@ -400,6 +406,7 @@ int main(void)
 
   usart_printf("\n--------\n");
   usart_printf("addr main() %p\n", main );
+  usart_printf("using CString\n");
   // assert(0);
 
 

@@ -225,9 +225,6 @@
 #include "usart2.h"
 #include "util.h"
 #include "streams.h"
-
-
-
 #include "cstring.h"
 
 #include "assert.h"
@@ -336,7 +333,7 @@ static void update_console_cmd(app_t *app)
       else {
         // unknown command
 
-        printf( "unknown command '%s'\n", cStringPtr( &app->command) );
+        printf( "unknown command '%s'\n", cmd );
       }
 
       // reset buffer
@@ -600,7 +597,8 @@ int main(void)
 
   
 
-  cStringInit( & app.command, buf_command, buf_command + sizeof( buf_command));
+  cStringInit(&app.command, buf_command, buf_command + sizeof( buf_command));
+  assert(cStringReserve(&app.command) == 100);
 
 
 
