@@ -23,7 +23,7 @@ SRCFILES	=   src/main.cpp src/util.c src/fsmc.c src/ssd1963.c src/xpt2046.c src/
               src/agg_test2.cpp src/agg_test3.cpp src/agg_test4.cpp src/agg_test5.cpp  src/agg_test6.cpp src/agg_test7.cpp src/agg_test8.cpp  \
               src/arial-outline.cpp   src/arial-span-18.cpp  src/arial-span-72.cpp   \
               ${LIB2SRC}/cbuffer.c  ${LIB2SRC}/streams.c  ${LIB2SRC}/usart2.c  \
-              ${LIB2SRC}/format.c    ${LIB2SRC}/gpio.c \
+              ${LIB2SRC}/cstring.c ${LIB2SRC}/format.c    ${LIB2SRC}/gpio.c \
               ${LIB2SRC}/cdcacm.c ${LIB2SRC}/usb_f107.c \
               ${AGGSRC}/agg_trans_affine.cpp  ${AGGSRC}/agg_curves.cpp ${AGGSRC}/agg_rounded_rect.cpp  ${AGGSRC}/agg_arc.cpp
 

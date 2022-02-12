@@ -25,8 +25,8 @@ typedef struct FBuf
 void fBufInit(FBuf *a, float *p, size_t sz);
 
 bool fBufisEmpty(FBuf *a);
-size_t fBufReserve(FBuf *a);  // TODO. constant, so a bit messy.
 size_t fBufCount(FBuf *a);
+size_t fBufReserve(FBuf *a);
 float fBufPeekLast(FBuf *a);
 
 void fBufPush(FBuf *a, float val);

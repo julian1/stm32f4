@@ -71,6 +71,10 @@ size_t cBufCount(const CBuf *a)
 
 
 
+size_t cBufReserve(CBuf *a)
+{
+  return a->sz;
+}
 
 
 void cBufClear(CBuf *a)

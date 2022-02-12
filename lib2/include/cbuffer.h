@@ -10,8 +10,7 @@ extern "C" {
 #include <stdint.h>   // int32_t
 #include <stddef.h>   // size_t
 #include <stdbool.h>  // bool
-
-#include <unistd.h> // ssize_t
+#include <unistd.h>   // ssize_t
 
 
 
@@ -31,6 +30,7 @@ void cBufInit(CBuf *a, char *p, size_t sz);
 
 bool cBufisEmpty(const CBuf *a);
 size_t cBufCount(const CBuf *a);
+size_t cBufReserve(CBuf *a);  
 int32_t cBufPeekLast(const CBuf *a);
 int32_t cBufPeekFirst(const CBuf *a);
 

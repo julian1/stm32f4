@@ -226,6 +226,10 @@
 #include "util.h"
 #include "streams.h"
 
+
+
+#include "cstring.h"
+
 #include "assert.h"
 #include "cdcacm.h"
 
@@ -262,7 +266,7 @@ extern int agg_test8(  Curses &a );
 
 
 
-#define CMD_BUF_SZ  100
+// #define CMD_BUF_SZ  100
 
 
 
@@ -279,12 +283,7 @@ typedef struct app_t
   CBuf console_in;
   CBuf console_out;
 
-  // Vec.  this is hideous.
-  // need to initialize
-  // CVec. character vec? 
-  char  cmd_buf[CMD_BUF_SZ ];
-  unsigned cmd_buf_i;
-
+  CString    command;
 
 
   usbd_device *usbd_dev ;
@@ -313,45 +312,38 @@ static void update_console_cmd(app_t *app)
     int32_t ch = cBufPop(&app->console_in);
     assert(ch >= 0);
 
-    if(ch != '\r' && app->cmd_buf_i < CMD_BUF_SZ - 1) {
-      // character other than newline
-      // push onto a vector? or array?
-      app->cmd_buf[ app->cmd_buf_i++ ] = ch;
-
+    if(ch != '\r' && cStringCount(&app->command) < cStringReserve(&app->command) ) {
+      // normal character      
+      cStringPush(&app->command, ch);
       // echo to output. required for minicom.
       putchar( ch);
 
     }  else {
-      // we got a command
 
-      app->cmd_buf[ app->cmd_buf_i ]  = 0;
-
+      // newline or overflow
       putchar('\n');
-      // usart_printf("got command '%s'\n", app->cmd_buf );
 
-      // flash write
-      if(strcmp(app->cmd_buf , "write") == 0) {
-        printf("got write\n");
+      char *cmd = cStringPtr(&app->command);
+
+      if(strcmp(cmd , "write") == 0) {
+        // flash write
+        printf("got write - using cString\n");
       }
-      // flash read
-      else if(strcmp(app->cmd_buf , "read") == 0) {
+      else if(strcmp(cmd, "read") == 0) {
+        // flash read
         printf("got read\n");
       }
-
-
-      // unknown command
       else {
+        // unknown command
 
-        printf( "unknown command '%s'\n", app->cmd_buf );
+        printf( "unknown command '%s'\n", cStringPtr( &app->command) );
       }
 
       // reset buffer
-      app->cmd_buf_i = 0;
-      app->cmd_buf[ app->cmd_buf_i ]  = 0;
+      cStringClear( &app->command);
 
       // issue new command prompt
       usart_printf("> ");
-
     }
   }
 }
@@ -456,6 +448,11 @@ static char buf_console_out[2000]; // setting to 10000. and it fails??? werid.
 
 
 static char buf_ui_events_in [100];
+
+
+static char buf_command[100];
+
+
 
 // TODO should be initialized, instantiated in main. on stack.
 // in order for c++ constructors. to be called
@@ -598,8 +595,12 @@ int main(void)
  
 
   // reset cmd buffer
-  app.cmd_buf_i = 0;
-  app.cmd_buf[ app.cmd_buf_i ]  = 0;
+  // app.command_i = 0;
+  // app.command[ app.command_i ]  = 0;
+
+  
+
+  cStringInit( & app.command, buf_command, buf_command + sizeof( buf_command));
 
 
 
