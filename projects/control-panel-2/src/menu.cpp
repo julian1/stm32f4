@@ -192,7 +192,8 @@ void DigitController::draw(Curses &curses)
 
   to(curses, 0 + dot_x - this->idx, 4);
   effect( curses, 0x01 ); // invert.... this just sets the mode.
-  // now we have to force the invert here.c:w  could do it with read_char then text.
+  // effect( curses, 0x10 ); // blink. doesn't seem to work...
+  // set the effect at current position
   ch_effect( curses);
   // text(curses,  "x", 1);
 
@@ -204,6 +205,12 @@ void DigitController::draw(Curses &curses)
   text(curses, buf , 1);
   // text(curses, "3.4mCurses", 1);
 
+
+
+
+  color_pair_idx(curses, 1); // blue/white
+  to(curses, 0, 10);
+  text(curses,  "whoot", 1);
 }
 
 
@@ -322,7 +329,7 @@ void MenuController::draw()
   // rb.clear(agg::rgba(1,1,1));     // bg white .
   rb.clear(agg::rgba(0,0,0));       // bg black
 
-  uint32_t start = system_millis;
+  // uint32_t start = system_millis;
   // ok, this works. so maybe there is memory corruption somewhere.
 
   ////////////////////////////////////
@@ -332,7 +339,7 @@ void MenuController::draw()
 
 
   int blink = (system_millis / 500) % 2;
-  // usart_printf("blink %u\n", blink );
+  usart_printf("blink %u\n", blink );
 
   render( curses , rb,  blink );
 
