@@ -1,12 +1,11 @@
 
-#ifndef F_BUFFER_H
-#define F_BUFFER_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
+// not sure if should not be float
 
 
 #include <stdint.h>   // int32_t
@@ -26,7 +25,7 @@ typedef struct FBuf
 void fBufInit(FBuf *a, float *p, size_t sz);
 
 bool fBufisEmpty(FBuf *a);
-size_t fBufReserve(FBuf *a);
+size_t fBufReserve(FBuf *a);  // TODO. constant, so a bit messy.
 size_t fBufCount(FBuf *a);
 float fBufPeekLast(FBuf *a);
 
@@ -48,11 +47,6 @@ int32_t fBufCopy2(const FBuf *a, float *p, size_t n);
 
 #ifdef __cplusplus
 }
-#endif
-
-
-
-
 #endif
 
 

@@ -1,11 +1,11 @@
 /*
-  TODO, Should change name cCircBuf 
+  TODO, Should change name cCircBuf
 
   ----------
   point of circular buffer, with separate ri,wi is thread safety.
-    - interupt can write/push value, while in the middle of a read. 
+    - interupt can write/push value, while in the middle of a read.
     - interupt can read value, while in the middle of a write
-  
+
     - we won't ever index outsize the buffer.
 
 

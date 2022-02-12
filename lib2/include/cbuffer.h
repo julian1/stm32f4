@@ -7,11 +7,11 @@ extern "C" {
 #endif
 
 
-#include <stdio.h>    // FILE
 #include <stdint.h>   // int32_t
 #include <stddef.h>   // size_t
 #include <stdbool.h>  // bool
 
+#include <unistd.h> // ssize_t
 
 
 
@@ -21,7 +21,7 @@ typedef struct CBuf
   size_t sz;
   size_t wi;
   size_t ri;
-  // bool wr_overflow_flag; //
+  // bool wr_overflow_flag;
 } CBuf;
 
 
@@ -31,7 +31,6 @@ void cBufInit(CBuf *a, char *p, size_t sz);
 
 bool cBufisEmpty(const CBuf *a);
 size_t cBufCount(const CBuf *a);
-
 int32_t cBufPeekLast(const CBuf *a);
 int32_t cBufPeekFirst(const CBuf *a);
 
