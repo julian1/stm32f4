@@ -462,9 +462,18 @@ static char buf_ui_events_in [100];
 
 
 
+/*
+  We need. feb 2022.
+    - agg tests should be separate loops. so we can switch at runtime with continuation functions.
+    - CVec structure. for buffers.
+    - menu structure - gui drawing.    SHOULD consider.
+        - only using an effect for the focus cursor. this means don't have to have if(focus) drawthis() else drwathat()
+        - should be able to separate out drawing. I think.
+
+      - menu should be high level structure. that FSM operates over.
 
 
-
+*/
 
 
 
