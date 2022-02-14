@@ -1,4 +1,8 @@
-
+/*
+  Rather than use arrays. think using a linked list. to support different size text. in same structure could be good.
+  eg. allows text mapping the screen.
+  could set up next pointers. for righ direction text flow .
+*/
 
 #ifndef MENU_H
 #define MENU_H
@@ -19,50 +23,58 @@
 struct ListController
 {
   // eg.   apple in { bananas, apples, pears }
-  // draw all items in the list. (maybe except the active one).
+  // draw all elements in the list. (maybe except the active one).
   // we can pass the curses... no need to include here.
   int32_t rotary_begin;
 
+  bool  focus; 
 
   ListController () :
-    rotary_begin(0)
+    rotary_begin(0),
+    focus(0)
   { }
 
   void begin_edit(int32_t rotary);
+  void finish_edit(int32_t rotary);
   void rotary_change(int32_t rotary);
 
 
-  void commit_edit();
-  void event( int );
+//   void commit_edit();
+//  void event( int );
   void draw( Curses &, bool active); // active indicates tells the controller  if it's active.  or just use begin_edit()?
 };
 
 
 
-struct ItemController
+struct ElementController
 {
-  // maybe change name element controller
+  // element of a double number 
   //  eg. the  3 in 12345
 
   // we can pass the curses... no need to include here.
   int32_t rotary_begin;
+  bool focus;
 
   int32_t & idx;
   double & value;
   double & value_begin;
 
+
   // may want to pass this by reference. so can actually change the value.
 
-  explicit ItemController(int32_t & idx_, double & value_, double & value_begin_)
+  explicit ElementController(int32_t & idx_, double & value_, double & value_begin_)
     : rotary_begin(0),
+    focus(0),
     idx(idx_),
     value(value_),
     value_begin(value_begin_)
   { }
 
 
-
+  // should not pass the rotary... ?
   void begin_edit(int32_t rotary);
+  void finish_edit(int32_t rotary);
+
   void rotary_change(int32_t rotary);
 
 /*
@@ -100,6 +112,7 @@ struct DigitController
 
 
   void begin_edit(int32_t rotary);
+  void finish_edit(int32_t rotary);
   void rotary_change(int32_t rotary);
 
 
@@ -131,7 +144,7 @@ struct DigitController
 
 struct MenuController
 {
-  // Should just know which controller is active { list, item, element }
+  // Should just know which controller is active { list, element, element }
   // probably should not take curses...
   // unless uses to take events
 
@@ -139,20 +152,25 @@ struct MenuController
   Curses &curses;
 
 
-  ListController & list_controller;
-  ItemController & item_controller;
-  DigitController & digit_controller;
+  ListController & list_controller;   // list_element controller
+  ElementController & element_controller;   // enumerate
+  DigitController & digit_controller; // value controller
 
-  int active_controller;
+  int active_controller; // 0 == list_controller
 
-  explicit MenuController(Curses &curses_, ListController & list_controller_, ItemController & item_controller_, DigitController &digit_controller_)
+  explicit MenuController(Curses &curses_, ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
     : curses(curses_),
     list_controller(list_controller_),
-    item_controller( item_controller_),
+    element_controller( element_controller_),
     digit_controller( digit_controller_),
 
     active_controller(0)
-    {  }
+    {  
+      // need to send an initial value
+
+        // seems to lock/up. value not initialized yet.
+        // list_controller.begin_edit( 0 );
+    }
 
 
   //

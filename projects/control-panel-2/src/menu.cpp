@@ -16,38 +16,69 @@
 
 //////////////////
 
+
+
 void ListController::begin_edit(int32_t rotary)
 {
   usart_printf("list controller begin_edit()\n");
   rotary_begin = rotary;
+  focus = 1;
 }
+
+void ListController::finish_edit(int32_t rotary)
+{
+  usart_printf("list controller finish_edit()\n");
+  focus = 0;
+}
+
 
 
 void ListController::rotary_change(int32_t rotary)
 {
-  usart_printf("list controller rotary_change()  %d\n", (rotary - this->rotary_begin) / 4 % 10  );
+  usart_printf("list controller rotary_change()  %d\n", (rotary - this->rotary_begin)   );
 
-  ;
 
 }
 
+
+
+
+
+
+
 //////////////////
-// TODO change name ElementController.   eg.  5 in +3456mV.
 
- void ItemController::begin_edit(int32_t rotary)
+
+void ElementController::begin_edit(int32_t rotary)
 {
+  // should we passing the rotary?
 
-  rotary_begin = rotary;
+  // rotary_begin = rotary;
 
   // copy the value
   value_begin = value;
+  focus = 1;
 
-  usart_printf("item controller begin_edit() - copying value_begin %f \n", value_begin);
+  usart_printf("element controller begin_edit() - value_begin=%f\n", value_begin);
+
+  // OK. this works.
+  rotary_begin = idx + rotary;
+
+  usart_printf("rotary_begin %d\n", rotary_begin );
+  usart_printf("idx          %d\n", idx );
 }
 
 
 
-void ItemController::rotary_change(int32_t rotary)
+void ElementController::finish_edit(int32_t rotary)
+{
+  usart_printf("element controller finish_edit() \n");
+  focus = 0;
+}
+
+
+
+void ElementController::rotary_change(int32_t rotary)
 {
   // actually. don't think we require any change
   // delta is the value
@@ -55,10 +86,14 @@ void ItemController::rotary_change(int32_t rotary)
 
   // OK. we need to sign extend
 
-  // this->idx = (int16_t(rotary) - this->rotary_begin) / 4 ;
-  this->idx = ( this->rotary_begin - int16_t(rotary)  ) / 4 ;
+  /*
+    this isn't working with a negative
+  */
+  usart_printf("element controller rotary_change() rotary %d\n", rotary );
 
-  usart_printf("item controller rotary_change() idx  %d\n", this->idx );
+  this->idx = this->rotary_begin - rotary ;
+
+  usart_printf("idx  %d\n", this->idx );
 
   // EXTR. I think we might pass the digit as digit index
 }
@@ -79,8 +114,28 @@ void DigitController::begin_edit(int32_t rotary)
 }
 
 
+void DigitController::finish_edit(int32_t rotary)
+{
+  usart_printf("digit controller finish_edit()\n");
+
+}
+
+
+
 static double edit_float_value(double x, int idx, int amount)
 {
+  /*
+    this isn't working with the decimal point
+  */
+
+  printf("edit_float_value x=%f   idx=%d amount=%d u=%f \n", x, idx, amount );
+
+  // skip decimal point. should perhaps be done outside here.
+  // index
+  if (idx > 0 ) {
+    --idx;
+  }
+
   // must be float for negative idx
   // some math.h have pow10(double)
   double u = pow(10, idx);
@@ -90,14 +145,10 @@ static double edit_float_value(double x, int idx, int amount)
 }
 
 
-
 /*
 todo.
-// need highlight the digit being editing and highlighting the position on screen.
-// thne maybe try to add sign/unit.
-
   transition
-    - from block/invert highlight for item.
+    - from block/invert highlight for element.
     - to blinking to digit edit.
 */
 
@@ -109,21 +160,13 @@ void DigitController::rotary_change(int32_t rotary)
   // IMPORTANT - value is allowed to go greater/lesser than 0-10.
   // eg. wind on voltage from 9V to 12V.
 
-  int32_t delta = (int16_t(rotary) - this->rotary_begin) / 4 ;
-  // int32_t delta = (rotary - this->rotary_begin) / 4 /*% 10 */;
+  int32_t delta = rotary - this->rotary_begin;
 
-  // we are adding delta each time.
-  // while we want to adjust the value.
-  // so think we need to record the starting value.
-  // OR. we don't change value.
-
-  // this->value = this->value_begin + edit_float_value(this->value , this->idx, delta );
-
-  // when we change the digit we edit - then we have to adjust
-
-  this->value =  edit_float_value(this->value_begin  , this->idx, delta );
 
   usart_printf("digit controller rotary_change()  idx=%d delta=%d  value=%f\n", this->idx, delta, this->value );
+
+  this->value = edit_float_value(this->value_begin, this->idx, delta );
+
 
 
 }
@@ -158,9 +201,16 @@ static char * format_float(char *s, size_t sz, int suffix_digits, double value)
 
 
 
+/*
+  THIS is WRONG - the rotary/ controller should control value changing. not rendering.
+      albeit. whether item has focus may want to be a property of the value...
+      which character has focus... etc.
 
+  Not sure that the controller - should also draw.
 
-
+  Eg. there might be more a completely different representation.
+  But still want rotary control.
+*/
 
 
 void DigitController::draw(Curses &curses)
@@ -200,9 +250,17 @@ void DigitController::draw(Curses &curses)
   // EXTR.
   // blinking off/on is different to blinking from invert/non invert.
 
+  ///////////////////////////////////
+  // NONE - of this should be being drawn here.
+
   effect(curses, 0x00);        // normal
   to(curses, 1, 5);
-  snprintf(buf, 100, "%ld   ", (int32_t) timer_get_counter(TIM1));
+  // snprintf(buf, 100, "%ld   ", (int32_t) timer_get_counter(TIM1));
+  snprintf(buf, 100, "%ld   ", ((int32_t) int16_t(timer_get_counter(TIM1)))  >> 2  );
+
+     ;
+
+
   text(curses, buf , 1);
   // text(curses, "3.4mCurses", 1);
 
@@ -257,51 +315,73 @@ void MenuController::event(int event_)
 
   // uint32_t to int32_t.
   // actually if using modulus it shouldn't matter
-  int32_t rotary = timer_get_counter(TIM1);
+  int32_t rotary__ = timer_get_counter(TIM1);
 
-  if(event_ == ui_events_button_right ) {
-    // switch the controller
+    // rotary event should pipe through to the active controller. OR. get the timer and pass it....
+    // force sign extention.
+  int32_t rotary = int16_t(rotary__)  >> 2    ;
 
-    ++ this->active_controller;
-    if( this->active_controller > 2)
-      this->active_controller = 2;
 
-    // we also want to call being() on the active controller
-    // could use virtual functions and then index. if want.
+  printf("* converted rotary %d\n", rotary );
 
-    // actually we should perhaps do a exit_edi() from what we are coming from.
 
-    switch( this->active_controller ) {
-      case 0:  list_controller.begin_edit(rotary);  break;
-      case 1:  item_controller.begin_edit(rotary); break;
-      case 2:  digit_controller.begin_edit(rotary); break;
+
+  if(event_ == ui_events_button_right
+    || event_ == ui_events_button_left )
+  {
+
+    // candidate new controller
+    int cand = this->active_controller;
+
+    if(event_ == ui_events_button_right ) {
+      // don't move in futhre or generate events.
+      if( this->active_controller >= 2)  {
+        printf("at limit\n");
+        this->active_controller = 2;
+        return;
+      }
+      printf("move in\n");
+      ++cand;
     }
+    else if(event_ == ui_events_button_left ) {
+      if( this->active_controller <= 0 ) {
+        this->active_controller = 0;
+        printf("at limit\n");
+        return;
+      }
+      printf("back out\n");
+      -- cand;
+    }
+
+    // now generate events
+    if(cand != this->active_controller) {
+
+      switch( this->active_controller) {
+        case 0:  list_controller.finish_edit(rotary);  break;
+        case 1:  element_controller.finish_edit(rotary); break;
+        case 2:  digit_controller.finish_edit(rotary); break;
+      }
+
+      this->active_controller = cand;
+
+      switch( this->active_controller ) {
+        case 0:  list_controller.begin_edit(rotary);  break;
+        case 1:  element_controller.begin_edit(rotary); break;
+        case 2:  digit_controller.begin_edit(rotary); break;
+      }
+
+    }
+
   }
 
-  else if(event_ == ui_events_button_left ) {
-
-    -- this->active_controller;
-
-    if( this->active_controller < 0 )
-      this->active_controller = 0;
-
-    // i think we have to pass the rotary...
-    // when we go navigate backwards... is this a finish_edit() ?
-
-  }
 
   else if (event_ == ui_events_rotary_change ) {
 
 
 
-    // rotary event should pipe through to the active controller. OR. get the timer and pass it....
-    // using begin( rotary )
-    // pass the event directly ???
-
-
     switch( this->active_controller ) {
       case 0:  list_controller.rotary_change(rotary);  break;
-      case 1:  item_controller.rotary_change(rotary); break;
+      case 1:  element_controller.rotary_change(rotary); break;
       case 2:  digit_controller.rotary_change(rotary); break;
     }
 

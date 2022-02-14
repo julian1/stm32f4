@@ -525,16 +525,16 @@ int main(int arg0)
   Curses curses( 33, 17, 14, 16 );
   // Curses curses;
 
-  int32_t    item_idx = 0; // first digit, need negative to support after float
+  int32_t    element_idx = 0; // first digit, need negative to support after float
 
   ListController  list_controller;
 
   double value = 123.456;
   double value_begin = 0;
-  ItemController  item_controller(item_idx, value, value_begin);
-  DigitController digit_controller(item_idx, value, value_begin);
+  ElementController  element_controller(element_idx, value, value_begin);
+  DigitController digit_controller(element_idx, value, value_begin);
 
-  MenuController  menu_controller( curses, list_controller, item_controller, digit_controller);
+  MenuController  menu_controller( curses, list_controller, element_controller, digit_controller);
 
   app_t app( curses, menu_controller ) ;
 
@@ -690,15 +690,15 @@ int main(int arg0)
 
   /*
       use % 4  - to get single step increment.
-      use % 3 - for 3 menu items.
+      use % 3 - for 3 menu elements.
       do not have to clamp the value.
 
-      use enum - with 0.    or   don't bother to code the menu items.
+      use enum - with 0.    or   don't bother to code the menu elements.
 
       use the same variable.  regardless of what menu is being navigated.
 
       menulevel.
-      menuitem. <-
+      menuelement. <-
     --------
       the state is the counter timer.
 
