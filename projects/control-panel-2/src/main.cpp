@@ -276,9 +276,17 @@ extern int agg_test8(  Curses &a );
 typedef struct app_t
 {
 
-  app_t( Curses & curses, MenuController & menu_controller)
+
+
+
+
+
+
+
+  app_t( Curses & curses, MenuController & menu_controller, Menu & menu)
      :  curses( curses),
-      menu_controller ( menu_controller)
+      menu_controller ( menu_controller),   // not sure if need this
+      menu( menu ) 
   { }
 
 
@@ -302,6 +310,7 @@ typedef struct app_t
 
   Curses        & curses;
   MenuController & menu_controller ;
+  Menu            & menu;
 
 } app_t;
 
@@ -449,24 +458,23 @@ static void loop(app_t *app)
     }
 
 
+
+
+    app->menu.draw(); 
+
+#if 0
+  // memory issues somewhere
     switch(app->program)
     {
 
       case 2: agg_test2(); break;   
-                                     
       case 3: agg_test3(); break;
-
       case 4: agg_test4(); break;   // ok
 
-
       case 5: agg_test5(); break;   // ok.
-
       case 6: agg_test6(); break; // ok.
-      
       case 7: agg_test7( app->curses, app->program_arg ); break;  // just linking breaks stuff. because of the size of static Curses  structure
-
       case 8: agg_test8( app->curses ); break;  // ok
-
       case 9: app->menu_controller.draw(); break;
 
       // todo get working.
@@ -475,6 +483,7 @@ static void loop(app_t *app)
       // default: 
       //  printf("unrecognized test\n");
     }
+#endif
 
 
     // xpt2046_read();
@@ -538,6 +547,8 @@ int main(int arg0)
 
   int32_t    element_idx = 0; // first digit, need negative to support after float
 
+
+  // 
   ListController  list_controller;
 
   double value = 123.456;
@@ -547,7 +558,10 @@ int main(int arg0)
 
   MenuController  menu_controller( curses, list_controller, element_controller, digit_controller);
 
-  app_t app( curses, menu_controller ) ;
+  Menu menu( curses, menu_controller );       // not sure that menu needs menu_controller.
+
+
+  app_t app( curses, menu_controller, menu ) ; // not sure that app needs curses.
 
 
   //////////////////////
@@ -741,7 +755,7 @@ int main(int arg0)
   usart_flush();
 
   // set program to run
-  app.program = 3;
+  app.program = 9;
 
   loop(&app);
 }

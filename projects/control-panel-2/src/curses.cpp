@@ -149,6 +149,8 @@
 // order?????
 int index( Curses &a, int x, int y )
 {
+  // 
+
   int i = (y * a.stride ) + x   ;
   assert(i < MCursesXCELLS);
   // return (y * a.stride ) + x   ;
@@ -215,10 +217,23 @@ void clear( Curses & a)
 
       int i = index(a, x, y);
 
-      a.changed[ i ] = false; // true; // not sure. force draw?
-      a.character[i] = 0;
-      a.font[i] = 0;
-      a.effect[i] = 0;
+                              // No. should test if it's different
+      if(a.character[i] != 0
+        || a.font[i] != 0
+        || a.color_pair_idx[i] != 0
+        || a.effect[i] != 0)  {
+
+        a.character[i] = 0;
+        a.font[i] = 0;
+        a.color_pair_idx[i] = 0;
+        a.effect[i] = 0;
+
+        a.changed[ i ] = true; 
+      }
+      else {
+        a.changed[ i ] = false; 
+
+      }
   }
 
 }

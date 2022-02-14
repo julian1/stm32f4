@@ -41,69 +41,32 @@
 
 */
 
-/*
-struct ListItem
+
+void ListController::set_callback( void (*pf)(void *, unsigned ), void *ctx)
 {
-  virtual 
+  // do we need a callback telling us stuff. or just inject an index?
 
-};
-*/
+  usart_printf("********\n");
+  usart_printf("list controller set_callback()\n");
 
-//////////////////
-
-/*
-void ListController::add_element(  ListItemElement )
-{
-}
-
-void ListController::set_callback(  bool (*pf)( ListItemElement *)  )
-{
+  // IMPORTANT. instead of a callback - we could just inject the index...
+  // albeit we still want to set the size.
+  callback = pf;
+  callback_ctx = ctx;
 }
 
 
-*/
-
-struct ListItemElement
-{
-
-  // abstract
-  virtual ~ListItemElement() = 0;
-
-  // doesn't need hardly anything more...
-  // focus can be used 
-  // bool focus;
-
-};
-
-
-struct ListItemElement2 : ListItemElement
-{
-
-  std::string     key; 
-  std::string     val; 
-}
-
-/*
-  OR. even better. Just use a void * pointer.
-    Or even just an index.
-  
-  The controller says. which item has focus. that is all.
-  Does not govern drawing.  
-  Does not govern text extent .  
-
-*/
 
 void ListController::begin_edit(int32_t rotary)
 {
   usart_printf("list controller begin_edit()\n");
   rotary_begin = rotary;
-  focus = 1;
 }
+
 
 void ListController::finish_edit(int32_t rotary)
 {
   usart_printf("list controller finish_edit()\n");
-  focus = 0;
 }
 
 
@@ -111,14 +74,11 @@ void ListController::finish_edit(int32_t rotary)
 void ListController::rotary_change(int32_t rotary)
 {
   usart_printf("list controller rotary_change()  %d\n", (rotary - this->rotary_begin)   );
-
-  // call callback.
-
+  if( callback ) {
+    assert(callback_ctx); 
+    callback(callback_ctx, rotary - rotary_begin); 
+  }
 }
-
-
-
-
 
 
 
@@ -277,19 +237,6 @@ static char * format_float(char *s, size_t sz, int suffix_digits, double value)
 
 
 
-
-/*
-  THIS is WRONG - the rotary/ controller should control value changing. not rendering.
-      albeit. whether item has focus may want to be a property of the value...
-      which character has focus... etc.
-
-  Not sure that the controller - should also draw.
-
-  Eg. there might be more a completely different representation.
-  But still want rotary control.
-*/
-
-
 void DigitController::draw(Curses &curses)
 {
 
@@ -352,36 +299,6 @@ void DigitController::draw(Curses &curses)
 
 
 
-
-#if 0
-static void draw_test4(Curses &curses)
-{
-  // should call the digit controller. which can draw the value
-
-  // grid spacing for text is quite deltaerent than for keypad button spacing.
-  color_pair_idx(curses, 0); // blue/white
-  //effect(a, 0x01);        // invert
-  effect(curses, 0x00);        // normal
-  font(curses, &arial_span_18 ); // large font
-  to(curses, 0, 4);
-  text(curses, "+99.456mV");
-
-
-  char buf[100];
-  snprintf(buf, 100, "%ld   ", (int32_t) timer_get_counter(TIM1));
-  effect(curses, 0x00);        // normal
-  to(curses, 1, 5);
-  text(curses, buf );
-  // text(curses, "3.4mCurses");
-}
-
-
-
-static void draw(Curses &a )
-{
-   // return 0;
-}
-#endif
 
 
 
@@ -454,8 +371,6 @@ void MenuController::event(int event_)
 
   else if (event_ == ui_events_rotary_change ) {
 
-
-
     switch( this->active_controller ) {
       case 0:  list_controller.rotary_change(rotary);  break;
       case 1:  element_controller.rotary_change(rotary); break;
@@ -471,12 +386,25 @@ void MenuController::event(int event_)
 
 
 
-void MenuController::draw()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void Menu::draw()
 {
-  // usart_printf("menu controller test() \n");
-
-  // draw( this->curses );
-
   // persist the page that we need to draw
   static int page = 0; // page to use
   page = ! page;
@@ -494,7 +422,12 @@ void MenuController::draw()
   ////////////////////////////////////
 
   // draw_test4( curses );
-  digit_controller.draw(curses);
+  // code should not be here...
+
+  // OK. we could pass the position down to the digit controller to do the draw?
+  // but that couples things...
+
+  menu_controller.digit_controller.draw(  curses  );
 
 
   int blink = (system_millis / 500) % 2;
@@ -510,8 +443,9 @@ void MenuController::draw()
   // flip the newly drawn page in
   setScrollStart( page *  272 );
 
-}
 
+
+}
 
 
 
