@@ -54,6 +54,13 @@
   eg.  list_idx. 
         element_idx.
         digit_idx.
+  -----------
+
+  No. it's not enough.
+
+  remember - we need to shove the active list element into the item and digit controller.
+
+  actually should be done with the begin_edit()). 
 */
 
 void ListController::set_callback( void (*pf)(void *, unsigned ), void *ctx)
@@ -78,6 +85,11 @@ void ListController::begin_edit(int32_t rotary)
 {
   usart_printf("list controller begin_edit()\n");
   rotary_begin = rotary;
+
+  /*
+      this is where we want to shove the item intto the element controller.
+      either in this function or in a callback..
+  */
 }
 
 
