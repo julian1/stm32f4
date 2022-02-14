@@ -407,16 +407,12 @@ void render( Curses &a, rb_t &rb, bool blink )
       int y1 = y * a.pdy;
 
 
-      // usart_printf( "x=%u y=%u\n", x1, y1);
-/*
-      // blink effect on on and blink set
-      if( (effect & (0x01 << 2)) == 0
-        || (effect & (0x01 << 2) && blink)
-      ) {
-*/
+
       // check this logic. appears to work.
-     // blink effect on on and blink set
+
+     // blink effect off 
       if( (effect & 0x10) == 0
+      // or blink effect on and blink
         || ((effect & 0x10 ) && blink)
       ) {
 
@@ -424,19 +420,18 @@ void render( Curses &a, rb_t &rb, bool blink )
         if(( effect & 0x01) == 0 ) {
           // not inverted flag off
           // draw background
-          // rb.copy_bar(x1, y1, (x1 + 14) - 1, (y1 - 16) + 1,   color_bg );
           rb.copy_bar(x1, y1, (x1 + a.pdx) - 1, (y1 - a.pdy) + 1,   color_bg );
           // draw char
           drawSpanChar(rb, *font, x1, y1 - 1, color_fg, ch  );
         }
         else if ( effect & 0x01) {
           // draw inverted
-          // rb.copy_bar(x1, y1, (x1 + 14) - 1, (y1 - 16) + 1,   color_fg );
           rb.copy_bar(x1, y1, (x1 + a.pdx) - 1, (y1 - a.pdy) + 1,   color_fg );
           drawSpanChar(rb, *font, x1, y1 - 1, color_bg, ch  );
         }
-
       }
+
+
 
     }
   }
