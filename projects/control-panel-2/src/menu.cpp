@@ -42,6 +42,20 @@
 */
 
 
+/*
+  having idx. and focus. 
+
+  and then just querying these as variables - should be enough for drawing.
+
+  and don't require events.
+
+  perhaps should be functions. 
+
+  eg.  list_idx. 
+        element_idx.
+        digit_idx.
+*/
+
 void ListController::set_callback( void (*pf)(void *, unsigned ), void *ctx)
 {
   /* 
