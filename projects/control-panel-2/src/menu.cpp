@@ -11,14 +11,10 @@
 /*
   OK. 
     - would be good to be able to flick between modes - with centre button press.
-
     - we need to cycle the menu list.
         which means we need a menu line.
-
     - need a set_item (  ) for the list elements controller.  how should this work.
-
     - set_item ( doubleDigit  ) ; 
-
     - do we pre-wrap every item?
  
     -------- 
@@ -29,10 +25,19 @@
     OK. it needs to be an interface to just the item....
     -------
     needs to be communication for drawing. if item is actively focused.
-
     eg. we will 
-
     addItem(  Interface (  )   ) 
+    ----------------------
+
+    add item.
+
+    But then  
+      - i think we are going to need a change event. if a list item gets focus.
+      - then on the actie/ event  - we can inject item into the element and digit controller.
+             
+    eg. on construct. 
+      populate the list controller
+    
 
 */
 
@@ -47,10 +52,25 @@ struct ListItem
 //////////////////
 
 /*
-void ListController::add_element(  menu_item )
+void ListController::add_element(  ListItemElement )
 {
 }
 */
+
+struct ListItemElement
+{
+
+  // abstract
+  virtual ~ListItemElement() = 0;
+
+  // doesn't need hardly anything more...
+  // focus can be used 
+  // bool focus;
+
+  
+
+};
+
 
 void ListController::begin_edit(int32_t rotary)
 {
@@ -162,7 +182,7 @@ static double edit_float_value(double x, int idx, int amount)
     this isn't working with the decimal point
   */
 
-  printf("edit_float_value x=%f   idx=%d amount=%d u=%f \n", x, idx, amount );
+  printf("edit_float_value x=%f   idx=%d amount=%d \n", x, idx, amount );
 
   // skip decimal point. should perhaps be done outside here.
   // index
@@ -228,6 +248,7 @@ static char * format_float(char *s, size_t sz, int suffix_digits, double value)
   */
   // format
   size_t n = snprintf(s, sz, "%.*f", suffix_digits, value);
+  UNUSED(n);
   return s;
 }
 
@@ -356,7 +377,7 @@ void MenuController::event(int event_)
   int32_t rotary = int16_t(rotary__)  >> 2    ;
 
 
-  printf("* converted rotary %d\n", rotary );
+  printf("* converted rotary %ld\n", rotary );
 
 
 
