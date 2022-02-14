@@ -408,29 +408,57 @@ void render( Curses &a, rb_t &rb, bool blink )
 
 
 
+
+      if( effect & 0x01) {
+        // invert effect flag.
+        // we always draw something...
+
+         // blink effect off 
+          if( (effect & 0x10) == 0
+          // or blink effect on and blink
+            || ((effect & 0x10 ) && blink)
+          ) {
+
+              // not inverted flag off
+              // draw background
+              rb.copy_bar(x1, y1, (x1 + a.pdx) - 1, (y1 - a.pdy) + 1,   color_bg );
+              // draw char
+              drawSpanChar(rb, *font, x1, y1 - 1, color_fg, ch  );
+          }
+          
+          else {
+              // draw inverted
+              rb.copy_bar(x1, y1, (x1 + a.pdx) - 1, (y1 - a.pdy) + 1,   color_fg );
+              drawSpanChar(rb, *font, x1, y1 - 1, color_bg, ch  );
+            }
+      }
+      else
+
       // check this logic. appears to work.
 
-     // blink effect off 
+      // blink effect off  - in which case always draw
       if( (effect & 0x10) == 0
-      // or blink effect on and blink
+      // or blink effect on and in blink on state - then draw
         || ((effect & 0x10 ) && blink)
       ) {
 
 
-        if(( effect & 0x01) == 0 ) {
+        //if(( effect & 0x01) == 0 ) {
           // not inverted flag off
           // draw background
           rb.copy_bar(x1, y1, (x1 + a.pdx) - 1, (y1 - a.pdy) + 1,   color_bg );
           // draw char
           drawSpanChar(rb, *font, x1, y1 - 1, color_fg, ch  );
         }
+/*
         else if ( effect & 0x01) {
           // draw inverted
           rb.copy_bar(x1, y1, (x1 + a.pdx) - 1, (y1 - a.pdy) + 1,   color_fg );
           drawSpanChar(rb, *font, x1, y1 - 1, color_bg, ch  );
         }
-      }
 
+      }
+*/
 
 
     }
