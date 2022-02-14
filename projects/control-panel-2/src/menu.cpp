@@ -228,7 +228,7 @@ void DigitController::draw(Curses &curses)
   // snprintf(buf, 100, "%f ", this->value);  // our edited value... NOTE. needs extra of active digit etc..
 
   format_float(buf, 100, 6, this->value);
-  text(curses,  buf , 1);
+  text(curses,  buf);
 
   // now we want to place an effect on the active digit.
   // OK. position has to be where the decimal dot is.  and then negative
@@ -261,8 +261,8 @@ void DigitController::draw(Curses &curses)
      ;
 
 
-  text(curses, buf , 1);
-  // text(curses, "3.4mCurses", 1);
+  text(curses, buf);
+  // text(curses, "3.4mCurses");
 
 
 
@@ -270,7 +270,7 @@ void DigitController::draw(Curses &curses)
   color_pair_idx(curses, 1);  // blue/white
   to(curses, 0, 10);
   effect( curses, 0x10 );     // blink
-  text(curses,  "whoot", 1);
+  text(curses,  "whoot");
 }
 
 
@@ -287,15 +287,15 @@ static void draw_test4(Curses &curses)
   effect(curses, 0x00);        // normal
   font(curses, &arial_span_18 ); // large font
   to(curses, 0, 4);
-  text(curses, "+99.456mV", 1);
+  text(curses, "+99.456mV");
 
 
   char buf[100];
   snprintf(buf, 100, "%ld   ", (int32_t) timer_get_counter(TIM1));
   effect(curses, 0x00);        // normal
   to(curses, 1, 5);
-  text(curses, buf , 1);
-  // text(curses, "3.4mCurses", 1);
+  text(curses, buf );
+  // text(curses, "3.4mCurses");
 }
 
 

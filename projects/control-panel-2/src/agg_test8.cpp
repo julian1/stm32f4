@@ -172,7 +172,6 @@ void rotary_event( IntegerSelector & s )
 */
 // think we just pass  events down. 
 
-
 static void draw_test2(Curses &a )
 {
   // grid spacing for text is quite different than for keypad button spacing.
@@ -181,26 +180,17 @@ static void draw_test2(Curses &a )
   effect(a, 0x00);        // normal
   font(a, &arial_span_18 ); // large font
   to(a, 0, 4);
-  text(a, "+23.456mV", 1);
+  text(a, "+23.456mV");
 
   char buf[100];
   snprintf(buf, 100, "%d   ", timer_get_counter(TIM1));
 
   effect(a, 0x00);        // normal
   to(a, 1, 5);
-  text(a, buf , 1);
-  // text(a, "3.4mCurses", 1);
+  text(a, buf );
+  // text(a, "3.4mCurses");
 }
 
-/*
-// so pass the event stream...
-
-  - have a list controller.
-  - and a digits in value controller.
-  - and try to use the buttons to alternate between them.
-
-
-*/
 
 
 extern int agg_test8(  Curses &a )

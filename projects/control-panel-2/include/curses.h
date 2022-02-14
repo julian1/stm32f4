@@ -124,7 +124,8 @@ void effect( Curses &a, uint16_t v );
 void ch_text( Curses &a, uint16_t ch);    // change character
 void ch_effect( Curses &a);  // change the effect only at position.
 
-void text( Curses &a, const char *s, int dir);
+// void text( Curses &a, const char *s, int dir);
+void text( Curses &a, const char *s);
 
 void render( Curses &a, rb_t &rb, bool blink );
 

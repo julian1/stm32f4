@@ -311,9 +311,10 @@ void ch_text( Curses &a, uint16_t ch)
 
 
 
-void text( Curses &a, const char *s, int dir)
+void text( Curses &a, const char *s)
 {
   // increments the cursor as it writes
+  int dir = 1;
 
   assert(dir == 1 || dir == -1);
 
@@ -329,18 +330,7 @@ void text( Curses &a, const char *s, int dir)
       // could clip
       // if(x > a.stride) ...
 
-
-
       ch_text( a, *s);
-/*
-      int i = index( a, a.cursor_x , a.cursor_y);
-
-      // set state
-      a.character[i] =      *s;
-      a.font[i] =           a.cursor_font;
-      a.effect[i] =         a.cursor_effect;
-      a.color_pair_idx[i] = a.cursor_color_pair_idx;
-*/
 
       // we can pass the stride to use... as argument.
       a.cursor_x += dir;

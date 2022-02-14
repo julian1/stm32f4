@@ -45,25 +45,6 @@ fit, including the elimination of storage in favour of inlining.
 
 
 
-
-static void draw_keypad_test(Curses &a )
-{
-  // draw a kepad
-  color_pair_idx(a, 0); // blue/white
-  font(a, &arial_span_72 ); // large font
-  to(a, 1, 1);
-  text(a, "123", 1);
-  to(a, 1, 2);
-  text(a, "456m", 1);
-  to(a, 1, 3);
-  text(a, "789u", 1);
-  to(a, 1, 4);
-  text(a, "-0.", 1);
-
-}
-
-
-
 static uint32_t last_draw_time = 0;
 
 static void draw_test1(Curses &a )
@@ -98,35 +79,35 @@ static void draw_test1(Curses &a )
   //////////
   to(a, 5, 4);
   (focus == 0) ? effect(a, 0x01) : effect(a, 0x00);
-  text(a, "     settings     ", 1);
+  text(a, "     settings     ");
 
   to(a, 5, 5);
   (focus  == 1) ? effect(a, 0x01) : effect(a, 0x00);
-  text(a, "whootj", 1);
+  text(a, "whootj");
   to(a, 18, 5);
-  text(a, "123.49", -1);
+  text(a, "123.49");
 
 
   //////////
   to(a, 5, 6);
   color_pair_idx(a, 1); // red/white
   (focus == 2) ? effect(a, 0x01) : effect(a, 0x00);
-  text(a, "foobar", 1);
+  text(a, "foobar");
 
   to(a, 18, 6);
   effect(a, 0x01 << 2);   // blink
-  text(a, "678mV", -1);
+  text(a, "678mV");
 
 
   //////////
   to(a, 5, 7);
   color_pair_idx(a, 0); // blue/white
   (focus  == 3) ? effect(a, 0x01) : effect(a, 0x00);
-  text(a, "drawtime", 1);
+  text(a, "drawtime");
   // effect(a, 0x00);
   to(a, 18, 7);
   snprintf(buf, 100, "%ums", last_draw_time);
-  text(a, buf, -1);
+  text(a, buf);
   // effect(a, 0x00);
 
 
@@ -134,10 +115,10 @@ static void draw_test1(Curses &a )
   to(a, 5, 8);
   color_pair_idx(a, 0); // blue/white
   (focus  == 4) ? effect(a, 0x01) : effect(a, 0x00);
-  text(a, "rotary", 1);
+  text(a, "rotary");
   to(a, 18, 8);
   // snprintf(buf, 100, "%d %d", rotary, focus );
-  text(a, "whoot", -1);
+  text(a, "whoot");
 
 
 /*
@@ -145,7 +126,7 @@ static void draw_test1(Curses &a )
   font(a, &arial_span_72 );
   color_pair_idx( a, 0 );      // blue white
   to(a, 10, 10);
-  text(a, "99", +1);
+  text(a, "99");
 */
 
 }
@@ -164,11 +145,11 @@ static void draw_test2(Curses &a )
   // font(a, &arial_span_72 ); // large font
   font(a, &arial_span_18 ); // large font
   to(a, 0, 4);
-  text(a, "+23.456mV", 1);
+  text(a, "+23.456mV");
 
   effect(a, 0x00);        // normal
   to(a, 1, 5);
-  text(a, "3.4mCurses", 1);   // remove the 1 argument.
+  text(a, "3.4mCurses");   // remove the 1 argument.
 
 
 }
@@ -276,6 +257,26 @@ static void draw_test4(Curses &a )
 
 
 
+
+static void draw_test5_keypad_test(Curses &a )
+{
+  // draw a kepad
+  color_pair_idx(a, 0); // blue/white
+  // font(a, &arial_span_72 ); // large font
+  font(a, &arial_span_18 ); // large font
+  to(a, 1, 1);
+  text(a, "123");
+  to(a, 1, 2);
+  text(a, "456m");
+  to(a, 1, 3);
+  text(a, "789u");
+  to(a, 1, 4);
+  text(a, "-0.");
+
+}
+
+
+
 void print_stack_pointer()
 {
   // https://stackoverflow.com/questions/20059673/print-out-value-of-stack-pointer
@@ -324,7 +325,7 @@ extern "C" int agg_test7( Curses & a, int arg)
     case 2: draw_test2(a ); break;
     case 3: draw_test3(a ); break;
     case 4: draw_test4(a ); break;
-
+    case 5: draw_test5_keypad_test(a ); break;
   }
 
   int blink = (system_millis / 500) % 2;
