@@ -99,51 +99,8 @@ void print_stack_pointer()
 
 // 72 size text is much too spaced out.
 
-extern "C" int agg_test7()
+extern "C" int agg_test7( Curses & a)
 {
-/*
-  making these static is a problem
-*/
-  static Curses a( 33, 17, 14, 16 );
-  // static Curses b(6,5, 60, 60  );
-  static Curses b(10,6, 45, 50  );
-
-/*
-  sizeof(Curses) 40488 40k. hmmm.
-  sizeof(agg::rgba) 32
-
-  18k is the rgb data.
-
-  sizeof(Curses) 5584  now 5.5k. after fixing color space. good.
-  -------
-
-  struct a only
-  0x2001ffa4   130980
-
-  struct a , b
-  0x2001ff9c   130972
-
-  so don't think it's working. or we already hit limit?
-*/
-
-  static bool first = true;
-  if(first) {
-    // move these to constructor?
-
-    // trying to init both of these hangs...
-
-    usart_printf("sizeof(agg::rgba) %u\n", sizeof(agg::rgba));
-    usart_printf("sizeof(Curses) %u\n", sizeof(Curses));
-
-
-    init( a);
-    init( b);   // hangs with no output. weird. run out of sram?
-                    // because static initialization constructor runs before - we have usart configured?
-                    // by itself we can initialize
-    // UNUSED(b);
-                    // but
-    first = false;
-  }
 
 
   // persist the page that we need to draw
@@ -171,7 +128,7 @@ extern "C" int agg_test7()
 
   // need a better name. this is not render
   draw_test1(a );
-  draw_test2(b );
+  // draw_test2(b );
 
   // draw_test3(a );
 
@@ -180,7 +137,7 @@ extern "C" int agg_test7()
 
 
   render( a , rb,  blink );
-  render( b , rb,  blink );
+  // render( b , rb,  blink );
 
   // draw_test_charset( a, rb );
 

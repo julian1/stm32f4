@@ -253,10 +253,12 @@ int agg_test3( void );
 int agg_test4( void );
 int agg_test5( void );
 int agg_test6( void );
-int agg_test7( void );
+
 // extern "C" int agg_test8( void );
 }
 
+
+ extern "C"  int agg_test7( Curses & a);
 
 extern int agg_test8(  Curses &a );
 
@@ -452,7 +454,8 @@ static void loop(app_t *app)
       case 5: agg_test5(); break;   // ok.
 
       case 6: agg_test6(); break; // ok.
-      // case 7: agg_test7(); break;  // just linking breaks stuff. because of the size of static Curses  structure
+      
+      case 7: agg_test7( app->curses); break;  // just linking breaks stuff. because of the size of static Curses  structure
 
       case 8: agg_test8( app->curses ); break;  // ok
 
