@@ -178,14 +178,19 @@ static void draw_test2(Curses &a )
 static void draw_test3(Curses &a )
 // void draw_test_charset( Curses &a, rb_t &rb )
 {
+  printf("draw_test3()\n");
+
+  font(a, &arial_span_18 ); // large font
+
   // fill screen with chars
   // useful for test, check sizing, see what chars exist in a fontface
   int i = 0;
-  for(unsigned y = 0; y < a.ny; ++y)
-  for(unsigned x = 0; x < a.stride ; ++x) {
+  for(unsigned y = 0; y < a.ny - 1; ++y)
+  for(unsigned x = 0; x <  a.stride  - 1; ++x) {
 
-    to(a, y, x);
+    to(a, x, y);
     ch_text(a, i++ % 0xff );
+    // ch_text(a, 'a' );
 
     // int x1 = x * a.pdx;
     // int y1 = y * a.pdy;
