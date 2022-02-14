@@ -318,6 +318,7 @@ extern "C" int agg_test7( Curses & a, int arg)
 
   // print_stack_pointer();
 
+  clear( a);
 
   // need a better name. this is not render
   switch(arg) { 

@@ -109,6 +109,8 @@ struct Curses
 
 void init( Curses & a);
 
+void clear( Curses & a);
+
 void to( Curses &a, int x, int y);
 
 void right( Curses &a, int dx);

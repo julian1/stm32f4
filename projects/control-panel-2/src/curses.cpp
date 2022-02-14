@@ -204,6 +204,12 @@ void init( Curses & a)
 
   usart_printf("stride=%u, ny=%u\n" , a.stride, a.ny);
 
+  clear( a );
+}
+
+
+void clear( Curses & a)
+{
   for(unsigned y = 0; y < a.ny; ++y)
   for(unsigned x = 0; x < a.stride; ++x) {
 
@@ -212,8 +218,8 @@ void init( Curses & a)
       a.character[i] = 0;
       a.font[i] = 0;
       a.effect[i] = 0;
-
   }
+
 }
 
 
