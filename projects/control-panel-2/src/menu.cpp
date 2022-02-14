@@ -55,6 +55,12 @@ struct ListItem
 void ListController::add_element(  ListItemElement )
 {
 }
+
+void ListController::set_callback(  bool (*pf)( ListItemElement *)  )
+{
+}
+
+
 */
 
 struct ListItemElement
@@ -67,10 +73,25 @@ struct ListItemElement
   // focus can be used 
   // bool focus;
 
-  
-
 };
 
+
+struct ListItemElement2 : ListItemElement
+{
+
+  std::string     key; 
+  std::string     val; 
+}
+
+/*
+  OR. even better. Just use a void * pointer.
+    Or even just an index.
+  
+  The controller says. which item has focus. that is all.
+  Does not govern drawing.  
+  Does not govern text extent .  
+
+*/
 
 void ListController::begin_edit(int32_t rotary)
 {
@@ -91,6 +112,7 @@ void ListController::rotary_change(int32_t rotary)
 {
   usart_printf("list controller rotary_change()  %d\n", (rotary - this->rotary_begin)   );
 
+  // call callback.
 
 }
 
