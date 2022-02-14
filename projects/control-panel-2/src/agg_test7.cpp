@@ -161,7 +161,8 @@ static void draw_test2(Curses &a )
   color_pair_idx(a, 0); // blue/white
   //effect(a, 0x01);        // invert
   effect(a, 0x00);        // normal
-  font(a, &arial_span_72 ); // large font
+  // font(a, &arial_span_72 ); // large font
+  font(a, &arial_span_18 ); // large font
   to(a, 0, 4);
   text(a, "+23.456mV", 1);
 
