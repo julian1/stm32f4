@@ -54,7 +54,7 @@ public:
   }
 
   ///////
-  
+
   T *begin() const { return start; }
   T *end()  const  { return pos; }
 
@@ -63,6 +63,9 @@ public:
   {
     assert(pos < end_);
     *pos++ = v;
+
+    // c style. trampoline callback.
+    // callback( callback_ctx, &v, enum add_item );
   }
 
 

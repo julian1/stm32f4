@@ -44,7 +44,10 @@
 
 void ListController::set_callback( void (*pf)(void *, unsigned ), void *ctx)
 {
-  // do we need a callback telling us stuff. or just inject an index?
+  /* 
+    do we want/need a callback telling us active/focus item.. or else just inject an index?
+
+  */
 
   usart_printf("********\n");
   usart_printf("list controller set_callback()\n");
