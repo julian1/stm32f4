@@ -215,6 +215,7 @@ void clear( Curses & a)
 
       int i = index(a, x, y);
 
+      a.changed[ i ] = false; // true; // not sure. force draw?
       a.character[i] = 0;
       a.font[i] = 0;
       a.effect[i] = 0;
@@ -308,6 +309,7 @@ void ch_text( Curses &a, uint16_t ch)
   int i = index( a, a.cursor_x , a.cursor_y);
 
   // set state
+  a.changed[ i ]  =     true;
   a.character[i] =      ch;
   a.font[i] =           a.cursor_font;
   a.effect[i] =         a.cursor_effect;
@@ -388,7 +390,7 @@ void render( Curses &a, rb_t &rb, bool blink )
     if(ch != 0) {
 
       uint8_t color_pair_idx = a.color_pair_idx[i];
-      assert(color_pair_idx < MCursesXCOLORPCursesIRS);
+      assert(color_pair_idx < MCursesColorsMax);
 
       const agg::rgba & color_fg = a.color_fg[ color_pair_idx ];
       const agg::rgba & color_bg = a.color_bg[ color_pair_idx ];

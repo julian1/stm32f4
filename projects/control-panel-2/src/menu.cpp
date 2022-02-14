@@ -8,15 +8,49 @@
 #include "streams.h"
 
 
+/*
+  OK. 
+    - would be good to be able to flick between modes - with centre button press.
 
+    - we need to cycle the menu list.
+        which means we need a menu line.
 
+    - need a set_item (  ) for the list elements controller.  how should this work.
 
+    - set_item ( doubleDigit  ) ; 
 
+    - do we pre-wrap every item?
+ 
+    -------- 
+    - try to keep it composible.
+    - need drawing to be separated out.
+    -----------------
 
+    OK. it needs to be an interface to just the item....
+    -------
+    needs to be communication for drawing. if item is actively focused.
+
+    eg. we will 
+
+    addItem(  Interface (  )   ) 
+
+*/
+
+/*
+struct ListItem
+{
+  virtual 
+
+};
+*/
 
 //////////////////
 
-
+/*
+void ListController::add_element(  menu_item )
+{
+}
+*/
 
 void ListController::begin_edit(int32_t rotary)
 {

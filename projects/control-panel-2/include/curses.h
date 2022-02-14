@@ -14,7 +14,7 @@
 // 33 * 17 == 561
 #define MCursesXCELLS (33 * 17)
 
-#define MCursesXCOLORPCursesIRS 8
+#define MCursesColorsMax 8
 
 // we could template the maxcells argument. when want to instantiate for different sizes.
 
@@ -32,6 +32,8 @@ struct Curses
 {
 
   explicit Curses(
+
+    // change name stride back to nx_
     uint16_t stride_,
     uint16_t ny_,
     uint16_t pdx_,
@@ -44,6 +46,7 @@ struct Curses
   {  }
 
 
+    // change name stride back to nx_
   uint16_t stride; // nx
   uint16_t ny;
 
@@ -64,9 +67,13 @@ struct Curses
         - alpha blending/sub-pixel accuracy - without having to read the LCD hardware screen memory / faster. less complicated.
         - delta change drawing - by drawing spans in bg color to clear them - to avoid full screen clear() /and redraw everything.
   */
-  agg::rgba color_fg[ MCursesXCOLORPCursesIRS ];  // agg::rgba == 32 bytes. 8 * 32 = 256 bytes.
-  agg::rgba color_bg[ MCursesXCOLORPCursesIRS ];
+  agg::rgba color_fg[ MCursesColorsMax ];  // agg::rgba == 32 bytes. 8 * 32 = 256 bytes.
+  agg::rgba color_bg[ MCursesColorsMax ];
 
+
+  // whether item needs to be redrawn
+  bool changed[ MCursesXCELLS ];
+  
 
   /////////////////////////////////////
   // character - dominant. only check other flags.
@@ -107,6 +114,7 @@ struct Curses
 
 // treat non-virtual functions as functions.
 
+// TODO if this is using c++. then would be better to get rid of init().
 void init( Curses & a);
 
 void clear( Curses & a);
