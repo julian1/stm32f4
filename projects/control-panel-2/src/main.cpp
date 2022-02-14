@@ -258,7 +258,7 @@ int agg_test6( void );
 }
 
 
- extern "C"  int agg_test7( Curses & a);
+extern "C" int agg_test7( Curses & a, int arg);
 
 extern int agg_test8(  Curses &a );
 
@@ -290,6 +290,7 @@ typedef struct app_t
   CString    command;
 
   unsigned  program;  // test program to run
+  unsigned  program_arg;      // argument to programrun
 
   usbd_device *usbd_dev ;
 
@@ -335,12 +336,19 @@ static void update_console_cmd(app_t *app)
 
       if(strncmp(cmd , "test", 4) == 0) {
 
-        unsigned x = 0; 
-        unsigned n = sscanf(cmd + 4,  "%u", &x);
+        unsigned x0 = 0; 
+        unsigned x1 = 0; 
+        unsigned n = sscanf(cmd + 4,  "%u%u", &x0, &x1);
         if(n == 1) { 
-          printf("got test %u\n", x);
-          app->program = x;
-        } else {
+          printf("got test %u\n", x0);
+          app->program = x0;
+          app->program_arg = 0;
+        }  else if (n == 2) { 
+          printf("got test %u %u\n", x0, x1);
+          app->program = x0;
+          app->program_arg = x1;
+        }
+        else {
           printf("badly formatted\n");
         }
       }
@@ -455,7 +463,7 @@ static void loop(app_t *app)
 
       case 6: agg_test6(); break; // ok.
       
-      case 7: agg_test7( app->curses); break;  // just linking breaks stuff. because of the size of static Curses  structure
+      case 7: agg_test7( app->curses, app->program_arg ); break;  // just linking breaks stuff. because of the size of static Curses  structure
 
       case 8: agg_test8( app->curses ); break;  // ok
 

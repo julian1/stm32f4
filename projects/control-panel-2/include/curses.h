@@ -128,8 +128,8 @@ void text( Curses &a, const char *s, int dir);
 
 void render( Curses &a, rb_t &rb, bool blink );
 
-void draw_test1(Curses &a );
-void draw_test3(Curses &a );
+// void draw_test1(Curses &a );
+// void draw_test3(Curses &a );
 
 
 #endif // CURSES_H
