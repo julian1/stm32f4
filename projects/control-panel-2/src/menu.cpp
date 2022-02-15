@@ -61,6 +61,10 @@
   remember - we need to shove the active list element into the item and digit controller.
 
   actually should be done with the begin_edit()). 
+  -----------
+
+  can inject the idx. or just read it.
+  
 */
 
 void ListController::set_callback( void (*pf)(void *, unsigned ), void *ctx)
@@ -112,19 +116,18 @@ void ListController::rotary_change(int32_t rotary)
 
 
 //////////////////
+//////////////////
 
+// why do we need value begin?
 
 void ElementController::begin_edit(int32_t rotary)
 {
-  // should we passing the rotary?
-
-  // rotary_begin = rotary;
-
   // copy the value
-  value_begin = value;
+  // value_begin = value;
   focus = 1;
 
-  usart_printf("element controller begin_edit() - value_begin=%f\n", value_begin);
+  // usart_printf("element controller begin_edit() - value_begin=%f\n", value_begin);
+  usart_printf("element controller begin_edit()\n");
 
   // OK. this works.
   rotary_begin = idx + rotary;
@@ -171,10 +174,16 @@ void ElementController::rotary_change(int32_t rotary)
 
 ///////////////////
 
+/*
+  needs value_begin, and rotary_begin  - to edit the value.
+
+*/
 void DigitController::begin_edit(int32_t rotary)
 {
   usart_printf("digit controller begin_edit()\n");
   rotary_begin = rotary;
+
+  this->value_begin = this->value ;
 
 }
 
@@ -300,6 +309,7 @@ void DigitController::draw(Curses &curses)
   ch_effect( curses);
   // text(curses,  "x", 1);
 
+#if 0
   // EXTR.
   // blinking off/on is different to blinking from invert/non invert.
 
@@ -324,6 +334,8 @@ void DigitController::draw(Curses &curses)
   to(curses, 0, 10);
   effect( curses, 0x10 );     // blink
   text(curses,  "whoot");
+#endif
+
 }
 
 

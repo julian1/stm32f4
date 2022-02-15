@@ -28,14 +28,27 @@ struct ListController
   // we can pass the curses... no need to include here.
   int32_t rotary_begin;
 
-  // bool  focus;
+  bool  focus;
+
+  /*
+    reading the index as a public variable ... versus injecting it.
+    think that just reading it should be sufficient.
+
+    likewise for focus
+  
+  */
+  // int32_t & idx_;
+  int32_t idx;
 
   void (*callback)(void *, unsigned );
   void *callback_ctx;
 
-  ListController () :
+
+
+  ListController (/*int32_t & idx_ */) :
     rotary_begin(0),
-    // focus(0),
+    idx( 0),
+    focus(false),
     callback( NULL),
     callback_ctx( NULL)
   { }
@@ -53,6 +66,10 @@ struct ListController
 };
 
 
+/*
+  The reason we use use alias for value. is that we inject the same value into two controllers.
+
+*/
 
 struct ElementController
 {
@@ -64,18 +81,20 @@ struct ElementController
   bool focus;
 
   int32_t & idx;
+/*
   double & value;
   double & value_begin;
-
+*/
 
   // may want to pass this by reference. so can actually change the value.
 
-  explicit ElementController(int32_t & idx_, double & value_, double & value_begin_)
+  explicit ElementController(int32_t & idx_ /*, double & value_, double & value_begin_*/)
     : rotary_begin(0),
     focus(0),
-    idx(idx_),
+    idx(idx_)
+/*
     value(value_),
-    value_begin(value_begin_)
+    value_begin(value_begin_) */
   { }
 
 
@@ -85,13 +104,6 @@ struct ElementController
 
   void rotary_change(int32_t rotary);
 
-/*
-  void add_element();   // { loc, key,val }
-
-  void commit_edit();
-  void event( int );
-  void draw( Curses &, bool active);
-*/
 };
 
 
@@ -104,6 +116,8 @@ struct DigitController
   // we can pass the curses... no need to include here.
   int32_t rotary_begin;
 
+  bool focus;
+
   int32_t & idx;
 
   // TODO injected at the momment. need add()/remove() as well as unit and sign editing.
@@ -112,27 +126,24 @@ struct DigitController
 
   explicit DigitController(int32_t & idx_, double  & value_, double & value_begin_)
     : rotary_begin(0),
+    focus(false),
     idx(idx_),
     value(value_),
     value_begin(value_begin_)
   { }
 
+  /*
+    rather than using aliases. instead just set_value( double value, etc).
 
+  */
 
   void begin_edit(int32_t rotary);
   void finish_edit(int32_t rotary);
   void rotary_change(int32_t rotary);
 
-
+  // don't think should be here.
   void draw(Curses &curses);
 
-/*
-  void add_element();   // { loc, key,val }
-
-  void commit_edit();
-  void event( int );
-  void draw( Curses &, bool active);
-*/
 };
 
 
@@ -146,8 +157,7 @@ struct DigitController
 
 
 /*
-  digitController
-  unitController
+  delegates and uses other controllers 
 */
 
 struct MenuController
