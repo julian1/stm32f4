@@ -112,16 +112,26 @@ void ListController::rotary_change(int32_t rotary)
   this->idx = (rotary - this->rotary_begin);
 
 
-  usart_printf("list controller rotary_change()  idx = %d\n", idx    );
 
   if(idx < 0 )  {
     rotary_begin = rotary;
+    // recalculate
+    this->idx = (rotary - this->rotary_begin);
+    assert( this->idx == 0);
+
     return;
   } else if( idx >= 3) {
     
-    rotary_begin = rotary - 3 + 1;
+    rotary_begin = rotary -  ( 3 - 1 );
+    this->idx = (rotary - this->rotary_begin);
+
+    usart_printf("bounds idx = %d\n", idx    );
+    assert( this->idx == 2);
+
     return;
   }
+  
+  usart_printf("list controller rotary_change()  idx = %d\n", idx    );
 
   /* 
     rather than a callback here. this could insert the relevant value into the digit controller. 
@@ -149,7 +159,7 @@ void ListController::draw(Curses &curses)
   // Actually don't think we have enough information anyway.
   // about the active item...
 
-  printf("draw idx== %u\n", this->idx );
+  printf("draw idx== %d\n", this->idx );
 
 
   font(curses, &arial_span_18 ); // font
