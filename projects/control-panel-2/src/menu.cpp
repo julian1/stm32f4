@@ -86,6 +86,31 @@ void ListController::set_callback( void (*pf)(void *, unsigned ), void *ctx)
 #endif
 
 
+
+
+
+
+static char * format_float(char *s, size_t sz, int suffix_digits, double value)
+{
+  /*
+    %f. always adds '.' and suffix '0' even input is rounded.
+    this will prefix with '-'
+  */
+  // format
+  size_t n = snprintf(s, sz, "%.*f", suffix_digits, value);
+  UNUSED(n);
+  return s;
+}
+
+
+
+
+
+
+
+
+
+
 void ListController::begin_edit(int32_t rotary)
 {
   usart_printf("list controller begin_edit()\n");
@@ -165,10 +190,9 @@ void ListController::draw(Curses &curses)
   font(curses, &arial_span_18 ); // font
   color_pair_idx(curses, 0); // blue/white
 
-
+  /// draw keys.
   for(unsigned i = 0; i < 3; ++i)
   {
-
     to(curses, 0, 6 + i);
 
     if( i == this->idx ) {
@@ -180,8 +204,29 @@ void ListController::draw(Curses &curses)
     }
   
     text(curses, keys[ i  ] );  
-
   }
+
+
+
+  /// draw values.
+  for(unsigned i = 0; i < 3; ++i)
+  {
+    to(curses, 10, 6 + i);
+
+    if( i == this->idx ) {
+      effect(curses, 0x01);        // invert
+    } else {
+      effect(curses, 0x00);        // normal
+    }
+
+    char buf[100];
+    format_float(buf, 100, 6, values[ i ] );
+    //printf("val is %d %s\n", strlen(buf), buf );
+    text(curses,  buf);
+  
+  }
+
+
 
 }
 
@@ -330,6 +375,7 @@ void DigitController::rotary_change(int32_t rotary)
 
 static size_t dot_position( char *s )
 {
+  // given a string, return the dot or eos. 
   char *p = s;
   while(*p && *p != '.')
     ++p;
@@ -337,18 +383,6 @@ static size_t dot_position( char *s )
   return p - s;
 }
 
-
-static char * format_float(char *s, size_t sz, int suffix_digits, double value)
-{
-  /*
-    %f. always adds '.' and suffix '0' even input is rounded.
-    this will prefix with '-'
-  */
-  // format
-  size_t n = snprintf(s, sz, "%.*f", suffix_digits, value);
-  UNUSED(n);
-  return s;
-}
 
 
 
