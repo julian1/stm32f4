@@ -563,7 +563,7 @@ int main(int arg0)
 
 
   char *keys[]     = { "whoot", "apple", "blue" } ; 
-  double values[]  = { 133.12, 256, 399.123 } ; 
+  double values[]  = { 14.12, 256, 399.123 } ; 
 
   ListController  list_controller( digit_controller, keys, values, 3);
 

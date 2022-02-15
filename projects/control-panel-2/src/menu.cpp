@@ -219,6 +219,8 @@ void ListController::draw(Curses &curses)
       effect(curses, 0x00);        // normal
     }
 
+    // do we 
+
     char buf[100];
     format_float(buf, 100, 6, values[ i ] );
     //printf("val is %d %s\n", strlen(buf), buf );
