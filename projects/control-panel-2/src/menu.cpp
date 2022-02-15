@@ -177,8 +177,21 @@ void ListController::rotary_change(int32_t rotary)
 }
 
 
+/*
+  - I think injecting and editing a reference to the value might be more interesting.
+    than copying.
+
+    - it will have additional properties. like number of digits. smallest unit etc.
+
+*/
+
+
 void ListController::draw(Curses &curses)
 {
+  /*
+    we can either delegate the drawing. of elements.
+  */
+
   // probably better not to couple the drawing. with the controller.
   // but ok. for now.
   // Actually don't think we have enough information anyway.
