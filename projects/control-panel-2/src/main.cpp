@@ -568,7 +568,7 @@ int main(int arg0)
   ListController  list_controller( digit_controller, keys, values, 3);
 
   // menucontroller is the controller controller
-  MenuController  menu_controller( curses, list_controller, element_controller, digit_controller);
+  MenuController  menu_controller( /* curses,*/ list_controller, element_controller, digit_controller);
 
   Menu menu( curses, menu_controller );       // not sure that menu needs menu_controller.
 

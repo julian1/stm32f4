@@ -165,7 +165,7 @@ struct MenuController
   // unless uses to take events
 
 
-  Curses &curses;
+  // Curses &curses;
 
 
   ListController    & list_controller;   // list_element controller
@@ -174,8 +174,8 @@ struct MenuController
 
   unsigned active_controller; // 0 == list_controller
 
-  explicit MenuController(Curses &curses_, ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
-    : curses(curses_),
+  explicit MenuController(/* Curses &curses_, */ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
+    : // curses(curses_),
     list_controller(list_controller_),
     element_controller( element_controller_),
     digit_controller( digit_controller_),
