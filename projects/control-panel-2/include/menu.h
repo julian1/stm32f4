@@ -81,27 +81,21 @@ struct ElementController
   bool focus;
 
   int32_t & idx;
-/*
-  double & value;
-  double & value_begin;
-*/
 
-  // may want to pass this by reference. so can actually change the value.
+  /* 
+    idx is by reference because it is shared state with digit controller.
+  */
 
-  explicit ElementController(int32_t & idx_ /*, double & value_, double & value_begin_*/)
+  explicit ElementController(int32_t & idx_ )
     : rotary_begin(0),
     focus(0),
     idx(idx_)
-/*
-    value(value_),
-    value_begin(value_begin_) */
   { }
 
 
   // should not pass the rotary... ?
   void begin_edit(int32_t rotary);
   void finish_edit(int32_t rotary);
-
   void rotary_change(int32_t rotary);
 
 };
@@ -116,20 +110,21 @@ struct DigitController
   // we can pass the curses... no need to include here.
   int32_t rotary_begin;
 
+  double value_begin;
+
   bool focus;
 
   int32_t & idx;
 
   // TODO injected at the momment. need add()/remove() as well as unit and sign editing.
   double  & value;
-  double & value_begin;
 
-  explicit DigitController(int32_t & idx_, double  & value_, double & value_begin_)
+  explicit DigitController(int32_t & idx_, double  & value_)
     : rotary_begin(0),
     focus(false),
     idx(idx_),
     value(value_),
-    value_begin(value_begin_)
+    value_begin( 0 )
   { }
 
   /*

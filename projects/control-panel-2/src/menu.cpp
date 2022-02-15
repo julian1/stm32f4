@@ -175,7 +175,7 @@ void ElementController::rotary_change(int32_t rotary)
 ///////////////////
 
 /*
-  needs value_begin, and rotary_begin  - to edit the value.
+  requires value_begin, and rotary_begin  - to edit the value.
 
 */
 void DigitController::begin_edit(int32_t rotary)
