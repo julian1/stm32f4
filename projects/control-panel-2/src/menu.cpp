@@ -159,7 +159,7 @@ void ListController::draw(Curses &curses)
   // Actually don't think we have enough information anyway.
   // about the active item...
 
-  printf("draw idx== %d\n", this->idx );
+  // printf("draw idx== %d\n", this->idx );
 
 
   font(curses, &arial_span_18 ); // font
@@ -172,9 +172,9 @@ void ListController::draw(Curses &curses)
     to(curses, 0, 6 + i);
 
     if( i == this->idx ) {
-
-      printf("setting effect \n"); 
-      effect(curses, 0x11);        // invert
+      // printf("setting effect \n"); 
+      // effect(curses, 0x11);        // invert
+      effect(curses, 0x01);        // invert
     } else {
       effect(curses, 0x00);        // normal
     }

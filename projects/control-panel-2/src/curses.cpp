@@ -149,7 +149,7 @@
 // order?????
 int index( Curses &a, int x, int y )
 {
-  // 
+  //
 
   int i = (y * a.stride ) + x   ;
   assert(i < MCursesXCELLS);
@@ -228,10 +228,10 @@ void clear( Curses & a)
         a.color_pair_idx[i] = 0;
         a.effect[i] = 0;
 
-        a.changed[ i ] = true; 
+        a.changed[ i ] = true;
       }
       else {
-        a.changed[ i ] = false; 
+        a.changed[ i ] = false;
 
       }
   }
@@ -425,41 +425,43 @@ void render( Curses &a, rb_t &rb, bool blink )
       // 0x10 blink.
 
       if( effect & 0x01) {
-          // invert effect flag, we always draw / never blank
+          // invert effect flag on, we always draw / never blank
 
-          // blink effect off . so draw
+          // and blink effect off. so draw inverted.
           if( (effect & 0x10) == 0
-          // or blink effect on and blink flag on. so draw
+          // or invert and blink effect on and blink flag on. so draw inverted
             || ((effect & 0x10 ) && blink)
           ) {
-              // draw background
-              rb.copy_bar(x1, y1, (x1 + a.pdx) - 1, (y1 - a.pdy) + 1,   color_bg );
-              // draw char
-              drawSpanChar(rb, *font, x1, y1 - 1, color_fg, ch  );
-          }
-          else {
               // draw inverted
               rb.copy_bar(x1, y1, (x1 + a.pdx) - 1, (y1 - a.pdy) + 1,   color_fg );
               drawSpanChar(rb, *font, x1, y1 - 1, color_bg, ch  );
+
+          }
+          else {
+              // draw normally.
+              rb.copy_bar(x1, y1, (x1 + a.pdx) - 1, (y1 - a.pdy) + 1,   color_bg );
+              // draw char
+              drawSpanChar(rb, *font, x1, y1 - 1, color_fg, ch  );
+
             }
       }
-      else
+      else {
 
-      // invert flag off.
+        // invert flag off.
 
-      // blink effect off, and normal draw - in which case always draw
-      if( (effect & 0x10) == 0
-      // or blink effect on and blink flag on - then draw
-        || ((effect & 0x10 ) && blink)
-      ) {
-          // draw background
-          rb.copy_bar(x1, y1, (x1 + a.pdx) - 1, (y1 - a.pdy) + 1,   color_bg );
-          // draw char
-          drawSpanChar(rb, *font, x1, y1 - 1, color_fg, ch  );
-        }
+        // blink effect off, and normal draw - in which case always draw
+        if( (effect & 0x10) == 0
+        // or blink effect on and blink flag on - then draw
+          || ((effect & 0x10 ) && blink)
+        ) {
+            // draw background
+            rb.copy_bar(x1, y1, (x1 + a.pdx) - 1, (y1 - a.pdy) + 1,   color_bg );
+            // draw char
+            drawSpanChar(rb, *font, x1, y1 - 1, color_fg, ch  );
+          }
 
       // don't draw... should perhaps force draw the background
-
+      }
 
 
     }
