@@ -130,7 +130,10 @@ void ListController::begin_edit(int32_t rotary)
 {
   usart_printf("list controller begin_edit()  idx=%d rotary=%d\n", idx, rotary);
 
-  rotary_begin = idx + rotary;
+  rotary_begin = rotary - idx;    // remember position
+                                  // from last time. works.
+
+  usart_printf("rotary_begin set to %d\n", rotary_begin);
 
   focus = true;
 

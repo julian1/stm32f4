@@ -169,8 +169,13 @@ struct MenuController
 
     active_controller(0)
     {
-        usart_flush();
-        printf("*********\n");
+      /*
+        problem ... all this constructor stuff is happening before the usart is up and running.
+
+      */
+
+//        usart_flush();
+ //       printf("*********\n");
         // set active element
         list_controller.begin_edit( 0 );
     }
