@@ -34,10 +34,10 @@ struct ListController
   // void (*callback)(void *, unsigned );
   // void *callback_ctx;
 
-  char **keys; 
+  char **keys;
   double *values;
 
-  ListController (  DigitController & digit_controller, char **keys, double *values, size_t n  ) 
+  ListController (  DigitController & digit_controller, char **keys, double *values, size_t n  )
     :
     digit_controller( digit_controller ),
     rotary_begin(0),
@@ -79,7 +79,7 @@ struct ElementController
 
   int32_t & idx;
 
-  /* 
+  /*
     idx is by reference because it is shared state with digit controller.
   */
 
@@ -111,7 +111,7 @@ struct DigitController
 
   bool focus;
 
-  // idx is shared state with element controller. 
+  // idx is shared state with element controller.
   // could alternatively - use set_pos(), but it works well enoughvalue
   int32_t & idx;
 
@@ -131,9 +131,9 @@ struct DigitController
 
   */
 
-  // should the value be a pointer ???? 
+  // should the value be a pointer ????
   // so that it manipulates the real value.
-  void set_value( double * value ); 
+  void set_value( double * value );
 
   void begin_edit(int32_t rotary);
   void finish_edit(int32_t rotary);
@@ -155,27 +155,24 @@ struct DigitController
 
 
 /*
-  delegates and uses other controllers 
 */
 
 struct MenuController
 {
-  // Should just know which controller is active { list, element, element }
-  // probably should not take curses...
-  // unless uses to take events
+  /*
+    just takes events - and delegates and uses other controllers
+    no responsibility for drawing
 
+  */
 
-  // Curses &curses;
+  ListController    & list_controller;
+  ElementController & element_controller;
+  DigitController   & digit_controller;
 
+  unsigned active_controller;
 
-  ListController    & list_controller;   // list_element controller
-  ElementController & element_controller;   // enumerate
-  DigitController   & digit_controller; // value controller
-
-  unsigned active_controller; // 0 == list_controller
-
-  explicit MenuController(/* Curses &curses_, */ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
-    : // curses(curses_),
+  explicit MenuController(ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
+    :
     list_controller(list_controller_),
     element_controller( element_controller_),
     digit_controller( digit_controller_),
@@ -187,15 +184,11 @@ struct MenuController
         // seems to lock/up. value not initialized yet.
         // list_controller.begin_edit( 0 );
 
-  
+
         // set active element
-        list_controller.begin_edit( 0 );  
+        list_controller.begin_edit( 0 );
     }
 
-
-  //
-
-  // void draw();
   void event( int);
 
 };
@@ -209,24 +202,29 @@ struct MenuController
 
 struct Menu
 {
-  //
+  /* 
+    responsible for drawing. so needs other controllers. to know which is active etc.
+    should potentiallly rename to menu view:w.
+
+  */
   Curses & curses;
-  MenuController & menu_controller;
+  // MenuController & menu_controller;
 
-  explicit Menu( Curses & curses, MenuController & menu_controller_ )
+  ListController    & list_controller;
+  ElementController & element_controller;
+  DigitController   & digit_controller;
+
+
+
+  explicit Menu(Curses & curses, ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
+  // explicit Menu( Curses & curses, MenuController & menu_controller_ )
     : curses( curses ),
-    menu_controller(menu_controller_)
-
+    list_controller(list_controller_),
+    element_controller( element_controller_),
+    digit_controller( digit_controller_)
   {
     printf("Menu controller constructor() %p\n", this );
 
-    // want a list of strings
-    // we don't have a container for these yet...
-    char *keys[]      = { "whoot", "bar", "foo" }  ;
-    double values[]   = { 123, 456, 789  }  ;
-
-    // set callback
-    // menu_controller.list_controller.set_callback( trampoline, this);
   }
 
 /*

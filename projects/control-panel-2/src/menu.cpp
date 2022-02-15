@@ -528,7 +528,7 @@ void Menu::draw1( Curses & curses )
   {
     to(curses, 0, 6 + i);
 
-    if( i == menu_controller.list_controller.idx ) {
+    if( i == list_controller.idx ) {
       // printf("setting effect \n"); 
       // effect(curses, 0x11);        // invert
       effect(curses, 0x01);        // invert
@@ -536,7 +536,7 @@ void Menu::draw1( Curses & curses )
       effect(curses, 0x00);        // normal
     }
   
-    text(curses, menu_controller.list_controller.keys[ i  ] );  
+    text(curses, list_controller.keys[ i  ] );  
   }
 
 
@@ -546,7 +546,7 @@ void Menu::draw1( Curses & curses )
   {
 
     char buf[100];
-    format_float(buf, 100, 6, menu_controller.list_controller.values[ i ] );
+    format_float(buf, 100, 6, list_controller.values[ i ] );
 
     to(curses, 10, 6 + i);
 
@@ -555,9 +555,9 @@ void Menu::draw1( Curses & curses )
 
     // OK. issue is that we are not clearing the screen I think.
 
-    if( i == menu_controller.list_controller.idx ) {
+    if( i == list_controller.idx ) {
 
-      if(menu_controller.list_controller.focus) {  
+      if(list_controller.focus) {  
         effect(curses, 0x01);        // invert
         text(curses,  buf);
       } else {
@@ -570,7 +570,7 @@ void Menu::draw1( Curses & curses )
         size_t dot_x = dot_position( buf );
 
         // to(curses, 0 + dot_x - this->idx, 4);
-        to(curses, 10  + dot_x - menu_controller.digit_controller.idx, 6 + i );
+        to(curses, 10  + dot_x - digit_controller.idx, 6 + i );
 
         // effect( curses, 0x01 ); // invert.... this just sets the mode.
         effect( curses, 0x11 ); 
@@ -631,7 +631,7 @@ void Menu::draw()
   draw1(  curses ) ;
 
   // menu_controller.list_controller. draw( curses );
-  menu_controller.digit_controller.draw(  curses  );
+  digit_controller.draw(  curses  );
 
 
   int blink = (system_millis / 500) % 2;
