@@ -286,7 +286,7 @@ typedef struct app_t
   app_t( Curses & curses, MenuController & menu_controller, Menu & menu)
      :  curses( curses),
       menu_controller ( menu_controller),   // not sure if need this
-      menu( menu ) 
+      menu( menu )
   { }
 
 
@@ -329,7 +329,7 @@ static void update_console_cmd(app_t *app)
     assert(ch >= 0);
 
     if(ch != '\r' && cStringCount(&app->command) < cStringReserve(&app->command) ) {
-      // normal character      
+      // normal character
       cStringPush(&app->command, ch);
       // echo to output. required for minicom.
       putchar( ch);
@@ -345,14 +345,14 @@ static void update_console_cmd(app_t *app)
 
       if(strncmp(cmd , "test", 4) == 0) {
 
-        unsigned x0 = 0; 
-        unsigned x1 = 0; 
+        unsigned x0 = 0;
+        unsigned x1 = 0;
         unsigned n = sscanf(cmd + 4,  "%u%u", &x0, &x1);
-        if(n == 1) { 
+        if(n == 1) {
           printf("got test %u\n", x0);
           app->program = x0;
           app->program_arg = 0;
-        }  else if (n == 2) { 
+        }  else if (n == 2) {
           printf("got test %u %u\n", x0, x1);
           app->program = x0;
           app->program_arg = x1;
@@ -460,14 +460,14 @@ static void loop(app_t *app)
 
 
 
-    app->menu.draw(); 
+    app->menu.draw();
 
 #if 0
   // memory issues somewhere
     switch(app->program)
     {
 
-      case 2: agg_test2(); break;   
+      case 2: agg_test2(); break;
       case 3: agg_test3(); break;
       case 4: agg_test4(); break;   // ok
 
@@ -480,7 +480,7 @@ static void loop(app_t *app)
       // todo get working.
       // case 10: draw_test1(app->curses );
 
-      // default: 
+      // default:
       //  printf("unrecognized test\n");
     }
 #endif
@@ -547,36 +547,33 @@ int main(int arg0)
 
   int32_t    element_idx = 0; // first digit, need negative to support after float
 
-
-  // 
-
-  // double value = 123.456;
-  // double value_begin = 0;
-
   ElementController  element_controller(element_idx);
 
-  DigitController digit_controller(element_idx /* , value */  /* , value_begin */);
+  DigitController digit_controller(element_idx );
 
-  // rather than using events. could inject digit_controller into list_controller
-  // to allow it to set the current editable value. 
-
-
-
-  char *keys[]     = { "whoot", "apple", "blue" } ; 
-  double values[]  = { 14.12, 256, 399.123 } ; 
+  char *keys[]     = { "whoot", "apple", "blue" } ;
+  double values[]  = { 14.12, 256, 399.123 } ;
 
   ListController  list_controller( digit_controller, keys, values, 3);
 
   // menucontroller is the controller controller
   MenuController  menu_controller(  list_controller, element_controller, digit_controller);
 
-  Menu menu( curses, list_controller, element_controller, digit_controller );       // MenuView 
+  Menu menu( curses, list_controller, element_controller, digit_controller );       // MenuView
 
 
   app_t app( curses, menu_controller, menu ) ; // not sure that app needs curses.
 
+  /*
+    OK. the ordering here is a mess.
 
+    - constructors - cannot printf because the console/uart system is not initialized.
+    - but the console needs to be initialized
+
+  */
   //////////////////////
+
+
 
 
   /*
@@ -643,6 +640,11 @@ int main(int arg0)
 
   ///////
   // uart/console
+  // should be done in the constructor...
+
+  // Might be better to initialize console_in and console out here.
+  // and leave on stack.
+
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
   cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
 
@@ -660,10 +662,10 @@ int main(int arg0)
 
   usart_printf("\n--------\n");
   usart_printf("addr main() %p\n", main );
- 
+
 
   printf("main() arg0 %u \n", ((unsigned )(void *) &arg0 )  - 0x20000000  );
-  
+
   // command buffer
   cStringInit(&app.command, buf_command, buf_command + sizeof( buf_command));
   assert(cStringReserve(&app.command) == sizeof( buf_command));
