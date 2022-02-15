@@ -85,6 +85,10 @@ struct Curses
 
   uint8_t  color_pair_idx[ MCursesXCELLS ];
 
+
+  // IMPORTANT - blinking at different speeds is easy
+  // just add an uint_16 array for.    eg. (ms % 500 == 0) or (ms %200 == 0) 
+
   // effect. effects
   // invert fg/bg == 0x01   blink == 0x10
   uint16_t effect[ MCursesXCELLS ];
