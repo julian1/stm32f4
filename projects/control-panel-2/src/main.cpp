@@ -285,14 +285,16 @@ typedef struct app_t
     CBuf & console_in,
     CBuf & console_out,
     CString  &  command,   
-    Curses & curses, MenuController & menu_controller, Menu & menu)
+    Curses & curses, MenuController & menu_controller, Menu & menu,
+    CBuf & ui_events_in
+    )
      :  
       console_in (console_in),
       console_out (console_out),
       command(command),
       curses( curses),
-      menu_controller ( menu_controller),   // not sure if need this
-      menu( menu )
+      menu_controller ( menu_controller), menu( menu ),
+      ui_events_in(ui_events_in)
   { 
 
   }
@@ -310,14 +312,13 @@ typedef struct app_t
   usbd_device *usbd_dev ;
 
 
-  // use to intermediate context.
-  CBuf ui_events_in; //
-
   ////////
 
   Curses        & curses;
   MenuController & menu_controller ;
   Menu            & menu;
+
+  CBuf          & ui_events_in;
 
 } app_t;
 
@@ -677,10 +678,23 @@ int main(int arg0)
   Menu menu( curses, list_controller, element_controller, digit_controller );       // MenuView
 
 
+
+  // c structure stuff
+  CBuf ui_events_in;
+
+  // ui events
+  cBufInit(&ui_events_in, buf_ui_events_in, sizeof(buf_ui_events_in));
+
+  ui_events_init( &ui_events_in);
+
+
+
   app_t app( console_in, 
             console_out, 
             command,
-            curses, menu_controller, menu ) ; // not sure that app needs curses.
+            curses, menu_controller, menu,
+            ui_events_in 
+            ) ; // not sure that app needs curses.
 
   /*
     OK. the ordering here is a mess.
@@ -693,12 +707,6 @@ int main(int arg0)
 
   // TODO THIS IS horrible...
   // should be passed by reference or done in the const0
-
-  // ui events
-  cBufInit(&app.ui_events_in, buf_ui_events_in, sizeof(buf_ui_events_in));
-
-
-  ui_events_init( &app.ui_events_in);
 
 
 
