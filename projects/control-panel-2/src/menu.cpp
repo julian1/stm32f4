@@ -562,9 +562,9 @@ void Menu::draw1( Curses & curses )
       if(list_controller.focus) {  
         effect(curses, 0x01);        // invert
         text(curses,  buf);
-      } else {
+      } else  {
 
-        // one of the other controllers is active
+        // draw the text as normal
         effect(curses, 0x00);        // normal
         text(curses,  buf);
 
@@ -574,11 +574,21 @@ void Menu::draw1( Curses & curses )
         // to(curses, 0 + dot_x - this->idx, 4);
         to(curses, 10  + dot_x - digit_controller.idx, 6 + i );
 
-        // effect( curses, 0x01 ); // invert.... this just sets the mode.
-        effect( curses, 0x11 ); 
-        // set the effect at current position
+        // issue is that the 
+        
+        if( element_controller.focus)
+          effect( curses, 0x11 );   // invert and blink
+        else if (digit_controller.focus )
+          effect( curses, 0x01 );   // invert
+        else assert( 0 );
+
+        // apply effect at current position
         ch_effect( curses);
-       
+
+      }  {
+
+
+  
       }
 
     } else {
@@ -586,14 +596,6 @@ void Menu::draw1( Curses & curses )
       text(curses,  buf);
     }
 
-    // ok. this is where we need to try to set the effect on the characters.
-    // we have the buffer so it should be ok.    
-
-    // the drawing the text. and drawing the effect have to be done kind of separately.
-
-
-
-    //printf("val is %d %s\n", strlen(buf), buf );
   
   }
 
@@ -619,16 +621,6 @@ void Menu::draw()
   // ok, this works. so maybe there is memory corruption somewhere.
 
   ////////////////////////////////////
-
-  // draw_test4( curses );
-  // code should not be here...
-
-  // OK. we could pass the position down to the digit controller to do the draw?
-  // but that couples things...
-
-  // poor coupling but good enough for now.
-
-
 
   draw1(  curses ) ;
 
