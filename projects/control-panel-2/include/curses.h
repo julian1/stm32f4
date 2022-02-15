@@ -87,7 +87,8 @@ struct Curses
 
 
   // IMPORTANT - blinking at different speeds is easy
-  // just add an uint_16 array for.    eg. (ms % 500 == 0) or (ms %200 == 0) 
+  // just add an uint_16 array for.    eg. (ms / 500 %2 == 0) or (ms %200 == 0) 
+  // eg. pass systemmillis instead of bool.
 
   // effect. effects
   // invert fg/bg == 0x01   blink == 0x10
