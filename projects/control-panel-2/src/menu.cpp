@@ -107,7 +107,20 @@ void ListController::finish_edit(int32_t rotary)
 void ListController::rotary_change(int32_t rotary)
 {
 
+  // bounds
   int32_t idx = (rotary - this->rotary_begin);
+
+
+  usart_printf("list controller rotary_change()  idx = %d\n", idx    );
+
+  if(idx < 0 )  {
+    rotary_begin = rotary;
+    return;
+  } else if( idx >= 3) {
+    
+    rotary_begin = rotary - 3 + 1;
+    return;
+  }
 
   /* 
     rather than a callback here. this could insert the relevant value into the digit controller. 
