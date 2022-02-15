@@ -75,8 +75,7 @@ struct ElementController
 
   // we can pass the curses... no need to include here.
   int32_t rotary_begin;
-  bool focus;
-
+  bool    focus;
   int32_t & idx;
 
   /*
@@ -106,10 +105,10 @@ struct DigitController
 
   // we can pass the curses... no need to include here.
   int32_t rotary_begin;
+  bool focus;
 
   double value_begin;
 
-  bool focus;
 
   // idx is shared state with element controller.
   // could alternatively - use set_pos(), but it works well enoughvalue

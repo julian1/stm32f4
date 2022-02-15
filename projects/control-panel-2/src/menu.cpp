@@ -269,6 +269,7 @@ void DigitController::begin_edit(int32_t rotary)
 {
   usart_printf("digit controller begin_edit()\n");
   rotary_begin = rotary;
+  focus = true;
 
   assert(this->value );
 
@@ -281,6 +282,7 @@ void DigitController::finish_edit(int32_t rotary)
 {
   usart_printf("digit controller finish_edit()\n");
 
+  focus = false;
 }
 
 
