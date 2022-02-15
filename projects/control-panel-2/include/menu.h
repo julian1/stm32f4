@@ -114,9 +114,11 @@ struct DigitController
 
   bool focus;
 
+  // idx is shared state with element controller. 
   int32_t & idx;
 
-  // TODO injected at the momment. need add()/remove() as well as unit and sign editing.
+  // value does not need to be shared. but does need to be set 
+  // but the list controller needs to be able to change the element  
   double  & value;
 
   explicit DigitController(int32_t & idx_, double  & value_)
