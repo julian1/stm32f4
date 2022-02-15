@@ -186,6 +186,10 @@ struct MenuController
 
         // seems to lock/up. value not initialized yet.
         // list_controller.begin_edit( 0 );
+
+  
+        // set active element
+        list_controller.begin_edit( 0 );  
     }
 
 

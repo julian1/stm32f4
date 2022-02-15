@@ -116,6 +116,8 @@ void ListController::begin_edit(int32_t rotary)
   usart_printf("list controller begin_edit()\n");
   rotary_begin = rotary;
 
+  focus = true;
+
   /*
       this is where we want to shove the item intto the element controller.
       either in this function or in a callback..
@@ -127,6 +129,7 @@ void ListController::finish_edit(int32_t rotary)
 {
   usart_printf("list controller finish_edit()\n");
 
+  focus = false;
 }
 
 
@@ -169,13 +172,7 @@ void ListController::rotary_change(int32_t rotary)
   // TODO Should be setting - on initialization/ construction.
   digit_controller.set_value ( & values[ idx ] );
 
-/*
-  usart_printf("list controller rotary_change()  %d\n", idx    );
-  if( callback ) {
-    assert(callback_ctx); 
-    callback(callback_ctx, rotary - rotary_begin); 
-  }
-*/
+
 }
 
 
@@ -203,6 +200,8 @@ void ListController::draw(Curses &curses)
   // printf("draw idx== %d\n", this->idx );
 
 
+  clear( curses ); // eg. remove text. from last draw 
+
   font(curses, &arial_span_18 ); // font
   color_pair_idx(curses, 0); // blue/white
 
@@ -227,20 +226,37 @@ void ListController::draw(Curses &curses)
   /// draw values.
   for(unsigned i = 0; i < 3; ++i)
   {
-    to(curses, 10, 6 + i);
-
-    if( i == this->idx ) {
-      effect(curses, 0x01);        // invert
-    } else {
-      effect(curses, 0x00);        // normal
-    }
-
-    // do we 
 
     char buf[100];
     format_float(buf, 100, 6, values[ i ] );
+
+    to(curses, 10, 6 + i);
+
+    // we have the active item. eg. selected.
+    // and also wehter this controller has focus.
+
+    // OK. issue is that we are not clearing the screen I think.
+
+    if( i == this->idx ) {
+
+      if(focus) {  
+        effect(curses, 0x01);        // invert
+        text(curses,  buf);
+      }
+
+    } else {
+      effect(curses, 0x00);        // normal
+      text(curses,  buf);
+    }
+
+    // ok. this is where we need to try to set the effect on the characters.
+    // we have the buffer so it should be ok.    
+
+    // the drawing the text. and drawing the effect have to be done kind of separately.
+
+
+
     //printf("val is %d %s\n", strlen(buf), buf );
-    text(curses,  buf);
   
   }
 
