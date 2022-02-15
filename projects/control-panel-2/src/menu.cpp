@@ -215,82 +215,6 @@ void ListController::draw(Curses &curses)
   // printf("draw idx== %d\n", this->idx );
 
 
-  clear( curses ); // eg. remove text. from last draw 
-
-  font(curses, &arial_span_18 ); // font
-  color_pair_idx(curses, 0); // blue/white
-
-  /// draw keys.
-  for(unsigned i = 0; i < 3; ++i)
-  {
-    to(curses, 0, 6 + i);
-
-    if( i == this->idx ) {
-      // printf("setting effect \n"); 
-      // effect(curses, 0x11);        // invert
-      effect(curses, 0x01);        // invert
-    } else {
-      effect(curses, 0x00);        // normal
-    }
-  
-    text(curses, keys[ i  ] );  
-  }
-
-
-
-  /// draw values.
-  for(unsigned i = 0; i < 3; ++i)
-  {
-
-    char buf[100];
-    format_float(buf, 100, 6, values[ i ] );
-
-    to(curses, 10, 6 + i);
-
-    // we have the active item. eg. selected.
-    // and also wehter this controller has focus.
-
-    // OK. issue is that we are not clearing the screen I think.
-
-    if( i == this->idx ) {
-
-      if(focus) {  
-        effect(curses, 0x01);        // invert
-        text(curses,  buf);
-      } else {
-
-        // one of the other controllers is active
-        effect(curses, 0x00);        // normal
-        text(curses,  buf);
-
-
-        size_t dot_x = dot_position( buf );
-
-        // to(curses, 0 + dot_x - this->idx, 4);
-        to(curses, 10  + dot_x - digit_controller.idx, 6 + i );
-
-        // effect( curses, 0x01 ); // invert.... this just sets the mode.
-        effect( curses, 0x11 ); 
-        // set the effect at current position
-        ch_effect( curses);
-       
-      }
-
-    } else {
-      effect(curses, 0x00);        // normal
-      text(curses,  buf);
-    }
-
-    // ok. this is where we need to try to set the effect on the characters.
-    // we have the buffer so it should be ok.    
-
-    // the drawing the text. and drawing the effect have to be done kind of separately.
-
-
-
-    //printf("val is %d %s\n", strlen(buf), buf );
-  
-  }
 
 
 
@@ -608,7 +532,90 @@ void MenuController::event(int event_)
 
 
 
+void Menu::draw1( Curses & curses ) 
+{
 
+  clear( curses ); // eg. remove text. from last draw 
+
+  font(curses, &arial_span_18 ); // font
+  color_pair_idx(curses, 0); // blue/white
+
+
+
+
+  /// draw keys.
+  for(unsigned i = 0; i < 3; ++i)
+  {
+    to(curses, 0, 6 + i);
+
+    if( i == menu_controller.list_controller.idx ) {
+      // printf("setting effect \n"); 
+      // effect(curses, 0x11);        // invert
+      effect(curses, 0x01);        // invert
+    } else {
+      effect(curses, 0x00);        // normal
+    }
+  
+    text(curses, menu_controller.list_controller.keys[ i  ] );  
+  }
+
+
+
+  /// draw values.
+  for(unsigned i = 0; i < 3; ++i)
+  {
+
+    char buf[100];
+    format_float(buf, 100, 6, menu_controller.list_controller.values[ i ] );
+
+    to(curses, 10, 6 + i);
+
+    // we have the active item. eg. selected.
+    // and also wehter this controller has focus.
+
+    // OK. issue is that we are not clearing the screen I think.
+
+    if( i == menu_controller.list_controller.idx ) {
+
+      if(menu_controller.list_controller.focus) {  
+        effect(curses, 0x01);        // invert
+        text(curses,  buf);
+      } else {
+
+        // one of the other controllers is active
+        effect(curses, 0x00);        // normal
+        text(curses,  buf);
+
+
+        size_t dot_x = dot_position( buf );
+
+        // to(curses, 0 + dot_x - this->idx, 4);
+        to(curses, 10  + dot_x - menu_controller.digit_controller.idx, 6 + i );
+
+        // effect( curses, 0x01 ); // invert.... this just sets the mode.
+        effect( curses, 0x11 ); 
+        // set the effect at current position
+        ch_effect( curses);
+       
+      }
+
+    } else {
+      effect(curses, 0x00);        // normal
+      text(curses,  buf);
+    }
+
+    // ok. this is where we need to try to set the effect on the characters.
+    // we have the buffer so it should be ok.    
+
+    // the drawing the text. and drawing the effect have to be done kind of separately.
+
+
+
+    //printf("val is %d %s\n", strlen(buf), buf );
+  
+  }
+
+}
 
 
 
@@ -638,6 +645,10 @@ void Menu::draw()
   // but that couples things...
 
   // poor coupling but good enough for now.
+
+
+
+  draw1(  curses ) ;
 
   menu_controller.list_controller. draw( curses );
   menu_controller.digit_controller.draw(  curses  );

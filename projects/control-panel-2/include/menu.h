@@ -247,6 +247,7 @@ struct Menu
 */
 
   void draw ();
+  void draw1 ( Curses & );
 
 
 };
