@@ -119,6 +119,9 @@ struct DigitController
 
   // value does not need to be shared. but does need to be set 
   // but the list controller needs to be able to change the element  
+  // can just call set_value( double );
+  // EXTR. digit_controller could be injected into the list controller. - hmmmm....
+  // to set the actual value.
   double  & value;
 
   explicit DigitController(int32_t & idx_, double  & value_)

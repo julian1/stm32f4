@@ -549,13 +549,15 @@ int main(int arg0)
 
 
   // 
-  ListController  list_controller;
 
   double value = 123.456;
   // double value_begin = 0;
 
   ElementController  element_controller(element_idx);
   DigitController digit_controller(element_idx, value /* , value_begin */);
+
+
+  ListController  list_controller;
 
   MenuController  menu_controller( curses, list_controller, element_controller, digit_controller);
 
