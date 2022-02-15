@@ -57,6 +57,9 @@ struct ListController
   // set the number of items. and set the callback function.
   void set_callback( void (*)(void *, unsigned ), void *);
 
+
+  void draw(Curses &curses);
+
 };
 
 

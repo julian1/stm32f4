@@ -108,7 +108,7 @@ void ListController::rotary_change(int32_t rotary)
 {
 
   // bounds
-  int32_t idx = (rotary - this->rotary_begin);
+  this->idx = (rotary - this->rotary_begin);
 
 
   usart_printf("list controller rotary_change()  idx = %d\n", idx    );
@@ -131,19 +131,55 @@ void ListController::rotary_change(int32_t rotary)
   // set the active value
   digit_controller.set_value (   values[ idx ] );
 
+/*
   usart_printf("list controller rotary_change()  %d\n", idx    );
   if( callback ) {
     assert(callback_ctx); 
     callback(callback_ctx, rotary - rotary_begin); 
   }
+*/
+}
+
+
+void ListController::draw(Curses &curses)
+{
+  // probably better not to couple the drawing. with the controller.
+  // but ok. for now.
+  // Actually don't think we have enough information anyway.
+  // about the active item...
+
+  printf("draw idx== %u\n", this->idx );
+
+
+  font(curses, &arial_span_18 ); // font
+  color_pair_idx(curses, 0); // blue/white
+
+
+  for(unsigned i = 0; i < 3; ++i)
+  {
+
+    to(curses, 0, 6 + i);
+
+    if( i == this->idx ) {
+
+      printf("setting effect \n"); 
+      effect(curses, 0x11);        // invert
+    } else {
+      effect(curses, 0x00);        // normal
+    }
+  
+    text(curses, keys[ i  ] );  
+
+  }
+
 }
 
 
 
+
 //////////////////
 //////////////////
 
-// why do we need value begin?
 
 void ElementController::begin_edit(int32_t rotary)
 {
@@ -499,6 +535,9 @@ void Menu::draw()
   // OK. we could pass the position down to the digit controller to do the draw?
   // but that couples things...
 
+  // poor coupling but good enough for now.
+
+  menu_controller.list_controller. draw( curses );
   menu_controller.digit_controller.draw(  curses  );
 
 
