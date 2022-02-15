@@ -126,6 +126,7 @@ void ListController::begin_edit(int32_t rotary)
 void ListController::finish_edit(int32_t rotary)
 {
   usart_printf("list controller finish_edit()\n");
+
 }
 
 
@@ -163,9 +164,10 @@ void ListController::rotary_change(int32_t rotary)
     which means this would need to have the list.
 
   */
-
   // set the active value
-  digit_controller.set_value (   values[ idx ] );
+
+  // TODO Should be setting - on initialization/ construction.
+  digit_controller.set_value ( & values[ idx ] );
 
 /*
   usart_printf("list controller rotary_change()  %d\n", idx    );
@@ -182,6 +184,7 @@ void ListController::rotary_change(int32_t rotary)
     than copying.
 
     - it will have additional properties. like number of digits. smallest unit etc.
+    - whether to commit a value.  can be done separately, as a separate concern.
 
 */
 
@@ -315,7 +318,9 @@ void DigitController::begin_edit(int32_t rotary)
   usart_printf("digit controller begin_edit()\n");
   rotary_begin = rotary;
 
-  this->value_begin = this->value ;
+  assert(this->value );
+
+  this->value_begin = * this->value ;
 
 }
 
@@ -328,7 +333,7 @@ void DigitController::finish_edit(int32_t rotary)
 
 
 
-void DigitController::set_value( double value_ )
+void DigitController::set_value( double * value_ )
 {
   value = value_;
 }
@@ -377,7 +382,8 @@ void DigitController::rotary_change(int32_t rotary)
 
   usart_printf("digit controller rotary_change()  idx=%d delta=%d  value=%f\n", this->idx, delta, this->value );
 
-  this->value = edit_float_value(this->value_begin, this->idx, delta );
+  assert( this->value  );
+  * this->value = edit_float_value(this->value_begin, this->idx, delta );
 
 
 
@@ -416,7 +422,10 @@ void DigitController::draw(Curses &curses)
   to(curses, 0, 4);
   // snprintf(buf, 100, "%f ", this->value);  // our edited value... NOTE. needs extra of active digit etc..
 
-  format_float(buf, 100, 6, this->value);
+
+  assert( this->value  );
+
+  format_float(buf, 100, 6, * this->value);
   text(curses,  buf);
 
   // now we want to place an effect on the active digit.

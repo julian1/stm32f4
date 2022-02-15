@@ -112,20 +112,17 @@ struct DigitController
   bool focus;
 
   // idx is shared state with element controller. 
+  // could alternatively - use set_pos(), but it works well enoughvalue
   int32_t & idx;
 
-  // value does not need to be shared. but does need to be set 
-  // but the list controller needs to be able to change the element  
-  // can just call set_value( double );
-  // EXTR. digit_controller could be injected into the list controller. - hmmmm....
-  // to set the actual value.
-  double  value;
+  // which value is being edited to be updated.
+  double  *value;
 
-  explicit DigitController(int32_t & idx_/*, double  & value_ */)
+  explicit DigitController(int32_t & idx_)
     : rotary_begin(0),
     focus(false),
     idx(idx_),
-    value( 0 ),
+    value( NULL ),
     value_begin( 0 )
   { }
 
@@ -136,7 +133,7 @@ struct DigitController
 
   // should the value be a pointer ???? 
   // so that it manipulates the real value.
-  void set_value( double value ); 
+  void set_value( double * value ); 
 
   void begin_edit(int32_t rotary);
   void finish_edit(int32_t rotary);
