@@ -58,7 +58,7 @@ struct ListController
   // void set_callback( void (*)(void *, unsigned ), void *);
 
 
-  void draw(Curses &curses);
+  // void draw(Curses &curses);
 
 };
 

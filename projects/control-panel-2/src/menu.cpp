@@ -201,26 +201,6 @@ void ListController::rotary_change(int32_t rotary)
 */
 
 
-void ListController::draw(Curses &curses)
-{
-  /*
-    we can either delegate the drawing. of elements.
-  */
-
-  // probably better not to couple the drawing. with the controller.
-  // but ok. for now.
-  // Actually don't think we have enough information anyway.
-  // about the active item...
-
-  // printf("draw idx== %d\n", this->idx );
-
-
-
-
-
-}
-
-
 
 
 //////////////////
@@ -526,10 +506,10 @@ void MenuController::event(int event_)
 
 
 
+/*
 
 
-
-
+*/
 
 
 void Menu::draw1( Curses & curses ) 
@@ -650,7 +630,7 @@ void Menu::draw()
 
   draw1(  curses ) ;
 
-  menu_controller.list_controller. draw( curses );
+  // menu_controller.list_controller. draw( curses );
   menu_controller.digit_controller.draw(  curses  );
 
 
