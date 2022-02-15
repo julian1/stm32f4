@@ -31,8 +31,8 @@ struct ListController
 
 
 
-  void (*callback)(void *, unsigned );
-  void *callback_ctx;
+  // void (*callback)(void *, unsigned );
+  // void *callback_ctx;
 
   char **keys; 
   double *values;
@@ -43,8 +43,8 @@ struct ListController
     rotary_begin(0),
     focus(false),
     idx( 0),
-    callback( NULL),
-    callback_ctx( NULL),
+    // callback( NULL),
+    // callback_ctx( NULL),
 
     keys( keys ),
     values( values)
@@ -55,7 +55,7 @@ struct ListController
   void rotary_change(int32_t rotary);
 
   // set the number of items. and set the callback function.
-  void set_callback( void (*)(void *, unsigned ), void *);
+  // void set_callback( void (*)(void *, unsigned ), void *);
 
 
   void draw(Curses &curses);
@@ -225,9 +225,10 @@ struct Menu
     double values[]   = { 123, 456, 789  }  ;
 
     // set callback
-    menu_controller.list_controller.set_callback( trampoline, this);
+    // menu_controller.list_controller.set_callback( trampoline, this);
   }
 
+/*
   static void trampoline( void *object, unsigned idx)
   {
     // static trampoline function. simpler than using boost::function
@@ -237,12 +238,12 @@ struct Menu
     ((Menu *)object)-> focus_changed(idx);
   }
 
+
   void focus_changed( unsigned idx)
   {
     printf("Menu controller focus_changed() %p\n", this );
-
-
   }
+*/
 
   void draw ();
 

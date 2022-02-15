@@ -67,6 +67,7 @@
   
 */
 
+#if 0
 void ListController::set_callback( void (*pf)(void *, unsigned ), void *ctx)
 {
   /* 
@@ -82,7 +83,7 @@ void ListController::set_callback( void (*pf)(void *, unsigned ), void *ctx)
   callback = pf;
   callback_ctx = ctx;
 }
-
+#endif
 
 
 void ListController::begin_edit(int32_t rotary)
