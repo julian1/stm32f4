@@ -141,17 +141,12 @@ struct DigitController
 
 
 
-// we need an enum for which controller is active...
-
-
-/*
-*/
 
 struct MenuController
 {
   /*
-    just takes events - and delegates and uses other controllers
-    no responsibility for drawing
+    - just takes events - and delegates and uses other controllers
+    - no responsibility for drawing or anything else
 
   */
 
@@ -169,13 +164,7 @@ struct MenuController
 
     active_controller(0)
     {
-      /*
-        problem ... all this constructor stuff is happening before the usart is up and running.
-
-      */
-
-//        usart_flush();
- //       printf("*********\n");
+        // usart data structures are up now
         // set active element
         list_controller.begin_edit( 0 );
     }
@@ -185,15 +174,10 @@ struct MenuController
 };
 
 
-/*
-    OK. rather than using a callback.   we could inject the idx to use at construction time???
-
-  It is dying on initialization.
-*/
 
 struct Menu
 {
-  /* 
+  /*
     responsible for drawing. so needs other controllers. to know which is active etc.
     should potentiallly rename to menu view:w.
 

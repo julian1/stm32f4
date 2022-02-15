@@ -9,81 +9,12 @@
 
 
 /*
-  OK. 
-    - would be good to be able to flick between modes - with centre button press.
-    - we need to cycle the menu list.
-        which means we need a menu line.
-    - need a set_item (  ) for the list elements controller.  how should this work.
-    - set_item ( doubleDigit  ) ; 
-    - do we pre-wrap every item?
- 
-    -------- 
-    - try to keep it composible.
-    - need drawing to be separated out.
-    -----------------
 
-    OK. it needs to be an interface to just the item....
-    -------
-    needs to be communication for drawing. if item is actively focused.
-    eg. we will 
-    addItem(  Interface (  )   ) 
-    ----------------------
-
-    add item.
-
-    But then  
-      - i think we are going to need a change event. if a list item gets focus.
-      - then on the actie/ event  - we can inject item into the element and digit controller.
-             
-    eg. on construct. 
-      populate the list controller
-    
+    - use centre button to drill in. and other button to drill out. 
+    - controller exposes idx and focus as external vars. to suggest the active items.    
 
 */
 
-
-/*
-  having idx. and focus. 
-
-  and then just querying these as variables - should be enough for drawing.
-
-  and don't require events.
-
-  perhaps should be functions. 
-
-  eg.  list_idx. 
-        element_idx.
-        digit_idx.
-  -----------
-
-  No. it's not enough.
-
-  remember - we need to shove the active list element into the item and digit controller.
-
-  actually should be done with the begin_edit()). 
-  -----------
-
-  can inject the idx. or just read it.
-  
-*/
-
-#if 0
-void ListController::set_callback( void (*pf)(void *, unsigned ), void *ctx)
-{
-  /* 
-    do we want/need a callback telling us active/focus item.. or else just inject an index?
-
-  */
-
-  usart_printf("********\n");
-  usart_printf("list controller set_callback()\n");
-
-  // IMPORTANT. instead of a callback - we could just inject the index...
-  // albeit we still want to set the size.
-  callback = pf;
-  callback_ctx = ctx;
-}
-#endif
 
 
 
@@ -122,8 +53,16 @@ static size_t dot_position( char *s )
 
 
 
+//////////////////////////////
 
+/* 
+  list controller 
+    - only really needs to keep track of the size/number of elements in the model. to iterate them
+    - but also needs to push the active item into the element controller.
+        but does *not* need to know about the keys. 
 
+    - thing to edit. is going to be complicated. eg. bounds. and display resolution.
+*/
 
 
 void ListController::begin_edit(int32_t rotary)
@@ -136,11 +75,6 @@ void ListController::begin_edit(int32_t rotary)
   usart_printf("rotary_begin set to %d\n", rotary_begin);
 
   focus = true;
-
-  /*
-      this is where we want to shove the item intto the element controller.
-      either in this function or in a callback..
-  */
 }
 
 
@@ -157,25 +91,21 @@ void ListController::rotary_change(int32_t rotary)
 {
 
   // bounds
-  this->idx = (rotary - this->rotary_begin);
+  this->idx = rotary - this->rotary_begin;
 
 
-
+  // bounds
   if(idx < 0 )  {
     rotary_begin = rotary;
     // recalculate
-    this->idx = (rotary - this->rotary_begin);
+    this->idx = rotary - this->rotary_begin;
     assert( this->idx == 0);
-
     return;
-  } else if( idx >= 3) {
-    
+  } 
+  else if( idx >= 3) {
     rotary_begin = rotary -  ( 3 - 1 );
     this->idx = (rotary - this->rotary_begin);
-
-    usart_printf("bounds idx = %d\n", idx    );
     assert( this->idx == 2);
-
     return;
   }
   
@@ -201,6 +131,7 @@ void ListController::rotary_change(int32_t rotary)
 
     - it will have additional properties. like number of digits. smallest unit etc.
     - whether to commit a value.  can be done separately, as a separate concern.
+  --------------------
 
 */
 
@@ -239,22 +170,12 @@ void ElementController::finish_edit(int32_t rotary)
 
 void ElementController::rotary_change(int32_t rotary)
 {
-  // actually. don't think we require any change
-  // delta is the value
-  // We may want to inject this idx in. so it can be shared with the digit controller.
-
-  // OK. we need to sign extend
-
-  /*
-    this isn't working with a negative
-  */
   usart_printf("element controller rotary_change() rotary %d\n", rotary );
 
-  this->idx = this->rotary_begin - rotary ;
+  this->idx = this->rotary_begin - rotary ;   // negative, because dot position is negative
 
   usart_printf("idx  %d\n", this->idx );
 
-  // EXTR. I think we might pass the digit as digit index
 }
 
 
