@@ -276,26 +276,33 @@ extern int agg_test8(  Curses &a );
 typedef struct app_t
 {
 
+  /*
+    OK. we want to initialize the console buffers and uart before here
+  */
 
 
-
-
-
-
-
-  app_t( Curses & curses, MenuController & menu_controller, Menu & menu)
-     :  curses( curses),
+  app_t( 
+    CBuf & console_in,
+    CBuf & console_out,
+    CString  &  command,   
+    Curses & curses, MenuController & menu_controller, Menu & menu)
+     :  
+      console_in (console_in),
+      console_out (console_out),
+      command(command),
+      curses( curses),
       menu_controller ( menu_controller),   // not sure if need this
       menu( menu )
-  { }
+  { 
+
+  }
 
 
   // change name CBuf to CircBuf ... it's more meaningful. C implies class
   // No. c is for character.
-  CBuf console_in;
-  CBuf console_out;
-
-  CString    command;
+  CBuf        & console_in;
+  CBuf        & console_out;
+  CString     & command;   // initialization?
 
   unsigned  program;  // test program to run
   unsigned  program_arg;      // argument to programrun
@@ -542,39 +549,6 @@ int main(int arg0)
   //////////////////////
 
 
-  Curses curses( 33, 17, 14, 16 );
-  // Curses curses;
-
-  int32_t    element_idx = 0; // first digit, need negative to support after float
-
-  ElementController  element_controller(element_idx);
-
-  DigitController digit_controller(element_idx );
-
-  char *keys[]     = { "whoot", "apple", "blue" } ;
-  double values[]  = { 14.12, 256, 399.123 } ;
-
-  ListController  list_controller( digit_controller, keys, values, 3);
-
-  // menucontroller is the controller controller
-  MenuController  menu_controller(  list_controller, element_controller, digit_controller);
-
-  Menu menu( curses, list_controller, element_controller, digit_controller );       // MenuView
-
-
-  app_t app( curses, menu_controller, menu ) ; // not sure that app needs curses.
-
-  /*
-    OK. the ordering here is a mess.
-
-    - constructors - cannot printf because the console/uart system is not initialized.
-    - but the console needs to be initialized
-
-  */
-  //////////////////////
-
-
-
 
   /*
   // http://libopencm3.org/docs/latest/stm32f4/html/f4_2rcc_8h.html
@@ -645,19 +619,23 @@ int main(int arg0)
   // Might be better to initialize console_in and console out here.
   // and leave on stack.
 
-  cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
-  cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
+  CBuf console_in;
+  CBuf console_out;
+
+  cBufInit(&console_in,  buf_console_in, sizeof(buf_console_in));
+  cBufInit(&console_out, buf_console_out, sizeof(buf_console_out));
 
 
   //////////////
+  // initialize usart before start all the app constructors, so that can print.
   // uart
   // usart_setup_gpio_portA();
   usart_setup_gpio_portB();
 
-  usart_set_buffers(&app.console_in, &app.console_out);
+  usart_set_buffers(&console_in, &console_out);
 
   // standard streams for printf, fprintf, putc.
-  init_std_streams(  &app.console_out );
+  init_std_streams( &console_out );
 
 
   usart_printf("\n--------\n");
@@ -667,16 +645,57 @@ int main(int arg0)
   printf("main() arg0 %u \n", ((unsigned )(void *) &arg0 )  - 0x20000000  );
 
   // command buffer
-  cStringInit(&app.command, buf_command, buf_command + sizeof( buf_command));
-  assert(cStringReserve(&app.command) == sizeof( buf_command));
-  assert(cStringCount(&app.command) == 1); // null terminator
+
+  CString  command;
+
+  cStringInit(&command, buf_command, buf_command + sizeof( buf_command));
+  assert(cStringReserve(&command) == sizeof( buf_command));
+  assert(cStringCount(&command) == 1); // null terminator
 
 
+  /////////////////////////////////
 
+  // only build the app structure up 
+
+  Curses curses( 33, 17, 14, 16 );
+  // Curses curses;
+
+  int32_t    element_idx = 0; // first digit, need negative to support after float
+
+  ElementController  element_controller(element_idx);
+
+  DigitController digit_controller(element_idx );
+
+  char *keys[]     = { "whoot", "apple", "blue" } ;
+  double values[]  = { 14.12, 256, 399.123 } ;
+
+  ListController  list_controller( digit_controller, keys, values, 3);
+
+  // menucontroller is the controller controller
+  MenuController  menu_controller(  list_controller, element_controller, digit_controller);
+
+  Menu menu( curses, list_controller, element_controller, digit_controller );       // MenuView
+
+
+  app_t app( console_in, 
+            console_out, 
+            command,
+            curses, menu_controller, menu ) ; // not sure that app needs curses.
+
+  /*
+    OK. the ordering here is a mess.
+
+    - constructors - cannot printf because the console/uart system is not initialized.
+    - but the console needs to be initialized
+
+  */
+  //////////////////////
+
+  // TODO THIS IS horrible...
+  // should be passed by reference or done in the const0
 
   // ui events
   cBufInit(&app.ui_events_in, buf_ui_events_in, sizeof(buf_ui_events_in));
-
 
 
   ui_events_init( &app.ui_events_in);
