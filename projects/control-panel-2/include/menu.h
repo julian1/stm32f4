@@ -10,47 +10,44 @@
 #include "assert.h"
 #include "curses.h"
 
-
-// who owns the list...
-// what structure do we use for the list.   an array?
-
-/*
-    Do we need to have concept of active controller.
-
-    or only  draw if have element.
-*/
+struct DigitController;
 
 
 struct ListController
 {
+
+  DigitController & digit_controller;
+
   // eg.   apple in { bananas, apples, pears }
   // draw all elements in the list. (maybe except the active one).
   // we can pass the curses... no need to include here.
   int32_t rotary_begin;
 
   bool  focus;
-
-  /*
-    reading the index as a public variable ... versus injecting it.
-    think that just reading it should be sufficient.
-
-    likewise for focus
-  
-  */
-  // int32_t & idx_;
   int32_t idx;
+
+
+  // rather than use callback for events????
+
+
 
   void (*callback)(void *, unsigned );
   void *callback_ctx;
 
+  char **keys; 
+  double *values;
 
-
-  ListController (/*int32_t & idx_ */) :
+  ListController (  DigitController & digit_controller, char **keys, double *values, size_t n  ) 
+    :
+    digit_controller( digit_controller ),
     rotary_begin(0),
-    idx( 0),
     focus(false),
+    idx( 0),
     callback( NULL),
-    callback_ctx( NULL)
+    callback_ctx( NULL),
+
+    keys( keys ),
+    values( values)
   { }
 
   void begin_edit(int32_t rotary);
@@ -60,9 +57,6 @@ struct ListController
   // set the number of items. and set the callback function.
   void set_callback( void (*)(void *, unsigned ), void *);
 
-//   void commit_edit();
-//  void event( int );
-  //void draw( Curses &, bool active); // active indicates tells the controller  if it's active.  or just use begin_edit()?
 };
 
 
@@ -122,13 +116,13 @@ struct DigitController
   // can just call set_value( double );
   // EXTR. digit_controller could be injected into the list controller. - hmmmm....
   // to set the actual value.
-  double  & value;
+  double  value;
 
-  explicit DigitController(int32_t & idx_, double  & value_)
+  explicit DigitController(int32_t & idx_/*, double  & value_ */)
     : rotary_begin(0),
     focus(false),
     idx(idx_),
-    value(value_),
+    value( 0 ),
     value_begin( 0 )
   { }
 
@@ -136,6 +130,10 @@ struct DigitController
     rather than using aliases. instead just set_value( double value, etc).
 
   */
+
+  // should the value be a pointer ???? 
+  // so that it manipulates the real value.
+  void set_value( double value ); 
 
   void begin_edit(int32_t rotary);
   void finish_edit(int32_t rotary);

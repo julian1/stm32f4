@@ -550,15 +550,24 @@ int main(int arg0)
 
   // 
 
-  double value = 123.456;
+  // double value = 123.456;
   // double value_begin = 0;
 
   ElementController  element_controller(element_idx);
-  DigitController digit_controller(element_idx, value /* , value_begin */);
+
+  DigitController digit_controller(element_idx /* , value */  /* , value_begin */);
+
+  // rather than using events. could inject digit_controller into list_controller
+  // to allow it to set the current editable value. 
 
 
-  ListController  list_controller;
 
+  char *keys[]     = { "whoot", "apple", "blue" } ; 
+  double values[]  = { 33.12, 56, 99.123 } ; 
+
+  ListController  list_controller( digit_controller, keys, values, 3);
+
+  // menucontroller is the controller controller
   MenuController  menu_controller( curses, list_controller, element_controller, digit_controller);
 
   Menu menu( curses, menu_controller );       // not sure that menu needs menu_controller.

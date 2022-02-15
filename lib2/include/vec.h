@@ -17,6 +17,8 @@
 #include <assert.h> // assert
 
 
+// IMPORTANT. the other advantage of this approach - is that pointers into the array won't be moved.
+
 template<class T>
 struct Vec
 {

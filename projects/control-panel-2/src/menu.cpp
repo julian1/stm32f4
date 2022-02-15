@@ -106,7 +106,19 @@ void ListController::finish_edit(int32_t rotary)
 
 void ListController::rotary_change(int32_t rotary)
 {
-  usart_printf("list controller rotary_change()  %d\n", (rotary - this->rotary_begin)   );
+
+  int32_t idx = (rotary - this->rotary_begin);
+
+  /* 
+    rather than a callback here. this could insert the relevant value into the digit controller. 
+    which means this would need to have the list.
+
+  */
+
+  // set the active value
+  digit_controller.set_value (   values[ idx ] );
+
+  usart_printf("list controller rotary_change()  %d\n", idx    );
   if( callback ) {
     assert(callback_ctx); 
     callback(callback_ctx, rotary - rotary_begin); 
@@ -194,6 +206,12 @@ void DigitController::finish_edit(int32_t rotary)
 
 }
 
+
+
+void DigitController::set_value( double value_ )
+{
+  value = value_;
+}
 
 
 static double edit_float_value(double x, int idx, int amount)
