@@ -9,6 +9,7 @@
 
 #include "assert.h"
 #include "curses.h"
+#include "usart2.h"
 
 struct DigitController;
 
@@ -22,17 +23,9 @@ struct ListController
   // draw all elements in the list. (maybe except the active one).
   // we can pass the curses... no need to include here.
   int32_t rotary_begin;
-
-  bool  focus;
+  bool    focus;
   int32_t idx;
 
-
-  // rather than use callback for events????
-
-
-
-  // void (*callback)(void *, unsigned );
-  // void *callback_ctx;
 
   char **keys;
   double *values;
@@ -107,15 +100,13 @@ struct DigitController
   int32_t rotary_begin;
   bool focus;
 
-  double value_begin;
-
-
   // idx is shared state with element controller.
   // could alternatively - use set_pos(), but it works well enoughvalue
   int32_t & idx;
 
   // which value is being edited to be updated.
   double  *value;
+  double value_begin;
 
   explicit DigitController(int32_t & idx_)
     : rotary_begin(0),
@@ -178,12 +169,8 @@ struct MenuController
 
     active_controller(0)
     {
-      // need to send an initial value
-
-        // seems to lock/up. value not initialized yet.
-        // list_controller.begin_edit( 0 );
-
-
+        usart_flush();
+        printf("*********\n");
         // set active element
         list_controller.begin_edit( 0 );
     }

@@ -128,8 +128,9 @@ static size_t dot_position( char *s )
 
 void ListController::begin_edit(int32_t rotary)
 {
-  usart_printf("list controller begin_edit()\n");
-  rotary_begin = rotary;
+  usart_printf("list controller begin_edit()  idx=%d rotary=%d\n", idx, rotary);
+
+  rotary_begin = idx + rotary;
 
   focus = true;
 
@@ -216,7 +217,7 @@ void ElementController::begin_edit(int32_t rotary)
   // usart_printf("element controller begin_edit() - value_begin=%f\n", value_begin);
   usart_printf("element controller begin_edit()\n");
 
-  // OK. this works.
+  // OK. this works. when return to an edit.
   rotary_begin = idx + rotary;
 
   usart_printf("rotary_begin %d\n", rotary_begin );
