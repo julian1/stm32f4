@@ -646,7 +646,6 @@ int main(int arg0)
   printf("main() arg0 %u \n", ((unsigned )(void *) &arg0 )  - 0x20000000  );
 
   // command buffer
-
   CString  command;
 
   cStringInit(&command, buf_command, buf_command + sizeof( buf_command));
@@ -659,7 +658,10 @@ int main(int arg0)
   // only build the app structure up 
 
   Curses curses( 33, 17, 14, 16 );
-  // Curses curses;
+
+  // TODO too messy
+  init( curses );
+
 
   int32_t    element_idx = 0; // first digit, need negative to support after float
 
@@ -743,11 +745,6 @@ int main(int arg0)
   rotary_init_timer( TIM1 );
   // rotary_setup_interupt();
 
-
-
-  // change name curses_init ? or make a method?
-  // fails
-  init( curses );
 
 
 
