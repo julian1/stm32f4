@@ -105,6 +105,21 @@ static char * format_float(char *s, size_t sz, int suffix_digits, double value)
 
 
 
+/*
+  // shifting the value right depending how many digits are on the rhs of
+  decimal point. while editing is ok. in order that the rhs fields of list align.
+*/
+
+static size_t dot_position( char *s )
+{
+  // given a string, return the dot or eos. 
+  char *p = s;
+  while(*p && *p != '.')
+    ++p;
+
+  return p - s;
+}
+
 
 
 
@@ -242,6 +257,23 @@ void ListController::draw(Curses &curses)
       if(focus) {  
         effect(curses, 0x01);        // invert
         text(curses,  buf);
+      } else {
+
+        // one of the other controllers is active
+        effect(curses, 0x00);        // normal
+        text(curses,  buf);
+
+
+        size_t dot_x = dot_position( buf );
+
+        // to(curses, 0 + dot_x - this->idx, 4);
+        to(curses, 10  + dot_x - digit_controller.idx, 6 + i );
+
+        // effect( curses, 0x01 ); // invert.... this just sets the mode.
+        effect( curses, 0x11 ); 
+        // set the effect at current position
+        ch_effect( curses);
+       
       }
 
     } else {
@@ -403,21 +435,6 @@ void DigitController::rotary_change(int32_t rotary)
 
 
 
-}
-
-/*
-  // shifting the value right depending how many digits are on the rhs of
-  decimal point. while editing is ok. in order that the rhs fields of list align.
-*/
-
-static size_t dot_position( char *s )
-{
-  // given a string, return the dot or eos. 
-  char *p = s;
-  while(*p && *p != '.')
-    ++p;
-
-  return p - s;
 }
 
 
