@@ -476,7 +476,9 @@ void Menu::draw1( Curses & curses )
 
         /*
             OK. key here is that we are drawing releative to the dot position.
-            idx - just has to land at the right position.
+            idx is relative to dot position. relative to 0 lhs origin.
+
+            if we drew everything from rhs. it should work the same.
 
         */
         size_t dot_x = dot_position( buf );
