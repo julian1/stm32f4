@@ -13,19 +13,19 @@
 
 // 33 * 17 == 561
 #define MCursesXCELLS (33 * 17)
+// #define MCursesXCELLS (10 * 10)
 
 #define MCursesColorsMax 8
 
 // we could template the maxcells argument. when want to instantiate for different sizes.
 
 /*
-  - this could be sparse and work just as well.
-  and would work as well for proportional font draw sequences.
-  - remember - fg/bg glyph sizes can probably work to do focused rederaw.
-  ////////////////////////////////////////////
+  this is very messy. 
+  with c++ constructor and separate init.
+  needs to be c++ due to the agg::rgba code.
 
-  UhGhhh..  think cannot include in main.c because agg::rgba() is templated?
-    unless compile with cpp...
+  so perhaps should do construcot for everything.
+
 */
 
 struct Curses

@@ -643,7 +643,11 @@ int main(int arg0)
   usart_printf("addr main() %p\n", main );
 
 
-  printf("main() arg0 %u \n", ((unsigned )(void *) &arg0 )  - 0x20000000  );
+  // ram growing up.
+  printf("arg0 %u \n", ((unsigned )(void *) &arg0 )  );
+  printf("arg0 diff %uk\n", (((unsigned )(void *) &arg0 )  - 0x20000000 ) / 1024 );
+
+  print_stack_pointer();
 
   // command buffer
   CString  command;
@@ -659,7 +663,7 @@ int main(int arg0)
 
   Curses curses( 33, 17, 14, 16 );
 
-  // TODO too messy
+  // TODO pretty messy - taking a constructor and an init.
   init( curses );
 
 

@@ -27,34 +27,6 @@
 
 
 
-
-
-bool strequal(const char *s1, const char *s2)
-{
-  return (strcmp(s1, s2) == 0);
-}
-
-
-
-
-////////////////////////////////////////////////////////
-
-// DON"T MOVE THIS CODE TO A LIBRARY
-// just keep as separate file. because led will change
-/*
-#define LED_PORT      GPIOE
-#define LED_OUT       GPIO0
-
-*/
-
-////////////////////////////////////////////////////////
-
-// stm32f410cbt3
-
-// #define LED_PORT  GPIOA
-// #define LED_OUT   GPIO15
-// #define LED_OUT   GPIO9 // stm32f411...
-
 // stm32f407 ...
 #define LED_PORT  GPIOB
 #define LED_OUT   GPIO4 
@@ -207,6 +179,15 @@ void assert_simple(const char *file, int line, const char *func, const char *exp
 }
 
 
+
+void print_stack_pointer()
+{
+  // https://stackoverflow.com/questions/20059673/print-out-value-of-stack-pointer
+  // non-portable.
+  void* p = NULL;
+  usart_printf("%p   %d\n", (void*)&p,  ( (unsigned)(void*)&p)  - 0x20000000   );
+  // return &p;
+}
 
 
 

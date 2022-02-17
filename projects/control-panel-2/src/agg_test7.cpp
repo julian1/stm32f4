@@ -277,15 +277,6 @@ static void draw_test5_keypad_test(Curses &a )
 
 
 
-void print_stack_pointer()
-{
-  // https://stackoverflow.com/questions/20059673/print-out-value-of-stack-pointer
-  // non-portable.
-  void* p = NULL;
-  usart_printf("%p   %d\n", (void*)&p,  ( (unsigned)(void*)&p)  - 0x20000000   );
-  // return &p;
-}
-
 
 
 

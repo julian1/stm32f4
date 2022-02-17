@@ -15,7 +15,7 @@ extern "C" {
 #include <stdbool.h> // bool
 #include <stdint.h> // uint32_t
 
-extern bool strequal(const char *s1, const char *s2);
+// extern bool strequal(const char *s1, const char *s2);
 
 
 
@@ -34,18 +34,11 @@ extern void systick_setup(uint32_t tick_divider);
 
 extern void msleep(uint32_t delay);
 
-///////////////
 
-#if 0
-typedef struct CBuf CBuf;
-extern void usart_printf_init(CBuf *output);
+void print_stack_pointer(void);
 
 
 
-extern void usart_printf(const char *format, ... );
-
-extern void  usart_clear(void);
-#endif
 
 ///////////////
 
@@ -55,6 +48,7 @@ extern void  usart_clear(void);
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
+#define MAX(A, B) ((A) > (B) ? (A) : (B))
 
 
 

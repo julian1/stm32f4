@@ -250,6 +250,9 @@ void clear( Curses & a)
 
 void to( Curses &a, int x, int y)
 {
+  // assert(x >= 0 && x < a.stride);
+  // assert(y >= 0 && y < a.ny );
+
   // use this instead of set_notional
   a.cursor_x = x;
   a.cursor_y = y;

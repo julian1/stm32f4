@@ -26,8 +26,8 @@ struct ListController
   bool    focus;
   int32_t idx;
 
-
-  char **keys;
+                
+  char **keys;    // do not need to be here.
   double *values;
 
   ListController (  DigitController & digit_controller, char **keys, double *values, size_t n  )
@@ -49,9 +49,6 @@ struct ListController
 
   // set the number of items. and set the callback function.
   // void set_callback( void (*)(void *, unsigned ), void *);
-
-
-  // void draw(Curses &curses);
 
 };
 

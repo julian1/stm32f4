@@ -13,6 +13,11 @@
     - use centre button to drill in. and other button to drill out. 
     - controller exposes idx and focus as external vars. to suggest the active items.    
 
+    -----
+    list controller - passes item to edit to the element controller.
+                    - probably want a structure for this. eg. bounds.
+
+
 */
 
 
@@ -271,9 +276,11 @@ void DigitController::rotary_change(int32_t rotary)
 
 
 
+#if 0
 
 void DigitController::draw(Curses &curses)
 {
+  // don't use this. should be drawn external to the digit controller
 
   // should call the digit controller. which can draw the value
   char buf[100];
@@ -309,36 +316,9 @@ void DigitController::draw(Curses &curses)
   ch_effect( curses);
   // text(curses,  "x", 1);
 
-#if 0
-  // EXTR.
-  // blinking off/on is different to blinking from invert/non invert.
-
-  ///////////////////////////////////
-  // NONE - of this should be being drawn here.
-
-  effect(curses, 0x00);        // normal
-  to(curses, 1, 5);
-  // snprintf(buf, 100, "%ld   ", (int32_t) timer_get_counter(TIM1));
-  snprintf(buf, 100, "%ld   ", ((int32_t) int16_t(timer_get_counter(TIM1)))  >> 2  );
-
-     ;
-
-
-  text(curses, buf);
-  // text(curses, "3.4mCurses");
-
-
-
-
-  color_pair_idx(curses, 1);  // blue/white
-  to(curses, 0, 10);
-  effect( curses, 0x10 );     // blink
-  text(curses,  "whoot");
-#endif
-
 }
 
-
+#endif
 
 
 
@@ -496,8 +476,13 @@ void Menu::draw1( Curses & curses )
 
         size_t dot_x = dot_position( buf );
 
-        // to(curses, 0 + dot_x - this->idx, 4);
-        to(curses, 10  + dot_x - digit_controller.idx, 6 + i );
+        int x =  10  + dot_x - digit_controller.idx;
+        // eg. we can fall off the lhs of the screen.
+        // we really want to constrain to on screen digits.
+        x = MAX(x, 0);
+        assert(x >= 0);
+
+        to(curses, x, 6 + i );
 
         // issue is that the 
         
@@ -549,8 +534,10 @@ void Menu::draw()
 
   draw1(  curses ) ;
 
-  // menu_controller.list_controller. draw( curses );
+
+#if 0
   digit_controller.draw(  curses  );
+#endif
 
 
   int blink = (system_millis / 500) % 2;
