@@ -483,7 +483,7 @@ void Menu::draw1( Curses & curses )
         */
         size_t dot_x = dot_position( buf );
 
-        int x =  10  + dot_x - digit_controller.idx;
+        int x =  10  + dot_x - digit_controller.idx;  // digit_controller.idx == element_controller.idx
         // eg. we can fall off the lhs of the screen.
         // we really want to constrain to on screen digits.
         // likewise rhs.
