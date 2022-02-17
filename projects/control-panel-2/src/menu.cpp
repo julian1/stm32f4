@@ -10,8 +10,8 @@
 
 /*
 
-    - use centre button to drill in. and other button to drill out. 
-    - controller exposes idx and focus as external vars. to suggest the active items.    
+    - use centre button to drill in. and other button to drill out.
+    - controller exposes idx and focus as external vars. to suggest the active items.
 
     -----
     list controller - passes item to edit to the element controller.
@@ -48,7 +48,7 @@ static char * format_float(char *s, size_t sz, int suffix_digits, double value)
 
 static size_t dot_position( char *s )
 {
-  // given a string, return the dot or eos. 
+  // given a string, return the dot or eos.
   char *p = s;
   while(*p && *p != '.')
     ++p;
@@ -60,11 +60,11 @@ static size_t dot_position( char *s )
 
 //////////////////////////////
 
-/* 
-  list controller 
+/*
+  list controller
     - only really needs to keep track of the size/number of elements in the model. to iterate them
     - but also needs to push the active item into the element controller.
-        but does *not* need to know about the keys. 
+        but does *not* need to know about the keys.
 
     - thing to edit. is going to be complicated. eg. bounds. and display resolution.
 */
@@ -106,18 +106,18 @@ void ListController::rotary_change(int32_t rotary)
     this->idx = rotary - this->rotary_begin;
     assert( this->idx == 0);
     return;
-  } 
+  }
   else if( idx >= 3) {
     rotary_begin = rotary -  ( 3 - 1 );
     this->idx = (rotary - this->rotary_begin);
     assert( this->idx == 2);
     return;
   }
-  
+
   usart_printf("list controller rotary_change()  idx = %d\n", idx    );
 
-  /* 
-    rather than a callback here. this could insert the relevant value into the digit controller. 
+  /*
+    rather than a callback here. this could insert the relevant value into the digit controller.
     which means this would need to have the list.
 
   */
@@ -419,10 +419,10 @@ void MenuController::event(int event_)
 */
 
 
-void Menu::draw1( Curses & curses ) 
+void Menu::draw1( Curses & curses )
 {
 
-  clear( curses ); // eg. remove text. from last draw 
+  clear( curses ); // eg. remove text. from last draw
 
   font(curses, &arial_span_18 ); // font
   color_pair_idx(curses, 0); // blue/white
@@ -436,14 +436,14 @@ void Menu::draw1( Curses & curses )
     to(curses, 0, 6 + i);
 
     if( i == list_controller.idx ) {
-      // printf("setting effect \n"); 
+      // printf("setting effect \n");
       // effect(curses, 0x11);        // invert
       effect(curses, 0x01);        // invert
     } else {
       effect(curses, 0x00);        // normal
     }
-  
-    text(curses, list_controller.keys[ i  ] );  
+
+    text(curses, list_controller.keys[ i  ] );
   }
 
 
@@ -464,7 +464,7 @@ void Menu::draw1( Curses & curses )
 
     if( i == list_controller.idx ) {
 
-      if(list_controller.focus) {  
+      if(list_controller.focus) {
         effect(curses, 0x01);        // invert
         text(curses,  buf);
       } else  {
@@ -474,18 +474,24 @@ void Menu::draw1( Curses & curses )
         text(curses,  buf);
 
 
+        /*
+            OK. key here is that we are drawing releative to the dot position.
+            idx - just has to land at the right position.
+
+        */
         size_t dot_x = dot_position( buf );
 
         int x =  10  + dot_x - digit_controller.idx;
         // eg. we can fall off the lhs of the screen.
         // we really want to constrain to on screen digits.
+        // likewise rhs.
         x = MAX(x, 0);
         assert(x >= 0);
 
         to(curses, x, 6 + i );
 
-        // issue is that the 
-        
+        // issue is that the
+
         if( element_controller.focus)
           effect( curses, 0x11 );   // invert and blink
         else if (digit_controller.focus )
@@ -498,7 +504,7 @@ void Menu::draw1( Curses & curses )
       }  {
 
 
-  
+
       }
 
     } else {
@@ -506,7 +512,7 @@ void Menu::draw1( Curses & curses )
       text(curses,  buf);
     }
 
-  
+
   }
 
 }
