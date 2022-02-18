@@ -14,7 +14,7 @@ mesch12b=${TOP}/mesch12b
 # can probably manage mesch as a library. check other Makefile examples here.
 
 BINARY		= main
-SRCFILES	= ./src/main.c src/util.c  \
+SRCFILES	= ./src/main.c src/util.c  src/coroutine.c  \
              ${LIB2SRC}/cstring.c  ${LIB2SRC}/cbuffer.c  ${LIB2SRC}/usart2.c \
               ${LIB2SRC}/streams.c  \
 

@@ -76,6 +76,7 @@
 #include "cstring.h"
 // #include "assert.h"
 
+#include "coroutine.h"
 
 #include "malloc.h"
 
@@ -480,13 +481,22 @@ int main( int arg0 )
   struct mallinfo x = mallinfo();
 
   printf("arena %d\n", x.arena );
-  
+  // printf("malloc_top_pad %d\n", x.malloc_top_pad);
+
+ 
   printf("-----------\n" );
   printf("malloc stats\n" );
   malloc_stats();
 
-  void *p = malloc( 4000);
-  assert(p);
+
+  for(unsigned i = 0; i < 10; ++i) { 
+    // 0x20001478.
+    void *p = malloc( 10);
+    usart_printf("p is %p\n", p );
+    assert(p);
+
+    free(p);
+  }
 
   printf("-----------\n" );
   printf("malloc stats2\n" );
@@ -494,11 +504,12 @@ int main( int arg0 )
 
 
 
-
   usart_flush();
 
+  coroutine_main();
+
   loop_dispatcher(&app);
-  // loop1(&app);
+
 }
 
 
