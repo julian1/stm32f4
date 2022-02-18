@@ -77,6 +77,7 @@
 // #include "assert.h"
 
 
+#include "malloc.h"
 
 
 
@@ -328,6 +329,9 @@ static void loop1(app_t *app)
 }
 
 
+
+
+
 static void loop_dispatcher(app_t *app)
 {
   usart_printf("=========\n");
@@ -462,7 +466,32 @@ int main( int arg0 )
   printf("arg0 %u \n", ((unsigned )(void *) &arg0 )  );
   printf("arg0 diff %uk\n", (((unsigned )(void *) &arg0 )  - 0x20000000 ) / 1024 );
 
+
   print_stack_pointer();
+
+  /////////////////////////////////
+  // whoot. 
+  // eg.
+  // https://www.microchip.com/forums/m511322.aspx
+
+  printf("-----------\n" );
+  printf("mallinfo\n" );
+
+  struct mallinfo x = mallinfo();
+
+  printf("arena %d\n", x.arena );
+  
+  printf("-----------\n" );
+  printf("malloc stats\n" );
+  malloc_stats();
+
+  void *p = malloc( 4000);
+  assert(p);
+
+  printf("-----------\n" );
+  printf("malloc stats2\n" );
+  malloc_stats();
+
 
 
 
