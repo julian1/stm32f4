@@ -8,7 +8,7 @@
 #include <libopencm3/cm3/nvic.h>
 
 
-#include "usart2.h"
+#include "usart.h"
 #include "cbuffer.h"
 
 

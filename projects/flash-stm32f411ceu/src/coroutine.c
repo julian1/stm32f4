@@ -38,7 +38,7 @@ transfer control back to the point where setjmp() was called and to restore
 // #include <stdbool.h> // true
 
 #include "coroutine.h"
-#include "usart2.h" // flush
+#include "usart.h" // flush
 
 
 

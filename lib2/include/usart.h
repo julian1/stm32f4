@@ -1,7 +1,6 @@
 
-DEPRECATED. use usart.h isntead.
-
 #pragma once
+
 
 #ifdef __cplusplus
 extern "C" {

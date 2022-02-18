@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "streams.h"
-#include "usart2.h"
+#include "usart.h" // usart_output_update()
 #include "cbuffer.h"
 
 #include <stdarg.h> // va_starrt etc

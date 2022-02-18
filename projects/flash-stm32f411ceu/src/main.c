@@ -71,7 +71,7 @@
 
 #include "util.h"
 #include "cbuffer.h"
-#include "usart2.h"
+#include "usart.h"
 #include "streams.h"
 #include "cstring.h"
 // #include "assert.h"
