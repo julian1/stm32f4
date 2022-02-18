@@ -1,5 +1,6 @@
-
-
+/*
+  need to rename usart2.c to usart.c
+*/
 
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
@@ -11,9 +12,8 @@
 #include "cbuffer.h"
 
 
-// rename usart_set_buffers()...
 
-// TODO rename buf_output?
+// TODO rename circular buffers coutput, cinput. 
 static CBuf *output_buf = NULL;
 static CBuf *input_buf  = NULL;
 
@@ -27,7 +27,6 @@ void usart_setup_gpio_portB(void)
   // still AF7
   gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO6 | GPIO7);
   gpio_set_af(GPIOB, GPIO_AF7, GPIO6 | GPIO7);
-  //gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO7);
   gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO6);
 }
 
@@ -40,13 +39,18 @@ void usart_setup_gpio_portA(void)
   // stm32f407 usart1.
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9 | GPIO10);
   gpio_set_af(GPIOA, GPIO_AF7, GPIO9 | GPIO10);
-
-  // TODO. REVIEW think this should be GPIO9...
-  // gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO10);
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO9);
 }
 
 
+
+/*
+  feb 2022.
+  - we should be passing the usart argument explicitly. like we do with spi.
+  - the actual usart configu called setup() or init() oconfigure()...
+  - separate the buffer from the actual configuration.
+
+*/
 
 void usart_set_buffers( CBuf *input, CBuf *output)
 {
@@ -55,22 +59,22 @@ void usart_set_buffers( CBuf *input, CBuf *output)
   input_buf = input;
   output_buf = output;
 
+#if 0 
+  switch(usart) {
+    case USART1: 
+      // nvic_enable_irq(NVIC_USART1_IRQ);
+      // etc
+      break;
+  }
+#endif
 
   nvic_enable_irq(NVIC_USART1_IRQ);
   nvic_set_priority(NVIC_USART1_IRQ, 5);    // value???
-
-#if 0
-  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9 | GPIO10);
-  gpio_set_af(GPIOA, GPIO_AF7, GPIO9 | GPIO10);
-  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO10);
-#endif
-
 
 
   usart_set_baudrate(USART1, 115200);
   usart_set_databits(USART1, 8);
   usart_set_stopbits(USART1, USART_STOPBITS_1);
-  // usart_set_mode(USART1, USART_MODE_TX_RX);
 
   usart_set_mode(USART1, USART_MODE_TX_RX);
   usart_set_parity(USART1, USART_PARITY_NONE);
@@ -152,6 +156,7 @@ void usart_output_update()
 
 void usart_flush()
 {
+  // block until flush
 
   usart_output_update();
 

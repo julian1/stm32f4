@@ -3,8 +3,7 @@
   because might change
 */
 
-#ifndef UTIL_H
-#define UTIL_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,4 +55,3 @@ void print_stack_pointer(void);
 }
 #endif
 
-#endif
