@@ -282,16 +282,6 @@ static void loop2(app_t *app)
       return;
 
 
-/*
-    if(app->continuation_f) {
-      // should just return and let dispatcher handle control.
-      printf("jumping to continuation\n");
-      void (*tmppf)(void *) = app->continuation_f;
-      app->continuation_f = NULL;
-      tmppf( app->continuation_ctx );
-    }
-*/
-
   }
 }
 
@@ -304,6 +294,14 @@ static void loop2(app_t *app)
 
 static void loop1(app_t *app)
 {
+  /* 
+    OK. this worked, to reduce the stack by 100k.
+    stack grows down. bottom toward 0x20000000
+  */
+  volatile char ch[100000 ] ;
+  volatile char *x = &ch[100000 - 1 ]; 
+  *x = 123;
+
   usart_printf("=========\n");
   usart_printf("loop1\n");
 
@@ -326,16 +324,6 @@ static void loop1(app_t *app)
 
     if(app->continuation_f)
       return;
-
-/*
-    // should be a single dispatch loop at the bottom of the stack
-    if(app->continuation_f) {
-      printf("jumping to continuation\n");
-      void (*tmppf)(void *) = app->continuation_f;
-      app->continuation_f = NULL;
-      tmppf( app->continuation_ctx );
-    }
-*/
   }
 }
 
