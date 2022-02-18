@@ -21,9 +21,11 @@
 */
 
 
-
-
-
+/*
+  validation function - eg. bounds should be passed as a function.
+  probably also the formatting function.
+    eg. for number of digits. rather than specify as a value.
+*/
 
 
 static char * format_float(char *s, size_t sz, int suffix_digits, double value)

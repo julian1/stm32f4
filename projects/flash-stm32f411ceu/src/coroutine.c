@@ -3,7 +3,9 @@
 
   cortex m4 setjmp implementation
   https://gist.github.com/buserror/3129219
+    4 * ( 10 + 8 + 1 ) = 76 bytes.
 
+  with gcc 9.2.1  20191025. libc  it's 92 bytes.
   ---
 
   cortext m4 spi slave.
@@ -59,7 +61,7 @@ void *coto(jmp_buf *here, jmp_buf *there, void *arg)
 
 // x86,arm stack grows down.
 #define STACKDIR - // set to + for upwards and - for downwards
-#define STACKSIZE (1<<12)   // 4096
+#define STACKSIZE (1<<12)   // 4096 4k is quite a bit.
 
 static char *tos; // top of stack
 
@@ -138,6 +140,13 @@ static void create( void (*pf)(void *), void *arg )
 
 static void comain(void *arg)
 {
+  /* 
+    we want to be able to get the top of stack for each function.
+    to know that we are inside it.
+    and
+  */
+
+
   // we can pass any function we like to the main func
   // we don't want to have to pass arguments for the thread to yeld from
   // ma
