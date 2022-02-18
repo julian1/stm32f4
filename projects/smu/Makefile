@@ -16,7 +16,7 @@ SRCFILES	= flash.c  util.c \
 
 SRCFILES	= src/main.c   src/mcp3208.c src/w25.c src/dac8734.c src/ads131a04.c src/spi-ice40.c src/spi1.c src/mux.c src/util.c \
               ${LIB2SRC}/format.c \
-              ${LIB2SRC}/assert.c ${LIB2SRC}/cbuffer.c  ${LIB2SRC}/fbuffer.c ${LIB2SRC}/usart2.c  ${LIB2SRC}/flash.c  ${LIB2SRC}/stats.c
+              ${LIB2SRC}/assert.c ${LIB2SRC}/cbuffer.c  ${LIB2SRC}/fbuffer.c ${LIB2SRC}/usart.c  ${LIB2SRC}/flash.c  ${LIB2SRC}/stats.c
 
 
 # ${LIB2SRC}/format_float.c

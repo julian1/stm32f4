@@ -9,7 +9,7 @@
 
 #include "assert.h"
 #include "curses.h"
-#include "usart2.h"
+#include "usart.h"
 
 struct DigitController;
 

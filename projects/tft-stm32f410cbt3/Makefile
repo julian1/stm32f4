@@ -22,7 +22,7 @@ AGGINC=${TOP}/agg-svn-r138-agg-2.4/include/
 BINARY		= main
 SRCFILES	= ./src/main.c ./src/lcd_spi.c ./src/rotary.c ./src/agg_test.cpp \
               ${GFXSRC}/context.c ${GFXSRC}/gfx.c \
-              ${LIB2SRC}/buffer.c ${LIB2SRC}/miniprintf2.c ${LIB2SRC}/usart2.c \
+              ${LIB2SRC}/buffer.c ${LIB2SRC}/miniprintf2.c ${LIB2SRC}/usart.c \
               ${AGGSRC}/circles.cpp
 
             # glcdfont.c ??

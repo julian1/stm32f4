@@ -222,7 +222,7 @@
 
 
 #include "cbuffer.h"
-#include "usart2.h"
+#include "usart.h"
 #include "util.h"
 #include "streams.h"
 #include "cstring.h"
