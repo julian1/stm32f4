@@ -278,6 +278,11 @@ static void loop2(app_t *app)
       led_toggle();
     }
 
+    if(app->continuation_f)
+      return;
+
+
+/*
     if(app->continuation_f) {
       // should just return and let dispatcher handle control.
       printf("jumping to continuation\n");
@@ -285,18 +290,24 @@ static void loop2(app_t *app)
       app->continuation_f = NULL;
       tmppf( app->continuation_ctx );
     }
-
+*/
 
   }
 }
 
 
+/*
+  ok. there's something wrong with this. the stack isn't retreating.
+  because its ot a proper continuation.
+*/
 
 
 static void loop1(app_t *app)
 {
   usart_printf("=========\n");
   usart_printf("loop1\n");
+
+  print_stack_pointer();
   usart_printf("> ");
 
  static uint32_t soft_500ms = 0;
@@ -312,6 +323,11 @@ static void loop1(app_t *app)
       led_toggle();
     }
 
+
+    if(app->continuation_f)
+      return;
+
+/*
     // should be a single dispatch loop at the bottom of the stack
     if(app->continuation_f) {
       printf("jumping to continuation\n");
@@ -319,9 +335,50 @@ static void loop1(app_t *app)
       app->continuation_f = NULL;
       tmppf( app->continuation_ctx );
     }
+*/
+  }
+}
+
+
+static void loop_dispatcher(app_t *app)
+{
+  usart_printf("=========\n");
+  usart_printf("continuation dispatcher\n");
+  print_stack_pointer();
+  usart_printf("> ");
+
+ static uint32_t soft_500ms = 0;
+
+  while(true) {
+
+    update_console_cmd(app);
+
+    // 500ms soft timer. should handle wrap around
+    if( (system_millis - soft_500ms) > 500) {
+      soft_500ms += 500;
+
+      //
+      led_toggle();
+    }
+
+    if(app->continuation_f) {
+      printf("jump to continuation\n");
+      void (*tmppf)(void *) = app->continuation_f;
+      app->continuation_f = NULL;
+      tmppf( app->continuation_ctx );
+
+      printf("continuation done\n");
+      usart_printf("> ");
+    }
 
   }
 }
+
+
+
+
+
+
 
 
 
@@ -336,7 +393,7 @@ static char buf_command[100];
 static app_t app;
 
 
-int main(void)
+int main( int arg0 )
 {
   // hsi setup high speed internal!!!
   // TODO. not using.
@@ -368,6 +425,12 @@ int main(void)
   // led
   led_setup();
 
+
+  // This is all bad. we should be declaraing and initializing on the stack. and then passing into the app_t structure by reference. 
+  // eg. pointer.
+  // even in c.
+
+
   // DONT do this in c++
   memset(&app, 0, sizeof(app_t));
 
@@ -376,17 +439,17 @@ int main(void)
 
 
 
-  // command buffer
-  cStringInit(&app.command, buf_command, buf_command + sizeof( buf_command));
-  assert(cStringReserve(&app.command) == sizeof( buf_command));
-  assert(cStringCount(&app.command) == 1); // null terminator
-
-
 
   ///////
   // uart/console
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
   cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
+
+
+  // command buffer
+  cStringInit(&app.command, buf_command, buf_command + sizeof( buf_command));
+  assert(cStringReserve(&app.command) == sizeof( buf_command));
+  assert(cStringCount(&app.command) == 1); // null terminator
 
 
   // buffer of measurements.
@@ -406,13 +469,19 @@ int main(void)
 
   usart_printf("\n--------\n");
   usart_printf("addr main() %p\n", main );
-  usart_printf("using CString\n");
-  // assert(0);
+
+  // ram growing up.
+  printf("arg0 %u \n", ((unsigned )(void *) &arg0 )  );
+  printf("arg0 diff %uk\n", (((unsigned )(void *) &arg0 )  - 0x20000000 ) / 1024 );
+
+  print_stack_pointer();
+
 
 
   usart_flush();
 
-  loop1(&app);
+  loop_dispatcher(&app);
+  // loop1(&app);
 }
 
 

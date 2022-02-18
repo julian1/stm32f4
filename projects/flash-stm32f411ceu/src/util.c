@@ -158,6 +158,15 @@ void assert_simple(const char *file, int line, const char *func, const char *exp
 
 
 
+void print_stack_pointer()
+{
+  // https://stackoverflow.com/questions/20059673/print-out-value-of-stack-pointer
+  // non-portable.
+  void* p = NULL;
+  usart_printf("sp %p   %d\n", (void*)&p,  ( (unsigned)(void*)&p)  - 0x20000000   );
+  // return &p;
+}
+
 
 
 
