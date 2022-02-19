@@ -219,6 +219,7 @@
 //#include <math.h> // nanf
 //#include <stdio.h>
 // #include <string.h>   // memset
+#include <malloc.h> // malloc_stats
 
 
 #include "cbuffer.h"
@@ -647,6 +648,11 @@ int main(int arg0)
   printf("arg0 %u \n", ((unsigned )(void *) &arg0 )  );
   printf("arg0 diff %uk\n", (((unsigned )(void *) &arg0 )  - 0x20000000 ) / 1024 );
 
+  printf("-----------\n" );
+  printf("malloc stats\n" );
+  malloc_stats();
+
+
   print_stack_pointer();
 
   // command buffer
@@ -662,6 +668,8 @@ int main(int arg0)
   // only build the app structure up 
 
   Curses curses( 33, 17, 14, 16 );
+
+  printf("sizeof(Curses) %u\n", sizeof(Curses) );
 
   // TODO pretty messy - taking a constructor and an init.
   init( curses );

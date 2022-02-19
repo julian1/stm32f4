@@ -454,8 +454,10 @@ void Menu::draw1( Curses & curses )
   for(unsigned i = 0; i < 3; ++i)
   {
 
+    char buf2[100];
     char buf[100];
-    format_float(buf, 100, 6, list_controller.values[ i ] );
+
+    snprintf(buf, 100,  "%smV" , format_float(buf2, 100, 6, list_controller.values[ i ] ));
 
     to(curses, 10, 6 + i);
 
