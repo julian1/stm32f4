@@ -157,8 +157,20 @@ int index( Curses &a, int x, int y )
   return i;
 }
 
+/*
+  problems
+    - we cannot work with this without c++. so may as well use c++   methods for clarity
+    - not using dynamic allocation. means cannot size the thing. 
+    to use curses for the large values display.
 
+    - options are 
+      - to use malloc
+      - use an allocator 
+      - use calloc () ?. not possible - because constructor will be unwound.
+      - declare arrays externally on the stack - and pass by reference?     perhaps we have to commit to this.
 
+    - but it's used only once.
+*/
 
 
 void init( Curses & a)
