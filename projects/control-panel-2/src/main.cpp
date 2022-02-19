@@ -500,7 +500,7 @@ static void loop(app_t *app)
 }
 
 
-
+// just put all this on the stack.
 
 static char buf_console_in[1000];
 static char buf_console_out[2000]; // setting to 10000. and it fails??? werid.

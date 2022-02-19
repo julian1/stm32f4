@@ -25,8 +25,47 @@
   needs to be c++ due to the agg::rgba code.
 
   so perhaps should do construcot for everything.
+  -----
+
 
 */
+
+
+/* 
+  pass the allocator as a dependency
+  in the constructor.
+
+*/
+
+void pfalloc( void * ) ; 
+
+/*
+  templatize in a separate structure.
+  then pass by reference
+  ---
+  what about passing a reference to an arary 
+
+  - we either pass an allocator in and let it allocate as required .
+  - or pass the arrays int
+  ------------------
+
+  Actually calloc would work - if we were not in the constructor context. but the scoping context.
+    it's not calloc that increments the stack pointer - it's something else.
+*/
+
+
+template< int SZ>
+struct CursesMem
+{
+  bool      changed[ SZ ];
+  uint16_t  character[ SZ ];
+  const     FontSpans *font[ SZ];
+  uint8_t   color_pair_idx[ SZ ];
+  uint16_t  effect[ SZ ];
+};
+
+
+
 
 struct Curses
 {

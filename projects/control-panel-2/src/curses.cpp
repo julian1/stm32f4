@@ -137,9 +137,10 @@
     - just play through the draw instructions - and calculate and test the bounds. as to what gets hit.
     - can play through - to test a hit point.
 
-
+  -
 
 */
+
 
 
 
@@ -164,12 +165,20 @@ int index( Curses &a, int x, int y )
     to use curses for the large values display.
 
     - options are 
-      - to use malloc
-      - use an allocator 
+      - to use malloc. global without a structure. 
+      - custom allocator  . can track useage. eg. pass in a array allocated on stack. and let it carve it up at run time.
+                          that we know will be
       - use calloc () ?. not possible - because constructor will be unwound.
-      - declare arrays externally on the stack - and pass by reference?     perhaps we have to commit to this.
+      - declare arrays externally on the stack - and pass by reference on constructor?     perhaps we have to commit to this.
+      - templates  / header only.
 
-    - but it's used only once.
+      - it just pervades stuff.... having to pass the dimensions around.
+
+    - ***** it's used only once. So only really needs allocating once.
+            and the size is known up front.
+            so really should not be using malloc.
+
+      
 */
 
 
