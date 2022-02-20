@@ -60,6 +60,56 @@ static size_t dot_position( char *s )
 
 
 
+
+
+//////////
+
+// JController
+
+
+void JController::begin_edit(int32_t rotary)
+{
+
+  usart_printf("jcontroller - rotary_begin set to %d\n", rotary_begin);
+
+  rotary_begin = rotary - idx;    // remember position from last time. works.
+  focus = true;
+}
+
+
+void JController::finish_edit(int32_t rotary)
+{
+  focus = false;
+}
+
+void JController::rotary_change(int32_t rotary)
+{
+
+  usart_printf("jcontroller - rotary_change\n");
+
+  switch( idx % 2 ) { 
+
+  };
+
+  static char *keys[]     = { "fred", "bananna", "green" } ;
+  static double values[]  = { 9.12, 5, 123.456 } ;
+
+
+  // I think we need to set on construction also.
+  // but it is reverse order.
+  list_controller.set_value( keys, values, 3 );
+}
+
+
+
+
+
+
+/*
+  set_value needs to propagate down. I think
+*/
+
+
 //////////////////////////////
 
 /*
@@ -70,6 +120,24 @@ static size_t dot_position( char *s )
 
     - thing to edit. is going to be complicated. eg. bounds. and display resolution.
 */
+
+
+void ListController::set_value( char **keys_, double * values_, size_t n_  )
+{
+
+  printf("list_controller setting keys and values \n");
+  printf("list_controller this %p\n", this);
+
+  printf("keys[0] before %s\n", keys[0] );
+  keys = keys_;
+
+  printf("keys[0] now %s\n", keys[0] );
+
+  values = values_;
+  n = n_;
+
+  digit_controller.set_value(  &values_[ 0 ]  );  // should use the idx
+}
 
 
 void ListController::begin_edit(int32_t rotary)
@@ -203,6 +271,11 @@ void DigitController::begin_edit(int32_t rotary)
   rotary_begin = rotary;
   focus = true;
 
+  // set_value should have been called before here...
+
+  // OK. this thing with set_value is hard.
+  // because of when to call it.
+
   assert(this->value );
 
   this->value_begin = * this->value ;
@@ -221,6 +294,7 @@ void DigitController::finish_edit(int32_t rotary)
 
 void DigitController::set_value( double * value_ )
 {
+  printf("digit controller set_value()\n");
   value = value_;
 }
 
@@ -352,9 +426,9 @@ void MenuController::event(int event_)
 
     if(event_ == ui_events_button_right ) {
       // don't move in futhre or generate events.
-      if( this->active_controller >= 2)  {
+      if( this->active_controller >= 3)  {
         printf("at limit\n");
-        this->active_controller = 2;
+        this->active_controller = 3;
         return;
       }
       printf("move in\n");
@@ -374,17 +448,19 @@ void MenuController::event(int event_)
     if(cand != this->active_controller) {
 
       switch( this->active_controller) {
-        case 0:  list_controller.finish_edit(rotary);  break;
-        case 1:  element_controller.finish_edit(rotary); break;
-        case 2:  digit_controller.finish_edit(rotary); break;
+        case 0:  j_controller.finish_edit(rotary);  break;
+        case 1:  list_controller.finish_edit(rotary);  break;
+        case 2:  element_controller.finish_edit(rotary); break;
+        case 3:  digit_controller.finish_edit(rotary); break;
       }
 
       this->active_controller = cand;
 
       switch( this->active_controller ) {
-        case 0:  list_controller.begin_edit(rotary);  break;
-        case 1:  element_controller.begin_edit(rotary); break;
-        case 2:  digit_controller.begin_edit(rotary); break;
+        case 0:  j_controller.begin_edit(rotary);  break;
+        case 1:  list_controller.begin_edit(rotary);  break;
+        case 2:  element_controller.begin_edit(rotary); break;
+        case 3:  digit_controller.begin_edit(rotary); break;
       }
 
     }
@@ -395,9 +471,10 @@ void MenuController::event(int event_)
   else if (event_ == ui_events_rotary_change ) {
 
     switch( this->active_controller ) {
-      case 0:  list_controller.rotary_change(rotary);  break;
-      case 1:  element_controller.rotary_change(rotary); break;
-      case 2:  digit_controller.rotary_change(rotary); break;
+      case 0:  j_controller.rotary_change(rotary);  break;
+      case 1:  list_controller.rotary_change(rotary);  break;
+      case 2:  element_controller.rotary_change(rotary); break;
+      case 3:  digit_controller.rotary_change(rotary); break;
     }
 
   }
@@ -472,6 +549,15 @@ void Menu::draw( Curses & curses )
 
     if( i == list_controller.idx ) {
 
+
+     /* 
+      if(j_controller.focus) {
+
+        effect(curses, 0x00);        // normal
+        text(curses,  buf);
+      }
+    */
+
       if(list_controller.focus) {
         effect(curses, 0x01);        // invert
         text(curses,  buf);
@@ -506,7 +592,7 @@ void Menu::draw( Curses & curses )
           effect( curses, 0x11 );   // invert and blink
         else if (digit_controller.focus )
           effect( curses, 0x01 );   // invert
-        else assert( 0 );
+        // else ; // j_controller // assert( 0 );
 
         // apply effect at current position
         ch_effect( curses);

@@ -12,10 +12,27 @@ struct ListController;
 /*
   we need better names
 
+  - think - need a structure
+
+  struct {
+    char *name;
+
+    unsigned n;
+    char **keys;
+    double *values;
+
+  };
+
+  OR. have a switch statement.
+
 */
+
+
 
 struct JController
 {
+  // maybe rename MenuController.
+  // and rename the MenuController to DelegatingController
 
   ListController & list_controller;
 
@@ -26,22 +43,21 @@ struct JController
   bool    focus;
   int32_t idx;
 
-                
-  char **keys;    // do not need to be here.
-  double *values;
 
-  JController (  ListController & digit_controller, char **keys, double *values, size_t n  )
+  // OK. how do we handle this data?
+  // perhaps a switch table would be easier.
+
+
+  JController (  ListController & list_controller )
     :
-    list_controller( list_controller ),
+    list_controller( list_controller),
     rotary_begin(0),
     focus(false),
-    idx( 0),
-    // callback( NULL),
-    // callback_ctx( NULL),
+    idx( 0)
 
-    keys( keys ),
-    values( values)
-  { }
+  { 
+
+  }
 
   void begin_edit(int32_t rotary);
   void finish_edit(int32_t rotary);
@@ -69,9 +85,10 @@ struct ListController
   bool    focus;
   int32_t idx;
 
-                
-  char **keys;    // do not need to be here.
+
+  char **keys;    // do not need to be here. EXCEPT if we use it to record the active menu list values.
   double *values;
+  size_t  n;
 
   ListController (  DigitController & digit_controller, char **keys, double *values, size_t n  )
     :
@@ -84,7 +101,16 @@ struct ListController
 
     keys( keys ),
     values( values)
-  { }
+  { 
+
+    printf("list_controller constructor this %p\n", this);
+  }
+
+  // should the value be a pointer ????
+  // so that it manipulates the real value.
+  // called by JController
+  void set_value( char **keys, double * values, size_t n  );
+
 
   void begin_edit(int32_t rotary);
   void finish_edit(int32_t rotary);
@@ -185,6 +211,7 @@ struct DigitController
 struct MenuController
 {
   /*
+    - DelegatingController.
     - just takes events - and delegates and uses other controllers
     - no responsibility for drawing or anything else
 
@@ -193,11 +220,13 @@ struct MenuController
   ListController    & list_controller;
   ElementController & element_controller;
   DigitController   & digit_controller;
+  JController       & j_controller;
 
   unsigned active_controller;
 
-  explicit MenuController(ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
+  explicit MenuController(JController & j_controller_, ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
     :
+    j_controller(j_controller_),
     list_controller(list_controller_),
     element_controller( element_controller_),
     digit_controller( digit_controller_),
@@ -205,8 +234,12 @@ struct MenuController
     active_controller(0)
     {
         // usart data structures are up now
-        // set active element
-        list_controller.begin_edit( 0 );
+        // set the list controller as active
+
+
+        // this isn't right. needs to correspond with active_controller 
+        // list_controller.begin_edit( 0 );
+        j_controller.begin_edit( 0 );
     }
 
   void event( int);
@@ -232,7 +265,7 @@ struct Menu
 
 
   explicit Menu( ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
-    : 
+    :
     list_controller(list_controller_),
     element_controller( element_controller_),
     digit_controller( digit_controller_)

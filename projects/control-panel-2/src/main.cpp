@@ -620,6 +620,7 @@ int main(int arg0)
   to(curses2, 0, 1);
   text(curses2, "12.3456mV");   // arial72 - not being able to draw text.... and crashing is bad....
 
+  
 
   int32_t    element_idx = 0; // first digit, need negative to support after float
 
@@ -630,10 +631,13 @@ int main(int arg0)
   char *keys[]     = { "whoot", "apple", "blue" } ;
   double values[]  = { 14.12, 256, 399.123 } ;
 
-  ListController  list_controller( digit_controller, keys, values, 3);
+  ListController  list_controller( digit_controller, keys,  values, 3);
+
+  JController     j_controller( list_controller);
 
   // menucontroller is the controller controller
-  MenuController  menu_controller(  list_controller, element_controller, digit_controller);
+  // rename
+  MenuController  menu_controller( j_controller, list_controller, element_controller, digit_controller);
 
   Menu menu( list_controller, element_controller, digit_controller );       // MenuView
 
