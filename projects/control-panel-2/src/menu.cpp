@@ -528,55 +528,6 @@ void Menu::draw1( Curses & curses )
 }
 
 
-/*
-
-    OK. synchronizing everything and drawing. is more complicated.
-    
-    This should be in main if anywhere
-*/
-
-#if 0
-
-void Menu::draw()
-{
-  // persist the page that we need to draw
-  static int page = 0; // page to use
-  page = ! page;
-
-  // set up our buffer
-  pixfmt_t  pixf(  page *  272 );
-  rb_t    rb(pixf);
-
-  // rb.clear(agg::rgba(1,1,1));     // bg white .
-  rb.clear(agg::rgba(0,0,0));       // bg black
-
-  // uint32_t start = system_millis;
-  // ok, this works. so maybe there is memory corruption somewhere.
-
-  ////////////////////////////////////
-
-  draw1(  curses ) ;
-
-
-#if 0
-  digit_controller.draw(  curses  );
-#endif
-
-
-  int blink = (system_millis / 500) % 2;
-  // usart_printf("blink %u\n", blink );
-
-  render( curses , rb,  blink );
-
-  // lcd synchronization, wait until not in vertical blanking mode
-  while( getTear() ) {
-    // usart_printf("tear hi\n" );
-  };
-
-  // flip the newly drawn page in
-  setScrollStart( page *  272 );
-}
-#endif
 
 
 #if 0

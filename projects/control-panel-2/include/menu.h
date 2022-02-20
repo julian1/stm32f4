@@ -176,12 +176,8 @@ struct Menu
   /*
     responsible for drawing. so needs other controllers. to know which is active etc.
     should potentiallly rename to menu view:w.
-
+    - maybe rename MenuDrawer etc.
   */
-
-  // TODO ************* remove. and pass 
-  // Curses & curses;
-  // MenuController & menu_controller;
 
   ListController    & list_controller;
   ElementController & element_controller;
@@ -189,9 +185,8 @@ struct Menu
 
 
 
-  explicit Menu(/*Curses & curses, */ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
-  // explicit Menu( Curses & curses, MenuController & menu_controller_ )
-    : // curses( curses ),
+  explicit Menu( ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
+    : 
     list_controller(list_controller_),
     element_controller( element_controller_),
     digit_controller( digit_controller_)
