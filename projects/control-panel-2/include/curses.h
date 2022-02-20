@@ -20,6 +20,17 @@
 
 // we could template the maxcells argument. when want to instantiate for different sizes.
 
+
+
+/*
+    OK. we need another controller. 
+      that selects the menu list to display. eg. page_controller.
+
+      then we can move between less common readings (like stddev) and  settings 
+
+*/
+
+
 /*
   this is very messy. 
   with c++ constructor and separate init.

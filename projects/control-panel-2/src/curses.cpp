@@ -184,7 +184,7 @@ Curses::Curses(
     pdy(pdy_)
 {  
 
-  assert( stride * ny <= MCursesColorsMax );
+  assert( stride * ny <= MCursesXCELLS);
 
   
 
