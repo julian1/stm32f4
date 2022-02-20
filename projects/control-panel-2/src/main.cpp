@@ -282,9 +282,11 @@ static void update_ui_events_in(app_t *app)
 static void lcd_render( Curses & curses)
 {
   /*
-      change name to agg_render
+    - maybe change name to agg_render
       very high level function. because coordinates the paging.
 
+    -  funny that the lcd does not have a context variable.
+        instead its talking to single fsmc controller.
   */
 
   // persist the page that we need to draw
