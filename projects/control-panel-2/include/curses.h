@@ -18,12 +18,15 @@
 #define MCursesColorsMax 8
 
 /*
+  FOR FUTURE
   - OK. when run text left to right - we can override the position to achieve proportionate spacing.
   - for numbers we don't want.
   - for text labels we sometime do.
   - eg. the '.' is too large. and the unit 'mV' is too squashed. 
   ---
   only issue - is when test changes - and need to ensure background is clear. 
+
+  The menu controller - is going to want to 
 
 */
 

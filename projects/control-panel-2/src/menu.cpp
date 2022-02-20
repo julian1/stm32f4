@@ -425,7 +425,7 @@ void MenuController::event(int event_)
 */
 
 
-void Menu::draw1( Curses & curses )
+void Menu::draw( Curses & curses )
 {
 
   clear( curses ); // eg. remove text. from last draw

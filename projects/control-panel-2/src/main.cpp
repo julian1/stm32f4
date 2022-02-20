@@ -366,7 +366,7 @@ static void loop(app_t *app)  // TODO change to a c++ reference
 
     // do the curses menu draw 
     // app->menu.draw();
-    app->menu.draw1( app->curses  ); // TODO should pass the curses here....
+    app->menu.draw( app->curses  ); // TODO should pass the curses here....
 
     lcd_render( app->curses, app->curses2  ); 
 
