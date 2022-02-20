@@ -546,12 +546,26 @@ void Menu::draw( Curses & curses )
   Item *item = list_controller.item;
   assert(item );
 
+
+  // dropdown name
+  to(curses, 0, 5);
+
+  if( drop_controller.focus)
+    effect(curses, 0x01);        // invert
+  else
+    effect(curses, 0x00);        // normal.   TODO - use enums. CUR_NORMAL | CUR_INVERT 
+
+  text(curses, item->name );
+
+
+
+
   /// draw keys.
   for(unsigned i = 0; i < 3; ++i)
   {
     to(curses, 0, 6 + i);
 
-    if( i == list_controller.idx ) {
+    if( i == list_controller.idx && !drop_controller.focus ) {
       // printf("setting effect \n");
       // effect(curses, 0x11);        // invert
       effect(curses, 0x01);        // invert

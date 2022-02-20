@@ -629,15 +629,18 @@ int main(int arg0)
   DigitController digit_controller(element_idx );
 
 
-  ListController  list_controller( digit_controller/* , & item */ );
+  ListController  list_controller( digit_controller);
 
-  DropController     drop_controller( list_controller);
+  DropController  drop_controller( list_controller);
 
   // menucontroller is the controller controller
   // rename
   MenuController  menu_controller( drop_controller, list_controller, element_controller, digit_controller);
 
-  Menu menu( list_controller, element_controller, digit_controller );       // MenuView
+  // draw. could probably just put the draw on the menu_controller.
+  // but separate for separation of concerns.
+  // else use function draw()..
+  Menu menu( drop_controller, list_controller, element_controller, digit_controller );       // MenuView
 
 
   char *name = "settings 1";

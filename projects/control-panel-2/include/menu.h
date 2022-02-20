@@ -246,10 +246,10 @@ struct MenuController
 
   */
 
+  DropController       & drop_controller;
   ListController    & list_controller;
   ElementController & element_controller;
   DigitController   & digit_controller;
-  DropController       & drop_controller;
 
   unsigned active_controller;
 
@@ -265,8 +265,7 @@ struct MenuController
         // usart data structures are up now
         // set the list controller as active
 
-
-        // this isn't right. needs to correspond with active_controller 
+        // 
         // list_controller.begin_edit( 0 );
         drop_controller.begin_edit( 0 );
     }
@@ -287,14 +286,16 @@ struct Menu
     - could probably be turned into a single function.
   */
 
+  DropController       & drop_controller;
   ListController    & list_controller;
   ElementController & element_controller;
   DigitController   & digit_controller;
 
 
 
-  explicit Menu( ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
+  explicit Menu( DropController       & drop_controller_, ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
     :
+    drop_controller(drop_controller_),
     list_controller(list_controller_),
     element_controller( element_controller_),
     digit_controller( digit_controller_)
