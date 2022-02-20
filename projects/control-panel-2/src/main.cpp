@@ -279,7 +279,7 @@ static void update_ui_events_in(app_t *app)
 
 
 
-static void lcd_render( Curses & curses)
+static void lcd_render( Curses & curses, Curses & curses2)
 {
   /*
     - maybe change name to agg_render
@@ -308,6 +308,7 @@ static void lcd_render( Curses & curses)
   // usart_printf("blink %u\n", blink );
 
   render( curses , rb,  blink );
+  render( curses2 , rb,  blink );
 
   // lcd synchronization, wait until not in vertical blanking mode
   while( getTear() ) {
@@ -322,7 +323,7 @@ static void lcd_render( Curses & curses)
 
 
 
-static void loop(app_t *app)
+static void loop(app_t *app)  // TODO change to a c++ reference
 {
 
   usart_printf("=========\n");
@@ -367,7 +368,7 @@ static void loop(app_t *app)
     // app->menu.draw();
     app->menu.draw1( app->curses  ); // TODO should pass the curses here....
 
-    lcd_render( app->curses ); 
+    lcd_render( app->curses, app->curses2  ); 
 
 
 
@@ -611,10 +612,13 @@ int main(int arg0)
   printf("sizeof(Curses) %u\n", sizeof(Curses) );
 
 
-  Curses curses2( 12, 3, 72, 80 );
-
-  to(curses2, 0, 0);
-  text(curses2, "whoot");
+  Curses curses2( 12, 3, 55, 55 );
+  clear( curses2 ); // eg. remove text. from last draw
+  font(curses2, &arial_span_72 ); // font
+  font(curses2, &arial_span_72 ); // font
+  color_pair_idx(curses2, 0); 
+  to(curses2, 0, 1);
+  text(curses2, "123.45mV");   // arial72 - not being able to draw text.... and crashing is bad....
 
 
   int32_t    element_idx = 0; // first digit, need negative to support after float
