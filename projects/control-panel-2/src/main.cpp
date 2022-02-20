@@ -615,8 +615,7 @@ int main(int arg0)
   Curses curses2( 12, 3, 55, 55 );
   clear( curses2 ); // eg. remove text. from last draw
   font(curses2, &arial_span_72 ); // font
-  font(curses2, &arial_span_72 ); // font
-  color_pair_idx(curses2, 0); 
+  color_pair_idx(curses2, 2); 
   to(curses2, 0, 1);
   text(curses2, "123.45mV");   // arial72 - not being able to draw text.... and crashing is bad....
 

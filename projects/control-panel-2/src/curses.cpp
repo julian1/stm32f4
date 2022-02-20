@@ -207,11 +207,18 @@ Curses::Curses(
 #if 1
   // set up color pairs
   //a.color_fg[ 0 ] = agg::rgba( 1,1,0); // yellow
-  color_fg[ 0 ] = agg::rgba( 1,0.90,0); // yellowy orange
-  color_bg[ 0 ] = agg::rgba( 0,0,0); // black
+  color_fg[0] = agg::rgba( 1,0.90,0); // orangy yellow
+  // color_fg[0] = agg::rgba( 0.99,1,0);   // greeny yellow
+  color_bg[0] = agg::rgba( 0,0,0); // black
 
-  color_fg[ 1 ] = agg::rgba( 1,0,0); // red
-  color_bg[ 1]  = agg::rgba( 0,0,0); // black
+  color_fg[1] = agg::rgba( 1,0,0); // red
+  color_bg[1]  = agg::rgba( 0,0,0); // black
+
+
+  color_fg[2] = agg::rgba( 0.8,1,0.8); // light green 
+  // color_fg[2] = agg::rgba( 0.3, 0.8,0.3); // interesting purple.
+  color_bg[2]  = agg::rgba( 0,0,0); // black
+
 #endif
 
 
@@ -400,35 +407,6 @@ void text( Curses &a, const char *s)
 }
 
 
-
-
-
-#if 0
-
-void set_callback( Curses &a, void *func, void *arg)
-{
-
-}
-#endif
-
-
-void draw_test_charset( Curses &a, rb_t &rb )
-{
-  // fill screen with chars
-  // useful for test, check sizing, see what chars exist in a fontface
-  int i = 0;
-  for(unsigned y = 0; y < a.ny; ++y)
-  for(unsigned x = 0; x < a.stride; ++x) {
-
-
-    int x1 = x * a.pdx;
-    int y1 = y * a.pdy;
-
-    drawSpanChar(rb,  arial_span_18, x1, y1, agg::rgba(0,0,1), i++ % 0xff);
-  }
-}
-
-
 // we need to templatize the render function.
 
 
@@ -511,5 +489,35 @@ void render( Curses &a, rb_t &rb, bool blink )
 
 
 
+
+#if 0
+
+void draw_test_charset( Curses &a, rb_t &rb )
+{
+  // doesn't actually use curses - except for dims
+  // useful for test, check sizing, see what chars exist in a fontface
+  int i = 0;
+  for(unsigned y = 0; y < a.ny; ++y)
+  for(unsigned x = 0; x < a.stride; ++x) {
+
+
+    int x1 = x * a.pdx;
+    int y1 = y * a.pdy;
+
+    drawSpanChar(rb,  arial_span_18, x1, y1, agg::rgba(0,0,1), i++ % 0xff);
+  }
+}
+
+#endif
+
+
+
+#if 0
+
+void set_callback( Curses &a, void *func, void *arg)
+{
+
+}
+#endif
 
 
