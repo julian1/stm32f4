@@ -32,7 +32,7 @@
 
 /*
   TODO
-    - OK. we need another controller.
+    - done - OK. we need another controller.
       that selects the menu list to display. eg. page_controller.
       then we can move between less common readings (like stddev) and  settings
 

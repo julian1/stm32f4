@@ -13,6 +13,8 @@ struct ListController;
   need ability to inject a boolean option. for eg. autoranging on/off.
 
 
+  - change name drop_controller to page_controller.
+  - maybe change name Item  to  Page or PageItem or MenuItem.
 */
 
 
@@ -26,18 +28,18 @@ struct Item
   double  *values ;
   unsigned  n;
 
-  Item( 
+  Item(
     char    *name,
     char    **keys,
     double  *values ,
     unsigned  n
- ) : 
+ ) :
     name(name),
     keys(keys),
     values(values),
     n(n)
   { }
-    
+
 
 };
 
@@ -73,7 +75,7 @@ struct DropController
 
     items(items),
     n(n)
-  { 
+  {
   }
 
     // will propagate down.
@@ -109,7 +111,7 @@ struct ListController
   bool    focus;
   int32_t idx;
 
-  Item  *item ; 
+  Item  *item ;
 
   ListController (  DigitController & digit_controller /*, Item *item */ )
     :
@@ -250,7 +252,7 @@ struct MenuController
         // usart data structures are up now
         // set the list controller as active
 
-        // 
+        //
         // list_controller.begin_edit( 0 );
         drop_controller.begin_edit( 0 );
     }
