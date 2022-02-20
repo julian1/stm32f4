@@ -276,8 +276,10 @@ static void update_ui_events_in(app_t *app)
 
 
 
-
-
+/*
+  rename to lcd_double_buffer_render().
+  and have the alternative strategy easily switchable.
+*/
 
 static void lcd_render( Curses & curses, Curses & curses2)
 {
@@ -642,6 +644,7 @@ int main(int arg0)
   // else use function draw()..
   Menu menu( drop_controller, list_controller, element_controller, digit_controller );       // MenuView
 
+  // int x = 0b1001;
 
   char *name = "settings 1";
   char *keys[]     = { "whoot", "apple", "blue" } ;

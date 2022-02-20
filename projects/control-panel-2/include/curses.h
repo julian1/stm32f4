@@ -19,33 +19,33 @@
 
 /*
   FOR FUTURE
-  - OK. when run text left to right - we can override the position to achieve proportionate spacing.
+  - OK. when run text left to right - could have x field that overrides the deffault grid spacing for proportionate font glyph spacing.
   - for numbers we don't want.
   - for text labels we sometime do.
-  - eg. the '.' is too large. and the unit 'mV' is too squashed. 
+  - eg. the '.' is too large. and the unit 'mV' is too squashed.
   ---
-  only issue - is when test changes - and need to ensure background is clear. 
+  only issue - is when test changes - and need to ensure background is clear.
 
-  The menu controller - is going to want to 
+  The menu controller - is going to want to
 
 */
 
 /*
   TODO
-    - OK. we need another controller. 
+    - OK. we need another controller.
       that selects the menu list to display. eg. page_controller.
-      then we can move between less common readings (like stddev) and  settings 
-  
-      - actually might just be done with list controller. 
-    
+      then we can move between less common readings (like stddev) and  settings
+
+      - actually might just be done with list controller.
+
       - no would be better with another controller.
           rather than zoom in / zoom out.
-          instead if the list idx == 0. when the rotary changes. then change the menu 
+          instead if the list idx == 0. when the rotary changes. then change the menu
           need an idx for the menu
         -----------
 
       No. it has to be a separate mode.  otherwise how do we know to move in the list or move the menu.
-          
+
 
     - then we need another curses for larger
 
@@ -63,7 +63,7 @@ struct Curses
     uint16_t ny_,
     uint16_t pdx_,
     uint16_t pdy_ );
- 
+
 
     // change name stride back to nx_
   uint16_t stride; // nx
@@ -92,7 +92,7 @@ struct Curses
 
   // whether item needs to be redrawn
   bool changed[ MCursesCellsMax ];
-  
+
 
   /////////////////////////////////////
   // character - dominant. only check other flags.
@@ -106,7 +106,7 @@ struct Curses
 
 
   // IMPORTANT - blinking at different speeds is easy
-  // just add an uint_16 array for.    eg. (ms / 500 %2 == 0) or (ms %200 == 0) 
+  // just add an uint_16 array for.    eg. (ms / 500 %2 == 0) or (ms %200 == 0)
   // eg. pass systemmillis instead of bool.
 
   // effect. effects
@@ -168,9 +168,25 @@ void render( Curses &a, rb_t &rb, bool blink );
 
 
 
+// these are wrong as 0x. bit fields. should be 0b00
+// or use an enum
+
+enum {
+  cur_normal = 0x00,
+  cur_invert = 0x01,
+  cur_blink  = 0x10  // (1 << 0x01) fixme.
+
+};
+
+
+#define CUR_NORMAL  0x00
+#define CUR_INVERT  0x01
+#define CUR_BLINK   0x10  // (1 << 0x01) fixme.
+
+
 
 #if 0
-void pfalloc( void * ) ; 
+void pfalloc( void * ) ;
 
 
 

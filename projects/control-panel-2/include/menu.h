@@ -10,20 +10,8 @@ struct ListController;
 
 
 /*
-  we need better names
+  need ability to inject a boolean option. for eg. autoranging on/off.
 
-  - think - need a structure
-
-  struct {
-    char *name;
-
-    unsigned n;
-    char **keys;
-    double *values;
-
-  };
-
-  OR. have a switch statement.
 
 */
 
@@ -48,10 +36,7 @@ struct Item
     keys(keys),
     values(values),
     n(n)
-  {
-  }
-
-
+  { }
     
 
 };
