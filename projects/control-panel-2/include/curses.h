@@ -4,6 +4,7 @@
 
 #include "agg.h"
 #include "fonts.h"
+#include "assert.h"
 
 /*
   - could use a sparse array.
@@ -51,6 +52,11 @@ void pfalloc( void * ) ;
 
   Actually calloc would work - if we were not in the constructor context. but the scoping context.
     it's not calloc that increments the stack pointer - it's something else.
+    -------------
+
+  templates just clutter everything up.
+
+  pl
 */
 
 
@@ -69,7 +75,16 @@ struct CursesMem
 
 struct Curses
 {
+  explicit Curses(
 
+    // change name stride back to nx_
+    uint16_t stride_,
+    uint16_t ny_,
+    uint16_t pdx_,
+    uint16_t pdy_ );
+ 
+
+#if 0
   explicit Curses(
 
     // change name stride back to nx_
@@ -82,8 +97,12 @@ struct Curses
     ny(ny_),
     pdx(pdx_),
     pdy(pdy_)
-  {  }
+  {  
 
+    assert( stride * ny <= MCursesColorsMax );
+  }
+
+#endif
 
     // change name stride back to nx_
   uint16_t stride; // nx

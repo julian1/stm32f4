@@ -416,7 +416,11 @@ void MenuController::event(int event_)
 
 
 /*
+  keithley 7.5 dmm7510.
+    has enter and exit buttons and rotary and that's all.
+    and touch.
 
+  https://www.youtube.com/watch?v=yT7aOK0q17Q
 
 */
 

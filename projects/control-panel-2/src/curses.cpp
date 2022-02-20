@@ -142,22 +142,6 @@
 */
 
 
-
-
-
-
-
-// order?????
-int index( Curses &a, int x, int y )
-{
-  //
-
-  int i = (y * a.stride ) + x   ;
-  assert(i < MCursesXCELLS);
-  // return (y * a.stride ) + x   ;
-  return i;
-}
-
 /*
   problems
     - we cannot work with this without c++. so may as well use c++   methods for clarity
@@ -174,12 +158,50 @@ int index( Curses &a, int x, int y )
 
       - it just pervades stuff.... having to pass the dimensions around.
 
+
+      - we will be using malloc/ anyway? for matrices.
+
     - ***** it's used only once. So only really needs allocating once.
             and the size is known up front.
             so really should not be using malloc.
 
       
 */
+
+
+
+Curses::Curses(
+
+    // change name stride back to nx_
+    uint16_t stride_,
+    uint16_t ny_,
+    uint16_t pdx_,
+    uint16_t pdy_ )
+    :
+    stride(stride_),
+    ny(ny_),
+    pdx(pdx_),
+    pdy(pdy_)
+{  
+
+  assert( stride * ny <= MCursesColorsMax );
+
+}
+
+
+
+
+
+// order?????
+int index( Curses &a, int x, int y )
+{
+  //
+
+  int i = (y * a.stride ) + x   ;
+  assert(i < MCursesXCELLS);
+  // return (y * a.stride ) + x   ;
+  return i;
+}
 
 
 void init( Curses & a)
@@ -413,6 +435,9 @@ void draw_test_charset( Curses &a, rb_t &rb )
     drawSpanChar(rb,  arial_span_18, x1, y1, agg::rgba(0,0,1), i++ % 0xff);
   }
 }
+
+
+// we need to templatize the render function.
 
 
 
