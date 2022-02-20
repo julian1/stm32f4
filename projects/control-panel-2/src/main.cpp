@@ -650,8 +650,16 @@ int main(int arg0)
   usart_printf("\n--------\n");
   usart_printf("addr main() %p\n", main );
 
+  // ram growing up.
+  printf("arg0 %u \n", ((unsigned )(void *) &arg0 )  );
+  printf("arg0 diff %uk\n", (((unsigned )(void *) &arg0 )  - 0x20000000 ) / 1024 );
+
+  printf("-----------\n" );
+  printf("malloc stats\n" );
+  malloc_stats();
 
 
+  // print_stack_pointer();
 
 
   ////////////////////////////
@@ -663,15 +671,11 @@ int main(int arg0)
 
 
 
-  usbd_device *usbd_dev ;
-	usbd_dev = usb_setup();
+  usbd_device *usbd_dev = usb_setup();
   assert(usbd_dev);
 
 
-
-
   fsmc_gpio_setup();
-
   fsmc_setup(1);
   tft_reset();
 
@@ -697,29 +701,10 @@ int main(int arg0)
 
 
 
-
-
-
-
-
-
-  /////////////////
-
-  // ram growing up.
-  printf("arg0 %u \n", ((unsigned )(void *) &arg0 )  );
-  printf("arg0 diff %uk\n", (((unsigned )(void *) &arg0 )  - 0x20000000 ) / 1024 );
-
-  printf("-----------\n" );
-  printf("malloc stats\n" );
-  malloc_stats();
-
-
-  print_stack_pointer();
-
   /////////////////////////////////
 
 
-  // command buffer - this could be done in app constructor I think.
+  // command buffer - should/could be done in app constructor I think.
   CString  command;
 
   cStringInit(&command, buf_command, buf_command + sizeof( buf_command));
@@ -732,12 +717,7 @@ int main(int arg0)
   printf("sizeof(Curses) %u\n", sizeof(Curses) );
 
 
-
-  // Curses curses2( 33, 17, 14, 16 );
-
-
-  // TODO pretty messy - taking a constructor and an init.
-  // init( curses );
+  // Curses curses2( 12, 3, 72, 80 );
 
 
   int32_t    element_idx = 0; // first digit, need negative to support after float
@@ -775,44 +755,6 @@ int main(int arg0)
             curses, menu_controller, menu,
             ui_events_in 
             ) ; // not sure that app needs curses.
-
-  /*
-    OK. the ordering here is a mess.
-
-    - constructors - cannot printf because the console/uart system is not initialized.
-    - but the console needs to be initialized
-
-  */
-  //////////////////////
-
-  // TODO THIS IS horrible...
-  // should be passed by reference or done in the const0
-
-
-
-
-
-  /*
-      use % 4  - to get single step increment.
-      use % 3 - for 3 menu elements.
-      do not have to clamp the value.
-
-      use enum - with 0.    or   don't bother to code the menu elements.
-
-      use the same variable.  regardless of what menu is being navigated.
-
-      menulevel.
-      menuelement. <-
-    --------
-      the state is the counter timer.
-
-      if the menu list is being drawn. then just use get_counter() % 4 % n
-      - we don't need any more.
-      - if we are editing an entry. then we would need a flag.
-
-  */
-
-  // initRotaryEncoderTimer(TIM1, GPIOA, GPIO8, GPIO_AF1, GPIOA, GPIO9, GPIO_AF1) ;
 
 
 
