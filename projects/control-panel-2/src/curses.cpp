@@ -215,8 +215,10 @@ Curses::Curses(
   color_bg[1]  = agg::rgba( 0,0,0); // black
 
 
-  color_fg[2] = agg::rgba( 0.8,1,0.8); // light green 
+  // color_fg[2] = agg::rgba( 0.8,1,0.8); // light green 
   // color_fg[2] = agg::rgba( 0.3, 0.8,0.3); // interesting purple.
+
+  color_fg[2] = agg::rgba( 0.0,0.9,0); // light green  - fairly keysighy
   color_bg[2]  = agg::rgba( 0,0,0); // black
 
 #endif
