@@ -1,169 +1,4 @@
 /*
-  same interface ... for drawing outlnie text, as span text.
-    eg. point size   int(72 / 20.f ) .
-    and without having to pass mtx.
-
-    and return x position. so
-    -------
-    allow us to use interchangeably.
-
-  ncurses/ vt100 terminal.
-    - but with some characters. different font size.
-    - ability to pass callback
-    ----------
-  ================
-    - to manage
-        x,y position (eg. can uniform space)uniform space)
-        color
-        focus glyph/invert.  blinking (easy).
-        maybe veritical/horitzonal lines.
-        symbols - can be embedded with codes/indexes like fonts. we have simple svg.
-        symbols - can also pre-render span data.
-        -----
-        hit-testing - becomes easy. just use cursor positon for focus. and
-          can then index - the actual text as well.  <- interesting.
-
-        optimisation - avoiding drawing.
-          - can test - if last char changes/ to avoid drawing.
-          - yes. write into a buffer. then diff the buffer for change. to enable minimal change.
-             eg. so every char - should get font-size, and char data.
-          - but can still use proportional space fonts.
-
-        - cursor mapping space - very good (
-            - for optimizing/computing change delta,
-            - for hittesting,
-            - for font size / mapping for prominance.
-            - for indent left, and indent right.
-
-        write(x,y, "whoot", ).
-        cursor(3,4)   not generic move.
-        color(green )
-        write(3,4, "whoot", ).   moves to pos 3,4, but then text is written with proportional spacing.
-
-        Need same structure repeated - for old/new.  in order to do delta.
-
-        would be good enough for something
-          like this https://www.youtube.com/watch?v=SMK4kkf7jmM
-
-        ---------------
-        cursor coordinate scheme is a way to carve up space. font-size affects this. so font size is recorded.
-
-        notional_x[ 100* 100 ];   <- note that we can map this how every we want. (eg. a big middle section with larger fonts - could be treated as extra rows at the bottom).
-        notional_y[ 100* 100 ];
-        fontsize[ 100 * 100 ] ;
-
-        ----
-        derived. eg. filled in by the actual drawing commands.
-        colorindex[ 100 * 100 ] ;
-        color[ 100 * 100 ] ;
-        character[ 100 * 100 ] ;
-        actual_x[ 100* 100 ];   // for the actual character position. for hittest. and focus. and delta.
-        actual_y[ 100* 100 ];   // for the actual character position. for hittest. and focus. and delta.
-
-        ---------------
-        for drawing horizontal
-
-        notational concept.  of cursor positioning.
-        notational = starting text position. GOOD. first char aligned.
-
-          must loop once to determine.
-          eg. if row 3 has larger size font - then row 3 will affect all y positions.
-          so must map
-
-        int cursor_to_fontsize [ 100 * 100 ] ; <- use this to generate the cursor_to_screen
-
-        100x100.
-        stride== 100.
-        int cursor_to_screen_x[ 100 * 100 ] ;  (x + y * stride)
-        int cursor_to_screen_y[ 100 * 100 ] ;
-
-        - simple commands are equally good.
-
-
-        - need indent left/right.
-
-        - pre-determine font size mapping - for the cursor space.  eg. 100x100.
-          - so that when displaying text - we know the font size. so for any position.
-          - EXTR.    actually  we might make character map the entire cursor space. for the font size.
-          - also potentially with whether that space can have
-
-
-        - function  - cursor mapping / for any cursor pos - need the font-size. and text position.
-            to easily - draw characters.
-            eg. draw text -  will use this.
-
-        we probably want it,
-          for showing large amounts of text numeric data/ regardless.
-          for showing general flowing text.
-
-      mcurses for microcontrollers,
-        https://github.com/ChrisMicro/mcurses
-
-  ================
-
-
-
-
-  ---------
-  simple menu system.
-    - when draw something - should potentiallly also add a an element to a hit selection structure. fairly simple. then can easily search for bounds.
-    - keep flat. page style.
-
-    - keypad. for number entry.
-        or.  select digit. and provide ability to change it.
-        single keypad. o
-        no. just write the set v & i. underneath. and then cursor. on it.
-
-
-
-
-  ---------------
-  - done - dummy text - to test draw time.
-  - coroutines. done x86
-  - doen - spi slave - test on other board
-  - done - do storage for span data.
-
-  ----
-  xpt2046
-    - got x signal.
-
-  doing work in interups.
-    - get tear signal from tft to draw/flip page buffer
-    - have to get adc on 50Hz read. needs spi call.
-    - need to do spi to check the rails.
-    - cannot overlap spi reads/ in interupts / because share the same spi port/state.
-
-
-  ----------
-  - ok tear 1ms hi signal at 76.9Hz.   measured with scope on tear pin ssd1963 (bottom pin15 from rhs).  ssd1963 pin is unconenected on board.
-  - works with non-paged agg_test2 , and paged agg_test3 examples.
-
-  ---------
-
-  - maybe tear doesn't work - because we are drrawing/paging faster, than the screen refresh rate
-    ? try adding 100ms delay. again.
-  - OR - else just use vsync and configure it as interupt.
-  - OR - loop with 0x45 getscanline till it gets near the end (depends on page) then repage.
-  - OR - don't use double buffering. just draw/undraw  as needed.
-  --
-  - OR use f429 with sdram, and tft driver. can draw into mcu own sdram memory albeit via 16 bit 8080 bus.
-
-  TODO
-    fix agg_test2   without the paging/ double buffering
-      see if get tear signal.
-
-  ------------
-  spi slave receive is simple.
-    eg. just poll/block.
-    or interupt driven.
-    or dma.
-  https://deepbluembedded.com/how-to-receive-spi-with-stm32-dma-interrupt/#STM32_SPI_Slave_Receiver_Polling_Mode_8211_LAB
-
-  probably the only difference in slave - is who drives clk, and nss.
-
-  simple test - is just to try do the block/ receive.  then add the
-
-
 
   ------------
   nix-shell ~/devel/nixos-config/examples/arm.nix
@@ -289,8 +124,8 @@ typedef struct app_t
 
     usbd_device *usbd_dev, 
 
-
     Curses & curses, MenuController & menu_controller, Menu & menu,
+    Curses & curses2,
     CBuf & ui_events_in
     )
      :  
@@ -302,6 +137,9 @@ typedef struct app_t
 
       curses( curses),
       menu_controller ( menu_controller), menu( menu ),
+
+      curses2( curses2 ),
+
       ui_events_in(ui_events_in)
   { 
 
@@ -325,6 +163,9 @@ typedef struct app_t
   Curses        & curses;
   MenuController & menu_controller ;
   Menu            & menu;
+
+
+  Curses        & curses2;
 
   CBuf          & ui_events_in;
 
@@ -717,7 +558,10 @@ int main(int arg0)
   printf("sizeof(Curses) %u\n", sizeof(Curses) );
 
 
-  // Curses curses2( 12, 3, 72, 80 );
+  Curses curses2( 12, 3, 72, 80 );
+
+  to(curses2, 0, 0);
+  text(curses2, "whoot");
 
 
   int32_t    element_idx = 0; // first digit, need negative to support after float
@@ -753,6 +597,7 @@ int main(int arg0)
             command,
             usbd_dev,
             curses, menu_controller, menu,
+            curses2,
             ui_events_in 
             ) ; // not sure that app needs curses.
 
@@ -785,3 +630,173 @@ int main(int arg0)
 
 
 
+
+/*
+
+  same interface ... for drawing outlnie text, as span text.
+    eg. point size   int(72 / 20.f ) .
+    and without having to pass mtx.
+
+    and return x position. so
+    -------
+    allow us to use interchangeably.
+
+  ncurses/ vt100 terminal.
+    - but with some characters. different font size.
+    - ability to pass callback
+    ----------
+  ================
+    - to manage
+        x,y position (eg. can uniform space)uniform space)
+        color
+        focus glyph/invert.  blinking (easy).
+        maybe veritical/horitzonal lines.
+        symbols - can be embedded with codes/indexes like fonts. we have simple svg.
+        symbols - can also pre-render span data.
+        -----
+        hit-testing - becomes easy. just use cursor positon for focus. and
+          can then index - the actual text as well.  <- interesting.
+
+        optimisation - avoiding drawing.
+          - can test - if last char changes/ to avoid drawing.
+          - yes. write into a buffer. then diff the buffer for change. to enable minimal change.
+             eg. so every char - should get font-size, and char data.
+          - but can still use proportional space fonts.
+
+        - cursor mapping space - very good (
+            - for optimizing/computing change delta,
+            - for hittesting,
+            - for font size / mapping for prominance.
+            - for indent left, and indent right.
+
+        write(x,y, "whoot", ).
+        cursor(3,4)   not generic move.
+        color(green )
+        write(3,4, "whoot", ).   moves to pos 3,4, but then text is written with proportional spacing.
+
+        Need same structure repeated - for old/new.  in order to do delta.
+
+        would be good enough for something
+          like this https://www.youtube.com/watch?v=SMK4kkf7jmM
+
+        ---------------
+        cursor coordinate scheme is a way to carve up space. font-size affects this. so font size is recorded.
+
+        notional_x[ 100* 100 ];   <- note that we can map this how every we want. (eg. a big middle section with larger fonts - could be treated as extra rows at the bottom).
+        notional_y[ 100* 100 ];
+        fontsize[ 100 * 100 ] ;
+
+        ----
+        derived. eg. filled in by the actual drawing commands.
+        colorindex[ 100 * 100 ] ;
+        color[ 100 * 100 ] ;
+        character[ 100 * 100 ] ;
+        actual_x[ 100* 100 ];   // for the actual character position. for hittest. and focus. and delta.
+        actual_y[ 100* 100 ];   // for the actual character position. for hittest. and focus. and delta.
+
+        ---------------
+        for drawing horizontal
+
+        notational concept.  of cursor positioning.
+        notational = starting text position. GOOD. first char aligned.
+
+          must loop once to determine.
+          eg. if row 3 has larger size font - then row 3 will affect all y positions.
+          so must map
+
+        int cursor_to_fontsize [ 100 * 100 ] ; <- use this to generate the cursor_to_screen
+
+        100x100.
+        stride== 100.
+        int cursor_to_screen_x[ 100 * 100 ] ;  (x + y * stride)
+        int cursor_to_screen_y[ 100 * 100 ] ;
+
+        - simple commands are equally good.
+
+
+        - need indent left/right.
+
+        - pre-determine font size mapping - for the cursor space.  eg. 100x100.
+          - so that when displaying text - we know the font size. so for any position.
+          - EXTR.    actually  we might make character map the entire cursor space. for the font size.
+          - also potentially with whether that space can have
+
+
+        - function  - cursor mapping / for any cursor pos - need the font-size. and text position.
+            to easily - draw characters.
+            eg. draw text -  will use this.
+
+        we probably want it,
+          for showing large amounts of text numeric data/ regardless.
+          for showing general flowing text.
+
+      mcurses for microcontrollers,
+        https://github.com/ChrisMicro/mcurses
+
+  ================
+
+
+
+
+  ---------
+  simple menu system.
+    - when draw something - should potentiallly also add a an element to a hit selection structure. fairly simple. then can easily search for bounds.
+    - keep flat. page style.
+
+    - keypad. for number entry.
+        or.  select digit. and provide ability to change it.
+        single keypad. o
+        no. just write the set v & i. underneath. and then cursor. on it.
+
+
+
+
+  ---------------
+  - done - dummy text - to test draw time.
+  - coroutines. done x86
+  - doen - spi slave - test on other board
+  - done - do storage for span data.
+
+  ----
+  xpt2046
+    - got x signal.
+
+  doing work in interups.
+    - get tear signal from tft to draw/flip page buffer
+    - have to get adc on 50Hz read. needs spi call.
+    - need to do spi to check the rails.
+    - cannot overlap spi reads/ in interupts / because share the same spi port/state.
+
+
+  ----------
+  - ok tear 1ms hi signal at 76.9Hz.   measured with scope on tear pin ssd1963 (bottom pin15 from rhs).  ssd1963 pin is unconenected on board.
+  - works with non-paged agg_test2 , and paged agg_test3 examples.
+
+  ---------
+
+  - maybe tear doesn't work - because we are drrawing/paging faster, than the screen refresh rate
+    ? try adding 100ms delay. again.
+  - OR - else just use vsync and configure it as interupt.
+  - OR - loop with 0x45 getscanline till it gets near the end (depends on page) then repage.
+  - OR - don't use double buffering. just draw/undraw  as needed.
+  --
+  - OR use f429 with sdram, and tft driver. can draw into mcu own sdram memory albeit via 16 bit 8080 bus.
+
+  TODO
+    fix agg_test2   without the paging/ double buffering
+      see if get tear signal.
+
+  ------------
+  spi slave receive is simple.
+    eg. just poll/block.
+    or interupt driven.
+    or dma.
+  https://deepbluembedded.com/how-to-receive-spi-with-stm32-dma-interrupt/#STM32_SPI_Slave_Receiver_Polling_Mode_8211_LAB
+
+  probably the only difference in slave - is who drives clk, and nss.
+
+  simple test - is just to try do the block/ receive.  then add the
+
+
+
+*/
