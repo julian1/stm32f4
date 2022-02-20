@@ -628,10 +628,8 @@ int main(int arg0)
 
   DigitController digit_controller(element_idx );
 
-  char *keys[]     = { "whoot", "apple", "blue" } ;
-  double values[]  = { 14.12, 256, 399.123 } ;
 
-  ListController  list_controller( digit_controller, keys,  values, 3);
+  ListController  list_controller( digit_controller/* , & item */ );
 
   DropController     drop_controller( list_controller);
 
@@ -641,6 +639,24 @@ int main(int arg0)
 
   Menu menu( list_controller, element_controller, digit_controller );       // MenuView
 
+
+  char *name = "settings 1";
+  char *keys[]     = { "whoot", "apple", "blue" } ;
+  double values[]  = { 14.12, 256, 399.123 } ;
+
+  Item item1( name, keys, values , 3 ); 
+
+
+  char *name2 = "settings 2";
+  char *keys2[]     = { "fred", "bananna", "green" } ;
+  double values2[]  = { 9.12, 5, 123.456 } ;
+
+  Item item2( name2, keys2, values2, 3 ) ;
+
+  Item *items[] = { &item1, &item2 } ; 
+
+  // populate the initial value.
+  drop_controller.set_value( items, 2 );
 
 
   // c structure stuff

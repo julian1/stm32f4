@@ -64,7 +64,24 @@ static size_t dot_position( char *s )
 
 //////////
 
+// Dropdown. controller.
 // DropController
+
+
+
+void DropController::set_value(Item **items_, unsigned n_ )
+{
+  usart_printf("drop_controller - set_value\n");
+  assert(items);
+  items = items_;
+  n = n_;
+
+  //
+  idx = 0;
+
+  // propagate/push down
+  list_controller.set_value( items[0] );
+}
 
 
 void DropController::begin_edit(int32_t rotary)
@@ -87,17 +104,19 @@ void DropController::rotary_change(int32_t rotary)
 
   usart_printf("jcontroller - rotary_change\n");
 
-  switch( idx % 2 ) { 
+  this->idx = rotary - this->rotary_begin;
 
-  };
+  if(idx < 0) {
+    idx = 0;
+  }
+  else if(idx > n ) {
+    idx = n;
+  }
 
-  static char *keys[]     = { "fred", "bananna", "green" } ;
-  static double values[]  = { 9.12, 5, 123.456 } ;
-
-
+  assert(items);
   // I think we need to set on construction also.
   // but it is reverse order.
-  list_controller.set_value( keys, values, 3 );
+  list_controller.set_value( items[ idx ]   );
 }
 
 
@@ -122,10 +141,11 @@ void DropController::rotary_change(int32_t rotary)
 */
 
 
-void ListController::set_value( char **keys_, double * values_, size_t n_  )
+void ListController::set_value( Item *item_ )
 {
 
   printf("list_controller setting keys and values \n");
+/*
   printf("list_controller this %p\n", this);
 
   printf("keys[0] before %s\n", keys[0] );
@@ -135,8 +155,11 @@ void ListController::set_value( char **keys_, double * values_, size_t n_  )
 
   values = values_;
   n = n_;
+*/
+  assert(item_);
+  item = item_;
 
-  digit_controller.set_value(  &values_[ 0 ]  );  // should use the idx
+  digit_controller.set_value( & item->values[ 0]   );  // should use the idx
 }
 
 
@@ -194,7 +217,7 @@ void ListController::rotary_change(int32_t rotary)
   // set the active value
 
   // TODO Should be setting - on initialization/ construction.
-  digit_controller.set_value ( & values[ idx ] );
+  digit_controller.set_value ( & item->values[ idx ] );
 
 
 }
@@ -511,7 +534,8 @@ void Menu::draw( Curses & curses )
   color_pair_idx(curses, 0); // blue/white
 
 
-
+  Item *item = list_controller.item;
+  assert(item );
 
   /// draw keys.
   for(unsigned i = 0; i < 3; ++i)
@@ -526,7 +550,7 @@ void Menu::draw( Curses & curses )
       effect(curses, 0x00);        // normal
     }
 
-    text(curses, list_controller.keys[ i  ] );
+    text(curses, item->keys[ i  ] );
   }
 
 
@@ -538,7 +562,7 @@ void Menu::draw( Curses & curses )
     char buf2[100];
     char buf[100];
 
-    snprintf(buf, 100,  "%smV" , format_float(buf2, 100, 6, list_controller.values[ i ] ));
+    snprintf(buf, 100,  "%smV" , format_float(buf2, 100, 6, item->values[ i ] ));
 
     to(curses, 10, 6 + i);
 
@@ -550,7 +574,7 @@ void Menu::draw( Curses & curses )
     if( i == list_controller.idx ) {
 
 
-     /* 
+     /*
       if(drop_controller.focus) {
 
         effect(curses, 0x00);        // normal

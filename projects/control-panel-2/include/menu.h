@@ -29,6 +29,35 @@ struct ListController;
 
 
 
+
+
+struct Item
+{
+  char    *name;
+  char    **keys;
+  double  *values ;
+  unsigned  n;
+
+  Item( 
+    char    *name,
+    char    **keys,
+    double  *values ,
+    unsigned  n
+ ) : 
+    name(name),
+    keys(keys),
+    values(values),
+    n(n)
+  {
+  }
+
+
+    
+
+};
+
+
+
 struct DropController
 {
   // maybe rename MenuController.
@@ -47,17 +76,27 @@ struct DropController
   // OK. how do we handle this data?
   // perhaps a switch table would be easier.
 
+  Item **items;
+  unsigned n;
 
   DropController (  ListController & list_controller )
     :
     list_controller( list_controller),
     rotary_begin(0),
     focus(false),
-    idx( 0)
+    idx( 0),
 
+    items(items),
+    n(n)
   { 
-
   }
+
+    // will propagate down.
+    // actually should probably not do in constructor.
+    // list_controller.set_value( items[0 ] );
+
+  void set_value(Item **items, unsigned n );
+
 
   void begin_edit(int32_t rotary);
   void finish_edit(int32_t rotary);
@@ -85,31 +124,21 @@ struct ListController
   bool    focus;
   int32_t idx;
 
+  Item  *item ; 
 
-  char **keys;    // do not need to be here. EXCEPT if we use it to record the active menu list values.
-  double *values;
-  size_t  n;
-
-  ListController (  DigitController & digit_controller, char **keys, double *values, size_t n  )
+  ListController (  DigitController & digit_controller /*, Item *item */ )
     :
     digit_controller( digit_controller ),
     rotary_begin(0),
     focus(false),
     idx( 0),
-    // callback( NULL),
-    // callback_ctx( NULL),
-
-    keys( keys ),
-    values( values)
-  { 
-
-    printf("list_controller constructor this %p\n", this);
-  }
+    item( NULL )
+  { }
 
   // should the value be a pointer ????
   // so that it manipulates the real value.
   // called by DropController
-  void set_value( char **keys, double * values, size_t n  );
+  void set_value( Item *item );
 
 
   void begin_edit(int32_t rotary);
