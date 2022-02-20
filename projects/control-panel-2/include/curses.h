@@ -1,13 +1,12 @@
 
-#ifndef CURSES_H
-#define CURSES_H
+#pragma once
 
 #include "agg.h"
 #include "fonts.h"
 #include "assert.h"
 
 /*
-  - could use a sparse array.
+  - use a sparse array.
 
 */
 
@@ -18,57 +17,22 @@
 
 #define MCursesColorsMax 8
 
-// we could template the maxcells argument. when want to instantiate for different sizes.
 
 
 
 /*
-    OK. we need another controller. 
+  TODO
+    - OK. we need another controller. 
       that selects the menu list to display. eg. page_controller.
-
       then we can move between less common readings (like stddev) and  settings 
 
 */
 
 
-/*
-  this is very messy. 
-  with c++ constructor and separate init.
-  needs to be c++ due to the agg::rgba code.
 
-  so perhaps should do construcot for everything.
-  -----
-
-
-*/
-
-
-/* 
-  pass the allocator as a dependency
-  in the constructor.
-
-*/
-
+#if 0
 void pfalloc( void * ) ; 
 
-/*
-  templatize in a separate structure.
-  then pass by reference
-  ---
-  what about passing a reference to an arary 
-
-  - we either pass an allocator in and let it allocate as required .
-  - or pass the arrays int
-  ------------------
-
-  Actually calloc would work - if we were not in the constructor context. but the scoping context.
-    it's not calloc that increments the stack pointer - it's something else.
-    -------------
-
-  templates just clutter everything up.
-
-  pl
-*/
 
 
 template< int SZ>
@@ -81,7 +45,7 @@ struct CursesMem
   uint16_t  effect[ SZ ];
 };
 
-
+#endif
 
 
 struct Curses
@@ -94,26 +58,6 @@ struct Curses
     uint16_t pdx_,
     uint16_t pdy_ );
  
-
-#if 0
-  explicit Curses(
-
-    // change name stride back to nx_
-    uint16_t stride_,
-    uint16_t ny_,
-    uint16_t pdx_,
-    uint16_t pdy_ )
-    :
-    stride(stride_),
-    ny(ny_),
-    pdx(pdx_),
-    pdy(pdy_)
-  {  
-
-    assert( stride * ny <= MCursesColorsMax );
-  }
-
-#endif
 
     // change name stride back to nx_
   uint16_t stride; // nx
@@ -217,4 +161,3 @@ void render( Curses &a, rb_t &rb, bool blink );
 // void draw_test3(Curses &a );
 
 
-#endif // CURSES_H
