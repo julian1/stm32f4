@@ -27,6 +27,8 @@
       then we can move between less common readings (like stddev) and  settings 
 
     - then we need another curses for larger
+
+    - and want the rotary button - to be enter/drill in.
 */
 
 

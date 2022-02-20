@@ -286,6 +286,10 @@ typedef struct app_t
     CBuf & console_in,
     CBuf & console_out,
     CString  &  command,   
+
+    usbd_device *usbd_dev, 
+
+
     Curses & curses, MenuController & menu_controller, Menu & menu,
     CBuf & ui_events_in
     )
@@ -293,6 +297,9 @@ typedef struct app_t
       console_in (console_in),
       console_out (console_out),
       command(command),
+
+      usbd_dev( usbd_dev ),
+
       curses( curses),
       menu_controller ( menu_controller), menu( menu ),
       ui_events_in(ui_events_in)
@@ -644,6 +651,60 @@ int main(int arg0)
   usart_printf("addr main() %p\n", main );
 
 
+
+
+
+  ////////////////////////////
+  // usb
+  // might be better to pass as handler?
+
+  // should be being done before or after app construction.
+  // need buffers. up ...
+
+
+
+  usbd_device *usbd_dev ;
+	usbd_dev = usb_setup();
+  assert(usbd_dev);
+
+
+
+
+  fsmc_gpio_setup();
+
+  fsmc_setup(1);
+  tft_reset();
+
+  LCD_Init();
+  LCD_SetTearOn();
+  // LCD_TestFill();
+
+
+  xpt2046_gpio_setup();
+  xpt2046_spi_port_setup();
+  xpt2046_spi_setup( XPT2046_SPI );
+
+  xpt2046_reset( XPT2046_SPI);
+
+
+  // tim1
+  rcc_periph_clock_enable(RCC_TIM1);
+
+  rotary_setup_gpio_portA();
+  rotary_init_timer( TIM1 );
+  // rotary_setup_interupt();
+
+
+
+
+
+
+
+
+
+
+  /////////////////
+
   // ram growing up.
   printf("arg0 %u \n", ((unsigned )(void *) &arg0 )  );
   printf("arg0 diff %uk\n", (((unsigned )(void *) &arg0 )  - 0x20000000 ) / 1024 );
@@ -655,7 +716,10 @@ int main(int arg0)
 
   print_stack_pointer();
 
-  // command buffer
+  /////////////////////////////////
+
+
+  // command buffer - this could be done in app constructor I think.
   CString  command;
 
   cStringInit(&command, buf_command, buf_command + sizeof( buf_command));
@@ -663,13 +727,14 @@ int main(int arg0)
   assert(cStringCount(&command) == 1); // null terminator
 
 
-  /////////////////////////////////
-
-  // only build the app structure up 
-
   Curses curses( 33, 17, 14, 16 );
 
   printf("sizeof(Curses) %u\n", sizeof(Curses) );
+
+
+
+  // Curses curses2( 33, 17, 14, 16 );
+
 
   // TODO pretty messy - taking a constructor and an init.
   // init( curses );
@@ -706,6 +771,7 @@ int main(int arg0)
   app_t app( console_in, 
             console_out, 
             command,
+            usbd_dev,
             curses, menu_controller, menu,
             ui_events_in 
             ) ; // not sure that app needs curses.
@@ -721,43 +787,6 @@ int main(int arg0)
 
   // TODO THIS IS horrible...
   // should be passed by reference or done in the const0
-
-
-
-  ////////////////////////////
-  // usb
-  // might be better to pass as handler?
-	app.usbd_dev = usb_setup();
-  assert(app.usbd_dev);
-
-
-
-
-  fsmc_gpio_setup();
-
-  fsmc_setup(1);
-  tft_reset();
-
-  LCD_Init();
-  LCD_SetTearOn();
-  // LCD_TestFill();
-
-
-  xpt2046_gpio_setup();
-  xpt2046_spi_port_setup();
-  xpt2046_spi_setup( XPT2046_SPI );
-
-  xpt2046_reset( XPT2046_SPI);
-
-
-  // tim1
-  rcc_periph_clock_enable(RCC_TIM1);
-
-  rotary_setup_gpio_portA();
-  rotary_init_timer( TIM1 );
-  // rotary_setup_interupt();
-
-
 
 
 
