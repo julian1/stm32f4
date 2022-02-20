@@ -611,13 +611,14 @@ int main(int arg0)
 
   printf("sizeof(Curses) %u\n", sizeof(Curses) );
 
+  /////////////
 
-  Curses curses2( 12, 3, 55, 55 );
+  Curses curses2( 12, 3, 48, 55 );
   clear( curses2 ); // eg. remove text. from last draw
   font(curses2, &arial_span_72 ); // font
   color_pair_idx(curses2, 2); 
   to(curses2, 0, 1);
-  text(curses2, "123.45mV");   // arial72 - not being able to draw text.... and crashing is bad....
+  text(curses2, "12.3456mV");   // arial72 - not being able to draw text.... and crashing is bad....
 
 
   int32_t    element_idx = 0; // first digit, need negative to support after float

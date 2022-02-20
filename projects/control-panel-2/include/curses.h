@@ -17,8 +17,15 @@
 
 #define MCursesColorsMax 8
 
+/*
+  - OK. when run text left to right - we can override the position to achieve proportionate spacing.
+  - for numbers we don't want.
+  - for text labels we sometime do.
+  - eg. the '.' is too large. and the unit 'mV' is too squashed. 
+  ---
+  only issue - is when test changes - and need to ensure background is clear. 
 
-
+*/
 
 /*
   TODO
@@ -31,24 +38,6 @@
     - and want the rotary button - to be enter/drill in.
 */
 
-
-
-#if 0
-void pfalloc( void * ) ; 
-
-
-
-template< int SZ>
-struct CursesMem
-{
-  bool      changed[ SZ ];
-  uint16_t  character[ SZ ];
-  const     FontSpans *font[ SZ];
-  uint8_t   color_pair_idx[ SZ ];
-  uint16_t  effect[ SZ ];
-};
-
-#endif
 
 
 struct Curses
@@ -162,5 +151,27 @@ void render( Curses &a, rb_t &rb, bool blink );
 
 // void draw_test1(Curses &a );
 // void draw_test3(Curses &a );
+
+
+
+
+#if 0
+void pfalloc( void * ) ; 
+
+
+
+template< int SZ>
+struct CursesMem
+{
+  bool      changed[ SZ ];
+  uint16_t  character[ SZ ];
+  const     FontSpans *font[ SZ];
+  uint8_t   color_pair_idx[ SZ ];
+  uint16_t  effect[ SZ ];
+};
+
+#endif
+
+
 
 
