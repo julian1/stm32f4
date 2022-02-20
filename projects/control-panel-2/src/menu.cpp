@@ -64,10 +64,10 @@ static size_t dot_position( char *s )
 
 //////////
 
-// JController
+// DropController
 
 
-void JController::begin_edit(int32_t rotary)
+void DropController::begin_edit(int32_t rotary)
 {
 
   usart_printf("jcontroller - rotary_begin set to %d\n", rotary_begin);
@@ -77,12 +77,12 @@ void JController::begin_edit(int32_t rotary)
 }
 
 
-void JController::finish_edit(int32_t rotary)
+void DropController::finish_edit(int32_t rotary)
 {
   focus = false;
 }
 
-void JController::rotary_change(int32_t rotary)
+void DropController::rotary_change(int32_t rotary)
 {
 
   usart_printf("jcontroller - rotary_change\n");
@@ -448,7 +448,7 @@ void MenuController::event(int event_)
     if(cand != this->active_controller) {
 
       switch( this->active_controller) {
-        case 0:  j_controller.finish_edit(rotary);  break;
+        case 0:  drop_controller.finish_edit(rotary);  break;
         case 1:  list_controller.finish_edit(rotary);  break;
         case 2:  element_controller.finish_edit(rotary); break;
         case 3:  digit_controller.finish_edit(rotary); break;
@@ -457,7 +457,7 @@ void MenuController::event(int event_)
       this->active_controller = cand;
 
       switch( this->active_controller ) {
-        case 0:  j_controller.begin_edit(rotary);  break;
+        case 0:  drop_controller.begin_edit(rotary);  break;
         case 1:  list_controller.begin_edit(rotary);  break;
         case 2:  element_controller.begin_edit(rotary); break;
         case 3:  digit_controller.begin_edit(rotary); break;
@@ -471,7 +471,7 @@ void MenuController::event(int event_)
   else if (event_ == ui_events_rotary_change ) {
 
     switch( this->active_controller ) {
-      case 0:  j_controller.rotary_change(rotary);  break;
+      case 0:  drop_controller.rotary_change(rotary);  break;
       case 1:  list_controller.rotary_change(rotary);  break;
       case 2:  element_controller.rotary_change(rotary); break;
       case 3:  digit_controller.rotary_change(rotary); break;
@@ -551,7 +551,7 @@ void Menu::draw( Curses & curses )
 
 
      /* 
-      if(j_controller.focus) {
+      if(drop_controller.focus) {
 
         effect(curses, 0x00);        // normal
         text(curses,  buf);
@@ -592,7 +592,7 @@ void Menu::draw( Curses & curses )
           effect( curses, 0x11 );   // invert and blink
         else if (digit_controller.focus )
           effect( curses, 0x01 );   // invert
-        // else ; // j_controller // assert( 0 );
+        // else ; // drop_controller // assert( 0 );
 
         // apply effect at current position
         ch_effect( curses);

@@ -633,11 +633,11 @@ int main(int arg0)
 
   ListController  list_controller( digit_controller, keys,  values, 3);
 
-  JController     j_controller( list_controller);
+  DropController     drop_controller( list_controller);
 
   // menucontroller is the controller controller
   // rename
-  MenuController  menu_controller( j_controller, list_controller, element_controller, digit_controller);
+  MenuController  menu_controller( drop_controller, list_controller, element_controller, digit_controller);
 
   Menu menu( list_controller, element_controller, digit_controller );       // MenuView
 

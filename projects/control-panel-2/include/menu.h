@@ -29,7 +29,7 @@ struct ListController;
 
 
 
-struct JController
+struct DropController
 {
   // maybe rename MenuController.
   // and rename the MenuController to DelegatingController
@@ -48,7 +48,7 @@ struct JController
   // perhaps a switch table would be easier.
 
 
-  JController (  ListController & list_controller )
+  DropController (  ListController & list_controller )
     :
     list_controller( list_controller),
     rotary_begin(0),
@@ -108,7 +108,7 @@ struct ListController
 
   // should the value be a pointer ????
   // so that it manipulates the real value.
-  // called by JController
+  // called by DropController
   void set_value( char **keys, double * values, size_t n  );
 
 
@@ -220,13 +220,13 @@ struct MenuController
   ListController    & list_controller;
   ElementController & element_controller;
   DigitController   & digit_controller;
-  JController       & j_controller;
+  DropController       & drop_controller;
 
   unsigned active_controller;
 
-  explicit MenuController(JController & j_controller_, ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
+  explicit MenuController(DropController & drop_controller_, ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
     :
-    j_controller(j_controller_),
+    drop_controller(drop_controller_),
     list_controller(list_controller_),
     element_controller( element_controller_),
     digit_controller( digit_controller_),
@@ -239,7 +239,7 @@ struct MenuController
 
         // this isn't right. needs to correspond with active_controller 
         // list_controller.begin_edit( 0 );
-        j_controller.begin_edit( 0 );
+        drop_controller.begin_edit( 0 );
     }
 
   void event( int);
