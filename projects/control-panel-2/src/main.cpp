@@ -672,7 +672,7 @@ int main(int arg0)
   printf("sizeof(Curses) %u\n", sizeof(Curses) );
 
   // TODO pretty messy - taking a constructor and an init.
-  init( curses );
+  // init( curses );
 
 
   int32_t    element_idx = 0; // first digit, need negative to support after float

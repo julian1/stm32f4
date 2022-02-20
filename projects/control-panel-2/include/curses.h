@@ -178,7 +178,7 @@ struct Curses
 // treat non-virtual functions as functions.
 
 // TODO if this is using c++. then would be better to get rid of init().
-void init( Curses & a);
+// void init( Curses & a);
 
 void clear( Curses & a);
 

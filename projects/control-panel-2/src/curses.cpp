@@ -186,6 +186,42 @@ Curses::Curses(
 
   assert( stride * ny <= MCursesColorsMax );
 
+  
+
+  // defaults/current state
+  cursor_font = & arial_span_18;
+  // a.cursor_color = agg::rgba(0,0,1);
+  cursor_color_pair_idx = 0;  // blue white
+  cursor_x = 0;
+  cursor_y = 0;
+
+#if 0
+  // set up color pairs
+  a.color_fg[ 0 ] = agg::rgba( 0,0,1); // blue
+  a.color_bg[ 0 ] = agg::rgba( 1,1,1); // white
+
+  a.color_fg[ 1 ] = agg::rgba( 1,0,0); // red
+  a.color_bg[ 1]  = agg::rgba( 1,1,1); // white
+#endif
+
+#if 1
+  // set up color pairs
+  //a.color_fg[ 0 ] = agg::rgba( 1,1,0); // yellow
+  color_fg[ 0 ] = agg::rgba( 1,0.90,0); // yellowy orange
+  color_bg[ 0 ] = agg::rgba( 0,0,0); // black
+
+  color_fg[ 1 ] = agg::rgba( 1,0,0); // red
+  color_bg[ 1]  = agg::rgba( 0,0,0); // black
+#endif
+
+
+  /////////
+
+  usart_printf("stride=%u, ny=%u\n" , stride, ny);
+
+  clear( *this );
+
+
 }
 
 
@@ -204,53 +240,7 @@ int index( Curses &a, int x, int y )
 }
 
 
-void init( Curses & a)
-{
-  // change name init().
-/*
-  // dims
-  a.stride = 33;
-  a.ny = 17;
-  a.pdx = 14;
-  a.pdy = 16;
-*/
-  // defaults/current state
-  a.cursor_font = & arial_span_18;
-  // a.cursor_color = agg::rgba(0,0,1);
 
-
-  a.cursor_color_pair_idx = 0;  // blue white
-
-  a.cursor_x = 0;
-  a.cursor_y = 0;
-
-#if 0
-  // set up color pairs
-  a.color_fg[ 0 ] = agg::rgba( 0,0,1); // blue
-  a.color_bg[ 0 ] = agg::rgba( 1,1,1); // white
-
-  a.color_fg[ 1 ] = agg::rgba( 1,0,0); // red
-  a.color_bg[ 1]  = agg::rgba( 1,1,1); // white
-#endif
-
-#if 1
-  // set up color pairs
-  //a.color_fg[ 0 ] = agg::rgba( 1,1,0); // yellow
-  a.color_fg[ 0 ] = agg::rgba( 1,0.90,0); // yellowy orange
-  a.color_bg[ 0 ] = agg::rgba( 0,0,0); // black
-
-  a.color_fg[ 1 ] = agg::rgba( 1,0,0); // red
-  a.color_bg[ 1]  = agg::rgba( 0,0,0); // black
-#endif
-
-
-
-  /////////
-
-  usart_printf("stride=%u, ny=%u\n" , a.stride, a.ny);
-
-  clear( a );
-}
 
 
 void clear( Curses & a)
@@ -260,7 +250,7 @@ void clear( Curses & a)
 
       int i = index(a, x, y);
 
-                              // No. should test if it's different
+      // if not clear - then clear and mark as changed
       if(a.character[i] != 0
         || a.font[i] != 0
         || a.color_pair_idx[i] != 0
@@ -273,6 +263,8 @@ void clear( Curses & a)
 
         a.changed[ i ] = true;
       }
+      
+      // else unchanged
       else {
         a.changed[ i ] = false;
 
