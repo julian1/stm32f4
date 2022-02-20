@@ -180,7 +180,7 @@ struct Menu
   */
 
   // TODO ************* remove. and pass 
-  Curses & curses;
+  // Curses & curses;
   // MenuController & menu_controller;
 
   ListController    & list_controller;
@@ -189,9 +189,9 @@ struct Menu
 
 
 
-  explicit Menu(Curses & curses, ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
+  explicit Menu(/*Curses & curses, */ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
   // explicit Menu( Curses & curses, MenuController & menu_controller_ )
-    : curses( curses ),
+    : // curses( curses ),
     list_controller(list_controller_),
     element_controller( element_controller_),
     digit_controller( digit_controller_)

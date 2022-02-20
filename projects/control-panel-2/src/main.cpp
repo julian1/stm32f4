@@ -279,7 +279,7 @@ static void update_ui_events_in(app_t *app)
 
 
 
-static void draw( Curses & curses)
+static void lcd_render( Curses & curses)
 {
   /*
       change name to agg_render
@@ -302,10 +302,6 @@ static void draw( Curses & curses)
   // ok, this works. so maybe there is memory corruption somewhere.
 
   ////////////////////////////////////
-
-  // draw1(  curses ) ;
-
-
   int blink = (system_millis / 500) % 2;
   // usart_printf("blink %u\n", blink );
 
@@ -369,7 +365,7 @@ static void loop(app_t *app)
     // app->menu.draw();
     app->menu.draw1( app->curses  ); // TODO should pass the curses here....
 
-    draw(  app->curses ); 
+    lcd_render( app->curses ); 
 
 
 
@@ -633,7 +629,7 @@ int main(int arg0)
   // menucontroller is the controller controller
   MenuController  menu_controller(  list_controller, element_controller, digit_controller);
 
-  Menu menu( curses, list_controller, element_controller, digit_controller );       // MenuView
+  Menu menu( list_controller, element_controller, digit_controller );       // MenuView
 
 
 
