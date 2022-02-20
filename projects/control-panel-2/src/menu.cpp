@@ -528,7 +528,14 @@ void Menu::draw1( Curses & curses )
 }
 
 
+/*
 
+    OK. synchronizing everything and drawing. is more complicated.
+    
+    This should be in main if anywhere
+*/
+
+#if 0
 
 void Menu::draw()
 {
@@ -568,11 +575,8 @@ void Menu::draw()
 
   // flip the newly drawn page in
   setScrollStart( page *  272 );
-
-
-
 }
-
+#endif
 
 
 #if 0

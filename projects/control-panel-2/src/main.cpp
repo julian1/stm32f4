@@ -278,6 +278,52 @@ static void update_ui_events_in(app_t *app)
 
 
 
+
+static void draw( Curses & curses)
+{
+  /*
+      change name to agg_render
+      very high level function. because coordinates the paging.
+
+  */
+
+  // persist the page that we need to draw
+  static int page = 0; // page to use
+  page = ! page;
+
+  // set up our buffer
+  pixfmt_t  pixf(  page *  272 );
+  rb_t    rb(pixf);
+
+  // rb.clear(agg::rgba(1,1,1));     // bg white .
+  rb.clear(agg::rgba(0,0,0));       // bg black
+
+  // uint32_t start = system_millis;
+  // ok, this works. so maybe there is memory corruption somewhere.
+
+  ////////////////////////////////////
+
+  // draw1(  curses ) ;
+
+
+  int blink = (system_millis / 500) % 2;
+  // usart_printf("blink %u\n", blink );
+
+  render( curses , rb,  blink );
+
+  // lcd synchronization, wait until not in vertical blanking mode
+  while( getTear() ) {
+    // usart_printf("tear hi\n" );
+  };
+
+  // flip the newly drawn page in
+  setScrollStart( page *  272 );
+
+}
+
+
+
+
 static void loop(app_t *app)
 {
 
@@ -315,9 +361,18 @@ static void loop(app_t *app)
     }
 
 
+    // curses2.render( Curses &a, rb_t &rb, bool blink );
+     
+    // render( curses2, rb_t &rb, bool blink );
+
+    // do the curses menu draw 
+    // app->menu.draw();
+    app->menu.draw1( app->curses  ); // TODO should pass the curses here....
+
+    draw(  app->curses ); 
 
 
-    app->menu.draw();
+
 
 #if 0
   // memory issues somewhere

@@ -4,8 +4,7 @@
   could set up next pointers. for righ direction text flow .
 */
 
-#ifndef MENU_H
-#define MENU_H
+#pragma once
 
 #include "assert.h"
 #include "curses.h"
@@ -179,6 +178,8 @@ struct Menu
     should potentiallly rename to menu view:w.
 
   */
+
+  // TODO ************* remove. and pass 
   Curses & curses;
   // MenuController & menu_controller;
 
@@ -216,8 +217,10 @@ struct Menu
   }
 */
 
-  void draw ();
-  void draw1 ( Curses & );
+
+  // void draw ();
+
+  void draw1 ( Curses & curses  );
 
 
 };
@@ -225,6 +228,4 @@ struct Menu
 
 
 
-
-#endif // MENU_H
 
