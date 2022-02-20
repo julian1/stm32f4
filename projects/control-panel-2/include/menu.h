@@ -1,8 +1,3 @@
-/*
-  Rather than use arrays. think using a linked list. to support different size text. in same structure could be good.
-  eg. allows text mapping the screen.
-  could set up next pointers. for righ direction text flow .
-*/
 
 #pragma once
 
