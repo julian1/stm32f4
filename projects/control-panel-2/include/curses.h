@@ -12,8 +12,8 @@
 
 
 // 33 * 17 == 561
-#define MCursesXCELLS (33 * 17)
-// #define MCursesXCELLS (10 * 10)
+#define MCursesCellsMax (33 * 17)
+// #define MCursesCellsMax (10 * 10)
 
 #define MCursesColorsMax 8
 
@@ -26,6 +26,7 @@
       that selects the menu list to display. eg. page_controller.
       then we can move between less common readings (like stddev) and  settings 
 
+    - then we need another curses for larger
 */
 
 
@@ -85,18 +86,18 @@ struct Curses
 
 
   // whether item needs to be redrawn
-  bool changed[ MCursesXCELLS ];
+  bool changed[ MCursesCellsMax ];
   
 
   /////////////////////////////////////
   // character - dominant. only check other flags.
   // should be refreshed between draws.
-  uint16_t character[ MCursesXCELLS ];
+  uint16_t character[ MCursesCellsMax ];
 
   // font to use. 0. for special glyph drawing actions
-  const FontSpans *font[ MCursesXCELLS ];
+  const FontSpans *font[ MCursesCellsMax ];
 
-  uint8_t  color_pair_idx[ MCursesXCELLS ];
+  uint8_t  color_pair_idx[ MCursesCellsMax ];
 
 
   // IMPORTANT - blinking at different speeds is easy
@@ -105,7 +106,7 @@ struct Curses
 
   // effect. effects
   // invert fg/bg == 0x01   blink == 0x10
-  uint16_t effect[ MCursesXCELLS ];
+  uint16_t effect[ MCursesCellsMax ];
 
   // uint16_t callback_id[ 50 * 20];  // id might be easier than function ptr.
   // void (*callback[50 * 20 ] )(void )     not sure if desirable. or if should be by word.

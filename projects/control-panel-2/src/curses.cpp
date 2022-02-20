@@ -184,7 +184,7 @@ Curses::Curses(
     pdy(pdy_)
 {  
 
-  assert( stride * ny <= MCursesXCELLS);
+  assert( stride * ny <= MCursesCellsMax);
 
   
 
@@ -234,7 +234,7 @@ int index( Curses &a, int x, int y )
   //
 
   int i = (y * a.stride ) + x   ;
-  assert(i < MCursesXCELLS);
+  assert(i < MCursesCellsMax);
   // return (y * a.stride ) + x   ;
   return i;
 }
