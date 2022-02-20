@@ -6,6 +6,55 @@
 #include "usart.h"
 
 struct DigitController;
+struct ListController;
+
+
+/*
+  we need better names
+
+*/
+
+struct JController
+{
+
+  ListController & list_controller;
+
+  // eg.   apple in { bananas, apples, pears }
+  // draw all elements in the list. (maybe except the active one).
+  // we can pass the curses... no need to include here.
+  int32_t rotary_begin;
+  bool    focus;
+  int32_t idx;
+
+                
+  char **keys;    // do not need to be here.
+  double *values;
+
+  JController (  ListController & digit_controller, char **keys, double *values, size_t n  )
+    :
+    list_controller( list_controller ),
+    rotary_begin(0),
+    focus(false),
+    idx( 0),
+    // callback( NULL),
+    // callback_ctx( NULL),
+
+    keys( keys ),
+    values( values)
+  { }
+
+  void begin_edit(int32_t rotary);
+  void finish_edit(int32_t rotary);
+  void rotary_change(int32_t rotary);
+
+};
+
+
+
+
+
+
+
 
 
 struct ListController
@@ -172,6 +221,8 @@ struct Menu
     responsible for drawing. so needs other controllers. to know which is active etc.
     should potentiallly rename to menu view:w.
     - maybe rename MenuDrawer etc.
+
+    - could probably be turned into a single function.
   */
 
   ListController    & list_controller;

@@ -40,14 +40,15 @@ TGT_CFLAGS  += -Wno-unused-function   \
 # ../../libopencm3/lib/usb/usb_private.h
 
 # for usb_private.h, required by usb_f107.c
+# TODO review
 TGT_CFLAGS	+= -I../../libopencm3/lib/usb/
-
-TGT_CFLAGS	+= -I${LIB2INC}
-TGT_CFLAGS	+= -I./include    # FIXME, should be before lib2inc
+TGT_CFLAGS	+= -I${LIB2INC}  -I./include    
 
 TGT_CXXFLAGS += -I${LIB2INC} -I./include
 TGT_CXXFLAGS += -I${AGGINC}
 
+# stop at first error
+TGT_CXXFLAGS += -Wfatal-errors
 
 
 LDLIBS		+= -lm -lstdc++

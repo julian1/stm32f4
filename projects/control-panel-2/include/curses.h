@@ -35,6 +35,17 @@
     - OK. we need another controller. 
       that selects the menu list to display. eg. page_controller.
       then we can move between less common readings (like stddev) and  settings 
+  
+      - actually might just be done with list controller. 
+    
+      - no would be better with another controller.
+          rather than zoom in / zoom out.
+          instead if the list idx == 0. when the rotary changes. then change the menu 
+          need an idx for the menu
+        -----------
+
+      No. it has to be a separate mode.  otherwise how do we know to move in the list or move the menu.
+          
 
     - then we need another curses for larger
 
