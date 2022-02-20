@@ -87,7 +87,7 @@ void DropController::set_value(Item **items_, unsigned n_ )
 void DropController::begin_edit(int32_t rotary)
 {
 
-  usart_printf("jcontroller - rotary_begin set to %d\n", rotary_begin);
+  usart_printf("drop_controller - rotary_begin set to %d\n", rotary_begin);
 
   rotary_begin = rotary - idx;    // remember position from last time. works.
   focus = true;
@@ -102,15 +102,24 @@ void DropController::finish_edit(int32_t rotary)
 void DropController::rotary_change(int32_t rotary)
 {
 
-  usart_printf("jcontroller - rotary_change\n");
+  usart_printf("drop_controller - rotary_change\n");
 
   this->idx = rotary - this->rotary_begin;
 
+
+  // bounds
   if(idx < 0) {
-    idx = 0;
+    rotary_begin = rotary;
+    this->idx = rotary - this->rotary_begin;
+    assert( this->idx == 0);
+    return ; // nothing to do
   }
-  else if(idx > n ) {
-    idx = n;
+  else if(idx >= n ) {
+    rotary_begin = rotary -  ( n - 1 );
+    this->idx = (rotary - this->rotary_begin);
+    assert( this->idx == n - 1);
+    return;
+    // idx = n - 1;
   }
 
   assert(items);
