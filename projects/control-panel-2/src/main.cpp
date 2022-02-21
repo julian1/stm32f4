@@ -49,12 +49,15 @@
 #include <libopencm3/usb/usbd.h>
 
 
-#include <setjmp.h>
+// #include <setjmp.h>
 #include <stddef.h> // size_t
 //#include <math.h> // nanf
 //#include <stdio.h>
 // #include <string.h>   // memset
 #include <malloc.h> // malloc_stats
+
+// stl variant
+#include <variant>
 
 
 #include "cbuffer.h"
@@ -648,6 +651,11 @@ int main(int arg0)
 
   char *name = "settings 1";
   char *keys[]     = { "whoot", "apple", "blue" } ;
+
+  // OK. but perhaps we want to use an array 
+  // 214496
+  // std::variant< int, double, bool> ar[] = { 123, 456.789, true } ;
+
   double values[]  = { 14.12, 256, 399.123 } ;
 
   Item item1( name, keys, values , 3 ); 

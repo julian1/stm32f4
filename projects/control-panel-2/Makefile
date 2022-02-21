@@ -44,7 +44,8 @@ TGT_CFLAGS  += -Wno-unused-function   \
 TGT_CFLAGS	+= -I../../libopencm3/lib/usb/
 TGT_CFLAGS	+= -I${LIB2INC}  -I./include    
 
-TGT_CXXFLAGS += -I${LIB2INC} -I./include
+#TGT_CXXFLAGS +=  -std=c++17  -I${LIB2INC} -I./include
+TGT_CXXFLAGS +=   -I${LIB2INC} -I./include
 TGT_CXXFLAGS += -I${AGGINC}
 
 # stop at first error

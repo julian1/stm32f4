@@ -10,15 +10,35 @@ struct ListController;
 
 
 /*
-  - fix the index ranges - so can have more/less than 3 items in drop-down.
+  - done - fix the index ranges - so can have more/less than 3 items in drop-down.
+  - done - change name drop_controller to page_controller.
+
   - need ability to inject a boolean option. for eg. autoranging on/off. true/false.
 
 
-  - change name page_controller to page_controller.
   - maybe change name Item  to  Page or PageItem or MenuItem.
 */
 
 
+/*
+  - OK. hang on. rather than using a variant. stl or our own. and making type explicit choice.
+  - should we be using an opaque pointer.
+  -------------
+
+  ISSUE
+  - issue - for non float/non int.   we don't need the digit control step.
+  - eg. for bool, or enums. we just need to iterate the options.
+*/
+
+
+struct Value
+{
+  void *value;
+
+  bool (*validate)( void *) ;   
+  void (*increment)( void *, int dir ) ;   
+  char (*format)( void *) ;   
+};
 
 
 
@@ -29,6 +49,8 @@ struct Item
   double  *values ;
   unsigned  n;
 
+  bool    no_digit_controller;
+
   Item(
     char    *name,
     char    **keys,
@@ -38,7 +60,8 @@ struct Item
     name(name),
     keys(keys),
     values(values),
-    n(n)
+    n(n),
+    no_digit_controller(false)
   { }
 
 
