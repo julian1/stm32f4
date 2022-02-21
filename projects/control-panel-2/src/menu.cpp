@@ -420,7 +420,11 @@ void DigitController::rotary_change(int32_t rotary)
   // this is WRONG. value->begin is not a full value...
   // value->copy(  this->value_begin, buf, 100 );
 
-  memcpy( buf, this->value_begin, 100); // assume enough. and assume pod.
+  // memcpy( buf, this->value_begin, 100); // assume enough. and assume pod.
+
+
+  value->copy(    value_begin, buf,  100 );
+
 
   // void (*edit)( void *, unsigned idx, int delta ) ;
   value->edit(  buf ,  this->idx, delta );
