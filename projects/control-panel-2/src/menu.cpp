@@ -71,8 +71,9 @@ static size_t dot_position( char *s )
 
 void PageController::set_value(Item **items_, unsigned n_ )
 {
-  usart_printf("page_controller - set_value\n");
-  assert(items);
+  usart_printf("page_controller - set_value()\n");
+  assert(items_);
+
   items = items_;
   n = n_;
 
@@ -133,11 +134,6 @@ void PageController::rotary_change(int32_t rotary)
 
 
 
-/*
-  set_value needs to propagate down. I think
-*/
-
-
 //////////////////////////////
 
 /*
@@ -152,8 +148,9 @@ void PageController::rotary_change(int32_t rotary)
 
 void ListController::set_value( Item *item_ )
 {
+  usart_printf("list_controller - set_value()\n");
 
-  printf("list_controller setting keys and values \n");
+
 /*
   printf("list_controller this %p\n", this);
 
@@ -196,10 +193,11 @@ void ListController::finish_edit(int32_t rotary)
 
 void ListController::rotary_change(int32_t rotary)
 {
-
-  // bounds
+  // calc idx
   this->idx = rotary - this->rotary_begin;
 
+  assert(item );
+  unsigned n = item->n;
 
   // bounds
   if(idx < 0 )  {
@@ -209,25 +207,17 @@ void ListController::rotary_change(int32_t rotary)
     assert( this->idx == 0);
     return;
   }
-  else if( idx >= 3) {
-    rotary_begin = rotary -  ( 3 - 1 );
+  else if( idx >= n) {
+    rotary_begin = rotary - ( n - 1 );
     this->idx = (rotary - this->rotary_begin);
-    assert( this->idx == 2);
+    assert( this->idx == n - 1);
     return;
   }
 
   usart_printf("list controller rotary_change()  idx = %d\n", idx    );
 
-  /*
-    rather than a callback here. this could insert the relevant value into the digit controller.
-    which means this would need to have the list.
-
-  */
   // set the active value
-
-  // TODO Should be setting - on initialization/ construction.
   digit_controller.set_value ( & item->values[ idx ] );
-
 
 }
 
@@ -326,7 +316,9 @@ void DigitController::finish_edit(int32_t rotary)
 
 void DigitController::set_value( double * value_ )
 {
-  printf("digit controller set_value()\n");
+  usart_printf("digit_controller - set_value()\n");
+
+  assert(value_);
   value = value_;
 }
 
@@ -554,7 +546,7 @@ void Menu::draw( Curses & curses )
   if( page_controller.focus)
     effect(curses, 0x01);        // invert
   else
-    effect(curses, 0x00);        // normal.   TODO - use enums. CUR_NORMAL | CUR_INVERT 
+    effect(curses, 0x00);        // normal.   TODO - use enums. CUR_NORMAL | CUR_INVERT
 
   text(curses, item->name );
 
@@ -562,7 +554,7 @@ void Menu::draw( Curses & curses )
 
 
   /// draw keys.
-  for(unsigned i = 0; i < 3; ++i)
+  for(unsigned i = 0; i < item->n; ++i)
   {
     to(curses, 0, 6 + i);
 
@@ -580,7 +572,7 @@ void Menu::draw( Curses & curses )
 
 
   /// draw values.
-  for(unsigned i = 0; i < 3; ++i)
+  for(unsigned i = 0; i < item->n; ++i)
   {
 
     char buf2[100];

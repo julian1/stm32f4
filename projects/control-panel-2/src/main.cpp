@@ -654,10 +654,10 @@ int main(int arg0)
 
 
   char *name2 = "settings 2";
-  char *keys2[]     = { "fred", "bananna", "green" } ;
-  double values2[]  = { 9.12, 5, 123.456 } ;
+  char *keys2[]     = { "fred", "bananna", "green", "blue" } ;
+  double values2[]  = { 9.12, 5, 123.456, 44 } ;
 
-  Item item2( name2, keys2, values2, 3 ) ;
+  Item item2( name2, keys2, values2, 4 ) ;
 
   Item *items[] = { &item1, &item2 } ; 
 
