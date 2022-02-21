@@ -10,7 +10,8 @@ struct ListController;
 
 
 /*
-  need ability to inject a boolean option. for eg. autoranging on/off.
+  - fix the index ranges - so can have more/less than 3 items in drop-down.
+  - need ability to inject a boolean option. for eg. autoranging on/off. true/false.
 
 
   - change name drop_controller to page_controller.
