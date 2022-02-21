@@ -654,24 +654,14 @@ int main(int arg0)
 
 
   // arrays of functions perhaps heasier
-  // edit_t 
-
-  // jebus. use -fpremissive ?
-  // void (*value_float_edit_)( void *, unsigned idx, int delta ) =  (void (*)( void *, unsigned idx, int delta ))  value_float_edit;
-  edit_t value_float_edit_ =  (edit_t )  value_float_edit;
-
-
-  void (*value_float_copy_)( const void *x, void *dst, size_t sz ) =  (void (*)( const void *x, void *dst, size_t sz ))  value_float_copy ;
-
-  // void * value_float_edit_  =  (void *) value_float_edit;
-  void (*value_float_format_)( const void *, char *buf, size_t n) =   (void (*)( const void *, char *buf, size_t n))  value_float_format;
+  // not sure. if virtual functions would be easier
 
   double xx[]  = { 14.12, 256, 399.123 } ;
 
   Value  values[] = {
-      Value( &xx[0], (edit_t) value_float_edit_, (copy_t) value_float_copy_, value_float_format_, NULL),
-      Value( &xx[1], (edit_t) value_float_edit_, (copy_t) value_float_copy_, value_float_format_, NULL) ,  
-      Value( &xx[2], (edit_t) value_float_edit_, (copy_t) value_float_copy_, value_float_format_, NULL)   
+      Value( &xx[0], (edit_t) value_float_edit, (copy_t) value_float_copy, (format_t) value_float_format2, NULL),
+      Value( &xx[1], (edit_t) value_float_edit, (copy_t) value_float_copy, (format_t) value_float_format, NULL) ,
+      Value( &xx[2], (edit_t) value_float_edit, (copy_t) value_float_copy, (format_t) value_float_format, NULL)
   };
 
 

@@ -31,25 +31,32 @@ struct ListController;
 */
 
 
+
+
+typedef void (*edit_t)( void *, unsigned idx, int delta );
+typedef void (*copy_t)( const void *, void *dst, size_t sz );
+typedef void (*format_t)( const void *, char *buf, size_t sz);
+typedef  bool (*validate_t)( void *) ;
+
 struct Value
 {
   void *value;
 
   // actually separating the controller functions from the values - means less repetition. and filling things in.
-  void (*edit)( void *, unsigned idx, int delta ) ;
-  void (*copy)( const void *src, void *dst, size_t sz );
-  void (*format)( const void *, char *buf, size_t n) ;
-  bool (*validate)( void *) ;
+  edit_t    edit;
+  copy_t    copy;
+  format_t  format ;
+  validate_t validate ;
 
   // bool no_element_controller.
 
   Value(
     void *value_,
 
-    void (*edit_)( void *, unsigned idx, int delta ),
-    void (*copy_)( const void *, void *dst, size_t sz ),
-    void (*format_)( const void *, char *buf, size_t sz),
-    bool (*validate_)( void *)
+    edit_t edit_,
+    copy_t copy_,
+    format_t format_,
+    validate_t validate_
   ) :
     value(value_),
     edit(edit_),
@@ -60,9 +67,6 @@ struct Value
 
 };
 
-typedef void (*edit_t)( void *, unsigned idx, int delta ); 
-typedef void (*copy_t)( const void *, void *dst, size_t sz );
-
 // this will have to take the argument
 // and modify it in place
 void value_float_edit(double *x, int idx, int amount);
@@ -71,6 +75,7 @@ void value_float_copy( const double *x, void *dst, size_t sz );
 
 void value_float_format( const double *x, char *buf, size_t sz);
 
+void value_float_format2( const double *x, char *buf, size_t sz);
 
 
 
@@ -253,7 +258,7 @@ struct DigitController
   // Ughgh... we cannot copy an opaque (void *) value...
   // to get the starting value.
   // double value_begin;
-  
+
   char value_begin[100] ; // large enough to hold the largest value
 
   explicit DigitController(int32_t & idx_)

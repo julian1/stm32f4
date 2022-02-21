@@ -111,6 +111,17 @@ void value_float_format( const double *x, char *buf, size_t sz)
     snprintf(buf, sz,  "%smV" , format_float(buf2, 100, 6, *x  ));
 }
 
+void value_float_format2( const double *x, char *buf, size_t sz)
+{
+
+    char buf2[100];
+    // char buf[100];
+
+    snprintf(buf, sz,  "%suV" , format_float(buf2, 100, 2, *x  ));
+}
+
+
+
 
 
 //////////
