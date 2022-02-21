@@ -618,7 +618,7 @@ int main(int arg0)
 
   /////////////
 
-  Curses curses2( 12, 3, 48, 55 );
+  Curses curses2( 12, 3, 43, 55 );
   clear( curses2 ); // eg. remove text. from last draw
   font(curses2, &arial_span_72 ); // font
   color_pair_idx(curses2, 2);
