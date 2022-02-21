@@ -359,7 +359,7 @@ struct Menu
     element_controller( element_controller_),
     digit_controller( digit_controller_)
   {
-    printf("Menu controller constructor() %p\n", this );
+    // printf("Menu controller constructor() %p\n", this );
 
   }
 

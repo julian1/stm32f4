@@ -104,19 +104,13 @@ void value_float_copy( const double *x, void *dst, size_t sz )
 
 void value_float_format( const double *x, char *buf, size_t sz)
 {
-
     char buf2[100];
-    // char buf[100];
-
     snprintf(buf, sz,  "%smV" , format_float(buf2, 100, 6, *x  ));
 }
 
 void value_float_format2( const double *x, char *buf, size_t sz)
 {
-
     char buf2[100];
-    // char buf[100];
-
     snprintf(buf, sz,  "%suV" , format_float(buf2, 100, 2, *x  ));
 }
 
@@ -150,7 +144,7 @@ void PageController::set_value(Item **items_, unsigned n_ )
 void PageController::begin_edit(int32_t rotary)
 {
 
-  usart_printf("page_controller - rotary_begin set to %d\n", rotary_begin);
+  usart_printf("page_controller - begin_edit() set to %d\n", rotary_begin);
 
   rotary_begin = rotary - idx;    // remember position from last time. works.
   focus = true;
