@@ -38,12 +38,16 @@ struct Value
   bool (*validate)( void *) ;   
   void (*edit)( void *, unsigned idx, int dir ) ;   
   void (*format)( void *, char *buf, size_t n) ;   
+
+  // bool no_element_controller.
 };
 
 
 
 struct Item
 {
+  // this is Items plural. or MenuItem single. 
+
   char    *name;
   char    **keys;
   double  *values ;
