@@ -40,15 +40,16 @@ typedef  bool (*validate_t)( void *) ;
 
 struct Value  // should have a different name
 {
-  void *value;
+  void *value;    // rename to val. because using value everywhere.
 
   // actually separating the controller functions from the values - means less repetition. and filling things in.
   edit_t    edit;
   copy_t    copy;
   format_t  format ;
   validate_t validate ;
+  // name_t name;
 
-  // bool no_element_controller.
+  // bool no_element_controller. // No. should advertise edit capabilities via a function. eg. return value with bitvalues set.
 
   Value(
     void *value_,
@@ -82,7 +83,7 @@ void value_float_format2( const double *x, char *buf, size_t sz);
 
 struct Item
 {
-  // this is Items plural. or MenuItem single.
+  // this is Items plural. or MenuItem single. DropItems
 
   char    *name;
   char    **keys;
@@ -90,8 +91,6 @@ struct Item
   Value   *values ;
   unsigned  n;
 
-  // may also want no list controller. not sure.
-  bool    no_element_controller;
 
   Item(
     char    *name,
@@ -102,8 +101,7 @@ struct Item
     name(name),
     keys(keys),
     values(values),
-    n(n),
-    no_element_controller(false)
+    n(n)
   { }
 
 
