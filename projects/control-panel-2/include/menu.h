@@ -36,8 +36,8 @@ struct Value
   void *value;
 
   bool (*validate)( void *) ;   
-  void (*increment)( void *, int dir ) ;   
-  char (*format)( void *) ;   
+  void (*edit)( void *, unsigned idx, int dir ) ;   
+  void (*format)( void *, char *buf, size_t n) ;   
 };
 
 
@@ -49,7 +49,8 @@ struct Item
   double  *values ;
   unsigned  n;
 
-  bool    no_digit_controller;
+  // may also want no list controller. not sure.
+  bool    no_element_controller;
 
   Item(
     char    *name,
@@ -61,7 +62,7 @@ struct Item
     keys(keys),
     values(values),
     n(n),
-    no_digit_controller(false)
+    no_element_controller(false)
   { }
 
 
