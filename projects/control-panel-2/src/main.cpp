@@ -633,16 +633,16 @@ int main(int arg0)
 
   ListController  list_controller( digit_controller);
 
-  DropController  drop_controller( list_controller);
+  PageController  page_controller( list_controller);
 
   // menucontroller is the controller controller
   // rename
-  MenuController  menu_controller( drop_controller, list_controller, element_controller, digit_controller);
+  MenuController  menu_controller( page_controller, list_controller, element_controller, digit_controller);
 
   // draw. could probably just put the draw on the menu_controller.
   // but separate for separation of concerns.
   // else use function draw()..
-  Menu menu( drop_controller, list_controller, element_controller, digit_controller );       // MenuView
+  Menu menu( page_controller, list_controller, element_controller, digit_controller );       // MenuView
 
   // int x = 0b1001;
 
@@ -662,7 +662,7 @@ int main(int arg0)
   Item *items[] = { &item1, &item2 } ; 
 
   // populate the initial value.
-  drop_controller.set_value( items, 2 );
+  page_controller.set_value( items, 2 );
 
 
   // c structure stuff

@@ -14,7 +14,7 @@ struct ListController;
   - need ability to inject a boolean option. for eg. autoranging on/off. true/false.
 
 
-  - change name drop_controller to page_controller.
+  - change name page_controller to page_controller.
   - maybe change name Item  to  Page or PageItem or MenuItem.
 */
 
@@ -46,7 +46,7 @@ struct Item
 
 
 
-struct DropController
+struct PageController
 {
   // maybe rename MenuController.
   // and rename the MenuController to DelegatingController
@@ -67,7 +67,7 @@ struct DropController
   Item **items;
   unsigned n;
 
-  DropController (  ListController & list_controller )
+  PageController (  ListController & list_controller )
     :
     list_controller( list_controller),
     rotary_begin(0),
@@ -125,7 +125,7 @@ struct ListController
 
   // should the value be a pointer ????
   // so that it manipulates the real value.
-  // called by DropController
+  // called by PageController
   void set_value( Item *item );
 
 
@@ -234,16 +234,16 @@ struct MenuController
 
   */
 
-  DropController       & drop_controller;
+  PageController       & page_controller;
   ListController    & list_controller;
   ElementController & element_controller;
   DigitController   & digit_controller;
 
   unsigned active_controller;
 
-  explicit MenuController(DropController & drop_controller_, ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
+  explicit MenuController(PageController & page_controller_, ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
     :
-    drop_controller(drop_controller_),
+    page_controller(page_controller_),
     list_controller(list_controller_),
     element_controller( element_controller_),
     digit_controller( digit_controller_),
@@ -255,7 +255,7 @@ struct MenuController
 
         //
         // list_controller.begin_edit( 0 );
-        drop_controller.begin_edit( 0 );
+        page_controller.begin_edit( 0 );
     }
 
   void event( int);
@@ -274,16 +274,16 @@ struct Menu
     - could probably be turned into a single function.
   */
 
-  DropController       & drop_controller;
+  PageController       & page_controller;
   ListController    & list_controller;
   ElementController & element_controller;
   DigitController   & digit_controller;
 
 
 
-  explicit Menu( DropController       & drop_controller_, ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
+  explicit Menu( PageController       & page_controller_, ListController & list_controller_, ElementController & element_controller_, DigitController &digit_controller_)
     :
-    drop_controller(drop_controller_),
+    page_controller(page_controller_),
     list_controller(list_controller_),
     element_controller( element_controller_),
     digit_controller( digit_controller_)

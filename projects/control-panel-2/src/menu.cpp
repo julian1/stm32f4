@@ -65,13 +65,13 @@ static size_t dot_position( char *s )
 //////////
 
 // Dropdown. controller.
-// DropController
+// PageController
 
 
 
-void DropController::set_value(Item **items_, unsigned n_ )
+void PageController::set_value(Item **items_, unsigned n_ )
 {
-  usart_printf("drop_controller - set_value\n");
+  usart_printf("page_controller - set_value\n");
   assert(items);
   items = items_;
   n = n_;
@@ -84,25 +84,25 @@ void DropController::set_value(Item **items_, unsigned n_ )
 }
 
 
-void DropController::begin_edit(int32_t rotary)
+void PageController::begin_edit(int32_t rotary)
 {
 
-  usart_printf("drop_controller - rotary_begin set to %d\n", rotary_begin);
+  usart_printf("page_controller - rotary_begin set to %d\n", rotary_begin);
 
   rotary_begin = rotary - idx;    // remember position from last time. works.
   focus = true;
 }
 
 
-void DropController::finish_edit(int32_t rotary)
+void PageController::finish_edit(int32_t rotary)
 {
   focus = false;
 }
 
-void DropController::rotary_change(int32_t rotary)
+void PageController::rotary_change(int32_t rotary)
 {
 
-  usart_printf("drop_controller - rotary_change\n");
+  usart_printf("page_controller - rotary_change\n");
 
   this->idx = rotary - this->rotary_begin;
 
@@ -480,7 +480,7 @@ void MenuController::event(int event_)
     if(cand != this->active_controller) {
 
       switch( this->active_controller) {
-        case 0:  drop_controller.finish_edit(rotary);  break;
+        case 0:  page_controller.finish_edit(rotary);  break;
         case 1:  list_controller.finish_edit(rotary);  break;
         case 2:  element_controller.finish_edit(rotary); break;
         case 3:  digit_controller.finish_edit(rotary); break;
@@ -489,7 +489,7 @@ void MenuController::event(int event_)
       this->active_controller = cand;
 
       switch( this->active_controller ) {
-        case 0:  drop_controller.begin_edit(rotary);  break;
+        case 0:  page_controller.begin_edit(rotary);  break;
         case 1:  list_controller.begin_edit(rotary);  break;
         case 2:  element_controller.begin_edit(rotary); break;
         case 3:  digit_controller.begin_edit(rotary); break;
@@ -503,7 +503,7 @@ void MenuController::event(int event_)
   else if (event_ == ui_events_rotary_change ) {
 
     switch( this->active_controller ) {
-      case 0:  drop_controller.rotary_change(rotary);  break;
+      case 0:  page_controller.rotary_change(rotary);  break;
       case 1:  list_controller.rotary_change(rotary);  break;
       case 2:  element_controller.rotary_change(rotary); break;
       case 3:  digit_controller.rotary_change(rotary); break;
@@ -551,7 +551,7 @@ void Menu::draw( Curses & curses )
   // dropdown name
   to(curses, 0, 5);
 
-  if( drop_controller.focus)
+  if( page_controller.focus)
     effect(curses, 0x01);        // invert
   else
     effect(curses, 0x00);        // normal.   TODO - use enums. CUR_NORMAL | CUR_INVERT 
@@ -566,7 +566,7 @@ void Menu::draw( Curses & curses )
   {
     to(curses, 0, 6 + i);
 
-    if( i == list_controller.idx && !drop_controller.focus ) {
+    if( i == list_controller.idx && !page_controller.focus ) {
       // printf("setting effect \n");
       // effect(curses, 0x11);        // invert
       effect(curses, 0x01);        // invert
@@ -599,7 +599,7 @@ void Menu::draw( Curses & curses )
 
 
      /*
-      if(drop_controller.focus) {
+      if(page_controller.focus) {
 
         effect(curses, 0x00);        // normal
         text(curses,  buf);
@@ -640,7 +640,7 @@ void Menu::draw( Curses & curses )
           effect( curses, 0x11 );   // invert and blink
         else if (digit_controller.focus )
           effect( curses, 0x01 );   // invert
-        // else ; // drop_controller // assert( 0 );
+        // else ; // page_controller // assert( 0 );
 
         // apply effect at current position
         ch_effect( curses);
