@@ -60,6 +60,8 @@ struct Value
 
 };
 
+typedef void (*edit_t)( void *, unsigned idx, int delta ); 
+typedef void (*copy_t)( const void *, void *dst, size_t sz );
 
 // this will have to take the argument
 // and modify it in place
