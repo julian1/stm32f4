@@ -413,23 +413,26 @@ void DigitController::rotary_change(int32_t rotary)
   value_float_edit( &tmp, this->idx, delta );
   *this->value = tmp;
 */
-  char buf[100]; // temporary.
+  char tmp[100]; // temporary.
 
-  // void (*copy)( const void *src, void *dst, size_t sz );
+  // make tmp a copy of value_begin
+  value->copy(  value_begin, tmp,  100 );
 
-  // this is WRONG. value->begin is not a full value...
-  // value->copy(  this->value_begin, buf, 100 );
+  // perform edit on tmp
+  value->edit(  tmp ,  this->idx, delta );
 
-  // memcpy( buf, this->value_begin, 100); // assume enough. and assume pod.
-
-
-  value->copy(    value_begin, buf,  100 );
+  // copy tmp to value
+  value->copy(  tmp , value->value , 100 );
 
 
-  // void (*edit)( void *, unsigned idx, int delta ) ;
-  value->edit(  buf ,  this->idx, delta );
+/*
+  // copy value_begin into value
+  value->copy(  value_begin, value->value,  100 ); // NO. we don't really know the size of value->value
 
-  value->copy(  buf , value->value , 100 );
+  // do the edit on value
+  value->edit(  value->value,  this->idx, delta );
+*/
+
 }
 
 
