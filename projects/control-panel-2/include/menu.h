@@ -38,7 +38,7 @@ typedef void (*copy_t)( const void *, void *dst, size_t sz );
 typedef void (*format_t)( const void *, char *buf, size_t sz);
 typedef  bool (*validate_t)( void *) ;
 
-struct Value
+struct Value  // should have a different name
 {
   void *value;
 

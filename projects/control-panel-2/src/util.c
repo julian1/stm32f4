@@ -1,6 +1,6 @@
 /*
   helper stuff that belongs in separate file, but not in separate library
-  because might change
+  because may change between projects. 
 
   also. port setup. eg. led blinker. that is very common. but different between stm32 series/part.
 */
@@ -120,6 +120,15 @@ void sys_tick_handler(void)
 
 
 
+static void test_frame( int a, int b)
+{ 
+  int c;
+  // printf( "a=%u   b=%u    c=%u", &a, &b, &c);
+  assert( ((void *)&b) < ((void *)&a) );
+  assert( ((void *)&b) < ((void *)&c) );
+}
+
+
 void msleep(uint32_t delay)
 {
   // works for system_millis integer wrap around
@@ -188,93 +197,6 @@ void print_stack_pointer()
   usart_printf("sp %p   %d\n", (void*)&p,  ( (unsigned)(void*)&p)  - 0x20000000   );
   // return &p;
 }
-
-
-
-
-////////////////////////////////////////////////////////
-
-#if 0
-
-static CBuf *console_out = NULL;
-
-
-
-void usart_printf_init(CBuf *output)
-{
-  console_out = output;
-}
-
-
-void usart_clear()
-{
-
-  cBufClear(console_out);
-
-}
-
-
-
-
-void usart_printf(const char *format, ...)
-{
-  /*
-    if(!console_out)
-      critical_error_blink();
-  */
-
-#if 0
-  // cannot rename to just printf... it's not the responsibiilty of user to know context
-  // because different formatting chars, conflict with gcc printf builtins
-	va_list args;
-	va_start(args, format);
-	internal_vprintf((void *)cBufPush, console_out, format, args);
-	va_end(args);
-#endif
-  /*
-    see, fopencookie for a better way to do this,
-  */
-
-  /*
-    - this is not great. but allows using arm-gcc libc sprintf
-    if uses 1000 chars. need to report buffer overflow.
-    - also could overflow the console buffer.
-    - would be better if could write to the console output directly. but we would have to implement the FILE structure.
-  */
-
-  /*
-      TODO can be reworked to avoid the copy to the circular buffer?
-  */
-  char buf[1000];
-	va_list args;
-	va_start(args, format);
-	int n = vsnprintf(buf, 1000, format, args);
-	va_end(args);
-
-  char *p = buf;
-  while(p < buf + n)  {
-
-    if(*p == '\n')
-      cBufPush(console_out, '\r');
-
-    cBufPush(console_out, *p);
-
-    ++p;
-  }
-
-
-  // re-enable tx interupt... if needed
-  // TODO . rename.  usart_txe_interupt_enable()
-  usart_output_update();
-}
-
-#endif
-
-////////////////////////////
-
-
-
-
 
 
 
