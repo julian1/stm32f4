@@ -120,18 +120,18 @@ typedef struct app_t
   */
 
 
-  app_t( 
+  app_t(
     CBuf & console_in,
     CBuf & console_out,
-    CString  &  command,   
+    CString  &  command,
 
-    usbd_device *usbd_dev, 
+    usbd_device *usbd_dev,
 
     Curses & curses, MenuController & menu_controller, Menu & menu,
     Curses & curses2,
     CBuf & ui_events_in
     )
-     :  
+     :
       console_in (console_in),
       console_out (console_out),
       command(command),
@@ -144,7 +144,7 @@ typedef struct app_t
       curses2( curses2 ),
 
       ui_events_in(ui_events_in)
-  { 
+  {
 
   }
 
@@ -366,14 +366,14 @@ static void loop(app_t *app)  // TODO change to a c++ reference
 
 
     // curses2.render( Curses &a, rb_t &rb, bool blink );
-     
+
     // render( curses2, rb_t &rb, bool blink );
 
-    // do the curses menu draw 
+    // do the curses menu draw
     // app->menu.draw();
     app->menu.draw( app->curses  ); // TODO should pass the curses here....
 
-    lcd_render( app->curses, app->curses2  ); 
+    lcd_render( app->curses, app->curses2  );
 
 
 
@@ -621,11 +621,11 @@ int main(int arg0)
   Curses curses2( 12, 3, 48, 55 );
   clear( curses2 ); // eg. remove text. from last draw
   font(curses2, &arial_span_72 ); // font
-  color_pair_idx(curses2, 2); 
+  color_pair_idx(curses2, 2);
   to(curses2, 0, 1);
   text(curses2, "12.3456mV");   // arial72 - not being able to draw text.... and crashing is bad....
 
-  
+
 
   int32_t    element_idx = 0; // first digit, need negative to support after float
 
@@ -652,13 +652,20 @@ int main(int arg0)
   char *name = "settings 1";
   char *keys[]     = { "whoot", "apple", "blue" } ;
 
-  // OK. but perhaps we want to use an array 
+  // OK. but perhaps we want to use an array
   // 214496
   // std::variant< int, double, bool> ar[] = { 123, 456.789, true } ;
 
+  double  x1 = 456.678 ;
+
+  Value  arr[] = {
+      Value( & x1, (void (*)( void *, unsigned idx, int delta )) value_edit_float, NULL,NULL),
+
+      Value(NULL, NULL,NULL,NULL)   } ;
+
   double values[]  = { 14.12, 256, 399.123 } ;
 
-  Item item1( name, keys, values , 3 ); 
+  Item item1( name, keys, values , 3 );
 
 
   char *name2 = "settings 2";
@@ -667,7 +674,7 @@ int main(int arg0)
 
   Item item2( name2, keys2, values2, 4 ) ;
 
-  Item *items[] = { &item1, &item2 } ; 
+  Item *items[] = { &item1, &item2 } ;
 
   // populate the initial value.
   page_controller.set_value( items, 2 );
@@ -683,13 +690,13 @@ int main(int arg0)
 
 
 
-  app_t app( console_in, 
-            console_out, 
+  app_t app( console_in,
+            console_out,
             command,
             usbd_dev,
             curses, menu_controller, menu,
             curses2,
-            ui_events_in 
+            ui_events_in
             ) ; // not sure that app needs curses.
 
 

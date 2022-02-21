@@ -35,18 +35,42 @@ struct Value
 {
   void *value;
 
-  bool (*validate)( void *) ;   
-  void (*edit)( void *, unsigned idx, int dir ) ;   
-  void (*format)( void *, char *buf, size_t n) ;   
+  // actually separating the controller functions from the values - means less repetition. and filling things in.
+  void (*edit)( void *, unsigned idx, int delta ) ;
+  void (*format)( void *, char *buf, size_t n) ;
+  bool (*validate)( void *) ;
 
   // bool no_element_controller.
+
+  Value(
+    void *value,
+
+    void (*edit)( void *, unsigned idx, int delta ),
+    void (*format)( void *, char *buf, size_t sz),
+    bool (*validate)( void *)
+  ) :
+    value(value),
+    edit(edit),
+    format(format),
+    validate(validate)
+  { }
+
 };
+
+
+// this will have to take the argument
+// and modify it in place
+void value_edit_float(double *x, int idx, int amount);
+
+void value_format_float( double *x, char *buf, size_t sz);
+
+
 
 
 
 struct Item
 {
-  // this is Items plural. or MenuItem single. 
+  // this is Items plural. or MenuItem single.
 
   char    *name;
   char    **keys;

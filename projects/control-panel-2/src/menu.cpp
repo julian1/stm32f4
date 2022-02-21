@@ -59,6 +59,39 @@ static size_t dot_position( char *s )
 }
 
 
+void value_edit_float(double *x, int idx, int amount)
+{
+  /*
+    this isn't working with the decimal point
+  */
+
+  printf("value_edit_float x=%f   idx=%d amount=%d \n", *x, idx, amount );
+
+  // skip decimal point. should perhaps be done outside here.
+  // index
+  if (idx > 0 ) {
+    --idx;
+  }
+
+  // must be float for negative idx
+  // some math.h have pow10(double)
+  double u = pow(10, idx);
+  double delta = amount * u;
+  // printf("idx=%d amount=%d u=%f \n", idx, amount, u );
+
+  *x = *x + delta;
+
+  // return x + delta;
+}
+
+void value_format_float( double *x, char *buf, size_t sz)
+{ 
+
+    char buf2[100];
+    // char buf[100];
+
+    snprintf(buf, 100,  "%smV" , format_float(buf2, 100, 6, *x  ));
+}
 
 
 
@@ -323,28 +356,6 @@ void DigitController::set_value( double * value_ )
 }
 
 
-static double edit_float_value(double x, int idx, int amount)
-{
-  /*
-    this isn't working with the decimal point
-  */
-
-  printf("edit_float_value x=%f   idx=%d amount=%d \n", x, idx, amount );
-
-  // skip decimal point. should perhaps be done outside here.
-  // index
-  if (idx > 0 ) {
-    --idx;
-  }
-
-  // must be float for negative idx
-  // some math.h have pow10(double)
-  double u = pow(10, idx);
-  double delta = amount * u;
-  // printf("idx=%d amount=%d u=%f \n", idx, amount, u );
-  return x + delta;
-}
-
 
 /*
 todo.
@@ -366,59 +377,17 @@ void DigitController::rotary_change(int32_t rotary)
 
   usart_printf("digit controller rotary_change()  idx=%d delta=%d  value=%f\n", this->idx, delta, this->value );
 
-  assert( this->value  );
-  * this->value = edit_float_value(this->value_begin, this->idx, delta );
+  // assert( this->value  );
+  // * this->value = value_edit_float(this->value_begin, this->idx, delta );
 
 
-
-}
-
-
-
-
-#if 0
-
-void DigitController::draw(Curses &curses)
-{
-  // don't use this. should be drawn external to the digit controller
-
-  // should call the digit controller. which can draw the value
-  char buf[100];
-
-  // grid spacing for text is quite deltaerent than for keypad button spacing.
-  color_pair_idx(curses, 0); // blue/white
-  //effect(a, 0x01);        // invert
-  effect(curses, 0x00);        // normal
-  font(curses, &arial_span_18 ); // large font
-  to(curses, 0, 4);
-  // snprintf(buf, 100, "%f ", this->value);  // our edited value... NOTE. needs extra of active digit etc..
-
-
-  assert( this->value  );
-
-  format_float(buf, 100, 6, * this->value);
-  text(curses,  buf);
-
-  // now we want to place an effect on the active digit.
-  // OK. position has to be where the decimal dot is.  and then negative
-  // want a function to give us the offset of the '0' character.
-  // and the idx bounds also.    perhaps just print into a buffer? and return all of this.
-  // no. better to specify prefix/postfix digit count.
-  // but also have issue of prefix sign.
-
-
-  size_t dot_x = dot_position( buf );
-
-  to(curses, 0 + dot_x - this->idx, 4);
-  // effect( curses, 0x01 ); // invert.... this just sets the mode.
-  effect( curses, 0x11 ); // blink. doesn't seem to work...
-  // set the effect at current position
-  ch_effect( curses);
-  // text(curses,  "x", 1);
+  double tmp = this->value_begin;
+  value_edit_float( &tmp, this->idx, delta );
+  *this->value = tmp;
 
 }
 
-#endif
+
 
 
 
@@ -575,10 +544,12 @@ void Menu::draw( Curses & curses )
   for(unsigned i = 0; i < item->n; ++i)
   {
 
-    char buf2[100];
+    // char buf2[100];
     char buf[100];
 
-    snprintf(buf, 100,  "%smV" , format_float(buf2, 100, 6, item->values[ i ] ));
+    value_format_float( & item->values[ i ] , buf, 100 );
+
+    // snprintf(buf, 100,  "%smV" , format_float(buf2, 100, 6, item->values[ i ] ));
 
     to(curses, 10, 6 + i);
 
@@ -657,6 +628,55 @@ void Menu::draw( Curses & curses )
 
 
 #if 0
+
+
+
+
+void DigitController::draw(Curses &curses)
+{
+  // don't use this. should be drawn external to the digit controller
+
+  // should call the digit controller. which can draw the value
+  char buf[100];
+
+  // grid spacing for text is quite deltaerent than for keypad button spacing.
+  color_pair_idx(curses, 0); // blue/white
+  //effect(a, 0x01);        // invert
+  effect(curses, 0x00);        // normal
+  font(curses, &arial_span_18 ); // large font
+  to(curses, 0, 4);
+  // snprintf(buf, 100, "%f ", this->value);  // our edited value... NOTE. needs extra of active digit etc..
+
+
+  assert( this->value  );
+
+  format_float(buf, 100, 6, * this->value);
+  text(curses,  buf);
+
+  // now we want to place an effect on the active digit.
+  // OK. position has to be where the decimal dot is.  and then negative
+  // want a function to give us the offset of the '0' character.
+  // and the idx bounds also.    perhaps just print into a buffer? and return all of this.
+  // no. better to specify prefix/postfix digit count.
+  // but also have issue of prefix sign.
+
+
+  size_t dot_x = dot_position( buf );
+
+  to(curses, 0 + dot_x - this->idx, 4);
+  // effect( curses, 0x01 ); // invert.... this just sets the mode.
+  effect( curses, 0x11 ); // blink. doesn't seem to work...
+  // set the effect at current position
+  ch_effect( curses);
+  // text(curses,  "x", 1);
+
+}
+
+
+
+
+
+
 // so we want a double.
 
 // https://stackoverflow.com/questions/29787310/does-pow-work-for-int-data-type-in-c
