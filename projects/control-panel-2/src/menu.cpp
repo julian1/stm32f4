@@ -59,13 +59,16 @@ static size_t dot_position( char *s )
 }
 
 
-void value_edit_float(double *x, int idx, int amount)
+
+
+
+void value_float_edit(double *x, int idx, int amount)
 {
   /*
     this isn't working with the decimal point
   */
 
-  printf("value_edit_float x=%f   idx=%d amount=%d \n", *x, idx, amount );
+  printf("value_float_edit x=%f   idx=%d amount=%d \n", *x, idx, amount );
 
   // skip decimal point. should perhaps be done outside here.
   // index
@@ -84,13 +87,28 @@ void value_edit_float(double *x, int idx, int amount)
   // return x + delta;
 }
 
-void value_format_float( double *x, char *buf, size_t sz)
-{ 
+
+void value_float_copy( const double *x, void *dst, size_t sz )
+{
+  /*
+    UGGH. no we want to be copying all the functions as well.
+    No. just the underlying void object.
+  */
+  assert( sizeof(double) <= sz);
+
+  // void *memcpy(void *dest, const void *src, size_t n);
+  memcpy(dst, x, sizeof(double) );
+}
+
+
+
+void value_float_format( const double *x, char *buf, size_t sz)
+{
 
     char buf2[100];
     // char buf[100];
 
-    snprintf(buf, 100,  "%smV" , format_float(buf2, 100, 6, *x  ));
+    snprintf(buf, sz,  "%smV" , format_float(buf2, 100, 6, *x  ));
 }
 
 
@@ -333,7 +351,16 @@ void DigitController::begin_edit(int32_t rotary)
 
   assert(this->value );
 
-  this->value_begin = * this->value ;
+  // this->value_begin = * this->value ;
+
+  // we don't have the copy
+
+  // value_begin is *not* a Value. it is a Value.value
+
+  // OK.
+  // problem is that its
+
+  value->copy(  value->value,   value_begin, 100 );
 
 }
 
@@ -347,7 +374,8 @@ void DigitController::finish_edit(int32_t rotary)
 
 
 
-void DigitController::set_value( double * value_ )
+void DigitController::set_value( Value * value_ )
+// void DigitController::set_value( double * value_ )
 {
   usart_printf("digit_controller - set_value()\n");
 
@@ -378,13 +406,26 @@ void DigitController::rotary_change(int32_t rotary)
   usart_printf("digit controller rotary_change()  idx=%d delta=%d  value=%f\n", this->idx, delta, this->value );
 
   // assert( this->value  );
-  // * this->value = value_edit_float(this->value_begin, this->idx, delta );
+  // * this->value = value_float_edit(this->value_begin, this->idx, delta );
 
-
+/*
   double tmp = this->value_begin;
-  value_edit_float( &tmp, this->idx, delta );
+  value_float_edit( &tmp, this->idx, delta );
   *this->value = tmp;
+*/
+  char buf[100]; // temporary.
 
+  // void (*copy)( const void *src, void *dst, size_t sz );
+
+  // this is WRONG. value->begin is not a full value...
+  // value->copy(  this->value_begin, buf, 100 );
+
+  memcpy( buf, this->value_begin, 100); // assume enough. and assume pod.
+
+  // void (*edit)( void *, unsigned idx, int delta ) ;
+  value->edit(  buf ,  this->idx, delta );
+
+  value->copy(  buf , value->value , 100 );
 }
 
 
@@ -547,7 +588,12 @@ void Menu::draw( Curses & curses )
     // char buf2[100];
     char buf[100];
 
-    value_format_float( & item->values[ i ] , buf, 100 );
+    Value *value = & item->values[ i];
+
+    // item->values[ i]. format( item->values[i].value, buf, 100 );
+    value->format( value->value, buf, 100 );
+
+    // value_float_format( & item->values[ i ] , buf, 100 );
 
     // snprintf(buf, 100,  "%smV" , format_float(buf2, 100, 6, item->values[ i ] ));
 

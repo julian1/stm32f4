@@ -37,22 +37,25 @@ struct Value
 
   // actually separating the controller functions from the values - means less repetition. and filling things in.
   void (*edit)( void *, unsigned idx, int delta ) ;
-  void (*format)( void *, char *buf, size_t n) ;
+  void (*copy)( const void *src, void *dst, size_t sz );
+  void (*format)( const void *, char *buf, size_t n) ;
   bool (*validate)( void *) ;
 
   // bool no_element_controller.
 
   Value(
-    void *value,
+    void *value_,
 
-    void (*edit)( void *, unsigned idx, int delta ),
-    void (*format)( void *, char *buf, size_t sz),
-    bool (*validate)( void *)
+    void (*edit_)( void *, unsigned idx, int delta ),
+    void (*copy_)( const void *, void *dst, size_t sz ),
+    void (*format_)( const void *, char *buf, size_t sz),
+    bool (*validate_)( void *)
   ) :
-    value(value),
-    edit(edit),
-    format(format),
-    validate(validate)
+    value(value_),
+    edit(edit_),
+    copy(copy_),
+    format(format_),
+    validate(validate_)
   { }
 
 };
@@ -60,9 +63,11 @@ struct Value
 
 // this will have to take the argument
 // and modify it in place
-void value_edit_float(double *x, int idx, int amount);
+void value_float_edit(double *x, int idx, int amount);
 
-void value_format_float( double *x, char *buf, size_t sz);
+void value_float_copy( const double *x, void *dst, size_t sz );
+
+void value_float_format( const double *x, char *buf, size_t sz);
 
 
 
@@ -74,7 +79,8 @@ struct Item
 
   char    *name;
   char    **keys;
-  double  *values ;
+  // double  *values ;
+  Value   *values ;
   unsigned  n;
 
   // may also want no list controller. not sure.
@@ -83,7 +89,7 @@ struct Item
   Item(
     char    *name,
     char    **keys,
-    double  *values ,
+    Value   *values ,
     unsigned  n
  ) :
     name(name),
@@ -240,15 +246,20 @@ struct DigitController
   int32_t & idx;
 
   // which value is being edited to be updated.
-  double  *value;
-  double value_begin;
+  Value *value;
+
+  // Ughgh... we cannot copy an opaque (void *) value...
+  // to get the starting value.
+  // double value_begin;
+  
+  char value_begin[100] ; // large enough to hold the largest value
 
   explicit DigitController(int32_t & idx_)
     : rotary_begin(0),
     focus(false),
     idx(idx_),
-    value( NULL ),
-    value_begin( 0 )
+    value( NULL ) // ,
+    // value_begin( 0 )
   { }
 
   /*
@@ -258,7 +269,8 @@ struct DigitController
 
   // should the value be a pointer ????
   // so that it manipulates the real value.
-  void set_value( double * value );
+  // void set_value( double * value );
+  void set_value( Value * value );
 
   void begin_edit(int32_t rotary);
   void finish_edit(int32_t rotary);

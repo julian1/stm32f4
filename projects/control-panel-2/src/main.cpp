@@ -652,17 +652,28 @@ int main(int arg0)
   char *name = "settings 1";
   char *keys[]     = { "whoot", "apple", "blue" } ;
 
-  // OK. but perhaps we want to use an array
-  // 214496
-  // std::variant< int, double, bool> ar[] = { 123, 456.789, true } ;
 
-  double  x1 = 456.678 ;
+  // jebus.
+  void (*value_float_edit_)( void *, unsigned idx, int delta ) =  (void (*)( void *, unsigned idx, int delta ))  value_float_edit;
 
-  Value  arr[] = {
-      Value( & x1, (void (*)( void *, unsigned idx, int delta )) value_edit_float, NULL,NULL),
 
-      Value(NULL, NULL,NULL,NULL)   } ;
+  void (*value_float_copy_)( const void *x, void *dst, size_t sz ) =  (void (*)( const void *x, void *dst, size_t sz ))  value_float_copy ;
 
+  // void * value_float_edit_  =  (void *) value_float_edit;
+  void (*value_float_format_)( const void *, char *buf, size_t n) =   (void (*)( const void *, char *buf, size_t n))  value_float_format;
+
+  double xx[]  = { 14.12, 256, 399.123 } ;
+
+  Value  values[] = {
+      Value( &xx[0], value_float_edit_, value_float_copy_, value_float_format_, NULL),
+      Value( &xx[1], value_float_edit_, value_float_copy_, value_float_format_, NULL) ,  
+      Value( &xx[2], value_float_edit_, value_float_copy_, value_float_format_, NULL)   
+  };
+
+
+  Item item1( name, keys, values , 3 );
+
+/*
   double values[]  = { 14.12, 256, 399.123 } ;
 
   Item item1( name, keys, values , 3 );
@@ -673,11 +684,11 @@ int main(int arg0)
   double values2[]  = { 9.12, 5, 123.456, 44 } ;
 
   Item item2( name2, keys2, values2, 4 ) ;
-
-  Item *items[] = { &item1, &item2 } ;
+*/
+  Item *items[] = { &item1 /*, &item2 */ } ;
 
   // populate the initial value.
-  page_controller.set_value( items, 2 );
+  page_controller.set_value( items, 1 );
 
 
   // c structure stuff
