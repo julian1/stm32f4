@@ -654,7 +654,7 @@ int main(int arg0)
   // int x = 0b1001;
 
   char *name = "settings 1";
-  char *keys[]     = { "whoot", "apple", "blue" } ;
+  char *keys[]     = { "whoot", "apple", "blue", "foo" } ;
 
 
   // arrays of functions perhaps heasier
@@ -662,14 +662,19 @@ int main(int arg0)
 
   double xx[]  = { 14.12, 256, 399.123 } ;
 
+  bool result = false;
+
   Value  values[] = {
       Value( &xx[0], (edit_t) value_float_edit, (copy_t) value_float_copy, (format_t) value_float_format2, NULL),
       Value( &xx[1], (edit_t) value_float_edit, (copy_t) value_float_copy, (format_t) value_float_format, NULL) ,
-      Value( &xx[2], (edit_t) value_float_edit, (copy_t) value_float_copy, (format_t) value_float_format, NULL)
+      Value( &xx[2], (edit_t) value_float_edit, (copy_t) value_float_copy, (format_t) value_float_format, NULL),
+
+      Value( &result, (edit_t) value_bool_edit, (copy_t) value_bool_copy, (format_t) value_bool_format, NULL)
   };
 
 
-  Item item1( name, keys, values , 3 );
+  assert( ARRAY_SIZE(keys) == ARRAY_SIZE(values) );
+  Item item1( name, keys, values , ARRAY_SIZE(values) ); // ARRAY_SIZEsizeof(values
 
 /*
   double values[]  = { 14.12, 256, 399.123 } ;

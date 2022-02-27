@@ -40,12 +40,13 @@ struct Value  // should have a different name
 // this will have to take the argument
 // and modify it in place
 void value_float_edit(double *x, int idx, int amount);
-
 void value_float_copy( const double *x, void *dst, size_t sz );
-
 void value_float_format( const double *x, char *buf, size_t sz);
-
 void value_float_format2( const double *x, char *buf, size_t sz);
 
+
+void value_bool_edit(bool *x, int idx, int amount);
+void value_bool_copy( const bool *x, void *dst, size_t sz );
+void value_bool_format( const bool *x, char *buf, size_t sz);
 
 

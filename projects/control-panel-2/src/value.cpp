@@ -104,4 +104,31 @@ void value_float_format2( const double *x, char *buf, size_t sz)
 }
 
 
+/////////////////////
+
+
+
+
+void value_bool_edit(bool *x, int idx, int amount)
+{
+
+  *x = (*x + amount )  % 2; 
+}
+
+void value_bool_copy( const bool *x, void *dst, size_t sz )
+{
+  assert( sizeof(double) <= sz);
+  memcpy(dst, x, sizeof(double) );
+}
+
+
+
+void value_bool_format( const bool *x, char *buf, size_t sz)
+{
+  snprintf(buf, sz, "%s", *x ? "true" : "false"); 
+}
+
+
+
+
 
