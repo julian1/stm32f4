@@ -365,7 +365,7 @@ void DigitController::begin_edit(int32_t rotary)
   // OK.
   // problem is that its
 
-  value->copy(  value->value,   value_begin, 100 );
+  value->copy(  value->val,   value_begin, 100 );
 
 }
 
@@ -427,7 +427,7 @@ void DigitController::rotary_change(int32_t rotary)
   value->edit(  tmp ,  this->idx, delta );
 
   // copy tmp to value
-  value->copy(  tmp , value->value , 100 );
+  value->copy(  tmp , value->val , 100 );
 
 
 /*
@@ -603,7 +603,7 @@ void Menu::draw( Curses & curses )
     Value *value = & item->values[ i];
 
     // item->values[ i]. format( item->values[i].value, buf, 100 );
-    value->format( value->value, buf, 100 );
+    value->format( value->val, buf, 100 );
 
     // value_float_format( & item->values[ i ] , buf, 100 );
 

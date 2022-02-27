@@ -40,7 +40,8 @@ typedef  bool (*validate_t)( void *) ;
 
 struct Value  // should have a different name
 {
-  void *value;    // rename to val. because using value everywhere.
+  void *val;    // rename to val. because using value everywhere.
+                // or name to var. indicating variant.
 
   // actually separating the controller functions from the values - means less repetition. and filling things in.
   edit_t    edit;
@@ -52,14 +53,14 @@ struct Value  // should have a different name
   // bool no_element_controller. // No. should advertise edit capabilities via a function. eg. return value with bitvalues set.
 
   Value(
-    void *value_,
+    void *val_,
 
     edit_t edit_,
     copy_t copy_,
     format_t format_,
     validate_t validate_
   ) :
-    value(value_),
+    val(val_),
     edit(edit_),
     copy(copy_),
     format(format_),
