@@ -19,7 +19,7 @@ AGGINC=${TOP}/agg-svn-r138-agg-2.4/include/
 #
 
 BINARY		= main
-SRCFILES	=   src/main.cpp src/util.c src/fsmc.c src/ssd1963.c src/xpt2046.c src/rotary.c src/ui_events.c src/agg.cpp src/curses.cpp src/menu.cpp \
+SRCFILES	=   src/main.cpp src/util.c src/fsmc.c src/ssd1963.c src/xpt2046.c src/rotary.c src/ui_events.c src/agg.cpp src/curses.cpp src/menu.cpp src/value.cpp \
               src/agg_test2.cpp src/agg_test3.cpp src/agg_test4.cpp src/agg_test5.cpp  src/agg_test6.cpp src/agg_test7.cpp src/agg_test8.cpp  \
               src/arial-outline.cpp   src/arial-span-18.cpp  src/arial-span-72.cpp   \
               ${LIB2SRC}/cbuffer.c  ${LIB2SRC}/streams.c  ${LIB2SRC}/usart.c  \

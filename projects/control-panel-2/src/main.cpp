@@ -78,6 +78,10 @@
 #include "rotary.h"
 #include "ui_events.h"
 #include "curses.h"
+
+
+
+#include "value.h"
 #include "menu.h"
 
 
