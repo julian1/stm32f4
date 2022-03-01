@@ -324,6 +324,8 @@ int main(void)
     OK. issues getting this work.
     turning on hse.  smu does not have hse turned on.
     and then having usb hang/ when not hse.
+    ----
+    when using hse. can see on scope. the CS never goes high, between the 24bit spi xfers.
 
   */
 
