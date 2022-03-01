@@ -50,14 +50,16 @@
 #include <libopencm3/usb/usbd.h>
 
 
-#include <setjmp.h>
+// #include <setjmp.h>
 #include <stddef.h> // size_t
 //#include <math.h> // nanf
 //#include <stdio.h>
 #include <string.h>   // memset
+#include <stdio.h>   // putChar
 
 
 #include "cbuffer.h"
+#include "cstring.h"
 #include "usart.h"
 #include "util.h"
 #include "assert.h"
@@ -76,37 +78,57 @@ typedef struct app_t
   CBuf console_in;
   CBuf console_out;
 
+  CString     command;
+
   usbd_device *usbd_dev ;
 
 } app_t;
 
 
+
+
 static void update_console_cmd(app_t *app)
 {
 
-  if( !cBufisEmpty(&app->console_in) && cBufPeekLast(&app->console_in) == '\r') {
 
-    // usart_printf("got CR\n");
+  while( ! cBufisEmpty(&app->console_in)) {
 
-    // we got a carriage return
-    static char tmp[1000];
+    // got a character
+    int32_t ch = cBufPop(&app->console_in);
+    assert(ch >= 0);
 
-    size_t nn = cBufCount(&app->console_in);
-    size_t n = cBufCopyString(&app->console_in, tmp, ARRAY_SIZE(tmp));
-    assert(n <= sizeof(tmp));
-    assert(tmp[n - 1] == 0);
-    assert( nn == n - 1);
+    if(ch != '\r' && cStringCount(&app->command) < cStringReserve(&app->command) ) {
+      // normal character
+      cStringPush(&app->command, ch);
+      // echo to output. required for minicom.
+      putchar( ch);
 
-    // chop off the CR to make easier to print
-    assert(((int) n) - 2 >= 0);
-    tmp[n - 2] = 0;
+    }  else {
 
-    // TODO first char 'g' gets omitted/chopped here, why? CR handling?
-    usart_printf("got command '%s'\n", tmp);
+      // newline or overflow
+      putchar('\n');
 
-    // process_cmd(app, tmp);
+      char *cmd = cStringPtr(&app->command);
+
+      printf("cmd is '%s'\n", cmd);
+
+
+      // reset buffer
+      cStringClear( &app->command);
+
+      // issue new command prompt
+      usart_printf("> ");
+    }
   }
 }
+
+
+
+
+
+
+
+
 
 
 //////////////////////////////////
@@ -306,6 +328,8 @@ static char buf_console_in[1000];
 static char buf_console_out[1000];
 
 
+static char buf_command[100];
+
 static app_t app;
 
 
@@ -386,6 +410,9 @@ int main(void)
   // uart/console
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
   cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
+
+
+  cStringInit(&app.command, buf_command, buf_command + sizeof( buf_command));
 
 
   //////////////
