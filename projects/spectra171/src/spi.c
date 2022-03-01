@@ -1,22 +1,12 @@
-/*
-  Code is shared for both smu and adc
-  should it be put in a shared library?
-  no. because encodes GPIO pins.
-*/
+
+#include "spi.h"
+#include "assert.h"
+#include "streams.h"   // usart_printf
+
 
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
 
-
-#include <libopencm3/cm3/nvic.h>
-#include <libopencm3/stm32/exti.h>
-
-
-#include <stddef.h>   // NULL
-
-#include "spi1.h"
-
-//////////////////////////
 
 
 #define SPI_ICE40       SPI1
@@ -29,13 +19,15 @@
 
 #define SPI_ICE40_CS2   GPIO15   // PA15 nss 2. moved.
 
-#define SPI_ICE40_INTERUPT GPIO2   // PA2
+// #define SPI_ICE40_INTERUPT GPIO2   // PA2
 
-#define UNUSED(x) (void)(x)
+// #define UNUSED(x) (void)(x)
 
 
 
-void spi1_port_setup(void) // with CS.
+
+
+void spi1_port_setup(void)
 {
   // rcc_periph_clock_enable(RCC_SPI1);
 
@@ -45,27 +37,34 @@ void spi1_port_setup(void) // with CS.
 
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
   gpio_set_af(SPI_ICE40_PORT, GPIO_AF5, all); // af 5
-  // gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, out);
   gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out);
 
   // we should be able to simplify this. to non configured or input.
   // http://libopencm3.org/docs/latest/gd32f1x0/html/group__gpio__mode.html
 
+#if 0
   /*
-  configure as if not configured. eg.
+
   ''During and just after reset, the alternate functions are not active and the I/O ports are configured in Input Floating mode (CNFx[1:0]=01b, MODEx[1:0]=00b).''
   */
   // set cs2 hi - with external pullup.
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_ICE40_CS2);
+#endif
 }
+
+
+
+
+
+
 
 void spi1_port_setup2(void) // with CS2
 {
   // rcc_periph_clock_enable(RCC_SPI1);
 
   // setup spi with cs ...
-  uint16_t out = SPI_ICE40_CLK | SPI_ICE40_CS2 | SPI_ICE40_MOSI ; // not MISO
-  uint16_t all = out | SPI_ICE40_MISO;
+  uint16_t out = SPI_ICE40_CLK /* | SPI_ICE40_CS2 */  | SPI_ICE40_MOSI ; // not MISO
+  uint16_t all = out | SPI_ICE40_MISO ;
 
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
   gpio_set_af(SPI_ICE40_PORT, GPIO_AF5, all); // af 5
@@ -73,54 +72,28 @@ void spi1_port_setup2(void) // with CS2
 
   // set cs1 hi - with external pullup.
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_ICE40_CS);
+
+  // set CS2 to gpio. should only do once.
+  gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_ICE40_CS2);
+
+  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_ICE40_CS2);
 }
 
+// change name assert
+// should be called stobe.    spi1_strobe_assert()
 
-
-
-/*
-  this interupt can be for any kind of status change notice
-  so, it's better to make a generalized func, rather than push this
-  code into the ads131 code.
-*/
-
-static void (*spi1_interupt)(void *ctx) = NULL;
-static void *spi1_ctx = NULL;
-
-
-void exti2_isr(void)
+void spi1_c2_set(void)
 {
-  // interupt from ice40/fpga.
-
-  /*
-    EXTREME
-    OK. bizarre. resetting immediately, prevents being called a second time
-  */
-  exti_reset_request(EXTI2);
-
-
-  if(spi1_interupt) {
-    spi1_interupt(spi1_ctx);
-  }
-
+  gpio_set(SPI_ICE40_PORT, SPI_ICE40_CS2);
 }
 
-
-void spi1_interupt_gpio_setup(void (*pfunc)(void *),  void *ctx)
+void spi1_cs2_clear(void)
 {
-  // TODO check non-null init args ...
-
-  spi1_interupt = pfunc;
-  spi1_ctx = ctx;
-
-  gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_ICE40_INTERUPT);
-
-  // ie. use exti2 for pa2
-  nvic_enable_irq(NVIC_EXTI2_IRQ);
-
-  exti_select_source(EXTI2, SPI_ICE40_PORT);
-  exti_set_trigger(EXTI2 , EXTI_TRIGGER_FALLING);
-  exti_enable_request(EXTI2);
+  gpio_clear(SPI_ICE40_PORT, SPI_ICE40_CS2);
 }
+
+
+
+
 
 
