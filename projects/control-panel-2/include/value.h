@@ -42,7 +42,7 @@ struct Value  // should have a different name
 void value_float_edit(double *x, int idx, int amount);
 void value_float_copy( const double *x, void *dst, size_t sz );
 void value_float_format( const double *x, char *buf, size_t sz);
-void value_float_format2( const double *x, char *buf, size_t sz);
+void value_float_format2( const double *x, char *buf, size_t sz);   // TODO remove. add the unit to the value structure.
 
 
 void value_bool_edit(bool *x, int idx, int amount);

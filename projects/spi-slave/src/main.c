@@ -58,13 +58,15 @@
 
 
 #include "cbuffer.h"
-#include "usart2.h"
+#include "usart.h"
 #include "util.h"
 #include "assert.h"
 #include "cdcacm.h"
+#include "streams.h"
 
 
-#include "str.h"  //format_bits
+// #include "str.h"  //format_bits
+#include "format.h"  //format_bits
 
 
 
@@ -91,12 +93,12 @@ static void update_console_cmd(app_t *app)
 
     size_t nn = cBufCount(&app->console_in);
     size_t n = cBufCopyString(&app->console_in, tmp, ARRAY_SIZE(tmp));
-    ASSERT(n <= sizeof(tmp));
-    ASSERT(tmp[n - 1] == 0);
-    ASSERT( nn == n - 1);
+    assert(n <= sizeof(tmp));
+    assert(tmp[n - 1] == 0);
+    assert( nn == n - 1);
 
     // chop off the CR to make easier to print
-    ASSERT(((int) n) - 2 >= 0);
+    assert(((int) n) - 2 >= 0);
     tmp[n - 2] = 0;
 
     // TODO first char 'g' gets omitted/chopped here, why? CR handling?
@@ -385,6 +387,24 @@ int main(void)
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
   cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
 
+
+  //////////////
+  // initialize usart before start all the app constructors, so that can print.
+  // uart
+  // usart_setup_gpio_portA();
+  usart_setup_gpio_portB();
+
+  usart_set_buffers(&app.console_in, &app.console_out);
+
+  // standard streams for printf, fprintf, putc.
+  init_std_streams( &app.console_out );
+
+
+  usart_printf("\n--------\n");
+  usart_printf("addr main() %p\n", main );
+
+
+#if 0
   // usart_setup_gpio_portA();
   usart_setup_gpio_portB();
 
@@ -393,13 +413,13 @@ int main(void)
   // setup print
   // usart_printf_set_buffer()
   usart_printf_init(&app.console_out);
-
+#endif
 
   ////////////////////////////
   // usb
   // might be better to pass as handler?
 	app.usbd_dev = usb_setup();
-  ASSERT(app.usbd_dev);
+  assert(app.usbd_dev);
 
 
   usart_printf("\n--------");

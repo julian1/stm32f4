@@ -12,10 +12,10 @@
 #include <libopencm3/stm32/gpio.h>
 
 #include "util.h"
+#include "streams.h"
 #include "cbuffer.h"
-#include "usart2.h"
-// #include "miniprintf2.h" // internal_vprint
-
+#include "usart.h"
+#include "assert.h"  // assert simple
 
 #include <stddef.h> // size_t
 #include <stdarg.h> // va_starrt etc
@@ -25,13 +25,13 @@
 
 
 
-
+#if 0
 bool strequal(const char *s1, const char *s2)
 {
   return (strcmp(s1, s2) == 0);
 }
 
-
+#endif
 
 
 ////////////////////////////////////////////////////////
@@ -193,8 +193,21 @@ int main()
 
 
 
+void assert_simple(const char *file, int line, const char *func, const char *expr)
+{
+  // this works by using local "assert.h" with assert() macro definition
+  // see assert.h for explanation. works with external libraries/code
+  // see, https://stackoverflow.com/questions/50915274/redirecting-assert-fail-messages
+
+  // legacy version
+  usart_printf("\nassert simple failed %s: %d: %s: '%s'\n", file, line, func, expr);
+
+  critical_error_blink();
+}
 
 
+
+#if 0
 
 ////////////////////////////////////////////////////////
 
@@ -268,7 +281,7 @@ void usart_printf(const char *format, ...)
 ////////////////////////////
 
 
-
+#endif
 
 
 
