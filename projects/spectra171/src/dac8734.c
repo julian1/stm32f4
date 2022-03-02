@@ -47,7 +47,8 @@ void spi_dac_setup( uint32_t spi)
   // rcc_periph_clock_enable(RCC_SPI1);
   spi_init_master(
     spi,
-    SPI_CR1_BAUDRATE_FPCLK_DIV_4,     // reasonably fast
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_4,     // at 168MHz. too fast. even with nop loop between cs.
+    SPI_CR1_BAUDRATE_FPCLK_DIV_8,     // ok 168MHz. with nop loop on cs
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
     SPI_CR1_CPHA_CLK_TRANSITION_2,    // 2 == falling edge (from dac8734 doc.
     SPI_CR1_DFF_8BIT,
@@ -73,7 +74,17 @@ static uint32_t spi_dac_xfer_24(uint32_t spi, uint32_t r)
 
 static uint32_t spi_dac_xfer_register(uint32_t spi, uint32_t r)
 {
-  spi_enable( spi);
+
+  /* this is probably being heavily inlined. and the time between cs assert is too short to be distinct.
+    about 200ns. on scope. with other code
+    - alternatively could probably move to separate file to avoid inlining
+  */
+  for(uint32_t i = 0; i < 10; ++i)
+     __asm__("nop");
+
+
+  // assert(spi == SPI1);
+    spi_enable( spi);
   uint32_t ret = spi_dac_xfer_24(spi, r );     // write
   spi_disable( spi);
 
@@ -129,9 +140,9 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   ice40_reg_set(spi, reg, DAC_UNI_BIP_A /*| DAC_UNIBIPB */);
 #endif
 
-  
+
   // JA
-  spi1_port_setup2(); 
+  spi1_port_setup2();
   spi_4094_setup(spi);
   spi_4094_reg_write(spi, REG_DAC_RST | REG_DAC_UNI_BIP_A);
 

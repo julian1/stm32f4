@@ -37,7 +37,7 @@ void spi1_port_setup(void)
 
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
   gpio_set_af(SPI_ICE40_PORT, GPIO_AF5, all); // af 5
-  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out);
+  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, out);
 
   // we should be able to simplify this. to non configured or input.
   // http://libopencm3.org/docs/latest/gd32f1x0/html/group__gpio__mode.html
@@ -68,7 +68,7 @@ void spi1_port_setup2(void) // with CS2
 
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
   gpio_set_af(SPI_ICE40_PORT, GPIO_AF5, all); // af 5
-  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out); // probably need to reset each time.
+  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, out); // probably need to reset each time.
 
   // set cs1 hi - with external pullup.
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_ICE40_CS);
@@ -76,7 +76,7 @@ void spi1_port_setup2(void) // with CS2
   // set CS2 to gpio. should only do once.
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_ICE40_CS2);
 
-  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_ICE40_CS2);
+  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, SPI_ICE40_CS2);
 }
 
 // change name assert

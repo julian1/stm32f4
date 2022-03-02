@@ -144,7 +144,7 @@ static void loop(app_t *app)
 
   while(true) {
 
-		// usbd_poll(app->usbd_dev);
+		usbd_poll(app->usbd_dev);
 
     update_console_cmd(app);
 
@@ -220,7 +220,7 @@ int main(void)
 
   // required for usb
 	// rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz. works stm32f407 too.
-//	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ] );  // stm32f407
+  rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ] );  // stm32f407
 
   /*
   // http://libopencm3.org/docs/latest/stm32f4/html/f4_2rcc_8h.html
@@ -228,17 +228,22 @@ int main(void)
     see here for rcc.c example, defining 100MHz, using 25MHz xtal.
       https://github.com/insane-adding-machines/unicore-mx/blob/master/lib/stm32/f4/rcc.c
   */
-  // 16MHz. from hsi datasheet.
+  // 16MHz. for hsi from datasheet.
 
-  systick_setup(16000);
+  // systick_setup(16000);
+  // systick_setup(16000);
+  // systick_setup(84000);  // 84MHz.
+  systick_setup(168000);
+
+
 
   // clocks
   rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
 
   // LED
-  rcc_periph_clock_enable(RCC_GPIOA); // f410/f411 led.
-  rcc_periph_clock_enable(RCC_GPIOB); // f410/f411 led.
-  rcc_periph_clock_enable(RCC_GPIOE); // led cjmcu
+  rcc_periph_clock_enable(RCC_GPIOA);
+  rcc_periph_clock_enable(RCC_GPIOB);
+  rcc_periph_clock_enable(RCC_GPIOE);
 
   // USART
   rcc_periph_clock_enable(RCC_GPIOB); // F410/f411
@@ -260,10 +265,6 @@ int main(void)
   //////////////////////
   // setup
 
-
-  // systick_setup(16000);
-  // systick_setup(84000);  // 84MHz.
- // systick_setup(168000);
 
 
   // led
@@ -300,7 +301,7 @@ int main(void)
 
 
 
-#if 0
+#if 1
   ////////////////////////////
   // usb
   // might be better to pass as handler?
@@ -326,6 +327,8 @@ int main(void)
     and then having usb hang/ when not hse.
     ----
     when using hse. can see on scope. the CS never goes high, between the 24bit spi xfers.
+    ----------
+    OK. even when set the spi clk divider to 128. it still runs everything together...
 
   */
 
