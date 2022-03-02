@@ -55,9 +55,12 @@ void spi_dac_setup( uint32_t spi)
     SPI_CR1_MSBFIRST
   );
 
+/*
+  // IS this required?
+  // seemingly it is default behavior
   spi_disable_software_slave_management(spi);
   spi_enable_ss_output(spi);
-
+*/
 }
 
 
@@ -165,7 +168,7 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   msleep(20);
 #endif
 
-  // JA
+  // JA toggle rst.
   spi_4094_reg_write(spi, REG_DAC_UNI_BIP_A);
   msleep(1);
   spi_4094_reg_write(spi, REG_DAC_RST | REG_DAC_UNI_BIP_A);

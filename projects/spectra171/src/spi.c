@@ -70,12 +70,11 @@ void spi1_port_cs2_setup(void) // with CS2
   gpio_set_af(SPI_ICE40_PORT, GPIO_AF5, all); // af 5
   gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, out); // probably need to reset each time.
 
-  // set cs1 hi - with external pullup.
+  // set cs1 hi-z/hi - with external pullup.
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_ICE40_CS);
 
-  // set CS2 to gpio. should only do once.
+  // set CS2 to high-z input with external gpio. only should only do once.
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_ICE40_CS2);
-
   gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, SPI_ICE40_CS2);
 }
 
