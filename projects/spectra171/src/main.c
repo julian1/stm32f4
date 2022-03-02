@@ -73,6 +73,7 @@
 
 #include "spi.h"
 #include "dac8734.h"
+#include "4094.h"
 
 
 typedef struct app_t
@@ -336,12 +337,40 @@ int main(void)
   spi1_cs2_clear();
 
 
+  uint32_t spi = SPI1;
 
-  int ret = dac_init(SPI1, 0x00 ); // bad name?
+  uint8_t reg4064_value; 
+
+  int ret = dac_init(spi, & reg4064_value); // bad name?
   if(ret != 0) {
     assert(0);
   }
 
+
+  /// turn on rails.
+  usart_printf("\n--------\n");
+  usart_printf("turn on rails\n");
+  spi1_port_cs2_setup();
+  spi_4094_setup(spi);
+  reg4064_value |= REG_RAILS_ON;
+  assert(reg4064_value == (REG_RAILS_ON | REG_DAC_RST | REG_DAC_UNI_BIP_A));
+  spi_4094_reg_write(spi, reg4064_value);
+
+
+  // write an output
+  usart_printf("\n--------\n");
+  usart_printf("writing register for dac0 \n");
+  spi1_port_cs1_setup(); // with CS.
+  spi_dac_setup( spi);
+
+  /* ahhh. remember for smu. we use unipolar outputs...  from memory.
+  // perhaps leave as is. 
+  */
+
+  spi_dac_write_register( spi, DAC_DAC0_REGISTER, voltage_to_dac( 1.0 ));    // -2 not working??? emits positive.
+  // spi_dac_write_register( spi, DAC_DAC0_REGISTER, 0xffff );   // 0xffff negative? 
+
+ 
 
 
   loop(&app);

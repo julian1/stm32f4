@@ -20,6 +20,7 @@
 // TODO change return value to uint32_t?
 int voltage_to_dac( float x)
 {
+  // change name unpolar_voltage_to_dac.
   /* this uses 50k points of 65535.
     ie. vset=10V,  10/2*10k = 50000
   */
@@ -112,9 +113,18 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
 
   mux_ice40(spi);
 
+
+
   // keep latch low, and unused, unless chaining
   ice40_reg_clear(spi, reg, DAC_LDAC);
 
+
+  /*
+  Output mode selection of groupB (DAC-2 and DAC-3). When UNI/BIP-A is tied to
+  IOVDD, group B is in unipolar output mode; when tied to DGND, group B is in
+  bipolar output mode
+  */
+ 
   // unipolar output on a
   ice40_reg_set(spi, reg, DAC_UNI_BIP_A /*| DAC_UNIBIPB */);
 

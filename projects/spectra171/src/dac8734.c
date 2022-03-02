@@ -27,7 +27,10 @@ int voltage_to_dac( float x)
   /* this uses 50k points of 65535.
     ie. vset=10V,  10/2*10k = 50000
   */
-  return x / 2.0 * 10000;
+
+  // return x / 2.0 * 10000   * ( 6.5535 / 6.95 ); // weirdness....
+  return x / 2.0 * 10000   * ( 6.5535 / 7.1 ); // weirdness....
+  // return x / 2.0 * 10000;
 /*
   For unipolar mode: AVDD ≥ Gain × VREF + 1V, and AVSS ≤ –2 × VREF – 1V.
   2 * 8.192 + 1 => rails = +-17.3V.
@@ -121,9 +124,8 @@ uint32_t spi_dac_read_register(uint32_t spi, uint8_t r)
 
 // ok. peripherals have to be able to mux fo their IO.
 
-int dac_init(uint32_t spi, uint8_t reg)  // bad name?
+int dac_init(uint32_t spi, uint8_t *reg4064_value)  // bad name?
 {
-  UNUSED(reg);
   usart_printf("------------------\n");
   usart_printf("dac8734 init\n");
 
@@ -133,6 +135,13 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
     fail early if something goes wrong
   */
 
+
+  /*
+  Output mode selection of groupB (DAC-2 and DAC-3). When UNI/BIP-A is tied to
+  IOVDD, group B is in unipolar output mode; when tied to DGND, group B is in
+  bipolar output mode
+  */
+ 
 #if 0
   mux_ice40(spi);
 
@@ -147,7 +156,8 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   // JA
   spi1_port_cs2_setup();
   spi_4094_setup(spi);
-  spi_4094_reg_write(spi, REG_DAC_RST | REG_DAC_UNI_BIP_A);
+  *reg4064_value = REG_DAC_RST | REG_DAC_UNI_BIP_A;
+  spi_4094_reg_write(spi, *reg4064_value);
 
 
   //////////////
@@ -169,6 +179,7 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
 #endif
 
   // JA toggle rst.
+  // should probably use reg4064 value...
   spi_4094_reg_write(spi, REG_DAC_UNI_BIP_A);
   msleep(1);
   spi_4094_reg_write(spi, REG_DAC_RST | REG_DAC_UNI_BIP_A);

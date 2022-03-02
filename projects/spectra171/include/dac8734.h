@@ -1,16 +1,5 @@
 
-
-int voltage_to_dac( float x);
-
-void spi_dac_setup( uint32_t spi  );
-
-// extern uint32_t spi_dac_xfer_register(uint32_t spi, uint32_t r);
-extern void spi_dac_write_register(uint32_t spi, uint8_t r, uint16_t v);
-
-extern uint32_t spi_dac_read_register(uint32_t spi, uint8_t r);
-
-
-extern int dac_init(uint32_t spi, uint8_t reg);  // bad name?
+#pragma once
 
 #define DAC_CMD_REGISTER       0x0 
 
@@ -46,4 +35,16 @@ extern int dac_init(uint32_t spi, uint8_t reg);  // bad name?
 #define DAC_ZERO_REGISTER0  0b1000
 
 #define DAC_GAIN_REGISTER0  0b1100
+
+int voltage_to_dac( float x);
+
+void spi_dac_setup( uint32_t spi  );
+
+// extern uint32_t spi_dac_xfer_register(uint32_t spi, uint32_t r);
+extern void spi_dac_write_register(uint32_t spi, uint8_t r, uint16_t v);
+
+extern uint32_t spi_dac_read_register(uint32_t spi, uint8_t r);
+
+
+extern int dac_init(uint32_t spi, uint8_t *reg);  // bad name?
 

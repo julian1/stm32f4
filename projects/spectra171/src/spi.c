@@ -78,9 +78,12 @@ void spi1_port_cs2_setup(void) // with CS2
   gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, SPI_ICE40_CS2);
 }
 
+
+
+
 // change name assert
 // should be called stobe.    spi1_strobe_assert()
-// enable. disable. only has meaning for 4094. strobe...
+// no. keep separate. strobe has meaning for 4094. strobe...
 
 void spi1_cs2_set(void)
 {
