@@ -10,12 +10,12 @@
 
 #include "usart.h"
 #include "cbuffer.h"
+#include "util.h"   // critical_error_blink()
 
 
 
-// TODO rename circular buffers coutput, cinput. 
-static CBuf *output_buf = NULL;
-static CBuf *input_buf  = NULL;
+static CBuf *coutput = NULL;
+static CBuf *cinput  = NULL;
 
 
 // TODO change name usart1_setup_portB
@@ -49,42 +49,53 @@ void usart_setup_gpio_portA(void)
   - we should be passing the usart argument explicitly. like we do with spi.
   - the actual usart configu called setup() or init() oconfigure()...
   - separate the buffer from the actual configuration.
-
+  - but cbuffers means can only actually deal with one usart here.
 */
+
+
+
+static void usart_configure( uint32_t usart )
+{
+
+  switch(usart) {
+    case USART1:
+      nvic_enable_irq(NVIC_USART1_IRQ);
+      nvic_set_priority(NVIC_USART1_IRQ, 5);    // value???
+      break;
+
+    default:
+      // assert is problematic here... because no usart configured to debug.
+      // assert(0);
+      critical_error_blink();
+  }
+
+
+  usart_set_baudrate(usart, 115200);
+  usart_set_databits(usart, 8);
+  usart_set_stopbits(usart, USART_STOPBITS_1);
+
+  usart_set_mode(usart, USART_MODE_TX_RX);
+  usart_set_parity(usart, USART_PARITY_NONE);
+  usart_set_flow_control(usart, USART_FLOWCONTROL_NONE);
+
+
+  /* Enable usart Receive interrupt. */
+  usart_enable_rx_interrupt(usart);
+
+  usart_enable(usart);
+}
+
+
+
 
 void usart_set_buffers( CBuf *input, CBuf *output)
 {
-  // we have to setup the input_buf pointer for the isr...
-  // althouth output is only needed in update()
-  input_buf = input;
-  output_buf = output;
+  // TODO change name  usart1_set_buffers
+  // set buffers before configure and interupt enable.
+  cinput = input;
+  coutput = output;
 
-#if 0 
-  switch(usart) {
-    case USART1: 
-      // nvic_enable_irq(NVIC_USART1_IRQ);
-      // etc
-      break;
-  }
-#endif
-
-  nvic_enable_irq(NVIC_USART1_IRQ);
-  nvic_set_priority(NVIC_USART1_IRQ, 5);    // value???
-
-
-  usart_set_baudrate(USART1, 115200);
-  usart_set_databits(USART1, 8);
-  usart_set_stopbits(USART1, USART_STOPBITS_1);
-
-  usart_set_mode(USART1, USART_MODE_TX_RX);
-  usart_set_parity(USART1, USART_PARITY_NONE);
-  usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);
-
-
-  /* Enable USART1 Receive interrupt. */
-  usart_enable_rx_interrupt(USART1);
-
-  usart_enable(USART1);
+  usart_configure( USART1);
 }
 
 
@@ -101,7 +112,7 @@ void usart1_isr(void)
 
     // write the input buffer
     char ch = usart_recv(USART1);
-    cBufPush(input_buf, ch);
+    cBufPush(cinput, ch);
   }
 
 
@@ -115,7 +126,7 @@ void usart1_isr(void)
   if (((USART_CR1(USART1) & USART_CR1_TXEIE) != 0) &&
       ((USART_SR(USART1) & USART_SR_TXE) != 0)) {
 
-    if(cBufisEmpty(output_buf)) {
+    if(cBufisEmpty(coutput)) {
       // no more chars
       // disable transmit interupt
       usart_disable_tx_interrupt(USART1);
@@ -123,7 +134,7 @@ void usart1_isr(void)
     }
 
     // else send next char
-    int ch = cBufPop(output_buf);
+    int ch = cBufPop(coutput);
     usart_send(USART1,ch);
   }
 
@@ -135,7 +146,7 @@ void usart1_isr(void)
 /*
   TODO rename
 
-  // TODO . rename.  usart_txe_interupt_enable()
+  usart1_txe_interupt_enable()
   usart_enable_output_interupt()
 */
 // TODO this is non blocking. change name usart_output_reenable() to indicate...
@@ -147,7 +158,7 @@ void usart_output_update()
   */
 
   // data in buf, then ensure that txe interupt is enabled to process
-  if(!cBufisEmpty(output_buf)) {
+  if(!cBufisEmpty(coutput)) {
     usart_enable_tx_interrupt(USART1);
   }
 }
@@ -156,11 +167,11 @@ void usart_output_update()
 
 void usart_flush()
 {
-  // block until flush
+  // block until flushed
 
   usart_output_update();
 
-  while(!cBufisEmpty(output_buf));
+  while(!cBufisEmpty(coutput));
 }
 
 
