@@ -3,8 +3,8 @@
 #include <libopencm3/stm32/spi.h>
 
 
-#include "util.h" // usart_printf
-#include "assert.h" // usart_printf
+#include "util.h"
+#include "assert.h"
 #include "streams.h" // usart_printf
 
 // #include "mux.h"

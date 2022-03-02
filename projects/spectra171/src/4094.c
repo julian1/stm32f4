@@ -5,52 +5,35 @@
 #include "spi.h"
 #include "4094.h"
 
-#include "util.h"  // msleep()
+// #include "util.h"  // msleep()
 #include "assert.h"
-#include "streams.h"    // usart_printf
+// #include "streams.h"    // usart_printf
 
 
 
-  /*
-    "The data in the shift register is transferred to the storage register when the
-      STR input is HIGH"
+/*
+  "The data in the shift register is transferred to the storage register when the
+    STR input is HIGH"
 
-    - so if strobe is high then storage register and output will be transparent.
-    - so we only want to assert strobe high briefly - after we have clocked the data in.
-    - the shift register always gets the data. regardless
-    - it should only be blipped. from lo to hi back to lo against. when we want to write.
-    -----------------
+  - so if strobe is high then storage register and output will be transparent.
+  - so we only want to assert strobe high briefly - after we have clocked the data in.
+  - the shift register always gets the mosi data. regardless of the cs/strobe
 
-    It should perhaps remain configured as gpio.
-
-    ALSO
-    The '4094 only latches the data internally from its shift register into its
-    output register on the falling edge of a clock pulse, when the strobe pin is
-    high. Just making the strobe pin high by itself does nothing, I think.
-      think this is wrong. but check.
-    --------------
-    
-    OK. and if it is only done - onece - then then we *could* probably use CS active hi.
-      
-  */
+*/
 
 
 
 uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
 {
-  // change name spi_cs2_write_reg() 
-  // Note. must have spi port configured to use cs2
+  // expect port is configured with gpio for cs etc.
 
-  // usart_printf("writing spi1 using cs2 \n" );
-
-  // TODO remove the enable.
-
+  // TODO maybe remove the enable.
   spi_enable( spi );
   uint8_t val = spi_xfer(spi, v);
   spi_disable( spi );
 
 
-  // strobe the value
+  // briefly assert strobe/cs2
   spi1_cs2_set();
   for(uint32_t i = 0; i < 100; ++i)
      __asm__("nop");
