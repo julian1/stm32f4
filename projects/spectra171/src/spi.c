@@ -27,7 +27,7 @@
 
 
 
-void spi1_port_setup(void)
+void spi1_port_cs1_setup(void)
 {
   // rcc_periph_clock_enable(RCC_SPI1);
 
@@ -58,7 +58,7 @@ void spi1_port_setup(void)
 
 
 
-void spi1_port_setup2(void) // with CS2
+void spi1_port_cs2_setup(void) // with CS2
 {
   // rcc_periph_clock_enable(RCC_SPI1);
 
@@ -81,8 +81,9 @@ void spi1_port_setup2(void) // with CS2
 
 // change name assert
 // should be called stobe.    spi1_strobe_assert()
+// enable. disable. only has meaning for 4094. strobe...
 
-void spi1_c2_set(void)
+void spi1_cs2_set(void)
 {
   gpio_set(SPI_ICE40_PORT, SPI_ICE40_CS2);
 }

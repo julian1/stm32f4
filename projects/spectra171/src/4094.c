@@ -51,7 +51,7 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
 
 
   // strobe the value
-  spi1_c2_set();
+  spi1_cs2_set();
   for(uint32_t i = 0; i < 100; ++i)
      __asm__("nop");
 

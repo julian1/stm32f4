@@ -84,7 +84,7 @@ static uint32_t spi_dac_xfer_register(uint32_t spi, uint32_t r)
 
 
   // assert(spi == SPI1);
-    spi_enable( spi);
+  spi_enable( spi);
   uint32_t ret = spi_dac_xfer_24(spi, r );     // write
   spi_disable( spi);
 
@@ -142,7 +142,7 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
 
 
   // JA
-  spi1_port_setup2();
+  spi1_port_cs2_setup();
   spi_4094_setup(spi);
   spi_4094_reg_write(spi, REG_DAC_RST | REG_DAC_UNI_BIP_A);
 
@@ -173,7 +173,7 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
 
 
 
-  spi1_port_setup(); // with CS.
+  spi1_port_cs1_setup(); // with CS.
   spi_dac_setup( spi);
 
   // DAC_CMD_REGISTER
