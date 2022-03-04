@@ -115,6 +115,25 @@ static void update_console_cmd(app_t *app)
 
       printf("cmd is '%s'\n", cmd);
 
+      int u0; 
+      double u1; 
+      int n = sscanf(cmd, "set %u %lf", &u0, &u1 );
+
+      if(n == 2) { 
+        printf("%u %f\n", u0, u1);
+
+        int dac_reg = DAC_DAC0_REGISTER + u0;
+        if(dac_reg < DAC_DAC0_REGISTER || dac_reg > DAC_DAC3_REGISTER) {
+          
+          printf("bad dac_reg argument\n");
+        } else {
+
+          // FIXME
+          uint32_t spi = SPI1;
+
+          spi_dac_write_register( spi, dac_reg , voltage_to_dac( u1 ));    // -2 not working??? emits positive.
+          }
+        }
 
       // reset buffer
       cStringClear( &app->command);
