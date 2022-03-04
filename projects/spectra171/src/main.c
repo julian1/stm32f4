@@ -336,21 +336,10 @@ int main(void)
   // make sure starts lo
   spi1_cs2_clear();
 
-  // OK. making sure rails are off/ when mcu starts for 100ms. then start. means op starts correctly.
-  uint8_t reg4064_value; 
+
   uint32_t spi = SPI1;
 
-  /// make sure rails are off 
-  usart_printf("\n--------\n");
-  usart_printf("turn on rails\n");
-  spi1_port_cs2_setup();
-  spi_4094_setup(spi);
-  reg4064_value = REG_DAC_RST | REG_DAC_UNI_BIP_A;
-  spi_4094_reg_write(spi, reg4064_value);
-
-  usart_printf("sleep 100ms\n");
-  msleep(100);
-
+  uint8_t reg4064_value; 
 
   int ret = dac_init(spi, & reg4064_value); // bad name?
   if(ret != 0) {
@@ -367,9 +356,6 @@ int main(void)
   assert(reg4064_value == (REG_RAILS_ON | REG_DAC_RST | REG_DAC_UNI_BIP_A));
   spi_4094_reg_write(spi, reg4064_value);
 
-
-  usart_printf("sleep 100ms\n");
-  msleep(100);
 
   // write an output
   usart_printf("\n--------\n");
