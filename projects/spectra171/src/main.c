@@ -392,7 +392,7 @@ int main(void)
 
   // write an output
   usart_printf("\n--------\n");
-  usart_printf("writing register for dac0 \n");
+  usart_printf("writing register for dac0 1V output. \n");
   spi1_port_cs1_setup(); // with CS.
   spi_dac_setup( spi);
 
