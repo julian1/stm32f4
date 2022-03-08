@@ -35,7 +35,7 @@
 
 
 #include "cbuffer.h"
-#include "usart2.h"
+#include "usart.h"
 #include "streams.h"
 #include "util.h"
 // #include "assert.h"
@@ -131,13 +131,23 @@ void update_console_cmd(app_t *app)
         // flash_read();
       }
 
+      /*
+        - OK. it is extremely confusing that we have to call write after doing this.
+        spent 20 mins trying to figure it out.
+
+      */
+
       else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 || strcmp(app->cmd_buf , "mux com") == 0)  {
+
+        usart_printf("make sure to write value!\n");
         app->params.himux_sel = HIMUX_SEL_REF_LO;
       }// ref-lo/com...
       else if(strcmp(app->cmd_buf , "mux ref-hi") == 0) {
+        usart_printf("make sure to write value!\n");
         app->params.himux_sel = HIMUX_SEL_REF_HI;
       }
-     else if(strcmp(app->cmd_buf , "mux sig") == 0) {
+     else if(strcmp(app->cmd_buf , "mux sig\n") == 0) {
+        usart_printf("make sure to write value!");
         app->params.himux_sel = HIMUX_SEL_SIG_HI;
       }
 

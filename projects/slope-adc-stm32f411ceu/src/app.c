@@ -6,7 +6,7 @@
 #include "streams.h"  // usart_printf
 #include "ice40.h"  // spi_reg_read
 #include "format.h" // format_bits
-#include "usart2.h"   // usart_flus()
+#include "usart.h"   // usart_flus()
 #include "util.h"   // system_millis
 
 
@@ -57,12 +57,14 @@ void params_report(Params * params )
   // usart_printf("reg_led           %s\n", format_bits( buf, 4, params->reg_led ) );
 
   uint32_t int_n  = params->clk_count_int_n ;
-  double period = int_n / (double ) 20000000;
+  double period   = int_n / (double ) 20000000;
   double nplc     = period / (1.0 / 50);
+  double samples_per_second = 1.0 / period;
 
   usart_printf("clk_count_int_n   %u\n", int_n );
-  usart_printf("period            %fs\n", period);
   usart_printf("nplc              %.2f\n", nplc);
+  usart_printf("period            %fs\n", period);
+  usart_printf("samples/s         %.1f\n", samples_per_second);
 
   usart_printf("clk_count_init_n  %u\n", params->clk_count_init_n);
   usart_printf("clk_count_fix_n   %u\n", params->clk_count_fix_n);

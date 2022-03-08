@@ -5,7 +5,7 @@
 #include "assert.h"
 #include "streams.h"  // usart_printf
 #include "format.h" // format_bits
-#include "usart2.h"   // usart_flus()
+#include "usart.h"   // usart_flus()
 #include "util.h"   // system_millis
 
 
