@@ -35,7 +35,7 @@
 
 
 
-void spi1_port_setup(void) // with CS.
+void spi1_port_cs1_setup(void) // with CS.
 {
   // rcc_periph_clock_enable(RCC_SPI1);
 
@@ -59,7 +59,7 @@ void spi1_port_setup(void) // with CS.
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_ICE40_CS2);
 }
 
-void spi1_port_setup2(void) // with CS2
+void spi1_port_cs2_setup(void) // with CS2
 {
   // rcc_periph_clock_enable(RCC_SPI1);
 

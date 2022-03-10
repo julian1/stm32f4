@@ -136,6 +136,11 @@ void update_console_cmd(app_t *app)
         spent 20 mins trying to figure it out.
 
       */
+      /*
+        We need to add azero. to get a proper sense .
+          - subtract the azero term. or subtract a moving average.
+
+      */
 
       else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 || strcmp(app->cmd_buf , "mux com") == 0)  {
 
@@ -426,7 +431,7 @@ int main(void)
 
   ////////////////
   // spi1/ice40
-  spi1_port_setup();
+  spi1_port_cs1_setup();
 
   spi_ice40_setup(SPI1);
 
