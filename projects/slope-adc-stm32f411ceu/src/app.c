@@ -79,6 +79,9 @@ void params_read( Params * params )
 
   params->use_slow_rundown  = spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN);
   params->himux_sel         = spi_reg_read(SPI1, REG_HIMUX_SEL);
+
+
+
 }
 
 
@@ -220,6 +223,11 @@ void run_read( Run *run )
 
   // WE could record slow_rundown separate to normal rundown.
   run->clk_count_rundown = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
+  
+
+  uint32_t n = spi_reg_read(SPI1, REG_MEAS_COUNT );
+
+  usart_printf("meas count %u\n", n );
 
 }
 

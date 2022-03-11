@@ -33,6 +33,8 @@
 #define REG_USE_SLOW_RUNDOWN  24
 #define REG_HIMUX_SEL         25
 
+#define REG_MEAS_COUNT        28
+
 // eg. bitwise, active lo.  avoid turning on more than one.
 // although switch has 1.5k impedance so should not break
 #define HIMUX_SEL_SIG_HI      (0xf & ~(1 << 0))
