@@ -152,7 +152,7 @@ void update_console_cmd(app_t *app)
       // alternatively should bzero(), memcpy( 0 ) nulls.
       */
 
-      else if(strcmp(app->cmd_buf , "vs ") >= 3) {
+      else if(strncmp(app->cmd_buf , "vs ", 3) == 0) {
         int value;
         size_t n = sscanf(app->cmd_buf, "vs %d", &value);
         if( n != 1) {
@@ -163,7 +163,6 @@ void update_console_cmd(app_t *app)
           voltage_source_set(value);
         }
       }
-
 
 
       else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 || strcmp(app->cmd_buf , "mux com") == 0)  {
@@ -191,6 +190,29 @@ void update_console_cmd(app_t *app)
 
       */
 
+      else if(strncmp(app->cmd_buf , "nplc ", 5) == 0) {
+        unsigned value;
+        size_t n = sscanf(app->cmd_buf, "nplc %u", &value);
+        if( n != 1) {
+
+          printf("bad format\n");
+        } else {
+          printf("setting nplc %d\n", value);
+          printf("make sure to write value!\n");
+
+          uint32_t int_n = nplc_to_int_n( value );
+          printf("int_n is %lu\n", int_n );
+
+          double c_nplc = int_n_to_nplc( int_n);
+          printf("c_nplc is %f\n", c_nplc );
+
+          app->params.clk_count_int_n = int_n;
+          // app->params.nplc = value ;
+        }
+
+      }
+
+
       else if(strcmp(app->cmd_buf , "show") == 0) {
         // report params.
         params_report( &app->params);
@@ -203,11 +225,14 @@ void update_console_cmd(app_t *app)
         params_read( &app->params );
       }
       else if(strcmp(app->cmd_buf , "write") == 0) {
+        /*
+          ambiguous. write device or write flash.
+        */
         // write params to device
         // should we do this on every value change?
         params_write( &app->params );
       }
-      else if(strcmp(app->cmd_buf , "exit") == 0 || strcmp(app->cmd_buf , "halt") == 0) {
+      else if(strcmp(app->cmd_buf , "h") == 0 || strcmp(app->cmd_buf , "halt") == 0) {
         // exit the current loop program
         app->continuation_f = (void (*)(void *)) loop_dispatcher;
         app->continuation_ctx = app;

@@ -27,6 +27,40 @@
 
 
 
+/*
+  different nplc - slightly different offsets
+  --
+
+  uint32_t int_n  = params->clk_count_int_n ;
+  double period   = int_n / (double ) 20000000;
+  double nplc     = period / (1.0 / 50);
+
+  // nplc_to_int_n ()
+  // int_n_to_nplc()
+*/ 
+
+uint32_t nplc_to_int_n( double nplc )
+{
+  double period = nplc / 50.0 ;  // seonds 
+  uint32_t int_n = period * 20000000;
+  return int_n;
+}
+
+
+double int_n_to_nplc( uint32_t int_n)
+{
+  // uint32_t int_n  = params->clk_count_int_n ;
+  double period   = int_n / (double ) 20000000;
+  double nplc     = period / (1.0 / 50);
+  return nplc;
+}
+
+
+double int_n_to_period( uint32_t int_n)
+{
+  double period   = int_n / (double ) 20000000;
+  return period;
+}
 
 
 
@@ -57,9 +91,10 @@ void params_report(Params * params )
   // usart_printf("reg_led           %s\n", format_bits( buf, 4, params->reg_led ) );
 
   uint32_t int_n  = params->clk_count_int_n ;
-  double period   = int_n / (double ) 20000000;
-  double nplc     = period / (1.0 / 50);
+  double period   = int_n_to_period( int_n); 
+  double nplc     = int_n_to_nplc( int_n);
   double samples_per_second = 1.0 / period;
+
 
   usart_printf("clk_count_int_n   %u\n", int_n );
   usart_printf("nplc              %.2f\n", nplc);

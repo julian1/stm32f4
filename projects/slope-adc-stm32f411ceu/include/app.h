@@ -59,6 +59,13 @@ struct Params
   // number of obs per measurement. is a higher level concept. 
 };
 
+
+// this isn't very good. because displayed nplc
+// will be constructive.
+uint32_t nplc_to_int_n( double nplc );
+double int_n_to_nplc( uint32_t int_n);
+double int_n_to_period( uint32_t int_n);
+
 typedef struct Params Params;
 
 
@@ -156,6 +163,9 @@ typedef struct app_t
 
 unsigned collect_obs( app_t *app, Params *params, unsigned row, unsigned discard, unsigned gather, MAT *x);
 void update_console_cmd(app_t *app);
+
+
+
 
 
 // loop1
