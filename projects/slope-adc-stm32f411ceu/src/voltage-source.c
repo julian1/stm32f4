@@ -17,8 +17,8 @@
 #include "assert.h"
 
 #define VS_PORT   GPIOB
-#define VS_UP     GPIO9     // PA9
-#define VS_DOWN   GPIO10     // PA10
+#define VS_UP     GPIO9     // PA9,  net  SPI2_CS2
+#define VS_DOWN   GPIO10    // PA10       SPI2_GPIO2
 
 
 void voltage_source_setup(void) 
