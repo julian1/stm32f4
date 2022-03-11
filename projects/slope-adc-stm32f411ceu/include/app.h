@@ -145,6 +145,7 @@ typedef struct app_t
   void *continuation_ctx;
   void (*continuation_f)(void *);
 
+  // TODO should be using CString for this ? i think.
   // need to initialize
   char  cmd_buf[CMD_BUF_SZ ];
   unsigned cmd_buf_i;

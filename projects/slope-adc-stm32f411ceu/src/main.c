@@ -45,6 +45,7 @@
 
 #include "spi1.h"
 #include "ice40.h"
+#include "voltage-source.h"
 
 
 #include <matrix.h>
@@ -139,8 +140,31 @@ void update_console_cmd(app_t *app)
       /*
         We need to add azero. to get a proper sense .
           - subtract the azero term. or subtract a moving average.
+          --------------
+
+          all this dispatch stuff would be nicer.
 
       */
+
+      /***************
+      // TODO should be using CString for cmd_buf ? see voltage-source-2 code for this.
+      // ALL this code relying on strcmp is dangerous. because it's not relying on null termination.
+      // alternatively should bzero(), memcpy( 0 ) nulls.
+      */
+
+      else if(strcmp(app->cmd_buf , "vs ") >= 3) {
+        int value;
+        size_t n = sscanf(app->cmd_buf, "vs %d", &value);
+        if( n != 1) {
+
+          printf("bad format\n");
+        } else {
+          printf("setting value for voltage source %d!\n", value);
+          voltage_source_set(value);
+        }
+      }
+
+
 
       else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 || strcmp(app->cmd_buf , "mux com") == 0)  {
 
@@ -380,11 +404,10 @@ int main(void)
   rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
 
   // LED
-  rcc_periph_clock_enable(RCC_GPIOA); // f410 led.
+  rcc_periph_clock_enable(RCC_GPIOA); // led.
 
   // USART
-  // rcc_periph_clock_enable(RCC_GPIOA);     // f407
-  rcc_periph_clock_enable(RCC_GPIOB); // F410
+  rcc_periph_clock_enable(RCC_GPIOB); // usart, voltage-source
   rcc_periph_clock_enable(RCC_USART1);
 
   // spi / ice40
@@ -439,6 +462,8 @@ int main(void)
   spi1_interupt_gpio_setup( (void (*) (void *))spi1_interupt, &app);
 
 
+  //
+  voltage_source_setup( ) ;
 
 
   usart_printf("\n--------\n");
