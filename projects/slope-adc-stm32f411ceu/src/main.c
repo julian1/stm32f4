@@ -175,7 +175,7 @@ void update_console_cmd(app_t *app)
         usart_printf("make sure to write value!\n");
         app->params.himux_sel = HIMUX_SEL_REF_HI;
       }
-     else if(strcmp(app->cmd_buf , "mux sig\n") == 0) {
+     else if(strcmp(app->cmd_buf , "mux sig") == 0) {
         usart_printf("make sure to write value!");
         app->params.himux_sel = HIMUX_SEL_SIG_HI;
       }
