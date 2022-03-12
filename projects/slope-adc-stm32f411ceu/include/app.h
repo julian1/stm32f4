@@ -204,6 +204,7 @@ void loop2(app_t *app );
 void permute(app_t *app, MAT *b);
 
 #define X_COLS   4
+// #define X_COLS   3
 
 
 

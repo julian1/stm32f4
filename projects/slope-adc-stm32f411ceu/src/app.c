@@ -419,22 +419,30 @@ MAT * run_to_matrix( Params *params, Run *run, MAT * out )
 
 
   // negative current / slope up
-  double x0 = (run->count_up   * params->clk_count_var_neg_n) + (run->count_fix_up   * params->clk_count_fix_n) ;
+  double x0 = (run->count_up   * params->clk_count_var_pos_n) + (run->count_fix_up   * params->clk_count_fix_n) ;
 
   // positive current. slope down.
   double x1 = (run->count_down * params->clk_count_var_pos_n) + (run->count_fix_down * params->clk_count_fix_n) ;
 
   double x2 = run->clk_count_rundown;
 
-  assert( X_COLS == 4);
 
   // three variable
   m_resize(out, 1, X_COLS);
 
-  m_set_val( out, 0, 0,  1.f ); // ones/
-  m_set_val( out, 0, 1,  x0 );
-  m_set_val( out, 0, 2,  x1  );
-  m_set_val( out, 0, 3,  x2  );
+
+
+  if( X_COLS == 3) {
+    // m_set_val( out, 0, 0,  1.f ); // ones/
+    m_set_val( out, 0, 0,  x0 );
+    m_set_val( out, 0, 1,  x1  );
+    m_set_val( out, 0, 2,  x2  );
+  } else if (X_COLS == 4) {
+    m_set_val( out, 0, 0,  1.f ); // ones/
+    m_set_val( out, 0, 1,  x0 );
+    m_set_val( out, 0, 2,  x1  );
+    m_set_val( out, 0, 3,  x2  );
+  } else assert( 0);
 
   return out;
 }
