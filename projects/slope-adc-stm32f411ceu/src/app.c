@@ -426,13 +426,15 @@ MAT * run_to_matrix( Params *params, Run *run, MAT * out )
 
   double x2 = run->clk_count_rundown;
 
-  assert( X_COLS == 3);
+  assert( X_COLS == 4);
 
   // three variable
   m_resize(out, 1, X_COLS);
-  m_set_val( out, 0, 0,  x0 );
-  m_set_val( out, 0, 1,  x1  );
-  m_set_val( out, 0, 2,  x2  );
+
+  m_set_val( out, 0, 0,  1.f ); // ones/
+  m_set_val( out, 0, 1,  x0 );
+  m_set_val( out, 0, 2,  x1  );
+  m_set_val( out, 0, 3,  x2  );
 
   return out;
 }

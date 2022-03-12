@@ -46,7 +46,7 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
   // rows x cols
   unsigned row = 0;
 
-  #define MAX_OBS  30
+  #define MAX_OBS  50
 
   m_resize( x , MAX_OBS, X_COLS );      // constant + pos clk + neg clk.
   m_resize( y , MAX_OBS, 1 );           // target
@@ -70,7 +70,14 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
     // switch integration configuration
     switch(i) {
 
-#if 1
+      /*
+        what about a bunch of obs right next to each other. 
+        eg. 
+        NPLC=9,10,11.   then test INL.
+        ---
+        then test the prediction right next to each other.
+      */
+#if 0
       case 0:
         // 25 NPLC mux mux ref-lo.
         aperture = nplc_to_aper_n( 25);
@@ -90,6 +97,25 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
         break;
 #endif
 
+      case 0:
+        // 25 NPLC mux mux ref-lo.
+        aperture = nplc_to_aper_n( 11);
+        params_set_main( &params,  aperture , 1, HIMUX_SEL_REF_LO);
+        target = 0.0  * aperture;
+        params_report(&params);
+        params_write(&params);
+        break;
+
+      case 1:
+        // 25 NPLC mux ref-hi.
+        aperture = nplc_to_aper_n( 11);
+        params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_HI);
+        target = 7.1 * aperture;
+        params_report(&params);
+        params_write(& params);
+        break;
+
+
       case 2:
         // 10NPLC  ref-lo
         aperture = nplc_to_aper_n( 10);
@@ -108,6 +134,45 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
         params_write(& params);
         break;
 
+
+      case 4:
+        // 10NPLC  ref-lo
+        aperture = nplc_to_aper_n( 9);
+        params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_LO);
+        target = 0.0  * aperture;
+        params_report(&params);
+        params_write(&params);
+        break;
+
+      case 5:
+        // 10NPLC  ref-hi
+        aperture = nplc_to_aper_n( 9);
+        params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_HI);
+        target = 7.1 * aperture;
+        params_report(&params);
+        params_write(& params);
+        break;
+
+
+#if 0
+      case 4:
+        // 10NPLC  ref-lo
+        aperture = nplc_to_aper_n( 1);
+        params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_LO);
+        target = 0.0  * aperture;
+        params_report(&params);
+        params_write(&params);
+        break;
+
+      case 5:
+        // 10NPLC  ref-hi
+        aperture = nplc_to_aper_n( 1);
+        params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_HI);
+        target = 7.1 * aperture;
+        params_report(&params);
+        params_write(& params);
+        break;
+#endif
 
 
 

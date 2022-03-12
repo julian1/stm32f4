@@ -48,7 +48,7 @@
 #define HIMUX_SEL_SIG_HI      (0xf & ~(1 << 0))
 #define HIMUX_SEL_REF_HI      (0xf & ~(1 << 1))
 #define HIMUX_SEL_REF_LO      (0xf & ~(1 << 2))
-#define HIMUX_SEL_ANG         (0xf & ~(1 << 3))
+#define HIMUX_SEL_ANG         (0xf & ~(1 << 3))   // 0b0111
 
 
 
@@ -203,7 +203,7 @@ void loop2(app_t *app );
 // loop3
 void permute(app_t *app, MAT *b);
 
-#define X_COLS   3
+#define X_COLS   4
 
 
 
