@@ -69,10 +69,11 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
     double target;
     // switch integration configuration
     switch(i) {
+
+#if 1
       case 0:
-        // 50NPLC mux mux ref-lo.
-        aperture = 1 * 20000000;
-        assert( nplc_to_aper_n( 50) == aperture );
+        // 25 NPLC mux mux ref-lo.
+        aperture = nplc_to_aper_n( 25);
         params_set_main( &params,  aperture , 1, HIMUX_SEL_REF_LO);
         target = 0.0  * aperture;
         params_report(&params);
@@ -80,20 +81,18 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
         break;
 
       case 1:
-        // 50NPLC mux ref-hi.
-        aperture = 1 * 20000000;
-        assert( nplc_to_aper_n( 50) == aperture );
+        // 25 NPLC mux ref-hi.
+        aperture = nplc_to_aper_n( 25);
         params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_HI);
         target = 7.1 * aperture;
         params_report(&params);
         params_write(& params);
         break;
-
+#endif
 
       case 2:
         // 10NPLC  ref-lo
-        aperture = 4000000 ;
-        assert( nplc_to_aper_n( 10) == aperture );
+        aperture = nplc_to_aper_n( 10);
         params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_LO);
         target = 0.0  * aperture;
         params_report(&params);
@@ -102,15 +101,12 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
 
       case 3:
         // 10NPLC  ref-hi
-        aperture = 4000000 ;
-        assert( nplc_to_aper_n( 10) == aperture );
+        aperture = nplc_to_aper_n( 10);
         params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_HI);
         target = 7.1 * aperture;
         params_report(&params);
         params_write(& params);
         break;
-
-
 
 
 
