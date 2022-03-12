@@ -21,13 +21,17 @@
 #define REG_COUNT_FIX_DOWN    15
 #define REG_COUNT_FLIP        16  // deprecated
 #define REG_CLK_COUNT_RUNDOWN 17
-#define REG_RUNDOWN_DIR       16  // deprecated
+#define REG_RUNDOWN_DIR       18  // deprecated
 
 
 // modulation control parameters
 #define REG_CLK_COUNT_INIT_N  30
 #define REG_CLK_COUNT_FIX_N   31
-#define REG_CLK_COUNT_VAR_N   32
+// #define REG_CLK_COUNT_VAR_N   32
+#define REG_CLK_COUNT_VAR_POS_N   37
+#define REG_CLK_COUNT_VAR_NEG_N   38
+
+
 #define REG_CLK_COUNT_INT_N_LO 33    // aperture. rename?
 #define REG_CLK_COUNT_INT_N_HI 34
 
@@ -58,16 +62,21 @@ struct Params
 
   uint32_t clk_count_init_n ;
   uint32_t clk_count_fix_n ;
-  uint32_t clk_count_var_n ;      /* ok clk_count_var_n is used for both +ve and -ve var.
+  // uint32_t clk_count_var_n ;
+                                    /* ok clk_count_var_n is used for both +ve and -ve var.
                                     BUT. we want to be able to vary pos and neg.
                                     while holding nplc
                                     --
                                     which means I think we want to separate this.
                                   */
+  uint32_t clk_count_var_pos_n;
+  uint32_t clk_count_var_neg_n;
+
 
   uint32_t use_slow_rundown;
   uint32_t himux_sel;
 
+  uint32_t meas_count;
   // number of obs per measurement. is a higher level concept.
 };
 
@@ -86,8 +95,9 @@ void params_report(Params * params );
 bool params_equal( Params *params0,  Params *params1 );
 void params_write( Params *params );
 void params_set_main( Params *params,  uint32_t clk_count_int_n, bool use_slow_rundown, uint8_t himux_sel );
-void params_set_extra( Params *params,  uint32_t clk_count_init_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_n);
+// void params_set_extra( Params *params,  uint32_t clk_count_init_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_n);
 
+void params_set_extra( Params *params,  uint32_t clk_count_init_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_pos_n, uint32_t clk_count_var_neg_n);
 
 
 /*

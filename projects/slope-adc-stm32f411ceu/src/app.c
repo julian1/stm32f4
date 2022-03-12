@@ -75,12 +75,15 @@ void params_read( Params * params )
 
   params->clk_count_init_n  = spi_reg_read(SPI1, REG_CLK_COUNT_INIT_N);
   params->clk_count_fix_n   = spi_reg_read(SPI1, REG_CLK_COUNT_FIX_N);
-  params->clk_count_var_n   = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_N);
+  // params->clk_count_var_n   = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_N);
+  params->clk_count_var_pos_n   = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_POS_N);
+  params->clk_count_var_neg_n   = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_NEG_N);
 
   params->use_slow_rundown  = spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN);
   params->himux_sel         = spi_reg_read(SPI1, REG_HIMUX_SEL);
 
-
+  params->meas_count       = spi_reg_read(SPI1, REG_MEAS_COUNT );
+ 
 
 }
 
@@ -106,12 +109,15 @@ void params_report(Params * params )
 
   usart_printf("clk_count_init_n  %u\n", params->clk_count_init_n);
   usart_printf("clk_count_fix_n   %u\n", params->clk_count_fix_n);
-  usart_printf("clk_count_var_n   %u\n", params->clk_count_var_n);
+
+  // usart_printf("clk_count_var_n   %u\n", params->clk_count_var_n);
+  usart_printf("clk_count_var_pos_n   %u\n", params->clk_count_var_pos_n);
+  usart_printf("clk_count_var_neg_n   %u\n", params->clk_count_var_neg_n);
  
 
-  double mod_freq = 20000000.f / ( (params->clk_count_var_n  + params->clk_count_var_n) * 2 );
- 
-  usart_printf("nom mod freq      %.0fHz\n", mod_freq );
+  // this doesn't look right...
+  // double mod_freq = 20000000.f / ( (params->clk_count_var_n  + params->clk_count_var_n) * 2 );
+  // usart_printf("nom mod freq      %.0fHz\n", mod_freq );
 
   usart_printf("use_slow_rundown  %u\n", params->use_slow_rundown);
 
@@ -128,6 +134,13 @@ void params_report(Params * params )
   }
   usart_printf("\n");
 
+
+  // uint32_t n = spi_reg_read(SPI1, REG_MEAS_COUNT );
+  usart_printf("meas_count        %u\n", params->meas_count );
+
+
+
+
 }
 
 
@@ -143,7 +156,10 @@ bool params_equal( Params *params0,  Params *params1 )
 
     && params0->clk_count_init_n == params1->clk_count_init_n
     && params0->clk_count_fix_n  == params1->clk_count_fix_n
-    && params0->clk_count_var_n  == params1->clk_count_var_n
+
+    // && params0->clk_count_var_n  == params1->clk_count_var_n
+    && params0->clk_count_var_pos_n  == params1->clk_count_var_pos_n
+    && params0->clk_count_var_neg_n  == params1->clk_count_var_neg_n
   ;
 }
 
@@ -163,7 +179,10 @@ void params_write( Params *params )
   // write the extra parameters to device
   spi_reg_write(SPI1, REG_CLK_COUNT_INIT_N , params->clk_count_init_n );
   spi_reg_write(SPI1, REG_CLK_COUNT_FIX_N,   params->clk_count_fix_n );
-  spi_reg_write(SPI1, REG_CLK_COUNT_VAR_N,   params->clk_count_var_n );
+
+  // spi_reg_write(SPI1, REG_CLK_COUNT_VAR_N,   params->clk_count_var_n );
+  spi_reg_write(SPI1, REG_CLK_COUNT_VAR_POS_N,   params->clk_count_var_pos_n );
+  spi_reg_write(SPI1, REG_CLK_COUNT_VAR_NEG_N,   params->clk_count_var_neg_n );
 
   Params  params2;
   params_read( &params2 );
@@ -184,11 +203,14 @@ void params_set_main( Params *params,  uint32_t clk_count_int_n, bool use_slow_r
 }
 
 
-void params_set_extra( Params *params,  uint32_t clk_count_init_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_n)
+void params_set_extra( Params *params,  uint32_t clk_count_init_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_pos_n, uint32_t clk_count_var_neg_n)
 {
   params->clk_count_init_n = clk_count_init_n;
   params->clk_count_fix_n  = clk_count_fix_n;
-  params->clk_count_var_n  = clk_count_var_n;
+
+  // 
+  params->clk_count_var_pos_n  = clk_count_var_pos_n;
+  params->clk_count_var_neg_n  = clk_count_var_neg_n;
 
   // IMPORTNAT.
   // there is a third kind of permutation - altering fix_pos_n and fix_neg_n individually.
@@ -224,10 +246,6 @@ void run_read( Run *run )
   // WE could record slow_rundown separate to normal rundown.
   run->clk_count_rundown = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
   
-
-  uint32_t n = spi_reg_read(SPI1, REG_MEAS_COUNT );
-
-  usart_printf("meas count %u\n", n );
 
 }
 
@@ -356,13 +374,13 @@ MAT * run_to_matrix( Params *params, Run *run, MAT * out )
   UNUSED(x0);
 
   // negative current / slope up
-  double x1 = (run->count_up   * params->clk_count_var_n) + (run->count_fix_up   * params->clk_count_fix_n) + run->clk_count_rundown;
+  double x1 = (run->count_up   * params->clk_count_var_neg_n) + (run->count_fix_up   * params->clk_count_fix_n) + run->clk_count_rundown;
 
   // not sure if we want to do this. may have to calibrate for a period. which would be ugly.
   x1 /= params-> clk_count_int_n ;
 
   // positive current. slope down.
-  double x2 = (run->count_down * params->clk_count_var_n) + (run->count_fix_down * params->clk_count_fix_n) + run->clk_count_rundown;
+  double x2 = (run->count_down * params->clk_count_var_pos_n) + (run->count_fix_down * params->clk_count_fix_n) + run->clk_count_rundown;
 
   x2 /= params-> clk_count_int_n ;
 

@@ -58,7 +58,7 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
   */
   Params  params;
   params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
-  params_set_extra( &params,  10000, 700, 5500);
+  params_set_extra( &params,  10000, 700, 5500, 5500);
   params_write( &params );
 
 

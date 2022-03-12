@@ -100,6 +100,7 @@ static void loop_dispatcher(app_t *app);
 void update_console_cmd(app_t *app)
 {
 
+  uint32_t i32;
 
   while( ! cBufisEmpty(&app->console_in)) {
 
@@ -212,8 +213,13 @@ void update_console_cmd(app_t *app)
       }
 
 
-      else if(strncmp(app->cmd_buf , "reg_clk_count_var_pos_n", 5) == 0) {
+      // else if(strncmp(app->cmd_buf , "clk_count_var_pos_n", 19) == 0) {
+      else if(sscanf(app->cmd_buf, "clk_count_var_pos_n %lu", &i32 ) == 1) {
 
+          printf("setting clk_count_var_pos_n %lu\n", i32);
+          printf("make sure to write value!\n");
+
+          app->params.clk_count_var_pos_n = i32;
       }
 
         // Gahhh...  ok. we want to be able to change the var pos and neg clks.  individually..

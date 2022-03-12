@@ -65,7 +65,7 @@ static void perm_collect_obs(app_t *app, MAT *x, MAT *y )
   params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
 
   // permutate
-  params_set_extra( &params,  10000, 650, 5500);
+  params_set_extra( &params,  10000, 650, 5500, 5500);
   // params_set_extra( &params,  10000, 750, 5500);
   params_write(&params);
 
