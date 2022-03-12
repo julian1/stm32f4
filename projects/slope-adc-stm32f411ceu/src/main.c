@@ -108,10 +108,14 @@ void update_console_cmd(app_t *app)
     int32_t ch = cBufPop(&app->console_in);
     assert(ch >= 0);
 
-    if(ch != '\r' && app->cmd_buf_i < CMD_BUF_SZ - 1) {
+    // if(ch != ';' && ch != '\r' /*&& app->cmd_buf_i < CMD_BUF_SZ - 1 */) {
+    
+    if(! ( ch == ';' || ch == '\r')) { 
       // character other than newline
       // push onto a vector? or array?
-      app->cmd_buf[ app->cmd_buf_i++ ] = ch;
+
+      if( app->cmd_buf_i < CMD_BUF_SZ - 1 )
+        app->cmd_buf[ app->cmd_buf_i++ ] = ch;
 
       // echo to output. required for minicom.
       putchar( ch);
