@@ -101,6 +101,9 @@ void loop1 ( app_t *app)
           // result is 1x1 matrix
           assert(predict->m == 1 && predict->n == 1);
           double value = m_get_val( predict, 0, 0 );
+
+          value /=  app->params .clk_count_aper_n;
+
           // TODO predict, rename. estimator?
           char buf[100];
           printf("predict %sV ", format_float_with_commas(buf, 100, 7, value));

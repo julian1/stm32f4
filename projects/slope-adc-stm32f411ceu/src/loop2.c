@@ -49,19 +49,20 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
   #define MAX_OBS  30
 
   m_resize( x , MAX_OBS, X_COLS );      // constant + pos clk + neg clk.
-  m_resize( y , MAX_OBS, 1 );
+  m_resize( y , MAX_OBS, 1 );           // target
 
   /*
-  
-    OK. we need much better fine control over parameters. eg. being ablle to change on. the himux_sel. 
+
+    OK. we need much better fine control over parameters. eg. being ablle to change on. the himux_sel.
 
   */
   Params  params;
-  params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
+  params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO); // 1sec. == 50NPLC.
   params_set_extra( &params,  10000, 700, 5500, 5500);
   params_write( &params );
 
 
+  double aperture = 0;
 
   for(unsigned i = 0; /*i < 10*/; ++i )
   {
@@ -69,23 +70,50 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
     // switch integration configuration
     switch(i) {
       case 0:
-/*
-  this code should only be changing HIMUX_SEL_REF_LO to swap inputs.
-*/
-
-        params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
-        target = 0.0;
+        // 50NPLC mux mux ref-lo.
+        aperture = 1 * 20000000;
+        assert( nplc_to_aper_n( 50) == aperture );
+        params_set_main( &params,  aperture , 1, HIMUX_SEL_REF_LO);
+        target = 0.0  * aperture;
         params_report(&params);
         params_write(&params);
         break;
 
       case 1:
-        // same except mux lo.
-        params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_HI);
-        target = 7.1;
+        // 50NPLC mux ref-hi.
+        aperture = 1 * 20000000;
+        assert( nplc_to_aper_n( 50) == aperture );
+        params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_HI);
+        target = 7.1 * aperture;
         params_report(&params);
         params_write(& params);
         break;
+
+
+      case 2:
+        // 10NPLC  ref-lo
+        aperture = 4000000 ;
+        assert( nplc_to_aper_n( 10) == aperture );
+        params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_LO);
+        target = 0.0  * aperture;
+        params_report(&params);
+        params_write(&params);
+        break;
+
+      case 3:
+        // 10NPLC  ref-hi
+        aperture = 4000000 ;
+        assert( nplc_to_aper_n( 10) == aperture );
+        params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_HI);
+        target = 7.1 * aperture;
+        params_report(&params);
+        params_write(& params);
+        break;
+
+
+
+
+
 
       default:
         // done
@@ -243,7 +271,7 @@ void loop2( app_t *app)
   app->b = b;
 
 
-  // return 
+  // return
 
 
 }

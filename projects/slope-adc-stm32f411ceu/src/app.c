@@ -272,7 +272,7 @@ void run_report( Run *run )
 
 
 
-
+#if 0
 MAT * run_to_matrix( Params *params, Run *run, MAT * out )
 {
   /*
@@ -402,7 +402,40 @@ MAT * run_to_matrix( Params *params, Run *run, MAT * out )
 
   return out;
 }
+#endif
 
+
+
+
+
+MAT * run_to_matrix( Params *params, Run *run, MAT * out )
+{
+  // return a three variable row vector
+
+  UNUSED(params);
+
+  if(out == MNULL)
+    out = m_get(1,1); // TODO fix me. this is ok.
+
+
+  // negative current / slope up
+  double x0 = (run->count_up   * params->clk_count_var_neg_n) + (run->count_fix_up   * params->clk_count_fix_n) ;
+
+  // positive current. slope down.
+  double x1 = (run->count_down * params->clk_count_var_pos_n) + (run->count_fix_down * params->clk_count_fix_n) ;
+
+  double x2 = run->clk_count_rundown;
+
+  assert( X_COLS == 3);
+
+  // three variable
+  m_resize(out, 1, X_COLS);
+  m_set_val( out, 0, 0,  x0 );
+  m_set_val( out, 0, 1,  x1  );
+  m_set_val( out, 0, 2,  x2  );
+
+  return out;
+}
 
 
 
@@ -412,6 +445,11 @@ MAT * run_to_matrix( Params *params, Run *run, MAT * out )
 
 unsigned collect_obs( app_t *app, Params *params, unsigned row, unsigned discard, unsigned gather, MAT *x)
 {
+
+  /*
+      this is taking too many arguments...
+  */
+
   // change name, get obs?
     /*
 
