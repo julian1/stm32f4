@@ -31,15 +31,15 @@
   different nplc - slightly different offsets
   --
 
-  uint32_t int_n  = params->clk_count_int_n ;
+  uint32_t int_n  = params->clk_count_aper_n ;
   double period   = int_n / (double ) 20000000;
   double nplc     = period / (1.0 / 50);
 
-  // nplc_to_int_n ()
-  // int_n_to_nplc()
+  // nplc_to_aper_n ()
+  // aper_n_to_nplc()
 */ 
 
-uint32_t nplc_to_int_n( double nplc )
+uint32_t nplc_to_aper_n( double nplc )
 {
   double period = nplc / 50.0 ;  // seonds 
   uint32_t int_n = period * 20000000;
@@ -47,16 +47,16 @@ uint32_t nplc_to_int_n( double nplc )
 }
 
 
-double int_n_to_nplc( uint32_t int_n)
+double aper_n_to_nplc( uint32_t int_n)
 {
-  // uint32_t int_n  = params->clk_count_int_n ;
+  // uint32_t int_n  = params->clk_count_aper_n ;
   double period   = int_n / (double ) 20000000;
   double nplc     = period / (1.0 / 50);
   return nplc;
 }
 
 
-double int_n_to_period( uint32_t int_n)
+double aper_n_to_period( uint32_t int_n)
 {
   double period   = int_n / (double ) 20000000;
   return period;
@@ -69,9 +69,9 @@ void params_read( Params * params )
 {
   // params->reg_led           = spi_reg_read(SPI1, REG_LED);
 
-  uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_INT_N_LO );
-  uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_INT_N_HI );
-  params->clk_count_int_n   = int_hi << 24 | int_lo;
+  uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_LO );
+  uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_HI );
+  params->clk_count_aper_n   = int_hi << 24 | int_lo;
 
   params->clk_count_init_n  = spi_reg_read(SPI1, REG_CLK_COUNT_INIT_N);
   params->clk_count_fix_n   = spi_reg_read(SPI1, REG_CLK_COUNT_FIX_N);
@@ -96,13 +96,13 @@ void params_report(Params * params )
   usart_printf("-------------\n");
   // usart_printf("reg_led           %s\n", format_bits( buf, 4, params->reg_led ) );
 
-  uint32_t int_n  = params->clk_count_int_n ;
-  double period   = int_n_to_period( int_n); 
-  double nplc     = int_n_to_nplc( int_n);
+  uint32_t int_n  = params->clk_count_aper_n ;
+  double period   = aper_n_to_period( int_n); 
+  double nplc     = aper_n_to_nplc( int_n);
   double samples_per_second = 1.0 / period;
 
 
-  usart_printf("clk_count_int_n   %u\n", int_n );
+  usart_printf("clk_count_aper_n   %u\n", int_n );
   usart_printf("nplc              %.2f\n", nplc);
   usart_printf("period            %fs\n", period);
   usart_printf("samples/s         %.1f\n", samples_per_second);
@@ -150,7 +150,7 @@ bool params_equal( Params *params0,  Params *params1 )
 {
 
   return
-    params0->clk_count_int_n  ==  params1->clk_count_int_n
+    params0->clk_count_aper_n  ==  params1->clk_count_aper_n
     && params0->use_slow_rundown == params1->use_slow_rundown
     && params0->himux_sel        == params1->himux_sel
 
@@ -171,8 +171,8 @@ void params_write( Params *params )
   usart_printf("write params\n");
 
   // write the main parameter to device
-  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_HI, (params->clk_count_int_n >> 24) & 0xff );
-  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, params->clk_count_int_n & 0xffffff  );
+  spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_HI, (params->clk_count_aper_n >> 24) & 0xff );
+  spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_LO, params->clk_count_aper_n & 0xffffff  );
   spi_reg_write(SPI1, REG_USE_SLOW_RUNDOWN, params->use_slow_rundown );
   spi_reg_write(SPI1, REG_HIMUX_SEL, params->himux_sel );
 
@@ -195,9 +195,9 @@ void params_write( Params *params )
 
 
 
-void params_set_main( Params *params,  uint32_t clk_count_int_n, bool use_slow_rundown, uint8_t himux_sel )
+void params_set_main( Params *params,  uint32_t clk_count_aper_n, bool use_slow_rundown, uint8_t himux_sel )
 {
-  params->clk_count_int_n  = clk_count_int_n;
+  params->clk_count_aper_n  = clk_count_aper_n;
   params->use_slow_rundown = use_slow_rundown;
   params->himux_sel        = himux_sel;
 }
@@ -377,12 +377,12 @@ MAT * run_to_matrix( Params *params, Run *run, MAT * out )
   double x1 = (run->count_up   * params->clk_count_var_neg_n) + (run->count_fix_up   * params->clk_count_fix_n) + run->clk_count_rundown;
 
   // not sure if we want to do this. may have to calibrate for a period. which would be ugly.
-  x1 /= params-> clk_count_int_n ;
+  x1 /= params-> clk_count_aper_n ;
 
   // positive current. slope down.
   double x2 = (run->count_down * params->clk_count_var_pos_n) + (run->count_fix_down * params->clk_count_fix_n) + run->clk_count_rundown;
 
-  x2 /= params-> clk_count_int_n ;
+  x2 /= params-> clk_count_aper_n ;
 
 #if 1
   // 2 variable model.

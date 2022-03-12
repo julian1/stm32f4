@@ -453,8 +453,8 @@ __attribute__((naked)) void dummy_function(void)
 #if 0
   // encapsutate into a function.
   uint32_t t = 5 * 20000000;
-  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_HI, (t >> 24) & 0xff );
-  spi_reg_write(SPI1, REG_CLK_COUNT_INT_N_LO, t & 0xffffff  );
+  spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_HI, (t >> 24) & 0xff );
+  spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_LO, t & 0xffffff  );
   spi_reg_write(SPI1, REG_USE_SLOW_RUNDOWN, 0 );
   // spi_reg_write(SPI1, REG_HIMUX_SEL, HIMUX_SEL_REF_LO );
   spi_reg_write(SPI1, REG_HIMUX_SEL, HIMUX_SEL_REF_HI );

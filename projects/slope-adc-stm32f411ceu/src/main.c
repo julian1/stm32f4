@@ -205,13 +205,13 @@ void update_console_cmd(app_t *app)
           printf("setting nplc %d\n", value);
           printf("make sure to write value!\n");
 
-          uint32_t int_n = nplc_to_int_n( value );
+          uint32_t int_n = nplc_to_aper_n( value );
           printf("int_n is %lu\n", int_n );
 
-          double c_nplc = int_n_to_nplc( int_n);
+          double c_nplc = aper_n_to_nplc( int_n);
           printf("c_nplc is %f\n", c_nplc );
 
-          app->params.clk_count_int_n = int_n;
+          app->params.clk_count_aper_n = int_n;
           // app->params.nplc = value ;
         }
       }

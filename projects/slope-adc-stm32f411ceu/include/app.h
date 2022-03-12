@@ -32,8 +32,8 @@
 #define REG_CLK_COUNT_VAR_NEG_N   38
 
 
-#define REG_CLK_COUNT_INT_N_LO 33    // aperture. rename?
-#define REG_CLK_COUNT_INT_N_HI 34
+#define REG_CLK_COUNT_APER_N_LO 33    // aperture. rename?
+#define REG_CLK_COUNT_APER_N_HI 34
 
 #define REG_USE_SLOW_RUNDOWN  35
 #define REG_HIMUX_SEL         36
@@ -58,7 +58,7 @@ struct Params
 {
   // fix counts. are setup and written in
   // uint32_t reg_led ;
-  uint32_t clk_count_int_n;   // aperture.
+  uint32_t clk_count_aper_n;   // aperture.
 
   uint32_t clk_count_init_n ;
   uint32_t clk_count_fix_n ;
@@ -83,9 +83,9 @@ struct Params
 
 // this isn't very good. because displayed nplc
 // will be constructive.
-uint32_t nplc_to_int_n( double nplc );
-double int_n_to_nplc( uint32_t int_n);
-double int_n_to_period( uint32_t int_n);
+uint32_t nplc_to_aper_n( double nplc );
+double aper_n_to_nplc( uint32_t int_n);
+double aper_n_to_period( uint32_t int_n);
 
 typedef struct Params Params;
 
@@ -94,7 +94,7 @@ void params_read( Params * params );
 void params_report(Params * params );
 bool params_equal( Params *params0,  Params *params1 );
 void params_write( Params *params );
-void params_set_main( Params *params,  uint32_t clk_count_int_n, bool use_slow_rundown, uint8_t himux_sel );
+void params_set_main( Params *params,  uint32_t clk_count_aper_n, bool use_slow_rundown, uint8_t himux_sel );
 // void params_set_extra( Params *params,  uint32_t clk_count_init_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_n);
 
 void params_set_extra( Params *params,  uint32_t clk_count_init_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_pos_n, uint32_t clk_count_var_neg_n);

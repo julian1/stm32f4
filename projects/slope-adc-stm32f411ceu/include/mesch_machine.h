@@ -32,7 +32,7 @@
 #define HAVE_BZERO 1
 #define CHAR0ISDBL0 1
 /* #undef WORDS_BIGENDIAN */
-#define U_INT_DEF 1
+#define U_APER_DEF 1
 #define VARARGS 1
 
 /* for basic or larger versions */
