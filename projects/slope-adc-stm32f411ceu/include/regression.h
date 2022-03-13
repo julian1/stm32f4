@@ -8,6 +8,11 @@
 // typedef struct  MAT MAT;
 
 
+
+MAT	*m_element_invert( const MAT *matrix, MAT *out);
+MAT	*m_element_mlt(const MAT *mat1, const MAT *mat2, MAT *out);
+
+
 MAT *m_fill(  MAT *a, double *p );
 MAT *m_hconcat( MAT *a, MAT *b, MAT *out );
 

@@ -46,7 +46,7 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
   // rows x cols
   unsigned row = 0;
 
-  #define MAX_OBS  10 * 5 /// think this has to be correct. 
+  #define MAX_OBS  10 * 5 /// think this has to be correct.
 
   m_resize( x , MAX_OBS, X_COLS );      // constant + pos clk + neg clk.
   m_resize( y , MAX_OBS, 1 );           // target
@@ -61,15 +61,15 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
     double target;
     // switch integration configuration
     switch(i) {
-  
-      // what the hell? 
+
+      // what the hell?
 
       case 0:
         // 8 NPLC  ref-lo
         aperture = nplc_to_aper_n( 8);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
-        ctrl_set_aperture( aperture ); 
+        ctrl_set_aperture( aperture );
         ctrl_reset_disable();
         target = 0.0  * aperture;
         break;
@@ -79,7 +79,7 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
         aperture = nplc_to_aper_n( 8);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
-        ctrl_set_aperture( aperture  ); 
+        ctrl_set_aperture( aperture  );
         ctrl_reset_disable();
         target = 7.1 * aperture;
         break;
@@ -89,7 +89,7 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
         aperture = nplc_to_aper_n( 9);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
-        ctrl_set_aperture( aperture ); 
+        ctrl_set_aperture( aperture );
         ctrl_reset_disable();
         target = 0.0  * aperture;
         break;
@@ -99,7 +99,7 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
         aperture = nplc_to_aper_n( 9);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
-        ctrl_set_aperture( aperture  ); 
+        ctrl_set_aperture( aperture  );
         ctrl_reset_disable();
         target = 7.1 * aperture;
         break;
@@ -109,7 +109,7 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
         aperture = nplc_to_aper_n( 10);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
-        ctrl_set_aperture( aperture ); 
+        ctrl_set_aperture( aperture );
         ctrl_reset_disable();
         target = 0.0  * aperture;
         break;
@@ -119,7 +119,7 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
         aperture = nplc_to_aper_n( 10);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
-        ctrl_set_aperture( aperture  ); 
+        ctrl_set_aperture( aperture  );
         ctrl_reset_disable();
         target = 7.1 * aperture;
         break;
@@ -130,7 +130,7 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
         aperture = nplc_to_aper_n( 11);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
-        ctrl_set_aperture( aperture ); 
+        ctrl_set_aperture( aperture );
         ctrl_reset_disable();
         target = 0.0  * aperture;
         break;
@@ -140,7 +140,7 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
         aperture = nplc_to_aper_n( 11);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
-        ctrl_set_aperture( aperture  ); 
+        ctrl_set_aperture( aperture  );
         ctrl_reset_disable();
         target = 7.1 * aperture;
         break;
@@ -151,7 +151,7 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
         aperture = nplc_to_aper_n( 12);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
-        ctrl_set_aperture( aperture ); 
+        ctrl_set_aperture( aperture );
         ctrl_reset_disable();
         target = 0.0  * aperture;
         break;
@@ -161,7 +161,7 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
         aperture = nplc_to_aper_n( 12);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
-        ctrl_set_aperture( aperture  ); 
+        ctrl_set_aperture( aperture  );
         ctrl_reset_disable();
         target = 7.1 * aperture;
         break;
@@ -181,7 +181,7 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
       assert(row < y->m); // < or <= ????
       m_set_val( y, row + j, 0,  target );
 
-      m_set_val( aperture1, row + j, 0,  target );
+      m_set_val( aperture1, row + j, 0,  aperture );
 
     }
 
@@ -230,9 +230,45 @@ static MAT * calibrate( app_t *app)
   // and we want to divide
   // MAT *predicted = m_mlt(x, b, MNULL );
 
+  // NO. it's divide.
+
+
+  // MAT *predicted_adjusted = m_mlt(predicted, aperture, MNULL );
+
+  // target == voltage * aperature.   but could do that outside gathering
+
   printf("predicted \n");
-  m_foutput(stdout, predicted );
+  m_foutput(stdout, predicted);
   usart_flush();
+
+  ///////////////
+
+
+  MAT *aperture_inverted =  m_element_invert( aperture, MNULL  );
+  printf("aperture_inverted \n");
+  m_foutput(stdout, aperture_inverted);
+  usart_flush();
+
+  // mmtr_mlt -- matrix-matrix transposed multiplication -- A.B^T is returned, and stored in OUT
+
+  // mtrm_mlt -- matrix transposed-matrix multiplication -- A^T.B is returned, result stored in OUT
+
+
+  // MAT *predicted2 = m_mlt(predicted , aperture_inverted, MNULL );
+  // MAT *predicted2 = mtrm_mlt(predicted , aperture_inverted, MNULL );
+  // MAT *predicted2 = mmtr_mlt(predicted , aperture_inverted, MNULL );
+
+
+  // MAT *predicted2 = m_mlt(aperture_inverted, predicted , MNULL );
+  // MAT *predicted2 = mtrm_mlt(aperture_inverted, predicted , MNULL );
+
+  MAT	*predicted2 = m_element_mlt(aperture_inverted, predicted, MNULL );
+
+  printf("predicted2\n");
+  m_foutput(stdout, predicted2);
+  usart_flush();
+
+
 #endif
 
 

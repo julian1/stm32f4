@@ -22,11 +22,97 @@
 
   refs,
   https://maths.anu.edu.au/files/CMAProcVol32-Complete.pdf
+  https://maths.anu.edu.au/files/CMAProcVol32-Complete.pdf
   http://homepage.divms.uiowa.edu/~dstewart/meschach/
   https://homepage.divms.uiowa.edu/~dstewart/meschach/html_manual/tutorial.html
   http://homepage.divms.uiowa.edu/~dstewart/meschach/html_manual/fnindex.html
 
 */
+
+/*
+  IMPORTANT - don't need to compute transpose separately. instead use
+
+
+  // mmtr_mlt -- matrix-matrix transposed multiplication -- A.B^T is returned, and stored in OUT
+
+  // mtrm_mlt -- matrix transposed-matrix multiplication -- A^T.B is returned, result stored in OUT
+
+
+*/
+
+
+#if 0
+// element add
+MAT	*m_add(const MAT *mat1, const MAT *mat2, MAT *out)
+{
+	unsigned int	m,n,i;
+
+	if ( mat1==(MAT *)NULL || mat2==(MAT *)NULL )
+		error(E_NULL,"m_add");
+	if ( mat1->m != mat2->m || mat1->n != mat2->n )
+		error(E_SIZES,"m_add");
+	if ( out==(MAT *)NULL || out->m != mat1->m || out->n != mat1->n )
+		out = m_resize(out,mat1->m,mat1->n);
+	m = mat1->m;	n = mat1->n;
+	for ( i=0; i<m; i++ )
+	{
+		__add__(mat1->me[i],mat2->me[i],out->me[i],(int)n);
+		/**************************************************
+		for ( j=0; j<n; j++ )
+			out->me[i][j] = mat1->me[i][j]+mat2->me[i][j];
+		**************************************************/
+	}
+
+	return (out);
+}
+#endif
+
+
+// element matrix invert
+MAT	*m_element_invert( const MAT *matrix, MAT *out)
+{
+	unsigned int	m,n,i, j;
+
+	if ( matrix==(MAT *)NULL )
+		error(E_NULL,"sm_mlt");
+	if ( out==(MAT *)NULL || out->m != matrix->m || out->n != matrix->n )
+		out = m_resize(out,matrix->m,matrix->n);
+	m = matrix->m;	n = matrix->n;
+	for ( i=0; i<m; i++ )
+		// __smlt__(matrix->me[i],(double)scalar,out->me[i],(int)n);
+		for ( j=0; j<n; j++ )
+			out->me[i][j] = 1 / matrix->me[i][j];
+
+
+	return (out);
+}
+
+
+// element matrix mlt
+// avoids matrix mlt and taking the diagonal which is expensive
+MAT	*m_element_mlt(const MAT *mat1, const MAT *mat2, MAT *out)
+{
+	unsigned int	m,n,i, j;
+
+	if ( mat1==(MAT *)NULL || mat2==(MAT *)NULL )
+		error(E_NULL,"m_add");
+	if ( mat1->m != mat2->m || mat1->n != mat2->n )
+		error(E_SIZES,"m_add");
+	if ( out==(MAT *)NULL || out->m != mat1->m || out->n != mat1->n )
+		out = m_resize(out,mat1->m,mat1->n);
+	m = mat1->m;	n = mat1->n;
+
+	for ( i=0; i<m; i++ )
+	{
+		for ( j=0; j<n; j++ )
+			out->me[i][j] = mat1->me[i][j] * mat2->me[i][j];
+	}
+
+	return (out);
+}
+
+
+
 
 
 MAT *m_fill(  MAT *a, double *p )
@@ -72,7 +158,7 @@ MAT *m_hconcat( MAT *a, MAT *b, MAT *out )
   set_row() Set the row of a matrix to a given vector
   set_col() Set the column of a matrix to a given vector
 
-  having the mat is easier. unless have mat_to_vec 
+  having the mat is easier. unless have mat_to_vec
 */
 
 void m_row_set( MAT *dst, unsigned row, MAT *src )  // note argument order is kind of reversed
@@ -87,7 +173,7 @@ void m_row_set( MAT *dst, unsigned row, MAT *src )  // note argument order is ki
   assert(row < dst->m);     // row exists
 
   for(unsigned j = 0; j < src->n; ++j) {
-    
+
     double x = m_get_val( src, 0, j );
     m_set_val( dst, row, j,  x );
   }
@@ -99,7 +185,7 @@ MAT * m_row_get( MAT *src, unsigned row, MAT *out )
 
   MAT *ret = m_resize( out, 1, src->n );
   assert(out == MNULL || ret == out);  // otherwise it's a potential leak??
-  
+
   for(unsigned j = 0; j < src->n; ++j) {
 
     double x = m_get_val( src, row, j );
@@ -115,11 +201,11 @@ MAT * m_row_get( MAT *src, unsigned row, MAT *out )
 
 MAT * concat_ones( MAT *x, MAT *out)
 {
-  // concat a ones field to lhs of mat. 
+  // concat a ones field to lhs of mat.
   // note. probably avoid. and instead add constant at construction when populating rows
 
   // TODO review memory handling here.
-  MAT *j = m_get( x-> m, 1 ); 
+  MAT *j = m_get( x-> m, 1 );
   MAT *ones = m_ones( j );
 
   // MAT *ones = m_ones( m_copy( x, MNULL  ));
