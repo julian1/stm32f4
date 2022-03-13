@@ -110,8 +110,8 @@ void update_console_cmd(app_t *app)
     assert(ch >= 0);
 
     // if(ch != ';' && ch != '\r' /*&& app->cmd_buf_i < CMD_BUF_SZ - 1 */) {
-    
-    if(! ( ch == ';' || ch == '\r')) { 
+
+    if(! ( ch == ';' || ch == '\r')) {
       // character other than newline
       // push onto a vector? or array?
 
@@ -159,7 +159,7 @@ void update_console_cmd(app_t *app)
       */
 
       else if(sscanf(app->cmd_buf, "vs %ld", &i32 ) == 1) {
-      
+
         printf("setting value for voltage source %ld!\n", i32);
         voltage_source_set( i32 );
       }
@@ -194,7 +194,13 @@ void update_console_cmd(app_t *app)
 
         printf("setting pattern %lu\n", u32);
 
-        ctrl_set_pattern( u32 ); 
+        ctrl_enable_reset();
+        ctrl_set_pattern( u32 );
+        ctrl_disable_reset();
+
+        /////////////////
+        // when we set variables - we should also set the interupt handler - to determine if should update for next run
+        /////////////////
       }
 
 
@@ -208,7 +214,9 @@ void update_console_cmd(app_t *app)
         double c_nplc = aper_n_to_nplc( aper);
         printf("nplc (calc) is %f\n", c_nplc );
 
-        ctrl_set_aperture( aper ); 
+        ctrl_enable_reset();
+        ctrl_set_aperture( aper );
+        ctrl_disable_reset();
 
         // app->params.clk_count_aper_n = int_n;
         // app->params.nplc = value ;

@@ -75,8 +75,25 @@ void ctrl_set_aperture( uint32_t aperture)
 {
   spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_HI, (aperture >> 24) & 0xff );
   spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_LO, aperture & 0xffffff  );
-
 }
+
+
+void ctrl_enable_reset( void )
+{
+  // TODO pass spi.
+  // active low
+  spi_reg_write(SPI1, REG_RESET,  0);
+}
+
+void ctrl_disable_reset(void)
+{
+
+  spi_reg_write(SPI1, REG_RESET,  1);
+}
+
+
+
+
 
 
 

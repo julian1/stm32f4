@@ -13,7 +13,6 @@
 // general,mix start 0
 #define REG_LED                 7
 #define REG_TEST                8
-#define REG_RESET               9   // TODO active low. for the modulator only. not spi.
 
 // control/param vars
 // we don't necessarily need to expose all these
@@ -29,6 +28,7 @@
 #define REG_USE_SLOW_RUNDOWN    17
 // #define REG_HIMUX_SEL         18
 #define REG_PATTERN             19
+#define REG_RESET               9   // TODO active low. for the modulator only. not spi.
 
 
 // meas/run vars
@@ -197,6 +197,13 @@ void params_set_extra( Params *params,  uint32_t clk_count_reset_n, uint32_t  cl
 // do it directly
 void ctrl_set_pattern( uint32_t pattern );
 void ctrl_set_aperture( uint32_t aperture);
+
+void ctrl_enable_reset( void );
+void ctrl_disable_reset(void);
+
+
+
+
 
 struct Run
 {
