@@ -221,6 +221,8 @@ static MAT * calibrate( app_t *app)
   printf("b\n");
   m_foutput(stdout, b);
 
+  assert(b->m == X_COLS); // calibration coeff is horizontal matrix.
+
   usart_flush();
 
   MAT *predicted = m_mlt(x, b, MNULL );
