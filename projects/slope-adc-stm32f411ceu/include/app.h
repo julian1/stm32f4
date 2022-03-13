@@ -8,7 +8,7 @@
 
 
 
-
+/*
 
 // general,mix start 0
 #define REG_LED               7
@@ -40,6 +40,54 @@
 #define REG_HIMUX_SEL         36
 
 #define REG_MEAS_COUNT        40
+*/
+
+
+// so it doesn't matter where it goes
+
+// general,mix start 0
+#define REG_LED               7
+#define REG_TEST              8
+#define REG_RESET             9   // TODO active low. for the modulator only. not spi.
+
+// control/param vars
+// we don't necessarily need to expose all these
+// just set once in pattern controller.
+// modulation control parameters, start 30.
+#define REG_CLK_COUNT_RESET_N   30
+#define REG_CLK_COUNT_FIX_N     31
+// #define REG_CLK_COUNT_VAR_N  32
+#define REG_CLK_COUNT_VAR_POS_N 37
+#define REG_CLK_COUNT_VAR_NEG_N 38
+#define REG_CLK_COUNT_APER_N_LO 33    // aperture. rename?
+#define REG_CLK_COUNT_APER_N_HI 34
+#define REG_USE_SLOW_RUNDOWN  35
+// #define REG_HIMUX_SEL         36      // we
+#define REG_PATTERN           37      // we
+
+
+// meas/run vars
+#define REG_COUNT_UP          10
+#define REG_COUNT_DOWN        11
+#define REG_COUNT_TRANS_UP    12
+#define REG_COUNT_TRANS_DOWN  13
+#define REG_COUNT_FIX_UP      14
+#define REG_COUNT_FIX_DOWN    15
+#define REG_CLK_COUNT_RUNDOWN 17
+
+#define REG_MEAS_COUNT        40
+
+// these are output registers dependent upon the pattern used.
+#define REG_MEAS_HIMUX_SEL    41      // what was being muxed for integration. sig, azero, acal .
+#define REG_MEAS_VAR_POS_N    42      //
+
+
+
+
+
+
+
+
 
 
 
@@ -95,17 +143,23 @@
 
 */
 
-
+/*
 // eg. bitwise, active lo.  avoid turning on more than one.
 // although switch has 1.5k impedance so should not break
 #define HIMUX_SEL_SIG_HI      (0xf & ~(1 << 0))
 #define HIMUX_SEL_REF_HI      (0xf & ~(1 << 1))
 #define HIMUX_SEL_REF_LO      (0xf & ~(1 << 2))
 #define HIMUX_SEL_ANG         (0xf & ~(1 << 3))   // 0b0111
+*/
 
 
+#define PATTERN_SIG_HI      0
+#define PATTERN_REF_HI      1
+#define PATTERN_REF_LO      2
+#define PATTERN_ANG         3
 
-
+#if 0
+// Do we really actually care about timing
 
 struct Params
 {
@@ -113,6 +167,7 @@ struct Params
   // uint32_t reg_led ;
   uint32_t clk_count_aper_n;   // aperture.
 
+#if 0
   uint32_t clk_count_reset_n ;
   uint32_t clk_count_fix_n ;
   // uint32_t clk_count_var_n ;
@@ -124,21 +179,36 @@ struct Params
                                   */
   uint32_t clk_count_var_pos_n;
   uint32_t clk_count_var_neg_n;
-
-
   uint32_t use_slow_rundown;
   uint32_t himux_sel;
+#endif
+
+  uint32_t pattern;
 
   uint32_t meas_count;
   // number of obs per measurement. is a higher level concept.
 };
-
+#endif
 
 // this isn't very good. because displayed nplc
 // will be constructive.
 uint32_t nplc_to_aper_n( double nplc );
 double aper_n_to_nplc( uint32_t int_n);
 double aper_n_to_period( uint32_t int_n);
+
+#if 0
+
+
+/*
+  // OK. we need the params - in order to compute the times...
+  // Or. maybe we should just read them after the run. 
+  -----
+
+  EXTR.
+    we want to read the var_pos_n etc. after *each* run.
+    BECAUSE. we want to allow the pattern controller to permute
+
+*/
 
 typedef struct Params Params;
 
@@ -152,25 +222,36 @@ void params_set_main( Params *params,  uint32_t clk_count_aper_n, bool use_slow_
 
 void params_set_extra( Params *params,  uint32_t clk_count_reset_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_pos_n, uint32_t clk_count_var_neg_n);
 
+#endif
 
 /*
   change name Meas.
   or Measurement.
 */
 
+// do it directly
+void ctrl_set_pattern( uint32_t pattern ); 
+void ctrl_set_aperture( uint32_t aperture); 
+
 struct Run
 {
   uint32_t count_up;
   uint32_t count_down;
+  // we don't have to read some of these 
   uint32_t count_trans_up;
   uint32_t count_trans_down;
   uint32_t count_fix_up;
   uint32_t count_fix_down;
-  uint32_t count_flip;
-
+  // uint32_t count_flip;
+  uint32_t clk_count_rundown;
   // rundown_dir.
 
-  uint32_t clk_count_rundown;
+  uint32_t meas_count;
+
+  // the pattern controller may change on its own - so should read for *each* run.
+  uint32_t clk_count_aper_n;   // aperture.
+  uint32_t clk_count_fix_n;
+  uint32_t clk_count_var_pos_n; 
 
 };
 
@@ -178,7 +259,7 @@ typedef struct Run  Run;
 
 void run_read( Run *run );
 void run_report( Run *run );
-MAT * run_to_matrix( Params *params, Run *run, MAT * out );
+MAT * run_to_matrix( /*Params *params,*/ Run *run, MAT * out );
 
 
 // has to be defined
@@ -213,7 +294,7 @@ typedef struct app_t
   // FBuf      measure_rundown;
   // Loop1     loop1;
 
-  Params  params;   // loop structure will be passed by reference anyway.
+  // Params  params;   // loop structure will be passed by reference anyway.
   MAT     *b;       // calebration coefficients
   unsigned obs;     // how many obs  to average.
 
@@ -238,7 +319,7 @@ typedef struct app_t
 } app_t;
 
 
-unsigned collect_obs( app_t *app, Params *params, unsigned row, unsigned discard, unsigned gather, MAT *x);
+unsigned collect_obs( app_t *app, /*Params *params,*/ unsigned row, unsigned discard, unsigned gather, MAT *x);
 void update_console_cmd(app_t *app);
 
 

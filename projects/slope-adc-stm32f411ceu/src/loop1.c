@@ -60,7 +60,7 @@ void loop1 ( app_t *app)
   usart_printf("loop1\n");
 
   assert(app);
-  assert( HIMUX_SEL_REF_LO ==  0b1011  );
+  // assert( HIMUX_SEL_REF_LO ==  0b1011  );
 
   // don't need static.
   float predict_ar[ 10 ] ;
@@ -93,7 +93,7 @@ void loop1 ( app_t *app)
 
       if(app ->b) {
 
-          MAT *x = run_to_matrix( &app->params, &run, MNULL );
+          MAT *x = run_to_matrix( /*&app->params,*/ &run, MNULL );
           assert(x );
 
           MAT *predict = m_mlt(x, app->b, MNULL );
@@ -102,7 +102,7 @@ void loop1 ( app_t *app)
           assert(predict->m == 1 && predict->n == 1);
           double value = m_get_val( predict, 0, 0 );
 
-          value /=  app->params .clk_count_aper_n;
+          value /=  run.clk_count_aper_n;
 
           // TODO predict, rename. estimator?
           char buf[100];

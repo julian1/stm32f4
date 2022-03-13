@@ -37,11 +37,11 @@
 
   // nplc_to_aper_n ()
   // aper_n_to_nplc()
-*/ 
+*/
 
 uint32_t nplc_to_aper_n( double nplc )
 {
-  double period = nplc / 50.0 ;  // seonds 
+  double period = nplc / 50.0 ;  // seonds
   uint32_t int_n = period * 20000000;
   return int_n;
 }
@@ -62,9 +62,24 @@ double aper_n_to_period( uint32_t int_n)
   return period;
 }
 
+void ctrl_set_pattern( uint32_t pattern )
+{
+  printf("set pattern %ld\n", pattern );
+
+  spi_reg_write(SPI1, REG_PATTERN,   pattern );
+}
+
+
+void ctrl_set_aperture( uint32_t aperture)
+{
+  spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_HI, (aperture >> 24) & 0xff );
+  spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_LO, aperture & 0xffffff  );
+
+}
 
 
 
+#if 0
 void params_read( Params * params )
 {
   // params->reg_led           = spi_reg_read(SPI1, REG_LED);
@@ -83,7 +98,7 @@ void params_read( Params * params )
   params->himux_sel         = spi_reg_read(SPI1, REG_HIMUX_SEL);
 
   params->meas_count       = spi_reg_read(SPI1, REG_MEAS_COUNT );
- 
+
 
 }
 
@@ -97,7 +112,7 @@ void params_report(Params * params )
   // usart_printf("reg_led           %s\n", format_bits( buf, 4, params->reg_led ) );
 
   uint32_t int_n  = params->clk_count_aper_n ;
-  double period   = aper_n_to_period( int_n); 
+  double period   = aper_n_to_period( int_n);
   double nplc     = aper_n_to_nplc( int_n);
   double samples_per_second = 1.0 / period;
 
@@ -113,7 +128,7 @@ void params_report(Params * params )
   // usart_printf("clk_count_var_n   %u\n", params->clk_count_var_n);
   usart_printf("clk_count_var_pos_n   %u\n", params->clk_count_var_pos_n);
   usart_printf("clk_count_var_neg_n   %u\n", params->clk_count_var_neg_n);
- 
+
 
   // this doesn't look right...
   // double mod_freq = 20000000.f / ( (params->clk_count_var_n  + params->clk_count_var_n) * 2 );
@@ -208,7 +223,7 @@ void params_set_extra( Params *params,  uint32_t clk_count_reset_n, uint32_t  cl
   params->clk_count_reset_n = clk_count_reset_n;
   params->clk_count_fix_n  = clk_count_fix_n;
 
-  // 
+  //
   params->clk_count_var_pos_n  = clk_count_var_pos_n;
   params->clk_count_var_neg_n  = clk_count_var_neg_n;
 
@@ -216,13 +231,34 @@ void params_set_extra( Params *params,  uint32_t clk_count_reset_n, uint32_t  cl
   // there is a third kind of permutation - altering fix_pos_n and fix_neg_n individually.
 }
 
+#endif
 
 
 
 
 
+#if 0
+struct Run
+{
+  uint32_t count_up;
+  uint32_t count_down;
+  // we don't have to read some of these
+  uint32_t count_trans_up;
+  uint32_t count_trans_down;
+  uint32_t count_fix_up;
+  uint32_t count_fix_down;
+  // uint32_t count_flip;
+  uint32_t clk_count_rundown;
+  // rundown_dir.
 
+  uint32_t meas_count;
 
+  // the pattern controller may change on its own - so should read for *each* run.
+  uint32_t clk_count_var_pos_n;
+  uint32_t clk_count_fix_n;
+
+};
+#endif
 
 
 
@@ -245,7 +281,25 @@ void run_read( Run *run )
 
   // WE could record slow_rundown separate to normal rundown.
   run->clk_count_rundown = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
-  
+
+
+  ///////////////
+  // from params
+  // eg. defer to fpga which is source/ and may modulate these
+
+  run->meas_count       = spi_reg_read(SPI1, REG_MEAS_COUNT );
+
+
+  uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_LO );
+  uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_HI );
+  run->clk_count_aper_n   = int_hi << 24 | int_lo;
+
+  run->clk_count_fix_n   = spi_reg_read(SPI1, REG_CLK_COUNT_FIX_N);
+
+  run->clk_count_var_pos_n   = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_POS_N);
+
+  // run->clk_count_var_neg_n   = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_NEG_N);
+  // run->use_slow_rundown  = spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN);
 
 }
 
@@ -265,6 +319,15 @@ void run_report( Run *run )
   // usart_printf("count_flip %u, ",       run->count_flip);
 
   usart_printf("clk_count_rundown %u, ", run->clk_count_rundown);
+
+  usart_printf("meas_count %lu, ", run->meas_count);
+
+
+  usart_printf("clk_count_aper_n %lu, ", run->clk_count_aper_n);
+
+  usart_printf("clk_count_fix_n %lu, ", run->clk_count_fix_n);
+  usart_printf("clk_count_var_pos_n %lu, ", run->clk_count_var_pos_n);
+
 
 }
 
@@ -408,21 +471,28 @@ MAT * run_to_matrix( Params *params, Run *run, MAT * out )
 
 
 
-MAT * run_to_matrix( Params *params, Run *run, MAT * out )
+MAT * run_to_matrix( /*Params *params,*/ Run *run, MAT * out )
 {
+
+/*
+  EXTR.
+    we want to read the var_pos_n etc. after *each* run.
+    BECAUSE. we want to allow the pattern controller to permute
+*/
+
   // return a three variable row vector
 
-  UNUSED(params);
+  // UNUSED(params);
 
   if(out == MNULL)
     out = m_get(1,1); // TODO fix me. this is ok.
 
 
   // negative current / slope up
-  double x0 = (run->count_up   * params->clk_count_var_pos_n) + (run->count_fix_up   * params->clk_count_fix_n) ;
+  double x0 = (run->count_up   * run->clk_count_var_pos_n) + (run->count_fix_up   * run->clk_count_fix_n) ;
 
   // positive current. slope down.
-  double x1 = (run->count_down * params->clk_count_var_pos_n) + (run->count_fix_down * params->clk_count_fix_n) ;
+  double x1 = (run->count_down * run->clk_count_var_pos_n) + (run->count_fix_down * run->clk_count_fix_n) ;
 
   double x2 = run->clk_count_rundown;
 
@@ -453,7 +523,7 @@ MAT * run_to_matrix( Params *params, Run *run, MAT * out )
   May only be used in calibration - in which case can move.
 */
 
-unsigned collect_obs( app_t *app, Params *params, unsigned row, unsigned discard, unsigned gather, MAT *x)
+unsigned collect_obs( app_t *app /*, Params *params*/, unsigned row, unsigned discard, unsigned gather, MAT *x)
 {
 
   /*
@@ -488,7 +558,7 @@ unsigned collect_obs( app_t *app, Params *params, unsigned row, unsigned discard
         // ignore first obs
         if(obs >= discard ) {
 
-          MAT *whoot = run_to_matrix( params, &run, MNULL );
+          MAT *whoot = run_to_matrix( /*params,*/ &run, MNULL );
           assert(whoot);
           // m_foutput(stdout, whoot );
           m_row_set( x, row, whoot );

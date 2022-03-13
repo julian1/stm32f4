@@ -52,15 +52,14 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
   m_resize( y , MAX_OBS, 1 );           // target
 
   /*
-
     OK. we need much better fine control over parameters. eg. being ablle to change on. the himux_sel.
-
   */
+/*
   Params  params;
   params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO); // 1sec. == 50NPLC.
   params_set_extra( &params,  10000, 700, 5500, 5500);
   params_write( &params );
-
+*/
 
   double aperture = 0;
 
@@ -81,96 +80,137 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
 
       case 0:
         // 10NPLC  ref-lo
+        ctrl_set_pattern( PATTERN_REF_LO); 
+        ctrl_set_aperture( nplc_to_aper_n( 10) ); 
+/*
         aperture = nplc_to_aper_n( 10);
         params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_LO);
         target = 0.0  * aperture;
         params_report(&params);
         params_write(&params);
+*/
         break;
 
       case 1:
         // 10NPLC  ref-hi
+        ctrl_set_pattern( PATTERN_REF_HI); 
+        ctrl_set_aperture( nplc_to_aper_n( 10) ); 
+/*
         aperture = nplc_to_aper_n( 10);
         params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_HI);
         target = 7.1 * aperture;
         params_report(&params);
         params_write(& params);
+*/
         break;
 
 #if 1
 
       case 2:
         // 11 NPLC mux mux ref-lo.
+        ctrl_set_pattern( PATTERN_REF_LO); 
+        ctrl_set_aperture( nplc_to_aper_n( 11) ); 
+/*
         aperture = nplc_to_aper_n( 11);
         params_set_main( &params,  aperture , 1, HIMUX_SEL_REF_LO);
         target = 0.0  * aperture;
         params_report(&params);
         params_write(&params);
+*/
         break;
 
       case 3:
         // 11 NPLC mux ref-hi.
+        ctrl_set_pattern( PATTERN_REF_HI); 
+        ctrl_set_aperture( nplc_to_aper_n( 11) ); 
+/*
         aperture = nplc_to_aper_n( 11);
         params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_HI);
         target = 7.1 * aperture;
         params_report(&params);
         params_write(& params);
+*/
         break;
 
 
       case 4:
-        // 10NPLC  ref-lo
+        // 9 NPLC  ref-lo
+        ctrl_set_pattern( PATTERN_REF_LO); 
+        ctrl_set_aperture( nplc_to_aper_n( 9) ); 
+/*
         aperture = nplc_to_aper_n( 9);
         params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_LO);
         target = 0.0  * aperture;
         params_report(&params);
         params_write(&params);
+*/
         break;
 
       case 5:
-        // 10NPLC  ref-hi
+        // 9 NPLC  ref-hi
+        ctrl_set_pattern( PATTERN_REF_HI); 
+        ctrl_set_aperture( nplc_to_aper_n( 9) ); 
+/*
         aperture = nplc_to_aper_n( 9);
         params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_HI);
         target = 7.1 * aperture;
         params_report(&params);
         params_write(& params);
         break;
+*/
 #endif
 
       case 6:
-        // 10NPLC  ref-lo
+        // 8 NPLC  ref-lo
+        ctrl_set_pattern( PATTERN_REF_LO); 
+        ctrl_set_aperture( nplc_to_aper_n( 9)); 
+/*
         aperture = nplc_to_aper_n( 8);
         params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_LO);
         target = 0.0  * aperture;
         params_report(&params);
         params_write(&params);
+*/
         break;
 
       case 7:
-        // 10NPLC  ref-hi
+        // 8 NPLC  ref-hi
+        ctrl_set_pattern( PATTERN_REF_HI); 
+        ctrl_set_aperture( nplc_to_aper_n( 8)); 
+
+/*
         aperture = nplc_to_aper_n( 8);
         params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_HI);
         target = 7.1 * aperture;
         params_report(&params);
         params_write(& params);
+*/
         break;
 
       case 8:
         // 10NPLC  ref-lo
+        ctrl_set_pattern( PATTERN_REF_LO); 
+        ctrl_set_aperture( nplc_to_aper_n( 12)); 
+/*
         aperture = nplc_to_aper_n( 12);
         params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_LO);
         target = 0.0  * aperture;
         params_report(&params);
         params_write(&params);
+*/
         break;
 
       case 9:
         // 10NPLC  ref-hi
+        ctrl_set_pattern( PATTERN_REF_HI); 
+        ctrl_set_aperture( nplc_to_aper_n( 12)); 
+/*
         aperture = nplc_to_aper_n( 12);
         params_set_main( &params,  aperture, 1, HIMUX_SEL_REF_HI);
         target = 7.1 * aperture;
         params_report(&params);
         params_write(& params);
+*/
         break;
 
 
@@ -214,7 +254,7 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
     // wait for data.
     // if we have to bail out of here... then what happens?
 
-    row = collect_obs( app, &params, row, 2 , 5 , x );
+    row = collect_obs( app, /*&params, */row, 2 , 5 , x );
   } // state for
 }
 

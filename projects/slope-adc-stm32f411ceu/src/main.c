@@ -100,7 +100,8 @@ static void loop_dispatcher(app_t *app);
 void update_console_cmd(app_t *app)
 {
 
-  uint32_t i32;
+  uint32_t u32;
+  int32_t i32;
 
   while( ! cBufisEmpty(&app->console_in)) {
 
@@ -157,19 +158,13 @@ void update_console_cmd(app_t *app)
       // alternatively should bzero(), memcpy( 0 ) nulls.
       */
 
-      else if(strncmp(app->cmd_buf , "vs ", 3) == 0) {
-        int value;
-        size_t n = sscanf(app->cmd_buf, "vs %d", &value);
-        if( n != 1) {
-
-          printf("bad format\n");
-        } else {
-          printf("setting value for voltage source %d!\n", value);
-          voltage_source_set(value);
-        }
+      else if(sscanf(app->cmd_buf, "vs %ld", &i32 ) == 1) {
+      
+        printf("setting value for voltage source %ld!\n", i32);
+        voltage_source_set( i32 );
       }
 
-
+#if 0
       else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 || strcmp(app->cmd_buf , "mux com") == 0)  {
 
         usart_printf("make sure to write value!\n");
@@ -194,50 +189,53 @@ void update_console_cmd(app_t *app)
             - can then run.  or calibrate.
 
       */
+#endif
+      else if(sscanf(app->cmd_buf, "pattern %lu", &u32 ) == 1) {
 
-      else if(strncmp(app->cmd_buf , "nplc ", 5) == 0) {
-        unsigned value;
-        size_t n = sscanf(app->cmd_buf, "nplc %u", &value);
-        if( n != 1) {
+        printf("setting pattern %lu\n", u32);
 
-          printf("bad format\n");
-        } else {
-          printf("setting nplc %d\n", value);
-          printf("make sure to write value!\n");
-
-          uint32_t int_n = nplc_to_aper_n( value );
-          printf("int_n is %lu\n", int_n );
-
-          double c_nplc = aper_n_to_nplc( int_n);
-          printf("c_nplc is %f\n", c_nplc );
-
-          app->params.clk_count_aper_n = int_n;
-          // app->params.nplc = value ;
-        }
+        ctrl_set_pattern( u32 ); 
       }
 
 
+      else if(sscanf(app->cmd_buf, "nplc %lu", &u32 ) == 1) {
+
+        printf("setting nplc %lu\n", u32 );
+
+        uint32_t aper = nplc_to_aper_n( u32 );
+        printf("aper is %lu\n", aper );
+
+        double c_nplc = aper_n_to_nplc( aper);
+        printf("nplc (calc) is %f\n", c_nplc );
+
+        ctrl_set_aperture( aper ); 
+
+        // app->params.clk_count_aper_n = int_n;
+        // app->params.nplc = value ;
+      }
+
+#if 0
       // else if(strncmp(app->cmd_buf , "clk_count_var_pos_n", 19) == 0) {
-      else if(sscanf(app->cmd_buf, "clk_count_var_pos_n %lu", &i32 ) == 1) {
+      else if(sscanf(app->cmd_buf, "clk_count_var_pos_n %lu", &u32 ) == 1) {
 
-          printf("setting clk_count_var_pos_n %lu\n", i32);
+          printf("setting clk_count_var_pos_n %lu\n", u32);
           printf("make sure to write value!\n");
 
-          app->params.clk_count_var_pos_n = i32;
+          app->params.clk_count_var_pos_n = u32;
       }
+#endif
 
         // Gahhh...  ok. we want to be able to change the var pos and neg clks.  individually..
 
 
-
-
-      else if(strcmp(app->cmd_buf , "show") == 0) {
+      /*else if(strcmp(app->cmd_buf , "show") == 0) {
         // report params.
         params_report( &app->params);
       }
+      */
 
       // think we need to rename thesei. distinct from the flash operations.
-
+#if 0
       else if(strcmp(app->cmd_buf , "read") == 0) {
         // read params from the device. actually a reset to default.
         params_read( &app->params );
@@ -250,6 +248,7 @@ void update_console_cmd(app_t *app)
         // should we do this on every value change?
         params_write( &app->params );
       }
+#endif
       else if(strcmp(app->cmd_buf , "h") == 0 || strcmp(app->cmd_buf , "halt") == 0) {
         // exit the current loop program
         app->continuation_f = (void (*)(void *)) loop_dispatcher;
@@ -532,7 +531,7 @@ int main(void)
   reg_read_write_test();
 
   // read main params from device - as starting point. should perhaps be flash
-  params_read( &app.params );
+  // params_read( &app.params );
 
   printf("==========\n");
 
