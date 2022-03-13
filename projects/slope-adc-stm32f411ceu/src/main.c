@@ -283,6 +283,8 @@ void update_console_cmd(app_t *app)
         params_write( &app->params );
       }
 #endif
+
+
       else if(strcmp(app->cmd_buf , "h") == 0 || strcmp(app->cmd_buf , "halt") == 0) {
         // exit the current loop program
         app->continuation_f = (void (*)(void *)) loop_dispatcher;
