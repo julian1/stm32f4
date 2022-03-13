@@ -45,7 +45,55 @@
 
 
 
+/*
+  verilog
+  possible to use an array -
+  eg.  just with an index.
 
+  we really want something simple for azero.
+  that doesn't get in the way for other operations.
+
+  to select the himux_sel input.   for each input.
+  but we potentially want to var_pos also.
+  --------
+
+  - could just be a simple state machine. that assigns vars.
+  - if 0 , then make hires mux sig-in.
+  - if 1,
+
+  - this ought to work for
+
+  eg. himux_sel  is an array. and a looping state machine just updates values.
+  AND. we have a counter. so we can set it to one. to make it easy.
+
+  OR  slightly more complicated. specify the count. no. maybe
+
+           input      n
+  slot 0   sel sig    1
+  slot 1   sel ref-lo 1
+  return.
+
+  - could almost have a little programming language quite simply. with cmds. and program counter.
+  no. doesn't allow an auto-gain.
+  --------------------
+
+  NO.
+    we just want to set up some fixed patterns.  nothing more complicated.
+    we don't need other controls.
+
+  pattern 1.   just sig.
+  pattern 2.   azero alternate sig and ref-lo for .
+  pattern 3.   azero alternate sig and ref-lo, and every 10 sample ref hi.
+  pattern 4.   alternate switching var_pos between two values.
+
+  this is much simpler.
+
+  so we have separate state machines - and then choose/mux the state machine we want.
+
+  ----
+
+
+*/
 
 
 // eg. bitwise, active lo.  avoid turning on more than one.
