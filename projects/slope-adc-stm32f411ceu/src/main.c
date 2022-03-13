@@ -202,7 +202,7 @@ void update_console_cmd(app_t *app)
 
 
 
-
+/*
       else if(sscanf(app->cmd_buf, "pattern %lu", &u32 ) == 1) {
 
         printf("setting pattern %lu\n", u32);
@@ -215,12 +215,14 @@ void update_console_cmd(app_t *app)
         // when we set variables - we should also set the interupt handler - to determine if should update for next run
         /////////////////
       }
+*/
 
 
       else if(sscanf(app->cmd_buf, "reset_test %lu", &u32 ) == 1) {
 
         printf("reset test %lu seconds\n", u32 );
 
+        // TODO change name ctrl_reset_enable()
         ctrl_enable_reset();
         msleep( u32 * 1000);
         ctrl_disable_reset();

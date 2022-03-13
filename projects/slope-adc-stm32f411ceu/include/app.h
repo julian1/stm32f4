@@ -75,7 +75,7 @@ double aper_n_to_period( uint32_t int_n);
 
 
 // do it directly
-void ctrl_set_pattern( uint32_t pattern );
+// void ctrl_set_pattern( uint32_t pattern );
 void ctrl_set_aperture( uint32_t aperture);
 void ctrl_set_mux( uint32_t mux );
 
