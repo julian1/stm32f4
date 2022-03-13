@@ -204,6 +204,17 @@ void update_console_cmd(app_t *app)
       }
 
 
+      else if(sscanf(app->cmd_buf, "reset_test %lu", &u32 ) == 1) {
+
+        printf("reset test %lu seconds\n", u32 );
+
+        ctrl_enable_reset();
+        msleep( u32 * 1000);
+        ctrl_disable_reset();
+      }
+
+
+
       else if(sscanf(app->cmd_buf, "nplc %lu", &u32 ) == 1) {
 
         printf("setting nplc %lu\n", u32 );
