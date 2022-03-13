@@ -9,27 +9,28 @@
 
 
 
+
+// general,mix start 0
 #define REG_LED               7
 #define REG_TEST              8
+#define REG_RESET             9   // TODO active low. for the modulator only. not spi.
 
-// run parameters
+// meas/run parameters, start 10
 #define REG_COUNT_UP          10
 #define REG_COUNT_DOWN        11
 #define REG_COUNT_TRANS_UP    12
 #define REG_COUNT_TRANS_DOWN  13
 #define REG_COUNT_FIX_UP      14
 #define REG_COUNT_FIX_DOWN    15
-#define REG_COUNT_FLIP        16  // deprecated
 #define REG_CLK_COUNT_RUNDOWN 17
-#define REG_RUNDOWN_DIR       18  // deprecated
 
 
-// modulation control parameters
-#define REG_CLK_COUNT_INIT_N  30
-#define REG_CLK_COUNT_FIX_N   31
-// #define REG_CLK_COUNT_VAR_N   32
-#define REG_CLK_COUNT_VAR_POS_N   37
-#define REG_CLK_COUNT_VAR_NEG_N   38
+// modulation control parameters, start 30.
+#define REG_CLK_COUNT_RESET_N   30
+#define REG_CLK_COUNT_FIX_N     31
+// #define REG_CLK_COUNT_VAR_N  32
+#define REG_CLK_COUNT_VAR_POS_N 37
+#define REG_CLK_COUNT_VAR_NEG_N 38
 
 
 #define REG_CLK_COUNT_APER_N_LO 33    // aperture. rename?
@@ -39,6 +40,10 @@
 #define REG_HIMUX_SEL         36
 
 #define REG_MEAS_COUNT        40
+
+
+
+
 
 
 
@@ -60,7 +65,7 @@ struct Params
   // uint32_t reg_led ;
   uint32_t clk_count_aper_n;   // aperture.
 
-  uint32_t clk_count_init_n ;
+  uint32_t clk_count_reset_n ;
   uint32_t clk_count_fix_n ;
   // uint32_t clk_count_var_n ;
                                     /* ok clk_count_var_n is used for both +ve and -ve var.
@@ -95,9 +100,9 @@ void params_report(Params * params );
 bool params_equal( Params *params0,  Params *params1 );
 void params_write( Params *params );
 void params_set_main( Params *params,  uint32_t clk_count_aper_n, bool use_slow_rundown, uint8_t himux_sel );
-// void params_set_extra( Params *params,  uint32_t clk_count_init_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_n);
+// void params_set_extra( Params *params,  uint32_t clk_count_reset_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_n);
 
-void params_set_extra( Params *params,  uint32_t clk_count_init_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_pos_n, uint32_t clk_count_var_neg_n);
+void params_set_extra( Params *params,  uint32_t clk_count_reset_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_pos_n, uint32_t clk_count_var_neg_n);
 
 
 /*

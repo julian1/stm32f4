@@ -73,7 +73,7 @@ void params_read( Params * params )
   uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_HI );
   params->clk_count_aper_n   = int_hi << 24 | int_lo;
 
-  params->clk_count_init_n  = spi_reg_read(SPI1, REG_CLK_COUNT_INIT_N);
+  params->clk_count_reset_n  = spi_reg_read(SPI1, REG_CLK_COUNT_RESET_N);
   params->clk_count_fix_n   = spi_reg_read(SPI1, REG_CLK_COUNT_FIX_N);
   // params->clk_count_var_n   = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_N);
   params->clk_count_var_pos_n   = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_POS_N);
@@ -107,7 +107,7 @@ void params_report(Params * params )
   usart_printf("period            %fs\n", period);
   usart_printf("samples/s         %.1f\n", samples_per_second);
 
-  usart_printf("clk_count_init_n  %u\n", params->clk_count_init_n);
+  usart_printf("clk_count_reset_n  %u\n", params->clk_count_reset_n);
   usart_printf("clk_count_fix_n   %u\n", params->clk_count_fix_n);
 
   // usart_printf("clk_count_var_n   %u\n", params->clk_count_var_n);
@@ -154,7 +154,7 @@ bool params_equal( Params *params0,  Params *params1 )
     && params0->use_slow_rundown == params1->use_slow_rundown
     && params0->himux_sel        == params1->himux_sel
 
-    && params0->clk_count_init_n == params1->clk_count_init_n
+    && params0->clk_count_reset_n == params1->clk_count_reset_n
     && params0->clk_count_fix_n  == params1->clk_count_fix_n
 
     // && params0->clk_count_var_n  == params1->clk_count_var_n
@@ -177,7 +177,7 @@ void params_write( Params *params )
   spi_reg_write(SPI1, REG_HIMUX_SEL, params->himux_sel );
 
   // write the extra parameters to device
-  spi_reg_write(SPI1, REG_CLK_COUNT_INIT_N , params->clk_count_init_n );
+  spi_reg_write(SPI1, REG_CLK_COUNT_RESET_N , params->clk_count_reset_n );
   spi_reg_write(SPI1, REG_CLK_COUNT_FIX_N,   params->clk_count_fix_n );
 
   // spi_reg_write(SPI1, REG_CLK_COUNT_VAR_N,   params->clk_count_var_n );
@@ -203,9 +203,9 @@ void params_set_main( Params *params,  uint32_t clk_count_aper_n, bool use_slow_
 }
 
 
-void params_set_extra( Params *params,  uint32_t clk_count_init_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_pos_n, uint32_t clk_count_var_neg_n)
+void params_set_extra( Params *params,  uint32_t clk_count_reset_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_pos_n, uint32_t clk_count_var_neg_n)
 {
-  params->clk_count_init_n = clk_count_init_n;
+  params->clk_count_reset_n = clk_count_reset_n;
   params->clk_count_fix_n  = clk_count_fix_n;
 
   // 
