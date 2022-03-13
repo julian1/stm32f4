@@ -86,7 +86,7 @@ void ctrl_set_mux( uint32_t mux )
 {
 
   char buf[100];
-  printf("**** set himux_sel %s\n",  format_bits( buf, 4, mux ));
+  printf("**** set himux_sel %s (%lu)\n",  format_bits( buf, 4, mux ), mux);
 
   switch(mux) {
     case HIMUX_SEL_SIG_HI:

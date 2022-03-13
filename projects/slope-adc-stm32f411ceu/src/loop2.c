@@ -33,7 +33,7 @@
 
 
 
-static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
+static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
 {
   // gather obersevations
   // app argument is needed for data ready flag.
@@ -50,16 +50,9 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
 
   m_resize( x , MAX_OBS, X_COLS );      // constant + pos clk + neg clk.
   m_resize( y , MAX_OBS, 1 );           // target
+  m_resize( aperture1,  MAX_OBS, 1 );           // target
 
-  /*
-    OK. we need much better fine control over parameters. eg. being ablle to change on. the himux_sel.
-  */
-/*
-  Params  params;
-  params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO); // 1sec. == 50NPLC.
-  params_set_extra( &params,  10000, 700, 5500, 5500);
-  params_write( &params );
-*/
+
 
   double aperture = 0;
 
@@ -187,6 +180,9 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
     for(unsigned j = 0; j < 5; ++j ) {
       assert(row < y->m); // < or <= ????
       m_set_val( y, row + j, 0,  target );
+
+      m_set_val( aperture1, row + j, 0,  target );
+
     }
 
     // wait for data.
@@ -206,8 +202,9 @@ static MAT * calibrate( app_t *app)
   // is no way to return pointers to the resized structure from the subroutine
   MAT *x = m_get(1,1); // TODO change MNULL
   MAT *y = m_get(1,1);
+  MAT *aperture = m_get(1,1);
 
-  cal_collect_obs (app, x, y );
+  cal_collect_obs (app, x, y, aperture );
 
   printf("x\n");
   m_foutput(stdout, x);
@@ -227,6 +224,10 @@ static MAT * calibrate( app_t *app)
   usart_flush();
 
   MAT *predicted = m_mlt(x, b, MNULL );
+
+  // and we want to divide
+  // MAT *predicted = m_mlt(x, b, MNULL );
+
   printf("predicted \n");
   m_foutput(stdout, predicted );
   usart_flush();
