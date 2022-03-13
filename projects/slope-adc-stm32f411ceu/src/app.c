@@ -179,7 +179,7 @@ void run_read( Run *run )
 
 
 
-void run_report( Run *run )
+void run_report( Run *run, bool extra )
 {
   assert(run);
 
@@ -193,17 +193,18 @@ void run_report( Run *run )
 
   usart_printf("clk_count_rundown %u, ", run->clk_count_rundown);
 
-  usart_printf("meas_count %lu, ", run->meas_count);
+  if(extra) {
+    usart_printf("meas_count %lu, ", run->meas_count);
 
+    usart_printf("clk_count_aper_n %lu, ", run->clk_count_aper_n);
 
-  usart_printf("clk_count_aper_n %lu, ", run->clk_count_aper_n);
+    usart_printf("clk_count_fix_n %lu, ", run->clk_count_fix_n);
+    usart_printf("clk_count_var_pos_n %lu, ", run->clk_count_var_pos_n);
 
-  usart_printf("clk_count_fix_n %lu, ", run->clk_count_fix_n);
-  usart_printf("clk_count_var_pos_n %lu, ", run->clk_count_var_pos_n);
+    char buf[100];
+    printf("himux_sel %s",  format_bits( buf, 4, run->himux_sel ));
 
-  char buf[100];
-  printf("himux_sel %s",  format_bits( buf, 4, run->himux_sel ));
-
+  }
 
 }
 
@@ -293,7 +294,7 @@ unsigned collect_obs( app_t *app /*, Params *params*/, unsigned row, unsigned di
         // get run details
         Run run;
         run_read(&run );
-        run_report(&run);
+        run_report(&run, 0);
 
 
         // ignore first obs

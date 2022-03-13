@@ -89,7 +89,7 @@ void loop1 ( app_t *app)
       // in priority
       Run run;
       run_read(&run );
-      run_report(&run);
+      run_report(&run, 0);
 
       if(app ->b) {
 

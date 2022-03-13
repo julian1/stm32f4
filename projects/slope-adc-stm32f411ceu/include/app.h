@@ -114,7 +114,8 @@ struct Run
 typedef struct Run  Run;
 
 void run_read( Run *run );
-void run_report( Run *run );
+// void run_report( Run *run );
+void run_report( Run *run, bool extra );
 MAT * run_to_matrix( /*Params *params,*/ Run *run, MAT * out );
 
 
