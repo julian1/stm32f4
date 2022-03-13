@@ -157,28 +157,6 @@ void update_console_cmd(app_t *app)
       // ALL this code relying on strcmp is dangerous. because it's not relying on null termination.
       // alternatively should bzero(), memcpy( 0 ) nulls.
       */
-
-      else if(sscanf(app->cmd_buf, "vs %ld", &i32 ) == 1) {
-
-        printf("setting value for voltage source %ld!\n", i32);
-        voltage_source_set( i32 );
-      }
-
-#if 0
-      else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 || strcmp(app->cmd_buf , "mux com") == 0)  {
-
-        usart_printf("make sure to write value!\n");
-        app->params.himux_sel = HIMUX_SEL_REF_LO;
-      }// ref-lo/com...
-      else if(strcmp(app->cmd_buf , "mux ref-hi") == 0) {
-        usart_printf("make sure to write value!\n");
-        app->params.himux_sel = HIMUX_SEL_REF_HI;
-      }
-     else if(strcmp(app->cmd_buf , "mux sig") == 0) {
-        usart_printf("make sure to write value!");
-        app->params.himux_sel = HIMUX_SEL_SIG_HI;
-      }
-
       // we may want to be able to read/store multiple calibrations. eg. array.
       // but this is sufficient for the moment.
 
@@ -189,7 +167,39 @@ void update_console_cmd(app_t *app)
             - can then run.  or calibrate.
 
       */
-#endif
+/*
+#define HIMUX_SEL_SIG_HI      0b1110
+#define HIMUX_SEL_REF_HI      0b1101
+#define HIMUX_SEL_REF_LO      0b1011
+#define HIMUX_SEL_ANG         0b0111
+*/
+
+
+
+      else if(sscanf(app->cmd_buf, "vs %ld", &i32 ) == 1) {
+        printf("setting value for voltage source %ld!\n", i32);
+        voltage_source_set( i32 );
+      }
+
+
+      else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 )  {
+        ctrl_enable_reset();
+        ctrl_set_mux( HIMUX_SEL_REF_LO );
+        ctrl_disable_reset();
+      }
+      else if(strcmp(app->cmd_buf , "mux ref-hi") == 0) {
+        ctrl_enable_reset();
+        ctrl_set_mux( HIMUX_SEL_REF_HI );
+        ctrl_disable_reset();
+      }
+      else if(strcmp(app->cmd_buf , "mux sig") == 0) {
+        ctrl_enable_reset();
+        ctrl_set_mux( HIMUX_SEL_REF_HI );
+        ctrl_disable_reset();
+      }
+
+
+
       else if(sscanf(app->cmd_buf, "pattern %lu", &u32 ) == 1) {
 
         printf("setting pattern %lu\n", u32);

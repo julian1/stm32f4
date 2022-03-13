@@ -42,23 +42,23 @@
 uint32_t nplc_to_aper_n( double nplc )
 {
   double period = nplc / 50.0 ;  // seonds
-  uint32_t int_n = period * 20000000;
-  return int_n;
+  uint32_t aper = period * 20000000;
+  return aper;
 }
 
 
-double aper_n_to_nplc( uint32_t int_n)
+double aper_n_to_nplc( uint32_t aper)
 {
-  // uint32_t int_n  = params->clk_count_aper_n ;
-  double period   = int_n / (double ) 20000000;
+  // uint32_t aper  = params->clk_count_aper_n ;
+  double period   = aper / (double ) 20000000;
   double nplc     = period / (1.0 / 50);
   return nplc;
 }
 
 
-double aper_n_to_period( uint32_t int_n)
+double aper_n_to_period( uint32_t aper)
 {
-  double period   = int_n / (double ) 20000000;
+  double period   = aper / (double ) 20000000;
   return period;
 }
 
@@ -75,6 +75,23 @@ void ctrl_set_aperture( uint32_t aperture)
 {
   spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_HI, (aperture >> 24) & 0xff );
   spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_LO, aperture & 0xffffff  );
+}
+
+
+
+void ctrl_set_mux( uint32_t mux )
+{
+  switch(mux) {
+    case HIMUX_SEL_SIG_HI:
+    case HIMUX_SEL_REF_HI:
+    case HIMUX_SEL_REF_LO:
+    case HIMUX_SEL_ANG:
+      break;
+    default:
+      assert(0);
+  };
+
+  spi_reg_write(SPI1, REG_RESET,  mux);
 }
 
 
@@ -261,10 +278,10 @@ void run_read( Run *run )
 {
   assert(run);
   /*
-    it looks like many variables to read over spi. 
+    it looks like many variables to read over spi.
     but it only takes 10% of the reset time.
     ---
-    reading each time. allows fpga to control. 
+    reading each time. allows fpga to control.
 
   */
 

@@ -52,6 +52,11 @@
 
 
 
+#define HIMUX_SEL_SIG_HI      0b1110
+#define HIMUX_SEL_REF_HI      0b1101
+#define HIMUX_SEL_REF_LO      0b1011
+#define HIMUX_SEL_ANG         0b0111
+
 
 
 
@@ -196,6 +201,7 @@ void params_set_extra( Params *params,  uint32_t clk_count_reset_n, uint32_t  cl
 // do it directly
 void ctrl_set_pattern( uint32_t pattern );
 void ctrl_set_aperture( uint32_t aperture);
+void ctrl_set_mux( uint32_t mux );
 
 void ctrl_enable_reset( void );
 void ctrl_disable_reset(void);
