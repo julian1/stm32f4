@@ -320,11 +320,9 @@ void run_read( Run *run )
 
 
 
-
-  uint32_t himux_sel = spi_reg_read(SPI1, REG_HIMUX_SEL );
-
-  char buf[100];
-  printf("**** himux_sel %s\n",  format_bits( buf, 4, himux_sel ));
+  // do this for the moment. albeit it shouldn't be needed
+  // when wrapping parameter changes with reset.
+  run->himux_sel = spi_reg_read(SPI1, REG_HIMUX_SEL );
 
 
   // run->clk_count_var_neg_n   = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_NEG_N);
@@ -356,6 +354,9 @@ void run_report( Run *run )
 
   usart_printf("clk_count_fix_n %lu, ", run->clk_count_fix_n);
   usart_printf("clk_count_var_pos_n %lu, ", run->clk_count_var_pos_n);
+
+  char buf[100];
+  printf("himux_sel %s",  format_bits( buf, 4, run->himux_sel ));
 
 
 }

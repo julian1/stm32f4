@@ -99,12 +99,15 @@ struct Run
   uint32_t clk_count_rundown;
   // rundown_dir.
 
+  // really don't have to 
   uint32_t meas_count;
 
   // the pattern controller may change on its own - so should read for *each* run.
   uint32_t clk_count_aper_n;   // aperture.
   uint32_t clk_count_fix_n;
   uint32_t clk_count_var_pos_n;
+
+  uint32_t himux_sel;
 
 };
 
