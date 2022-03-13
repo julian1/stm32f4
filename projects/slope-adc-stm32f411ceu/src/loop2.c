@@ -61,7 +61,7 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
   params_write( &params );
 */
 
-  double aperture = 0;
+  // double aperture = 0;
 
   for(unsigned i = 0; /*i < 10*/; ++i )
   {
@@ -156,8 +156,8 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y )
         target = 7.1 * aperture;
         params_report(&params);
         params_write(& params);
-        break;
 */
+        break;
 #endif
 
       case 6:
