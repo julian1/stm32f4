@@ -81,6 +81,10 @@ void ctrl_set_aperture( uint32_t aperture)
 
 void ctrl_set_mux( uint32_t mux )
 {
+
+  char buf[100];
+  printf("**** setting mux  pattern %s\n",  format_bits( buf, 4, mux ));
+
   switch(mux) {
     case HIMUX_SEL_SIG_HI:
     case HIMUX_SEL_REF_HI:
@@ -91,7 +95,7 @@ void ctrl_set_mux( uint32_t mux )
       assert(0);
   };
 
-  spi_reg_write(SPI1, REG_RESET,  mux);
+  spi_reg_write(SPI1, REG_HIMUX_SEL,  mux);
 }
 
 
@@ -313,6 +317,15 @@ void run_read( Run *run )
   run->clk_count_fix_n  = spi_reg_read(SPI1, REG_CLK_COUNT_FIX_N);
 
   run->clk_count_var_pos_n = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_POS_N);
+
+
+
+
+  uint32_t himux_sel = spi_reg_read(SPI1, REG_HIMUX_SEL );
+
+  char buf[100];
+  printf("**** himux_sel %s\n",  format_bits( buf, 4, himux_sel ));
+
 
   // run->clk_count_var_neg_n   = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_NEG_N);
   // run->use_slow_rundown  = spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN);

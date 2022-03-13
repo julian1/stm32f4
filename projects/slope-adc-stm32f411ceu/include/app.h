@@ -26,7 +26,7 @@
 #define REG_CLK_COUNT_APER_N_LO 15// aperture. rename?
 #define REG_CLK_COUNT_APER_N_HI 16
 #define REG_USE_SLOW_RUNDOWN    17
-// #define REG_HIMUX_SEL         18
+#define REG_HIMUX_SEL           18
 #define REG_PATTERN             19
 #define REG_RESET               20// hold modulation in reset.
 
@@ -44,8 +44,8 @@
 #define REG_MEAS_COUNT          40
 
 // these are output registers dependent upon the pattern used.
-#define REG_MEAS_HIMUX_SEL      41      // what was being muxed for integration. sig, azero, acal .
-#define REG_MEAS_VAR_POS_N      42      // we don't need this...
+// #define REG_MEAS_HIMUX_SEL      41      // what was being muxed for integration. sig, azero, acal .
+// #define REG_MEAS_VAR_POS_N      42      // we don't need this...
 
 
 

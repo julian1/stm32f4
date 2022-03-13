@@ -167,12 +167,7 @@ void update_console_cmd(app_t *app)
             - can then run.  or calibrate.
 
       */
-/*
-#define HIMUX_SEL_SIG_HI      0b1110
-#define HIMUX_SEL_REF_HI      0b1101
-#define HIMUX_SEL_REF_LO      0b1011
-#define HIMUX_SEL_ANG         0b0111
-*/
+
 
 
 
@@ -194,9 +189,17 @@ void update_console_cmd(app_t *app)
       }
       else if(strcmp(app->cmd_buf , "mux sig") == 0) {
         ctrl_enable_reset();
-        ctrl_set_mux( HIMUX_SEL_REF_HI );
+        ctrl_set_mux( HIMUX_SEL_SIG_HI );
         ctrl_disable_reset();
       }
+    /*
+      else if(strcmp(app->cmd_buf , "mux ang") == 0) {
+        ctrl_enable_reset();
+        ctrl_set_mux( HIMUX_SEL_ANG);
+        ctrl_disable_reset();
+      }
+    */
+
 
 
 
