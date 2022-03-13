@@ -227,41 +227,20 @@ static MAT * calibrate( app_t *app)
 
   MAT *predicted = m_mlt(x, b, MNULL );
 
-  // and we want to divide
-  // MAT *predicted = m_mlt(x, b, MNULL );
-
-  // NO. it's divide.
-
-
-  // MAT *predicted_adjusted = m_mlt(predicted, aperture, MNULL );
-
-  // target == voltage * aperature.   but could do that outside gathering
-
+/*
   printf("predicted \n");
   m_foutput(stdout, predicted);
   usart_flush();
 
   ///////////////
-
+*/
 
   MAT *aperture_inverted =  m_element_invert( aperture, MNULL  );
   printf("aperture_inverted \n");
   m_foutput(stdout, aperture_inverted);
   usart_flush();
 
-  // mmtr_mlt -- matrix-matrix transposed multiplication -- A.B^T is returned, and stored in OUT
-
-  // mtrm_mlt -- matrix transposed-matrix multiplication -- A^T.B is returned, result stored in OUT
-
-
-  // MAT *predicted2 = m_mlt(predicted , aperture_inverted, MNULL );
-  // MAT *predicted2 = mtrm_mlt(predicted , aperture_inverted, MNULL );
-  // MAT *predicted2 = mmtr_mlt(predicted , aperture_inverted, MNULL );
-
-
-  // MAT *predicted2 = m_mlt(aperture_inverted, predicted , MNULL );
-  // MAT *predicted2 = mtrm_mlt(aperture_inverted, predicted , MNULL );
-
+  // use element multiply - to avoid multiply and matrix diagonal, which is expensive
   MAT	*predicted2 = m_element_mlt(aperture_inverted, predicted, MNULL );
 
   printf("predicted2\n");
