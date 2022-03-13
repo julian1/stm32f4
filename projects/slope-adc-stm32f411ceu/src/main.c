@@ -214,6 +214,8 @@ void update_console_cmd(app_t *app)
       }
 
 
+      // should read as a double
+      // actually an aperture setting.
 
       else if(sscanf(app->cmd_buf, "nplc %lu", &u32 ) == 1) {
 

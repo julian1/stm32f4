@@ -28,18 +28,17 @@
 #define REG_USE_SLOW_RUNDOWN    17
 // #define REG_HIMUX_SEL         18
 #define REG_PATTERN             19
-#define REG_RESET               9   // TODO active low. for the modulator only. not spi.
+#define REG_RESET               20// hold modulation in reset.
 
 
 // meas/run vars
-#define REG_COUNT_UP            20
-#define REG_COUNT_DOWN          21
-#define REG_COUNT_TRANS_UP      22
-#define REG_COUNT_TRANS_DOWN    23
-#define REG_COUNT_FIX_UP        24
-#define REG_COUNT_FIX_DOWN      25
-#define REG_CLK_COUNT_RUNDOWN   27
-
+#define REG_COUNT_UP            30  // need to start at 30
+#define REG_COUNT_DOWN          31
+#define REG_COUNT_TRANS_UP      32
+#define REG_COUNT_TRANS_DOWN    33
+#define REG_COUNT_FIX_UP        34
+#define REG_COUNT_FIX_DOWN      35
+#define REG_CLK_COUNT_RUNDOWN   37
 
 
 #define REG_MEAS_COUNT          40
