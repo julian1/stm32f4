@@ -8,80 +8,45 @@
 
 
 
-/*
-
-// general,mix start 0
-#define REG_LED               7
-#define REG_TEST              8
-#define REG_RESET             9   // TODO active low. for the modulator only. not spi.
-
-// meas/run parameters, start 10
-#define REG_COUNT_UP          10
-#define REG_COUNT_DOWN        11
-#define REG_COUNT_TRANS_UP    12
-#define REG_COUNT_TRANS_DOWN  13
-#define REG_COUNT_FIX_UP      14
-#define REG_COUNT_FIX_DOWN    15
-#define REG_CLK_COUNT_RUNDOWN 17
-
-
-// modulation control parameters, start 30.
-#define REG_CLK_COUNT_RESET_N   30
-#define REG_CLK_COUNT_FIX_N     31
-// #define REG_CLK_COUNT_VAR_N  32
-#define REG_CLK_COUNT_VAR_POS_N 37
-#define REG_CLK_COUNT_VAR_NEG_N 38
-
-
-#define REG_CLK_COUNT_APER_N_LO 33    // aperture. rename?
-#define REG_CLK_COUNT_APER_N_HI 34
-
-#define REG_USE_SLOW_RUNDOWN  35
-#define REG_HIMUX_SEL         36
-
-#define REG_MEAS_COUNT        40
-*/
-
 
 // so it doesn't matter where it goes
-
 // general,mix start 0
-#define REG_LED               7
-#define REG_TEST              8
-#define REG_RESET             9   // TODO active low. for the modulator only. not spi.
+#define REG_LED                 7
+#define REG_TEST                8
+#define REG_RESET               9   // TODO active low. for the modulator only. not spi.
 
 // control/param vars
 // we don't necessarily need to expose all these
 // just set once in pattern controller.
 // modulation control parameters, start 30.
-#define REG_CLK_COUNT_RESET_N   30
-#define REG_CLK_COUNT_FIX_N     31
-// #define REG_CLK_COUNT_VAR_N  32
-#define REG_CLK_COUNT_VAR_POS_N 37
-#define REG_CLK_COUNT_VAR_NEG_N 38
-#define REG_CLK_COUNT_APER_N_LO 33    // aperture. rename?
-#define REG_CLK_COUNT_APER_N_HI 34
-#define REG_USE_SLOW_RUNDOWN  35
-// #define REG_HIMUX_SEL         36      // we
-#define REG_PATTERN           39      // we
+#define REG_CLK_COUNT_RESET_N   10
+#define REG_CLK_COUNT_FIX_N     11
+// #define REG_CLK_COUNT_VAR_N  12
+#define REG_CLK_COUNT_VAR_POS_N 13
+#define REG_CLK_COUNT_VAR_NEG_N 14
+#define REG_CLK_COUNT_APER_N_LO 15// aperture. rename?
+#define REG_CLK_COUNT_APER_N_HI 16
+#define REG_USE_SLOW_RUNDOWN    17
+// #define REG_HIMUX_SEL         18
+#define REG_PATTERN             19
 
 
 // meas/run vars
-#define REG_COUNT_UP          10
-#define REG_COUNT_DOWN        11
-#define REG_COUNT_TRANS_UP    12
-#define REG_COUNT_TRANS_DOWN  13
-#define REG_COUNT_FIX_UP      14
-#define REG_COUNT_FIX_DOWN    15
-#define REG_CLK_COUNT_RUNDOWN 17
+#define REG_COUNT_UP            20
+#define REG_COUNT_DOWN          21
+#define REG_COUNT_TRANS_UP      22
+#define REG_COUNT_TRANS_DOWN    23
+#define REG_COUNT_FIX_UP        24
+#define REG_COUNT_FIX_DOWN      25
+#define REG_CLK_COUNT_RUNDOWN   27
 
-#define REG_MEAS_COUNT        40
+
+
+#define REG_MEAS_COUNT          40
 
 // these are output registers dependent upon the pattern used.
-#define REG_MEAS_HIMUX_SEL    41      // what was being muxed for integration. sig, azero, acal .
-#define REG_MEAS_VAR_POS_N    42      //
-
-
+#define REG_MEAS_HIMUX_SEL      41      // what was being muxed for integration. sig, azero, acal .
+#define REG_MEAS_VAR_POS_N      42      // we don't need this...
 
 
 
@@ -201,7 +166,7 @@ double aper_n_to_period( uint32_t int_n);
 
 /*
   // OK. we need the params - in order to compute the times...
-  // Or. maybe we should just read them after the run. 
+  // Or. maybe we should just read them after the run.
   -----
 
   EXTR.
@@ -230,14 +195,14 @@ void params_set_extra( Params *params,  uint32_t clk_count_reset_n, uint32_t  cl
 */
 
 // do it directly
-void ctrl_set_pattern( uint32_t pattern ); 
-void ctrl_set_aperture( uint32_t aperture); 
+void ctrl_set_pattern( uint32_t pattern );
+void ctrl_set_aperture( uint32_t aperture);
 
 struct Run
 {
   uint32_t count_up;
   uint32_t count_down;
-  // we don't have to read some of these 
+  // we don't have to read some of these
   uint32_t count_trans_up;
   uint32_t count_trans_down;
   uint32_t count_fix_up;
@@ -251,7 +216,7 @@ struct Run
   // the pattern controller may change on its own - so should read for *each* run.
   uint32_t clk_count_aper_n;   // aperture.
   uint32_t clk_count_fix_n;
-  uint32_t clk_count_var_pos_n; 
+  uint32_t clk_count_var_pos_n;
 
 };
 
