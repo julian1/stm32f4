@@ -67,60 +67,60 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
       case 0:
         // 8 NPLC  ref-lo
         aperture = nplc_to_aper_n( 8);
-        ctrl_enable_reset();
+        ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
         ctrl_set_aperture( aperture ); 
-        ctrl_disable_reset();
+        ctrl_reset_disable();
         target = 0.0  * aperture;
         break;
 
       case 1:
         // 8 NPLC  ref-hi
         aperture = nplc_to_aper_n( 8);
-        ctrl_enable_reset();
+        ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
         ctrl_set_aperture( aperture  ); 
-        ctrl_disable_reset();
+        ctrl_reset_disable();
         target = 7.1 * aperture;
         break;
 
       case 2:
         // 9 NPLC  ref-lo
         aperture = nplc_to_aper_n( 9);
-        ctrl_enable_reset();
+        ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
         ctrl_set_aperture( aperture ); 
-        ctrl_disable_reset();
+        ctrl_reset_disable();
         target = 0.0  * aperture;
         break;
 
       case 3:
         // 9 NPLC  ref-hi
         aperture = nplc_to_aper_n( 9);
-        ctrl_enable_reset();
+        ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
         ctrl_set_aperture( aperture  ); 
-        ctrl_disable_reset();
+        ctrl_reset_disable();
         target = 7.1 * aperture;
         break;
 
       case 4:
         // 10NPLC  ref-lo
         aperture = nplc_to_aper_n( 10);
-        ctrl_enable_reset();
+        ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
         ctrl_set_aperture( aperture ); 
-        ctrl_disable_reset();
+        ctrl_reset_disable();
         target = 0.0  * aperture;
         break;
 
       case 5:
         // 10NPLC  ref-hi
         aperture = nplc_to_aper_n( 10);
-        ctrl_enable_reset();
+        ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
         ctrl_set_aperture( aperture  ); 
-        ctrl_disable_reset();
+        ctrl_reset_disable();
         target = 7.1 * aperture;
         break;
 
@@ -128,20 +128,20 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
       case 6:
         // 11 NPLC mux mux ref-lo.
         aperture = nplc_to_aper_n( 11);
-        ctrl_enable_reset();
+        ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
         ctrl_set_aperture( aperture ); 
-        ctrl_disable_reset();
+        ctrl_reset_disable();
         target = 0.0  * aperture;
         break;
 
       case 7:
         // 11 NPLC mux ref-hi.
         aperture = nplc_to_aper_n( 11);
-        ctrl_enable_reset();
+        ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
         ctrl_set_aperture( aperture  ); 
-        ctrl_disable_reset();
+        ctrl_reset_disable();
         target = 7.1 * aperture;
         break;
 
@@ -149,20 +149,20 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
       case 8:
         // 12 NPLC  ref-lo
         aperture = nplc_to_aper_n( 12);
-        ctrl_enable_reset();
+        ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
         ctrl_set_aperture( aperture ); 
-        ctrl_disable_reset();
+        ctrl_reset_disable();
         target = 0.0  * aperture;
         break;
 
       case 9:
         // 12 NPLC  ref-hi
         aperture = nplc_to_aper_n( 12);
-        ctrl_enable_reset();
+        ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
         ctrl_set_aperture( aperture  ); 
-        ctrl_disable_reset();
+        ctrl_reset_disable();
         target = 7.1 * aperture;
         break;
 

@@ -102,14 +102,14 @@ void ctrl_set_mux( uint32_t mux )
 }
 
 
-void ctrl_enable_reset( void )
+void ctrl_reset_enable( void )
 {
   // TODO pass spi.
   // active low
   spi_reg_write(SPI1, REG_RESET,  0);
 }
 
-void ctrl_disable_reset(void)
+void ctrl_reset_disable(void)
 {
 
   spi_reg_write(SPI1, REG_RESET,  1);

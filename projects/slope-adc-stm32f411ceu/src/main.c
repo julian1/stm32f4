@@ -178,25 +178,25 @@ void update_console_cmd(app_t *app)
 
 
       else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 )  {
-        ctrl_enable_reset();
+        ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO );
-        ctrl_disable_reset();
+        ctrl_reset_disable();
       }
       else if(strcmp(app->cmd_buf , "mux ref-hi") == 0) {
-        ctrl_enable_reset();
+        ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI );
-        ctrl_disable_reset();
+        ctrl_reset_disable();
       }
       else if(strcmp(app->cmd_buf , "mux sig") == 0) {
-        ctrl_enable_reset();
+        ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_SIG_HI );
-        ctrl_disable_reset();
+        ctrl_reset_disable();
       }
     /*
       else if(strcmp(app->cmd_buf , "mux ang") == 0) {
-        ctrl_enable_reset();
+        ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_ANG);
-        ctrl_disable_reset();
+        ctrl_reset_disable();
       }
     */
 
@@ -207,9 +207,9 @@ void update_console_cmd(app_t *app)
 
         printf("setting pattern %lu\n", u32);
 
-        ctrl_enable_reset();
+        ctrl_reset_enable();
         ctrl_set_pattern( u32 );
-        ctrl_disable_reset();
+        ctrl_reset_disable();
 
         /////////////////
         // when we set variables - we should also set the interupt handler - to determine if should update for next run
@@ -223,9 +223,9 @@ void update_console_cmd(app_t *app)
         printf("reset test %lu seconds\n", u32 );
 
         // TODO change name ctrl_reset_enable()
-        ctrl_enable_reset();
+        ctrl_reset_enable();
         msleep( u32 * 1000);
-        ctrl_disable_reset();
+        ctrl_reset_disable();
       }
 
 
@@ -242,9 +242,9 @@ void update_console_cmd(app_t *app)
         double c_nplc = aper_n_to_nplc( aper);
         printf("nplc (calc) is %f\n", c_nplc );
 
-        ctrl_enable_reset();
+        ctrl_reset_enable();
         ctrl_set_aperture( aper );
-        ctrl_disable_reset();
+        ctrl_reset_disable();
 
         // app->params.clk_count_aper_n = int_n;
         // app->params.nplc = value ;
