@@ -64,6 +64,7 @@ double aper_n_to_period( uint32_t int_n)
 
 void ctrl_set_pattern( uint32_t pattern )
 {
+  // TODO add spi argument.
   printf("set pattern %ld\n", pattern );
 
   spi_reg_write(SPI1, REG_PATTERN,   pattern );
@@ -237,34 +238,18 @@ void params_set_extra( Params *params,  uint32_t clk_count_reset_n, uint32_t  cl
 
 
 
-#if 0
-struct Run
-{
-  uint32_t count_up;
-  uint32_t count_down;
-  // we don't have to read some of these
-  uint32_t count_trans_up;
-  uint32_t count_trans_down;
-  uint32_t count_fix_up;
-  uint32_t count_fix_down;
-  // uint32_t count_flip;
-  uint32_t clk_count_rundown;
-  // rundown_dir.
-
-  uint32_t meas_count;
-
-  // the pattern controller may change on its own - so should read for *each* run.
-  uint32_t clk_count_var_pos_n;
-  uint32_t clk_count_fix_n;
-
-};
-#endif
-
 
 
 void run_read( Run *run )
 {
   assert(run);
+  /*
+    it looks like many variables to read over spi. 
+    but it only takes 10% of the reset time.
+    ---
+    reading each time. allows fpga to control. 
+
+  */
 
   // use separate lines (to make it easier to filter - for plugging into stats).
   run->count_up         = spi_reg_read(SPI1, REG_COUNT_UP );
@@ -276,12 +261,9 @@ void run_read( Run *run )
   run->count_fix_up     = spi_reg_read(SPI1, REG_COUNT_FIX_UP);
   run->count_fix_down   = spi_reg_read(SPI1, REG_COUNT_FIX_DOWN);
 
-  // run->count_flip    = spi_reg_read(SPI1, REG_COUNT_FLIP);
-
 
   // WE could record slow_rundown separate to normal rundown.
   run->clk_count_rundown = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
-
 
   ///////////////
   // from params
@@ -292,11 +274,11 @@ void run_read( Run *run )
 
   uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_LO );
   uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_HI );
-  run->clk_count_aper_n   = int_hi << 24 | int_lo;
+  run->clk_count_aper_n = int_hi << 24 | int_lo;
 
-  run->clk_count_fix_n   = spi_reg_read(SPI1, REG_CLK_COUNT_FIX_N);
+  run->clk_count_fix_n  = spi_reg_read(SPI1, REG_CLK_COUNT_FIX_N);
 
-  run->clk_count_var_pos_n   = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_POS_N);
+  run->clk_count_var_pos_n = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_POS_N);
 
   // run->clk_count_var_neg_n   = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_NEG_N);
   // run->use_slow_rundown  = spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN);
