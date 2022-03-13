@@ -63,7 +63,7 @@
 #define REG_CLK_COUNT_APER_N_HI 34
 #define REG_USE_SLOW_RUNDOWN  35
 // #define REG_HIMUX_SEL         36      // we
-#define REG_PATTERN           37      // we
+#define REG_PATTERN           39      // we
 
 
 // meas/run vars
