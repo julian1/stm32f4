@@ -74,7 +74,7 @@ void ctrl_set_pattern( uint32_t pattern )
 
 void ctrl_set_aperture( uint32_t aperture)
 {
-  printf("**** set aperture %lu\n", aperture);
+  printf("*set aperture %lu, nplc %.2f, period %.2fs\n", aperture, aper_n_to_nplc( aperture),  aper_n_to_period( aperture ));
 
   spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_HI, (aperture >> 24) & 0xff );
   spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_LO, aperture & 0xffffff  );
@@ -87,7 +87,7 @@ void ctrl_set_mux( uint32_t mux )
 {
 
   char buf[100];
-  printf("**** set himux_sel %s (%lu)\n",  format_bits( buf, 4, mux ), mux);
+  printf("*set himux_sel %s (%lu)\n",  format_bits( buf, 4, mux ), mux);
 
   switch(mux) {
     case HIMUX_SEL_SIG_HI:
@@ -132,7 +132,7 @@ void ctrl_reset_disable(void)
 
 void run_read( Run *run )
 {
-  /* 
+  /*
   change name adc_meas_read()   or intg_meas_read()
     etc.
 
@@ -152,7 +152,7 @@ void run_read( Run *run )
   run->count_down       = spi_reg_read(SPI1, REG_COUNT_DOWN );
 
 /*
-  // something really weird - with wrong values. happens 
+  // something really weird - with wrong values. happens
   // doesn't seem to happen with nplc=10, or nplc=25, happens once nplc=40
 
   uint32_t count_up         = spi_reg_read(SPI1, REG_COUNT_UP );

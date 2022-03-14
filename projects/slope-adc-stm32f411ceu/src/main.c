@@ -102,6 +102,7 @@ void update_console_cmd(app_t *app)
 
   uint32_t u32;
   int32_t i32;
+  double d;
 
   while( ! cBufisEmpty(&app->console_in)) {
 
@@ -232,16 +233,17 @@ void update_console_cmd(app_t *app)
       // should read as a double
       // actually an aperture setting.
 
-      else if(sscanf(app->cmd_buf, "nplc %lu", &u32 ) == 1) {
+      else if(sscanf(app->cmd_buf, "nplc %lf", &d ) == 1) {
 
-        printf("setting nplc %lu\n", u32 );
+        printf("setting nplc %lf\n", d );
 
-        uint32_t aper = nplc_to_aper_n( u32 );
+        uint32_t aper = nplc_to_aper_n( d );
+/*
         printf("aper is %lu\n", aper );
 
         double c_nplc = aper_n_to_nplc( aper);
         printf("nplc (calc) is %f\n", c_nplc );
-
+*/
         ctrl_reset_enable();
         ctrl_set_aperture( aper );
         ctrl_reset_disable();
