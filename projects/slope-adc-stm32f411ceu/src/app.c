@@ -74,7 +74,11 @@ void ctrl_set_pattern( uint32_t pattern )
 
 void ctrl_set_aperture( uint32_t aperture)
 {
-  printf("*set aperture %lu, nplc %.2f, period %.2fs\n", aperture, aper_n_to_nplc( aperture),  aper_n_to_period( aperture ));
+  printf("*set aperture %lu, nplc %.2f, period %.2fs\n",
+    aperture,
+    aper_n_to_nplc( aperture),
+    aper_n_to_period( aperture )
+  );
 
   spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_HI, (aperture >> 24) & 0xff );
   spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_LO, aperture & 0xffffff  );
