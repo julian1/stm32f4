@@ -7,8 +7,8 @@
 #include "util.h"   // system_millis
 
 
-#include "stats.h"    // stddev. should probably implement with mesch version 
-                      // 
+#include "stats.h"    // stddev. should probably implement with mesch version
+                      //
 
 
 #include "regression.h"
@@ -53,8 +53,14 @@ void loop3 ( app_t *app)
 
   // read the hires mux select. to figure out what we should be sampling.
 
-  // #define REG_HIMUX_SEL           18
-  
+
+  // figure out what we should be integrating.
+  uint32_t signal = ctrl_get_mux();
+
+
+  // so should be
+  // ctrl_set_mux( signal );
+  // ctrl_set_mux( HIMUX_SEL_REF_LO );
 
 
   // TODO move to app_t structure?.
@@ -72,8 +78,27 @@ void loop3 ( app_t *app)
 
       // in priority
       Run run;
+
+      /////////////////////////////////////
+      ctrl_reset_enable();
       run_read(&run );
+
+      // should be hold everything in reset???
+      uint32_t mux = ctrl_get_mux();
+      if(mux == signal ) {
+
+        // set up for next time.
+        ctrl_set_mux( HIMUX_SEL_REF_LO );
+      }  else if (mux == HIMUX_SEL_REF_LO) {
+
+        ctrl_set_mux( signal );
+      } else assert(0);
+      /////////////////////////////////////
+      ctrl_reset_disable();
+
+      // need a better name. run_print.
       run_report(&run, 0);
+
 
       if(app ->b) {
 

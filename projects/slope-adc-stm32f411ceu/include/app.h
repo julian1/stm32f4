@@ -79,6 +79,8 @@ double aper_n_to_period( uint32_t int_n);
 void ctrl_set_aperture( uint32_t aperture);
 void ctrl_set_mux( uint32_t mux );
 
+uint32_t ctrl_get_mux( void /* uint32_t spi */);
+
 void ctrl_reset_enable( void );
 void ctrl_reset_disable(void);
 

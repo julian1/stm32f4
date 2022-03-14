@@ -80,7 +80,8 @@ void ctrl_set_aperture( uint32_t aperture)
   spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_LO, aperture & 0xffffff  );
 }
 
-
+// ctrl_get_mux
+// useful.  when pass control - between loops.
 
 void ctrl_set_mux( uint32_t mux )
 {
@@ -102,6 +103,14 @@ void ctrl_set_mux( uint32_t mux )
 }
 
 
+uint32_t ctrl_get_mux( /* uint32_t spi */)
+{
+  return  spi_reg_read(SPI1, REG_HIMUX_SEL);
+}
+
+
+
+
 void ctrl_reset_enable( void )
 {
   // TODO pass spi.
@@ -121,11 +130,14 @@ void ctrl_reset_disable(void)
 
 
 
-
-
-
 void run_read( Run *run )
 {
+  /* 
+  change name adc_meas_read()   or intg_meas_read()
+    etc.
+
+  */
+
   assert(run);
   /*
     it looks like many variables to read over spi.
