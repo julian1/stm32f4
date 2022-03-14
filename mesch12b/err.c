@@ -31,6 +31,9 @@
 static	char	rcsid[] = "$Id: err.c,v 1.6 1995/01/30 14:49:14 des Exp $";
 
 #include	<stdio.h>
+
+#include <unistd.h>    // JA isatty()
+
 #include	<setjmp.h>
 #include	<ctype.h>
 #include        "err.h"

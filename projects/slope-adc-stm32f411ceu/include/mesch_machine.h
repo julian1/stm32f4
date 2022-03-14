@@ -197,5 +197,7 @@
 #endif
 
 #ifdef ANSI_C
-extern int isatty(int);
+// JA. use #include <unistd.h> instead
+// else gives repeat declation warnings everywhere
+//extern int isatty(int);
 #endif

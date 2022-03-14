@@ -32,6 +32,9 @@
 */
 
 #include <stdio.h>
+
+ #include <unistd.h>    // JA isatty()
+
 #include  "matrix.h"
 #include  "meminfo.h"
 #ifdef COMPLEX   
