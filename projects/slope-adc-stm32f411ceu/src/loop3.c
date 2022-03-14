@@ -44,10 +44,16 @@ void loop3 ( app_t *app)
 
   /*
     - OK. rather than passing around app_t in these functions so we can poll data_ready.
-    it would be cleaner interupt locally would be easier.
+    it might be easier/cleaner to set interupt handler
+
+    - still need a few things from app. like spi, calibration. etc.
 
     - but lets try to get an auto-zero working.
       Ahhhh.
+
+    --------------
+    there's an issue - that the second obs. is quite different from the first.
+    could be DA settling.
   */
 
 
@@ -58,9 +64,6 @@ void loop3 ( app_t *app)
   uint32_t signal = ctrl_get_mux();
 
 
-  // so should be
-  // ctrl_set_mux( signal );
-  // ctrl_set_mux( HIMUX_SEL_REF_LO );
 
 
   // TODO move to app_t structure?.
