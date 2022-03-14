@@ -151,6 +151,17 @@ void run_read( Run *run )
   run->count_up         = spi_reg_read(SPI1, REG_COUNT_UP );
   run->count_down       = spi_reg_read(SPI1, REG_COUNT_DOWN );
 
+/*
+  // something really weird - with wrong values. happens 
+  // doesn't seem to happen with nplc=10, or nplc=25, happens once nplc=40
+
+  uint32_t count_up         = spi_reg_read(SPI1, REG_COUNT_UP );
+  uint32_t count_down       = spi_reg_read(SPI1, REG_COUNT_DOWN );
+
+  assert(run->count_up == count_up );
+  assert(run->count_down == count_down );
+*/
+
   // run->count_trans_up     = spi_reg_read(SPI1, REG_COUNT_TRANS_UP );
   // run->count_trans_down   = spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN );
 
@@ -165,8 +176,7 @@ void run_read( Run *run )
   // from params
   // eg. defer to fpga which is source/ and may modulate these
 
-  run->meas_count       = spi_reg_read(SPI1, REG_MEAS_COUNT );
-
+  // run->meas_count       = spi_reg_read(SPI1, REG_MEAS_COUNT );
 
   uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_LO );
   uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_HI );
@@ -176,15 +186,10 @@ void run_read( Run *run )
 
   run->clk_count_var_pos_n = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_POS_N);
 
-
-
   // do this for the moment. albeit it shouldn't be needed
   // when wrapping parameter changes with reset.
-  run->himux_sel = spi_reg_read(SPI1, REG_HIMUX_SEL );
+  // run->himux_sel = spi_reg_read(SPI1, REG_HIMUX_SEL );
 
-
-  // run->clk_count_var_neg_n   = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_NEG_N);
-  // run->use_slow_rundown  = spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN);
 
 }
 
