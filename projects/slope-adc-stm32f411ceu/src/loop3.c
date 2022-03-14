@@ -1,15 +1,14 @@
 
-DEPRECATED
-
 
 #include "assert.h"
 #include "streams.h"  // usart_printf
-#include "ice40.h"  // spi_reg_read
 #include "format.h" // format_bits
 #include "usart.h"   // usart_flus()
 #include "util.h"   // system_millis
 
 
+#include "stats.h"    // stddev. should probably implement with mesch version 
+                      // 
 
 
 #include "regression.h"
@@ -25,137 +24,106 @@ DEPRECATED
 
 
 
+// TODO change name predict. to est. or estimator .
 
 
-
-
-/*
-  - think we need an association between calibration constants.
-  and the params that were used.
-
-  
-  - so that can do a test on one - and then use the permuted ones.
-    reasonably easily.  to observe the difference
-
-*/
-
-static void perm_collect_obs(app_t *app, MAT *x, MAT *y )
+void loop3 ( app_t *app)
 {
-  /*
-    ok. permuting the integration time - has about 1 /10k affect.
-    what about permute teh fix/var frequency.
-  */
-
-  // gather obersevations
-  // app argument is needed for data ready flag.
-  // while loop has to be inner
-  // might be easier to overside. and then resize.
-
   usart_printf("=========\n");
-  usart_printf("cal loop\n");
-
-  // rows x cols
-  unsigned row = 0;
-
-  #define MAX_OBS  30
-
-  m_resize( x , MAX_OBS, X_COLS );      // constant + pos clk + neg clk.
-  m_resize( y , MAX_OBS, 1 );
-
-  Params  params;
-  params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
-
-  // permutate
-  params_set_extra( &params,  10000, 650, 5500, 5500);
-  // params_set_extra( &params,  10000, 750, 5500);
-  params_write(&params);
-
-
-
-
-  for(unsigned i = 0; /*i < 10*/; ++i )
-  {
-    double target;
-    // switch integration configuration
-    switch(i) {
-      case 0:
-        params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_LO);
-        target = 0.0;
-        params_report(&params);
-        params_write(&params);
-        break;
-
-      case 1:
-        // same except mux lo.
-        // IMPORTANT. it might make sense to record y in here...
-        params_set_main( &params,  1 * 20000000, 1, HIMUX_SEL_REF_HI);
-        target = 7.1;
-        params_report(&params);
-        params_write(& params);
-        break;
-
-      default:
-        // done
-        usart_printf("done collcting obs\n");
-        // shrink matrixes for the data
-        m_resize( x , row, X_COLS   );
-        m_resize( y , row, 1 );
-        return;
-    } // switch
-
-    for(unsigned j = 0; j < 5; ++j ) {
-      assert(row < y->m); // < or <= ????
-      m_set_val( y, row + j, 0,  target );
-    }
-
-    row = collect_obs( app, &params, row, 2 , 5 , x );
-  } // state for
-}
-
-
-
-
-
-
-void permute(app_t *app, MAT *b)
-{
-  /*
-    we want stderr of prediction.
-  */
+  usart_printf("loop3\n");
 
   assert(app);
-  assert(b);
 
-  MAT *x = m_get(1,1); // TODO change MNULL
-  MAT *y = m_get(1,1);
+  // don't need static.
+  float predict_ar[ 10 ] ;
+  size_t n = 5;   // can change this.
+  int i = 0;
 
-
-  // We have to create rather than use MNULL, else there
-  // is no way to return pointers to the resized structure from the subroutine
-  perm_collect_obs(app, x , y );
-
-  MAT *predicted = m_mlt(x, b, MNULL );
-  printf("permuted predicted \n");
-  m_foutput(stdout, predicted );
-  usart_flush();
-
-  // now calculate error of the predictors ..
-
-  // for 2 second integration.
-  // row 6:     14.2035525
-
-  // 14.2035525  / 2
-  // = 7.10177625
-  // 1mV on +-10V range. 1/10k.
-  // seems to be consistent for an integration period.
-  // what about permuting fix/var times.
+  memset( predict_ar, 0, sizeof( predict_ar));
 
 
+  /*
+    - OK. rather than passing around app_t in these functions so we can poll data_ready.
+    it would be cleaner interupt locally would be easier.
 
+    - but lets try to get an auto-zero working.
+      Ahhhh.
+  */
+
+
+  // read the hires mux select. to figure out what we should be sampling.
+
+  // #define REG_HIMUX_SEL           18
+  
+
+
+  // TODO move to app_t structure?.
+  static uint32_t soft_500ms = 0;
+
+  while(true) {
+
+
+    if(app->data_ready) {
+
+      // TODO - this to use the collect_obs() func - to get multiple observations. then average for desired period.
+      // then stddev()
+      // clear
+      app->data_ready = false;
+
+      // in priority
+      Run run;
+      run_read(&run );
+      run_report(&run, 0);
+
+      if(app ->b) {
+
+          MAT *x = run_to_matrix( /*&app->params,*/ &run, MNULL );
+          assert(x );
+
+          MAT *predict = m_mlt(x, app->b, MNULL );
+
+          // result is 1x1 matrix
+          assert(predict->m == 1 && predict->n == 1);
+          double value = m_get_val( predict, 0, 0 );
+
+          // TODO use the matrix operations. same as loop2.
+          value /=  run.clk_count_aper_n;
+
+          // TODO predict, rename. estimator?
+          char buf[100];
+          printf("predict %sV ", format_float_with_commas(buf, 100, 7, value));
+
+
+          predict_ar[ i++ % n ] = value;
+          usart_printf("stddev(%u) %.2fuV, ", n, stddev(predict_ar, n) * 1000000 );   // multiply by 10^6. for uV ?
+
+          // usart_flush();
+
+          M_FREE(x);
+          M_FREE(predict);
+      }
+
+      usart_printf("\n");
+    }
+
+
+
+    // pump the main processing stuff
+    // most of this could be surrendered.
+    // do processing.
+    update_console_cmd(app);
+
+    // 500ms soft timer. should handle wrap around
+    if( (system_millis - soft_500ms) > 500) {
+      soft_500ms += 500;
+      led_toggle();
+    }
+
+    // if there is another continuation to run, then bail
+    if(app->continuation_f) {
+      return;
+    }
+
+
+  }
 }
-
-
-
-
-
-

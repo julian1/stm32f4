@@ -28,7 +28,7 @@
 #define REG_USE_SLOW_RUNDOWN    17
 #define REG_HIMUX_SEL           18
 #define REG_PATTERN             19
-#define REG_RESET               20// hold modulation in reset.
+#define REG_RESET               20   // hold modulation in reset.
 
 
 // meas/run vars
@@ -44,10 +44,10 @@
 #define REG_MEAS_COUNT          40
 
 // these are output registers dependent upon the pattern used.
+// don't really need them .  if we write values.
+
 // #define REG_MEAS_HIMUX_SEL      41      // what was being muxed for integration. sig, azero, acal .
 // #define REG_MEAS_VAR_POS_N      42      // we don't need this...
-
-
 
 
 
@@ -58,13 +58,13 @@
 #define HIMUX_SEL_ANG         0b0111
 
 
-
-
-
+/*
 #define PATTERN_SIG_HI      0
 #define PATTERN_REF_HI      1
 #define PATTERN_REF_LO      2
 #define PATTERN_ANG         3
+
+*/
 
 // this isn't very good. because displayed nplc
 // will be constructive.
@@ -99,7 +99,7 @@ struct Run
   uint32_t clk_count_rundown;
   // rundown_dir.
 
-  // really don't have to 
+  // really don't have to
   uint32_t meas_count;
 
   // the pattern controller may change on its own - so should read for *each* run.
@@ -166,7 +166,7 @@ typedef struct app_t
 } app_t;
 
 
-unsigned collect_obs( app_t *app, /*Params *params,*/ unsigned row, unsigned discard, unsigned gather, MAT *x);
+// unsigned collect_obs( app_t *app, /*Params *params,*/ unsigned row, unsigned discard, unsigned gather, MAT *x);
 void update_console_cmd(app_t *app);
 
 
@@ -176,10 +176,8 @@ void update_console_cmd(app_t *app);
 // loop1
 void loop1(app_t *app );
 void loop2(app_t *app );
+void loop3(app_t *app );
 
-// loop2
-// void cal_collect_obs(app_t *app, MAT *x, MAT *y );
-// MAT * calibrate( app_t *app);
 
 // loop3
 void permute(app_t *app, MAT *b);

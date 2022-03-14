@@ -5,6 +5,7 @@
 #include "streams.h"  // usart_printf
 #include "format.h" // format_bits
 #include "usart.h"   // usart_flus()
+#include "util.h"   // led/system_millis
 
 
 
@@ -19,6 +20,95 @@
 #include <libopencm3/stm32/spi.h>   // SPI1 .. TODO remove. pass spi by argument
 
 #include "app.h"
+
+
+
+
+
+
+
+/*
+  May only be used in calibration - in which case can move.
+
+  This is only used in calibration.
+*/
+
+static unsigned collect_obs( app_t *app /*, Params *params*/, unsigned row, unsigned discard, unsigned gather, MAT *x)
+{
+
+  /*
+      this is taking too many arguments...
+  */
+
+  // change name, get obs?
+    /*
+
+      loop is the same for cal and main loop.
+      so should pass control.
+      get_readings ( n,   start_row, MAT  ) ,
+
+    */
+
+    // obs per current configuration
+    unsigned obs = 0;
+
+    while(obs < discard + gather) {
+
+      // if we got data handle it.
+      if(app->data_ready) {
+        // in priority
+        app->data_ready = false;
+
+        // get run details
+        Run run;
+        run_read(&run );
+        run_report(&run, 0);
+
+
+        // ignore first obs
+        if(obs >= discard ) {
+
+          MAT *whoot = run_to_matrix( /*params,*/ &run, MNULL );
+          assert(whoot);
+          // m_foutput(stdout, whoot );
+          m_row_set( x, row, whoot );
+          M_FREE(whoot);
+
+          /*
+          // cannot do y here.
+          // do y
+          assert(row < y->m); // < or <= ????
+          m_set_val( y, row, 0,  target );
+          */
+
+          ++row;
+        } else {
+          usart_printf("discard");
+
+        }
+
+        usart_printf("\n");
+        ++obs;
+      } // app->data_ready
+
+      // update_console_cmd(app);
+      // usart_output_update(); // shouldn't be necessary, now pumped by interupts.
+
+
+      // 250ms
+      static uint32_t soft_250ms = 0;
+      if( (system_millis - soft_250ms) > 250) {
+        soft_250ms += 250;
+        led_toggle();
+      }
+
+
+    } // while
+
+  return row;
+}
+
+
 
 
 
