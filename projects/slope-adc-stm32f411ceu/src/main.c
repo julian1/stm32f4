@@ -62,11 +62,27 @@
 
 
 /*
+  sector 2.
+  needs linker script re-organization.
+
+
 // globals / or use a structure?
 #define FLASH_SECT_ADDR   0x08008000
 #define FLASH_SECT_NUM    2
 */
 
+
+/*
+  stm32f411ceu7.
+  C = 256 Kbytes of Flash memory
+  E = 512 Kbytes of Flash memory <- us.
+
+  use flash probe under openocd/st-link to query
+  flash probe 0
+
+  last sector for 512k. is sector 7. i think. start 0806.
+  https://electronics.stackexchange.com/questions/138400/flash-memory-range-on-stm32f429ii
+*/
 // last 128 . on 512k.
 #define FLASH_SECT_ADDR   0x08060000
 #define FLASH_SECT_NUM    7
@@ -85,15 +101,6 @@ static void flash_write(void)
     [in]  sector  (0 - 11 for some parts, 0-23 on others)
     program_size  0 (8-bit), 1 (16-bit), 2 (32-bit), 3 (64-bit)
 
-    stm32f411ceu7.
-    C = 256 Kbytes of Flash memory
-    E = 512 Kbytes of Flash memory <- us.
-
-    use flash probe under openocd/st-link to query
-    flash probe 0
-
-    last sector for 512k. is sector 7. i think. start 0806.
-    https://electronics.stackexchange.com/questions/138400/flash-memory-range-on-stm32f429ii
   */
 
   /*
