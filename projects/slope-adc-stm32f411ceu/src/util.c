@@ -244,7 +244,7 @@ void assert_simple(const char *file, int line, const char *func, const char *exp
 
   // legacy version
   usart_printf("\nassert simple failed %s: %d: %s: '%s'\n", file, line, func, expr);
-
+  usart_flush();
   critical_error_blink();
 }
 

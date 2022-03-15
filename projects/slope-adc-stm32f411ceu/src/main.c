@@ -72,43 +72,50 @@
 
 static void loop_dispatcher(app_t *app);
 
-/*
-  we want the parameters for
-    ordinary running . to be same  as cal.
-    but also to be able to vary.
-    -------
 
-  point is that params for calibration and for running want to be the same.
-  OR. we want to run with permutations. but the same counts should work.
 
-  so we just need an extra set of parameters.
 
-  YAGNI.
+static void reg_read_write_test(void)
+{
+  // test ice40 register read/write
+  // ok. seems to work.
+  uint32_t ret;
 
-    - just try use app_t data structure instead of something separate.
-    - that means putting b. in app.
 
-  permutate.
+  /*
+  OK. i think these spi calls may fail when speed of design falls below 32MHz.
+  because
 
-  mux hi
-  mux lo/com
-  mux sig
+  IMPORTANT.
+  - Also. removing reg_led from the verilog initial block.
+  indicating timing conflict.
+  and values are correct.
+  - but this could have just been due to timing.
+  - but no longer seems to have affect. now that speed is better.
+  */
+  ret = spi_reg_read(SPI1, REG_LED);
+  usart_printf("ret is %x\n", ret); // value is completely wrong.
 
-  cal       - using current values
-  reset cal  - cal using default etc.
-  set fix
-  set var.    etc.
+  spi_reg_write(SPI1, REG_LED , 0xff00ff);
+  msleep(1);
+  ret = spi_reg_read(SPI1, REG_LED);
+  usart_printf("ret is %x\n", ret); // value is completely wrong.
+  // ret value is completely wrong....
+  assert(ret == 0xff00ff);
 
-  reset default.   eg. same as programmed.
+  // this works... eg. allowing high bit to be off.
+  spi_reg_write(SPI1, REG_LED, 0x7f00ff);
+  ret = spi_reg_read(SPI1, REG_LED);
+  assert(ret == 0x7f00ff);
 
-  its all
+  for(uint32_t i = 0; i < 32; ++i) {
+    spi_reg_write(SPI1, REG_LED , i );
+    ret = spi_reg_read(SPI1, REG_LED);
+    assert(ret == i );
+  }
 
-*/
+}
 
-/*
-  so the main need - is to be able to switch programs/tests from commands.
-  then can prototype more easily.
-*/
 
 
 void update_console_cmd(app_t *app)
@@ -124,8 +131,6 @@ void update_console_cmd(app_t *app)
     int32_t ch = cBufPop(&app->console_in);
     assert(ch >= 0);
 
-    // if(ch != ';' && ch != '\r' /*&& app->cmd_buf_i < CMD_BUF_SZ - 1 */) {
-
     if(! ( ch == ';' || ch == '\r')) {
       // character other than newline
       // push onto a vector? or array?
@@ -137,91 +142,98 @@ void update_console_cmd(app_t *app)
       putchar( ch);
 
     }  else {
-      // we got a command
 
+      // code should be CString. but this kind of works well enough...
+      // we got a command
       app->cmd_buf[ app->cmd_buf_i ]  = 0;
 
       putchar('\n');
       // usart_printf("got command '%s'\n", app->cmd_buf );
 
+
+      if(strcmp(app->cmd_buf , "test") == 0) {
+
+        /* not haulting mcu, if fpga is not powered up, runnng is useful to test mcu code
+          test device read/write
+        */
+        reg_read_write_test();
+      }
+
       // flash write
       if(strcmp(app->cmd_buf , "flash write") == 0) {
 
+        if(false && !app->b) {
 
-        // put in a command
-        usart_printf("flash unlock\n");
-        flash_unlock();
+          printf("no cal to save\n");
+        } else {
 
-        usart_printf("flash erasing sector\n");
-        usart_flush();
+          // put in a command
+          usart_printf("flash unlock\n");
+          flash_unlock();
 
-        flash_erase_sector1();
+          usart_printf("flash erasing sector\n");
+          usart_flush();
 
-        usart_printf("writing\n");
-        usart_flush();
+          flash_erase_sector1();
 
+          usart_printf("writing\n");
+          usart_flush();
 
-        MAT *m = m_get(10, 2);
+          MAT *m = m_get(10, 2);
 
-        // m_write_flash ( app->b );
-        m_write_flash ( m );
+          // m_write_flash ( app->b );
 
-        // flash_program(FLASH_SECT_ADDR, buf, sizeof(buf) );
+          FILE *f = open_flash_file();
+          m_write_flash ( m, f );
+          fclose(f);
 
-        usart_printf("flash lock\n");
-        flash_lock();
-        usart_printf("done\n");
+          // flash_program(FLASH_SECT_ADDR, buf, sizeof(buf) );
 
-
-
-
-        // flash_read();
-        // flash_write();
+          usart_printf("flash lock\n");
+          flash_lock();
+          usart_printf("done\n");
+        }
       }
+
+
       // flash read
       else if(strcmp(app->cmd_buf , "flash read") == 0) {
 
 
         usart_printf("flash reading \n");
-        MAT *u  = m_read_flash( MNULL );
 
-        printf("****here is the binary deserialized matrix\n" );
+        FILE *f = open_flash_file();
+
+
+
+        MAT *u  = m_read_flash( MNULL, f );
         m_foutput( stdout, u );
+        usart_flush();
+
+        /* OK. ftell after a read is not correct because of buffering
+          but it is correct after a fseek() and should be correct after a write operation fwrite, fput etc. 
+        */
+
+        printf("****seek beginning \n" );
+        fseek( f, 99 , SEEK_CUR ) ;  
+
+
+        printf("ftell %ld\n", ftell2( f)  );
+
+        fclose(f);
+
+
+    /*
+        // read it again
+        MAT *u2  = m_read_flash( MNULL, f );
+        m_foutput( stdout, u2 );
+        usart_flush();
+*/
+
 
 
         // flash_read();
       }
-
-      /*
-        - OK. it is extremely confusing that we have to call write after doing this.
-        spent 20 mins trying to figure it out.
-
-      */
-      /*
-        We need to add azero. to get a proper sense .
-          - subtract the azero term. or subtract a moving average.
-          --------------
-
-          all this dispatch stuff would be nicer.
-
-      */
-
-      /***************
-      // TODO should be using CString for cmd_buf ? see voltage-source-2 code for this.
-      // ALL this code relying on strcmp is dangerous. because it's not relying on null termination.
-      // alternatively should bzero(), memcpy( 0 ) nulls.
-      */
-      // we may want to be able to read/store multiple calibrations. eg. array.
-      // but this is sufficient for the moment.
-
-      /*
-        - calibration b -  is mostly going to be invariant.
-        - basic steps.
-            - on bootup. - read the device characteristics.   or load from flash.
-            - can then run.  or calibrate.
-
-      */
-
 
 
 
@@ -291,18 +303,10 @@ void update_console_cmd(app_t *app)
         printf("setting nplc %lf\n", d );
 
         uint32_t aper = nplc_to_aper_n( d );
-/*
-        printf("aper is %lu\n", aper );
 
-        double c_nplc = aper_n_to_nplc( aper);
-        printf("nplc (calc) is %f\n", c_nplc );
-*/
         ctrl_reset_enable();
         ctrl_set_aperture( aper );
         ctrl_reset_disable();
-
-        // app->params.clk_count_aper_n = int_n;
-        // app->params.nplc = value ;
       }
 
 #if 0
@@ -310,37 +314,9 @@ void update_console_cmd(app_t *app)
       else if(sscanf(app->cmd_buf, "clk_count_var_pos_n %lu", &u32 ) == 1) {
 
           printf("setting clk_count_var_pos_n %lu\n", u32);
-          printf("make sure to write value!\n");
 
-          app->params.clk_count_var_pos_n = u32;
       }
 #endif
-
-        // Gahhh...  ok. we want to be able to change the var pos and neg clks.  individually..
-
-
-      /*else if(strcmp(app->cmd_buf , "show") == 0) {
-        // report params.
-        params_report( &app->params);
-      }
-      */
-
-      // think we need to rename thesei. distinct from the flash operations.
-#if 0
-      else if(strcmp(app->cmd_buf , "read") == 0) {
-        // read params from the device. actually a reset to default.
-        params_read( &app->params );
-      }
-      else if(strcmp(app->cmd_buf , "write") == 0) {
-        /*
-          ambiguous. write device or write flash.
-        */
-        // write params to device
-        // should we do this on every value change?
-        params_write( &app->params );
-      }
-#endif
-
 
       else if(strcmp(app->cmd_buf , "h") == 0 || strcmp(app->cmd_buf , "halt") == 0) {
         // exit the current loop program
@@ -493,46 +469,6 @@ static app_t app;
 
 
 
-static void reg_read_write_test(void)
-{
-  // test ice40 register read/write
-  // ok. seems to work.
-  uint32_t ret;
-
-
-  /*
-  OK. i think these spi calls may fail when speed of design falls below 32MHz.
-  because
-
-  IMPORTANT.
-  - Also. removing reg_led from the verilog initial block.
-  indicating timing conflict.
-  and values are correct.
-  - but this could have just been due to timing.
-  - but no longer seems to have affect. now that speed is better.
-  */
-  ret = spi_reg_read(SPI1, REG_LED);
-  usart_printf("ret is %x\n", ret); // value is completely wrong.
-
-  spi_reg_write(SPI1, REG_LED , 0xff00ff);
-  msleep(1);
-  ret = spi_reg_read(SPI1, REG_LED);
-  usart_printf("ret is %x\n", ret); // value is completely wrong.
-  // ret value is completely wrong....
-  assert(ret == 0xff00ff);
-
-  // this works... eg. allowing high bit to be off.
-  spi_reg_write(SPI1, REG_LED, 0x7f00ff);
-  ret = spi_reg_read(SPI1, REG_LED);
-  assert(ret == 0x7f00ff);
-
-  for(uint32_t i = 0; i < 32; ++i) {
-    spi_reg_write(SPI1, REG_LED , i );
-    ret = spi_reg_read(SPI1, REG_LED);
-    assert(ret == i );
-  }
-
-}
 
 
 int main(void)
@@ -569,6 +505,7 @@ int main(void)
   led_setup();
 
 
+  //
   memset(&app, 0, sizeof(app_t));
 
   ///////
@@ -625,25 +562,11 @@ int main(void)
 
   usart_flush();
 
-/*
-  // test device read/write
-  reg_read_write_test();
-
-*/
   // read main params from device - as starting point. should perhaps be flash
   // params_read( &app.params );
 
   printf("==========\n");
 
-
-
-#if 0
-  ////////////////////////////////////
-  MAT *b = calibrate( &app );
-  permute(&app, b);
-#endif
-
-  // loop1(&app, b );
 
   loop_dispatcher( &app);
 
@@ -651,6 +574,36 @@ int main(void)
 
 
 
+
+/*
+  - OK. it is extremely confusing that we have to call write after doing this.
+  spent 20 mins trying to figure it out.
+
+*/
+/*
+  We need to add azero. to get a proper sense .
+    - subtract the azero term. or subtract a moving average.
+    --------------
+
+    all this dispatch stuff would be nicer.
+
+*/
+
+/***************
+// TODO should be using CString for cmd_buf ? see voltage-source-2 code for this.
+// ALL this code relying on strcmp is dangerous. because it's not relying on null termination.
+// alternatively should bzero(), memcpy( 0 ) nulls.
+*/
+// we may want to be able to read/store multiple calibrations. eg. array.
+// but this is sufficient for the moment.
+
+/*
+  - calibration b -  is mostly going to be invariant.
+  - basic steps.
+      - on bootup. - read the device characteristics.   or load from flash.
+      - can then run.  or calibrate.
+
+*/
 
 
 
@@ -717,5 +670,43 @@ void update_console_cmd(app_t *app)
 
 
 
+
+/*
+  we want the parameters for
+    ordinary running . to be same  as cal.
+    but also to be able to vary.
+    -------
+
+  point is that params for calibration and for running want to be the same.
+  OR. we want to run with permutations. but the same counts should work.
+
+  so we just need an extra set of parameters.
+
+  YAGNI.
+
+    - just try use app_t data structure instead of something separate.
+    - that means putting b. in app.
+
+  permutate.
+
+  mux hi
+  mux lo/com
+  mux sig
+
+  cal       - using current values
+  reset cal  - cal using default etc.
+  set fix
+  set var.    etc.
+
+  reset default.   eg. same as programmed.
+
+  its all
+
+*/
+
+/*
+  so the main need - is to be able to switch programs/tests from commands.
+  then can prototype more easily.
+*/
 
 
