@@ -243,16 +243,16 @@ static int myseek(A *a, _off64_t *offset_, int whence)
       SEEK_SET, SEEK_CUR, or SEEK_END, the offset is relative to the start of the
       file, the current position indicator, or end-of-file, respectively
 
-      https://stackoverflow.com/questions/56433377/why-is-the-beginning-of-a-c-file-stream-called-seek-set 
+      https://stackoverflow.com/questions/56433377/why-is-the-beginning-of-a-c-file-stream-called-seek-set
 
+      from man fopencookie
       Before returning, the seek function should update *offset to indicate the new stream offset.
       we need to write the offset value. that's why it's passed as a pointer.
 
-      Eg. we are being calling seek_cur with 0. in order to determine where the offset is.
+      Eg. the glibc library - makes calls to seek using whence = seek_cur and offset = 0. to discover the underlying file offset.
+      eg. why see it being called twice in a row.
 
-      EXTR.
-        ftell(); might also work.
-      
+      and doing this, gets ftell() to work.
     */
     case SEEK_SET:
       printf(" seek_set, ");
@@ -266,9 +266,7 @@ static int myseek(A *a, _off64_t *offset_, int whence)
       break;
     case SEEK_END:
       printf(" seek_end, ");
-      // assert(0);
-      // a->pos = a->n - offset; // negative ???
-      a->pos = a->n + offset; // or positive?. eg. arg will be negative?
+      a->pos = a->n + offset;
       *offset_ = a->pos;
       break;
 
@@ -403,13 +401,13 @@ void m_write_flash ( MAT *m , FILE *f)
   // fseek( f, 0 , SEEK_CUR ) ;
   long len = ftell( f) - start;
   usart_flush();
-  
+
   // fflush(f);
 
   printf("here0 \n" );
   printf("len %ld\n", len );
   // seeks bacikkk
-  fseek( f, -len - 8, SEEK_CUR ) ;    // THIS IS generating a sseek_set from the start ??? 
+  fseek( f, -len - 8, SEEK_CUR ) ;    // THIS IS generating a sseek_set from the start ???
                                   // or the meaning is different???
 
   // write the packet length, as prefix
