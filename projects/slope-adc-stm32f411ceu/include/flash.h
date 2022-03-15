@@ -21,5 +21,5 @@ MAT * m_read_flash( MAT *out, FILE *f);
 
 
 FILE * open_flash_file(void);
-long ftell2( FILE *f);
+// long ftell2( FILE *f);
 

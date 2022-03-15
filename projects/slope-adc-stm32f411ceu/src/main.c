@@ -214,7 +214,6 @@ void update_console_cmd(app_t *app)
           but it should be correct after a fseek() and should be correct after a write operation fwrite, fput etc. 
         */
 
-        printf("ftell2 %ld\n", ftell2( f)  );
         printf("ftell  %ld\n", ftell( f)  );
 
 

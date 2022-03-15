@@ -174,7 +174,7 @@ static ssize_t mywrite( A *a, const unsigned char *buf, size_t sz)
   // alternatively might be able to return truncated sz...
   assert( a->pos + sz < a->n);
 
-  flash_program(   a->p + a->pos , buf, sz  );
+  flash_program( (uint32_t)  a->p + a->pos , buf, sz  );
 
   a->pos += sz;
 
@@ -300,7 +300,7 @@ FILE * open_flash_file(void )
   // WARNING A is static.
   static A a;
   memset(&a, 0, sizeof(a));
-  a.p =  FLASH_SECT_ADDR;
+  a.p = (void *)  FLASH_SECT_ADDR;
   a.pos = 0;
   // a.n = INT_MAX;     // 128 ...
   a.n = 128 * 1024 ;     // 128 ...
@@ -314,25 +314,6 @@ FILE * open_flash_file(void )
 
 
   return f;
-}
-
-
-long ftell2( FILE *f)
-{
-  assert(f);
-
-  // actually a handler
-  void *cookie_ptr= f->_cookie;
-  // printf("cookie_ptr %p\n", cookie_ptr);
-
-   // follow it
-   void *cookie = * (void **) cookie_ptr ;
-   // printf ("cookie %p\n",  cookie );
-   A *a = cookie;
-  assert(a);
-
-  return a->pos;
-
 }
 
 
@@ -443,6 +424,33 @@ void m_write_flash ( MAT *m , FILE *f)
 
 
 
+
+#if 0
+
+/*
+this doesn't work because of buffering.
+but ftell() does work. when the seek cookie function
+works two ways
+*/
+long ftell2( FILE *f)
+{
+  assert(f);
+
+  // actually a handler
+  void *cookie_ptr= f->_cookie;
+  // printf("cookie_ptr %p\n", cookie_ptr);
+
+   // follow it
+   void *cookie = * (void **) cookie_ptr ;
+   // printf ("cookie %p\n",  cookie );
+   A *a = cookie;
+  assert(a);
+
+  return a->pos;
+
+}
+
+#endif
 
 
 
