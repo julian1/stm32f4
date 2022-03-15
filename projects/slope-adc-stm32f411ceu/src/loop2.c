@@ -29,15 +29,16 @@
 
 /*
   May only be used in calibration - in which case can move.
-
   This is only used in calibration.
+  ---------
+
+  
 */
 
-static unsigned collect_obs( app_t *app /*, Params *params*/, unsigned row, unsigned discard, unsigned gather, MAT *x)
+static unsigned collect_obs( app_t *app, unsigned row, unsigned discard, unsigned gather, MAT *x)
 {
-
   /*
-      this is taking too many arguments...
+      I think life would be simpler. if we transfred control on the interupt.
   */
 
   // change name, get obs?
@@ -52,7 +53,10 @@ static unsigned collect_obs( app_t *app /*, Params *params*/, unsigned row, unsi
     // obs per current configuration
     unsigned obs = 0;
 
+    // this condition should be inse
     while(obs < discard + gather) {
+
+
 
       // if we got data handle it.
       if(app->data_ready) {
@@ -65,7 +69,7 @@ static unsigned collect_obs( app_t *app /*, Params *params*/, unsigned row, unsi
         run_report(&run, 0);
 
 
-        // ignore first obs
+        // only if greater than
         if(obs >= discard ) {
 
           MAT *whoot = run_to_matrix( /*params,*/ &run, MNULL );
@@ -110,7 +114,10 @@ static unsigned collect_obs( app_t *app /*, Params *params*/, unsigned row, unsi
 
 
 
+/* 
+  life would be easier 
 
+*/
 
 
 

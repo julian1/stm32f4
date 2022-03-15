@@ -152,26 +152,28 @@ void flash_read(void)
 #include "regression.h"
 
 
+
 struct A
 {
   unsigned char *p;
   unsigned      pos;
   unsigned      n;    // limit
-  bool          really_write;   // pre
+  // bool          really_write;   // pre
 };
 
 typedef struct A A;
 
+
+
+
 static ssize_t mywrite( A *a, const unsigned char *buf, size_t sz)
 {
-  printf("mywrite %u\n", sz);
+  printf("** mywrite %u\n", sz);
   // alternatively might be able to return truncated sz...
   assert( a->pos + sz < a->n);
 
-  if(a->really_write) {
-    flash_program(  a->p + a->pos , buf, sz  );
-    // memcpy(a->p + a->pos, buf, sz);
-  }
+  flash_program(   a->p + a->pos , buf, sz  );
+
   a->pos += sz;
   return sz;
 }
@@ -180,7 +182,18 @@ static ssize_t mywrite( A *a, const unsigned char *buf, size_t sz)
 static ssize_t myread(A *a, char *buf, size_t sz)
 {
   // sz is just the advertized buffer space.
+
+  /*
+    on linux. requests 8192 bytes.
+    on stm32 its 1024 bytes.
+    this is a buffering action. it is ok to read past the local datastructure.
+  */
+
+  printf("**********\n" );
   printf("myread %u\n", sz);
+  printf("a %p\n", a );
+  printf("a->pos %d\n", a->pos ); // value
+
   usart_flush();
 
   int remain = a->n - a->pos;           // signed. but it's not quite correct
@@ -188,7 +201,7 @@ static ssize_t myread(A *a, char *buf, size_t sz)
   // printf("remaining %u\n", remain );
   // usart_flush();
 
-  if(remain < sz)
+  if(remain < (int)sz)
     sz = remain;
 
   assert(remain >= 0);
@@ -202,15 +215,216 @@ static ssize_t myread(A *a, char *buf, size_t sz)
   return sz;
 }
 
+/*
+  glibc source
+    https://elixir.bootlin.com/glibc/glibc-2.27/source/libio/iofopncook.c
+*/
+
+static int myseek(A *a, _off64_t *offset1, int whence)
+{
+  //  int seek(void *cookie, off64_t *offset, int whence);
+
+  // only lower 4 bytes on stm32.
+  int offset = (int) *offset1;
 
 
+  printf("**********\n" );
+  printf("seek value %d", offset ); // value
+  printf(" a %p", a );
+  printf(" a->pos %d\n", a->pos ); // value
+
+
+
+  switch(whence) {
+    /* 
+      SEEK_SET, SEEK_CUR, or SEEK_END, the offset is relative to the start of the
+      file, the current position indicator, or end-of-file, respectively
+    */
+    case SEEK_SET: 
+      // printf("whence set\n");
+      a->pos = 0 + offset;
+      break;
+    case SEEK_CUR: 
+      // printf("whence cur\n");
+      a->pos += offset;
+      break;
+    case SEEK_END: 
+      // printf("whence end\n");
+      // assert(0);
+      // a->pos = a->n - offset; // negative ???
+      a->pos = a->n + offset; // or positive?. eg. arg will be negative?
+      break;
+  
+    default:
+      printf("whence unknown\n");
+      assert(0);
+  }
+
+  // should return 0 on success
+  return 0;
+}
+
+/* 
+  - seek is being called with the wrong address for A. 
+  - ughhhh.
+
+*/
+
+
+FILE * open_flash_file(void )
+{
+  // think fopencookie will copies 
+  static cookie_io_functions_t  memfile_func = {
+    .read  = (cookie_read_function_t *) myread,
+    .write = (cookie_write_function_t *) mywrite,
+    .seek  = (cookie_seek_function_t *) myseek,
+    .close = NULL
+  };
+
+  // WARNING A is static.
+  static A a;
+  memset(&a, 0, sizeof(a));
+  a.p =  FLASH_SECT_ADDR;
+  a.pos = 0;
+  // a.n = INT_MAX;     // 128 ...
+  a.n = 128 * 1024 ;     // 128 ...
+
+  FILE *f = fopencookie(&a, "r+", memfile_func); // read and write RW !!jjj
+  assert(f);
+
+
+  printf("f is %p\n", f );    
+  printf("_cookie %p\n", &a );    
+
+
+  return f;
+}
+
+
+long ftell2( FILE *f)
+{
+  assert(f);
+
+  // actually a handler
+  void *cookie_ptr= f->_cookie; 
+  // printf("cookie_ptr %p\n", cookie_ptr);    
+
+   // follow it
+   void *cookie = * (void **) cookie_ptr ;
+   // printf ("cookie %p\n",  cookie );
+   A *a = cookie; 
+  assert(a);
+
+  return a->pos;
+
+}
+
+
+
+
+//////////////////////////////////////
+
+
+// TO write  get the size of this we are going to have 
+
+/*
+  simpler approach.
+  skip forward 8 bytes.
+  tag position
+  write structure.
+  then skip back 
+*/
+
+
+/*
+210         printf("fp %p\n", f );
+211 
+212         for(unsigned i = 0; i < 10 ; ++i ) {
+213           printf("%u  %p\n", i, ((void **)f) [ i]  );
+214         }
+215 
+216           printf("========= 0x200017a8 \n"  );
+217         for(unsigned i = 0; i < 5; ++i ) {
+218           printf("%u  %p\n", i, ((void **)    0x200017a8 ) [ i]  );
+219         }
+220 
+221           // 7th field element
+222           void *cookie_ptr= ((void **)f)[ 7 ];  
+223           printf("cookie_ptr %p\n", cookie_ptr);
+224 
+225          // follow it
+226          void *cookie = * (void **) cookie_ptr ;
+227          printf ("cookie %p\n",  cookie );
+228 
+*/
+
+
+
+
+
+void m_write_flash ( MAT *m , FILE *f)
+{
+  assert(f );
+  assert(m );
+  printf( "m_write_flash f is %p\n", f);
+  usart_flush(); 
+
+
+  // write the packet length, as prefix
+  unsigned magic = 0xff00ff00;
+  fwrite( &magic, sizeof(magic), 1, f);
+  unsigned len = 168;
+  fwrite( &len, sizeof(len), 1, f);
+
+
+  // write the file
+  m_foutput_binary( f, m);
+
+}
+
+
+#if 0
+void m_write_flash ( MAT *m , FILE *f)
+{
+  assert(f );
+  assert(m );
+
+  printf( "m_write_flash f is %p\n", f);
+  usart_flush(); 
+
+  // advance 8 bytes, from current position.
+  fseek( f, 8 , SEEK_CUR ) ;  
+  long start = ftell( f);   // record postion from start.
+
+  // write the file
+  m_foutput_binary( f, m);
+
+  fseek( f, 0 , SEEK_CUR ) ;  
+  long len = ftell( f) - start;
+
+  printf("len %ld\n", len );
+
+  // seeks bacikkk
+  fseek( f, - len - 8 , SEEK_CUR ) ;  
+  // write the packet length, as prefix
+  unsigned magic = 0xff00ff00;
+  fwrite( &magic, sizeof(magic), 1, f);
+  fwrite( &len, sizeof(len), 1, f);
+
+
+  fseek( f, len  , SEEK_CUR ) ;  
+}
+#endif
+
+
+#if 0
 void m_write_flash ( MAT *m )
 {
 
   cookie_io_functions_t  memfile_func = {
-    .read  = (cookie_read_function_t *) myread, // read
-    .write = (cookie_write_function_t *) mywrite,
-    .seek  = NULL,
+    .read  = (cookie_read_function_t *)   myread, // read
+    .write = (cookie_write_function_t *)  mywrite,
+    .seek  = (cookie_seek_function_t *) myseek,
     .close = NULL
   };
 
@@ -218,7 +432,7 @@ void m_write_flash ( MAT *m )
   // memset(buf, 0, sizeof(buf));
   A a;
   memset(&a, 0, sizeof(a));
-  a.p = FLASH_SECT_ADDR;
+  a.p = (unsigned char *)FLASH_SECT_ADDR;
   a.n = INT_MAX ;       // signed. 128k.   // unlimimited, when writing
 
   // write matrix, without output, to determine size
@@ -243,17 +457,26 @@ void m_write_flash ( MAT *m )
   // write the packet length, as prefix
   fwrite( &magic, sizeof(magic), 1, f);
   fwrite( &len, sizeof(len), 1, f);
-  // write for real
+
+  // now write matrix
   m_foutput_binary( f, m);
   fclose(f);
-
 }
+#endif
 
 
-MAT * m_read_flash( MAT *out)
+
+
+
+
+MAT * m_read_flash( MAT *out, FILE *f)
 {
+/*
   printf("here0 \n" );
   usart_flush();
+
+  // we should be setting up the structure once.
+  // not doing it past the
 
   cookie_io_functions_t  memfile_func = {
     .read  = (cookie_read_function_t *) myread, // read
@@ -266,14 +489,21 @@ MAT * m_read_flash( MAT *out)
   A a;
   memset(&a, 0, sizeof(a));
   a.p = a.p = FLASH_SECT_ADDR;
-  // a.n = 0xffffffff; // just to read the magic number and length
-  a.n = 8;  // asuume just enough to read the magic number and length
+  a.pos = 0;
+  a.n = INT_MAX;     // 128 ...
+
+
+  // this is all wrong. we should not be setting len.
+  // when we have the length... we should
+  // it grabs 10k.
+  // that is not really a problem
+
 
   // open
   FILE *f = fopencookie(&a, "r", memfile_func);
   assert(f);
   // a.n = 1000;
-  a.pos = 0;
+*/
 
   unsigned len = 0;
   unsigned magic = 0;
@@ -284,22 +514,39 @@ MAT * m_read_flash( MAT *out)
   usart_flush();
   assert(items == 1);
 
-
   assert(magic == 0xff00ff00);
   items = fread( &len, sizeof(len), 1, f);
   printf("len is %u\n", len );
   usart_flush();
   assert(items == 1);
 
-  // set to the written buffer size
-  a.n = len + 8;
 
   MAT *ret = m_finput_binary(f, out );
-  fclose(f);
+
+  // DO NOT CLOSE fp.
 
   return ret ;
 
 }
+
+
+
+
+// how hard to skip... through.
+// have to do reads
+
+// We actually kind of buffer
+
+/*
+  we kind of want the ability to seek around.
+  - which means persisting the A structure.
+  could be a cookie.
+  - and i think using a different structure to fake to size calculation.
+  - fseeking over the structure would make everything a lot simpler.
+  - open it once.
+*/
+
+
 
 
 
