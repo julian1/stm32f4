@@ -56,6 +56,7 @@
 #define _GNU_SOURCE     // must be first. required for cookie_io_functions_t
 #include <stdio.h>
 
+#include <limits.h>   // INT_MAX
 
 
 
@@ -180,16 +181,23 @@ static ssize_t myread(A *a, char *buf, size_t sz)
 {
   // sz is just the advertized buffer space.
   printf("myread %u\n", sz);
-
-
   usart_flush(); 
 
-  unsigned remain = a->n - a->pos;
+  int remain = a->n - a->pos;           // signed. but it's not quite correct
+
   printf("remaining %u\n", remain );
+  usart_flush(); 
+
   if(remain < sz)
     sz = remain;
+
+
+  printf("sz now %u\n", sz );
+  usart_flush(); 
+
   memcpy(buf, a->p + a->pos, sz);
   a->pos += sz;
+
   return sz;
 }
 
@@ -290,6 +298,7 @@ MAT * m_read_flash( MAT *out)
   a.p = a.p = FLASH_SECT_ADDR;
   a.n = 0xffffffff; // just to read the magic number and length
   // a.n = 8;  // asuume just enough to read the magic number and length
+                  // fails...
 
   // read
   FILE *f = fopencookie(&a, "r", memfile_func);
@@ -302,11 +311,16 @@ MAT * m_read_flash( MAT *out)
   unsigned items;
 
   items = fread( &magic, sizeof(magic), 1, f);
+  printf("magic is %u\n", magic );
+  usart_flush();
   assert(items == 1);
+
+
   assert(magic == 0xff00ff00);
   items = fread( &len, sizeof(len), 1, f);
+  printf("len is %u\n", len );
+  usart_flush();
   assert(items == 1);
-  printf("read len is %u\n", len );
 
   // set to the written buffer size
   a.n = len;
