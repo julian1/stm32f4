@@ -86,17 +86,14 @@
 
 /*
   If we passed these by argument instead.  at fopen()
-  then this code could be moved to library code lib2. 
+  then this code could be moved to library code lib2.
 */
 // last 128 . on 512k.
 #define FLASH_SECT_ADDR   0x08060000
 #define FLASH_SECT_NUM    7
 
 
-void flash_erase_sector1(void)
-{
-  flash_erase_sector(FLASH_SECT_NUM, 0 );
-}
+#if 0
 
 
 void flash_write(void)
@@ -145,6 +142,39 @@ void flash_read(void)
 
 }
 
+#endif
+
+
+/*
+  - could pass a FILE ptr.
+    and then extract the sector info from the cookie where it's saved.
+
+  - fp_to_cookie() ;
+*/
+
+void flash_erase_sector1(void)
+{
+  flash_erase_sector(FLASH_SECT_NUM, 0 );
+}
+
+
+
+static void * file_to_cookie( FILE *f )
+{
+  // should not be exposed.
+  // but potentially useful for adding other operations on file structures
+
+  // actually a handler
+  void *cookie_ptr= f->_cookie;
+  printf("cookie_ptr %p\n", cookie_ptr);
+
+ // follow it
+ void *cookie = * (void **) cookie_ptr ;
+ printf ("cookie %p\n",  cookie );
+
+  return cookie;
+}
+
 
 
 ////////////////////////
@@ -158,7 +188,13 @@ struct A
   unsigned char *p;
   unsigned      pos;
   unsigned      n;    // limit
-  // bool          really_write;   // pre
+
+
+/*
+  unsigned      flash_sect_address;
+  unsigned      flash_sect_num;
+*/
+
 };
 
 typedef struct A A;
