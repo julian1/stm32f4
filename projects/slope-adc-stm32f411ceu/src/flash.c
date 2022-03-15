@@ -164,17 +164,22 @@ struct A
 typedef struct A A;
 
 
-
-
 static ssize_t mywrite( A *a, const unsigned char *buf, size_t sz)
 {
   printf("** mywrite %u\n", sz);
+  //printf("a %p\n", a );
+  printf("a->pos %d", a->pos ); // value
+
+
   // alternatively might be able to return truncated sz...
   assert( a->pos + sz < a->n);
 
   flash_program(   a->p + a->pos , buf, sz  );
 
   a->pos += sz;
+
+  printf("a->pos now %d\n", a->pos ); // value
+
   return sz;
 }
 
@@ -189,9 +194,8 @@ static ssize_t myread(A *a, char *buf, size_t sz)
     this is a buffering action. it is ok to read past the local datastructure.
   */
 
-  printf("**********\n" );
-  printf("myread %u\n", sz);
-  printf("a %p\n", a );
+  printf("** myread %u\n", sz);
+  //printf("a %p\n", a );
   printf("a->pos %d\n", a->pos ); // value
 
   usart_flush();
@@ -215,65 +219,73 @@ static ssize_t myread(A *a, char *buf, size_t sz)
   return sz;
 }
 
-/*
-  glibc source
-    https://elixir.bootlin.com/glibc/glibc-2.27/source/libio/iofopncook.c
-*/
 
-static int myseek(A *a, _off64_t *offset1, int whence)
+
+static int myseek(A *a, _off64_t *offset_, int whence)
 {
   //  int seek(void *cookie, off64_t *offset, int whence);
 
   // only lower 4 bytes on stm32.
-  int offset = (int) *offset1;
+  int offset = (int) *offset_;
+
+  // this isn't looking right
+
+  printf("** seek offset %d", offset ); // value
+  // printf("** seek offset %lld", *offset_); // value
 
 
-  printf("**********\n" );
-  printf("seek value %d", offset ); // value
-  printf(" a %p", a );
-  printf(" a->pos %d\n", a->pos ); // value
-
-
+  // printf(" a %p", a );
+  printf(" a->pos %d", a->pos ); // value
+                                    // pos should not be negative???
 
   switch(whence) {
-    /* 
+    /*
       SEEK_SET, SEEK_CUR, or SEEK_END, the offset is relative to the start of the
       file, the current position indicator, or end-of-file, respectively
+
+      OK. i think seek_cur - sets a stateful position.
+      then set_seek returns to it.
+     
+      so set seek. should be called at start. then when we o
+      or the other way.
+
+      seek_cur - sets the cursor. and seek_set returns to it.
+
+      https://stackoverflow.com/questions/56433377/why-is-the-beginning-of-a-c-file-stream-called-seek-set 
     */
-    case SEEK_SET: 
-      // printf("whence set\n");
+    case SEEK_SET:
+      printf(" seek_set, ");
       a->pos = 0 + offset;
       break;
-    case SEEK_CUR: 
-      // printf("whence cur\n");
+    case SEEK_CUR:
+      printf(" seek_cur, ");
       a->pos += offset;
       break;
-    case SEEK_END: 
-      // printf("whence end\n");
+    case SEEK_END:
+      printf(" seek_end, ");
       // assert(0);
       // a->pos = a->n - offset; // negative ???
       a->pos = a->n + offset; // or positive?. eg. arg will be negative?
       break;
-  
+
     default:
       printf("whence unknown\n");
       assert(0);
   }
 
-  // should return 0 on success
+  printf(" a->pos now %d", a->pos ); // value
+  printf("\n" );
+
+  // return 0 on success
   return 0;
 }
 
-/* 
-  - seek is being called with the wrong address for A. 
-  - ughhhh.
 
-*/
 
 
 FILE * open_flash_file(void )
 {
-  // think fopencookie will copies 
+  // think fopencookie will copies
   static cookie_io_functions_t  memfile_func = {
     .read  = (cookie_read_function_t *) myread,
     .write = (cookie_write_function_t *) mywrite,
@@ -293,8 +305,8 @@ FILE * open_flash_file(void )
   assert(f);
 
 
-  printf("f is %p\n", f );    
-  printf("_cookie %p\n", &a );    
+  printf("f is %p\n", f );
+  printf("_cookie %p\n", &a );
 
 
   return f;
@@ -306,13 +318,13 @@ long ftell2( FILE *f)
   assert(f);
 
   // actually a handler
-  void *cookie_ptr= f->_cookie; 
-  // printf("cookie_ptr %p\n", cookie_ptr);    
+  void *cookie_ptr= f->_cookie;
+  // printf("cookie_ptr %p\n", cookie_ptr);
 
    // follow it
    void *cookie = * (void **) cookie_ptr ;
    // printf ("cookie %p\n",  cookie );
-   A *a = cookie; 
+   A *a = cookie;
   assert(a);
 
   return a->pos;
@@ -322,52 +334,40 @@ long ftell2( FILE *f)
 
 
 
-//////////////////////////////////////
+MAT * m_read_flash( MAT *out, FILE *f)
+{
+  unsigned len = 0;
+  unsigned magic = 0;
+  unsigned items;
+
+  items = fread( &magic, sizeof(magic), 1, f);
+  printf("magic is %x\n", magic );
+  usart_flush();
+  assert(items == 1);
+
+  assert(magic == 0xff00ff00);
+  items = fread( &len, sizeof(len), 1, f);
+  printf("len is %u\n", len );
+  usart_flush();
+  assert(items == 1);
 
 
-// TO write  get the size of this we are going to have 
+  MAT *ret = m_finput_binary(f, out );
 
-/*
-  simpler approach.
-  skip forward 8 bytes.
-  tag position
-  write structure.
-  then skip back 
-*/
-
-
-/*
-210         printf("fp %p\n", f );
-211 
-212         for(unsigned i = 0; i < 10 ; ++i ) {
-213           printf("%u  %p\n", i, ((void **)f) [ i]  );
-214         }
-215 
-216           printf("========= 0x200017a8 \n"  );
-217         for(unsigned i = 0; i < 5; ++i ) {
-218           printf("%u  %p\n", i, ((void **)    0x200017a8 ) [ i]  );
-219         }
-220 
-221           // 7th field element
-222           void *cookie_ptr= ((void **)f)[ 7 ];  
-223           printf("cookie_ptr %p\n", cookie_ptr);
-224 
-225          // follow it
-226          void *cookie = * (void **) cookie_ptr ;
-227          printf ("cookie %p\n",  cookie );
-228 
-*/
+  // DO NOT CLOSE f.
+  return ret ;
+}
 
 
 
 
-
+#if 0
 void m_write_flash ( MAT *m , FILE *f)
 {
   assert(f );
   assert(m );
   printf( "m_write_flash f is %p\n", f);
-  usart_flush(); 
+  usart_flush();
 
 
   // write the packet length, as prefix
@@ -382,39 +382,146 @@ void m_write_flash ( MAT *m , FILE *f)
 
 }
 
+#endif
 
-#if 0
+/*
+  Gahhhh.... I think it's buffering really heavily.
+  so that requests for ftell(). are not correct.
+
+  need flush().
+  trying to use offset - may not be goojbd strategy.
+  having a dummy writer to get length .
+
+*/
+
+
+#if 1
 void m_write_flash ( MAT *m , FILE *f)
 {
   assert(f );
   assert(m );
 
   printf( "m_write_flash f is %p\n", f);
-  usart_flush(); 
+  usart_flush();
+
+  // do a seek_set. to eliminate buffering, from a previous read.
+  // fseek( f, 0 , SEEK_SET) ;
+  // fflush(f);
 
   // advance 8 bytes, from current position.
-  fseek( f, 8 , SEEK_CUR ) ;  
+  fseek( f, 8 , SEEK_CUR ) ;
   long start = ftell( f);   // record postion from start.
 
   // write the file
   m_foutput_binary( f, m);
 
-  fseek( f, 0 , SEEK_CUR ) ;  
+  // fseek( f, 0 , SEEK_CUR ) ;
   long len = ftell( f) - start;
+  usart_flush();
+  
+  fflush(f);
 
+  printf("here0 \n" );
   printf("len %ld\n", len );
-
   // seeks bacikkk
-  fseek( f, - len - 8 , SEEK_CUR ) ;  
+  fseek( f, - len - 8 , SEEK_CUR ) ;    // THIS IS generating a sseek_set from the start ??? 
+                                        // why?
+  printf("here1 \n" );
+
+  /* 
+    No, it means "set to the specified position". Which may be or not be the beginning of the stream. – 
+    Eugene Sh.
+    Jun 3, 2019 at 19:21
+    -  I think we shouldn't be calling it.
+  */
+
+
   // write the packet length, as prefix
   unsigned magic = 0xff00ff00;
   fwrite( &magic, sizeof(magic), 1, f);
   fwrite( &len, sizeof(len), 1, f);
 
 
-  fseek( f, len  , SEEK_CUR ) ;  
+  // fseek( f, len  , SEEK_CUR ) ;
 }
 #endif
+
+
+
+
+
+
+/*
+  printf("here0 \n" );
+  usart_flush();
+
+  // we should be setting up the structure once.
+  // not doing it past the
+
+  cookie_io_functions_t  memfile_func = {
+    .read  = (cookie_read_function_t *) myread, // read
+    .write = (cookie_write_function_t *) mywrite,
+    .seek  = NULL,
+    .close = NULL
+  };
+
+
+  A a;
+  memset(&a, 0, sizeof(a));
+  a.p = a.p = FLASH_SECT_ADDR;
+  a.pos = 0;
+  a.n = INT_MAX;     // 128 ...
+
+
+  // this is all wrong. we should not be setting len.
+  // when we have the length... we should
+  // it grabs 10k.
+  // that is not really a problem
+
+
+  // open
+  FILE *f = fopencookie(&a, "r", memfile_func);
+  assert(f);
+  // a.n = 1000;
+*/
+
+
+//////////////////////////////////////
+
+
+// TO write  get the size of this we are going to have
+
+/*
+  simpler approach.
+  skip forward 8 bytes.
+  tag position
+  write structure.
+  then skip back
+*/
+
+
+/*
+210         printf("fp %p\n", f );
+211
+212         for(unsigned i = 0; i < 10 ; ++i ) {
+213           printf("%u  %p\n", i, ((void **)f) [ i]  );
+214         }
+215
+216           printf("========= 0x200017a8 \n"  );
+217         for(unsigned i = 0; i < 5; ++i ) {
+218           printf("%u  %p\n", i, ((void **)    0x200017a8 ) [ i]  );
+219         }
+220
+221           // 7th field element
+222           void *cookie_ptr= ((void **)f)[ 7 ];
+223           printf("cookie_ptr %p\n", cookie_ptr);
+224
+225          // follow it
+226          void *cookie = * (void **) cookie_ptr ;
+227          printf ("cookie %p\n",  cookie );
+228
+*/
+
 
 
 #if 0
@@ -467,71 +574,6 @@ void m_write_flash ( MAT *m )
 
 
 
-
-
-MAT * m_read_flash( MAT *out, FILE *f)
-{
-/*
-  printf("here0 \n" );
-  usart_flush();
-
-  // we should be setting up the structure once.
-  // not doing it past the
-
-  cookie_io_functions_t  memfile_func = {
-    .read  = (cookie_read_function_t *) myread, // read
-    .write = (cookie_write_function_t *) mywrite,
-    .seek  = NULL,
-    .close = NULL
-  };
-
-
-  A a;
-  memset(&a, 0, sizeof(a));
-  a.p = a.p = FLASH_SECT_ADDR;
-  a.pos = 0;
-  a.n = INT_MAX;     // 128 ...
-
-
-  // this is all wrong. we should not be setting len.
-  // when we have the length... we should
-  // it grabs 10k.
-  // that is not really a problem
-
-
-  // open
-  FILE *f = fopencookie(&a, "r", memfile_func);
-  assert(f);
-  // a.n = 1000;
-*/
-
-  unsigned len = 0;
-  unsigned magic = 0;
-  unsigned items;
-
-  items = fread( &magic, sizeof(magic), 1, f);
-  printf("magic is %x\n", magic );
-  usart_flush();
-  assert(items == 1);
-
-  assert(magic == 0xff00ff00);
-  items = fread( &len, sizeof(len), 1, f);
-  printf("len is %u\n", len );
-  usart_flush();
-  assert(items == 1);
-
-
-  MAT *ret = m_finput_binary(f, out );
-
-  // DO NOT CLOSE fp.
-
-  return ret ;
-
-}
-
-
-
-
 // how hard to skip... through.
 // have to do reads
 
@@ -580,4 +622,7 @@ static int myclose(A * a)
 */
 
 
-
+/*
+  glibc source
+    https://elixir.bootlin.com/glibc/glibc-2.27/source/libio/iofopncook.c
+*/

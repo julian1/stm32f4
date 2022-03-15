@@ -210,26 +210,20 @@ void update_console_cmd(app_t *app)
         m_foutput( stdout, u );
         usart_flush();
 
-        /* OK. ftell after a read is not correct because of buffering
-          but it is correct after a fseek() and should be correct after a write operation fwrite, fput etc. 
+        /* OK. ftell after a read is not correct because of intermediate buffering, by libc
+          but it should be correct after a fseek() and should be correct after a write operation fwrite, fput etc. 
         */
 
-        printf("****seek beginning \n" );
-        fseek( f, 99 , SEEK_CUR ) ;  
-
+        // printf("****seek beginning \n" );
+        // fseek( f, 0 , SEEK_SET ) ;   // should be at start now
 
         printf("ftell %ld\n", ftell2( f)  );
 
-        fclose(f);
-
-
-    /*
-        // read it again
-        MAT *u2  = m_read_flash( MNULL, f );
-        m_foutput( stdout, u2 );
+        MAT *uu  = m_read_flash( MNULL, f );
+        m_foutput( stdout, uu );
         usart_flush();
-*/
 
+        fclose(f);
 
 
         // flash_read();
