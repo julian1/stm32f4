@@ -161,8 +161,9 @@ void flash_erase_sector1(void)
 
 static void * file_to_cookie( FILE *f )
 {
-  // should not be exposed.
-  // but potentially useful for adding other operations on file structures
+  /* should not be exposed.
+    but allows supporting other file based operations over our structure
+  */
 
   // actually a handler
   void *cookie_ptr= f->_cookie;
@@ -345,6 +346,9 @@ FILE * open_flash_file(void )
 
   printf("f is %p\n", f );
   printf("_cookie %p\n", &a );
+
+  //
+  assert( file_to_cookie(f) == &a );
 
 
   return f;
