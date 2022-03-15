@@ -296,8 +296,8 @@ MAT * m_read_flash( MAT *out)
   A a;
   memset(&a, 0, sizeof(a));
   a.p = a.p = FLASH_SECT_ADDR;
-  a.n = 0xffffffff; // just to read the magic number and length
-  // a.n = 8;  // asuume just enough to read the magic number and length
+  // a.n = 0xffffffff; // just to read the magic number and length
+  a.n = 8;  // asuume just enough to read the magic number and length
                   // fails...
 
   // read
@@ -323,8 +323,8 @@ MAT * m_read_flash( MAT *out)
   assert(items == 1);
 
   // set to the written buffer size
-  a.n = len;
-  a.pos = 0;
+  a.n = len + 8;
+  //a.pos = 0;
 
   MAT *ret = m_finput_binary(f, out );
   fclose(f);
