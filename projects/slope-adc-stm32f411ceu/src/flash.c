@@ -243,29 +243,33 @@ static int myseek(A *a, _off64_t *offset_, int whence)
       SEEK_SET, SEEK_CUR, or SEEK_END, the offset is relative to the start of the
       file, the current position indicator, or end-of-file, respectively
 
-      OK. i think seek_cur - sets a stateful position.
-      then set_seek returns to it.
-     
-      so set seek. should be called at start. then when we o
-      or the other way.
-
-      seek_cur - sets the cursor. and seek_set returns to it.
-
       https://stackoverflow.com/questions/56433377/why-is-the-beginning-of-a-c-file-stream-called-seek-set 
+
+      Before returning, the seek function should update *offset to indicate the new stream offset.
+      we need to write the offset value. that's why it's passed as a pointer.
+
+      Eg. we are being calling seek_cur with 0. in order to determine where the offset is.
+
+      EXTR.
+        ftell(); might also work.
+      
     */
     case SEEK_SET:
       printf(" seek_set, ");
       a->pos = 0 + offset;
+      *offset_ = a->pos;
       break;
     case SEEK_CUR:
       printf(" seek_cur, ");
       a->pos += offset;
+      *offset_ = a->pos;
       break;
     case SEEK_END:
       printf(" seek_end, ");
       // assert(0);
       // a->pos = a->n - offset; // negative ???
       a->pos = a->n + offset; // or positive?. eg. arg will be negative?
+      *offset_ = a->pos;
       break;
 
     default:
@@ -424,17 +428,8 @@ void m_write_flash ( MAT *m , FILE *f)
   printf("here0 \n" );
   printf("len %ld\n", len );
   // seeks bacikkk
-  fseek( f, - len - 8 , SEEK_CUR ) ;    // THIS IS generating a sseek_set from the start ??? 
-                                        // why?
-  printf("here1 \n" );
-
-  /* 
-    No, it means "set to the specified position". Which may be or not be the beginning of the stream. – 
-    Eugene Sh.
-    Jun 3, 2019 at 19:21
-    -  I think we shouldn't be calling it.
-  */
-
+  fseek( f, -len - 8, SEEK_CUR ) ;    // THIS IS generating a sseek_set from the start ??? 
+                                  // or the meaning is different???
 
   // write the packet length, as prefix
   unsigned magic = 0xff00ff00;
@@ -442,7 +437,7 @@ void m_write_flash ( MAT *m , FILE *f)
   fwrite( &len, sizeof(len), 1, f);
 
 
-  // fseek( f, len  , SEEK_CUR ) ;
+  fseek( f, len  , SEEK_CUR ) ;
 }
 #endif
 
