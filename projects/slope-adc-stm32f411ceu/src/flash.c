@@ -181,12 +181,12 @@ static ssize_t myread(A *a, char *buf, size_t sz)
 {
   // sz is just the advertized buffer space.
   printf("myread %u\n", sz);
-  usart_flush(); 
+  usart_flush();
 
   int remain = a->n - a->pos;           // signed. but it's not quite correct
 
   // printf("remaining %u\n", remain );
-  // usart_flush(); 
+  // usart_flush();
 
   if(remain < sz)
     sz = remain;
@@ -194,43 +194,13 @@ static ssize_t myread(A *a, char *buf, size_t sz)
   assert(remain >= 0);
 
   // printf("sz now %u\n", sz );
-  // usart_flush(); 
+  // usart_flush();
 
   memcpy(buf, a->p + a->pos, sz);
   a->pos += sz;
 
   return sz;
 }
-
-#if 0
-static int myseek(A *a, off64_t *offset, int whence)
-{
-  printf("**********\n" );
-  printf("seek called \n");
-  printf("whence %u\n", whence);
-  assert(0);
-  return 0;
-}
-
-static int myclose(A * a)
-{
-  printf("close called \n");
-  // potentially would be useful.
-  //a-> pos = 0;  // reseek to start   (should do this in fclose).
-  return 0; // success
-}
-#endif
-
-
-
-/* 
-  might be less complicated to write into a temporary buffer. 
-  then write 
-
-  And work with the A structure. 
-*/
-
-
 
 
 
@@ -249,9 +219,9 @@ void m_write_flash ( MAT *m )
   A a;
   memset(&a, 0, sizeof(a));
   a.p = FLASH_SECT_ADDR;
-  a.n = 0xffffffff; // unlimimited, when writing
+  a.n = INT_MAX ;       // signed. 128k.   // unlimimited, when writing
 
-  // write once to determine the size
+  // write matrix, without output, to determine size
   FILE *f = fopencookie(&a, "w", memfile_func);
   assert(f);
   a.pos = 0;
@@ -263,7 +233,6 @@ void m_write_flash ( MAT *m )
   unsigned len = a.pos;
   unsigned magic = 0xff00ff00;
   printf("write len is %u\n", len );
-
 
   // reopen and write with magic and len
   f = fopencookie(&a, "w", memfile_func);
@@ -299,9 +268,8 @@ MAT * m_read_flash( MAT *out)
   a.p = a.p = FLASH_SECT_ADDR;
   // a.n = 0xffffffff; // just to read the magic number and length
   a.n = 8;  // asuume just enough to read the magic number and length
-                  // fails...
 
-  // read
+  // open
   FILE *f = fopencookie(&a, "r", memfile_func);
   assert(f);
   // a.n = 1000;
@@ -333,6 +301,36 @@ MAT * m_read_flash( MAT *out)
 
 }
 
+
+
+
+#if 0
+static int myseek(A *a, off64_t *offset, int whence)
+{
+  printf("**********\n" );
+  printf("seek called \n");
+  printf("whence %u\n", whence);
+  assert(0);
+  return 0;
+}
+
+static int myclose(A * a)
+{
+  printf("close called \n");
+  // potentially would be useful.
+  //a-> pos = 0;  // reseek to start   (should do this in fclose).
+  return 0; // success
+}
+#endif
+
+
+
+/*
+  might be less complicated to write into a temporary buffer.
+  then write
+
+  And work with the A structure.
+*/
 
 
 
