@@ -185,15 +185,16 @@ static ssize_t myread(A *a, char *buf, size_t sz)
 
   int remain = a->n - a->pos;           // signed. but it's not quite correct
 
-  printf("remaining %u\n", remain );
-  usart_flush(); 
+  // printf("remaining %u\n", remain );
+  // usart_flush(); 
 
   if(remain < sz)
     sz = remain;
 
+  assert(remain >= 0);
 
-  printf("sz now %u\n", sz );
-  usart_flush(); 
+  // printf("sz now %u\n", sz );
+  // usart_flush(); 
 
   memcpy(buf, a->p + a->pos, sz);
   a->pos += sz;
@@ -311,7 +312,7 @@ MAT * m_read_flash( MAT *out)
   unsigned items;
 
   items = fread( &magic, sizeof(magic), 1, f);
-  printf("magic is %u\n", magic );
+  printf("magic is %x\n", magic );
   usart_flush();
   assert(items == 1);
 
@@ -324,7 +325,6 @@ MAT * m_read_flash( MAT *out)
 
   // set to the written buffer size
   a.n = len + 8;
-  //a.pos = 0;
 
   MAT *ret = m_finput_binary(f, out );
   fclose(f);
