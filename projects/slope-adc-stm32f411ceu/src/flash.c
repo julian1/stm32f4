@@ -404,7 +404,7 @@ void m_write_flash ( MAT *m , FILE *f)
   long len = ftell( f) - start;
   usart_flush();
   
-  fflush(f);
+  // fflush(f);
 
   printf("here0 \n" );
   printf("len %ld\n", len );
