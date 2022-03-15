@@ -25,4 +25,14 @@ MAT * regression( MAT *x, MAT * y, MAT *out);
 int regression_test(void);
 
 
+void m_print_details(MAT *m) ;
+
+void m_extend_rows(MAT *m, unsigned m_new);
+
+unsigned m_rows(MAT *m) ;
+unsigned m_cols(MAT *m) ;
+void m_foutput_binary( FILE *f, MAT *m  );
+MAT * m_finput_binary(  FILE *f , MAT *out );
+
+
 

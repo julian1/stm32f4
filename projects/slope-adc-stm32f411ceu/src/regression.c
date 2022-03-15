@@ -1,6 +1,4 @@
 
-#undef DEBUG
-
 
 
 #include <matrix.h>
@@ -69,6 +67,7 @@ MAT	*m_add(const MAT *mat1, const MAT *mat2, MAT *out)
 
 
 // element matrix invert
+// ie. for doing division. TODO handle divide by 0. 1/0.
 MAT	*m_element_invert( const MAT *matrix, MAT *out)
 {
 	unsigned int	m,n,i, j;
@@ -80,8 +79,15 @@ MAT	*m_element_invert( const MAT *matrix, MAT *out)
 	m = matrix->m;	n = matrix->n;
 	for ( i=0; i<m; i++ )
 		// __smlt__(matrix->me[i],(double)scalar,out->me[i],(int)n);
-		for ( j=0; j<n; j++ )
+		for ( j=0; j<n; j++ ) {
+
+      if(matrix->me[i][j] == 0) {
+        // TODO
+
+      }
+
 			out->me[i][j] = 1 / matrix->me[i][j];
+    }
 
 
 	return (out);
@@ -89,7 +95,7 @@ MAT	*m_element_invert( const MAT *matrix, MAT *out)
 
 
 // element matrix mlt
-// avoids matrix mlt and taking the diagonal which is expensive
+// ie. avoids matrix mlt and taking the diagonal, which is expensive
 MAT	*m_element_mlt(const MAT *mat1, const MAT *mat2, MAT *out)
 {
 	unsigned int	m,n,i, j;
@@ -121,8 +127,8 @@ MAT *m_fill(  MAT *a, double *p )
   // get_row(a);
   // get_col(a);
 
-  for(unsigned i = 0; i < a->m; ++i)
-  for(unsigned j = 0; j < a->n; ++j)
+  for(unsigned i = 0; i < a->m; ++i)  // rows
+  for(unsigned j = 0; j < a->n; ++j)  // cols
     m_set_val( a, i, j,  *p++ );
 
   return a;
@@ -132,6 +138,7 @@ MAT *m_fill(  MAT *a, double *p )
 
 MAT *m_hconcat( MAT *a, MAT *b, MAT *out )
 {
+  // eg. to append ones matrix to the left, for doing a linear regression.
   // should probably take the output as argument, then resize it. if needed.
 
   assert(a->m == b->m);
@@ -202,7 +209,8 @@ MAT * m_row_get( MAT *src, unsigned row, MAT *out )
 MAT * concat_ones( MAT *x, MAT *out)
 {
   // concat a ones field to lhs of mat.
-  // note. probably avoid. and instead add constant at construction when populating rows
+  // note. probably should avoid.
+  // just add the 1 constant when adding a row
 
   // TODO review memory handling here.
   MAT *j = m_get( x-> m, 1 );
@@ -224,7 +232,7 @@ MAT * concat_ones( MAT *x, MAT *out)
 MAT * regression( MAT *x, MAT * y, MAT *out)
 {
 
-  MAT *xt =  m_transp( x, MNULL  );
+  MAT *xt =  m_transp( x, MNULL  );     // TODO  see function that can do combined multipley/ transpose.
   // printf("xt is \n");
   // m_foutput(stdout, xt);
 
@@ -289,22 +297,125 @@ int regression_test()
 
 
 
-#if 0
-void regression(void)
+
+
+void m_print_details(MAT *m)
 {
-  /*
-    loop() subsumes update()
-  */
 
-    printf("WHOOT in regression()\n");
+  assert(m);
+  assert(  *(m->me) == m->base);  // first value of handler == base memory
 
-    MAT   *A = m_get(3,4);
+  printf( "m %u, n %u, ", m->m, m->n );
+  printf( "max_m %u, max_n %u\n", m->max_m, m->max_n );
 
-    m_foutput(stdout, A );
+/*
+  // me appear to be row pointers
+  printf( "me   %p\n", m->me  );
+  printf( "*me  %p\n", *m->me  );
+  printf( "base %p\n", m->base );
 
-    M_FREE(A);
+  printf( "me[0]  %p\n", (m->me)[0]  );
+  printf( "me[1]  %p\n", (m->me)[1]  );
+  printf( "me[0]  %p\n", (m->me)[0]  );
+  printf( "me[1] - me[0]  %ld\n", m->me[1] - m->me[0]  );   // row pointers
+*/
 }
-#endif
+
+
+// Actually I think we can just call m_resize()
+
+
+void m_extend_rows(MAT *m, unsigned m_new)
+{
+  // extend.
+  // without reallocation.  assumes already oversize.
+  // avoid calling m_resize repeadedly because may be expensive... because of having to reconstruct the me base pointers.
+
+  assert( m->m + m_new <= m->max_m );
+
+  // see code for m_resize().  risk that is expensive... due to having to reconstruct the me base pointers.
+  // m_resize( m, m->m + 1, m->n );
+
+  m->m += m_new;
+
+}
+
+unsigned m_rows(MAT *m)
+{
+  return m->m;
+}
+
+unsigned m_cols(MAT *m)
+{
+  return m->n;
+}
+
+
+
+/*
+  IMPORTANT.
+  if need to have the message size, to incorporate in header.
+  then can just call this twice..
+  once to compute size. and then to properly write.
+*/
+
+
+void m_foutput_binary( FILE *f, MAT *m  )
+{
+  // m_serialize()
+  // size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream);
+
+  size_t items;
+
+  items = fwrite( &m->m, sizeof(m->m), 1, f);
+  assert(items == 1);
+
+  items = fwrite( &m->n, sizeof(m->n), 1, f);
+  assert(items == 1);
+
+  assert( sizeof(Real) == sizeof(double));
+
+  for(unsigned i = 0; i < m->m; ++i)
+  for(unsigned j = 0; j < m->n; ++j) {
+
+    double v = m_get_val( m, i, j);
+
+    items = fwrite( &v, sizeof(v), 1, f);
+    assert(items == 1);
+  }
+}
+
+
+
+MAT * m_finput_binary(  FILE *f , MAT *out )
+{
+  // m_deserialize()
+  // size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream);
+
+  int items;
+
+  unsigned m, n ;
+  items = fread( &m, sizeof(m), 1, f);
+  assert(items == 1);
+
+  items = fread( &n, sizeof(n), 1, f);
+  assert(items == 1);
+
+  MAT *ret = m_resize( out, m, n );
+
+  // not tested
+  for(unsigned i = 0; i < ret->m; ++i)
+  for(unsigned j = 0; j < ret->n; ++j) {
+
+    double v ;
+    items = fread( &v, sizeof(v), 1, f);
+    assert(items == 1);
+
+    m_set_val( ret, i, j, v);
+  }
+
+  return ret;
+}
 
 
 
