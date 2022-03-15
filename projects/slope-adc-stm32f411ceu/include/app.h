@@ -184,6 +184,12 @@ void loop3(app_t *app );
 // loop3
 void permute(app_t *app, MAT *b);
 
+
+/*
+  Do not need this. just query the matrix.
+
+  eg. m_cols( m);
+*/
 #define X_COLS   4
 // #define X_COLS   3
 

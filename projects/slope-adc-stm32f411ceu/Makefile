@@ -30,7 +30,6 @@ SRCFILES	= ./src/main.c src/util.c   src/ice40.c src/spi1.c src/regression.c src
 
 
 
-
 # mensch12b from http://homepage.divms.uiowa.edu/~dstewart/meschach/
 
 
@@ -40,7 +39,7 @@ SRCFILES	= ./src/main.c src/util.c   src/ice40.c src/spi1.c src/regression.c src
 # actually we don't need the core. we can just write registers directly...
 
 
-LDSCRIPT	= ${TOP}/f410.ld
+LDSCRIPT	= ${TOP}/f411ceu.ld
 
 
 TGT_CFLAGS  += -Wno-unused-function   \
