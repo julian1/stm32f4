@@ -50,85 +50,15 @@
 #include "ice40.h"
 #include "voltage-source.h"
 
+// bad conflicts with lib2/include/flash.h
+#include "flash.h"
+
 
 #include <matrix.h>
 #include "regression.h"
 
 
 #include "app.h"
-
-
-
-
-
-/*
-  sector 2.
-  needs linker script re-organization.
-
-
-// globals / or use a structure?
-#define FLASH_SECT_ADDR   0x08008000
-#define FLASH_SECT_NUM    2
-*/
-
-
-/*
-  stm32f411ceu7.
-  C = 256 Kbytes of Flash memory
-  E = 512 Kbytes of Flash memory <- us.
-
-  use flash probe under openocd/st-link to query
-  flash probe 0
-
-  last sector for 512k. is sector 7. i think. start 0806.
-  https://electronics.stackexchange.com/questions/138400/flash-memory-range-on-stm32f429ii
-*/
-// last 128 . on 512k.
-#define FLASH_SECT_ADDR   0x08060000
-#define FLASH_SECT_NUM    7
-
-
-
-static void flash_write(void)
-{
-  // put in a command
-  usart_printf("writing flash\n");
-  flash_unlock();
-  usart_printf("erasing sector \n");
-
-  /*
-    A sector must:w first be fully erased before attempting to program it.
-    [in]  sector  (0 - 11 for some parts, 0-23 on others)
-    program_size  0 (8-bit), 1 (16-bit), 2 (32-bit), 3 (64-bit)
-
-  */
-
-  /*
-    it is unhnecessary to always erase. instead erase once, then use COW strategy,
-    and seek forward until hit 0xff bytes, where can write updated data.
-  */
-  flash_erase_sector(FLASH_SECT_NUM, 0 );
-  unsigned char buf[] = "whoot";
-
-  usart_printf("writing\n");
-  flash_program(FLASH_SECT_ADDR, buf, sizeof(buf) );
-  flash_lock();
-  usart_printf("done\n");
-
-}
-
-
-static void flash_read(void)
-{
-  char *s = (char *) FLASH_SECT_ADDR;
-  printf( "flash char is '%c' %u\n", *s, *s);
-  // we expect null terminator
-  // what we want is to read...
-  if(*s == 'w')
-    printf( "string is '%s'\n", s );
-
-}
-
 
 
 
