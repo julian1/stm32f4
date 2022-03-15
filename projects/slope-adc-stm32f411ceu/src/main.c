@@ -146,12 +146,50 @@ void update_console_cmd(app_t *app)
 
       // flash write
       if(strcmp(app->cmd_buf , "flash write") == 0) {
-        flash_read();
-        flash_write();
+
+
+        // put in a command
+        usart_printf("flash unlock\n");
+        flash_unlock();
+
+        usart_printf("flash erasing sector\n");
+        usart_flush();
+
+        flash_erase_sector1();
+
+        usart_printf("writing\n");
+        usart_flush();
+
+
+        MAT *m = m_get(10, 2);
+
+        // m_write_flash ( app->b );
+        m_write_flash ( m );
+
+        // flash_program(FLASH_SECT_ADDR, buf, sizeof(buf) );
+
+        usart_printf("flash lock\n");
+        flash_lock();
+        usart_printf("done\n");
+
+
+
+
+        // flash_read();
+        // flash_write();
       }
       // flash read
       else if(strcmp(app->cmd_buf , "flash read") == 0) {
-        flash_read();
+
+
+        usart_printf("flash reading \n");
+        MAT *u  = m_read_flash( MNULL );
+
+        printf("****here is the binary deserialized matrix\n" );
+        m_foutput( stdout, u );
+
+
+        // flash_read();
       }
 
       /*

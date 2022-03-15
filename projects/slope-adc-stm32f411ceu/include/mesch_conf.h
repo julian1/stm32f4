@@ -20,8 +20,9 @@ int mesch_putc(int c, void *stream);
 #define putc(a,b) mesch_putc(a,b)
 #endif
 
-
-int fileno(void *p) ;
+#include <stdio.h>
+// typedef __FILE FILE;
+// int fileno( void *p) ;
 
 // int isatty(int x) ;
 

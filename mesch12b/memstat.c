@@ -41,6 +41,9 @@
 #include  "iter.h"
 #endif
 
+
+int fileno( void *p) ;  // JA
+
 static char rcsid[] = "$Id: memstat.c,v 1.1 1994/01/13 05:32:44 des Exp $";
 
 /* global variable */

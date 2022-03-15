@@ -28,7 +28,11 @@
   File with basic error-handling operations
 */
 
+int fileno( void *p) ;  // JA
+
+
 static	char	rcsid[] = "$Id: err.c,v 1.6 1995/01/30 14:49:14 des Exp $";
+
 
 #include	<stdio.h>
 

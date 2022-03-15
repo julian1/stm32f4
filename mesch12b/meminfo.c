@@ -35,6 +35,9 @@
 
  #include <unistd.h>    // JA isatty()
 
+
+int fileno( void *p) ;  // JA
+
 #include  "matrix.h"
 #include  "meminfo.h"
 #ifdef COMPLEX   
