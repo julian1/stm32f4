@@ -30,7 +30,7 @@ typedef struct Header Header;
 // this is skip to end. good for writing.
 // but we need a skip to first valid entry from the end
 
-void c_skip_to_last(  FILE *f)
+void c_skip_to_end(  FILE *f)
 {
   assert(f );
 
@@ -60,7 +60,7 @@ void c_skip_to_last(  FILE *f)
       fseek( f, header.len, SEEK_CUR ) ;
     } else {
 
-      // return start of header
+      // return to where header would be if there was an entry
       fseek( f, - sizeof(header) , SEEK_CUR ) ;
 
       break;
@@ -72,7 +72,7 @@ void c_skip_to_last(  FILE *f)
 
 }
 
-
+// OK. to read different id / slots . and want a switch.
 
 
 
@@ -85,34 +85,18 @@ void c_skip_to_last(  FILE *f)
 
 MAT * m_read_flash( MAT *out, FILE *f)
 {
-/*
-  unsigned len = 0;
-  unsigned magic = 0;
-  unsigned items;
-
-  items = fread( &magic, sizeof(magic), 1, f);
-  printf("magic is %x\n", magic );
-  usart_flush();
-  assert(items == 1);
-
-  assert(magic == 0xff00ff00);
-  items = fread( &len, sizeof(len), 1, f);
-  printf("len is %u\n", len );
-  usart_flush();
-  assert(items == 1);
-*/
   // we could just skip over the header
 
-  // write the packet length, as prefix
+  // read packet header, and confim a valid entry
   Header  header;
   memset(&header, 0, sizeof(header));
 
   unsigned items = fread( &header, sizeof(header), 1, f);
   assert(items == 1);
-
   assert(header.magic == MAGIC );
 
 
+  // now read.
   MAT *ret = m_finput_binary(f, out );
 
   // DO NOT CLOSE f.
@@ -122,31 +106,6 @@ MAT * m_read_flash( MAT *out, FILE *f)
 
 
 
-#if 0
-void m_write_flash ( MAT *m , FILE *f)
-{
-  assert(f );
-  assert(m );
-  printf( "m_write_flash f is %p\n", f);
-  usart_flush();
-
-
-  // write the packet length, as prefix
-  unsigned magic = 0xff00ff00;
-  fwrite( &magic, sizeof(magic), 1, f);
-  unsigned len = 168;
-  fwrite( &len, sizeof(len), 1, f);
-
-
-  // write the file
-  m_foutput_binary( f, m);
-
-}
-
-#endif
-
-
-#if 1
 void m_write_flash ( MAT *m , FILE *f)
 {
   assert(f );
@@ -186,7 +145,30 @@ void m_write_flash ( MAT *m , FILE *f)
   // now seek forward again to the end
   fseek( f, len, SEEK_CUR ) ;
 }
+
+
+
+
+#if 0
+void m_write_flash ( MAT *m , FILE *f)
+{
+  assert(f );
+  assert(m );
+  printf( "m_write_flash f is %p\n", f);
+  usart_flush();
+
+
+  // write the packet length, as prefix
+  unsigned magic = 0xff00ff00;
+  fwrite( &magic, sizeof(magic), 1, f);
+  unsigned len = 168;
+  fwrite( &len, sizeof(len), 1, f);
+
+
+  // write the file
+  m_foutput_binary( f, m);
+
+}
+
 #endif
-
-
 

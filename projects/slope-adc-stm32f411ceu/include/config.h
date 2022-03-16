@@ -6,7 +6,7 @@
 
 
 
-void c_skip_to_last(  FILE *f);
+void c_skip_to_end(  FILE *f);
 
 // void m_write_flash ( MAT *m );
 void m_write_flash ( MAT *m , FILE *f);

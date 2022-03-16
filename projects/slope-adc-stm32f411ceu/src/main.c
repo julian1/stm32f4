@@ -191,7 +191,7 @@ void update_console_cmd(app_t *app)
 
           FILE *f = open_flash_file();
 
-          c_skip_to_last( f);
+          c_skip_to_end( f);
 
           m_write_flash ( m, f );
           fclose(f);
