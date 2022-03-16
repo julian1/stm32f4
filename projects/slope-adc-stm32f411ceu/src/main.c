@@ -214,29 +214,31 @@ void update_console_cmd(app_t *app)
         FILE *f = open_flash_file();
 
 
-        c_skip_to_last_valid(  f);
+        if(c_skip_to_last_valid(  f) != 0) {
 
-        MAT *u  = m_read_flash( MNULL, f );
-        m_foutput( stdout, u );
-        usart_flush();
+          printf("no valid config found\n" );
+        } else {
 
-        /* OK. ftell after a read is not correct because of intermediate buffering, by libc
-          but it should be correct after a fseek() and should be correct after a write operation fwrite, fput etc. 
-        */
+          MAT *u  = m_read_flash( MNULL, f );
+          m_foutput( stdout, u );
+          usart_flush();
 
-        printf("ftell  %ld\n", ftell( f)  );
+          /* OK. ftell after a read is not correct because of intermediate buffering, by libc
+            but it should be correct after a fseek() and should be correct after a write operation fwrite, fput etc. 
+          */
+          // read again. to test.
+          #if 0
+            printf("ftell  %ld\n", ftell( f)  );
+            // printf("****seek beginning \n" );
+            fseek( f, 0 , SEEK_SET ) ;   // should be at start now
 
-
-        // printf("****seek beginning \n" );
-        fseek( f, 0 , SEEK_SET ) ;   // should be at start now
-
-
-        MAT *uu  = m_read_flash( MNULL, f );
-        m_foutput( stdout, uu );
-        usart_flush();
+            MAT *uu  = m_read_flash( MNULL, f );
+            m_foutput( stdout, uu );
+            usart_flush();
+          #endif
+        }
 
         fclose(f);
-
 
         // flash_read();
       }

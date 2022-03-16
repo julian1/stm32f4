@@ -86,8 +86,10 @@ void c_skip_to_end(  FILE *f)
 */
 
 
-void c_skip_to_last_valid(  FILE *f)
+int c_skip_to_last_valid(  FILE *f)
 {
+  // return 0 if success.
+
   assert(f );
 
   printf( "----------------------\n");
@@ -124,11 +126,10 @@ void c_skip_to_last_valid(  FILE *f)
       fseek( f, -last_len -sizeof(header) -sizeof(header), SEEK_CUR ) ;
 
       // could be negative here.
-    
       if(ftell( f) < 0) {
-
         printf("cannot skip to valid packet, no valid packets found\n" );
-        assert( 0 ) ; // we tried to read without any valid packet
+        // assert( 0 ) ; // we tried to read without any valid packet
+        return -123;
       }
 
       break;
@@ -140,6 +141,7 @@ void c_skip_to_last_valid(  FILE *f)
   }
 
   printf( "ftell() now %ld\n", ftell( f) );
+  return 0;
 }
 
 

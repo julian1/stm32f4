@@ -8,7 +8,8 @@
 
 void c_skip_to_end(  FILE *f);
 
-void c_skip_to_last_valid(  FILE *f);
+// void c_skip_to_last_valid(  FILE *f);
+int c_skip_to_last_valid(  FILE *f);
 
 
 
