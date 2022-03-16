@@ -299,7 +299,6 @@ static MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
   // don't free any variables
 
   assert( m_cols(x) == m_cols( b) );
-  
   assert( m_rows(x) == m_rows( aperture) );
 
   // matrix multiply
@@ -347,6 +346,8 @@ static MAT * calibrate( app_t *app)
   MAT *aperture = m_get(1,1);
 
   cal_collect_obs (app, x, y, aperture );
+
+
 
   printf("x\n");
   m_foutput(stdout, x);
@@ -411,6 +412,11 @@ void loop2( app_t *app)
 
 void calc_implied_resoltion(  MAT *x, MAT *b )
 {
+  /*
+    old code, don't think this works anymore. 
+    without also having an aperture argument
+
+  */
   // also want resolution by using one of the pluged in values and offset one..
 
   // we need a get row.
