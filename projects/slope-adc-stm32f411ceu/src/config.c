@@ -56,14 +56,18 @@ void c_skip_to_end(  FILE *f)
 
     if(header.magic == MAGIC ) {
 
-      // advance the packet length  and continue
+      // another header, so skip the packet length and continue
       fseek( f, header.len, SEEK_CUR ) ;
-    } else {
-
-      // return to where header would be if there was an entry
+    }
+    else if( header.magic == 0xffffffff ) {
+      // uninitialized nor
+      // move to where header would be if there was an entry
       fseek( f, - sizeof(header) , SEEK_CUR ) ;
-
       break;
+    }
+    else {
+      // error
+      assert( 0);
     }
   }
 
