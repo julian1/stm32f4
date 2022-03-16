@@ -93,17 +93,20 @@ void loop1 ( app_t *app)
 
       if(app ->b) {
 
-          MAT *x = run_to_matrix( /*&app->params,*/ &run, MNULL );
+          // run_to_matrix should have the aperture?
+
+          MAT *x = run_to_matrix( &run, MNULL );
           assert(x );
 
-          MAT *predict = m_mlt(x, app->b, MNULL );
+          // run_to_aperture()...
+          MAT *aperture = m_get(1, 1);
+          m_set_val( aperture, 0, 0, run.clk_count_aper_n );
 
-          // result is 1x1 matrix
-          assert(predict->m == 1 && predict->n == 1);
-          double value = m_get_val( predict, 0, 0 );
 
-          // TODO use the matrix operations. same as loop2.
-          value /=  run.clk_count_aper_n;
+          MAT *predicted = calc_predicted( app->b, x, aperture);
+
+          double value = m_get_val(predicted, 0, 0 );
+
 
           // TODO predict, rename. estimator?
           char buf[100];
@@ -116,7 +119,7 @@ void loop1 ( app_t *app)
           // usart_flush();
 
           M_FREE(x);
-          M_FREE(predict);
+          M_FREE(predicted);
       }
 
       usart_printf("\n");

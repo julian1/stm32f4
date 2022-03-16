@@ -294,48 +294,6 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
 // generally useable
 // need jj
 
-static MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
-{
-  // don't free input arguments
-  // b is 4x1, x is nx4
-
-  assert( m_cols(x) == m_rows( b) );
-  assert( m_rows(x) == m_rows( aperture) );
-
-  // matrix multiply
-  MAT *predicted = m_mlt(x, b, MNULL );
-
-/*
-  printf("predicted \n");
-  m_foutput(stdout, predicted);
-  usart_flush();
-
-  ///////////////
-*/
-
-  // current*time / time == voltage measure.
-
-  MAT *aperture_inverted =  m_element_invert( aperture, MNULL  );
-  // printf("aperture_inverted \n");
-  // m_foutput(stdout, aperture_inverted);
-  // usart_flush();
-
-
-  // use element multiply - to avoid multiply and matrix diagonal, which is expensive
-  MAT	*corrected = m_element_mlt(aperture_inverted, predicted, MNULL );
-
-  printf("corrected\n");
-  m_foutput(stdout, corrected);
-  usart_flush();
-
-  M_FREE(predicted );
-  M_FREE(aperture_inverted);
-
-  return predicted;
-
-}
-
-
 
 
 
@@ -416,6 +374,8 @@ void calc_implied_resoltion(  MAT *x, MAT *b )
   /*
     old code, don't think this works anymore.
     without also having an aperture argument
+    ---
+    resolution will in fact depend on aperture.
 
   */
   // also want resolution by using one of the pluged in values and offset one..

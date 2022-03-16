@@ -121,6 +121,11 @@ void run_report( Run *run, bool extra );
 MAT * run_to_matrix( /*Params *params,*/ Run *run, MAT * out );
 
 
+// where should this code go. it doesn't belong in app. 
+// 
+MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture);
+
+
 // has to be defined
 // typedef struct  CBuf ;
 

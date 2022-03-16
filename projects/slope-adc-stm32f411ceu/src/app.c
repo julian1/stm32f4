@@ -282,6 +282,77 @@ MAT * run_to_matrix( /*Params *params,*/ Run *run, MAT * out )
 
 
 
+/*
+MAT * run_to_aperture(  Run *run, MAT * out )
+{
+  // this is kind of silly...
+
+}
+*/
+
+
+
+
+
+
+
+MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
+{
+  /*
+    do matrix multiply, and adjust by the aperture.
+  */
+
+  // don't free input arguments
+  // b is 4x1, x is nx4
+
+  assert( m_cols(x) == m_rows( b) );
+  assert( m_rows(x) == m_rows( aperture) );
+
+  // matrix multiply
+  MAT *predicted = m_mlt(x, b, MNULL );
+
+/*
+  printf("predicted \n");
+  m_foutput(stdout, predicted);
+  usart_flush();
+
+  ///////////////
+*/
+
+  // current*time / time == voltage measure.
+
+  MAT *aperture_inverted =  m_element_invert( aperture, MNULL  );
+  // printf("aperture_inverted \n");
+  // m_foutput(stdout, aperture_inverted);
+  // usart_flush();
+
+
+  // use element multiply - to avoid multiply and matrix diagonal, which is expensive
+  MAT	*corrected = m_element_mlt(aperture_inverted, predicted, MNULL );
+
+
+  M_FREE(predicted );
+  M_FREE(aperture_inverted);
+
+/*
+  printf("corrected\n");
+  m_foutput(stdout, corrected);
+  usart_flush();
+*/
+
+  return corrected;
+
+}
+
+// can have a single function to return the mean as a double. which might be a bit neat.
+
+
+
+
+
+
+
+
 
 #if 0
 MAT * run_to_matrix( Params *params, Run *run, MAT * out )
