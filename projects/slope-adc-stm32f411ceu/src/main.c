@@ -168,9 +168,7 @@ void update_console_cmd(app_t *app)
           printf("fail\n");
       }
 
-
-
-      // flash write
+      // flash erase
       else if(strcmp(app->cmd_buf , "flash erase") == 0) {
 
           usart_printf("flash erasing sector\n");
@@ -182,8 +180,7 @@ void update_console_cmd(app_t *app)
 
       }
 
-
-      // flash write
+      // flash write cal
       else if(strcmp(app->cmd_buf , "flash write cal") == 0) {
 
         if(!app->b) {
@@ -207,7 +204,7 @@ void update_console_cmd(app_t *app)
         }
       }
 
-
+      // flash write test
       else if(strcmp(app->cmd_buf , "flash write test") == 0) {
 
         // TODO check if need to unlock to write. or only for erase.
@@ -228,26 +225,23 @@ void update_console_cmd(app_t *app)
         usart_printf("done\n");
       }
 
-      // flash read
+      // flash read test. doesn't load cal.
+      // but might be useful to revert
       else if(strcmp(app->cmd_buf , "flash read") == 0) {
 
         usart_printf("flash read\n");
 
         FILE *f = open_flash_file();
-
         if(c_skip_to_last_valid(  f) != 0) {
-
           printf("no valid config found\n" );
-        } else {
-
+        }
+        else {
           MAT *u  = m_read_flash( MNULL, f );
           m_foutput( stdout, u );
           usart_flush();
         }
 
         fclose(f);
-
-        // flash_read();
       }
 
 
