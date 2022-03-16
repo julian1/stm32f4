@@ -95,12 +95,12 @@ static int reg_read_write_test(void)
   - but no longer seems to have affect. now that speed is better.
   */
   ret = spi_reg_read(SPI1, REG_LED);
-  usart_printf("ret is %x\n", ret); // value is completely wrong.
+  // usart_printf("ret is %x\n", ret); // value is completely wrong.
 
   spi_reg_write(SPI1, REG_LED , 0xff00ff);
   msleep(1);
   ret = spi_reg_read(SPI1, REG_LED);
-  usart_printf("ret is %x\n", ret); // value is completely wrong.
+  // usart_printf("ret is %x\n", ret); // value is completely wrong.
   // ret value is completely wrong....
   if(ret != 0xff00ff)
     return -123;
@@ -118,7 +118,7 @@ static int reg_read_write_test(void)
       return -123;
   }
 
-  return;
+  return 0;
 }
 
 
