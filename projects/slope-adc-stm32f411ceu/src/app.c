@@ -264,14 +264,14 @@ MAT * run_to_matrix( /*Params *params,*/ Run *run, MAT * out )
   m_resize(out, 1, X_COLS);
 
 
+  if( m_cols( out) == 3) {    // X_COLS == 3
 
-  if( X_COLS == 3) {
-    // m_set_val( out, 0, 0,  1.f ); // ones/
     m_set_val( out, 0, 0,  x0 );
     m_set_val( out, 0, 1,  x1  );
     m_set_val( out, 0, 2,  x2  );
-  } else if (X_COLS == 4) {
-    m_set_val( out, 0, 0,  1.f ); // ones/
+  } else if ( m_cols(out) == 4) { // X_COLS == 4
+
+    m_set_val( out, 0, 0,  1.f ); // ones, offset
     m_set_val( out, 0, 1,  x0 );
     m_set_val( out, 0, 2,  x1  );
     m_set_val( out, 0, 3,  x2  );
