@@ -104,7 +104,7 @@ void c_skip_to_last_valid(  FILE *f)
 
   while(true) {
 
-    // read hader
+    // read header
     unsigned items = fread( &header, sizeof(header), 1, f);
     assert(items == 1);
 
@@ -112,22 +112,24 @@ void c_skip_to_last_valid(  FILE *f)
     usart_flush();
 
     if(header.magic == MAGIC ) {
-
+  
+      // valid slot
       last_len = header.len;
-
       // another header, so skip the packet length and continue
       fseek( f, header.len, SEEK_CUR ) ;
-
     }
     else if( header.magic == 0xffffffff ) {
       // uninitialized nor ram.
-      // move to where header would be if there was an entry
-
-      // fseek( f, -header.len /* -sizeof(header)*/ , SEEK_CUR ) ;
-
+      // go back 12 bytes for attempted header read, and the len of last packet, and the header for that packet. 
       fseek( f, -last_len -sizeof(header) -sizeof(header), SEEK_CUR ) ;
 
       // could be negative here.
+    
+      if(ftell( f) < 0) {
+
+        printf("cannot skip to valid packet, no valid packets found\n" );
+        assert( 0 ) ; // we tried to read without any valid packet
+      }
 
       break;
     }
