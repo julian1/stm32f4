@@ -40,13 +40,11 @@ void spi1_port_cs1_setup(void) // with CS.
   // rcc_periph_clock_enable(RCC_SPI1);
 
   // setup spi with cs ...
-  uint16_t out = SPI_ICE40_CLK | SPI_ICE40_CS | SPI_ICE40_MOSI ; // not MISO
-  uint16_t all = out | SPI_ICE40_MISO;
+  uint16_t all = SPI_ICE40_CLK | SPI_ICE40_CS | SPI_ICE40_MOSI |  SPI_ICE40_MISO  ; // it doesn't matter to add input MISO
 
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
   gpio_set_af(SPI_ICE40_PORT, GPIO_AF5, all); // af 5
-  // gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out);
-  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, out);
+  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, all );
 
   // we should be able to simplify this. to non configured or input.
   // http://libopencm3.org/docs/latest/gd32f1x0/html/group__gpio__mode.html
@@ -64,13 +62,11 @@ void spi1_port_cs2_setup(void) // with CS2
   // rcc_periph_clock_enable(RCC_SPI1);
 
   // setup spi with cs ...
-  uint16_t out = SPI_ICE40_CLK | SPI_ICE40_CS2 | SPI_ICE40_MOSI ; // not MISO
-  uint16_t all = out | SPI_ICE40_MISO;
+  uint16_t all = SPI_ICE40_CLK | SPI_ICE40_CS2 | SPI_ICE40_MOSI | SPI_ICE40_MISO; // it doesn't matter to add MISO to output
 
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
   gpio_set_af(SPI_ICE40_PORT, GPIO_AF5, all); // af 5
-  // gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out); // probably need to reset each time.
-  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, out);
+  gpio_set_output_options(SPI_ICE40_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, all );
 
   // set cs1 hi - with external pullup.
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_ICE40_CS);
