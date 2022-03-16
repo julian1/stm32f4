@@ -17,7 +17,7 @@
 
 #include <matrix.h>
 
-#include <libopencm3/stm32/spi.h>   // SPI1 .. TODO remove. pass spi by argument
+// #include <libopencm3/stm32/spi.h>   // SPI1 .. TODO remove. pass spi by argument
 
 #include "app.h"
 
@@ -32,7 +32,7 @@
   This is only used in calibration.
   ---------
 
-  
+
 */
 
 static unsigned collect_obs( app_t *app, unsigned row, unsigned discard, unsigned gather, MAT *x)
@@ -114,8 +114,8 @@ static unsigned collect_obs( app_t *app, unsigned row, unsigned discard, unsigne
 
 
 
-/* 
-  life would be easier 
+/*
+  life would be easier
 
 */
 
@@ -291,37 +291,18 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
 
 
 
+// generally useable
+// need jj
 
-static MAT * calibrate( app_t *app)
+static MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
 {
+  // don't free any variables
 
-  // We have to create rather than use MNULL, else there
-  // is no way to return pointers to the resized structure from the subroutine
-  MAT *x = m_get(1,1); // TODO change MNULL
-  MAT *y = m_get(1,1);
-  MAT *aperture = m_get(1,1);
+  assert( m_cols(x) == m_cols( b) );
+  
+  assert( m_rows(x) == m_rows( aperture) );
 
-  cal_collect_obs (app, x, y, aperture );
-
-  printf("x\n");
-  m_foutput(stdout, x);
-  usart_flush();
-
-  printf("y\n");
-  m_foutput(stdout, y);
-  usart_flush();
-
-
-
-#if 1
-  MAT *b =  regression( x, y, MNULL );
-  printf("b\n");
-  m_foutput(stdout, b);
-
-  assert(b->m == X_COLS); // calibration coeff is horizontal matrix.
-
-  usart_flush();
-
+  // matrix multiply
   MAT *predicted = m_mlt(x, b, MNULL );
 
 /*
@@ -344,30 +325,97 @@ static MAT * calibrate( app_t *app)
   m_foutput(stdout, predicted2);
   usart_flush();
 
+  return predicted;
 
-#endif
-
-
-  {
-
-  printf("============\n");
-
-  // make a zeros vector same length as b. to serve as origin
-  MAT *temp0 =  m_zero( m_copy( b, MNULL))  ;
-  MAT *zeros = m_transp( temp0, MNULL);
-
-  MAT *origin = m_mlt(zeros, b, MNULL );
-  printf("origin predicted \n");
-  m_foutput(stdout, origin );
-
-  }
+}
 
 
+
+
+
+static MAT * calibrate( app_t *app)
+{
+
+  /*
+    moved this code.
+  */
+
+  // We have to create rather than use MNULL, else there
+  // is no way to return pointers to the resized structure from the subroutine
+  MAT *x = m_get(1,1); // TODO change MNULL
+  MAT *y = m_get(1,1);
+  MAT *aperture = m_get(1,1);
+
+  cal_collect_obs (app, x, y, aperture );
+
+  printf("x\n");
+  m_foutput(stdout, x);
+  usart_flush();
+
+  printf("y\n");
+  m_foutput(stdout, y);
+  usart_flush();
+
+
+  // regression to calc the betas.
+
+  MAT *b =  regression( x, y, MNULL );
+  printf("b\n");
+  m_foutput(stdout, b);
+  usart_flush();
+ 
+  assert(b->m == X_COLS); // calibration coeff is horizontal matrix.
+ 
+
+
+
+  calc_predicted( b, x, aperture);
+
+
+
+  // TODO clean up mem.
+  // TODO. our circular buffer does not handle overflow very nicely. - the result is truncated.
+
+/*
+  M_FREE(x);
+  M_FREE(x_);
+  M_FREE(y);
+  M_FREE(b);
+  M_FREE(predicted);
+
+*/
+
+
+  return b;
+
+}
+
+
+
+void loop2( app_t *app)
+{
+  MAT *b = calibrate( app);
+
+  app->b = b;
+
+
+  // return
+
+
+}
+
+
+
+
+
+
+void calc_implied_resoltion(  MAT *x, MAT *b )
+{
   // also want resolution by using one of the pluged in values and offset one..
 
   // we need a get row.
   // MAT *x = m_get(1,1);
-  {
+
   printf("============\n");
   printf("resolution/implied count\n");
 
@@ -411,45 +459,22 @@ static MAT * calibrate( app_t *app)
   printf("count %u\n", count );
 
 
-  // MAT *xx =  m_row_get( x, 0, MNULL );
-
-  // MAT *xx =  m_add( x, 0, MNULL );
-  // MAT *delta = m_mlt(xx, b, MNULL );
-
-  }
-
-
-
-  // TODO clean up mem.
-  // TODO. our circular buffer does not handle overflow very nicely. - the result is truncated.
-
-/*
-  M_FREE(x);
-  M_FREE(x_);
-  M_FREE(y);
-  M_FREE(b);
-  M_FREE(predicted);
-
-*/
-
-
-  return b;
 
 }
 
 
 
-void loop2( app_t *app)
-{
-  MAT *b = calibrate( app);
-
-  app->b = b;
 
 
-  // return
 
 
-}
+
+
+
+
+
+
+
 
 
 
@@ -686,5 +711,28 @@ __attribute__((naked)) void dummy_function(void)
 #endif
 
 
+
+#if 0
+  {
+
+  printf("============\n");
+
+  // make a zeros vector same length as b. to serve as origin
+  MAT *temp0 =  m_zero( m_copy( b, MNULL))  ;
+  MAT *zeros = m_transp( temp0, MNULL);
+
+  MAT *origin = m_mlt(zeros, b, MNULL );
+  printf("origin predicted \n");
+  m_foutput(stdout, origin );
+
+  }
+#endif
+
+
+
+  // MAT *xx =  m_row_get( x, 0, MNULL );
+
+  // MAT *xx =  m_add( x, 0, MNULL );
+  // MAT *delta = m_mlt(xx, b, MNULL );
 
 
