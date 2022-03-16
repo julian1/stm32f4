@@ -178,25 +178,20 @@ void update_console_cmd(app_t *app)
       // flash write
       else if(strcmp(app->cmd_buf , "flash write") == 0) {
 
-        if(false && !app->b) {
+        if(!app->b) {
 
           printf("no cal to save\n");
         } else {
 
-          // put in a command
           usart_printf("flash unlock\n");
           flash_unlock();
 
-          MAT *m = m_get(10, 2);
-
           FILE *f = open_flash_file();
-
           c_skip_to_end( f);
 
-          m_write_flash ( m, f );
+          // write cal matrix
+          m_write_flash ( app->b, f );
           fclose(f);
-
-          // flash_program(FLASH_SECT_ADDR, buf, sizeof(buf) );
 
           usart_printf("flash lock\n");
           flash_lock();
@@ -205,14 +200,32 @@ void update_console_cmd(app_t *app)
       }
 
 
+      else if(strcmp(app->cmd_buf , "flash write test") == 0) {
+
+        // TODO check if need to unlock to write. or only for erase.
+        usart_printf("flash unlock\n");
+        flash_unlock();
+
+        FILE *f = open_flash_file();
+        c_skip_to_end( f);
+
+        MAT *m = m_get(10, 2);
+        // would be cool , to have some variable
+        m_set_val( m, 2, 0, 123.456 )  ;
+        m_write_flash ( m, f );
+        fclose(f);
+
+        usart_printf("flash lock\n");
+        flash_lock();
+        usart_printf("done\n");
+      }
+
       // flash read
       else if(strcmp(app->cmd_buf , "flash read") == 0) {
 
-
-        usart_printf("flash reading \n");
+        usart_printf("flash read\n");
 
         FILE *f = open_flash_file();
-
 
         if(c_skip_to_last_valid(  f) != 0) {
 
@@ -222,20 +235,6 @@ void update_console_cmd(app_t *app)
           MAT *u  = m_read_flash( MNULL, f );
           m_foutput( stdout, u );
           usart_flush();
-
-          /* OK. ftell after a read is not correct because of intermediate buffering, by libc
-            but it should be correct after a fseek() and should be correct after a write operation fwrite, fput etc. 
-          */
-          // read again. to test.
-          #if 0
-            printf("ftell  %ld\n", ftell( f)  );
-            // printf("****seek beginning \n" );
-            fseek( f, 0 , SEEK_SET ) ;   // should be at start now
-
-            MAT *uu  = m_read_flash( MNULL, f );
-            m_foutput( stdout, uu );
-            usart_flush();
-          #endif
         }
 
         fclose(f);
