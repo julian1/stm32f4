@@ -226,17 +226,13 @@ static int myseek(A *a, _off64_t *offset_, int whence)
 {
   //  int seek(void *cookie, off64_t *offset, int whence);
 
-  // only lower 4 bytes on stm32.
   int offset = (int) *offset_;
 
-  // this isn't looking right
 
-  printf("** seek offset %d", offset ); // value
-  // printf("** seek offset %lld", *offset_); // value
+//  printf("** seek offset %d", offset ); // value
 
 
-  // printf(" a %p", a );
-  printf(" a->pos %d", a->pos ); // value
+//  printf(" a->pos %d", a->pos ); // value
                                     // pos should not be negative???
 
   switch(whence) {
@@ -256,17 +252,17 @@ static int myseek(A *a, _off64_t *offset_, int whence)
       and doing this, gets ftell() to work.
     */
     case SEEK_SET:
-      printf(" seek_set, ");
+//      printf(" seek_set, ");
       a->pos = 0 + offset;
       *offset_ = a->pos;
       break;
     case SEEK_CUR:
-      printf(" seek_cur, ");
+//      printf(" seek_cur, ");
       a->pos += offset;
       *offset_ = a->pos;
       break;
     case SEEK_END:
-      printf(" seek_end, ");
+//      printf(" seek_end, ");
       a->pos = a->n + offset;
       *offset_ = a->pos;
       break;
@@ -276,8 +272,8 @@ static int myseek(A *a, _off64_t *offset_, int whence)
       assert(0);
   }
 
-  printf(" a->pos now %d", a->pos ); // value
-  printf("\n" );
+//  printf(" a->pos now %d", a->pos ); // value
+//  printf("\n" );
 
   // return 0 on success
   return 0;

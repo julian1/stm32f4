@@ -214,6 +214,7 @@ void update_console_cmd(app_t *app)
         FILE *f = open_flash_file();
 
 
+        c_skip_to_last_valid(  f);
 
         MAT *u  = m_read_flash( MNULL, f );
         m_foutput( stdout, u );

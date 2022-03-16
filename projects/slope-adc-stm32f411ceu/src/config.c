@@ -27,15 +27,18 @@ typedef struct Header Header;
 
 #define MAGIC 0xff00ff00
 
-// this is skip to end. good for writing.
-// but we need a skip to first valid entry from the end
+/* 
+  skip to end. good for writing next slot data.
+  but we need a skip to first valid entry from the end
+*/
+  
 
 void c_skip_to_end(  FILE *f)
 {
   assert(f );
 
   printf( "----------------------\n");
-  printf( "config skip\n");
+  printf( "config skip to end\n");
   usart_flush();
 
   // seek the start of file
@@ -43,7 +46,6 @@ void c_skip_to_end(  FILE *f)
 
   Header header;
   assert(sizeof(header) == 12);
-
 
   while(true) {
 
@@ -60,7 +62,7 @@ void c_skip_to_end(  FILE *f)
       fseek( f, header.len, SEEK_CUR ) ;
     }
     else if( header.magic == 0xffffffff ) {
-      // uninitialized nor
+      // uninitialized nor ram.
       // move to where header would be if there was an entry
       fseek( f, - sizeof(header) , SEEK_CUR ) ;
       break;
@@ -71,17 +73,72 @@ void c_skip_to_end(  FILE *f)
     }
   }
 
-  printf( "----------------------\n");
   printf( "ftell() now %ld\n", ftell( f) );
-
 }
 
-// OK. to read different id / slots . and want a switch.
+/*
+  // OK. to read different id / slots . and want a switch.
+  can take last valid, with fast seek.
+  OR. can play forward, and free old, and use new
+
+  - simplest test implemetnation is c_last_valid_entry
+
+*/
 
 
+void c_skip_to_last_valid(  FILE *f)
+{
+  assert(f );
 
+  printf( "----------------------\n");
+  printf( "config skip to last valid\n");
+  usart_flush();
 
+  // seek the start of file
+  fseek( f, 0 , SEEK_SET) ;
 
+  Header header;
+  assert(sizeof(header) == 12);
+
+  unsigned last_len = 0;
+
+  while(true) {
+
+    // read hader
+    unsigned items = fread( &header, sizeof(header), 1, f);
+    assert(items == 1);
+
+    printf("magic is %x\n", header.magic );
+    usart_flush();
+
+    if(header.magic == MAGIC ) {
+
+      last_len = header.len;
+
+      // another header, so skip the packet length and continue
+      fseek( f, header.len, SEEK_CUR ) ;
+
+    }
+    else if( header.magic == 0xffffffff ) {
+      // uninitialized nor ram.
+      // move to where header would be if there was an entry
+
+      // fseek( f, -header.len /* -sizeof(header)*/ , SEEK_CUR ) ;
+
+      fseek( f, -last_len -sizeof(header) -sizeof(header), SEEK_CUR ) ;
+
+      // could be negative here.
+
+      break;
+    }
+    else {
+      // error
+      assert( 0);
+    }
+  }
+
+  printf( "ftell() now %ld\n", ftell( f) );
+}
 
 
 
@@ -90,6 +147,8 @@ void c_skip_to_end(  FILE *f)
 MAT * m_read_flash( MAT *out, FILE *f)
 {
   // we could just skip over the header
+  printf( "-----------------\n" );
+  printf( "m_read_flash\n" );
 
   // read packet header, and confim a valid entry
   Header  header;
@@ -115,6 +174,7 @@ void m_write_flash ( MAT *m , FILE *f)
   assert(f );
   assert(m );
 
+  printf( "-----------------\n" );
   printf( "m_write_flash f is %p   ftell() is  %ld\n", f, ftell( f) );
   usart_flush();
 
@@ -148,6 +208,10 @@ void m_write_flash ( MAT *m , FILE *f)
 
   // now seek forward again to the end
   fseek( f, len, SEEK_CUR ) ;
+
+
+  printf( "ftell() now %ld\n", ftell( f) );
+
 }
 
 
