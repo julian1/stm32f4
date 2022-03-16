@@ -176,7 +176,7 @@ void update_console_cmd(app_t *app)
 
 
       // flash write
-      else if(strcmp(app->cmd_buf , "flash write") == 0) {
+      else if(strcmp(app->cmd_buf , "flash write cal") == 0) {
 
         if(!app->b) {
 
