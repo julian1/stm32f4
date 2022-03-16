@@ -297,8 +297,9 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
 static MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
 {
   // don't free any variables
+  // b is 4x1
 
-  assert( m_cols(x) == m_cols( b) );
+  assert( m_cols(x) == m_rows( b) );
   assert( m_rows(x) == m_rows( aperture) );
 
   // matrix multiply
@@ -347,8 +348,6 @@ static MAT * calibrate( app_t *app)
 
   cal_collect_obs (app, x, y, aperture );
 
-
-
   printf("x\n");
   m_foutput(stdout, x);
   usart_flush();
@@ -367,15 +366,10 @@ static MAT * calibrate( app_t *app)
  
   assert(b->m == X_COLS); // calibration coeff is horizontal matrix.
  
-
-
-
   calc_predicted( b, x, aperture);
 
 
-
   // TODO clean up mem.
-  // TODO. our circular buffer does not handle overflow very nicely. - the result is truncated.
 
 /*
   M_FREE(x);
