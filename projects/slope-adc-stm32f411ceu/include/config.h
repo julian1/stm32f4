@@ -4,6 +4,10 @@
 #include <stdio.h> // FILE
 #include "matrix.h"
 
+
+
+void c_skip_to_last(  FILE *f);
+
 // void m_write_flash ( MAT *m );
 void m_write_flash ( MAT *m , FILE *f);
 

@@ -160,8 +160,23 @@ void update_console_cmd(app_t *app)
         reg_read_write_test();
       }
 
+
+
       // flash write
-      if(strcmp(app->cmd_buf , "flash write") == 0) {
+      else if(strcmp(app->cmd_buf , "flash erase") == 0) {
+
+          usart_printf("flash erasing sector\n");
+          usart_flush();
+
+          flash_erase_sector_();
+
+          usart_printf("done erase\n");
+
+      }
+
+
+      // flash write
+      else if(strcmp(app->cmd_buf , "flash write") == 0) {
 
         if(false && !app->b) {
 
@@ -172,19 +187,12 @@ void update_console_cmd(app_t *app)
           usart_printf("flash unlock\n");
           flash_unlock();
 
-          usart_printf("flash erasing sector\n");
-          usart_flush();
-
-          flash_erase_sector1();
-
-          usart_printf("writing\n");
-          usart_flush();
-
           MAT *m = m_get(10, 2);
 
-          // m_write_flash ( app->b );
-
           FILE *f = open_flash_file();
+
+          c_skip_to_last( f);
+
           m_write_flash ( m, f );
           fclose(f);
 

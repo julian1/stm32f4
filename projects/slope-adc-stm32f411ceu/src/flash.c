@@ -93,68 +93,25 @@
 #define FLASH_SECT_NUM    7
 
 
-#if 0
 
-
-void flash_write(void)
+void flash_erase_sector_(void)
 {
-  /*
-    A sector must:w first be fully erased before attempting to program it.
-    [in]  sector  (0 - 11 for some parts, 0-23 on others)
-    program_size  0 (8-bit), 1 (16-bit), 2 (32-bit), 3 (64-bit)
-
-  */
-
-  /*
-    - it is unhnecessary to always erase. instead erase once, then use COW strategy,
-    and seek forward until hit 0xff bytes, where can write updated data.
-    - looks like interupts might be disabled so flush stream
-  */
 
   // put in a command
-  usart_printf("unlock flash\n");
+  usart_printf("flash unlock\n");
   flash_unlock();
 
-  usart_printf("erasing sector\n");
+  usart_printf("flase erase sector\n");
   usart_flush();
 
   flash_erase_sector(FLASH_SECT_NUM, 0 );
-  unsigned char buf[] = "whoot";
+  // unsigned char buf[] = "whoot";
 
-  usart_printf("writing\n");
-  usart_flush();
+  // could do a test read ensure. value...
 
-  flash_program(FLASH_SECT_ADDR, buf, sizeof(buf) );
+  usart_printf("flash lock\n");
   flash_lock();
-  usart_printf("done\n");
 
-}
-
-
-void flash_read(void)
-{
-  char *s = (char *) FLASH_SECT_ADDR;
-  usart_printf( "flash char is '%c' %u\n", *s, *s);
-  // we expect null terminator
-  // what we want is to read...
-  if(*s == 'w')
-    usart_printf( "string is '%s'\n", s );
-
-}
-
-#endif
-
-
-/*
-  - could pass a FILE ptr.
-    and then extract the sector info from the cookie where it's saved.
-
-  - fp_to_cookie() ;
-*/
-
-void flash_erase_sector1(void)
-{
-  flash_erase_sector(FLASH_SECT_NUM, 0 );
 }
 
 
@@ -181,6 +138,13 @@ static void * file_to_cookie( FILE *f )
 ////////////////////////
 
 
+
+/*
+  - could pass a FILE ptr.
+    and then extract the sector info from the cookie where it's saved.
+
+  - fp_to_cookie() ;
+*/
 
 
 
@@ -355,5 +319,56 @@ FILE * open_flash_file(void )
 }
 
 
+
+#if 0
+
+
+void flash_write(void)
+{
+  /*
+    A sector must:w first be fully erased before attempting to program it.
+    [in]  sector  (0 - 11 for some parts, 0-23 on others)
+    program_size  0 (8-bit), 1 (16-bit), 2 (32-bit), 3 (64-bit)
+
+  */
+
+  /*
+    - it is unhnecessary to always erase. instead erase once, then use COW strategy,
+    and seek forward until hit 0xff bytes, where can write updated data.
+    - looks like interupts might be disabled so flush stream
+  */
+
+  // put in a command
+  usart_printf("unlock flash\n");
+  flash_unlock();
+
+  usart_printf("erasing sector\n");
+  usart_flush();
+
+  flash_erase_sector(FLASH_SECT_NUM, 0 );
+  unsigned char buf[] = "whoot";
+
+  usart_printf("writing\n");
+  usart_flush();
+
+  flash_program(FLASH_SECT_ADDR, buf, sizeof(buf) );
+  flash_lock();
+  usart_printf("done\n");
+
+}
+
+
+void flash_read(void)
+{
+  char *s = (char *) FLASH_SECT_ADDR;
+  usart_printf( "flash char is '%c' %u\n", *s, *s);
+  // we expect null terminator
+  // what we want is to read...
+  if(*s == 'w')
+    usart_printf( "string is '%s'\n", s );
+
+}
+
+#endif
 
 
