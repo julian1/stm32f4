@@ -575,6 +575,25 @@ int main(void)
   printf("==========\n");
 
 
+  /////////////////////
+  // try to load cal
+  FILE *f = open_flash_file();
+
+  if(c_skip_to_last_valid(  f) != 0) {
+    printf("no valid config found\n" );
+  } else {
+
+    app.b = m_read_flash( MNULL, f );
+    printf("loadeded cal\n" );
+    m_foutput( stdout, app.b  );
+    usart_flush();
+  }
+  fclose(f);
+
+  /////////////////////
+
+
+
   loop_dispatcher( &app);
 
 }
