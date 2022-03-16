@@ -296,8 +296,8 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
 
 static MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
 {
-  // don't free any variables
-  // b is 4x1
+  // don't free input arguments
+  // b is 4x1, x is nx4
 
   assert( m_cols(x) == m_rows( b) );
   assert( m_rows(x) == m_rows( aperture) );
@@ -313,17 +313,23 @@ static MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
   ///////////////
 */
 
+  // current*time / time == voltage measure.
+
   MAT *aperture_inverted =  m_element_invert( aperture, MNULL  );
-  printf("aperture_inverted \n");
-  m_foutput(stdout, aperture_inverted);
-  usart_flush();
+  // printf("aperture_inverted \n");
+  // m_foutput(stdout, aperture_inverted);
+  // usart_flush();
+
 
   // use element multiply - to avoid multiply and matrix diagonal, which is expensive
-  MAT	*predicted2 = m_element_mlt(aperture_inverted, predicted, MNULL );
+  MAT	*corrected = m_element_mlt(aperture_inverted, predicted, MNULL );
 
-  printf("predicted2\n");
-  m_foutput(stdout, predicted2);
+  printf("corrected\n");
+  m_foutput(stdout, corrected);
   usart_flush();
+
+  M_FREE(predicted );
+  M_FREE(aperture_inverted);
 
   return predicted;
 
@@ -348,6 +354,7 @@ static MAT * calibrate( app_t *app)
 
   cal_collect_obs (app, x, y, aperture );
 
+/*
   printf("x\n");
   m_foutput(stdout, x);
   usart_flush();
@@ -355,7 +362,7 @@ static MAT * calibrate( app_t *app)
   printf("y\n");
   m_foutput(stdout, y);
   usart_flush();
-
+*/
 
   // regression to calc the betas.
 
@@ -363,9 +370,9 @@ static MAT * calibrate( app_t *app)
   printf("b\n");
   m_foutput(stdout, b);
   usart_flush();
- 
-  assert(b->m == X_COLS); // calibration coeff is horizontal matrix.
- 
+
+  assert( m_rows(b) == m_cols( x) ); // calibration coeff is horizontal matrix.
+
   calc_predicted( b, x, aperture);
 
 
@@ -407,7 +414,7 @@ void loop2( app_t *app)
 void calc_implied_resoltion(  MAT *x, MAT *b )
 {
   /*
-    old code, don't think this works anymore. 
+    old code, don't think this works anymore.
     without also having an aperture argument
 
   */
