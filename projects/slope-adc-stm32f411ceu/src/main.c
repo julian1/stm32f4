@@ -76,7 +76,7 @@ static void loop_dispatcher(app_t *app);
 
 
 
-static void reg_read_write_test(void)
+static int reg_read_write_test(void)
 {
   // test ice40 register read/write
   // ok. seems to work.
@@ -102,19 +102,23 @@ static void reg_read_write_test(void)
   ret = spi_reg_read(SPI1, REG_LED);
   usart_printf("ret is %x\n", ret); // value is completely wrong.
   // ret value is completely wrong....
-  assert(ret == 0xff00ff);
+  if(ret != 0xff00ff)
+    return -123;
 
   // this works... eg. allowing high bit to be off.
   spi_reg_write(SPI1, REG_LED, 0x7f00ff);
   ret = spi_reg_read(SPI1, REG_LED);
-  assert(ret == 0x7f00ff);
+  if(ret != 0x7f00ff)
+    return -123;
 
   for(uint32_t i = 0; i < 32; ++i) {
     spi_reg_write(SPI1, REG_LED , i );
     ret = spi_reg_read(SPI1, REG_LED);
-    assert(ret == i );
+    if(ret != i )
+      return -123;
   }
 
+  return;
 }
 
 
@@ -152,12 +156,16 @@ void update_console_cmd(app_t *app)
       // usart_printf("got command '%s'\n", app->cmd_buf );
 
 
-      if(strcmp(app->cmd_buf , "test") == 0) {
-
-        /* not haulting mcu, if fpga is not powered up, runnng is useful to test mcu code
-          test device read/write
+      if(strcmp(app->cmd_buf , "test comm") == 0) {
+        /*
+          avoid doing this on initializtion is useful
+          permits test development for code that is not reliant fpga.
         */
-        reg_read_write_test();
+        long ret = reg_read_write_test();
+        if(ret == 0)
+          printf("ok\n");
+        else
+          printf("fail\n");
       }
 
 
