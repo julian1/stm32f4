@@ -120,8 +120,11 @@ void run_read( Run *run );
 void run_report( Run *run, bool extra );
 MAT * run_to_matrix( /*Params *params,*/ Run *run, MAT * out );
 
+MAT * run_to_aperture( Run *run, MAT * out);
+
 
 // where should this code go. it doesn't belong in app. 
+// should be a better name
 // 
 MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture);
 

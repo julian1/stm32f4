@@ -237,10 +237,14 @@ void run_report( Run *run, bool extra )
   OK. This should fill in the aperture also in the return structure.
   OR else we eliminate it.
 
+  No. it is good to localise - the determination of the functional form of the x data.
+
+  This is the point where we de
 */
 
-MAT * run_to_matrix( /*Params *params,*/ Run *run, MAT * out )
+MAT * run_to_matrix( Run *run, MAT * out )
 {
+  assert(run);
 
 /*
   EXTR.
@@ -284,6 +288,26 @@ MAT * run_to_matrix( /*Params *params,*/ Run *run, MAT * out )
 
   return out;
 }
+
+
+MAT * run_to_aperture( Run *run, MAT * out )
+{
+  assert(run);
+
+  if(out == MNULL)
+    out = m_get(1,1); // TODO fix me. this is ok.
+  else 
+    m_resize(out, 1, 1);
+
+  m_set_val( out, 0, 0, run->clk_count_aper_n );
+
+  return out;
+}
+
+
+
+
+
 
 
 

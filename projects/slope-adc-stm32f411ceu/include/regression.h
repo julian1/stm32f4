@@ -40,7 +40,10 @@ int regression_test(void);
 
 void m_print_details(MAT *m) ;
 
+#if 0
+// rather than extend. an alternative strategy is populate with a row pointer, then shrink
 void m_extend_rows(MAT *m, unsigned m_new);
+#endif
 
 unsigned m_rows(MAT *m) ;
 unsigned m_cols(MAT *m) ;

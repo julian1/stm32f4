@@ -24,31 +24,37 @@
 
 
 
-
-
-
 /*
-  May only be used in calibration - in which case can move.
-  This is only used in calibration.
+  - OK. our mistake is not having this function do the push on the back of the matri
+  - rather than double handle
+  ---------
+  just remove the row pointer.
+  row should be passed by reference...
   ---------
 
+  two ways to do this.
+    - 1) oversize matrix. and adjust row pointer. then shrink.
+    - 2) prereserve size - then incrementing row dimension of each matrix on each obs. 
+
+  tow pointer is fairly simple and neat.
 
 */
 
-static unsigned collect_obs( app_t *app, unsigned row, unsigned discard, unsigned gather, MAT *x)
+
+
+static void collect_obs( app_t *app, unsigned *row, unsigned discard, unsigned gather, double y_, MAT *xs, MAT *aperture,  MAT *y)
 {
-  /*
-      I think life would be simpler. if we transfred control on the interupt.
-  */
+    assert(row);
+    assert(xs);
+    assert(aperture);
+    assert(y);
 
-  // change name, get obs?
-    /*
+    assert( m_rows(xs) == m_rows(y ));
+    assert( m_rows(aperture) == m_rows(y ));
 
-      loop is the same for cal and main loop.
-      so should pass control.
-      get_readings ( n,   start_row, MAT  ) ,
+    assert( m_cols(aperture) == 1 );
+    assert( m_cols(y) == 1 );
 
-    */
 
     // obs per current configuration
     unsigned obs = 0;
@@ -72,24 +78,35 @@ static unsigned collect_obs( app_t *app, unsigned row, unsigned discard, unsigne
         // only if greater than
         if(obs >= discard ) {
 
-          MAT *whoot = run_to_matrix( /*params,*/ &run, MNULL );
-          assert(whoot);
 
-          assert( m_rows(whoot) == m_rows(x) );
+          assert(*row < m_rows(xs));
 
-          // m_foutput(stdout, whoot );
-          m_row_set( x, row, whoot );
-          M_FREE(whoot);
+          // do xs.
+          MAT *xs1 = run_to_matrix(  &run, MNULL );
+          assert(xs1);
+          assert( m_rows(xs1) == 1 );
 
-          /*
-          // cannot do y here.
-          // do y
-          assert(row < y->m); // < or <= ????
-          m_set_val( y, row, 0,  target );
-          */
+          assert(xs);
+          m_row_set( xs, *row, xs1 );
+          M_FREE(xs1);
 
-          ++row;
-        } else {
+
+          // do aperture
+          MAT *app_ = run_to_aperture(  &run, MNULL );
+          assert(app_);
+          assert( m_rows(app_) == 1 );
+
+          assert(aperture);
+          m_row_set( aperture, *row, app_ );
+          M_FREE(app_);
+
+          // do target
+          m_set_val( y, *row, 0, y_ );
+
+
+          ++*row;
+        }
+        else {
           usart_printf("discard");
 
         }
@@ -112,7 +129,6 @@ static unsigned collect_obs( app_t *app, unsigned row, unsigned discard, unsigne
 
     } // while
 
-  return row;
 }
 
 
@@ -133,28 +149,26 @@ static unsigned collect_obs( app_t *app, unsigned row, unsigned discard, unsigne
 
 
 
-static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
+static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
 {
-  // gather obersevations
-  // app argument is needed for data ready flag.
-  // while loop has to be inner
-  // might be easier to overside. and then resize.
 
   usart_printf("=========\n");
   usart_printf("cal loop\n");
 
-  // rows x cols
+
+  // WRONG. should be presized.... before passing here
+
   unsigned row = 0;
 
-  #define MAX_OBS  10 * 5 /// think this has to be correct.
+  unsigned  max_rows =  10 * 5;
 
-  m_resize( x , MAX_OBS, X_COLS );      // constant + pos clk + neg clk.
-  m_resize( y , MAX_OBS, 1 );           // target
-  m_resize( aperture1,  MAX_OBS, 1 );           // target
+  m_resize( xs ,        max_rows, X_COLS );
+  m_resize( y ,         max_rows, 1 );
+  m_resize( aperture,   max_rows, 1 );
 
 
 
-  double aperture = 0;
+  double aperture_ = 0;
 
   for(unsigned i = 0; /*i < 10*/; ++i )
   {
@@ -166,104 +180,104 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
 
       case 0:
         // 8 NPLC  ref-lo
-        aperture = nplc_to_aper_n( 8);
+        aperture_ = nplc_to_aper_n( 8);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
-        ctrl_set_aperture( aperture );
+        ctrl_set_aperture( aperture_ );
         ctrl_reset_disable();
-        target = 0.0  * aperture;
+        target = 0.0  * aperture_;
         break;
 
       case 1:
         // 8 NPLC  ref-hi
-        aperture = nplc_to_aper_n( 8);
+        aperture_ = nplc_to_aper_n( 8);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
-        ctrl_set_aperture( aperture  );
+        ctrl_set_aperture( aperture_  );
         ctrl_reset_disable();
-        target = 7.1 * aperture;
+        target = 7.1 * aperture_;
         break;
 
       case 2:
         // 9 NPLC  ref-lo
-        aperture = nplc_to_aper_n( 9);
+        aperture_ = nplc_to_aper_n( 9);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
-        ctrl_set_aperture( aperture );
+        ctrl_set_aperture( aperture_ );
         ctrl_reset_disable();
-        target = 0.0  * aperture;
+        target = 0.0  * aperture_;
         break;
 
       case 3:
         // 9 NPLC  ref-hi
-        aperture = nplc_to_aper_n( 9);
+        aperture_ = nplc_to_aper_n( 9);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
-        ctrl_set_aperture( aperture  );
+        ctrl_set_aperture( aperture_  );
         ctrl_reset_disable();
-        target = 7.1 * aperture;
+        target = 7.1 * aperture_;
         break;
 
       case 4:
         // 10NPLC  ref-lo
-        aperture = nplc_to_aper_n( 10);
+        aperture_ = nplc_to_aper_n( 10);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
-        ctrl_set_aperture( aperture );
+        ctrl_set_aperture( aperture_ );
         ctrl_reset_disable();
-        target = 0.0  * aperture;
+        target = 0.0  * aperture_;
         break;
 
       case 5:
         // 10NPLC  ref-hi
-        aperture = nplc_to_aper_n( 10);
+        aperture_ = nplc_to_aper_n( 10);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
-        ctrl_set_aperture( aperture  );
+        ctrl_set_aperture( aperture_  );
         ctrl_reset_disable();
-        target = 7.1 * aperture;
+        target = 7.1 * aperture_;
         break;
 
 
       case 6:
         // 11 NPLC mux mux ref-lo.
-        aperture = nplc_to_aper_n( 11);
+        aperture_ = nplc_to_aper_n( 11);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
-        ctrl_set_aperture( aperture );
+        ctrl_set_aperture( aperture_ );
         ctrl_reset_disable();
-        target = 0.0  * aperture;
+        target = 0.0  * aperture_;
         break;
 
       case 7:
         // 11 NPLC mux ref-hi.
-        aperture = nplc_to_aper_n( 11);
+        aperture_ = nplc_to_aper_n( 11);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
-        ctrl_set_aperture( aperture  );
+        ctrl_set_aperture( aperture_  );
         ctrl_reset_disable();
-        target = 7.1 * aperture;
+        target = 7.1 * aperture_;
         break;
 
 
       case 8:
         // 12 NPLC  ref-lo
-        aperture = nplc_to_aper_n( 12);
+        aperture_ = nplc_to_aper_n( 12);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
-        ctrl_set_aperture( aperture );
+        ctrl_set_aperture( aperture_ );
         ctrl_reset_disable();
-        target = 0.0  * aperture;
+        target = 0.0  * aperture_;
         break;
 
       case 9:
         // 12 NPLC  ref-hi
-        aperture = nplc_to_aper_n( 12);
+        aperture_ = nplc_to_aper_n( 12);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
-        ctrl_set_aperture( aperture  );
+        ctrl_set_aperture( aperture_  );
         ctrl_reset_disable();
-        target = 7.1 * aperture;
+        target = 7.1 * aperture_;
         break;
 
 
@@ -271,24 +285,18 @@ static void cal_collect_obs(app_t *app, MAT *x, MAT *y, MAT *aperture1)
       default:
         // done
         usart_printf("done collcting obs\n");
+
         // shrink matrixes for the data
-        m_resize( x , row, X_COLS   );
+        m_resize( xs , row, X_COLS   );
         m_resize( y , row, 1 );
         return;
     } // switch
 
-    for(unsigned j = 0; j < 5; ++j ) {
-      assert(row < y->m); // < or <= ????
-      m_set_val( y, row + j, 0,  target );
 
-      m_set_val( aperture1, row + j, 0,  aperture );
+    // static unsigned collect_obs( app_t *app, unsigned row, unsigned discard, unsigned gather, double y_, MAT *x, MAT *aperture,  MAT *y)
 
-    }
+    collect_obs( app, &row, 2 , 5 , target, xs, aperture, y );
 
-    // wait for data.
-    // if we have to bail out of here... then what happens?
-
-    row = collect_obs( app, /*&params, */row, 2 , 5 , x );
   } // state for
 }
 
@@ -372,7 +380,7 @@ void loop2( app_t *app)
 
 
 
-void calc_implied_resoltion(  MAT *x, MAT *b )
+static void calc_implied_resoltion(  MAT *x, MAT *b )
 {
   /*
     old code, don't think this works anymore.

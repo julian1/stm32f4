@@ -229,6 +229,8 @@ MAT * concat_ones( MAT *x, MAT *out)
 #endif
 
 
+// 
+
 MAT * regression( MAT *x, MAT * y, MAT *out)
 {
 
@@ -325,6 +327,8 @@ void m_print_details(MAT *m)
 // Actually I think we can just call m_resize()
 
 
+#if 0
+
 void m_extend_rows(MAT *m, unsigned m_new)
 {
   // extend.
@@ -339,6 +343,7 @@ void m_extend_rows(MAT *m, unsigned m_new)
   m->m += m_new;
 
 }
+#endif
 
 unsigned m_rows(MAT *m)
 {

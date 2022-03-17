@@ -99,8 +99,11 @@ void loop1 ( app_t *app)
           assert(x );
 
           // run_to_aperture()...
-          MAT *aperture = m_get(1, 1);
-          m_set_val( aperture, 0, 0, run.clk_count_aper_n );
+          // MAT *aperture = m_get(1, 1);
+          // m_set_val( aperture, 0, 0, run.clk_count_aper_n );
+
+
+          MAT *aperture = run_to_aperture(&run, MNULL);
 
 
           MAT *predicted = calc_predicted( app->b, x, aperture);
@@ -119,7 +122,7 @@ void loop1 ( app_t *app)
           // usart_flush();
 
           M_FREE(x);
-          M_FREE(aperturex);
+          M_FREE(aperture);
           M_FREE(predicted);
       }
 
