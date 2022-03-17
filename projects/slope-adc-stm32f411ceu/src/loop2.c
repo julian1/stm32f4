@@ -74,6 +74,9 @@ static unsigned collect_obs( app_t *app, unsigned row, unsigned discard, unsigne
 
           MAT *whoot = run_to_matrix( /*params,*/ &run, MNULL );
           assert(whoot);
+
+          assert( m_rows(whoot) == m_rows(x) );
+
           // m_foutput(stdout, whoot );
           m_row_set( x, row, whoot );
           M_FREE(whoot);

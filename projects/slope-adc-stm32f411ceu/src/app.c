@@ -233,8 +233,11 @@ void run_report( Run *run, bool extra )
 
 
 
+/*
+  OK. This should fill in the aperture also in the return structure.
+  OR else we eliminate it.
 
-
+*/
 
 MAT * run_to_matrix( /*Params *params,*/ Run *run, MAT * out )
 {

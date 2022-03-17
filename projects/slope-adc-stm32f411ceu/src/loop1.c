@@ -119,6 +119,7 @@ void loop1 ( app_t *app)
           // usart_flush();
 
           M_FREE(x);
+          M_FREE(aperturex);
           M_FREE(predicted);
       }
 
