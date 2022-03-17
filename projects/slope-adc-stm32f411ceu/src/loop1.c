@@ -59,8 +59,14 @@
 
 
 
-static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs)
+static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs /* , unsigned himux_sel */)
 {
+/*
+  can pass himux_sel.
+  or nplc
+  or whatever parameter is being varied under the strategy.
+*/
+
   assert(row);
   assert(xs);
   UNUSED(discard_n);
