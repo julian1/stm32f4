@@ -314,7 +314,7 @@ MAT * run_to_aperture( Run *run, MAT * out )
 
   if(out == MNULL)
     out = m_get(1,1); // TODO fix me. this is ok.
-  else 
+  else
     m_resize(out, 1, 1);
 
   m_set_val( out, 0, 0, run->clk_count_aper_n );
@@ -435,35 +435,14 @@ MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
 
 void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs)
 {
-  /*
-     use flags to pass in flags... like hires_mux...
-  
-    NO. actually we don't really need to pass y in here.
-    we can encode extra values. 
- 
-  */ 
-
-  // change name discard_n_n, gather_n_n to be clear.
-
   assert(row);
   assert(xs);
-  // assert(aperture);
-  // assert(y);
-
-  // assert( m_rows(xs) == m_rows(y ));
-  // assert( m_rows(aperture) == m_rows(y ));
-
-  // assert( m_cols(aperture) == 1 );
-  // assert( m_cols(y) == 1 );
-
 
   // obs per current configuration
   unsigned obs = 0;
 
   // this condition should be inse
   while(obs < discard_n + gather_n) {
-
-
 
     // if we got data handle it.
     if(app->data_ready) {
@@ -480,7 +459,6 @@ void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_
       // only if greater than
       if(obs >= discard_n ) {
 
-
         assert(*row < m_rows(xs));
 
         // do xs.
@@ -491,20 +469,6 @@ void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_
         assert(xs);
         m_row_set( xs, *row, xs1 );
         M_FREE(xs1);
-
-/*
-        // do aperture
-        MAT *app_ = run_to_aperture(  &run, MNULL );
-        assert(app_);
-        assert( m_rows(app_) == 1 );
-
-        assert(aperture);
-        m_row_set( aperture, *row, app_ );
-        M_FREE(app_);
-
-        // do y/target
-        m_set_val( y, *row, 0, y_ );
-*/
 
         ++*row;
       }
