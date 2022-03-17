@@ -9,8 +9,8 @@
 #include "util.h"   // system_millis
 
 
-#include "stats.h"    // stddev. should probably implement with mesch version 
-                      // 
+#include "stats.h"    // stddev. should probably implement with mesch version
+                      //
 
 
 #include "regression.h"
@@ -62,17 +62,72 @@ void loop1 ( app_t *app)
   assert(app);
   // assert( HIMUX_SEL_REF_LO ==  0b1011  );
 
+/*
   // don't need static.
   float predict_ar[ 10 ] ;
   size_t n = 5;   // can change this.
   int i = 0;
 
   memset( predict_ar, 0, sizeof( predict_ar));
+*/
 
 
+  /////////////////
+  MAT *xs = m_get(1,1); // TODO change MNULL
+  MAT *y = m_get(1,1);
+  MAT *aperture = m_get(1,1);
 
 
+  /////////////////
+  // TODO fix - don't allocate, then resize
+  // eg. 10x 10NPLC
+  unsigned  max_rows =  10 ;
+  m_resize( xs ,        max_rows, X_COLS );
+  m_resize( y ,         max_rows, 1 );
+  m_resize( aperture,   max_rows, 1 );
 
+
+  while(true) {
+
+    // discard == 0, gather 1.
+
+    unsigned row = 0;
+    printf("\n");
+    collect_obs( app, 0, 1, &row, -12345.567, xs, aperture, y);
+
+    // Except when switching parameters, doing auto zero, we will only get one at a time.
+    // nevermind it is still useful
+    // doesn't matter.
+
+    // NO. we can pass in a hires select parameter. as to what to sample.
+
+    /*
+        - extr. having the row as a pointer. makes it very easy to collect multiple values
+
+        - also in the same way we pass in the target. we can pass in other information. 
+          to get encoded in an output array.
+          array does *not* need to be a MAT matrix. could be unsigned *flags;
+    */
+
+    // there's no easy halt.... or halt will leak memory...
+    if(app ->b) {
+
+        MAT *predicted = calc_predicted( app->b, xs, aperture);
+
+        double value = m_get_val(predicted, 0, 0 );
+
+
+        // TODO predict, rename. estimator?
+        char buf[100];
+        printf("predict %sV ", format_float_with_commas(buf, 100, 7, value));
+
+
+    }
+
+  }
+
+
+#if 0
   // TODO move to app_t structure?.
   static uint32_t soft_500ms = 0;
 
@@ -146,7 +201,8 @@ void loop1 ( app_t *app)
     if(app->continuation_f) {
       return;
     }
-
-
   }
+#endif
+
+
 }

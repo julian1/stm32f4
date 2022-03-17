@@ -373,6 +373,157 @@ MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
 
 }
 
+
+
+
+
+
+/*
+  two ways to do this.
+    - 1) oversize matrix. and adjust row pointer. then shrink.
+    - 2) preallocate oversized - then on each row increase row dimension.
+
+  using a row pointer is fairly simple and probably sufficient.
+  ------------------
+
+  OK. I think this would be useful for loop1 operation...
+  But we set it up for one observation. and no discard.
+
+  because - for nplc 50. we want the mean of 5 operations.
+
+  we would just forget about the target y.
+  perhaps pass y etc.
+
+  and we simplify... the main loop pumping.
+
+*/
+
+// not really sure this belongs here
+
+void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row, double y_, /*unsigned *flags*/ MAT *xs, MAT *aperture,  MAT *y)
+{
+  /*
+     use flags to pass in flags... like hires_mux...
+  
+    NO. actually we don't really need to pass y in here.
+    we can encode extra values. 
+ 
+  */ 
+
+  // change name discard_n_n, gather_n_n to be clear.
+
+  assert(row);
+  assert(xs);
+  assert(aperture);
+  assert(y);
+
+  assert( m_rows(xs) == m_rows(y ));
+  assert( m_rows(aperture) == m_rows(y ));
+
+  assert( m_cols(aperture) == 1 );
+  assert( m_cols(y) == 1 );
+
+
+  // obs per current configuration
+  unsigned obs = 0;
+
+  // this condition should be inse
+  while(obs < discard_n + gather_n) {
+
+
+
+    // if we got data handle it.
+    if(app->data_ready) {
+      // in priority
+      app->data_ready = false;
+
+      // get run details
+      Run run;
+      run_read(&run );
+
+      run_report(&run, 0);
+
+
+      // only if greater than
+      if(obs >= discard_n ) {
+
+
+        assert(*row < m_rows(xs));
+
+        // do xs.
+        MAT *xs1 = run_to_matrix(  &run, MNULL );
+        assert(xs1);
+        assert( m_rows(xs1) == 1 );
+
+        assert(xs);
+        m_row_set( xs, *row, xs1 );
+        M_FREE(xs1);
+
+
+        // do aperture
+        MAT *app_ = run_to_aperture(  &run, MNULL );
+        assert(app_);
+        assert( m_rows(app_) == 1 );
+
+        assert(aperture);
+        m_row_set( aperture, *row, app_ );
+        M_FREE(app_);
+
+        // do y/target
+        m_set_val( y, *row, 0, y_ );
+
+
+        ++*row;
+      }
+      else {
+        usart_printf("discard_n");
+
+      }
+
+      usart_printf("\n");
+      ++obs;
+    }
+
+    // update_console_cmd(app);
+    // usart_output_update(); // shouldn't be necessary, now pumped by interupts.
+
+    // blink the led.
+    // 250ms
+    static uint32_t soft_250ms = 0;
+    if( (system_millis - soft_250ms) > 250) {
+      soft_250ms += 250;
+      led_toggle();
+    }
+
+
+  } // while
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // can have a single function to return the mean as a double. which might be a bit neat.
 
 

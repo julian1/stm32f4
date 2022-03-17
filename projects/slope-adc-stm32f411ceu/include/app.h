@@ -181,6 +181,7 @@ void update_console_cmd(app_t *app);
 
 
 
+void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row, double y_, MAT *xs, MAT *aperture,  MAT *y);
 
 
 // loop1

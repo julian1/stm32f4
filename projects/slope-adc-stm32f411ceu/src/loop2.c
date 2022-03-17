@@ -17,105 +17,6 @@
 
 
 
-/*
-  two ways to do this.
-    - 1) oversize matrix. and adjust row pointer. then shrink.
-    - 2) preallocate oversized - then on each row increase row dimension.
-
-  using a row pointer is fairly simple and probably sufficient.
-
-*/
-
-
-static void collect_obs( app_t *app, unsigned discard, unsigned gather, unsigned *row, double y_, MAT *xs, MAT *aperture,  MAT *y)
-{
-    assert(row);
-    assert(xs);
-    assert(aperture);
-    assert(y);
-
-    assert( m_rows(xs) == m_rows(y ));
-    assert( m_rows(aperture) == m_rows(y ));
-
-    assert( m_cols(aperture) == 1 );
-    assert( m_cols(y) == 1 );
-
-
-    // obs per current configuration
-    unsigned obs = 0;
-
-    // this condition should be inse
-    while(obs < discard + gather) {
-
-
-
-      // if we got data handle it.
-      if(app->data_ready) {
-        // in priority
-        app->data_ready = false;
-
-        // get run details
-        Run run;
-        run_read(&run );
-        run_report(&run, 0);
-
-
-        // only if greater than
-        if(obs >= discard ) {
-
-
-          assert(*row < m_rows(xs));
-
-          // do xs.
-          MAT *xs1 = run_to_matrix(  &run, MNULL );
-          assert(xs1);
-          assert( m_rows(xs1) == 1 );
-
-          assert(xs);
-          m_row_set( xs, *row, xs1 );
-          M_FREE(xs1);
-
-
-          // do aperture
-          MAT *app_ = run_to_aperture(  &run, MNULL );
-          assert(app_);
-          assert( m_rows(app_) == 1 );
-
-          assert(aperture);
-          m_row_set( aperture, *row, app_ );
-          M_FREE(app_);
-
-          // do y/target
-          m_set_val( y, *row, 0, y_ );
-
-
-          ++*row;
-        }
-        else {
-          usart_printf("discard");
-
-        }
-
-        usart_printf("\n");
-        ++obs;
-      }
-
-      // update_console_cmd(app);
-      // usart_output_update(); // shouldn't be necessary, now pumped by interupts.
-
-
-      // 250ms
-      static uint32_t soft_250ms = 0;
-      if( (system_millis - soft_250ms) > 250) {
-        soft_250ms += 250;
-        led_toggle();
-      }
-
-
-    } // while
-
-}
-
 
 
 
@@ -131,7 +32,6 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
 
   // presize/oversize
   unsigned  max_rows =  10 * 5;
-
   m_resize( xs ,        max_rows, X_COLS );
   m_resize( y ,         max_rows, 1 );
   m_resize( aperture,   max_rows, 1 );
@@ -287,11 +187,11 @@ static MAT * calibrate( app_t *app)
 
   // We have to create rather than use MNULL, else there
   // is no way to return pointers to the resized structure from the subroutine
-  MAT *x = m_get(1,1); // TODO change MNULL
+  MAT *xs = m_get(1,1); // TODO change MNULL
   MAT *y = m_get(1,1);
   MAT *aperture = m_get(1,1);
 
-  cal_collect_obs (app, x, y, aperture );
+  cal_collect_obs (app, xs, y, aperture );
 
 /*
   printf("x\n");
@@ -305,14 +205,14 @@ static MAT * calibrate( app_t *app)
 
   // regression to calc the betas.
 
-  MAT *b =  regression( x, y, MNULL );
+  MAT *b =  regression( xs, y, MNULL );
   printf("b\n");
   m_foutput(stdout, b);
   usart_flush();
 
-  assert( m_rows(b) == m_cols( x) ); // calibration coeff is horizontal matrix.
+  assert( m_rows(b) == m_cols( xs) ); // calibration coeff is horizontal matrix.
 
-  calc_predicted( b, x, aperture);
+  calc_predicted( b, xs, aperture);
 
 
   // TODO clean up mem.
