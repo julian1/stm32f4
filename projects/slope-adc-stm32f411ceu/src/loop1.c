@@ -78,11 +78,12 @@
   it is vastly nicer. not to have to write the fpga. in ordinary operation.
   --------------
 
-  - anything that gets changed by the pattern controller  - needs to be moved from Param to Run. data structure. 
+  - anything that gets changed by the pattern controller  - needs to be moved from Param to Run. data structure.
   ------------
   issue with pattern_controller.
-    - is that we have to duplicate every variable. - so that the last value that is read is correct.
+    - is that we have to duplicate every variable. - so that mcu can read the valid parameter for the run just completed.
     - or else read everything quicly enough. that its correct for the last modulation, before the pattern controller changes things.
+      but this doesn't work, because it switches on the interupt.
 
 
 */
@@ -101,37 +102,46 @@ static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, uns
   // then partition the matrix, into two , then do a row by row subtraction.
 */
 
+  assert(row);
+
   // note/record the signal to use. eg. sig or ref-hi.
   unsigned signal = param->himux_sel;
 
   unsigned obs = 0;
+  unsigned himux_sel[ 100 ];
 
   while(obs < gather_n ) {
     assert(row);
     assert(xs);
     UNUSED(discard_n);
-    UNUSED(gather_n);
-
-    // but how many???
-
 
     // ref-lo first.
     ctrl_reset_enable();
     ctrl_set_mux( HIMUX_SEL_REF_LO);
     ctrl_reset_disable();
 
+    unsigned row_before = *row;
     collect_obs( app, param, 1 , 1, row, xs );
+
+    for( unsigned r = row_before; r < *row; ++r)
+      himux_sel[ r] = HIMUX_SEL_REF_LO ;
+
+    ///////////
 
     // now signal/ ref hi
     ctrl_reset_enable();
     ctrl_set_mux( signal /*HIMUX_SEL_REF_HI */);  // change to sig-hi
     ctrl_reset_disable();
 
+    row_before = *row;
     collect_obs( app, param, 1 , 1, row, xs );
+
+    for( unsigned r = row_before; r < *row; ++r)
+      himux_sel[ r] = signal;
+
 
     ++obs;
   }
-
 }
 
 
