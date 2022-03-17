@@ -420,10 +420,13 @@ MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
   - alternatively. 
 
   - and just add rows to the matrix.
+  -----------------
+
+  now we can pass and recurd himux_sel
 
 */
 
-void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs)
+void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs,  unsigned *himux_sel_last, unsigned himux_sel_last_n )
 {
   assert(row);
   assert(xs);
@@ -459,6 +462,10 @@ void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_
         assert(xs);
         m_row_set( xs, *row, xs1 );
         M_FREE(xs1);
+
+        // do himux_sel
+        assert(*row < himux_sel_last_n);
+        himux_sel_last[ *row ] = run.himux_sel_last;
 
         ++*row;
       }

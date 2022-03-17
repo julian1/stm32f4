@@ -36,6 +36,12 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
   m_resize( y ,         max_rows, 1 );
   m_resize( aperture,   max_rows, 1 );
 
+
+  unsigned *himux_sel_last = malloc( sizeof(unsigned) * max_rows );   // TODO need to free . or 
+  unsigned himux_sel_last_n = max_rows;
+
+
+
   unsigned row = 0;
 
 
@@ -178,7 +184,7 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
     unsigned row_start = row;
 
     // void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs)
-    collect_obs( app, &param, 2 , 5, &row, xs );
+    collect_obs( app, &param, 2 , 5, &row, xs, himux_sel_last, himux_sel_last_n );
 
     for(unsigned r = row_start; r < row; ++r ) {
       // fill in y. and aperture.

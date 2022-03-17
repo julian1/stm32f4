@@ -89,45 +89,16 @@
 */
 
 
-static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs /* , unsigned himux_sel Params_out */)
+// void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs,  unsigned *himux_sel_last, unsigned himux_sel_last_n );
+static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs, unsigned *himux_sel_last, unsigned himux_sel_last_n )
 {
-/*
-  can pass himux_sel.
-  or nplc
-  or whatever parameter is being varied under the strategy.
-
-  // we cannot do a subtraction here. these are raw counts.
-  // need to project the values using calibration coeff.
-  // then partition the matrix, into two , then do a row by row subtraction.
-  ---------------
-
-  If we are going to be doing complicated matrix calculation etc.
-  then we really need to perform the read, and set in the interupt.
-  - alternatively when writing - we are performing a reset here. so it should work.
-
-  We could even pass a straight array of Params.
-  that would make the calling interface the same. 
-  ------------
-
-  HMMMM...
-  really not sure.
-  - writing these stupid fill in loops.
-  ------------
-
-  just enabling the pattern controller to do this would simplify stuff.
-  and passing an arry with himux_sel.
-
-*/
 
   assert(row);
 
   // note/record the signal to use. eg. sig or ref-hi.
   unsigned signal = param->himux_sel;
 
-  unsigned obs = 0;
-  unsigned himux_sel[ 100 ];
-
-  while(obs < gather_n ) {
+  while(gather_n-- > 0) {
     assert(row);
     assert(xs);
     UNUSED(discard_n);
@@ -137,27 +108,16 @@ static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, uns
     ctrl_set_mux( HIMUX_SEL_REF_LO);
     ctrl_reset_disable();
 
-    unsigned row_before = *row;
-    collect_obs( app, param, 1 , 1, row, xs );
-
-    for( unsigned r = row_before; r < *row; ++r)
-      himux_sel[ r] = HIMUX_SEL_REF_LO ;
+    collect_obs( app, param, 1 , 1, row, xs, himux_sel_last, himux_sel_last_n );
 
     ///////////
-
     // now signal/ ref hi
     ctrl_reset_enable();
     ctrl_set_mux( signal /*HIMUX_SEL_REF_HI */);  // change to sig-hi
     ctrl_reset_disable();
 
-    row_before = *row;
-    collect_obs( app, param, 1 , 1, row, xs );
+    collect_obs( app, param, 1 , 1, row, xs, himux_sel_last, himux_sel_last_n );
 
-    for( unsigned r = row_before; r < *row; ++r)
-      himux_sel[ r] = signal;
-
-
-    ++obs;
   }
 }
 
@@ -187,6 +147,9 @@ void loop1 ( app_t *app)
   MAT *xs =       m_get(max_rows, X_COLS );
   MAT *aperture = m_get(max_rows, 1 );
 
+  unsigned *himux_sel_last = malloc( sizeof(unsigned) * max_rows );   // TODO need to free . or 
+  unsigned himux_sel_last_n = max_rows;
+
 
   /* params are relatively unchanging...
     the authoritative source of state can still be the fpga.
@@ -215,7 +178,7 @@ void loop1 ( app_t *app)
     // void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs);
     // collect_obs( app, &param, 2 , 5, &row, xs );
 
-    collect_obs_azero( app, &param, 0, 1, &row, xs);
+    collect_obs_azero( app, &param, 0, 1, &row, xs, himux_sel_last, himux_sel_last_n );
 
 
     for(unsigned r = row_start; r < row; ++r ) {
