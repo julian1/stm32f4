@@ -210,7 +210,6 @@ void param_read_last( Param *param)
   uint32_t int_hi = spi_reg_read(SPI1, REG_LAST_CLK_COUNT_APER_N_HI );
   param->clk_count_aper_n = int_hi << 24 | int_lo;
 
-  // LAST
   param->clk_count_fix_n  = spi_reg_read(SPI1, REG_LAST_CLK_COUNT_FIX_N);
 
   param->clk_count_var_pos_n = spi_reg_read(SPI1, REG_LAST_CLK_COUNT_VAR_POS_N);
@@ -445,12 +444,11 @@ void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *r
       // get run details
       Run run;
       run_read(&run);
-
       run_report(&run);
 
       Param param;
       param_read_last( &param);
-
+      param_report(&param );
 
 
       // only if greater than

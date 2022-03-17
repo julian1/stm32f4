@@ -185,7 +185,7 @@ void loop1 ( app_t *app)
     run2.aperture = m_get(10 , 1 );
 
 
-    collect_obs( app,  0, 1, &row, &run2 );
+    collect_obs( app,  0, 2, &row, &run2 );
 
     // shrink oversized matrixes down.
     m_resize( run2.xs,       row, m_cols( run2.xs) );
@@ -202,12 +202,14 @@ void loop1 ( app_t *app)
 
         // now we want the mean as value...
 
-/*
-        double value = m_get_val(predicted, 0, 0 );
-        // TODO predict, rename. estimator?
-        char buf[100];
-        printf("predict %sV ", format_float_with_commas(buf, 100, 7, value));
-*/
+        for(unsigned i  = 0; i < m_rows(predicted); ++i ) {
+
+          double value = m_get_val(predicted, i, 0 );
+          // TODO predict, rename. estimator?
+          char buf[100];
+          printf("predict %sV ", format_float_with_commas(buf, 100, 7, value));
+        }
+
 
     }
 
