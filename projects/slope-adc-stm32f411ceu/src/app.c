@@ -137,28 +137,19 @@ void ctrl_reset_disable(void)
 void run_read( Run *run )
 {
   /*
+  pass spi argument.
   change name adc_meas_read()   or intg_meas_read()
     etc.
-
   */
 
   assert(run);
-  /*
-    it looks like many variables to read over spi.
-    but it only takes 10% of the reset time.
-    ---
-    reading each time. allows fpga to control.
-
-  */
 
   // use separate lines (to make it easier to filter - for plugging into stats).
   run->count_up         = spi_reg_read(SPI1, REG_COUNT_UP );
   run->count_down       = spi_reg_read(SPI1, REG_COUNT_DOWN );
 
-
-
-  run->count_trans_up     = spi_reg_read(SPI1, REG_COUNT_TRANS_UP );
-  run->count_trans_down   = spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN );
+  run->count_trans_up   = spi_reg_read(SPI1, REG_COUNT_TRANS_UP );
+  run->count_trans_down = spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN );
 
   run->count_fix_up     = spi_reg_read(SPI1, REG_COUNT_FIX_UP);
   run->count_fix_down   = spi_reg_read(SPI1, REG_COUNT_FIX_DOWN);
@@ -168,6 +159,8 @@ void run_read( Run *run )
   run->clk_count_rundown = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
 
   // run->meas_count       = spi_reg_read(SPI1, REG_MEAS_COUNT );
+
+  run->himux_sel_last   = spi_reg_read(SPI1, REG_HIMUX_SEL_LAST);
 
 }
 
@@ -200,6 +193,8 @@ void param_read( Param *param)
   // do this for the moment. albeit it shouldn't be needed
   // when wrapping parameter changes with reset.
 
+  // wrong, if usinig pattern controller, and d
+  // consider removing from here.
   param->himux_sel = spi_reg_read(SPI1, REG_HIMUX_SEL );
 
 }
@@ -244,6 +239,9 @@ void run_report( Run *run )
   usart_printf("clk_count_rundown %u, ", run->clk_count_rundown);
 
   // usart_printf("meas_count %lu, ", run->meas_count);
+
+  char buf[100];
+  usart_printf("himux_sel_last %s, ", format_bits( buf, 8, run->himux_sel_last ));
 
 
 }

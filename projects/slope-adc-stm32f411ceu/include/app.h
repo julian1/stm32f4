@@ -40,7 +40,7 @@
 #define REG_COUNT_FIX_UP        34
 #define REG_COUNT_FIX_DOWN      35
 #define REG_CLK_COUNT_RUNDOWN   37
-
+#define REG_HIMUX_SEL_LAST      38  // enables pattern controller, and/or simplifies communication.
 
 #define REG_MEAS_COUNT          40
 
@@ -103,12 +103,13 @@ struct Run
 
 
   /*
-    // if using pattern controller.
+    if using pattern controller.
     but probably better to read into a separate params like structure.
-
-  uint32_t himux_sel;
   */
+  uint32_t himux_sel_last;
 };
+
+
 
 typedef struct Run  Run;
 

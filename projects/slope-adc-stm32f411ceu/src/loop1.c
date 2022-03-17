@@ -107,6 +107,16 @@ static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, uns
 
   We could even pass a straight array of Params.
   that would make the calling interface the same. 
+  ------------
+
+  HMMMM...
+  really not sure.
+  - writing these stupid fill in loops.
+  ------------
+
+  just enabling the pattern controller to do this would simplify stuff.
+  and passing an arry with himux_sel.
+
 */
 
   assert(row);
