@@ -241,7 +241,7 @@ void run_report( Run *run )
   // usart_printf("meas_count %lu, ", run->meas_count);
 
   char buf[100];
-  usart_printf("himux_sel_last %s, ", format_bits( buf, 8, run->himux_sel_last ));
+  usart_printf("himux_sel_last %s (%lu), ", format_bits( buf, 8, run->himux_sel_last), run->himux_sel_last);
 
 
 }
