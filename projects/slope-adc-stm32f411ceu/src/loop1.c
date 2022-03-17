@@ -65,26 +65,39 @@ static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, uns
   can pass himux_sel.
   or nplc
   or whatever parameter is being varied under the strategy.
+  ------
+
+  wrap this in a loop.
+
+  And do the actual subtraction ment
 */
 
-  assert(row);
-  assert(xs);
-  UNUSED(discard_n);
-  UNUSED(gather_n);
+  unsigned obs = 0;
 
-  // but how many???
+  while(obs < gather_n ) {
+    assert(row);
+    assert(xs);
+    UNUSED(discard_n);
+    UNUSED(gather_n);
 
-  ctrl_reset_enable();
-  ctrl_set_mux( HIMUX_SEL_REF_HI);  // change to sig-hi
-  ctrl_reset_disable();
+    // but how many???
 
-  collect_obs( app, param, 1 , 1, row, xs );
+    ctrl_reset_enable();
+    ctrl_set_mux( HIMUX_SEL_REF_HI);  // change to sig-hi
+    ctrl_reset_disable();
 
-  ctrl_reset_enable();
-  ctrl_set_mux( HIMUX_SEL_REF_LO);  // change to sig-hi
-  ctrl_reset_disable();
+    collect_obs( app, param, 1 , 1, row, xs );
 
-  collect_obs( app, param, 1 , 1, row, xs );
+    ctrl_reset_enable();
+    ctrl_set_mux( HIMUX_SEL_REF_LO);
+    ctrl_reset_disable();
+
+    collect_obs( app, param, 1 , 1, row, xs );
+
+    ++obs;
+  }
+
+  // do a subtraction loop. here. or elsewhere.
 
 
 }
@@ -143,7 +156,7 @@ void loop1 ( app_t *app)
     // void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs);
     // collect_obs( app, &param, 2 , 5, &row, xs );
 
-    collect_obs_azero( app, &param, -123 , -456, &row, xs);
+    collect_obs_azero( app, &param, 0, 1, &row, xs);
 
 
     for(unsigned r = row_start; r < row; ++r ) {
