@@ -413,24 +413,16 @@ MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
   perhaps pass y etc.
 
   and we simplify... the main loop pumping.
-
+  ----------------
 */
 
-// not really sure this belongs here
 
+/* 
+  - have a variant of this function that can do autozero. or autograin.
+  - alternatively. 
 
-/*
-  there's an issue in trying to generalize this too much.
-  in passing values in just to be re-recorded.
+  - and just add rows to the matrix.
 
-  about aperture and y.
-  we don't have to read aperture in the run either.
-
-  void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row, double y_, unsigned *flags,  MAT *xs, MAT *aperture,  MAT *y)
-
-  --------------------------
-  ********************
-  The big thing is we are going to be changing himux_sel. for azero scheme
 */
 
 void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs)
@@ -492,9 +484,7 @@ void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_
       led_toggle();
     }
 
-
   } // while
-
 }
 
 

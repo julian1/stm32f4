@@ -54,6 +54,38 @@
 // TODO change name predict. to est. or estimator .
 
 
+
+
+
+
+
+static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs)
+{
+  assert(row);
+  assert(xs);
+  UNUSED(discard_n);
+  UNUSED(gather_n);
+
+  // but how many???
+
+  ctrl_reset_enable();
+  ctrl_set_mux( HIMUX_SEL_REF_HI);  // change to sig-hi
+  ctrl_reset_disable();
+
+  collect_obs( app, param, 1 , 1, row, xs );
+
+  ctrl_reset_enable();
+  ctrl_set_mux( HIMUX_SEL_REF_LO);  // change to sig-hi
+  ctrl_reset_disable();
+
+  collect_obs( app, param, 1 , 1, row, xs );
+
+
+}
+
+
+
+
 void loop1 ( app_t *app)
 {
   usart_printf("=========\n");
@@ -103,7 +135,10 @@ void loop1 ( app_t *app)
     unsigned row_start = row;
 
     // void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs);
-    collect_obs( app, &param, 2 , 5, &row, xs );
+    // collect_obs( app, &param, 2 , 5, &row, xs );
+
+    collect_obs_azero( app, &param, -123 , -456, &row, xs);
+
 
     for(unsigned r = row_start; r < row; ++r ) {
       // fill aperture, from param.
