@@ -75,9 +75,14 @@
     in one pattern should just always set modulation himux_sel to register_bank himux_sel.
   ---------------
 
-  --------------
   it is vastly nicer. not to have to write the fpga. in ordinary operation.
   --------------
+
+  - anything that gets changed by the pattern controller  - needs to be moved from Param to Run. data structure. 
+  ------------
+  issue with pattern_controller.
+    - is that we have to duplicate every variable. - so that the last value that is read is correct.
+    - or else read everything quicly enough. that its correct for the last modulation, before the pattern controller changes things.
 
 
 */
