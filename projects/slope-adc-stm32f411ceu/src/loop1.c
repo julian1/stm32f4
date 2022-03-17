@@ -54,9 +54,12 @@
 // TODO change name predict. to est. or estimator .
 
 
+/*
+  - rather than functions calling functions.
+  - easier to use event function.
 
 
-
+*/
 
 
 static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs /* , unsigned himux_sel */)
@@ -65,12 +68,15 @@ static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, uns
   can pass himux_sel.
   or nplc
   or whatever parameter is being varied under the strategy.
-  ------
 
-  wrap this in a loop.
+  // we cannot do a subtraction here. these are raw counts. 
+  // need to project the values using calibration coeff.
 
-  And do the actual subtraction ment
+  // then partition the matrix, into two , then do a row by row subtraction.
 */
+
+  // note/record the signal to use. eg. sig or ref-hi.
+  unsigned signal = param->himux_sel;  
 
   unsigned obs = 0;
 
@@ -82,23 +88,23 @@ static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, uns
 
     // but how many???
 
-    ctrl_reset_enable();
-    ctrl_set_mux( HIMUX_SEL_REF_HI);  // change to sig-hi
-    ctrl_reset_disable();
 
-    collect_obs( app, param, 1 , 1, row, xs );
-
+    // ref-lo first.
     ctrl_reset_enable();
     ctrl_set_mux( HIMUX_SEL_REF_LO);
     ctrl_reset_disable();
 
     collect_obs( app, param, 1 , 1, row, xs );
 
+    // now signal/ ref hi
+    ctrl_reset_enable();
+    ctrl_set_mux( signal /*HIMUX_SEL_REF_HI */);  // change to sig-hi
+    ctrl_reset_disable();
+
+    collect_obs( app, param, 1 , 1, row, xs );
+
     ++obs;
   }
-
-  // do a subtraction loop. here. or elsewhere.
-
 
 }
 
