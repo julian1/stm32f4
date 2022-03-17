@@ -134,43 +134,15 @@ void loop1 ( app_t *app)
   usart_printf("loop1\n");
 
   assert(app);
-  // assert( HIMUX_SEL_REF_LO ==  0b1011  );
 
-/*
-  // don't need static.
-  float predict_ar[ 10 ] ;
-  size_t n = 5;   // can change this.
-  int i = 0;
-
-  memset( predict_ar, 0, sizeof( predict_ar));
-*/
-
-
-/*
-  /////////////////
-  unsigned  max_rows =  10 ;
-  MAT *xs =       m_get(max_rows, X_COLS );
-  MAT *aperture = m_get(max_rows, 1 );
-*/
-  // unsigned *himux_sel_last = malloc( sizeof(unsigned) * max_rows );   // TODO need to free . or
-  // unsigned himux_sel_last_n = max_rows;
-
-
-  /* params are relatively unchanging...
-    the authoritative source of state can still be the fpga.
-    should probably hold in reset while read, to avoid emi influencing integrator...
-  */
-
-
+  ctrl_set_pattern( 0 ) ;     // no azero.
+  // ctrl_set_pattern( 10 ) ;    // azero.
 
   while(true) {
 
     unsigned row = 0;
     printf("\n");
 
-    // unsigned row_start = row;
-    // void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs);
-    // collect_obs( app, &param, 2 , 5, &row, xs );
     // void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 )
 
     Run   run[10];

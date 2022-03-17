@@ -62,7 +62,7 @@ double aper_n_to_period( uint32_t aper)
   return period;
 }
 
-/*
+
 void ctrl_set_pattern( uint32_t pattern )
 {
   // TODO add spi argument.
@@ -70,7 +70,7 @@ void ctrl_set_pattern( uint32_t pattern )
 
   spi_reg_write(SPI1, REG_PATTERN,   pattern );
 }
-*/
+
 
 void ctrl_set_aperture( uint32_t aperture)
 {
