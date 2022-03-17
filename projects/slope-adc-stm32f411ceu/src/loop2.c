@@ -12,34 +12,19 @@
 
 #include "regression.h"
 
-
-#include <stdbool.h>
-
-#include <matrix.h>
-
-// #include <libopencm3/stm32/spi.h>   // SPI1 .. TODO remove. pass spi by argument
-
 #include "app.h"
 
 
 
 
 /*
-  - OK. our mistake is not having this function do the push on the back of the matri
-  - rather than double handle
-  ---------
-  just remove the row pointer.
-  row should be passed by reference...
-  ---------
-
   two ways to do this.
     - 1) oversize matrix. and adjust row pointer. then shrink.
-    - 2) prereserve size - then incrementing row dimension of each matrix on each obs. 
+    - 2) preallocate oversized - then on each row increase row dimension.
 
-  tow pointer is fairly simple and neat.
+  using a row pointer is fairly simple and probably sufficient.
 
 */
-
 
 
 static void collect_obs( app_t *app, unsigned *row, unsigned discard, unsigned gather, double y_, MAT *xs, MAT *aperture,  MAT *y)
@@ -100,7 +85,7 @@ static void collect_obs( app_t *app, unsigned *row, unsigned discard, unsigned g
           m_row_set( aperture, *row, app_ );
           M_FREE(app_);
 
-          // do target
+          // do y/target
           m_set_val( y, *row, 0, y_ );
 
 
@@ -113,7 +98,7 @@ static void collect_obs( app_t *app, unsigned *row, unsigned discard, unsigned g
 
         usart_printf("\n");
         ++obs;
-      } // app->data_ready
+      }
 
       // update_console_cmd(app);
       // usart_output_update(); // shouldn't be necessary, now pumped by interupts.
@@ -132,11 +117,6 @@ static void collect_obs( app_t *app, unsigned *row, unsigned discard, unsigned g
 }
 
 
-
-/*
-  life would be easier
-
-*/
 
 
 
