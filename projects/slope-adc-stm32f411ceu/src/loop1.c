@@ -74,7 +74,7 @@ void loop1 ( app_t *app)
 
   /////////////////
   MAT *xs = m_get(1,1); // TODO change MNULL
-  MAT *y = m_get(1,1);
+  // MAT *y = m_get(1,1);
   MAT *aperture = m_get(1,1);
 
 
@@ -83,9 +83,14 @@ void loop1 ( app_t *app)
   // eg. 10x 10NPLC
   unsigned  max_rows =  10 ;
   m_resize( xs ,        max_rows, X_COLS );
-  m_resize( y ,         max_rows, 1 );
+  // m_resize( y ,         max_rows, 1 );
   m_resize( aperture,   max_rows, 1 );
 
+
+  // params are relatively unchanging...
+  // Do once.
+  Param param;
+  param_read( &param);
 
   while(true) {
 
@@ -93,21 +98,21 @@ void loop1 ( app_t *app)
 
     unsigned row = 0;
     printf("\n");
-    collect_obs( app, 0, 1, &row, -12345.567, xs, aperture, y);
 
-    // Except when switching parameters, doing auto zero, we will only get one at a time.
-    // nevermind it is still useful
-    // doesn't matter.
 
-    // NO. we can pass in a hires select parameter. as to what to sample.
+    unsigned row_start = row;
 
-    /*
-        - extr. having the row as a pointer. makes it very easy to collect multiple values
+    // void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs);
+    collect_obs( app, &param, 2 , 5, &row, xs );
 
-        - also in the same way we pass in the target. we can pass in other information. 
-          to get encoded in an output array.
-          array does *not* need to be a MAT matrix. could be unsigned *flags;
-    */
+    for(unsigned i = row_start; i < row; ++i ) {
+
+      // fill aperture, from param.
+
+      assert(row < m_rows(aperture));
+      m_set_val( aperture, row, 0, param.clk_count_aper_n );
+    } 
+
 
     // there's no easy halt.... or halt will leak memory...
     if(app ->b) {
@@ -206,3 +211,25 @@ void loop1 ( app_t *app)
 
 
 }
+
+
+
+
+
+
+    // Except when switching parameters, doing auto zero, we will only get one at a time.
+    // nevermind it is still useful
+    // doesn't matter.
+
+    // NO. we can pass in a hires select parameter. as to what to sample.
+
+    /*
+        - extr. having the row as a pointer. makes it very easy to collect multiple values
+
+        - also in the same way we pass in the target. we can pass in other information. 
+          to get encoded in an output array.
+          array does *not* need to be a MAT matrix. could be unsigned *flags;
+    */
+
+
+

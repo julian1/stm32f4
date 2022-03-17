@@ -167,42 +167,69 @@ void run_read( Run *run )
   // WE could record slow_rundown separate to normal rundown.
   run->clk_count_rundown = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
 
-  ///////////////
-  // from params
-  // eg. defer to fpga which is source/ and may modulate these
-
   // run->meas_count       = spi_reg_read(SPI1, REG_MEAS_COUNT );
+
+}
+
+
+void param_read( Param *param)
+{
+  /*
+  struct Param
+  {
+    // the pattern controller may change on its own - so should read for *each* run.
+    uint32_t clk_count_aper_n;   // aperture.
+    uint32_t clk_count_fix_n;
+    uint32_t clk_count_var_pos_n;
+
+    // for auto-zero
+    uint32_t himux_sel;
+  };
+  */
+
+
 
   uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_LO );
   uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_HI );
-  run->clk_count_aper_n = int_hi << 24 | int_lo;
+  param->clk_count_aper_n = int_hi << 24 | int_lo;
 
-  run->clk_count_fix_n  = spi_reg_read(SPI1, REG_CLK_COUNT_FIX_N);
+  param->clk_count_fix_n  = spi_reg_read(SPI1, REG_CLK_COUNT_FIX_N);
 
-  run->clk_count_var_pos_n = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_POS_N);
+  param->clk_count_var_pos_n = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_POS_N);
 
   // do this for the moment. albeit it shouldn't be needed
   // when wrapping parameter changes with reset.
-  // run->himux_sel = spi_reg_read(SPI1, REG_HIMUX_SEL );
+
+  param->himux_sel = spi_reg_read(SPI1, REG_HIMUX_SEL );
+
+}
 
 
-/*
-  // try rerdeading a lot later.
-  // something really weird - with wrong values. happens
-  // doesn't seem to happen with nplc=10, or nplc=25, happens once nplc=40
-  uint32_t count_up         = spi_reg_read(SPI1, REG_COUNT_UP );
-  uint32_t count_down       = spi_reg_read(SPI1, REG_COUNT_DOWN );
-  assert(run->count_up == count_up );
-  assert(run->count_down == count_down );
 
-*/
+void param_report( Param *param)
+{
+
+
+  usart_printf("clk_count_aper_n %lu, ", param->clk_count_aper_n);
+
+  usart_printf("clk_count_fix_n %lu, ", param->clk_count_fix_n);
+  usart_printf("clk_count_var_pos_n %lu, ", param->clk_count_var_pos_n);
+
+  char buf[100];
+  printf("himux_sel %s",  format_bits( buf, 4, param->himux_sel ));
+
 
 }
 
 
 
 
-void run_report( Run *run, bool extra )
+
+
+
+
+
+void run_report( Run *run )
 {
   assert(run);
 
@@ -216,18 +243,8 @@ void run_report( Run *run, bool extra )
 
   usart_printf("clk_count_rundown %u, ", run->clk_count_rundown);
 
-  if(extra) {
-    usart_printf("meas_count %lu, ", run->meas_count);
+  // usart_printf("meas_count %lu, ", run->meas_count);
 
-    usart_printf("clk_count_aper_n %lu, ", run->clk_count_aper_n);
-
-    usart_printf("clk_count_fix_n %lu, ", run->clk_count_fix_n);
-    usart_printf("clk_count_var_pos_n %lu, ", run->clk_count_var_pos_n);
-
-    char buf[100];
-    printf("himux_sel %s",  format_bits( buf, 4, run->himux_sel ));
-
-  }
 
 }
 
@@ -242,7 +259,7 @@ void run_report( Run *run, bool extra )
   This is the point where we de
 */
 
-MAT * run_to_matrix( Run *run, MAT * out )
+MAT * run_to_matrix( Param *param, Run *run, MAT * out )
 {
   assert(run);
 
@@ -261,10 +278,10 @@ MAT * run_to_matrix( Run *run, MAT * out )
 
 
   // negative current / slope up
-  double x0 = (run->count_up   * run->clk_count_var_pos_n) + (run->count_fix_up   * run->clk_count_fix_n) ;
+  double x0 = (run->count_up   * param->clk_count_var_pos_n) + (run->count_fix_up   * param->clk_count_fix_n) ;
 
   // positive current. slope down.
-  double x1 = (run->count_down * run->clk_count_var_pos_n) + (run->count_fix_down * run->clk_count_fix_n) ;
+  double x1 = (run->count_down * param->clk_count_var_pos_n) + (run->count_fix_down * param->clk_count_fix_n) ;
 
   double x2 = run->clk_count_rundown;
 
@@ -290,6 +307,7 @@ MAT * run_to_matrix( Run *run, MAT * out )
 }
 
 
+#if 0
 MAT * run_to_aperture( Run *run, MAT * out )
 {
   assert(run);
@@ -303,7 +321,7 @@ MAT * run_to_aperture( Run *run, MAT * out )
 
   return out;
 }
-
+#endif
 
 
 
@@ -400,7 +418,22 @@ MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
 
 // not really sure this belongs here
 
-void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row, double y_, /*unsigned *flags*/ MAT *xs, MAT *aperture,  MAT *y)
+
+/*
+  there's an issue in trying to generalize this too much.
+  in passing values in just to be re-recorded.
+
+  about aperture and y.
+  we don't have to read aperture in the run either.
+
+  void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row, double y_, unsigned *flags,  MAT *xs, MAT *aperture,  MAT *y)
+
+  --------------------------
+  ********************
+  The big thing is we are going to be changing himux_sel. for azero scheme
+*/
+
+void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs)
 {
   /*
      use flags to pass in flags... like hires_mux...
@@ -414,14 +447,14 @@ void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *r
 
   assert(row);
   assert(xs);
-  assert(aperture);
-  assert(y);
+  // assert(aperture);
+  // assert(y);
 
-  assert( m_rows(xs) == m_rows(y ));
-  assert( m_rows(aperture) == m_rows(y ));
+  // assert( m_rows(xs) == m_rows(y ));
+  // assert( m_rows(aperture) == m_rows(y ));
 
-  assert( m_cols(aperture) == 1 );
-  assert( m_cols(y) == 1 );
+  // assert( m_cols(aperture) == 1 );
+  // assert( m_cols(y) == 1 );
 
 
   // obs per current configuration
@@ -441,7 +474,7 @@ void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *r
       Run run;
       run_read(&run );
 
-      run_report(&run, 0);
+      run_report(&run);
 
 
       // only if greater than
@@ -451,7 +484,7 @@ void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *r
         assert(*row < m_rows(xs));
 
         // do xs.
-        MAT *xs1 = run_to_matrix(  &run, MNULL );
+        MAT *xs1 = run_to_matrix( param,  &run, MNULL );
         assert(xs1);
         assert( m_rows(xs1) == 1 );
 
@@ -459,7 +492,7 @@ void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *r
         m_row_set( xs, *row, xs1 );
         M_FREE(xs1);
 
-
+/*
         // do aperture
         MAT *app_ = run_to_aperture(  &run, MNULL );
         assert(app_);
@@ -471,7 +504,7 @@ void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *r
 
         // do y/target
         m_set_val( y, *row, 0, y_ );
-
+*/
 
         ++*row;
       }

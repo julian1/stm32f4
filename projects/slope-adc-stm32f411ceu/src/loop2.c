@@ -39,7 +39,13 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
   unsigned row = 0;
 
 
-  double aperture_ = 0;
+  // double aperture_ = 0;
+
+
+  Param param;
+
+  // I THINK it's wrong to pass the aperture and target.
+  // THE row pointer allows this to be set in a higher function
 
   for(unsigned i = 0; /*i < 10*/; ++i )
   {
@@ -51,104 +57,104 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
 
       case 0:
         // 8 NPLC  ref-lo
-        aperture_ = nplc_to_aper_n( 8);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
-        ctrl_set_aperture( aperture_ );
+        ctrl_set_aperture( nplc_to_aper_n( 8) );
+        param_read( &param );
         ctrl_reset_disable();
-        target = 0.0  * aperture_;
+        target = 0.0  * param.clk_count_aper_n;
         break;
 
       case 1:
         // 8 NPLC  ref-hi
-        aperture_ = nplc_to_aper_n( 8);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
-        ctrl_set_aperture( aperture_  );
+        ctrl_set_aperture( nplc_to_aper_n( 8));
+        param_read( &param );
         ctrl_reset_disable();
-        target = 7.1 * aperture_;
+        target = 7.1 * param.clk_count_aper_n;
         break;
 
       case 2:
         // 9 NPLC  ref-lo
-        aperture_ = nplc_to_aper_n( 9);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
-        ctrl_set_aperture( aperture_ );
+        ctrl_set_aperture( nplc_to_aper_n( 9));
+        param_read( &param );
         ctrl_reset_disable();
-        target = 0.0  * aperture_;
+        target = 0.0  * param.clk_count_aper_n;
         break;
 
       case 3:
         // 9 NPLC  ref-hi
-        aperture_ = nplc_to_aper_n( 9);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
-        ctrl_set_aperture( aperture_  );
+        ctrl_set_aperture( nplc_to_aper_n( 9));
+        param_read( &param );
         ctrl_reset_disable();
-        target = 7.1 * aperture_;
+        target = 7.1 * param.clk_count_aper_n;
         break;
 
       case 4:
         // 10NPLC  ref-lo
-        aperture_ = nplc_to_aper_n( 10);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
-        ctrl_set_aperture( aperture_ );
+        ctrl_set_aperture( nplc_to_aper_n( 10));
+        param_read( &param );
         ctrl_reset_disable();
-        target = 0.0  * aperture_;
+        target = 0.0  * param.clk_count_aper_n;
         break;
 
       case 5:
         // 10NPLC  ref-hi
-        aperture_ = nplc_to_aper_n( 10);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
-        ctrl_set_aperture( aperture_  );
+        ctrl_set_aperture( nplc_to_aper_n( 10));
+        param_read( &param );
         ctrl_reset_disable();
-        target = 7.1 * aperture_;
+        target = 7.1 * param.clk_count_aper_n;
         break;
 
 
       case 6:
         // 11 NPLC mux mux ref-lo.
-        aperture_ = nplc_to_aper_n( 11);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
-        ctrl_set_aperture( aperture_ );
+        ctrl_set_aperture( nplc_to_aper_n( 11));
+        param_read( &param );
         ctrl_reset_disable();
-        target = 0.0  * aperture_;
+        target = 0.0 * param.clk_count_aper_n;
         break;
 
       case 7:
         // 11 NPLC mux ref-hi.
-        aperture_ = nplc_to_aper_n( 11);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
-        ctrl_set_aperture( aperture_  );
+        ctrl_set_aperture( nplc_to_aper_n( 11));
+        param_read( &param );
         ctrl_reset_disable();
-        target = 7.1 * aperture_;
+        target = 7.1 * param.clk_count_aper_n;
         break;
 
 
       case 8:
         // 12 NPLC  ref-lo
-        aperture_ = nplc_to_aper_n( 12);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
-        ctrl_set_aperture( aperture_ );
+        ctrl_set_aperture( nplc_to_aper_n( 12));
+        param_read( &param );
         ctrl_reset_disable();
-        target = 0.0  * aperture_;
+        target = 0.0  * param.clk_count_aper_n;
         break;
 
       case 9:
         // 12 NPLC  ref-hi
-        aperture_ = nplc_to_aper_n( 12);
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
-        ctrl_set_aperture( aperture_  );
+        ctrl_set_aperture( nplc_to_aper_n( 12));
+        param_read( &param );
         ctrl_reset_disable();
-        target = 7.1 * aperture_;
+        target = 7.1 * param.clk_count_aper_n;
         break;
 
 
@@ -157,17 +163,32 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
         // done
         usart_printf("done collcting obs\n");
 
-        // shrink matrixes for the data
-        m_resize( xs , row, X_COLS   );
-        m_resize( y , row, 1 );
+        // shrink matrixes for the data collected
+        m_resize( xs , row, m_cols( xs) );
+        m_resize( y , row, m_cols( y) );
         return;
     } // switch
 
 
+  // GAHHH.... the whole thin.g
 
-    // static void collect_obs( app_t *app, unsigned discard, unsigned gather, unsigned *row, double y_, MAT *xs, MAT *aperture,  MAT *y)
+  // I think that performing the conversion from counts to matrix. should be lifted out of the inner function/loop.
 
-    collect_obs( app, 2 , 5, &row, target, xs, aperture, y );
+    
+    unsigned row_start = row;
+
+    // void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs)
+    collect_obs( app, &param, 2 , 5, &row, xs );
+
+    for(unsigned r = row_start; r < row; ++r ) {
+      // fill in y. and aperture.
+
+      assert(r < m_rows(aperture));
+      m_set_val( aperture, r, 0, param.clk_count_aper_n );
+
+      assert(r < m_rows(y));
+      m_set_val( y       , r , 0, target );
+    } 
 
   }
 }

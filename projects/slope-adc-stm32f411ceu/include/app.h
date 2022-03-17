@@ -104,23 +104,64 @@ struct Run
   // really don't have to
   uint32_t meas_count;
 
+  
+  // we shouldn't be reading or setting these here.
+
+  // avoiding reading values off of the fpga, each run would be good. 
+  // but we need to know the parameters to compute stuff.
+
+  // there are a lot of things being varied.
+
+  /* 
+
   // the pattern controller may change on its own - so should read for *each* run.
   uint32_t clk_count_aper_n;   // aperture.
   uint32_t clk_count_fix_n;
   uint32_t clk_count_var_pos_n;
 
   uint32_t himux_sel;
-
+  */
 };
 
 typedef struct Run  Run;
 
-void run_read( Run *run );
-// void run_report( Run *run );
-void run_report( Run *run, bool extra );
-MAT * run_to_matrix( /*Params *params,*/ Run *run, MAT * out );
 
-MAT * run_to_aperture( Run *run, MAT * out);
+
+
+struct Param
+{
+  // the pattern controller may change on its own - so should read for *each* run.
+  uint32_t clk_count_aper_n;   // aperture.
+  uint32_t clk_count_fix_n;
+  uint32_t clk_count_var_pos_n;
+
+  // for auto-zero
+  uint32_t himux_sel;
+};
+
+// EXTR. 
+
+// we can read the params from the device......... NEAT.
+// but use a different structure, and only do it occasionally. 
+
+
+typedef struct Param Param;
+
+
+// being able to read config. or override is very good.
+// eg. fpga can still be the authoritative source
+void param_read( Param *param);
+void param_report( Param *param);
+
+
+
+void run_read( Run *run );
+
+void run_report( Run *run);
+
+MAT * run_to_matrix( Param *param, Run *run, MAT * out );
+
+// MAT * run_to_aperture( Run *run, MAT * out);
 
 
 // where should this code go. it doesn't belong in app. 
@@ -181,7 +222,11 @@ void update_console_cmd(app_t *app);
 
 
 
-void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row, double y_, MAT *xs, MAT *aperture,  MAT *y);
+// void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row, double y_, MAT *xs, MAT *aperture,  MAT *y);
+// void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs);
+
+
+void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs);
 
 
 // loop1
