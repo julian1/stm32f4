@@ -153,11 +153,22 @@ void loop1 ( app_t *app)
     run2.run      = run;
     run2.param    = param;
     run2.n        = 10;
+    
+    // need to free. or allocate using alloca()
     run2.xs       = m_get(10 , X_COLS );
     run2.aperture = m_get(10 , 1 );
 
 
+    // could bail early. if this loop processes commands
     collect_obs( app,  0, 2, &row, &run2 );
+
+    // if there is another continuation to run, then bail
+    // leaky...?
+    if(app->continuation_f) {
+      return;
+    }
+
+
 
     // shrink oversized matrixes down.
     m_resize( run2.xs,       row, m_cols( run2.xs) );
