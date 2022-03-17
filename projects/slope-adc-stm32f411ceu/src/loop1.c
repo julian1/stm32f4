@@ -161,6 +161,9 @@ void loop1 ( app_t *app)
     // void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 )
     collect_obs( app,  0, 2, &row, &run2 );
 
+    /* EXTR. IF we ran run_to_matrix()  here. then we would not need to pass down the xs and aperture arguments.
+    */
+
     // if there is another continuation to run, then bail
     // leaky...?
     // change this to a halt_task flag.
