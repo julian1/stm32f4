@@ -87,10 +87,16 @@ void loop1 ( app_t *app)
   m_resize( aperture,   max_rows, 1 );
 
 
-  // params are relatively unchanging...
-  // Do once.
+  /* params are relatively unchanging...
+    the authoritative source can still be the fpga.
+    should probably hold in reset to emi influencing integrator...
+  */
+  ctrl_reset_enable();
   Param param;
   param_read( &param);
+  ctrl_reset_disable();
+
+
 
   while(true) {
 
@@ -105,13 +111,15 @@ void loop1 ( app_t *app)
     // void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs);
     collect_obs( app, &param, 2 , 5, &row, xs );
 
-    for(unsigned i = row_start; i < row; ++i ) {
-
+    for(unsigned r = row_start; r < row; ++r ) {
       // fill aperture, from param.
+      assert(r < m_rows(aperture));
+      m_set_val( aperture, r, 0, param.clk_count_aper_n );
+    }
 
-      assert(row < m_rows(aperture));
-      m_set_val( aperture, row, 0, param.clk_count_aper_n );
-    } 
+    // shrink
+    m_resize( xs,       row, m_cols( xs) );
+    m_resize( aperture, row, m_cols( aperture));
 
 
     // there's no easy halt.... or halt will leak memory...
@@ -119,17 +127,25 @@ void loop1 ( app_t *app)
 
         MAT *predicted = calc_predicted( app->b, xs, aperture);
 
+        m_foutput(stdout, predicted );
+
+/*
         double value = m_get_val(predicted, 0, 0 );
 
 
         // TODO predict, rename. estimator?
         char buf[100];
         printf("predict %sV ", format_float_with_commas(buf, 100, 7, value));
-
+*/
 
     }
 
   }
+
+
+}
+
+
 
 
 #if 0
@@ -210,11 +226,6 @@ void loop1 ( app_t *app)
 #endif
 
 
-}
-
-
-
-
 
 
     // Except when switching parameters, doing auto zero, we will only get one at a time.
@@ -226,7 +237,7 @@ void loop1 ( app_t *app)
     /*
         - extr. having the row as a pointer. makes it very easy to collect multiple values
 
-        - also in the same way we pass in the target. we can pass in other information. 
+        - also in the same way we pass in the target. we can pass in other information.
           to get encoded in an output array.
           array does *not* need to be a MAT matrix. could be unsigned *flags;
     */
