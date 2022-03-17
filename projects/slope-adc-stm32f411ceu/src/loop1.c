@@ -162,6 +162,11 @@ void loop1 ( app_t *app)
     collect_obs( app,  0, 2, &row, &run2 );
 
     /* EXTR. IF we ran run_to_matrix()  here. then we would not need to pass down the xs and aperture arguments.
+      Not sure we even want collect_obs()...
+      because we need to synchronize iinputs.   eg. to read the zero value first, then the signal value.
+      this could be done more effectively by reading each value o
+
+      - change name collect_obs()  to wait_for_obs()
     */
 
     // if there is another continuation to run, then bail
