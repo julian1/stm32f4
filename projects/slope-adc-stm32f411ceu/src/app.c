@@ -424,6 +424,11 @@ MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
 
 void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 )
 {
+  /*
+    Think this just about gets deprevated. in factor .
+    of doing the loop in one place . and using slot. type logic.
+  */
+
   assert(row);
   assert(run2->xs);
 
@@ -490,8 +495,14 @@ void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *r
       ++obs;
     }
 
-    // update_console_cmd(app);
+    update_console_cmd(app);
     // usart_output_update(); // shouldn't be necessary, now pumped by interupts.
+
+    // if there is another continuation to run, then bail
+    if(app->continuation_f) {
+      return;
+    }
+
 
     // blink the led.
     // 250ms
