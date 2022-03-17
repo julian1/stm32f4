@@ -73,23 +73,14 @@ void loop1 ( app_t *app)
 
 
   /////////////////
-  MAT *xs = m_get(1,1); // TODO change MNULL
-  // MAT *y = m_get(1,1);
-  MAT *aperture = m_get(1,1);
-
-
-  /////////////////
-  // TODO fix - don't allocate, then resize
-  // eg. 10x 10NPLC
   unsigned  max_rows =  10 ;
-  m_resize( xs ,        max_rows, X_COLS );
-  // m_resize( y ,         max_rows, 1 );
-  m_resize( aperture,   max_rows, 1 );
+  MAT *xs =       m_get(max_rows, X_COLS );
+  MAT *aperture = m_get(max_rows, 1 );
 
 
   /* params are relatively unchanging...
-    the authoritative source can still be the fpga.
-    should probably hold in reset to emi influencing integrator...
+    the authoritative source of state can still be the fpga.
+    should probably hold in reset while read, to avoid emi influencing integrator...
   */
   ctrl_reset_enable();
   Param param;
@@ -100,6 +91,9 @@ void loop1 ( app_t *app)
 
   while(true) {
 
+    // normally will gather only one obs.
+    // EXTR write another collec_obs . that uses auto-zero.
+    // OR.    Would be ea
     // discard == 0, gather 1.
 
     unsigned row = 0;
@@ -126,8 +120,12 @@ void loop1 ( app_t *app)
     if(app ->b) {
 
         MAT *predicted = calc_predicted( app->b, xs, aperture);
+        assert(m_cols(predicted) == 1);
 
         m_foutput(stdout, predicted );
+
+        // now we want the mean as value...
+
 
 /*
         double value = m_get_val(predicted, 0, 0 );
