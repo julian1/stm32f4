@@ -57,6 +57,27 @@
 /*
   - rather than functions calling functions.
   - easier to use event function.
+  -------------------------------------
+
+  OK. OR alternatively should we use the pattern controller. on the fpga.
+  and then record himux in the arrays.
+
+  Then available
+  Issue is configuration.
+  ---------------------------------------
+
+  It could make the software very nice.
+
+  Is there a way to
+    write himux sel directly.   - eg. for calibrating.
+
+  pattern controller.
+    in one pattern should just always set modulation himux_sel to register_bank himux_sel.
+  ---------------
+
+  --------------
+  it is vastly nicer. not to have to write the fpga. in ordinary operation.
+  --------------
 
 
 */
@@ -69,14 +90,14 @@ static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, uns
   or nplc
   or whatever parameter is being varied under the strategy.
 
-  // we cannot do a subtraction here. these are raw counts. 
+  // we cannot do a subtraction here. these are raw counts.
   // need to project the values using calibration coeff.
 
   // then partition the matrix, into two , then do a row by row subtraction.
 */
 
   // note/record the signal to use. eg. sig or ref-hi.
-  unsigned signal = param->himux_sel;  
+  unsigned signal = param->himux_sel;
 
   unsigned obs = 0;
 
