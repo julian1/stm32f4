@@ -40,17 +40,18 @@
 #define REG_COUNT_FIX_UP        34
 #define REG_COUNT_FIX_DOWN      35
 #define REG_CLK_COUNT_RUNDOWN   37
-#define REG_HIMUX_SEL_LAST      38  // enables pattern controller, and/or simplifies communication.
-
-#define REG_MEAS_COUNT          40
-
-// these are output registers dependent upon the pattern used.
-// don't really need them .  if we write values.
 
 
-// #define REG_LAST_HIMUX_SEL      41      // what was being muxed for integration. sig, azero, acal .
-// #define REG_LAST_VAR_POS_N      42      // we don't need this...
+// treat as param variable
+#define REG_LAST_HIMUX_SEL           40 // what was being muxed for integration. sig, azero, acal .
+#define REG_LAST_CLK_COUNT_FIX_N     41
+#define REG_LAST_CLK_COUNT_VAR_POS_N 42
+#define REG_LAST_CLK_COUNT_VAR_NEG_N 43
+#define REG_LAST_CLK_COUNT_APER_N_LO 44
+#define REG_LAST_CLK_COUNT_APER_N_HI 45
 
+
+#define REG_MEAS_COUNT          50 
 
 
 
@@ -84,6 +85,39 @@ void ctrl_reset_disable(void);
 
 
 
+
+
+
+struct Param
+{
+  /*
+    must have params to compute the clk sums, in run_to_matrix_t 
+    therefore need to pass around, or else read off the mcu.
+  */
+  // the pattern controller may change on its own - so should read for *each* run.
+  uint32_t clk_count_aper_n;   // aperture.
+  uint32_t clk_count_fix_n;
+  uint32_t clk_count_var_pos_n;
+
+  // for auto-zero
+  uint32_t himux_sel;
+};
+
+// EXTR.
+
+// we can read the params from the device......... NEAT.
+// but use a different structure, and only do it occasionally.
+
+
+typedef struct Param Param;
+
+
+
+
+
+
+
+
 struct Run
 {
   uint32_t count_up;
@@ -107,6 +141,10 @@ struct Run
     but probably better to read into a separate params like structure.
   */
   uint32_t himux_sel_last;
+
+  // parameters used to obtain the reading.
+  // 
+  // Param   param_last;
 };
 
 
@@ -114,26 +152,28 @@ struct Run
 typedef struct Run  Run;
 
 
+/* matrix_to_run is just appending information?
 
+  Or just pass param and run around separately.
 
-struct Param
+*/
+
+struct Run2
 {
-  // the pattern controller may change on its own - so should read for *each* run.
-  uint32_t clk_count_aper_n;   // aperture.
-  uint32_t clk_count_fix_n;
-  uint32_t clk_count_var_pos_n;
+  Run   *run;
+  Param *param;    // contains hires_mux
 
-  // for auto-zero
-  uint32_t himux_sel;
+  unsigned n;
+
+  MAT   *xs;
+  MAT   *aperture;
 };
 
-// EXTR.
 
-// we can read the params from the device......... NEAT.
-// but use a different structure, and only do it occasionally.
+typedef struct Run2  Run2;
 
 
-typedef struct Param Param;
+
 
 
 // being able to read config. or override is very good.
@@ -148,8 +188,8 @@ void param_report( Param *param);
 
 
 */
-void param_read_last( Param *param);
 
+void param_read_last( Param *param);
 
 
 
@@ -224,8 +264,9 @@ void update_console_cmd(app_t *app);
 // void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs);
 // void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs);
 
-void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs,  unsigned *himux_sel_last, unsigned himux_sel_last_n );
+// void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs,  unsigned *himux_sel_last, unsigned himux_sel_last_n );
 
+void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 ); 
 
 // loop1
 void loop1(app_t *app );

@@ -141,7 +141,6 @@ void run_read( Run *run )
   change name adc_meas_read()   or intg_meas_read()
     etc.
   */
-
   assert(run);
 
   // use separate lines (to make it easier to filter - for plugging into stats).
@@ -158,68 +157,9 @@ void run_read( Run *run )
   // WE could record slow_rundown separate to normal rundown.
   run->clk_count_rundown = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
 
-  // run->meas_count       = spi_reg_read(SPI1, REG_MEAS_COUNT );
-
-  run->himux_sel_last   = spi_reg_read(SPI1, REG_HIMUX_SEL_LAST);
-
-}
-
-
-void param_read( Param *param)
-{
-  /*
-  struct Param
-  {
-    // the pattern controller may change on its own - so should read for *each* run.
-    uint32_t clk_count_aper_n;   // aperture.
-    uint32_t clk_count_fix_n;
-    uint32_t clk_count_var_pos_n;
-
-    // for auto-zero
-    uint32_t himux_sel;
-  };
-  */
-
-
-
-  uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_LO );
-  uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_HI );
-  param->clk_count_aper_n = int_hi << 24 | int_lo;
-
-  param->clk_count_fix_n  = spi_reg_read(SPI1, REG_CLK_COUNT_FIX_N);
-
-  param->clk_count_var_pos_n = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_POS_N);
-
-  // do this for the moment. albeit it shouldn't be needed
-  // when wrapping parameter changes with reset.
-
-  // wrong, if usinig pattern controller, and d
-  // consider removing from here.
-  param->himux_sel = spi_reg_read(SPI1, REG_HIMUX_SEL );
-
-}
-
-
-
-void param_report( Param *param)
-{
-
-
-  usart_printf("clk_count_aper_n %lu, ", param->clk_count_aper_n);
-
-  usart_printf("clk_count_fix_n %lu, ", param->clk_count_fix_n);
-  usart_printf("clk_count_var_pos_n %lu, ", param->clk_count_var_pos_n);
-
-  char buf[100];
-  printf("himux_sel %s",  format_bits( buf, 4, param->himux_sel ));
 
 
 }
-
-
-
-
-
 
 
 
@@ -239,12 +179,60 @@ void run_report( Run *run )
   usart_printf("clk_count_rundown %u, ", run->clk_count_rundown);
 
   // usart_printf("meas_count %lu, ", run->meas_count);
+}
 
-  char buf[100];
-  usart_printf("himux_sel_last %s (%lu), ", format_bits( buf, 8, run->himux_sel_last), run->himux_sel_last);
 
+
+
+void param_read( Param *param)
+{
+
+  uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_LO );
+  uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_HI );
+  param->clk_count_aper_n = int_hi << 24 | int_lo;
+
+  param->clk_count_fix_n  = spi_reg_read(SPI1, REG_CLK_COUNT_FIX_N);
+
+  param->clk_count_var_pos_n = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_POS_N);
+
+  param->himux_sel = spi_reg_read(SPI1, REG_HIMUX_SEL );
 
 }
+
+
+
+
+
+void param_read_last( Param *param)
+{
+  // THESE ARE NOT LAST..
+  // but nothing permutes this.
+  uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_LO );
+  uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_HI );
+  param->clk_count_aper_n = int_hi << 24 | int_lo;
+
+  // LAST
+  param->clk_count_fix_n  = spi_reg_read(SPI1, REG_LAST_CLK_COUNT_FIX_N);
+
+  param->clk_count_var_pos_n = spi_reg_read(SPI1, REG_LAST_CLK_COUNT_VAR_POS_N);
+
+  // This is.
+  param->himux_sel = spi_reg_read(SPI1, REG_LAST_HIMUX_SEL ); // **last
+}
+
+
+void param_report( Param *param)
+{
+  usart_printf("clk_count_aper_n %lu, ", param->clk_count_aper_n);
+  usart_printf("clk_count_fix_n %lu, ", param->clk_count_fix_n);
+  usart_printf("clk_count_var_pos_n %lu, ", param->clk_count_var_pos_n);
+
+  char buf[100];
+  usart_printf("himux_sel %s (%lu), ", format_bits( buf, 8, param->himux_sel), param->himux_sel);
+}
+
+
+
 
 
 
@@ -423,13 +411,23 @@ MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
   -----------------
 
   now we can pass and recurd himux_sel
-
 */
 
-void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs,  unsigned *himux_sel_last, unsigned himux_sel_last_n )
+/*
+
+  This is where we go wrong.
+  We should be returning run and parameters and other stuff..
+
+  that
+*/
+
+
+//void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs,  unsigned *himux_sel_last, unsigned himux_sel_last_n )
+
+void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 )
 {
   assert(row);
-  assert(xs);
+  assert(run2->xs);
 
   // obs per current configuration
   unsigned obs = 0;
@@ -442,30 +440,43 @@ void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_
       // in priority
       app->data_ready = false;
 
+
+      // everything read and organized in one place.
+
       // get run details
       Run run;
-      run_read(&run );
+      run_read(&run);
 
       run_report(&run);
+
+      Param param;
+      param_read_last( &param);
+
 
 
       // only if greater than
       if(obs >= discard_n ) {
 
-        assert(*row < m_rows(xs));
+        assert(*row < m_rows(run2->xs));
+        assert(*row < m_rows(run2->aperture));
+        assert(*row < run2->n );
 
         // do xs.
-        MAT *xs1 = run_to_matrix( param,  &run, MNULL );
+        MAT *xs1 = run_to_matrix( &param,  &run, MNULL );
         assert(xs1);
         assert( m_rows(xs1) == 1 );
 
-        assert(xs);
-        m_row_set( xs, *row, xs1 );
+        // now write
+        run2->run[   *row ]  = run;     // value copy. 
+        run2->param[ *row ]  = param;     // value copy. 
+
+        // do xs
+        m_row_set( run2->xs, *row, xs1 );
         M_FREE(xs1);
 
-        // do himux_sel
-        assert(*row < himux_sel_last_n);
-        himux_sel_last[ *row ] = run.himux_sel_last;
+        // do aperture
+        m_set_val( run2->aperture, *row, 0, param.  clk_count_aper_n);
+
 
         ++*row;
       }

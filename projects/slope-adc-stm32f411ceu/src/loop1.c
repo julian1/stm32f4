@@ -89,6 +89,9 @@
 */
 
 
+
+#if 0
+
 // void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs,  unsigned *himux_sel_last, unsigned himux_sel_last_n );
 static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs, unsigned *himux_sel_last, unsigned himux_sel_last_n )
 {
@@ -120,6 +123,7 @@ static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, uns
 
   }
 }
+#endif
 
 
 
@@ -142,23 +146,20 @@ void loop1 ( app_t *app)
 */
 
 
+/*
   /////////////////
   unsigned  max_rows =  10 ;
   MAT *xs =       m_get(max_rows, X_COLS );
   MAT *aperture = m_get(max_rows, 1 );
-
-  unsigned *himux_sel_last = malloc( sizeof(unsigned) * max_rows );   // TODO need to free . or 
-  unsigned himux_sel_last_n = max_rows;
+*/
+  // unsigned *himux_sel_last = malloc( sizeof(unsigned) * max_rows );   // TODO need to free . or
+  // unsigned himux_sel_last_n = max_rows;
 
 
   /* params are relatively unchanging...
     the authoritative source of state can still be the fpga.
     should probably hold in reset while read, to avoid emi influencing integrator...
   */
-  ctrl_reset_enable();
-  Param param;
-  param_read( &param);
-  ctrl_reset_disable();
 
 
 
@@ -173,29 +174,35 @@ void loop1 ( app_t *app)
     printf("\n");
 
 
-    unsigned row_start = row;
+    // unsigned row_start = row;
 
     // void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs);
     // collect_obs( app, &param, 2 , 5, &row, xs );
+    // void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 )
 
-    collect_obs_azero( app, &param, 0, 1, &row, xs, himux_sel_last, himux_sel_last_n );
+    Run   run[10];
+    Param param[10];
 
 
-    for(unsigned r = row_start; r < row; ++r ) {
-      // fill aperture, from param.
-      assert(r < m_rows(aperture));
-      m_set_val( aperture, r, 0, param.clk_count_aper_n );
-    }
+    Run2  run2;
+    run2.run   = run;
+    run2.param = param;
+    run2.n = 10;
+    run2.xs =       m_get(10 , X_COLS );
+    run2.aperture = m_get(10 , 1 );
 
-    // shrink
-    m_resize( xs,       row, m_cols( xs) );
-    m_resize( aperture, row, m_cols( aperture));
+
+    collect_obs( app,  0, 1, &row, &run2 );
+
+    // shrink oversized matrixes down.
+    m_resize( run2.xs,       row, m_cols( run2.xs) );
+    m_resize( run2.aperture, row, m_cols( run2.aperture));
 
 
     // there's no easy halt.... or halt will leak memory...
     if(app ->b) {
 
-        MAT *predicted = calc_predicted( app->b, xs, aperture);
+        MAT *predicted = calc_predicted( app->b, run2.xs, run2.aperture);
         assert(m_cols(predicted) == 1);
 
         m_foutput(stdout, predicted );
