@@ -165,17 +165,10 @@ void loop1 ( app_t *app)
 
   while(true) {
 
-    // normally will gather only one obs.
-    // EXTR write another collec_obs . that uses auto-zero.
-    // OR.    Would be ea
-    // discard == 0, gather 1.
-
     unsigned row = 0;
     printf("\n");
 
-
     // unsigned row_start = row;
-
     // void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs);
     // collect_obs( app, &param, 2 , 5, &row, xs );
     // void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 )
@@ -185,10 +178,10 @@ void loop1 ( app_t *app)
 
 
     Run2  run2;
-    run2.run   = run;
-    run2.param = param;
-    run2.n = 10;
-    run2.xs =       m_get(10 , X_COLS );
+    run2.run      = run;
+    run2.param    = param;
+    run2.n        = 10;
+    run2.xs       = m_get(10 , X_COLS );
     run2.aperture = m_get(10 , 1 );
 
 
@@ -209,11 +202,8 @@ void loop1 ( app_t *app)
 
         // now we want the mean as value...
 
-
 /*
         double value = m_get_val(predicted, 0, 0 );
-
-
         // TODO predict, rename. estimator?
         char buf[100];
         printf("predict %sV ", format_float_with_commas(buf, 100, 7, value));

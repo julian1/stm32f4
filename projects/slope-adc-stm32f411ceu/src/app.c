@@ -205,10 +205,9 @@ void param_read( Param *param)
 
 void param_read_last( Param *param)
 {
-  // THESE ARE NOT LAST..
   // but nothing permutes this.
-  uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_LO );
-  uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_HI );
+  uint32_t int_lo = spi_reg_read(SPI1, REG_LAST_CLK_COUNT_APER_N_LO );
+  uint32_t int_hi = spi_reg_read(SPI1, REG_LAST_CLK_COUNT_APER_N_HI );
   param->clk_count_aper_n = int_hi << 24 | int_lo;
 
   // LAST
