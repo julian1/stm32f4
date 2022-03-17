@@ -27,7 +27,7 @@
 */
 
 
-static void collect_obs( app_t *app, unsigned *row, unsigned discard, unsigned gather, double y_, MAT *xs, MAT *aperture,  MAT *y)
+static void collect_obs( app_t *app, unsigned discard, unsigned gather, unsigned *row, double y_, MAT *xs, MAT *aperture,  MAT *y)
 {
     assert(row);
     assert(xs);
@@ -120,32 +120,23 @@ static void collect_obs( app_t *app, unsigned *row, unsigned discard, unsigned g
 
 
 
-/*
-  - ok. think we want an intermediate structure...
-  so we can use this once
-
-  - could also record the configuration
-*/
-
-
 
 static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
 {
+  // rename cal_generate_modulation_permutions()
 
   usart_printf("=========\n");
   usart_printf("cal loop\n");
 
 
-  // WRONG. should be presized.... before passing here
-
-  unsigned row = 0;
-
+  // presize/oversize
   unsigned  max_rows =  10 * 5;
 
   m_resize( xs ,        max_rows, X_COLS );
   m_resize( y ,         max_rows, 1 );
   m_resize( aperture,   max_rows, 1 );
 
+  unsigned row = 0;
 
 
   double aperture_ = 0;
@@ -273,17 +264,16 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
     } // switch
 
 
-    // static unsigned collect_obs( app_t *app, unsigned row, unsigned discard, unsigned gather, double y_, MAT *x, MAT *aperture,  MAT *y)
 
-    collect_obs( app, &row, 2 , 5 , target, xs, aperture, y );
+    // static void collect_obs( app_t *app, unsigned discard, unsigned gather, unsigned *row, double y_, MAT *xs, MAT *aperture,  MAT *y)
 
-  } // state for
+    collect_obs( app, 2 , 5, &row, target, xs, aperture, y );
+
+  }
 }
 
 
 
-// generally useable
-// need jj
 
 
 
@@ -331,14 +321,12 @@ static MAT * calibrate( app_t *app)
   M_FREE(x);
   M_FREE(x_);
   M_FREE(y);
-  M_FREE(b);
+  // M_FREE(b);
   M_FREE(predicted);
 
 */
 
-
   return b;
-
 }
 
 
