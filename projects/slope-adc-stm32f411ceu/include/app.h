@@ -32,7 +32,8 @@
 
 
 // meas/run vars
-#define REG_COUNT_UP            30  // need to start at 30
+// these are all last
+#define REG_COUNT_UP            30
 #define REG_COUNT_DOWN          31
 #define REG_COUNT_TRANS_UP      32
 #define REG_COUNT_TRANS_DOWN    33
@@ -46,8 +47,9 @@
 // these are output registers dependent upon the pattern used.
 // don't really need them .  if we write values.
 
-// #define REG_MEAS_HIMUX_SEL      41      // what was being muxed for integration. sig, azero, acal .
-// #define REG_MEAS_VAR_POS_N      42      // we don't need this...
+
+// #define REG_LAST_HIMUX_SEL      41      // what was being muxed for integration. sig, azero, acal .
+// #define REG_LAST_VAR_POS_N      42      // we don't need this...
 
 
 
@@ -58,13 +60,7 @@
 #define HIMUX_SEL_ANG         0b0111
 
 
-/*
-#define PATTERN_SIG_HI      0
-#define PATTERN_REF_HI      1
-#define PATTERN_REF_LO      2
-#define PATTERN_ANG         3
 
-*/
 
 // this isn't very good. because displayed nplc
 // will be constructive.
