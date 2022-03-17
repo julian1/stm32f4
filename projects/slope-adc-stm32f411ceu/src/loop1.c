@@ -143,7 +143,6 @@ void loop1 ( app_t *app)
     unsigned row = 0;
     printf("\n");
 
-    // void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 )
 
     Run   run[10];
     Param param[10];
@@ -153,17 +152,18 @@ void loop1 ( app_t *app)
     run2.run      = run;
     run2.param    = param;
     run2.n        = 10;
-    
+
     // need to free. or allocate using alloca()
     run2.xs       = m_get(10 , X_COLS );
     run2.aperture = m_get(10 , 1 );
 
 
-    // could bail early. if this loop processes commands
+    // void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 )
     collect_obs( app,  0, 2, &row, &run2 );
 
     // if there is another continuation to run, then bail
     // leaky...?
+    // change this to a halt_task flag.
     if(app->continuation_f) {
       return;
     }
