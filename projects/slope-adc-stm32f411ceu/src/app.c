@@ -155,19 +155,10 @@ void run_read( Run *run )
   run->count_up         = spi_reg_read(SPI1, REG_COUNT_UP );
   run->count_down       = spi_reg_read(SPI1, REG_COUNT_DOWN );
 
-/*
-  // something really weird - with wrong values. happens
-  // doesn't seem to happen with nplc=10, or nplc=25, happens once nplc=40
 
-  uint32_t count_up         = spi_reg_read(SPI1, REG_COUNT_UP );
-  uint32_t count_down       = spi_reg_read(SPI1, REG_COUNT_DOWN );
 
-  assert(run->count_up == count_up );
-  assert(run->count_down == count_down );
-*/
-
-  // run->count_trans_up     = spi_reg_read(SPI1, REG_COUNT_TRANS_UP );
-  // run->count_trans_down   = spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN );
+  run->count_trans_up     = spi_reg_read(SPI1, REG_COUNT_TRANS_UP );
+  run->count_trans_down   = spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN );
 
   run->count_fix_up     = spi_reg_read(SPI1, REG_COUNT_FIX_UP);
   run->count_fix_down   = spi_reg_read(SPI1, REG_COUNT_FIX_DOWN);
@@ -195,6 +186,17 @@ void run_read( Run *run )
   // run->himux_sel = spi_reg_read(SPI1, REG_HIMUX_SEL );
 
 
+/*
+  // try rerdeading a lot later.
+  // something really weird - with wrong values. happens
+  // doesn't seem to happen with nplc=10, or nplc=25, happens once nplc=40
+  uint32_t count_up         = spi_reg_read(SPI1, REG_COUNT_UP );
+  uint32_t count_down       = spi_reg_read(SPI1, REG_COUNT_DOWN );
+  assert(run->count_up == count_up );
+  assert(run->count_down == count_down );
+
+*/
+
 }
 
 
@@ -208,7 +210,7 @@ void run_report( Run *run, bool extra )
   // usart_printf("count_down %u, ",       run->count_down );
 
   usart_printf("count_up/down %u %u, ", run->count_up, run->count_down );
-  // usart_printf("trans_up/down %u %u, ", run->count_trans_up,  run->count_trans_down);
+  usart_printf("trans_up/down %u %u, ", run->count_trans_up,  run->count_trans_down);
   usart_printf("fix_up/down %u %u, ",   run->count_fix_up,  run->count_fix_down);
   // usart_printf("count_flip %u, ",       run->count_flip);
 
