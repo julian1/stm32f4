@@ -89,7 +89,7 @@
 */
 
 
-static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs /* , unsigned himux_sel */)
+static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs /* , unsigned himux_sel Params_out */)
 {
 /*
   can pass himux_sel.
@@ -98,8 +98,15 @@ static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, uns
 
   // we cannot do a subtraction here. these are raw counts.
   // need to project the values using calibration coeff.
-
   // then partition the matrix, into two , then do a row by row subtraction.
+  ---------------
+
+  If we are going to be doing complicated matrix calculation etc.
+  then we really need to perform the read, and set in the interupt.
+  - alternatively when writing - we are performing a reset here. so it should work.
+
+  We could even pass a straight array of Params.
+  that would make the calling interface the same. 
 */
 
   assert(row);

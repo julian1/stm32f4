@@ -104,20 +104,11 @@ struct Run
   // really don't have to
   uint32_t meas_count;
 
-  
-  // we shouldn't be reading or setting these here.
 
-  // avoiding reading values off of the fpga, each run would be good. 
-  // but we need to know the parameters to compute stuff.
 
-  // there are a lot of things being varied.
-
-  /* 
-
-  // the pattern controller may change on its own - so should read for *each* run.
-  uint32_t clk_count_aper_n;   // aperture.
-  uint32_t clk_count_fix_n;
-  uint32_t clk_count_var_pos_n;
+  /*
+    // if using pattern controller.
+    but probably better to read into a separate params like structure.
 
   uint32_t himux_sel;
   */
@@ -139,10 +130,10 @@ struct Param
   uint32_t himux_sel;
 };
 
-// EXTR. 
+// EXTR.
 
 // we can read the params from the device......... NEAT.
-// but use a different structure, and only do it occasionally. 
+// but use a different structure, and only do it occasionally.
 
 
 typedef struct Param Param;
@@ -152,6 +143,16 @@ typedef struct Param Param;
 // eg. fpga can still be the authoritative source
 void param_read( Param *param);
 void param_report( Param *param);
+
+/*
+  Eg. if using the pattern controller, to change the parameters
+  it's only four variables. at most.
+  just recording himux_sel_last would allow pattern controller, to do fairly usef
+
+
+*/
+void param_read_last( Param *param);
+
 
 
 
@@ -164,9 +165,9 @@ MAT * run_to_matrix( Param *param, Run *run, MAT * out );
 // MAT * run_to_aperture( Run *run, MAT * out);
 
 
-// where should this code go. it doesn't belong in app. 
+// where should this code go. it doesn't belong in app.
 // should be a better name
-// 
+//
 MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture);
 
 
@@ -217,11 +218,11 @@ typedef struct app_t
 } app_t;
 
 
-// unsigned collect_obs( app_t *app, /*Params *params,*/ unsigned row, unsigned discard, unsigned gather, MAT *x);
 void update_console_cmd(app_t *app);
 
 
-
+// change name do_runs. do_meas ?
+// unsigned collect_obs( app_t *app, /*Params *params,*/ unsigned row, unsigned discard, unsigned gather, MAT *x);
 // void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row, double y_, MAT *xs, MAT *aperture,  MAT *y);
 // void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs);
 
@@ -240,8 +241,7 @@ void permute(app_t *app, MAT *b);
 
 
 /*
-  Do not need this. just query the matrix.
-
+  should be able to avoid this . set once, and then query the matrix.
   eg. m_cols( m);
 */
 #define X_COLS   4
@@ -251,139 +251,3 @@ void permute(app_t *app, MAT *b);
 
 
 
-/*
-  verilog
-  possible to use an array -
-  eg.  just with an index.
-
-  we really want something simple for azero.
-  that doesn't get in the way for other operations.
-
-  to select the himux_sel input.   for each input.
-  but we potentially want to var_pos also.
-  --------
-
-  - could just be a simple state machine. that assigns vars.
-  - if 0 , then make hires mux sig-in.
-  - if 1,
-
-  - this ought to work for
-
-  eg. himux_sel  is an array. and a looping state machine just updates values.
-  AND. we have a counter. so we can set it to one. to make it easy.
-
-  OR  slightly more complicated. specify the count. no. maybe
-
-           input      n
-  slot 0   sel sig    1
-  slot 1   sel ref-lo 1
-  return.
-
-  - could almost have a little programming language quite simply. with cmds. and program counter.
-  no. doesn't allow an auto-gain.
-  --------------------
-
-  NO.
-    we just want to set up some fixed patterns.  nothing more complicated.
-    we don't need other controls.
-
-  pattern 1.   just sig.
-  pattern 2.   azero alternate sig and ref-lo for .
-  pattern 3.   azero alternate sig and ref-lo, and every 10 sample ref hi.
-  pattern 4.   alternate switching var_pos between two values.
-
-  this is much simpler.
-
-  so we have separate state machines - and then choose/mux the state machine we want.
-
-  ----
-
-
-*/
-
-/*
-// eg. bitwise, active lo.  avoid turning on more than one.
-// although switch has 1.5k impedance so should not break
-#define HIMUX_SEL_SIG_HI      (0xf & ~(1 << 0))
-#define HIMUX_SEL_REF_HI      (0xf & ~(1 << 1))
-#define HIMUX_SEL_REF_LO      (0xf & ~(1 << 2))
-#define HIMUX_SEL_ANG         (0xf & ~(1 << 3))   // 0b0111
-*/
-
-#if 0
-// Do we really actually care about timing
-
-struct Params
-{
-  // fix counts. are setup and written in
-  // uint32_t reg_led ;
-  uint32_t clk_count_aper_n;   // aperture.
-
-#if 0
-  uint32_t clk_count_reset_n ;
-  uint32_t clk_count_fix_n ;
-  // uint32_t clk_count_var_n ;
-                                    /* ok clk_count_var_n is used for both +ve and -ve var.
-                                    BUT. we want to be able to vary pos and neg.
-                                    while holding nplc
-                                    --
-                                    which means I think we want to separate this.
-                                  */
-  uint32_t clk_count_var_pos_n;
-  uint32_t clk_count_var_neg_n;
-  uint32_t use_slow_rundown;
-  uint32_t himux_sel;
-#endif
-
-  uint32_t pattern;
-
-  uint32_t meas_count;
-  // number of obs per measurement. is a higher level concept.
-};
-#endif
-
-#if 0
-
-
-/*
-  // OK. we need the params - in order to compute the times...
-  // Or. maybe we should just read them after the run.
-  -----
-
-  EXTR.
-    we want to read the var_pos_n etc. after *each* run.
-    BECAUSE. we want to allow the pattern controller to permute
-
-*/
-
-typedef struct Params Params;
-
-
-void params_read( Params * params );
-void params_report(Params * params );
-bool params_equal( Params *params0,  Params *params1 );
-void params_write( Params *params );
-void params_set_main( Params *params,  uint32_t clk_count_aper_n, bool use_slow_rundown, uint8_t himux_sel );
-// void params_set_extra( Params *params,  uint32_t clk_count_reset_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_n);
-
-void params_set_extra( Params *params,  uint32_t clk_count_reset_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_pos_n, uint32_t clk_count_var_neg_n);
-
-#endif
-
-/*
-  change name Meas.
-  or Measurement.
-*/
-
-
-/*
-typedef struct Loop1
-{
-  app_t   *app;
-  MAT     *b;
-  Params  params;   // loop structure will be passed by reference anyway.
-  unsigned obs;     // how many obs  to average.
-
-} Loop1;
-
-*/
