@@ -136,7 +136,7 @@ void loop1 ( app_t *app)
   assert(app);
 
   ctrl_set_pattern( 0 ) ;     // no azero.
-  // ctrl_set_pattern( 10 ) ;    // azero.
+  // ctrl_set_pattern( 10 ) ;    // azero. // PATTERN_AZERO
 
   while(true) {
 

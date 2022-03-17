@@ -401,9 +401,9 @@ MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
 */
 
 
-/* 
+/*
   - have a variant of this function that can do autozero. or autograin.
-  - alternatively. 
+  - alternatively.
 
   - and just add rows to the matrix.
   -----------------
@@ -458,16 +458,20 @@ void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *r
         assert(*row < m_rows(run2->aperture));
         assert(*row < run2->n );
 
+        // now write
+        run2->run[   *row ]  = run;     // value copy.
+        run2->param[ *row ]  = param;     // value copy.
+
+        /*
+          - we don't have to do this conversion here - so deep in the call stack.
+          once we have gathered the run counts, and parameters used,
+          we can convert anywher.
+        */
         // do xs.
         MAT *xs1 = run_to_matrix( &param,  &run, MNULL );
         assert(xs1);
         assert( m_rows(xs1) == 1 );
 
-        // now write
-        run2->run[   *row ]  = run;     // value copy. 
-        run2->param[ *row ]  = param;     // value copy. 
-
-        // do xs
         m_row_set( run2->xs, *row, xs1 );
         M_FREE(xs1);
 
