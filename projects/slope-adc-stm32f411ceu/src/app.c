@@ -182,7 +182,12 @@ void run_report( Run *run )
 }
 
 
-
+/*
+  we have maximum flexibility here.
+    - can read current params.
+    - can avoid reading from fpga, and just use params known to be set by mcu, 
+    - or can read last, if want to let the fpga permute the params
+*/
 
 void param_read( Param *param)
 {
@@ -380,50 +385,14 @@ MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
 
 
 
-/*
-  two ways to do this.
-    - 1) oversize matrix. and adjust row pointer. then shrink.
-    - 2) preallocate oversized - then on each row increase row dimension.
-
-  using a row pointer is fairly simple and probably sufficient.
-  ------------------
-
-  OK. I think this would be useful for loop1 operation...
-  But we set it up for one observation. and no discard.
-
-  because - for nplc 50. we want the mean of 5 operations.
-
-  we would just forget about the target y.
-  perhaps pass y etc.
-
-  and we simplify... the main loop pumping.
-  ----------------
-*/
-
-
-/*
-  - have a variant of this function that can do autozero. or autograin.
-  - alternatively.
-
-  - and just add rows to the matrix.
-  -----------------
-
-  now we can pass and recurd himux_sel
-*/
-
-/*
-
-  This is where we go wrong.
-  We should be returning run and parameters and other stuff..
-
-  that
-*/
-
-
 //void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs,  unsigned *himux_sel_last, unsigned himux_sel_last_n )
 
 void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 )
 {
+
+  // DEPRECATED. 
+  assert(0);
+
   /*
     Think this just about gets deprevated. in factor .
     of doing the loop in one place . and using slot. type logic.

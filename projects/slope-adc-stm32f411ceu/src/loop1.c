@@ -21,8 +21,11 @@
 
 
 
+/*
+  OK. lets try the same. except with an autozero as well.
+  and then add try to add the mean/sd back.
 
-// OK. lets try the same. except with an autozero as well.
+*/
 
 static void yield( app_t *app, Run *run, Param *param )
 {
@@ -69,7 +72,7 @@ static void yield( app_t *app, Run *run, Param *param )
     memset(run, 0, sizeof(Run));
   }
 
-  
+
   update_console_cmd(app);
 
   static uint32_t soft_500ms = 0;
