@@ -57,7 +57,7 @@ static double get_predicted_value(  MAT *b , Run *run, Param *param )
 
 
 
-static void report_predicted( app_t *app , double value ) 
+static void report_predicted( app_t *app , double value )
 {
   // eg. azero, non azero, again. etc.
   UNUSED(app);
@@ -119,6 +119,10 @@ void loop1 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
   ctrl_set_pattern( 0 ) ;     // no azero.
 
+  Run   run;
+  Param param;
+
+
   while(true) {
 
 
@@ -128,9 +132,6 @@ void loop1 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     // ctrl_set_aperture( nplc_to_aper_n( 8) );
     ctrl_reset_disable();
 
-
-    Run   run;
-    Param param;
 
     // block/wait for data
     while(!app->data_ready ) {
@@ -186,12 +187,14 @@ static void yield2( app_t *app, Run *run_zero, Param *param_zero, Run *run_sig, 
 
     if(app ->b) {
 
-        double predicted_zero = get_predicted_value( app-> b , run_zero, param_zero );
-        double predicted_sig  = get_predicted_value( app-> b , run_sig,  param_sig );
-        double predicted = predicted_sig - predicted_zero;
+        double predict_zero   = get_predicted_value( app-> b , run_zero, param_zero );
+        double predict_sig    = get_predicted_value( app-> b , run_sig,  param_sig );
+        double predict        = predict_sig - predict_zero;
 
         char buf[100];
-        printf("azero predict %sV ", format_float_with_commas(buf, 100, 7, predicted));
+        printf("predict_zero  %sV\n", format_float_with_commas(buf, 100, 7, predict_zero ));
+        printf("predict_sig   %sV\n", format_float_with_commas(buf, 100, 7, predict_sig ));
+        printf("azero predict %sV\n", format_float_with_commas(buf, 100, 7, predict));
     }
 
     // clear to reset
@@ -199,6 +202,10 @@ static void yield2( app_t *app, Run *run_zero, Param *param_zero, Run *run_sig, 
     memset(run_sig, 0, sizeof(Run));
   }
 
+}
+
+static void simple_yield( app_t * app )
+{
   update_console_cmd(app);
 
   static uint32_t soft_500ms = 0;
@@ -207,6 +214,8 @@ static void yield2( app_t *app, Run *run_zero, Param *param_zero, Run *run_sig, 
     soft_500ms += 500;
     led_toggle();
   }
+
+
 }
 
 
@@ -225,12 +234,26 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
   ctrl_set_pattern( 0 ) ;     // no azero.
 
+  /*
+    have tmp.
+    1) do ref-hi/sig .
+    2) then lo. and convert using 3 values.
+    3) then copy lo to temp.   and use for the next input.
+
+  */
+
+  Run   run_zero;
+  Param param_zero;
+  Run   run_sig;
+  Param param_sig;
+
+
   while(true) {
 
-    Run   run_zero;
-    Param param_zero;
-    Run   run_sig;
-    Param param_sig;
+    printf("---------------\n");
+
+    memset(&run_zero, 0, sizeof(Run));
+    memset(&run_sig, 0, sizeof(Run));
 
 
     // configure ref_lo
@@ -240,7 +263,10 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
     // block/wait for data
     while(!app->data_ready ) {
-      yield2(app, &run_zero, &param_zero, &run_sig, &param_sig);
+
+      simple_yield( app );
+
+//      yield2(app, &run_zero, &param_zero, &run_sig, &param_sig);
       // if there is another continuation to run, then bail
       if(app->continuation_f) {
         return;
@@ -248,20 +274,40 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     }
     app->data_ready = false;
 
-    // read the ready data
+    // read the ready data. is it doing another complete by the time we process it?
     run_read(&run_zero);
     param_read_last( &param_zero);
+    char buf[100];
+
+    printf("got value should be zero %sV\n", format_float_with_commas(buf, 100, 7, get_predicted_value( app-> b , &run_zero, &param_zero )));
+    assert(param_zero.himux_sel ==  HIMUX_SEL_REF_LO );  // this is not correct....
+                                                          // why?
+                                                            // too slow?
+    // why the fuck is it blocking?????
+    /*
+      - issue - perhaps that the pattern ctrl - only sets himux_sel from register bank on the interupt
+      -- hmmm
+      ------------
+
+      - the actual predicted value and last hires mux correspond correctly.
+      - the issue is that our settig of the mux. and resetting is apparently not working.
+    */
 
     ////////////////
 
     // configure ref_hi
     ctrl_reset_enable();
-    ctrl_set_mux( HIMUX_SEL_REF_LO );
+    ctrl_set_mux( HIMUX_SEL_REF_HI );
     ctrl_reset_disable();
+
+    printf("here0\n");
 
     // block/wait for data
     while(!app->data_ready ) {
-      yield2(app, &run_zero, &param_zero, &run_sig, &param_sig);
+
+      simple_yield( app );
+
+      // yield2(app, &run_zero, &param_zero, &run_sig, &param_sig);
       // if there is another continuation to run, then bail
       if(app->continuation_f) {
         return;
@@ -269,10 +315,14 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     }
     app->data_ready = false;
 
+    printf("here1\n");
+
     // read the ready data
     run_read(&run_sig);
     param_read_last( &param_sig);
 
+    printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, get_predicted_value( app-> b , &run_zero, &param_zero )));
+    assert(param_zero.himux_sel == HIMUX_SEL_REF_HI );  // this is not correct....
 
     //////////////////
   }
