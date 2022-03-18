@@ -357,18 +357,20 @@ MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
 
   // current*time / time == voltage measure.
 
-  MAT *aperture_inverted =  m_element_invert( aperture, MNULL  );
+  // MAT *aperture_inverted =  m_element_invert( aperture, MNULL  );
   // printf("aperture_inverted \n");
   // m_foutput(stdout, aperture_inverted);
   // usart_flush();
 
 
   // use element multiply - to avoid multiply and matrix diagonal, which is expensive
-  MAT	*corrected = m_element_mlt(aperture_inverted, predicted, MNULL );
+  // MAT	*corrected = m_element_mlt(aperture_inverted, predicted, MNULL );
+
+  MAT	*corrected = m_element_div( predicted, aperture, MNULL );
 
 
   M_FREE(predicted );
-  M_FREE(aperture_inverted);
+  // M_FREE(aperture_inverted);
 
 /*
   printf("corrected\n");
@@ -393,6 +395,13 @@ void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *r
   // DEPRECATED. 
   assert(0);
 
+  UNUSED(app);
+  UNUSED(discard_n);
+  UNUSED(gather_n);
+  UNUSED(row);
+  UNUSED(run2);
+
+#if 0
   /*
     Think this just about gets deprevated. in factor .
     of doing the loop in one place . and using slot. type logic.
@@ -482,6 +491,7 @@ void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *r
     }
 
   } // while
+#endif
 }
 
 

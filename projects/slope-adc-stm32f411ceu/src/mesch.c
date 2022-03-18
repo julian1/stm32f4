@@ -80,12 +80,13 @@ int zm_free(ZMAT *mat)
 }
 
 
-
+#if 0
 int fileno(void *p) 
 {
     UNUSED(p);
     return 0;
 }
+#endif
 
 #if 0
 static inline int isatty(int x) 
