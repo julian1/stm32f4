@@ -158,6 +158,30 @@ void loop1 ( app_t *app)
     run2.aperture = m_get(10 , 1 );
 
 
+    // fill these in as we receive data. then process accordingly.
+    Run2 zero_slot; 
+    Run2 meas_slot; 
+    Run2 gain_slot; 
+
+    if(param.himux_sel == signal ) {
+
+      // have an azero 
+      if( i )  { 
+        // process the two obs as an azero. 
+      }
+
+
+      // else if already have 
+      if(slot.param.himux_sel == signal ) {
+  
+
+      }
+
+      // else wait for more data.
+
+    } 
+
+
     // void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 )
     collect_obs( app,  0, 2, &row, &run2 );
 
@@ -167,7 +191,20 @@ void loop1 ( app_t *app)
       this could be done more effectively by reading each value o
 
       - change name collect_obs()  to wait_for_obs()
+      -- Or else just do the blocking here. and then can handle the halt state.
+      ------------
+
+      Eg.   we want a loop
+      with two slots. one for for ref-lo , and one for signal.
+      and we just fill the value as we receive it. then we test if we have values for both.
+      and do the computation.
+      then clear them .
+      ----
+      this approach might be able to do both azero, and normal at the same time.
+      eg. if get two signal, and there is already a signal stored - then process without the azero
     */
+
+
 
     // if there is another continuation to run, then bail
     // leaky...?
