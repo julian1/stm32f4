@@ -15,9 +15,30 @@
 #include "app.h"
 
 
+/*
+// simpler way to do this.
 
 
+    configure.
 
+    // block until data.
+
+    // block for data
+    while(!app->data_ready /* && !app->halt */ ) {
+      // yield();
+    }
+    app->data_ready = false;
+ 
+
+  
+    read.
+
+  // eg. just configure, block, read.   dead simple.
+
+  in a linear sequence.
+
+
+*/
 
 
 

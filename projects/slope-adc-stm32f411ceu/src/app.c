@@ -424,6 +424,11 @@ MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
 
 void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 )
 {
+  /*
+    Think this just about gets deprevated. in factor .
+    of doing the loop in one place . and using slot. type logic.
+  */
+
   assert(row);
   assert(run2->xs);
 

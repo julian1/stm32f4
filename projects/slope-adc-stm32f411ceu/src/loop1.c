@@ -1,6 +1,7 @@
 
 
 
+// #include <stdbool.h>
 
 #include "assert.h"
 #include "streams.h"  // usart_printf
@@ -14,15 +15,222 @@
 
 
 #include "regression.h"
-
-
-#include <stdbool.h>
-
 #include <matrix.h>
-
-#include <libopencm3/stm32/spi.h>   // SPI1 .. TODO remove. pass spi by argument
-
 #include "app.h"
+
+
+
+
+
+// OK. lets try the same. except with an autozero as well.
+
+static void yield( app_t *app, Run *run, Param *param )
+{
+  UNUSED(app);
+
+  // we have data...
+  if(run->count_up || run->count_down) {
+    // data is ready
+
+    // printf("-----------------\n");
+
+    // run_report(run);
+    // param_report(param );
+
+    // OK. on the scope we can see small timing differences... due to processing
+
+    if(app ->b) {
+
+        // do xs.
+        MAT *xs = run_to_matrix( param,  run, MNULL );
+        assert(xs);
+        assert( m_rows(xs) == 1 );
+
+        // do aperture
+        MAT *aperture = m_get(1,1);
+        m_set_val( aperture, 0, 0, param->clk_count_aper_n);
+
+        // predicted
+        MAT *predicted = calc_predicted( app->b, xs, aperture);
+        assert(m_cols(predicted) == 1);
+        // m_foutput(stdout, predicted );
+
+        // now we want the mean as value...
+        double value = m_get_val(predicted, 0, 0 );
+        char buf[100];
+        printf("predict %sV ", format_float_with_commas(buf, 100, 7, value));
+
+        M_FREE(xs);
+        M_FREE(aperture);
+        M_FREE(predicted);
+    }
+
+    // clear to reset
+    memset(run, 0, sizeof(Run));
+  }
+
+  
+  update_console_cmd(app);
+
+  static uint32_t soft_500ms = 0;
+  // 500ms soft timer. should handle wrap around
+  if( (system_millis - soft_500ms) > 500) {
+    soft_500ms += 500;
+    led_toggle();
+  }
+
+
+}
+
+
+
+
+
+
+void loop1 ( app_t *app)
+{
+  usart_printf("=========\n");
+  usart_printf("loop1\n");
+
+  assert(app);
+
+  ctrl_set_pattern( 0 ) ;     // no azero.
+
+  while(true) {
+
+
+    // configure  integrator
+    ctrl_reset_enable();
+    ctrl_set_mux( HIMUX_SEL_REF_HI );
+    // ctrl_set_aperture( nplc_to_aper_n( 8) );
+    ctrl_reset_disable();
+
+
+    Run   run;
+    Param param;
+
+    // block/wait for data
+    while(!app->data_ready ) {
+
+      yield(app, &run, &param);
+      // if there is another continuation to run, then bail
+      if(app->continuation_f) {
+        return;
+      }
+    }
+    app->data_ready = false;
+
+    // read the ready data
+    run_read(&run);
+    param_read_last( &param);
+
+  }
+
+}
+
+
+
+
+
+#if 0
+
+
+void loop1 ( app_t *app)
+{
+  usart_printf("=========\n");
+  usart_printf("loop1\n");
+
+  assert(app);
+
+  ctrl_set_pattern( 0 ) ;     // no azero.
+
+  while(true) {
+
+    // how long does it take to process. it would be better to process in downtime.
+    // we could do this with a coroutine.
+    // one routine to get the data, and the other to process during downtime.
+
+    // configure
+    ctrl_reset_enable();
+    ctrl_set_mux( HIMUX_SEL_REF_HI );
+    ctrl_set_aperture( nplc_to_aper_n( 8) );
+    ctrl_reset_disable();
+
+
+
+    // block for data
+    while(!app->data_ready /* && !app->halt */ ) {
+      // yield( app, /* & run1, & run2 */ );
+      // yield();
+      // update_console_cmd(app);
+      // blink led.
+      // or we actually process the data in here...  by just checking if we have values.
+
+      yield(app);
+
+      // if there is another continuation to run, then bail
+      if(app->continuation_f) {
+        return;
+      }
+
+
+    }
+    app->data_ready = false;
+
+
+    // read run
+    Run run;
+    run_read(&run);
+    run_report(&run);
+
+    // read param
+    Param param;
+    param_read_last( &param);
+    param_report(&param );
+
+
+
+
+    if(app ->b) {
+      // it would be much better, to process/ data out of band.
+      //
+      // do xs.
+      MAT *xs = run_to_matrix( &param,  &run, MNULL );
+      assert(xs);
+      assert( m_rows(xs) == 1 );
+
+      // do aperture
+      MAT *aperture = m_get(1,1);
+      m_set_val( aperture, 0, 0, param.clk_count_aper_n);
+
+      MAT *predicted = calc_predicted( app->b, xs, aperture);
+      assert(m_cols(predicted) == 1);
+      m_foutput(stdout, predicted );
+
+      // now we want the mean as value...
+      double value = m_get_val(predicted, 0, 0 );
+      char buf[100];
+      printf("predict %sV ", format_float_with_commas(buf, 100, 7, value));
+    }
+
+  }
+
+}
+
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*
@@ -127,7 +335,7 @@ static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, uns
 
 
 
-
+#if 0
 void loop1 ( app_t *app)
 {
   usart_printf("=========\n");
@@ -138,52 +346,104 @@ void loop1 ( app_t *app)
   ctrl_set_pattern( 0 ) ;     // no azero.
   // ctrl_set_pattern( 10 ) ;    // azero. // PATTERN_AZERO
 
+
+  unsigned row = 0;
+  printf("\n");
+
+
+  Run   run[10];
+  Param param[10];
+
+
+  Run2  run2;
+  run2.run      = run;
+  run2.param    = param;
+  run2.n        = 10;
+
+  // need to free. or allocate using alloca()
+  run2.xs       = m_get(10 , X_COLS );
+  run2.aperture = m_get(10 , 1 );
+
+
+  // fill these in as we receive data. then process accordingly.
+  Run2 zero_slot;
+  Run2 meas_slot;
+  Run2 gain_slot;
+
+
+  // void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 )
+  // collect_obs( app,  0, 2, &row, &run2 );
+
+  /*
+    - strategy. store in slots.
+    - if have enough data. then convert.
+    - if not enough. wait for more.
+  */
+
   while(true) {
 
-    unsigned row = 0;
-    printf("\n");
 
 
-    Run   run[10];
-    Param param[10];
+    // if we got data handle it.
+    if(app->data_ready) {
+      // in priority
+      app->data_ready = false;
+
+      // everything read and organized in one place.
+
+      // get run details
+      Run run;
+      run_read(&run);
+      run_report(&run);
+
+      Param param;
+      param_read_last( &param);
+      param_report(&param );
 
 
-    Run2  run2;
-    run2.run      = run;
-    run2.param    = param;
-    run2.n        = 10;
+      // do xs.
+      MAT *xs1 = run_to_matrix( &param,  &run, MNULL );
+      assert(xs1);
+      assert( m_rows(xs1) == 1 );
 
-    // need to free. or allocate using alloca()
-    run2.xs       = m_get(10 , X_COLS );
-    run2.aperture = m_get(10 , 1 );
+      m_row_set( run2->xs, *row, xs1 );
+      // M_FREE(xs1);
+
+      // do aperture
+      m_set_val( run2->aperture, *row, 0, param.  clk_count_aper_n);
+
+      // IMOPRTANT Not clear we even need the Run2 structure.  just need the run and params used. and store in slots.
 
 
-    // fill these in as we receive data. then process accordingly.
-    Run2 zero_slot; 
-    Run2 meas_slot; 
-    Run2 gain_slot; 
+      // there's no easy halt.... or halt will leak memory...
+      if(app ->b) {
 
-    if(param.himux_sel == signal ) {
+          MAT *predicted = calc_predicted( app->b, run2.xs, run2.aperture);
+          assert(m_cols(predicted) == 1);
 
-      // have an azero 
-      if( i )  { 
-        // process the two obs as an azero. 
+          m_foutput(stdout, predicted );
+
+          // now we want the mean as value...
+
+          for(unsigned i  = 0; i < m_rows(predicted); ++i ) {
+
+            double value = m_get_val(predicted, i, 0 );
+            // TODO predict, rename. estimator?
+            char buf[100];
+            printf("predict %sV ", format_float_with_commas(buf, 100, 7, value));
+          }
       }
 
 
-      // else if already have 
-      if(slot.param.himux_sel == signal ) {
-  
 
-      }
-
-      // else wait for more data.
-
-    } 
+   } // app ready
 
 
-    // void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 )
-    collect_obs( app,  0, 2, &row, &run2 );
+
+  }
+
+
+
 
     /* EXTR. IF we ran run_to_matrix()  here. then we would not need to pass down the xs and aperture arguments.
       Not sure we even want collect_obs()...
@@ -220,32 +480,12 @@ void loop1 ( app_t *app)
     m_resize( run2.aperture, row, m_cols( run2.aperture));
 
 
-    // there's no easy halt.... or halt will leak memory...
-    if(app ->b) {
-
-        MAT *predicted = calc_predicted( app->b, run2.xs, run2.aperture);
-        assert(m_cols(predicted) == 1);
-
-        m_foutput(stdout, predicted );
-
-        // now we want the mean as value...
-
-        for(unsigned i  = 0; i < m_rows(predicted); ++i ) {
-
-          double value = m_get_val(predicted, i, 0 );
-          // TODO predict, rename. estimator?
-          char buf[100];
-          printf("predict %sV ", format_float_with_commas(buf, 100, 7, value));
-        }
-
-
-    }
 
   }
 
 
 }
-
+#endif
 
 
 
