@@ -233,6 +233,7 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   assert(app);
 
   ctrl_set_pattern( 0 ) ;     // no azero.
+  msleep(2000);
 
   /*
     have tmp.
