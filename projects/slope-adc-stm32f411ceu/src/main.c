@@ -337,12 +337,12 @@ void update_console_cmd(app_t *app)
         app->continuation_f = (void (*)(void *)) loop1;
         app->continuation_ctx = app;
       }
-/*
+
       else if(strcmp(app->cmd_buf , "loop2") == 0) {  // cal loop.
         app->continuation_f = (void (*)(void *)) loop2;
         app->continuation_ctx = app;
       }
-*/
+
 /*
       else if(strcmp(app->cmd_buf , "loop3") == 0) {
         app->continuation_f = (void (*)(void *)) loop3;

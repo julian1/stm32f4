@@ -147,6 +147,25 @@ void loop1 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 /////////////////////////
 
 
+/* Passing a continuation.
+
+  - to allow calculating mean/std.
+  - and to allow aggregating multiple entries. eg. nplc 50 == 5 lots of nplc 10. 
+
+  - the problem is that we cannot partially apply the continuation .  at the top level.
+        - we could peel off the continuations off an array.
+        - but that has type safety issues.
+
+  - OR. pass a structure - with the named continuations.
+  struct A
+  {
+     continuation
+  }
+  
+  - or perhaps . it isn't really necessary and the signal processing chain . if just trunk to leaf
+
+*/
+
 
 static void yield2( app_t *app, Run *run_zero, Param *param_zero, Run *run_sig, Param *param_sig )
 {
@@ -160,8 +179,6 @@ static void yield2( app_t *app, Run *run_zero, Param *param_zero, Run *run_sig, 
         double predicted_sig  = get_predicted_value( app-> b , run_sig,  param_sig );
         double predicted = predicted_sig - predicted_zero;
 
-
-        // now we want the mean as value...
         char buf[100];
         printf("azero predict %sV ", format_float_with_commas(buf, 100, 7, predicted));
     }
