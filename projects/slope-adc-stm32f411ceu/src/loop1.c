@@ -27,45 +27,56 @@
 
 */
 
+
+static double get_predicted_value(  MAT *b , Run *run, Param *param )
+{
+  // do xs.
+  MAT *xs = run_to_matrix( param,  run, MNULL );
+  assert(xs);
+  assert( m_rows(xs) == 1 );
+
+  // do aperture
+  MAT *aperture = m_get(1,1);
+  m_set_val( aperture, 0, 0, param->clk_count_aper_n);
+
+  // predicted
+  MAT *predicted = calc_predicted( b, xs, aperture);      // TODO - combine this function....
+  assert(m_cols(predicted) == 1);
+  // m_foutput(stdout, predicted );
+  double value = m_get_val(predicted, 0, 0 );
+
+
+  M_FREE(xs);
+  M_FREE(aperture);
+  M_FREE(predicted);
+
+  return value;
+}
+
+
+
+
+
+
+
 static void yield( app_t *app, Run *run, Param *param )
 {
-  UNUSED(app);
-
   // we have data...
-  if(run->count_up || run->count_down) {
+  if(run->count_up /*|| run->count_down */) {
     // data is ready
 
     // printf("-----------------\n");
-
     // run_report(run);
     // param_report(param );
-
     // OK. on the scope we can see small timing differences... due to processing
 
     if(app ->b) {
 
-        // do xs.
-        MAT *xs = run_to_matrix( param,  run, MNULL );
-        assert(xs);
-        assert( m_rows(xs) == 1 );
-
-        // do aperture
-        MAT *aperture = m_get(1,1);
-        m_set_val( aperture, 0, 0, param->clk_count_aper_n);
-
-        // predicted
-        MAT *predicted = calc_predicted( app->b, xs, aperture);
-        assert(m_cols(predicted) == 1);
-        // m_foutput(stdout, predicted );
+        double predicted = get_predicted_value( app-> b , run, param );
 
         // now we want the mean as value...
-        double value = m_get_val(predicted, 0, 0 );
         char buf[100];
-        printf("predict %sV ", format_float_with_commas(buf, 100, 7, value));
-
-        M_FREE(xs);
-        M_FREE(aperture);
-        M_FREE(predicted);
+        printf("predict %sV ", format_float_with_commas(buf, 100, 7, predicted));
     }
 
     // clear to reset
@@ -81,17 +92,16 @@ static void yield( app_t *app, Run *run, Param *param )
     soft_500ms += 500;
     led_toggle();
   }
-
-
 }
 
 
 
 
 
-
-void loop1 ( app_t *app)
+void loop1 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 {
+  // could pass the continuatino to use.
+
   usart_printf("=========\n");
   usart_printf("loop1\n");
 
@@ -128,8 +138,125 @@ void loop1 ( app_t *app)
     param_read_last( &param);
 
   }
-
 }
+
+
+
+
+
+/////////////////////////
+
+
+
+static void yield2( app_t *app, Run *run_zero, Param *param_zero, Run *run_sig, Param *param_sig )
+{
+
+  // we have both obs available...
+  if(run_zero->count_up && run_sig->count_up ) {
+
+    if(app ->b) {
+
+        double predicted_zero = get_predicted_value( app-> b , run_zero, param_zero );
+        double predicted_sig  = get_predicted_value( app-> b , run_sig,  param_sig );
+        double predicted = predicted_sig - predicted_zero;
+
+
+        // now we want the mean as value...
+        char buf[100];
+        printf("azero predict %sV ", format_float_with_commas(buf, 100, 7, predicted));
+    }
+
+    // clear to reset
+    memset(run_zero, 0, sizeof(Run));
+    memset(run_sig, 0, sizeof(Run));
+  }
+
+  update_console_cmd(app);
+
+  static uint32_t soft_500ms = 0;
+  // 500ms soft timer. should handle wrap around
+  if( (system_millis - soft_500ms) > 500) {
+    soft_500ms += 500;
+    led_toggle();
+  }
+}
+
+
+
+
+void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
+{
+  // could pass the continuatino to use.
+  // auto-zero
+
+  usart_printf("=========\n");
+  usart_printf("loop1\n");
+
+  assert(app);
+
+  ctrl_set_pattern( 0 ) ;     // no azero.
+
+  while(true) {
+
+    Run   run_zero;
+    Param param_zero;
+    Run   run_sig;
+    Param param_sig;
+
+
+    // configure ref_lo
+    ctrl_reset_enable();
+    ctrl_set_mux( HIMUX_SEL_REF_LO );
+    ctrl_reset_disable();
+
+    // block/wait for data
+    while(!app->data_ready ) {
+      yield2(app, &run_zero, &param_zero, &run_sig, &param_sig);
+      // if there is another continuation to run, then bail
+      if(app->continuation_f) {
+        return;
+      }
+    }
+    app->data_ready = false;
+
+    // read the ready data
+    run_read(&run_zero);
+    param_read_last( &param_zero);
+
+    ////////////////
+
+    // configure ref_hi
+    ctrl_reset_enable();
+    ctrl_set_mux( HIMUX_SEL_REF_LO );
+    ctrl_reset_disable();
+
+    // block/wait for data
+    while(!app->data_ready ) {
+      yield2(app, &run_zero, &param_zero, &run_sig, &param_sig);
+      // if there is another continuation to run, then bail
+      if(app->continuation_f) {
+        return;
+      }
+    }
+    app->data_ready = false;
+
+    // read the ready data
+    run_read(&run_sig);
+    param_read_last( &param_sig);
+
+
+    //////////////////
+  }
+}
+
+
+
+
+
+
+
+
+
 
 
 
