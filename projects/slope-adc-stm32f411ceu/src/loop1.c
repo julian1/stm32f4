@@ -57,6 +57,16 @@ static double get_predicted_value(  MAT *b , Run *run, Param *param )
 
 
 
+static void report_predicted( app_t *app , double value ) 
+{
+  // eg. azero, non azero, again. etc.
+  UNUSED(app);
+  UNUSED(value);
+
+
+}
+
+
 
 
 static void yield( app_t *app, Run *run, Param *param )
@@ -150,7 +160,7 @@ void loop1 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 /* Passing a continuation.
 
   - to allow calculating mean/std.
-  - and to allow aggregating multiple entries. eg. nplc 50 == 5 lots of nplc 10. 
+  - and to allow aggregating multiple entries. eg. nplc 50 == 5 lots of nplc 10.
 
   - the problem is that we cannot partially apply the continuation .  at the top level.
         - we could peel off the continuations off an array.
@@ -159,9 +169,10 @@ void loop1 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   - OR. pass a structure - with the named continuations.
   struct A
   {
-     continuation
+     void (*continuation_for_yeild)( app_t *app, double val ) ;
+     void (*continuation_for_stats)( app_t *app,  );
   }
-  
+
   - or perhaps . it isn't really necessary and the signal processing chain . if just trunk to leaf
 
 */
@@ -205,6 +216,7 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 {
   // could pass the continuatino to use.
   // auto-zero
+  // iMPORTANT do three variable azero . by shuffling  values about.
 
   usart_printf("=========\n");
   usart_printf("loop1\n");
