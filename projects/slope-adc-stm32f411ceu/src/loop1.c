@@ -187,14 +187,14 @@ static void yield2( app_t *app, Run *run_zero, Param *param_zero, Run *run_sig, 
 
     if(app ->b) {
 
-        double predict_zero   = get_predicted_value( app-> b , run_zero, param_zero );
-        double predict_sig    = get_predicted_value( app-> b , run_sig,  param_sig );
-        double predict        = predict_sig - predict_zero;
+      double predict_zero   = get_predicted_value( app-> b , run_zero, param_zero );
+      double predict_sig    = get_predicted_value( app-> b , run_sig,  param_sig );
+      double predict        = predict_sig - predict_zero;
 
-        char buf[100];
-        printf("predict_zero  %sV\n", format_float_with_commas(buf, 100, 7, predict_zero ));
-        printf("predict_sig   %sV\n", format_float_with_commas(buf, 100, 7, predict_sig ));
-        printf("azero predict %sV\n", format_float_with_commas(buf, 100, 7, predict));
+      char buf[100];
+      // printf("predict_zero  %sV\n", format_float_with_commas(buf, 100, 7, predict_zero ));
+      // printf("predict_sig   %sV\n", format_float_with_commas(buf, 100, 7, predict_sig ));
+      printf("azero predict %sV\n", format_float_with_commas(buf, 100, 7, predict));
     }
 
     // clear to reset
@@ -247,21 +247,14 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   Run   run_sig;
   Param param_sig;
 
+  memset(&run_zero, 0, sizeof(Run));
+  memset(&run_sig, 0, sizeof(Run));
+
 
   while(true) {
 
     printf("---------------\n");
 
-    memset(&run_zero, 0, sizeof(Run));
-    memset(&run_sig, 0, sizeof(Run));
-
-/*
-    // appears to work....
-    printf("holding in reset for 2s");
-    ctrl_reset_enable();
-    msleep(2000);
-    ctrl_reset_disable();
-*/
     // configure ref_lo
     ctrl_reset_enable();
     ctrl_set_mux( HIMUX_SEL_REF_LO );
@@ -274,7 +267,9 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
       simple_yield( app );
 
-//      yield2(app, &run_zero, &param_zero, &run_sig, &param_sig);
+      // process the data.
+      yield2(app, &run_zero, &param_zero, &run_sig, &param_sig);
+
       // if there is another continuation to run, then bail
       if(app->continuation_f) {
         return;
@@ -284,47 +279,19 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     // read the ready data. is it doing another complete by the time we process it?
     run_read(&run_zero);
     param_read_last( &param_zero);
-    char buf[100];
-
-    printf("got value should be zero %sV\n", format_float_with_commas(buf, 100, 7, get_predicted_value( app-> b , &run_zero, &param_zero )));
-    assert(param_zero.himux_sel ==  HIMUX_SEL_REF_LO );  // this is not correct....
-                                                          // why?
-                                                            // too slow?
-    /*
-      - the data ready is set from last time.
-
-
-      - the actual predicted value and last hires mux correspond correctly.
-      - the issue is that our settig of the mux. and resetting is apparently not working.
-
-      *set himux_sel 1011 (11)
-      got value should be zero 0.002,862,8V     ok.
-      *set himux_sel 1101 (13)
-      got value should be predict 0.002,862,8V  bad.
-  
-      looks like it's reading exactly the same value.
-    */
-
-    ////////////////
-
-    // is the interupt configured on going hi. instead of going lo.
+    assert(param_zero.himux_sel ==  HIMUX_SEL_REF_LO );
+    // char buf[100];
+    // printf("got value should be zero %sV\n", format_float_with_commas(buf, 100, 7, get_predicted_value( app-> b , &run_zero, &param_zero )));
 
     // configure ref_hi
     ctrl_reset_enable();
     ctrl_set_mux( HIMUX_SEL_REF_HI );
     app->data_ready = false;
-    // msleep( 100);                     // for fuck sake.
-    Param paramx;
-    param_read( &paramx);
-    assert( paramx.himux_sel == HIMUX_SEL_REF_HI  );  // ok. it's set correctly. and we have a reset?
     ctrl_reset_disable();
 
     // block/wait for data
     while(!app->data_ready ) {
-      printf("waiting for data\n");
-
       simple_yield( app );
-
       // yield2(app, &run_zero, &param_zero, &run_sig, &param_sig);
       // if there is another continuation to run, then bail
       if(app->continuation_f) {
@@ -335,11 +302,10 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     // read the ready data
     run_read(&run_sig);
     param_read_last( &param_sig);
-
-    printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, get_predicted_value( app-> b , &run_sig , &param_sig )));
     assert(param_sig.himux_sel == HIMUX_SEL_REF_HI );  // this is not correct....
 
-    //////////////////
+    // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, get_predicted_value( app-> b , &run_sig , &param_sig )));
+
   }
 }
 
