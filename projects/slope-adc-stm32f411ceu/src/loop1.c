@@ -73,9 +73,21 @@ static void report_predicted( app_t *app , double value )
 
   m_set_val( buffer, idx , 0, value );
 
+
+
+  //////////////
   char buf[100];
   printf("predict %sV ", format_float_with_commas(buf, 100, 7, value));
 
+
+  MAT *stddev = m_stddev( buffer, 0, MNULL );
+
+  assert( m_cols(stddev) == 1 && m_rows(stddev) == 1);
+
+
+  usart_printf("stddev(%u) %.2fuV, ", m_rows(buffer), m_get_val( stddev, 0, 0) * 1000000 );   // multiply by 10^6. for uV
+
+  M_FREE(stddev);
 
 }
 
@@ -127,7 +139,6 @@ void loop1 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   assert(app);
 
 
-  app->buffer = m_resize( app->buffer, 10, 1 ); 
 
   ctrl_set_pattern( 0 ) ;     // no azero.
 

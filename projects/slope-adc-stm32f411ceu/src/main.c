@@ -597,6 +597,8 @@ int main(void)
 
   /////////////////////
 
+  // set the buffer
+  app.buffer = m_resize( app.buffer, 10, 1 ); 
 
 
   loop_dispatcher( &app);
