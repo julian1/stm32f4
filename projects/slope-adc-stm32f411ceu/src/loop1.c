@@ -104,20 +104,27 @@ static void push_stats_buffer( app_t *app , double value )
 
 // value is completely wrong.... 0.7????
 
+// 
 
-static void push_buffer( app_t *app , double value )
+
+static bool push_buffer( app_t *app , double value )
 {
-  // TODO change name push_buffer1() 
-  // TODO must be a better name
-  // either azero, or non azero, again. etc.
-  
+  // leaf function
+  // push_value onto buffer and rerturn if a new buffer we are ready to output 
+
+ 
 
   bool full = push_buffer1( app->buffer, &app->buffer_i, value);
-
   
   // printf("push_buffer i %u of %u %lf\n", app->buffer_i , m_rows(app->buffer), value );
 
 
+  /*
+    all of this code needs to be extracted top level.
+
+  */
+
+  // all of this co
   if( full ) {
   // if( (app->buffer_i % m_rows( app->buffer))  ==  0 ) {
     // we have enought to push
@@ -140,8 +147,11 @@ static void push_buffer( app_t *app , double value )
     char buf[100];
     printf("mean %sV ", format_float_with_commas(buf, 100, 7, mean_ ));
       */
+
+    return true;
   }
 
+  return false;
 }
 
 
