@@ -24,8 +24,105 @@
 /*
   OK. lets try the same. except with an autozero as well.
   and then add try to add the mean/sd back.
+*/
+
+
+
+
+/*
+  so we have the buffer of values. 
+  
+  then we have the lagged stats buffer 
 
 */
+
+
+
+
+static void push_buffer( MAT *buffer, unsigned *i, double value)
+{
+  assert( m_cols(buffer) == 1 );
+
+  unsigned idx = *i % m_rows(buffer);
+
+  (*i)++;
+
+  assert( idx < m_rows( buffer));
+
+  m_set_val( buffer, idx, 0, value );
+}
+
+
+
+
+static void report_stats( app_t *app , double value )
+{
+
+  push_buffer( app->stats_buffer, &app->stats_buffer_i, value);
+
+
+  //////////////
+  // report value....
+  char buf[100];
+  printf("predict %sV ", format_float_with_commas(buf, 100, 7, value));
+
+
+  MAT *stddev = m_stddev( app->stats_buffer, 0, MNULL );
+  assert( m_cols(stddev) == 1 && m_rows(stddev) == 1);
+  double stddev_ = m_get_val( stddev, 0, 0);
+  M_FREE(stddev);
+
+
+  usart_printf("stddev(%u) %.2fuV, ", m_rows(app->stats_buffer), stddev_  * 1000000 );   // multiply by 10^6. for uV
+
+  printf("\n");
+
+
+
+}
+
+// value is completely wrong.... 0.7????
+
+
+static void report_predicted( app_t *app , double value )
+{
+  // TODO change name push_buffer() 
+  // TODO must be a better name
+  // either azero, or non azero, again. etc.
+  
+
+  push_buffer( app->buffer, &app->buffer_i, value);
+
+  
+  printf("i %u of %u\n", app->buffer_i , m_rows(app->buffer));
+
+
+
+  if( (app->buffer_i % m_rows( app->buffer))  ==  0 ) {
+    // buffer is full.
+    // printf("whoot\n");
+
+    // take the mean of the buffer.
+    MAT *mean = m_mean( app->buffer, MNULL );
+    assert(m_rows(mean) == 1 && m_cols(mean) == 1);
+    double mean_ = m_get_val(mean, 0, 0);
+    M_FREE(mean);
+   
+    report_stats( app, mean_ ); 
+    printf("mean \n");
+    char buf[100];
+    printf("mean %sV ", format_float_with_commas(buf, 100, 7, mean_ ));
+  }
+
+}
+
+
+
+
+
+
+
+
 
 
 static double calc_predicted_val(  MAT *b , Run *run, Param *param )
@@ -52,45 +149,6 @@ static double calc_predicted_val(  MAT *b , Run *run, Param *param )
 
   return value;
 }
-
-
-
-
-
-static void report_predicted( app_t *app , double value )
-{
-  // TODO must be a better name
-  // either azero, or non azero, again. etc.
-  
-  // push onto the buffer
-  MAT *buffer = app->buffer; 
-
-  assert(buffer);
-  assert(m_cols(buffer) == 1);
-
-  unsigned idx = app->buffer_i++ % m_rows(buffer);
-  assert( idx < m_rows( buffer));
-
-  m_set_val( buffer, idx , 0, value );
-
-
-
-  //////////////
-  char buf[100];
-  printf("predict %sV ", format_float_with_commas(buf, 100, 7, value));
-
-
-  MAT *stddev = m_stddev( buffer, 0, MNULL );
-
-  assert( m_cols(stddev) == 1 && m_rows(stddev) == 1);
-
-
-  usart_printf("stddev(%u) %.2fuV, ", m_rows(buffer), m_get_val( stddev, 0, 0) * 1000000 );   // multiply by 10^6. for uV
-
-  M_FREE(stddev);
-
-}
-
 
 
 
@@ -136,6 +194,7 @@ void loop1 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   usart_printf("=========\n");
   usart_printf("loop1\n");
 
+  usart_printf("m_rows buffer %u\n", m_rows(app->buffer) );
   assert(app);
 
 

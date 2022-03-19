@@ -87,21 +87,28 @@ void ctrl_set_aperture( uint32_t aperture)
 // ctrl_get_mux
 // useful.  when pass control - between loops.
 
-void ctrl_set_mux( uint32_t mux )
+
+
+static char * format_himux_sel( uint32_t mux )
 {
-
-  char buf[100];
-  printf("*set himux_sel %s (%lu)\n",  format_bits( buf, 4, mux ), mux);
-
+  // 
   switch(mux) {
-    case HIMUX_SEL_SIG_HI:
+    case HIMUX_SEL_SIG_HI:  return "sig" ;
     case HIMUX_SEL_REF_HI:
     case HIMUX_SEL_REF_LO:
     case HIMUX_SEL_ANG:
-      break;
     default:
       assert(0);
   };
+}
+
+
+void ctrl_set_mux( uint32_t mux )
+{
+
+  // char buf[100];
+  // printf("*set himux_sel %s (%lu)\n",  format_bits( buf, 4, mux ), mux);
+
 
   spi_reg_write(SPI1, REG_HIMUX_SEL,  mux);
 }

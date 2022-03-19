@@ -598,7 +598,14 @@ int main(void)
   /////////////////////
 
   // set the buffer
-  app.buffer = m_resize( app.buffer, 10, 1 ); 
+  app.buffer = m_resize( app.buffer, 5, 1 ); 
+  app.buffer_i = 0; 
+
+  // stats buffer for reporting
+  app.stats_buffer = m_resize( app.stats_buffer, 10, 1 ); 
+  app.stats_buffer_i = 0;
+
+
 
 
   loop_dispatcher( &app);

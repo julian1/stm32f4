@@ -252,6 +252,11 @@ typedef struct app_t
   MAT     *buffer;
 
 
+  // need to intialize
+  unsigned stats_buffer_i;
+  MAT     *stats_buffer;
+
+
 
 
 } app_t;
