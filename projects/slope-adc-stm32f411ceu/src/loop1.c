@@ -28,7 +28,7 @@
 */
 
 
-static double calc_predicted_value(  MAT *b , Run *run, Param *param )
+static double calc_predicted_val(  MAT *b , Run *run, Param *param )
 {
   // do xs.
   MAT *xs = run_to_matrix( param,  run, MNULL );
@@ -59,9 +59,22 @@ static double calc_predicted_value(  MAT *b , Run *run, Param *param )
 
 static void report_predicted( app_t *app , double value )
 {
-  // eg. azero, non azero, again. etc.
-  UNUSED(app);
-  UNUSED(value);
+  // TODO must be a better name
+  // either azero, or non azero, again. etc.
+  
+  // push onto the buffer
+  MAT *buffer = app->buffer; 
+
+  assert(buffer);
+  assert(m_cols(buffer) == 1);
+
+  unsigned idx = app->buffer_i++ % m_rows(buffer);
+  assert( idx < m_rows( buffer));
+
+  m_set_val( buffer, idx , 0, value );
+
+  char buf[100];
+  printf("predict %sV ", format_float_with_commas(buf, 100, 7, value));
 
 
 }
@@ -81,12 +94,8 @@ static void yield( app_t *app, Run *run, Param *param )
     // OK. on the scope we can see small timing differences... due to processing
 
     if(app ->b) {
-
-        double predicted = calc_predicted_value( app-> b , run, param );
-
-        // now we want the mean as value...
-        char buf[100];
-        printf("predict %sV ", format_float_with_commas(buf, 100, 7, predicted));
+      double predict = calc_predicted_val( app-> b , run, param );
+      report_predicted(app, predict );
     }
 
     // clear to reset
@@ -116,6 +125,9 @@ void loop1 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   usart_printf("loop1\n");
 
   assert(app);
+
+
+  app->buffer = m_resize( app->buffer, 10, 1 ); 
 
   ctrl_set_pattern( 0 ) ;     // no azero.
 
@@ -186,15 +198,10 @@ static void yield2( app_t *app, Run *run_zero, Param *param_zero, Run *run_sig, 
   if(run_zero->count_up && run_sig->count_up ) {
 
     if(app ->b) {
-
-      double predict_zero   = calc_predicted_value( app-> b , run_zero, param_zero );
-      double predict_sig    = calc_predicted_value( app-> b , run_sig,  param_sig );
+      double predict_zero   = calc_predicted_val( app-> b , run_zero, param_zero );
+      double predict_sig    = calc_predicted_val( app-> b , run_sig,  param_sig );
       double predict        = predict_sig - predict_zero;
-
-      char buf[100];
-      // printf("predict_zero  %sV\n", format_float_with_commas(buf, 100, 7, predict_zero ));
-      // printf("predict_sig   %sV\n", format_float_with_commas(buf, 100, 7, predict_sig ));
-      printf("azero predict %sV\n", format_float_with_commas(buf, 100, 7, predict));
+      report_predicted(app, predict );
     }
 
     // clear to reset
@@ -281,7 +288,7 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     param_read_last( &param_zero);
     assert(param_zero.himux_sel ==  HIMUX_SEL_REF_LO );
     // char buf[100];
-    // printf("got value should be zero %sV\n", format_float_with_commas(buf, 100, 7, calc_predicted_value( app-> b , &run_zero, &param_zero )));
+    // printf("got value should be zero %sV\n", format_float_with_commas(buf, 100, 7, calc_predicted_val( app-> b , &run_zero, &param_zero )));
 
     // configure ref_hi
     ctrl_reset_enable();
@@ -304,7 +311,7 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     param_read_last( &param_sig);
     assert(param_sig.himux_sel == HIMUX_SEL_REF_HI );  // this is not correct....
 
-    // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, calc_predicted_value( app-> b , &run_sig , &param_sig )));
+    // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, calc_predicted_val( app-> b , &run_sig , &param_sig )));
 
   }
 }

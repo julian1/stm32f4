@@ -158,6 +158,7 @@ typedef struct Run  Run;
 
 */
 
+
 struct Run2
 {
   Run   *run;
@@ -227,15 +228,6 @@ typedef struct app_t
   bool data_ready ;
 
 
-  // FBuf      measure_rundown;
-  // Loop1     loop1;
-
-  // Params  params;   // loop structure will be passed by reference anyway.
-  MAT     *b;       // calebration coefficients
-  unsigned obs;     // how many obs  to average.
-
-
-
   /*
     the command processor (called in deep instack) can configure this. ok.
     continuation function.
@@ -252,6 +244,16 @@ typedef struct app_t
   unsigned cmd_buf_i;
 
 
+
+  MAT     *b;       // calebration coefficients
+
+  // need to intialize
+  unsigned buffer_i;
+  MAT     *buffer;
+
+
+
+
 } app_t;
 
 
@@ -266,7 +268,7 @@ void update_console_cmd(app_t *app);
 
 // void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs,  unsigned *himux_sel_last, unsigned himux_sel_last_n );
 
-void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 ); 
+// void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 ); 
 
 // loop1
 void loop1(app_t *app );
