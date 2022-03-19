@@ -96,10 +96,11 @@ static void push_stats_buffer( app_t *app , double value )
   usart_printf("stddev(%u) %.2fuV, ", m_rows(app->stats_buffer), stddev_  * 1000000 );   // multiply by 10^6. for uV
 
   printf("\n");
-
-
-
 }
+
+
+
+
 
 // value is completely wrong.... 0.7????
 
@@ -127,7 +128,12 @@ static void push_buffer( app_t *app , double value )
     assert(m_rows(mean) == 1 && m_cols(mean) == 1);
     double mean_ = m_get_val(mean, 0, 0);
     M_FREE(mean);
-   
+  
+    /*
+    // this calling function is problematic - as it couples the behavor.   
+      needs to be hoisted up to the top level. (the code that does the modulation).
+
+    */
     push_stats_buffer( app, mean_ ); 
 
     /*printf("mean \n");
