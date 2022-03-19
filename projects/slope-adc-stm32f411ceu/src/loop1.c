@@ -39,33 +39,34 @@
 
 
 
-static void push_buffer( MAT *buffer, unsigned *i, double value)
+static void push_buffer1( MAT *buffer, unsigned *i, double value)
 {
   assert( m_cols(buffer) == 1 );
 
   unsigned idx = *i % m_rows(buffer);
-
   (*i)++;
-
   assert( idx < m_rows( buffer));
-
   m_set_val( buffer, idx, 0, value );
 }
 
 
 
 
-static void report_stats( app_t *app , double value )
+static void push_stats_buffer( app_t *app , double value )
 {
-
-  push_buffer( app->stats_buffer, &app->stats_buffer_i, value);
-
-
   //////////////
   // report value....
+  // printf("-----------------");
   char buf[100];
-  printf("predict %sV ", format_float_with_commas(buf, 100, 7, value));
+  printf("push_stats_buffer %sV ", format_float_with_commas(buf, 100, 7, value));
+  // printf("\n");
 
+
+  push_buffer1( app->stats_buffer, &app->stats_buffer_i, value);
+
+
+  // m_foutput(stdout, app->stats_buffer );
+ 
 
   MAT *stddev = m_stddev( app->stats_buffer, 0, MNULL );
   assert( m_cols(stddev) == 1 && m_rows(stddev) == 1);
@@ -84,23 +85,22 @@ static void report_stats( app_t *app , double value )
 // value is completely wrong.... 0.7????
 
 
-static void report_predicted( app_t *app , double value )
+static void push_buffer( app_t *app , double value )
 {
-  // TODO change name push_buffer() 
+  // TODO change name push_buffer1() 
   // TODO must be a better name
   // either azero, or non azero, again. etc.
   
 
-  push_buffer( app->buffer, &app->buffer_i, value);
+  push_buffer1( app->buffer, &app->buffer_i, value);
 
   
-  printf("i %u of %u\n", app->buffer_i , m_rows(app->buffer));
-
+  // printf("push_buffer i %u of %u %lf\n", app->buffer_i , m_rows(app->buffer), value );
 
 
   if( (app->buffer_i % m_rows( app->buffer))  ==  0 ) {
-    // buffer is full.
-    // printf("whoot\n");
+    // we have enought to push
+    // m_foutput(stdout, app->buffer );
 
     // take the mean of the buffer.
     MAT *mean = m_mean( app->buffer, MNULL );
@@ -108,10 +108,12 @@ static void report_predicted( app_t *app , double value )
     double mean_ = m_get_val(mean, 0, 0);
     M_FREE(mean);
    
-    report_stats( app, mean_ ); 
-    printf("mean \n");
+    push_stats_buffer( app, mean_ ); 
+
+    /*printf("mean \n");
     char buf[100];
     printf("mean %sV ", format_float_with_commas(buf, 100, 7, mean_ ));
+      */
   }
 
 }
@@ -165,7 +167,7 @@ static void yield( app_t *app, Run *run, Param *param )
 
     if(app ->b) {
       double predict = calc_predicted_val( app-> b , run, param );
-      report_predicted(app, predict );
+      push_buffer(app, predict );
     }
 
     // clear to reset
@@ -271,7 +273,7 @@ static void yield2( app_t *app, Run *run_zero, Param *param_zero, Run *run_sig, 
       double predict_zero   = calc_predicted_val( app-> b , run_zero, param_zero );
       double predict_sig    = calc_predicted_val( app-> b , run_sig,  param_sig );
       double predict        = predict_sig - predict_zero;
-      report_predicted(app, predict );
+      push_buffer(app, predict );
     }
 
     // clear to reset

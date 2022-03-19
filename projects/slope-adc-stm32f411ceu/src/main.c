@@ -307,6 +307,18 @@ void update_console_cmd(app_t *app)
       // should read as a double
       // actually an aperture setting.
 
+
+      else if(sscanf(app->cmd_buf, "buffer %lu", &u32 ) == 1) {
+
+        if(u32 > 100) { 
+          u32 = 100;
+        }
+        printf("set buffer %lu\n", u32 );
+        app->buffer = m_resize( app->buffer, u32, 1 ); 
+        app->buffer_i = 0; 
+      }
+
+
       else if(sscanf(app->cmd_buf, "nplc %lf", &d ) == 1) {
 
         printf("setting nplc %lf\n", d );
@@ -598,7 +610,7 @@ int main(void)
   /////////////////////
 
   // set the buffer
-  app.buffer = m_resize( app.buffer, 5, 1 ); 
+  app.buffer = m_resize( app.buffer, 1, 1 ); 
   app.buffer_i = 0; 
 
   // stats buffer for reporting
