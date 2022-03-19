@@ -28,7 +28,7 @@
 */
 
 
-static double get_predicted_value(  MAT *b , Run *run, Param *param )
+static double calc_predicted_value(  MAT *b , Run *run, Param *param )
 {
   // do xs.
   MAT *xs = run_to_matrix( param,  run, MNULL );
@@ -82,7 +82,7 @@ static void yield( app_t *app, Run *run, Param *param )
 
     if(app ->b) {
 
-        double predicted = get_predicted_value( app-> b , run, param );
+        double predicted = calc_predicted_value( app-> b , run, param );
 
         // now we want the mean as value...
         char buf[100];
@@ -187,8 +187,8 @@ static void yield2( app_t *app, Run *run_zero, Param *param_zero, Run *run_sig, 
 
     if(app ->b) {
 
-      double predict_zero   = get_predicted_value( app-> b , run_zero, param_zero );
-      double predict_sig    = get_predicted_value( app-> b , run_sig,  param_sig );
+      double predict_zero   = calc_predicted_value( app-> b , run_zero, param_zero );
+      double predict_sig    = calc_predicted_value( app-> b , run_sig,  param_sig );
       double predict        = predict_sig - predict_zero;
 
       char buf[100];
@@ -281,7 +281,7 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     param_read_last( &param_zero);
     assert(param_zero.himux_sel ==  HIMUX_SEL_REF_LO );
     // char buf[100];
-    // printf("got value should be zero %sV\n", format_float_with_commas(buf, 100, 7, get_predicted_value( app-> b , &run_zero, &param_zero )));
+    // printf("got value should be zero %sV\n", format_float_with_commas(buf, 100, 7, calc_predicted_value( app-> b , &run_zero, &param_zero )));
 
     // configure ref_hi
     ctrl_reset_enable();
@@ -304,7 +304,7 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     param_read_last( &param_sig);
     assert(param_sig.himux_sel == HIMUX_SEL_REF_HI );  // this is not correct....
 
-    // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, get_predicted_value( app-> b , &run_sig , &param_sig )));
+    // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, calc_predicted_value( app-> b , &run_sig , &param_sig )));
 
   }
 }
