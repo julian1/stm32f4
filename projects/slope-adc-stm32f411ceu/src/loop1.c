@@ -39,14 +39,30 @@
 
 
 
-static void push_buffer1( MAT *buffer, unsigned *i, double value)
+static bool push_buffer1( MAT *buffer, unsigned *i, double value)
 {
+  /*
+    Todo should return whether we reached the end...
+  */
+#if 0
   assert( m_cols(buffer) == 1 );
 
   unsigned idx = *i % m_rows(buffer);
   (*i)++;
   assert( idx < m_rows( buffer));
   m_set_val( buffer, idx, 0, value );
+#endif
+  bool full = false;
+
+  if(*i == m_cols(buffer)) { 
+    full = true;
+    i = 0; 
+  } 
+
+  m_set_val( buffer, *i, 0, value );
+  ++(*i);
+
+  return full;
 }
 
 
@@ -92,13 +108,14 @@ static void push_buffer( app_t *app , double value )
   // either azero, or non azero, again. etc.
   
 
-  push_buffer1( app->buffer, &app->buffer_i, value);
+  bool full = push_buffer1( app->buffer, &app->buffer_i, value);
 
   
   // printf("push_buffer i %u of %u %lf\n", app->buffer_i , m_rows(app->buffer), value );
 
 
-  if( (app->buffer_i % m_rows( app->buffer))  ==  0 ) {
+  if( full ) {
+  // if( (app->buffer_i % m_rows( app->buffer))  ==  0 ) {
     // we have enought to push
     // m_foutput(stdout, app->buffer );
 

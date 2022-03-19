@@ -309,7 +309,6 @@ void update_console_cmd(app_t *app)
 
 
       else if(sscanf(app->cmd_buf, "buffer %lu", &u32 ) == 1) {
-
         if(u32 > 100) { 
           u32 = 100;
         }
@@ -320,11 +319,8 @@ void update_console_cmd(app_t *app)
 
 
       else if(sscanf(app->cmd_buf, "nplc %lf", &d ) == 1) {
-
         printf("setting nplc %lf\n", d );
-
         uint32_t aper = nplc_to_aper_n( d );
-
         ctrl_reset_enable();
         ctrl_set_aperture( aper );
         ctrl_reset_disable();
