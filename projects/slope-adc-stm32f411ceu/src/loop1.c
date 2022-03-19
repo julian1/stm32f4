@@ -45,16 +45,19 @@ static bool push_buffer1( MAT *buffer, unsigned *i, double value)
     Todo should return whether we reached the end...
   */
 #if 0
-  assert( m_cols(buffer) == 1 );
 
+  assert( m_cols(buffer) == 1 );
   unsigned idx = *i % m_rows(buffer);
   (*i)++;
   assert( idx < m_rows( buffer));
   m_set_val( buffer, idx, 0, value );
 #endif
+
+
+  assert( m_cols(buffer) == 1 );
   bool full = false;
 
-  if(*i == m_cols(buffer)) { 
+  if(*i == m_rows(buffer)) { 
     full = true;
     i = 0; 
   } 
