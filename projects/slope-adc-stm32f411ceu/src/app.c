@@ -36,18 +36,18 @@ uint32_t nplc_to_aper_n( double nplc )
 }
 
 
-double aper_n_to_nplc( uint32_t aper)
+double aper_n_to_nplc( uint32_t aper_n)
 {
   // uint32_t aper  = params->clk_count_aper_n ;
-  double period   = aper / (double ) 20000000;
+  double period   = aper_n / (double ) 20000000;
   double nplc     = period / (1.0 / 50);
   return nplc;
 }
 
 
-double aper_n_to_period( uint32_t aper)
+double aper_n_to_period( uint32_t aper_n)
 {
-  double period   = aper / (double ) 20000000;
+  double period   = aper_n / (double ) 20000000;
   return period;
 }
 
@@ -93,7 +93,7 @@ uint32_t ctrl_get_aperture( uint32_t spi )
 
 
 
-static char * format_himux_sel( uint32_t mux )
+static char * himux_sel_format( uint32_t mux )
 {
   //
   switch(mux) {
@@ -109,36 +109,37 @@ static char * format_himux_sel( uint32_t mux )
 }
 
 
-void ctrl_set_mux( uint32_t mux )
+void ctrl_set_mux( uint32_t spi, uint32_t mux )
 {
+  assert(spi == SPI1);
   /*
   // char buf[100];
   // printf("*set himux_sel %s (%lu)\n",  format_bits( buf, 4, mux ), mux);
   */
-
-
   spi_reg_write(SPI1, REG_HIMUX_SEL,  mux);
 }
 
 
-uint32_t ctrl_get_mux( /* uint32_t spi */)
+uint32_t ctrl_get_mux( uint32_t spi )
 {
+  assert(spi == SPI1);
   return  spi_reg_read(SPI1, REG_HIMUX_SEL);
 }
 
 
 
 
-void ctrl_reset_enable( void )
+void ctrl_reset_enable( uint32_t spi )
 {
+  assert(spi == SPI1);
   // TODO pass spi.
   // active low
   spi_reg_write(SPI1, REG_RESET,  0);
 }
 
-void ctrl_reset_disable(void)
+void ctrl_reset_disable(uint32_t spi)
 {
-
+  assert(spi == SPI1);
   spi_reg_write(SPI1, REG_RESET,  1);
 }
 
@@ -148,13 +149,14 @@ void ctrl_reset_disable(void)
 
 
 
-void ctrl_run_read( Run *run )
+void ctrl_run_read( uint32_t spi, Run *run )
 {
   /*
   pass spi argument.
   change name adc_meas_read()   or intg_meas_read()
     etc.
   */
+  assert(spi == SPI1);
   assert(run);
 
   // use separate lines (to make it easier to filter - for plugging into stats).
@@ -178,7 +180,7 @@ void ctrl_run_read( Run *run )
 
 
 
-void ctrl_run_report( Run *run )
+void run_report( Run *run )
 {
   assert(run);
 
@@ -203,8 +205,9 @@ void ctrl_run_report( Run *run )
     - can read last used params off of device. (eg. if device is source of permuted variables).
 */
 
-void ctrl_param_read( Param *param)
+void ctrl_param_read( uint32_t spi, Param *param)
 {
+  assert(spi == SPI1);
 
   uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_LO );
   uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_HI );
@@ -222,8 +225,10 @@ void ctrl_param_read( Param *param)
 
 
 
-void ctrl_param_read_last( Param *param)
+void ctrl_param_read_last( uint32_t spi, Param *param)
 {
+  assert(spi == SPI1);
+
   // but nothing permutes this.
   uint32_t int_lo = spi_reg_read(SPI1, REG_LAST_CLK_COUNT_APER_N_LO );
   uint32_t int_hi = spi_reg_read(SPI1, REG_LAST_CLK_COUNT_APER_N_HI );
@@ -238,7 +243,7 @@ void ctrl_param_read_last( Param *param)
 }
 
 
-void ctrl_param_report( Param *param)
+void param_report( Param *param)
 {
   usart_printf("clk_count_aper_n %lu, ", param->clk_count_aper_n);
   usart_printf("clk_count_fix_n %lu, ", param->clk_count_fix_n);
@@ -251,7 +256,7 @@ void ctrl_param_report( Param *param)
 
 
 
-MAT * run_to_matrix( Param *param, Run *run, MAT * out )
+MAT * param_run_to_matrix( Param *param, Run *run, MAT * out )
 {
   assert(run);
 
@@ -301,7 +306,7 @@ MAT * run_to_matrix( Param *param, Run *run, MAT * out )
 
 
 
-MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
+MAT * m_calc_predicted( MAT *b, MAT *x, MAT *aperture)
 {
   /*
     do matrix multiply, and adjust by the aperture.
@@ -343,7 +348,7 @@ MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
 
 
 #if 0
-MAT * run_to_matrix( Params *params, Run *run, MAT * out )
+MAT * param_run_to_matrix( Params *params, Run *run, MAT * out )
 {
   /*
     0.  very useful feature - how biased resistor ladder - means that modulation will cycle around to a stop point

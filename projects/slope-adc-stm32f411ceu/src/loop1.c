@@ -157,10 +157,10 @@ static void app_update( app_t * app )
 
 // #include <alloca.h>
 
-static double calc_predicted_val(  MAT *b , Run *run, Param *param )
+static double m_calc_predicted_val(  MAT *b , Run *run, Param *param )
 {
   // do xs.
-  MAT *xs = run_to_matrix( param,  run, MNULL );
+  MAT *xs = param_run_to_matrix( param,  run, MNULL );
   assert(xs);
   assert( m_rows(xs) == 1 );
 
@@ -169,7 +169,7 @@ static double calc_predicted_val(  MAT *b , Run *run, Param *param )
   m_set_val( aperture, 0, 0, param->clk_count_aper_n);
 
   // predicted
-  MAT *predicted = calc_predicted( b, xs, aperture);      // TODO - combine this function....
+  MAT *predicted = m_calc_predicted( b, xs, aperture);      // TODO - combine this function....
   assert(m_cols(predicted) == 1);
   // m_foutput(stdout, predicted );
   double value = m_get_val(predicted, 0, 0 );
@@ -212,7 +212,7 @@ void loop1 ( app_t *app )
       // we have a value.
       if(run.count_up ) {
         if(app ->b) {
-          double predict = calc_predicted_val( app->b, &run, &param );
+          double predict = m_calc_predicted_val( app->b, &run, &param );
           process( app, predict );
         }
         // clear to reset
@@ -226,8 +226,8 @@ void loop1 ( app_t *app )
     }
 
     // read the ready data
-    ctrl_run_read(&run);
-    ctrl_param_read_last( &param);
+    ctrl_run_read(app->spi, &run);
+    ctrl_param_read_last( app->spi, &param);
 
   }
 }
@@ -268,10 +268,10 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   while(true) {
 
     // configure ref_lo
-    ctrl_reset_enable();
-    ctrl_set_mux( HIMUX_SEL_REF_LO );
+    ctrl_reset_enable(app->spi);
+    ctrl_set_mux( app->spi, HIMUX_SEL_REF_LO );
     app->data_ready = false;
-    ctrl_reset_disable();
+    ctrl_reset_disable(app->spi);
 
 
     // block/wait for data
@@ -281,8 +281,8 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
       if(run_zero.count_up && run_sig.count_up ) {
 
         if(app ->b) {
-          double predict_zero   = calc_predicted_val( app->b , &run_zero, &param_zero );
-          double predict_sig    = calc_predicted_val( app->b , &run_sig,  &param_sig );
+          double predict_zero   = m_calc_predicted_val( app->b , &run_zero, &param_zero );
+          double predict_sig    = m_calc_predicted_val( app->b , &run_sig,  &param_sig );
           double predict        = predict_sig - predict_zero;
           process( app, predict );
         }
@@ -299,17 +299,17 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     }
 
     // read data
-    ctrl_run_read(&run_zero);
-    ctrl_param_read_last( &param_zero);
+    ctrl_run_read(app->spi, &run_zero);
+    ctrl_param_read_last( app->spi, &param_zero);
     assert(param_zero.himux_sel ==  HIMUX_SEL_REF_LO );
 
 
 
     // configure ref_hi
-    ctrl_reset_enable();
-    ctrl_set_mux( HIMUX_SEL_REF_HI );
+    ctrl_reset_enable(app->spi);
+    ctrl_set_mux( app->spi, HIMUX_SEL_REF_HI );
     app->data_ready = false;
-    ctrl_reset_disable();
+    ctrl_reset_disable(app->spi);
 
     // block/wait for data
     while(!app->data_ready ) {
@@ -321,11 +321,11 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     }
 
     // read data
-    ctrl_run_read(&run_sig);
-    ctrl_param_read_last( &param_sig);
+    ctrl_run_read(app->spi, &run_sig);
+    ctrl_param_read_last( app->spi, &param_sig);
     assert(param_sig.himux_sel == HIMUX_SEL_REF_HI );
 
-    // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, calc_predicted_val( app-> b , &run_sig , &param_sig )));
+    // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, m_calc_predicted_val( app-> b , &run_sig , &param_sig )));
 
   }
 }
@@ -349,10 +349,10 @@ static double app_simple_read( app_t *app)
   // clear to reset
   memset(&run, 0, sizeof(Run));
 
-  ctrl_reset_enable();
+  ctrl_reset_enable(app->spi);
   ctrl_set_aperture( app->spi, nplc_to_aper_n(10));
   app->data_ready = false;
-  ctrl_reset_disable();
+  ctrl_reset_disable(app->spi);
 
   // block/wait for data
   while(!app->data_ready ) {
@@ -365,14 +365,14 @@ static double app_simple_read( app_t *app)
     */
   }
 
-  ctrl_run_read(&run);
-  ctrl_param_read_last(&param);
+  ctrl_run_read(app->spi, &run);
+  ctrl_param_read_last(app->spi, &param);
 
   // we have both obs available...
   assert(run.count_up);
   assert(app ->b);
 
-  double predict = calc_predicted_val( app->b , &run, &param );
+  double predict = m_calc_predicted_val( app->b , &run, &param );
   return predict;
 }
 
@@ -458,14 +458,12 @@ void loop3 ( app_t *app   )
 
 
   // mux signal input
-  ctrl_reset_enable();
-  ctrl_set_mux( HIMUX_SEL_SIG_HI );
-  ctrl_reset_disable();
+  ctrl_reset_enable(app->spi);
+  ctrl_set_mux( app->spi, HIMUX_SEL_SIG_HI );
+  ctrl_reset_disable(app->spi);
 
 
   // app_vs_drive_to( app, 5.0 );
-
-
 
 
   Run   run_a;
@@ -486,10 +484,10 @@ void loop3 ( app_t *app   )
   while(true) {
 
     // configure nplc
-    ctrl_reset_enable();
+    ctrl_reset_enable(app->spi);
     ctrl_set_aperture( app->spi, nplc_to_aper_n(10));
     app->data_ready = false;
-    ctrl_reset_disable();
+    ctrl_reset_disable(app->spi);
 
 
     // block/wait for data
@@ -499,8 +497,8 @@ void loop3 ( app_t *app   )
       if(run_a.count_up && run_b.count_up ) {
 
         if(app ->b) {
-          double predict_a      = calc_predicted_val( app->b , &run_a, &param_a );
-          double predict_b      = calc_predicted_val( app->b , &run_b,  &param_b );
+          double predict_a      = m_calc_predicted_val( app->b , &run_a, &param_a );
+          double predict_b      = m_calc_predicted_val( app->b , &run_b,  &param_b );
 
 
           /*
@@ -538,17 +536,17 @@ void loop3 ( app_t *app   )
     }
 
     // read data
-    ctrl_run_read(&run_a);
-    ctrl_param_read_last( &param_a);
+    ctrl_run_read(app->spi, &run_a);
+    ctrl_param_read_last( app->spi, &param_a);
     assert( aper_n_to_nplc(param_a.clk_count_aper_n) == 10);
 
 
 
     // configure nplc
-    ctrl_reset_enable();
+    ctrl_reset_enable(app->spi);
     ctrl_set_aperture( app->spi, nplc_to_aper_n(11));
     app->data_ready = false;
-    ctrl_reset_disable();
+    ctrl_reset_disable(app->spi);
 
     // block/wait for data
     while(!app->data_ready ) {
@@ -560,11 +558,11 @@ void loop3 ( app_t *app   )
     }
 
     // read data
-    ctrl_run_read(&run_b);
-    ctrl_param_read_last( &param_b);
+    ctrl_run_read(app->spi, &run_b);
+    ctrl_param_read_last( app->spi, &param_b);
     assert(  aper_n_to_nplc(param_b.clk_count_aper_n) == 11);
 
-    // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, calc_predicted_val( app-> b , &run_b , &param_b )));
+    // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, m_calc_predicted_val( app-> b , &run_b , &param_b )));
 
   }
 }

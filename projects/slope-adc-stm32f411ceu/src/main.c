@@ -277,21 +277,21 @@ void app_update_console_cmd(app_t *app)
 
       else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 )  {
         printf("setting mux ref-lo\n");
-        ctrl_reset_enable();
-        ctrl_set_mux( HIMUX_SEL_REF_LO );
-        ctrl_reset_disable();
+        ctrl_reset_enable(app->spi);
+        ctrl_set_mux( app->spi, HIMUX_SEL_REF_LO );
+        ctrl_reset_disable(app->spi);
       }
       else if(strcmp(app->cmd_buf , "mux ref-hi") == 0) {
         printf("setting mux ref-hi\n");
-        ctrl_reset_enable();
-        ctrl_set_mux( HIMUX_SEL_REF_HI );
-        ctrl_reset_disable();
+        ctrl_reset_enable(app->spi);
+        ctrl_set_mux( app->spi, HIMUX_SEL_REF_HI );
+        ctrl_reset_disable(app->spi);
       }
       else if(strcmp(app->cmd_buf , "mux sig") == 0) {
         printf("setting mux sig\n");
-        ctrl_reset_enable();
-        ctrl_set_mux( HIMUX_SEL_SIG_HI );
-        ctrl_reset_disable();
+        ctrl_reset_enable(app->spi);
+        ctrl_set_mux( app->spi, HIMUX_SEL_SIG_HI );
+        ctrl_reset_disable(app->spi );
       }
     /*
       else if(strcmp(app->cmd_buf , "mux ang") == 0) {
@@ -324,9 +324,9 @@ void app_update_console_cmd(app_t *app)
         printf("reset test %lu seconds\n", u32 );
 
         // TODO change name ctrl_reset_enable()
-        ctrl_reset_enable();
+        ctrl_reset_enable(app->spi);
         msleep( u32 * 1000);
-        ctrl_reset_disable();
+        ctrl_reset_disable(app->spi);
       }
 
 
@@ -347,9 +347,9 @@ void app_update_console_cmd(app_t *app)
       else if(sscanf(app->cmd_buf, "nplc %lf", &d ) == 1) {
         printf("setting nplc %lf\n", d );
         uint32_t aper = nplc_to_aper_n( d );
-        ctrl_reset_enable();
+        ctrl_reset_enable(app->spi);
         ctrl_set_aperture( app->spi, aper );
-        ctrl_reset_disable();
+        ctrl_reset_disable(app->spi);
       }
 
 #if 0

@@ -260,7 +260,7 @@ static MAT * calibrate( app_t *app)
 
   assert( m_rows(b) == m_cols( xs) ); // calibration coeff is horizontal matrix.
 
-  calc_predicted( b, xs, aperture);
+  m_calc_predicted( b, xs, aperture);
 
 
   // TODO clean up mem.

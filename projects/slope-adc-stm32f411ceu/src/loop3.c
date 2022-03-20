@@ -100,12 +100,12 @@ void loop3 ( app_t *app)
       ctrl_reset_disable();
 
       // need a better name. run_print.
-      ctrl_run_report(&run, 0);
+      run_report(&run, 0);
 
 
       if(app ->b) {
 
-          MAT *x = run_to_matrix( /*&app->params,*/ &run, MNULL );
+          MAT *x = param_run_to_matrix( /*&app->params,*/ &run, MNULL );
           assert(x );
 
           MAT *predict = m_mlt(x, app->b, MNULL );

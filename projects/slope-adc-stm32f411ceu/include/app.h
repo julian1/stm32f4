@@ -66,8 +66,8 @@
 // this isn't very good. because displayed nplc
 // will be constructive.
 uint32_t nplc_to_aper_n( double nplc );
-double aper_n_to_nplc( uint32_t int_n);
-double aper_n_to_period( uint32_t int_n);
+double aper_n_to_nplc( uint32_t aper_n);
+double aper_n_to_period( uint32_t aper_n);
 
 
 
@@ -78,11 +78,11 @@ void ctrl_set_aperture( uint32_t spi, uint32_t aperture);
 uint32_t ctrl_get_aperture( uint32_t spi );
 
 
-void ctrl_set_mux( uint32_t mux );
-uint32_t ctrl_get_mux( void);
+void ctrl_set_mux( uint32_t spi, uint32_t mux );
+uint32_t ctrl_get_mux( uint32_t spi);
 
-void ctrl_reset_enable( void );
-void ctrl_reset_disable(void);
+void ctrl_reset_enable( uint32_t spi);
+void ctrl_reset_disable(uint32_t spi);
 
 
 
@@ -94,7 +94,7 @@ void ctrl_reset_disable(void);
 struct Param
 {
   /*
-    must have params to compute the clk sums, in run_to_matrix_t
+    must have params to compute the clk sums, in param_run_to_matrix_t
     therefore need to pass around, or else read off the mcu.
   */
   // the pattern controller may change on its own - so should read for *each* run.
@@ -142,22 +142,19 @@ typedef struct Run  Run;
 
 
 
-void ctrl_param_read( Param *param);
-void ctrl_param_report( Param *param);
+void ctrl_param_read( uint32_t spi, Param *param);
+void ctrl_param_read_last( uint32_t spi, Param *param);
+void param_report( Param *param);  // rename param_report??
+
+void ctrl_run_read( uint32_t spi, Run *run );
+void run_report( Run *run);    // rename run_report
 
 
 
-void ctrl_param_read_last( Param *param);
-
-void ctrl_run_read( Run *run );
-void ctrl_run_report( Run *run);
+MAT * param_run_to_matrix( Param *param, Run *run, MAT * out );   // rename param_param_run_to_matrix() 
 
 
-
-MAT * run_to_matrix( Param *param, Run *run, MAT * out );
-
-
-MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture);
+MAT * m_calc_predicted( MAT *b, MAT *x, MAT *aperture);     // rename m_m_calc_predicted
 
 
 
