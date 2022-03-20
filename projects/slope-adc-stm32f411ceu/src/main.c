@@ -261,9 +261,7 @@ void app_update_console_cmd(app_t *app)
         printf("sleep done\n");
       }
 
-
-
-
+      // change name source ? or test-source ?
       else if(sscanf(app->cmd_buf, "vs %ld", &i32 ) == 1) {
         printf("setting value for voltage source %ld!\n", i32);
         voltage_source_set( i32 );
@@ -451,13 +449,14 @@ void app_update_console_cmd(app_t *app)
 
 void app_simple_sleep( app_t * app, uint32_t period )
 {
-    uint32_t soft_timer = system_millis;
+  // not static
+  uint32_t soft_timer = system_millis;
 
   while(true) { 
+    // keep pumping messages
     app_update_console_cmd(app);
     app_update_led(app);
 
-    // not static
     if( (system_millis - soft_timer ) > period ) {
       return;
     }

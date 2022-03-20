@@ -414,10 +414,8 @@ void loop3 ( app_t *app   )
   ctrl_set_pattern( 0 ) ;
 
 
-
+/*
   while(1) { 
-
-
 
     double val = simple_read( app);
     printf("val %lf\n", val );  
@@ -426,6 +424,7 @@ void loop3 ( app_t *app   )
       return;
     }
   }
+*/
 
 
   Run   run_a;
@@ -466,7 +465,7 @@ void loop3 ( app_t *app   )
           double predict_a      = calc_predicted_val( app->b , &run_a, &param_a );
           double predict_b      = calc_predicted_val( app->b , &run_b,  &param_b );
 
-          printf("%u   %.7lf,  %.7lf\n", id, predict_a, predict_b );
+          printf("%u   %.7lf,  %.7lf  %.2fuV\n", id, predict_a, predict_b, (predict_a - predict_b) * 1000000 );
 
           /*
           if(mode == starting && predict_a > 10)  {
