@@ -21,23 +21,6 @@
 
 
 
-/*
-  OK. lets try the same. except with an autozero as well.
-  and then add try to add the mean/sd back.
-*/
-
-
-
-
-/*
-  so we have the buffer of values.
-
-  then we have the lagged stats buffer
-
-*/
-
-
-
 
 static bool push_buffer1( MAT *buffer, unsigned *i, double value)
 {
@@ -174,7 +157,7 @@ static void process( app_t *app, double predict )
   */
 
 
-  // calculate value and push onto buffer
+  // push onto buffer
   bool full = push_buffer1( app->buffer, &app->buffer_i, predict );
 
   if( full ) {
@@ -200,9 +183,8 @@ static void process( app_t *app, double predict )
     char buf[100];
     printf("value %sV ", format_float_with_commas(buf, 100, 7, value));
     printf("stddev(%u) %.2fuV, ", m_rows(app->stats_buffer), stddev_  * 1000000 );   // multiply by 10^6. for uV
-      printf("\n");
+    printf("\n");
   }
-
 
 }
 
@@ -253,16 +235,11 @@ static double calc_predicted_val(  MAT *b , Run *run, Param *param )
 
 
 
-void loop1 ( app_t *app /* void (*pyield)( appt_t * )*/  )
+void loop1 ( app_t *app )
 {
-  // could pass the continuatino to use.
 
   usart_printf("=========\n");
   usart_printf("loop1\n");
-
-  usart_printf("m_rows buffer %u\n", m_rows(app->buffer) );
-  assert(app);
-
 
 
   ctrl_set_pattern( 0 ) ;     // no azero.
