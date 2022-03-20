@@ -15,6 +15,7 @@
 #include "app.h"
 
 
+#include "voltage-source.h"
 
 
 
@@ -377,9 +378,51 @@ static double simple_read( app_t *app)
 
 
 
+void app_vs_drive_to( app_t *app, double value )
+{
+
+  double current = simple_read( app);
+
+  if( value > current ) {
+
+    voltage_source_set(1);
+    while(1) {
+      current = simple_read( app);
+      printf("val %lf\n", current);
+      if(current > value)
+        break;
+
+      if(app->continuation_f)
+        break;
+    }
+    voltage_source_set(0);
+
+
+  } else {
+
+    voltage_source_set(-1);
+    while(1) {
+      current = simple_read( app);
+      printf("val %lf\n", current);
+      if(current < value)
+        break;
+      if(app->continuation_f)
+        break;
+
+    }
+
+    voltage_source_set(0);
+
+  }
 
 
 
+}
+
+
+/*
+
+*/
 
 
 
@@ -414,11 +457,20 @@ void loop3 ( app_t *app   )
   ctrl_set_pattern( 0 ) ;
 
 
+  // ref hi
+  ctrl_reset_enable();
+  ctrl_set_mux( HIMUX_SEL_SIG_HI );
+  ctrl_reset_disable();
+
+
+
+  app_vs_drive_to( app, 5.0 );
+
 /*
-  while(1) { 
+  while(1) {
 
     double val = simple_read( app);
-    printf("val %lf\n", val );  
+    printf("val %lf\n", val );
     if(app->continuation_f) {
       printf("whoot done \n");
       return;
@@ -435,10 +487,6 @@ void loop3 ( app_t *app   )
   memset(&run_a, 0, sizeof(Run));
   memset(&run_b, 0, sizeof(Run));
 
-  // ref hi
-  ctrl_reset_enable();
-  ctrl_set_mux( HIMUX_SEL_REF_HI );
-  ctrl_reset_disable();
 
   // OK. hang on. why use a matrix buffer. why not just spit values out to stdout????
   unsigned id = 0;
@@ -465,20 +513,23 @@ void loop3 ( app_t *app   )
           double predict_a      = calc_predicted_val( app->b , &run_a, &param_a );
           double predict_b      = calc_predicted_val( app->b , &run_b,  &param_b );
 
-          printf("%u   %.7lf,  %.7lf  %.2fuV\n", id, predict_a, predict_b, (predict_a - predict_b) * 1000000 );
 
           /*
           if(mode == starting && predict_a > 10)  {
             mode = running;
           }
           */
-
           #if 0
+          printf("%u   %.7lf,  %.7lf  %.2fuV\n", id, predict_a, predict_b, (predict_a - predict_b) * 1000000 );
+          #endif
+
+          #if 1
           char buf[100], buf2[100];
-          printf("%u   %sV\t  %sV\n",
+          printf("%u   %sV\t  %sV  %.2fuV\n",
             id,
             format_float_with_commas(buf, 100, 7, predict_a),
-            format_float_with_commas(buf2, 100, 7, predict_b )
+            format_float_with_commas(buf2, 100, 7, predict_b ),
+            (predict_a - predict_b) * 1000000
           );
           #endif
         }

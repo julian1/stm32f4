@@ -250,12 +250,10 @@ void app_update_console_cmd(app_t *app)
         fclose(f);
       }
 
-
-
       else if(sscanf(app->cmd_buf, "sleep %lu", &u32 ) == 1) {
 
         printf("sleep %lums\n", u32);
- 
+
         // main looop keeps updating
         app_simple_sleep( app, u32 );
         printf("sleep done\n");
@@ -263,9 +261,17 @@ void app_update_console_cmd(app_t *app)
 
       // change name source ? or test-source ?
       else if(sscanf(app->cmd_buf, "vs %ld", &i32 ) == 1) {
-        printf("setting value for voltage source %ld!\n", i32);
+        printf("voltage source %ld!\n", i32);
         voltage_source_set( i32 );
       }
+
+      else if(sscanf(app->cmd_buf, "vs set %lf", &d ) == 1) {
+        // set the voltage
+        printf("voltage source set %lf!\n", d);
+        app_vs_drive_to( app, d );
+      }
+
+
 
 
       else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 )  {
@@ -452,7 +458,7 @@ void app_simple_sleep( app_t * app, uint32_t period )
   // not static
   uint32_t soft_timer = system_millis;
 
-  while(true) { 
+  while(true) {
     // keep pumping messages
     app_update_console_cmd(app);
     app_update_led(app);

@@ -233,6 +233,8 @@ void permute(app_t *app, MAT *b);
 
 void app_simple_sleep( app_t * app, uint32_t period );
 
+void app_vs_drive_to( app_t *app, double value );
+
 
 /*
   should be able to avoid this . set once, and then query the matrix.
