@@ -144,7 +144,7 @@ void ctrl_reset_disable(void)
 
 
 
-void run_read( Run *run )
+void ctrl_run_read( Run *run )
 {
   /*
   pass spi argument.
@@ -174,7 +174,7 @@ void run_read( Run *run )
 
 
 
-void run_report( Run *run )
+void ctrl_run_report( Run *run )
 {
   assert(run);
 
@@ -199,7 +199,7 @@ void run_report( Run *run )
     - can read last used params off of device. (eg. if device is source of permuted variables).
 */
 
-void param_read( Param *param)
+void ctrl_param_read( Param *param)
 {
 
   uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_LO );
@@ -218,7 +218,7 @@ void param_read( Param *param)
 
 
 
-void param_read_last( Param *param)
+void ctrl_param_read_last( Param *param)
 {
   // but nothing permutes this.
   uint32_t int_lo = spi_reg_read(SPI1, REG_LAST_CLK_COUNT_APER_N_LO );
@@ -234,7 +234,7 @@ void param_read_last( Param *param)
 }
 
 
-void param_report( Param *param)
+void ctrl_param_report( Param *param)
 {
   usart_printf("clk_count_aper_n %lu, ", param->clk_count_aper_n);
   usart_printf("clk_count_fix_n %lu, ", param->clk_count_fix_n);

@@ -143,18 +143,18 @@ typedef struct Run  Run;
 
 
 
-void param_read( Param *param);
-void param_report( Param *param);
+void ctrl_param_read( Param *param);
+void ctrl_param_report( Param *param);
 
 
 
-void param_read_last( Param *param);
+void ctrl_param_read_last( Param *param);
 
 
 
-void run_read( Run *run );
+void ctrl_run_read( Run *run );
 
-void run_report( Run *run);
+void ctrl_run_report( Run *run);
 
 MAT * run_to_matrix( Param *param, Run *run, MAT * out );
 

@@ -84,7 +84,7 @@ void loop3 ( app_t *app)
 
       /////////////////////////////////////
       ctrl_reset_enable();
-      run_read(&run );
+      ctrl_run_read(&run );
 
       // should be hold everything in reset???
       uint32_t mux = ctrl_get_mux();
@@ -100,7 +100,7 @@ void loop3 ( app_t *app)
       ctrl_reset_disable();
 
       // need a better name. run_print.
-      run_report(&run, 0);
+      ctrl_run_report(&run, 0);
 
 
       if(app ->b) {

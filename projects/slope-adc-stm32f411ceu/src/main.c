@@ -127,8 +127,9 @@ void app_update_console_cmd(app_t *app)
 {
 
   uint32_t u32;
-  int32_t i32;
+  // int32_t i32;
   double d;
+
 
   while( ! cBufisEmpty(&app->console_in)) {
 
@@ -258,20 +259,20 @@ void app_update_console_cmd(app_t *app)
         app_simple_sleep( app, u32 );
         printf("sleep done\n");
       }
-
+  
+      /*
       // change name source ? or test-source ?
       else if(sscanf(app->cmd_buf, "vs %ld", &i32 ) == 1) {
         printf("voltage source %ld!\n", i32);
         voltage_source_set( i32 );
       }
+      */
 
-      else if(sscanf(app->cmd_buf, "vs set %lf", &d ) == 1) {
+      else if(sscanf(app->cmd_buf, "vs %lf", &d ) == 1) {
         // set the voltage
         printf("voltage source set %lf!\n", d);
         app_vs_drive_to( app, d );
       }
-
-
 
 
       else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 )  {

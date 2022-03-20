@@ -226,8 +226,8 @@ void loop1 ( app_t *app )
     }
 
     // read the ready data
-    run_read(&run);
-    param_read_last( &param);
+    ctrl_run_read(&run);
+    ctrl_param_read_last( &param);
 
   }
 }
@@ -299,8 +299,8 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     }
 
     // read data
-    run_read(&run_zero);
-    param_read_last( &param_zero);
+    ctrl_run_read(&run_zero);
+    ctrl_param_read_last( &param_zero);
     assert(param_zero.himux_sel ==  HIMUX_SEL_REF_LO );
 
 
@@ -321,8 +321,8 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     }
 
     // read data
-    run_read(&run_sig);
-    param_read_last( &param_sig);
+    ctrl_run_read(&run_sig);
+    ctrl_param_read_last( &param_sig);
     assert(param_sig.himux_sel == HIMUX_SEL_REF_HI );
 
     // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, calc_predicted_val( app-> b , &run_sig , &param_sig )));
@@ -339,7 +339,7 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
 
 
-static double simple_read( app_t *app)
+static double app_simple_read( app_t *app)
 {
   // minimum needed to read a value
   // used to steer the current before we do anything.
@@ -365,8 +365,8 @@ static double simple_read( app_t *app)
     */
   }
 
-  run_read(&run);
-  param_read_last(&param);
+  ctrl_run_read(&run);
+  ctrl_param_read_last(&param);
 
   // we have both obs available...
   assert(run.count_up);
@@ -381,13 +381,13 @@ static double simple_read( app_t *app)
 void app_vs_drive_to( app_t *app, double value )
 {
 
-  double current = simple_read( app);
+  double current = app_simple_read( app);
 
   if( value > current ) {
 
     voltage_source_set(1);
     while(1) {
-      current = simple_read( app);
+      current = app_simple_read( app);
       printf("val %lf\n", current);
       if(current > value)
         break;
@@ -402,7 +402,7 @@ void app_vs_drive_to( app_t *app, double value )
 
     voltage_source_set(-1);
     while(1) {
-      current = simple_read( app);
+      current = app_simple_read( app);
       printf("val %lf\n", current);
       if(current < value)
         break;
@@ -457,26 +457,15 @@ void loop3 ( app_t *app   )
   ctrl_set_pattern( 0 ) ;
 
 
-  // ref hi
+  // mux signal input
   ctrl_reset_enable();
   ctrl_set_mux( HIMUX_SEL_SIG_HI );
   ctrl_reset_disable();
 
 
+  // app_vs_drive_to( app, 5.0 );
 
-  app_vs_drive_to( app, 5.0 );
 
-/*
-  while(1) {
-
-    double val = simple_read( app);
-    printf("val %lf\n", val );
-    if(app->continuation_f) {
-      printf("whoot done \n");
-      return;
-    }
-  }
-*/
 
 
   Run   run_a;
@@ -549,8 +538,8 @@ void loop3 ( app_t *app   )
     }
 
     // read data
-    run_read(&run_a);
-    param_read_last( &param_a);
+    ctrl_run_read(&run_a);
+    ctrl_param_read_last( &param_a);
     assert( aper_n_to_nplc(param_a.clk_count_aper_n) == 10);
 
 
@@ -571,8 +560,8 @@ void loop3 ( app_t *app   )
     }
 
     // read data
-    run_read(&run_b);
-    param_read_last( &param_b);
+    ctrl_run_read(&run_b);
+    ctrl_param_read_last( &param_b);
     assert(  aper_n_to_nplc(param_b.clk_count_aper_n) == 11);
 
     // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, calc_predicted_val( app-> b , &run_b , &param_b )));

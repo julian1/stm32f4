@@ -87,7 +87,7 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
         ctrl_set_aperture( nplc_to_aper_n( 8) );
-        param_read( &param );
+        ctrl_param_read( &param );
         ctrl_reset_disable();
         target = 0.0  * param.clk_count_aper_n;
         break;
@@ -97,7 +97,7 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
         ctrl_set_aperture( nplc_to_aper_n( 8));
-        param_read( &param );
+        ctrl_param_read( &param );
         ctrl_reset_disable();
         target = 7.1 * param.clk_count_aper_n;
         break;
@@ -107,7 +107,7 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
         ctrl_set_aperture( nplc_to_aper_n( 9));
-        param_read( &param );
+        ctrl_param_read( &param );
         ctrl_reset_disable();
         target = 0.0  * param.clk_count_aper_n;
         break;
@@ -117,7 +117,7 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
         ctrl_set_aperture( nplc_to_aper_n( 9));
-        param_read( &param );
+        ctrl_param_read( &param );
         ctrl_reset_disable();
         target = 7.1 * param.clk_count_aper_n;
         break;
@@ -127,7 +127,7 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
         ctrl_set_aperture( nplc_to_aper_n( 10));
-        param_read( &param );
+        ctrl_param_read( &param );
         ctrl_reset_disable();
         target = 0.0  * param.clk_count_aper_n;
         break;
@@ -137,7 +137,7 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
         ctrl_set_aperture( nplc_to_aper_n( 10));
-        param_read( &param );
+        ctrl_param_read( &param );
         ctrl_reset_disable();
         target = 7.1 * param.clk_count_aper_n;
         break;
@@ -148,7 +148,7 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
         ctrl_set_aperture( nplc_to_aper_n( 11));
-        param_read( &param );
+        ctrl_param_read( &param );
         ctrl_reset_disable();
         target = 0.0 * param.clk_count_aper_n;
         break;
@@ -158,7 +158,7 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
         ctrl_set_aperture( nplc_to_aper_n( 11));
-        param_read( &param );
+        ctrl_param_read( &param );
         ctrl_reset_disable();
         target = 7.1 * param.clk_count_aper_n;
         break;
@@ -169,7 +169,7 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO);
         ctrl_set_aperture( nplc_to_aper_n( 12));
-        param_read( &param );
+        ctrl_param_read( &param );
         ctrl_reset_disable();
         target = 0.0  * param.clk_count_aper_n;
         break;
@@ -179,7 +179,7 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI);
         ctrl_set_aperture( nplc_to_aper_n( 12));
-        param_read( &param );
+        ctrl_param_read( &param );
         ctrl_reset_disable();
         target = 7.1 * param.clk_count_aper_n;
         break;
