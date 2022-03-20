@@ -273,13 +273,11 @@ void loop1 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
   while(true) {
 
-
     // configure  integrator
     ctrl_reset_enable();
     ctrl_set_mux( HIMUX_SEL_REF_HI );
-    // ctrl_set_aperture( nplc_to_aper_n( 8) );
+    app->data_ready = false;
     ctrl_reset_disable();
-
 
     // block/wait for data
     while(!app->data_ready ) {
@@ -296,16 +294,11 @@ void loop1 ( app_t *app /* void (*pyield)( appt_t * )*/  )
         memset(&run, 0, sizeof(Run));
       }
 
-
       simple_yield( app );   // change name simple update
-
-
-      // if there is another continuation to run, then bail
       if(app->continuation_f) {
         return;
       }
     }
-    app->data_ready = false;
 
     // read the ready data
     run_read(&run);
@@ -374,7 +367,7 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   // iMPORTANT do three variable azero . by shuffling  values about.
 
   usart_printf("=========\n");
-  usart_printf("loop1\n");
+  usart_printf("loop2\n");
 
   assert(app);
 
