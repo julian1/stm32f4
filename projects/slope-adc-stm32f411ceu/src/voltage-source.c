@@ -25,12 +25,12 @@ void voltage_source_setup(void)
   gpio_set_output_options( VS_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_2MHZ, all);    // optocouplers are slow
 
   // turn off at init
-  voltage_source_set( 0);
+  voltage_source_set_dir( 0);
 }
 
 
 
-void voltage_source_set( int val )
+void voltage_source_set_dir( int val )
 {
   switch(val) {
 

@@ -384,7 +384,7 @@ void app_voltage_source_set( app_t *app, double value )
 
   if( value > current ) {
 
-    voltage_source_set(1);
+    voltage_source_set_dir(1);
     while(1) {
       current = app_simple_read( app);
       printf("val %lf\n", current);
@@ -396,12 +396,12 @@ void app_voltage_source_set( app_t *app, double value )
     }
 
     // should be renamed set_dir
-    voltage_source_set(0);
+    voltage_source_set_dir(0);
 
 
   } else {
 
-    voltage_source_set(-1);
+    voltage_source_set_dir(-1);
     while(1) {
       current = app_simple_read( app);
       printf("val %lf\n", current);
@@ -412,7 +412,7 @@ void app_voltage_source_set( app_t *app, double value )
 
     }
 
-    voltage_source_set(0);
+    voltage_source_set_dir(0);
 
   }
 
