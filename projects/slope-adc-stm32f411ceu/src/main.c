@@ -140,6 +140,12 @@ void update_console_cmd(app_t *app)
       // character other than newline
       // push onto a vector? or array?
 
+      // ignore leading whitespace
+      if( ch == ' ' && app->cmd_buf_i == 0)  {
+        putchar( ch);
+        return;
+      }
+
       if( app->cmd_buf_i < CMD_BUF_SZ - 1 )
         app->cmd_buf[ app->cmd_buf_i++ ] = ch;
 
