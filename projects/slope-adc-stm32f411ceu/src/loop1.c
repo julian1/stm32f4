@@ -317,6 +317,33 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
 
 
+
+
+
+
+
+static void push_buffer3( MAT *buffer, unsigned *i, double v0, double v1, double v2)
+{
+
+  assert(buffer);
+  assert(i);
+  assert( m_cols(buffer) == 3 );
+
+  if(*i == m_rows(buffer)) {
+    assert(0);
+  }
+
+  m_set_val( buffer, *i, 0, v0 );
+  m_set_val( buffer, *i, 1, v1 );
+  m_set_val( buffer, *i, 3, v2 );
+  ++(*i);
+}
+
+
+
+
+
+
 void loop3 ( app_t *app   )
 {
   // could pass the continuatino to use.
@@ -357,6 +384,10 @@ void loop3 ( app_t *app   )
   ctrl_set_mux( HIMUX_SEL_REF_HI );
   ctrl_reset_disable();
 
+  unsigned id = 0;
+  unsigned row = 0; 
+  MAT *buffer = m_get( 100, 3); 
+  
 
   while(true) {
 
@@ -383,6 +414,8 @@ void loop3 ( app_t *app   )
 
           printf("%sV\t  %sV\n", format_float_with_commas(buf, 100, 7, predict_a), format_float_with_commas(buf2, 100, 7, predict_b ));
 
+          push_buffer3( buffer, &row, id, predict_a, predict_b);
+
           // process( app, predict );
         }
 
@@ -393,6 +426,9 @@ void loop3 ( app_t *app   )
 
       simple_yield( app );   // change name simple update
       if(app->continuation_f) {
+
+        printf("whoot finishing - got %u obs\n", row);
+
         return;
       }
     }
