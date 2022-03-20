@@ -323,6 +323,19 @@ void loop3 ( app_t *app   )
   // auto-zero
   // iMPORTANT do three variable azero . by shuffling  values about.
 
+  /*
+    rather than store a single value. we want many values.
+    i think that means having two matrices....
+
+    or one matrix, with 3 columns .  with set voltage.  a , b.
+
+    then in gnu octage can plot. in gnu octave.
+
+    how do we determine the set voltage though.
+    NO. it can just be a integer (1,2,3,  up to 20) for 20 different obs. for the x access.
+
+  */
+
   printf("=========\n");
   printf("loop3\n");
 
