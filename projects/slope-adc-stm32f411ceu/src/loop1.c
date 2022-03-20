@@ -348,6 +348,11 @@ static double app_simple_read( app_t *app)
   // clear to reset
   memset(&run, 0, sizeof(Run));
 
+  /* setting the aperture here, will confuse, if call from another loop.
+    could record the aperture and then return... 
+    but this case, should probably be handled elsewhere...
+  */
+
   ctrl_reset_enable(app->spi);
   ctrl_set_aperture( app->spi, nplc_to_aper_n(10));
   app->data_ready = false;
