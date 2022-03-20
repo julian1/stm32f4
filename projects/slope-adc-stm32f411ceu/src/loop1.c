@@ -394,6 +394,8 @@ void app_voltage_source_set( app_t *app, double value )
       if(app->continuation_f)
         break;
     }
+
+    // should be renamed set_dir
     voltage_source_set(0);
 
 

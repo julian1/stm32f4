@@ -366,19 +366,19 @@ void app_update_console_cmd(app_t *app)
         app->continuation_f = (void (*)(void *)) app_loop_dispatcher;
         app->continuation_ctx = app;
       }
-      else if(strcmp(app->cmd_buf , "app_loop1") == 0) {
+      else if(strcmp(app->cmd_buf , "loop1") == 0) {
         // start app_loop1.
         app->continuation_f = (void (*)(void *)) app_loop1;
         app->continuation_ctx = app;
       }
 
-      else if(strcmp(app->cmd_buf , "app_loop2") == 0) {  // cal loop.
+      else if(strcmp(app->cmd_buf , "loop2") == 0) {  // cal loop.
         app->continuation_f = (void (*)(void *)) app_loop2;
         app->continuation_ctx = app;
       }
 
 
-      else if(strcmp(app->cmd_buf , "app_loop3") == 0) {
+      else if(strcmp(app->cmd_buf , "loop3") == 0) {
         app->continuation_f = (void (*)(void *)) app_loop3;
         app->continuation_ctx = app;
       }
@@ -606,36 +606,24 @@ int main(void)
 
 
   // needs a context...
-  voltage_source_setup( ) ;
-
+  voltage_source_setup( /*ctx */ );
 
 
   /////////////
 
-  printf("\n--------\n");
-  printf("starting loop\n");
-  printf("sizeof bool   %u\n", sizeof(bool));
-  printf("sizeof float  %u\n", sizeof(float));
-  printf("sizeof double %u\n", sizeof(double));
-
+  assert(sizeof(bool) == 1);
   assert(sizeof(long) == 4);
   assert(sizeof(signed) == 4);
   assert(sizeof(void *) == 4);
-
+  assert(sizeof(double) == 8);
   // assert(1 == 2);
 
-  printf("a float formatted %g\n", 123.456f );
+  printf("==========\n");
 
-
-  printf("\n--------\n");
   printf("addr main() %p\n", main );
 
   usart1_flush();
 
-  // read main params from device - as starting point. should perhaps be flash
-  // params_read( &app.params );
-
-  printf("==========\n");
 
 
   /////////////////////
