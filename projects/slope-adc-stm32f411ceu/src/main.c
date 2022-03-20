@@ -71,7 +71,7 @@
 
 
 
-static void loop_dispatcher(app_t *app);
+static void app_loop_dispatcher(app_t *app);
 
 
 
@@ -343,7 +343,7 @@ void app_update_console_cmd(app_t *app)
 
       else if(strcmp(app->cmd_buf , "h") == 0 || strcmp(app->cmd_buf , "halt") == 0) {
         // exit the current loop program
-        app->continuation_f = (void (*)(void *)) loop_dispatcher;
+        app->continuation_f = (void (*)(void *)) app_loop_dispatcher;
         app->continuation_ctx = app;
       }
       else if(strcmp(app->cmd_buf , "loop1") == 0) {
@@ -438,7 +438,7 @@ void app_update_console_cmd(app_t *app)
 
 
 
-void app_led_update(app_t *app)
+void app_update_led(app_t *app)
 {
   UNUSED(app);
 
@@ -464,7 +464,7 @@ void app_led_update(app_t *app)
 
 
 
-static void loop_dispatcher(app_t *app)
+static void app_loop_dispatcher(app_t *app)
 {
   usart_printf("=========\n");
   usart_printf("continuation dispatcher\n");
@@ -477,7 +477,7 @@ static void loop_dispatcher(app_t *app)
 
     app_update_console_cmd(app);
 
-    app_led_update( app);
+    app_update_led( app);
 
 
     if(app->continuation_f) {
@@ -640,8 +640,7 @@ int main(void)
 
 
 
-
-  loop_dispatcher( &app);
+  app_loop_dispatcher( &app);
 
 }
 

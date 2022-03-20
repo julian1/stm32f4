@@ -170,7 +170,7 @@ typedef struct app_t app_t;
 
 #define CMD_BUF_SZ  100
 
-typedef struct app_t
+struct app_t
 {
   CBuf console_in;
   CBuf console_out;
@@ -208,14 +208,13 @@ typedef struct app_t
 
 
 
+} ;
 
-} app_t;
 
+typedef struct app_t app_t;
 
-// renam app_update_console_command
 void app_update_console_cmd(app_t *app);
-
-void app_led_update(app_t *app);
+void app_update_led(app_t *app);
 
 
 // loop1
