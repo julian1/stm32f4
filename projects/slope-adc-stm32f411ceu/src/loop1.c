@@ -368,7 +368,11 @@ void loop3 ( app_t *app   )
           double predict_a      = calc_predicted_val( app->b , &run_a, &param_a );
           double predict_b      = calc_predicted_val( app->b , &run_b,  &param_b );
 
-          printf(" %lf    %lf", predict_a, predict_b );
+          printf("%.7lf,  %.7lf\n", predict_a, predict_b );
+ 
+          char buf[100], buf2[100];
+ 
+          printf("%sV, %sV\n", format_float_with_commas(buf, 100, 7, predict_a), format_float_with_commas(buf2, 100, 7, predict_b ));
 
           // process( app, predict );
         }
