@@ -84,6 +84,21 @@ void ctrl_set_aperture( uint32_t aperture)
   spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_LO, aperture & 0xffffff  );
 }
 
+
+uint32_t ctrl_get_aperture( /*spi */void )
+{
+  uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_LO );
+  uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_HI );
+
+  uint32_t val = int_hi << 24 | int_lo;
+  return val;
+
+}
+
+
+
+
+
 // ctrl_get_mux
 // useful.  when pass control - between loops.
 

@@ -24,23 +24,9 @@
 
 static bool push_buffer1( MAT *buffer, unsigned *i, double value)
 {
-  /*
-    Todo should return whether we reached the end...
-  */
-#if 0
-
-  assert( m_cols(buffer) == 1 );
-  unsigned idx = *i % m_rows(buffer);
-  (*i)++;
-  assert( idx < m_rows( buffer));
-  m_set_val( buffer, idx, 0, value );
-#endif
 
   assert(buffer);
   assert(i);
-
-  // printf("i is %u\n", i ); 
-
   assert( m_cols(buffer) == 1 );
 
   bool full = false;
@@ -89,64 +75,6 @@ static void push_stats_buffer( app_t *app , double value )
 
 
 
-// value is completely wrong.... 0.7????
-
-//
-
-
-#if 0
-static bool push_buffer( app_t *app , double value )
-{
-  // leaf function
-  // push_value onto buffer and rerturn if a new buffer we are ready to output
-
-
-
-  bool full = push_buffer1( app->buffer, &app->buffer_i, value);
-
-  // printf("push_buffer i %u of %u %lf\n", app->buffer_i , m_rows(app->buffer), value );
-
-
-  /*
-    all of this code needs to be extracted top level.
-
-  */
-
-  // all of this co
-  if( full ) {
-  // if( (app->buffer_i % m_rows( app->buffer))  ==  0 ) {
-    // we have enought to push
-    // m_foutput(stdout, app->buffer );
-
-    // take the mean of the buffer.
-    MAT *mean = m_mean( app->buffer, MNULL );
-    assert(m_rows(mean) == 1 && m_cols(mean) == 1);
-    double mean_ = m_get_val(mean, 0, 0);
-    M_FREE(mean);
-
-    /*
-    // this calling function is problematic - as it couples the behavor.
-      needs to be hoisted up to the top level. (the code that does the modulation).
-
-    */
-    push_stats_buffer( app, mean_ );
-
-    /*printf("mean \n");
-    char buf[100];
-    printf("mean %sV ", format_float_with_commas(buf, 100, 7, mean_ ));
-      */
-
-    return true;
-  }
-
-  return false;
-}
-
-#endif
-
-
-
-
 
 
 
@@ -160,7 +88,7 @@ static void process( app_t *app, double predict )
     OK. so perhaps do the calcuation at higher level
   */
 
-  printf("process \n");
+  // printf("process \n");
 
 #if 1
   // push onto buffer
@@ -213,7 +141,7 @@ static void simple_yield( app_t * app )
 
 
 
-#include <alloca.h>
+// #include <alloca.h>
 
 static double calc_predicted_val(  MAT *b , Run *run, Param *param )
 {
@@ -249,6 +177,9 @@ void loop1 ( app_t *app )
 
   ctrl_set_pattern( 0 ) ;     // no azero.
 
+  printf("nplc   %.2lf\n", aper_n_to_nplc( ctrl_get_aperture()) );
+  printf("buffer %u\n",    m_rows(app->buffer));
+
   Run   run;
   Param param;
 
@@ -266,15 +197,8 @@ void loop1 ( app_t *app )
       // usart_printf("."); usart_flush();
       // we have a value.
       if(run.count_up ) {
-
         if(app ->b) {
-
-          // calculate value and push onto buffer
           double predict = calc_predicted_val( app->b, &run, &param );
-    
-          char buf[100];
-          // char *buf  = alloca( 100 );
-          printf("value %sV ", format_float_with_commas(buf, 100, 7, predict ));
           process( app, predict ); 
         }
         // clear to reset
@@ -294,54 +218,6 @@ void loop1 ( app_t *app )
   }
 }
 
-
-
-
-
-/////////////////////////
-
-
-/* Passing a continuation.
-
-  - to allow calculating mean/std.
-  - and to allow aggregating multiple entries. eg. nplc 50 == 5 lots of nplc 10.
-
-  - the problem is that we cannot partially apply the continuation .  at the top level.
-        - we could peel off the continuations off an array.
-        - but that has type safety issues.
-
-  - OR. pass a structure - with the named continuations.
-  struct A
-  {
-     void (*continuation_for_yeild)( app_t *app, double val ) ;
-     void (*continuation_for_stats)( app_t *app,  );
-  }
-
-  - or perhaps . it isn't really necessary and the signal processing chain . if just trunk to leaf
-
-*/
-#if 0
-
-static void yield2( app_t *app, Run *run_zero, Param *param_zero, Run *run_sig, Param *param_sig )
-{
-
-  // we have both obs available...
-  if(run_zero->count_up && run_sig->count_up ) {
-
-    if(app ->b) {
-      double predict_zero   = calc_predicted_val( app-> b , run_zero, param_zero );
-      double predict_sig    = calc_predicted_val( app-> b , run_sig,  param_sig );
-      double predict        = predict_sig - predict_zero;
-      push_buffer(app, predict );
-    }
-
-    // clear to reset
-    memset(run_zero, 0, sizeof(Run));
-    memset(run_sig, 0, sizeof(Run));
-  }
-
-}
-#endif
 
 
 
@@ -379,7 +255,7 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
   while(true) {
 
-    printf("---------------\n");
+    // printf("---------------\n");
 
     // configure ref_lo
     ctrl_reset_enable();
@@ -398,7 +274,6 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
           double predict_zero   = calc_predicted_val( app->b , &run_zero, &param_zero );
           double predict_sig    = calc_predicted_val( app->b , &run_sig,  &param_sig );
           double predict        = predict_sig - predict_zero;
-
           process( app, predict ); 
         }
 
@@ -911,5 +786,111 @@ void loop1 ( app_t *app)
           array does *not* need to be a MAT matrix. could be unsigned *flags;
     */
 
+
+
+
+// value is completely wrong.... 0.7????
+
+//
+
+
+#if 0
+static bool push_buffer( app_t *app , double value )
+{
+  // leaf function
+  // push_value onto buffer and rerturn if a new buffer we are ready to output
+
+
+
+  bool full = push_buffer1( app->buffer, &app->buffer_i, value);
+
+  // printf("push_buffer i %u of %u %lf\n", app->buffer_i , m_rows(app->buffer), value );
+
+
+  /*
+    all of this code needs to be extracted top level.
+
+  */
+
+  // all of this co
+  if( full ) {
+  // if( (app->buffer_i % m_rows( app->buffer))  ==  0 ) {
+    // we have enought to push
+    // m_foutput(stdout, app->buffer );
+
+    // take the mean of the buffer.
+    MAT *mean = m_mean( app->buffer, MNULL );
+    assert(m_rows(mean) == 1 && m_cols(mean) == 1);
+    double mean_ = m_get_val(mean, 0, 0);
+    M_FREE(mean);
+
+    /*
+    // this calling function is problematic - as it couples the behavor.
+      needs to be hoisted up to the top level. (the code that does the modulation).
+
+    */
+    push_stats_buffer( app, mean_ );
+
+    /*printf("mean \n");
+    char buf[100];
+    printf("mean %sV ", format_float_with_commas(buf, 100, 7, mean_ ));
+      */
+
+    return true;
+  }
+
+  return false;
+}
+
+#endif
+
+
+
+
+
+/////////////////////////
+
+
+/* Passing a continuation.
+
+  - to allow calculating mean/std.
+  - and to allow aggregating multiple entries. eg. nplc 50 == 5 lots of nplc 10.
+
+  - the problem is that we cannot partially apply the continuation .  at the top level.
+        - we could peel off the continuations off an array.
+        - but that has type safety issues.
+
+  - OR. pass a structure - with the named continuations.
+  struct A
+  {
+     void (*continuation_for_yeild)( app_t *app, double val ) ;
+     void (*continuation_for_stats)( app_t *app,  );
+  }
+
+  - or perhaps . it isn't really necessary and the signal processing chain . if just trunk to leaf
+
+*/
+#if 0
+
+static void yield2( app_t *app, Run *run_zero, Param *param_zero, Run *run_sig, Param *param_sig )
+{
+
+  // we have both obs available...
+  if(run_zero->count_up && run_sig->count_up ) {
+
+    if(app ->b) {
+      double predict_zero   = calc_predicted_val( app-> b , run_zero, param_zero );
+      double predict_sig    = calc_predicted_val( app-> b , run_sig,  param_sig );
+      double predict        = predict_sig - predict_zero;
+      push_buffer(app, predict );
+    }
+
+    // clear to reset
+    memset(run_zero, 0, sizeof(Run));
+    memset(run_sig, 0, sizeof(Run));
+  }
+
+}
+#endif
 
 
