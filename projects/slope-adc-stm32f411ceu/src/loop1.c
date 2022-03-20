@@ -4,18 +4,18 @@
 // #include <stdbool.h>
 
 #include "assert.h"
-#include "streams.h"  // usart_printf
+// #include "streams.h"  // printf
 #include "format.h" // format_bits
 #include "usart.h"   // usart_flus()
 #include "util.h"   // system_millis
 
 
-#include "stats.h"    // stddev. should probably implement with mesch version
+// #include "stats.h"    // stddev. should probably implement with mesch version
                       //
 
 
 #include "regression.h"
-#include <matrix.h>
+// #include <matrix.h>
 #include "app.h"
 
 
@@ -66,7 +66,7 @@ static void push_stats_buffer( app_t *app , double value )
   M_FREE(stddev);
 
 
-  usart_printf("stddev(%u) %.2fuV, ", m_rows(app->stats_buffer), stddev_  * 1000000 );   // multiply by 10^6. for uV
+  printf("stddev(%u) %.2fuV, ", m_rows(app->stats_buffer), stddev_  * 1000000 );   // multiply by 10^6. for uV
 
   printf("\n");
 }
@@ -172,8 +172,8 @@ static double calc_predicted_val(  MAT *b , Run *run, Param *param )
 
 void loop1 ( app_t *app )
 {
-  usart_printf("=========\n");
-  usart_printf("loop1\n");
+  printf("=========\n");
+  printf("loop1\n");
 
   ctrl_set_pattern( 0 ) ;     // no azero.
 
@@ -194,7 +194,7 @@ void loop1 ( app_t *app )
     // block/wait for data
     while(!app->data_ready ) {
 
-      // usart_printf("."); usart_flush();
+      // printf("."); usart_flush();
       // we have a value.
       if(run.count_up ) {
         if(app ->b) {
@@ -229,8 +229,8 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   // auto-zero
   // iMPORTANT do three variable azero . by shuffling  values about.
 
-  usart_printf("=========\n");
-  usart_printf("loop2\n");
+  printf("=========\n");
+  printf("loop2\n");
 
   assert(app);
 
@@ -340,8 +340,8 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
 void loop1 ( app_t *app)
 {
-  usart_printf("=========\n");
-  usart_printf("loop1\n");
+  printf("=========\n");
+  printf("loop1\n");
 
   assert(app);
 
@@ -541,8 +541,8 @@ static void collect_obs_azero( app_t *app, Param *param, unsigned discard_n, uns
 #if 0
 void loop1 ( app_t *app)
 {
-  usart_printf("=========\n");
-  usart_printf("loop1\n");
+  printf("=========\n");
+  printf("loop1\n");
 
   assert(app);
 
@@ -737,7 +737,7 @@ void loop1 ( app_t *app)
 
 
           predict_ar[ i++ % n ] = value;
-          usart_printf("stddev(%u) %.2fuV, ", n, stddev(predict_ar, n) * 1000000 );   // multiply by 10^6. for uV ?
+          printf("stddev(%u) %.2fuV, ", n, stddev(predict_ar, n) * 1000000 );   // multiply by 10^6. for uV ?
 
           // usart_flush();
 
@@ -746,7 +746,7 @@ void loop1 ( app_t *app)
           M_FREE(predicted);
       }
 
-      usart_printf("\n");
+      printf("\n");
     }
 
 
