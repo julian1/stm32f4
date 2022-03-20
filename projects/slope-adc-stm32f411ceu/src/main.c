@@ -348,7 +348,7 @@ void app_update_console_cmd(app_t *app)
         printf("setting nplc %lf\n", d );
         uint32_t aper = nplc_to_aper_n( d );
         ctrl_reset_enable();
-        ctrl_set_aperture( aper );
+        ctrl_set_aperture( app->spi, aper );
         ctrl_reset_disable();
       }
 
@@ -599,6 +599,8 @@ int main(void)
   ////////////////
   // spi1/ice40
   spi1_port_cs1_setup();
+
+  app.spi = SPI1;
 
   spi_ice40_setup(SPI1);
 

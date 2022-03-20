@@ -52,8 +52,9 @@ double aper_n_to_period( uint32_t aper)
 }
 
 
-void ctrl_set_pattern( uint32_t pattern )
+void ctrl_set_pattern( uint32_t spi, uint32_t pattern )
 {
+  assert(spi == SPI1);
   // TODO add spi argument.
   printf("set pattern %ld\n", pattern );
 
@@ -61,8 +62,9 @@ void ctrl_set_pattern( uint32_t pattern )
 }
 
 
-void ctrl_set_aperture( uint32_t aperture)
+void ctrl_set_aperture( uint32_t spi, uint32_t aperture)
 {
+  assert(spi == SPI1);
   /*
   printf("*set aperture %lu, nplc %.2f, period %.2fs\n",
     aperture,
@@ -76,8 +78,10 @@ void ctrl_set_aperture( uint32_t aperture)
 }
 
 
-uint32_t ctrl_get_aperture( /*spi */void )
+uint32_t ctrl_get_aperture( uint32_t spi )
 {
+  assert(spi == SPI1);
+
   uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_LO );
   uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_HI );
 

@@ -72,15 +72,14 @@ double aper_n_to_period( uint32_t int_n);
 
 
 // do it directly
-void ctrl_set_pattern( uint32_t pattern );
-void ctrl_set_aperture( uint32_t aperture);
-uint32_t ctrl_get_aperture( /*spi */ void );
+void ctrl_set_pattern( uint32_t spi, uint32_t pattern );
 
+void ctrl_set_aperture( uint32_t spi, uint32_t aperture);
+uint32_t ctrl_get_aperture( uint32_t spi );
 
 
 void ctrl_set_mux( uint32_t mux );
-
-uint32_t ctrl_get_mux( void /* uint32_t spi */);
+uint32_t ctrl_get_mux( void);
 
 void ctrl_reset_enable( void );
 void ctrl_reset_disable(void);
@@ -150,11 +149,10 @@ void ctrl_param_report( Param *param);
 
 void ctrl_param_read_last( Param *param);
 
-
-
 void ctrl_run_read( Run *run );
-
 void ctrl_run_report( Run *run);
+
+
 
 MAT * run_to_matrix( Param *param, Run *run, MAT * out );
 
@@ -177,6 +175,9 @@ struct app_t
 
 
   uint32_t soft_500ms;
+
+
+  uint32_t  spi;  // spi device. maybe rename ctrl_spi
 
   bool data_ready ;
 

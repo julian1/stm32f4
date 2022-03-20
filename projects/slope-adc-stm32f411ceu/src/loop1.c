@@ -189,9 +189,9 @@ void loop1 ( app_t *app )
   printf("=========\n");
   printf("loop1\n");
 
-  ctrl_set_pattern( 0 ) ;     // no azero.
+  ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
 
-  printf("nplc   %.2lf\n", aper_n_to_nplc( ctrl_get_aperture()) );
+  printf("nplc   %.2lf\n", aper_n_to_nplc( ctrl_get_aperture(app->spi)) );
   printf("buffer %u\n",    m_rows(app->buffer));
 
   Run   run;
@@ -246,7 +246,7 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
   assert(app);
 
-  ctrl_set_pattern( 0 ) ;     // no azero.
+  ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
 
   /*
     autozero - should use two zero values, between read.
@@ -350,7 +350,7 @@ static double app_simple_read( app_t *app)
   memset(&run, 0, sizeof(Run));
 
   ctrl_reset_enable();
-  ctrl_set_aperture( nplc_to_aper_n(10));
+  ctrl_set_aperture( app->spi, nplc_to_aper_n(10));
   app->data_ready = false;
   ctrl_reset_disable();
 
@@ -454,7 +454,7 @@ void loop3 ( app_t *app   )
 
   assert(app);
 
-  ctrl_set_pattern( 0 ) ;
+  ctrl_set_pattern( app->spi, 0 ) ;
 
 
   // mux signal input
@@ -487,7 +487,7 @@ void loop3 ( app_t *app   )
 
     // configure nplc
     ctrl_reset_enable();
-    ctrl_set_aperture( nplc_to_aper_n(10));
+    ctrl_set_aperture( app->spi, nplc_to_aper_n(10));
     app->data_ready = false;
     ctrl_reset_disable();
 
@@ -546,7 +546,7 @@ void loop3 ( app_t *app   )
 
     // configure nplc
     ctrl_reset_enable();
-    ctrl_set_aperture( nplc_to_aper_n(11));
+    ctrl_set_aperture( app->spi, nplc_to_aper_n(11));
     app->data_ready = false;
     ctrl_reset_disable();
 
