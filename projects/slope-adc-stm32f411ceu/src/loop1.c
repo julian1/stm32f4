@@ -30,9 +30,9 @@
 
 
 /*
-  so we have the buffer of values. 
-  
-  then we have the lagged stats buffer 
+  so we have the buffer of values.
+
+  then we have the lagged stats buffer
 
 */
 
@@ -57,10 +57,10 @@ static bool push_buffer1( MAT *buffer, unsigned *i, double value)
   assert( m_cols(buffer) == 1 );
   bool full = false;
 
-  if(*i == m_rows(buffer)) { 
+  if(*i == m_rows(buffer)) {
     full = true;
-    i = 0; 
-  } 
+    i = 0;
+  }
 
   m_set_val( buffer, *i, 0, value );
   ++(*i);
@@ -85,7 +85,7 @@ static void push_stats_buffer( app_t *app , double value )
 
 
   // m_foutput(stdout, app->stats_buffer );
- 
+
 
   MAT *stddev = m_stddev( app->stats_buffer, 0, MNULL );
   assert( m_cols(stddev) == 1 && m_rows(stddev) == 1);
@@ -104,18 +104,19 @@ static void push_stats_buffer( app_t *app , double value )
 
 // value is completely wrong.... 0.7????
 
-// 
+//
 
 
+#if 0
 static bool push_buffer( app_t *app , double value )
 {
   // leaf function
-  // push_value onto buffer and rerturn if a new buffer we are ready to output 
+  // push_value onto buffer and rerturn if a new buffer we are ready to output
 
- 
+
 
   bool full = push_buffer1( app->buffer, &app->buffer_i, value);
-  
+
   // printf("push_buffer i %u of %u %lf\n", app->buffer_i , m_rows(app->buffer), value );
 
 
@@ -135,13 +136,13 @@ static bool push_buffer( app_t *app , double value )
     assert(m_rows(mean) == 1 && m_cols(mean) == 1);
     double mean_ = m_get_val(mean, 0, 0);
     M_FREE(mean);
-  
+
     /*
-    // this calling function is problematic - as it couples the behavor.   
+    // this calling function is problematic - as it couples the behavor.
       needs to be hoisted up to the top level. (the code that does the modulation).
 
     */
-    push_stats_buffer( app, mean_ ); 
+    push_stats_buffer( app, mean_ );
 
     /*printf("mean \n");
     char buf[100];
@@ -154,8 +155,70 @@ static bool push_buffer( app_t *app , double value )
   return false;
 }
 
+#endif
 
 
+
+
+
+
+
+
+static void process( app_t *app, double predict )
+{
+  // deep nested functions are kind of normal in stats.
+
+  /* The only difference between this and an auto zero mode.
+    is how we calculate the value. using two obs or four.
+    OK. so perhaps do the calcuation at higher level
+  */
+
+
+  // calculate value and push onto buffer
+  bool full = push_buffer1( app->buffer, &app->buffer_i, predict );
+
+  if( full ) {
+
+    // take the mean of the buffer.
+    MAT *mean = m_mean( app->buffer, MNULL );
+    assert(m_rows(mean) == 1 && m_cols(mean) == 1);
+    double mean_ = m_get_val(mean, 0, 0);
+    M_FREE(mean);
+
+    double value = mean_;
+
+    // push onto stats buffer
+    push_buffer1( app->stats_buffer, &app->stats_buffer_i, value);
+
+
+    MAT *stddev = m_stddev( app->stats_buffer, 0, MNULL );
+    assert( m_cols(stddev) == 1 && m_rows(stddev) == 1);
+    double stddev_ = m_get_val( stddev, 0, 0);
+    M_FREE(stddev);
+
+    // report
+    char buf[100];
+    printf("value %sV ", format_float_with_commas(buf, 100, 7, value));
+    printf("stddev(%u) %.2fuV, ", m_rows(app->stats_buffer), stddev_  * 1000000 );   // multiply by 10^6. for uV
+      printf("\n");
+  }
+
+
+}
+
+
+
+static void simple_yield( app_t * app )
+{
+  update_console_cmd(app);
+
+  static uint32_t soft_500ms = 0;
+  // 500ms soft timer. should handle wrap around
+  if( (system_millis - soft_500ms) > 500) {
+    soft_500ms += 500;
+    led_toggle();
+  }
+}
 
 
 
@@ -190,41 +253,6 @@ static double calc_predicted_val(  MAT *b , Run *run, Param *param )
 
 
 
-static void yield( app_t *app, Run *run, Param *param )
-{
-  // we have data...
-  if(run->count_up /*|| run->count_down */) {
-    // data is ready
-
-    // printf("-----------------\n");
-    // run_report(run);
-    // param_report(param );
-    // OK. on the scope we can see small timing differences... due to processing
-
-    if(app ->b) {
-      double predict = calc_predicted_val( app-> b , run, param );
-      push_buffer(app, predict );
-    }
-
-    // clear to reset
-    memset(run, 0, sizeof(Run));
-  }
-
-
-  update_console_cmd(app);
-
-  static uint32_t soft_500ms = 0;
-  // 500ms soft timer. should handle wrap around
-  if( (system_millis - soft_500ms) > 500) {
-    soft_500ms += 500;
-    led_toggle();
-  }
-}
-
-
-
-
-
 void loop1 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 {
   // could pass the continuatino to use.
@@ -256,7 +284,22 @@ void loop1 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     // block/wait for data
     while(!app->data_ready ) {
 
-      yield(app, &run, &param);
+      // we have a value.
+      if(run.count_up ) {
+        if(app ->b) {
+
+          // calculate value and push onto buffer
+          double predict = calc_predicted_val( app-> b, &run, &param );
+          process( app, predict ); 
+        }
+        // clear to reset
+        memset(&run, 0, sizeof(Run));
+      }
+
+
+      simple_yield( app );   // change name simple update
+
+
       // if there is another continuation to run, then bail
       if(app->continuation_f) {
         return;
@@ -297,7 +340,7 @@ void loop1 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   - or perhaps . it isn't really necessary and the signal processing chain . if just trunk to leaf
 
 */
-
+#if 0
 
 static void yield2( app_t *app, Run *run_zero, Param *param_zero, Run *run_sig, Param *param_sig )
 {
@@ -318,20 +361,8 @@ static void yield2( app_t *app, Run *run_zero, Param *param_zero, Run *run_sig, 
   }
 
 }
+#endif
 
-static void simple_yield( app_t * app )
-{
-  update_console_cmd(app);
-
-  static uint32_t soft_500ms = 0;
-  // 500ms soft timer. should handle wrap around
-  if( (system_millis - soft_500ms) > 500) {
-    soft_500ms += 500;
-    led_toggle();
-  }
-
-
-}
 
 
 
@@ -380,12 +411,23 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     // block/wait for data
     while(!app->data_ready ) {
 
-      simple_yield( app );
+      // we have both obs available...
+      if(run_zero.count_up && run_sig.count_up ) {
 
-      // process the data.
-      yield2(app, &run_zero, &param_zero, &run_sig, &param_sig);
+        if(app ->b) {
+          double predict_zero   = calc_predicted_val( app->b , &run_zero, &param_zero );
+          double predict_sig    = calc_predicted_val( app->b , &run_sig,  &param_sig );
+          double predict        = predict_sig - predict_zero;
 
-      // if there is another continuation to run, then bail
+          process( app, predict ); 
+        }
+
+        // clear to reset
+        memset(&run_zero, 0, sizeof(Run));
+        memset(&run_sig, 0, sizeof(Run));
+      }
+
+      simple_yield( app );   // change name simple update
       if(app->continuation_f) {
         return;
       }
@@ -398,6 +440,8 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     // char buf[100];
     // printf("got value should be zero %sV\n", format_float_with_commas(buf, 100, 7, calc_predicted_val( app-> b , &run_zero, &param_zero )));
 
+
+
     // configure ref_hi
     ctrl_reset_enable();
     ctrl_set_mux( HIMUX_SEL_REF_HI );
@@ -406,9 +450,8 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
     // block/wait for data
     while(!app->data_ready ) {
+
       simple_yield( app );
-      // yield2(app, &run_zero, &param_zero, &run_sig, &param_sig);
-      // if there is another continuation to run, then bail
       if(app->continuation_f) {
         return;
       }
