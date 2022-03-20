@@ -129,8 +129,8 @@ struct Run
   uint32_t clk_count_rundown;
   // rundown_dir.
 
-  // really don't have to
-  uint32_t meas_count;
+  // really don't need to read/use this
+  // uint32_t meas_count;
 
 };
 

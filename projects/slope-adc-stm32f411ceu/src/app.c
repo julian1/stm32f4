@@ -1,9 +1,9 @@
 
 
+#include <stdbool.h>
 
 
 #include "assert.h"
-#include "streams.h"  // printf
 #include "ice40.h"  // spi_reg_read
 #include "format.h" // format_bits
 #include "usart.h"   // usart_flus()
@@ -11,11 +11,9 @@
 
 
 
-
 #include "regression.h"
 
 
-#include <stdbool.h>
 
 #include <matrix.h>
 
@@ -187,12 +185,12 @@ void run_report( const Run *run )
   // printf("count_up %u, ",         run->count_up );
   // printf("count_down %u, ",       run->count_down );
 
-  printf("count_up/down %u %u, ", run->count_up, run->count_down );
-  printf("trans_up/down %u %u, ", run->count_trans_up,  run->count_trans_down);
-  printf("fix_up/down %u %u, ",   run->count_fix_up,  run->count_fix_down);
+  printf("count_up/down %lu %lu, ", run->count_up, run->count_down );
+  printf("trans_up/down %lu %lu, ", run->count_trans_up,  run->count_trans_down);
+  printf("fix_up/down %lu %lu, ",   run->count_fix_up,  run->count_fix_down);
   // printf("count_flip %u, ",       run->count_flip);
 
-  printf("clk_count_rundown %u, ", run->clk_count_rundown);
+  printf("clk_count_rundown %lu, ", run->clk_count_rundown);
 
   // printf("meas_count %lu, ", run->meas_count);
 }

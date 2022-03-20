@@ -15,20 +15,9 @@
 #include "cbuffer.h"
 #include "usart.h"
 #include "assert.h"
-// #include "streams.h"
-// #include "miniprintf2.h" // internal_vprint
 
 #include <string.h>  // strcmp
 
-
-
-/*
-bool strequal(const char *s1, const char *s2)
-{
-  return (strcmp(s1, s2) == 0);
-}
-
-*/
 
 
 ////////////////////////////////////////////////////////

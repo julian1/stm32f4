@@ -4,7 +4,6 @@
 // #include <stdbool.h>
 
 #include "assert.h"
-// #include "streams.h"  // printf
 #include "format.h" // format_bits
 #include "usart.h"   // usart_flus()
 #include "util.h"   // system_millis

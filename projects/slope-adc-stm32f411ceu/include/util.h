@@ -7,8 +7,6 @@
 #include <stdint.h> // uint32_t
 
 
-// extern bool strequal(const char *s1, const char *s2);
-
 
 extern void led_setup(void);
 extern void led_toggle(void);
