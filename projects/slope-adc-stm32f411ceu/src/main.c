@@ -592,9 +592,6 @@ int main(void)
   // standard streams for printf, fprintf, putc.
   init_std_streams(  &app.console_out );
 
-  printf("hi\n");
-  // assert( 0);
-
 
   ////////////////
   // spi1/ice40
@@ -608,7 +605,7 @@ int main(void)
   spi1_interupt_gpio_setup( (void (*) (void *))app_spi1_interupt, &app);
 
 
-  //
+  // needs a context...
   voltage_source_setup( ) ;
 
 
@@ -620,6 +617,10 @@ int main(void)
   usart_printf("sizeof bool   %u\n", sizeof(bool));
   usart_printf("sizeof float  %u\n", sizeof(float));
   usart_printf("sizeof double %u\n", sizeof(double));
+
+  assert(sizeof(long) == 4);
+  assert(sizeof(signed) == 4);
+  assert(sizeof(void *) == 4);
 
   // assert(1 == 2);
 
