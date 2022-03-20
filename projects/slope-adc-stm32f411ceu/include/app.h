@@ -175,6 +175,9 @@ struct app_t
   CBuf console_in;
   CBuf console_out;
 
+
+  uint32_t soft_500ms;
+
   bool data_ready ;
 
 

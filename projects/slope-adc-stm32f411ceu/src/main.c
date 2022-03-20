@@ -315,12 +315,12 @@ void app_update_console_cmd(app_t *app)
 
 
       else if(sscanf(app->cmd_buf, "buffer %lu", &u32 ) == 1) {
-        if(u32 > 100) { 
+        if(u32 > 100) {
           u32 = 100;
         }
         printf("set buffer %lu\n", u32 );
-        app->buffer = m_resize( app->buffer, u32, 1 ); 
-        app->buffer_i = 0; 
+        app->buffer = m_resize( app->buffer, u32, 1 );
+        app->buffer_i = 0;
       }
 
 
@@ -440,23 +440,11 @@ void app_update_console_cmd(app_t *app)
 
 void app_update_led(app_t *app)
 {
-  UNUSED(app);
-
-  // shouuld only be being called in one place
-  // because it has to catch up.
-  // TODO review
-  // static uint32_t soft_500ms = 0;
-  // static uint32_t soft_500ms = system_millis;
-
-  static uint32_t soft_500ms = 0;   // system_millis
-
-  // IMPORTANT. this will loop/ and blink until it catches up.
+  assert(app);
 
   // 500ms soft timer. should handle wrap around
-  if( (system_millis - soft_500ms) > 500) {
-    soft_500ms += 500;
-
-    //
+  if( (system_millis - app->soft_500ms) > 500) {
+    app->soft_500ms += 500;
     led_toggle();
   }
 
@@ -470,13 +458,9 @@ static void app_loop_dispatcher(app_t *app)
   usart_printf("continuation dispatcher\n");
   usart_printf("> ");
 
-
-
-
   while(true) {
 
     app_update_console_cmd(app);
-
     app_update_led( app);
 
 
@@ -489,8 +473,8 @@ static void app_loop_dispatcher(app_t *app)
       printf("continuation done\n");
       usart_printf("> ");
     }
-
   }
+
 }
 
 
@@ -591,13 +575,16 @@ int main(void)
   voltage_source_setup( ) ;
 
 
+
+  /////////////
+
   usart_printf("\n--------\n");
   usart_printf("starting loop\n");
   usart_printf("sizeof bool   %u\n", sizeof(bool));
   usart_printf("sizeof float  %u\n", sizeof(float));
   usart_printf("sizeof double %u\n", sizeof(double));
 
-  // ASSERT(1 == 2);
+  // assert(1 == 2);
 
   usart_printf("a float formatted %g\n", 123.456f );
 
@@ -630,12 +617,14 @@ int main(void)
 
   /////////////////////
 
+
+
   // set the buffer
-  app.buffer = m_resize( app.buffer, 1, 1 ); 
-  app.buffer_i = 0; 
+  app.buffer = m_resize( app.buffer, 1, 1 );
+  app.buffer_i = 0;
 
   // stats buffer for reporting
-  app.stats_buffer = m_resize( app.stats_buffer, 10, 1 ); 
+  app.stats_buffer = m_resize( app.stats_buffer, 10, 1 );
   app.stats_buffer_i = 0;
 
 
@@ -646,21 +635,6 @@ int main(void)
 
 
 
-
-/*
-  - OK. it is extremely confusing that we have to call write after doing this.
-  spent 20 mins trying to figure it out.
-
-*/
-/*
-  We need to add azero. to get a proper sense .
-    - subtract the azero term. or subtract a moving average.
-    --------------
-
-    all this dispatch stuff would be nicer.
-
-*/
-
 /***************
 // TODO should be using CString for cmd_buf ? see voltage-source-2 code for this.
 // ALL this code relying on strcmp is dangerous. because it's not relying on null termination.
@@ -669,116 +643,5 @@ int main(void)
 // we may want to be able to read/store multiple calibrations. eg. array.
 // but this is sufficient for the moment.
 
-/*
-  - calibration b -  is mostly going to be invariant.
-  - basic steps.
-      - on bootup. - read the device characteristics.   or load from flash.
-      - can then run.  or calibrate.
-
-*/
-
-
-
-#if 0
-void app_update_console_cmd(app_t *app)
-{
-
-  /* using peekLast() like this wont work
-     since it could miss a character.
-    we kind of need to transfer all chars to another buffer. and test for '\n'.
-    -----
-    No. the easiest way is to handle the interupt character. directly...
-    actually no. better to handle in main loop..
-
-  */
-
-
-  while( ! cBufisEmpty(&app->console_in)) {
-
-    // got a character
-    int32_t ch = cBufPop(&app->console_in);
-    assert(ch >= 0);
-
-    if(ch != '\r' && app->cmd_buf_i < CMD_BUF_SZ - 1) {
-
-
-      // push_char(app->cmd_buf, &app->cmd_buf_i, ch );
-
-      // push onto a vector? or array?
-      app->cmd_buf[ app->cmd_buf_i++ ] = ch;
-      // app->cmd_buf[ app->cmd_buf_i ] = 0;
-
-    }  else {
-      // we got a command
-
-      app->cmd_buf[ app->cmd_buf_i ]  = 0;
-
-      usart_printf("got command '%s'\n", app->cmd_buf );
-
-
-      if(strcmp(app->cmd_buf , "whoot") == 0) {
-        // So.  how do we handle changing modes????
-
-        // if we are in separate loops for calibration, permutation , etc.
-        // how do we cancel, break out. and start another?
-        // coroutines. not really an answer.
-
-        // this function can be tested and be used to return early.
-        // or set a flag. like cancel current command/action.
-
-        // also - sometimes we want to change something - without setting the continuation.
-
-        app->continuation_ctx = 0;
-
-      }
-      app->cmd_buf_i = 0;
-    }
-  }
-}
-#endif
-
-
-
-
-
-
-
-/*
-  we want the parameters for
-    ordinary running . to be same  as cal.
-    but also to be able to vary.
-    -------
-
-  point is that params for calibration and for running want to be the same.
-  OR. we want to run with permutations. but the same counts should work.
-
-  so we just need an extra set of parameters.
-
-  YAGNI.
-
-    - just try use app_t data structure instead of something separate.
-    - that means putting b. in app.
-
-  permutate.
-
-  mux hi
-  mux lo/com
-  mux sig
-
-  cal       - using current values
-  reset cal  - cal using default etc.
-  set fix
-  set var.    etc.
-
-  reset default.   eg. same as programmed.
-
-  its all
-
-*/
-
-/*
-  so the main need - is to be able to switch programs/tests from commands.
-  then can prototype more easily.
-*/
 
 
