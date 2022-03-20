@@ -9,7 +9,7 @@
 #include <libopencm3/stm32/spi.h>
 
 
-#include "usart2.h"
+#include "usart.h"
 #include "util.h"
 #include "flash.h"   // from lib
 

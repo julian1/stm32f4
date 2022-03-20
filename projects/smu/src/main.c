@@ -621,7 +621,7 @@
 #include "assert.h"
 #include "cbuffer.h"
 #include "fbuffer.h"
-#include "usart2.h"
+#include "usart.h"
 #include "util.h"
 
 

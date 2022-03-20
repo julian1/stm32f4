@@ -25,7 +25,7 @@
 
 #include "buffer.h"
 #include "miniprintf2.h"
-#include "usart2.h"
+#include "usart.h"
 #include "util.h"
 
 

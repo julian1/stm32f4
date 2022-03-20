@@ -14,13 +14,13 @@ LIB2INC=${TOP}/lib2/include
 
 BINARY		= main
 SRCFILES	= ./src/main.c src/util.c  \
-              ${LIB2SRC}/assert.c ${LIB2SRC}/cbuffer.c   ${LIB2SRC}/usart2.c  \
+              ${LIB2SRC}/assert.c ${LIB2SRC}/cbuffer.c   ${LIB2SRC}/usart.c  \
               ${LIB2SRC}/cdcacm.c ${LIB2SRC}/usb_f107.c
 
 
 
 # TODO - update to use 512k. 
-LDSCRIPT	= ${TOP}/f411.ld
+LDSCRIPT	= ${TOP}/f411ceu.ld
 
 
 TGT_CFLAGS  += -Wno-unused-function   \

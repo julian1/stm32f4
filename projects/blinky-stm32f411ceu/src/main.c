@@ -39,7 +39,7 @@
 
 
 #include "cbuffer.h"
-#include "usart2.h"
+#include "usart.h"
 #include "util.h"
 #include "assert.h"
 #include "cdcacm.h"

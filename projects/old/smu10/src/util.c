@@ -13,7 +13,7 @@
 
 #include "util.h"
 #include "buffer.h"
-#include "usart2.h"
+#include "usart.h"
 #include "miniprintf2.h" // internal_vprint
 
 
