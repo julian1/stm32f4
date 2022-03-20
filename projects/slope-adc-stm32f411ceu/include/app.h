@@ -212,7 +212,11 @@ typedef struct app_t
 } app_t;
 
 
+// renam app_update_console_command
 void update_console_cmd(app_t *app);
+
+
+void app_led_update(app_t *app);
 
 
 // loop1

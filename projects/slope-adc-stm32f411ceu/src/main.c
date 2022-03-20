@@ -438,6 +438,29 @@ void update_console_cmd(app_t *app)
 
 
 
+void app_led_update(app_t *app)
+{
+  UNUSED(app);
+
+  // shouuld only be being called in one place
+  // because it has to catch up.
+  // TODO review
+  // static uint32_t soft_500ms = 0;
+  // static uint32_t soft_500ms = system_millis;
+
+  static uint32_t soft_500ms = 0;   // system_millis
+
+  // IMPORTANT. this will loop/ and blink until it catches up.
+
+  // 500ms soft timer. should handle wrap around
+  if( (system_millis - soft_500ms) > 500) {
+    soft_500ms += 500;
+
+    //
+    led_toggle();
+  }
+
+}
 
 
 
@@ -447,19 +470,15 @@ static void loop_dispatcher(app_t *app)
   usart_printf("continuation dispatcher\n");
   usart_printf("> ");
 
- static uint32_t soft_500ms = 0;
+
+
 
   while(true) {
 
     update_console_cmd(app);
 
-    // 500ms soft timer. should handle wrap around
-    if( (system_millis - soft_500ms) > 500) {
-      soft_500ms += 500;
+    app_led_update( app);
 
-      //
-      led_toggle();
-    }
 
     if(app->continuation_f) {
       printf("jump to continuation\n");

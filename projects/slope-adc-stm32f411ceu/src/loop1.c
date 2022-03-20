@@ -39,6 +39,25 @@ static bool push_buffer1( MAT *buffer, unsigned *i, double value)
 
 
 
+static void push_buffer3( MAT *buffer, unsigned *i, double v0, double v1, double v2)
+{
+  // unused.
+  assert(buffer);
+  assert(i);
+  assert( m_cols(buffer) == 3 );
+
+  if(*i == m_rows(buffer)) {
+    assert(0);
+  }
+
+  m_set_val( buffer, *i, 0, v0 );
+  m_set_val( buffer, *i, 1, v1 );
+  m_set_val( buffer, *i, 3, v2 );
+  ++(*i);
+}
+
+
+
 
 static void push_stats_buffer( app_t *app , double value )
 {
@@ -124,12 +143,21 @@ static void process( app_t *app, double predict )
 static void simple_yield( app_t * app )
 {
   update_console_cmd(app);
+  app_led_update(app);
+}
 
-  static uint32_t soft_500ms = 0;
-  // 500ms soft timer. should handle wrap around
-  if( (system_millis - soft_500ms) > 500) {
-    soft_500ms += 500;
-    led_toggle();
+
+
+static void simple_wait( app_t * app, uint32_t period )
+{
+  update_console_cmd(app);
+  app_led_update(app);
+
+
+  // not static
+  uint32_t soft_timer = system_millis;
+  if( (system_millis - soft_timer ) > period ) {
+    return;
   }
 }
 
@@ -322,23 +350,6 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
 
 
-static void push_buffer3( MAT *buffer, unsigned *i, double v0, double v1, double v2)
-{
-
-  assert(buffer);
-  assert(i);
-  assert( m_cols(buffer) == 3 );
-
-  if(*i == m_rows(buffer)) {
-    assert(0);
-  }
-
-  m_set_val( buffer, *i, 0, v0 );
-  m_set_val( buffer, *i, 1, v1 );
-  m_set_val( buffer, *i, 3, v2 );
-  ++(*i);
-}
-
 
 
 
@@ -351,15 +362,9 @@ void loop3 ( app_t *app   )
   // iMPORTANT do three variable azero . by shuffling  values about.
 
   /*
-    rather than store a single value. we want many values.
-    i think that means having two matrices....
+    we don't need matrix
 
-    or one matrix, with 3 columns .  with set voltage.  a , b.
-
-    then in gnu octage can plot. in gnu octave.
-
-    how do we determine the set voltage though.
-    NO. it can just be a integer (1,2,3,  up to 20) for 20 different obs. for the x access.
+    sleep can be done with a loop.
 
   */
 
@@ -384,10 +389,11 @@ void loop3 ( app_t *app   )
   ctrl_set_mux( HIMUX_SEL_REF_HI );
   ctrl_reset_disable();
 
+  // OK. hang on. why use a matrix buffer. why not just spit values out to stdout????
   unsigned id = 0;
-  unsigned row = 0; 
-  MAT *buffer = m_get( 100, 3); 
-  
+  // unsigned row = 0;
+  // MAT *buffer = m_get( 100, 3);
+
 
   while(true) {
 
@@ -408,15 +414,16 @@ void loop3 ( app_t *app   )
           double predict_a      = calc_predicted_val( app->b , &run_a, &param_a );
           double predict_b      = calc_predicted_val( app->b , &run_b,  &param_b );
 
-          // printf("%.7lf,  %.7lf\n", predict_a, predict_b );
+          printf("%u   %.7lf,  %.7lf\n", id, predict_a, predict_b );
 
+#if 0
           char buf[100], buf2[100];
-
-          printf("%sV\t  %sV\n", format_float_with_commas(buf, 100, 7, predict_a), format_float_with_commas(buf2, 100, 7, predict_b ));
-
-          push_buffer3( buffer, &row, id, predict_a, predict_b);
-
-          // process( app, predict );
+          printf("%u   %sV\t  %sV\n",
+            id,
+            format_float_with_commas(buf, 100, 7, predict_a),
+            format_float_with_commas(buf2, 100, 7, predict_b )
+          );
+#endif
         }
 
         // clear to reset
@@ -427,7 +434,7 @@ void loop3 ( app_t *app   )
       simple_yield( app );   // change name simple update
       if(app->continuation_f) {
 
-        printf("whoot finishing - got %u obs\n", row);
+        printf("whoot done \n");
 
         return;
       }
