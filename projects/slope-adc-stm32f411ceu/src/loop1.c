@@ -36,13 +36,17 @@ static bool push_buffer1( MAT *buffer, unsigned *i, double value)
   m_set_val( buffer, idx, 0, value );
 #endif
 
+  assert(buffer);
+  assert(i);
+
+  // printf("i is %u\n", i ); 
 
   assert( m_cols(buffer) == 1 );
-  bool full = false;
 
+  bool full = false;
   if(*i == m_rows(buffer)) {
     full = true;
-    i = 0;
+    *i = 0;
   }
 
   m_set_val( buffer, *i, 0, value );
@@ -156,12 +160,13 @@ static void process( app_t *app, double predict )
     OK. so perhaps do the calcuation at higher level
   */
 
+  printf("process \n");
 
+#if 1
   // push onto buffer
   bool full = push_buffer1( app->buffer, &app->buffer_i, predict );
 
   if( full ) {
-
     // take the mean of the buffer.
     MAT *mean = m_mean( app->buffer, MNULL );
     assert(m_rows(mean) == 1 && m_cols(mean) == 1);
@@ -184,7 +189,9 @@ static void process( app_t *app, double predict )
     printf("value %sV ", format_float_with_commas(buf, 100, 7, value));
     printf("stddev(%u) %.2fuV, ", m_rows(app->stats_buffer), stddev_  * 1000000 );   // multiply by 10^6. for uV
     printf("\n");
+
   }
+#endif
 
 }
 
@@ -206,7 +213,7 @@ static void simple_yield( app_t * app )
 
 
 
-
+#include <alloca.h>
 
 static double calc_predicted_val(  MAT *b , Run *run, Param *param )
 {
@@ -237,16 +244,13 @@ static double calc_predicted_val(  MAT *b , Run *run, Param *param )
 
 void loop1 ( app_t *app )
 {
-
   usart_printf("=========\n");
   usart_printf("loop1\n");
-
 
   ctrl_set_pattern( 0 ) ;     // no azero.
 
   Run   run;
   Param param;
-
 
   while(true) {
 
@@ -259,12 +263,18 @@ void loop1 ( app_t *app )
     // block/wait for data
     while(!app->data_ready ) {
 
+      // usart_printf("."); usart_flush();
       // we have a value.
       if(run.count_up ) {
+
         if(app ->b) {
 
           // calculate value and push onto buffer
-          double predict = calc_predicted_val( app-> b, &run, &param );
+          double predict = calc_predicted_val( app->b, &run, &param );
+    
+          char buf[100];
+          // char *buf  = alloca( 100 );
+          printf("value %sV ", format_float_with_commas(buf, 100, 7, predict ));
           process( app, predict ); 
         }
         // clear to reset
