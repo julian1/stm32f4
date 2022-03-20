@@ -3,6 +3,7 @@
 
 */
 
+#include <stdio.h>  // printf
 
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/systick.h>
@@ -14,20 +15,20 @@
 #include "cbuffer.h"
 #include "usart.h"
 #include "assert.h"
-#include "streams.h"
+// #include "streams.h"
 // #include "miniprintf2.h" // internal_vprint
 
 #include <string.h>  // strcmp
 
 
 
-
+/*
 bool strequal(const char *s1, const char *s2)
 {
   return (strcmp(s1, s2) == 0);
 }
 
-
+*/
 
 
 ////////////////////////////////////////////////////////
@@ -194,7 +195,7 @@ void assert_simple(const char *file, int line, const char *func, const char *exp
   // see, https://stackoverflow.com/questions/50915274/redirecting-assert-fail-messages
 
   // legacy version
-  usart1_printf("\nassert simple failed %s: %d: %s: '%s'\n", file, line, func, expr);
+  printf("\nassert simple failed %s: %d: %s: '%s'\n", file, line, func, expr);
   usart1_flush();
   critical_error_blink();
 }

@@ -67,7 +67,7 @@
 // bad conflicts with lib2/include/flash.h
 #include "flash.h"
 
-#include "streams.h"  // usart1_printf
+#include "streams.h"  // printf
 #include "usart.h"    // usart1_flush()
 #include "assert.h"
 
@@ -98,10 +98,10 @@ void flash_erase_sector_(void)
 {
 
   // put in a command
-  usart1_printf("flash unlock\n");
+  printf("flash unlock\n");
   flash_unlock();
 
-  usart1_printf("flase erase sector\n");
+  printf("flase erase sector\n");
   usart1_flush();
 
   flash_erase_sector(FLASH_SECT_NUM, 0 );
@@ -109,7 +109,7 @@ void flash_erase_sector_(void)
 
   // could do a test read ensure. value...
 
-  usart1_printf("flash lock\n");
+  printf("flash lock\n");
   flash_lock();
 
 }
@@ -335,21 +335,21 @@ void flash_write(void)
   */
 
   // put in a command
-  usart1_printf("unlock flash\n");
+  printf("unlock flash\n");
   flash_unlock();
 
-  usart1_printf("erasing sector\n");
+  printf("erasing sector\n");
   usart1_flush();
 
   flash_erase_sector(FLASH_SECT_NUM, 0 );
   unsigned char buf[] = "whoot";
 
-  usart1_printf("writing\n");
+  printf("writing\n");
   usart1_flush();
 
   flash_program(FLASH_SECT_ADDR, buf, sizeof(buf) );
   flash_lock();
-  usart1_printf("done\n");
+  printf("done\n");
 
 }
 
@@ -357,11 +357,11 @@ void flash_write(void)
 void flash_read(void)
 {
   char *s = (char *) FLASH_SECT_ADDR;
-  usart1_printf( "flash char is '%c' %u\n", *s, *s);
+  printf( "flash char is '%c' %u\n", *s, *s);
   // we expect null terminator
   // what we want is to read...
   if(*s == 'w')
-    usart1_printf( "string is '%s'\n", s );
+    printf( "string is '%s'\n", s );
 
 }
 

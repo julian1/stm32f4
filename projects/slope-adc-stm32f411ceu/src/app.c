@@ -3,7 +3,7 @@
 
 
 #include "assert.h"
-#include "streams.h"  // usart1_printf
+#include "streams.h"  // printf
 #include "ice40.h"  // spi_reg_read
 #include "format.h" // format_bits
 #include "usart.h"   // usart_flus()
@@ -184,17 +184,17 @@ void run_report( const Run *run )
 {
   assert(run);
 
-  // usart1_printf("count_up %u, ",         run->count_up );
-  // usart1_printf("count_down %u, ",       run->count_down );
+  // printf("count_up %u, ",         run->count_up );
+  // printf("count_down %u, ",       run->count_down );
 
-  usart1_printf("count_up/down %u %u, ", run->count_up, run->count_down );
-  usart1_printf("trans_up/down %u %u, ", run->count_trans_up,  run->count_trans_down);
-  usart1_printf("fix_up/down %u %u, ",   run->count_fix_up,  run->count_fix_down);
-  // usart1_printf("count_flip %u, ",       run->count_flip);
+  printf("count_up/down %u %u, ", run->count_up, run->count_down );
+  printf("trans_up/down %u %u, ", run->count_trans_up,  run->count_trans_down);
+  printf("fix_up/down %u %u, ",   run->count_fix_up,  run->count_fix_down);
+  // printf("count_flip %u, ",       run->count_flip);
 
-  usart1_printf("clk_count_rundown %u, ", run->clk_count_rundown);
+  printf("clk_count_rundown %u, ", run->clk_count_rundown);
 
-  // usart1_printf("meas_count %lu, ", run->meas_count);
+  // printf("meas_count %lu, ", run->meas_count);
 }
 
 
@@ -245,12 +245,12 @@ void ctrl_param_read_last( uint32_t spi, Param *param)
 
 void param_report( const Param *param)
 {
-  usart1_printf("clk_count_aper_n %lu, ", param->clk_count_aper_n);
-  usart1_printf("clk_count_fix_n %lu, ", param->clk_count_fix_n);
-  usart1_printf("clk_count_var_pos_n %lu, ", param->clk_count_var_pos_n);
+  printf("clk_count_aper_n %lu, ", param->clk_count_aper_n);
+  printf("clk_count_fix_n %lu, ", param->clk_count_fix_n);
+  printf("clk_count_var_pos_n %lu, ", param->clk_count_var_pos_n);
 
   char buf[100];
-  usart1_printf("himux_sel %s (%lu), ", format_bits( buf, 8, param->himux_sel), param->himux_sel);
+  printf("himux_sel %s (%lu), ", format_bits( buf, 8, param->himux_sel), param->himux_sel);
 }
 
 

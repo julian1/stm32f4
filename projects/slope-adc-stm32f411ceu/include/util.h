@@ -7,7 +7,7 @@
 #include <stdint.h> // uint32_t
 
 
-extern bool strequal(const char *s1, const char *s2);
+// extern bool strequal(const char *s1, const char *s2);
 
 
 extern void led_setup(void);
@@ -28,10 +28,7 @@ extern void msleep(uint32_t delay);
 
 
 #define UNUSED(x) (void)(x)
-
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-
-
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
 
 

@@ -1,7 +1,7 @@
 
 
 #include "assert.h"
-#include "streams.h"  // usart1_printf
+#include "streams.h"  // printf
 #include "format.h" // format_bits
 #include "usart.h"   // usart_flus()
 #include "util.h"   // system_millis
@@ -29,8 +29,8 @@
 
 void app_loop3 ( app_t *app)
 {
-  usart1_printf("=========\n");
-  usart1_printf("app_loop3\n");
+  printf("=========\n");
+  printf("app_loop3\n");
 
   assert(app);
 
@@ -123,7 +123,7 @@ void app_loop3 ( app_t *app)
 
 
           predict_ar[ i++ % n ] = value;
-          usart1_printf("stddev(%u) %.2fuV, ", n, stddev(predict_ar, n) * 1000000 );   // multiply by 10^6. for uV ?
+          printf("stddev(%u) %.2fuV, ", n, stddev(predict_ar, n) * 1000000 );   // multiply by 10^6. for uV ?
 
           // usart1_flush();
 
@@ -131,7 +131,7 @@ void app_loop3 ( app_t *app)
           M_FREE(predict);
       }
 
-      usart1_printf("\n");
+      printf("\n");
     }
 
 
