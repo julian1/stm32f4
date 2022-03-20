@@ -230,6 +230,10 @@ void loop3(app_t *app );
 void permute(app_t *app, MAT *b);
 
 
+
+void app_simple_sleep( app_t * app, uint32_t period );
+
+
 /*
   should be able to avoid this . set once, and then query the matrix.
   eg. m_cols( m);

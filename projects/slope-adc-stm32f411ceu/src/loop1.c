@@ -148,18 +148,7 @@ static void app_update( app_t * app )
 
 
 
-static void simple_wait( app_t * app, uint32_t period )
-{
-  app_update_console_cmd(app);
-  app_update_led(app);
 
-
-  // not static
-  uint32_t soft_timer = system_millis;
-  if( (system_millis - soft_timer ) > period ) {
-    return;
-  }
-}
 
 
 
@@ -349,8 +338,6 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
 
 
-
-
 static double simple_read( app_t *app)
 {
   // minimum needed to read a value
@@ -387,6 +374,12 @@ static double simple_read( app_t *app)
   double predict = calc_predicted_val( app->b , &run, &param );
   return predict;
 }
+
+
+
+
+
+
 
 
 
