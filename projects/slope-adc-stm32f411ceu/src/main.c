@@ -481,11 +481,10 @@ static void app_loop_dispatcher(app_t *app)
 
 
 
-static void spi1_interupt(app_t *app )
+static void app_spi1_interupt(app_t *app )
 {
   UNUSED(app);
   app->data_ready = true;
-
 }
 
 static char buf_console_in[1000];
@@ -568,7 +567,7 @@ int main(void)
   spi_ice40_setup(SPI1);
 
   // adc interupt...
-  spi1_interupt_gpio_setup( (void (*) (void *))spi1_interupt, &app);
+  spi1_interupt_gpio_setup( (void (*) (void *))app_spi1_interupt, &app);
 
 
   //

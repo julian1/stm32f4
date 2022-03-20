@@ -353,6 +353,7 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
 static double simple_read( app_t *app)
 {
+  // minimum needed to read a value
   // used to steer the current before we do anything.
   Run   run;
   Param param;
