@@ -347,10 +347,10 @@ MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture)
 
 
 
-#if 0
-MAT * param_run_to_matrix( Params *params, Run *run, MAT * out )
-{
   /*
+
+
+
     0.  very useful feature - how biased resistor ladder - means that modulation will cycle around to a stop point
           where 4 phase modulation ends up above  the cross, ready for rundown.
           and fix pos and fix neg are equal.
@@ -425,59 +425,6 @@ MAT * param_run_to_matrix( Params *params, Run *run, MAT * out )
 
     =======
   */
-
-  UNUSED(params);
-
-  if(out == MNULL)
-    out = m_get(1,1); // TODO fix me.
-
-#if 0
-  // compute value
-  m_resize(out, 1, 3);
-  m_set_val( out, 0, 0,  run->count_up );
-  m_set_val( out, 0, 1,  run->count_down );
-  m_set_val( out, 0, 2,  run->count_fix_up );
-#endif
-
-  /*
-    compared with an adc. we don't have to treat the residual charge on rundown - as an extra independent variable.
-  */
-
-  // slow rundown uses both
-
-  double x0 = 1.0f;
-  UNUSED(x0);
-
-  // negative current / slope up
-  double x1 = (run->count_up   * params->clk_count_var_neg_n) + (run->count_fix_up   * params->clk_count_fix_n) + run->clk_count_rundown;
-
-  // not sure if we want to do this. may have to calibrate for a period. which would be ugly.
-  x1 /= params-> clk_count_aper_n ;
-
-  // positive current. slope down.
-  double x2 = (run->count_down * params->clk_count_var_pos_n) + (run->count_fix_down * params->clk_count_fix_n) + run->clk_count_rundown;
-
-  x2 /= params-> clk_count_aper_n ;
-
-#if 1
-  // 2 variable model.
-  m_resize(out, 1, 2);
-  m_set_val( out, 0, 0,  x1  );
-  m_set_val( out, 0, 1,  x2  );
-#endif
-
-#if 0
-  // three variable
-  m_resize(out, 1, X_COLS);
-  m_set_val( out, 0, 0,  1.f );
-  m_set_val( out, 0, 1,  x1  );
-  m_set_val( out, 0, 2,  x2  );
-#endif
-
-
-  return out;
-}
-#endif
 
 
 
