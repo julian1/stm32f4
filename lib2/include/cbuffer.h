@@ -12,7 +12,7 @@ extern "C" {
 #include <stdbool.h>  // bool
 #include <unistd.h>   // ssize_t
 
-
+// circ_buf_t ?
 
 typedef struct CBuf
 {
@@ -27,6 +27,7 @@ typedef struct CBuf
 
 void cBufInit(CBuf *a, char *p, size_t sz);
 
+// bool circ_buf_is_empty(const CBuf *a);   too long winded
 
 bool cBufisEmpty(const CBuf *a);
 size_t cBufCount(const CBuf *a);
