@@ -179,7 +179,7 @@ void app_update_console_cmd(app_t *app)
       else if(strcmp(app->cmd_buf , "flash erase") == 0) {
 
           usart_printf("flash erasing sector\n");
-          usart_flush();
+          usart1_flush();
 
           flash_erase_sector_();
 
@@ -245,7 +245,7 @@ void app_update_console_cmd(app_t *app)
         else {
           MAT *u  = m_read_flash( MNULL, f );
           m_foutput( stdout, u );
-          usart_flush();
+          usart1_flush();
         }
 
         fclose(f);
@@ -584,10 +584,10 @@ int main(void)
 
   //////////////
   // uart
-  // usart_setup_gpio_portA();
-  usart_setup_gpio_portB();
+  // usart1_setup_gpio_portA();
+  usart1_setup_gpio_portB();
 
-  usart_set_buffers(&app.console_in, &app.console_out);
+  usart1_set_buffers(&app.console_in, &app.console_out);
 
   // standard streams for printf, fprintf, putc.
   init_std_streams(  &app.console_out );
@@ -630,7 +630,7 @@ int main(void)
   usart_printf("\n--------\n");
   usart_printf("addr main() %p\n", main );
 
-  usart_flush();
+  usart1_flush();
 
   // read main params from device - as starting point. should perhaps be flash
   // params_read( &app.params );
@@ -649,7 +649,7 @@ int main(void)
     app.b = m_read_flash( MNULL, f );
     printf("loadeded cal\n" );
     m_foutput( stdout, app.b  );
-    usart_flush();
+    usart1_flush();
   }
   fclose(f);
 

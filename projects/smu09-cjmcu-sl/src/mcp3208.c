@@ -139,7 +139,7 @@ static void loop(void)
 
     // pump usart queues
     usart_input_update();
-    usart_output_update();
+    usart1_enable_output_interupt();
 
     // 500ms soft timer
     if( system_millis > soft_500ms) {
@@ -187,7 +187,7 @@ int main(void)
   led_setup();
 
   // usart
-  usart_setup_();
+  usart1_setup_();
 
   //
   // spi_mcp3208_setup();

@@ -125,7 +125,7 @@ void app_loop3 ( app_t *app)
           predict_ar[ i++ % n ] = value;
           usart_printf("stddev(%u) %.2fuV, ", n, stddev(predict_ar, n) * 1000000 );   // multiply by 10^6. for uV ?
 
-          // usart_flush();
+          // usart1_flush();
 
           M_FREE(x);
           M_FREE(predict);

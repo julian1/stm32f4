@@ -278,8 +278,8 @@ int main(void)
 
   clock_setup();
   led_setup();
-  usart_setup_gpio_portA();
-  usart_setup(&console_in, &console_out);
+  usart1_setup_gpio_portA();
+  usart1_setup(&console_in, &console_out);
 
   usart_printf("\n--------\n");
   usart_printf("starting\n");
@@ -292,7 +292,7 @@ int main(void)
     // led_update(); in systick.
 
     usart_input_update();
-    usart_output_update();
+    usart1_enable_output_interupt();
     adc_update(&ffbuf);
   }
 

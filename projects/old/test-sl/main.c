@@ -63,7 +63,7 @@ static void led_task(void *args __attribute((unused)))
 
 
 
-static void usart_setup(void)
+static void usart1_setup(void)
 {
 
   nvic_enable_irq(NVIC_USART1_IRQ);
@@ -146,7 +146,7 @@ int main(void)
 #endif
 
   led_setup();
-  usart_setup();
+  usart1_setup();
 
 
   xTaskCreate(led_task,  "LED",1000,NULL,configMAX_PRIORITIES-1,NULL);

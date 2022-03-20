@@ -169,7 +169,7 @@ static void loop(void)
 
     // pump usart queues
     usart_input_update();
-    usart_output_update();
+    usart1_enable_output_interupt();
   }
 
 }
@@ -208,7 +208,7 @@ int main(void)
 
   cBufInit(&console_in, buf1, sizeof(buf1));
   cBufInit(&console_out, buf2, sizeof(buf2));
-  usart_setup(&console_in, &console_out);
+  usart1_setup(&console_in, &console_out);
 
 
   ////////////////////

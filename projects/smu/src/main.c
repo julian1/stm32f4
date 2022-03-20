@@ -3166,11 +3166,11 @@ int main(void)
 
 
   // setup buffers
-  // usart_setup_gpio_portA(); // stm32f407
-  usart_setup_gpio_portB(); // stm32f411
+  // usart1_setup_gpio_portA(); // stm32f407
+  usart1_setup_gpio_portB(); // stm32f411
 
   // TODO rename setup handler?
-  usart_set_buffers(&app.console_in, &app.console_out);
+  usart1_set_buffers(&app.console_in, &app.console_out);
 
   // setup print
   usart_printf_init(&app.console_out);

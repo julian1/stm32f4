@@ -89,7 +89,7 @@ static void loop(void)
 
     // pump usart queues
     usart_input_update();
-    usart_output_update();
+    usart1_enable_output_interupt();
 
 
 
@@ -131,7 +131,7 @@ int main(void)
 
 
   // usart
-  usart_setup_();
+  usart1_setup_();
 
 
   // 

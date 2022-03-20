@@ -383,7 +383,7 @@ static void loop( Context *ctx)
 
     // pump usart queues
     // usart_input_update();
-    usart_output_update();
+    usart1_enable_output_interupt();
 
 
     // stop buzzer?
@@ -481,8 +481,8 @@ int main(void)
   led_setup();
 
   // TODO move these up, under usart.
-  usart_setup_gpio_portB();
-  usart_setup(&console_in, &console_out);
+  usart1_setup_gpio_portB();
+  usart1_setup(&console_in, &console_out);
 
   ///////////////////////
   // rotary

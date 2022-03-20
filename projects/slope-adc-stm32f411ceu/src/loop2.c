@@ -244,11 +244,11 @@ static MAT * calibrate( app_t *app)
 /*
   printf("x\n");
   m_foutput(stdout, x);
-  usart_flush();
+  usart1_flush();
 
   printf("y\n");
   m_foutput(stdout, y);
-  usart_flush();
+  usart1_flush();
 */
 
   // regression to calc the betas.
@@ -256,7 +256,7 @@ static MAT * calibrate( app_t *app)
   MAT *b =  regression( xs, y, MNULL );
   printf("b\n");
   m_foutput(stdout, b);
-  usart_flush();
+  usart1_flush();
 
   assert( m_rows(b) == m_cols( xs) ); // calibration coeff is horizontal matrix.
 

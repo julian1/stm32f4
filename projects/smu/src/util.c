@@ -240,7 +240,7 @@ void usart_printf(const char *format, ...)
 
 
   // re-enable tx interupt... if needed
-  usart_output_update();
+  usart1_enable_output_interupt();
 }
 
 

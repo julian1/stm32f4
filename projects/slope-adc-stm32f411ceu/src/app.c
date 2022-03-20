@@ -328,7 +328,7 @@ MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture)
 /*
   printf("corrected\n");
   m_foutput(stdout, corrected);
-  usart_flush();
+  usart1_flush();
 */
 
   return corrected;

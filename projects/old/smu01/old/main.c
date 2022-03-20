@@ -543,7 +543,7 @@ int main(void) {
   ///////////////
   // setup
   led_setup();
-  usart_setup();
+  usart1_setup();
 
 
   uart_printf("------------------\n\r");

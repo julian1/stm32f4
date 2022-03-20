@@ -506,7 +506,7 @@ int main(void) {
 
   ///////////////
   led_setup();
-  usart_setup();
+  usart1_setup();
 
   ///////////////
 

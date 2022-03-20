@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "streams.h"
-#include "usart.h" // usart_output_update()
+#include "usart.h" // usart1_enable_output_interupt()
 #include "cbuffer.h"
 
 #include <stdarg.h> // va_starrt etc
@@ -36,7 +36,7 @@ static ssize_t mywrite(void *cookie, const char *buf, size_t size)
 
   // re-enable tx interupt... if needed
   // could do line buffering here, if wanted.
-  usart_output_update();
+  usart1_enable_output_interupt();
 
   return size;
 }

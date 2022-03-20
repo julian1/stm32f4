@@ -782,7 +782,7 @@ static void loop(void)
 
 
     // usart_input_update();
-    usart_output_update();
+    usart1_enable_output_interupt();
 
     // update_console_cmd(spi, &console_in);
     update_console_cmd(spi, &console_in, &console_out, &cmd_in);
@@ -848,8 +848,8 @@ int main(void)
   cBufInit(&cmd_in, buf3, sizeof(buf3));
 
 
-  usart_setup_gpio_portA();
-  usart_setup(&console_in, &console_out);
+  usart1_setup_gpio_portA();
+  usart1_setup(&console_in, &console_out);
   usart_printf_init(&console_out);
 
 
@@ -863,7 +863,7 @@ int main(void)
 
   usart_printf("\n--------\n");
   usart_printf("starting loop\n");
-  usart_flush();
+  usart1_flush();
   // usart_printf("size %d\n", sizeof(fbuf) / sizeof(float));
 
 

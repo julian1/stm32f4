@@ -120,7 +120,7 @@ int main(void) {
   ///////////////
   // setup
   led_setup();
-  usart_setup();
+  usart1_setup();
 
   // stepper
   stepper_timer_setup();

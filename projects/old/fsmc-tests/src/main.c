@@ -105,7 +105,7 @@ static void loop(app_t *app)
 
     update_console_cmd(app);
 
-    // usart_output_update(); // shouldn't be necessary
+    // usart1_enable_output_interupt(); // shouldn't be necessary
 
 
     // 500ms soft timer. should handle wrap around
@@ -301,10 +301,10 @@ int main(void)
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
   cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
 
-  // usart_setup_gpio_portA();
-  usart_setup_gpio_portB();
+  // usart1_setup_gpio_portA();
+  usart1_setup_gpio_portB();
 
-  usart_set_buffers(&app.console_in, &app.console_out);
+  usart1_set_buffers(&app.console_in, &app.console_out);
 
   // setup print
   // usart_printf_set_buffer()

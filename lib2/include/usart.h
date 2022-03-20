@@ -11,13 +11,13 @@ extern "C" {
 typedef struct CBuf CBuf;
 
 
-void usart_setup_gpio_portA(void);
-void usart_setup_gpio_portB(void);
+void usart1_setup_gpio_portA(void);
+void usart1_setup_gpio_portB(void);
 
 
 
 //   TODO maybe use separate functions to set the buffers/queues
-void usart_set_buffers(CBuf *input, CBuf *output);
+void usart1_set_buffers(CBuf *input, CBuf *output);
 
 
 /*
@@ -25,9 +25,9 @@ void usart_set_buffers(CBuf *input, CBuf *output);
   use only for printf()/puts()  etc
   to re-enable tx interupt
 */
-void usart_output_update(void);
+void usart1_enable_output_interupt(void);
 
-void usart_flush(void);
+void usart1_flush(void);
 
 
 #ifdef __cplusplus

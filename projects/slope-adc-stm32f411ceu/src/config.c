@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#include "usart.h"  // usart_flush()
+#include "usart.h"  // usart1_flush()
 #include "assert.h"
 
 // #include "matrix.h"
@@ -39,7 +39,7 @@ void c_skip_to_end(  FILE *f)
 
   printf( "----------------------\n");
   printf( "config skip to end\n");
-  usart_flush();
+  usart1_flush();
 
   // seek the start of file
   fseek( f, 0 , SEEK_SET) ;
@@ -54,7 +54,7 @@ void c_skip_to_end(  FILE *f)
     assert(items == 1);
 
     printf("magic is %x\n", header.magic );
-    usart_flush();
+    usart1_flush();
 
     if(header.magic == MAGIC ) {
 
@@ -94,7 +94,7 @@ int c_skip_to_last_valid(  FILE *f)
 
   printf( "----------------------\n");
   printf( "config skip to last valid\n");
-  usart_flush();
+  usart1_flush();
 
   // seek the start of file
   fseek( f, 0 , SEEK_SET) ;
@@ -111,7 +111,7 @@ int c_skip_to_last_valid(  FILE *f)
     assert(items == 1);
 
     printf("magic is %x\n", header.magic );
-    usart_flush();
+    usart1_flush();
 
     if(header.magic == MAGIC ) {
   
@@ -180,7 +180,7 @@ void m_write_flash ( MAT *m , FILE *f)
 
   printf( "-----------------\n" );
   printf( "m_write_flash f is %p   ftell() is  %ld\n", f, ftell( f) );
-  usart_flush();
+  usart1_flush();
 
   assert( sizeof(Header) == 12 );
 
@@ -193,7 +193,7 @@ void m_write_flash ( MAT *m , FILE *f)
 
   // determine length
   long len = ftell( f) - start;
-  usart_flush();
+  usart1_flush();
 
 
   printf("len %ld\n", len );
@@ -227,7 +227,7 @@ void m_write_flash ( MAT *m , FILE *f)
   assert(f );
   assert(m );
   printf( "m_write_flash f is %p\n", f);
-  usart_flush();
+  usart1_flush();
 
 
   // write the packet length, as prefix

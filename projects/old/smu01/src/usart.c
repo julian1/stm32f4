@@ -70,7 +70,7 @@ void vApplicationStackOverflowHook(
 ///////////////////////////
 
 
-// TODO - consider if should be global, global struct, or returned from usart_setup()
+// TODO - consider if should be global, global struct, or returned from usart1_setup()
 static QueueHandle_t uart_txq;
 
 
@@ -80,7 +80,7 @@ static QueueHandle_t uart_rxq;
 
 
 
-void usart_setup(void)
+void usart1_setup(void)
 {
   // this is sets up the rx interupt, but does not enable
   nvic_enable_irq(NVIC_USART1_IRQ); // JA

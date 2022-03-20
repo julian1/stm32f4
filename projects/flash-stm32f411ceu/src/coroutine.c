@@ -203,7 +203,7 @@ int coroutine_main(void)
   // and yield from main thread when we drop through
   while(1) {
 
-    usart_flush();
+    usart1_flush();
     //printf("yield from main thread\n");
     yield();
   }

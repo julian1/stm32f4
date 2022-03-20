@@ -208,7 +208,7 @@ void app_loop1 ( app_t *app )
     // block/wait for data
     while(!app->data_ready ) {
 
-      // printf("."); usart_flush();
+      // printf("."); usart1_flush();
       // we have a value.
       if(run.count_up ) {
         if(app ->b) {

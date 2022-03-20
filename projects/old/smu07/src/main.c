@@ -724,7 +724,7 @@ int main(void)
   // setup
   led_setup();
 
-  usart_setup();
+  usart1_setup();
   usart_printf("------------------\n\r");
   usart_printf("starting\n\r");
 

@@ -881,7 +881,7 @@ int main(void) {
 
   ///////////////
   led_setup();
-  usart_setup();
+  usart1_setup();
 
   //timer_setup();  // software timer 
 

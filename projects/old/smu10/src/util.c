@@ -156,7 +156,7 @@ void usart_printf( const char *format, ... )
 }
 
 
-void usart_flush( void)
+void usart1_flush( void)
 {
   // this avoids having to pull in usart.h stuff as dependency
   // don't think we need this as a separrate function

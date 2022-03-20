@@ -294,7 +294,7 @@ static void loop(app_t *app)
 
     update_console_cmd(app);
 
-    // usart_output_update(); // shouldn't be necessary
+    // usart1_enable_output_interupt(); // shouldn't be necessary
 
 
     // 500ms soft timer. should handle wrap around
@@ -418,10 +418,10 @@ int main(void)
   //////////////
   // initialize usart before start all the app constructors, so that can print.
   // uart
-  // usart_setup_gpio_portA();
-  usart_setup_gpio_portB();
+  // usart1_setup_gpio_portA();
+  usart1_setup_gpio_portB();
 
-  usart_set_buffers(&app.console_in, &app.console_out);
+  usart1_set_buffers(&app.console_in, &app.console_out);
 
   // standard streams for printf, fprintf, putc.
   init_std_streams( &app.console_out );
@@ -432,10 +432,10 @@ int main(void)
 
 
 #if 0
-  // usart_setup_gpio_portA();
-  usart_setup_gpio_portB();
+  // usart1_setup_gpio_portA();
+  usart1_setup_gpio_portB();
 
-  usart_set_buffers(&app.console_in, &app.console_out);
+  usart1_set_buffers(&app.console_in, &app.console_out);
 
   // setup print
   // usart_printf_set_buffer()

@@ -461,10 +461,10 @@ int main( int arg0 )
 
   //////////////
   // uart
-  // usart_setup_gpio_portA();
-  usart_setup_gpio_portB();
+  // usart1_setup_gpio_portA();
+  usart1_setup_gpio_portB();
 
-  usart_set_buffers(&app.console_in, &app.console_out);
+  usart1_set_buffers(&app.console_in, &app.console_out);
 
   // standard streams for printf, fprintf, putc.
   init_std_streams(  &app.console_out );
@@ -514,7 +514,7 @@ int main( int arg0 )
 
 
 
-  usart_flush();
+  usart1_flush();
 
   coroutine_main();
 

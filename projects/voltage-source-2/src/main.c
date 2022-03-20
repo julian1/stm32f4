@@ -168,7 +168,7 @@ static void loop(app_t *app)
 
     update_console_cmd(app);
 
-    // usart_output_update(); // shouldn't be necessary
+    // usart1_enable_output_interupt(); // shouldn't be necessary
     if( (system_millis - soft_500ms) > 500) {
       soft_500ms += 500;
       led_toggle();
@@ -309,10 +309,10 @@ int main(void)
   //////////////
   // initialize usart before start all the app constructors, so that can print.
   // uart
-  // usart_setup_gpio_portA();
-  usart_setup_gpio_portB();
+  // usart1_setup_gpio_portA();
+  usart1_setup_gpio_portB();
 
-  usart_set_buffers(&app.console_in, &app.console_out);
+  usart1_set_buffers(&app.console_in, &app.console_out);
 
 
 

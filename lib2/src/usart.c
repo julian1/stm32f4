@@ -20,7 +20,7 @@ static CBuf *cinput  = NULL;
 
 // TODO change name usart1_setup_portB
 
-void usart_setup_gpio_portB(void)
+void usart1_setup_gpio_portB(void)
 {
   // we moved usart 1 for stm32f410. to different pins,
   // PB6 = tx, PB7=rx
@@ -34,7 +34,7 @@ void usart_setup_gpio_portB(void)
 // TODO change name usart1_setup_portA
 // Actually maybe better to pass the arguments...
 
-void usart_setup_gpio_portA(void)
+void usart1_setup_gpio_portA(void)
 {
   // stm32f407 usart1.
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9 | GPIO10);
@@ -88,7 +88,7 @@ static void usart_configure( uint32_t usart )
 
 
 
-void usart_set_buffers( CBuf *input, CBuf *output)
+void usart1_set_buffers( CBuf *input, CBuf *output)
 {
   // TODO change name  usart1_set_buffers
   // set buffers before configure and interupt enable.
@@ -143,14 +143,7 @@ void usart1_isr(void)
 }
 
 
-/*
-  TODO rename
-
-  usart1_txe_interupt_enable()
-  usart_enable_output_interupt()
-*/
-// TODO this is non blocking. change name usart_output_reenable() to indicate...
-void usart_output_update()
+void usart1_enable_output_interupt()
 {
   /*
     note. we check in the interupt handler if more data in output buffer.
@@ -165,11 +158,11 @@ void usart_output_update()
 
 
 
-void usart_flush()
+void usart1_flush()
 {
   // block until flushed
 
-  usart_output_update();
+  usart1_enable_output_interupt();
 
   while(!cBufisEmpty(coutput));
 }

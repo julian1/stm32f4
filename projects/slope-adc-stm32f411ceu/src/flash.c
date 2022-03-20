@@ -68,7 +68,7 @@
 #include "flash.h"
 
 #include "streams.h"  // usart_printf
-#include "usart.h"    // usart_flush()
+#include "usart.h"    // usart1_flush()
 #include "assert.h"
 
 
@@ -102,7 +102,7 @@ void flash_erase_sector_(void)
   flash_unlock();
 
   usart_printf("flase erase sector\n");
-  usart_flush();
+  usart1_flush();
 
   flash_erase_sector(FLASH_SECT_NUM, 0 );
   // unsigned char buf[] = "whoot";
@@ -199,12 +199,12 @@ static ssize_t myread(A *a, char *buf, size_t sz)
   //printf("a %p\n", a );
   printf("a->pos %d\n", a->pos ); // value
 
-  usart_flush();
+  usart1_flush();
 
   int remain = a->n - a->pos;           // signed. but it's not quite correct
 
   // printf("remaining %u\n", remain );
-  // usart_flush();
+  // usart1_flush();
 
   if(remain < (int)sz)
     sz = remain;
@@ -212,7 +212,7 @@ static ssize_t myread(A *a, char *buf, size_t sz)
   assert(remain >= 0);
 
   // printf("sz now %u\n", sz );
-  // usart_flush();
+  // usart1_flush();
 
   memcpy(buf, a->p + a->pos, sz);
   a->pos += sz;
@@ -339,13 +339,13 @@ void flash_write(void)
   flash_unlock();
 
   usart_printf("erasing sector\n");
-  usart_flush();
+  usart1_flush();
 
   flash_erase_sector(FLASH_SECT_NUM, 0 );
   unsigned char buf[] = "whoot";
 
   usart_printf("writing\n");
-  usart_flush();
+  usart1_flush();
 
   flash_program(FLASH_SECT_ADDR, buf, sizeof(buf) );
   flash_lock();
