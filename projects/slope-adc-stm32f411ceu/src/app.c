@@ -27,17 +27,6 @@
 
 
 
-/*
-  different nplc - slightly different offsets
-  --
-
-  uint32_t int_n  = params->clk_count_aper_n ;
-  double period   = int_n / (double ) 20000000;
-  double nplc     = period / (1.0 / 50);
-
-  // nplc_to_aper_n ()
-  // aper_n_to_nplc()
-*/
 
 uint32_t nplc_to_aper_n( double nplc )
 {
@@ -100,31 +89,28 @@ uint32_t ctrl_get_aperture( /*spi */void )
 
 
 
-
-// ctrl_get_mux
-// useful.  when pass control - between loops.
-
-
-
 static char * format_himux_sel( uint32_t mux )
 {
-  // 
+  //
   switch(mux) {
     case HIMUX_SEL_SIG_HI:  return "sig" ;
-    case HIMUX_SEL_REF_HI:
-    case HIMUX_SEL_REF_LO:
-    case HIMUX_SEL_ANG:
+    case HIMUX_SEL_REF_HI:  return "ref-hi" ;
+    case HIMUX_SEL_REF_LO:  return "ref-lo";
+    case HIMUX_SEL_ANG:     return "ref-lo";
+
     default:
       assert(0);
+      return NULL;
   };
 }
 
 
 void ctrl_set_mux( uint32_t mux )
 {
-
+  /*
   // char buf[100];
   // printf("*set himux_sel %s (%lu)\n",  format_bits( buf, 4, mux ), mux);
+  */
 
 
   spi_reg_write(SPI1, REG_HIMUX_SEL,  mux);
@@ -207,10 +193,10 @@ void run_report( Run *run )
 
 
 /*
-  we have maximum flexibility here.
-    - can read current params.
-    - can avoid reading from fpga, and just use params known to be set by mcu, 
-    - or can read last, if want to let the fpga permute the params
+  having separate param, run offers maximum flexibility in design.
+    - can read current params off device.
+    - can avoid reading of device, and just update local params from last value known to be set by mcu,
+    - can read last used params off of device. (eg. if device is source of permuted variables).
 */
 
 void param_read( Param *param)
@@ -261,17 +247,6 @@ void param_report( Param *param)
 
 
 
-
-
-/*
-  OK. This should fill in the aperture also in the return structure.
-  OR else we eliminate it.
-
-  No. it is good to localise - the determination of the functional form of the x data.
-
-  This is the point where we de
-*/
-
 MAT * run_to_matrix( Param *param, Run *run, MAT * out )
 {
   assert(run);
@@ -282,9 +257,6 @@ MAT * run_to_matrix( Param *param, Run *run, MAT * out )
     BECAUSE. we want to allow the pattern controller to permute
 */
 
-  // return a three variable row vector
-
-  // UNUSED(params);
 
   if(out == MNULL)
     out = m_get(1,1); // TODO fix me. this is ok.
@@ -320,38 +292,6 @@ MAT * run_to_matrix( Param *param, Run *run, MAT * out )
 }
 
 
-#if 0
-MAT * run_to_aperture( Run *run, MAT * out )
-{
-  assert(run);
-
-  if(out == MNULL)
-    out = m_get(1,1); // TODO fix me. this is ok.
-  else
-    m_resize(out, 1, 1);
-
-  m_set_val( out, 0, 0, run->clk_count_aper_n );
-
-  return out;
-}
-#endif
-
-
-
-
-
-
-
-/*
-MAT * run_to_aperture(  Run *run, MAT * out )
-{
-  // this is kind of silly...
-
-}
-*/
-
-
-
 
 
 
@@ -371,30 +311,9 @@ MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
   // matrix multiply
   MAT *predicted = m_mlt(x, b, MNULL );
 
-/*
-  printf("predicted \n");
-  m_foutput(stdout, predicted);
-  usart_flush();
-
-  ///////////////
-*/
-
-  // current*time / time == voltage measure.
-
-  // MAT *aperture_inverted =  m_element_invert( aperture, MNULL  );
-  // printf("aperture_inverted \n");
-  // m_foutput(stdout, aperture_inverted);
-  // usart_flush();
-
-
-  // use element multiply - to avoid multiply and matrix diagonal, which is expensive
-  // MAT	*corrected = m_element_mlt(aperture_inverted, predicted, MNULL );
-
   MAT	*corrected = m_element_div( predicted, aperture, MNULL );
 
-
   M_FREE(predicted );
-  // M_FREE(aperture_inverted);
 
 /*
   printf("corrected\n");
@@ -409,139 +328,6 @@ MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
 
 
 
-
-
-//void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs,  unsigned *himux_sel_last, unsigned himux_sel_last_n )
-#if 0
-
-void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 )
-{
-
-  // DEPRECATED. 
-  assert(0);
-
-  UNUSED(app);
-  UNUSED(discard_n);
-  UNUSED(gather_n);
-  UNUSED(row);
-  UNUSED(run2);
-
-  /*
-    Think this just about gets deprevated. in factor .
-    of doing the loop in one place . and using slot. type logic.
-  */
-
-  assert(row);
-  assert(run2->xs);
-
-  // obs per current configuration
-  unsigned obs = 0;
-
-  // this condition should be inse
-  while(obs < discard_n + gather_n) {
-
-    // if we got data handle it.
-    if(app->data_ready) {
-      // in priority
-      app->data_ready = false;
-
-
-      // everything read and organized in one place.
-
-      // get run details
-      Run run;
-      run_read(&run);
-      run_report(&run);
-
-      Param param;
-      param_read_last( &param);
-      param_report(&param );
-
-
-      // only if greater than
-      if(obs >= discard_n ) {
-
-        assert(*row < m_rows(run2->xs));
-        assert(*row < m_rows(run2->aperture));
-        assert(*row < run2->n );
-
-        // now write
-        run2->run[   *row ]  = run;     // value copy.
-        run2->param[ *row ]  = param;     // value copy.
-
-        /*
-          - we don't have to do this conversion here - so deep in the call stack.
-          once we have gathered the run counts, and parameters used,
-          we can convert anywher.
-        */
-        // do xs.
-        MAT *xs1 = run_to_matrix( &param,  &run, MNULL );
-        assert(xs1);
-        assert( m_rows(xs1) == 1 );
-
-        m_row_set( run2->xs, *row, xs1 );
-        M_FREE(xs1);
-
-        // do aperture
-        m_set_val( run2->aperture, *row, 0, param.  clk_count_aper_n);
-
-
-        ++*row;
-      }
-      else {
-        usart_printf("discard_n");
-
-      }
-
-      usart_printf("\n");
-      ++obs;
-    }
-
-    update_console_cmd(app);
-    // usart_output_update(); // shouldn't be necessary, now pumped by interupts.
-
-    // if there is another continuation to run, then bail
-    if(app->continuation_f) {
-      return;
-    }
-
-
-    // blink the led.
-    // 250ms
-    static uint32_t soft_250ms = 0;
-    if( (system_millis - soft_250ms) > 250) {
-      soft_250ms += 250;
-      led_toggle();
-    }
-
-  } // while
-}
-
-#endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// can have a single function to return the mean as a double. which might be a bit neat.
 
 
 
@@ -686,161 +472,6 @@ MAT * run_to_matrix( Params *params, Run *run, MAT * out )
 
 
 
-
-
-#if 0
-void params_read( Params * params )
-{
-  // params->reg_led           = spi_reg_read(SPI1, REG_LED);
-
-  uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_LO );
-  uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_HI );
-  params->clk_count_aper_n   = int_hi << 24 | int_lo;
-
-  params->clk_count_reset_n  = spi_reg_read(SPI1, REG_CLK_COUNT_RESET_N);
-  params->clk_count_fix_n   = spi_reg_read(SPI1, REG_CLK_COUNT_FIX_N);
-  // params->clk_count_var_n   = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_N);
-  params->clk_count_var_pos_n   = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_POS_N);
-  params->clk_count_var_neg_n   = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_NEG_N);
-
-  params->use_slow_rundown  = spi_reg_read(SPI1, REG_USE_SLOW_RUNDOWN);
-  params->himux_sel         = spi_reg_read(SPI1, REG_HIMUX_SEL);
-
-  params->meas_count       = spi_reg_read(SPI1, REG_MEAS_COUNT );
-
-
-}
-
-
-
-void params_report(Params * params )
-{
-  char buf[10];
-
-  usart_printf("-------------\n");
-  // usart_printf("reg_led           %s\n", format_bits( buf, 4, params->reg_led ) );
-
-  uint32_t int_n  = params->clk_count_aper_n ;
-  double period   = aper_n_to_period( int_n);
-  double nplc     = aper_n_to_nplc( int_n);
-  double samples_per_second = 1.0 / period;
-
-
-  usart_printf("clk_count_aper_n   %u\n", int_n );
-  usart_printf("nplc              %.2f\n", nplc);
-  usart_printf("period            %fs\n", period);
-  usart_printf("samples/s         %.1f\n", samples_per_second);
-
-  usart_printf("clk_count_reset_n  %u\n", params->clk_count_reset_n);
-  usart_printf("clk_count_fix_n   %u\n", params->clk_count_fix_n);
-
-  // usart_printf("clk_count_var_n   %u\n", params->clk_count_var_n);
-  usart_printf("clk_count_var_pos_n   %u\n", params->clk_count_var_pos_n);
-  usart_printf("clk_count_var_neg_n   %u\n", params->clk_count_var_neg_n);
-
-
-  // this doesn't look right...
-  // double mod_freq = 20000000.f / ( (params->clk_count_var_n  + params->clk_count_var_n) * 2 );
-  // usart_printf("nom mod freq      %.0fHz\n", mod_freq );
-
-  usart_printf("use_slow_rundown  %u\n", params->use_slow_rundown);
-
-
-  //////////
-  // char buf[100] char * format_bits(char *buf, size_t width, uint32_t value)
-  usart_printf("himux_sel         %s ", format_bits( buf, 4, params->himux_sel));
-
-  switch( params->himux_sel) {
-    case HIMUX_SEL_SIG_HI: usart_printf("sig-hi");  break;
-    case HIMUX_SEL_REF_HI: usart_printf("ref-hi");  break;
-    case HIMUX_SEL_REF_LO: usart_printf("ref-lo");  break;
-    case HIMUX_SEL_ANG:    usart_printf("ang");  break;
-  }
-  usart_printf("\n");
-
-
-  // uint32_t n = spi_reg_read(SPI1, REG_MEAS_COUNT );
-  usart_printf("meas_count        %u\n", params->meas_count );
-
-
-
-
-}
-
-
-
-
-bool params_equal( Params *params0,  Params *params1 )
-{
-
-  return
-    params0->clk_count_aper_n  ==  params1->clk_count_aper_n
-    && params0->use_slow_rundown == params1->use_slow_rundown
-    && params0->himux_sel        == params1->himux_sel
-
-    && params0->clk_count_reset_n == params1->clk_count_reset_n
-    && params0->clk_count_fix_n  == params1->clk_count_fix_n
-
-    // && params0->clk_count_var_n  == params1->clk_count_var_n
-    && params0->clk_count_var_pos_n  == params1->clk_count_var_pos_n
-    && params0->clk_count_var_neg_n  == params1->clk_count_var_neg_n
-  ;
-}
-
-
-
-void params_write( Params *params )
-{
-
-  usart_printf("write params\n");
-
-  // write the main parameter to device
-  spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_HI, (params->clk_count_aper_n >> 24) & 0xff );
-  spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_LO, params->clk_count_aper_n & 0xffffff  );
-  spi_reg_write(SPI1, REG_USE_SLOW_RUNDOWN, params->use_slow_rundown );
-  spi_reg_write(SPI1, REG_HIMUX_SEL, params->himux_sel );
-
-  // write the extra parameters to device
-  spi_reg_write(SPI1, REG_CLK_COUNT_RESET_N , params->clk_count_reset_n );
-  spi_reg_write(SPI1, REG_CLK_COUNT_FIX_N,   params->clk_count_fix_n );
-
-  // spi_reg_write(SPI1, REG_CLK_COUNT_VAR_N,   params->clk_count_var_n );
-  spi_reg_write(SPI1, REG_CLK_COUNT_VAR_POS_N,   params->clk_count_var_pos_n );
-  spi_reg_write(SPI1, REG_CLK_COUNT_VAR_NEG_N,   params->clk_count_var_neg_n );
-
-  Params  params2;
-  params_read( &params2 );
-
-  // ensure write successful.
-  assert(params_equal( params,  &params2 ));
-}
-
-
-
-
-
-void params_set_main( Params *params,  uint32_t clk_count_aper_n, bool use_slow_rundown, uint8_t himux_sel )
-{
-  params->clk_count_aper_n  = clk_count_aper_n;
-  params->use_slow_rundown = use_slow_rundown;
-  params->himux_sel        = himux_sel;
-}
-
-
-void params_set_extra( Params *params,  uint32_t clk_count_reset_n, uint32_t  clk_count_fix_n, uint32_t clk_count_var_pos_n, uint32_t clk_count_var_neg_n)
-{
-  params->clk_count_reset_n = clk_count_reset_n;
-  params->clk_count_fix_n  = clk_count_fix_n;
-
-  //
-  params->clk_count_var_pos_n  = clk_count_var_pos_n;
-  params->clk_count_var_neg_n  = clk_count_var_neg_n;
-
-  // IMPORTNAT.
-  // there is a third kind of permutation - altering fix_pos_n and fix_neg_n individually.
-}
-
-#endif
 
 
 

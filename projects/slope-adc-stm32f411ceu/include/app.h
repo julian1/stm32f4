@@ -51,7 +51,7 @@
 #define REG_LAST_CLK_COUNT_APER_N_HI 45
 
 
-#define REG_MEAS_COUNT          50 
+#define REG_MEAS_COUNT          50
 
 
 
@@ -95,7 +95,7 @@ void ctrl_reset_disable(void);
 struct Param
 {
   /*
-    must have params to compute the clk sums, in run_to_matrix_t 
+    must have params to compute the clk sums, in run_to_matrix_t
     therefore need to pass around, or else read off the mcu.
   */
   // the pattern controller may change on its own - so should read for *each* run.
@@ -107,10 +107,6 @@ struct Param
   uint32_t himux_sel;
 };
 
-// EXTR.
-
-// we can read the params from the device......... NEAT.
-// but use a different structure, and only do it occasionally.
 
 
 typedef struct Param Param;
@@ -131,24 +127,12 @@ struct Run
   uint32_t count_trans_down;
   uint32_t count_fix_up;
   uint32_t count_fix_down;
-  // uint32_t count_flip;
   uint32_t clk_count_rundown;
   // rundown_dir.
 
   // really don't have to
   uint32_t meas_count;
 
-
-
-  /*
-    if using pattern controller.
-    but probably better to read into a separate params like structure.
-  */
-  // uint32_t himux_sel_last;
-
-  // parameters used to obtain the reading.
-  // 
-  // Param   param_last;
 };
 
 
@@ -156,43 +140,13 @@ struct Run
 typedef struct Run  Run;
 
 
-/* matrix_to_run is just appending information?
-
-  Or just pass param and run around separately.
-
-*/
-
-#if 0
-struct Run2
-{
-  Run   *run;
-  Param *param;    // contains hires_mux
-
-  unsigned n;
-
-  MAT   *xs;
-  MAT   *aperture;
-};
-
-
-typedef struct Run2  Run2;
-#endif
 
 
 
-
-// being able to read config. or override is very good.
-// eg. fpga can still be the authoritative source
 void param_read( Param *param);
 void param_report( Param *param);
 
-/*
-  Eg. if using the pattern controller, to change the parameters
-  it's only four variables. at most.
-  just recording himux_sel_last would allow pattern controller, to do fairly usef
 
-
-*/
 
 void param_read_last( Param *param);
 
@@ -204,17 +158,9 @@ void run_report( Run *run);
 
 MAT * run_to_matrix( Param *param, Run *run, MAT * out );
 
-// MAT * run_to_aperture( Run *run, MAT * out);
 
-
-// where should this code go. it doesn't belong in app.
-// should be a better name
-//
 MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture);
 
-
-// has to be defined
-// typedef struct  CBuf ;
 
 
 typedef struct app_t app_t;
@@ -269,16 +215,6 @@ typedef struct app_t
 void update_console_cmd(app_t *app);
 
 
-// change name do_runs. do_meas ?
-// unsigned collect_obs( app_t *app, /*Params *params,*/ unsigned row, unsigned discard, unsigned gather, MAT *x);
-// void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row, double y_, MAT *xs, MAT *aperture,  MAT *y);
-// void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs);
-// void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs);
-
-// void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs,  unsigned *himux_sel_last, unsigned himux_sel_last_n );
-
-// void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 ); 
-
 // loop1
 void loop1(app_t *app );
 void loop2(app_t *app );
@@ -294,6 +230,7 @@ void permute(app_t *app, MAT *b);
   eg. m_cols( m);
 */
 #define X_COLS   4
+
 // #define X_COLS   3
 
 
