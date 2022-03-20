@@ -274,9 +274,10 @@ MAT * run_to_matrix( Param *param, Run *run, MAT * out )
 
   double x2 = run->clk_count_rundown;
 
+  // four variable model
+  uint32_t cols = 4; 
 
-  // three variable
-  m_resize(out, 1, X_COLS);
+  m_resize(out, 1, cols );
 
 
   if( m_cols( out) == 3) {    // X_COLS == 3

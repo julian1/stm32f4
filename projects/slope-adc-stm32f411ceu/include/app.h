@@ -228,22 +228,13 @@ void loop3(app_t *app );
 
 
 // loop3
-void permute(app_t *app, MAT *b);
+// void permute(app_t *app, MAT *b);
 
 
 
 void app_simple_sleep( app_t * app, uint32_t period );
 
 void app_vs_drive_to( app_t *app, double value );
-
-
-/*
-  should be able to avoid this . set once, and then query the matrix.
-  eg. m_cols( m);
-*/
-#define X_COLS   4
-
-// #define X_COLS   3
 
 
 
