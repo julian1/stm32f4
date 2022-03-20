@@ -210,10 +210,10 @@ void loop1 ( app_t *app )
   while(true) {
 
     // configure  integrator
-    ctrl_reset_enable();
-    ctrl_set_mux( HIMUX_SEL_REF_HI );
+    // ctrl_reset_enable();
+    // ctrl_set_mux( HIMUX_SEL_REF_HI );
     app->data_ready = false;
-    ctrl_reset_disable();
+    // ctrl_reset_disable();
 
     // block/wait for data
     while(!app->data_ready ) {
@@ -423,6 +423,9 @@ void loop3 ( app_t *app   )
 
 
   while(1) { 
+
+
+
     double val = simple_read( app);
     printf("val %lf\n", val );  
     if(app->continuation_f) {

@@ -259,16 +259,19 @@ void app_update_console_cmd(app_t *app)
 
 
       else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 )  {
+        printf("setting mux ref-lo\n");
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_LO );
         ctrl_reset_disable();
       }
       else if(strcmp(app->cmd_buf , "mux ref-hi") == 0) {
+        printf("setting mux ref-hi\n");
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_REF_HI );
         ctrl_reset_disable();
       }
       else if(strcmp(app->cmd_buf , "mux sig") == 0) {
+        printf("setting mux sig\n");
         ctrl_reset_enable();
         ctrl_set_mux( HIMUX_SEL_SIG_HI );
         ctrl_reset_disable();
