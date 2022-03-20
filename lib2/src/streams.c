@@ -44,8 +44,8 @@ static ssize_t mywrite(void *cookie, const char *buf, size_t size)
 
 
 void cbuf_init_std_streams( CBuf *console_out )
-{ 
-  /* 
+{
+  /*
     advantage  is that we don't need intermediate handling and stack temp BUFFER.
     for vsnprintf. etc.
     Also see,
@@ -65,7 +65,7 @@ void cbuf_init_std_streams( CBuf *console_out )
 
   // required
   setbuf(f, NULL);
- 
+
 
   // change stdout to point at f.
   stdout = f;
@@ -75,6 +75,10 @@ void cbuf_init_std_streams( CBuf *console_out )
 
 
 
+/*
+legacy, gg
+  should probably move to project local util.c if really want to use.
+*/
 
 void usart1_printf(const char *format, ...)
 {
