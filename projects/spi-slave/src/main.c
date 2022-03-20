@@ -117,7 +117,7 @@ static void update_console_cmd(app_t *app)
       cStringClear( &app->command);
 
       // issue new command prompt
-      usart_printf("> ");
+      usart1_printf("> ");
     }
   }
 }
@@ -151,7 +151,7 @@ static void spi1_port_setup(void)
   uint32_t out = SPI1_CS | SPI1_SCLK | SPI1_MOSI;
   uint32_t all = out | SPI1_MISO ;
 
-  usart_printf("spi1 setup spi\n");
+  usart1_printf("spi1 setup spi\n");
 
   // spi alternate function
   gpio_mode_setup(SPI1_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
@@ -231,7 +231,7 @@ void spi2_isr(void)
   // send a response
   // spi_xfer(SPI2, 0);
   // UNUSED(i);
-  usart_printf("spi2 interupt got !!!! %u\n", last );
+  usart1_printf("spi2 interupt got !!!! %u\n", last );
 }
 
 
@@ -242,7 +242,7 @@ void spi2_isr(void)
 
 static void spi_slave_setup(uint32_t spi)
 {
-  usart_printf("spi slave setup \n");
+  usart1_printf("spi slave setup \n");
   assert(spi == SPI2);
 
   // spi interupt
@@ -303,7 +303,7 @@ static void loop(app_t *app)
       led_toggle();
 
 
-      usart_printf("spi1 master xfer on spi1\n");
+      usart1_printf("spi1 master xfer on spi1\n");
       /// flush....
 
       spi_enable( SPI1 );
@@ -311,7 +311,7 @@ static void loop(app_t *app)
       uint8_t val2 = spi_xfer(SPI1, count );
 
 
-      usart_printf("spi1 master xfer got %u %u\n", val, val2 );
+      usart1_printf("spi1 master xfer got %u %u\n", val, val2 );
       spi_disable( SPI1 );
 
       ++count;
@@ -424,11 +424,11 @@ int main(void)
   usart1_set_buffers(&app.console_in, &app.console_out);
 
   // standard streams for printf, fprintf, putc.
-  init_std_streams( &app.console_out );
+  cbuf_init_std_streams( &app.console_out );
 
 
-  usart_printf("\n--------\n");
-  usart_printf("addr main() %p\n", main );
+  usart1_printf("\n--------\n");
+  usart1_printf("addr main() %p\n", main );
 
 
 #if 0
@@ -438,8 +438,8 @@ int main(void)
   usart1_set_buffers(&app.console_in, &app.console_out);
 
   // setup print
-  // usart_printf_set_buffer()
-  usart_printf_init(&app.console_out);
+  // usart1_printf_set_buffer()
+  usart1_printf_init(&app.console_out);
 #endif
 
   ////////////////////////////
@@ -449,18 +449,18 @@ int main(void)
   assert(app.usbd_dev);
 
 
-  usart_printf("\n--------");
-  usart_printf("\nstarting\n");
+  usart1_printf("\n--------");
+  usart1_printf("\nstarting\n");
 
 
 
-  usart_printf("\n--------\n");
-  usart_printf("starting loop\n");
-  usart_printf("sizeof bool   %u\n", sizeof(bool));
-  usart_printf("sizeof float  %u\n", sizeof(float));
-  usart_printf("sizeof double %u\n", sizeof(double));
+  usart1_printf("\n--------\n");
+  usart1_printf("starting loop\n");
+  usart1_printf("sizeof bool   %u\n", sizeof(bool));
+  usart1_printf("sizeof float  %u\n", sizeof(float));
+  usart1_printf("sizeof double %u\n", sizeof(double));
 
-  usart_printf("\n--------\n");
+  usart1_printf("\n--------\n");
 
   spi1_port_setup();
   spi_setup(SPI1 );

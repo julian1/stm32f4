@@ -1,6 +1,6 @@
 
 
-extern void usart_printf( const char *format, ... );
+extern void usart1_printf( const char *format, ... );
 extern void flush( void);
 
 extern void msleep(uint32_t delay);

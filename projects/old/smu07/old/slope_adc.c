@@ -80,7 +80,7 @@ static uint32_t oc_value = 0;
 
 void slope_adc_setup(void)
 {
-  usart_printf("slope_adc setup\n\r");
+  usart1_printf("slope_adc setup\n\r");
 
   // rcc_periph_clock_enable(RCC_SYSCFG);  for interrupts. once in main.c
 
@@ -97,7 +97,7 @@ void slope_adc_setup(void)
 
   exti_direction = FALLING;
 
-  usart_printf("slope_adc setup done\n\r");
+  usart1_printf("slope_adc setup done\n\r");
 
 
 
@@ -158,7 +158,7 @@ void slope_adc_setup(void)
   // injecct +10V ref, which will integrate output to the negative rail
   gpio_set(ADC_MUX_PORT, ADC_MUX_P_CTL);
 
-  usart_printf("slope_adc done timer done\n\r");
+  usart1_printf("slope_adc done timer done\n\r");
 
 }
 
@@ -183,8 +183,8 @@ void exti0_isr(void)
     // think this is rising.
     // usart_putc_from_isr('xu');
 
-    usart_printf("x up\n");
-    usart_printf("  count %u\n", count);
+    usart1_printf("x up\n");
+    usart1_printf("  count %u\n", count);
 
     // gpio_set(GPIOE, GPIO0);
     exti_direction = RISING;
@@ -192,7 +192,7 @@ void exti0_isr(void)
 
   } else {
 
-    usart_printf("x dwn\n");
+    usart1_printf("x dwn\n");
     // usart_putc_from_isr('d');
 
     // integrating up... I think.
@@ -204,15 +204,15 @@ void exti0_isr(void)
     int32_t remain  = period - count;
 
     // oc_value %u,
-    usart_printf("  count %u\n", count);
-    usart_printf("  diff %d  remain %d\n", diff, remain );
+    usart1_printf("  count %u\n", count);
+    usart1_printf("  diff %d  remain %d\n", diff, remain );
 
 
 
     float err = (remain - diff) / 10.0 ;   // it's weird that it oscillates/ and overshoots.
 
 
-    usart_printf("  err %d\n", (int32_t)err);
+    usart1_printf("  err %d\n", (int32_t)err);
     oc_value += err;
 
 #if 0
@@ -230,20 +230,20 @@ void exti0_isr(void)
     // appears to kind of work
     float err = ((float)remain - diff) / (remain + diff )  * 1000.0;
 
-    usart_printf("  err %d\n", (int32_t)err);
+    usart1_printf("  err %d\n", (int32_t)err);
 
     // if(err > 50) err = 50;
     // if(err < -50) err = -50;
 
-    // usart_printf("clamped err %d\n\r", err);
+    // usart1_printf("clamped err %d\n\r", err);
 
     oc_value += err  ;   // it's weird that it oscillates/ and overshoots.
 
-    usart_printf("  oc_value %u  (set)\n", oc_value  );
+    usart1_printf("  oc_value %u  (set)\n", oc_value  );
 #endif
 
 
-    usart_printf("  oc_value %u\n", oc_value  );
+    usart1_printf("  oc_value %u\n", oc_value  );
     timer_set_oc_value(TIM2, TIM_OC1, oc_value);
 
 
@@ -280,9 +280,9 @@ void tim2_isr(void)
     // ok. this seems to be the thing can catch the count at 20
     timer_clear_flag(TIM2, TIM_SR_UIF);
 
-    usart_printf("-----\n");
-    usart_printf("uif\n");
-    usart_printf("  count %u\n", count );
+    usart1_printf("-----\n");
+    usart1_printf("uif\n");
+    usart1_printf("  count %u\n", count );
   }
 
 
@@ -290,8 +290,8 @@ void tim2_isr(void)
   if (timer_get_flag(TIM2, TIM_SR_CC1IF)) {
     /* Clear compare interrupt flag. */
     timer_clear_flag(TIM2, TIM_SR_CC1IF);   // TIM_DIER_CC1IE  ??   TIM_SR_CC1IF
-    usart_printf("cc1if\n\r");
-    usart_printf("  count %u\n", count );
+    usart1_printf("cc1if\n\r");
+    usart1_printf("  count %u\n", count );
   }
 
 }
@@ -429,7 +429,7 @@ void exti0_isr(void)
     uint32_t count = timer_get_counter(TIM2);
     int32_t diff   = count - oc_value;    // count should be greater than oc_value?
 
-    usart_printf("count %u diff %d\n\r", count, diff );
+    usart1_printf("count %u diff %d\n\r", count, diff );
 
     timer_set_oc_value(TIM2, TIM_OC1, oc_value);   // eg. half the period for 50% duty
 
@@ -460,13 +460,13 @@ void slope_adc_out_status_test_task(void *args __attribute((unused)))
 	for (;;) {
 
     if(interupt_hit) {
-      usart_printf("slope_adc interupt\n\r");
+      usart1_printf("slope_adc interupt\n\r");
       interupt_hit = 0;
     }
 
-    // usart_printf("count %u\n\r", timer_get_counter(TIM5));
+    // usart1_printf("count %u\n\r", timer_get_counter(TIM5));
 
-    usart_printf("slope_adc hi tick %d %d\n\r", tick++, gpio_get(ADC_PORT, ADC_OUT));
+    usart1_printf("slope_adc hi tick %d %d\n\r", tick++, gpio_get(ADC_PORT, ADC_OUT));
     task_sleep(1000); // 1Hz
 	}
 }

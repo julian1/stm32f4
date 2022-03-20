@@ -125,7 +125,7 @@ void exti15_10_isr(void)
 
   exti_reset_request( all );
 
-  // usart_printf("interupt button pressed %d\n", flags);
+  // usart1_printf("interupt button pressed %d\n", flags);
 }
 
 

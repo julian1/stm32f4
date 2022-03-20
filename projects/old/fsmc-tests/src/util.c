@@ -198,14 +198,14 @@ static CBuf *console_out = NULL;
 
 
 
-void usart_printf_init(CBuf *output)
+void usart1_printf_init(CBuf *output)
 {
   console_out = output;
 }
 
 
 
-void usart_printf(const char *format, ...)
+void usart1_printf(const char *format, ...)
 {
   /*
     if(!console_out)

@@ -139,7 +139,7 @@ static void update_console_cmd(app_t *app)
       cStringClear( &app->command);
 
       // issue new command prompt
-      usart_printf("> ");
+      usart1_printf("> ");
     }
   }
 }
@@ -183,7 +183,7 @@ static void loop(app_t *app)
 #if 0
       static unsigned count = 0;
 
-      usart_printf("writing spi1 using cs2 \n" );
+      usart1_printf("writing spi1 using cs2 \n" );
       spi_enable( SPI1 );
       // uint8_t val =  spi_xfer(SPI1, count % 2 == 0 ? 0xff : 0x00  ); // commmand.
 
@@ -302,7 +302,7 @@ int main(void)
 
 
   // standard streams for printf, fprintf, putc.
-  init_std_streams( &app.console_out );
+  cbuf_init_std_streams( &app.console_out );
 
 
 
@@ -316,8 +316,8 @@ int main(void)
 
 
 
-  usart_printf("\n--------\n");
-  usart_printf("addr main() %p\n", main );
+  usart1_printf("\n--------\n");
+  usart1_printf("addr main() %p\n", main );
 
 
 
@@ -330,16 +330,16 @@ int main(void)
 #endif
 
 
-  usart_printf("\n--------");
-  usart_printf("\nstarting\n");
+  usart1_printf("\n--------");
+  usart1_printf("\nstarting\n");
 
-  usart_printf("\n--------\n");
-  usart_printf("starting loop\n");
-  usart_printf("sizeof bool   %u\n", sizeof(bool));
-  usart_printf("sizeof float  %u\n", sizeof(float));
-  usart_printf("sizeof double %u\n", sizeof(double));
+  usart1_printf("\n--------\n");
+  usart1_printf("starting loop\n");
+  usart1_printf("sizeof bool   %u\n", sizeof(bool));
+  usart1_printf("sizeof float  %u\n", sizeof(float));
+  usart1_printf("sizeof double %u\n", sizeof(double));
 
-  usart_printf("\n--------\n");
+  usart1_printf("\n--------\n");
 
   /*
     OK. issues getting this work.
@@ -360,14 +360,14 @@ int main(void)
   uint32_t spi = SPI1;
 
   /// make sure rails are off 
-  usart_printf("\n--------\n");
-  usart_printf("turn on rails\n");
+  usart1_printf("\n--------\n");
+  usart1_printf("turn on rails\n");
   spi1_port_cs2_setup();
   spi_4094_setup(spi);
   reg4064_value = REG_DAC_RST | REG_DAC_UNI_BIP_A;
   spi_4094_reg_write(spi, reg4064_value);
 
-  usart_printf("sleep 100ms\n");
+  usart1_printf("sleep 100ms\n");
   msleep(100);
 
 
@@ -378,8 +378,8 @@ int main(void)
 
 
   /// turn on rails.
-  usart_printf("\n--------\n");
-  usart_printf("turn on rails\n");
+  usart1_printf("\n--------\n");
+  usart1_printf("turn on rails\n");
   spi1_port_cs2_setup();
   spi_4094_setup(spi);
   reg4064_value |= REG_RAILS_ON;
@@ -387,12 +387,12 @@ int main(void)
   spi_4094_reg_write(spi, reg4064_value);
 
 
-  usart_printf("sleep 100ms\n");
+  usart1_printf("sleep 100ms\n");
   msleep(100);
 
   // write an output
-  usart_printf("\n--------\n");
-  usart_printf("writing register for dac0 1V output. \n");
+  usart1_printf("\n--------\n");
+  usart1_printf("writing register for dac0 1V output. \n");
   spi1_port_cs1_setup(); // with CS.
   spi_dac_setup( spi);
 

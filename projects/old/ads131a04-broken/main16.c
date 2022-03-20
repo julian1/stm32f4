@@ -118,7 +118,7 @@ static void adc_setup_spi( void )
 {
   uint32_t all = ADC_CS | ADC_SCLK | ADC_MISO | ADC_MOSI;
 
-  usart_printf("adc setup spi\n");
+  usart1_printf("adc setup spi\n");
 
   // spi alternate function
   gpio_mode_setup(ADC_SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
@@ -195,7 +195,7 @@ static uint8_t adc_read_register(uint32_t spi, uint8_t r )
   uint32_t val = spi_xfer_16(spi, 0);
 
   if(val >> 8 != j  ) {
-    usart_printf("bad acknowledgement address\n");
+    usart1_printf("bad acknowledgement address\n");
     // need something better....
     return -1;
   }
@@ -222,7 +222,7 @@ static uint8_t adc_write_register(uint32_t spi, uint8_t r, uint8_t val )
 
   // return value is address or'd with read bit, and written val
   if(ret != ((1u << 5 | r) << 8 | val)) {
-    usart_printf("bad write acknowledgement address or value\n");
+    usart1_printf("bad write acknowledgement address or value\n");
     // need something better....
     return -1;
   }
@@ -237,7 +237,7 @@ static uint8_t adc_write_register(uint32_t spi, uint8_t r, uint8_t val )
 static unsigned adc_reset( void )
 {
 
-  usart_printf("------------------\n");
+  usart1_printf("------------------\n");
 
   // GND:Synchronousmastermode
   // IOVDD:Asynchronousinterruptmode
@@ -256,10 +256,10 @@ static unsigned adc_reset( void )
 
   // reset
 
-  usart_printf("assert reset\n");
+  usart1_printf("assert reset\n");
   gpio_clear(ADC_SPI_PORT, ADC_RESET);
   task_sleep(20);
-  usart_printf("drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
+  usart1_printf("drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
   gpio_set(ADC_SPI_PORT, ADC_RESET);
 
 
@@ -268,17 +268,17 @@ static unsigned adc_reset( void )
   /////////////////////////////////
   // Monitor serial output for ready. 0xFF02 (ADS131A02) or 0xFF04 (ADS131A04)
 
-  usart_printf("wait for ready\n");
+  usart1_printf("wait for ready\n");
   uint32_t val =  0;
   do {
     val = spi_xfer_16( ADC_SPI, 0 );
-    usart_printf("register %04x\n", val);
+    usart1_printf("register %04x\n", val);
     task_sleep(20);
   }
   while(val != 0xff04) ;
 
-  usart_printf("ok got ready\n");
-  usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
+  usart1_printf("ok got ready\n");
+  usart1_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
 
 
 
@@ -289,37 +289,37 @@ static unsigned adc_reset( void )
   spi_xfer_16( ADC_SPI, 0x0655);
   //while(gpio_get(ADC_SPI_PORT, ADC_DRDY));
   val = spi_xfer_16( ADC_SPI, 0 );
-  // usart_printf("x here %04x\n", val);
+  // usart1_printf("x here %04x\n", val);
 
   if(val != 0x0655) {
-    usart_printf("unlock failed %4x\n", val);
+    usart1_printf("unlock failed %4x\n", val);
     return -1;
   }
 
 
   task_sleep(20);
-  usart_printf("register %04x\n", spi_xfer_16( ADC_SPI, 0));
+  usart1_printf("register %04x\n", spi_xfer_16( ADC_SPI, 0));
 
   task_sleep(20);
-  usart_printf("register %04x\n", spi_xfer_16( ADC_SPI, 0));
+  usart1_printf("register %04x\n", spi_xfer_16( ADC_SPI, 0));
 
 
   /////////////////////////////////
   // write some registers
 
-  usart_printf("--------\n");
+  usart1_printf("--------\n");
 
 #define A_SYS_CFG   0x0B
 
 
-  usart_printf("val %02x\n", adc_read_register(ADC_SPI, A_SYS_CFG ));
+  usart1_printf("val %02x\n", adc_read_register(ADC_SPI, A_SYS_CFG ));
 
   adc_write_register(ADC_SPI, A_SYS_CFG, 0x60 | (1 << 3) );     // configure internal ref.
 
-  usart_printf("val now %02x\n", adc_read_register(ADC_SPI, A_SYS_CFG ));
+  usart1_printf("val now %02x\n", adc_read_register(ADC_SPI, A_SYS_CFG ));
 
   // shouldn't really be lo yet?.
-  usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
+  usart1_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
 
 
 /*
@@ -361,14 +361,14 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   spi_xfer_16( ADC_SPI, 0x0033);
   //while(gpio_get(ADC_SPI_PORT, ADC_DRDY));
   val = spi_xfer_16( ADC_SPI, 0 );
-  // usart_printf("x here %04x\n", val);
+  // usart1_printf("x here %04x\n", val);
 
   if(val != 0x0033) {
-    usart_printf("wakeup failed %4x\n", val);
+    usart1_printf("wakeup failed %4x\n", val);
     return -1;
   } else
   {
-    usart_printf("wakeup ok\n", val);
+    usart1_printf("wakeup ok\n", val);
   }
 
 
@@ -384,22 +384,22 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
   // ok. think it's indicating that one of the F_ADCIN N or P bits is at fault.bits   (eg. high Z. comparator).
 
 
-  usart_printf("error_cnt %d\n", adc_read_register(ADC_SPI, ERROR_CNT));
+  usart1_printf("error_cnt %d\n", adc_read_register(ADC_SPI, ERROR_CNT));
 
-  usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1));
-
-
-  usart_printf("stat_p %8b\n", adc_read_register(ADC_SPI, STAT_P));
-  usart_printf("stat_n %8b\n", adc_read_register(ADC_SPI, STAT_N));
-
-  usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
-
-  usart_printf("stat_s %8b\n", adc_read_register(ADC_SPI, STAT_S));   // this should clear the value?????
-  usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
+  usart1_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1));
 
 
-  usart_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
-  usart_printf("-----------\n");
+  usart1_printf("stat_p %8b\n", adc_read_register(ADC_SPI, STAT_P));
+  usart1_printf("stat_n %8b\n", adc_read_register(ADC_SPI, STAT_N));
+
+  usart1_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
+
+  usart1_printf("stat_s %8b\n", adc_read_register(ADC_SPI, STAT_S));   // this should clear the value?????
+  usart1_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
+
+
+  usart1_printf("drdy %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY));
+  usart1_printf("-----------\n");
 
 
   /*
@@ -426,21 +426,21 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
     for(unsigned j = 0; j < 4; ++j)
     {
       uint8_t a = spi_xfer(spi, 0);
-      usart_printf("%x\n", a);
-      //usart_printf("%8b\n", a);
+      usart1_printf("%x\n", a);
+      //usart1_printf("%8b\n", a);
     }
     spi_disable( spi );
 
 
   // perhaps adc_read_register()... itself is not providing enough cycles?
 
-    // usart_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
-    usart_printf("stat_s %8b\n", adc_read_register(ADC_SPI, STAT_S)); // F_FRAME,  not enough sclk values...
+    // usart1_printf("stat_1 %8b\n", adc_read_register(ADC_SPI, STAT_1)); // re-read
+    usart1_printf("stat_s %8b\n", adc_read_register(ADC_SPI, STAT_S)); // F_FRAME,  not enough sclk values...
                                                                       // or maybe we just aren't reading fast enough...
                                                                       // IMPORTANT. happens before read data .
                                                                       // so must check when initializing.
                                                                       // but get 24bit word working first.
-    usart_printf("-\n");
+    usart1_printf("-\n");
     // break;
   } while(false);
 
@@ -459,21 +459,21 @@ remainingLSBsset to zeroesdependingon the devicewordlength;see Table7
 static void test01(void *args __attribute((unused)))
 {
 
-  usart_printf("test01\n");
-  usart_printf("adc reset\n");
+  usart1_printf("test01\n");
+  usart1_printf("adc reset\n");
 
   adc_reset();
 
 #if 0
-  usart_printf("adc reset done\n");
+  usart1_printf("adc reset done\n");
 
-  usart_printf("mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
+  usart1_printf("mcu drdy %d done %d\n", gpio_get(ADC_SPI_PORT, ADC_DRDY), gpio_get(ADC_SPI_PORT, ADC_DONE));
 
   uint32_t x = spi_xfer_24();  // this is stalling?    // not enough stack?
-//  usart_printf("x %d\n", x );
+//  usart1_printf("x %d\n", x );
 
-  usart_printf("register %d\n", spi_xfer_24());
-  usart_printf("----\n" );
+  usart1_printf("register %d\n", spi_xfer_24());
+  usart1_printf("----\n" );
 #endif
 
   // sleep forever

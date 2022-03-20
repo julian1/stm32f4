@@ -73,7 +73,7 @@ static uint32_t dac_write_register_spi(uint32_t r)
                                         // wrong...
                                           // eg. we are manually swapping bytes around elsewhere,
 
-                                        /// usart_printf("bit set %d \n", (u1 & (1 << 8)) == (1 << 8));
+                                        /// usart1_printf("bit set %d \n", (u1 & (1 << 8)) == (1 << 8));
 
                                         // Yes.
     
@@ -122,7 +122,7 @@ void dac_setup_spi( void )
     // TODO - FIXME. WRRONG
   uint32_t all = DAC_CLK | DAC_MOSI | DAC_MISO | DAC_CS;
 
-  usart_printf("dac setup spi\n");
+  usart1_printf("dac setup spi\n");
 
   // spi alternate function
 
@@ -163,7 +163,7 @@ void dac_setup_spi( void )
   gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC /*| DAC_UNIBIPA | DAC_UNIBIPB */);
   gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 ); // these are open-drain as inputs
 
-  usart_printf("dac setup spi done\n");
+  usart1_printf("dac setup spi done\n");
 }
 
 
@@ -176,7 +176,7 @@ void dac_reset(void)
 {
   // can / should do, before rails powerup.
 
-  usart_printf("dac reset\n");
+  usart1_printf("dac reset\n");
 
   /*
     code relies on task_sleep() for sequencing rst.
@@ -236,24 +236,24 @@ void dac_reset(void)
 
     TODO - use a typedef struct defining all the default bit values we want, and use it as a mask.
   */
-  usart_printf("mcu gpio read1 %d %d\n", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+  usart1_printf("mcu gpio read1 %d %d\n", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
   // ok this appears to hang if dac is not populated
-  usart_printf("dac clearing dac register\n");
+  usart1_printf("dac clearing dac register\n");
   dac_write_register1( 0);
   task_sleep(1);
-  usart_printf("mcu gpio read2 %d %d\n", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+  usart1_printf("mcu gpio read2 %d %d\n", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
-  usart_printf("dac set\n");
+  usart1_printf("dac set\n");
 
   // doing two writes fills in the register?
   dac_write_register(0, 1 << 9 | 1 << 8);
   task_sleep(1);
-  usart_printf("mcu gpio read3 %d %d\n", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+  usart1_printf("mcu gpio read3 %d %d\n", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
 
   // R/W = '1' sets a read-back operation. For read operation, bits A3 to A0 select the register to be read.
-  usart_printf("----------\n");
+  usart1_printf("----------\n");
 
 
 
@@ -262,12 +262,12 @@ void dac_reset(void)
   // 128 (0x80) seems be hard-set as default...
   dac_write_register(0,  1 << 8);       // gpio bit,  640  == 512 + 128
   uint32_t u1 = dac_read_register(0);
-  usart_printf("read %d \n", u1 );
-  usart_printf("bit set %d \n", (u1 & (1 << 8)) == (1 << 8));
+  usart1_printf("read %d \n", u1 );
+  usart1_printf("bit set %d \n", (u1 & (1 << 8)) == (1 << 8));
   task_sleep(1);
 
 
-  usart_printf("----------\n");
+  usart1_printf("----------\n");
 
   ////////////////
   // writing then read an output register
@@ -276,7 +276,7 @@ void dac_reset(void)
   dac_write_register(DAC_VSET_REGISTER, 12345);
   task_sleep(1);
   uint32_t u = dac_read_register(DAC_VSET_REGISTER);
-  usart_printf("read %d \n",  (u & 0x00ff00) | (u >> 16));     // 12345 works...
+  usart1_printf("read %d \n",  (u & 0x00ff00) | (u >> 16));     // 12345 works...
 
 
 
@@ -308,7 +308,7 @@ void dac_reset(void)
   comes up in order to make sure the ESD protection circuitry does not turn on.
   */
 
-  usart_printf("dac reset done\n");
+  usart1_printf("dac reset done\n");
 }
 
 

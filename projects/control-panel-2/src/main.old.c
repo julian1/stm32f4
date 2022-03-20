@@ -14,27 +14,27 @@
 
     // also see read_ddb. a lot of serial stuff. 
 
-    usart_printf("---------\n");
+    usart1_printf("---------\n");
 
 #if 1
     reg = 0x0A;   // == 1000
     LCD_SetAddr(reg );
     x = LCD_ReadData();
-    usart_printf("reg %u (%02x)", reg,  reg);
-    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x)); // maybe the printf buf. is not being copied???? 
+    usart1_printf("reg %u (%02x)", reg,  reg);
+    usart1_printf("%03u  %s\n", x, format_bits(buf, 16, x)); // maybe the printf buf. is not being copied???? 
     // msleep(1000);
 
     reg = 0x0D;   // == 11
     LCD_SetAddr(reg );
     x = LCD_ReadData();
-    usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
+    usart1_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
     // msleep(1000);
 
     reg = 0x0A;   // == 1000
     LCD_SetAddr(reg );
     x = LCD_ReadData();
-    usart_printf("reg %u (%02x)", reg,  reg);
-    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x)); // maybe the printf buf. is not being copied???? 
+    usart1_printf("reg %u (%02x)", reg,  reg);
+    usart1_printf("%03u  %s\n", x, format_bits(buf, 16, x)); // maybe the printf buf. is not being copied???? 
 
 
     msleep(200);
@@ -48,7 +48,7 @@
     LCD_SetAddr(reg );
     // x = LCD_ReadReg( reg );
     x = LCD_ReadData();
-    usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
+    usart1_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
     msleep(1000);
     */
 
@@ -65,8 +65,8 @@
     LCD_SetAddr(reg );
     x = LCD_ReadData();   // EXTR. OK. interleaving the write, and read data with printf... slows things down enough to get the correct response.
                           // unless one changes the setup time.
-    usart_printf("reg %u (%02x)  r\n", reg,  reg);
-    usart_printf("%03u  %s\n", x, format_bits(buf, 16, x));
+    usart1_printf("reg %u (%02x)  r\n", reg,  reg);
+    usart1_printf("%03u  %s\n", x, format_bits(buf, 16, x));
 
 
     msleep(1000);
@@ -122,21 +122,21 @@
 /*
   for(reg = 0x0A; reg < 72 ; reg++) {
     x = LCD_ReadReg( reg );
-    // usart_printf("reg %u (%x)  read %u   %s\n", reg, reg, x, format_bits(buf, 16, x));
+    // usart1_printf("reg %u (%x)  read %u   %s\n", reg, reg, x, format_bits(buf, 16, x));
     // EXTR... there's a memory issue is this string gets too long?
-    usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
+    usart1_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
     msleep(10);
   }
 */
 
 /*
-  usart_printf("----\n");
+  usart1_printf("----\n");
   msleep(20);
   for(reg = 0x0A; reg < 72 ; reg++) {
     x = LCD_ReadReg( reg );
-    // usart_printf("reg %u (%x)  read %u   %s\n", reg, reg, x, format_bits(buf, 16, x));
+    // usart1_printf("reg %u (%x)  read %u   %s\n", reg, reg, x, format_bits(buf, 16, x));
     // EXTR... there's a memory issue is this string gets too long?
-    usart_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
+    usart1_printf("reg %u (%02x)  r %u  %s\n", reg,  reg, x, format_bits(buf, 16, x));
     msleep(10);
   }
 */
@@ -205,7 +205,7 @@ should try a loop for the same address...
 
 /*
   /////////////
-  usart_printf("reset cmd\n");
+  usart1_printf("reset cmd\n");
   LCD_WriteReg( 0x01 , 0x0 ); // soft reset. takes no parameter. but we are giving it one.
   msleep(10); // sleep is required.
 */
@@ -215,44 +215,44 @@ should try a loop for the same address...
   // conssequtive reads and the value changes...
 #if 0
   x = LCD_ReadReg( reg );
-  usart_printf("read %u   %s\n", x, format_bits(buf, 8, x));
+  usart1_printf("read %u   %s\n", x, format_bits(buf, 8, x));
 
   x = LCD_ReadReg( reg );
-  usart_printf("read %u   %s\n", x, format_bits(buf, 8, x));
+  usart1_printf("read %u   %s\n", x, format_bits(buf, 8, x));
 
 
   // any kind of write value... sets a bit...
-  usart_printf("write ram \n");
+  usart1_printf("write ram \n");
   LCD_WriteReg( reg , 0x00 );
 
   x = LCD_ReadReg( reg );
-  usart_printf("read %u   %s\n", x, format_bits(buf, 8, x));
+  usart1_printf("read %u   %s\n", x, format_bits(buf, 8, x));
 
   x = LCD_ReadReg( reg );
-  usart_printf("read %u   %s\n", x, format_bits(buf, 8, x));
+  usart1_printf("read %u   %s\n", x, format_bits(buf, 8, x));
 
   /////////////
-  usart_printf("reset cmd\n");
+  usart1_printf("reset cmd\n");
   LCD_WriteReg( 0x01 , 0x0 ); // soft reset. takes no parameter. but we are giving it one.
   msleep(10); // sleep is required.
 
   x = LCD_ReadReg( reg );
-  usart_printf("read %u   %s\n", x, format_bits(buf, 8, x));
+  usart1_printf("read %u   %s\n", x, format_bits(buf, 8, x));
 
 
 
   // ok writing a 0, and we end up with a value...
   // no it appears the second time we read... it changes the value....
 
-  usart_printf("write 0 \n");
+  usart1_printf("write 0 \n");
   LCD_WriteReg( reg , 0x00 );
   x = LCD_ReadReg( reg );
 
   x = LCD_ReadReg( reg );
-  usart_printf("read %u   %s\n", x, format_bits(buf, 8, x));
+  usart1_printf("read %u   %s\n", x, format_bits(buf, 8, x));
 
   x = LCD_ReadReg( reg );
-  usart_printf("read %u   %s\n", x, format_bits(buf, 8, x));
+  usart1_printf("read %u   %s\n", x, format_bits(buf, 8, x));
 
 
 #endif

@@ -106,8 +106,8 @@ static void  LCD_Write_DATA(uint16_t data)
 void LCD_Init(void)
 {
 
-  usart_printf("-----------\n");
-  usart_printf("LCD_Init\n");
+  usart1_printf("-----------\n");
+  usart1_printf("LCD_Init\n");
 
   // LCD_Configuration();
   // fsmc_gpio_setup();
@@ -423,12 +423,12 @@ void LCD_Read_DDB()
   uint16_t x4 = LCD_ReadData();
   uint16_t x5 = LCD_ReadData();
 
-  usart_printf("reg %u (%02x)  r\n", reg,  reg);
-  usart_printf("%03u  %s\n", x1, format_bits(buf, 16, x1));
-  usart_printf("%03u  %s\n", x2, format_bits(buf, 16, x2));
-  usart_printf("%03u  %s\n", x3, format_bits(buf, 16, x3));
-  usart_printf("%03u  %s\n", x4, format_bits(buf, 16, x4));
-  usart_printf("%03u  %s\n", x5, format_bits(buf, 16, x5));
+  usart1_printf("reg %u (%02x)  r\n", reg,  reg);
+  usart1_printf("%03u  %s\n", x1, format_bits(buf, 16, x1));
+  usart1_printf("%03u  %s\n", x2, format_bits(buf, 16, x2));
+  usart1_printf("%03u  %s\n", x3, format_bits(buf, 16, x3));
+  usart1_printf("%03u  %s\n", x4, format_bits(buf, 16, x4));
+  usart1_printf("%03u  %s\n", x5, format_bits(buf, 16, x5));
 
 }
 
@@ -521,7 +521,7 @@ for(k=y1;k<y2;k++)
 void LCD_fillRect(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2, uint16_t c )
 {
 
-  usart_printf("writing some data\n");
+  usart1_printf("writing some data\n");
 
   /*
     it's hard to see the change against background unless,
@@ -583,8 +583,8 @@ void LCD_fillRect(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2, uint16_t 
 #if 0
 static void LCD_Init(void)
 {
-  usart_printf("-----------\n");
-  usart_printf("LCD_Init\n");
+  usart1_printf("-----------\n");
+  usart1_printf("LCD_Init\n");
 
   // LCD_Configuration();
   // fsmc_gpio_setup();

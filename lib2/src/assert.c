@@ -16,7 +16,7 @@ DEPRECATED.
 
 
 #include "assert.h"   // assert_simple()
-#include "streams.h"     // usart_printf()
+#include "streams.h"     // usart1_printf()
 
 #define UNUSED(x) (void)(x)
 
@@ -26,7 +26,7 @@ static void assert_default(void *ctx, const char *file, int line, const char *fu
 {
   // cannot use assert_pf_t here... because parameters will be unnamed...
   UNUSED(ctx);
-  usart_printf("\nassert failed %s: %d: %s: '%s'\n", file, line, func, expr);
+  usart1_printf("\nassert failed %s: %d: %s: '%s'\n", file, line, func, expr);
 }
 
 static assert_pf_t *assert_pf = assert_default;

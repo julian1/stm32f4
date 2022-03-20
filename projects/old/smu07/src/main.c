@@ -107,7 +107,7 @@ static void rails_wait_for_voltage(void)
 
     // only report first time...
     if(tick == 0)
-      usart_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
+      usart1_printf("rails_wait_for_voltage, tick: %d: LP15VP=%u, LN15VN=%d\n", tick++, pa0, pa1);
 
     if(pa0 > 1000 && pa1 > 1000)
       ++good;
@@ -120,7 +120,7 @@ static void rails_wait_for_voltage(void)
     task_sleep(500);
   }
 
-  usart_printf("rails ok\n");
+  usart1_printf("rails ok\n");
 }
 
 
@@ -152,7 +152,7 @@ static void relay_toggle_test_task(void *args __attribute((unused)))
   int tick = 0;
 	for (;;) {
 
-    usart_printf("relay toggle %d\n", tick++);
+    usart1_printf("relay toggle %d\n", tick++);
     // gpio_toggle(RELAY_PORT, OUTPUT_RELAY_CTL);
     // gpio_toggle(RELAY_PORT, VRANGE_RELAY_CTL);
     gpio_toggle(RELAY_PORT, COMXY_RELAY_CTL);
@@ -571,7 +571,7 @@ static void mux_regulate_jfet(void)
 static void test01(void *args __attribute((unused)))
 {
 
-  usart_printf("test01\n");
+  usart1_printf("test01\n");
 
   dac_reset();
   refa_off();
@@ -617,7 +617,7 @@ static void test01(void *args __attribute((unused)))
   // adc_vfb_test();
 #endif
 
-  usart_printf("test01 done\n");
+  usart1_printf("test01 done\n");
 
 
   // sleep forever
@@ -643,21 +643,21 @@ static void serial_prompt_task2(void *args __attribute__((unused)))
 
 
   for (;;) {
-    // usart_printf is cooked ... so it should already be giving us stuff...
-    usart_printf("\n\r> ");
+    // usart1_printf is cooked ... so it should already be giving us stuff...
+    usart1_printf("\n\r> ");
     usart_gets( buf, 100 );                    // ie. block...
-    //usart_printf("\n\ryou said '%s'", buf );   // there looks like a bug in the formatting...
+    //usart1_printf("\n\ryou said '%s'", buf );   // there looks like a bug in the formatting...
                                               // no it's just returning the \n but not the \r...
 
     if(strcmp(buf, "on") == 0) {
 
-      usart_printf("whoot switch on\n\r");
+      usart1_printf("whoot switch on\n\r");
 
       gpio_set(RELAY_PORT, OUTPUT_RELAY_CTL);   // on
     }
     else if(strcmp(buf, "off") == 0) {
 
-      usart_printf("whoot switch off\n\r");
+      usart1_printf("whoot switch off\n\r");
 
       gpio_clear(RELAY_PORT, OUTPUT_RELAY_CTL);   // on
     }
@@ -725,8 +725,8 @@ int main(void)
   led_setup();
 
   usart1_setup();
-  usart_printf("------------------\n\r");
-  usart_printf("starting\n\r");
+  usart1_printf("------------------\n\r");
+  usart1_printf("starting\n\r");
 
 
   power_voltage_detect_setup();

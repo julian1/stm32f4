@@ -21,7 +21,7 @@
 
 void rails_setup( void )
 {
-  usart_printf("rails setup\n\r");
+  usart1_printf("rails setup\n\r");
 
   // is 16 bit enough for this - yes?
   const uint16_t all = LP15V_CTL | LN15V_CTL | LP30V_CTL | LN30V_CTL;
@@ -33,20 +33,20 @@ void rails_setup( void )
 
   // TODO Set speed. should be slow...
 
-  usart_printf("rails setup done\n\r");
+  usart1_printf("rails setup done\n\r");
 }
 
 
 
 void rails_positive_on( void )
 {
-  usart_printf("rails positive on\n\r");
+  usart1_printf("rails positive on\n\r");
   gpio_set(RAILS_PORT, LP15V_CTL);
 }
 
 void rails_negative_on( void )
 {
-  usart_printf("rails negative on\n\r");
+  usart1_printf("rails negative on\n\r");
   gpio_set(RAILS_PORT, LN15V_CTL);
 }
 
@@ -57,13 +57,13 @@ void rails_negative_on( void )
 
 void rails_p30V_on( void )
 {
-  usart_printf("rails p30V on\n\r");
+  usart1_printf("rails p30V on\n\r");
   gpio_set(RAILS_PORT, LP30V_CTL);
 }
 
 void rails_n30V_on( void )
 {
-  usart_printf("rails n30V on\n\r");
+  usart1_printf("rails n30V on\n\r");
   gpio_set(RAILS_PORT, LN30V_CTL);
 }
 

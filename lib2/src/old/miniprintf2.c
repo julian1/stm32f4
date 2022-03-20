@@ -212,8 +212,8 @@ void internal_vprintf(
 
     // JA binary
     /* eg.
-        usart_printf("test %b\n", 0x01 );
-        usart_printf("test %16b\n", 0xffff );
+        usart1_printf("test %b\n", 0x01 );
+        usart1_printf("test %16b\n", 0xffff );
     */
     case 'b':
       uint = va_arg(arg,unsigned);

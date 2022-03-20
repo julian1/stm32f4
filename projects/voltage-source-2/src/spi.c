@@ -1,7 +1,7 @@
 
 #include "spi.h"
 #include "assert.h"
-#include "streams.h"   // usart_printf
+#include "streams.h"   // usart1_printf
 
 
 #include <libopencm3/stm32/gpio.h>

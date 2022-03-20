@@ -2,7 +2,7 @@
 
 
 #include "assert.h"
-#include "streams.h"  // usart_printf
+#include "streams.h"  // usart1_printf
 #include "format.h" // format_bits
 #include "usart.h"   // usart_flus()
 #include "util.h"   // led/system_millis
@@ -47,8 +47,8 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
 {
   // rename cal_generate_modulation_permutions()
 
-  usart_printf("=========\n");
-  usart_printf("cal loop\n");
+  usart1_printf("=========\n");
+  usart1_printf("cal loop\n");
 
 
   // presize/oversize
@@ -188,7 +188,7 @@ static void cal_collect_obs(app_t *app, MAT *xs, MAT *y, MAT *aperture)
 
       default:
         // done
-        usart_printf("done collcting obs\n");
+        usart1_printf("done collcting obs\n");
 
         // shrink matrixes for the data collected
         m_resize( xs , row, m_cols( xs) );
@@ -518,7 +518,7 @@ __attribute__((naked)) void dummy_function(void)
   // computed via octave
   // double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-12 * clk_count_rundown);
   double v = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * clk_count_rundown);
-  usart_printf("v %.7f, ", v );
+  usart1_printf("v %.7f, ", v );
 #endif
 
 
@@ -532,17 +532,17 @@ __attribute__((naked)) void dummy_function(void)
   ////////////////////////
   ///////// stats
 
-  // usart_printf("imodn %u ", i % n);
+  // usart1_printf("imodn %u ", i % n);
 
   {
   assert(n <= ARRAY_SIZE(clk_count_rundown_ar));
 
   clk_count_rundown_ar[ i % n ] =  clk_count_rundown;
-  usart_printf("stddev_rundown(%u) %.2f, ", n, stddev(clk_count_rundown_ar, n) );
+  usart1_printf("stddev_rundown(%u) %.2f, ", n, stddev(clk_count_rundown_ar, n) );
 
 
   mean_ = mean(clk_count_rundown_ar, n);
-  usart_printf("mean (%u) %.2f, ", n, mean_ );
+  usart1_printf("mean (%u) %.2f, ", n, mean_ );
   }
 
 #endif
@@ -551,12 +551,12 @@ __attribute__((naked)) void dummy_function(void)
   static float means[ 10 ];
   assert(n <= ARRAY_SIZE(means));
   means[ i % n  ] = mean_;
-  usart_printf("stddev_means(%u) %.2f ", n, stddev(means, n));
+  usart1_printf("stddev_means(%u) %.2f ", n, stddev(means, n));
   }
 
 
   double v2 = (-6.0000e+00 * 1) + (4.6875e-02 * count_up) + ( -3.1250e-02 * count_down) + (-4.5475e-7 * mean_ );
-  usart_printf("v %.7f, ", v2 );
+  usart1_printf("v %.7f, ", v2 );
 #endif
 
 
@@ -567,8 +567,8 @@ __attribute__((naked)) void dummy_function(void)
 #if 0
 
   char buf[10];
-  usart_printf("whoot %s\n", format_bits( buf, 10,  (0xf & ~(1 << 3))  ));
-  usart_printf("whoot %s\n", format_bits( buf, 10, 0xf ));
+  usart1_printf("whoot %s\n", format_bits( buf, 10,  (0xf & ~(1 << 3))  ));
+  usart1_printf("whoot %s\n", format_bits( buf, 10, 0xf ));
 #endif
 
 

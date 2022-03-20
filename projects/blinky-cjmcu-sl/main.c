@@ -69,7 +69,7 @@ static void clock_setup(uint32_t tick_divider)
 
 ////////////////////////////////////////////////////////
 
-// implement critical_error_blink() msleep() and usart_printf()
+// implement critical_error_blink() msleep() and usart1_printf()
 // eg. rather than ioc/ dependency injection, just implement
 
 void critical_error_blink(void)
@@ -107,7 +107,7 @@ static CBuf console_out;
 
 
 
-void usart_printf( const char *format, ... )
+void usart1_printf( const char *format, ... )
 {
   // TODO rename to just printf... it's not the responsibiilty of user to know context
   // can override the write, to do flush etc.
@@ -214,9 +214,9 @@ int main(void)
   ////////////////////
 
 
-  usart_printf("\n--------\n");
-  usart_printf("starting\n");
-  // usart_printf("size %d\n", sizeof(fbuf) / sizeof(float));
+  usart1_printf("\n--------\n");
+  usart1_printf("starting\n");
+  // usart1_printf("size %d\n", sizeof(fbuf) / sizeof(float));
 
 
   loop();

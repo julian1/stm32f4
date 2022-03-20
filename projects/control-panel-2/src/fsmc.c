@@ -134,11 +134,11 @@ bool getTear()
 void tft_reset(void )
 {
 
-  usart_printf("pull reset lo\n");
+  usart1_printf("pull reset lo\n");
   // reset. pull lo then high.
   gpio_clear( TFT_GPIO_PORT, TFT_REST);
   msleep(20);
-  usart_printf("pull reset hi\n");
+  usart1_printf("pull reset hi\n");
   gpio_set( TFT_GPIO_PORT, TFT_REST);
   msleep(20);
 

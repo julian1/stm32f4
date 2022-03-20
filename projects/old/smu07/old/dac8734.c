@@ -188,7 +188,7 @@ static uint32_t dac_read(void)
 
 void dac_setup_spi( void )
 {
-  usart_printf("dac setup spi\n\r");
+  usart1_printf("dac setup spi\n\r");
 
   // TODO change GPIOA to DAC_PORT_SPI
   // albeit, should probabaly also do DAC_PORT_AF
@@ -225,14 +225,14 @@ void dac_setup_spi( void )
   gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC /*| DAC_UNIBIPA | DAC_UNIBIPB */);
   gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 ); // these are open-drain as inputs
 
-  usart_printf("dac setup spi done\n\r");
+  usart1_printf("dac setup spi done\n\r");
 }
 
 
 
 void dac_setup_bitbash( void )
 {
-  usart_printf("dac setup bitbash\n\r");
+  usart1_printf("dac setup bitbash\n\r");
 
   gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_CS  | DAC_CLK | DAC_MOSI);
   gpio_mode_setup(DAC_PORT_SPI, GPIO_MODE_INPUT, GPIO_PUPD_NONE, DAC_MISO );
@@ -240,7 +240,7 @@ void dac_setup_bitbash( void )
   gpio_mode_setup(DAC_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_RST | DAC_LDAC /*| DAC_UNIBIPA | DAC_UNIBIPB */);
   gpio_mode_setup(DAC_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, DAC_GPIO0 | DAC_GPIO1 ); // these are open-drain as inputs
 
-  usart_printf("dac setup spi bitbash done\n\r");
+  usart1_printf("dac setup spi bitbash done\n\r");
 }
 
 
@@ -249,7 +249,7 @@ void dac_reset(void)
 {
   // can / should do, before rails powerup.
 
-  usart_printf("dac reset\n\r");
+  usart1_printf("dac reset\n\r");
 
   /*
     code relies on task_sleep() for sequencing rst.
@@ -309,16 +309,16 @@ void dac_reset(void)
 
     TODO - use a typedef struct defining all the default bit values we want, and use it as a mask.
   */
-  usart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+  usart1_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
   // ok this appears to hang if dac is not populated
-  usart_printf("dac clearing dac register\n\r");
+  usart1_printf("dac clearing dac register\n\r");
   dac_write_register1( 0);
-  usart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+  usart1_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
-  usart_printf("dac set\n\r");
+  usart1_printf("dac set\n\r");
   dac_write_register(0, 1 << 9 | 1 << 8);
-  usart_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+  usart1_printf("mcu gpio read %d %d\n\r", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
 
   /*
@@ -348,7 +348,7 @@ void dac_reset(void)
   comes up in order to make sure the ESD protection circuitry does not turn on.
   */
 
-  usart_printf("dac reset done\n\r");
+  usart1_printf("dac reset done\n\r");
 }
 
 
@@ -376,7 +376,7 @@ void dac_test(void)
 
 
   // WRITING THIS - does not affect mon value...
-  usart_printf("dac writing dac register 1\n\r");
+  usart1_printf("dac writing dac register 1\n\r");
   // dac_write_register1( 0b00000100 << 16 | 0x7f7f ); // write dac 0
   //dac_write_register1( 0b00000101 << 16 | 0x3fff ); // write dac 1 1.5V out.
   // dac_write_register1( 0b00000101 << 16 | 0x2fff ); // write dac 1 1.129 out.
@@ -421,13 +421,13 @@ void dac_test(void)
 
   // 11 is ain. 13 is dac1.
 
-  usart_printf("dac write mon register for ain\n\r");
+  usart1_printf("dac write mon register for ain\n\r");
   // dac_write_register1( 0b00000001 << 16 | (1 << 11) ); // select AIN.
   // dac_write_register1( 0b00000001 << 16 | (1 << 13) ); // select dac 1.
 
   dac_write_register(0x01, (1 << 13) ); // select monitor dac1
 
-  usart_printf("dac finished\n\r");
+  usart1_printf("dac finished\n\r");
 
 #if 0
 #endif
@@ -571,7 +571,7 @@ void dac_test(void)
 
 #if 0
   // pull latch up to write
-  usart_printf("toggle ldac\n\r");
+  usart1_printf("toggle ldac\n\r");
   gpio_set(DAC_PORT, DAC_LDAC);
   task_sleep(1);
 

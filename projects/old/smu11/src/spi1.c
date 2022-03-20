@@ -146,8 +146,8 @@ void spi1_interupt_gpio_setup(void (*pfunc)(void *),  void *ctx)
 }
 
 
-// usart_printf("interupt CONFIGURE \n");
+// usart1_printf("interupt CONFIGURE \n");
 // usart1_flush();
-// usart_printf("configure done\n");
+// usart1_printf("configure done\n");
 // usart1_flush();
 

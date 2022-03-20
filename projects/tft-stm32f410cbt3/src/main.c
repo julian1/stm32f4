@@ -93,7 +93,7 @@ static void clock_setup(uint32_t tick_divider)
 
 ////////////////////////////////////////////////////////
 
-// implement critical_error_blink() msleep() and usart_printf()
+// implement critical_error_blink() msleep() and usart1_printf()
 // eg. rather than ioc/ dependency injection, just implement
 
 void critical_error_blink(void)
@@ -131,7 +131,7 @@ static CBuf console_out;
 
 
 
-void usart_printf( const char *format, ... )
+void usart1_printf( const char *format, ... )
 {
   // TODO rename to just printf... it's not the responsibiilty of user to know context
   // can override the write, to do flush etc.
@@ -276,7 +276,7 @@ void exti15_10_isr(void)
 
   // should be in super loop, actually it is very light, just enqueues
   // it just writes a buffer.
-  usart_printf("interupt button pressed\n");
+  usart1_printf("interupt button pressed\n");
 }
 
 
@@ -298,7 +298,7 @@ static void buzzer_setup(void )
 {
   // HMMMMM...
 
-  usart_printf("buzzer setup\n");
+  usart1_printf("buzzer setup\n");
 
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO0 );
   gpio_set_af(GPIOA, GPIO_AF2, GPIO0 ); // AF1 == timer.
@@ -395,7 +395,7 @@ static void loop( Context *ctx)
     uint16_t sw = gpio_get( TACTILE_SW_PORT, TACTILE_SW1_IN | TACTILE_SW2_IN) ;
     if(sw != last_sw) {
       last_sw = sw;
-      usart_printf("sw1 or sw2 changed .. %d\n", sw);
+      usart1_printf("sw1 or sw2 changed .. %d\n", sw);
     }
     */
 
@@ -406,7 +406,7 @@ static void loop( Context *ctx)
     if(count != last_rotary_count) {
       last_rotary_count = count ;
 /*
-      usart_printf("rotary count.. %d\n", count);
+      usart1_printf("rotary count.. %d\n", count);
 
 */
 
@@ -507,13 +507,13 @@ int main(void)
   ////////////////////
 
 
-  usart_printf("\n--------\n");
-  usart_printf("starting\n");
-  // usart_printf("size %d\n", sizeof(fbuf) / sizeof(float));
+  usart1_printf("\n--------\n");
+  usart1_printf("starting\n");
+  // usart1_printf("size %d\n", sizeof(fbuf) / sizeof(float));
 
 
   // lcd...
-  usart_printf("doing lcd_spi_setup()\n");
+  usart1_printf("doing lcd_spi_setup()\n");
   lcd_spi_setup();
 
 
@@ -525,11 +525,11 @@ int main(void)
 
   ILI9341_setRotation(&ctx, 3); // 0 == trhs, 1 == brhs, 2 == blhs,  3 == tlhs
 
-  usart_printf("doing lcd_do_stuff()\n");
+  usart1_printf("doing lcd_do_stuff()\n");
   lcd_do_stuff( &ctx);
 
    // agg
-  // usart_printf("agg test\n");
+  // usart1_printf("agg test\n");
   // agg_test();
 
 

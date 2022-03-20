@@ -64,7 +64,7 @@ static void update_console_cmd(app_t *app)
 
   if( !cBufisEmpty(&app->console_in) && cBufPeekLast(&app->console_in) == '\r') {
 
-    // usart_printf("got CR\n");
+    // usart1_printf("got CR\n");
 
     // we got a carriage return
     static char tmp[1000];
@@ -80,7 +80,7 @@ static void update_console_cmd(app_t *app)
     tmp[n - 2] = 0;
 
     // TODO first char 'g' gets omitted/chopped here, why? CR handling?
-    usart_printf("got command '%s'\n", tmp);
+    usart1_printf("got command '%s'\n", tmp);
 
     // process_cmd(app, tmp);
   }
@@ -112,7 +112,7 @@ static void loop(app_t *app)
     if( (system_millis - soft_500ms) > 500) {
       soft_500ms += 500;
       led_toggle();
-      usart_printf("here\n");
+      usart1_printf("here\n");
     }
 
   }
@@ -307,8 +307,8 @@ int main(void)
   usart1_set_buffers(&app.console_in, &app.console_out);
 
   // setup print
-  // usart_printf_set_buffer()
-  usart_printf_init(&app.console_out);
+  // usart1_printf_set_buffer()
+  usart1_printf_init(&app.console_out);
 
 
   ////////////////////////////
@@ -319,15 +319,15 @@ int main(void)
 
 
 
-  usart_printf("\n--------\n");
-  usart_printf("starting loop\n");
-  usart_printf("sizeof bool   %u\n", sizeof(bool));
-  usart_printf("sizeof float  %u\n", sizeof(float));
-  usart_printf("sizeof double %u\n", sizeof(double));
+  usart1_printf("\n--------\n");
+  usart1_printf("starting loop\n");
+  usart1_printf("sizeof bool   %u\n", sizeof(bool));
+  usart1_printf("sizeof float  %u\n", sizeof(float));
+  usart1_printf("sizeof double %u\n", sizeof(double));
   // test assert failure
   ASSERT(1 == 2);
 
-  usart_printf("a float formatted %g\n", 123.456f );
+  usart1_printf("a float formatted %g\n", 123.456f );
 
 
   loop(&app);

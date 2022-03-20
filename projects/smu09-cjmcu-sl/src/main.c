@@ -305,7 +305,7 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
   mux_adc03(spi);
   float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
   float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
-  usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
+  usart1_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
 
 
@@ -322,7 +322,7 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
 
   // test
 
-  // usart_printf("count %d\n", count);
+  // usart1_printf("count %d\n", count);
   // io_write(spi, IRANGEX_SW58_REGISTER, count);
 
   // io_toggle(spi, RELAY_COM_REGISTER, RELAY_COM_X);
@@ -347,14 +347,14 @@ static void update_soft_500ms(uint32_t spi  /*, state */)
       // why is the voltage *10?
       // Force=Potential=3V, etc.
 #if 1
-      usart_printf("adc %f V    %fA\n",
+      usart1_printf("adc %f V    %fA\n",
         ar[0] / 1.64640 * vmultiplier,
         ar[1] / 1.64640 * imultiplier
       );
 #endif
 
 #if 0
-      usart_printf("adc %dV    %dA\n",
+      usart1_printf("adc %dV    %dA\n",
         ar[0] ,
         ar[1]
       );
@@ -405,19 +405,19 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in, CBuf* console_out
     size_t n = cBufCopy(cmd_in, tmp, sizeof(tmp));
     tmp[n - 1] = 0;   // drop tailing line feed
 
-    usart_printf("got command '%s'   %d\n", tmp, n);
+    usart1_printf("got command '%s'   %d\n", tmp, n);
 
 
     if(strcmp(tmp, "halt") == 0) {
       // go to halt state
-      usart_printf("switch off\n");
+      usart1_printf("switch off\n");
       state = HALT;
       return;
     }
 
 
     if(strcmp(tmp, "off") == 0) {
-      usart_printf("switch off\n");
+      usart1_printf("switch off\n");
 
       // turn off relayc
       mux_io(spi);
@@ -426,7 +426,7 @@ static void update_console_cmd(uint32_t spi, CBuf *console_in, CBuf* console_out
     }
 
     if(strcmp(tmp, "on") == 0) {
-      usart_printf("switch on\n");
+      usart1_printf("switch on\n");
       mux_io(spi);
       io_set(spi, RELAY_REGISTER, RELAY_OUTCOM);
       return;
@@ -458,7 +458,7 @@ static void update(uint32_t spi)
   mux_adc03(spi);
   float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
   float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
-  // usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
+  // usart1_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
 
 
@@ -471,8 +471,8 @@ static void update(uint32_t spi)
     case FIRST:  {
       // if any of these fail, this should progress to error
 
-      usart_printf("-----------\n");
-      usart_printf("digital init start\n" );
+      usart1_printf("-----------\n");
+      usart1_printf("digital init start\n" );
 
       mux_io(spi);
 
@@ -555,7 +555,7 @@ static void update(uint32_t spi)
 #endif
 
       // progress to digital up?
-      usart_printf("digital init ok\n" );
+      usart1_printf("digital init ok\n" );
       state = DIGITAL_UP;
       break;
     }
@@ -565,13 +565,13 @@ static void update(uint32_t spi)
 #if 0
       if( lp15v > 15.0 && ln15v > 15.0 )
       {
-        usart_printf("-----------\n");
+        usart1_printf("-----------\n");
 
-        usart_printf("doing analog init -  supplies ok \n");
-        usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
+        usart1_printf("doing analog init -  supplies ok \n");
+        usart1_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
 
-        usart_printf("turn on analog rails - lp15v\n" );
+        usart1_printf("turn on analog rails - lp15v\n" );
         mux_io(spi);
         // assert rails oe
         io_clear(spi, RAILS_REGISTER, RAILS_OE);
@@ -583,7 +583,7 @@ static void update(uint32_t spi)
 
         // turn on refs for dac
         //mux_dac(spi);
-        usart_printf("turn on ref a for dac\n" );
+        usart1_printf("turn on ref a for dac\n" );
         mux_io(spi);
         io_clear(spi, DAC_REF_MUX_REGISTER, DAC_REF_MUX_A); // active lo
 
@@ -641,7 +641,7 @@ static void update(uint32_t spi)
           return;
         }
 
-        usart_printf("analog init ok\n" );
+        usart1_printf("analog init ok\n" );
         // maybe change name RAILS_OK, RAILS_UP ANALOG_OK, ANALOG_UP
 
         // turn on power rails
@@ -649,7 +649,7 @@ static void update(uint32_t spi)
 #if 1
         ////////////////////
         // power rails
-        usart_printf("turn on power rails - lp30v\n" );
+        usart1_printf("turn on power rails - lp30v\n" );
         mux_io(spi);
         // io_set(spi, RAILS_REGISTER, RAILS_LP30V );
         io_set(spi, RAILS_REGISTER, RAILS_LP60V );  // actually 15V
@@ -667,8 +667,8 @@ static void update(uint32_t spi)
       if((lp15v < 14.7 || ln15v < 14.7)  ) {
 
         mux_io(spi);
-        usart_printf("supplies bad - turn off rails\n");
-        usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
+        usart1_printf("supplies bad - turn off rails\n");
+        usart1_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 
         // turn off power
         io_clear(spi, RAILS_REGISTER, RAILS_LP15V | RAILS_LP30V | RAILS_LP60V);
@@ -685,7 +685,7 @@ static void update(uint32_t spi)
       // timeout to turn off...
       if( system_millis > timeout_off_millis) {
         state = INIT;
-        usart_printf("timeout - turning off \n");
+        usart1_printf("timeout - turning off \n");
       }
  */
 
@@ -700,7 +700,7 @@ static void update(uint32_t spi)
       static int first = 0;
       if(!first) {
         first = 1;
-        usart_printf("entered error state\n" );
+        usart1_printf("entered error state\n" );
 
         // turn off output relay
         io_clear(spi, RELAY_REGISTER, RELAY_OUTCOM);
@@ -717,7 +717,7 @@ static void update(uint32_t spi)
       static int first = 0;
       if(!first) {
         first = 1;
-        usart_printf("entered halt state\n" );
+        usart1_printf("entered halt state\n" );
 
         mux_io(spi);
         // turn off output relay
@@ -850,7 +850,7 @@ int main(void)
 
   usart1_setup_gpio_portA();
   usart1_setup(&console_in, &console_out);
-  usart_printf_init(&console_out);
+  usart1_printf_init(&console_out);
 
 
   ////////////////
@@ -861,10 +861,10 @@ int main(void)
   ////////////////////
 
 
-  usart_printf("\n--------\n");
-  usart_printf("starting loop\n");
+  usart1_printf("\n--------\n");
+  usart1_printf("starting loop\n");
   usart1_flush();
-  // usart_printf("size %d\n", sizeof(fbuf) / sizeof(float));
+  // usart1_printf("size %d\n", sizeof(fbuf) / sizeof(float));
 
 
   loop();

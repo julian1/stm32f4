@@ -15,7 +15,7 @@
 
 
 // BAD BAD BAD
-extern void usart_printf( const char *format, ... );
+extern void usart1_printf( const char *format, ... );
 
 
 #if 0
@@ -176,43 +176,43 @@ void flash_print_status( uint32_t spi)
 
 
 // if (verbose) {
-  usart_printf("SR1: 0x%02X\n", data[1]);
-  usart_printf(" - SPRL: %s\n",
+  usart1_printf("SR1: 0x%02X\n", data[1]);
+  usart1_printf(" - SPRL: %s\n",
    ((data[1] & (1 << 7)) == 0) ?
     "unlocked" :
     "locked");
-  usart_printf(" -  SPM: %s\n",
+  usart1_printf(" -  SPM: %s\n",
    ((data[1] & (1 << 6)) == 0) ?
     "Byte/Page Prog Mode" :
     "Sequential Prog Mode");
-  usart_printf(" -  EPE: %s\n",
+  usart1_printf(" -  EPE: %s\n",
    ((data[1] & (1 << 5)) == 0) ?
     "Erase/Prog success" :
     "Erase/Prog error");
-  usart_printf("-  SPM: %s\n",
+  usart1_printf("-  SPM: %s\n",
    ((data[1] & (1 << 4)) == 0) ?
     "~WP asserted" :
     "~WP deasserted");
-  usart_printf(" -  SWP: ");
+  usart1_printf(" -  SWP: ");
   switch((data[1] >> 2) & 0x3) {
    case 0:
-    usart_printf("All sectors unprotected\n");
+    usart1_printf("All sectors unprotected\n");
     break;
    case 1:
-    usart_printf("Some sectors protected\n");
+    usart1_printf("Some sectors protected\n");
     break;
    case 2:
-    usart_printf("Reserved (xxxx 10xx)\n");
+    usart1_printf("Reserved (xxxx 10xx)\n");
     break;
    case 3:
-    usart_printf("All sectors protected\n");
+    usart1_printf("All sectors protected\n");
     break;
   }
-  usart_printf(" -  WEL: %s\n",
+  usart1_printf(" -  WEL: %s\n",
    ((data[1] & (1 << 1)) == 0) ?
     "Not write enabled" :
     "Write enabled");
-  usart_printf(" - ~RDY: %s\n",
+  usart1_printf(" - ~RDY: %s\n",
    ((data[1] & (1 << 0)) == 0) ?
     "Ready" :
     "Busy");
@@ -244,7 +244,7 @@ void flash_read_id( uint32_t spi)
  int len = 5; // command + 4 response bytes
 
 // if (verbose)
-  usart_printf("read flash ID..\n");
+  usart1_printf("read flash ID..\n");
 
  // flash_chip_select();
  spi_enable(spi);
@@ -253,7 +253,7 @@ void flash_read_id( uint32_t spi)
  mpsse_xfer_spi(spi, data, len);
 
  if (data[4] == 0xFF)
-  usart_printf("Extended Device String Length is 0xFF, "
+  usart1_printf("Extended Device String Length is 0xFF, "
     "this is likely a read error. Ignorig...\n");
  else {
   // Read extended JEDEC ID bytes
@@ -267,10 +267,10 @@ void flash_read_id( uint32_t spi)
  spi_disable(spi);
 
  // TODO: Add full decode of the JEDEC ID.
- usart_printf("flash ID:");
+ usart1_printf("flash ID:");
  for (int i = 1; i < len; i++)
-  usart_printf(" 0x%02X", data[i]);
- usart_printf("\n");
+  usart1_printf(" 0x%02X", data[i]);
+ usart1_printf("\n");
 }
 
 

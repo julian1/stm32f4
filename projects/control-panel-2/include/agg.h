@@ -35,7 +35,7 @@ extern "C" {
 #include "fsmc.h"       // LCD_WriteData()
 #include "ssd1963.h"    // setXY
 #include "util.h"    // UNUSED()
-#include "streams.h"    // usart_printf
+#include "streams.h"    // usart1_printf
 
 
 
@@ -98,7 +98,7 @@ public:
     {
       UNUSED(covers);
 
-      // usart_printf("   blend_hline x=%u y=%u len=%u \n", x, y, len );
+      // usart1_printf("   blend_hline x=%u y=%u len=%u \n", x, y, len );
 
       /*
       std::cout << "blend_solid_hspan x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  ;
@@ -127,7 +127,7 @@ public:
       /*
         std::cout << "blend_hline       x " << x << " y " << y << " len " << len << " (r " << int(c.r) << " g " << int(c.g) << " b " << int(c.b) << ")"  << " cover " << int(cover) << std::endl;
       */
-      // usart_printf( "x=%u, %y=%u, len=%u, cover=%u\n", x, y, len, cover);
+      // usart1_printf( "x=%u, %y=%u, len=%u, cover=%u\n", x, y, len, cover);
 
       y += scroll_start;
 

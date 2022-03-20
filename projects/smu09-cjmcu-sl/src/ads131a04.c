@@ -80,7 +80,7 @@ static uint8_t adc_read_register(uint32_t spi, uint8_t r )
   uint32_t val = adc_send_code(spi, j << 8 );
 
   if(val >> 8 != j) {
-    usart_printf("bad acknowledgement address\n");
+    usart1_printf("bad acknowledgement address\n");
     // need something better....
     return -1;
   }
@@ -105,7 +105,7 @@ static uint8_t adc_write_register(uint32_t spi, uint8_t r, uint8_t val )
 
   // return value is address or'd with read bit, and written val
   if(ret != ((1u << 5 | r) << 8 | val)) {
-    usart_printf("bad write acknowledgement address or value\n");
+    usart1_printf("bad write acknowledgement address or value\n");
     // need something better....
     return -1;
   }
@@ -158,23 +158,23 @@ static void adc_print_status_registers(uint32_t spi)
 {
   // uint32_t spi = ADC_SPI;
 
-  usart_printf("error_cnt %d\n", adc_read_register(spi, ERROR_CNT));
+  usart1_printf("error_cnt %d\n", adc_read_register(spi, ERROR_CNT));
 
-  usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1));
+  usart1_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1));
 
-  usart_printf("stat_p %8b\n", adc_read_register(spi, STAT_P));
-  usart_printf("stat_n %8b\n", adc_read_register(spi, STAT_N));
+  usart1_printf("stat_p %8b\n", adc_read_register(spi, STAT_P));
+  usart1_printf("stat_n %8b\n", adc_read_register(spi, STAT_N));
 
-  usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1)); // re-read
+  usart1_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1)); // re-read
 
-  usart_printf("stat_s %8b\n", adc_read_register(spi, STAT_S));   // this should clear the value?????
-  usart_printf("stat_s %8b\n", adc_read_register(spi, STAT_S));   // this should clear the value?????
-  // usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1)); // re-read
+  usart1_printf("stat_s %8b\n", adc_read_register(spi, STAT_S));   // this should clear the value?????
+  usart1_printf("stat_s %8b\n", adc_read_register(spi, STAT_S));   // this should clear the value?????
+  // usart1_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1)); // re-read
 
 
 /*
-  usart_printf("drdy %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY));
-  usart_printf("-----------\n");
+  usart1_printf("drdy %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY));
+  usart1_printf("-----------\n");
 */
 }
 
@@ -186,8 +186,8 @@ static void adc_print_status_registers(uint32_t spi)
 int adc_init( uint32_t spi, uint8_t reg)
 {
 
-  usart_printf("------------------\n");
-  usart_printf("ads131a04 init\n");
+  usart1_printf("------------------\n");
+  usart1_printf("ads131a04 init\n");
 
 
   mux_io(spi);
@@ -211,16 +211,16 @@ int adc_init( uint32_t spi, uint8_t reg)
 
   ////////////
   // reset
-  usart_printf("assert reset\n");
+  usart1_printf("assert reset\n");
   // gpio_clear(ADC_GPIO_PORT, ADC_RESET);
   io_clear(spi, reg, ADC_RST);
 
-  usart_printf("before msleep\n");
+  usart1_printf("before msleep\n");
   msleep(20);
-  usart_printf("after msleep\n");
+  usart1_printf("after msleep\n");
 
 
-  // usart_printf("drdy %d done %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY), gpio_get(ADC_GPIO_PORT, ADC_DONE));
+  // usart1_printf("drdy %d done %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY), gpio_get(ADC_GPIO_PORT, ADC_DONE));
   // gpio_set(ADC_GPIO_PORT, ADC_RESET);
   io_set(spi, reg, ADC_RST);
   msleep(20);
@@ -234,7 +234,7 @@ int adc_init( uint32_t spi, uint8_t reg)
   /////////////////////////////////
   // Monitor serial output for ready. 0xFF02 (ADS131A02) or 0xFF04 (ADS131A04)
 
-  usart_printf("wait for ready\n");
+  usart1_printf("wait for ready\n");
   // return 0;
 
   mux_adc(spi);
@@ -242,15 +242,15 @@ int adc_init( uint32_t spi, uint8_t reg)
   uint32_t val = 0;
   do {
     val = spi_xfer_24_16_cs( spi, 0 );
-    usart_printf("register %04x\n", val);
+    usart1_printf("register %04x\n", val);
     // flush, to see usart log
     usart1_flush();
     msleep(20);
   }
   while(val != 0xff04) ;
 
-  usart_printf("ok got ready %04x\n", val);
-  // usart_printf("drdy %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY));
+  usart1_printf("ok got ready %04x\n", val);
+  // usart1_printf("drdy %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY));
 
 
 
@@ -260,36 +260,36 @@ int adc_init( uint32_t spi, uint8_t reg)
 
   val = adc_send_code(spi, UNLOCK);
   if(val != UNLOCK) {
-    usart_printf("unlock failed %4x\n", val);
+    usart1_printf("unlock failed %4x\n", val);
     return -1;
   } else {
-    usart_printf("unlock ok\n");
+    usart1_printf("unlock ok\n");
   }
 
 
   // msleep(20);
-  // usart_printf("register %04x\n", spi_xfer_24_16_cs( spi, 0));
+  // usart1_printf("register %04x\n", spi_xfer_24_16_cs( spi, 0));
 
   msleep(20);
-  usart_printf("register %04x\n", spi_xfer_24_16_cs( spi, 0));
+  usart1_printf("register %04x\n", spi_xfer_24_16_cs( spi, 0));
 
 
   /////////////////////////////////
   // write some registers
 
-  // usart_printf("--------\n");
+  // usart1_printf("--------\n");
 
 
   //////////////////////
   // read a_sys_cfg
   uint8_t a_sys_cfg = adc_read_register(spi, A_SYS_CFG );
-  // usart_printf("a_sys_cfg %2x\n", a_sys_cfg);
-  usart_printf("a_sys_cfg %8b\n", a_sys_cfg);
+  // usart1_printf("a_sys_cfg %2x\n", a_sys_cfg);
+  usart1_printf("a_sys_cfg %8b\n", a_sys_cfg);
   if(a_sys_cfg != 0x60) {
-    usart_printf("a_sys_cfg not expected default\n");
+    usart1_printf("a_sys_cfg not expected default\n");
     return -1;
   } else {
-    usart_printf("a_sys_cfg val ok\n");
+    usart1_printf("a_sys_cfg val ok\n");
   }
 
 
@@ -297,7 +297,7 @@ int adc_init( uint32_t spi, uint8_t reg)
   // change
   adc_write_register(spi, A_SYS_CFG, a_sys_cfg | (1 << 3) );     // configure internal ref.
 
-  usart_printf("a_sys_cfg now %02x\n", adc_read_register(spi, A_SYS_CFG ));
+  usart1_printf("a_sys_cfg now %02x\n", adc_read_register(spi, A_SYS_CFG ));
 
 
 #if 1
@@ -306,10 +306,10 @@ int adc_init( uint32_t spi, uint8_t reg)
   //////////////////////
   // read d_sys_cfg
   uint8_t d_sys_cfg = adc_read_register(spi, D_SYS_CFG );
-  // usart_printf("d_sys_cfg %02x\n", d_sys_cfg);
-  usart_printf("d_sys_cfg %8b\n", d_sys_cfg);
+  // usart1_printf("d_sys_cfg %02x\n", d_sys_cfg);
+  usart1_printf("d_sys_cfg %8b\n", d_sys_cfg);
   if(d_sys_cfg != 0x3c) {
-    usart_printf("d_sys_cfg not expected default\n");
+    usart1_printf("d_sys_cfg not expected default\n");
     return -1;
   }
 
@@ -317,10 +317,10 @@ int adc_init( uint32_t spi, uint8_t reg)
   //////////////////////
   // clk2
   uint8_t clk2 = adc_read_register(spi, CLK2 );
-  // usart_printf("clk2 %2x\n", clk2);
-  usart_printf("clk2 %8b\n", clk2); // 10000110
+  // usart1_printf("clk2 %2x\n", clk2);
+  usart1_printf("clk2 %8b\n", clk2); // 10000110
   if(clk2 != 0x86) {
-    usart_printf("clk2 not expected default\n");
+    usart1_printf("clk2 not expected default\n");
     return -1;
   }
 
@@ -328,7 +328,7 @@ int adc_init( uint32_t spi, uint8_t reg)
   adc_write_register(spi, CLK2, clk2 & (0b1111 << 4)  );    // clear lower 4 bits, for max OSR
                                                             // better way to do this?
 
-  usart_printf("clk2 now %8b\n", adc_read_register(spi, CLK2 ));
+  usart1_printf("clk2 now %8b\n", adc_read_register(spi, CLK2 ));
 
 
 
@@ -362,10 +362,10 @@ int adc_init( uint32_t spi, uint8_t reg)
 
 // ok. stat_1 and stat_s is clear at this point...
 #if 0
-  usart_printf("here0\n");
-  usart_printf("-------\nhere0\n");
-  usart_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1));
-  usart_printf("stat_p %8b\n", adc_read_register(spi, STAT_P));
+  usart1_printf("here0\n");
+  usart1_printf("-------\nhere0\n");
+  usart1_printf("stat_1 %8b\n", adc_read_register(spi, STAT_1));
+  usart1_printf("stat_p %8b\n", adc_read_register(spi, STAT_P));
 #endif
 
 
@@ -397,11 +397,11 @@ int adc_init( uint32_t spi, uint8_t reg)
   // wakeup
   val = adc_send_code(spi, WAKEUP);
   if(val != WAKEUP) {
-    usart_printf("wakeup failed %4x\n", val);
+    usart1_printf("wakeup failed %4x\n", val);
     return -1;
   } else
   {
-    usart_printf("wakeup ok\n", val);
+    usart1_printf("wakeup ok\n", val);
   }
 
 
@@ -410,11 +410,11 @@ int adc_init( uint32_t spi, uint8_t reg)
   // lock
   val = adc_send_code(spi, LOCK);
   if(val != LOCK) {
-    usart_printf("lock failed %4x\n", val);
+    usart1_printf("lock failed %4x\n", val);
     return -1;
   } else
   {
-    usart_printf("lock ok\n", val);
+    usart1_printf("lock ok\n", val);
   }
 
 
@@ -424,7 +424,7 @@ int adc_init( uint32_t spi, uint8_t reg)
 
 
 
-  usart_printf("ads131a04 ok\n");
+  usart1_printf("ads131a04 ok\n");
 
 #endif
   return 0;
@@ -464,7 +464,7 @@ uint32_t spi_adc_do_read( uint32_t spi, float *ar, size_t n)
   // read code
   uint32_t code = spi_xfer_24_16(spi, 0);     // this is just the 24_16 call... except without
   if(code != 0x2220) {
-    usart_printf("adc, bad code %4x\n",  code);
+    usart1_printf("adc, bad code %4x\n",  code);
     // return -9999; // log and ignore ????
                   // need better error handling here
   }

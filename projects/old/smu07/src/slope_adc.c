@@ -64,7 +64,7 @@ static uint32_t period = 0;
 
 void slope_adc_setup(void)
 {
-  usart_printf("slope_adc setup\n\r");
+  usart1_printf("slope_adc setup\n\r");
 
 
   //////////
@@ -158,12 +158,12 @@ void slope_adc_setup(void)
   // injecct +10V ref, which will integrate output to the negative rail
   gpio_set(ADC_MUX_PORT, ADC_MUX_P_CTL);
 
-  usart_printf("slope_adc done timer done\n");
+  usart1_printf("slope_adc done timer done\n");
 
 
   // stm32f4 has native
-  // usart_printf("sizeof(float)  %d\n", sizeof(float));  // 4
-  // usart_printf("sizeof(double) %d\n", sizeof(double)); // 8
+  // usart1_printf("sizeof(float)  %d\n", sizeof(float));  // 4
+  // usart1_printf("sizeof(double) %d\n", sizeof(double)); // 8
 
   //////////////////////
 
@@ -255,8 +255,8 @@ void exti0_isr(void)
       // compute and print result
       float result = ((float)y) / x ;
       // static char buf[100];
-      // usart_printf("%d cycles  %s\n", cycle, ftos(result, buf, 100));
-      usart_printf("%d cycles  %f\n", cycle, result);
+      // usart1_printf("%d cycles  %s\n", cycle, ftos(result, buf, 100));
+      usart1_printf("%d cycles  %f\n", cycle, result);
       cycle = 0;
     }
 
@@ -295,7 +295,7 @@ void tim3_isr(void)
       timer_disable_counter(TIM5);
       gpio_clear(ADC_MUX_PORT, ADC_MUX_N_CTL);
 
-      // usart_printf("reached top tim2 %u  tim5 %u \n", timer_get_counter(TIM2), timer_get_counter(TIM5) );
+      // usart1_printf("reached top tim2 %u  tim5 %u \n", timer_get_counter(TIM2), timer_get_counter(TIM5) );
       // period is set in zero cross.
     }
     else {
@@ -369,13 +369,13 @@ double tohat will cause a run-time exception.
 // that leaves us with two 32 bit timers - for the counting of injected voltages / references.
 // by just starting/stopping with enable and disable - would make very easy.
 
-    // usart_printf("  c fall\n");
+    // usart1_printf("  c fall\n");
     // timer_set_counter(TIM2, period );
     // timer_enable_counter(TIM2);
 
 
 
-    // usart_printf("  c rise\n");
+    // usart1_printf("  c rise\n");
     // timer_set_counter(TIM2, period );
     // timer_enable_counter(TIM2);
 
@@ -675,7 +675,7 @@ void exti0_isr(void)
     uint32_t count = timer_get_counter(TIM2);
     int32_t diff   = count - oc_value;    // count should be greater than oc_value?
 
-    usart_printf("count %u diff %d\n\r", count, diff );
+    usart1_printf("count %u diff %d\n\r", count, diff );
 
     timer_set_oc_value(TIM2, TIM_OC1, oc_value);   // eg. half the period for 50% duty
 
@@ -706,13 +706,13 @@ void slope_adc_out_status_test_task(void *args __attribute((unused)))
 	for (;;) {
 
     if(interupt_hit) {
-      usart_printf("slope_adc interupt\n\r");
+      usart1_printf("slope_adc interupt\n\r");
       interupt_hit = 0;
     }
 
-    // usart_printf("count %u\n\r", timer_get_counter(TIM5));
+    // usart1_printf("count %u\n\r", timer_get_counter(TIM5));
 
-    usart_printf("slope_adc hi tick %d %d\n\r", tick++, gpio_get(ADC_PORT, ADC_OUT));
+    usart1_printf("slope_adc hi tick %d %d\n\r", tick++, gpio_get(ADC_PORT, ADC_OUT));
     task_sleep(1000); // 1Hz
 	}
 }

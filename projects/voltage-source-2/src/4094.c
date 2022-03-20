@@ -7,7 +7,7 @@
 
 // #include "util.h"  // msleep()
 #include "assert.h"
-// #include "streams.h"    // usart_printf
+// #include "streams.h"    // usart1_printf
 
 
 

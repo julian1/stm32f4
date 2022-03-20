@@ -43,7 +43,7 @@ static ssize_t mywrite(void *cookie, const char *buf, size_t size)
 
 
 
-void init_std_streams( CBuf *console_out )
+void cbuf_init_std_streams( CBuf *console_out )
 { 
   /* 
     advantage  is that we don't need intermediate handling and stack temp BUFFER.
@@ -76,7 +76,7 @@ void init_std_streams( CBuf *console_out )
 
 
 
-void usart_printf(const char *format, ...)
+void usart1_printf(const char *format, ...)
 {
   // old interface
 	va_list args;

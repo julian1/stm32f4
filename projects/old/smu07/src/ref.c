@@ -23,12 +23,12 @@ void ref_setup( void )
 {
   // call *before* bringing up rails
   // WE SHOULD DO ALL PINS here???
-  usart_printf("ref setup\n\r");
+  usart1_printf("ref setup\n\r");
 
   gpio_set(REF_PORT, DAC_MUX_REFA_CTL | DAC_MUX_REFB_CTL);  // hi == off for dg444, as init condition.
   gpio_mode_setup(REF_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, DAC_MUX_REFA_CTL | DAC_MUX_REFB_CTL);
 
-  usart_printf("ref setup done\n\r");
+  usart1_printf("ref setup done\n\r");
 }
 
 
@@ -36,7 +36,7 @@ void ref_setup( void )
 void refa_off( void )
 {
   gpio_set(REF_PORT, DAC_MUX_REFA_CTL);
-  usart_printf("refa off\n\r");
+  usart1_printf("refa off\n\r");
 }
 
 
@@ -46,7 +46,7 @@ void refa_off( void )
 void refa_on( void )
 {
   gpio_clear(REF_PORT, DAC_MUX_REFA_CTL);
-  usart_printf("refa on\n\r");
+  usart1_printf("refa on\n\r");
 }
 
 

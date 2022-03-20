@@ -4,7 +4,7 @@
 
 
 #include "core.h"
-#include "util.h" // usart_printf
+#include "util.h" // usart1_printf
 
 
 #include "dac8734.h"
@@ -88,8 +88,8 @@ uint32_t spi_dac_read_register(uint32_t spi, uint8_t r)
 
 int dac_init(uint32_t spi, uint8_t reg)  // bad name?
 {
-  usart_printf("------------------\n");
-  usart_printf("dac8734 init\n");
+  usart1_printf("------------------\n");
+  usart1_printf("dac8734 init\n");
 
 
   /*
@@ -107,7 +107,7 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
 
 
   // toggle reset pin
-  usart_printf("doing dac reset\n");
+  usart1_printf("doing dac reset\n");
   io_clear(spi, reg, DAC_RST);
   msleep(20);
   io_set( spi, reg, DAC_RST);
@@ -117,8 +117,8 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   // see if we can toggle the dac gpio0 output
   mux_dac(spi);
   uint32_t u1 = spi_dac_read_register(spi, 0);
-  usart_printf("gpio0 set %d \n", (u1 & DAC_GPIO0) != 0 ); // TODO use macro for GPIO0 and GPIO1 // don't need == here
-  usart_printf("gpio1 set %d \n", (u1 & DAC_GPIO1) != 0);
+  usart1_printf("gpio0 set %d \n", (u1 & DAC_GPIO0) != 0 ); // TODO use macro for GPIO0 and GPIO1 // don't need == here
+  usart1_printf("gpio1 set %d \n", (u1 & DAC_GPIO1) != 0);
 
 
   // startup has the gpio bits set.
@@ -126,16 +126,16 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   spi_dac_write_register(spi, 0, 0 );                 // measure 0V
 
   uint32_t u2 = spi_dac_read_register(spi, 0);
-  // usart_printf("read %d \n", u2 );
-  usart_printf("gpio0 set %d \n", (u2 & DAC_GPIO0) != 0);
-  usart_printf("gpio1 set %d \n", (u2 & DAC_GPIO1) != 0);
+  // usart1_printf("read %d \n", u2 );
+  usart1_printf("gpio0 set %d \n", (u2 & DAC_GPIO0) != 0);
+  usart1_printf("gpio1 set %d \n", (u2 & DAC_GPIO1) != 0);
 
   /* OK. to read gpio0 and gpio1 hi vals. we must have pullups.
      note. also means they can effectively be used bi-directionally.
   */
   if(u1 == u2) {
     // toggle not ok,
-    usart_printf("dac toggle gpio not ok\n" );
+    usart1_printf("dac toggle gpio not ok\n" );
     return -1;
   }
 
@@ -147,17 +147,17 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   msleep( 1);
   uint32_t u = spi_dac_read_register(spi, DAC_VSET_REGISTER) ;
 
-  // usart_printf("u is %d\n", u );
-  usart_printf("v set register val %d\n", u & 0xffff );
-  usart_printf("v set register is %d\n", (u >> 16) & 0x7f);
+  // usart1_printf("u is %d\n", u );
+  usart1_printf("v set register val %d\n", u & 0xffff );
+  usart1_printf("v set register is %d\n", (u >> 16) & 0x7f);
 
   if( (u & 0xffff) != 12345) {
-    usart_printf("dac setting reg not ok\n" );
+    usart1_printf("dac setting reg not ok\n" );
     return -1;
   }
 
   // should go to failure... and return exit...
-  usart_printf("write vset ok\n");
+  usart1_printf("write vset ok\n");
 
   // clear register
   spi_dac_write_register(spi, DAC_VSET_REGISTER, 0);
@@ -191,7 +191,7 @@ void dac_reset(void)
 {
   // can / should do, before rails powerup.
 
-  usart_printf("dac reset\n");
+  usart1_printf("dac reset\n");
 
   /*
     code relies on task_sleep() for sequencing rst.
@@ -251,13 +251,13 @@ void dac_reset(void)
 
     TODO - use a typedef struct defining all the default bit values we want, and use it as a mask.
   */
-  usart_printf("mcu gpio read1 %d %d\n", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+  usart1_printf("mcu gpio read1 %d %d\n", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
   // ok this appears to hang if dac is not populated
-  usart_printf("dac clearing dac register\n");
+  usart1_printf("dac clearing dac register\n");
   spi_dac_xfer_register( 0);
   task_sleep(1);
-  usart_printf("mcu gpio read2 %d %d\n", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
+  usart1_printf("mcu gpio read2 %d %d\n", gpio_get(DAC_PORT, DAC_GPIO0), gpio_get(DAC_PORT, DAC_GPIO1));
 
 
 

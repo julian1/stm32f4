@@ -9,10 +9,12 @@ extern "C" {
 
 typedef struct CBuf CBuf;
 
-void init_std_streams( CBuf *console_out );
+
+// streams for both stdout, stderr
+void cbuf_init_std_streams( CBuf *console_out );
 
 // legacy printf
-void usart_printf(const char *format, ...);
+void usart1_printf(const char *format, ...);
 
 #ifdef __cplusplus
 }

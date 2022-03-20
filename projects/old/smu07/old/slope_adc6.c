@@ -95,7 +95,7 @@ static uint32_t oc_value = 0;
 
 void slope_adc_setup(void)
 {
-  usart_printf("slope_adc setup\n\r");
+  usart1_printf("slope_adc setup\n\r");
 
   // rcc_periph_clock_enable(RCC_SYSCFG);  for interrupts. once in main.c
 
@@ -112,7 +112,7 @@ void slope_adc_setup(void)
 
   exti_direction = FALLING;
 
-  usart_printf("slope_adc setup done\n\r");
+  usart1_printf("slope_adc setup done\n\r");
 
 
 
@@ -174,7 +174,7 @@ void slope_adc_setup(void)
   // injecct +10V ref, which will integrate output to the negative rail
   gpio_set(ADC_MUX_PORT, ADC_MUX_P_CTL);
 
-  usart_printf("slope_adc done timer done\n\r");
+  usart1_printf("slope_adc done timer done\n\r");
 
 
 
@@ -249,18 +249,18 @@ void exti0_isr(void)
 
     crise = count;
 
-  //    usart_printf("  c rise %u\n", crise );
+  //    usart1_printf("  c rise %u\n", crise );
 
 #if 0
     if(diff_from_crise != 0) {
 
       // oc_value += diff_from_crise - crise;
 
-      usart_printf("  oc_value %u\n", oc_value );
+      usart1_printf("  oc_value %u\n", oc_value );
 
       oc_value = crise + diff_from_crise ;
 
-      usart_printf("  set new oc_value %u\n", oc_value );
+      usart1_printf("  set new oc_value %u\n", oc_value );
 
       timer_set_oc_value(TIM2, TIM_OC1, oc_value  );
     }
@@ -274,8 +274,8 @@ void exti0_isr(void)
     // slope direction falling
 
 
-    usart_printf("c fall\n");
-    // usart_printf("  count %u\n", count);
+    usart1_printf("c fall\n");
+    // usart1_printf("  count %u\n", count);
 
     uint32_t cfall = count;
 
@@ -285,7 +285,7 @@ void exti0_isr(void)
     int32_t diff = x2 - x1 ;
 
 
-    usart_printf("  crise %u, cfall %u  x1 %d x2 %d  diff %d\n", crise , cfall, x1, x2, diff );
+    usart1_printf("  crise %u, cfall %u  x1 %d x2 %d  diff %d\n", crise , cfall, x1, x2, diff );
 
 #if 1
     if(x1 > 0 && x2 > 0 /*&& diff < 400000*/ )
@@ -294,18 +294,18 @@ void exti0_isr(void)
       timer_set_oc_value(TIM2, TIM_OC1, oc_value);
 
       /*
-      usart_printf("  oc_value %u\n", oc_value );
+      usart1_printf("  oc_value %u\n", oc_value );
       oc_value = cfall + diff ; 
 
       timer_set_oc_value(TIM2, TIM_OC1, oc_value);
 
-      usart_printf("  new oc_value %u\n", oc_value );
+      usart1_printf("  new oc_value %u\n", oc_value );
       */
 
       /*
       uint32_t target = oc_value + diff;
       diff_from_crise = target - crise;
-      usart_printf("  diff_from_crise %u\n", diff_from_crise );
+      usart1_printf("  diff_from_crise %u\n", diff_from_crise );
       */
     }
     else {
@@ -338,9 +338,9 @@ void tim2_isr(void)
 
     gpio_set(MCU_GPIO_PORT, MCU_GPIO1);   // high...
 /*
-    usart_printf("-----\n");
-    usart_printf("uif\n");
-    usart_printf("  count %u\n", count );
+    usart1_printf("-----\n");
+    usart1_printf("uif\n");
+    usart1_printf("  count %u\n", count );
 */
   }
 
@@ -351,8 +351,8 @@ void tim2_isr(void)
 
     gpio_clear(MCU_GPIO_PORT, MCU_GPIO1);   // lo...
 /*
-    usart_printf("cc1if\n\r");
-    usart_printf("  count %u\n", count );
+    usart1_printf("cc1if\n\r");
+    usart1_printf("  count %u\n", count );
 */
   }
 
@@ -554,7 +554,7 @@ void exti0_isr(void)
     uint32_t count = timer_get_counter(TIM2);
     int32_t diff   = count - oc_value;    // count should be greater than oc_value?
 
-    usart_printf("count %u diff %d\n\r", count, diff );
+    usart1_printf("count %u diff %d\n\r", count, diff );
 
     timer_set_oc_value(TIM2, TIM_OC1, oc_value);   // eg. half the period for 50% duty
 
@@ -585,13 +585,13 @@ void slope_adc_out_status_test_task(void *args __attribute((unused)))
 	for (;;) {
 
     if(interupt_hit) {
-      usart_printf("slope_adc interupt\n\r");
+      usart1_printf("slope_adc interupt\n\r");
       interupt_hit = 0;
     }
 
-    // usart_printf("count %u\n\r", timer_get_counter(TIM5));
+    // usart1_printf("count %u\n\r", timer_get_counter(TIM5));
 
-    usart_printf("slope_adc hi tick %d %d\n\r", tick++, gpio_get(ADC_PORT, ADC_OUT));
+    usart1_printf("slope_adc hi tick %d %d\n\r", tick++, gpio_get(ADC_PORT, ADC_OUT));
     task_sleep(1000); // 1Hz
 	}
 }

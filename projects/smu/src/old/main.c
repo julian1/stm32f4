@@ -118,22 +118,22 @@ void usart_input_update()
 
 
 #if 0
-      usart_printf("=================\n" );
+      usart1_printf("=================\n" );
       char buf[1000];
       // ok. nice  we have libc snprintf
       // No. i think this might be linking against the snprintf in miniprintf2. yes.
       // because sprintf which we have not got implemented works.
       // %.5f doesn't work?
       sprintf(buf, "whoot %.5f yyy\n", 123.456);
-      usart_printf(buf);
+      usart1_printf(buf);
 
       float val;
       sscanf("999.1234", "%f", &val);
 
-      usart_printf("val is %f\n", val );
-      usart_printf("=================\n" );
+      usart1_printf("val is %f\n", val );
+      usart1_printf("=================\n" );
 
-      // so the issue is that usart_printf writes to a char taking function and doesn't block.
+      // so the issue is that usart1_printf writes to a char taking function and doesn't block.
       // but we don't have that.
 
 #endif
@@ -192,7 +192,7 @@ typedef struct core_t
 #if 0
     if(strcmp(tmp, ":halt") == 0) {
       // go to halt state
-      // usart_printf("switch off\n");
+      // usart1_printf("switch off\n");
       // app->state = HALT;
 
       state_change( app, HALT);
@@ -239,7 +239,7 @@ typedef struct core_t
   mux_adc03(spi);
   float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
   float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
-  usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
+  usart1_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 #endif
 
 
@@ -263,7 +263,7 @@ typedef struct core_t
 
   // test
 
-  // usart_printf("count %d\n", count);
+  // usart1_printf("count %d\n", count);
   // ice40_reg_write(spi, REG_IRANGE_X_SW58, count);
 
   // ice40_reg_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
@@ -685,7 +685,7 @@ static void range_voltage_set_1V(uint32_t spi)
           return;
         }
 
-        usart_printf("analog init ok\n" );
+        usart1_printf("analog init ok\n" );
         // maybe change name RAILS_OK, RAILS_UP ANALOG_OK, ANALOG_UP
 
         // turn on power rails
@@ -693,7 +693,7 @@ static void range_voltage_set_1V(uint32_t spi)
 #if 1
         ////////////////////
         // power rails
-        usart_printf("turn on power rails - lp30v\n" );
+        usart1_printf("turn on power rails - lp30v\n" );
         mux_ice40(spi);
         // ice40_reg_set(spi, REG_RAILS, RAILS_LP30V );
         ice40_reg_set(spi, REG_RAILS, RAILS_LP60V );  // actually 15V
@@ -872,26 +872,26 @@ static void clamps_set_source_pve(uint32_t spi)
         quadrant_set( app, false, false) ;
 
 
-       // usart_printf(" -0.123 %f    %f \n",   -0.123,  fabs(-0.123) );
+       // usart1_printf(" -0.123 %f    %f \n",   -0.123,  fabs(-0.123) );
 #endif
 
 #if 0
-      usart_printf("=================\n" );
+      usart1_printf("=================\n" );
       char buf[1000];
       // ok. nice  we have libc snprintf
       // No. i think this might be linking against the snprintf in miniprintf2. yes.
       // because sprintf which we have not got implemented works.
       // %.5f doesn't work?
       sprintf(buf, "whoot %.5f yyy\n", 123.456);
-      usart_printf(buf);
+      usart1_printf(buf);
 
       float val;
       sscanf("999.1234", "%f", &val);
 
-      usart_printf("val is %f\n", val );
-      usart_printf("=================\n" );
+      usart1_printf("val is %f\n", val );
+      usart1_printf("=================\n" );
 
-      // so the issue is that usart_printf writes to a char taking function and doesn't block.
+      // so the issue is that usart1_printf writes to a char taking function and doesn't block.
       // but we don't have that.
 
 #endif
@@ -950,7 +950,7 @@ typedef struct core_t
 #if 0
     if(strcmp(tmp, ":halt") == 0) {
       // go to halt state
-      // usart_printf("switch off\n");
+      // usart1_printf("switch off\n");
       // app->state = HALT;
 
       state_change( app, HALT);
@@ -997,7 +997,7 @@ typedef struct core_t
   mux_adc03(spi);
   float lp15v = spi_mcp3208_get_data(spi, 0) * 0.92 * 10.;
   float ln15v = spi_mcp3208_get_data(spi, 1) * 0.81 * 10.;
-  usart_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
+  usart1_printf("lp15v %f    ln15v %f\n", lp15v, ln15v);
 #endif
 
 
@@ -1021,7 +1021,7 @@ typedef struct core_t
 
   // test
 
-  // usart_printf("count %d\n", count);
+  // usart1_printf("count %d\n", count);
   // ice40_reg_write(spi, REG_IRANGE_X_SW58, count);
 
   // ice40_reg_toggle(spi, REG_RELAY_COM, RELAY_COM_X);
@@ -1443,7 +1443,7 @@ static void range_voltage_set_1V(uint32_t spi)
           return;
         }
 
-        usart_printf("analog init ok\n" );
+        usart1_printf("analog init ok\n" );
         // maybe change name RAILS_OK, RAILS_UP ANALOG_OK, ANALOG_UP
 
         // turn on power rails
@@ -1451,7 +1451,7 @@ static void range_voltage_set_1V(uint32_t spi)
 #if 1
         ////////////////////
         // power rails
-        usart_printf("turn on power rails - lp30v\n" );
+        usart1_printf("turn on power rails - lp30v\n" );
         mux_ice40(spi);
         // ice40_reg_set(spi, REG_RAILS, RAILS_LP30V );
         ice40_reg_set(spi, REG_RAILS, RAILS_LP60V );  // actually 15V
@@ -1630,6 +1630,6 @@ static void clamps_set_source_pve(uint32_t spi)
         quadrant_set( app, false, false) ;
 
 
-       // usart_printf(" -0.123 %f    %f \n",   -0.123,  fabs(-0.123) );
+       // usart1_printf(" -0.123 %f    %f \n",   -0.123,  fabs(-0.123) );
 #endif
 

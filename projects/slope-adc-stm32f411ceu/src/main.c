@@ -95,12 +95,12 @@ static int reg_read_write_test(void)
   - but no longer seems to have affect. now that speed is better.
   */
   ret = spi_reg_read(SPI1, REG_LED);
-  // usart_printf("ret is %x\n", ret); // value is completely wrong.
+  // usart1_printf("ret is %x\n", ret); // value is completely wrong.
 
   spi_reg_write(SPI1, REG_LED , 0xff00ff);
   msleep(1);
   ret = spi_reg_read(SPI1, REG_LED);
-  // usart_printf("ret is %x\n", ret); // value is completely wrong.
+  // usart1_printf("ret is %x\n", ret); // value is completely wrong.
   // ret value is completely wrong....
   if(ret != 0xff00ff)
     return -123;
@@ -160,7 +160,7 @@ void app_update_console_cmd(app_t *app)
       app->cmd_buf[ app->cmd_buf_i ]  = 0;
 
       putchar('\n');
-      // usart_printf("got command '%s'\n", app->cmd_buf );
+      // usart1_printf("got command '%s'\n", app->cmd_buf );
 
 
       if(strcmp(app->cmd_buf , "test comm") == 0) {
@@ -178,12 +178,12 @@ void app_update_console_cmd(app_t *app)
       // flash erase
       else if(strcmp(app->cmd_buf , "flash erase") == 0) {
 
-          usart_printf("flash erasing sector\n");
+          usart1_printf("flash erasing sector\n");
           usart1_flush();
 
           flash_erase_sector_();
 
-          usart_printf("done erase\n");
+          usart1_printf("done erase\n");
 
       }
 
@@ -195,7 +195,7 @@ void app_update_console_cmd(app_t *app)
           printf("no cal to save\n");
         } else {
 
-          usart_printf("flash unlock\n");
+          usart1_printf("flash unlock\n");
           flash_unlock();
 
           FILE *f = open_flash_file();
@@ -205,9 +205,9 @@ void app_update_console_cmd(app_t *app)
           m_write_flash ( app->b, f );
           fclose(f);
 
-          usart_printf("flash lock\n");
+          usart1_printf("flash lock\n");
           flash_lock();
-          usart_printf("done\n");
+          usart1_printf("done\n");
         }
       }
 
@@ -215,7 +215,7 @@ void app_update_console_cmd(app_t *app)
       else if(strcmp(app->cmd_buf , "flash write test") == 0) {
 
         // TODO check if need to unlock to write. or only for erase.
-        usart_printf("flash unlock\n");
+        usart1_printf("flash unlock\n");
         flash_unlock();
 
         FILE *f = open_flash_file();
@@ -227,16 +227,16 @@ void app_update_console_cmd(app_t *app)
         m_write_flash ( m, f );
         fclose(f);
 
-        usart_printf("flash lock\n");
+        usart1_printf("flash lock\n");
         flash_lock();
-        usart_printf("done\n");
+        usart1_printf("done\n");
       }
 
       // flash read test. doesn't load cal.
       // but might be useful to revert
       else if(strcmp(app->cmd_buf , "flash read") == 0) {
 
-        usart_printf("flash read\n");
+        usart1_printf("flash read\n");
 
         FILE *f = open_flash_file();
         if(c_skip_to_last_valid(  f) != 0) {
@@ -395,7 +395,7 @@ void app_update_console_cmd(app_t *app)
       app->cmd_buf[ app->cmd_buf_i ]  = 0;
 
       // issue new command prompt
-      usart_printf("> ");
+      usart1_printf("> ");
 
     }
   }
@@ -490,9 +490,9 @@ void app_update_led(app_t *app)
 
 static void app_loop_dispatcher(app_t *app)
 {
-  usart_printf("=========\n");
-  usart_printf("continuation dispatcher\n");
-  usart_printf("> ");
+  usart1_printf("=========\n");
+  usart1_printf("continuation dispatcher\n");
+  usart1_printf("> ");
 
   while(true) {
 
@@ -507,7 +507,7 @@ static void app_loop_dispatcher(app_t *app)
       tmppf( app->continuation_ctx );
 
       printf("continuation done\n");
-      usart_printf("> ");
+      usart1_printf("> ");
     }
   }
 
@@ -590,7 +590,7 @@ int main(void)
   usart1_set_buffers(&app.console_in, &app.console_out);
 
   // standard streams for printf, fprintf, putc.
-  init_std_streams(  &app.console_out );
+  cbuf_init_std_streams(  &app.console_out );
 
 
   ////////////////
@@ -612,11 +612,11 @@ int main(void)
 
   /////////////
 
-  usart_printf("\n--------\n");
-  usart_printf("starting loop\n");
-  usart_printf("sizeof bool   %u\n", sizeof(bool));
-  usart_printf("sizeof float  %u\n", sizeof(float));
-  usart_printf("sizeof double %u\n", sizeof(double));
+  usart1_printf("\n--------\n");
+  usart1_printf("starting loop\n");
+  usart1_printf("sizeof bool   %u\n", sizeof(bool));
+  usart1_printf("sizeof float  %u\n", sizeof(float));
+  usart1_printf("sizeof double %u\n", sizeof(double));
 
   assert(sizeof(long) == 4);
   assert(sizeof(signed) == 4);
@@ -624,11 +624,11 @@ int main(void)
 
   // assert(1 == 2);
 
-  usart_printf("a float formatted %g\n", 123.456f );
+  usart1_printf("a float formatted %g\n", 123.456f );
 
 
-  usart_printf("\n--------\n");
-  usart_printf("addr main() %p\n", main );
+  usart1_printf("\n--------\n");
+  usart1_printf("addr main() %p\n", main );
 
   usart1_flush();
 

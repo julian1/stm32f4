@@ -92,7 +92,7 @@ void report_pvd_test_task(void *args __attribute((unused)))
 {
   // just monitor pwr_voltage_high() to catch the register flip when power disconnected...
   while(1) {
-    usart_printf("%c\n", pwr_voltage_high() ? 't' : 'f' );
+    usart1_printf("%c\n", pwr_voltage_high() ? 't' : 'f' );
   }
 }
 

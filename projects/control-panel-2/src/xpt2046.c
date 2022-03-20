@@ -24,7 +24,7 @@ void exti3_isr(void)
 {
   exti_reset_request(EXTI3);
 
-  // usart_printf("got interupt on pe3 \n");
+  // usart1_printf("got interupt on pe3 \n");
 }
 
 
@@ -78,7 +78,7 @@ void xpt2046_spi_port_setup()
   uint32_t out = ADC_CS | ADC_SCLK | ADC_MOSI;
   uint32_t all = out |  ADC_MISO ;
 
-  usart_printf("adc setup spi\n");
+  usart1_printf("adc setup spi\n");
 
   // spi alternate function
   gpio_mode_setup(ADC_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
@@ -126,12 +126,12 @@ void xpt2046_reset( uint32_t spi)
   UNUSED(spi);
 
 
-  usart_printf("before xpt reset\n");
+  usart1_printf("before xpt reset\n");
 
   // spi_xfer_16(spi, 0x80 );
   // spi_xfer_24(spi, 0x80 << 16 );
 
-  usart_printf("done xpt reset\n");
+  usart1_printf("done xpt reset\n");
 
 }
 
@@ -197,7 +197,7 @@ void xpt2046_read()
 
   spi_disable( XPT2046_SPI );
 
-  usart_printf("xpt2046   %u\n", x );
+  usart1_printf("xpt2046   %u\n", x );
 }
 
 
@@ -207,7 +207,7 @@ void xpt2046_read()
 bool xpt2046_get_irq()
 {
   // polling function.
-  usart_printf("isr_called %u\n", isr_called);
+  usart1_printf("isr_called %u\n", isr_called);
   return gpio_get(XPT2046_IRQ_PORT, XPT2046_IRQ_PIN) != 0 ;
 }
 */

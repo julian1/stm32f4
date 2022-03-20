@@ -116,9 +116,9 @@ typedef struct app_t
 static void flash_write(void)
 {
   // put in a command
-  usart_printf("writing flash\n");
+  usart1_printf("writing flash\n");
   flash_unlock();
-  usart_printf("erasing sector \n");
+  usart1_printf("erasing sector \n");
 
   /*
     A sector must:w first be fully erased before attempting to program it.
@@ -143,10 +143,10 @@ static void flash_write(void)
   flash_erase_sector(2 , 0 );
   unsigned char buf[] = "whoot";
 
-  usart_printf("writing\n");
+  usart1_printf("writing\n");
   flash_program(0x08008000 , buf, sizeof(buf) );
   flash_lock();
-  usart_printf("done\n");
+  usart1_printf("done\n");
 
 }
 
@@ -243,7 +243,7 @@ static void update_console_cmd(app_t *app)
       cStringClear( &app->command);
 
       // issue new command prompt
-      usart_printf("> ");
+      usart1_printf("> ");
 
     }
   }
@@ -272,9 +272,9 @@ static void update_console_cmd(app_t *app)
 
 static void loop2(app_t *app)
 {
-  usart_printf("=========\n");
-  usart_printf("loop 2\n");
-  usart_printf("> ");
+  usart1_printf("=========\n");
+  usart1_printf("loop 2\n");
+  usart1_printf("> ");
 
  static uint32_t soft_500ms = 0;
 
@@ -314,11 +314,11 @@ static void loop1(app_t *app)
   volatile char *x = &ch[100000 - 1 ]; 
   *x = 123;
 
-  usart_printf("=========\n");
-  usart_printf("loop1\n");
+  usart1_printf("=========\n");
+  usart1_printf("loop1\n");
 
   print_stack_pointer();
-  usart_printf("> ");
+  usart1_printf("> ");
 
  static uint32_t soft_500ms = 0;
 
@@ -345,10 +345,10 @@ static void loop1(app_t *app)
 
 static void loop_dispatcher(app_t *app)
 {
-  usart_printf("=========\n");
-  usart_printf("continuation dispatcher\n");
+  usart1_printf("=========\n");
+  usart1_printf("continuation dispatcher\n");
   print_stack_pointer();
-  usart_printf("> ");
+  usart1_printf("> ");
 
  static uint32_t soft_500ms = 0;
 
@@ -371,7 +371,7 @@ static void loop_dispatcher(app_t *app)
       tmppf( app->continuation_ctx );
 
       printf("continuation done\n");
-      usart_printf("> ");
+      usart1_printf("> ");
     }
 
   }
@@ -467,11 +467,11 @@ int main( int arg0 )
   usart1_set_buffers(&app.console_in, &app.console_out);
 
   // standard streams for printf, fprintf, putc.
-  init_std_streams(  &app.console_out );
+  cbuf_init_std_streams(  &app.console_out );
 
 
-  usart_printf("\n--------\n");
-  usart_printf("addr main() %p\n", main );
+  usart1_printf("\n--------\n");
+  usart1_printf("addr main() %p\n", main );
 
   // ram growing up.
   printf("arg0 %u \n", ((unsigned )(void *) &arg0 )  );
@@ -502,7 +502,7 @@ int main( int arg0 )
   for(unsigned i = 0; i < 10; ++i) { 
     // 0x20001478.
     void *p = malloc( 10);
-    usart_printf("p is %p\n", p );
+    usart1_printf("p is %p\n", p );
     assert(p);
 
     free(p);

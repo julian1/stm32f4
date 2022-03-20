@@ -876,7 +876,7 @@ static const char * range_voltage_string(vrange_t vrange)
     case vrange_100mV:  return "100mV";
   }
 
-  usart_printf("bad vrange is %d\n", vrange);
+  usart1_printf("bad vrange is %d\n", vrange);
   ASSERT(0);
   // suppress compiler warning...
   return "error";
@@ -957,8 +957,8 @@ static void dac_voltage_set(app_t *app, float v)
     int8 max 127
     int8 min -128
   */
-  usart_printf("int8 max %d  %d\n", INT8_MAX);
-  usart_printf("int8 min %d\n", INT8_MIN);
+  usart1_printf("int8 max %d  %d\n", INT8_MAX);
+  usart1_printf("int8 min %d\n", INT8_MIN);
   // ASSERT(0);
 }
 
@@ -975,7 +975,7 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
   we need a function to set the voltage range. and set the dac value.
 
 */
-  usart_printf("range_voltage_set %s -> %s\n",
+  usart1_printf("range_voltage_set %s -> %s\n",
     app->vrange != 0 ? range_voltage_string(app->vrange) : "none",
     range_voltage_string(vrange)
   );
@@ -988,7 +988,7 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
   {
 
     case vrange_10V:
-      // usart_printf("10V range \n");
+      // usart1_printf("10V range \n");
       // flutters at 5 digit. nice.
       // 6th digit. with 9V and 0V.
       ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // no atten
@@ -997,21 +997,21 @@ static void range_voltage_set(app_t *app, vrange_t vrange)
 
 
     case vrange_1V:
-      // usart_printf("1V range \n");
+      // usart1_printf("1V range \n");
       ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // no atten
       ice40_reg_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW2_CTL);                  // 10x gain
       break;
 
     case vrange_100mV:
 
-      // usart_printf("100mV range \n");
+      // usart1_printf("100mV range \n");
       ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // no atten
       ice40_reg_write(app->spi, REG_INA_VFB_SW, ~INA_VFB_SW3_CTL);                  // 100x gain
       break;
 
 
   case vrange_100V:
-      // usart_printf("100V range \n");
+      // usart1_printf("100V range \n");
       // flutters at 4th digit. with mV.  but this is on mV. range... so ok?
       // at 6th digit with V.  eg. 9V and 0.1V. - very good - will work for hv.
       ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL | INA_VFB_ATTEN_SW3_CTL);    // atten = 0.1x
@@ -1066,7 +1066,7 @@ static const char * range_current_string( irange_t irange)
     case irange_10A:    return "10A";
   };
 
-  usart_printf("error. unknown range_current irange is %d\n", irange );
+  usart1_printf("error. unknown range_current irange is %d\n", irange );
   // suppress compiler warning...
   ASSERT(0);
   return "irange error";
@@ -1136,7 +1136,7 @@ static void range_current_set(app_t *app, irange_t irange)
     if output is on. then we also have to change the output relay...
   */
 
-  usart_printf("range_current_switch %s -> %s\n",
+  usart1_printf("range_current_switch %s -> %s\n",
     app->irange != 0 ? range_current_string(app->irange) : "none",
     range_current_string(irange)
   );
@@ -1171,7 +1171,7 @@ static void range_current_set(app_t *app, irange_t irange)
 
         case irange_10A:
         case irange_1A:
-          // usart_printf("1A range \n");
+          // usart1_printf("1A range \n");
 
           // turn on sense amplifier 1
           ice40_reg_write(app->spi, REG_ISENSE_MUX,  ~ISENSE_MUX1_CTL);
@@ -1372,8 +1372,8 @@ static bool range_current_auto(app_t *app, float i)
     // need to switch to lower current range
     irange_t lower = range_current_next( app->irange, 1);
     if(lower != app->irange) {
-      usart_printf("i is %f\n", i);
-      usart_printf("ZOOM IN current.\n");
+      usart1_printf("i is %f\n", i);
+      usart1_printf("ZOOM IN current.\n");
       range_current_set(app, lower);
       changed  = true;
     }
@@ -1383,8 +1383,8 @@ static bool range_current_auto(app_t *app, float i)
     // switch (back) to a higher current range
     irange_t higher = range_current_next( app->irange, 0);
     if(higher != app->irange) {
-      usart_printf("i is %f\n", i);
-      usart_printf("ZOOM OUT current\n");
+      usart1_printf("i is %f\n", i);
+      usart1_printf("ZOOM OUT current\n");
       range_current_set(app, higher);
       changed = true;
     }
@@ -1396,18 +1396,18 @@ static bool range_current_auto(app_t *app, float i)
     if(app->irange == app->iset_range) {
 
       // ranges the same
-      usart_printf("use regulation current %f\n", app->iset);
+      usart1_printf("use regulation current %f\n", app->iset);
       dac_current_set(app, fabs(app->iset));
     } else if( app->irange < app->iset_range ) {
 
       // we're zoomed in, and in compliance
-      usart_printf("use zoomed in current 11V on range\n");
+      usart1_printf("use zoomed in current 11V on range\n");
       dac_current_set(app, 11.f );
 
     } else {
       // zoomed out past the range we should be on. this is a fault condition.
       // bad condition
-      usart_printf("on wrong range\n");
+      usart1_printf("on wrong range\n");
       ASSERT(0);
     }
   }
@@ -1489,8 +1489,8 @@ static bool range_voltage_auto(app_t *app, float v)
     // need to switch to lower voltage range
     vrange_t lower = range_voltage_next( app->vrange, 1);
     if(lower != app->vrange) {  // eg. there is a lower range.
-      usart_printf("v is %f\n", v);
-      usart_printf("ZOOM in voltage\n");
+      usart1_printf("v is %f\n", v);
+      usart1_printf("ZOOM in voltage\n");
       range_voltage_set(app, lower);
       changed = true;
     }
@@ -1502,8 +1502,8 @@ static bool range_voltage_auto(app_t *app, float v)
     // else we'll be regulating on higher range than the set range
     vrange_t higher = range_voltage_next( app->vrange, 0);
     if(higher != app->vrange) {     // there is a higher range.
-      usart_printf("v is %f\n", v);
-      usart_printf("ZOOM out voltage\n");
+      usart1_printf("v is %f\n", v);
+      usart1_printf("ZOOM out voltage\n");
       range_voltage_set(app, higher);
       changed = true;
     }
@@ -1513,7 +1513,7 @@ static bool range_voltage_auto(app_t *app, float v)
     // we are not zoomed in... but there is an excursion...... on opposite polarity....
     // eg. cannot regulate on this claamp.
     // eg. set -5V, +3mA   on resistor.
-    usart_printf("WHOOT bad state here.\n");
+    usart1_printf("WHOOT bad state here.\n");
 
     // no this happens if sinking and power is off....
 
@@ -1526,15 +1526,15 @@ static bool range_voltage_auto(app_t *app, float v)
 
     if(app->vrange == app->vset_range) {
 
-      usart_printf("use regulation voltage %f\n", app->vset);
+      usart1_printf("use regulation voltage %f\n", app->vset);
       dac_voltage_set(app, fabs(app->vset));
     } else if (  app->vrange < app->vset_range   ) {
 
-      usart_printf("use zoomed in voltage 11V on range\n");
+      usart1_printf("use zoomed in voltage 11V on range\n");
       dac_voltage_set(app, 11.f );
     } else {
       // bad condition.
-      usart_printf("on wrong voltage range\n");
+      usart1_printf("on wrong voltage range\n");
       ASSERT(0);
     }
   }
@@ -1566,7 +1566,7 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
   app->output = val;
 
   // ok. this is called when changing ranges.
-  // usart_printf("output %s\n", app->output ? "on" : "off"  );
+  // usart1_printf("output %s\n", app->output ? "on" : "off"  );
 
   if(app->output) {
 
@@ -1778,9 +1778,9 @@ static void usart_print_kv(int fwidth, const char *fs, int vwidth,  const char *
 {
   char buf[100];
   // key/field
-  usart_printf( indent_left(buf, sizeof(buf), fwidth, fs));
+  usart1_printf( indent_left(buf, sizeof(buf), fwidth, fs));
   // val
-  usart_printf(indent_right(buf, sizeof(buf), vwidth, vs));
+  usart1_printf(indent_right(buf, sizeof(buf), vwidth, vs));
 }
 
 
@@ -1834,8 +1834,8 @@ static void quadrant_set( app_t *app, bool v, bool i)
 static void core_set(app_t *app, float v, float i, vrange_t vrange, irange_t irange)
 {
 
-  usart_printf("---------------\n");
-  usart_printf("core set\n");
+  usart1_printf("---------------\n");
+  usart1_printf("core set\n");
 
   // TODO change arg order.
 
@@ -1934,7 +1934,7 @@ static void update_nplc_measure(app_t *app)
 
     // works in screen and picocom
     // https://stackoverflow.com/questions/60293014/how-to-clear-screen-of-minicom-terminal-using-serial-uart
-    // usart_printf("%c%c%c%c",0x1B,0x5B,0x32,0x4A);
+    // usart1_printf("%c%c%c%c",0x1B,0x5B,0x32,0x4A);
     // https://electronics.stackexchange.com/questions/8874/is-it-possible-to-send-characters-through-serial-to-go-up-a-line-on-the-console
 
     // position cursor top left?
@@ -1986,116 +1986,116 @@ static void update_nplc_measure(app_t *app)
 
     // clear screen only after calculation... for cleaner update
 #if 1
-    usart_printf("\033[2J");    // clear screen
-    usart_printf("\033[0;0H");  // cursor to top left
-    // usart_printf("\033[10B");   // move cursor down 10 lines ... works
-    // usart_printf("\033[3B");   // move cursor down 3 lines ... works
+    usart1_printf("\033[2J");    // clear screen
+    usart1_printf("\033[0;0H");  // cursor to top left
+    // usart1_printf("\033[10B");   // move cursor down 10 lines ... works
+    // usart1_printf("\033[3B");   // move cursor down 3 lines ... works
 #endif
 
 
 
-    usart_printf("smart source measure unit\n");
-    usart_printf("\n");
+    usart1_printf("smart source measure unit\n");
+    usart1_printf("\n");
 
     usart_print_kv( 6, "vmean:",  11,  format_voltage(buf, sizeof(buf), app->vrange, /*vfb*/ vmean * range_voltage_multiplier(app->vrange), 6 ) );
 
-    usart_printf("  ");
+    usart1_printf("  ");
     usart_print_kv( 6, "vset:",   11,  format_voltage(buf, sizeof(buf), app->vset_range, app->vset * range_voltage_multiplier(app->vset_range), 6) );
 
-    usart_printf("  ");
+    usart1_printf("  ");
     usart_print_kv( 10,"vset_range:", 5, range_voltage_string(app->vset_range));
 
-    usart_printf("  ");
+    usart1_printf("  ");
     usart_print_kv( 8, "vrange:", 5, range_voltage_string(app->vrange));
 
     if(app->vrange == app->vset_range) {
-      usart_printf("*");
+      usart1_printf("*");
     }
 
     //////////
     // 11 gdigits needed. eg. -999.999nA
-    usart_printf("\n\n");
+    usart1_printf("\n\n");
 
     usart_print_kv( 6, "imean:",  11,  format_current(buf, sizeof(buf), app->irange, /*ifb*/ imean * range_current_multiplier(app->irange), 6));
 
-    usart_printf("  ");
+    usart1_printf("  ");
     usart_print_kv( 6, "iset:",   11,   format_current(buf, sizeof(buf), app->iset_range, app->iset * range_current_multiplier(app->iset_range), 6));
 
-    usart_printf("  ");
+    usart1_printf("  ");
     usart_print_kv( 10, "iset_range:", 5, range_current_string(app->iset_range));
 
-    usart_printf("  ");
+    usart1_printf("  ");
     usart_print_kv( 8, "irange:", 5, range_current_string(app->irange));
 
     if(app->irange == app->iset_range) {
-      usart_printf("*");
+      usart1_printf("*");
     }
 
-    usart_printf("\n\n");
+    usart1_printf("\n\n");
 
-    usart_printf("raw\n");
+    usart1_printf("raw\n");
     // raw vals
-    usart_printf("v");
+    usart1_printf("v");
     usart_print_kv( 4, "  fb:",      9, snprintf2(buf, sizeof(buf), "%f", vfb));
     usart_print_kv( 7, "  mean:",   9, snprintf2(buf, sizeof(buf), "%f", vmean));
     usart_print_kv( 9, "  stddev:", 9, snprintf2(buf, sizeof(buf), "%f", vsd));
     usart_print_kv( 5, "  min:",    9, snprintf2(buf, sizeof(buf), "%f", vmin));
     usart_print_kv( 5, "  max:",    9, snprintf2(buf, sizeof(buf), "%f", vmax));
-    usart_printf("\n");
+    usart1_printf("\n");
 
 
-    usart_printf("i");
+    usart1_printf("i");
     usart_print_kv( 4, "  fb:",      9, snprintf2(buf, sizeof(buf), "%f", ifb));
     usart_print_kv( 7, "  mean:",   9, snprintf2(buf, sizeof(buf), "%f", imean));
     usart_print_kv( 9, "  stddev:", 9, snprintf2(buf, sizeof(buf), "%f", isd));
     usart_print_kv( 5, "  min:",    9, snprintf2(buf, sizeof(buf), "%f", imin));
     usart_print_kv( 5, "  max:",    9, snprintf2(buf, sizeof(buf), "%f", imax));
 
-    usart_printf("\n");
+    usart1_printf("\n");
 
 
 
     // other stats
-    usart_printf("\n");
+    usart1_printf("\n");
     usart_print_kv( 15, "nplc_measure:", 6, snprintf2(buf, sizeof(buf), "%d", app->nplc_measure));
 
-    usart_printf("\n");
+    usart1_printf("\n");
     usart_print_kv( 15, "nplc_range:",   6, snprintf2(buf, sizeof(buf), "%d", app->nplc_range));
 
-    usart_printf("\n");
+    usart1_printf("\n");
     usart_print_kv( 15, "pl_freq:",   6, "50");   // TODO
 
 
 
-    usart_printf("\n");
+    usart1_printf("\n");
     usart_print_kv( 15, "millis", 6,      snprintf2(buf, sizeof(buf), "%d", system_millis - app->measure_millis_last));    // millis is 32 bit.
     app->measure_millis_last = system_millis;
 
 
-    usart_printf("\n");
+    usart1_printf("\n");
     usart_print_kv( 15, "update_count:", 6,      snprintf2(buf, sizeof(buf), "%d", app->update_count));
     app->update_count = 0;
 
 
 
-    usart_printf("\n");
+    usart1_printf("\n");
     usart_print_kv( 15, "drdy_missed:", 6,      snprintf2(buf, sizeof(buf), "%d", app->adc_drdy_missed));
     app->adc_drdy_missed = 0;
 
 
 
-    usart_printf("\n");
+    usart1_printf("\n");
     usart_print_kv( 15, "adc_ov_count:", 6, snprintf2(buf, sizeof(buf), "%d", app->adc_ov_count));
 
     // change name display_digits?
-    usart_printf("\n");
+    usart1_printf("\n");
     usart_print_kv( 15, "digits:", 6,      snprintf2(buf, sizeof(buf), "%d", app->digits));
 
 
     // rails
     // Math.log10( Math.pow(2, 12) ) == 3.6 digits for 12 bits rep.
     // appropriate format_voltage() function to format the rails voltages
-    usart_printf("\n");
+    usart1_printf("\n");
 
     /*
       // something weird here....  when set for output 3mA. output rises to 16.00V... error in formatting?
@@ -2112,25 +2112,25 @@ static void update_nplc_measure(app_t *app)
 
     */
 
-    // usart_printf("%f   %f\n", app->lp15v, app->ln15v);
+    // usart1_printf("%f   %f\n", app->lp15v, app->ln15v);
 
     usart_print_kv( 15, "lp15v:", 6, format_voltage(buf, sizeof(buf), vrange_10V, app->lp15v, 4));
-    usart_printf("\n");
+    usart1_printf("\n");
     usart_print_kv( 15, "ln15v:", 6, format_voltage(buf, sizeof(buf), vrange_10V, app->ln15v, 4));
 
 
-    usart_printf("\n");
+    usart1_printf("\n");
     usart_print_kv( 15, "output:", 6, (app->output) ? "on" : "off");
 
-    usart_printf("\n\n");
+    usart1_printf("\n\n");
 
     // print the current console input buffer
     // If did not clear screen, then would not need to do this...
-    usart_printf("> ");
+    usart1_printf("> ");
 
 
     cBufCopyString2(&app->cmd_in, buf, sizeof(buf));
-    usart_printf("%s", buf);
+    usart1_printf("%s", buf);
   }
 }
 
@@ -2176,7 +2176,7 @@ static void update_fault_check(app_t *app)
     /*
       11V is the dac hold value.  10.5 current range trigger. 11.5 is fault.
     */
-    usart_printf("ifb > 11.5V, fault current condition\n");
+    usart1_printf("ifb > 11.5V, fault current condition\n");
     state_change(app, STATE_HALT);
     ASSERT(0);
   }
@@ -2197,8 +2197,8 @@ static void update_fault_check(app_t *app)
       this gets triggered - before it settles down.
       possible indicative of feedback stability on 10A range?..
     */
-    usart_printf("ifb is %f\n", ifb);
-    usart_printf("fault overcurrent condition\n");
+    usart1_printf("ifb is %f\n", ifb);
+    usart1_printf("fault overcurrent condition\n");
 
     state_change(app, STATE_HALT);
     ASSERT(0);
@@ -2222,7 +2222,7 @@ static void update_adc_drdy(app_t *app)
 
   if(ret < 0) {
     // error
-    // usart_printf("adc error\n");
+    // usart1_printf("adc error\n");
     ++app->adc_ov_count;
   } else {
     // no errors.
@@ -2319,7 +2319,7 @@ static void update(app_t *app)
     app->lp15v = spi_mcp3208_get_data(app->spi, 0) * 1.00 * 10.;
     app->ln15v = spi_mcp3208_get_data(app->spi, 1) * 0.9  * 10.;
 
-    // usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
+    // usart1_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
   }
 
 
@@ -2333,9 +2333,9 @@ static void update(app_t *app)
     case STATE_DIGITAL_UP:
       if(app->lp15v > 15.0 && app->ln15v > 15.0 )
       {
-        usart_printf("-----------\n");
-        usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
-        usart_printf("15V analog rails ok - state change analog-up\n");
+        usart1_printf("-----------\n");
+        usart1_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
+        usart1_printf("15V analog rails ok - state change analog-up\n");
         state_change(app, STATE_ANALOG_UP);
       }
       break ;
@@ -2344,14 +2344,14 @@ static void update(app_t *app)
       // this is the high speed adc, rails fault detection
       if((app->lp15v < 14.7 || app->ln15v < 14.7)  )
       {
-        usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
-        usart_printf("15V analog rails undervoltage condition\n");
+        usart1_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
+        usart1_printf("15V analog rails undervoltage condition\n");
         // ASSERT(0);
       }
       else if((app->lp15v > 15.3 || app->ln15v > 15.3)  )
       {
-        usart_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
-        usart_printf("15V analog rails overvoltage condition\n");
+        usart1_printf("lp15v %f    ln15v %f\n", app->lp15v, app->ln15v);
+        usart1_printf("15V analog rails overvoltage condition\n");
         ASSERT(0);
       }
       break;
@@ -2372,8 +2372,8 @@ static void state_change(app_t *app, state_t state )
   switch(state) {
 
     case STATE_FIRST:
-      usart_printf("-------------\n" );
-      usart_printf("first\n" );
+      usart1_printf("-------------\n" );
+      usart1_printf("first\n" );
 
 
       app->state = STATE_FIRST;
@@ -2382,8 +2382,8 @@ static void state_change(app_t *app, state_t state )
 
     case STATE_HALT: {
 
-      usart_printf("-------------\n" );
-      usart_printf("change to halt state\n" );
+      usart1_printf("-------------\n" );
+      usart1_printf("change to halt state\n" );
 
       /*
         IMPORTANT.
@@ -2396,27 +2396,27 @@ static void state_change(app_t *app, state_t state )
       mux_ice40(app->spi);
 
        // disconnect output
-      usart_printf("turn off output\n" );
+      usart1_printf("turn off output\n" );
       output_set(app, app->irange, false );
       msleep(20);
 
       // turn off high power rails
-      usart_printf("turn off rails +-30V\n" );
+      usart1_printf("turn off rails +-30V\n" );
       ice40_reg_clear(app->spi, REG_RAILS, RAILS_LP30V );
       msleep(10);
 
       // analog rails
-      usart_printf("turn off rails +-15V\n" );
+      usart1_printf("turn off rails +-15V\n" );
       ice40_reg_clear(app->spi, REG_RAILS, RAILS_LP15V);
       msleep(10);
 
       // 5V
-      usart_printf("turn off rails +5V\n" );
+      usart1_printf("turn off rails +5V\n" );
       ice40_reg_clear(app->spi, REG_RAILS, RAILS_LP5V);
       msleep(10);
 
 #if 1
-      usart_printf("turn off adc\n" );
+      usart1_printf("turn off adc\n" );
       // hardware reset adc, to stop generating interupts on read
       adc_reset( app->spi, REG_ADC);
       mux_ice40(app->spi);
@@ -2430,8 +2430,8 @@ static void state_change(app_t *app, state_t state )
     case STATE_DIGITAL_UP: {
 
       // if any of these fail, this should progress to error
-      usart_printf("-----------\n");
-      usart_printf("digital start\n" );
+      usart1_printf("-----------\n");
+      usart1_printf("digital start\n" );
 
       mux_ice40(app->spi);
 
@@ -2459,11 +2459,11 @@ static void state_change(app_t *app, state_t state )
       }
 
       // TODO remove.... fix regualte on vfb.
-      usart_printf("-------------\n" );
+      usart1_printf("-------------\n" );
 
 
       // progress to digital up?
-      usart_printf("digital up ok\n" );
+      usart1_printf("digital up ok\n" );
       app->state = STATE_DIGITAL_UP;
       break;
     }
@@ -2472,7 +2472,7 @@ static void state_change(app_t *app, state_t state )
     case STATE_ANALOG_UP: {
 
 
-      usart_printf("turn on lp5v\n" );
+      usart1_printf("turn on lp5v\n" );
       mux_ice40(app->spi);
       // assert rails oe
       ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
@@ -2482,13 +2482,13 @@ static void state_change(app_t *app, state_t state )
       msleep(50);
 
       // turn on +-15V rails
-      usart_printf("turn on analog rails - lp15v\n" );
+      usart1_printf("turn on analog rails - lp15v\n" );
       ice40_reg_set(app->spi, REG_RAILS, RAILS_LP15V );
       msleep(50);
 
 #if 1
       // turn on +-30V rails. think this is ok here...
-      usart_printf("turn on power rails \n" );
+      usart1_printf("turn on power rails \n" );
       ice40_reg_set(app->spi, REG_RAILS, RAILS_LP30V );
       msleep(50);
 #endif
@@ -2506,16 +2506,16 @@ static void state_change(app_t *app, state_t state )
       // TODO EXTREME . set the gain switches before turning on rails.
       // IMPORTANT - should probably do this. before switching on the supplies.
       // so that vrange ops are not high-Z
-      usart_printf("turn on voltage range\n" );
+      usart1_printf("turn on voltage range\n" );
       range_voltage_set(spi);
 
-      usart_printf("turn on current range\n" );
+      usart1_printf("turn on current range\n" );
       range_current_set(spi);
 #endif
 
       // turn on refs for dac
       //mux_dac(spi);
-      usart_printf("turn on ref a for dac\n" );
+      usart1_printf("turn on ref a for dac\n" );
       mux_ice40(app->spi);
       ice40_reg_write(app->spi, REG_DAC_REF_MUX, ~(DAC_REF_MUX_A | DAC_REF_MUX_B)); // active lo
 
@@ -2764,44 +2764,44 @@ static void process_cmd(app_t *app, const char *s )
       // lower(value);
       float v;
       if(voltage_from_unit(value, unit,  &v ) < 0) {
-        usart_printf("error converting voltage and unit\n");
+        usart1_printf("error converting voltage and unit\n");
         return;
       }
-      usart_printf("voltage %gV\n", v);
+      usart1_printf("voltage %gV\n", v);
       vrange_t vset_range;
       float vset;
       if(vrange_and_vset_from_voltage(v, &vset_range, &vset) < 0) {
-        usart_printf("error converting voltage to range and vset\n");
+        usart1_printf("error converting voltage to range and vset\n");
         return;
       }
-      usart_printf("vrange %s, vset %gV\n", range_voltage_string(vset_range), vset);
+      usart1_printf("vrange %s, vset %gV\n", range_voltage_string(vset_range), vset);
       core_set( app, vset, app->iset, vset_range, app->iset_range);
     }
 
     else if(strequal(param, "i")) {
       float i;
       if(current_from_unit(value, unit,  &i ) < 0) {
-        usart_printf("error converting current and unit\n");
+        usart1_printf("error converting current and unit\n");
         return;
       }
-      usart_printf("current %gV\n", i);
+      usart1_printf("current %gV\n", i);
       irange_t iset_range;
       float iset;
       if(irange_and_iset_from_current(i, &iset_range, &iset) < 0) {
-        usart_printf("error converting current to range and iset\n");
+        usart1_printf("error converting current to range and iset\n");
         return;
       }
-      usart_printf("irange %s, iset %gV\n", range_current_string(iset_range), iset);
+      usart1_printf("irange %s, iset %gV\n", range_current_string(iset_range), iset);
       core_set( app, app->vset, iset, app->vset_range, iset_range);
     }
     else {
 
-      usart_printf("unrecognized parameter '%s'\n", param);
+      usart1_printf("unrecognized parameter '%s'\n", param);
     }
 
   } else {
 
-      usart_printf("unrecognized command '%s'   tokens=%d, cmd='%s' param='%s'\n", s, n, cmd, param);
+      usart1_printf("unrecognized command '%s'   tokens=%d, cmd='%s' param='%s'\n", s, n, cmd, param);
   }
 }
 
@@ -2811,7 +2811,7 @@ static void process_cmd(app_t *app, const char *s )
 static void update_console_ch(app_t *app, const char ch )
 {
   // hange name update_console_ch()
-  // usart_printf("char code %d\n", ch );
+  // usart1_printf("char code %d\n", ch );
 
   // change the actual current range
   if(ch == 'u' || ch == 'i') {
@@ -2819,7 +2819,7 @@ static void update_console_ch(app_t *app, const char ch )
       // u - left is higher current, i right is lower
       irange_t new_irange = range_current_next( app->iset_range, ch == 'i' );
       if(new_irange != app->iset_range) {
-        usart_printf("change iset_range %s\n", range_current_string(new_irange) );
+        usart1_printf("change iset_range %s\n", range_current_string(new_irange) );
         app->iset_range = app->irange = new_irange;
         range_current_set(app, new_irange);
         dac_current_set(app, fabs(app->iset));
@@ -2832,7 +2832,7 @@ static void update_console_ch(app_t *app, const char ch )
     // left is higher voltage, right is lower voltage.
     vrange_t new_vrange = range_voltage_next( app->vset_range, ch == 'k' );
     if(new_vrange != app->vset_range) {
-      usart_printf("change vset_range %s\n", range_voltage_string(new_vrange ) );
+      usart1_printf("change vset_range %s\n", range_voltage_string(new_vrange ) );
       app->vset_range = app->vrange = new_vrange;
       range_voltage_set(app, new_vrange);
       dac_voltage_set(app, fabs(app->vset));
@@ -2841,26 +2841,26 @@ static void update_console_ch(app_t *app, const char ch )
   }
   // toggle output... on/off. must only process char once. avoid relay oscillate
   else if( ch == 'o') {
-    usart_printf("output %s\n", (!app->output) ? "on" : "off" );
+    usart1_printf("output %s\n", (!app->output) ? "on" : "off" );
     mux_ice40(app->spi);
     output_set(app, app->irange, !app->output);
     // cBufPush(console_out, '\n');
   }
   // toggle printing of adc values.
   else if( ch == 'p') {
-    usart_printf("printing %s\n", (!app->print_adc_values) ? "on" : "off" );
+    usart1_printf("printing %s\n", (!app->print_adc_values) ? "on" : "off" );
     app->print_adc_values = ! app->print_adc_values;
     // cBufPush(console_out, '\n');
   }
   // halt
   else if(ch == 'h') {
-    usart_printf("halt \n");
+    usart1_printf("halt \n");
     state_change(app, STATE_HALT);
     return;
   }
   // restart
   else if(ch == 'r') {
-    usart_printf("restart\n"); // not resume
+    usart1_printf("restart\n"); // not resume
     state_change(app, STATE_FIRST);
     return;
   }
@@ -2925,7 +2925,7 @@ static void update_console_cmd(app_t *app)
 
   if( !cBufisEmpty(&app->cmd_in) && cBufPeekLast(&app->cmd_in) == '\r') {
 
-    // usart_printf("got CR\n");
+    // usart1_printf("got CR\n");
 
     // we got a carriage return
     static char tmp[1000];
@@ -2939,7 +2939,7 @@ static void update_console_cmd(app_t *app)
     ASSERT( nn == n - 1);
 
     // TODO first char 'g' gets omitted/chopped here, why? CR handling?
-    usart_printf("got command '%s'\n", tmp);
+    usart1_printf("got command '%s'\n", tmp);
 
     process_cmd(app, tmp);
 
@@ -3014,7 +3014,7 @@ static void assert_app(app_t *app, const char *file, int line, const char *func,
     note the usart tx interupt will continue to flush output buffer,
     even after jump to critical_error_blink()
   */
-  usart_printf("\nassert_app failed %s: %d: %s: '%s'\n", file, line, func, expr);
+  usart1_printf("\nassert_app failed %s: %d: %s: '%s'\n", file, line, func, expr);
 
   state_change(app, STATE_HALT );
 
@@ -3173,7 +3173,7 @@ int main(void)
   usart1_set_buffers(&app.console_in, &app.console_out);
 
   // setup print
-  usart_printf_init(&app.console_out);
+  usart1_printf_init(&app.console_out);
 
 
   ////////////////
@@ -3188,8 +3188,8 @@ int main(void)
   ////////////////////
 
 
-  usart_printf("\n--------\n");
-  usart_printf("starting loop\n");
+  usart1_printf("\n--------\n");
+  usart1_printf("starting loop\n");
 
   printf("sizeof bool   %u\n", sizeof(bool));
   printf("sizeof float  %u\n", sizeof(float));

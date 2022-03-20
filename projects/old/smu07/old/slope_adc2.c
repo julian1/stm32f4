@@ -95,7 +95,7 @@ static uint32_t oc_value = 0;
 
 void slope_adc_setup(void)
 {
-  usart_printf("slope_adc setup\n\r");
+  usart1_printf("slope_adc setup\n\r");
 
   // rcc_periph_clock_enable(RCC_SYSCFG);  for interrupts. once in main.c
 
@@ -112,7 +112,7 @@ void slope_adc_setup(void)
 
   exti_direction = FALLING;
 
-  usart_printf("slope_adc setup done\n\r");
+  usart1_printf("slope_adc setup done\n\r");
 
 
 
@@ -173,7 +173,7 @@ void slope_adc_setup(void)
   // injecct +10V ref, which will integrate output to the negative rail
   gpio_set(ADC_MUX_PORT, ADC_MUX_P_CTL);
 
-  usart_printf("slope_adc done timer done\n\r");
+  usart1_printf("slope_adc done timer done\n\r");
 
 
 
@@ -272,13 +272,13 @@ void exti0_isr(void)
     // easiest way to do inject_count. and just add to it... when we turn it on off.
     // or add to an array. etc.
 
-    usart_printf("  span_count %u\n", span_count );
+    usart1_printf("  span_count %u\n", span_count );
 
     // set rising count
     rising_cross_count = count;
 
-//    usart_printf("x up\n");
-//    usart_printf("  count %u\n", count);
+//    usart1_printf("x up\n");
+//    usart1_printf("  count %u\n", count);
 
 
     exti_direction = RISING;
@@ -287,20 +287,20 @@ void exti0_isr(void)
   } else {
     // slope integration falling
 
-//    usart_printf("x dwn\n");
-//    usart_printf("  count %u\n", count);
+//    usart1_printf("x dwn\n");
+//    usart1_printf("  count %u\n", count);
 
     uint32_t above = count - rising_cross_count;
 
 
     // should be 50%
     // int32_t err =  (period / 2) - above;
-    // usart_printf("  err %d\n", err);
+    // usart1_printf("  err %d\n", err);
 
     // would be nice to have float...
 
     float above_percentage =  (( (period / 2.0) - above) / period * 100);  // this works quite nicely...
-    usart_printf("  ratio above %d\n", (int32_t) above_percentage );
+    usart1_printf("  ratio above %d\n", (int32_t) above_percentage );
 
     // move 100 multiplier
 
@@ -313,11 +313,11 @@ void exti0_isr(void)
 
     // so we have to do something else.
 
-    usart_printf("  err2 %d\n", err2);
+    usart1_printf("  err2 %d\n", err2);
     oc_value += err2;
 
 
-    usart_printf("  oc_value now    %u\n", oc_value  );
+    usart1_printf("  oc_value now    %u\n", oc_value  );
     timer_set_oc_value(TIM2, TIM_OC1, oc_value);
 
 
@@ -346,9 +346,9 @@ void tim2_isr(void)
 
     gpio_set(MCU_GPIO_PORT, MCU_GPIO1);   // high...
 /*
-    usart_printf("-----\n");
-    usart_printf("uif\n");
-    usart_printf("  count %u\n", count );
+    usart1_printf("-----\n");
+    usart1_printf("uif\n");
+    usart1_printf("  count %u\n", count );
 */
   }
 
@@ -361,8 +361,8 @@ void tim2_isr(void)
 
     gpio_clear(MCU_GPIO_PORT, MCU_GPIO1);   // lo...
 /*
-    usart_printf("cc1if\n\r");
-    usart_printf("  count %u\n", count );
+    usart1_printf("cc1if\n\r");
+    usart1_printf("  count %u\n", count );
 */
   }
 
@@ -523,7 +523,7 @@ void exti0_isr(void)
     uint32_t count = timer_get_counter(TIM2);
     int32_t diff   = count - oc_value;    // count should be greater than oc_value?
 
-    usart_printf("count %u diff %d\n\r", count, diff );
+    usart1_printf("count %u diff %d\n\r", count, diff );
 
     timer_set_oc_value(TIM2, TIM_OC1, oc_value);   // eg. half the period for 50% duty
 
@@ -554,13 +554,13 @@ void slope_adc_out_status_test_task(void *args __attribute((unused)))
 	for (;;) {
 
     if(interupt_hit) {
-      usart_printf("slope_adc interupt\n\r");
+      usart1_printf("slope_adc interupt\n\r");
       interupt_hit = 0;
     }
 
-    // usart_printf("count %u\n\r", timer_get_counter(TIM5));
+    // usart1_printf("count %u\n\r", timer_get_counter(TIM5));
 
-    usart_printf("slope_adc hi tick %d %d\n\r", tick++, gpio_get(ADC_PORT, ADC_OUT));
+    usart1_printf("slope_adc hi tick %d %d\n\r", tick++, gpio_get(ADC_PORT, ADC_OUT));
     task_sleep(1000); // 1Hz
 	}
 }

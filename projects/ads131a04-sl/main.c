@@ -69,7 +69,7 @@ static void clock_setup(void)
 
 ////////////////////////////////////////////////////////
 
-// implement critical_error_blink() msleep() and usart_printf()
+// implement critical_error_blink() msleep() and usart1_printf()
 // eg. rather than ioc/ dependency injection, just implement
 
 void critical_error_blink(void)
@@ -103,7 +103,7 @@ static FBuf ffbuf;
 
 
 
-void usart_printf( const char *format, ... )
+void usart1_printf( const char *format, ... )
 {
   // TODO rename to just printf... it's not the responsibiilty of user to know context
   // can override the write, to do flush etc.
@@ -136,7 +136,7 @@ static void adc_tickcount(int ticks)
     // may be better to set a flag, or push a queue item (function). and run in update of main loop.
     // maybe copy out data first.
 
-    // usart_printf(".");
+    // usart1_printf(".");
     float buf[1000];
     uint32_t sz = 0;
 
@@ -147,17 +147,17 @@ static void adc_tickcount(int ticks)
       if(sz < 1000) {
         buf[sz++] = val;
       } else {
-        usart_printf("overflow\n");
+        usart1_printf("overflow\n");
       }
     }
 
 #if 0
-    usart_printf("---------\n");
-    usart_printf("samples ");
+    usart1_printf("---------\n");
+    usart1_printf("samples ");
     for(unsigned i = 0; i < sz; ++i ) {
-      usart_printf("%7f, ", buf[ i]);
+      usart1_printf("%7f, ", buf[ i]);
     }
-    usart_printf("\n");
+    usart1_printf("\n");
 #endif
 
     float freq = 1000.f / ticks * sz;
@@ -180,10 +180,10 @@ static void adc_tickcount(int ticks)
     // arithmetic mean and rms
 
     if(rms_ != m) {
-      usart_printf("not equal");
+      usart1_printf("not equal");
     }
 
-    usart_printf("freq %2fHz, n %d, mean %7fV, stddev %6fuV, vrms %7fV\n",
+    usart1_printf("freq %2fHz, n %d, mean %7fV, stddev %6fuV, vrms %7fV\n",
       freq,
       sz,
       m,
@@ -281,9 +281,9 @@ int main(void)
   usart1_setup_gpio_portA();
   usart1_setup(&console_in, &console_out);
 
-  usart_printf("\n--------\n");
-  usart_printf("starting\n");
-  // usart_printf("size %d\n", sizeof(fbuf) / sizeof(float));
+  usart1_printf("\n--------\n");
+  usart1_printf("starting\n");
+  // usart1_printf("size %d\n", sizeof(fbuf) / sizeof(float));
 
   while(true) {
 

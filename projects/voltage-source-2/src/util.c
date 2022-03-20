@@ -168,7 +168,7 @@ void assert_simple(const char *file, int line, const char *func, const char *exp
   // see, https://stackoverflow.com/questions/50915274/redirecting-assert-fail-messages
 
   // legacy version
-  usart_printf("\nassert simple failed %s: %d: %s: '%s'\n", file, line, func, expr);
+  usart1_printf("\nassert simple failed %s: %d: %s: '%s'\n", file, line, func, expr);
 
   critical_error_blink();
 }
