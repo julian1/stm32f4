@@ -140,7 +140,7 @@ static void process( app_t *app, double predict )
 
 
 
-static void simple_yield( app_t * app )
+static void app_update( app_t * app )
 {
   app_update_console_cmd(app);
   app_update_led(app);
@@ -229,7 +229,7 @@ void loop1 ( app_t *app )
         memset(&run, 0, sizeof(Run));
       }
 
-      simple_yield( app );   // change name simple update
+      app_update( app );   // change name simple update
       if(app->continuation_f) {
         return;
       }
@@ -302,7 +302,7 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
         memset(&run_sig, 0, sizeof(Run));
       }
 
-      simple_yield( app );   // change name simple update
+      app_update( app );   // change name simple update
       if(app->continuation_f) {
         return;
       }
@@ -324,7 +324,7 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     // block/wait for data
     while(!app->data_ready ) {
 
-      simple_yield( app );
+      app_update( app );
       if(app->continuation_f) {
         return;
       }
@@ -368,13 +368,16 @@ static double simple_read( app_t *app)
   // block/wait for data
   while(!app->data_ready ) {
 
-    simple_yield( app );
+    app_update( app );
     /*if(app->continuation_f) {
       printf("whoot done \n");
       return;
     }
     */
   }
+
+  run_read(&run);
+  param_read_last(&param);
 
   // we have both obs available...
   assert(run.count_up);
@@ -415,6 +418,17 @@ void loop3 ( app_t *app   )
   assert(app);
 
   ctrl_set_pattern( 0 ) ;
+
+
+
+  while(1) { 
+    double val = simple_read( app);
+    printf("val %lf\n", val );  
+    if(app->continuation_f) {
+      printf("whoot done \n");
+      return;
+    }
+  }
 
 
   Run   run_a;
@@ -478,7 +492,7 @@ void loop3 ( app_t *app   )
         memset(&run_b, 0, sizeof(Run));
       }
 
-      simple_yield( app );   // change name simple update
+      app_update( app );   // change name simple update
       if(app->continuation_f) {
 
         printf("whoot done \n");
@@ -503,7 +517,7 @@ void loop3 ( app_t *app   )
     // block/wait for data
     while(!app->data_ready ) {
 
-      simple_yield( app );
+      app_update( app );
       if(app->continuation_f) {
         return;
       }
