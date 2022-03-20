@@ -220,7 +220,7 @@ char * format_float(char *buf, size_t len, double value, int digits)
     // push terminal
     k.j.push((J*)&k, '\0');
   } else {
-    // ASSERT(len >= 1);
+    // assert(len >= 1);
     // overflowed buffer, sentinel will not fit...
     *buf = '\0';
   }

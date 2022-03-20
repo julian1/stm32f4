@@ -69,12 +69,12 @@ static void update_console_cmd(app_t *app)
 
     size_t nn = cBufCount(&app->console_in);
     size_t n = cBufCopyString(&app->console_in, tmp, ARRAY_SIZE(tmp));
-    ASSERT(n <= sizeof(tmp));
-    ASSERT(tmp[n - 1] == 0);
-    ASSERT( nn == n - 1);
+    assert(n <= sizeof(tmp));
+    assert(tmp[n - 1] == 0);
+    assert( nn == n - 1);
 
     // chop off the CR to make easier to print
-    ASSERT(((int) n) - 2 >= 0);
+    assert(((int) n) - 2 >= 0);
     tmp[n - 2] = 0;
 
     // TODO first char 'g' gets omitted/chopped here, why? CR handling?
@@ -193,7 +193,7 @@ int main(void)
   // usb
   // might be better to pass as handler?
 	app.usbd_dev = usb_setup();
-  ASSERT(app.usbd_dev);
+  assert(app.usbd_dev);
 
 
 
@@ -203,7 +203,7 @@ int main(void)
   usart1_printf("sizeof float  %u\n", sizeof(float));
   usart1_printf("sizeof double %u\n", sizeof(double));
   // test assert failure
-  ASSERT(1 == 2);
+  assert(1 == 2);
 
   usart1_printf("a float formatted %g\n", 123.456f );
 

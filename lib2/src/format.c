@@ -149,7 +149,7 @@ char * format_float(char *s, size_t sz, int digits, double value)
     printf("%0.*g\n",  5, -12.3456789 );     // -12.346
   */
 
-  ASSERT( digits < ((int)sz) - 2);  // basic sanity check ... TODO review...
+  assert( digits < ((int)sz) - 2);  // basic sanity check ... TODO review...
 
   /*
     correct number of digits, but this doesn't add trailing 0...
@@ -214,7 +214,7 @@ char * format_float(char *s, size_t sz, int digits, double value)
   }
 
   // add new sentinel
-  ASSERT(i < sz);
+  assert(i < sz);
   s[i++] = 0;
   return s;
 }

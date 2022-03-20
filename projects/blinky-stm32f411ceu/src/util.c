@@ -1,9 +1,9 @@
 /*
-  helper stuff that belongs in separate file, but not in separate library
-  because might change
+  generalized helper stuff that is too specific to push to library code
 
-  also. port setup. eg. led blinker. that is very common. but different between stm32 series/part.
 */
+
+#include <stdio.h>  // printf
 
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/systick.h>
@@ -14,23 +14,9 @@
 #include "util.h"
 #include "cbuffer.h"
 #include "usart.h"
-// #include "miniprintf2.h" // internal_vprint
+#include "assert.h"
 
-
-#include <stddef.h> // size_t
-#include <stdarg.h> // va_starrt etc
-#include <stdio.h>  // vsprintf
 #include <string.h>  // strcmp
-
-
-
-
-
-bool strequal(const char *s1, const char *s2)
-{
-  return (strcmp(s1, s2) == 0);
-}
-
 
 
 
@@ -50,7 +36,8 @@ bool strequal(const char *s1, const char *s2)
 
 #define LED_PORT  GPIOA
 // #define LED_OUT   GPIO15
-#define LED_OUT   GPIO9 // stm32f411...
+#define LED_OUT   GPIO9 // f411
+
 
 
 
@@ -190,80 +177,17 @@ int main()
 
 
 
-////////////////////////////////////////////////////////
 
-
-
-static CBuf *console_out = NULL;
-
-
-
-void usart1_printf_init(CBuf *output)
+void assert_simple(const char *file, int line, const char *func, const char *expr)
 {
-  console_out = output;
+  // see assert.h for explanation. works with external libraries/code
+  // see, https://stackoverflow.com/questions/50915274/redirecting-assert-fail-messages
+
+  // legacy version
+  printf("\nassert simple failed %s: %d: %s: '%s'\n", file, line, func, expr);
+  usart1_flush();
+  critical_error_blink();
 }
-
-
-
-void usart1_printf(const char *format, ...)
-{
-  /*
-    if(!console_out)
-      critical_error_blink();
-  */
-
-#if 0
-  // cannot rename to just printf... it's not the responsibiilty of user to know context
-  // because different formatting chars, conflict with gcc printf builtins
-	va_list args;
-	va_start(args, format);
-	internal_vprintf((void *)cBufPush, console_out, format, args);
-	va_end(args);
-#endif
-  /*
-    see, fopencookie for a better way to do this,
-  */
-
-  /*
-    - this is not great. but allows using arm-gcc libc sprintf
-    if uses 1000 chars. need to report buffer overflow.
-    - also could overflow the console buffer.
-    - would be better if could write to the console output directly. but we would have to implement the FILE structure.
-  */
-
-  /*
-      TODO can be reworked to avoid the copy to the circular buffer?
-  */
-  char buf[1000];
-	va_list args;
-	va_start(args, format);
-	int n = vsnprintf(buf, 1000, format, args);
-	va_end(args);
-
-  char *p = buf;
-  while(p < buf + n)  {
-
-    if(*p == '\n')
-      cBufPush(console_out, '\r');
-
-    cBufPush(console_out, *p);
-
-    ++p;
-  }
-
-
-  // re-enable tx interupt... if needed
-  usart1_enable_output_interupt();
-}
-
-
-
-////////////////////////////
-
-
-
-
-
 
 
 
