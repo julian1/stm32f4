@@ -180,7 +180,7 @@ void ctrl_run_read( uint32_t spi, Run *run )
 
 
 
-void run_report( Run *run )
+void run_report( const Run *run )
 {
   assert(run);
 
@@ -243,7 +243,7 @@ void ctrl_param_read_last( uint32_t spi, Param *param)
 }
 
 
-void param_report( Param *param)
+void param_report( const Param *param)
 {
   usart_printf("clk_count_aper_n %lu, ", param->clk_count_aper_n);
   usart_printf("clk_count_fix_n %lu, ", param->clk_count_fix_n);
@@ -256,7 +256,7 @@ void param_report( Param *param)
 
 
 
-MAT * param_run_to_matrix( Param *param, Run *run, MAT * out )
+MAT * param_run_to_matrix( const Param *param, const Run *run, MAT * out )
 {
   assert(run);
 
@@ -306,7 +306,7 @@ MAT * param_run_to_matrix( Param *param, Run *run, MAT * out )
 
 
 
-MAT * m_calc_predicted( MAT *b, MAT *x, MAT *aperture)
+MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture)
 {
   /*
     do matrix multiply, and adjust by the aperture.

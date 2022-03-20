@@ -144,17 +144,17 @@ typedef struct Run  Run;
 
 void ctrl_param_read( uint32_t spi, Param *param);
 void ctrl_param_read_last( uint32_t spi, Param *param);
-void param_report( Param *param);  // rename param_report??
+void param_report( const Param *param);  // rename param_report??
 
 void ctrl_run_read( uint32_t spi, Run *run );
-void run_report( Run *run);    // rename run_report
+void run_report( const Run *run);    // rename run_report
 
 
 
-MAT * param_run_to_matrix( Param *param, Run *run, MAT * out );   // rename param_param_run_to_matrix() 
+MAT * param_run_to_matrix( const Param *param, const Run *run, MAT * out );   // rename param_param_run_to_matrix() 
 
 
-MAT * m_calc_predicted( MAT *b, MAT *x, MAT *aperture);     // rename m_m_calc_predicted
+MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture);     // rename m_m_calc_predicted
 
 
 
