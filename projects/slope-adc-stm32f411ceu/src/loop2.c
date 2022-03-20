@@ -279,7 +279,7 @@ static MAT * calibrate( app_t *app)
 
 
 
-void loop2( app_t *app)
+void app_loop2( app_t *app)
 {
   MAT *b = calibrate( app);
 

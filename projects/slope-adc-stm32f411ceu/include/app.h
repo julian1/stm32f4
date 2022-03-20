@@ -218,20 +218,20 @@ void app_update_console_cmd(app_t *app);
 void app_update_led(app_t *app);
 
 
-// loop1
-void loop1(app_t *app );
-void loop2(app_t *app );
-void loop3(app_t *app );
+// app_loop1
+void app_loop1(app_t *app );
+void app_loop2(app_t *app );
+void app_loop3(app_t *app );
 
 
-// loop3
+// app_loop3
 // void permute(app_t *app, MAT *b);
 
 
 
 void app_simple_sleep( app_t * app, uint32_t period );
 
-void app_vs_drive_to( app_t *app, double value );
+void app_voltage_source_set( app_t *app, double value );
 
 
 

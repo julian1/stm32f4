@@ -27,10 +27,10 @@
 // TODO change name predict. to est. or estimator .
 
 
-void loop3 ( app_t *app)
+void app_loop3 ( app_t *app)
 {
   usart_printf("=========\n");
-  usart_printf("loop3\n");
+  usart_printf("app_loop3\n");
 
   assert(app);
 
@@ -114,7 +114,7 @@ void loop3 ( app_t *app)
           assert(predict->m == 1 && predict->n == 1);
           double value = m_get_val( predict, 0, 0 );
 
-          // TODO use the matrix operations. same as loop2.
+          // TODO use the matrix operations. same as app_loop2.
           value /=  run.clk_count_aper_n;
 
           // TODO predict, rename. estimator?

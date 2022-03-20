@@ -184,10 +184,10 @@ static double m_calc_predicted_val(  MAT *b , Run *run, Param *param )
 
 
 
-void loop1 ( app_t *app )
+void app_loop1 ( app_t *app )
 {
   printf("=========\n");
-  printf("loop1\n");
+  printf("app_loop1\n");
 
   ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
 
@@ -237,12 +237,12 @@ void loop1 ( app_t *app )
 
 
 
-void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
+void app_loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 {
   // auto-zero
 
   printf("=========\n");
-  printf("loop2\n");
+  printf("app_loop2\n");
 
   assert(app);
 
@@ -378,7 +378,7 @@ static double app_simple_read( app_t *app)
 
 
 
-void app_vs_drive_to( app_t *app, double value )
+void app_voltage_source_set( app_t *app, double value )
 {
 
   double current = app_simple_read( app);
@@ -426,7 +426,7 @@ void app_vs_drive_to( app_t *app, double value )
 
 
 
-void loop3 ( app_t *app   )
+void app_loop3 ( app_t *app   )
 {
   // could pass the continuatino to use.
   // auto-zero
@@ -450,7 +450,7 @@ void loop3 ( app_t *app   )
   */
 
   printf("=========\n");
-  printf("loop3\n");
+  printf("app_loop3\n");
 
   assert(app);
 
@@ -463,7 +463,7 @@ void loop3 ( app_t *app   )
   ctrl_reset_disable(app->spi);
 
 
-  // app_vs_drive_to( app, 5.0 );
+  // app_voltage_source_set( app, 5.0 );
 
 
   Run   run_a;

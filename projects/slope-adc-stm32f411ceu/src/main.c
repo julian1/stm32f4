@@ -271,7 +271,7 @@ void app_update_console_cmd(app_t *app)
       else if(sscanf(app->cmd_buf, "vs %lf", &d ) == 1) {
         // set the voltage
         printf("voltage source set %lf!\n", d);
-        app_vs_drive_to( app, d );
+        app_voltage_source_set( app, d );
       }
 
 
@@ -366,20 +366,20 @@ void app_update_console_cmd(app_t *app)
         app->continuation_f = (void (*)(void *)) app_loop_dispatcher;
         app->continuation_ctx = app;
       }
-      else if(strcmp(app->cmd_buf , "loop1") == 0) {
-        // start loop1.
-        app->continuation_f = (void (*)(void *)) loop1;
+      else if(strcmp(app->cmd_buf , "app_loop1") == 0) {
+        // start app_loop1.
+        app->continuation_f = (void (*)(void *)) app_loop1;
         app->continuation_ctx = app;
       }
 
-      else if(strcmp(app->cmd_buf , "loop2") == 0) {  // cal loop.
-        app->continuation_f = (void (*)(void *)) loop2;
+      else if(strcmp(app->cmd_buf , "app_loop2") == 0) {  // cal loop.
+        app->continuation_f = (void (*)(void *)) app_loop2;
         app->continuation_ctx = app;
       }
 
 
-      else if(strcmp(app->cmd_buf , "loop3") == 0) {
-        app->continuation_f = (void (*)(void *)) loop3;
+      else if(strcmp(app->cmd_buf , "app_loop3") == 0) {
+        app->continuation_f = (void (*)(void *)) app_loop3;
         app->continuation_ctx = app;
       }
 
