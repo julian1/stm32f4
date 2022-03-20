@@ -351,7 +351,38 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
 
 
+static double simple_read( app_t *app)
+{
+  // used to steer the current before we do anything.
+  Run   run;
+  Param param;
 
+  // clear to reset
+  memset(&run, 0, sizeof(Run));
+
+  ctrl_reset_enable();
+  ctrl_set_aperture( nplc_to_aper_n(10));
+  app->data_ready = false;
+  ctrl_reset_disable();
+
+  // block/wait for data
+  while(!app->data_ready ) {
+
+    simple_yield( app );
+    /*if(app->continuation_f) {
+      printf("whoot done \n");
+      return;
+    }
+    */
+  }
+
+  // we have both obs available...
+  assert(run.count_up);
+  assert(app ->b);
+
+  double predict = calc_predicted_val( app->b , &run, &param );
+  return predict;
+}
 
 
 
@@ -362,9 +393,19 @@ void loop3 ( app_t *app   )
   // iMPORTANT do three variable azero . by shuffling  values about.
 
   /*
-    we don't need matrix
+    can modulate.
+        (1) nplc
+        (2) var pos / var neg
+        (3) var in relation to fix
+        (4) all of the above
 
+
+    we don't need matrix
     sleep can be done with a loop.
+    --------
+
+    But we need to read the voltage to set it.
+    Just use the read values. and then emit start and stop
 
   */
 
@@ -416,14 +457,20 @@ void loop3 ( app_t *app   )
 
           printf("%u   %.7lf,  %.7lf\n", id, predict_a, predict_b );
 
-#if 0
+          /*
+          if(mode == starting && predict_a > 10)  {
+            mode = running;
+          }
+          */
+
+          #if 0
           char buf[100], buf2[100];
           printf("%u   %sV\t  %sV\n",
             id,
             format_float_with_commas(buf, 100, 7, predict_a),
             format_float_with_commas(buf2, 100, 7, predict_b )
           );
-#endif
+          #endif
         }
 
         // clear to reset
