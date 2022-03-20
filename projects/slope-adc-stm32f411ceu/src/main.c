@@ -123,7 +123,7 @@ static int reg_read_write_test(void)
 
 
 
-void update_console_cmd(app_t *app)
+void app_update_console_cmd(app_t *app)
 {
 
   uint32_t u32;
@@ -475,7 +475,7 @@ static void loop_dispatcher(app_t *app)
 
   while(true) {
 
-    update_console_cmd(app);
+    app_update_console_cmd(app);
 
     app_led_update( app);
 
@@ -681,7 +681,7 @@ int main(void)
 
 
 #if 0
-void update_console_cmd(app_t *app)
+void app_update_console_cmd(app_t *app)
 {
 
   /* using peekLast() like this wont work

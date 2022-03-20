@@ -142,7 +142,7 @@ static void process( app_t *app, double predict )
 
 static void simple_yield( app_t * app )
 {
-  update_console_cmd(app);
+  app_update_console_cmd(app);
   app_led_update(app);
 }
 
@@ -150,7 +150,7 @@ static void simple_yield( app_t * app )
 
 static void simple_wait( app_t * app, uint32_t period )
 {
-  update_console_cmd(app);
+  app_update_console_cmd(app);
   app_led_update(app);
 
 
