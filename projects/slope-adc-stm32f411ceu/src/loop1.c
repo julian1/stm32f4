@@ -199,7 +199,7 @@ void loop1 ( app_t *app )
       if(run.count_up ) {
         if(app ->b) {
           double predict = calc_predicted_val( app->b, &run, &param );
-          process( app, predict ); 
+          process( app, predict );
         }
         // clear to reset
         memset(&run, 0, sizeof(Run));
@@ -225,9 +225,7 @@ void loop1 ( app_t *app )
 
 void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 {
-  // could pass the continuatino to use.
   // auto-zero
-  // iMPORTANT do three variable azero . by shuffling  values about.
 
   printf("=========\n");
   printf("loop2\n");
@@ -237,11 +235,11 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   ctrl_set_pattern( 0 ) ;     // no azero.
 
   /*
+    autozero - should use two zero values, between read.
     have tmp.
     1) do ref-hi/sig .
     2) then lo. and convert using 3 values.
     3) then copy lo to temp.   and use for the next input.
-
   */
 
   Run   run_zero;
@@ -254,8 +252,6 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
 
   while(true) {
-
-    // printf("---------------\n");
 
     // configure ref_lo
     ctrl_reset_enable();
@@ -274,7 +270,7 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
           double predict_zero   = calc_predicted_val( app->b , &run_zero, &param_zero );
           double predict_sig    = calc_predicted_val( app->b , &run_sig,  &param_sig );
           double predict        = predict_sig - predict_zero;
-          process( app, predict ); 
+          process( app, predict );
         }
 
         // clear to reset
@@ -288,12 +284,10 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
       }
     }
 
-    // read the ready data. is it doing another complete by the time we process it?
+    // read data
     run_read(&run_zero);
     param_read_last( &param_zero);
     assert(param_zero.himux_sel ==  HIMUX_SEL_REF_LO );
-    // char buf[100];
-    // printf("got value should be zero %sV\n", format_float_with_commas(buf, 100, 7, calc_predicted_val( app-> b , &run_zero, &param_zero )));
 
 
 
@@ -312,10 +306,10 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
       }
     }
 
-    // read the ready data
+    // read data
     run_read(&run_sig);
     param_read_last( &param_sig);
-    assert(param_sig.himux_sel == HIMUX_SEL_REF_HI );  // this is not correct....
+    assert(param_sig.himux_sel == HIMUX_SEL_REF_HI );
 
     // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, calc_predicted_val( app-> b , &run_sig , &param_sig )));
 
@@ -325,6 +319,102 @@ void loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
 
 
+
+
+void loop3 ( app_t *app   )
+{
+  // could pass the continuatino to use.
+  // auto-zero
+  // iMPORTANT do three variable azero . by shuffling  values about.
+
+  printf("=========\n");
+  printf("loop3\n");
+
+  assert(app);
+
+  ctrl_set_pattern( 0 ) ;
+
+
+  Run   run_a;
+  Param param_a;
+  Run   run_b;
+  Param param_b;
+
+  memset(&run_a, 0, sizeof(Run));
+  memset(&run_b, 0, sizeof(Run));
+
+  // ref hi
+  ctrl_reset_enable();
+  ctrl_set_mux( HIMUX_SEL_REF_HI );
+  ctrl_reset_disable();
+
+
+  while(true) {
+
+    // configure nplc
+    ctrl_reset_enable();
+    ctrl_set_aperture( nplc_to_aper_n(10));
+    app->data_ready = false;
+    ctrl_reset_disable();
+
+
+    // block/wait for data
+    while(!app->data_ready ) {
+
+      // we have both obs available...
+      if(run_a.count_up && run_b.count_up ) {
+
+        if(app ->b) {
+          double predict_a      = calc_predicted_val( app->b , &run_a, &param_a );
+          double predict_b      = calc_predicted_val( app->b , &run_b,  &param_b );
+
+          printf(" %lf    %lf", predict_a, predict_b );
+
+          // process( app, predict );
+        }
+
+        // clear to reset
+        memset(&run_a, 0, sizeof(Run));
+        memset(&run_b, 0, sizeof(Run));
+      }
+
+      simple_yield( app );   // change name simple update
+      if(app->continuation_f) {
+        return;
+      }
+    }
+
+    // read data
+    run_read(&run_a);
+    param_read_last( &param_a);
+    assert( aper_n_to_nplc(param_a.clk_count_aper_n) == 10);
+
+
+
+    // configure nplc
+    ctrl_reset_enable();
+    ctrl_set_aperture( nplc_to_aper_n(11));
+    app->data_ready = false;
+    ctrl_reset_disable();
+
+    // block/wait for data
+    while(!app->data_ready ) {
+
+      simple_yield( app );
+      if(app->continuation_f) {
+        return;
+      }
+    }
+
+    // read data
+    run_read(&run_b);
+    param_read_last( &param_b);
+    assert(  aper_n_to_nplc(param_b.clk_count_aper_n) == 11);
+
+    // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, calc_predicted_val( app-> b , &run_b , &param_b )));
+
+  }
+}
 
 
 

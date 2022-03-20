@@ -74,11 +74,13 @@ void ctrl_set_pattern( uint32_t pattern )
 
 void ctrl_set_aperture( uint32_t aperture)
 {
+  /*
   printf("*set aperture %lu, nplc %.2f, period %.2fs\n",
     aperture,
     aper_n_to_nplc( aperture),
     aper_n_to_period( aperture )
   );
+  */
 
   spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_HI, (aperture >> 24) & 0xff );
   spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_LO, aperture & 0xffffff  );
@@ -410,6 +412,7 @@ MAT * calc_predicted( MAT *b, MAT *x, MAT *aperture)
 
 
 //void collect_obs( app_t *app, Param *param, unsigned discard_n, unsigned gather_n, unsigned *row, MAT *xs,  unsigned *himux_sel_last, unsigned himux_sel_last_n )
+#if 0
 
 void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *row,  Run2 *run2 )
 {
@@ -423,7 +426,6 @@ void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *r
   UNUSED(row);
   UNUSED(run2);
 
-#if 0
   /*
     Think this just about gets deprevated. in factor .
     of doing the loop in one place . and using slot. type logic.
@@ -513,10 +515,9 @@ void collect_obs( app_t *app, unsigned discard_n, unsigned gather_n, unsigned *r
     }
 
   } // while
-#endif
 }
 
-
+#endif
 
 
 

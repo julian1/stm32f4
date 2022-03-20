@@ -144,7 +144,7 @@ struct Run
     if using pattern controller.
     but probably better to read into a separate params like structure.
   */
-  uint32_t himux_sel_last;
+  // uint32_t himux_sel_last;
 
   // parameters used to obtain the reading.
   // 
@@ -162,7 +162,7 @@ typedef struct Run  Run;
 
 */
 
-
+#if 0
 struct Run2
 {
   Run   *run;
@@ -176,7 +176,7 @@ struct Run2
 
 
 typedef struct Run2  Run2;
-
+#endif
 
 
 
