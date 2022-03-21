@@ -249,10 +249,10 @@ void app_loop2 ( app_t *app )
 #define X_COLS 4
 
   // may want a row pointer as well.
-  unsigned  max_rows =  10 * 5;
+  unsigned  max_rows =  10 * 4 * 2;
   MAT *xs       = m_get(max_rows, X_COLS); // TODO change MNULL
   MAT *y        = m_get(max_rows, 1);
-  MAT *aperture = m_get(max_rows, 1);
+  MAT *aperture = m_get(max_rows, 1); // required for predicted
 
 
 
@@ -289,68 +289,112 @@ void app_loop2 ( app_t *app )
       ctrl_reset_disable(app->spi);
 
 
-      for(unsigned i = 0; i < 10; ++i) {
+      for(unsigned i = 0; i < 7; ++i) {
 
 
         app->data_ready = false;
 
         // block/wait for data
-        while(!app->data_ready ) {
-
-          if(run.count_up ) {
-
-            // existing for calibration we won't be using b
-            if(app ->b) {
-              double predict = m_calc_predicted_val( app->b, &run, &param );
-              printf("val(current cal) %lf", predict );
-            }
-        
-            if(i < 2) { 
-              printf("discard");
-            }
-            else {
-
-              // do xs
-              assert(row < m_rows(xs));
-              MAT *whoot = param_run_to_matrix( &param, &run, MNULL );
-              assert(whoot);
-              // assert( m_rows(whoot) == m_rows(xs) );
-              // m_foutput(stdout, whoot );
-              m_row_set( xs, row, whoot );
-              M_FREE(whoot);
-         
-              // do aperture
-              assert(row < m_rows(aperture));
-              m_set_val( aperture, row, 0, param.clk_count_aper_n );
-
-              // do y
-              assert(row < m_rows(y));
-              m_set_val( y       , row , 0, y_ );
-
-              // increment row.
-              ++row;
-            }
-
-            printf("\n");
-
-            // clear to reset
-            memset(&run, 0, sizeof(Run));
-          }
-
+        while(!app->data_ready ) { 
+            // waiting...
+          /*
+          // seems to need this...
           app_update( app );   // change name simple update
           if(app->continuation_f) {
             return;
           }
+          */
+
         }
 
+        // if(run.count_up ) {
 
         // read the ready data
         ctrl_run_read(app->spi, &run);
         ctrl_param_read_last( app->spi, &param);
 
+        run_report(&run);
+        /* 
+        // existing for calibration we won't be using b
+        if(app ->b) {
+          double predict = m_calc_predicted_val( app->b, &run, &param );
+          printf("val(current cal) %lf", predict );
+        } */
+    
+        if(i < 2) { 
+          printf("discard");
+        }
+        else {
+
+          // do xs
+          assert(row < m_rows(xs));
+          MAT *whoot = param_run_to_matrix( &param, &run, MNULL );
+          assert(whoot);
+          assert( m_cols(whoot) == m_cols(xs) );
+          assert( m_rows(whoot) == 1  );
+
+          printf("\n");
+          m_foutput(stdout, whoot );
+
+          m_row_set( xs, row, whoot );
+          M_FREE(whoot);
+     
+          // do aperture
+          assert(row < m_rows(aperture));
+          m_set_val( aperture, row, 0, param.clk_count_aper_n );  // this is wrong.
+
+          // do y
+          assert(row < m_rows(y));
+          m_set_val( y       , row , 0, y_ );
+
+          // increment row.
+          ++row;
+        }
+
+        printf("\n");
+
+      
+
+        app_update( app );   // change name simple update
+        if(app->continuation_f) {
+          return;
+        }
+
+
+
       } // i
     } // j
   } // h
+
+
+  printf("row %u\n", row);
+
+  // shrink matrixes for the data collected
+  m_resize( xs, row, m_cols( xs) );
+  m_resize( y,  row, m_cols( y) );
+  m_resize( aperture, row, m_cols( xs) ); // we don't use aperture 
+
+  // need to multiply by the aperture?
+  m_foutput(stdout, xs );
+
+  m_foutput(stdout, y );
+
+
+  MAT *b = m_regression( xs, y, MNULL );
+
+  printf("b\n");
+  m_foutput(stdout, b);
+  usart1_flush();
+  assert( m_rows(b) == m_cols( xs) ); // calibration coeff is horizontal matrix.
+
+
+  // no we need the aperture. to calc predicted
+
+  m_calc_predicted( b, xs, aperture);
+
+  // show the predicted
+
+  // app->b = b;
 
 }
 
