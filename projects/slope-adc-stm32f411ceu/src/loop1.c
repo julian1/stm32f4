@@ -597,24 +597,16 @@ void app_voltage_source_set( app_t *app, double value )
 
 void app_loop4 ( app_t *app   )
 {
-  // could pass the continuatino to use.
-  // auto-zero
-  // iMPORTANT do three variable azero . by shuffling  values about.
+  // loop44 INL.
 
   /*
-    can modulate.
-        (1) nplc
-        (2) var pos / var neg
-        (3) var in relation to fix
-        (4) all of the above
+    can permute.
+    (1) nplc
+    (2) var pos / var neg
+    (3) var in relation to fix
+    (4) all of the above
 
-
-    we don't need matrix
-    sleep can be done with a loop.
-    --------
-
-    But we need to read the voltage to set it.
-    Just use the read values. and then emit start and stop
+    probably better to keep nplc constant.
 
   */
 
@@ -633,15 +625,6 @@ void app_loop4 ( app_t *app   )
 
 
   // app_voltage_source_set( app, 5.0 );
-
-
-  Run   run_a;
-  Param param_a;
-  Run   run_b;
-  Param param_b;
-
-  memset(&run_a, 0, sizeof(Run));
-  memset(&run_b, 0, sizeof(Run));
 
 
 
@@ -667,59 +650,27 @@ void app_loop4 ( app_t *app   )
     for(unsigned obs = 0; obs < 10; ++obs)
     {
 
-      // read A.
+
+      // do A 
       // configure nplc
       ctrl_reset_enable(app->spi);
-      ctrl_set_aperture( app->spi, nplc_to_aper_n(10));
+      ctrl_set_aperture( app->spi, nplc_to_aper_n( 10  ));
       app->data_ready = false;
       ctrl_reset_disable(app->spi);
 
-
       // block/wait for data
       while(!app->data_ready ) {
-
-        // this is the process.
-        // we have both obs available...
-        if(run_a.count_up && run_b.count_up ) {
-
-          if(app ->b) {
-            double predict_a      = m_calc_predicted_val( app->b , &run_a, &param_a );
-            double predict_b      = m_calc_predicted_val( app->b , &run_b,  &param_b );
-
-
-            /*
-            if(mode == starting && predict_a > 10)  {
-              mode = running;
-            }
-            */
-            #if 0
-            printf("%u   %.7lf,  %.7lf  %.2fuV\n", id, predict_a, predict_b, (predict_a - predict_b) * 1000000 );
-            #endif
-
-            #if 1
-            char buf[100], buf2[100];
-            printf("%u   %sV\t  %sV  %.2fuV\n",
-              i,
-              format_float_with_commas(buf, 100, 7, predict_a),
-              format_float_with_commas(buf2, 100, 7, predict_b ),
-              (predict_a - predict_b) * 1000000
-            );
-            #endif
-          }
-
-          // clear to reset
-          memset(&run_a, 0, sizeof(Run));
-          memset(&run_b, 0, sizeof(Run));
-        }
-
         app_update( app );   // change name simple update
         if(app->continuation_f) {
-
           printf("whoot done \n");
-
           return;
         }
       }
+
+      // read A.
+      Run   run_a;
+      Param param_a;
+      // memset(&run_a, 0, sizeof(Run));
 
       // read data
       ctrl_run_read(app->spi, &run_a);
@@ -727,7 +678,10 @@ void app_loop4 ( app_t *app   )
       assert( aper_n_to_nplc(param_a.clk_count_aper_n) == 10);
 
 
-      // read B.
+
+      ///////////////////////////////
+    
+      // do B
       // configure nplc
       ctrl_reset_enable(app->spi);
       ctrl_set_aperture( app->spi, nplc_to_aper_n(11));
@@ -736,12 +690,18 @@ void app_loop4 ( app_t *app   )
 
       // block/wait for data
       while(!app->data_ready ) {
-
         app_update( app );
         if(app->continuation_f) {
+          printf("whoot done \n");
           return;
         }
       }
+      
+      // read B
+      Run   run_b;
+      Param param_b;
+      // memset(&run_b, 0, sizeof(Run));
+
 
       // read data
       ctrl_run_read(app->spi, &run_b);
@@ -749,6 +709,39 @@ void app_loop4 ( app_t *app   )
       assert(  aper_n_to_nplc(param_b.clk_count_aper_n) == 11);
 
       // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, m_calc_predicted_val( app-> b , &run_b , &param_b )));
+
+        // this is the process.
+        // we have both obs available...
+
+      if(app ->b) {
+        double predict_a      = m_calc_predicted_val( app->b , &run_a, &param_a );
+        double predict_b      = m_calc_predicted_val( app->b , &run_b,  &param_b );
+
+
+        /*
+        if(mode == starting && predict_a > 10)  {
+          mode = running;
+        }
+        */
+        #if 0
+        printf("%u   %.7lf,  %.7lf  %.2fuV\n", id, predict_a, predict_b, (predict_a - predict_b) * 1000000 );
+        #endif
+
+        #if 1
+        char buf[100], buf2[100];
+        printf("%u   %sV\t  %sV  %.2fuV\n",
+          i,
+          format_float_with_commas(buf, 100, 7, predict_a),
+          format_float_with_commas(buf2, 100, 7, predict_b ),
+          (predict_a - predict_b) * 1000000
+        );
+        #endif
+      }
+
+
+
+
+
 
     } // obs loop.
   } // target loop
