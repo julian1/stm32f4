@@ -334,7 +334,7 @@ void app_loop2 ( app_t *app )
           m_set_val( aperture, row, 0, param.clk_count_aper_n );
 
 
-          // record y
+          // record y, as target * aperture
           assert(row < m_rows(y));
           m_set_val( y       , row , 0, y_  *  aperture_ );
 
@@ -360,20 +360,21 @@ void app_loop2 ( app_t *app )
   m_resize( aperture, row, m_cols( aperture) ); // we don't use aperture
 
 
-
+  #if 0
   // need to multiply by the aperture?
   m_foutput(stdout, xs );
   usart1_flush();
 
   m_foutput(stdout, y );
   usart1_flush();
+  #endif
 
 
   MAT *b = m_regression( xs, y, MNULL );
+  assert( m_rows(b) == m_cols( xs) ); // calibration coeff is horizontal matrix.
   printf("b\n");
   m_foutput(stdout, b);
   usart1_flush();
-  assert( m_rows(b) == m_cols( xs) ); // calibration coeff is horizontal matrix.
 
 
   // no we need the aperture. to calc predicted
@@ -383,10 +384,7 @@ void app_loop2 ( app_t *app )
   m_foutput(stdout, predicted);
 
 
-
-  // show the predicted
-
-  // app->b = b;
+  app->b = b;
 
 }
 
