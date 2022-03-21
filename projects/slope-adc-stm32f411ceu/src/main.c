@@ -186,31 +186,6 @@ void app_update_console_cmd(app_t *app)
           printf("done erase\n");
 
       }
-
-      // flash write cal
-      else if(strcmp(app->cmd_buf , "flash write cal") == 0) {
-
-        if(!app->b) {
-
-          printf("no cal to save\n");
-        } else {
-
-          printf("flash unlock\n");
-          flash_unlock();
-
-          FILE *f = open_flash_file();
-          c_skip_to_end( f);
-
-          // write cal matrix
-          m_write_flash ( app->b, f );
-          fclose(f);
-
-          printf("flash lock\n");
-          flash_lock();
-          printf("done\n");
-        }
-      }
-
       // flash write test
       else if(strcmp(app->cmd_buf , "flash write test") == 0) {
 
@@ -232,29 +207,62 @@ void app_update_console_cmd(app_t *app)
         printf("done\n");
       }
 
+
+      // flash write cal
+      else if(strcmp(app->cmd_buf , "flash write cal") == 0) {
+      
+        // think we really want slots.
+        if(!app->b) {
+
+          printf("no cal to save\n");
+        } else {
+
+          printf("flash unlock\n");
+          flash_unlock();
+
+          FILE *f = open_flash_file();
+          c_skip_to_end( f);
+
+          // write cal matrix
+          m_write_flash ( app->b, f );
+          fclose(f);
+
+          printf("flash lock\n");
+          flash_lock();
+          printf("done\n");
+        }
+      }
+
       // flash read test. doesn't load cal.
       // but might be useful to revert
-      else if(strcmp(app->cmd_buf , "flash read") == 0) {
+      else if(strcmp(app->cmd_buf , "flash read cal") == 0) {   // FIXME
 
-        printf("flash read\n");
+        // might be better to have separate read
+        printf("flash read cal\n");
 
         FILE *f = open_flash_file();
         if(c_skip_to_last_valid(  f) != 0) {
           printf("no valid config found\n" );
         }
         else {
-          MAT *u  = m_read_flash( MNULL, f );
-          m_foutput( stdout, u );
+          app->b = m_read_flash( MNULL, f );
+          m_foutput( stdout, app->b );
           usart1_flush();
         }
 
         fclose(f);
       }
 
+      else if(strcmp( app->cmd_buf, "cal") == 0) { // setting arg to 0 matches on anything?
+        // show current cal
+        printf("cal\n");
+        m_foutput( stdout, app->b );
+        usart1_flush();
+      }
+
       else if(sscanf(app->cmd_buf, "sleep %lu", &u32 ) == 1) {
 
         printf("sleep %lums\n", u32);
-
         // main looop keeps updating
         app_simple_sleep( app, u32 );
         printf("sleep done\n");
@@ -262,7 +270,7 @@ void app_update_console_cmd(app_t *app)
   
       /*
       // change name source ? or test-source ?
-      else if(sscanf(app->cmd_buf, "vs %ld", &i32 ) == 1) {
+      else if(sscanf(app->cmd_buf, "vs set dir %ld", &i32 ) == 1) {
         printf("voltage source %ld!\n", i32);
         voltage_source_set( i32 );
       }
@@ -275,7 +283,7 @@ void app_update_console_cmd(app_t *app)
       }
 
 
-      else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 )  {
+      else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 )  {   // fixme
         printf("setting mux ref-lo\n");
         ctrl_reset_enable(app->spi);
         ctrl_set_mux( app->spi, HIMUX_SEL_REF_LO );

@@ -249,14 +249,15 @@ void app_loop2 ( app_t *app )
 #define X_COLS 4
 
   // may want a row pointer as well.
-  unsigned  max_rows =  10 * 4 * 2;
+  unsigned  max_rows =  10 * 9 * 2;
   MAT *xs       = m_get(max_rows, X_COLS); // TODO change MNULL
   MAT *y        = m_get(max_rows, 1);
   MAT *aperture = m_get(max_rows, 1); // required for predicted
 
 
 
-  unsigned nplc_[] = { 9, 10, 11, 12 };
+  // unsigned nplc_[] = { 9, 10, 11, 12 };
+  unsigned nplc_[] = { 8, 9, 10, 11, 12, 13, 14, 15, 16 };
   // double y  = 0;
 
   unsigned row = 0;
