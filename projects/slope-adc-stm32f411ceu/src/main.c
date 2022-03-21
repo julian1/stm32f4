@@ -459,15 +459,26 @@ void app_simple_sleep( app_t * app, uint32_t period )
   // not static
   uint32_t soft_timer = system_millis;
 
+  uint32_t _1s_timer = system_millis;
+
   while(true) {
     // keep pumping messages
     app_update_console_cmd(app);
     app_update_led(app);
 
     if( (system_millis - soft_timer ) > period ) {
+
+      printf("\n");
       return;
     }
+
+    // print dots
+    if( (system_millis - _1s_timer) > 1000) { 
+      printf(".");
+      _1s_timer += 1000;
+    }
   }
+
 }
 
 

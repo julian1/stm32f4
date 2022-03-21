@@ -17,7 +17,7 @@
 
 #include <matrix.h>
 
-#include <libopencm3/stm32/spi.h>   // SPI1 .. TODO remove. should pass spi by uint32_t argument
+// #include <libopencm3/stm32/spi.h>   // spi .. TODO remove. should pass spi by uint32_t argument
 
 #include "app.h"
 
@@ -52,17 +52,17 @@ double aper_n_to_period( uint32_t aper_n)
 
 void ctrl_set_pattern( uint32_t spi, uint32_t pattern )
 {
-  assert(spi == SPI1);
+  assert(spi == spi);
   // TODO add spi argument.
   printf("set pattern %ld\n", pattern );
 
-  spi_reg_write(SPI1, REG_PATTERN,   pattern );
+  spi_reg_write(spi, REG_PATTERN,   pattern );
 }
 
 
 void ctrl_set_aperture( uint32_t spi, uint32_t aperture)
 {
-  assert(spi == SPI1);
+  assert(spi == spi);
   /*
   printf("*set aperture %lu, nplc %.2f, period %.2fs\n",
     aperture,
@@ -71,17 +71,17 @@ void ctrl_set_aperture( uint32_t spi, uint32_t aperture)
   );
   */
 
-  spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_HI, (aperture >> 24) & 0xff );
-  spi_reg_write(SPI1, REG_CLK_COUNT_APER_N_LO, aperture & 0xffffff  );
+  spi_reg_write(spi, REG_CLK_COUNT_APER_N_HI, (aperture >> 24) & 0xff );
+  spi_reg_write(spi, REG_CLK_COUNT_APER_N_LO, aperture & 0xffffff  );
 }
 
 
 uint32_t ctrl_get_aperture( uint32_t spi )
 {
-  assert(spi == SPI1);
+  assert(spi == spi);
 
-  uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_LO );
-  uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_HI );
+  uint32_t int_lo = spi_reg_read(spi, REG_CLK_COUNT_APER_N_LO );
+  uint32_t int_hi = spi_reg_read(spi, REG_CLK_COUNT_APER_N_HI );
 
   uint32_t val = int_hi << 24 | int_lo;
   return val;
@@ -109,19 +109,19 @@ static char * himux_sel_format( uint32_t mux )
 
 void ctrl_set_mux( uint32_t spi, uint32_t mux )
 {
-  assert(spi == SPI1);
+  assert(spi == spi);
   /*
   // char buf[100];
   // printf("*set himux_sel %s (%lu)\n",  format_bits( buf, 4, mux ), mux);
   */
-  spi_reg_write(SPI1, REG_HIMUX_SEL,  mux);
+  spi_reg_write(spi, REG_HIMUX_SEL,  mux);
 }
 
 
 uint32_t ctrl_get_mux( uint32_t spi )
 {
-  assert(spi == SPI1);
-  return  spi_reg_read(SPI1, REG_HIMUX_SEL);
+  assert(spi == spi);
+  return  spi_reg_read(spi, REG_HIMUX_SEL);
 }
 
 
@@ -129,16 +129,16 @@ uint32_t ctrl_get_mux( uint32_t spi )
 
 void ctrl_reset_enable( uint32_t spi )
 {
-  assert(spi == SPI1);
+  assert(spi == spi);
   // TODO pass spi.
   // active low
-  spi_reg_write(SPI1, REG_RESET,  0);
+  spi_reg_write(spi, REG_RESET,  0);
 }
 
 void ctrl_reset_disable(uint32_t spi)
 {
-  assert(spi == SPI1);
-  spi_reg_write(SPI1, REG_RESET,  1);
+  assert(spi == spi);
+  spi_reg_write(spi, REG_RESET,  1);
 }
 
 
@@ -154,22 +154,22 @@ void ctrl_run_read( uint32_t spi, Run *run )
   change name adc_meas_read()   or intg_meas_read()
     etc.
   */
-  assert(spi == SPI1);
+  assert(spi == spi);
   assert(run);
 
   // use separate lines (to make it easier to filter - for plugging into stats).
-  run->count_up         = spi_reg_read(SPI1, REG_COUNT_UP );
-  run->count_down       = spi_reg_read(SPI1, REG_COUNT_DOWN );
+  run->count_up         = spi_reg_read(spi, REG_COUNT_UP );
+  run->count_down       = spi_reg_read(spi, REG_COUNT_DOWN );
 
-  run->count_trans_up   = spi_reg_read(SPI1, REG_COUNT_TRANS_UP );
-  run->count_trans_down = spi_reg_read(SPI1, REG_COUNT_TRANS_DOWN );
+  run->count_trans_up   = spi_reg_read(spi, REG_COUNT_TRANS_UP );
+  run->count_trans_down = spi_reg_read(spi, REG_COUNT_TRANS_DOWN );
 
-  run->count_fix_up     = spi_reg_read(SPI1, REG_COUNT_FIX_UP);
-  run->count_fix_down   = spi_reg_read(SPI1, REG_COUNT_FIX_DOWN);
+  run->count_fix_up     = spi_reg_read(spi, REG_COUNT_FIX_UP);
+  run->count_fix_down   = spi_reg_read(spi, REG_COUNT_FIX_DOWN);
 
 
   // WE could record slow_rundown separate to normal rundown.
-  run->clk_count_rundown = spi_reg_read(SPI1, REG_CLK_COUNT_RUNDOWN );
+  run->clk_count_rundown = spi_reg_read(spi, REG_CLK_COUNT_RUNDOWN );
 
 
 
@@ -205,17 +205,17 @@ void run_report( const Run *run )
 
 void ctrl_param_read( uint32_t spi, Param *param)
 {
-  assert(spi == SPI1);
+  assert(spi == spi);
 
-  uint32_t int_lo = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_LO );
-  uint32_t int_hi = spi_reg_read(SPI1, REG_CLK_COUNT_APER_N_HI );
+  uint32_t int_lo = spi_reg_read(spi, REG_CLK_COUNT_APER_N_LO );
+  uint32_t int_hi = spi_reg_read(spi, REG_CLK_COUNT_APER_N_HI );
   param->clk_count_aper_n = int_hi << 24 | int_lo;
 
-  param->clk_count_fix_n  = spi_reg_read(SPI1, REG_CLK_COUNT_FIX_N);
+  param->clk_count_fix_n  = spi_reg_read(spi, REG_CLK_COUNT_FIX_N);
 
-  param->clk_count_var_pos_n = spi_reg_read(SPI1, REG_CLK_COUNT_VAR_POS_N);
+  param->clk_count_var_pos_n = spi_reg_read(spi, REG_CLK_COUNT_VAR_POS_N);
 
-  param->himux_sel = spi_reg_read(SPI1, REG_HIMUX_SEL );
+  param->himux_sel = spi_reg_read(spi, REG_HIMUX_SEL );
 
 }
 
@@ -225,19 +225,19 @@ void ctrl_param_read( uint32_t spi, Param *param)
 
 void ctrl_param_read_last( uint32_t spi, Param *param)
 {
-  assert(spi == SPI1);
+  assert(spi == spi);
 
   // but nothing permutes this.
-  uint32_t int_lo = spi_reg_read(SPI1, REG_LAST_CLK_COUNT_APER_N_LO );
-  uint32_t int_hi = spi_reg_read(SPI1, REG_LAST_CLK_COUNT_APER_N_HI );
+  uint32_t int_lo = spi_reg_read(spi, REG_LAST_CLK_COUNT_APER_N_LO );
+  uint32_t int_hi = spi_reg_read(spi, REG_LAST_CLK_COUNT_APER_N_HI );
   param->clk_count_aper_n = int_hi << 24 | int_lo;
 
-  param->clk_count_fix_n  = spi_reg_read(SPI1, REG_LAST_CLK_COUNT_FIX_N);
+  param->clk_count_fix_n  = spi_reg_read(spi, REG_LAST_CLK_COUNT_FIX_N);
 
-  param->clk_count_var_pos_n = spi_reg_read(SPI1, REG_LAST_CLK_COUNT_VAR_POS_N);
+  param->clk_count_var_pos_n = spi_reg_read(spi, REG_LAST_CLK_COUNT_VAR_POS_N);
 
   // This is.
-  param->himux_sel = spi_reg_read(SPI1, REG_LAST_HIMUX_SEL ); // **last
+  param->himux_sel = spi_reg_read(spi, REG_LAST_HIMUX_SEL ); // **last
 }
 
 

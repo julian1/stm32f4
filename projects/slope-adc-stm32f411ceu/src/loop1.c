@@ -393,6 +393,7 @@ void app_voltage_source_set( app_t *app, double value )
     while(1) {
       current = app_simple_read( app);
       // printf("val %lf\n", current);
+      printf(".");
       if(current > value)
         break;
 
@@ -409,6 +410,7 @@ void app_voltage_source_set( app_t *app, double value )
     voltage_source_set_dir(-1);
     while(1) {
       current = app_simple_read( app);
+      printf(".");
       // printf("val %lf\n", current);
       if(current < value)
         break;
@@ -419,6 +421,8 @@ void app_voltage_source_set( app_t *app, double value )
 
     voltage_source_set_dir(0);
   }
+
+  printf("\n");
 }
 
 
@@ -477,14 +481,9 @@ void app_loop3 ( app_t *app   )
   memset(&run_b, 0, sizeof(Run));
 
 
-  // OK. hang on. why use a matrix buffer. why not just spit values out to stdout????
-  unsigned id = 0;
-  // unsigned row = 0;
-  // MAT *buffer = m_get( 100, 3);
 
   float target[] = { 5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0 } ;
 
-  // use a obs
 
   for(unsigned target_i = 0; target_i < ARRAY_SIZE(target); ++target_i)
   {
@@ -535,7 +534,7 @@ void app_loop3 ( app_t *app   )
             #if 1
             char buf[100], buf2[100];
             printf("%u   %sV\t  %sV  %.2fuV\n",
-              id,
+              target_i,
               format_float_with_commas(buf, 100, 7, predict_a),
               format_float_with_commas(buf2, 100, 7, predict_b ),
               (predict_a - predict_b) * 1000000
