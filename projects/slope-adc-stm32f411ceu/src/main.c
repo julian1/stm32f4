@@ -209,8 +209,9 @@ void app_update_console_cmd(app_t *app)
 
 
       // flash write cal
+      // should be called 'cal save', 'cal load'  etc?
       else if(strcmp(app->cmd_buf , "flash write cal") == 0) {
-      
+
         // think we really want slots.
         if(!app->b) {
 
@@ -235,7 +236,7 @@ void app_update_console_cmd(app_t *app)
 
       // flash read test. doesn't load cal.
       // but might be useful to revert
-      else if(strcmp(app->cmd_buf , "flash read cal") == 0) {   // FIXME
+      else if(strcmp(app->cmd_buf , "flash read cal") == 0) {
 
         // might be better to have separate read
         printf("flash read cal\n");
@@ -267,7 +268,7 @@ void app_update_console_cmd(app_t *app)
         app_simple_sleep( app, u32 );
         printf("sleep done\n");
       }
-  
+
       /*
       // change name source ? or test-source ?
       else if(sscanf(app->cmd_buf, "vs set dir %ld", &i32 ) == 1) {
@@ -483,7 +484,7 @@ void app_simple_sleep( app_t * app, uint32_t period )
     }
 
     // print dots
-    if( (system_millis - _1s_timer) > 1000) { 
+    if( (system_millis - _1s_timer) > 1000) {
       printf(".");
       _1s_timer += 1000;
     }
