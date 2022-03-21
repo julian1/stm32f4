@@ -256,15 +256,6 @@ void app_loop2 ( app_t *app )
 
 
 
-
-
-  Run   run;
-  Param param;
-
-
-  memset(&run, 0, sizeof(Run));
-
-
   unsigned nplc_[] = { 9, 10, 11, 12 };
   // double y  = 0; 
 
@@ -292,7 +283,9 @@ void app_loop2 ( app_t *app )
       for(unsigned i = 0; i < 7; ++i) {
 
 
+        ctrl_reset_enable(app->spi);
         app->data_ready = false;
+        ctrl_reset_disable(app->spi);
 
         // block/wait for data
         while(!app->data_ready ) { 
@@ -307,10 +300,12 @@ void app_loop2 ( app_t *app )
 
         }
 
-        // if(run.count_up ) {
+
+        Run   run;
+        Param param;
 
         // read the ready data
-        ctrl_run_read(app->spi, &run);
+        ctrl_run_read(        app->spi, &run);
         ctrl_param_read_last( app->spi, &param);
 
         run_report(&run);
@@ -341,24 +336,19 @@ void app_loop2 ( app_t *app )
      
           // do aperture
           assert(row < m_rows(aperture));
-          m_set_val( aperture, row, 0, param.clk_count_aper_n );  // this is wrong.
+          m_set_val( aperture, row, 0, param.clk_count_aper_n );  // no.
+
+          assert( param.clk_count_aper_n  == nplc_to_aper_n( nplc));
 
           // do y
           assert(row < m_rows(y));
-          m_set_val( y       , row , 0, y_ );
+          m_set_val( y       , row , 0, y_  *  nplc_to_aper_n( nplc));
 
           // increment row.
           ++row;
         }
 
         printf("\n");
-
-      
-
-        app_update( app );   // change name simple update
-        if(app->continuation_f) {
-          return;
-        }
 
 
 
@@ -368,20 +358,24 @@ void app_loop2 ( app_t *app )
 
 
   printf("row %u\n", row);
+  usart1_flush();
 
   // shrink matrixes for the data collected
   m_resize( xs, row, m_cols( xs) );
   m_resize( y,  row, m_cols( y) );
-  m_resize( aperture, row, m_cols( xs) ); // we don't use aperture 
+  m_resize( aperture, row, m_cols( aperture) ); // we don't use aperture 
+
+
 
   // need to multiply by the aperture?
   m_foutput(stdout, xs );
+  usart1_flush();
 
   m_foutput(stdout, y );
+  usart1_flush();
 
 
   MAT *b = m_regression( xs, y, MNULL );
-
   printf("b\n");
   m_foutput(stdout, b);
   usart1_flush();
@@ -390,7 +384,11 @@ void app_loop2 ( app_t *app )
 
   // no we need the aperture. to calc predicted
 
-  m_calc_predicted( b, xs, aperture);
+  MAT *predicted = m_calc_predicted( b, xs, aperture);
+  printf("predicted\n");
+  m_foutput(stdout, predicted);
+
+
 
   // show the predicted
 
