@@ -349,7 +349,7 @@ static double app_simple_read( app_t *app)
   memset(&run, 0, sizeof(Run));
 
   /* setting the aperture here, will confuse, if call from another loop.
-    could record the aperture and then return... 
+    could record the aperture and then return...
     but this case, should probably be handled elsewhere...
   */
 
@@ -392,7 +392,7 @@ void app_voltage_source_set( app_t *app, double value )
     voltage_source_set_dir(1);
     while(1) {
       current = app_simple_read( app);
-      printf("val %lf\n", current);
+      // printf("val %lf\n", current);
       if(current > value)
         break;
 
@@ -409,7 +409,7 @@ void app_voltage_source_set( app_t *app, double value )
     voltage_source_set_dir(-1);
     while(1) {
       current = app_simple_read( app);
-      printf("val %lf\n", current);
+      // printf("val %lf\n", current);
       if(current < value)
         break;
       if(app->continuation_f)
@@ -418,11 +418,7 @@ void app_voltage_source_set( app_t *app, double value )
     }
 
     voltage_source_set_dir(0);
-
   }
-
-
-
 }
 
 
@@ -486,91 +482,112 @@ void app_loop3 ( app_t *app   )
   // unsigned row = 0;
   // MAT *buffer = m_get( 100, 3);
 
+  float target[] = { 5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0 } ;
 
-  while(true) {
+  // use a obs
 
-    // configure nplc
-    ctrl_reset_enable(app->spi);
-    ctrl_set_aperture( app->spi, nplc_to_aper_n(10));
-    app->data_ready = false;
-    ctrl_reset_disable(app->spi);
+  for(unsigned target_i = 0; target_i < ARRAY_SIZE(target); ++target_i)
+  {
 
+    // change to voltage
+    printf("voltage set %lf\n", target[target_i] );
+    app_voltage_source_set( app, target[target_i ] );
 
-    // block/wait for data
-    while(!app->data_ready ) {
-
-      // we have both obs available...
-      if(run_a.count_up && run_b.count_up ) {
-
-        if(app ->b) {
-          double predict_a      = m_calc_predicted_val( app->b , &run_a, &param_a );
-          double predict_b      = m_calc_predicted_val( app->b , &run_b,  &param_b );
+    // sleep to let DA settle.
+    unsigned sleep = target_i == 0 ? 10 : 5;
+    printf("sleep %us\n", sleep );
+    app_simple_sleep( app, sleep * 1000 );
 
 
-          /*
-          if(mode == starting && predict_a > 10)  {
-            mode = running;
+    // 10 obs
+    for(unsigned obs = 0; obs < 10; ++obs)
+    {
+
+      // read A.
+      // configure nplc
+      ctrl_reset_enable(app->spi);
+      ctrl_set_aperture( app->spi, nplc_to_aper_n(10));
+      app->data_ready = false;
+      ctrl_reset_disable(app->spi);
+
+
+      // block/wait for data
+      while(!app->data_ready ) {
+
+        // this is the process.
+        // we have both obs available...
+        if(run_a.count_up && run_b.count_up ) {
+
+          if(app ->b) {
+            double predict_a      = m_calc_predicted_val( app->b , &run_a, &param_a );
+            double predict_b      = m_calc_predicted_val( app->b , &run_b,  &param_b );
+
+
+            /*
+            if(mode == starting && predict_a > 10)  {
+              mode = running;
+            }
+            */
+            #if 0
+            printf("%u   %.7lf,  %.7lf  %.2fuV\n", id, predict_a, predict_b, (predict_a - predict_b) * 1000000 );
+            #endif
+
+            #if 1
+            char buf[100], buf2[100];
+            printf("%u   %sV\t  %sV  %.2fuV\n",
+              id,
+              format_float_with_commas(buf, 100, 7, predict_a),
+              format_float_with_commas(buf2, 100, 7, predict_b ),
+              (predict_a - predict_b) * 1000000
+            );
+            #endif
           }
-          */
-          #if 0
-          printf("%u   %.7lf,  %.7lf  %.2fuV\n", id, predict_a, predict_b, (predict_a - predict_b) * 1000000 );
-          #endif
 
-          #if 1
-          char buf[100], buf2[100];
-          printf("%u   %sV\t  %sV  %.2fuV\n",
-            id,
-            format_float_with_commas(buf, 100, 7, predict_a),
-            format_float_with_commas(buf2, 100, 7, predict_b ),
-            (predict_a - predict_b) * 1000000
-          );
-          #endif
+          // clear to reset
+          memset(&run_a, 0, sizeof(Run));
+          memset(&run_b, 0, sizeof(Run));
         }
 
-        // clear to reset
-        memset(&run_a, 0, sizeof(Run));
-        memset(&run_b, 0, sizeof(Run));
+        app_update( app );   // change name simple update
+        if(app->continuation_f) {
+
+          printf("whoot done \n");
+
+          return;
+        }
       }
 
-      app_update( app );   // change name simple update
-      if(app->continuation_f) {
+      // read data
+      ctrl_run_read(app->spi, &run_a);
+      ctrl_param_read_last( app->spi, &param_a);
+      assert( aper_n_to_nplc(param_a.clk_count_aper_n) == 10);
 
-        printf("whoot done \n");
 
-        return;
+      // read B.
+      // configure nplc
+      ctrl_reset_enable(app->spi);
+      ctrl_set_aperture( app->spi, nplc_to_aper_n(11));
+      app->data_ready = false;
+      ctrl_reset_disable(app->spi);
+
+      // block/wait for data
+      while(!app->data_ready ) {
+
+        app_update( app );
+        if(app->continuation_f) {
+          return;
+        }
       }
-    }
 
-    // read data
-    ctrl_run_read(app->spi, &run_a);
-    ctrl_param_read_last( app->spi, &param_a);
-    assert( aper_n_to_nplc(param_a.clk_count_aper_n) == 10);
+      // read data
+      ctrl_run_read(app->spi, &run_b);
+      ctrl_param_read_last( app->spi, &param_b);
+      assert(  aper_n_to_nplc(param_b.clk_count_aper_n) == 11);
 
+      // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, m_calc_predicted_val( app-> b , &run_b , &param_b )));
 
-
-    // configure nplc
-    ctrl_reset_enable(app->spi);
-    ctrl_set_aperture( app->spi, nplc_to_aper_n(11));
-    app->data_ready = false;
-    ctrl_reset_disable(app->spi);
-
-    // block/wait for data
-    while(!app->data_ready ) {
-
-      app_update( app );
-      if(app->continuation_f) {
-        return;
-      }
-    }
-
-    // read data
-    ctrl_run_read(app->spi, &run_b);
-    ctrl_param_read_last( app->spi, &param_b);
-    assert(  aper_n_to_nplc(param_b.clk_count_aper_n) == 11);
-
-    // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, m_calc_predicted_val( app-> b , &run_b , &param_b )));
-
-  }
+    } // obs loop.
+  } // target loop
 }
 
 

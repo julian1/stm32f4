@@ -35,19 +35,19 @@ void voltage_source_set_dir( int val )
   switch(val) {
 
     case 1:
-      printf("voltage_source_set doing up!\n" );
+      // printf("voltage_source_set doing up!\n" );
       gpio_set(  VS_PORT, VS_UP);
       gpio_clear(VS_PORT, VS_DOWN);
       break;
 
     case -1:
-      printf("voltage_source_set doing down!\n" );
+      // printf("voltage_source_set doing down!\n" );
       gpio_clear(VS_PORT, VS_UP);
       gpio_set(  VS_PORT, VS_DOWN);
       break;
 
     case 0:
-      printf("voltage_source_set clear!\n" );
+      // printf("voltage_source_set clear!\n" );
       gpio_clear(VS_PORT, VS_UP);
       gpio_clear(VS_PORT, VS_DOWN);
       break;
