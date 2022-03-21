@@ -257,7 +257,7 @@ void app_loop2 ( app_t *app )
 
 
   unsigned nplc_[] = { 9, 10, 11, 12 };
-  // double y  = 0; 
+  // double y  = 0;
 
   unsigned row = 0;
 
@@ -273,9 +273,10 @@ void app_loop2 ( app_t *app )
 
       printf("mux %s\n", himux_sel_format( mux));
 
+      uint32_t aperture_ = nplc_to_aper_n( nplc );
 
       ctrl_reset_enable(app->spi);
-      ctrl_set_aperture( app->spi, nplc_to_aper_n( nplc ));
+      ctrl_set_aperture( app->spi, aperture_);
       ctrl_set_mux( app->spi, mux );
       ctrl_reset_disable(app->spi);
 
@@ -288,61 +289,54 @@ void app_loop2 ( app_t *app )
         ctrl_reset_disable(app->spi);
 
         // block/wait for data
-        while(!app->data_ready ) { 
-            // waiting...
-          /*
-          // seems to need this...
-          app_update( app );   // change name simple update
+        while(!app->data_ready ) {
+          app_update( app );
           if(app->continuation_f) {
             return;
           }
-          */
-
         }
 
-
+        // read the data
         Run   run;
         Param param;
 
-        // read the ready data
         ctrl_run_read(        app->spi, &run);
         ctrl_param_read_last( app->spi, &param);
 
         run_report(&run);
-        /* 
+        /*
         // existing for calibration we won't be using b
         if(app ->b) {
           double predict = m_calc_predicted_val( app->b, &run, &param );
           printf("val(current cal) %lf", predict );
         } */
-    
-        if(i < 2) { 
+
+        if(i < 2) {
           printf("discard");
         }
         else {
 
-          // do xs
+          // record xs
           assert(row < m_rows(xs));
           MAT *whoot = param_run_to_matrix( &param, &run, MNULL );
           assert(whoot);
           assert( m_cols(whoot) == m_cols(xs) );
           assert( m_rows(whoot) == 1  );
 
-          printf("\n");
-          m_foutput(stdout, whoot );
-
+          // printf("\n");
+          // m_foutput(stdout, whoot );
           m_row_set( xs, row, whoot );
           M_FREE(whoot);
-     
-          // do aperture
+
+          // record aperture
           assert(row < m_rows(aperture));
-          m_set_val( aperture, row, 0, param.clk_count_aper_n );  // no.
+          assert( param.clk_count_aper_n  == aperture_ );
+          m_set_val( aperture, row, 0, param.clk_count_aper_n );
 
-          assert( param.clk_count_aper_n  == nplc_to_aper_n( nplc));
 
-          // do y
+          // record y
           assert(row < m_rows(y));
-          m_set_val( y       , row , 0, y_  *  nplc_to_aper_n( nplc));
+          m_set_val( y       , row , 0, y_  *  aperture_ );
 
           // increment row.
           ++row;
@@ -363,7 +357,7 @@ void app_loop2 ( app_t *app )
   // shrink matrixes for the data collected
   m_resize( xs, row, m_cols( xs) );
   m_resize( y,  row, m_cols( y) );
-  m_resize( aperture, row, m_cols( aperture) ); // we don't use aperture 
+  m_resize( aperture, row, m_cols( aperture) ); // we don't use aperture
 
 
 
