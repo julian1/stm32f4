@@ -246,6 +246,17 @@ void app_loop2 ( app_t *app )
 
   ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
 
+#define X_COLS 4
+
+  // may want a row pointer as well.
+  unsigned  max_rows =  10 * 5;
+  MAT *xs       = m_get(max_rows, X_COLS); // TODO change MNULL
+  MAT *y        = m_get(max_rows, 1);
+  MAT *aperture = m_get(max_rows, 1);
+
+
+
+
 
   Run   run;
   Param param;
@@ -255,7 +266,9 @@ void app_loop2 ( app_t *app )
 
 
   unsigned nplc_[] = { 9, 10, 11, 12 };
+  // double y  = 0; 
 
+  unsigned row = 0;
 
   for(unsigned h = 0; h < ARRAY_SIZE(nplc_); ++h)
   {
@@ -265,7 +278,10 @@ void app_loop2 ( app_t *app )
     for(unsigned j = 0; j < 2; ++j)
     {
       uint32_t mux = j == 0 ? HIMUX_SEL_REF_LO : HIMUX_SEL_REF_HI;
+      double   y_  = j == 0 ? 0                : 7.1;
+
       printf("mux %s\n", himux_sel_format( mux));
+
 
       ctrl_reset_enable(app->spi);
       ctrl_set_aperture( app->spi, nplc_to_aper_n( nplc ));
@@ -282,11 +298,25 @@ void app_loop2 ( app_t *app )
         while(!app->data_ready ) {
 
           if(run.count_up ) {
-            // for calibration we won't be using b
+
+            // existing for calibration we won't be using b
             if(app ->b) {
               double predict = m_calc_predicted_val( app->b, &run, &param );
-              printf("val %lf\n", predict );
+              printf("val(current cal) %lf\n", predict );
             }
+
+
+            assert(row < m_rows(xs));
+            m_set_val( xs, row , 0,  );
+       
+
+            assert(row < m_rows(aperture));
+            m_set_val( aperture, row, 0, param.clk_count_aper_n );
+
+            assert(row < m_rows(y));
+            m_set_val( y       , row , 0, target );
+
+
             // clear to reset
             memset(&run, 0, sizeof(Run));
           }
