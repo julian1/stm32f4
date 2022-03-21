@@ -66,9 +66,12 @@ void m_print_details(MAT *m) ;
 void m_foutput_binary( FILE *f, MAT *m  );
 MAT * m_finput_binary(  FILE *f , MAT *out );
 
+// required.
+void m_row_set( MAT *src, unsigned row, MAT *dst );
+
+
 
 // old...
-// void m_row_set( MAT *src, unsigned row, MAT *dst );
 // MAT * m_row_get( MAT *src, unsigned row, MAT *out );
 
 // old. deprecate

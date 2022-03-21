@@ -738,14 +738,8 @@ MAT * m_finput_binary(  FILE *f , MAT *out )
 
 
 
-#if 0
-/*
-  see. albeit these work with vec not mat.
-  set_row() Set the row of a matrix to a given vector
-  set_col() Set the column of a matrix to a given vector
 
-  having the mat is easier. unless have mat_to_vec
-*/
+
 
 void m_row_set( MAT *dst, unsigned row, MAT *src )  // note argument order is kind of reversed
 {
@@ -764,6 +758,17 @@ void m_row_set( MAT *dst, unsigned row, MAT *src )  // note argument order is ki
     m_set_val( dst, row, j,  x );
   }
 }
+
+#if 0
+/*
+  see. albeit these work with vec not mat.
+  set_row() Set the row of a matrix to a given vector
+  set_col() Set the column of a matrix to a given vector
+
+  having the mat is easier. unless have mat_to_vec
+*/
+
+
 
 
 MAT * m_row_get( MAT *src, unsigned row, MAT *out )

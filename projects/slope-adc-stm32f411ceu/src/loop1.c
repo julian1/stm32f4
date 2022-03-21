@@ -302,20 +302,36 @@ void app_loop2 ( app_t *app )
             // existing for calibration we won't be using b
             if(app ->b) {
               double predict = m_calc_predicted_val( app->b, &run, &param );
-              printf("val(current cal) %lf\n", predict );
+              printf("val(current cal) %lf", predict );
+            }
+        
+            if(i < 2) { 
+              printf("discard");
+            }
+            else {
+
+              // do xs
+              assert(row < m_rows(xs));
+              MAT *whoot = param_run_to_matrix( &param, &run, MNULL );
+              assert(whoot);
+              // assert( m_rows(whoot) == m_rows(xs) );
+              // m_foutput(stdout, whoot );
+              m_row_set( xs, row, whoot );
+              M_FREE(whoot);
+         
+              // do aperture
+              assert(row < m_rows(aperture));
+              m_set_val( aperture, row, 0, param.clk_count_aper_n );
+
+              // do y
+              assert(row < m_rows(y));
+              m_set_val( y       , row , 0, y_ );
+
+              // increment row.
+              ++row;
             }
 
-
-            assert(row < m_rows(xs));
-            m_set_val( xs, row , 0,  );
-       
-
-            assert(row < m_rows(aperture));
-            m_set_val( aperture, row, 0, param.clk_count_aper_n );
-
-            assert(row < m_rows(y));
-            m_set_val( y       , row , 0, target );
-
+            printf("\n");
 
             // clear to reset
             memset(&run, 0, sizeof(Run));
