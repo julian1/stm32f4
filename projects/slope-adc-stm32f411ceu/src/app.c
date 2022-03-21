@@ -91,7 +91,7 @@ uint32_t ctrl_get_aperture( uint32_t spi )
 
 
 
-static char * himux_sel_format( uint32_t mux )
+char * himux_sel_format( uint32_t mux )
 {
   //
   switch(mux) {

@@ -85,6 +85,7 @@ void ctrl_reset_enable( uint32_t spi);
 void ctrl_reset_disable(uint32_t spi);
 
 
+char * himux_sel_format( uint32_t mux ); // change name it is any himux.
 
 
 
@@ -222,6 +223,7 @@ void app_update_led(app_t *app);
 void app_loop1(app_t *app );
 void app_loop2(app_t *app );
 void app_loop3(app_t *app );
+void app_loop4(app_t *app );
 
 
 // app_loop3

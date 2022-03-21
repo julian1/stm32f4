@@ -186,7 +186,7 @@ static double m_calc_predicted_val(  MAT *b , Run *run, Param *param )
 void app_loop1 ( app_t *app )
 {
   printf("=========\n");
-  printf("app_loop1\n");
+  printf("app_loop1 - values\n");
 
   ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
 
@@ -236,12 +236,94 @@ void app_loop1 ( app_t *app )
 
 
 
-void app_loop2 ( app_t *app /* void (*pyield)( appt_t * )*/  )
+
+
+
+void app_loop2 ( app_t *app )
+{
+  printf("=========\n");
+  printf("app_loop2 - cal loop\n");
+
+  ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
+
+
+  Run   run;
+  Param param;
+
+
+  memset(&run, 0, sizeof(Run));
+
+
+  unsigned nplc_[] = { 9, 10, 11, 12 };
+
+
+  for(unsigned h = 0; h < ARRAY_SIZE(nplc_); ++h)
+  {
+    int nplc = nplc_[h];
+    printf("nplc   %u\n", nplc    );
+
+    for(unsigned j = 0; j < 2; ++j)
+    {
+      uint32_t mux = j == 0 ? HIMUX_SEL_REF_LO : HIMUX_SEL_REF_HI;
+      printf("mux %s\n", himux_sel_format( mux));
+
+      ctrl_reset_enable(app->spi);
+      ctrl_set_aperture( app->spi, nplc_to_aper_n( nplc ));
+      ctrl_set_mux( app->spi, mux );
+      ctrl_reset_disable(app->spi);
+
+
+      for(unsigned i = 0; i < 10; ++i) {
+
+
+        app->data_ready = false;
+
+        // block/wait for data
+        while(!app->data_ready ) {
+
+          if(run.count_up ) {
+            // for calibration we won't be using b
+            if(app ->b) {
+              double predict = m_calc_predicted_val( app->b, &run, &param );
+              printf("val %lf\n", predict );
+            }
+            // clear to reset
+            memset(&run, 0, sizeof(Run));
+          }
+
+          app_update( app );   // change name simple update
+          if(app->continuation_f) {
+            return;
+          }
+        }
+
+
+        // read the ready data
+        ctrl_run_read(app->spi, &run);
+        ctrl_param_read_last( app->spi, &param);
+
+      } // i
+    } // j
+  } // h
+
+}
+
+
+
+
+
+
+
+
+
+
+
+void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 {
   // auto-zero
 
   printf("=========\n");
-  printf("app_loop2\n");
+  printf("app_loop3\n");
 
   assert(app);
 
@@ -432,7 +514,7 @@ void app_voltage_source_set( app_t *app, double value )
 
 
 
-void app_loop3 ( app_t *app   )
+void app_loop4 ( app_t *app   )
 {
   // could pass the continuatino to use.
   // auto-zero
@@ -456,7 +538,7 @@ void app_loop3 ( app_t *app   )
   */
 
   printf("=========\n");
-  printf("app_loop3\n");
+  printf("app_loop4\n");
 
   assert(app);
 
@@ -482,18 +564,20 @@ void app_loop3 ( app_t *app   )
 
 
 
-  float target[] = { 5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0 } ;
+  float target_[] = { 5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0 } ;
 
 
-  for(unsigned target_i = 0; target_i < ARRAY_SIZE(target); ++target_i)
+  for(unsigned i = 0; i < ARRAY_SIZE(target_); ++i)
   {
 
+    double target = target_[i];
+
     // change to voltage
-    printf("voltage set %lf\n", target[target_i] );
-    app_voltage_source_set( app, target[target_i ] );
+    printf("voltage set %lf\n", target );
+    app_voltage_source_set( app, target );
 
     // sleep to let DA settle.
-    unsigned sleep = target_i == 0 ? 10 : 5;
+    unsigned sleep = i == 0 ? 60 : 30;
     printf("sleep %us\n", sleep );
     app_simple_sleep( app, sleep * 1000 );
 
@@ -534,7 +618,7 @@ void app_loop3 ( app_t *app   )
             #if 1
             char buf[100], buf2[100];
             printf("%u   %sV\t  %sV  %.2fuV\n",
-              target_i,
+              i,
               format_float_with_commas(buf, 100, 7, predict_a),
               format_float_with_commas(buf2, 100, 7, predict_b ),
               (predict_a - predict_b) * 1000000
@@ -588,14 +672,6 @@ void app_loop3 ( app_t *app   )
     } // obs loop.
   } // target loop
 }
-
-
-
-
-
-
-
-
 
 
 
