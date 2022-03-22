@@ -130,7 +130,11 @@ void app_update_console_cmd(app_t *app)
   // int32_t i32;
   double d;
 
-  // TODO. use non-blocking fread() for unified interface.
+  /* TODO. consider using non-blocking fread() for unified interface.
+  
+      fgets()  same as fread but adds a terminating 0.  which means don't need CString. structure 
+
+  */
 
   while( ! cBufisEmpty(&app->console_in)) {
 

@@ -15,7 +15,9 @@
 
 
 /*
-  should use non-blocking fread() instead of cBufPop()...
+  reason not to - is that fread(), fgets() etc are normally used blocking
+  ------
+  could /should use non-blocking fread() instead of cBufPop()...
 
   stdin can be set to non-block in linux. eg. like this. tested.
   so could harmonize interface

@@ -1,5 +1,8 @@
 
-
+/*
+  IMPORTANT.
+  fgets()  same as fread but adds a terminating 0.  which means don't need CString. structure 
+*/
 
 #include "cstring.h"
 
