@@ -156,7 +156,7 @@ static double m_calc_predicted_val(  MAT *b , Run *run, Param *param )
 
   */
 
-  unsigned model = m_cols(b); 
+  unsigned model = m_cols(b);
 
   // do xs.
   MAT *xs = param_run_to_matrix( param,  run, model, MNULL );
@@ -369,7 +369,7 @@ void app_loop2 ( app_t *app )
   printf("row %u\n", row);
   usart1_flush();
 
-  // shrink matrixes for the data collected
+  // shrink matrixes to size collected data
   m_resize( xs, row, m_cols( xs) );
   m_resize( y,  row, m_cols( y) );
   m_resize( aperture, row, m_cols( aperture) ); // we don't use aperture

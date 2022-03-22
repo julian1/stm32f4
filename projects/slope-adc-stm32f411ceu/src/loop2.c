@@ -25,7 +25,7 @@
 void app_loop22( app_t *app )
 {
   printf("=========\n");
-  printf("app_loop2 - cal loop using permutation of var_pos_n, with fixed aperture\n");
+  printf("app_loop22 - cal loop using permutation of var_pos_n, with fixed aperture\n");
 
   ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
   // default.
@@ -43,7 +43,7 @@ void app_loop22( app_t *app )
   MAT *aperture = m_get(max_rows, 1); // required for predicted
 
 
-  // changing this - does change the rundown at the end 
+  // changing this - does change the rundown at the end
   // but not always.
   // 5500 is default.
   uint32_t var_pos_n[] = { 5500, 5450, 5400, 5350, 5300, 5250, 5200, 5150, 5100  };
@@ -54,7 +54,7 @@ void app_loop22( app_t *app )
     // loop var_pos_n
   for(unsigned h = 0; h < ARRAY_SIZE(var_pos_n); ++h)
   {
-    uint32_t var_pos_n_ = var_pos_n[ h ]; 
+    uint32_t var_pos_n_ = var_pos_n[ h ];
     printf("var_pos_n_ %lu\n", var_pos_n_);
 
 
@@ -146,7 +146,7 @@ void app_loop22( app_t *app )
   printf("row %u\n", row);
   usart1_flush();
 
-  // shrink matrixes for the data collected
+  // shrink matrixes to size collected data
   m_resize( xs, row, m_cols( xs) );
   m_resize( y,  row, m_cols( y) );
   m_resize( aperture, row, m_cols( aperture) ); // we don't use aperture

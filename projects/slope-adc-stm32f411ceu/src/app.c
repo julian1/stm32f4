@@ -142,7 +142,7 @@ uint32_t ctrl_get_var_pos_n( uint32_t spi )
 }
 
 
-  
+
 
 
 
@@ -270,10 +270,10 @@ void param_report( const Param *param)
 
 
 /*
-  - passing argument is problematic. 
+  - passing argument is problematic.
   - use m_cols(b) for loop1 use.
 
-  - when used for calibration. pass the argument. 
+  - when used for calibration. pass the argument.
 
 */
 
@@ -302,19 +302,19 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
   double x2 = run->clk_count_rundown;
 
   // four variable model
-  // uint32_t cols = 4; 
+  // uint32_t cols = 4;
 
   m_resize(out, 1, model );
 
 
-  // model == 2, no rundown. 
+  // model == 2, no rundown.
 
   if( model == 3) {    // X_COLS == 3
 
     m_set_val( out, 0, 0,  x0 );
     m_set_val( out, 0, 1,  x1  );
     m_set_val( out, 0, 2,  x2  );
-  } 
+  }
   else if ( model == 4) { // X_COLS == 4
 
     m_set_val( out, 0, 0,  1.f ); // ones, offset
