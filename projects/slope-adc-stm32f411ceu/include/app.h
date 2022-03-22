@@ -224,6 +224,7 @@ void app_loop3(app_t *app );
 void app_loop4(app_t *app );
 
 
+void app_loop22 ( app_t *app );
 
 MAT * param_run_to_matrix( const Param *param, const Run *run, MAT * out );   // rename param_param_run_to_matrix() 
 MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture);

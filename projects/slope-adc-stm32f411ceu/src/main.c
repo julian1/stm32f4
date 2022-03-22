@@ -75,7 +75,7 @@
 
 
 
-static int reg_read_write_test(void)
+static int spi_reg_read_write_test(uint32_t spi )
 {
   // test ice40 register read/write
   // ok. seems to work.
@@ -93,26 +93,26 @@ static int reg_read_write_test(void)
   - but this could have just been due to timing.
   - but no longer seems to have affect. now that speed is better.
   */
-  ret = spi_reg_read(SPI1, REG_LED);
+  ret = spi_reg_read(spi, REG_LED);
   // printf("ret is %x\n", ret); // value is completely wrong.
 
-  spi_reg_write(SPI1, REG_LED , 0xff00ff);
+  spi_reg_write(spi, REG_LED , 0xff00ff);
   msleep(1);
-  ret = spi_reg_read(SPI1, REG_LED);
+  ret = spi_reg_read(spi, REG_LED);
   // printf("ret is %x\n", ret); // value is completely wrong.
   // ret value is completely wrong....
   if(ret != 0xff00ff)
     return -123;
 
   // this works... eg. allowing high bit to be off.
-  spi_reg_write(SPI1, REG_LED, 0x7f00ff);
-  ret = spi_reg_read(SPI1, REG_LED);
+  spi_reg_write(spi, REG_LED, 0x7f00ff);
+  ret = spi_reg_read(spi, REG_LED);
   if(ret != 0x7f00ff)
     return -123;
 
   for(uint32_t i = 0; i < 32; ++i) {
-    spi_reg_write(SPI1, REG_LED , i );
-    ret = spi_reg_read(SPI1, REG_LED);
+    spi_reg_write(spi, REG_LED , i );
+    ret = spi_reg_read(spi, REG_LED);
     if(ret != i )
       return -123;
   }
@@ -167,7 +167,7 @@ void app_update_console_cmd(app_t *app)
           avoid doing this on initializtion is useful
           permits test development for code that is not reliant fpga.
         */
-        long ret = reg_read_write_test();
+        long ret = spi_reg_read_write_test( app->spi );
         if(ret == 0)
           printf("ok\n");
         else

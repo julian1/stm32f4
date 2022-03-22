@@ -20,8 +20,9 @@ void spi_ice40_setup(uint32_t spi)
     SPI_CR1_MSBFIRST
   );
 
-  spi_disable_software_slave_management( spi);
-  spi_enable_ss_output(spi);
+  // Think these are default
+  // spi_disable_software_slave_management( spi);
+  // spi_enable_ss_output(spi);
 }
 
 
