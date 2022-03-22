@@ -14,6 +14,40 @@
 #define UNUSED(x) (void)(x)
 
 
+/*
+  should use non-blocking fread() instead of cBufPop()...
+
+  stdin can be set to non-block in linux. eg. like this. tested.
+  so could harmonize interface
+
+  Note. control over blocking would be useful for allowing software libs to use stdin.
+
+
+  void fd_set_non_block(FILE *f, bool nonblock)
+  {
+  // works.
+  // https://stackoverflow.com/questions/6055702/using-fgets-as-non-blocking-function-c
+
+  int fd = fileno(f);
+  int flags = fcntl(fd, F_GETFL, 0);
+
+  if(nonblock)
+    flags |= O_NONBLOCK;
+  else
+    flags &= ~ O_NONBLOCK;
+
+  fcntl(fd, F_SETFL, flags);
+  }
+
+
+
+*/
+
+
+
+
+
+
 static void output_char( CBuf *console_out , int ch)
 {
   if(ch  == '\n') {

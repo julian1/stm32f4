@@ -122,6 +122,7 @@ static int spi_reg_read_write_test(uint32_t spi )
 
 
 
+
 void app_update_console_cmd(app_t *app)
 {
 
@@ -129,6 +130,7 @@ void app_update_console_cmd(app_t *app)
   // int32_t i32;
   double d;
 
+  // TODO. use non-blocking fread() for unified interface.
 
   while( ! cBufisEmpty(&app->console_in)) {
 
