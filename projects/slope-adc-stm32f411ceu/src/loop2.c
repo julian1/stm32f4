@@ -105,7 +105,7 @@ void app_loop22( app_t *app )
 
           // record xs
           assert(row < m_rows(xs));
-          MAT *whoot = param_run_to_matrix( &param, &run, MNULL );
+          MAT *whoot = param_run_to_matrix( &param, &run, X_COLS, MNULL );
           assert(whoot);
           assert( m_cols(whoot) == m_cols(xs) );
           assert( m_rows(whoot) == 1  );

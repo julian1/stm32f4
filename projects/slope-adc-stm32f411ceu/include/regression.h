@@ -32,7 +32,7 @@ MAT	*m_element_sub(const MAT *mat1, const MAT *mat2, MAT *out);
 
 
 MAT	*m_from_scalar( double val, MAT *out );
-
+MAT *m_diagonal( MAT *mat, MAT *out );
 
 MAT *m_expand_rows( const MAT *mat, unsigned rows, MAT *out ) ;
 

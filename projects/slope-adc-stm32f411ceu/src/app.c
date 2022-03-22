@@ -269,9 +269,16 @@ void param_report( const Param *param)
 }
 
 
+/*
+  - passing argument is problematic. 
+  - use m_cols(b) for loop1 use.
+
+  - when used for calibration. pass the argument. 
+
+*/
 
 
-MAT * param_run_to_matrix( const Param *param, const Run *run, MAT * out )
+MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, MAT * out )
 {
   assert(run);
 
@@ -295,17 +302,20 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, MAT * out )
   double x2 = run->clk_count_rundown;
 
   // four variable model
-  uint32_t cols = 4; 
+  // uint32_t cols = 4; 
 
-  m_resize(out, 1, cols );
+  m_resize(out, 1, model );
 
 
-  if( m_cols( out) == 3) {    // X_COLS == 3
+  // model == 2, no rundown. 
+
+  if( model == 3) {    // X_COLS == 3
 
     m_set_val( out, 0, 0,  x0 );
     m_set_val( out, 0, 1,  x1  );
     m_set_val( out, 0, 2,  x2  );
-  } else if ( m_cols(out) == 4) { // X_COLS == 4
+  } 
+  else if ( model == 4) { // X_COLS == 4
 
     m_set_val( out, 0, 0,  1.f ); // ones, offset
     m_set_val( out, 0, 1,  x0 );

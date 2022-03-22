@@ -151,8 +151,15 @@ static void process( app_t *app, double predict )
 
 static double m_calc_predicted_val(  MAT *b , Run *run, Param *param )
 {
+  /*
+    extr. we can use model = m_cols(b). for this.
+
+  */
+
+  unsigned model = m_cols(b); 
+
   // do xs.
-  MAT *xs = param_run_to_matrix( param,  run, MNULL );
+  MAT *xs = param_run_to_matrix( param,  run, model, MNULL );
   assert(xs);
   assert( m_rows(xs) == 1 );
 
@@ -318,7 +325,7 @@ void app_loop2 ( app_t *app )
 
           // record xs
           assert(row < m_rows(xs));
-          MAT *whoot = param_run_to_matrix( &param, &run, MNULL );
+          MAT *whoot = param_run_to_matrix( &param, &run, X_COLS, MNULL );
           assert(whoot);
           assert( m_cols(whoot) == m_cols(xs) );
           assert( m_rows(whoot) == 1  );
