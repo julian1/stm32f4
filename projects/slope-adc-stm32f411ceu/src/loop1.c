@@ -140,13 +140,6 @@ static void process( app_t *app, double predict )
 
 
 
-static void app_update( app_t * app )
-{
-  app_update_console_cmd(app);
-  app_update_led(app);
-}
-
-
 
 
 
@@ -168,8 +161,11 @@ static double m_calc_predicted_val(  MAT *b , Run *run, Param *param )
   m_set_val( aperture, 0, 0, param->clk_count_aper_n);
 
   // predicted
-  MAT *predicted = m_calc_predicted( b, xs, aperture);      // TODO - combine this function....
+  MAT *predicted = m_calc_predicted( b, xs, aperture);      // TODO - remove/combine this function....
+
   assert(m_cols(predicted) == 1);
+  assert(m_rows(predicted) == 1);
+
   // m_foutput(stdout, predicted );
   double value = m_get_val(predicted, 0, 0 );
 
@@ -498,11 +494,59 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
 
 
-
-
-
-static double app_simple_read( app_t *app)
+void app_voltage_source_set( app_t *app, double value )
 {
+  // this has to read the adc - which makes it a lot more specific
+  // than general app_( app_t *app)  code.
+  // so put here, instead of app.c
+
+  double current = app_simple_read( app);
+
+  if( value > current ) {
+
+    voltage_source_set_dir(1);
+    while(1) {
+      current = app_simple_read( app);
+      // printf("val %lf\n", current);
+      printf(".");
+      if(current > value)
+        break;
+
+      if(app->continuation_f)
+        break;
+    }
+
+    // should be renamed set_dir
+    voltage_source_set_dir(0);
+
+
+  } else {
+
+    voltage_source_set_dir(-1);
+    while(1) {
+      current = app_simple_read( app);
+      printf(".");
+      // printf("val %lf\n", current);
+      if(current < value)
+        break;
+      if(app->continuation_f)
+        break;
+
+    }
+
+    voltage_source_set_dir(0);
+  }
+
+  printf("\n");
+}
+
+
+
+double app_simple_read( app_t *app)
+{
+  // not sure if this should be here.
+  // 
+
   // minimum needed to read a value
   // used to steer the current before we do anything.
   Run   run;
@@ -545,48 +589,6 @@ static double app_simple_read( app_t *app)
 
 
 
-void app_voltage_source_set( app_t *app, double value )
-{
-
-  double current = app_simple_read( app);
-
-  if( value > current ) {
-
-    voltage_source_set_dir(1);
-    while(1) {
-      current = app_simple_read( app);
-      // printf("val %lf\n", current);
-      printf(".");
-      if(current > value)
-        break;
-
-      if(app->continuation_f)
-        break;
-    }
-
-    // should be renamed set_dir
-    voltage_source_set_dir(0);
-
-
-  } else {
-
-    voltage_source_set_dir(-1);
-    while(1) {
-      current = app_simple_read( app);
-      printf(".");
-      // printf("val %lf\n", current);
-      if(current < value)
-        break;
-      if(app->continuation_f)
-        break;
-
-    }
-
-    voltage_source_set_dir(0);
-  }
-
-  printf("\n");
-}
 
 
 /*

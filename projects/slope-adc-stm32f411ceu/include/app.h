@@ -215,8 +215,7 @@ struct app_t
 
 typedef struct app_t app_t;
 
-void app_update_console_cmd(app_t *app);
-void app_update_led(app_t *app);
+// void app_update_led(app_t *app);
 
 
 // app_loop1
@@ -231,11 +230,22 @@ void app_loop4(app_t *app );
 
 
 
+// void app_simple_sleep( app_t * app, uint32_t period );
+
+MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture);
+
+void app_update_console_cmd(app_t *app);
+void app_update_led(app_t *app);
+void app_update( app_t * app );
+
+
 void app_simple_sleep( app_t * app, uint32_t period );
+void app_loop_dispatcher(app_t *app);
 
+void app_spi1_interupt(app_t *app );
+
+double app_simple_read( app_t *app);
 void app_voltage_source_set( app_t *app, double value );
-
-
 
 
 

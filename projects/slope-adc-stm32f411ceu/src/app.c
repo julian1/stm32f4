@@ -21,6 +21,7 @@
 
 #include "app.h"
 
+#include "voltage-source.h"
 
 
 
@@ -304,6 +305,12 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, MAT * out )
 
 
 
+
+////////////////
+
+
+
+
 MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture)
 {
   /*
@@ -338,7 +345,95 @@ MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture)
 
 
 
+void app_update_led(app_t *app)
+{
+  assert(app);
 
+  // 500ms soft timer. should handle wrap around
+  if( (system_millis - app->soft_500ms) > 500) {
+    app->soft_500ms += 500;
+    led_toggle();
+  }
+
+}
+
+
+void app_update( app_t * app )
+{
+  app_update_console_cmd(app);
+  app_update_led(app);
+}
+
+
+
+
+
+void app_simple_sleep( app_t * app, uint32_t period )
+{
+  // not static
+  uint32_t soft_timer = system_millis;
+
+  uint32_t _1s_timer = system_millis;
+
+  while(true) {
+    // keep pumping messages
+    app_update_console_cmd(app);
+    app_update_led(app);
+
+    if( (system_millis - soft_timer ) > period ) {
+
+      printf("\n");
+      return;
+    }
+
+    // print dots
+    if( (system_millis - _1s_timer) > 1000) {
+      printf(".");
+      _1s_timer += 1000;
+    }
+  }
+
+}
+
+
+
+
+
+void app_loop_dispatcher(app_t *app)
+{
+  printf("=========\n");
+  printf("continuation dispatcher\n");
+  printf("> ");
+
+  while(true) {
+
+    app_update_console_cmd(app);
+    app_update_led( app);
+
+
+    if(app->continuation_f) {
+      printf("jump to continuation\n");
+      void (*tmppf)(void *) = app->continuation_f;
+      app->continuation_f = NULL;
+      tmppf( app->continuation_ctx );
+
+      printf("continuation done\n");
+      printf("> ");
+    }
+  }
+
+}
+
+
+
+
+
+
+void app_spi1_interupt(app_t *app )
+{
+  UNUSED(app);
+  app->data_ready = true;
+}
 
 
 
