@@ -351,6 +351,14 @@ void app_loop2 ( app_t *app )
   } // h
 
 
+
+  // restore default
+  ctrl_reset_enable(app->spi);
+  ctrl_set_aperture( app->spi, nplc_to_aper_n( 10 ));
+  ctrl_reset_disable(app->spi);
+
+
+
   printf("row %u\n", row);
   usart1_flush();
 
@@ -548,7 +556,7 @@ void app_voltage_source_set( app_t *app, double value )
 double app_simple_read( app_t *app)
 {
   // not sure if this should be here.
-  // 
+  //
 
   // minimum needed to read a value
   // used to steer the current before we do anything.
@@ -656,7 +664,7 @@ void app_loop4 ( app_t *app   )
     {
 
 
-      // do A 
+      // do A
       // configure nplc
       ctrl_reset_enable(app->spi);
       ctrl_set_aperture( app->spi, nplc_to_aper_n( 10  ));
@@ -685,7 +693,7 @@ void app_loop4 ( app_t *app   )
 
 
       ///////////////////////////////
-    
+
       // do B
       // configure nplc
       ctrl_reset_enable(app->spi);
@@ -701,7 +709,7 @@ void app_loop4 ( app_t *app   )
           return;
         }
       }
-      
+
       // read B
       Run   run_b;
       Param param_b;
