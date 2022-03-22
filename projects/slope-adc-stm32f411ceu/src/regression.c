@@ -2,13 +2,15 @@
 
 
 #include <math.h>     // sqrt
+#include <assert.h>
+#include <stdbool.h>
+
+
 
 #include <matrix.h>
 #include "matrix2.h"   // inverse
 
 #include "regression.h"
-
-#include <assert.h>
 
 
 /*
@@ -20,9 +22,12 @@
 
   refs,
   https://maths.anu.edu.au/files/CMAProcVol32-Complete.pdf
-  https://maths.anu.edu.au/files/CMAProcVol32-Complete.pdf
   http://homepage.divms.uiowa.edu/~dstewart/meschach/
+
+  tutorial
   https://homepage.divms.uiowa.edu/~dstewart/meschach/html_manual/tutorial.html
+
+  function index
   http://homepage.divms.uiowa.edu/~dstewart/meschach/html_manual/fnindex.html
 
 */
@@ -183,7 +188,7 @@ MAT *m_sum(const MAT *mat,  MAT *out)
 
 MAT *m_n(const MAT *mat,  MAT *out)
 {
-  // number of rows. for each col.
+  // vector for number of rows. for each col.
   // same as octave/matlab. column orientated/ vertically.
 
   if ( mat ==(MAT *)NULL )
@@ -213,7 +218,7 @@ MAT *m_n(const MAT *mat,  MAT *out)
 
 MAT *m_sqrt( const MAT *mat, MAT *out)
 {
-
+  // change name element sqrt?
   // printf("sqrt %u x %u\n", m_cols(mat), m_rows( mat )  );
 
   // element
@@ -255,6 +260,27 @@ MAT *m_from_scalar( double val, MAT *out )
   return out;
 }
 
+MAT *m_diagonal( MAT *mat, MAT *out )
+{
+  assert(m_cols(mat) == m_rows(mat));
+
+  if ( mat==(MAT *)NULL )
+    error(E_NULL,"m_diagonal");
+
+  if ( out==(MAT *)NULL || out->m != mat->m || out->n != 1 )
+    out = m_resize(out,mat->m, 1);
+
+  for( unsigned i = 0; i < m_rows(mat); ++i) {
+    double val =  m_get_val( mat, i, i );
+    m_set_val( out, i, 0, val );
+  }
+
+
+  return out;
+}
+
+
+
 
 
 // constant
@@ -262,6 +288,11 @@ MAT *m_from_scalar( double val, MAT *out )
 
 MAT *m_mean( const MAT *mat, MAT *out  )
 {
+  /*
+    TODO maybe
+    - would be faster to just compute directly for each column.
+    without creating sum and n . but it works.
+  */
   // expected values
   MAT *sum = m_sum(mat, MNULL);
   MAT *n   = m_n(mat, MNULL);     // must be matrix.
@@ -284,6 +315,14 @@ MAT *m_mean( const MAT *mat, MAT *out  )
 
 MAT * m_expand_rows( const MAT *mat, unsigned rows, MAT *out )
 {
+  /*
+    Change name m_repeat_rows()
+
+    Note some cases, can use scalar multiply instead.
+    MAT	*sm_mlt(double scalar, const MAT *matrix, MAT *out)
+
+  */
+
   // repeat elements vertically
   // change name expand_vertical
 
@@ -319,6 +358,11 @@ MAT * m_expand_rows( const MAT *mat, unsigned rows, MAT *out )
 
 MAT *m_var( const MAT *mat, unsigned w, MAT *out )
 {
+  /*
+    TODO. maybe.
+      would be much faster to compute without allocation.
+  */
+
   /*
     same as octave. support pop and sample
      // alternate calc approach. also works.
@@ -550,7 +594,7 @@ static MAT * m_concat_ones( MAT *x, MAT *out)
 
 
 //
-
+#if 0
 MAT * m_regression( MAT *x, MAT * y, MAT *out)
 {
 
@@ -580,15 +624,47 @@ MAT * m_regression( MAT *x, MAT * y, MAT *out)
 
   return ret;
 }
+#endif
+
+
+MAT * m_regression( MAT *x, MAT * y, MAT *out)
+{
+
+  MAT *xtx = mtrm_mlt(x, x, MNULL );    // matrix transpose x matrix
+
+  MAT *xtxi = m_inverse(xtx, MNULL);
+
+  MAT *temp1 = mtrm_mlt(x, y, MNULL );    // matrix transpose x matrix
+
+
+  MAT *b  = m_mlt(  xtxi , temp1, out );
+
+  // printf("b \n");
+  // m_foutput(stdout, ret );
+
+
+  M_FREE(xtx);
+  M_FREE(temp1);
+  M_FREE(xtxi);
+
+  return b;
+}
 
 
 
+static bool float_equal(double a, double b, double epsilon )
+{
+    return fabs(a - b) < epsilon;
+}
 
 
 int m_regression_test()
 {
+  /*
+      example from "basic econometrics" p 291.
+      and chap 3. p82
+  */
   double xp[] = { 80, 100, 120, 140, 160, 180, 200, 220, 240, 260 };
-
   MAT *x_ =  m_fill( m_get(10, 1), xp, ARRAY_SIZE(xp) );
   // m_foutput(stdout, x);
 
@@ -596,23 +672,102 @@ int m_regression_test()
   MAT *y =  m_fill( m_get(10, 1), yp, ARRAY_SIZE(yp) );
   // m_foutput(stdout, y);
 
+  double e = 0.00001;
 
-  MAT *x =  m_concat_ones( x_, MNULL );
-  MAT *b =  m_regression( x, y, MNULL );
+  MAT *x      =  m_concat_ones( x_, MNULL );
+
+  /////////////
+  // work out b
+  MAT *xtx    = mtrm_mlt(x, x, MNULL );
+  MAT *xtxi   = m_inverse(xtx, MNULL);
+  MAT *temp1  = mtrm_mlt(x, y, MNULL );
+  MAT *b      = m_mlt(  xtxi , temp1, MNULL );
+
+
+  // MAT *b =  m_regression( x, y, MNULL );
   // m_foutput(stdout, b);
 
+  printf("b\n");
+  m_foutput(stdout, b );
+  // row 0:     24.4545455
+  // row 1:    0.509090909
+  assert( float_equal( m_get_val( b, 0, 0), 24.4545455, e ))  ;
+  assert( float_equal( m_get_val( b, 0, 1), 0.509090909, e ))  ;
 
+
+  /*
   MAT *predicted = m_mlt(x, b, MNULL );
   printf("predicted \n");
   m_foutput(stdout, predicted );
+  */
+
+
+  //////////////
+  // work out theta2
+  // utu = yty - btxty
+
+  MAT *yty    = mtrm_mlt(y, y, MNULL );
+  MAT *xty    = mtrm_mlt(x, y, MNULL );
+  MAT *btxty  = mtrm_mlt(b, xty, MNULL );
+
+  printf("yty\n");
+  m_foutput(stdout, yty );  // correckkt
+
+  printf("xty\n");
+  m_foutput(stdout, xty );  // correckkt
+
+  printf("btxty\n");
+  m_foutput(stdout, btxty);  // correckkt
+
+  MAT *utu = m_element_sub( yty , btxty, MNULL ); // utu = yty - btxty correct
+  printf("utu \n");
+  m_foutput(stdout, utu);  // correckkt
+
+  assert( float_equal( m_get_val( utu, 0, 0), 337.272727, e ))  ;
+
+  double df =  m_rows(y) - m_rows(b);
+  assert(df == 8);
+
+  double theta2 = m_get_val( utu, 0, 0) / df;   // utu / (n - k)
+  assert( float_equal( theta2, 42.159091, e ))  ;
+  printf("theta2 %lf \n", theta2);
+
+
+  ///////////////////////////////
+  // var_cov_b
+
+  MAT *var_cov_b = sm_mlt( theta2, xtxi, MNULL );   // this is a scalar
+  printf("var_cov_b\n");
+  m_foutput(stdout, var_cov_b);  // correct
+
+  // p82.
+  assert( float_equal( m_get_val( var_cov_b, 0, 0), 41.1370523 , e ))  ;
+  assert( float_equal( m_get_val( var_cov_b, 1, 1), 0.00127754821, e ))  ;
+
+  // var_b is the diagonal of the var_cov_b
+  MAT *var_b = m_diagonal( var_cov_b, MNULL);
+  printf("var_b\n");
+  m_foutput(stdout, var_b);  
+
+  MAT *stddev_b = m_sqrt( var_b, MNULL);
+  printf("stddev_b\n");
+  m_foutput(stdout, stddev_b);  
+
+  // p82
+  assert( float_equal( m_get_val( stddev_b, 0, 0), 6.4138173, e ))  ;
+  assert( float_equal( m_get_val( stddev_b, 1, 0), 0.0357428064, e ))  ;
+
+
+
+  /////////////
+
+
 
   // TODO assert() values...
-
   M_FREE(x);
   M_FREE(x_);
   M_FREE(y);
   M_FREE(b);
-  M_FREE(predicted);
 
   return 0;
 }
