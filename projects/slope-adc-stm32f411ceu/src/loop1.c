@@ -238,7 +238,7 @@ void app_loop1 ( app_t *app )
 void app_loop2 ( app_t *app )
 {
   printf("=========\n");
-  printf("app_loop2 - cal loop\n");
+  printf("app_loop2 - cal loop using permutation of nplc/aperture\n");
 
   ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
 
@@ -253,16 +253,20 @@ void app_loop2 ( app_t *app )
 
 
   // unsigned nplc_[] = { 9, 10, 11, 12 };
-  unsigned nplc_[] = { 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+  unsigned nplc[] = { 8, 9, 10, 11, 12, 13, 14, 15, 16 };
   // double y  = 0;
 
   unsigned row = 0;
 
-  for(unsigned h = 0; h < ARRAY_SIZE(nplc_); ++h)
+  // loop nplc
+  for(unsigned h = 0; h < ARRAY_SIZE(nplc); ++h)
   {
-    int nplc = nplc_[h];
-    printf("nplc   %u\n", nplc    );
+    int nplc_ = nplc[h];
+    uint32_t aperture_ = nplc_to_aper_n( nplc_ );  // move this up a loop.
+    printf("nplc   %u\n", nplc_    );
 
+
+    // loop mux
     for(unsigned j = 0; j < 2; ++j)
     {
       uint32_t mux = j == 0 ? HIMUX_SEL_REF_LO : HIMUX_SEL_REF_HI;
@@ -270,7 +274,6 @@ void app_loop2 ( app_t *app )
 
       printf("mux %s\n", himux_sel_format( mux));
 
-      uint32_t aperture_ = nplc_to_aper_n( nplc );
 
       ctrl_reset_enable(app->spi);
       ctrl_set_aperture( app->spi, aperture_);
@@ -333,7 +336,7 @@ void app_loop2 ( app_t *app )
 
           // record y, as target * aperture
           assert(row < m_rows(y));
-          m_set_val( y       , row , 0, y_  *  aperture_ );
+          m_set_val( y       , row , 0, y_  *  param.clk_count_aper_n );
 
           // increment row.
           ++row;

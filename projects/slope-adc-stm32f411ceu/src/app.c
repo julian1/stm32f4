@@ -128,6 +128,25 @@ uint32_t ctrl_get_mux( uint32_t spi )
 
 
 
+void ctrl_set_var_pos_n( uint32_t spi, uint32_t val)
+{
+  spi_reg_write(spi, REG_CLK_COUNT_VAR_POS_N,  val);
+}
+
+
+
+
+uint32_t ctrl_get_var_pos_n( uint32_t spi )
+{
+  return  spi_reg_read(spi, REG_CLK_COUNT_VAR_POS_N);
+}
+
+
+  
+
+
+
+
 void ctrl_reset_enable( uint32_t spi )
 {
   assert(spi == spi);
@@ -171,9 +190,6 @@ void ctrl_run_read( uint32_t spi, Run *run )
 
   // WE could record slow_rundown separate to normal rundown.
   run->clk_count_rundown = spi_reg_read(spi, REG_CLK_COUNT_RUNDOWN );
-
-
-
 }
 
 

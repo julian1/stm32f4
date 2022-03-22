@@ -81,6 +81,11 @@ uint32_t ctrl_get_aperture( uint32_t spi );
 void ctrl_set_mux( uint32_t spi, uint32_t mux );
 uint32_t ctrl_get_mux( uint32_t spi);
 
+void ctrl_set_var_pos_n( uint32_t spi, uint32_t val);
+uint32_t ctrl_get_var_pos_n( uint32_t spi );
+
+
+
 void ctrl_reset_enable( uint32_t spi);
 void ctrl_reset_disable(uint32_t spi);
 
@@ -152,11 +157,6 @@ void run_report( const Run *run);    // rename run_report
 
 
 
-MAT * param_run_to_matrix( const Param *param, const Run *run, MAT * out );   // rename param_param_run_to_matrix() 
-
-
-MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture);     // rename m_m_calc_predicted
-
 
 
 typedef struct app_t app_t;
@@ -215,7 +215,6 @@ struct app_t
 
 typedef struct app_t app_t;
 
-// void app_update_led(app_t *app);
 
 
 // app_loop1
@@ -225,13 +224,8 @@ void app_loop3(app_t *app );
 void app_loop4(app_t *app );
 
 
-// app_loop3
-// void permute(app_t *app, MAT *b);
 
-
-
-// void app_simple_sleep( app_t * app, uint32_t period );
-
+MAT * param_run_to_matrix( const Param *param, const Run *run, MAT * out );   // rename param_param_run_to_matrix() 
 MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture);
 
 void app_update_console_cmd(app_t *app);
