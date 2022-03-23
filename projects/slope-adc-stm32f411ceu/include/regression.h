@@ -59,6 +59,8 @@ MAT *m_hconcat( MAT *a, MAT *b, MAT *out );
 // MAT *m_regression( MAT *x, MAT * y, MAT *out);
 // int m_regression_test(void);
 
+bool m_is_scalar(const MAT *mat );
+double d_from_scalar_m(const MAT *mat );
 
 
 struct R
@@ -97,7 +99,7 @@ typedef struct R R;
 void r_free( R *regression);
 void r_report( R * regression, FILE *f );
 int m_regression(  MAT *x, MAT *y,  R * regression );
-int m_regression_test();
+int m_regression_test(void);
 
 
 

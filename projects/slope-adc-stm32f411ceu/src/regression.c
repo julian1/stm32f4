@@ -255,6 +255,7 @@ bool m_is_scalar(const MAT *mat )
 
 double d_from_scalar_m(const MAT *mat )
 {
+  assert( m_is_scalar( mat));
   return m_get_val(mat, 0, 0);
 }
 
@@ -371,8 +372,10 @@ MAT * m_expand_rows( const MAT *mat, unsigned rows, MAT *out )
 MAT *m_var( const MAT *mat, unsigned w, MAT *out )
 {
   /*
-    TODO. maybe.
-      would be much faster to compute without allocation.
+    TODO. maybe. review.
+      would be simller / faster / less mem to compute without MAT allocation.
+
+    also we - generally only want return values as scalars
   */
 
   /*
@@ -655,18 +658,18 @@ int m_regression(  MAT *x, MAT *y,  R * regression )
   MAT *temp1    = mtrm_mlt(x, y, MNULL );
   regression->b = m_mlt(  xtxi , temp1, MNULL );
 
+  assert( m_rows(regression->b) == m_cols( x) );
 
+  // remember predicted, needs to be adjusted by aperture
   regression->predicted = m_mlt(x, regression->b, MNULL );
 
   ///////////////////////////////
   // work out theta2
   // utu = yty - btxty
 
-  MAT *yty_    = mtrm_mlt(y, y, MNULL );
-  MAT *xty    = mtrm_mlt(x, y, MNULL );
-  MAT *btxty_  = mtrm_mlt(regression->b, xty, MNULL );
-
-  // utu = yty - btxty
+  MAT *yty_     = mtrm_mlt(y, y, MNULL );
+  MAT *xty      = mtrm_mlt(x, y, MNULL );
+  MAT *btxty_   = mtrm_mlt(regression->b, xty, MNULL );
 
   assert( m_is_scalar( yty_ ));
   assert( m_is_scalar( btxty_));
@@ -674,15 +677,14 @@ int m_regression(  MAT *x, MAT *y,  R * regression )
   double yty   = d_from_scalar_m(yty_ );
   double btxty = d_from_scalar_m(btxty_);
 
-
-  // MAT *utu = m_element_sub( yty , btxty, MNULL );
-  double utu = yty - btxty;
+  // utu = yty - btxty
+  double utu          = yty - btxty;
 
   // df = n - k
-  regression->df =  m_rows(y) - m_rows( regression->b );
+  regression->df      =  m_rows(y) - m_rows( regression->b );
 
   // utu / (n - k)
-  regression->theta2 = utu / regression->df;
+  regression->theta2  = utu / regression->df;
 
 
   ///////////////////////////////
@@ -691,9 +693,9 @@ int m_regression(  MAT *x, MAT *y,  R * regression )
   regression->var_cov_b = sm_mlt( regression->theta2, xtxi, MNULL );
 
   // var_b is the diagonal of the var_cov_b
-  regression->var_b = m_diagonal( regression->var_cov_b, MNULL);
+  regression->var_b     = m_diagonal( regression->var_cov_b, MNULL);
 
-  regression->stddev_b = m_sqrt( regression->var_b, MNULL);
+  regression->stddev_b  = m_sqrt( regression->var_b, MNULL);
 
 
   //////////////////
@@ -705,30 +707,29 @@ int m_regression(  MAT *x, MAT *y,  R * regression )
   double ybar_ = d_from_scalar_m( ybar );
 
   // 'correction for mean'
-  regression->nybar2 = m_rows(y) *  ybar_ * ybar_ ;
+  regression->nybar2  = m_rows(y) *  ybar_ * ybar_ ;
 
-  regression->ess = btxty  - regression->nybar2;
+  regression->ess     = btxty  - regression->nybar2;
 
-  regression->tss = yty  - regression->nybar2;
+  regression->tss     = yty  - regression->nybar2;
 
-  regression->r2 = regression->ess / regression->tss;
+  regression->r2      = regression->ess / regression->tss;
 
-  regression->r = sqrt( regression->r2);
+  regression->r       = sqrt( regression->r2);
 
 
   /////////////
   // TODO f stat.
 
-
   // free up everything
-
   M_FREE( xtx);
   M_FREE( xtxi);
   M_FREE( temp1);
-  // M_FREE( yty);
+
+  M_FREE( yty_);
   M_FREE( xty );
-  // M_FREE( btxty);
-  // M_FREE( utu);
+  M_FREE( btxty_);
+
   M_FREE( ybar);
 
   return 0;
@@ -758,32 +759,33 @@ void r_report( R * regression, FILE *f )
   fprintf(f, "b\n");
   m_foutput(f, regression->b);
 
-  fprintf(f, "predicted\n");
-  m_foutput(f, regression->predicted);
+  // needs to be flushed also.
+  // fprintf(f, "\npredicted\n");
+  // m_foutput(f, regression->predicted);
 
-  fprintf(f, "df     %u\n", regression->df);
+  fprintf(f, "\ndf     %u\n", regression->df);
 
   fprintf(f, "theta2 %f\n", regression->theta2);
 
-  fprintf(f, "var_cov_b\n");
+  fprintf(f, "\nvar_cov_b\n");
   m_foutput(f, regression->var_cov_b);
 
-  fprintf(f, "var_b\n");
+  fprintf(f, "\nvar_b\n");
   m_foutput(f, regression->var_b);
 
-  fprintf(f, "stddev_b\n");
+  fprintf(f, "\nstddev_b\n");
   m_foutput(f, regression->var_b);
 
   // 'correction for mean'
-  fprintf(f, "nybar2 %f\n", regression->nybar2);
+  fprintf(f, "\nnybar2 %f\n", regression->nybar2);
 
   fprintf(f, "ess    %f\n", regression->ess);
 
-  fprintf(f, "ess    %f\n", regression->tss);
+  fprintf(f, "tss    %f\n", regression->tss);
 
-  fprintf(f, "r2     %f\n", regression->r2);
+  fprintf(f, "r2     %.10f\n", regression->r2);
 
-  fprintf(f, "r      %f\n", regression->r);
+  fprintf(f, "r      %.10f\n", regression->r);
 
 }
 
@@ -853,6 +855,8 @@ int m_regression_test()
 
 
   r_report( &regression, stdout );
+
+  r_free( &regression);
 
   return 0;
 }

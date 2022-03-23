@@ -34,7 +34,7 @@ void app_loop22( app_t *app )
   ctrl_set_aperture( app->spi, nplc_to_aper_n( 10  ));
 
 
-#define X_COLS 4
+#define X_COLS 3
 
   // may want a row pointer as well.
   unsigned  max_rows =  10 * 9 * 2;
@@ -152,30 +152,26 @@ void app_loop22( app_t *app )
   m_resize( aperture, row, m_cols( aperture) ); // we don't use aperture
 
 
-  #if 0
-  m_foutput(stdout, xs );
-  usart1_flush();
 
-  m_foutput(stdout, y );
-  usart1_flush();
-  #endif
+  R regression;
+  memset( & regression, 0, sizeof(regression));
 
+  m_regression( xs, y, &regression );
 
-  MAT *b = m_regression( xs, y, MNULL );
-  assert( m_rows(b) == m_cols( xs) ); // calibration coeff is horizontal matrix.
-  printf("b\n");
-  m_foutput(stdout, b);
-  usart1_flush();
-
-
-  // no we need the aperture. to calc predicted
-
-  MAT *predicted = m_calc_predicted( b, xs, aperture);
-  printf("predicted\n");
+  // predicted must be adjusted by aperture
+  MAT *predicted =  m_calc_predicted( regression.b, xs, aperture );
+  printf("\npredicted\n");
   m_foutput(stdout, predicted);
+  usart1_flush();
 
 
-  app->b = b;
+
+  r_report( &regression, stdout);
+ 
+  // copy, for new memory
+  app->b = m_copy( regression.b, MNULL );
+
+  r_free( &regression );
 
 }
 

@@ -321,7 +321,8 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
     m_set_val( out, 0, 1,  x0 );
     m_set_val( out, 0, 2,  x1  );
     m_set_val( out, 0, 3,  x2  );
-  } else assert( 0);
+  } 
+  else assert( 0);
 
   return out;
 }

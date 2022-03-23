@@ -76,8 +76,8 @@ static void push_stats_buffer( app_t *app , double value )
 
 
   MAT *stddev = m_stddev( app->stats_buffer, 0, MNULL );
-  assert( m_cols(stddev) == 1 && m_rows(stddev) == 1);
-  double stddev_ = m_get_val( stddev, 0, 0);
+  assert( m_is_scalar( stddev ));
+  double stddev_ = d_from_scalar_m( stddev);
   M_FREE(stddev);
 
 
@@ -112,8 +112,8 @@ static void process( app_t *app, double predict )
   if( full ) {
     // take the mean of the buffer.
     MAT *mean = m_mean( app->buffer, MNULL );
-    assert(m_rows(mean) == 1 && m_cols(mean) == 1);
-    double mean_ = m_get_val(mean, 0, 0);
+    assert( m_is_scalar( mean ));
+    double mean_ = d_from_scalar_m( mean);
     M_FREE(mean);
 
     double value = mean_;
@@ -123,13 +123,13 @@ static void process( app_t *app, double predict )
 
 
     MAT *stddev = m_stddev( app->stats_buffer, 0, MNULL );
-    assert( m_cols(stddev) == 1 && m_rows(stddev) == 1);
-    double stddev_ = m_get_val( stddev, 0, 0);
+    assert( m_is_scalar( stddev ));
+    double stddev_ = d_from_scalar_m( stddev);
     M_FREE(stddev);
 
     // report
     char buf[100];
-    printf("value %sV ", format_float_with_commas(buf, 100, 7, value));
+    printf("value %sV ",          format_float_with_commas(buf, 100, 7, value));
     printf("stddev(%u) %.2fuV, ", m_rows(app->stats_buffer), stddev_  * 1000000 );   // multiply by 10^6. for uV
     printf("\n");
 
@@ -156,7 +156,8 @@ static double m_calc_predicted_val(  MAT *b , Run *run, Param *param )
 
   */
 
-  unsigned model = m_cols(b);
+  unsigned model = m_rows(b);
+  // printf("model %u\n", model );
 
   // do xs.
   MAT *xs = param_run_to_matrix( param,  run, model, MNULL );
@@ -385,21 +386,23 @@ void app_loop2 ( app_t *app )
   #endif
 
 
-  MAT *b = m_regression( xs, y, MNULL );
-  assert( m_rows(b) == m_cols( xs) ); // calibration coeff is horizontal matrix.
-  printf("b\n");
-  m_foutput(stdout, b);
+  R regression;
+
+  m_regression( xs, y, &regression );
+
+
+  // predicted must be adjusted by aperture
+  MAT *predicted =  m_calc_predicted( regression.b, xs, aperture );
+  printf("\npredicted\n");
+  m_foutput(stdout, predicted);
   usart1_flush();
 
+  r_report( &regression, stdout);
 
-  // no we need the aperture. to calc predicted
+  // copy, for new memory
+  app->b = m_copy( regression.b, MNULL );
 
-  MAT *predicted = m_calc_predicted( b, xs, aperture);
-  printf("predicted\n");
-  m_foutput(stdout, predicted);
-
-
-  app->b = b;
+  r_free( &regression );
 
 }
 
