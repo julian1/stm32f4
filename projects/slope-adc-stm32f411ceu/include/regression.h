@@ -56,8 +56,50 @@ MAT *m_fill(  MAT *a, double *p,  unsigned sz );
 MAT *m_hconcat( MAT *a, MAT *b, MAT *out );
 
 
-MAT *m_regression( MAT *x, MAT * y, MAT *out);
-int m_regression_test(void);
+// MAT *m_regression( MAT *x, MAT * y, MAT *out);
+// int m_regression_test(void);
+
+
+
+struct R
+{
+  MAT *b;
+
+  MAT *predicted;
+
+  unsigned df;
+
+  double theta2;
+
+  MAT *var_cov_b ;
+
+  MAT *var_b;
+
+  MAT *stddev_b ;
+
+  // 'correction for mean'
+  double nybar2;
+
+  double ess;
+  double tss;
+
+  double r2;
+
+  double r ;
+
+};
+
+typedef struct R R;
+
+
+
+
+void r_free( R *regression);
+void r_report( R * regression, FILE *f );
+int m_regression(  MAT *x, MAT *y,  R * regression );
+int m_regression_test();
+
+
 
 
 void m_print_details(MAT *m) ;

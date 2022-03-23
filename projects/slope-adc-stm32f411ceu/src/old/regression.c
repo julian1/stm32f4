@@ -246,16 +246,12 @@ MAT *m_sqrt( const MAT *mat, MAT *out)
 
 
 
-bool m_is_scalar(const MAT *mat )
+bool m_is1x1(const MAT *mat )
 {
+  // 1x1 better name?
 
-  // m_is_scalar( )
+  // m_is1x1( )
   return m_cols( mat) == 1 && m_rows(mat) == 1;   // scalar
-}
-
-double d_from_scalar_m(const MAT *mat )
-{
-  return m_get_val(mat, 0, 0);
 }
 
 
@@ -605,7 +601,39 @@ static MAT * m_concat_ones( MAT *x, MAT *out)
 #endif
 
 
+//
 #if 0
+MAT * m_regression( MAT *x, MAT * y, MAT *out)
+{
+
+  MAT *xt =  m_transp( x, MNULL  );     // TODO  see function that can do combined multipley/ transpose.
+  // printf("xt is \n");
+  // m_foutput(stdout, xt);
+
+  MAT *temp0 = m_mlt(xt, x, MNULL );
+  // printf("result of mult\n");
+  // m_foutput(stdout, temp0);
+
+  MAT *temp1 = m_mlt(xt, y, MNULL );
+
+  MAT *temp2 =  m_inverse(temp0, MNULL);
+
+  // MAT *temp3 = m_mlt(  temp2 , temp1, MNULL );
+  MAT *ret = m_mlt(  temp2 , temp1, out );
+
+  // printf("b \n");
+  // m_foutput(stdout, ret );
+
+
+  M_FREE(xt);
+  M_FREE(temp0);
+  M_FREE(temp1);
+  M_FREE(temp2);
+
+  return ret;
+}
+#endif
+
 
 MAT * m_regression( MAT *x, MAT * y, MAT *out)
 {
@@ -629,168 +657,6 @@ MAT * m_regression( MAT *x, MAT * y, MAT *out)
 
   return b;
 }
-#endif
-
-
-
-/*
-  so we need a structure. for the resut....
-
-*/
-
-
-
-
-
-int m_regression(  MAT *x, MAT *y,  R * regression )
-{
-  /*
-      example from "basic econometrics" p 291.
-      and chap 3. p82
-  */
-  /////////////
-  // work out b
-  MAT *xtx      = mtrm_mlt(x, x, MNULL );
-  MAT *xtxi     = m_inverse(xtx, MNULL);
-  MAT *temp1    = mtrm_mlt(x, y, MNULL );
-  regression->b = m_mlt(  xtxi , temp1, MNULL );
-
-
-  regression->predicted = m_mlt(x, regression->b, MNULL );
-
-  ///////////////////////////////
-  // work out theta2
-  // utu = yty - btxty
-
-  MAT *yty_    = mtrm_mlt(y, y, MNULL );
-  MAT *xty    = mtrm_mlt(x, y, MNULL );
-  MAT *btxty_  = mtrm_mlt(regression->b, xty, MNULL );
-
-  // utu = yty - btxty
-
-  assert( m_is_scalar( yty_ ));
-  assert( m_is_scalar( btxty_));
-
-  double yty   = d_from_scalar_m(yty_ );
-  double btxty = d_from_scalar_m(btxty_);
-
-
-  // MAT *utu = m_element_sub( yty , btxty, MNULL );
-  double utu = yty - btxty;
-
-  // df = n - k
-  regression->df =  m_rows(y) - m_rows( regression->b );
-
-  // utu / (n - k)
-  regression->theta2 = utu / regression->df;
-
-
-  ///////////////////////////////
-  // variance / covariance matrix of B
-
-  regression->var_cov_b = sm_mlt( regression->theta2, xtxi, MNULL );
-
-  // var_b is the diagonal of the var_cov_b
-  regression->var_b = m_diagonal( regression->var_cov_b, MNULL);
-
-  regression->stddev_b = m_sqrt( regression->var_b, MNULL);
-
-
-  //////////////////
-  // r2. coefficient of determination.
-  // = ESS / TSS = (btxty - ny2 ) / (y'y - ny2 )
-
-  MAT *ybar = m_mean(y, MNULL);
-  assert( m_is_scalar( ybar) );   // scalar
-  double ybar_ = d_from_scalar_m( ybar );
-
-  // 'correction for mean'
-  regression->nybar2 = m_rows(y) *  ybar_ * ybar_ ;
-
-  regression->ess = btxty  - regression->nybar2;
-
-  regression->tss = yty  - regression->nybar2;
-
-  regression->r2 = regression->ess / regression->tss;
-
-  regression->r = sqrt( regression->r2);
-
-
-  /////////////
-  // TODO f stat.
-
-
-  // free up everything
-
-  M_FREE( xtx);
-  M_FREE( xtxi);
-  M_FREE( temp1);
-  // M_FREE( yty);
-  M_FREE( xty );
-  // M_FREE( btxty);
-  // M_FREE( utu);
-  M_FREE( ybar);
-
-  return 0;
-}
-
-
-
-
-void r_free( R *regression)
-{
-
-  M_FREE( regression->b);
-  M_FREE( regression->predicted );
-  M_FREE( regression->var_cov_b );
-  M_FREE( regression->var_b );
-  M_FREE( regression->stddev_b );
-
-}
-
-
-
-
-void r_report( R * regression, FILE *f )
-{
-  // could pass the stream
-
-  fprintf(f, "b\n");
-  m_foutput(f, regression->b);
-
-  fprintf(f, "predicted\n");
-  m_foutput(f, regression->predicted);
-
-  fprintf(f, "df     %u\n", regression->df);
-
-  fprintf(f, "theta2 %f\n", regression->theta2);
-
-  fprintf(f, "var_cov_b\n");
-  m_foutput(f, regression->var_cov_b);
-
-  fprintf(f, "var_b\n");
-  m_foutput(f, regression->var_b);
-
-  fprintf(f, "stddev_b\n");
-  m_foutput(f, regression->var_b);
-
-  // 'correction for mean'
-  fprintf(f, "nybar2 %f\n", regression->nybar2);
-
-  fprintf(f, "ess    %f\n", regression->ess);
-
-  fprintf(f, "ess    %f\n", regression->tss);
-
-  fprintf(f, "r2     %f\n", regression->r2);
-
-  fprintf(f, "r      %f\n", regression->r);
-
-}
-
-
-
-
-
 
 
 
@@ -800,7 +666,10 @@ static bool float_equal(double a, double b, double epsilon )
 }
 
 
+/*
+  so we need a structure. for the resut....
 
+*/
 
 
 int m_regression_test()
@@ -821,47 +690,134 @@ int m_regression_test()
 
   MAT *x      =  m_concat_ones( x_, MNULL );
 
+  /////////////
+  // work out b
+  MAT *xtx    = mtrm_mlt(x, x, MNULL );
+  MAT *xtxi   = m_inverse(xtx, MNULL);
+  MAT *temp1  = mtrm_mlt(x, y, MNULL );
+  MAT *b      = m_mlt(  xtxi , temp1, MNULL );
 
-  R regression;
-  memset( &regression, 0, sizeof(regression));
 
-  m_regression(  x, y,  &regression );
+  // MAT *b =  m_regression( x, y, MNULL );
+  // m_foutput(stdout, b);
 
+  printf("b\n");
+  m_foutput(stdout, b );
   // row 0:     24.4545455
   // row 1:    0.509090909
-  assert( float_equal( m_get_val( regression.b, 0, 0), 24.4545455, e ))  ;
-  assert( float_equal( m_get_val( regression.b, 0, 1), 0.509090909, e ))  ;
+  assert( float_equal( m_get_val( b, 0, 0), 24.4545455, e ))  ;
+  assert( float_equal( m_get_val( b, 0, 1), 0.509090909, e ))  ;
 
-  // assert( float_equal( m_get_val( utu, 0, 0), 337.272727, e ))  ;
 
-  assert(regression.df == 8);
+  /*
+  MAT *predicted = m_mlt(x, b, MNULL );
+  printf("predicted \n");
+  m_foutput(stdout, predicted );
+  */
 
-  assert( float_equal( regression.theta2, 42.159091, e ))  ;
+
+  //////////////
+  // work out theta2
+  // utu = yty - btxty
+
+  MAT *yty    = mtrm_mlt(y, y, MNULL );
+  MAT *xty    = mtrm_mlt(x, y, MNULL );
+  MAT *btxty  = mtrm_mlt(b, xty, MNULL );
+
+  // printf("yty\n");
+  // m_foutput(stdout, yty );  // correckkt
+
+  // printf("xty\n");
+  // m_foutput(stdout, xty );  // correckkt
+
+  // printf("btxty\n");
+  // m_foutput(stdout, btxty);  // correckkt
+
+  MAT *utu = m_element_sub( yty , btxty, MNULL ); // utu = yty - btxty correct
+  // printf("utu \n");
+  // m_foutput(stdout, utu);  // correckkt
+
+  assert( float_equal( m_get_val( utu, 0, 0), 337.272727, e ))  ;
+
+  // unsigned n = m_rows(y)
+  unsigned df =  m_rows(y) - m_rows(b);   // n - k
+  assert(df == 8);
+  printf("df %u \n", df );
+
+  double theta2 = m_get_val( utu, 0, 0) / df;   // utu / (n - k)
+  assert( float_equal( theta2, 42.159091, e ))  ;
+  printf("theta2 %lf \n", theta2);
+
+
+  ///////////////////////////////
+  // variance / covariance matrix of B
+
+  MAT *var_cov_b = sm_mlt( theta2, xtxi, MNULL );   // this is a scalar
+  printf("var_cov_b\n");
+  m_foutput(stdout, var_cov_b);  // correct
 
   // p82.
-  assert( float_equal( m_get_val( regression.var_cov_b, 0, 0), 41.1370523 , e ))  ;
-  assert( float_equal( m_get_val( regression.var_cov_b, 1, 1), 0.00127754821, e ))  ;
+  assert( float_equal( m_get_val( var_cov_b, 0, 0), 41.1370523 , e ))  ;
+  assert( float_equal( m_get_val( var_cov_b, 1, 1), 0.00127754821, e ))  ;
+
+  // var_b is the diagonal of the var_cov_b
+  MAT *var_b = m_diagonal( var_cov_b, MNULL);
+  printf("var_b\n");
+  m_foutput(stdout, var_b);
+
+  MAT *stddev_b = m_sqrt( var_b, MNULL);
+  printf("stddev_b\n");
+  m_foutput(stdout, stddev_b);
 
   // p82
-  assert( float_equal( m_get_val( regression.stddev_b, 0, 0), 6.4138173, e ))  ;
-  assert( float_equal( m_get_val( regression.stddev_b, 1, 0), 0.0357428064, e ))  ;
+  assert( float_equal( m_get_val( stddev_b, 0, 0), 6.4138173, e ))  ;
+  assert( float_equal( m_get_val( stddev_b, 1, 0), 0.0357428064, e ))  ;
+
+  //////////////////
+  // r2. coefficient of determination.
+  // = ESS / TSS = (btxty - ny2 ) / (y'y - ny2 )
+
+  MAT *ybar = m_mean(y, MNULL);
+  assert( m_is1x1( ybar) );   // scalar
+
+  // printf("y_bar/ymean\n");
+  // m_foutput(stdout, ybar);
+
+  double ybar_ = m_get_val(ybar, 0, 0 );
+
+  // 'correction for mean'
+  double nybar2 = m_rows(y) *  ybar_ * ybar_ ;
+
+  // printf("nybar2\n");
+  // printf("%f\n" ,  nybar2);
+
+  assert( m_is1x1( btxty));
+  assert( m_is1x1( yty));
+
+  double ess = m_get_val(btxty, 0, 0) - nybar2;
+  double tss = m_get_val(yty  , 0, 0) - nybar2;
+
+  double r2 = ess / tss;
+  printf("r2 %f\n" ,  r2 );
+
+  double r = sqrt( r2);
+  printf("r %f\n" ,  r );
 
 
-  // p 82
-  assert( float_equal( regression.r2, 0.962062, e ))  ;
-  assert( float_equal( regression.r, 0.980847, e ))  ;
+  /////////////
+
+  // TODO f stat.
 
 
-  r_report( &regression, stdout );
+
+  // TODO assert() values...
+  M_FREE(x);
+  M_FREE(x_);
+  M_FREE(y);
+  M_FREE(b);
 
   return 0;
 }
-
-
-
-
-
-
 
 
 
