@@ -664,7 +664,7 @@ int m_regression(  MAT *x, MAT *y,  R * regression )
   regression->predicted = m_mlt(x, regression->b, MNULL );
 
   ///////////////////////////////
-  // work out theta2
+  // work out sigma2
   // utu = yty - btxty
 
   MAT *yty_     = mtrm_mlt(y, y, MNULL );
@@ -684,13 +684,13 @@ int m_regression(  MAT *x, MAT *y,  R * regression )
   regression->df      =  m_rows(y) - m_rows( regression->b );
 
   // utu / (n - k)
-  regression->theta2  = utu / regression->df;
+  regression->sigma2  = utu / regression->df;
 
 
   ///////////////////////////////
   // variance / covariance matrix of B
 
-  regression->var_cov_b = sm_mlt( regression->theta2, xtxi, MNULL );
+  regression->var_cov_b = sm_mlt( regression->sigma2, xtxi, MNULL );
 
   // var_b is the diagonal of the var_cov_b
   regression->var_b     = m_diagonal( regression->var_cov_b, MNULL);
@@ -765,7 +765,7 @@ void r_report( R * regression, FILE *f )
 
   fprintf(f, "\ndf     %u\n", regression->df);
 
-  fprintf(f, "theta2 %f\n", regression->theta2);
+  fprintf(f, "sigma2 %f\n", regression->sigma2);
 
   fprintf(f, "\nvar_cov_b\n");
   m_foutput(f, regression->var_cov_b);
@@ -838,7 +838,7 @@ int m_regression_test()
 
   assert(regression.df == 8);
 
-  assert( float_equal( regression.theta2, 42.159091, e ))  ;
+  assert( float_equal( regression.sigma2, 42.159091, e ))  ;
 
   // p82.
   assert( float_equal( m_get_val( regression.var_cov_b, 0, 0), 41.1370523 , e ))  ;

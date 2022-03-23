@@ -250,11 +250,11 @@ void app_loop2 ( app_t *app )
 
   ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
 
-#define X_COLS 4
+  const unsigned x_cols  = 3;
 
   // may want a row pointer as well.
   unsigned  max_rows =  10 * 9 * 2;
-  MAT *xs       = m_get(max_rows, X_COLS); // TODO change MNULL
+  MAT *xs       = m_get(max_rows, x_cols ); // TODO change MNULL
   MAT *y        = m_get(max_rows, 1);
   MAT *aperture = m_get(max_rows, 1); // required for predicted
 
@@ -326,7 +326,7 @@ void app_loop2 ( app_t *app )
 
           // record xs
           assert(row < m_rows(xs));
-          MAT *whoot = param_run_to_matrix( &param, &run, X_COLS, MNULL );
+          MAT *whoot = param_run_to_matrix( &param, &run, x_cols, MNULL );
           assert(whoot);
           assert( m_cols(whoot) == m_cols(xs) );
           assert( m_rows(whoot) == 1  );

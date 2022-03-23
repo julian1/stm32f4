@@ -71,7 +71,7 @@ struct R
 
   unsigned df;
 
-  double theta2;
+  double sigma2;
 
   MAT *var_cov_b ;
 
