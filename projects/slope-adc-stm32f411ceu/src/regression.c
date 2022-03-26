@@ -645,7 +645,7 @@ MAT * m_regression( MAT *x, MAT * y, MAT *out)
 
 
 
-int m_regression(  MAT *x, MAT *y,  R * regression )
+int m_regression( const MAT *x, const MAT *y,  R * regression )
 {
   /*
       example from "basic econometrics" p 291.
@@ -752,7 +752,7 @@ void r_free( R *regression)
 
 
 
-void r_report( R * regression, FILE *f )
+void r_report( const R * regression, FILE *f )
 {
   // could pass the stream
 
@@ -866,8 +866,39 @@ int m_regression_test()
 
 
 
+void m_octave_foutput( FILE *f, const MAT *m  )
+{
+  // same format as matlab/ocatve
+
+  fprintf(f, "[\n");
+
+  for(unsigned i = 0; i < m_rows(m); ++i) {
+    for(unsigned j = 0; j < m_cols(m); ++j) {
+
+      double v = m_get_val( m, i, j);
+      fprintf(f, "%lf", v);
+
+      if(j < m_cols(m) - 1)
+        fprintf(f, ", ");
+    }
+    fprintf(f, ";\n");
+  }
+  fprintf(f, "]\n");
+}
 
 
+
+
+
+
+int m_output_test()
+{
+  // octave > m =  [ 1, 2 ; 2, 4 ; 3, 7;  1, 4; 2, 3; 3, 5]
+  double xp[] = { 1, 2, 2, 4, 3, 7, 1, 4, 2, 3, 3, 5 } ;
+  MAT *m =  m_fill( m_get(6, 2), xp, ARRAY_SIZE(xp) );
+
+  m_octave_foutput( stdout, m);
+}
 
 
 
@@ -928,7 +959,7 @@ void m_extend_rows(MAT *m, unsigned m_new)
 */
 
 
-void m_foutput_binary( FILE *f, MAT *m  )
+void m_foutput_binary( FILE *f, const MAT *m  )
 {
   // m_serialize()
   // size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream);

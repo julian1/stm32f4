@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <stdbool.h>
+
 #include "matrix.h"   // MAT
 
 
@@ -97,17 +99,19 @@ typedef struct R R;
 
 
 void r_free( R *regression);
-void r_report( R * regression, FILE *f );
-int m_regression(  MAT *x, MAT *y,  R * regression );
+void r_report( const R * regression, FILE *f );
+int m_regression( const MAT *x, const MAT *y,  R * regression );
 int m_regression_test(void);
 
 
+void m_octave_foutput( FILE *f, const MAT *m);
+int m_output_test(void);
 
 
 void m_print_details(MAT *m) ;
 
 
-void m_foutput_binary( FILE *f, MAT *m  );
+void m_foutput_binary( FILE *f, const MAT *m  );
 MAT * m_finput_binary(  FILE *f , MAT *out );
 
 // required.

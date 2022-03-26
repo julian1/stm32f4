@@ -127,7 +127,7 @@ void app_update_console_cmd(app_t *app)
 {
 
   uint32_t u32;
-  // int32_t i32;
+  int32_t i32;
   double d;
 
   /* TODO.
@@ -274,13 +274,15 @@ void app_update_console_cmd(app_t *app)
         printf("sleep done\n");
       }
 
-      /*
-      // change name source ? or test-source ?
-      else if(sscanf(app->cmd_buf, "vs set dir %ld", &i32 ) == 1) {
-        printf("voltage source %ld!\n", i32);
-        voltage_source_set( i32 );
+      
+      else if(sscanf(app->cmd_buf, "voltage source dir %ld", &i32 ) == 1) {
+        if( i32 == 0 || i32 == 1 || i32 == -1) { 
+          printf("voltage source %ld!\n", i32);
+          voltage_source_set_dir( i32 );
+        } else {
+          printf("bad value\n");
+        }
       }
-      */
 
       else if(sscanf(app->cmd_buf, "vs %lf", &d ) == 1) {
         // set the voltage
