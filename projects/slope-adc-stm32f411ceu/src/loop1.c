@@ -7,6 +7,7 @@
 #include "format.h" // format_bits
 #include "usart.h"   // usart_flus()
 #include "util.h"   // system_millis
+#include "ice40.h"   // spi_reg_read()
 
 
 #include "regression.h"
@@ -435,47 +436,31 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     3) then copy lo to temp.   and use for the next input.
   */
 
-  Run   run_zero;
-  Param param_zero;
-  Run   run_sig;
-  Param param_sig;
+  // memset(&run_zero, 0, sizeof(Run));
+  // memset(&run_sig, 0, sizeof(Run));
 
-  memset(&run_zero, 0, sizeof(Run));
-  memset(&run_sig, 0, sizeof(Run));
+  // check what we are muxing.
+  unsigned mux_sel = spi_reg_read(app->spi, REG_LAST_HIMUX_SEL );
 
 
   while(true) {
 
-    // configure ref_lo
+      // configure ref_lo
     ctrl_reset_enable(app->spi);
     ctrl_set_mux( app->spi, HIMUX_SEL_REF_LO );
     app->data_ready = false;
     ctrl_reset_disable(app->spi);
 
-
     // block/wait for data
     while(!app->data_ready ) {
-
-      // we have both obs available...
-      if(run_zero.count_up && run_sig.count_up ) {
-
-        if(app ->b) {
-          double predict_zero   = m_calc_predicted_val( app->b , &run_zero, &param_zero );
-          double predict_sig    = m_calc_predicted_val( app->b , &run_sig,  &param_sig );
-          double predict        = predict_sig - predict_zero;
-          process( app, predict );
-        }
-
-        // clear to reset
-        memset(&run_zero, 0, sizeof(Run));
-        memset(&run_sig, 0, sizeof(Run));
-      }
-
       app_update( app );   // change name simple update
       if(app->continuation_f) {
         return;
       }
     }
+
+    Run   run_zero;
+    Param param_zero;
 
     // read data
     ctrl_run_read(app->spi, &run_zero);
@@ -483,29 +468,39 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     assert(param_zero.himux_sel ==  HIMUX_SEL_REF_LO );
 
 
-
-    // configure ref_hi
+    // configure mux_sel
     ctrl_reset_enable(app->spi);
-    ctrl_set_mux( app->spi, HIMUX_SEL_REF_HI );
+    ctrl_set_mux( app->spi,   mux_sel );
     app->data_ready = false;
     ctrl_reset_disable(app->spi);
 
     // block/wait for data
     while(!app->data_ready ) {
-
       app_update( app );
       if(app->continuation_f) {
         return;
       }
     }
 
+    Run   run_sig;
+    Param param_sig;
+
     // read data
     ctrl_run_read(app->spi, &run_sig);
     ctrl_param_read_last( app->spi, &param_sig);
-    assert(param_sig.himux_sel == HIMUX_SEL_REF_HI );
+    assert(param_sig.himux_sel == mux_sel);
 
     // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, m_calc_predicted_val( app-> b , &run_sig , &param_sig )));
+    assert(run_zero.count_up && run_sig.count_up ) ;
 
+      // we have both obs available...
+
+    if(app ->b) {
+      double predict_zero   = m_calc_predicted_val( app->b , &run_zero, &param_zero );
+      double predict_sig    = m_calc_predicted_val( app->b , &run_sig,  &param_sig );
+      double predict        = predict_sig - predict_zero;
+      process( app, predict );
+    }
   }
 }
 
