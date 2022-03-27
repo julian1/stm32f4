@@ -70,8 +70,8 @@ static void output_char( CBuf *console_out , int ch)
 
 struct Cookie
 {
-  CBuf *console_out;
-  bool flush_on_newline;
+  CBuf  *console_out;
+  int   flags;
 };
 
 typedef struct Cookie Cookie;
@@ -80,7 +80,7 @@ typedef struct Cookie Cookie;
 
 static void * file_to_cookie( FILE *f )
 {
-  /* 
+  /*
     change name ffcntl()  to support different args
     should not be exposed.
     but allows supporting other file based operations over our structure
@@ -97,13 +97,23 @@ static void * file_to_cookie( FILE *f )
   return cookie;
 }
 
+#define FILE_SYNC_ON_NEWLINE   0x01
 
-void fflush_on_newline( FILE *f, bool val)
+// void fflush_on_newline( FILE *f, bool val);
+// void ffnctl( FILE *f, int cmd );
+
+
+int ffnctl( FILE *f, int cmd)
 {
   // it's not the buffering type, its the wait for flush. flush_wait_newline().
   assert(f);
   Cookie * cookie = file_to_cookie( f );
-  cookie-> flush_on_newline = val;
+  assert(cookie);
+
+  if(cmd)
+    cookie->flags = cmd;
+
+  return cookie->flags;
 }
 
 
@@ -120,8 +130,8 @@ static ssize_t mywrite(Cookie *cookie, const char *buf, size_t size)
       cBufPush(cookie->console_out, '\r');
       cBufPush(cookie->console_out, ch);
 
-      // maybe block control, in order to flush buffer
-      if(cookie->flush_on_newline)
+      // block control, in order to flush circular buffer
+      if(cookie->flags & FILE_SYNC_ON_NEWLINE)
         usart1_flush();
 
     }
@@ -160,9 +170,9 @@ void cbuf_init_std_streams( CBuf *console_out )
   assert(cookie);
 
   // loverly designated initializer
-  *cookie = (Cookie const) {     
-    .console_out      = console_out,
-    .flush_on_newline = false,
+  *cookie = (Cookie const) {
+    .console_out  = console_out,
+    .flags        = 0,
   };
 
 

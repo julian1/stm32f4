@@ -770,9 +770,13 @@ void app_loop4 ( app_t *app   )
 
   // ok. we have the problem that we have to ensure no output, which means calling usart1_flush()
 
-  fflush_on_newline( stdout, true);
+  // fflush_on_newline( stdout, true);
+  ffnctl( stdout, ffnctl( stdout, 0) | FILE_SYNC_ON_NEWLINE );
+
   m_octave_foutput( stdout, NULL, m);
-  fflush_on_newline( stdout, false);
+
+  // fflush_on_newline( stdout, false);
+  ffnctl( stdout, ffnctl( stdout, 0) & ~FILE_SYNC_ON_NEWLINE );
 
   M_FREE(m);
 
