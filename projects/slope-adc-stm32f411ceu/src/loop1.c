@@ -677,7 +677,7 @@ void app_loop4 ( app_t *app   )
       // do A
       // configure nplc
       ctrl_reset_enable(app->spi);
-      ctrl_set_aperture( app->spi, nplc_to_aper_n( 20  ));
+      ctrl_set_aperture( app->spi, nplc_to_aper_n( 10  ));
       app->data_ready = false;
       ctrl_reset_disable(app->spi);
 
