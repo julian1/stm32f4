@@ -650,7 +650,7 @@ void app_loop4 ( app_t *app   )
   unsigned row = 0;
 
 
-  float target_[] = { 5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0 } ;
+  float target_[] = { 5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0, -0.5, -1, -1.5 } ;
 
 
   for(unsigned i = 0; i < ARRAY_SIZE(target_); ++i)
@@ -663,7 +663,8 @@ void app_loop4 ( app_t *app   )
     app_voltage_source_set( app, target );
 
     // sleep to let DA settle.
-    unsigned sleep = i == 0 ? 60 : 30;
+    // unsigned sleep = i == 0 ? 60 : 30;
+    unsigned sleep = i == 0 ? 120 : 60;
     printf("sleep %us\n", sleep );
     app_simple_sleep( app, sleep * 1000 );
 
@@ -676,7 +677,7 @@ void app_loop4 ( app_t *app   )
       // do A
       // configure nplc
       ctrl_reset_enable(app->spi);
-      ctrl_set_aperture( app->spi, nplc_to_aper_n( 10  ));
+      ctrl_set_aperture( app->spi, nplc_to_aper_n( 20  ));
       app->data_ready = false;
       ctrl_reset_disable(app->spi);
 
@@ -746,7 +747,7 @@ void app_loop4 ( app_t *app   )
         // push to matrix
         assert(row < m_rows(m));
         assert(m_cols(m) == 5);
-        m_set_val( m, row, 0, i );        // id  by which to group for mean
+        m_set_val( m, row, 0, i + 1 );        // id. start at 1 for matlab/octave index function
         m_set_val( m, row, 1, target );   // don't really need.
         m_set_val( m, row, 2, predict_a );
         m_set_val( m, row, 3, predict_b );
