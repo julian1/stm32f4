@@ -62,6 +62,9 @@ MAT *m_hconcat( MAT *a, MAT *b, MAT *out );
 // int m_regression_test(void);
 
 bool m_is_scalar(const MAT *mat );
+
+
+//   // change name d_from_scalar_m. to m_to_scalar/real 
 double d_from_scalar_m(const MAT *mat );
 
 

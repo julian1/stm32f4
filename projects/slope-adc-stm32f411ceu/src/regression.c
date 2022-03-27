@@ -910,6 +910,8 @@ int m_output_test()
   MAT *m =  m_fill( m_get(6, 2), xp, ARRAY_SIZE(xp) );
 
   m_octave_foutput( stdout, NULL, m);
+
+  return 0;
 }
 
 

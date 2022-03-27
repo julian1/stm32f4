@@ -126,7 +126,7 @@ static void process( app_t *app, double predict )
 
     MAT *stddev = m_stddev( app->stats_buffer, 0, MNULL );
     assert( m_is_scalar( stddev ));
-    double stddev_ = d_from_scalar_m( stddev);
+    double stddev_ = d_from_scalar_m( stddev);  // change name d_from_scalar_m. to m_to_scalar/real 
     M_FREE(stddev);
 
     // report
@@ -423,11 +423,11 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   // auto-zero
 
   printf("=========\n");
-  printf("app_loop3\n");
+  printf("app_loop3 autozero\n");
 
   assert(app);
 
-  ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
+  ctrl_set_pattern( app->spi, 0 ) ;     // no azero on device.
 
   /*
     autozero - should use two zero values, between read.
@@ -440,7 +440,7 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   // memset(&run_zero, 0, sizeof(Run));
   // memset(&run_sig, 0, sizeof(Run));
 
-  // check what we are muxing.
+  // record the mux input to use
   unsigned mux_sel = spi_reg_read(app->spi, REG_LAST_HIMUX_SEL );
 
 
@@ -643,15 +643,18 @@ void app_loop4 ( app_t *app   )
   ctrl_reset_disable(app->spi);
 
 
-  // app_voltage_source_set( app, 5.0 );
-  MAT *m = m_get( 100, 5 );
-
 
   unsigned row = 0;
 
+  float target_[] = { 7.5, 7, 6.5, 6, 5.5, 5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0, -0.5, -1, -1.5, -2, -2.5, -3, -3.5, -4, -4.5, -5, -5.5, -6, -6.5, -7, -7.5 } ;
 
-  float target_[] = { 5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0, -0.5, -1, -1.5 } ;
+  unsigned obs_n = 15;
 
+  // app_voltage_source_set( app, 5.0 );
+  MAT *m = m_get( ARRAY_SIZE(target_) * obs_n , 5 );
+
+  // bail early
+  // assert( ARRAY_SIZE(target_) * 10 < m_rows(m) );
 
   for(unsigned i = 0; i < ARRAY_SIZE(target_); ++i)
   {
@@ -670,7 +673,7 @@ void app_loop4 ( app_t *app   )
 
 
     // 10 obs
-    for(unsigned obs = 0; obs < 10; ++obs)
+    for(unsigned obs = 0; obs < obs_n; ++obs)
     {
 
 
@@ -735,7 +738,7 @@ void app_loop4 ( app_t *app   )
         double predict_a  = m_calc_predicted_val( app->b , &run_a, &param_a );
         double predict_b  = m_calc_predicted_val( app->b , &run_b,  &param_b );
         double delta      = (predict_a - predict_b) * 1000000; // in uV.
-  
+
         char buf[100], buf2[100];
         printf("%u   %sV\t  %sV  %.2fuV\n",
           i,
@@ -759,8 +762,8 @@ void app_loop4 ( app_t *app   )
     } // obs loop.
   } // target loop
 
-  
-  // nwo ouput 
+
+  // nwo ouput
 
   // shrink matrix
   m_resize( m, row, m_cols(m));

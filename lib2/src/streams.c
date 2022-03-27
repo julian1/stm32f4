@@ -80,7 +80,9 @@ typedef struct Cookie Cookie;
 
 static void * file_to_cookie( FILE *f )
 {
-  /* should not be exposed.
+  /* 
+    change name ffcntl()  to support different args
+    should not be exposed.
     but allows supporting other file based operations over our structure
   */
 
@@ -98,6 +100,7 @@ static void * file_to_cookie( FILE *f )
 
 void fflush_on_newline( FILE *f, bool val)
 {
+  // it's not the buffering type, its the wait for flush. flush_wait_newline().
   assert(f);
   Cookie * cookie = file_to_cookie( f );
   cookie-> flush_on_newline = val;
