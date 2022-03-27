@@ -10,12 +10,14 @@
 #include "cbuffer.h"
 
 #include <stdarg.h> // va_starrt etc
+#include <stdlib.h> // malloc
+#include <assert.h>
 
 #define UNUSED(x) (void)(x)
 
 
 /*
-  reason not to - is that fread(), fgets() etc are normally used blocking
+  reason not to use fgetch / fread(), fgets() etc is that these are normally used blocking
   ------
   could /should use non-blocking fread() instead of cBufPop()...
 
@@ -27,7 +29,7 @@
 
   void fd_set_non_block(FILE *f, bool nonblock)
   {
-  // works.
+  // works in linux.
   // https://stackoverflow.com/questions/6055702/using-fgets-as-non-blocking-function-c
 
   int fd = fileno(f);
@@ -41,6 +43,11 @@
   fcntl(fd, F_SETFL, flags);
   }
 
+  -----
+
+  albeit we could control... reasonably easily.
+  if( f == stdout )
+  else if( f == stdin ) etc.
 
 
 */
@@ -49,7 +56,7 @@
 
 
 
-
+#if 0
 static void output_char( CBuf *console_out , int ch)
 {
   if(ch  == '\n') {
@@ -58,16 +65,66 @@ static void output_char( CBuf *console_out , int ch)
 
   cBufPush(console_out, ch);
 }
+#endif
+
+
+struct Cookie
+{
+  CBuf *console_out;
+  bool flush_on_newline;
+};
+
+typedef struct Cookie Cookie;
 
 
 
-static ssize_t mywrite(void *cookie, const char *buf, size_t size)
+static void * file_to_cookie( FILE *f )
+{
+  /* should not be exposed.
+    but allows supporting other file based operations over our structure
+  */
+
+  // actually a handler
+  void *cookie_ptr= f->_cookie;
+  // printf("cookie_ptr %p\n", cookie_ptr);
+
+ // follow it
+ void *cookie = * (void **) cookie_ptr ;
+ // printf ("cookie %p\n",  cookie );
+
+  return cookie;
+}
+
+
+void fflush_on_newline( FILE *f, bool val)
+{
+  assert(f);
+  Cookie * cookie = file_to_cookie( f );
+  cookie-> flush_on_newline = val;
+}
+
+
+
+
+static ssize_t mywrite(Cookie *cookie, const char *buf, size_t size)
 {
 
-  CBuf *console_out = (CBuf *) cookie;
-
   for(unsigned i = 0; i < size; ++i ) {
-    output_char( console_out, buf[ i ] );
+
+    int ch = buf[ i ];
+
+    if(ch  == '\n') {
+      cBufPush(cookie->console_out, '\r');
+      cBufPush(cookie->console_out, ch);
+
+      // maybe block control, in order to flush buffer
+      if(cookie->flush_on_newline)
+        usart1_flush();
+
+    }
+    else {
+      cBufPush(cookie->console_out, ch);
+    }
   }
 
   // re-enable tx interupt... if needed
@@ -88,22 +145,31 @@ void cbuf_init_std_streams( CBuf *console_out )
       https://www.openstm32.org/forumthread8113
   */
 
-  cookie_io_functions_t  memfile_func = {
-       .read  = NULL, // read
-       .write = mywrite,
-       .seek  = NULL, // seek,
-       .close = NULL  //close
-   };
+  cookie_io_functions_t memfile_func = {
+     .read  = NULL, // read
+     .write =  (cookie_write_function_t *) mywrite,
+     .seek  = NULL, // seek,
+     .close = NULL  //close
+  };
 
-  FILE *f = fopencookie( console_out , "w", memfile_func);
-  // FILE *f = fopencookie(NULL, "w", memfile_func);
-  // FILE *f = fopencookie(&x, "w", memfile_func); // this works too.
+  // memory never released.
+  Cookie *cookie = malloc(sizeof(Cookie));
+  assert(cookie);
 
-  // required
+  // loverly designated initializer
+  *cookie = (Cookie const) {     
+    .console_out      = console_out,
+    .flush_on_newline = false,
+  };
+
+
+  FILE *f = fopencookie( cookie , "w", memfile_func);
+
+  // required, because we use circ buffer as buffer
   setbuf(f, NULL);
 
 
-  // change stdout to point at f.
+  // change stdout to pOINT at f.
   stdout = f;
   stderr = f;
   // stdin... ignore for the moment.

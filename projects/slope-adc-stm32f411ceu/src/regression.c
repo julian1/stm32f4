@@ -872,10 +872,7 @@ void m_octave_foutput( FILE *f, const char *format, const MAT *m  )
 {
   // same format as matlab/ocatve
   // static const char    *format = "%14.9g ";
-  // should pass specifier? 
-
-
-  // see matrixio
+  // see matrixio.c
   if(!format)
     format = "%14.9g";
 
@@ -891,6 +888,12 @@ void m_octave_foutput( FILE *f, const char *format, const MAT *m  )
         fprintf(f, ", ");
     }
     fprintf(f, ";\n");
+
+    // needed. to avoid missing data.
+    // need fflush(FILE*) or fsync();
+    // Might be easier. to call usart1_flush();   inside
+    // usart1_flush();
+
   }
   fprintf(f, "]\n");
 }

@@ -8,6 +8,7 @@
 #include "usart.h"   // usart_flus()
 #include "util.h"   // system_millis
 #include "ice40.h"   // spi_reg_read()
+#include "streams.h"   // fflush_on_newline()
 
 
 #include "regression.h"
@@ -643,6 +644,7 @@ void app_loop4 ( app_t *app   )
 
 
   // app_voltage_source_set( app, 5.0 );
+  MAT *m = m_get( 100, 5 );
 
 
   unsigned row = 0;
@@ -722,49 +724,54 @@ void app_loop4 ( app_t *app   )
       Param param_b;
       // memset(&run_b, 0, sizeof(Run));
 
-
       // read data
       ctrl_run_read(app->spi, &run_b);
       ctrl_param_read_last( app->spi, &param_b);
       assert(  aper_n_to_nplc(param_b.clk_count_aper_n) == 11);
 
-      // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, m_calc_predicted_val( app-> b , &run_b , &param_b )));
-
-        // this is the process.
-        // we have both obs available...
 
       if(app ->b) {
-        double predict_a      = m_calc_predicted_val( app->b , &run_a, &param_a );
-        double predict_b      = m_calc_predicted_val( app->b , &run_b,  &param_b );
-
-
-        /*
-        if(mode == starting && predict_a > 10)  {
-          mode = running;
-        }
-        */
-        #if 0
-        printf("%u   %.7lf,  %.7lf  %.2fuV\n", id, predict_a, predict_b, (predict_a - predict_b) * 1000000 );
-        #endif
-
-        #if 1
+        double predict_a  = m_calc_predicted_val( app->b , &run_a, &param_a );
+        double predict_b  = m_calc_predicted_val( app->b , &run_b,  &param_b );
+        double delta      = (predict_a - predict_b) * 1000000; // in uV.
+  
         char buf[100], buf2[100];
         printf("%u   %sV\t  %sV  %.2fuV\n",
           i,
           format_float_with_commas(buf, 100, 7, predict_a),
           format_float_with_commas(buf2, 100, 7, predict_b ),
-          (predict_a - predict_b) * 1000000
+          delta
         );
-        #endif
+
+        // push to matrix
+        assert(row < m_rows(m));
+        assert(m_cols(m) == 5);
+        m_set_val( m, row, 0, i );        // id  by which to group for mean
+        m_set_val( m, row, 1, target );   // don't really need.
+        m_set_val( m, row, 2, predict_a );
+        m_set_val( m, row, 3, predict_b );
+        m_set_val( m, row, 4, delta );
+        ++row;
       }
-
-
-
-
 
 
     } // obs loop.
   } // target loop
+
+  
+  // nwo ouput 
+
+  // shrink matrix
+  m_resize( m, row, m_cols(m));
+
+  // ok. we have the problem that we have to ensure no output, which means calling usart1_flush()
+
+  fflush_on_newline( stdout, true);
+  m_octave_foutput( stdout, NULL, m);
+  fflush_on_newline( stdout, false);
+
+  M_FREE(m);
+
 }
 
 
