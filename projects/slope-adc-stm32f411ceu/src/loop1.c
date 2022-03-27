@@ -79,7 +79,7 @@ static void push_stats_buffer( app_t *app , double value )
 
   MAT *stddev = m_stddev( app->stats_buffer, 0, MNULL );
   assert( m_is_scalar( stddev ));
-  double stddev_ = d_from_scalar_m( stddev);
+  double stddev_ = m_to_scalar( stddev);
   M_FREE(stddev);
 
 
@@ -115,7 +115,7 @@ static void process( app_t *app, double predict )
     // take the mean of the buffer.
     MAT *mean = m_mean( app->buffer, MNULL );
     assert( m_is_scalar( mean ));
-    double mean_ = d_from_scalar_m( mean);
+    double mean_ = m_to_scalar( mean);
     M_FREE(mean);
 
     double value = mean_;
@@ -126,7 +126,7 @@ static void process( app_t *app, double predict )
 
     MAT *stddev = m_stddev( app->stats_buffer, 0, MNULL );
     assert( m_is_scalar( stddev ));
-    double stddev_ = d_from_scalar_m( stddev);  // change name d_from_scalar_m. to m_to_scalar/real 
+    double stddev_ = m_to_scalar( stddev);
     M_FREE(stddev);
 
     // report

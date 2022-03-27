@@ -255,7 +255,7 @@ bool m_is_scalar(const MAT *mat )
   return m_cols( mat) == 1 && m_rows(mat) == 1;   // scalar
 }
 
-double d_from_scalar_m(const MAT *mat )
+double m_to_scalar(const MAT *mat )
 {
   assert( m_is_scalar( mat));
   return m_get_val(mat, 0, 0);
@@ -676,8 +676,8 @@ int m_regression( const MAT *x, const MAT *y,  R * regression )
   assert( m_is_scalar( yty_ ));
   assert( m_is_scalar( btxty_));
 
-  double yty   = d_from_scalar_m(yty_ );
-  double btxty = d_from_scalar_m(btxty_);
+  double yty   = m_to_scalar(yty_ );
+  double btxty = m_to_scalar(btxty_);
 
   // utu = yty - btxty
   double utu          = yty - btxty;
@@ -706,7 +706,7 @@ int m_regression( const MAT *x, const MAT *y,  R * regression )
 
   MAT *ybar = m_mean(y, MNULL);
   assert( m_is_scalar( ybar) );   // scalar
-  double ybar_ = d_from_scalar_m( ybar );
+  double ybar_ = m_to_scalar( ybar );
 
   // 'correction for mean'
   regression->nybar2  = m_rows(y) *  ybar_ * ybar_ ;
