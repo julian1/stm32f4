@@ -104,7 +104,7 @@ int m_regression( const MAT *x, const MAT *y,  R * regression );
 int m_regression_test(void);
 
 
-void m_octave_foutput( FILE *f, const MAT *m);
+void m_octave_foutput( FILE *f, const char *format, const MAT *m);
 int m_output_test(void);
 
 

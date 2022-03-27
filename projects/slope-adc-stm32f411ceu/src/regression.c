@@ -1,5 +1,7 @@
-
-
+/*
+  need a better name for this. math2.h/c?
+  matrix2.h/c
+*/
 
 #include <math.h>     // sqrt
 #include <assert.h>
@@ -866,9 +868,16 @@ int m_regression_test()
 
 
 
-void m_octave_foutput( FILE *f, const MAT *m  )
+void m_octave_foutput( FILE *f, const char *format, const MAT *m  )
 {
   // same format as matlab/ocatve
+  // static const char    *format = "%14.9g ";
+  // should pass specifier? 
+
+
+  // see matrixio
+  if(!format)
+    format = "%14.9g";
 
   fprintf(f, "[\n");
 
@@ -876,7 +885,7 @@ void m_octave_foutput( FILE *f, const MAT *m  )
     for(unsigned j = 0; j < m_cols(m); ++j) {
 
       double v = m_get_val( m, i, j);
-      fprintf(f, "%lf", v);
+      fprintf(f, format, v);
 
       if(j < m_cols(m) - 1)
         fprintf(f, ", ");
@@ -897,7 +906,7 @@ int m_output_test()
   double xp[] = { 1, 2, 2, 4, 3, 7, 1, 4, 2, 3, 3, 5 } ;
   MAT *m =  m_fill( m_get(6, 2), xp, ARRAY_SIZE(xp) );
 
-  m_octave_foutput( stdout, m);
+  m_octave_foutput( stdout, NULL, m);
 }
 
 

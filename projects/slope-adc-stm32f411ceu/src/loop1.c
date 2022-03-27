@@ -645,6 +645,8 @@ void app_loop4 ( app_t *app   )
   // app_voltage_source_set( app, 5.0 );
 
 
+  unsigned row = 0;
+
 
   float target_[] = { 5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0 } ;
 
