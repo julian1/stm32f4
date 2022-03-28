@@ -18,13 +18,13 @@
 // we don't necessarily need to expose all these
 // just set once in pattern controller.
 // modulation control parameters, start 30.
-#define REG_CLK_COUNT_RESET_N   10
-#define REG_CLK_COUNT_FIX_N     11
-// #define REG_CLK_COUNT_VAR_N  12
-#define REG_CLK_COUNT_VAR_POS_N 13
-#define REG_CLK_COUNT_VAR_NEG_N 14
-#define REG_CLK_COUNT_APER_N_LO 15// aperture. rename?
+
+#define REG_CLK_COUNT_RESET_N   10   
+#define REG_CLK_COUNT_FIX_N     11   
+#define REG_CLK_COUNT_VAR_N     13   
+#define REG_CLK_COUNT_APER_N_LO 15
 #define REG_CLK_COUNT_APER_N_HI 16
+
 #define REG_USE_SLOW_RUNDOWN    17
 #define REG_HIMUX_SEL           18
 #define REG_PATTERN             19
@@ -45,8 +45,8 @@
 // treat as param variable
 #define REG_LAST_HIMUX_SEL           40 // what was being muxed for integration. sig, azero, acal .
 #define REG_LAST_CLK_COUNT_FIX_N     41
-#define REG_LAST_CLK_COUNT_VAR_POS_N 42
-#define REG_LAST_CLK_COUNT_VAR_NEG_N 43
+#define REG_LAST_CLK_COUNT_VAR_N    42
+// #define REG_LAST_CLK_COUNT_VAR_NEG_N 43
 #define REG_LAST_CLK_COUNT_APER_N_LO 44
 #define REG_LAST_CLK_COUNT_APER_N_HI 45
 
@@ -81,8 +81,10 @@ uint32_t ctrl_get_aperture( uint32_t spi );
 void ctrl_set_mux( uint32_t spi, uint32_t mux );
 uint32_t ctrl_get_mux( uint32_t spi);
 
-void ctrl_set_var_pos_n( uint32_t spi, uint32_t val);
-uint32_t ctrl_get_var_pos_n( uint32_t spi );
+
+// current....
+void ctrl_set_var_n( uint32_t spi, uint32_t val);
+uint32_t ctrl_get_var_n( uint32_t spi );
 
 void ctrl_set_fix_n( uint32_t spi, uint32_t val);
 uint32_t ctrl_get_fix_n( uint32_t spi );
@@ -110,7 +112,7 @@ struct Param
   // the pattern controller may change on its own - so should read for *each* run.
   uint32_t clk_count_aper_n;   // aperture.
   uint32_t clk_count_fix_n;
-  uint32_t clk_count_var_pos_n;
+  uint32_t clk_count_var_n;
 
   // for auto-zero
   uint32_t himux_sel;

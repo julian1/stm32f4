@@ -25,11 +25,11 @@
 void app_loop22( app_t *app )
 {
   printf("=========\n");
-  printf("app_loop22 - cal loop using permutation of var_pos_n, with fixed aperture\n");
+  printf("app_loop22 - cal loop using permutation of var_n, with fixed aperture\n");
 
   ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
   // default.
-  assert( ctrl_get_var_pos_n( app->spi) == 5500 );
+  assert( ctrl_get_var_n( app->spi) == 5500 );
   // nplc 10.
   ctrl_set_aperture( app->spi, nplc_to_aper_n( 10  ));
 
@@ -46,16 +46,16 @@ void app_loop22( app_t *app )
   // changing this - does change the rundown at the end
   // but not always.
   // 5500 is default.
-  uint32_t var_pos_n[] = { 5500, 5450, 5400, 5350, 5300, 5250, 5200, 5150, 5100  };
+  uint32_t var_n[] = { 5500, 5450, 5400, 5350, 5300, 5250, 5200, 5150, 5100  };
 
 
   unsigned row = 0;
 
-    // loop var_pos_n
-  for(unsigned h = 0; h < ARRAY_SIZE(var_pos_n); ++h)
+    // loop var_n
+  for(unsigned h = 0; h < ARRAY_SIZE(var_n); ++h)
   {
-    uint32_t var_pos_n_ = var_pos_n[ h ];
-    printf("var_pos_n_ %lu\n", var_pos_n_);
+    uint32_t var_n_ = var_n[ h ];
+    printf("var_n_ %lu\n", var_n_);
 
 
     // loop mux
@@ -68,7 +68,7 @@ void app_loop22( app_t *app )
 
 
       ctrl_reset_enable(app->spi);
-      ctrl_set_var_pos_n( app->spi, var_pos_n_);
+      ctrl_set_var_n( app->spi, var_n_);
       ctrl_set_mux( app->spi, mux );
       ctrl_reset_disable(app->spi);
 
@@ -139,7 +139,7 @@ void app_loop22( app_t *app )
 
   // restore.
   ctrl_reset_enable(app->spi);
-  ctrl_set_var_pos_n( app->spi, 5500 );
+  ctrl_set_var_n( app->spi, 5500 );
   ctrl_reset_disable(app->spi);
 
 

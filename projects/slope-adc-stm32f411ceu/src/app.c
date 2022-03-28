@@ -128,17 +128,17 @@ uint32_t ctrl_get_mux( uint32_t spi )
 
 
 
-void ctrl_set_var_pos_n( uint32_t spi, uint32_t val)
+void ctrl_set_var_n( uint32_t spi, uint32_t val)
 {
-  spi_reg_write(spi, REG_CLK_COUNT_VAR_POS_N,  val);
+  spi_reg_write(spi, REG_CLK_COUNT_VAR_N,  val);
 }
 
 
 
 
-uint32_t ctrl_get_var_pos_n( uint32_t spi )
+uint32_t ctrl_get_var_n( uint32_t spi )
 {
-  return spi_reg_read(spi, REG_CLK_COUNT_VAR_POS_N);
+  return spi_reg_read(spi, REG_CLK_COUNT_VAR_N);
 }
 
 
@@ -225,7 +225,9 @@ void run_report_brief( const Run *run )
 {
   assert(run);
   printf("count_up/down %lu %lu, ", run->count_up, run->count_down );
+  printf("fix_up/down %lu %lu, ",   run->count_fix_up,  run->count_fix_down);
   printf("clk_count_rundown %lu, ", run->clk_count_rundown);
+ 
 }
 
 /*
@@ -245,7 +247,7 @@ void ctrl_param_read( uint32_t spi, Param *param)
 
   param->clk_count_fix_n  = spi_reg_read(spi, REG_CLK_COUNT_FIX_N);
 
-  param->clk_count_var_pos_n = spi_reg_read(spi, REG_CLK_COUNT_VAR_POS_N);
+  param->clk_count_var_n = spi_reg_read(spi, REG_CLK_COUNT_VAR_N);
 
   param->himux_sel = spi_reg_read(spi, REG_HIMUX_SEL );
 
@@ -266,7 +268,7 @@ void ctrl_param_read_last( uint32_t spi, Param *param)
 
   param->clk_count_fix_n  = spi_reg_read(spi, REG_LAST_CLK_COUNT_FIX_N);
 
-  param->clk_count_var_pos_n = spi_reg_read(spi, REG_LAST_CLK_COUNT_VAR_POS_N);
+  param->clk_count_var_n = spi_reg_read(spi, REG_LAST_CLK_COUNT_VAR_N);
 
   // This is.
   param->himux_sel = spi_reg_read(spi, REG_LAST_HIMUX_SEL ); // **last
@@ -277,7 +279,7 @@ void param_report( const Param *param)
 {
   printf("clk_count_aper_n %lu, ", param->clk_count_aper_n);
   printf("clk_count_fix_n %lu, ", param->clk_count_fix_n);
-  printf("clk_count_var_pos_n %lu, ", param->clk_count_var_pos_n);
+  printf("clk_count_var_n %lu, ", param->clk_count_var_n);
 
   char buf[100];
   printf("himux_sel %s (%lu), ", format_bits( buf, 8, param->himux_sel), param->himux_sel);
@@ -308,7 +310,7 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
 
   ----
   EXTR.
-    we want to read the var_pos_n etc. after *each* run.
+    we want to read the var_n etc. after *each* run.
     BECAUSE. we want to allow the pattern controller to permute
 */
 
@@ -318,10 +320,10 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
 
 
   // negative current / slope up
-  double x0 = (run->count_up   * param->clk_count_var_pos_n) + (run->count_fix_up   * param->clk_count_fix_n) ;
+  double x0 = (run->count_up   * param->clk_count_var_n) + (run->count_fix_up   * param->clk_count_fix_n) ;
 
   // positive current. slope down.
-  double x1 = (run->count_down * param->clk_count_var_pos_n) + (run->count_fix_down * param->clk_count_fix_n) ;
+  double x1 = (run->count_down * param->clk_count_var_n) + (run->count_fix_down * param->clk_count_fix_n) ;
 
   double x2 = run->clk_count_rundown;
 
