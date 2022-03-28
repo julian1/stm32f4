@@ -227,12 +227,12 @@ void app_update_console_cmd(app_t *app)
 
       // flash write cal
       // should be called 'cal save', 'cal load'  etc?
-      else if(strcmp(app->cmd_buf , "flash write cal") == 0) {
+      else if(strcmp(app->cmd_buf , "cal save") == 0) {
 
         // think we really want slots.
         if(!app->b) {
 
-          printf("no cal to save\n");
+          printf("no cal to writesave\n");
         } else {
 
           printf("flash unlock\n");
@@ -253,10 +253,10 @@ void app_update_console_cmd(app_t *app)
 
       // flash read test. doesn't load cal.
       // but might be useful to revert
-      else if(strcmp(app->cmd_buf , "flash read cal") == 0) {
+      else if(strcmp(app->cmd_buf , "cal read") == 0) {
 
         // might be better to have separate read
-        printf("flash read cal\n");
+        printf("cal read from flash\n");
 
         FILE *f = open_flash_file();
         if(c_skip_to_last_valid(  f) != 0) {
@@ -289,14 +289,14 @@ void app_update_console_cmd(app_t *app)
 
       else if(sscanf(app->cmd_buf, "voltage source dir %ld", &i32 ) == 1) {
         if( i32 == 0 || i32 == 1 || i32 == -1) {
-          printf("voltage source %ld!\n", i32);
+          printf("voltage source dir %ld!\n", i32);
           voltage_source_set_dir( i32 );
         } else {
           printf("bad value\n");
         }
       }
 
-      else if(sscanf(app->cmd_buf, "vs %lf", &d ) == 1) {
+      else if(sscanf(app->cmd_buf, "voltage source set %lf", &d ) == 1) {
         // set the voltage
         printf("voltage source set %lf!\n", d);
         app_voltage_source_set( app, d );
