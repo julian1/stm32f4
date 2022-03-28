@@ -13,7 +13,10 @@ typedef struct CBuf CBuf;
 
 
 // streams for both stdout, stderr
-void cbuf_init_std_streams( CBuf *console_out );
+void cbuf_init_stdout_streams( CBuf *console_out );
+
+
+void cbuf_init_stdin_streams( CBuf *console_in );
 
 // legacy printf. should move to local util.c
 void usart1_printf(const char *format, ...);

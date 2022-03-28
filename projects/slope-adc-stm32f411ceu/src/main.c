@@ -136,11 +136,23 @@ void app_update_console_cmd(app_t *app)
       or fgetc()  in non blocking mode, return EOF/-1 when no data.
   */
 
+
+  int ch;
+  clearerr(stdin);
+
+  // using FILE, EOF is the normal case, on buffer empty.
+
+  while( (ch = fgetc( stdin)) != EOF ) { // && -1 /EOF for error
+
+    assert(ch >= 0);
+
+/*
   while( ! cBufisEmpty(&app->console_in)) {
 
     // got a character
     int32_t ch = cBufPop(&app->console_in);
     assert(ch >= 0);
+*/
 
     if(! ( ch == ';' || ch == '\r')) {
       // character other than newline
@@ -274,9 +286,9 @@ void app_update_console_cmd(app_t *app)
         printf("sleep done\n");
       }
 
-      
+
       else if(sscanf(app->cmd_buf, "voltage source dir %ld", &i32 ) == 1) {
-        if( i32 == 0 || i32 == 1 || i32 == -1) { 
+        if( i32 == 0 || i32 == 1 || i32 == -1) {
           printf("voltage source %ld!\n", i32);
           voltage_source_set_dir( i32 );
         } else {
@@ -541,11 +553,11 @@ int main(void)
   // uart
   // usart1_setup_gpio_portA();
   usart1_setup_gpio_portB();
-
   usart1_set_buffers(&app.console_in, &app.console_out);
-
   // standard streams for printf, fprintf, putc.
-  cbuf_init_std_streams(  &app.console_out );
+  cbuf_init_stdout_streams(  &app.console_out );
+  // for fread, fgetch etc
+  cbuf_init_stdin_streams( &app.console_in );
 
 
   ////////////////

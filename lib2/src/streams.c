@@ -56,21 +56,9 @@
 
 
 
-#if 0
-static void output_char( CBuf *console_out , int ch)
-{
-  if(ch  == '\n') {
-    cBufPush(console_out, '\r');
-  }
-
-  cBufPush(console_out, ch);
-}
-#endif
-
-
 struct Cookie
 {
-  CBuf  *console_out;
+  CBuf  *circ_buf;
   int   flags;
 };
 
@@ -99,13 +87,10 @@ static void * file_to_cookie( FILE *f )
 
 #define FILE_SYNC_ON_NEWLINE   0x01
 
-// void fflush_on_newline( FILE *f, bool val);
-// void ffnctl( FILE *f, int cmd );
 
 
 int ffnctl( FILE *f, int cmd)
 {
-  // it's not the buffering type, its the wait for flush. flush_wait_newline().
   assert(f);
   Cookie * cookie = file_to_cookie( f );
   assert(cookie);
@@ -119,6 +104,12 @@ int ffnctl( FILE *f, int cmd)
 
 
 
+
+///////////////////
+
+
+
+
 static ssize_t mywrite(Cookie *cookie, const char *buf, size_t size)
 {
 
@@ -127,8 +118,8 @@ static ssize_t mywrite(Cookie *cookie, const char *buf, size_t size)
     int ch = buf[ i ];
 
     if(ch  == '\n') {
-      cBufPush(cookie->console_out, '\r');
-      cBufPush(cookie->console_out, ch);
+      cBufPush(cookie->circ_buf, '\r');
+      cBufPush(cookie->circ_buf, ch);
 
       // block control, in order to flush circular buffer
       if(cookie->flags & FILE_SYNC_ON_NEWLINE)
@@ -136,7 +127,7 @@ static ssize_t mywrite(Cookie *cookie, const char *buf, size_t size)
 
     }
     else {
-      cBufPush(cookie->console_out, ch);
+      cBufPush(cookie->circ_buf, ch);
     }
   }
 
@@ -149,20 +140,20 @@ static ssize_t mywrite(Cookie *cookie, const char *buf, size_t size)
 
 
 
-void cbuf_init_std_streams( CBuf *console_out )
+void cbuf_init_stdout_streams( CBuf *circ_buf )
 {
   /*
-    advantage  is that we don't need intermediate handling and stack temp BUFFER.
+    advantage of using is stdout, and avoid intermediate handling with buffers
     for vsnprintf. etc.
     Also see,
       https://www.openstm32.org/forumthread8113
   */
 
-  cookie_io_functions_t memfile_func = {
-     .read  = NULL, // read
+  cookie_io_functions_t file_func = {
+     .read  = NULL,
      .write =  (cookie_write_function_t *) mywrite,
-     .seek  = NULL, // seek,
-     .close = NULL  //close
+     .seek  = NULL,
+     .close = NULL
   };
 
   // memory never released.
@@ -171,12 +162,12 @@ void cbuf_init_std_streams( CBuf *console_out )
 
   // loverly designated initializer
   *cookie = (Cookie const) {
-    .console_out  = console_out,
+    .circ_buf  = circ_buf,
     .flags        = 0,
   };
 
 
-  FILE *f = fopencookie( cookie , "w", memfile_func);
+  FILE *f = fopencookie( cookie , "w", file_func);
 
   // required, because we use circ buffer as buffer
   setbuf(f, NULL);
@@ -185,14 +176,67 @@ void cbuf_init_std_streams( CBuf *console_out )
   // change stdout to pOINT at f.
   stdout = f;
   stderr = f;
-  // stdin... ignore for the moment.
 }
+
+
+
+/////////////////////////
+
+
+
+
+static ssize_t myread(Cookie *cookie, char *buf, size_t sz)
+{
+  /* return 0 on non-blocking buf empty,
+  which gets turned to EOF(-1) by FILE read.
+  EOF can be clear by calling clearerr()
+  */
+  assert(cookie);
+  return cBufRead( cookie->circ_buf, buf, sz);
+}
+
+
+
+
+void cbuf_init_stdin_streams( CBuf *console_in )
+{
+  assert(console_in);
+
+
+  cookie_io_functions_t file_func = {
+     .read  = (cookie_read_function_t *) myread,
+     .write = NULL ,
+     .seek  = NULL,
+     .close = NULL
+  };
+
+  // memory never released.
+  Cookie *cookie = malloc(sizeof(Cookie));
+  assert(cookie);
+
+  // lovely designated initializer
+  *cookie = (Cookie const) {
+    .circ_buf  = console_in,
+    .flags     = 0,
+  };
+
+
+  FILE *f = fopencookie( cookie , "r", file_func);
+
+  // Not sure if required. for stdin.
+  // required, because we use circ buffer as buffer
+  setbuf(f, NULL);
+
+  stdin = f;
+}
+
+
 
 
 
 /*
 legacy, gg
-  should probably move to project local util.c if really want to use.
+  should probably move to project local util.c if really want
 */
 
 void usart1_printf(const char *format, ...)
