@@ -84,6 +84,10 @@ uint32_t ctrl_get_mux( uint32_t spi);
 void ctrl_set_var_pos_n( uint32_t spi, uint32_t val);
 uint32_t ctrl_get_var_pos_n( uint32_t spi );
 
+void ctrl_set_fix_n( uint32_t spi, uint32_t val);
+uint32_t ctrl_get_fix_n( uint32_t spi );
+
+
 
 
 void ctrl_reset_enable( uint32_t spi);

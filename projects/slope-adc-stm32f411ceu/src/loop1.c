@@ -691,8 +691,11 @@ void app_loop4 ( app_t *app   )
       ctrl_reset_enable(app->spi);
       if(x) 
         ctrl_set_aperture( app->spi, nplc_to_aper_n( 10  ));
-      else
+      else {
         ctrl_set_var_pos_n( app->spi, 550);    // OK. after we wrote this it doesn't work.
+        ctrl_set_fix_n( app->spi, 70);
+      }
+
       app->data_ready = false;
       ctrl_reset_disable(app->spi);
 
@@ -716,9 +719,10 @@ void app_loop4 ( app_t *app   )
       ctrl_param_read_last( app->spi, &param_a);
       if(x)
         assert( aper_n_to_nplc(param_a.clk_count_aper_n) == 10);
-      else
+      else {
         assert( param_a.clk_count_var_pos_n == 550 );
-
+        assert( param_a.clk_count_fix_n == 70 );
+      }
 
 
       ///////////////////////////////
@@ -728,8 +732,10 @@ void app_loop4 ( app_t *app   )
 
       if(x) 
         ctrl_set_aperture( app->spi, nplc_to_aper_n(11));
-      else
-        ctrl_set_var_pos_n( app->spi, 560);
+      else {
+        ctrl_set_var_pos_n( app->spi, 530);
+        // ctrl_set_fix_n( app->spi, 50);
+      }
 
       app->data_ready = false;
       ctrl_reset_disable(app->spi);
@@ -753,9 +759,17 @@ void app_loop4 ( app_t *app   )
       ctrl_param_read_last( app->spi, &param_b);
       if(x)
         assert(  aper_n_to_nplc(param_b.clk_count_aper_n) == 11);
-      else
-        assert( param_b.clk_count_var_pos_n == 560 );
+      else {
+        assert( param_b.clk_count_var_pos_n == 530 );
+        // assert( param_b.clk_count_fix_n == 50 );
+      }
 
+      // param_b.clk_count_var_pos_n = 550; // pretend unchanged
+      // no . it's vastly workd. 0.3V weird. 
+      // whille calculating as expected gives 1mV difference.
+      // but perhaps it needs to be calibrated on the difference.
+
+      // hmmmm. 600uV.
 
       if(app ->b) {
         double predict_a  = m_calc_predicted_val( app->b , &run_a, &param_a );

@@ -138,9 +138,20 @@ void ctrl_set_var_pos_n( uint32_t spi, uint32_t val)
 
 uint32_t ctrl_get_var_pos_n( uint32_t spi )
 {
-  return  spi_reg_read(spi, REG_CLK_COUNT_VAR_POS_N);
+  return spi_reg_read(spi, REG_CLK_COUNT_VAR_POS_N);
 }
 
+
+void ctrl_set_fix_n( uint32_t spi, uint32_t val)
+{
+  spi_reg_write(spi, REG_CLK_COUNT_FIX_N,  val);
+}
+
+
+uint32_t ctrl_get_fix_n( uint32_t spi )
+{
+  return spi_reg_read(spi, REG_CLK_COUNT_FIX_N);
+}
 
 
 
@@ -287,6 +298,11 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
   assert(run);
 
 /*
+  - we don't seem to be able to modify the count limits - without causing 1mV difference. eg. 100ppm .  
+  - which may mean INL issues.
+  - or else means we do not even need to multiply all of this out. instead just plug the raw regression numbers in.
+
+  ----
   EXTR.
     we want to read the var_pos_n etc. after *each* run.
     BECAUSE. we want to allow the pattern controller to permute
