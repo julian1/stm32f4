@@ -299,8 +299,10 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
 
 /*
   - we don't seem to be able to modify the count limits - without causing 1mV difference. eg. 100ppm .  
-  - which may mean INL issues.
-  - or else means we do not even need to multiply all of this out. instead just plug the raw regression numbers in.
+  - could indicate INL issues.
+  - or else there's somehting else going on. related to geometry of slope and rundown. 
+  - but we may not need to even multiply this. instead just plug the raw count_up/count_down to the regression .
+  
 
   ----
   EXTR.
