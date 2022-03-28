@@ -154,6 +154,7 @@ void param_report( const Param *param);  // rename param_report??
 
 void ctrl_run_read( uint32_t spi, Run *run );
 void run_report( const Run *run);    // rename run_report
+void run_report_brief( const Run *run );
 
 
 

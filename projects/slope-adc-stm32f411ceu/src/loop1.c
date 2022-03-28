@@ -196,47 +196,47 @@ void app_loop1 ( app_t *app )
 
   ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
 
-  printf("nplc   %.2lf\n", aper_n_to_nplc( ctrl_get_aperture(app->spi)) );
-  printf("buffer %u\n",    m_rows(app->buffer));
+  int aperture = ctrl_get_aperture(app->spi); // in clk counts
+  printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
+  printf("period %.2lfs\n", aper_n_to_period( aperture ));
 
-  Run   run;
-  Param param;
+  printf("buffer %u\n",    m_rows(app->buffer));
 
   while(true) {
 
-    // configure  integrator
+    Run   run;
+    Param param;
+
     // ctrl_reset_enable();
-    // ctrl_set_mux( HIMUX_SEL_REF_HI );
     app->data_ready = false;
     // ctrl_reset_disable();
 
     // block/wait for data
     while(!app->data_ready ) {
-
-      // printf("."); usart1_flush();
-      // we have a value.
-      if(run.count_up ) {
-        if(app ->b) {
-          double predict = m_calc_predicted_val( app->b, &run, &param );
-          process( app, predict );
-        }
-        // clear to reset
-        memset(&run, 0, sizeof(Run));
-      }
-
       app_update( app );   // change name simple update
       if(app->continuation_f) {
         return;
       }
     }
 
+    assert(run.count_up);
+
     // read the ready data
     ctrl_run_read(app->spi, &run);
     ctrl_param_read_last( app->spi, &param);
 
+    run_report_brief( &run);
+
+    if(app ->b) {
+      double predict = m_calc_predicted_val( app->b, &run, &param );
+      process( app, predict );
+    }
+
+
   }
 }
 
+// void run_report_brief( const Run *run );
 
 
 
@@ -617,7 +617,9 @@ double app_simple_read( app_t *app)
 void app_loop4 ( app_t *app   )
 {
   // loop44 INL.
-
+  /*
+    we could save the generated matrix against app. and then print out the last run at any time. if wanted.
+  */
   /*
     can permute.
     (1) nplc
@@ -634,27 +636,31 @@ void app_loop4 ( app_t *app   )
 
   assert(app);
 
-  ctrl_set_pattern( app->spi, 0 ) ;
 
 
   // mux signal input
   ctrl_reset_enable(app->spi);
+  ctrl_set_pattern( app->spi, 0 ) ;
   ctrl_set_mux( app->spi, HIMUX_SEL_SIG_HI );
+  ctrl_set_aperture( app->spi, nplc_to_aper_n( 10  ));
   ctrl_reset_disable(app->spi);
 
 
+  bool x = false;
 
   unsigned row = 0;
 
-  float target_[] = { 7.5, 7, 6.5, 6, 5.5, 5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0, -0.5, -1, -1.5, -2, -2.5, -3, -3.5, -4, -4.5, -5, -5.5, -6, -6.5, -7, -7.5 } ;
+  // 22V range.
+  float target_[] = { 
+    11, 10.5, 10, 9.5, 9, 8.5, 8, 7.5, 7, 6.5, 6, 5.5, 5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0, 
+    -0.5, -1, -1.5, -2, -2.5, -3, -3.5, -4, -4.5, -5, -5.5, -6, -6.5, -7, -7.5, -8, -8.5, -9, -9.5, -10, -10.5, -11 } ;
 
+  // more obs == more spread due to DA.
   unsigned obs_n = 15;
 
-  // app_voltage_source_set( app, 5.0 );
+  // size array
   MAT *m = m_get( ARRAY_SIZE(target_) * obs_n , 5 );
 
-  // bail early
-  // assert( ARRAY_SIZE(target_) * 10 < m_rows(m) );
 
   for(unsigned i = 0; i < ARRAY_SIZE(target_); ++i)
   {
@@ -665,11 +671,14 @@ void app_loop4 ( app_t *app   )
     printf("voltage set %lf\n", target );
     app_voltage_source_set( app, target );
 
+#if 0
     // sleep to let DA settle.
     // unsigned sleep = i == 0 ? 60 : 30;
-    unsigned sleep = i == 0 ? 120 : 60;
+    // unsigned sleep = i == 0 ? 120 : 60;
+    unsigned sleep = i == 0 ? 240 : 120;
     printf("sleep %us\n", sleep );
     app_simple_sleep( app, sleep * 1000 );
+#endif
 
 
     // 10 obs
@@ -680,9 +689,13 @@ void app_loop4 ( app_t *app   )
       // do A
       // configure nplc
       ctrl_reset_enable(app->spi);
-      ctrl_set_aperture( app->spi, nplc_to_aper_n( 10  ));
+      if(x) 
+        ctrl_set_aperture( app->spi, nplc_to_aper_n( 10  ));
+      else
+        ctrl_set_var_pos_n( app->spi, 550);    // OK. after we wrote this it doesn't work.
       app->data_ready = false;
       ctrl_reset_disable(app->spi);
+
 
       // block/wait for data
       while(!app->data_ready ) {
@@ -701,16 +714,23 @@ void app_loop4 ( app_t *app   )
       // read data
       ctrl_run_read(app->spi, &run_a);
       ctrl_param_read_last( app->spi, &param_a);
-      assert( aper_n_to_nplc(param_a.clk_count_aper_n) == 10);
+      if(x)
+        assert( aper_n_to_nplc(param_a.clk_count_aper_n) == 10);
+      else
+        assert( param_a.clk_count_var_pos_n == 550 );
 
 
 
       ///////////////////////////////
-
       // do B
       // configure nplc
       ctrl_reset_enable(app->spi);
-      ctrl_set_aperture( app->spi, nplc_to_aper_n(11));
+
+      if(x) 
+        ctrl_set_aperture( app->spi, nplc_to_aper_n(11));
+      else
+        ctrl_set_var_pos_n( app->spi, 560);
+
       app->data_ready = false;
       ctrl_reset_disable(app->spi);
 
@@ -731,7 +751,10 @@ void app_loop4 ( app_t *app   )
       // read data
       ctrl_run_read(app->spi, &run_b);
       ctrl_param_read_last( app->spi, &param_b);
-      assert(  aper_n_to_nplc(param_b.clk_count_aper_n) == 11);
+      if(x)
+        assert(  aper_n_to_nplc(param_b.clk_count_aper_n) == 11);
+      else
+        assert( param_b.clk_count_var_pos_n == 560 );
 
 
       if(app ->b) {

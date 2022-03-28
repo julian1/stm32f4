@@ -199,9 +199,6 @@ void run_report( const Run *run )
 {
   assert(run);
 
-  // printf("count_up %u, ",         run->count_up );
-  // printf("count_down %u, ",       run->count_down );
-
   printf("count_up/down %lu %lu, ", run->count_up, run->count_down );
   printf("trans_up/down %lu %lu, ", run->count_trans_up,  run->count_trans_down);
   printf("fix_up/down %lu %lu, ",   run->count_fix_up,  run->count_fix_down);
@@ -212,6 +209,13 @@ void run_report( const Run *run )
   // printf("meas_count %lu, ", run->meas_count);
 }
 
+
+void run_report_brief( const Run *run )
+{
+  assert(run);
+  printf("count_up/down %lu %lu, ", run->count_up, run->count_down );
+  printf("clk_count_rundown %lu, ", run->clk_count_rundown);
+}
 
 /*
   having separate param, run offers maximum flexibility in design.
