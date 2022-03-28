@@ -733,8 +733,8 @@ void app_loop4 ( app_t *app   )
       if(x) 
         ctrl_set_aperture( app->spi, nplc_to_aper_n(11));
       else {
-        ctrl_set_var_pos_n( app->spi, 530);
-        // ctrl_set_fix_n( app->spi, 50);
+        ctrl_set_var_pos_n( app->spi, 540);
+        ctrl_set_fix_n( app->spi, 80);
       }
 
       app->data_ready = false;
@@ -760,8 +760,8 @@ void app_loop4 ( app_t *app   )
       if(x)
         assert(  aper_n_to_nplc(param_b.clk_count_aper_n) == 11);
       else {
-        assert( param_b.clk_count_var_pos_n == 530 );
-        // assert( param_b.clk_count_fix_n == 50 );
+        assert( param_b.clk_count_var_pos_n == 540 );
+        assert( param_b.clk_count_fix_n == 80 );
       }
 
       // param_b.clk_count_var_pos_n = 550; // pretend unchanged

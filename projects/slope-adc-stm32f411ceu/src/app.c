@@ -302,6 +302,8 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
   - could indicate INL issues.
   - or else there's somehting else going on. related to geometry of slope and rundown. 
   - but we may not need to even multiply this. instead just plug the raw count_up/count_down to the regression .
+
+  - because the length of the variable - is different regardless if it is up or down. and they are not equal?
   
 
   ----
