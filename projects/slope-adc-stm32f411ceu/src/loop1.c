@@ -199,7 +199,6 @@ void app_loop1 ( app_t *app )
   int aperture = ctrl_get_aperture(app->spi); // in clk counts
   printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
   printf("period %.2lfs\n", aper_n_to_period( aperture ));
-
   printf("buffer %u\n",    m_rows(app->buffer));
 
   while(true) {
@@ -223,7 +222,7 @@ void app_loop1 ( app_t *app )
 
     // read the ready data
     ctrl_run_read(app->spi, &run);
-    ctrl_param_read_last( app->spi, &param);
+    ctrl_param_read( app->spi, &param);
 
     assert( ctrl_get_state( app->spi ) == STATE_RESET);
       
@@ -316,8 +315,8 @@ void app_loop2 ( app_t *app )
         Run   run;
         Param param;
 
-        ctrl_run_read(        app->spi, &run);
-        ctrl_param_read_last( app->spi, &param);
+        ctrl_run_read(   app->spi, &run);
+        ctrl_param_read( app->spi, &param);
 
         run_report(&run);
         /*
@@ -470,7 +469,7 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   // memset(&run_sig, 0, sizeof(Run));
 
   // record the mux input to use
-  unsigned mux_sel = spi_reg_read(app->spi, REG_LAST_HIMUX_SEL );
+  unsigned mux_sel = spi_reg_read(app->spi, REG_HIMUX_SEL );
 
 
   while(true) {
@@ -496,7 +495,7 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
     // read data
     ctrl_run_read(app->spi, &run_zero);
-    ctrl_param_read_last( app->spi, &param_zero);
+    ctrl_param_read( app->spi, &param_zero);
     assert(param_zero.himux_sel ==  HIMUX_SEL_REF_LO );
 
 
@@ -521,7 +520,7 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
     // read data
     ctrl_run_read(app->spi, &run_sig);
-    ctrl_param_read_last( app->spi, &param_sig);
+    ctrl_param_read( app->spi, &param_sig);
     assert(param_sig.himux_sel == mux_sel);
 
     // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, m_calc_predicted_val( app-> b , &run_sig , &param_sig )));
@@ -627,7 +626,7 @@ double app_simple_read( app_t *app)
   }
 
   ctrl_run_read(app->spi, &run);
-  ctrl_param_read_last(app->spi, &param);
+  ctrl_param_read(app->spi, &param);
 
   // we have both obs available...
   assert(run.count_up);
@@ -751,7 +750,7 @@ void app_loop4 ( app_t *app   )
 
       // read data
       ctrl_run_read(app->spi, &run_a);
-      ctrl_param_read_last( app->spi, &param_a);
+      ctrl_param_read( app->spi, &param_a);
       if(x)
         assert( aper_n_to_nplc(param_a.clk_count_aper_n) == 10);
       else {
@@ -793,7 +792,7 @@ void app_loop4 ( app_t *app   )
 
       // read data
       ctrl_run_read(app->spi, &run_b);
-      ctrl_param_read_last( app->spi, &param_b);
+      ctrl_param_read( app->spi, &param_b);
       if(x)
         assert(  aper_n_to_nplc(param_b.clk_count_aper_n) == 11);
       else {

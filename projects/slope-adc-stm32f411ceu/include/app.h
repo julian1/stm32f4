@@ -42,6 +42,7 @@
 #define REG_CLK_COUNT_RUNDOWN   37
 
 
+/*
 // treat as param variable
 #define REG_LAST_HIMUX_SEL           40 // what was being muxed for integration. sig, azero, acal .
 #define REG_LAST_CLK_COUNT_FIX_N     41
@@ -49,7 +50,7 @@
 // #define REG_LAST_CLK_COUNT_VAR_NEG_N 43
 #define REG_LAST_CLK_COUNT_APER_N_LO 44
 #define REG_LAST_CLK_COUNT_APER_N_HI 45
-
+*/
 
 #define REG_MEAS_COUNT          50
 
@@ -159,7 +160,7 @@ typedef struct Run  Run;
 
 
 void ctrl_param_read( uint32_t spi, Param *param);
-void ctrl_param_read_last( uint32_t spi, Param *param);
+// void ctrl_param_read_last( uint32_t spi, Param *param);
 void param_report( const Param *param);  // rename param_report??
 
 void ctrl_run_read( uint32_t spi, Run *run );

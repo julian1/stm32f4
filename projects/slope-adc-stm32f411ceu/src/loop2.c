@@ -92,8 +92,8 @@ void app_loop22( app_t *app )
         Run   run;
         Param param;
 
-        ctrl_run_read(        app->spi, &run);
-        ctrl_param_read_last( app->spi, &param);
+        ctrl_run_read(   app->spi, &run);
+        ctrl_param_read( app->spi, &param);
 
         run_report(&run);
 

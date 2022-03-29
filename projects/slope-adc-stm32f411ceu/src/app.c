@@ -271,7 +271,7 @@ void ctrl_param_read( uint32_t spi, Param *param)
 
 
 
-
+#if 0
 void ctrl_param_read_last( uint32_t spi, Param *param)
 {
   assert(spi == spi);
@@ -288,6 +288,7 @@ void ctrl_param_read_last( uint32_t spi, Param *param)
   // This is.
   param->himux_sel = spi_reg_read(spi, REG_LAST_HIMUX_SEL ); // **last
 }
+#endif
 
 
 void param_report( const Param *param)
