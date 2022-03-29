@@ -167,9 +167,9 @@ typedef struct A A;
 
 static ssize_t mywrite( A *a, const unsigned char *buf, size_t sz)
 {
-  printf("** mywrite %u\n", sz);
+  // printf("** mywrite %u\n", sz);
   //printf("a %p\n", a );
-  printf("a->pos %d", a->pos ); // value
+  // printf("a->pos %d", a->pos ); // value
 
 
   // alternatively might be able to return truncated sz...
@@ -179,7 +179,7 @@ static ssize_t mywrite( A *a, const unsigned char *buf, size_t sz)
 
   a->pos += sz;
 
-  printf("a->pos now %d\n", a->pos ); // value
+  // printf("a->pos now %d\n", a->pos ); // value
 
   return sz;
 }
@@ -195,9 +195,9 @@ static ssize_t myread(A *a, char *buf, size_t sz)
     this is a buffering action. it is ok to read past the local datastructure.
   */
 
-  printf("** myread %u\n", sz);
+  // printf("** myread %u\n", sz);
   //printf("a %p\n", a );
-  printf("a->pos %d\n", a->pos ); // value
+  // printf("a->pos %d\n", a->pos ); // value
 
   usart1_flush();
 

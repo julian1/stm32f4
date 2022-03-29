@@ -119,7 +119,7 @@ int c_skip_to_last_valid(  FILE *f)
   
       // valid slot
       last_len = header.len;
-      // another header, so skip the packet length and continue
+      // seek next header, so skip the packet length and continue
       fseek( f, header.len, SEEK_CUR ) ;
     }
     else if( header.magic == 0xffffffff ) {
@@ -149,6 +149,97 @@ int c_skip_to_last_valid(  FILE *f)
 
 
 
+// OK. we want a variation. of c_skip. that fills in data... according to header ids.
+
+int c_scan(  FILE *f)
+{
+  // return 0 if success.
+
+  assert(f );
+
+  printf( "----------------------\n");
+  printf( "config scan flash\n");
+  usart1_flush();
+
+  // seek the start of file
+  fseek( f, 0 , SEEK_SET) ;
+
+  Header header;
+  assert(sizeof(header) == 12);
+
+  while(true) {
+
+    // read header
+    unsigned items = fread( &header, sizeof(header), 1, f);
+    assert(items == 1);
+
+    // printf("magic is %x\n", header.magic );
+    // usart1_flush();
+
+    int here0 = ftell( f); // position from start.
+    printf("here0 is %d\n", here0 );
+
+    if(header.magic == MAGIC ) {
+      // valid slot
+    
+      switch(header.id) { 
+     
+        case 99: 
+          printf("got 99 a matrix, skipping\n" );
+
+          fseek( f, header.len, SEEK_CUR ) ;
+          break;
+
+        case 101: 
+          printf("got 101 a matrix and slot\n" );
+
+          int slot;
+          items = fread( &slot, sizeof(slot), 1, f);
+          assert(items == 1);
+
+          printf("slot is %d\n", slot );
+         
+          // now read matrix.
+          MAT *m = m_finput_binary(f, MNULL );
+          printf("matrix is\n" );
+          m_foutput( stdout, m );
+              
+          int here1 = ftell( f); // position from start.
+          printf("here is %d\n", here1 );
+
+          // 
+          assert( here0  + header.len == here1 ); 
+          break;
+      }; 
+
+      // 
+      fseek( f, here0 + header.len, SEEK_SET ) ;
+
+    }
+    else if( header.magic == 0xffffffff ) {
+   
+      break;
+    }
+    else {
+      // error
+      assert( 0);
+    }
+  }
+
+
+  // reset seek the start of file
+  fseek( f, 0 , SEEK_SET) ;
+
+  printf( "done\n" );
+  return 0;
+}
+
+
+
+
+
+
+
 
 MAT * m_read_flash( MAT *out, FILE *f)
 {
@@ -165,7 +256,7 @@ MAT * m_read_flash( MAT *out, FILE *f)
   assert(header.magic == MAGIC );
 
 
-  // now read.
+  // now read matrix.
   MAT *ret = m_finput_binary(f, out );
 
   // DO NOT CLOSE f.
@@ -186,7 +277,7 @@ MAT * m_read_flash( MAT *out, FILE *f)
 
 */
 
-void m_write_flash ( MAT *m , FILE *f)
+void m_write_flash ( MAT *m , int slot, FILE *f)
 {
   assert(f );
   assert(m );
@@ -202,10 +293,10 @@ void m_write_flash ( MAT *m , FILE *f)
   long start = ftell( f);   // record postion from start.
 
 
-
+  // write the slot
+  fwrite( &slot, sizeof(int), 1, f);
   // write the matrix
   m_foutput_binary( f, m);
-
 
 
   // determine length
@@ -222,7 +313,7 @@ void m_write_flash ( MAT *m , FILE *f)
   Header  header;
   header.magic = MAGIC;
   header.len = len;
-  header.id = 99;     // header id. for raw matrix.
+  header.id = 101;     // header id. for raw matrix.
 
   unsigned items = fwrite( &header, sizeof(header), 1, f);
   assert(items == 1);

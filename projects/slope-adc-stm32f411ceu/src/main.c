@@ -203,6 +203,7 @@ void app_update_console_cmd(app_t *app)
           printf("done erase\n");
 
       }
+#if 0
       // flash write test
       else if(strcmp(app->cmd_buf , "flash write test") == 0) {
 
@@ -223,11 +224,13 @@ void app_update_console_cmd(app_t *app)
         flash_lock();
         printf("done\n");
       }
+#endif
 
 
       // flash write cal
       // should be called 'cal save', 'cal load'  etc?
-      else if(strcmp(app->cmd_buf , "cal save") == 0) {
+
+      else if(sscanf(app->cmd_buf, "cal save %lu", &u32 ) == 1) {
 
         // think we really want slots.
         if(!app->b) {
@@ -242,7 +245,8 @@ void app_update_console_cmd(app_t *app)
           c_skip_to_end( f);
 
           // write cal matrix
-          m_write_flash ( app->b, f );
+          int slot = u32;
+          m_write_flash ( app->b, slot, f );
           fclose(f);
 
           printf("flash lock\n");
@@ -270,6 +274,20 @@ void app_update_console_cmd(app_t *app)
 
         fclose(f);
       }
+
+      else if(strcmp(app->cmd_buf , "cal scan") == 0) {
+
+        // might be better to have separate read
+        printf("cal scan\n");
+
+        FILE *f = open_flash_file();
+
+        c_scan( f);
+
+        fclose(f);
+      }
+
+
 
       else if(strcmp( app->cmd_buf, "cal") == 0) { // setting arg to 0 matches on anything?
         // show current cal
