@@ -5,14 +5,15 @@
 #include "matrix.h"
 
 
-
 void c_skip_to_end(  FILE *f);
-
-// void c_skip_to_last_valid(  FILE *f);
+#if 0
 int c_skip_to_last_valid(  FILE *f);
+#endif
 
 
-int c_scan(  FILE *f);
+// int c_scan(  FILE *f);
+// int c_scan( FILE *f, MAT *b, unsigned b_sz );
+int c_scan( FILE *f, MAT **b, unsigned b_sz );
 
 
 

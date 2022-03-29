@@ -1,5 +1,5 @@
 /*
-  todo change name cal.c? 
+  todo change name cal.c?
 */
 
 
@@ -29,11 +29,11 @@ typedef struct Header Header;
 
 #define MAGIC 0xff00ff00
 
-/* 
+/*
   skip to end. good for writing next slot data.
   but we need a skip to first valid entry from the end
 */
-  
+
 
 void c_skip_to_end(  FILE *f)
 {
@@ -78,6 +78,7 @@ void c_skip_to_end(  FILE *f)
   printf( "ftell() now %ld\n", ftell( f) );
 }
 
+#if 0
 /*
   // OK. to read different id / slots . and want a switch.
   can take last valid, with fast seek.
@@ -116,7 +117,7 @@ int c_skip_to_last_valid(  FILE *f)
     usart1_flush();
 
     if(header.magic == MAGIC ) {
-  
+
       // valid slot
       last_len = header.len;
       // seek next header, so skip the packet length and continue
@@ -124,7 +125,7 @@ int c_skip_to_last_valid(  FILE *f)
     }
     else if( header.magic == 0xffffffff ) {
       // uninitialized nor ram.
-      // go back 12 bytes for attempted header read, and the len of last packet, and the header for that packet. 
+      // go back 12 bytes for attempted header read, and the len of last packet, and the header for that packet.
       fseek( f, -last_len -sizeof(header) -sizeof(header), SEEK_CUR ) ;
 
       // could be negative here.
@@ -146,12 +147,13 @@ int c_skip_to_last_valid(  FILE *f)
   return 0;
 }
 
+#endif
 
 
 
 // OK. we want a variation. of c_skip. that fills in data... according to header ids.
 
-int c_scan(  FILE *f)
+int c_scan( FILE *f, MAT **b, unsigned b_sz )
 {
   // return 0 if success.
 
@@ -176,48 +178,51 @@ int c_scan(  FILE *f)
     // printf("magic is %x\n", header.magic );
     // usart1_flush();
 
-    int here0 = ftell( f); // position from start.
+    unsigned here0 = ftell( f); // position from start.
     printf("here0 is %d\n", here0 );
 
     if(header.magic == MAGIC ) {
       // valid slot
-    
-      switch(header.id) { 
-     
-        case 99: 
-          printf("got 99 a matrix, skipping\n" );
 
-          fseek( f, header.len, SEEK_CUR ) ;
+      switch(header.id) {
+
+        case 99:
+          printf("got 99 a matrix, skipping\n" );
+          // fseek( f, header.len, SEEK_CUR ) ;
           break;
 
-        case 101: 
+        case 101:
           printf("got 101 a matrix and slot\n" );
 
-          int slot;
+          unsigned slot;
           items = fread( &slot, sizeof(slot), 1, f);
           assert(items == 1);
 
           printf("slot is %d\n", slot );
-         
+
           // now read matrix.
           MAT *m = m_finput_binary(f, MNULL );
           printf("matrix is\n" );
           m_foutput( stdout, m );
-              
-          int here1 = ftell( f); // position from start.
-          printf("here is %d\n", here1 );
+  
+        
+          printf("setting slot %u with matrix\n", slot );
+          assert(slot < b_sz);
+          b[ slot ] = m ; 
+          
 
-          // 
-          assert( here0  + header.len == here1 ); 
+          unsigned here1 = ftell( f); // position from start.
+          // printf("here is %d\n", here1 );
+          assert( here0  + header.len == here1 );
           break;
-      }; 
+      };
 
-      // 
+      // position to the next frame
       fseek( f, here0 + header.len, SEEK_SET ) ;
 
     }
     else if( header.magic == 0xffffffff ) {
-   
+
       break;
     }
     else {
@@ -264,16 +269,16 @@ MAT * m_read_flash( MAT *out, FILE *f)
 }
 
 
-/* 
-  This should be factored... To be able to write any packet. 
+/*
+  This should be factored... To be able to write any packet.
   Issue is we don't know the size up-front.
 
   So pass just a function...
   No. I think we need to pass a complicated structure.
 
-  No. we want the number..issue that  
+  No. we want the number..issue that
   Issue is we want to be able to save a single matrix. without updating from any other slot.
-  that means having a number as well. 
+  that means having a number as well.
 
 */
 

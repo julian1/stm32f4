@@ -169,7 +169,13 @@ void app_loop22( app_t *app )
   r_report( &regression, stdout);
  
   // copy, for new memory
-  app->b = m_copy( regression.b, MNULL );
+  // app->b = m_copy( regression.b, MNULL );
+
+  // should switch and save new cal in slot 0. by default?
+
+  printf("\nswitching to cal slot 0\n");
+  app-> b_current_idx = 0;
+  app->b[ app-> b_current_idx ] =  m_copy( regression.b, MNULL );
 
   r_free( &regression );
 

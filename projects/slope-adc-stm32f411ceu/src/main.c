@@ -122,6 +122,17 @@ static int spi_reg_read_write_test(uint32_t spi )
 
 
 
+/*
+  OK. hang on. when we do a calibration.
+  should always be stored in memory in cal_0 ?
+
+  then we can save it - in any slot.
+
+  when save. should always be cal0. 
+
+*/
+
+
 
 void app_update_console_cmd(app_t *app)
 {
@@ -230,6 +241,7 @@ void app_update_console_cmd(app_t *app)
       // flash write cal
       // should be called 'cal save', 'cal load'  etc?
 
+#if 0
       else if(sscanf(app->cmd_buf, "cal save %lu", &u32 ) == 1) {
 
         // think we really want slots.
@@ -245,7 +257,7 @@ void app_update_console_cmd(app_t *app)
           c_skip_to_end( f);
 
           // write cal matrix
-          int slot = u32;
+          unsigned slot = u32;
           m_write_flash ( app->b, slot, f );
           fclose(f);
 
@@ -275,6 +287,7 @@ void app_update_console_cmd(app_t *app)
         fclose(f);
       }
 
+#endif
       else if(strcmp(app->cmd_buf , "cal scan") == 0) {
 
         // might be better to have separate read
@@ -282,19 +295,44 @@ void app_update_console_cmd(app_t *app)
 
         FILE *f = open_flash_file();
 
-        c_scan( f);
+        c_scan( f, app->b, ARRAY_SIZE(app->b) );
+        // c_scan( f);
 
         fclose(f);
       }
 
+      else if(sscanf(app->cmd_buf, "cal use %lu", &u32 ) == 1) {
+
+        // set the current cal slot
+        if(!( u32 < ARRAY_SIZE(app->b))) {
+
+          printf("cal slot to large\n");
+        } else {
+
+          MAT *b = app->b[ u32 ];
+
+          if(!b) {
+            printf("cal slot does not have matrix\n");
+          } else {
+            printf("ok\n");
+            app->b_current_idx = u32;
+          }
+        }
+      }
 
 
+      // when we do a current calibrtion. should s
+
+
+
+#if 0
       else if(strcmp( app->cmd_buf, "cal") == 0) { // setting arg to 0 matches on anything?
         // show current cal
         printf("cal\n");
         m_foutput( stdout, app->b );
         usart1_flush();
       }
+#endif
 
       else if(sscanf(app->cmd_buf, "sleep %lu", &u32 ) == 1) {
 
@@ -611,6 +649,7 @@ int main(void)
 
 
 
+#if 0
   /////////////////////
   // try to load cal
   FILE *f = open_flash_file();
@@ -625,6 +664,14 @@ int main(void)
     usart1_flush();
   }
   fclose(f);
+
+#endif
+
+  // try to load cal
+  FILE *f = open_flash_file();
+  c_scan( f, app.b, ARRAY_SIZE(app.b) );
+  fclose(f);
+
 
   /////////////////////
 

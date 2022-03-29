@@ -209,7 +209,10 @@ struct app_t
 
 
 
-  MAT     *b;       // calebration coefficients
+  // MAT     *b;       // calebration coefficients
+  MAT     *b[10] ;       // calebration coefficients
+
+  unsigned b_current_idx;    // current idx;
 
   // need to intialize
   unsigned buffer_i;

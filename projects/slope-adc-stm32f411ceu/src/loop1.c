@@ -229,8 +229,10 @@ void app_loop1 ( app_t *app )
 
     run_report_brief( &run);
 
-    if(app ->b) {
-      double predict = m_calc_predicted_val( app->b, &run, &param );
+    assert( app->b_current_idx < ARRAY_SIZE(app->b));
+    MAT *b = app->b[ app->b_current_idx ];
+    if(b) {
+      double predict = m_calc_predicted_val( b, &run, &param );
       process( app, predict );
     }
 
@@ -407,7 +409,14 @@ void app_loop2 ( app_t *app )
   r_report( &regression, stdout);
 
   // copy, for new memory
-  app->b = m_copy( regression.b, MNULL );
+  // app->b = m_copy( regression.b, MNULL );
+
+
+  // should switch and save new cal in slot 0. by default?
+  printf("\nswitching to cal slot 0\n");
+  app-> b_current_idx = 0;
+  app->b[ app-> b_current_idx ] =  m_copy( regression.b, MNULL );
+
 
   r_free( &regression );
 
@@ -528,9 +537,12 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
       // we have both obs available...
 
-    if(app ->b) {
-      double predict_zero   = m_calc_predicted_val( app->b , &run_zero, &param_zero );
-      double predict_sig    = m_calc_predicted_val( app->b , &run_sig,  &param_sig );
+
+    assert( app->b_current_idx < ARRAY_SIZE(app->b));
+    MAT *b = app->b[ app->b_current_idx ];
+    if(b) {
+      double predict_zero   = m_calc_predicted_val( b , &run_zero, &param_zero );
+      double predict_sig    = m_calc_predicted_val( b , &run_sig,  &param_sig );
       double predict        = predict_sig - predict_zero;
       process( app, predict );
     }
@@ -630,9 +642,13 @@ double app_simple_read( app_t *app)
 
   // we have both obs available...
   assert(run.count_up);
-  assert(app ->b);
 
-  double predict = m_calc_predicted_val( app->b , &run, &param );
+  assert( app->b_current_idx < ARRAY_SIZE(app->b));
+  MAT *b = app->b[ app->b_current_idx ];
+  assert(b); 
+
+
+  double predict = m_calc_predicted_val( b , &run, &param );
   return predict;
 }
 
@@ -812,10 +828,12 @@ void app_loop4 ( app_t *app   )
       // but perhaps it needs to be calibrated on the difference.
 
       // hmmmm. 600uV.
-
-      if(app ->b) {
-        double predict_a  = m_calc_predicted_val( app->b , &run_a, &param_a );
-        double predict_b  = m_calc_predicted_val( app->b , &run_b,  &param_b );
+      assert( app->b_current_idx < ARRAY_SIZE(app->b));
+      MAT *b = app->b[ app->b_current_idx ];
+     
+      if(b) {
+        double predict_a  = m_calc_predicted_val( b , &run_a, &param_a );
+        double predict_b  = m_calc_predicted_val( b , &run_b,  &param_b );
         double delta      = (predict_a - predict_b) * 1000000; // in uV.
 
         char buf[100], buf2[100];
