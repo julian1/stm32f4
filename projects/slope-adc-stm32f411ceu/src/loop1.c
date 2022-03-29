@@ -720,7 +720,7 @@ void app_loop4 ( app_t *app   )
 
       // do A
       // configure nplc
-      ctrl_reset_enable(app->spi);
+//      ctrl_reset_enable(app->spi);
       if(x) 
         ctrl_set_aperture( app->spi, nplc_to_aper_n( 10  ));
       else {
@@ -728,9 +728,15 @@ void app_loop4 ( app_t *app   )
         ctrl_set_fix_n( app->spi, 70);
       }
 
-      assert( ctrl_get_state( app->spi ) == STATE_RESET_START);
+//      assert( ctrl_get_state( app->spi ) == STATE_RESET_START);
       app->data_ready = false;
-      ctrl_reset_disable(app->spi);
+//      ctrl_reset_disable(app->spi);
+
+      if( ctrl_get_state( app->spi ) != STATE_RESET) {
+          printf("doing reset\n");
+          ctrl_reset_enable(app->spi);
+          ctrl_reset_disable(app->spi);
+      }
       assert( ctrl_get_state( app->spi ) == STATE_RESET);
 
 
@@ -762,8 +768,7 @@ void app_loop4 ( app_t *app   )
       ///////////////////////////////
       // do B
       // configure nplc
-      ctrl_reset_enable(app->spi);
-
+//      ctrl_reset_enable(app->spi);
       if(x) 
         ctrl_set_aperture( app->spi, nplc_to_aper_n(11));
       else {
@@ -772,8 +777,8 @@ void app_loop4 ( app_t *app   )
       }
 
       app->data_ready = false;
-      assert( ctrl_get_state( app->spi ) == STATE_RESET_START);
-      ctrl_reset_disable(app->spi);
+//      assert( ctrl_get_state( app->spi ) == STATE_RESET_START);
+//      ctrl_reset_disable(app->spi);
       assert( ctrl_get_state( app->spi ) == STATE_RESET);
 
       // block/wait for data
