@@ -288,8 +288,10 @@ void app_update_console_cmd(app_t *app)
       }
 
 #endif
-      else if(strcmp(app->cmd_buf , "cal scan") == 0) {
 
+
+      else if(strcmp(app->cmd_buf , "cal rescan") == 0) {
+        // perhaps better as rescan. since scanned on startup.
         // might be better to have separate read
         printf("cal scan\n");
 
@@ -301,24 +303,54 @@ void app_update_console_cmd(app_t *app)
         fclose(f);
       }
 
-      else if(sscanf(app->cmd_buf, "cal use %lu", &u32 ) == 1) {
+      else if(sscanf(app->cmd_buf, "cal switch %lu", &u32 ) == 1) {
 
         // set the current cal slot
         if(!( u32 < ARRAY_SIZE(app->b))) {
-
-          printf("cal slot to large\n");
+          printf("cal slot out of range\n");
         } else {
 
           MAT *b = app->b[ u32 ];
-
           if(!b) {
-            printf("cal slot does not have matrix\n");
+            printf("cal slot %lu missing cal config\n", u32);
           } else {
             printf("ok\n");
             app->b_current_idx = u32;
           }
         }
       }
+
+      else if(sscanf(app->cmd_buf, "cal save %lu", &u32 ) == 1) {
+
+          // should it always be the first entry????
+          // write cal matrix
+          unsigned slot = u32;
+
+          // get current matrix
+          assert( app->b_current_idx < ARRAY_SIZE(app->b));
+          MAT *b = app->b[ app->b_current_idx ];
+
+          // think we really want slots.
+          if(!b) {
+
+            printf("no current cal\n");
+          } else {
+
+            printf("flash unlock\n");
+            flash_unlock();
+
+            FILE *f = open_flash_file();
+            c_skip_to_end( f);
+        
+            m_write_flash ( b, slot, f );
+            fclose(f);
+
+            printf("flash lock\n");
+            flash_lock();
+            printf("done\n");
+            }
+      }
+
 
 
       // when we do a current calibrtion. should s
