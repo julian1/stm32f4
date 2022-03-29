@@ -724,7 +724,7 @@ void app_loop4 ( app_t *app   )
     printf("voltage set %lf\n", target );
     app_voltage_source_set( app, target );
 
-#if 0
+#if 1
     // sleep to let DA settle.
     // unsigned sleep = i == 0 ? 60 : 30;
     // unsigned sleep = i == 0 ? 120 : 60;
@@ -753,12 +753,21 @@ void app_loop4 ( app_t *app   )
       app->data_ready = false;
 //      ctrl_reset_disable(app->spi);
 
+        ctrl_reset_enable(app->spi);
+        ctrl_reset_disable(app->spi);
+
+#if 0
       if( ctrl_get_state( app->spi ) != STATE_RESET) {
           printf("doing reset\n");
           ctrl_reset_enable(app->spi);
           ctrl_reset_disable(app->spi);
       }
-      assert( ctrl_get_state( app->spi ) == STATE_RESET);
+      int state = ctrl_get_state( app->spi) ;
+      if( state != STATE_RESET) {
+        printf("state is %u\n", state);   // state is 4.
+      }
+      assert( state  == STATE_RESET); // not holding ? 
+#endif
 
 
       // block/wait for data
@@ -837,8 +846,15 @@ void app_loop4 ( app_t *app   )
       MAT *b = app->b[ app->b_current_idx ];
      
       if(b) {
-        double predict_a  = m_calc_predicted_val( b , &run_a, &param_a );
-        double predict_b  = m_calc_predicted_val( b , &run_b,  &param_b );
+    
+        MAT *b4 =  app->b[ 0] ; 
+        assert(b4);
+        MAT *b5 =  app->b[ 5] ; 
+        assert(b5);
+        
+
+        double predict_a  = m_calc_predicted_val( b4 , &run_a, &param_a );
+        double predict_b  = m_calc_predicted_val( b5 , &run_b,  &param_b );
         double delta      = (predict_a - predict_b) * 1000000; // in uV.
 
         char buf[100], buf2[100];

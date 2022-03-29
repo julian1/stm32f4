@@ -365,7 +365,17 @@ void app_update_console_cmd(app_t *app)
         }
       }
 
+      // OK. saving the parameters that were used. for cal. would be useful.
+      // In fact. then we could drive the difference loop using them.
+      // eg. changing nplc. or changing var_n, fix_n
 
+      else if(strcmp(app->cmd_buf , "var_n show") == 0 )  {   // fixme
+        printf("var_n %lu\n", ctrl_get_var_n( app->spi));
+      }
+       else if(strcmp(app->cmd_buf , "fix_n show") == 0 )  {   // fixme
+        printf("fix_n %lu\n", ctrl_get_fix_n( app->spi));
+      }
+ 
 
       else if(sscanf(app->cmd_buf, "var_n %lu", &u32 ) == 1) {
         printf("var_n %lu\n", u32);
@@ -460,6 +470,10 @@ void app_update_console_cmd(app_t *app)
       // actually an aperture setting.
 
 
+
+      else if(strcmp(app->cmd_buf , "buffer show") == 0 )  {   // fixme
+        printf("buffer %u\n",    m_rows(app->buffer));
+      }
       else if(sscanf(app->cmd_buf, "buffer %lu", &u32 ) == 1) {
         if(u32 > 100) {
           u32 = 100;
@@ -470,6 +484,12 @@ void app_update_console_cmd(app_t *app)
       }
 
 
+      else if(strcmp(app->cmd_buf , "nplc show") == 0 )  {   // fixme
+        int aperture = ctrl_get_aperture(app->spi); // in clk counts
+        printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
+        printf("period %.2lfs\n", aper_n_to_period( aperture ));
+        // printf("buffer %u\n",    m_rows(app->buffer));
+      }
       else if(sscanf(app->cmd_buf, "nplc %lf", &d ) == 1) {
         printf("setting nplc %lf\n", d );
         uint32_t aper = nplc_to_aper_n( d );

@@ -264,6 +264,7 @@ void ctrl_param_read( uint32_t spi, Param *param)
 
   param->clk_count_var_n = spi_reg_read(spi, REG_CLK_COUNT_VAR_N);
 
+  // Why do we do this? makes it easier to report.
   param->himux_sel = spi_reg_read(spi, REG_HIMUX_SEL );
 
 }
