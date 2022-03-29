@@ -316,18 +316,20 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
   assert(run);
 
 /*
-  - we don't seem to be able to modify the count limits - without causing 1mV difference. eg. 100ppm .  
-  - could indicate INL issues.
-  - or else there's somehting else going on. related to geometry of slope and rundown. 
+  - we don't seem to be able to modify the count limits - without causing 1mV/20V difference. eg. 100ppm .  
+  - could indicate bad INL issues?
+  - or somehting else going on. related to geometry of slope and rundown. 
   - but we may not need to even multiply this. instead just plug the raw count_up/count_down to the regression .
-
   - because the length of the variable - is different regardless if it is up or down. and they are not equal?
-  
 
   ----
   EXTR.
     we want to read the var_n etc. after *each* run.
     BECAUSE. we want to allow the pattern controller to permute
+
+  - on scope. cannot see many little reverse periods. when integrating 0V. ok. o 
+
+    we see the down at +ref.
 */
 
 

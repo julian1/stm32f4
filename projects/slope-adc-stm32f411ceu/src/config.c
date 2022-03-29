@@ -1,4 +1,6 @@
-
+/*
+  todo change name cal.c? 
+*/
 
 
 #include <stdio.h>
@@ -171,7 +173,18 @@ MAT * m_read_flash( MAT *out, FILE *f)
 }
 
 
+/* 
+  This should be factored... To be able to write any packet. 
+  Issue is we don't know the size up-front.
 
+  So pass just a function...
+  No. I think we need to pass a complicated structure.
+
+  No. we want the number..issue that  
+  Issue is we want to be able to save a single matrix. without updating from any other slot.
+  that means having a number as well. 
+
+*/
 
 void m_write_flash ( MAT *m , FILE *f)
 {
@@ -188,8 +201,12 @@ void m_write_flash ( MAT *m , FILE *f)
   fseek( f, sizeof(Header), SEEK_CUR ) ;
   long start = ftell( f);   // record postion from start.
 
+
+
   // write the matrix
   m_foutput_binary( f, m);
+
+
 
   // determine length
   long len = ftell( f) - start;
@@ -205,7 +222,7 @@ void m_write_flash ( MAT *m , FILE *f)
   Header  header;
   header.magic = MAGIC;
   header.len = len;
-  header.id = 99;
+  header.id = 99;     // header id. for raw matrix.
 
   unsigned items = fwrite( &header, sizeof(header), 1, f);
   assert(items == 1);
