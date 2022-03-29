@@ -607,6 +607,9 @@ void app_voltage_source_set( app_t *app, double value )
 
 double app_simple_read( app_t *app)
 {
+  /*
+    what cal to use for this?
+  */
   // not sure if this should be here.
   //
 
@@ -624,7 +627,7 @@ double app_simple_read( app_t *app)
   */
 
   ctrl_reset_enable(app->spi);
-  ctrl_set_aperture( app->spi, nplc_to_aper_n(10));
+  // ctrl_set_aperture( app->spi, nplc_to_aper_n(10));
   app->data_ready = false;
   ctrl_reset_disable(app->spi);
 

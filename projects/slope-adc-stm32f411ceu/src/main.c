@@ -128,7 +128,7 @@ static int spi_reg_read_write_test(uint32_t spi )
 
   then we can save it - in any slot.
 
-  when save. should always be cal0. 
+  when save. should always be cal0.
 
 */
 
@@ -341,7 +341,7 @@ void app_update_console_cmd(app_t *app)
 
             FILE *f = open_flash_file();
             c_skip_to_end( f);
-        
+
             m_write_flash ( b, slot, f );
             fclose(f);
 
@@ -351,20 +351,30 @@ void app_update_console_cmd(app_t *app)
             }
       }
 
+      else if(sscanf(app->cmd_buf, "cal show %lu", &u32 ) == 1) {
 
-
-      // when we do a current calibrtion. should s
-
-
-
-#if 0
-      else if(strcmp( app->cmd_buf, "cal") == 0) { // setting arg to 0 matches on anything?
-        // show current cal
-        printf("cal\n");
-        m_foutput( stdout, app->b );
-        usart1_flush();
+        assert( app->b_current_idx < ARRAY_SIZE(app->b));
+        MAT *b = app->b[ u32 ];
+        if(!b) {
+          printf("no cal\n");
+        }
+        else {
+          printf("cal %lu\n", u32);
+          m_foutput( stdout, b );
+          usart1_flush();
+        }
       }
-#endif
+
+
+
+      else if(sscanf(app->cmd_buf, "var_n %lu", &u32 ) == 1) {
+        printf("var_n %lu\n", u32);
+        ctrl_set_var_n( app->spi, u32);
+      }
+      else if(sscanf(app->cmd_buf, "fix_n %lu", &u32 ) == 1) {
+        printf("fix_n %lu\n", u32);
+        ctrl_set_fix_n( app->spi, u32);
+      }
 
       else if(sscanf(app->cmd_buf, "sleep %lu", &u32 ) == 1) {
 
