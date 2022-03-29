@@ -196,6 +196,8 @@ void app_loop1 ( app_t *app )
 
   // ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
 
+  printf("cal slot %u\n", app->b_current_idx );
+
   int aperture = ctrl_get_aperture(app->spi); // in clk counts
   printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
   printf("period %.2lfs\n", aper_n_to_period( aperture ));
