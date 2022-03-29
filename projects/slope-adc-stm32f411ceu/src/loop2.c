@@ -27,7 +27,7 @@ void app_loop22( app_t *app )
   printf("=========\n");
   printf("app_loop22 - cal loop using permutation of var_n, with fixed aperture\n");
 
-  ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
+  // ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
   // default.
   assert( ctrl_get_var_n( app->spi) == 5500 );
   // nplc 10.

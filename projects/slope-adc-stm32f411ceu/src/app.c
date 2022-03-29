@@ -51,6 +51,7 @@ double aper_n_to_period( uint32_t aper_n)
 }
 
 
+/*
 void ctrl_set_pattern( uint32_t spi, uint32_t pattern )
 {
   assert(spi == spi);
@@ -59,6 +60,20 @@ void ctrl_set_pattern( uint32_t spi, uint32_t pattern )
 
   spi_reg_write(spi, REG_PATTERN,   pattern );
 }
+
+*/
+
+uint32_t ctrl_get_state( uint32_t spi )
+{
+
+  return  spi_reg_read(spi, REG_STATE);
+
+}
+
+
+
+
+
 
 
 void ctrl_set_aperture( uint32_t spi, uint32_t aperture)

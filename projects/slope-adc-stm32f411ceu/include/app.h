@@ -27,7 +27,7 @@
 
 #define REG_USE_SLOW_RUNDOWN    17
 #define REG_HIMUX_SEL           18
-#define REG_PATTERN             19
+#define REG_STATE               19
 #define REG_RESET               20   // hold modulation in reset.
 
 
@@ -72,7 +72,8 @@ double aper_n_to_period( uint32_t aper_n);
 
 
 // do it directly
-void ctrl_set_pattern( uint32_t spi, uint32_t pattern );
+// void ctrl_set_pattern( uint32_t spi, uint32_t pattern );
+uint32_t ctrl_get_state( uint32_t spi );
 
 void ctrl_set_aperture( uint32_t spi, uint32_t aperture);
 uint32_t ctrl_get_aperture( uint32_t spi );

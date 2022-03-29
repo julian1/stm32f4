@@ -194,7 +194,7 @@ void app_loop1 ( app_t *app )
   printf("=========\n");
   printf("app_loop1 - values\n");
 
-  ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
+  // ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
 
   int aperture = ctrl_get_aperture(app->spi); // in clk counts
   printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
@@ -250,7 +250,7 @@ void app_loop2 ( app_t *app )
   printf("=========\n");
   printf("app_loop2 - cal loop using permutation of nplc/aperture\n");
 
-  ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
+  // ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
 
   const unsigned x_cols  = 3;
 
@@ -427,7 +427,7 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
   assert(app);
 
-  ctrl_set_pattern( app->spi, 0 ) ;     // no azero on device.
+  // ctrl_set_pattern( app->spi, 0 ) ;     // no azero on device.
 
   /*
     autozero - should use two zero values, between read.
@@ -640,7 +640,7 @@ void app_loop4 ( app_t *app   )
 
   // mux signal input
   ctrl_reset_enable(app->spi);
-  ctrl_set_pattern( app->spi, 0 ) ;
+  // ctrl_set_pattern( app->spi, 0 ) ;
   ctrl_set_mux( app->spi, HIMUX_SEL_SIG_HI );
   ctrl_set_aperture( app->spi, nplc_to_aper_n( 10  ));
   ctrl_reset_disable(app->spi);
