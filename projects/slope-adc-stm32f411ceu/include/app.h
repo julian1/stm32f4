@@ -61,6 +61,9 @@
 #define HIMUX_SEL_ANG         0b0111
 
 
+// 
+#define STATE_RESET_START    0    // initial stat
+#define STATE_RESET          1
 
 
 // this isn't very good. because displayed nplc

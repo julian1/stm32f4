@@ -225,6 +225,9 @@ void app_loop1 ( app_t *app )
     ctrl_run_read(app->spi, &run);
     ctrl_param_read_last( app->spi, &param);
 
+    assert( ctrl_get_state( app->spi ) == STATE_RESET);
+      
+
     run_report_brief( &run);
 
     if(app ->b) {
@@ -288,7 +291,10 @@ void app_loop2 ( app_t *app )
       ctrl_reset_enable(app->spi);
       ctrl_set_aperture( app->spi, aperture_);
       ctrl_set_mux( app->spi, mux );
+      assert( ctrl_get_state( app->spi ) == STATE_RESET_START);
       ctrl_reset_disable(app->spi);
+      assert( ctrl_get_state( app->spi ) == STATE_RESET);
+
 
 
       for(unsigned i = 0; i < 7; ++i) {
@@ -420,6 +426,29 @@ void app_loop2 ( app_t *app )
 
 void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 {
+  /*
+    EXTR. I think auto-zero is worse. only because of quarternization.  eg. 0 - 0.6uV  difference when might only be 0.3 - 0.2uV.
+
+  value -0.000,000,6V stddev(10) 0.40uV, 
+  value -0.000,000,6V stddev(10) 0.30uV, 
+  value 0.000,000,0V stddev(10) 0.31uV, 
+  value -0.000,000,6V stddev(10) 0.31uV, 
+  value 0.000,000,0V stddev(10) 0.31uV, 
+  value -0.000,000,6V stddev(10) 0.30uV, 
+  value 0.000,000,6V stddev(10) 0.40uV, 
+  value 0.000,000,0V stddev(10) 0.39uV, 
+  value 0.000,000,0V stddev(10) 0.39uV, 
+  value -0.000,000,6V stddev(10) 0.40uV, 
+  value 0.000,000,6V stddev(10) 0.46uV, 
+  value 0.000,000,6V stddev(10) 0.47uV, 
+  value -0.000,000,6V stddev(10) 0.51uV, 
+  value -0.000,000,6V stddev(10) 0.51uV, 
+  value 0.000,000,6V stddev(10) 0.55uV, 
+  value -0.000,000,6V stddev(10) 0.55uV, 
+  value 0.000,000,0V stddev(10) 0.51uV, 
+
+  */
+
   // auto-zero
 
   printf("=========\n");
@@ -450,7 +479,9 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     ctrl_reset_enable(app->spi);
     ctrl_set_mux( app->spi, HIMUX_SEL_REF_LO );
     app->data_ready = false;
+    assert( ctrl_get_state( app->spi ) == STATE_RESET_START);
     ctrl_reset_disable(app->spi);
+    assert( ctrl_get_state( app->spi ) == STATE_RESET);
 
     // block/wait for data
     while(!app->data_ready ) {
@@ -473,7 +504,9 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     ctrl_reset_enable(app->spi);
     ctrl_set_mux( app->spi,   mux_sel );
     app->data_ready = false;
+    assert( ctrl_get_state( app->spi ) == STATE_RESET_START);
     ctrl_reset_disable(app->spi);
+    assert( ctrl_get_state( app->spi ) == STATE_RESET);
 
     // block/wait for data
     while(!app->data_ready ) {
@@ -696,8 +729,10 @@ void app_loop4 ( app_t *app   )
         ctrl_set_fix_n( app->spi, 70);
       }
 
+      assert( ctrl_get_state( app->spi ) == STATE_RESET_START);
       app->data_ready = false;
       ctrl_reset_disable(app->spi);
+      assert( ctrl_get_state( app->spi ) == STATE_RESET);
 
 
       // block/wait for data
@@ -738,7 +773,9 @@ void app_loop4 ( app_t *app   )
       }
 
       app->data_ready = false;
+      assert( ctrl_get_state( app->spi ) == STATE_RESET_START);
       ctrl_reset_disable(app->spi);
+      assert( ctrl_get_state( app->spi ) == STATE_RESET);
 
       // block/wait for data
       while(!app->data_ready ) {
