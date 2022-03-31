@@ -26,7 +26,9 @@ int file_scan( FILE *f, MAT **b, unsigned b_sz );
 
 void m_write_flash ( MAT *m , int slot, FILE *f);
 
+#if 0
 MAT * m_read_flash( MAT *out, FILE *f);
+#endif
 
 
 
