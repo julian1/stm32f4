@@ -223,7 +223,7 @@ void app_update_console_cmd(app_t *app)
         flash_unlock();
 
         FILE *f = open_flash_file();
-        c_skip_to_end( f);
+        file_skip_to_end( f);
 
         MAT *m = m_get(10, 2);
         // would be cool , to have some variable
@@ -254,7 +254,7 @@ void app_update_console_cmd(app_t *app)
           flash_unlock();
 
           FILE *f = open_flash_file();
-          c_skip_to_end( f);
+          file_skip_to_end( f);
 
           // write cal matrix
           unsigned slot = u32;
@@ -275,7 +275,7 @@ void app_update_console_cmd(app_t *app)
         printf("cal read from flash\n");
 
         FILE *f = open_flash_file();
-        if(c_skip_to_last_valid(  f) != 0) {
+        if(file_skip_to_last_valid(  f) != 0) {
           printf("no valid config found\n" );
         }
         else {
@@ -297,8 +297,8 @@ void app_update_console_cmd(app_t *app)
 
         FILE *f = open_flash_file();
 
-        c_scan( f, app->b, ARRAY_SIZE(app->b) );
-        // c_scan( f);
+        file_scan( f, app->b, ARRAY_SIZE(app->b) );
+        // file_scan( f);
 
         fclose(f);
       }
@@ -340,7 +340,7 @@ void app_update_console_cmd(app_t *app)
             flash_unlock();
 
             FILE *f = open_flash_file();
-            c_skip_to_end( f);
+            file_skip_to_end( f);
 
             m_write_flash ( b, slot, f );
             fclose(f);
@@ -716,7 +716,7 @@ int main(void)
   // try to load cal
   FILE *f = open_flash_file();
 
-  if(c_skip_to_last_valid(  f) != 0) {
+  if(file_skip_to_last_valid(  f) != 0) {
     printf("no valid config found\n" );
   } else {
 
@@ -731,7 +731,7 @@ int main(void)
 
   // try to load cal
   FILE *f = open_flash_file();
-  c_scan( f, app.b, ARRAY_SIZE(app.b) );
+  file_scan( f, app.b, ARRAY_SIZE(app.b) );
   fclose(f);
 
 

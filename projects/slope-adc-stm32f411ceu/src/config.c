@@ -35,7 +35,7 @@ typedef struct Header Header;
 */
 
 
-void c_skip_to_end(  FILE *f)
+void file_skip_to_end(  FILE *f)
 {
   assert(f );
 
@@ -89,7 +89,7 @@ void c_skip_to_end(  FILE *f)
 */
 
 
-int c_skip_to_last_valid(  FILE *f)
+int file_skip_to_last_valid(  FILE *f)
 {
   // return 0 if success.
 
@@ -151,9 +151,9 @@ int c_skip_to_last_valid(  FILE *f)
 
 
 
-// OK. we want a variation. of c_skip. that fills in data... according to header ids.
+// OK. we want a variation. of file_skip. that fills in data... according to header ids.
 
-int c_scan( FILE *f, MAT **b, unsigned b_sz )
+int file_scan( FILE *f, MAT **b, unsigned b_sz )
 {
   // return 0 if success.
 

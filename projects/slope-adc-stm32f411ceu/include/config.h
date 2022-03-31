@@ -7,15 +7,15 @@
 
 // rename file_skip_to_end
 
-void c_skip_to_end(  FILE *f);
+void file_skip_to_end(  FILE *f);
 #if 0
-int c_skip_to_last_valid(  FILE *f);
+int file_skip_to_last_valid(  FILE *f);
 #endif
 
 
 // rename file_scan_values.
 
-int c_scan( FILE *f, MAT **b, unsigned b_sz );
+int file_scan( FILE *f, MAT **b, unsigned b_sz );
 
 
 /*
