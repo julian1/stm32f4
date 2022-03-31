@@ -174,8 +174,13 @@ void app_loop22( app_t *app )
   // should switch and save new cal in slot 0. by default?
 
   printf("\nswitching to cal slot 0\n");
+
+  assert(0);  // not implemented
+
+#if 0
   app-> b_current_idx = 0;
   app->b[ app-> b_current_idx ] =  m_copy( regression.b, MNULL );
+#endif
 
   r_free( &regression );
 

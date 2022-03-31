@@ -80,6 +80,8 @@ void file_skip_to_end(  FILE *f)
 
 
 
+
+
 // OK. we want a variation. of file_skip. that fills in data... according to header ids.
 
 int file_scan( FILE *f, MAT **b, unsigned b_sz )
@@ -234,6 +236,16 @@ void m_write_flash ( MAT *m , int slot, FILE *f)
 
 
 
+void cal_report( Cal *cal /* FILE *f */ )
+{
+  assert(cal);
+
+  printf("cal \n");
+  printf("slot %u\n", cal->slot );
+
+  m_foutput( stdout, cal->b );
+
+}
 
 
 

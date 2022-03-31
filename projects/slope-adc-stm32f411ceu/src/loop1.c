@@ -196,7 +196,7 @@ void app_loop1 ( app_t *app )
 
   // ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
 
-  printf("cal slot %u\n", app->b_current_idx );
+  printf("cal slot %u\n", app->cal_current_idx );
 
   int aperture = ctrl_get_aperture(app->spi); // in clk counts
   printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
@@ -231,10 +231,11 @@ void app_loop1 ( app_t *app )
 
     run_report_brief( &run);
 
-    assert( app->b_current_idx < ARRAY_SIZE(app->b));
-    MAT *b = app->b[ app->b_current_idx ];
-    if(b) {
-      double predict = m_calc_predicted_val( b, &run, &param );
+    assert( app->cal_current_idx < ARRAY_SIZE(app->cal));
+    Cal *cal = app->cal[ app->cal_current_idx ];
+    if(cal) {
+      assert(cal->b);
+      double predict = m_calc_predicted_val( cal->b, &run, &param );
       process( app, predict );
     }
 
@@ -326,7 +327,7 @@ void app_loop2 ( app_t *app )
         /*
         // existing for calibration we won't be using b
         if(app ->b) {
-          double predict = m_calc_predicted_val( app->b, &run, &param );
+          double predict = m_calc_predicted_val( app->cal, &run, &param );
           printf("val(current cal) %lf", predict );
         } */
 
@@ -411,13 +412,30 @@ void app_loop2 ( app_t *app )
   r_report( &regression, stdout);
 
   // copy, for new memory
-  // app->b = m_copy( regression.b, MNULL );
+  // app->cal = m_copy( regression.b, MNULL );
 
+
+
+  // if have a malloced cal  - appropriate it. 
 
   // should switch and save new cal in slot 0. by default?
   printf("\nswitching to cal slot 0\n");
-  app-> b_current_idx = 0;
-  app->b[ app-> b_current_idx ] =  m_copy( regression.b, MNULL );
+
+  app-> cal_current_idx = 0;
+  if(!app->cal[ app-> cal_current_idx ] ) {
+
+    app->cal[ app-> cal_current_idx ] = malloc(sizeof(Cal));
+    memset( app->cal[ app-> cal_current_idx ] , 0, sizeof(Cal));
+
+  }
+
+  Cal *cal = app->cal[ app-> cal_current_idx ];
+  assert( cal); // cal should exist. but may not.
+
+  // deep copy
+  cal->slot = 0;
+  cal->b = m_copy( regression.b, MNULL );    // reallocate matrix.
+
 
 
   r_free( &regression );
@@ -540,11 +558,12 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
       // we have both obs available...
 
 
-    assert( app->b_current_idx < ARRAY_SIZE(app->b));
-    MAT *b = app->b[ app->b_current_idx ];
-    if(b) {
-      double predict_zero   = m_calc_predicted_val( b , &run_zero, &param_zero );
-      double predict_sig    = m_calc_predicted_val( b , &run_sig,  &param_sig );
+    assert( app->cal_current_idx < ARRAY_SIZE(app->cal));
+    Cal *cal = app->cal[ app->cal_current_idx ];
+    if(cal) {
+      assert(cal->b);
+      double predict_zero   = m_calc_predicted_val( cal->b , &run_zero, &param_zero );
+      double predict_sig    = m_calc_predicted_val( cal->b , &run_sig,  &param_sig );
       double predict        = predict_sig - predict_zero;
       process( app, predict );
     }
@@ -648,12 +667,13 @@ double app_simple_read( app_t *app)
   // we have both obs available...
   assert(run.count_up);
 
-  assert( app->b_current_idx < ARRAY_SIZE(app->b));
-  MAT *b = app->b[ app->b_current_idx ];
-  assert(b); 
+  assert( app->cal_current_idx < ARRAY_SIZE(app->cal));
+  Cal *cal = app->cal[ app->cal_current_idx ];
+  assert(cal); 
+  assert(cal->b); 
 
 
-  double predict = m_calc_predicted_val( b , &run, &param );
+  double predict = m_calc_predicted_val( cal->b, &run, &param );
   return predict;
 }
 
@@ -842,14 +862,14 @@ void app_loop4 ( app_t *app   )
       // but perhaps it needs to be calibrated on the difference.
 
       // hmmmm. 600uV.
-      assert( app->b_current_idx < ARRAY_SIZE(app->b));
-      MAT *b = app->b[ app->b_current_idx ];
-     
-      if(b) {
-    
-        MAT *b4 =  app->b[ 0] ; 
+      assert( app->cal_current_idx < ARRAY_SIZE(app->cal));
+      Cal *cal = app->cal[ app->cal_current_idx ];
+      if(cal) {
+        assert(cal->b);
+#if 0
+        MAT *b4 =  app->cal[ 0] ; 
         assert(b4);
-        MAT *b5 =  app->b[ 5] ; 
+        MAT *b5 =  app->cal[ 5] ; 
         assert(b5);
         
 
@@ -873,6 +893,7 @@ void app_loop4 ( app_t *app   )
         m_set_val( m, row, 2, predict_a );
         m_set_val( m, row, 3, predict_b );
         m_set_val( m, row, 4, delta );
+#endif
         ++row;
       }
 

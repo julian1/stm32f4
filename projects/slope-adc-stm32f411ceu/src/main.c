@@ -245,7 +245,7 @@ void app_update_console_cmd(app_t *app)
       else if(sscanf(app->cmd_buf, "cal save %lu", &u32 ) == 1) {
 
         // think we really want slots.
-        if(!app->b) {
+        if(!app->cal) {
 
           printf("no cal to writesave\n");
         } else {
@@ -258,7 +258,7 @@ void app_update_console_cmd(app_t *app)
 
           // write cal matrix
           unsigned slot = u32;
-          m_write_flash ( app->b, slot, f );
+          m_write_flash ( app->cal, slot, f );
           fclose(f);
 
           printf("flash lock\n");
@@ -279,8 +279,8 @@ void app_update_console_cmd(app_t *app)
           printf("no valid config found\n" );
         }
         else {
-          app->b = m_read_flash( MNULL, f );
-          m_foutput( stdout, app->b );
+          app->cal = m_read_flash( MNULL, f );
+          m_foutput( stdout, app->cal );
           usart1_flush();
         }
 
@@ -297,7 +297,7 @@ void app_update_console_cmd(app_t *app)
 
         FILE *f = open_flash_file();
 
-        file_scan( f, app->b, ARRAY_SIZE(app->b) );
+        file_scan( f, app->cal, ARRAY_SIZE(app->cal) );
         // file_scan( f);
 
         fclose(f);
@@ -306,16 +306,17 @@ void app_update_console_cmd(app_t *app)
       else if(sscanf(app->cmd_buf, "cal switch %lu", &u32 ) == 1) {
 
         // set the current cal slot
-        if(!( u32 < ARRAY_SIZE(app->b))) {
+        if(!( u32 < ARRAY_SIZE(app->cal))) {
           printf("cal slot out of range\n");
         } else {
 
-          MAT *b = app->b[ u32 ];
+          // issue is that we are using null pointer to indcate if valid.
+          Cal *b = app->cal[ u32 ];
           if(!b) {
             printf("cal slot %lu missing cal config\n", u32);
           } else {
             printf("ok\n");
-            app->b_current_idx = u32;
+            app->cal_current_idx = u32;
           }
         }
       }
@@ -327,8 +328,8 @@ void app_update_console_cmd(app_t *app)
           unsigned slot = u32;
 
           // get current matrix
-          assert( app->b_current_idx < ARRAY_SIZE(app->b));
-          MAT *b = app->b[ app->b_current_idx ];
+          assert( app->cal_current_idx < ARRAY_SIZE(app->cal));
+          Cal *b = app->cal[ app->cal_current_idx ];
 
           // think we really want slots.
           if(!b) {
@@ -353,14 +354,14 @@ void app_update_console_cmd(app_t *app)
 
       else if(sscanf(app->cmd_buf, "cal show %lu", &u32 ) == 1) {
 
-        assert( app->b_current_idx < ARRAY_SIZE(app->b));
-        MAT *b = app->b[ u32 ];
+        assert( app->cal_current_idx < ARRAY_SIZE(app->cal));
+        Cal *b = app->cal[ u32 ];
         if(!b) {
           printf("no cal\n");
         }
         else {
-          printf("cal %lu\n", u32);
-          m_foutput( stdout, b );
+          // need function cal_report()
+          cal_report( b );
           usart1_flush();
         }
       }
@@ -731,7 +732,7 @@ int main(void)
 
   // try to load cal
   FILE *f = open_flash_file();
-  file_scan( f, app.b, ARRAY_SIZE(app.b) );
+  file_scan( f, app.cal, ARRAY_SIZE(app.cal) );
   fclose(f);
 
 

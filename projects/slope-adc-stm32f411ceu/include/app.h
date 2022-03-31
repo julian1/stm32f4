@@ -4,6 +4,7 @@
 
 
 #include "cbuffer.h"
+#include "config.h"   // rename to cal.h.
 
 
 
@@ -157,14 +158,14 @@ typedef struct Run  Run;
 
 
 
-
+// sould pass stream
 
 void ctrl_param_read( uint32_t spi, Param *param);
 // void ctrl_param_read_last( uint32_t spi, Param *param);
-void param_report( const Param *param);  // rename param_report??
+void param_report( const Param *param /* , FILE *f*/ );  // rename param_report??
 
 void ctrl_run_read( uint32_t spi, Run *run );
-void run_report( const Run *run);    // rename run_report
+void run_report( const Run *run  /*, FILE *f*/);    // rename run_report
 void run_report_brief( const Run *run );
 
 
@@ -210,9 +211,15 @@ struct app_t
 
 
   // MAT     *b;       // calebration coefficients
-  MAT     *b[10] ;       // calebration coefficients
+  // MAT     *b[10] ;       // calebration coefficients
 
-  unsigned b_current_idx;    // current idx;
+  // issue is using null to indcate present.
+  Cal     *cal[10];
+
+  unsigned cal_current_idx;    // current idx; // rename cal_idx.
+
+
+
 
   // need to intialize
   unsigned buffer_i;
