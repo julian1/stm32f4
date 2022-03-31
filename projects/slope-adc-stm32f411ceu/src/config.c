@@ -84,7 +84,8 @@ void file_skip_to_end(  FILE *f)
 
 // OK. we want a variation. of file_skip. that fills in data... according to header ids.
 
-int file_scan( FILE *f, MAT **b, unsigned b_sz )
+
+int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
 {
   // return 0 if success.
 
@@ -132,14 +133,21 @@ int file_scan( FILE *f, MAT **b, unsigned b_sz )
           printf("slot is %d\n", slot );
 
           // now read matrix.
-          MAT *m = m_finput_binary(f, MNULL );
+          MAT *b = m_finput_binary(f, MNULL );
           printf("matrix is\n" );
-          m_foutput( stdout, m );
+          m_foutput( stdout, b );
 
 
           printf("setting slot %u with matrix\n", slot );
-          assert(slot < b_sz);
-          b[ slot ] = m ;
+          assert(slot < sz);
+
+          Cal * cal = malloc(sizeof(Cal));
+          memset(cal, 0, sizeof(Cal));
+
+          cal->slot = slot;
+          cal->b    = b;
+
+          cals[ slot ] = cal;
 
 
           unsigned here1 = ftell( f); // position from start.
@@ -176,46 +184,45 @@ int file_scan( FILE *f, MAT **b, unsigned b_sz )
 
 
 /*
-  This should be factored... to be able to write any kind of packet.
-  Issue is we don't know the size up-front.
+  Would be better, if could factor out the header advance/stuff from the data.
 
-  So pass a function/ ctx ...
-
+  change name, file_write_cal_with_header?
 */
 
-void m_write_flash ( MAT *m , int slot, FILE *f)
+
+void file_write_cal ( Cal *cal, FILE *f)
 {
   assert(f );
-  assert(m );
+  assert(cal);
 
   printf( "-----------------\n" );
-  printf( "m_write_flash f is %p   ftell() is  %ld\n", f, ftell( f) );
+  printf( "file_write_cal f is %p   ftell() is  %ld\n", f, ftell( f) );
   usart1_flush();
 
   assert( sizeof(Header) == 12 );
 
-  // advance 12 bytes, from current position.
+  // advance over expected header we will write later.
   fseek( f, sizeof(Header), SEEK_CUR ) ;
   long start = ftell( f);   // record postion from start.
 
+  /////////////////////
+  // write cal data
 
   // write the slot
-  fwrite( &slot, sizeof(int), 1, f);
+  fwrite( &cal->slot, sizeof(int), 1, f);
+
   // write the matrix
-  m_foutput_binary( f, m);
+  m_foutput_binary( f, cal->b);
 
-
-  // determine length
+  // determine how much we advanced
   long len = ftell( f) - start;
   usart1_flush();
 
-
   printf("len %ld\n", len );
-  // seek back to start
-  fseek( f, -len - sizeof(Header), SEEK_CUR ) ;    // THIS IS generating a sseek_set from the start ???
-                                  // or the meaning is different???
+  // seek back to header
+  fseek( f, -len - sizeof(Header), SEEK_CUR );
 
-  // write the packet length, as prefix
+  // write the header
   Header  header;
   header.magic = MAGIC;
   header.len = len;
@@ -280,11 +287,11 @@ MAT * m_read_flash( MAT *out, FILE *f)
 #endif
 
 #if 0
-void m_write_flash ( MAT *m , FILE *f)
+void file_write_cal ( MAT *m , FILE *f)
 {
   assert(f );
   assert(m );
-  printf( "m_write_flash f is %p\n", f);
+  printf( "file_write_cal f is %p\n", f);
   usart1_flush();
 
 

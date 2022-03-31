@@ -28,12 +28,11 @@ typedef struct Cal Cal;
 
 void file_skip_to_end(  FILE *f);
 
-// rename file_scan_cal.
 
-int file_scan( FILE *f, Cal **cal, unsigned sz );
 
-// rename file_write_cal
-void m_write_flash ( Cal *cal, int slot, FILE *f);
+int file_scan_cal( FILE *f, Cal **cal, unsigned sz );
+
+void file_write_cal ( Cal *cal, FILE *f);
 
 void cal_report( Cal *cal /* FILE *f */ );
 

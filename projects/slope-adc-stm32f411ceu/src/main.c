@@ -214,80 +214,6 @@ void app_update_console_cmd(app_t *app)
           printf("done erase\n");
 
       }
-#if 0
-      // flash write test
-      else if(strcmp(app->cmd_buf , "flash write test") == 0) {
-
-        // TODO check if need to unlock to write. or only for erase.
-        printf("flash unlock\n");
-        flash_unlock();
-
-        FILE *f = flash_open_file();
-        file_skip_to_end( f);
-
-        MAT *m = m_get(10, 2);
-        // would be cool , to have some variable
-        m_set_val( m, 2, 0, 123.456 )  ;
-        m_write_flash ( m, f );
-        fclose(f);
-
-        printf("flash lock\n");
-        flash_lock();
-        printf("done\n");
-      }
-#endif
-
-
-      // flash write cal
-      // should be called 'cal save', 'cal load'  etc?
-
-#if 0
-      else if(sscanf(app->cmd_buf, "cal save %lu", &u32 ) == 1) {
-
-        // think we really want slots.
-        if(!app->cal) {
-
-          printf("no cal to writesave\n");
-        } else {
-
-          printf("flash unlock\n");
-          flash_unlock();
-
-          FILE *f = flash_open_file();
-          file_skip_to_end( f);
-
-          // write cal matrix
-          unsigned slot = u32;
-          m_write_flash ( app->cal, slot, f );
-          fclose(f);
-
-          printf("flash lock\n");
-          flash_lock();
-          printf("done\n");
-        }
-      }
-
-      // flash read test. doesn't load cal.
-      // but might be useful to revert
-      else if(strcmp(app->cmd_buf , "cal read") == 0) {
-
-        // might be better to have separate read
-        printf("cal read from flash\n");
-
-        FILE *f = flash_open_file();
-        if(file_skip_to_last_valid(  f) != 0) {
-          printf("no valid config found\n" );
-        }
-        else {
-          app->cal = m_read_flash( MNULL, f );
-          m_foutput( stdout, app->cal );
-          usart1_flush();
-        }
-
-        fclose(f);
-      }
-
-#endif
 
 
       else if(strcmp(app->cmd_buf , "cal rescan") == 0) {
@@ -297,8 +223,8 @@ void app_update_console_cmd(app_t *app)
 
         FILE *f = flash_open_file();
 
-        file_scan( f, app->cal, ARRAY_SIZE(app->cal) );
-        // file_scan( f);
+        file_scan_cal( f, app->cal, ARRAY_SIZE(app->cal) );
+        // file_scan_cal( f);
 
         fclose(f);
       }
@@ -329,10 +255,10 @@ void app_update_console_cmd(app_t *app)
 
           // get current matrix
           assert( app->cal_current_idx < ARRAY_SIZE(app->cal));
-          Cal *b = app->cal[ app->cal_current_idx ];
+          Cal *cal = app->cal[ app->cal_current_idx ];
 
           // think we really want slots.
-          if(!b) {
+          if(!cal) {
 
             printf("no current cal\n");
           } else {
@@ -342,9 +268,13 @@ void app_update_console_cmd(app_t *app)
 
             FILE *f = flash_open_file();
             file_skip_to_end( f);
-
-            m_write_flash ( b, slot, f );
+  
+            // update slot. changing this. means changing the representation
+            unsigned tmp = cal->slot;
+            cal->slot = u32;
+            file_write_cal ( cal, f );
             fclose(f);
+            cal->slot = tmp;
 
             printf("flash lock\n");
             flash_lock();
@@ -712,27 +642,11 @@ int main(void)
 
 
 
-#if 0
-  /////////////////////
   // try to load cal
   FILE *f = flash_open_file();
+  assert(f);
+  file_scan_cal( f, app.cal, ARRAY_SIZE(app.cal) );
 
-  if(file_skip_to_last_valid(  f) != 0) {
-    printf("no valid config found\n" );
-  } else {
-
-    app.b = m_read_flash( MNULL, f );
-    printf("loadeded cal\n" );
-    m_foutput( stdout, app.b  );
-    usart1_flush();
-  }
-  fclose(f);
-
-#endif
-
-  // try to load cal
-  FILE *f = flash_open_file();
-  file_scan( f, app.cal, ARRAY_SIZE(app.cal) );
   fclose(f);
 
 
@@ -765,4 +679,96 @@ int main(void)
 // but this is sufficient for the moment.
 
 
+#if 0
+  /////////////////////
+  // try to load cal
+  FILE *f = flash_open_file();
+
+  if(file_skip_to_last_valid(  f) != 0) {
+    printf("no valid config found\n" );
+  } else {
+
+    app.b = m_read_flash( MNULL, f );
+    printf("loadeded cal\n" );
+    m_foutput( stdout, app.b  );
+    usart1_flush();
+  }
+  fclose(f);
+
+#endif
+
+#if 0
+      // flash write test
+      else if(strcmp(app->cmd_buf , "flash write test") == 0) {
+
+        // TODO check if need to unlock to write. or only for erase.
+        printf("flash unlock\n");
+        flash_unlock();
+
+        FILE *f = flash_open_file();
+        file_skip_to_end( f);
+
+        MAT *m = m_get(10, 2);
+        // would be cool , to have some variable
+        m_set_val( m, 2, 0, 123.456 )  ;
+        file_write_cal ( m, f );
+        fclose(f);
+
+        printf("flash lock\n");
+        flash_lock();
+        printf("done\n");
+      }
+#endif
+
+
+      // flash write cal
+      // should be called 'cal save', 'cal load'  etc?
+
+#if 0
+      else if(sscanf(app->cmd_buf, "cal save %lu", &u32 ) == 1) {
+
+        // think we really want slots.
+        if(!app->cal) {
+
+          printf("no cal to writesave\n");
+        } else {
+
+          printf("flash unlock\n");
+          flash_unlock();
+
+          FILE *f = flash_open_file();
+          file_skip_to_end( f);
+
+          // write cal matrix
+          unsigned slot = u32;
+          file_write_cal ( app->cal, slot, f );
+          fclose(f);
+
+          printf("flash lock\n");
+          flash_lock();
+          printf("done\n");
+        }
+      }
+
+      // flash read test. doesn't load cal.
+      // but might be useful to revert
+      else if(strcmp(app->cmd_buf , "cal read") == 0) {
+
+        // might be better to have separate read
+        printf("cal read from flash\n");
+
+        FILE *f = flash_open_file();
+        if(file_skip_to_last_valid(  f) != 0) {
+          printf("no valid config found\n" );
+        }
+        else {
+          app->cal = m_read_flash( MNULL, f );
+          m_foutput( stdout, app->cal );
+          usart1_flush();
+        }
+
+        fclose(f);
+      }
+
+#endif
 
