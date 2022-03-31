@@ -282,7 +282,7 @@ static int myseek(A *a, _off64_t *offset_, int whence)
 
 
 
-FILE * open_flash_file(void )
+FILE * flash_open_file(void )
 {
   // think fopencookie will copies
   static cookie_io_functions_t  memfile_func = {

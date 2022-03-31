@@ -222,7 +222,7 @@ void app_update_console_cmd(app_t *app)
         printf("flash unlock\n");
         flash_unlock();
 
-        FILE *f = open_flash_file();
+        FILE *f = flash_open_file();
         file_skip_to_end( f);
 
         MAT *m = m_get(10, 2);
@@ -253,7 +253,7 @@ void app_update_console_cmd(app_t *app)
           printf("flash unlock\n");
           flash_unlock();
 
-          FILE *f = open_flash_file();
+          FILE *f = flash_open_file();
           file_skip_to_end( f);
 
           // write cal matrix
@@ -274,7 +274,7 @@ void app_update_console_cmd(app_t *app)
         // might be better to have separate read
         printf("cal read from flash\n");
 
-        FILE *f = open_flash_file();
+        FILE *f = flash_open_file();
         if(file_skip_to_last_valid(  f) != 0) {
           printf("no valid config found\n" );
         }
@@ -295,7 +295,7 @@ void app_update_console_cmd(app_t *app)
         // might be better to have separate read
         printf("cal scan\n");
 
-        FILE *f = open_flash_file();
+        FILE *f = flash_open_file();
 
         file_scan( f, app->cal, ARRAY_SIZE(app->cal) );
         // file_scan( f);
@@ -340,7 +340,7 @@ void app_update_console_cmd(app_t *app)
             printf("flash unlock\n");
             flash_unlock();
 
-            FILE *f = open_flash_file();
+            FILE *f = flash_open_file();
             file_skip_to_end( f);
 
             m_write_flash ( b, slot, f );
@@ -715,7 +715,7 @@ int main(void)
 #if 0
   /////////////////////
   // try to load cal
-  FILE *f = open_flash_file();
+  FILE *f = flash_open_file();
 
   if(file_skip_to_last_valid(  f) != 0) {
     printf("no valid config found\n" );
@@ -731,7 +731,7 @@ int main(void)
 #endif
 
   // try to load cal
-  FILE *f = open_flash_file();
+  FILE *f = flash_open_file();
   file_scan( f, app.cal, ARRAY_SIZE(app.cal) );
   fclose(f);
 
