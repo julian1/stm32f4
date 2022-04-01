@@ -124,6 +124,7 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
           break;
 
         case 101:
+        case 102:
           printf("got 101 a matrix and slot\n" );
 
           unsigned slot;
@@ -144,10 +145,19 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
           memset(cal, 0, sizeof(Cal));
           cal->slot = slot;
           cal->b    = b;
+
+          if(header.id == 102) {
+            items = fread( &cal->param, sizeof(cal->param), 1, f);
+            assert(items == 1);
+          }
+
           cals[ slot ] = cal;
 
-          assert( here0  + header.len == ftell( f));
+          assert( here0  + header.len == (unsigned) ftell( f));
           break;
+
+
+
       };
 
       // position to the next frame
@@ -207,6 +217,9 @@ void file_write_cal ( Cal *cal, FILE *f)
   // write the matrix
   m_foutput_binary( f, cal->b);
 
+  // write the param
+  fwrite( &cal->param, sizeof(cal->param), 1, f);
+
   // determine how much we advanced
   long len = ftell( f) - start;
   usart1_flush();
@@ -219,7 +232,7 @@ void file_write_cal ( Cal *cal, FILE *f)
   Header  header;
   header.magic = MAGIC;
   header.len = len;
-  header.id = 101;     // header id. for raw matrix.
+  header.id = 102;     // header id. for raw matrix.
 
   unsigned items = fwrite( &header, sizeof(header), 1, f);
   assert(items == 1);
@@ -241,10 +254,17 @@ void cal_report( Cal *cal /* FILE *f */ )
   assert(cal);
 
   printf("cal \n");
+
+  // slot
   printf("slot %u\n", cal->slot );
 
+  // b
   m_foutput( stdout, cal->b );
 
+  // param
+  param_report(& cal->param);
+
+  printf("\n");
 }
 
 

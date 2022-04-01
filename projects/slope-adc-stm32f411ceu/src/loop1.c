@@ -228,7 +228,7 @@ void app_loop1 ( app_t *app )
     ctrl_param_read( app->spi, &param);
 
     assert( ctrl_get_state( app->spi ) == STATE_RESET);
-      
+
 
     run_report_brief( &run);
 
@@ -417,13 +417,13 @@ void app_loop2 ( app_t *app )
 
 
 
-  // if have a malloced cal  - appropriate it. 
+  // if have a malloced cal  - appropriate it.
 
   // should switch and save new cal in slot 0. by default?
   printf("\nswitching to cal slot 0\n");
 
   // we store in slot 0;
-  app-> cal_current_idx = 0;
+  app->cal_current_idx = 0;
 
   if(!app->cal[ app-> cal_current_idx ] ) {
 
@@ -438,7 +438,8 @@ void app_loop2 ( app_t *app )
   cal->slot = 0;
   cal->b = m_copy( regression.b, MNULL );    // reallocate matrix.
 
-
+  // read the param.
+  ctrl_param_read( app->spi, &cal->param);
 
   r_free( &regression );
 
@@ -459,23 +460,23 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   /*
     EXTR. I think auto-zero is worse. only because of quarternization.  eg. 0 - 0.6uV  difference when might only be 0.3 - 0.2uV.
 
-  value -0.000,000,6V stddev(10) 0.40uV, 
-  value -0.000,000,6V stddev(10) 0.30uV, 
-  value 0.000,000,0V stddev(10) 0.31uV, 
-  value -0.000,000,6V stddev(10) 0.31uV, 
-  value 0.000,000,0V stddev(10) 0.31uV, 
-  value -0.000,000,6V stddev(10) 0.30uV, 
-  value 0.000,000,6V stddev(10) 0.40uV, 
-  value 0.000,000,0V stddev(10) 0.39uV, 
-  value 0.000,000,0V stddev(10) 0.39uV, 
-  value -0.000,000,6V stddev(10) 0.40uV, 
-  value 0.000,000,6V stddev(10) 0.46uV, 
-  value 0.000,000,6V stddev(10) 0.47uV, 
-  value -0.000,000,6V stddev(10) 0.51uV, 
-  value -0.000,000,6V stddev(10) 0.51uV, 
-  value 0.000,000,6V stddev(10) 0.55uV, 
-  value -0.000,000,6V stddev(10) 0.55uV, 
-  value 0.000,000,0V stddev(10) 0.51uV, 
+  value -0.000,000,6V stddev(10) 0.40uV,
+  value -0.000,000,6V stddev(10) 0.30uV,
+  value 0.000,000,0V stddev(10) 0.31uV,
+  value -0.000,000,6V stddev(10) 0.31uV,
+  value 0.000,000,0V stddev(10) 0.31uV,
+  value -0.000,000,6V stddev(10) 0.30uV,
+  value 0.000,000,6V stddev(10) 0.40uV,
+  value 0.000,000,0V stddev(10) 0.39uV,
+  value 0.000,000,0V stddev(10) 0.39uV,
+  value -0.000,000,6V stddev(10) 0.40uV,
+  value 0.000,000,6V stddev(10) 0.46uV,
+  value 0.000,000,6V stddev(10) 0.47uV,
+  value -0.000,000,6V stddev(10) 0.51uV,
+  value -0.000,000,6V stddev(10) 0.51uV,
+  value 0.000,000,6V stddev(10) 0.55uV,
+  value -0.000,000,6V stddev(10) 0.55uV,
+  value 0.000,000,0V stddev(10) 0.51uV,
 
   */
 
@@ -671,8 +672,8 @@ double app_simple_read( app_t *app)
 
   assert( app->cal_current_idx < ARRAY_SIZE(app->cal));
   Cal *cal = app->cal[ app->cal_current_idx ];
-  assert(cal); 
-  assert(cal->b); 
+  assert(cal);
+  assert(cal->b);
 
 
   double predict = m_calc_predicted_val( cal->b, &run, &param );
@@ -726,8 +727,8 @@ void app_loop4 ( app_t *app   )
   unsigned row = 0;
 
   // 22V range.
-  float target_[] = { 
-    11, 10.5, 10, 9.5, 9, 8.5, 8, 7.5, 7, 6.5, 6, 5.5, 5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0, 
+  float target_[] = {
+    11, 10.5, 10, 9.5, 9, 8.5, 8, 7.5, 7, 6.5, 6, 5.5, 5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0,
     -0.5, -1, -1.5, -2, -2.5, -3, -3.5, -4, -4.5, -5, -5.5, -6, -6.5, -7, -7.5, -8, -8.5, -9, -9.5, -10, -10.5, -11 } ;
 
   // more obs == more spread due to DA.
@@ -764,7 +765,7 @@ void app_loop4 ( app_t *app   )
       // do A
       // configure nplc
 //      ctrl_reset_enable(app->spi);
-      if(x) 
+      if(x)
         ctrl_set_aperture( app->spi, nplc_to_aper_n( 10  ));
       else {
         ctrl_set_var_n( app->spi, 550);    // OK. after we wrote this it doesn't work.
@@ -788,7 +789,7 @@ void app_loop4 ( app_t *app   )
       if( state != STATE_RESET) {
         printf("state is %u\n", state);   // state is 4.
       }
-      assert( state  == STATE_RESET); // not holding ? 
+      assert( state  == STATE_RESET); // not holding ?
 #endif
 
 
@@ -821,7 +822,7 @@ void app_loop4 ( app_t *app   )
       // do B
       // configure nplc
 //      ctrl_reset_enable(app->spi);
-      if(x) 
+      if(x)
         ctrl_set_aperture( app->spi, nplc_to_aper_n(11));
       else {
         ctrl_set_var_n( app->spi, 540);
@@ -855,11 +856,11 @@ void app_loop4 ( app_t *app   )
       else {
         assert( param_b.clk_count_var_n == 540 );
         assert( param_b.clk_count_fix_n == 80 );
-                                      // 620. 
+                                      // 620.
       }
 
       // param_b.clk_count_var_n = 550; // pretend unchanged
-      // no . it's vastly workd. 0.3V weird. 
+      // no . it's vastly workd. 0.3V weird.
       // whille calculating as expected gives 1mV difference.
       // but perhaps it needs to be calibrated on the difference.
 
@@ -869,11 +870,11 @@ void app_loop4 ( app_t *app   )
       if(cal) {
         assert(cal->b);
 #if 0
-        MAT *b4 =  app->cal[ 0] ; 
+        MAT *b4 =  app->cal[ 0] ;
         assert(b4);
-        MAT *b5 =  app->cal[ 5] ; 
+        MAT *b5 =  app->cal[ 5] ;
         assert(b5);
-        
+
 
         double predict_a  = m_calc_predicted_val( b4 , &run_a, &param_a );
         double predict_b  = m_calc_predicted_val( b5 , &run_b,  &param_b );

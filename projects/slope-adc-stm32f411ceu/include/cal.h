@@ -4,6 +4,7 @@
 #include <stdio.h>  // FILE
 #include "matrix.h" // MAT
 
+#include "app.h"    // Param
 
 
 
@@ -20,7 +21,7 @@ struct Cal
 
   MAT *b;
 
-  // Param     param;  // Or make optional pointer.
+  Param     param;  // Or make optional pointer.
                     // Or just record fix_n, var_n ? maybe aperture.
                     // We are going to have to include app.h to pick up Param? hmmm 
                     // app is currently including cal... 
