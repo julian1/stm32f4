@@ -421,12 +421,13 @@ void app_loop2 ( app_t *app )
   // should switch and save new cal in slot 0. by default?
   printf("\nswitching to cal slot 0\n");
 
+  // we store in slot 0;
   app-> cal_current_idx = 0;
+
   if(!app->cal[ app-> cal_current_idx ] ) {
 
     app->cal[ app-> cal_current_idx ] = malloc(sizeof(Cal));
     memset( app->cal[ app-> cal_current_idx ] , 0, sizeof(Cal));
-
   }
 
   Cal *cal = app->cal[ app-> cal_current_idx ];

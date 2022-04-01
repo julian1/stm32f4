@@ -185,7 +185,6 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
 
 /*
   Would be better, if could factor out the header advance/stuff from the data.
-
   change name, file_write_cal_with_header?
 */
 
