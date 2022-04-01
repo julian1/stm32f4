@@ -4,7 +4,7 @@
 
 
 #include "cbuffer.h"
-#include "config.h"   // rename to cal.h.
+#include "cal.h"
 
 
 
@@ -20,9 +20,9 @@
 // just set once in pattern controller.
 // modulation control parameters, start 30.
 
-#define REG_CLK_COUNT_RESET_N   10   
-#define REG_CLK_COUNT_FIX_N     11   
-#define REG_CLK_COUNT_VAR_N     13   
+#define REG_CLK_COUNT_RESET_N   10
+#define REG_CLK_COUNT_FIX_N     11
+#define REG_CLK_COUNT_VAR_N     13
 #define REG_CLK_COUNT_APER_N_LO 15
 #define REG_CLK_COUNT_APER_N_HI 16
 
@@ -63,7 +63,7 @@
 #define HIMUX_SEL_ANG         0b0111
 
 
-// 
+//
 #define STATE_RESET_START    0    // initial stat
 #define STATE_RESET          1
 
@@ -248,7 +248,7 @@ void app_loop4(app_t *app );
 
 void app_loop22 ( app_t *app );
 
-// MAT * param_run_to_matrix( const Param *param, const Run *run, MAT * out );   // rename param_param_run_to_matrix() 
+// MAT * param_run_to_matrix( const Param *param, const Run *run, MAT * out );   // rename param_param_run_to_matrix()
 
 MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, MAT * out );
 

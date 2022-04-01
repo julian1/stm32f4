@@ -52,7 +52,7 @@
 
 // bad conflicts with lib2/include/flash.h
 #include "flash.h"
-#include "config.h"
+#include "cal.h"
 
 
 #include <matrix.h>
