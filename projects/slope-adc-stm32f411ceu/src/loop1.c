@@ -421,10 +421,8 @@ void app_loop2 ( app_t *app )
   // create the cal structure
   Cal *cal = malloc(sizeof(Cal));
   memset( cal, 0, sizeof(Cal));
-  // deep copy
   cal->slot = 0;
   cal->b = m_copy( regression.b, MNULL );    // reallocate matrix.
-  // read the param.
   ctrl_param_read( app->spi, &cal->param);
 
 

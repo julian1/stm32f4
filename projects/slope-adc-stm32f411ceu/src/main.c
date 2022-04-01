@@ -255,28 +255,26 @@ void app_update_console_cmd(app_t *app)
           */
           // get current matrix
           assert( app->cal_idx < ARRAY_SIZE(app->cal));
-          Cal *current_cal = app->cal[ app->cal_idx ];
+          Cal *cal_current = app->cal[ app->cal_idx ];
 
           // think we really want slots.
-          if(!current_cal) {
+          if(!cal_current) {
             printf("no current cal to save\n");
           } else {
 
-            // NO. we have to malloc() or appropriate.
+            assert( u32 != app->cal_idx ); // possible issue
 
             // if there's already a cal at the slot . then free it
             if( app->cal[ u32 ]) {
               cal_free( app->cal[ u32 ]);
             }
-            assert( u32 != app->cal_idx ); // issue
 
-            // make a copy
-            app->cal[ u32 ] = cal_copy( current_cal );
+            // make a copy of current at new slot
+            app->cal[ u32 ] = cal_copy( cal_current );
             // and update the slot
             app->cal[ u32 ]->slot = u32;
 
-            // now save           
-
+            // now save to flash
             printf("flash unlock\n");
             flash_unlock();
 
