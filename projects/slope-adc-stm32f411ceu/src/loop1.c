@@ -412,34 +412,34 @@ void app_loop2 ( app_t *app )
 
   r_report( &regression, stdout);
 
-  // copy, for new memory
-  // app->cal = m_copy( regression.b, MNULL );
 
-
-
-  // if have a malloced cal  - appropriate it.
 
   // should switch and save new cal in slot 0. by default?
   printf("\nswitching to cal slot 0\n");
 
-  // we store in slot 0;
-  app->cal_idx = 0;
-
-  if(!app->cal[ app-> cal_idx ] ) {
-
-    app->cal[ app-> cal_idx ] = malloc(sizeof(Cal));
-    memset( app->cal[ app-> cal_idx ] , 0, sizeof(Cal));
-  }
-
-  Cal *cal = app->cal[ app-> cal_idx ];
-  assert( cal); // cal should exist. but may not.
-
+  ///////////////////////
+  // create the cal structure
+  Cal *cal = malloc(sizeof(Cal));
+  memset( cal, 0, sizeof(Cal));
   // deep copy
   cal->slot = 0;
   cal->b = m_copy( regression.b, MNULL );    // reallocate matrix.
-
   // read the param.
   ctrl_param_read( app->spi, &cal->param);
+
+
+  ///////////////////////
+  // set it. for app slot
+  // we store in slot 0;
+  app->cal_idx = 0;
+
+  if( app->cal[ app->cal_idx]) {
+    cal_free( app->cal[ app->cal_idx ]);
+  }
+
+  app->cal[ app->cal_idx ] = cal;
+
+
 
   r_free( &regression );
 
