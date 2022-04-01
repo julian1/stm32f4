@@ -248,20 +248,34 @@ void app_update_console_cmd(app_t *app)
       }
 
       else if(sscanf(app->cmd_buf, "cal save %lu", &u32 ) == 1) {
-
-          // should it always be the first entry????
-          // write cal matrix
-          // unsigned slot = u32;
-
+          /*
+            save the current cal. to slot.
+            when we save. think we need to save to current memory for the slot also.
+            otherwise need to rescan.
+          */
           // get current matrix
           assert( app->cal_idx < ARRAY_SIZE(app->cal));
-          Cal *cal = app->cal[ app->cal_idx ];
+          Cal *current_cal = app->cal[ app->cal_idx ];
 
           // think we really want slots.
-          if(!cal) {
-
-            printf("no current cal\n");
+          if(!current_cal) {
+            printf("no current cal to save\n");
           } else {
+
+            // NO. we have to malloc() or appropriate.
+
+            // if there's already a cal at the slot . then free it
+            if( app->cal[ u32 ]) {
+              cal_free( app->cal[ u32 ]);
+            }
+            assert( u32 != app->cal_idx ); // issue
+
+            // make a copy
+            app->cal[ u32 ] = cal_copy( current_cal );
+            // and update the slot
+            app->cal[ u32 ]->slot = u32;
+
+            // now save           
 
             printf("flash unlock\n");
             flash_unlock();
@@ -269,12 +283,8 @@ void app_update_console_cmd(app_t *app)
             FILE *f = flash_open_file();
             file_skip_to_end( f);
 
-            // update slot. changing this. means changing the representation
-            unsigned tmp = cal->slot;
-            cal->slot = u32;
-            file_write_cal ( cal, f );
+            file_write_cal ( app->cal[ u32 ] , f );
             fclose(f);
-            cal->slot = tmp;
 
             printf("flash lock\n");
             flash_lock();

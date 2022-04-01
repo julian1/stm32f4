@@ -270,9 +270,32 @@ void cal_report( Cal *cal /* FILE *f */ )
 
 
 
+void cal_free( Cal *cal  )
+{
+  assert( cal );
+
+  if(cal->b ) { 
+    M_FREE(cal->b);
+  }
+  free(cal);
+}
 
 
 
+Cal * cal_copy( Cal *in )
+{
+  assert(in);
+
+  Cal * cal = malloc(sizeof(Cal));
+  memset(cal, 0, sizeof(Cal));
+
+
+  cal->slot = in->slot;
+  cal->b    = m_copy( in->b, MNULL);
+  cal->param = in->param;
+
+  return cal;
+}
 
 
 

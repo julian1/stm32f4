@@ -43,6 +43,8 @@ void file_write_cal ( Cal *cal, FILE *f);
 void cal_report( Cal *cal /* FILE *f */ );
 
 
+void cal_free( Cal *cal  );
+Cal * cal_copy( Cal *cal  );
 
 #if 0
 MAT * m_read_flash( MAT *out, FILE *f);
