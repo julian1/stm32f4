@@ -137,7 +137,7 @@ static int spi_reg_read_write_test(uint32_t spi )
 void app_update_console_cmd(app_t *app)
 {
 
-  uint32_t u32;
+  uint32_t u32;   // long unsigned int.
   int32_t i32;
   double d;
 
@@ -241,8 +241,8 @@ void app_update_console_cmd(app_t *app)
           if(!b) {
             printf("cal slot %lu missing cal config\n", u32);
           } else {
+            printf("ok from %u to %lu\n", app->cal_idx, u32 );
             app->cal_idx = u32;
-            printf("ok\n");
           }
         }
       }
@@ -268,7 +268,7 @@ void app_update_console_cmd(app_t *app)
 
             FILE *f = flash_open_file();
             file_skip_to_end( f);
-  
+
             // update slot. changing this. means changing the representation
             unsigned tmp = cal->slot;
             cal->slot = u32;
@@ -282,9 +282,11 @@ void app_update_console_cmd(app_t *app)
             }
       }
 
+      // would be useful to have 'cal show' and 'cal show idx'
+
       else if(sscanf(app->cmd_buf, "cal show %lu", &u32 ) == 1) {
 
-        assert( app->cal_idx < ARRAY_SIZE(app->cal));
+        assert( u32 < ARRAY_SIZE(app->cal));
         Cal *b = app->cal[ u32 ];
         if(!b) {
           printf("no cal\n");
@@ -296,17 +298,35 @@ void app_update_console_cmd(app_t *app)
         }
       }
 
+      else if(strcmp(app->cmd_buf , "cal show") == 0 )  {
+
+        assert( app->cal_idx < ARRAY_SIZE(app->cal));
+        Cal *b = app->cal[ app->cal_idx ];
+        if(!b) {
+          printf("no cal\n");
+        }
+        else {
+          // need function cal_report()
+          cal_report( b );
+          usart1_flush();
+        }
+      }
+
+
+
+
+
       // OK. saving the parameters that were used. for cal. would be useful.
       // In fact. then we could drive the difference loop using them.
       // eg. changing nplc. or changing var_n, fix_n
 
-      else if(strcmp(app->cmd_buf , "var_n show") == 0 )  {   // fixme
+      else if(strcmp(app->cmd_buf , "var_n show") == 0 )  {
         printf("var_n %lu\n", ctrl_get_var_n( app->spi));
       }
-       else if(strcmp(app->cmd_buf , "fix_n show") == 0 )  {   // fixme
+       else if(strcmp(app->cmd_buf , "fix_n show") == 0 )  {
         printf("fix_n %lu\n", ctrl_get_fix_n( app->spi));
       }
- 
+
 
       else if(sscanf(app->cmd_buf, "var_n %lu", &u32 ) == 1) {
         printf("var_n %lu\n", u32);
