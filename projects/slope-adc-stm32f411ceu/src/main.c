@@ -248,46 +248,47 @@ void app_update_console_cmd(app_t *app)
       }
 
       else if(sscanf(app->cmd_buf, "cal save %lu", &u32 ) == 1) {
-          /*
-            save the current cal. to slot.
-            when we save. think we need to save to current memory for the slot also.
-            otherwise need to rescan.
-          */
-          // get current matrix
-          assert( app->cal_idx < ARRAY_SIZE(app->cal));
-          Cal *cal_current = app->cal[ app->cal_idx ];
+        /*
+          save the current cal. to slot.
+          when we save. think we need to save to current memory for the slot also.
+          to keep mem in sync with flash.
+          otherwise need to rescan.
+        */
+        // get current matrix
+        assert( app->cal_idx < ARRAY_SIZE(app->cal));
+        Cal *cal_current = app->cal[ app->cal_idx ];
 
-          // think we really want slots.
-          if(!cal_current) {
-            printf("no current cal to save\n");
-          } else {
+        // think we really want slots.
+        if(!cal_current) {
+          printf("no current cal to save\n");
+        } else {
 
-            assert( u32 != app->cal_idx ); // possible issue
+          assert( u32 != app->cal_idx ); // possible issue
 
-            // if there's already a cal at the slot . then free it
-            if( app->cal[ u32 ]) {
-              cal_free( app->cal[ u32 ]);
-            }
+          // if there's already a cal at the slot . then free it
+          if( app->cal[ u32 ]) {
+            cal_free( app->cal[ u32 ]);
+          }
 
-            // make a copy of current at new slot
-            app->cal[ u32 ] = cal_copy( cal_current );
-            // and update the slot
-            app->cal[ u32 ]->slot = u32;
+          // make a copy of current at new slot
+          app->cal[ u32 ] = cal_copy( cal_current );
+          // and update the slot
+          app->cal[ u32 ]->slot = u32;
 
-            // now save to flash
-            printf("flash unlock\n");
-            flash_unlock();
+          // now save to flash
+          printf("flash unlock\n");
+          flash_unlock();
 
-            FILE *f = flash_open_file();
-            file_skip_to_end( f);
+          FILE *f = flash_open_file();
+          file_skip_to_end( f);
 
-            file_write_cal ( app->cal[ u32 ] , f );
-            fclose(f);
+          file_write_cal ( app->cal[ u32 ] , f );
+          fclose(f);
 
-            printf("flash lock\n");
-            flash_lock();
-            printf("done\n");
-            }
+          printf("flash lock\n");
+          flash_lock();
+          printf("done\n");
+          }
       }
 
       // would be useful to have 'cal show' and 'cal show idx'
