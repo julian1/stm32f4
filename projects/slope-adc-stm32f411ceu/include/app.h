@@ -219,7 +219,7 @@ struct app_t
   // issue is using null to indcate present.
   Cal     *cal[10];
 
-  unsigned cal_current_idx;    // current idx; // rename cal_idx.
+  unsigned cal_idx;    // current idx; // rename cal_idx.
 
 
 

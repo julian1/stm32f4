@@ -125,7 +125,7 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
 
         case 101:
         case 102:
-          printf("got 101 a matrix and slot\n" );
+          printf("got header.id %u\n", header.id );
 
           unsigned slot;
           items = fread( &slot, sizeof(slot), 1, f);
@@ -146,6 +146,7 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
           cal->slot = slot;
           cal->b    = b;
 
+          // read params
           if(header.id == 102) {
             items = fread( &cal->param, sizeof(cal->param), 1, f);
             assert(items == 1);

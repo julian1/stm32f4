@@ -197,7 +197,7 @@ void app_loop1 ( app_t *app )
 
   // ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
 
-  printf("cal slot %u\n", app->cal_current_idx );
+  printf("cal slot %u\n", app->cal_idx );
 
   int aperture = ctrl_get_aperture(app->spi); // in clk counts
   printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
@@ -232,8 +232,8 @@ void app_loop1 ( app_t *app )
 
     run_report_brief( &run);
 
-    assert( app->cal_current_idx < ARRAY_SIZE(app->cal));
-    Cal *cal = app->cal[ app->cal_current_idx ];
+    assert( app->cal_idx < ARRAY_SIZE(app->cal));
+    Cal *cal = app->cal[ app->cal_idx ];
     if(cal) {
       assert(cal->b);
       double predict = m_calc_predicted_val( cal->b, &run, &param );
@@ -423,15 +423,15 @@ void app_loop2 ( app_t *app )
   printf("\nswitching to cal slot 0\n");
 
   // we store in slot 0;
-  app->cal_current_idx = 0;
+  app->cal_idx = 0;
 
-  if(!app->cal[ app-> cal_current_idx ] ) {
+  if(!app->cal[ app-> cal_idx ] ) {
 
-    app->cal[ app-> cal_current_idx ] = malloc(sizeof(Cal));
-    memset( app->cal[ app-> cal_current_idx ] , 0, sizeof(Cal));
+    app->cal[ app-> cal_idx ] = malloc(sizeof(Cal));
+    memset( app->cal[ app-> cal_idx ] , 0, sizeof(Cal));
   }
 
-  Cal *cal = app->cal[ app-> cal_current_idx ];
+  Cal *cal = app->cal[ app-> cal_idx ];
   assert( cal); // cal should exist. but may not.
 
   // deep copy
@@ -561,8 +561,8 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
       // we have both obs available...
 
 
-    assert( app->cal_current_idx < ARRAY_SIZE(app->cal));
-    Cal *cal = app->cal[ app->cal_current_idx ];
+    assert( app->cal_idx < ARRAY_SIZE(app->cal));
+    Cal *cal = app->cal[ app->cal_idx ];
     if(cal) {
       assert(cal->b);
       double predict_zero   = m_calc_predicted_val( cal->b , &run_zero, &param_zero );
@@ -670,8 +670,8 @@ double app_simple_read( app_t *app)
   // we have both obs available...
   assert(run.count_up);
 
-  assert( app->cal_current_idx < ARRAY_SIZE(app->cal));
-  Cal *cal = app->cal[ app->cal_current_idx ];
+  assert( app->cal_idx < ARRAY_SIZE(app->cal));
+  Cal *cal = app->cal[ app->cal_idx ];
   assert(cal);
   assert(cal->b);
 
@@ -865,8 +865,8 @@ void app_loop4 ( app_t *app   )
       // but perhaps it needs to be calibrated on the difference.
 
       // hmmmm. 600uV.
-      assert( app->cal_current_idx < ARRAY_SIZE(app->cal));
-      Cal *cal = app->cal[ app->cal_current_idx ];
+      assert( app->cal_idx < ARRAY_SIZE(app->cal));
+      Cal *cal = app->cal[ app->cal_idx ];
       if(cal) {
         assert(cal->b);
 #if 0

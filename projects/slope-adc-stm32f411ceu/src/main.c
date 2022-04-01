@@ -241,8 +241,8 @@ void app_update_console_cmd(app_t *app)
           if(!b) {
             printf("cal slot %lu missing cal config\n", u32);
           } else {
+            app->cal_idx = u32;
             printf("ok\n");
-            app->cal_current_idx = u32;
           }
         }
       }
@@ -254,8 +254,8 @@ void app_update_console_cmd(app_t *app)
           // unsigned slot = u32;
 
           // get current matrix
-          assert( app->cal_current_idx < ARRAY_SIZE(app->cal));
-          Cal *cal = app->cal[ app->cal_current_idx ];
+          assert( app->cal_idx < ARRAY_SIZE(app->cal));
+          Cal *cal = app->cal[ app->cal_idx ];
 
           // think we really want slots.
           if(!cal) {
@@ -284,7 +284,7 @@ void app_update_console_cmd(app_t *app)
 
       else if(sscanf(app->cmd_buf, "cal show %lu", &u32 ) == 1) {
 
-        assert( app->cal_current_idx < ARRAY_SIZE(app->cal));
+        assert( app->cal_idx < ARRAY_SIZE(app->cal));
         Cal *b = app->cal[ u32 ];
         if(!b) {
           printf("no cal\n");
