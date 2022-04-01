@@ -251,7 +251,7 @@ void app_update_console_cmd(app_t *app)
 
           // should it always be the first entry????
           // write cal matrix
-          unsigned slot = u32;
+          // unsigned slot = u32;
 
           // get current matrix
           assert( app->cal_current_idx < ARRAY_SIZE(app->cal));

@@ -4,7 +4,7 @@
 
 
 #include "cbuffer.h"
-#include "cal.h"
+// #include "cal.h"
 
 
 
@@ -175,6 +175,9 @@ void run_report_brief( const Run *run );
 typedef struct app_t app_t;
 
 
+//
+
+typedef struct Cal Cal;
 
 
 #define CMD_BUF_SZ  100

@@ -137,22 +137,16 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
           printf("matrix is\n" );
           m_foutput( stdout, b );
 
-
           printf("setting slot %u with matrix\n", slot );
           assert(slot < sz);
 
           Cal * cal = malloc(sizeof(Cal));
           memset(cal, 0, sizeof(Cal));
-
           cal->slot = slot;
           cal->b    = b;
-
           cals[ slot ] = cal;
 
-
-          unsigned here1 = ftell( f); // position from start.
-          // printf("here is %d\n", here1 );
-          assert( here0  + header.len == here1 );
+          assert( here0  + header.len == ftell( f));
           break;
       };
 
