@@ -286,29 +286,35 @@ void app_update_console_cmd(app_t *app)
 
       else if(sscanf(app->cmd_buf, "cal show %lu", &u32 ) == 1) {
 
-        assert( u32 < ARRAY_SIZE(app->cal));
-        Cal *b = app->cal[ u32 ];
-        if(!b) {
-          printf("no cal\n");
-        }
-        else {
-          // need function cal_report()
-          cal_report( b );
-          usart1_flush();
+        if( !( u32 < ARRAY_SIZE(app->cal))) {
+          printf("out of range\n");
+        } else {
+
+          Cal *b = app->cal[ u32 ];
+          if(!b) {
+            printf("no cal\n");
+          }
+          else {
+            cal_report( b );
+            usart1_flush();
+          }
         }
       }
 
       else if(strcmp(app->cmd_buf , "cal show") == 0 )  {
 
-        assert( app->cal_idx < ARRAY_SIZE(app->cal));
-        Cal *b = app->cal[ app->cal_idx ];
-        if(!b) {
-          printf("no cal\n");
-        }
-        else {
-          // need function cal_report()
-          cal_report( b );
-          usart1_flush();
+        if( !(app->cal_idx < ARRAY_SIZE(app->cal))) {
+
+          printf("out of range\n");
+        } else {
+          Cal *b = app->cal[ app->cal_idx ];
+          if(!b) {
+            printf("no cal\n");
+          }
+          else {
+            cal_report( b );
+            usart1_flush();
+          }
         }
       }
 
