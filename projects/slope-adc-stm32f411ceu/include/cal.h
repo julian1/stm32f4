@@ -26,6 +26,11 @@ struct Cal
                     // Or just record fix_n, var_n ? maybe aperture.
                     // We are going to have to include app.h to pick up Param? hmmm
                     // app is currently including cal...
+
+  // - ( stddev(regression) / aperture ) * 1000000  is the uV 1SD deviation.
+  sigma ;           // explains fit. should consider storing.
+
+
 };
 
 
