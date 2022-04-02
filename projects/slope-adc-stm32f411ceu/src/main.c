@@ -202,6 +202,17 @@ void app_update_console_cmd(app_t *app)
         else
           printf("fail\n");
       }
+      else if(sscanf(app->cmd_buf, "test reset %lu", &u32 ) == 1) {
+
+        printf("reset test %lu seconds\n", u32 );
+
+        // TODO change name ctrl_reset_enable()
+        ctrl_reset_enable(app->spi);
+        msleep( u32 * 1000);
+        ctrl_reset_disable(app->spi);
+      }
+
+
 
       // flash erase
       else if(strcmp(app->cmd_buf , "flash erase") == 0) {
@@ -449,20 +460,6 @@ void app_update_console_cmd(app_t *app)
       }
 */
 
-
-      else if(sscanf(app->cmd_buf, "reset_test %lu", &u32 ) == 1) {
-
-        printf("reset test %lu seconds\n", u32 );
-
-        // TODO change name ctrl_reset_enable()
-        ctrl_reset_enable(app->spi);
-        msleep( u32 * 1000);
-        ctrl_reset_disable(app->spi);
-      }
-
-
-      // should read as a double
-      // actually an aperture setting.
 
 
       else if(strcmp(app->cmd_buf , "last show") == 0 )  {   // fixme
