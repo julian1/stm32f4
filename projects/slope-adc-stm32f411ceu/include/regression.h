@@ -76,7 +76,9 @@ struct R
 
   unsigned df;
 
-  double sigma2;
+  double sigma2;  // should calculate sigma also.
+                  // it is extremely important.
+  double sigma;
 
   MAT *var_cov_b ;
 

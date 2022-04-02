@@ -688,6 +688,8 @@ int m_regression( const MAT *x, const MAT *y,  R * regression )
   // utu / (n - k)
   regression->sigma2  = utu / regression->df;
 
+  // standard error of regression
+  regression->sigma   = sqrt( regression->sigma2 );
 
   ///////////////////////////////
   // variance / covariance matrix of B
@@ -768,6 +770,10 @@ void r_report( const R * regression, FILE *f )
   fprintf(f, "\ndf     %u\n", regression->df);
 
   fprintf(f, "sigma2 %f\n", regression->sigma2);
+
+  fprintf(f, "sigma  %f\n", regression->sigma);
+
+
 
   fprintf(f, "\nvar_cov_b\n");
   m_foutput(f, regression->var_cov_b);
