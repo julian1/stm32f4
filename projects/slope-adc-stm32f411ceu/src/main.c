@@ -53,6 +53,7 @@
 // bad conflicts with lib2/include/flash.h
 #include "flash.h"
 #include "cal.h"
+#include "temp.h"
 
 
 #include <matrix.h>
@@ -211,6 +212,13 @@ void app_update_console_cmd(app_t *app)
         msleep( u32 * 1000);
         ctrl_reset_disable(app->spi);
       }
+
+
+      else if(strcmp(app->cmd_buf , "test temp") == 0) {
+
+          read_temp();
+      }
+ 
 
 
 
@@ -643,6 +651,9 @@ int main(void)
   // spi / ice40
   rcc_periph_clock_enable(RCC_SPI1);
 
+  // adc/temp
+	rcc_periph_clock_enable(RCC_ADC1);
+
 
 
   //////////////////////
@@ -697,6 +708,10 @@ int main(void)
 
   // needs a context...
   voltage_source_setup( /*ctx */ );
+
+
+  // for temp
+  adc_setup();
 
 
   /////////////

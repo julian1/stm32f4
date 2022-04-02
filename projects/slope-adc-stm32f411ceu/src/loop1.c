@@ -881,7 +881,7 @@ void app_loop4 ( app_t *app   )
 
   app->last = m;
 
-  // switch the blink interval. to indicate done.
+  // switch the blink interval to fast. to indicate done.
 
   app->led_blink_interval = 250;
 
