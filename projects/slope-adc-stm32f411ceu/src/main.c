@@ -12,6 +12,49 @@
   with gnu sprintf, and floating point code, this still fits in 27k, tested by editing f410.ld.  good!!
   *********
 
+  **************
+  get the list of commands,
+
+  egrep  'strcmp|sscan' ./src/main.c | sed 's/[^"]*\("[^"]*"\).*$/\1/'
+
+
+"test comm"
+"test reset %lu"
+"test temp"
+"flash erase"
+"cal rescan"
+"cal switch %lu"
+"cal switch mod %lu"
+"cal save %lu"
+"cal show %lu"
+"cal show"
+"var_n show"
+"fix_n show"
+"var_n %lu"
+"fix_n %lu"
+"sleep %lu"
+"voltage source dir %ld"
+"voltage source set %lf"
+"mux ref-lo"
+"mux ref-hi"
+"mux sig"
+"mux ang"
+"pattern %lu"
+"last show"
+"buffer show"
+"buffer %lu"
+"nplc show"
+"nplc %lf"
+"clk_count_var_pos_n %lu"
+"h"
+"loop1"
+"loop2"
+"loop3"
+"loop4"
+"loop22"
+
+
+  **************
 */
 
 
