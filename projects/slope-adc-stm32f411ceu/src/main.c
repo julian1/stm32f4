@@ -259,7 +259,7 @@ void app_update_console_cmd(app_t *app)
 
       else if(strcmp(app->cmd_buf , "test temp") == 0) {
 
-          read_temp();
+          adc_temp_read();
       }
  
 

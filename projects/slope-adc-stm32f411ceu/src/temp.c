@@ -59,7 +59,7 @@ void adc_setup(void)
 
 
 
-uint16_t read_adc_naiive(uint8_t channel)
+uint16_t adc_read_naiive(uint8_t channel)
 {
   // set up the arry of channels to read.
 	uint8_t channel_array[16];
@@ -95,11 +95,14 @@ static double convert_temp( uint16_t sensorValue )
 
 
 
-void read_temp(void )
+double adc_temp_read(void )
 {
-  uint16_t val = read_adc_naiive(  ADC_CHANNEL_TEMP_F40);
+  uint16_t val = adc_read_naiive(  ADC_CHANNEL_TEMP_F40);
 
-  printf("val %u  convert %.2fC\n", val, convert_temp( val ) );
+  double convert = convert_temp( val );
+
+  printf("val %u  convert %.2fC\n", val,  convert);
+  return convert;
 }
 
 
