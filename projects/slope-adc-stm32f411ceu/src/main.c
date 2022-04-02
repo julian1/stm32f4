@@ -20,7 +20,6 @@
 
 "test comm"
 "test reset %lu"
-"test temp"
 "flash erase"
 "cal rescan"
 "cal switch %lu"
@@ -40,6 +39,7 @@
 "mux sig"
 "mux ang"
 "pattern %lu"
+"temp show"
 "last show"
 "buffer show"
 "buffer %lu"
@@ -121,6 +121,7 @@
 
 static int spi_reg_read_write_test(uint32_t spi )
 {
+  // would be better to move into spi.c. but requires REG_LED define. 
   // test ice40 register read/write
   // ok. seems to work.
   uint32_t ret;
@@ -255,13 +256,6 @@ void app_update_console_cmd(app_t *app)
         msleep( u32 * 1000);
         ctrl_reset_disable(app->spi);
       }
-
-
-      else if(strcmp(app->cmd_buf , "test temp") == 0) {
-
-          adc_temp_read();
-      }
- 
 
 
 
@@ -512,7 +506,11 @@ void app_update_console_cmd(app_t *app)
 */
 
 
+      // temp show.
+      else if(strcmp(app->cmd_buf , "temp show") == 0) {
 
+          adc_temp_read();
+      }
       else if(strcmp(app->cmd_buf , "last show") == 0 )  {   // fixme
         // set to flush
         if(!app->last) {
