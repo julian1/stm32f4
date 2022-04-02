@@ -270,6 +270,13 @@ void cal_report( Cal *cal /* FILE *f */ )
 
 
 
+Cal * cal_create()
+{
+  Cal *cal = malloc(sizeof(Cal));
+  memset( cal, 0, sizeof(Cal));
+  return cal;
+} 
+
 void cal_free( Cal *cal  )
 {
   assert( cal );

@@ -419,8 +419,8 @@ void app_loop2 ( app_t *app )
 
   ///////////////////////
   // create the cal structure
-  Cal *cal = malloc(sizeof(Cal));
-  memset( cal, 0, sizeof(Cal));
+
+  Cal *cal = cal_create();
   cal->slot = 0;
   cal->b = m_copy( regression.b, MNULL );    // reallocate matrix.
   ctrl_param_read( app->spi, &cal->param);
@@ -429,6 +429,7 @@ void app_loop2 ( app_t *app )
   ///////////////////////
   // set it. for app slot
   // we store in slot 0;
+  // use a function. cal_set???? no because ownership not clear.
   app->cal_idx = 0;
 
   if( app->cal[ app->cal_idx]) {
@@ -456,7 +457,7 @@ void app_loop2 ( app_t *app )
 void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 {
   /*
-    EXTR. I think auto-zero is worse. only because of quarternization.  eg. 0 - 0.6uV  difference when might only be 0.3 - 0.2uV.
+    EXTR. I think auto-zero is worse. only because of quantitization.  eg. 0 - 0.6uV  difference when might only be 0.3 - 0.2uV.
 
   value -0.000,000,6V stddev(10) 0.40uV,
   value -0.000,000,6V stddev(10) 0.30uV,
@@ -720,8 +721,6 @@ void app_loop4 ( app_t *app   )
   ctrl_reset_disable(app->spi);
 
 
-  bool x = false;
-
   unsigned row = 0;
 
   // 22V range.
@@ -748,8 +747,8 @@ void app_loop4 ( app_t *app   )
 #if 1
     // sleep to let DA settle.
     // unsigned sleep = i == 0 ? 60 : 30;
-    // unsigned sleep = i == 0 ? 120 : 60;
-    unsigned sleep = i == 0 ? 240 : 120;
+    unsigned sleep = i == 0 ? 120 : 60;
+    // unsigned sleep = i == 0 ? 240 : 120;
     printf("sleep %us\n", sleep );
     app_simple_sleep( app, sleep * 1000 );
 #endif
@@ -759,37 +758,18 @@ void app_loop4 ( app_t *app   )
     for(unsigned obs = 0; obs < obs_n; ++obs)
     {
 
-
       // do A
-      // configure nplc
-//      ctrl_reset_enable(app->spi);
-      if(x)
-        ctrl_set_aperture( app->spi, nplc_to_aper_n( 10  ));
-      else {
-        ctrl_set_var_n( app->spi, 550);    // OK. after we wrote this it doesn't work.
-        ctrl_set_fix_n( app->spi, 70);
-      }
+      Cal *cal_a = app->cal[4] ;
+      assert( cal_a );
+      param_report( &cal_a->param );
+      printf("\n");
 
-//      assert( ctrl_get_state( app->spi ) == STATE_RESET_START);
+      ctrl_reset_enable(app->spi);
+      ctrl_set_aperture( app->spi,  cal_a->param.clk_count_aper_n);
+      ctrl_set_var_n( app->spi,     cal_a->param.clk_count_var_n);
+      ctrl_set_fix_n( app->spi,     cal_a->param.clk_count_fix_n);
       app->data_ready = false;
-//      ctrl_reset_disable(app->spi);
-
-        ctrl_reset_enable(app->spi);
-        ctrl_reset_disable(app->spi);
-
-#if 0
-      if( ctrl_get_state( app->spi ) != STATE_RESET) {
-          printf("doing reset\n");
-          ctrl_reset_enable(app->spi);
-          ctrl_reset_disable(app->spi);
-      }
-      int state = ctrl_get_state( app->spi) ;
-      if( state != STATE_RESET) {
-        printf("state is %u\n", state);   // state is 4.
-      }
-      assert( state  == STATE_RESET); // not holding ?
-#endif
-
+      ctrl_reset_disable(app->spi);
 
       // block/wait for data
       while(!app->data_ready ) {
@@ -803,34 +783,30 @@ void app_loop4 ( app_t *app   )
       // read A.
       Run   run_a;
       Param param_a;
-      // memset(&run_a, 0, sizeof(Run));
-
-      // read data
-      ctrl_run_read(app->spi, &run_a);
+      ctrl_run_read(   app->spi, &run_a);
       ctrl_param_read( app->spi, &param_a);
-      if(x)
-        assert( aper_n_to_nplc(param_a.clk_count_aper_n) == 10);
-      else {
-        assert( param_a.clk_count_var_n == 550 );
-        assert( param_a.clk_count_fix_n == 70 );
-      }                                   // 620
+
+      // shouldn't need this
+      assert( param_a.clk_count_aper_n  == cal_a->param.clk_count_aper_n);
+      assert( param_a.clk_count_var_n   == cal_a->param.clk_count_var_n );
+      assert( param_a.clk_count_fix_n   == cal_a->param.clk_count_fix_n);
 
 
       ///////////////////////////////
-      // do B
-      // configure nplc
-//      ctrl_reset_enable(app->spi);
-      if(x)
-        ctrl_set_aperture( app->spi, nplc_to_aper_n(11));
-      else {
-        ctrl_set_var_n( app->spi, 540);
-        ctrl_set_fix_n( app->spi, 80);
-      }
 
+      // do B
+      Cal *cal_b = app->cal[5] ;
+      assert( cal_b );
+      param_report( &cal_b->param );
+      printf("\n");
+
+
+      ctrl_reset_enable(app->spi);
+      ctrl_set_aperture( app->spi,  cal_b->param.clk_count_aper_n);
+      ctrl_set_var_n( app->spi,     cal_b->param.clk_count_var_n);
+      ctrl_set_fix_n( app->spi,     cal_b->param.clk_count_fix_n);
       app->data_ready = false;
-//      assert( ctrl_get_state( app->spi ) == STATE_RESET_START);
-//      ctrl_reset_disable(app->spi);
-      assert( ctrl_get_state( app->spi ) == STATE_RESET);
+      ctrl_reset_disable(app->spi);
 
       // block/wait for data
       while(!app->data_ready ) {
@@ -844,71 +820,51 @@ void app_loop4 ( app_t *app   )
       // read B
       Run   run_b;
       Param param_b;
-      // memset(&run_b, 0, sizeof(Run));
-
-      // read data
-      ctrl_run_read(app->spi, &run_b);
+      ctrl_run_read(   app->spi, &run_b);
       ctrl_param_read( app->spi, &param_b);
-      if(x)
-        assert(  aper_n_to_nplc(param_b.clk_count_aper_n) == 11);
-      else {
-        assert( param_b.clk_count_var_n == 540 );
-        assert( param_b.clk_count_fix_n == 80 );
-                                      // 620.
-      }
 
-      // param_b.clk_count_var_n = 550; // pretend unchanged
-      // no . it's vastly workd. 0.3V weird.
-      // whille calculating as expected gives 1mV difference.
-      // but perhaps it needs to be calibrated on the difference.
+      // shouldn't need this
+      assert( param_b.clk_count_aper_n  == cal_b->param.clk_count_aper_n);
+      assert( param_b.clk_count_var_n   == cal_b->param.clk_count_var_n );
+      assert( param_b.clk_count_fix_n   == cal_b->param.clk_count_fix_n);
 
-      // hmmmm. 600uV.
-      assert( app->cal_idx < ARRAY_SIZE(app->cal));
-      Cal *cal = app->cal[ app->cal_idx ];
-      if(cal) {
-        assert(cal->b);
-#if 0
-        MAT *b4 =  app->cal[ 0] ;
-        assert(b4);
-        MAT *b5 =  app->cal[ 5] ;
-        assert(b5);
+      ///////////////////////
+      // work out A,B difference
 
+      assert(cal_a->b && cal_b->b );
 
-        double predict_a  = m_calc_predicted_val( b4 , &run_a, &param_a );
-        double predict_b  = m_calc_predicted_val( b5 , &run_b,  &param_b );
-        double delta      = (predict_a - predict_b) * 1000000; // in uV.
+      double predict_a  = m_calc_predicted_val( cal_a->b, &run_a, &param_a );
+      double predict_b  = m_calc_predicted_val( cal_b->b, &run_b, &param_b );
+      double delta      = (predict_a - predict_b) * 1000000; // in uV.
 
-        char buf[100], buf2[100];
-        printf("%u   %sV\t  %sV  %.2fuV\n",
-          i,
-          format_float_with_commas(buf, 100, 7, predict_a),
-          format_float_with_commas(buf2, 100, 7, predict_b ),
-          delta
-        );
+      char buf[100], buf2[100];
+      printf("%u   %sV\t  %sV  %.2fuV\n",
+        i,
+        format_float_with_commas(buf, 100, 7, predict_a),
+        format_float_with_commas(buf2, 100, 7, predict_b ),
+        delta
+      );
 
-        // push to matrix
-        assert(row < m_rows(m));
-        assert(m_cols(m) == 5);
-        m_set_val( m, row, 0, i + 1 );        // id. start at 1 for matlab/octave index function
-        m_set_val( m, row, 1, target );   // don't really need.
-        m_set_val( m, row, 2, predict_a );
-        m_set_val( m, row, 3, predict_b );
-        m_set_val( m, row, 4, delta );
-#endif
-        ++row;
-      }
+      // push to matrix
+      assert(row < m_rows(m));
+      assert(m_cols(m) == 5);
+      m_set_val( m, row, 0, i + 1 );        // id. start at 1 for matlab/octave index function
+      m_set_val( m, row, 1, target );   // don't really need.
+      m_set_val( m, row, 2, predict_a );
+      m_set_val( m, row, 3, predict_b );
+      m_set_val( m, row, 4, delta );
 
+      ++row;
 
     } // obs loop.
+
   } // target loop
 
 
-  // nwo ouput
 
   // shrink matrix
   m_resize( m, row, m_cols(m));
 
-  // ok. we have the problem that we have to ensure no output, which means calling usart1_flush()
 
   // fflush_on_newline( stdout, true);
   ffnctl( stdout, ffnctl( stdout, 0) | FILE_SYNC_ON_NEWLINE );

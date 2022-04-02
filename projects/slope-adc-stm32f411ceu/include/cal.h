@@ -21,10 +21,11 @@ struct Cal
 
   MAT *b;
 
+  // used - for tests. not sure if there's a better place to store.
   Param     param;  // Or make optional pointer.
                     // Or just record fix_n, var_n ? maybe aperture.
-                    // We are going to have to include app.h to pick up Param? hmmm 
-                    // app is currently including cal... 
+                    // We are going to have to include app.h to pick up Param? hmmm
+                    // app is currently including cal...
 };
 
 
@@ -43,6 +44,7 @@ void file_write_cal ( Cal *cal, FILE *f);
 void cal_report( Cal *cal /* FILE *f */ );
 
 
+Cal * cal_create(void);
 void cal_free( Cal *cal  );
 Cal * cal_copy( Cal *cal  );
 

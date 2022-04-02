@@ -247,6 +247,35 @@ void app_update_console_cmd(app_t *app)
         }
       }
 
+      else if(sscanf(app->cmd_buf, "cal switch mod %lu", &u32 ) == 1) {
+
+        // set the current cal slot
+        if(!( u32 < ARRAY_SIZE(app->cal))) {
+          printf("cal slot out of range\n");
+        } else {
+
+          // issue is that we are using null pointer to indcate if valid.
+          Cal *b = app->cal[ u32 ];
+          if(!b) {
+            printf("cal slot %lu missing cal config\n", u32);
+          } else {
+            printf("ok from %u to %lu\n", app->cal_idx, u32 );
+
+            // switch cal. and use the modulation parameters. associated with cal
+            app->cal_idx = u32;
+            Cal *cal = app->cal[  app->cal_idx ];
+
+            ctrl_set_aperture( app->spi,  cal->param.clk_count_aper_n);
+            ctrl_set_var_n( app->spi,     cal->param.clk_count_var_n);
+            ctrl_set_fix_n( app->spi,     cal->param.clk_count_fix_n);
+       
+          }
+        }
+      }
+
+
+
+
       else if(sscanf(app->cmd_buf, "cal save %lu", &u32 ) == 1) {
         /*
           save the current cal. to slot.
