@@ -656,8 +656,11 @@ int main(void)
   led_setup();
 
 
+
   //
   memset(&app, 0, sizeof(app_t));
+
+  app.led_blink_interval = 500;
 
   ///////
   // uart/console

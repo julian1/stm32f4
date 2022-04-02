@@ -193,6 +193,9 @@ struct app_t
 
   uint32_t  spi;  // spi device. maybe rename ctrl_spi
 
+
+  uint32_t  led_blink_interval;
+
   volatile bool data_ready ;
 
 
@@ -259,7 +262,7 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
 MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture);
 
 void app_update_console_cmd(app_t *app);
-void app_update_led(app_t *app);
+// void app_update_led(app_t *app);
 void app_update( app_t * app );
 
 

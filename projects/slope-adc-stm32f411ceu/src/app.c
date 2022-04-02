@@ -422,12 +422,13 @@ void app_update_led(app_t *app)
   assert(app);
 
   // 500ms soft timer. should handle wrap around
-  if( (system_millis - app->soft_500ms) > 500) {
-    app->soft_500ms += 500;
+  if( (system_millis - app->soft_500ms) > app->led_blink_interval ) {
+    app->soft_500ms += app->led_blink_interval;
     led_toggle();
   }
-
 }
+
+
 
 
 void app_update( app_t * app )
@@ -435,6 +436,19 @@ void app_update( app_t * app )
   app_update_console_cmd(app);
   app_update_led(app);
 }
+
+
+
+//////
+
+
+
+
+
+
+
+
+
 
 
 
@@ -449,8 +463,7 @@ void app_simple_sleep( app_t * app, uint32_t period )
 
   while(true) {
     // keep pumping messages
-    app_update_console_cmd(app);
-    app_update_led(app);
+    app_update( app );
 
     if( (system_millis - soft_timer ) > period ) {
 
@@ -479,9 +492,7 @@ void app_loop_dispatcher(app_t *app)
 
   while(true) {
 
-    app_update_console_cmd(app);
-    app_update_led( app);
-
+    app_update(app);
 
     if(app->continuation_f) {
       printf("jump to continuation\n");
