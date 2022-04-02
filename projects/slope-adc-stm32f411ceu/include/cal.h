@@ -15,9 +15,6 @@ struct Cal
   // actually slot is read separately. and perhaps should not be included here.
   unsigned slot;
 
-  // date. tempertuare.
-
-  // Params used.
 
   MAT *b;
 
@@ -27,10 +24,16 @@ struct Cal
                     // We are going to have to include app.h to pick up Param? hmmm
                     // app is currently including cal...
 
+/*
   // - ( stddev(regression) / aperture ) * 1000000  is the uV 1SD deviation.
-  sigma ;           // explains fit. should consider storing.
+  double sigma ;           // explains fit. should consider storing.
 
+  // we need to show this.
+  double sigma_div_aperture;
 
+  // date. tempertuare.
+
+*/
 };
 
 

@@ -64,7 +64,7 @@ MAT *m_hconcat( MAT *a, MAT *b, MAT *out );
 bool m_is_scalar(const MAT *mat );
 
 
-//   // change name m_to_scalar. to m_to_scalar/real 
+//   // change name m_to_scalar. to m_to_scalar/real
 double m_to_scalar(const MAT *mat );
 
 
@@ -74,27 +74,27 @@ struct R
 
   MAT *predicted;
 
-  unsigned df;
+  unsigned df;      // degrees of freedom
 
-  double sigma2;  // should calculate sigma also.
-                  // it is extremely important.
-  double sigma;
+  double sigma2;    // variance of regression
 
-  MAT *var_cov_b ;
+  double sigma;     // stddev of regression
+
+  MAT *var_cov_b ;  // variance/covariance matrix
 
   MAT *var_b;
 
-  MAT *stddev_b ;
+  MAT *stddev_b ;   // stddev of the estimator. sqrt diagonal of var/covar matrix
 
-  // 'correction for mean'
-  double nybar2;
 
-  double ess;
-  double tss;
+  double nybar2;    // 'correction for mean'
+
+  double ess;       // explained sum of squares
+  double tss;       // total sum of squares
 
   double r2;
 
-  double r ;
+  double r;
 
 };
 
