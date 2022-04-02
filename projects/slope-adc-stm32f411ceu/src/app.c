@@ -417,7 +417,7 @@ MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture)
 
 
 
-void app_update_led(app_t *app)
+static void app_update_led(app_t *app)
 {
   assert(app);
 
