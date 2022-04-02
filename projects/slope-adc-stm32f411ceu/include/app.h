@@ -234,6 +234,7 @@ struct app_t
   MAT     *stats_buffer;
 
 
+  MAT     *last;
 
 } ;
 

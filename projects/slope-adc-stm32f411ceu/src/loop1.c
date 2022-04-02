@@ -753,6 +753,8 @@ void app_loop4 ( app_t *app   )
     app_simple_sleep( app, sleep * 1000 );
 #endif
 
+    /* - I think we probably want to be able to do a loop of 2. to not take the first value.
+    */
 
     // 10 obs
     for(unsigned obs = 0; obs < obs_n; ++obs)
@@ -866,15 +868,19 @@ void app_loop4 ( app_t *app   )
   m_resize( m, row, m_cols(m));
 
 
-  // fflush_on_newline( stdout, true);
+  // set to flush
   ffnctl( stdout, ffnctl( stdout, 0) | FILE_SYNC_ON_NEWLINE );
-
   m_octave_foutput( stdout, NULL, m);
 
-  // fflush_on_newline( stdout, false);
   ffnctl( stdout, ffnctl( stdout, 0) & ~FILE_SYNC_ON_NEWLINE );
 
-  M_FREE(m);
+  // store. the matrix. so we can print it. later.
+  if(app->last) {
+    M_FREE(app->last);
+  }
+
+  app->last = m;
+
 
 }
 

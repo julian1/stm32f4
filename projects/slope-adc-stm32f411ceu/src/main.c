@@ -465,6 +465,16 @@ void app_update_console_cmd(app_t *app)
       // actually an aperture setting.
 
 
+      else if(strcmp(app->cmd_buf , "last show") == 0 )  {   // fixme
+        // set to flush
+        if(!app->last) {
+          printf("no last\n");
+        } else {
+          ffnctl( stdout, ffnctl( stdout, 0) | FILE_SYNC_ON_NEWLINE );
+          m_octave_foutput( stdout, NULL, app->last);
+          ffnctl( stdout, ffnctl( stdout, 0) & ~FILE_SYNC_ON_NEWLINE );
+        }
+      }
 
       else if(strcmp(app->cmd_buf , "buffer show") == 0 )  {   // fixme
         printf("buffer %u\n",    m_rows(app->buffer));
