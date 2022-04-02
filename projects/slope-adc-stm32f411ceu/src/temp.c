@@ -33,6 +33,11 @@ cold power on
 val 942
 convert 29.000000
 
+warm .
+test temp
+val 964  convert 36.23C
+
+
 
 */
 
