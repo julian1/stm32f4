@@ -121,7 +121,7 @@
 
 static int spi_reg_read_write_test(uint32_t spi )
 {
-  // would be better to move into spi.c. but requires REG_LED define. 
+  // would be better to move into spi.c. but requires REG_LED define.
   // test ice40 register read/write
   // ok. seems to work.
   uint32_t ret;
@@ -295,7 +295,7 @@ void app_update_console_cmd(app_t *app)
           // issue is that we are using null pointer to indcate if valid.
           Cal *b = app->cal[ u32 ];
           if(!b) {
-            printf("cal slot %lu missing cal config\n", u32);
+            printf("no cal saved at slot %lu\n", u32);
           } else {
             printf("ok from %u to %lu\n", app->cal_idx, u32 );
             app->cal_idx = u32;
@@ -324,7 +324,7 @@ void app_update_console_cmd(app_t *app)
             ctrl_set_aperture( app->spi,  cal->param.clk_count_aper_n);
             ctrl_set_var_n( app->spi,     cal->param.clk_count_var_n);
             ctrl_set_fix_n( app->spi,     cal->param.clk_count_fix_n);
-       
+
           }
         }
       }
@@ -356,7 +356,7 @@ void app_update_console_cmd(app_t *app)
           app->cal[ u32 ]->slot = u32;
 
 
-          // now free old. 
+          // now free old.
           // do in this order in case old==new.
           if( old) {
             cal_free( old);

@@ -295,13 +295,11 @@ void cal_report( Cal *cal /* FILE *f */ )
 
   printf("--------------\n");
 
-  // slot
   printf("slot      %u\n", cal->slot );
 
-  // b
+  printf("b\n");
   m_foutput( stdout, cal->b );
 
-  // param
   param_report(& cal->param);
   printf("\n");
 
@@ -315,12 +313,7 @@ void cal_report( Cal *cal /* FILE *f */ )
   // printf("sigma_div_aperture %.2fuV  nplc(10)\n", sigma_div_aperture);
   printf("stddev(V) %.2fuV  (nplc10)\n", sigma_div_aperture);
 
-
-
-  // b
   printf("temp      %.1fC\n", cal->temp );
-
-
 
   printf("\n");
 }

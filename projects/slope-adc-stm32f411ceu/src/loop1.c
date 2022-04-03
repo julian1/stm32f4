@@ -259,6 +259,13 @@ void app_loop2 ( app_t *app )
   printf("=========\n");
   printf("app_loop2 - cal loop using permutation of nplc/aperture\n");
 
+  // clear last for mem
+  if(app->last) {
+    M_FREE(app->last);
+  }
+
+
+
   // ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
 
   const unsigned x_cols  = 3;
@@ -450,6 +457,14 @@ void app_loop2 ( app_t *app )
   app->cal[ app->cal_idx ] = cal;
 
   r_free( &regression );
+
+
+  // combine xs, y and store in last.
+  app->last = m_hconcat(xs, y, MNULL);
+
+  M_FREE(xs);
+  M_FREE(y);
+
 
 }
 
@@ -720,6 +735,11 @@ void app_loop4 ( app_t *app   )
 
   assert(app);
 
+  // clear last for mem
+  if(app->last) {
+    M_FREE(app->last);
+  }
+
 
 
   // mux signal input
@@ -738,7 +758,7 @@ void app_loop4 ( app_t *app   )
     -0.5, -1, -1.5, -2, -2.5, -3, -3.5, -4, -4.5, -5, -5.5, -6, -6.5, -7, -7.5, -8, -8.5, -9, -9.5, -10, -10.5, -11 } ;
 
   // more obs == more spread due to DA.
-  unsigned obs_n = 15;
+  unsigned obs_n = 50;
 
   // size array
   MAT *m = m_get( ARRAY_SIZE(target_) * obs_n , 5 );
@@ -755,9 +775,9 @@ void app_loop4 ( app_t *app   )
 
 #if 1
     // sleep to let DA settle.
-    // unsigned sleep = i == 0 ? 60 : 30;
+    unsigned sleep = i == 0 ? 60 : 30;
     // unsigned sleep = i == 0 ? 120 : 60;
-    unsigned sleep = i == 0 ? (180 * 2) : 180;
+    // unsigned sleep = i == 0 ? (180 * 2) : 180;
     printf("sleep %us\n", sleep );
     app_simple_sleep( app, sleep * 1000 );
 #endif
@@ -887,11 +907,6 @@ void app_loop4 ( app_t *app   )
   m_octave_foutput( stdout, NULL, m);
 
   ffnctl( stdout, ffnctl( stdout, 0) & ~FILE_SYNC_ON_NEWLINE );
-
-  // store. the matrix. so we can print it. later.
-  if(app->last) {
-    M_FREE(app->last);
-  }
 
   app->last = m;
 
