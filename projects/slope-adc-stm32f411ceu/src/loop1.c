@@ -15,6 +15,7 @@
 // #include <matrix.h>
 #include "app.h"
 #include "cal.h"
+#include "temp.h"
 
 
 #include "voltage-source.h"
@@ -429,7 +430,10 @@ void app_loop2 ( app_t *app )
   Cal *cal = cal_create();
   cal->slot = 0;
   cal->b = m_copy( regression.b, MNULL );    // reallocate matrix.
+  
   ctrl_param_read( app->spi, &cal->param);
+  cal->temp = adc_temp_read10();
+  cal->sigma2 = regression.sigma2;
 
 
   ///////////////////////

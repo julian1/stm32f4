@@ -35,9 +35,9 @@ struct Cal
 */
 
   // can calc sigma, and aperture adjusted voltage. from this
-  // double sigma2;
+  double sigma2;
 
-  // double temp;
+  double temp;
 };
 
 
