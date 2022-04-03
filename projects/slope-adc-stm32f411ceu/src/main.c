@@ -510,6 +510,12 @@ void app_update_console_cmd(app_t *app)
 */
 
 
+      else if(sscanf(app->cmd_buf, "led blink %lu", &u32 ) == 1) {
+        // set the voltage
+        app->led_blink_interval = u32;
+      }
+
+
       // temp show.
       else if(strcmp(app->cmd_buf , "temp show") == 0) {
 
