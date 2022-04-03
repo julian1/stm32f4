@@ -311,7 +311,7 @@ void cal_report( Cal *cal /* FILE *f */ )
 
   double sigma_div_aperture = sigma / nplc_to_aper_n( 10 ) * 1000000;  // in uV.
   // printf("sigma_div_aperture %.2fuV  nplc(10)\n", sigma_div_aperture);
-  printf("stddev(V) %.2fuV  (nplc10)\n", sigma_div_aperture);
+  printf("stderr(V) %.2fuV  (nplc10)\n", sigma_div_aperture);
 
   printf("temp      %.1fC\n", cal->temp );
 
