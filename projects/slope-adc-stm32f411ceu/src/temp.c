@@ -117,7 +117,7 @@ double adc_temp_read10(void )
   for(unsigned i = 0; i < ARRAY_SIZE(vals); ++i ) {
     vals[ i ] = adc_temp_read();
   }
-    
+
   return mean(vals, ARRAY_SIZE(vals));
 }
 

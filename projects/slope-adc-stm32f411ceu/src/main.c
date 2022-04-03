@@ -754,6 +754,8 @@ int main(void)
 
   // for temp
   adc_setup();
+  // read some values to clear
+  adc_temp_read10();
 
 
   /////////////

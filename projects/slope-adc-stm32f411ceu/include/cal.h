@@ -32,8 +32,12 @@ struct Cal
   double sigma_div_aperture;
 
   // date. tempertuare.
-
 */
+
+  // can calc sigma, and aperture adjusted voltage. from this
+  // double sigma2;
+
+  // double temp;
 };
 
 
