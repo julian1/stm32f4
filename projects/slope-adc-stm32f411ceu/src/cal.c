@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h>   // sqrt
 
 #include "usart.h"  // usart1_flush()
 #include "assert.h"
@@ -30,7 +31,7 @@ typedef struct Header Header;
 #define MAGIC 0xff00ff00
 
 /*
-  skip to end. to find next pos for data write
+  skip to end. ie. pos for COW write for nor flash
 */
 
 
@@ -85,6 +86,31 @@ void file_skip_to_end(  FILE *f)
 // OK. we want a variation. of file_skip. that fills in data... according to header ids.
 
 
+static void file_read_cal_103( Cal *cal, FILE *f)
+{
+  unsigned items = 0;
+
+  items = fread( &cal->slot, sizeof(cal->slot), 1, f);
+  assert(items == 1);
+
+  // now read matrix.
+  cal->b = m_finput_binary(f, MNULL );
+
+  items = fread( &cal->param, sizeof(cal->param), 1, f);
+  assert(items == 1);
+
+  items = fread( &cal->sigma2, sizeof(cal->sigma2), 1, f);
+  assert(items == 1);
+
+  items = fread( &cal->temp,   sizeof(cal->temp), 1, f);
+  assert(items == 1);
+
+}
+
+
+
+
+
 int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
 {
   // return 0 if success.
@@ -110,8 +136,10 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
     // printf("magic is %x\n", header.magic );
     // usart1_flush();
 
-    unsigned here0 = ftell( f); // position from start.
-    printf("here0 is %d\n", here0 );
+    unsigned here0 = ftell( f);
+
+    // printf("pos %u  got header.id %u len %u magic %x\n", here0, header.id, header.len, header.magic);
+    printf("pos %u, magic %x, header.id %u, len %u\n", here0, header.magic, header.id, header.len);
 
     if(header.magic == MAGIC ) {
       // valid slot
@@ -119,42 +147,33 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
       switch(header.id) {
 
         case 99:
-          printf("got 99 a matrix, skipping\n" );
+        case 101:
+        case 102:
+        case 103:   // some wrongly sized.
+
+          printf("old, ignore\n" );
           // fseek( f, header.len, SEEK_CUR ) ;
           break;
 
-        case 101:
-        case 102:
-          printf("got header.id %u\n", header.id );
+        case 104: {
 
-          unsigned slot;
-          items = fread( &slot, sizeof(slot), 1, f);
-          assert(items == 1);
+          printf("reading cal type 104\n" );
 
-          printf("slot is %d\n", slot );
+          Cal * cal = cal_create();
+          file_read_cal_103( cal, f);
 
-          // now read matrix.
-          MAT *b = m_finput_binary(f, MNULL );
-          printf("matrix is\n" );
-          m_foutput( stdout, b );
+          // bounds
+          assert( cal->slot < sz);
 
-          printf("setting slot %u with matrix\n", slot );
-          assert(slot < sz);
+          // free old if exists
+          if(cals[ cal->slot ] )
+            cal_free( cals[ cal->slot ] );
 
-          Cal * cal = malloc(sizeof(Cal));
-          memset(cal, 0, sizeof(Cal));
-          cal->slot = slot;
-          cal->b    = b;
-
-          // read params
-          if(header.id == 102) {
-            items = fread( &cal->param, sizeof(cal->param), 1, f);
-            assert(items == 1);
-          }
-
-          cals[ slot ] = cal;
+          // set new
+          cals[ cal->slot ] = cal;
 
           assert( here0  + header.len == (unsigned) ftell( f));
+          }
           break;
 
 
@@ -194,6 +213,33 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
 */
 
 
+
+static void file_write_cal_( Cal *cal, FILE *f)
+{
+  // write the slot
+  fwrite( &cal->slot, sizeof(int), 1, f);
+
+  // write the matrix
+  m_foutput_binary( f, cal->b);
+
+  // write the param
+  fwrite( &cal->param, sizeof(cal->param), 1, f);
+
+  fwrite( &cal->sigma2, sizeof(cal->sigma2), 1, f);
+
+  fwrite( &cal->temp, sizeof(cal->temp), 1, f);
+}
+
+
+
+
+
+
+
+
+
+
+
 void file_write_cal ( Cal *cal, FILE *f)
 {
   assert(f );
@@ -212,14 +258,7 @@ void file_write_cal ( Cal *cal, FILE *f)
   /////////////////////
   // write cal data
 
-  // write the slot
-  fwrite( &cal->slot, sizeof(int), 1, f);
-
-  // write the matrix
-  m_foutput_binary( f, cal->b);
-
-  // write the param
-  fwrite( &cal->param, sizeof(cal->param), 1, f);
+  file_write_cal_( cal, f);
 
   // determine how much we advanced
   long len = ftell( f) - start;
@@ -233,7 +272,7 @@ void file_write_cal ( Cal *cal, FILE *f)
   Header  header;
   header.magic = MAGIC;
   header.len = len;
-  header.id = 102;     // header id. for raw matrix.
+  header.id = 104;     // header id. for raw matrix.
 
   unsigned items = fwrite( &header, sizeof(header), 1, f);
   assert(items == 1);
@@ -254,16 +293,34 @@ void cal_report( Cal *cal /* FILE *f */ )
 {
   assert(cal);
 
-  printf("cal \n");
+  printf("--------------\n");
 
   // slot
-  printf("slot %u\n", cal->slot );
+  printf("slot      %u\n", cal->slot );
 
   // b
   m_foutput( stdout, cal->b );
 
   // param
   param_report(& cal->param);
+  printf("\n");
+
+  printf("sigma2    %.2f\n", cal->sigma2);
+
+  double sigma = sqrt( cal->sigma2 );
+  printf("sigma     %.2f\n", sigma);
+
+
+  double sigma_div_aperture = sigma / nplc_to_aper_n( 10 ) * 1000000;  // in uV.
+  // printf("sigma_div_aperture %.2fuV  nplc(10)\n", sigma_div_aperture);
+  printf("stddev(V) %.2fuV  (nplc10)\n", sigma_div_aperture);
+
+
+
+  // b
+  printf("temp      %.1fC\n", cal->temp );
+
+
 
   printf("\n");
 }
@@ -275,13 +332,13 @@ Cal * cal_create()
   Cal *cal = malloc(sizeof(Cal));
   memset( cal, 0, sizeof(Cal));
   return cal;
-} 
+}
 
 void cal_free( Cal *cal  )
 {
   assert( cal );
 
-  if(cal->b ) { 
+  if(cal->b ) {
     M_FREE(cal->b);
   }
   free(cal);
@@ -296,10 +353,23 @@ Cal * cal_copy( Cal *in )
   Cal * cal = malloc(sizeof(Cal));
   memset(cal, 0, sizeof(Cal));
 
+/*
+  // use designator initializer.
+  *cal = (Cal const) {
+    .slot   = in->slot,
+    .b      = m_copy( in->b, MNULL),
+    .param  = in->param,
+    .sigma2 = in->sigma2,
+    .temp   = in->temp,
+  };
+*/
 
-  cal->slot = in->slot;
-  cal->b    = m_copy( in->b, MNULL);
-  cal->param = in->param;
+
+  cal->slot   = in->slot;
+  cal->b      = m_copy( in->b, MNULL);
+  cal->param  = in->param;
+  cal->sigma2 = in->sigma2;
+  cal->temp   = in->temp;
 
   return cal;
 }

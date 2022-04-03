@@ -416,13 +416,11 @@ void app_loop2 ( app_t *app )
 
 
   // we can calculate this at any anytime.
+  // albeit dependency on PL(freq).
   double sigma_div_aperture = regression.sigma / nplc_to_aper_n( 10 ) * 1000000;  // in uV.
   printf("\nsigma_div_aperture %.2fuV  nplc(10)\n", sigma_div_aperture);
 
 
-
-  // should switch and save new cal in slot 0. by default?
-  printf("\nswitching to cal slot 0\n");
 
   ///////////////////////
   // create the cal structure
@@ -430,7 +428,7 @@ void app_loop2 ( app_t *app )
   Cal *cal = cal_create();
   cal->slot = 0;
   cal->b = m_copy( regression.b, MNULL );    // reallocate matrix.
-  
+
   ctrl_param_read( app->spi, &cal->param);
   cal->temp = adc_temp_read10();
   cal->sigma2 = regression.sigma2;
@@ -440,6 +438,9 @@ void app_loop2 ( app_t *app )
   // set it. for app slot
   // we store in slot 0;
   // use a function. cal_set???? no because ownership not clear.
+  // should switch and save new cal in slot 0. by default?
+  printf("\nswitching to and storing in cal slot 0\n");
+
   app->cal_idx = 0;
 
   if( app->cal[ app->cal_idx]) {

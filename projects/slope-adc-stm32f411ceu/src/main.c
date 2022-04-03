@@ -348,17 +348,21 @@ void app_update_console_cmd(app_t *app)
           printf("no current cal to save\n");
         } else {
 
-          assert( u32 != app->cal_idx ); // possible issue
+          // note cal at new position.
+          Cal *old = app->cal[ u32 ];
 
-          // if there's already a cal at the slot . then free it
-          if( app->cal[ u32 ]) {
-            cal_free( app->cal[ u32 ]);
+          // copy into the old position
+          app->cal[ u32 ] = cal_copy( cal_current );
+          app->cal[ u32 ]->slot = u32;
+
+
+          // now free old. 
+          // do in this order in case old==new.
+          if( old) {
+            cal_free( old);
           }
 
-          // make a copy of current at new slot
-          app->cal[ u32 ] = cal_copy( cal_current );
-          // and update the slot
-          app->cal[ u32 ]->slot = u32;
+
 
           // now save to flash
           printf("flash unlock\n");
