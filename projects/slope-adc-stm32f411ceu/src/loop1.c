@@ -418,7 +418,7 @@ void app_loop2 ( app_t *app )
   // note. larger aperture, means more variance.
   // perhaps rename sigma_div_aperture_nplc10
   double sigma_div_aperture = regression.sigma / nplc_to_aper_n( 10 ) * 1000000;  // in uV.
-  printf("\nsigma_div_aperture %.2f\n", sigma_div_aperture);
+  printf("\nsigma_div_aperture %.2fuV  nplc(10)\n", sigma_div_aperture);
 
 
 
@@ -766,6 +766,11 @@ void app_loop4 ( app_t *app   )
     for(unsigned obs = 0; obs < obs_n; ++obs)
     {
 
+      /*
+        we can switch A versus B using ? : expression here
+        No. it's easier to gather data separately.
+      */
+
       // do A
       Cal *cal_a = app->cal[4] ;
       assert( cal_a );
@@ -783,7 +788,7 @@ void app_loop4 ( app_t *app   )
       while(!app->data_ready ) {
         app_update( app );   // change name simple update
         if(app->continuation_f) {
-          printf("whoot done \n");
+          printf("bail done \n");
           return;
         }
       }
@@ -820,7 +825,7 @@ void app_loop4 ( app_t *app   )
       while(!app->data_ready ) {
         app_update( app );
         if(app->continuation_f) {
-          printf("whoot done \n");
+          printf("bail done \n");
           return;
         }
       }
