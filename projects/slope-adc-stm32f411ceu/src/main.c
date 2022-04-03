@@ -509,7 +509,8 @@ void app_update_console_cmd(app_t *app)
       // temp show.
       else if(strcmp(app->cmd_buf , "temp show") == 0) {
 
-          adc_temp_read();
+          double val = adc_temp_read10();
+          printf("temp %.1fC\n", val);
       }
       else if(strcmp(app->cmd_buf , "last show") == 0 )  {   // fixme
         // set to flush

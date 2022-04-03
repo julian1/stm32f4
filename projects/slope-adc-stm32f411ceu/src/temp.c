@@ -1,4 +1,6 @@
 
+#include <stdio.h>
+#include <assert.h>
 
 
 #include <libopencm3/stm32/gpio.h>
@@ -18,13 +20,6 @@
   https://electronics.stackexchange.com/questions/324321/reading-internal-temperature-sensor-stm32
 
 
-  val 961
-test temp
-val 961
-test temp
-val 965
-test temp
-val 961
 test temp
 val 959
 test temp
@@ -42,7 +37,10 @@ val 964  convert 36.23C
 */
 
 #include "temp.h"
-#include <stdio.h> 
+#include "stats.h"
+
+
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 void adc_setup(void)
 {
@@ -103,11 +101,25 @@ static double convert_temp( uint16_t sensorValue )
 double adc_temp_read(void )
 {
   uint16_t val = adc_read_naiive(  ADC_CHANNEL_TEMP_F40);
-
-  double convert = convert_temp( val );
-
-  printf("val %u  convert %.2fC\n", val,  convert);
-  return convert;
+  // printf("val %u  convert %.2fC\n", val,  convert);
+  return convert_temp( val );
 }
+
+
+
+double adc_temp_read10(void )
+{
+  // so much damn variance.
+
+  float vals[10];
+  assert( ARRAY_SIZE(vals) == 10);
+
+  for(unsigned i = 0; i < ARRAY_SIZE(vals); ++i ) {
+    vals[ i ] = adc_temp_read();
+  }
+    
+  return mean(vals, ARRAY_SIZE(vals));
+}
+
 
 

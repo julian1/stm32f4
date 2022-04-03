@@ -414,9 +414,7 @@ void app_loop2 ( app_t *app )
   r_report( &regression, stdout);
 
 
-  // sigma_div_aperture. normalized for 10NPLC.
-  // note. larger aperture, means more variance.
-  // perhaps rename sigma_div_aperture_nplc10
+  // we can calculate this at any anytime.
   double sigma_div_aperture = regression.sigma / nplc_to_aper_n( 10 ) * 1000000;  // in uV.
   printf("\nsigma_div_aperture %.2fuV  nplc(10)\n", sigma_div_aperture);
 
