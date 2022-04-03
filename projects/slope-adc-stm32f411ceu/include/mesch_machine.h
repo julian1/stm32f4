@@ -22,6 +22,7 @@
 
 /* memory alloc is thread safe */
 #define THREADSAFE 1
+#undef THREADSAFE       // JA. required for  void mem_stat_dump(FILE *fp,int list);
 
 /* #undef MALLOCDECL */
 #define NOT_SEGMENTED 1

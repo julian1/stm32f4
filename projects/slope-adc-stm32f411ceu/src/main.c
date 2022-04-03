@@ -75,6 +75,7 @@
 //#include <stdio.h>
 #include <string.h>   // memset
 #include <assert.h>
+#include <malloc.h>   // malloc_stats
 
 
 
@@ -99,7 +100,8 @@
 #include "temp.h"
 
 
-#include <matrix.h>
+#include <meminfo.h>
+// #include <matrix.h>
 #include "regression.h"
 
 
@@ -515,6 +517,24 @@ void app_update_console_cmd(app_t *app)
         app->led_blink_interval = u32;
       }
 
+      else if(strcmp(app->cmd_buf , "mem show") == 0) {
+
+          printf("-------\n");
+          printf("malloc\n");
+          // Note that not all allocations are visible to mallinfo(); see BUGS and consider using malloc_info(3) instead.
+          // mallinfo(stdout );
+          //  The malloc_info() function is designed to address deficiencies in
+          // malloc_stats(3) and mall
+          malloc_stats();
+
+          printf("-------\n");
+          printf("mesch\n");
+
+          printf("mesch mem_info_is_on() %u\n", mem_info_is_on());
+          mem_dump_list(stdout, 0 );
+
+      }
+
 
       // temp show.
       else if(strcmp(app->cmd_buf , "temp show") == 0) {
@@ -522,6 +542,14 @@ void app_update_console_cmd(app_t *app)
           double val = adc_temp_read10();
           printf("temp %.1fC\n", val);
       }
+
+
+      else if(strcmp(app->cmd_buf , "last free") == 0) {
+
+        if(app->last)
+          M_FREE(app->last);
+      }
+ 
       else if(strcmp(app->cmd_buf , "last show") == 0 )  {   // fixme
         // set to flush
         if(!app->last) {
@@ -782,6 +810,10 @@ int main(void)
   printf("addr main() %p\n", main );
 
   usart1_flush();
+
+
+  // mesch turn on mem tracking
+  mem_info_on(1 );
 
 
 
