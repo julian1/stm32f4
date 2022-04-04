@@ -418,6 +418,16 @@ void app_update_console_cmd(app_t *app)
         }
       }
 
+      else if(strcmp(app->cmd_buf , "cal free") == 0) {
+        // free memory associated with cal load
+        for(unsigned i = 0; i < ARRAY_SIZE(app->cal); ++i) {
+          if(app->cal[i] ) {
+            cal_free( app->cal[i] );
+            app->cal[i] = NULL;
+          }
+        }
+      }
+
 
 
 
@@ -544,12 +554,8 @@ void app_update_console_cmd(app_t *app)
       }
 
 
-      else if(strcmp(app->cmd_buf , "last free") == 0) {
 
-        if(app->last)
-          M_FREE(app->last);
-      }
- 
+
       else if(strcmp(app->cmd_buf , "last show") == 0 )  {   // fixme
         // set to flush
         if(!app->last) {
@@ -560,6 +566,14 @@ void app_update_console_cmd(app_t *app)
           ffnctl( stdout, ffnctl( stdout, 0) & ~FILE_SYNC_ON_NEWLINE );
         }
       }
+
+      else if(strcmp(app->cmd_buf , "last free") == 0) {
+        // free associated memory with last long running loop operation
+        if(app->last)
+          M_FREE(app->last);
+      }
+
+
 
       else if(strcmp(app->cmd_buf , "buffer show") == 0 )  {   // fixme
         printf("buffer %u\n",    m_rows(app->buffer));
