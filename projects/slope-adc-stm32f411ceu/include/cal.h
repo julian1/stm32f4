@@ -24,6 +24,10 @@ struct Cal
                     // We are going to have to include app.h to pick up Param? hmmm
                     // app is currently including cal...
 
+  /* -----------------
+  stderr(regression) *is* a very good indicator for DA. because DA will introduce non-linearities that are hard to fit.
+  -----------------
+  */
   // we can calc sigma, and aperture adjusted voltage. from this
   double sigma2;
 
