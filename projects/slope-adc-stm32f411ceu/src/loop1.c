@@ -422,23 +422,28 @@ void app_loop2 ( app_t *app )
   r_report( &regression, stdout);
 
 
+/*
   // we can calculate this at any anytime.
   // albeit dependency on PL(freq).
   double sigma_div_aperture = regression.sigma / nplc_to_aper_n( 10 ) * 1000000;  // in uV.
-  printf("\nsigma_div_aperture %.2fuV  nplc(10)\n", sigma_div_aperture);
 
+  printf("stderr(V) %.2fuV  (nplc10)\n", sigma_div_aperture);
+
+  report this in cal_report( cal )
+*/
 
 
   ///////////////////////
   // create the cal structure
 
   Cal *cal = cal_create();
-  cal->slot = 0;
-  cal->b = m_copy( regression.b, MNULL );    // reallocate matrix.
-
+  cal->slot   = 0;
+  cal->b      = m_copy( regression.b, MNULL );    // reallocate matrix.
   ctrl_param_read( app->spi, &cal->param);
-  cal->temp = adc_temp_read10();
   cal->sigma2 = regression.sigma2;
+  cal->temp   = adc_temp_read10();
+
+  cal_report( cal );
 
 
   ///////////////////////

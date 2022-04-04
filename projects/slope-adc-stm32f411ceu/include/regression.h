@@ -102,12 +102,13 @@ typedef struct R R;
 
 
 
-
+// TODO change name regression_free()
 void r_free( R *regression);
 void r_report( const R * regression, FILE *f );
+
+// TODO change name regression_run()
 int m_regression( const MAT *x, const MAT *y,  R * regression );
 int m_regression_test(void);
-
 
 void m_octave_foutput( FILE *f, const char *format, const MAT *m);
 int m_output_test(void);
