@@ -36,11 +36,12 @@ struct Cal
   // unsigned df;
   // char *comment; eg. 1nF/100k. 45kHz. timedate.
 
+/*
   unsigned comment_sz;
   char * comment;
 
   unsigned count_id;   // identifier would be useful. for associating.
-
+*/
 };
 
 

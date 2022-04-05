@@ -302,7 +302,8 @@ void cal_report( Cal *cal /* FILE *f */ )
 
   unsigned slope_idx = m_rows(cal->b) - 1;
   double   slope_b   = m_get_val(cal->b, slope_idx, 0 );   // rows
-  printf("res       %.2fuV  (nplc10)\n", slope_b / nplc_to_aper_n( 10 ) * 1000000);
+  printf("res       %.3fuV  (nplc10)\n", slope_b / nplc_to_aper_n( 100 ) * 1000000);
+  printf("res       %.3fuV  (nplc10)\n", slope_b / nplc_to_aper_n( 10 ) * 1000000);
   printf("res       %.2fuV  (nplc1)\n",  slope_b / nplc_to_aper_n( 1 )  * 1000000);
 
   param_report(& cal->param);
@@ -368,6 +369,9 @@ Cal * cal_copy( Cal *in )
   cal->param  = in->param;
   cal->sigma2 = in->sigma2;
   cal->temp   = in->temp;
+
+
+  // strdup(). for strings.
 
   return cal;
 }
