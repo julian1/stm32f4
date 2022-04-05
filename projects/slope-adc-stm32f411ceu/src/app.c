@@ -422,8 +422,8 @@ static void app_update_led(app_t *app)
   assert(app);
 
   // 500ms soft timer. should handle wrap around
-  if( (system_millis - app->soft_500ms) > app->led_blink_interval ) {
-    app->soft_500ms += app->led_blink_interval;
+  if( (system_millis - app->led_tick_count) > app->led_blink_interval ) {
+    app->led_tick_count += app->led_blink_interval;
     led_toggle();
   }
 }

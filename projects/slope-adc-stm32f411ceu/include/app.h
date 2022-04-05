@@ -188,13 +188,10 @@ struct app_t
   CBuf console_out;
 
 
-  uint32_t soft_500ms;  // TODO rename.. led_blink_ms
-
+  uint32_t led_tick_count;
+  uint32_t led_blink_interval;
 
   uint32_t  spi;  // spi device. maybe rename ctrl_spi
-
-
-  uint32_t  led_blink_interval;
 
   volatile bool data_ready ;
 
@@ -224,7 +221,7 @@ struct app_t
 
   unsigned cal_idx;    // current idx; // rename cal_idx.
 
-  unsigned cal_model_xcols;  // regression model specification. 3 or 4. 
+  unsigned cal_model_xcols;  // regression model specification. 3 or 4.
 
 
 

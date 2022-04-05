@@ -67,7 +67,7 @@ void app_loop3 ( app_t *app)
 
 
   // TODO move to app_t structure?.
-  static uint32_t soft_500ms = 0;
+  static uint32_t led_tick_count = 0;
 
   while(true) {
 
@@ -142,8 +142,8 @@ void app_loop3 ( app_t *app)
     update_console_cmd(app);
 
     // 500ms soft timer. should handle wrap around
-    if( (system_millis - soft_500ms) > 500) {
-      soft_500ms += 500;
+    if( (system_millis - led_tick_count) > 500) {
+      led_tick_count += 500;
       led_toggle();
     }
 
