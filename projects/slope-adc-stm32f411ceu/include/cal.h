@@ -25,7 +25,7 @@ struct Cal
                     // app is currently including cal...
 
   /* -----------------
-  stderr(regression) *is* a very good indicator for DA. because DA will introduce non-linearities that are hard to fit.
+  stderr(regression) *is* a very good indicator for DA. because DA will introduce non-linearities that are difficult to fit.
   -----------------
   */
   // we can calc sigma, and aperture adjusted voltage. from this
@@ -34,7 +34,12 @@ struct Cal
   double temp;
 
   // unsigned df;
-  // char *comment; eg. 1nF. 45kHz. timedate.
+  // char *comment; eg. 1nF/100k. 45kHz. timedate.
+
+  unsigned comment_sz;
+  char * comment;
+
+  unsigned count_id;   // identifier would be useful. for associating.
 
 };
 
