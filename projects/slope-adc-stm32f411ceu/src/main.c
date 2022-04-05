@@ -273,6 +273,16 @@ void app_update_console_cmd(app_t *app)
 
       }
 
+      else if(sscanf(app->cmd_buf, "cal model xcols %lu", &u32 ) == 1) {
+
+        // set the current cal slot
+        if(!( u32 == 3 || u32 == 4 )) {
+          printf("cal model not 3 or 4\n");
+        } else {
+          app->cal_model_xcols = u32;
+        }
+      }
+
 
       else if(strcmp(app->cmd_buf , "cal rescan") == 0) {
         // perhaps better as rescan. since scanned on startup.
