@@ -268,6 +268,7 @@ void app_loop2 ( app_t *app )
 
   // ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
 
+  // push into model_specification = 3 or 4.
   const unsigned x_cols  = 3;
 
   // may want a row pointer as well.
