@@ -732,6 +732,9 @@ void app_loop4 ( app_t *app   )
 
     probably better to keep nplc constant.
 
+    EXTR. 
+    we need to try a single discard . for each A,B.
+    see if rundown slope DA is contributing to the final result.
   */
 
   printf("=========\n");
