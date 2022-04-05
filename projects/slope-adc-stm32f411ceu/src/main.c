@@ -282,6 +282,10 @@ void app_update_console_cmd(app_t *app)
           app->cal_model_xcols = u32;
         }
       }
+      else if(strcmp(app->cmd_buf , "cal model xcols show") == 0) {
+
+        printf("cal model %u\n", app->cal_model_xcols );
+      }
 
 
       else if(strcmp(app->cmd_buf , "cal rescan") == 0) {
