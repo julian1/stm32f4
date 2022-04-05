@@ -202,6 +202,8 @@ struct app_t
     so we can set this anywhere (eg. in command processor). and control will pass.
     and we can test this.
     - allows a stack to run to completion even if early termination -  to clean up resources.
+    ------------
+    don't really need this. just use an exit_flag, to communicate;
   */
   void *continuation_ctx;
   void (*continuation_f)(void *);
@@ -211,10 +213,6 @@ struct app_t
   char  cmd_buf[CMD_BUF_SZ ];
   unsigned cmd_buf_i;
 
-
-
-  // MAT     *b;       // calebration coefficients
-  // MAT     *b[10] ;       // calebration coefficients
 
   // issue is using null to indcate present.
   Cal     *cal[10];
