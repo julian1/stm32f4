@@ -213,6 +213,7 @@ void ctrl_run_read( uint32_t spi, Run *run )
   run->count_fix_up     = spi_reg_read(spi, REG_COUNT_FIX_UP);
   run->count_fix_down   = spi_reg_read(spi, REG_COUNT_FIX_DOWN);
 
+  run->count_flip       = spi_reg_read(spi, REG_COUNT_FLIP);
 
   // WE could record slow_rundown separate to normal rundown.
   run->clk_count_rundown = spi_reg_read(spi, REG_CLK_COUNT_RUNDOWN );
@@ -226,9 +227,9 @@ void run_report( const Run *run )
   assert(run);
 
   printf("count_up/down %lu %lu, ", run->count_up, run->count_down );
-  printf("trans_up/down %lu %lu, ", run->count_trans_up,  run->count_trans_down);
+  // printf("trans_up/down %lu %lu, ", run->count_trans_up,  run->count_trans_down);
   printf("fix_up/down %lu %lu, ",   run->count_fix_up,  run->count_fix_down);
-  // printf("count_flip %u, ",       run->count_flip);
+  printf("count_flip %lu, ",       run->count_flip);
 
   printf("clk_count_rundown %lu, ", run->clk_count_rundown);
 
@@ -241,6 +242,7 @@ void run_report_brief( const Run *run )
   assert(run);
   printf("count_up/down %lu %lu, ", run->count_up, run->count_down );
   printf("fix_up/down %lu %lu, ",   run->count_fix_up,  run->count_fix_down);
+  printf("count_flip %lu, ",       run->count_flip);
   printf("clk_count_rundown %lu, ", run->clk_count_rundown);
  
 }

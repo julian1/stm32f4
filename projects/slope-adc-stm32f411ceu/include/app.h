@@ -40,6 +40,8 @@
 #define REG_COUNT_TRANS_DOWN    33
 #define REG_COUNT_FIX_UP        34
 #define REG_COUNT_FIX_DOWN      35
+#define REG_COUNT_FLIP          36
+
 #define REG_CLK_COUNT_RUNDOWN   37
 
 
@@ -144,6 +146,9 @@ struct Run
   uint32_t count_trans_down;
   uint32_t count_fix_up;
   uint32_t count_fix_down;
+
+  uint32_t count_flip;
+
   uint32_t clk_count_rundown;
   // rundown_dir.
 
