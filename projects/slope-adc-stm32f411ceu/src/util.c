@@ -4,6 +4,7 @@
 */
 
 #include <stdio.h>  // printf
+#include <malloc.h>  // strdup
 
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/systick.h>
@@ -17,6 +18,18 @@
 #include "assert.h"
 
 #include <string.h>  // strcmp
+
+
+
+
+char *strdup( const char *s)
+{
+  unsigned sz = strlen(s);
+  char *d = malloc(sz + 1);
+  strncpy(d, s, sz);
+  return d;
+}
+
 
 
 

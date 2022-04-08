@@ -241,6 +241,9 @@ struct app_t
 
   MAT     *last;
 
+  char    *cal_comment;
+  unsigned cal_id_count;
+
 } ;
 
 

@@ -445,6 +445,10 @@ void app_loop2 ( app_t *app )
   cal->sigma2 = regression.sigma2;
   cal->temp   = adc_temp_read10();
 
+  // alloc - so we can free() predictably
+  cal->comment = strdup( app->cal_comment );
+  cal->id     = app->cal_id_count ;
+
   cal_report( cal );
 
 
@@ -735,7 +739,7 @@ void app_loop4 ( app_t *app   )
 
     probably better to keep nplc constant.
 
-    EXTR. 
+    EXTR.
     we need to try a single discard . for each A,B.
     see if rundown slope DA is contributing to the final result.
   */

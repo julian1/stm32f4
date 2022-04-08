@@ -6,6 +6,7 @@
 #include <stdbool.h> // bool
 #include <stdint.h> // uint32_t
 
+char *strdup( const char *s);
 
 
 extern void led_setup(void);

@@ -10,6 +10,9 @@
 // #include <memory.h>   // strdup()
 
 #include "usart.h"  // usart1_flush()
+
+#include "util.h"   // strdup() better place?
+
 #include "assert.h"
 
 // #include "matrix.h"
@@ -111,27 +114,25 @@ static void file_read_cal_values( unsigned id, Cal *cal, FILE *f)
 
   if(id == 105) {
 
-    // read the comment string
-    items = fread( &cal->comment_sz, sizeof(cal->comment_sz), 1, f);
+    // read the comment len
+    unsigned len;
+    items = fread( &len, sizeof(len), 1, f);
     assert(items == 1);
 
-    cal->comment = malloc( cal->comment_sz + 1);
+    cal->comment = malloc( len + 1);
 
-    items = fread( cal->comment, cal->comment_sz, 1, f);
+    items = fread( cal->comment, len, 1, f);
     assert(items == 1);
-    cal->comment[ cal->comment_sz ] = 0;
+    cal->comment[ len ] = 0;
 
     // read the cal id
     items = fread( &cal->id, sizeof(cal->id), 1, f);
     assert(items == 1);
   } else {
 
-    // strdup() needs a non-null string
-
-    cal->comment_sz = 0;
-    cal->comment = malloc( 1);
-    cal->comment[ cal->comment_sz ] = 0;
-
+    // strdup("") needs a non-null string
+    
+    cal->comment = strdup("");
 
     cal->id = 0;
 
@@ -191,6 +192,9 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
         case 104:
         case 105:
           {
+
+          if(header.len == 78) // fix for cal that was 105 but saved as 104.
+            header.id = 105;
 
           printf("reading cal type 104\n" );
 
@@ -263,6 +267,19 @@ static void file_write_cal_( Cal *cal, FILE *f)
   fwrite( &cal->sigma2, sizeof(cal->sigma2), 1, f);
 
   fwrite( &cal->temp, sizeof(cal->temp), 1, f);
+
+
+  // write comment len
+  unsigned len = strlen(  cal->comment );
+  fwrite( &len , sizeof(len), 1, f);
+
+  // write comment
+  fwrite( cal->comment, len, 1, f); // note. no NULL pad.
+
+
+  fwrite( &cal->id, sizeof(cal->id), 1, f);
+
+
 }
 
 
@@ -307,7 +324,7 @@ void file_write_cal ( Cal *cal, FILE *f)
   Header  header;
   header.magic = MAGIC;
   header.len = len;
-  header.id = 104;     // header id. for raw matrix.
+  header.id = 105;     // header id. for raw matrix.
 
   unsigned items = fwrite( &header, sizeof(header), 1, f);
   assert(items == 1);
@@ -331,7 +348,7 @@ void cal_report( Cal *cal /* FILE *f */ )
   printf("--------------\n");
 
   printf("slot      %u\n", cal->slot );
-  printf("comment   '%s'\n", cal->comment);
+  printf("comment   '%s' %u\n", cal->comment, strlen(cal->comment) );
   printf("id        %u\n", cal->id);
 
 
@@ -395,14 +412,6 @@ void cal_free( Cal *cal  )
 
 
 
-static char *strdup( const char *s)
-{
-  unsigned sz = strlen(s);
-  char *d = malloc(sz + 1);
-  strncpy(d, s, sz);
-  return d;
-}
-
 
 
 Cal * cal_copy( Cal *in )
@@ -427,8 +436,6 @@ Cal * cal_copy( Cal *in )
   cal->slot   = in->slot;
   cal->id     = in->id;       // not sure this is very good....
   cal->comment = strdup( in->comment) ;
-  cal->comment_sz = in->comment_sz;
-  assert( strlen( cal->comment) == in->comment_sz );
 
 
   cal->b      = m_copy( in->b, MNULL);
