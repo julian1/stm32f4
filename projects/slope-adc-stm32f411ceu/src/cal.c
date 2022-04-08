@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>   // sqrt
+// #include <string.h>   // strdup() is unix/posix
+// #include <memory.h>   // strdup()
 
 #include "usart.h"  // usart1_flush()
 #include "assert.h"
@@ -369,6 +371,8 @@ Cal * cal_create()
   return cal;
 }
 
+
+
 void cal_free( Cal *cal  )
 {
   assert( cal );
@@ -376,7 +380,27 @@ void cal_free( Cal *cal  )
   if(cal->b ) {
     M_FREE(cal->b);
   }
+
+  if(cal->comment) {
+    free(cal->comment);
+    cal->comment = NULL;
+  }
+
   free(cal);
+}
+
+
+
+
+
+
+
+static char *strdup( const char *s)
+{
+  unsigned sz = strlen(s);
+  char *d = malloc(sz + 1);
+  strncpy(d, s, sz);
+  return d;
 }
 
 
@@ -401,6 +425,12 @@ Cal * cal_copy( Cal *in )
 
 
   cal->slot   = in->slot;
+  cal->id     = in->id;       // not sure this is very good....
+  cal->comment = strdup( in->comment) ;
+  cal->comment_sz = in->comment_sz;
+  assert( strlen( cal->comment) == in->comment_sz );
+
+
   cal->b      = m_copy( in->b, MNULL);
   cal->param  = in->param;
   cal->sigma2 = in->sigma2;
