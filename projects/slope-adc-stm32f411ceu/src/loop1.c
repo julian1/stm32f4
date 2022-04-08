@@ -195,6 +195,8 @@ void app_loop1 ( app_t *app )
 {
   printf("=========\n");
   printf("app_loop1 - values\n");
+  printf("cal model %u\n", app->cal_model);
+
 
   // ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
 
@@ -261,6 +263,9 @@ void app_loop2 ( app_t *app )
   printf("=========\n");
   printf("app_loop2 - cal loop using permutation of nplc/aperture\n");
 
+  printf("cal model %u\n", app->cal_model);
+  
+
   // clear last for mem
   if(app->last) {
     M_FREE(app->last);
@@ -268,20 +273,27 @@ void app_loop2 ( app_t *app )
 
 
 
-  assert( app->cal_model_xcols == 3 || app->cal_model_xcols == 4);
-
-
-
-
   // unsigned nplc_[] = { 9, 10, 11, 12 };
-  unsigned nplc[] = { 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+  // unsigned nplc[] = { 8, 9, 10, 11, 12, 13  };
+  unsigned nplc[] = { 8, 9, 10, 11, 12, 13  };
   // double y  = 0;
 
   unsigned obs_n = 7; // 7
 
   // may want a row pointer as well.
   unsigned  max_rows =  obs_n * ARRAY_SIZE(nplc) * 2;
-  MAT *xs       = m_get(max_rows, app->cal_model_xcols );
+
+  unsigned cols = 0; 
+  switch ( app->cal_model) {
+    case 3: cols = 3; break;
+    case 4: cols = 4; break;  // + intercept
+    case 5: cols = 4; break;  // + flip_count
+    default: assert(0);
+  };
+
+  MAT *xs       = m_get(max_rows, cols );
+
+
   MAT *y        = m_get(max_rows, 1);
   MAT *aperture = m_get(max_rows, 1); // required for predicted
 
@@ -349,7 +361,7 @@ void app_loop2 ( app_t *app )
 
           // record xs
           assert(row < m_rows(xs));
-          MAT *whoot = param_run_to_matrix( &param, &run, app->cal_model_xcols, MNULL );
+          MAT *whoot = param_run_to_matrix( &param, &run, cols , MNULL );
           assert(whoot);
           assert( m_cols(whoot) == m_cols(xs) );
           assert( m_rows(whoot) == 1  );
@@ -790,8 +802,8 @@ void app_loop4 ( app_t *app   )
 #if 1
     // sleep to let DA settle.
     // unsigned sleep = i == 0 ? 60 : 30;
-    unsigned sleep = i == 0 ? 120 : 60;
-    // unsigned sleep = i == 0 ? (180 * 2) : 180;
+    // unsigned sleep = i == 0 ? 120 : 60;
+    unsigned sleep = i == 0 ? (180 * 2) : 180;
     printf("sleep %us\n", sleep );
     app_simple_sleep( app, sleep * 1000 );
 #endif

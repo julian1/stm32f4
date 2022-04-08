@@ -224,7 +224,7 @@ struct app_t
 
   unsigned cal_idx;    // current idx; // rename cal_idx.
 
-  unsigned cal_model_xcols;  // regression model specification. 3 or 4.
+  unsigned cal_model;  // regression model specification. 3 or 4.
 
 
 

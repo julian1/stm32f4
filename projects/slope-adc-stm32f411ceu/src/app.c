@@ -353,27 +353,41 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
 
   double x2 = run->clk_count_rundown;
 
+  double x3 = run->count_flip;
+
   // four variable model
   // uint32_t cols = 4;
 
-  m_resize(out, 1, model );
 
 
   // model == 2, no rundown.
 
-  if( model == 3) {    // X_COLS == 3
+  if( model == 3) {
 
+    out = m_resize(out, 1, 3);
     m_set_val( out, 0, 0,  x0 );
     m_set_val( out, 0, 1,  x1  );
     m_set_val( out, 0, 2,  x2  );
   }
-  else if ( model == 4) { // X_COLS == 4
+  else if ( model == 4) {
 
+    out = m_resize(out, 1, 4);
     m_set_val( out, 0, 0,  1.f ); // ones, offset
     m_set_val( out, 0, 1,  x0 );
     m_set_val( out, 0, 2,  x1  );
     m_set_val( out, 0, 3,  x2  );
   }
+
+  else if( model == 5) {
+
+    out = m_resize(out, 1, 4);
+    m_set_val( out, 0, 0,  x0 );
+    m_set_val( out, 0, 1,  x1  );
+    m_set_val( out, 0, 2,  x2  );
+    m_set_val( out, 0, 3,  x3  );
+  }
+
+
   else assert( 0);
 
   return out;

@@ -273,18 +273,18 @@ void app_update_console_cmd(app_t *app)
 
       }
 
-      else if(sscanf(app->cmd_buf, "cal model xcols %lu", &u32 ) == 1) {
+      else if(sscanf(app->cmd_buf, "cal model %lu", &u32 ) == 1) {
 
         // set the current cal slot
-        if(!( u32 == 3 || u32 == 4 )) {
-          printf("cal model not 3 or 4\n");
+        if(!( u32 == 3 || u32 == 4 || u32 == 5)) {
+          printf("cal model not 3,4, 5\n");
         } else {
-          app->cal_model_xcols = u32;
+          app->cal_model = u32;
         }
       }
-      else if(strcmp(app->cmd_buf , "cal model xcols show") == 0) {
+      else if(strcmp(app->cmd_buf , "cal model show") == 0) {
 
-        printf("cal model %u\n", app->cal_model_xcols );
+        printf("cal model %u\n", app->cal_model );
       }
 
 
@@ -780,7 +780,7 @@ int main(void)
   memset(&app, 0, sizeof(app_t));
 
   app.led_blink_interval  = 500;
-  app.cal_model_xcols     = 3;
+  app.cal_model     = 3;
 
   ///////
   // uart/console
