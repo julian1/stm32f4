@@ -86,7 +86,7 @@ void file_skip_to_end(  FILE *f)
 // OK. we want a variation. of file_skip. that fills in data... according to header ids.
 
 
-static void file_read_cal_103( Cal *cal, FILE *f)
+static void file_read_cal_values( unsigned id, Cal *cal, FILE *f)
 {
   unsigned items = 0;
 
@@ -160,7 +160,7 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
           printf("reading cal type 104\n" );
 
           Cal * cal = cal_create();
-          file_read_cal_103( cal, f);
+          file_read_cal_values( header.id, cal, f);
 
           // bounds
           assert( cal->slot < sz);
@@ -302,9 +302,9 @@ void cal_report( Cal *cal /* FILE *f */ )
 
   unsigned slope_idx = m_rows(cal->b) - 1;
   double   slope_b   = m_get_val(cal->b, slope_idx, 0 );   // rows
-  printf("res       %.3fuV  (nplc100)\n", slope_b / nplc_to_aper_n( 100 ) * 1000000);
+  // printf("res       %.3fuV  (nplc100)\n", slope_b / nplc_to_aper_n( 100 ) * 1000000);
   printf("res       %.3fuV  (nplc10)\n", slope_b / nplc_to_aper_n( 10 ) * 1000000);
-  printf("res       %.2fuV  (nplc1)\n",  slope_b / nplc_to_aper_n( 1 )  * 1000000);
+  // printf("res       %.2fuV  (nplc1)\n",  slope_b / nplc_to_aper_n( 1 )  * 1000000);
 
   param_report(& cal->param);
   printf("\n");
