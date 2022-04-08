@@ -88,6 +88,8 @@ void file_skip_to_end(  FILE *f)
 
 static void file_read_cal_values( unsigned id, Cal *cal, FILE *f)
 {
+  assert(id == 104 || id == 105);
+
   unsigned items = 0;
 
   items = fread( &cal->slot, sizeof(cal->slot), 1, f);
@@ -105,6 +107,35 @@ static void file_read_cal_values( unsigned id, Cal *cal, FILE *f)
   items = fread( &cal->temp,   sizeof(cal->temp), 1, f);
   assert(items == 1);
 
+  if(id == 105) {
+
+    // read the comment string
+    items = fread( &cal->comment_sz, sizeof(cal->comment_sz), 1, f);
+    assert(items == 1);
+
+    cal->comment = malloc( cal->comment_sz + 1);
+
+    items = fread( cal->comment, cal->comment_sz, 1, f);
+    assert(items == 1);
+    cal->comment[ cal->comment_sz ] = 0;
+
+    // read the cal id
+    items = fread( &cal->id, sizeof(cal->id), 1, f);
+    assert(items == 1);
+  } else {
+
+    // strdup() needs a non-null string
+
+    cal->comment_sz = 0;
+    cal->comment = malloc( 1);
+    cal->comment[ cal->comment_sz ] = 0;
+
+
+    cal->id = 0;
+
+  }
+
+  // k
 }
 
 
@@ -155,7 +186,9 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
           // fseek( f, header.len, SEEK_CUR ) ;
           break;
 
-        case 104: {
+        case 104:
+        case 105:
+          {
 
           printf("reading cal type 104\n" );
 
@@ -296,6 +329,9 @@ void cal_report( Cal *cal /* FILE *f */ )
   printf("--------------\n");
 
   printf("slot      %u\n", cal->slot );
+  printf("comment   '%s'\n", cal->comment);
+  printf("id        %u\n", cal->id);
+
 
   printf("b\n");
   m_foutput( stdout, cal->b );
