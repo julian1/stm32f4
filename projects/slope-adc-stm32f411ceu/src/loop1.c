@@ -210,9 +210,10 @@ void app_loop1 ( app_t *app )
     Run   run;
     Param param;
 
-    // ctrl_reset_enable();
+    // if first()
+    // ctrl_reset_enable(app->spi);
     app->data_ready = false;
-    // ctrl_reset_disable();
+    // ctrl_reset_disable(app->spi);
 
     // block/wait for data
     while(!app->data_ready ) {
@@ -222,7 +223,8 @@ void app_loop1 ( app_t *app )
       }
     }
 
-    assert(run.count_up);
+    // this triggers if not aligned.
+    // assert(run.count_up);
 
     // read the ready data
     ctrl_run_read(app->spi, &run);
@@ -269,17 +271,21 @@ void app_loop2 ( app_t *app )
   assert( app->cal_model_xcols == 3 || app->cal_model_xcols == 4);
 
 
-  // may want a row pointer as well.
-  unsigned  max_rows =  10 * 9 * 2;
-  MAT *xs       = m_get(max_rows, app->cal_model_xcols );
-  MAT *y        = m_get(max_rows, 1);
-  MAT *aperture = m_get(max_rows, 1); // required for predicted
-
 
 
   // unsigned nplc_[] = { 9, 10, 11, 12 };
   unsigned nplc[] = { 8, 9, 10, 11, 12, 13, 14, 15, 16 };
   // double y  = 0;
+
+  unsigned obs_n = 7; // 7
+
+  // may want a row pointer as well.
+  unsigned  max_rows =  obs_n * ARRAY_SIZE(nplc) * 2;
+  MAT *xs       = m_get(max_rows, app->cal_model_xcols );
+  MAT *y        = m_get(max_rows, 1);
+  MAT *aperture = m_get(max_rows, 1); // required for predicted
+
+
 
   unsigned row = 0;
 
@@ -307,10 +313,7 @@ void app_loop2 ( app_t *app )
       ctrl_reset_disable(app->spi);
       assert( ctrl_get_state( app->spi ) == STATE_RESET);
 
-
-
-      for(unsigned i = 0; i < 7; ++i) {
-
+      for(unsigned i = 0; i < obs_n; ++i) {
 
         ctrl_reset_enable(app->spi);
         app->data_ready = false;

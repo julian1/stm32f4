@@ -207,13 +207,13 @@ void ctrl_run_read( uint32_t spi, Run *run )
   run->count_up         = spi_reg_read(spi, REG_COUNT_UP );
   run->count_down       = spi_reg_read(spi, REG_COUNT_DOWN );
 
-  run->count_trans_up   = spi_reg_read(spi, REG_COUNT_TRANS_UP );
-  run->count_trans_down = spi_reg_read(spi, REG_COUNT_TRANS_DOWN );
-
   run->count_fix_up     = spi_reg_read(spi, REG_COUNT_FIX_UP);
   run->count_fix_down   = spi_reg_read(spi, REG_COUNT_FIX_DOWN);
 
   run->count_flip       = spi_reg_read(spi, REG_COUNT_FLIP);
+
+  run->count_trans_up   = spi_reg_read(spi, REG_COUNT_TRANS_UP );
+  run->count_trans_down = spi_reg_read(spi, REG_COUNT_TRANS_DOWN );
 
   // WE could record slow_rundown separate to normal rundown.
   run->clk_count_rundown = spi_reg_read(spi, REG_CLK_COUNT_RUNDOWN );
@@ -226,10 +226,13 @@ void run_report( const Run *run )
 {
   assert(run);
 
-  printf("count_up/down %lu %lu, ", run->count_up, run->count_down );
-  // printf("trans_up/down %lu %lu, ", run->count_trans_up,  run->count_trans_down);
+  printf("var_up/down %lu %lu, ",   run->count_up, run->count_down );
   printf("fix_up/down %lu %lu, ",   run->count_fix_up,  run->count_fix_down);
-  printf("count_flip %lu, ",       run->count_flip);
+
+
+  printf("trans_up/down %lu %lu, ", run->count_trans_up,  run->count_trans_down);
+
+  printf("count_flip %lu, ",        run->count_flip);
 
   printf("clk_count_rundown %lu, ", run->clk_count_rundown);
 
@@ -239,12 +242,14 @@ void run_report( const Run *run )
 
 void run_report_brief( const Run *run )
 {
+  run_report( run );
+/*
   assert(run);
   printf("count_up/down %lu %lu, ", run->count_up, run->count_down );
   printf("fix_up/down %lu %lu, ",   run->count_fix_up,  run->count_fix_down);
-  printf("count_flip %lu, ",       run->count_flip);
+  printf("count_flip %lu, ",        run->count_flip);
   printf("clk_count_rundown %lu, ", run->clk_count_rundown);
- 
+*/
 }
 
 /*
@@ -319,9 +324,9 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
   assert(run);
 
 /*
-  - we don't seem to be able to modify the count limits - without causing 1mV/20V difference. eg. 100ppm .  
+  - we don't seem to be able to modify the count limits - without causing 1mV/20V difference. eg. 100ppm .
   - could indicate bad INL issues?
-  - or somehting else going on. related to geometry of slope and rundown. 
+  - or somehting else going on. related to geometry of slope and rundown.
   - but we may not need to even multiply this. instead just plug the raw count_up/count_down to the regression .
   - because the length of the variable - is different regardless if it is up or down. and they are not equal?
 
@@ -330,7 +335,7 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
     we want to read the var_n etc. after *each* run.
     BECAUSE. we want to allow the pattern controller to permute
 
-  - on scope. cannot see many little reverse periods. when integrating 0V. ok. o 
+  - on scope. cannot see many little reverse periods. when integrating 0V. ok. o
 
     we see the down at +ref.
 */
@@ -368,7 +373,7 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
     m_set_val( out, 0, 1,  x0 );
     m_set_val( out, 0, 2,  x1  );
     m_set_val( out, 0, 3,  x2  );
-  } 
+  }
   else assert( 0);
 
   return out;
