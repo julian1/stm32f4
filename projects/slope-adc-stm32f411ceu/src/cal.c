@@ -190,11 +190,13 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
           break;
 
         case 104:
+          if(header.len == 78) // fix for cal that was 105 but saved as 104.
+            break;
+          // allow fallthrough
+
         case 105:
           {
 
-          if(header.len == 78) // fix for cal that was 105 but saved as 104.
-            header.id = 105;
 
           printf("reading cal type 104\n" );
 
@@ -348,7 +350,8 @@ void cal_report( Cal *cal /* FILE *f */ )
   printf("--------------\n");
 
   printf("slot      %u\n", cal->slot );
-  printf("comment   '%s' %u\n", cal->comment, strlen(cal->comment) );
+  // printf("comment   '%s' %u\n", cal->comment, strlen(cal->comment) );
+  printf("comment   '%s'\n", cal->comment);
   printf("id        %u\n", cal->id);
 
 
