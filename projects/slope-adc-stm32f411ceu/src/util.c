@@ -26,7 +26,7 @@ char *strdup( const char *s)
 {
   unsigned sz = strlen(s);
   char *d = malloc(sz + 1);
-  strncpy(d, s, sz);
+  strcpy(d, s);
   return d;
 }
 
