@@ -358,11 +358,16 @@ void cal_report( Cal *cal /* FILE *f */ )
   printf("b\n");
   m_foutput( stdout, cal->b );
 
-  unsigned slope_idx = m_rows(cal->b) - 1;
-  double   slope_b   = m_get_val(cal->b, slope_idx, 0 );   // rows
+  unsigned slope_idx  = m_rows(cal->b) - 1;
+  double   slope_b    = m_get_val(cal->b, slope_idx, 0 );   // rows
   // printf("res       %.3fuV  (nplc100)\n", slope_b / nplc_to_aper_n( 100 ) * 1000000);
-  printf("res       %.3fuV  (nplc10)\n", slope_b / nplc_to_aper_n( 10 ) * 1000000);
-  // printf("res       %.2fuV  (nplc1)\n",  slope_b / nplc_to_aper_n( 1 )  * 1000000);
+
+  double   res        = fabs( slope_b / nplc_to_aper_n( 10 )); // in V
+  printf("res       %.3fuV  (nplc10)\n", res * 1000000);
+
+  printf("digits    %.2f (nplc10)\n", log10( 22.f / res));
+
+
 
   param_report(& cal->param);
   printf("\n");

@@ -275,7 +275,7 @@ void app_loop2 ( app_t *app )
 
   // unsigned nplc_[] = { 9, 10, 11, 12 };
   // unsigned nplc[] = { 8, 9, 10, 11, 12, 13  };
-  unsigned nplc[] = { 8, 9, 10, 11, 12, 13  };
+  unsigned nplc[] = { 8, 9, 10, 11, 12, 13, 14, 15, 16  };
   // double y  = 0;
 
   unsigned obs_n = 7; // 7
