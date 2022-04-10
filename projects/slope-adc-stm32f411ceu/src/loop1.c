@@ -801,9 +801,9 @@ void app_loop4 ( app_t *app   )
 
 #if 1
     // sleep to let DA settle.
-    // unsigned sleep = i == 0 ? 60 : 30;
+    unsigned sleep = i == 0 ? 60 : 30;
     // unsigned sleep = i == 0 ? 120 : 60;
-    unsigned sleep = i == 0 ? (180 * 2) : 180;
+    // unsigned sleep = i == 0 ? (180 * 2) : 180;
     printf("sleep %us\n", sleep );
     app_simple_sleep( app, sleep * 1000 );
 #endif

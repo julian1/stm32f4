@@ -868,7 +868,7 @@ int main(void)
 
 
 
-  app.cal_comment = "330pF/45kHz/100k, 8.4.2022, predundown switches off";
+  app.cal_comment = "330pF/45kHz/250k, 10.4.2022";
 
   app_loop_dispatcher( &app);
 
