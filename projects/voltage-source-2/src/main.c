@@ -302,7 +302,13 @@ int main(void)
 
 
   // standard streams for printf, fprintf, putc.
-  cbuf_init_std_streams( &app.console_out );
+  // cbuf_init_std_streams( &app.console_out );
+    
+  // standard streams for printf, fprintf, putc.
+  cbuf_init_stdout_streams(  &app.console_out );
+  // for fread, fgetch etc
+  cbuf_init_stdin_streams( &app.console_in );
+
 
 
 

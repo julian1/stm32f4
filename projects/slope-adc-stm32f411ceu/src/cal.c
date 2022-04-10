@@ -365,7 +365,7 @@ void cal_report( Cal *cal /* FILE *f */ )
   double   res        = fabs( slope_b / nplc_to_aper_n( 10 )); // in V
   printf("res       %.3fuV  (nplc10)\n", res * 1000000);
 
-  printf("digits    %.2f (nplc10)\n", log10( 22.f / res));
+  printf("digits    %.2f (nplc10)\n", log10( 10.f / res)); // think needs to be decimal. not 11 or +-11V
 
 
 
