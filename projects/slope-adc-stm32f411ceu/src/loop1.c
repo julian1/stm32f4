@@ -234,8 +234,9 @@ void app_loop1 ( app_t *app )
 
     assert( ctrl_get_state( app->spi ) == STATE_RESET);
 
-
-    run_report_brief( &run);
+    // only report if using buffer, to reduce clutter
+    if(m_rows(app->buffer) == 1)
+      run_report_brief( &run);
 
     assert( app->cal_idx < ARRAY_SIZE(app->cal));
     Cal *cal = app->cal[ app->cal_idx ];
@@ -264,7 +265,7 @@ void app_loop2 ( app_t *app )
   printf("app_loop2 - cal loop using permutation of nplc/aperture\n");
 
   printf("cal model %u\n", app->cal_model);
-  
+
 
   // clear last for mem
   if(app->last) {
@@ -283,7 +284,7 @@ void app_loop2 ( app_t *app )
   // may want a row pointer as well.
   unsigned  max_rows =  obs_n * ARRAY_SIZE(nplc) * 2;
 
-  unsigned cols = 0; 
+  unsigned cols = 0;
   switch ( app->cal_model) {
     case 3: cols = 3; break;
     case 4: cols = 4; break;  // + intercept
