@@ -128,17 +128,17 @@ static void voltage_source_2_setup(void)
 
   // make sure starts lo
   // spi1_cs2_clear();
-  
+
   spi_cs2_clear( spi );
 
 
 
 
   // OK. making sure rails are off/ when mcu starts for 100ms. then start. means op starts correctly.
-  uint8_t reg4064_value; 
+  uint8_t reg4064_value;
 
 
-  /// make sure rails are off 
+  /// make sure rails are off
   usart1_printf("\n--------\n");
   usart1_printf("turn on rails\n");
   spi1_port_cs2_setup();
@@ -176,11 +176,11 @@ static void voltage_source_2_setup(void)
   spi_dac_setup( spi);
 
   /* ahhh. remember for smu. we use unipolar outputs...  from memory.
-  // perhaps leave as is. 
+  // perhaps leave as is.
   */
 
   spi_dac_write_register( spi, DAC_DAC0_REGISTER, voltage_to_dac( 1.0 ));    // -2 not working??? emits positive.
-  // spi_dac_write_register( spi, DAC_DAC0_REGISTER, 0xffff );   // 0xffff negative? 
+  // spi_dac_write_register( spi, DAC_DAC0_REGISTER, 0xffff );   // 0xffff negative?
 
 }
 
@@ -520,7 +520,7 @@ void app_update_console_cmd(app_t *app)
       else if(strcmp(app->cmd_buf , "var_n show") == 0 )  {
         printf("var_n %lu\n", ctrl_get_var_n( app->spi));
       }
-       else if(strcmp(app->cmd_buf , "fix_n show") == 0 )  {
+      else if(strcmp(app->cmd_buf , "fix_n show") == 0 )  {
         printf("fix_n %lu\n", ctrl_get_fix_n( app->spi));
       }
 
@@ -559,19 +559,27 @@ void app_update_console_cmd(app_t *app)
       }
 */
 
+
+    else if(strcmp(app->cmd_buf , "voltage source setup") == 0 )  {
+
+      voltage_source_2_setup();
+    }
+
+
+
     else if(  sscanf(app->cmd_buf, "voltage source set %lu %lf", &u32, &d ) )  {
 
       printf("%lu %f\n", u32, d);
 
       int dac_reg = DAC_DAC0_REGISTER + u32;
       if(dac_reg < DAC_DAC0_REGISTER || dac_reg > DAC_DAC3_REGISTER) {
-        
+
         printf("bad dac_reg argument\n");
       } else {
 
         // FIXME
         // uint32_t spi = SPI2;
-        // voltage_source_spi 
+        // voltage_source_spi
 
         // TODO. fix me. voltage_source_spi.
 
