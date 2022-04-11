@@ -136,9 +136,10 @@ static void voltage_source_2_powerdown(void)
     output mode
   */
 
-// we should persist the register via app
+  // should persist the register in app structure
   // and I think we should.
-  reg4064_value &= ~REG_RAILS_ON;
+  reg4064_value &= ~REG_RAILS_OE; // output enabled (active lo)
+  reg4064_value &= ~REG_RAILS_ON; // but rails power off
 
   spi_4094_reg_write(spi, reg4064_value);
 
