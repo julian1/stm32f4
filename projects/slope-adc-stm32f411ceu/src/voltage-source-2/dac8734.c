@@ -119,8 +119,11 @@ uint32_t spi_dac_read_register(uint32_t spi, uint8_t r)
 }
 
 
+/*
+  OK. this is just hideous....
+  passing the reg4096 value.
 
-
+*/
 // ok. peripherals have to be able to mux fo their IO.
 
 int dac_init(uint32_t spi, uint8_t *reg4064_value)  // bad name?
@@ -140,7 +143,7 @@ int dac_init(uint32_t spi, uint8_t *reg4064_value)  // bad name?
   IOVDD, group B is in unipolar output mode; when tied to DGND, group B is in
   bipolar output mode
   */
- 
+
 #if 0
   mux_ice40(spi);
 
@@ -151,11 +154,15 @@ int dac_init(uint32_t spi, uint8_t *reg4064_value)  // bad name?
   ice40_reg_set(spi, reg, DAC_UNI_BIP_A /*| DAC_UNIBIPB */);
 #endif
 
+  // power should be off
+  assert( !( *reg4064_value & REG_RAILS_ON));
 
+  // writing the reg like this is turning off the power.
   // JA
   spi_port_cs2_setup(spi);
   spi_4094_setup(spi);
-  *reg4064_value = REG_DAC_RST | REG_DAC_UNI_BIP_A;
+  *reg4064_value &= ~REG_DAC_UNI_BIP_A;     // lo == bipolar . for voltage-source
+  *reg4064_value &= ~REG_DAC_LDAC;              // lo.
   spi_4094_reg_write(spi, *reg4064_value);
 
 
@@ -177,15 +184,17 @@ int dac_init(uint32_t spi, uint8_t *reg4064_value)  // bad name?
   msleep(20);
 #endif
 
-  // JA toggle rst.
-  // should probably use reg4064 value...
-  spi_4094_reg_write(spi, REG_DAC_UNI_BIP_A);
+
+  // toggle reset
+  *reg4064_value &= ~REG_DAC_RST ;
+  spi_4094_reg_write(spi, *reg4064_value);
   msleep(1);
-  spi_4094_reg_write(spi, REG_DAC_RST | REG_DAC_UNI_BIP_A);
+  *reg4064_value |= REG_DAC_RST ;
+  spi_4094_reg_write(spi, *reg4064_value);
   msleep(1);
 
 
-
+  // switch over to dac spi
   spi_port_cs1_setup(spi); // with CS.
   spi_dac_setup( spi);
 

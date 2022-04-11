@@ -118,6 +118,33 @@
 
 
 
+static void voltage_source_2_powerdown(void)
+{
+  // JA TODO. fix me. voltage_source_spi.
+  uint32_t spi = SPI2;
+
+  uint8_t reg4064_value = 0;
+
+  usart1_printf("turn off rails\n");
+  spi_port_cs2_setup( spi );
+  spi_4094_setup(spi);
+
+  /*
+    When UNI/BIP-A is tied to IOVDD, group A
+    is in unipolar output mode; when tied to DGND, group A is in bipolar output mode. The input data
+    written to the DAC are straight binary for unipolar output mode and twos complement for bipolar
+    output mode
+  */
+
+// we should persist the register via app
+  // and I think we should.
+  reg4064_value &= ~REG_RAILS_ON;
+
+  spi_4094_reg_write(spi, reg4064_value);
+
+   usart1_printf("sleep 100ms\n");
+  msleep(100);
+}
 
 
 
@@ -126,43 +153,38 @@ static void voltage_source_2_setup(void)
   // JA TODO. fix me. voltage_source_spi.
   uint32_t spi = SPI2;
 
-  // make sure starts lo
-  // spi1_cs2_clear();
 
   spi_cs2_clear( spi );
 
+  uint8_t reg4064_value = 0;
 
-
-
-  // OK. making sure rails are off/ when mcu starts for 100ms. then start. means op starts correctly.
-  uint8_t reg4064_value;
-
-
-  /// make sure rails are off
+  // first ensure rails are off
   usart1_printf("\n--------\n");
-  usart1_printf("turn on rails\n");
-  spi1_port_cs2_setup();
+  usart1_printf("make sure rails are off\n");
+  spi_port_cs2_setup( spi);
   spi_4094_setup(spi);
-  reg4064_value = REG_DAC_RST | REG_DAC_UNI_BIP_A;
+
+  reg4064_value &= ~REG_RAILS_ON;
   spi_4094_reg_write(spi, reg4064_value);
-
-  usart1_printf("sleep 100ms\n");
-  msleep(100);
+  msleep(1);
 
 
+  /*
+    Note. that we are passing the register by reference so that dac init can manipulate.
+    functionality here controls rails. but dac setup sets other register configuration
+  */
   int ret = dac_init(spi, & reg4064_value); // bad name?
   if(ret != 0) {
     assert(0);
   }
 
 
-  /// turn on rails.
+  // after dac digital init, turn on rails.
   usart1_printf("\n--------\n");
   usart1_printf("turn on rails\n");
-  spi1_port_cs2_setup();
+  spi_port_cs2_setup( spi );
   spi_4094_setup(spi);
   reg4064_value |= REG_RAILS_ON;
-  assert(reg4064_value == (REG_RAILS_ON | REG_DAC_RST | REG_DAC_UNI_BIP_A));
   spi_4094_reg_write(spi, reg4064_value);
 
 
@@ -172,15 +194,15 @@ static void voltage_source_2_setup(void)
   // write an output
   usart1_printf("\n--------\n");
   usart1_printf("writing register for dac0 1V output. \n");
-  spi1_port_cs1_setup(); // with CS.
+
+  spi_port_cs1_setup(spi); // with CS.
   spi_dac_setup( spi);
 
-  /* ahhh. remember for smu. we use unipolar outputs...  from memory.
-  // perhaps leave as is.
-  */
+  msleep(100);
 
-  spi_dac_write_register( spi, DAC_DAC0_REGISTER, voltage_to_dac( 1.0 ));    // -2 not working??? emits positive.
-  // spi_dac_write_register( spi, DAC_DAC0_REGISTER, 0xffff );   // 0xffff negative?
+
+  assert(spi == SPI2);
+  spi_dac_write_register( spi, DAC_DAC0_REGISTER, voltage_to_dac( 1.0 ));
 
 }
 
@@ -190,7 +212,11 @@ static void voltage_source_2_setup(void)
 
 static int spi_reg_read_write_test(uint32_t spi )
 {
-  // would be better to move into spi.c. but requires REG_LED define.
+  /*
+    would be better to move into spi.c/ice40.c .
+    but requires REG_LED define.
+    pass reg_led...
+  */
   // test ice40 register read/write
   // ok. seems to work.
   uint32_t ret;
@@ -565,7 +591,10 @@ void app_update_console_cmd(app_t *app)
       voltage_source_2_setup();
     }
 
+    else if(strcmp(app->cmd_buf , "voltage source powerdown") == 0 )  {
 
+      voltage_source_2_powerdown();
+    }
 
     else if(  sscanf(app->cmd_buf, "voltage source set %lu %lf", &u32, &d ) )  {
 
@@ -581,13 +610,17 @@ void app_update_console_cmd(app_t *app)
         // uint32_t spi = SPI2;
         // voltage_source_spi
 
-        // TODO. fix me. voltage_source_spi.
+        printf("setting %u to %f\n", dac_reg, d );
 
-        spi_dac_write_register( SPI2, dac_reg , voltage_to_dac( d ));    // -2 not working??? emits positive.
-        }
+        uint32_t spi = SPI2;
 
+        // negative value isn't working???
+
+
+        spi_port_cs1_setup(spi); // with CS.
+        spi_dac_write_register( spi, dac_reg , voltage_to_dac( d ));
+      }
     }
-
 
 
       else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 )  {   // fixme
