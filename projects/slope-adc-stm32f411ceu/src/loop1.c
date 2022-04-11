@@ -18,7 +18,7 @@
 #include "temp.h"
 
 
-#include "voltage-source.h"
+// #include "voltage-source-1/voltage-source.h"
 
 
 
@@ -631,7 +631,8 @@ void app_voltage_source_set( app_t *app, double value )
   // this has to read the adc - which makes it a lot more specific
   // than general app_( app_t *app)  code.
   // so put here, instead of app.c
-
+#if 0
+  // change name current voltage
   double current = app_simple_read( app);
 
   if( value > current ) {
@@ -668,6 +669,7 @@ void app_voltage_source_set( app_t *app, double value )
 
     voltage_source_set_dir(0);
   }
+#endif
 
   printf("\n");
 }

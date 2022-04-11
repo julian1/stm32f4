@@ -14,11 +14,12 @@ mesch12b=${TOP}/mesch12b
 VS2SRC=./src/voltage-source-2
 VS2INC=./include/voltage-source-2
 
+# ./src/voltage-source.c
 # can probably manage mesch as a library. check other Makefile examples here.
 
 BINARY		= main
 SRCFILES	= ./src/main.c src/util.c   src/ice40.c src/spi1.c src/regression.c src/mesch.c \
-             ./src/app.c ./src/loop1.c  ./src/loop2.c     ./src/voltage-source.c ./src/flash.c ./src/cal.c ./src/temp.c \
+             ./src/app.c ./src/loop1.c  ./src/loop2.c      ./src/flash.c ./src/cal.c ./src/temp.c \
               ${LIB2SRC}/cbuffer.c  ${LIB2SRC}/usart.c \
               ${LIB2SRC}/fbuffer.c ${LIB2SRC}/stats.c  ${LIB2SRC}/format.c \
               ${LIB2SRC}/streams.c  \
