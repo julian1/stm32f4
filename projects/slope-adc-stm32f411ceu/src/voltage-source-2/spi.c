@@ -1,7 +1,7 @@
 
-#include "spi2.h"
 #include "assert.h"
 #include "streams.h"   // usart1_printf
+#include "voltage-source-2/spi.h"
 
 
 #include <libopencm3/stm32/gpio.h>
@@ -124,6 +124,7 @@ static void spi2_port_cs2_setup(void) // with CS2
 
 void spi_port_cs1_setup(uint32_t spi)
 {
+  assert(spi == SPI2); // testing
   switch(spi) {
     case SPI1: spi1_port_cs1_setup(); break;
     case SPI2: spi2_port_cs1_setup(); break;
@@ -134,6 +135,7 @@ void spi_port_cs1_setup(uint32_t spi)
 
 void spi_port_cs2_setup(uint32_t spi )
 {
+  assert(spi == SPI2); // testing
   switch(spi) {
     case SPI1: spi1_port_cs2_setup(); break;
     case SPI2: spi2_port_cs2_setup(); break;

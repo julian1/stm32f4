@@ -11,10 +11,9 @@
 // #include "spi-ice40.h"
 // #include "reg.h"
 
-#include "spi2.h"
-
-#include "4094.h"
-#include "dac8734.h"
+#include "voltage-source-2/spi.h"
+#include "voltage-source-2/4094.h"
+#include "voltage-source-2/dac8734.h"
 
 /*
   OK. dac can be initialized and registers written and read.

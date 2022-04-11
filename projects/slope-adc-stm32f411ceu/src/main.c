@@ -110,7 +110,7 @@
 
 #include "voltage-source-2/dac8734.h"
 #include "voltage-source-2/4094.h"
-#include "voltage-source-2/spi2.h"
+#include "voltage-source-2/spi.h"
 
 
 

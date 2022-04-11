@@ -2,8 +2,8 @@
 
 #include <libopencm3/stm32/spi.h>
 
-#include "spi2.h"
-#include "4094.h"
+#include "voltage-source-2/spi.h"
+#include "voltage-source-2/4094.h"
 
 // #include "util.h"  // msleep()
 #include "assert.h"
