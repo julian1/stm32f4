@@ -12,14 +12,13 @@
 
 
 /*
-  "The data in the shift register is transferred to the storage register when the
-    STR input is HIGH"
+  "The data in the shift register is transferred to the storage register when the STR input is HIGH"
 
   - so if strobe is high then storage register and output will be transparent. and the output will not change as atomic update.
       which is generally what we want.
 
-  - so we only want to assert strobe high briefly - after we have clocked the data in.
-  - the shift register always gets the mosi data. regardless of the cs/strobe
+  - so we only want to assert strobe high briefly - after we have clocked the correct data in.
+  - the shift register always gets/holds the last mosi data. regardless of the cs/strobe
   ----------
 
   - Reading the shift register value - in an spi way - using the output as miso.  has two issues.
@@ -29,6 +28,15 @@
         eg. cannot use strobe, because output will go transperent, and produce changing output values as the clock is clocked.
 
     - But it could be controlled with 2 mcu control lines - eg. CS to control MISO tri-state and strobe to force output to update.
+    - sot23-5 or sot23-6 logic part, to generate a short strobe pulse on a low to high transition.
+
+    ----
+    - but we still don't want to write a dummy value, if we only want to read contents, because would have to pass a dummy spi_xfer() value.
+      so having two lines - one for strobe/write separate from OE tri-state read would be needed.
+      note that - spi peripherals will generally use a read/write set bit to indicate whether the spi_xfer was a register read, or write,
+      but this is not available. so two control lines are required.
+    - AND. the read value is just the last value - to be clocked through, not the strobed value. so it won't work anyway.
+
   -----------
   solution to not being able to read - is to just use and pass around teh register value in software.
 

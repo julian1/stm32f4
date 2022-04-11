@@ -143,7 +143,7 @@ static void voltage_source_2_powerdown(void)
 
   spi_4094_reg_write(spi, reg4064_value);
 
-   usart1_printf("sleep 100ms\n");
+  usart1_printf("sleep 100ms\n");
   msleep(100);
 }
 
