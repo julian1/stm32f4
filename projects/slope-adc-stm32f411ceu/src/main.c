@@ -596,7 +596,7 @@ void app_update_console_cmd(app_t *app)
       voltage_source_2_powerdown();
     }
 
-    else if(  sscanf(app->cmd_buf, "voltage source set %lu %lf", &u32, &d ) )  {
+    else if(  sscanf(app->cmd_buf, "voltage source set %lu %lf", &u32, &d )  == 2)  {
 
       printf("%lu %f\n", u32, d);
 

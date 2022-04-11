@@ -23,22 +23,14 @@
 // TODO change return value to uint32_t?
 int voltage_to_dac( float x)
 {
-  /* this uses 50k points of 65535.
-    ie. vset=10V,  10/2*10k = 50000
+  /*
+    ie. 50k points of 65535.
   */
 
-  // return x / 2.0 * 10000   * ( 6.5535 / 6.95 ); // weirdness....
-  return x / 2.0 * 10000   * ( 6.5535 / 7.1 ); // weirdness....
-  // return x / 2.0 * 10000;
-/*
-  For unipolar mode: AVDD ≥ Gain × VREF + 1V, and AVSS ≤ –2 × VREF – 1V.
-  2 * 8.192 + 1 => rails = +-17.3V.
+  // return x / 2.0 * 10000   * ( 6.5535 / 7.08391 ); // Good. measure ltz1000 at 7.08391
 
-  15V    get 4.44V.
-  16V    get 4.73V      (needs *both* +- rails )
-*/
-  // ie. vset=10V => 10/2*8k = 40000.
-  // return x / 2.f * 8000;
+  return x / 4.0 * 10000 * ( 6.5535 / 7.08385 ); // gain = x4, eg. 2xbipolar. Good. measure ltz1000
+
 }
 
 
@@ -207,23 +199,20 @@ int dac_init(uint32_t spi, uint8_t *reg4064_value)  // bad name?
   // default value
   usart1_printf("u1 %x\n", u1);
 
-  // test default values...
+  // default dac value
   assert(u1 == 0x80033c);
 
-  usart1_printf("gpio gain out0 %d,  out1 %d\n", (u1 & DAC_GAIN_BIT0) != 0, (u1 & DAC_GAIN_BIT1) != 0);
+  // usart1_printf("gpio gain out0 %d,  out1 %d\n", (u1 & DAC_GAIN_BIT0) != 0, (u1 & DAC_GAIN_BIT1) != 0);
+
   assert(u1 & DAC_GAIN_BIT0);
   assert(u1 & DAC_GAIN_BIT1);
 
+  //////////
+
   usart1_printf("gpio test set %d %d\n", (u1 & DAC_GPIO1) != 0, (u1 & DAC_GPIO1) != 0);
 
-  /*
-    clear main reg.
-    IMPORTANT....
-    this also clears the gain regsiters. needed for x2.
-    but should really be explicit and use masks
-  */
+  // clear main register/ as our start default.
   spi_dac_write_register(spi, DAC_CMD_REGISTER, 0);
-
 
   uint32_t u2 = spi_dac_read_register(spi, DAC_CMD_REGISTER);
   usart1_printf("gpio test set %d %d\n", (u2 & DAC_GPIO1) != 0, (u2 & DAC_GPIO1) != 0);
@@ -238,6 +227,17 @@ int dac_init(uint32_t spi, uint8_t *reg4064_value)  // bad name?
   } else {
     usart1_printf("dac test toggle ok\n" );
   }
+
+
+
+  /* set the gain bit for 4x for channel 0 and channel 1.
+      doesn't seem to do anything
+  */
+  uint16_t reg = 0;
+  reg |= DAC_GAIN_BIT0;
+  reg |= DAC_GAIN_BIT1;
+  assert(reg != 0);
+  spi_dac_write_register(spi, DAC_CMD_REGISTER, reg);
 
 
   // mux_dac(spi);
