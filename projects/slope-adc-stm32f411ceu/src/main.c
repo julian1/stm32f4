@@ -758,6 +758,8 @@ int main(void)
 
   // spi / ice40
   rcc_periph_clock_enable(RCC_SPI1);
+  rcc_periph_clock_enable(RCC_SPI2);  // voltage-source-2
+
 
   // adc/temp
 	rcc_periph_clock_enable(RCC_ADC1);

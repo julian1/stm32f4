@@ -11,6 +11,9 @@ LIB2INC=${TOP}/lib2/include
 
 mesch12b=${TOP}/mesch12b
 
+VS2SRC=./src/voltage-source-2
+VS2INC=./include/voltage-source-2
+
 # can probably manage mesch as a library. check other Makefile examples here.
 
 BINARY		= main
@@ -19,6 +22,7 @@ SRCFILES	= ./src/main.c src/util.c   src/ice40.c src/spi1.c src/regression.c src
               ${LIB2SRC}/cbuffer.c  ${LIB2SRC}/usart.c \
               ${LIB2SRC}/fbuffer.c ${LIB2SRC}/stats.c  ${LIB2SRC}/format.c \
               ${LIB2SRC}/streams.c  \
+              $(VS2SRC)/4094.c  $(VS2SRC)/dac8734.c    $(VS2SRC)/spi2.c \
               ${mesch12b}/copy.c  ${mesch12b}/init.c ${mesch12b}/matop.c ${mesch12b}/submat.c  \
               ${mesch12b}/memory.c ${mesch12b}/meminfo.c  \
               ${mesch12b}/machine.c ${mesch12b}/ivecop.c \
@@ -27,6 +31,8 @@ SRCFILES	= ./src/main.c src/util.c   src/ice40.c src/spi1.c src/regression.c src
               ${mesch12b}/lufactor.c ${mesch12b}/pxop.c ${mesch12b}/solve.c ${mesch12b}/memstat.c ${mesch12b}/norm.c \
 
 
+              # util.c
+              # main.c
 
 
 
@@ -51,6 +57,7 @@ TGT_CFLAGS  += -Wno-unused-function   \
 
 TGT_CFLAGS	+= -I./include
 TGT_CFLAGS	+= -I${LIB2INC}
+TGT_CFLAGS	+= -I${VS2INC}
 TGT_CFLAGS	+= -I${mesch12b}
 
 LDLIBS		+= -lm
