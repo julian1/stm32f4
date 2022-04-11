@@ -15,9 +15,22 @@
   "The data in the shift register is transferred to the storage register when the
     STR input is HIGH"
 
-  - so if strobe is high then storage register and output will be transparent.
+  - so if strobe is high then storage register and output will be transparent. and the output will not change as atomic update.
+      which is generally what we want.
+
   - so we only want to assert strobe high briefly - after we have clocked the data in.
   - the shift register always gets the mosi data. regardless of the cs/strobe
+  ----------
+
+  - Reading the shift register value - in an spi way - using the output as miso.  has two issues.
+    - the MISO/ output does not go high-impedance when not used, meaning cannot share spi lines for other spi peripherals.
+      would need to add a tri-state buffer (ie sot-23-5 ).
+    - we don't have a signal with the right timing characteristics for the tri-state buffer.
+        eg. cannot use strobe, because output will go transperent, and produce changing output values as the clock is clocked.
+
+    - But it could be controlled with 2 mcu control lines - eg. CS to control MISO tri-state and strobe to force output to update.
+  -----------
+  solution to not being able to read - is to just use and pass around teh register value in software.
 
 */
 
@@ -25,9 +38,9 @@
 
 uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
 {
-  // expect port is configured with gpio for cs etc.
+  // expect port is already configured with gpio for cs etc.
 
-  // TODO maybe remove the enable.
+  // TODO maybe remove the enable.  not required by 4094. maybe required by stm32 spi hardware.
   spi_enable( spi );
   uint8_t val = spi_xfer(spi, v);
   spi_disable( spi );
