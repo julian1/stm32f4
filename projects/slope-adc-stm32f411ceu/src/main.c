@@ -109,6 +109,8 @@
 
 
 #include "voltage-source-2/dac8734.h"
+#include "voltage-source-2/4094.h"
+#include "voltage-source-2/spi2.h"
 
 
 
@@ -117,6 +119,70 @@
 
 
 
+
+
+static void voltage_source_2_setup(void)
+{
+  // JA TODO. fix me. voltage_source_spi.
+  uint32_t spi = SPI2;
+
+  // make sure starts lo
+  // spi1_cs2_clear();
+  
+  spi_cs2_clear( spi );
+
+
+
+
+  // OK. making sure rails are off/ when mcu starts for 100ms. then start. means op starts correctly.
+  uint8_t reg4064_value; 
+
+
+  /// make sure rails are off 
+  usart1_printf("\n--------\n");
+  usart1_printf("turn on rails\n");
+  spi1_port_cs2_setup();
+  spi_4094_setup(spi);
+  reg4064_value = REG_DAC_RST | REG_DAC_UNI_BIP_A;
+  spi_4094_reg_write(spi, reg4064_value);
+
+  usart1_printf("sleep 100ms\n");
+  msleep(100);
+
+
+  int ret = dac_init(spi, & reg4064_value); // bad name?
+  if(ret != 0) {
+    assert(0);
+  }
+
+
+  /// turn on rails.
+  usart1_printf("\n--------\n");
+  usart1_printf("turn on rails\n");
+  spi1_port_cs2_setup();
+  spi_4094_setup(spi);
+  reg4064_value |= REG_RAILS_ON;
+  assert(reg4064_value == (REG_RAILS_ON | REG_DAC_RST | REG_DAC_UNI_BIP_A));
+  spi_4094_reg_write(spi, reg4064_value);
+
+
+  usart1_printf("sleep 100ms\n");
+  msleep(100);
+
+  // write an output
+  usart1_printf("\n--------\n");
+  usart1_printf("writing register for dac0 1V output. \n");
+  spi1_port_cs1_setup(); // with CS.
+  spi_dac_setup( spi);
+
+  /* ahhh. remember for smu. we use unipolar outputs...  from memory.
+  // perhaps leave as is. 
+  */
+
+  spi_dac_write_register( spi, DAC_DAC0_REGISTER, voltage_to_dac( 1.0 ));    // -2 not working??? emits positive.
+  // spi_dac_write_register( spi, DAC_DAC0_REGISTER, 0xffff );   // 0xffff negative? 
+
+}
 
 
 
@@ -186,7 +252,7 @@ void app_update_console_cmd(app_t *app)
 {
 
   uint32_t u32;   // long unsigned int.
-  int32_t i32;
+  // int32_t i32;
   double d;
 
   /* TODO.
@@ -506,6 +572,8 @@ void app_update_console_cmd(app_t *app)
         // FIXME
         // uint32_t spi = SPI2;
         // voltage_source_spi 
+
+        // TODO. fix me. voltage_source_spi.
 
         spi_dac_write_register( SPI2, dac_reg , voltage_to_dac( d ));    // -2 not working??? emits positive.
         }
