@@ -9,7 +9,7 @@
 #include <stdio.h> // printf
 #include <libopencm3/stm32/gpio.h>
 
-#include "voltage-source.h"
+#include "voltage-source-1/voltage-source.h"
 #include "assert.h"
 
 #define VS_PORT   GPIOB
