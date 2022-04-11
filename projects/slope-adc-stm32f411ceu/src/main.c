@@ -92,7 +92,7 @@
 
 #include "spi1.h"
 #include "ice40.h"
-#include "voltage-source.h"   // setup()
+// #include "voltage-source.h"   // setup()
 
 // bad conflicts with lib2/include/flash.h
 #include "flash.h"
@@ -108,6 +108,7 @@
 #include "app.h"
 
 
+#include "voltage-source-2/dac8734.h"
 
 
 
@@ -475,7 +476,7 @@ void app_update_console_cmd(app_t *app)
         printf("sleep done\n");
       }
 
-
+/*
       else if(sscanf(app->cmd_buf, "voltage source dir %ld", &i32 ) == 1) {
         if( i32 == 0 || i32 == 1 || i32 == -1) {
           printf("voltage source dir %ld!\n", i32);
@@ -490,6 +491,27 @@ void app_update_console_cmd(app_t *app)
         printf("voltage source set %lf!\n", d);
         app_voltage_source_set( app, d );
       }
+*/
+
+    else if(  sscanf(app->cmd_buf, "voltage source set %lu %lf", &u32, &d ) )  {
+
+      printf("%lu %f\n", u32, d);
+
+      int dac_reg = DAC_DAC0_REGISTER + u32;
+      if(dac_reg < DAC_DAC0_REGISTER || dac_reg > DAC_DAC3_REGISTER) {
+        
+        printf("bad dac_reg argument\n");
+      } else {
+
+        // FIXME
+        // uint32_t spi = SPI2;
+        // voltage_source_spi 
+
+        spi_dac_write_register( SPI2, dac_reg , voltage_to_dac( d ));    // -2 not working??? emits positive.
+        }
+
+    }
+
 
 
       else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 )  {   // fixme
@@ -816,9 +838,10 @@ int main(void)
   // adc interupt...
   spi1_interupt_gpio_setup( (void (*) (void *))app_spi1_interupt, &app);
 
-
+#if 0
   // needs a context...
   voltage_source_setup( /*ctx */ );
+#endif
 
 
   // for temp

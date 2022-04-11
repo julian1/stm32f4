@@ -38,7 +38,7 @@ static void spi1_port_cs1_setup(void)
   gpio_set_af(SPI1_PORT, GPIO_AF5, all); // af 5
   gpio_set_output_options(SPI1_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, out);
 
-  // cs2 left in whatever condition.
+  // cs2 left untouched, in whatever condition.
 }
 
 
