@@ -476,7 +476,7 @@ void app_update_console_cmd(app_t *app)
       else if(sscanf(app->cmd_buf, "voltage source dir %ld", &i32 ) == 1) {
         if( i32 == 0 || i32 == 1 || i32 == -1) {
           printf("voltage source dir %ld!\n", i32);
-          voltage_source_set_dir( i32 );
+          voltage_source_1_set_dir( i32 );
         } else {
           printf("bad value\n");
         }
@@ -854,7 +854,7 @@ int main(void)
 
 #if 0
   // needs a context...
-  voltage_source_setup( /*ctx */ );
+  voltage_source_1_setup( /*ctx */ );
 #endif
 
 

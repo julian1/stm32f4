@@ -17,7 +17,7 @@
 #define VS_DOWN   GPIO10    // PA10       SPI2_GPIO2
 
 
-void voltage_source_setup(void)
+void voltage_source_1_setup(void)
 {
   uint16_t all = VS_UP | VS_DOWN;
 
@@ -25,12 +25,12 @@ void voltage_source_setup(void)
   gpio_set_output_options( VS_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_2MHZ, all);    // optocouplers are slow
 
   // turn off at init
-  voltage_source_set_dir( 0);
+  voltage_source_1_set_dir( 0);
 }
 
 
 
-void voltage_source_set_dir( int val )
+void voltage_source_1_set_dir( int val )
 {
   switch(val) {
 
