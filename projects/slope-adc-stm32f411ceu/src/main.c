@@ -115,7 +115,7 @@
 
 
 
-// TODO change name spi_ice40_ 
+// TODO change name spi_ice40_
 
 static int spi_reg_read_write_test(uint32_t spi )
 {
@@ -493,40 +493,37 @@ void app_update_console_cmd(app_t *app)
 */
 
 
-    else if(strcmp(app->cmd_buf , "voltage source setup") == 0 )  {
+      else if(strcmp(app->cmd_buf , "voltage source setup") == 0 )  {
 
-      voltage_source_2_setup( app->spi_voltage_source, &app->spi_4094_reg);
-    }
+        voltage_source_2_setup( app->spi_voltage_source, &app->spi_4094_reg);
+      }
 
-    else if(strcmp(app->cmd_buf , "voltage source powerdown") == 0 )  {
+      else if(strcmp(app->cmd_buf , "voltage source powerdown") == 0 )  {
 
-      voltage_source_2_powerdown( app->spi_voltage_source, &app->spi_4094_reg);
-    }
+        voltage_source_2_powerdown( app->spi_voltage_source, &app->spi_4094_reg);
+      }
 
-    else if( sscanf(app->cmd_buf, "voltage source set %lu %lf", &u32, &d )  == 2)  {
+      else if( sscanf(app->cmd_buf, "voltage source set %lu %lf", &u32, &d )  == 2)  {
 
-      // we need a break/continue/goto.
+        // we need a break/continue/goto.
 
-      if( !( app->spi_4094_reg & REG_RAILS_ON)) {
-        usart1_printf("voltage_source_2 not powered on\n");
-
-      } else { 
-
-          printf("%lu %f\n", u32, d);
-
-        if(u32 > 3)  {
-            printf("bad dac channel, should be 0-3\n");
+        if( !( app->spi_4094_reg & REG_RAILS_ON)) {
+          usart1_printf("voltage_source_2 not powered on\n");
 
         } else {
 
-          assert( app->spi_voltage_source == SPI2);
+          printf("%lu %f\n", u32, d);
+          if(u32 > 3)  {
+              printf("bad dac channel, should be 0-3\n");
 
-          printf("setting %lu to %f\n", u32 , d );
-          voltage_source_2_set_val(app->spi_voltage_source, u32, d );
+          } else {
+            assert( app->spi_voltage_source == SPI2);
 
+            printf("set channel %lu to output %fV\n", u32 , d );
+            voltage_source_2_set_val(app->spi_voltage_source, u32, d );
+          }
         }
       }
-    }
 
 
       else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 )  {   // fixme
