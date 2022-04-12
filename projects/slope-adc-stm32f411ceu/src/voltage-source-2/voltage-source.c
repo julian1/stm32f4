@@ -25,6 +25,23 @@
 
 
 
+void voltage_source_2_set_val(uint32_t spi, uint32_t dac_reg, double val )
+{
+  // note dag reg. is *not* numbered 0-1...
+  // printf("setting %lu to %f\n", dac_reg, val );
+
+  assert( spi == SPI2);
+
+  spi_port_cs1_setup( spi );
+  spi_dac_write_register( spi , dac_reg , voltage_to_dac( val ));
+
+}
+
+
+
+
+
+
 void voltage_source_2_powerdown(uint32_t spi, uint8_t *spi_4094_reg)
 {
   // better to avoid hanging app dependency here.

@@ -106,9 +106,9 @@
 
 
 
-#include "voltage-source-2/4094.h"
-#include "voltage-source-2/dac8734.h"
-#include "voltage-source-2/spi.h"
+#include "voltage-source-2/4094.h"      // REG_RAILS_ON
+#include "voltage-source-2/dac8734.h"   // dac_register
+// #include "voltage-source-2/spi.h"
 #include "voltage-source-2/voltage-source.h"
 
 #include "app.h"
@@ -520,12 +520,11 @@ void app_update_console_cmd(app_t *app)
           printf("bad output dac_reg argument, should be 0-3\n");
         } else {
 
-          printf("setting %u to %f\n", dac_reg, d );
-
           assert( app->spi_voltage_source == SPI2);
 
-          spi_port_cs1_setup( app->spi_voltage_source );
-          spi_dac_write_register( app->spi_voltage_source, dac_reg , voltage_to_dac( d ));
+          printf("setting %u to %f\n", dac_reg, d );
+          voltage_source_2_set_val(app->spi_voltage_source, dac_reg, d );
+
         }
       }
     }
