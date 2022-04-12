@@ -21,7 +21,7 @@
 
 
 // #include "voltage-source-1/voltage-source.h"
-#include "voltage-source-2/dac8734.h"
+#include "voltage-source-2/voltage-source.h"
 
 
 
@@ -678,15 +678,12 @@ void app_voltage_source_set( app_t *app, double value )
 }
 #endif
 
+
+
 void app_voltage_source_set( app_t *app, double value )
 {
-  // TODO. use app.
-  // ensure powered up.
-  // assert(app.spi_voltage_source == SPI2);
-
-
-
-  spi_dac_write_register( app->spi_voltage_source, DAC_DAC0_REGISTER, voltage_to_dac( value ));
+  // using voltage_source_2
+  spi_voltage_source_2_set_val(app->spi_voltage_source, 0 , value );
 
 }
 
@@ -820,7 +817,8 @@ void app_loop4 ( app_t *app   )
 
 #if 1
     // sleep to let DA settle.
-    unsigned sleep = i == 0 ? 60 : 30;
+    unsigned sleep = 3;  // for dac
+    // unsigned sleep = i == 0 ? 60 : 30;
     // unsigned sleep = i == 0 ? 120 : 60;
     // unsigned sleep = i == 0 ? (180 * 2) : 180;
     printf("sleep %us\n", sleep );
