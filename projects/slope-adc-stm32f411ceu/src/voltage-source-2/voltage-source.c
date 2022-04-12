@@ -25,7 +25,7 @@
 
 
 
-void voltage_source_2_set_val(uint32_t spi, uint32_t dac_channel, double val )
+void spi_voltage_source_2_set_val(uint32_t spi, uint32_t dac_channel, double val )
 {
   /* 
     dac_channel starting at 0.
@@ -52,13 +52,13 @@ void voltage_source_2_set_val(uint32_t spi, uint32_t dac_channel, double val )
 
 
 
-void voltage_source_2_powerdown(uint32_t spi, uint8_t *spi_4094_reg)
+void spi_voltage_source_2_powerdown(uint32_t spi, uint8_t *spi_4094_reg)
 {
   // better to avoid hanging app dependency here.
 
   /*
   if( !( *spi_4094_reg & REG_RAILS_ON)) {
-    printf("voltage_source_2 not powered on\n");
+    printf("spi_voltage_source_2 not powered on\n");
     return;
   }
   */
@@ -88,14 +88,14 @@ void voltage_source_2_powerdown(uint32_t spi, uint8_t *spi_4094_reg)
 }
 
 
-void voltage_source_2_setup(uint32_t spi, uint8_t *spi_4094_reg)
+void spi_voltage_source_2_setup(uint32_t spi, uint8_t *spi_4094_reg)
 {
 
   // better to avoid hanging app dependency here.
 
 
   if( *spi_4094_reg & REG_RAILS_ON) {
-    printf("voltage_source_2 is already powered on\n");
+    printf("spi_voltage_source_2 is already powered on\n");
     return;
   }
 

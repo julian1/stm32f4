@@ -495,12 +495,12 @@ void app_update_console_cmd(app_t *app)
 
       else if(strcmp(app->cmd_buf , "voltage source setup") == 0 )  {
 
-        voltage_source_2_setup( app->spi_voltage_source, &app->spi_4094_reg);
+        spi_voltage_source_2_setup( app->spi_voltage_source, &app->spi_4094_reg);
       }
 
       else if(strcmp(app->cmd_buf , "voltage source powerdown") == 0 )  {
 
-        voltage_source_2_powerdown( app->spi_voltage_source, &app->spi_4094_reg);
+        spi_voltage_source_2_powerdown( app->spi_voltage_source, &app->spi_4094_reg);
       }
 
       else if( sscanf(app->cmd_buf, "voltage source set %lu %lf", &u32, &d )  == 2)  {
@@ -508,7 +508,7 @@ void app_update_console_cmd(app_t *app)
         // we need a break/continue/goto.
 
         if( !( app->spi_4094_reg & REG_RAILS_ON)) {
-          usart1_printf("voltage_source_2 not powered on\n");
+          usart1_printf("spi_voltage_source_2 not powered on\n");
 
         } else {
 
@@ -520,7 +520,7 @@ void app_update_console_cmd(app_t *app)
             assert( app->spi_voltage_source == SPI2);
 
             printf("set channel %lu to output %fV\n", u32 , d );
-            voltage_source_2_set_val(app->spi_voltage_source, u32, d );
+            spi_voltage_source_2_set_val(app->spi_voltage_source, u32, d );
           }
         }
       }
