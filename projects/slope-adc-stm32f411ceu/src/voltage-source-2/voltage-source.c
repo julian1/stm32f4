@@ -32,6 +32,10 @@ void spi_voltage_source_2_set_val(uint32_t spi, uint32_t dac_channel, double val
     *not* dac_reg starting at  DAC_DAC0_REGISTER
   */
 
+  assert( spi == SPI2);
+
+  // assert( *spi_4094_reg & REG_RAILS_ON);  }
+
 
   int dac_reg = DAC_DAC0_REGISTER + dac_channel;
 
@@ -40,7 +44,6 @@ void spi_voltage_source_2_set_val(uint32_t spi, uint32_t dac_channel, double val
 
   // printf("setting %lu to %f\n", dac_reg, val );
 
-  assert( spi == SPI2);
 
   spi_port_cs1_setup( spi );
   spi_dac_write_register( spi , dac_reg , voltage_to_dac( val ));
