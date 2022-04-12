@@ -7,7 +7,7 @@
 #include "format.h" // format_bits
 #include "usart.h"   // usart_flus()
 #include "util.h"   // system_millis
-#include "ice40.h"   // spi_reg_read()
+#include "ice40.h"   // spi_ice40_reg_read()
 #include "streams.h"   // fflush_on_newline()
 
 
@@ -551,7 +551,7 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   // memset(&run_sig, 0, sizeof(Run));
 
   // record the mux input to use
-  unsigned mux_sel = spi_reg_read(app->spi, REG_HIMUX_SEL );
+  unsigned mux_sel = spi_ice40_reg_read(app->spi, REG_HIMUX_SEL );
 
 
   while(true) {

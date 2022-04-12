@@ -140,26 +140,26 @@ static int spi_ice40_read_write_test(uint32_t spi )
   - but this could have just been due to timing.
   - but no longer seems to have affect. now that speed is better.
   */
-  ret = spi_reg_read(spi, REG_LED);
+  ret = spi_ice40_reg_read(spi, REG_LED);
   // printf("ret is %x\n", ret); // value is completely wrong.
 
-  spi_reg_write(spi, REG_LED , 0xff00ff);
+  spi_ice40_reg_write(spi, REG_LED , 0xff00ff);
   msleep(1);
-  ret = spi_reg_read(spi, REG_LED);
+  ret = spi_ice40_reg_read(spi, REG_LED);
   // printf("ret is %x\n", ret); // value is completely wrong.
   // ret value is completely wrong....
   if(ret != 0xff00ff)
     return -123;
 
   // this works... eg. allowing high bit to be off.
-  spi_reg_write(spi, REG_LED, 0x7f00ff);
-  ret = spi_reg_read(spi, REG_LED);
+  spi_ice40_reg_write(spi, REG_LED, 0x7f00ff);
+  ret = spi_ice40_reg_read(spi, REG_LED);
   if(ret != 0x7f00ff)
     return -123;
 
   for(uint32_t i = 0; i < 32; ++i) {
-    spi_reg_write(spi, REG_LED , i );
-    ret = spi_reg_read(spi, REG_LED);
+    spi_ice40_reg_write(spi, REG_LED , i );
+    ret = spi_ice40_reg_read(spi, REG_LED);
     if(ret != i )
       return -123;
   }

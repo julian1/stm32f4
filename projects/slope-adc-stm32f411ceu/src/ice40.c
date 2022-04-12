@@ -29,7 +29,6 @@ void spi_ice40_setup(uint32_t spi)
 
 ////////////////
 
-// think these should be prefixed spi_ice40_ ... etc.
 
 static uint32_t spi_xfer_32(uint32_t spi, uint32_t val)
 {
@@ -54,7 +53,7 @@ static uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
 
 }
 
-uint32_t spi_reg_read(uint32_t spi, uint8_t reg)
+uint32_t spi_ice40_reg_read(uint32_t spi, uint8_t reg)
 {
   // TODO. maybe rename to drop the 24. since 24 refers to val.
   // set the hi bit of the register
@@ -63,7 +62,7 @@ uint32_t spi_reg_read(uint32_t spi, uint8_t reg)
 }
 
 
-uint32_t spi_reg_write(uint32_t spi, uint8_t reg, uint32_t val)
+uint32_t spi_ice40_reg_write(uint32_t spi, uint8_t reg, uint32_t val)
 {
   // spi_reg_xfer_24(SPI1, 7, 0x7f00ff );
   return spi_reg_xfer_24(spi, reg , val );

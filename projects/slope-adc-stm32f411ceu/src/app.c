@@ -4,7 +4,7 @@
 
 
 #include "assert.h"
-#include "ice40.h"  // spi_reg_read
+#include "ice40.h"  // spi_ice40_reg_read
 #include "format.h" // format_bits
 #include "usart.h"   // usart_flus()
 #include "util.h"   // system_millis
@@ -58,7 +58,7 @@ void ctrl_set_pattern( uint32_t spi, uint32_t pattern )
   // TODO add spi argument.
   printf("set pattern %ld\n", pattern );
 
-  spi_reg_write(spi, REG_PATTERN,   pattern );
+  spi_ice40_reg_write(spi, REG_PATTERN,   pattern );
 }
 
 */
@@ -66,7 +66,7 @@ void ctrl_set_pattern( uint32_t spi, uint32_t pattern )
 uint32_t ctrl_get_state( uint32_t spi )
 {
 
-  return  spi_reg_read(spi, REG_STATE);
+  return  spi_ice40_reg_read(spi, REG_STATE);
 
 }
 
@@ -87,8 +87,8 @@ void ctrl_set_aperture( uint32_t spi, uint32_t aperture)
   );
   */
 
-  spi_reg_write(spi, REG_CLK_COUNT_APER_N_HI, (aperture >> 24) & 0xff );
-  spi_reg_write(spi, REG_CLK_COUNT_APER_N_LO, aperture & 0xffffff  );
+  spi_ice40_reg_write(spi, REG_CLK_COUNT_APER_N_HI, (aperture >> 24) & 0xff );
+  spi_ice40_reg_write(spi, REG_CLK_COUNT_APER_N_LO, aperture & 0xffffff  );
 }
 
 
@@ -96,8 +96,8 @@ uint32_t ctrl_get_aperture( uint32_t spi )
 {
   assert(spi == spi);
 
-  uint32_t int_lo = spi_reg_read(spi, REG_CLK_COUNT_APER_N_LO );
-  uint32_t int_hi = spi_reg_read(spi, REG_CLK_COUNT_APER_N_HI );
+  uint32_t int_lo = spi_ice40_reg_read(spi, REG_CLK_COUNT_APER_N_LO );
+  uint32_t int_hi = spi_ice40_reg_read(spi, REG_CLK_COUNT_APER_N_HI );
 
   uint32_t val = int_hi << 24 | int_lo;
   return val;
@@ -130,14 +130,14 @@ void ctrl_set_mux( uint32_t spi, uint32_t mux )
   // char buf[100];
   // printf("*set himux_sel %s (%lu)\n",  format_bits( buf, 4, mux ), mux);
   */
-  spi_reg_write(spi, REG_HIMUX_SEL,  mux);
+  spi_ice40_reg_write(spi, REG_HIMUX_SEL,  mux);
 }
 
 
 uint32_t ctrl_get_mux( uint32_t spi )
 {
   assert(spi == spi);
-  return  spi_reg_read(spi, REG_HIMUX_SEL);
+  return  spi_ice40_reg_read(spi, REG_HIMUX_SEL);
 }
 
 
@@ -145,7 +145,7 @@ uint32_t ctrl_get_mux( uint32_t spi )
 
 void ctrl_set_var_n( uint32_t spi, uint32_t val)
 {
-  spi_reg_write(spi, REG_CLK_COUNT_VAR_N,  val);
+  spi_ice40_reg_write(spi, REG_CLK_COUNT_VAR_N,  val);
 }
 
 
@@ -153,19 +153,19 @@ void ctrl_set_var_n( uint32_t spi, uint32_t val)
 
 uint32_t ctrl_get_var_n( uint32_t spi )
 {
-  return spi_reg_read(spi, REG_CLK_COUNT_VAR_N);
+  return spi_ice40_reg_read(spi, REG_CLK_COUNT_VAR_N);
 }
 
 
 void ctrl_set_fix_n( uint32_t spi, uint32_t val)
 {
-  spi_reg_write(spi, REG_CLK_COUNT_FIX_N,  val);
+  spi_ice40_reg_write(spi, REG_CLK_COUNT_FIX_N,  val);
 }
 
 
 uint32_t ctrl_get_fix_n( uint32_t spi )
 {
-  return spi_reg_read(spi, REG_CLK_COUNT_FIX_N);
+  return spi_ice40_reg_read(spi, REG_CLK_COUNT_FIX_N);
 }
 
 
@@ -178,13 +178,13 @@ void ctrl_reset_enable( uint32_t spi )
   assert(spi == spi);
   // TODO pass spi.
   // active low
-  spi_reg_write(spi, REG_RESET,  0);
+  spi_ice40_reg_write(spi, REG_RESET,  0);
 }
 
 void ctrl_reset_disable(uint32_t spi)
 {
   assert(spi == spi);
-  spi_reg_write(spi, REG_RESET,  1);
+  spi_ice40_reg_write(spi, REG_RESET,  1);
 }
 
 
@@ -204,19 +204,19 @@ void ctrl_run_read( uint32_t spi, Run *run )
   assert(run);
 
   // use separate lines (to make it easier to filter - for plugging into stats).
-  run->count_up         = spi_reg_read(spi, REG_COUNT_UP );
-  run->count_down       = spi_reg_read(spi, REG_COUNT_DOWN );
+  run->count_up         = spi_ice40_reg_read(spi, REG_COUNT_UP );
+  run->count_down       = spi_ice40_reg_read(spi, REG_COUNT_DOWN );
 
-  run->count_fix_up     = spi_reg_read(spi, REG_COUNT_FIX_UP);
-  run->count_fix_down   = spi_reg_read(spi, REG_COUNT_FIX_DOWN);
+  run->count_fix_up     = spi_ice40_reg_read(spi, REG_COUNT_FIX_UP);
+  run->count_fix_down   = spi_ice40_reg_read(spi, REG_COUNT_FIX_DOWN);
 
-  run->count_flip       = spi_reg_read(spi, REG_COUNT_FLIP);
+  run->count_flip       = spi_ice40_reg_read(spi, REG_COUNT_FLIP);
 
-  run->count_trans_up   = spi_reg_read(spi, REG_COUNT_TRANS_UP );
-  run->count_trans_down = spi_reg_read(spi, REG_COUNT_TRANS_DOWN );
+  run->count_trans_up   = spi_ice40_reg_read(spi, REG_COUNT_TRANS_UP );
+  run->count_trans_down = spi_ice40_reg_read(spi, REG_COUNT_TRANS_DOWN );
 
   // WE could record slow_rundown separate to normal rundown.
-  run->clk_count_rundown = spi_reg_read(spi, REG_CLK_COUNT_RUNDOWN );
+  run->clk_count_rundown = spi_ice40_reg_read(spi, REG_CLK_COUNT_RUNDOWN );
 }
 
 
@@ -263,16 +263,16 @@ void ctrl_param_read( uint32_t spi, Param *param)
 {
   assert(spi == spi);
 
-  uint32_t int_lo = spi_reg_read(spi, REG_CLK_COUNT_APER_N_LO );
-  uint32_t int_hi = spi_reg_read(spi, REG_CLK_COUNT_APER_N_HI );
+  uint32_t int_lo = spi_ice40_reg_read(spi, REG_CLK_COUNT_APER_N_LO );
+  uint32_t int_hi = spi_ice40_reg_read(spi, REG_CLK_COUNT_APER_N_HI );
   param->clk_count_aper_n = int_hi << 24 | int_lo;
 
-  param->clk_count_fix_n  = spi_reg_read(spi, REG_CLK_COUNT_FIX_N);
+  param->clk_count_fix_n  = spi_ice40_reg_read(spi, REG_CLK_COUNT_FIX_N);
 
-  param->clk_count_var_n = spi_reg_read(spi, REG_CLK_COUNT_VAR_N);
+  param->clk_count_var_n = spi_ice40_reg_read(spi, REG_CLK_COUNT_VAR_N);
 
   // Why do we do this? makes it easier to report.
-  param->himux_sel = spi_reg_read(spi, REG_HIMUX_SEL );
+  param->himux_sel = spi_ice40_reg_read(spi, REG_HIMUX_SEL );
 
 }
 
@@ -285,16 +285,16 @@ void ctrl_param_read_last( uint32_t spi, Param *param)
   assert(spi == spi);
 
   // but nothing permutes this.
-  uint32_t int_lo = spi_reg_read(spi, REG_LAST_CLK_COUNT_APER_N_LO );
-  uint32_t int_hi = spi_reg_read(spi, REG_LAST_CLK_COUNT_APER_N_HI );
+  uint32_t int_lo = spi_ice40_reg_read(spi, REG_LAST_CLK_COUNT_APER_N_LO );
+  uint32_t int_hi = spi_ice40_reg_read(spi, REG_LAST_CLK_COUNT_APER_N_HI );
   param->clk_count_aper_n = int_hi << 24 | int_lo;
 
-  param->clk_count_fix_n  = spi_reg_read(spi, REG_LAST_CLK_COUNT_FIX_N);
+  param->clk_count_fix_n  = spi_ice40_reg_read(spi, REG_LAST_CLK_COUNT_FIX_N);
 
-  param->clk_count_var_n = spi_reg_read(spi, REG_LAST_CLK_COUNT_VAR_N);
+  param->clk_count_var_n = spi_ice40_reg_read(spi, REG_LAST_CLK_COUNT_VAR_N);
 
   // This is.
-  param->himux_sel = spi_reg_read(spi, REG_LAST_HIMUX_SEL ); // **last
+  param->himux_sel = spi_ice40_reg_read(spi, REG_LAST_HIMUX_SEL ); // **last
 }
 #endif
 
