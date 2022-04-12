@@ -3,6 +3,8 @@
 /*
   voltage source, 
     - hardware starts with rails powered on. due to glitchy 4094 data pin . or adum isolator.
+      - actually think it just remembers from last time, with the usb - meaning it holds power.
+
     - and sometimes the ltz1000 won't start properly. (drag probe over output).
 */
 
