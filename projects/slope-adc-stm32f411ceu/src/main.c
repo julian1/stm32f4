@@ -106,9 +106,6 @@
 
 
 
-#include "voltage-source-2/4094.h"      // REG_RAILS_ON
-// #include "voltage-source-2/dac8734.h"   // dac_register
-// #include "voltage-source-2/spi.h"
 #include "voltage-source-2/voltage-source.h"
 
 #include "app.h"
@@ -507,8 +504,8 @@ void app_update_console_cmd(app_t *app)
 
         // we need a break/continue/goto.
 
-        if( !( app->spi_4094_reg & REG_RAILS_ON)) {
-          usart1_printf("spi_voltage_source_2 not powered on\n");
+        if( !spi_voltage_source_2_in_on(&app->spi_4094_reg)) {
+          usart1_printf("spi_voltage_source_2 not on\n");
 
         } else {
 
@@ -910,7 +907,7 @@ int main(void)
 
 
 
-  app.cal_comment = "330pF/45kHz/250k, 10.4.2022";
+  app.cal_comment = "330pF/45kHz/250k2";
 
   app_loop_dispatcher( &app);
 

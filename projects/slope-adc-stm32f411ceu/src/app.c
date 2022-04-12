@@ -217,6 +217,14 @@ void ctrl_run_read( uint32_t spi, Run *run )
 
   // WE could record slow_rundown separate to normal rundown.
   run->clk_count_rundown = spi_ice40_reg_read(spi, REG_CLK_COUNT_RUNDOWN );
+
+
+  run->clk_count_mux_neg = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_NEG);
+  run->clk_count_mux_pos = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_POS);
+  run->clk_count_mux_rd = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_RD);
+
+
+
 }
 
 
@@ -235,6 +243,13 @@ void run_report( const Run *run )
   printf("count_flip %lu, ",        run->count_flip);
 
   printf("clk_count_rundown %lu, ", run->clk_count_rundown);
+
+
+
+  printf("clk_count_mux_neg %lu, ",        run->clk_count_mux_neg);
+  printf("clk_count_mux_pos %lu, ",        run->clk_count_mux_pos);
+  printf("clk_count_mux_rd  %lu, ",        run->clk_count_mux_rd);
+
 
   // printf("meas_count %lu, ", run->meas_count);
 }
@@ -323,6 +338,8 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
 {
   assert(run);
 
+  UNUSED(param);
+
 /*
   - we don't seem to be able to modify the count limits - without causing 1mV/20V difference. eg. 100ppm .
   - could indicate bad INL issues?
@@ -344,25 +361,41 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
   if(out == MNULL)
     out = m_get(1,1); // TODO fix me. this is ok.
 
-
+#if 0
   // negative current / slope up
   double x0 = (run->count_up   * param->clk_count_var_n) + (run->count_fix_up   * param->clk_count_fix_n) ;
-
   // positive current. slope down.
   double x1 = (run->count_down * param->clk_count_var_n) + (run->count_fix_down * param->clk_count_fix_n) ;
 
   double x2 = run->clk_count_rundown;
-
   double x3 = run->count_flip;
-
+#endif
   // four variable model
   // uint32_t cols = 4;
 
+  // clk_count_mux_neg 2550557, clk_count_mux_pos 1458103, clk_count_mux_rd  4912,
 
+  double x0 = run->clk_count_mux_neg ; 
+  double x1 = run->clk_count_mux_pos;
+  double x2 = run->clk_count_mux_rd;
 
-  // model == 2, no rundown.
+  double x3 = 1 ;
 
-  if( model == 3) {
+  if(model == 2) { 
+    /* 
+      more constrained.
+      rundown that has both currents on - just sums
+      this is nice because doesn't require anything on fpga side.
+    */
+    double x0_ = run->clk_count_mux_neg + run->clk_count_mux_rd;
+    double x1_ = run->clk_count_mux_pos + run->clk_count_mux_rd;
+
+    out = m_resize(out, 1, 2);
+    m_set_val( out, 0, 0,  x0_ );
+    m_set_val( out, 0, 1,  x1_  );
+  }
+
+  else if( model == 3) {
 
     out = m_resize(out, 1, 3);
     m_set_val( out, 0, 0,  x0 );
@@ -384,7 +417,7 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
     m_set_val( out, 0, 0,  x0 );
     m_set_val( out, 0, 1,  x1  );
     m_set_val( out, 0, 2,  x2  );
-    m_set_val( out, 0, 3,  x3  );
+    m_set_val( out, 0, 3,  x3  ); // flip_count
   }
 
 

@@ -45,6 +45,11 @@
 #define REG_CLK_COUNT_RUNDOWN   37
 
 
+
+#define REG_CLK_COUNT_MUX_NEG   40   
+#define REG_CLK_COUNT_MUX_POS   41   
+#define REG_CLK_COUNT_MUX_RD    42 
+
 /*
 // treat as param variable
 #define REG_LAST_HIMUX_SEL           40 // what was being muxed for integration. sig, azero, acal .
@@ -150,6 +155,13 @@ struct Run
   uint32_t count_flip;
 
   uint32_t clk_count_rundown;
+
+
+  uint32_t clk_count_mux_neg ;
+  uint32_t clk_count_mux_pos ;
+  uint32_t clk_count_mux_rd ;
+
+
   // rundown_dir.
 
   // really don't need to read/use this

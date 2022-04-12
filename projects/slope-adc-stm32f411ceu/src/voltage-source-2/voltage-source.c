@@ -27,6 +27,16 @@
 
 
 
+bool spi_voltage_source_2_in_on(uint8_t *spi_4094_reg)
+{
+  return *spi_4094_reg & REG_RAILS_ON;
+
+}
+
+
+
+
+
 void spi_voltage_source_2_set_val(uint32_t spi, uint32_t dac_channel, double val )
 {
   /* 
@@ -142,6 +152,7 @@ void spi_voltage_source_2_setup(uint32_t spi, uint8_t *spi_4094_reg)
   spi_4094_reg_write(spi, *spi_4094_reg);
 
 
+#if 0
   printf("sleep 100ms\n");
   msleep(100);
 
@@ -154,9 +165,11 @@ void spi_voltage_source_2_setup(uint32_t spi, uint8_t *spi_4094_reg)
 
   msleep(100);
 
-
   spi_dac_write_register( spi, DAC_DAC0_REGISTER, voltage_to_dac( 1.0 ));
+#endif
 
+
+  printf("please wait for ltz to settle. \n");
 }
 
 

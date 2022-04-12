@@ -24,6 +24,9 @@
 #include "voltage-source-2/voltage-source.h"
 
 
+#include "voltage-source-2/4094.h"      // REG_RAILS_ON
+
+
 
 static bool push_buffer1( MAT *buffer, unsigned *i, double value)
 {
@@ -777,6 +780,14 @@ void app_loop4 ( app_t *app   )
 
   assert(app);
 
+
+  if( !spi_voltage_source_2_in_on(&app->spi_4094_reg)) {
+    usart1_printf("spi_voltage_source_2 not on\n");
+    return;
+  }
+
+
+
   // clear last for mem
   if(app->last) {
     M_FREE(app->last);
@@ -964,6 +975,14 @@ void app_loop4 ( app_t *app   )
 }
 
 
+static void app_loop5 ( app_t *app   )
+{
+  /*
+    use the same calibration coefficients between A, B. eg. from cal slot 4. 
+    but vary var_n fix_n  with an offset. 
+
+  */
+}
 
 
 
