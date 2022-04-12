@@ -12,6 +12,8 @@
 
 
 /*
+
+  ------
   "The data in the shift register is transferred to the storage register when the STR input is HIGH"
 
   - so if strobe is high then storage register and output will be transparent. and the output will not change as atomic update.
@@ -21,7 +23,15 @@
   - the shift register always gets/holds the last mosi data. regardless of the cs/strobe
   ----------
 
-  - Reading the shift register value - in an spi way - using the output as miso.  has two issues.
+
+  - there is no way to read the register contents, because the value being clocked out, is not the value that was latched in by the strobe.
+    instead it is just whatever data was present from the last use of the spi lines - perhaps intended for another spi peripheral device.
+  --------
+ 
+    Also, in order to clock data out, we must have a dummy value to clock in. although could avoid using the strobe at the end.
+
+  -------
+  - Also Reading the shift register value - in an spi way - using the output as miso.  has two issues.
     - the MISO/ output does not go high-impedance when not used, meaning cannot share spi lines for other spi peripherals.
       would need to add a tri-state buffer (ie sot-23-5 ).
     - we don't have a signal with the right timing characteristics for the tri-state buffer.

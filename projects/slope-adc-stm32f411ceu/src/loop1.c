@@ -978,6 +978,10 @@ void app_loop4 ( app_t *app   )
 static void app_loop5 ( app_t *app   )
 {
   /*
+    no. this isn't needed. just save slot4. then modify var_n,fix_n  and save slot 5.
+    that way both slots have same b.
+
+    ------
     use the same calibration coefficients between A, B. eg. from cal slot 4. 
     but vary var_n fix_n  with an offset. 
 
