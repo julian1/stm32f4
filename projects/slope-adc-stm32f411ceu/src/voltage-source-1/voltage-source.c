@@ -17,8 +17,10 @@
 #define VS_DOWN   GPIO10    // PA10       SPI2_GPIO2
 
 
-void voltage_source_1_setup(void)
+void voltage_source_1_port_setup(void)
 {
+  // this is port setup.
+
   uint16_t all = VS_UP | VS_DOWN;
 
   gpio_mode_setup( VS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, all);

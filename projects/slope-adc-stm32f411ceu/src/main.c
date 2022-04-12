@@ -854,7 +854,7 @@ int main(void)
 
 #if 0
   // needs a context...
-  voltage_source_1_setup( /*ctx */ );
+  voltage_source_1_port_setup( /*ctx */ );
 #endif
 
 
