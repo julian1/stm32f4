@@ -118,7 +118,7 @@ uint32_t spi_dac_read_register(uint32_t spi, uint8_t r)
 */
 // ok. peripherals have to be able to mux fo their IO.
 
-int dac_init(uint32_t spi, uint8_t *reg4064_value)  // bad name?
+int dac_init(uint32_t spi, uint8_t *spi_4094_reg)  // bad name?
 {
   usart1_printf("------------------\n");
   usart1_printf("dac8734 init\n");
@@ -147,15 +147,15 @@ int dac_init(uint32_t spi, uint8_t *reg4064_value)  // bad name?
 #endif
 
   // power should be off
-  assert( !( *reg4064_value & REG_RAILS_ON));
+  assert( !( *spi_4094_reg & REG_RAILS_ON));
 
   // writing the reg like this is turning off the power.
   // JA
   spi_port_cs2_setup(spi);
   spi_4094_setup(spi);
-  *reg4064_value &= ~REG_DAC_UNI_BIP_A;     // lo == bipolar . for voltage-source
-  *reg4064_value &= ~REG_DAC_LDAC;              // lo.
-  spi_4094_reg_write(spi, *reg4064_value);
+  *spi_4094_reg &= ~REG_DAC_UNI_BIP_A;     // lo == bipolar . for voltage-source
+  *spi_4094_reg &= ~REG_DAC_LDAC;              // lo.
+  spi_4094_reg_write(spi, *spi_4094_reg);
 
 
   //////////////
@@ -178,11 +178,11 @@ int dac_init(uint32_t spi, uint8_t *reg4064_value)  // bad name?
 
 
   // toggle reset
-  *reg4064_value &= ~REG_DAC_RST ;
-  spi_4094_reg_write(spi, *reg4064_value);
+  *spi_4094_reg &= ~REG_DAC_RST ;
+  spi_4094_reg_write(spi, *spi_4094_reg);
   msleep(1);
-  *reg4064_value |= REG_DAC_RST ;
-  spi_4094_reg_write(spi, *reg4064_value);
+  *spi_4094_reg |= REG_DAC_RST ;
+  spi_4094_reg_write(spi, *spi_4094_reg);
   msleep(1);
 
 

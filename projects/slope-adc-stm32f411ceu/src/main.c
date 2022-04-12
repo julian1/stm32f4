@@ -118,12 +118,18 @@
 
 
 
-static void voltage_source_2_powerdown(void)
+static void voltage_source_2_powerdown(uint32_t spi, uint8_t *spi_4094_reg)
 {
-  // JA TODO. fix me. voltage_source_spi.
-  uint32_t spi = SPI2;
+  // better to avoid hanging app dependency here.
 
-  uint8_t reg4064_value = 0;
+  /*
+  if( !( *spi_4094_reg & REG_RAILS_ON)) {
+    usart1_printf("voltage_source_2 not powered on\n");
+    return;
+  }
+  */
+
+  assert(spi == SPI2);
 
   usart1_printf("turn off rails\n");
   spi_port_cs2_setup( spi );
@@ -138,26 +144,31 @@ static void voltage_source_2_powerdown(void)
 
   // should persist the register in app structure
   // and I think we should.
-  reg4064_value &= ~REG_RAILS_OE; // output enabled (active lo)
-  reg4064_value &= ~REG_RAILS_ON; // but rails power off
+  *spi_4094_reg &= ~REG_RAILS_OE; // output enabled (active lo)
+  *spi_4094_reg &= ~REG_RAILS_ON; // but rails power off
 
-  spi_4094_reg_write(spi, reg4064_value);
+  spi_4094_reg_write(spi, *spi_4094_reg);
 
   usart1_printf("sleep 100ms\n");
   msleep(100);
 }
 
 
-
-static void voltage_source_2_setup(void)
+static void voltage_source_2_setup(uint32_t spi, uint8_t *spi_4094_reg)
 {
-  // JA TODO. fix me. voltage_source_spi.
-  uint32_t spi = SPI2;
 
+  // better to avoid hanging app dependency here.
+
+
+  if( *spi_4094_reg & REG_RAILS_ON) {
+    usart1_printf("voltage_source_2 is already powered on\n");
+    return;
+  }
+
+  assert(spi == SPI2);
 
   spi_cs2_clear( spi );
 
-  uint8_t reg4064_value = 0;
 
   // first ensure rails are off
   usart1_printf("\n--------\n");
@@ -165,8 +176,9 @@ static void voltage_source_2_setup(void)
   spi_port_cs2_setup( spi);
   spi_4094_setup(spi);
 
-  reg4064_value &= ~REG_RAILS_ON;
-  spi_4094_reg_write(spi, reg4064_value);
+  *spi_4094_reg &= ~REG_RAILS_ON;
+
+  spi_4094_reg_write(spi, *spi_4094_reg);
   msleep(1);
 
 
@@ -174,7 +186,7 @@ static void voltage_source_2_setup(void)
     Note. that we are passing the register by reference so that dac init can manipulate.
     functionality here controls rails. but dac setup sets other register configuration
   */
-  int ret = dac_init(spi, & reg4064_value); // bad name?
+  int ret = dac_init(spi, spi_4094_reg); // bad name?
   if(ret != 0) {
     assert(0);
   }
@@ -183,10 +195,12 @@ static void voltage_source_2_setup(void)
   // after dac digital init, turn on rails.
   usart1_printf("\n--------\n");
   usart1_printf("turn on rails\n");
+
   spi_port_cs2_setup( spi );
   spi_4094_setup(spi);
-  reg4064_value |= REG_RAILS_ON;
-  spi_4094_reg_write(spi, reg4064_value);
+
+  *spi_4094_reg |= REG_RAILS_ON;
+  spi_4094_reg_write(spi, *spi_4094_reg);
 
 
   usart1_printf("sleep 100ms\n");
@@ -202,7 +216,6 @@ static void voltage_source_2_setup(void)
   msleep(100);
 
 
-  assert(spi == SPI2);
   spi_dac_write_register( spi, DAC_DAC0_REGISTER, voltage_to_dac( 1.0 ));
 
 }
@@ -589,37 +602,38 @@ void app_update_console_cmd(app_t *app)
 
     else if(strcmp(app->cmd_buf , "voltage source setup") == 0 )  {
 
-      voltage_source_2_setup();
+      voltage_source_2_setup( app->spi_voltage_source, &app->spi_4094_reg);
     }
 
     else if(strcmp(app->cmd_buf , "voltage source powerdown") == 0 )  {
 
-      voltage_source_2_powerdown();
+      voltage_source_2_powerdown( app->spi_voltage_source, &app->spi_4094_reg);
     }
 
-    else if(  sscanf(app->cmd_buf, "voltage source set %lu %lf", &u32, &d )  == 2)  {
+    else if( sscanf(app->cmd_buf, "voltage source set %lu %lf", &u32, &d )  == 2)  {
 
-      printf("%lu %f\n", u32, d);
+      // we need a break/continue/goto.
 
-      int dac_reg = DAC_DAC0_REGISTER + u32;
-      if(dac_reg < DAC_DAC0_REGISTER || dac_reg > DAC_DAC3_REGISTER) {
+      if( !( app->spi_4094_reg & REG_RAILS_ON)) {
+        usart1_printf("voltage_source_2 not powered on\n");
 
-        printf("bad dac_reg argument\n");
-      } else {
+      } else { 
 
-        // FIXME
-        // uint32_t spi = SPI2;
-        // voltage_source_spi
+        printf("%lu %f\n", u32, d);
 
-        printf("setting %u to %f\n", dac_reg, d );
+        int dac_reg = DAC_DAC0_REGISTER + u32;
+        if(dac_reg < DAC_DAC0_REGISTER || dac_reg > DAC_DAC3_REGISTER) {
 
-        uint32_t spi = SPI2;
+          printf("bad output dac_reg argument, should be 0-3\n");
+        } else {
 
-        // negative value isn't working???
+          printf("setting %u to %f\n", dac_reg, d );
 
+          assert( app->spi_voltage_source == SPI2);
 
-        spi_port_cs1_setup(spi); // with CS.
-        spi_dac_write_register( spi, dac_reg , voltage_to_dac( d ));
+          spi_port_cs1_setup( app->spi_voltage_source );
+          spi_dac_write_register( app->spi_voltage_source, dac_reg , voltage_to_dac( d ));
+        }
       }
     }
 
@@ -947,6 +961,11 @@ int main(void)
 
   // adc interupt...
   spi1_interupt_gpio_setup( (void (*) (void *))app_spi1_interupt, &app);
+
+
+  // good context.
+  app.spi_4094_reg = 0;
+  app.spi_voltage_source = SPI2;
 
 #if 0
   // needs a context...

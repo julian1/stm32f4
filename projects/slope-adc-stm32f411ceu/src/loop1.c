@@ -17,8 +17,11 @@
 #include "cal.h"
 #include "temp.h"
 
+#include "temp.h"
+
 
 // #include "voltage-source-1/voltage-source.h"
+#include "voltage-source-2/dac8734.h"
 
 
 
@@ -626,12 +629,13 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
 
 
+#if 0
 void app_voltage_source_set( app_t *app, double value )
 {
+  // using cap.
   // this has to read the adc - which makes it a lot more specific
   // than general app_( app_t *app)  code.
   // so put here, instead of app.c
-#if 0
   // change name current voltage
   double current = app_simple_read( app);
 
@@ -669,9 +673,21 @@ void app_voltage_source_set( app_t *app, double value )
 
     voltage_source_set_dir(0);
   }
-#endif
 
   printf("\n");
+}
+#endif
+
+void app_voltage_source_set( app_t *app, double value )
+{
+  // TODO. use app.
+  // ensure powered up.
+  // assert(app.spi_voltage_source == SPI2);
+
+
+
+  spi_dac_write_register( app->spi_voltage_source, DAC_DAC0_REGISTER, voltage_to_dac( value ));
+
 }
 
 

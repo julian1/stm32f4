@@ -244,6 +244,9 @@ struct app_t
   char    *cal_comment;
   unsigned cal_id_count;
 
+  uint8_t   spi_4094_reg;
+  uint32_t  spi_voltage_source;
+
 } ;
 
 
