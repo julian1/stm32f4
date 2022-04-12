@@ -117,7 +117,7 @@
 
 // TODO change name spi_ice40_
 
-static int spi_reg_read_write_test(uint32_t spi )
+static int spi_ice40_read_write_test(uint32_t spi )
 {
   /*
     would be better to move into spi.c/ice40.c .
@@ -243,7 +243,7 @@ void app_update_console_cmd(app_t *app)
           avoid doing this on initializtion is useful
           permits test development for code that is not reliant fpga.
         */
-        long ret = spi_reg_read_write_test( app->spi );
+        long ret = spi_ice40_read_write_test( app->spi );
         if(ret == 0)
           printf("ok\n");
         else
