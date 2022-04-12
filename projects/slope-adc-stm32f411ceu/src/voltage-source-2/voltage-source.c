@@ -25,9 +25,19 @@
 
 
 
-void voltage_source_2_set_val(uint32_t spi, uint32_t dac_reg, double val )
+void voltage_source_2_set_val(uint32_t spi, uint32_t dac_channel, double val )
 {
-  // note dag reg. is *not* numbered 0-1...
+  /* 
+    dac_channel starting at 0.
+    *not* dac_reg starting at  DAC_DAC0_REGISTER
+  */
+
+
+  int dac_reg = DAC_DAC0_REGISTER + dac_channel;
+
+  assert( ! (dac_reg < DAC_DAC0_REGISTER || dac_reg > DAC_DAC3_REGISTER));
+
+
   // printf("setting %lu to %f\n", dac_reg, val );
 
   assert( spi == SPI2);

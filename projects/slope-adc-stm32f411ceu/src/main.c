@@ -107,7 +107,7 @@
 
 
 #include "voltage-source-2/4094.h"      // REG_RAILS_ON
-#include "voltage-source-2/dac8734.h"   // dac_register
+// #include "voltage-source-2/dac8734.h"   // dac_register
 // #include "voltage-source-2/spi.h"
 #include "voltage-source-2/voltage-source.h"
 
@@ -512,18 +512,17 @@ void app_update_console_cmd(app_t *app)
 
       } else { 
 
-        printf("%lu %f\n", u32, d);
+          printf("%lu %f\n", u32, d);
 
-        int dac_reg = DAC_DAC0_REGISTER + u32;
-        if(dac_reg < DAC_DAC0_REGISTER || dac_reg > DAC_DAC3_REGISTER) {
+        if(u32 > 3)  {
+            printf("bad dac channel, should be 0-3\n");
 
-          printf("bad output dac_reg argument, should be 0-3\n");
         } else {
 
           assert( app->spi_voltage_source == SPI2);
 
-          printf("setting %u to %f\n", dac_reg, d );
-          voltage_source_2_set_val(app->spi_voltage_source, dac_reg, d );
+          printf("setting %lu to %f\n", u32 , d );
+          voltage_source_2_set_val(app->spi_voltage_source, u32, d );
 
         }
       }
