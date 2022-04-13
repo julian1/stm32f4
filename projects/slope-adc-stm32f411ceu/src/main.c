@@ -106,6 +106,7 @@
 
 
 
+#include "voltage-source-1/voltage-source.h"
 #include "voltage-source-2/voltage-source.h"
 
 #include "app.h"
@@ -182,7 +183,7 @@ void app_update_console_cmd(app_t *app)
 {
 
   uint32_t u32;   // long unsigned int.
-  // int32_t i32;
+  int32_t i32;
   double d;
 
   /* TODO.
@@ -472,8 +473,23 @@ void app_update_console_cmd(app_t *app)
         printf("sleep done\n");
       }
 
-/*
+
+#if 0
+      else if(strcmp(app->cmd_buf , "voltage source setup") == 0 )  {
+
+        // voltage source 1
+        // probably should do this manually. in order for same code to handle alternate configuration of ports
+  
+        // do here so that doesn
+        voltage_source_1_port_setup( /*ctx */ );
+      }
+#endif
+
+
       else if(sscanf(app->cmd_buf, "voltage source dir %ld", &i32 ) == 1) {
+
+        // check that setup() has been called first?.
+
         if( i32 == 0 || i32 == 1 || i32 == -1) {
           printf("voltage source dir %ld!\n", i32);
           voltage_source_1_set_dir( i32 );
@@ -487,8 +503,9 @@ void app_update_console_cmd(app_t *app)
         printf("voltage source set %lf!\n", d);
         app_voltage_source_set( app, d );
       }
-*/
 
+#if 0
+      // voltage source 2
 
       else if(strcmp(app->cmd_buf , "voltage source setup") == 0 )  {
 
@@ -521,6 +538,7 @@ void app_update_console_cmd(app_t *app)
           }
         }
       }
+#endif
 
 
       else if(strcmp(app->cmd_buf , "mux ref-lo") == 0 )  {   // fixme
@@ -852,9 +870,10 @@ int main(void)
   app.spi_4094_reg = 0;
   app.spi_voltage_source = SPI2;
 
-#if 0
+  // should perhaps put into cmd.
+#if 1
   // needs a context...
-  voltage_source_1_port_setup( /*ctx */ );
+  voltage_source_1_port_setup();
 #endif
 
 

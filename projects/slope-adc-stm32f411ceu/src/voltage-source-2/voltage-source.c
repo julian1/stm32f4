@@ -105,7 +105,7 @@ void spi_voltage_source_2_powerdown(uint32_t spi, uint8_t *spi_4094_reg)
 
 void spi_voltage_source_2_setup(uint32_t spi, uint8_t *spi_4094_reg)
 {
-
+  // this also does port setup as required.
   // better to avoid hanging app dependency here.
 
 
@@ -116,6 +116,7 @@ void spi_voltage_source_2_setup(uint32_t spi, uint8_t *spi_4094_reg)
 
   assert(spi == SPI2);
 
+  // make sure off. before setup.
   spi_cs2_clear( spi );
 
 
