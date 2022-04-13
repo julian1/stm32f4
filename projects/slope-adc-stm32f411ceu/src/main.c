@@ -513,7 +513,7 @@ void app_update_console_cmd(app_t *app)
       else if(sscanf(app->cmd_buf, "voltage source set %lf", &d ) == 1) {
         // set the voltage
         printf("voltage source set %lf!\n", d);
-        app_voltage_source_set( app, d );
+        app_voltage_source_1_set( app, d );
       }
 
 #if 0

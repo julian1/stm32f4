@@ -20,7 +20,7 @@
 #include "temp.h"
 
 
-// #include "voltage-source-1/voltage-source.h"
+#include "voltage-source-1/voltage-source.h"
 #include "voltage-source-2/voltage-source.h"
 
 
@@ -633,8 +633,7 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
 
 
-#if 0
-void app_voltage_source_set( app_t *app, double value )
+void app_voltage_source_1_set( app_t *app, double value )
 {
   // using cap.
   // this has to read the adc - which makes it a lot more specific
@@ -645,6 +644,7 @@ void app_voltage_source_set( app_t *app, double value )
 
   if( value > current ) {
 
+    // voltage_source_1_set_dir( int val ) ;
     voltage_source_1_set_dir(1);
     while(1) {
       current = app_simple_read( app);
@@ -680,11 +680,10 @@ void app_voltage_source_set( app_t *app, double value )
 
   printf("\n");
 }
-#endif
 
 
 
-void app_voltage_source_set( app_t *app, double value )
+void app_voltage_source_2_set( app_t *app, double value )
 {
   // using voltage_source_2
   spi_voltage_source_2_set_val(app->spi_voltage_source, 0 , value );
@@ -781,11 +780,12 @@ void app_loop4 ( app_t *app   )
 
   assert(app);
 
-
+#if 0
   if( !spi_voltage_source_2_in_on(&app->spi_4094_reg)) {
     usart1_printf("spi_voltage_source_2 not on\n");
     return;
   }
+#endif
 
 
 
@@ -825,12 +825,12 @@ void app_loop4 ( app_t *app   )
 
     // change to voltage
     printf("voltage set %.1f\n", target );
-    app_voltage_source_set( app, target );
+    app_voltage_source_1_set( app, target );
 
 #if 1
     // sleep to let DA settle.
-    unsigned sleep = 3;  // for dac
-    // unsigned sleep = i == 0 ? 60 : 30;
+    // unsigned sleep = 3;  // for dac
+    unsigned sleep = i == 0 ? 60 : 30;
     // unsigned sleep = i == 0 ? 120 : 60;
     // unsigned sleep = i == 0 ? (180 * 2) : 180;
     printf("sleep %us\n", sleep );
@@ -968,9 +968,10 @@ void app_loop4 ( app_t *app   )
   // switch the blink interval to fast. to indicate done.
 
 
-  printf("resetting voltage");
-  app_voltage_source_set( app, 11 );
+  // printf("resetting voltage");
+  // app_voltage_source_1_set( app, 11 );
 
+  // indicate done
   app->led_blink_interval = 250;
 
 }
@@ -983,8 +984,8 @@ static void app_loop5 ( app_t *app   )
     that way both slots have same b.
 
     ------
-    use the same calibration coefficients between A, B. eg. from cal slot 4. 
-    but vary var_n fix_n  with an offset. 
+    use the same calibration coefficients between A, B. eg. from cal slot 4.
+    but vary var_n fix_n  with an offset.
 
   */
 }

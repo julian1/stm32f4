@@ -293,7 +293,9 @@ void app_loop_dispatcher(app_t *app);
 void app_spi1_interupt(app_t *app );
 
 double app_simple_read( app_t *app);
-void app_voltage_source_set( app_t *app, double value );
+
+void app_voltage_source_1_set( app_t *app, double value );
+void app_voltage_source_2_set( app_t *app, double value );
 
 
 
