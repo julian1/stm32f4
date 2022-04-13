@@ -274,7 +274,7 @@ void app_update_console_cmd(app_t *app)
       else if(sscanf(app->cmd_buf, "cal model %lu", &u32 ) == 1) {
 
         // set the current cal slot
-        if(!( u32 == 3 || u32 == 4 || u32 == 5)) {
+        if(!( u32 == 2 || u32 == 3 || u32 == 4 || u32 == 5)) {
           printf("cal model not 3,4, 5\n");
         } else {
           app->cal_model = u32;
@@ -307,8 +307,8 @@ void app_update_console_cmd(app_t *app)
         } else {
 
           // issue is that we are using null pointer to indcate if valid.
-          Cal *b = app->cal[ u32 ];
-          if(!b) {
+          Cal *cal = app->cal[ u32 ];
+          if(!cal) {
             printf("no cal saved at slot %lu\n", u32);
           } else {
             printf("ok from %u to %lu\n", app->cal_idx, u32 );
@@ -343,7 +343,19 @@ void app_update_console_cmd(app_t *app)
         }
       }
 
+      // modify the current cal var_n, fix_n to create permuations, but using the same coefficients
+      // eg. doesn't write.
+      else if(sscanf(app->cmd_buf, "cal var_n %lu", &u32 ) == 1) {
 
+        assert( app->cal_idx < ARRAY_SIZE(app->cal));
+        Cal *cal = app->cal[ app->cal_idx ];
+        cal->param.clk_count_var_n = u32;
+      }
+      else if(sscanf(app->cmd_buf, "cal fix_n %lu", &u32 ) == 1) {
+        assert( app->cal_idx < ARRAY_SIZE(app->cal));
+        Cal *cal = app->cal[ app->cal_idx ];
+        cal->param.clk_count_fix_n = u32;
+      }
 
 
       else if(sscanf(app->cmd_buf, "cal save %lu", &u32 ) == 1) {
@@ -479,7 +491,7 @@ void app_update_console_cmd(app_t *app)
 
         // voltage source 1
         // probably should do this manually. in order for same code to handle alternate configuration of ports
-  
+
         // do here so that doesn
         voltage_source_1_port_setup( /*ctx */ );
       }
@@ -872,7 +884,7 @@ int main(void)
 
   // should perhaps put into cmd.
 #if 1
-  // needs a context...
+  // no context for port setup.
   voltage_source_1_port_setup();
 #endif
 

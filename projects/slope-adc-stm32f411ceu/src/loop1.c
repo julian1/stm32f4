@@ -292,6 +292,7 @@ void app_loop2 ( app_t *app )
 
   unsigned cols = 0;
   switch ( app->cal_model) {
+    case 2: cols = 2; break;
     case 3: cols = 3; break;
     case 4: cols = 4; break;  // + intercept
     case 5: cols = 4; break;  // + flip_count
