@@ -182,7 +182,7 @@ static int spi_ice40_read_write_test(uint32_t spi )
 void app_update_console_cmd(app_t *app)
 {
 
-  uint32_t u32;   // long unsigned int.
+  uint32_t u32, u32_2;   // long unsigned int.
   int32_t i32;
   double d;
 
@@ -730,12 +730,19 @@ void app_update_console_cmd(app_t *app)
         app->continuation_ctx = app;
       }
 
+
+      else if(sscanf(app->cmd_buf, "loop4 %lu %lu", &u32, &u32_2  ) == 2) {
+
+        app_loop4( app, u32, u32_2);
+      }
+
+/*
       else if(strcmp(app->cmd_buf , "loop4") == 0) {
 
-
-        // app->continuation_f = (void (*)(void *)) app_loop4;
-        // app->continuation_ctx = app;
+        app->continuation_f = (void (*)(void *)) app_loop4;
+        app->continuation_ctx = app;
       }
+*/
       else if(strcmp(app->cmd_buf , "loop22") == 0) {
         app->continuation_f = (void (*)(void *)) app_loop22;
         app->continuation_ctx = app;
