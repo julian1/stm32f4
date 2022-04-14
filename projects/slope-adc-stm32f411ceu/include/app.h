@@ -119,9 +119,10 @@ char * himux_sel_format( uint32_t mux ); // change name it is any himux.
 struct Param
 {
   /*
-    - now used only to determine modulation. not returned counts.
-    - aperture, himux_sel probably does not belong here. neigher himux_sel.
-    - reset period should be added.
+    - state that controls modulatoin on the fpga.
+    - TODO rename ModulationParam? perhaps. or just Mod.
+    - not clear that aperture should be here. but useful to indicate what was used during calibration.
+    - can/should add the two reset periods
   */
   // may
   uint32_t clk_count_aper_n;   // aperture. really not sure this should be here.
@@ -130,7 +131,6 @@ struct Param
   uint32_t clk_count_fix_n;
   uint32_t clk_count_var_n;
 
-  // for auto-zero.  Should be recorded in run... I think.
   //
   // uint32_t himux_sel;
   uint32_t old_serialization ;
@@ -178,6 +178,7 @@ struct Run
   // uint32_t meas_count;
 
   // perhaps modified by pattern controller.
+  // for auto-zero.  Should be recorded in run... I think.
   uint32_t himux_sel;
 
 };
