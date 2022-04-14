@@ -239,7 +239,7 @@ void app_loop1 ( app_t *app )
     }
 
     // this triggers if not aligned.
-    // assert(run.count_up);
+    // assert(run.count_var_up);
 
     // read the ready data
     ctrl_run_read(app->spi, &run);
@@ -658,7 +658,7 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     assert(run_sig.himux_sel == mux_sel);
 
     // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, m_calc_predicted_val( app-> b , &run_sig , &param_sig )));
-    assert(run_zero.count_up && run_sig.count_up ) ;
+    assert(run_zero.count_var_up && run_sig.count_var_up ) ;
 
       // we have both obs available...
 
@@ -785,7 +785,7 @@ double app_simple_read( app_t *app)
   ctrl_param_read(app->spi, &param);
 
   // we have both obs available...
-  assert(run.count_up);
+  assert(run.count_var_up);
 
   assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
   Cal *cal = app->cal[ app->cal_slot_idx ];

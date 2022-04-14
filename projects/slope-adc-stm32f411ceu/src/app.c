@@ -204,27 +204,27 @@ void ctrl_run_read( uint32_t spi, Run *run )
   assert(run);
 
   // use separate lines (to make it easier to filter - for plugging into stats).
-  run->count_up         = spi_ice40_reg_read(spi, REG_COUNT_UP );
-  run->count_down       = spi_ice40_reg_read(spi, REG_COUNT_DOWN );
+  run->count_var_up       = spi_ice40_reg_read(spi, REG_COUNT_UP );
+  run->count_var_down     = spi_ice40_reg_read(spi, REG_COUNT_DOWN );
 
-  run->count_fix_up     = spi_ice40_reg_read(spi, REG_COUNT_FIX_UP);
-  run->count_fix_down   = spi_ice40_reg_read(spi, REG_COUNT_FIX_DOWN);
+  run->count_fix_up       = spi_ice40_reg_read(spi, REG_COUNT_FIX_UP);
+  run->count_fix_down     = spi_ice40_reg_read(spi, REG_COUNT_FIX_DOWN);
 
-  run->count_flip       = spi_ice40_reg_read(spi, REG_COUNT_FLIP);
+  run->count_flip         = spi_ice40_reg_read(spi, REG_COUNT_FLIP);
 
-  run->count_trans_up   = spi_ice40_reg_read(spi, REG_COUNT_TRANS_UP );
-  run->count_trans_down = spi_ice40_reg_read(spi, REG_COUNT_TRANS_DOWN );
+  run->count_pos_trans    = spi_ice40_reg_read(spi, REG_COUNT_TRANS_UP );
+  run->count_neg_trans    = spi_ice40_reg_read(spi, REG_COUNT_TRANS_DOWN );
 
   // WE could record slow_rundown separate to normal rundown.
-  run->clk_count_rundown = spi_ice40_reg_read(spi, REG_CLK_COUNT_RUNDOWN );
+  run->clk_count_rundown  = spi_ice40_reg_read(spi, REG_CLK_COUNT_RUNDOWN );
 
 
-  run->clk_count_mux_neg = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_NEG);
-  run->clk_count_mux_pos = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_POS);
-  run->clk_count_mux_rd = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_RD);
+  run->clk_count_mux_neg  = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_NEG);
+  run->clk_count_mux_pos  = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_POS);
+  run->clk_count_mux_rd   = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_RD);
 
 
-  // may be being, returned by the pattern controller 
+  // may be being, returned by the pattern controller
 
   run->himux_sel = spi_ice40_reg_read(spi, REG_HIMUX_SEL );
 }
@@ -236,16 +236,15 @@ void run_show( const Run *run, bool verbose )
 {
   assert(run);
 
-  if(verbose) { 
+  if(verbose) {
     char buf[100];
     printf("himux_sel %s (%lu), ", format_bits( buf, 8, run->himux_sel), run->himux_sel);
 
+    printf("var_up/down %lu %lu, ",   run->count_var_up, run->count_var_down );
 
-    printf("var_up/down %lu %lu, ",   run->count_up, run->count_down );
     printf("fix_up/down %lu %lu, ",   run->count_fix_up,  run->count_fix_down);
 
-
-    printf("trans_up/down %lu %lu, ", run->count_trans_up,  run->count_trans_down);
+    printf("trans_up/down %lu %lu, ", run->count_pos_trans,  run->count_neg_trans);
 
     printf("count_flip %lu, ",        run->count_flip);
 
@@ -348,7 +347,7 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
   - we don't seem to be able to modify the count limits - without causing 1mV/20V difference. eg. 100ppm .
   - could indicate bad INL issues?
   - or somehting else going on. related to geometry of slope and rundown.
-  - but we may not need to even multiply this. instead just plug the raw count_up/count_down to the regression .
+  - but we may not need to even multiply this. instead just plug the raw count_var_up/count_var_down to the regression .
   - because the length of the variable - is different regardless if it is up or down. and they are not equal?
 
   ----
@@ -367,9 +366,9 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
 
 #if 0
   // negative current / slope up
-  double x0 = (run->count_up   * param->clk_count_var_n) + (run->count_fix_up   * param->clk_count_fix_n) ;
+  double x0 = (run->count_var_up   * param->clk_count_var_n) + (run->count_fix_up   * param->clk_count_fix_n) ;
   // positive current. slope down.
-  double x1 = (run->count_down * param->clk_count_var_n) + (run->count_fix_down * param->clk_count_fix_n) ;
+  double x1 = (run->count_var_down * param->clk_count_var_n) + (run->count_fix_down * param->clk_count_fix_n) ;
 
   double x2 = run->clk_count_rundown;
   double x3 = run->count_flip;

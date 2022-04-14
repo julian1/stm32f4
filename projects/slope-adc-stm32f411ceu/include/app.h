@@ -149,13 +149,18 @@ typedef struct Param Param;
 
 struct Run
 {
-  uint32_t count_up;
-  uint32_t count_down;
-  // we don't have to read some of these
-  uint32_t count_trans_up;
-  uint32_t count_trans_down;
+  /*
+    we could avoid reading. perhaps with verbosity flag.
+
+  */
+  uint32_t count_var_up;
+  uint32_t count_var_down;
+
   uint32_t count_fix_up;
   uint32_t count_fix_down;
+
+  uint32_t count_pos_trans;   // pos switch on transitions.
+  uint32_t count_neg_trans;
 
   uint32_t count_flip;
 
