@@ -119,10 +119,11 @@ char * himux_sel_format( uint32_t mux ); // change name it is any himux.
 struct Param
 {
   /*
-    must have params to compute the clk sums, in param_run_to_matrix_t
-    therefore need to pass around, or else read off the mcu.
+    - now used only to determine modulation. not returned counts.
+    - aperture, himux_sel probably does not belong here. neigher himux_sel.
+    - reset period should be added.
   */
-  // the pattern controller may change on its own - so should read for *each* run.
+  // may
   uint32_t clk_count_aper_n;   // aperture.
   uint32_t clk_count_fix_n;
   uint32_t clk_count_var_n;
