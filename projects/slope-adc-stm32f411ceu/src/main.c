@@ -690,8 +690,25 @@ void app_update_console_cmd(app_t *app)
         }
         printf("set buffer %lu\n", u32 );
         app->buffer = m_resize( app->buffer, u32, 1 );
-        app->buffer_i = 0;
+        app->stats_buffer_i = 0;
       }
+
+      else if(strcmp(app->cmd_buf , "stats buffer show") == 0 )  {   // fixme
+        printf("buffer %u\n",    m_rows(app->stats_buffer));
+      }
+      else if(sscanf(app->cmd_buf, "stats buffer %lu", &u32 ) == 1) {
+        if(u32 > 100) {
+          u32 = 100;
+        }
+        printf("set stats buffer %lu\n", u32 );
+        app->stats_buffer = m_resize( app->stats_buffer, u32, 1 );
+        app->stats_buffer_i = 0;
+      }
+
+
+
+
+
 
 
       else if(strcmp(app->cmd_buf , "nplc show") == 0 )  {   // fixme

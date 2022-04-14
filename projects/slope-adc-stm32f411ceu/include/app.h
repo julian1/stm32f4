@@ -129,7 +129,7 @@ struct Param
   uint32_t clk_count_var_n;
 
   // for auto-zero.  Should be recorded in run... I think.
-  // 
+  //
   // uint32_t himux_sel;
   uint32_t old_serialization ;
 };
@@ -252,12 +252,11 @@ struct app_t
 
 
 
-  // need to intialize
+  // maybe change name  buffer_measure ?
   unsigned buffer_i;
   MAT     *buffer;
 
 
-  // need to intialize
   unsigned stats_buffer_i;
   MAT     *stats_buffer;
 
