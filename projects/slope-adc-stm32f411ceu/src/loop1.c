@@ -683,6 +683,7 @@ void app_voltage_source_1_set( app_t *app, double value )
   // so put here, instead of app.c
   // change name current voltage
   double current = app_simple_read( app);
+  
 
   if( value > current ) {
 
@@ -765,11 +766,12 @@ double app_simple_read( app_t *app)
   while(!app->data_ready ) {
 
     app_update( app );
-    /*if(app->continuation_f) {
-      printf("whoot done \n");
+
+    // cannot return easily from here
+    if(app->halt_func) {
       return;
     }
-    */
+
   }
 
   ctrl_run_read(app->spi, &run);

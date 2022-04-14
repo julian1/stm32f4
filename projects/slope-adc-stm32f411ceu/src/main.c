@@ -736,7 +736,7 @@ void app_update_console_cmd(app_t *app)
         app->cmd_buf_i = 0;
         app->cmd_buf[ app->cmd_buf_i ]  = 0;
 
-        app_loop2( app );
+        app_loop3( app );
       }
 
       else if(sscanf(app->cmd_buf, "loop4 %lu %lu", &u32, &u32_2  ) == 2) {
