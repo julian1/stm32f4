@@ -131,8 +131,13 @@ struct Param
   uint32_t clk_count_fix_n;
   uint32_t clk_count_var_n;
 
+  // control over reset periods would be useful. if increase reading per second. on sub 1NPLC.
+  // but not sure should go here.
+
+
   //
   // uint32_t himux_sel;
+  // unused. but avoid disturbing serialization
   uint32_t old_serialization ;
 };
 

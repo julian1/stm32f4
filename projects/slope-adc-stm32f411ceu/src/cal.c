@@ -95,7 +95,7 @@ static void file_read_cal_values( unsigned id, Cal *cal, FILE *f)
 {
   assert(id == 104 || id == 105 || id == 106);
 
- 
+
   unsigned items = 0;
 
   items = fread( &cal->slot, sizeof(cal->slot), 1, f);
@@ -132,7 +132,7 @@ static void file_read_cal_values( unsigned id, Cal *cal, FILE *f)
   } else {
 
     // strdup("") needs a non-null string
-    
+
     cal->comment = strdup("");
     cal->id = 0;
   }
@@ -214,7 +214,7 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz, unsigned *cal_id_max )
           Cal * cal = cal_create();
           file_read_cal_values( header.id, cal, f);
 
-          // actually should be the cal_id_max = MAX(id cal_id_count) 
+          // actually should be the cal_id_max = MAX(id cal_id_count)
           // cal_id_count
           *cal_id_max =  MAX( *cal_id_max , cal->id );
 
@@ -377,11 +377,14 @@ void cal_show( Cal *cal /* FILE *f */ )
   printf("b\n");
   m_foutput( stdout, cal->b );
 
+  // only correct with 3 var model.
+  // but useful to have
+  // should be res(b[idx])
   unsigned slope_idx  = m_rows(cal->b) - 1;
   double   slope_b    = m_get_val(cal->b, slope_idx, 0 );   // rows
-  // printf("res       %.3fuV  (nplc100)\n", slope_b / nplc_to_aper_n( 100 ) * 1000000);
-
   double   res        = fabs( slope_b / nplc_to_aper_n( 10 )); // in V
+  // could also work out the implied count here.
+
   printf("res       %.3fuV  (nplc10)\n", res * 1000000);
 
   printf("digits    %.2f (nplc10)\n", log10( 10.f / res)); // think needs to be decimal. not 11 or +-11V
