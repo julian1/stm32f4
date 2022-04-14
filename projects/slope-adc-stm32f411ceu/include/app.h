@@ -128,8 +128,10 @@ struct Param
   uint32_t clk_count_fix_n;
   uint32_t clk_count_var_n;
 
-  // for auto-zero
-  uint32_t himux_sel;
+  // for auto-zero.  Should be recorded in run... I think.
+  // 
+  // uint32_t himux_sel;
+  uint32_t old_serialization ;
 };
 
 
@@ -168,6 +170,9 @@ struct Run
   // really don't need to read/use this
   // uint32_t meas_count;
 
+  // perhaps modified by pattern controller.
+  uint32_t himux_sel;
+
 };
 
 
@@ -183,8 +188,10 @@ void ctrl_param_read( uint32_t spi, Param *param);
 void param_show( const Param *param /* , FILE *f*/ );  // rename param_show??
 
 void ctrl_run_read( uint32_t spi, Run *run );
-void run_show( const Run *run  /*, FILE *f*/);    // rename run_show
-void run_show_brief( const Run *run );
+
+
+void run_show( const Run *run, bool verbose /* FILE *f */ );
+
 
 
 
@@ -261,6 +268,7 @@ struct app_t
   uint8_t   spi_4094_reg;
   uint32_t  spi_voltage_source;
 
+  bool      verbose;
 } ;
 
 

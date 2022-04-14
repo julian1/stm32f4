@@ -224,48 +224,52 @@ void ctrl_run_read( uint32_t spi, Run *run )
   run->clk_count_mux_rd = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_RD);
 
 
+  // may be being, returned by the pattern controller 
 
+  run->himux_sel = spi_ice40_reg_read(spi, REG_HIMUX_SEL );
 }
 
 
 
 
-void run_show( const Run *run )
+void run_show( const Run *run, bool verbose )
 {
   assert(run);
 
-  printf("var_up/down %lu %lu, ",   run->count_up, run->count_down );
-  printf("fix_up/down %lu %lu, ",   run->count_fix_up,  run->count_fix_down);
+  if(verbose) { 
+  char buf[100];
+    printf("himux_sel %s (%lu), ", format_bits( buf, 8, run->himux_sel), run->himux_sel);
 
 
-  printf("trans_up/down %lu %lu, ", run->count_trans_up,  run->count_trans_down);
-
-  printf("count_flip %lu, ",        run->count_flip);
-
-  printf("clk_count_rundown %lu, ", run->clk_count_rundown);
+    printf("var_up/down %lu %lu, ",   run->count_up, run->count_down );
+    printf("fix_up/down %lu %lu, ",   run->count_fix_up,  run->count_fix_down);
 
 
+    printf("trans_up/down %lu %lu, ", run->count_trans_up,  run->count_trans_down);
 
-  printf("clk_count_mux_neg %lu, ",        run->clk_count_mux_neg);
-  printf("clk_count_mux_pos %lu, ",        run->clk_count_mux_pos);
-  printf("clk_count_mux_rd  %lu, ",        run->clk_count_mux_rd);
+    printf("count_flip %lu, ",        run->count_flip);
 
+    printf("clk_count_rundown %lu, ", run->clk_count_rundown);
+
+
+
+    printf("clk_count_mux_neg %lu, ",        run->clk_count_mux_neg);
+    printf("clk_count_mux_pos %lu, ",        run->clk_count_mux_pos);
+    printf("clk_count_mux_rd  %lu, ",        run->clk_count_mux_rd);
+  }
+
+  else {
+    printf("clk_count_mux_neg %lu, ",        run->clk_count_mux_neg);
+    printf("clk_count_mux_pos %lu, ",        run->clk_count_mux_pos);
+    printf("clk_count_mux_rd  %lu, ",        run->clk_count_mux_rd);
+
+  }
 
   // printf("meas_count %lu, ", run->meas_count);
 }
 
 
-void run_show_brief( const Run *run )
-{
-  run_show( run );
-/*
-  assert(run);
-  printf("count_up/down %lu %lu, ", run->count_up, run->count_down );
-  printf("fix_up/down %lu %lu, ",   run->count_fix_up,  run->count_fix_down);
-  printf("count_flip %lu, ",        run->count_flip);
-  printf("clk_count_rundown %lu, ", run->clk_count_rundown);
-*/
-}
+
 
 /*
   having separate param, run offers maximum flexibility in design.
@@ -287,7 +291,8 @@ void ctrl_param_read( uint32_t spi, Param *param)
   param->clk_count_var_n = spi_ice40_reg_read(spi, REG_CLK_COUNT_VAR_N);
 
   // Why do we do this? makes it easier to report.
-  param->himux_sel = spi_ice40_reg_read(spi, REG_HIMUX_SEL );
+  // but should be in run
+  // param->himux_sel = spi_ice40_reg_read(spi, REG_HIMUX_SEL );
 
 }
 
@@ -309,6 +314,7 @@ void ctrl_param_read_last( uint32_t spi, Param *param)
   param->clk_count_var_n = spi_ice40_reg_read(spi, REG_LAST_CLK_COUNT_VAR_N);
 
   // This is.
+  // read in run
   param->himux_sel = spi_ice40_reg_read(spi, REG_LAST_HIMUX_SEL ); // **last
 }
 #endif
@@ -320,8 +326,8 @@ void param_show( const Param *param)
   printf("clk_count_fix_n %lu, ", param->clk_count_fix_n);
   printf("clk_count_var_n %lu, ", param->clk_count_var_n);
 
-  char buf[100];
-  printf("himux_sel %s (%lu), ", format_bits( buf, 8, param->himux_sel), param->himux_sel);
+  // char buf[100];
+  // printf("himux_sel %s (%lu), ", format_bits( buf, 8, param->himux_sel), param->himux_sel);
 }
 
 

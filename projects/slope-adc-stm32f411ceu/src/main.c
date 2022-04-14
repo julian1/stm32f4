@@ -622,6 +622,12 @@ void app_update_console_cmd(app_t *app)
 */
 
 
+
+      else if(sscanf(app->cmd_buf, "verbose %lu", &u32 ) == 1) {
+        // print verbosity
+        app->verbose = u32;
+      }
+
       else if(sscanf(app->cmd_buf, "led blink %lu", &u32 ) == 1) {
         // set the voltage
         app->led_blink_interval = u32;

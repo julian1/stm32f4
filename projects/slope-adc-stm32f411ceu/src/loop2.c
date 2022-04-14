@@ -94,7 +94,7 @@ void app_loop22( app_t *app )
         ctrl_run_read(   app->spi, &run);
         ctrl_param_read( app->spi, &param);
 
-        run_show(&run);
+        run_show(&run, app->verbose);
 
 
         if(i < 2) {

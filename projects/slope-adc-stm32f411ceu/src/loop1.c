@@ -249,7 +249,7 @@ void app_loop1 ( app_t *app )
 
     // only report if using buffer, to reduce clutter
     if(m_rows(app->buffer) == 1)
-      run_show_brief( &run);
+      run_show( &run, app->verbose );
 
     assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
     Cal *cal = app->cal[ app->cal_slot_idx ];
@@ -266,8 +266,6 @@ void app_loop1 ( app_t *app )
 
   }
 }
-
-// void run_show_brief( const Run *run );
 
 
 
@@ -386,7 +384,7 @@ void app_loop2 ( app_t *app )
         ctrl_run_read(   app->spi, &run);
         ctrl_param_read( app->spi, &param);
 
-        run_show(&run);
+        run_show(&run, true); // always be verbose
         /*
         // existing for calibration we won't be using b
         if(app ->b) {
@@ -599,6 +597,12 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   unsigned mux_sel = spi_ice40_reg_read(app->spi, REG_HIMUX_SEL );
 
 
+  // get the params we are using. 
+  // TODO check cal the same as device. 
+  Param   param;
+  ctrl_param_read( app->spi, &param);
+
+
   while(true) {
 
       // configure ref_lo
@@ -619,12 +623,13 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     }
 
     Run   run_zero;
-    Param param_zero;
+    // Param param_zero;
 
     // read data
     ctrl_run_read(app->spi, &run_zero);
-    ctrl_param_read( app->spi, &param_zero);
-    assert(param_zero.himux_sel ==  HIMUX_SEL_REF_LO );
+    // ctrl_param_read( app->spi, &param_zero);
+    // assert(param_zero.himux_sel ==  HIMUX_SEL_REF_LO );
+    assert(run_zero.himux_sel ==  HIMUX_SEL_REF_LO );
 
 
     // configure mux_sel
@@ -644,12 +649,13 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     }
 
     Run   run_sig;
-    Param param_sig;
+    // Param param_sig;
 
     // read data
     ctrl_run_read(app->spi, &run_sig);
-    ctrl_param_read( app->spi, &param_sig);
-    assert(param_sig.himux_sel == mux_sel);
+    // ctrl_param_read( app->spi, &param_sig);
+    // assert(param_sig.himux_sel == mux_sel);
+    assert(run_sig.himux_sel == mux_sel);
 
     // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, m_calc_predicted_val( app-> b , &run_sig , &param_sig )));
     assert(run_zero.count_up && run_sig.count_up ) ;
@@ -661,8 +667,8 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     Cal *cal = app->cal[ app->cal_slot_idx ];
     if(cal) {
       assert(cal->b);
-      double predict_zero   = m_calc_predicted_val( cal->b , &run_zero, &param_zero );
-      double predict_sig    = m_calc_predicted_val( cal->b , &run_sig,  &param_sig );
+      double predict_zero   = m_calc_predicted_val( cal->b , &run_zero, &param);
+      double predict_sig    = m_calc_predicted_val( cal->b , &run_sig,  &param);
       double predict        = predict_sig - predict_zero;
       process( app, predict );
     }
@@ -696,8 +702,9 @@ void app_voltage_source_1_set( app_t *app, double value )
       if(current > value)
         break;
 
-      if(app->halt_func)
+      if(app->halt_func) {
         break;
+      }
     }
 
     // should be renamed set_dir
@@ -713,10 +720,10 @@ void app_voltage_source_1_set( app_t *app, double value )
       // printf("val %lf\n", current);
       if(current < value)
         break;
-      if(app->halt_func)
+      if(app->halt_func) {
         // mem leak?
         break;
-
+      }
     }
 
     voltage_source_1_set_dir(0);
