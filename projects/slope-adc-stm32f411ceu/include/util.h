@@ -30,4 +30,6 @@ extern void msleep(uint32_t delay);
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
 
+#define MAX(A, B) ((A) > (B) ? (A) : (B))
+
 

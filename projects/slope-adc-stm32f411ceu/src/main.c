@@ -304,7 +304,7 @@ void app_update_console_cmd(app_t *app)
 
         FILE *f = flash_open_file();
 
-        file_scan_cal( f, app->cal, ARRAY_SIZE(app->cal) );
+        file_scan_cal( f, app->cal, ARRAY_SIZE(app->cal), &app->cal_id_max );
         // file_scan_cal( f);
 
         fclose(f);
@@ -402,7 +402,9 @@ void app_update_console_cmd(app_t *app)
 
           // copy into the old position
           app->cal[ u32 ] = cal_copy( cal_current );
+
           app->cal[ u32 ]->slot = u32;
+          app->cal[ u32 ]->id = ++app->cal_id_max ;   // new id
 
 
           // now free old.
@@ -410,7 +412,6 @@ void app_update_console_cmd(app_t *app)
           if( old) {
             cal_free( old);
           }
-
 
 
           // now save to flash
@@ -943,7 +944,10 @@ int main(void)
   // try to load cal
   FILE *f = flash_open_file();
   assert(f);
-  file_scan_cal( f, app.cal, ARRAY_SIZE(app.cal) );
+  // file_scan_cal( f, app.cal, ARRAY_SIZE(app.cal) );
+
+  ++app.cal_id_max;
+  file_scan_cal( f, app.cal, ARRAY_SIZE(app.cal), &app.cal_id_max );
 
   fclose(f);
 

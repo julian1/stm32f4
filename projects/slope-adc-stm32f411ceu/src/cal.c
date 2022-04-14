@@ -140,8 +140,6 @@ static void file_read_cal_values( unsigned id, Cal *cal, FILE *f)
   if( id == 106) {
 
     items = fread( &cal->model, sizeof(cal->model), 1, f);
-
-    printf("** read model value %u\n",  cal->model );
     assert(items == 1);
   } else {
 
@@ -155,7 +153,7 @@ static void file_read_cal_values( unsigned id, Cal *cal, FILE *f)
 
 
 
-int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
+int file_scan_cal( FILE *f, Cal **cals, unsigned sz, unsigned *cal_id_max )
 {
   // return 0 if success.
 
@@ -217,6 +215,10 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
           Cal * cal = cal_create();
           file_read_cal_values( header.id, cal, f);
 
+          // actually should be the cal_id_max = MAX(id cal_id_count) 
+          // cal_id_count
+          *cal_id_max =  MAX( *cal_id_max , cal->id );
+
           // bounds
           assert( cal->slot < sz);
 
@@ -240,7 +242,7 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
 
     }
     else if( header.magic == 0xffffffff ) {
-
+      // nor ram not yet written
       break;
     }
     else {
@@ -296,7 +298,6 @@ static void file_write_cal_( Cal *cal, FILE *f)
   fwrite( &cal->id, sizeof(cal->id), 1, f);
 
 
-  printf("** writing model model value %u\n",  cal->model );
   fwrite( &cal->model, sizeof(cal->model), 1, f);
 }
 
@@ -318,10 +319,6 @@ void file_write_cal ( Cal *cal, FILE *f)
   printf( "-----------------\n" );
   printf( "file_write_cal f is %p   ftell() is  %ld\n", f, ftell( f) );
 
-
-  printf("model     %u\n", cal->model);
-  printf("abort" );
-  return;
 
   usart1_flush();
 

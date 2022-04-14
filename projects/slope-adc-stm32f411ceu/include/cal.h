@@ -51,7 +51,8 @@ void file_skip_to_end(  FILE *f);
 
 
 
-int file_scan_cal( FILE *f, Cal **cal, unsigned sz );
+int file_scan_cal( FILE *f, Cal **cals, unsigned sz, unsigned *cal_id_max );
+// int file_scan_cal( FILE *f, Cal **cal, unsigned sz );
 
 void file_write_cal ( Cal *cal, FILE *f);
 

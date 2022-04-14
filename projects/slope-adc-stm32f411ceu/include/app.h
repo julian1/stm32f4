@@ -245,7 +245,7 @@ struct app_t
   char    *cal_comment;
 #endif
 
-  unsigned cal_id_count;
+  unsigned cal_id_max;
 
 
 

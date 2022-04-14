@@ -501,7 +501,7 @@ void app_loop2 ( app_t *app )
   cal2->sigma2  = regression.sigma2;
   cal2->temp    = adc_temp_read10();
 
-  cal2->id      = ++app->cal_id_count ;
+  cal2->id      = ++(app->cal_id_max);
 
   // appropriate fields from old cal
   cal2->comment = strdup( cal->comment );
