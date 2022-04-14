@@ -202,6 +202,9 @@ void app_loop1 ( app_t *app )
   printf("=========\n");
   printf("app_loop1 - values\n");
 
+  printf("cal slot %u\n", app->cal_slot_idx);
+
+
 
   // ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
 
@@ -218,6 +221,18 @@ void app_loop1 ( app_t *app )
   printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
   printf("period %.2lfs\n", aper_n_to_period( aperture ));
   printf("buffer %u\n",    m_rows(app->buffer));
+
+  assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
+  Cal *cal = app->cal[ app->cal_slot_idx ];
+
+
+  if(cal) { 
+    printf("model  %u\n", cal->model);
+    param_show( & cal->param );
+    printf("\n");
+  }
+
+
 
   while(true) {
 
@@ -251,9 +266,6 @@ void app_loop1 ( app_t *app )
     if(m_rows(app->buffer) == 1)
       run_show( &run, app->verbose );
 
-    assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
-    Cal *cal = app->cal[ app->cal_slot_idx ];
-
     if(cal) {
 
       // printf("cal slot %u", app->cal_slot_idx );
@@ -278,18 +290,21 @@ void app_loop2 ( app_t *app )
 {
   printf("=========\n");
   printf("app_loop2 - cal loop using permutation of nplc/aperture\n");
-  printf("Using cal slot 0. for model and var_n,fix_n \n");
+
+  printf("Using cal slot %u . for model and var_n,fix_n \n",  app->cal_slot_idx );
 
   /*
     alsways work with slot 0?
   */
-  app->cal_slot_idx = 0;
-  Cal *cal = app->cal[  0 ];
+  
+  Cal *cal = app->cal[  app->cal_slot_idx ];
   assert(cal);
   // TODO initially, if no cal. then should create a default.
 
 
-  printf("using cal model %u\n", cal->model);
+  printf("model %u\n", cal->model);
+  param_show( & cal->param );
+  printf("\n");
 
   /*
     Note. no manipulation of var_n fix_n but should always be the same
@@ -487,14 +502,14 @@ void app_loop2 ( app_t *app )
 
   ///////////////////////
   // set it. for app slot
-  printf("\nswitching to and storing in cal slot 0\n");
+  printf("\nstoring (but no save) to cal slot %u\n", app->cal_slot_idx);
 
 
 
   ///////////////////////
   // create the cal2 structure
   Cal *cal2     = cal_create();
-  cal2->slot    = 0;
+  cal2->slot    = app->cal_slot_idx;
   cal2->b       = m_copy( regression.b, MNULL );    // reallocate matrix.
   ctrl_param_read( app->spi, &cal2->param);
   cal2->sigma2  = regression.sigma2;
@@ -511,15 +526,13 @@ void app_loop2 ( app_t *app )
 
   ///////////////////////
   // free old cal
-  assert( app->cal_slot_idx == 0 );
-  assert( app->cal[ 0 ] );
-  assert( cal == app->cal[ 0 ] );
-  cal_free( app->cal[ 0  ]);
+  assert( cal == app->cal[ app->cal_slot_idx ] );
+  cal_free( app->cal[ app->cal_slot_idx  ]);
   cal = NULL;
 
 
   // update
-  app->cal[ 0 ] = cal2;
+  app->cal[ app->cal_slot_idx] = cal2;
 
 
 
@@ -774,11 +787,7 @@ double app_simple_read( app_t *app)
 
     app_update( app );
 
-    // cannot return easily from here
-    if(app->halt_func) {
-      return;
-    }
-
+    // no need to test halt flag here, because this is fast
   }
 
   ctrl_run_read(app->spi, &run);
@@ -884,10 +893,21 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
   Cal *cal_a = app->cal[ cal_slot_a ] ;
   assert( cal_a );
 
+  printf("cal_a model %u\n", cal_a->model);
+  param_show( & cal_a->param );
+  printf("\n");
+
+
+
   // cal B
   assert( cal_slot_b < ARRAY_SIZE(app->cal));
   Cal *cal_b = app->cal[ cal_slot_b ] ;
   assert( cal_b );
+
+  printf("cal_b model %u\n", cal_b->model);
+  param_show( & cal_b->param );
+  printf("\n");
+
 
 
   // size array

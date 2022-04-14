@@ -45,7 +45,7 @@ void file_skip_to_end(  FILE *f)
   assert(f );
 
   printf( "----------------------\n");
-  printf( "config skip to end\n");
+  printf( "file skip to end\n");
   usart1_flush();
 
   // seek the start of file
@@ -60,8 +60,8 @@ void file_skip_to_end(  FILE *f)
     unsigned items = fread( &header, sizeof(header), 1, f);
     assert(items == 1);
 
-    printf("magic is %x\n", header.magic );
-    usart1_flush();
+    // printf("magic is %x\n", header.magic );
+    // usart1_flush();
 
     if(header.magic == MAGIC ) {
 
