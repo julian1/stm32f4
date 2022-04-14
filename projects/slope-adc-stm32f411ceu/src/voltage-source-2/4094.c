@@ -28,27 +28,11 @@
     instead it is just whatever data was present from the last use of the spi lines - perhaps intended for another spi peripheral device.
   --------
  
-    Also, in order to clock data out, we must have a dummy value to clock in. although could avoid using the strobe at the end.
+  - this is in addition to the MISO/ output which will not go high-Z when used, meaning cannot share spi lines for other spi peripherals.
+  - and we don't have the right timing characteristics with the strobe if wanted to use tri-state buffer
+  - and we would need to write a dummy value, while reading.
+  - to avoid would need two wire control for read/strobe. but won't work - again because the shift value last contents are not the latch contents.
 
-  -------
-  - Also Reading the shift register value - in an spi way - using the output as miso.  has two issues.
-    - the MISO/ output does not go high-impedance when not used, meaning cannot share spi lines for other spi peripherals.
-      would need to add a tri-state buffer (ie sot-23-5 ).
-    - we don't have a signal with the right timing characteristics for the tri-state buffer.
-        eg. cannot use strobe, because output will go transperent, and produce changing output values as the clock is clocked.
-
-    - But it could be controlled with 2 mcu control lines - eg. CS to control MISO tri-state and strobe to force output to update.
-    - sot23-5 or sot23-6 logic part, to generate a short strobe pulse on a low to high transition.
-
-    ----
-    - but we still don't want to write a dummy value, if we only want to read contents, because would have to pass a dummy spi_xfer() value.
-      so having two lines - one for strobe/write separate from OE tri-state read would be needed.
-      note that - spi peripherals will generally use a read/write set bit to indicate whether the spi_xfer was a register read, or write,
-      but this is not available. so two control lines are required.
-    - AND. the read value is just the last value - to be clocked through, not the strobed value. so it won't work anyway.
-
-  -----------
-  solution to not being able to read - is to just use and pass around teh register value in software.
 
 */
 
