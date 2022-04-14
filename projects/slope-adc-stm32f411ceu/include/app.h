@@ -277,7 +277,8 @@ typedef struct app_t app_t;
 void app_loop1(app_t *app );
 void app_loop2(app_t *app );
 void app_loop3(app_t *app );
-void app_loop4(app_t *app );
+
+void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  );
 
 
 void app_loop22 ( app_t *app );

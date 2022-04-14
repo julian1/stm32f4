@@ -795,7 +795,7 @@ double app_simple_read( app_t *app)
 
 
 
-void app_loop4 ( app_t *app   )
+void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
 {
   // loop44 INL.
   /*
@@ -864,6 +864,20 @@ void app_loop4 ( app_t *app   )
   // more obs == more spread due to DA.
   unsigned obs_n = 50;
 
+
+  // OK. I think it would be clearaer to pass the arguments.
+
+  // cal A
+  assert( cal_slot_a < ARRAY_SIZE(app->cal));
+  Cal *cal_a = app->cal[ cal_slot_a ] ;
+  assert( cal_a );
+
+  // cal B
+  assert( cal_slot_b < ARRAY_SIZE(app->cal));
+  Cal *cal_b = app->cal[ cal_slot_b ] ;
+  assert( cal_b );
+
+
   // size array
   MAT *m = m_get( ARRAY_SIZE(target_) * obs_n , 5 );
 
@@ -899,9 +913,6 @@ void app_loop4 ( app_t *app   )
         No. it's easier to gather data separately.
       */
 
-      // do A
-      Cal *cal_a = app->cal[4] ;
-      assert( cal_a );
       param_show( &cal_a->param );
       printf("\n");
 
@@ -936,8 +947,6 @@ void app_loop4 ( app_t *app   )
       ///////////////////////////////
 
       // do B
-      Cal *cal_b = app->cal[5] ;
-      assert( cal_b );
       param_show( &cal_b->param );
       printf("\n");
 

@@ -729,9 +729,12 @@ void app_update_console_cmd(app_t *app)
         app->continuation_f = (void (*)(void *)) app_loop3;
         app->continuation_ctx = app;
       }
+
       else if(strcmp(app->cmd_buf , "loop4") == 0) {
-        app->continuation_f = (void (*)(void *)) app_loop4;
-        app->continuation_ctx = app;
+
+
+        // app->continuation_f = (void (*)(void *)) app_loop4;
+        // app->continuation_ctx = app;
       }
       else if(strcmp(app->cmd_buf , "loop22") == 0) {
         app->continuation_f = (void (*)(void *)) app_loop22;
