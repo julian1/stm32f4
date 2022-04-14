@@ -756,7 +756,7 @@ void r_free( R *regression)
 
 
 
-void r_report( const R * regression, FILE *f )
+void regression_show( const R * regression, FILE *f )
 {
   // could pass the stream
 
@@ -862,7 +862,7 @@ int m_regression_test()
   assert( float_equal( regression.r, 0.980847, e ))  ;
 
 
-  r_report( &regression, stdout );
+  regression_show( &regression, stdout );
 
   r_free( &regression);
 

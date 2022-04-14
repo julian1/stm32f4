@@ -94,7 +94,7 @@ void app_loop22( app_t *app )
         ctrl_run_read(   app->spi, &run);
         ctrl_param_read( app->spi, &param);
 
-        run_report(&run);
+        run_show(&run);
 
 
         if(i < 2) {
@@ -165,7 +165,7 @@ void app_loop22( app_t *app )
 
 
 
-  r_report( &regression, stdout);
+  regression_show( &regression, stdout);
  
   // copy, for new memory
   // app->b = m_copy( regression.b, MNULL );

@@ -360,9 +360,9 @@ void file_write_cal ( Cal *cal, FILE *f)
 
 
 
-// TODO change name cal_report() to cal_show()
+// TODO change name cal_show() to cal_show()
 
-void cal_report( Cal *cal /* FILE *f */ )
+void cal_show( Cal *cal /* FILE *f */ )
 {
   assert(cal);
 
@@ -389,7 +389,7 @@ void cal_report( Cal *cal /* FILE *f */ )
 
 
 
-  param_report(& cal->param);
+  param_show(& cal->param);
   printf("\n");
 
   printf("sigma2    %.2f\n", cal->sigma2);

@@ -180,11 +180,11 @@ typedef struct Run  Run;
 
 void ctrl_param_read( uint32_t spi, Param *param);
 // void ctrl_param_read_last( uint32_t spi, Param *param);
-void param_report( const Param *param /* , FILE *f*/ );  // rename param_report??
+void param_show( const Param *param /* , FILE *f*/ );  // rename param_show??
 
 void ctrl_run_read( uint32_t spi, Run *run );
-void run_report( const Run *run  /*, FILE *f*/);    // rename run_report
-void run_report_brief( const Run *run );
+void run_show( const Run *run  /*, FILE *f*/);    // rename run_show
+void run_show_brief( const Run *run );
 
 
 

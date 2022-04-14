@@ -100,7 +100,7 @@ void app_loop3 ( app_t *app)
       ctrl_reset_disable();
 
       // need a better name. run_print.
-      run_report(&run, 0);
+      run_show(&run, 0);
 
 
       if(app ->b) {

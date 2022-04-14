@@ -248,7 +248,7 @@ void app_loop1 ( app_t *app )
 
     // only report if using buffer, to reduce clutter
     if(m_rows(app->buffer) == 1)
-      run_report_brief( &run);
+      run_show_brief( &run);
 
     assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
     Cal *cal = app->cal[ app->cal_slot_idx ];
@@ -266,7 +266,7 @@ void app_loop1 ( app_t *app )
   }
 }
 
-// void run_report_brief( const Run *run );
+// void run_show_brief( const Run *run );
 
 
 
@@ -385,7 +385,7 @@ void app_loop2 ( app_t *app )
         ctrl_run_read(   app->spi, &run);
         ctrl_param_read( app->spi, &param);
 
-        run_report(&run);
+        run_show(&run);
         /*
         // existing for calibration we won't be using b
         if(app ->b) {
@@ -472,7 +472,7 @@ void app_loop2 ( app_t *app )
   usart1_flush();
 
   // TODO change name regression_report.
-  r_report( &regression, stdout);
+  regression_show( &regression, stdout);
 
 
 /*
@@ -482,7 +482,7 @@ void app_loop2 ( app_t *app )
 
   printf("stderr(V) %.2fuV  (nplc10)\n", sigma_div_aperture);
 
-  report this in cal_report( cal )
+  report this in cal_show( cal )
 */
 
 
@@ -507,7 +507,7 @@ void app_loop2 ( app_t *app )
   cal2->comment = strdup( cal->comment );
   cal2->model   = cal->model;
 
-  cal_report( cal2 );
+  cal_show( cal2 );
 
 
   ///////////////////////
@@ -902,7 +902,7 @@ void app_loop4 ( app_t *app   )
       // do A
       Cal *cal_a = app->cal[4] ;
       assert( cal_a );
-      param_report( &cal_a->param );
+      param_show( &cal_a->param );
       printf("\n");
 
       ctrl_reset_enable(app->spi);
@@ -938,7 +938,7 @@ void app_loop4 ( app_t *app   )
       // do B
       Cal *cal_b = app->cal[5] ;
       assert( cal_b );
-      param_report( &cal_b->param );
+      param_show( &cal_b->param );
       printf("\n");
 
 

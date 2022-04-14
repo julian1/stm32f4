@@ -56,7 +56,7 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz, unsigned *cal_id_max );
 
 void file_write_cal ( Cal *cal, FILE *f);
 
-void cal_report( Cal *cal /* FILE *f */ );
+void cal_show( Cal *cal /* FILE *f */ );
 
 
 Cal * cal_create(void);

@@ -230,7 +230,7 @@ void ctrl_run_read( uint32_t spi, Run *run )
 
 
 
-void run_report( const Run *run )
+void run_show( const Run *run )
 {
   assert(run);
 
@@ -255,9 +255,9 @@ void run_report( const Run *run )
 }
 
 
-void run_report_brief( const Run *run )
+void run_show_brief( const Run *run )
 {
-  run_report( run );
+  run_show( run );
 /*
   assert(run);
   printf("count_up/down %lu %lu, ", run->count_up, run->count_down );
@@ -314,7 +314,7 @@ void ctrl_param_read_last( uint32_t spi, Param *param)
 #endif
 
 
-void param_report( const Param *param)
+void param_show( const Param *param)
 {
   printf("clk_count_aper_n %lu, ", param->clk_count_aper_n);
   printf("clk_count_fix_n %lu, ", param->clk_count_fix_n);

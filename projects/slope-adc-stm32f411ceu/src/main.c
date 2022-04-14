@@ -443,7 +443,7 @@ void app_update_console_cmd(app_t *app)
             printf("no cal\n");
           }
           else {
-            cal_report( b );
+            cal_show( b );
             usart1_flush();
           }
         }
@@ -460,7 +460,7 @@ void app_update_console_cmd(app_t *app)
             printf("no cal\n");
           }
           else {
-            cal_report( b );
+            cal_show( b );
             usart1_flush();
           }
         }
