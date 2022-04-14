@@ -277,14 +277,25 @@ void app_update_console_cmd(app_t *app)
         if(!( u32 == 2 || u32 == 3 || u32 == 4 || u32 == 5)) {
           printf("cal model not 3,4, 5\n");
         } else {
-          app->cal_model = u32;
+
+          assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
+          Cal *cal = app->cal[  app->cal_slot_idx ];
+
+          cal->model = u32;
         }
       }
+
+/*
+    - issue is to set the al model before
+    - before the run.
+    - think it's ok. will just need to read from the current cal/ used for loop2..
+
+
       else if(strcmp(app->cmd_buf , "cal model show") == 0) {
 
         printf("cal model %u\n", app->cal_model );
       }
-
+*/
 
       else if(strcmp(app->cmd_buf , "cal rescan") == 0) {
         // perhaps better as rescan. since scanned on startup.
@@ -313,8 +324,8 @@ void app_update_console_cmd(app_t *app)
           } else {
             // switch cal. but will only use the cal coefficients. not modulation parameters
 
-            printf("ok from %u to %lu\n", app->cal_idx, u32 );
-            app->cal_idx = u32;
+            printf("ok from %u to %lu\n", app->cal_slot_idx, u32 );
+            app->cal_slot_idx = u32;
           }
         }
       }
@@ -331,11 +342,11 @@ void app_update_console_cmd(app_t *app)
           if(!b) {
             printf("cal slot %lu missing cal config\n", u32);
           } else {
-            printf("ok from %u to %lu\n", app->cal_idx, u32 );
+            printf("ok from %u to %lu\n", app->cal_slot_idx, u32 );
 
             // switch cal. and use cal for the modulation parameters
-            app->cal_idx = u32;
-            Cal *cal = app->cal[  app->cal_idx ];
+            app->cal_slot_idx = u32;
+            Cal *cal = app->cal[  app->cal_slot_idx ];
 
             ctrl_set_aperture( app->spi,  cal->param.clk_count_aper_n);
             ctrl_set_var_n( app->spi,     cal->param.clk_count_var_n);
@@ -353,21 +364,22 @@ void app_update_console_cmd(app_t *app)
 
       else if(sscanf(app->cmd_buf, "cal var_n %lu", &u32 ) == 1) {
 
-        assert( app->cal_idx < ARRAY_SIZE(app->cal));
-        Cal *cal = app->cal[ app->cal_idx ];
+        assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
+        Cal *cal = app->cal[ app->cal_slot_idx ];
         cal->param.clk_count_var_n = u32;
 
         // should now update device.
         ctrl_set_var_n( app->spi,     cal->param.clk_count_var_n);
       }
       else if(sscanf(app->cmd_buf, "cal fix_n %lu", &u32 ) == 1) {
-        assert( app->cal_idx < ARRAY_SIZE(app->cal));
-        Cal *cal = app->cal[ app->cal_idx ];
+        assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
+        Cal *cal = app->cal[ app->cal_slot_idx ];
         cal->param.clk_count_fix_n = u32;
 
         ctrl_set_fix_n( app->spi,     cal->param.clk_count_fix_n);
       }
 
+      // Add cal save.  using current position. to be able to just update.
 
       else if(sscanf(app->cmd_buf, "cal save %lu", &u32 ) == 1) {
         /*
@@ -377,8 +389,8 @@ void app_update_console_cmd(app_t *app)
           otherwise need to rescan.
         */
         // get current matrix
-        assert( app->cal_idx < ARRAY_SIZE(app->cal));
-        Cal *cal_current = app->cal[ app->cal_idx ];
+        assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
+        Cal *cal_current = app->cal[ app->cal_slot_idx ];
 
         // think we really want slots.
         if(!cal_current) {
@@ -438,11 +450,11 @@ void app_update_console_cmd(app_t *app)
 
       else if(strcmp(app->cmd_buf , "cal show") == 0 )  {
 
-        if( !(app->cal_idx < ARRAY_SIZE(app->cal))) {
+        if( !(app->cal_slot_idx < ARRAY_SIZE(app->cal))) {
 
           printf("out of range\n");
         } else {
-          Cal *b = app->cal[ app->cal_idx ];
+          Cal *b = app->cal[ app->cal_slot_idx ];
           if(!b) {
             printf("no cal\n");
           }
@@ -855,7 +867,7 @@ int main(void)
   memset(&app, 0, sizeof(app_t));
 
   app.led_blink_interval  = 500;
-  app.cal_model     = 3;
+  // app.cal_model     = 3;
 
   ///////
   // uart/console
@@ -949,8 +961,7 @@ int main(void)
   app.stats_buffer_i = 0;
 
 
-
-  app.cal_comment = "330pF/45kHz/250k2";
+  // app.cal_comment = "330pF/45kHz/250k2";
 
   app_loop_dispatcher( &app);
 

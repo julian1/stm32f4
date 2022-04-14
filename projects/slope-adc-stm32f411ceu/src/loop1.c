@@ -201,14 +201,20 @@ void app_loop1 ( app_t *app )
 {
   printf("=========\n");
   printf("app_loop1 - values\n");
-  printf("cal model %u\n", app->cal_model);
 
 
   // ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
 
-  printf("cal slot %u\n", app->cal_idx );
 
+/*
+  assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
+  Cal *cal = app->cal[  app->cal_slot_idx ];
+  printf("cal model %u\n", cal->model );
+*/
+  // aperture from device??? not very good
+  // should be the same
   int aperture = ctrl_get_aperture(app->spi); // in clk counts
+
   printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
   printf("period %.2lfs\n", aper_n_to_period( aperture ));
   printf("buffer %u\n",    m_rows(app->buffer));
@@ -244,9 +250,13 @@ void app_loop1 ( app_t *app )
     if(m_rows(app->buffer) == 1)
       run_report_brief( &run);
 
-    assert( app->cal_idx < ARRAY_SIZE(app->cal));
-    Cal *cal = app->cal[ app->cal_idx ];
+    assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
+    Cal *cal = app->cal[ app->cal_slot_idx ];
+
     if(cal) {
+
+      printf("cal slot %u\n", app->cal_slot_idx );
+
       assert(cal->b);
       double predict = m_calc_predicted_val( cal->b, &run, &param );
       process( app, predict );
@@ -269,8 +279,29 @@ void app_loop2 ( app_t *app )
 {
   printf("=========\n");
   printf("app_loop2 - cal loop using permutation of nplc/aperture\n");
+  printf("Using cal slot 0. for model and var_n,fix_n \n");
 
-  printf("cal model %u\n", app->cal_model);
+  /*
+    alsways work with slot 0?
+  */
+  app->cal_slot_idx = 0;
+  Cal *cal = app->cal[  0 ];
+  assert(cal);
+  // TODO initially, if no cal. then should create a default.
+
+
+  printf("using cal model %u\n", cal->model);
+
+  /*
+    Note. no manipulation of var_n fix_n but should always be the same
+  */
+  {
+    // should always hold.
+    Param param;
+    ctrl_param_read( app->spi, &param);
+    assert( param.clk_count_var_n == cal->param.clk_count_var_n);
+    assert( param.clk_count_fix_n == cal->param.clk_count_fix_n);
+  }
 
 
   // clear last for mem
@@ -291,7 +322,7 @@ void app_loop2 ( app_t *app )
   unsigned  max_rows =  obs_n * ARRAY_SIZE(nplc) * 2;
 
   unsigned cols = 0;
-  switch ( app->cal_model) {
+  switch ( cal->model) {
     case 2: cols = 2; break;
     case 3: cols = 3; break;
     case 4: cols = 4; break;  // + intercept
@@ -456,37 +487,46 @@ void app_loop2 ( app_t *app )
 
 
   ///////////////////////
-  // create the cal structure
+  // set it. for app slot
+  printf("\nswitching to and storing in cal slot 0\n");
 
-  Cal *cal = cal_create();
-  cal->slot   = 0;
-  cal->b      = m_copy( regression.b, MNULL );    // reallocate matrix.
-  ctrl_param_read( app->spi, &cal->param);
-  cal->sigma2 = regression.sigma2;
-  cal->temp   = adc_temp_read10();
-
-  // alloc - so we can free() predictably
-  cal->comment = strdup( app->cal_comment );
-  cal->id     = app->cal_id_count ;
-
-  cal_report( cal );
 
 
   ///////////////////////
-  // set it. for app slot
-  // we store in slot 0;
-  // use a function. cal_set???? no because ownership not clear.
-  // should switch and save new cal in slot 0. by default?
-  printf("\nswitching to and storing in cal slot 0\n");
+  // create the cal2 structure
+  Cal *cal2     = cal_create();
+  cal2->slot    = 0;
+  cal2->b       = m_copy( regression.b, MNULL );    // reallocate matrix.
+  ctrl_param_read( app->spi, &cal2->param);
+  cal2->sigma2  = regression.sigma2;
+  cal2->temp    = adc_temp_read10();
 
-  app->cal_idx = 0;
+  cal2->id      = ++app->cal_id_count ;
 
-  if( app->cal[ app->cal_idx]) {
-    cal_free( app->cal[ app->cal_idx ]);
-  }
+  // appropriate fields from old cal
+  cal2->comment = strdup( cal->comment );
+  cal2->model   = cal->model;
 
-  app->cal[ app->cal_idx ] = cal;
+  cal_report( cal2 );
 
+
+  ///////////////////////
+  // free old cal
+  assert( app->cal_slot_idx == 0 );
+  assert( app->cal[ 0 ] );
+  assert( cal == app->cal[ 0 ] );
+  cal_free( app->cal[ 0  ]);
+  cal = NULL;
+
+
+  // update
+  app->cal[ 0 ] = cal2;
+
+
+
+
+
+  // free regression
   r_free( &regression );
 
 
@@ -615,8 +655,8 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
       // we have both obs available...
 
 
-    assert( app->cal_idx < ARRAY_SIZE(app->cal));
-    Cal *cal = app->cal[ app->cal_idx ];
+    assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
+    Cal *cal = app->cal[ app->cal_slot_idx ];
     if(cal) {
       assert(cal->b);
       double predict_zero   = m_calc_predicted_val( cal->b , &run_zero, &param_zero );
@@ -735,8 +775,8 @@ double app_simple_read( app_t *app)
   // we have both obs available...
   assert(run.count_up);
 
-  assert( app->cal_idx < ARRAY_SIZE(app->cal));
-  Cal *cal = app->cal[ app->cal_idx ];
+  assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
+  Cal *cal = app->cal[ app->cal_slot_idx ];
   assert(cal);
   assert(cal->b);
 

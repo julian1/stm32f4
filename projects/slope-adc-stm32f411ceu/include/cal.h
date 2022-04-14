@@ -16,10 +16,10 @@ struct Cal
   unsigned slot;
 
 
-  MAT *b;
+  MAT     *b;
 
   // used - for tests. not sure if there's a better place to store.
-  Param param;  // Or make optional pointer.
+  Param   param;  // Or make optional pointer.
                     // Or just record fix_n, var_n ? maybe aperture.
                     // We are going to have to include app.h to pick up Param? hmmm
                     // app is currently including cal...
@@ -29,18 +29,17 @@ struct Cal
   -----------------
   */
   // we can calc sigma, and aperture adjusted voltage. from this
-  double sigma2;
+  double  sigma2;
 
-  double temp;
+  double  temp;
 
-  // unsigned df;
-  // char *comment; eg. 1nF/100k. 45kHz. timedate.
-
-
-  unsigned comment_sz;
-  char * comment;
+  // TODO. remove comment_sz.... instead we are already computing dynamically.
+  unsigned comment_sz;  // unused.
+  char    *comment;
 
   unsigned id;   // identifier would be useful. for associating.
+
+  unsigned model;
 
 };
 
@@ -65,8 +64,12 @@ void cal_free( Cal *cal  );
 Cal * cal_copy( Cal *cal  );
 
 #if 0
+
+
 MAT * m_read_flash( MAT *out, FILE *f);
 int file_skip_to_last_valid(  FILE *f);
+
+
 #endif
 
 

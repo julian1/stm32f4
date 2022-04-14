@@ -93,8 +93,9 @@ void file_skip_to_end(  FILE *f)
 
 static void file_read_cal_values( unsigned id, Cal *cal, FILE *f)
 {
-  assert(id == 104 || id == 105);
+  assert(id == 104 || id == 105 || id == 106);
 
+ 
   unsigned items = 0;
 
   items = fread( &cal->slot, sizeof(cal->slot), 1, f);
@@ -112,7 +113,7 @@ static void file_read_cal_values( unsigned id, Cal *cal, FILE *f)
   items = fread( &cal->temp,   sizeof(cal->temp), 1, f);
   assert(items == 1);
 
-  if(id == 105) {
+  if(id == 105 || id == 106) {
 
     // read the comment len
     unsigned len;
@@ -133,9 +134,18 @@ static void file_read_cal_values( unsigned id, Cal *cal, FILE *f)
     // strdup("") needs a non-null string
     
     cal->comment = strdup("");
-
     cal->id = 0;
+  }
 
+  if( id == 106) {
+
+    items = fread( &cal->model, sizeof(cal->model), 1, f);
+
+    printf("** read model value %u\n",  cal->model );
+    assert(items == 1);
+  } else {
+
+    cal->model = 3;
   }
 
   // k
@@ -190,15 +200,19 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz )
           break;
 
         case 104:
-          if(header.len == 78) // fix for cal that was 105 but saved as 104.
+          if(header.len == 78) // fix to ignore cal type 105, that was saved as 104.
             break;
           // allow fallthrough
 
         case 105:
+          if(header.len == 97) // fix to ignore cal type 105, that was saved as 104.
+            break;
+
+        case 106:
           {
 
 
-          printf("reading cal type 104\n" );
+          printf("reading cal type 104,105,106\n" );
 
           Cal * cal = cal_create();
           file_read_cal_values( header.id, cal, f);
@@ -282,6 +296,8 @@ static void file_write_cal_( Cal *cal, FILE *f)
   fwrite( &cal->id, sizeof(cal->id), 1, f);
 
 
+  printf("** writing model model value %u\n",  cal->model );
+  fwrite( &cal->model, sizeof(cal->model), 1, f);
 }
 
 
@@ -301,6 +317,12 @@ void file_write_cal ( Cal *cal, FILE *f)
 
   printf( "-----------------\n" );
   printf( "file_write_cal f is %p   ftell() is  %ld\n", f, ftell( f) );
+
+
+  printf("model     %u\n", cal->model);
+  printf("abort" );
+  return;
+
   usart1_flush();
 
   assert( sizeof(Header) == 12 );
@@ -326,7 +348,7 @@ void file_write_cal ( Cal *cal, FILE *f)
   Header  header;
   header.magic = MAGIC;
   header.len = len;
-  header.id = 105;     // header id. for raw matrix.
+  header.id = 106;     // header id. for raw matrix.
 
   unsigned items = fwrite( &header, sizeof(header), 1, f);
   assert(items == 1);
@@ -341,7 +363,7 @@ void file_write_cal ( Cal *cal, FILE *f)
 
 
 
-
+// TODO change name cal_report() to cal_show()
 
 void cal_report( Cal *cal /* FILE *f */ )
 {
@@ -353,6 +375,7 @@ void cal_report( Cal *cal /* FILE *f */ )
   // printf("comment   '%s' %u\n", cal->comment, strlen(cal->comment) );
   printf("comment   '%s'\n", cal->comment);
   printf("id        %u\n", cal->id);
+  printf("model     %u\n", cal->model);
 
 
   printf("b\n");
@@ -450,6 +473,9 @@ Cal * cal_copy( Cal *in )
   cal->param  = in->param;
   cal->sigma2 = in->sigma2;
   cal->temp   = in->temp;
+
+
+  cal->model  = in->model;
 
 
   // strdup(). for strings.

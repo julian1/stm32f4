@@ -46,9 +46,9 @@
 
 
 
-#define REG_CLK_COUNT_MUX_NEG   40   
-#define REG_CLK_COUNT_MUX_POS   41   
-#define REG_CLK_COUNT_MUX_RD    42 
+#define REG_CLK_COUNT_MUX_NEG   40
+#define REG_CLK_COUNT_MUX_POS   41
+#define REG_CLK_COUNT_MUX_RD    42
 
 /*
 // treat as param variable
@@ -234,9 +234,17 @@ struct app_t
   // issue is using null to indcate present.
   Cal     *cal[10];
 
-  unsigned cal_idx;    // current idx; // rename cal_idx.
+  unsigned cal_slot_idx;    // current idx; // rename cal_slot_idx.
 
+#if 0
+                        // should remove. put into the cal.
   unsigned cal_model;  // regression model specification. 3 or 4.
+
+                        // just write to current cal, then COW it.
+  char    *cal_comment;
+#endif
+
+  unsigned cal_id_count;
 
 
 
@@ -253,10 +261,7 @@ struct app_t
 
   MAT     *last;
 
-  char    *cal_comment;
-  unsigned cal_id_count;
-
-  // voltage source 2. 
+  // voltage source 2.
   uint8_t   spi_4094_reg;
   uint32_t  spi_voltage_source;
 
