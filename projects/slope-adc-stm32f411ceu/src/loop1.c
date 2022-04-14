@@ -977,9 +977,9 @@ void app_loop4 ( app_t *app   )
 
   // switch the blink interval to fast. to indicate done.
 
-
-  // printf("resetting voltage");
-  // app_voltage_source_1_set( app, 11 );
+  // reset voltage - for DA. ssame as when start.
+  printf("resetting voltage to 0");
+  app_voltage_source_1_set( app, 0);
 
   // indicate done
   app->led_blink_interval = 250;
