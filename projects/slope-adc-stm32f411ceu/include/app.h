@@ -223,8 +223,12 @@ struct app_t
     ------------
     don't really need this. just use an exit_flag, to communicate;
   */
-  void *continuation_ctx;
-  void (*continuation_f)(void *);
+  // void *continuation_ctx;
+  // void (*continuation_f)(void *);
+
+  bool halt_func;   // set this, to exit whatever loop we are running.
+
+
 
   // TODO should be using CString for this ? i think.
   // need to initialize
@@ -237,16 +241,7 @@ struct app_t
 
   unsigned cal_slot_idx;    // current idx; // rename cal_slot_idx.
 
-#if 0
-                        // should remove. put into the cal.
-  unsigned cal_model;  // regression model specification. 3 or 4.
-
-                        // just write to current cal, then COW it.
-  char    *cal_comment;
-#endif
-
-  unsigned cal_id_max;
-
+  unsigned cal_id_max;      // max cal id known.
 
 
 
@@ -295,7 +290,7 @@ void app_update( app_t * app );
 
 
 void app_simple_sleep( app_t * app, uint32_t period );
-void app_loop_dispatcher(app_t *app);
+void app_loop_main(app_t *app);
 
 void app_spi1_interupt(app_t *app );
 

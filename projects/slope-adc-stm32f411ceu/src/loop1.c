@@ -232,7 +232,8 @@ void app_loop1 ( app_t *app )
     // block/wait for data
     while(!app->data_ready ) {
       app_update( app );   // change name simple update
-      if(app->continuation_f) {
+      // mem leak?
+      if(app->halt_func) {
         return;
       }
     }
@@ -373,7 +374,7 @@ void app_loop2 ( app_t *app )
         // block/wait for data
         while(!app->data_ready ) {
           app_update( app );
-          if(app->continuation_f) {
+          if(app->halt_func) {
             return;
           }
         }
@@ -611,7 +612,8 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     // block/wait for data
     while(!app->data_ready ) {
       app_update( app );   // change name simple update
-      if(app->continuation_f) {
+      if(app->halt_func) {
+        // mem leak?
         return;
       }
     }
@@ -636,7 +638,7 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     // block/wait for data
     while(!app->data_ready ) {
       app_update( app );
-      if(app->continuation_f) {
+      if(app->halt_func) {
         return;
       }
     }
@@ -693,7 +695,7 @@ void app_voltage_source_1_set( app_t *app, double value )
       if(current > value)
         break;
 
-      if(app->continuation_f)
+      if(app->halt_func)
         break;
     }
 
@@ -710,7 +712,8 @@ void app_voltage_source_1_set( app_t *app, double value )
       // printf("val %lf\n", current);
       if(current < value)
         break;
-      if(app->continuation_f)
+      if(app->halt_func)
+        // mem leak?
         break;
 
     }
@@ -926,7 +929,8 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
       // block/wait for data
       while(!app->data_ready ) {
         app_update( app );   // change name simple update
-        if(app->continuation_f) {
+        if(app->halt_func) {
+          // mem leak?
           printf("bail done \n");
           return;
         }
@@ -961,7 +965,8 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
       // block/wait for data
       while(!app->data_ready ) {
         app_update( app );
-        if(app->continuation_f) {
+        if(app->halt_func) {
+          // leak
           printf("bail done \n");
           return;
         }

@@ -375,14 +375,14 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
 
   // clk_count_mux_neg 2550557, clk_count_mux_pos 1458103, clk_count_mux_rd  4912,
 
-  double x0 = run->clk_count_mux_neg ; 
+  double x0 = run->clk_count_mux_neg ;
   double x1 = run->clk_count_mux_pos;
   double x2 = run->clk_count_mux_rd;
 
   double x3 = 1 ;
 
-  if(model == 2) { 
-    /* 
+  if(model == 2) {
+    /*
       more constrained.
       rundown that has both currents on - just sums
       this is nice because doesn't require anything on fpga side.
@@ -537,17 +537,20 @@ void app_simple_sleep( app_t * app, uint32_t period )
 
 
 
-
-void app_loop_dispatcher(app_t *app)
+void app_loop_main(app_t *app)
 {
+  // change name app_loop_main.
+
   printf("=========\n");
-  printf("continuation dispatcher\n");
-  printf("> ");
+  printf("app loop main\n");
 
   while(true) {
 
+    app->halt_func = false;
+
     app_update(app);
 
+/*
     if(app->continuation_f) {
       printf("jump to continuation\n");
       void (*tmppf)(void *) = app->continuation_f;
@@ -557,10 +560,9 @@ void app_loop_dispatcher(app_t *app)
       printf("continuation done\n");
       printf("> ");
     }
+*/
   }
-
 }
-
 
 
 

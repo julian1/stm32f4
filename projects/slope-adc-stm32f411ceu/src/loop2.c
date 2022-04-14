@@ -82,7 +82,7 @@ void app_loop22( app_t *app )
         // block/wait for data
         while(!app->data_ready ) {
           app_update( app );
-          if(app->continuation_f) {
+          if(app->halt_func) {
             return;
           }
         }

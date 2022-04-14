@@ -713,25 +713,37 @@ void app_update_console_cmd(app_t *app)
 
       else if(strcmp(app->cmd_buf , "h") == 0 || strcmp(app->cmd_buf , "halt") == 0) {
         // exit the current loop program
-        app->continuation_f = (void (*)(void *)) app_loop_dispatcher;
-        app->continuation_ctx = app;
+
+        app->halt_func = true;
       }
       else if(strcmp(app->cmd_buf , "loop1") == 0) {
-        // start app_loop1.
-        app->continuation_f = (void (*)(void *)) app_loop1;
-        app->continuation_ctx = app;
+
+        // reset buffer before calling, so other loop can pump buffer
+        app->cmd_buf_i = 0;
+        app->cmd_buf[ app->cmd_buf_i ]  = 0;
+
+        app_loop1( app );
       }
       else if(strcmp(app->cmd_buf , "loop2") == 0) {  // cal loop.
-        app->continuation_f = (void (*)(void *)) app_loop2;
-        app->continuation_ctx = app;
+        // reset buffer before calling, so other loop can pump buffer
+        app->cmd_buf_i = 0;
+        app->cmd_buf[ app->cmd_buf_i ]  = 0;
+
+        app_loop2( app );
       }
       else if(strcmp(app->cmd_buf , "loop3") == 0) {
-        app->continuation_f = (void (*)(void *)) app_loop3;
-        app->continuation_ctx = app;
+        // reset buffer before calling, so other loop can pump buffer
+        app->cmd_buf_i = 0;
+        app->cmd_buf[ app->cmd_buf_i ]  = 0;
+
+        app_loop2( app );
       }
 
-
       else if(sscanf(app->cmd_buf, "loop4 %lu %lu", &u32, &u32_2  ) == 2) {
+
+        app->cmd_buf_i = 0;
+        app->cmd_buf[ app->cmd_buf_i ]  = 0;
+
 
         app_loop4( app, u32, u32_2);
       }
@@ -744,12 +756,11 @@ void app_update_console_cmd(app_t *app)
       }
 */
       else if(strcmp(app->cmd_buf , "loop22") == 0) {
-        app->continuation_f = (void (*)(void *)) app_loop22;
-        app->continuation_ctx = app;
+        app->cmd_buf_i = 0;
+        app->cmd_buf[ app->cmd_buf_i ]  = 0;
+
+        app_loop22( app );
       }
-
-
-
 
 
       // unknown command
@@ -977,7 +988,7 @@ int main(void)
 
   // app.cal_comment = "330pF/45kHz/250k2";
 
-  app_loop_dispatcher( &app);
+  app_loop_main( &app);
 
 }
 
