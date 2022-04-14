@@ -311,6 +311,8 @@ void app_update_console_cmd(app_t *app)
           if(!cal) {
             printf("no cal saved at slot %lu\n", u32);
           } else {
+            // switch cal. but will only use the cal coefficients. not modulation parameters
+
             printf("ok from %u to %lu\n", app->cal_idx, u32 );
             app->cal_idx = u32;
           }
@@ -331,7 +333,7 @@ void app_update_console_cmd(app_t *app)
           } else {
             printf("ok from %u to %lu\n", app->cal_idx, u32 );
 
-            // switch cal. and use the modulation parameters. associated with cal
+            // switch cal. and use cal for the modulation parameters
             app->cal_idx = u32;
             Cal *cal = app->cal[  app->cal_idx ];
 
@@ -343,18 +345,27 @@ void app_update_console_cmd(app_t *app)
         }
       }
 
-      // modify the current cal var_n, fix_n to create permuations, but using the same coefficients
-      // eg. doesn't write.
+
+      /* chances in memory and on the device. but doesn't write.
+        - means can use restart/rescan to undo/restore to original.
+        - and cal save slot to save updated to the same or different slot.
+      */
+
       else if(sscanf(app->cmd_buf, "cal var_n %lu", &u32 ) == 1) {
 
         assert( app->cal_idx < ARRAY_SIZE(app->cal));
         Cal *cal = app->cal[ app->cal_idx ];
         cal->param.clk_count_var_n = u32;
+
+        // should now update device.
+        ctrl_set_var_n( app->spi,     cal->param.clk_count_var_n);
       }
       else if(sscanf(app->cmd_buf, "cal fix_n %lu", &u32 ) == 1) {
         assert( app->cal_idx < ARRAY_SIZE(app->cal));
         Cal *cal = app->cal[ app->cal_idx ];
         cal->param.clk_count_fix_n = u32;
+
+        ctrl_set_fix_n( app->spi,     cal->param.clk_count_fix_n);
       }
 
 
@@ -455,7 +466,7 @@ void app_update_console_cmd(app_t *app)
 
 
 
-
+#if 0
       // OK. saving the parameters that were used. for cal. would be useful.
       // In fact. then we could drive the difference loop using them.
       // eg. changing nplc. or changing var_n, fix_n
@@ -476,6 +487,7 @@ void app_update_console_cmd(app_t *app)
         printf("fix_n %lu\n", u32);
         ctrl_set_fix_n( app->spi, u32);
       }
+#endif
 
       else if(sscanf(app->cmd_buf, "sleep %lu", &u32 ) == 1) {
 
