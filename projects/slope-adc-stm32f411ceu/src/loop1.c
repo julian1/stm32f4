@@ -224,6 +224,14 @@ void app_loop1 ( app_t *app )
 
   assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
   Cal *cal = app->cal[ app->cal_slot_idx ];
+  {
+    // should always hold.
+    Param param;
+    ctrl_param_read( app->spi, &param);
+    assert( param.clk_count_var_n == cal->param.clk_count_var_n);
+    assert( param.clk_count_fix_n == cal->param.clk_count_fix_n);
+  }
+
 
 
   if(cal) { 
