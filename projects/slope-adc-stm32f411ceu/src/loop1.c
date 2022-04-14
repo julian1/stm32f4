@@ -255,7 +255,7 @@ void app_loop1 ( app_t *app )
 
     if(cal) {
 
-      printf("cal slot %u\n", app->cal_slot_idx );
+      // printf("cal slot %u", app->cal_slot_idx );
 
       assert(cal->b);
       double predict = m_calc_predicted_val( cal->b, &run, &param );
