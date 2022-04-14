@@ -209,8 +209,7 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz, unsigned *cal_id_max )
         case 106:
           {
 
-
-          printf("reading cal type 104,105,106\n" );
+          // printf("reading cal type 104,105,106\n" );
 
           Cal * cal = cal_create();
           file_read_cal_values( header.id, cal, f);
