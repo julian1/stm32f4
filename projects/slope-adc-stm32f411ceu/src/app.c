@@ -54,7 +54,6 @@ double aper_n_to_period( uint32_t aper_n)
 /*
 void ctrl_set_pattern( uint32_t spi, uint32_t pattern )
 {
-  assert(spi == spi);
   // TODO add spi argument.
   printf("set pattern %ld\n", pattern );
 
@@ -78,7 +77,6 @@ uint32_t ctrl_get_state( uint32_t spi )
 
 void ctrl_set_aperture( uint32_t spi, uint32_t aperture)
 {
-  assert(spi == spi);
   /*
   printf("*set aperture %lu, nplc %.2f, period %.2fs\n",
     aperture,
@@ -94,7 +92,6 @@ void ctrl_set_aperture( uint32_t spi, uint32_t aperture)
 
 uint32_t ctrl_get_aperture( uint32_t spi )
 {
-  assert(spi == spi);
 
   uint32_t int_lo = spi_ice40_reg_read(spi, REG_CLK_COUNT_APER_N_LO );
   uint32_t int_hi = spi_ice40_reg_read(spi, REG_CLK_COUNT_APER_N_HI );
@@ -125,7 +122,6 @@ char * himux_sel_format( uint32_t mux )
 
 void ctrl_set_mux( uint32_t spi, uint32_t mux )
 {
-  assert(spi == spi);
   /*
   // char buf[100];
   // printf("*set himux_sel %s (%lu)\n",  format_bits( buf, 4, mux ), mux);
@@ -136,7 +132,6 @@ void ctrl_set_mux( uint32_t spi, uint32_t mux )
 
 uint32_t ctrl_get_mux( uint32_t spi )
 {
-  assert(spi == spi);
   return  spi_ice40_reg_read(spi, REG_HIMUX_SEL);
 }
 
@@ -175,7 +170,6 @@ uint32_t ctrl_get_fix_n( uint32_t spi )
 
 void ctrl_reset_enable( uint32_t spi )
 {
-  assert(spi == spi);
   // TODO pass spi.
   // active low
   spi_ice40_reg_write(spi, REG_RESET,  0);
@@ -183,7 +177,6 @@ void ctrl_reset_enable( uint32_t spi )
 
 void ctrl_reset_disable(uint32_t spi)
 {
-  assert(spi == spi);
   spi_ice40_reg_write(spi, REG_RESET,  1);
 }
 
@@ -200,7 +193,6 @@ void ctrl_run_read( uint32_t spi, Run *run )
   change name adc_meas_read()   or intg_meas_read()
     etc.
   */
-  assert(spi == spi);
   assert(run);
 
   // use separate lines (to make it easier to filter - for plugging into stats).
@@ -218,11 +210,9 @@ void ctrl_run_read( uint32_t spi, Run *run )
   // WE could record slow_rundown separate to normal rundown.
   run->clk_count_rundown  = spi_ice40_reg_read(spi, REG_CLK_COUNT_RUNDOWN );
 
-
   run->clk_count_mux_neg  = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_NEG);
   run->clk_count_mux_pos  = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_POS);
   run->clk_count_mux_rd   = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_RD);
-
 
   // may be being, returned by the pattern controller
 
@@ -238,30 +228,28 @@ void run_show( const Run *run, bool verbose )
 
   if(verbose) {
     char buf[100];
-    printf("himux_sel %s (%lu), ", format_bits( buf, 8, run->himux_sel), run->himux_sel);
+    printf("himux_sel %s (%lu), ",    format_bits( buf, 8, run->himux_sel), run->himux_sel);
 
     printf("var_up/down %lu %lu, ",   run->count_var_up, run->count_var_down );
 
     printf("fix_up/down %lu %lu, ",   run->count_fix_up,  run->count_fix_down);
 
-    printf("trans_up/down %lu %lu, ", run->count_pos_trans,  run->count_neg_trans);
+    printf("pos_trans_up/down %lu %lu, ", run->count_pos_trans,  run->count_neg_trans);
 
     printf("count_flip %lu, ",        run->count_flip);
 
     printf("clk_count_rundown %lu, ", run->clk_count_rundown);
 
-    printf("clk_count_mux_neg %lu, ",        run->clk_count_mux_neg);
-    printf("clk_count_mux_pos %lu, ",        run->clk_count_mux_pos);
-    printf("clk_count_mux_rd %lu, ",        run->clk_count_mux_rd);
+    printf("clk_count_mux_neg %lu, ", run->clk_count_mux_neg);
+    printf("clk_count_mux_pos %lu, ", run->clk_count_mux_pos);
+    printf("clk_count_mux_rd %lu, ",  run->clk_count_mux_rd);
   }
 
   else {
-    printf("clk_count_mux_neg %lu, ",        run->clk_count_mux_neg);
-    printf("clk_count_mux_pos %lu, ",        run->clk_count_mux_pos);
-    printf("clk_count_mux_rd %lu, ",        run->clk_count_mux_rd);
-
+    printf("clk_count_mux_neg %lu, ", run->clk_count_mux_neg);
+    printf("clk_count_mux_pos %lu, ", run->clk_count_mux_pos);
+    printf("clk_count_mux_rd %lu, ",  run->clk_count_mux_rd);
   }
-
   // printf("meas_count %lu, ", run->meas_count);
 }
 
@@ -277,8 +265,6 @@ void run_show( const Run *run, bool verbose )
 
 void ctrl_param_read( uint32_t spi, Param *param)
 {
-  assert(spi == spi);
-
   uint32_t int_lo = spi_ice40_reg_read(spi, REG_CLK_COUNT_APER_N_LO );
   uint32_t int_hi = spi_ice40_reg_read(spi, REG_CLK_COUNT_APER_N_HI );
   param->clk_count_aper_n = int_hi << 24 | int_lo;
@@ -299,7 +285,6 @@ void ctrl_param_read( uint32_t spi, Param *param)
 #if 0
 void ctrl_param_read_last( uint32_t spi, Param *param)
 {
-  assert(spi == spi);
 
   // but nothing permutes this.
   uint32_t int_lo = spi_ice40_reg_read(spi, REG_LAST_CLK_COUNT_APER_N_LO );
