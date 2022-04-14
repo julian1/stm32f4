@@ -124,7 +124,9 @@ struct Param
     - reset period should be added.
   */
   // may
-  uint32_t clk_count_aper_n;   // aperture.
+  uint32_t clk_count_aper_n;   // aperture. really not sure this should be here.
+                                // perhaps useful to indicate aperture was used for calibration.
+
   uint32_t clk_count_fix_n;
   uint32_t clk_count_var_n;
 
