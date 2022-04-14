@@ -237,7 +237,7 @@ void run_show( const Run *run, bool verbose )
   assert(run);
 
   if(verbose) { 
-  char buf[100];
+    char buf[100];
     printf("himux_sel %s (%lu), ", format_bits( buf, 8, run->himux_sel), run->himux_sel);
 
 
@@ -251,17 +251,15 @@ void run_show( const Run *run, bool verbose )
 
     printf("clk_count_rundown %lu, ", run->clk_count_rundown);
 
-
-
     printf("clk_count_mux_neg %lu, ",        run->clk_count_mux_neg);
     printf("clk_count_mux_pos %lu, ",        run->clk_count_mux_pos);
-    printf("clk_count_mux_rd  %lu, ",        run->clk_count_mux_rd);
+    printf("clk_count_mux_rd %lu, ",        run->clk_count_mux_rd);
   }
 
   else {
     printf("clk_count_mux_neg %lu, ",        run->clk_count_mux_neg);
     printf("clk_count_mux_pos %lu, ",        run->clk_count_mux_pos);
-    printf("clk_count_mux_rd  %lu, ",        run->clk_count_mux_rd);
+    printf("clk_count_mux_rd %lu, ",        run->clk_count_mux_rd);
 
   }
 
