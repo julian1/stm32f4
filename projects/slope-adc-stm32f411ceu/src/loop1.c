@@ -901,7 +901,9 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
   Cal *cal_a = app->cal[ cal_slot_a ] ;
   assert( cal_a );
 
-  printf("cal_a model %u\n", cal_a->model);
+  printf("cal_a\n");
+  printf("slot %u\n", cal_slot_a);
+  printf("model %u\n", cal_a->model);
   param_show( & cal_a->param );
   printf("\n");
 
@@ -912,7 +914,9 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
   Cal *cal_b = app->cal[ cal_slot_b ] ;
   assert( cal_b );
 
-  printf("cal_b model %u\n", cal_b->model);
+  printf("cal_b\n");
+  printf("slot %u\n", cal_slot_b);
+  printf("model %u\n", cal_b->model);
   param_show( & cal_b->param );
   printf("\n");
 
