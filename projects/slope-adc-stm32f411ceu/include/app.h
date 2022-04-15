@@ -171,6 +171,10 @@ struct Run
 
   uint32_t clk_count_rundown;
 
+  /*
+    we need a stamp_id;  to ensure we are not missing anything.
+  */
+
 
   uint32_t clk_count_mux_neg ;
   uint32_t clk_count_mux_pos ;

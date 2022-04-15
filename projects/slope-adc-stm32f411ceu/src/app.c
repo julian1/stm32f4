@@ -106,9 +106,14 @@ uint32_t ctrl_get_aperture( uint32_t spi )
 
 char * himux_sel_format( uint32_t mux )
 {
+
+  /*
+    printf("himux_sel %s (%lu), ",    format_bits( buf, 8, run->himux_sel), run->himux_sel);
+  */
+
   //
   switch(mux) {
-    case HIMUX_SEL_SIG_HI:  return "sig" ;
+    case HIMUX_SEL_SIG_HI:  return "sig   " ;
     case HIMUX_SEL_REF_HI:  return "ref-hi" ;
     case HIMUX_SEL_REF_LO:  return "ref-lo";
     case HIMUX_SEL_ANG:     return "ref-lo";
@@ -230,8 +235,9 @@ void run_show( const Run *run, bool verbose )
   assert(run);
 
   if(verbose) {
-    char buf[100];
-    printf("himux_sel %s (%lu), ",    format_bits( buf, 8, run->himux_sel), run->himux_sel);
+    // char buf[100];
+    // printf("himux_sel %s (%lu), ",    format_bits( buf, 8, run->himux_sel), run->himux_sel);
+    printf("himux_sel %s, ",          himux_sel_format( run->himux_sel));
 
     printf("var_up/down %lu %lu, ",   run->count_var_up, run->count_var_down );
 
@@ -365,12 +371,13 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
   // uint32_t cols = 4;
 
   // clk_count_mux_neg 2550557, clk_count_mux_pos 1458103, clk_count_mux_rd  4912,
-
+#if 0
   double x0 = run->clk_count_mux_neg ;
   double x1 = run->clk_count_mux_pos;
   double x2 = run->clk_count_mux_rd;
 
   double x3 = 1 ;
+#endif
 
   if(model == 2) {
     /*
@@ -389,19 +396,20 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
   else if( model == 3) {
 
     out = m_resize(out, 1, 3);
-    m_set_val( out, 0, 0,  x0 );
-    m_set_val( out, 0, 1,  x1  );
-    m_set_val( out, 0, 2,  x2  );
+    m_set_val( out, 0, 0,  run->clk_count_mux_neg );
+    m_set_val( out, 0, 1,  run->clk_count_mux_pos );
+    m_set_val( out, 0, 2,  run->clk_count_mux_rd );
   }
   else if ( model == 4) {
 
     out = m_resize(out, 1, 4);
     m_set_val( out, 0, 0,  1.f ); // ones, offset
-    m_set_val( out, 0, 1,  x0 );
-    m_set_val( out, 0, 2,  x1  );
-    m_set_val( out, 0, 3,  x2  );
+    m_set_val( out, 0, 1,  run->clk_count_mux_neg );
+    m_set_val( out, 0, 2,  run->clk_count_mux_pos );
+    m_set_val( out, 0, 3,  run->clk_count_mux_rd);
   }
 
+#if 0
   else if( model == 5) {
 
     out = m_resize(out, 1, 4);
@@ -410,6 +418,7 @@ MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, M
     m_set_val( out, 0, 2,  x2  );
     m_set_val( out, 0, 3,  x3  ); // flip_count
   }
+#endif
 
 
   else assert( 0);

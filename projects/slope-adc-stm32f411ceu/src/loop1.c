@@ -407,7 +407,7 @@ void app_loop2 ( app_t *app )
         ctrl_run_read(   app->spi, &run);
         ctrl_param_read( app->spi, &param);
 
-        run_show(&run, true); // always be verbose
+        run_show(&run, app->verbose ); 
         /*
         // existing for calibration we won't be using b
         if(app ->b) {
@@ -627,12 +627,10 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   while(true) {
 
       // configure ref_lo
-    ctrl_reset_enable(app->spi);
+//    ctrl_reset_enable(app->spi);
     ctrl_set_mux( app->spi, HIMUX_SEL_REF_LO );
     app->data_ready = false;
-    assert( ctrl_get_state( app->spi ) == STATE_RESET_START);
-    ctrl_reset_disable(app->spi);
-    assert( ctrl_get_state( app->spi ) == STATE_RESET);
+ //   ctrl_reset_disable(app->spi);
 
     // block/wait for data
     while(!app->data_ready ) {
@@ -648,18 +646,12 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
     // read data
     ctrl_run_read(app->spi, &run_zero);
-    // ctrl_param_read( app->spi, &param_zero);
-    // assert(param_zero.himux_sel ==  HIMUX_SEL_REF_LO );
-    assert(run_zero.himux_sel ==  HIMUX_SEL_REF_LO );
-
 
     // configure mux_sel
-    ctrl_reset_enable(app->spi);
+//    ctrl_reset_enable(app->spi);
     ctrl_set_mux( app->spi,   mux_sel );
     app->data_ready = false;
-    assert( ctrl_get_state( app->spi ) == STATE_RESET_START);
-    ctrl_reset_disable(app->spi);
-    assert( ctrl_get_state( app->spi ) == STATE_RESET);
+ //   ctrl_reset_disable(app->spi);
 
     // block/wait for data
     while(!app->data_ready ) {
@@ -674,9 +666,9 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
     // read data
     ctrl_run_read(app->spi, &run_sig);
-    // ctrl_param_read( app->spi, &param_sig);
-    // assert(param_sig.himux_sel == mux_sel);
-    // assert(run_sig.himux_sel == mux_sel);
+
+    run_show( &run_zero, app->verbose);
+    run_show( &run_sig, app->verbose);
 
     // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, m_calc_predicted_val( app-> b , &run_sig , &param_sig )));
     // assert(run_zero.count_var_up && run_sig.count_var_up ) ;
@@ -688,7 +680,7 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     Cal *cal = app->cal[ app->cal_slot_idx ];
     if(cal) {
       assert(cal->b);
-      double predict_zero   = m_calc_predicted_val( cal->b , &run_zero, &param);
+      double predict_zero   = m_calc_predicted_val( cal->b , &run_zero, &param);  // param only needed for aperture.
       double predict_sig    = m_calc_predicted_val( cal->b , &run_sig,  &param);
       double predict        = predict_sig - predict_zero;
       process( app, predict );
