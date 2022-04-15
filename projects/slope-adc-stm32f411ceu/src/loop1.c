@@ -1060,7 +1060,7 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
 
     } // obs loop.
 
-    printf("a first %f last %f diff %fuV \n" , first, last, (last - first) * 1000000 );
+    printf("a first %f last %f diff %f.2uV \n" , first, last, (last - first) * 1000000 );
 
   } // target loop
 
