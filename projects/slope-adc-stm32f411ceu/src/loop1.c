@@ -676,10 +676,10 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     ctrl_run_read(app->spi, &run_sig);
     // ctrl_param_read( app->spi, &param_sig);
     // assert(param_sig.himux_sel == mux_sel);
-    assert(run_sig.himux_sel == mux_sel);
+    // assert(run_sig.himux_sel == mux_sel);
 
     // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, m_calc_predicted_val( app-> b , &run_sig , &param_sig )));
-    assert(run_zero.count_var_up && run_sig.count_var_up ) ;
+    // assert(run_zero.count_var_up && run_sig.count_var_up ) ;
 
       // we have both obs available...
 
@@ -802,7 +802,7 @@ double app_simple_read( app_t *app)
   ctrl_param_read(app->spi, &param);
 
   // we have both obs available...
-  assert(run.count_var_up);
+  // assert(run.count_var_up);
 
   assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
   Cal *cal = app->cal[ app->cal_slot_idx ];
@@ -856,6 +856,9 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
   }
 #endif
 
+  // indicate running
+  app->led_blink_interval = 500;
+
 
 
   // clear last for mem
@@ -901,9 +904,7 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
   Cal *cal_a = app->cal[ cal_slot_a ] ;
   assert( cal_a );
 
-  printf("cal_a\n");
-  printf("slot %u\n", cal_slot_a);
-  printf("model %u\n", cal_a->model);
+  printf("cal a, slot %u\n", cal_slot_a);
   param_show( & cal_a->param );
   printf("\n");
 
@@ -914,9 +915,7 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
   Cal *cal_b = app->cal[ cal_slot_b ] ;
   assert( cal_b );
 
-  printf("cal_b\n");
-  printf("slot %u\n", cal_slot_b);
-  printf("model %u\n", cal_b->model);
+  printf("cal b, slot %u\n", cal_slot_b);
   param_show( & cal_b->param );
   printf("\n");
 
@@ -947,6 +946,7 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
 
     /* - I think we probably want to be able to do a loop of 2. to not take the first value.
     */
+    double first = 0, last = 0;;
 
     // 10 obs
     for(unsigned obs = 0; obs < obs_n; ++obs)
@@ -1033,6 +1033,12 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
       double predict_b  = m_calc_predicted_val( cal_b->b, &run_b, &param_b );
       double delta      = (predict_a - predict_b) * 1000000; // in uV.
 
+      // simple spread chack
+      if(obs == 0)          first = predict_a; 
+      if(obs == obs_n - 1)  last  = predict_a;
+
+  
+
       char buf[100], buf2[100];
       printf("%u   %sV\t  %sV  %.2fuV\n",
         i,
@@ -1053,6 +1059,8 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
       ++row;
 
     } // obs loop.
+
+    printf("a first %f last %f diff %fuV \n" , first, last, (last - first) * 1000000 );
 
   } // target loop
 

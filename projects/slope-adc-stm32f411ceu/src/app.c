@@ -195,6 +195,7 @@ void ctrl_run_read( uint32_t spi, Run *run )
   */
   assert(run);
 
+#if 0
   // use separate lines (to make it easier to filter - for plugging into stats).
   run->count_var_up       = spi_ice40_reg_read(spi, REG_COUNT_UP );
   run->count_var_down     = spi_ice40_reg_read(spi, REG_COUNT_DOWN );
@@ -210,13 +211,15 @@ void ctrl_run_read( uint32_t spi, Run *run )
   // WE could record slow_rundown separate to normal rundown.
   run->clk_count_rundown  = spi_ice40_reg_read(spi, REG_CLK_COUNT_RUNDOWN );
 
+  run->himux_sel = spi_ice40_reg_read(spi, REG_HIMUX_SEL );
+#endif
+
   run->clk_count_mux_neg  = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_NEG);
   run->clk_count_mux_pos  = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_POS);
   run->clk_count_mux_rd   = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_RD);
 
   // may be being, returned by the pattern controller
 
-  run->himux_sel = spi_ice40_reg_read(spi, REG_HIMUX_SEL );
 }
 
 
