@@ -17,8 +17,6 @@
 #include "cal.h"
 #include "temp.h"
 
-#include "temp.h"
-
 
 #include "voltage-source-1/voltage-source.h"
 #include "voltage-source-2/voltage-source.h"
@@ -293,7 +291,7 @@ void app_loop1 ( app_t *app )
 
 */
 
-static void calc_cal( app_t *app,  MAT *y, MAT *xs, MAT *aperture  )
+void calc_cal( app_t *app,  MAT *y, MAT *xs, MAT *aperture  )
 {
   /* better name. do_calibration.
     note uses replaces existing calibration from slot.

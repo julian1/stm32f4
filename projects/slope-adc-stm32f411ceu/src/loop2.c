@@ -11,16 +11,196 @@
 #include "regression.h"
 // #include <matrix.h>
 #include "app.h"
+#include "cal.h"
+#include "temp.h"
+
 
 
 // #include "voltage-source-1/voltage-source.h"
 
 
+void app_loop22 ( app_t *app )
+{
+  printf("=========\n");
+  printf("app_loop2 - cal loop using permutation of nplc/aperture\n");
+
+  printf("Using cal slot %u . for model and var_n,fix_n \n",  app->cal_slot_idx );
+
+  /*
+    alsways work with slot 0?
+  */
+
+  Cal *cal = app->cal[  app->cal_slot_idx ];
+  assert(cal);
+  // TODO initially, if no cal. then should create a default.
+
+
+  printf("model %u\n", cal->model);
+  param_show( & cal->param );
+  printf("\n");
+
+  /*
+    Note. no manipulation of var_n fix_n but should always be the same
+  */
+  {
+    // should always hold.
+    Param param;
+    ctrl_param_read( app->spi, &param);
+    assert( param.clk_count_var_n == cal->param.clk_count_var_n);
+    assert( param.clk_count_fix_n == cal->param.clk_count_fix_n);
+  }
+
+
+  // clear last for mem
+  if(app->last) {
+    M_FREE(app->last);
+  }
 
 
 
+  // unsigned nplc_[] = { 9, 10, 11, 12 };
+  // unsigned nplc[] = { 8, 9, 10, 11, 12, 13  };
+  unsigned nplc[] = { 8, 9, 10, 11, 12, 13, 14, 15, 16  };
+  // double y  = 0;
+
+  unsigned obs_n = 7; // 7
+
+  // may want a row pointer as well.
+  unsigned  max_rows =  obs_n * ARRAY_SIZE(nplc) * 2;
+
+  unsigned cols = 0;
+  switch ( cal->model) {
+    case 2: cols = 2; break;
+    case 3: cols = 3; break;
+    case 4: cols = 4; break;  // + intercept
+    case 5: cols = 4; break;  // + flip_count
+    default: assert(0);
+  };
+
+  MAT *xs       = m_get(max_rows, cols );
 
 
+  MAT *y        = m_get(max_rows, 1);
+  MAT *aperture = m_get(max_rows, 1); // required for predicted
+
+
+
+  unsigned row = 0;
+
+  // loop apreture/ nplc
+  for(unsigned h = 0; h < ARRAY_SIZE(nplc); ++h)
+  {
+    int nplc_ = nplc[h];
+    uint32_t aperture_ = nplc_to_aper_n( nplc_ );  // move this up a loop.
+    printf("nplc   %u\n", nplc_    );
+
+
+    // loop mux
+    for(unsigned j = 0; j < 2; ++j)
+    {
+      uint32_t mux = j == 0 ? HIMUX_SEL_REF_LO : HIMUX_SEL_REF_HI;
+      double   y_  = j == 0 ? 0                : 7.1;
+
+      printf("mux %s\n", himux_sel_format( mux));
+
+
+      ctrl_reset_enable(app->spi);
+      ctrl_set_aperture( app->spi, aperture_);
+      ctrl_set_mux( app->spi, mux );
+      assert( ctrl_get_state( app->spi ) == STATE_RESET_START);
+      ctrl_reset_disable(app->spi);
+      assert( ctrl_get_state( app->spi ) == STATE_RESET);
+
+      for(unsigned i = 0; i < obs_n; ++i) {
+
+        ctrl_reset_enable(app->spi);
+        app->data_ready = false;
+        ctrl_reset_disable(app->spi);
+
+        // block/wait for data
+        while(!app->data_ready ) {
+          app_update( app );
+          if(app->halt_func) {
+            return;
+          }
+        }
+
+        // read the data
+        Run   run;
+        Param param;
+
+        ctrl_run_read(   app->spi, &run);
+        ctrl_param_read( app->spi, &param);
+
+        run_show(&run, app->verbose );
+        /*
+        // existing for calibration we won't be using b
+        if(app ->b) {
+          double predict = m_calc_predicted_val( app->cal, &run, &param );
+          printf("val(current cal) %lf", predict );
+        } */
+
+        if(i < 2) {
+          printf("discard");
+        }
+        else {
+
+          // record xs
+          assert(row < m_rows(xs));
+          MAT *whoot = param_run_to_matrix( &param, &run, cols , MNULL );
+          assert(whoot);
+          assert( m_cols(whoot) == m_cols(xs) );
+          assert( m_rows(whoot) == 1  );
+
+          // printf("\n");
+          // m_foutput(stdout, whoot );
+          m_row_set( xs, row, whoot );
+          M_FREE(whoot);
+
+          // record aperture
+          assert(row < m_rows(aperture));
+          assert( param.clk_count_aper_n  == aperture_ );
+          m_set_val( aperture, row, 0, param.clk_count_aper_n );
+
+
+          // record y, as target * aperture
+          assert(row < m_rows(y));
+          m_set_val( y       , row , 0, y_  *  param.clk_count_aper_n );
+
+          // increment row.
+          ++row;
+        }
+        printf("\n");
+
+      } // i
+    } // j
+  } // h
+
+
+
+  // restore default
+  ctrl_reset_enable(app->spi);
+  ctrl_set_aperture( app->spi, nplc_to_aper_n( 10 ));
+  ctrl_reset_disable(app->spi);
+
+
+
+  printf("row %u\n", row);
+  usart1_flush();
+
+  // shrink matrixes to size collected data
+  m_resize( xs, row, m_cols( xs) );
+  m_resize( y,  row, m_cols( y) );
+  m_resize( aperture, row, m_cols( aperture) ); // we don't use aperture
+
+
+  calc_cal( app, y, xs, aperture );
+
+}
+
+
+
+#if 0
 void app_loop22( app_t *app )
 {
   printf("=========\n");
@@ -184,7 +364,7 @@ void app_loop22( app_t *app )
   r_free( &regression );
 
 }
-
+#endif
 
 
 
