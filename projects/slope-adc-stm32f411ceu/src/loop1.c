@@ -234,7 +234,7 @@ void app_loop1 ( app_t *app )
 
 
 
-  if(cal) { 
+  if(cal) {
     printf("model  %u\n", cal->model);
     param_show( & cal->param );
     printf("\n");
@@ -292,6 +292,80 @@ void app_loop1 ( app_t *app )
 
 
 
+static void calc_cal( app_t *app,  MAT *y, MAT *xs, MAT *aperture  )
+{
+  /* better name. do_calibration.
+    note uses replaces existing calibration from slot.
+  */
+
+
+  R regression;
+
+  m_regression( xs, y, &regression );   // rename reg_regression()...
+
+
+  // predicted must be adjusted by aperture
+  MAT *predicted =  m_calc_predicted( regression.b, xs, aperture );
+  printf("\npredicted\n");
+  m_foutput(stdout, predicted);
+  usart1_flush();
+
+  // TODO change name regression_report.
+  regression_show( &regression, stdout);
+
+
+  ///////////////////////
+  // set it. for app slot
+  printf("\nstoring (but no save) to cal slot %u\n", app->cal_slot_idx);
+
+  // should be passed explicitly...
+  // old cal.
+  Cal *cal = app->cal[ app->cal_slot_idx ];
+  assert(cal);
+
+  ///////////////////////
+  // create the cal2 structure
+  Cal *cal2     = cal_create();
+  cal2->slot    = app->cal_slot_idx;
+  cal2->b       = m_copy( regression.b, MNULL );    // reallocate matrix.
+  ctrl_param_read( app->spi, &cal2->param);
+  cal2->sigma2  = regression.sigma2;
+  cal2->temp    = adc_temp_read10();
+
+  cal2->id      = ++(app->cal_id_max);
+
+  // appropriate fields from old cal
+  cal2->comment = strdup( cal->comment );
+  cal2->model   = cal->model;
+
+  cal_show( cal2 );
+
+
+  ///////////////////////
+  // free old cal
+  assert( cal == app->cal[ app->cal_slot_idx ] );
+  cal_free( app->cal[ app->cal_slot_idx  ]);
+  cal = NULL;
+
+
+  // update with new cal
+  app->cal[ app->cal_slot_idx] = cal2;
+
+
+  // free regression
+  r_free( &regression );
+
+
+  // combine xs, y and store in last.
+  app->last = m_hconcat(xs, y, MNULL);
+
+  M_FREE(xs);
+  M_FREE(y);
+}
+
+
+
+
 
 
 void app_loop2 ( app_t *app )
@@ -304,7 +378,7 @@ void app_loop2 ( app_t *app )
   /*
     alsways work with slot 0?
   */
-  
+
   Cal *cal = app->cal[  app->cal_slot_idx ];
   assert(cal);
   // TODO initially, if no cal. then should create a default.
@@ -407,7 +481,7 @@ void app_loop2 ( app_t *app )
         ctrl_run_read(   app->spi, &run);
         ctrl_param_read( app->spi, &param);
 
-        run_show(&run, app->verbose ); 
+        run_show(&run, app->verbose );
         /*
         // existing for calibration we won't be using b
         if(app ->b) {
@@ -445,10 +519,7 @@ void app_loop2 ( app_t *app )
           // increment row.
           ++row;
         }
-
         printf("\n");
-
-
 
       } // i
     } // j
@@ -472,90 +543,7 @@ void app_loop2 ( app_t *app )
   m_resize( aperture, row, m_cols( aperture) ); // we don't use aperture
 
 
-  #if 0
-  // need to multiply by the aperture?
-  m_foutput(stdout, xs );
-  usart1_flush();
-
-  m_foutput(stdout, y );
-  usart1_flush();
-  #endif
-
-
-  R regression;
-
-  m_regression( xs, y, &regression );
-
-
-  // predicted must be adjusted by aperture
-  MAT *predicted =  m_calc_predicted( regression.b, xs, aperture );
-  printf("\npredicted\n");
-  m_foutput(stdout, predicted);
-  usart1_flush();
-
-  // TODO change name regression_report.
-  regression_show( &regression, stdout);
-
-
-/*
-  // we can calculate this at any anytime.
-  // albeit dependency on PL(freq).
-  double sigma_div_aperture = regression.sigma / nplc_to_aper_n( 10 ) * 1000000;  // in uV.
-
-  printf("stderr(V) %.2fuV  (nplc10)\n", sigma_div_aperture);
-
-  report this in cal_show( cal )
-*/
-
-
-  ///////////////////////
-  // set it. for app slot
-  printf("\nstoring (but no save) to cal slot %u\n", app->cal_slot_idx);
-
-
-
-  ///////////////////////
-  // create the cal2 structure
-  Cal *cal2     = cal_create();
-  cal2->slot    = app->cal_slot_idx;
-  cal2->b       = m_copy( regression.b, MNULL );    // reallocate matrix.
-  ctrl_param_read( app->spi, &cal2->param);
-  cal2->sigma2  = regression.sigma2;
-  cal2->temp    = adc_temp_read10();
-
-  cal2->id      = ++(app->cal_id_max);
-
-  // appropriate fields from old cal
-  cal2->comment = strdup( cal->comment );
-  cal2->model   = cal->model;
-
-  cal_show( cal2 );
-
-
-  ///////////////////////
-  // free old cal
-  assert( cal == app->cal[ app->cal_slot_idx ] );
-  cal_free( app->cal[ app->cal_slot_idx  ]);
-  cal = NULL;
-
-
-  // update
-  app->cal[ app->cal_slot_idx] = cal2;
-
-
-
-
-
-  // free regression
-  r_free( &regression );
-
-
-  // combine xs, y and store in last.
-  app->last = m_hconcat(xs, y, MNULL);
-
-  M_FREE(xs);
-  M_FREE(y);
-
+  calc_cal( app, y, xs, aperture );
 
 }
 
@@ -618,19 +606,27 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   unsigned mux_sel = spi_ice40_reg_read(app->spi, REG_HIMUX_SEL );
 
 
-  // get the params we are using. 
-  // TODO check cal the same as device. 
+  // get the params we are using.
+  // TODO check cal the same as device.
   Param   param;
   ctrl_param_read( app->spi, &param);
 
 
   while(true) {
 
+    /* we really need to read spi in the interupt handler. and raw clk values to a buffer. then process in a loop.
+      stamp with an id. and stamp with himux_sel
+      and write the new desired mux value.
+      ---------
+      - we just need to be able to change the interupt handler function .
+      - and need a queue on the app.
+    */
+
       // configure ref_lo
-//    ctrl_reset_enable(app->spi);
+    ctrl_reset_enable(app->spi);
     ctrl_set_mux( app->spi, HIMUX_SEL_REF_LO );
     app->data_ready = false;
- //   ctrl_reset_disable(app->spi);
+    ctrl_reset_disable(app->spi);
 
     // block/wait for data
     while(!app->data_ready ) {
@@ -648,10 +644,10 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     ctrl_run_read(app->spi, &run_zero);
 
     // configure mux_sel
-//    ctrl_reset_enable(app->spi);
+    ctrl_reset_enable(app->spi);
     ctrl_set_mux( app->spi,   mux_sel );
     app->data_ready = false;
- //   ctrl_reset_disable(app->spi);
+    ctrl_reset_disable(app->spi);
 
     // block/wait for data
     while(!app->data_ready ) {
@@ -702,7 +698,7 @@ void app_voltage_source_1_set( app_t *app, double value )
   // so put here, instead of app.c
   // change name current voltage
   double current = app_simple_read( app);
-  
+
 
   if( value > current ) {
 
@@ -1026,10 +1022,10 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
       double delta      = (predict_a - predict_b) * 1000000; // in uV.
 
       // simple spread chack
-      if(obs == 0)          first = predict_a; 
+      if(obs == 0)          first = predict_a;
       if(obs == obs_n - 1)  last  = predict_a;
 
-  
+
 
       char buf[100], buf2[100];
       printf("%u   %sV\t  %sV  %.2fuV\n",
