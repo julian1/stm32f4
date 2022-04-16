@@ -288,9 +288,10 @@ void app_loop1 ( app_t *app )
 }
 
 
+/*
+  ok. we need to prompt for a value....
 
-
-
+*/
 
 static void calc_cal( app_t *app,  MAT *y, MAT *xs, MAT *aperture  )
 {
@@ -1059,10 +1060,10 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
 
 
   // set to flush
-  ffnctl( stdout, ffnctl( stdout, 0) | FILE_SYNC_ON_NEWLINE );
+  ffnctl( stdout, ffnctl( stdout, 0) | SYNC_OUTPUT_ON_NEWLINE );
   m_octave_foutput( stdout, NULL, m);
 
-  ffnctl( stdout, ffnctl( stdout, 0) & ~FILE_SYNC_ON_NEWLINE );
+  ffnctl( stdout, ffnctl( stdout, 0) & ~SYNC_OUTPUT_ON_NEWLINE );
 
   app->last = m;
 

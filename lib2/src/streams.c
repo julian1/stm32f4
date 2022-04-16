@@ -85,7 +85,8 @@ static void * file_to_cookie( FILE *f )
   return cookie;
 }
 
-#define FILE_SYNC_ON_NEWLINE   0x01
+// change name SYNC_OUTPUT_ON_NEWLINE
+#define SYNC_OUTPUT_ON_NEWLINE   0x01
 
 
 
@@ -122,7 +123,7 @@ static ssize_t mywrite(Cookie *cookie, const char *buf, size_t size)
       cBufPush(cookie->circ_buf, ch);
 
       // block control, in order to flush circular buffer
-      if(cookie->flags & FILE_SYNC_ON_NEWLINE)
+      if(cookie->flags & SYNC_OUTPUT_ON_NEWLINE)
         usart1_flush();
 
     }
@@ -192,6 +193,13 @@ static ssize_t myread(Cookie *cookie, char *buf, size_t sz)
   EOF can be clear by calling clearerr()
   */
   assert(cookie);
+
+  // so if we want block / no block sync...  
+
+  /* 
+    the issue with blocking here is that it won't pump update() 
+  */
+
   return cBufRead( cookie->circ_buf, buf, sz);
 }
 

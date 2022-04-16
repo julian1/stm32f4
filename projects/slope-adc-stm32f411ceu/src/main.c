@@ -667,9 +667,9 @@ void app_update_console_cmd(app_t *app)
         if(!app->last) {
           printf("no last\n");
         } else {
-          ffnctl( stdout, ffnctl( stdout, 0) | FILE_SYNC_ON_NEWLINE );
+          ffnctl( stdout, ffnctl( stdout, 0) | SYNC_OUTPUT_ON_NEWLINE );
           m_octave_foutput( stdout, NULL, app->last);
-          ffnctl( stdout, ffnctl( stdout, 0) & ~FILE_SYNC_ON_NEWLINE );
+          ffnctl( stdout, ffnctl( stdout, 0) & ~SYNC_OUTPUT_ON_NEWLINE );
         }
       }
 
