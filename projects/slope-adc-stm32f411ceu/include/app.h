@@ -145,6 +145,13 @@ struct Param
 
 typedef struct Param Param;
 
+void ctrl_param_read( uint32_t spi, Param *param);
+void ctrl_param_write( uint32_t spi, Param *param);
+bool param_equal( Param *param_a , Param *param_b);
+
+// void ctrl_param_read_last( uint32_t spi, Param *param);
+void param_show( const Param *param /* , FILE *f*/ );  // rename param_show??
+
 
 
 
@@ -199,10 +206,6 @@ typedef struct Run  Run;
 
 
 // sould pass stream
-
-void ctrl_param_read( uint32_t spi, Param *param);
-// void ctrl_param_read_last( uint32_t spi, Param *param);
-void param_show( const Param *param /* , FILE *f*/ );  // rename param_show??
 
 void ctrl_run_read( uint32_t spi, Run *run);
 

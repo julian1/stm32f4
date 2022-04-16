@@ -948,9 +948,12 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
       param_show( &cal_a->param );
 
       ctrl_reset_enable(app->spi);
+      ctrl_param_write( app->spi, &cal_a->param);
+/*
       ctrl_set_aperture( app->spi,  cal_a->param.clk_count_aper_n);
       ctrl_set_var_n( app->spi,     cal_a->param.clk_count_var_n);
       ctrl_set_fix_n( app->spi,     cal_a->param.clk_count_fix_n);
+*/
       app->data_ready = false;
       ctrl_reset_disable(app->spi);
 
@@ -966,14 +969,16 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
 
       // read A.
       Run   run_a;
-      Param param_a;
       ctrl_run_read( app->spi, &run_a);
       run_show( &run_a, false);
       printf("\n");
 
-      /*
+
       // shouldn't need this
+      Param param_a;
       ctrl_param_read( app->spi, &param_a);
+      assert( param_equal( &cal_a->param, &param_a));
+/*
       assert( param_a.clk_count_aper_n  == cal_a->param.clk_count_aper_n);
       assert( param_a.clk_count_var_n   == cal_a->param.clk_count_var_n );
       assert( param_a.clk_count_fix_n   == cal_a->param.clk_count_fix_n);
@@ -987,9 +992,12 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
 
 
       ctrl_reset_enable(app->spi);
+      ctrl_param_write( app->spi, &cal_b->param);
+/*
       ctrl_set_aperture( app->spi,  cal_b->param.clk_count_aper_n);
       ctrl_set_var_n( app->spi,     cal_b->param.clk_count_var_n);
       ctrl_set_fix_n( app->spi,     cal_b->param.clk_count_fix_n);
+*/
       app->data_ready = false;
       ctrl_reset_disable(app->spi);
 
@@ -1005,14 +1013,17 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
 
       // read B
       Run   run_b;
-      Param param_b;
       ctrl_run_read( app->spi, &run_b);
       run_show( &run_b, false );
       printf("\n");
 
-      /*
+
       // shouldn't need this
+      Param param_b;
       ctrl_param_read( app->spi, &param_b);
+      assert( param_equal( &cal_b->param, &param_b));
+
+/*
       assert( param_b.clk_count_aper_n  == cal_b->param.clk_count_aper_n);
       assert( param_b.clk_count_var_n   == cal_b->param.clk_count_var_n );
       assert( param_b.clk_count_fix_n   == cal_b->param.clk_count_fix_n);
@@ -1023,8 +1034,8 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
 
       assert(cal_a->b && cal_b->b );
 
-      double predict_a  = m_calc_predicted_val( cal_a->b, &run_a, &param_a );
-      double predict_b  = m_calc_predicted_val( cal_b->b, &run_b, &param_b );
+      double predict_a  = m_calc_predicted_val( cal_a->b, &run_a, &cal_a->param);
+      double predict_b  = m_calc_predicted_val( cal_b->b, &run_b, &cal_b->param);
       double delta      = (predict_a - predict_b) * 1000000; // in uV.
 
       // simple spread chack

@@ -294,25 +294,23 @@ void ctrl_param_read( uint32_t spi, Param *param)
 
 
 
-
-#if 0
-void ctrl_param_read_last( uint32_t spi, Param *param)
+void ctrl_param_write( uint32_t spi, Param *param)
 {
+  ctrl_set_aperture( spi, param->clk_count_aper_n);
+  ctrl_set_var_n( spi,    param->clk_count_var_n);
+  ctrl_set_fix_n( spi,    param->clk_count_fix_n);
 
-  // but nothing permutes this.
-  uint32_t int_lo = spi_ice40_reg_read(spi, REG_LAST_CLK_COUNT_APER_N_LO );
-  uint32_t int_hi = spi_ice40_reg_read(spi, REG_LAST_CLK_COUNT_APER_N_HI );
-  param->clk_count_aper_n = int_hi << 24 | int_lo;
 
-  param->clk_count_fix_n  = spi_ice40_reg_read(spi, REG_LAST_CLK_COUNT_FIX_N);
-
-  param->clk_count_var_n = spi_ice40_reg_read(spi, REG_LAST_CLK_COUNT_VAR_N);
-
-  // This is.
-  // read in run
-  param->himux_sel = spi_ice40_reg_read(spi, REG_LAST_HIMUX_SEL ); // **last
 }
-#endif
+
+
+bool param_equal( Param *param_a , Param *param_b)
+{
+  return
+     param_a->clk_count_aper_n   == param_b->clk_count_aper_n
+     && param_a->clk_count_var_n == param_b->clk_count_var_n
+     && param_a->clk_count_fix_n == param_b->clk_count_fix_n;
+}
 
 
 void param_show( const Param *param)
