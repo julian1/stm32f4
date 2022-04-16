@@ -16,7 +16,68 @@
 
 
 
-// #include "voltage-source-1/voltage-source.h"
+
+/*
+  could manipulate optocoupplers/ relays to generate
+*/
+
+
+
+static void app_update_console_cmd2(app_t *app)
+{
+
+  int ch;
+  clearerr(stdin);
+
+  while( (ch = fgetc( stdin)) != EOF ) { // && -1 /EOF for error
+
+    assert(ch >= 0);
+
+    if(! ( ch == ';' || ch == '\r')) {
+
+      // ignore leading whitespace
+      if( ch == ' ' && app->cmd_buf_i == 0)  {
+        putchar( ch);
+        return;
+      }
+
+      if( app->cmd_buf_i < CMD_BUF_SZ - 1 )
+        app->cmd_buf[ app->cmd_buf_i++ ] = ch;
+
+      // echo to output. required for minicom.
+      putchar( ch);
+
+    }  else {
+
+      // code should be CString. but this kind of works well enough...
+      // we got a command
+      app->cmd_buf[ app->cmd_buf_i ]  = 0;
+      putchar('\n');
+      // printf("got command '%s'\n", app->cmd_buf );
+
+
+      if(strcmp(app->cmd_buf , "ok") == 0) {
+
+        printf("whoot!\n");
+      }
+
+    }
+  }
+
+}
+ 
+
+
+
+static void app_update2( app_t * app )
+{
+  // just have a separate
+  app_update_console_cmd2(app);
+  app_update_led(app);
+}
+
+
+
 
 
 void app_loop22 ( app_t *app )
@@ -66,7 +127,7 @@ void app_loop22 ( app_t *app )
   unsigned obs_n = 7; // 7
 
   // may want a row pointer as well.
-  unsigned  max_rows =  obs_n * ARRAY_SIZE(nplc) * 2;
+  unsigned  max_rows =  obs_n * ARRAY_SIZE(nplc) * 3;   // 3 == pos, neg, short,
 
   unsigned cols = 0;
   switch ( cal->model) {
@@ -78,12 +139,14 @@ void app_loop22 ( app_t *app )
   };
 
   MAT *xs       = m_get(max_rows, cols );
-
-
   MAT *y        = m_get(max_rows, 1);
   MAT *aperture = m_get(max_rows, 1); // required for predicted
 
 
+
+
+  // printf("mux %s\n", himux_sel_format( mux));
+  ctrl_set_mux( app->spi, HIMUX_SEL_SIG_HI );
 
   unsigned row = 0;
 
@@ -95,21 +158,25 @@ void app_loop22 ( app_t *app )
     printf("nplc   %u\n", nplc_    );
 
 
-    // loop mux
-    for(unsigned j = 0; j < 2; ++j)
+
+    ctrl_reset_enable(app->spi);
+    ctrl_set_aperture( app->spi, aperture_);
+    // assert( ctrl_get_state( app->spi ) == STATE_RESET_START);
+    ctrl_reset_disable(app->spi);
+    // assert( ctrl_get_state( app->spi ) == STATE_RESET);
+
+    // we need a blocking wait.
+
+
+    // loop hi/reverse polarity/short.
+    for(unsigned j = 0; j < 3; ++j)
     {
-      uint32_t mux = j == 0 ? HIMUX_SEL_REF_LO : HIMUX_SEL_REF_HI;
-      double   y_  = j == 0 ? 0                : 7.1;
+      double   vals[]  = { 7.146 , -7.146, 0.f } ;
+      double   y_  =  vals[ j ] ;
 
-      printf("mux %s\n", himux_sel_format( mux));
+      printf("input %f\n", y_ );
 
 
-      ctrl_reset_enable(app->spi);
-      ctrl_set_aperture( app->spi, aperture_);
-      ctrl_set_mux( app->spi, mux );
-      assert( ctrl_get_state( app->spi ) == STATE_RESET_START);
-      ctrl_reset_disable(app->spi);
-      assert( ctrl_get_state( app->spi ) == STATE_RESET);
 
       for(unsigned i = 0; i < obs_n; ++i) {
 
@@ -346,7 +413,7 @@ void app_loop22( app_t *app )
 
 
   regression_show( &regression, stdout);
- 
+
   // copy, for new memory
   // app->b = m_copy( regression.b, MNULL );
 

@@ -291,6 +291,8 @@ struct app_t
 typedef struct app_t app_t;
 
 
+void app_update_led(app_t *app);
+
 void calc_cal( app_t *app,  MAT *y, MAT *xs, MAT *aperture  );
 
 // app_loop1
