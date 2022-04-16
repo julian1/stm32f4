@@ -219,6 +219,9 @@ void ctrl_run_read( uint32_t spi, Run *run )
   run->himux_sel = spi_ice40_reg_read(spi, REG_HIMUX_SEL );
 #endif
 
+
+  run->count_flip         = spi_ice40_reg_read(spi, REG_COUNT_FLIP);
+
   run->clk_count_mux_neg  = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_NEG);
   run->clk_count_mux_pos  = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_POS);
   run->clk_count_mux_rd   = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_RD);
@@ -245,7 +248,6 @@ void run_show( const Run *run, bool verbose )
 
     printf("pos_trans_up/down %lu %lu, ", run->count_pos_trans,  run->count_neg_trans);
 
-    printf("count_flip %lu, ",        run->count_flip);
 
     printf("clk_count_rundown %lu, ", run->clk_count_rundown);
 
@@ -258,6 +260,8 @@ void run_show( const Run *run, bool verbose )
     printf("clk_count_mux_neg %lu, ", run->clk_count_mux_neg);
     printf("clk_count_mux_pos %lu, ", run->clk_count_mux_pos);
     printf("clk_count_mux_rd %lu, ",  run->clk_count_mux_rd);
+
+    printf("count_flip %lu, ",        run->count_flip);
   }
   // printf("meas_count %lu, ", run->meas_count);
 }

@@ -32,14 +32,7 @@ static void app_update_console_cmd2(app_t *app)
   while( (ch = fgetc( stdin)) != EOF ) { // && -1 /EOF for error
 
     assert(ch >= 0);
-
     if(! ( ch == ';' || ch == '\r')) {
-
-      // ignore leading whitespace
-      if( ch == ' ' && app->cmd_buf_i == 0)  {
-        putchar( ch);
-        return;
-      }
 
       if( app->cmd_buf_i < CMD_BUF_SZ - 1 )
         app->cmd_buf[ app->cmd_buf_i++ ] = ch;
@@ -55,17 +48,27 @@ static void app_update_console_cmd2(app_t *app)
       putchar('\n');
       // printf("got command '%s'\n", app->cmd_buf );
 
-
       if(strcmp(app->cmd_buf , "ok") == 0) {
 
+        // we could set a flag here an then loop....
+        app->block = false;
         printf("whoot!\n");
       }
+      // unknown command
+      else {
+        printf( "unknown command '%s'\n", app->cmd_buf );
+      }
 
+      // reset buffer
+      app->cmd_buf_i = 0;
+      app->cmd_buf[ app->cmd_buf_i ]  = 0;
+
+      // issue new command prompt
+      printf("> ");
     }
   }
-
 }
- 
+
 
 
 
@@ -76,11 +79,36 @@ static void app_update2( app_t * app )
   app_update_led(app);
 }
 
+static void prompt_for_user_ok( app_t *app)
+{
+
+  // pause for user input
+  printf("type 'ok' when ready\n");
+  printf("> ");
+
+  app->block = true;
+  while(app->block)
+    app_update2(app);
+
+}
+
+
+
+static void app_loop22_( app_t *app )
+{
+  printf("=========\n");
+  printf("app_loop2 test\ n");
+
+  prompt_for_user_ok( app);
+}
 
 
 
 
-void app_loop22 ( app_t *app )
+
+
+
+void app_loop22( app_t *app )
 {
   printf("=========\n");
   printf("app_loop2 - cal loop using permutation of nplc/aperture\n");
@@ -150,32 +178,35 @@ void app_loop22 ( app_t *app )
 
   unsigned row = 0;
 
-  // loop apreture/ nplc
-  for(unsigned h = 0; h < ARRAY_SIZE(nplc); ++h)
+
+
+  // input voltage is  the outter loop
+
+  double   vals[]  = { 7.146 , -7.146 } ;
+
+  // loop hi/reverse polarity/short.
+  for(unsigned j = 0; j < ARRAY_SIZE(vals); ++j)
   {
-    int nplc_ = nplc[h];
-    uint32_t aperture_ = nplc_to_aper_n( nplc_ );  // move this up a loop.
-    printf("nplc   %u\n", nplc_    );
+    double   y_  =  vals[ j ] ;
+
+    printf("\n");
+    printf("set input to %fV\n", y_ );
+
+    // pause for user input
+    prompt_for_user_ok( app);
 
 
-
-    ctrl_reset_enable(app->spi);
-    ctrl_set_aperture( app->spi, aperture_);
-    // assert( ctrl_get_state( app->spi ) == STATE_RESET_START);
-    ctrl_reset_disable(app->spi);
-    // assert( ctrl_get_state( app->spi ) == STATE_RESET);
-
-    // we need a blocking wait.
-
-
-    // loop hi/reverse polarity/short.
-    for(unsigned j = 0; j < 3; ++j)
+    // loop apreture/ nplc
+    for(unsigned h = 0; h < ARRAY_SIZE(nplc); ++h)
     {
-      double   vals[]  = { 7.146 , -7.146, 0.f } ;
-      double   y_  =  vals[ j ] ;
+      int nplc_ = nplc[h];
+      uint32_t aperture_ = nplc_to_aper_n( nplc_ );  // move this up a loop.
+      printf("nplc   %u\n", nplc_    );
 
-      printf("input %f\n", y_ );
 
+      ctrl_reset_enable(app->spi);
+      ctrl_set_aperture( app->spi, aperture_);
+      ctrl_reset_disable(app->spi);
 
 
       for(unsigned i = 0; i < obs_n; ++i) {
@@ -197,7 +228,7 @@ void app_loop22 ( app_t *app )
         Param param;
 
         ctrl_run_read(   app->spi, &run);
-        ctrl_param_read( app->spi, &param);
+        ctrl_param_read( app->spi, &param); // doesn't really ???
 
         run_show(&run, app->verbose );
         /*
@@ -378,8 +409,8 @@ void app_loop22( app_t *app )
 
 
       } // i
-    } // j
-  } // h
+    } // h
+  } // j
 
 
 

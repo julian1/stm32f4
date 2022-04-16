@@ -805,10 +805,6 @@ double app_simple_read( app_t *app)
 
 
 
-/*
-
-*/
-
 
 
 void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
@@ -871,9 +867,14 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
     11, 10.5, 10, 9.5, 9, 8.5, 8, 7.5, 7, 6.5, 6, 5.5, 5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0,
     -0.5, -1, -1.5, -2, -2.5, -3, -3.5, -4, -4.5, -5, -5.5, -6, -6.5, -7, -7.5, -8, -8.5, -9, -9.5, -10, -10.5, -11 } ;
 
+/*
+  double target_[] = {
+    -11, -10.5, -10, -9.5, -9, -8.5, -8, -7.5, -7, -6.5, -6, -5.5, -5, -4.5, -4, -3.5, -3, -2.5, -2, -1.5, -1, -0.5, -0,
+    0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11 } ;
+*/
 
 /*
-  larger voltage jump means more DA. so this could be worse. don't use.
+  a larger voltage jump means more DA. so don't make coarser.
   double target_[] = {
     11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
     -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 } ;
@@ -945,7 +946,6 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
       */
 
       param_show( &cal_a->param );
-      printf("\n");
 
       ctrl_reset_enable(app->spi);
       ctrl_set_aperture( app->spi,  cal_a->param.clk_count_aper_n);
@@ -967,20 +967,23 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
       // read A.
       Run   run_a;
       Param param_a;
-      ctrl_run_read(   app->spi, &run_a);
-      ctrl_param_read( app->spi, &param_a);
+      ctrl_run_read( app->spi, &run_a);
+      run_show( &run_a, false);
+      printf("\n");
 
+      /*
       // shouldn't need this
+      ctrl_param_read( app->spi, &param_a);
       assert( param_a.clk_count_aper_n  == cal_a->param.clk_count_aper_n);
       assert( param_a.clk_count_var_n   == cal_a->param.clk_count_var_n );
       assert( param_a.clk_count_fix_n   == cal_a->param.clk_count_fix_n);
+      */
 
 
       ///////////////////////////////
 
       // do B
       param_show( &cal_b->param );
-      printf("\n");
 
 
       ctrl_reset_enable(app->spi);
@@ -1003,13 +1006,17 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
       // read B
       Run   run_b;
       Param param_b;
-      ctrl_run_read(   app->spi, &run_b);
-      ctrl_param_read( app->spi, &param_b);
+      ctrl_run_read( app->spi, &run_b);
+      run_show( &run_b, false );
+      printf("\n");
 
+      /*
       // shouldn't need this
+      ctrl_param_read( app->spi, &param_b);
       assert( param_b.clk_count_aper_n  == cal_b->param.clk_count_aper_n);
       assert( param_b.clk_count_var_n   == cal_b->param.clk_count_var_n );
       assert( param_b.clk_count_fix_n   == cal_b->param.clk_count_fix_n);
+      */
 
       ///////////////////////
       // work out A,B difference

@@ -204,7 +204,7 @@ void ctrl_param_read( uint32_t spi, Param *param);
 // void ctrl_param_read_last( uint32_t spi, Param *param);
 void param_show( const Param *param /* , FILE *f*/ );  // rename param_show??
 
-void ctrl_run_read( uint32_t spi, Run *run );
+void ctrl_run_read( uint32_t spi, Run *run);
 
 
 void run_show( const Run *run, bool verbose /* FILE *f */ );
@@ -285,6 +285,8 @@ struct app_t
   uint32_t  spi_voltage_source;
 
   bool      verbose;
+
+  bool      block;  // used to pause for user input
 } ;
 
 
