@@ -45,7 +45,7 @@ void file_skip_to_end(  FILE *f)
   assert(f );
 
   printf( "----------------------\n");
-  printf( "file skip to end\n");
+  printf( "file_skip_to_end()\n");
   usart1_flush();
 
   // seek the start of file
@@ -160,7 +160,7 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz, unsigned *cal_id_max )
   assert(f );
 
   printf( "----------------------\n");
-  printf( "config scan flash\n");
+  printf( "file_scan_cal()\n");
   usart1_flush();
 
   // seek the start of file
@@ -180,8 +180,8 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz, unsigned *cal_id_max )
 
     unsigned here0 = ftell( f);
 
-    // printf("pos %u  got header.id %u len %u magic %x\n", here0, header.id, header.len, header.magic);
-    printf("pos %u, magic %x, header.id %u, len %u\n", here0, header.magic, header.id, header.len);
+    // printf("pos %u, magic %x, header.id %u, len %u\n", here0, header.magic, header.id, header.len);
+    printf(".");
 
     if(header.magic == MAGIC ) {
       // valid slot
@@ -193,7 +193,7 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz, unsigned *cal_id_max )
         case 102:
         case 103:   // some wrongly sized.
 
-          printf("old, ignore\n" );
+          // printf("old, ignore\n" );
           // fseek( f, header.len, SEEK_CUR ) ;
           break;
 
@@ -254,7 +254,7 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz, unsigned *cal_id_max )
   // reset seek the start of file
   fseek( f, 0 , SEEK_SET) ;
 
-  printf( "done\n" );
+  printf( "\ndone\n" );
   return 0;
 }
 

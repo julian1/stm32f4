@@ -332,7 +332,7 @@ void app_update_console_cmd(app_t *app)
 
 #if 0
 
-      // no longer used. instead loop1, loop3. set the mod parameters at start.
+      // no longer used. instead loop1, loop3. sets the mod parameters to device at start.
 
 
       else if(sscanf(app->cmd_buf, "cal switch mod %lu", &u32 ) == 1) {
