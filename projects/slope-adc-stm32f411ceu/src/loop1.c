@@ -264,13 +264,10 @@ void app_loop1 ( app_t *app )
       }
     }
 
-    // this triggers if not aligned.
-    // assert(run.count_var_up);
-
     // read the ready data
-    ctrl_run_read(app->spi, &run);
-    // ctrl_param_read( app->spi, &param);
+    ctrl_run_read(app->spi, &run, app->verbose);
 
+    // dev should still be in state reset, while reading
     assert( ctrl_get_state( app->spi ) == STATE_RESET);
 
     // only report if using buffer, to reduce clutter
@@ -298,7 +295,9 @@ void app_loop1 ( app_t *app )
 
 void calc_cal( app_t *app,  MAT *y, MAT *xs, MAT *aperture  )
 {
-  /* better name. do_calibration.
+  /* 
+      calc_calibration_from_data
+    better name. do_calibration.
     note uses replaces existing calibration from slot.
   */
 
@@ -418,8 +417,26 @@ void app_loop2 ( app_t *app )
 
   unsigned obs_n = 7; // 7
 
+
+  Param params[] = { 
+    { 
+      .clk_count_aper_n = 0,   
+      .clk_count_fix_n = 24,
+      .clk_count_var_n = 185,
+      .old_serialization = 0,
+    },
+    { 
+      .clk_count_aper_n = 0,   
+      .clk_count_fix_n = 20,
+      .clk_count_var_n = 189,
+      .old_serialization = 0,
+    }
+  };
+
+
+
   // may want a row pointer as well.
-  unsigned  max_rows =  obs_n * ARRAY_SIZE(nplc) * 2;
+  unsigned  max_rows =  obs_n * ARRAY_SIZE(nplc) * 2 * ARRAY_SIZE(params);
 
   unsigned cols = 0;
   switch ( cal->model) {
@@ -431,16 +448,14 @@ void app_loop2 ( app_t *app )
   };
 
   MAT *xs       = m_get(max_rows, cols );
-
-
   MAT *y        = m_get(max_rows, 1);
   MAT *aperture = m_get(max_rows, 1); // required for predicted
 
-
+    
 
   unsigned row = 0;
 
-  // loop nplc
+  // loop aperture nplc
   for(unsigned h = 0; h < ARRAY_SIZE(nplc); ++h)
   {
     int nplc_ = nplc[h];
@@ -462,61 +477,73 @@ void app_loop2 ( app_t *app )
       ctrl_set_mux( app->spi, mux );
       ctrl_reset_disable(app->spi);
 
-      for(unsigned i = 0; i < obs_n; ++i) {
 
+      for(unsigned k = 0; k < ARRAY_SIZE(params); ++k) {
+
+        // permute modulation params
         ctrl_reset_enable(app->spi);
-        app->data_ready = false;
+        ctrl_set_var_n( app->spi, params[ k ] . clk_count_var_n );
+        ctrl_set_fix_n( app->spi, params[ k ] . clk_count_fix_n );
         ctrl_reset_disable(app->spi);
 
-        // block/wait for data
-        while(!app->data_ready ) {
-          app_update( app );
-          if(app->halt_func) {
-            return;
+
+        for(unsigned i = 0; i < obs_n; ++i) {
+
+          ctrl_reset_enable(app->spi);
+          app->data_ready = false;
+          ctrl_reset_disable(app->spi);
+
+          // block/wait for data
+          while(!app->data_ready ) {
+            app_update( app );
+            if(app->halt_func) {
+              return;
+            }
           }
-        }
 
-        // read the data
-        Run   run;
-        Param param;
+          // read the data and params.  
+          Run   run;
+          Param param;
 
-        ctrl_run_read(   app->spi, &run);
-        ctrl_param_read( app->spi, &param);
+          ctrl_run_read(   app->spi, &run, app->verbose);
+          ctrl_param_read( app->spi, &param);
 
-        run_show(&run, app->verbose );
+          param_show(&param);
+          run_show(&run, app->verbose );
 
-        if(i < 2) {
-          printf("discard");
-        }
-        else {
+          if(i < 2) {
+            printf("discard");
+          }
+          else {
 
-          // record xs
-          assert(row < m_rows(xs));
-          MAT *whoot = run_to_matrix( &run, cols , MNULL );
-          assert(whoot);
-          assert( m_cols(whoot) == m_cols(xs) );
-          assert( m_rows(whoot) == 1  );
+            // record xs
+            assert(row < m_rows(xs));
+            MAT *whoot = run_to_matrix( &run, cols , MNULL );
+            assert(whoot);
+            assert( m_cols(whoot) == m_cols(xs) );
+            assert( m_rows(whoot) == 1  );
 
-          // printf("\n");
-          // m_foutput(stdout, whoot );
-          m_row_set( xs, row, whoot );
-          M_FREE(whoot);
+            // printf("\n");
+            // m_foutput(stdout, whoot );
+            m_row_set( xs, row, whoot );
+            M_FREE(whoot);
 
-          // record aperture
-          assert(row < m_rows(aperture));
-          assert( param.clk_count_aper_n  == aperture_ );
-          m_set_val( aperture, row, 0, param.clk_count_aper_n );
+            // record aperture
+            assert(row < m_rows(aperture));
+            assert( param.clk_count_aper_n  == aperture_ );
+            m_set_val( aperture, row, 0, param.clk_count_aper_n );
 
 
-          // record y, as target * aperture
-          assert(row < m_rows(y));
-          m_set_val( y       , row , 0, y_  *  param.clk_count_aper_n );
+            // record y, as target * aperture
+            assert(row < m_rows(y));
+            m_set_val( y       , row , 0, y_  *  param.clk_count_aper_n );
 
-          // increment row.
-          ++row;
-        }
-        printf("\n");
+            // increment row.
+            ++row;
+          }
+          printf("\n");
 
+        } // k
       } // i
     } // j
   } // h
@@ -646,7 +673,7 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
     // read data
     Run   run_zero;
-    ctrl_run_read(app->spi, &run_zero);
+    ctrl_run_read(app->spi, &run_zero, app->verbose);
 
 
     // configure mux_sel
@@ -665,7 +692,7 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
     // read data
     Run   run_sig;
-    ctrl_run_read(app->spi, &run_sig);
+    ctrl_run_read(app->spi, &run_sig, app->verbose);
 
 
     run_show( &run_zero, app->verbose);
@@ -784,7 +811,7 @@ double app_simple_read( app_t *app)
     // no need to test halt flag here, because this is fast
   }
 
-  ctrl_run_read(app->spi, &run);
+  ctrl_run_read(app->spi, &run, app->verbose);
   ctrl_param_read(app->spi, &param);
 
   // we have both obs available...
@@ -963,7 +990,7 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
 
       // read A.
       Run   run_a;
-      ctrl_run_read( app->spi, &run_a);
+      ctrl_run_read( app->spi, &run_a, app->verbose);
       run_show( &run_a, false);
       printf("\n");
 
@@ -996,7 +1023,7 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
 
       // read B
       Run   run_b;
-      ctrl_run_read( app->spi, &run_b);
+      ctrl_run_read( app->spi, &run_b, app->verbose);
       run_show( &run_b, false );
       printf("\n");
 

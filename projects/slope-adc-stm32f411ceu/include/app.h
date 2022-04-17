@@ -176,7 +176,10 @@ struct Run
 
   uint32_t count_flip;
 
-  uint32_t clk_count_rundown;
+
+  // TODO REMOVE
+  // run->clk_count_rundown  = spi_ice40_reg_read(spi, REG_CLK_COUNT_RUNDOWN );
+  /// uint32_t clk_count_rundown;
 
   /*
     we need a stamp_id;  to ensure we are not missing anything.
@@ -207,7 +210,7 @@ typedef struct Run  Run;
 
 // sould pass stream
 
-void ctrl_run_read( uint32_t spi, Run *run);
+void ctrl_run_read( uint32_t spi, Run *run, bool verbose);
 
 
 void run_show( const Run *run, bool verbose /* FILE *f */ );

@@ -227,7 +227,7 @@ void app_loop22( app_t *app )
         Run   run;
         Param param;
 
-        ctrl_run_read(   app->spi, &run);
+        ctrl_run_read(   app->spi, &run, app->verbose);
         ctrl_param_read( app->spi, &param); // doesn't really ???
 
         run_show(&run, app->verbose );
@@ -369,7 +369,7 @@ void app_loop22( app_t *app )
         Run   run;
         Param param;
 
-        ctrl_run_read(   app->spi, &run);
+        ctrl_run_read(   app->spi, &run, app->verbose);
         ctrl_param_read( app->spi, &param);
 
         run_show(&run, app->verbose);
