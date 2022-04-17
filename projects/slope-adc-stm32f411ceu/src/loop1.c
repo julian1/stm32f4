@@ -460,9 +460,7 @@ void app_loop2 ( app_t *app )
       ctrl_reset_enable(app->spi);
       ctrl_set_aperture( app->spi, aperture_);
       ctrl_set_mux( app->spi, mux );
-      assert( ctrl_get_state( app->spi ) == STATE_RESET_START);
       ctrl_reset_disable(app->spi);
-      assert( ctrl_get_state( app->spi ) == STATE_RESET);
 
       for(unsigned i = 0; i < obs_n; ++i) {
 
@@ -486,12 +484,6 @@ void app_loop2 ( app_t *app )
         ctrl_param_read( app->spi, &param);
 
         run_show(&run, app->verbose );
-        /*
-        // existing for calibration we won't be using b
-        if(app ->b) {
-          double predict = m_calc_predicted_val( app->cal, &run, &param );
-          printf("val(current cal) %lf", predict );
-        } */
 
         if(i < 2) {
           printf("discard");
