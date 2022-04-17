@@ -330,6 +330,11 @@ void app_update_console_cmd(app_t *app)
         }
       }
 
+#if 0
+
+      // no longer used. instead loop1, loop3. set the mod parameters at start.
+
+
       else if(sscanf(app->cmd_buf, "cal switch mod %lu", &u32 ) == 1) {
 
         // set the current cal slot
@@ -355,7 +360,7 @@ void app_update_console_cmd(app_t *app)
           }
         }
       }
-
+#endif
 
       /* chances in memory and on the device. but doesn't write.
         - means can use restart/rescan to undo/restore to original.
