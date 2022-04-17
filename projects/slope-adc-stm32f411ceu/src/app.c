@@ -335,49 +335,11 @@ MAT * run_to_matrix( const Run *run, unsigned model, MAT * out )
 {
   assert(run);
 
-  // UNUSED(param);
 
-/*
-  - we don't seem to be able to modify the count limits - without causing 1mV/20V difference. eg. 100ppm .
-  - could indicate bad INL issues?
-  - or somehting else going on. related to geometry of slope and rundown.
-  - but we may not need to even multiply this. instead just plug the raw count_var_up/count_var_down to the regression .
-  - because the length of the variable - is different regardless if it is up or down. and they are not equal?
-
-  ----
-  EXTR.
-    we want to read the var_n etc. after *each* run.
-    BECAUSE. we want to allow the pattern controller to permute
-
-  - on scope. cannot see many little reverse periods. when integrating 0V. ok. o
-
-    we see the down at +ref.
-*/
-
-
+  // TODO can we move this inside each if clause?
   if(out == MNULL)
-    out = m_get(1,1); // TODO fix me. this is ok.
+    out = m_get(1,1);
 
-#if 0
-  // negative current / slope up
-  double x0 = (run->count_var_up   * param->clk_count_var_n) + (run->count_fix_up   * param->clk_count_fix_n) ;
-  // positive current. slope down.
-  double x1 = (run->count_var_down * param->clk_count_var_n) + (run->count_fix_down * param->clk_count_fix_n) ;
-
-  double x2 = run->clk_count_rundown;
-  double x3 = run->count_flip;
-#endif
-  // four variable model
-  // uint32_t cols = 4;
-
-  // clk_count_mux_neg 2550557, clk_count_mux_pos 1458103, clk_count_mux_rd  4912,
-#if 0
-  double x0 = run->clk_count_mux_neg ;
-  double x1 = run->clk_count_mux_pos;
-  double x2 = run->clk_count_mux_rd;
-
-  double x3 = 1 ;
-#endif
 
   if(model == 2) {
     /*
