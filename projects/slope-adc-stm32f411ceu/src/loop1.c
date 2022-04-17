@@ -157,10 +157,12 @@ static void process( app_t *app, double predict )
 
 // #include <alloca.h>
 
-static double m_calc_predicted_val(  MAT *b , Run *run, Param *param )
+static double m_calc_predicted_val(  MAT *b , Run *run, unsigned aper_n )
 {
   /*
     extr. we can use model = m_cols(b). for this.
+
+    might be easier to pass aperture as scalar... no . because
 
   */
 
@@ -168,13 +170,13 @@ static double m_calc_predicted_val(  MAT *b , Run *run, Param *param )
   // printf("model %u\n", model );
 
   // do xs.
-  MAT *xs = param_run_to_matrix( param,  run, model, MNULL );
+  MAT *xs = param_run_to_matrix( /*param, */ run, model, MNULL );
   assert(xs);
   assert( m_rows(xs) == 1 );
 
-  // do aperture
+  // create aperture structure
   MAT *aperture = m_get(1,1);
-  m_set_val( aperture, 0, 0, param->clk_count_aper_n);
+  m_set_val( aperture, 0, 0, /*param->clk_count_aper_n */ aper_n );
 
   // predicted
   MAT *predicted = m_calc_predicted( b, xs, aperture);      // TODO - remove/combine this function....
@@ -214,11 +216,15 @@ void app_loop1 ( app_t *app )
 */
   // aperture from device??? not very good
   // should be the same
+#if 0
   int aperture = ctrl_get_aperture(app->spi); // in clk counts
 
   printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
   printf("period %.2lfs\n", aper_n_to_period( aperture ));
   printf("buffer %u\n",    m_rows(app->buffer));
+
+  // should we always write the current cal param on entering???
+
 
   assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
   Cal *cal = app->cal[ app->cal_slot_idx ];
@@ -229,21 +235,52 @@ void app_loop1 ( app_t *app )
     assert( param.clk_count_var_n == cal->param.clk_count_var_n);
     assert( param.clk_count_fix_n == cal->param.clk_count_fix_n);
   }
+#endif
 
 
+  assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
+  Cal *cal = app->cal[ app->cal_slot_idx ];
 
-  if(cal) {
-    printf("model  %u\n", cal->model);
-    param_show( & cal->param );
-    printf("\n");
+  if(!cal) {
+
+    printf("no slot for slot\n");
+    return;
   }
+
+  /* IMPRTANT.
+
+      - for loop1 / loop3 - we want to be able to vary the aperture freely. so just use state on device.
+      - BUT for loop2/ loop4 etc. we want to use the aperture associated with the cal.
+
+      - note that aperture can be changed from cmd_buffer this is a bug.
+          we should check/read aperture in the actual measurement loop.
+  */
+
+  // if want to support dynamiclly changing aperture - then needs to read every run
+  unsigned aperture = ctrl_get_aperture(app->spi);
+
+  // write current cal modulation parameters, but not aperture
+  ctrl_reset_enable(app->spi);
+  // ctrl_param_write( app->spi, &cal->param);
+  ctrl_set_var_n( app->spi,  cal->param.clk_count_var_n);
+  ctrl_set_fix_n( app->spi,  cal->param.clk_count_fix_n);
+  ctrl_reset_disable(app->spi);
+
+
+  printf("model  %u\n",     cal->model);
+  printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
+  printf("period %.2lfs\n", aper_n_to_period( aperture ));
+  printf("buffer %u\n",     m_rows(app->buffer));
+  printf("stats  %u\n",     m_rows(app->stats_buffer));
+  param_show( & cal->param );
+  printf("\n");
 
 
 
   while(true) {
 
     Run   run;
-    Param param;
+    // Param param;
 
     // if first()
     // ctrl_reset_enable(app->spi);
@@ -264,7 +301,7 @@ void app_loop1 ( app_t *app )
 
     // read the ready data
     ctrl_run_read(app->spi, &run);
-    ctrl_param_read( app->spi, &param);
+    // ctrl_param_read( app->spi, &param);
 
     assert( ctrl_get_state( app->spi ) == STATE_RESET);
 
@@ -277,7 +314,7 @@ void app_loop1 ( app_t *app )
       // printf("cal slot %u", app->cal_slot_idx );
 
       assert(cal->b);
-      double predict = m_calc_predicted_val( cal->b, &run, &param );
+      double predict = m_calc_predicted_val( cal->b, &run, aperture ); // wrong if aperture changes.
       process( app, predict );
     }
 
@@ -495,7 +532,7 @@ void app_loop2 ( app_t *app )
 
           // record xs
           assert(row < m_rows(xs));
-          MAT *whoot = param_run_to_matrix( &param, &run, cols , MNULL );
+          MAT *whoot = param_run_to_matrix( /*&param,*/ &run, cols , MNULL );
           assert(whoot);
           assert( m_cols(whoot) == m_cols(xs) );
           assert( m_rows(whoot) == 1  );
@@ -588,6 +625,14 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
 
   assert(app);
 
+
+  assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
+  Cal *cal = app->cal[ app->cal_slot_idx ];
+  if(!cal) {
+    printf("no cal\n");
+    return;
+  }
+
   // ctrl_set_pattern( app->spi, 0 ) ;     // no azero on device.
 
   /*
@@ -598,17 +643,20 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
     3) then copy lo to temp.   and use for the next input.
   */
 
-  // memset(&run_zero, 0, sizeof(Run));
-  // memset(&run_sig, 0, sizeof(Run));
 
-  // record the mux input to use
+  // write modulation parameters
+  ctrl_reset_enable(app->spi);
+  // ctrl_param_write( app->spi, &cal->param);
+  ctrl_set_var_n( app->spi,  cal->param.clk_count_var_n);
+  ctrl_set_fix_n( app->spi,  cal->param.clk_count_fix_n);
+  ctrl_reset_disable(app->spi);
+
+
+  // record the mux input to use, 
   unsigned mux_sel = spi_ice40_reg_read(app->spi, REG_HIMUX_SEL );
 
-
-  // get the params we are using.
-  // TODO check cal the same as device.
-  Param   param;
-  ctrl_param_read( app->spi, &param);
+  // if want to support dynamiclly changing aperture - then needs to read every run
+  unsigned aperture = ctrl_get_aperture(app->spi);
 
 
   while(true) {
@@ -636,11 +684,10 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
       }
     }
 
-    Run   run_zero;
-    // Param param_zero;
-
     // read data
+    Run   run_zero;
     ctrl_run_read(app->spi, &run_zero);
+
 
     // configure mux_sel
     ctrl_reset_enable(app->spi);
@@ -656,30 +703,22 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
       }
     }
 
-    Run   run_sig;
-    // Param param_sig;
-
     // read data
+    Run   run_sig;
     ctrl_run_read(app->spi, &run_sig);
+
 
     run_show( &run_zero, app->verbose);
     run_show( &run_sig, app->verbose);
 
-    // printf("got value should be predict %sV\n", format_float_with_commas(buf, 100, 7, m_calc_predicted_val( app-> b , &run_sig , &param_sig )));
-    // assert(run_zero.count_var_up && run_sig.count_var_up ) ;
 
-      // we have both obs available...
+    assert(cal->b);
+    double predict_zero   = m_calc_predicted_val( cal->b , &run_zero, aperture );  // param only needed for aperture.
+    double predict_sig    = m_calc_predicted_val( cal->b , &run_sig,  aperture );
+    double predict        = predict_sig - predict_zero;
+    process( app, predict );
 
 
-    assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
-    Cal *cal = app->cal[ app->cal_slot_idx ];
-    if(cal) {
-      assert(cal->b);
-      double predict_zero   = m_calc_predicted_val( cal->b , &run_zero, &param);  // param only needed for aperture.
-      double predict_sig    = m_calc_predicted_val( cal->b , &run_sig,  &param);
-      double predict        = predict_sig - predict_zero;
-      process( app, predict );
-    }
   }
 }
 
@@ -797,7 +836,7 @@ double app_simple_read( app_t *app)
   assert(cal->b);
 
 
-  double predict = m_calc_predicted_val( cal->b, &run, &param );
+  double predict = m_calc_predicted_val( cal->b, &run, cal ->param.clk_count_aper_n);
   return predict;
 }
 
@@ -949,11 +988,6 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
 
       ctrl_reset_enable(app->spi);
       ctrl_param_write( app->spi, &cal_a->param);
-/*
-      ctrl_set_aperture( app->spi,  cal_a->param.clk_count_aper_n);
-      ctrl_set_var_n( app->spi,     cal_a->param.clk_count_var_n);
-      ctrl_set_fix_n( app->spi,     cal_a->param.clk_count_fix_n);
-*/
       app->data_ready = false;
       ctrl_reset_disable(app->spi);
 
@@ -974,16 +1008,10 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
       printf("\n");
 
 
-      // shouldn't need this
+      // checks/ shouldn't need this
       Param param_a;
       ctrl_param_read( app->spi, &param_a);
       assert( param_equal( &cal_a->param, &param_a));
-/*
-      assert( param_a.clk_count_aper_n  == cal_a->param.clk_count_aper_n);
-      assert( param_a.clk_count_var_n   == cal_a->param.clk_count_var_n );
-      assert( param_a.clk_count_fix_n   == cal_a->param.clk_count_fix_n);
-      */
-
 
       ///////////////////////////////
 
@@ -993,11 +1021,6 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
 
       ctrl_reset_enable(app->spi);
       ctrl_param_write( app->spi, &cal_b->param);
-/*
-      ctrl_set_aperture( app->spi,  cal_b->param.clk_count_aper_n);
-      ctrl_set_var_n( app->spi,     cal_b->param.clk_count_var_n);
-      ctrl_set_fix_n( app->spi,     cal_b->param.clk_count_fix_n);
-*/
       app->data_ready = false;
       ctrl_reset_disable(app->spi);
 
@@ -1017,25 +1040,19 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
       run_show( &run_b, false );
       printf("\n");
 
-
-      // shouldn't need this
+      // checks/ shouldn't need this
       Param param_b;
       ctrl_param_read( app->spi, &param_b);
       assert( param_equal( &cal_b->param, &param_b));
 
-/*
-      assert( param_b.clk_count_aper_n  == cal_b->param.clk_count_aper_n);
-      assert( param_b.clk_count_var_n   == cal_b->param.clk_count_var_n );
-      assert( param_b.clk_count_fix_n   == cal_b->param.clk_count_fix_n);
-      */
 
       ///////////////////////
       // work out A,B difference
 
       assert(cal_a->b && cal_b->b );
 
-      double predict_a  = m_calc_predicted_val( cal_a->b, &run_a, &cal_a->param);
-      double predict_b  = m_calc_predicted_val( cal_b->b, &run_b, &cal_b->param);
+      double predict_a  = m_calc_predicted_val( cal_a->b, &run_a, cal_a->param.clk_count_aper_n );
+      double predict_b  = m_calc_predicted_val( cal_b->b, &run_b, cal_b->param.clk_count_aper_n );
       double delta      = (predict_a - predict_b) * 1000000; // in uV.
 
       // simple spread chack

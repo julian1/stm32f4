@@ -299,8 +299,6 @@ void ctrl_param_write( uint32_t spi, Param *param)
   ctrl_set_aperture( spi, param->clk_count_aper_n);
   ctrl_set_var_n( spi,    param->clk_count_var_n);
   ctrl_set_fix_n( spi,    param->clk_count_fix_n);
-
-
 }
 
 
@@ -333,11 +331,11 @@ void param_show( const Param *param)
 */
 
 
-MAT * param_run_to_matrix( const Param *param, const Run *run, unsigned model, MAT * out )
+MAT * param_run_to_matrix( /*const Param *param,*/ const Run *run, unsigned model, MAT * out )
 {
   assert(run);
 
-  UNUSED(param);
+  // UNUSED(param);
 
 /*
   - we don't seem to be able to modify the count limits - without causing 1mV/20V difference. eg. 100ppm .

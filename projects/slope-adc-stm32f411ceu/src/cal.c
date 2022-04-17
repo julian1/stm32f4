@@ -361,6 +361,25 @@ void file_write_cal ( Cal *cal, FILE *f)
 
 // TODO change name cal_show() to cal_show()
 
+
+static void show_slope_b_detail( double slope_b )
+{
+  // better name show_slope_b_info
+
+  unsigned aperture =   nplc_to_aper_n( 10 );
+
+  // double   slope_b    = m_get_val(cal->b, slope_idx, 0 );   // rows
+  double   res        = fabs( slope_b / aperture ); // in V
+  // could also work out the implied count here.
+
+  printf("res       %.3fuV  ", res * 1000000);  // resolution  in uV.
+  printf("digits %.2f ", log10( 10.f / res));   // ie. decimal=10 not +-11V
+  // printf("bits %.2f ", log2( res));           // correct?   or should be aperture / slobe_b ?
+  printf("  (nplc10)\n");
+}
+
+
+
 void cal_show( Cal *cal /* FILE *f */ )
 {
   assert(cal);
@@ -380,14 +399,25 @@ void cal_show( Cal *cal /* FILE *f */ )
   // only correct with 3 var model.
   // but useful to have
   // should be res(b[idx])
+
+  // want to do the res and digits. for both slope parameters
+
+#if 0
   unsigned slope_idx  = m_rows(cal->b) - 1;
   double   slope_b    = m_get_val(cal->b, slope_idx, 0 );   // rows
   double   res        = fabs( slope_b / nplc_to_aper_n( 10 )); // in V
   // could also work out the implied count here.
 
   printf("res       %.3fuV  (nplc10)\n", res * 1000000);
-
   printf("digits    %.2f (nplc10)\n", log10( 10.f / res)); // think needs to be decimal. not 11 or +-11V
+#endif
+
+  int slope_idx= m_rows(cal->b) - 1;
+  assert( slope_idx - 1 >= 0);
+
+  show_slope_b_detail( m_get_val(cal->b, slope_idx - 1, 0) ); // ref current b
+  show_slope_b_detail( m_get_val(cal->b, slope_idx, 0) );     
+
 
 
 
