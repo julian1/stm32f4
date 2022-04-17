@@ -206,50 +206,18 @@ void app_loop1 ( app_t *app )
 
 
 
-  // ctrl_set_pattern( app->spi, 0 ) ;     // no azero.
-
-
-/*
-  assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
-  Cal *cal = app->cal[  app->cal_slot_idx ];
-  printf("cal model %u\n", cal->model );
-*/
-  // aperture from device??? not very good
-  // should be the same
-#if 0
-  int aperture = ctrl_get_aperture(app->spi); // in clk counts
-
-  printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
-  printf("period %.2lfs\n", aper_n_to_period( aperture ));
-  printf("buffer %u\n",    m_rows(app->buffer));
-
-  // should we always write the current cal param on entering???
-
-
-  assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
-  Cal *cal = app->cal[ app->cal_slot_idx ];
-  {
-    // should always hold.
-    Param param;
-    ctrl_param_read( app->spi, &param);
-    assert( param.clk_count_var_n == cal->param.clk_count_var_n);
-    assert( param.clk_count_fix_n == cal->param.clk_count_fix_n);
-  }
-#endif
-
 
   assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
   Cal *cal = app->cal[ app->cal_slot_idx ];
 
   if(!cal) {
-
-    printf("no slot for slot\n");
+    printf("no cal for slot\n");
     return;
   }
 
   /* IMPRTANT.
 
-      - for loop1 / loop3 - we want to be able to vary the aperture freely. so just use state on device.
+      - for loop1 / loop3 - we want to be able to vary the aperture freely. so just use current state of device.
       - BUT for loop2/ loop4 etc. we want to use the aperture associated with the cal.
 
       - note that aperture can be changed from cmd_buffer this is a bug.
@@ -259,7 +227,7 @@ void app_loop1 ( app_t *app )
   // if want to support dynamiclly changing aperture - then needs to read every run
   unsigned aperture = ctrl_get_aperture(app->spi);
 
-  // write current cal modulation parameters, but not aperture
+  // write current cal modulation parameters (var_n,fix_n), but not aperture
   ctrl_reset_enable(app->spi);
   // ctrl_param_write( app->spi, &cal->param);
   ctrl_set_var_n( app->spi,  cal->param.clk_count_var_n);
@@ -420,26 +388,26 @@ void app_loop2 ( app_t *app )
   // TODO initially, if no cal. then should create a default.
 
 
-  printf("model %u\n", cal->model);
-  param_show( & cal->param );
-  printf("\n");
-
-  /*
-    Note. no manipulation of var_n fix_n but should always be the same
-  */
-  {
-    // should always hold.
-    Param param;
-    ctrl_param_read( app->spi, &param);
-    assert( param.clk_count_var_n == cal->param.clk_count_var_n);
-    assert( param.clk_count_fix_n == cal->param.clk_count_fix_n);
-  }
 
 
   // clear last for mem
   if(app->last) {
     M_FREE(app->last);
   }
+
+
+
+  // write current cal modulation parameters (var_n,fix_n), but not aperture
+  ctrl_reset_enable(app->spi);
+  // ctrl_param_write( app->spi, &cal->param);
+  ctrl_set_var_n( app->spi,  cal->param.clk_count_var_n);
+  ctrl_set_fix_n( app->spi,  cal->param.clk_count_fix_n);
+  ctrl_reset_disable(app->spi);
+
+
+  printf("model %u\n", cal->model);
+  param_show( & cal->param );
+  printf("\n");
 
 
 
@@ -644,7 +612,7 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   */
 
 
-  // write modulation parameters
+  // write current cal modulation parameters, but not aperture
   ctrl_reset_enable(app->spi);
   // ctrl_param_write( app->spi, &cal->param);
   ctrl_set_var_n( app->spi,  cal->param.clk_count_var_n);
@@ -652,7 +620,7 @@ void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
   ctrl_reset_disable(app->spi);
 
 
-  // record the mux input to use, 
+  // record the mux input to use,
   unsigned mux_sel = spi_ice40_reg_read(app->spi, REG_HIMUX_SEL );
 
   // if want to support dynamiclly changing aperture - then needs to read every run
