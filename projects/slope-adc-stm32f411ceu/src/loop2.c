@@ -245,7 +245,7 @@ void app_loop22( app_t *app )
 
           // record xs
           assert(row < m_rows(xs));
-          MAT *whoot = param_run_to_matrix( /*&param,*/ &run, cols , MNULL );
+          MAT *whoot = run_to_matrix( &run, cols , MNULL );
           assert(whoot);
           assert( m_cols(whoot) == m_cols(xs) );
           assert( m_rows(whoot) == 1  );
@@ -382,7 +382,7 @@ void app_loop22( app_t *app )
 
           // record xs
           assert(row < m_rows(xs));
-          MAT *whoot = param_run_to_matrix( &param, &run, x_cols, MNULL );
+          MAT *whoot = run_to_matrix( &run, x_cols, MNULL );
           assert(whoot);
           assert( m_cols(whoot) == m_cols(xs) );
           assert( m_rows(whoot) == 1  );

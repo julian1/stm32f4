@@ -170,7 +170,7 @@ static double m_calc_predicted_val(  MAT *b , Run *run, unsigned aper_n )
   // printf("model %u\n", model );
 
   // do xs.
-  MAT *xs = param_run_to_matrix( /*param, */ run, model, MNULL );
+  MAT *xs = run_to_matrix( run, model, MNULL );
   assert(xs);
   assert( m_rows(xs) == 1 );
 
@@ -532,7 +532,7 @@ void app_loop2 ( app_t *app )
 
           // record xs
           assert(row < m_rows(xs));
-          MAT *whoot = param_run_to_matrix( /*&param,*/ &run, cols , MNULL );
+          MAT *whoot = run_to_matrix( &run, cols , MNULL );
           assert(whoot);
           assert( m_cols(whoot) == m_cols(xs) );
           assert( m_rows(whoot) == 1  );

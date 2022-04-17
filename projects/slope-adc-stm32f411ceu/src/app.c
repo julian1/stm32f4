@@ -331,7 +331,7 @@ void param_show( const Param *param)
 */
 
 
-MAT * param_run_to_matrix( /*const Param *param,*/ const Run *run, unsigned model, MAT * out )
+MAT * run_to_matrix( const Run *run, unsigned model, MAT * out )
 {
   assert(run);
 

@@ -310,9 +310,8 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  );
 
 void app_loop22 ( app_t *app );
 
-// MAT * param_run_to_matrix( const Param *param, const Run *run, MAT * out );   // rename param_param_run_to_matrix()
 
-MAT * param_run_to_matrix( /*const Param *param,*/ const Run *run, unsigned model, MAT * out );
+MAT * run_to_matrix(  const Run *run, unsigned model, MAT * out );
 
 MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture);
 

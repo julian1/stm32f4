@@ -105,7 +105,7 @@ void app_loop3 ( app_t *app)
 
       if(app ->b) {
 
-          MAT *x = param_run_to_matrix( /*&app->params,*/ &run, MNULL );
+          MAT *x = run_to_matrix( /*&app->params,*/ &run, MNULL );
           assert(x );
 
           MAT *predict = m_mlt(x, app->b, MNULL );
