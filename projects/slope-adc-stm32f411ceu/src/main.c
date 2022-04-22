@@ -123,6 +123,20 @@
 */
 
 
+#include <libopencm3/cm3/scb.h>
+
+void scb_reset_core(void)
+{
+	SCB_AIRCR = SCB_AIRCR_VECTKEY | SCB_AIRCR_VECTRESET;
+}
+
+void scb_reset_system(void)
+{
+	SCB_AIRCR = SCB_AIRCR_VECTKEY | SCB_AIRCR_SYSRESETREQ;
+}
+
+
+
 // TODO change name spi_ice40_
 
 static int spi_ice40_read_write_test(uint32_t spi )
@@ -662,6 +676,16 @@ void app_update_console_cmd(app_t *app)
         /////////////////
       }
 */
+
+
+
+
+
+      else if(strcmp(app->cmd_buf , "reset") == 0) {
+
+		// scb_reset_core()
+		scb_reset_system();
+      }
 
 
 
