@@ -341,6 +341,15 @@ MAT * run_to_matrix( const Run *run, unsigned model, MAT * out )
   assert(run);
 
 
+  /*
+    we have aperture stored in the Param. 
+    - it's easy to pull off device.  so perhaps it should be moved to Run. or else store in both Run and Param.
+    - OR. it should always be passed here. - because it is a fundamental data on device, and for calculating predicted..
+    ------
+    - not sure. we want to test a model with aperture as independent var.
+
+  */
+
   // TODO can we move this inside each if clause?
   if(out == MNULL)
     out = m_get(1,1);
@@ -367,6 +376,14 @@ MAT * run_to_matrix( const Run *run, unsigned model, MAT * out )
     m_set_val( out, 0, 1,  run->clk_count_mux_pos );
     m_set_val( out, 0, 2,  run->clk_count_mux_rd );
   }
+
+/*
+  EXTR.
+    - try adding apperture as independent variable.
+    try a model that includes aperture. ie. if there are small changes between nplc=1, nplc=10
+    then perhaps just including aperture. 
+
+*/
   else if ( model == 4) {
 
     out = m_resize(out, 1, 4);

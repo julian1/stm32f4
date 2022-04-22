@@ -295,7 +295,7 @@ void app_loop1 ( app_t *app )
 
 void calc_cal( app_t *app,  MAT *y, MAT *xs, MAT *aperture  )
 {
-  /* 
+  /*
       calc_calibration_from_data
     better name. do_calibration.
     note uses replaces existing calibration from slot.
@@ -382,6 +382,7 @@ void app_loop2 ( app_t *app )
     alsways work with slot 0?
   */
 
+  assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
   Cal *cal = app->cal[  app->cal_slot_idx ];
   assert(cal);
   // TODO initially, if no cal. then should create a default.
@@ -412,27 +413,46 @@ void app_loop2 ( app_t *app )
 
   // unsigned nplc_[] = { 9, 10, 11, 12 };
   // unsigned nplc[] = { 8, 9, 10, 11, 12, 13  };
-  unsigned nplc[] = { 8, 9, 10, 11, 12, 13, 14, 15, 16  };
+  // unsigned nplc[] = { 8, 9, 10, 11, 12, 13, 14, 15, 16  };
+  unsigned nplc[] = { 8, 9, 10, 11, 12, 13, 14, 15 };
   // double y  = 0;
 
   unsigned obs_n = 7; // 7
+  // unsigned obs_n = 25; // 7
 
+  /*
+  just use the input parameter...
 
-  Param params[] = { 
-    { 
-      .clk_count_aper_n = 0,   
-      .clk_count_fix_n = 24,
-      .clk_count_var_n = 185,
+  */
+#if 0
+  Param params[] = {
+    {
+      .clk_count_aper_n = 0,
+      .clk_count_fix_n = 20,
+      .clk_count_var_n = 140,
       .old_serialization = 0,
     },
-    { 
-      .clk_count_aper_n = 0,   
-      .clk_count_fix_n = 20,
-      .clk_count_var_n = 189,
+    {
+      .clk_count_aper_n = 0,
+      .clk_count_fix_n = 16,
+      .clk_count_var_n = 144,
+      .old_serialization = 0,
+    },
+    {
+      .clk_count_aper_n = 0,
+      .clk_count_fix_n = 24,
+      .clk_count_var_n = 136,
       .old_serialization = 0,
     }
-  };
 
+  };
+#endif
+
+#if 1
+  // use the current cal input parameters
+  Param params[1];
+  params[0] = cal->param; // deep copy
+#endif
 
 
   // may want a row pointer as well.
@@ -451,7 +471,7 @@ void app_loop2 ( app_t *app )
   MAT *y        = m_get(max_rows, 1);
   MAT *aperture = m_get(max_rows, 1); // required for predicted
 
-    
+
 
   unsigned row = 0;
 
@@ -462,6 +482,7 @@ void app_loop2 ( app_t *app )
     uint32_t aperture_ = nplc_to_aper_n( nplc_ );  // move this up a loop.
     printf("nplc   %u\n", nplc_    );
 
+    ctrl_set_aperture( app->spi, aperture_);
 
     // loop mux
     for(unsigned j = 0; j < 2; ++j)
@@ -472,21 +493,26 @@ void app_loop2 ( app_t *app )
       printf("mux %s\n", himux_sel_format( mux));
 
 
-      ctrl_reset_enable(app->spi);
-      ctrl_set_aperture( app->spi, aperture_);
+      // ctrl_reset_enable(app->spi);
       ctrl_set_mux( app->spi, mux );
-      ctrl_reset_disable(app->spi);
+      // ctrl_reset_disable(app->spi);
 
-
+      // params
       for(unsigned k = 0; k < ARRAY_SIZE(params); ++k) {
 
+        Param *param = &params[ k ] ;
+
+        param_show( param );
+        printf("\n");
+
         // permute modulation params
-        ctrl_reset_enable(app->spi);
-        ctrl_set_var_n( app->spi, params[ k ] . clk_count_var_n );
-        ctrl_set_fix_n( app->spi, params[ k ] . clk_count_fix_n );
-        ctrl_reset_disable(app->spi);
+        // ctrl_reset_enable(app->spi);
+        ctrl_set_var_n( app->spi, param->clk_count_var_n );
+        ctrl_set_fix_n( app->spi, param->clk_count_fix_n );
+        // ctrl_reset_disable(app->spi);
 
 
+        // obs
         for(unsigned i = 0; i < obs_n; ++i) {
 
           ctrl_reset_enable(app->spi);
@@ -501,14 +527,14 @@ void app_loop2 ( app_t *app )
             }
           }
 
-          // read the data and params.  
+          // read the data and params.
           Run   run;
-          Param param;
+          // Param param;
 
           ctrl_run_read(   app->spi, &run, app->verbose);
-          ctrl_param_read( app->spi, &param);
+          // ctrl_param_read( app->spi, &param);
 
-          param_show(&param);
+          // param_show(&param);
           run_show(&run, app->verbose );
 
           if(i < 2) {
@@ -530,13 +556,14 @@ void app_loop2 ( app_t *app )
 
             // record aperture
             assert(row < m_rows(aperture));
-            assert( param.clk_count_aper_n  == aperture_ );
-            m_set_val( aperture, row, 0, param.clk_count_aper_n );
+            // assert( param->clk_count_aper_n  == aperture_ );
+            // m_set_val( aperture, row, 0, param->clk_count_aper_n );
+            m_set_val( aperture, row, 0, aperture_ );
 
 
             // record y, as target * aperture
             assert(row < m_rows(y));
-            m_set_val( y       , row , 0, y_  *  param.clk_count_aper_n );
+            m_set_val( y       , row , 0, y_  *  aperture_ );
 
             // increment row.
             ++row;
@@ -835,8 +862,11 @@ double app_simple_read( app_t *app)
 
 void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
 {
-  // loop44 INL.
   /*
+    EXTR.
+      this routine - could also be used for calibration - just record the raw counts . and then run a best-fit regression.
+      also could be done off, the mcu.
+
     we could save the generated matrix against app. and then print out the last run at any time. if wanted.
   */
   /*
@@ -937,6 +967,10 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
 
   // size array
   MAT *m = m_get( ARRAY_SIZE(target_) * obs_n , 5 );
+  if(!m) {
+    printf("failed to allocate\n");
+    return;
+  }
 
 
   for(unsigned i = 0; i < ARRAY_SIZE(target_); ++i)
@@ -948,15 +982,13 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
     printf("voltage set %.1f\n", target );
     app_voltage_source_1_set( app, target );
 
-#if 1
     // sleep to let DA settle.
     // unsigned sleep = 3;  // for dac
-    unsigned sleep = i == 0 ? 60 : 30;
+    unsigned sleep = i == 0 ? (30 * 10) : 30;
     // unsigned sleep = i == 0 ? 120 : 60;
     // unsigned sleep = i == 0 ? (180 * 2) : 180;
     printf("sleep %us\n", sleep );
     app_simple_sleep( app, sleep * 1000 );
-#endif
 
     /* - I think we probably want to be able to do a loop of 2. to not take the first value.
     */

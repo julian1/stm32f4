@@ -185,6 +185,7 @@ void app_update_console_cmd(app_t *app)
   uint32_t u32, u32_2;   // long unsigned int.
   int32_t i32;
   double d;
+  char buf[20] ; 
 
   /* TODO.
       consider using non-blocking fread() for unified interface.
@@ -268,6 +269,15 @@ void app_update_console_cmd(app_t *app)
           flash_erase_sector_();
 
           printf("done erase\n");
+
+      }
+
+
+      else if(sscanf(app->cmd_buf, "cal comment %10s", buf ) == 1) {
+
+          assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
+          Cal *cal = app->cal[  app->cal_slot_idx ];
+          cal->comment = strdup( buf );
 
       }
 

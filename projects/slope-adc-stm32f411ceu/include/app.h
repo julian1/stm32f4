@@ -45,10 +45,14 @@
 #define REG_CLK_COUNT_RUNDOWN   37
 
 
-
 #define REG_CLK_COUNT_MUX_NEG   40
 #define REG_CLK_COUNT_MUX_POS   41
 #define REG_CLK_COUNT_MUX_RD    42
+
+
+#define REG_USE_FAST_RUNDOWN    43
+
+
 
 /*
 // treat as param variable
@@ -267,7 +271,7 @@ struct app_t
 
 
   // issue is using null to indcate present.
-  Cal     *cal[10];
+  Cal     *cal[ 20 ];
 
   unsigned cal_slot_idx;    // current idx; // rename cal_slot_idx.
 
