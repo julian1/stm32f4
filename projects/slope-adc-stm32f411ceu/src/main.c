@@ -113,6 +113,16 @@
 
 
 
+/*
+    reset.
+    ◆ SCB_AIRCR_SYSRESETREQ
+         nvic_generate_software_interrupt()
+    
+        https://aticleworld.com/how-to-reset-an-arm-cortex-m-with-softwareo /
+        https://github.com/StephanW/libopencm3-karat/blob/696ce0e2f331bd3ce7ddb6cf619ce344b6060152/lib/cm3/scb.c
+*/
+
+
 // TODO change name spi_ice40_
 
 static int spi_ice40_read_write_test(uint32_t spi )
@@ -377,14 +387,18 @@ void app_update_console_cmd(app_t *app)
         - and cal save slot to save updated to the same or different slot.
       */
 
+      else if(strcmp(app->cmd_buf , "fast rundown show") == 0 )  {
 
-      else if(sscanf(app->cmd_buf, "use fast rundown %lu", &u32 ) == 1) {
+        uint32_t v = spi_ice40_reg_read(app->spi, REG_USE_FAST_RUNDOWN);
+		printf("fast rundown %lu\n", v);
+      }
+
+
+      else if(sscanf(app->cmd_buf, "fast rundown %lu", &u32 ) == 1) {
 
         spi_ice40_reg_write(app->spi, REG_USE_FAST_RUNDOWN, u32);
       }
-
-         
-      else if(sscanf(app->cmd_buf, "use slow rundown %lu", &u32 ) == 1) {
+      else if(sscanf(app->cmd_buf, "slow rundown %lu", &u32 ) == 1) {
 
         spi_ice40_reg_write(app->spi, REG_USE_SLOW_RUNDOWN, u32);
       }

@@ -764,7 +764,8 @@ void app_voltage_source_1_set( app_t *app, double value )
         break;
 
       if(app->halt_func) {
-        break;
+        voltage_source_1_set_dir(0);
+        return;
       }
     }
 
@@ -782,8 +783,8 @@ void app_voltage_source_1_set( app_t *app, double value )
       if(current < value)
         break;
       if(app->halt_func) {
-        // mem leak?
-        break;
+        voltage_source_1_set_dir(0);
+        return;
       }
     }
 
