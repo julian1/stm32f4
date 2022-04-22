@@ -377,6 +377,19 @@ void app_update_console_cmd(app_t *app)
         - and cal save slot to save updated to the same or different slot.
       */
 
+
+      else if(sscanf(app->cmd_buf, "use fast rundown %lu", &u32 ) == 1) {
+
+        spi_ice40_reg_write(app->spi, REG_USE_FAST_RUNDOWN, u32);
+      }
+
+         
+      else if(sscanf(app->cmd_buf, "use slow rundown %lu", &u32 ) == 1) {
+
+        spi_ice40_reg_write(app->spi, REG_USE_SLOW_RUNDOWN, u32);
+      }
+ 
+
       else if(sscanf(app->cmd_buf, "cal var_n %lu", &u32 ) == 1) {
 
         assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
