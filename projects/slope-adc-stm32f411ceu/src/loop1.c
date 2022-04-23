@@ -344,22 +344,22 @@ static void app_loop2_spi1_interupt( X2 *x)
   */
   app_t *app = x->app;
 
-  if(x->do_value) { 
+  if(x->do_value) {
     // read value
     ctrl_run_read(app->spi, &x->run, app->verbose);
-    ctrl_set_mux( app->spi, HIMUX_SEL_REF_LO );   
+    ctrl_set_mux( app->spi, HIMUX_SEL_REF_LO );
     x->do_value = false;
 
-    
+
   } else {
     // move zero, to last
     // read zero
     x->zero_last = x->zero;   // deep copy
     ctrl_run_read(app->spi, &x->zero, app->verbose);
-    ctrl_set_mux( app->spi, x->himux_sel ); 
+    ctrl_set_mux( app->spi, x->himux_sel );
     x->do_value = true;
-    
-    x->data_ready = true; 
+
+    x->data_ready = true;
   }
 }
 
@@ -419,8 +419,6 @@ void app_loop3 ( app_t *app   )
   // set handler
 	spi1_interupt_handler_set(  (void (*)(void *))  app_loop2_spi1_interupt, &x );
 
-
-
   while(!app->halt_func) {
 
     // block/wait for data
@@ -435,30 +433,26 @@ void app_loop3 ( app_t *app   )
     // we got and read the data, so clear the flag to be ready
     x.data_ready = false;
 
-
     assert(cal->b);
     double predict_zero_last   = m_calc_predicted_val( cal->b , &x.zero_last, aperture );  // param only needed for aperture.
     double predict_zero   = m_calc_predicted_val( cal->b , &x.zero, aperture );  // param only needed for aperture.
     double predict_sig    = m_calc_predicted_val( cal->b , &x.run,  aperture );
 
-    double predict        = predict_sig - ((predict_zero + predict_zero_last)  / 2);
+    double predict        = predict_sig - ((predict_zero + predict_zero_last)  / 2.f);
 
     if(app->verbose) {
 
       run_show(& x.zero_last, app->verbose);
-      printf("%f\n", predict_zero_last ); 
+      printf("%f\n", predict_zero_last );
 
       run_show(& x.run, app->verbose );
-      printf("%f\n", predict_sig ); 
+      printf("%f\n", predict_sig );
 
       run_show(& x.zero, app->verbose);
-      printf("%f\n", predict_zero ); 
-
-
-    } 
+      printf("%f\n", predict_zero );
+    }
 
     process( app, predict );
-
 
   }
 
@@ -922,6 +916,51 @@ double app_simple_read( app_t *app)
 
 
 
+///////////////////////////////////////////
+
+struct X4
+{
+  bool  do_a;
+
+  Param   *param_a;
+  Run     run_a;
+
+
+  Param   *param_b;
+  Run     run_b;
+
+  bool    data_ready;
+  app_t   *app;   // for spi/ verbose... etc
+} ;
+typedef struct X4 X4;
+
+
+
+static void app_loop4_spi1_interupt( X4 *x)
+{
+  /*
+    interupt handler context.
+    read data without pause
+  */
+  app_t *app = x->app;
+
+  // should do_a first. so init it
+
+  if(x->do_a) {
+    // read a, set to param b
+    ctrl_run_read(app->spi, &x->run_a, app->verbose);
+    ctrl_param_write( app->spi, x->param_b );
+    x->do_a = false;
+
+  } else {
+    // read b, set to param a
+    ctrl_run_read(app->spi, &x->run_b, app->verbose);
+    ctrl_param_write( app->spi, x->param_a );
+    x->do_a = true;
+
+    x->data_ready = true;
+  }
+}
 
 
 
@@ -1029,6 +1068,12 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
   param_show( & cal_b->param );
   printf("\n");
 
+  X4  x;
+  memset(&x, 0, sizeof(x));
+  x.app = app;
+  x.param_a = &cal_a->param;
+  x.param_b = &cal_b->param;
+  x.do_a = true;  // do a first
 
 
   // size array
@@ -1050,103 +1095,60 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
 
     // sleep to let DA settle.
     // unsigned sleep = 3;  // for dac
-    unsigned sleep = i == 0 ? (30 * 10) : 30;
-    // unsigned sleep = i == 0 ? 120 : 60;
-    // unsigned sleep = i == 0 ? (180 * 2) : 180;
+    unsigned sleep = i == 0 ? (30 * 1) : 30;
     printf("sleep %us\n", sleep );
     app_simple_sleep( app, sleep * 1000 );
 
     /* - I think we probably want to be able to do a loop of 2. to not take the first value.
     */
+    // record first, and last, to be able to estimate DA
     double first = 0, last = 0;;
+
+
+    // do a first
+    x.do_a = true;
+    // set handler
+    spi1_interupt_handler_set(  (void (*)(void *))  app_loop4_spi1_interupt, &x );
+
 
     // 10 obs
     for(unsigned obs = 0; obs < obs_n; ++obs)
     {
 
-      /*
-        we can switch A versus B using ? : expression here
-        No. it's easier to gather data separately.
-      */
-
-// showing param like this - creates timing issue?
-//       param_show( &cal_a->param );
-
-      ctrl_reset_enable(app->spi);
-      ctrl_param_write( app->spi, &cal_a->param);
-      app->data_ready = false;
-      ctrl_reset_disable(app->spi);
+      printf("blocking\n");
 
       // block/wait for data
-      while(!app->data_ready ) {
+      while(!x.data_ready ) {
         app_update( app );   // change name simple update
+        // mem leak?
         if(app->halt_func) {
-          // mem leak?
-          printf("bail done \n");
-          return;
+          break;
         }
       }
 
-      // read A.
-      Run   run_a;
-      ctrl_run_read( app->spi, &run_a, app->verbose);
-      run_show( &run_a, false);
-      printf("\n");
+      // we got and read the data, so clear the flag to be ready
+      x.data_ready = false;
 
-      /*
-      // checks/ shouldn't need this
-      Param param_a;
-      ctrl_param_read( app->spi, &param_a);
-      assert( param_equal( &cal_a->param, &param_a));
-      */
-
-      ///////////////////////////////
-
-      // do B
-//       param_show( &cal_b->param );
-
-
-      ctrl_reset_enable(app->spi);
-      ctrl_param_write( app->spi, &cal_b->param);
-      app->data_ready = false;
-      ctrl_reset_disable(app->spi);
-
-      // block/wait for data
-      while(!app->data_ready ) {
-        app_update( app );
-        if(app->halt_func) {
-          // leak
-          printf("bail done \n");
-          return;
-        }
-      }
-
-      // read B
-      Run   run_b;
-      ctrl_run_read( app->spi, &run_b, app->verbose);
-      run_show( &run_b, false );
-      printf("\n");
-
-/*
-      // checks/ shouldn't need this
-      Param param_b;
-      ctrl_param_read( app->spi, &param_b);
-      assert( param_equal( &cal_b->param, &param_b));
-*/
-
-      ///////////////////////
       // work out A,B difference
 
       assert(cal_a->b && cal_b->b );
 
-      double predict_a  = m_calc_predicted_val( cal_a->b, &run_a, cal_a->param.clk_count_aper_n );
-      double predict_b  = m_calc_predicted_val( cal_b->b, &run_b, cal_b->param.clk_count_aper_n );
+      double predict_a  = m_calc_predicted_val( cal_a->b, &x.run_a, cal_a->param.clk_count_aper_n );
+      double predict_b  = m_calc_predicted_val( cal_b->b, &x.run_b, cal_b->param.clk_count_aper_n );
       double delta      = (predict_a - predict_b) * 1000000; // in uV.
+
+      if(app->verbose) {
+
+        run_show( &x.run_a, app->verbose);
+        printf("%f\n", predict_a );
+
+        run_show( &x.run_b, app->verbose );
+        printf("%f\n", predict_b );
+      }
 
       // simple spread chack
       if(obs == 0)          first = predict_a;
       if(obs == obs_n - 1)  last  = predict_a;
-
 
 
       char buf[100], buf2[100];
@@ -1169,6 +1171,11 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
       ++row;
 
     } // obs loop.
+
+    // restore handler
+    spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_interupt, app );
+
+
 
     printf("a first %f last %f diff %f.2uV \n" , first, last, (last - first) * 1000000 );
 
