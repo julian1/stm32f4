@@ -558,6 +558,7 @@ void calc_cal( app_t *app,  MAT *y, MAT *xs, MAT *aperture  )
 
 
 
+///////////////////////
 
 
 
@@ -879,6 +880,49 @@ double app_simple_read( app_t *app)
   // not sure if this should be here.
   //
 
+  X1   x;
+  memset(&x, 0, sizeof(x));
+  x.app = app;
+
+  // set handler
+	spi1_interupt_handler_set(  (void (*)(void *))  app_loop1_spi1_interupt, &x );
+
+
+
+  // block/wait for data
+  while(!x.data_ready ) {
+    app_update( app );   // change name simple update
+    // mem leak?
+    if(app->halt_func) {
+      break;
+    }
+  }
+
+  // we got and read the data, so clear the flag to be ready
+  x.data_ready = false;
+
+
+  // we need a current cal for b, and for aperture
+  assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
+  Cal *cal = app->cal[ app->cal_slot_idx ];
+  assert(cal);
+  assert(cal->b);
+
+
+  double predict = m_calc_predicted_val( cal->b, &x.run, cal->param.clk_count_aper_n);
+
+  printf("%f\n", predict);
+
+  // restore handler
+	spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_interupt, app );
+
+
+
+  return predict;
+
+
+#if 0
+
   // minimum needed to read a value
   // used to steer the current before we do anything.
   Run   run;
@@ -919,6 +963,7 @@ double app_simple_read( app_t *app)
 
   double predict = m_calc_predicted_val( cal->b, &run, cal ->param.clk_count_aper_n);
   return predict;
+#endif
 }
 
 
@@ -927,7 +972,7 @@ double app_simple_read( app_t *app)
 
 struct X4
 {
-  bool  do_a;
+  bool  do_a;   // should be true at start/begin.
 
   Param   *param_a;
   Run     run_a;
