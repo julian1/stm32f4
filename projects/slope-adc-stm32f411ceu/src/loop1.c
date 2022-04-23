@@ -200,17 +200,17 @@ static double m_calc_predicted_val(  MAT *b , Run *run, unsigned aper_n )
 
 ///////////////////////////
 
-struct X
+struct X1
 {
   Run     run;
   bool    data_ready;
   app_t   *app;   // for spi/ verbose... etc
 } ;
-typedef struct X X;
+typedef struct X1 X1;
 
 
 
-static void app_loop1_spi1_interupt( X *x)
+static void app_loop1_spi1_interupt( X1 *x)
 {
   /*
     interupt handler context.
@@ -272,13 +272,13 @@ void app_loop1 ( app_t *app )
   printf("\n");
 
 
-  X   x;
+  X1   x;
+  memset(&x, 0, sizeof(x));
   x.app = app;
-  x.data_ready = false;
+  // x.data_ready = false;
 
-  // we must restore this... before exiting our func
+  // set handler
 	spi1_interupt_handler_set(  (void (*)(void *))  app_loop1_spi1_interupt, &x );
-
 
   while(!app->halt_func) {
 
@@ -310,8 +310,173 @@ void app_loop1 ( app_t *app )
   }
 
   // restore handler
-	spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_interupt, &app );
+	spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_interupt, app );
 }
+
+
+
+
+///////////////////////////////////////
+
+
+struct X2
+{
+  bool  do_value;
+
+  Run     zero;
+  Run     run;    // change name meas
+  Run     zero_last;
+
+  unsigned himux_sel;
+
+  bool    data_ready;
+  app_t   *app;   // for spi/ verbose... etc
+} ;
+typedef struct X2 X2;
+
+
+
+static void app_loop2_spi1_interupt( X2 *x)
+{
+  /*
+    interupt handler context.
+    read data without pause
+  */
+  app_t *app = x->app;
+
+  if(x->do_value) { 
+    // read value
+    ctrl_run_read(app->spi, &x->run, app->verbose);
+    ctrl_set_mux( app->spi, HIMUX_SEL_REF_LO );   
+    x->do_value = false;
+
+    
+  } else {
+    // move zero, to last
+    // read zero
+    x->zero_last = x->zero;   // deep copy
+    ctrl_run_read(app->spi, &x->zero, app->verbose);
+    ctrl_set_mux( app->spi, x->himux_sel ); 
+    x->do_value = true;
+    
+    x->data_ready = true; 
+  }
+}
+
+
+
+
+
+
+void app_loop3 ( app_t *app   )
+{
+
+  // auto-zero
+
+  printf("=========\n");
+  printf("app_loop3 autozero\n");
+
+  assert(app);
+
+
+  assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
+  Cal *cal = app->cal[ app->cal_slot_idx ];
+  if(!cal) {
+    printf("no cal\n");
+    return;
+  }
+
+  // ctrl_set_pattern( app->spi, 0 ) ;     // no azero on device.
+
+  /*
+    autozero - should use two zero values, between read.
+    have tmp.
+    1) do ref-hi/sig .
+    2) then lo. and convert using 3 values.
+    3) then copy lo to temp.   and use for the next input.
+  */
+
+
+  // write current cal modulation parameters, but not aperture
+  ctrl_reset_enable(app->spi);
+  // ctrl_param_write( app->spi, &cal->param);
+  ctrl_set_var_n( app->spi,  cal->param.clk_count_var_n);
+  ctrl_set_fix_n( app->spi,  cal->param.clk_count_fix_n);
+  ctrl_reset_disable(app->spi);
+
+
+  // record the mux input to use,
+  unsigned mux_sel = spi_ice40_reg_read(app->spi, REG_HIMUX_SEL );
+
+  // if want to support dynamiclly changing aperture - then needs to read every run
+  unsigned aperture = ctrl_get_aperture(app->spi);
+
+  X2   x;
+  memset(&x, 0, sizeof(x));
+  x.app = app;
+  x.himux_sel = mux_sel;
+
+  // set handler
+	spi1_interupt_handler_set(  (void (*)(void *))  app_loop2_spi1_interupt, &x );
+
+
+
+  while(!app->halt_func) {
+
+    // block/wait for data
+    while(!x.data_ready ) {
+      app_update( app );   // change name simple update
+      // mem leak?
+      if(app->halt_func) {
+        break;
+      }
+    }
+
+    // we got and read the data, so clear the flag to be ready
+    x.data_ready = false;
+
+
+    assert(cal->b);
+    double predict_zero_last   = m_calc_predicted_val( cal->b , &x.zero_last, aperture );  // param only needed for aperture.
+    double predict_zero   = m_calc_predicted_val( cal->b , &x.zero, aperture );  // param only needed for aperture.
+    double predict_sig    = m_calc_predicted_val( cal->b , &x.run,  aperture );
+
+    double predict        = predict_sig - ((predict_zero + predict_zero_last)  / 2);
+
+    if(app->verbose) {
+
+      run_show(& x.zero_last, app->verbose);
+      printf("%f\n", predict_zero_last ); 
+
+      run_show(& x.run, app->verbose );
+      printf("%f\n", predict_sig ); 
+
+      run_show(& x.zero, app->verbose);
+      printf("%f\n", predict_zero ); 
+
+
+    } 
+
+    process( app, predict );
+
+
+  }
+
+  // restore handler
+	spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_interupt, app );
+
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -637,135 +802,6 @@ void app_loop2 ( app_t *app )
 
 
 
-
-void app_loop3 ( app_t *app /* void (*pyield)( appt_t * )*/  )
-{
-  /*
-    EXTR. I think auto-zero is worse. only because of quantitization.  eg. 0 - 0.6uV  difference when might only be 0.3 - 0.2uV.
-
-  value -0.000,000,6V stddev(10) 0.40uV,
-  value -0.000,000,6V stddev(10) 0.30uV,
-  value 0.000,000,0V stddev(10) 0.31uV,
-  value -0.000,000,6V stddev(10) 0.31uV,
-  value 0.000,000,0V stddev(10) 0.31uV,
-  value -0.000,000,6V stddev(10) 0.30uV,
-  value 0.000,000,6V stddev(10) 0.40uV,
-  value 0.000,000,0V stddev(10) 0.39uV,
-  value 0.000,000,0V stddev(10) 0.39uV,
-  value -0.000,000,6V stddev(10) 0.40uV,
-  value 0.000,000,6V stddev(10) 0.46uV,
-  value 0.000,000,6V stddev(10) 0.47uV,
-  value -0.000,000,6V stddev(10) 0.51uV,
-  value -0.000,000,6V stddev(10) 0.51uV,
-  value 0.000,000,6V stddev(10) 0.55uV,
-  value -0.000,000,6V stddev(10) 0.55uV,
-  value 0.000,000,0V stddev(10) 0.51uV,
-
-  */
-
-  // auto-zero
-
-  printf("=========\n");
-  printf("app_loop3 autozero\n");
-
-  assert(app);
-
-
-  assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
-  Cal *cal = app->cal[ app->cal_slot_idx ];
-  if(!cal) {
-    printf("no cal\n");
-    return;
-  }
-
-  // ctrl_set_pattern( app->spi, 0 ) ;     // no azero on device.
-
-  /*
-    autozero - should use two zero values, between read.
-    have tmp.
-    1) do ref-hi/sig .
-    2) then lo. and convert using 3 values.
-    3) then copy lo to temp.   and use for the next input.
-  */
-
-
-  // write current cal modulation parameters, but not aperture
-  ctrl_reset_enable(app->spi);
-  // ctrl_param_write( app->spi, &cal->param);
-  ctrl_set_var_n( app->spi,  cal->param.clk_count_var_n);
-  ctrl_set_fix_n( app->spi,  cal->param.clk_count_fix_n);
-  ctrl_reset_disable(app->spi);
-
-
-  // record the mux input to use,
-  unsigned mux_sel = spi_ice40_reg_read(app->spi, REG_HIMUX_SEL );
-
-  // if want to support dynamiclly changing aperture - then needs to read every run
-  unsigned aperture = ctrl_get_aperture(app->spi);
-
-
-  while(true) {
-
-    /* we really need to read spi in the interupt handler. and raw clk values to a buffer. then process in a loop.
-      stamp with an id. and stamp with himux_sel
-      and write the new desired mux value.
-      ---------
-      - we just need to be able to change the interupt handler function .
-      - and need a queue on the app.
-    */
-
-      // configure ref_lo
-    ctrl_reset_enable(app->spi);
-    ctrl_set_mux( app->spi, HIMUX_SEL_REF_LO );
-    app->data_ready = false;
-    ctrl_reset_disable(app->spi);
-
-    // block/wait for data
-    while(!app->data_ready ) {
-      app_update( app );   // change name simple update
-      if(app->halt_func) {
-        // mem leak?
-        return;
-      }
-    }
-
-    // read data
-    Run   run_zero;
-    ctrl_run_read(app->spi, &run_zero, app->verbose);
-
-
-    // configure mux_sel
-    ctrl_reset_enable(app->spi);
-    ctrl_set_mux( app->spi,   mux_sel );
-    app->data_ready = false;
-    ctrl_reset_disable(app->spi);
-
-    // block/wait for data
-    while(!app->data_ready ) {
-      app_update( app );
-      if(app->halt_func) {
-        return;
-      }
-    }
-
-    // read data
-    Run   run_sig;
-    ctrl_run_read(app->spi, &run_sig, app->verbose);
-
-
-    run_show( &run_zero, app->verbose);
-    run_show( &run_sig, app->verbose);
-
-
-    assert(cal->b);
-    double predict_zero   = m_calc_predicted_val( cal->b , &run_zero, aperture );  // param only needed for aperture.
-    double predict_sig    = m_calc_predicted_val( cal->b , &run_sig,  aperture );
-    double predict        = predict_sig - predict_zero;
-    process( app, predict );
-
-
-  }
-}
 
 
 
