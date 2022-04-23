@@ -806,7 +806,7 @@ void app_loop2 ( app_t *app )
 
 
 
-
+///////////////////
 
 
 
@@ -915,7 +915,6 @@ double app_simple_read( app_t *app)
 
 
 
-///////////////////////////////////////////
 
 struct X4
 {
