@@ -319,7 +319,7 @@ void app_loop1 ( app_t *app )
 ///////////////////////////////////////
 
 
-struct X2
+struct X3
 {
   bool  do_value;
 
@@ -332,11 +332,11 @@ struct X2
   bool    data_ready;
   app_t   *app;   // for spi/ verbose... etc
 } ;
-typedef struct X2 X2;
+typedef struct X3 X3;
 
 
 
-static void app_loop2_spi1_interupt( X2 *x)
+static void app_loop3_spi1_interupt( X3 *x)
 {
   /*
     interupt handler context.
@@ -411,13 +411,13 @@ void app_loop3 ( app_t *app   )
   // if want to support dynamiclly changing aperture - then needs to read every run
   unsigned aperture = ctrl_get_aperture(app->spi);
 
-  X2   x;
+  X3   x;
   memset(&x, 0, sizeof(x));
   x.app = app;
   x.himux_sel = mux_sel;
 
   // set handler
-	spi1_interupt_handler_set(  (void (*)(void *))  app_loop2_spi1_interupt, &x );
+	spi1_interupt_handler_set(  (void (*)(void *))  app_loop3_spi1_interupt, &x );
 
   while(!app->halt_func) {
 
