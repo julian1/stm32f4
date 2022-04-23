@@ -330,6 +330,7 @@ void app_update( app_t * app );
 void app_simple_sleep( app_t * app, uint32_t period );
 void app_loop_main(app_t *app);
 
+// rename default_handler()?
 void app_spi1_default_interupt(app_t *app );
 
 double app_simple_read( app_t *app);
