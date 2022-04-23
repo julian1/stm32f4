@@ -105,6 +105,9 @@ void exti2_isr(void)
 
 /*
   need to separate out these functions
+
+  bug in nvic_set_priority() for m4 ?
+    https://github.com/libopencm3/libopencm3/issues/332
 */
 
 
@@ -114,6 +117,9 @@ void spi1_interupt_port_setup()
 
   // TODO set high priority - than uart etc
   // ie. use exti2 for pa2
+
+  // nvic_set_priority(NVIC_EXTI2_IRQ, 5 );
+
   nvic_enable_irq(NVIC_EXTI2_IRQ);
 
   exti_select_source(EXTI2, SPI_ICE40_PORT);
@@ -125,11 +131,8 @@ void spi1_interupt_port_setup()
 
 void spi1_interupt_handler_set( void (*pfunc)(void *), void *ctx)
 {
-  // TODO check non-null init args ...
-
   spi1_interupt = pfunc;
   spi1_ctx = ctx;
-
 }
 
 
