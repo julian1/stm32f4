@@ -103,6 +103,10 @@ void exti2_isr(void)
 }
 
 
+/*
+  need to separate out these functions
+*/
+
 void spi1_interupt_gpio_setup(void (*pfunc)(void *),  void *ctx)
 {
   // TODO check non-null init args ...

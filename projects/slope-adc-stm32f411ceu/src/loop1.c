@@ -749,8 +749,8 @@ void app_voltage_source_1_set( app_t *app, double value )
   // than general app_( app_t *app)  code.
   // so put here, instead of app.c
   // change name current voltage
-  double current = app_simple_read( app);
 
+  double current = app_simple_read( app);
 
   if( value > current ) {
 
@@ -764,8 +764,7 @@ void app_voltage_source_1_set( app_t *app, double value )
         break;
 
       if(app->halt_func) {
-        voltage_source_1_set_dir(0);
-        return;
+        break;
       }
     }
 
@@ -783,8 +782,7 @@ void app_voltage_source_1_set( app_t *app, double value )
       if(current < value)
         break;
       if(app->halt_func) {
-        voltage_source_1_set_dir(0);
-        return;
+        break;
       }
     }
 
@@ -1004,7 +1002,8 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
         No. it's easier to gather data separately.
       */
 
-      param_show( &cal_a->param );
+// showing param like this - creates timing issue?
+//       param_show( &cal_a->param );
 
       ctrl_reset_enable(app->spi);
       ctrl_param_write( app->spi, &cal_a->param);
@@ -1027,16 +1026,17 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
       run_show( &run_a, false);
       printf("\n");
 
-
+      /*
       // checks/ shouldn't need this
       Param param_a;
       ctrl_param_read( app->spi, &param_a);
       assert( param_equal( &cal_a->param, &param_a));
+      */
 
       ///////////////////////////////
 
       // do B
-      param_show( &cal_b->param );
+//       param_show( &cal_b->param );
 
 
       ctrl_reset_enable(app->spi);
@@ -1060,11 +1060,12 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
       run_show( &run_b, false );
       printf("\n");
 
+/*
       // checks/ shouldn't need this
       Param param_b;
       ctrl_param_read( app->spi, &param_b);
       assert( param_equal( &cal_b->param, &param_b));
-
+*/
 
       ///////////////////////
       // work out A,B difference
