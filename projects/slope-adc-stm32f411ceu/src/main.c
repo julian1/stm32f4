@@ -1003,9 +1003,9 @@ int main(void)
   spi_ice40_setup(SPI1);
 
   // adc interupt...
-  // spi1_interupt_gpio_setup( (void (*) (void *))app_spi1_interupt, &app);
+  // spi1_interupt_gpio_setup( (void (*) (void *))app_spi1_default_interupt, &app);
   spi1_interupt_port_setup();
-	spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_interupt, &app );
+	spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_default_interupt, &app );
 
 
 

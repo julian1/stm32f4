@@ -310,7 +310,7 @@ void app_loop1 ( app_t *app )
   }
 
   // restore handler
-	spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_interupt, app );
+	spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_default_interupt, app );
 }
 
 
@@ -457,7 +457,7 @@ void app_loop3 ( app_t *app   )
   }
 
   // restore handler
-	spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_interupt, app );
+	spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_default_interupt, app );
 
 }
 
@@ -770,7 +770,7 @@ void app_loop2 ( app_t *app )
 
 
   // restore handler
-	spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_interupt, app );
+	spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_default_interupt, app );
 
 
 
@@ -906,7 +906,7 @@ double app_simple_read( app_t *app)
   }
 
   // restore handler
-	spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_interupt, app );
+	spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_default_interupt, app );
 
 
   return predict;
@@ -1167,7 +1167,7 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
     } // obs loop.
 
     // restore handler
-    spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_interupt, app );
+    spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_default_interupt, app );
 
 
 
