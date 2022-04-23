@@ -679,7 +679,7 @@ void app_loop2 ( app_t *app )
     ctrl_set_aperture( app->spi, aperture_);
 
     // loop mux
-    for(unsigned j = 0; j < 2; ++j)
+    for(unsigned j = 0; j < 2  /*&& !app->halt_func */; ++j)
     {
       uint32_t mux = j == 0 ? HIMUX_SEL_REF_LO : HIMUX_SEL_REF_HI;
       double   y_  = j == 0 ? 0                : 7.1;
@@ -692,7 +692,7 @@ void app_loop2 ( app_t *app )
       // ctrl_reset_disable(app->spi);
 
       // params
-      for(unsigned k = 0; k < ARRAY_SIZE(params); ++k) {
+      for(unsigned k = 0; k < ARRAY_SIZE(params)  /*&& !app->halt_func */; ++k) {
 
         Param *param = &params[ k ] ;
 
@@ -710,7 +710,7 @@ void app_loop2 ( app_t *app )
 
 
         // obs
-        for(unsigned i = 0; i < obs_n; ++i) {
+        for(unsigned i = 0; i < obs_n /*&& !app->halt_func */ ; ++i) {
 
 
           // block/wait for data
@@ -725,27 +725,6 @@ void app_loop2 ( app_t *app )
           // we got and read the data, so clear the flag to be ready
           x.data_ready = false;
 
-
-          #if 0
-          ctrl_reset_enable(app->spi);
-          app->data_ready = false;
-          ctrl_reset_disable(app->spi);
-
-          // block/wait for data
-          while(!app->data_ready ) {
-            app_update( app );
-            if(app->halt_func) {
-              return;
-            }
-          }
-
-          // read the data and params.
-          Run   run;
-          // Param param;
-
-          ctrl_run_read(   app->spi, &run, app->verbose);
-          // ctrl_param_read( app->spi, &param);
-          #endif
 
           // param_show(&param);
           run_show( &x.run, app->verbose );
@@ -1228,6 +1207,111 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
   app->led_blink_interval = 250;
 
 }
+
+
+
+
+
+
+
+
+
+
+          #if 0
+          ctrl_reset_enable(app->spi);
+          app->data_ready = false;
+          ctrl_reset_disable(app->spi);
+
+          // block/wait for data
+          while(!app->data_ready ) {
+            app_update( app );
+            if(app->halt_func) {
+              return;
+            }
+          }
+
+          // read the data and params.
+          Run   run;
+          // Param param;
+
+          ctrl_run_read(   app->spi, &run, app->verbose);
+          // ctrl_param_read( app->spi, &param);
+          #endif
+
+
+
+#if 0
+      /*
+        we can switch A versus B using ? : expression here
+        No. it's easier to gather data separately.
+      */
+
+// showing param like this - creates timing issue?
+//       param_show( &cal_a->param );
+
+      ctrl_reset_enable(app->spi);
+      ctrl_param_write( app->spi, &cal_a->param);
+      app->data_ready = false;
+      ctrl_reset_disable(app->spi);
+
+      // block/wait for data
+      while(!app->data_ready ) {
+        app_update( app );   // change name simple update
+        if(app->halt_func) {
+          // mem leak?
+          printf("bail done \n");
+          return;
+        }
+      }
+
+      // read A.
+      Run   run_a;
+      ctrl_run_read( app->spi, &run_a, app->verbose);
+      run_show( &run_a, false);
+      printf("\n");
+
+      /*
+      // checks/ shouldn't need this
+      Param param_a;
+      ctrl_param_read( app->spi, &param_a);
+      assert( param_equal( &cal_a->param, &param_a));
+      */
+
+      ///////////////////////////////
+
+      // do B
+//       param_show( &cal_b->param );
+
+
+      ctrl_reset_enable(app->spi);
+      ctrl_param_write( app->spi, &cal_b->param);
+      app->data_ready = false;
+      ctrl_reset_disable(app->spi);
+
+      // block/wait for data
+      while(!app->data_ready ) {
+        app_update( app );
+        if(app->halt_func) {
+          // leak
+          printf("bail done \n");
+          return;
+        }
+      }
+
+      // read B
+      Run   run_b;
+      ctrl_run_read( app->spi, &run_b, app->verbose);
+      run_show( &run_b, false );
+      printf("\n");
+
+/*
+      // checks/ shouldn't need this
+      Param param_b;
+      ctrl_param_read( app->spi, &param_b);
+      assert( param_equal( &cal_b->param, &param_b));
+*/
+#endif
+
 
 
 #if 0
