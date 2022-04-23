@@ -947,13 +947,13 @@ static void app_loop4_spi1_interupt( X4 *x)
   // should do_a first. so init it
 
   if(x->do_a) {
-    // read a, set to param b
+    // read a, then set to param b
     ctrl_run_read(app->spi, &x->run_a, app->verbose);
     ctrl_param_write( app->spi, x->param_b );
     x->do_a = false;
 
   } else {
-    // read b, set to param a
+    // read b, then set to param a
     ctrl_run_read(app->spi, &x->run_b, app->verbose);
     ctrl_param_write( app->spi, x->param_a );
     x->do_a = true;
@@ -1095,7 +1095,7 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
 
     // sleep to let DA settle.
     // unsigned sleep = 3;  // for dac
-    unsigned sleep = i == 0 ? (30 * 1) : 30;
+    unsigned sleep = i == 0 ? (30 * 10) : 30;
     printf("sleep %us\n", sleep );
     app_simple_sleep( app, sleep * 1000 );
 
