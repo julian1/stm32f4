@@ -555,7 +555,7 @@ void app_loop_main(app_t *app)
 void app_spi1_interupt(app_t *app )
 {
   //  about the msot important function
-  app->data_ready = true;
+  // app->data_ready = true;
 }
 
 

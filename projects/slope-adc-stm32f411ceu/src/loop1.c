@@ -825,39 +825,34 @@ void app_voltage_source_1_set( app_t *app, double value )
 
     // voltage_source_1_set_dir( int val ) ;
     voltage_source_1_set_dir(1);
-    while(1) {
+    while( !app->halt_func) {
       current = app_simple_read( app);
       // printf("val %lf\n", current);
       printf(".");
       if(current > value)
         break;
 
-      if(app->halt_func) {
-        break;
-      }
     }
 
     // should be renamed set_dir
-    voltage_source_1_set_dir(0);
+    // voltage_source_1_set_dir(0);
 
 
   } else {
 
     voltage_source_1_set_dir(-1);
-    while(1) {
+    while( !app->halt_func) {
       current = app_simple_read( app);
       printf(".");
       // printf("val %lf\n", current);
       if(current < value)
         break;
-      if(app->halt_func) {
-        break;
       }
-    }
 
-    voltage_source_1_set_dir(0);
+    // voltage_source_1_set_dir(0);
   }
 
+  voltage_source_1_set_dir(0);
   printf("\n");
 }
 
@@ -874,11 +869,8 @@ void app_voltage_source_2_set( app_t *app, double value )
 
 double app_simple_read( app_t *app)
 {
-  /*
-    what cal to use for this?
-  */
-  // not sure if this should be here.
-  //
+  // not this func should be here.
+
 
   X1   x;
   memset(&x, 0, sizeof(x));
@@ -886,7 +878,6 @@ double app_simple_read( app_t *app)
 
   // set handler
 	spi1_interupt_handler_set(  (void (*)(void *))  app_loop1_spi1_interupt, &x );
-
 
 
   // block/wait for data
@@ -901,69 +892,25 @@ double app_simple_read( app_t *app)
   // we got and read the data, so clear the flag to be ready
   x.data_ready = false;
 
-
   // we need a current cal for b, and for aperture
   assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
   Cal *cal = app->cal[ app->cal_slot_idx ];
   assert(cal);
-  assert(cal->b);
 
 
   double predict = m_calc_predicted_val( cal->b, &x.run, cal->param.clk_count_aper_n);
 
-  printf("%f\n", predict);
+  if(app->verbose) {
+    run_show( &x.run, app->verbose );
+    printf("%f\n", predict);
+  }
 
   // restore handler
 	spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_interupt, app );
 
 
-
   return predict;
 
-
-#if 0
-
-  // minimum needed to read a value
-  // used to steer the current before we do anything.
-  Run   run;
-  Param param;
-
-  // clear to reset
-  memset(&run, 0, sizeof(Run));
-
-  /* setting the aperture here, will confuse, if call from another loop.
-    could record the aperture and then return...
-    but this case, should probably be handled elsewhere...
-  */
-
-  ctrl_reset_enable(app->spi);
-  // ctrl_set_aperture( app->spi, nplc_to_aper_n(10));
-  app->data_ready = false;
-  ctrl_reset_disable(app->spi);
-
-  // block/wait for data
-  while(!app->data_ready ) {
-
-    app_update( app );
-
-    // no need to test halt flag here, because this is fast
-  }
-
-  ctrl_run_read(app->spi, &run, app->verbose);
-  ctrl_param_read(app->spi, &param);
-
-  // we have both obs available...
-  // assert(run.count_var_up);
-
-  assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
-  Cal *cal = app->cal[ app->cal_slot_idx ];
-  assert(cal);
-  assert(cal->b);
-
-
-  double predict = m_calc_predicted_val( cal->b, &run, cal ->param.clk_count_aper_n);
-  return predict;
-#endif
 }
 
 
@@ -1259,6 +1206,50 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
 
 
 
+
+#if 0
+
+  // minimum needed to read a value
+  // used to steer the current before we do anything.
+  Run   run;
+  Param param;
+
+  // clear to reset
+  memset(&run, 0, sizeof(Run));
+
+  /* setting the aperture here, will confuse, if call from another loop.
+    could record the aperture and then return...
+    but this case, should probably be handled elsewhere...
+  */
+
+  ctrl_reset_enable(app->spi);
+  // ctrl_set_aperture( app->spi, nplc_to_aper_n(10));
+  app->data_ready = false;
+  ctrl_reset_disable(app->spi);
+
+  // block/wait for data
+  while(!app->data_ready ) {
+
+    app_update( app );
+
+    // no need to test halt flag here, because this is fast
+  }
+
+  ctrl_run_read(app->spi, &run, app->verbose);
+  ctrl_param_read(app->spi, &param);
+
+  // we have both obs available...
+  // assert(run.count_var_up);
+
+  assert( app->cal_slot_idx < ARRAY_SIZE(app->cal));
+  Cal *cal = app->cal[ app->cal_slot_idx ];
+  assert(cal);
+  assert(cal->b);
+
+
+  double predict = m_calc_predicted_val( cal->b, &run, cal ->param.clk_count_aper_n);
+  return predict;
+#endif
 
 
 

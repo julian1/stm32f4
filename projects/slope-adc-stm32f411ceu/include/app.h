@@ -245,7 +245,7 @@ struct app_t
 
   uint32_t  spi;  // spi device. maybe rename ctrl_spi
 
-  volatile bool data_ready ;
+  // volatile bool data_ready ;
 
 
   /*

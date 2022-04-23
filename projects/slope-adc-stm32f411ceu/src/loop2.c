@@ -115,6 +115,7 @@ void app_loop22( app_t *app )
 
   printf("Using cal slot %u . for model and var_n,fix_n \n",  app->cal_slot_idx );
 
+#if 0
   /*
     alsways work with slot 0?
   */
@@ -293,7 +294,7 @@ void app_loop22( app_t *app )
 
 
   calc_cal( app, y, xs, aperture );
-
+#endif
 }
 
 
