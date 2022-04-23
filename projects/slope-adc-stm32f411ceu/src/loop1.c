@@ -16,6 +16,7 @@
 #include "app.h"
 #include "cal.h"
 #include "temp.h"
+#include "spi1.h" // to set handler
 
 
 #include "voltage-source-1/voltage-source.h"
@@ -197,6 +198,33 @@ static double m_calc_predicted_val(  MAT *b , Run *run, unsigned aper_n )
 
 
 
+///////////////////////////
+
+struct X
+{
+  Run     run;
+  bool    data_ready;
+  app_t   *app;   // for spi/ verbose... etc
+} ;
+typedef struct X X;
+
+
+
+static void app_loop1_spi1_interupt( X *x)
+{
+  /*
+    interupt handler context.
+    read data without pause
+  */
+  app_t *app = x->app;
+  ctrl_run_read(app->spi, &x->run, app->verbose);
+  x->data_ready = true;
+}
+
+
+
+
+
 void app_loop1 ( app_t *app )
 {
   printf("=========\n");
@@ -244,48 +272,51 @@ void app_loop1 ( app_t *app )
   printf("\n");
 
 
+  X   x;
+  x.app = app;
+  x.data_ready = false;
 
-  while(true) {
+  // we must restore this... before exiting our func
+	spi1_interupt_handler_set(  (void (*)(void *))  app_loop1_spi1_interupt, &x );
 
-    Run   run;
-    // Param param;
 
-    // if first()
-    // ctrl_reset_enable(app->spi);
-    app->data_ready = false;
-    // ctrl_reset_disable(app->spi);
+  while(!app->halt_func) {
 
     // block/wait for data
-    while(!app->data_ready ) {
+    while(!x.data_ready ) {
       app_update( app );   // change name simple update
       // mem leak?
       if(app->halt_func) {
-        return;
+        break;
       }
     }
 
-    // read the ready data
-    ctrl_run_read(app->spi, &run, app->verbose);
+    // we got and read the data, so clear the flag to be ready
+    x.data_ready = false;
 
-    // dev should still be in state reset, while reading
-    assert( ctrl_get_state( app->spi ) == STATE_RESET);
 
     // only report if using buffer, to reduce clutter
     if(m_rows(app->buffer) == 1)
-      run_show( &run, app->verbose );
+      run_show( &x.run, app->verbose );
 
     if(cal) {
 
       // printf("cal slot %u", app->cal_slot_idx );
 
       assert(cal->b);
-      double predict = m_calc_predicted_val( cal->b, &run, aperture ); // wrong if aperture changes.
+      double predict = m_calc_predicted_val( cal->b, &x.run, aperture ); // wrong if aperture changes.
       process( app, predict );
     }
-
-
   }
+
+  // restore handler
+	spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_interupt, &app );
 }
+
+
+
+
+
 
 
 /*
