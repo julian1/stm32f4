@@ -107,21 +107,29 @@ void exti2_isr(void)
   need to separate out these functions
 */
 
-void spi1_interupt_gpio_setup(void (*pfunc)(void *),  void *ctx)
+
+void spi1_interupt_port_setup()
 {
-  // TODO check non-null init args ...
-
-  spi1_interupt = pfunc;
-  spi1_ctx = ctx;
-
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_ICE40_INTERUPT);
 
+  // TODO set high priority - than uart etc
   // ie. use exti2 for pa2
   nvic_enable_irq(NVIC_EXTI2_IRQ);
 
   exti_select_source(EXTI2, SPI_ICE40_PORT);
   exti_set_trigger(EXTI2 , EXTI_TRIGGER_FALLING);
   exti_enable_request(EXTI2);
+}
+
+
+
+void spi1_interupt_handler_set( void (*pfunc)(void *), void *ctx)
+{
+  // TODO check non-null init args ...
+
+  spi1_interupt = pfunc;
+  spi1_ctx = ctx;
+
 }
 
 
