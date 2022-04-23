@@ -1003,13 +1003,10 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
   // indicate running
   app->led_blink_interval = 500;
 
-
-
   // clear last for mem
   if(app->last) {
     M_FREE(app->last);
   }
-
 
 
   // mux signal input
@@ -1052,21 +1049,19 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
   assert( cal_slot_a < ARRAY_SIZE(app->cal));
   Cal *cal_a = app->cal[ cal_slot_a ] ;
   assert( cal_a );
-
   printf("cal a, slot %u\n", cal_slot_a);
   param_show( & cal_a->param );
   printf("\n");
-
 
 
   // cal B
   assert( cal_slot_b < ARRAY_SIZE(app->cal));
   Cal *cal_b = app->cal[ cal_slot_b ] ;
   assert( cal_b );
-
   printf("cal b, slot %u\n", cal_slot_b);
   param_show( & cal_b->param );
   printf("\n");
+
 
   X4  x;
   memset(&x, 0, sizeof(x));
