@@ -578,14 +578,10 @@ void app_loop2 ( app_t *app )
   // TODO initially, if no cal. then should create a default.
 
 
-
-
   // clear last for mem
   if(app->last) {
     M_FREE(app->last);
   }
-
-
 
   // write current cal modulation parameters (var_n,fix_n), but not aperture
   ctrl_reset_enable(app->spi);
@@ -598,8 +594,6 @@ void app_loop2 ( app_t *app )
   printf("model %u\n", cal->model);
   param_show( & cal->param );
   printf("\n");
-
-
 
   // unsigned nplc_[] = { 9, 10, 11, 12 };
   // unsigned nplc[] = { 8, 9, 10, 11, 12, 13  };
@@ -662,6 +656,16 @@ void app_loop2 ( app_t *app )
   MAT *aperture = m_get(max_rows, 1); // required for predicted
 
 
+  X1   x;
+  memset(&x, 0, sizeof(x));
+  x.app = app;
+  // x.data_ready = false;
+
+
+  // set handler
+	spi1_interupt_handler_set(  (void (*)(void *))  app_loop1_spi1_interupt, &x );
+
+
 
   unsigned row = 0;
 
@@ -696,15 +700,33 @@ void app_loop2 ( app_t *app )
         printf("\n");
 
         // permute modulation params
-        // ctrl_reset_enable(app->spi);
+        ctrl_reset_enable(app->spi);
         ctrl_set_var_n( app->spi, param->clk_count_var_n );
         ctrl_set_fix_n( app->spi, param->clk_count_fix_n );
-        // ctrl_reset_disable(app->spi);
+
+        // set this explicitly
+        x.data_ready = false;
+        ctrl_reset_disable(app->spi);
 
 
         // obs
         for(unsigned i = 0; i < obs_n; ++i) {
 
+
+          // block/wait for data
+          while(!x.data_ready ) {
+            app_update( app );   // change name simple update
+            // mem leak?
+            if(app->halt_func) {
+              break;
+            }
+          }
+
+          // we got and read the data, so clear the flag to be ready
+          x.data_ready = false;
+
+
+          #if 0
           ctrl_reset_enable(app->spi);
           app->data_ready = false;
           ctrl_reset_disable(app->spi);
@@ -723,9 +745,10 @@ void app_loop2 ( app_t *app )
 
           ctrl_run_read(   app->spi, &run, app->verbose);
           // ctrl_param_read( app->spi, &param);
+          #endif
 
           // param_show(&param);
-          run_show(&run, app->verbose );
+          run_show( &x.run, app->verbose );
 
           if(i < 2) {
             printf("discard");
@@ -734,7 +757,7 @@ void app_loop2 ( app_t *app )
 
             // record xs
             assert(row < m_rows(xs));
-            MAT *whoot = run_to_matrix( &run, cols , MNULL );
+            MAT *whoot = run_to_matrix( &x.run, cols , MNULL );
             assert(whoot);
             assert( m_cols(whoot) == m_cols(xs) );
             assert( m_rows(whoot) == 1  );
@@ -766,6 +789,10 @@ void app_loop2 ( app_t *app )
   } // h
 
 
+  // restore handler
+	spi1_interupt_handler_set(  (void (*)(void *))  app_spi1_interupt, app );
+
+
 
   // restore default
   ctrl_reset_enable(app->spi);
@@ -784,6 +811,7 @@ void app_loop2 ( app_t *app )
 
 
   calc_cal( app, y, xs, aperture );
+
 
 }
 
