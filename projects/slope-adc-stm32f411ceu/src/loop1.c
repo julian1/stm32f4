@@ -1116,7 +1116,7 @@ void app_loop4 ( app_t *app,  unsigned cal_slot_a,  unsigned cal_slot_b  )
     for(unsigned obs = 0; obs < obs_n; ++obs)
     {
 
-      printf("blocking\n");
+      // printf("blocking\n");
 
       // block/wait for data
       while(!x.data_ready ) {
