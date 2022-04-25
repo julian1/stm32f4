@@ -172,6 +172,18 @@ uint32_t ctrl_get_fix_n( uint32_t spi )
 
 
 
+void ctrl_set_fast_rundown( uint32_t spi, uint32_t val)
+{
+  spi_ice40_reg_write(spi, REG_USE_FAST_RUNDOWN, val);
+}
+
+uint32_t ctrl_get_fast_rundown( uint32_t spi )
+{
+  return spi_ice40_reg_read(spi, REG_USE_FAST_RUNDOWN);
+}
+
+
+
 
 
 

@@ -119,7 +119,7 @@
     reset.
     ◆ SCB_AIRCR_SYSRESETREQ
          nvic_generate_software_interrupt()
-    
+
         https://aticleworld.com/how-to-reset-an-arm-cortex-m-with-softwareo /
         https://github.com/StephanW/libopencm3-karat/blob/696ce0e2f331bd3ce7ddb6cf619ce344b6060152/lib/cm3/scb.c
 */
@@ -202,7 +202,7 @@ void app_update_console_cmd(app_t *app)
   uint32_t u32, u32_2;   // long unsigned int.
   int32_t i32;
   double d;
-  char buf[20] ; 
+  char buf[20] ;
 
   /* TODO.
       consider using non-blocking fread() for unified interface.
@@ -392,24 +392,24 @@ void app_update_console_cmd(app_t *app)
       /* chances in memory and on the device. but doesn't write.
         - means can use restart/rescan to undo/restore to original.
         - and cal save slot to save updated to the same or different slot.
+
       */
 
       else if(strcmp(app->cmd_buf , "fast rundown show") == 0 )  {
 
-        uint32_t v = spi_ice40_reg_read(app->spi, REG_USE_FAST_RUNDOWN);
-		printf("fast rundown %lu\n", v);
+		    printf("fast rundown %lu\n", ctrl_get_fast_rundown( app->spi));
       }
-
-
       else if(sscanf(app->cmd_buf, "fast rundown %lu", &u32 ) == 1) {
 
-        spi_ice40_reg_write(app->spi, REG_USE_FAST_RUNDOWN, u32);
+        ctrl_set_fast_rundown( app->spi, u32);
       }
-      else if(sscanf(app->cmd_buf, "slow rundown %lu", &u32 ) == 1) {
 
+
+      else if(sscanf(app->cmd_buf, "slow rundown %lu", &u32 ) == 1) {
+      // TODO. seldom used. should probably remove
         spi_ice40_reg_write(app->spi, REG_USE_SLOW_RUNDOWN, u32);
       }
- 
+
 
       else if(sscanf(app->cmd_buf, "cal var_n %lu", &u32 ) == 1) {
 

@@ -108,6 +108,12 @@ uint32_t ctrl_get_fix_n( uint32_t spi );
 
 
 
+void ctrl_set_fast_rundown( uint32_t spi, uint32_t val);
+uint32_t ctrl_get_fast_rundown( uint32_t spi );
+
+
+
+
 
 void ctrl_reset_enable( uint32_t spi);
 void ctrl_reset_disable(uint32_t spi);

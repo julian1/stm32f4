@@ -262,14 +262,16 @@ void app_loop1 ( app_t *app )
   ctrl_set_fix_n( app->spi,  cal->param.clk_count_fix_n);
   ctrl_reset_disable(app->spi);
 
-
+  // move this to a vunction. it's useful to report.
   printf("model  %u\n",     cal->model);
   printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
   printf("period %.2lfs\n", aper_n_to_period( aperture ));
   printf("buffer %u\n",     m_rows(app->buffer));
   printf("stats  %u\n",     m_rows(app->stats_buffer));
+  printf("fast rundown %lu\n", ctrl_get_fast_rundown( app->spi));
+
   param_show( & cal->param );
-  printf("\n");
+  printf("\n\n");
 
 
   X1   x;
