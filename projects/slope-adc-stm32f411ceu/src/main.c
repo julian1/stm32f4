@@ -587,7 +587,12 @@ void app_update_console_cmd(app_t *app)
       else if(sscanf(app->cmd_buf, "voltage source set %lf", &d ) == 1) {
         // set the voltage
         printf("voltage source set %lf!\n", d);
+
+        if( ctrl_get_mux( app->spi) != HIMUX_SEL_SIG_HI ) {
+          printf("mux sel should be sig\n");
+        } else {
         app_voltage_source_1_set( app, d );
+        }
       }
 
 #if 0

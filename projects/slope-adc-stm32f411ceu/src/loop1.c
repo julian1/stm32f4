@@ -822,6 +822,11 @@ void app_voltage_source_1_set( app_t *app, double value )
   // so put here, instead of app.c
   // change name current voltage
 
+
+  // should probably be assert
+  assert( ctrl_get_mux( app->spi) == HIMUX_SEL_SIG_HI );
+
+
   double current = app_simple_read( app);
 
   if( value > current ) {
