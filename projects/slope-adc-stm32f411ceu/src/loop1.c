@@ -347,17 +347,19 @@ static void app_loop3_spi1_interupt( X3 *x)
   app_t *app = x->app;
 
   if(x->do_value) {
+
     // read value
     ctrl_run_read(app->spi, &x->run, app->verbose);
+    // next read lo
     ctrl_set_mux( app->spi, HIMUX_SEL_REF_LO );
     x->do_value = false;
-
-
   } else {
-    // move zero, to last
-    // read zero
+
+    // move previosu zero, to last
     x->zero_last = x->zero;   // deep copy
+    // now read zero
     ctrl_run_read(app->spi, &x->zero, app->verbose);
+    // set next read for hi_mux
     ctrl_set_mux( app->spi, x->himux_sel );
     x->do_value = true;
 
