@@ -225,7 +225,7 @@ static void app_loop1_spi1_interupt( X1 *x)
 
 
 
-static void state_show( app_t * app, Cal *cal, unsigned aperture)
+static void app_state_show( app_t * app, Cal *cal, unsigned aperture)
 {
   // should move to fvunction. it's useful to report.
   // except need to pass cal, app, aperture
@@ -283,7 +283,7 @@ void app_loop1 ( app_t *app )
   ctrl_reset_disable(app->spi);
 
 
-  state_show( app, cal, aperture );
+  app_state_show( app, cal, aperture );
 
 
   X1   x;
@@ -428,7 +428,7 @@ void app_loop3 ( app_t *app   )
   unsigned aperture = ctrl_get_aperture(app->spi);
 
 
-  state_show( app, cal, aperture );
+  app_state_show( app, cal, aperture );
 
   X3   x;
   memset(&x, 0, sizeof(x));
@@ -504,6 +504,7 @@ void app_loop3 ( app_t *app   )
 
 void calc_cal( app_t *app,  MAT *y, MAT *xs, MAT *aperture  )
 {
+  // rename app_calc_cal()
   /*
       calc_calibration_from_data
     better name. do_calibration.
@@ -598,7 +599,7 @@ void app_loop2 ( app_t *app )
   // TODO initially, if no cal. then should create a default.
 
 
-  state_show( app, cal, 0 );
+  app_state_show( app, cal, 0 );
 
 
   // clear last for mem
