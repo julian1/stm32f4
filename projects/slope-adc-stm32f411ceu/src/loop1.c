@@ -225,6 +225,26 @@ static void app_loop1_spi1_interupt( X1 *x)
 
 
 
+static void state_show( app_t * app, Cal *cal, unsigned aperture)
+{
+  // should move to fvunction. it's useful to report.
+  // except need to pass cal, app, aperture
+  printf("model  %u\n",     cal->model);
+  printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
+  printf("period %.2lfs\n", aper_n_to_period( aperture ));
+  printf("buffer %u\n",     m_rows(app->buffer));
+  printf("stats  %u\n",     m_rows(app->stats_buffer));
+  printf("fast rundown %lu\n", ctrl_get_fast_rundown( app->spi));
+
+  param_show( & cal->param );
+  printf("\n\n");
+}
+
+
+
+
+
+
 void app_loop1 ( app_t *app )
 {
   printf("=========\n");
@@ -262,16 +282,8 @@ void app_loop1 ( app_t *app )
   ctrl_set_fix_n( app->spi,  cal->param.clk_count_fix_n);
   ctrl_reset_disable(app->spi);
 
-  // move this to a vunction. it's useful to report.
-  printf("model  %u\n",     cal->model);
-  printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
-  printf("period %.2lfs\n", aper_n_to_period( aperture ));
-  printf("buffer %u\n",     m_rows(app->buffer));
-  printf("stats  %u\n",     m_rows(app->stats_buffer));
-  printf("fast rundown %lu\n", ctrl_get_fast_rundown( app->spi));
 
-  param_show( & cal->param );
-  printf("\n\n");
+  state_show( app, cal, aperture );
 
 
   X1   x;
@@ -414,6 +426,9 @@ void app_loop3 ( app_t *app   )
 
   // if want to support dynamiclly changing aperture - then needs to read every run
   unsigned aperture = ctrl_get_aperture(app->spi);
+
+
+  state_show( app, cal, aperture );
 
   X3   x;
   memset(&x, 0, sizeof(x));
@@ -581,6 +596,9 @@ void app_loop2 ( app_t *app )
   Cal *cal = app->cal[  app->cal_slot_idx ];
   assert(cal);
   // TODO initially, if no cal. then should create a default.
+
+
+  state_show( app, cal, 0 );
 
 
   // clear last for mem
