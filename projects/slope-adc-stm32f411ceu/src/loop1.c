@@ -1,5 +1,6 @@
 
 
+#include <math.h> // log2
 
 // #include <stdbool.h>
 
@@ -227,17 +228,34 @@ static void app_loop1_spi1_interupt( X1 *x)
 
 static void app_state_show( app_t * app, Cal *cal, unsigned aperture)
 {
+  /*
+    should this extra stuff be calculated with cal?
+  */
+
   // should move to fvunction. it's useful to report.
   // except need to pass cal, app, aperture
-  printf("model  %u\n",     cal->model);
-  printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
-  printf("period %.2lfs\n", aper_n_to_period( aperture ));
-  printf("buffer %u\n",     m_rows(app->buffer));
-  printf("stats  %u\n",     m_rows(app->stats_buffer));
+  printf("model   %u\n",     cal->model);
+  printf("nplc    %.2lf\n",  aper_n_to_nplc( aperture ));
+  printf("period  %.2lfs\n", aper_n_to_period( aperture ));
+  printf("buffer  %u\n",     m_rows(app->buffer));
+  printf("stats   %u\n",     m_rows(app->stats_buffer));
+
   printf("fast rundown %lu\n", ctrl_get_fast_rundown( app->spi));
 
-  param_show( & cal->param );
-  printf("\n\n");
+  Param *param = & cal->param ;
+  assert(param);
+  param_show( param );
+  printf("\n");
+
+  // 
+  double freq = 20000000.f / (param->clk_count_fix_n + param->clk_count_var_n) / 2;
+
+  printf("freq    %.2fkHz\n", freq / 1000.f);
+  printf("runup   %.1f bits\n", log2( freq) );
+
+
+
+  printf("\n");
 }
 
 
