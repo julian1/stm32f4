@@ -245,14 +245,16 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq )
   // timer_enable_break_main_output(timer);
   timer_set_period(timer, period );    // 42kHz
 
-  // A lot of this can be set once. But keeping it in one place is clearer.
-  // we could do this by just hardware jumpering. but we may want phase shifted full bridge.
-
   /*
-    I think there's an issue when shorten period - and the timer keeps going past.
+    - A lot of this can be set once. But keeping it in one place is clearer.
+    - we could do this by just hardware jumpering. but we may want phase shifted full bridge.
+
+    EXTR avoiding setting mode/and output here could reduce internal timer resetting stuff 
+    - but it seems to work.
+    
   */
 
-  timer_disable_counter(timer);
+  timer_disable_counter(timer); // helps when resetting
 
   // 1 & 4 are the same
   timer_enable_oc_output(timer, TIM_OC1 );
@@ -273,7 +275,7 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq )
   timer_set_oc_mode(timer, TIM_OC3, TIM_OCM_PWM2);    // Output is active (high) when counter is greater than output compare value
   timer_set_oc_value(timer, TIM_OC3, half_period + dead);
 
-  timer_set_counter( timer, 0 );    // make sure timer count does  not escape when changing
+  timer_set_counter( timer, 0 );    // make sure timer count does  not escape when shortening period
 
   timer_enable_counter(timer);  // seems to need this
 
