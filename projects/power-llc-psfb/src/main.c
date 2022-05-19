@@ -252,7 +252,8 @@ static void timer_setup(void )
 
   rcc_periph_reset_pulse( RST_TIM5 );   // is this needed
 
-  timer_set_prescaler(timer, 20);  // 1MHz.
+  // timer_set_prescaler(timer, 20);  // 1MHz.?
+  timer_set_prescaler(timer, 84 / 2);  // 1MHz.? ie. main clock / 2
 
 
 /*
@@ -276,14 +277,13 @@ static void timer_setup(void )
 
 
   timer_enable_oc_output(timer, TIM_OC1);
-  // timer_set_oc_mode(timer, TIM_OC1, TIM_OCM_PWM2);    // Output is active (high) when counter is greater than output compare value
-  timer_set_oc_mode(timer, TIM_OC1, TIM_OCM_PWM1);    // Output is active (high) when counter is greater than output compare value
-  timer_set_oc_value(timer, TIM_OC1, 100);
+  timer_set_oc_mode(timer, TIM_OC1, TIM_OCM_PWM1);    // Output is active (high) when counter is less than output compare value
+  timer_set_oc_value(timer, TIM_OC1, 500 - 50);
 
 
   timer_enable_oc_output(timer, TIM_OC2);
   timer_set_oc_mode(timer, TIM_OC2, TIM_OCM_PWM2);    // Output is active (high) when counter is greater than output compare value
-  timer_set_oc_value(timer, TIM_OC2, 200);
+  timer_set_oc_value(timer, TIM_OC2, 500 + 50);
 
 
 
