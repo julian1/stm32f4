@@ -253,7 +253,8 @@ static void timer_setup(void )
   rcc_periph_reset_pulse( RST_TIM5 );   // is this needed
 
   // timer_set_prescaler(timer, 20);  // 1MHz.?
-  timer_set_prescaler(timer, 84 / 2);  // 1MHz.? ie. main clock / 2
+  // timer_set_prescaler(timer, 84 / 2);  // 1MHz.? ie. main clock / 2
+  timer_set_prescaler(timer, 0 );  // No prescaler = 42Mhz.
 
 
 /*
@@ -266,24 +267,44 @@ static void timer_setup(void )
 
       TIM_OCM_PWM1  Output is active (high) when counter is less than output compare value
       TIM_OCM_PWM2  Output is active (high) when counter is greater than output compare value
+      ----
 
+      oc1 = fet1
+      oc2 = fet2
+
+      1&4 on. then 2,3 on.
+
+      - we kind of want to check that mcu stays powered on, under power. before refine too much.
+      - perhaps want ctrl over frequency...
+    ---------
+    no. pres
+    ------------
+
+    having a fixed dead time is interesting - because it increases relative to period, as freq increases which trades off power. which is what we want.
+    eg. at 200kHz. and dead=50, it's about 50%.
 */
 
 
   timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);  // alternating up/down
 
+
+  uint32_t freq = 200 * 1000;               // in Hz.
+  uint32_t period = (84000000.f / freq) / 2; // calculated.
+  uint32_t half_period = period / 2;
+  uint32_t dead = 50;                       // fixed interval
+
   // timer_enable_break_main_output(timer);
-  timer_set_period(timer, 1000);
+  timer_set_period(timer, period );    // 42kHz
 
 
   timer_enable_oc_output(timer, TIM_OC1);
   timer_set_oc_mode(timer, TIM_OC1, TIM_OCM_PWM1);    // Output is active (high) when counter is less than output compare value
-  timer_set_oc_value(timer, TIM_OC1, 500 - 50);
+  timer_set_oc_value(timer, TIM_OC1, half_period - dead);
 
 
   timer_enable_oc_output(timer, TIM_OC2);
   timer_set_oc_mode(timer, TIM_OC2, TIM_OCM_PWM2);    // Output is active (high) when counter is greater than output compare value
-  timer_set_oc_value(timer, TIM_OC2, 500 + 50);
+  timer_set_oc_value(timer, TIM_OC2, half_period + dead);
 
 
 
