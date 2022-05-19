@@ -428,8 +428,8 @@ int main(void)
 
 
 
-  // led
-  led_setup();
+  // led blink
+  led_setup(GPIOA, GPIO15); 
 
 
   memset(&app, 0, sizeof(app_t));

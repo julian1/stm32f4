@@ -1,4 +1,6 @@
 /*
+  should be common now.
+  ----
   helper stuff that belongs in separate file, but not in separate library
   because might change
 
@@ -17,7 +19,22 @@
 
 
 
+/*
 
+
+
+void  gpio_mode_setup (uint32_t gpioport, uint8_t mode, uint8_t pull_up_down, uint16_t gpios)
+*/
+typedef struct  Led
+{
+  uint32_t  port;
+  uint32_t  io;
+} Led;
+
+static Led   led;
+
+
+/*
 // DON"T MOVE THIS CODE TO A LIBRARY
 // just keep as separate file. because led will change
 // stm32f407 ...
@@ -27,6 +44,11 @@
 
 #define LED_PORT  GPIOA
 #define LED_OUT   GPIO15
+*/
+
+
+
+
 
 /*
   May 19 2022.
@@ -43,16 +65,29 @@
 
 // move this stuff back to main.c and setup...
 
+
+// change name led_blink_setup()?
+
+void led_setup(uint32_t port_, uint16_t io_ )   // innit or setup
+{
+  led.port = port_;
+  led.io   = io_;
+
+  gpio_mode_setup(led.port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, led.io );
+}
+
+/*
 void led_setup(void)
 {
   gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT);
 }
+*/
 
 
 
 void led_toggle(void)
 {
-  gpio_toggle(LED_PORT, LED_OUT);
+  gpio_toggle(led.port, led.io);
 }
 
 
@@ -62,7 +97,9 @@ void critical_error_blink(void)
   // needs the led port config.
   // avoid passing arguments, consuming stack.
 	for (;;) {
-		gpio_toggle(LED_PORT, LED_OUT);
+		// gpio_toggle(led.port, led.io );
+    led_toggle();
+
 		for(uint32_t i = 0; i < 500000; ++i)
        __asm__("nop");
 	}
