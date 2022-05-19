@@ -273,9 +273,10 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq )
   timer_set_oc_mode(timer, TIM_OC3, TIM_OCM_PWM2);    // Output is active (high) when counter is greater than output compare value
   timer_set_oc_value(timer, TIM_OC3, half_period + dead);
 
+  timer_set_counter( timer, 0 );    // make sure timer count does  not escape when changing
+
   timer_enable_counter(timer);  // seems to need this
 
-  timer_set_counter( timer, 0 );    // make sure timer count does  not escape when changing
 
 }
 
