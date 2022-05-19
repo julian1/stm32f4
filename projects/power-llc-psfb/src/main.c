@@ -241,6 +241,9 @@ int main(void)
 	// rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz. works stm32f407 too.
   // rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ] );  // stm32f407
 
+
+  rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_3V3_84MHZ ]);    // HSI WORKS stm32f410, may 2022.
+
   /*
   // http://libopencm3.org/docs/latest/stm32f4/html/f4_2rcc_8h.html
 
@@ -249,9 +252,9 @@ int main(void)
   */
   // 16MHz. for hsi from datasheet.
 
-  systick_setup(16000);
   // systick_setup(16000);
-  // systick_setup(84000);  // 84MHz.
+  // systick_setup(16000);
+  systick_setup(84000);  // 84MHz.
   // systick_setup(168000);
 
 
@@ -262,7 +265,7 @@ int main(void)
   // LED
   rcc_periph_clock_enable(RCC_GPIOA);
   rcc_periph_clock_enable(RCC_GPIOB);
-  rcc_periph_clock_enable(RCC_GPIOE);
+  // rcc_periph_clock_enable(RCC_GPIOE);
 
   // USART
   rcc_periph_clock_enable(RCC_GPIOB); // F410/f411

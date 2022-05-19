@@ -30,8 +30,8 @@
 
 /*
   May 19 2022. 
-    really think should just use a structure for the led blink.  To init once, and encapsulate
-    And then pass by reference. like we do 
+    really think should just use a structure for the led blink.  To init once in main, and encapsulate
+    And then pass by reference. like we do  for spi, etc.
     
 
 */
