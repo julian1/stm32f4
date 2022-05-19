@@ -239,6 +239,9 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq )
   uint32_t half_period = period / 2;
   uint32_t dead = 50;                       // fixed interval
 
+  printf("freq       %lu\n", freq );
+  printf("tim period %lu\n", period );
+
   // timer_enable_break_main_output(timer);
   timer_set_period(timer, period );    // 42kHz
 
@@ -280,14 +283,10 @@ static void timer_setup(void )
 
   rcc_periph_reset_pulse( RST_TIM5 );   // is this needed
 
-  // timer_set_prescaler(timer, 20);  // 1MHz.?
-  // timer_set_prescaler(timer, 84 / 2);  // 1MHz.? ie. main clock / 2
   timer_set_prescaler(timer, 0 );  // No prescaler = 42Mhz.
 
 
 /*
-
-    -
     - TIM_CR1_CMS_CENTER_1  Center mode 1: counter counts up and down alternatively (interrupts on counting down)
       see,
       https://bdebyl.net/post/stm32-part1/
@@ -315,35 +314,10 @@ static void timer_setup(void )
 
   timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);  // alternating up/down
 
-
-
   timer_set_frequency( timer, 200000 );
 
-
   timer_enable_counter(timer);
 
-
-
-
-/*
-  // timer is up counting.
-  timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
-  // timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);
-  timer_enable_preload(timer);
-  timer_enable_break_main_output(timer); // what does this do
-  timer_set_period(timer, 1000);
-
-  ////////
-  // configure the channnel outputs to toggle on the oc (output compare) value
-
-  // channel 1
-  timer_set_oc_mode(timer, TIM_OC1, TIM_OCM_TOGGLE);
-  timer_enable_oc_output(timer, TIM_OC1);
-  timer_set_oc_value(timer, TIM_OC1, 500);
-
-
-  timer_enable_counter(timer);
-*/
 }
 
 
@@ -510,3 +484,24 @@ int main(void)
 
 
 
+
+
+/*
+  // timer is up counting.
+  timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+  // timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);
+  timer_enable_preload(timer);
+  timer_enable_break_main_output(timer); // what does this do
+  timer_set_period(timer, 1000);
+
+  ////////
+  // configure the channnel outputs to toggle on the oc (output compare) value
+
+  // channel 1
+  timer_set_oc_mode(timer, TIM_OC1, TIM_OCM_TOGGLE);
+  timer_enable_oc_output(timer, TIM_OC1);
+  timer_set_oc_value(timer, TIM_OC1, 500);
+
+
+  timer_enable_counter(timer);
+*/
