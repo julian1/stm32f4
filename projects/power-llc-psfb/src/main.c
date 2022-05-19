@@ -272,11 +272,9 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq )
 
 
 
-static void timer_setup(void )
+static void timer_port_setup(void )
 {
-  // HMMMMM...
-
-  usart1_printf("timer setup\n");
+  usart1_printf("timer port setup\n");
 
   uint16_t outputs = GPIO0 | GPIO1 | GPIO2 | GPIO3;
 
@@ -286,10 +284,17 @@ static void timer_setup(void )
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, outputs);
 
 
-  ////////////////////////
 
+}
 
-  uint32_t timer = TIM5;
+static void timer_setup(uint32_t timer )
+{
+  // HMMMMM...
+
+  usart1_printf("timer setup\n");
+
+  // uint32_t timer = TIM5;
+  assert( timer == TIM5 );
 
   rcc_periph_reset_pulse( RST_TIM5 );   // is this needed
 
@@ -484,7 +489,9 @@ int main(void)
 
 
   app.timer = TIM5;
-  timer_setup();
+  timer_port_setup();
+  timer_setup(app.timer );
+
 
 
   loop(&app);
