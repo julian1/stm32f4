@@ -220,6 +220,84 @@ static app_t app;
 
 
 
+
+
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/timer.h>
+
+
+
+
+
+
+
+static void timer_setup(void )
+{
+  // HMMMMM...
+
+  usart1_printf("timer setup\n");
+
+
+  //  port set up for alt function.
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO0 );
+  gpio_set_af(GPIOA, GPIO_AF2, GPIO0 ); // AF1 == timer.
+
+  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, GPIO0 ); // 50is faster than 100? no. same speed
+
+
+  ////////////////////////
+
+  
+  uint32_t timer = TIM5;
+
+  rcc_periph_reset_pulse( RST_TIM5 );   // is this needed
+
+  timer_set_prescaler(timer, 20);  // 1MHz.
+
+
+
+
+  timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);
+  timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_PWM2);
+  timer_enable_oc_output(TIM5, TIM_OC1);
+  timer_enable_break_main_output(TIM5);
+  timer_set_oc_value(TIM5, TIM_OC1, 500);
+  timer_set_period(TIM5, 1000);
+  timer_enable_counter(TIM5);
+
+
+
+
+/*
+  // timer is up counting.
+  timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+  // timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);
+  timer_enable_preload(timer);
+  timer_enable_break_main_output(timer); // what does this do
+  timer_set_period(timer, 1000);
+
+  ////////
+  // configure the channnel outputs to toggle on the oc (output compare) value
+
+  // channel 1
+  timer_set_oc_mode(timer, TIM_OC1, TIM_OCM_TOGGLE);
+  timer_enable_oc_output(timer, TIM_OC1);
+  timer_set_oc_value(timer, TIM_OC1, 500);
+
+
+  timer_enable_counter(timer);
+*/
+}
+
+
+
+
+
+
+
+
+
+
 ////////////////////
 // I don't see that we can transfer control.
 // eg. the write will pause until it has sent.
@@ -361,6 +439,9 @@ int main(void)
   */
 
  
+  rcc_periph_clock_enable(RCC_TIM5);
+
+  timer_setup();
 
 
   loop(&app);
