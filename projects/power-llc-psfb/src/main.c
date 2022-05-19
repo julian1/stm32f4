@@ -124,11 +124,11 @@ static void update_console_cmd(app_t *app)
       if( sscanf(cmd, "freq %lu", &u0 ) == 1) {
         uint32_t freq = u0;
 
-        if(freq > 30000 && freq < 300000) {
+        if(freq > 30 && freq < 300) {
 
-          printf("got freq command %lu\n", freq);
+          printf("got freq command %lu kHz\n", freq);
 
-          timer_set_frequency( app->timer, freq );
+          timer_set_frequency( app->timer, freq * 1000 );
         } else {
 
           printf("freq out of range\n");
@@ -245,6 +245,8 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq )
   // timer_enable_break_main_output(timer);
   timer_set_period(timer, period );    // 42kHz
 
+  // A lot of this can be set once. But keeping it in one place is clearer.
+  // we could do this by just hardware jumpering. but we may want phase shifted full bridge.
 
   // 1 & 4 are the same
   timer_enable_oc_output(timer, TIM_OC1 );
@@ -264,8 +266,6 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq )
   timer_enable_oc_output(timer, TIM_OC3);
   timer_set_oc_mode(timer, TIM_OC3, TIM_OCM_PWM2);    // Output is active (high) when counter is greater than output compare value
   timer_set_oc_value(timer, TIM_OC3, half_period + dead);
-
-
 
   timer_enable_counter(timer);
 }
@@ -328,6 +328,9 @@ static void timer_setup(uint32_t timer )
 
 
   timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);  // alternating up/down
+
+
+
 
   timer_set_frequency( timer, 200000 );
 
