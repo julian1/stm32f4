@@ -257,13 +257,15 @@ static void timer_setup(void )
 
 
 
-  timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);
-  timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_PWM2);
-  timer_enable_oc_output(TIM5, TIM_OC1);
-  timer_enable_break_main_output(TIM5);
-  timer_set_oc_value(TIM5, TIM_OC1, 500);
-  timer_set_period(TIM5, 1000);
-  timer_enable_counter(TIM5);
+  timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);
+
+  timer_set_oc_mode(timer, TIM_OC1, TIM_OCM_PWM2);
+  timer_enable_oc_output(timer, TIM_OC1);
+  timer_set_oc_value(timer, TIM_OC1, 500);
+
+  timer_enable_break_main_output(timer);
+  timer_set_period(timer, 1000);
+  timer_enable_counter(timer);
 
 
 
