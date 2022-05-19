@@ -29,10 +29,15 @@
 #define LED_OUT   GPIO15
 
 /*
-  May 19 2022. 
+  May 19 2022.
     really think should just use a structure for the led blink.  To init once in main, and encapsulate
     And then pass by reference. like we do  for spi, etc.
-    
+
+    eg
+    led_setup( &app->led, GPIOA,  GPIO15 );
+    led_toggle( &app->led );
+
+    - issue is having to pass arg/or initialize for critical_error_blink()
 
 */
 
