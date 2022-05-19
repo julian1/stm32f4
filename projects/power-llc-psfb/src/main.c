@@ -22,18 +22,6 @@
   with gnu sprintf, and floating point code, this still fits in 27k, tested by editing f410.ld.  good!!
   *********
   -----------------------------
-  one mcu or two.
-
-  two two.
-    control paenl just issue spi commands and return core structure.
-    spi slave - just handle as interupt.
-        eg. receive a byte, decide what to do. could be just using spi_xfer()
-
-    - any function in core - can be exposed as spi command. if required.
-    - just enable an interupt on CS. then in the isr - handle it.
-
-    - nss pin is set as an interupt input.
-
 
 */
 
@@ -140,7 +128,7 @@ static void update_console_cmd(app_t *app)
       cStringClear( &app->command);
 
       // issue new command prompt
-      usart1_printf("> ");
+      printf("> ");
     }
   }
 }
@@ -184,7 +172,7 @@ static void loop(app_t *app)
 #if 0
       static unsigned count = 0;
 
-      usart1_printf("writing spi1 using cs2 \n" );
+      printf("writing spi1 using cs2 \n" );
       spi_enable( SPI1 );
       // uint8_t val =  spi_xfer(SPI1, count % 2 == 0 ? 0xff : 0x00  ); // commmand.
 
@@ -249,9 +237,9 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq )
     - A lot of this can be set once. But keeping it in one place is clearer.
     - we could do this by just hardware jumpering. but we may want phase shifted full bridge.
 
-    EXTR avoiding setting mode/and output here could reduce internal timer resetting stuff 
+    EXTR avoiding setting mode/and output here could reduce internal timer resetting stuff
     - but it seems to work.
-    
+
   */
 
   timer_disable_counter(timer); // helps when resetting
@@ -286,7 +274,7 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq )
 
 static void timer_port_setup(void )
 {
-  usart1_printf("timer port setup\n");
+  printf("timer port setup\n");
 
   uint16_t outputs = GPIO0 | GPIO1 | GPIO2 | GPIO3;
 
@@ -303,7 +291,7 @@ static void timer_setup(uint32_t timer )
 {
   // HMMMMM...
 
-  usart1_printf("timer setup\n");
+  printf("timer setup\n");
 
   // uint32_t timer = TIM5;
   assert( timer == TIM5 );
@@ -357,26 +345,10 @@ static void timer_setup(uint32_t timer )
 
 
 
-
-
-////////////////////
-// I don't see that we can transfer control.
-// eg. the write will pause until it has sent.
-// and only then transfer to the read.
-
-////////////////////
-
-
-
-/*
-  Ok, vertical is ok.   but we want to flip the horizontal origin.
-  to draw from top left. that shoudl be good for fillRect, and for agg letter.
-*/
-
 int main(void)
 {
 
-  // required for usb
+  // fast hse needed for usb
 	// rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz. works stm32f407 too.
   // rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ] );  // stm32f407
 
@@ -412,7 +384,7 @@ int main(void)
 
 
   // USB
-	rcc_periph_clock_enable(RCC_OTGFS);
+	// rcc_periph_clock_enable(RCC_OTGFS);
 
 
 
@@ -429,7 +401,7 @@ int main(void)
 
 
   // led blink
-  led_setup(GPIOA, GPIO15); 
+  led_setup(GPIOA, GPIO15);
 
 
   memset(&app, 0, sizeof(app_t));
@@ -463,8 +435,8 @@ int main(void)
 
 
 
-  usart1_printf("\n--------\n");
-  usart1_printf("addr main() %p\n", main );
+  printf("\n--------\n");
+  printf("addr main() %p\n", main );
 
 
 
@@ -477,27 +449,13 @@ int main(void)
 #endif
 
 
-  usart1_printf("\n--------");
-  usart1_printf("\nstarting\n");
+  printf("\n--------");
+  printf("\nstarting\n");
 
-  usart1_printf("\n--------\n");
-  usart1_printf("starting loop\n");
-  usart1_printf("sizeof bool   %u\n", sizeof(bool));
-  usart1_printf("sizeof float  %u\n", sizeof(float));
-  usart1_printf("sizeof double %u\n", sizeof(double));
 
-  usart1_printf("\n--------\n");
-
-  /*
-    OK. issues getting this work.
-    turning on hse.  smu does not have hse turned on.
-    and then having usb hang/ when not hse.
-    ----
-    when using hse. can see on scope. the CS never goes high, between the 24bit spi xfers.
-    ----------
-    OK. even when set the spi clk divider to 128. it still runs everything together...
-
-  */
+  assert(  sizeof(bool) == 1);
+  assert(  sizeof(float) == 4);
+  assert(  sizeof(double ) == 8);
 
 
   rcc_periph_clock_enable(RCC_TIM5);
@@ -505,7 +463,7 @@ int main(void)
 
   app.timer = TIM5;
   timer_port_setup();
-  timer_setup(app.timer );
+  timer_setup( app.timer );
 
 
 
