@@ -17,7 +17,8 @@ AGGINC=${TOP}/agg-svn-r138-agg-2.4/include/
 # src/agg_test2.cpp
 
 BINARY		= main
-SRCFILES	= ./src/main.c src/util.c  \
+SRCFILES	= ./src/main.c  \
+              ${LIB2SRC}/util.c \
               ${LIB2SRC}/cbuffer.c  ${LIB2SRC}/streams.c  ${LIB2SRC}/usart.c  ${LIB2SRC}/cstring.c \
               ${LIB2SRC}/gpio.c \
 
