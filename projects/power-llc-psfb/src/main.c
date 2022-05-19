@@ -113,16 +113,16 @@ static void update_console_cmd(app_t *app)
       printf("cmd whoot is '%s'\n", cmd);
 
 /*
-      int u0; 
-      double u1; 
+      int u0;
+      double u1;
       int n = sscanf(cmd, "set %u %lf", &u0, &u1 );
 
-      if(n == 2) { 
+      if(n == 2) {
         printf("%u %f\n", u0, u1);
 
         int dac_reg = DAC_DAC0_REGISTER + u0;
         if(dac_reg < DAC_DAC0_REGISTER || dac_reg > DAC_DAC3_REGISTER) {
-          
+
           printf("bad dac_reg argument\n");
         } else {
 
@@ -237,17 +237,17 @@ static void timer_setup(void )
 
   usart1_printf("timer setup\n");
 
+  uint16_t outputs = GPIO0 | GPIO1;
 
   //  port set up for alt function.
-  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO0 );
-  gpio_set_af(GPIOA, GPIO_AF2, GPIO0 ); // AF1 == timer.
-
-  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, GPIO0 ); // 50is faster than 100? no. same speed
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, outputs);
+  gpio_set_af(GPIOA, GPIO_AF2, outputs );
+  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, outputs);
 
 
   ////////////////////////
 
-  
+
   uint32_t timer = TIM5;
 
   rcc_periph_reset_pulse( RST_TIM5 );   // is this needed
@@ -255,16 +255,38 @@ static void timer_setup(void )
   timer_set_prescaler(timer, 20);  // 1MHz.
 
 
+/*
+
+    -
+    - TIM_CR1_CMS_CENTER_1  Center mode 1: counter counts up and down alternatively (interrupts on counting down)
+      see,
+      https://bdebyl.net/post/stm32-part1/
+      https://community.st.com/s/question/0D50X00009XkXePSAV/how-to-configure-the-starting-direction-of-centeraligned-timer
+
+      TIM_OCM_PWM1  Output is active (high) when counter is less than output compare value
+      TIM_OCM_PWM2  Output is active (high) when counter is greater than output compare value
+
+*/
 
 
-  timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);
+  timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);  // alternating up/down
 
-  timer_set_oc_mode(timer, TIM_OC1, TIM_OCM_PWM2);
-  timer_enable_oc_output(timer, TIM_OC1);
-  timer_set_oc_value(timer, TIM_OC1, 500);
-
-  timer_enable_break_main_output(timer);
+  // timer_enable_break_main_output(timer);
   timer_set_period(timer, 1000);
+
+
+  timer_enable_oc_output(timer, TIM_OC1);
+  // timer_set_oc_mode(timer, TIM_OC1, TIM_OCM_PWM2);    // Output is active (high) when counter is greater than output compare value
+  timer_set_oc_mode(timer, TIM_OC1, TIM_OCM_PWM1);    // Output is active (high) when counter is greater than output compare value
+  timer_set_oc_value(timer, TIM_OC1, 100);
+
+
+  timer_enable_oc_output(timer, TIM_OC2);
+  timer_set_oc_mode(timer, TIM_OC2, TIM_OCM_PWM2);    // Output is active (high) when counter is greater than output compare value
+  timer_set_oc_value(timer, TIM_OC2, 200);
+
+
+
   timer_enable_counter(timer);
 
 
@@ -385,7 +407,7 @@ int main(void)
 
   // standard streams for printf, fprintf, putc.
   // cbuf_init_std_streams( &app.console_out );
-    
+
   // standard streams for printf, fprintf, putc.
   cbuf_init_stdout_streams(  &app.console_out );
   // for fread, fgetch etc
@@ -440,7 +462,7 @@ int main(void)
 
   */
 
- 
+
   rcc_periph_clock_enable(RCC_TIM5);
 
   timer_setup();
