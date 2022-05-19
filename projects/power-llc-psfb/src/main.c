@@ -80,11 +80,17 @@ typedef struct app_t
 
   CString     command;
 
+
+  uint32_t    timer ;
   // usbd_device *usbd_dev ;
 
 } app_t;
 
 
+
+
+
+static void timer_set_frequency( uint32_t timer, uint32_t freq );
 
 
 static void update_console_cmd(app_t *app)
@@ -112,27 +118,23 @@ static void update_console_cmd(app_t *app)
 
       printf("cmd whoot is '%s'\n", cmd);
 
-/*
-      int u0;
-      double u1;
-      int n = sscanf(cmd, "set %u %lf", &u0, &u1 );
 
-      if(n == 2) {
-        printf("%u %f\n", u0, u1);
+      uint32_t u0;
 
-        int dac_reg = DAC_DAC0_REGISTER + u0;
-        if(dac_reg < DAC_DAC0_REGISTER || dac_reg > DAC_DAC3_REGISTER) {
+      if( sscanf(cmd, "freq %lu", &u0 ) == 1) {
+        uint32_t freq = u0;
 
-          printf("bad dac_reg argument\n");
+        if(freq > 30000 && freq < 300000) {
+
+          printf("got freq command %lu\n", freq);
+
+          timer_set_frequency( app->timer, freq );
         } else {
 
-          // FIXME
-          uint32_t spi = SPI1;
-
-          spi_dac_write_register( spi, dac_reg , voltage_to_dac( u1 ));    // -2 not working??? emits positive.
-          }
+          printf("freq out of range\n");
         }
-*/
+      }
+
 
       // reset buffer
       cStringClear( &app->command);
@@ -228,6 +230,32 @@ static app_t app;
 
 
 
+static void timer_set_frequency( uint32_t timer, uint32_t freq )
+{
+  timer_disable_counter(timer);
+
+  // uint32_t freq = 200 * 1000;               // in Hz.
+  uint32_t period = (84000000.f / freq) / 2; // calculated.
+  uint32_t half_period = period / 2;
+  uint32_t dead = 50;                       // fixed interval
+
+  // timer_enable_break_main_output(timer);
+  timer_set_period(timer, period );    // 42kHz
+
+
+  timer_enable_oc_output(timer, TIM_OC1);
+  timer_set_oc_mode(timer, TIM_OC1, TIM_OCM_PWM1);    // Output is active (high) when counter is less than output compare value
+  timer_set_oc_value(timer, TIM_OC1, half_period - dead);
+
+
+  timer_enable_oc_output(timer, TIM_OC2);
+  timer_set_oc_mode(timer, TIM_OC2, TIM_OCM_PWM2);    // Output is active (high) when counter is greater than output compare value
+  timer_set_oc_value(timer, TIM_OC2, half_period + dead);
+
+
+
+  timer_enable_counter(timer);
+}
 
 
 
@@ -288,24 +316,8 @@ static void timer_setup(void )
   timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);  // alternating up/down
 
 
-  uint32_t freq = 200 * 1000;               // in Hz.
-  uint32_t period = (84000000.f / freq) / 2; // calculated.
-  uint32_t half_period = period / 2;
-  uint32_t dead = 50;                       // fixed interval
 
-  // timer_enable_break_main_output(timer);
-  timer_set_period(timer, period );    // 42kHz
-
-
-  timer_enable_oc_output(timer, TIM_OC1);
-  timer_set_oc_mode(timer, TIM_OC1, TIM_OCM_PWM1);    // Output is active (high) when counter is less than output compare value
-  timer_set_oc_value(timer, TIM_OC1, half_period - dead);
-
-
-  timer_enable_oc_output(timer, TIM_OC2);
-  timer_set_oc_mode(timer, TIM_OC2, TIM_OCM_PWM2);    // Output is active (high) when counter is greater than output compare value
-  timer_set_oc_value(timer, TIM_OC2, half_period + dead);
-
+  timer_set_frequency( timer, 200000 );
 
 
   timer_enable_counter(timer);
@@ -486,6 +498,8 @@ int main(void)
 
   rcc_periph_clock_enable(RCC_TIM5);
 
+
+  app.timer = TIM5;
   timer_setup();
 
 
