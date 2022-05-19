@@ -246,14 +246,24 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq )
   timer_set_period(timer, period );    // 42kHz
 
 
-  timer_enable_oc_output(timer, TIM_OC1);
-  timer_set_oc_mode(timer, TIM_OC1, TIM_OCM_PWM1);    // Output is active (high) when counter is less than output compare value
+  // 1 & 4 are the same
+  timer_enable_oc_output(timer, TIM_OC1 );
+  timer_set_oc_mode(timer, TIM_OC1 , TIM_OCM_PWM1);    // Output is active (high) when counter is less than output compare value
   timer_set_oc_value(timer, TIM_OC1, half_period - dead);
 
+  timer_enable_oc_output(timer, TIM_OC4);
+  timer_set_oc_mode(timer, TIM_OC4, TIM_OCM_PWM1);    // Output is active (high) when counter is less than output compare value
+  timer_set_oc_value(timer, TIM_OC4, half_period - dead);
 
+
+  // 2 & 3 are the same
   timer_enable_oc_output(timer, TIM_OC2);
   timer_set_oc_mode(timer, TIM_OC2, TIM_OCM_PWM2);    // Output is active (high) when counter is greater than output compare value
   timer_set_oc_value(timer, TIM_OC2, half_period + dead);
+
+  timer_enable_oc_output(timer, TIM_OC3);
+  timer_set_oc_mode(timer, TIM_OC3, TIM_OCM_PWM2);    // Output is active (high) when counter is greater than output compare value
+  timer_set_oc_value(timer, TIM_OC3, half_period + dead);
 
 
 
@@ -268,7 +278,7 @@ static void timer_setup(void )
 
   usart1_printf("timer setup\n");
 
-  uint16_t outputs = GPIO0 | GPIO1;
+  uint16_t outputs = GPIO0 | GPIO1 | GPIO2 | GPIO3;
 
   //  port set up for alt function.
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, outputs);
