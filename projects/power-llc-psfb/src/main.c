@@ -114,7 +114,7 @@ static void update_console_cmd(app_t *app)
 
       if( sscanf(cmd, "freq %lu", &u0 ) == 1) {
 
-        if(u0 >= 30 && u0 <= 400) {
+        if(u0 >= 25 && u0 <= 500) {
           app->freq = u0 * 1000;
           timer_set_frequency( app->timer, app->freq, app->deadtime );
         } else {
@@ -229,7 +229,7 @@ static app_t app;
 static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t deadtime )
 {
   assert(deadtime >= 1 && deadtime <= 50);
-  assert(freq >= 30000 && freq <= 400000);
+  assert(freq >= 25000 && freq <= 500000);
 
 
   timer_disable_counter(timer);
@@ -479,8 +479,8 @@ int main(void)
   timer_port_setup();
   timer_setup( app.timer );
 
-  app.freq = 200000;
-  app.deadtime = 50;
+  app.freq = 300000;
+  app.deadtime = 1;
 
   timer_set_frequency( app.timer, app.freq, app.deadtime );
   timer_enable_counter(app.timer);
