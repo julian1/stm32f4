@@ -72,13 +72,16 @@ typedef struct app_t
   uint32_t    timer ;
   // usbd_device *usbd_dev ;
 
+  uint32_t    freq; // in kHz
+  uint32_t    dead; // in clock counts
+
 } app_t;
 
 
 
 
 
-static void timer_set_frequency( uint32_t timer, uint32_t freq );
+static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t dead );
 
 
 static void update_console_cmd(app_t *app)
@@ -110,15 +113,11 @@ static void update_console_cmd(app_t *app)
       uint32_t u0;
 
       if( sscanf(cmd, "freq %lu", &u0 ) == 1) {
-        uint32_t freq = u0;
 
-        if(freq >= 30 && freq <= 300) {
-
-          // printf("got freq command %lu kHz\n", freq);
-
-          timer_set_frequency( app->timer, freq * 1000 );
+        if(u0 >= 30 && u0 <= 400) {
+          app->freq = u0 * 1000;
+          timer_set_frequency( app->timer, app->freq, app->dead );
         } else {
-
           printf("freq out of range\n");
         }
       }
@@ -218,18 +217,22 @@ static app_t app;
 
 
 
-static void timer_set_frequency( uint32_t timer, uint32_t freq )
+static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t dead )
 {
+  assert(dead >= 1 && dead <= 50);
+  assert(freq >= 30000 && freq <= 400000);
+
+
   timer_disable_counter(timer);
 
   // uint32_t freq = 200 * 1000;               // in Hz.
   uint32_t period = (84000000.f / freq) / 2; // calculated.
   uint32_t half_period = period / 2;
-  uint32_t dead = 50;                       // fixed interval
 
   printf("------\n");
   printf("freq          %.1f kHz\n", freq / 1000.f );
-  printf("tim period    %lu\n", period );
+  printf("clk period    %lu\n", period );
+  printf("clk dead      %lu\n", dead * 2 );
 
   printf("dead percent  %.1f\n", (dead * 2.f ) / period * 100);
 
@@ -291,7 +294,7 @@ static void timer_port_setup(void )
 
 }
 
-static void timer_setup(uint32_t timer )
+static void timer_setup( uint32_t timer )
 {
   // HMMMMM...
 
@@ -334,12 +337,10 @@ static void timer_setup(uint32_t timer )
   timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);  // alternating up/down
 
 
-
-
-  timer_set_frequency( timer, 200000 );
-
+/*
+  timer_set_frequency( timer, freq, 200000 );
   timer_enable_counter(timer);
-
+*/
 }
 
 
@@ -469,6 +470,11 @@ int main(void)
   timer_port_setup();
   timer_setup( app.timer );
 
+  app.freq = 200000;
+  app.dead = 50;
+
+  timer_set_frequency( app.timer, app.freq, app.dead );
+  timer_enable_counter(app.timer);
 
 
   loop(&app);
