@@ -104,7 +104,7 @@ static void update_console_cmd(app_t *app)
 
       char *cmd = cStringPtr(&app->command);
 
-      printf("cmd whoot is '%s'\n", cmd);
+      // printf("cmd whoot is '%s'\n", cmd);
 
 
       uint32_t u0;
@@ -114,7 +114,7 @@ static void update_console_cmd(app_t *app)
 
         if(freq >= 30 && freq <= 300) {
 
-          printf("got freq command %lu kHz\n", freq);
+          // printf("got freq command %lu kHz\n", freq);
 
           timer_set_frequency( app->timer, freq * 1000 );
         } else {
@@ -227,8 +227,12 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq )
   uint32_t half_period = period / 2;
   uint32_t dead = 50;                       // fixed interval
 
-  printf("freq       %lu\n", freq );
-  printf("tim period %lu\n", period );
+  printf("------\n");
+  printf("freq          %.1f kHz\n", freq / 1000.f );
+  printf("tim period    %lu\n", period );
+
+  printf("dead percent  %.1f\n", (dead * 2.f ) / period * 100);
+
 
   // timer_enable_break_main_output(timer);
   timer_set_period(timer, period );    // 42kHz
