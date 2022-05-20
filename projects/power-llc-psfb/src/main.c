@@ -72,8 +72,8 @@ typedef struct app_t
   uint32_t    timer ;
   // usbd_device *usbd_dev ;
 
-  uint32_t    freq; // in kHz
-  uint32_t    dead; // in clock counts
+  uint32_t    freq;     // in Hz
+  uint32_t    deadtime; // in clock counts
 
 } app_t;
 
@@ -81,7 +81,7 @@ typedef struct app_t
 
 
 
-static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t dead );
+static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t deadtime );
 
 
 static void update_console_cmd(app_t *app)
@@ -116,12 +116,21 @@ static void update_console_cmd(app_t *app)
 
         if(u0 >= 30 && u0 <= 400) {
           app->freq = u0 * 1000;
-          timer_set_frequency( app->timer, app->freq, app->dead );
+          timer_set_frequency( app->timer, app->freq, app->deadtime );
         } else {
           printf("freq out of range\n");
         }
       }
 
+      if( sscanf(cmd, "deadtime %lu", &u0 ) == 1) {
+
+        if(u0 >= 1 && u0 <= 50 ) {
+          app->deadtime = u0 ;
+          timer_set_frequency( app->timer, app->freq, app->deadtime );
+        } else {
+          printf("deadtime out of range\n");
+        }
+      }
 
       // reset buffer
       cStringClear( &app->command);
@@ -217,9 +226,9 @@ static app_t app;
 
 
 
-static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t dead )
+static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t deadtime )
 {
-  assert(dead >= 1 && dead <= 50);
+  assert(deadtime >= 1 && deadtime <= 50);
   assert(freq >= 30000 && freq <= 400000);
 
 
@@ -232,9 +241,9 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t dead )
   printf("------\n");
   printf("freq          %.1f kHz\n", freq / 1000.f );
   printf("clk period    %lu\n", period );
-  printf("clk dead      %lu\n", dead * 2 );
+  printf("clk deadtime      %lu\n", deadtime * 2 );
 
-  printf("dead percent  %.1f\n", (dead * 2.f ) / period * 100);
+  printf("deadtime percent  %.1f\n", (deadtime * 2.f ) / period * 100);
 
 
   // timer_enable_break_main_output(timer);
@@ -254,21 +263,21 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t dead )
   // 1 & 4 are the same
   timer_enable_oc_output(timer, TIM_OC1 );
   timer_set_oc_mode(timer, TIM_OC1 , TIM_OCM_PWM1);    // Output is active (high) when counter is less than output compare value
-  timer_set_oc_value(timer, TIM_OC1, half_period - dead);
+  timer_set_oc_value(timer, TIM_OC1, half_period - deadtime);
 
   timer_enable_oc_output(timer, TIM_OC4);
   timer_set_oc_mode(timer, TIM_OC4, TIM_OCM_PWM1);    // Output is active (high) when counter is less than output compare value
-  timer_set_oc_value(timer, TIM_OC4, half_period - dead);
+  timer_set_oc_value(timer, TIM_OC4, half_period - deadtime);
 
 
   // 2 & 3 are the same
   timer_enable_oc_output(timer, TIM_OC2);
   timer_set_oc_mode(timer, TIM_OC2, TIM_OCM_PWM2);    // Output is active (high) when counter is greater than output compare value
-  timer_set_oc_value(timer, TIM_OC2, half_period + dead);
+  timer_set_oc_value(timer, TIM_OC2, half_period + deadtime);
 
   timer_enable_oc_output(timer, TIM_OC3);
   timer_set_oc_mode(timer, TIM_OC3, TIM_OCM_PWM2);    // Output is active (high) when counter is greater than output compare value
-  timer_set_oc_value(timer, TIM_OC3, half_period + dead);
+  timer_set_oc_value(timer, TIM_OC3, half_period + deadtime);
 
   timer_set_counter( timer, 0 );    // make sure timer count does  not escape when shortening period
 
@@ -329,7 +338,7 @@ static void timer_setup( uint32_t timer )
     no. pres
     ------------
 
-    having a fixed dead time is interesting - because it increases relative to period, as freq increases which trades off power. which is what we want.
+    having a fixed deadtime time is interesting - because it increases relative to period, as freq increases which trades off power. which is what we want.
     eg. at 200kHz. and dead=50, it's about 50%.
 */
 
@@ -471,9 +480,9 @@ int main(void)
   timer_setup( app.timer );
 
   app.freq = 200000;
-  app.dead = 50;
+  app.deadtime = 50;
 
-  timer_set_frequency( app.timer, app.freq, app.dead );
+  timer_set_frequency( app.timer, app.freq, app.deadtime );
   timer_enable_counter(app.timer);
 
 
