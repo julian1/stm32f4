@@ -114,7 +114,7 @@ static void update_console_cmd(app_t *app)
 
       if( sscanf(cmd, "freq %lu", &u0 ) == 1) {
 
-        if(u0 >= 25 && u0 <= 500) {
+        if(u0 >= 20 && u0 <= 500) {
           app->freq = u0 * 1000;
           timer_set_frequency( app->timer, app->freq, app->deadtime );
         } else {
@@ -229,7 +229,7 @@ static app_t app;
 static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t deadtime )
 {
   assert(deadtime >= 1 && deadtime <= 50);
-  assert(freq >= 25000 && freq <= 500000);
+  assert(freq >= 20000 && freq <= 500000);
 
 
   timer_disable_counter(timer);
@@ -240,10 +240,13 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t deadtim
 
   printf("------\n");
   printf("freq          %.1f kHz\n", freq / 1000.f );
-  printf("clk period    %lu\n", period );
-  printf("clk deadtime      %lu\n", deadtime * 2 );
+  printf("period        %.1f uS\n", 1.f / freq * 1000000 );
 
-  printf("deadtime percent  %.1f\n", (deadtime * 2.f ) / period * 100);
+
+  printf("clk period    %lu\n", period );
+  printf("clk deadtime  %lu\n", deadtime * 2 );
+
+  printf("deadtime      %.1f %%\n", (deadtime * 2.f ) / period * 100);
 
 
   // timer_enable_break_main_output(timer);
