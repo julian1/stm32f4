@@ -244,14 +244,11 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t deadtim
   printf("------\n");
   printf("freq          %.1f kHz\n", freq / 1000.f );
 
-  printf("period        %.1f uS\n", 1.f / freq * 1000000 );
-
-  printf("period2       %.1f uS\n", period * clk_period  * 1000000 );
-
-
   printf("clk period    %lu\n", period );
-  printf("clk deadtime  %lu\n", deadtime * 2 );
+  printf("period        %.1f uS\n", period * clk_period  * 1000000 );
 
+  printf("clk deadtime  %lu\n", deadtime * 2 );
+  printf("deadtime      %.0f nS\n", (deadtime * 2.f)  * clk_period * 1000000000 );
   printf("deadtime      %.1f %%\n", (deadtime * 2.f ) / period * 100);
 
 
