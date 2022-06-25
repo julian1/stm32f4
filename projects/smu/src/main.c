@@ -355,9 +355,7 @@ int main(void)
   rcc_periph_clock_enable(RCC_GPIOA);
 
   // USART
-  // rcc_periph_clock_enable(RCC_GPIOA);     // f407
   rcc_periph_clock_enable(RCC_GPIOB); // F410 / f411
-
   rcc_periph_clock_enable(RCC_USART1);
 
 
@@ -365,24 +363,13 @@ int main(void)
   rcc_periph_clock_enable(RCC_SPI1);
 
   /*
-    Do led first, even if it only updates in loop().
+    Do led first, even if need update() and systick loop() to blink it.
   */
 
-  //////////////////////
-  // setup
-
-  // led
-  // led_setup();
-
-  // JA
-  // led blink
-  // stm32f411...
 #define LED_PORT  GPIOA
 #define LED_OUT   GPIO9
 
   led_setup(LED_PORT, LED_OUT);
-
-
 
 
 
@@ -393,30 +380,15 @@ int main(void)
   memset(&app, 0, sizeof(app_t));
 
 
-  // JA
-/*
   // uart/console
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
   cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
 
-
-  // command buffer
-  cBufInit(&app.cmd_in, buf_cmds, sizeof(buf_cmds));
-*/
-
-  // uart/console
-  cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
-  cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
-
-
-  cStringInit(&app.command, buf_command, buf_command + sizeof( buf_command));
-
-  // standard streams for printf, fprintf, putc.
   cbuf_init_stdout_streams(  &app.console_out );
-  // for fread, fgetch etc
   cbuf_init_stdin_streams( &app.console_in );
 
 
+  cStringInit(&app.command, buf_command, buf_command + sizeof( buf_command));
 
   //////////////
   // initialize usart before start all the app constructors, so that can print.
