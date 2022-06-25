@@ -3,8 +3,10 @@
 #include <libopencm3/stm32/spi.h>
 
 
-#include "util.h" // printf
-#include "assert.h" // printf
+#include <stdio.h>   // printf
+#include "assert.h"
+
+#include "util.h" // msleep
 
 #include "mux.h"
 #include "spi-ice40.h"
@@ -124,7 +126,7 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   IOVDD, group B is in unipolar output mode; when tied to DGND, group B is in
   bipolar output mode
   */
- 
+
   // unipolar output on a
   ice40_reg_set(spi, reg, DAC_UNI_BIP_A /*| DAC_UNIBIPB */);
 
@@ -153,7 +155,7 @@ int dac_init(uint32_t spi, uint8_t reg)  // bad name?
   uint32_t u1 = spi_dac_read_register(spi, DAC_CMD_REGISTER);
 
   // default value
-  printf("u1 %x\n", u1);
+  printf("u1 %lx\n", u1);
 
   // test default values...
   assert(u1 == 0x80033c);

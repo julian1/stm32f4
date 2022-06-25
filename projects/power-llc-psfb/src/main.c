@@ -47,12 +47,12 @@
 
 
 #include "cbuffer.h"
+#include "streams.h"
 #include "cstring.h"
 #include "usart.h"
 #include "util.h"
 #include "assert.h"
 #include "cdcacm.h"
-#include "streams.h"
 
 
 // #include "str.h"  //format_bits

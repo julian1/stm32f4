@@ -2,6 +2,9 @@
 
 #include <libopencm3/stm32/spi.h>
 
+
+#include <stdio.h>   // printf
+
 #include "ads131a04.h"
 
 #include "bits.h"
@@ -289,14 +292,14 @@ int adc_init( uint32_t spi, uint8_t reg)
   uint32_t val = 0;
   do {
     val = spi_xfer_24_16_cs( spi, 0 );
-    printf("register %04x\n", val);
+    printf("register %04lx\n", val);
     msleep(20);
     // adc is returning 0000. with only digital power.
     // but doesn't need xtal, to respond to spi.
   }
   while(val != 0xff04) ;
 
-  printf("ok got ready %04x\n", val);
+  printf("ok got ready %04lx\n", val);
   // printf("drdy %d\n", gpio_get(ADC_GPIO_PORT, ADC_DRDY));
 
 
@@ -307,7 +310,7 @@ int adc_init( uint32_t spi, uint8_t reg)
 
   val = adc_send_code(spi, UNLOCK);
   if(val != UNLOCK) {
-    printf("unlock failed %4x\n", val);
+    printf("unlock failed %4lx\n", val);
     return -1;
   } else {
     printf("unlock ok\n");
@@ -505,11 +508,11 @@ int adc_init( uint32_t spi, uint8_t reg)
   // wakeup
   val = adc_send_code(spi, WAKEUP);
   if(val != WAKEUP) {
-    printf("wakeup failed %4x\n", val);
+    printf("wakeup failed %4lx\n", val);
     return -1;
   } else
   {
-    printf("wakeup ok\n", val);
+    printf("wakeup ok\n");
   }
 
 
@@ -518,11 +521,11 @@ int adc_init( uint32_t spi, uint8_t reg)
   // lock
   val = adc_send_code(spi, LOCK);
   if(val != LOCK) {
-    printf("lock failed %4x\n", val);
+    printf("lock failed %4lx\n", val);
     return -1;
   } else
   {
-    printf("lock ok\n", val);
+    printf("lock ok\n");
   }
 
 

@@ -8,6 +8,7 @@
 #include <libopencm3/stm32/spi.h>
 
 
+#include <stdio.h>   // printf
 
 #include "usart.h"
 #include "util.h"

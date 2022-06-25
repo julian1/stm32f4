@@ -610,6 +610,8 @@
 //#include <libopencm3/cm3/scb.h>
 #include <libopencm3/stm32/spi.h>   // SPI1
 
+#include <libopencm3/stm32/gpio.h>    // led
+
 
 #include <stddef.h> // size_t
 #include <math.h> // nanf   fabs
@@ -620,6 +622,8 @@
 
 #include "assert.h"
 #include "cbuffer.h"
+#include "cstring.h"
+#include "streams.h"
 #include "fbuffer.h"
 #include "usart.h"
 #include "util.h"
@@ -736,6 +740,15 @@ typedef struct app_t
   CBuf console_out;
 
 
+
+  ////
+  // CBuf      cmd_in;
+  CString     command;
+
+
+
+
+
   uint32_t spi;
 
   state_t   state;
@@ -795,9 +808,6 @@ typedef struct app_t
   FBuf      ifb_range;
 
 
-
-  ////
-  CBuf      cmd_in;
 
 
   // led blink off/on.
@@ -957,7 +967,7 @@ static void dac_voltage_set(app_t *app, float v)
     int8 max 127
     int8 min -128
   */
-  printf("int8 max %d  %d\n", INT8_MAX);
+  printf("int8 max %d\n", INT8_MAX);
   printf("int8 min %d\n", INT8_MIN);
   // assert(0);
 }
@@ -1906,7 +1916,7 @@ static void update_soft_500ms(app_t *app)
   mux_w25(app->spi);
   msleep(20);
   spi_w25_get_data(app->spi);
-*/ 
+*/
 
 
   // blink stm32/mcu led
@@ -2129,8 +2139,9 @@ static void update_nplc_measure(app_t *app)
     printf("> ");
 
 
-    cBufCopyString2(&app->cmd_in, buf, sizeof(buf));
-    printf("%s", buf);
+    // JA
+    // cBufCopyString2(&app->cmd_in, buf, sizeof(buf));
+    // printf("%s", buf);
   }
 }
 
@@ -2593,6 +2604,15 @@ static void state_change(app_t *app, state_t state )
 ////////////////////////////////////////////
 
 
+// JA remove
+static bool strequal(const char *s1, const char *s2)
+{
+  return (strcmp(s1, s2) == 0);
+}
+
+
+
+
 
 
 
@@ -2867,7 +2887,7 @@ static void update_console_ch(app_t *app, const char ch )
 }
 
 
-
+#if 0
 static void update_console_cmd(app_t *app)
 {
   /*
@@ -2880,7 +2900,8 @@ static void update_console_cmd(app_t *app)
     Actually. no. it's neater that they're not.
   */
 
-  assert(&app->cmd_in);
+  // assert(&app->cmd_in);
+  assert(&app->command);
 
 
   while( ! cBufisEmpty(&app->console_in)) {
@@ -2945,6 +2966,69 @@ static void update_console_cmd(app_t *app)
 
   }
 }
+
+#endif
+
+
+
+
+static void update_console_cmd(app_t *app)
+{
+
+
+  while( ! cBufisEmpty(&app->console_in)) {
+
+    // got a character
+    int32_t ch = cBufPop(&app->console_in);
+    assert(ch >= 0);
+
+    if(ch != '\r' && cStringCount(&app->command) < cStringReserve(&app->command) ) {
+      // normal character
+      cStringPush(&app->command, ch);
+      // echo to output. required for minicom.
+      putchar( ch);
+
+    }  else {
+
+      // newline or overflow
+      putchar('\n');
+
+      char *cmd = cStringPtr(&app->command);
+
+      // printf("cmd whoot is '%s'\n", cmd);
+
+
+      uint32_t u0;
+
+      if( sscanf(cmd, "freq %lu", &u0 ) == 1) {
+
+      }
+
+      if( sscanf(cmd, "deadtime %lu", &u0 ) == 1) {
+
+
+
+      }
+
+      // reset buffer
+      cStringClear( &app->command);
+
+      // issue new command prompt
+      printf("> ");
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3038,13 +3122,17 @@ static void assert_app(app_t *app, const char *file, int line, const char *func,
 /*
   TODO.
   Maybe move raw buffers into app structure?
+
+
+  Why not put on the stack?
 */
 
 static char buf_console_in[1000];
 static char buf_console_out[1000];
 
-static char buf_cmds[1000];
+// static char buf_cmds[1000];
 
+static char buf_command[1000];
 
 
 
@@ -3117,7 +3205,17 @@ int main(void)
   // setup
 
   // led
-  led_setup();
+  // led_setup();
+
+  // JA
+  // led blink
+  // stm32f411...
+#define LED_PORT  GPIOA
+#define LED_OUT   GPIO9
+
+  led_setup(LED_PORT, LED_OUT);
+
+
 
 
 
@@ -3138,12 +3236,47 @@ int main(void)
   // app.vrange = 0;
   // app.irange = 0;
 
+
+  // JA
+/*
   // uart/console
   cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
   cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
 
+
   // command buffer
   cBufInit(&app.cmd_in, buf_cmds, sizeof(buf_cmds));
+*/
+
+  // uart/console
+  cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
+  cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
+
+
+  cStringInit(&app.command, buf_command, buf_command + sizeof( buf_command));
+
+  // standard streams for printf, fprintf, putc.
+  cbuf_init_stdout_streams(  &app.console_out );
+  // for fread, fgetch etc
+  cbuf_init_stdin_streams( &app.console_in );
+
+
+
+  //////////////
+  // initialize usart before start all the app constructors, so that can print.
+  // uart
+  // usart1_setup_gpio_portA();
+  usart1_setup_gpio_portB();
+
+  usart1_set_buffers(&app.console_in, &app.console_out);
+
+
+
+  printf("\n--------\n");
+  printf("addr main() %p\n", main );
+
+
+
 
   // vfb buffer
   // fBufInit(&app.vfb_cbuf, buf_vfb, ARRAY_SIZE(buf_vfb));
@@ -3161,10 +3294,10 @@ int main(void)
 
   // setup assert handleer
   // TODO rename - setup_handler
-  assert_set_handler( (void *) assert_app, &app );
+  //assert_set_handler( (void *) assert_app, &app );
 
 
-
+/*
   // setup buffers
   // usart1_setup_gpio_portA(); // stm32f407
   usart1_setup_gpio_portB(); // stm32f411
@@ -3174,7 +3307,7 @@ int main(void)
 
   // setup print
   printf_init(&app.console_out);
-
+*/
 
   ////////////////
   spi1_port_setup();
