@@ -50,9 +50,6 @@
 #include "fbuffer.h"
 
 
-#define UNUSED(x) (void)(x)
-
-
 
 // app structure
 #include "app.h"
@@ -340,12 +337,11 @@ int main(void)
   // high speed internal!!!
   // TODO. not using.
 
-	// rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz.
+	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz.
 
   // this is the mcu clock.  not the adc clock. or the fpga clock.
-  systick_setup(16000);
-
-  // systick_setup(84000);  // 84MHz.
+  // systick_setup(16000);
+  systick_setup(84000);  // 84MHz.
 
   // clocks
   rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
@@ -402,8 +398,6 @@ int main(void)
 
   printf("\n\n\n\n--------\n");
   printf("addr main() %p\n", main );
-
-
 
   printf("\n--------");
   printf("\nstarting\n");
