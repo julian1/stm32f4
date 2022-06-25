@@ -101,8 +101,15 @@ static void update_soft_500ms(app_t *app)
   mux_ice40(app->spi);
 
   // ice40_reg_toggle(app->spi, REG_LED, LED1);
-  state ? ice40_reg_set(app->spi, REG_LED, LED1)
-        : ice40_reg_clear(app->spi, REG_LED, LED1);
+  state ? ice40_reg_set(app->spi, REG_LED, LED2)
+        : ice40_reg_clear(app->spi, REG_LED, LED2);
+
+
+  // read doesn't fucking work...
+
+  uint8_t val = ice40_reg_read( app->spi, REG_LED );
+  printf("val %04x\n", val );
+
 
 
   // blink stm32/mcu led

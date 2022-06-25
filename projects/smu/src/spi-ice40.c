@@ -69,6 +69,15 @@ static uint16_t spi_ice40_xfer2( uint32_t spi, uint8_t r, uint8_t v)
 
 // consumers should use the reg_ functions.
 
+
+uint8_t ice40_reg_read( uint32_t spi, uint8_t r)
+{
+  return spi_ice40_xfer2(spi, r, 0 ); // ie. no set, or clear bits set
+}
+
+
+
+
 void ice40_reg_set( uint32_t spi, uint8_t r, uint8_t v)
 {
   spi_ice40_xfer2(spi, r, (v & 0xF)); // ie. lo 4 bits
