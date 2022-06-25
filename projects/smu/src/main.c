@@ -3272,10 +3272,11 @@ int main(void)
 
 
 
-  printf("\n--------\n");
+  printf("\n\n\n\n--------\n");
   printf("addr main() %p\n", main );
 
 
+  //////////////////////////////
 
 
   // vfb buffer
