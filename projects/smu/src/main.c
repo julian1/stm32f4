@@ -3076,6 +3076,14 @@ static void loop(app_t *app)
 
 //    update(app);
 
+     /*
+        JA
+        we always want to update console first. so that we can always issue commands.
+        and know that we have control
+        -----------------
+
+        All of this code needs to be refactored. so that the the command dispatch happens in the top-level loop.
+    */
 
     update_console_cmd(app);
 
