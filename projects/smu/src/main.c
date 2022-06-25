@@ -38,8 +38,8 @@
 // library code
 #include "usart.h"
 #include "assert.h"
-#include "cbuffer.h"
-#include "cstring.h"
+// #include "cbuffer.h"
+// #include "cstring.h"
 #include "streams.h"
 #include "util.h"
 
@@ -106,14 +106,17 @@ static void update_soft_500ms(app_t *app)
   state ? ice40_reg_set(app->spi, REG_LED, LED2)
         : ice40_reg_clear(app->spi, REG_LED, LED2);
 
+  // small problem. that when ice40 is powered down we get high signal.
+  // So for rails we should check high bits are 0.
 
-
-  uint8_t val = ice40_reg_read( app->spi, REG_LED );
   char buf[100];
+/*
+  uint8_t val = ice40_reg_read( app->spi, REG_LED );
   // printf("  val %u", val );
   printf("reg_led read bits %s\n", format_bits(buf, 4, val) );
+*/
     
-  val = ice40_reg_read( app->spi, REG_MON_RAILS );
+  uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
  
   printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
 
@@ -264,6 +267,12 @@ static void loop(app_t *app)
       update_soft_1s(app);
     }
 
+
+    if(app->state == STATE_FIRST) {
+
+      // rename ca
+      state_change(app, STATE_ANALOG_UP);
+    }
 
 
   }

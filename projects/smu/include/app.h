@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include "cbuffer.h"
+#include "cstring.h"
+#include "fbuffer.h"
 
 
 
@@ -182,5 +185,11 @@ typedef struct app_t
   int       digits;
 
 } app_t;
+
+
+
+
+void state_change(app_t *app, state_t state );
+
 
 
