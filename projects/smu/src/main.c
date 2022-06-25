@@ -101,7 +101,7 @@ static void update_soft_500ms(app_t *app)
   mux_ice40(app->spi);
 
   // ice40_reg_toggle(app->spi, REG_LED, LED1);
-  state ? ice40_reg_set(app->spi, REG_LED, LED1)  // why is clear setting on?
+  state ? ice40_reg_set(app->spi, REG_LED, LED1)
         : ice40_reg_clear(app->spi, REG_LED, LED1);
 
 
