@@ -429,7 +429,7 @@ int main(void)
 
 
   /*
-  ot sure this should be done here....
+    really not sure that app_t initilization should be done here....
   */
 
   // measure
