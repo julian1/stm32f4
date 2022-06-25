@@ -283,7 +283,7 @@ static void assert_app(app_t *app, const char *file, int line, const char *func,
   Maybe move raw buffers into app structure?
 
 
-  Why not put on the stack?
+  Why not put on the stack? in app_t ?
 */
 
 static char buf_console_in[1000];
