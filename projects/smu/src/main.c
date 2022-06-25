@@ -2762,6 +2762,7 @@ static int vrange_and_vset_from_voltage(float v, vrange_t *vrange, float *vset)
 
 
 
+#if 0
 
 static void process_cmd(app_t *app, const char *s )
 {
@@ -2886,6 +2887,8 @@ static void update_console_ch(app_t *app, const char ch )
   }
 }
 
+#endif
+
 
 #if 0
 static void update_console_cmd(app_t *app)
@@ -3000,6 +3003,14 @@ static void update_console_cmd(app_t *app)
 
       uint32_t u0;
 
+      if( strcmp(cmd, "test") == 0) {
+
+        printf("got test\n");
+
+      }
+
+
+
       if( sscanf(cmd, "freq %lu", &u0 ) == 1) {
 
       }
@@ -3063,7 +3074,7 @@ static void loop(app_t *app)
     // led_update(); in systick.
     // but better just to flush() cocnsole queues.conin/out
 
-    update(app);
+//    update(app);
 
 
     update_console_cmd(app);
