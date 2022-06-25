@@ -3202,6 +3202,7 @@ int main(void)
   // this is the mcu clock.  not the adc clock. or the fpga clock.
   systick_setup(16000);
 
+  // systick_setup(84000);  // 84MHz.
 
   // clocks
   rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
@@ -3219,6 +3220,10 @@ int main(void)
 
   // spi / ice40
   rcc_periph_clock_enable(RCC_SPI1);
+
+  /*
+    Do led first, even if it only updates in loop().
+  */
 
   //////////////////////
   // setup
@@ -3243,17 +3248,6 @@ int main(void)
   // main app setup
 
   memset(&app, 0, sizeof(app_t));
-
-  app.spi = SPI1 ;
-  app.print_adc_values = true;
-  app.output = false;
-
-  app.nplc_measure = 50;
-  app.nplc_range   = 20;
-  app.digits = 6;
-
-  // app.vrange = 0;
-  // app.irange = 0;
 
 
   // JA
@@ -3336,6 +3330,17 @@ int main(void)
 
 
   ////////////////////
+
+  app.spi = SPI1 ;
+  app.print_adc_values = true;
+  app.output = false;
+
+  app.nplc_measure = 50;
+  app.nplc_range   = 20;
+  app.digits = 6;
+
+  // app.vrange = 0;
+  // app.irange = 0;
 
 
 
