@@ -53,6 +53,8 @@
 
 #include "fbuffer.h"
 
+#include "format.h"   // format_bits()
+
 
 
 // app structure
@@ -105,10 +107,12 @@ static void update_soft_500ms(app_t *app)
         : ice40_reg_clear(app->spi, REG_LED, LED2);
 
 
-  // read doesn't fucking work...
 
   uint8_t val = ice40_reg_read( app->spi, REG_LED );
-  printf("val %04x\n", val );
+  // printf("val %04x\n", val );
+  char buf[100];
+  printf("reg_led read bits %s\n", format_bits(buf, 4, val) );
+    
 
 
 
