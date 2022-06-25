@@ -25,56 +25,36 @@
 
 */
 
-#include <libopencm3/stm32/rcc.h>
-
-//#include <libopencm3/stm32/gpio.h>
-//#include <libopencm3/cm3/nvic.h>
-//#include <libopencm3/cm3/systick.h>
-//#include <libopencm3/stm32/exti.h>
-//#include <libopencm3/stm32/timer.h>
-//#include <libopencm3/cm3/scb.h>
+#include <libopencm3/stm32/rcc.h>   // clock
+#include <libopencm3/stm32/gpio.h>    // led
 #include <libopencm3/stm32/spi.h>   // SPI1
 
-#include <libopencm3/stm32/gpio.h>    // led
 
 
-#include <stddef.h> // size_t
-#include <math.h> // nanf   fabs
-#include <stdio.h>    // sscanf
-#include <string.h>   // strcmp
+#include <stdio.h>    // printf
+#include <string.h>   // strcmp, memset
 
 
-
+// library code
+#include "usart.h"
 #include "assert.h"
 #include "cbuffer.h"
 #include "cstring.h"
 #include "streams.h"
-#include "fbuffer.h"
-#include "usart.h"
 #include "util.h"
 
 
 #include "spi1.h"
-#include "mcp3208.h"
-#include "w25.h"
-#include "dac8734.h"
-#include "ads131a04.h"
 
 
-#include "format.h"
-#include "stats.h"
+#include "fbuffer.h"
 
-#include "mux.h"   // some of the above files include core.h. need header guards.
-
-
-#include "spi-ice40.h"
-#include "reg.h"
 
 #define UNUSED(x) (void)(x)
 
 
 
-
+// app structure
 #include "app.h"
 
 
@@ -111,9 +91,12 @@ static void update_soft_1s(app_t *app)
 
 static void update_soft_500ms(app_t *app)
 {
+  UNUSED(app);
+/*
   // blink the fpga led
   mux_ice40(app->spi);
   ice40_reg_toggle(app->spi, REG_LED, LED1);
+*/
 
 /*
   // try w25 chip
@@ -479,7 +462,7 @@ int main(void)
 
 
 
-  
+
   ////////////////
   spi1_port_setup();
 #if 0
