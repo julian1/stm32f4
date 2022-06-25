@@ -3295,6 +3295,19 @@ int main(void)
   printf("addr main() %p\n", main );
 
 
+
+  printf("\n--------");
+  printf("\nstarting\n");
+
+
+  assert( sizeof(bool) == 1);
+  assert( sizeof(float) == 4);
+  assert( sizeof(double ) == 8);
+
+
+
+
+
   //////////////////////////////
 
 
@@ -3312,23 +3325,7 @@ int main(void)
 
 
 
-  // setup assert handleer
-  // TODO rename - setup_handler
-  //assert_set_handler( (void *) assert_app, &app );
-
-
-/*
-  // setup buffers
-  // usart1_setup_gpio_portA(); // stm32f407
-  usart1_setup_gpio_portB(); // stm32f411
-
-  // TODO rename setup handler?
-  usart1_set_buffers(&app.console_in, &app.console_out);
-
-  // setup print
-  printf_init(&app.console_out);
-*/
-
+  
   ////////////////
   spi1_port_setup();
 #if 0
@@ -3340,13 +3337,6 @@ int main(void)
 
   ////////////////////
 
-
-  printf("\n--------\n");
-  printf("starting loop\n");
-
-  printf("sizeof bool   %u\n", sizeof(bool));
-  printf("sizeof float  %u\n", sizeof(float));
-  printf("sizeof double %u\n", sizeof(double));
 
 
   state_change(&app, STATE_FIRST );
