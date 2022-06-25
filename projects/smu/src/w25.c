@@ -142,8 +142,8 @@ int main(void)
   spi_w25_setup();
 
 
-  usart1_printf("\n--------\n");
-  usart1_printf("starting\n");
+  printf("\n--------\n");
+  printf("starting\n");
 
 
   loop();

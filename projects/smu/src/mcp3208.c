@@ -106,22 +106,22 @@ static void soft_500ms_update(void)
   spi_disable(spi);
 
   // important - maybe clocking to fast 50kps at 2.7V.
-  usart1_printf("data[0] %d\n", data[0]);      // sometimes data[0] returns a bit that should be ignored.
-  usart1_printf("data[1] %d\n", data[1]);
-  usart1_printf("data[2] %d\n", data[2]);
+  printf("data[0] %d\n", data[0]);      // sometimes data[0] returns a bit that should be ignored.
+  printf("data[1] %d\n", data[1]);
+  printf("data[2] %d\n", data[2]);
 
   // turns it into 16bit value. so lower bytes are unused.
   // but should probably be 12bit.
   // eg.  return (b1 << 4) | (b2 >> 4);
   uint16_t x = (data[1] << 8) | (data[2] );
 
-  usart1_printf("x %d\n", x );
+  printf("x %d\n", x );
 
   float x2 = x / 65535.0 * 3.3;
-  usart1_printf("volts %f\n", x2 );
+  printf("volts %f\n", x2 );
 
 
-  usart1_printf("\n");
+  printf("\n");
 }
 
 
@@ -210,8 +210,8 @@ int main(void)
 
   ////////////////////
 
-  usart1_printf("\n--------\n");
-  usart1_printf("starting\n");
+  printf("\n--------\n");
+  printf("starting\n");
 
   loop();
 

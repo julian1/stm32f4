@@ -29,8 +29,8 @@ extern void msleep(uint32_t delay);
 ///////////////
 
 typedef struct CBuf CBuf;
-extern void usart1_printf_init(CBuf *output);
-extern void usart1_printf(const char *format, ... );
+extern void printf_init(CBuf *output);
+extern void printf(const char *format, ... );
 
 
 ///////////////

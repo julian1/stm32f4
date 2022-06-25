@@ -12,7 +12,7 @@
       // %f formatter, doesn't pad with zeros properly...
       // why is the voltage *10?
       // Force=Potential=3V, etc.
-      usart1_printf("adc %fV    %fA\n",
+      printf("adc %fV    %fA\n",
         ar[0] / 1.64640 * vmultiplier,
         ar[1] / 1.64640 * imultiplier
       );
