@@ -82,6 +82,8 @@ extern void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t
 #define IRANGE_X_SW4_CTL (1<<3)
 
 
+// read register.
+#define REG_MON_RAILS     19
 
 //#define REG_RELAY         19
 //#define RELAY_VRANGE      (1<<0)

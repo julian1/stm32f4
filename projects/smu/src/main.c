@@ -109,11 +109,13 @@ static void update_soft_500ms(app_t *app)
 
 
   uint8_t val = ice40_reg_read( app->spi, REG_LED );
-  // printf("val %04x\n", val );
   char buf[100];
+  // printf("  val %u", val );
   printf("reg_led read bits %s\n", format_bits(buf, 4, val) );
     
-
+  val = ice40_reg_read( app->spi, REG_MON_RAILS );
+ 
+  printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
 
 
   // blink stm32/mcu led
