@@ -23,6 +23,10 @@ extern void led_setup(uint32_t port_, uint16_t io_ );
 
 // extern void led_setup(void);
 extern void led_toggle(void);
+
+extern void led_set(bool val );
+
+
 extern void critical_error_blink(void);
 
 

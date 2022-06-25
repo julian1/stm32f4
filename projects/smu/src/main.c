@@ -47,7 +47,8 @@
 #include "spi1.h"
 #include "mux.h"   // to blink the led.
 #include "reg.h"   // to blink the led.
-#include "spi-ice40.h"
+#include "spi-ice40.h" // to blink the led.
+
 
 
 #include "fbuffer.h"
@@ -93,9 +94,20 @@ static void update_soft_500ms(app_t *app)
 {
   UNUSED(app);
 
+  static bool state = 0;
+  state = ! state;
+
   // blink the fpga led
   mux_ice40(app->spi);
-  ice40_reg_toggle(app->spi, REG_LED, LED1);
+
+  // ice40_reg_toggle(app->spi, REG_LED, LED1);
+  state ? ice40_reg_set(app->spi, REG_LED, LED1)  // why is clear setting on?
+        : ice40_reg_clear(app->spi, REG_LED, LED1);
+
+
+  // blink stm32/mcu led
+  // led_toggle();
+  led_set( state );
 
 
 /*
@@ -104,11 +116,6 @@ static void update_soft_500ms(app_t *app)
   msleep(20);
   spi_w25_get_data(app->spi);
 */
-
-
-  // blink stm32/mcu led
-  led_toggle();
-
 
 
 }

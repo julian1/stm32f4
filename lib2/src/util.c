@@ -20,10 +20,9 @@
 
 
 /*
+  issue here - is maintaining led state so that critical_error_bllink can work.
 
-
-
-void  gpio_mode_setup (uint32_t gpioport, uint8_t mode, uint8_t pull_up_down, uint16_t gpios)
+  void  gpio_mode_setup (uint32_t gpioport, uint8_t mode, uint8_t pull_up_down, uint16_t gpios)
 */
 typedef struct  Led
 {
@@ -89,6 +88,19 @@ void led_toggle(void)
 {
   gpio_toggle(led.port, led.io);
 }
+
+
+void led_set(bool val )
+{
+  // is this 
+  // val ? gpio_set(led.port, led.io) : gpio_clear (led.port, led.io);
+
+  // clear turns it on???? 
+  val ? gpio_clear(led.port, led.io) : gpio_set(led.port, led.io);
+}
+
+
+
 
 
 
