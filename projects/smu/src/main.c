@@ -45,6 +45,9 @@
 
 
 #include "spi1.h"
+#include "mux.h"   // to blink the led.
+#include "reg.h"   // to blink the led.
+#include "spi-ice40.h"
 
 
 #include "fbuffer.h"
@@ -83,17 +86,17 @@ static void update_soft_1s(app_t *app)
 }
 
 /*
-    need to do the spi setup...
+    spi must be setup, in order for led toggle...
 */
 
 static void update_soft_500ms(app_t *app)
 {
   UNUSED(app);
-/*
+
   // blink the fpga led
   mux_ice40(app->spi);
   ice40_reg_toggle(app->spi, REG_LED, LED1);
-*/
+
 
 /*
   // try w25 chip
@@ -417,6 +420,11 @@ int main(void)
   // vfb buffer
   // fBufInit(&app.vfb_cbuf, buf_vfb, ARRAY_SIZE(buf_vfb));
 
+
+  /*
+  ot sure this should be done here....
+  */
+
   // measure
   fBufInit(&app.vfb_measure, buf_vfb_measure, ARRAY_SIZE(buf_vfb_measure));
   fBufInit(&app.ifb_measure, buf_ifb_measure, ARRAY_SIZE(buf_ifb_measure));
@@ -439,6 +447,9 @@ int main(void)
 
 
   ////////////////////
+
+  // TODO . this is very specific. not sure this should be here.
+  // should have separate app_t setup.
 
   app.spi = SPI1 ;
   app.print_adc_values = true;

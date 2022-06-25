@@ -94,6 +94,13 @@ typedef enum irange_t
 typedef struct app_t
 {
 
+  /*
+    JA.
+    Not sure these buffers need to be exposed here. nothing else should touch them.
+    Perhaps just put in main stack..
+    Getting the led, and uart are low level
+  */
+
   CBuf console_in;
   CBuf console_out;
 
