@@ -29,6 +29,7 @@
 #include <libopencm3/stm32/gpio.h>    // led
 #include <libopencm3/stm32/spi.h>   // SPI1
 
+#include <libopencm3/cm3/scb.h>  // reset()
 
 
 #include <stdio.h>    // printf
@@ -115,9 +116,9 @@ static void update_soft_500ms(app_t *app)
   // printf("  val %u", val );
   printf("reg_led read bits %s\n", format_bits(buf, 4, val) );
 */
-    
+
   uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
- 
+
   printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
 
 
@@ -172,7 +173,11 @@ static void update_console_cmd(app_t *app)
       if( strcmp(cmd, "test") == 0) {
 
         printf("got test\n");
+      }
 
+      else if(strcmp(cmd, "reset") == 0) {
+        // scb_reset_core()
+        scb_reset_system();
       }
 
 

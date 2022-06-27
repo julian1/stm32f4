@@ -31,6 +31,12 @@
 
 void state_change(app_t *app, enum state_t state )
 {
+
+  // first thing to do - should be test the rails voltages. 
+  // and if fault. then change the state.
+  // Eg. do in all states. so factor code once.
+
+
   switch(state) {
 
     case STATE_FIRST: {
