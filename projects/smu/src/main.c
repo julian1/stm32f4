@@ -207,6 +207,7 @@ static void update_console_cmd(app_t *app)
             printf("turn on lp15v rails\n" );
             ice40_reg_set(app->spi, REG_RAILS, RAILS_LP15V);
           } else {
+            // TODO remove this. it is dangerous
             printf("turn off lp15v rails\n" );
             ice40_reg_clear(app->spi, REG_RAILS, RAILS_LP15V);
           }
