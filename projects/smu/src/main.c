@@ -199,34 +199,41 @@ static void update_console_cmd(app_t *app)
       // can test rails here.
       // OK. we want to reset the fpga....
 
-  
-      if( strcmp(cmd, "lp15v on") == 0) {
 
+      else if( sscanf(cmd, "lp15v %lu", &u0 ) == 1) {
         mux_ice40(app->spi);
         ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
-        printf("turn on analog rails - lp15v\n" );
-        ice40_reg_set(app->spi, REG_RAILS, RAILS_LP15V );
+        if(u0) {
+            printf("turn on lp15v rails\n" );
+            ice40_reg_set(app->spi, REG_RAILS, RAILS_LP15V);
+          } else {
+            printf("turn off lp15v rails\n" );
+            ice40_reg_clear(app->spi, REG_RAILS, RAILS_LP15V);
+          }
       }
 
       else if( sscanf(cmd, "lp24v %lu", &u0 ) == 1) {
         mux_ice40(app->spi);
         ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
         if(u0) {
-            printf("turn on analog rails - lp24v\n" );
+            printf("turn on lp24v rails\n" );
             ice40_reg_set(app->spi, REG_RAILS, RAILS_LP24V );
           } else {
-            printf("turn off analog rails - lp24v\n" );
+            printf("turn off lp24v rails\n" );
             ice40_reg_clear(app->spi, REG_RAILS, RAILS_LP24V );
-          } 
+          }
       }
 
-
-      else if( strcmp(cmd, "lp50v on") == 0) {
-
+      else if( sscanf(cmd, "lp50v %lu", &u0 ) == 1) {
         mux_ice40(app->spi);
         ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
-        printf("turn on analog rails - lp50v\n" );
-        ice40_reg_set(app->spi, REG_RAILS, RAILS_LP50V );
+        if(u0) {
+            printf("turn on lp50v rails\n" );
+            ice40_reg_set(app->spi, REG_RAILS, RAILS_LP50V );
+          } else {
+            printf("turn off lp50v rails\n" );
+            ice40_reg_clear(app->spi, REG_RAILS, RAILS_LP50V );
+          }
       }
 
 
