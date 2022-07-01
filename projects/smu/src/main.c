@@ -208,14 +208,20 @@ static void update_console_cmd(app_t *app)
         ice40_reg_set(app->spi, REG_RAILS, RAILS_LP15V );
       }
 
-      if( strcmp(cmd, "lp24v on") == 0) {
-
+      else if( sscanf(cmd, "lp24v %lu", &u0 ) == 1) {
         mux_ice40(app->spi);
         ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
-        printf("turn on analog rails - lp24v\n" );
-        ice40_reg_set(app->spi, REG_RAILS, RAILS_LP24V );
+        if(u0) {
+            printf("turn on analog rails - lp24v\n" );
+            ice40_reg_set(app->spi, REG_RAILS, RAILS_LP24V );
+          } else {
+            printf("turn off analog rails - lp24v\n" );
+            ice40_reg_clear(app->spi, REG_RAILS, RAILS_LP24V );
+          } 
       }
-      if( strcmp(cmd, "lp50v on") == 0) {
+
+
+      else if( strcmp(cmd, "lp50v on") == 0) {
 
         mux_ice40(app->spi);
         ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
