@@ -37,7 +37,7 @@ extern void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t
 #define REG_RAILS       10
 #define RAILS_LP5V      (1<<0)
 #define RAILS_LP15V     (1<<1)
-#define RAILS_LP30V     (1<<2)
+#define RAILS_LP24V     (1<<2)
 #define RAILS_LP50V     (1<<3)
 
 #define CORE_SOFT_RST   11

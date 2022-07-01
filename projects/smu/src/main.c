@@ -122,10 +122,13 @@ static void update_soft_500ms(app_t *app)
   printf("reg_led read bits %s\n", format_bits(buf, 4, val) );
 */
 
+
+#if 0
   char buf[100];
   uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
   printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
 
+#endif
 
 
 
@@ -179,11 +182,50 @@ static void update_console_cmd(app_t *app)
       }
 
       else if(strcmp(cmd, "reset") == 0) {
+        // reset stm32f4
         // scb_reset_core()
         scb_reset_system();
       }
 
+      else if(strcmp(cmd, "reset ice40") == 0) {
+
+        // this will powerdown rails
+        printf("reset ice40\n");
+        mux_ice40(app->spi);
+        ice40_reg_set(app->spi, CORE_SOFT_RST, 0 );
+      }
+
+
       // can test rails here.
+      // OK. we want to reset the fpga....
+
+  
+      if( strcmp(cmd, "lp15v on") == 0) {
+
+        mux_ice40(app->spi);
+        ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
+        printf("turn on analog rails - lp15v\n" );
+        ice40_reg_set(app->spi, REG_RAILS, RAILS_LP15V );
+      }
+
+      if( strcmp(cmd, "lp24v on") == 0) {
+
+        mux_ice40(app->spi);
+        ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
+        printf("turn on analog rails - lp24v\n" );
+        ice40_reg_set(app->spi, REG_RAILS, RAILS_LP24V );
+      }
+      if( strcmp(cmd, "lp50v on") == 0) {
+
+        mux_ice40(app->spi);
+        ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
+        printf("turn on analog rails - lp50v\n" );
+        ice40_reg_set(app->spi, REG_RAILS, RAILS_LP50V );
+      }
+
+
+
+
 
 
       if( sscanf(cmd, "freq %lu", &u0 ) == 1) {
