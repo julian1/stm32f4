@@ -190,7 +190,7 @@ static void update_console_cmd(app_t *app)
       else if(strcmp(cmd, "reset ice40") == 0) {
 
         // this will powerdown rails
-        printf("reset ice40\n");
+        printf("soft core reset\n");
         mux_ice40(app->spi);
         ice40_reg_set(app->spi, CORE_SOFT_RST, 0 );
       }
