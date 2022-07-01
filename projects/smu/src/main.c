@@ -97,34 +97,37 @@ static void update_soft_500ms(app_t *app)
 {
   UNUSED(app);
 
-  static bool state = 0;
-  state = ! state;
+  static bool led_state = 0;
+  led_state = ! led_state;
 
   // blink the fpga led
   mux_ice40(app->spi);
 
   // ice40_reg_toggle(app->spi, REG_LED, LED1);
-  state ? ice40_reg_set(app->spi, REG_LED, LED2)
+  led_state ? ice40_reg_set(app->spi, REG_LED, LED2)
         : ice40_reg_clear(app->spi, REG_LED, LED2);
 
   // small problem. that when ice40 is powered down we get high signal.
   // So for rails we should check high bits are 0.
 
-  char buf[100];
+
+  // blink stm32/mcu led
+  // led_toggle();
+  led_set( led_state );
+
+
 /*
   uint8_t val = ice40_reg_read( app->spi, REG_LED );
   // printf("  val %u", val );
   printf("reg_led read bits %s\n", format_bits(buf, 4, val) );
 */
 
+  char buf[100];
   uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
-
   printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
 
 
-  // blink stm32/mcu led
-  // led_toggle();
-  led_set( state );
+
 
 
 /*
@@ -180,6 +183,7 @@ static void update_console_cmd(app_t *app)
         scb_reset_system();
       }
 
+      // can test rails here.
 
 
       if( sscanf(cmd, "freq %lu", &u0 ) == 1) {
@@ -272,12 +276,13 @@ static void loop(app_t *app)
       update_soft_1s(app);
     }
 
-
+#if 0
     if(app->state == STATE_FIRST) {
 
       // rename ca
       state_change(app, STATE_ANALOG_UP);
     }
+#endif
 
 
   }

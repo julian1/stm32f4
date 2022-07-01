@@ -21,18 +21,18 @@
   -----
   - I don't think it's correct. to have a general state change. with implication
   that can change to any state.
-  
+
   - 1. progress through startup initialization.
   - 2. instead should just monitor and handle shutdown. and on bad conditions.
 
-  - analog up. is going to do a lot of things. 
+  - analog up. is going to do a lot of things.
 
 */
 
 void state_change(app_t *app, enum state_t state )
 {
 
-  // first thing to do - should be test the rails voltages. 
+  // first thing to do - should be test the rails voltages.
   // and if fault. then change the state.
   // Eg. do in all states. so factor code once.
 
@@ -49,7 +49,7 @@ void state_change(app_t *app, enum state_t state )
 
 
 
-    case STATE_ANALOG_UP: {  // STATE_START_ANALOG_UP.  
+    case STATE_ANALOG_UP: {
 
 
       printf("turn on lp5v\n" );
