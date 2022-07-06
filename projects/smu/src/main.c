@@ -200,6 +200,21 @@ static void update_console_cmd(app_t *app)
       // OK. we want to reset the fpga....
 
 
+
+
+      else if( sscanf(cmd, "lp5v %lu", &u0 ) == 1) {
+        mux_ice40(app->spi);
+        ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
+        if(u0) {
+            printf("turn on lp5v rails\n" );
+            ice40_reg_set(app->spi, REG_RAILS, RAILS_LP5V);
+          } else {
+            printf("turn off lp5v rails\n" );
+            ice40_reg_clear(app->spi, REG_RAILS, RAILS_LP5V);
+          }
+      }
+
+
       else if( sscanf(cmd, "lp15v %lu", &u0 ) == 1) {
         mux_ice40(app->spi);
         ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
@@ -237,20 +252,17 @@ static void update_console_cmd(app_t *app)
           }
       }
 
-
-
-
-
-
-      if( sscanf(cmd, "freq %lu", &u0 ) == 1) {
+      else if( strcmp( cmd , "") == 0) {
 
       }
 
-      if( sscanf(cmd, "deadtime %lu", &u0 ) == 1) {
+      else {
 
-
+            printf("unknown '%s'\n", cmd );
 
       }
+
+
 
       // reset buffer
       cStringClear( &app->command);
