@@ -61,6 +61,7 @@
 // app structure
 #include "app.h"
 
+#include "dac8734.h"
 
 
 
@@ -251,6 +252,23 @@ static void update_console_cmd(app_t *app)
             ice40_reg_clear(app->spi, REG_RAILS, RAILS_LP50V );
           }
       }
+
+
+
+      else if( strcmp(cmd, "dac init") == 0) {
+
+        // dac init
+        int ret = dac_init(app->spi, REG_DAC); // bad name?
+        if(ret != 0) {
+
+          printf("failed\n" );
+          // state_change(app, STATE_HALT);
+          return;
+        }
+
+    }
+
+
 
       else if( strcmp( cmd , "") == 0) {
 
