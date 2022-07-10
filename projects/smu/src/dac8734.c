@@ -47,7 +47,7 @@ void spi_dac_setup( uint32_t spi)
   spi_init_master(
     spi,
     // SPI_CR1_BAUDRATE_FPCLK_DIV_4,     // reasonably fast
-    SPI_CR1_BAUDRATE_FPCLK_DIV_16,     // jul 2022. when stm32 is running at 84MHz. works 
+    SPI_CR1_BAUDRATE_FPCLK_DIV_8,     // jul 2022. with stm32f411ceu at 84MHz. works 
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
     SPI_CR1_CPHA_CLK_TRANSITION_2,    // 2 == falling edge (from dac8734 doc.
     SPI_CR1_DFF_8BIT,
