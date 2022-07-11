@@ -83,7 +83,13 @@ void app_initialize( app_t * app )
 
   // now we would turn on 5V and +-15V.
 
+  printf("turn on lp5v and lp15v rails\n" );
 
+  ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
+
+  ice40_reg_set(app->spi, REG_RAILS, RAILS_LP5V | RAILS_LP15V);
+
+ 
 }
 
 
