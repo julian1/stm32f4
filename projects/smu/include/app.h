@@ -191,5 +191,7 @@ typedef struct app_t
 
 void state_change(app_t *app, state_t state );
 
+void app_initialize( app_t * app );
 
+void app_goto_fail_state( app_t * app );
 

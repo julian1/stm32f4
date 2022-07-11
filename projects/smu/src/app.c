@@ -1,5 +1,6 @@
 
 #include <stdio.h>    // printf
+#include "assert.h"
 
 #include "app.h"
 
@@ -10,6 +11,89 @@
 #include "spi-ice40.h"
 
 #include "util.h"   // msleep
+
+#include "dac8734.h"
+#include "format.h"   // format_bits()
+
+
+void app_goto_fail_state( app_t * app )
+{
+  printf("app goto fail state\n");
+  mux_ice40(app->spi);
+  ice40_reg_set(app->spi, CORE_SOFT_RST, 0 );
+
+  app->state = STATE_HALT;
+}
+
+
+
+
+void app_initialize( app_t * app )
+{
+  /*
+    - there is no reason to have separate states for the different condition of the rails.
+    - using the soft reset of fpga - to go to initial condition is good - avoid representing this state in more than one place.
+    - not sure if this function needs more.
+    ----
+
+
+  */
+
+  // assert(app->state == APP_STATE_FIRST);
+  assert(app->state == STATE_FIRST);
+  UNUSED(app);
+
+  // we start with 3.3V up.
+
+  // this will powerdown rails
+  printf("ice40 soft core reset\n");
+  mux_ice40(app->spi);
+  ice40_reg_set(app->spi, CORE_SOFT_RST, 0 );
+
+
+  msleep(50);
+
+  // test have comms with the ice40...
+
+  // dac init
+  int ret = dac_init(app->spi, REG_DAC); // bad name?
+  if(ret != 0) {
+    printf("dac init failed");
+    app_goto_fail_state(app);
+    return;
+  }
+
+
+  msleep(50);
+
+  // should check that the 15V rails are up.
+
+  uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
+
+  char buf[100];
+  printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
+
+  if(val != 0b0011 ) {
+    printf("+-15V rails not up\n");
+    app_goto_fail_state(app);
+    return;
+  }
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*
@@ -35,6 +119,14 @@ void state_change(app_t *app, enum state_t state )
   // first thing to do - should be test the rails voltages.
   // and if fault. then change the state.
   // Eg. do in all states. so factor code once.
+
+
+
+  uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
+  UNUSED(val);
+
+  // printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
+
 
 
   switch(state) {
