@@ -84,11 +84,29 @@ void app_initialize( app_t * app )
   // now we would turn on 5V and +-15V.
 
   printf("turn on lp5v and lp15v rails\n" );
-
   ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
   ice40_reg_set(app->spi, REG_RAILS, RAILS_LP5V | RAILS_LP15V);
 
- 
+  msleep(50);
+
+  // turn on refs for dac
+  //mux_dac(spi);
+  printf("turn on ref a for dac\n" );
+  mux_ice40(app->spi);
+  ice40_reg_write(app->spi, REG_DAC_REF_MUX, ~(DAC_REF_MUX_A | DAC_REF_MUX_B)); // active lo
+
+  msleep(50);
+
+  // output 3V. vset.
+
+  printf("output votlage on dac0\n" );
+  mux_dac(app->spi);
+  spi_dac_write_register(app->spi, DAC_DAC0_REGISTER, voltage_to_dac( 3.f ) );
+                                                                                // outputs 3.5V???
+  // remember these are not negative
+
+  spi_dac_write_register(app->spi, DAC_DAC1_REGISTER, voltage_to_dac( 4.f ) );
+
 }
 
 
