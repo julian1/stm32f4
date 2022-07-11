@@ -45,7 +45,7 @@ void app_initialize( app_t * app )
 
   // we start with 3.3V up.
 
-  // this will powerdown rails
+  // do ice40 soft reset, to init ice40 state
   printf("ice40 soft core reset\n");
   mux_ice40(app->spi);
   ice40_reg_set(app->spi, CORE_SOFT_RST, 0 );
@@ -80,6 +80,7 @@ void app_initialize( app_t * app )
   }
 
 
+  // now we would turn on 5V and +-15V.
 
 
 }

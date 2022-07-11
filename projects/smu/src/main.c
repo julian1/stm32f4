@@ -228,7 +228,6 @@ static void update_console_cmd(app_t *app)
             ice40_reg_clear(app->spi, REG_RAILS, RAILS_LP15V);
           }
       }
-
       else if( sscanf(cmd, "lp24v %lu", &u0 ) == 1) {
         mux_ice40(app->spi);
         ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
@@ -240,7 +239,6 @@ static void update_console_cmd(app_t *app)
             ice40_reg_clear(app->spi, REG_RAILS, RAILS_LP24V );
           }
       }
-
       else if( sscanf(cmd, "lp50v %lu", &u0 ) == 1) {
         mux_ice40(app->spi);
         ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
@@ -253,22 +251,20 @@ static void update_console_cmd(app_t *app)
           }
       }
 
-
-
       else if( strcmp(cmd, "dac init") == 0) {
-
         // dac init
         int ret = dac_init(app->spi, REG_DAC); // bad name?
         if(ret != 0) {
-
           printf("failed\n" );
           // state_change(app, STATE_HALT);
           return;
         }
+      }
 
-    }
-
-
+      else if( strcmp(cmd, "init") == 0) {
+    
+        app_initialize( app );
+      } 
 
       else if( strcmp( cmd , "") == 0) {
 
