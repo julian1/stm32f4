@@ -68,6 +68,7 @@ void app_initialize( app_t * app )
 
   // should check that the 15V rails are up.
 
+  mux_ice40(app->spi);
   uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
 
   char buf[100];
