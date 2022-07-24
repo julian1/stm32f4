@@ -28,6 +28,57 @@ void app_goto_fail_state( app_t * app )
 
 
 
+
+
+static void app_quadrant_set( app_t *app, bool v, bool i)
+{
+  // RULES.
+  // so. if voltage is positive use clamp max.  clamp min/max follows voltage.
+  // negative current. can still be source or sink. depending on polarity.
+  // ie. clamp direction min/max following voltage.
+
+  mux_ice40(app->spi);
+
+  uint32_t vv = v ? CLAMP1_VSET_INV : CLAMP1_VSET;
+  uint32_t ii = i ? CLAMP1_ISET_INV : CLAMP1_ISET;
+
+
+  ice40_reg_write(app->spi, REG_CLAMP1, ~(vv | ii ));
+
+  // rembmer inverse
+  uint32_t minmax = v ? CLAMP2_MAX : CLAMP2_MIN;
+
+  ice40_reg_write(app->spi, REG_CLAMP2, ~( minmax ) );     // min of current or voltage
+}
+
+
+// so can have another function. that tests the values.... v > 0 etc.
+// need to hide
+
+/*
+  clamp direction follows voltage.
+
+              clamp min  <->  clamp max
+
+                           |+i
+             (2)           |           (1)
+             sink          |           source
+                           |
+                           |
+                           |
+         -ve --------------+-------------- +ve
+                           |
+                           |
+                           |
+             source        |           sink
+             (3)           |           (4)
+                           |-i
+
+*/
+
+
+
+
 void app_initialize( app_t * app )
 {
   /*
@@ -104,7 +155,6 @@ void app_initialize( app_t * app )
   spi_dac_write_register(app->spi, DAC_DAC0_REGISTER, voltage_to_dac( 3.f ) );
                                                                                 // outputs 3.5V???
   // remember these are not negative
-
   spi_dac_write_register(app->spi, DAC_DAC1_REGISTER, voltage_to_dac( 4.f ) );
 
 }
@@ -138,6 +188,7 @@ void app_initialize( app_t * app )
 
 */
 
+#if 0
 void state_change(app_t *app, enum state_t state )
 {
 
@@ -204,3 +255,4 @@ void state_change(app_t *app, enum state_t state )
 
   } // switch
 }
+#endif
