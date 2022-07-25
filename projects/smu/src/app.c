@@ -160,7 +160,8 @@ void app_initialize( app_t * app )
 
 
   msleep(50);
-  app_mux_quadrant_set( app, true, true );
+  app_mux_quadrant_set( app, true, true );     // source positive voltage. max
+  // app_mux_quadrant_set( app, false, true );    // source negative voltage,  min
 
 }
 
