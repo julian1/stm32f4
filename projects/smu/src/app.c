@@ -30,25 +30,29 @@ void app_goto_fail_state( app_t * app )
 
 
 
-static void app_mux_quadrant_set( app_t *app, bool v, bool i)
+// static void app_mux_quadrant_set( app_t *app, bool v, bool i)
+
+// spi_mux
+
+static void spi_mux_quadrant_set( uint32_t spi, bool v, bool i)
 {
   // RULES.
   // so. if voltage is positive use clamp max.  clamp min/max follows voltage.
   // negative current. can still be source or sink. depending on polarity.
   // ie. clamp direction min/max following voltage.
 
-  mux_ice40(app->spi);
+  mux_ice40(spi);
 
   uint32_t vv = v ? CLAMP1_VSET_INV : CLAMP1_VSET;
   uint32_t ii = i ? CLAMP1_ISET_INV : CLAMP1_ISET;
 
 
-  ice40_reg_write(app->spi, REG_CLAMP1, ~(vv | ii ));
+  ice40_reg_write(spi, REG_CLAMP1, ~(vv | ii ));
 
   // rembmer inverse
   uint32_t minmax = v ? CLAMP2_MAX : CLAMP2_MIN;
 
-  ice40_reg_write(app->spi, REG_CLAMP2, ~( minmax ) );     // min of current or voltage
+  ice40_reg_write(spi, REG_CLAMP2, ~( minmax ) );     // min of current or voltage
 }
 
 
@@ -160,7 +164,7 @@ void app_initialize( app_t * app )
 
 
   msleep(50);
-  app_mux_quadrant_set( app, true, true );     // source positive voltage. max
+  spi_mux_quadrant_set( app->spi, true, true );     // source positive voltage. max
   // app_mux_quadrant_set( app, false, true );    // source negative voltage,  min
 
 }
