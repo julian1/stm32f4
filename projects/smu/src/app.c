@@ -30,7 +30,7 @@ void app_goto_fail_state( app_t * app )
 
 
 
-static void app_quadrant_set( app_t *app, bool v, bool i)
+static void app_mux_quadrant_set( app_t *app, bool v, bool i)
 {
   // RULES.
   // so. if voltage is positive use clamp max.  clamp min/max follows voltage.
@@ -156,6 +156,11 @@ void app_initialize( app_t * app )
                                                                                 // outputs 3.5V???
   // remember these are not negative
   spi_dac_write_register(app->spi, DAC_DAC1_REGISTER, voltage_to_dac( 4.f ) );
+
+
+
+  msleep(50);
+  app_mux_quadrant_set( app, true, true );
 
 }
 
