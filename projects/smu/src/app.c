@@ -22,6 +22,9 @@ void app_goto_fail_state( app_t * app )
   mux_ice40(app->spi);
   ice40_reg_set(app->spi, CORE_SOFT_RST, 0 );
 
+  /*
+    We need to change the state. to app.state_power. or similar.
+  */
   app->state = STATE_HALT;
 }
 
