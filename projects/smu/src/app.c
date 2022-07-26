@@ -170,6 +170,14 @@ void app_initialize( app_t * app )
   spi_mux_quadrant_set( app->spi, true, true );     // source positive voltage. max
   // app_mux_quadrant_set( app, false, true );    // source negative voltage,  min
 
+  msleep(50);
+
+
+  // turn on output power
+  ice40_reg_set(app->spi, REG_RAILS, RAILS_LP24V | RAILS_LP50V );
+
+  // OK. it works... to source 3V.
+
 }
 
 
