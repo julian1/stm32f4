@@ -159,7 +159,7 @@ void app_initialize( app_t * app )
 
   printf("output votlage on dac0\n" );
   mux_dac(app->spi);
-  spi_dac_write_register(app->spi, DAC_DAC0_REGISTER, voltage_to_dac( 3.5f ) ); // 20V
+  spi_dac_write_register(app->spi, DAC_DAC0_REGISTER, voltage_to_dac( 0.5f ) ); // 5V with atten
                                                                                 // outputs 3.5V???
   // remember these are not negative
   spi_dac_write_register(app->spi, DAC_DAC1_REGISTER, voltage_to_dac( 4.f ) );
@@ -167,8 +167,8 @@ void app_initialize( app_t * app )
   msleep(50);
 
   //////////////
-  // spi_mux_quadrant_set( app->spi, true, true );     // source positive voltage. max
-  spi_mux_quadrant_set( app->spi, false, false );    // source negative voltage,  min
+  spi_mux_quadrant_set( app->spi, true, true );     // source positive voltage. max
+  // spi_mux_quadrant_set( app->spi, false, false );    // source negative voltage,  min
 
 
   // ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // vfb divider. set no atten
