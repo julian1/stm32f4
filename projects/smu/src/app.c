@@ -134,7 +134,7 @@ void app_initialize( app_t * app )
 
   if(val != 0b0011 ) {
     printf("+-15V rails not up\n");
-    app_goto_fail_state(app);
+    app_goto_fail_state(app);  // set_fail_state() ... do a full reset...
     return;
   }
 
@@ -164,11 +164,14 @@ void app_initialize( app_t * app )
   // remember these are not negative
   spi_dac_write_register(app->spi, DAC_DAC1_REGISTER, voltage_to_dac( 4.f ) );
 
-
-
   msleep(50);
+
+  //////////////
   spi_mux_quadrant_set( app->spi, true, true );     // source positive voltage. max
   // app_mux_quadrant_set( app, false, true );    // source negative voltage,  min
+
+
+  ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // vfb divider. set no atten
 
   msleep(50);
 
@@ -177,6 +180,9 @@ void app_initialize( app_t * app )
   ice40_reg_set(app->spi, REG_RAILS, RAILS_LP24V | RAILS_LP50V );
 
   // OK. it works... to source 3V.
+
+
+ 
 
 }
 
