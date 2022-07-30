@@ -172,6 +172,7 @@ void app_initialize( app_t * app )
 
 
   ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // vfb divider. set no atten
+  // ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL);       // vfb divider. set with atten
 
   msleep(50);
 
