@@ -89,6 +89,12 @@ static void spi_mux_quadrant_set( uint32_t spi, bool v, bool i)
 void app_initialize( app_t * app )
 {
   /*
+    Having a very simple example of code that - brings everything  up . is really good and should keep.
+    even if add extra complicating code
+
+  */
+
+  /*
     - there is no reason to have separate states for the different condition of the rails.
     - using the soft reset of fpga - to go to initial condition is good - avoid representing this state in more than one place.
     - not sure if this function needs more.
@@ -183,7 +189,7 @@ void app_initialize( app_t * app )
   // OK. it works... to source 3V.
 
 
- 
+
 
 }
 
