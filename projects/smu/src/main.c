@@ -176,6 +176,7 @@ static void update_console_cmd(app_t *app)
 
 
       uint32_t u0;
+      UNUSED(u0);
 
       if( strcmp(cmd, "test") == 0) {
 
@@ -201,7 +202,7 @@ static void update_console_cmd(app_t *app)
       // OK. we want to reset the fpga....
 
 
-
+#if 0
 
       else if( sscanf(cmd, "lp5v %lu", &u0 ) == 1) {
         mux_ice40(app->spi);
@@ -260,11 +261,30 @@ static void update_console_cmd(app_t *app)
           return;
         }
       }
+#endif
+
+      else if( strcmp(cmd, "on") == 0) {  // output on
+
+        // ice40_reg_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
+        ice40_reg_set(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
+        ice40_reg_set(app->spi, REG_LED, LED1);
+      }
+      else if( strcmp(cmd, "off") == 0) {  // output on
+
+        ice40_reg_clear(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
+        ice40_reg_clear(app->spi, REG_LED, LED1);
+      }
+
+
+
+
+
+
 
       else if( strcmp(cmd, "init") == 0) {
-    
+
         app_initialize( app );
-      } 
+      }
 
       else if( strcmp( cmd , "") == 0) {
 
