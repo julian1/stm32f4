@@ -1591,7 +1591,7 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
         case irange_1mA:
           // turn on read relay
           // and turn off the hc relay.
-          ice40_reg_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
+          ice40_reg_write(app->spi, REG_RELAY_OUT, REG_RELAY_OUT_COM_HC_CTL);
           ice40_reg_set(app->spi, REG_LED, LED2);
           break;
 
@@ -1600,7 +1600,7 @@ static void output_set(app_t *app, irange_t irange, uint8_t val)
         case irange_1A:
         case irange_10A:
           // high current relay
-          ice40_reg_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
+          ice40_reg_write(app->spi, REG_RELAY_OUT, REG_RELAY_OUT_COM_HC_CTL);
           ice40_reg_clear(app->spi, REG_LED, LED2);
           break;
       }
@@ -2433,6 +2433,7 @@ static void state_change(app_t *app, state_t state )
       mux_ice40(app->spi);
 #endif
 
+      // want
       app->state = STATE_HALT;
       break;
     }

@@ -71,9 +71,9 @@ extern void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t
 
 
 #define REG_RELAY_COM    17
-#define RELAY_COM_X      (1<<0)
-#define RELAY_COM_Y      (1<<1)
-#define RELAY_COM_Z      (1<<2)
+#define RELAY_COM_X_CTL      (1<<0)
+#define RELAY_COM_Y_CTL      (1<<1)
+#define RELAY_COM_Z_CTL      (1<<2)
 
 #define REG_IRANGE_X_SW  18
 #define IRANGE_X_SW1_CTL (1<<0)
@@ -141,8 +141,12 @@ extern void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t
 
 
 #define REG_RELAY_OUT     31
-#define RELAY_OUT_COM_HC  (1<<0)
-#define RELAY_OUT_COM_LC  (1<<1)
+#define REG_RELAY_OUT_COM_HC_CTL  (1<<0)
+#define REG_RELAY_GUARD_CTL       (1<<1)
+#define REG_RELAY_SENSE_EXT_CTL   (1<<2)
+#define REG_RELAY_SENSE_INT_CTL   (1<<3)
+
+
 
 
 

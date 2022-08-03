@@ -183,16 +183,16 @@ static void update_console_cmd(app_t *app)
         printf("got test\n");
       }
 
-      else if(strcmp(cmd, "reset") == 0) {
+      else if(strcmp(cmd, "reset mcu") == 0) {
         // reset stm32f4
         // scb_reset_core()
         scb_reset_system();
       }
 
-      else if(strcmp(cmd, "reset ice40") == 0) {
+      else if(strcmp(cmd, "reset") == 0) {
 
         // this will powerdown rails
-        printf("soft core reset\n");
+        printf("reset ice40\n");
         mux_ice40(app->spi);
         ice40_reg_set(app->spi, CORE_SOFT_RST, 0 );
       }
@@ -202,7 +202,6 @@ static void update_console_cmd(app_t *app)
       // OK. we want to reset the fpga....
 
 
-#if 0
 
       else if( sscanf(cmd, "lp5v %lu", &u0 ) == 1) {
         mux_ice40(app->spi);
@@ -216,6 +215,7 @@ static void update_console_cmd(app_t *app)
           }
       }
 
+#if 0
 
       else if( sscanf(cmd, "lp15v %lu", &u0 ) == 1) {
         mux_ice40(app->spi);
@@ -265,13 +265,31 @@ static void update_console_cmd(app_t *app)
 
       else if( strcmp(cmd, "on") == 0) {  // output on
 
-        // ice40_reg_write(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_LC);
-        ice40_reg_set(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
+        ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_OUT_COM_HC_CTL);
         ice40_reg_set(app->spi, REG_LED, LED1);
       }
-      else if( strcmp(cmd, "off") == 0) {  // output on
+      else if( strcmp(cmd, "off") == 0) {  // output off
 
-        ice40_reg_clear(app->spi, REG_RELAY_OUT, RELAY_OUT_COM_HC);
+        ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_OUT_COM_HC_CTL);
+        ice40_reg_clear(app->spi, REG_LED, LED1);
+      }
+
+
+      else if( strcmp(cmd, "relay on") == 0) {  // output on
+
+        // ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_INT_CTL);
+        // ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_EXT_CTL);
+
+        ice40_reg_set(app->spi, REG_RELAY_COM, RELAY_COM_X_CTL);
+        ice40_reg_set(app->spi, REG_LED, LED1);
+      }
+      else if( strcmp(cmd, "relay off") == 0) {  // output off
+
+        // ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_INT_CTL);
+        // ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_EXT_CTL);
+
+        ice40_reg_clear(app->spi, REG_RELAY_COM, RELAY_COM_X_CTL);
+
         ice40_reg_clear(app->spi, REG_LED, LED1);
       }
 
