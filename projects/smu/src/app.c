@@ -180,7 +180,8 @@ void app_initialize( app_t * app )
   /////////////
   // voltage
   // select voltage sense internal
-  ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_INT_CTL);
+  ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_INT_CTL);    // FIXME. write not set
+                                                                      // push into own register to make exclusive.
 
 
   // ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // vfb divider. set no atten
@@ -201,13 +202,13 @@ void app_initialize( app_t * app )
   ice40_reg_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW4_CTL);
 
 
-  ice40_reg_clear(app->spi, REG_ISENSE_MUX, ISENSE_MUX3_CTL); // active lo. set is high.
+  ice40_reg_write(app->spi, REG_ISENSE_MUX, ~ISENSE_MUX3_CTL); // active lo. set is high.
 
   msleep(50);
 
 
   // turn on output power
-  ice40_reg_set(app->spi, REG_RAILS, RAILS_LP24V | RAILS_LP50V );
+  ice40_reg_set(app->spi, REG_RAILS, RAILS_LP24V | RAILS_LP50V );  // set not write
 
   // OK. it works... to source 3V.
 
