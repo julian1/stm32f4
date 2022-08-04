@@ -201,7 +201,7 @@ void app_initialize( app_t * app )
   // set fet switches for 1k.
   ice40_reg_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW4_CTL);
 
-
+  // set current op amp.
   ice40_reg_write(app->spi, REG_ISENSE_MUX, ~ISENSE_MUX3_CTL); // active lo. set is high.
 
   msleep(50);
