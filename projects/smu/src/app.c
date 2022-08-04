@@ -163,6 +163,9 @@ void app_initialize( app_t * app )
 
   // output 3V. vset.
 
+  ///////////////
+  //  dac set voltages.
+
   printf("output votlage on dac0\n" );
   mux_dac(app->spi);
   spi_dac_write_register(app->spi, DAC_DAC0_REGISTER, voltage_to_dac( 0.5f ) ); // 5V with atten
@@ -178,18 +181,18 @@ void app_initialize( app_t * app )
   // spi_mux_quadrant_set( app->spi, false, false );    // source negative voltage,  min
 
   /////////////
-  // voltage
+  // voltage feedback
   // select voltage sense internal
 
   // TODO.
   // move relay sense ext/in to own register. in order to do write.
   // not sure. all ext/in/out/guard relays - are user controllable. and everything should still work.
   // but exclusivity for int/ext would be good.
-  
+
 
 
   ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_INT_CTL);    // FIXME. write not set // perhaps push to own register to make exclusive.
-  ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_EXT_CTL); 
+  ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_EXT_CTL);
 
 
   // ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // vfb divider. set no atten
@@ -198,7 +201,7 @@ void app_initialize( app_t * app )
   msleep(50);
 
   ////////////
-  // current
+  // current feedback
   // these should all be write() not set() to be exclusive.
 
   // use com x relay
