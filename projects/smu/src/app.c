@@ -173,12 +173,35 @@ void app_initialize( app_t * app )
   msleep(50);
 
   //////////////
+  // function
   spi_mux_quadrant_set( app->spi, true, true );     // source positive voltage. max
   // spi_mux_quadrant_set( app->spi, false, false );    // source negative voltage,  min
+
+  /////////////
+  // voltage
+  // select voltage sense internal
+  ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_INT_CTL);
 
 
   // ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // vfb divider. set no atten
   ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL);       // vfb divider. set with atten
+
+  msleep(50);
+
+  ////////////
+  // current
+
+  // TODO. these should all be write_ not set. to be exclusive.  except the relay sense. which is on the same register.
+  // move relay sense ext/in to own register. in order to do write.
+
+  // use com x relay
+  ice40_reg_write(app->spi, REG_RELAY_COM, RELAY_COM_X_CTL);
+
+  // set fet switches for 1k.
+  ice40_reg_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW4_CTL);
+
+
+  ice40_reg_clear(app->spi, REG_ISENSE_MUX, ISENSE_MUX3_CTL); // active lo. set is high.
 
   msleep(50);
 

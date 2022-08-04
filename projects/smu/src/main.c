@@ -274,6 +274,16 @@ static void update_console_cmd(app_t *app)
         ice40_reg_clear(app->spi, REG_LED, LED1);
       }
 
+      else if( strcmp(cmd, "guard on") == 0) {  // output on
+
+        ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_GUARD_CTL);
+      }
+      else if( strcmp(cmd, "guard off") == 0) {  // output off
+
+        ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_GUARD_CTL);
+      }
+
+
 
       else if( strcmp(cmd, "relay on") == 0) {  // output on
 
