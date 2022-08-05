@@ -168,7 +168,8 @@ void app_initialize( app_t * app )
 
   printf("output votlage on dac0\n" );
   mux_dac(app->spi);
-  spi_dac_write_register(app->spi, DAC_DAC0_REGISTER, voltage_to_dac( 0.5f ) ); // 5V with atten
+  // spi_dac_write_register(app->spi, DAC_DAC0_REGISTER, voltage_to_dac( 0.5f ) ); // 5V with atten
+  spi_dac_write_register(app->spi, DAC_DAC0_REGISTER, voltage_to_dac( 5.f ) ); // 5V with atten
                                                                                 // outputs 3.5V???
   // remember these are not negative
   spi_dac_write_register(app->spi, DAC_DAC1_REGISTER, voltage_to_dac( 4.f ) );
@@ -195,8 +196,8 @@ void app_initialize( app_t * app )
   ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_EXT_CTL);
 
 
-  // ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // vfb divider. set no atten
-  ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL);       // vfb divider. set with atten
+  ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // vfb divider. set no atten
+  // ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL);       // vfb divider. set with atten
 
   msleep(50);
 
