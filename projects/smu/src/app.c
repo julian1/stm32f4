@@ -86,7 +86,7 @@ static void spi_mux_quadrant_set( uint32_t spi, bool v, bool i)
 
 
 
-void app_initialize( app_t * app )
+void app_start( app_t * app )
 {
   /*
     Having a very simple example of code that - brings everything  up . is really good and should keep.
@@ -218,7 +218,8 @@ void app_initialize( app_t * app )
 
 
   // turn on output power
-  ice40_reg_set(app->spi, REG_RAILS, RAILS_LP24V | RAILS_LP50V );  // set not write
+  // ice40_reg_set(app->spi, REG_RAILS, RAILS_LP24V | RAILS_LP50V );  // set not write
+  ice40_reg_set(app->spi, REG_RAILS, RAILS_LP24V  );  // set not write
 
   // OK. it works... to source 3V.
 

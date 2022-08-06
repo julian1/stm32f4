@@ -215,7 +215,7 @@ static void update_console_cmd(app_t *app)
           }
       }
 
-#if 0
+#if 1
 
       else if( sscanf(cmd, "lp15v %lu", &u0 ) == 1) {
         mux_ice40(app->spi);
@@ -307,11 +307,11 @@ static void update_console_cmd(app_t *app)
 
 
 
+      // chage name to start, init sounds like initial-condition
 
+      else if( strcmp(cmd, "start") == 0) {
 
-      else if( strcmp(cmd, "init") == 0) {
-
-        app_initialize( app );
+        app_start( app );
       }
 
       else if( strcmp( cmd , "") == 0) {
