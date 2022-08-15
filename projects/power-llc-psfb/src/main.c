@@ -125,7 +125,7 @@ static void update_console_cmd(app_t *app)
 
       if( sscanf(cmd, "deadtime %lu", &u0 ) == 1) {
 
-        if(u0 >= 1 /*&& u0 <= 50 */ ) {
+        if( /* u0 >= 0 && */ u0 <= 50  ) {
           app->deadtime = u0 ;
           timer_set_frequency( app->timer, app->freq, app->deadtime );
         } else {
@@ -229,7 +229,7 @@ static app_t app;
 
 static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t deadtime )
 {
-  assert(deadtime >= 1 /*&& deadtime <= 50 */);
+  // assert(deadtime >= 1 /*&& deadtime <= 50 */);
   assert(freq >= 40000 && freq <= 500000);
 
 
@@ -248,7 +248,7 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t deadtim
   printf("clk period    %lu\n", period );
   printf("period        %.1f uS\n", period * clk_period  * 1000000 );
 
-  printf("clk deadtime  %lu\n", deadtime * 2 );
+  printf("clk deadtime  %lu (%lu)\n", deadtime,  deadtime * 2 );
   printf("deadtime      %.0f nS\n", (deadtime * 2.f)  * clk_period * 1000000000 );
   printf("deadtime      %.1f %%\n", (deadtime * 2.f ) / period * 100);
 
@@ -474,9 +474,9 @@ int main(void)
   printf("\nstarting\n");
 
 
-  assert(  sizeof(bool) == 1);
-  assert(  sizeof(float) == 4);
-  assert(  sizeof(double ) == 8);
+  assert( sizeof(bool) == 1);
+  assert( sizeof(float) == 4);
+  assert( sizeof(double ) == 8);
 
 
   rcc_periph_clock_enable(RCC_TIM5);
@@ -487,7 +487,7 @@ int main(void)
   timer_setup( app.timer );
 
   app.freq = 300000;
-  app.deadtime = 1;
+  app.deadtime = 4; // determined from scope, at higher current
 
   timer_set_frequency( app.timer, app.freq, app.deadtime );
   timer_enable_counter(app.timer);
