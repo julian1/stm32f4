@@ -28,7 +28,7 @@ void spi_mcp3208_setup(uint32_t spi)
     spi,
     SPI_CR1_BAUDRATE_FPCLK_DIV_16,   // slow... 16Mhz / 16 = 1Mhz. for 50ksps
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
-    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == rising edge 
+    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == rising edge
     SPI_CR1_DFF_8BIT,
     SPI_CR1_MSBFIRST
   );
@@ -76,11 +76,11 @@ float spi_mcp3208_get_data(uint32_t spi, uint8_t channel)
   // turns it into 16bit value. so lower bytes are unused.
   // but should probably be 12bit.
   // eg.  return (b1 << 4) | (b2 >> 4);
-  uint16_t x = (data[1] << 8) | (data[2] );
+  uint16_t x = (data[1] << 8) | (data[2] ); // TODO doesn't look right 10bits not 12 bits?
 
-  float x2 = x / 65535.0 * 3.3;
+  float x2 = x / 65535.0 * 3.3;             // TODO doesn't look right, should be 2^12=4096
 
-  return x2; 
+  return x2;
 }
 
 
