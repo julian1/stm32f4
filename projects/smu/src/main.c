@@ -124,13 +124,14 @@ static void update_soft_500ms(app_t *app)
 */
 
 
+  // if(app->rails_print) {
 #if 0
   char buf[100];
   uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
   printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
 
 #endif
-
+  // }
 
 
 
@@ -217,6 +218,10 @@ static void update_console_cmd(app_t *app)
 
 #if 1
 
+      /* this is dangerous, because of dependencies. should remove after initial testing.
+          beshould test rails are up, first.
+      */
+
       else if( sscanf(cmd, "lp15v %lu", &u0 ) == 1) {
         mux_ice40(app->spi);
         ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
@@ -284,6 +289,22 @@ static void update_console_cmd(app_t *app)
       }
 
 
+      else if( sscanf(cmd, "sense ext %lu", &u0 ) == 1) {
+
+        if(u0) {
+          ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_INT_CTL);    // FIXME. write not set // perhaps push to own register to make exclusive.
+          ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_EXT_CTL);
+        } else {
+          ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_INT_CTL);
+          ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_EXT_CTL);
+        }
+
+      }
+
+
+
+
+
 
       else if( strcmp(cmd, "relay on") == 0) {  // output on
 
@@ -311,7 +332,7 @@ static void update_console_cmd(app_t *app)
 
       else if( strcmp(cmd, "start") == 0) {
 
-        app_start( app );
+        app_start2( app );
       }
 
       else if( strcmp( cmd , "") == 0) {
