@@ -199,14 +199,47 @@ static void update_console_cmd(app_t *app)
       }
 
 
-      // can test rails here.
-      // OK. we want to reset the fpga....
+      /*
+          OK. putting 3.3V on the dg444 input pins  and it sinks through ESD diodes of the dg444. to one of the rails.
+          if +-15V are up (even if lp5v down), then it's ok.
+          makes sense from datasheet schematic of input of dg444.
+      */
+      else if( sscanf(cmd, "dac_ref_mux %lu", &u0 ) == 1) {
+        // OK. this works. and dg444 doesn't lock up.
+        mux_ice40(app->spi);
+        ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);  // active lo
+        if(u0) {
+            printf("turn on dac_ref_mux\n" );
+            ice40_reg_write(app->spi, REG_DAC_REF_MUX, DAC_REF_MUX_A | DAC_REF_MUX_B );   // active lo
+
+          } else {
+            printf("turn off dac_ref_mux\n" );
+            ice40_reg_write(app->spi, REG_DAC_REF_MUX, ~(DAC_REF_MUX_A | DAC_REF_MUX_B)); // active lo
+
+          }
+      }
+
+
+
+
+      else if( sscanf(cmd, "rails %lu", &u0 ) == 1) {
+        // OK. this works. and dg444 doesn't lock up.
+        mux_ice40(app->spi);
+        ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);  // active lo
+        if(u0) {
+            printf("turn on both lp5v and lp5v rails\n" );
+            ice40_reg_write(app->spi, REG_RAILS, RAILS_LP5V | RAILS_LP15V);
+          } else {
+            printf("turn off both lp5v and lp5v rails\n" );
+            ice40_reg_write(app->spi, REG_RAILS, ~( RAILS_LP5V | RAILS_LP15V ) );
+          }
+      }
 
 
 
       else if( sscanf(cmd, "lp5v %lu", &u0 ) == 1) {
         mux_ice40(app->spi);
-        ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);
+        ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);  // active lo
         if(u0) {
             printf("turn on lp5v rails\n" );
             ice40_reg_set(app->spi, REG_RAILS, RAILS_LP5V);
