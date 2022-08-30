@@ -19,6 +19,20 @@
 #include "mcp3208.h"
 
 
+#if 0
+static void mpsse_xfer_spi(uint32_t spi, uint8_t *data, size_t n)
+{
+  // CAREFUL. this modifies the data...
+  // don't use static arrays .
+
+  for(size_t i = 0; i < n; ++i) {
+
+    // spi_xfer(spi, data[i]);
+    uint8_t ret = spi_xfer(spi, data[i]);
+    data[i] = ret;
+  }
+}
+#endif
 
 
 void spi_mcp3208_setup(uint32_t spi)
@@ -58,6 +72,9 @@ void spi_mcp3208_setup(uint32_t spi)
     1.0MHz   VDD = 2.7V (Note 3
 
     eg. at 2.7V, 1MHz / (3bytesx8bits=24clock) ~= 50ksps
+
+    useful example of builder code,
+      https://github.com/RobTillaart/MCP_ADC/blob/master/MCP_ADC.cpp
 */
 
 
@@ -72,13 +89,12 @@ float spi_mcp3208_get_data(uint32_t spi, uint8_t channel)
   mpsse_xfer_spi(spi, data, 3);
   spi_disable(spi);
 
-
   // turns it into 16bit value. so lower bytes are unused.
   // but should probably be 12bit.
   // eg.  return (b1 << 4) | (b2 >> 4);
-  uint16_t x = (data[1] << 8) | (data[2] ); // TODO doesn't look right 10bits not 12 bits?
+  uint16_t x = (data[1] << 8) | (data[2] );
 
-  float x2 = x / 65535.0 * 3.3;             // TODO doesn't look right, should be 2^12=4096
+  float x2 = x / 65535.0 * 3.3;
 
   return x2;
 }

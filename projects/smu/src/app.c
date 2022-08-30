@@ -123,8 +123,8 @@ void app_start2( app_t * app )
   mux_ice40(app->spi);
   // check rails monitor.
   uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
-  // char buf[10];
-  // printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
+  char buf[10];
+  printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
 
   if(val != 1) {
     printf("problem with rails monitor\n");
@@ -155,107 +155,30 @@ void app_start2( app_t * app )
   msleep(50);
 
 
-  return;
-
-
-
-#if 0
-
-  mux_ice40(app->spi);
-  uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
-
-  char buf[100];
-  printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
-
-  if(val != 0b0001 ) {
-    printf("+-15V rails not up\n");
-    app_goto_fail_state(app);  // set_fail_state() ... do a full reset...
-    return;
-  }
-
-
-  // now we would turn on 5V and +-15V.
-  printf("turn on lp5v and lp15v rails\n" );
-  ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);              // TODO should be write.
-  ice40_reg_set(app->spi, REG_RAILS, RAILS_LP5V | RAILS_LP15V);   // should be write.
-
-  msleep(50);
-#endif
-
-#if 0
-  // turn on refs for dac
-  //mux_dac(spi);
-  printf("turn on ref a for dac\n" );
-  mux_ice40(app->spi);
-  ice40_reg_write(app->spi, REG_DAC_REF_MUX, ~(DAC_REF_MUX_A | DAC_REF_MUX_B)); // active lo
-
-  msleep(50);
-#endif
-
-  // output 3V. vset.
-
-  ///////////////
-  //  dac set voltages.
-
-#if 0
-  printf("output votlage on dac0\n" );
-  mux_dac(app->spi);
-  // spi_dac_write_register(app->spi, DAC_DAC0_REGISTER, voltage_to_dac( 0.5f ) ); // 5V with atten
-  spi_dac_write_register(app->spi, DAC_DAC0_REGISTER, voltage_to_dac( 5.f ) ); // 5V with atten
-                                                                                // outputs 3.5V???
-  // remember these are not negative
-  spi_dac_write_register(app->spi, DAC_DAC1_REGISTER, voltage_to_dac( 4.f ) );
-
-  msleep(50);
 
   //////////////
   // function
   spi_mux_quadrant_set( app->spi, true, true );     // source positive voltage. max
   // spi_mux_quadrant_set( app->spi, false, false );    // source negative voltage,  min
 
-  /////////////
-  // voltage feedback
-  // select voltage sense internal
-
+ 
   // TODO.
   // move relay sense ext/in to own register. in order to do write.
   // not sure. all ext/in/out/guard relays - are user controllable. and everything should still work.
   // but exclusivity for int/ext would be good.
 
-#endif
-
-
-  ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_INT_CTL);    // FIXME. write not set // perhaps push to own register to make exclusive.
+  // sense.
+  ice40_reg_set(app->spi,   REG_RELAY_OUT, REG_RELAY_SENSE_INT_CTL);    // FIXME. write not set // perhaps push to own register to make exclusive.
   ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_EXT_CTL);
 
-#if 0
-  ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW1_CTL);       // vfb divider. set no atten
-  // ice40_reg_write(app->spi, REG_INA_VFB_ATTEN_SW, INA_VFB_ATTEN_SW2_CTL);       // vfb divider. set with atten
 
-  msleep(50);
 
-  ////////////
-  // current feedback
-  // these should all be write() not set() to be exclusive.
-
-  // use com x relay
-  ice40_reg_write(app->spi, REG_RELAY_COM, RELAY_COM_X_CTL);
-
-  // set fet switches for 1k.
-  ice40_reg_write(app->spi, REG_IRANGE_X_SW, IRANGE_X_SW4_CTL);
-
-  // set current op amp.
-  ice40_reg_write(app->spi, REG_ISENSE_MUX, ~ISENSE_MUX3_CTL); // active lo. set is high.
-
-  msleep(50);
-
-#endif
 
   // turn on output power
   // ice40_reg_set(app->spi, REG_RAILS, RAILS_LP24V | RAILS_LP50V );  // set not write
   ice40_reg_set(app->spi, REG_RAILS, RAILS_LP24V  );  // set not write
 
-  // OK. it works... to source 3V.
+  // OK. it works... to source +5V.
 
 
 }
