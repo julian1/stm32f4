@@ -105,7 +105,6 @@ void app_start2( app_t * app )
 
   msleep(50);
 
-#if 0
   // test have comms with the ice40...
 
   // dac init
@@ -117,9 +116,50 @@ void app_start2( app_t * app )
   }
 
   msleep(50);
-#endif
 
-  // should check that the 15V rails are up.
+
+  // bring up 5V and +-15V rails 
+
+  mux_ice40(app->spi);
+  // check rails monitor.
+  uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
+  // char buf[10];
+  // printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
+
+  if(val != 1) {
+    printf("problem with rails monitor\n");
+    return;
+  }  else {
+
+    printf("powerup 5V and +-15V rails and set analog switches\n");
+    ice40_reg_set(app->spi, 6 , 0 );
+    msleep(50);
+  }
+
+
+  printf("turn on ref a for dac\n" );
+  mux_ice40(app->spi);
+  ice40_reg_write(app->spi, REG_DAC_REF_MUX, ~(DAC_REF_MUX_A | DAC_REF_MUX_B)); // active lo
+
+  msleep(50);
+
+
+  printf("set dac0 outputs\n" );
+  mux_dac(app->spi);
+  // spi_dac_write_register(app->spi, DAC_DAC0_REGISTER, voltage_to_dac( 0.5f ) ); // 5V with atten
+  spi_dac_write_register(app->spi, DAC_DAC0_REGISTER, voltage_to_dac( 5.f ) ); // 5V with atten
+                                                                                // outputs 3.5V???
+  // remember these are not negative
+  spi_dac_write_register(app->spi, DAC_DAC1_REGISTER, voltage_to_dac( 4.f ) );
+
+  msleep(50);
+
+
+  return;
+
+
+
+#if 0
 
   mux_ice40(app->spi);
   uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
@@ -140,6 +180,7 @@ void app_start2( app_t * app )
   ice40_reg_set(app->spi, REG_RAILS, RAILS_LP5V | RAILS_LP15V);   // should be write.
 
   msleep(50);
+#endif
 
 #if 0
   // turn on refs for dac

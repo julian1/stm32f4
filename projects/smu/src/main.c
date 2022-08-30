@@ -217,6 +217,8 @@ static void update_console_cmd(app_t *app)
 
 
       else if(strcmp(cmd, "powerup") == 0) {
+
+        // ok without dac being initialized?
         // powerup 5 and +-15V rails and set analog switches
 
         printf("powerup ice40\n");
@@ -234,7 +236,7 @@ static void update_console_cmd(app_t *app)
         }
       }
 
-
+#if 0
 
 
       /*
@@ -260,9 +262,6 @@ static void update_console_cmd(app_t *app)
           }
       }
 
-
-
-
       else if( sscanf(cmd, "rails %lu", &u0 ) == 1) {
         // OK. this works. and dg444 doesn't lock up.
         mux_ice40(app->spi);
@@ -276,8 +275,6 @@ static void update_console_cmd(app_t *app)
           }
       }
 
-
-
       else if( sscanf(cmd, "lp5v %lu", &u0 ) == 1) {
         mux_ice40(app->spi);
         ice40_reg_clear(app->spi, REG_RAILS_OE, RAILS_OE);  // active lo
@@ -289,6 +286,7 @@ static void update_console_cmd(app_t *app)
             ice40_reg_clear(app->spi, REG_RAILS, RAILS_LP5V);
           }
       }
+#endif
 
 #if 1
 
