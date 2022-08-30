@@ -217,6 +217,7 @@ static void update_console_cmd(app_t *app)
 
 
       else if(strcmp(cmd, "powerup") == 0) {
+        // powerup 5 and +-15V rails and set analog switches
 
         printf("powerup ice40\n");
         mux_ice40(app->spi);
@@ -227,7 +228,6 @@ static void update_console_cmd(app_t *app)
         // printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
 
         if(val == 1) {
-          // powerup rails and set analog switches
           ice40_reg_set(app->spi, 6 , 0 );
         }  else {
           printf("problem with rails monitor\n");
