@@ -190,6 +190,23 @@ static void update_console_cmd(app_t *app)
         scb_reset_system();
       }
 
+
+
+      else if(strcmp(cmd, "mon") == 0) {
+
+        // this will powerdown rails
+        mux_ice40(app->spi);
+        uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
+        char buf[10];
+        printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
+
+      }
+
+
+
+
+
+
       else if(strcmp(cmd, "reset") == 0) {
 
         // this will powerdown rails
@@ -201,10 +218,20 @@ static void update_console_cmd(app_t *app)
 
       else if(strcmp(cmd, "powerup") == 0) {
 
-        // this will powerdown rails
         printf("powerup ice40\n");
         mux_ice40(app->spi);
-        ice40_reg_set(app->spi, 6 , 0 );
+
+        // check rails monitor.
+        uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
+        // char buf[10];
+        // printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
+
+        if(val == 1) {
+          // powerup rails and set analog switches
+          ice40_reg_set(app->spi, 6 , 0 );
+        }  else {
+          printf("problem with rails monitor\n");
+        }
       }
 
 
