@@ -199,10 +199,24 @@ static void update_console_cmd(app_t *app)
       }
 
 
+      else if(strcmp(cmd, "powerup") == 0) {
+
+        // this will powerdown rails
+        printf("powerup ice40\n");
+        mux_ice40(app->spi);
+        ice40_reg_set(app->spi, 6 , 0 );
+      }
+
+
+
+
       /*
           OK. putting 3.3V on the dg444 input pins  and it sinks through ESD diodes of the dg444. to one of the rails.
-          if +-15V are up (even if lp5v down), then it's ok.
-          makes sense from datasheet schematic of input of dg444.
+          - if +-15V are up (even if lp5v down), then it's ok.
+              makes sense from datasheet schematic of input of dg444.
+          - if +-15V disconnected at bench supply. still have problem.
+          ---
+
       */
       else if( sscanf(cmd, "dac_ref_mux %lu", &u0 ) == 1) {
         // OK. this works. and dg444 doesn't lock up.
