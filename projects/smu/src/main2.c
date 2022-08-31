@@ -1804,16 +1804,16 @@ static void quadrant_set( app_t *app, bool v, bool i)
 
   mux_ice40(app->spi);
 
-  uint32_t vv = v ? CLAMP1_VSET_INV : CLAMP1_VSET;
-  uint32_t ii = i ? CLAMP1_ISET_INV : CLAMP1_ISET;
+  uint32_t vv = v ? MUX_POL_VSET_INV : MUX_POL_VSET;
+  uint32_t ii = i ? MUX_POL_ISET_INV : MUX_POL_ISET;
 
 
-  ice40_reg_write(app->spi, REG_CLAMP1, ~(vv | ii ));
+  ice40_reg_write(app->spi, REG_MUX_POL, ~(vv | ii ));
 
   // rembmer inverse
-  uint32_t minmax = v ? CLAMP2_MAX : CLAMP2_MIN;
+  uint32_t minmax = v ? MUX_SEL_MAX : MUX_SEL_MIN;
 
-  ice40_reg_write(app->spi, REG_CLAMP2, ~( minmax ) );     // min of current or voltage
+  ice40_reg_write(app->spi, REG_MUX_SEL, ~( minmax ) );     // min of current or voltage
 }
 
 

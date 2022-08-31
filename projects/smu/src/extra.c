@@ -53,16 +53,16 @@
 
     #if 0
         // source -ve current/voltage.
-        // should be write(  ~CLAMP1_VSET | CLAMP1_ISET) etc.
-        ice40_reg_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET | CLAMP1_ISET);    // inv for +ve voltage, non invert for negative
-        ice40_reg_clear(spi, CLAMP2_REGISTER, CLAMP2_MIN);             // max.   for source +ve voltage, min for source -ve voltage
+        // should be write(  ~MUX_POL_VSET | MUX_POL_ISET) etc.
+        ice40_reg_clear(spi, MUX_POL_REGISTER, MUX_POL_VSET | MUX_POL_ISET);    // inv for +ve voltage, non invert for negative
+        ice40_reg_clear(spi, MUX_SEL_REGISTER, MUX_SEL_MIN);             // max.   for source +ve voltage, min for source -ve voltage
     #endif
 
     #if 0
         // sourcing, charging adc val 1.616501V
         // source +ve current/voltage.
-        ice40_reg_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV | CLAMP1_ISET_INV);
-        ice40_reg_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);
+        ice40_reg_clear(spi, MUX_POL_REGISTER, MUX_POL_VSET_INV | MUX_POL_ISET_INV);
+        ice40_reg_clear(spi, MUX_SEL_REGISTER, MUX_SEL_MAX);
     #endif
 
 
@@ -71,8 +71,8 @@
         // but I don't think V is set correctly
         // except I think V set would have to be negative as well to hold.
         // not sure. set it to 1V and it works. but it goes out of range?
-        ice40_reg_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV | CLAMP1_ISET);
-        ice40_reg_clear(spi, CLAMP2_REGISTER, CLAMP2_MAX);
+        ice40_reg_clear(spi, MUX_POL_REGISTER, MUX_POL_VSET_INV | MUX_POL_ISET);
+        ice40_reg_clear(spi, MUX_SEL_REGISTER, MUX_SEL_MAX);
 #endif
 
 
@@ -98,12 +98,12 @@
 
         // new approach where fb is always active/routed through.
         // 3V sig-gen. vset=4V, Iset=2V.
-        // ice40_reg_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET_INV); // active lo. works. 3V -4V = -1V  source a positive voltage.
-        ice40_reg_clear(spi, CLAMP1_REGISTER, CLAMP1_VSET);     // active lo. works. 3V +4V = 7V.  source a negative voltage.
+        // ice40_reg_clear(spi, MUX_POL_REGISTER, MUX_POL_VSET_INV); // active lo. works. 3V -4V = -1V  source a positive voltage.
+        ice40_reg_clear(spi, MUX_POL_REGISTER, MUX_POL_VSET);     // active lo. works. 3V +4V = 7V.  source a negative voltage.
         // nothing.                                                              3V * 2= 6V
 
-        // ice40_reg_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET_INV); // active lo. works. 3V -2V = 1V
-        ice40_reg_clear(spi, CLAMP1_REGISTER, CLAMP1_ISET);     // active lo. works. 3V +2V = 5V
+        // ice40_reg_clear(spi, MUX_POL_REGISTER, MUX_POL_ISET_INV); // active lo. works. 3V -2V = 1V
+        ice40_reg_clear(spi, MUX_POL_REGISTER, MUX_POL_ISET);     // active lo. works. 3V +2V = 5V
         // nothing.                                                              3V * 2 = 6V.
         // with no clamps open. we get VERR and IERR = 0. GOOD!!!. makes it easy, to test/use comparison
         // this also means can pass vfb (or vfb_inv) straight through to hold output at 0. (x2 doesn't matter, on integrator).

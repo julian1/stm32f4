@@ -57,17 +57,17 @@ extern void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t
 
 // dropping the _ctl, suffix?
 // order follows dg444 pin order
-#define REG_CLAMP1        15
-#define CLAMP1_VSET       (1<<0)
-#define CLAMP1_ISET       (1<<1)
-#define CLAMP1_ISET_INV   (1<<2)
-#define CLAMP1_VSET_INV   (1<<3)
+#define REG_MUX_POL        15
+#define MUX_POL_VSET       (1<<0)
+#define MUX_POL_ISET       (1<<1)
+#define MUX_POL_ISET_INV   (1<<2)
+#define MUX_POL_VSET_INV   (1<<3)
 
-#define REG_CLAMP2        16
-#define CLAMP2_MIN        (1<<0)
-#define CLAMP2_INJECT_ERR (1<<1)
-#define CLAMP2_INJECT_VFB (1<<2)
-#define CLAMP2_MAX        (1<<3)
+#define REG_MUX_SEL        16
+#define MUX_SEL_MIN        (1<<0)
+#define MUX_SEL_INJECT_ERR (1<<1)
+#define MUX_SEL_INJECT_VFB (1<<2)
+#define MUX_SEL_MAX        (1<<3)
 
 
 #define REG_RELAY_COM    17
