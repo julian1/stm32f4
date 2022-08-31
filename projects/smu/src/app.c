@@ -158,6 +158,7 @@ void app_start2( app_t * app )
 
   //////////////
   // function
+  printf("set quadrant\n" );
   spi_mux_quadrant_set( app->spi, true, true );     // source positive voltage. max
   // spi_mux_quadrant_set( app->spi, false, false );    // source negative voltage,  min
 
@@ -168,6 +169,7 @@ void app_start2( app_t * app )
   // but exclusivity for int/ext would be good.
 
   // sense.
+  printf("set voltage sense ext\n" );
   ice40_reg_set(app->spi,   REG_RELAY_OUT, REG_RELAY_SENSE_INT_CTL);    // FIXME. write not set // perhaps push to own register to make exclusive.
   ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_EXT_CTL);
 
@@ -175,6 +177,7 @@ void app_start2( app_t * app )
 
 
   // turn on output power
+  printf("turn on output power\n" );
   // ice40_reg_set(app->spi, REG_RAILS, RAILS_LP24V | RAILS_LP50V );  // set not write
   ice40_reg_set(app->spi, REG_RAILS, RAILS_LP24V  );  // set not write
 
@@ -310,6 +313,7 @@ void app_start( app_t * app )
 
 
 
+  printf("set voltage sense ext\n" );
   ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_INT_CTL);    // FIXME. write not set // perhaps push to own register to make exclusive.
   ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_EXT_CTL);
 
@@ -336,6 +340,8 @@ void app_start( app_t * app )
 
 
   // turn on output power
+
+  printf("turn on power\n" );
   // ice40_reg_set(app->spi, REG_RAILS, RAILS_LP24V | RAILS_LP50V );  // set not write
   ice40_reg_set(app->spi, REG_RAILS, RAILS_LP24V  );  // set not write
 
