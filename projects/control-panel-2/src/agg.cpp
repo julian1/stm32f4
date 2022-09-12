@@ -84,7 +84,7 @@ void drawSpans( rb_t & rb, int dx, int dy,  const agg::rgba &color,  const uint8
     switch(*p) {
 
       case (0x01 << 7):   {
-        // usart_printf("got blend_solid_hspan\n");
+        // printf("got blend_solid_hspan\n");
 
         // void blend_solid_hspan(int x, int y, unsigned len, const color_type& c, const int8u* covers)
         p++;
@@ -102,7 +102,7 @@ void drawSpans( rb_t & rb, int dx, int dy,  const agg::rgba &color,  const uint8
       }
 
       case (0x01 << 6):   {
-        // usart_printf("got blend_hline\n");
+        // printf("got blend_hline\n");
         // void blend_hline(int x, int y, unsigned len, const color_type& c, int8u cover)
         p++;
         int x = (int8_t)*p++;
@@ -125,7 +125,7 @@ void drawSpans( rb_t & rb, int dx, int dy,  const agg::rgba &color,  const uint8
       }
 
       default:
-        usart_printf("bad command in drawSpans()\n");
+        printf("bad command in drawSpans()\n");
         assert(0);
 
     }

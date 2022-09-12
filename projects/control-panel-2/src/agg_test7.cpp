@@ -67,8 +67,8 @@ static void draw_test1(Curses &a )
 
   char buf[100];
 
-  // usart_printf("rotary %d   ", rotary  );    // weird always 0...
-  // usart_printf("rotary mod 16 %d\n", (rotary / 4 ) %  4  );
+  // printf("rotary %d   ", rotary  );    // weird always 0...
+  // printf("rotary mod 16 %d\n", (rotary / 4 ) %  4  );
 
 
 
@@ -208,11 +208,11 @@ static void draw_test4(Curses &a )
   // IMOPRTCursesNT negative numbers are really not working well. because of modulo?
   int16_t rotary = 3; // timer_get_counter(TIM1) ;
 
-  // usart_printf("%d %d %d\n", rotary, rotary_last , (rotary - rotary_last) );
+  // printf("%d %d %d\n", rotary, rotary_last , (rotary - rotary_last) );
 
   // negative numbers go modulo in negative direction....
 
-  usart_printf("%d \n", (rotary / 4) % 10 );
+  printf("%d \n", (rotary / 4) % 10 );
 
   // directly coupling
   buf[ 3 ] = '0' + (rotary / 4) % 10;
@@ -321,7 +321,7 @@ extern "C" int agg_test7( Curses & a, int arg)
   }
 
   int blink = (system_millis / 500) % 2;
-  // usart_printf("blink %u\n", blink );
+  // printf("blink %u\n", blink );
 
 
   render( a , rb,  blink );
@@ -330,15 +330,15 @@ extern "C" int agg_test7( Curses & a, int arg)
   // draw_test_charset( a, rb );
 
 
-  // usart_printf("draw time  %u\n", system_millis - start);
+  // printf("draw time  %u\n", system_millis - start);
   // last_draw_time = system_millis - start;
 
-  // usart_printf("done drawSpans() \n");
+  // printf("done drawSpans() \n");
 
 
   // lcd synchronization, wait until not in vertical blanking mode
   while( getTear() ) {
-    // usart_printf("tear hi\n" );
+    // printf("tear hi\n" );
   };
 
 

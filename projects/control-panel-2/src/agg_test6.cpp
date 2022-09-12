@@ -71,7 +71,7 @@ extern "C" int agg_test6()
   // justk
 
 
-  // usart_printf("addr of arial_span_72 %p\n" , & arial_span_72 );
+  // printf("addr of arial_span_72 %p\n" , & arial_span_72 );
   // but if we try to do the large text it fails.
   drawSpanText(rb,  arial_span_72,    50, 100 , agg::rgba(0,0,1), "7.14159" );
 
@@ -79,14 +79,14 @@ extern "C" int agg_test6()
   drawSpanText(rb,  arial_span_18,    50, 150 , agg::rgba(0,1,0), "7.000V" );
 
 
-  usart_printf("draw time  %u\n", system_millis - start);
+  printf("draw time  %u\n", system_millis - start);
 
-  // usart_printf("done drawSpans() \n");
+  // printf("done drawSpans() \n");
 
 
   // lcd synchronization, wait until not in vertical blanking mode
   while( getTear() ) {
-    // usart_printf("tear hi\n" );
+    // printf("tear hi\n" );
   };
 
 

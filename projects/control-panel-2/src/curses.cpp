@@ -226,7 +226,7 @@ Curses::Curses(
 
   /////////
 
-  usart_printf("stride=%u, ny=%u\n" , stride, ny);
+  printf("stride=%u, ny=%u\n" , stride, ny);
 
   clear( *this );
 
@@ -319,7 +319,7 @@ void down( Curses &a, int dy)
 
 void color_pair_idx( Curses &a, uint8_t color_pair_idx )
 {
-  // usart_printf("setting cursor_color_pair %u\n", color_pair_idx );
+  // printf("setting cursor_color_pair %u\n", color_pair_idx );
   a.cursor_color_pair_idx = color_pair_idx;
 }
 
@@ -388,7 +388,7 @@ void text( Curses &a, const char *s)
 
   assert(dir == 1 || dir == -1);
 
-  // usart_printf("char before '%c'   ", *s );
+  // printf("char before '%c'   ", *s );
   unsigned len = strlen(s);
   if(dir < 0) {
     // position at end

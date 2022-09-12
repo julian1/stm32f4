@@ -243,7 +243,7 @@ static void update_console_cmd(app_t *app)
       cStringClear( &app->command);
 
       // issue new command prompt
-      usart_printf("> ");
+      printf("> ");
     }
   }
 }
@@ -274,7 +274,7 @@ static void update_ui_events_in(app_t *app)
       && cBufPeekFirst(&app->ui_events_in) == ui_events_rotary_change)
       continue;
 
-    // usart_printf("main got ui event %d\n", event );
+    // printf("main got ui event %d\n", event );
 
     app->menu_controller.event( event );
 
@@ -314,14 +314,14 @@ static void lcd_render( Curses & curses, Curses & curses2)
 
   ////////////////////////////////////
   int blink = (system_millis / 500) % 2;
-  // usart_printf("blink %u\n", blink );
+  // printf("blink %u\n", blink );
 
   render( curses , rb,  blink );
   render( curses2 , rb,  blink );
 
   // lcd synchronization, wait until not in vertical blanking mode
   while( getTear() ) {
-    // usart_printf("tear hi\n" );
+    // printf("tear hi\n" );
   };
 
   // flip the newly drawn page in
@@ -335,9 +335,9 @@ static void lcd_render( Curses & curses, Curses & curses2)
 static void loop(app_t *app)  // TODO change to a c++ reference
 {
 
-  usart_printf("=========\n");
-  usart_printf("loop\n");
-  usart_printf("> ");
+  printf("=========\n");
+  printf("loop\n");
+  printf("> ");
 
 
   // TODO move to app_t structure?.
@@ -358,17 +358,18 @@ static void loop(app_t *app)  // TODO change to a c++ reference
     if( (system_millis - soft_500ms) > 500) {
       soft_500ms += 500;
       led_toggle();
-      // usart_printf("here\n");
+      // printf("here\n");
       // LCD_Read_DDB();
 
 
       // int count = timer_get_counter(TIM1);
-      // usart_printf("timer count %u\n", count);
+      // printf("timer count %u\n", count);
 
 
     }
 
 
+#if 0
     // curses2.render( Curses &a, rb_t &rb, bool blink );
 
     // render( curses2, rb_t &rb, bool blink );
@@ -379,6 +380,7 @@ static void loop(app_t *app)  // TODO change to a c++ reference
 
     lcd_render( app->curses, app->curses2  );
 
+#endif
 
 
 
@@ -517,7 +519,18 @@ int main(int arg0)
 
 
   // led
-  led_setup();
+  // led_setup();
+// #define LED_PORT  GPIOA
+// #define LED_OUT   GPIO9
+// stm32f407 ...
+#define LED_PORT  GPIOB
+#define LED_OUT   GPIO4 
+
+
+
+  led_setup(LED_PORT, LED_OUT);
+
+
 
 
   // ***********
@@ -543,16 +556,22 @@ int main(int arg0)
   // initialize usart before start all the app constructors, so that can print.
   // uart
   // usart_setup_gpio_portA();
-  usart_setup_gpio_portB();
+  // usart_setup_gpio_portB();
+  usart1_setup_gpio_portB();
 
-  usart_set_buffers(&console_in, &console_out);
+  usart1_set_buffers(&console_in, &console_out);
 
   // standard streams for printf, fprintf, putc.
-  init_std_streams( &console_out );
+  // cbuf_init_std_streams( &console_out );
+
+  cbuf_init_stdout_streams(  &console_out );
+  cbuf_init_stdin_streams( &console_in );
 
 
-  usart_printf("\n--------\n");
-  usart_printf("addr main() %p\n", main );
+
+
+  printf("\n--------\n");
+  printf("addr main() %p\n", main );
 
   // ram growing up.
   printf("arg0 %u \n", ((unsigned )(void *) &arg0 )  );
@@ -716,21 +735,21 @@ int main(int arg0)
 
 
 
-  usart_printf("\n--------\n");
+  printf("\n--------\n");
 /*
-  usart_printf("starting loop\n");
-  usart_printf("sizeof bool   %u\n", sizeof(bool));
-  usart_printf("sizeof float  %u\n", sizeof(float));
-  usart_printf("sizeof double %u\n", sizeof(double));
+  printf("starting loop\n");
+  printf("sizeof bool   %u\n", sizeof(bool));
+  printf("sizeof float  %u\n", sizeof(float));
+  printf("sizeof double %u\n", sizeof(double));
 */
 
-  // usart_printf("sizeof setjmp %u\n", sizeof(setjmp)); // 1.
+  // printf("sizeof setjmp %u\n", sizeof(setjmp)); // 1.
 
   // test assert failure
   // assert(1 == 2);
-  usart_printf("a float formatted %g\n", 123.456f );
+  printf("a float formatted %g\n", 123.456f );
 
-  usart_flush();
+  usart1_flush();
 
   // set program to run
   app.program = 9;

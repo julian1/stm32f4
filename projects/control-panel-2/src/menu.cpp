@@ -43,7 +43,7 @@ static size_t dot_position( char *s )
 
 void PageController::set_value(Item **items_, unsigned n_ )
 {
-  usart_printf("page_controller - set_value()\n");
+  printf("page_controller - set_value()\n");
   assert(items_);
 
   items = items_;
@@ -60,7 +60,7 @@ void PageController::set_value(Item **items_, unsigned n_ )
 void PageController::begin_edit(int32_t rotary)
 {
 
-  usart_printf("page_controller - begin_edit() set to %d\n", rotary_begin);
+  printf("page_controller - begin_edit() set to %d\n", rotary_begin);
 
   rotary_begin = rotary - idx;    // remember position from last time. works.
   focus = true;
@@ -75,7 +75,7 @@ void PageController::finish_edit(int32_t rotary)
 void PageController::rotary_change(int32_t rotary)
 {
 
-  usart_printf("page_controller - rotary_change\n");
+  printf("page_controller - rotary_change\n");
 
   this->idx = rotary - this->rotary_begin;
 
@@ -120,7 +120,7 @@ void PageController::rotary_change(int32_t rotary)
 
 void ListController::set_value( Item *item_ )
 {
-  usart_printf("list_controller - set_value()\n");
+  printf("list_controller - set_value()\n");
 
 
 /*
@@ -143,12 +143,12 @@ void ListController::set_value( Item *item_ )
 
 void ListController::begin_edit(int32_t rotary)
 {
-  usart_printf("list controller begin_edit()  idx=%d rotary=%d\n", idx, rotary);
+  printf("list controller begin_edit()  idx=%d rotary=%d\n", idx, rotary);
 
   rotary_begin = rotary - idx;    // remember position
                                   // from last time. works.
 
-  usart_printf("rotary_begin set to %d\n", rotary_begin);
+  printf("rotary_begin set to %d\n", rotary_begin);
 
   focus = true;
 }
@@ -156,7 +156,7 @@ void ListController::begin_edit(int32_t rotary)
 
 void ListController::finish_edit(int32_t rotary)
 {
-  usart_printf("list controller finish_edit()\n");
+  printf("list controller finish_edit()\n");
 
   focus = false;
 }
@@ -186,7 +186,7 @@ void ListController::rotary_change(int32_t rotary)
     return;
   }
 
-  usart_printf("list controller rotary_change()  idx = %d\n", idx    );
+  printf("list controller rotary_change()  idx = %d\n", idx    );
 
   // set the active value
   digit_controller.set_value ( & item->values[ idx ] );
@@ -217,21 +217,21 @@ void ElementController::begin_edit(int32_t rotary)
   // value_begin = value;
   focus = 1;
 
-  // usart_printf("element controller begin_edit() - value_begin=%f\n", value_begin);
-  usart_printf("element controller begin_edit()\n");
+  // printf("element controller begin_edit() - value_begin=%f\n", value_begin);
+  printf("element controller begin_edit()\n");
 
   // OK. this works. when return to an edit.
   rotary_begin = idx + rotary;
 
-  usart_printf("rotary_begin %d\n", rotary_begin );
-  usart_printf("idx          %d\n", idx );
+  printf("rotary_begin %d\n", rotary_begin );
+  printf("idx          %d\n", idx );
 }
 
 
 
 void ElementController::finish_edit(int32_t rotary)
 {
-  usart_printf("element controller finish_edit() \n");
+  printf("element controller finish_edit() \n");
   focus = 0;
 }
 
@@ -239,11 +239,11 @@ void ElementController::finish_edit(int32_t rotary)
 
 void ElementController::rotary_change(int32_t rotary)
 {
-  usart_printf("element controller rotary_change() rotary %d\n", rotary );
+  printf("element controller rotary_change() rotary %d\n", rotary );
 
   this->idx = this->rotary_begin - rotary ;   // negative, because dot position is negative
 
-  usart_printf("idx  %d\n", this->idx );
+  printf("idx  %d\n", this->idx );
 
 }
 
@@ -261,7 +261,7 @@ void ElementController::rotary_change(int32_t rotary)
 */
 void DigitController::begin_edit(int32_t rotary)
 {
-  usart_printf("digit controller begin_edit()\n");
+  printf("digit controller begin_edit()\n");
   rotary_begin = rotary;
   focus = true;
 
@@ -288,7 +288,7 @@ void DigitController::begin_edit(int32_t rotary)
 
 void DigitController::finish_edit(int32_t rotary)
 {
-  usart_printf("digit controller finish_edit()\n");
+  printf("digit controller finish_edit()\n");
 
   focus = false;
 }
@@ -298,7 +298,7 @@ void DigitController::finish_edit(int32_t rotary)
 void DigitController::set_value( Value * value_ )
 // void DigitController::set_value( double * value_ )
 {
-  usart_printf("digit_controller - set_value()\n");
+  printf("digit_controller - set_value()\n");
 
   assert(value_);
   value = value_;
@@ -324,7 +324,7 @@ void DigitController::rotary_change(int32_t rotary)
   int32_t delta = rotary - this->rotary_begin;
 
 
-  usart_printf("digit controller rotary_change()  idx=%d delta=%d  value=%f\n", this->idx, delta, this->value );
+  printf("digit controller rotary_change()  idx=%d delta=%d  value=%f\n", this->idx, delta, this->value );
 
   // assert( this->value  );
   // * this->value = value_float_edit(this->value_begin, this->idx, delta );
@@ -441,8 +441,8 @@ void MenuController::event(int event_)
 
   }
 
-  // usart_printf("menu controller event %ld\n", event_);
-  // usart_printf("new active controller %ld\n", this->active_controller );
+  // printf("menu controller event %ld\n", event_);
+  // printf("new active controller %ld\n", this->active_controller );
 }
 
 

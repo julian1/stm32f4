@@ -31,21 +31,21 @@ extern "C" int agg_test2()
   // agg::renderer_base<pixfmt_t>   rb(pixf);
 
   while( ! getTear() ); // wait for tear to go high...
-  // usart_printf("t_irq %u\n", getTear()  );
+  // printf("t_irq %u\n", getTear()  );
 
   uint32_t start;
 
   start = system_millis;
   rb.clear(agg::rgba(1,1,1));     // white .
 
-  usart_printf("rb.clear() %ums\n", system_millis - start );
+  printf("rb.clear() %ums\n", system_millis - start );
 
 
   // EXTR. this is a clear/fillRect that is not subpixel, and simple.
   // see, agg_renderer_base.h.
   start = system_millis;
   rb.copy_bar(20, 20, 100, 200, agg::rgba(0,1,0));
-  usart_printf("copy_bar()  %ums\n", system_millis - start );
+  printf("copy_bar()  %ums\n", system_millis - start );
 
   // EXTR. IMPORTANT confirm we have floating point enabled.
   // looks ok.
@@ -326,7 +326,7 @@ static void drawText(rb_t & rb , agg::trans_affine &mtx, const char *s)
     }
 
 
-    usart_printf("agg text draw %ums\n", system_millis - start );
+    printf("agg text draw %ums\n", system_millis - start );
 
 
 }
