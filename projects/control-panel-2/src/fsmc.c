@@ -31,9 +31,15 @@
   Also old bodge was tied to interupt of xt2046.
 */
 
+/*
 // Mapped to spi2 nss2 unused. using bodge wire.  ssd1963 TE tear interupt pin.
 #define TEAR_PORT           GPIOB
 #define TEAR_IRQ            GPIO9
+*/
+
+// control-panel-2 / spectra184
+#define TEAR_PORT           GPIOE
+#define TEAR_IRQ            GPIO3
 
 
 

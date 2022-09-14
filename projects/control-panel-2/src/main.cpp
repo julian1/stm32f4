@@ -382,7 +382,8 @@ static void loop(app_t *app)  // TODO change to a c++ reference
 
 #endif
 
-
+  // agg_test2(); // these are not working.. because it's waiting for the tear command???
+  agg_test5(); // now working. when change tear???
 
 #if 0
   // memory issues somewhere
@@ -397,7 +398,8 @@ static void loop(app_t *app)  // TODO change to a c++ reference
       case 6: agg_test6(); break; // ok.
       case 7: agg_test7( app->curses, app->program_arg ); break;  // just linking breaks stuff. because of the size of static Curses  structure
       case 8: agg_test8( app->curses ); break;  // ok
-      case 9: app->menu_controller.draw(); break;
+
+      // case 9: app->menu_controller.draw(); break;
 
       // todo get working.
       // case 10: draw_test1(app->curses );
