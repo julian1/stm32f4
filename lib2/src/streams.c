@@ -1,4 +1,14 @@
+/*
 
+  Good error / reporting idea, alternative to stack trace,
+
+Just log/fprintf to a circular buffer. Which is ordinarily silent, but then flush to stdout/spi flash on assert.
+Just need to override stream buffer implematation
+
+void my_logger( FILE **circbuffer, __FILE__, __LINE___, const char **msg) ;
+#define logger(f, msg)   my_logger( f, __FILE__, __LINE_, msg)
+
+*/
 
 
 // MUST BE FIRST...
@@ -194,10 +204,10 @@ static ssize_t myread(Cookie *cookie, char *buf, size_t sz)
   */
   assert(cookie);
 
-  // so if we want block / no block sync...  
+  // so if we want block / no block sync...
 
-  /* 
-    the issue with blocking here is that it won't pump update() 
+  /*
+    the issue with blocking here is that it won't pump update()
   */
 
   return cBufRead( cookie->circ_buf, buf, sz);
