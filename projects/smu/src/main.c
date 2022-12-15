@@ -98,51 +98,49 @@ static void update_soft_500ms(app_t *app)
 {
   UNUSED(app);
 
+
+}
+
+
+static void update_soft_stress_test_50ms(app_t *app)
+{
   static bool led_state = 0;
   led_state = ! led_state;
 
   // blink the fpga led
   mux_ice40(app->spi);
 
-  // ice40_reg_toggle(app->spi, REG_LED, LED1);
-  led_state ? ice40_reg_set(app->spi, REG_LED, LED2)
-        : ice40_reg_clear(app->spi, REG_LED, LED2);
+  printf("soft update %u\n", led_state);
+  // msleep( 10 );
 
-  // small problem. that when ice40 is powered down we get high signal.
-  // So for rails we should check high bits are 0.
-
+  if(led_state)
+    ice40_reg_set(app->spi, REG_LED,   LED0 |  LED2 | LED3 );
+  else
+    ice40_reg_clear(app->spi, REG_LED, LED0 | LED1 | LED2 | LED3 );
 
   // blink stm32/mcu led
-  // led_toggle();
   led_set( led_state );
 
-
-/*
-  uint8_t val = ice40_reg_read( app->spi, REG_LED );
-  // printf("  val %u", val );
-  printf("reg_led read bits %s\n", format_bits(buf, 4, val) );
-*/
-
-
-  // if(app->rails_print) {
-#if 0
   char buf[100];
-  uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
-  printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
+  uint8_t val;
 
-#endif
-  // }
+  val = ice40_reg_read( app->spi, REG_LED );
+  printf("reg_led read bits %s\n", format_bits(buf, 4, val) );
 
+  if(led_state && val !=  (LED0 |  LED2 | LED3 ) ) {
+    printf("*** error\n" );
+    critical_error_blink();
+  }
 
+  if(!led_state && (val !=   0 ) ) {
+    printf("*** error\n" );
+    critical_error_blink();
+  }
 
-/*
-  // try w25 chip
-  mux_w25(app->spi);
-  msleep(20);
-  spi_w25_get_data(app->spi);
-*/
+  ice40_reg_set(app->spi, REG_SPI_MUX,   0x5 );
 
-
+  val = ice40_reg_read( app->spi, REG_SPI_MUX);
+  printf("reg_spi_mux read bits %u %s\n", val, format_bits(buf, 8, val) );
 }
 
 
@@ -201,10 +199,6 @@ static void update_console_cmd(app_t *app)
         printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
 
       }
-
-
-
-
 
 
       else if(strcmp(cmd, "reset") == 0) {
@@ -457,6 +451,7 @@ static void update_console_cmd(app_t *app)
 static void loop(app_t *app)
 {
   // move this into the app var structure ?.
+  static uint32_t soft_50ms = 0;
   static uint32_t soft_500ms = 0;
   static uint32_t soft_1s = 0;
 
@@ -486,9 +481,17 @@ static void loop(app_t *app)
     update_console_cmd(app);
 
 
+
+    // 50ms soft timer. should handle wrap around
+    if( (system_millis - soft_50ms) > 50) {
+      soft_50ms += 50;
+      update_soft_stress_test_50ms(app);
+    }
+
+
     // 500ms soft timer. should handle wrap around
-    if( (system_millis - soft_500ms) > 500) {
-      soft_500ms += 500;
+    if( (system_millis - soft_500ms) > 50) {
+      soft_500ms += 50;
       update_soft_500ms(app);
     }
 

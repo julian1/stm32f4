@@ -14,10 +14,10 @@ extern void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t
 
 
 #define REG_LED         7
-#define LED1            (1<<0)
-#define LED2            (1<<1)
-// #define LED3            (1<<2)
-// #define LED4            (1<<3)
+#define LED0            (1<<0)
+#define LED1            (1<<1)
+#define LED2            (1<<2)
+#define LED3            (1<<3)
 
 
 #define REG_SPI_MUX     8
