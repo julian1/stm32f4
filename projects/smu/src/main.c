@@ -109,6 +109,8 @@ static void update_soft_500ms(app_t *app)
   else
     ice40_reg_clear(app->spi, REG_LED, LED0 /*| LED1 | LED2 | LED3 */);
 
+  // blink mcu led
+  led_set( led_state );
 }
 
 
@@ -130,7 +132,7 @@ static void update_soft_stress_test_50ms(app_t *app)
   else
     ice40_reg_clear(app->spi, REG_LED, LED0 | LED1 | LED2 | LED3 );
 
-  // blink stm32/mcu led
+  // blink mcu led
   led_set( led_state );
 
   char buf[100];
