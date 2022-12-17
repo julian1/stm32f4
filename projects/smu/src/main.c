@@ -123,7 +123,7 @@ static void update_soft_500ms(app_t *app)
   val1 = ice40_reg_read( app->spi, REG_LED );
   printf("led read bits %u %s\n", val1, format_bits(buf, 8, val1) );
 
-  if(val0 != val1) 
+  if(val0 != val1)
     printf("different\n");
 
 
@@ -139,7 +139,7 @@ static void update_soft_500ms(app_t *app)
   mux_4094(app->spi);
   spi_4094_reg_write(app->spi , 0b01010101 );
 
-  // msleep(1);    // if we put a sleep here we get a diffferent read value????? 
+  // msleep(1);    // if we put a sleep here we get a diffferent read value?????
 
   /*
   // perhaps the action of reading is also setting the value????
@@ -157,7 +157,7 @@ static void update_soft_500ms(app_t *app)
 
   val = ice40_reg_read( app->spi, REG_SPI_MUX);
   printf("reg_spi_mux read bits %u %s\n", val, format_bits(buf, 8, val) );
-  
+
   msleep(1);
 
   val = ice40_reg_read( app->spi, REG_SPI_MUX);
@@ -190,15 +190,14 @@ static void update_soft_stress_test_2_50ms( app_t *app)
   char buf[100];
   uint8_t val0, val1 ;
 
-  val0 = ice40_reg_read( app->spi, REG_LED ) & 0b1111;
+  val0 = ice40_reg_read( app->spi, REG_LED );
   printf("led read bits %u %s\n", val0, format_bits(buf, 8, val0) );
 
-  val1 = ice40_reg_read( app->spi, REG_LED ) & 0b1111  ;
+  val1 = ice40_reg_read( app->spi, REG_LED );
   printf("led read bits %u %s\n", val1, format_bits(buf, 8, val1) );
 
   if(val0 != val1)  {
     printf("different\n");
-
     critical_error_blink();
   }
 
@@ -210,7 +209,7 @@ static void update_soft_stress_test_2_50ms( app_t *app)
 
 static void update_soft_stress_test_50ms(app_t *app)
 {
-  return;
+  // return;
 
   printf("--\n");
 

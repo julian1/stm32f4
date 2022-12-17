@@ -14,8 +14,11 @@
 
 
 #include <stddef.h>   // NULL
+#include <assert.h>
 
 #include "spi1.h"
+
+#include "util.h"   // critical_error_blink()
 
 //////////////////////////
 
@@ -51,16 +54,33 @@
 #define SPI1_CS2   GPIO15   // PA15 nss 2. moved.
 
 
-void spi1_cs2_set(void)
+
+
+void spi_strobe_assert( uint32_t spi)
 {
-  gpio_set(SPI1_PORT, SPI1_CS2);
+  // remember relies on port with CS2 configured as gpio.
+
+  switch(spi) {
+    case SPI1: {
+
+      gpio_set(SPI1_PORT, SPI1_CS2);
+
+      for(uint32_t i = 0; i < 100; ++i)
+         __asm__("nop");
+
+      gpio_clear(SPI1_PORT, SPI1_CS2);
+      break;
+    }
+
+    default:
+      assert(0);
+      critical_error_blink();
+
+  }
 }
 
 
-void spi1_cs2_clear(void)
-{
-  gpio_clear(SPI1_PORT, SPI1_CS2);
-}
+
 
 
 

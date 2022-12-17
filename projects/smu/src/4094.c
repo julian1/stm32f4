@@ -47,10 +47,7 @@
 uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
 {
   // expect port is already configured with gpio for cs etc.
-  UNUSED(spi);
-  UNUSED(v);
 
-  assert( spi == SPI1);   // hardcodes spi1_cs2_set() and clear() which are gpio and not hardware CS/SS.
 
   // TODO maybe remove the enable.  not required by 4094. maybe required by stm32 spi hardware.
   /*
@@ -63,14 +60,7 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
   uint8_t val = spi_xfer(spi, v);
   spi_disable( spi );
 
-#if 0
-  // briefly assert strobe/cs2
-  spi1_cs2_set();
-  for(uint32_t i = 0; i < 100; ++i)
-     __asm__("nop");
-
-  spi1_cs2_clear();
-#endif
+  spi_strobe_assert( spi );
 
   return val;
 }
@@ -79,7 +69,6 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
 
 void spi_4094_setup(uint32_t spi)
 {
-  // assert(spi == SPI1 || spi == SPI2);
 
   spi_init_master(
     spi,
