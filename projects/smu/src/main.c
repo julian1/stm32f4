@@ -98,12 +98,24 @@ static void update_soft_500ms(app_t *app)
 {
   UNUSED(app);
 
+  static bool led_state = 0;
+  led_state = ! led_state;
+
+  // blink the fpga led
+  mux_ice40(app->spi);
+
+  if(led_state)
+    ice40_reg_set(app->spi, REG_LED,   LED0 /*|  LED2 | LED3*/ );
+  else
+    ice40_reg_clear(app->spi, REG_LED, LED0 /*| LED1 | LED2 | LED3 */);
 
 }
 
 
 static void update_soft_stress_test_50ms(app_t *app)
 {
+  return;
+
   static bool led_state = 0;
   led_state = ! led_state;
 
@@ -482,7 +494,7 @@ static void loop(app_t *app)
 
 
 
-    // 50ms soft timer. should handle wrap around
+    // 50ms soft timer. for stress testing.
     if( (system_millis - soft_50ms) > 50) {
       soft_50ms += 50;
       update_soft_stress_test_50ms(app);
@@ -490,8 +502,8 @@ static void loop(app_t *app)
 
 
     // 500ms soft timer. should handle wrap around
-    if( (system_millis - soft_500ms) > 50) {
-      soft_500ms += 50;
+    if( (system_millis - soft_500ms) > 500) {
+      soft_500ms += 500;
       update_soft_500ms(app);
     }
 
