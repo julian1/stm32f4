@@ -810,7 +810,7 @@ int main(void)
 
 
   ////////////////
-  spi1_port_setup();
+  spi1_port_cs1_setup();
 #if 0
   spi1_special_gpio_setup();
 #endif

@@ -36,7 +36,7 @@ void mux_ice40(uint32_t spi)
   // spi on mcu side, must be correctly configured
   // in addition, relies on the special flag to mux
 
-  spi1_port_setup();
+  spi1_port_cs1_setup();
   spi_ice40_setup(spi);
 }
 
@@ -51,7 +51,7 @@ void mux_w25(uint32_t spi)
   ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_FLASH);
 
   // now mux the device
-  spi1_port_setup2();
+  spi1_port_cs2_setup();
   spi_w25_setup(spi);
 }
 
@@ -63,7 +63,7 @@ void mux_adc03(uint32_t spi)
   ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_ADC03);
 
   // now mux the device
-  spi1_port_setup2();
+  spi1_port_cs2_setup();
   spi_mcp3208_setup(spi);
 }
 
@@ -77,7 +77,7 @@ void mux_dac(uint32_t spi)
   mux_ice40(spi);
   ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_DAC);
  
-  spi1_port_setup2();
+  spi1_port_cs2_setup();
   spi_dac_setup(spi);
 }
 
@@ -88,7 +88,7 @@ void mux_adc(uint32_t spi)
   mux_ice40(spi);
   ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_ADC);
 
-  spi1_port_setup2();
+  spi1_port_cs2_setup();
   spi_adc_setup(spi);
 }
 
@@ -104,7 +104,7 @@ void mux_4094(uint32_t spi)
   // write encodes as 4 bits??? while set will pass through 8 
   // doesn't make sense
 
-  spi1_port_setup2();
+  spi1_port_cs2_setup();
   spi_4094_setup(spi);
 
 }

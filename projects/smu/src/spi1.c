@@ -56,7 +56,7 @@
 
 
 
-void spi_strobe_assert( uint32_t spi)
+void spi_cs2_strobe_assert( uint32_t spi)
 {
   // remember relies on port with CS2 configured as gpio.
 
@@ -89,7 +89,7 @@ void spi_strobe_assert( uint32_t spi)
 // TODO rename
 // static void spi1_port_cs1_setup(void)
 
-void spi1_port_setup(void)
+void spi1_port_cs1_setup(void)
 {
   // rcc_periph_clock_enable(RCC_SPI1);
 
@@ -113,7 +113,7 @@ void spi1_port_setup(void)
 }
 
 
-void spi1_port_setup2(void)
+void spi1_port_cs2_setup(void)
 {
   // rcc_periph_clock_enable(RCC_SPI1);
 
