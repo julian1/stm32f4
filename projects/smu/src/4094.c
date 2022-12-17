@@ -63,7 +63,7 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
   uint8_t val = spi_xfer(spi, v);
   spi_disable( spi );
 
-#if 0
+#if 1
   // briefly assert strobe/cs2
   spi1_cs2_set();
   for(uint32_t i = 0; i < 100; ++i)

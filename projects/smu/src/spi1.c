@@ -66,7 +66,8 @@ void spi1_cs2_clear(void)
 
 
 
-
+// TODO rename
+// static void spi1_port_cs1_setup(void)
 
 void spi1_port_setup(void)
 {
