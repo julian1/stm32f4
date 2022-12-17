@@ -1,4 +1,5 @@
 
+#include <stdio.h>    // printf
 
 #include "spi1.h"
 #include "mux.h"
@@ -9,6 +10,7 @@
 #include "w25.h"
 #include "dac8734.h"
 #include "ads131a04.h"
+#include "4094.h"
 
 
 
@@ -43,7 +45,8 @@ void mux_ice40(uint32_t spi)
 
 void mux_w25(uint32_t spi)
 {
-  // mux fpga, to write the reg.
+  printf("mux w25\n");
+
   mux_ice40(spi);
   ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_FLASH);
 
@@ -54,9 +57,8 @@ void mux_w25(uint32_t spi)
 
 void mux_adc03(uint32_t spi)
 {
-  // spi_ice40_setup(spi);
+  printf("mux adc03\n");
 
-  // mux fpga, to write the reg.
   mux_ice40(spi);
   ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_ADC03);
 
@@ -70,11 +72,8 @@ void mux_adc03(uint32_t spi)
 
 void mux_dac(uint32_t spi)
 {
-/*
-  spi_ice40_setup(spi);
-  spi_ice40_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_DAC);
-  spi_dac_setup(spi);
-*/
+  printf("mux dac\n");
+
   mux_ice40(spi);
   ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_DAC);
  
@@ -84,11 +83,8 @@ void mux_dac(uint32_t spi)
 
 void mux_adc(uint32_t spi)
 {
-/*
-  spi_ice40_setup(spi);
-  spi_ice40_ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_ADC);
-  spi_adc_setup(spi);
-*/
+  printf("mux adc\n");
+
   mux_ice40(spi);
   ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_ADC);
 
@@ -97,13 +93,20 @@ void mux_adc(uint32_t spi)
 }
 
 
-void mux_4094(uint32_t spi) {
+void mux_4094(uint32_t spi) 
+{
+  printf("mux 4094\n");
 
   mux_ice40(spi);
-  ice40_reg_write(spi, REG_SPI_MUX, 5 );
+  ice40_reg_write(spi, REG_SPI_MUX, 1<<2 );
+  // ice40_reg_set(spi, REG_SPI_MUX,   0x5 );     // this is wrong.  but it works to set the correct bit.
+
+  // write encodes as 4 bits??? while set will pass through 8 
+  // doesn't make sense
 
   spi1_port_setup2();
-  // spi_adc_setup(spi);
+  spi_4094_setup(spi);
+
 }
 
 

@@ -99,26 +99,111 @@ static void update_soft_500ms(app_t *app)
 {
   UNUSED(app);
 
+#if 0
   static bool led_state = 0;
   led_state = ! led_state;
+
+  printf("--\n");
 
   // blink the fpga led
   mux_ice40(app->spi);
 
   if(led_state)
-    ice40_reg_set(app->spi, REG_LED,   LED0 /*|  LED2 | LED3*/ );
+    ice40_reg_set(app->spi, REG_LED,   LED0 |  LED2 /*| LED3*/ );
   else
-    ice40_reg_clear(app->spi, REG_LED, LED0 /*| LED1 | LED2 | LED3 */);
+    ice40_reg_clear(app->spi, REG_LED, LED0 | LED2 /*| LED2 | LED3 */);
+
+
+  char buf[100];
+  uint8_t val0, val1 ;
+
+  val0 = ice40_reg_read( app->spi, REG_LED );
+  printf("led read bits %u %s\n", val0, format_bits(buf, 8, val0) );
+
+  val1 = ice40_reg_read( app->spi, REG_LED );
+  printf("led read bits %u %s\n", val1, format_bits(buf, 8, val1) );
+
+  if(val0 != val1) 
+    printf("different\n");
+
+
 
   // blink mcu led
   led_set( led_state );
-
+#endif
   ///////////
 
+  // hang on. is the writing of data over the spi the issue.
 
+#if 0
   mux_4094(app->spi);
-
   spi_4094_reg_write(app->spi , 0b01010101 );
+
+  // msleep(1);    // if we put a sleep here we get a diffferent read value????? 
+
+  /*
+  // perhaps the action of reading is also setting the value????
+      becasue it's an 8 bit register and the bit is in the clear bits....
+    -----
+    Or it's an overflow....   on read.
+
+    SOLUTION - might be not to remove all the bit setting - but have a parallel register that is direct write.
+    -------
+
+    - try writing something that fits in 3 bits. and see if that gets overwritten.
+    - maybe change the 16bit width to 24 bit.
+  */
+  mux_ice40(app->spi);
+
+  val = ice40_reg_read( app->spi, REG_SPI_MUX);
+  printf("reg_spi_mux read bits %u %s\n", val, format_bits(buf, 8, val) );
+  
+  msleep(1);
+
+  val = ice40_reg_read( app->spi, REG_SPI_MUX);
+  printf("reg_spi_mux read bits %u %s\n", val, format_bits(buf, 8, val) );
+
+#endif
+
+
+}
+
+
+static void update_soft_stress_test_2_50ms( app_t *app)
+{
+  // return;
+
+  static bool led_state = 0;
+  led_state = ! led_state;
+
+  printf("--\n");
+
+  // blink the fpga led
+  mux_ice40(app->spi);
+
+  if(led_state)
+    ice40_reg_set(app->spi, REG_LED,   LED0 |  LED2 /*| LED3*/ );
+  else
+    ice40_reg_clear(app->spi, REG_LED, LED0 | LED1 | LED2 | LED3 );
+
+
+  char buf[100];
+  uint8_t val0, val1 ;
+
+  val0 = ice40_reg_read( app->spi, REG_LED ) & 0b1111;
+  printf("led read bits %u %s\n", val0, format_bits(buf, 8, val0) );
+
+  val1 = ice40_reg_read( app->spi, REG_LED ) & 0b1111  ;
+  printf("led read bits %u %s\n", val1, format_bits(buf, 8, val1) );
+
+  if(val0 != val1)  {
+    printf("different\n");
+
+    critical_error_blink();
+  }
+
+  // blink mcu led
+  led_set( led_state );
 
 }
 
@@ -127,14 +212,13 @@ static void update_soft_stress_test_50ms(app_t *app)
 {
   return;
 
+  printf("--\n");
+
   static bool led_state = 0;
   led_state = ! led_state;
 
   // blink the fpga led
   mux_ice40(app->spi);
-
-  printf("soft update %u\n", led_state);
-  // msleep( 10 );
 
   if(led_state)
     ice40_reg_set(app->spi, REG_LED,   LED0 |  LED2 | LED3 );
@@ -509,13 +593,14 @@ static void loop(app_t *app)
     if( (system_millis - soft_50ms) > 50) {
       soft_50ms += 50;
       update_soft_stress_test_50ms(app);
+      update_soft_stress_test_2_50ms(app);
     }
 
 
     // 500ms soft timer. should handle wrap around
     if( (system_millis - soft_500ms) > 500) {
       soft_500ms += 500;
-      update_soft_500ms(app);
+      // update_soft_500ms(app);
     }
 
     if( (system_millis - soft_1s) > 1000 ) {

@@ -63,7 +63,7 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
   uint8_t val = spi_xfer(spi, v);
   spi_disable( spi );
 
-#if 1
+#if 0
   // briefly assert strobe/cs2
   spi1_cs2_set();
   for(uint32_t i = 0; i < 100; ++i)
@@ -80,9 +80,7 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
 void spi_4094_setup(uint32_t spi)
 {
   // assert(spi == SPI1 || spi == SPI2);
-  assert( spi == SPI2);
 
-  // rcc_periph_clock_enable(RCC_SPI2);
   spi_init_master(
     spi,
     SPI_CR1_BAUDRATE_FPCLK_DIV_4,
