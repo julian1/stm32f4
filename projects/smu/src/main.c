@@ -62,6 +62,7 @@
 #include "app.h"
 
 #include "dac8734.h"
+#include "4094.h"
 
 
 
@@ -111,6 +112,14 @@ static void update_soft_500ms(app_t *app)
 
   // blink mcu led
   led_set( led_state );
+
+  ///////////
+
+
+  mux_4094(app->spi);
+
+  spi_4094_reg_write(app->spi , 0b01010101 );
+
 }
 
 

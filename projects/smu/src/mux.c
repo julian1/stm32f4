@@ -97,7 +97,6 @@ void mux_adc(uint32_t spi)
 }
 
 
-#if 0
 void mux_4094(uint32_t spi) {
 
   mux_ice40(spi);
@@ -107,6 +106,5 @@ void mux_4094(uint32_t spi) {
   // spi_adc_setup(spi);
 }
 
-#endif
 
 

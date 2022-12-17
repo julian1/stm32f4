@@ -13,4 +13,5 @@ extern void mux_dac(uint32_t spi);
 extern void mux_adc(uint32_t spi);
 
 
+void mux_4094(uint32_t spi);
 

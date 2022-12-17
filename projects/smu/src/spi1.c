@@ -47,6 +47,27 @@
 
 
 
+#define SPI1_PORT  GPIOA
+#define SPI1_CS2   GPIO15   // PA15 nss 2. moved.
+
+
+void spi1_cs2_set(void)
+{
+  gpio_set(SPI1_PORT, SPI1_CS2);
+}
+
+
+void spi1_cs2_clear(void)
+{
+  gpio_clear(SPI1_PORT, SPI1_CS2);
+}
+
+
+
+
+
+
+
 void spi1_port_setup(void)
 {
   // rcc_periph_clock_enable(RCC_SPI1);
@@ -69,6 +90,7 @@ void spi1_port_setup(void)
   // set cs2 hi - with external pullup.
   gpio_mode_setup(SPI_ICE40_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_ICE40_CS2);
 }
+
 
 void spi1_port_setup2(void)
 {
