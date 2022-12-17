@@ -77,6 +77,14 @@ uint8_t ice40_reg_read( uint32_t spi, uint8_t r)
   return spi_ice40_xfer2(spi, r, 0 ); // ie. no set, or clear bits set
 }
 
+// OK. don't think we need a separate hardware register...
+
+void ice40_reg_write( uint32_t spi, uint8_t r, uint8_t v)
+{
+  uint8_t x = (~v << 4) | (v & 0xF );
+  spi_ice40_xfer2(spi, r, x);
+}
+
 
 
 
@@ -88,14 +96,6 @@ void ice40_reg_set( uint32_t spi, uint8_t r, uint8_t v)
 void ice40_reg_clear( uint32_t spi, uint8_t r, uint8_t v)
 {
   spi_ice40_xfer2(spi, r, v << 4);    // ie. hi 4 bits
-}
-
-// OK. don't think we need a separate hardware register...
-
-void ice40_reg_write( uint32_t spi, uint8_t r, uint8_t v)
-{
-  uint8_t x = (~v << 4) | (v & 0xF );
-  spi_ice40_xfer2(spi, r, x);
 }
 
 
