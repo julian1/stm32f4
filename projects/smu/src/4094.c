@@ -67,6 +67,7 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
   for(uint32_t i = 0; i < 100; ++i)
      __asm__("nop");
 
+  // normal state is lo
   spi1_port_cs2_clear();
 
   return val;

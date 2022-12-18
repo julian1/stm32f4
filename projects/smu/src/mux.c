@@ -101,9 +101,14 @@ void mux_4094(uint32_t spi)
   ice40_reg_set(spi, REG_SPI_MUX,  0x5 );
 
   // set the cs2 gpio bit to high, before change from pull-up , to enable spi peripheral gpio, to avoid generating a false strobe
- 
+
+  // clocking, mosi ok.
+  // needs to be at 200ns to see
+
   // spi1_port_cs2_setup();
-  spi1_port_cs2_set();
+  // normal state is lo
+  spi1_port_cs2_clear();
+
   spi1_port_cs2_gpio_setup();
   spi_4094_setup(spi);
 
