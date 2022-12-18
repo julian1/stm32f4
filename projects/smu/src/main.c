@@ -815,7 +815,7 @@ int main(void)
   spi1_special_gpio_setup();
 #endif
   // adc interupt...
-  spi1_interupt_gpio_setup( (void (*) (void *))spi1_interupt, &app);
+  spi1_port_interupt_gpio_setup( (void (*) (void *))spi1_interupt, &app);
 
 
   ////////////////////

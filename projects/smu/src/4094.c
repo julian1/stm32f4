@@ -60,7 +60,14 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
   uint8_t val = spi_xfer(spi, v);
   spi_disable( spi );
 
-  spi_cs2_strobe_assert( spi );
+
+  // assert strobe
+  spi1_port_cs2_enable();
+
+  for(uint32_t i = 0; i < 100; ++i)
+     __asm__("nop");
+
+  spi1_port_cs2_disable();
 
   return val;
 }
