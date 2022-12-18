@@ -6,6 +6,10 @@
 
   anything through a 6 pin adum/cap isolator
   should it be put in a shared library?
+  -----------
+
+  EXTR. dec 18 2022.
+    at 100MHz (instead of 50MHz) there are flip issues, under stress test. with iso7762
 
 */
 
@@ -73,7 +77,7 @@ void spi1_port_cs1_setup(void)
 
   gpio_mode_setup(SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
   gpio_set_af(SPI_PORT, GPIO_AF5, all); // af 5
-  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, out);
+  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out);
 
   // we should be able to simplify this. to non configured or input.
   // http://libopencm3.org/docs/latest/gd32f1x0/html/group__gpio__mode.html
@@ -97,7 +101,7 @@ void spi1_port_cs2_setup(void)
 
   gpio_mode_setup(SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
   gpio_set_af(SPI_PORT, GPIO_AF5, all); // af 5
-  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, out); // probably need to reset each time.
+  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out); // probably need to reset each time.
 
   // set cs1 hi - with external pullup.
   gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_CS1);
@@ -117,14 +121,14 @@ void spi1_port_cs2_gpio_setup(void)
 
   gpio_mode_setup(SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
   gpio_set_af(SPI_PORT, GPIO_AF5, all); // af 5
-  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, out); // probably need to reset each time.
+  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out); // probably need to reset each time.
 
   // set cs1 hi-z/hi - with external pullup.
   gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_CS1);
 
   // set CS2 to manual external gpio output
   gpio_mode_setup(SPI_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_CS2);
-  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, SPI_CS2);
+  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_CS2);
 }
 
 
@@ -133,7 +137,7 @@ void spi1_port_cs1_cs2_gpio_setup(void)
   // control both cs1 and cs2 with gpio. for creset assert.
 
   gpio_mode_setup(SPI_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_CS1 | SPI_CS2);
-  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, SPI_CS1 | SPI_CS2);
+  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_CS1 | SPI_CS2);
 
 }
 
@@ -189,7 +193,7 @@ void spi1_port_interupt_gpio_setup(void (*pfunc)(void *),  void *ctx)
 
   gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_INTERUPT);
 
-  // gpio_set_output_options(SPI_PORT, GPIO_ITYPE, GPIO_ISPEED_100MHZ, SPI_SPECIAL);   is there a way to set the speed?
+  // gpio_set_output_options(SPI_PORT, GPIO_ITYPE, GPIO_ISPEED_50MHZ, SPI_SPECIAL);   is there a way to set the speed?
                                                                                                   // looks like GPIO_ITYPE is recognized.
 
   // ie. use exti2 for pa2
@@ -224,7 +228,7 @@ void spi_cs2_strobe_assert( uint32_t spi)
 
       gpio_set(SPI_PORT, SPI_CS2);
 
-      for(uint32_t i = 0; i < 100; ++i)
+      for(uint32_t i = 0; i < 50; ++i)
          __asm__("nop");
 
       gpio_clear(SPI_PORT, SPI_CS2);
@@ -247,7 +251,7 @@ void spi1_special_gpio_setup(void)
   // TODO change name this is not spi....
   // special
   gpio_mode_setup(SPI_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_SPECIAL);
-  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, SPI_SPECIAL);
+  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_SPECIAL);
 
   gpio_set(SPI_PORT, SPI_SPECIAL ); // hi == off, active low...
 

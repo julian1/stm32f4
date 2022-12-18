@@ -171,7 +171,7 @@ static void update_soft_500ms(app_t *app)
 
 static void update_soft_stress_test_2_50ms( app_t *app)
 {
-  // return;
+  return;
 
   static bool led_state = 0;
   led_state = ! led_state;
