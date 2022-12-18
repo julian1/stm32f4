@@ -128,7 +128,10 @@ static void update_soft_500ms(app_t *app)
 
   mux_4094(app->spi);
 
-  spi_4094_reg_write(app->spi , 0b01010101 );
+  if(led_state) 
+    spi_4094_reg_write(app->spi , 0b11111111 );
+  else
+    spi_4094_reg_write(app->spi , 0 );
 
   /*
   // the issue is the verilog 4094 vector - will continue to follow cs2 - when we change from gpio back to spi alternate function.
