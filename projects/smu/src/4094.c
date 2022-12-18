@@ -60,11 +60,11 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
   uint8_t val = spi_xfer(spi, v);
   spi_disable( spi );
 
-
+  // TODO with invert behavior - we could change from set()/clear() to enable() disable() again.
   // assert strobe.   fpga inverts signal.
   spi1_port_cs2_clear();
 
-  for(uint32_t i = 0; i < 100; ++i)
+  for(uint32_t i = 0; i < 100; ++i)   // 100count == 5us.
      __asm__("nop");
 
   // normal state is lo
