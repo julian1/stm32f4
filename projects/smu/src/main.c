@@ -99,11 +99,10 @@ static void update_soft_500ms(app_t *app)
 {
   UNUSED(app);
 
-#if 0
+  char buf[100];
   static bool led_state = 0;
   led_state = ! led_state;
 
-  printf("--\n");
 
   // blink the fpga led
   mux_ice40(app->spi);
@@ -114,26 +113,23 @@ static void update_soft_500ms(app_t *app)
     ice40_reg_clear(app->spi, REG_LED, LED0 | LED2 /*| LED2 | LED3 */);
 
 
-  char buf[100];
-  uint8_t val0, val1 ;
-
-  val0 = ice40_reg_read( app->spi, REG_LED );
-  printf("led read bits %u %s\n", val0, format_bits(buf, 8, val0) );
-
-  val1 = ice40_reg_read( app->spi, REG_LED );
-  printf("led read bits %u %s\n", val1, format_bits(buf, 8, val1) );
-
-  if(val0 != val1)
-    printf("different\n");
-
-
-
   // blink mcu led
   led_set( led_state );
-#endif
-  ///////////
 
   // hang on. is the writing of data over the spi the issue.
+
+
+  mux_4094(app->spi);
+
+
+
+  mux_ice40(app->spi);
+  uint8_t val = ice40_reg_read( app->spi, REG_SPI_MUX );
+  printf("reg_spi_mux read bits %u %s\n", val, format_bits(buf, 8, val) );
+
+
+  //  spi_4094_reg_write(app->spi , 0b01010101 );
+
 
 #if 0
   mux_4094(app->spi);
@@ -171,7 +167,7 @@ static void update_soft_500ms(app_t *app)
 
 static void update_soft_stress_test_2_50ms( app_t *app)
 {
-  // return;
+  return;
 
   static bool led_state = 0;
   led_state = ! led_state;
@@ -599,7 +595,7 @@ static void loop(app_t *app)
     // 500ms soft timer. should handle wrap around
     if( (system_millis - soft_500ms) > 500) {
       soft_500ms += 500;
-      // update_soft_500ms(app);
+      update_soft_500ms(app);
     }
 
     if( (system_millis - soft_1s) > 1000 ) {
