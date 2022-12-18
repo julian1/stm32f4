@@ -123,9 +123,38 @@ static void update_soft_500ms(app_t *app)
 
   spi_4094_reg_write(app->spi , 0b01010101 );
 
-  // now the clocking doesn't even look write....
+  /*
+  // the issue is the verilog 4094 vector - will continue to follow cs2 - when we change from gpio back to spi alternate function.
+      eg. and it will go high - as the ordinary parking state of cs.
+
+      options - invert the connection to the output.
+      use fpga register to control cs of the 4094. so do write. and then toggle the register.
+
+      eg. an independent approach.
+
+      maybe the whole thing would be easier - if just used ice40 regsisters for CS.
+      issue is. the sequence. set to mux ice40 and assert. then set to peripheral peripheral, write. set to muxice 40 and to cs deassert.
+      -----
+      what if changed. so on mcu side.
+
+      WE don't alternate the cs pins.   instead we just assert an extra pin/ to disambiguate target  using gpio .
+
+      eg. SO ALL WRITES USE ordinary CS1.
+      Whether it's too the fpga or the fpga peripheral.  is whether the additional gpio is hi or lo.
+      there are no synchronization issues with mcu spi.
+
+      and it avoids constantly having to reconfigure the spi-ports
+      --------------
+
+      Doesn't fix. the issue for 4094.  but simplifying things - would make inverting the strobe simpler. / or assign
+      --------------
+
+      lets try the invert trick as is. to see if can get
+  */
+
 
 /*
+  char buf[100];
   mux_ice40(app->spi);
   uint8_t val = ice40_reg_read( app->spi, REG_SPI_MUX );
   printf("reg_spi_mux read bits %u %s\n", val, format_bits(buf, 8, val) );
