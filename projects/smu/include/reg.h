@@ -26,9 +26,41 @@ extern void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t
 #define SPI_MUX_FLASH   (1<<2)
 #define SPI_MUX_ADC     (1<<3)
 
-
+// need to rename named _4094_GLB_OE or similar to respect prefix convention
 #define REG_4094        9
 #define GLB_4094_OE    (1<<0)
+
+/*
+// prefix with the IC ?
+
+  U304_
+  or _4094_U304_
+k
+
+(global_label "RAILS-LP5V-CTL" (shape input) (at 200.66 53.34 0) (fields_autoplaced)
+(global_label "RAILS-LP15V-CTL" (shape input) (at 200.66 55.88 0) (fields_autoplaced)
+(global_label "RAILS-LP24V-CTL" (shape input) (at 200.66 58.42 0) (fields_autoplaced)
+(global_label "RAILS-LP50V-CTL" (shape input) (at 200.66 60.96 0) (fields_autoplaced)
+(global_label "K301-L1-CTL" (shape input) (at 200.66 63.5 0) (fields_autoplaced)
+(global_label "K301-L2-CTL" (shape input) (at 200.66 66.04 0) (fields_autoplaced)
+(global_label "K302-L1-CTL" (shape input) (at 200.66 68.58 0) (fields_autoplaced)
+(global_label "K302-L2-CTL" (shape input) (at 200.66 71.12 0) (fields_autoplaced)
+*/
+
+
+#define U304_RAILS_LP5V_CTL   (1<<0)
+#define U304_RAILS_LP15V_CTL  (1<<1)
+#define U304_RAILS_LP24V_CTL  (1<<2)
+#define U304_RAILS_LP50V_CTL  (1<<3)
+#define U304_K301_L1_CTL      (1<<4)
+#define U304_K301_L2_CTL      (1<<5)
+#define U304_K302_L1_CTL      (1<<6)
+#define U304_K302_L2_CTL      (1<<7)
+
+
+
+
+
 
 
 #define REG_DAC         12    // TODO fix/remove

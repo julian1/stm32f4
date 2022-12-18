@@ -26,7 +26,7 @@
 
 
 
-
+// TODO - must rename - very confusing.  state_powerup_t  or similar.
 typedef enum state_t {
 /*  enum should change to lower case. But do later.
 */
@@ -118,6 +118,11 @@ typedef struct app_t
 
 
   uint32_t spi;
+
+
+  uint8_t   u304;
+
+
 
   state_t   state;
 

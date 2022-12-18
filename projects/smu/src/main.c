@@ -95,6 +95,35 @@ static void update_soft_1s(app_t *app)
     spi must be setup, in order for led toggle...
 */
 
+
+static void relay_set( uint32_t spi, bool state, uint8_t u304, uint32_t l1, uint32_t l2)
+{
+  // we don't actually have to pass u304 by reference sinice we don't modify it.
+
+  assert( !(u304 & l1) );
+  assert( !(u304 & l2) );
+
+  if(state) {
+    // hmmmmm we need a local
+    u304 |=  l1;
+    spi_4094_reg_write(spi, u304 );
+    msleep(10);
+    u304 &= ~ l1;
+    spi_4094_reg_write(spi, u304 );
+  }
+  else {
+
+    u304 |= l2 ;
+    spi_4094_reg_write(spi, u304 );
+    msleep(10);
+    u304 &= ~ l2 ;
+    spi_4094_reg_write(spi, u304 );
+
+  }
+}
+
+
+
 static void update_soft_500ms(app_t *app)
 {
   // UNUSED(app);
@@ -128,42 +157,11 @@ static void update_soft_500ms(app_t *app)
 
   mux_4094(app->spi);
 
-  if(led_state) 
-    spi_4094_reg_write(app->spi , 0b11111111 );
-  else
-    spi_4094_reg_write(app->spi , 0 );
+  // relay_set( app->spi, led_state, app->u304, U304_K302_L1_CTL, U304_K302_L2_CTL);
+  // relay_set( app->spi, led_state, app->u304, U304_K301_L1_CTL, U304_K301_L2_CTL);
 
-  /*
-  // the issue is the verilog 4094 vector - will continue to follow cs2 - when we change from gpio back to spi alternate function.
-      eg. and it will go high - as the ordinary parking state of cs.
-
-      options - invert the connection to the output.
-      use fpga register to control cs of the 4094. so do write. and then toggle the register.
-
-      eg. an independent approach.
-
-      maybe the whole thing would be easier - if just used ice40 regsisters for CS.
-      issue is. the sequence. set to mux ice40 and assert. then set to peripheral peripheral, write. set to muxice 40 and to cs deassert.
-      -----
-      what if changed. so on mcu side.
-
-      WE don't alternate the cs pins.   instead we just assert an extra pin/ to disambiguate target  using gpio .
-
-      eg. SO ALL WRITES USE ordinary CS1.
-      Whether it's too the fpga or the fpga peripheral.  is whether the additional gpio is hi or lo.
-      there are no synchronization issues with mcu spi.
-
-      and it avoids constantly having to reconfigure the spi-ports
-      --------------
-
-      Doesn't fix. the issue for 4094.  but simplifying things - would make inverting the strobe simpler. / or assign
-      --------------
-
-      lets try the invert trick as is. to see if can get work. and test relay.
-      -------------
-      EXTR - there may be synchronization issues. eg. CS not deasserted. before gpio is swapped.
-  */
-
+  // toggle both relays at same time. doubles current
+  relay_set( app->spi, led_state, app->u304, U304_K301_L1_CTL | U304_K302_L1_CTL , U304_K301_L2_CTL | U304_K302_L2_CTL);
 
 /*
   char buf[100];
@@ -171,38 +169,6 @@ static void update_soft_500ms(app_t *app)
   uint8_t val = ice40_reg_read( app->spi, REG_SPI_MUX );
   printf("reg_spi_mux read bits %u %s\n", val, format_bits(buf, 8, val) );
 */
-
-
-
-#if 0
-  mux_4094(app->spi);
-  spi_4094_reg_write(app->spi , 0b01010101 );
-
-  // msleep(1);    // if we put a sleep here we get a diffferent read value?????
-
-  /*
-  // perhaps the action of reading is also setting the value????
-      becasue it's an 8 bit register and the bit is in the clear bits....
-    -----
-    Or it's an overflow....   on read.
-
-    SOLUTION - might be not to remove all the bit setting - but have a parallel register that is direct write.
-    -------
-
-    - try writing something that fits in 3 bits. and see if that gets overwritten.
-    - maybe change the 16bit width to 24 bit.
-  */
-  mux_ice40(app->spi);
-
-  val = ice40_reg_read( app->spi, REG_SPI_MUX);
-  printf("reg_spi_mux read bits %u %s\n", val, format_bits(buf, 8, val) );
-
-  msleep(1);
-
-  val = ice40_reg_read( app->spi, REG_SPI_MUX);
-  printf("reg_spi_mux read bits %u %s\n", val, format_bits(buf, 8, val) );
-
-#endif
 
 
 }
@@ -883,5 +849,95 @@ int main(void)
 }
 
 
+
+/*
+  if(led_state)
+    spi_4094_reg_write(app->spi , 0b11111111 );
+  else
+    spi_4094_reg_write(app->spi , 0 );
+*/
+
+  // we can factor this fairly easily into a single function -- with the delay.
+  // actualyl variable name probably not great. because will chain them.
+/*
+  if(led_state) {
+    // hmmmmm we need a local
+    app->u304 |=  U304_K302_L1_CTL;
+    spi_4094_reg_write(app->spi, app->u304 );
+    msleep(10);
+    app->u304 &= ~ U304_K302_L1_CTL ;
+    spi_4094_reg_write(app->spi, app->u304 );
+  }
+  else {
+
+    app->u304 |= U304_K302_L2_CTL ;
+    spi_4094_reg_write(app->spi, app->u304 );
+    msleep(10);
+    app->u304 &= ~ U304_K302_L2_CTL ;
+    spi_4094_reg_write(app->spi, app->u304 );
+
+  }
+  */
+
+  /*
+  // the issue is the verilog 4094 vector - will continue to follow cs2 - when we change from gpio back to spi alternate function.
+      eg. and it will go high - as the ordinary parking state of cs.
+
+      options - invert the connection to the output.
+      use fpga register to control cs of the 4094. so do write. and then toggle the register.
+
+      eg. an independent approach.
+
+      maybe the whole thing would be easier - if just used ice40 regsisters for CS.
+      issue is. the sequence. set to mux ice40 and assert. then set to peripheral peripheral, write. set to muxice 40 and to cs deassert.
+      -----
+      what if changed. so on mcu side.
+
+      WE don't alternate the cs pins.   instead we just assert an extra pin/ to disambiguate target  using gpio .
+
+      eg. SO ALL WRITES USE ordinary CS1.
+      Whether it's too the fpga or the fpga peripheral.  is whether the additional gpio is hi or lo.
+      there are no synchronization issues with mcu spi.
+
+      and it avoids constantly having to reconfigure the spi-ports
+      --------------
+
+      Doesn't fix. the issue for 4094.  but simplifying things - would make inverting the strobe simpler. / or assign
+      --------------
+
+      lets try the invert trick as is. to see if can get work. and test relay.
+      -------------
+      EXTR - there may be synchronization issues. eg. CS not deasserted. before gpio is swapped.
+  */
+
+#if 0
+  mux_4094(app->spi);
+  spi_4094_reg_write(app->spi , 0b01010101 );
+
+  // msleep(1);    // if we put a sleep here we get a diffferent read value?????
+
+  /*
+  // perhaps the action of reading is also setting the value????
+      becasue it's an 8 bit register and the bit is in the clear bits....
+    -----
+    Or it's an overflow....   on read.
+
+    SOLUTION - might be not to remove all the bit setting - but have a parallel register that is direct write.
+    -------
+
+    - try writing something that fits in 3 bits. and see if that gets overwritten.
+    - maybe change the 16bit width to 24 bit.
+  */
+  mux_ice40(app->spi);
+
+  val = ice40_reg_read( app->spi, REG_SPI_MUX);
+  printf("reg_spi_mux read bits %u %s\n", val, format_bits(buf, 8, val) );
+
+  msleep(1);
+
+  val = ice40_reg_read( app->spi, REG_SPI_MUX);
+  printf("reg_spi_mux read bits %u %s\n", val, format_bits(buf, 8, val) );
+
+#endif
 
 
