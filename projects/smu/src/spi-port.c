@@ -1,15 +1,16 @@
 /*
 
-// TODO maybe rename to port?  or port_spi1
+  anything through a 6 pin adum/cap isolator
 
   Code is shared for smu and adc
+  move to shared library?
 
-  anything through a 6 pin adum/cap isolator
-  should it be put in a shared library?
   -----------
 
   EXTR. dec 18 2022.
     at 100MHz (instead of 50MHz) there are flip issues, under stress test. with iso7762
+
+  could use an and gate ic with gpio. but dificulty of synchronizing signals
 
 */
 
@@ -49,15 +50,20 @@
 #define SPI_INTERUPT GPIO2   // PA2
 
 
+/*
 
+  whether it's active high - depends on the peripheral device.
+  so name _set() and clear() instead of _enable(), disable()
 
-void spi1_port_cs2_enable(void)
+*/
+
+void spi1_port_cs2_set(void)
 {
   gpio_set(SPI_PORT, SPI_CS2);
 }
 
 
-void spi1_port_cs2_disable(void)
+void spi1_port_cs2_clear(void)
 {
   gpio_clear(SPI_PORT, SPI_CS2);
 }

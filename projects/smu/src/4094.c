@@ -62,12 +62,12 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
 
 
   // assert strobe
-  spi1_port_cs2_enable();
+  spi1_port_cs2_set();
 
   for(uint32_t i = 0; i < 100; ++i)
      __asm__("nop");
 
-  spi1_port_cs2_disable();
+  spi1_port_cs2_clear();
 
   return val;
 }

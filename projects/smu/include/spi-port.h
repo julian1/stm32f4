@@ -6,8 +6,8 @@
 
 
 // extern void spi_cs2_strobe_assert( uint32_t spi);
-extern void spi1_port_cs2_enable(void);
-extern void spi1_port_cs2_disable(void);
+extern void spi1_port_cs2_set(void);
+extern void spi1_port_cs2_clear(void);
 
 
 

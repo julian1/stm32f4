@@ -17,8 +17,8 @@
 /*
   OK. we need to think about all this...
 
-  to switch from ice40 to alternate. 
-    cs to cs2. 
+  to switch from ice40 to alternate.
+    cs to cs2.
     then use the appropriate functions.
 
   so we have two alternate setup functions.
@@ -76,7 +76,7 @@ void mux_dac(uint32_t spi)
 
   mux_ice40(spi);
   ice40_reg_write(spi, REG_SPI_MUX, SPI_MUX_DAC);
- 
+
   spi1_port_cs2_setup();
   spi_dac_setup(spi);
 }
@@ -93,18 +93,17 @@ void mux_adc(uint32_t spi)
 }
 
 
-void mux_4094(uint32_t spi) 
+void mux_4094(uint32_t spi)
 {
   printf("mux 4094\n");
 
   mux_ice40(spi);
-  ice40_reg_write(spi, REG_SPI_MUX, 1<<2 );
-  // ice40_reg_set(spi, REG_SPI_MUX,   0x5 );     // this is wrong.  but it works to set the correct bit.
+  ice40_reg_set(spi, REG_SPI_MUX,  0x5 );
 
-  // write encodes as 4 bits??? while set will pass through 8 
-  // doesn't make sense
-
-  spi1_port_cs2_setup();
+  // set the cs2 gpio bit to high, before change from pull-up , to enable spi peripheral gpio, to avoid generating a false strobe
+ 
+  spi1_port_cs2_set();
+  spi1_port_cs2_gpio_setup();
   spi_4094_setup(spi);
 
 }
