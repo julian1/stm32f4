@@ -2,7 +2,7 @@
 
 #include <libopencm3/stm32/spi.h>
 
-#include "spi1.h"
+#include "spi-port.h"   // spi_port_cs2_enable()
 #include "4094.h"
 
 // #include "util.h"  // msleep()

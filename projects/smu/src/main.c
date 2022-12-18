@@ -45,10 +45,10 @@
 #include "util.h"
 
 
-#include "spi1.h"
-#include "mux.h"   // to blink the led.
-#include "reg.h"   // to blink the led.
-#include "spi-ice40.h" // to blink the led.
+#include "spi-port.h"
+#include "spi-ice40.h"
+#include "mux.h"
+#include "reg.h"
 
 
 
@@ -171,7 +171,7 @@ static void update_soft_500ms(app_t *app)
 
 static void update_soft_stress_test_2_50ms( app_t *app)
 {
-  return;
+  // return;
 
   static bool led_state = 0;
   led_state = ! led_state;
@@ -209,7 +209,7 @@ static void update_soft_stress_test_2_50ms( app_t *app)
 
 static void update_soft_stress_test_50ms(app_t *app)
 {
-  // return;
+  return;
 
   printf("--\n");
 

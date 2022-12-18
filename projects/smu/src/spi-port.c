@@ -24,7 +24,7 @@
 #include <stddef.h>   // NULL
 #include <assert.h>
 
-#include "spi1.h"
+#include "spi-port.h"
 
 #include "util.h"   // critical_error_blink()
 

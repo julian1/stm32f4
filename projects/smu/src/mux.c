@@ -1,7 +1,7 @@
 
 #include <stdio.h>    // printf
 
-#include "spi1.h"
+#include "spi-port.h"
 #include "mux.h"
 #include "reg.h"
 

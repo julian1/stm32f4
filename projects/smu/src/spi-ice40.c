@@ -9,7 +9,8 @@
 #include <libopencm3/stm32/spi.h>
 
 #include "spi-ice40.h"
-#include "spi1.h"
+
+#include "spi-port.h"
 
 // fpga as a target
 
