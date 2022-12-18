@@ -27,7 +27,13 @@ extern void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t
 #define SPI_MUX_ADC     (1<<3)
 
 
-#define REG_DAC         9
+#define REG_4094        9
+#define GLB_4094_OE    (1<<0)
+
+
+#define REG_DAC         12    // TODO fix/remove
+
+// #define REG_DAC         9
 #define DAC_LDAC        (1<<0)
 #define DAC_UNI_BIP_A   (1<<1)
 #define DAC_UNI_BIP_B   (1<<2)
@@ -43,7 +49,7 @@ extern void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t
 #define CORE_SOFT_RST   11
 
 
-#define REG_DAC_REF_MUX   12
+#define REG_DAC_REF_MUX   12    // TODO fix/ remove
 #define DAC_REF_MUX_A     (1<<0)
 #define DAC_REF_MUX_B     (1<<1)
 

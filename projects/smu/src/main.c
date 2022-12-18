@@ -119,6 +119,13 @@ static void update_soft_500ms(app_t *app)
   // hang on. is the writing of data over the spi the issue.
 
 
+  // enable OE of 4094
+  ice40_reg_write(app->spi, REG_4094,  GLB_4094_OE );
+  // ice40_reg_write(app->spi, REG_4094,  0 );
+
+
+
+
   mux_4094(app->spi);
 
   spi_4094_reg_write(app->spi , 0b01010101 );
