@@ -102,6 +102,7 @@ void mux_4094(uint32_t spi)
 
   // set the cs2 gpio bit to high, before change from pull-up , to enable spi peripheral gpio, to avoid generating a false strobe
  
+  // spi1_port_cs2_setup();
   spi1_port_cs2_set();
   spi1_port_cs2_gpio_setup();
   spi_4094_setup(spi);

@@ -97,9 +97,9 @@ static void update_soft_1s(app_t *app)
 
 static void update_soft_500ms(app_t *app)
 {
-  UNUSED(app);
+  // UNUSED(app);
 
-  char buf[100];
+  // char buf[100];
   static bool led_state = 0;
   led_state = ! led_state;
 
@@ -121,14 +121,16 @@ static void update_soft_500ms(app_t *app)
 
   mux_4094(app->spi);
 
+  spi_4094_reg_write(app->spi , 0b01010101 );
 
+  // now the clocking doesn't even look write....
 
+/*
   mux_ice40(app->spi);
   uint8_t val = ice40_reg_read( app->spi, REG_SPI_MUX );
   printf("reg_spi_mux read bits %u %s\n", val, format_bits(buf, 8, val) );
+*/
 
-
-  //  spi_4094_reg_write(app->spi , 0b01010101 );
 
 
 #if 0
