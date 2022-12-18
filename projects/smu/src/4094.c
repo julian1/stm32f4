@@ -61,14 +61,14 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
   spi_disable( spi );
 
 
-  // assert strobe
-  spi1_port_cs2_set();
+  // assert strobe.   fpga inverts signal.
+  spi1_port_cs2_clear();
 
   for(uint32_t i = 0; i < 100; ++i)
      __asm__("nop");
 
   // normal state is lo
-  spi1_port_cs2_clear();
+  spi1_port_cs2_set();
 
   return val;
 }

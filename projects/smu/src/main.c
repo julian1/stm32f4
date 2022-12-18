@@ -149,7 +149,9 @@ static void update_soft_500ms(app_t *app)
       Doesn't fix. the issue for 4094.  but simplifying things - would make inverting the strobe simpler. / or assign
       --------------
 
-      lets try the invert trick as is. to see if can get
+      lets try the invert trick as is. to see if can get work. and test relay.
+      -------------
+      EXTR - there may be synchronization issues. eg. CS not deasserted. before gpio is swapped.
   */
 
 
