@@ -107,7 +107,7 @@ void mux_4094(uint32_t spi)
 
   // spi1_port_cs2_setup();
   // normal state is lo
-  spi1_port_cs2_set();      // inverted by fpga.
+  spi1_port_cs2_disable();      // inverted by fpga.
 
   spi1_port_cs2_gpio_setup();
   spi_4094_setup(spi);

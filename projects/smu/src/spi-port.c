@@ -52,20 +52,21 @@
 
 /*
 
-  whether it's active high - depends on the peripheral device.
-  so name _set() and clear() instead of _enable(), disable()
-
+  whether active high/lo depends on the peripheral device. and fpga may invert
+  so use  _enable(), disable() . instead of clear
+  following normal CS convention. active low
 */
 
-void spi1_port_cs2_set(void)
+
+void spi1_port_cs2_enable(void)
 {
-  gpio_set(SPI_PORT, SPI_CS2);
+  gpio_clear(SPI_PORT, SPI_CS2);
 }
 
 
-void spi1_port_cs2_clear(void)
+void spi1_port_cs2_disable(void)
 {
-  gpio_clear(SPI_PORT, SPI_CS2);
+  gpio_set(SPI_PORT, SPI_CS2);
 }
 
 
