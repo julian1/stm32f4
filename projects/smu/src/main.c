@@ -110,6 +110,7 @@ static void relay_set( uint32_t spi, bool state, uint8_t u304, uint32_t l1, uint
     msleep(10);
     u304 &= ~ l1;
     spi_4094_reg_write(spi, u304 );
+    msleep(10);
   }
   else {
 
@@ -118,6 +119,7 @@ static void relay_set( uint32_t spi, bool state, uint8_t u304, uint32_t l1, uint
     msleep(10);
     u304 &= ~ l2 ;
     spi_4094_reg_write(spi, u304 );
+    msleep(10);
 
   }
 }
@@ -153,15 +155,20 @@ static void update_soft_500ms(app_t *app)
   // ice40_reg_write(app->spi, REG_4094,  0 );
 
 
-
+#if 1
+  static int count = 0;
+  printf("count %u\n", count++);
 
   mux_4094(app->spi);
 
-  // relay_set( app->spi, led_state, app->u304, U304_K302_L1_CTL, U304_K302_L2_CTL);
-  // relay_set( app->spi, led_state, app->u304, U304_K301_L1_CTL, U304_K301_L2_CTL);
+  // it is a bit weird - should be clicking every 500ms. 
+  // or maybe - it is slient when returns?
+  // seems ok. when check on continuity. think relay is just silent in other direction.
 
   // toggle both relays at same time. doubles current
-  relay_set( app->spi, led_state, app->u304, U304_K301_L1_CTL | U304_K302_L1_CTL , U304_K301_L2_CTL | U304_K302_L2_CTL);
+  relay_set( app->spi, led_state, app->u304, /*U304_K301_L1_CTL |*/ U304_K302_L1_CTL , /*U304_K301_L2_CTL |*/ U304_K302_L2_CTL);
+
+#endif
 
 /*
   char buf[100];
@@ -568,8 +575,11 @@ static void loop(app_t *app)
 
   /*
     Think all of this should be done/moved to update()...
-
   */
+
+
+  // while(true);
+
   while(true) {
 
 
@@ -841,6 +851,27 @@ int main(void)
 
 
   // state_change(&app, STATE_FIRST );
+
+
+  // do fpga reset
+  spi1_port_cs1_cs2_gpio_setup();
+
+  msleep(1000);
+
+  //while(1) 
+  { 
+    // set cs lo, to pull creset lo
+    printf("assert cs\n");
+    spi1_port_cs1_enable();
+    spi1_port_cs2_enable();
+    msleep(100);
+    printf("deassert cs\n");
+    spi1_port_cs1_disable();
+    spi1_port_cs2_disable();
+    msleep(100);
+  }
+
+
 
   loop(&app);
 

@@ -70,6 +70,18 @@ void spi1_port_cs2_disable(void)
 }
 
 
+void spi1_port_cs1_enable(void)
+{
+  gpio_clear(SPI_PORT, SPI_CS1);
+}
+
+
+void spi1_port_cs1_disable(void)
+{
+  gpio_set(SPI_PORT, SPI_CS1);
+}
+
+
 
 
 
