@@ -96,30 +96,28 @@ static void update_soft_1s(app_t *app)
 */
 
 
-static void relay_set( uint32_t spi, bool state, uint8_t u304, uint32_t l1, uint32_t l2)
+static void relay_set( uint32_t spi, bool state, uint8_t u4094, uint32_t l1, uint32_t l2)
 {
-  // we don't actually have to pass u304 by reference sinice we don't modify it.
+  // don't need to pass actual u4094 by reference since we don't modify it except temporarily.
 
-  assert( !(u304 & l1) );
-  assert( !(u304 & l2) );
+  assert( !(u4094 & l1) );
+  assert( !(u4094 & l2) );
 
   if(state) {
     // hmmmmm we need a local
-    u304 |=  l1;
-    spi_4094_reg_write(spi, u304 );
+    u4094 |=  l1;
+    spi_4094_reg_write(spi, u4094 );
     msleep(10);
-    u304 &= ~ l1;
-    spi_4094_reg_write(spi, u304 );
-    msleep(10);
+    u4094 &= ~ l1;
+    spi_4094_reg_write(spi, u4094 );
   }
   else {
 
-    u304 |= l2 ;
-    spi_4094_reg_write(spi, u304 );
+    u4094 |= l2 ;
+    spi_4094_reg_write(spi, u4094 );
     msleep(10);
-    u304 &= ~ l2 ;
-    spi_4094_reg_write(spi, u304 );
-    msleep(10);
+    u4094 &= ~ l2 ;
+    spi_4094_reg_write(spi, u4094 );
 
   }
 }
@@ -159,14 +157,21 @@ static void update_soft_500ms(app_t *app)
   static int count = 0;
   printf("count %u\n", count++);
 
-  mux_4094(app->spi);
 
-  // it is a bit weird - should be clicking every 500ms. 
+  // it is a bit weird - should be clicking every 500ms.
   // or maybe - it is slient when returns?
   // seems ok. when check on continuity. think relay is just silent in other direction.
 
   // toggle both relays at same time. doubles current
-  relay_set( app->spi, led_state, app->u304, /*U304_K301_L1_CTL |*/ U304_K302_L1_CTL , /*U304_K301_L2_CTL |*/ U304_K302_L2_CTL);
+
+//  mux_4094(app->spi, 0x5);
+//  relay_set( app->spi, led_state, app->u304, /*U304_K301_L1_CTL |*/ U304_K302_L1_CTL , /*U304_K301_L2_CTL |*/ U304_K302_L2_CTL);
+
+
+
+  mux_4094(app->spi, 0x6);
+  msleep(1);
+  relay_set( app->spi, led_state, app->u514, U514_U506_K501_L1_CTL, U514_U506_K501_L2_CTL);
 
 #endif
 
@@ -858,8 +863,8 @@ int main(void)
 
   msleep(1000);
 
-  //while(1) 
-  { 
+  //while(1)
+  {
     // set cs lo, to pull creset lo
     printf("assert cs\n");
     spi1_port_cs1_enable();

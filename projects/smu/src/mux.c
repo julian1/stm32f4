@@ -93,12 +93,12 @@ void mux_adc(uint32_t spi)
 }
 
 
-void mux_4094(uint32_t spi)
+extern void mux_4094(uint32_t spi, uint8_t item )
 {
   printf("mux 4094\n");
 
   mux_ice40(spi);
-  ice40_reg_set(spi, REG_SPI_MUX,  0x5 );
+  ice40_reg_set(spi, REG_SPI_MUX,  /*0x5*/ item );
 
   // ensure gpio cs2 is disabled before switching from mcu AF to gpio control.
   // may not be needed, if gpio cs2 is not used in any other context

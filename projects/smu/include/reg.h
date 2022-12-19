@@ -37,14 +37,6 @@ extern void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t
   or _4094_U304_
 k
 
-(global_label "RAILS-LP5V-CTL" (shape input) (at 200.66 53.34 0) (fields_autoplaced)
-(global_label "RAILS-LP15V-CTL" (shape input) (at 200.66 55.88 0) (fields_autoplaced)
-(global_label "RAILS-LP24V-CTL" (shape input) (at 200.66 58.42 0) (fields_autoplaced)
-(global_label "RAILS-LP50V-CTL" (shape input) (at 200.66 60.96 0) (fields_autoplaced)
-(global_label "K301-L1-CTL" (shape input) (at 200.66 63.5 0) (fields_autoplaced)
-(global_label "K301-L2-CTL" (shape input) (at 200.66 66.04 0) (fields_autoplaced)
-(global_label "K302-L1-CTL" (shape input) (at 200.66 68.58 0) (fields_autoplaced)
-(global_label "K302-L2-CTL" (shape input) (at 200.66 71.12 0) (fields_autoplaced)
 */
 
 
@@ -58,8 +50,20 @@ k
 #define U304_K302_L2_CTL      (1<<7)
 
 
+// driver U514.   could prefix.
+#define U514_U506_K501_L1_CTL      (1<<1)
+#define U514_U506_K501_L2_CTL      (1<<0)
+#define U514_U506_K503_L1_CTL      (1<<2)
+#define U514_U506_K503_L2_CTL      (1<<3)
+#define U514_U506_K410_L1_CTL      (1<<4)
+#define U514_U506_K410_L2_CTL      (1<<5)
+#define U514_U506_K402_L1_CTL      (1<<6)
+#define U514_U506_K402_L2_CTL      (1<<7)
 
 
+
+
+////////////
 
 
 

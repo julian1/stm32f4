@@ -121,6 +121,7 @@ typedef struct app_t
 
 
   uint8_t   u304;
+  uint8_t   u514;
 
 
 
