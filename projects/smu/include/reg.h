@@ -50,6 +50,7 @@ k
 #define U304_K302_L2_CTL      (1<<7)
 
 
+// prefix with the domain. eg. analog domain. or relay domain. or high-side floating domain.
 // driver U514.   could prefix.
 #define U514_U506_K501_L1_CTL      (1<<1)
 #define U514_U506_K501_L2_CTL      (1<<0)

@@ -162,12 +162,11 @@ static void update_soft_500ms(app_t *app)
   // or maybe - it is slient when returns?
   // seems ok. when check on continuity. think relay is just silent in other direction.
 
-  // toggle both relays at same time. doubles current
-
-//  mux_4094(app->spi, 0x5);
-//  relay_set( app->spi, led_state, app->u304, /*U304_K301_L1_CTL |*/ U304_K302_L1_CTL , /*U304_K301_L2_CTL |*/ U304_K302_L2_CTL);
-
-
+/*
+  mux_4094(app->spi, 0x5);      // setting to 5 first creates issue? No.
+  relay_set( app->spi, led_state, app->u304, U304_K302_L1_CTL , U304_K302_L2_CTL);
+  //  relay_set( app->spi, led_state, app->u304, U304_K301_L1_CTL | U304_K302_L1_CTL , U304_K301_L2_CTL | U304_K302_L2_CTL);
+*/
 
   mux_4094(app->spi, 0x6);
   msleep(1);
