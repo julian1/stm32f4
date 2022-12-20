@@ -50,6 +50,7 @@ k
 #define U304_K302_L2_CTL      (1<<7)
 
 
+////////////
 // prefix with the domain. eg. analog domain. or relay domain. or high-side floating domain.
 // driver U514.   could prefix.
 #define U514_U506_K501_L1_CTL      (1<<1)
@@ -61,6 +62,27 @@ k
 #define U514_U506_K402_L1_CTL      (1<<6)
 #define U514_U506_K402_L2_CTL      (1<<7)
 
+
+#define U514_U507_K506_L1_CTL      (1<<1)
+#define U514_U507_K506_L2_CTL      (1<<0)
+#define U514_U507_K507_L1_CTL      (1<<2)
+#define U514_U507_K507_L2_CTL      (1<<3)
+#define U514_U507_K508_L1_CTL      (1<<4)
+#define U514_U507_K508_L2_CTL      (1<<5)
+#define U514_U507_K009_L1_CTL      (1<<6)
+#define U514_U507_K009_L2_CTL      (1<<7)
+
+//#define U514_U508_K506_L1_CTL      (1<<1)
+// #define U514_U508_K506_L2_CTL      (1<<0)
+#define U514_U508_K504_L1_CTL      (1<<2)
+#define U514_U508_K504_L2_CTL      (1<<3)
+#define U514_U508_K701_L1_CTL      (1<<4)
+#define U514_U508_K701_L2_CTL      (1<<5)
+#define U514_U508_K702_L1_CTL      (1<<6)
+#define U514_U508_K702_L2_CTL      (1<<7)
+
+
+////////////
 
 
 
