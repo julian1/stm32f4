@@ -105,20 +105,14 @@ static void relay_set( uint32_t spi, bool state, uint8_t u4094, uint32_t l1, uin
 
   if(state) {
     // hmmmmm we need a local
-    u4094 |=  l1;
-    spi_4094_reg_write(spi, u4094 );
+    spi_4094_reg_write(spi, u4094 | l1);
     msleep(10);
-    u4094 &= ~ l1;
-    spi_4094_reg_write(spi, u4094 );
+    spi_4094_reg_write(spi, u4094 & ~ l1);
   }
   else {
-
-    u4094 |= l2 ;
-    spi_4094_reg_write(spi, u4094 );
+    spi_4094_reg_write(spi, u4094 | l2);
     msleep(10);
-    u4094 &= ~ l2 ;
-    spi_4094_reg_write(spi, u4094 );
-
+    spi_4094_reg_write(spi, u4094 &= ~ l2);
   }
 }
 
@@ -162,15 +156,18 @@ static void update_soft_500ms(app_t *app)
   // or maybe - it is slient when returns?
   // seems ok. when check on continuity. think relay is just silent in other direction.
 
-/*
+#if 1
   mux_4094(app->spi, 0x5);      // setting to 5 first creates issue? No.
   relay_set( app->spi, led_state, app->u304, U304_K302_L1_CTL , U304_K302_L2_CTL);
   //  relay_set( app->spi, led_state, app->u304, U304_K301_L1_CTL | U304_K302_L1_CTL , U304_K301_L2_CTL | U304_K302_L2_CTL);
-*/
+#endif
 
+#if 0
   mux_4094(app->spi, 0x6);
   msleep(1);
   relay_set( app->spi, led_state, app->u514, U514_U506_K501_L1_CTL, U514_U506_K501_L2_CTL);
+#endif
+
 
 #endif
 

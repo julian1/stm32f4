@@ -42,8 +42,6 @@
 
 
 
-
-
 uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
 {
   // expect port is already configured with gpio for cs etc.
@@ -57,11 +55,11 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
 
   */
   spi_enable( spi );
-  uint8_t val = spi_xfer(spi, v);
+  uint8_t ret = spi_xfer(spi, v);
   spi_disable( spi );
 
   // TODO with invert behavior - we could change from set()/clear() to enable() disable() again.
-  // assert strobe.   fpga inverts signal.
+  // assert strobe.   fpga will invert active lo.
   spi1_port_cs2_enable();
 
   for(uint32_t i = 0; i < 100; ++i)   // 100count == 5us.
@@ -70,7 +68,34 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
   // normal state is lo
   spi1_port_cs2_disable();
 
-  return val;
+  return ret;
+}
+
+
+
+static uint32_t spi_4094_reg_write2(uint32_t spi, uint32_t v, uint32_t n)
+{
+  uint32_t ret = 0;
+
+  spi_enable( spi );
+
+  for(unsigned i = 0; i < n; ++i) {
+
+    ret = spi_xfer(spi, v);
+    v >>= 8;
+    ret <<= 8;  // check
+  }
+
+  spi_disable( spi );
+
+  spi1_port_cs2_enable();
+
+  for(uint32_t i = 0; i < 100; ++i)
+     __asm__("nop");
+
+  spi1_port_cs2_disable();
+
+  return ret;
 }
 
 

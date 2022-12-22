@@ -120,8 +120,8 @@ typedef struct app_t
   uint32_t spi;
 
 
-  uint8_t   u304;
-  uint8_t   u514;
+  uint32_t   u304;
+  uint32_t   u514;
 
 
 
