@@ -158,13 +158,13 @@ static void update_soft_500ms(app_t *app)
 
 #if 1
   mux_4094(app->spi, 0x5);      // setting to 5 first creates issue? No.
-  relay_set( app->spi, led_state, app->u304, U304_K302_L1_CTL , U304_K302_L2_CTL);
+  // relay_set( app->spi, led_state, app->u304, U304_K302_L1_CTL , U304_K302_L2_CTL);
+  relay_set( app->spi, led_state, app->u304, U304_K301_L1_CTL , U304_K301_L2_CTL);
   //  relay_set( app->spi, led_state, app->u304, U304_K301_L1_CTL | U304_K302_L1_CTL , U304_K301_L2_CTL | U304_K302_L2_CTL);
 #endif
 
 #if 0
   mux_4094(app->spi, 0x6);
-  msleep(1);
   relay_set( app->spi, led_state, app->u514, U514_U506_K501_L1_CTL, U514_U506_K501_L2_CTL);
 #endif
 
