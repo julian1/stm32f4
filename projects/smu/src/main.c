@@ -173,7 +173,7 @@ static void update_soft_500ms(app_t *app)
   // hang on. is the writing of data over the spi the issue.
 
 
-  // enable OE of 4094
+  // enable OE of 4094.  TODO - doesn't belong in loop.
   ice40_reg_write(app->spi, REG_4094,  GLB_4094_OE );
   // ice40_reg_write(app->spi, REG_4094,  0 );
 
@@ -187,25 +187,39 @@ static void update_soft_500ms(app_t *app)
   // seems ok. when check on continuity. think relay is just silent in other direction.
 
 #if 0
+  // omron g62
   mux_4094(app->spi, 0x5);      // setting to 5 first creates issue? No.
-  // relay_set( app->spi, led_state, app->u304, U304_K302_L1_CTL , U304_K302_L2_CTL);
-  relay_set3( app->spi, led_state, app->u304, U304_K301_L1_CTL , U304_K301_L2_CTL);
+  relay_set3( app->spi, led_state, app->u304, U304_K302_L1_CTL , U304_K302_L2_CTL);
+  // relay_set3( app->spi, led_state, app->u304, U304_K301_L1_CTL , U304_K301_L2_CTL);
   //  relay_set3( app->spi, led_state, app->u304, U304_K301_L1_CTL | U304_K302_L1_CTL , U304_K301_L2_CTL | U304_K302_L2_CTL);
 #endif
 
 #if 0
+  // rt424
   mux_4094(app->spi, 0x6);
   relay_set3( app->spi, led_state, app->u514, U514_U506_K501_L1_CTL, U514_U506_K501_L2_CTL);
 #endif
 
-#if 1
+#if 0
+  // agn200.
   mux_4094(app->spi, 0x6);
   relay_set3( app->spi, led_state, app->u514, U514_U507_K506_L1_CTL, U514_U507_K506_L2_CTL);
 #endif
 
+/*
+  TODO change name app->u304.   to app->_4094_analog_domain.
+  and 0x5. to SPI_4094_ANALOG . or similar.
 
-  // ghh... if we have to write... a set number of bytes...
-  // relay_set( app->spi, led_state, app->u514, U514_U506_K501_L1_CTL, U514_U506_K501_L2_CTL);
+*/
+  mux_4094(app->spi, 0x5);      // setting to 5 first creates issue? No.
+
+  if(led_state)
+    app->u304  |= U304_RAILS_LP50V_CTL;
+  else 
+    app->u304  &= ~ U304_RAILS_LP50V_CTL;
+
+  // write the rails control
+  spi_4094_reg_write3(app->spi, app->u304, 3);
 
 
 
