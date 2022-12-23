@@ -193,9 +193,14 @@ static void update_soft_500ms(app_t *app)
   //  relay_set3( app->spi, led_state, app->u304, U304_K301_L1_CTL | U304_K302_L1_CTL , U304_K301_L2_CTL | U304_K302_L2_CTL);
 #endif
 
-#if 1
+#if 0
   mux_4094(app->spi, 0x6);
   relay_set3( app->spi, led_state, app->u514, U514_U506_K501_L1_CTL, U514_U506_K501_L2_CTL);
+#endif
+
+#if 1
+  mux_4094(app->spi, 0x6);
+  relay_set3( app->spi, led_state, app->u514, U514_U507_K506_L1_CTL, U514_U507_K506_L2_CTL);
 #endif
 
 
