@@ -73,18 +73,32 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
 
 
 
-static uint32_t spi_4094_reg_write2(uint32_t spi, uint32_t v, uint32_t n)
+// think passing a unsigned char *s. is better.
+// can then call with &value.
+
+uint32_t spi_4094_reg_write_n(uint32_t spi, unsigned char *s, unsigned n)
 {
   uint32_t ret = 0;
 
   spi_enable( spi );
 
+/*
   for(unsigned i = 0; i < n; ++i) {
-
     ret = spi_xfer(spi, v);
     v >>= 8;
     ret <<= 8;  // check
   }
+*/
+
+  // we want to push the last byte first. but avoid addressing.
+
+
+  for(signed i = n - 1; i >= 0; --i) {
+    ret = spi_xfer(spi, s[i] );
+
+    ret <<= 8;  // check
+  }
+
 
   spi_disable( spi );
 

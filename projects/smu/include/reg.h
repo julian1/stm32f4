@@ -63,23 +63,23 @@ k
 #define U514_U506_K402_L2_CTL      (1<<7)
 
 
-#define U514_U507_K506_L1_CTL      (1<<1)
-#define U514_U507_K506_L2_CTL      (1<<0)
-#define U514_U507_K507_L1_CTL      (1<<2)
-#define U514_U507_K507_L2_CTL      (1<<3)
-#define U514_U507_K508_L1_CTL      (1<<4)
-#define U514_U507_K508_L2_CTL      (1<<5)
-#define U514_U507_K009_L1_CTL      (1<<6)
-#define U514_U507_K009_L2_CTL      (1<<7)
+#define U514_U507_K506_L1_CTL      (1<<8)
+#define U514_U507_K506_L2_CTL      (1<<9)
+#define U514_U507_K507_L1_CTL      (1<<10)
+#define U514_U507_K507_L2_CTL      (1<<11)
+#define U514_U507_K508_L1_CTL      (1<<12)
+#define U514_U507_K508_L2_CTL      (1<<13)
+#define U514_U507_K009_L1_CTL      (1<<14)
+#define U514_U507_K009_L2_CTL      (1<<15)
 
 //#define U514_U508_K506_L1_CTL      (1<<1)
 // #define U514_U508_K506_L2_CTL      (1<<0)
-#define U514_U508_K504_L1_CTL      (1<<2)
-#define U514_U508_K504_L2_CTL      (1<<3)
-#define U514_U508_K701_L1_CTL      (1<<4)
-#define U514_U508_K701_L2_CTL      (1<<5)
-#define U514_U508_K702_L1_CTL      (1<<6)
-#define U514_U508_K702_L2_CTL      (1<<7)
+#define U514_U508_K504_L1_CTL      (1<<18)
+#define U514_U508_K504_L2_CTL      (1<<19)
+#define U514_U508_K701_L1_CTL      (1<<20)
+#define U514_U508_K701_L2_CTL      (1<<21)
+#define U514_U508_K702_L1_CTL      (1<<22)
+#define U514_U508_K702_L2_CTL      (1<<23)
 
 
 ////////////

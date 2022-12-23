@@ -95,7 +95,7 @@ static void update_soft_1s(app_t *app)
     spi must be setup, in order for led toggle...
 */
 
-
+#if 0
 static void relay_set( uint32_t spi, bool state, uint8_t u4094, uint32_t l1, uint32_t l2)
 {
   // don't need to pass actual u4094 by reference since we don't modify it except temporarily.
@@ -104,7 +104,6 @@ static void relay_set( uint32_t spi, bool state, uint8_t u4094, uint32_t l1, uin
   assert( !(u4094 & l2) );
 
   if(state) {
-    // hmmmmm we need a local
     spi_4094_reg_write(spi, u4094 | l1);
     msleep(10);
     spi_4094_reg_write(spi, u4094 & ~ l1);
@@ -112,9 +111,41 @@ static void relay_set( uint32_t spi, bool state, uint8_t u4094, uint32_t l1, uin
   else {
     spi_4094_reg_write(spi, u4094 | l2);
     msleep(10);
-    spi_4094_reg_write(spi, u4094 &= ~ l2);
+    // spi_4094_reg_write(spi, u4094 &= ~ l2);       // WOWWWWWWWWWWWWWWW
+    spi_4094_reg_write(spi, u4094 & ~ l2);       // WOWWWWWWWWWWWWWWW
   }
 }
+
+#endif
+
+
+static uint32_t spi_4094_reg_write3(uint32_t spi, uint32_t val, unsigned n)
+{
+  // ease byte handling
+  assert( n <= sizeof(val));
+  return spi_4094_reg_write_n(spi, (void *)& val, n);
+}
+
+
+
+static void relay_set3( uint32_t spi, bool state, uint8_t u4094, uint32_t l1, uint32_t l2)
+{
+  // write 3 bytes.
+  assert( !(u4094 & l1) );
+  assert( !(u4094 & l2) );
+
+  if(state) {
+    spi_4094_reg_write3(spi, u4094 | l1, 3);
+    msleep(10);
+    spi_4094_reg_write3(spi, u4094 & ~ l1,  3);
+  }
+  else {
+    spi_4094_reg_write3(spi, u4094 | l2,  3);
+    msleep(10);
+    spi_4094_reg_write3(spi, u4094 & ~ l2, 3);
+  }
+}
+
 
 
 
@@ -147,7 +178,6 @@ static void update_soft_500ms(app_t *app)
   // ice40_reg_write(app->spi, REG_4094,  0 );
 
 
-#if 1
   static int count = 0;
   printf("count %u\n", count++);
 
@@ -156,20 +186,24 @@ static void update_soft_500ms(app_t *app)
   // or maybe - it is slient when returns?
   // seems ok. when check on continuity. think relay is just silent in other direction.
 
-#if 1
+#if 0
   mux_4094(app->spi, 0x5);      // setting to 5 first creates issue? No.
   // relay_set( app->spi, led_state, app->u304, U304_K302_L1_CTL , U304_K302_L2_CTL);
-  relay_set( app->spi, led_state, app->u304, U304_K301_L1_CTL , U304_K301_L2_CTL);
-  //  relay_set( app->spi, led_state, app->u304, U304_K301_L1_CTL | U304_K302_L1_CTL , U304_K301_L2_CTL | U304_K302_L2_CTL);
+  relay_set3( app->spi, led_state, app->u304, U304_K301_L1_CTL , U304_K301_L2_CTL);
+  //  relay_set3( app->spi, led_state, app->u304, U304_K301_L1_CTL | U304_K302_L1_CTL , U304_K301_L2_CTL | U304_K302_L2_CTL);
 #endif
 
-#if 0
+#if 1
   mux_4094(app->spi, 0x6);
-  relay_set( app->spi, led_state, app->u514, U514_U506_K501_L1_CTL, U514_U506_K501_L2_CTL);
+  relay_set3( app->spi, led_state, app->u514, U514_U506_K501_L1_CTL, U514_U506_K501_L2_CTL);
 #endif
 
 
-#endif
+  // ghh... if we have to write... a set number of bytes...
+  // relay_set( app->spi, led_state, app->u514, U514_U506_K501_L1_CTL, U514_U506_K501_L2_CTL);
+
+
+
 
 /*
   char buf[100];
