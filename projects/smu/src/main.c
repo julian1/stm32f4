@@ -214,9 +214,9 @@ static void update_soft_500ms(app_t *app)
   mux_4094(app->spi, 0x5);      // setting to 5 first creates issue? No.
 
   if(led_state)
-    app->u304  |= U304_RAILS_LP50V_CTL;
+    app->u304  |= U304_RAILS_LP5V_CTL;
   else 
-    app->u304  &= ~ U304_RAILS_LP50V_CTL;
+    app->u304  &= ~ U304_RAILS_LP5V_CTL;
 
   // write the rails control
   spi_4094_reg_write3(app->spi, app->u304, 3);
