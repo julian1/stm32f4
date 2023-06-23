@@ -1,6 +1,8 @@
 
 quick start,
 
+nix-shell ~/devel/nixos-config/examples/arm.nix  -I nixpkgs=/home/me/devel/nixpkgs02/
+
 
 # build libopencm3. needed to generate headers
 
@@ -13,7 +15,6 @@ make
 
 
 # serial connection
-
 
 rlwrap -a picocom  -q -b 115200 /dev/ttyUSB0
 or
@@ -39,6 +40,7 @@ make
 
 
 # stlink
+
 # actually, better in separate windows, avoids accidently swapping wrong context
 openocd -f openocd.cfg
 rlwrap nc localhost 4444
