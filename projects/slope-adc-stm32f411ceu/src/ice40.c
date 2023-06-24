@@ -1,4 +1,10 @@
 
+// jun 24.
+// WE SHOULD BE ABLE TO HARMONIZE THE 24 bit value registers and the 8 bit values - for smu/adc. 
+// move into lib.
+// just suffix 24. 
+// they are quite different sytems. 
+
 #include <libopencm3/stm32/spi.h>
 
 #include "ice40.h"
