@@ -62,7 +62,7 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
   // assert strobe.   fpga will invert active lo.
   spi1_port_cs2_enable();
 
-  for(uint32_t i = 0; i < 100; ++i)   // 100count == 5us.
+  for(uint32_t i = 0; i < 10; ++i)   // 100count == 5us.
      __asm__("nop");
 
   // normal state is lo
@@ -104,7 +104,14 @@ uint32_t spi_4094_reg_write_n(uint32_t spi, unsigned char *s, unsigned n)
 
   spi1_port_cs2_enable();
 
-  for(uint32_t i = 0; i < 100; ++i)
+  /*
+    4094 output is transparent on strobe-hi,  and latched on strobe negative edge..  normally park lo.
+    OK. there is issue that the clock parks high. before strobe goes lo. creating an extra positive clk edge.
+    which shifts the data.
+    --
+    note, this happens even if configure mcu clock to park lo. because afterwards it will still shift clkk to hi.
+  */
+  for(uint32_t i = 0; i < 10; ++i) // reduce time
      __asm__("nop");
 
   spi1_port_cs2_disable();
@@ -121,7 +128,9 @@ void spi_4094_setup(uint32_t spi)
     spi,
     // SPI_CR1_BAUDRATE_FPCLK_DIV_4,
     SPI_CR1_BAUDRATE_FPCLK_DIV_4,
-    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
+    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,      // park lo. but then returns hi. after cs deassert.
+    // SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,  // parks hi immediately?
+
     // SPI_CR1_CPHA_CLK_TRANSITION_2,    // 2 == falling edge
     SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == rising edge
     SPI_CR1_DFF_8BIT,

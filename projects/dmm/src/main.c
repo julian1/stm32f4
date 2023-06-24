@@ -130,6 +130,7 @@ static uint32_t spi_4094_reg_write3(uint32_t spi, uint32_t val, unsigned n)
 
 static void relay_set3( uint32_t spi, bool state, uint8_t u4094, uint32_t l1, uint32_t l2)
 {
+  // TODO no 4094 is the mask.
   // write 3 bytes.
   assert( !(u4094 & l1) );
   assert( !(u4094 & l2) );
@@ -194,14 +195,41 @@ static void update_soft_500ms(app_t *app)
   // ice40_reg_write(app->spi, REG_4094,  0 );
 
 
-  // mux 
-  mux_4094(app->spi, 0x1);      // setting to 5 first creates issue? No.
+  // mux spi to 4094.
+  mux_4094(app->spi, 0x1);
 
 
-  unsigned char v = 0b10101010 ;
-  spi_4094_reg_write_n(app->spi, &v, 1 );
+  msleep(10);
 
-    // 
+  // unsigned char v = 0b00000001 ;
+
+  if(led_state) 
+    spi_4094_reg_write3(app->spi, 0b00, 1);
+  else
+    spi_4094_reg_write3(app->spi, 0b01, 1);  
+
+    /*
+    // 4094 output is transparent on strobe-hi,  and latched on strobe negative edge..  normally park lo.
+
+    // OK. there is issue that the clock parks high. when strobe goes lo. so there's an extra clk edge.
+
+    // WHICH is probably caused by our fpga code change...
+    // the clock is returning to high. (eg. another edge). before the strobe negative edge, that latches everything.has finished.
+    */
+
+
+  // relay_set3( app->spi, led_state, 0 , 0b0010, 0b0001); // K302.
+
+  // relay_set3( app->spi, led_state, 0 , 0b0100, 0b1000); // K301.
+  // relay_set3( app->spi, led_state, 0 , 0b010, 0b100); // K301.
+
+  // OK. seems to be an off by one issue on the clocking perhaps?
+
+
+  // clear the spi muxing
+  mux_4094(app->spi, 0x0);
+
+
 
   // strobe is very slow weird.
 
@@ -240,7 +268,7 @@ static void update_soft_500ms(app_t *app)
 
   if(led_state)
     app->u304  |= U304_RAILS_LP5V_CTL;
-  else 
+  else
     app->u304  &= ~ U304_RAILS_LP5V_CTL;
 
   // write the rails control
