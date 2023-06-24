@@ -176,18 +176,34 @@ static void update_soft_500ms(app_t *app)
   printf("count %u\n", count++);
 
 
+  // move to main initialization.
+  ice40_reg_write(app->spi, REG_4094,  GLB_4094_OE );
 
 
+
+
+/*
   // enable OE of 4094.  TODO - doesn't belong in loop.
 
   if(led_state)
     ice40_reg_write(app->spi, REG_4094,  GLB_4094_OE );
   else
     ice40_reg_write(app->spi, REG_4094,  0 );
-
+*/
 
   // ice40_reg_write(app->spi, REG_4094,  0 );
 
+
+  // mux 
+  mux_4094(app->spi, 0x1);      // setting to 5 first creates issue? No.
+
+
+  unsigned char v = 0b10101010 ;
+  spi_4094_reg_write_n(app->spi, &v, 1 );
+
+    // 
+
+  // strobe is very slow weird.
 
 #if 0
 
