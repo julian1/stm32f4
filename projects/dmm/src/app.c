@@ -118,7 +118,7 @@ void app_start2( app_t * app )
   msleep(50);
 
 
-  // bring up 5V and +-15V rails 
+  // bring up 5V and +-15V rails
 
   mux_ice40(app->spi);
   // check rails monitor.
@@ -162,7 +162,7 @@ void app_start2( app_t * app )
   spi_mux_quadrant_set( app->spi, true, true );     // source positive voltage. max
   // spi_mux_quadrant_set( app->spi, false, false );    // source negative voltage,  min
 
- 
+
   // TODO.
   // move relay sense ext/in to own register. in order to do write.
   // not sure. all ext/in/out/guard relays - are user controllable. and everything should still work.

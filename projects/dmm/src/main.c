@@ -66,9 +66,10 @@
 
 
 
-
 static void spi1_interupt(app_t *app)
 {
+  UNUSED(app);
+#if 0
   /*
     interupt context. avoid doing work here...
   */
@@ -79,8 +80,8 @@ static void spi1_interupt(app_t *app)
 
   // set adc_drdy flag so that update() knows to read the adc...
   app->adc_drdy = true;
+#endif
 }
-
 
 
 static void update_soft_1s(app_t *app)
@@ -149,6 +150,81 @@ static void relay_set3( uint32_t spi, bool state, uint8_t u4094, uint32_t l1, ui
 
 
 
+#if 0
+function [4-1:0] update (input [4-1:0] x, input [4-1:0] set, input [4-1:0] clear,);
+  begin
+    if( clear & set  /*!= 0*/  ) // if both set and clear bits, then its a toggle
+      update =  (clear & set )  ^ x ; // xor. to toggle.
+    else
+      update = ~(  ~(x | set ) | clear);
+  end
+endfunction
+#endif
+
+
+static uint32_t write_bits32( uint32_t v, uint32_t set, uint32_t clear )
+{
+  return ~(  ~(v | set ) | clear);  // clear has priority
+}
+
+
+static uint32_t write_bits8( uint8_t v, uint8_t set, uint8_t clear )
+{
+  // *v = ~(  ~(*v | set ) | clear);  // clear has priority over set
+
+  return ~( ~v | clear)  | set;    // set has priority
+}
+
+
+static uint8_t create_mask8( uint8_t pos, uint8_t width)
+{
+  uint8_t val = (1 << (pos + width )) - 1;   // set all bits below pos + width.
+  uint8_t val2 = (1 << pos) - 1;            // set all bits below pos
+
+  return val & ~val2;
+}
+
+
+
+
+static uint8_t write_val8 ( uint8_t v, uint8_t pos, uint8_t width, uint8_t value)
+{
+  // write value into v - at pos with width
+  assert(pos < 8);
+  assert(width < 8);
+
+  uint8_t mask = create_mask8( pos, width);
+
+  return write_bits8( v, (value << pos) & mask, mask);
+}
+
+
+// we manipulate the state. then write it.
+// there is writing state to state var. then there is spi writing it.
+
+static void write_state ( uint8_t *state, size_t n, unsigned pos, uint8_t width, uint8_t value)
+{
+  // determine index to use into byte array, and set value 
+  unsigned idx = pos >> 3 ;   // div 8
+  assert( idx < n );
+  uint8_t *v = & state[ idx ];
+
+  *v = write_val8 ( *v, pos % 8, width, value);
+}
+
+
+
+static void format_state ( uint8_t *state, size_t n)
+{
+  assert(state);
+
+  char buf[100];
+  for(unsigned i = 0; i < n; ++i ) {
+
+    printf("v %s\n",  format_bits(buf, 8, state[ i ]  ));
+  }
+}
+
 
 static void update_soft_500ms(app_t *app)
 {
@@ -196,21 +272,28 @@ static void update_soft_500ms(app_t *app)
 
 
   // mux spi to 4094.
-  mux_4094(app->spi, 0x1);
+  // WRONG NAME.  should be mux_spi_device.
+  mux_4094(app->spi );
 
 
   msleep(10);
 
   // unsigned char v = 0b00000001 ;
 
-  if(led_state) 
+  // so
+
+  #define REG_K402   0
+
+  // so we have to index array by right shifting.
+
+  // write the relay.
+  if(led_state)
     spi_4094_reg_write3(app->spi, 0b00, 1);
   else
-    spi_4094_reg_write3(app->spi, 0b01, 1);  
+    spi_4094_reg_write3(app->spi, 0b01, 1);
 
     /*
     // 4094 output is transparent on strobe-hi,  and latched on strobe negative edge..  normally park lo.
-
     // OK. there is issue that the clock parks high. when strobe goes lo. so there's an extra clk edge.
 
     // WHICH is probably caused by our fpga code change...
@@ -218,16 +301,26 @@ static void update_soft_500ms(app_t *app)
     */
 
 
-  // relay_set3( app->spi, led_state, 0 , 0b0010, 0b0001); // K302.
+  if(led_state) 
+    write_state ( app->state_4094, sizeof( app->state_4094), 0, 2, 0b01 );
+  else
+    write_state ( app->state_4094, sizeof( app->state_4094), 0, 2, 0b10 );
 
-  // relay_set3( app->spi, led_state, 0 , 0b0100, 0b1000); // K301.
-  // relay_set3( app->spi, led_state, 0 , 0b010, 0b100); // K301.
+
+  format_state ( app->state_4094, sizeof( app->state_4094));
+
+
+
+
+  // relay_set3( app->spi, led_state, 0 , 0b0010, 0b0001); // K402.
+  // relay_set3( app->spi, led_state, 0 , 0b0100, 0b1000); // K401.
+  // relay_set3( app->spi, led_state, 0 , 0b010, 0b100); // K401.
 
   // OK. seems to be an off by one issue on the clocking perhaps?
 
 
   // clear the spi muxing
-  mux_4094(app->spi, 0x0);
+  mux_no_device(app->spi);
 
 
 
@@ -688,14 +781,14 @@ static char buf_console_out[1000];
 static char buf_command[1000];
 
 
-
+#if 0
 static float buf_vfb_measure[100];
 static float buf_ifb_measure[100];
 
 
 static float buf_vfb_range[100];
 static float buf_ifb_range[100];
-
+#endif
 
 
 
@@ -803,7 +896,41 @@ int main(void)
 
 
 
+  // write_bits8( uint8_t *v, uint8_t set, uint8_t clear )
 
+  {
+    char buf[100];
+
+    // uint8_t mask = create_mask8( 3, 2 );
+    // printf("mask %s\n",  format_bits(buf, 8, mask ) );
+
+
+    // uint8_t val = 0;
+
+    // printf("val %s\n",  format_bits(buf, 8,  write_bits8( val, 0b00110000, 0b00000011 ) ));
+
+
+      // write_with_mask8 ( v, 2, uint8_t width, 0b11 );
+
+      // static uint8_t write_bits8 ( uint8_t v, uint8_t pos, uint8_t width, uint8_t  value )
+      // static uint8_t write_val8 ( uint8_t v, uint8_t pos, uint8_t width, uint8_t  value )
+
+    // printf("val %s\n",  format_bits(buf, 8,  write_val8( 0xff, 2, 1, 0xff ) ));
+
+    // printf("val %s\n",  format_bits(buf, 8,  write_val8( 0x0, 1, 5, 0xff ) ));
+
+
+    uint8_t v[ 3 ]; 
+    memset(v, 0xff, sizeof(v));
+
+    write_state ( v, sizeof(v), 16, 3, 0x0 );
+
+
+    printf("v[0] %s\n",  format_bits(buf, 8, v[0 ]));
+    printf("v[1] %s\n",  format_bits(buf, 8, v[1 ]));
+    printf("v[2] %s\n",  format_bits(buf, 8, v[2 ]));
+
+  }
 
   //////////////////////////////
 
@@ -816,6 +943,7 @@ int main(void)
     really not sure that app_t initilization should be done here....
   */
 
+#if 0
   // measure
   fBufInit(&app.vfb_measure, buf_vfb_measure, ARRAY_SIZE(buf_vfb_measure));
   fBufInit(&app.ifb_measure, buf_ifb_measure, ARRAY_SIZE(buf_ifb_measure));
@@ -824,7 +952,7 @@ int main(void)
   fBufInit(&app.vfb_range, buf_vfb_range, ARRAY_SIZE(buf_vfb_range));
   fBufInit(&app.ifb_range, buf_ifb_range, ARRAY_SIZE(buf_ifb_range));
 
-
+#endif
 
 
 
@@ -843,9 +971,10 @@ int main(void)
   // should have separate app_t setup.
 
   app.spi = SPI1 ;
-  app.print_adc_values = true;
-  app.output = false;
+  // app.print_adc_values = true;
+  // app.output = false;
 
+#if 0
   app.nplc_measure = 50;
   app.nplc_range   = 20;
   app.digits = 6;
@@ -853,7 +982,7 @@ int main(void)
   // app.vrange = 0;
   // app.irange = 0;
 
-
+#endif
   // state_change(&app, STATE_FIRST );
 
 

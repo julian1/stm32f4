@@ -119,7 +119,9 @@ typedef struct app_t
 
   uint32_t spi;
 
+  uint8_t state_4094[ 5 ];  // how many
 
+#if 0
   uint32_t   u304;
   uint32_t   u514;
 
@@ -189,6 +191,8 @@ typedef struct app_t
   //////////////
 
   int       digits;
+
+#endif
 
 } app_t;
 
