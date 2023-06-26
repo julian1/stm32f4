@@ -169,22 +169,39 @@ static void update_soft_500ms(app_t *app)
   // blink the fpga led
   mux_ice40(app->spi);
 
+#if 0
+  // make sure output enable is set 4094
+  // should be set once - at mcu / start. but this avoids race condition if mcu writes before fpga is ready.
+  // solution is to query and wait for fpga - to return a magic number.
+
+  // No. there's a genuine problem here 
+  // we forgot the damn CS pullups. and the slave select was not resetting.
+
+  // ensure OE is up, note the race condition / with cpu that doesn't reset or wait for the ice40.
+  ice40_reg_set( app->spi, REG_4094,  GLB_4094_OE );
+  // uint8_t v = ice40_reg_read( app->spi, REG_4094);
+
+
+
+#endif
+
+
   if(led_state)
-    ice40_reg_set(app->spi, REG_LED,   LED0  );
+    spi_ice40_reg_write32(app->spi, REG_LED, LED0);
+    // ice40_reg_set(app->spi, REG_LED,   LED0);
   else
-    ice40_reg_clear(app->spi, REG_LED, LED0 );
+    spi_ice40_reg_write32(app->spi, REG_LED, 0 );   // we don't have the set and clear bits...
+    // ice40_reg_clear(app->spi, REG_LED, LED0);
 
 
-  // blink mcu led
+  // set mcu led state
   led_set( led_state );
 
-  // hang on. is the writing of data over the spi the issue.
 
   static int count = 0;
   printf("count %u\n", count++);
 
-
-
+#if 0
   // mux spi to 4094.
   mux_4094(app->spi );
 
@@ -198,12 +215,13 @@ static void update_soft_500ms(app_t *app)
 
   unsigned reg_relay = REG_K403;
 
-  // set relay, according to dir, for 10ms pulse
+  // set relay, according to dir
   write_state ( app->state_4094, sizeof( app->state_4094), reg_relay, 2, led_state ? 0b01 : 0b10 );
 
   format_state ( app->state_4094, sizeof( app->state_4094));
   spi_4094_reg_write_n(app->spi, app->state_4094, sizeof( app->state_4094) );
 
+  // sleep 10ms
   msleep(10);
 
   // now turn off the relay
@@ -211,16 +229,9 @@ static void update_soft_500ms(app_t *app)
   spi_4094_reg_write_n(app->spi, app->state_4094, sizeof( app->state_4094) );
 
 
-
-
-  // clear the spi muxing
+  // turn off spi muxing
   mux_no_device(app->spi);
-
-
-
-  // strobe is very slow weird.
-
-
+#endif
 
 
 }
@@ -270,7 +281,7 @@ static void update_console_cmd(app_t *app)
       }
 
 
-
+#if 0
       else if(strcmp(cmd, "mon") == 0) {
 
         // this will powerdown rails
@@ -369,7 +380,7 @@ static void update_console_cmd(app_t *app)
       }
 
 
-
+#endif
 
 
       // chage name to start, init sounds like initial-condition
@@ -675,15 +686,59 @@ int main(void)
 
 #endif
 
-  printf("turning on 4094 OE\n");
+
+
+
 
 
   // mux spi to ice40
   mux_ice40(app.spi);
 
+#if 0
+
+  printf("wait for ice40\n");
+  uint8_t ret = 0;
+  // uint8_t magic = 0b0101; // ok. not ok now.  ok. when reset the fpga.
+  uint8_t magic = 0b1010;   // this is returning the wrong value.... 
+  do {
+    printf(".");
+    ice40_reg_set( app.spi, REG_LED,  magic );
+    ret = ice40_reg_read( app.spi, REG_LED);
+
+    char buf[ 100] ;
+    printf("v %s\n",  format_bits(buf, 8, ret ));
+
+    msleep( 50);
+  }
+  while( ret != magic ); 
+  printf("\n");
+
+#endif
+
+  
+  uint8_t magic = 0; 
+
+  while(1) { 
+    assert(REG_LED == 7); 
+
+    spi_ice40_reg_write32(app.spi, REG_LED, magic++);
+    // spi_ice40_reg_write( app.spi, REG_LED, magic ++ );
+
+    uint32_t ret = spi_ice40_reg_read32( app.spi, REG_LED);
+    char buf[ 100] ;
+    printf("v %lu  %s\n",  ret,  format_bits(buf, 32, ret ));
+
+    msleep( 150);
+
+  } 
+
+
+/*
+
+  printf("turning on 4094 OE\n");
   // output enable 4094
   ice40_reg_write( app.spi, REG_4094,  GLB_4094_OE );
-
+*/
 
   // go to main loop
   loop(&app);

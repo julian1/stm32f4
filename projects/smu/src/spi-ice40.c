@@ -1,8 +1,10 @@
 
 /*
   ice40 spi is just one of multiple targets, like adc,dac,w25q etc.
-
   spi_ice40_
+  ------
+
+  should be able to be shared for 24 bit register system. and 8 bit register system. just suffix.
 
 */
 
@@ -17,6 +19,8 @@
 void spi_ice40_setup(uint32_t spi)
 {
   // the fpga as a spi slave.
+
+  spi_reset( spi );
 
   spi_init_master(
     spi,

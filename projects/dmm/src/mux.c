@@ -53,20 +53,20 @@ extern void mux_no_device(uint32_t spi )
 {
   // useful , turns off  common spi sigals (clk, mosi, miso etc). 
 
-  printf("mux no device\n");
+  // printf("mux no device\n");
 
   assert( SPI_MUX_NONE == 0); // june 2023. dmm03.
 
   // needed to setup mcu port configuration
   mux_ice40(spi);
-  ice40_reg_set(spi, REG_SPI_MUX,  SPI_MUX_NONE );
+  spi_ice40_reg_write32(spi, REG_SPI_MUX,  SPI_MUX_NONE );
 
 }
 
 extern void mux_4094(uint32_t spi )
 // extern void mux_4094(uint32_t spi, uint8_t item )
 {
-  printf("mux 4094\n");
+  // printf("mux 4094\n");
 
   assert( SPI_MUX_4094 == 1); // june 2023. for dmm03.
 
@@ -74,7 +74,8 @@ extern void mux_4094(uint32_t spi )
   // ice40_reg_set(spi, REG_SPI_MUX,  /*0x5*/ item );
 
 
-  ice40_reg_set(spi, REG_SPI_MUX,  SPI_MUX_4094 );
+  // JA
+  spi_ice40_reg_write32(spi, REG_SPI_MUX,  SPI_MUX_4094 );
 
   // ensure gpio cs2 is disabled before switching from mcu AF to gpio control.
   // may not be needed, if gpio cs2 is not used in any other context
