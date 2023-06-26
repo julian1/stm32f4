@@ -92,82 +92,6 @@ static void update_soft_1s(app_t *app)
 
 }
 
-/*
-    spi must be setup, in order for led toggle...
-*/
-
-#if 0
-static void relay_set( uint32_t spi, bool state, uint8_t u4094, uint32_t l1, uint32_t l2)
-{
-  // don't need to pass actual u4094 by reference since we don't modify it except temporarily.
-
-  assert( !(u4094 & l1) );
-  assert( !(u4094 & l2) );
-
-  if(state) {
-    spi_4094_reg_write(spi, u4094 | l1);
-    msleep(10);
-    spi_4094_reg_write(spi, u4094 & ~ l1);
-  }
-  else {
-    spi_4094_reg_write(spi, u4094 | l2);
-    msleep(10);
-    // spi_4094_reg_write(spi, u4094 &= ~ l2);       // WOWWWWWWWWWWWWWWW
-    spi_4094_reg_write(spi, u4094 & ~ l2);       // WOWWWWWWWWWWWWWWW
-  }
-}
-
-#endif
-
-
-
-#if 0
-static uint32_t spi_4094_reg_write3(uint32_t spi, uint32_t val, unsigned n)
-{
-  // ease byte handling
-  assert( n <= sizeof(val));
-  return spi_4094_reg_write_n(spi, (void *)& val, n);
-}
-
-
-
-static void relay_set3( uint32_t spi, bool state, uint8_t u4094, uint32_t l1, uint32_t l2)
-{
-  // TODO no 4094 is the mask.
-  // write 3 bytes.
-  assert( !(u4094 & l1) );
-  assert( !(u4094 & l2) );
-
-  if(state) {
-    spi_4094_reg_write3(spi, u4094 | l1, 3);
-    msleep(10);
-    spi_4094_reg_write3(spi, u4094 & ~ l1,  3);
-  }
-  else {
-    spi_4094_reg_write3(spi, u4094 | l2,  3);
-    msleep(10);
-    spi_4094_reg_write3(spi, u4094 & ~ l2, 3);
-  }
-}
-#endif
-
-
-#if 0
-function [4-1:0] update (input [4-1:0] x, input [4-1:0] set, input [4-1:0] clear,);
-  begin
-    if( clear & set  /*!= 0*/  ) // if both set and clear bits, then its a toggle
-      update =  (clear & set )  ^ x ; // xor. to toggle.
-    else
-      update = ~(  ~(x | set ) | clear);
-  end
-endfunction
-#endif
-
-
-static uint32_t write_bits32( uint32_t v, uint32_t set, uint32_t clear )
-{
-  return ~(  ~(v | set ) | clear);  // clear has priority
-}
 
 
 static uint32_t write_bits8( uint8_t v, uint8_t set, uint8_t clear )
@@ -206,7 +130,7 @@ static uint8_t write_val8 ( uint8_t v, uint8_t pos, uint8_t width, uint8_t value
 
 static void write_state ( uint8_t *state, size_t n, unsigned pos, uint8_t width, uint8_t value)
 {
-  // determine index to use into byte array, and set value 
+  // determine index to use into byte array, and set value
   unsigned idx = pos >> 3 ;   // div 8
   assert( idx < n );
   uint8_t *v = & state[ idx ];
@@ -260,47 +184,19 @@ static void update_soft_500ms(app_t *app)
   printf("count %u\n", count++);
 
 
-  // move to main initialization.
-  ice40_reg_write(app->spi, REG_4094,  GLB_4094_OE );
-
-
-
-
-/*
-  // enable OE of 4094.  TODO - doesn't belong in loop.
-
-  if(led_state)
-    ice40_reg_write(app->spi, REG_4094,  GLB_4094_OE );
-  else
-    ice40_reg_write(app->spi, REG_4094,  0 );
-*/
-
-  // ice40_reg_write(app->spi, REG_4094,  0 );
-
 
   // mux spi to 4094.
-  // WRONG NAME.  should be mux_spi_device.
   mux_4094(app->spi );
-
-
-
-  // unsigned char v = 0b00000001 ;
 
   // so
 
-  #define reg_relay   2
+  #define REG_K402    0
+  #define REG_K403    2
+  #define REG_K401    8
 
   // so we have to index array by right shifting.
 
-/*
-  // write the relay.
-  if(led_state)
-    spi_4094_reg_write3(app->spi, 0b00, 1);
-  else
-    spi_4094_reg_write3(app->spi, 0b01, 1);
-
-*/
-
+  unsigned reg_relay = REG_K403;
 
   // set relay, according to dir, for 10ms pulse
   write_state ( app->state_4094, sizeof( app->state_4094), reg_relay, 2, led_state ? 0b01 : 0b10 );
@@ -309,7 +205,7 @@ static void update_soft_500ms(app_t *app)
   spi_4094_reg_write_n(app->spi, app->state_4094, sizeof( app->state_4094) );
 
   msleep(10);
- 
+
   // now turn off the relay
   write_state ( app->state_4094, sizeof( app->state_4094), reg_relay, 2, 0b00 );   // clear
   spi_4094_reg_write_n(app->spi, app->state_4094, sizeof( app->state_4094) );
@@ -324,141 +220,10 @@ static void update_soft_500ms(app_t *app)
 
   // strobe is very slow weird.
 
-#if 0
 
-  // it is a bit weird - should be clicking every 500ms.
-  // or maybe - it is slient when returns?
-  // seems ok. when check on continuity. think relay is just silent in other direction.
-
-#if 0
-  // omron g62
-  mux_4094(app->spi, 0x5);      // setting to 5 first creates issue? No.
-  relay_set3( app->spi, led_state, app->u304, U304_K302_L1_CTL , U304_K302_L2_CTL);
-  // relay_set3( app->spi, led_state, app->u304, U304_K301_L1_CTL , U304_K301_L2_CTL);
-  //  relay_set3( app->spi, led_state, app->u304, U304_K301_L1_CTL | U304_K302_L1_CTL , U304_K301_L2_CTL | U304_K302_L2_CTL);
-#endif
-
-#if 0
-  // rt424
-  mux_4094(app->spi, 0x6);
-  relay_set3( app->spi, led_state, app->u514, U514_U506_K501_L1_CTL, U514_U506_K501_L2_CTL);
-#endif
-
-#if 0
-  // agn200.
-  mux_4094(app->spi, 0x6);
-  relay_set3( app->spi, led_state, app->u514, U514_U507_K506_L1_CTL, U514_U507_K506_L2_CTL);
-#endif
-
-/*
-  TODO change name app->u304.   to app->_4094_analog_domain.
-  and 0x5. to SPI_4094_ANALOG . or similar.
-
-*/
-  mux_4094(app->spi, 0x5);      // setting to 5 first creates issue? No.
-
-  if(led_state)
-    app->u304  |= U304_RAILS_LP5V_CTL;
-  else
-    app->u304  &= ~ U304_RAILS_LP5V_CTL;
-
-  // write the rails control
-  spi_4094_reg_write3(app->spi, app->u304, 3);
-
-
-#endif
-
-/*
-  char buf[100];
-  mux_ice40(app->spi);
-  uint8_t val = ice40_reg_read( app->spi, REG_SPI_MUX );
-  printf("reg_spi_mux read bits %u %s\n", val, format_bits(buf, 8, val) );
-*/
 
 
 }
-
-
-static void update_soft_stress_test_2_50ms( app_t *app)
-{
-  return;
-
-  static bool led_state = 0;
-  led_state = ! led_state;
-
-  printf("--\n");
-
-  // blink the fpga led
-  mux_ice40(app->spi);
-
-  if(led_state)
-    ice40_reg_set(app->spi, REG_LED,   LED0 |  LED2 /*| LED3*/ );
-  else
-    ice40_reg_clear(app->spi, REG_LED, LED0 | LED1 | LED2 | LED3 );
-
-
-  char buf[100];
-  uint8_t val0, val1 ;
-
-  val0 = ice40_reg_read( app->spi, REG_LED );
-  printf("led read bits %u %s\n", val0, format_bits(buf, 8, val0) );
-
-  val1 = ice40_reg_read( app->spi, REG_LED );
-  printf("led read bits %u %s\n", val1, format_bits(buf, 8, val1) );
-
-  if(val0 != val1)  {
-    printf("different\n");
-    critical_error_blink();
-  }
-
-  // blink mcu led
-  led_set( led_state );
-
-}
-
-
-static void update_soft_stress_test_50ms(app_t *app)
-{
-  return;
-
-  printf("--\n");
-
-  static bool led_state = 0;
-  led_state = ! led_state;
-
-  // blink the fpga led
-  mux_ice40(app->spi);
-
-  if(led_state)
-    ice40_reg_set(app->spi, REG_LED,   LED0 |  LED2 | LED3 );
-  else
-    ice40_reg_clear(app->spi, REG_LED, LED0 | LED1 | LED2 | LED3 );
-
-  // blink mcu led
-  led_set( led_state );
-
-  char buf[100];
-  uint8_t val;
-
-  val = ice40_reg_read( app->spi, REG_LED );
-  printf("reg_led read bits %s\n", format_bits(buf, 4, val) );
-
-  if(led_state && val !=  (LED0 |  LED2 | LED3 ) ) {
-    printf("*** error\n" );
-    critical_error_blink();
-  }
-
-  if(!led_state && (val !=   0 ) ) {
-    printf("*** error\n" );
-    critical_error_blink();
-  }
-
-  ice40_reg_set(app->spi, REG_SPI_MUX,   0x5 );
-
-  val = ice40_reg_read( app->spi, REG_SPI_MUX);
-  printf("reg_spi_mux read bits %u %s\n", val, format_bits(buf, 8, val) );
-}
-
 
 
 
@@ -637,34 +402,10 @@ static void update_console_cmd(app_t *app)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-  is there something taking a really long time? async flush?
-  OR are we blocking???? in the flush?
-
-  such that we miss... the adc read??
-
-
-*/
-
-
-
 static void loop(app_t *app)
 {
   // move this into the app var structure ?.
-  static uint32_t soft_50ms = 0;
+  // static uint32_t soft_50ms = 0;
   static uint32_t soft_500ms = 0;
   static uint32_t soft_1s = 0;
 
@@ -697,14 +438,14 @@ static void loop(app_t *app)
     update_console_cmd(app);
 
 
-
+#if 0
     // 50ms soft timer. for stress testing.
     if( (system_millis - soft_50ms) > 50) {
       soft_50ms += 50;
       update_soft_stress_test_50ms(app);
       update_soft_stress_test_2_50ms(app);
     }
-
+#endif
 
     // 500ms soft timer. should handle wrap around
     if( (system_millis - soft_500ms) > 500) {
@@ -779,35 +520,11 @@ static char buf_console_out[1000];
 static char buf_command[1000];
 
 
-#if 0
-static float buf_vfb_measure[100];
-static float buf_ifb_measure[100];
-
-
-static float buf_vfb_range[100];
-static float buf_ifb_range[100];
-#endif
-
-
 
 
 // move init to a function?
 // no... because we collect/assemble dependencies. ok in main()
 static app_t app;
-
-
-
-/*
-  TODO.
-  OK. it would be very nice to know how many values are in the
-  float circular buffer...
-
-  Rather than counting interupts in a separate var .
-
-*/
-
-
-
 
 
 
@@ -894,63 +611,26 @@ int main(void)
 
 
 
-  // write_bits8( uint8_t *v, uint8_t set, uint8_t clear )
-
+#if 0
   {
     char buf[100];
 
-    // uint8_t mask = create_mask8( 3, 2 );
-    // printf("mask %s\n",  format_bits(buf, 8, mask ) );
-
-
-    // uint8_t val = 0;
-
-    // printf("val %s\n",  format_bits(buf, 8,  write_bits8( val, 0b00110000, 0b00000011 ) ));
-
-
-      // write_with_mask8 ( v, 2, uint8_t width, 0b11 );
-
-      // static uint8_t write_bits8 ( uint8_t v, uint8_t pos, uint8_t width, uint8_t  value )
-      // static uint8_t write_val8 ( uint8_t v, uint8_t pos, uint8_t width, uint8_t  value )
-
-    // printf("val %s\n",  format_bits(buf, 8,  write_val8( 0xff, 2, 1, 0xff ) ));
+      // printf("val %s\n",  format_bits(buf, 8,  write_val8( 0xff, 2, 1, 0xff ) ));
 
     // printf("val %s\n",  format_bits(buf, 8,  write_val8( 0x0, 1, 5, 0xff ) ));
 
-
-    uint8_t v[ 3 ]; 
+    uint8_t v[ 3 ];
     memset(v, 0xff, sizeof(v));
-
     write_state ( v, sizeof(v), 16, 3, 0x0 );
-
 
     printf("v[0] %s\n",  format_bits(buf, 8, v[0 ]));
     printf("v[1] %s\n",  format_bits(buf, 8, v[1 ]));
     printf("v[2] %s\n",  format_bits(buf, 8, v[2 ]));
-
   }
+#endif
 
   //////////////////////////////
 
-
-  // vfb buffer
-  // fBufInit(&app.vfb_cbuf, buf_vfb, ARRAY_SIZE(buf_vfb));
-
-
-  /*
-    really not sure that app_t initilization should be done here....
-  */
-
-#if 0
-  // measure
-  fBufInit(&app.vfb_measure, buf_vfb_measure, ARRAY_SIZE(buf_vfb_measure));
-  fBufInit(&app.ifb_measure, buf_ifb_measure, ARRAY_SIZE(buf_ifb_measure));
-
-  // range
-  fBufInit(&app.vfb_range, buf_vfb_range, ARRAY_SIZE(buf_vfb_range));
-  fBufInit(&app.ifb_range, buf_ifb_range, ARRAY_SIZE(buf_ifb_range));
-
-#endif
 
 
 
@@ -972,18 +652,9 @@ int main(void)
   // app.print_adc_values = true;
   // app.output = false;
 
+
+
 #if 0
-  app.nplc_measure = 50;
-  app.nplc_range   = 20;
-  app.digits = 6;
-
-  // app.vrange = 0;
-  // app.irange = 0;
-
-#endif
-  // state_change(&app, STATE_FIRST );
-
-
   // do fpga reset
   spi1_port_cs1_cs2_gpio_setup();
 
@@ -1002,8 +673,19 @@ int main(void)
     msleep(100);
   }
 
+#endif
+
+  printf("turning on 4094 OE\n");
 
 
+  // mux spi to ice40
+  mux_ice40(app.spi);
+
+  // output enable 4094
+  ice40_reg_write( app.spi, REG_4094,  GLB_4094_OE );
+
+
+  // go to main loop
   loop(&app);
 
 	for (;;);
