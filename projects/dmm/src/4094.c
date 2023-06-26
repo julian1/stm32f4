@@ -12,7 +12,20 @@
 
 #define UNUSED(x) (void)(x)
 
+    /*
+    // 4094 output is transparent on strobe-hi,  and latched on strobe negative edge..  normally park lo.
+    // OK. there is issue that the clock parks high. when strobe goes lo. so there's an extra clk edge.
+
+    // WHICH is probably caused by our fpga code change...
+    // the clock is returning to high. (eg. another edge). before the strobe negative edge, that latches everything.has finished.
+    */
+
+
+
 /*
+
+
+
 
   ------
   "The data in the shift register is transferred to the storage register when the STR input is HIGH"

@@ -120,6 +120,8 @@ static void relay_set( uint32_t spi, bool state, uint8_t u4094, uint32_t l1, uin
 #endif
 
 
+
+#if 0
 static uint32_t spi_4094_reg_write3(uint32_t spi, uint32_t val, unsigned n)
 {
   // ease byte handling
@@ -147,7 +149,7 @@ static void relay_set3( uint32_t spi, bool state, uint8_t u4094, uint32_t l1, ui
     spi_4094_reg_write3(spi, u4094 & ~ l2, 3);
   }
 }
-
+#endif
 
 
 #if 0
@@ -226,6 +228,11 @@ static void format_state ( uint8_t *state, size_t n)
 }
 
 
+
+
+
+
+
 static void update_soft_500ms(app_t *app)
 {
   // UNUSED(app);
@@ -276,47 +283,38 @@ static void update_soft_500ms(app_t *app)
   mux_4094(app->spi );
 
 
-  msleep(10);
 
   // unsigned char v = 0b00000001 ;
 
   // so
 
-  #define REG_K402   0
+  #define reg_relay   2
 
   // so we have to index array by right shifting.
 
+/*
   // write the relay.
   if(led_state)
     spi_4094_reg_write3(app->spi, 0b00, 1);
   else
     spi_4094_reg_write3(app->spi, 0b01, 1);
 
-    /*
-    // 4094 output is transparent on strobe-hi,  and latched on strobe negative edge..  normally park lo.
-    // OK. there is issue that the clock parks high. when strobe goes lo. so there's an extra clk edge.
-
-    // WHICH is probably caused by our fpga code change...
-    // the clock is returning to high. (eg. another edge). before the strobe negative edge, that latches everything.has finished.
-    */
+*/
 
 
-  if(led_state) 
-    write_state ( app->state_4094, sizeof( app->state_4094), 0, 2, 0b01 );
-  else
-    write_state ( app->state_4094, sizeof( app->state_4094), 0, 2, 0b10 );
-
+  // set relay, according to dir, for 10ms pulse
+  write_state ( app->state_4094, sizeof( app->state_4094), reg_relay, 2, led_state ? 0b01 : 0b10 );
 
   format_state ( app->state_4094, sizeof( app->state_4094));
+  spi_4094_reg_write_n(app->spi, app->state_4094, sizeof( app->state_4094) );
+
+  msleep(10);
+ 
+  // now turn off the relay
+  write_state ( app->state_4094, sizeof( app->state_4094), reg_relay, 2, 0b00 );   // clear
+  spi_4094_reg_write_n(app->spi, app->state_4094, sizeof( app->state_4094) );
 
 
-
-
-  // relay_set3( app->spi, led_state, 0 , 0b0010, 0b0001); // K402.
-  // relay_set3( app->spi, led_state, 0 , 0b0100, 0b1000); // K401.
-  // relay_set3( app->spi, led_state, 0 , 0b010, 0b100); // K401.
-
-  // OK. seems to be an off by one issue on the clocking perhaps?
 
 
   // clear the spi muxing
