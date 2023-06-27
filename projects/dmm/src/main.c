@@ -174,7 +174,7 @@ static void update_soft_500ms(app_t *app)
   // should be set once - at mcu / start. but this avoids race condition if mcu writes before fpga is ready.
   // solution is to query and wait for fpga - to return a magic number.
 
-  // No. there's a genuine problem here 
+  // No. there's a genuine problem here
   // we forgot the damn CS pullups. and the slave select was not resetting.
 
   // ensure OE is up, note the race condition / with cpu that doesn't reset or wait for the ice40.
@@ -540,8 +540,58 @@ static app_t app;
 
 
 
+static void stress_test_spi( uint32_t spi)
+{
+  // TODO better name. move code to separate test folder.
+
+  printf("stress test spi comms\n");
+
+  mux_ice40(spi);
+
+  uint8_t magic = 0;
+
+  while(1) {
+    assert(REG_LED == 7);
+
+    spi_ice40_reg_write32(spi, REG_LED, magic++);
+    // spi_ice40_reg_write( spi, REG_LED, magic ++ );
+
+    uint32_t ret = spi_ice40_reg_read32( spi, REG_LED);
+    char buf[ 100] ;
+    printf("v %lu  %s\n",  ret,  format_bits(buf, 32, ret ));
+
+    msleep( 150);
+  }
+}
 
 
+static void wait_for_ice40( uint32_t spi)
+{
+  // TODO better ame doto
+
+  mux_ice40(spi);
+
+  printf("wait for ice40\n");
+  uint32_t ret = 0;
+  // uint8_t magic = 0b0101; // ok. not ok now.  ok. when reset the fpga.
+  uint8_t magic = 0b1010;   // this is returning the wrong value....
+  do {
+    printf(".");
+
+    // ice40_reg_set( spi, REG_LED,  magic );
+    spi_ice40_reg_write32( spi, REG_LED, magic);
+    // ret = ice40_reg_read( spi, REG_LED);
+    ret = spi_ice40_reg_read32( spi, REG_LED);
+
+    // char buf[ 100] ;
+    // printf("v %s\n",  format_bits(buf, 8, ret ));
+
+    msleep( 50);
+  }
+  while( ret != magic );
+  printf("\n");
+
+}
 
 
 
@@ -694,51 +744,18 @@ int main(void)
   // mux spi to ice40
   mux_ice40(app.spi);
 
-#if 0
 
-  printf("wait for ice40\n");
-  uint8_t ret = 0;
-  // uint8_t magic = 0b0101; // ok. not ok now.  ok. when reset the fpga.
-  uint8_t magic = 0b1010;   // this is returning the wrong value.... 
-  do {
-    printf(".");
-    ice40_reg_set( app.spi, REG_LED,  magic );
-    ret = ice40_reg_read( app.spi, REG_LED);
+  wait_for_ice40( app.spi );
 
-    char buf[ 100] ;
-    printf("v %s\n",  format_bits(buf, 8, ret ));
-
-    msleep( 50);
-  }
-  while( ret != magic ); 
-  printf("\n");
-
-#endif
-
-  
-  uint8_t magic = 0; 
-
-  while(1) { 
-    assert(REG_LED == 7); 
-
-    spi_ice40_reg_write32(app.spi, REG_LED, magic++);
-    // spi_ice40_reg_write( app.spi, REG_LED, magic ++ );
-
-    uint32_t ret = spi_ice40_reg_read32( app.spi, REG_LED);
-    char buf[ 100] ;
-    printf("v %lu  %s\n",  ret,  format_bits(buf, 32, ret ));
-
-    msleep( 150);
-
-  } 
+  // stress_test_spi( app.spi);
 
 
-/*
+
 
   printf("turning on 4094 OE\n");
   // output enable 4094
-  ice40_reg_write( app.spi, REG_4094,  GLB_4094_OE );
-*/
+  spi_ice40_reg_write32( app.spi, REG_4094,  GLB_4094_OE );
+
 
   // go to main loop
   loop(&app);
