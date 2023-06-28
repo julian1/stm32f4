@@ -166,6 +166,9 @@ static void update_soft_500ms(app_t *app)
   led_state = ! led_state;
 
 
+  static int count = 0;
+  printf("count %u\n", count++);
+
   // blink the fpga led
   mux_ice40(app->spi);
 
@@ -185,21 +188,27 @@ static void update_soft_500ms(app_t *app)
 
 #endif
 
-
+/*
   if(led_state)
     spi_ice40_reg_write32(app->spi, REG_LED, LED0);
   else
     spi_ice40_reg_write32(app->spi, REG_LED, 0 );   // we don't have the set and clear bits...
+*/
+
+  spi_ice40_reg_write32(app->spi, REG_LED, count );   // we don't have the set and clear bits...
+
+  uint32_t v = spi_ice40_reg_read32(app->spi, REG_LED);
+
+  char buf[32];
+  printf("value of led %lu %s\n", v, format_bits(buf, 31, v ));
+
 
 
   // set mcu led state
   led_set( led_state );
 
 
-  static int count = 0;
-  printf("count %u\n", count++);
-
-#if 1
+#if 0
   // mux spi to 4094.
   mux_4094(app->spi );
 
