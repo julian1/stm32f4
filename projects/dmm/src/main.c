@@ -751,8 +751,10 @@ int main(void)
   /*
     not quite right.
     we need to clear/reset the 4094 register values s first before turning on OE.
-    otherwise relays could be drawing
+    otherwise 4094 flip/flops can come up in any state,
 
+    should also verify that value was correct. by writing.  and without asserting strobe.
+    relays latch could be caught in on state.
   */
 
   printf("turning on 4094 OE\n");
