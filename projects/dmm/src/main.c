@@ -188,10 +188,8 @@ static void update_soft_500ms(app_t *app)
 
   if(led_state)
     spi_ice40_reg_write32(app->spi, REG_LED, LED0);
-    // ice40_reg_set(app->spi, REG_LED,   LED0);
   else
     spi_ice40_reg_write32(app->spi, REG_LED, 0 );   // we don't have the set and clear bits...
-    // ice40_reg_clear(app->spi, REG_LED, LED0);
 
 
   // set mcu led state
@@ -201,7 +199,7 @@ static void update_soft_500ms(app_t *app)
   static int count = 0;
   printf("count %u\n", count++);
 
-#if 0
+#if 1
   // mux spi to 4094.
   mux_4094(app->spi );
 
@@ -750,7 +748,12 @@ int main(void)
   // stress_test_spi( app.spi);
 
 
+  /*
+    not quite right.
+    we need to clear/reset the 4094 register values s first before turning on OE.
+    otherwise relays could be drawing
 
+  */
 
   printf("turning on 4094 OE\n");
   // output enable 4094
