@@ -207,7 +207,7 @@ uint32_t spi_ice40_reg_write32(uint32_t spi, uint8_t reg, uint32_t val)
 
   spi_enable(spi);
   // write the reg we are interested in, with read bit cleared.
-  spi_xfer( spi, reg );  
+  spi_xfer( spi, reg );
   // return the data
   uint32_t ret = spi_xfer_32(spi, val );
   spi_disable(spi);
@@ -219,7 +219,7 @@ uint32_t spi_ice40_reg_write32(uint32_t spi, uint8_t reg, uint32_t val)
 
 uint32_t spi_ice40_reg_read32(uint32_t spi, uint8_t reg)
 {
-  // call write with, with read bit set, and passing dummy value. 
+  // call write with, with read bit set, and passing dummy value.
   return spi_ice40_reg_write32( spi, reg | (1 << 7), 0);
 }
 

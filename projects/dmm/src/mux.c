@@ -33,6 +33,25 @@
 
 */
 
+
+
+// these  shouldn't need to be exposed.
+
+#define REG_SPI_MUX     8
+
+#define SPI_MUX_NONE    0
+#define SPI_MUX_4094    1
+
+/*
+// FIXME. THESE ARE ALL WRONG, we now using monotonic number, not bit operations.
+#define SPI_MUX_ADC03   (1<<0)
+#define SPI_MUX_DAC     (1<<1)
+#define SPI_MUX_FLASH   (1<<2)
+#define SPI_MUX_ADC     (1<<3)
+*/
+
+
+
 // one bit
 // put all these
 
@@ -49,9 +68,9 @@ void mux_ice40(uint32_t spi)
 
 
 
-extern void mux_no_device(uint32_t spi )
+void mux_no_device(uint32_t spi )
 {
-  // useful , turns off  common spi sigals (clk, mosi, miso etc). 
+  // useful , turns off  common spi sigals (clk, mosi, miso etc).
 
   // printf("mux no device\n");
 
@@ -63,8 +82,7 @@ extern void mux_no_device(uint32_t spi )
 
 }
 
-extern void mux_4094(uint32_t spi )
-// extern void mux_4094(uint32_t spi, uint8_t item )
+void mux_4094(uint32_t spi )
 {
   // printf("mux 4094\n");
 

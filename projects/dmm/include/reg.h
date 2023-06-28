@@ -20,18 +20,7 @@ extern void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t
 #define LED3            (1<<3)
 
 
-#define REG_SPI_MUX     8
 
-#define SPI_MUX_NONE    0
-#define SPI_MUX_4094    1 
-
-/*
-// FIXME. THESE ARE ALL WRONG, we now using monotonic number, not bit operations.
-#define SPI_MUX_ADC03   (1<<0)
-#define SPI_MUX_DAC     (1<<1)
-#define SPI_MUX_FLASH   (1<<2)
-#define SPI_MUX_ADC     (1<<3)
-*/
 
 // need to rename named _4094_GLB_OE or similar to respect prefix convention
 
