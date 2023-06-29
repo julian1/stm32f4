@@ -137,15 +137,14 @@ uint32_t spi_4094_reg_write_n(uint32_t spi, unsigned char *s, unsigned n)
 void spi_4094_setup(uint32_t spi)
 {
 
+  spi_reset( spi );
+
   spi_init_master(
     spi,
     // SPI_CR1_BAUDRATE_FPCLK_DIV_4,
     SPI_CR1_BAUDRATE_FPCLK_DIV_4,
-    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,      // park lo. but then returns hi. after cs deassert.
-    // SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,  // parks hi immediately?
-
-    // SPI_CR1_CPHA_CLK_TRANSITION_2,    // 2 == falling edge
-    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == rising edge
+    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,      // park to 0/lo == positive clok edge. park to 1 == negative clk edge.
+    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == leading edge,  2 == falling edge
     SPI_CR1_DFF_8BIT,
     SPI_CR1_MSBFIRST
   );
