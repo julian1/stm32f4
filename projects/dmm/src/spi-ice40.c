@@ -28,8 +28,8 @@ void spi_ice40_setup(uint32_t spi)
     // SPI_CR1_BAUDRATE_FPCLK_DIV_4,
     SPI_CR1_BAUDRATE_FPCLK_DIV_8,
     // SPI_CR1_BAUDRATE_FPCLK_DIV_32,
-    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
-    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 2 == falling edge
+    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,  // park to 0/lo, implies a positive clok edge.
+    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == leading edge,  2 == falling edge
     SPI_CR1_DFF_8BIT,
     SPI_CR1_MSBFIRST
   );
