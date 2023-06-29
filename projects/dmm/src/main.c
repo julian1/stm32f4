@@ -128,7 +128,7 @@ static uint8_t write_val8 ( uint8_t v, uint8_t pos, uint8_t width, uint8_t value
 // we manipulate the state. then write it.
 // there is writing state to state var. then there is spi writing it.
 
-static void write_state ( uint8_t *state, size_t n, unsigned pos, uint8_t width, uint8_t value)
+static void state_write ( uint8_t *state, size_t n, unsigned pos, uint8_t width, uint8_t value)
 {
   // determine index to use into byte array, and set value
   unsigned idx = pos >> 3 ;   // div 8
@@ -140,7 +140,7 @@ static void write_state ( uint8_t *state, size_t n, unsigned pos, uint8_t width,
 
 
 
-static void format_state ( uint8_t *state, size_t n)
+static void state_format ( uint8_t *state, size_t n)
 {
   assert(state);
 
@@ -152,6 +152,40 @@ static void format_state ( uint8_t *state, size_t n)
 }
 
 
+
+// position in state.
+#define REG_K402    0
+#define REG_K403    2
+#define REG_K401    8
+
+
+
+
+static void relay_set( unsigned spi, uint8_t *state_4094, size_t n, unsigned reg_relay,   unsigned relay_state )
+{
+
+  // mux spi to 4094. change mcu spi params, and set spi device to 4094
+  mux_4094( spi);
+
+
+  // set relay, according to dir
+  state_write ( state_4094, n, reg_relay, 2, relay_state ? 0b01 : 0b10 );
+
+  state_format ( state_4094, n);
+  spi_4094_reg_write_n(spi, state_4094, n );
+
+  // sleep 10ms
+  msleep(10);
+
+  // now turn off the relay
+  state_write ( state_4094, n, reg_relay, 2, 0b00 );   // clear
+  spi_4094_reg_write_n(spi, state_4094, n );
+
+
+  // turn off spi muxing
+  mux_no_device(spi);
+
+}
 
 
 
@@ -172,21 +206,13 @@ static void update_soft_500ms(app_t *app)
   // blink the fpga led
   mux_ice40(app->spi);
 
-#if 0
-  // make sure output enable is set 4094
-  // should be set once - at mcu / start. but this avoids race condition if mcu writes before fpga is ready.
-  // solution is to query and wait for fpga - to return a magic number.
 
-  // No. there's a genuine problem here
-  // we forgot the damn CS pullups. and the slave select was not resetting.
+  // 4094 OE should have been configured already,
+  uint32_t v = spi_ice40_reg_read32( app->spi, REG_4094);
+  assert(v == 1);
+  // char buf[32+1];
+  // printf("4094 state %lu %s\n", v, format_bits(buf, 32, v ));
 
-  // ensure OE is up, note the race condition / with cpu that doesn't reset or wait for the ice40.
-  ice40_reg_set( app->spi, REG_4094,  GLB_4094_OE );
-  // uint8_t v = ice40_reg_read( app->spi, REG_4094);
-
-
-
-#endif
 
 
   if(led_state)
@@ -208,37 +234,8 @@ static void update_soft_500ms(app_t *app)
   led_set( led_state );
 
 
-#if 1
-  // mux spi to 4094.
-  mux_4094(app->spi );
 
-  // so
-
-  #define REG_K402    0
-  #define REG_K403    2
-  #define REG_K401    8
-
-  // so we have to index array by right shifting.
-
-  unsigned reg_relay = REG_K403;
-
-  // set relay, according to dir
-  write_state ( app->state_4094, sizeof( app->state_4094), reg_relay, 2, led_state ? 0b01 : 0b10 );
-
-  format_state ( app->state_4094, sizeof( app->state_4094));
-  spi_4094_reg_write_n(app->spi, app->state_4094, sizeof( app->state_4094) );
-
-  // sleep 10ms
-  msleep(10);
-
-  // now turn off the relay
-  write_state ( app->state_4094, sizeof( app->state_4094), reg_relay, 2, 0b00 );   // clear
-  spi_4094_reg_write_n(app->spi, app->state_4094, sizeof( app->state_4094) );
-
-
-  // turn off spi muxing
-  mux_no_device(app->spi);
-#endif
+  // relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K403, led_state );
 
 
 }
@@ -286,6 +283,17 @@ static void update_console_cmd(app_t *app)
         // scb_reset_core()
         scb_reset_system();
       }
+
+
+      else if( strcmp(cmd, "relay on") == 0) {  // output on
+
+        relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K403,  1 );
+      }
+      else if( strcmp(cmd, "relay off") == 0) {  // output off
+
+        relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K403,  0 );
+      }
+
 
 
 #if 0
@@ -366,25 +374,6 @@ static void update_console_cmd(app_t *app)
 
 
 
-
-
-      else if( strcmp(cmd, "relay on") == 0) {  // output on
-
-        // ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_INT_CTL);
-        // ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_EXT_CTL);
-
-        ice40_reg_set(app->spi, REG_RELAY_COM, RELAY_COM_X_CTL);
-        ice40_reg_set(app->spi, REG_LED, LED1);
-      }
-      else if( strcmp(cmd, "relay off") == 0) {  // output off
-
-        // ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_INT_CTL);
-        // ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_EXT_CTL);
-
-        ice40_reg_clear(app->spi, REG_RELAY_COM, RELAY_COM_X_CTL);
-
-        ice40_reg_clear(app->spi, REG_LED, LED1);
-      }
 
 
 #endif
@@ -704,7 +693,7 @@ int main(void)
 
     uint8_t v[ 3 ];
     memset(v, 0xff, sizeof(v));
-    write_state ( v, sizeof(v), 16, 3, 0x0 );
+    state_write ( v, sizeof(v), 16, 3, 0x0 );
 
     printf("v[0] %s\n",  format_bits(buf, 8, v[0 ]));
     printf("v[1] %s\n",  format_bits(buf, 8, v[1 ]));
