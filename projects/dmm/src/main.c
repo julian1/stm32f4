@@ -167,7 +167,7 @@ static void update_soft_500ms(app_t *app)
 
 
   static int count = 0;
-  printf("count %u\n", count++);
+  printf("count %u\n", ++ count);
 
   // blink the fpga led
   mux_ice40(app->spi);
@@ -195,12 +195,12 @@ static void update_soft_500ms(app_t *app)
     spi_ice40_reg_write32(app->spi, REG_LED, 0 );   // we don't have the set and clear bits...
 */
 
-  spi_ice40_reg_write32(app->spi, REG_LED, count );   // we don't have the set and clear bits...
+  // spi_ice40_reg_write32(app->spi, REG_LED, count );   // we don't have the set and clear bits...
 
   uint32_t v = spi_ice40_reg_read32(app->spi, REG_LED);
 
-  char buf[32];
-  printf("value of led %lu %s\n", v, format_bits(buf, 31, v ));
+  char buf[32+1];
+  printf("value of led %lu %s\n", v, format_bits(buf, 32, v ));
 
 
 
@@ -546,6 +546,7 @@ static app_t app;
 
 
 
+// chage name spi_ice40_stress test.
 
 static void stress_test_spi( uint32_t spi)
 {
@@ -599,6 +600,28 @@ static void wait_for_ice40( uint32_t spi)
   printf("\n");
 
 }
+
+
+
+static void just_read_reg ( uint32_t spi)
+{
+
+
+  mux_ice40(spi);
+
+  while(1) {
+    uint32_t v = spi_ice40_reg_read32(spi, REG_LED);
+
+    char buf[32+1];
+    printf("value of led %lu %s\n", v, format_bits(buf, 32, v ));
+    
+    msleep( 500 );
+  }
+
+}
+
+
+
 
 
 
@@ -752,10 +775,11 @@ int main(void)
   mux_ice40(app.spi);
 
 
-  wait_for_ice40( app.spi );
+  // wait_for_ice40( app.spi );
 
   // stress_test_spi( app.spi);
 
+  just_read_reg ( app.spi);
 
   /*
     not quite right.
@@ -765,10 +789,13 @@ int main(void)
     should also verify that value was correct. by writing.  and without asserting strobe.
     relays latch could be caught in on state.
   */
-
+/*
   printf("turning on 4094 OE\n");
   // output enable 4094
   spi_ice40_reg_write32( app.spi, REG_4094,  GLB_4094_OE );
+*/
+
+
 
 
   // go to main loop
