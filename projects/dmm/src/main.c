@@ -208,7 +208,7 @@ static void update_soft_500ms(app_t *app)
   led_set( led_state );
 
 
-#if 0
+#if 1
   // mux spi to 4094.
   mux_4094(app->spi );
 
