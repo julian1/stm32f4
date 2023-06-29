@@ -25,8 +25,8 @@ void spi_ice40_setup(uint32_t spi)
   spi_init_master(
     spi,
     // SPI_CR1_BAUDRATE_FPCLK_DIV_2,  // div2 seems to work with iso, but not adum. actually misses a few bits with iso.
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_4,
-    SPI_CR1_BAUDRATE_FPCLK_DIV_8,
+    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_8,
     // SPI_CR1_BAUDRATE_FPCLK_DIV_32,
     SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,  // park to 0/lo == positive clok edge. park to 1 == negative clk edge.
     SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == leading edge,  2 == falling edge
