@@ -611,7 +611,8 @@ static void spi_ice40_just_read_reg ( uint32_t spi)
   mux_ice40(spi);
 
   while(1) {
-    uint32_t v = spi_ice40_reg_read32(spi, REG_LED);
+    // uint32_t v = spi_ice40_reg_read32(spi, REG_LED);
+    uint32_t v = spi_ice40_reg_read32(spi, 0b00111111 );
 
     char buf[32+1];
     printf("value of led %lu %s\n", v, format_bits(buf, 32, v ));

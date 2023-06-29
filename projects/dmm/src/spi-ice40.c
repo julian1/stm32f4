@@ -29,10 +29,14 @@ void spi_ice40_setup(uint32_t spi)
     SPI_CR1_BAUDRATE_FPCLK_DIV_8,
     // SPI_CR1_BAUDRATE_FPCLK_DIV_32,
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
-    SPI_CR1_CPHA_CLK_TRANSITION_2,    // 2 == falling edge
+    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 2 == falling edge
     SPI_CR1_DFF_8BIT,
     SPI_CR1_MSBFIRST
   );
+
+  // JA. ok. importantant. the transition is not correct.
+  // clk to 0 when idle for falling edge.
+  // but phase/cpha is the leading, or secondary edge. 
 
   spi_disable_software_slave_management( spi);
   spi_enable_ss_output(spi);
