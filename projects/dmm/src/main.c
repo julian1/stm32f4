@@ -460,8 +460,8 @@ static void loop(app_t *app)
     // 50ms soft timer. for stress testing.
     if( (system_millis - soft_50ms) > 50) {
       soft_50ms += 50;
-      update_soft_stress_test_50ms(app);
-      update_soft_stress_test_2_50ms(app);
+      update_soft_spi_ice40_stress_test_50ms(app);
+      update_soft_spi_ice40_stress_test_2_50ms(app);
     }
 #endif
 
@@ -548,9 +548,10 @@ static app_t app;
 
 // chage name spi_ice40_stress test.
 
-static void stress_test_spi( uint32_t spi)
+static void spi_ice40_stress_test_spi( uint32_t spi)
 {
   // TODO better name. move code to separate test folder.
+  // prefix with test ? perhaps
 
   printf("stress test spi comms\n");
 
@@ -573,7 +574,7 @@ static void stress_test_spi( uint32_t spi)
 }
 
 
-static void wait_for_ice40( uint32_t spi)
+static void spi_ice40_wait_for_ice40( uint32_t spi)
 {
   // TODO better ame doto
 
@@ -603,7 +604,7 @@ static void wait_for_ice40( uint32_t spi)
 
 
 
-static void just_read_reg ( uint32_t spi)
+static void spi_ice40_just_read_reg ( uint32_t spi)
 {
 
 
@@ -775,11 +776,11 @@ int main(void)
   mux_ice40(app.spi);
 
 
-  // wait_for_ice40( app.spi );
+  // spi_ice40_wait_for_ice40( app.spi );
 
-  // stress_test_spi( app.spi);
+  // spi_ice40_stress_test_spi( app.spi);
 
-  just_read_reg ( app.spi);
+  spi_ice40_just_read_reg ( app.spi);
 
   /*
     not quite right.
