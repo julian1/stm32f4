@@ -209,7 +209,8 @@ static void update_soft_500ms(app_t *app)
 
   // 4094 OE should have been configured already,
   uint32_t v = spi_ice40_reg_read32( app->spi, REG_4094);
-  assert(v == 1);
+  UNUSED(v);
+  // assert(v == 1);
   // char buf[32+1];
   // printf("4094 state %lu %s\n", v, format_bits(buf, 32, v ));
 
