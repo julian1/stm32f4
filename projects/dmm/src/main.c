@@ -195,6 +195,13 @@ static void update_soft_500ms(app_t *app)
 {
   // UNUSED(app);
 
+  /*
+    function should reconstruct to localize scope of app. and then dispatch to other functions.
+
+  */
+
+  //////////////////
+  // EXTR. these static vars belong in app, to make this more testable.
   // char buf[100];
   static bool led_state = 0;
   led_state = ! led_state;
@@ -215,6 +222,10 @@ static void update_soft_500ms(app_t *app)
   // printf("4094 state %lu %s\n", v, format_bits(buf, 32, v ));
 
 
+  //////////////////////////////////
+  // EXTR. THE specific led should be injected into APP state on construction.
+  // not accessed as a global macro. makes it hard to test.
+  //////////////////////////////////
 
   if(led_state)
     spi_ice40_reg_write32(app->spi, REG_LED, LED0);
