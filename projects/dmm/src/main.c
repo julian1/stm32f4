@@ -761,7 +761,7 @@ int main(void)
 
 
 
-
+#if 0
 
 
   // mux spi to ice40
@@ -787,6 +787,7 @@ int main(void)
   // output enable 4094
   spi_ice40_reg_write32( app.spi, REG_4094,  GLB_4094_OE );
 
+#endif
 
   // go to main loop
   loop(&app);
