@@ -694,6 +694,15 @@ int main(void)
   assert( sizeof(double ) == 8);
 
 
+  // sep 16, 2023.
+  // set ER-CRESET-  hi.  not to reset.   This needs to have an external  pullup fitted.
+#define ER_CRESET_PORT  GPIOA
+#define ER_CRESET_PIN   GPIO1
+
+  gpio_mode_setup(ER_CRESET_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ER_CRESET_PIN);
+  gpio_set(ER_CRESET_PORT, ER_CRESET_PIN);
+
+
 
 #if 0
   {

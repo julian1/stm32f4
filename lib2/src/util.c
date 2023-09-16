@@ -1,4 +1,15 @@
 /*
+
+// sep 16. 2023. THIS IS really crappy. with led, hanging onto local state like.
+    - opposite of dep-inversion.
+
+  -- think it's easier to just define the state in App (.  and do the update in main.
+  - issue is critical error blink. called from assert. that has no context.
+
+  Instead - just farm out the revevant state and hold a static reference for this specific function.  
+       that cannot be called in any other context.
+  ----------------
+
   should be common now.
   ----
   helper stuff that belongs in separate file, but not in separate library
@@ -16,6 +27,7 @@
 #include "util.h"
 #include "streams.h"
 #include "assert.h"  // assert simple
+
 
 
 
