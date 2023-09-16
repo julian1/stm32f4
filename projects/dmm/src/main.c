@@ -588,8 +588,8 @@ static void spi_ice40_wait_for_ice40( uint32_t spi)
     // ret = ice40_reg_read( spi, REG_LED);
     ret = spi_ice40_reg_read32( spi, REG_LED);
 
-    // char buf[ 100] ;
-    // printf("v %s\n",  format_bits(buf, 8, ret ));
+    char buf[ 100] ;
+    printf("v %s\n",  format_bits(buf, 8, ret ));
 
     msleep( 50);
   }
@@ -770,7 +770,7 @@ int main(void)
 
 
 
-#if 0
+#if 1
 
 
   // mux spi to ice40
