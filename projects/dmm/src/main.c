@@ -154,11 +154,13 @@ static void state_format ( uint8_t *state, size_t n)
 
 
 // position in state.
+/*
 #define REG_K402    0
-#define REG_K403    2
+#define REG_K406    2
 #define REG_K401    8
+*/
 
-
+#define REG_K406    2   // pins 2 and 3.
 
 
 static void relay_set( unsigned spi, uint8_t *state_4094, size_t n, unsigned reg_relay,   unsigned relay_state )
@@ -247,7 +249,7 @@ static void update_soft_500ms(app_t *app)
 
 
 
-  // relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K403, led_state );
+  relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K406, led_state );
 
 
 }
@@ -299,11 +301,11 @@ static void update_console_cmd(app_t *app)
 
       else if( strcmp(cmd, "relay on") == 0) {  // output on
 
-        relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K403,  1 );
+        relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K406,  1 );
       }
       else if( strcmp(cmd, "relay off") == 0) {  // output off
 
-        relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K403,  0 );
+        relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K406,  0 );
       }
 
 

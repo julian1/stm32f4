@@ -119,7 +119,8 @@ typedef struct app_t
 
   uint32_t spi;
 
-  uint8_t state_4094[ 5 ];  // how many
+  // uint8_t state_4094[ 5 ];  // how many
+  uint8_t state_4094[ 1 ];  // how many
 
 #if 0
   uint32_t   u304;
