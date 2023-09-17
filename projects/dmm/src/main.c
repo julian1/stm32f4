@@ -155,32 +155,49 @@ static void state_format ( uint8_t *state, size_t n)
 
 // position in state.
 /*
-#define REG_K402    0
 #define REG_K406    2
-#define REG_K401    8
 */
 
-#define REG_K406    2   // pins 2 and 3.
+#define REG_K406    2   // pins 2 and 3.  works well.
+
+
+// #define REG_K401    (17  ) // third 4094.
+#define REG_K405    (16 + 6  ) // third 4094.
+
+
+
+
+#define REG_U404      8   // 2nd 4094.  4 bits.  works. well.
+
+
+
+
 
 
 static void relay_set( unsigned spi, uint8_t *state_4094, size_t n, unsigned reg_relay,   unsigned relay_state )
 {
 
+
   // mux spi to 4094. change mcu spi params, and set spi device to 4094
   mux_4094( spi);
 
 
-  // set relay, according to dir
+  // set two relay bits, according to dir
   state_write ( state_4094, n, reg_relay, 2, relay_state ? 0b01 : 0b10 );
 
+  // output/print - TODO change name state_format_stdout, or something.
   state_format ( state_4094, n);
+
+  // and write device
   spi_4094_reg_write_n(spi, state_4094, n );
 
   // sleep 10ms
   msleep(10);
 
-  // now turn off the relay
+  // clear the two relay bits
   state_write ( state_4094, n, reg_relay, 2, 0b00 );   // clear
+
+  // and write device
   spi_4094_reg_write_n(spi, state_4094, n );
 
 
@@ -248,8 +265,25 @@ static void update_soft_500ms(app_t *app)
   led_set( led_state );
 
 
+  // toggles relay ok.
+  // relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K406  , led_state );
 
-  relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K406, led_state );
+  
+  // toggles relay K405 - works well.. 
+  relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K405, led_state );
+
+
+/*
+  /// toggle ctrl pins of U404
+  mux_4094( app->spi);
+  // set two relay bits, according to dir.  is 4 is the number of bits.
+  state_write ( app->state_4094, sizeof(app->state_4094), REG_U404 , 4, led_state ? 0b1000 : 0b0000 );
+  // output/print - TODO change name state_format_stdout, or something.
+  state_format ( app->state_4094, sizeof(app->state_4094));
+  // and write device
+  spi_4094_reg_write_n(app->spi, app->state_4094, sizeof(app->state_4094) );
+*/
+
 
 
 }
