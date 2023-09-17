@@ -162,17 +162,204 @@ static void state_format ( uint8_t *state, size_t n)
 
 
 // #define REG_K401    (17  ) // third 4094.
-#define REG_K405    (16 + 6  ) // third 4094.
 
+
+// #define REG_K405_4094    2 (16 + 6  ) // third 4094.     L0.
+
+#define REG_K405    (16 + 6  ) // third 4094.     L0.
+
+#define REG_K405_L1    (2 * 8 + 6)
+#define REG_K405_L2    (2 * 8 + 7)
 
 
 
 #define REG_U404      8   // 2nd 4094.  4 bits.  works. well.
 
 
+// we have to OR together an array....
+// mode or state.
+
+// so it would be easier to create values in functions.  where we can use an OR function - and record the bit position jj.
+// Need to be able to indicate if the relay
+// Does C99 have static initializers?
+// static void my_or( uint8_t *a, uint8_t *b
+// HANG on. it is still tricky. even with functions.... No with functions.
+// mode_latch_relay_mask
+
+
+/*
+  EXTR. we can do the three step sequence of b2b fets in two steps. relying on faster speed
+
+  1. turn off b2b fets.   turn on relay.   relay slower.
+  2. turn off latch to relay. and turn on b2b fets.         <- so this is more than a mask.
+  -----------------
+
+  OR.    have two bits. and the interpreter.   will manage
+
+  Eg. b2b-fets stage1. b2b-fets stage2.   - and encode... issue is that noo
+
+  --------
+  - So we don't duplicate everything.  just if a relay has a different state.
+  - OR we just encode all states - as two states.  transition
+  - eg. just double  the bitvector.
+  ---
+  - then we can encode.   - and don't need messy mask abstractions.
+
+*/
+
+#define MODE_ARR_N    3   // mode array in bytes.
+
+
+typedef struct X
+{
+  // U406
+  uint8_t U408_SW_CTL : 1;
+  uint8_t U406_UNUSED : 1;
+  uint8_t K406_L1_CTL : 1;        // Be better to encode as 2 bits.   can then assign 0b01 or 0b10 etc.
+  uint8_t K406_L2_CTL : 1;
+  uint8_t U406_UNUSED_2 : 4;
+
+  // U401
+  uint8_t U401_UNUSED : 8;
+
+
+  // U403
+  uint8_t U403_UNUSED : 6;
+  uint8_t K405_L1_CTL : 1;
+  uint8_t K405_L2_CTL : 1;
+
+
+} X;
 
 
 
+// mode_t
+typedef struct Mode
+{
+  // put AZ mux here.
+
+  X     first;
+  X     second;
+
+} Mode;
+
+
+/*
+  EXTR.
+    don't care about defining inidividual registers for muxes etc.
+    instead the entire state representation is considered as register. with a pre-determined set of modes / elements.
+
+    - the clearing mask for relays, is normally always the same. but the need to manipulate b2b fets changes thing.
+    - with a straight array.   WE *CAN* also define using a parallel alternative structure with bitfield.
+  ----
+    - sequencing - may also want to switch relays, wait. then turn on the analog switches.
+
+    - EXTR. THE state of ALL relays must be defined.  0 just means use prior state.  which is wrong.  either L1, or L2.  not 0.
+
+    - It would be easier to do this with a memcpy.
+
+                                      first transition            // second transition
+                                      U406    U401
+*/
+
+// is wrong. we have to switch all the relays to a defined state
+
+Mode mode_initial; //  [ 6 ] = {  0,       0,     0,        0, 0, 0 };  // everything off
+
+Mode mode_dcv_az ; //  [ 6 ] = {  1<<6,     0,     0,        0, 0, 0 };  // K406-L1  on.     need to also manage the b2b fets.
+
+
+
+static void init_modes( void )
+{
+  /*
+    instead of having individual registers. we have individual states.
+
+  */
+
+  memset( &mode_initial, 0, sizeof( Mode) );
+  memset( &mode_dcv_az,  0, sizeof( Mode) );
+
+
+  mode_initial.first .K406_L1_CTL  = 1; // accumulation relay off
+  mode_initial.second.K406_L1_CTL  = 0; // clear
+
+  mode_initial.first. K405_L1_CTL  = 1; // k405 dcv input relay.
+  mode_initial.second.K405_L1_CTL  = 0; // clear
+
+  //////////
+
+  mode_dcv_az = mode_initial;  // eg. turn all relays off
+  mode_dcv_az.first. K405_L1_CTL  = 0; // k405 dcv input relay.
+  mode_dcv_az.first. K405_L2_CTL  = 1; // turn on.
+  mode_dcv_az.second.K405_L2_CTL  = 0; // clear
+
+
+  // print mode.
+
+
+/*
+  uint8_t mode_initial[ 3 ] ;
+  uint8_t mode_dcv_az [ 3 ] ;
+  uint8_t mode_relay_mask [ 3 ] ;
+
+  memset(mode_initial,  0, 3);
+  memset(mode_dcv_az,   0, 3);
+  memset(mode_relay_mask,    0, 3);
+
+  // array_set_bits( app->mode_dcv_az, 3,  REG_K405_L1 );     // we can optimize by extracting later.
+  // state0.  and state1.
+
+  mode_dcv_az[ REG_K405_L1 / 8 ] |= REG_K405_L1 ;           // second
+  mode_dcv_az[ 3 + (REG_K405_L1 / 8) ] |= REG_K405_L1 ;     // first.
+
+
+  // this is messy.  because cannot be constructed with a single line.
+  // mode_relay_mask[ REG_K405_L1 / 8 ] |= REG_K405_L1 | REG_K405_L2;
+  // need to turn b2b fets on also.
+*/
+}
+
+
+
+
+
+// flashing of led... is writing ???? 
+
+
+static void do_transition( unsigned spi, Mode *mode  )
+{
+  assert( sizeof(X) == 3 );
+
+
+  // mux spi to 4094. change mcu spi params, and set spi device to 4094
+  mux_4094( spi);
+
+
+  printf("-----------\n");
+
+  printf("do_transition write first state\n");
+  state_format (  &mode->first, sizeof(X) );
+
+  // and write device
+  spi_4094_reg_write_n(spi, &mode->first, sizeof( X) );
+
+  // sleep 10ms
+  msleep(10);
+
+
+
+  // and format
+  printf("do_transition write second state\n");
+  state_format ( & mode->second, sizeof(X) );
+
+  // and write device
+  spi_4094_reg_write_n(spi, &mode->second, sizeof(X) );
+}
+
+
+
+#if 0
 
 static void relay_set( unsigned spi, uint8_t *state_4094, size_t n, unsigned reg_relay,   unsigned relay_state )
 {
@@ -205,6 +392,7 @@ static void relay_set( unsigned spi, uint8_t *state_4094, size_t n, unsigned reg
   mux_no_device(spi);
 
 }
+#endif
 
 
 
@@ -229,6 +417,8 @@ static void update_soft_500ms(app_t *app)
   static int count = 0;
   printf("count %u\n", ++ count);
 
+
+#if 0
   // blink the fpga led
   mux_ice40(app->spi);
 
@@ -264,13 +454,28 @@ static void update_soft_500ms(app_t *app)
   // set mcu led state
   led_set( led_state );
 
+#endif
+
 
   // toggles relay ok.
   // relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K406  , led_state );
 
-  
-  // toggles relay K405 - works well.. 
-  relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K405, led_state );
+
+  // toggles relay K405 - works well..
+  // relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K405, led_state );
+// 
+
+
+  // we seem to be getting spurious settings.
+
+  if(led_state) 
+    do_transition( app->spi, &mode_initial);
+  else
+    do_transition( app->spi, &mode_dcv_az);
+
+  // turn off 4094 muxing
+  mux_ice40(app->spi);
+
 
 
 /*
@@ -284,7 +489,60 @@ static void update_soft_500ms(app_t *app)
   spi_4094_reg_write_n(app->spi, app->state_4094, sizeof(app->state_4094) );
 */
 
+  /*
+      - every state change has to be encoded - as two states.  eg. transition state, and resulting state.
+          and has to be handled as a sequency.
+          this is a little complicated.
 
+      - But can still be encoded/recorded as a fixed string.
+
+      - Eg. for DCV.
+      - - have intermittent relay state.
+
+      - perhaps even three states. eg. for dcv on. the sequencing of turn off b2b fets, then manipulate the relay, then turn on b2b fets.
+      - but we may not need this.
+      ------------------
+
+      - EXTR.   AND we should encode the MUX registers to use. in the 4094 string. to make it single authoritative source.
+                even if use a different way to write these to the fpga.
+      -------
+      - possible to also use maskable writes.
+
+      - should be a single function that handles the 20ms timing. regardless of which state we want to use
+      - we don't need to encode much.
+
+      - we don't necessarily have to record the current state.  unless we
+      - transition (  STATE_DCV  )    - and this would have the three transitions .
+      - we don't keep individual registers arounds.   only some defines.
+      -------------------
+
+      Also the ability to copy.  with memcpy.   and then modify.
+
+      - OR use single byte-array.    and store the two states end-to-end.   eg. if have 5 bytes for state. then use 10 bytes. for 2 transition states.
+
+      - Also can store the mask.
+
+      - latching relays have to use the transition data.   but analog switches need to remain.   Also makes sense to switch relays - before doing analog switches.
+
+      - muxing has the 3x4 muxes = 12 bits. repeated for the signal, and zero.   so these would both be embedded in the string.  perhaps with a number representing sequence.
+      --------
+      EXTR.
+      - eg. don't have separate registers for analog switches etc.  instead entire unit state encoded as single register.
+
+      EXTR.
+      - it may be possible to encode everything as single transition - if we manage how to .   eg. a relay set mask.  at least for   .
+
+      - eg. relay clear mask.   this would be fixed/static   that would be or'ed,
+
+      - initialize in a main functino    MODE_DCV_AZ
+      - the writing of these bit valuees can be done in a function.
+      - and post state mask - to clear relays.
+      - transition(   state0, state1, state2 ).
+
+      ------
+      - simplest is to have the transition function manage - the latch clear state -  just with a fixed.
+
+  */
 
 }
 
@@ -333,6 +591,7 @@ static void update_console_cmd(app_t *app)
       }
 
 
+/*
       else if( strcmp(cmd, "relay on") == 0) {  // output on
 
         relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K406,  1 );
@@ -341,7 +600,7 @@ static void update_console_cmd(app_t *app)
 
         relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K406,  0 );
       }
-
+*/
 
 
 #if 0
@@ -508,12 +767,14 @@ static void loop(app_t *app)
       update_soft_500ms(app);
     }
 
+/*
     if( (system_millis - soft_1s) > 1000 ) {
 
       // THIS IS FUNNY....
       soft_1s += 1000;
       update_soft_1s(app);
     }
+*/
 
 #if 0
     if(app->state == STATE_FIRST) {
@@ -833,6 +1094,12 @@ int main(void)
   spi_ice40_reg_write32( app.spi, REG_4094,  GLB_4094_OE );
 
 #endif
+
+
+  printf("sizeof X %u\n", sizeof(X));
+  printf("sizeof Mode %u\n", sizeof(Mode ));
+
+  init_modes();
 
   // go to main loop
   loop(&app);

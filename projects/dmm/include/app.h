@@ -119,8 +119,12 @@ typedef struct app_t
 
   uint32_t spi;
 
+
+  // we don't/shouldn't even need  to have the current state recorded here.
+  // should not have more than one authoritative source on 4094 state.
+
   // uint8_t state_4094[ 5 ];  // how many
-  uint8_t state_4094[ 3 ];  // how many
+  // uint8_t state_4094[ 3 ];  // how many
 
 #if 0
   uint32_t   u304;
