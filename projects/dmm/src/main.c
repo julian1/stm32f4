@@ -231,64 +231,61 @@ typedef struct Mode
 // is wrong. we have to switch all the relays to a defined state
 
 
-Mode mode_zero;     //  useful to work out which pin is flipping .
-Mode mode_initial;
+// Mode mode_zero;     //  useful to work out which pin is flipping .
+// change name mode_initial. to mode-off/ or disconnect
+Mode mode_initial;      // all inputs turned off.
 
 Mode mode_dcv_az ;
 
+/* IMPORTANT the precharge switch relay - is held constant/closed for the mode.
+  but we cycle one of the muxes - to read gnd/ to reset the charge on the cap.
+  we can also. use dc-source to add an initial voltage bias to cap.
+*/
+
+// Mode mode_test_accumulation;
 
 
 static void init_modes( void )
 {
   /*
-    instead of having individual registers. we have individual states.
+    instead of having individual registers. we have individual elemental mode states , that exist.
+
+    is there an alignment issue... with setting the bitfield???
 
   */
 
-  memset( &mode_zero,    0, sizeof( Mode) );
+  // memset( &mode_zero,    0, sizeof( Mode) );
   memset( &mode_initial, 0, sizeof( Mode) );
   memset( &mode_dcv_az,  0, sizeof( Mode) );
+  // memset( &mode_test_accumulation,  0, sizeof( Mode) );
 
+  //  should be explicit for all values  U408_SW_CTL. at least for the initial mode, from which others derive.
+  mode_initial.first .K406_CTL  = 0b10;     // accumulation relay off
+  mode_initial.first .U408_SW_CTL = 0;      // b2b fets/ input protection off/open
+  mode_initial.first. K405_CTL  = 0b01;     // dcv-input relay k405 switch off
 
-  mode_initial.first .K406_CTL  = 0b01; // accumulation relay off
-  mode_initial.first. K405_CTL  = 0b01; // dcv input relay k405 switch off
+  mode_initial.second.K406_CTL  = 0b00;     // clear relay
+  mode_initial.second.U408_SW_CTL = 0;
+  mode_initial.second.K405_CTL  = 0b00;     // clear relay
 
-  mode_initial.second.K406_CTL  = 0b00; // clear
-  mode_initial.second.K405_CTL  = 0b00; // clear
+  /* EXTR. with series resistors to 4094 - for driving lower coil-voltage relays - there is a drop on the drive side.
+      AND a drop on the lo side.  eg. with 50R. this looks like a poor on-pulse
+
+  */
 
   //////////
-
-  mode_dcv_az = mode_initial;  // eg. turn all relays off
-
-  mode_dcv_az.first.K405_CTL    = 0b10; // overide turn on.
-  mode_dcv_az.first.U408_SW_CTL = 0;      // turn off b2b fets, while switching relay on.
-
-  mode_dcv_az.second.K405_CTL    = 0b00; // clear
-  mode_dcv_az.second.U408_SW_CTL = 1;      // turn on b2b fets.
-
-  // print mode.
+  mode_dcv_az = mode_initial;               // eg. turn all relays off
+  mode_dcv_az.first.K405_CTL    = 0b10;     // turn dcv-input K405 on.
+  mode_dcv_az.first.U408_SW_CTL = 0;        // turn off b2b fets, while switching relay on.
+  mode_dcv_az.second.K405_CTL    = 0b00;    // clear relay.  don't really need since inherits from initial.
+  mode_dcv_az.second.U408_SW_CTL = 1;       // turn on/close b2b fets.
 
 
-/*
-  uint8_t mode_initial[ 3 ] ;
-  uint8_t mode_dcv_az [ 3 ] ;
-  uint8_t mode_relay_mask [ 3 ] ;
+  ////
+  // cap-accumulation mode.
+  // mode_test_accumulation = mode_initial;
+  // mode_test_accumulation.first .K406_CTL  = 0b01;  // accumulation relay on
 
-  memset(mode_initial,  0, 3);
-  memset(mode_dcv_az,   0, 3);
-  memset(mode_relay_mask,    0, 3);
-
-  // array_set_bits( app->mode_dcv_az, 3,  REG_K405_L1 );     // we can optimize by extracting later.
-  // state0.  and state1.
-
-  mode_dcv_az[ REG_K405_L1 / 8 ] |= REG_K405_L1 ;           // second
-  mode_dcv_az[ 3 + (REG_K405_L1 / 8) ] |= REG_K405_L1 ;     // first.
-
-
-  // this is messy.  because cannot be constructed with a single line.
-  // mode_relay_mask[ REG_K405_L1 / 8 ] |= REG_K405_L1 | REG_K405_L2;
-  // need to turn b2b fets on also.
-*/
 }
 
 
@@ -352,6 +349,11 @@ static void update_soft_500ms(app_t *app)
   printf("count %u\n", ++ count);
 
 
+  // blink the mcu led
+  led_set( led_state );
+
+
+
   // blink the fpga led
   mux_ice40(app->spi);
 
@@ -368,6 +370,8 @@ static void update_soft_500ms(app_t *app)
 
 
   // we seem to be getting spurious settings.
+
+  // this seems wrong... blinking K406
 
   if(led_state)
     do_transition( app->spi, &mode_initial);
@@ -587,14 +591,6 @@ static void loop(app_t *app)
     update_console_cmd(app);
 
 
-#if 0
-    // 50ms soft timer. for stress testing.
-    if( (system_millis - soft_50ms) > 50) {
-      soft_50ms += 50;
-      update_soft_spi_ice40_stress_test_50ms(app);
-      update_soft_spi_ice40_stress_test_2_50ms(app);
-    }
-#endif
 
     // 500ms soft timer. should handle wrap around
     if( (system_millis - soft_500ms) > 500) {
@@ -602,14 +598,14 @@ static void loop(app_t *app)
       update_soft_500ms(app);
     }
 
-/*
+
     if( (system_millis - soft_1s) > 1000 ) {
 
       // THIS IS FUNNY....
       soft_1s += 1000;
       update_soft_1s(app);
     }
-*/
+
 
 #if 0
     if(app->state == STATE_FIRST) {
