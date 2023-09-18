@@ -181,8 +181,7 @@ typedef struct X
   // U406
   uint8_t U408_SW_CTL : 1;
   uint8_t U406_UNUSED : 1;
-  uint8_t K406_L1_CTL : 1;        // Be better to encode as 2 bits.   can then assign 0b01 or 0b10 etc.
-  uint8_t K406_L2_CTL : 1;
+  uint8_t K406_CTL    : 2;        // Be better to encode as 2 bits.   can then assign 0b01 or 0b10 etc.
   uint8_t U406_UNUSED_2 : 4;
 
   // U401
@@ -191,8 +190,9 @@ typedef struct X
 
   // U403
   uint8_t U403_UNUSED : 6;
-  uint8_t K405_L1_CTL : 1;
-  uint8_t K405_L2_CTL : 1;
+  uint8_t K405_CTL    : 2;
+  // uint8_t K405_L1_CTL : 1;
+  // uint8_t K405_L2_CTL : 1;
 
 
 } X;
@@ -230,9 +230,11 @@ typedef struct Mode
 
 // is wrong. we have to switch all the relays to a defined state
 
-Mode mode_initial; //  [ 6 ] = {  0,       0,     0,        0, 0, 0 };  // everything off
 
-Mode mode_dcv_az ; //  [ 6 ] = {  1<<6,     0,     0,        0, 0, 0 };  // K406-L1  on.     need to also manage the b2b fets.
+Mode mode_zero;     //  useful to work out which pin is flipping .
+Mode mode_initial;
+
+Mode mode_dcv_az ;
 
 
 
@@ -243,23 +245,26 @@ static void init_modes( void )
 
   */
 
+  memset( &mode_zero,    0, sizeof( Mode) );
   memset( &mode_initial, 0, sizeof( Mode) );
   memset( &mode_dcv_az,  0, sizeof( Mode) );
 
 
-  mode_initial.first .K406_L1_CTL  = 1; // accumulation relay off
-  mode_initial.second.K406_L1_CTL  = 0; // clear
+  mode_initial.first .K406_CTL  = 0b01; // accumulation relay off
+  mode_initial.first. K405_CTL  = 0b01; // dcv input relay k405 switch off
 
-  mode_initial.first. K405_L1_CTL  = 1; // k405 dcv input relay.
-  mode_initial.second.K405_L1_CTL  = 0; // clear
+  mode_initial.second.K406_CTL  = 0b00; // clear
+  mode_initial.second.K405_CTL  = 0b00; // clear
 
   //////////
 
   mode_dcv_az = mode_initial;  // eg. turn all relays off
-  mode_dcv_az.first. K405_L1_CTL  = 0; // k405 dcv input relay.
-  mode_dcv_az.first. K405_L2_CTL  = 1; // turn on.
-  mode_dcv_az.second.K405_L2_CTL  = 0; // clear
 
+  mode_dcv_az.first.K405_CTL    = 0b10; // overide turn on.
+  mode_dcv_az.first.U408_SW_CTL = 0;      // turn off b2b fets, while switching relay on.
+
+  mode_dcv_az.second.K405_CTL    = 0b00; // clear
+  mode_dcv_az.second.U408_SW_CTL = 1;      // turn on b2b fets.
 
   // print mode.
 
@@ -305,60 +310,23 @@ static void do_transition( unsigned spi, Mode *mode  )
   printf("-----------\n");
 
   printf("do_transition write first state\n");
-  state_format (  &mode->first, sizeof(X) );
+  state_format (  (void *) &mode->first, sizeof(X) );
 
   // and write device
-  spi_4094_reg_write_n(spi, &mode->first, sizeof( X) );
+  spi_4094_reg_write_n(spi, (void *) &mode->first, sizeof( X) );
 
   // sleep 10ms
   msleep(10);
-
 
 
   // and format
   printf("do_transition write second state\n");
-  state_format ( & mode->second, sizeof(X) );
+  state_format ( (void *) &mode->second, sizeof(X) );
 
   // and write device
-  spi_4094_reg_write_n(spi, &mode->second, sizeof(X) );
+  spi_4094_reg_write_n(spi, (void *) &mode->second, sizeof(X) );
 }
 
-
-
-#if 0
-
-static void relay_set( unsigned spi, uint8_t *state_4094, size_t n, unsigned reg_relay,   unsigned relay_state )
-{
-
-
-  // mux spi to 4094. change mcu spi params, and set spi device to 4094
-  mux_4094( spi);
-
-
-  // set two relay bits, according to dir
-  state_write ( state_4094, n, reg_relay, 2, relay_state ? 0b01 : 0b10 );
-
-  // output/print - TODO change name state_format_stdout, or something.
-  state_format ( state_4094, n);
-
-  // and write device
-  spi_4094_reg_write_n(spi, state_4094, n );
-
-  // sleep 10ms
-  msleep(10);
-
-  // clear the two relay bits
-  state_write ( state_4094, n, reg_relay, 2, 0b00 );   // clear
-
-  // and write device
-  spi_4094_reg_write_n(spi, state_4094, n );
-
-
-  // turn off spi muxing
-  mux_no_device(spi);
-
-}
-#endif
 
 
 
@@ -976,6 +944,42 @@ int main(void)
 }
 
 
+
+
+#if 0
+
+static void relay_set( unsigned spi, uint8_t *state_4094, size_t n, unsigned reg_relay,   unsigned relay_state )
+{
+
+
+  // mux spi to 4094. change mcu spi params, and set spi device to 4094
+  mux_4094( spi);
+
+
+  // set two relay bits, according to dir
+  state_write ( state_4094, n, reg_relay, 2, relay_state ? 0b01 : 0b10 );
+
+  // output/print - TODO change name state_format_stdout, or something.
+  state_format ( state_4094, n);
+
+  // and write device
+  spi_4094_reg_write_n(spi, state_4094, n );
+
+  // sleep 10ms
+  msleep(10);
+
+  // clear the two relay bits
+  state_write ( state_4094, n, reg_relay, 2, 0b00 );   // clear
+
+  // and write device
+  spi_4094_reg_write_n(spi, state_4094, n );
+
+
+  // turn off spi muxing
+  mux_no_device(spi);
+
+}
+#endif
 
 
 
