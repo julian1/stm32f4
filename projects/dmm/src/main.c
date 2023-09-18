@@ -418,14 +418,17 @@ static void update_soft_500ms(app_t *app)
   printf("count %u\n", ++ count);
 
 
-#if 0
   // blink the fpga led
   mux_ice40(app->spi);
 
 
+  // doing a read.... of reg_4094 - is interferre
+
+#if 0
   // 4094 OE should have been configured already,
   uint32_t v = spi_ice40_reg_read32( app->spi, REG_4094);
   UNUSED(v);
+
   // assert(v == 1);
   // char buf[32+1];
   // printf("4094 state %lu %s\n", v, format_bits(buf, 32, v ));
@@ -435,6 +438,9 @@ static void update_soft_500ms(app_t *app)
   // EXTR. THE specific led should be injected into APP state on construction.
   // not accessed as a global macro. makes it hard to test.
   //////////////////////////////////
+#endif
+
+  // Ok, writing led state. screws up the signalling.
 
   if(led_state)
     spi_ice40_reg_write32(app->spi, REG_LED, LED0);
@@ -442,6 +448,7 @@ static void update_soft_500ms(app_t *app)
     spi_ice40_reg_write32(app->spi, REG_LED, 0 );   // we don't have the set and clear bits...
 
 
+#if 0
   // spi_ice40_reg_write32(app->spi, REG_LED, count );   // we don't have the set and clear bits...
 
 /*

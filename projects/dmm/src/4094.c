@@ -134,9 +134,6 @@ uint32_t spi_4094_reg_write_n(uint32_t spi, unsigned char *s, unsigned n)
   }
 
 
-  spi_disable( spi );
-
-
   // flash the strobe.
   spi1_port_cs2_enable();
 
@@ -151,6 +148,19 @@ uint32_t spi_4094_reg_write_n(uint32_t spi, unsigned char *s, unsigned n)
      __asm__("nop");
 
   spi1_port_cs2_disable();
+
+
+
+
+  /* EXTR.   sep 18, 2023.
+      finish 4094 strobe - before we let the stm32 know we have finished with spi.
+      otherwise mcu/fpga may generate spurious extra clk or data  parking pulses.
+      that get read by 4094 while strobe is active, and 4094 is transparent.
+
+  */
+  spi_disable( spi );
+
+
 
   return ret;
 }
