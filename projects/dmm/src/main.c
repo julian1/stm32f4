@@ -195,6 +195,18 @@ typedef struct X
   // uint8_t K405_L2_CTL : 1;
 
 
+  // U506
+  uint8_t U506_UNUSED : 8;
+
+  // jumpered.
+  // 600
+  // 700
+
+  // U1004
+  uint8_t U1003   : 4;    // adg1208  4 bits.  EN last. is inconsistent.  with chip pin-order. and 500, 600, 700.  good keep.....
+  uint8_t U1006   : 4;    // adg1208  4 bits.
+
+
 } X;
 
 
