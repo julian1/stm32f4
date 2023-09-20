@@ -202,7 +202,7 @@ typedef struct X
   // 600
   // 700
 
-  // U1004
+  // U1004  - 5th bit.
   uint8_t U1003   : 4;    // adg1208  4 bits.  EN last. is inconsistent.  with chip pin-order. and 500, 600, 700.  good keep.....
   uint8_t U1006   : 4;    // adg1208  4 bits.
 
@@ -214,7 +214,7 @@ typedef struct X
 // mode_t
 typedef struct Mode
 {
-  // put AZ mux here.
+  // put AZ mux here. also.
 
   X     first;
   X     second;
@@ -307,9 +307,10 @@ static void init_modes( void )
 // flashing of led... is writing ????
 
 
-static void do_transition( unsigned spi, Mode *mode  )
+static void do_transition( unsigned spi, Mode *mode)
 {
-  assert( sizeof(X) == 3 );
+  // should we be passing as a separate argument
+  assert( sizeof(X) == 5 );
 
 
   // mux spi to 4094. change mcu spi params, and set spi device to 4094
@@ -380,15 +381,31 @@ static void update_soft_500ms(app_t *app)
     spi_ice40_reg_write32(app->spi, REG_LED, 0 );   // we don't have the set and clear bits...
 
 
+  /*
 
-  // we seem to be getting spurious settings.
-
-  // this seems wrong... blinking K406
-
+  //
   if(led_state)
     do_transition( app->spi, &mode_initial);
   else
     do_transition( app->spi, &mode_dcv_az);
+*/
+
+  // OK.
+  // hang on. we know the bits ...
+  // seems to work.
+
+  if(led_state)
+    do_transition( app->spi, &mode_initial);
+  else {
+
+    Mode j = mode_initial;
+    j.second.U1003  = 0b1000;
+
+    do_transition( app->spi, &j);
+  }
+
+
+
 
   // turn off 4094 muxing
   mux_ice40(app->spi);
