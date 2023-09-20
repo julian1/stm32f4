@@ -394,12 +394,15 @@ static void update_soft_500ms(app_t *app)
   // hang on. we know the bits ...
   // seems to work.
 
+
+#if 0
   if(led_state) {
     Mode j = mode_initial;
     j.second.U1003  = 0b1000;   // s1. +10V.
     // j.second.U1006  = 0b1000;   // s1. ref 10V.
     // j.second.U1006  = 0b1001;   // s2. ref 1V.
-    j.second.U1006  = 0b1010;       // s3. ref 0.1V.
+    // j.second.U1006  = 0b1010;       // s3. ref 0.1V.
+    // j.second.U1006  = 0b1111;       // s8. temp.
     do_transition( app->spi, &j );
   }
   else {
@@ -408,14 +411,16 @@ static void update_soft_500ms(app_t *app)
     j.second.U1003  = 0b1001;   // s2.  -10V.
     // j.second.U1006  = 0b1000;   // s1.    +10.
     // j.second.U1006  = 0b1001;   // s2. ref 1V.
-    j.second.U1006  = 0b1010;       // s3. ref 0.1V.
+    // j.second.U1006  = 0b1010;       // s3. ref 0.1V.
+    // j.second.U1006  = 0b1111;       // s8. temp.
     do_transition( app->spi, &j);
   }
-
+#endif
 
 
 
   // turn off 4094 muxing
+  // TODO - remove
   mux_ice40(app->spi);
 
 
@@ -455,10 +460,46 @@ static void update_console_cmd(app_t *app)
       uint32_t u0;
       UNUSED(u0);
 
-      if( strcmp(cmd, "test") == 0) {
-
-        printf("got test\n");
+      if( strcmp(cmd, "test00") == 0 || strcmp(cmd, "initial") == 0) {
+        printf("test01 initial state\n");
+        Mode j = mode_initial;
+        do_transition( app->spi, &j );
       }
+
+
+      else if( strcmp(cmd, "test01") == 0) {
+
+        printf("test01 with +10V\n");
+
+        Mode j = mode_initial;
+        j.second.U1003  = 0b1000;     // turn on dcv-source s1. +10V.
+        j.second.U1006  = 0b1000;     // s1.   follow
+        j.first .K406_CTL  = 0b01;    // accumulation relay on
+        j.second.K406_CTL  = 0b00;    // clear accumulation relay.
+
+        do_transition( app->spi, &j );
+
+
+        // the fpga will run the modulation to pick-up leakage
+      }
+
+      else if( strcmp(cmd, "test02") == 0) {
+
+        printf("test02 with +10V\n");
+
+        Mode j = mode_initial;
+        j.second.U1003  = 0b1001;   // s2.  -10V.
+        j.second.U1006  = 0b1000;     // s1.   follow
+        j.first .K406_CTL  = 0b01;    // accumulation relay on
+        j.second.K406_CTL  = 0b00;    // clear accumulation relay.
+
+        do_transition( app->spi, &j );
+      }
+
+
+
+
+
 
       else if(strcmp(cmd, "reset mcu") == 0) {
         // reset stm32f4
@@ -602,6 +643,14 @@ static void loop(app_t *app)
   /*
     Think all of this should be done/moved to update()...
   */
+
+
+  /* 
+    do start up. eg. check rails
+    initial state - do once.
+  */
+  do_transition( app->spi, &mode_initial );
+
 
 
   // while(true);
