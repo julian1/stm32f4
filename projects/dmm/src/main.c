@@ -394,13 +394,21 @@ static void update_soft_500ms(app_t *app)
   // hang on. we know the bits ...
   // seems to work.
 
-  if(led_state)
-    do_transition( app->spi, &mode_initial);
+  if(led_state) {
+    Mode j = mode_initial;
+    j.second.U1003  = 0b1000;   // s1. +10V.
+    // j.second.U1006  = 0b1000;   // s1. ref 10V.
+    // j.second.U1006  = 0b1001;   // s2. ref 1V.
+    j.second.U1006  = 0b1010;       // s3. ref 0.1V.
+    do_transition( app->spi, &j );
+  }
   else {
 
     Mode j = mode_initial;
-    j.second.U1003  = 0b1000;
-
+    j.second.U1003  = 0b1001;   // s2.  -10V.
+    // j.second.U1006  = 0b1000;   // s1.    +10.
+    // j.second.U1006  = 0b1001;   // s2. ref 1V.
+    j.second.U1006  = 0b1010;       // s3. ref 0.1V.
     do_transition( app->spi, &j);
   }
 
