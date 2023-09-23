@@ -486,7 +486,15 @@ static void update_console_cmd(app_t *app)
         // spi_ice40_reg_write32(app->spi, REG_MODE, 0b11 );     // test accumulation cap.
         spi_ice40_reg_write32(app->spi, REG_MODE, 0b01 );     // test pattern zero.   we actually want himux2 on .
 
-        // there's actually series of tests we can do.  with bias.
+        /*
+        EXTR.  I think we may want a mode/pattern. that gives mcu control over the muxes. using registers.
+        then we can more easily control everything.
+        eg. charge cap with a dc-bias. then turn off.
+
+        // then we can sequence everything more simply. for charge tests.
+
+        */
+
       }
 
 
