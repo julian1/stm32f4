@@ -455,37 +455,38 @@ static void update_console_cmd(app_t *app)
       }
 
 
-      else if( strcmp(cmd, "test01") == 0) {
+  // test01... why is the dc-source changing it's voltage. who is writing it?
+  // and why doesn't test02. generate the negative
+  // because it's controlling the dc-source.
 
-        printf("test01 with +10V\n");
+  // we want to turn the cap on.   and just watch it.
+
+      else if( strcmp(cmd, "test01") == 0 || strcmp(cmd, "test02") == 0 ) {
+
+        // all this code is the same. for test01, or test02.  just the initial mux.
 
         Mode j = mode_initial;
-        j.second.U1003  = 0b1000;     // turn on dcv-source s1. +10V.
+
+        if(strcmp(cmd, "test01") == 0) {
+          printf("test01 with +10V\n");
+          j.second.U1003  = 0b1000;     // turn on dcv-source s1. +10V.
+        }
+        else {
+          printf("test01 with +10V\n");
+          j.second.U1003  = 0b1001;   // s2.  -10V.
+        }
+
         j.second.U1006  = 0b1000;     // s1.   follow
-        j.first .K406_CTL  = 0b01;    // accumulation relay on
+        j.first .K406_CTL  = 0b01;    // accumulation relay pulse
         j.second.K406_CTL  = 0b00;    // clear accumulation relay.
 
         do_transition( app->spi, &j );
 
-        // et the mode
-        // mux ice40
         mux_ice40(app->spi);
-        spi_ice40_reg_write32(app->spi, REG_MODE, 0b11 );
-        // spi_ice40_reg_write32(app->spi, REG_MODE, 0b10 );  // counter
+        // spi_ice40_reg_write32(app->spi, REG_MODE, 0b11 );     // test accumulation cap.
+        spi_ice40_reg_write32(app->spi, REG_MODE, 0b01 );     // test pattern zero.   we actually want himux2 on .
 
-      }
-
-      else if( strcmp(cmd, "test02") == 0) {
-
-        printf("test02 with +10V\n");
-
-        Mode j = mode_initial;
-        j.second.U1003  = 0b1001;   // s2.  -10V.
-        j.second.U1006  = 0b1000;     // s1.   follow
-        j.first .K406_CTL  = 0b01;    // accumulation relay on
-        j.second.K406_CTL  = 0b00;    // clear accumulation relay.
-
-        do_transition( app->spi, &j );
+        // there's actually series of tests we can do.  with bias.
       }
 
 

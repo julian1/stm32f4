@@ -7,6 +7,128 @@
 #include "fbuffer.h"
 
 
+typedef struct app_t
+{
+
+  /*
+    Not sure these buffers need to be exposed here. nothing else should touch them.
+    no it's good. general configuration. of mcu state.
+  */
+
+  CBuf console_in;
+  CBuf console_out;
+
+
+
+  ////
+  // CBuf      cmd_in;
+  CString     command;
+
+
+  uint32_t spi;
+
+  ////////
+  // not sure what the best way is to handle this state.
+  unsigned count;
+
+  bool led_state ;
+
+  bool test03_relay; // true or false.
+
+  // we don't/shouldn't even need  to have the current state recorded here.
+  // should not have more than one authoritative source on 4094 state.
+
+
+} app_t;
+
+
+
+
+
+
+
+
+
+
+
+  // uint8_t state_4094[ 5 ];  // how many
+  // uint8_t state_4094[ 3 ];  // how many
+
+#if 0
+  uint32_t   u304;
+  uint32_t   u514;
+
+
+
+  state_t   state;
+
+  ////////////////
+  // the current active ranges used for regulation and measurement.
+  // may be narrower than the set range
+  vrange_t  vrange;
+  irange_t  irange;
+
+  ////////////////
+  float     vset;
+  vrange_t  vset_range;
+
+  float     iset;
+  irange_t  iset_range;
+
+
+  bool      print_adc_values;
+
+  bool      auto_range_measurement;   // use 'a' to toggle. would be useful to test.
+                                      // when turn off. will need a core reset?
+
+  // bool      last_char_newline; // last console char
+  // we could eliminate this. if we were to read the relay register...
+  bool      output;   // whether output on/off
+
+
+  /////////////////////////
+  uint32_t  update_count;
+
+  float     lp15v;
+  float     ln15v;
+
+
+  /////////////////////////
+  // adc data ready, given by interupt
+  bool      adc_drdy;
+  uint32_t  adc_drdy_missed;
+  uint32_t  adc_ov_count;
+
+  // adc last read values
+  // float     vfb;
+  // float     ifb;
+
+  /////////////
+  uint32_t  measure_millis_last;
+
+  uint32_t  nplc_measure;
+  uint32_t  nplc_range;
+
+
+  FBuf      vfb_measure;
+  FBuf      vfb_range;
+
+  FBuf      ifb_measure;
+  FBuf      ifb_range;
+
+
+
+
+  // led blink off/on.
+
+  //////////////
+
+  int       digits;
+
+#endif
+
+
+
 
 // define here? or in mux.h.
 // #define SPI_ICE40       SPI1
@@ -94,121 +216,6 @@ typedef enum irange_t
 
 
 #endif
-
-typedef struct app_t
-{
-
-  /*
-    JA.
-    Not sure these buffers need to be exposed here. nothing else should touch them.
-    Perhaps just put in main stack..
-    Getting the led, and uart are low level
-  */
-
-  CBuf console_in;
-  CBuf console_out;
-
-
-
-  ////
-  // CBuf      cmd_in;
-  CString     command;
-
-
-
-
-
-  uint32_t spi;
-
-  ////////
-  // not sure what the best way is to handle this state.
-  unsigned count;
-
-  bool led_state ;
-
-  bool test03_relay; // true or false.
-
-  // we don't/shouldn't even need  to have the current state recorded here.
-  // should not have more than one authoritative source on 4094 state.
-
-  // uint8_t state_4094[ 5 ];  // how many
-  // uint8_t state_4094[ 3 ];  // how many
-
-#if 0
-  uint32_t   u304;
-  uint32_t   u514;
-
-
-
-  state_t   state;
-
-  ////////////////
-  // the current active ranges used for regulation and measurement.
-  // may be narrower than the set range
-  vrange_t  vrange;
-  irange_t  irange;
-
-  ////////////////
-  float     vset;
-  vrange_t  vset_range;
-
-  float     iset;
-  irange_t  iset_range;
-
-
-  bool      print_adc_values;
-
-  bool      auto_range_measurement;   // use 'a' to toggle. would be useful to test.
-                                      // when turn off. will need a core reset?
-
-  // bool      last_char_newline; // last console char
-  // we could eliminate this. if we were to read the relay register...
-  bool      output;   // whether output on/off
-
-
-  /////////////////////////
-  uint32_t  update_count;
-
-  float     lp15v;
-  float     ln15v;
-
-
-  /////////////////////////
-  // adc data ready, given by interupt
-  bool      adc_drdy;
-  uint32_t  adc_drdy_missed;
-  uint32_t  adc_ov_count;
-
-  // adc last read values
-  // float     vfb;
-  // float     ifb;
-
-  /////////////
-  uint32_t  measure_millis_last;
-
-  uint32_t  nplc_measure;
-  uint32_t  nplc_range;
-
-
-  FBuf      vfb_measure;
-  FBuf      vfb_range;
-
-  FBuf      ifb_measure;
-  FBuf      ifb_range;
-
-
-
-
-  // led blink off/on.
-
-  //////////////
-
-  int       digits;
-
-#endif
-
-} app_t;
-
 
 /*
 
