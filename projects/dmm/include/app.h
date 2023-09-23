@@ -24,7 +24,7 @@
 */
 
 
-
+#if 0
 
 // TODO - must rename - very confusing.  state_powerup_t  or similar.
 typedef enum state_t {
@@ -93,6 +93,7 @@ typedef enum irange_t
 
 
 
+#endif
 
 typedef struct app_t
 {
@@ -119,6 +120,13 @@ typedef struct app_t
 
   uint32_t spi;
 
+  ////////
+  // not sure what the best way is to handle this state.
+  unsigned count;
+
+  bool led_state ;
+
+  bool test03_relay; // true or false.
 
   // we don't/shouldn't even need  to have the current state recorded here.
   // should not have more than one authoritative source on 4094 state.
@@ -202,7 +210,7 @@ typedef struct app_t
 } app_t;
 
 
-
+/*
 
 void state_change(app_t *app, state_t state );
 
@@ -210,4 +218,4 @@ void app_start( app_t * app );
 void app_start2( app_t * app );
 
 void app_goto_fail_state( app_t * app );
-
+*/

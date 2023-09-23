@@ -94,6 +94,9 @@ static void update_soft_1s(app_t *app)
 
 
 
+#if 0
+
+
 static uint32_t write_bits8( uint8_t v, uint8_t set, uint8_t clear )
 {
   // *v = ~(  ~(*v | set ) | clear);  // clear has priority over set
@@ -139,6 +142,12 @@ static void state_write ( uint8_t *state, size_t n, unsigned pos, uint8_t width,
 }
 
 
+#endif
+
+
+
+
+
 
 static void state_format ( uint8_t *state, size_t n)
 {
@@ -150,7 +159,6 @@ static void state_format ( uint8_t *state, size_t n)
     printf("v %s\n",  format_bits(buf, 8, state[ i ]  ));
   }
 }
-
 
 
 /*
@@ -191,8 +199,6 @@ typedef struct X
   // U403
   uint8_t U403_UNUSED : 6;
   uint8_t K405_CTL    : 2;
-  // uint8_t K405_L1_CTL : 1;
-  // uint8_t K405_L2_CTL : 1;
 
 
   // U506
@@ -345,25 +351,21 @@ static void do_transition( unsigned spi, Mode *mode)
 static void update_soft_500ms(app_t *app)
 {
   // UNUSED(app);
+  assert(app);
 
   /*
     function should reconstruct to localize scope of app. and then dispatch to other functions.
 
   */
 
-  //////////////////
-  // EXTR. these static vars belong in app, to make this more testable.
-  // char buf[100];
-  static bool led_state = 0;
-  led_state = ! led_state;
+  app->led_state = ! app->led_state;
 
 
-  static int count = 0;
-  printf("count %u\n", ++ count);
-
+  printf("count %u\n", ++ app->count);
 
   // blink the mcu led
-  led_set( led_state );
+  // TODO. this is horribly opaque.  just set the LED and port in the app state.
+  led_set( app->led_state );
 
 
 
@@ -375,47 +377,25 @@ static void update_soft_500ms(app_t *app)
 
   // Ok, writing led state. screws up the signalling.
 
-  if(led_state)
+  if(app->led_state)
     spi_ice40_reg_write32(app->spi, REG_LED, LED0);
   else
     spi_ice40_reg_write32(app->spi, REG_LED, 0 );   // we don't have the set and clear bits...
 
 
-  /*
 
-  //
-  if(led_state)
-    do_transition( app->spi, &mode_initial);
-  else
-    do_transition( app->spi, &mode_dcv_az);
-*/
+  if(app->test03_relay) {   // relay test.
 
-  // OK.
-  // hang on. we know the bits ...
-  // seems to work.
+      // this is a test of correct b2b and K405 relay sequencing.
+      //
+      if(app->led_state)
+        do_transition( app->spi, &mode_initial);
+      else
+        do_transition( app->spi, &mode_dcv_az);
 
-
-#if 0
-  if(led_state) {
-    Mode j = mode_initial;
-    j.second.U1003  = 0b1000;   // s1. +10V.
-    // j.second.U1006  = 0b1000;   // s1. ref 10V.
-    // j.second.U1006  = 0b1001;   // s2. ref 1V.
-    // j.second.U1006  = 0b1010;       // s3. ref 0.1V.
-    // j.second.U1006  = 0b1111;       // s8. temp.
-    do_transition( app->spi, &j );
   }
-  else {
 
-    Mode j = mode_initial;
-    j.second.U1003  = 0b1001;   // s2.  -10V.
-    // j.second.U1006  = 0b1000;   // s1.    +10.
-    // j.second.U1006  = 0b1001;   // s2. ref 1V.
-    // j.second.U1006  = 0b1010;       // s3. ref 0.1V.
-    // j.second.U1006  = 0b1111;       // s8. temp.
-    do_transition( app->spi, &j);
-  }
-#endif
+
 
 
 
@@ -460,10 +440,18 @@ static void update_console_cmd(app_t *app)
       uint32_t u0;
       UNUSED(u0);
 
-      if( strcmp(cmd, "test00") == 0 || strcmp(cmd, "initial") == 0) {
+      if( strcmp(cmd, "test00") == 0 || strcmp(cmd, "initial") == 0 || strcmp(cmd, "reset") == 0) {
         printf("test01 initial state\n");
         Mode j = mode_initial;
         do_transition( app->spi, &j );
+
+        mux_ice40(app->spi);
+        spi_ice40_reg_write32(app->spi, REG_MODE, 0b00 );  // test pattern.
+        // spi_ice40_reg_write32(app->spi, REG_MODE, 0b10 );  // counter
+
+        // make sure relay switching test is off.
+        app->test03_relay = false;
+
       }
 
 
@@ -479,8 +467,12 @@ static void update_console_cmd(app_t *app)
 
         do_transition( app->spi, &j );
 
+        // et the mode
+        // mux ice40
+        mux_ice40(app->spi);
+        spi_ice40_reg_write32(app->spi, REG_MODE, 0b11 );
+        // spi_ice40_reg_write32(app->spi, REG_MODE, 0b10 );  // counter
 
-        // the fpga will run the modulation to pick-up leakage
       }
 
       else if( strcmp(cmd, "test02") == 0) {
@@ -497,6 +489,19 @@ static void update_console_cmd(app_t *app)
       }
 
 
+
+
+      else if( strcmp(cmd, "test03") == 0) {
+
+        printf("test02 with +10V\n");
+        app->test03_relay = true;
+
+        mux_ice40(app->spi);
+        spi_ice40_reg_write32(app->spi, REG_MODE, 0b01 );  // no pattern.  we need to define the module however.
+
+        // how do we stop this... only way is with another test. or count to ten.
+        // but it becomes another source of state.
+      }
 
 
 
@@ -645,15 +650,18 @@ static void loop(app_t *app)
   */
 
 
-  /* 
+  /*
     do start up. eg. check rails
     initial state - do once.
   */
   do_transition( app->spi, &mode_initial );
 
+  // start in counter mode. actually should start, so that follow blinky.
+  mux_ice40(app->spi);
+  // spi_ice40_reg_write32(app->spi, REG_MODE, 0b10 );  // counter
+  spi_ice40_reg_write32(app->spi, REG_MODE, 0b00 );  // test pattern.
 
 
-  // while(true);
 
   while(true) {
 
@@ -795,15 +803,16 @@ static void spi_ice40_wait_for_ice40( uint32_t spi)
   // uint8_t magic = 0b0101; // ok. not ok now.  ok. when reset the fpga.
   uint8_t magic = 0b1010;   // this is returning the wrong value....
   do {
-    printf(".");
+    // printf(".");
 
     // ice40_reg_set( spi, REG_LED,  magic );
     spi_ice40_reg_write32( spi, REG_LED, magic);
+    msleep( 50);
     // ret = ice40_reg_read( spi, REG_LED);
     ret = spi_ice40_reg_read32( spi, REG_LED);
 
     char buf[ 100] ;
-    printf("v %s\n",  format_bits(buf, 8, ret ));
+    printf("wait for ice40 v %s\n",  format_bits(buf, 8, ret ));
 
     msleep( 50);
   }

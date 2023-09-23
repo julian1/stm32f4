@@ -28,6 +28,10 @@ extern void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t
 #define REG_4094        9
 #define GLB_4094_OE    (1<<0)
 
+
+#define REG_MODE        12 
+
+
 /*
 // prefix with the IC ?
 
@@ -37,7 +41,7 @@ k
 
 */
 
-
+#if 0
 #define U304_RAILS_LP5V_CTL   (1<<0)
 #define U304_RAILS_LP15V_CTL  (1<<1)
 #define U304_RAILS_LP24V_CTL  (1<<2)
@@ -225,4 +229,4 @@ k
 #define IRANGE_YZ_SW4_CTL (1<<3)
 
 
-
+#endif
