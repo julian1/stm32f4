@@ -405,9 +405,9 @@ static void update_soft_500ms(app_t *app)
 
       // blink the led
       if(app->led_state)
-        spi_ice40_reg_write32(app->spi, REG_TEST_PATTERN, 1 << 13 );  // turn on led0. in the vector.
+        spi_ice40_reg_write32(app->spi, REG_DIRECT_STATE, 1 << 13 );  // turn on led0. in the vector.
       else
-        spi_ice40_reg_write32(app->spi, REG_TEST_PATTERN, 0 );  // turn on led0. in the vector.
+        spi_ice40_reg_write32(app->spi, REG_DIRECT_STATE, 0 );  // turn on led0. in the vector.
   }
 
 
@@ -461,7 +461,7 @@ static void update_console_cmd(app_t *app)
         do_transition( app->spi, &j );
 
         mux_ice40(app->spi);
-        spi_ice40_reg_write32(app->spi, REG_MODE, 0b00 );  // test pattern.
+        spi_ice40_reg_write32(app->spi, REG_MODE, REG_MODE_DEFAULT );  // test pattern.
         // spi_ice40_reg_write32(app->spi, REG_MODE, 0b10 );  // counter
 
         // make sure relay switching test is off.
@@ -532,17 +532,10 @@ static void update_console_cmd(app_t *app)
 
       else if( strcmp(cmd, "test04") == 0) {
 
-        printf("test04 - change mode to register direct, and turn led on\n");
+        printf("test04 - change mode to reg direct, and blink the led by writing register\n");
 
         mux_ice40(app->spi);
-        spi_ice40_reg_write32(app->spi, REG_MODE, 0b01 );  // set mode to register/mcu control
-
-        // REG_MODE_DIRECT  0b01
-        // output state.
-
-        // spi_ice40_reg_write32(app->spi, REG_TEST_PATTERN, 1 << 13 );  // turn on led0. in the vector.
-        // spi_ice40_reg_write32(app->spi, REG_TEST_PATTERN, 0 );  // turn on led0. in the vector.
-
+        spi_ice40_reg_write32(app->spi, REG_MODE, REG_MODE_DIRECT );  // set mode to register/mcu control
 
         app->test_in_progress = 4;
       }
@@ -557,102 +550,6 @@ static void update_console_cmd(app_t *app)
         // scb_reset_core()
         scb_reset_system();
       }
-
-
-/*
-      else if( strcmp(cmd, "relay on") == 0) {  // output on
-
-        relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K406,  1 );
-      }
-      else if( strcmp(cmd, "relay off") == 0) {  // output off
-
-        relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K406,  0 );
-      }
-*/
-
-
-#if 0
-      else if(strcmp(cmd, "mon") == 0) {
-
-        // this will powerdown rails
-        mux_ice40(app->spi);
-        uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
-        char buf[10];
-        printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
-
-      }
-
-
-      else if(strcmp(cmd, "reset") == 0) {
-
-        // this will powerdown rails
-        printf("reset ice40\n");
-        mux_ice40(app->spi);
-        ice40_reg_set(app->spi, CORE_SOFT_RST, 0 );
-      }
-
-
-      else if(strcmp(cmd, "powerup") == 0) {
-
-        // ok without dac being initialized?
-        // powerup 5 and +-15V rails and set analog switches
-
-        printf("powerup ice40\n");
-        mux_ice40(app->spi);
-
-        // check rails monitor.
-        uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
-        // char buf[10];
-        // printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
-
-        if(val == 1) {
-          ice40_reg_set(app->spi, 6 , 0 );
-        }  else {
-          printf("problem with rails monitor\n");
-        }
-      }
-
-
-      else if( strcmp(cmd, "on") == 0) {  // output on
-
-        ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_OUT_COM_HC_CTL);
-        ice40_reg_set(app->spi, REG_LED, LED1);
-      }
-      else if( strcmp(cmd, "off") == 0) {  // output off
-
-        ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_OUT_COM_HC_CTL);
-        ice40_reg_clear(app->spi, REG_LED, LED1);
-      }
-
-      else if( strcmp(cmd, "guard on") == 0) {  // output on
-
-        ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_GUARD_CTL);
-      }
-      else if( strcmp(cmd, "guard off") == 0) {  // output off
-
-        ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_GUARD_CTL);
-      }
-
-
-      else if( sscanf(cmd, "sense ext %lu", &u0 ) == 1) {
-
-        if(u0) {
-          ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_INT_CTL);    // FIXME. write not set // perhaps push to own register to make exclusive.
-          ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_EXT_CTL);
-        } else {
-          ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_INT_CTL);
-          ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_EXT_CTL);
-        }
-
-      }
-
-
-
-
-
-
-#endif
-
 
       // chage name to start, init sounds like initial-condition
 
@@ -704,8 +601,7 @@ static void loop(app_t *app)
 
   // start in counter mode. actually should start, so that follow blinky.
   mux_ice40(app->spi);
-  // spi_ice40_reg_write32(app->spi, REG_MODE, 0b10 );  // counter
-  spi_ice40_reg_write32(app->spi, REG_MODE, 0b00 );  // test pattern.
+  spi_ice40_reg_write32(app->spi, REG_MODE, REG_MODE_DEFAULT );  // default led blink, and monitor test pattern.
 
 
 
@@ -1080,6 +976,102 @@ int main(void)
 	return 0;
 }
 
+
+
+
+/*
+      else if( strcmp(cmd, "relay on") == 0) {  // output on
+
+        relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K406,  1 );
+      }
+      else if( strcmp(cmd, "relay off") == 0) {  // output off
+
+        relay_set( app->spi, app->state_4094, sizeof(app->state_4094), REG_K406,  0 );
+      }
+*/
+
+
+#if 0
+      else if(strcmp(cmd, "mon") == 0) {
+
+        // this will powerdown rails
+        mux_ice40(app->spi);
+        uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
+        char buf[10];
+        printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
+
+      }
+
+
+      else if(strcmp(cmd, "reset") == 0) {
+
+        // this will powerdown rails
+        printf("reset ice40\n");
+        mux_ice40(app->spi);
+        ice40_reg_set(app->spi, CORE_SOFT_RST, 0 );
+      }
+
+
+      else if(strcmp(cmd, "powerup") == 0) {
+
+        // ok without dac being initialized?
+        // powerup 5 and +-15V rails and set analog switches
+
+        printf("powerup ice40\n");
+        mux_ice40(app->spi);
+
+        // check rails monitor.
+        uint8_t val = ice40_reg_read( app->spi, REG_MON_RAILS );
+        // char buf[10];
+        // printf("reg_mon_rails read bits %s\n", format_bits(buf, 4, val) );
+
+        if(val == 1) {
+          ice40_reg_set(app->spi, 6 , 0 );
+        }  else {
+          printf("problem with rails monitor\n");
+        }
+      }
+
+
+      else if( strcmp(cmd, "on") == 0) {  // output on
+
+        ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_OUT_COM_HC_CTL);
+        ice40_reg_set(app->spi, REG_LED, LED1);
+      }
+      else if( strcmp(cmd, "off") == 0) {  // output off
+
+        ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_OUT_COM_HC_CTL);
+        ice40_reg_clear(app->spi, REG_LED, LED1);
+      }
+
+      else if( strcmp(cmd, "guard on") == 0) {  // output on
+
+        ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_GUARD_CTL);
+      }
+      else if( strcmp(cmd, "guard off") == 0) {  // output off
+
+        ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_GUARD_CTL);
+      }
+
+
+      else if( sscanf(cmd, "sense ext %lu", &u0 ) == 1) {
+
+        if(u0) {
+          ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_INT_CTL);    // FIXME. write not set // perhaps push to own register to make exclusive.
+          ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_EXT_CTL);
+        } else {
+          ice40_reg_set(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_INT_CTL);
+          ice40_reg_clear(app->spi, REG_RELAY_OUT, REG_RELAY_SENSE_EXT_CTL);
+        }
+
+      }
+
+
+
+
+
+
+#endif
 
 
 
