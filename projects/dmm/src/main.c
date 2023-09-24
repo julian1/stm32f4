@@ -722,13 +722,14 @@ static void spi_ice40_stress_test_spi( uint32_t spi)
   mux_ice40(spi);
   uint8_t magic = 0;
 
+  uint8_t reg =  REG_LED;
+
   while(1) {
-    assert(REG_LED == 7);
-    spi_ice40_reg_write32(spi, REG_LED, magic++);
-    // spi_ice40_reg_write( spi, REG_LED, magic ++ );
-    uint32_t ret = spi_ice40_reg_read32( spi, REG_LED);
+    spi_ice40_reg_write32(spi, reg, magic++);
+    // spi_ice40_reg_write( spi, reg, magic ++ );
+    uint32_t ret = spi_ice40_reg_read32( spi, reg);
     char buf[ 100] ;
-    printf("v %lu  %s\n",  ret,  format_bits(buf, 32, ret ));
+    printf("r %u  v %lu  %s\n",  reg, ret,  format_bits(buf, 32, ret ));
     msleep( 150);
   }
 }
@@ -942,9 +943,9 @@ int main(void)
   mux_ice40(app.spi);
 
 
-  spi_ice40_wait_for_ice40( app.spi );
+  // spi_ice40_wait_for_ice40( app.spi );
 
-  // spi_ice40_stress_test_spi( app.spi);
+  spi_ice40_stress_test_spi( app.spi);
 
   // spi_ice40_just_read_reg ( app.spi);
 
