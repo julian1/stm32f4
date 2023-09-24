@@ -383,6 +383,10 @@ static void update_soft_500ms(app_t *app)
     spi_ice40_reg_write32(app->spi, REG_LED, 0 );   // we don't have the set and clear bits...
 
 
+  // TODO. use an enum here for the different behaviors.
+  // this makes turning off easier.
+
+  // we want set the mode - to mcu-control and test-reg. . then try to blink the led0.
 
   if(app->test03_relay) {   // relay test.
 
@@ -511,6 +515,23 @@ static void update_console_cmd(app_t *app)
         // how do we stop this... only way is with another test. or count to ten.
         // but it becomes another source of state.
       }
+
+
+      else if( strcmp(cmd, "test04") == 0) {
+
+        printf("test04 - change mode to register direct, and turn led on\n");
+        app->test03_relay = 0;
+
+        mux_ice40(app->spi);
+        spi_ice40_reg_write32(app->spi, REG_MODE, 0b01 );  // set mode to register/mcu control
+
+
+        // spi_ice40_reg_write32(app->spi, REG_TEST_PATTERN, 1 << 13 );  // turn on led0. in the vector. 
+        spi_ice40_reg_write32(app->spi, REG_TEST_PATTERN, 0 );  // turn on led0. in the vector. 
+
+      }
+
+
 
 
 
