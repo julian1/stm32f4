@@ -33,7 +33,9 @@ typedef struct app_t
 
   bool led_state ;
 
-  bool test03_relay; // true or false.
+
+    
+  unsigned test_in_progress; // enum. for test type.
 
   // we don't/shouldn't even need  to have the current state recorded here.
   // should not have more than one authoritative source on 4094 state.
