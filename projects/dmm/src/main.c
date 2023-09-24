@@ -184,16 +184,18 @@ static void state_format ( uint8_t *state, size_t n)
 #define MODE_ARR_N    3   // mode array in bytes.
 
 
+// REMEMBER this is 4094.   not fpga state.
+
 typedef struct X
 {
-  // U406
-  uint8_t U408_SW_CTL : 1;
+  // U406 4094.
+  uint8_t U408_SW_CTL : 1;      // perhaps change to lower case....   eg. u408_sw
   uint8_t U406_UNUSED : 1;
   uint8_t K406_CTL    : 2;        // Be better to encode as 2 bits.   can then assign 0b01 or 0b10 etc.
   uint8_t U406_UNUSED_2 : 4;
 
-  // U401
-  uint8_t U401_UNUSED : 8;
+  // U401 4094
+  uint8_t U401_UNUSED : 8;    // controls U404.
 
 
   // U403
@@ -221,11 +223,68 @@ typedef struct X
 typedef struct Mode
 {
   // put AZ mux here. also.
+/*
+    Actually can even put a mode.
+    here .
+    and then switch what gets written.
+*/
 
   X     first;
   X     second;
 
 } Mode;
+
+
+//////////
+
+/*
+      SPI_INTERUPT_OUT,
+      MEAS_COMPLETE_CTL,
+      CMPR_LATCH_CTL,
+      adcmux,                  // 19 bits.
+
+      monitor,                // 15.    bit 14 from 0.. + 8= j    bit 10,    1024.
+      LED0,                   // bit 13.  8192.
+      SIG_PC_SW_CTL,
+      himux2,              // remove the himux2  12.
+      himux,
+      azmux
+
+  so put in direct mode. then try to bllink the led.
+  so try to blink
+  assert( sizeof(F) == 4);
+*/
+
+//  __attribute__((__packed__))
+
+typedef struct  __attribute__((__packed__))
+F
+{
+  /* this is direct mode state.  TODO rename
+      in adc mode,   we would have 2 or four sets of mux registers for the values to switch.
+      and the other lines would be given to the fpga to run
+      ----
+      and this state would be written in the main mode state.
+      -------
+  */
+
+  uint8_t azmux   : 4;
+  uint8_t himux   : 4;
+  uint8_t himux2  : 4;     // 12
+  uint8_t sig_pc_sw_ctl : 1;
+  uint8_t led0    : 1;       // 14   2 bytes.
+
+  uint8_t monitor : 8;    // 22  // this bit vector overflows - so gets aligned on a new byte boundary. which is not what we want...
+
+  uint8_t adcmux : 4;     // 26
+  uint8_t cmpr_latch_ctl : 1;
+  uint8_t meas_complete_ctl : 1;
+  uint8_t spi_interupt_out : 1;     // 29bits
+
+  uint8_t dummy   : 3;
+} F;
+
+
 
 
 /*
@@ -315,6 +374,9 @@ static void init_modes( void )
 
 static void do_transition( unsigned spi, Mode *mode)
 {
+
+  // change name do_4094_transition. or make_
+
   // should we be passing as a separate argument
   assert( sizeof(X) == 5 );
 
@@ -363,60 +425,36 @@ static void update_soft_500ms(app_t *app)
 
   printf("count %u\n", ++ app->count);
 
-  // blink the mcu led
-  // TODO. this is horribly opaque.  just set the LED and port in the app state.
+  // blink mcu led
+  // TODO. this is all horribly opaque.  the configuration state should be being passed as a dependency.
+  // change ame mcu_led_blink() led_mcu_
   led_set( app->led_state );
 
 
 
-  // blink the fpga led
-  mux_ice40(app->spi);
 
+  if(app->test_in_progress == 3 ) {
 
-  // doing a read.... of reg_4094 - is interferre
-
-  // Ok, writing led state. screws up the signalling.
-
-  if(app->led_state)
-    spi_ice40_reg_write32(app->spi, REG_LED, LED0);
-  else
-    spi_ice40_reg_write32(app->spi, REG_LED, 0 );   // we don't have the set and clear bits...
-
-
-  // TODO. use an enum here for the different behaviors.
-  // this makes turning off easier.
-
-  // we want set the mode - to mcu-control and test-reg. . then try to blink the led0.
-
-  if(app->test_in_progress == 3 ) {   // relay test.
-
-      // this is a test of correct b2b and K405 relay sequencing.
-      //
-      if(app->led_state)
-        do_transition( app->spi, &mode_initial);
-      else
-        do_transition( app->spi, &mode_dcv_az);
-
+    // tests b2b and K405 relay sequencing.
+    if(app->led_state)
+      do_transition( app->spi, &mode_initial);
+    else
+      do_transition( app->spi, &mode_dcv_az);
   }
-
 
 
   if(app->test_in_progress == 4 ) {
 
-      // blink the led
-      if(app->led_state)
-        spi_ice40_reg_write32(app->spi, REG_DIRECT_STATE, 1 << 13 );  // turn on led0. in the vector.
-      else
-        spi_ice40_reg_write32(app->spi, REG_DIRECT_STATE, 0 );  // turn on led0. in the vector.
+    //
+    F f;
+    memset(&f, 0, sizeof(f));
+
+    f.led0 = app->led_state;
+
+    mux_ice40(app->spi);
+    // spi_ice40_reg_write32(app->spi, REG_DIRECT, * (uint32_t *) &f );     // create a function to handle this ugly casting.
+    spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );     // create a function to handle this ugly casting.
   }
-
-
-
-
-
-  // turn off 4094 muxing
-  // TODO - remove
-  mux_ice40(app->spi);
 
 
 
@@ -497,18 +535,6 @@ static void update_console_cmd(app_t *app)
 
         do_transition( app->spi, &j );
 
-        mux_ice40(app->spi);
-        // spi_ice40_reg_write32(app->spi, REG_MODE, 0b11 );     // test accumulation cap.
-        spi_ice40_reg_write32(app->spi, REG_MODE, 0b01 );     // test pattern zero.   we actually want himux2 on .
-
-        /*
-        EXTR.  I think we may want a mode/pattern. that gives mcu control over the muxes. using registers.
-        then we can more easily control everything.
-        eg. charge cap with a dc-bias. then turn off.
-
-        // then we can sequence everything more simply. for charge tests.
-
-        */
 
         app->test_in_progress = 0;
       }
@@ -516,31 +542,50 @@ static void update_console_cmd(app_t *app)
 
 
 
-      else if( strcmp(cmd, "test03") == 0) {
 
-        printf("test03 - direct_reg_mode to zero \n");
+      else if( sscanf(cmd, "direct %lu", &u0 ) == 1) {
+
+        printf("set direct value to, %lu\n", u0 );
 
         mux_ice40(app->spi);
-        spi_ice40_reg_write32(app->spi, REG_MODE, 0b01 );  // no pattern.  we need to define the module however.
+        spi_ice40_reg_write32(app->spi, REG_DIRECT, u0 );  // set mode to register/mcu control
 
-        // how do we stop this... only way is with another test. or count to ten.
-        // but it becomes another source of state.
+        // msleep(10);
+        // read value vack.
+        uint32_t ret =   spi_ice40_reg_read32(app->spi, REG_DIRECT );
+        // printf("reg_direct return value %lu\n", ret);
 
+        char buf[ 100 ] ;
+        printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  format_bits(buf, 32, ret ));
+      }
+
+
+      else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
+
+        mux_ice40(app->spi);
+        spi_ice40_reg_write32(app->spi, REG_MODE, u0 );
+
+        uint32_t ret =   spi_ice40_reg_read32(app->spi, REG_MODE );  // turn on led0. in the vector.
+        printf("reg_mode return value %lu\n", ret);
+
+      }
+
+
+      else if( strcmp(cmd, "test03") == 0) {
+
+        printf("test03 use 4094, to click dcv sequencing/ relays\n");
         app->test_in_progress = 3;
       }
 
-
       else if( strcmp(cmd, "test04") == 0) {
 
-        printf("test04 - change mode to reg direct, and blink the led by writing register\n");
+        printf("test03 use direct mode - to blink led\n");
 
         mux_ice40(app->spi);
-        spi_ice40_reg_write32(app->spi, REG_MODE, REG_MODE_DIRECT );  // set mode to register/mcu control
+        spi_ice40_reg_write32(app->spi, REG_MODE, 3 );    // MODE_LO, MODE_HI, MODE_PATTERN, MODE_DIRECT
 
         app->test_in_progress = 4;
       }
-
-
 
 
 
@@ -755,7 +800,7 @@ static void spi_ice40_wait_for_ice40( uint32_t spi)
     ret = spi_ice40_reg_read32( spi, REG_LED);
 
     char buf[ 100] ;
-    printf("wait for ice40 v %s\n",  format_bits(buf, 8, ret ));
+    printf("wait for ice40 v %s\n",  format_bits(buf, 32, ret ));
 
     msleep( 50);
   }
@@ -943,9 +988,9 @@ int main(void)
   mux_ice40(app.spi);
 
 
-  // spi_ice40_wait_for_ice40( app.spi );
+  spi_ice40_wait_for_ice40( app.spi );
 
-  spi_ice40_stress_test_spi( app.spi);
+  // spi_ice40_stress_test_spi( app.spi);
 
   // spi_ice40_just_read_reg ( app.spi);
 
@@ -965,8 +1010,11 @@ int main(void)
 #endif
 
 
-  printf("sizeof X %u\n", sizeof(X));
+  printf("sizeof X    %u\n", sizeof(X));
   printf("sizeof Mode %u\n", sizeof(Mode ));
+  printf("sizeof F    %u\n", sizeof(F));
+
+  assert(sizeof(F) == 4);
 
   init_modes();
 

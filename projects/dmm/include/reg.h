@@ -40,7 +40,7 @@ extern void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t
 #define REG_MODE_DIRECT  0b01
 
 
-#define REG_DIRECT_STATE        14      // need a different name.  REG_MODE_DIRECT_STATE
+#define REG_DIRECT        14      // need a different name.  REG_MODE_DIRECT_STATE
 
 
 
