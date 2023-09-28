@@ -324,7 +324,7 @@ static void init_modes( void )
 static void do_transition( unsigned spi, Mode *mode)
 {
 
-  // change name   do_state_update_4094 .
+  // change name   do_state_update_4094 _4094_state_update.
   // change name do_4094_transition. or make_
 
   // should we be passing as a separate argument
@@ -572,7 +572,6 @@ static void update_console_cmd(app_t *app)
 
         printf("charge accumulation cap\n");
 
-        assert( (1<<3|(6-1)) == 0b1101 );
 
         if(strcmp(cmd, "test05") == 0) {
           printf("with +10V\n");
@@ -720,15 +719,28 @@ static void loop(app_t *app)
   /*
     do start up. eg. check rails
     initial state - do once.
+
   */
+  printf("writing initial 4094 state\n");
   do_transition( app->spi, &mode_initial );
+
+
+  // TODO should test that the 4094 state write  succeeded before turning on 4094 OE.
+  printf("turning on 4094 OE\n");
+  spi_ice40_reg_write32( app->spi, REG_4094, GLB_4094_OE);
+
+
+
 
   // when mcu restarts, but fpga is not restarted, put fpga in default mode.
   mux_ice40(app->spi);
   spi_ice40_reg_write32(app->spi, REG_MODE, 0 );
 
 
-  printf("going to loop\n");
+
+
+
+  printf("enter main loop\n");
   printf("> ");
 
   while(true) {
@@ -810,34 +822,12 @@ static char buf_command[1000];
 static app_t app;
 
 
-/*
-// chage name spi_ice40_stress test.
 
-static void spi_ice40_stress_test_spi( uint32_t spi)
-{
-  // TODO better name. move code to separate test folder.
-  // prefix with test ? perhaps
-
-  printf("stress test spi comms\n");
-  mux_ice40(spi);
-  uint8_t magic = 0;
-
-  uint8_t reg =  REG_LED;
-
-  while(1) {
-    spi_ice40_reg_write32(spi, reg, magic++);
-    // spi_ice40_reg_write( spi, reg, magic ++ );
-    uint32_t ret = spi_ice40_reg_read32( spi, reg);
-    char buf[ 100] ;
-    printf("r %u  v %lu  %s\n",  reg, ret,  format_bits(buf, 32, ret ));
-    msleep( 150);
-  }
-}
-*/
-
+#if 0
 
 static void spi_ice40_wait_for_ice40( uint32_t spi)
 {
+  // we don't need this anymore.
   // TODO better ame doto
 
   mux_ice40(spi);
@@ -863,20 +853,7 @@ static void spi_ice40_wait_for_ice40( uint32_t spi)
 
 }
 
-
-
-static void spi_ice40_just_read_reg ( uint32_t spi)
-{
-  mux_ice40(spi);
-
-  while(1) {
-    uint32_t v = spi_ice40_reg_read32(spi, REG_LED);
-    // uint32_t v = spi_ice40_reg_read32(spi, 0b00111111 );
-    char buf[32+1];
-    printf("value of led %lu %s\n", v, format_bits(buf, 32, v ));
-    msleep( 500 );
-  }
-}
+#endif
 
 
 
@@ -916,6 +893,7 @@ int main(void)
 #define LED_PORT  GPIOA
 #define LED_OUT   GPIO9
 
+  // EXTR. horrid.  make this specific.  use this only for the assert fast blink. where don't have a choice.
   led_setup(LED_PORT, LED_OUT);
 
 
@@ -969,28 +947,6 @@ int main(void)
 
 
 
-#if 0
-  {
-    char buf[100];
-
-      // printf("val %s\n",  format_bits(buf, 8,  write_val8( 0xff, 2, 1, 0xff ) ));
-
-    // printf("val %s\n",  format_bits(buf, 8,  write_val8( 0x0, 1, 5, 0xff ) ));
-
-    uint8_t v[ 3 ];
-    memset(v, 0xff, sizeof(v));
-    state_write ( v, sizeof(v), 16, 3, 0x0 );
-
-    printf("v[0] %s\n",  format_bits(buf, 8, v[0 ]));
-    printf("v[1] %s\n",  format_bits(buf, 8, v[1 ]));
-    printf("v[2] %s\n",  format_bits(buf, 8, v[2 ]));
-  }
-#endif
-
-  //////////////////////////////
-
-
-
 
   ////////////////
   spi1_port_cs1_setup();
@@ -1035,23 +991,19 @@ int main(void)
 
 
 
-#if 1
+#if 0
 
-
+  // we don't need to wait anymore... we have heartbeat
   // mux spi to ice40
   mux_ice40(app.spi);
-
-
   spi_ice40_wait_for_ice40( app.spi );
 
-  // spi_ice40_stress_test_spi( app.spi);
-
-  // spi_ice40_just_read_reg ( app.spi);
 
   /*
-    not quite right.
-    we need to clear/reset the 4094 register values s first before turning on OE.
-    otherwise 4094 flip/flops can come up in any state,
+  TODO
+    this is not quite right.
+    we must write /reset 4094 state before turning on OE.
+    else 4094 flip/flops may come up in any state,
 
     should also verify that value was correct. by writing.  and without asserting strobe.
     relays latch could be caught in on state.
@@ -1070,6 +1022,8 @@ int main(void)
 
   assert(sizeof(F) == 4);
 
+  assert( (1<<3|(6-1)) == 0b1101 );
+
   init_modes();
 
   // go to main loop
@@ -1078,6 +1032,85 @@ int main(void)
 	for (;;);
 	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+#if 0
+  {
+    char buf[100];
+
+      // printf("val %s\n",  format_bits(buf, 8,  write_val8( 0xff, 2, 1, 0xff ) ));
+
+    // printf("val %s\n",  format_bits(buf, 8,  write_val8( 0x0, 1, 5, 0xff ) ));
+
+    uint8_t v[ 3 ];
+    memset(v, 0xff, sizeof(v));
+    state_write ( v, sizeof(v), 16, 3, 0x0 );
+
+    printf("v[0] %s\n",  format_bits(buf, 8, v[0 ]));
+    printf("v[1] %s\n",  format_bits(buf, 8, v[1 ]));
+    printf("v[2] %s\n",  format_bits(buf, 8, v[2 ]));
+  }
+#endif
+
+  //////////////////////////////
+
+
+
+
+
+/*
+// chage name spi_ice40_stress test.
+
+static void spi_ice40_stress_test_spi( uint32_t spi)
+{
+  // TODO better name. move code to separate test folder.
+  // prefix with test ? perhaps
+
+  printf("stress test spi comms\n");
+  mux_ice40(spi);
+  uint8_t magic = 0;
+
+  uint8_t reg =  REG_LED;
+
+  while(1) {
+    spi_ice40_reg_write32(spi, reg, magic++);
+    // spi_ice40_reg_write( spi, reg, magic ++ );
+    uint32_t ret = spi_ice40_reg_read32( spi, reg);
+    char buf[ 100] ;
+    printf("r %u  v %lu  %s\n",  reg, ret,  format_bits(buf, 32, ret ));
+    msleep( 150);
+  }
+}
+
+
+static void spi_ice40_just_read_reg ( uint32_t spi)
+{
+  mux_ice40(spi);
+
+  while(1) {
+    uint32_t v = spi_ice40_reg_read32(spi, REG_LED);
+    // uint32_t v = spi_ice40_reg_read32(spi, 0b00111111 );
+    char buf[32+1];
+    printf("value of led %lu %s\n", v, format_bits(buf, 32, v ));
+    msleep( 500 );
+  }
+}
+
+
+*/
+
+
+
 
 
 #if 0
