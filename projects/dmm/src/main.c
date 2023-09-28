@@ -531,8 +531,10 @@ static void update_console_cmd(app_t *app)
 
       }
 
+        // OK, it would be nice to support setting a  vector. over the command line.
+        // issue is cannot do the relay switching.
+        // there's definitely DA.
 
-      // we seem to have lost our
 
       else if( strcmp(cmd, "test02") == 0) {
         // spi stress test in 100ms soft timer
@@ -563,15 +565,11 @@ static void update_console_cmd(app_t *app)
 
       else if( strcmp(cmd, "test05") == 0 || strcmp(cmd, "test06") == 0 || strcmp(cmd, "test07") == 0) {
 
-        // we can pass an argument... for the voltage we want.  actually might be better to factor into a function
-        // all this code is the same. for test05, or test06.  just the initial mux.
+        // we can have a test and pass an argument if really want. but probably better to have self-contained. to automate
 
         app->test_in_progress = 0;
-
         Mode j = mode_initial;
-
         printf("charge accumulation cap\n");
-
 
         if(strcmp(cmd, "test05") == 0) {
           printf("with +10V\n");
@@ -605,7 +603,7 @@ static void update_console_cmd(app_t *app)
         F  f;
         memset(&f, 0, sizeof(f));
         f.himux2 = S1 ;    // s1 put dc-source on himux2 output
-        f.himux  = S2 ;    // s2 put himux2 on himux output
+        f.himux  = S2 ;    // s2 reflect himux2 on himux output
         spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
 
         ////////////////////////////
@@ -625,57 +623,67 @@ static void update_console_cmd(app_t *app)
         // charge cap -10V hold 10sec. get around 2mV / 10s. == 2pA.  input pin, doesn't make much difference to negative leakaave
         // charge cap 0V.  hold 10sec. get around 2.3 -> 2.6mV. == 0.3mV/.  0.3pA.
 
-        // OK, it would be nice to support setting a  vector. over the command line.
-        // issue is cannot do the relay switching.
-        // there's definitely DA.
       }
 
 
-      else if( strcmp(cmd, "test08") == 0 || strcmp(cmd, "test09") == 0 ) {
-
-        // so this test. we want to charage cap to 0V.  then apply +-10V to the input pin.
-        // but this means switching the dc-source. which means 4094.
+      else if( strcmp(cmd, "test08") == 0 || strcmp(cmd, "test09") == 0 || strcmp(cmd, "test10") == 0) {
 
         app->test_in_progress = 0;
-
-        printf("set charge cap to 0V\n");
-
         Mode j = mode_initial;
-        //  j.second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
-        //  j.second.U1006  = S1 ;       // s1.   follow  .   dcv-mux2
-        j.second.U1003  = S3  ; // s3 == agnd
-        j.second.U1006  = S6 ;  // s6 = agnd   ... SHOULD USE S7. prec ground. but need to add jumper.
+        printf("reset accumulation cap to 0V/agnd\n");
 
-        // turn on accumulation relay
+        if(strcmp(cmd, "test08") == 0) {
+          printf("with +10V\n");
+          j.second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
+          j.second.U1006  = S1 ;       // s1.   follow  .   dcv-mux2
+        }
+        else if(strcmp(cmd, "test09") == 0) {
+          printf("with -10V\n");
+          j.second.U1003  = S2 ;       // s2.  -10V.
+          j.second.U1006  = S1 ;       // s1.   follow  .   dcv-mux2
+        }
+        else if(strcmp(cmd, "test10") == 0) {
+          printf("with 0V\n");
+          j.second.U1003 = S3;          // s3 == agnd
+          j.second.U1006 = S6;          // s6 = agnd  .  TODO change to S7 . populate R1001.c0ww
+        }
+        else assert(0);
+
+        // turn on accumulation relay     RON ROFF.  or RL1 ?
         j.first .K406_CTL  = 0b01;
         j.second.K406_CTL  = 0b00;    // don't need this....  it is 0 by default
 
         do_transition( app->spi, &j );
 
-
+        /////////////////
         // make sure we are in direct mode.
         mux_ice40(app->spi);
-        spi_ice40_reg_write32(app->spi, REG_MODE, MODE_DIRECT );  // direct.
+        spi_ice40_reg_write32(app->spi, REG_MODE, MODE_DIRECT );
 
-        // now control the hi mux.
+        // now control the hi mux.  to reset the cap.
         F  f;
         memset(&f, 0, sizeof(f));
-        memset(&f, 0, sizeof(f));
-        f.himux2 = S1 ;    // s1 put dc-source on himux2 output
-        f.himux  = S2 ;    // s2 put himux2 on himux output
+        f.himux2 = S4 ;    // s4 mux ground to reset cap.
+        f.himux  = S2 ;    // s2 reflect himux2 on himux output
         spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
 
+        // it actually needs a kind of double transition.
 
-        ///////////////////
-        printf("charge cap to 0V/agnd\n");
-        printf("sleep 10s\n");
+        ////////////////////////////
+        // so charge cap to the dcv-source, then turn off the mux and see how it drifts.
+        // charge for 10sec. for DA....
+        printf("sleep 10s\n");  // having a yield would be quite nice here.
         msleep(10 * 1000);
+        printf("turn off muxes - to see drift\n");
 
-        // EXTR. actually we can preset the dc-sourc to +-10V. but then mux a gnd S4 through himux2.
-        // so the code is almost the same.
 
-        printf("charge accumulation cap\n");
+        // now float himux but leave voltage on the pin.
+        memset(&f, 0, sizeof(f));      // turn off everything
+        f.himux2 = S1 ;                 // s1 put dc-source on himux2 output
+        f.himux = SOFF;                // float himux
+        spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
 
+        // with either +-10V. at input of himux, but with himux turned off,  we get about 1pF. rising.
 
       }
 
