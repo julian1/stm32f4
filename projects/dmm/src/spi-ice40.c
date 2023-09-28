@@ -41,7 +41,7 @@ void spi_ice40_setup(uint32_t spi)
 
   // JA. ok. importantant. the transition is not correct.
   // clk to 0 when idle for falling edge.
-  // but phase/cpha is the leading, or secondary edge. 
+  // but phase/cpha is the leading, or secondary edge.
 
   spi_disable_software_slave_management( spi);
   spi_enable_ss_output(spi);
@@ -103,7 +103,7 @@ uint32_t spi_ice40_reg_read32(uint32_t spi, uint8_t reg)
 
 uint32_t spi_ice40_reg_write_n(uint32_t spi, uint8_t reg, void *s, size_t n )
 {
-  // helper function.  
+  // helper function for passing structs.
   // for cast.
   assert(n == 4); // only 32bit supported.
 
