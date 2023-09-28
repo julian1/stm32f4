@@ -357,6 +357,32 @@ static void do_transition( unsigned spi, Mode *mode)
 
 
 
+static void update_soft_100ms(app_t *app)
+{
+  assert(app);
+
+  // use for tests.
+
+  if(app->test_in_progress == 2 ) {
+
+      mux_ice40(app->spi);
+      static uint32_t magic = 0;      // static. should put in app state
+      uint8_t reg =  REG_LED;
+
+      spi_ice40_reg_write32(app->spi, reg, magic);
+      uint32_t ret = spi_ice40_reg_read32( app->spi, reg);
+
+      // perhaps it's taking a long time??
+      char buf[ 100] ;
+      printf("r %u  v %lu %s %s\n", reg, ret, format_bits(buf, 32, ret), magic == ret ? "ok" : "error");
+      ++magic;
+
+  }
+}
+
+
+
+
 
 
 static void update_soft_500ms(app_t *app)
@@ -371,13 +397,29 @@ static void update_soft_500ms(app_t *app)
 
   app->led_state = ! app->led_state;
 
-
-  printf("count %u\n", ++ app->count);
-
   // blink mcu led
   // TODO. this is all horribly opaque.  the configuration state should be being passed as a dependency.
   // change ame mcu_led_blink() led_mcu_
   led_set( app->led_state );
+
+
+
+
+  // printf("count %u\n", ++ app->count);
+
+  // 500ms. heartbeat check here.
+  // this works nicely
+  {
+    uint32_t magic = 0b1010;   // this is returning the wrong value....
+    mux_ice40(app->spi);
+    spi_ice40_reg_write32( app->spi, REG_LED, magic);
+    uint32_t ret = spi_ice40_reg_read32( app->spi, REG_LED);
+    if(magic != ret) {
+      char buf[ 100] ;
+
+      printf("no comms, wait for ice40 v %s\n",  format_bits(buf, 32, ret ));
+    }
+  }
 
 
 
@@ -394,7 +436,7 @@ static void update_soft_500ms(app_t *app)
 
   if(app->test_in_progress == 4 ) {
 
-    //
+    // blink led.
     F f;
     memset(&f, 0, sizeof(f));
 
@@ -403,7 +445,6 @@ static void update_soft_500ms(app_t *app)
     mux_ice40(app->spi);
     spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
   }
-
 
 
 }
@@ -439,9 +480,9 @@ static void update_console_cmd(app_t *app)
 
 
       uint32_t u0;
-      UNUSED(u0);
+      // UNUSED(u0);
 
-      if( strcmp(cmd, "test00") == 0 || strcmp(cmd, "initial") == 0 || strcmp(cmd, "reset") == 0) {
+      if( strcmp(cmd, "reset") == 0) {
         printf("test01 initial state\n");
         Mode j = mode_initial;
         do_transition( app->spi, &j );
@@ -449,74 +490,19 @@ static void update_console_cmd(app_t *app)
         mux_ice40(app->spi);
         spi_ice40_reg_write32(app->spi, REG_MODE, 0 );  // defaultpattern.
 
+        // should write the mode also.
+
         // make sure relay switching test is off.
         app->test_in_progress = 0;
 
       }
 
 
-  // test01... why is the dc-source changing it's voltage. who is writing it?
-  // and why doesn't test02. generate the negative
-  // because it's controlling the dc-source.
-
-  // we want to turn the cap on.   and just watch it.
-
-      else if( strcmp(cmd, "test01") == 0 || strcmp(cmd, "test02") == 0 ) {
-
-        // all this code is the same. for test01, or test02.  just the initial mux.
-
-        app->test_in_progress = 0;
-
-        Mode j = mode_initial;
-
-        printf("charge accumulation cap\n");
-
-        if(strcmp(cmd, "test01") == 0) {
-          printf("with +10V\n");
-          j.second.U1003  = 0b1000;     // turn on dcv-source s1. +10V.
-        }
-        else {
-          printf("with -10V\n");
-          j.second.U1003  = 0b1001;   // s2.  -10V.
-        }
-
-        j.second.U1006  = 0b1000;     // s1.   follow
-        j.first .K406_CTL  = 0b01;    // turn on accumulation relay
-        j.second.K406_CTL  = 0b00;    // clear accumulation relay.
-
-        do_transition( app->spi, &j );
-
-        // switch to direct mode.
-        mux_ice40(app->spi);
-        spi_ice40_reg_write32(app->spi, REG_MODE, 3 );  // direct.
-
-        // now control the hi mux.
-        F  f;
-        memset(&f, 0, sizeof(f));
-        f.himux2 = 0b1000;    // himux2 s1, to put dc-source voltage out.
-        f.himux  = 0b1001;    // s2 .   turn on himux2 s1, to put dc-source voltage out.
-
-        spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
-
-        // so we can chanrge the cap to the dcv-source, then turn off the mux and see how it drifts.
-        // charge for 10sec. for DA....
-        msleep(10 * 1000);
-        printf("turn off muxes - to see drift\n");
-
-        memset(&f, 0, sizeof(f));         // turn off the muxes
-        spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
-
-        // charge cap +10V hold 10sec. get around 50uV/s fall.
-        // charge cap -10V hold 10sec. get around 200uV / s rise to 0V.  seems to slow.
-
-        // OK, it would be kind of nice to be able to set vector values explicitly. over the command line.
-        // issue is cannot do the relay switching.
-        // there's definitely DA.
-
+      else if(strcmp(cmd, "reset mcu") == 0) {
+        // reset stm32f4
+        // scb_reset_core()
+        scb_reset_system();
       }
-
-
-
 
 
       else if( sscanf(cmd, "direct %lu", &u0 ) == 1) {
@@ -545,37 +531,102 @@ static void update_console_cmd(app_t *app)
       }
 
 
+      // we seem to have lost our
+
+      else if( strcmp(cmd, "test02") == 0) {
+        // spi stress test in 100ms soft timer
+        printf("spi stress test spi comms\n");
+        app->test_in_progress = 2;
+      }
+
+
+
       else if( strcmp(cmd, "test03") == 0) {
 
-        printf("test03 use 4094, to click dcv sequencing/ relays\n");
+        // don't care about mode. for 4094 stuff.
+        printf("test03 use 4094, to click dcv sequencing/ b2b fet/ relays\n");
         app->test_in_progress = 3;
       }
 
       else if( strcmp(cmd, "test04") == 0) {
 
-        printf("test03 use direct mode - to blink led\n");
+        printf("test04 use direct mode - to blink led\n");
 
         mux_ice40(app->spi);
-        spi_ice40_reg_write32(app->spi, REG_MODE, 3 );    // MODE_LO, MODE_HI, MODE_PATTERN, MODE_DIRECT
+        spi_ice40_reg_write32(app->spi, REG_MODE, 3);
 
         app->test_in_progress = 4;
       }
 
 
 
+      else if( strcmp(cmd, "test05") == 0 || strcmp(cmd, "test06") == 0 || strcmp(cmd, "test07") == 0) {
 
-      else if(strcmp(cmd, "reset mcu") == 0) {
-        // reset stm32f4
-        // scb_reset_core()
-        scb_reset_system();
+        // we can pass an argument... for the voltage we want.  actually might be better to factor into a function
+        // all this code is the same. for test05, or test06.  just the initial mux.
+
+        app->test_in_progress = 0;
+
+        Mode j = mode_initial;
+
+        printf("charge accumulation cap\n");
+
+        assert( (1<<3|(6-1)) == 0b1101 );
+
+        if(strcmp(cmd, "test05") == 0) {
+          printf("with +10V\n");
+          j.second.U1003  = 0b1000;       // s1. dcv-source s1. +10V.
+          j.second.U1006  = 0b1000;       // s1.   follow  .   dcv-mux2
+        }
+        else if(strcmp(cmd, "test06") == 0) {
+          printf("with -10V\n");
+          j.second.U1003  = 0b1001;       // s2.  -10V.
+          j.second.U1006  = 0b1000;       // s1.   follow  .   dcv-mux2
+        }
+        else if(strcmp(cmd, "test07") == 0) {
+          printf("with 0V\n");
+          j.second.U1003  = 0 ;           // off
+          j.second.U1006  = (1<<3)|(6-1); // s3 = agnd
+        }
+        else assert(0);
+
+
+        j.first .K406_CTL  = 0b01;    // turn on accumulation relay
+        j.second.K406_CTL  = 0b00;    // don't need this....  it is 0 by default
+
+        do_transition( app->spi, &j );
+
+        /////////////////
+        // switch ice40 to direct mode.
+        mux_ice40(app->spi);
+        spi_ice40_reg_write32(app->spi, REG_MODE, 3 );  // direct.
+
+        // now control the hi mux.
+        F  f;
+        memset(&f, 0, sizeof(f));
+        f.himux2 = 0b1000;    // s1 himux2 s1, to put dc-source voltage out.
+        f.himux  = 0b1001;    // s2 turn on himux2 s1, to put dc-source voltage out.
+
+        spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
+
+        // so we can chanrge the cap to the dcv-source, then turn off the mux and see how it drifts.
+        // charge for 10sec. for DA....
+        msleep(10 * 1000);
+        printf("turn off muxes - to see drift\n");
+
+        memset(&f, 0, sizeof(f));         // turn off the muxes
+        spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
+
+        // charge cap +10V hold 10sec. get around 50uV/s fall.  slower after about 5 mins.
+        // charge cap -10V hold 10sec. get around 200uV / s rise to 0V.  seems to slow.
+
+        // OK, it would be kind of nice to be able to set vector values explicitly. over the command line.
+        // issue is cannot do the relay switching.
+        // there's definitely DA.
+
       }
 
-      // chage name to start, init sounds like initial-condition
 
-      else if( strcmp(cmd, "start") == 0) {
-
-        // app_start2( app );
-      }
 
       else if( strcmp( cmd , "") == 0) {
 
@@ -604,6 +655,7 @@ static void loop(app_t *app)
 {
   // move this into the app var structure ?.
   // static uint32_t soft_50ms = 0;
+  static uint32_t soft_100ms = 0;
   static uint32_t soft_500ms = 0;
   static uint32_t soft_1s = 0;
 
@@ -623,6 +675,8 @@ static void loop(app_t *app)
   spi_ice40_reg_write32(app->spi, REG_MODE, 0 );
 
 
+  printf("going to loop\n");
+  printf("> ");
 
   while(true) {
 
@@ -647,16 +701,21 @@ static void loop(app_t *app)
 
 
 
-    // 500ms soft timer. should handle wrap around
+    // 100s soft timer
+    if( (system_millis - soft_100ms) > 100) {
+      soft_100ms += 100;
+      update_soft_100ms(app);
+    }
+
+
+    // 500ms soft timer
     if( (system_millis - soft_500ms) > 500) {
       soft_500ms += 500;
       update_soft_500ms(app);
     }
 
-
+    // 1000ms soft
     if( (system_millis - soft_1s) > 1000 ) {
-
-      // THIS IS FUNNY....
       soft_1s += 1000;
       update_soft_1s(app);
     }
@@ -698,7 +757,7 @@ static char buf_command[1000];
 static app_t app;
 
 
-
+/*
 // chage name spi_ice40_stress test.
 
 static void spi_ice40_stress_test_spi( uint32_t spi)
@@ -721,6 +780,7 @@ static void spi_ice40_stress_test_spi( uint32_t spi)
     msleep( 150);
   }
 }
+*/
 
 
 static void spi_ice40_wait_for_ice40( uint32_t spi)
@@ -736,10 +796,8 @@ static void spi_ice40_wait_for_ice40( uint32_t spi)
   do {
     // printf(".");
 
-    // ice40_reg_set( spi, REG_LED,  magic );
     spi_ice40_reg_write32( spi, REG_LED, magic);
     msleep( 50);
-    // ret = ice40_reg_read( spi, REG_LED);
     ret = spi_ice40_reg_read32( spi, REG_LED);
 
     char buf[ 100] ;
