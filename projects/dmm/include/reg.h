@@ -33,12 +33,13 @@ extern void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t
 
 #define REG_MODE        12
 
+/*
 // default led blink, and monitor test pattern.
 #define REG_MODE_DEFAULT 0b00
 
 // output state put under register control
 #define REG_MODE_DIRECT  0b01
-
+*/
 
 #define REG_DIRECT        14      // need a different name.  REG_MODE_DIRECT_STATE
 

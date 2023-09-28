@@ -499,8 +499,7 @@ static void update_console_cmd(app_t *app)
         do_transition( app->spi, &j );
 
         mux_ice40(app->spi);
-        spi_ice40_reg_write32(app->spi, REG_MODE, REG_MODE_DEFAULT );  // test pattern.
-        // spi_ice40_reg_write32(app->spi, REG_MODE, 0b10 );  // counter
+        spi_ice40_reg_write32(app->spi, REG_MODE, 0 );  // defaultpattern.
 
         // make sure relay switching test is off.
         app->test_in_progress = 0;
@@ -644,9 +643,9 @@ static void loop(app_t *app)
   */
   do_transition( app->spi, &mode_initial );
 
-  // start in counter mode. actually should start, so that follow blinky.
+  // when mcu restarts, but fpga is not restarted, put fpga in default mode.
   mux_ice40(app->spi);
-  spi_ice40_reg_write32(app->spi, REG_MODE, REG_MODE_DEFAULT );  // default led blink, and monitor test pattern.
+  spi_ice40_reg_write32(app->spi, REG_MODE, 0 );
 
 
 
@@ -688,41 +687,10 @@ static void loop(app_t *app)
     }
 
 
-#if 0
-    if(app->state == STATE_FIRST) {
-
-      // rename ca
-      state_change(app, STATE_ANALOG_UP);
-    }
-#endif
-
 
   }
 }
 
-
-
-
-#if 0
-
-static void assert_app(app_t *app, const char *file, int line, const char *func, const char *expr)
-{
-  /*
-    note the usart tx interupt will continue to flush output buffer,
-    even after jump to critical_error_blink()
-  */
-  printf("\nassert_app failed %s: %d: %s: '%s'\n", file, line, func, expr);
-
-  state_change(app, STATE_HALT );
-
-#if 1
-  // we have to do a critical error here... else caller code will just progress,
-  // if we were in a state transition, then it will continue to just progress...
-  critical_error_blink();
-#endif
-}
-
-#endif
 
 
 
@@ -1024,6 +992,29 @@ int main(void)
 	for (;;);
 	return 0;
 }
+
+
+
+#if 0
+
+static void assert_app(app_t *app, const char *file, int line, const char *func, const char *expr)
+{
+  /*
+    note the usart tx interupt will continue to flush output buffer,
+    even after jump to critical_error_blink()
+  */
+  printf("\nassert_app failed %s: %d: %s: '%s'\n", file, line, func, expr);
+
+  state_change(app, STATE_HALT );
+
+#if 1
+  // we have to do a critical error here... else caller code will just progress,
+  // if we were in a state transition, then it will continue to just progress...
+  critical_error_blink();
+#endif
+}
+
+#endif
 
 
 
