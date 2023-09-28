@@ -401,8 +401,7 @@ static void update_soft_500ms(app_t *app)
     f.led0 = app->led_state;
 
     mux_ice40(app->spi);
-    // spi_ice40_reg_write32(app->spi, REG_DIRECT, * (uint32_t *) &f );     // create a function to handle this ugly casting.
-    spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );     // create a function to handle this ugly casting.
+    spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
   }
 
 
@@ -466,25 +465,54 @@ static void update_console_cmd(app_t *app)
 
         // all this code is the same. for test01, or test02.  just the initial mux.
 
+        app->test_in_progress = 0;
+
         Mode j = mode_initial;
 
+        printf("charge accumulation cap\n");
+
         if(strcmp(cmd, "test01") == 0) {
-          printf("test01 with +10V\n");
+          printf("with +10V\n");
           j.second.U1003  = 0b1000;     // turn on dcv-source s1. +10V.
         }
         else {
-          printf("test01 with +10V\n");
+          printf("with -10V\n");
           j.second.U1003  = 0b1001;   // s2.  -10V.
         }
 
         j.second.U1006  = 0b1000;     // s1.   follow
-        j.first .K406_CTL  = 0b01;    // accumulation relay pulse
+        j.first .K406_CTL  = 0b01;    // turn on accumulation relay
         j.second.K406_CTL  = 0b00;    // clear accumulation relay.
 
         do_transition( app->spi, &j );
 
+        // switch to direct mode.
+        mux_ice40(app->spi);
+        spi_ice40_reg_write32(app->spi, REG_MODE, 3 );  // direct.
 
-        app->test_in_progress = 0;
+        // now control the hi mux.
+        F  f;
+        memset(&f, 0, sizeof(f));
+        f.himux2 = 0b1000;    // himux2 s1, to put dc-source voltage out.
+        f.himux  = 0b1001;    // s2 .   turn on himux2 s1, to put dc-source voltage out.
+
+        spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
+
+        // so we can chanrge the cap to the dcv-source, then turn off the mux and see how it drifts.
+        // charge for 10sec. for DA....
+        msleep(10 * 1000);
+        printf("turn off muxes - to see drift\n");
+
+        memset(&f, 0, sizeof(f));         // turn off the muxes
+        spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
+
+        // charge cap +10V hold 10sec. get around 50uV/s fall.
+        // charge cap -10V hold 10sec. get around 200uV / s rise to 0V.  seems to slow.
+
+        // OK, it would be kind of nice to be able to set vector values explicitly. over the command line.
+        // issue is cannot do the relay switching.
+        // there's definitely DA.
+
       }
 
 
@@ -496,11 +524,9 @@ static void update_console_cmd(app_t *app)
         printf("set direct value to, %lu\n", u0 );
 
         mux_ice40(app->spi);
-        spi_ice40_reg_write32(app->spi, REG_DIRECT, u0 );  // set mode to register/mcu control
+        spi_ice40_reg_write32(app->spi, REG_DIRECT, u0 );
 
-        // msleep(10);
-        // read value vack.
-        uint32_t ret =   spi_ice40_reg_read32(app->spi, REG_DIRECT );
+        uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
         // printf("reg_direct return value %lu\n", ret);
 
         char buf[ 100 ] ;
@@ -513,7 +539,7 @@ static void update_console_cmd(app_t *app)
         mux_ice40(app->spi);
         spi_ice40_reg_write32(app->spi, REG_MODE, u0 );
 
-        uint32_t ret =   spi_ice40_reg_read32(app->spi, REG_MODE );  // turn on led0. in the vector.
+        uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
         printf("reg_mode return value %lu\n", ret);
 
       }
