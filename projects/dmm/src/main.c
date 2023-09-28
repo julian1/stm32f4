@@ -670,14 +670,13 @@ static void update_console_cmd(app_t *app)
         // it actually needs a kind of double transition.
 
         ////////////////////////////
-        // so charge cap to the dcv-source, then turn off the mux and see how it drifts.
-        // charge for 10sec. for DA....
+        // so reset cap to 0V/agnd
         printf("sleep 10s\n");  // having a yield would be quite nice here.
         msleep(10 * 1000);
         printf("turn off muxes - to see drift\n");
 
 
-        // now float himux but leave voltage on the pin.
+        // now float/turn of the  himux while leaving the input voltage on the pin.
         memset(&f, 0, sizeof(f));      // turn off everything
         f.himux2 = S1 ;                 // s1 put dc-source on himux2 output
         f.himux = SOFF;                // float himux
@@ -713,16 +712,18 @@ static void update_console_cmd(app_t *app)
 
 static void loop(app_t *app)
 {
-  // move this into the app var structure ?.
-  // static uint32_t soft_50ms = 0;
+  // TODO move to the app var structure ?.
   static uint32_t soft_100ms = 0;
   static uint32_t soft_500ms = 0;
   static uint32_t soft_1s = 0;
 
-  /*
-    Think all of this should be done/moved to update()...
-  */
 
+/*
+ - EXTR. having separate 4094, from fpga controlled outputs. is good.
+ because we don't have to pulse the relays.
+
+  - when need to detect coming out of loss of comms - and redo the 4094.
+*/
 
   /*
     do start up. eg. check rails
