@@ -228,7 +228,7 @@ F
   uint8_t adcmux : 4;     // 26
   uint8_t cmpr_latch_ctl : 1;
   uint8_t meas_complete_ctl : 1;
-  uint8_t spi_interupt_out : 1;     // 29bits
+  uint8_t spi_interupt_ctl : 1;     // 29bits
 
   uint8_t dummy   : 3;
 } F;
