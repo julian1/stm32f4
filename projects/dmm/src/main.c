@@ -94,57 +94,6 @@ static void update_soft_1s(app_t *app)
 
 
 
-#if 0
-
-
-static uint32_t write_bits8( uint8_t v, uint8_t set, uint8_t clear )
-{
-  // *v = ~(  ~(*v | set ) | clear);  // clear has priority over set
-
-  return ~( ~v | clear)  | set;    // set has priority
-}
-
-
-static uint8_t create_mask8( uint8_t pos, uint8_t width)
-{
-  uint8_t val = (1 << (pos + width )) - 1;   // set all bits below pos + width.
-  uint8_t val2 = (1 << pos) - 1;            // set all bits below pos
-
-  return val & ~val2;
-}
-
-
-
-
-static uint8_t write_val8 ( uint8_t v, uint8_t pos, uint8_t width, uint8_t value)
-{
-  // write value into v - at pos with width
-  assert(pos < 8);
-  assert(width < 8);
-
-  uint8_t mask = create_mask8( pos, width);
-
-  return write_bits8( v, (value << pos) & mask, mask);
-}
-
-
-// we manipulate the state. then write it.
-// there is writing state to state var. then there is spi writing it.
-
-static void state_write ( uint8_t *state, size_t n, unsigned pos, uint8_t width, uint8_t value)
-{
-  // determine index to use into byte array, and set value
-  unsigned idx = pos >> 3 ;   // div 8
-  assert( idx < n );
-  uint8_t *v = & state[ idx ];
-
-  *v = write_val8 ( *v, pos % 8, width, value);
-}
-
-
-#endif
-
-
 
 
 
@@ -992,6 +941,58 @@ int main(void)
 	for (;;);
 	return 0;
 }
+
+
+#if 0
+
+
+static uint32_t write_bits8( uint8_t v, uint8_t set, uint8_t clear )
+{
+  // *v = ~(  ~(*v | set ) | clear);  // clear has priority over set
+
+  return ~( ~v | clear)  | set;    // set has priority
+}
+
+
+static uint8_t create_mask8( uint8_t pos, uint8_t width)
+{
+  uint8_t val = (1 << (pos + width )) - 1;   // set all bits below pos + width.
+  uint8_t val2 = (1 << pos) - 1;            // set all bits below pos
+
+  return val & ~val2;
+}
+
+
+
+
+static uint8_t write_val8 ( uint8_t v, uint8_t pos, uint8_t width, uint8_t value)
+{
+  // write value into v - at pos with width
+  assert(pos < 8);
+  assert(width < 8);
+
+  uint8_t mask = create_mask8( pos, width);
+
+  return write_bits8( v, (value << pos) & mask, mask);
+}
+
+
+// we manipulate the state. then write it.
+// there is writing state to state var. then there is spi writing it.
+
+static void state_write ( uint8_t *state, size_t n, unsigned pos, uint8_t width, uint8_t value)
+{
+  // determine index to use into byte array, and set value
+  unsigned idx = pos >> 3 ;   // div 8
+  assert( idx < n );
+  uint8_t *v = & state[ idx ];
+
+  *v = write_val8 ( *v, pos % 8, width, value);
+}
+
+
+#endif
+
 
 
 
