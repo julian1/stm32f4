@@ -481,17 +481,18 @@ static void update_console_cmd(app_t *app)
 
 
       uint32_t u0;
-      // UNUSED(u0);
+
+      ////////////////////
+
 
       if( strcmp(cmd, "reset") == 0) {
-        printf("test01 initial state\n");
+        printf("reset initial state\n");
+
         Mode j = mode_initial;
         do_transition( app->spi, &j );
 
         mux_ice40(app->spi);
         spi_ice40_reg_write32(app->spi, REG_MODE, 0 );  // defaultpattern.
-
-        // should write the mode also.
 
         // make sure relay switching test is off.
         app->test_in_progress = 0;
@@ -683,8 +684,60 @@ static void update_console_cmd(app_t *app)
         spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
 
         // with either +-10V. at input of himux, but with himux turned off,  we get about 1pF. rising.
+      }
+
+
+
+      // would also 
+
+      else if( strcmp(cmd, "test11") == 0 || strcmp(cmd, "test12") == 0 || strcmp(cmd, "test13") == 0) {
+
+        // precharge / AZ switch tests.
+        app->test_in_progress = 0;
+        Mode j = mode_initial;
+        printf("precharge az test\n");
+
+        if(strcmp(cmd, "test11") == 0) {
+          printf("with +10V\n");
+          j.second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
+          j.second.U1006  = S1 ;       // s1.   follow  .   dcv-mux2
+        }
+        else if(strcmp(cmd, "test12") == 0) {
+          printf("with -10V\n");
+          j.second.U1003  = S2 ;       // s2.  -10V.
+          j.second.U1006  = S1 ;       // s1.   follow  .   dcv-mux2
+        }
+        else if(strcmp(cmd, "test13") == 0) {
+          printf("with 0V\n");
+          j.second.U1003 = S3;          // s3 == agnd
+          j.second.U1006 = S6;          // s6 = agnd  .  TODO change to S7 . populate R1001.c0ww
+        }
+        else assert(0);
+
+        // accumulation relay stays. off.
+        do_transition( app->spi, &j );
+
+        /////////////////
+        // make sure we are in direct mode.
+        mux_ice40(app->spi);
+        spi_ice40_reg_write32(app->spi, REG_MODE, MODE_DIRECT );  // mode 3. test pattern on sig
+
+        // now control the hi mux.  to reset the cap.
+        F  f;
+        memset(&f, 0, sizeof(f));
+
+        f.himux2 = S1 ;    // s1 put dc-source on himux2 output
+        f.himux  = S2 ;    // s2 reflect himux2 on himux output
+        spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
+
+        // so we want to cycle the precharge switch.  this kind of almost needs a dedicated mode... 
+        // BUT. what about register control.
+        // EXTR.   - we could have a mode. that follows the direct register. except it cycles the pre-charge switch.
+        // that gives control.
 
       }
+
+
 
 
       else if( strcmp( cmd , "") == 0) {
