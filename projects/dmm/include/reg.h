@@ -37,18 +37,21 @@ extern void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t
 
 
 
-#define MODE_PATTERN       2
-#define MODE_DIRECT        3
+#define MODE_LO           0     // all bits held lo
+#define MODE_HI           1     // all bits held hi 
+#define MODE_PATTERN      2     // put modulation pattern on all bits
+#define MODE_DIRECT       3     // support direct writing via direct register
 
 /*
 // default led blink, and monitor test pattern.
-#define REG_MODE_DEFAULT 0b00
+#define MODE_DEFAULT 0b00
 
 // output state put under register control
 #define REG_MODE_DIRECT  0b01
 */
 
-#define REG_DIRECT        14      // need a different name.  REG_MODE_DIRECT_STATE
+#define REG_DIRECT        14
+#define REG_DIRECT2       15
 
 
 // 1of8 muxes.
@@ -60,5 +63,5 @@ extern void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t
 #define S6          ((1<<3)|(6-1))
 
 
-// could also be a macro #define S(1) == ... 
+// could also be a macro #define S(1) == ...
 

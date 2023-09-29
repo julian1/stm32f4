@@ -738,6 +738,11 @@ static void update_console_cmd(app_t *app)
       }
 
 
+      // HAHHH. - it's floating because the himux. is being flipped off.  while it should stay constant.
+      // think we need a better way to code.     S1<<14.
+      // EXTR. OK. it might be simpler to use DIRECT2 for the second state.  this avoids the bit shifting.
+      // easier to see what is going on. construct vectors.
+
       else if( strcmp(cmd, "test14") == 0 ) {
 
         printf("precharge az test\n");
@@ -761,10 +766,15 @@ static void update_console_cmd(app_t *app)
 
         // uint32_t v = 0b00000000000000000000000000000000;
         // uint32_t v = 0b00000000000000000000111111111111;   // just the 12 bits of the mux
-        uint32_t v = 0b00000000000000000011111111111111;    // using 14 bit. to control mux and leds.  works
         // uint32_t v = 0b00000000000000000001111111111111;    // led off works.
-        // uint32_t v = 0b00001000000000000011111111111111;        // led on continuously.  works.
-        spi_ice40_reg_write32(app->spi, REG_DIRECT, v );
+
+        uint32_t v1 = 0b00000000000000000011111111111111;    // using 14 bit. to control mux and leds.  works
+        spi_ice40_reg_write32(app->spi, REG_DIRECT, v1 );
+
+
+        uint32_t v2 = 0b00000000000000000100000000000000;   // turn on mon0 pin.
+        // uint32_t v2 = 0b00000000000000000000000000000000;   // turn on mon0 pin.
+        spi_ice40_reg_write32(app->spi, REG_DIRECT2, v2 );
 
 
 
