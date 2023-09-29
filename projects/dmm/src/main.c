@@ -568,9 +568,9 @@ static void update_console_cmd(app_t *app)
 
         // we can have a test and pass an argument if really want. but probably better to have self-contained. to automate
 
+        printf("charge accumulation cap\n");
         app->test_in_progress = 0;
         Mode j = mode_initial;
-        printf("charge accumulation cap\n");
 
         if(strcmp(cmd, "test05") == 0) {
           printf("with +10V\n");
@@ -629,9 +629,9 @@ static void update_console_cmd(app_t *app)
 
       else if( strcmp(cmd, "test08") == 0 || strcmp(cmd, "test09") == 0 || strcmp(cmd, "test10") == 0) {
 
+        printf("reset accumulation cap to 0V/agnd\n");
         app->test_in_progress = 0;
         Mode j = mode_initial;
-        printf("reset accumulation cap to 0V/agnd\n");
 
         if(strcmp(cmd, "test08") == 0) {
           printf("with +10V\n");
@@ -688,14 +688,14 @@ static void update_console_cmd(app_t *app)
 
 
 
-      // would also 
+      // would also
 
       else if( strcmp(cmd, "test11") == 0 || strcmp(cmd, "test12") == 0 || strcmp(cmd, "test13") == 0) {
 
+        printf("precharge az test\n");
         // precharge / AZ switch tests.
         app->test_in_progress = 0;
         Mode j = mode_initial;
-        printf("precharge az test\n");
 
         if(strcmp(cmd, "test11") == 0) {
           printf("with +10V\n");
@@ -730,13 +730,45 @@ static void update_console_cmd(app_t *app)
         f.himux  = S2 ;    // s2 reflect himux2 on himux output
         spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
 
-        // so we want to cycle the precharge switch.  this kind of almost needs a dedicated mode... 
+        // so we want to cycle the precharge switch.  this kind of almost needs a dedicated mode...
         // BUT. what about register control.
         // EXTR.   - we could have a mode. that follows the direct register. except it cycles the pre-charge switch.
         // that gives control.
 
       }
 
+
+      else if( strcmp(cmd, "test14") == 0 ) {
+
+        printf("precharge az test\n");
+        // precharge / AZ switch tests.
+        app->test_in_progress = 0;
+        Mode j = mode_initial;
+        j.second.U1003 = S3;          // s3 == agnd
+        j.second.U1006 = S6;          // s6 = agnd  .  TODO change to S7 . populate R1001.c0ww
+
+        // accumulation relay stays. off.
+        do_transition( app->spi, &j );
+
+        /////////////////
+        // put in mode 4 - for test_pattern_2
+        mux_ice40(app->spi);
+        spi_ice40_reg_write32(app->spi, REG_MODE, 4 );  // mode 3. test pattern on sig
+
+
+        // OK.
+        // now control the hi mux.  to reset the cap.
+
+        // uint32_t v = 0b00000000000000000000000000000000;
+        // uint32_t v = 0b00000000000000000000111111111111;   // just the 12 bits of the mux
+        uint32_t v = 0b00000000000000000011111111111111;    // using 14 bit. to control mux and leds.  works
+        // uint32_t v = 0b00000000000000000001111111111111;    // led off works.
+        // uint32_t v = 0b00001000000000000011111111111111;        // led on continuously.  works.
+        spi_ice40_reg_write32(app->spi, REG_DIRECT, v );
+
+
+
+      }
 
 
 
@@ -808,20 +840,13 @@ static void loop(app_t *app)
   while(true) {
 
 
-    // EXTREME - could actually call update at any time, in a yield()...
-    // so long as we wrap calls with a mechanism to avoid stack reentrancy
-    // led_update(); in systick.
-    // but better just to flush() cocnsole queues.conin/out
-
-//    update(app);
-
-     /*
-        JA
-        we always want to update console first. so that we can always issue commands.
-        and know that we have control
-        -----------------
-
-        All of this code needs to be refactored. so that the the command dispatch happens in the top-level loop.
+    /*
+      // EXTR. - could actually call update at any time, in a yield()...
+      // so long as we wrap calls with a mechanism to avoid stack reentrancy
+      // led_update(); in systick.
+      // but better just to flush() cocnsole queues.conin/out
+      // ----
+      // no better for a callee to yield back to update(), while setting up a dispatch callback to get control.
     */
 
     update_console_cmd(app);
