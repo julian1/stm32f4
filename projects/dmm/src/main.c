@@ -795,6 +795,20 @@ static void loop(app_t *app)
     }
 
 
+    /*
+      // simpler approach to threads, cooperative threading/co-routines.
+      // we've done everythinig needed.  now check if there is a yielded function, and then pass control back out to it.
+
+      if(appp->yielded_function) {
+
+        app->yielded_function( app->spi );
+        app->yielded_function( app->spi,  app->yielded_ctx );
+      }
+
+      where the yielded function. is a state machine. that does the yield in a long running sequence,
+      and which handle re-entry by using state, and a switch/case statement.
+
+    */
 
   }
 }
