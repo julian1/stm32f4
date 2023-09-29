@@ -768,14 +768,42 @@ static void update_console_cmd(app_t *app)
         // uint32_t v = 0b00000000000000000000111111111111;   // just the 12 bits of the mux
         // uint32_t v = 0b00000000000000000001111111111111;    // led off works.
 
-        uint32_t v1 = 0b00000000000000000011111111111111;    // using 14 bit. to control mux and leds.  works
+        // we want to set the hi mux
+
+
+        F  f;
+        memset(&f, 0, sizeof(f));
+        f.himux2 = S1 ;    // s1 put dc-source on himux2 output
+        f.himux  = S2 ;    // s2 reflect himux2 on himux output
+
+        
+        f.azmux = 0b1111;   // turn on .  eg. all bits for a test. before we populate.
+        f.sig_pc_sw_ctl = 1;
+        f.led0    =  1 ;
+        f.monitor = 1;
+
+        spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
+
+        // for other state
+        // hi mux stays the same
+        f.azmux = 0b0000;
+        f.sig_pc_sw_ctl = 0;
+        f.led0    =  0;
+        f.monitor = 0;
+
+        spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
+
+
+
+/*
+        uint32_t v1 = 0b00000000000000000111111111111111;    // using 14 bit. to control mux and leds.  works
         spi_ice40_reg_write32(app->spi, REG_DIRECT, v1 );
 
 
-        uint32_t v2 = 0b00000000000000000100000000000000;   // turn on mon0 pin.
+        uint32_t v2 = 0b00000000000000000011111111000000;   // turn on mon0 pin.
         // uint32_t v2 = 0b00000000000000000000000000000000;   // turn on mon0 pin.
         spi_ice40_reg_write32(app->spi, REG_DIRECT2, v2 );
-
+*/
 
 
       }
