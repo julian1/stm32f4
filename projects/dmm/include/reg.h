@@ -41,6 +41,7 @@ extern void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t
 #define MODE_HI           1     // all bits held hi 
 #define MODE_PATTERN      2     // put modulation pattern on all bits
 #define MODE_DIRECT       3     // support direct writing via direct register
+#define MODE_AZ           4     // simple az. 
 
 /*
 // default led blink, and monitor test pattern.
