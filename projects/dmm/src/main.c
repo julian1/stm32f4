@@ -741,24 +741,7 @@ static void update_console_cmd(app_t *app)
         f.himux2 = S1 ;    // s1 put dc-source on himux2 output
         f.himux  = S2 ;    // s2 reflect himux2 on himux output
 
-
-        f.azmux = 0b1111;   // turn on .  eg. all bits for a test. before we populate.
-        f.sig_pc_sw_ctl = 1;
-        f.led0    =  1 ;
-        f.monitor = 1;
-
         spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
-
-        // for other state
-        // hi mux stays the same
-        f.azmux = 0b0000;
-        f.sig_pc_sw_ctl = 0;
-        f.led0    =  0;
-        f.monitor = 0;
-
-        spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
-
-        // ok. we want the same behavior. where we modulate the precharge switch  - at different dc inputs.
       }
 
 
