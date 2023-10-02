@@ -26,12 +26,15 @@ typedef struct app_t
 
 
   uint32_t spi;
+  
+  uint32_t led_port;
+  uint32_t led_out;
 
   ////////
   // not sure what the best way is to handle this state.
   unsigned count;
 
-  bool led_state ;
+  bool led_state ;     // should rename, or just use the last bit of the count .
 
 
     

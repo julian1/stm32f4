@@ -14,25 +14,20 @@ extern "C" {
 #include <stdbool.h> // bool
 #include <stdint.h> // uint32_t
 
-// extern bool strequal(const char *s1, const char *s2);
 
 
-
-// change name led_blink_setup()? 
-extern void led_setup(uint32_t port_, uint16_t io_ );
-
-// extern void led_setup(void);
-extern void led_toggle(void);
-
-extern void led_set(bool val );
+//   setup external state for critical error led blink
+//   because assert() cannot pass a context
 
 
-extern void critical_error_blink(void);
+extern void critical_error_led_setup(uint32_t port_, uint16_t io_ );
+
+extern void critical_error_led_blink(void);
 
 
 /////////////////////
 
-
+// remove. me in favour of a function.
 extern volatile uint32_t system_millis;
 
 extern void systick_setup(uint32_t tick_divider);

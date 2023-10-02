@@ -237,6 +237,14 @@ F
 
 
 
+typedef struct
+{
+    int a : 32; 
+    int b : 32;
+} MyStruct;
+
+
+
 /*
   EXTR.
     don't care about defining inidividual registers for muxes etc.
@@ -402,7 +410,14 @@ static void update_soft_500ms(app_t *app)
   // blink mcu led
   // TODO. this is all horribly opaque.  the configuration state should be being passed as a dependency.
   // change ame mcu_led_blink() led_mcu_
-  led_set( app->led_state );
+  // led_set( app->led_state );
+
+
+  // be explicit. don't hide top-level state.
+  if(app->led_state) 
+    gpio_clear( app->led_port, app->led_out); 
+  else
+    gpio_set(app->led_port, app->led_out);
 
 
 
@@ -741,6 +756,8 @@ static void update_console_cmd(app_t *app)
         f.himux2 = S1 ;    // s1 put dc-source on himux2 output
         f.himux  = S2 ;    // s2 reflect himux2 on himux output
 
+        // az modulation takes control of waveform.
+
         spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
       }
 
@@ -968,8 +985,9 @@ int main(void)
 #define LED_PORT  GPIOA
 #define LED_OUT   GPIO9
 
-  // EXTR. horrid.  make this specific.  use this only for the assert fast blink. where don't have a choice.
-  led_setup(LED_PORT, LED_OUT);
+  // setup external state for critical error led blink
+  // because assert() cannot pass a context
+  critical_error_led_setup(LED_PORT, LED_OUT);
 
 
 
@@ -1038,6 +1056,14 @@ int main(void)
   // should have separate app_t setup.
 
   app.spi = SPI1 ;
+
+
+  app.led_port = LED_PORT;
+  app.led_out = LED_OUT;
+
+
+
+
   // app.print_adc_values = true;
   // app.output = false;
 

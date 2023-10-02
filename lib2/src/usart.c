@@ -66,7 +66,7 @@ static void usart_configure( uint32_t usart )
     default:
       // assert is problematic here... because no usart configured to debug.
       // assert(0);
-      critical_error_blink();
+      critical_error_led_blink();
   }
 
 

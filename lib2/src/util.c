@@ -1,12 +1,20 @@
 /*
 
+    oct 3.
+    - EXTR. the systick handler should have a callback also.  to api-state.
+        rather than code static variables.
+
+        - eg. reaching out into space for system_millis  is horrid.
+    - 
+    ------
+
 // sep 16. 2023. THIS IS really crappy. with led, hanging onto local state like.
     - opposite of dep-inversion.
 
   -- think it's easier to just define the state in App (.  and do the update in main.
   - issue is critical error blink. called from assert. that has no context.
 
-  Instead - just farm out the revevant state and hold a static reference for this specific function.  
+  Instead - just farm out the revevant state and hold a static reference for this specific function.
        that cannot be called in any other context.
   ----------------
 
@@ -31,102 +39,46 @@
 
 
 
-/*
-  issue here - is maintaining led state so that critical_error_bllink can work.
 
-  void  gpio_mode_setup (uint32_t gpioport, uint8_t mode, uint8_t pull_up_down, uint16_t gpios)
-*/
-typedef struct  Led
-{
-  uint32_t  port;
-  uint32_t  io;
-} Led;
 
-static Led   led;
 
+
+//////////////////////////////////
 
 /*
-// DON"T MOVE THIS CODE TO A LIBRARY
-// just keep as separate file. because led will change
-// stm32f407 ...
-// cjmcu
-// #define LED_PORT  GPIOE
-// #define LED_OUT   GPIO0
+  setup external state for critical error led blink
+  because assert() cannot pass a context
 
-#define LED_PORT  GPIOA
-#define LED_OUT   GPIO15
+  only used - used only for critical_error_led_blink() and assert.
+  other things , may also write the led.
+  just use static, to hang on to the vars.  no need for struct.
 */
 
 
+static uint32_t led_port = 0;
+static uint32_t led_io = 0;
 
 
-
-/*
-  May 19 2022.
-    really think should just use a structure for the led blink.  To init once in main, and encapsulate
-    And then pass by reference. like we do  for spi, etc.
-
-    eg
-    led_setup( &app->led, GPIOA,  GPIO15 );
-    led_toggle( &app->led );
-
-    - issue is having to pass arg/or initialize for critical_error_blink()
-
-*/
-
-// move this stuff back to main.c and setup...
-
-
-// change name led_blink_setup()?
-
-void led_setup(uint32_t port_, uint16_t io_ )   // innit or setup
+void critical_error_led_setup(uint32_t port_, uint16_t io_ )   // innit or setup
 {
-  led.port = port_;
-  led.io   = io_;
+  led_port = port_;
+  led_io   = io_;
 
-  gpio_mode_setup(led.port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, led.io );
 }
 
-/*
-void led_setup(void)
-{
-  gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT);
-}
-*/
-
-
-
-void led_toggle(void)
-{
-  gpio_toggle(led.port, led.io);
-}
-
-
-void led_set(bool val )
-{
-  // is this 
-  // val ? gpio_set(led.port, led.io) : gpio_clear (led.port, led.io);
-
-  // clear turns it on???? 
-  val ? gpio_clear(led.port, led.io) : gpio_set(led.port, led.io);
-}
-
-
-
-
-
-
-void critical_error_blink(void)
+void critical_error_led_blink(void)
 {
   // needs the led port config.
   // avoid passing arguments, consuming stack.
-	for (;;) {
+  for (;;) {
 		// gpio_toggle(led.port, led.io );
-    led_toggle();
+    // led_toggle();
+
+    gpio_toggle(led_port, led_io);
 
 		for(uint32_t i = 0; i < 500000; ++i)
        __asm__("nop");
-	}
+  }
 }
 
 
@@ -244,12 +196,99 @@ void assert_simple(const char *file, int line, const char *func, const char *exp
   // legacy version
   usart1_printf("\nassert simple failed %s: %d: %s: '%s'\n", file, line, func, expr);
 
-  critical_error_blink();
+  critical_error_led_blink();
 }
 
 
 
 
 
+#if 0
 
+// change name led_blink_setup()?
+
+void led_setup(uint32_t port_, uint16_t io_ )   // innit or setup
+{
+  led.port = port_;
+  led.io   = io_;
+
+  gpio_mode_setup(led.port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, led.io );
+}
+
+/*
+void led_setup(void)
+{
+  gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT);
+}
+*/
+
+
+
+void led_toggle(void)
+{
+  gpio_toggle(led.port, led.io);
+}
+
+
+void led_set(bool val )
+{
+  // is this
+  // val ? gpio_set(led.port, led.io) : gpio_clear (led.port, led.io);
+
+  // clear turns it on????
+  val ? gpio_clear(led.port, led.io) : gpio_set(led.port, led.io);
+}
+
+#endif
+
+
+
+
+/*
+  issue here - is maintaining led state so that critical_error_bllink can work.
+
+  void  gpio_mode_setup (uint32_t gpioport, uint8_t mode, uint8_t pull_up_down, uint16_t gpios)
+*/
+
+/*
+
+typedef struct  Led
+{
+  uint32_t  port;
+  uint32_t  io;
+} Led;
+
+static Led   led;
+*/
+
+/*
+// DON"T MOVE THIS CODE TO A LIBRARY
+// just keep as separate file. because led will change
+// stm32f407 ...
+// cjmcu
+// #define LED_PORT  GPIOE
+// #define LED_OUT   GPIO0
+
+#define LED_PORT  GPIOA
+#define LED_OUT   GPIO15
+*/
+
+
+
+
+
+/*
+  May 19 2022.
+    really think should just use a structure for the led blink.  To init once in main, and encapsulate
+    And then pass by reference. like we do  for spi, etc.
+
+    eg
+    led_setup( &app->led, GPIOA,  GPIO15 );
+    led_toggle( &app->led );
+
+    - issue is having to pass arg/or initialize for critical_error_blink()
+
+*/
+
+// move this stuff back to main.c and setup...
 

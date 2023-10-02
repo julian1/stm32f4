@@ -62,7 +62,7 @@ void spi_w25_get_data(uint32_t spi)
 static void soft_500ms_update(void)
 {
   // blink led
-  led_toggle();
+  // led_toggle();
 
   ////////
   uint32_t spi = SPI_ICE40;
