@@ -248,13 +248,6 @@ F
 
 
 
-typedef struct
-{
-    int a : 32; 
-    int b : 32;
-} MyStruct;
-
-
 
 /*
   EXTR.
@@ -418,17 +411,14 @@ static void update_soft_500ms(app_t *app)
 
   app->led_state = ! app->led_state;
 
+
+
   // blink mcu led
-  // TODO. this is all horribly opaque.  the configuration state should be being passed as a dependency.
-  // change ame mcu_led_blink() led_mcu_
-  // led_set( app->led_state );
-
-
   // be explicit. don't hide top-level state.
-  if(app->led_state) 
-    gpio_clear( app->led_port, app->led_out); 
+  if(app->led_state)
+    gpio_clear( app->led_port, app->led_out);
   else
-    gpio_set(app->led_port, app->led_out);
+    gpio_set(   app->led_port, app->led_out);
 
 
 
@@ -994,6 +984,8 @@ int main(void)
 #define LED_PORT  GPIOA
 #define LED_OUT   GPIO9
 
+  gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT);
+
   // setup external state for critical error led blink
   // because assert() cannot pass a context
   critical_error_led_setup(LED_PORT, LED_OUT);
@@ -1073,7 +1065,7 @@ int main(void)
 
 
   app.led_port = LED_PORT;
-  app.led_out = LED_OUT;
+  app.led_out  = LED_OUT;
 
 
 
@@ -1153,7 +1145,7 @@ int main(void)
   probably from printf
   _close_r  _fstat_r _getpid_r _kill_r _isatty_r
 
-  see. 
+  see.
     -specs=nano.specs -specs=nosys.specs
 
     arm-none-eabi-gcc: fatal error: /nix/store/3ydyllv3y22qpxcgsf9miwq4dkjwjcj2-gcc-arm-embedded-12.2.rel1/bin/../lib/gcc/arm-none-eabi/12.2.1/../../../../arm-none-eabi/lib/nosys.specs: attempt to rename spec 'link_gcc_c_sequence' to already defined spec 'nosys_link_gcc_c_sequence'
