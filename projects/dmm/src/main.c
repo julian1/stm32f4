@@ -341,7 +341,7 @@ static void init_modes( void )
 // flashing of led... is writing ????
 
 
-static void do_transition( unsigned spi, Mode *mode, uint32_t *system_millis)
+static void do_4094_transition( unsigned spi, Mode *mode, uint32_t *system_millis)
 {
 
   // change name   do_state_update_4094 _4094_state_update.
@@ -357,7 +357,7 @@ static void do_transition( unsigned spi, Mode *mode, uint32_t *system_millis)
 
   printf("-----------\n");
 
-  printf("do_transition write first state\n");
+  printf("do_4094_transition write first state\n");
   state_format (  (void *) &mode->first, sizeof(X) );
 
   // and write device
@@ -368,7 +368,7 @@ static void do_transition( unsigned spi, Mode *mode, uint32_t *system_millis)
 
 
   // and format
-  printf("do_transition write second state\n");
+  printf("do_4094_transition write second state\n");
   state_format ( (void *) &mode->second, sizeof(X) );
 
   // and write device
@@ -456,9 +456,9 @@ static void update_soft_500ms(app_t *app)
 
     // tests b2b and K405 relay sequencing.
     if(app->led_state)
-      do_transition( app->spi, &mode_initial, &app->system_millis );
+      do_4094_transition( app->spi, &mode_initial, &app->system_millis );
     else
-      do_transition( app->spi, &mode_dcv_az, &app->system_millis );
+      do_4094_transition( app->spi, &mode_dcv_az, &app->system_millis );
   }
 
 
@@ -516,7 +516,7 @@ static void update_console_cmd(app_t *app)
         printf("reset initial state\n");
 
         Mode j = mode_initial;
-        do_transition( app->spi, &j,  &app->system_millis );
+        do_4094_transition( app->spi, &j,  &app->system_millis );
 
         mux_ice40(app->spi);
         spi_ice40_reg_write32(app->spi, REG_MODE, 0 );  // defaultpattern.
@@ -621,7 +621,7 @@ static void update_console_cmd(app_t *app)
         j.first .K406_CTL  = 0b01;
         j.second.K406_CTL  = 0b00;    // don't need this....  it is 0 by default
 
-        do_transition( app->spi, &j,  &app->system_millis );
+        do_4094_transition( app->spi, &j,  &app->system_millis );
 
         /////////////////
         // make sure we are in direct mode.
@@ -687,7 +687,7 @@ static void update_console_cmd(app_t *app)
         j.first .K406_CTL  = 0b01;
         j.second.K406_CTL  = 0b00;    // don't need this....  it is 0 by default
 
-        do_transition( app->spi, &j,  &app->system_millis );
+        do_4094_transition( app->spi, &j,  &app->system_millis );
 
         /////////////////
         // make sure we are in direct mode.
@@ -753,7 +753,7 @@ static void update_console_cmd(app_t *app)
 
 
         // accumulation relay stays. off.
-        do_transition( app->spi, &j,  &app->system_millis );
+        do_4094_transition( app->spi, &j,  &app->system_millis );
 
         /////////////////
         // put in mode 4 - for test_pattern_2
@@ -818,7 +818,7 @@ static void loop(app_t *app)
 
   */
   printf("writing initial 4094 state\n");
-  do_transition( app->spi, &mode_initial,  &app->system_millis );
+  do_4094_transition( app->spi, &mode_initial,  &app->system_millis );
 
 
   // TODO should test that the 4094 state write  succeeded before turning on 4094 OE.
