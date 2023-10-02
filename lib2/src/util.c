@@ -90,16 +90,27 @@ void critical_error_led_blink(void)
 // #include "clock.h"
 
 /* milliseconds since boot */
-volatile uint32_t system_millis = 0;
+// volatile uint32_t system_millis = 0;
 // volatile uint64_t system_millis;
 
 /*
   just use a uint64_t ?
 */
 
+
+
+static void (*sys_tick_interupt)(void *ctx) = NULL;
+static void *sys_tick_ctx = NULL;
+
+
 // static void systick_setup(void)
-void systick_setup(uint32_t tick_divider)
+void systick_setup(uint32_t tick_divider, void (*pfunc)(void *),  void *ctx)
 {
+
+  sys_tick_interupt = pfunc;
+  sys_tick_ctx = ctx;
+
+    ///////////////////////////
   // NOTE. doesn not seem to work without external xtal.
   // TODO change name systick_setup().
   // TODO pass clock reload divider as argument, to localize.
@@ -118,17 +129,11 @@ void systick_setup(uint32_t tick_divider)
 
 void sys_tick_handler(void)
 {
-  /*
-    interupt context. avoid doing work here
-  */
 
-  system_millis++;
+  if(sys_tick_interupt) {
+    sys_tick_interupt(sys_tick_ctx);
+  }
 
-  /*
-    if(system_millis % 1000 == 0) {
-      app->soft_timer_1sec = true; ...
-    }
-  */
 }
 
 
@@ -140,13 +145,14 @@ void sys_tick_handler(void)
 
 
 
-void msleep(uint32_t delay)
+// void msleep(uint32_t delay)
+void msleep(uint32_t delay, volatile uint32_t *system_millis )
 {
   // works for system_millis integer wrap around
   // could be a do/while block.
-  uint32_t start = system_millis ;
+  uint32_t start = *system_millis ;
   while (true) {
-    uint32_t elapsed = system_millis - start;
+    uint32_t elapsed = *system_millis - start;
     if(elapsed > delay)
       break;
   };

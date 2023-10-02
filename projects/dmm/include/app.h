@@ -30,6 +30,8 @@ typedef struct app_t
   uint32_t led_port;
   uint32_t led_out;
 
+  uint32_t system_millis;
+
   ////////
   // not sure what the best way is to handle this state.
   unsigned count;

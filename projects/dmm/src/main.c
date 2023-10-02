@@ -85,6 +85,17 @@ static void spi1_interupt(app_t *app)
 }
 
 
+
+static void sys_tick_interupt(app_t *app)
+{
+  // interupt context. don't do anything compliicated here.
+
+  ++ app->system_millis;
+}
+
+
+
+
 static void update_soft_1s(app_t *app)
 {
   // maybe review this...
@@ -330,7 +341,7 @@ static void init_modes( void )
 // flashing of led... is writing ????
 
 
-static void do_transition( unsigned spi, Mode *mode)
+static void do_transition( unsigned spi, Mode *mode, uint32_t *system_millis)
 {
 
   // change name   do_state_update_4094 _4094_state_update.
@@ -353,7 +364,7 @@ static void do_transition( unsigned spi, Mode *mode)
   spi_4094_reg_write_n(spi, (void *) &mode->first, sizeof( X) );
 
   // sleep 10ms
-  msleep(10);
+  msleep(10, system_millis);
 
 
   // and format
@@ -445,9 +456,9 @@ static void update_soft_500ms(app_t *app)
 
     // tests b2b and K405 relay sequencing.
     if(app->led_state)
-      do_transition( app->spi, &mode_initial);
+      do_transition( app->spi, &mode_initial, &app->system_millis );
     else
-      do_transition( app->spi, &mode_dcv_az);
+      do_transition( app->spi, &mode_dcv_az, &app->system_millis );
   }
 
 
@@ -505,7 +516,7 @@ static void update_console_cmd(app_t *app)
         printf("reset initial state\n");
 
         Mode j = mode_initial;
-        do_transition( app->spi, &j );
+        do_transition( app->spi, &j,  &app->system_millis );
 
         mux_ice40(app->spi);
         spi_ice40_reg_write32(app->spi, REG_MODE, 0 );  // defaultpattern.
@@ -610,7 +621,7 @@ static void update_console_cmd(app_t *app)
         j.first .K406_CTL  = 0b01;
         j.second.K406_CTL  = 0b00;    // don't need this....  it is 0 by default
 
-        do_transition( app->spi, &j );
+        do_transition( app->spi, &j,  &app->system_millis );
 
         /////////////////
         // make sure we are in direct mode.
@@ -631,7 +642,7 @@ static void update_console_cmd(app_t *app)
         // so charge cap to the dcv-source, then turn off the mux and see how it drifts.
         // charge for 10sec. for DA....
         printf("sleep 10s\n");  // having a yield would be quite nice here.
-        msleep(10 * 1000);
+        msleep(10 * 1000,  &app->system_millis);
         printf("turn off muxes - to see drift\n");
 
         /////////
@@ -676,7 +687,7 @@ static void update_console_cmd(app_t *app)
         j.first .K406_CTL  = 0b01;
         j.second.K406_CTL  = 0b00;    // don't need this....  it is 0 by default
 
-        do_transition( app->spi, &j );
+        do_transition( app->spi, &j,  &app->system_millis );
 
         /////////////////
         // make sure we are in direct mode.
@@ -695,7 +706,7 @@ static void update_console_cmd(app_t *app)
         ////////////////////////////
         // so reset cap to 0V/agnd
         printf("sleep 10s\n");  // having a yield would be quite nice here.
-        msleep(10 * 1000);
+        msleep(10 * 1000,  &app->system_millis);
         printf("turn off muxes - to see drift\n");
 
 
@@ -742,7 +753,7 @@ static void update_console_cmd(app_t *app)
 
 
         // accumulation relay stays. off.
-        do_transition( app->spi, &j );
+        do_transition( app->spi, &j,  &app->system_millis );
 
         /////////////////
         // put in mode 4 - for test_pattern_2
@@ -807,7 +818,7 @@ static void loop(app_t *app)
 
   */
   printf("writing initial 4094 state\n");
-  do_transition( app->spi, &mode_initial );
+  do_transition( app->spi, &mode_initial,  &app->system_millis );
 
 
   // TODO should test that the 4094 state write  succeeded before turning on 4094 OE.
@@ -845,20 +856,20 @@ static void loop(app_t *app)
 
 
     // 100s soft timer
-    if( (system_millis - soft_100ms) > 100) {
+    if( (app->system_millis - soft_100ms) > 100) {
       soft_100ms += 100;
       update_soft_100ms(app);
     }
 
 
     // 500ms soft timer
-    if( (system_millis - soft_500ms) > 500) {
+    if( (app->system_millis - soft_500ms) > 500) {
       soft_500ms += 500;
       update_soft_500ms(app);
     }
 
     // 1000ms soft
-    if( (system_millis - soft_1s) > 1000 ) {
+    if( (app->system_millis - soft_1s) > 1000 ) {
       soft_1s += 1000;
       update_soft_1s(app);
     }
@@ -909,7 +920,8 @@ static char buf_command[1000];
 
 
 
-// move init to a function?
+// move to main ?
+// no reason to be static.
 // no... because we collect/assemble dependencies. ok in main()
 static app_t app;
 
@@ -959,9 +971,6 @@ int main(void)
 
 	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz.
 
-  // this is the mcu clock.  not the adc clock. or the fpga clock.
-  // systick_setup(16000);
-  systick_setup(84000);  // 84MHz.
 
   // clocks
   rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
@@ -990,6 +999,11 @@ int main(void)
   critical_error_led_setup(LED_PORT, LED_OUT);
 
 
+  // this is the mcu clock.  not the adc clock. or the fpga clock.
+  // systick_setup(16000);
+
+  // extern void systick_setup(uint32_t tick_divider, void (*pfunc)(void *),  void *ctx);
+  systick_setup(84000,  (void (*)(void *)) sys_tick_interupt, &app);  // 84MHz.
 
 
   //////////////////////

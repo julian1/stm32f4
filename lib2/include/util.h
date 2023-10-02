@@ -28,11 +28,14 @@ extern void critical_error_led_blink(void);
 /////////////////////
 
 // remove. me in favour of a function.
-extern volatile uint32_t system_millis;
+// extern volatile uint32_t system_millis;
 
-extern void systick_setup(uint32_t tick_divider);
+extern void systick_setup(uint32_t tick_divider, void (*pfunc)(void *),  void *ctx);
+// extern void systick_setup(uint32_t tick_divider);
 
-extern void msleep(uint32_t delay);
+// extern void msleep(uint32_t delay, uint32_t *system_millis );
+extern void msleep(uint32_t delay, volatile uint32_t *system_millis );
+// extern void msleep(uint32_t delay);
 
 
 void print_stack_pointer(void);
