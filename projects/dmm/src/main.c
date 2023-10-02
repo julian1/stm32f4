@@ -436,6 +436,8 @@ static void update_soft_500ms(app_t *app)
       char buf[ 100] ;
 
       printf("no comms, wait for ice40 v %s\n",  format_bits(buf, 32, ret ));
+      // return
+      // or should probably do a reset. when comms re-established
     }
   }
 
@@ -724,6 +726,12 @@ static void update_console_cmd(app_t *app)
         app->test_in_progress = 0;
         Mode j = mode_initial;
 
+        /*
+            We want the option of high-z at the AZ switch. but th
+            and then control switching speed.  eg. for 10seconds.
+            ------
+        */
+
         if(strcmp(cmd, "test11") == 0) {
           printf("with +10V\n");
           j.second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
@@ -756,6 +764,8 @@ static void update_console_cmd(app_t *app)
         memset(&f, 0, sizeof(f));
         f.himux2 = S1 ;    // s1 put dc-source on himux2 output
         f.himux  = S2 ;    // s2 reflect himux2 on himux output
+        // f.azmux  = S2 ;    // s6 == low.   s2 == BOOT,   eg. so it never switches lo.  one way to do a charge injection test.
+        f.azmux  = S6 ;    // s6 == LO.
 
         // az modulation takes control of waveform.
 
