@@ -10,6 +10,13 @@ LIB2SRC=${TOP}/lib2/src
 LIB2INC=${TOP}/lib2/include
 
 
+
+# check ../../Makefile.incl,  no optimization flags are commented.
+# CFLAGS = -mthumb -mcpu=cortex-m4 -ggdb -Os
+# CFLAGS += -mfloat-abi=hard
+
+
+
 BINARY		= main
 #SRCFILES	= mcp3208.c  util.c \
 SRCFILES	= flash.c  util.c \
@@ -46,7 +53,12 @@ TGT_CFLAGS	+= -I${LIB2INC}
 TGT_CFLAGS	+= -I./include    # FIXME, should be before lib2inc
 
 # pow()
-LDLIBS		+= -lm
+LDLIBS		+=  -lm
+
+# LDLIBS		+=  -specs=nosys.specs -lnosys -lm
+# LDLIBS		+=  -specs=nano.specs -lnano -lm
+# LDLIBS		+=  --specs=rdimon.specs -lrdimon -lm
+
 
 
 include ${TOP}/Makefile.incl
