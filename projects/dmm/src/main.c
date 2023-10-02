@@ -25,6 +25,7 @@
 
 */
 
+
 #include <libopencm3/stm32/rcc.h>   // clock
 #include <libopencm3/stm32/gpio.h>    // led
 #include <libopencm3/stm32/spi.h>   // SPI1
@@ -731,7 +732,7 @@ static void update_console_cmd(app_t *app)
         /////////////////
         // put in mode 4 - for test_pattern_2
         mux_ice40(app->spi);
-        spi_ice40_reg_write32(app->spi, REG_MODE, 4 );  // mode 3. test pattern on sig
+        spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
 
         //////////////
         // Separate registers means, can use the same F structure..to construct ... really nice
@@ -1126,6 +1127,55 @@ int main(void)
 
 
 
+void _close_r( void );
+void _fstat_r( void );
+void _getpid_r( void);
+void _kill_r( void);
+void _isatty_r( void);
+void _lseek_r( void);
+void _read_r( void);
+void _write_r( void);
+
+
+void _close_r( void )
+{
+  assert(0);
+}
+
+void _fstat_r( void )
+{
+  assert(0);
+}
+
+void _getpid_r( void)
+{
+  assert(0);
+}
+
+void _kill_r( void)
+{
+  assert(0);
+}
+
+void _isatty_r( void)
+{
+  assert(0);
+}
+
+void _lseek_r( void)
+{
+  assert(0);
+}
+
+void _read_r( void)
+{
+  assert(0);
+}
+
+void _write_r( void)
+{
+  assert(0);
+}
 
 
 
