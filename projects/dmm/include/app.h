@@ -30,6 +30,7 @@ typedef struct app_t
   uint32_t led_port;
   uint32_t led_out;
 
+  // should probably be volatile. although it's only passed by reference
   uint32_t system_millis;
 
   ////////

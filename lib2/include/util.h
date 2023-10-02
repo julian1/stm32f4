@@ -10,15 +10,16 @@ extern "C" {
 #endif
 
 
-#include <stddef.h> // size_t
-#include <stdbool.h> // bool
+// #include <stddef.h> // size_t
+// #include <stdbool.h> // bool
 #include <stdint.h> // uint32_t
 
 
 
-//   setup external state for critical error led blink
-//   because assert() cannot pass a context
-
+/*
+  setup led port state for critical error led blink
+  since for assert() we cannot pass a context
+*/
 
 extern void critical_error_led_setup(uint32_t port_, uint16_t io_ );
 
@@ -27,13 +28,16 @@ extern void critical_error_led_blink(void);
 
 /////////////////////
 
-// remove. me in favour of a function.
-// extern volatile uint32_t system_millis;
 
-extern void systick_setup(uint32_t tick_divider, void (*pfunc)(void *),  void *ctx);
-// extern void systick_setup(uint32_t tick_divider);
+extern void systick_setup(uint32_t tick_divider, void (*)(void *),  void *ctx);
 
-// extern void msleep(uint32_t delay, uint32_t *system_millis );
+
+/*
+  - passing system_millis explicitly makes it clear what the dependency is.
+  - could pass sleep dependent object/environment.
+  - but it doesn't matter. for single variable.
+*/
+
 extern void msleep(uint32_t delay, volatile uint32_t *system_millis );
 // extern void msleep(uint32_t delay);
 

@@ -4,6 +4,7 @@ extern "C" {
 #endif
 
 
+#include <stddef.h> // size_t
 
 // TODO. rename this. eg. not mpsse
 void mpsse_xfer_spi(uint32_t spi, uint8_t *data, size_t n);
