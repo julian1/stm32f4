@@ -356,7 +356,7 @@ static void do_4094_transition( unsigned spi, Mode *mode, uint32_t *system_milli
   printf("-----------\n");
 
   printf("do_4094_transition write first state\n");
-  state_format (  (void *) &mode->first, sizeof(X) );
+  // state_format (  (void *) &mode->first, sizeof(X) );
 
   // and write device
   spi_4094_reg_write_n(spi, (void *) &mode->first, sizeof( X) );
@@ -367,7 +367,7 @@ static void do_4094_transition( unsigned spi, Mode *mode, uint32_t *system_milli
 
   // and format
   printf("do_4094_transition write second state\n");
-  state_format ( (void *) &mode->second, sizeof(X) );
+  // state_format ( (void *) &mode->second, sizeof(X) );
 
   // and write device
   spi_4094_reg_write_n(spi, (void *) &mode->second, sizeof(X) );
@@ -475,6 +475,31 @@ static void update_soft_500ms(app_t *app)
 }
 
 
+////////////////////
+
+
+static uint32_t nplc_to_aper_n( double nplc )
+{
+  double period = nplc / 50.0 ;  // seonds
+  uint32_t aper = period * 20000000;
+  return aper;
+}
+
+
+static double aper_n_to_nplc( uint32_t aper_n)
+{
+  // uint32_t aper  = params->clk_count_aper_n ;
+  double period   = aper_n / (double ) 20000000;
+  double nplc     = period / (1.0 / 50);
+  return nplc;
+}
+
+
+static double aper_n_to_period( uint32_t aper_n)
+{
+  double period   = aper_n / (double ) 20000000;
+  return period;
+}
 
 
 
@@ -833,14 +858,13 @@ static void update_console_cmd(app_t *app)
         spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
 
         ////////////////////////////
-        // so charge cap to the dcv-source, then turn off the mux and see how it drifts.
-        // charge for 10sec. for DA....
+        // so charge cap to the dcv-source
+        // and let settle 10sec. for DA....
         printf("sleep 10s\n");  // having a yield would be quite nice here.
         msleep(10 * 1000,  &app->system_millis);
 
-        // now change into az mode.
         /////////////////
-
+        // now change to az mode.
         printf("changing to az mode.\n");  // having a yield would be quite nice here.
         // setup az mode
         mux_ice40(app->spi);
@@ -854,29 +878,55 @@ static void update_console_cmd(app_t *app)
         f.azmux  = SOFF ;
         spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
 
-/*
-        // use direct 2 register - for the hi sample
-        memset(&f, 0, sizeof(f));
-        f.azmux  = S1 ;         // s1 == PC_OUT (either SIG or BOOT).
-        // f.azmux  = S2 ;      // s2 == BOOT for test.
-        // f.azmux  = SOFF ;    // soff for high-z for test.
-*/
+        // suse the same.
         spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
 
          // write the frequency. 10MHz. counter freq.
-        spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, 20000000 * 2000e-3 );        // 1nplc, 2000ms. freq == 25Hz for hi/lo period.
-        // spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, 20000000 * 20e-3 );        // 1nplc, 20ms. freq == 25Hz for hi/lo period.
-        // spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, 20000000 * 200e-3 );        // 1nplc, 20ms. freq == 25Hz for hi/lo period.
 
-        /// EXTR.   AHHHH. a reason the results differ - voltage. 5V6 zener for 4.8V..  versus using 5V1 zener, may have been less..
+        // uint32_t  :
+
+        uint32_t aperture = 20000000 * 20e-3;
+
+        printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
+        printf("period %.2lfs\n", aper_n_to_period( aperture ));
+
+        // spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, 20000000 * 20 );               // 20secs.
+        // spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, 20000000 * 2000e-3 );        // 100nplc, 2000ms. freq == 25Hz for hi/lo period.
+        // spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, 20000000 * 200e-3 );        // 10nplc, 200ms.
+        spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, 20000000 * 20e-3 );        // 1nplc, 20ms. freq == 25Hz for hi/lo period.
+
+        /// EXTR.   AHHHH. a reason the leakage and charge-accumulation results differ - voltage. 5V6 zener for 4.8V..  versus using 5V1 zener, may have been less..
         // can check the codes.
+/*
+ 786         uint32_t aper = nplc_to_aper_n( d );
+*/
 
-        // simple charge.
-        // at 10V bias.
-        // 100nplc / 2000ms   == +32mV.      leakage and charge injection.
+
+        // with 5V6 zener.  so giving boot supply rail of 4.7V.
+
+        // simple charge. 0ct 3.
+        // test14 at 10V bias.
+        // 100nplc / 2000ms   == +32mV.      leakage and charge injection.  similar to no switching.
         // 10nplc / 200ms     == +39mV.
         // 1nplc /20ms.       == +86mV.
 
+        // so we could test. soldering a lower voltage 4053. on.
+
+        // simplest test oct 4.
+        //              20s.  == +28mV     29mV.  23mV.  (may be a difference if pc switch starts on/of )
+        // 100nplc / 2000ms   == +22mV.  22mV
+        // 10nplc, 200ms.     == +29mV.   29mV.
+        // 1nplc,  20ms.      == 82mV.   84mV.
+
+        // use 6v2 zener.  with 5.5V out.   5mins after soldering.
+        //              20s  ==  47mV.
+        // 100nplc / 2000ms   == 59mV.
+        // 10nplc, 200ms.     == 43mV.  51mV.
+        // 1nplc,  20ms.      == 108mV  107mV. 100mV (20mins after soldering).
+
+        // so it's worse with higher voltage... 
+        // all incredibly strange.
+        // Or perhaps we used a lower voltage zener for previous tests??  ta is our memory
 
       }
 
