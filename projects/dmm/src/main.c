@@ -614,7 +614,7 @@ static void update_console_cmd(app_t *app)
         }
         else assert(0);
 
-        // turn on accumulation relay     RON ROFF.  or RL1 ?
+        // turn on accumulation relay     RON ROFF.  or RL1 ?  K606_ON
         j.first .K406_CTL  = 0b01;
         j.second.K406_CTL  = 0b00;    // don't need this....  it is 0 by default
 
@@ -718,6 +718,7 @@ static void update_console_cmd(app_t *app)
 
     /*
       EXTR. - the above tests need to ensure that the bootttrapped pre-charge switch is turned off.
+            - else loading on switch.
 
     */
 
@@ -727,15 +728,9 @@ static void update_console_cmd(app_t *app)
 
       else if( strcmp(cmd, "test11") == 0 || strcmp(cmd, "test12") == 0 || strcmp(cmd, "test13") == 0) {
 
-        printf("test AZ modulation at 10V,-10V,0V/agnd\n");
+        printf("test normal AZ modulation at 10V,-10V,0V/agnd\n");
         app->test_in_progress = 0;
         Mode j = mode_initial;
-
-        /*
-            We want the option of high-z at the AZ switch. but th
-            and then control switching speed.  eg. for 10seconds.
-            ------
-        */
 
         if(strcmp(cmd, "test11") == 0) {
           printf("with +10V\n");
@@ -754,13 +749,11 @@ static void update_console_cmd(app_t *app)
         }
         else assert(0);
 
-        // HANG ON . we have to give it a pulto turn
-
-        // accumulation relay stays. off.
+        // accumulation relay is off
         do_4094_transition( app->spi, &j,  &app->system_millis );
 
         /////////////////
-        // put in mode 4 - for test_pattern_2
+        // setup az mode
         mux_ice40(app->spi);
         spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
 
@@ -768,19 +761,123 @@ static void update_console_cmd(app_t *app)
         // use direct register - for the lo sample, in azmode.
         F  f;
         memset(&f, 0, sizeof(f));
-        f.himux2 = S1 ;    // s1 put dc-source on himux2 output
-        f.himux  = S2 ;    // s2 reflect himux2 on himux output
+        f.himux2 = S1 ;       // s1 put dc-source on himux2 output
+        f.himux  = S2 ;       // s2 reflect himux2 on himux output
         f.azmux  = S6 ;    // s6 == normal LO for DCV, ohms.
         // f.azmux  = S2 ;    // s2 == BOOT for test.
+        // f.azmux  = SOFF ;     // soff for high-z for test.
         spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
 
         // use direct 2 register - for the hi sample
         memset(&f, 0, sizeof(f));
-        f.azmux  = S1 ;    // s1 == PC_OUT (either SIG or BOOT).
-        // f.azmux  = S2 ;    // s2 == BOOT for test.
+        f.azmux  = S1 ;         // s1 == PC_OUT (either SIG or BOOT).
+        // f.azmux  = S2 ;      // s2 == BOOT for test.
+        // f.azmux  = SOFF ;    // soff for high-z for test.
         spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
 
-        // for precharge spinning the switch. want azmuxs for both samples to be high-z. 
+        // for precharge spinning the switch. want azmuxs for both samples to be high-z.
+        // OK. want to be able to set the clk_duration.
+
+        // behavior is quite different because of timing.
+
+        // write the frequency. 10MHz. counter freq.
+        spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, 20000000 * 20e-3 );        // 1nplc, 20ms. freq == 25Hz for hi/lo period.
+        // spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, 20000000 * 200e-3 );    // 10nplc 200ms.
+
+      }
+
+
+
+      else if( strcmp(cmd, "test14") == 0 || strcmp(cmd, "test15") == 0 || strcmp(cmd, "test16") == 0) {
+
+        // test charge-injection by going to bias voltage, holding, then entering az mode. with muxes turned off.
+
+        printf("test charge-injection from switching pre-charge switch\n");
+        app->test_in_progress = 0;
+        Mode j = mode_initial;
+
+        if(strcmp(cmd, "test14") == 0) {
+          printf("with +10V\n");
+          j.second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
+          j.second.U1006  = S1 ;       // s1.   follow  .   dcv-mux2
+        }
+        else if(strcmp(cmd, "test15") == 0) {
+          printf("with -10V\n");
+          j.second.U1003  = S2 ;       // s2.  -10V.
+          j.second.U1006  = S1 ;       // s1.   follow  .   dcv-mux2
+        }
+        else if(strcmp(cmd, "test16") == 0) {
+          printf("with 0V\n");
+          j.second.U1003 = S3;          // s3 == agnd
+          j.second.U1006 = S6;          // s6 = agnd  .  TODO change to S7 . populate R1001.c0ww
+        }
+        else assert(0);
+
+        // turn on accumulation relay     RON ROFF.  or RL1 ?  K606_ON
+        j.first .K406_CTL  = 0b01;
+        j.second.K406_CTL  = 0b00;    // don't need this....  it is 0 by default
+
+        do_4094_transition( app->spi, &j,  &app->system_millis );
+
+        /////////////////
+        // make sure we are in direct mode.
+        mux_ice40(app->spi);
+        spi_ice40_reg_write32(app->spi, REG_MODE, MODE_DIRECT );
+
+        // now control the hi mux.
+        F  f;
+        memset(&f, 0, sizeof(f));
+        f.himux2 = S1 ;    // s1 put dc-source on himux2 output
+        f.himux  = S2 ;    // s2 reflect himux2 on himux output
+        f.sig_pc_sw_ctl  = 1;  // turn on. precharge.  on. to route signal to az mux... doesn't matter.
+        spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
+
+        ////////////////////////////
+        // so charge cap to the dcv-source, then turn off the mux and see how it drifts.
+        // charge for 10sec. for DA....
+        printf("sleep 10s\n");  // having a yield would be quite nice here.
+        msleep(10 * 1000,  &app->system_millis);
+
+        // now change into az mode.
+        /////////////////
+
+        printf("changing to az mode.\n");  // having a yield would be quite nice here.
+        // setup az mode
+        mux_ice40(app->spi);
+        spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
+
+        //////////////
+        // use direct register - for the lo sample, in azmode.
+        memset(&f, 0, sizeof(f));
+        f.himux2 = SOFF ;
+        f.himux  = SOFF ;
+        f.azmux  = SOFF ;
+        spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
+
+/*
+        // use direct 2 register - for the hi sample
+        memset(&f, 0, sizeof(f));
+        f.azmux  = S1 ;         // s1 == PC_OUT (either SIG or BOOT).
+        // f.azmux  = S2 ;      // s2 == BOOT for test.
+        // f.azmux  = SOFF ;    // soff for high-z for test.
+*/
+        spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
+
+         // write the frequency. 10MHz. counter freq.
+        spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, 20000000 * 2000e-3 );        // 1nplc, 2000ms. freq == 25Hz for hi/lo period.
+        // spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, 20000000 * 20e-3 );        // 1nplc, 20ms. freq == 25Hz for hi/lo period.
+        // spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, 20000000 * 200e-3 );        // 1nplc, 20ms. freq == 25Hz for hi/lo period.
+
+        /// EXTR.   AHHHH. a reason the results differ - voltage. 5V6 zener for 4.8V..  versus using 5V1 zener, may have been less..
+        // can check the codes.
+
+        // simple charge.
+        // at 10V bias.
+        // 100nplc / 2000ms   == +32mV.      leakage and charge injection.
+        // 10nplc / 200ms     == +39mV.
+        // 1nplc /20ms.       == +86mV.
+
+
       }
 
 
