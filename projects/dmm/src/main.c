@@ -298,6 +298,11 @@ static void init_modes( void )
   memset( &mode_dcv_az,  0, sizeof( Mode) );
   // memset( &mode_test_accumulation,  0, sizeof( Mode) );
 
+  /*
+    ALL relays must be given a pulse here. to get to default state.
+    cannot just leave at 0V.
+  */
+
   //  should be explicit for all values  U408_SW_CTL. at least for the initial mode, from which others derive.
   mode_initial.first .K406_CTL  = 0b10;     // accumulation relay off
   mode_initial.first .U408_SW_CTL = 0;      // b2b fets/ input protection off/open
@@ -749,6 +754,7 @@ static void update_console_cmd(app_t *app)
         }
         else assert(0);
 
+        // HANG ON . we have to give it a pulto turn
 
         // accumulation relay stays. off.
         do_4094_transition( app->spi, &j,  &app->system_millis );
@@ -759,17 +765,22 @@ static void update_console_cmd(app_t *app)
         spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
 
         //////////////
-        // Separate registers means, can use the same F structure..to construct ... really nice
+        // use direct register - for the lo sample, in azmode.
         F  f;
         memset(&f, 0, sizeof(f));
         f.himux2 = S1 ;    // s1 put dc-source on himux2 output
         f.himux  = S2 ;    // s2 reflect himux2 on himux output
-        // f.azmux  = S2 ;    // s6 == low.   s2 == BOOT,   eg. so it never switches lo.  one way to do a charge injection test.
-        f.azmux  = S6 ;    // s6 == LO.
-
-        // az modulation takes control of waveform.
-
+        f.azmux  = S6 ;    // s6 == normal LO for DCV, ohms.
+        // f.azmux  = S2 ;    // s2 == BOOT for test.
         spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
+
+        // use direct 2 register - for the hi sample
+        memset(&f, 0, sizeof(f));
+        f.azmux  = S1 ;    // s1 == PC_OUT (either SIG or BOOT).
+        // f.azmux  = S2 ;    // s2 == BOOT for test.
+        spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
+
+        // for precharge spinning the switch. want azmuxs for both samples to be high-z. 
       }
 
 
