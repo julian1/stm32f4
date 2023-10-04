@@ -429,7 +429,7 @@ static void update_soft_500ms(app_t *app)
 
 
   // printf("count %u\n", ++ app->count);
-
+/*
   // 500ms. heartbeat check here.
   // this works nicely
   {
@@ -445,6 +445,20 @@ static void update_soft_500ms(app_t *app)
       // or should probably do a reset. when comms re-established
     }
   }
+*/
+
+  mux_ice40(app->spi);
+
+  // blink fpga led. will only work if mode. 1.
+  spi_ice40_reg_write32( app->spi, REG_LED, app->led_state );
+  uint32_t ret = spi_ice40_reg_read32( app->spi, REG_LED);
+  if(ret != app->led_state) {
+    char buf[ 100] ;
+
+      printf("no comms, wait for ice40 v %s\n",  format_bits(buf, 32, ret ));
+      // return
+  }
+
 
 
 
@@ -461,7 +475,7 @@ static void update_soft_500ms(app_t *app)
 
   if(app->test_in_progress == 4 ) {
 
-    // blink led.
+    // mode is 3. blink led. by writing direct register. don't want to do this in other cases.
     F f;
     memset(&f, 0, sizeof(f));
 
@@ -530,7 +544,8 @@ static void update_console_cmd(app_t *app)
       // printf("cmd whoot is '%s'\n", cmd);
 
 
-      uint32_t u0;
+      uint32_t u0, u1;
+      int32_t i0;
 
       ////////////////////
 
@@ -813,8 +828,19 @@ static void update_console_cmd(app_t *app)
       }
 
 
+    /*
+      having arguments is ok. for internal test.  that just prints a result.
 
-      else if( strcmp(cmd, "test14") == 0 || strcmp(cmd, "test15") == 0 || strcmp(cmd, "test16") == 0) {
+    */
+
+    else if( sscanf(cmd, "test14 %ld %lu", &i0, &u1 ) == 2) {
+
+        // first argument - bias voltage.  10,-10,0
+        // second argument is nplc.
+
+
+      // what we want is to probably take arguments... for voltage. and aperture.
+      // else if( strcmp(cmd, "test14") == 0 || strcmp(cmd, "test15") == 0 || strcmp(cmd, "test16") == 0) {
 
         // test charge-injection by going to bias voltage, holding, then entering az mode. with muxes turned off.
 
@@ -822,17 +848,17 @@ static void update_console_cmd(app_t *app)
         app->test_in_progress = 0;
         Mode j = mode_initial;
 
-        if(strcmp(cmd, "test14") == 0) {
+        if(i0 == 10) {
           printf("with +10V\n");
           j.second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
           j.second.U1006  = S1 ;       // s1.   follow  .   dcv-mux2
         }
-        else if(strcmp(cmd, "test15") == 0) {
+        else if(i0 == -10) {
           printf("with -10V\n");
           j.second.U1003  = S2 ;       // s2.  -10V.
           j.second.U1006  = S1 ;       // s1.   follow  .   dcv-mux2
         }
-        else if(strcmp(cmd, "test16") == 0) {
+        else if(i0 == 0) {
           printf("with 0V\n");
           j.second.U1003 = S3;          // s3 == agnd
           j.second.U1006 = S6;          // s6 = agnd  .  TODO change to S7 . populate R1001.c0ww
@@ -887,10 +913,12 @@ static void update_console_cmd(app_t *app)
         // uint32_t aperture = CLK_FREQ * 20;
         // uint32_t aperture = CLK_FREQ * 2;
         // uint32_t aperture = CLK_FREQ * 200e-3;
-        uint32_t aperture = CLK_FREQ * 20e-3;
 
-        printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
-        printf("period %.2lfs\n", aper_n_to_period( aperture ));
+         uint32_t aperture = nplc_to_aper_n( u1 );
+
+        printf("aperture %lu\n",   aperture );
+        printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture ));
+        printf("period   %.2lfs\n", aper_n_to_period( aperture ));
 
         spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, aperture );
 
@@ -906,7 +934,7 @@ static void update_console_cmd(app_t *app)
         // 10nplc / 200ms     == +39mV.
         // 1nplc /20ms.       == +86mV.
 
-        // so we could test. soldering a lower voltage 4053. on.
+        // same - new date. so we could test. soldering a lower voltage 4053. on.
 
         // oct 4.
         //              20s.  == +28mV     29mV.  23mV.  (may be a difference if pc switch starts on/of )
@@ -940,6 +968,55 @@ static void update_console_cmd(app_t *app)
         // 100nplc / 2000ms.  25mV   23mV
         // 10nplc / 200ms.    30mV  30mV
         // 1nplc / 20ms       78mV. 79mV.
+
+        // after a few hours.
+
+        /*
+
+        a difference with the previous test circuit - was the zener used to set the boot supply rail.
+        but tests show a bootstrap supply rail of 4V to 5.5V doesn't make much difference to precharge switch leakage or charge injection.
+        also tried another sn74lv4053a purchased a few years later, with the same result.
+
+
+        With running az modulation. all muxes fitted. 
+        DC accumulation on 10nF/ over 10s.
+
+        sn74lv4053a
+        +10V dc bais
+        1000nplc/off   20mV. 18mV.
+        100nplc/2s     17mV. 17mV.
+        10nplc/200ms   21mV. 22mV.
+        1nplc/20ms     35mV. 73mV.  70mV.   large difference. odd. but was definltey there.
+
+
+        I almost wasn't going to bother. but i tried a max4053
+        same conditions - accumulation on 10nF/ 10s., within 5mins of soldering, and cleaning.
+
+        max4053
+        +10V dc bias.
+        1000nplc/off   0.3mV. 0.5mV
+        100nplc        0.8mV.
+        10nplc         3.8mV.   3.6mV.
+        1nplc          30mV.   28mV.
+
+        leakage is fairly good <1pA.
+        ie. 1nplc == 20ms.  10s/0.02s == 500 cycles.
+        30mV / 500 == 0.06pC ?. if the units are right. through full-cycle switch.
+
+
+        max4053
+        -10V dc bias.
+        leave five minutes for +4.5mV/10s. cap DA to settle.
+        1000nplc/off   2.5mV  2.8mV
+        100nplc        3.0mV. 3.3mV
+        10nplc         5.6mV.  5.7mV
+        1nplc          30mV   30mV.
+
+
+        leakage is a little higher with a negative bias. but still looks ok.
+        */
+
+
 
       }
 
