@@ -477,11 +477,12 @@ static void update_soft_500ms(app_t *app)
 
 ////////////////////
 
+#define CLK_FREQ        20000000
 
 static uint32_t nplc_to_aper_n( double nplc )
 {
   double period = nplc / 50.0 ;  // seonds
-  uint32_t aper = period * 20000000;
+  uint32_t aper = period * CLK_FREQ;
   return aper;
 }
 
@@ -489,7 +490,7 @@ static uint32_t nplc_to_aper_n( double nplc )
 static double aper_n_to_nplc( uint32_t aper_n)
 {
   // uint32_t aper  = params->clk_count_aper_n ;
-  double period   = aper_n / (double ) 20000000;
+  double period   = aper_n / (double ) CLK_FREQ;
   double nplc     = period / (1.0 / 50);
   return nplc;
 }
@@ -497,7 +498,7 @@ static double aper_n_to_nplc( uint32_t aper_n)
 
 static double aper_n_to_period( uint32_t aper_n)
 {
-  double period   = aper_n / (double ) 20000000;
+  double period   = aper_n / (double ) CLK_FREQ;
   return period;
 }
 
@@ -806,8 +807,8 @@ static void update_console_cmd(app_t *app)
         // behavior is quite different because of timing.
 
         // write the frequency. 10MHz. counter freq.
-        spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, 20000000 * 20e-3 );        // 1nplc, 20ms. freq == 25Hz for hi/lo period.
-        // spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, 20000000 * 200e-3 );    // 10nplc 200ms.
+        spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, CLK_FREQ * 20e-3 );        // 1nplc, 20ms. freq == 25Hz for hi/lo period.
+        // spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, CLK_FREQ * 200e-3 );    // 10nplc 200ms.
 
       }
 
@@ -878,33 +879,28 @@ static void update_console_cmd(app_t *app)
         f.azmux  = SOFF ;
         spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
 
-        // suse the same.
+        // set reg_direct2 controlling azmux hi val, the same. so only switching the pc switch.
         spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
 
-         // write the frequency. 10MHz. counter freq.
 
-        // uint32_t  :
-
-        uint32_t aperture = 20000000 * 20e-3;
+         // uint32_t aper = nplc_to_aper_n( d );
+        // uint32_t aperture = CLK_FREQ * 20;
+        // uint32_t aperture = CLK_FREQ * 2;
+        // uint32_t aperture = CLK_FREQ * 200e-3;
+        uint32_t aperture = CLK_FREQ * 20e-3;
 
         printf("nplc   %.2lf\n",  aper_n_to_nplc( aperture ));
         printf("period %.2lfs\n", aper_n_to_period( aperture ));
 
-        // spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, 20000000 * 20 );               // 20secs.
-        // spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, 20000000 * 2000e-3 );        // 100nplc, 2000ms. freq == 25Hz for hi/lo period.
-        // spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, 20000000 * 200e-3 );        // 10nplc, 200ms.
-        spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, 20000000 * 20e-3 );        // 1nplc, 20ms. freq == 25Hz for hi/lo period.
+        spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, aperture );
 
         /// EXTR.   AHHHH. a reason the leakage and charge-accumulation results differ - voltage. 5V6 zener for 4.8V..  versus using 5V1 zener, may have been less..
         // can check the codes.
-/*
- 786         uint32_t aper = nplc_to_aper_n( d );
-*/
 
 
         // with 5V6 zener.  so giving boot supply rail of 4.7V.
 
-        // simple charge. 0ct 3.
+        // 0ct 3.
         // test14 at 10V bias.
         // 100nplc / 2000ms   == +32mV.      leakage and charge injection.  similar to no switching.
         // 10nplc / 200ms     == +39mV.
@@ -912,21 +908,38 @@ static void update_console_cmd(app_t *app)
 
         // so we could test. soldering a lower voltage 4053. on.
 
-        // simplest test oct 4.
+        // oct 4.
         //              20s.  == +28mV     29mV.  23mV.  (may be a difference if pc switch starts on/of )
         // 100nplc / 2000ms   == +22mV.  22mV
         // 10nplc, 200ms.     == +29mV.   29mV.
         // 1nplc,  20ms.      == 82mV.   84mV.
 
-        // use 6v2 zener.  with 5.5V out.   5mins after soldering.
+        ////////////
+        // 6v2 zener.  with 5.5V out.   5mins after soldering.
         //              20s  ==  47mV.
         // 100nplc / 2000ms   == 59mV.
         // 10nplc, 200ms.     == 43mV.  51mV.
         // 1nplc,  20ms.      == 108mV  107mV. 100mV (20mins after soldering).
 
-        // so it's worse with higher voltage... 
+        // so it's worse with higher voltage...
         // all incredibly strange.
         // Or perhaps we used a lower voltage zener for previous tests??  ta is our memory
+
+        // 5.1V zener.  weird.   measure 4.7V across zener. giving 4V boot rail <- weird.  code D3L
+        // 20s                29mV.
+        // 100nplc / 2000ms.  24mV
+        // 10nplc / 200ms.    31mV. 32mV.
+        // 1nplc / 20ms       81mV. 81mV. 80mV.
+
+        // ok. so not a lot of difference.
+        // we should probably replace the dg508.  with a 1208.  that we received.
+
+        // use 1208.  replacing maxmim 508. - don't actually expect much difference.after soldering.
+
+        // 1000nplc / 20s     18mV.  28mV.  29mV.
+        // 100nplc / 2000ms.  25mV   23mV
+        // 10nplc / 200ms.    30mV  30mV
+        // 1nplc / 20ms       78mV. 79mV.
 
       }
 
