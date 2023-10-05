@@ -835,16 +835,14 @@ static void update_console_cmd(app_t *app)
 
     else if( sscanf(cmd, "test14 %ld %lu", &i0, &u1 ) == 2) {
 
+        /*
+        // test charge-injection by charging to a bias voltage, holding, then entering az mode.
+        // with az-mux off through cycle - in order not eliminate amplifier load leakage .
         // first argument - bias voltage.  10,-10,0
         // second argument is nplc.
 
-
-      // what we want is to probably take arguments... for voltage. and aperture.
-      // else if( strcmp(cmd, "test14") == 0 || strcmp(cmd, "test15") == 0 || strcmp(cmd, "test16") == 0) {
-
-        // test charge-injection by going to bias voltage, holding, then entering az mode. with muxes turned off.
-
-        printf("test charge-injection from switching pre-charge switch\n");
+        */
+        printf("test leakage and charge-injection from switching pre-charge switch at different biases\n");
         app->test_in_progress = 0;
         Mode j = mode_initial;
 
@@ -909,10 +907,7 @@ static void update_console_cmd(app_t *app)
         spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
 
 
-         // uint32_t aper = nplc_to_aper_n( d );
-        // uint32_t aperture = CLK_FREQ * 20;
-        // uint32_t aperture = CLK_FREQ * 2;
-        // uint32_t aperture = CLK_FREQ * 200e-3;
+        assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
 
          uint32_t aperture = nplc_to_aper_n( u1 );
 
@@ -973,12 +968,14 @@ static void update_console_cmd(app_t *app)
 
         /*
 
-        a difference with the previous test circuit - was the zener used to set the boot supply rail.
-        but tests show a bootstrap supply rail of 4V to 5.5V doesn't make much difference to precharge switch leakage or charge injection.
-        also tried another sn74lv4053a purchased a few years later, with the same result.
+
+        Briefly for sn74lv4053a one difference with the previous tests - is the zener to set the boot supply rail.
+        but tests show that a bootstrap supply rail between 4V to 5.5V doesn'matter much for leakage or charge injection.
+        Also tried another sn74lv4053a, purchased a few years apart from the initial test one, but with the same result.
+        So i am not sure how to explain the discrepency with previous tests.
 
 
-        With running az modulation. all muxes fitted. 
+        Running az modulation. all muxes fitted.
         DC accumulation on 10nF/ over 10s.
 
         sn74lv4053a
@@ -986,11 +983,12 @@ static void update_console_cmd(app_t *app)
         1000nplc/off   20mV. 18mV.
         100nplc/2s     17mV. 17mV.
         10nplc/200ms   21mV. 22mV.
-        1nplc/20ms     35mV. 73mV.  70mV.   large difference. odd. but was definltey there.
+        1nplc/20ms     35mV. 73mV.  70mV.   large measured difference. odd. but was definltey there.
 
 
-        I almost wasn't going to bother. but i tried a max4053
-        same conditions - accumulation on 10nF/ 10s., within 5mins of soldering, and cleaning.
+        But max4053 looks a lot better,
+        I almost wasn't going to bother re-testing.
+        same conditions - accumulation on 10nF/ 10s.
 
         max4053
         +10V dc bias.
@@ -999,21 +997,37 @@ static void update_console_cmd(app_t *app)
         10nplc         3.8mV.   3.6mV.
         1nplc          30mV.   28mV.
 
-        leakage is fairly good <1pA.
-        ie. 1nplc == 20ms.  10s/0.02s == 500 cycles.
-        30mV / 500 == 0.06pC ?. if the units are right. through full-cycle switch.
-
 
         max4053
         -10V dc bias.
         leave five minutes for +4.5mV/10s. cap DA to settle.
-        1000nplc/off   2.5mV  2.8mV
-        100nplc        3.0mV. 3.3mV
-        10nplc         5.6mV.  5.7mV
-        1nplc          30mV   30mV.
+        1000nplc/off   2.5mV  2.8mV   - oct 8  2.3mV.
+        100nplc        3.0mV. 3.3mV   - oct 8.  2.3mV
+        10nplc         5.6mV.  5.7mV  - oct 8. 5.2mV.
+        1nplc          30mV   30mV.   - oct 8  29mV.
+
+        max4053
+        0V dc bias.
+        1000nplc/off   0.8mV.
+        100nplc        1.0mV.  1mV.
+        10nplc         3.8mV.  3.6mV.
+        1nplc          28mV.
 
 
-        leakage is a little higher with a negative bias. but still looks ok.
+        leakage is fairly good <1pA for +10V and 0V dc-bias, and <3pA .
+
+        for charge injection
+        ie. 1nplc == 20ms.  10s/0.02s == 500 cycles.
+        this is 30mV / 500 == 0.06pC .
+        if I have the units correct, through full-cycle switch.
+
+
+
+
+        for the leakage part - it is a little higher with a negative bias. and possibly the adg1208 mux, not the  4053. still looks ok.
+        -------
+
+        since there is nothing on the output of the azmux - should be able to switch lo,hi also. and observe.
         */
 
 
