@@ -1129,14 +1129,58 @@ static void update_console_cmd(app_t *app)
 
         spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, aperture );
 
+        /*
+        oct 6, 2023.
+        max4053
+        +10V dc bias
+        1000nplc/off   1.0mV  0.2mV.    oct 8. 0.0mV.
+        100nplc        0.2mV  0.2mV     oct 8. 0.3mV
+        10nplc         1.0mV  1.2mV     oct 8. 0.7mV
+        1nplc          20.5mV.  20.5mV  oct 8.  20mV
 
-        // 0V dc bias.
-        // 1000nplc/off   1.3mV 1.2mV.
-        // 100nplc        1.8mV
-        // 10nplc         4.8mV
-        // 1nplc          38mV. 37mV.
+        max4053
+        -10V dc bias
+        wait for DA.
+        1000nplc/off   3.8mV. 3.2mV    some DA from +10V test.  oct 8. 3.2mV.
+        100nplc        2.5mV                                  oct 8 4.4mV.   3.9mV.
+        10nplc         10mV. 10mV.                            oct 8 10mV.
+        1nplc          56mV.  55mV.  56mV                     oct 8 56mV.
+
+        max4053
+        0V dc bias.
+        1000nplc/off   1.3mV 1.2mV.                           oct 8. 1.6mV.
+        100nplc        1.8mV                                  oct 8. 1.6mV
+        10nplc         4.8mV                                  oct 8. 5.3mV.
+        1nplc          38mV. 37mV.                            oct 8. 39mV.
+
+        ------------
+        oct 8.
+        swap precharge polarity.
+        1nplc          dc bias.
+          0V            30mV.         32mV.  35mV.
+          +10V          -2.6V  wow.
+          -10V          +3.1V.
 
 
+        I think it might make sense to try to trim - it with a capacitor.
+
+        when the precharge phase is increased from 500us to 5ms.  sensitivity to dc-bias is reduced.
+
+        -10V bias.  1nplc.   38mV. 38mV.
+        0V   bias   1nplc    30mV. 30mV.
+        +10V bias   1nplc    25mV. 25mV.
+
+        spread == 38/25mV = 1.5x.
+
+        using 3p trimmer.   measures 2.5p with LCR meter.
+
+        bias.   accumulation.
+
+        -10V    39mV. 37mV.
+        0V      32mV. 33mV.
+        10V     26mV.  26mV
+
+        */
 
       }
 
@@ -1146,7 +1190,7 @@ static void update_console_cmd(app_t *app)
 
       else {
 
-            printf("unknown '%s'\n", cmd );
+            printf("unknown of bad argument '%s'\n", cmd );
 
       }
 
