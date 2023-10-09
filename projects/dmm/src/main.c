@@ -1175,9 +1175,9 @@ static void update_console_cmd(app_t *app)
 
         when the precharge phase is increased from 500us to 5ms.  sensitivity to dc-bias is reduced.
 
-        -10V bias.  1nplc.   38mV. 38mV.
-        0V   bias   1nplc    30mV. 30mV.
         +10V bias   1nplc    25mV. 25mV.
+        0V   bias   1nplc    30mV. 30mV.
+        -10V bias.  1nplc.   38mV. 38mV.
 
         spread == 38/25mV = 1.5x.
 
@@ -1185,19 +1185,110 @@ static void update_console_cmd(app_t *app)
 
         bias.   accumulation.
 
-        -10V    39mV. 37mV.
+        +10V     26mV.  26mV
         0V      32mV. 33mV.
-        10V     26mV.  26mV
+        -10V    39mV. 37mV.
 
         10p.
 
-        -10V   40mV.
+        +10V    26mV.
         0V.    32mV.  33mV..
-        10V    26mV.
+        -10V   40mV.
 
           ok. it's not working.
             needs to be sequenced in the state machine.
         */
+
+/*
+        ///////////////////
+         oct 9.
+
+         test15.
+         revert to baseline. 500us precharge.
+         max4053, 1nplc,
+         +10V   21mV,  21mV
+         0V     37mV.   37mV.
+         -10V.  55mV.   58mV.
+
+         I felt for-sure that tie-ing the bootin guard (currently floating) to gnd would do something, and change the loading.
+         since there is quite a bit of copper sufrace area and proximity to mux-out.
+         BOOTIN tied to gnd. also pin7 azmux. - no difference
+         +10V.   20mV
+         0V      39mV.  39mV.
+         -10V.   55mV   56mV.
+
+         remove cap C430. slowing pre-charge switching. - no difference.
+         +10V    20.5mV.
+         0V.     37mV.  39mV.
+         -10V.   56mV.
+
+         change lo source-resistor from 0R jumper. to 4.7k to match schematic.
+         resoldered 4.7k. resistor again. with heat gun instead of soldering iron. much better. after only couple minutes.
+          but no difference.
+         +10V  19mV. 19mV.
+         0V.   38mV.  38mV.
+         -10V. 58mV.
+
+         tie-off any unused azmux inputs (dci-lo, 4w-lo) to gnd. all azmux inputs are now defined.
+
+         +10V  20mV.
+         0V.   39mV.
+         -10V  57mV.
+
+         it is impressively consistent and stubbon.
+         although it is still open to attack the magnitude of the charge, which will also trim the difference.
+          --------
+          - change goto in state machine.
+          +10  19mV.
+          0    37mV.
+         -10V   57mV>
+          ------
+
+          As a test increasing max4053 supply rail, from 4V to 4.7V.  has a strong effect on charge injection
+
+          +10   31mV.  31mV.
+          0     51mV.  51mV.
+          -10V  71mV.  74mV
+
+          The datasheet is characterized down to 3V single-supply. and can operate as low as 2.7V.
+          If I can find some zeners, I'll try reducing the supply rail.
+          -------
+          With max4053 supply at 2.70V.
+
+          1nplc.
+          +10V.      -12mV.  -12mV.            note negative .
+          0V        7.5mV.  7mV.
+          -10V.      26mV   27mV.
+
+          leakage is still controlled.
+
+          +10V   1000nplc/off -0.4mV
+          -10V  1000nplc / off 3.8mV.
+
+          But it is still a 26 - -12 = 39mV. difference. So the charge is the same, it is just centred differently.
+
+          //////////////////////
+          // oct 10.
+          // test 15.
+
+          baseline max4053, 2.7V supply. 500us precharge. 1nplc
+          +10V        -12mV
+          0V          7.0mV.
+          -10V        26mV.
+
+
+          temproary test for curiosity - using exaggerated 5ms precharge duration to observe effect.
+          this has a strong effect which suggests something other than charge-injection from the floating 4053 as Kleinstein suggests.
+          +10V.       -0.5mV  -0.6mV
+          0V.         6.1mV   5.8mV.
+          -10V        13.8mV  13.2mV.
+
+
+          revert to 500us precharge.
+          +10V      -12mV.
+
+
+*/
 
       }
 
