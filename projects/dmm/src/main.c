@@ -456,9 +456,9 @@ static void update_soft_500ms(app_t *app)
   if(ret != app->led_state) {
     // comms no good
     char buf[ 100] ;
-      printf("no comms, wait for ice40 v %s\n",  format_bits(buf, 32, ret ));
-      app->comms_ok = false;
-      // return
+    printf("no comms, wait for ice40 v %s\n",  format_bits(buf, 32, ret ));
+    app->comms_ok = false;
+    // return
   } else {
     // comms ok
     if( app->comms_ok == false) {
