@@ -452,13 +452,22 @@ static void update_soft_500ms(app_t *app)
   // blink fpga led. will only work if mode. 1.
   spi_ice40_reg_write32( app->spi, REG_LED, app->led_state );
   uint32_t ret = spi_ice40_reg_read32( app->spi, REG_LED);
+
   if(ret != app->led_state) {
+    // comms no good
     char buf[ 100] ;
-
       printf("no comms, wait for ice40 v %s\n",  format_bits(buf, 32, ret ));
+      app->comms_ok = false;
       // return
+  } else {
+    // comms ok
+    if( app->comms_ok == false) {
+      // comms have been restored
+      printf("comms ok\n");
+      printf("> ");
+      app->comms_ok = true;
+    }
   }
-
 
 
 
@@ -1180,6 +1189,14 @@ static void update_console_cmd(app_t *app)
         0V      32mV. 33mV.
         10V     26mV.  26mV
 
+        10p.
+
+        -10V   40mV.
+        0V.    32mV.  33mV..
+        10V    26mV.
+
+          ok. it's not working.
+            needs to be sequenced in the state machine.
         */
 
       }

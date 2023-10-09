@@ -43,6 +43,7 @@ typedef struct app_t
     
   unsigned test_in_progress; // enum. for test type.
 
+  bool comms_ok;
   // we don't/shouldn't even need  to have the current state recorded here.
   // should not have more than one authoritative source on 4094 state.
 
