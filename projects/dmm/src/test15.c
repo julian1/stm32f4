@@ -22,7 +22,6 @@
 
 
 
-// we need the initial modes. defines.
 
 
 bool test15( app_t *app , const char *cmd,  Mode *mode_initial)
