@@ -229,7 +229,7 @@ static Mode mode_dcv_az ;
 */
 
 
-static void init_modes( void )
+static void modes_init( void )
 {
   /*
     instead of having individual registers. we have individual elemental mode states , that exist.
@@ -1344,7 +1344,7 @@ int main(void)
 
   assert( (1<<3|(6-1)) == 0b1101 );
 
-  init_modes();
+  modes_init();
 
   // go to main loop
   loop(&app);
