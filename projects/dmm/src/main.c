@@ -1278,7 +1278,7 @@ static void update_console_cmd(app_t *app)
 
 
           temproary test for curiosity - using exaggerated 5ms precharge duration to observe effect.
-          this has a strong effect which suggests something other than charge-injection from the floating 4053 as Kleinstein suggests.
+          precharge duration has strong influence, which suggests something apart from the floating 4053 charge-injection, as Kleinstein notes.
           +10V.       -0.5mV  -0.6mV
           0V.         6.1mV   5.8mV.
           -10V        13.8mV  13.2mV.
@@ -1286,6 +1286,27 @@ static void update_console_cmd(app_t *app)
 
           revert to 500us precharge.
           +10V      -12mV.
+          etc.
+
+          ------------------
+          lift azmux out pin - so not
+
+          leakage 1000nplc/off
+          +10V.  -0.2mV.
+          0V.     1.7mV. 1.0mV. 0.1mV.  ??
+          -10V    2.2mV. 2.1mV.
+
+            ---------------------
+          1nplc
+          +10V   2.6mV. 2.6mV      Wow. GOOD.
+          0V.    5.0mV. 5.0mV.
+          -10V.  8.5mV. 8.4mV.
+
+          ---------
+          repeat.
+          +10V  2.2mV.
+          0     4.7mV.
+          -10.  8.9mV.   9.2mV
 
 
 */

@@ -23,10 +23,10 @@
 
 
 #define MODE_LO           0     // all bits held lo
-#define MODE_HI           1     // all bits held hi 
+#define MODE_HI           1     // all bits held hi
 #define MODE_PATTERN      2     // put modulation pattern on all bits
 #define MODE_DIRECT       3     // support direct writing via direct register
-#define MODE_AZ           4     // simple az. 
+#define MODE_AZ           4     // simple az.
 
 /*
 // default led blink, and monitor test pattern.
@@ -42,7 +42,20 @@
 #define REG_CLK_SAMPLE_DURATION 16
 
 
+/*
+  may be better to define the values for the specific muxes.
 
+  #define AZMUX_LO      S1
+  #define AZMUX_4WLO    S2
+
+  #defien HIMUX_DCV_SOURCE   S3.
+
+
+  etc.
+
+  to make it easy to reassign pins.
+  if have to flip ic, and then re-route traces.
+*/
 // 1of8 muxes.
 #define SOFF        0
 #define S1          ((1<<3)|(1-1))
