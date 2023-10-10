@@ -472,8 +472,8 @@ static void update_console_cmd(app_t *app)
       // printf("cmd whoot is '%s'\n", cmd);
 
 
-      uint32_t u0, u1;
-      int32_t i0;
+      uint32_t u0;// , u1;
+      // int32_t i0;
 
       ////////////////////
 
@@ -567,6 +567,8 @@ static void update_console_cmd(app_t *app)
         // test leakage by going to a voltage, holding, then switchoff mux and observe
         // we can have a test and pass an argument if really want. but probably better to have self-contained. to automate
 
+        // TODO refactor these to take an argument for the voltage.
+
         printf("charge accumulation cap\n");
         app->test_in_progress = 0;
         Mode j = mode_initial;
@@ -632,6 +634,7 @@ static void update_console_cmd(app_t *app)
       else if( strcmp(cmd, "test08") == 0 || strcmp(cmd, "test09") == 0 || strcmp(cmd, "test10") == 0) {
 
         // test leakage by reset and holding at 0V. while putting a voltage on the cri mux.
+        // TODO refactor these to take an argument for the voltage.
 
         printf("reset accumulation cap to 0V/agnd\n");
         app->test_in_progress = 0;
@@ -699,8 +702,10 @@ static void update_console_cmd(app_t *app)
 
 
 
-
+#if 0
       else if( strcmp(cmd, "test11") == 0 || strcmp(cmd, "test12") == 0 || strcmp(cmd, "test13") == 0) {
+
+        // TODO - probably deprecate.
 
         printf("test normal AZ modulation at 10V,-10V,0V/agnd\n");
         app->test_in_progress = 0;
@@ -759,6 +764,7 @@ static void update_console_cmd(app_t *app)
         // spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, CLK_FREQ * 200e-3 );    // 10nplc 200ms.
 
       }
+#endif
 
 
     /*
