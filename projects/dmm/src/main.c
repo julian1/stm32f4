@@ -33,17 +33,15 @@
 #include <libopencm3/cm3/scb.h>  // reset()
 
 
-#include <stdio.h>    // printf
+#include <stdio.h>    // printf, scanf
 #include <string.h>   // strcmp, memset
 
 
 // library code
 #include "usart.h"
 #include "assert.h"
-// #include "cbuffer.h"
-// #include "cstring.h"
 #include "streams.h"
-#include "util.h"
+#include "util.h"   // msleep()
 
 
 #include "spi-port.h"
@@ -62,7 +60,9 @@
 // app structure
 #include "app.h"
 
-// #include "dac8734.h"
+// modes of operation.
+#include "mode.h"
+
 #include "4094.h"
 
 
@@ -122,130 +122,6 @@ static void state_format ( uint8_t *state, size_t n)
 }
 
 
-/*
-  EXTR. we can do the three step sequence of b2b fets in two steps. relying on faster speed
-
-  1. turn off b2b fets.   turn on relay.   relay slower.
-  2. turn off latch to relay. and turn on b2b fets.         <- so this is more than a mask.
-  -----------------
-
-  OR.    have two bits. and the interpreter.   will manage
-
-  Eg. b2b-fets stage1. b2b-fets stage2.   - and encode... issue is that noo
-
-  --------
-  - So we don't duplicate everything.  just if a relay has a different state.
-  - OR we just encode all states - as two states.  transition
-  - eg. just double  the bitvector.
-  ---
-  - then we can encode.   - and don't need messy mask abstractions.
-
-*/
-
-#define MODE_ARR_N    3   // mode array in bytes.
-
-
-// REMEMBER this is 4094.   not fpga state.
-
-typedef struct X
-{
-  // U406 4094.
-  uint8_t U408_SW_CTL : 1;      // perhaps change to lower case....   eg. u408_sw
-  uint8_t U406_UNUSED : 1;
-  uint8_t K406_CTL    : 2;        // Be better to encode as 2 bits.   can then assign 0b01 or 0b10 etc.
-  uint8_t U406_UNUSED_2 : 4;
-
-  // U401 4094
-  uint8_t U401_UNUSED : 8;    // controls U404.
-
-
-  // U403
-  uint8_t U403_UNUSED : 6;
-  uint8_t K405_CTL    : 2;
-
-
-  // U506
-  uint8_t U506_UNUSED : 8;
-
-  // jumpered.
-  // 600
-  // 700
-
-  // U1004  - 5th bit.
-  uint8_t U1003   : 4;    // adg1208  4 bits.  EN last. is inconsistent.  with chip pin-order. and 500, 600, 700.  good keep.....
-  uint8_t U1006   : 4;    // adg1208  4 bits.
-
-
-} X;
-
-
-
-// mode_t
-typedef struct Mode
-{
-  // put AZ mux here. also.
-/*
-    Actually can even put a mode.
-    here .
-    and then switch what gets written.
-*/
-
-  X     first;
-  X     second;
-
-} Mode;
-
-
-//////////
-
-/*
-      SPI_INTERUPT_OUT,
-      MEAS_COMPLETE_CTL,
-      CMPR_LATCH_CTL,
-      adcmux,                  // 19 bits.
-
-      monitor,                // 15.    bit 14 from 0.. + 8= j    bit 10,    1024.
-      LED0,                   // bit 13.  8192.
-      SIG_PC_SW_CTL,
-      himux2,              // remove the himux2  12.
-      himux,
-      azmux
-
-  so put in direct mode. then try to bllink the led.
-  so try to blink
-  assert( sizeof(F) == 4);
-*/
-
-//  __attribute__((__packed__))
-
-typedef struct  __attribute__((__packed__))
-F
-{
-  /* this is direct mode state.  TODO rename
-      in adc mode,   we would have 2 or four sets of mux registers for the values to switch.
-      and the other lines would be given to the fpga to run
-      ----
-      and this state would be written in the main mode state.
-      -------
-  */
-
-  uint8_t azmux   : 4;
-  uint8_t himux   : 4;
-  uint8_t himux2  : 4;     // 12
-  uint8_t sig_pc_sw_ctl : 1;
-  uint8_t led0    : 1;       // 14   2 bytes.
-
-  uint8_t monitor : 8;    // 22  // this bit vector overflows - so gets aligned on a new byte boundary. which is not what we want...
-
-  uint8_t adcmux : 4;     // 26
-  uint8_t cmpr_latch_ctl : 1;
-  uint8_t meas_complete_ctl : 1;
-  uint8_t spi_interupt_ctl : 1;     // 29bits
-
-  uint8_t dummy   : 3;
-} F;
-
-
 
 
 
@@ -270,11 +146,75 @@ F
 // is wrong. we have to switch all the relays to a defined state
 
 
+
+
+
+
+
+
+
+
+
+
+
+////////////////////
+
+#define CLK_FREQ        20000000
+
+uint32_t nplc_to_aper_n( double nplc )
+{
+  double period = nplc / 50.0 ;  // seonds
+  uint32_t aper = period * CLK_FREQ;
+  return aper;
+}
+
+
+double aper_n_to_nplc( uint32_t aper_n)
+{
+  // uint32_t aper  = params->clk_count_aper_n ;
+  double period   = aper_n / (double ) CLK_FREQ;
+  double nplc     = period / (1.0 / 50);
+  return nplc;
+}
+
+
+double aper_n_to_period( uint32_t aper_n)
+{
+  double period   = aper_n / (double ) CLK_FREQ;
+  return period;
+}
+
+
+
+
+
+/*
+  EXTR.
+    might be easier to pass these around inside the app structure.
+
+    Yes.
+    rather than globals.
+    should be passed. directly. or else taken from a context.
+
+    commonly used vectors.
+  ----------
+
+  NO . these are vectors that should be constructed as needed'.
+
+
+
+*/
+
+////////////////////
+
+
+// actually modes. just about deserve own header.
+
 // Mode mode_zero;     //  useful to work out which pin is flipping .
 // change name mode_initial. to mode-off/ or disconnect
-Mode mode_initial;      // all inputs turned off.
+static Mode mode_initial;      // all inputs turned off.
 
-Mode mode_dcv_az ;
+static Mode mode_dcv_az ;
 
 /* IMPORTANT the precharge switch relay - is held constant/closed for the mode.
   but we cycle one of the muxes - to read gnd/ to reset the charge on the cap.
@@ -282,6 +222,11 @@ Mode mode_dcv_az ;
 */
 
 // Mode mode_test_accumulation;
+
+/*
+  change name modes_init.
+
+*/
 
 
 static void init_modes( void )
@@ -339,7 +284,7 @@ static void init_modes( void )
 // flashing of led... is writing ????
 
 
-static void do_4094_transition( unsigned spi, Mode *mode, uint32_t *system_millis)
+void do_4094_transition( unsigned spi, Mode *mode, uint32_t *system_millis)
 {
 
   // change name   do_state_update_4094 _4094_state_update.
@@ -498,32 +443,6 @@ static void update_soft_500ms(app_t *app)
 }
 
 
-////////////////////
-
-#define CLK_FREQ        20000000
-
-static uint32_t nplc_to_aper_n( double nplc )
-{
-  double period = nplc / 50.0 ;  // seonds
-  uint32_t aper = period * CLK_FREQ;
-  return aper;
-}
-
-
-static double aper_n_to_nplc( uint32_t aper_n)
-{
-  // uint32_t aper  = params->clk_count_aper_n ;
-  double period   = aper_n / (double ) CLK_FREQ;
-  double nplc     = period / (1.0 / 50);
-  return nplc;
-}
-
-
-static double aper_n_to_period( uint32_t aper_n)
-{
-  double period   = aper_n / (double ) CLK_FREQ;
-  return period;
-}
 
 
 
@@ -1049,269 +968,11 @@ static void update_console_cmd(app_t *app)
       }
 
 
-    else if( sscanf(cmd, "test15 %ld %lu", &i0, &u1 ) == 2) {
-
-        /*
-        // test charge-injection by charging to a bias voltage, holding, then entering az mode.
-        // with az-mux also switching .
-        // first argument - bias voltage.  10,-10,0
-        // second argument is nplc.
-        // note t
-
-        */
-        printf("test leakage and charge-injection from switching pre-charge switch at different biases\n");
-        app->test_in_progress = 0;
-        Mode j = mode_initial;
-
-        if(i0 == 10) {
-          printf("with +10V\n");
-          j.second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
-          j.second.U1006  = S1 ;       // s1.   follow  .   dcv-mux2
-        }
-        else if(i0 == -10) {
-          printf("with -10V\n");
-          j.second.U1003  = S2 ;       // s2.  -10V.
-          j.second.U1006  = S1 ;       // s1.   follow  .   dcv-mux2
-        }
-        else if(i0 == 0) {
-          printf("with 0V\n");
-          j.second.U1003 = S3;          // s3 == agnd
-          j.second.U1006 = S6;          // s6 = agnd  .  TODO change to S7 . populate R1001.c0ww
-        }
-        else assert(0);
-
-        // turn on accumulation relay     RON ROFF.  or RL1 ?  K606_ON
-        j.first .K406_CTL  = 0b01;
-        j.second.K406_CTL  = 0b00;    // don't need this....  it is 0 by default
-
-        do_4094_transition( app->spi, &j,  &app->system_millis );
-
-        /////////////////
-        // make sure we are in direct mode.
-        mux_ice40(app->spi);
-        spi_ice40_reg_write32(app->spi, REG_MODE, MODE_DIRECT );
-
-        // now control the hi mux.
-        F  f;
-        memset(&f, 0, sizeof(f));
-        f.himux2 = S1 ;    // s1 put dc-source on himux2 output
-        f.himux  = S2 ;    // s2 reflect himux2 on himux output
-        f.sig_pc_sw_ctl  = 1;  // turn on. precharge.  on. to route signal to az mux... doesn't matter.
-        spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
-
-        ////////////////////////////
-        // so charge cap to the dcv-source
-        // and let settle 10sec. for DA....
-        printf("sleep 10s\n");  // having a yield would be quite nice here.
-        msleep(10 * 1000,  &app->system_millis);
-
-        /////////////////
-        // now change to az mode.
-        printf("changing to az mode.\n");  // having a yield would be quite nice here.
-        // setup az mode
-        mux_ice40(app->spi);
-        spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
-
-        //////////////
-        // use direct register - for the lo sample, in azmode.
-
-
-
-        memset(&f, 0, sizeof(f));
-        f.himux2 = SOFF ;
-        f.himux  = SOFF ;
-        f.azmux  = S6 ;    // s6 == normal LO for DCV, ohms.
-        spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
-
-        // set the hi for az.
-        f.azmux  = S1 ;         // s1 == PC_OUT (either SIG or BOOT).
-        spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
-
-
-        assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
-
-         uint32_t aperture = nplc_to_aper_n( u1 );
-
-        printf("aperture %lu\n",   aperture );
-        printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture ));
-        printf("period   %.2lfs\n", aper_n_to_period( aperture ));
-
-        spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, aperture );
-
-        /*
-        oct 6, 2023.
-        max4053
-        +10V dc bias
-        1000nplc/off   1.0mV  0.2mV.    oct 8. 0.0mV.
-        100nplc        0.2mV  0.2mV     oct 8. 0.3mV
-        10nplc         1.0mV  1.2mV     oct 8. 0.7mV
-        1nplc          20.5mV.  20.5mV  oct 8.  20mV
-
-        max4053
-        -10V dc bias
-        wait for DA.
-        1000nplc/off   3.8mV. 3.2mV    some DA from +10V test.  oct 8. 3.2mV.
-        100nplc        2.5mV                                  oct 8 4.4mV.   3.9mV.
-        10nplc         10mV. 10mV.                            oct 8 10mV.
-        1nplc          56mV.  55mV.  56mV                     oct 8 56mV.
-
-        max4053
-        0V dc bias.
-        1000nplc/off   1.3mV 1.2mV.                           oct 8. 1.6mV.
-        100nplc        1.8mV                                  oct 8. 1.6mV
-        10nplc         4.8mV                                  oct 8. 5.3mV.
-        1nplc          38mV. 37mV.                            oct 8. 39mV.
-
-        ------------
-        oct 8.
-        swap precharge polarity.
-        1nplc          dc bias.
-          0V            30mV.         32mV.  35mV.
-          +10V          -2.6V  wow.
-          -10V          +3.1V.
-
-
-        I think it might make sense to try to trim - it with a capacitor.
-
-        when the precharge phase is increased from 500us to 5ms.  sensitivity to dc-bias is reduced.
-
-        +10V bias   1nplc    25mV. 25mV.
-        0V   bias   1nplc    30mV. 30mV.
-        -10V bias.  1nplc.   38mV. 38mV.
-
-        spread == 38/25mV = 1.5x.
-
-        using 3p trimmer.   measures 2.5p with LCR meter.
-
-        bias.   accumulation.
-
-        +10V     26mV.  26mV
-        0V      32mV. 33mV.
-        -10V    39mV. 37mV.
-
-        10p.
-
-        +10V    26mV.
-        0V.    32mV.  33mV..
-        -10V   40mV.
-
-          ok. it's not working.
-            needs to be sequenced in the state machine.
-        */
-
-/*
-        ///////////////////
-         oct 9.
-
-         test15.
-         revert to baseline. 500us precharge.
-         max4053, 1nplc,
-         +10V   21mV,  21mV
-         0V     37mV.   37mV.
-         -10V.  55mV.   58mV.
-
-         I felt for-sure that tie-ing the bootin guard (currently floating) to gnd would do something, and change the loading.
-         since there is quite a bit of copper sufrace area and proximity to mux-out.
-         BOOTIN tied to gnd. also pin7 azmux. - no difference
-         +10V.   20mV
-         0V      39mV.  39mV.
-         -10V.   55mV   56mV.
-
-         remove cap C430. slowing pre-charge switching. - no difference.
-         +10V    20.5mV.
-         0V.     37mV.  39mV.
-         -10V.   56mV.
-
-         change lo source-resistor from 0R jumper. to 4.7k to match schematic.
-         resoldered 4.7k. resistor again. with heat gun instead of soldering iron. much better. after only couple minutes.
-          but no difference.
-         +10V  19mV. 19mV.
-         0V.   38mV.  38mV.
-         -10V. 58mV.
-
-         tie-off any unused azmux inputs (dci-lo, 4w-lo) to gnd. all azmux inputs are now defined.
-
-         +10V  20mV.
-         0V.   39mV.
-         -10V  57mV.
-
-         it is impressively consistent and stubbon.
-         although it is still open to attack the magnitude of the charge, which will also trim the difference.
-          --------
-          - change goto in state machine.
-          +10  19mV.
-          0    37mV.
-         -10V   57mV>
-          ------
-
-          As a test increasing max4053 supply rail, from 4V to 4.7V.  has a strong effect on charge injection
-
-          +10   31mV.  31mV.
-          0     51mV.  51mV.
-          -10V  71mV.  74mV
-
-          The datasheet is characterized down to 3V single-supply. and can operate as low as 2.7V.
-          If I can find some zeners, I'll try reducing the supply rail.
-          -------
-          With max4053 supply at 2.70V.
-
-          1nplc.
-          +10V.      -12mV.  -12mV.            note negative .
-          0V        7.5mV.  7mV.
-          -10V.      26mV   27mV.
-
-          leakage is still controlled.
-
-          +10V   1000nplc/off -0.4mV
-          -10V  1000nplc / off 3.8mV.
-
-          But it is still a 26 - -12 = 39mV. difference. So the charge is the same, it is just centred differently.
-
-          //////////////////////
-          // oct 10.
-          // test 15.
-
-          baseline max4053, 2.7V supply. 500us precharge. 1nplc
-          +10V        -12mV
-          0V          7.0mV.
-          -10V        26mV.
-
-
-          temproary test for curiosity - using exaggerated 5ms precharge duration to observe effect.
-          precharge duration has strong influence, which suggests something apart from the floating 4053 charge-injection, as Kleinstein notes.
-          +10V.       -0.5mV  -0.6mV
-          0V.         6.1mV   5.8mV.
-          -10V        13.8mV  13.2mV.
-
-
-          revert to 500us precharge.
-          +10V      -12mV.
-          etc.
-
-          ------------------
-          lift azmux out pin - so not
-
-          leakage 1000nplc/off
-          +10V.  -0.2mV.
-          0V.     1.7mV. 1.0mV. 0.1mV.  ??
-          -10V    2.2mV. 2.1mV.
-
-            ---------------------
-          1nplc
-          +10V   2.6mV. 2.6mV      Wow. GOOD.
-          0V.    5.0mV. 5.0mV.
-          -10V.  8.5mV. 8.4mV.
-
-          ---------
-          repeat.
-          +10V  2.2mV.
-          0     4.7mV.
-          -10.  8.9mV.   9.2mV
-
-
-*/
-
+      else if( test15( app, cmd, &mode_initial   ))
+      {
+        // test15 done
       }
+
 
       else if( strcmp( cmd , "") == 0) {
 
@@ -1352,8 +1013,11 @@ static void loop(app_t *app)
 */
 
   /*
-    do start up. eg. check rails
-    initial state - do once.
+    at initial start up. eg. check rails
+    initial state - should do once.
+    ----
+
+    and after loosing comms.
 
   */
   printf("writing initial 4094 state\n");
