@@ -1,18 +1,18 @@
 
 
-#include <stdio.h>    // printf, scanf
-#include <string.h>   // strcmp, memset
+#include <stdio.h>      // printf, scanf
+#include <string.h>     // strcmp, memset
 #include <assert.h>
 
 // lib
-#include "util.h"   // msleep() 
+#include "util.h"       // msleep()
 
 
 
 // local
 #include "reg.h"
-#include "mux.h"  // mux_ice40()
-#include "spi-ice40.h" // spi_ice40_reg_write32()
+#include "mux.h"        // mux_ice40()
+#include "spi-ice40.h"  // spi_ice40_reg_write32()
 
 
 #include "app.h"
@@ -293,18 +293,69 @@ bool test15( app_t *app , const char *cmd,  Mode *mode_initial)
           0     4.7mV.
           -10.  8.9mV.   9.2mV
 
-  
-          repeat - before refactor.  oct 11. 
+
+          repeat - before refactor.  oct 11.
           with only 1minute before settle.
           +10V   2.7mV.
           0V     5.1mV.
           -10V   8.1mV.
 
 
+
+        /////////////////////////////
+        // oct 11.
+
           after code refactor. moving test15() out of main.c
           +10V  2.8mV.
           0V    4.7mV.
           -10V   7.9mV.
+
+          after adding amplifier. but not connected.
+          +10V   2.1V.
+
+
+          ok. try connecting using air wire.
+          disconnect
+          +10  1.8mV. -> 2.1mV. -> 2.5mV .  over 5 mintes. after soldering pin. ok.
+          need to test amp again.
+          ---------------
+
+
+      amplifier populated in a simple configuration - jfe2140.  5V6 zener.  tle2071 op.
+
+      An air-wire connects mux-out to the amplifier input.
+      The board is *not* well cleaned due to a few bodge wires that limit access.
+      But this also provides a good test of guard effectiveness.
+
+      - with bootin tied to gnd.
+
+      leakage 1000nplc/off
+        +10V    -0.7mV. -0.8mV -0.8mV.        all at once. when there is a switch.
+        0V      +1.1mV +1.1mV
+        -10V     +5.4mV +5.3mV
+
+      charge 1nplc
+        +10V    -7.6mV. -9.2mV -9.3mV.  -8.9mV
+        0V     +6.9mV +7.2V
+        -10V    +22mV +23mV.
+
+
+      - identical except bootin driver op added.
+      (this copies the voltage on the copper fill under the lifted mux-out pin, and surrounding the amp input air-wire connection, as well as other sensitive amplifier pins)
+
+      leakage. 1000nplc/off
+      +10V    +0.7mV. +0.7mV.
+      0V      2.2mV.  2.1mV
+      -10V    5.2mV.  5.3mV
+
+      charge 1nplc.
+      +10V    -0.9mV  -1.0mV.
+      0V      4.9mV  4.8mV. 4.8mV.
+      -10V    +11.2mV  11.3mV
+
+      So it looks like bootin is quite effective.
+
+
 */
 
       return 1;
