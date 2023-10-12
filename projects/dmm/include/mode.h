@@ -142,6 +142,6 @@ F
   uint8_t spi_interupt_ctl : 1;     // 29bits
 
   uint8_t dummy   : 3;
-} F;
+} F;    // change name REG_DIRECT_MODE ????
 
 

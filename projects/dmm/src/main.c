@@ -784,6 +784,11 @@ static void update_console_cmd(app_t *app)
       {
         // test15 done
       }
+      else if( test16( app, cmd, &mode_initial   ))
+      {
+        // test15 done
+      }
+
 
 
       else if( strcmp( cmd , "") == 0) {
@@ -792,7 +797,7 @@ static void update_console_cmd(app_t *app)
 
       else {
 
-            printf("unknown of bad argument '%s'\n", cmd );
+            printf("unknown cmd, or bad argument '%s'\n", cmd );
 
       }
 

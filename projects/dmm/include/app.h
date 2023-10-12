@@ -64,9 +64,11 @@ double aper_n_to_nplc( uint32_t aper_n);
 double aper_n_to_period( uint32_t aper_n);
 
 
+// TODO make mode_initial const.
 bool test15( app_t *app , const char *cmd,  Mode *mode_initial);    // not sure if good to mode_initial here,
 bool test14( app_t *app , const char *cmd,  Mode *mode_initial);    // not sure if good to pass here,
 
+bool test16( app_t *app , const char *cmd,  const Mode *mode_initial);    // not sure if good to pass here,
 
 
 
