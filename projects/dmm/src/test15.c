@@ -355,6 +355,34 @@ bool test15( app_t *app , const char *cmd,  Mode *mode_initial)
 
       So it looks like bootin is quite effective.
 
+      ////////////////////////
+      // oct 12.
+      // want to repeat the test.
+      // 4-5mins between.
+
+      leakage. 1000nplc/off
+      +10V    +0.0mV.  -0.1mV. -0.5mV.
+      0V.      0.0V  0.6mV
+      -10V.    2.5mV  1.2mV. 2.7mV
+
+      charge 1nplc
+      +10V    -1.3mV  -1.3mV.
+      0V.      4.4mV  4.2mV.
+      -10V    +10.6mV  10.5mV
+
+      so leakage is trimmed. nice.
+
+      clean board. about 5-10mins after - leakage is hi - when led hi - due to leakage mux-out or amplifier.
+
+      leakage
+      +10V    -0.1mV.
+      0V       1.2  1.1mV.
+      -10V     3.6mV  3.4mV
+
+      charge 1nplc
+      +10V     -2.0mV -2.3mV.
+      0         +4.5mV.  4.4mV
+      -10V      +11.9mV. 11.4mV.
 
 */
 
