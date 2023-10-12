@@ -65,6 +65,7 @@
 #define S3          ((1<<3)|(3-1))
 #define S4          ((1<<3)|(4-1))
 #define S6          ((1<<3)|(6-1))
+#define S7          ((1<<3)|(7-1))
 
 
 // could also be a macro #define S(1) == ...

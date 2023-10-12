@@ -71,6 +71,7 @@ bool test14( app_t *app , const char *cmd,  Mode *mode_initial);    // not sure 
 bool test16( app_t *app , const char *cmd,  const Mode *mode_initial);    // not sure if good to pass here,
 
 
+bool app_extra_functions( app_t *app , const char *cmd, Mode *mode);
 
 
 

@@ -801,6 +801,12 @@ static void update_console_cmd(app_t *app)
         // test15 done
       }
 
+      else if( app_extra_functions( app, cmd, &mode_initial   ))
+      {
+        // test15 done
+      }
+
+
 
 
       else if( strcmp( cmd , "") == 0) {
