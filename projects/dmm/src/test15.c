@@ -20,10 +20,11 @@
 // modes of operation.
 #include "mode.h"
 
+/
 
 
 
-
+// prefix app_test15()
 bool test15( app_t *app , const char *cmd,  Mode *mode_initial)
 {
   assert(app);
@@ -383,6 +384,20 @@ bool test15( app_t *app , const char *cmd,  Mode *mode_initial)
       +10V     -2.0mV -2.3mV.
       0         +4.5mV.  4.4mV
       -10V      +11.9mV. 11.4mV.
+
+      /////////
+      // amplifier with mux populated, using G=1. feedback. 
+      // quieck test again. with amplifier working at G=1. concerned screwed up precharge duration.
+      // seems. ok.
+  
+      leakage
+      +10V.    0mV
+      -10V     3.3mV  2.5mA.
+
+      charge 1nplc
+      +10V     -0.4mV.  -0.4mV
+      0V.      +4.8mV. +4.9mV.
+      -10V      +10.2mV.
 
 */
 
