@@ -208,12 +208,24 @@ double aper_n_to_period( uint32_t aper_n)
 ////////////////////
 
 
+/*
+  - perhaps use static initializer for these.
+  - then declare const.
+
+*/
+
 // actually modes. just about deserve own header.
 
 // Mode mode_zero;     //  useful to work out which pin is flipping .
 // change name mode_initial. to mode-off/ or disconnect
 static Mode mode_initial;      // all inputs turned off.
 
+
+/*
+  Not sure if need.
+
+  just carry a single current- state around.  for use with some tests.
+*/
 static Mode mode_dcv_az ;
 
 /* IMPORTANT the precharge switch relay - is held constant/closed for the mode.
