@@ -24,7 +24,7 @@
 
 
 
-#define MODE_LO           0     // all bits held lo
+#define MODE_LO           0     // all bits held lo. but blink led. default.
 #define MODE_HI           1     // all bits held hi
 #define MODE_PATTERN      2     // put modulation pattern on all bits
 #define MODE_DIRECT       3     // support direct writing via direct register

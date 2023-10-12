@@ -81,21 +81,84 @@ bool app_extra_functions( app_t *app , const char *cmd, Mode *mode)
 
 
 
-  else if(strcmp(cmd, "dcv10") == 0) {
 
-    printf("whoot dcv10\n");  // having a yield would be quite nice here.
+  else if(strcmp(cmd, "reset2") == 0) {
+
+    // think we should be derivinig from initial.
+    // *mode = mode_initial;  etc.
+
+    // ok. this is working.
+    printf("reset.\n");
 
     // set the amp gain.
     mode->first.U506  =  W1;
     mode->second.U506 =  W1;
-    mode->first. K405_CTL  = 0b10;     // dcv-input relay k405 switch on
+
+    mode->first. K405_CTL  = 0b01;     // dcv-input relay k405 switch on
+    mode->second. K405_CTL = 0b00;
+
+      // need to open the relay also.
+    do_4094_transition( app->spi, mode,  &app->system_millis );
+
+
+    mux_ice40(app->spi);
+    // set mode.
+    spi_ice40_reg_write32(app->spi, REG_MODE, MODE_LO ); // default.
+    return 1;
+  }
+
+
+  // issue is the accumulation relay on? accidently?
+
+  /*
+      a range is a type of mode.
+      dcv10,dcv1,dcv01 are all the same except amplifier gain. so can consolidate
+  */
+
+  else if(strcmp(cmd, "dcv10") == 0
+      || strcmp(cmd, "dcv1") == 0
+      || strcmp(cmd, "dcv01") == 0
+      ) {
+
+    // think we should be derivinig from initial.
+    // *mode = mode_initial;  etc.
+
+    // set the amp gain.
+    if( strcmp(cmd, "dcv10") == 0) {
+        printf("whoot dcv10\n");
+        mode->first. U506 =  W1;    // amp feedback should never be turned off.
+        mode->second.U506 =  W1;
+    }
+    else if( strcmp(cmd, "dcv1") == 0) {
+        printf("whoot dcv1\n");
+        mode->first. U506 =  W2;  // amp feedback should never be turned off.
+        mode->second.U506 =  W2;
+    }
+    else if( strcmp(cmd, "dcv01") == 0) {   // 100mV range
+        printf("whoot dcv01\n");
+        mode->first. U506 =  W3;  // amp feedback should never be turned off.
+        mode->second.U506 =  W3;
+    }
+
+
+    // EXTR. - it would be better to derive the state to use from initial .
+
+    // close/ turn on K405 relay.
+    mode->first.  K405_CTL  = 0b10;
+    mode->second. K405_CTL  = 0b00;
+
+    // accumulation relay off
+    mode->first .K406_CTL  = 0b10;
+    mode->second.K406_CTL  = 0b00;
+
+
                                       // need to populate and arm the fets also.
 
       // need to open the relay also.
     do_4094_transition( app->spi, mode,  &app->system_millis );
     //
     mux_ice40(app->spi);
-    // set azmux
+    // set mmode az azmux
     spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
     // set params.
     F  f;
@@ -107,36 +170,24 @@ bool app_extra_functions( app_t *app , const char *cmd, Mode *mode)
     // set the hi signal az.
     f.azmux  = S1;  // pc-out.
     spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
-    return 1;
-  }
 
 
-  else if(strcmp(cmd, "dcv1") == 0) {
+    // EXTR. important. can query/read/check fpga nplc state - and check if already set. if not then set to default for range.
+    uint32_t ret = spi_ice40_reg_read32( app->spi, REG_CLK_SAMPLE_DURATION);
+    if(ret == 0) {
 
-    printf("whoot dcv10\n");  // having a yield would be quite nice here.
+      uint32_t nplc = 1;
+      printf("aperture not set, using %lu 1nplc.u\n",  nplc );
 
-    // amp gain = 10x.
-    mode->first.U506  =  W2;
-    mode->second.U506 =  W2;
-    mode->first. K405_CTL  = 0b10;     // dcv-input relay k405 switch on
-                                      // need to populate and arm the fets also.
+      uint32_t aperture = nplc_to_aper_n( nplc );    // 1nplc default.
 
-      // need to open the relay also.
-    do_4094_transition( app->spi, mode,  &app->system_millis );
-    //
-    mux_ice40(app->spi);
-    // set azmux
-    spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
-    // set params.
-    F  f;
-    memset(&f, 0, sizeof(f));
-    f.himux2 = S4 ;    // gnd to reduce leakage on himux
-    f.himux  = S7 ;    // dcv-in
-    f.azmux  = S6;    // lo
-    spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
-    // set the hi signal az.
-    f.azmux  = S1;  // pc-out.
-    spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
+      // write duration. should move.
+      spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, aperture );
+    }
+
+
+
+
     return 1;
   }
 
@@ -145,6 +196,7 @@ bool app_extra_functions( app_t *app , const char *cmd, Mode *mode)
 
 
 
+  // have similar ranges/modes.
 
 
   else if(strcmp(cmd, "dcv1") == 0) {   // 1V range
