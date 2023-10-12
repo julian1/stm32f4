@@ -493,7 +493,7 @@ static void update_console_cmd(app_t *app)
 
       ////////////////////
 
-
+/*
       if( strcmp(cmd, "reset") == 0) {
         printf("reset initial state\n");
 
@@ -507,9 +507,9 @@ static void update_console_cmd(app_t *app)
         app->test_in_progress = 0;
 
       }
+*/
 
-
-      else if(strcmp(cmd, "reset mcu") == 0) {
+      if(strcmp(cmd, "reset mcu") == 0) {
         // reset stm32f4
         // scb_reset_core()
         scb_reset_system();

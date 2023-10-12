@@ -82,7 +82,7 @@ bool app_extra_functions( app_t *app , const char *cmd, Mode *mode)
 
 
 
-  else if(strcmp(cmd, "reset2") == 0) {
+  else if(strcmp(cmd, "reset") == 0) {
 
     // think we should be derivinig from initial.
     // *mode = mode_initial;  etc.
@@ -151,8 +151,7 @@ bool app_extra_functions( app_t *app , const char *cmd, Mode *mode)
     mode->first .K406_CTL  = 0b10;
     mode->second.K406_CTL  = 0b00;
 
-
-                                      // need to populate and arm the fets also.
+    // need to populate and arm the fets also.
 
       // need to open the relay also.
     do_4094_transition( app->spi, mode,  &app->system_millis );
