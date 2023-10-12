@@ -88,13 +88,11 @@ bool app_extra_functions( app_t *app , const char *cmd, Mode *mode)
     // set the amp gain.
     mode->first.U506  =  W1;
     mode->second.U506 =  W1;
-
     mode->first. K405_CTL  = 0b10;     // dcv-input relay k405 switch on
                                       // need to populate and arm the fets also.
 
       // need to open the relay also.
     do_4094_transition( app->spi, mode,  &app->system_millis );
-
     //
     mux_ice40(app->spi);
     // set azmux
@@ -109,8 +107,36 @@ bool app_extra_functions( app_t *app , const char *cmd, Mode *mode)
     // set the hi signal az.
     f.azmux  = S1;  // pc-out.
     spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
+    return 1;
+  }
 
 
+  else if(strcmp(cmd, "dcv1") == 0) {
+
+    printf("whoot dcv10\n");  // having a yield would be quite nice here.
+
+    // amp gain = 10x.
+    mode->first.U506  =  W2;
+    mode->second.U506 =  W2;
+    mode->first. K405_CTL  = 0b10;     // dcv-input relay k405 switch on
+                                      // need to populate and arm the fets also.
+
+      // need to open the relay also.
+    do_4094_transition( app->spi, mode,  &app->system_millis );
+    //
+    mux_ice40(app->spi);
+    // set azmux
+    spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
+    // set params.
+    F  f;
+    memset(&f, 0, sizeof(f));
+    f.himux2 = S4 ;    // gnd to reduce leakage on himux
+    f.himux  = S7 ;    // dcv-in
+    f.azmux  = S6;    // lo
+    spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
+    // set the hi signal az.
+    f.azmux  = S1;  // pc-out.
+    spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
     return 1;
   }
 
