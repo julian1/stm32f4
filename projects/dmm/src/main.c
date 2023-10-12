@@ -828,23 +828,34 @@ static void loop(app_t *app)
     at initial start up. eg. check rails
     initial state - should do once.
     ----
-
     and after loosing comms.
 
   */
-  printf("writing initial 4094 state\n");
+
+  // write initial 4094 state - for muxes. before turning on 4094 OE.
+  printf("write initial 4094 state\n");
+  do_4094_transition( app->spi, &mode_initial,  &app->system_millis );
+
+  // TODO we should test the 4094 we wrote is ok. before turning on 4094 OE.
+
+
+  mux_ice40(app->spi);
+
+  // now turn on 4094 OE
+  printf("turn on 4094 OE %u\n", GLB_4094_OE);
+  spi_ice40_reg_write32( app->spi, REG_4094, GLB_4094_OE);
+  uint32_t ret = spi_ice40_reg_read32( app->spi, REG_4094);
+  assert( ret == GLB_4094_OE); // TOTO review... better handling.
+
+
+
+  // now do initial transition again. to  put relays in the right state
+  printf("write initial 4094 state\n");
   do_4094_transition( app->spi, &mode_initial,  &app->system_millis );
 
 
-  // TODO should test that the 4094 state write  succeeded before turning on 4094 OE.
-  printf("turning on 4094 OE\n");
-  spi_ice40_reg_write32( app->spi, REG_4094, GLB_4094_OE);
 
-
-
-
-  // when mcu restarts, but fpga is not restarted, put fpga in default mode.
-  mux_ice40(app->spi);
+  // make sure fpga is in a default mode.
   spi_ice40_reg_write32(app->spi, REG_MODE, 0 );
 
 

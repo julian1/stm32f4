@@ -37,6 +37,14 @@
 
 // REMEMBER this is 4094.   not fpga state.
 
+/*
+  use lower-case identifiers. why are we using capitalization / macros??
+
+  change name _4094_state. _4094_state_t   or similar.
+
+
+*/
+
 typedef struct X
 {
   // U406 4094.
@@ -55,8 +63,8 @@ typedef struct X
 
 
   // U506
-  uint8_t U506        : 3;        // adg1209.  gain mux. (MUST BE BROUGHT UP with enable-pin enabled otherwise power supplies current limit).
-  uint8_t U500_UNUSED : 5;        // think we should prefix U505_MUX. or
+  uint8_t U506        : 3;        // adg1209.  gain mux. (MUST BE BROUGHT UP with enable-pin enabled otherwise power supplies current limit, risk of part damage).
+  uint8_t U500_UNUSED : 5;        // change name _500_unused --- or similar.  think we should prefix U505_MUX. or
 
   // jumpered.
   // 600
