@@ -257,6 +257,10 @@ static void modes_init( void )
   mode_initial.second.U408_SW_CTL = 0;
   mode_initial.second.K405_CTL  = 0b00;     // clear relay
 
+
+  mode_initial.first.U506 =  W1;              // mux pin 1. of adg. to put main amplifier in buffer/G=1 configuration.
+  mode_initial.second.U506 =  W1;
+
   /* EXTR. with series resistors to 4094 - for driving lower coil-voltage relays - there is a drop on the drive side.
       AND a drop on the lo side.  eg. with 50R. this looks like a poor on-pulse
 

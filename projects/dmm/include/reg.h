@@ -69,3 +69,16 @@
 
 // could also be a macro #define S(1) == ...
 
+
+// S for switch maybe SS ? or W
+// dual 1of 4 muxes.
+#define WOFF        0
+#define W1          ((1<<2)|(1-1))
+#define W2          ((1<<2)|(2-1))
+#define W3          ((1<<2)|(3-1))
+#define W4          ((1<<2)|(4-1))
+
+
+
+
+

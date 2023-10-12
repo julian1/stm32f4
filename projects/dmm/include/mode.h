@@ -55,7 +55,8 @@ typedef struct X
 
 
   // U506
-  uint8_t U506_UNUSED : 8;
+  uint8_t U506        : 3;        // adg1209.  gain mux. (MUST BE BROUGHT UP with enable-pin enabled otherwise power supplies current limit).
+  uint8_t U500_UNUSED : 5;        // think we should prefix U505_MUX. or
 
   // jumpered.
   // 600
