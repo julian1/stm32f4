@@ -226,7 +226,7 @@ static Mode mode_initial;      // all inputs turned off.
 
   just carry a single current- state around.  for use with some tests.
 */
-static Mode mode_dcv_az ;
+// static Mode mode_dcv_az ;
 
 /* IMPORTANT the precharge switch relay - is held constant/closed for the mode.
   but we cycle one of the muxes - to read gnd/ to reset the charge on the cap.
@@ -252,7 +252,7 @@ static void modes_init( void )
 
   // memset( &mode_zero,    0, sizeof( Mode) );
   memset( &mode_initial, 0, sizeof( Mode) );
-  memset( &mode_dcv_az,  0, sizeof( Mode) );
+  // memset( &mode_dcv_az,  0, sizeof( Mode) );
   // memset( &mode_test_accumulation,  0, sizeof( Mode) );
 
   /*
@@ -279,7 +279,7 @@ static void modes_init( void )
       AND a drop on the lo side.  eg. with 50R. this looks like a poor on-pulse
 
   */
-
+/*
   //////////
   mode_dcv_az = mode_initial;               // eg. turn all relays off
   mode_dcv_az.first. K405_CTL    = RBOT;     // turn dcv-input K405 on.
@@ -288,6 +288,7 @@ static void modes_init( void )
   mode_dcv_az.first. U408_SW_CTL = 0;        // turn off b2b fets, while switching relay on.
   mode_dcv_az.second.U408_SW_CTL = 1;       // turn on/close b2b fets.
 
+*/
 
   ////
   // cap-accumulation mode.
@@ -482,14 +483,28 @@ static void update_soft_500ms(app_t *app)
 
 
 
+  // the flipping of the input relay. test. we want to keep.
+  // so we derive jjjjj
 
   if(app->test_in_progress == 3 ) {
 
     // tests b2b and K405 relay sequencing.
     if(app->led_state)
       do_4094_transition( app->spi, &mode_initial, &app->system_millis );
-    else
+    else {
+
+      //////////
+      Mode mode_dcv_az = mode_initial;               // eg. turn all relays off
+
+      mode_dcv_az.first. K405_CTL    = RBOT;     // turn dcv-input K405 on.
+      mode_dcv_az.second.K405_CTL    = 0b00;    // clear relay.  don't really need since inherits from initial.
+
+      mode_dcv_az.first. U408_SW_CTL = 0;        // turn off b2b fets, while switching relay on.
+      mode_dcv_az.second.U408_SW_CTL = 1;       // turn on/close b2b fets.
+
+
       do_4094_transition( app->spi, &mode_dcv_az, &app->system_millis );
+    }
   }
 
 
