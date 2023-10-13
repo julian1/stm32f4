@@ -79,6 +79,15 @@ typedef struct X
 
 
 
+/*
+  Can use,
+  - 1. pre-constructed bit-vectors for state - for different modes. like K. services manuals. 
+  - 2. or construct on an as need basis.
+  - 3. or derive from another mode, by copying and modifying.
+
+*/
+
+
 // mode_t
 typedef struct Mode
 {
@@ -91,6 +100,17 @@ typedef struct Mode
 
   X     first;
   X     second;
+
+
+  /////////////////////////////////////
+  // consider puttinig. FPGA STATE IN  HERE/
+  // fpga MODE.
+  // aperture/nplc.
+  // direct register.
+
+  // and then using the do-transition  function to write fpga state. also.
+  /////////////////////////////////////
+  
 
 } Mode;
 
