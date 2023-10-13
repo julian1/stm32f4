@@ -262,12 +262,12 @@ static void modes_init( void )
 
   //  should be explicit for all values  U408_SW_CTL. at least for the initial mode, from which others derive.
   mode_initial.first .K406_CTL  = RBOT;     // accumulation relay off   (seems inverted for some reason).
-  mode_initial.second.K406_CTL  = 0b00;     // clear relay
+  mode_initial.second.K406_CTL  = ROFF;     // clear relay
 
   mode_initial.first .U408_SW_CTL = 0;      // b2b fets/ input protection off/open
 
   mode_initial.first. K405_CTL  = RTOP;     // dcv-input relay k405 switch off
-  mode_initial.second.K405_CTL  = 0b00;     // clear relay
+  mode_initial.second.K405_CTL  = ROFF;     // clear relay
 
   mode_initial.second.U408_SW_CTL = 0;
 
@@ -283,7 +283,7 @@ static void modes_init( void )
   //////////
   mode_dcv_az = mode_initial;               // eg. turn all relays off
   mode_dcv_az.first. K405_CTL    = RBOT;     // turn dcv-input K405 on.
-  mode_dcv_az.second.K405_CTL    = 0b00;    // clear relay.  don't really need since inherits from initial.
+  mode_dcv_az.second.K405_CTL    = ROFF;    // clear relay.  don't really need since inherits from initial.
 
   mode_dcv_az.first. U408_SW_CTL = 0;        // turn off b2b fets, while switching relay on.
   mode_dcv_az.second.U408_SW_CTL = 1;       // turn on/close b2b fets.
@@ -497,7 +497,7 @@ static void update_soft_500ms(app_t *app)
       Mode mode_dcv_az = mode_initial;               // eg. turn all relays off
 
       mode_dcv_az.first. K405_CTL    = RBOT;     // turn dcv-input K405 on.
-      mode_dcv_az.second.K405_CTL    = 0b00;    // clear relay.  don't really need since inherits from initial.
+      mode_dcv_az.second.K405_CTL    = ROFF;    // clear relay.  don't really need since inherits from initial.
 
       mode_dcv_az.first. U408_SW_CTL = 0;        // turn off b2b fets, while switching relay on.
       mode_dcv_az.second.U408_SW_CTL = 1;       // turn on/close b2b fets.
@@ -673,7 +673,7 @@ static void update_console_cmd(app_t *app)
 
         // turn on accumulation relay     RON ROFF.  or RL1 ?  K606_ON
         j.first .K406_CTL  = RTOP;
-        j.second.K406_CTL  = 0b00;    // don't need this....  it is 0 by default
+        j.second.K406_CTL  = ROFF;    // don't need this....  it is 0 by default
 
         do_4094_transition( app->spi, &j,  &app->system_millis );
 
@@ -740,7 +740,7 @@ static void update_console_cmd(app_t *app)
 
         // turn on accumulation relay     RON ROFF.  or RL1 ?
         j.first .K406_CTL  = RTOP;
-        j.second.K406_CTL  = 0b00;    // don't need this....  it is 0 by default
+        j.second.K406_CTL  = ROFF;    // don't need this....  it is 0 by default
 
         do_4094_transition( app->spi, &j,  &app->system_millis );
 
@@ -1365,7 +1365,7 @@ static void spi_ice40_just_read_reg ( uint32_t spi)
 
   while(1) {
     uint32_t v = spi_ice40_reg_read32(spi, REG_LED);
-    // uint32_t v = spi_ice40_reg_read32(spi, 0b00111111 );
+    // uint32_t v = spi_ice40_reg_read32(spi, ROFF111111 );
     char buf[32+1];
     printf("value of led %lu %s\n", v, format_bits(buf, 32, v ));
     msleep( 500 );
@@ -1575,7 +1575,7 @@ static void relay_set( unsigned spi, uint8_t *state_4094, size_t n, unsigned reg
   msleep(10);
 
   // clear the two relay bits
-  state_write ( state_4094, n, reg_relay, 2, 0b00 );   // clear
+  state_write ( state_4094, n, reg_relay, 2, ROFF );   // clear
 
   // and write device
   spi_4094_reg_write_n(spi, state_4094, n );
@@ -1678,7 +1678,7 @@ static void relay_set( unsigned spi, uint8_t *state_4094, size_t n, unsigned reg
   /// toggle ctrl pins of U404
   mux_4094( app->spi);
   // set two relay bits, according to dir.  is 4 is the number of bits.
-  state_write ( app->state_4094, sizeof(app->state_4094), REG_U404 , 4, led_state ? RBOT00 : 0b0000 );
+  state_write ( app->state_4094, sizeof(app->state_4094), REG_U404 , 4, led_state ? RBOT00 : ROFF00 );
   // output/print - TODO change name state_format_stdout, or something.
   state_format ( app->state_4094, sizeof(app->state_4094));
   // and write device
