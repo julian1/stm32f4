@@ -67,8 +67,8 @@ bool test15( app_t *app , const char *cmd,  Mode *mode_initial)
         else assert(0);
 
         // turn on accumulation relay     RON ROFF.  or RL1 ?  K606_ON
-        j.first .K406_CTL  = 0b01;
-        j.second.K406_CTL  = 0b00;    // don't need this....  it is 0 by default
+        j.first .K406_CTL  = RTOP;    // POLARITY LOOKS WEIRD.
+        j.second.K406_CTL  = ROFF;    // don't need this....  it is 0 by default
 
         do_4094_transition( app->spi, &j,  &app->system_millis );
 

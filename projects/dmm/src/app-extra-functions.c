@@ -81,7 +81,6 @@ bool app_extra_functions( app_t *app , const char *cmd, Mode *mode)
 
 
 
-
   else if(strcmp(cmd, "reset") == 0) {
 
     // think we should be derivinig from initial.
@@ -94,8 +93,8 @@ bool app_extra_functions( app_t *app , const char *cmd, Mode *mode)
     mode->first.U506  =  W1;
     mode->second.U506 =  W1;
 
-    mode->first. K405_CTL  = 0b01;     // dcv-input relay k405 switch on
-    mode->second. K405_CTL = 0b00;
+    mode->first. K405_CTL  = RTOP;     // dcv-input relay k405 switch on
+    mode->second. K405_CTL = ROFF;
 
       // need to open the relay also.
     do_4094_transition( app->spi, mode,  &app->system_millis );
@@ -150,12 +149,12 @@ bool app_extra_functions( app_t *app , const char *cmd, Mode *mode)
     // EXTR. - it would be better to derive the state to use from initial .
 
     // close/ turn on K405 relay.
-    mode->first.  K405_CTL  = 0b10;
-    mode->second. K405_CTL  = 0b00;
+    mode->first.  K405_CTL  = RBOT;
+    mode->second. K405_CTL  = ROFF;
 
     // accumulation relay off
-    mode->first .K406_CTL  = 0b10;
-    mode->second.K406_CTL  = 0b00;
+    mode->first .K406_CTL  = RBOT;
+    mode->second.K406_CTL  = ROFF;
 
     // need to populate and arm the fets also.
 

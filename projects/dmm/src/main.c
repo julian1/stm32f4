@@ -261,9 +261,9 @@ static void modes_init( void )
   */
 
   //  should be explicit for all values  U408_SW_CTL. at least for the initial mode, from which others derive.
-  mode_initial.first .K406_CTL  = 0b10;     // accumulation relay off
+  mode_initial.first .K406_CTL  = RBOT;     // accumulation relay off   (seems inverted for some reason).
   mode_initial.first .U408_SW_CTL = 0;      // b2b fets/ input protection off/open
-  mode_initial.first. K405_CTL  = 0b01;     // dcv-input relay k405 switch off
+  mode_initial.first. K405_CTL  = RTOP;     // dcv-input relay k405 switch off
 
   mode_initial.second.K406_CTL  = 0b00;     // clear relay
   mode_initial.second.U408_SW_CTL = 0;
@@ -280,7 +280,7 @@ static void modes_init( void )
 
   //////////
   mode_dcv_az = mode_initial;               // eg. turn all relays off
-  mode_dcv_az.first.K405_CTL    = 0b10;     // turn dcv-input K405 on.
+  mode_dcv_az.first.K405_CTL    = RBOT;     // turn dcv-input K405 on.
   mode_dcv_az.first.U408_SW_CTL = 0;        // turn off b2b fets, while switching relay on.
   mode_dcv_az.second.K405_CTL    = 0b00;    // clear relay.  don't really need since inherits from initial.
   mode_dcv_az.second.U408_SW_CTL = 1;       // turn on/close b2b fets.
@@ -289,7 +289,7 @@ static void modes_init( void )
   ////
   // cap-accumulation mode.
   // mode_test_accumulation = mode_initial;
-  // mode_test_accumulation.first .K406_CTL  = 0b01;  // accumulation relay on
+  // mode_test_accumulation.first .K406_CTL  = RTOP;  // accumulation relay on
 
 }
 
@@ -394,7 +394,7 @@ static void update_soft_500ms(app_t *app)
   // 500ms. heartbeat check here.
   // this works nicely
   {
-    uint32_t magic = 0b1010;   // this is returning the wrong value....
+    uint32_t magic = RBOT10;   // this is returning the wrong value....
     mux_ice40(app->spi);
     spi_ice40_reg_write32( app->spi, REG_LED, magic);
     uint32_t ret = spi_ice40_reg_read32( app->spi, REG_LED);
@@ -406,24 +406,71 @@ static void update_soft_500ms(app_t *app)
       // or should probably do a reset. when comms re-established
     }
   }
+
+// should perhaps use top RTOP RBOTTOM 
+#define ROFF      0
+#define RTOP      0b01      // top contact closed.
+#define RBOT      0b10      // bottom contact closed.
+
+
 */
 
   mux_ice40(app->spi);
 
+  // use a magic number that will also blink the led.
+  uint32_t magic = app->led_state ? 0b010101 : 0b101010 ;
+
   // blink fpga led. will only work if mode. 1.
-  spi_ice40_reg_write32( app->spi, REG_LED, app->led_state );
+  spi_ice40_reg_write32( app->spi, REG_LED, magic);
   uint32_t ret = spi_ice40_reg_read32( app->spi, REG_LED);
 
-  if(ret != app->led_state) {
+  if(ret != magic ) {
     // comms no good
     char buf[ 100] ;
     printf("no comms, wait for ice40 v %s\n",  format_bits(buf, 32, ret ));
     app->comms_ok = false;
     // return
   } else {
-    // comms ok
+
+    // comms ok,
     if( app->comms_ok == false) {
-      // comms have been restored
+
+      // comms initial ok, or restored
+      ////////////////////
+      // do start up sequence.
+
+      // write initial 4094 state - for muxes. before turning on 4094 OE.
+      printf("write initial 4094 state\n");
+      do_4094_transition( app->spi, &mode_initial,  &app->system_millis );
+
+      // TODO we should test the 4094 we wrote is ok. before turning on 4094 OE.
+
+
+      mux_ice40(app->spi);
+
+      // now turn on 4094 OE
+      printf("turn on 4094 OE %u\n", GLB_4094_OE);
+      spi_ice40_reg_write32( app->spi, REG_4094, GLB_4094_OE);
+      // ret = spi_ice40_reg_read32( app->spi, REG_4094);
+      // assert( ret == GLB_4094_OE); // TOTO review... better handling.
+
+
+      // now do initial transition again. to  put relays in the right state
+      printf("rewrite initial 4094 state\n");
+      do_4094_transition( app->spi, &mode_initial,  &app->system_millis );
+
+
+
+      // make sure fpga is in a default mode.
+      spi_ice40_reg_write32(app->spi, REG_MODE, 0 );
+
+
+
+  // printf("enter main loop\n");
+  // printf("> ");
+
+
+
       printf("comms ok\n");
       printf("> ");
       app->comms_ok = true;
@@ -607,7 +654,7 @@ static void update_console_cmd(app_t *app)
         else assert(0);
 
         // turn on accumulation relay     RON ROFF.  or RL1 ?  K606_ON
-        j.first .K406_CTL  = 0b01;
+        j.first .K406_CTL  = RTOP;
         j.second.K406_CTL  = 0b00;    // don't need this....  it is 0 by default
 
         do_4094_transition( app->spi, &j,  &app->system_millis );
@@ -674,7 +721,7 @@ static void update_console_cmd(app_t *app)
         else assert(0);
 
         // turn on accumulation relay     RON ROFF.  or RL1 ?
-        j.first .K406_CTL  = 0b01;
+        j.first .K406_CTL  = RTOP;
         j.second.K406_CTL  = 0b00;    // don't need this....  it is 0 by default
 
         do_4094_transition( app->spi, &j,  &app->system_millis );
@@ -857,38 +904,6 @@ static void loop(app_t *app)
 
   */
 
-  // write initial 4094 state - for muxes. before turning on 4094 OE.
-  printf("write initial 4094 state\n");
-  do_4094_transition( app->spi, &mode_initial,  &app->system_millis );
-
-  // TODO we should test the 4094 we wrote is ok. before turning on 4094 OE.
-
-
-  mux_ice40(app->spi);
-
-  // now turn on 4094 OE
-  printf("turn on 4094 OE %u\n", GLB_4094_OE);
-  spi_ice40_reg_write32( app->spi, REG_4094, GLB_4094_OE);
-  uint32_t ret = spi_ice40_reg_read32( app->spi, REG_4094);
-  assert( ret == GLB_4094_OE); // TOTO review... better handling.
-
-
-
-  // now do initial transition again. to  put relays in the right state
-  printf("write initial 4094 state\n");
-  do_4094_transition( app->spi, &mode_initial,  &app->system_millis );
-
-
-
-  // make sure fpga is in a default mode.
-  spi_ice40_reg_write32(app->spi, REG_MODE, 0 );
-
-
-
-
-
-  printf("enter main loop\n");
-  printf("> ");
 
   while(true) {
 
@@ -989,8 +1004,8 @@ static void spi_ice40_wait_for_ice40( uint32_t spi)
 
   printf("wait for ice40\n");
   uint32_t ret = 0;
-  // uint8_t magic = 0b0101; // ok. not ok now.  ok. when reset the fpga.
-  uint8_t magic = 0b1010;   // this is returning the wrong value....
+  // uint8_t magic = RTOP01; // ok. not ok now.  ok. when reset the fpga.
+  uint8_t magic = RBOT10;   // this is returning the wrong value....
   do {
     // printf(".");
 
@@ -1530,7 +1545,7 @@ static void relay_set( unsigned spi, uint8_t *state_4094, size_t n, unsigned reg
 
 
   // set two relay bits, according to dir
-  state_write ( state_4094, n, reg_relay, 2, relay_state ? 0b01 : 0b10 );
+  state_write ( state_4094, n, reg_relay, 2, relay_state ? RTOP : RBOT );
 
   // output/print - TODO change name state_format_stdout, or something.
   state_format ( state_4094, n);
@@ -1645,7 +1660,7 @@ static void relay_set( unsigned spi, uint8_t *state_4094, size_t n, unsigned reg
   /// toggle ctrl pins of U404
   mux_4094( app->spi);
   // set two relay bits, according to dir.  is 4 is the number of bits.
-  state_write ( app->state_4094, sizeof(app->state_4094), REG_U404 , 4, led_state ? 0b1000 : 0b0000 );
+  state_write ( app->state_4094, sizeof(app->state_4094), REG_U404 , 4, led_state ? RBOT00 : 0b0000 );
   // output/print - TODO change name state_format_stdout, or something.
   state_format ( app->state_4094, sizeof(app->state_4094));
   // and write device
@@ -1774,7 +1789,7 @@ static void relay_set( unsigned spi, uint8_t *state_4094, size_t n, unsigned reg
 
 #if 0
   mux_4094(app->spi);
-  spi_4094_reg_write(app->spi , 0b01010101 );
+  spi_4094_reg_write(app->spi , RTOP010101 );
 
   // msleep(1);    // if we put a sleep here we get a diffferent read value?????
 
