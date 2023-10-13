@@ -40,7 +40,13 @@ typedef struct app_t
   bool led_state ;     // should rename, or just use the last bit of the count .
 
 
+  /*
+    rather than an enum for the test - this could be changed to a dispatch function
+    that return contexts back  - to a long running function, that yielded control.
+    eg. quite simple and effective.
+  */
 
+  // void (*yielded_function)( app_t * ) ;
   unsigned test_in_progress; // enum. for test type.
 
   bool comms_ok;

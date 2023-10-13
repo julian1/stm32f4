@@ -104,6 +104,12 @@ bool app_extra_functions( app_t *app , const char *cmd, Mode *mode)
     mux_ice40(app->spi);
     // set mode.
     spi_ice40_reg_write32(app->spi, REG_MODE, MODE_LO ); // default.
+
+
+    // turn off any concurrent test.
+    app->test_in_progress = 0;
+
+
     return 1;
   }
 
