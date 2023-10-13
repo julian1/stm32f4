@@ -209,19 +209,6 @@ double aper_n_to_period( uint32_t aper_n)
 
 
 /*
-  - perhaps use static initializer for these.
-  - then declare const.
-
-*/
-
-// actually modes. just about deserve own header.
-
-// Mode mode_zero;     //  useful to work out which pin is flipping .
-// change name mode_initial. to mode-off/ or disconnect
-static Mode mode_initial;      // all inputs turned off.
-
-
-/*
   Not sure if need.
 
   just carry a single current- state around.  for use with some tests.
@@ -240,6 +227,15 @@ static Mode mode_initial;      // all inputs turned off.
 
 */
 
+
+/*
+Other members are initialized as zero: "Omitted field members are implicitly initialized the same as objects that have static storage duration." (https://gcc.gnu.org/onlinedocs
+
+*/
+
+
+
+#if 0
 
 static void modes_init( void )
 {
@@ -297,15 +293,16 @@ static void modes_init( void )
 
 }
 
-
+#endif
 
 
 
 // flashing of led... is writing ????
 
 
-void do_4094_transition( unsigned spi, Mode *mode, uint32_t *system_millis)
+void do_4094_transition( unsigned spi, const Mode *mode, uint32_t *system_millis)
 {
+  assert(mode);
 
   // change name   do_state_update_4094 _4094_state_update.
   // change name do_4094_transition. or make_
@@ -411,7 +408,7 @@ static void update_soft_500ms(app_t *app)
     }
   }
 
-// should perhaps use top RTOP RBOTTOM 
+// should perhaps use top RTOP RBOTTOM
 #define ROFF      0
 #define RTOP      0b01      // top contact closed.
 #define RBOT      0b10      // bottom contact closed.
@@ -439,13 +436,14 @@ static void update_soft_500ms(app_t *app)
     // comms ok,
     if( app->comms_ok == false) {
 
-      // comms initial ok, or restored
-      ////////////////////
-      // do start up sequence.
+      /////////////
+      // coming from a condition with no comms - eg. initial startup, or restoration of comms.
+      // then do start up sequence.
 
       // write initial 4094 state - for muxes. before turning on 4094 OE.
       printf("write initial 4094 state\n");
-      do_4094_transition( app->spi, &mode_initial,  &app->system_millis );
+      assert(app->mode_initial);
+      do_4094_transition( app->spi, app->mode_initial,  &app->system_millis );
 
       // TODO we should test the 4094 we wrote is ok. before turning on 4094 OE.
 
@@ -461,7 +459,7 @@ static void update_soft_500ms(app_t *app)
 
       // now do initial transition again. to  put relays in the right state
       printf("rewrite initial 4094 state\n");
-      do_4094_transition( app->spi, &mode_initial,  &app->system_millis );
+      do_4094_transition( app->spi, app->mode_initial,  &app->system_millis );
 
 
 
@@ -489,21 +487,23 @@ static void update_soft_500ms(app_t *app)
   if(app->test_in_progress == 3 ) {
 
     // tests b2b and K405 relay sequencing.
-    if(app->led_state)
-      do_4094_transition( app->spi, &mode_initial, &app->system_millis );
+    if(app->led_state) {
+
+      do_4094_transition( app->spi, app->mode_initial, &app->system_millis );
+    }
     else {
 
       //////////
-      Mode mode_dcv_az = mode_initial;               // eg. turn all relays off
+      Mode mode_derived = *app->mode_initial;     // copy initial state.eg. turn all relays off
 
-      mode_dcv_az.first. K405_CTL    = RBOT;     // turn dcv-input K405 on.
-      mode_dcv_az.second.K405_CTL    = ROFF;    // clear relay.  don't really need since inherits from initial.
+      mode_derived.first. K405_CTL    = RBOT;     // turn dcv-input K405 on.
+      mode_derived.second.K405_CTL    = ROFF;    // clear relay.  don't really need since inherits from initial.
 
-      mode_dcv_az.first. U408_SW_CTL = 0;        // turn off b2b fets, while switching relay on.
-      mode_dcv_az.second.U408_SW_CTL = 1;       // turn on/close b2b fets.
+      mode_derived.first. U408_SW_CTL = 0;        // turn off b2b fets, while switching relay on.
+      mode_derived.second.U408_SW_CTL = 1;       // turn on/close b2b fets.
 
 
-      do_4094_transition( app->spi, &mode_dcv_az, &app->system_millis );
+      do_4094_transition( app->spi, &mode_derived, &app->system_millis );
     }
   }
 
@@ -652,7 +652,7 @@ static void update_console_cmd(app_t *app)
 
         printf("charge accumulation cap\n");
         app->test_in_progress = 0;
-        Mode j = mode_initial;
+        Mode j = * app->mode_initial;
 
         if(strcmp(cmd, "test05") == 0) {
           printf("with +10V\n");
@@ -719,7 +719,7 @@ static void update_console_cmd(app_t *app)
 
         printf("reset accumulation cap to 0V/agnd\n");
         app->test_in_progress = 0;
-        Mode j = mode_initial;
+        Mode j = * app->mode_initial;
 
         if(strcmp(cmd, "test08") == 0) {
           printf("with +10V\n");
@@ -852,23 +852,23 @@ static void update_console_cmd(app_t *app)
       having arguments is ok. for internal test.  that just prints a result.
 
     */
-      else if( test14( app, cmd, &mode_initial   ))
+      else if( test14( app, cmd  ))
       {
         // test14 done
       }
 
-      else if( test15( app, cmd, &mode_initial   ))
+      else if( test15( app, cmd  ))
       {
         // test15 done
       }
-      else if( test16( app, cmd, &mode_initial   ))
+      else if( test16( app, cmd  ))
       {
         // test15 done
       }
 
       // TODO. Ok. we are manipulating mode_initial which isn't right.
 
-      else if( app_extra_functions( app, cmd, &mode_initial   ))
+      else if( app_extra_functions( app, cmd  ))
       {
         // test15 done
       }
@@ -1011,41 +1011,39 @@ static app_t app;
 
 
 
-#if 0
-
-static void spi_ice40_wait_for_ice40( uint32_t spi)
-{
-  // we don't need this anymore.
-  // TODO better ame doto
-
-  mux_ice40(spi);
-
-  printf("wait for ice40\n");
-  uint32_t ret = 0;
-  // uint8_t magic = RTOP01; // ok. not ok now.  ok. when reset the fpga.
-  uint8_t magic = RBOT10;   // this is returning the wrong value....
-  do {
-    // printf(".");
-
-    spi_ice40_reg_write32( spi, REG_LED, magic);
-    msleep( 50);
-    ret = spi_ice40_reg_read32( spi, REG_LED);
-
-    char buf[ 100] ;
-    printf("wait for ice40 v %s\n",  format_bits(buf, 32, ret ));
-
-    msleep( 50);
-  }
-  while( ret != magic );
-  printf("\n");
-
-}
-
-#endif
 
 
 
 
+
+static const Mode mode_initial =  {
+
+
+  // is everything else initialized to 0 ?
+
+  //  should be explicit for all values  U408_SW_CTL. at least for the initial mode, from which others derive.
+  .first .K406_CTL  = RBOT,     // accumulation relay off   (agn relay, is inverted for some reason).
+  .first. K405_CTL  = RTOP,     // dcv-input relay k405 switch off
+  .first .U408_SW_CTL = 0,      // b2b fets/ input protection off/open
+
+
+  .second.K406_CTL  = ROFF,     // clear relay. default.
+  .second.K405_CTL  = ROFF,     // clear relay
+  .second.U408_SW_CTL = 0,
+
+
+  // AMP FEEDBACK SHOULD NEVER BE TURNED OFF.
+  // else draws current, and has risk damaging parts. mux pin 1. of adg. to put main amplifier in buffer/G=1 configuration.
+  .first. U506 =  W1,
+  .second.U506 =  W1
+
+
+  // fpga mode default. blink led.
+
+};
+
+
+static Mode mode_current;
 
 
 int main(void)
@@ -1162,6 +1160,8 @@ int main(void)
   app.led_out  = LED_OUT;
 
 
+  app.mode_initial =  &mode_initial;
+  app.mode_current =  &mode_current;
 
 
   // app.print_adc_values = true;
@@ -1225,7 +1225,7 @@ int main(void)
 
   assert( (1<<3|(6-1)) == 0b1101 );
 
-  modes_init();
+  // modes_init();
 
   // go to main loop
   loop(&app);
@@ -1308,6 +1308,38 @@ void _write_r( void)
 
 
 
+
+#if 0
+
+static void spi_ice40_wait_for_ice40( uint32_t spi)
+{
+  // we don't need this anymore.
+  // TODO better ame doto
+
+  mux_ice40(spi);
+
+  printf("wait for ice40\n");
+  uint32_t ret = 0;
+  // uint8_t magic = RTOP01; // ok. not ok now.  ok. when reset the fpga.
+  uint8_t magic = RBOT10;   // this is returning the wrong value....
+  do {
+    // printf(".");
+
+    spi_ice40_reg_write32( spi, REG_LED, magic);
+    msleep( 50);
+    ret = spi_ice40_reg_read32( spi, REG_LED);
+
+    char buf[ 100] ;
+    printf("wait for ice40 v %s\n",  format_bits(buf, 32, ret ));
+
+    msleep( 50);
+  }
+  while( ret != magic );
+  printf("\n");
+
+}
+
+#endif
 
 
 #if 0

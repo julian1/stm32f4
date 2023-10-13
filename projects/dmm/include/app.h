@@ -7,6 +7,8 @@
 #include "fbuffer.h"
 
 
+typedef struct Mode Mode;
+
 typedef struct app_t
 {
 
@@ -54,15 +56,23 @@ typedef struct app_t
   // we don't/shouldn't even need the current 4094/fpga state recorded/duplicated here.
   // not not want more than single authoritative source for 4094 state.
 
+  /*
+    mode_inthese are here to aid  access.
+    use pointer to keep opaque and easier  
+
+  */
+  
+  const Mode *mode_initial;      // use pointer  
+  Mode *mode_current;      // all inputs turned off.
+
 
 } app_t;
 
 
 
-typedef struct Mode Mode;
 
 // better name
-void do_4094_transition( unsigned spi, Mode *mode, uint32_t *system_millis);
+void do_4094_transition( unsigned spi, const Mode *mode, uint32_t *system_millis);
 
 // need to pass line-freq as argument also
 uint32_t nplc_to_aper_n( double nplc );
@@ -71,13 +81,13 @@ double aper_n_to_period( uint32_t aper_n);
 
 
 // TODO make mode_initial const.
-bool test15( app_t *app , const char *cmd,  Mode *mode_initial);    // not sure if good to mode_initial here,
-bool test14( app_t *app , const char *cmd,  Mode *mode_initial);    // not sure if good to pass here,
+bool test15( app_t *app , const char *cmd);    // not sure if good to mode_initial here,
+bool test14( app_t *app , const char *cmd);    // not sure if good to pass here,
 
-bool test16( app_t *app , const char *cmd,  const Mode *mode_initial);    // not sure if good to pass here,
+bool test16( app_t *app , const char *cmd);    // not sure if good to pass here,
 
 
-bool app_extra_functions( app_t *app , const char *cmd, Mode *mode);
+bool app_extra_functions( app_t *app , const char *cmd);
 
 
 

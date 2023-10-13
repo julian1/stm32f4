@@ -37,7 +37,7 @@
 */
 
 
-bool app_extra_functions( app_t *app , const char *cmd, Mode *mode)
+bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 {
   /*
       - this modifies current-state.
@@ -59,7 +59,7 @@ bool app_extra_functions( app_t *app , const char *cmd, Mode *mode)
   assert(cmd);
 
   uint32_t u1;
-  int32_t i0;
+  // int32_t i0;
   // char s[100];
 
 
@@ -89,15 +89,20 @@ bool app_extra_functions( app_t *app , const char *cmd, Mode *mode)
     // ok. this is working.
     printf("reset.\n");
 
+    // reset mode
+    *app->mode_current = *app->mode_initial;
+
+/*
     // set the amp gain.
     mode->first.U506  =  W1;
     mode->second.U506 =  W1;
 
     mode->first. K405_CTL  = RTOP;     // dcv-input relay k405 switch on
     mode->second. K405_CTL = ROFF;
+*/
 
       // need to open the relay also.
-    do_4094_transition( app->spi, mode,  &app->system_millis );
+    do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
 
 
     mux_ice40(app->spi);
@@ -125,8 +130,24 @@ bool app_extra_functions( app_t *app , const char *cmd, Mode *mode)
       || strcmp(cmd, "dcv01") == 0
       ) {
 
-    // think we should be derivinig from initial.
-    // *mode = mode_initial;  etc.
+
+    // thing is we
+
+    /*
+    // derive new mode from initial .
+    // except this will overwrite - the dcvsource. and nplc.
+
+       NO. OK
+      - when using dcvsource we have a different mode.  OR we set dcvsource after setting mode.
+
+      - likewise it will overwrite nplc
+    */
+
+    *app->mode_current = *app->mode_initial;
+
+    //  alias to ease syntax
+    Mode *mode = app->mode_current;
+
 
     // set the amp gain.
     if( strcmp(cmd, "dcv10") == 0) {
@@ -199,7 +220,7 @@ bool app_extra_functions( app_t *app , const char *cmd, Mode *mode)
 
 
 
-
+#if 0
   // have similar ranges/modes.
 
 
@@ -237,6 +258,8 @@ bool app_extra_functions( app_t *app , const char *cmd, Mode *mode)
     mode->first.U506 =  W1;
     mode->second.U506 =  W1;
   }
+
+#endif
 
     else {
       return 0;

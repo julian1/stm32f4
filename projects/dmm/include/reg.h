@@ -1,4 +1,7 @@
 
+#pragma once
+
+
 // application specific.
 
 // this is mixing up 4094, and fpga stuff.

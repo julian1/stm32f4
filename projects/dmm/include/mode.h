@@ -108,6 +108,14 @@ typedef struct Mode
   // aperture/nplc.
   // direct register.
 
+  // reg_mode
+  // reg_direct
+  // reg_aperture_duration   etc.
+
+  // THE REASON TO NOT CONSIDER DOING THIS - is that do_state transition always pulses the relatys.
+  // while in some code (test setup) we may want more direct control.
+  //
+
   // and then using the do-transition  function to write fpga state. also.
   // to smplify
 
@@ -165,6 +173,6 @@ F
   uint8_t spi_interupt_ctl : 1;     // 29bits
 
   uint8_t dummy   : 3;
-} F;    // change name REG_DIRECT_MODE ????
+} F;    // change name REG_DIRECT_MODE ????  reg_direct_t.  and also add
 
 
