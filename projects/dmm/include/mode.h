@@ -81,7 +81,7 @@ typedef struct X
 
 /*
   Can use,
-  - 1. pre-constructed bit-vectors for state - for different modes. like K. services manuals. 
+  - 1. pre-constructed bit-vectors for state - for different modes. like K. services manuals.
   - 2. or construct on an as need basis.
   - 3. or derive from another mode, by copying and modifying.
 
@@ -109,8 +109,11 @@ typedef struct Mode
   // direct register.
 
   // and then using the do-transition  function to write fpga state. also.
+  // to smplify
+
+  // so that all state (both 4094, fpga) - is represented with a single consolidated vecotr.
   /////////////////////////////////////
-  
+
 
 } Mode;
 
