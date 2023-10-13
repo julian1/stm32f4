@@ -262,15 +262,17 @@ static void modes_init( void )
 
   //  should be explicit for all values  U408_SW_CTL. at least for the initial mode, from which others derive.
   mode_initial.first .K406_CTL  = RBOT;     // accumulation relay off   (seems inverted for some reason).
-  mode_initial.first .U408_SW_CTL = 0;      // b2b fets/ input protection off/open
-  mode_initial.first. K405_CTL  = RTOP;     // dcv-input relay k405 switch off
-
   mode_initial.second.K406_CTL  = 0b00;     // clear relay
-  mode_initial.second.U408_SW_CTL = 0;
+
+  mode_initial.first .U408_SW_CTL = 0;      // b2b fets/ input protection off/open
+
+  mode_initial.first. K405_CTL  = RTOP;     // dcv-input relay k405 switch off
   mode_initial.second.K405_CTL  = 0b00;     // clear relay
 
+  mode_initial.second.U408_SW_CTL = 0;
 
-  mode_initial.first.U506 =  W1;              // AMP FEEDBACK SHOULD NEVER BE TURNED OFF. danger of damaging parts. mux pin 1. of adg. to put main amplifier in buffer/G=1 configuration.
+
+  mode_initial.first. U506 =  W1;              // AMP FEEDBACK SHOULD NEVER BE TURNED OFF. danger of damaging parts. mux pin 1. of adg. to put main amplifier in buffer/G=1 configuration.
   mode_initial.second.U506 =  W1;
 
   /* EXTR. with series resistors to 4094 - for driving lower coil-voltage relays - there is a drop on the drive side.
@@ -280,9 +282,10 @@ static void modes_init( void )
 
   //////////
   mode_dcv_az = mode_initial;               // eg. turn all relays off
-  mode_dcv_az.first.K405_CTL    = RBOT;     // turn dcv-input K405 on.
-  mode_dcv_az.first.U408_SW_CTL = 0;        // turn off b2b fets, while switching relay on.
+  mode_dcv_az.first. K405_CTL    = RBOT;     // turn dcv-input K405 on.
   mode_dcv_az.second.K405_CTL    = 0b00;    // clear relay.  don't really need since inherits from initial.
+
+  mode_dcv_az.first. U408_SW_CTL = 0;        // turn off b2b fets, while switching relay on.
   mode_dcv_az.second.U408_SW_CTL = 1;       // turn on/close b2b fets.
 
 
