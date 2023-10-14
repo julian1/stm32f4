@@ -178,13 +178,16 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     mode->second.K406_CTL  = ROFF;
 
     // need to populate and arm the fets also.
+    ////////////
+
+    mode->reg_mode = MODE_AZ;
 
       // need to open the relay also.
     do_4094_transition( app->spi, mode,  &app->system_millis );
     //
     mux_ice40(app->spi);
     // set mmode az azmux
-    spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
+    // spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
     // set params.
     F  f;
     memset(&f, 0, sizeof(f));
