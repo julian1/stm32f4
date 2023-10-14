@@ -120,7 +120,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     Mode *mode = app->mode_current;
 
 
-    // set the amp gain.
+    // set the ampliier gain.
     if( strcmp(cmd, "dcv10") == 0) {
         printf("whoot dcv10\n");
         mode->first. U506 =  W1;    // amp feedback should never be turned off.
@@ -145,15 +145,16 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     mode->second. K405_CTL  = ROFF;
 
     // accumulation relay off
-    mode->first .K406_CTL  = RBOT;
-    mode->second.K406_CTL  = ROFF;
+    // mode->first .K406_CTL  = RBOT;
+    // mode->second.K406_CTL  = ROFF;
 
-    // need to populate and arm the fets also.
+    // TODO populate protection - and arm the fets also.
     ////////////
 
     mode->reg_mode = MODE_AZ;
 
 
+    // set the input muxing.
     mode->reg_direct.himux2 = S4 ;    // gnd to reduce leakage on himux
     mode->reg_direct.himux  = S7 ;    // dcv-in
     mode->reg_direct.azmux  = S6;    // lo
@@ -162,6 +163,10 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     // set the hi signal az.
     mode->reg_direct2.azmux  = S1;  // pc-out.
 
+    // set aperture
+    mode->reg_aperture = nplc_to_aper_n( 1 );
+
+ 
 
       // need to open the relay also.
     do_4094_transition( app->spi, mode,  &app->system_millis );
@@ -185,6 +190,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
 #endif
 
+#if 0
     // EXTR. important. can query/read/check fpga nplc state - and check if already set. if not then set to default for range.
     uint32_t ret = spi_ice40_reg_read32( app->spi, REG_CLK_SAMPLE_DURATION);
     if(ret == 0) {
@@ -197,7 +203,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       // write duration. should move.
       spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, aperture );
     }
-
+#endif
 
 
 

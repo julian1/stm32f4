@@ -204,6 +204,7 @@ void do_4094_transition( unsigned spi, const Mode *mode, uint32_t *system_millis
   spi_ice40_reg_write_n(spi, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
   spi_ice40_reg_write_n(spi, REG_DIRECT2, &mode->reg_direct2, sizeof( mode->reg_direct) );
 
+  spi_ice40_reg_write32(spi, REG_CLK_SAMPLE_DURATION, mode->reg_aperture );
 
 
  
@@ -889,7 +890,9 @@ static const Mode mode_initial =  {
 
   // fpga mode default. blink led.
 
-  .reg_mode = MODE_LO
+  .reg_mode = MODE_LO,
+
+  .reg_aperture = 0     // set explicitly in dcv 
 
 };
 
