@@ -210,8 +210,9 @@ typedef struct Mode
 
   uint32_t  reg_mode;
 
-  // F  reg_direct
-  // uint32_t  reg_mode;
+  F  reg_direct;
+  F  reg_direct2;
+
 
 } Mode;
 

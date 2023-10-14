@@ -200,6 +200,12 @@ void do_4094_transition( unsigned spi, const Mode *mode, uint32_t *system_millis
   // set mode
   spi_ice40_reg_write32(spi, REG_MODE, mode->reg_mode );
 
+    // spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
+  spi_ice40_reg_write_n(spi, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
+  spi_ice40_reg_write_n(spi, REG_DIRECT2, &mode->reg_direct2, sizeof( mode->reg_direct) );
+
+
+
  
 }
 

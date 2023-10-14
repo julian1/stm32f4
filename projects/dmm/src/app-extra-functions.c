@@ -182,10 +182,23 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
     mode->reg_mode = MODE_AZ;
 
+
+    mode->reg_direct.himux2 = S4 ;    // gnd to reduce leakage on himux
+    mode->reg_direct.himux  = S7 ;    // dcv-in
+    mode->reg_direct.azmux  = S6;    // lo
+
+
+    // set the hi signal az.
+    mode->reg_direct2.azmux  = S1;  // pc-out.
+ 
+
       // need to open the relay also.
     do_4094_transition( app->spi, mode,  &app->system_millis );
+
     //
     mux_ice40(app->spi);
+
+#if 0
     // set mmode az azmux
     // spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
     // set params.
@@ -199,6 +212,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     f.azmux  = S1;  // pc-out.
     spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
 
+#endif
 
     // EXTR. important. can query/read/check fpga nplc state - and check if already set. if not then set to default for range.
     uint32_t ret = spi_ice40_reg_read32( app->spi, REG_CLK_SAMPLE_DURATION);

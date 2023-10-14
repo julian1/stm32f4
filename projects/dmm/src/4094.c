@@ -110,7 +110,7 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
 // think passing a unsigned char *s. is better.
 // can then call with &value.
 
-uint32_t spi_4094_reg_write_n(uint32_t spi, unsigned char *s, size_t n)
+uint32_t spi_4094_reg_write_n(uint32_t spi, const unsigned char *s, size_t n)
 {
   uint32_t ret = 0;
 
