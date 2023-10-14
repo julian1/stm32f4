@@ -252,17 +252,20 @@ static void update_soft_500ms(app_t *app)
   // use a magic number that will also blink the led.
   uint32_t magic = app->led_state ? 0b010101 : 0b101010 ;
 
-  // blink fpga led. will only work if mode. 1.
+  // note - led. will only work if fpga in mode. 1.
   spi_ice40_reg_write32( app->spi, REG_LED, magic);
   uint32_t ret = spi_ice40_reg_read32( app->spi, REG_LED);
 
   if(ret != magic ) {
+
     // comms no good
     char buf[ 100] ;
     printf("no comms, wait for ice40 v %s\n",  format_bits(buf, 32, ret ));
     app->comms_ok = false;
+
     // return
-  } else {
+  }
+  else {
 
     // comms ok,
     if( app->comms_ok == false) {
@@ -270,6 +273,9 @@ static void update_soft_500ms(app_t *app)
       /////////////
       // coming from a condition with no comms - eg. initial startup, or restoration of comms.
       // then do start up sequence.
+
+      // reset mode_current to initial
+      *app->mode_current = *app->mode_initial;
 
       // write initial 4094 state - for muxes. before turning on 4094 OE.
       printf("write initial 4094 state\n");
@@ -284,24 +290,24 @@ static void update_soft_500ms(app_t *app)
       // now turn on 4094 OE
       printf("turn on 4094 OE %u\n", GLB_4094_OE);
       spi_ice40_reg_write32( app->spi, REG_4094, GLB_4094_OE);
-      // ret = spi_ice40_reg_read32( app->spi, REG_4094);
-      // assert( ret == GLB_4094_OE); // TOTO review... better handling.
+
+      /* turning on OE could fail.  because fpga comms goes down.
+        which means 4094 state won't get updated in future write.
+        which is a difficult case to have to handle.
+      */
+
+      ret = spi_ice40_reg_read32( app->spi, REG_4094);
+      if( ret != GLB_4094_OE)
+        return;
 
 
-      // now do initial transition again. to  put relays in the right state
+      // now do initial transition again. to  put relays in the right state with 4094 OE enabled
       printf("rewrite initial 4094 state\n");
       do_4094_transition( app->spi, app->mode_initial,  &app->system_millis );
 
 
-
       // make sure fpga is in a default mode.
       spi_ice40_reg_write32(app->spi, REG_MODE, 0 );
-
-
-
-  // printf("enter main loop\n");
-  // printf("> ");
-
 
 
       printf("comms ok\n");
