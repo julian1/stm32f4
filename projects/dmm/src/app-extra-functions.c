@@ -83,36 +83,18 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
   else if(strcmp(cmd, "reset") == 0) {
 
-    // think we should be derivinig from initial.
-    // *mode = mode_initial;  etc.
-
     // ok. this is working.
-    printf("reset.\n");
+    printf("perform reset\n");
 
     // reset mode
     *app->mode_current = *app->mode_initial;
 
-/*
-    // set the amp gain.
-    mode->first.U506  =  W1;
-    mode->second.U506 =  W1;
-
-    mode->first. K405_CTL  = RTOP;     // dcv-input relay k405 switch on
-    mode->second. K405_CTL = ROFF;
-*/
-
       // need to open the relay also.
     do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
 
-
-    mux_ice40(app->spi);
-    // set mode.
-    spi_ice40_reg_write32(app->spi, REG_MODE, MODE_LO ); // default.
-
-
+    // this is horrid state.
     // turn off any concurrent test.
     app->test_in_progress = 0;
-
 
     return 1;
   }
@@ -130,19 +112,8 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       || strcmp(cmd, "dcv01") == 0
       ) {
 
-
-    // thing is we
-
-    /*
     // derive new mode from initial .
-    // except this will overwrite - the dcvsource. and nplc.
-
-       NO. OK
-      - when using dcvsource we have a different mode.  OR we set dcvsource after setting mode.
-
-      - likewise it will overwrite nplc
-    */
-
+    // this overrides nplc/aperture.
     *app->mode_current = *app->mode_initial;
 
     //  alias to ease syntax
@@ -190,7 +161,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
     // set the hi signal az.
     mode->reg_direct2.azmux  = S1;  // pc-out.
- 
+
 
       // need to open the relay also.
     do_4094_transition( app->spi, mode,  &app->system_millis );
