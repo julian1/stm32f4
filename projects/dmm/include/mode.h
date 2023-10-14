@@ -78,6 +78,7 @@
 
 */
 
+// _4094_state_t
 typedef struct X
 {
   // U406 4094.
@@ -134,6 +135,8 @@ typedef struct X
 
 //  __attribute__((__packed__))
 
+
+// reg_direct_state_t
 typedef struct  __attribute__((__packed__))
 F
 {
@@ -159,7 +162,7 @@ F
   uint8_t spi_interupt_ctl : 1;     // 29bits
 
   uint8_t dummy   : 3;
-} F;    // change name REG_DIRECT_MODE ????  reg_direct_t.  and also add  or Reg_direct 
+} F;    // change name REG_DIRECT_MODE ????  reg_direct_t.  and also add  or Reg_direct
 
 
 
@@ -177,35 +180,20 @@ F
 // mode_t
 typedef struct Mode
 {
-  // put AZ mux here. also.
-/*
-    Actually can even put a mode.
-    here .
-    and then switch what gets written.
-*/
+
 
   X     first;
+
   X     second;
 
 
   /////////////////////////////////////
-  // consider puttinig. FPGA STATE IN  HERE/
+  // put . FPGA STATE IN  HERE/
   // fpga MODE.
-  // aperture/nplc.
-  // direct register.
-
-  // reg_mode
-  // reg_direct
-  // reg_aperture_duration   etc.
 
   // THE REASON TO NOT CONSIDER DOING THIS - is that do_state transition always pulses the relatys.
-  // while in some code (test setup) we may want more direct control.
-  //
+  // BUT. can still always control fpga directly after setting up the major state.
 
-  // and then using the do-transition  function to write fpga state. also.
-  // to smplify
-
-  // so that all state (both 4094, fpga) - is represented with a single consolidated vecotr.
   /////////////////////////////////////
 
   uint32_t  reg_mode;
