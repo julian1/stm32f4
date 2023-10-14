@@ -399,6 +399,15 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
       0V.      +4.8mV. +4.9mV.
       -10V      +10.2mV.
 
+    ////////////////
+    // oct 14.   after heavy refactor bringing fpga into mode. 
+                quick test.
+
+      charge 1nplc
+      +10V      -0.2mV
+      0V        +4.6mV.
+      -10V      +9.9mV.
+
 */
 
       return 1;
