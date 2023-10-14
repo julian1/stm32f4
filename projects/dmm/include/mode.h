@@ -88,11 +88,14 @@ typedef struct X
   uint8_t U406_UNUSED_2 : 4;
 
   // U401 4094
-  uint8_t U401_UNUSED : 8;    // controls U404.
+  uint8_t U401_UNUSED : 8;    // controls U404. boot. mux
+                              // 
 
 
   // U403
-  uint8_t U403_UNUSED : 6;
+  uint8_t K403_CTL    : 2;
+  uint8_t K401_CTL    : 2;
+  uint8_t K402_CTL    : 2;
   uint8_t K405_CTL    : 2;
 
 

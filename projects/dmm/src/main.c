@@ -194,7 +194,7 @@ void do_4094_transition( unsigned spi, const Mode *mode, uint32_t *system_millis
 
   /////////////////////////////
 
-  // now fpga state 
+  // now fpga state
   mux_ice40(spi);
 
   // set mode
@@ -207,7 +207,7 @@ void do_4094_transition( unsigned spi, const Mode *mode, uint32_t *system_millis
   spi_ice40_reg_write32(spi, REG_CLK_SAMPLE_DURATION, mode->reg_aperture );
 
 
- 
+
 }
 
 
@@ -870,13 +870,13 @@ static app_t app;
 
 static const Mode mode_initial =  {
 
+  //  maybe make explicit all values  U408_SW_CTL. at least for the initial mode, from which others derive.
 
-  // is everything else initialized to 0 ?
+  .first .K406_CTL  = RTOP,     // accumulation relay off
 
-  //  should be explicit for all values  U408_SW_CTL. at least for the initial mode, from which others derive.
-  .first .K406_CTL  = RTOP,     // accumulation relay off   (agn relay, is inverted for some reason).
-
-  .first. K405_CTL  = RBOT,     // dcv-input relay k405 switch off
+  .first. K405_CTL  = RBOT,     // dcv input relay k405 switch off
+  // .first. K402_CTL  = RBOT,     // dcv-div off
+  // .first. K401_CTL  = RBOT,     // dcv-source hi off.
 
   .first .U408_SW_CTL = 0,      // b2b fets/ input protection off/open
 
@@ -885,8 +885,8 @@ static const Mode mode_initial =  {
   // else draws current, and has risk damaging parts. mux pin 1. of adg. to put main amplifier in buffer/G=1 configuration.
   .first. U506 =  W1,     // should always be on
 
-  .second.K406_CTL  = ROFF,     // clear relay. default.
-  .second.K405_CTL  = ROFF,     // clear relay
+  // .second.K406_CTL  = ROFF,     // clear relay. default.
+  // .second.K405_CTL  = ROFF,     // clear relay
   .second.U408_SW_CTL = 0,
 
   .second.U506 =  W1,           // should  always be on.
@@ -896,7 +896,7 @@ static const Mode mode_initial =  {
 
   .reg_mode = MODE_LO,
 
-  .reg_aperture = 0     // set explicitly in dcv 
+  .reg_aperture = 0     // set explicitly in dcv
 
 };
 
@@ -1079,9 +1079,14 @@ int main(void)
   printf("sizeof Mode %u\n", sizeof(Mode ));
   printf("sizeof F    %u\n", sizeof(F));
 
+  // check some obvious stuff.
   assert(sizeof(F) == 4);
+  assert(sizeof(X) == 5);
 
   assert( (1<<3|(6-1)) == 0b1101 );
+  assert( S6  == 0b1101 );
+
+
 
   // modes_init();
 
