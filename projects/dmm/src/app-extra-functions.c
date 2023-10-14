@@ -144,21 +144,17 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     mode->first.  K405_CTL  = RBOT;
     mode->second. K405_CTL  = ROFF;
 
-    // accumulation relay off
-    // mode->first .K406_CTL  = RBOT;
-    // mode->second.K406_CTL  = ROFF;
-
     // TODO populate protection - and arm the fets also.
+
+
     ////////////
-
+    // fpga config
     mode->reg_mode = MODE_AZ;
-
 
     // set the input muxing.
     mode->reg_direct.himux2 = S4 ;    // gnd to reduce leakage on himux
     mode->reg_direct.himux  = S7 ;    // dcv-in
     mode->reg_direct.azmux  = S6;    // lo
-
 
     // set the hi signal az.
     mode->reg_direct2.azmux  = S1;  // pc-out.
@@ -166,44 +162,9 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     // set aperture
     mode->reg_aperture = nplc_to_aper_n( 1 );
 
- 
 
-      // need to open the relay also.
+    // do the state transition 
     do_4094_transition( app->spi, mode,  &app->system_millis );
-
-    //
-    mux_ice40(app->spi);
-
-#if 0
-    // set mmode az azmux
-    // spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
-    // set params.
-    F  f;
-    memset(&f, 0, sizeof(f));
-    f.himux2 = S4 ;    // gnd to reduce leakage on himux
-    f.himux  = S7 ;    // dcv-in
-    f.azmux  = S6;    // lo
-    spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
-    // set the hi signal az.
-    f.azmux  = S1;  // pc-out.
-    spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
-
-#endif
-
-#if 0
-    // EXTR. important. can query/read/check fpga nplc state - and check if already set. if not then set to default for range.
-    uint32_t ret = spi_ice40_reg_read32( app->spi, REG_CLK_SAMPLE_DURATION);
-    if(ret == 0) {
-
-      uint32_t nplc = 1;
-      printf("aperture not set, using %lu 1nplc.u\n",  nplc );
-
-      uint32_t aperture = nplc_to_aper_n( nplc );    // 1nplc default.
-
-      // write duration. should move.
-      spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, aperture );
-    }
-#endif
 
 
 
