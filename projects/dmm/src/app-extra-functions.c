@@ -86,7 +86,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     // set aperture
     mode->reg_aperture = aperture ;
 
-    // do the state transition 
+    // do the state transition
     do_4094_transition( app->spi, mode,  &app->system_millis );
 
     return 1;
@@ -96,18 +96,18 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
   else if(strcmp(cmd, "reset") == 0) {
 
+    // this is horrid state.
+    // turn off any concurrent test.
+    app->test_in_progress = 0;
+
     // ok. this is working.
     printf("perform reset\n");
 
     // reset mode to initial
     *app->mode_current = *app->mode_initial;
 
-    // do the state transition 
+    // do the state transition
     do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
-
-    // this is horrid state.
-    // turn off any concurrent test.
-    app->test_in_progress = 0;
 
     return 1;
   }
@@ -127,8 +127,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     // this is horrid state.
     // turn off any concurrent test.
     app->test_in_progress = 0;
-
-
 
     // derive new mode from initial .
     // this overrides nplc/aperture.
@@ -164,7 +162,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
     // TODO populate protection - and arm the fets also.
 
-
     ////////////
     // fpga config
     mode->reg_mode = MODE_AZ;
@@ -175,22 +172,57 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     mode->reg_direct.azmux  = S6;    // lo
 
     // set the hi signal az.
+    // really don't need to set this, it is always the same. we then get a different register.
     mode->reg_direct2.azmux  = S1;  // pc-out.
 
     // set aperture
+    // can override later.
     mode->reg_aperture = nplc_to_aper_n( 1 );
 
-
-    // do the state transition 
+    // do the state transition
     do_4094_transition( app->spi, mode,  &app->system_millis );
-
-
 
     return 1;
   }
 
 
 
+
+  else {
+    return 0;
+
+  }
+  // have to
+
+
+
+  return 0;
+}
+
+
+
+
+
+
+
+    // we also have to setup the input source.
+    // this should probably be the terminal????
+    // if dcv-source is active then it should probably be that.
+/*
+        F  f;
+        memset(&f, 0, sizeof(f));
+        f.himux2 = S1 ;    // s1 put dc-source on himux2 output
+        f.himux  = S2 ;    // s2 reflect himux2 on himux output
+
+        // set az mux.
+        f.azmux  = S6 ;    // s6 == normal LO for DCV, ohms.
+        spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
+
+        // set the hi signal az.
+        f.azmux  = S1 ;         // s1 == PC_OUT (either SIG or BOOT).
+        spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
+
+*/
 
 
 #if 0
@@ -233,39 +265,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   }
 
 #endif
-
-    else {
-      return 0;
-
-    }
-    // have to
-
-
-
-
-    // we also have to setup the input source.
-    // this should probably be the terminal????
-    // if dcv-source is active then it should probably be that.
-/*
-        F  f;
-        memset(&f, 0, sizeof(f));
-        f.himux2 = S1 ;    // s1 put dc-source on himux2 output
-        f.himux  = S2 ;    // s2 reflect himux2 on himux output
-
-        // set az mux.
-        f.azmux  = S6 ;    // s6 == normal LO for DCV, ohms.
-        spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
-
-        // set the hi signal az.
-        f.azmux  = S1 ;         // s1 == PC_OUT (either SIG or BOOT).
-        spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
-
-*/
-
-    return 1;
-  }
-
-
 
 #if 0
   if( sscanf(cmd, "dcv-source %ld", &i0) == 1) {
