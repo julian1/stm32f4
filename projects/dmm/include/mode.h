@@ -1,6 +1,9 @@
 
 #pragma once
 
+
+
+
 /*
 
 // modes of operation.
@@ -10,6 +13,36 @@
   - this could have references to the vectors to
 
 */
+
+
+
+
+/*
+  EXTR.
+    don't care about defining inidividual registers for muxes etc.
+    instead the entire state representation is considered as register. with a pre-determined set of modes / elements.
+
+    - the clearing mask for relays, is normally always the same. but the need to manipulate b2b fets changes thing.
+    - with a straight array.   WE *CAN* also define using a parallel alternative structure with bitfield.
+  ----
+    - sequencing - may also want to switch relays, wait. then turn on the analog switches.
+
+    - EXTR. THE state of ALL relays must be defined.  0 just means use prior state.  which is wrong.  either L1, or L2.  not 0.
+
+    - It would be easier to do this with a memcpy.
+
+                                      first transition            // second transition
+                                      U406    U401
+*/
+
+// is wrong. we have to switch all the relays to a defined state
+
+
+
+
+
+
+
 
 
 /*

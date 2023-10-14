@@ -125,36 +125,6 @@ static void state_format ( uint8_t *state, size_t n)
 
 
 
-/*
-  EXTR.
-    don't care about defining inidividual registers for muxes etc.
-    instead the entire state representation is considered as register. with a pre-determined set of modes / elements.
-
-    - the clearing mask for relays, is normally always the same. but the need to manipulate b2b fets changes thing.
-    - with a straight array.   WE *CAN* also define using a parallel alternative structure with bitfield.
-  ----
-    - sequencing - may also want to switch relays, wait. then turn on the analog switches.
-
-    - EXTR. THE state of ALL relays must be defined.  0 just means use prior state.  which is wrong.  either L1, or L2.  not 0.
-
-    - It would be easier to do this with a memcpy.
-
-                                      first transition            // second transition
-                                      U406    U401
-*/
-
-// is wrong. we have to switch all the relays to a defined state
-
-
-
-
-
-
-
-
-
-
-
 
 
 ////////////////////
@@ -186,118 +156,6 @@ double aper_n_to_period( uint32_t aper_n)
 
 
 
-
-
-/*
-  EXTR.
-    might be easier to pass these around inside the app structure.
-
-    Yes.
-    rather than globals.
-    should be passed. directly. or else taken from a context.
-
-    commonly used vectors.
-  ----------
-
-  NO . these are vectors that should be constructed as needed'.
-
-
-
-*/
-
-////////////////////
-
-
-/*
-  Not sure if need.
-
-  just carry a single current- state around.  for use with some tests.
-*/
-// static Mode mode_dcv_az ;
-
-/* IMPORTANT the precharge switch relay - is held constant/closed for the mode.
-  but we cycle one of the muxes - to read gnd/ to reset the charge on the cap.
-  we can also. use dc-source to add an initial voltage bias to cap.
-*/
-
-// Mode mode_test_accumulation;
-
-/*
-  change name modes_init.
-
-*/
-
-
-/*
-Other members are initialized as zero: "Omitted field members are implicitly initialized the same as objects that have static storage duration." (https://gcc.gnu.org/onlinedocs
-
-*/
-
-
-
-#if 0
-
-static void modes_init( void )
-{
-  /*
-    instead of having individual registers. we have individual elemental mode states , that exist.
-
-    is there an alignment issue... with setting the bitfield???
-
-  */
-
-  // memset( &mode_zero,    0, sizeof( Mode) );
-  memset( &mode_initial, 0, sizeof( Mode) );
-  // memset( &mode_dcv_az,  0, sizeof( Mode) );
-  // memset( &mode_test_accumulation,  0, sizeof( Mode) );
-
-  /*
-    ALL relays must be given a pulse here. to get to default state.
-    cannot just leave at 0V.
-  */
-
-  //  should be explicit for all values  U408_SW_CTL. at least for the initial mode, from which others derive.
-  mode_initial.first .K406_CTL  = RBOT;     // accumulation relay off   (seems inverted for some reason).
-  mode_initial.second.K406_CTL  = ROFF;     // clear relay
-
-  mode_initial.first .U408_SW_CTL = 0;      // b2b fets/ input protection off/open
-
-  mode_initial.first. K405_CTL  = RTOP;     // dcv-input relay k405 switch off
-  mode_initial.second.K405_CTL  = ROFF;     // clear relay
-
-  mode_initial.second.U408_SW_CTL = 0;
-
-
-  mode_initial.first. U506 =  W1;              // AMP FEEDBACK SHOULD NEVER BE TURNED OFF. danger of damaging parts. mux pin 1. of adg. to put main amplifier in buffer/G=1 configuration.
-  mode_initial.second.U506 =  W1;
-
-  /* EXTR. with series resistors to 4094 - for driving lower coil-voltage relays - there is a drop on the drive side.
-      AND a drop on the lo side.  eg. with 50R. this looks like a poor on-pulse
-
-  */
-/*
-  //////////
-  mode_dcv_az = mode_initial;               // eg. turn all relays off
-  mode_dcv_az.first. K405_CTL    = RBOT;     // turn dcv-input K405 on.
-  mode_dcv_az.second.K405_CTL    = ROFF;    // clear relay.  don't really need since inherits from initial.
-
-  mode_dcv_az.first. U408_SW_CTL = 0;        // turn off b2b fets, while switching relay on.
-  mode_dcv_az.second.U408_SW_CTL = 1;       // turn on/close b2b fets.
-
-*/
-
-  ////
-  // cap-accumulation mode.
-  // mode_test_accumulation = mode_initial;
-  // mode_test_accumulation.first .K406_CTL  = RTOP;  // accumulation relay on
-
-}
-
-#endif
-
-
-
-// flashing of led... is writing ????
 
 
 void do_4094_transition( unsigned spi, const Mode *mode, uint32_t *system_millis)
@@ -365,7 +223,6 @@ static void update_soft_100ms(app_t *app)
 
 
 
-
 static void update_soft_500ms(app_t *app)
 {
   // UNUSED(app);
@@ -389,33 +246,7 @@ static void update_soft_500ms(app_t *app)
 
 
 
-
-  // printf("count %u\n", ++ app->count);
-/*
-  // 500ms. heartbeat check here.
-  // this works nicely
-  {
-    uint32_t magic = RBOT10;   // this is returning the wrong value....
-    mux_ice40(app->spi);
-    spi_ice40_reg_write32( app->spi, REG_LED, magic);
-    uint32_t ret = spi_ice40_reg_read32( app->spi, REG_LED);
-    if(magic != ret) {
-      char buf[ 100] ;
-
-      printf("no comms, wait for ice40 v %s\n",  format_bits(buf, 32, ret ));
-      // return
-      // or should probably do a reset. when comms re-established
-    }
-  }
-
-// should perhaps use top RTOP RBOTTOM
-#define ROFF      0
-#define RTOP      0b01      // top contact closed.
-#define RBOT      0b10      // bottom contact closed.
-
-
-*/
-
+  // hearbeat and led flash
   mux_ice40(app->spi);
 
   // use a magic number that will also blink the led.
@@ -1306,6 +1137,145 @@ void _write_r( void)
 
 
 
+
+
+  // printf("count %u\n", ++ app->count);
+/*
+  // 500ms. heartbeat check here.
+  // this works nicely
+  {
+    uint32_t magic = RBOT10;   // this is returning the wrong value....
+    mux_ice40(app->spi);
+    spi_ice40_reg_write32( app->spi, REG_LED, magic);
+    uint32_t ret = spi_ice40_reg_read32( app->spi, REG_LED);
+    if(magic != ret) {
+      char buf[ 100] ;
+
+      printf("no comms, wait for ice40 v %s\n",  format_bits(buf, 32, ret ));
+      // return
+      // or should probably do a reset. when comms re-established
+    }
+  }
+
+// should perhaps use top RTOP RBOTTOM
+#define ROFF      0
+#define RTOP      0b01      // top contact closed.
+#define RBOT      0b10      // bottom contact closed.
+
+
+*/
+
+
+/*
+  EXTR.
+    might be easier to pass these around inside the app structure.
+
+    Yes.
+    rather than globals.
+    should be passed. directly. or else taken from a context.
+
+    commonly used vectors.
+  ----------
+
+  NO . these are vectors that should be constructed as needed'.
+
+
+
+*/
+
+////////////////////
+
+
+/*
+  Not sure if need.
+
+  just carry a single current- state around.  for use with some tests.
+*/
+// static Mode mode_dcv_az ;
+
+/* IMPORTANT the precharge switch relay - is held constant/closed for the mode.
+  but we cycle one of the muxes - to read gnd/ to reset the charge on the cap.
+  we can also. use dc-source to add an initial voltage bias to cap.
+*/
+
+// Mode mode_test_accumulation;
+
+/*
+  change name modes_init.
+
+*/
+
+
+/*
+Other members are initialized as zero: "Omitted field members are implicitly initialized the same as objects that have static storage duration." (https://gcc.gnu.org/onlinedocs
+
+*/
+
+
+
+#if 0
+
+static void modes_init( void )
+{
+  /*
+    instead of having individual registers. we have individual elemental mode states , that exist.
+
+    is there an alignment issue... with setting the bitfield???
+
+  */
+
+  // memset( &mode_zero,    0, sizeof( Mode) );
+  memset( &mode_initial, 0, sizeof( Mode) );
+  // memset( &mode_dcv_az,  0, sizeof( Mode) );
+  // memset( &mode_test_accumulation,  0, sizeof( Mode) );
+
+  /*
+    ALL relays must be given a pulse here. to get to default state.
+    cannot just leave at 0V.
+  */
+
+  //  should be explicit for all values  U408_SW_CTL. at least for the initial mode, from which others derive.
+  mode_initial.first .K406_CTL  = RBOT;     // accumulation relay off   (seems inverted for some reason).
+  mode_initial.second.K406_CTL  = ROFF;     // clear relay
+
+  mode_initial.first .U408_SW_CTL = 0;      // b2b fets/ input protection off/open
+
+  mode_initial.first. K405_CTL  = RTOP;     // dcv-input relay k405 switch off
+  mode_initial.second.K405_CTL  = ROFF;     // clear relay
+
+  mode_initial.second.U408_SW_CTL = 0;
+
+
+  mode_initial.first. U506 =  W1;              // AMP FEEDBACK SHOULD NEVER BE TURNED OFF. danger of damaging parts. mux pin 1. of adg. to put main amplifier in buffer/G=1 configuration.
+  mode_initial.second.U506 =  W1;
+
+  /* EXTR. with series resistors to 4094 - for driving lower coil-voltage relays - there is a drop on the drive side.
+      AND a drop on the lo side.  eg. with 50R. this looks like a poor on-pulse
+
+  */
+/*
+  //////////
+  mode_dcv_az = mode_initial;               // eg. turn all relays off
+  mode_dcv_az.first. K405_CTL    = RBOT;     // turn dcv-input K405 on.
+  mode_dcv_az.second.K405_CTL    = ROFF;    // clear relay.  don't really need since inherits from initial.
+
+  mode_dcv_az.first. U408_SW_CTL = 0;        // turn off b2b fets, while switching relay on.
+  mode_dcv_az.second.U408_SW_CTL = 1;       // turn on/close b2b fets.
+
+*/
+
+  ////
+  // cap-accumulation mode.
+  // mode_test_accumulation = mode_initial;
+  // mode_test_accumulation.first .K406_CTL  = RTOP;  // accumulation relay on
+
+}
+
+#endif
+
+
+
+// flashing of led... is writing ????
 
 
 
