@@ -356,8 +356,10 @@ static void update_soft_500ms(app_t *app)
       // mode_derived.second.K402_CTL    = ROFF;    // clear relay.  don't really need since inherits from initial.
 
       // K401 working.
-      mode_derived.first. K401_CTL    = RTOP;     // turn dcv-input K402 on.
-      mode_derived.second.K401_CTL    = ROFF;    // clear relay.  don't really need since inherits from initial.
+      // mode_derived.first. K401_CTL    = RTOP;     // turn dcv-input K402 on.
+      // mode_derived.second.K401_CTL    = ROFF;    // clear relay.  don't really need since inherits from initial.
+
+      mode_derived.first. K403_CTL    = RTOP;     // ohms on.
 
 
 

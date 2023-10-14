@@ -37,7 +37,8 @@ typedef struct app_t
 
   ////////
   // not sure what the best way is to handle this state.
-  unsigned count;
+  // could be interesting to have an uptime.
+  // unsigned count;
 
   bool led_state ;     // should rename, or just use the last bit of the count .
 
@@ -51,6 +52,8 @@ typedef struct app_t
   // void (*yielded_function)( app_t * ) ;
   unsigned test_in_progress; // enum. for test type.
 
+
+  // fpga comms is active/ok
   bool comms_ok;
 
   // we don't/shouldn't even need the current 4094/fpga state recorded/duplicated here.
@@ -58,12 +61,12 @@ typedef struct app_t
 
   /*
     mode_inthese are here to aid  access.
-    use pointer to keep opaque and easier  
+    use pointer to keep opaque and easier
 
   */
-  
-  const Mode *mode_initial;      // use pointer  
-  Mode *mode_current;      // all inputs turned off.
+
+  const Mode *mode_initial;
+  Mode *mode_current;
 
 
 } app_t;
