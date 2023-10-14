@@ -348,8 +348,18 @@ static void update_soft_500ms(app_t *app)
       //////////
       Mode mode_derived = *app->mode_initial;     // copy initial state.eg. turn all relays off
 
-      mode_derived.first. K405_CTL    = RTOP;     // turn dcv-input K405 on.
-      mode_derived.second.K405_CTL    = ROFF;    // clear relay.  don't really need since inherits from initial.
+      // mode_derived.first. K405_CTL    = RTOP;     // turn dcv-input K405 on.
+      // mode_derived.second.K405_CTL    = ROFF;    // clear relay.  don't really need since inherits from initial.
+
+      // K402 working.
+      // mode_derived.first. K402_CTL    = RTOP;     // turn dcv-input K402 on.
+      // mode_derived.second.K402_CTL    = ROFF;    // clear relay.  don't really need since inherits from initial.
+
+      // K401 working.
+      mode_derived.first. K401_CTL    = RTOP;     // turn dcv-input K402 on.
+      mode_derived.second.K401_CTL    = ROFF;    // clear relay.  don't really need since inherits from initial.
+
+
 
       mode_derived.first. U408_SW_CTL = 0;        // turn off b2b fets, while switching relay on.
       mode_derived.second.U408_SW_CTL = 1;       // turn on/close b2b fets.
@@ -482,6 +492,7 @@ static void update_console_cmd(app_t *app)
         printf("test03 use 4094, to click dcv sequencing/ b2b fet/ relays\n");
         app->test_in_progress = 3;
       }
+
 
       else if( strcmp(cmd, "test04") == 0) {
 
@@ -874,9 +885,10 @@ static const Mode mode_initial =  {
 
   .first .K406_CTL  = RTOP,     // accumulation relay off
 
-  .first. K405_CTL  = RBOT,     // dcv input relay k405 switch off
-  // .first. K402_CTL  = RBOT,     // dcv-div off
-  // .first. K401_CTL  = RBOT,     // dcv-source hi off.
+  .first. K405_CTL  = RBOT,     // dcv input relay k405 switch off - works.
+  .first. K402_CTL  = RBOT,     // dcv-div relay off
+  .first. K401_CTL  = RBOT,     // dcv-source relay off.
+  .first. K403_CTL  = RBOT,     // ohms relay off.
 
   .first .U408_SW_CTL = 0,      // b2b fets/ input protection off/open
 
@@ -1022,7 +1034,7 @@ int main(void)
   app.mode_current =  &mode_current;
 
 
-  
+
 
   printf("sizeof X    %u\n", sizeof(X));
   printf("sizeof Mode %u\n", sizeof(Mode ));
