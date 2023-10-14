@@ -47,6 +47,7 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
         */
         printf("test leakage and charge-injection from switching pre-charge switch at different biases\n");
         app->test_in_progress = 0;
+
         Mode j = *app->mode_initial;
 
         if(i0 == 10) {
@@ -70,6 +71,9 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
         j.first .K406_CTL  = RTOP;    // POLARITY LOOKS WEIRD.
         j.second.K406_CTL  = ROFF;    // don't need this....  it is 0 by default
 
+
+
+#if 0
         do_4094_transition( app->spi, &j,  &app->system_millis );
 
         /////////////////
@@ -84,6 +88,17 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
         f.himux  = S2 ;    // s2 reflect himux2 on himux output
         f.sig_pc_sw_ctl  = 1;  // turn on. precharge.  on. to route signal to az mux... doesn't matter.
         spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
+#endif
+
+
+        j.reg_mode =  MODE_DIRECT;
+        j.reg_direct.himux2 = S1 ;    // s1 put dc-source on himux2 output
+        j.reg_direct.himux  = S2 ;    // s2 rej.reg_directlect himux2 on himux output
+        j.reg_direct.sig_pc_sw_ctl  = 1;  // turn on. precharge.  on. to route signal to az mux... doesn't matter.
+ 
+
+        do_4094_transition( app->spi, &j,  &app->system_millis );
+
 
         ////////////////////////////
         // so charge cap to the dcv-source
@@ -103,6 +118,7 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
 
 
 
+        F  f;
         memset(&f, 0, sizeof(f));
         f.himux2 = SOFF ;
         f.himux  = SOFF ;
@@ -408,6 +424,10 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
       0V        +4.6mV.
       -10V      +9.9mV.
 
+        // and factor test15 code to do initial setup in state transition.
+      +10V      -0.6mV.
+      0V        +4.6mV
+      -10V      9.7mV
 */
 
       return 1;
