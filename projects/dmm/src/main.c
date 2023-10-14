@@ -349,18 +349,20 @@ static void update_soft_500ms(app_t *app)
       Mode mode_derived = *app->mode_initial;     // copy initial state.eg. turn all relays off
 
       // mode_derived.first. K405_CTL    = RTOP;     // turn dcv-input K405 on.
-      // mode_derived.second.K405_CTL    = ROFF;    // clear relay.  don't really need since inherits from initial.
 
       // K402 working.
       // mode_derived.first. K402_CTL    = RTOP;     // turn dcv-input K402 on.
-      // mode_derived.second.K402_CTL    = ROFF;    // clear relay.  don't really need since inherits from initial.
 
       // K401 working.
       // mode_derived.first. K401_CTL    = RTOP;     // turn dcv-input K402 on.
-      // mode_derived.second.K401_CTL    = ROFF;    // clear relay.  don't really need since inherits from initial.
 
-      mode_derived.first. K403_CTL    = RTOP;     // ohms on.
 
+      // switch all relays at the same time.  should be another test
+      // works...
+      mode_derived.first.K405_CTL    = RTOP;
+      mode_derived.first.K402_CTL    = RTOP;
+      mode_derived.first.K401_CTL    = RTOP;
+      mode_derived.first.K403_CTL    = RTOP;
 
 
       mode_derived.first. U408_SW_CTL = 0;        // turn off b2b fets, while switching relay on.
