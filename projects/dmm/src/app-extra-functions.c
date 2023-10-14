@@ -135,7 +135,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     //  alias to ease syntax
     Mode *mode = app->mode_current;
 
-
     // set the ampliier gain.
     if( strcmp(cmd, "dcv10") == 0) {
         printf("whoot dcv10\n");
@@ -153,12 +152,8 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
         mode->second.U506 =  W3;
     }
 
-
-    // EXTR. - it would be better to derive the state to use from initial .
-
     // close/ turn on K405 relay.
     mode->first.  K405_CTL  = RTOP;
-    mode->second. K405_CTL  = ROFF;
 
     // TODO populate protection - and arm the fets also.
 
