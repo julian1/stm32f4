@@ -74,8 +74,21 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     printf("aperture %lu\n",   aperture );
     printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture ));
     printf("period   %.2lfs\n", aper_n_to_period( aperture ));
+#if 0
     // write duration. should move.
     spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, aperture );
+#endif
+
+
+    // alias to ease syntax
+    Mode *mode = app->mode_current;
+
+    // set aperture
+    mode->reg_aperture = aperture ;
+
+    // do the state transition 
+    do_4094_transition( app->spi, mode,  &app->system_millis );
+
     return 1;
   }
 
@@ -86,10 +99,10 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     // ok. this is working.
     printf("perform reset\n");
 
-    // reset mode
+    // reset mode to initial
     *app->mode_current = *app->mode_initial;
 
-      // need to open the relay also.
+    // do the state transition 
     do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
 
     // this is horrid state.
@@ -111,6 +124,11 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       || strcmp(cmd, "dcv1") == 0
       || strcmp(cmd, "dcv01") == 0
       ) {
+    // this is horrid state.
+    // turn off any concurrent test.
+    app->test_in_progress = 0;
+
+
 
     // derive new mode from initial .
     // this overrides nplc/aperture.
