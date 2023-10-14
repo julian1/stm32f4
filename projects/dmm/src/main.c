@@ -1022,58 +1022,7 @@ int main(void)
   app.mode_current =  &mode_current;
 
 
-  // app.print_adc_values = true;
-  // app.output = false;
-
-
-
-#if 0
-  // do fpga reset
-  spi1_port_cs1_cs2_gpio_setup();
-
-  msleep(1000);
-
-  //while(1)
-  {
-    // set cs lo, to pull creset lo
-    printf("assert cs\n");
-    spi1_port_cs1_enable();
-    spi1_port_cs2_enable();
-    msleep(100);
-    printf("deassert cs\n");
-    spi1_port_cs1_disable();
-    spi1_port_cs2_disable();
-    msleep(100);
-  }
-
-#endif
-
-
-
-#if 0
-
-  // we don't need to wait anymore... we have heartbeat
-  // mux spi to ice40
-  mux_ice40(app.spi);
-  spi_ice40_wait_for_ice40( app.spi );
-
-
-  /*
-  TODO
-    this is not quite right.
-    we must write /reset 4094 state before turning on OE.
-    else 4094 flip/flops may come up in any state,
-
-    should also verify that value was correct. by writing.  and without asserting strobe.
-    relays latch could be caught in on state.
-  */
-
-  printf("turning on 4094 OE\n");
-  // output enable 4094
-  spi_ice40_reg_write32( app.spi, REG_4094,  GLB_4094_OE );
-
-#endif
-
+  
 
   printf("sizeof X    %u\n", sizeof(X));
   printf("sizeof Mode %u\n", sizeof(Mode ));
@@ -1169,6 +1118,57 @@ void _write_r( void)
 
 
 
+// app.print_adc_values = true;
+  // app.output = false;
+
+
+
+#if 0
+  // do fpga reset
+  spi1_port_cs1_cs2_gpio_setup();
+
+  msleep(1000);
+
+  //while(1)
+  {
+    // set cs lo, to pull creset lo
+    printf("assert cs\n");
+    spi1_port_cs1_enable();
+    spi1_port_cs2_enable();
+    msleep(100);
+    printf("deassert cs\n");
+    spi1_port_cs1_disable();
+    spi1_port_cs2_disable();
+    msleep(100);
+  }
+
+#endif
+
+
+
+#if 0
+
+  // we don't need to wait anymore... we have heartbeat
+  // mux spi to ice40
+  mux_ice40(app.spi);
+  spi_ice40_wait_for_ice40( app.spi );
+
+
+  /*
+  TODO
+    this is not quite right.
+    we must write /reset 4094 state before turning on OE.
+    else 4094 flip/flops may come up in any state,
+
+    should also verify that value was correct. by writing.  and without asserting strobe.
+    relays latch could be caught in on state.
+  */
+
+  printf("turning on 4094 OE\n");
+  // output enable 4094
+  spi_ice40_reg_write32( app.spi, REG_4094,  GLB_4094_OE );
+
+#endif
 
 
   // printf("count %u\n", ++ app->count);
