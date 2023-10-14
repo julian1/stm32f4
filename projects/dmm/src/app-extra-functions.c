@@ -157,7 +157,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     // EXTR. - it would be better to derive the state to use from initial .
 
     // close/ turn on K405 relay.
-    mode->first.  K405_CTL  = RBOT;
+    mode->first.  K405_CTL  = RTOP;
     mode->second. K405_CTL  = ROFF;
 
     // TODO populate protection - and arm the fets also.
@@ -177,7 +177,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
     // set aperture
     // can override later.
-    mode->reg_aperture = nplc_to_aper_n( 1 );
+    mode->reg_aperture = nplc_to_aper_n( 1 ); // this is dynamic. maybe 50,60Hz. or other.
 
     // do the state transition
     do_4094_transition( app->spi, mode,  &app->system_millis );

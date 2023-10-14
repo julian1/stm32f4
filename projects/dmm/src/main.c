@@ -348,7 +348,7 @@ static void update_soft_500ms(app_t *app)
       //////////
       Mode mode_derived = *app->mode_initial;     // copy initial state.eg. turn all relays off
 
-      mode_derived.first. K405_CTL    = RBOT;     // turn dcv-input K405 on.
+      mode_derived.first. K405_CTL    = RTOP;     // turn dcv-input K405 on.
       mode_derived.second.K405_CTL    = ROFF;    // clear relay.  don't really need since inherits from initial.
 
       mode_derived.first. U408_SW_CTL = 0;        // turn off b2b fets, while switching relay on.
@@ -524,7 +524,7 @@ static void update_console_cmd(app_t *app)
         else assert(0);
 
         // turn on accumulation relay     RON ROFF.  or RL1 ?  K606_ON
-        j.first .K406_CTL  = RTOP;
+        j.first .K406_CTL  = RBOT;
         j.second.K406_CTL  = ROFF;    // don't need this....  it is 0 by default
 
         do_4094_transition( app->spi, &j,  &app->system_millis );
@@ -591,7 +591,7 @@ static void update_console_cmd(app_t *app)
         else assert(0);
 
         // turn on accumulation relay     RON ROFF.  or RL1 ?
-        j.first .K406_CTL  = RTOP;
+        j.first .K406_CTL  = RBOT;
         j.second.K406_CTL  = ROFF;    // don't need this....  it is 0 by default
 
         do_4094_transition( app->spi, &j,  &app->system_millis );
@@ -874,9 +874,13 @@ static const Mode mode_initial =  {
   // is everything else initialized to 0 ?
 
   //  should be explicit for all values  U408_SW_CTL. at least for the initial mode, from which others derive.
-  .first .K406_CTL  = RBOT,     // accumulation relay off   (agn relay, is inverted for some reason).
-  .first. K405_CTL  = RTOP,     // dcv-input relay k405 switch off
+  .first .K406_CTL  = RTOP,     // accumulation relay off   (agn relay, is inverted for some reason).
+
+  .first. K405_CTL  = RBOT,     // dcv-input relay k405 switch off
+
   .first .U408_SW_CTL = 0,      // b2b fets/ input protection off/open
+
+
   // AMP FEEDBACK SHOULD NEVER BE TURNED OFF.
   // else draws current, and has risk damaging parts. mux pin 1. of adg. to put main amplifier in buffer/G=1 configuration.
   .first. U506 =  W1,     // should always be on
@@ -1167,7 +1171,7 @@ void _write_r( void)
   // 500ms. heartbeat check here.
   // this works nicely
   {
-    uint32_t magic = RBOT10;   // this is returning the wrong value....
+    uint32_t magic = RTOP10;   // this is returning the wrong value....
     mux_ice40(app->spi);
     spi_ice40_reg_write32( app->spi, REG_LED, magic);
     uint32_t ret = spi_ice40_reg_read32( app->spi, REG_LED);
@@ -1180,10 +1184,10 @@ void _write_r( void)
     }
   }
 
-// should perhaps use top RTOP RBOTTOM
+// should perhaps use top RBOT RTOPTOM
 #define ROFF      0
-#define RTOP      0b01      // top contact closed.
-#define RBOT      0b10      // bottom contact closed.
+#define RBOT      0b01      // top contact closed.
+#define RTOP      0b10      // bottom contact closed.
 
 
 */
@@ -1258,12 +1262,12 @@ static void modes_init( void )
   */
 
   //  should be explicit for all values  U408_SW_CTL. at least for the initial mode, from which others derive.
-  mode_initial.first .K406_CTL  = RBOT;     // accumulation relay off   (seems inverted for some reason).
+  mode_initial.first .K406_CTL  = RTOP;     // accumulation relay off   (seems inverted for some reason).
   mode_initial.second.K406_CTL  = ROFF;     // clear relay
 
   mode_initial.first .U408_SW_CTL = 0;      // b2b fets/ input protection off/open
 
-  mode_initial.first. K405_CTL  = RTOP;     // dcv-input relay k405 switch off
+  mode_initial.first. K405_CTL  = RBOT;     // dcv-input relay k405 switch off
   mode_initial.second.K405_CTL  = ROFF;     // clear relay
 
   mode_initial.second.U408_SW_CTL = 0;
@@ -1279,7 +1283,7 @@ static void modes_init( void )
 /*
   //////////
   mode_dcv_az = mode_initial;               // eg. turn all relays off
-  mode_dcv_az.first. K405_CTL    = RBOT;     // turn dcv-input K405 on.
+  mode_dcv_az.first. K405_CTL    = RTOP;     // turn dcv-input K405 on.
   mode_dcv_az.second.K405_CTL    = ROFF;    // clear relay.  don't really need since inherits from initial.
 
   mode_dcv_az.first. U408_SW_CTL = 0;        // turn off b2b fets, while switching relay on.
@@ -1290,7 +1294,7 @@ static void modes_init( void )
   ////
   // cap-accumulation mode.
   // mode_test_accumulation = mode_initial;
-  // mode_test_accumulation.first .K406_CTL  = RTOP;  // accumulation relay on
+  // mode_test_accumulation.first .K406_CTL  = RBOT;  // accumulation relay on
 
 }
 
@@ -1313,8 +1317,8 @@ static void spi_ice40_wait_for_ice40( uint32_t spi)
 
   printf("wait for ice40\n");
   uint32_t ret = 0;
-  // uint8_t magic = RTOP01; // ok. not ok now.  ok. when reset the fpga.
-  uint8_t magic = RBOT10;   // this is returning the wrong value....
+  // uint8_t magic = RBOT01; // ok. not ok now.  ok. when reset the fpga.
+  uint8_t magic = RTOP10;   // this is returning the wrong value....
   do {
     // printf(".");
 
@@ -1588,7 +1592,7 @@ static void relay_set( unsigned spi, uint8_t *state_4094, size_t n, unsigned reg
 
 
   // set two relay bits, according to dir
-  state_write ( state_4094, n, reg_relay, 2, relay_state ? RTOP : RBOT );
+  state_write ( state_4094, n, reg_relay, 2, relay_state ? RBOT : RTOP );
 
   // output/print - TODO change name state_format_stdout, or something.
   state_format ( state_4094, n);
@@ -1703,7 +1707,7 @@ static void relay_set( unsigned spi, uint8_t *state_4094, size_t n, unsigned reg
   /// toggle ctrl pins of U404
   mux_4094( app->spi);
   // set two relay bits, according to dir.  is 4 is the number of bits.
-  state_write ( app->state_4094, sizeof(app->state_4094), REG_U404 , 4, led_state ? RBOT00 : ROFF00 );
+  state_write ( app->state_4094, sizeof(app->state_4094), REG_U404 , 4, led_state ? RTOP00 : ROFF00 );
   // output/print - TODO change name state_format_stdout, or something.
   state_format ( app->state_4094, sizeof(app->state_4094));
   // and write device
@@ -1832,7 +1836,7 @@ static void relay_set( unsigned spi, uint8_t *state_4094, size_t n, unsigned reg
 
 #if 0
   mux_4094(app->spi);
-  spi_4094_reg_write(app->spi , RTOP010101 );
+  spi_4094_reg_write(app->spi , RBOT010101 );
 
   // msleep(1);    // if we put a sleep here we get a diffferent read value?????
 

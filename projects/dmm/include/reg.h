@@ -84,10 +84,10 @@
 #define W4          ((1<<2)|(4-1))
 
 
-// should perhaps use top RTOP RBOTTOM 
+// should perhaps use top RBOT RTOPTOM 
 #define ROFF      0
-#define RTOP      0b01      // top contact closed.
-#define RBOT      0b10      // bottom contact closed.
+#define RBOT      0b01      // top contact closed.
+#define RTOP      0b10      // bottom contact closed.
 
 
 

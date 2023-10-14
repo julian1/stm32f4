@@ -68,7 +68,7 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
         else assert(0);
 
         // turn on accumulation relay     RON ROFF.  or RL1 ?  K606_ON
-        j.first .K406_CTL  = RTOP;    // POLARITY LOOKS WEIRD.
+        j.first .K406_CTL  = RBOT;
         j.second.K406_CTL  = ROFF;    // don't need this....  it is 0 by default
 
 
@@ -95,7 +95,7 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
         j.reg_direct.himux2 = S1 ;    // s1 put dc-source on himux2 output
         j.reg_direct.himux  = S2 ;    // s2 rej.reg_directlect himux2 on himux output
         j.reg_direct.sig_pc_sw_ctl  = 1;  // turn on. precharge.  on. to route signal to az mux... doesn't matter.
- 
+
 
         do_4094_transition( app->spi, &j,  &app->system_millis );
 
@@ -402,10 +402,10 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
       -10V      +11.9mV. 11.4mV.
 
       /////////
-      // amplifier with mux populated, using G=1. feedback. 
+      // amplifier with mux populated, using G=1. feedback.
       // quieck test again. with amplifier working at G=1. concerned screwed up precharge duration.
       // seems. ok.
-  
+
       leakage
       +10V.    0mV
       -10V     3.3mV  2.5mA.
@@ -416,7 +416,7 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
       -10V      +10.2mV.
 
     ////////////////
-    // oct 14.   after heavy refactor bringing fpga into mode. 
+    // oct 14.   after heavy refactor bringing fpga into mode.
                 quick test.
 
       charge 1nplc
