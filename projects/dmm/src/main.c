@@ -422,21 +422,6 @@ static void update_console_cmd(app_t *app)
 
       ////////////////////
 
-/*
-      if( strcmp(cmd, "reset") == 0) {
-        printf("reset initial state\n");
-
-        Mode j = mode_initial;
-        do_4094_transition( app->spi, &j,  &app->system_millis );
-
-        mux_ice40(app->spi);
-        spi_ice40_reg_write32(app->spi, REG_MODE, 0 );  // defaultpattern.
-
-        // make sure relay switching test is off.
-        app->test_in_progress = 0;
-
-      }
-*/
 
       if(strcmp(cmd, "reset mcu") == 0) {
         // reset stm32f4
@@ -499,6 +484,8 @@ static void update_console_cmd(app_t *app)
       else if( strcmp(cmd, "test04") == 0) {
 
         printf("test04 use direct mode - to blink led\n");
+
+        // TODO should be a transition.
 
         mux_ice40(app->spi);
         spi_ice40_reg_write32(app->spi, REG_MODE, MODE_DIRECT);
@@ -1131,6 +1118,24 @@ void _write_r( void)
 #endif
 
 
+
+
+
+/*
+      if( strcmp(cmd, "reset") == 0) {
+        printf("reset initial state\n");
+
+        Mode j = mode_initial;
+        do_4094_transition( app->spi, &j,  &app->system_millis );
+
+        mux_ice40(app->spi);
+        spi_ice40_reg_write32(app->spi, REG_MODE, 0 );  // defaultpattern.
+
+        // make sure relay switching test is off.
+        app->test_in_progress = 0;
+
+      }
+*/
 
 // app.print_adc_values = true;
   // app.output = false;
