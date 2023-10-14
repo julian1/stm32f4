@@ -48,6 +48,8 @@ LDSCRIPT	= ${TOP}/f410.ld
 
 TGT_CFLAGS  += -Wno-unused-function   \
               -Werror-implicit-function-declaration \
+              -Wno-packed-bitfield-compat
+
 #              -Werror \
 
 
