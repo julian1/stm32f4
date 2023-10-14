@@ -282,8 +282,6 @@ static void update_soft_500ms(app_t *app)
       assert(app->mode_initial);
       do_4094_transition( app->spi, app->mode_initial,  &app->system_millis );
 
-      // TODO we should test the 4094 we wrote is ok. before turning on 4094 OE.
-
 
       mux_ice40(app->spi);
 
@@ -297,14 +295,14 @@ static void update_soft_500ms(app_t *app)
       */
 
       ret = spi_ice40_reg_read32( app->spi, REG_4094);
-      if( ret != GLB_4094_OE)
+      if( ret != GLB_4094_OE) {
+        printf("write of 4094 OE reg failed\n");
         return;
-
+      }
 
       // now do initial transition again. to  put relays in the right state with 4094 OE enabled
       printf("rewrite initial 4094 state\n");
       do_4094_transition( app->spi, app->mode_initial,  &app->system_millis );
-
 
       // make sure fpga is in a default mode.
       spi_ice40_reg_write32(app->spi, REG_MODE, 0 );
