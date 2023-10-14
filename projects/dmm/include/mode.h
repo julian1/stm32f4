@@ -112,53 +112,6 @@ typedef struct X
 
 
 
-/*
-  Can use,
-  - 1. pre-constructed bit-vectors for state - for different modes. like K. services manuals.
-  - 2. or construct on an as need basis.
-  - 3. or derive from another mode, by copying and modifying.
-
-*/
-
-
-// mode_t
-typedef struct Mode
-{
-  // put AZ mux here. also.
-/*
-    Actually can even put a mode.
-    here .
-    and then switch what gets written.
-*/
-
-  X     first;
-  X     second;
-
-
-  /////////////////////////////////////
-  // consider puttinig. FPGA STATE IN  HERE/
-  // fpga MODE.
-  // aperture/nplc.
-  // direct register.
-
-  // reg_mode
-  // reg_direct
-  // reg_aperture_duration   etc.
-
-  // THE REASON TO NOT CONSIDER DOING THIS - is that do_state transition always pulses the relatys.
-  // while in some code (test setup) we may want more direct control.
-  //
-
-  // and then using the do-transition  function to write fpga state. also.
-  // to smplify
-
-  // so that all state (both 4094, fpga) - is represented with a single consolidated vecotr.
-  /////////////////////////////////////
-
-
-} Mode;
-
-
 //////////
 
 /*
@@ -206,6 +159,60 @@ F
   uint8_t spi_interupt_ctl : 1;     // 29bits
 
   uint8_t dummy   : 3;
-} F;    // change name REG_DIRECT_MODE ????  reg_direct_t.  and also add
+} F;    // change name REG_DIRECT_MODE ????  reg_direct_t.  and also add  or Reg_direct 
+
+
+
+
+
+/*
+  Can use,
+  - 1. pre-constructed bit-vectors for state - for different modes. like K. services manuals.
+  - 2. or construct on an as need basis.
+  - 3. or derive from another mode, by copying and modifying.
+
+*/
+
+
+// mode_t
+typedef struct Mode
+{
+  // put AZ mux here. also.
+/*
+    Actually can even put a mode.
+    here .
+    and then switch what gets written.
+*/
+
+  X     first;
+  X     second;
+
+
+  /////////////////////////////////////
+  // consider puttinig. FPGA STATE IN  HERE/
+  // fpga MODE.
+  // aperture/nplc.
+  // direct register.
+
+  // reg_mode
+  // reg_direct
+  // reg_aperture_duration   etc.
+
+  // THE REASON TO NOT CONSIDER DOING THIS - is that do_state transition always pulses the relatys.
+  // while in some code (test setup) we may want more direct control.
+  //
+
+  // and then using the do-transition  function to write fpga state. also.
+  // to smplify
+
+  // so that all state (both 4094, fpga) - is represented with a single consolidated vecotr.
+  /////////////////////////////////////
+
+  uint32_t  reg_mode;
+
+  // F  reg_direct
+  // uint32_t  reg_mode;
+
+} Mode;
 
 

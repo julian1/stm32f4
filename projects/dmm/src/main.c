@@ -191,6 +191,16 @@ void do_4094_transition( unsigned spi, const Mode *mode, uint32_t *system_millis
 
   // and write device
   spi_4094_reg_write_n(spi, (void *) &mode->second, sizeof(X) );
+
+  /////////////////////////////
+
+  // now fpga state 
+  mux_ice40(spi);
+
+  // set mode
+  spi_ice40_reg_write32(spi, REG_MODE, mode->reg_mode );
+
+ 
 }
 
 
@@ -860,20 +870,20 @@ static const Mode mode_initial =  {
   .first .K406_CTL  = RBOT,     // accumulation relay off   (agn relay, is inverted for some reason).
   .first. K405_CTL  = RTOP,     // dcv-input relay k405 switch off
   .first .U408_SW_CTL = 0,      // b2b fets/ input protection off/open
-
+  // AMP FEEDBACK SHOULD NEVER BE TURNED OFF.
+  // else draws current, and has risk damaging parts. mux pin 1. of adg. to put main amplifier in buffer/G=1 configuration.
+  .first. U506 =  W1,     // should always be on
 
   .second.K406_CTL  = ROFF,     // clear relay. default.
   .second.K405_CTL  = ROFF,     // clear relay
   .second.U408_SW_CTL = 0,
 
-
-  // AMP FEEDBACK SHOULD NEVER BE TURNED OFF.
-  // else draws current, and has risk damaging parts. mux pin 1. of adg. to put main amplifier in buffer/G=1 configuration.
-  .first. U506 =  W1,
-  .second.U506 =  W1
+  .second.U506 =  W1,           // should  always be on.
 
 
   // fpga mode default. blink led.
+
+  .reg_mode = MODE_LO
 
 };
 
