@@ -426,22 +426,26 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
       -10V      +9.9mV.
 
       // and factor test15 code to do initial setup in state transition.
+      charge 1nplc
       +10V      -0.6mV.
       0V        +4.6mV
       -10V      9.7mV
 
     //////////////////////////
     // oct 15.
-    swap jfe2140 for lsk389.
-    uncleaned.
+    use lsk389.  swap jfe2140 for lsk389.
+    expect larger caps, more input capacitance.
+    board uncleaned.
 
       charge 1nplc
       +10V.   1.5mV.  1.4mV.
       0V      4.8mV.  5.0mV.
+      -10V    7.2mV   12.2mV. 12.1mV. 12.1mV
 
       leakage 1000nplc / off
       +10V.  +1.6mV.  0.7mV.      (still had ER lead connected).
       0V       0.9mV. 0.8mV
+      -10V    3.9mV. 3.0mV.
 
 
 */
