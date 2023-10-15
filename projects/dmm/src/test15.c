@@ -456,19 +456,22 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
       0V.     -0.4mV  -0.3mV
       -10V    7.8mV   7.8mV
 
+        difference 8 - -3 = 11mV.
+
       leakage.
       +10V    0.5mV. 0.1mV.
       0V.     2.0V  0.9mV
       -10V    2.5mV.  5.6mV. 4.1mV.
 
 
+    //////////////////////
     change boot driver resistor from 10R to 0R. so that boot and himux out are the same voltage.
-    4V.
+    max4053 at 4V.
 
     leakage  1000nplc / off
     +10V    -0.2mV. -0.3mV.
     0V      1.5mV.  1.2mV
-    -10     2.7mV.  2.3mV
+    -10     2.7mV.  2.3mV   1.9mV (5mins later)
 
 
     charge 1nplc
@@ -476,8 +479,83 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
     0V      -23mV   -23mV
     -10V     -20mV  -19mV.
 
+      - the difference spread - is about the same. -35 - -20 = 15mV.
+
       hmmmm....
-      should we try to change the supply. 
+      So we try to trim the supply and see if it improves. but maybe that the supply trimming was going something else before.
+      or try .
+    //////
+    change max4053 voltage to 2.68V. to see what happens.
+
+     leakage  1000nplc / off
+    +10V   -0.5mV. +0.4mV.
+      0V    1.4mV  1.0mV.
+    -10V.   +3.7mV.  2.3mV
+
+    charge 1nplc
+    +10V.    -22.9mV  -21.8mV. -21.8mV
+    0V       -16.9mV. -17.6mV.
+    -10V     -10.5mV. -11mV.
+
+        - difference is ~= 12mV. improvement at lower voltage.
+
+    so improves centre a lot and difference a bit.
+    but cannot trim further with lower supply voltage.
+
+
+
+    ///////////////////
+    // oct 16.
+
+    - max4053. 2.68V.  using 3v3 sod323 zener. same as yesterday
+    charge 1nplc
+    +10V   -21mV.
+    0V.    -17mV.
+    -10V   -11mV.
+
+      - difference is ~= 10mV.  but centred negative.
+
+    - sn74lv4053.   at 2.7V.
+    leakage  1000nplc / off
+    +10V    -0.1mV.  -0.3mV
+    0V      0.9mV 1.7mV.  0.6mV.
+    -10V    3.5mV 1.8mV. 2.1mV
+
+    charge 1nplc
+    +10V   9.4mV.  8.9mV.
+    0V     12.4mV  12.3mV
+    -10V   18.8mV   18.9mV
+
+      - difference is around 10mV. but centred positive.
+
+    - sn74lv4053.   at 4.2V. using 4.7V zener.
+    leakage  1000nplc / off
+    +10V    2.3mV.  1.1mV
+    0V      2.3mV.  1.4mV
+    -10V    3.5mV.  3.3V
+
+    charge 1nplc
+    +10V   6.8mV.  6.8mV
+    0V     9.9mV  10.0mV.
+    -10V   16.8mV  16.9mV.
+
+      - same difference. small improvement in centre.
+      - charge is always positive. would trimming work to shift. yes it should? 
+      - changng the pcb layout might change a lot of this.
+
+    - sn74lv4053.   at 5.47V  using 5V6 zener.
+    leakage  1000nplc / off
+    +10V    5.9mV  3.8mV.
+    0V      4.8mV  7.3mV. 7.0mV
+    -10V    5.3mV   8.2mV
+
+     charge 1nplc
+    +10V    6.4mV 6.0mV     a lot of this might just be leakage. 
+    0V      9.4mV  9mV
+    -10mV   16mV.  15.4mV.
+
+      - not much difference. leakage worse.
+
 
 
 */
