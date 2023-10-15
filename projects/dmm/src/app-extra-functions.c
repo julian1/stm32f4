@@ -131,7 +131,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     // derive new mode from initial .
     // this overrides nplc/aperture.
     *app->mode_current = *app->mode_initial;
-
     //  alias to ease syntax
     Mode *mode = app->mode_current;
 
@@ -151,6 +150,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
         mode->first. U506 =  W3;  // amp feedback should never be turned off.
         mode->second.U506 =  W3;
     }
+    else assert(0);
 
     // close/ turn on K405 relay.
     mode->first.  K405_CTL  = RTOP;
@@ -179,6 +179,61 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
     return 1;
   }
+
+
+  else if(strcmp(cmd, "dcv1000") == 0
+      || strcmp(cmd, "dcv100") == 0
+      ) {
+    // this is horrid state.
+    // turn off any concurrent test.
+    app->test_in_progress = 0;
+
+    // derive new mode from initial .
+    // this overrides nplc/aperture.
+    *app->mode_current = *app->mode_initial;
+    //  alias to ease syntax
+    Mode *mode = app->mode_current;
+
+    // set the ampliier gain.
+    if( strcmp(cmd, "dcv1000") == 0) {
+        printf("whoot dcv10\n");
+        mode->first. U506 =  W1;    // amp feedback should never be turned off.
+        mode->second.U506 =  W1;
+    }
+    else if( strcmp(cmd, "dcv100") == 0) {
+        printf("whoot dcv1\n");
+        mode->first. U506 =  W2;  // amp feedback should never be turned off.
+        mode->second.U506 =  W2;
+    }
+    else assert(0);
+
+    // close/ turn on K402 relay.
+    mode->first.  K402_CTL  = RTOP;
+
+    ////////////
+    // fpga config
+    mode->reg_mode = MODE_AZ;
+
+    // set the input muxing.
+    mode->reg_direct.himux2 = S4 ;    // gnd to reduce leakage on himux
+    mode->reg_direct.himux  = S3 ;    // dcv-div
+    mode->reg_direct.azmux  = S6;    // lo
+
+    // set the hi signal az.
+    // really don't need to set this, it is always the same. we then get a different register.
+    mode->reg_direct2.azmux  = S1;  // pc-out.
+
+    // set aperture
+    // can override later.
+    mode->reg_aperture = nplc_to_aper_n( 1 ); // this is dynamic. maybe 50,60Hz. or other.
+
+    // do the state transition
+    do_4094_transition( app->spi, mode,  &app->system_millis );
+
+    return 1;
+  }
+
+
 
 
 

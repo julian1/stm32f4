@@ -418,16 +418,32 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
     ////////////////
     // oct 14.   after heavy refactor bringing fpga into mode.
                 quick test.
+              expect should be the same.
 
       charge 1nplc
       +10V      -0.2mV
       0V        +4.6mV.
       -10V      +9.9mV.
 
-        // and factor test15 code to do initial setup in state transition.
+      // and factor test15 code to do initial setup in state transition.
       +10V      -0.6mV.
       0V        +4.6mV
       -10V      9.7mV
+
+    //////////////////////////
+    // oct 15.
+    swap jfe2140 for lsk389.
+    uncleaned.
+
+      charge 1nplc
+      +10V.   1.5mV.  1.4mV.
+      0V      4.8mV.  5.0mV.
+
+      leakage 1000nplc / off
+      +10V.  +1.6mV.  0.7mV.      (still had ER lead connected).
+      0V       0.9mV. 0.8mV
+
+
 */
 
       return 1;
