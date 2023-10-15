@@ -40,11 +40,13 @@ bool test14( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
         /*
 
           test charge-injection by charging to a bias voltage, holding, then entering az mode.
+          but only switching pre-charge switch.
+          baseline for charge inection. 
 
-          gives a baseline for charge-injection at different dc-bias, without the effect of the azmux, or modules after the azmux.
+          kind needs to be rewritten. after changes to do_transition.
 
         */
-        printf("test leakage and charge-injection from switching pre-charge switch at different biases\n");
+        printf("test leakage and charge-injection from switching pre-charge switch and not azmux\n");
         app->test_in_progress = 0;
         Mode j = *app->mode_initial;
 

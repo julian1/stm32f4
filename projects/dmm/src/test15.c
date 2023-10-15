@@ -434,6 +434,8 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
     //////////////////////////
     // oct 15.
     use lsk389.  swap jfe2140 for lsk389.
+    4053 at 2.7V.
+    and pmos for centre current mirror.
     expect larger caps, more input capacitance.
     board uncleaned.
 
@@ -446,6 +448,36 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
       +10V.  +1.6mV.  0.7mV.      (still had ER lead connected).
       0V       0.9mV. 0.8mV
       -10V    3.9mV. 3.0mV.
+
+      So. think it's actually better. more centred.
+      4053 at 4V
+      charge 1nplc
+      +10V    -3.3mV  -3.4mV
+      0V.     -0.4mV  -0.3mV
+      -10V    7.8mV   7.8mV
+
+      leakage.
+      +10V    0.5mV. 0.1mV.
+      0V.     2.0V  0.9mV
+      -10V    2.5mV.  5.6mV. 4.1mV.
+
+
+    change boot driver resistor from 10R to 0R. so that boot and himux out are the same voltage.
+    4V.
+
+    leakage  1000nplc / off
+    +10V    -0.2mV. -0.3mV.
+    0V      1.5mV.  1.2mV
+    -10     2.7mV.  2.3mV
+
+
+    charge 1nplc
+    +10V    -36mV.  -34mV.  -35mV.               damn.  much worse.  so it looks like the difference was probably trimming.
+    0V      -23mV   -23mV
+    -10V     -20mV  -19mV.
+
+      hmmmm....
+      should we try to change the supply. 
 
 
 */
