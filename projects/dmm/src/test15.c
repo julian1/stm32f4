@@ -579,7 +579,7 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
     - leakage is better at lower supply voltage.
 
     leakage  1000nplc / off
-    +10V    -3.8mV  -0.3mV -2.2mV -0.3mV.
+    +10V    -3.8mV  -0.3mV -2.2mV -0.3mV.   variation due to jfet leakage..
     0V.     -1mV.  -1.2mV
     -10V     1.5mV  0.2mV 1.7mV
 
@@ -587,6 +587,20 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
     +10V    -7.6mV -7.4mV
     0V.     -2mV.  -2.3mV.
     -10V    +5.7mV  5.9mV.
+
+    ////
+    // repeat . same as above.  hour later.
+
+    leakage  1000nplc / off
+    +10V    -0.9mV.  -1.5mV 
+    0V.     -0.5mV   -2.2mV 
+    -10V    0.9mV    1.9mV. 
+
+    charge 1nplc
+    +10V    -6.1mV  -5.8mV.
+    0V.     -2.6mV -2.4mV
+    -10V    +5.8mV  6.2mV
+
 */
 
       return 1;
