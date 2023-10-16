@@ -540,7 +540,7 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
     -10V   16.8mV  16.9mV.
 
       - same difference. small improvement in centre.
-      - charge is always positive. would trimming work to shift. yes it should? 
+      - charge is always positive. would trimming work to shift. yes it should?
       - changng the pcb layout might change a lot of this.
 
     - sn74lv4053.   at 5.47V  using 5V6 zener.
@@ -550,14 +550,43 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
     -10V    5.3mV   8.2mV
 
      charge 1nplc
-    +10V    6.4mV 6.0mV     a lot of this might just be leakage. 
+    +10V    6.4mV 6.0mV     a lot of this might just be leakage.
     0V      9.4mV  9mV
     -10mV   16mV.  15.4mV.
 
       - not much difference. leakage worse.
 
+    ////////////////
+    // Ok. try to add a cap and see what happens. 10k + 10p.
+
+    - sn74lv4053.   at 5.47V  using 5V6 zener.
+    - and 10k/ 10p cap.
+
+    leakage  1000nplc / off     leakage is high- due to high supply.
+    +10V    5.6mV
+    0V.     7.8mV
+    -10V    10mV.  3.5mV. 5.5mV.  depends on switch phase?
+
+     charge 1nplc
+    +10V    -6mV    -5.8mV      Ok. it worked to trim negatively. wow.
+    0V      -1mV.  -1.1mV     Wow. looking good.
+    -10V    +7.1mV. 7.0mV.
+
+        great!.
 
 
+    - sn74lv4053.   at 2.7V.   10p. compensation cap.
+    - leakage is better at lower supply voltage.
+
+    leakage  1000nplc / off
+    +10V    -3.8mV  -0.3mV -2.2mV -0.3mV.
+    0V.     -1mV.  -1.2mV
+    -10V     1.5mV  0.2mV 1.7mV
+
+    charge 1nplc
+    +10V    -7.6mV -7.4mV
+    0V.     -2mV.  -2.3mV.
+    -10V    +5.7mV  5.9mV.
 */
 
       return 1;
