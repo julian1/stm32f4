@@ -69,6 +69,36 @@ typedef struct app_t
   Mode *mode_current;
 
 
+  /*
+      linefreq is environment-state.
+      and 10Meg. is operator desirable state that presists across range changes.
+      nplc - is independent. but setting aperture requires linefreq. (perhaps fpga should deal in nplc, rather than aperture?).
+
+      - we need to see how the scpi does it. does nplc have to be set each time change a range?
+
+      -------
+      - state that persists across range changes
+      - perhaps belongs in separate struct.
+      - could even be stored on fpga if
+      ----
+      - alterantively nplc - can be read from fpga.
+      - and 10Meg. can be read from mode_current.
+
+      - yes. dig it out of mode_current.   to persist. - at least for nplc.
+      - and linefreq - should be added - even if not written.
+      - actually cannot rely on relay state for 10Meg input impedance. because may be 1kV. range.
+      - but just needs a flag. in mode.
+      -----
+      - we need to see how the scpi does it.
+
+      linefreq
+
+      // maintainin here - means that we don't have to, copy out the value from fpga, when setting dc range. or testing if unset.
+      nplc
+      // we cannot disginguish - hv range, and whether 10Meg. should persist across range change. so persist this state.
+      10Meg.
+  */
+
 } app_t;
 
 

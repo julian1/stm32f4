@@ -543,6 +543,7 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
       - charge is always positive. would trimming work to shift. yes it should?
       - changng the pcb layout might change a lot of this.
 
+    /////////////////
     - sn74lv4053.   at 5.47V  using 5V6 zener.
     leakage  1000nplc / off
     +10V    5.9mV  3.8mV.
@@ -574,7 +575,7 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
 
         great!.
 
-
+  //////////////
     - sn74lv4053.   at 2.7V.   10p. compensation cap.
     - leakage is better at lower supply voltage.
 
@@ -600,6 +601,31 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
     +10V    -6.1mV  -5.8mV.
     0V.     -2.6mV -2.4mV
     -10V    +5.8mV  6.2mV
+
+ 
+    ////////////////// 
+    ///////////
+    // oct 18.
+    // same.
+
+    leakage  1000nplc / off
+    +10V     2.0mV.  -0.2mV.   2mV.     - leakage is high when pc on/ amp jfets exposed
+    0V.      0.8mV. 2.0mV. 0.9mV.
+    -10V      5.0mV.  2.1mV  2.3mV.     - 
+
+    charge 1nplc
+    +10V    -5.0mV.  -5.1mV. 
+    0V.    -1.0mV   -0.9mV.
+    -10V    8.6mV  8.2mV. 
+
+    charge 10nplc
+    +10V    +0.6mV. +0.1mV 0.1mV.   - wanders around 0V.
+    0V.     0.1mV.  2.1mV 0.1mV.    - wanders. a bit over 10sec. 
+    -10V     4.9mV  6.2mV 
+
+
+
+
 
 */
 
