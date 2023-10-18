@@ -41,7 +41,7 @@ bool test14( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
 
           test charge-injection by charging to a bias voltage, holding, then entering az mode.
           but only switching pre-charge switch.
-          baseline for charge inection. 
+          baseline for charge inection.
 
           kind needs to be rewritten. after changes to do_transition.
 
@@ -97,7 +97,8 @@ bool test14( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
         printf("changing to az mode.\n");  // having a yield would be quite nice here.
         // setup az mode
         mux_ice40(app->spi);
-        spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
+        // spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
+        spi_ice40_reg_write32(app->spi, REG_MODE, MODE_PC );  // mode 3. test pattern on sig
 
         //////////////
         // use direct register - for the lo sample, in azmode.
@@ -108,7 +109,7 @@ bool test14( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
         spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
 
         // set reg_direct2 controlling azmux hi val, the same. so only switching the pc switch.
-        spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
+        // spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
 
 
         assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
@@ -121,128 +122,153 @@ bool test14( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
 
         spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, aperture );
 
-        /// EXTR.   AHHHH. a reason the leakage and charge-accumulation results differ - voltage. 5V6 zener for 4.8V..  versus using 5V1 zener, may have been less..
-        // can check the codes.
-
-
-        // with 5V6 zener.  so giving boot supply rail of 4.7V.
-
-        // 0ct 3.
-        // test14 at 10V bias.
-        // 100nplc / 2000ms   == +32mV.      leakage and charge injection.  similar to no switching.
-        // 10nplc / 200ms     == +39mV.
-        // 1nplc /20ms.       == +86mV.
-
-        // same - new date. so we could test. soldering a lower voltage 4053. on.
-
-        // oct 4.
-        //              20s.  == +28mV     29mV.  23mV.  (may be a difference if pc switch starts on/of )
-        // 100nplc / 2000ms   == +22mV.  22mV
-        // 10nplc, 200ms.     == +29mV.   29mV.
-        // 1nplc,  20ms.      == 82mV.   84mV.
-
-        ////////////
-        // 6v2 zener.  with 5.5V out.   5mins after soldering.
-        //              20s  ==  47mV.
-        // 100nplc / 2000ms   == 59mV.
-        // 10nplc, 200ms.     == 43mV.  51mV.
-        // 1nplc,  20ms.      == 108mV  107mV. 100mV (20mins after soldering).
-
-        // so it's worse with higher voltage...
-        // all incredibly strange.
-        // Or perhaps we used a lower voltage zener for previous tests??  ta is our memory
-
-        // 5.1V zener.  weird.   measure 4.7V across zener. giving 4V boot rail <- weird.  code D3L
-        // 20s                29mV.
-        // 100nplc / 2000ms.  24mV
-        // 10nplc / 200ms.    31mV. 32mV.
-        // 1nplc / 20ms       81mV. 81mV. 80mV.
-
-        // ok. so not a lot of difference.
-        // we should probably replace the dg508.  with a 1208.  that we received.
-
-        // use 1208.  replacing maxmim 508. - don't actually expect much difference.after soldering.
-
-        // 1000nplc / 20s     18mV.  28mV.  29mV.
-        // 100nplc / 2000ms.  25mV   23mV
-        // 10nplc / 200ms.    30mV  30mV
-        // 1nplc / 20ms       78mV. 79mV.
-
-        // after a few hours.
-
-        /*
-
-
-          Still exploring cmos switches for a bit,
-
-          Briefly for sn74lv4053a one difference with the previous tests - is the zener used to set the boot supply rail.
-          but tests show that a bootstrap supply rail between 4V to 5.5V doesn't matter much for leakage or charge injection.
-          Also tried another sn74lv4053a, purchased a few years apart from the one used for initial tests, but with the same result.
-          So i am not sure how to explain the discrepancy with previous test results.
-
-          Running az modulation. all muxes fitted.
-          DC accumulation on 10nF/ over 10s.
-
-          test14.
-          sn74lv4053a
-          +10V dc bais
-          1000nplc/off   20mV. 18mV.
-          100nplc/2s     17mV. 17mV.
-          10nplc/200ms   21mV. 22mV.
-          1nplc/20ms     35mV. 73mV.  70mV.   large measured difference. odd. but was definltey there.
-
-
-          But max4053 looks a lot better,
-          I almost wasn't going to bother re-testing it, based on past resulsts.
-          Identical setup as above - accumulation on 10nF/ 10s.
-
-          max4053
-          +10V dc bias.
-          1000nplc/off   0.3mV. 0.5mV
-          100nplc        0.8mV.
-          10nplc         3.8mV.   3.6mV.
-          1nplc          30mV.   28mV.
-
-          max4053
-          -10V dc bias.
-          leave five minutes for +4.5mV/10s. cap DA to settle.
-          1000nplc/off   2.5mV  2.8mV   - oct 8  2.3mV.
-          100nplc        3.0mV. 3.3mV   - oct 8.  2.3mV
-          10nplc         5.6mV.  5.7mV  - oct 8. 5.2mV.
-          1nplc          30mV   30mV.   - oct 8  29mV.
-
-          max4053
-          0V dc bias.
-          1000nplc/off   0.8mV.
-          100nplc        1.0mV.  1mV.
-          10nplc         3.8mV.  3.6mV.
-          1nplc          28mV.
-
-          leakage is more controlled -  <1pA for +10V and 0V, and <3pA for -10V dc-bias.
-
-          for charge injection
-          ie. 1nplc == 20ms.  10s/0.02s == 500 cycles.
-          this is 30mV / 500 == 0.06pC .
-          if I have the units correct, through full-cycle switch.
-
-          The above tests were done with the azmux held off, with only the pre-charge switch switching.
-          this would eliminate/isolate any leakage through the amplifer input jfets (if fitted) .
-
-
-          test15.
-          When the azmux also changed to for normal sampling beetween PC-OUT (S1) and LO (S6), the result is similar - eg good.
-
-          max4053
-          0V dc bias.
-          1000nplc/off   1.3mV 1.2mV.
-          100nplc        1.8mV
-          10nplc         4.8mV
-          1nplc          38mV. 37mV.
-
-        */
         return 1;
       }
 
 
   return 0;
 }
+
+
+
+  /// EXTR.   AHHHH. a reason the leakage and charge-accumulation results differ - voltage. 5V6 zener for 4.8V..  versus using 5V1 zener, may have been less..
+  // can check the codes.
+
+
+  // with 5V6 zener.  so giving boot supply rail of 4.7V.
+
+  // 0ct 3.
+  // test14 at 10V bias.
+  // 100nplc / 2000ms   == +32mV.      leakage and charge injection.  similar to no switching.
+  // 10nplc / 200ms     == +39mV.
+  // 1nplc /20ms.       == +86mV.
+
+  // same - new date. so we could test. soldering a lower voltage 4053. on.
+
+  // oct 4.
+  //              20s.  == +28mV     29mV.  23mV.  (may be a difference if pc switch starts on/of )
+  // 100nplc / 2000ms   == +22mV.  22mV
+  // 10nplc, 200ms.     == +29mV.   29mV.
+  // 1nplc,  20ms.      == 82mV.   84mV.
+
+  ////////////
+  // 6v2 zener.  with 5.5V out.   5mins after soldering.
+  //              20s  ==  47mV.
+  // 100nplc / 2000ms   == 59mV.
+  // 10nplc, 200ms.     == 43mV.  51mV.
+  // 1nplc,  20ms.      == 108mV  107mV. 100mV (20mins after soldering).
+
+  // so it's worse with higher voltage...
+  // all incredibly strange.
+  // Or perhaps we used a lower voltage zener for previous tests??  ta is our memory
+
+  // 5.1V zener.  weird.   measure 4.7V across zener. giving 4V boot rail <- weird.  code D3L
+  // 20s                29mV.
+  // 100nplc / 2000ms.  24mV
+  // 10nplc / 200ms.    31mV. 32mV.
+  // 1nplc / 20ms       81mV. 81mV. 80mV.
+
+  // ok. so not a lot of difference.
+  // we should probably replace the dg508.  with a 1208.  that we received.
+
+  // use 1208.  replacing maxmim 508. - don't actually expect much difference.after soldering.
+
+  // 1000nplc / 20s     18mV.  28mV.  29mV.
+  // 100nplc / 2000ms.  25mV   23mV
+  // 10nplc / 200ms.    30mV  30mV
+  // 1nplc / 20ms       78mV. 79mV.
+
+  // after a few hours.
+
+  /*
+
+
+    Still exploring cmos switches for a bit,
+
+    Briefly for sn74lv4053a one difference with the previous tests - is the zener used to set the boot supply rail.
+    but tests show that a bootstrap supply rail between 4V to 5.5V doesn't matter much for leakage or charge injection.
+    Also tried another sn74lv4053a, purchased a few years apart from the one used for initial tests, but with the same result.
+    So i am not sure how to explain the discrepancy with previous test results.
+
+    Running az modulation. all muxes fitted.
+    DC accumulation on 10nF/ over 10s.
+
+    test14.
+    sn74lv4053a
+    +10V dc bais
+    1000nplc/off   20mV. 18mV.
+    100nplc/2s     17mV. 17mV.
+    10nplc/200ms   21mV. 22mV.
+    1nplc/20ms     35mV. 73mV.  70mV.   large measured difference. odd. but was definltey there.
+
+
+    But max4053 looks a lot better,
+    I almost wasn't going to bother re-testing it, based on past resulsts.
+    Identical setup as above - accumulation on 10nF/ 10s.
+
+    max4053
+    +10V dc bias.
+    1000nplc/off   0.3mV. 0.5mV
+    100nplc        0.8mV.
+    10nplc         3.8mV.   3.6mV.
+    1nplc          30mV.   28mV.
+
+    max4053
+    -10V dc bias.
+    leave five minutes for +4.5mV/10s. cap DA to settle.
+    1000nplc/off   2.5mV  2.8mV   - oct 8  2.3mV.
+    100nplc        3.0mV. 3.3mV   - oct 8.  2.3mV
+    10nplc         5.6mV.  5.7mV  - oct 8. 5.2mV.
+    1nplc          30mV   30mV.   - oct 8  29mV.
+
+    max4053
+    0V dc bias.
+    1000nplc/off   0.8mV.
+    100nplc        1.0mV.  1mV.
+    10nplc         3.8mV.  3.6mV.
+    1nplc          28mV.
+
+    leakage is more controlled -  <1pA for +10V and 0V, and <3pA for -10V dc-bias.
+
+    for charge injection
+    ie. 1nplc == 20ms.  10s/0.02s == 500 cycles.
+    this is 30mV / 500 == 0.06pC .
+    if I have the units correct, through full-cycle switch.
+
+    The above tests were done with the azmux held off, with only the pre-charge switch switching.
+    this would eliminate/isolate any leakage through the amplifer input jfets (if fitted) .
+
+
+    test15.
+    When the azmux also changed to for normal sampling beetween PC-OUT (S1) and LO (S6), the result is similar - eg good.
+
+    max4053
+    0V dc bias.
+    1000nplc/off   1.3mV 1.2mV.
+    100nplc        1.8mV
+    10nplc         4.8mV
+    1nplc          38mV. 37mV.
+
+
+  ///////////////////////////
+  // oct 18.
+        using new MODE_PC. and eliminating reg_direct2.
+  //
+
+  test14.  test only pc switches - himux and azmux off
+
+  10V.
+    1000nplc/off    -0.2mV  -0.2mV.
+    1nplc            -1.9mV -2.0mV
+  0V.
+    1000nplc/off    +0.7mV +0.9mV.
+    1nplc            0.0mV  0.1mV.
+  -10.
+    1000nplc/off     +2.4mV. +2.5mV
+    1nplc            +3.7mV. +3.5mV.
+
+
+  */
+
+
+

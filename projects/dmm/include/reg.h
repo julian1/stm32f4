@@ -32,6 +32,7 @@
 #define MODE_PATTERN      2     // put modulation pattern on all bits
 #define MODE_DIRECT       3     // support direct writing via direct register
 #define MODE_AZ           4     // simple az.
+#define MODE_PC           5     // simple precharge switching modulation.
 
 /*
 // default led blink, and monitor test pattern.
