@@ -154,6 +154,11 @@ double aper_n_to_period( uint32_t aper_n)
   return period;
 }
 
+uint32_t period_to_aper_n(  double period )
+{
+  return period * CLK_FREQ;
+}
+
 
 
 

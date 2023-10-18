@@ -137,6 +137,7 @@ uint32_t nplc_to_aper_n( double nplc );
 double aper_n_to_nplc( uint32_t aper_n);
 double aper_n_to_period( uint32_t aper_n);
 
+uint32_t period_to_aper_n(  double period );
 
 // TODO make mode_initial const.
 

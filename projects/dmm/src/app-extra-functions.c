@@ -58,9 +58,9 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   assert(app);
   assert(cmd);
 
+  double f0 ;
   uint32_t u1;
   // int32_t i0;
-  // char s[100];
 
   // https://stackoverflow.com/questions/24746111/scanf-field-width-string-overflow
   char s0[100 + 1 ];
@@ -76,23 +76,33 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
   // is there a way to represent/ aor force variable whitespace? sscanf?
 
-  else if( sscanf(cmd, "azero %100s", s0) == 1) {
+  else if(strcmp(cmd, "elecm") == 0) {
 
-    if(strcmp(s0, "on") == 0) {
-      printf("azero on\n" );
-      app->mode_current->reg_mode = MODE_AZ;
-
-    } else if (strcmp(s0, "off") == 0) {
-      printf("azero off\n" );
-      app->mode_current->reg_mode = MODE_NO_AZ;
-    } else {  
-      printf("unrecognized arg\n" );
-      return 1;
-    }
+    printf("set em mode\n" );
+    app->mode_current->reg_mode = MODE_EM;
 
     // do the state transition
     do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
+    return 1;
+  }
 
+
+
+  else if( sscanf(cmd, "azero %100s", s0) == 1) {
+
+    if(strcmp(s0, "on") == 0) {
+      printf("set azero on\n" );
+      app->mode_current->reg_mode = MODE_AZ;
+
+    } else if (strcmp(s0, "off") == 0) {
+      printf("set azero off\n" );
+      app->mode_current->reg_mode = MODE_NO_AZ;
+    } else {  
+      printf("azero, unrecognized arg\n" );
+      return 1;
+    }
+    // do the state transition
+    do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
     return 1;
   }
 
@@ -101,26 +111,34 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   else if( sscanf(cmd, "nplc %lu", &u1 ) == 1) {
 
     assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
-
     uint32_t aperture = nplc_to_aper_n( u1 );
+    printf("aperture %lu\n",   aperture );
+    printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture ));
+    printf("period   %.2lfs\n", aper_n_to_period( aperture ));
+
+    // set new aperture
+    app->mode_current->reg_aperture = aperture ;
+    // do the state transition
+    do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
+    return 1;
+  }
+
+  else if( sscanf(cmd, "aper %lf", &f0 ) == 1) {
+
+    // aperture in seconds. period to aperature n
+    printf("set aperture\n");
+    uint32_t aperture = period_to_aper_n( f0 );
+    // assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
 
     printf("aperture %lu\n",   aperture );
     printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture ));
     printf("period   %.2lfs\n", aper_n_to_period( aperture ));
-#if 0
-    // write duration. should move.
-    spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, aperture );
-#endif
 
-
-    // set new aperture
     app->mode_current->reg_aperture = aperture ;
-
-    // do the state transition
     do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
-
     return 1;
   }
+
 
 
 
