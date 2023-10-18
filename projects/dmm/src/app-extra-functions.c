@@ -74,6 +74,30 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
 
 
+  // is there a way to represent/ aor force variable whitespace? sscanf?
+
+  else if( sscanf(cmd, "azero %100s", s0) == 1) {
+
+    if(strcmp(s0, "on") == 0) {
+      printf("azero on\n" );
+      app->mode_current->reg_mode = MODE_AZ;
+
+    } else if (strcmp(s0, "off") == 0) {
+      printf("azero off\n" );
+      app->mode_current->reg_mode = MODE_NO_AZ;
+    } else {  
+      printf("unrecognized arg\n" );
+      return 1;
+    }
+
+    // do the state transition
+    do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
+
+    return 1;
+  }
+
+
+
   else if( sscanf(cmd, "nplc %lu", &u1 ) == 1) {
 
     assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
@@ -89,14 +113,11 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 #endif
 
 
-    // alias to ease syntax
-    Mode *mode = app->mode_current;
-
-    // set aperture
-    mode->reg_aperture = aperture ;
+    // set new aperture
+    app->mode_current->reg_aperture = aperture ;
 
     // do the state transition
-    do_4094_transition( app->spi, mode,  &app->system_millis );
+    do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
 
     return 1;
   }
