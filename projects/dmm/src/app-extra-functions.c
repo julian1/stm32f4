@@ -65,18 +65,11 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   // https://stackoverflow.com/questions/24746111/scanf-field-width-string-overflow
   char s0[100 + 1 ];
 
-  if( sscanf(cmd, "dcvx %100s", s0) == 1) {
-
-
-      printf("got dcv with string\n" );
-      return 1;
-  }
-
 
 
   // is there a way to represent/ aor force variable whitespace? sscanf?
 
-  else if(strcmp(cmd, "elecm") == 0) {
+  if(strcmp(cmd, "elecm") == 0) {
 
     printf("set em mode\n" );
     app->mode_current->reg_mode = MODE_EM;
@@ -97,12 +90,21 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     } else if (strcmp(s0, "off") == 0) {
       printf("set azero off\n" );
       app->mode_current->reg_mode = MODE_NO_AZ;
-    } else {  
+    } else {
       printf("azero, unrecognized arg\n" );
       return 1;
     }
     // do the state transition
     do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
+    return 1;
+  }
+
+
+  else if( sscanf(cmd, "lfreq %lu", &u1 ) == 1) {
+
+
+    printf("lfreq\n" );
+
     return 1;
   }
 
@@ -168,10 +170,8 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       dcv10,dcv1,dcv01 are all the same except amplifier gain. so can consolidate
   */
 
-  else if(strcmp(cmd, "dcv10") == 0
-      || strcmp(cmd, "dcv1") == 0
-      || strcmp(cmd, "dcv01") == 0
-      ) {
+  else if( sscanf(cmd, "dcv %100s", s0) == 1) {
+
     // this is horrid state.
     // turn off any concurrent test.
     app->test_in_progress = 0;
@@ -183,41 +183,78 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     Mode *mode = app->mode_current;
 
     // set the ampliier gain.
-    if( strcmp(cmd, "dcv10") == 0) {
+    if( strcmp(s0, "10") == 0) {
         printf("whoot dcv10\n");
         mode->first. U506 =  W1;    // amp feedback should never be turned off.
         mode->second.U506 =  W1;
     }
-    else if( strcmp(cmd, "dcv1") == 0) {
+    else if( strcmp(s0, "1") == 0) {
         printf("whoot dcv1\n");
         mode->first. U506 =  W2;  // amp feedback should never be turned off.
         mode->second.U506 =  W2;
     }
-    else if( strcmp(cmd, "dcv01") == 0) {   // 100mV range
+    else if( strcmp(s0, "01") == 0 ) {   // 100mV range
         printf("whoot dcv01\n");
         mode->first. U506 =  W3;  // amp feedback should never be turned off.
         mode->second.U506 =  W3;
     }
-    else assert(0);
 
-    // close/ turn on K405 relay.
-    mode->first.  K405_CTL  = RTOP;
+    else if( strcmp(s0, "1000") == 0) {
+        printf("whoot dcv10\n");
+        mode->first. U506 =  W1;    // amp feedback should never be turned off.
+        mode->second.U506 =  W1;
+    }
+    else if( strcmp(s0, "100") == 0) {
+        printf("whoot dcv100\n");
+        mode->first. U506 =  W2;  // amp feedback should never be turned off.
+        mode->second.U506 =  W2;
+    }
+
+    else {
+        printf("bad range\n");
+        return 1;
+    }
+
+
+    if( strcmp(s0, "10") == 0 ||  strcmp(s0, "1") == 0 ||  strcmp(s0, "01") == 0 ) {   // 100mV range
+
+      // close/ turn on K405 relay.
+      mode->first.K405_CTL  = RTOP;
+
+      // set the input muxing.
+      mode->reg_direct.himux2 = S4 ;    // gnd to reduce leakage on himux
+      mode->reg_direct.himux  = S7 ;    // dcv-in
+      mode->reg_direct.azmux  = S6;    // lo
+    }
+
+
+    // set the ampliier gain.
+    else if( strcmp(s0, "1000") == 0 || strcmp(s0, "100") == 0) {
+
+      // close/ turn on K402 relay.
+      mode->first.K402_CTL  = RTOP;
+
+      // set the input muxing.
+      mode->reg_direct.himux2 = S4 ;    // gnd to reduce leakage on himux
+      mode->reg_direct.himux  = S3 ;    // dcv-div
+      mode->reg_direct.azmux  = S6;    // lo
+    }
+    else assert( 0);
+
+
 
     // TODO populate protection - and arm the fets also.
 
-    // 
+    //
     /* IMPPORTANT - we could do a test here. is mode in a sample mode eg. az or non az. then set a default.
     // otherwise keep as is.
     */
 
+    // we could just start - by making a copy of the current mode . before restarting?
+
     ////////////
     // fpga config
     mode->reg_mode = MODE_AZ;
-
-    // set the input muxing.
-    mode->reg_direct.himux2 = S4 ;    // gnd to reduce leakage on himux
-    mode->reg_direct.himux  = S7 ;    // dcv-in
-    mode->reg_direct.azmux  = S6;    // lo
 
     // set aperture
     // can override later.
@@ -227,6 +264,15 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     do_4094_transition( app->spi, mode,  &app->system_millis );
 
     return 1;
+
+  }
+
+#if 0
+
+  else if(strcmp(cmd, "dcv10") == 0
+      || strcmp(cmd, "dcv1") == 0
+      || strcmp(cmd, "dcv01") == 0
+      ) {
   }
 
 
@@ -278,7 +324,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     return 1;
   }
 
-
+#endif
 
 
 
