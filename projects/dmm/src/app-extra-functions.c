@@ -62,6 +62,14 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   // int32_t i0;
   // char s[100];
 
+  // https://stackoverflow.com/questions/24746111/scanf-field-width-string-overflow
+  char s0[100 + 1 ];
+
+  if( sscanf(cmd, "dcv %100s", s0) == 1) {
+
+
+      printf("got dcv with string\n" );
+  }
 
 
 
@@ -156,6 +164,11 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     mode->first.  K405_CTL  = RTOP;
 
     // TODO populate protection - and arm the fets also.
+
+    // 
+    /* IMPPORTANT - we could do a test here. is mode in a sample mode eg. az or non az. then set a default.
+    // otherwise keep as is.
+    */
 
     ////////////
     // fpga config

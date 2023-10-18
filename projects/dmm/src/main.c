@@ -454,6 +454,7 @@ static void update_console_cmd(app_t *app)
 
       else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
 
+        // set the fpga mode.
         mux_ice40(app->spi);
         spi_ice40_reg_write32(app->spi, REG_MODE, u0 );
 

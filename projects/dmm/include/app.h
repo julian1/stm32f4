@@ -9,6 +9,31 @@
 
 typedef struct Mode Mode;
 
+
+
+
+typedef struct H
+{
+  /* state, that needs to be persisted - . not managed on 4094 or fpga.  required for range changes. etc.
+  // actually should probably
+  // could be placed in app_t.   or here. or somewhere else.
+    -------------
+    EXTR. should be grouped regardless. to make easy to move. restrict scope.
+    actually think it should be in app.
+
+    - this state is not necessary to set up - complete function - only to - so it's bb.
+  */
+
+
+  // bool     fixedz;   // default off.
+  // uint32_t lfreq;
+
+
+} H;
+
+
+
+
 typedef struct app_t
 {
 

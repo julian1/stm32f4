@@ -20,7 +20,7 @@
 /*
   EXTR.
     don't care about defining inidividual registers for muxes etc.
-    instead the entire state representation is considered as register. with a pre-determined set of modes / elements.
+    instead the entire state representation is considered as high-level register. with a subset of pre-determined set elements.
 
     - the clearing mask for relays, is normally always the same. but the need to manipulate b2b fets changes thing.
     - with a straight array.   WE *CAN* also define using a parallel alternative structure with bitfield.
@@ -89,7 +89,7 @@ typedef struct X
 
   // U401 4094
   uint8_t U401_UNUSED : 8;    // controls U404. boot. mux
-                              // 
+                              //
 
 
   // U403
@@ -180,10 +180,13 @@ F
 */
 
 
+
+
 // mode_t
 typedef struct Mode
 {
-
+  // all state needed to achive a dmm function.
+  // but not enough for different states.
 
   X     first;
 
@@ -202,10 +205,17 @@ typedef struct Mode
   uint32_t  reg_mode;
 
   F  reg_direct;
-  // F  reg_direct2;
+  // F  reg_direct2; only for a ratiometric function.
 
   uint32_t  reg_aperture;
 
+  ////////////
+
+  /* other state, that needs to be persisted. not managed on 4094 or fpga.  required to be able to change range. etc.
+    could be placed in app_t.   or here. or somewhere else.
+    ----
+    
+  */
 
 
 } Mode;
