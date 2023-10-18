@@ -166,10 +166,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     mode->reg_direct.himux  = S7 ;    // dcv-in
     mode->reg_direct.azmux  = S6;    // lo
 
-    // set the hi signal az.
-    // really don't need to set this, it is always the same. we then get a different register.
-    mode->reg_direct2.azmux  = S1;  // pc-out.
-
     // set aperture
     // can override later.
     mode->reg_aperture = nplc_to_aper_n( 1 ); // this is dynamic. maybe 50,60Hz. or other.
@@ -218,10 +214,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     mode->reg_direct.himux2 = S4 ;    // gnd to reduce leakage on himux
     mode->reg_direct.himux  = S3 ;    // dcv-div
     mode->reg_direct.azmux  = S6;    // lo
-
-    // set the hi signal az.
-    // really don't need to set this, it is always the same. we then get a different register.
-    mode->reg_direct2.azmux  = S1;  // pc-out.
 
     // set aperture
     // can override later.

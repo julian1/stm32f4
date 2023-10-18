@@ -202,7 +202,7 @@ typedef struct Mode
   uint32_t  reg_mode;
 
   F  reg_direct;
-  F  reg_direct2;
+  // F  reg_direct2;
 
   uint32_t  reg_aperture;
 

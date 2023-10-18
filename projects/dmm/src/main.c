@@ -202,7 +202,7 @@ void do_4094_transition( unsigned spi, const Mode *mode, uint32_t *system_millis
 
     // spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
   spi_ice40_reg_write_n(spi, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
-  spi_ice40_reg_write_n(spi, REG_DIRECT2, &mode->reg_direct2, sizeof( mode->reg_direct) );
+  // spi_ice40_reg_write_n(spi, REG_DIRECT2, &mode->reg_direct2, sizeof( mode->reg_direct) );   unused again.
 
   spi_ice40_reg_write32(spi, REG_CLK_SAMPLE_DURATION, mode->reg_aperture );
 

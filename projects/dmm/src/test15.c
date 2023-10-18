@@ -125,10 +125,6 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
         f.azmux  = S6 ;    // s6 == normal LO for DCV, ohms.
         spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
 
-        // set the hi for az.
-        f.azmux  = S1 ;         // s1 == PC_OUT (either SIG or BOOT).
-        spi_ice40_reg_write_n(app->spi, REG_DIRECT2, &f, sizeof(f) );
-
 
         assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
 
@@ -623,7 +619,8 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
     0V.     0.1mV.  2.1mV 0.1mV.    - wanders. a bit over 10sec. 
     -10V     4.9mV  6.2mV 
 
-
+    // remove azmux_hi_val
+    // looks ok.
 
 
 
