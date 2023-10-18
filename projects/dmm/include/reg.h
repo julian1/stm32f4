@@ -33,6 +33,10 @@
 #define MODE_DIRECT       3     // support direct writing via direct register
 #define MODE_AZ           4     // simple az.
 #define MODE_PC           5     // simple precharge switching modulation.
+#define MODE_NO_AZ        6
+
+
+
 
 /*
 // default led blink, and monitor test pattern.
@@ -85,7 +89,7 @@
 #define W4          ((1<<2)|(4-1))
 
 
-// should perhaps use top RBOT RTOPTOM 
+// should perhaps use top RBOT RTOPTOM
 #define ROFF      0
 #define RBOT      0b01      // top contact closed.
 #define RTOP      0b10      // bottom contact closed.
