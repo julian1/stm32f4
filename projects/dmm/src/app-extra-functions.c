@@ -250,7 +250,11 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     // otherwise keep as is.
     */
 
-    // we could just start - by making a copy of the current mode . before restarting?
+    /*
+      - we want aperture and mode to persist. and maybe be set if not set. 
+      - but we want clean relay state. etc.
+      - so should perhaps make a copy of the original state.
+    */
 
     ////////////
     // fpga config
