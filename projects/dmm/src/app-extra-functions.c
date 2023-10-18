@@ -112,7 +112,11 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
   else if( sscanf(cmd, "nplc %lu", &u1 ) == 1) {
 
-    assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
+    if( ! (u1 == 1 || u1 == 2 || u1 == 10 || u1 == 100 || u1 == 1000))  {
+        printf("bad nplc arg\n");
+        return 1;
+    };
+
     uint32_t aperture = nplc_to_aper_n( u1 );
     printf("aperture %lu\n",   aperture );
     printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture ));
@@ -251,7 +255,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     */
 
     /*
-      - we want aperture and mode to persist. and maybe be set if not set. 
+      - we want aperture and mode to persist. and maybe be set if not set.
       - but we want clean relay state. etc.
       - so should perhaps make a copy of the original state.
     */
