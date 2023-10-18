@@ -35,7 +35,7 @@ bool test06( app_t *app , const char *cmd)
 
       // similar except mux boot, and feed through the the amplifier.
       // electrometer mode.
-      printf("test leakage by first charging for 10sec, then turn off iniput muxes but mux boot through to amplifier jfets\n");
+      printf("test electrometer mode - leakage by first charging for 10sec, then turn off himuexes, and mux boot direct to amplifier\n");
       app->test_in_progress = 0;
 
       Mode j = *app->mode_initial;
@@ -117,6 +117,16 @@ bool test06( app_t *app , const char *cmd)
   -10V.
     2.6mV.  2.5mV.
 
+  // oct 19.
+  // refactor to use fpga electrometer mode.
+  // 5mins between.
+
+  +10V.
+      -0.1mV. 0.0mV
+  0V.
+      0.5mV 0.5mV
+  -10V.
+      1.8mV  1.7mV.
 
 
 */

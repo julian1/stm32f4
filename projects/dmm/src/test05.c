@@ -33,7 +33,7 @@ bool test05( app_t *app , const char *cmd)
 
   if( sscanf(cmd, "test05 %ld", &i0 ) == 1) {
 
-      printf("test leakage by first charging for 10sec, then turn off muxes and observe - tests non az mode leakage\n");
+      printf("test non-az mode, leakage by first charging for 10sec, then turn off muxes, and mux signal via pc-out to amplifier\n");
       app->test_in_progress = 0;
 
       Mode j = *app->mode_initial;
@@ -115,15 +115,15 @@ bool test05( app_t *app , const char *cmd)
   // data lost?
 
   // oct 19.
-  
+  // refactor to use fpga no-az mode.
+  // 5mins between.
+
   +10V.
-
+    0.5mV. 0.6mV.
   0V.
-
+    1.6mV.  1.8mV.
   -10V.
-
-
-
+    4.3mV.  4.3mV.
 
 
 */
