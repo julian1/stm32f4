@@ -31,11 +31,16 @@
 #define MODE_HI           1     // all bits held hi
 #define MODE_PATTERN      2     // put modulation pattern on all bits
 #define MODE_DIRECT       3     // support direct writing via direct register
-#define MODE_AZ           4     // simple az.
-#define MODE_PC           5     // simple precharge switching modulation.
-#define MODE_NO_AZ        6
+#define MODE_PC           4     // simple precharge switching modulation.
+#define MODE_AZ           5     // simple az.
+#define MODE_NO_AZ        6     // simple no az.
 
 
+/*
+    .e( modulation_pc_out),                   // 4 works.
+    .f( modulation_az_out),                   // 5
+    .g( modulation_no_az_out   ),  // 7 works.
+*/
 
 
 /*
