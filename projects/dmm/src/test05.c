@@ -33,7 +33,7 @@ bool test05( app_t *app , const char *cmd)
 
   if( sscanf(cmd, "test05 %ld", &i0 ) == 1) {
 
-      printf("test non-az mode, leakage by first charging for 10sec, then turn off muxes, and mux signal via pc-out to amplifier\n");
+      printf("test non-az mode - leakage by first charging for 10sec, then turn off muxes, and mux signal via pc-out to amplifier\n");
       app->test_in_progress = 0;
 
       Mode j = *app->mode_initial;
