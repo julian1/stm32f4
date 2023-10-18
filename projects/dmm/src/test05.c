@@ -112,6 +112,16 @@ bool test05( app_t *app , const char *cmd)
 
 
   // oct 18.
+  // data lost?
+
+  // oct 19.
+  
+  +10V.
+
+  0V.
+
+  -10V.
+
 
 
 
