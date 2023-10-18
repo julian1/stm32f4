@@ -65,15 +65,16 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   // https://stackoverflow.com/questions/24746111/scanf-field-width-string-overflow
   char s0[100 + 1 ];
 
-  if( sscanf(cmd, "dcv %100s", s0) == 1) {
+  if( sscanf(cmd, "dcvx %100s", s0) == 1) {
 
 
       printf("got dcv with string\n" );
+      return 1;
   }
 
 
 
-  if( sscanf(cmd, "nplc %lu", &u1 ) == 1) {
+  else if( sscanf(cmd, "nplc %lu", &u1 ) == 1) {
 
     assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
 
