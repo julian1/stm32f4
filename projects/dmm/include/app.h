@@ -114,6 +114,11 @@ double aper_n_to_period( uint32_t aper_n);
 
 
 // TODO make mode_initial const.
+
+
+bool test05( app_t *app , const char *cmd);
+bool test06( app_t *app , const char *cmd);
+
 bool test15( app_t *app , const char *cmd);    // not sure if good to mode_initial here,
 bool test14( app_t *app , const char *cmd);    // not sure if good to pass here,
 
