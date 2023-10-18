@@ -33,7 +33,7 @@ bool test05( app_t *app , const char *cmd)
 
   if( sscanf(cmd, "test05 %ld", &i0 ) == 1) {
 
-      printf("test leakage by first charging for 10sec, then turn off muxes and observe\n");
+      printf("test leakage by first charging for 10sec, then turn off muxes and observe - tests non az mode leakage\n");
       app->test_in_progress = 0;
 
       Mode j = *app->mode_initial;
@@ -75,6 +75,7 @@ bool test05( app_t *app , const char *cmd)
       msleep(10 * 1000,  &app->system_millis);
       printf("turn off muxes - to see drift\n");
 
+#if 0
       /////////
       F  f;
       memset(&f, 0, sizeof(f));         // turn off himux, and azmux.
@@ -83,8 +84,16 @@ bool test05( app_t *app , const char *cmd)
       f.sig_pc_sw_ctl  = 1;         // precharge mux signal. into azmux which is off.
       f.led0 = 1;                   // because muxinig signal.
 
-
       spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
+#endif
+
+      F  f;
+      memset(&f, 0, sizeof(f));         // turn off himux
+      f.himux2 = S4 ;                   // s4 gnd. himux2 to reduce leakage.
+      spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
+      spi_ice40_reg_write32(app->spi, REG_MODE, MODE_NO_AZ );
+
+
 
       return 1;
     }

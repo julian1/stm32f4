@@ -100,5 +100,7 @@
 #define RTOP      0b10      // bottom contact closed.
 
 
+#define SW_PC_SIGNAL    1
+#define SW_PC_BOOT      0
 
 
