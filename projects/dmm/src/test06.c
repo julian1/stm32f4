@@ -70,7 +70,6 @@ bool test06( app_t *app , const char *cmd)
 
       do_4094_transition( app->spi, &j,  &app->system_millis );
 
-#if 0
       ////////////////////////////
       // so charge cap to the dcv-source, then turn off the mux and see how it drifts.
       // charge for 10sec. for DA....
@@ -78,6 +77,8 @@ bool test06( app_t *app , const char *cmd)
       msleep(10 * 1000,  &app->system_millis);
       printf("turn off input muxes, azmux now mux boot\n");
 
+
+#if 0
       /////////
       F  f;
       memset(&f, 0, sizeof(f));         // turn off the muxes  .   we could turn dc-source to 0V.
@@ -86,11 +87,17 @@ bool test06( app_t *app , const char *cmd)
       f.sig_pc_sw_ctl  = 0;         // mux boot.
       f.led0 = 0;                   // off because muxinig boot.
       f.azmux = S2;                 // azmux mux boot, instead of pc-out.
+#endif
+
+      F  f;
+      memset(&f, 0, sizeof(f));         // turn off himux
+      f.himux2 = S4 ;                   // s4 gnd. himux2 to reduce leakage.
+      spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
+      spi_ice40_reg_write32(app->spi, REG_MODE, MODE_EM );
+
 
 
       spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
-
-#endif
 
       return 1;
     }

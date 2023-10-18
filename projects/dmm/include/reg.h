@@ -34,6 +34,7 @@
 #define MODE_PC           4     // simple precharge switching modulation.
 #define MODE_AZ           5     // simple az.
 #define MODE_NO_AZ        6     // simple no az.
+#define MODE_EM           7     // simple electrometer mode
 
 
 /*
