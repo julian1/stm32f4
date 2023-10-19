@@ -35,6 +35,10 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
     int32_t i0;
 
 
+
+
+
+
     if( sscanf(cmd, "test15 %ld %lu", &i0, &u1 ) == 2) {
 
         /*
@@ -611,7 +615,44 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
   // remove azmux_hi_val
   // looks ok.
 
+  /////////////////
+  // oct 20.
+  // remove the 10p. which slaps around the input signal.
 
+  0V.
+    with wire about 3mm.
+
+    12.2mV.  12.8mV. 12.7mV   So quite good.
+
+    can we bend the wire to change the effect.
+    wire broke. removed.
+
+    13.3mV.  13.3mV.
+
+    air wire restored.
+    12.4mV.  12.4mV.
+
+    2.5p trimmer cap. measured with LCR meter.
+    7.4mV.  7.4mV.
+
+    so adding trimmer adjusts about 5mV. - around 5pA in the right direction. nice.
+    needs another 5mV or so.
+
+    - So. test +10,0,-10V for distribution.
+    - then check what input looks like on the scope again.
+
+
+    10V.
+      4.4mV  4.3mV.
+    0V.
+      7.2mV.  7.5mV
+
+    -10V
+      15.1mV. 14.5mV.
+
+
+  think the difference in cap size between discrete j201,sd5400,   would be a bit the reduced voltage range.
+  datasheet for lv4053, IVL is 0.8V. and cmos could transition below that.
 
 */
 

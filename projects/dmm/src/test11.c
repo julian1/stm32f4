@@ -74,8 +74,11 @@ bool test11( app_t *app , const char *cmd)
 
 /*
   oct 20.
+  with lsk389.
   measure 0.203V.  at 100x. == 2mV. Vos.
   measure 0.017202 mV.  at 10x. == 1.7mV. Vos.
+
+  So. the amplifier lo has 0.2V offset. which explains some of the apparant misalignment of scope input.
 
 
 */
