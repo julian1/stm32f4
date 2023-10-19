@@ -365,6 +365,11 @@ static void update_soft_500ms(app_t *app)
       //////////
       Mode mode_derived = *app->mode_initial;     // copy initial state.eg. turn all relays off
 
+      /*
+         - could stagger these - to hear/confirm they turn on. 
+          - for turning the relay on. test03. could stagger the relays. eg. 100ms. between each one
+
+      */
 
       // TODO . want an invert function macro
       // eg. mode_derived.first.K402_CTL = invert( mode_initial.first.K402_CTL )
