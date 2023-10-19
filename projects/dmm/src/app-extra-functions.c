@@ -58,8 +58,8 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   assert(app);
   assert(cmd);
 
-  double f0 ;
-  uint32_t u1;
+  double    f0;
+  uint32_t  u1;
   // int32_t i0;
 
   // https://stackoverflow.com/questions/24746111/scanf-field-width-string-overflow
@@ -72,7 +72,8 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   if( sscanf(cmd, "lfreq %lu", &u1 ) == 1) {
 
 
-    printf("lfreq\n" );
+    printf("set lfreq\n" );
+    app->lfreq = u1;
 
     return 1;
   }
@@ -85,12 +86,12 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
     if(strcmp(s0, "on") == 0) {
 
-      printf("fixedz on\n" );
+      printf("set fixedz on\n" );
       app->fixedz = true;
 
     } else if (strcmp(s0, "off") == 0) {
 
-      printf("fixedz off\n" );
+      printf("set fixedz off\n" );
       app->fixedz = false;
     } else {
       printf("fixedz, unrecognized arg\n" );

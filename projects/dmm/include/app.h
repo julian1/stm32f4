@@ -128,6 +128,8 @@ typedef struct app_t
 
   bool fixedz ;
 
+  uint32_t lfreq;
+
 } app_t;
 
 
