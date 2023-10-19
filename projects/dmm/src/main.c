@@ -271,13 +271,14 @@ static void update_soft_500ms(app_t *app)
   // hearbeat and led flash
   mux_ice40(app->spi);
 
-  // use a magic number that will also blink the led.
+  // use a magic number to blink the led. and test comms
   uint32_t magic = app->led_state ? 0b010101 : 0b101010 ;
 
-  // note - led. will only work if fpga in mode. 1.
+  // note - led will only, actually light if fpga in mode. 1.
   spi_ice40_reg_write32( app->spi, REG_LED, magic);
-  uint32_t ret = spi_ice40_reg_read32( app->spi, REG_LED);
 
+  // check the magic numger
+  uint32_t ret = spi_ice40_reg_read32( app->spi, REG_LED);
   if(ret != magic ) {
 
     // comms no good
@@ -285,6 +286,7 @@ static void update_soft_500ms(app_t *app)
     printf("no comms, wait for ice40 v %s\n",  format_bits(buf, 32, ret ));
     app->comms_ok = false;
 
+    // REVIEW
     // return
   }
   else {
@@ -339,6 +341,13 @@ static void update_soft_500ms(app_t *app)
   // get the status register.
 
 
+  ret = spi_ice40_reg_read32( app->spi, REG_STATUS);
+  if(ret != app->last_reg_status ) {
+
+    char buf[ 100] ;
+    printf("status changed %s\n",  format_bits(buf, 32, ret ));
+    app->last_reg_status  = ret;
+  }
 
 
 
@@ -649,8 +658,8 @@ static void update_console_cmd(app_t *app)
 
     */
 
-      else if( test05( app, cmd  )) { } 
-      else if( test06( app, cmd  )) { } 
+      else if( test05( app, cmd  )) { }
+      else if( test06( app, cmd  )) { }
 
 
       else if( test14( app, cmd  )) { }

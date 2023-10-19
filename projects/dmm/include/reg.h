@@ -58,6 +58,8 @@
 // change name REG_APERTURE_N is or similar
 #define REG_CLK_SAMPLE_DURATION 16
 
+#define REG_STATUS      17
+
 
 /*
   may be better to define the values for the specific muxes.

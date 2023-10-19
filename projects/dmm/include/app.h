@@ -81,7 +81,6 @@ typedef struct app_t
   // fpga comms is active/ok
   bool comms_ok;
 
-  // uint32_t last_reg_status;      // ice40_sr. inguard_sr. 
 
   // we don't/shouldn't even need the current 4094/fpga state recorded/duplicated here.
   // not not want more than single authoritative source for 4094 state.
@@ -129,6 +128,8 @@ typedef struct app_t
   bool fixedz ;
 
   uint32_t lfreq;
+
+  uint32_t last_reg_status ;  // where should this be placed.
 
 } app_t;
 
