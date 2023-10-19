@@ -524,6 +524,8 @@ static void update_console_cmd(app_t *app)
 
       else if( test08( app, cmd  )) { }   // change to test 4. i think.
 
+      else if( test11( app, cmd  )) { }
+
       else if( test14( app, cmd  )) { }
 
       else if( test15( app, cmd  )) { }
