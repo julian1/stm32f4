@@ -352,7 +352,6 @@ static void update_soft_500ms(app_t *app)
 
 
   // the flipping of the input relay. test. we want to keep.
-  // so we derive jjjjj
 
   if(app->test_in_progress == 3 ) {
 
@@ -366,19 +365,14 @@ static void update_soft_500ms(app_t *app)
       //////////
       Mode mode_derived = *app->mode_initial;     // copy initial state.eg. turn all relays off
 
-      // mode_derived.first. K405_CTL    = RTOP;     // turn dcv-input K405 on.
 
-      // K402 working.
-      // mode_derived.first. K402_CTL    = RTOP;     // turn dcv-input K402 on.
-
-      // K401 working.
-      // mode_derived.first. K401_CTL    = RTOP;     // turn dcv-input K402 on.
-
+      // TODO . want an invert function macro
+      // eg. mode_derived.first.K402_CTL = invert( mode_initial.first.K402_CTL )
 
       // switch all relays at the same time.  should be another test
       // works...
       mode_derived.first.K405_CTL    = RTOP;
-      mode_derived.first.K402_CTL    = RTOP;
+      mode_derived.first.K402_CTL    = RTOP;      // WRONG. needs to be invert of what it previously is.  write an invert function.
       mode_derived.first.K401_CTL    = RTOP;
       mode_derived.first.K403_CTL    = RTOP;
 
