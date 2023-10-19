@@ -816,7 +816,9 @@ static const Mode mode_initial =  {
   .first .K406_CTL  = RTOP,     // accumulation relay off
 
   .first. K405_CTL  = RBOT,     // dcv input relay k405 switch off - works.
-  .first. K402_CTL  = RBOT,     // dcv-div relay off
+  .first. K402_CTL  = RBOT,     // dcv-div/directz relay off
+                                // must match app->fixedz
+
   // .first. K401_CTL  = RBOT,     // dcv-source relay off.    (WRONG. turns it on??).
   .first. K401_CTL  = RTOP,     // dcv-source relay off.    (WRONG. turns it on??).
   .first. K403_CTL  = RBOT,     // ohms relay off.
@@ -842,6 +844,7 @@ static const Mode mode_initial =  {
   .reg_aperture = 0     // set explicitly in dcv
 
 };
+
 
 
 static Mode mode_current;
