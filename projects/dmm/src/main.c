@@ -336,6 +336,10 @@ static void update_soft_500ms(app_t *app)
     }
   }
 
+  // get the status register.
+
+
+
 
 
   // the flipping of the input relay. test. we want to keep.

@@ -71,6 +71,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
   if(strcmp(cmd, "elecm") == 0) {
 
+    // must be better name.
     printf("set em mode\n" );
     app->mode_current->reg_mode = MODE_EM;
 
@@ -251,6 +252,8 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       // close/ turn on K405 relay.
       mode->first.K405_CTL  = RTOP;
 
+      // And we need to follow directz/ 10Meg.
+
       // set the input muxing.
       mode->reg_direct.himux2 = S4 ;    // gnd to reduce leakage on himux
       mode->reg_direct.himux  = S7 ;    // dcv-in
@@ -275,24 +278,28 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
     // TODO populate protection - and arm the fets also.
 
-    //
-    /* IMPPORTANT - we could do a test here. is mode in a sample mode eg. az or non az. then set a default.
-    // otherwise keep as is.
-    */
-
     /*
-      - we want mode, aperture and fixedz to persist.
-      - when changing range.
+      - we want sample mode, aperture and fixedz to persist.
+      - when auto/man changing range.
       - but that means we would have to copy. from original.
     */
 
     ////////////
-    // fpga config
-    mode->reg_mode = MODE_AZ;
+    // fpga/adc config
 
-    // set aperture
-    // can override later.
-    mode->reg_aperture = nplc_to_aper_n( 1 ); // this is dynamic. maybe 50,60Hz. or other.
+    if(mode->reg_mode != MODE_AZ
+      && mode->reg_mode != MODE_NO_AZ
+      && mode->reg_mode != MODE_EM) {
+
+      // if mode is not set, then set to useful useful.
+      mode->reg_mode = MODE_AZ;
+    }
+
+    if(!mode->reg_aperture) {
+
+      // if aperture not set, then set to useful default
+      mode->reg_aperture = nplc_to_aper_n( 1 ); // this is dynamic. maybe 50,60Hz. or other.
+    }
 
     // do the state transition
     do_4094_transition( app->spi, mode,  &app->system_millis );
@@ -300,6 +307,23 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     return 1;
 
   }
+
+
+
+  else {
+    return 0;
+
+  }
+  // have to
+
+
+
+  return 0;
+}
+
+
+
+
 
 #if 0
 
@@ -359,23 +383,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   }
 
 #endif
-
-
-
-
-  else {
-    return 0;
-
-  }
-  // have to
-
-
-
-  return 0;
-}
-
-
-
 
 
 
