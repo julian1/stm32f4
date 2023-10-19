@@ -69,14 +69,11 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
   // is there a way to represent/ aor force variable whitespace? sscanf?
 
-  if(strcmp(cmd, "elecm") == 0) {
+  if( sscanf(cmd, "lfreq %lu", &u1 ) == 1) {
 
-    // must be better name.
-    printf("set em mode\n" );
-    app->mode_current->reg_mode = MODE_EM;
 
-    // do the state transition
-    do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
+    printf("lfreq\n" );
+
     return 1;
   }
 
@@ -87,21 +84,24 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     // but needs to persist.
 
     if(strcmp(s0, "on") == 0) {
-      printf("fixedz on\n" );
 
-      // close/ turn on K402 relay.
-      app->mode_current->first.K402_CTL  = RTOP;
+      printf("fixedz on\n" );
+      app->fixedz = true;
 
     } else if (strcmp(s0, "off") == 0) {
 
       printf("fixedz off\n" );
-      // open/ turn off K402 relay.
-      // TODO fixme. don't allow if on for dcv100, dcv1000V.
-      app->mode_current->first.K402_CTL  = RBOT;
+      app->fixedz = false;
     } else {
       printf("fixedz, unrecognized arg\n" );
       return 1;
     }
+
+
+    // follow fixedz for 10Meg/high-z.
+    app->mode_current->first.K402_CTL = app->fixedz ?  RTOP :  RBOT ;
+
+
     // do the state transition
     do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
     return 1;
@@ -127,13 +127,18 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   }
 
 
-  else if( sscanf(cmd, "lfreq %lu", &u1 ) == 1) {
+  else if(strcmp(cmd, "elecm") == 0) {
 
+    // must be better name.
+    printf("set em mode\n" );
+    app->mode_current->reg_mode = MODE_EM;
 
-    printf("lfreq\n" );
-
+    // do the state transition
+    do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
     return 1;
   }
+
+
 
 
 
@@ -252,7 +257,9 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       // close/ turn on K405 relay.
       mode->first.K405_CTL  = RTOP;
 
-      // And we need to follow directz/ 10Meg.
+      // follow fixedz for 10Meg/high-z.
+      app->mode_current->first.K402_CTL = app->fixedz ?  RTOP :  RBOT ;
+
 
       // set the input muxing.
       mode->reg_direct.himux2 = S4 ;    // gnd to reduce leakage on himux

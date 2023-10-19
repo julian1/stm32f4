@@ -126,6 +126,8 @@ typedef struct app_t
       10Meg.
   */
 
+  bool fixedz ;
+
 } app_t;
 
 
