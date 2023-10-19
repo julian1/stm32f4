@@ -813,7 +813,7 @@ static const Mode mode_initial =  {
 
   .first. K405_CTL  = RBOT,     // dcv input relay k405 switch off - works.
   .first. K402_CTL  = RBOT,     // dcv-div relay off
-  .first. K401_CTL  = RBOT,     // dcv-source relay off.
+  .first. K401_CTL  = RBOT,     // dcv-source relay off.    (WRONG. turns it on??).
   .first. K403_CTL  = RBOT,     // ohms relay off.
 
   .first .U408_SW_CTL = 0,      // b2b fets/ input protection off/open

@@ -80,6 +80,32 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   }
 
 
+  else if( sscanf(cmd, "fixedz %100s", s0) == 1) {
+
+    // can only be for dcv10,dcv1,dcv01.  ranges. but doesn't matter to turn on for dcv1000,dcv
+    // but needs to persist.
+
+    if(strcmp(s0, "on") == 0) {
+      printf("fixedz on\n" );
+
+      // close/ turn on K402 relay.
+      app->mode_current->first.K402_CTL  = RTOP;
+
+    } else if (strcmp(s0, "off") == 0) {
+
+      printf("fixedz off\n" );
+      // open/ turn off K402 relay.
+      // TODO fixme. don't allow if on for dcv100, dcv1000V.
+      app->mode_current->first.K402_CTL  = RBOT;
+    } else {
+      printf("fixedz, unrecognized arg\n" );
+      return 1;
+    }
+    // do the state transition
+    do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
+    return 1;
+  }
+
 
   else if( sscanf(cmd, "azero %100s", s0) == 1) {
 
