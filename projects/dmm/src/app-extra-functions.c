@@ -281,9 +281,9 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     */
 
     /*
-      - we want aperture and mode to persist. and maybe be set if not set.
-      - but we want clean relay state. etc.
-      - so should perhaps make a copy of the original state.
+      - we want mode, aperture and fixedz to persist.
+      - when changing range.
+      - but that means we would have to copy. from original.
     */
 
     ////////////
