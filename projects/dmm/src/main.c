@@ -159,6 +159,17 @@ uint32_t period_to_aper_n(  double period )
 }
 
 
+bool nplc_valid( double nplc )
+{
+  // used in a few places for user-input arg validating. checking.
+  // can be relaxed later.
+  // switch/case
+  // do the same for the voltage source
+  return
+     nplc == 0.1 || nplc == 0.5 || nplc == 1
+    || nplc == 2 || nplc == 10 || nplc == 100 || nplc == 1000;
+}
+
 
 
 

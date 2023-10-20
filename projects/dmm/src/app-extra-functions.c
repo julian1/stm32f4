@@ -178,7 +178,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
   else if( sscanf(cmd, "nplc %lf", &f0 ) == 1) {
 
-    if( ! (f0 == 0.1 || f0 == 0.5 || f0 == 1 || f0 == 2 || f0 == 10 || f0 == 100 || f0 == 1000))  {
+    if( ! nplc_valid( f0 ))  {
         printf("bad nplc arg\n");
         return 1;
     };

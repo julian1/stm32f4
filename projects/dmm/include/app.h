@@ -140,20 +140,17 @@ typedef struct app_t
 
 
 // better name
+// app_transition_state() ?
 void do_4094_transition( unsigned spi, const Mode *mode, uint32_t *system_millis);
 
-// need to pass line-freq as argument also
+
 uint32_t nplc_to_aper_n( double nplc, uint32_t lfreq );
 double aper_n_to_nplc( uint32_t aper_n, uint32_t lfreq);
-
-
-// uint32_t nplc_to_aper_n( double nplc );
-// double aper_n_to_nplc( uint32_t aper_n);
 double aper_n_to_period( uint32_t aper_n);
-
 uint32_t period_to_aper_n(  double period );
+bool nplc_valid( double nplc );
 
-// TODO make mode_initial const.
+
 
 
 bool test05( app_t *app , const char *cmd);
