@@ -173,12 +173,12 @@ bool nplc_valid( double nplc )
 
 
 
-void do_4094_transition( unsigned spi, const Mode *mode, uint32_t *system_millis)
+void app_transition_state( unsigned spi, const Mode *mode, uint32_t *system_millis)
 {
   assert(mode);
 
   // change name   do_state_update_4094 _4094_state_update.
-  // change name do_4094_transition. or make_
+  // change name app_transition_state. or make_
 
   // should we be passing as a separate argument
   assert( sizeof(X) == 5 );
@@ -190,7 +190,7 @@ void do_4094_transition( unsigned spi, const Mode *mode, uint32_t *system_millis
 
   printf("-----------\n");
 
-  printf("do_4094_transition write first state\n");
+  printf("app_transition_state write first state\n");
   // state_format (  (void *) &mode->first, sizeof(X) );
 
   // and write device
@@ -201,7 +201,7 @@ void do_4094_transition( unsigned spi, const Mode *mode, uint32_t *system_millis
 
 
   // and format
-  printf("do_4094_transition write second state\n");
+  printf("app_transition_state write second state\n");
   // state_format ( (void *) &mode->second, sizeof(X) );
 
   // and write device
@@ -314,7 +314,7 @@ static void update_soft_500ms(app_t *app)
       // write initial 4094 state - for muxes. before turning on 4094 OE.
       printf("write initial 4094 state\n");
       assert(app->mode_initial);
-      do_4094_transition( app->spi, app->mode_initial,  &app->system_millis );
+      app_transition_state( app->spi, app->mode_initial,  &app->system_millis );
 
 
       mux_ice40(app->spi);
@@ -336,7 +336,7 @@ static void update_soft_500ms(app_t *app)
 
       // now do initial transition again. to  put relays in the right state with 4094 OE enabled
       printf("rewrite initial 4094 state\n");
-      do_4094_transition( app->spi, app->mode_initial,  &app->system_millis );
+      app_transition_state( app->spi, app->mode_initial,  &app->system_millis );
 
       // make sure fpga is in a default mode.
       spi_ice40_reg_write32(app->spi, REG_MODE, 0 );
@@ -368,7 +368,7 @@ static void update_soft_500ms(app_t *app)
     // tests b2b and K405 relay sequencing.
     if(app->led_state) {
 
-      do_4094_transition( app->spi, app->mode_initial, &app->system_millis );
+      app_transition_state( app->spi, app->mode_initial, &app->system_millis );
     }
     else {
 
@@ -396,7 +396,7 @@ static void update_soft_500ms(app_t *app)
       mode_derived.second.U408_SW_CTL = 1;       // turn on/close b2b fets.
 
 
-      do_4094_transition( app->spi, &mode_derived, &app->system_millis );
+      app_transition_state( app->spi, &mode_derived, &app->system_millis );
     }
   }
 
@@ -956,7 +956,7 @@ void _write_r( void)
         printf("reset initial state\n");
 
         Mode j = mode_initial;
-        do_4094_transition( app->spi, &j,  &app->system_millis );
+        app_transition_state( app->spi, &j,  &app->system_millis );
 
         mux_ice40(app->spi);
         spi_ice40_reg_write32(app->spi, REG_MODE, 0 );  // defaultpattern.

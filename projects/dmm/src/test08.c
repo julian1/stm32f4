@@ -67,7 +67,7 @@ bool test08( app_t *app , const char *cmd)
     j.first .K406_CTL  = RBOT;
     j.second.K406_CTL  = ROFF;    // don't need this....  it is 0 by default
 
-    do_4094_transition( app->spi, &j,  &app->system_millis );
+    app_transition_state( app->spi, &j,  &app->system_millis );
 
     /////////////////
     // make sure we are in direct mode.
@@ -136,7 +136,7 @@ bool test08( app_t *app , const char *cmd)
         else assert(0);
 
         // accumulation relay is off
-        do_4094_transition( app->spi, &j,  &app->system_millis );
+        app_transition_state( app->spi, &j,  &app->system_millis );
 
         /////////////////
         // setup az mode

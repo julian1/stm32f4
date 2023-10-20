@@ -109,7 +109,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       return 1;
     }
     // do the state transition
-    do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
+    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
     return 1;
   }
 
@@ -137,7 +137,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     app->mode_current->first.K402_CTL = app->fixedz ?  RTOP :  RBOT ;
 
     // do the state transition
-    do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
+    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
     return 1;
   }
 
@@ -156,7 +156,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       return 1;
     }
     // do the state transition
-    do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
+    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
     return 1;
   }
 
@@ -168,7 +168,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     app->mode_current->reg_mode = MODE_EM;
 
     // do the state transition
-    do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
+    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
     return 1;
   }
 
@@ -191,7 +191,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     // set new aperture
     app->mode_current->reg_aperture = aperture ;
     // do the state transition
-    do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
+    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
     return 1;
   }
 
@@ -209,7 +209,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     printf("period   %.2lfs\n", aper_n_to_period( aperture ));
 
     app->mode_current->reg_aperture = aperture ;
-    do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
+    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
     return 1;
   }
 
@@ -229,7 +229,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     *app->mode_current = *app->mode_initial;
 
     // do the state transition
-    do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
+    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
 
     return 1;
   }
@@ -350,7 +350,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     }
 
     // do the state transition
-    do_4094_transition( app->spi, mode,  &app->system_millis );
+    app_transition_state( app->spi, mode,  &app->system_millis );
 
     return 1;
 
@@ -425,7 +425,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     mode->reg_aperture = nplc_to_aper_n( 1 ); // this is dynamic. maybe 50,60Hz. or other.
 
     // do the state transition
-    do_4094_transition( app->spi, mode,  &app->system_millis );
+    app_transition_state( app->spi, mode,  &app->system_millis );
 
     return 1;
   }
@@ -543,7 +543,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       }
       else assert(0);
 
-    do_4094_transition( app->spi, mode,  &app->system_millis );
+    app_transition_state( app->spi, mode,  &app->system_millis );
     return 1;
 
   }

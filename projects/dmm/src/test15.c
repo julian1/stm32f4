@@ -80,7 +80,7 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
       j.reg_direct.sig_pc_sw_ctl  = 1;  // turn on. precharge.  on. to route signal to az mux... doesn't matter.
 
 
-      do_4094_transition( app->spi, &j,  &app->system_millis );
+      app_transition_state( app->spi, &j,  &app->system_millis );
 
 
       ////////////////////////////

@@ -141,7 +141,7 @@ typedef struct app_t
 
 // better name
 // app_transition_state() ?
-void do_4094_transition( unsigned spi, const Mode *mode, uint32_t *system_millis);
+void app_transition_state( unsigned spi, const Mode *mode, uint32_t *system_millis);
 
 
 uint32_t nplc_to_aper_n( double nplc, uint32_t lfreq );

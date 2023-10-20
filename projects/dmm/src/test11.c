@@ -62,7 +62,7 @@ bool test11( app_t *app , const char *cmd)
 
 
 
-      do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
+      app_transition_state( app->spi, app->mode_current,  &app->system_millis );
 
     return 1;
     }

@@ -66,7 +66,7 @@ bool test05( app_t *app , const char *cmd)
       j.reg_direct.sig_pc_sw_ctl  = 1;  // precharge mux signal.
       j.reg_direct.led0 = 1;        // turn on led, because muxinig signal.
 
-      do_4094_transition( app->spi, &j,  &app->system_millis );
+      app_transition_state( app->spi, &j,  &app->system_millis );
 
       ////////////////////////////
       // so charge cap to the dcv-source, then turn off the mux and see how it drifts.

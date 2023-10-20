@@ -71,7 +71,7 @@ bool test14( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
       j.first .K406_CTL  = 0b01;
       j.second.K406_CTL  = 0b00;    // don't need this....  it is 0 by default
 
-      do_4094_transition( app->spi, &j,  &app->system_millis );
+      app_transition_state( app->spi, &j,  &app->system_millis );
 
       /////////////////
       // make sure we are in direct mode.
