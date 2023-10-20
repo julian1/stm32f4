@@ -126,24 +126,22 @@ static void state_format ( uint8_t *state, size_t n)
 
 
 
-
 ////////////////////
 
 #define CLK_FREQ        20000000
 
-uint32_t nplc_to_aper_n( double nplc )
+uint32_t nplc_to_aper_n( double nplc, uint32_t lfreq )
 {
-  double period = nplc / 50.0 ;  // seonds
+  double period = nplc / (double) lfreq;  // seonds
   uint32_t aper = period * CLK_FREQ;
   return aper;
 }
 
 
-double aper_n_to_nplc( uint32_t aper_n)
+double aper_n_to_nplc( uint32_t aper_n, uint32_t lfreq)
 {
-  // uint32_t aper  = params->clk_count_aper_n ;
-  double period   = aper_n / (double ) CLK_FREQ;
-  double nplc     = period / (1.0 / 50);
+  double period   = aper_n / (double ) CLK_FREQ;          // use aper_n_to_period()
+  double nplc     = period * (double) lfreq;
   return nplc;
 }
 
@@ -366,7 +364,7 @@ static void update_soft_500ms(app_t *app)
       Mode mode_derived = *app->mode_initial;     // copy initial state.eg. turn all relays off
 
       /*
-         - could stagger these - to hear/confirm they turn on. 
+         - could stagger these - to hear/confirm they turn on.
           - for turning the relay on. test03. could stagger the relays. eg. 100ms. between each one
 
       */
@@ -840,7 +838,9 @@ int main(void)
   app.mode_initial =  &mode_initial;
   app.mode_current =  &mode_current;
 
-
+  app.comms_ok = false;
+  app.fixedz  = false;
+  app.lfreq = 50;
 
 
   printf("sizeof X    %u\n", sizeof(X));

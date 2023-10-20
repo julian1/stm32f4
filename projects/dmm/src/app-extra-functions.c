@@ -71,12 +71,18 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
   if( sscanf(cmd, "lfreq %lu", &u1 ) == 1) {
 
+    if(  !(u1 == 50 || u1 == 60)) {
+      // be safe for moment.
+      printf("bad lfreq arg\n" );
+      return 1;
+    }
 
     printf("set lfreq\n" );
     app->lfreq = u1;
 
     return 1;
   }
+
 
 
 
@@ -176,9 +182,9 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
         return 1;
     };
 
-    uint32_t aperture = nplc_to_aper_n( u1 );
+    uint32_t aperture = nplc_to_aper_n( u1, app->lfreq );
     printf("aperture %lu\n",   aperture );
-    printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture ));
+    printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture, app->lfreq ));
     printf("period   %.2lfs\n", aper_n_to_period( aperture ));
 
     // set new aperture
@@ -188,6 +194,8 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     return 1;
   }
 
+
+
   else if( sscanf(cmd, "aper %lf", &f0 ) == 1) {
 
     // aperture in seconds. period to aperature n
@@ -196,7 +204,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     // assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
 
     printf("aperture %lu\n",   aperture );
-    printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture ));
+    printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture, app->lfreq ));
     printf("period   %.2lfs\n", aper_n_to_period( aperture ));
 
     app->mode_current->reg_aperture = aperture ;
@@ -332,7 +340,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     if(!mode->reg_aperture) {
 
       // if aperture not set, then set to useful default
-      mode->reg_aperture = nplc_to_aper_n( 1 ); // this is dynamic. maybe 50,60Hz. or other.
+      mode->reg_aperture = nplc_to_aper_n( 1, app->lfreq ); // this is dynamic. maybe 50,60Hz. or other.
     }
 
     // do the state transition

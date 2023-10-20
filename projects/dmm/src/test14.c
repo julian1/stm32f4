@@ -114,10 +114,10 @@ bool test14( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
 
         assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
 
-         uint32_t aperture = nplc_to_aper_n( u1 );
+         uint32_t aperture = nplc_to_aper_n( u1, app->lfreq );
 
         printf("aperture %lu\n",   aperture );
-        printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture ));
+        printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture, app->lfreq ));
         printf("period   %.2lfs\n", aper_n_to_period( aperture ));
 
         spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, aperture );

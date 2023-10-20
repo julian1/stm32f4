@@ -112,10 +112,10 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
 
         assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
 
-         uint32_t aperture = nplc_to_aper_n( u1 );
+         uint32_t aperture = nplc_to_aper_n( u1, app->lfreq );
 
         printf("aperture %lu\n",   aperture );
-        printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture ));
+        printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture, app->lfreq ));
         printf("period   %.2lfs\n", aper_n_to_period( aperture ));
 
         spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, aperture );
@@ -641,12 +641,11 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
     - So. test +10,0,-10V for distribution.
     - then check what input looks like on the scope again.
 
-
+    1nplc.
     10V.
       4.4mV  4.3mV.
     0V.
       7.2mV.  7.5mV
-
     -10V
       15.1mV. 14.5mV.
 
@@ -662,6 +661,10 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
 
   /////////////////////////////
   // oct 21.
+  // remove the compensation cap. clean around the 4053.
+
+
+
 
 */
 
