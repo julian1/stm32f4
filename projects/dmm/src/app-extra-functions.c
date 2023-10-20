@@ -59,7 +59,8 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   assert(cmd);
 
   double    f0;
-  uint32_t  u1;
+  uint32_t  u1; // change name u0.
+
   // int32_t i0;
 
   // https://stackoverflow.com/questions/24746111/scanf-field-width-string-overflow
@@ -104,7 +105,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     }
     else {
 
-      printf("accum, unrecognized arg\n" );
+      printf("bad accum arg\n" );
       return 1;
     }
     // do the state transition
@@ -128,7 +129,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       printf("set fixedz off\n" );
       app->fixedz = false;
     } else {
-      printf("fixedz, unrecognized arg\n" );
+      printf("bad fixedz arg\n" );
       return 1;
     }
 
@@ -151,7 +152,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       printf("set azero off\n" );
       app->mode_current->reg_mode = MODE_NO_AZ;
     } else {
-      printf("azero, unrecognized arg\n" );
+      printf("bad azero arg\n" );
       return 1;
     }
     // do the state transition
@@ -175,14 +176,14 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
 
 
-  else if( sscanf(cmd, "nplc %lu", &u1 ) == 1) {
+  else if( sscanf(cmd, "nplc %lf", &f0 ) == 1) {
 
-    if( ! (u1 == 1 || u1 == 2 || u1 == 10 || u1 == 100 || u1 == 1000))  {
+    if( ! (f0 == 0.1 || f0 == 0.5 || f0 == 1 || f0 == 2 || f0 == 10 || f0 == 100 || f0 == 1000))  {
         printf("bad nplc arg\n");
         return 1;
     };
 
-    uint32_t aperture = nplc_to_aper_n( u1, app->lfreq );
+    uint32_t aperture = nplc_to_aper_n( f0, app->lfreq );
     printf("aperture %lu\n",   aperture );
     printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture, app->lfreq ));
     printf("period   %.2lfs\n", aper_n_to_period( aperture ));
@@ -333,11 +334,16 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       && mode->reg_mode != MODE_NO_AZ
       && mode->reg_mode != MODE_EM) {
 
+      // probably always set - because of derivation from initial mode.
       // if mode is not set, then set to useful useful.
       mode->reg_mode = MODE_AZ;
     }
 
     if(!mode->reg_aperture) {
+
+      // FIXME. this is reset on each dcv range range.
+      // because mode is derived/copied from initial.
+      // Ok. and easier for the moment.
 
       // if aperture not set, then set to useful default
       mode->reg_aperture = nplc_to_aper_n( 1, app->lfreq ); // this is dynamic. maybe 50,60Hz. or other.

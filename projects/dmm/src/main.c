@@ -127,6 +127,7 @@ static void state_format ( uint8_t *state, size_t n)
 
 
 ////////////////////
+// move to another file
 
 #define CLK_FREQ        20000000
 
