@@ -79,6 +79,35 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   }
 
 
+
+  else if( sscanf(cmd, "accum %100s", s0) == 1) {
+
+    // manual ontrol over accumulation relay - can be useful for quick checks. but a bit out-of-band for dcv operation.
+    // eg. can control other relays.
+    // what happens if add 10nF. to gnd. to the signal path.
+
+    if (strcmp(s0, "off") == 0) {
+
+      printf("set accum off\n" );
+      app->mode_current->first.K406_CTL = RTOP;
+    }
+    else if(strcmp(s0, "on") == 0) {
+
+      printf("set accm on\n" );
+      app->mode_current->first.K406_CTL = RBOT;
+    }
+    else {
+
+      printf("accum, unrecognized arg\n" );
+      return 1;
+    }
+    // do the state transition
+    do_4094_transition( app->spi, app->mode_current,  &app->system_millis );
+    return 1;
+  }
+
+
+
   else if( sscanf(cmd, "fixedz %100s", s0) == 1) {
 
     // can only be for dcv10,dcv1,dcv01.  ranges. but doesn't matter to turn on for dcv1000,dcv
@@ -88,7 +117,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
       printf("set fixedz on\n" );
       app->fixedz = true;
-
     } else if (strcmp(s0, "off") == 0) {
 
       printf("set fixedz off\n" );
@@ -98,10 +126,8 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       return 1;
     }
 
-
     // follow fixedz for 10Meg/high-z.
     app->mode_current->first.K402_CTL = app->fixedz ?  RTOP :  RBOT ;
-
 
     // do the state transition
     do_4094_transition( app->spi, app->mode_current,  &app->system_millis );

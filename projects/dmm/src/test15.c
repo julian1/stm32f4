@@ -660,6 +660,9 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
 
   - perhaps the issue is not charge injection  - it's async - it's leakage.
 
+  /////////////////////////////
+  // oct 21.
+
 */
 
 
