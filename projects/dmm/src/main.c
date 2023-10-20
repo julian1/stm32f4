@@ -96,7 +96,7 @@ static void sys_tick_interupt(app_t *app)
 
 
 
-static void update_soft_1s(app_t *app)
+static void app_update_soft_1s(app_t *app)
 {
   // maybe review this...
   UNUSED(app);
@@ -226,9 +226,9 @@ void app_transition_state( unsigned spi, const Mode *mode, uint32_t *system_mill
 }
 
 
+// change name app_app_update_soft_100ms.
 
-
-static void update_soft_100ms(app_t *app)
+static void app_update_soft_100ms(app_t *app)
 {
   assert(app);
 
@@ -255,7 +255,7 @@ static void update_soft_100ms(app_t *app)
 
 
 
-static void update_soft_500ms(app_t *app)
+static void app_update_soft_500ms(app_t *app)
 {
   // UNUSED(app);
   assert(app);
@@ -618,20 +618,20 @@ static void loop(app_t *app)
     // 100s soft timer
     if( (app->system_millis - soft_100ms) > 100) {
       soft_100ms += 100;
-      update_soft_100ms(app);
+      app_update_soft_100ms(app);
     }
 
 
     // 500ms soft timer
     if( (app->system_millis - soft_500ms) > 500) {
       soft_500ms += 500;
-      update_soft_500ms(app);
+      app_update_soft_500ms(app);
     }
 
     // 1000ms soft
     if( (app->system_millis - soft_1s) > 1000 ) {
       soft_1s += 1000;
-      update_soft_1s(app);
+      app_update_soft_1s(app);
     }
 
 
