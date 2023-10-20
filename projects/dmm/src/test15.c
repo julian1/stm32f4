@@ -651,8 +651,14 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
       15.1mV. 14.5mV.
 
 
-  think the difference in cap size between discrete j201,sd5400,   would be a bit the reduced voltage range.
+  - think the difference in cap size between discrete j201,sd5400,   would be a bit the reduced voltage range.
   datasheet for lv4053, IVL is 0.8V. and cmos could transition below that.
+
+  - but problem.
+      has the same effect of slapping the input around - although less because less capacitance.
+      hmmmmm.
+
+  - perhaps the issue is not charge injection  - it's async - it's leakage.
 
 */
 
