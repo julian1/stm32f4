@@ -668,6 +668,12 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
   // remove the compensation cap. clean around the 4053.
   // rewrite code, including support 0.1nplc.
 
+  To show the data for lv4053 again, with comp-caps removed.
+  I agree, the 10nplc case is good. 2.7mV to 6.7mV.   So. 2.7pA to 6.7pA input bias current, across the +-10V input range.
+  Ideally, the offset of 13mV for 1nplc at 0V dc-bias could also be nulled.
+  But not if it introduces a lot of complexity.
+
+
   input dc-bias
   10V
     1000nplc/off    1.8mV. 0.6mV.   0.1mV.  1.4mV.   varation recorded depends on switch phase.
@@ -687,6 +693,30 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
     1nplc           20mV   20mV. 20.5mV
     0.5nplc         32mV   34.2mV
 
+
+  With 1R. at R405.   measure 1.128mV. offset across.
+  10V.
+    1000nplc/off    0.1mV. 0.1mV 0.3mV. 
+    1nplc           12.4mV.  12.3mV.        appears to have shifted it +2mV.
+
+  0V
+    1000nplc/off    1.1mV. 2.7mV.
+    1nplc           15.0mV   15.2mV.     about +2mV.
+
+  -10V.
+    1000nplc/off    2.5mV.
+    1nplc           23mV. 23mV.           about +2mV.
+
+
+  So we can see what's going on.
+  For lv4053. we need a negative offset.
+  and for max4053. the 10R. was probably about right.
+
+
+
 */
+
+
+
 
 
