@@ -65,7 +65,10 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
         j.second.U1003 = S3;          // s3 == agnd
         j.second.U1006 = S6;          // s6 = agnd  .  TODO change to S7 . populate R1001.c0ww
       }
-      else assert(0);
+      else {
+        printf("bad current source arg\n");
+        return 1;
+      }
 
       // turn on accumulation relay     RON ROFF.  or RL1 ?  K606_ON
       j.first .K406_CTL  = RBOT;
@@ -657,12 +660,17 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
 
   - perhaps the issue is not charge injection  - it's async - it's leakage.
 
+
+
+
   /////////////////////////////
   // oct 21.
   // remove the compensation cap. clean around the 4053.
+  // rewrite code, including support 0.1nplc.
 
-  10V 
-    1000nplc/off 1.3mV.
+  10V
+    1000nplc/off    1.8mV. 0.6mV. 0.1mV.  1.4mV.   depends on pc/phase.
+    10nplc          2.7mV. 2.7mV 2.7mV.
 
 
 */

@@ -65,7 +65,12 @@ bool test14( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
         j.second.U1003 = S3;          // s3 == agnd
         j.second.U1006 = S6;          // s6 = agnd  .  TODO change to S7 . populate R1001.c0ww
       }
-      else assert(0);
+      else {
+        printf("bad current source arg\n");
+        return 1;
+      }
+
+
 
       // turn on accumulation relay     RON ROFF.  or RL1 ?  K606_ON
       j.first .K406_CTL  = 0b01;
