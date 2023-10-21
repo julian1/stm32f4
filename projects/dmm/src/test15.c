@@ -668,12 +668,25 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
   // remove the compensation cap. clean around the 4053.
   // rewrite code, including support 0.1nplc.
 
+  input dc-bias
   10V
-    1000nplc/off    1.8mV. 0.6mV. 0.1mV.  1.4mV.   depends on pc/phase.
-    10nplc          2.7mV. 2.7mV 2.7mV.
+    1000nplc/off    1.8mV. 0.6mV.   0.1mV.  1.4mV.   varation recorded depends on switch phase.
+    10nplc          2.7mV. 2.7mV    2.7mV.
+    1nplc           10mV   10.2mV.
+    0.5nplc         18mV   18.9mV.
 
+  0V.
+    1000nplc/off    0.7mV. 0.7mV,   1.9mV
+    10nplc          2.7mV  2.6mV
+    1nplc           12.6mV 13.8mV.
+    0.5nplc         24mV   24mV
+
+  -10V.
+    1000nplc/off    2.0mV  2.8mV 2.0mV
+    10nplc          6.7mV  6.7mV
+    1nplc           20mV   20mV. 20.5mV
+    0.5nplc         32mV   34.2mV
 
 */
-
 
 
