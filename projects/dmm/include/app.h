@@ -58,7 +58,15 @@ typedef struct app_t
 
   // updated on interupt. should probably be declared volatile.
   // but functions that use can also declare volatile
-  uint32_t system_millis;
+  volatile uint32_t system_millis;
+
+
+  // for soft timer functions
+  uint32_t soft_100ms ;
+  uint32_t soft_500ms ;
+  uint32_t soft_1s ;
+
+
 
   ////////
   // not sure what the best way is to handle this state.
@@ -141,7 +149,7 @@ typedef struct app_t
 
 // better name
 // app_transition_state() ?
-void app_transition_state( unsigned spi, const Mode *mode, uint32_t *system_millis);
+void app_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *system_millis);
 
 
 uint32_t nplc_to_aper_n( double nplc, uint32_t lfreq );

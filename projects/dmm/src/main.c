@@ -173,7 +173,7 @@ bool nplc_valid( double nplc )
 
 
 
-void app_transition_state( unsigned spi, const Mode *mode, uint32_t *system_millis)
+void app_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *system_millis)
 {
   assert(mode);
 
@@ -610,11 +610,12 @@ static void update_console_cmd(app_t *app)
 
 static void loop(app_t *app)
 {
+/*
   // TODO move to the app var structure ?.
   static uint32_t soft_100ms = 0;
   static uint32_t soft_500ms = 0;
   static uint32_t soft_1s = 0;
-
+*/
 
 /*
  - EXTR. having separate 4094, from fpga controlled outputs. is good.
@@ -649,21 +650,21 @@ static void loop(app_t *app)
 
 
     // 100s soft timer
-    if( (app->system_millis - soft_100ms) > 100) {
-      soft_100ms += 100;
+    if( (app->system_millis - app->soft_100ms) > 100) {
+      app->soft_100ms += 100;
       app_update_soft_100ms(app);
     }
 
 
     // 500ms soft timer
-    if( (app->system_millis - soft_500ms) > 500) {
-      soft_500ms += 500;
+    if( (app->system_millis - app->soft_500ms) > 500) {
+      app->soft_500ms += 500;
       app_update_soft_500ms(app);
     }
 
     // 1000ms soft
-    if( (app->system_millis - soft_1s) > 1000 ) {
-      soft_1s += 1000;
+    if( (app->system_millis - app->soft_1s) > 1000 ) {
+      app->soft_1s += 1000;
       app_update_soft_1s(app);
     }
 
