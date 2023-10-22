@@ -94,7 +94,9 @@ bool test14( app_t *app , const char *cmd)
     memset(&f, 0, sizeof(f));
     f.himux2 = S1 ;    // s1 put dc-source on himux2 output
     f.himux  = S2 ;    // s2 reflect himux2 on himux output
-    f.sig_pc_sw_ctl  = 1;  // turn on. precharge.  on. to route signal to az mux... doesn't matter.
+    f.sig_pc_sw_ctl  = SW_PC_SIGNAL;  // route signal through pre-charge switch to az mux. 
+    // azmux off
+
     spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
 
     ////////////////////////////

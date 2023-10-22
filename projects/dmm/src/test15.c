@@ -84,7 +84,8 @@ bool test15( app_t *app , const char *cmd)
     j.reg_mode =  MODE_DIRECT;
     j.reg_direct.himux2 = S1 ;    // s1 put dc-source on himux2 output
     j.reg_direct.himux  = S2 ;    // s2 rej.reg_directlect himux2 on himux output
-    j.reg_direct.sig_pc_sw_ctl  = 1;  // turn on. precharge.  on. to route signal to az mux... doesn't matter.
+    j.reg_direct.sig_pc_sw_ctl = SW_PC_SIGNAL;  // route signal through pre-charge switch to az mux. 
+    // azmux off
 
 
     app_transition_state( app->spi, &j,  &app->system_millis );
