@@ -97,6 +97,14 @@
 #define W4          ((1<<2)|(4-1))
 
 
+
+/*
+  TODO prefix. LR for latching relay
+  Use LRTOP LRBOT LROFF
+  or hyphenated LR_TOP  LR_BOT etc.
+
+
+*/
 // should perhaps use top RBOT RTOPTOM
 #define ROFF      0
 #define RBOT      0b01      // top contact closed.
@@ -105,5 +113,10 @@
 
 #define SW_PC_SIGNAL    1
 #define SW_PC_BOOT      0
+
+
+
+
+
 
 
