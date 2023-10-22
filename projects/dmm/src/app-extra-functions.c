@@ -142,16 +142,29 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   }
 
 
+
+
   else if( sscanf(cmd, "azero %100s", s0) == 1) {
 
     if(strcmp(s0, "on") == 0) {
       printf("set azero on\n" );
       app->mode_current->reg_mode = MODE_AZ;
 
-    } else if (strcmp(s0, "off") == 0) {
+      // this isn't correct - for non dcv ranges. - eg. need 4W lo, or dci lo.
+      // we are going to have to store teh state somewhere else.
+      // would almost be worth using a different register. too
+      // we kind of need to maintain state at high level
+      app->mode_current->reg_direct.azmux        = S6;    // lo
+    }
+    else if (strcmp(s0, "off") == 0) {
+
       printf("set azero off\n" );
       app->mode_current->reg_mode = MODE_NO_AZ;
-    } else {
+      app->mode_current->reg_direct.sig_pc_sw_ctl  = SW_PC_SIGNAL;   // pc switch muxes signal.
+      app->mode_current->reg_direct.azmux          = S1;             // azmux muxes pc-out
+
+    }
+    else {
       printf("bad azero arg\n" );
       return 1;
     }
@@ -300,7 +313,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       // set the input muxing.
       mode->reg_direct.himux2 = S4 ;    // gnd to reduce leakage on himux
       mode->reg_direct.himux  = S7 ;    // dcv-in
-      mode->reg_direct.azmux  = S6;    // lo
+      // mode->reg_direct.azmux  = S6;    // lo
     }
 
 
@@ -313,7 +326,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       // set the input muxing.
       mode->reg_direct.himux2 = S4 ;    // gnd to reduce leakage on himux
       mode->reg_direct.himux  = S3 ;    // dcv-div
-      mode->reg_direct.azmux  = S6;    // lo
+      // mode->reg_direct.azmux  = S6;    // lo.  This is only correct for AZ
     }
     else assert( 0);
 
@@ -334,10 +347,32 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       && mode->reg_mode != MODE_NO_AZ
       && mode->reg_mode != MODE_EM) {
 
-      // probably always set - because of derivation from initial mode.
+      // if no sample mode is set, then set one.
       // if mode is not set, then set to useful useful.
       mode->reg_mode = MODE_AZ;
     }
+
+
+    if(mode->reg_mode == MODE_AZ) {
+
+      // az controls the precharge switch.
+      mode->reg_direct.azmux        = S6;    // lo
+    }
+    else if(mode->reg_mode == MODE_NO_AZ) {
+
+      mode->reg_direct.sig_pc_sw_ctl  = SW_PC_SIGNAL;   // pc switch muxes signal.
+      mode->reg_direct.azmux          = S1;             // azmux muxes pc-out
+    }
+    else if(mode->reg_mode == MODE_EM) {
+
+      mode->reg_direct.sig_pc_sw_ctl  = SW_PC_BOOT;     // pc switch muxes boot. to turn off signal to reduce leakage
+      mode->reg_direct.azmux          = S2;             // azmux muxes boot directly ionpc-out
+    }
+    else assert( 0);
+
+
+
+
 
     if(!mode->reg_aperture) {
 
