@@ -96,12 +96,12 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     if (strcmp(s0, "off") == 0) {
 
       printf("set accum off\n" );
-      app->mode_current->first.K406_CTL = RTOP;
+      app->mode_current->first.K406_CTL = LR_TOP;
     }
     else if(strcmp(s0, "on") == 0) {
 
       printf("set accm on\n" );
-      app->mode_current->first.K406_CTL = RBOT;
+      app->mode_current->first.K406_CTL = LR_BOT;
     }
     else {
 
@@ -134,7 +134,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     }
 
     // follow fixedz for 10Meg/high-z.
-    app->mode_current->first.K402_CTL = app->fixedz ?  RTOP :  RBOT ;
+    app->mode_current->first.K402_CTL = app->fixedz ?  LR_TOP :  LR_BOT ;
 
     // do the state transition
     app_transition_state( app->spi, app->mode_current,  &app->system_millis );
@@ -319,10 +319,10 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     if( strcmp(s0, "10") == 0 ||  strcmp(s0, "1") == 0 ||  strcmp(s0, "01") == 0 ) {   // 100mV range
 
       // close/ turn on K405 relay.
-      mode->first.K405_CTL  = RTOP;
+      mode->first.K405_CTL  = LR_TOP;
 
       // follow fixedz for 10Meg/high-z.
-      app->mode_current->first.K402_CTL = app->fixedz ?  RTOP :  RBOT ;
+      app->mode_current->first.K402_CTL = app->fixedz ?  LR_TOP :  LR_BOT ;
 
       // set the input muxing.
       mode->reg_direct.himux2 = S4 ;    // gnd to reduce leakage on himux
@@ -334,7 +334,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     else if( strcmp(s0, "1000") == 0 || strcmp(s0, "100") == 0) {
 
       // close/ turn on K402 relay.
-      mode->first.K402_CTL  = RTOP;
+      mode->first.K402_CTL  = LR_TOP;
 
       // set the input muxing.
       mode->reg_direct.himux2 = S4 ;    // gnd to reduce leakage on himux
@@ -458,7 +458,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     else assert(0);
 
     // close/ turn on K402 relay.
-    mode->first.  K402_CTL  = RTOP;
+    mode->first.  K402_CTL  = LR_TOP;
 
     ////////////
     // fpga config

@@ -58,7 +58,7 @@ bool test06( app_t *app , const char *cmd)
       else assert(0);
 
       // turn on accumulation relay
-      j.first .K406_CTL  = RBOT;
+      j.first .K406_CTL  = LR_BOT;
 
       // set up fpga
       j.reg_mode =  MODE_DIRECT;

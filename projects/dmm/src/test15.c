@@ -75,9 +75,9 @@ bool test15( app_t *app , const char *cmd)
     }
 
 
-    // turn on accumulation relay     RON ROFF.  or RL1 ?  K606_ON
-    j.first .K406_CTL  = RBOT;
-    j.second.K406_CTL  = ROFF;    // don't need this....  it is 0 by default
+    // turn on accumulation relay     RON LR_OFF.  or RL1 ?  K606_ON
+    j.first .K406_CTL  = LR_BOT;
+    j.second.K406_CTL  = LR_OFF;    // don't need this....  it is 0 by default
 
 
     // set up fpga

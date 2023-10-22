@@ -100,15 +100,15 @@
 
 /*
   TODO prefix. LR for latching relay
-  Use LRTOP LRBOT LROFF
+  Use LLR_TOP LLR_BOT LLR_OFF
   or hyphenated LR_TOP  LR_BOT etc.
 
 
 */
-// should perhaps use top RBOT RTOPTOM
-#define ROFF      0
-#define RBOT      0b01      // top contact closed.
-#define RTOP      0b10      // bottom contact closed.
+// should perhaps use top LR_BOT LR_TOPTOM
+#define LR_OFF      0
+#define LR_BOT      0b01      // top contact closed.
+#define LR_TOP      0b10      // bottom contact closed.
 
 
 #define SW_PC_SIGNAL    1

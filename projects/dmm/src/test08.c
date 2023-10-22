@@ -63,9 +63,9 @@ bool test08( app_t *app , const char *cmd)
     }
     else assert(0);
 
-    // turn on accumulation relay     RON ROFF.  or RL1 ?
-    j.first .K406_CTL  = RBOT;
-    j.second.K406_CTL  = ROFF;    // don't need this....  it is 0 by default
+    // turn on accumulation relay     RON LR_OFF.  or RL1 ?
+    j.first .K406_CTL  = LR_BOT;
+    j.second.K406_CTL  = LR_OFF;    // don't need this....  it is 0 by default
 
     app_transition_state( app->spi, &j,  &app->system_millis );
 
