@@ -161,14 +161,28 @@ uint32_t period_to_aper_n(  double period )
 
 bool nplc_valid( double nplc )
 {
-  // used in a few places for user-input arg validating. checking.
-  // can be relaxed later.
-  // switch/case
-  // do the same for the voltage source
+  /*
+    used in a few places for user-input arg validate user input
+    can be relaxed later.
+    maybe use a switch/case
+    todo - similar to validate/check  voltage source
+  */
   return
      nplc == 0.1 || nplc == 0.5 || nplc == 1
     || nplc == 2 || nplc == 10 || nplc == 100 || nplc == 1000;
 }
+
+
+void aper_n_print( uint32_t aperture,  uint32_t lfreq)
+{
+
+//   uint32_t aperture = nplc_to_aper_n( f0, app->lfreq );
+  printf("aperture %lu\n",   aperture );
+  printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture, lfreq ));
+  printf("period   %.2lfs\n", aper_n_to_period( aperture ));
+}
+
+
 
 
 

@@ -158,6 +158,8 @@ double aper_n_to_period( uint32_t aper_n);
 uint32_t period_to_aper_n(  double period );
 bool nplc_valid( double nplc );
 
+// helper, util. better name.  pass the filestream explicitly? 
+void aper_n_print( uint32_t aperture,  uint32_t lfreq);
 
 
 

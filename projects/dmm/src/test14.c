@@ -124,10 +124,9 @@ bool test14( app_t *app , const char *cmd)
 
 
     uint32_t aperture = nplc_to_aper_n( f0, app->lfreq );
-    printf("aperture %lu\n",   aperture );
-    printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture, app->lfreq ));
-    printf("period   %.2lfs\n", aper_n_to_period( aperture ));
+    aper_n_print( aperture,  app->lfreq );
 
+    // write
     spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, aperture );
 
     return 1;
