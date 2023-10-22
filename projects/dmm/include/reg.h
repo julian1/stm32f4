@@ -52,7 +52,7 @@
 */
 
 #define REG_DIRECT        14
-#define REG_DIRECT2       15
+// #define REG_DIRECT2       15
 
 // change name REG_APERTURE_N is or similar
 #define REG_CLK_SAMPLE_DURATION 16
