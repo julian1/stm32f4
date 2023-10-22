@@ -357,7 +357,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
     if(mode->reg_mode != MODE_AZ
       && mode->reg_mode != MODE_NO_AZ
-      && mode->reg_mode != MODE_EM) {
+      /*&& mode->reg_mode != MODE_EM */) {
 
       // if no sample mode is set, then set one.
       // if mode is not set, then set to useful useful.
@@ -375,11 +375,13 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       mode->reg_direct.sig_pc_sw_ctl  = SW_PC_SIGNAL;   // pc switch muxes signal.
       mode->reg_direct.azmux          = S1;             // azmux muxes pc-out
     }
+/*
     else if(mode->reg_mode == MODE_EM) {
 
       mode->reg_direct.sig_pc_sw_ctl  = SW_PC_BOOT;     // pc switch muxes boot. to turn off signal to reduce leakage
       mode->reg_direct.azmux          = S2;             // azmux muxes boot directly ionpc-out
     }
+*/
     else assert( 0);
 
 

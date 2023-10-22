@@ -78,22 +78,17 @@ bool test06( app_t *app , const char *cmd)
       printf("turn off input muxes, azmux now mux boot\n");
 
 
-#if 0
-      /////////
-      F  f;
-      memset(&f, 0, sizeof(f));         // turn off the muxes  .   we could turn dc-source to 0V.
-
-      f.himux2 = S4 ;               // S4 gnd. to reduce leakage.
-      f.sig_pc_sw_ctl  = 0;         // mux boot.
-      f.led0 = 0;                   // off because muxinig boot.
-      f.azmux = S2;                 // azmux mux boot, instead of pc-out.
-#endif
 
       F  f;
       memset(&f, 0, sizeof(f));         // turn off himux
+
       f.himux2 = S4 ;                   // s4 gnd. himux2 to reduce leakage.
+      f.sig_pc_sw_ctl  = SW_PC_BOOT;     // pc switch muxes boot. to turn off signal to reduce leakage
+      f.azmux          = S2;             // azmux muxes boot directly
+
       spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
-      spi_ice40_reg_write32(app->spi, REG_MODE, MODE_EM );
+
+      spi_ice40_reg_write32(app->spi, REG_MODE, MODE_NO_AZ ); // use no az mode.
 
 
 

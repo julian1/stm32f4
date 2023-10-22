@@ -32,9 +32,8 @@
 #define MODE_PATTERN      2     // put modulation pattern on all bits
 #define MODE_DIRECT       3     // support direct writing via direct register
 #define MODE_PC           4     // simple precharge switching modulation.
-#define MODE_AZ           5     // simple az.
-#define MODE_NO_AZ        6     // simple no az.
-#define MODE_EM           7     // simple electrometer mode
+#define MODE_AZ           5     // az.
+#define MODE_NO_AZ        6     // no az. and elecm. etc
 
 
 /*
