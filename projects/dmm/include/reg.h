@@ -5,8 +5,9 @@
 // application specific.
 
 // this is mixing up 4094, and fpga stuff.
+// but for most muxes, the ctrl approach doesn't matter.
 
-#include <stdint.h>
+// #include <stdint.h>
 
 
 
@@ -17,10 +18,9 @@
 
 
 // need to rename named _4094_GLB_OE or similar to respect prefix convention
-
-// rename this register... GENERAL REG_GENERAL.   else it's too confusing.
+// maybe rename this register... GENERAL REG_GENERAL.   else it's too confusing.
 #define REG_4094          9
-#define GLB_4094_OE       (1<<0)
+#define GLB_4094_OE       (1<<0)    // first bit
 
 
 #define REG_MODE          12
@@ -36,20 +36,6 @@
 #define MODE_NO_AZ        6     // no az. and elecm. etc
 
 
-/*
-    .e( modulation_pc_out),                   // 4 works.
-    .f( modulation_az_out),                   // 5
-    .g( modulation_no_az_out   ),  // 7 works.
-*/
-
-
-/*
-// default led blink, and monitor test pattern.
-#define MODE_DEFAULT 0b00
-
-// output state put under register control
-#define REG_MODE_DIRECT  0b01
-*/
 
 #define REG_DIRECT        14
 // #define REG_DIRECT2       15
@@ -62,15 +48,14 @@
 
 
 /*
-  may be better to define the values for the specific muxes.
+  we could define in a mux specific way.
+  but think it is unnecessary
 
+  eg.
   #define AZMUX_LO      S1
   #define AZMUX_4WLO    S2
-
   #defien HIMUX_DCV_SOURCE   S3.
 
-
-  etc.
 
   to make it easy to reassign pins.
   if have to flip ic, and then re-route traces.
@@ -105,10 +90,9 @@
 
 
 */
-// should perhaps use top LR_BOT LR_TOPTOM
 #define LR_OFF      0
-#define LR_BOT      0b01      // top contact closed.
-#define LR_TOP      0b10      // bottom contact closed.
+#define LR_BOT      0b01      // bottom contacts closed.
+#define LR_TOP      0b10      // top contacts closed.
 
 
 #define SW_PC_SIGNAL    1
