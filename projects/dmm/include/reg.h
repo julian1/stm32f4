@@ -59,6 +59,7 @@
 #define REG_CLK_SAMPLE_DURATION 16
 
 #define REG_STATUS      17
+#define REG_RESET       18
 
 
 /*

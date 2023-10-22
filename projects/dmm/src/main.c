@@ -459,6 +459,19 @@ static void update_console_cmd(app_t *app)
       }
 
 
+
+      else if(strcmp(cmd, "reset fpga") == 0) {
+
+        printf("do reset\n" );
+        mux_ice40(app->spi);
+        spi_ice40_reg_write32(app->spi, REG_RESET, 1 );
+
+        msleep(10, &app->system_millis);
+        spi_ice40_reg_write32(app->spi, REG_RESET, 0 );
+      }
+
+
+
       /*
         set the direct register. this is *not* a mode, and *not* a test.
 
