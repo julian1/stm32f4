@@ -300,7 +300,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
         mode->first. U506 =  W3;  // amp feedback should never be turned off.
         mode->second.U506 =  W3;
     }
-
     else if( strcmp(s0, "1000") == 0) {
         printf("whoot dcv10\n");
         mode->first. U506 =  W1;    // amp feedback should never be turned off.
@@ -311,7 +310,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
         mode->first. U506 =  W2;  // amp feedback should never be turned off.
         mode->second.U506 =  W2;
     }
-
     else {
         printf("bad range\n");
         return 1;
@@ -326,11 +324,9 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       // follow fixedz for 10Meg/high-z.
       app->mode_current->first.K402_CTL = app->fixedz ?  RTOP :  RBOT ;
 
-
       // set the input muxing.
       mode->reg_direct.himux2 = S4 ;    // gnd to reduce leakage on himux
       mode->reg_direct.himux  = S7 ;    // dcv-in
-      // mode->reg_direct.azmux  = S6;    // lo
     }
 
 
@@ -343,7 +339,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       // set the input muxing.
       mode->reg_direct.himux2 = S4 ;    // gnd to reduce leakage on himux
       mode->reg_direct.himux  = S3 ;    // dcv-div
-      // mode->reg_direct.azmux  = S6;    // lo.  This is only correct for AZ
     }
     else assert( 0);
 
