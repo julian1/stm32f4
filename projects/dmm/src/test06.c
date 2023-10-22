@@ -123,6 +123,9 @@ bool test06( app_t *app , const char *cmd)
   -10V.
       1.8mV  1.7mV.
 
+  // oct 22.
+  // code updated - after removing MODE_EM . but has not been retested.
+
 
 */
 
