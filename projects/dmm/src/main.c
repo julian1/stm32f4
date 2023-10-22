@@ -637,6 +637,10 @@ static void loop(app_t *app)
 
 
     /*
+      it is possible to call this in a long-running function - to keep the main command process working
+      but noting that it will not unwind the stack.
+      like a proper yield() function.
+
       // EXTR. - could actually call update at any time, in a yield()...
       // so long as we wrap calls with a mechanism to avoid stack reentrancy
       // led_update(); in systick.
@@ -681,6 +685,9 @@ static void loop(app_t *app)
 
       where the yielded function. is a state machine. that does the yield in a long running sequence,
       and which handle re-entry by using state, and a switch/case statement.
+      -----
+
+      can use the fsm function approach - where the top level of function is a switch/case statement - to handle the re-entrancy.
 
     */
 
