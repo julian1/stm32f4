@@ -108,10 +108,9 @@ bool test14( app_t *app , const char *cmd)
     /////////////////
     // now change to az mode.
     printf("change to az mode.\n");
-    // setup az mode
+    // setup pre-charge switch test mode
     mux_ice40(app->spi);
-    // spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
-    spi_ice40_reg_write32(app->spi, REG_MODE, MODE_PC );  // mode 3. test pattern on sig
+    spi_ice40_reg_write32(app->spi, REG_MODE, MODE_PC );
 
     //////////////
     // use direct register - for the lo sample, in azmode.

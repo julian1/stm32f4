@@ -104,7 +104,7 @@ bool test15( app_t *app , const char *cmd)
     printf("change to az mode.\n");
     // setup az mode
     mux_ice40(app->spi);
-    spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
+    spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );
 
     // use direct_reg to select az mode sample inputs. himux is off
     F  f;
