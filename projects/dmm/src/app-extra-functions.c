@@ -151,9 +151,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       app->mode_current->reg_mode = MODE_AZ;
 
       // this isn't correct - for non dcv ranges. - eg. need 4W lo, or dci lo.
-      // we are going to have to store teh state somewhere else.
-      // would almost be worth using a different register. too
-      // we kind of need to maintain state at high level
+      // we are going to need to record state for this in app.
       app->mode_current->reg_direct.azmux        = S6;    // lo
     }
     else if (strcmp(s0, "off") == 0) {
@@ -174,19 +172,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
 
 
-/*
-  else if(strcmp(cmd, "elecm") == 0) {
-
-    // must be better name.
-    printf("set em mode\n" );
-    app->mode_current->reg_mode = MODE_EM;
-
-    // do the state transition
-    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
-    return 1;
-  }
-*/
-
 
   else if( sscanf(cmd, "elecm %100s", s0) == 1) {
 
@@ -201,7 +186,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     }
     else if (strcmp(s0, "off") == 0) {
       // what state do we revert to when coming out of electrometer mode?
-      // this is tricky.
+      // this is tricky.  also acal.
       // normal az mode perhaps?
 
       printf("set elecm off\n" );
@@ -217,10 +202,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     app_transition_state( app->spi, app->mode_current,  &app->system_millis );
     return 1;
   }
-
-
-
-
 
 
 
