@@ -44,10 +44,12 @@ bool test14( app_t *app , const char *cmd)
       baseline for charge inection.
 
       kind needs to be rewritten. after changes to do_transition.
-
     */
-    printf("test leakage and charge-injection from switching pre-charge switch and not azmux\n");
+
+    printf("test leakage and charge-injection by switching pre-charge switch (not azmux) at different input dc-bias and frequency\n");
     app->test_in_progress = 0;
+
+    // derive state from initial mode
     Mode j = *app->mode_initial;
 
     if(i0 == 10) {

@@ -44,9 +44,10 @@ bool test15( app_t *app , const char *cmd)
       second argument is nplc.
 
     */
-    printf("test leakage and charge-injection from switching pre-charge switch at different biases\n");
+    printf("test leakage and charge-injection by switching pre-charge/azmux at different input dc-bias and frequency\n");
     app->test_in_progress = 0;
 
+    // derive state from initial mode
     Mode j = *app->mode_initial;
 
     if(i0 == 10) {
