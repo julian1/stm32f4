@@ -76,11 +76,9 @@ bool test14( app_t *app , const char *cmd)
     }
 
 
+    // turn on accumulation relay
+    j.first.K406_CTL  = LR_BOT;
 
-
-    // turn on accumulation relay     RON LR_OFF.  or RL1 ?  K606_ON
-    j.first .K406_CTL  = 0b01;
-    j.second.K406_CTL  = 0b00;    // don't need this....  it is 0 by default
 
     app_transition_state( app->spi, &j,  &app->system_millis );
 

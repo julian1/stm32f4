@@ -75,9 +75,8 @@ bool test15( app_t *app , const char *cmd)
     }
 
 
-    // turn on accumulation relay     RON LR_OFF.  or RL1 ?  K606_ON
-    j.first .K406_CTL  = LR_BOT;
-    j.second.K406_CTL  = LR_OFF;    // don't need this....  it is 0 by default
+    // turn on accumulation relay
+    j.first.K406_CTL  = LR_BOT;
 
 
     // set up fpga
@@ -98,13 +97,14 @@ bool test15( app_t *app , const char *cmd)
 
     /////////////////
     // now change to az mode.
+    // use direct fpga rather than app_transition(), to minimize currents for switching relays
 
     printf("changing to az mode.\n");  // having a yield would be quite nice here.
     // setup az mode
     mux_ice40(app->spi);
     spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
 
-    // use direct_reg to set up az mode sampling.
+    // use direct_reg to select az mode sample inputs. himux is off
     F  f;
     memset(&f, 0, sizeof(f));
     f.himux2 = SOFF ;
