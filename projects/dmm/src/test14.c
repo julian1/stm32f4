@@ -94,7 +94,7 @@ bool test14( app_t *app , const char *cmd)
     memset(&f, 0, sizeof(f));
     f.himux2 = S1 ;    // s1 put dc-source on himux2 output
     f.himux  = S2 ;    // s2 reflect himux2 on himux output
-    f.sig_pc_sw_ctl  = SW_PC_SIGNAL;  // route signal through pre-charge switch to az mux. 
+    f.sig_pc_sw_ctl  = SW_PC_SIGNAL;  // route signal through pre-charge switch to az mux.
     // azmux off
 
     spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
@@ -107,7 +107,7 @@ bool test14( app_t *app , const char *cmd)
 
     /////////////////
     // now change to az mode.
-    printf("changing to az mode.\n");  // having a yield would be quite nice here.
+    printf("change to az mode.\n");
     // setup az mode
     mux_ice40(app->spi);
     // spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
