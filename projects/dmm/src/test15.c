@@ -25,7 +25,7 @@
 
 
 // prefix app_test15()
-bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
+bool test15( app_t *app , const char *cmd)
 {
   assert(app);
   assert(cmd);
@@ -37,92 +37,91 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
 
   if( sscanf(cmd, "test15 %ld %lf", &i0, &f0 ) == 2) {
 
-      /*
-      // test charge-injection by charging to a bias voltage, holding, then entering az mode.
-      // with az-mux also switching .
-      // first argument - bias voltage.  10,-10,0
-      // second argument is nplc.
-      // note t
+    /*
+      test charge-injection by charging to a bias voltage, holding, then entering az mode.
+      with az-mux also switching .
+      first argument - bias voltage.  10,-10,0
+      second argument is nplc.
 
-      */
-      printf("test leakage and charge-injection from switching pre-charge switch at different biases\n");
-      app->test_in_progress = 0;
+    */
+    printf("test leakage and charge-injection from switching pre-charge switch at different biases\n");
+    app->test_in_progress = 0;
 
-      Mode j = *app->mode_initial;
+    Mode j = *app->mode_initial;
 
-      if(i0 == 10) {
-        printf("with +10V\n");
-        j.second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
-        j.second.U1006  = S1 ;       // s1.   follow  .   dcv-mux2
-      }
-      else if(i0 == -10) {
-        printf("with -10V\n");
-        j.second.U1003  = S2 ;       // s2.  -10V.
-        j.second.U1006  = S1 ;       // s1.   follow  .   dcv-mux2
-      }
-      else if(i0 == 0) {
-        printf("with 0V\n");
-        j.second.U1003 = S3;          // s3 == agnd
-        j.second.U1006 = S6;          // s6 = agnd  .  TODO change to S7 . populate R1001.c0ww
-      }
-      else {
-        printf("bad current source arg\n");
-        return 1;
-      }
+    if(i0 == 10) {
+      printf("with +10V\n");
+      j.second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
+      j.second.U1006  = S1 ;       // s1.   follow  .   dcv-mux2
+    }
+    else if(i0 == -10) {
+      printf("with -10V\n");
+      j.second.U1003  = S2 ;       // s2.  -10V.
+      j.second.U1006  = S1 ;       // s1.   follow  .   dcv-mux2
+    }
+    else if(i0 == 0) {
+      printf("with 0V\n");
+      j.second.U1003 = S3;          // s3 == agnd
+      j.second.U1006 = S6;          // s6 = agnd  .  TODO change to S7 . populate R1001.c0ww
+    }
+    else {
+      printf("bad current source arg\n");
+      return 1;
+    }
 
-      // turn on accumulation relay     RON ROFF.  or RL1 ?  K606_ON
-      j.first .K406_CTL  = RBOT;
-      j.second.K406_CTL  = ROFF;    // don't need this....  it is 0 by default
-
-
-
-      // set up fpga
-      j.reg_mode =  MODE_DIRECT;
-      j.reg_direct.himux2 = S1 ;    // s1 put dc-source on himux2 output
-      j.reg_direct.himux  = S2 ;    // s2 rej.reg_directlect himux2 on himux output
-      j.reg_direct.sig_pc_sw_ctl  = 1;  // turn on. precharge.  on. to route signal to az mux... doesn't matter.
+    if( ! nplc_valid( f0) ) {
+      printf("bad nplc arg" );
+      return 1;
+    }
 
 
-      app_transition_state( app->spi, &j,  &app->system_millis );
+    // turn on accumulation relay     RON ROFF.  or RL1 ?  K606_ON
+    j.first .K406_CTL  = RBOT;
+    j.second.K406_CTL  = ROFF;    // don't need this....  it is 0 by default
 
 
-      ////////////////////////////
-      // so charge cap to the dcv-source
-      // and let settle 10sec. for DA....
-      printf("sleep 10s\n");  // having a yield would be quite nice here.
-      msleep(10 * 1000,  &app->system_millis);
-
-      /////////////////
-      // now change to az mode.
-
-      printf("changing to az mode.\n");  // having a yield would be quite nice here.
-      // setup az mode
-      mux_ice40(app->spi);
-      spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
-
-      // use direct_reg to set up az mode sampling.
-      F  f;
-      memset(&f, 0, sizeof(f));
-      f.himux2 = SOFF ;
-      f.himux  = SOFF ;
-      f.azmux  = S6 ;    // s6 == normal LO for DCV, ohms.
-      spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
+    // set up fpga
+    j.reg_mode =  MODE_DIRECT;
+    j.reg_direct.himux2 = S1 ;    // s1 put dc-source on himux2 output
+    j.reg_direct.himux  = S2 ;    // s2 rej.reg_directlect himux2 on himux output
+    j.reg_direct.sig_pc_sw_ctl  = 1;  // turn on. precharge.  on. to route signal to az mux... doesn't matter.
 
 
-      if( ! nplc_valid( f0) ) {
-        printf("bad nplc arg" );
-        return 1;
-      }
+    app_transition_state( app->spi, &j,  &app->system_millis );
 
-      uint32_t aperture = nplc_to_aper_n( f0, app->lfreq );
-      printf("aperture %lu\n",   aperture );
-      printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture, app->lfreq ));
-      printf("period   %.2lfs\n", aper_n_to_period( aperture ));
 
-      spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, aperture );
+    ////////////////////////////
+    // so charge cap to the dcv-source
+    // and let settle 10sec. for DA....
+    printf("sleep 10s\n");  // having a yield would be quite nice here.
+    msleep(10 * 1000,  &app->system_millis);
+
+    /////////////////
+    // now change to az mode.
+
+    printf("changing to az mode.\n");  // having a yield would be quite nice here.
+    // setup az mode
+    mux_ice40(app->spi);
+    spi_ice40_reg_write32(app->spi, REG_MODE, MODE_AZ );  // mode 3. test pattern on sig
+
+    // use direct_reg to set up az mode sampling.
+    F  f;
+    memset(&f, 0, sizeof(f));
+    f.himux2 = SOFF ;
+    f.himux  = SOFF ;
+    f.azmux  = S6 ;    // s6 == normal LO for DCV, ohms.
+    spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
+
+
+    uint32_t aperture = nplc_to_aper_n( f0, app->lfreq );
+    printf("aperture %lu\n",   aperture );
+    printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture, app->lfreq ));
+    printf("period   %.2lfs\n", aper_n_to_period( aperture ));
+
+    spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, aperture );
 
     return 1;
-    }
+  }
 
   return 0;
 }
@@ -696,7 +695,7 @@ bool test15( app_t *app , const char *cmd/*,  Mode *mode_initial*/)
 
   With 1R. at R405.   measure 1.128mV. offset across.
   10V.
-    1000nplc/off    0.1mV. 0.1mV 0.3mV. 
+    1000nplc/off    0.1mV. 0.1mV 0.3mV.
     1nplc           12.4mV.  12.3mV.        appears to have shifted it +2mV.
 
   0V
