@@ -98,7 +98,6 @@ static void sys_tick_interupt(app_t *app)
 
 static void app_update_soft_1s(app_t *app)
 {
-  // maybe review this...
   UNUSED(app);
 
 
@@ -127,7 +126,8 @@ static void state_format ( uint8_t *state, size_t n)
 
 
 ////////////////////
-// move to another file
+// consider move to another file
+// consider rename aper_n to just aper or aperture
 
 #define CLK_FREQ        20000000
 
@@ -190,12 +190,9 @@ void aper_n_print( uint32_t aperture,  uint32_t lfreq)
 void app_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *system_millis)
 {
   assert(mode);
-
-  // change name   do_state_update_4094 _4094_state_update.
-  // change name app_transition_state. or make_
+  assert( sizeof(X) == 5 );
 
   // should we be passing as a separate argument
-  assert( sizeof(X) == 5 );
 
 
   // mux spi to 4094. change mcu spi params, and set spi device to 4094
@@ -223,7 +220,7 @@ void app_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *sy
 
   /////////////////////////////
 
-  // now fpga state
+  // now do fpga state
   mux_ice40(spi);
 
   // set mode
@@ -236,6 +233,7 @@ void app_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *sy
   spi_ice40_reg_write32(spi, REG_CLK_SAMPLE_DURATION, mode->reg_aperture );
 
 
+  // can add the reg reset here.
 
 }
 
@@ -246,7 +244,7 @@ static void app_update_soft_100ms(app_t *app)
 {
   assert(app);
 
-  // use for tests.
+  // potentially useful soft-timer for some tests.
 
   if(app->test_in_progress == 2 ) {
 
@@ -271,7 +269,6 @@ static void app_update_soft_100ms(app_t *app)
 
 static void app_update_soft_500ms(app_t *app)
 {
-  // UNUSED(app);
   assert(app);
 
   /*
