@@ -162,7 +162,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       app->mode_current->reg_mode = MODE_NO_AZ;
       app->mode_current->reg_direct.sig_pc_sw_ctl  = SW_PC_SIGNAL;   // pc switch muxes signal.
       app->mode_current->reg_direct.azmux          = S1;             // azmux muxes pc-out
-
     }
     else {
       printf("bad azero arg\n" );
@@ -174,6 +173,8 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   }
 
 
+
+/*
   else if(strcmp(cmd, "elecm") == 0) {
 
     // must be better name.
@@ -184,6 +185,41 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     app_transition_state( app->spi, app->mode_current,  &app->system_millis );
     return 1;
   }
+*/
+
+
+  else if( sscanf(cmd, "elecm %100s", s0) == 1) {
+
+    if(strcmp(s0, "on") == 0) {
+      printf("set elecm on\n" );
+
+      // assign sw_pc_ctl  = `SW_PC_BOOT;      // precharge mux boot. eg. block input.
+      // assign azmux      = `S2;              // mux boot directly
+      app->mode_current->reg_mode = MODE_NO_AZ;
+      app->mode_current->reg_direct.sig_pc_sw_ctl  = SW_PC_BOOT;   // reduce leakage
+      app->mode_current->reg_direct.azmux          = S2;           // azmux muxes boot directly-out
+    }
+    else if (strcmp(s0, "off") == 0) {
+      // what state do we revert to when coming out of electrometer mode?
+      // this is tricky.
+      // normal az mode perhaps?
+
+      printf("set elecm off\n" );
+      app->mode_current->reg_mode = MODE_NO_AZ;
+      app->mode_current->reg_direct.sig_pc_sw_ctl  = SW_PC_SIGNAL;   // pc switch muxes signal.
+      app->mode_current->reg_direct.azmux          = S1;             // azmux muxes pc-out
+    }
+    else {
+      printf("bad elecm arg\n" );
+      return 1;
+    }
+    // do the state transition
+    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+    return 1;
+  }
+
+
+
 
 
 
