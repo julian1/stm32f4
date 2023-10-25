@@ -502,6 +502,11 @@ static void update_console_cmd(app_t *app)
         printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  format_bits(buf, 32, ret ));
       }
 
+      // perhaps support setting a particular bit.
+
+      // else if( sscanf(cmd, "direct pin %lu", &u0 ) == 1) {
+      // } 
+
       else if( strcmp( cmd, "direct?") == 0) {
 
         // set the direct register.
@@ -523,6 +528,20 @@ static void update_console_cmd(app_t *app)
         uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
         printf("reg_mode return value %lu\n", ret);
       }
+
+/* // use string match %s here. to pick up direct, etc.
+      else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
+
+        // set the fpga mode.
+        mux_ice40(app->spi);
+        spi_ice40_reg_write32(app->spi, REG_MODE, u0 );
+
+        uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
+        printf("reg_mode return value %lu\n", ret);
+      }
+*/
+
+
 
       else if( strcmp(cmd, "mode?") == 0) {
 
