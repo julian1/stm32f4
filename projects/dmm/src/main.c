@@ -531,15 +531,15 @@ static void update_console_cmd(app_t *app)
         /* eg.
 
             mode direct
-            direct 0          clear all bits.
-            direct bit 13 1 for led on
-            direct bit 13 0 for led off.
+            direct 0         - clear all bits.
+            direct bit 13 1  - led on
+            direct bit 13 0  - led off.
             direct bit 14 1  - mon0 on
-            direct bit 22 1  - for +ref current source on. pushes integrator output lo.  comparator pos-out (pin 7) hi.
-            direct bit 23 1  - for -ref current source. pushes integrator output hi.  comparator pos-out lo
+            direct bit 22 1  - +ref current source on. pushes integrator output lo.  comparator pos-out (pin 7) hi.
+            direct bit 23 1  - -ref current source on. pushes integrator output hi.  comparator pos-out lo
             --
             for slow run-down current. turn on bit 23 1. to push integrator hi.
-            then add bit 22 1.  for slow down slope. works.   about 2ms. can toggle bit 22 off against to go hi.
+            then add bit 22 1.  for slow run-down. works, can trigger on scope..about 2ms. can toggle bit 22 off against to go hi again.
 
             direct bit 25   - reset. via 20k.
             direct bit 26   - latch.  will freeze/latch in the current comparator value.
