@@ -460,6 +460,8 @@ static void update_console_cmd(app_t *app)
       uint32_t u0;// , u1;
       // int32_t i0;
 
+      char s0[100 + 1 ];
+
       ////////////////////
 
 
@@ -504,15 +506,17 @@ static void update_console_cmd(app_t *app)
 
       // perhaps support setting a particular bit.
 
-      // else if( sscanf(cmd, "direct pin %lu", &u0 ) == 1) {
-      // } 
+      else if( sscanf(cmd, "direct bit %100s", s0 ) == 1) {
+        // read direct_reg, then update.
+
+      }
 
       else if( strcmp( cmd, "direct?") == 0) {
 
         // set the direct register.
         mux_ice40(app->spi);
         uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
-        char buf[ 100 ] ;
+        char buf[ 100];
         printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  format_bits(buf, 32, ret ));
       }
 
@@ -529,17 +533,22 @@ static void update_console_cmd(app_t *app)
         printf("reg_mode return value %lu\n", ret);
       }
 
-/* // use string match %s here. to pick up direct, etc.
-      else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
-
-        // set the fpga mode.
+      else if( sscanf(cmd, "mode %100s", s0 ) == 1) {
+      // todo.
         mux_ice40(app->spi);
-        spi_ice40_reg_write32(app->spi, REG_MODE, u0 );
 
-        uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
-        printf("reg_mode return value %lu\n", ret);
+        if(strcmp(s0, "lo") == 0)
+          spi_ice40_reg_write32(app->spi, REG_MODE, MODE_LO);
+        else if(strcmp(s0, "direct") == 0)
+          spi_ice40_reg_write32(app->spi, REG_MODE, MODE_DIRECT);
+          // ...
+        else {
+          printf("bad direct arg\n" );
+        }
+        //
       }
-*/
+
+
 
 
 
