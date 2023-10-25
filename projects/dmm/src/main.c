@@ -457,7 +457,7 @@ static void update_console_cmd(app_t *app)
       // printf("cmd whoot is '%s'\n", cmd);
 
 
-      uint32_t u0;// , u1;
+      uint32_t u0 , u1;
       // int32_t i0;
 
       char s0[100 + 1 ];
@@ -484,43 +484,7 @@ static void update_console_cmd(app_t *app)
       }
 
 
-
-      /*
-        set the direct register. this is *not* a mode, and *not* a test.
-
-      */
-      else if( sscanf(cmd, "direct %lu", &u0 ) == 1) {
-
-        // set the direct register.
-        printf("set direct value to, %lu\n", u0 );
-
-        mux_ice40(app->spi);
-        spi_ice40_reg_write32(app->spi, REG_DIRECT, u0 );
-
-        uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
-        // printf("reg_direct return value %lu\n", ret);
-
-        char buf[ 100 ] ;
-        printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  format_bits(buf, 32, ret ));
-      }
-
-      // perhaps support setting a particular bit.
-
-      else if( sscanf(cmd, "direct bit %100s", s0 ) == 1) {
-        // read direct_reg, then update.
-
-      }
-
-      else if( strcmp( cmd, "direct?") == 0) {
-
-        // set the direct register.
-        mux_ice40(app->spi);
-        uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
-        char buf[ 100];
-        printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  format_bits(buf, 32, ret ));
-      }
-
-
+      ///////////////
 
 
       else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
@@ -532,7 +496,6 @@ static void update_console_cmd(app_t *app)
         uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
         printf("reg_mode return value %lu\n", ret);
       }
-
       else if( sscanf(cmd, "mode %100s", s0 ) == 1) {
       // todo.
         mux_ice40(app->spi);
@@ -548,17 +511,87 @@ static void update_console_cmd(app_t *app)
         //
       }
 
+      ////////////////////
 
+      else if( sscanf(cmd, "direct %lu", &u0 ) == 1) {
 
+        // set the direct register.
+        printf("set direct value to, %lu\n", u0 );
 
+        mux_ice40(app->spi);
+        spi_ice40_reg_write32(app->spi, REG_DIRECT, u0 );
+        // confirm.
+        uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
+        char buf[ 100 ] ;
+        printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  format_bits(buf, 32, ret ));
+      }
+      else if( sscanf(cmd, "direct bit %lu %lu", &u0, &u1 ) == 2) {
+
+        // modify direct_reg and bit by bitnum and val
+        /* eg.
+            mode direct
+            direct 0          clear all bits.
+            direct bit 13 1 for led on
+            direct bit 13 0 for led off.
+            direct bit 22 1  - for +ref current source on.
+            direct bit 23 1  - for -ref current source.
+            direct bit 14 1  - mon0 on
+
+          - issue. both current sources on together and integrator. appears to oscillate ??
+        */
+
+        mux_ice40(app->spi);
+        uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
+        if(u1)
+          ret |= 1 << u0 ;
+        else
+          ret &= ~( 1 << u0 );
+
+        char buf[ 100 ] ;
+        printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  format_bits(buf, 32, ret ));
+        spi_ice40_reg_write32(app->spi, REG_DIRECT, ret );
+      }
+
+      ////////////////////
+
+    // could probably
 
       else if( strcmp(cmd, "mode?") == 0) {
 
-        // set the fpga mode.
         mux_ice40(app->spi);
         uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
         printf("reg_mode return value %lu\n", ret);
       }
+      else if( strcmp( cmd, "direct?") == 0) {
+
+        mux_ice40(app->spi);
+        uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
+        char buf[ 100];
+        printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  format_bits(buf, 32, ret ));
+      }
+      else if( strcmp( cmd, "status?") == 0) {
+
+        mux_ice40(app->spi);
+        uint32_t ret = spi_ice40_reg_read32(app->spi, REG_STATUS);
+        char buf[ 100];
+        printf("r %u  v %lu  %s\n",  REG_STATUS, ret,  format_bits(buf, 32, ret ));
+      }
+
+    /*
+      -- don't really need, just query direct reg for monitor and right shift.
+    */
+      else if( strcmp( cmd, "monitor?") == 0) {
+        mux_ice40(app->spi);
+        uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT);
+        ret >>= 14;
+        char buf[ 100];
+        printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  format_bits(buf, 32, ret ));
+      }
+
+
+
+
+
 
 
 

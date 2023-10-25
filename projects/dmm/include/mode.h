@@ -155,9 +155,9 @@ F
   uint8_t himux   : 4;
   uint8_t himux2  : 4;     // 12
   uint8_t sig_pc_sw_ctl : 1;
-  uint8_t led0    : 1;       // 14   2 bytes.
+  uint8_t led0    : 1;       // bit 13.   14   2 bytes.
 
-  uint8_t monitor : 8;    // 22  // this bit vector overflows - so gets aligned on a new byte boundary. which is not what we want...
+  uint8_t monitor : 8;    // bit 14. 15 // this bit vector overflows - so gets aligned on a new byte boundary. which is not what we want...
 
   uint8_t adcmux : 4;     // 26
   uint8_t cmpr_latch_ctl : 1;
