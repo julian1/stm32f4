@@ -560,6 +560,8 @@ static void update_console_cmd(app_t *app)
 
         mux_ice40(app->spi);
         uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
+
+        // TODO add some decoding here.
         printf("reg_mode return value %lu\n", ret);
       }
       else if( strcmp( cmd, "direct?") == 0) {
@@ -585,7 +587,7 @@ static void update_console_cmd(app_t *app)
         uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT);
         ret >>= 14;
         char buf[ 100];
-        printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  format_bits(buf, 32, ret ));
+        printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  format_bits(buf, 8, ret ));
       }
 
 
