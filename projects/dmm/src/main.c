@@ -497,10 +497,10 @@ static void update_console_cmd(app_t *app)
         printf("reg_mode return value %lu\n", ret);
       }
       else if( sscanf(cmd, "mode %100s", s0 ) == 1) {
-      // todo.
+
         mux_ice40(app->spi);
 
-        if(strcmp(s0, "lo") == 0)
+        if(strcmp(s0, "lo") == 0 || strcmp(s0, "default") == 0)
           spi_ice40_reg_write32(app->spi, REG_MODE, MODE_LO);
         else if(strcmp(s0, "direct") == 0)
           spi_ice40_reg_write32(app->spi, REG_MODE, MODE_DIRECT);
@@ -529,15 +529,22 @@ static void update_console_cmd(app_t *app)
 
         // modify direct_reg and bit by bitnum and val
         /* eg.
+
             mode direct
             direct 0          clear all bits.
             direct bit 13 1 for led on
             direct bit 13 0 for led off.
-            direct bit 22 1  - for +ref current source on.
-            direct bit 23 1  - for -ref current source.
             direct bit 14 1  - mon0 on
+            direct bit 22 1  - for +ref current source on. pushes integrator output lo.  comparator pos-out (pin 7) hi.
+            direct bit 23 1  - for -ref current source. pushes integrator output hi.  comparator pos-out lo
+            --
+            for slow run-down current. turn on bit 23 1. to push integrator hi.
+            then add bit 22 1.  for slow down slope. works.   about 2ms. can toggle bit 22 off against to go hi.
 
-          - issue. both current sources on together and integrator. appears to oscillate ??
+            direct bit 25   - reset. via 20k.
+            direct bit 26   - latch.  will freeze/latch in the current comparator value.
+
+          - note. run-down current creates integrator oscillation when out-of-range.
         */
 
         mux_ice40(app->spi);
