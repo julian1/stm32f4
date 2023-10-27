@@ -140,7 +140,10 @@ typedef struct app_t
 
   uint32_t lfreq;
 
-  uint32_t last_reg_status ;  // where should this be placed.
+  uint32_t last_reg_status ;  // to detect if status changes,
+
+  bool  adc_drdy;
+  bool adc_drdy_missed; // could be made a count
 
 } app_t;
 

@@ -79,9 +79,15 @@ static void spi1_interupt(app_t *app)
     ++app->adc_drdy_missed;
   }
 
+#endif
+
+  // if flag is still active, then record we missed processing some data.
+  if(app->adc_drdy == true) {
+    app->adc_drdy_missed = true;
+  }
+
   // set adc_drdy flag so that update() knows to read the adc...
   app->adc_drdy = true;
-#endif
 }
 
 
@@ -715,6 +721,22 @@ static void loop(app_t *app)
 
 
   while(true) {
+
+
+    // process data in priority
+    if(app->adc_drdy == true) {
+      printf("got data\n");
+      app->adc_drdy = false;
+
+      // we want to read the raw process
+    }
+
+    // did we miss data, for any reason
+    if( app->adc_drdy_missed == true) {
+      printf("missed data\n");
+      app->adc_drdy_missed = false;
+    }
+
 
 
     /*
