@@ -322,7 +322,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       mode->first.K405_CTL  = LR_TOP;
 
       // follow fixedz for 10Meg/high-z.
-      app->mode_current->first.K402_CTL = app->fixedz ?  LR_TOP :  LR_BOT ;
+      mode->first.K402_CTL = app->fixedz ?  LR_TOP :  LR_BOT ;
 
       // set the input muxing.
       mode->reg_direct.himux2 = S4 ;    // gnd to reduce leakage on himux
@@ -330,7 +330,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     }
 
 
-    // set the ampliier gain.
+    // setup input relays for hv
     else if( strcmp(s0, "1000") == 0 || strcmp(s0, "100") == 0) {
 
       // close/ turn on K402 relay.

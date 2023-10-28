@@ -80,6 +80,10 @@ typedef struct app_t
     rather than an enum for the test - this could be changed to a dispatch function
     that return contexts back  - to a long running function, that yielded control.
     eg. quite simple and effective.
+    -------
+
+    - Or more simply. just take over the main loop.
+    - and process it.
   */
 
   // void (*yielded_function)( app_t * ) ;
@@ -142,7 +146,7 @@ typedef struct app_t
 
   uint32_t last_reg_status ;  // to detect if status changes,
 
-  bool  adc_drdy;
+  volatile bool  adc_drdy;
   bool adc_drdy_missed; // could be made a count
 
 } app_t;
@@ -180,6 +184,26 @@ bool test16( app_t *app , const char *cmd);    // not sure if good to pass here,
 
 
 bool app_extra_functions( app_t *app , const char *cmd);
+
+////////////
+
+
+/* 
+  doing cal is  not really a loop. it is a long running function.
+    - and we get timer interupts, 
+    - and data ready interupts.
+
+  only if we pump the queue.
+
+  TODO. so change name it is not a loop.
+      it is only  loop in the sense that it is slow running. and blocks waiting  to get data.
+
+*/
+        
+void app_loop3( app_t *app/*, Loop3 *loop3 */);
+
+
+
 
 
 
