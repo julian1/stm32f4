@@ -730,11 +730,6 @@ static void loop(app_t *app)
 
  
       printf("  %lu %lu %lu\n", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd);
-/*
-        run->clk_count_mux_neg  = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_NEG);
-        run->clk_count_mux_pos  = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_POS);
-        run->clk_count_mux_rd   = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_RD);
-*/
 
     }
 
