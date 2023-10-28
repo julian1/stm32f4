@@ -437,7 +437,7 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
-static void update_console_cmd(app_t *app)
+static void app_update_console_cmd(app_t *app)
 {
 
 
@@ -695,7 +695,7 @@ static void update_console_cmd(app_t *app)
 
 
 
-static void loop(app_t *app)
+static void app_loop(app_t *app)
 {
 /*
  - EXTR. having separate 4094, from fpga controlled outputs. is good.
@@ -728,7 +728,7 @@ static void loop(app_t *app)
       uint32_t clk_count_mux_pos = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_POS);
       uint32_t clk_count_mux_rd = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
 
- 
+
       printf("  %lu %lu %lu\n", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd);
 
     }
@@ -754,7 +754,7 @@ static void loop(app_t *app)
       // no better for a callee to yield back to update(), while setting up a dispatch callback to get control.
     */
 
-    update_console_cmd(app);
+    app_update_console_cmd(app);
 
 
 
@@ -1017,7 +1017,7 @@ int main(void)
   // modes_init();
 
   // go to main loop
-  loop(&app);
+  app_loop(&app);
 
 	for (;;);
 	return 0;
