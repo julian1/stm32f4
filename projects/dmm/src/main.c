@@ -698,13 +698,6 @@ static void update_console_cmd(app_t *app)
 static void loop(app_t *app)
 {
 /*
-  // TODO move to the app var structure ?.
-  static uint32_t soft_100ms = 0;
-  static uint32_t soft_500ms = 0;
-  static uint32_t soft_1s = 0;
-*/
-
-/*
  - EXTR. having separate 4094, from fpga controlled outputs. is good.
  because we don't have to pulse the relays.
 
@@ -728,7 +721,21 @@ static void loop(app_t *app)
       printf("got data\n");
       app->adc_drdy = false;
 
-      // we want to read the raw process
+
+      mux_ice40(app->spi);
+
+      uint32_t clk_count_mux_neg = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_NEG);
+      uint32_t clk_count_mux_pos = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_POS);
+      uint32_t clk_count_mux_rd = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
+
+ 
+      printf("  %lu %lu %lu\n", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd);
+/*
+        run->clk_count_mux_neg  = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_NEG);
+        run->clk_count_mux_pos  = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_POS);
+        run->clk_count_mux_rd   = spi_ice40_reg_read(spi, REG_CLK_COUNT_MUX_RD);
+*/
+
     }
 
     // did we miss data, for any reason
