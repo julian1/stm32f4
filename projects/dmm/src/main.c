@@ -102,14 +102,6 @@ static void sys_tick_interupt(app_t *app)
 
 
 
-static void app_update_soft_1s(app_t *app)
-{
-  UNUSED(app);
-
-
-}
-
-
 
 
 
@@ -240,6 +232,18 @@ void app_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *sy
 
 
   // can add the reg reset here.
+
+}
+
+
+
+
+
+
+static void app_update_soft_1s(app_t *app)
+{
+  UNUSED(app);
+
 
 }
 
@@ -615,7 +619,24 @@ static void app_update_console_cmd(app_t *app)
         // there's definitely DA.
 
 
+      else if( strcmp(cmd, "loop3") == 0) {
+
+          // just swapping control loops - is easy.
+          // gives more control . rather than a complicated re-entrant function.
+          // and pump the message buffers etc.
+          // but 
+          // its just that existing. if we pump the command buffer.
+          // Loop3  loop3;
+          // memset(&loop3, 0, sizeof(loop3)); 
+        
+          app_loop3(app/*, &loop3*/);
+
+      }
+
+
+
       else if( strcmp(cmd, "test02") == 0) {
+        // EXTR - this can be a different loop mode.
         // spi stress test in 100ms soft timer
         printf("spi stress test spi comms\n");
         app->test_in_progress = 2;
