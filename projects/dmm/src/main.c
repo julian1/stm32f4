@@ -244,7 +244,6 @@ static void app_update_soft_1s(app_t *app)
 {
   UNUSED(app);
 
-
 }
 
 
@@ -373,7 +372,7 @@ static void app_update_soft_500ms(app_t *app)
 
   // get and check, the status register.
   ret = spi_ice40_reg_read32( app->spi, REG_STATUS);
-  if(ret != app->last_reg_status ) {
+  if( ((ret >> 8 ) & 0xff)  != app->last_reg_status ) {
 
     char buf[ 100] ;
     printf("status changed %s\n",  format_bits(buf, 32, ret ));

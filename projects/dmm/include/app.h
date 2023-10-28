@@ -144,9 +144,12 @@ typedef struct app_t
 
   uint32_t lfreq;
 
-  uint32_t last_reg_status ;  // to detect if status changes,
+  uint32_t last_reg_status ;  // to detect status change,
 
+  // TODO reanme adc_valid . eg. same identifier / meaning as fpga code.
+  // could also put flags/ for adc state in the status register. eg. the monitor pins.
   volatile bool  adc_drdy;
+
   bool adc_drdy_missed; // could be made a count
 
 } app_t;

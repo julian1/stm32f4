@@ -45,8 +45,9 @@
 
 #define REG_STATUS        17
 #define REG_RESET         18
-#define REG_HW_FLAGS      19
 
+#define REG_SA_ARM_TRIGGER   19
+ 
 
 #define REG_ADC_CLK_COUNT_MUX_NEG   30
 #define REG_ADC_CLK_COUNT_MUX_POS   31

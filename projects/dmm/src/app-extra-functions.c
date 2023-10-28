@@ -85,6 +85,23 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   }
 
 
+  /*
+      - perhaps rename 'acquire off/arm'.  acquire trigger/on
+  */
+
+  else if(strcmp(s0, "arm") == 0) {
+      printf("set arm\n" );
+      // run/pause, stop/go, reset,set etc.
+      // edge triggered. so must perform in sequence
+      // make sure fpga is in a default mode.
+      spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 0 );
+  }
+  else if(strcmp(s0, "trigger") == 0) {
+      printf("trigger\n" );
+      spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 1 );
+  }
+
+
 
 
   else if( sscanf(cmd, "accum %100s", s0) == 1) {
