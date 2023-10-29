@@ -24,7 +24,7 @@ int mesch_putc(int c, void *stream);
 // typedef __FILE FILE;
 // int fileno( void *p) ;
 
-int isatty(int x) ;
+// int isatty(int x) ;
 
 int isascii(int c) ;
 void exit(int status) ;

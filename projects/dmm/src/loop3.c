@@ -24,8 +24,121 @@
 
 #include "spi-ice40.h"
 
+#include "regression.h"
+
 // loop3 structure. should probably be in own header file.
 
+
+
+
+
+static MAT * run_to_matrix( // const Run *run,
+    uint32_t clk_count_mux_neg,
+    uint32_t clk_count_mux_pos,
+    uint32_t clk_count_mux_rd,
+
+
+      unsigned model,
+    MAT * out
+)
+{
+  // assert(run);
+
+
+  /*
+    we have aperture stored in the Param.
+    - it's easy to pull off device.  so perhaps it should be moved to Run. or else store in both Run and Param.
+    - OR. it should always be passed here. - because it is a fundamental data on device, and for calculating predicted..
+    ------
+    - not sure. we want to test a model with aperture as independent var.
+
+  */
+
+  // TODO can we move this inside each if clause?
+  if(out == MNULL)
+    out = m_get(1,1);
+
+
+  if(model == 2) {
+    /*
+      more constrained.
+      rundown that has both currents on - just sums
+      this is nice because doesn't require anything on fpga side.
+    */
+    double x0_ = clk_count_mux_neg + clk_count_mux_rd;
+    double x1_ = clk_count_mux_pos + clk_count_mux_rd;
+
+    out = m_resize(out, 1, 2);
+    m_set_val( out, 0, 0,  x0_ );
+    m_set_val( out, 0, 1,  x1_  );
+  }
+
+  else if( model == 3) {
+
+    out = m_resize(out, 1, 3);
+    m_set_val( out, 0, 0,  clk_count_mux_neg );
+    m_set_val( out, 0, 1,  clk_count_mux_pos );
+    m_set_val( out, 0, 2,  clk_count_mux_rd );
+  }
+
+/*
+  EXTR.
+    - try adding apperture as independent variable.
+    try a model that includes aperture. ie. if there are small changes between nplc=1, nplc=10
+    then perhaps just including aperture.
+
+*/
+  else if ( model == 4) {
+
+    out = m_resize(out, 1, 4);
+    m_set_val( out, 0, 0,  1.f ); // ones, offset
+    m_set_val( out, 0, 1,  clk_count_mux_neg );
+    m_set_val( out, 0, 2,  clk_count_mux_pos );
+    m_set_val( out, 0, 3,  clk_count_mux_rd);
+  }
+
+#if 0
+  else if( model == 5) {
+
+    out = m_resize(out, 1, 4);
+    m_set_val( out, 0, 0,  x0 );
+    m_set_val( out, 0, 1,  x1  );
+    m_set_val( out, 0, 2,  x2  );
+    m_set_val( out, 0, 3,  x3  ); // flip_count
+  }
+#endif
+
+
+  else assert( 0);
+
+  return out;
+}
+
+
+
+
+
+
+static void mat_set_row (  MAT *xs, unsigned row,   MAT *whoot ) 
+{
+  // set row. or push row.
+  assert(xs);
+  assert(whoot);
+
+
+  assert(row < m_rows(xs));
+
+            // MAT *whoot = run_to_matrix( &x.run, cols , MNULL );
+            // assert(whoot);
+
+  assert( m_cols(whoot) == m_cols(xs) );
+  assert( m_rows(whoot) == 1  );
+
+  // printf("\n");
+  // m_foutput(stdout, whoot );
+  m_row_set( xs, row, whoot );
+
+}
 
 
 
@@ -33,12 +146,35 @@ void app_loop3( app_t *app )
 {
   UNUSED(app);
 
-  // Loop3 loop3 ;
-  // memset(&loop3, 0, sizeof(loop3));
+
+  const unsigned nplc[] = { 8, 9, 10, 11, 12, 13, 14, 15, 16  };
+  const unsigned obs_n = 7; // 7
 
 
+  // may want a row pointer as well.
+  unsigned  max_rows =  obs_n * ARRAY_SIZE(nplc) * 2 /** ARRAY_SIZE(params)*/;
+
+  unsigned cols = 4;
+/*
+  switch ( cal->model) {
+    case 2: cols = 2; break;
+    case 3: cols = 3; break;
+    case 4: cols = 4; break;  // + intercept
+    case 5: cols = 4; break;  // + flip_count
+    default: assert(0);
+  };
+*/
+
+  MAT *xs       = m_get(max_rows, cols );
+  MAT *y        = m_get(max_rows, 1);
+  MAT *aperture = m_get(max_rows, 1); // required for predicted
 
 
+  UNUSED(y);
+  UNUSED(aperture);
+
+
+  ////////////////////////////////////-----------------
   // this overrides nplc/aperture.
   *app->mode_current = *app->mode_initial;
   //  alias to ease syntax
@@ -60,7 +196,6 @@ void app_loop3( app_t *app )
 
 
 
-  // MAT *row = NULL;
 
 
   // this would be in the  loop when changing parameters
@@ -77,25 +212,53 @@ void app_loop3( app_t *app )
 
   // ok. we need to be able to manipulate nplc.
 
+  unsigned row_idx = 0;
+  MAT *row = NULL;
 
-  for(unsigned i = 0; i < 5; ++i ) {
+  for(unsigned i = 0; i < obs_n; ++i ) {
 
     // block on interupt.
     while(! app->adc_drdy );
     app->adc_drdy = false;
 
-
-    // we can construct our matrix directly. without needing Run.
-    // we don't care
+    // construct matrix directly. without needing Run struct.
     uint32_t clk_count_mux_neg = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_NEG);
     uint32_t clk_count_mux_pos = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_POS);
     uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
 
     printf("loop3 data  %lu %lu %lu\n", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd);
 
-    // if have count of data then we are done.
+    row = run_to_matrix(
+      clk_count_mux_neg,
+      clk_count_mux_pos,
+      clk_count_mux_rd,
+      cols,
+      row
+    );
 
+    printf("b\n");
+    m_foutput( stdout, row );
+
+    mat_set_row ( xs, row_idx++,  row ) ;
   }
+
+
+
+
+    // shrink matrixes to size collected data
+  m_resize( xs, row_idx, m_cols( xs) );
+  m_resize( y,  row_idx, m_cols( y) );
+  m_resize( aperture, row_idx, m_cols( aperture) ); // we don't use aperture
+
+
+  m_foutput( stdout, xs );
+
+
+  m_free(row);
+
+  m_free(xs);
+  m_free(y);
+  m_free(aperture);
 
   // leave running as is
   // turn off. -
