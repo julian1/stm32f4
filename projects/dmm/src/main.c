@@ -372,10 +372,15 @@ static void app_update_soft_500ms(app_t *app)
 
   // get and check, the status register.
   ret = spi_ice40_reg_read32( app->spi, REG_STATUS);
-  if( ((ret >> 8 ) & 0xff)  != app->last_reg_status ) {
+  // if( ((ret >> 8 ) & 0xff)  != app->last_reg_status ) {
 
+  // not sure if quite right.
+  if( (ret & 0xff )  != (app->last_reg_status & 0xff) ) {
+
+    printf("status changed\n");
     char buf[ 100] ;
-    printf("status changed %s\n",  format_bits(buf, 32, ret ));
+    printf("ret  %s\n",  format_bits(buf, 32, ret ));
+    printf("last %s\n",  format_bits(buf, 32, app->last_reg_status  ));
     app->last_reg_status  = ret;
   }
 
@@ -623,11 +628,11 @@ static void app_update_console_cmd(app_t *app)
           // just swapping control loops - is easy.
           // gives more control . rather than a complicated re-entrant function.
           // and pump the message buffers etc.
-          // but 
+          // but
           // its just that existing. if we pump the command buffer.
           // Loop3  loop3;
-          // memset(&loop3, 0, sizeof(loop3)); 
-        
+          // memset(&loop3, 0, sizeof(loop3));
+
           app_loop3(app/*, &loop3*/);
 
       }
@@ -738,9 +743,8 @@ static void app_loop(app_t *app)
 
     // process data in priority
     if(app->adc_drdy == true) {
-      printf("got data\n");
-      app->adc_drdy = false;
 
+      app->adc_drdy = false;
 
       mux_ice40(app->spi);
 
@@ -748,8 +752,7 @@ static void app_loop(app_t *app)
       uint32_t clk_count_mux_pos = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_POS);
       uint32_t clk_count_mux_rd = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
 
-
-      printf("  %lu %lu %lu\n", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd);
+      printf("got data  %lu %lu %lu\n", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd);
 
     }
 
