@@ -120,7 +120,7 @@ bool test15( app_t *app , const char *cmd)
 
 
     // TODO consider renaming REG_CLK_SAMPLE_DURATION to REG_APERTURE_N or similar
-    spi_ice40_reg_write32(app->spi, REG_CLK_SAMPLE_DURATION, aperture );
+    spi_ice40_reg_write32(app->spi, REG_ADC_P_APERTURE , aperture );
 
     return 1;
   }

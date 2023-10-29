@@ -238,7 +238,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     printf("period   %.2lfs\n", aper_n_to_period( aperture ));
 
     // set new aperture
-    app->mode_current->reg_aperture = aperture ;
+    app->mode_current->reg_adc_p_aperture = aperture ;
     // do the state transition
     app_transition_state( app->spi, app->mode_current,  &app->system_millis );
     return 1;
@@ -257,7 +257,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture, app->lfreq ));
     printf("period   %.2lfs\n", aper_n_to_period( aperture ));
 
-    app->mode_current->reg_aperture = aperture ;
+    app->mode_current->reg_adc_p_aperture = aperture ;
     app_transition_state( app->spi, app->mode_current,  &app->system_millis );
     return 1;
   }
@@ -407,14 +407,14 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
 
 
-    if(!mode->reg_aperture) {
+    if(!mode->reg_adc_p_aperture) {
 
       // FIXME. this is reset on each dcv range range.
       // because mode is derived/copied from initial.
       // Ok. and easier for the moment.
 
       // if aperture not set, then set to useful default
-      mode->reg_aperture = nplc_to_aper_n( 1, app->lfreq ); // this is dynamic. maybe 50,60Hz. or other.
+      mode->reg_adc_p_aperture = nplc_to_aper_n( 1, app->lfreq ); // this is dynamic. maybe 50,60Hz. or other.
     }
 
     // do the state transition
@@ -490,7 +490,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
     // set aperture
     // can override later.
-    mode->reg_aperture = nplc_to_aper_n( 1 ); // this is dynamic. maybe 50,60Hz. or other.
+    mode->reg_adc_p_aperture = nplc_to_aper_n( 1 ); // this is dynamic. maybe 50,60Hz. or other.
 
     // do the state transition
     app_transition_state( app->spi, mode,  &app->system_millis );

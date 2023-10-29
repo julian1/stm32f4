@@ -40,8 +40,6 @@
 #define REG_DIRECT        14
 // #define REG_DIRECT2       15
 
-// change name REG_APERTURE_N is or similar
-#define REG_CLK_SAMPLE_DURATION 16
 
 #define REG_STATUS        17
 #define REG_RESET         18
@@ -49,11 +47,16 @@
 #define REG_SA_ARM_TRIGGER   19
 
 
+
+// change name REG_APERTURE_N is or similar
+#define REG_ADC_P_APERTURE  20 
+
+
+
 #define REG_ADC_CLK_COUNT_MUX_NEG   30
 #define REG_ADC_CLK_COUNT_MUX_POS   31
 #define REG_ADC_CLK_COUNT_MUX_RD    32
 #define REG_ADC_CLK_COUNT_MUX_SIG   33
-
 
 
 

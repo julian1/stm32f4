@@ -197,7 +197,7 @@ void app_loop3( app_t *app )
   mode->reg_direct.himux2 = S5 ;    // reg-hi.
   mode->reg_direct.himux  = S2 ;    // himux2
 
-  mode->reg_aperture = nplc_to_aper_n( 10, app->lfreq );    // dynamic. problem. maybe 50,60Hz. or other.
+  mode->reg_adc_p_aperture = nplc_to_aper_n( 10, app->lfreq );    // dynamic. problem. maybe 50,60Hz. or other.
 
   // do the state transition
   app_transition_state( app->spi, mode,  &app->system_millis );
@@ -353,7 +353,7 @@ void app_loop3( app_t *app )
   // spi_ice40_reg_write_n(spi, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
 
   // write the aperture. REG_ADC_P_APERTURE
-  //  spi_ice40_reg_write32(spi, REG_CLK_SAMPLE_DURATION, mode->reg_aperture );
+  //  spi_ice40_reg_write32(spi, REG_ADC_P_APERTURE, mode->reg_adc_p_aperture );
 */
 
 

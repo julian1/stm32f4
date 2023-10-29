@@ -207,7 +207,7 @@ typedef struct Mode
   F  reg_direct;
   // F  reg_direct2; only for a ratiometric function.
 
-  uint32_t  reg_aperture;
+  uint32_t  reg_adc_p_aperture;
 
   ////////////
 

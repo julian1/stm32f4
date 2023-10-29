@@ -228,7 +228,7 @@ void app_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *sy
   spi_ice40_reg_write_n(spi, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
   // spi_ice40_reg_write_n(spi, REG_DIRECT2, &mode->reg_direct2, sizeof( mode->reg_direct) );   unused again.
 
-  spi_ice40_reg_write32(spi, REG_CLK_SAMPLE_DURATION, mode->reg_aperture );
+  spi_ice40_reg_write32(spi, REG_ADC_P_APERTURE, mode->reg_adc_p_aperture );
 
 
   // can add the reg reset here.
@@ -895,7 +895,7 @@ static const Mode mode_initial =  {
 
   .reg_mode = MODE_LO,
 
-  .reg_aperture = 0     // set explicitly in dcv
+  .reg_adc_p_aperture = 0         // wset explicitly in dcv
 
 };
 
