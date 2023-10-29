@@ -179,7 +179,7 @@ void app_loop3( app_t *app )
 
 
   UNUSED(y);
-  UNUSED(aperture);
+  // UNUSED(aperture);
 
 
   ////////////////////////////////////-----------------
@@ -202,70 +202,83 @@ void app_loop3( app_t *app )
   // do the state transition
   app_transition_state( app->spi, mode,  &app->system_millis );
 
-
-  //  app_transition_fpga_state.  with just the fpga...
-  // avoids declaring separate variables.
-  // without clicking the relay.
-
-  // mode->reg_direct.himux2 = S5 ;    // reg-hi.
-    // spi_ice40_reg_write32( app->spi, REG_DIRECT, mode->reg_direct );
+  ////////////////////////////////
 
 
-  // this would be in the  loop when changing parameters
-  // don't think this is quite right.
-  {
-  spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 0 );      // arm to halt.
-  printf("arm and block\n");
-  while( !  (spi_ice40_reg_read32(app->spi, REG_STATUS) & (1<<8) )) ;  // wait for adc to be ready/valid.
-  printf("adc measure valid/ done\n");
-  app->adc_drdy = false;
-  printf("trigger/restart\n");
-  spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 1 );    // trigger. signal acquisition
-  }
-
-  // ok. we need to be able to manipulate nplc.
+  // TODO review. we could perhaps premultiply the y by the aperture?
 
   unsigned row_idx = 0;
   MAT *row = NULL;
 
-  for(unsigned i = 0; i < obs_n; ++i ) {
+  
+  // loop aperture nplc
+  for(unsigned h = 0; h < ARRAY_SIZE(nplc); ++h) 
+  {
+    unsigned nplc_ = nplc[h];
+    printf("nplc   %u\n", nplc_ );   
+    // uint32_t aperture_ = nplc_to_aper_n( nplc_ );  // move this up a loop.
+    // uint32_t nplc_to_aper_n( double nplc, uint32_t lfreq )
 
-    // block on interupt.
-    while(! app->adc_drdy );
+    uint32_t p_aperture  = nplc_to_aper_n( nplc_, app->lfreq );
+
+    spi_ice40_reg_write32(app->spi, REG_ADC_P_APERTURE , p_aperture);      // arm to halt.
+
+
+    // this would be in the  loop when changing parameters
+    // don't think this is quite right.
+    // we need a better reset mechanism.
+    // or halting is correct.
+    {
+    spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 0 );      // arm to halt.
+    printf("arm and block\n");
+    while( !  (spi_ice40_reg_read32(app->spi, REG_STATUS) & (1<<8) )) ;  // wait for adc to be ready/valid.
+    printf("adc measure valid/ done\n");
     app->adc_drdy = false;
+    printf("trigger/restart\n");
+    spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 1 );    // trigger. signal acquisition
+    }
 
-    // construct matrix directly. without needing Run struct.
-    uint32_t clk_count_mux_neg = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_NEG);
-    uint32_t clk_count_mux_pos = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_POS);
-    uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
-    uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_SIG);
-
-
-    printf("loop3 data  %lu %lu %lu %lu\n", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
-
-    row = run_to_matrix(
-      clk_count_mux_neg,
-      clk_count_mux_pos,
-      clk_count_mux_rd,
-      cols,
-      row
-    );
-
-    printf("b\n");
-    m_foutput( stdout, row );
-
-    mat_set_row( xs, row_idx,  row ) ;
-
-    // TODO - perhaps rename aperture here. aperture is the control parameter. while signal-current is the measured time
-
-    vec_set_val( aperture, row_idx, clk_count_mux_sig);
-
-     // record y, as target * aperture
-    // m_set_val( y       , row , 0, y_  *  aperture_ );
+    // ok. we need to be able to manipulate nplc.
 
 
+    for(unsigned i = 0; i < obs_n; ++i ) {
 
-    ++row_idx;
+      // block on interupt.
+      while(! app->adc_drdy );
+      app->adc_drdy = false;
+
+      // construct matrix directly. without needing Run struct.
+      uint32_t clk_count_mux_neg = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_NEG);
+      uint32_t clk_count_mux_pos = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_POS);
+      uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
+      uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_SIG);
+
+
+      printf("loop3 data  %lu %lu %lu %lu\n", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+
+      row = run_to_matrix(
+        clk_count_mux_neg,
+        clk_count_mux_pos,
+        clk_count_mux_rd,
+        cols,
+        row
+      );
+
+      // printf("b\n");
+      // m_foutput( stdout, row );
+
+      mat_set_row( xs, row_idx,  row ) ;
+
+      // TODO - perhaps rename aperture here. aperture is the control parameter. while signal-current is the measured time
+
+      vec_set_val( aperture, row_idx, clk_count_mux_sig);
+
+       // record y, as target * aperture
+      // m_set_val( y       , row , 0, y_  *  aperture_ );
+
+
+      ++row_idx;
+    }
   }
 
 
@@ -281,8 +294,8 @@ void app_loop3( app_t *app )
   m_foutput( stdout, xs );
 
 
-  printf("aperture/mux_sig\n");
-  m_foutput( stdout, aperture );
+  // printf("aperture/mux_sig\n");
+  // m_foutput( stdout, aperture );
 
 
 

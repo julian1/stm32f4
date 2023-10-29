@@ -131,6 +131,8 @@ static void state_format ( uint8_t *state, size_t n)
 
 uint32_t nplc_to_aper_n( double nplc, uint32_t lfreq )
 {
+  assert( lfreq);
+
   double period = nplc / (double) lfreq;  // seonds
   uint32_t aper = period * CLK_FREQ;
   return aper;
@@ -139,6 +141,8 @@ uint32_t nplc_to_aper_n( double nplc, uint32_t lfreq )
 
 double aper_n_to_nplc( uint32_t aper_n, uint32_t lfreq)
 {
+  assert( lfreq);
+
   double period   = aper_n / (double ) CLK_FREQ;          // use aper_n_to_period()
   double nplc     = period * (double) lfreq;
   return nplc;
