@@ -1,5 +1,5 @@
 /*
-  nix-shell ~/devel/nixos-config/examples/arm.nix
+nix-shell ~/devel/nixos-config/examples/arm.nix
   rlwrap -a picocom -b 115200 /dev/ttyUSB0
 
   nix-shell ~/devel/nixos-config/examples/arm.nix
@@ -64,6 +64,13 @@
 #include "mode.h"
 
 #include "4094.h"
+
+
+
+
+#include "calc.h"
+
+
 
 
 
@@ -429,7 +436,7 @@ static void app_update_soft_500ms(app_t *app)
     }
   }
 
-
+#if 0
   if(app->test_in_progress == 4 ) {
 
     // mode is 3. blink led. by writing direct register. don't want to do this in other cases.
@@ -441,6 +448,7 @@ static void app_update_soft_500ms(app_t *app)
     mux_ice40(app->spi);
     spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
   }
+#endif
 
 
 }
@@ -659,7 +667,7 @@ static void app_update_console_cmd(app_t *app)
         app->test_in_progress = 3;
       }
 
-
+#if 0
       else if( strcmp(cmd, "test04") == 0) {
 
         printf("test04 use direct mode - to blink led\n");
@@ -671,6 +679,7 @@ static void app_update_console_cmd(app_t *app)
 
         app->test_in_progress = 4;
       }
+#endif
 
 
     /*
@@ -724,6 +733,9 @@ static void app_update_console_cmd(app_t *app)
 
 
 
+
+
+
 static void app_loop(app_t *app)
 {
 /*
@@ -757,8 +769,38 @@ static void app_loop(app_t *app)
       uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
       uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_SIG);
 
-      printf("app loop data  %lu %lu %lu %lu\n", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+      printf("app loop data  %lu %lu %lu %lu  ", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
 
+      unsigned cols = 4; 
+
+      MAT *xs = run_to_matrix(
+          clk_count_mux_neg,
+          clk_count_mux_pos,
+          clk_count_mux_rd,
+          cols,
+          MNULL
+        );
+
+      // we could make all these vars persist. 
+
+      MAT	*m_mux_sig = m_from_scalar( clk_count_mux_sig, MNULL );
+      assert(m_mux_sig);
+
+      //  this may want to 
+      MAT *predicted =  m_calc_predicted( app->b, xs, m_mux_sig);
+      assert(predicted);
+      assert( m_is_scalar(predicted) );
+
+
+      double ret = m_to_scalar(predicted );
+      printf(" %lf", ret );
+      printf("\n");
+
+      // get the double.
+
+
+      M_FREE( m_mux_sig );
+      M_FREE( predicted );
 
     }
 
@@ -846,7 +888,7 @@ static void app_loop(app_t *app)
 */
 
 static char buf_console_in[1000];
-static char buf_console_out[1000];
+static char buf_console_out[1000];    // changing this and it freezes. indicates. bug 
 
 // static char buf_cmds[1000];
 

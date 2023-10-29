@@ -6,6 +6,9 @@
 #include "cstring.h"
 #include "fbuffer.h"
 
+// needed for forward declaration of MAT. it's a typedef anonymous struct. hard to declare.
+// https://stackoverflow.com/questions/10249548/forward-declaring-a-typedef-of-an-unnamed-struct
+#include "matrix.h" 
 
 typedef struct Mode Mode;
 
@@ -30,6 +33,10 @@ typedef struct H
 
 
 } H;
+
+
+
+
 
 
 
@@ -152,6 +159,11 @@ typedef struct app_t
 
   bool adc_drdy_missed; // could be made a count
 
+
+
+  MAT *b;
+
+
 } app_t;
 
 
@@ -204,9 +216,6 @@ bool app_extra_functions( app_t *app , const char *cmd);
 */
         
 void app_loop3( app_t *app/*, Loop3 *loop3 */);
-
-
-
 
 
 

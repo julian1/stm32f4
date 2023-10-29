@@ -104,7 +104,7 @@ typedef struct R R;
 
 // TODO change name regression_free()
 void r_free( R *regression);
-void regression_show( const R * regression, FILE *f );
+void r_regression_show( const R * regression, FILE *f );
 
 // TODO change name regression_run()
 int m_regression( const MAT *x, const MAT *y,  R * regression );

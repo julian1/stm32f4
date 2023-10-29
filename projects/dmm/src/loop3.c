@@ -15,6 +15,7 @@
 
 
 
+#include "usart.h"  // flush
 #include "app.h"
 #include "util.h"
 #include "mux.h"
@@ -25,6 +26,7 @@
 #include "spi-ice40.h"
 
 #include "regression.h"
+#include "calc.h"
 
 // loop3 structure. should probably be in own header file.
 
@@ -32,7 +34,7 @@
 
 
 
-static MAT * run_to_matrix( // const Run *run,
+MAT * run_to_matrix( // const Run *run,
     uint32_t clk_count_mux_neg,
     uint32_t clk_count_mux_pos,
     uint32_t clk_count_mux_rd,
@@ -146,9 +148,158 @@ static void vec_set_val (  MAT *xs, unsigned row_idx,   double x)
 
 
 
+
+
+
+MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture)
+{
+  /*
+    - careful - this function may crash on embedded - due to memoryeneeds of m_mlt().
+      actually it shouldn't be too bad - compared with decomposition.
+    do matrix multiply, and adjust by the aperture.
+  */
+
+  // don't free input arguments
+  // b is 4x1, x is nx4
+
+  assert( m_cols(x) == m_rows( b) );
+  assert( m_rows(x) == m_rows( aperture) );
+
+  // matrix multiply
+  MAT *predicted = m_mlt(x, b, MNULL );
+
+  MAT *corrected = m_element_div( predicted, aperture, MNULL );
+
+  M_FREE(predicted );
+
+/*
+  printf("corrected\n");
+  m_foutput(stdout, corrected);
+  usart1_flush();
+*/
+
+  return corrected;
+}
+
+
+// we want a single file for all these functions
+// also no dynamic allocation for Cal structure.
+
+
+static void calc_cal( app_t *app,  MAT *y, MAT *xs, MAT *aperture  )
+{
+
+  UNUSED(app);
+  UNUSED(aperture);
+
+  assert(m_rows(y) == m_rows(xs));
+  assert(m_rows(y) == m_rows(aperture));
+
+  // rename app_calc_cal()
+  /*
+      calc_calibration_from_data
+    better name. do_calibration.
+    note uses replaces existing calibration from slot.
+  */
+
+
+  R regression;
+
+  m_regression( xs, y, &regression );   // rename reg_regression()...
+
+
+   usart1_flush();
+
+  // TODO change name regression_report.
+  // or _output..
+  r_regression_show( &regression, stdout);
+
+   usart1_flush();
+
+
+#if 0
+  // this code seems to crash.
+  // EXTR. predicted is already calculated in the Regression. 
+  // predicted must be adjusted by aperture
+  MAT *predicted =  m_calc_predicted( regression.b, xs, aperture );
+
+  printf("\npredicted\n");
+  m_foutput(stdout, predicted);
+    usart1_flush();
+
+  M_FREE(predicted);
+#endif
+
+  // app->b       = m_copy( regression.b, MNULL );
+  app->b       = m_copy( regression.b, app->b );
+
+  // free regression
+  r_free( &regression );
+
+
+
+#if 0
+  ///////////////////////
+  // set it. for app slot
+  printf("\nstoring (but no save) to cal slot %u\n", app->cal_slot_idx);
+
+  // should be passed explicitly...
+  // old cal.
+  Cal *cal = app->cal[ app->cal_slot_idx ];
+  assert(cal);
+
+  ///////////////////////
+  // create the cal2 structure
+  Cal *cal2     = cal_create();
+  cal2->slot    = app->cal_slot_idx;
+  cal2->b       = m_copy( regression.b, MNULL );    // reallocate matrix.
+  ctrl_param_read( app->spi, &cal2->param);
+  cal2->sigma2  = regression.sigma2;
+  cal2->temp    = adc_temp_read10();
+
+  cal2->id      = ++(app->cal_id_max);
+
+  // appropriate fields from old cal
+  cal2->comment = strdup( cal->comment );
+  cal2->model   = cal->model;
+
+  cal_show( cal2 );
+
+
+  ///////////////////////
+  // free old cal
+  assert( cal == app->cal[ app->cal_slot_idx ] );
+  cal_free( app->cal[ app->cal_slot_idx  ]);
+  cal = NULL;
+
+
+  // update with new cal
+  app->cal[ app->cal_slot_idx] = cal2;
+
+
+  // free regression
+  r_free( &regression );
+
+
+  // combine xs, y and store in last.
+  app->last = m_hconcat(xs, y, MNULL);
+
+  // TODO FIXME. should be deallocated in same plae/function as allocated.
+  M_FREE(xs);
+  M_FREE(y);
+#endif
+}
+
+
+
+
+
+
+
+
+
 void app_loop3( app_t *app )
 {
-  UNUSED(app);
 
 
   const unsigned nplc[] = { 8, 9, 10, 11, 12, 13, 14, 15, 16  };
@@ -194,7 +345,7 @@ void app_loop3( app_t *app )
 
   mode->reg_direct.sig_pc_sw_ctl  = SW_PC_SIGNAL;   // pc switch muxes signal.
   mode->reg_direct.azmux          = S1;             // azmux muxes pc-out // EXTR. review.  not muxing ref-lo here.
-  mode->reg_direct.himux2 = S5 ;    // reg-hi.
+  mode->reg_direct.himux2 = S5 ;    // ref-hi.
   mode->reg_direct.himux  = S2 ;    // himux2
 
   mode->reg_adc_p_aperture = nplc_to_aper_n( 10, app->lfreq );    // dynamic. problem. maybe 50,60Hz. or other.
@@ -210,12 +361,12 @@ void app_loop3( app_t *app )
   unsigned row_idx = 0;
   MAT *row = NULL;
 
-  
-  // loop aperture nplc
-  for(unsigned h = 0; h < ARRAY_SIZE(nplc); ++h) 
+
+  // loop aperture/nplc
+  for(unsigned h = 0; h < ARRAY_SIZE(nplc); ++h)
   {
     unsigned nplc_ = nplc[h];
-    printf("nplc   %u\n", nplc_ );   
+    printf("nplc   %u\n", nplc_ );
     // uint32_t aperture_ = nplc_to_aper_n( nplc_ );  // move this up a loop.
     // uint32_t nplc_to_aper_n( double nplc, uint32_t lfreq )
 
@@ -224,67 +375,93 @@ void app_loop3( app_t *app )
     spi_ice40_reg_write32(app->spi, REG_ADC_P_APERTURE , p_aperture);      // arm to halt.
 
 
-    // this would be in the  loop when changing parameters
-    // don't think this is quite right.
-    // we need a better reset mechanism.
-    // or halting is correct.
+    // loop hi/lo signal mux
+    for(unsigned j = 0; j < 2; ++j)
     {
-    spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 0 );      // arm to halt.
-    printf("arm and block\n");
-    while( !  (spi_ice40_reg_read32(app->spi, REG_STATUS) & (1<<8) )) ;  // wait for adc to be ready/valid.
-    printf("adc measure valid/ done\n");
-    app->adc_drdy = false;
-    printf("trigger/restart\n");
-    spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 1 );    // trigger. signal acquisition
-    }
 
-    // ok. we need to be able to manipulate nplc.
+      double y_ = 0;
+
+      if( j == 0) {
+        printf("mux hi\n");
+        mode->reg_direct.azmux    = S1;     // azmux muxes pc-out // EXTR. review.  not muxing ref-lo here.
+        mode->reg_direct.himux    = S2 ;    // himux2
+        mode->reg_direct.himux2   = S5 ;    // ref-hi.
+        y_ = 7;
+
+      } else if( j == 1) {
+        printf("mux lo\n");
+        mode->reg_direct.azmux    = S7;     // ref lo.
+        mode->reg_direct.himux    = S2 ;    // himux2
+        mode->reg_direct.himux2   = S5 ;    // ref-hi.
+        y_ = 0;
+      } else assert( 0);
+
+      spi_ice40_reg_write_n(app->spi, REG_DIRECT, &mode->reg_direct, sizeof( mode->reg_direct) );
+
+       // params
+      // for(unsigned k = 0; k < ARRAY_SIZE(params)  /*&& !app->halt_func */; ++k) {
 
 
-    for(unsigned i = 0; i < obs_n; ++i ) {
-
-      // block on interupt.
-      while(! app->adc_drdy );
+      // this would be in the  loop when changing parameters
+      // don't think this is quite right.
+      // we need a better reset mechanism.
+      // or arm/halt is correct. - because we want the condition in which we are able to signal go.
+      {
+      spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 0 );      // arm to halt.
+      printf("arm and block\n");
+      while( !  (spi_ice40_reg_read32(app->spi, REG_STATUS) & (1<<8) )) ;  // wait for adc to be ready/valid.
+      printf("adc measure valid/ done\n");
       app->adc_drdy = false;
+      printf("trigger/restart\n");
+      spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 1 );    // trigger. signal acquisition
+      }
 
-      // construct matrix directly. without needing Run struct.
-      uint32_t clk_count_mux_neg = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_NEG);
-      uint32_t clk_count_mux_pos = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_POS);
-      uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
-      uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_SIG);
+      // loop obs
+      for(unsigned i = 0; i < obs_n; ++i ) {
 
+        // block on interupt.
+        while(! app->adc_drdy );
+        app->adc_drdy = false;
 
-      printf("loop3 data  %lu %lu %lu %lu\n", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+        if(i < 2)
+          continue;
 
-      row = run_to_matrix(
-        clk_count_mux_neg,
-        clk_count_mux_pos,
-        clk_count_mux_rd,
-        cols,
-        row
-      );
-
-      // printf("b\n");
-      // m_foutput( stdout, row );
-
-      mat_set_row( xs, row_idx,  row ) ;
-
-      // TODO - perhaps rename aperture here. aperture is the control parameter. while signal-current is the measured time
-
-      vec_set_val( aperture, row_idx, clk_count_mux_sig);
-
-       // record y, as target * aperture
-      // m_set_val( y       , row , 0, y_  *  aperture_ );
+        // construct matrix directly. without needing Run struct.
+        uint32_t clk_count_mux_neg = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_NEG);
+        uint32_t clk_count_mux_pos = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_POS);
+        uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
+        uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_SIG);
 
 
-      ++row_idx;
-    }
-  }
+        printf("loop3 data  %lu %lu %lu %lu\n", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+
+        row = run_to_matrix(
+          clk_count_mux_neg,
+          clk_count_mux_pos,
+          clk_count_mux_rd,
+          cols,
+          row
+        );
+
+        // printf("b\n");
+        // m_foutput( stdout, row );
+
+        mat_set_row( xs,       row_idx,  row ) ;
+
+        vec_set_val( aperture, row_idx, clk_count_mux_sig);
+
+        vec_set_val( y,        row_idx,   y_  *  clk_count_mux_sig );
+
+
+        ++row_idx;
+      }
+    } // j hi/lo
+  }   // h nplc
 
 
 
 
-    // shrink matrixes to size collected data
+  // shrink matrixes to size collected data
   m_resize( xs, row_idx, m_cols( xs) );
   m_resize( y,  row_idx, m_cols( y) );
   m_resize( aperture, row_idx, m_cols( aperture) ); // we don't use aperture
@@ -292,12 +469,18 @@ void app_loop3( app_t *app )
 
   printf("xs\n");
   m_foutput( stdout, xs );
+  usart1_flush(); // block
 
 
   // printf("aperture/mux_sig\n");
   // m_foutput( stdout, aperture );
 
 
+  // think this should probably return the regression and the cal, or just the b..
+  // or else pull the code up.
+  // and we handle deallocation top level.
+
+  calc_cal( app, y, xs, aperture );
 
 
   m_free(row);
