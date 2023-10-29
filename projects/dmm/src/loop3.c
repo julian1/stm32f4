@@ -168,7 +168,11 @@ void app_loop3( app_t *app )
     default: assert(0);
   };
 */
-
+  /*
+      we could store / presist the matrix vars - on a structure in app.
+      to reduce allocation.
+      alternatively test - allocation/deallocation counts around this function.
+  */
   MAT *xs       = m_get(max_rows, cols );
   MAT *y        = m_get(max_rows, 1);
   MAT *aperture = m_get(max_rows, 1); // required for predicted
