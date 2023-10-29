@@ -895,7 +895,9 @@ static const Mode mode_initial =  {
 
   .reg_mode = MODE_LO,
 
-  .reg_adc_p_aperture = 0         // wset explicitly in dcv
+  .reg_adc_p_aperture = 4000000         // wset explicitly in dcv
+                                        // Not. should use current calibration?
+                                        // should be authoritative source of state.
 
 };
 

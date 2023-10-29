@@ -108,7 +108,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
   else if( sscanf(cmd, "accum %100s", s0) == 1) {
 
-    // manual ontrol over accumulation relay - can be useful for quick checks. but a bit out-of-band for dcv operation.
+    // manual ontrol over test charge-accumulation relay - can be useful for quick checks. but a bit out-of-band for dcv operation.
     // eg. can control other relays.
     // what happens if add 10nF. to gnd. to the signal path.
 
