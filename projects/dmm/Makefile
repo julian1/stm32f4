@@ -11,6 +11,9 @@ LIB2INC=${TOP}/lib2/include
 
 
 
+mesch12b=${TOP}/mesch12b
+
+
 # check ../../Makefile.incl,  no optimization flags are commented.
 # CFLAGS = -mthumb -mcpu=cortex-m4 -ggdb -Os
 # CFLAGS += -mfloat-abi=hard
@@ -27,9 +30,18 @@ SRCFILES	= src/main.c   src/spi-port.c  src/w25.c  src/4094.c src/spi-ice40.c  s
             src/test/test05.c src/test/test06.c src/test/test08.c src/test/test11.c src/test/test15.c src/test/test14.c  src/test/test16.c \
             src/app-extra-functions.c \
             src/loop3.c \
+            src/regression.c src/mesch.c \
               ${LIB2SRC}/util.c ${LIB2SRC}/format.c \
               ${LIB2SRC}/cbuffer.c  ${LIB2SRC}/streams.c  ${LIB2SRC}/usart.c  ${LIB2SRC}/cstring.c \
-              ${LIB2SRC}/fbuffer.c   ${LIB2SRC}/flash.c  ${LIB2SRC}/stats.c
+              ${LIB2SRC}/fbuffer.c   ${LIB2SRC}/flash.c  ${LIB2SRC}/stats.c \
+              ${mesch12b}/copy.c  ${mesch12b}/init.c ${mesch12b}/matop.c ${mesch12b}/submat.c  \
+              ${mesch12b}/memory.c ${mesch12b}/meminfo.c  \
+              ${mesch12b}/machine.c ${mesch12b}/ivecop.c \
+              ${mesch12b}/err.c \
+              ${mesch12b}/matrixio.c \
+              ${mesch12b}/lufactor.c ${mesch12b}/pxop.c ${mesch12b}/solve.c ${mesch12b}/memstat.c ${mesch12b}/norm.c \
+
+
 
 #  src/test17.c
 
@@ -51,6 +63,8 @@ LDSCRIPT	= ${TOP}/f410.ld
 TGT_CFLAGS  += -Wno-unused-function   \
               -Werror-implicit-function-declaration \
               -Wno-packed-bitfield-compat
+
+TGT_CFLAGS	+= -I${mesch12b}
 
 #              -Werror \
 
