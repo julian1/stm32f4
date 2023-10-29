@@ -12,7 +12,7 @@
 
 
 
-// This no longer controls the led.  used for tests.  should be renamed/removed.
+// Still used to control led - but only in mode 0/default
 #define REG_LED         7
 
 
@@ -47,13 +47,12 @@
 #define REG_RESET         18
 
 #define REG_SA_ARM_TRIGGER   19
- 
+
 
 #define REG_ADC_CLK_COUNT_MUX_NEG   30
 #define REG_ADC_CLK_COUNT_MUX_POS   31
 #define REG_ADC_CLK_COUNT_MUX_RD    32
-
-
+#define REG_ADC_CLK_COUNT_MUX_SIG   33
 
 
 

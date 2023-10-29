@@ -36,13 +36,11 @@ static MAT * run_to_matrix( // const Run *run,
     uint32_t clk_count_mux_neg,
     uint32_t clk_count_mux_pos,
     uint32_t clk_count_mux_rd,
-
-
-      unsigned model,
+    unsigned model,
     MAT * out
 )
 {
-  // assert(run);
+  // change name ,   adc_counts_to_matrix() ?
 
 
   /*
@@ -119,26 +117,32 @@ static MAT * run_to_matrix( // const Run *run,
 
 
 
-static void mat_set_row (  MAT *xs, unsigned row,   MAT *whoot ) 
+static void mat_set_row (  MAT *xs, unsigned row_idx,   MAT *whoot )
 {
   // set row. or push row.
   assert(xs);
   assert(whoot);
+  assert(row_idx < m_rows(xs));
 
-
-  assert(row < m_rows(xs));
-
-            // MAT *whoot = run_to_matrix( &x.run, cols , MNULL );
-            // assert(whoot);
 
   assert( m_cols(whoot) == m_cols(xs) );
   assert( m_rows(whoot) == 1  );
 
-  // printf("\n");
-  // m_foutput(stdout, whoot );
-  m_row_set( xs, row, whoot );
+  m_row_set( xs, row_idx, whoot );
 
 }
+
+
+static void vec_set_val (  MAT *xs, unsigned row_idx,   double x)
+{
+  assert(xs);
+  assert( m_cols(xs) == 1  );
+  assert(row_idx < m_rows(xs));
+
+  m_set_val( xs , row_idx, 0, x );
+
+}
+
 
 
 
@@ -195,7 +199,12 @@ void app_loop3( app_t *app )
   app_transition_state( app->spi, mode,  &app->system_millis );
 
 
+  //  app_transition_fpga_state.  with just the fpga...
+  // avoids declaring separate variables.
+  // without clicking the relay.
 
+  // mode->reg_direct.himux2 = S5 ;    // reg-hi.
+    // spi_ice40_reg_write32( app->spi, REG_DIRECT, mode->reg_direct );
 
 
   // this would be in the  loop when changing parameters
@@ -225,8 +234,10 @@ void app_loop3( app_t *app )
     uint32_t clk_count_mux_neg = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_NEG);
     uint32_t clk_count_mux_pos = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_POS);
     uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
+    uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_SIG);
 
-    printf("loop3 data  %lu %lu %lu\n", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd);
+
+    printf("loop3 data  %lu %lu %lu %lu\n", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
 
     row = run_to_matrix(
       clk_count_mux_neg,
@@ -239,7 +250,18 @@ void app_loop3( app_t *app )
     printf("b\n");
     m_foutput( stdout, row );
 
-    mat_set_row ( xs, row_idx++,  row ) ;
+    mat_set_row( xs, row_idx,  row ) ;
+
+    // TODO - perhaps rename aperture here. aperture is the control parameter. while signal-current is the measured time
+
+    vec_set_val( aperture, row_idx, clk_count_mux_sig);
+
+     // record y, as target * aperture
+    // m_set_val( y       , row , 0, y_  *  aperture_ );
+
+
+
+    ++row_idx;
   }
 
 
@@ -251,7 +273,14 @@ void app_loop3( app_t *app )
   m_resize( aperture, row_idx, m_cols( aperture) ); // we don't use aperture
 
 
+  printf("xs\n");
   m_foutput( stdout, xs );
+
+
+  printf("aperture/mux_sig\n");
+  m_foutput( stdout, aperture );
+
+
 
 
   m_free(row);
