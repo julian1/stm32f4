@@ -509,7 +509,8 @@ static void app_update_console_cmd(app_t *app)
 
       cmd = trim_whitespace_inplace( cmd );
 
-      printf("cmd '%s'  %u\n", cmd, strlen(cmd) );
+      // useful for debug
+      // printf("cmd '%s'  %u\n", cmd, strlen(cmd) );
 
 
 

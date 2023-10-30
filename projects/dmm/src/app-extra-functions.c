@@ -104,6 +104,13 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   }
 
 
+  else if( sscanf(cmd, "print %100s", s0) == 1
+    || sscanf(cmd, "echo %100s", s0) == 1) {
+
+    printf( s0  );
+    printf("\n");
+    return 1;
+  }
 
 
   else if( sscanf(cmd, "accum %100s", s0) == 1) {
