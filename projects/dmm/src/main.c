@@ -52,7 +52,7 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 
 
 
-#include "fbuffer.h"
+// #include "fbuffer.h"
 
 #include "format.h"   // format_bits()
 

@@ -16,6 +16,7 @@
 #include "mux.h"        // mux_ice40()
 #include "spi-ice40.h"  // spi_ice40_reg_write32()
 
+#include "mcu-temp.h"
 
 #include "app.h"
 
@@ -441,6 +442,16 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
     return 1;
   }
+
+
+
+  // temp show.
+  else if(strcmp(cmd, "temp?") == 0) {
+
+      double val = adc_temp_read10();
+      printf("temp %.1fC\n", val);
+  }
+
 
 
   // issue is the accumulation relay on? accidently?

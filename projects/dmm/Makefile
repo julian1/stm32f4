@@ -28,6 +28,7 @@ SRCFILES	= flash.c  util.c \
 
 SRCFILES	= src/main.c   src/spi-port.c  src/w25.c  src/4094.c src/spi-ice40.c  src/mux.c  \
             src/test/test05.c src/test/test06.c src/test/test08.c src/test/test11.c src/test/test15.c src/test/test14.c  src/test/test16.c \
+            src/mcu-temp.c \
             src/app-extra-functions.c \
             src/loop3.c \
             src/calc.c \
