@@ -49,7 +49,7 @@
 
 
 // change name REG_APERTURE_N is or similar
-#define REG_ADC_P_APERTURE  20 
+#define REG_ADC_P_APERTURE  20
 
 
 
@@ -86,6 +86,7 @@
 #define S7          ((1<<3)|(7-1))
 
 
+// muxes
 #define HIMUX_HIMUX2          S2
 #define HIMUX_DCV             S7
 
@@ -101,6 +102,21 @@
 
 
 
+// dcv- source
+#define U1003_POS             S1
+#define U1003_NEG             S2
+#define U1003_GND             S3
+
+#define U1006_REF10V          S1
+#define U1006_REF1V           S2
+#define U1006_REV0V1          S3
+#define U1006_DCV_LO          S4
+// ...
+#define U1006_TEMP            S8
+
+
+
+
 // could also be a macro #define S(1) == ...
 
 
@@ -113,6 +129,9 @@
 #define W4          ((1<<2)|(4-1))
 
 
+#define U506_GAIN_1     W1
+#define U506_GAIN_10    W2
+#define U506_GAIN_100   W3
 
 /*
   TODO prefix. LR for latching relay

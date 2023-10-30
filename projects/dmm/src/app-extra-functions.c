@@ -1,6 +1,7 @@
 
 
 
+#include <math.h>      // fabs
 #include <stdio.h>      // printf, scanf
 #include <string.h>     // strcmp, memset
 #include <assert.h>
@@ -395,6 +396,35 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
 
 
+
+  // else if( sscanf(cmd, "aper %lf", &f0 ) == 1) {
+  else if( sscanf(cmd, "dcv-source %lf", &f0) == 1) {
+
+    // have a separate commad for temp. etc.
+
+    Mode *mode = app->mode_current;
+
+    if(f0 >= 0)
+      mode->second.U1003 =  U1003_POS;
+    else
+      mode->second.U1003 =  U1003_NEG;
+
+    // todo -  need a float compare. for rounding?.
+    if(fabs(f0)  == 10.0)
+      mode->second.U1006 =  U1006_REF10V;
+    else if(fabs(f0) == 1.0)
+      mode->second.U1006 =  U1006_REF1V;
+    else if(fabs(f0) == 0.1)
+      mode->second.U1006 =  U1006_REV0V1;
+    else if(fabs(f0) == 0)
+      mode->second.U1006 =  U1006_DCV_LO;
+    else
+        printf("bad dcv-source arg\n");
+
+      return 1;
+  }
+
+
   else if(strcmp(cmd, "reset") == 0) {
 
     // turn off any concurrent test.
@@ -438,31 +468,33 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     //  alias to ease syntax
     Mode *mode = app->mode_current;
 
+
+
     // set the ampliier gain.
     if( strcmp(s0, "10") == 0) {
         printf("whoot dcv10\n");
-        mode->first. U506 =  W1;    // amp feedback should never be turned off.
-        mode->second.U506 =  W1;
+        mode->first. U506 =  U506_GAIN_1;    // amp feedback should never be turned off.
+        mode->second.U506 =  U506_GAIN_1;
     }
     else if( strcmp(s0, "1") == 0) {
         printf("whoot dcv1\n");
-        mode->first. U506 =  W2;  // amp feedback should never be turned off.
-        mode->second.U506 =  W2;
+        mode->first. U506 =  U506_GAIN_10;  // amp feedback should never be turned off.
+        mode->second.U506 =  U506_GAIN_10;
     }
     else if( strcmp(s0, "01") == 0 ) {   // 100mV range
         printf("whoot dcv01\n");
-        mode->first. U506 =  W3;  // amp feedback should never be turned off.
-        mode->second.U506 =  W3;
+        mode->first. U506 =  U506_GAIN_100;  // amp feedback should never be turned off.
+        mode->second.U506 =  U506_GAIN_100;
     }
     else if( strcmp(s0, "1000") == 0) {
         printf("whoot dcv10\n");
-        mode->first. U506 =  W1;    // amp feedback should never be turned off.
-        mode->second.U506 =  W1;
+        mode->first. U506 =  U506_GAIN_1;    // amp feedback should never be turned off.
+        mode->second.U506 =  U506_GAIN_1;
     }
     else if( strcmp(s0, "100") == 0) {
         printf("whoot dcv100\n");
-        mode->first. U506 =  W2;  // amp feedback should never be turned off.
-        mode->second.U506 =  W2;
+        mode->first. U506 =  U506_GAIN_10;  // amp feedback should never be turned off.
+        mode->second.U506 =  U506_GAIN_10;
     }
     else {
         printf("bad range\n");

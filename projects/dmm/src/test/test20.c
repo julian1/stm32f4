@@ -16,8 +16,9 @@ configuration
 
 
 - ref lt1021/7V.  1ppm Vpp 0.1-10Hz.   as reference.
-- amp lsk389 .     will revert to baseline jfe2140 when purchase more.
+- amp lsk389 .     will revert to baseline jfe2140 when get some more.
 - adc resistors. 40k,40k,50k  (+ref,-ref,sig). adc - cant find tdk caps.  using unknown c0g . enough for test.
+      adc same as in 7.5 digit voltmeter. but using 4053 for integrator reset.
 - supply - bench power supply
 - calbration using nominal 7V. of lt1021.
 
