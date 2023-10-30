@@ -35,6 +35,7 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 
 #include <stdio.h>    // printf, scanf
 #include <string.h>   // strcmp, memset
+#include <ctype.h>    // isspace
 
 
 // library code
@@ -460,6 +461,25 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
+static char * trim_whitespace_inplace( char *cmd )
+{
+  assert(cmd);
+  // messy functions - should probably get more testing.
+  // trim leading whitespace.
+  while(*cmd && isspace( (uint8_t ) *cmd ))
+    ++cmd;
+
+  char *p = cmd;    // position at string start
+  while(*p) ++p;    // find string end
+  --p;              // is this is a bug if given - zero length empty string ??.
+                    // no because of (p>=cmd) check 
+
+  // trim trailing whitespace
+  while(p >= cmd && isspace( (uint8_t) *p ))
+    *p-- = 0;
+
+  return cmd;
+}
 
 
 static void app_update_console_cmd(app_t *app)
@@ -472,7 +492,8 @@ static void app_update_console_cmd(app_t *app)
     int32_t ch = cBufPop(&app->console_in);
     assert(ch >= 0);
 
-    if(ch != '\r' && cStringCount(&app->command) < cStringReserve(&app->command) ) {
+    if(ch != '\r' && ch != ';' && cStringCount(&app->command) < cStringReserve(&app->command) ) {
+      // must accept whitespace here, since used to demarcate args
       // normal character
       cStringPush(&app->command, ch);
       // echo to output. required for minicom.
@@ -480,17 +501,20 @@ static void app_update_console_cmd(app_t *app)
 
     }  else {
 
+      // process...
       // newline or overflow
       putchar('\n');
 
       char *cmd = cStringPtr(&app->command);
 
-      // printf("cmd whoot is '%s'\n", cmd);
+      cmd = trim_whitespace_inplace( cmd );
+
+      printf("cmd '%s'  %u\n", cmd, strlen(cmd) );
+
 
 
       uint32_t u0 , u1;
       // int32_t i0;
-
       char s0[100 + 1 ];
 
       ////////////////////
