@@ -776,6 +776,8 @@ static void app_loop(app_t *app)
         // TODO - have a scalar - version of this
         // would eases calculation. when only need a scalar.
 
+        // WE NEED TO GET THIS CODED in a test. and the result recorded.
+
         unsigned cols = 4;
 
         MAT *xs = run_to_matrix(
@@ -796,11 +798,22 @@ static void app_loop(app_t *app)
         assert( m_is_scalar(predicted) );
 
         double ret = m_to_scalar(predicted );
-        printf(" %lf", ret );
 
         M_FREE( xs );
         M_FREE( m_mux_sig );
         M_FREE( predicted );
+
+        // printf(" %lf", ret );
+        char buf[100];
+        printf("%sV", format_float_with_commas(buf, 100, 7, ret ));
+
+        printf("   ");
+        push_buffer1( app->sample_buffer, &app->sample_buffer_i, ret );
+
+
+        m_stats_print( app->sample_buffer );
+
+
       }
 
       printf("\n");

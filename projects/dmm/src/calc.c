@@ -8,6 +8,57 @@
 
 
 
+
+
+// static void process( app_t *app, double predict )
+void m_stats_print( MAT *buffer )
+{
+  assert(buffer);
+  assert( m_cols(buffer) == 1);
+
+/*
+    this would be more flexible. if it just set doubles. then handle the actual formating elsewhere.printing 
+
+*/
+
+  // deep nested functions are kind of normal in stats.
+
+  /* The only difference between this and an auto zero mode.
+    is how we calculate the value. using two obs or four.
+    OK. so perhaps do the calcuation at higher level
+  */
+
+
+  // take the mean of the buffer.
+  MAT *mean = m_mean( buffer, MNULL );
+  assert( m_is_scalar( mean ));
+  double mean_ = m_to_scalar( mean);
+  M_FREE(mean);
+
+
+
+  MAT *stddev = m_stddev( buffer, 0, MNULL );
+  assert( m_is_scalar( stddev ));
+  double stddev_ = m_to_scalar( stddev);
+  M_FREE(stddev);
+
+  // report
+  // char buf[100];
+  // printf("value %sV ",          format_float_with_commas(buf, 100, 7, value));
+
+  printf("mean(%u) %.2fuV, ", m_rows(buffer),   mean_ * 1000000 );   // multiply by 10^6. for uV
+
+  printf("stddev(%u) %.2fuV, ", m_rows(buffer), stddev_  * 1000000 );   // multiply by 10^6. for uV
+
+  // printf("\n");
+
+
+}
+
+
+
+
+
 bool push_buffer1( MAT *buffer, unsigned *i, double value)
 {
   // better name  m_push_scalar()

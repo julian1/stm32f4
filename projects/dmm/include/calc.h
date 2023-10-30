@@ -32,3 +32,4 @@ MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture);
 bool push_buffer1( MAT *buffer, unsigned *i, double value);
 
 
+void m_stats_print( MAT *buffer );
