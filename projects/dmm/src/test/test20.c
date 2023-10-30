@@ -18,6 +18,8 @@ configuration
 - adc resistors. 40k,40k,50k  ref,ref,sig.
 - get around 1.2uV. stddev. when have monitor, and scope lead, and dmm connection attached.
 
+- calbrated for 7V. of lt1021.
+
 
 sampling ref-lo via the azmux at 10nplc
 
@@ -66,11 +68,11 @@ app counts 2831737 1168481 971 4000000  sample 6.999,997,3V   mean(10) 6999998.3
 app counts 2831737 1168481 963 4000000  sample 6.999,998,1V   mean(10) 6999998.38uV, stddev(10) 0.72uV,
 app counts 2831737 1168481 966 4000000  sample 6.999,997,8V   mean(10) 6999998.21uV, stddev(10) 0.61uV,
 
-- noise is about the same. as sampling ref-lo. where would expect the noisy reference to be a bit higher.
+- noise is about the same. as sampling ref-lo.
+    would expect the lt1021 reference noise - to show a bit more.
 
 
 sampling ref-lo at 1nplc.
-
 > reset; azero off; nplc 1; himux gnd ; azmux ref-lo; gain 1;   trig;
 
 app counts 202303 197763 917 400000  sample 0.000,014,8V   mean(10) 16.44uV, stddev(10) 2.10uV,
@@ -81,11 +83,20 @@ app counts 202303 197763 913 400000  sample 0.000,018,7V   mean(10) 15.95uV, std
 app counts 202303 197763 915 400000  sample 0.000,016,7V   mean(10) 16.24uV, stddev(10) 2.06uV,
 
 
-  notice issue  - with 20mV offset.
-    - due to poor calibration model. param=4.
-    - or DA on non tdk capacitor.  or other poor adc configuration?.
+  notice issue  - with 20mV offset. at 1nplc versus 10nplc
 
-    note - no az switching and therefore no switch charge-injection.
+    issues,
+      - no/not enough low nplc data - in calibration model
+      - da on cap non TDK cap/  .  could try 1206 cap. ok.
+      - or 4 variable regression model.
+    other
+      - board/near adc not clean?
+      - or slope-amp lt1357, or compound divider,    or not opa140.
+      - or calibration routing - no variation in var/fix.
+      - integrator reset circuit / charge?.
+
+
+    note - no az switching and therefore no az switch charge-injection.
 
 
 
