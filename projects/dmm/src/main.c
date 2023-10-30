@@ -771,36 +771,33 @@ static void app_loop(app_t *app)
 
       printf("app loop data  %lu %lu %lu %lu  ", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
 
-      unsigned cols = 4; 
+      if(app->b) { 
+        unsigned cols = 4; 
 
-      MAT *xs = run_to_matrix(
-          clk_count_mux_neg,
-          clk_count_mux_pos,
-          clk_count_mux_rd,
-          cols,
-          MNULL
-        );
+        MAT *xs = run_to_matrix(
+            clk_count_mux_neg,
+            clk_count_mux_pos,
+            clk_count_mux_rd,
+            cols,
+            MNULL
+          );
+        // we could make all these vars persist. 
+        MAT	*m_mux_sig = m_from_scalar( clk_count_mux_sig, MNULL );
+        assert(m_mux_sig);
+        assert( m_is_scalar(m_mux_sig) );
 
-      // we could make all these vars persist. 
+        //  this may want to 
+        MAT *predicted =  m_calc_predicted( app->b, xs, m_mux_sig);
+        assert(predicted);
+        assert( m_is_scalar(predicted) );
 
-      MAT	*m_mux_sig = m_from_scalar( clk_count_mux_sig, MNULL );
-      assert(m_mux_sig);
+        double ret = m_to_scalar(predicted );
+        printf(" %lf", ret );
+        printf("\n");
 
-      //  this may want to 
-      MAT *predicted =  m_calc_predicted( app->b, xs, m_mux_sig);
-      assert(predicted);
-      assert( m_is_scalar(predicted) );
-
-
-      double ret = m_to_scalar(predicted );
-      printf(" %lf", ret );
-      printf("\n");
-
-      // get the double.
-
-
-      M_FREE( m_mux_sig );
-      M_FREE( predicted );
+        M_FREE( m_mux_sig );
+        M_FREE( predicted );
+      }
 
     }
 
