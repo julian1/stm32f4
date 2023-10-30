@@ -799,7 +799,7 @@ static void app_loop(app_t *app)
       uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
       uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_SIG);
 
-      printf("app loop data  %lu %lu %lu %lu  ", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+      printf("app counts %lu %lu %lu %lu  ", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
 
       if(app->b) {
 

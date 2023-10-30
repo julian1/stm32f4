@@ -262,9 +262,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     return 1;
   }
 
-
-
-
   else if( sscanf(cmd, "aper %lf", &f0 ) == 1) {
 
     // period. aperture in seconds. period to aperature n
@@ -291,8 +288,9 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
     Mode *mode = app->mode_current;
 
+    // turn external inputs off.
     mode->first .K406_CTL  = LR_TOP;     // accumulation relay off
-    mode->first. K405_CTL  = LR_BOT;     // dcv input relay k405 switch off - works.
+    mode->first. K405_CTL  = LR_BOT;     // dcv input relay off
     mode->first. K402_CTL  = LR_BOT;     // dcv-div/directz relay off
     mode->first. K401_CTL  = LR_TOP;     // dcv-source relay off.
     mode->first. K403_CTL  = LR_BOT;     // ohms relay off.
@@ -316,9 +314,9 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       mode->reg_direct.himux  = HIMUX_HIMUX2;
       mode->reg_direct.himux2 = HIMUX2_GND;
     }
- 
     else if (strcmp(s0, "dcv") == 0) {
 
+      // turn dcv input relay  on
       mode->first. K405_CTL  = LR_TOP,
 
       mode->reg_direct.himux  = HIMUX_DCV;
@@ -389,22 +387,16 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       return 1;
     }
 
-
     // do the state transition
     app_transition_state( app->spi, app->mode_current,  &app->system_millis );
-
     return 1;
   }
 
 
 
 
-
-
-
   else if(strcmp(cmd, "reset") == 0) {
 
-    // this is horrid state.
     // turn off any concurrent test.
     app->test_in_progress = 0;
 
@@ -429,6 +421,12 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   */
 
   else if( sscanf(cmd, "dcv %100s", s0) == 1) {
+
+    /*
+      It might be easier - to use the command buffer for these.
+        eg. setting all the parameters with a cmd string.
+
+    */
 
     // this is horrid state.
     // turn off any concurrent test.
