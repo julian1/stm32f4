@@ -244,6 +244,18 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     return 1;
   }
 
+  else if( strcmp(cmd, "nplc?") == 0 || strcmp(cmd, "aper?") == 0) {
+
+    mux_ice40(app->spi);
+    uint32_t aperture = spi_ice40_reg_read32(app->spi, REG_ADC_P_APERTURE );
+    printf("aperture %lu\n",   aperture );
+    printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture, app->lfreq ));
+    printf("period   %.2lfs\n", aper_n_to_period( aperture ));
+
+    return 1;
+  }
+
+
 
 
   else if( sscanf(cmd, "aper %lf", &f0 ) == 1) {
