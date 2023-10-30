@@ -771,8 +771,8 @@ static void app_loop(app_t *app)
 
       printf("app loop data  %lu %lu %lu %lu  ", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
 
-      if(app->b) { 
-        unsigned cols = 4; 
+      if(app->b) {
+        unsigned cols = 4;
 
         MAT *xs = run_to_matrix(
             clk_count_mux_neg,
@@ -781,25 +781,27 @@ static void app_loop(app_t *app)
             cols,
             MNULL
           );
-        // we could make all these vars persist. 
+        // we could make all these vars persist.
         MAT	*m_mux_sig = m_from_scalar( clk_count_mux_sig, MNULL );
         assert(m_mux_sig);
         assert( m_is_scalar(m_mux_sig) );
 
-        //  this may want to 
+        //  this may want to
         MAT *predicted =  m_calc_predicted( app->b, xs, m_mux_sig);
         assert(predicted);
         assert( m_is_scalar(predicted) );
 
         double ret = m_to_scalar(predicted );
         printf(" %lf", ret );
-        printf("\n");
 
+        M_FREE( xs );
         M_FREE( m_mux_sig );
         M_FREE( predicted );
       }
 
+      printf("\n");
     }
+
 
     // did we miss data, for any reason
     if( app->adc_drdy_missed == true) {
@@ -885,7 +887,7 @@ static void app_loop(app_t *app)
 */
 
 static char buf_console_in[1000];
-static char buf_console_out[1000];    // changing this and it freezes. indicates. bug 
+static char buf_console_out[1000];    // changing this and it freezes. indicates. bug
 
 // static char buf_cmds[1000];
 
