@@ -216,19 +216,8 @@ static void calc_cal( app_t *app,  MAT *y, MAT *xs, MAT *aperture  )
 
    usart1_flush();
 
+  // note the predicted values are in the regression structure.
 
-#if 0
-  // this code seems to crash.
-  // EXTR. predicted is already calculated in the Regression. 
-  // predicted must be adjusted by aperture
-  MAT *predicted =  m_calc_predicted( regression.b, xs, aperture );
-
-  printf("\npredicted\n");
-  m_foutput(stdout, predicted);
-    usart1_flush();
-
-  M_FREE(predicted);
-#endif
 
   // app->b       = m_copy( regression.b, MNULL );
   app->b       = m_copy( regression.b, app->b );
