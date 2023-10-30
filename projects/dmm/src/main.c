@@ -211,7 +211,7 @@ void app_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *sy
 
   printf("-----------\n");
 
-  printf("app_transition_state write first state\n");
+  // printf("app_transition_state write first state\n");
   // state_format (  (void *) &mode->first, sizeof(X) );
 
   // and write device
@@ -222,7 +222,7 @@ void app_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *sy
 
 
   // and format
-  printf("app_transition_state write second state\n");
+  // printf("app_transition_state write second state\n");
   // state_format ( (void *) &mode->second, sizeof(X) );
 
   // and write device
@@ -835,7 +835,7 @@ static void app_loop(app_t *app)
 
         // printf(" %lf", ret );
         char buf[100];
-        printf("%sV", format_float_with_commas(buf, 100, 7, ret ));
+        printf("sample %sV", format_float_with_commas(buf, 100, 7, ret ));
 
         printf("   ");
         push_buffer1( app->sample_buffer, &app->sample_buffer_i, ret );

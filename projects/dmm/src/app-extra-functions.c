@@ -311,6 +311,12 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       mode->reg_direct.himux  = HIMUX_HIMUX2;
       mode->reg_direct.himux2 = HIMUX2_DCV_SOURCE;
     }
+
+    else if (strcmp(s0, "gnd") == 0) {        // disginguished from a lo.
+      mode->reg_direct.himux  = HIMUX_HIMUX2;
+      mode->reg_direct.himux2 = HIMUX2_GND;
+    }
+ 
     else if (strcmp(s0, "dcv") == 0) {
 
       mode->first. K405_CTL  = LR_TOP,
