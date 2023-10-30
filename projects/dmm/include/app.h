@@ -8,7 +8,7 @@
 
 // needed for forward declaration of MAT. it's a typedef anonymous struct. hard to declare.
 // https://stackoverflow.com/questions/10249548/forward-declaring-a-typedef-of-an-unnamed-struct
-#include "matrix.h" 
+#include "matrix.h"
 
 typedef struct Mode Mode;
 
@@ -94,6 +94,13 @@ typedef struct app_t
   */
 
   // void (*yielded_function)( app_t * ) ;
+
+  /*
+    - need to remove this. causes too much confusion with our other loop stuff.
+    - just need a lightweight buffer - to capture reset/stop.
+    - or do it three times and exit.
+    - rewrite test03, to click the relays. to run in a non-yielding loop.
+  */
   unsigned test_in_progress; // enum. for test type.
 
 
@@ -167,6 +174,11 @@ typedef struct app_t
   unsigned sample_buffer_i;
   MAT     *sample_buffer;
 
+  /*  there is no reason for complicated stamping of sample data.   eg. hi, lo, hi, lo.
+      instead just convert early.
+  */
+  double   lo[2];   // for az mode. the last two lo signals.
+
 
 
 } app_t;
@@ -186,7 +198,7 @@ double aper_n_to_period( uint32_t aper_n);
 uint32_t period_to_aper_n(  double period );
 bool nplc_valid( double nplc );
 
-// helper, util. better name.  pass the filestream explicitly? 
+// helper, util. better name.  pass the filestream explicitly?
 void aper_n_print( uint32_t aperture,  uint32_t lfreq);
 
 
@@ -209,9 +221,9 @@ bool app_extra_functions( app_t *app , const char *cmd);
 ////////////
 
 
-/* 
+/*
   doing cal is  not really a loop. it is a long running function.
-    - and we get timer interupts, 
+    - and we get timer interupts,
     - and data ready interupts.
 
   only if we pump the queue.
@@ -220,7 +232,7 @@ bool app_extra_functions( app_t *app , const char *cmd);
       it is only  loop in the sense that it is slow running. and blocks waiting  to get data.
 
 */
-        
+
 void app_loop3( app_t *app/*, Loop3 *loop3 */);
 
 

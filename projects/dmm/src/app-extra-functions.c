@@ -282,8 +282,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
     // generally we want input relays to be off - except if using dcv.  should we set that here???
 
-
-
     Mode *mode = app->mode_current;
 
     mode->first .K406_CTL  = LR_TOP;     // accumulation relay off
@@ -292,8 +290,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     mode->first. K401_CTL  = LR_TOP;     // dcv-source relay off.
     mode->first. K403_CTL  = LR_BOT;     // ohms relay off.
     mode->first .U408_SW_CTL = 0;        // b2b fets/ input protection off/open
-
-
 
     if(strcmp(s0, "ref-lo") == 0) {
       // don't use in normal case. take ref-lo from the lo-mux.
@@ -326,11 +322,12 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   }
 
 
-
-
   else if( sscanf(cmd, "azmux %100s", s0) == 1) {
 
     Mode *mode = app->mode_current;
+
+    // mux signal through pc switch
+    mode->reg_direct.sig_pc_sw_ctl  = SW_PC_SIGNAL;
 
     if(strcmp(s0, "pcout") == 0) {
       mode->reg_direct.azmux = AZMUX_PCOUT;
@@ -351,6 +348,38 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
     // do the state transition
     app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+    return 1;
+  }
+
+
+  // amp gain.
+  else if( sscanf(cmd, "gain %lu", &u1 ) == 1
+    || sscanf(cmd, "amp %lu", &u1 ) == 1
+    ) {
+
+    Mode *mode = app->mode_current;
+
+    if(  u1 == 1 ) {
+      mode->first. U506 =  W1;
+      mode->second.U506 =  W1;
+    }
+    else if(  u1 == 10 ) {
+      mode->first. U506 =  W2;
+      mode->second.U506 =  W2;
+    }
+    else if(  u1 == 100 ) {
+      mode->first. U506 =  W3;
+      mode->second.U506 =  W3;
+    }
+    else {
+      printf("bad gain arg\n" );
+      return 1;
+    }
+
+
+    // do the state transition
+    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+
     return 1;
   }
 

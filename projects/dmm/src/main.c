@@ -266,6 +266,9 @@ static void app_update_soft_100ms(app_t *app)
 
   // potentially useful soft-timer for some tests.
 
+  // todo - remove.  not worth the complication of test_in_pgoress.
+  // rewrite - in favor of non-yielding loop.
+
   if(app->test_in_progress == 2 ) {
 
       mux_ice40(app->spi);
@@ -397,7 +400,9 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
-  // the flipping of the input relay. test. we want to keep.
+  // TODO - remove test_in_progress.
+  // having to cancel stuff is too complicated.
+  // rewrite as separate loop function.
 
   if(app->test_in_progress == 3 ) {
 
