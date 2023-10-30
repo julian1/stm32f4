@@ -227,6 +227,16 @@ void app_loop3( app_t *app )
   // or _output..
   r_regression_show( &regression, stdout);
    usart1_flush();
+
+
+  // uint32_t nplc_to_aper_n( double nplc, uint32_t lfreq )
+
+  double sigma_div_aperture = regression.sigma / nplc_to_aper_n( 10, app->lfreq ) * 1e6; // 1000000;  // in uV.
+  // printf("sigma_div_aperture %.2fuV  nplc(10)\n", sigma_div_aperture);
+  printf("stderr(V) %.2fuV  (nplc10)\n", sigma_div_aperture);
+
+
+
   // note the predicted values are in the regression structure.
   // app->b       = m_copy( regression.b, MNULL );
   app->b       = m_copy( regression.b, app->b );
