@@ -244,6 +244,13 @@ void app_loop3( app_t *app )
   m_free(y);
   m_free(aperture);
 
+  // Should probably do a reset to initial again.
+  // but we need more control over the input muxing.
+
+  // reset the nplc
+  mode->reg_adc_p_aperture = nplc_to_aper_n( 10, app->lfreq );    // dynamic. problem. maybe 50,60Hz. or other.
+  spi_ice40_reg_write_n(app->spi, REG_ADC_P_APERTURE, &mode->reg_adc_p_aperture, sizeof( mode->reg_adc_p_aperture) );
+
   // leave running as is
   // turn off. -
   spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 0 );      // arm to halt.
