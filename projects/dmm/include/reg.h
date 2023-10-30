@@ -86,6 +86,21 @@
 #define S7          ((1<<3)|(7-1))
 
 
+#define HIMUX_HIMUX2          S2
+#define HIMUX_DCV             S7
+
+#define HIMUX2_DCV_SOURCE     S1
+#define HIMUX2_GND            S4
+#define HIMUX2_REF_HI         S5
+#define HIMUX2_REF_LO         S6
+
+#define AZMUX_PCOUT           S1
+#define AZMUX_BOOT            S2
+#define AZMUX_LO              S6
+#define AZMUX_REF_LO          S7
+
+
+
 // could also be a macro #define S(1) == ...
 
 

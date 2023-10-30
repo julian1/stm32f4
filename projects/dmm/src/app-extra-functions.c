@@ -260,7 +260,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
   else if( sscanf(cmd, "aper %lf", &f0 ) == 1) {
 
-    // aperture in seconds. period to aperature n
+    // period. aperture in seconds. period to aperature n
     printf("set aperture\n");
     uint32_t aperture = period_to_aper_n( f0 );
     // assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
@@ -273,6 +273,89 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     app_transition_state( app->spi, app->mode_current,  &app->system_millis );
     return 1;
   }
+
+
+
+
+
+  else if( sscanf(cmd, "himux %100s", s0) == 1) {
+
+    // generally we want input relays to be off - except if using dcv.  should we set that here???
+
+
+
+    Mode *mode = app->mode_current;
+
+    mode->first .K406_CTL  = LR_TOP;     // accumulation relay off
+    mode->first. K405_CTL  = LR_BOT;     // dcv input relay k405 switch off - works.
+    mode->first. K402_CTL  = LR_BOT;     // dcv-div/directz relay off
+    mode->first. K401_CTL  = LR_TOP;     // dcv-source relay off.
+    mode->first. K403_CTL  = LR_BOT;     // ohms relay off.
+    mode->first .U408_SW_CTL = 0;        // b2b fets/ input protection off/open
+
+
+
+    if(strcmp(s0, "ref-lo") == 0) {
+      // don't use in normal case. take ref-lo from the lo-mux.
+      mode->reg_direct.himux  = HIMUX_HIMUX2;
+      mode->reg_direct.himux2 = HIMUX2_REF_LO ;
+    }
+    else if (strcmp(s0, "ref-hi") == 0) {
+      mode->reg_direct.himux  = HIMUX_HIMUX2;
+      mode->reg_direct.himux2 = HIMUX2_REF_HI;
+    }
+    else if (strcmp(s0, "dcv-source") == 0) {
+      mode->reg_direct.himux  = HIMUX_HIMUX2;
+      mode->reg_direct.himux2 = HIMUX2_DCV_SOURCE;
+    }
+    else if (strcmp(s0, "dcv") == 0) {
+
+      mode->first. K405_CTL  = LR_TOP,
+
+      mode->reg_direct.himux  = HIMUX_DCV;
+      mode->reg_direct.himux2 = HIMUX2_GND;
+    }
+    else {
+      printf("bad himux arg\n" );
+      return 1;
+    }
+
+    // do the state transition
+    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+    return 1;
+  }
+
+
+
+
+  else if( sscanf(cmd, "azmux %100s", s0) == 1) {
+
+    Mode *mode = app->mode_current;
+
+    if(strcmp(s0, "pcout") == 0) {
+      mode->reg_direct.azmux = AZMUX_PCOUT;
+    }
+    if(strcmp(s0, "boot") == 0) {
+      mode->reg_direct.azmux = AZMUX_BOOT;
+    }
+    else if (strcmp(s0, "lo") == 0) {
+      mode->reg_direct.azmux = AZMUX_LO;
+    }
+    else if (strcmp(s0, "ref-lo") == 0) {
+      mode->reg_direct.azmux = AZMUX_REF_LO;
+    }
+    else {
+      printf("bad himux arg\n" );
+      return 1;
+    }
+
+    // do the state transition
+    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+    return 1;
+  }
+
+
+
 
 
 
