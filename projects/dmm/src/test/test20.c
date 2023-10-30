@@ -61,8 +61,9 @@ app counts  2046924 1953320 463 4000000  sample 0.209,433,5V   mean(10) 209447.7
 app counts  2046924 1953320 419 4000000  sample 0.209,437,8V   mean(10) 209444.89uV, stddev(10) 8.80uV,
 app counts  2046924 1953320 490 4000000  sample 0.209,430,8V   mean(10) 209442.11uV, stddev(10) 8.36uV,
 
-0.2V. reading indicates jfet Vos. 2mV. for lsk389
-if noise rms is 10uV/ at 100x gain.  amplifier is 100nV RMS ?.
+0.2V. offset at 100x gain, indicates jfet Vos. 2mV. for lsk389
+
+With 100x gain,  and rms noise of ~= 10uV. indicates  amplifier is 100nV RMS ?.
 
 
 sampling ref-hi at 1x gain

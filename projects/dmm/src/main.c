@@ -472,7 +472,7 @@ static char * trim_whitespace_inplace( char *cmd )
   char *p = cmd;    // position at string start
   while(*p) ++p;    // find string end
   --p;              // is this is a bug if given - zero length empty string ??.
-                    // no because of (p>=cmd) check 
+                    // no because of (p>=cmd) check
 
   // trim trailing whitespace
   while(p >= cmd && isspace( (uint8_t) *p ))
@@ -485,6 +485,7 @@ static char * trim_whitespace_inplace( char *cmd )
 static void app_update_console_cmd(app_t *app)
 {
 
+  // rename - include REPL.  repl ( ) conso
 
   while( ! cBufisEmpty(&app->console_in)) {
 
@@ -522,6 +523,8 @@ static void app_update_console_cmd(app_t *app)
 
 
       if(strcmp(cmd, "reset mcu") == 0) {
+
+        printf("perform mcu reset\n" );
         // reset stm32f4
         // scb_reset_core()
         scb_reset_system();
@@ -531,7 +534,7 @@ static void app_update_console_cmd(app_t *app)
 
       else if(strcmp(cmd, "reset fpga") == 0) {
 
-        printf("do reset\n" );
+        printf("perform fpga reset\n" );
         mux_ice40(app->spi);
         spi_ice40_reg_write32(app->spi, REG_RESET, 1 );
 
@@ -552,6 +555,7 @@ static void app_update_console_cmd(app_t *app)
         uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
         printf("reg_mode return value %lu\n", ret);
       }
+
       else if( sscanf(cmd, "mode %100s", s0 ) == 1) {
 
         mux_ice40(app->spi);
@@ -564,7 +568,6 @@ static void app_update_console_cmd(app_t *app)
         else {
           printf("bad direct arg\n" );
         }
-        //
       }
 
       ////////////////////
