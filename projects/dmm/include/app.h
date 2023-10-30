@@ -163,6 +163,11 @@ typedef struct app_t
 
   MAT *b;
 
+  // change name  sample_buffer  acquis_buffer  meas_buffer.
+  unsigned sample_buffer_i;
+  MAT     *sample_buffer;
+
+
 
 } app_t;
 
@@ -174,6 +179,7 @@ typedef struct app_t
 void app_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *system_millis);
 
 
+// consider moving to calc.
 uint32_t nplc_to_aper_n( double nplc, uint32_t lfreq );
 double aper_n_to_nplc( uint32_t aper_n, uint32_t lfreq);
 double aper_n_to_period( uint32_t aper_n);

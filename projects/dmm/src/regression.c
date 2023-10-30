@@ -1,6 +1,9 @@
 /*
   need a better name for this. math2.h/c?
   matrix2.h/c
+
+  matrix2.h/ matrix2.c
+  stats.c stats.h
 */
 
 #include <math.h>     // sqrt

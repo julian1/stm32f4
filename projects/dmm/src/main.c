@@ -772,6 +772,10 @@ static void app_loop(app_t *app)
       printf("app loop data  %lu %lu %lu %lu  ", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
 
       if(app->b) {
+
+        // TODO - have a scalar - version of this
+        // would eases calculation. when only need a scalar.
+
         unsigned cols = 4;
 
         MAT *xs = run_to_matrix(
@@ -1068,9 +1072,18 @@ int main(void)
   app.mode_initial =  &mode_initial;
   app.mode_current =  &mode_current;
 
+
+  // some of this stuff could be deferred until app_loop()
+  // perhaps should group into another structure.
   app.comms_ok = false;
   app.fixedz  = false;
   app.lfreq = 50;
+
+
+  // set up the sample buffer
+  app.sample_buffer = m_resize( app.sample_buffer, 10, 1 );
+  app.sample_buffer_i = 0;
+
 
 
   printf("sizeof X    %u\n", sizeof(X));
