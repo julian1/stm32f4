@@ -131,12 +131,15 @@ app counts 890438 3109884 663 4000000  sample -9.797,286,3V   mean(10) -9796476.
 app counts 890438 3109832 332 4000000  sample -9.797,026,2V   mean(10) -9796707.72uV, stddev(10) 1500.46uV,
 
   -0.1 and   -1V dc source looks ok. - so it could be a headroom issue - with amplifier ?
+  - or headroom issue - with adc.
+
+
 -----------
 
 
 EXTR.
 noise gets very low. sampling dcv-source hi. - when it's only the rundown count.
-  so i think the noise we see is due - to calibration.
+  so it's the effect of different number of up/down phases - and then different coefficients.
 
 > reset; azero off; nplc 10; dcv-source 10 ;  himux dcv-source ; azmux pcout; gain 1;   trig
 app counts 3164945 835351 966 4000000  sample 9.882,696,1V   mean(10) 9882695.80uV, stddev(10) 0.19uV,
@@ -151,6 +154,20 @@ app counts 3164945 835351 968 4000000  sample 9.882,696,0V   mean(10) 9882695.81
 app counts 3164945 835351 969 4000000  sample 9.882,695,9V   mean(10) 9882695.83uV, stddev(10) 0.22uV,
 app counts 3164945 835351 970 4000000  sample 9.882,695,8V   mean(10) 9882695.79uV, stddev(10) 0.19uV,
 app counts 3164945 835351 968 4000000  sample 9.882,696,0V   mean(10) 9882695.78uV, stddev(10) 0.18uV,
+
+actually could be going out of bounds and being sofened??
+at 1nplc.
+
+> reset; azero off; nplc 1; dcv-source 10 ;  himux dcv-source ; azmux pcout; gain 1;   trig
+app counts 316534 83558 893 400000  sample 9.882,579,9V   mean(10) 9882578.38uV, stddev(10) 1.89uV,
+app counts 316534 83558 899 400000  sample 9.882,574,1V   mean(10) 9882577.61uV, stddev(10) 1.89uV,
+app counts 316534 83558 896 400000  sample 9.882,577,0V   mean(10) 9882577.61uV, stddev(10) 1.89uV,
+app counts 316534 83558 895 400000  sample 9.882,578,0V   mean(10) 9882577.71uV, stddev(10) 1.88uV,
+app counts 316534 83558 894 400000  sample 9.882,579,0V   mean(10) 9882577.80uV, stddev(10) 1.92uV,
+app counts 316534 83558 899 400000  sample 9.882,574,1V   mean(10) 9882577.61uV, stddev(10) 2.19uV,
+
+
+- EXTR. have the same issue - super choppy.  if pos and neg counts are changing.  but ok if only rd counts.
 
 
 
