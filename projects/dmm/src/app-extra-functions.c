@@ -91,7 +91,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       - perhaps rename 'acquire off/arm'.  acquire trigger/on
   */
 
-  else if(strcmp(cmd, "arm") == 0) {
+  else if(strcmp(cmd, "arm") == 0 || strcmp(cmd, "halt") == 0) {
       printf("set arm\n" );
       // run/pause, stop/go, reset,set etc.
       // edge triggered. so must perform in sequence
@@ -345,7 +345,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     if(strcmp(s0, "pcout") == 0) {
       mode->reg_direct.azmux = AZMUX_PCOUT;
     }
-    if(strcmp(s0, "boot") == 0) {
+    else if(strcmp(s0, "boot") == 0) {
       mode->reg_direct.azmux = AZMUX_BOOT;
     }
     else if (strcmp(s0, "lo") == 0) {
@@ -355,7 +355,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       mode->reg_direct.azmux = AZMUX_REF_LO;
     }
     else {
-      printf("bad himux arg\n" );
+      printf("bad azmux arg\n" );
       return 1;
     }
 
@@ -422,6 +422,8 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     else
         printf("bad dcv-source arg\n");
 
+      app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+
       return 1;
   }
 
@@ -459,6 +461,9 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   /*
       a range is a type of mode.
       dcv10,dcv1,dcv01 are all the same except amplifier gain. so can consolidate
+
+      -------
+      use a float here.
   */
 
   else if( sscanf(cmd, "dcv %100s", s0) == 1) {
