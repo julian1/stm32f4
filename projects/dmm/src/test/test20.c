@@ -120,6 +120,7 @@ app counts 2022723 1977521 800 4000000  sample 0.000,002,4V   mean(10) 1.88uV, s
 loop3. - with 4 model.
 stderr(V) 1.82uV  (nplc10)
 stderr(V) 2.01uV  (nplc10)
+stderr(V) 1.73uV  (nplc10)
 
 reset; azero off; nplc 10; dcv-source 1 ;  himux dcv-source ; azmux pcout; gain 1;   trig;
 
@@ -168,6 +169,24 @@ app counts 316534 83558 899 400000  sample 9.882,574,1V   mean(10) 9882577.61uV,
 
 
 - EXTR. have the same issue - super choppy.  if pos and neg counts are changing.  but ok if only rd counts.
+    - so calibration constants are at issue. could be board clenliness, DA. anything.
+
+
+# after changin fpga code to perhaps to support single adc. multiple controllers.
+stderr(V) 1.50uV  (nplc10)
+stderr(V) 1.58uV  (nplc10)
+
+nose seems lower.
+
+> reset; azero off; nplc 10; himux ref-lo ; azmux pcout; gain 1;   trig
+app counts 2022723 1977521 839 4000000  sample -0.000,001,8V   mean(10) -2.88uV, stddev(10) 0.60uV,
+app counts 2022723 1977521 846 4000000  sample -0.000,002,5V   mean(10) -2.78uV, stddev(10) 0.57uV,
+app counts 2022723 1977521 848 4000000  sample -0.000,002,7V   mean(10) -2.68uV, stddev(10) 0.46uV,
+app counts 2022723 1977521 850 4000000  sample -0.000,002,9V   mean(10) -2.66uV, stddev(10) 0.44uV,
+app counts 2022723 1977521 846 4000000  sample -0.000,002,5V   mean(10) -2.63uV, stddev(10) 0.44uV,
+app counts 2022723 1977521 854 4000000  sample -0.000,003,3V   mean(10) -2.67uV, stddev(10) 0.48uV,
+app counts 2022723 1977521 843 4000000  sample -0.000,002,2V   mean(10) -2.63uV, stddev(10) 0.50uV,
+app counts 2022723 1977521 847 4000000  sample -0.000,002,6V   mean(10) -2.69uV, stddev(10) 0.45uV,
 
 
 

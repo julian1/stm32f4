@@ -547,7 +547,11 @@ static void app_update_console_cmd(app_t *app)
 
 
       else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
-
+        /*
+          need to think about setting this in current_mode. 
+          in order that we can also issue nplc for the test modulation controller.
+          and not have stuff get overwritten
+        */
         // set the fpga mode.
         mux_ice40(app->spi);
         spi_ice40_reg_write32(app->spi, REG_MODE, u0 );

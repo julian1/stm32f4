@@ -248,8 +248,12 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
     // set new aperture
     app->mode_current->reg_adc_p_aperture = aperture ;
+
     // do the state transition
     app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+
+    // EXTR. i think this may be overwriting mode - which is only being set with direct fpga calls. and not via the current_mode.
+
     return 1;
   }
 
