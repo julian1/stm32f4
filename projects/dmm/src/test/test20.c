@@ -105,6 +105,20 @@ app counts 202303 197763 915 400000  sample 0.000,016,7V   mean(10) 16.24uV, std
 
     note - no az switching and therefore no az switch charge-injection.
 
+
+ref-lo at 10nplc seems lower noise now.
+reset; azero off; nplc 10; himux gnd ; azmux ref-lo; gain 1;   trig;
+app counts 2022723 1977521 795 4000000  sample 0.000,002,9V   mean(10) 1.58uV, stddev(10) 0.62uV,
+app counts 2022723 1977521 804 4000000  sample 0.000,002,1V   mean(10) 1.60uV, stddev(10) 0.64uV,
+app counts 2022723 1977521 804 4000000  sample 0.000,002,1V   mean(10) 1.60uV, stddev(10) 0.63uV,
+app counts 2022723 1977521 809 4000000  sample 0.000,001,6V   mean(10) 1.67uV, stddev(10) 0.56uV,
+app counts 2022723 1977521 804 4000000  sample 0.000,002,1V   mean(10) 1.77uV, stddev(10) 0.53uV,
+app counts 2022723 1977521 812 4000000  sample 0.000,001,3V   mean(10) 1.74uV, stddev(10) 0.55uV,
+app counts 2022723 1977521 800 4000000  sample 0.000,002,4V   mean(10) 1.88uV, stddev(10) 0.54uV,
+
+
+
+
 #endif
 
 

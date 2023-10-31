@@ -46,9 +46,9 @@ void m_stats_print( MAT *buffer )
   // char buf[100];
   // printf("value %sV ",          format_float_with_commas(buf, 100, 7, value));
 
-  printf("mean(%u) %.2fuV, ", m_rows(buffer),   mean_ * 1000000 );   // multiply by 10^6. for uV
+  printf("mean(%u) %.2fuV, ", m_rows(buffer),   mean_ * 1e6 );   // multiply by 10^6. for uV
 
-  printf("stddev(%u) %.2fuV, ", m_rows(buffer), stddev_  * 1000000 );   // multiply by 10^6. for uV
+  printf("stddev(%u) %.2fuV, ", m_rows(buffer), stddev_  * 1e6 );   // multiply by 10^6. for uV
 
   // printf("\n");
 
