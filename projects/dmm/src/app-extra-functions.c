@@ -342,17 +342,35 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   }
 
 
-  else if( sscanf(cmd, "azmux %100s", s0) == 1) {
 
+
+  else if( sscanf(cmd, "pc %100s", s0) == 1) {
+
+    // this allows us to set up electrometer mode.
     Mode *mode = app->mode_current;
 
+    if(strcmp(s0, "signal") == 0) {
+      mode->reg_direct.sig_pc_sw_ctl  = SW_PC_SIGNAL;
+    }
+    else if(strcmp(s0, "boot") == 0) {
+      mode->reg_direct.sig_pc_sw_ctl  = SW_PC_BOOT;
+    }
+    else {
+      printf("bad pc arg\n" );
+      return 1;
+    }
+    // do the state transition
+    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+    return 1;
+  }
 
-    // mux signal through pc switch
-    // don't think this is correct. for no az mode
-    mode->reg_direct.sig_pc_sw_ctl  = SW_PC_SIGNAL;
 
 
-    if(strcmp(s0, "pcout") == 0) {
+  else if( sscanf(cmd, "azmux %100s", s0) == 1) {
+
+    // EXTR. important. must specify pc-out - if used for non-az mode.
+
+    if(strcmp(s0, "pcout") == 0 || strcmp(s0, "pc-out") == 0) {
       app->azmux_lo_val = AZMUX_PCOUT;
     }
     else if(strcmp(s0, "boot") == 0) {
@@ -368,7 +386,6 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       printf("bad azmux arg\n" );
       return 1;
     }
-
 
     app->mode_current->reg_direct.azmux  = app->azmux_lo_val ;    // lo
 

@@ -240,25 +240,26 @@ but also offset. with nplc=10.  between non-az and az mode.
 calibration done at nplc=10.
 so the aperture is the same for cal, az, non-az samples.
 
-> reset; azero off; nplc 10; himux ref-hi ; azmux pcout ; gain 1;   trig
-app counts 2831737 1168481    830 4000000  no-az sample 7.000,000,2V   mean(10) 6999999.07uV, stddev(10) 0.84uV,
-app counts 2831737 1168481    820 4000000  no-az sample 7.000,001,2V   mean(10) 6999999.35uV, stddev(10) 1.04uV,
-app counts 2831737 1168481    852 4000000  no-az sample 6.999,998,1V   mean(10) 6999999.28uV, stddev(10) 1.10uV,
-app counts 2831737 1168481    830 4000000  no-az sample 7.000,000,2V   mean(10) 6999999.46uV, stddev(10) 1.08uV,
-app counts 2831737 1168481    843 4000000  no-az sample 6.999,998,9V   mean(10) 6999999.43uV, stddev(10) 1.10uV,
-app counts 2831737 1168481    834 4000000  no-az sample 6.999,999,8V   mean(10) 6999999.59uV, stddev(10) 1.02uV,
-app counts 2831737 1168481    857 4000000  no-az sample 6.999,997,6V   mean(10) 6999999.32uV, stddev(10) 1.16uV,
+> reset; azero off; nplc 10; himux ref-hi ; azmux pcout ; pc signal ;  gain 1;   trig
+app counts 2831737 1168481    835 4000000  no-az sample 6.999,998,7V   mean(10) 6.9999984V, stddev(10) 0.61uV,
+app counts 2831737 1168481    842 4000000  no-az sample 6.999,998,0V   mean(10) 6.9999984V, stddev(10) 0.60uV,
+app counts 2831737 1168481    830 4000000  no-az sample 6.999,999,1V   mean(10) 6.9999984V, stddev(10) 0.63uV,
+app counts 2831737 1168481    839 4000000  no-az sample 6.999,998,3V   mean(10) 6.9999984V, stddev(10) 0.63uV,
+app counts 2831737 1168481    845 4000000  no-az sample 6.999,997,7V   mean(10) 6.9999984V, stddev(10) 0.65uV,
+app counts 2831737 1168481    827 4000000  no-az sample 6.999,999,4V   mean(10) 6.9999984V, stddev(10) 0.59uV,
+app counts 2831737 1168481    849 4000000  no-az sample 6.999,997,3V   mean(10) 6.9999983V, stddev(10) 0.68uV,
+app counts 2831737 1168481    847 4000000  no-az sample 6.999,997,5V   mean(10) 6.9999983V, stddev(10) 0.69uV,
 
 
 > reset; azero on; nplc 10; himux ref-hi ; azmux ref-lo ; gain 1;   trig
-app counts 2022723 1977521    677 4000000  az sample 6.999,977,0V (0.000,007,9V, 6.999,985,1V)   mean(10) 6999976.62uV, stddev(10) 0.80uV,
-app counts 2831737 1168481    979 4000000  az sample 6.999,977,6V (0.000,007,9V, 6.999,985,6V)   mean(10) 6999976.80uV, stddev(10) 0.79uV,
-app counts 2022723 1977521    658 4000000  az sample 6.999,976,8V (0.000,009,7V, 6.999,985,6V)   mean(10) 6999976.89uV, stddev(10) 0.72uV,
-app counts 2831737 1168481    970 4000000  az sample 6.999,977,7V (0.000,009,7V, 6.999,986,5V)   mean(10) 6999977.00uV, stddev(10) 0.76uV,
-app counts 2022723 1977521    668 4000000  az sample 6.999,977,3V (0.000,008,8V, 6.999,986,5V)   mean(10) 6999977.01uV, stddev(10) 0.76uV,
-app counts 2831737 1168481    960 4000000  az sample 6.999,978,2V (0.000,008,8V, 6.999,987,5V)   mean(10) 6999977.05uV, stddev(10) 0.81uV,
-app counts 2022723 1977521    667 4000000  az sample 6.999,978,7V (0.000,008,9V, 6.999,987,5V)   mean(10) 6999977.14uV, stddev(10) 0.94uV,
-app counts 2831737 1168481    984 4000000  az sample 6.999,976,3V (0.000,008,9V, 6.999,985,2V)   mean(10) 6999977.17uV, stddev(10) 0.90uV,
+app counts 2022723 1977521    666 4000000  az sample 6.999,976,9V (0.000,009,8V, 6.999,986,0V)   mean(10) 6.9999767V, stddev(10) 0.88uV,
+app counts 2831737 1168481    976 4000000  az sample 6.999,976,5V (0.000,009,8V, 6.999,985,6V)   mean(10) 6.9999768V, stddev(10) 0.79uV,
+app counts 2022723 1977521    666 4000000  az sample 6.999,975,8V (0.000,009,8V, 6.999,985,6V)   mean(10) 6.9999768V, stddev(10) 0.79uV,
+app counts 2831737 1168481    977 4000000  az sample 6.999,975,7V (0.000,009,8V, 6.999,985,5V)   mean(10) 6.9999768V, stddev(10) 0.74uV,
+app counts 2022723 1977521    664 4000000  az sample 6.999,975,6V (0.000,010,0V, 6.999,985,5V)   mean(10) 6.9999767V, stddev(10) 0.82uV,
+app counts 2831737 1168481    976 4000000  az sample 6.999,975,7V (0.000,010,0V, 6.999,985,6V)   mean(10) 6.9999766V, stddev(10) 0.88uV,
+app counts 2022723 1977521    663 4000000  az sample 6.999,975,5V (0.000,010,1V, 6.999,985,6V)   mean(10) 6.9999764V, stddev(10) 0.84uV,
+app counts 2831737 1168481    975 4000000  az sample 6.999,975,6V (0.000,010,1V, 6.999,985,7V)   mean(10) 6.9999763V, stddev(10) 0.82uV,
 
 
 eg. the lo sample (ref-lo) is shifted up 9uV. and the hi sample  (ref-hi) is down 15uV.
@@ -267,6 +268,9 @@ need to give amp. longer to settle?
 
 are we sure we are not sampling the wrong lo. somehow?
 board clenliness. DA. would not expect to matter.
+  - actually integrator cap DA - could affect . because integrator voltage range will change - depending on what we are sampling..
+
+
 
 
 nice. at least doesn't matter if mux ref-lo through himux or azmux.
