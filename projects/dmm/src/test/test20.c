@@ -237,27 +237,39 @@ app counts 283274 116922 1271 400000  sample 6.999,864,2V   mean(10) 6999762.27u
 ----------------------------------------------------------------------
 but also offset. with nplc=10.  between non-az and az mode.
 
+calibration done at nplc=10.
+so the aperture is the same for cal, az, non-az samples.
 
 > reset; azero off; nplc 10; himux ref-hi ; azmux pcout ; gain 1;   trig
-app counts 2831737 1168481    819 4000000  no az sample 6.999,996,2V   mean(10) 6999996.37uV, stddev(10) 0.69uV,
-app counts 2831737 1168481    816 4000000  no az sample 6.999,996,5V   mean(10) 6999996.38uV, stddev(10) 0.69uV,
-app counts 2831737 1168481    806 4000000  no az sample 6.999,997,5V   mean(10) 6999996.43uV, stddev(10) 0.76uV,
-app counts 2831737 1168481    822 4000000  no az sample 6.999,995,9V   mean(10) 6999996.30uV, stddev(10) 0.72uV,
-app counts 2831737 1168481    823 4000000  no az sample 6.999,995,8V   mean(10) 6999996.30uV, stddev(10) 0.72uV,
-app counts 2831737 1168481    820 4000000  no az sample 6.999,996,1V   mean(10) 6999996.32uV, stddev(10) 0.71uV,
-app counts 2831737 1168481    826 4000000  no az sample 6.999,995,5V   mean(10) 6999996.12uV, stddev(10) 0.60uV,
+app counts 2831737 1168481    830 4000000  no-az sample 7.000,000,2V   mean(10) 6999999.07uV, stddev(10) 0.84uV,
+app counts 2831737 1168481    820 4000000  no-az sample 7.000,001,2V   mean(10) 6999999.35uV, stddev(10) 1.04uV,
+app counts 2831737 1168481    852 4000000  no-az sample 6.999,998,1V   mean(10) 6999999.28uV, stddev(10) 1.10uV,
+app counts 2831737 1168481    830 4000000  no-az sample 7.000,000,2V   mean(10) 6999999.46uV, stddev(10) 1.08uV,
+app counts 2831737 1168481    843 4000000  no-az sample 6.999,998,9V   mean(10) 6999999.43uV, stddev(10) 1.10uV,
+app counts 2831737 1168481    834 4000000  no-az sample 6.999,999,8V   mean(10) 6999999.59uV, stddev(10) 1.02uV,
+app counts 2831737 1168481    857 4000000  no-az sample 6.999,997,6V   mean(10) 6999999.32uV, stddev(10) 1.16uV,
 
 
 > reset; azero on; nplc 10; himux ref-hi ; azmux ref-lo ; gain 1;   trig
-app counts 2022723 1977521    647 4000000  az sample 6.999,974,1V   mean(10) 6999973.25uV, stddev(10) 0.98uV,
-app counts 2831737 1168481    942 4000000  az sample 6.999,974,3V   mean(10) 6999973.30uV, stddev(10) 1.02uV,
-app counts 2022723 1977521    642 4000000  az sample 6.999,974,0V   mean(10) 6999973.30uV, stddev(10) 1.02uV,
-app counts 2831737 1168481    947 4000000  az sample 6.999,973,5V   mean(10) 6999973.46uV, stddev(10) 0.91uV,
-app counts 2022723 1977521    646 4000000  az sample 6.999,973,5V   mean(10) 6999973.55uV, stddev(10) 0.85uV,
+app counts 2022723 1977521    677 4000000  az sample 6.999,977,0V (0.000,007,9V, 6.999,985,1V)   mean(10) 6999976.62uV, stddev(10) 0.80uV,
+app counts 2831737 1168481    979 4000000  az sample 6.999,977,6V (0.000,007,9V, 6.999,985,6V)   mean(10) 6999976.80uV, stddev(10) 0.79uV,
+app counts 2022723 1977521    658 4000000  az sample 6.999,976,8V (0.000,009,7V, 6.999,985,6V)   mean(10) 6999976.89uV, stddev(10) 0.72uV,
+app counts 2831737 1168481    970 4000000  az sample 6.999,977,7V (0.000,009,7V, 6.999,986,5V)   mean(10) 6999977.00uV, stddev(10) 0.76uV,
+app counts 2022723 1977521    668 4000000  az sample 6.999,977,3V (0.000,008,8V, 6.999,986,5V)   mean(10) 6999977.01uV, stddev(10) 0.76uV,
+app counts 2831737 1168481    960 4000000  az sample 6.999,978,2V (0.000,008,8V, 6.999,987,5V)   mean(10) 6999977.05uV, stddev(10) 0.81uV,
+app counts 2022723 1977521    667 4000000  az sample 6.999,978,7V (0.000,008,9V, 6.999,987,5V)   mean(10) 6999977.14uV, stddev(10) 0.94uV,
+app counts 2831737 1168481    984 4000000  az sample 6.999,976,3V (0.000,008,9V, 6.999,985,2V)   mean(10) 6999977.17uV, stddev(10) 0.90uV,
 
 
+eg. the lo sample (ref-lo) is shifted up 9uV. and the hi sample  (ref-hi) is down 15uV.
+
+need to give amp. longer to settle?
 
 are we sure we are not sampling the wrong lo. somehow?
+board clenliness. DA. would not expect to matter.
+
+
+nice. at least doesn't matter if mux ref-lo through himux or azmux.
 
 #endif
 

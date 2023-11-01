@@ -10,24 +10,18 @@
 
 
 
-// static void process( app_t *app, double predict )
-void m_stats_print( MAT *buffer )
+void m_stats_print( MAT *buffer /* double *mean, double *stddev */ )
 {
-  assert(buffer);
-  assert( m_cols(buffer) == 1);
-
 /*
-    this would be more flexible. if it just set doubles. then handle the actual formating elsewhere.printing 
+    should just take some - doubles as arguments. .printing
+
+    needs to return values, and used with better formatting instructions , that are not exposed here.
+    format_float_with_commas()
 
 */
 
-  // deep nested functions are kind of normal in stats.
-
-  /* The only difference between this and an auto zero mode.
-    is how we calculate the value. using two obs or four.
-    OK. so perhaps do the calcuation at higher level
-  */
-
+  assert(buffer);
+  assert( m_cols(buffer) == 1);
 
   // take the mean of the buffer.
   MAT *mean = m_mean( buffer, MNULL );
@@ -46,7 +40,8 @@ void m_stats_print( MAT *buffer )
   // char buf[100];
   // printf("value %sV ",          format_float_with_commas(buf, 100, 7, value));
 
-  printf("mean(%u) %.2fuV, ", m_rows(buffer),   mean_ * 1e6 );   // multiply by 10^6. for uV
+  // printf("mean(%u) %.2fuV, ", m_rows(buffer),   mean_ * 1e6 );   // multiply by 10^6. for uV
+  printf("mean(%u) %.7fV, ", m_rows(buffer),   mean_  );
 
   printf("stddev(%u) %.2fuV, ", m_rows(buffer), stddev_  * 1e6 );   // multiply by 10^6. for uV
 

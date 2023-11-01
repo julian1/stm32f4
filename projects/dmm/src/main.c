@@ -537,6 +537,20 @@ static void app_update_console_cmd(app_t *app)
       ///////////////
 
 
+      else if( strcmp(cmd, "mode?") == 0) {
+
+        // TODO add some decoding here.
+        mux_ice40(app->spi);
+        uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
+        printf("reg_mode return value %lu\n", ret);
+
+        Mode *mode = app->mode_current;
+        printf("app      return value %lu\n", mode->reg_mode );
+
+      }
+
+
+
       else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
         /*
           need to think about setting this in current_mode.
@@ -590,19 +604,8 @@ static void app_update_console_cmd(app_t *app)
         }
 
         app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+        return;
       }
-      else if( strcmp(cmd, "mode?") == 0) {
-
-        // TODO add some decoding here.
-        mux_ice40(app->spi);
-        uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
-        printf("reg_mode return value %lu\n", ret);
-
-        Mode *mode = app->mode_current;
-        printf("app      return value %lu\n", mode->reg_mode );
-
-      }
-
 
       ////////////////////
 
@@ -880,15 +883,19 @@ static void app_loop(app_t *app)
 
           // no az mode. just print the value
           char buf[100];
-          printf("no az sample %sV", format_float_with_commas(buf, 100, 7, ret ));
+          printf("no-az sample %sV", format_float_with_commas(buf, 100, 7, ret ));
 
           push_buffer1( app->sample_buffer, &app->sample_buffer_i, ret );
         }
         else if(mode->reg_mode == MODE_AZ)  {
 
+          // treat as hi val
+          // char buf[100];
+          // printf("sample %sV", format_float_with_commas(buf, 100, 7, ret ));
+
           // az  - need to determine if high or lo
           if( ret > 1.0) {
-            // treat as hi val
+            // treat as hival
             app->hi = ret;
           }
           else {
@@ -906,13 +913,18 @@ static void app_loop(app_t *app)
           char buf[100];
           printf("az sample %sV", format_float_with_commas(buf, 100, 7, v ));
 
+          // the lo looks wrong - it isn't changing.
+          // print last two sampled values
+          printf(" (%sV",    format_float_with_commas(buf, 100, 7, app->lo[0]  ));
+          printf(", %sV)",  format_float_with_commas(buf, 100, 7, app->hi ));
+
+
         }
         else {
             printf("unknown mode");
           }
 
         printf("   ");
-
         m_stats_print( app->sample_buffer );
       }
 
