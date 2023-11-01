@@ -798,6 +798,9 @@ static void app_update_console_cmd(app_t *app)
 
 
 
+#define STATUS_ADC_VALID    (1 << (9 -1) )
+// hi or lo
+#define STATUS_SA_AZ_STAMP    (1 << (10 -1) )
 
 
 
@@ -825,11 +828,16 @@ static void app_loop(app_t *app)
     // process data in priority
     if(app->adc_measure_valid == true) {
 
+      char buf[100];
+
+
+      // printf("-------------------\n");
+
       app->adc_measure_valid = false;
 
       mux_ice40(app->spi);
 
-      uint32_t status = spi_ice40_reg_read32( app->spi, REG_STATUS );
+      uint32_t status =            spi_ice40_reg_read32( app->spi, REG_STATUS );
 
       uint32_t clk_count_mux_neg = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_NEG);
       uint32_t clk_count_mux_pos = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_POS);
@@ -884,27 +892,24 @@ static void app_loop(app_t *app)
         if(mode->reg_mode == MODE_NO_AZ )  {
 
           // no az mode. just print the value
-          char buf[100];
-          printf("no-az sample %sV", format_float_with_commas(buf, 100, 7, ret ));
+          printf("no-az meas %sV", format_float_with_commas(buf, 100, 7, ret ));
 
           push_buffer1( app->sample_buffer, &app->sample_buffer_i, ret );
         }
         else if(mode->reg_mode == MODE_AZ)  {
 
-          printf("adc valid %lu\n" ,  status & (1 << (9 -1) ));
-          printf("az  stamp %lu\n" ,  status & (1 << (10 -1) ));
-
-          // treat as hi val
-          // char buf[100];
-          // printf("sample %sV", format_float_with_commas(buf, 100, 7, ret ));
+          // printf("az sample %sV\n", format_float_with_commas(buf, 100, 7, ret ));
+          // printf("\nadc valid %lu   az stamp %lu\n",  status & STATUS_ADC_VALID, status & STATUS_SA_AZ_STAMP   );
 
           // az  - need to determine if high or lo
-          if( ret > 1.0) {
+          if( status & STATUS_SA_AZ_STAMP  ) {
             // treat as hival
+            printf(" (hi) ");
             app->hi = ret;
           }
           else {
             // treat as lo val
+            printf(" (lo) ");
             app->lo[ 1] = app->lo[ 0];  // shift last value
             app->lo[ 0] = ret;
           }
@@ -915,13 +920,12 @@ static void app_loop(app_t *app)
           push_buffer1( app->sample_buffer, &app->sample_buffer_i, v );
 
           // printf(" %lf", ret );
-          char buf[100];
-          printf("az sample %sV", format_float_with_commas(buf, 100, 7, v ));
+          printf("az meas %sV", format_float_with_commas(buf, 100, 7, v ));
 
           // the lo looks wrong - it isn't changing.
           // print last two sampled values
-          printf(" (%sV",    format_float_with_commas(buf, 100, 7, app->lo[0]  ));
-          printf(", %sV)",  format_float_with_commas(buf, 100, 7, app->hi ));
+          printf(" (%sV",   format_float_with_commas(buf, 100, 7, app->lo[0]  ));
+          printf(", %sV)",  format_float_with_commas(buf, 100, 7, app->lo[1] ));
 
 
         }
