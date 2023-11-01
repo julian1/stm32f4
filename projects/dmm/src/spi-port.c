@@ -220,7 +220,8 @@ void spi1_port_interupt_gpio_setup(void (*pfunc)(void *),  void *ctx)
   // nvic_set_priority(NVIC_EXTI2_IRQ, 5 );
 
   exti_select_source(EXTI2, SPI_PORT);
-  exti_set_trigger(EXTI2 , EXTI_TRIGGER_FALLING);
+  // exti_set_trigger(EXTI2 , EXTI_TRIGGER_FALLING);
+  exti_set_trigger(EXTI2 , EXTI_TRIGGER_RISING );         // JA. nov 1. 2023. to make consistent with _valid signal hi.
   exti_enable_request(EXTI2);
 }
 
