@@ -77,25 +77,16 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 
 static void spi1_interupt(app_t *app)
 {
-  UNUSED(app);
-#if 0
-  /*
-    interupt context. avoid doing work here...
-  */
-  if(app->adc_drdy == true) {
-    // still flagged from last time, then code is too slow, and we missed an adc read
-    ++app->adc_drdy_missed;
-  }
-
-#endif
+  // now on a positive transition.
 
   // if flag is still active, then record we missed processing some data.
-  if(app->adc_drdy == true) {
-    app->adc_drdy_missed = true;
+  if(app->adc_measure_valid == true) {
+    app->adc_measure_valid_missed = true;
+    // ++app->adc_measure_valid_missed;     // count better? but harder to report.
   }
 
-  // set adc_drdy flag so that update() knows to read the adc...
-  app->adc_drdy = true;
+  // set adc_measure_valid flag so that update() knows to read the adc...
+  app->adc_measure_valid = true;
 }
 
 
@@ -548,7 +539,7 @@ static void app_update_console_cmd(app_t *app)
 
       else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
         /*
-          need to think about setting this in current_mode. 
+          need to think about setting this in current_mode.
           in order that we can also issue nplc for the test modulation controller.
           and not have stuff get overwritten
         */
@@ -795,9 +786,9 @@ static void app_loop(app_t *app)
 
 
     // process data in priority
-    if(app->adc_drdy == true) {
+    if(app->adc_measure_valid == true) {
 
-      app->adc_drdy = false;
+      app->adc_measure_valid = false;
 
       mux_ice40(app->spi);
 
@@ -858,9 +849,9 @@ static void app_loop(app_t *app)
 
 
     // did we miss data, for any reason
-    if( app->adc_drdy_missed == true) {
+    if( app->adc_measure_valid_missed == true) {
       printf("missed data\n");
-      app->adc_drdy_missed = false;
+      app->adc_measure_valid_missed = false;
     }
 
 

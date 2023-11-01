@@ -143,7 +143,7 @@ void app_loop3( app_t *app )
       printf("arm and block\n");
       while( !  (spi_ice40_reg_read32(app->spi, REG_STATUS) & (1<<8) )) ;  // wait for adc to be ready/valid.
       printf("adc measure valid/ done\n");
-      app->adc_drdy = false;
+      app->adc_measure_valid = false;
       printf("trigger/restart\n");
       spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 1 );    // trigger. signal acquisition
       }
@@ -152,8 +152,8 @@ void app_loop3( app_t *app )
       for(unsigned i = 0; i < obs_n; ++i ) {
 
         // block on interupt.
-        while(! app->adc_drdy );
-        app->adc_drdy = false;
+        while(! app->adc_measure_valid );
+        app->adc_measure_valid = false;
 
         if(i < 2)
           continue;

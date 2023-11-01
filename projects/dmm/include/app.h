@@ -162,9 +162,9 @@ typedef struct app_t
 
   // TODO reanme adc_valid . eg. same identifier / meaning as fpga code.
   // could also put flags/ for adc state in the status register. eg. the monitor pins.
-  volatile bool  adc_drdy;
+  volatile bool  adc_measure_valid;
 
-  bool adc_drdy_missed; // could be made a count
+  bool adc_measure_valid_missed; // could be made a count
 
 
 
