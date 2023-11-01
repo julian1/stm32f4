@@ -12,20 +12,19 @@
 
 
 
-// Still used to control led - but only in mode 0/default
+// control led - but only in 0/default mode
 #define REG_LED         7
 
 
 
 // need to rename named _4094_GLB_OE or similar to respect prefix convention
 // maybe rename this register... GENERAL REG_GENERAL.   else it's too confusing.
+// needs to be renamed REG_4094_OE . eg. keep specific.
 #define REG_4094          9
 #define GLB_4094_OE       (1<<0)    // first bit
 
 
 #define REG_MODE          12
-
-
 
 #define MODE_LO           0     // all bits held lo. but blink led. default.
 #define MODE_HI           1     // all bits held hi
@@ -44,15 +43,15 @@
 #define REG_STATUS        17
 #define REG_RESET         18
 
+// acquisition trigger
 #define REG_SA_ARM_TRIGGER   19
 
 
-
-// change name REG_APERTURE_N is or similar
+// adc parameters
 #define REG_ADC_P_APERTURE  20
 
 
-
+// adc read counts
 #define REG_ADC_CLK_COUNT_MUX_NEG   30
 #define REG_ADC_CLK_COUNT_MUX_POS   31
 #define REG_ADC_CLK_COUNT_MUX_RD    32
@@ -63,18 +62,14 @@
 
 
 /*
-  we could define behavior in a mux specific way.
-  but think it is unnecessary
 
-  eg.
-  #define AZMUX_LO      S1
-  #define AZMUX_4WLO    S2
-  #defien HIMUX_DCV_SOURCE   S3.
+  this is 4094. and also direct writing of regs.
 
-
-  to make it easy to reassign pins.
-  if have to flip ic, and then re-route traces.
+  define behavior in a mux specific way. is useful.
+  make it easy to reassign pins.
+  eg. if have to flip ic, and then re-route traces.
 */
+
 // 1of8 muxes.
 #define SOFF        0
 #define S1          ((1<<3)|(1-1))

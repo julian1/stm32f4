@@ -829,12 +829,14 @@ static void app_loop(app_t *app)
 
       mux_ice40(app->spi);
 
+      uint32_t status = spi_ice40_reg_read32( app->spi, REG_STATUS );
+
       uint32_t clk_count_mux_neg = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_NEG);
       uint32_t clk_count_mux_pos = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_POS);
       uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
       uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_SIG);
 
-      printf("app counts %lu %lu %6lu %lu  ", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+      printf("counts %lu %lu %6lu %lu  ", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
 
       if(app->b) {
 
@@ -888,6 +890,9 @@ static void app_loop(app_t *app)
           push_buffer1( app->sample_buffer, &app->sample_buffer_i, ret );
         }
         else if(mode->reg_mode == MODE_AZ)  {
+
+          printf("adc valid %lu\n" ,  status & (1 << (9 -1) ));
+          printf("az  stamp %lu\n" ,  status & (1 << (10 -1) ));
 
           // treat as hi val
           // char buf[100];
