@@ -842,7 +842,8 @@ static void app_loop(app_t *app)
       uint32_t clk_count_mux_neg = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_NEG);
       uint32_t clk_count_mux_pos = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_POS);
       uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
-      uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_SIG);
+      // uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_SIG);
+      uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_P_APERTURE );
 
       printf("counts %lu %lu %6lu %lu  ", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
 
@@ -914,20 +915,17 @@ static void app_loop(app_t *app)
             app->lo[ 0] = ret;
           }
 
-          // whether we got a lo or a hi. we calculate a new value.
+          printf(" (hi %sV)",  format_float_with_commas(buf, 100, 7, app->hi ));
+          printf(" (lo %sV",   format_float_with_commas(buf, 100, 7, app->lo[0]  ));
+          printf(", %sV)",  format_float_with_commas(buf, 100, 7, app->lo[1] ));
+
+          // regardless whether we got a lo or a hi. we calculate a new value.
           // not sure if this is correct.
           double v = app->hi - ((app->lo[ 0 ] + app->lo[1] ) / 2.0);
           push_buffer1( app->sample_buffer, &app->sample_buffer_i, v );
 
           // printf(" %lf", ret );
           printf("az meas %sV", format_float_with_commas(buf, 100, 7, v ));
-
-          // the lo looks wrong - it isn't changing.
-          // print last two sampled values
-          printf(" (%sV",   format_float_with_commas(buf, 100, 7, app->lo[0]  ));
-          printf(", %sV)",  format_float_with_commas(buf, 100, 7, app->lo[1] ));
-
-
         }
         else {
             printf("unknown mode");

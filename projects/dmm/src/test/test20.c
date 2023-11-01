@@ -299,9 +299,28 @@ we have 20uV. offset just sampling ref-lo in non-az.  for 1nplc versus 10nplc.
 
 Since pc switch/ azmux switch is not switching. it indicates an error somewhere else.
 perhaps aperture count issue.
-da. 
+da.
 cleanliness.
 
+
+Ok. got azero difference at least working. but not much improvement in noise.
+- same as azero when sampling ref-hi.
+- and not much different to non az
+
+> reset; azero on; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1;   trig
+counts 2022723 1977521    833 4000000   (lo) az meas -0.000,001,3V (hi -0.000,000,3V) (lo 0.000,001,1V, 0.000,001,0V)   mean(10) -0.0000018V, stddev(10) 0.45uV, 
+counts 2022723 1977521    858 4000000   (hi) az meas -0.000,002,4V (hi -0.000,001,4V) (lo 0.000,001,1V, 0.000,001,0V)   mean(10) -0.0000018V, stddev(10) 0.44uV, 
+counts 2022723 1977521    829 4000000   (lo) az meas -0.000,002,6V (hi -0.000,001,4V) (lo 0.000,001,5V, 0.000,001,1V)   mean(10) -0.0000019V, stddev(10) 0.51uV, 
+counts 2022723 1977521    858 4000000   (hi) az meas -0.000,002,6V (hi -0.000,001,4V) (lo 0.000,001,5V, 0.000,001,1V)   mean(10) -0.0000020V, stddev(10) 0.55uV, 
+counts 2022723 1977521    831 4000000   (lo) az meas -0.000,002,7V (hi -0.000,001,4V) (lo 0.000,001,3V, 0.000,001,5V)   mean(10) -0.0000021V, stddev(10) 0.57uV, 
+counts 2022723 1977521    849 4000000   (hi) az meas -0.000,001,8V (hi -0.000,000,5V) (lo 0.000,001,3V, 0.000,001,5V)   mean(10) -0.0000021V, stddev(10) 0.51uV, 
+counts 2022723 1977521    833 4000000   (lo) az meas -0.000,001,7V (hi -0.000,000,5V) (lo 0.000,001,1V, 0.000,001,3V)   mean(10) -0.0000022V, stddev(10) 0.50uV, 
+counts 2022723 1977521    858 4000000   (hi) az meas -0.000,002,5V (hi -0.000,001,4V) (lo 0.000,001,1V, 0.000,001,3V)   mean(10) -0.0000022V, stddev(10) 0.50uV, 
+counts 2022723 1977521    829 4000000   (lo) az meas -0.000,002,6V (hi -0.000,001,4V) (lo 0.000,001,5V, 0.000,001,1V)   mean(10) -0.0000022V, stddev(10) 0.52uV, 
+counts 2022723 1977521    859 4000000   (hi) az meas -0.000,002,7V (hi -0.000,001,5V) (lo 0.000,001,5V, 0.000,001,1V)   mean(10) -0.0000023V, stddev(10) 0.51uV,
+
+
+>  reset; azero off; nplc 1; himux ref-lo ; azmux pcout ; pc signal ;  gain 1;   trig
 
 #endif
 
