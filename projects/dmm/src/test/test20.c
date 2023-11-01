@@ -235,23 +235,26 @@ app counts 283274 116922 1271 400000  sample 6.999,864,2V   mean(10) 6999762.27u
 
 
 ----------------------------------------------------------------------
-but also offset. just when using non-az. mode.
-
-> nreset; azero off; nplc 10; himux ref-hi ; azmux pcout ; gain 1;   trig
-app counts 2831737 1168481    827 4000000  no az sample 6.999,995,4V   mean(10) 6999996.66uV, stddev(10) 0.90uV,
-app counts 2831737 1168481    823 4000000  no az sample 6.999,995,8V   mean(10) 6999996.65uV, stddev(10) 0.91uV,
-app counts 2831737 1168481    825 4000000  no az sample 6.999,995,6V   mean(10) 6999996.62uV, stddev(10) 0.94uV,
-app counts 2831737 1168481    810 4000000  no az sample 6.999,997,1V   mean(10) 6999996.64uV, stddev(10) 0.95uV,
-app counts 2831737 1168481    824 4000000  no az sample 6.999,995,7V   mean(10) 6999996.45uV, stddev(10) 0.91uV,
+but also offset. with nplc=10.  between non-az and az mode.
 
 
-compared with 20-25uV. offset in non az mode.
+> reset; azero off; nplc 10; himux ref-hi ; azmux pcout ; gain 1;   trig
+app counts 2831737 1168481    819 4000000  no az sample 6.999,996,2V   mean(10) 6999996.37uV, stddev(10) 0.69uV,
+app counts 2831737 1168481    816 4000000  no az sample 6.999,996,5V   mean(10) 6999996.38uV, stddev(10) 0.69uV,
+app counts 2831737 1168481    806 4000000  no az sample 6.999,997,5V   mean(10) 6999996.43uV, stddev(10) 0.76uV,
+app counts 2831737 1168481    822 4000000  no az sample 6.999,995,9V   mean(10) 6999996.30uV, stddev(10) 0.72uV,
+app counts 2831737 1168481    823 4000000  no az sample 6.999,995,8V   mean(10) 6999996.30uV, stddev(10) 0.72uV,
+app counts 2831737 1168481    820 4000000  no az sample 6.999,996,1V   mean(10) 6999996.32uV, stddev(10) 0.71uV,
+app counts 2831737 1168481    826 4000000  no az sample 6.999,995,5V   mean(10) 6999996.12uV, stddev(10) 0.60uV,
 
-app counts 2831737 1168481    861 4000000  az sample 6.999,981,3V   mean(10) 6999985.30uV, stddev(10) 6.14uV,
-app counts 2831737 1168481    823 4000000  az sample 6.999,985,1V   mean(10) 6999984.23uV, stddev(10) 4.93uV,
-app counts 2831737 1168481    861 4000000  az sample 6.999,981,3V   mean(10) 6999982.71uV, stddev(10) 2.48uV,
-app counts 2831737 1168481    813 4000000  az sample 6.999,986,1V   mean(10) 6999982.93uV, stddev(10) 2.69uV,
-app counts 2831737 1168481    879 4000000  az sample 6.999,979,5V   mean(10) 6999982.95uV, stddev(10) 2.66uV,
+
+> reset; azero on; nplc 10; himux ref-hi ; azmux ref-lo ; gain 1;   trig
+app counts 2022723 1977521    647 4000000  az sample 6.999,974,1V   mean(10) 6999973.25uV, stddev(10) 0.98uV,
+app counts 2831737 1168481    942 4000000  az sample 6.999,974,3V   mean(10) 6999973.30uV, stddev(10) 1.02uV,
+app counts 2022723 1977521    642 4000000  az sample 6.999,974,0V   mean(10) 6999973.30uV, stddev(10) 1.02uV,
+app counts 2831737 1168481    947 4000000  az sample 6.999,973,5V   mean(10) 6999973.46uV, stddev(10) 0.91uV,
+app counts 2022723 1977521    646 4000000  az sample 6.999,973,5V   mean(10) 6999973.55uV, stddev(10) 0.85uV,
+
 
 
 are we sure we are not sampling the wrong lo. somehow?
