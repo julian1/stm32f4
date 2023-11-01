@@ -91,7 +91,9 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       - perhaps rename 'acquire off/arm'.  acquire trigger/on
   */
 
-  else if(strcmp(cmd, "arm") == 0 || strcmp(cmd, "halt") == 0) {
+  else if(strcmp(cmd, "arm") == 0 || strcmp(cmd, "a") == 0
+      || strcmp(cmd, "halt") == 0 || strcmp(cmd, "h") == 0) {
+
       printf("set arm\n" );
       // run/pause, stop/go, reset,set etc.
       // edge triggered. so must perform in sequence
@@ -174,20 +176,21 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
   else if( sscanf(cmd, "azero %100s", s0) == 1) {
 
-    if(strcmp(s0, "on") == 0) {
-      printf("set azero on\n" );
-      app->mode_current->reg_mode = MODE_AZ;
+    Mode *mode = app->mode_current;
 
-      // this isn't correct - for non dcv ranges. - eg. need 4W lo, or dci lo.
-      // we are going to need to record state for this in app.
-      app->mode_current->reg_direct.azmux        = S6;    // lo
+    if(strcmp(s0, "on") == 0) {
+
+      printf("set azero on, using app.azmux_lo_val \n" );
+      mode->reg_mode = MODE_AZ;
+      mode->reg_direct.azmux  = app->azmux_lo_val;    // lo
     }
     else if (strcmp(s0, "off") == 0) {
 
-      printf("set azero off\n" );
-      app->mode_current->reg_mode = MODE_NO_AZ;
-      app->mode_current->reg_direct.sig_pc_sw_ctl  = SW_PC_SIGNAL;   // pc switch muxes signal.
-      app->mode_current->reg_direct.azmux          = S1;             // azmux muxes pc-out
+      printf("set azero off - muxing signal through az mux\n" );
+      // this is a constant configuration.
+      mode->reg_mode = MODE_NO_AZ;
+      mode->reg_direct.sig_pc_sw_ctl  = SW_PC_SIGNAL;   // pc switch muxes signal.
+      mode->reg_direct.azmux          = AZMUX_PCOUT;             // azmux muxes pc-out
     }
     else {
       printf("bad azero arg\n" );
@@ -201,29 +204,29 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
 
 
-  else if( sscanf(cmd, "elecm %100s", s0) == 1) {
+  else if( sscanf(cmd, "electro %100s", s0) == 1) {
+
+    Mode *mode = app->mode_current;
 
     if(strcmp(s0, "on") == 0) {
-      printf("set elecm on\n" );
 
-      // assign sw_pc_ctl  = `SW_PC_BOOT;      // precharge mux boot. eg. block input.
-      // assign azmux      = `S2;              // mux boot directly
-      app->mode_current->reg_mode = MODE_NO_AZ;
-      app->mode_current->reg_direct.sig_pc_sw_ctl  = SW_PC_BOOT;   // reduce leakage
-      app->mode_current->reg_direct.azmux          = S2;           // azmux muxes boot directly-out
+      printf("set electro on, muxing boot\n" );
+      mode->reg_mode = MODE_NO_AZ;
+      mode->reg_direct.sig_pc_sw_ctl  = SW_PC_BOOT;   // reduce leakage
+      mode->reg_direct.azmux          = AZMUX_BOOT;           // azmux muxes boot directly-out
     }
     else if (strcmp(s0, "off") == 0) {
       // what state do we revert to when coming out of electrometer mode?
       // this is tricky.  also acal.
       // normal az mode perhaps?
 
-      printf("set elecm off\n" );
-      app->mode_current->reg_mode = MODE_NO_AZ;
-      app->mode_current->reg_direct.sig_pc_sw_ctl  = SW_PC_SIGNAL;   // pc switch muxes signal.
-      app->mode_current->reg_direct.azmux          = S1;             // azmux muxes pc-out
+      printf("set electro off, switch to no-az mode\n" );
+      mode->reg_mode = MODE_NO_AZ;
+      mode->reg_direct.sig_pc_sw_ctl  = SW_PC_SIGNAL;   // pc switch muxes signal.
+      mode->reg_direct.azmux          = AZMUX_PCOUT;             // azmux muxes pc-out
     }
     else {
-      printf("bad elecm arg\n" );
+      printf("bad electro arg\n" );
       return 1;
     }
     // do the state transition
@@ -343,25 +346,31 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
     Mode *mode = app->mode_current;
 
+
     // mux signal through pc switch
+    // don't think this is correct. for no az mode
     mode->reg_direct.sig_pc_sw_ctl  = SW_PC_SIGNAL;
 
+
     if(strcmp(s0, "pcout") == 0) {
-      mode->reg_direct.azmux = AZMUX_PCOUT;
+      app->azmux_lo_val = AZMUX_PCOUT;
     }
     else if(strcmp(s0, "boot") == 0) {
-      mode->reg_direct.azmux = AZMUX_BOOT;
+      app->azmux_lo_val = AZMUX_BOOT;
     }
     else if (strcmp(s0, "lo") == 0) {
-      mode->reg_direct.azmux = AZMUX_LO;
+      app->azmux_lo_val =  AZMUX_LO;
     }
     else if (strcmp(s0, "ref-lo") == 0) {
-      mode->reg_direct.azmux = AZMUX_REF_LO;
+      app->azmux_lo_val =  AZMUX_REF_LO;
     }
     else {
       printf("bad azmux arg\n" );
       return 1;
     }
+
+
+    app->mode_current->reg_direct.azmux  = app->azmux_lo_val ;    // lo
 
     // do the state transition
     app_transition_state( app->spi, app->mode_current,  &app->system_millis );
@@ -424,11 +433,11 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     else if(fabs(f0) == 0)
       mode->second.U1006 =  U1006_DCV_LO;
     else
-        printf("bad dcv-source arg\n");
+      printf("bad dcv-source arg\n");
 
-      app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
 
-      return 1;
+    return 1;
   }
 
 
@@ -451,11 +460,31 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
 
 
+  else if( sscanf(cmd, "cols %lu", &u1 ) == 1) {
+
+    if(u1 == 3 || u1 == 4) {
+      printf("set cols %lu\n", u1 );
+      app->model_cols = u1;
+    }
+    else
+      printf("bad cols arg\n");
+    return 1;
+  }
+  else if( strcmp( cmd, "cols?") == 0) {
+
+    printf("cols %u\n", app->model_cols );
+    return 1;
+  }
+
+
+
   // temp show.
   else if(strcmp(cmd, "temp?") == 0) {
 
-      double val = adc_temp_read10();
-      printf("temp %.1fC\n", val);
+    double val = adc_temp_read10();
+    printf("temp %.1fC\n", val);
+
+    return 1;
   }
 
 

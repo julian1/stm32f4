@@ -542,17 +542,30 @@ static void app_update_console_cmd(app_t *app)
           need to think about setting this in current_mode.
           in order that we can also issue nplc for the test modulation controller.
           and not have stuff get overwritten
+          ----------------
+
+          we need to know the mode - az/ non az. to know how to process data.
+          so needs to be set.
         */
+
+
+        Mode *mode = app->mode_current;
+        mode->reg_mode = u0 ;
+
+/*
         // set the fpga mode.
         mux_ice40(app->spi);
         spi_ice40_reg_write32(app->spi, REG_MODE, u0 );
 
         uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
         printf("reg_mode return value %lu\n", ret);
+*/
+        app_transition_state( app->spi, app->mode_current,  &app->system_millis );
       }
 
       else if( sscanf(cmd, "mode %100s", s0 ) == 1) {
 
+/*
         mux_ice40(app->spi);
 
         if(strcmp(s0, "lo") == 0 || strcmp(s0, "default") == 0)
@@ -563,7 +576,33 @@ static void app_update_console_cmd(app_t *app)
         else {
           printf("bad direct arg\n" );
         }
+*/
+        Mode *mode = app->mode_current;
+
+
+        if(strcmp(s0, "lo") == 0 || strcmp(s0, "default") == 0)
+          mode->reg_mode = MODE_LO;
+        else if(strcmp(s0, "direct") == 0)
+          mode->reg_mode = MODE_DIRECT;
+          // ...
+        else {
+          printf("bad direct arg\n" );
+        }
+
+        app_transition_state( app->spi, app->mode_current,  &app->system_millis );
       }
+      else if( strcmp(cmd, "mode?") == 0) {
+
+        // TODO add some decoding here.
+        mux_ice40(app->spi);
+        uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
+        printf("reg_mode return value %lu\n", ret);
+
+        Mode *mode = app->mode_current;
+        printf("app      return value %lu\n", mode->reg_mode );
+
+      }
+
 
       ////////////////////
 
@@ -617,14 +656,6 @@ static void app_update_console_cmd(app_t *app)
 
     // could probably
 
-      else if( strcmp(cmd, "mode?") == 0) {
-
-        mux_ice40(app->spi);
-        uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
-
-        // TODO add some decoding here.
-        printf("reg_mode return value %lu\n", ret);
-      }
       else if( strcmp( cmd, "direct?") == 0) {
 
         mux_ice40(app->spi);
@@ -644,6 +675,9 @@ static void app_update_console_cmd(app_t *app)
       -- don't really need, just query direct reg for monitor and right shift.
     */
       else if( strcmp( cmd, "monitor?") == 0) {
+
+        // this is no longer corrent. should query the REG_STATUS. which includes the monitor
+        // regardless of the mode.
         mux_ice40(app->spi);
         uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT);
         ret >>= 14;
@@ -797,7 +831,7 @@ static void app_loop(app_t *app)
       uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
       uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_SIG);
 
-      printf("app counts %lu %lu %lu %lu  ", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+      printf("app counts %lu %lu %6lu %lu  ", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
 
       if(app->b) {
 
@@ -806,19 +840,27 @@ static void app_loop(app_t *app)
 
         // WE NEED TO GET THIS CODED in a test. and the result recorded.
 
-        unsigned cols = 4;
+        // unsigned cols = 4;
 
         MAT *xs = run_to_matrix(
             clk_count_mux_neg,
             clk_count_mux_pos,
             clk_count_mux_rd,
-            cols,
+            app->model_cols,
             MNULL
           );
         // we could make all these vars persist.
         MAT	*m_mux_sig = m_from_scalar( clk_count_mux_sig, MNULL );
         assert(m_mux_sig);
         assert( m_is_scalar(m_mux_sig) );
+
+
+/*
+        printf("app->b cols %u\n", m_cols( app->b ) );
+        printf("app->b rows %u\n", m_rows( app->b ) );
+        printf("xs     cols %u\n", m_cols( xs ) );
+        printf("xs     rows %u\n", m_rows( xs ) );
+*/
 
         //  this may want to
         MAT *predicted =  m_calc_predicted( app->b, xs, m_mux_sig);
@@ -831,17 +873,47 @@ static void app_loop(app_t *app)
         M_FREE( m_mux_sig );
         M_FREE( predicted );
 
-        // printf(" %lf", ret );
-        char buf[100];
-        printf("sample %sV", format_float_with_commas(buf, 100, 7, ret ));
+
+
+        Mode *mode = app->mode_current;
+        if(mode->reg_mode == MODE_NO_AZ )  {
+
+          // no az mode. just print the value
+          char buf[100];
+          printf("no az sample %sV", format_float_with_commas(buf, 100, 7, ret ));
+
+          push_buffer1( app->sample_buffer, &app->sample_buffer_i, ret );
+        }
+        else if(mode->reg_mode == MODE_AZ)  {
+
+          // az  - need to determine if high or lo
+          if( ret > 1.0) {
+            // treat as hi val
+            app->hi = ret;
+          }
+          else {
+            // treat as lo val
+            app->lo[ 1] = app->lo[ 0];  // shift last value
+            app->lo[ 0] = ret;
+          }
+
+          // whether we got a lo or a hi. we calculate a new value.
+          // not sure if this is correct.
+          double v = app->hi - ((app->lo[ 0 ] + app->lo[1] ) / 2.0);
+          push_buffer1( app->sample_buffer, &app->sample_buffer_i, v );
+
+          // printf(" %lf", ret );
+          char buf[100];
+          printf("az sample %sV", format_float_with_commas(buf, 100, 7, v ));
+
+        }
+        else {
+            printf("unknown mode");
+          }
 
         printf("   ");
-        push_buffer1( app->sample_buffer, &app->sample_buffer_i, ret );
-
 
         m_stats_print( app->sample_buffer );
-
-
       }
 
       printf("\n");
@@ -1119,7 +1191,9 @@ int main(void)
   app.comms_ok = false;
   app.fixedz  = false;
   app.lfreq = 50;
+  app.model_cols = 3;
 
+  app.azmux_lo_val  = AZMUX_LO;
 
   // set up the sample buffer
   app.sample_buffer = m_resize( app.sample_buffer, 10, 1 );

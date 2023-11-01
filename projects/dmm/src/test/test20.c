@@ -190,6 +190,72 @@ app counts 2022723 1977521 847 4000000  sample -0.000,002,6V   mean(10) -2.69uV,
 
 
 
+
+nov 1. 2023.
+
+
+first az. jjjjjjjjj
+
+reset; azero on; nplc 10; himux ref-hi ; azmux ref-lo ; gain 1;   trig
+
+app counts 2831737 1168481 936 4000000  sample 6.999,994,5V   mean(10) 3500006.80uV, stddev(10) 3689311.31uV,
+app counts 2022723 1977521 584 4000000  sample 0.000,018,9V   mean(10) 3500006.90uV, stddev(10) 3689311.21uV,
+app counts 2831737 1168481 928 4000000  sample 6.999,995,3V   mean(10) 3500007.02uV, stddev(10) 3689311.34uV,
+app counts 2022723 1977521 572 4000000  sample 0.000,020,1V   mean(10) 3500007.20uV, stddev(10) 3689311.15uV,
+app counts 2831737 1168481 935 4000000  sample 6.999,994,6V   mean(10) 3500007.07uV, stddev(10) 3689311.01uV,
+app counts 2022723 1977521 575 4000000  sample 0.000,019,8V   mean(10) 3500007.14uV, stddev(10) 3689310.94uV,
+app counts 2831737 1168481 923 4000000  sample 6.999,995,8V   mean(10) 3500007.26uV, stddev(10) 3689311.06uV,
+
+
+- problem at 1nplc,  with large offset.   100uV..
+    issue with charge? or az switch timing?
+
+    > reset; azero on; nplc 1; himux ref-hi ; azmux ref-lo ; gain 1;   trig
+
+      app counts 283274 116922 1271 400000  sample 6.999,897,6V   mean(10) 3500013.99uV, stddev(10) 3689200.03uV,
+      app counts 202303 197763 810 400000  sample 0.000,129,9V   mean(10) 3500013.99uV, stddev(10) 3689200.03uV,
+      app counts 283274 116922 1272 400000  sample 6.999,896,6V   mean(10) 3500014.19uV, stddev(10) 3689200.24uV,
+      app counts 202303 197763 803 400000  sample 0.000,136,9V   mean(10) 3500014.59uV, stddev(10) 3689199.82uV,
+      app counts 283274 116922 1271 400000  sample 6.999,897,6V   mean(10) 3500014.99uV, stddev(10) 3689200.24uV,
+
+
+--------
+
+AZERO - with actual subtraction. at 1nplc.
+But problem with 100uV. offset. indicating somthing isn't right.
+reset; azero on; nplc 1; himux ref-hi ; azmux ref-lo ; gain 1;   trig
+
+app counts 283274 116922 1272 400000  sample 6.999,863,2V   mean(10) 6999761.38uV, stddev(10) 1.55uV,
+app counts 202303 197763 805 400000   sample 0.000,100,4V   mean(10) 6999761.38uV, stddev(10) 1.55uV,
+app counts 283274 116922 1273 400000  sample 6.999,862,2V   mean(10) 6999761.58uV, stddev(10) 1.67uV,
+app counts 202303 197763 807 400000   sample 0.000,098,4V   mean(10) 6999761.58uV, stddev(10) 1.67uV,
+app counts 283274 116922 1273 400000  sample 6.999,862,2V   mean(10) 6999761.98uV, stddev(10) 1.39uV,
+app counts 202303 197763 804 400000   sample 0.000,101,4V   mean(10) 6999761.98uV, stddev(10) 1.39uV,
+app counts 283274 116922 1271 400000  sample 6.999,864,2V   mean(10) 6999762.27uV, stddev(10) 1.55uV,
+
+
+----------------------------------------------------------------------
+but also offset. just when using non-az. mode.
+
+> nreset; azero off; nplc 10; himux ref-hi ; azmux pcout ; gain 1;   trig
+app counts 2831737 1168481    827 4000000  no az sample 6.999,995,4V   mean(10) 6999996.66uV, stddev(10) 0.90uV,
+app counts 2831737 1168481    823 4000000  no az sample 6.999,995,8V   mean(10) 6999996.65uV, stddev(10) 0.91uV,
+app counts 2831737 1168481    825 4000000  no az sample 6.999,995,6V   mean(10) 6999996.62uV, stddev(10) 0.94uV,
+app counts 2831737 1168481    810 4000000  no az sample 6.999,997,1V   mean(10) 6999996.64uV, stddev(10) 0.95uV,
+app counts 2831737 1168481    824 4000000  no az sample 6.999,995,7V   mean(10) 6999996.45uV, stddev(10) 0.91uV,
+
+
+compared with 20-25uV. offset in non az mode.
+
+app counts 2831737 1168481    861 4000000  az sample 6.999,981,3V   mean(10) 6999985.30uV, stddev(10) 6.14uV,
+app counts 2831737 1168481    823 4000000  az sample 6.999,985,1V   mean(10) 6999984.23uV, stddev(10) 4.93uV,
+app counts 2831737 1168481    861 4000000  az sample 6.999,981,3V   mean(10) 6999982.71uV, stddev(10) 2.48uV,
+app counts 2831737 1168481    813 4000000  az sample 6.999,986,1V   mean(10) 6999982.93uV, stddev(10) 2.69uV,
+app counts 2831737 1168481    879 4000000  az sample 6.999,979,5V   mean(10) 6999982.95uV, stddev(10) 2.66uV,
+
+
+are we sure we are not sampling the wrong lo. somehow?
+
 #endif
 
 

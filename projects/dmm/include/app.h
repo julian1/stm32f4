@@ -158,6 +158,8 @@ typedef struct app_t
 
   uint32_t lfreq;
 
+  uint32_t azmux_lo_val;
+
   uint32_t last_reg_status ;  // to detect status change,
 
   // TODO reanme adc_valid . eg. same identifier / meaning as fpga code.
@@ -167,6 +169,8 @@ typedef struct app_t
   bool adc_measure_valid_missed; // could be made a count
 
 
+  /////////////////
+  unsigned model_cols;
 
   MAT *b;
 
@@ -177,8 +181,9 @@ typedef struct app_t
   /*  there is no reason for complicated stamping of sample data.   eg. hi, lo, hi, lo.
       instead just convert early.
   */
-  double   lo[2];   // for az mode. the last two lo signals.
 
+  double   hi;        // for az mode. the last hi measure
+  double   lo[2];   // for az mode. the last two lo signals.
 
 
 } app_t;

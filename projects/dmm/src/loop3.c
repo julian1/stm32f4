@@ -38,10 +38,11 @@ void app_loop3( app_t *app )
   const unsigned obs_n = 7; // 7
 
 
+
   // may want a row pointer as well.
   unsigned  max_rows =  obs_n * ARRAY_SIZE(nplc) * 2 /** ARRAY_SIZE(params)*/;
 
-  unsigned cols = 4;
+  // unsigned cols = 4;
 /*
   switch ( cal->model) {
     case 2: cols = 2; break;
@@ -51,12 +52,16 @@ void app_loop3( app_t *app )
     default: assert(0);
   };
 */
+
+
+  printf("model cols %u\n", app->model_cols );
+
   /*
       we could store / presist the matrix vars - on a structure in app.
       to reduce allocation.
       alternatively test - allocation/deallocation counts around this function.
   */
-  MAT *xs       = m_get(max_rows, cols );
+  MAT *xs       = m_get(max_rows, app->model_cols );
   MAT *y        = m_get(max_rows, 1);
   MAT *aperture = m_get(max_rows, 1); // required for predicted
 
@@ -115,16 +120,16 @@ void app_loop3( app_t *app )
 
       if( j == 0) {
         printf("mux hi\n");
-        mode->reg_direct.azmux    = S1;     // azmux muxes pc-out // EXTR. review.  not muxing ref-lo here.
-        mode->reg_direct.himux    = S2 ;    // himux2
-        mode->reg_direct.himux2   = S5 ;    // ref-hi.
+        mode->reg_direct.azmux    = AZMUX_PCOUT;     // signal
+        mode->reg_direct.himux    = HIMUX_HIMUX2;    // himux2
+        mode->reg_direct.himux2   = HIMUX2_REF_HI;    // ref-hi.
         y_ = 7;
 
       } else if( j == 1) {
         printf("mux lo\n");
-        mode->reg_direct.azmux    = S7;     // ref lo.
-        mode->reg_direct.himux    = S2 ;    // himux2
-        mode->reg_direct.himux2   = S5 ;    // ref-hi.
+        mode->reg_direct.azmux    = AZMUX_REF_LO;     // ref lo.    // don't switch/interupt the signal. which my preturb sample data.
+        mode->reg_direct.himux    = HIMUX_HIMUX2;    // himux2
+        mode->reg_direct.himux2   = HIMUX2_REF_HI;    // ref-hi.
         y_ = 0;
       } else assert( 0);
 
@@ -171,7 +176,7 @@ void app_loop3( app_t *app )
           clk_count_mux_neg,
           clk_count_mux_pos,
           clk_count_mux_rd,
-          cols,
+          app->model_cols,
           row
         );
 
@@ -264,6 +269,9 @@ void app_loop3( app_t *app )
   // leave running as is
   // turn off. -
   spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 0 );      // arm to halt.
+
+
+  printf("finished loop3\n");
 
   return ;
 }
