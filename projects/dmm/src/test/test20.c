@@ -282,20 +282,9 @@ we have 20uV. offset just sampling ref-lo in non-az.  for 1nplc versus 10nplc.
 
   > reset; azero off; nplc 1; himux ref-lo ; azmux pcout ; pc signal ;  gain 1;   trig
   app counts 202303 197763    907 400000  no-az sample 0.000,021,9V   mean(10) 0.0000246V, stddev(10) 2.14uV,
-  app counts 202303 197763    907 400000  no-az sample 0.000,021,9V   mean(10) 0.0000242V, stddev(10) 2.26uV,
-  app counts 202303 197763    903 400000  no-az sample 0.000,025,8V   mean(10) 0.0000247V, stddev(10) 1.97uV,
-  app counts 202303 197763    905 400000  no-az sample 0.000,023,8V   mean(10) 0.0000245V, stddev(10) 1.95uV,
-  app counts 202303 197763    903 400000  no-az sample 0.000,025,8V   mean(10) 0.0000247V, stddev(10) 1.97uV,
-  app counts 202303 197763    903 400000  no-az sample 0.000,025,8V   mean(10) 0.0000249V, stddev(10) 1.97uV,
 
   > reset; azero off; nplc 10; himux ref-lo ; azmux pcout ; pc signal ;  gain 1;   trig;
   app counts 2022723 1977521    735 4000000  no-az sample -0.000,003,8V   mean(10) -0.0000027V, stddev(10) 0.68uV,
-  app counts 2022723 1977521    725 4000000  no-az sample -0.000,002,8V   mean(10) -0.0000028V, stddev(10) 0.68uV,
-  app counts 2022723 1977521    733 4000000  no-az sample -0.000,003,6V   mean(10) -0.0000029V, stddev(10) 0.70uV,
-  app counts 2022723 1977521    730 4000000  no-az sample -0.000,003,3V   mean(10) -0.0000031V, stddev(10) 0.44uV,
-  app counts 2022723 1977521    728 4000000  no-az sample -0.000,003,1V   mean(10) -0.0000032V, stddev(10) 0.39uV,
-  app counts 2022723 1977521    731 4000000  no-az sample -0.000,003,4V   mean(10) -0.0000032V, stddev(10) 0.39uV,
-
 
 Since pc switch/ azmux switch is not switching. it indicates an error somewhere else.
 perhaps aperture count issue.
@@ -308,19 +297,58 @@ Ok. got azero difference at least working. but not much improvement in noise.
 - and not much different to non az
 
 > reset; azero on; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1;   trig
-counts 2022723 1977521    833 4000000   (lo) az meas -0.000,001,3V (hi -0.000,000,3V) (lo 0.000,001,1V, 0.000,001,0V)   mean(10) -0.0000018V, stddev(10) 0.45uV, 
-counts 2022723 1977521    858 4000000   (hi) az meas -0.000,002,4V (hi -0.000,001,4V) (lo 0.000,001,1V, 0.000,001,0V)   mean(10) -0.0000018V, stddev(10) 0.44uV, 
-counts 2022723 1977521    829 4000000   (lo) az meas -0.000,002,6V (hi -0.000,001,4V) (lo 0.000,001,5V, 0.000,001,1V)   mean(10) -0.0000019V, stddev(10) 0.51uV, 
-counts 2022723 1977521    858 4000000   (hi) az meas -0.000,002,6V (hi -0.000,001,4V) (lo 0.000,001,5V, 0.000,001,1V)   mean(10) -0.0000020V, stddev(10) 0.55uV, 
-counts 2022723 1977521    831 4000000   (lo) az meas -0.000,002,7V (hi -0.000,001,4V) (lo 0.000,001,3V, 0.000,001,5V)   mean(10) -0.0000021V, stddev(10) 0.57uV, 
-counts 2022723 1977521    849 4000000   (hi) az meas -0.000,001,8V (hi -0.000,000,5V) (lo 0.000,001,3V, 0.000,001,5V)   mean(10) -0.0000021V, stddev(10) 0.51uV, 
-counts 2022723 1977521    833 4000000   (lo) az meas -0.000,001,7V (hi -0.000,000,5V) (lo 0.000,001,1V, 0.000,001,3V)   mean(10) -0.0000022V, stddev(10) 0.50uV, 
-counts 2022723 1977521    858 4000000   (hi) az meas -0.000,002,5V (hi -0.000,001,4V) (lo 0.000,001,1V, 0.000,001,3V)   mean(10) -0.0000022V, stddev(10) 0.50uV, 
-counts 2022723 1977521    829 4000000   (lo) az meas -0.000,002,6V (hi -0.000,001,4V) (lo 0.000,001,5V, 0.000,001,1V)   mean(10) -0.0000022V, stddev(10) 0.52uV, 
-counts 2022723 1977521    859 4000000   (hi) az meas -0.000,002,7V (hi -0.000,001,5V) (lo 0.000,001,5V, 0.000,001,1V)   mean(10) -0.0000023V, stddev(10) 0.51uV,
-
+  counts 2022723 1977521    833 4000000   (lo) az meas -0.000,001,3V (hi -0.000,000,3V) (lo 0.000,001,1V, 0.000,001,0V)   mean(10) -0.0000018V, stddev(10) 0.45uV,
 
 >  reset; azero off; nplc 1; himux ref-lo ; azmux pcout ; pc signal ;  gain 1;   trig
+
+//////////////
+
+
+// changed the cap to TDK 1206 330p.. and we have the same problem . in non-az  1nplc v 10nplc.
+
+> reset; azero off; nplc 10; himux ref-lo ; azmux pcout ; pc signal ;  gain 1;   trig
+  counts 2022723 1977521    580 4000000  no-az meas -0.000,001,6V   mean(10) -0.0000026V, stddev(10) 0.55uV,
+
+> reset; azero off; nplc 1; himux ref-lo ; azmux pcout ; pc signal ;  gain 1;   trig
+  counts 202303 197763    923 400000  no-az meas -0.000,054,4V   mean(10) -0.0000549V, stddev(10) 1.62uV,
+
+offset is worse 52uV.  after changing to tdk cap.  ????
+
+So perhaps it is the calibration ? maybe previous - had different var/fix data?
+
+
+cols = 4.
+  counts 202303 197763    929 400000  no-az meas -0.000,152,1V   mean(10) -0.0001475V, stddev(10) 2.23uV,
+
+add extra nplc data.
+  even worse.
+
+  stderr(V) 6.75uV  (nplc10)
+  stderr(V) 6.94uV  (nplc10)
+
+  counts 202303 197763    928 400000  no-az meas -0.000,107,9V   mean(10) -0.0001060V, stddev(10) 1.63uV,
+
+
+very odd.
+it really cant fit the data.
+  azero case is ok. at 10nplc. but bad at 1nplc.
+  something around start/ reset signal / or reset switch / or settle time.
+
+at 1nplc ref-hi has positive contribution
+  nplc 1    counts 283274 116896     1090 400000  no-az meas 7.000,216,2V
+  nplc 5    counts 1415949 584199    612 2000000  no-az meas 7.000,037,8V
+  nplc 10   counts 2831872 1168398   452 4000000  no-az meas 7.000,004,5V
+
+at 1nplc ref-lo has negative contribution.
+  nplc 0.5 counts 101258 98988       360 200000  no-az meas -0.000,033,9V   
+  nplc 1   counts 202303 197763      927 400000  no-az meas -0.000,024,1V
+  nplc 5   counts 1011437 988815    1197 2000000 no-az meas -0.000,007,8V
+  nplc 10  counts 2022723 1977521    649 4000000 no-az meas -0.000,000,6V
+
+
+
+
+  So that is interesting.
 
 #endif
 

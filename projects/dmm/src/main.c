@@ -168,9 +168,13 @@ bool nplc_valid( double nplc )
     maybe use a switch/case
     todo - similar to validate/check  voltage source
   */
+/*
   return
      nplc == 0.1 || nplc == 0.5 || nplc == 1
     || nplc == 2 || nplc == 10 || nplc == 100 || nplc == 1000;
+*/
+  return nplc >= 0.1 && nplc <= 100;
+
 }
 
 
