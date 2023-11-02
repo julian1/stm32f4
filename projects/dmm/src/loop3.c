@@ -164,14 +164,24 @@ void app_loop3( app_t *app )
           continue;
 
         // construct matrix directly. without needing Run struct.
-        uint32_t clk_count_mux_neg = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_NEG);
-        uint32_t clk_count_mux_pos = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_POS);
-        uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
-       //  uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_SIG);
 
-        uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_P_APERTURE );
+        // embed a 8 bit. counter ini the reg_status and use it for the measure.
+        // uint32_t status =            spi_ice40_reg_read32( app->spi, REG_STATUS );
 
-        printf("loop3 data  %lu %lu %lu %lu\n", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+        uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RESET);
+        uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_NEG);
+        uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_POS);
+        uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
+        uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_SIG);
+
+      /*  - OK. it doesn't matter whether aperture is for one more extra clk cycle. or one less.  eg. the clk termination condition.
+          instead what matters is that the count is recorded in the same way, as for the reference currents.
+          eg. so should should always refer to the returned count value, not the aperture ctrl register.
+
+          uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_P_APERTURE );
+      */
+
+        printf("counts %6lu %lu %lu %6lu %lu\n", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
 
         row = run_to_matrix(
           clk_count_mux_neg,

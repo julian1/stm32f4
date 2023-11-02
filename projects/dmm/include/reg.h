@@ -44,7 +44,7 @@
 #define REG_RESET         18
 
 // acquisition trigger
-#define REG_SA_ARM_TRIGGER   19
+#define REG_SA_ARM_TRIGGER  19
 
 
 // adc parameters
@@ -52,6 +52,7 @@
 
 
 // adc read counts
+#define REG_ADC_CLK_COUNT_MUX_RESET 34    // TODO fix/ re-assign enum .
 #define REG_ADC_CLK_COUNT_MUX_NEG   30
 #define REG_ADC_CLK_COUNT_MUX_POS   31
 #define REG_ADC_CLK_COUNT_MUX_RD    32

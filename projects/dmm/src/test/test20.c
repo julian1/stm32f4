@@ -330,14 +330,15 @@ add extra nplc data.
 
 
 very odd.
-it really cant fit the data.
+it really cant fit the data. assign good weights,
   azero case is ok. at 10nplc. but bad at 1nplc.
   something around start/ reset signal / or reset switch / or settle time.
 
 at 1nplc ref-hi has positive contribution
-  nplc 1    counts 283274 116896     1090 400000  no-az meas 7.000,216,2V
+  nplc 1    counts 283274 116896     1090 400000  no-az meas 7.000,216,2V   +ve
   nplc 5    counts 1415949 584199    612 2000000  no-az meas 7.000,037,8V
   nplc 10   counts 2831872 1168398   452 4000000  no-az meas 7.000,004,5V
+  nplc 20   counts 5663744 2336796   1176 8000000  no-az meas 6.999,990,8V   -ve. 
 
 at 1nplc ref-lo has negative contribution.
   nplc 0.5 counts 101258 98988       360 200000  no-az meas -0.000,033,9V   
@@ -345,8 +346,10 @@ at 1nplc ref-lo has negative contribution.
   nplc 5   counts 1011437 988815    1197 2000000 no-az meas -0.000,007,8V
   nplc 10  counts 2022723 1977521    649 4000000 no-az meas -0.000,000,6V
 
-
-
+  - the longer it runs/ larger aperture - the better - as bad thing is overwhelmed.
+  - So. we need to try changing the 20k. reset resistor.
+  - revert slope amp
+  - use faster op for current sources . 
 
   So that is interesting.
 
