@@ -336,9 +336,9 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       mode->reg_direct.himux2 = HIMUX2_DCV_SOURCE;
     }
 
-    else if (strcmp(s0, "gnd") == 0) {        // disginguished from a lo.  change name to lo,star.
+    else if (strcmp(s0, "star-lo") == 0) {        // disginguished from a lo.  change name to lo,star.
       mode->reg_direct.himux  = HIMUX_HIMUX2;
-      mode->reg_direct.himux2 = HIMUX2_GND;
+      mode->reg_direct.himux2 = HIMUX2_STAR_LO;
     }
     else if (strcmp(s0, "dcv") == 0) {
 
@@ -346,7 +346,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       mode->first. K405_CTL  = LR_TOP,
 
       mode->reg_direct.himux  = HIMUX_DCV;
-      mode->reg_direct.himux2 = HIMUX2_GND;
+      mode->reg_direct.himux2 = HIMUX2_STAR_LO;
     }
     else {
       printf("bad himux arg\n" );
@@ -393,8 +393,8 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     else if(strcmp(s0, "boot") == 0) {
       app->azmux_lo_val = AZMUX_BOOT;
     }
-    else if (strcmp(s0, "lo") == 0) {
-      app->azmux_lo_val =  AZMUX_LO;
+    else if (strcmp(s0, "star-lo") == 0) {
+      app->azmux_lo_val =  AZMUX_STAR_LO;
     }
     else if (strcmp(s0, "ref-lo") == 0) {
       app->azmux_lo_val =  AZMUX_REF_LO;

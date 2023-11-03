@@ -127,9 +127,9 @@ void app_loop3( app_t *app )
 
       } else if( j == 1) {
         printf("mux lo\n");
-        mode->reg_direct.azmux    = AZMUX_REF_LO;     // ref lo.    // don't switch/interupt the signal. which my preturb sample data.
-        mode->reg_direct.himux    = HIMUX_HIMUX2;    // himux2
-        mode->reg_direct.himux2   = HIMUX2_REF_HI;    // ref-hi.
+        mode->reg_direct.azmux    = AZMUX_REF_LO;     // use ref lo. for calibration.
+        mode->reg_direct.himux    = HIMUX_HIMUX2;    // doesn't matter. himux2
+        mode->reg_direct.himux2   = HIMUX2_REF_HI;    // doesn't matter. ref-hi.  should probably be lo.
         y_ = 0;
       } else assert( 0);
 

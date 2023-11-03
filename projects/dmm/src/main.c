@@ -1237,7 +1237,7 @@ int main(void)
   app.lfreq = 50;
   app.model_cols = 3;
 
-  app.azmux_lo_val  = AZMUX_LO;
+  app.azmux_lo_val  = AZMUX_STAR_LO;
 
   // set up the sample buffer
   app.sample_buffer = m_resize( app.sample_buffer, 10, 1 );
