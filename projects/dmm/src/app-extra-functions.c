@@ -399,6 +399,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     else if (strcmp(s0, "ref-lo") == 0) {
       app->azmux_lo_val =  AZMUX_REF_LO;
     }
+    // dci_lo, 4w_lo
     else {
       printf("bad azmux arg\n" );
       return 1;

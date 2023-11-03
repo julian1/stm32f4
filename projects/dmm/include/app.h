@@ -238,7 +238,7 @@ bool app_extra_functions( app_t *app , const char *cmd);
 
 */
 
-void app_loop3( app_t *app/*, Loop3 *loop3 */);
+void app_cal( app_t *app/*, Loop3 *loop3 */);
 
 
 

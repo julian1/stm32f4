@@ -704,17 +704,16 @@ static void app_update_console_cmd(app_t *app)
         // there's definitely DA.
 
 
-      else if( strcmp(cmd, "loop3") == 0) {
+      else if( strcmp(cmd, "cal") == 0) {
 
-          // just swapping control loops - is easy.
+
+          // swapping control loops - is easy.
           // gives more control . rather than a complicated re-entrant function.
-          // and pump the message buffers etc.
-          // but
-          // its just that existing. if we pump the command buffer.
-          // Loop3  loop3;
-          // memset(&loop3, 0, sizeof(loop3));
 
-          app_loop3(app/*, &loop3*/);
+          // just use recursion. rather than using re-entrant functions, and/or yields.
+          // can pump the input cmd processing if really want, for halt/exit commands.
+
+          app_cal(app);
 
       }
 
