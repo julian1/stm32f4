@@ -445,12 +445,39 @@ stderr(V) 0.51uV  (nplc10)
 stderr(V) 0.60uV  (nplc10)
 
 
-A lot of this is with a 3col model.
+A lot of this is with a col = 3 model.
 
-input noise,
-lt1021.
 
-10nplc noise is around 0.33uV.  1nplc noise around 1.3uV.
+
+I spent a couple of days, investigating
+There is an issue related to integrator voltage range/swing,
+If too high, then cap DA, or reset-mux leakage, or op-amp IVR, or something else, prevents getting a reasonable calibration against the internal ref.
+If the integrator swing is limited to around 10Vpp then it is ok
+I am leaving it for the moment.
+
+EXTR - It may just be a op-amp supply headroom issue. because integrator suppliies are +-15V. instead of +-17.5V  on old adc.
+
+---
+
+
+I am still doing basic tests, but have some starting data with the adc.
+The adc is similar to the one developed in the diy-voltmeter thread.
+A difference is the integrator reset which is done on a second spdt 4053 mux, instead of being muxed through the main buffer/amplifier.
+
+
+configuration -
+ref lt1021/7V.
+amplifier lsk389. will revert to jfe2140 as baseline, when get some more.
+bench supply.
+a biscuit tin lid covering the pcb helps to reduce noise.
+
+
+I included extra column data, but the main column of interest is the last one,
+10nplc noise is around 0.33uV RMS.  1nplc noise around 1.4uV RMS. I believe this is mostly from the adc input resistors.
+reference noise from the adc, should mostly be canceled, for a lo measurement/sample.
+
+
+samplinig ref-lo with no amplifier gain,
 
 az 10nplc
 > reset; azero on; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; buffer 30;  trig
@@ -474,7 +501,23 @@ counts  10002 202317 197812    716 400001 (lo)  (hi -0.000,007,0V) (lo -0.000,00
 counts  10002 202317 197812    721 400001 (hi)  (hi -0.000,005,0V) (lo -0.000,000,2V, 0.000,002,7V) az meas -0.000,006,3V   mean(30) -0.0000071V, stddev(30) 1.38uV,
 counts  10002 202317 197812    715 400001 (lo)  (hi -0.000,005,0V) (lo 0.000,000,8V, -0.000,000,2V) az meas -0.000,005,3V   mean(30) -0.0000071V, stddev(30) 1.41uV,
 
-no-az  10nplc.  noise is about the same
+
+There appears a -8uV difference when ref-lo is sampled from the himux versus the azmux - in az mode.
+The ref-lo net/trace is kelvin sensed at the gnd pin at the lt1021.
+The only adc count that changes (for 1nplc example) is the rundown count, so it is not a calculation artifact.
+
+The difference is a bit large to be a thermocouple effect on ic pins/ or copper trace.
+So I don't like this.
+maybe switch charge-injection when the az mux switches between the lo/boot from the pc-switch to the ref-lo.
+and/or distribution for different impedances of the mux paths?
+But I still wouldn't expect this given that ref-lo is a low impedance input.
+
+The other LO that is common to himux/himux2 and azmux is the star-lo.
+So I should check to see if that shows the same issue.
+
+
+for 10nplc no-az input noise is about the same as the az case.
+
 > reset; azero off; nplc 10; himux ref-lo; azmux pcout ; pc signal ;  gain 1;  buffer 30; trig
 counts  10002 2022490 1977610    228 4000001 no-az meas -0.000,004,2V   mean(30) -0.0000038V, stddev(30) 0.34uV,
 counts  10002 2022490 1977610    225 4000001 no-az meas -0.000,003,9V   mean(30) -0.0000038V, stddev(30) 0.33uV,
@@ -484,11 +527,13 @@ counts  10002 2022490 1977610    223 4000001 no-az meas -0.000,003,7V   mean(30)
 counts  10002 2022490 1977610    223 4000001 no-az meas -0.000,003,7V   mean(30) -0.0000038V, stddev(30) 0.35uV,
 counts  10002 2022490 1977610    229 4000001 no-az meas -0.000,004,3V   mean(30) -0.0000039V, stddev(30) 0.36uV,
 
+There is a 3.8uV difference in non-az mode.
+But this expected ordinary thermal variation (ref, op-amp Vos,resistors) from the calibration baseline point taken about 10-15mins earlier.
 
 
-with amplifier,
+samplinig ref-lo with amplifier gain,
 
-az 1nplc, gain = 100.
+az, 1nplc, gain = 100.
 >  reset; azero on; nplc 1; himux ref-lo ; azmux ref-lo ; gain 100; buffer 30;  trig
 counts  10002 204765 195449    840 400001 (lo)  (hi 0.207,785,5V) (lo 0.207,950,7V, 0.207,939,0V) az meas -0.000,159,4V   mean(30) -0.0001477V, stddev(30) 7.82uV,
 counts  10002 204748 195449    246 400001 (hi)  (hi 0.207,803,0V) (lo 0.207,950,7V, 0.207,939,0V) az meas -0.000,141,8V   mean(30) -0.0001472V, stddev(30) 7.71uV,
@@ -500,9 +545,10 @@ counts  10002 204765 195449    834 400001 (lo)  (hi 0.207,813,7V) (lo 0.207,956,
 counts  10002 204748 195449    246 400001 (hi)  (hi 0.207,803,0V) (lo 0.207,956,5V, 0.207,951,7V) az meas -0.000,151,1V   mean(30) -0.0001483V, stddev(30) 8.75uV,
 counts  10002 204765 195449    843 400001 (lo)  (hi 0.207,803,0V) (lo 0.207,947,8V, 0.207,956,5V) az meas -0.000,149,1V   mean(30) -0.0001484V, stddev(30) 8.74uV,
 
-no-az - at 1nplc  gain == 100.
+amplifier Vos around 2mV.
 
-reset; azero off; nplc 1; himux ref-lo; azmux pcout ; pc signal ;  gain 100;   trig
+no-az,  at 1nplc  gain == 100.
+> reset; azero off; nplc 1; himux ref-lo; azmux pcout ; pc signal ;  gain 100;   trig
 counts  10002 204748 195449    210 400001 no-az meas 0.207,838,1V   mean(30) 0.2078348V, stddev(30) 6.20uV,
 counts  10002 204748 195449    211 400001 no-az meas 0.207,837,2V   mean(30) 0.2078352V, stddev(30) 6.00uV,
 counts  10002 204748 195449    223 400001 no-az meas 0.207,825,5V   mean(30) 0.2078349V, stddev(30) 6.26uV,
@@ -512,11 +558,11 @@ counts  10002 204748 195449    207 400001 no-az meas 0.207,841,1V   mean(30) 0.2
 counts  10002 204748 195449    211 400001 no-az meas 0.207,837,2V   mean(30) 0.2078351V, stddev(30) 5.50uV,
 
 
-there little difference between az and non az case, sampling ref-lo via the resistance of the analog switch.
-
-there is an increase in noise with the amplifier gain at 100.  but not much difference between - between az and no az.
-perhaps indicating that ampifier isn't contributing much to noise.
-it's the resistance of the switches/passives in front of the amplifier.
+For the 1nplc, gain=100x case, the az and no-az look similar for noise.
+I am not sure how to interpret that.
+Is the noise from the amplifier or 99k/1k feedback resistors, or the (amplified) white-noise of the resistance of the muxes/passives before the amplifier?
+I kind of expected the az subtraction to cut-out flicker noise in a more observable way.
+Or maybe it is evident, given that AZ mode only uses half the HI samples, but achieves similar variation.
 
 
 
