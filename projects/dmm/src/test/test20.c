@@ -338,10 +338,10 @@ at 1nplc ref-hi has positive contribution
   nplc 1    counts 283274 116896     1090 400000  no-az meas 7.000,216,2V   +ve
   nplc 5    counts 1415949 584199    612 2000000  no-az meas 7.000,037,8V
   nplc 10   counts 2831872 1168398   452 4000000  no-az meas 7.000,004,5V
-  nplc 20   counts 5663744 2336796   1176 8000000  no-az meas 6.999,990,8V   -ve. 
+  nplc 20   counts 5663744 2336796   1176 8000000  no-az meas 6.999,990,8V   -ve.
 
 at 1nplc ref-lo has negative contribution.
-  nplc 0.5 counts 101258 98988       360 200000  no-az meas -0.000,033,9V   
+  nplc 0.5 counts 101258 98988       360 200000  no-az meas -0.000,033,9V
   nplc 1   counts 202303 197763      927 400000  no-az meas -0.000,024,1V
   nplc 5   counts 1011437 988815    1197 2000000 no-az meas -0.000,007,8V
   nplc 10  counts 2022723 1977521    649 4000000 no-az meas -0.000,000,6V
@@ -349,15 +349,178 @@ at 1nplc ref-lo has negative contribution.
   - the longer it runs/ larger aperture - the better - as bad thing is overwhelmed.
   - So. we need to try changing the 20k. reset resistor.
   - revert slope amp
-  - use faster op for current sources . 
+  - use faster op for current sources .
 
   So that is interesting.
 
+
+
+
+
+nov 3.
+  with two variable model.  and checking the reset.   still have a 200uV. offset. at 1uV.
+    it is like aperture is being wrongly used.
+
+
+> reset; azero off; nplc 1; himux ref-hi; azmux pcout ; pc signal ;  gain 1;   trig
+  counts  10002 283274 116896   1069 400001no-az meas 7.000,241,2V   mean(10) 7.0002419V, stddev(10) 1.79uV,
+
+  changed the reset period. 20000.
+
+  counts  20002 283274 116896   1050 400001no-az meas 7.000,259,8V   mean(10) 7.0002580V, stddev(10) 3.28uV,
+
+  no difference.
+  OK. good to know.
+
+
+  change reset from 20k to 3.74k.
+
+  calibration stderr=3.93uV.  cols = 4.
+
+  counts  10002 283274 116896   1070 400001no-az meas 7.000,206,5V   mean(10) 7.0002077V, stddev(10) 2.01uV,
+
+    OK. a bit lower...
+
+  cols = 2.
+  counts  10002 283274 116896   1067 400001no-az meas 7.000,242,6V   mean(10) 7.0002412V, stddev(10) 2.69uV,
+
+  looks about the same.......
+
+  -------------------
+
+
+OK. changed the integrator voltage range.  by reducing fixn varn - and we get a much better result.
+
+cols =  2
+
+  stderr(V) 1.06uV  (nplc10)
+  stderr(V) 0.69uV  (nplc10)
+
+reset; azero off; nplc 10; himux ref-hi; azmux pcout ; pc signal ;  gain 1;   trig
+counts  10002 2831605 1168529    737 4000001 no-az meas 7.000,000,6V   mean(10) 7.0000003V, stddev(10) 0.83uV,
+counts  10002 2831605 1168529    740 4000001 no-az meas 7.000,000,3V   mean(10) 7.0000005V, stddev(10) 0.64uV,
+
+reset; azero off; nplc 1; himux ref-hi; azmux pcout ; pc signal ;  gain 1;   trig
+counts  10002 283237 116909    903 400001 no-az meas 6.999,998,0V   mean(10) 6.9999973V, stddev(10) 1.30uV,
+counts  10002 283237 116909    905 400001 no-az meas 6.999,996,0V   mean(10) 6.9999972V, stddev(10) 1.36uV,
+counts  10002 283237 116909    902 400001 no-az meas 6.999,998,9V   mean(10) 6.9999973V, stddev(10) 1.45uV,
+
+  - only 2uV.
+
+reset; azero off; nplc 10; himux ref-lo; azmux pcout ; pc signal ;  gain 1;   trig
+counts  10002 2022507 1977610    897 4000001 no-az meas -0.000,003,4V   mean(10) -0.0000031V, stddev(10) 0.39uV,
+counts  10002 2022507 1977610    897 4000001 no-az meas -0.000,003,4V   mean(10) -0.0000031V, stddev(10) 0.38uV,
+
+reset; azero off; nplc 1; himux ref-lo; azmux pcout ; pc signal ;  gain 1;   trig
+counts  10002 202317 197812    714 400001 no-az meas -0.000,004,4V   mean(10) -0.0000056V, stddev(10) 1.43uV,
+counts  10002 202317 197812    717 400001 no-az meas -0.000,007,3V   mean(10) -0.0000058V, stddev(10) 1.53uV,
+
+
+-
+    so it's leakage through reset mux. at higher voltage.
+    or op-amp headroom or something.
+        OR DA on the cap with larger range.
+
+        or difficulty with DA because slow slope is too slow.
+
+
+loop3.
+stderr(V) 0.86uV  (nplc10)
+
+placing a loose tin can over top of pcb.
+stderr(V) 0.65uV  (nplc10)
+stderr(V) 0.64uV  (nplc10)
+
+counts  10002 2022507 1977610    917 4000001 (lo)  (hi 7.000,000,2V) (lo -0.000,001,8V, -0.000,002,0V)az meas 7.000,002,1V   mean(10) 7.0000023V, stddev(10) 0.45uV,
+counts  10002 2831605 1168529    760 4000001 (hi)  (hi 7.000,000,5V) (lo -0.000,001,8V, -0.000,002,0V)az meas 7.000,002,4V   mean(10) 7.0000023V, stddev(10) 0.45uV,
+counts  10002 2022507 1977610    920 4000001 (lo)  (hi 7.000,000,5V) (lo -0.000,002,1V, -0.000,001,8V)az meas 7.000,002,4V   mean(10) 7.0000023V, stddev(10) 0.44uV,
+counts  10002 2831605 1168529    761 4000001 (hi)  (hi 7.000,000,4V) (lo -0.000,002,1V, -0.000,001,8V)az meas 7.000,002,3V   mean(10) 7.0000022V, stddev(10) 0.33uV,
+counts  10002 2022507 1977610    922 4000001 (lo)  (hi 7.000,000,4V) (lo -0.000,002,2V, -0.000,002,1V)az meas 7.000,002,6V   mean(10) 7.0000022V, stddev(10) 0.25uV,
+counts  10002 2831605 1168529    761 4000001 (hi)  (hi 7.000,000,4V) (lo -0.000,002,2V, -0.000,002,1V)az meas 7.000,002,6V   mean(10) 7.0000022V, stddev(10) 0.27uV
+
+
+improve can position
+
+stderr(V) 0.51uV  (nplc10)
+stderr(V) 0.60uV  (nplc10)
+
+
+A lot of this is with a 3col model.
+
+input noise,
+lt1021.
+
+10nplc noise is around 0.33uV.  1nplc noise around 1.3uV.
+
+az 10nplc
+> reset; azero on; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; buffer 30;  trig
+counts  10002 2022507 1977610    891 4000001 (lo)  (hi -0.000,003,7V) (lo 0.000,003,8V, 0.000,003,7V) az meas -0.000,007,5V   mean(30) -0.0000077V, stddev(30) 0.31uV,
+counts  10002 2022490 1977610    232 4000001 (hi)  (hi -0.000,004,6V) (lo 0.000,003,8V, 0.000,003,7V) az meas -0.000,008,3V   mean(30) -0.0000077V, stddev(30) 0.32uV,
+counts  10002 2022507 1977610    891 4000001 (lo)  (hi -0.000,004,6V) (lo 0.000,003,8V, 0.000,003,8V) az meas -0.000,008,4V   mean(30) -0.0000078V, stddev(30) 0.33uV,
+counts  10002 2022490 1977610    229 4000001 (hi)  (hi -0.000,004,3V) (lo 0.000,003,8V, 0.000,003,8V) az meas -0.000,008,1V   mean(30) -0.0000078V, stddev(30) 0.33uV,
+counts  10002 2022507 1977610    889 4000001 (lo)  (hi -0.000,004,3V) (lo 0.000,004,0V, 0.000,003,8V) az meas -0.000,008,2V   mean(30) -0.0000078V, stddev(30) 0.33uV,
+counts  10002 2022490 1977610    223 4000001 (hi)  (hi -0.000,003,7V) (lo 0.000,004,0V, 0.000,003,8V) az meas -0.000,007,6V   mean(30) -0.0000078V, stddev(30) 0.33uV,
+counts  10002 2022507 1977610    890 4000001 (lo)  (hi -0.000,003,7V) (lo 0.000,003,9V, 0.000,004,0V) az meas -0.000,007,7V   mean(30) -0.0000078V, stddev(30) 0.32uV,
+counts  10002 2022490 1977610    223 4000001 (hi)  (hi -0.000,003,7V) (lo 0.000,003,9V, 0.000,004,0V) az meas -0.000,007,7V   mean(30) -0.0000078V, stddev(30) 0.32uV,
+counts  10002 2022507 1977610    888 4000001 (lo)  (hi -0.000,003,7V) (lo 0.000,004,1V, 0.000,003,9V) az meas -0.000,007,7V   mean(30) -0.0000078V, stddev(30) 0.32uV,
+
+
+az 1nplc.
+>  reset; azero on; nplc 1; himux ref-lo ; azmux ref-lo ; gain 1; buffer 30;  trig
+counts  10002 202317 197812    726 400001 (hi)  (hi -0.000,009,9V) (lo -0.000,001,1V, 0.000,001,8V) az meas -0.000,010,2V   mean(30) -0.0000071V, stddev(30) 1.28uV,
+counts  10002 202317 197812    713 400001 (lo)  (hi -0.000,009,9V) (lo 0.000,002,7V, -0.000,001,1V) az meas -0.000,010,7V   mean(30) -0.0000072V, stddev(30) 1.41uV,
+counts  10002 202317 197812    723 400001 (hi)  (hi -0.000,007,0V) (lo 0.000,002,7V, -0.000,001,1V) az meas -0.000,007,8V   mean(30) -0.0000072V, stddev(30) 1.39uV,
+counts  10002 202317 197812    716 400001 (lo)  (hi -0.000,007,0V) (lo -0.000,000,2V, 0.000,002,7V) az meas -0.000,008,3V   mean(30) -0.0000071V, stddev(30) 1.37uV,
+counts  10002 202317 197812    721 400001 (hi)  (hi -0.000,005,0V) (lo -0.000,000,2V, 0.000,002,7V) az meas -0.000,006,3V   mean(30) -0.0000071V, stddev(30) 1.38uV,
+counts  10002 202317 197812    715 400001 (lo)  (hi -0.000,005,0V) (lo 0.000,000,8V, -0.000,000,2V) az meas -0.000,005,3V   mean(30) -0.0000071V, stddev(30) 1.41uV,
+
+no-az  10nplc.  noise is about the same
+> reset; azero off; nplc 10; himux ref-lo; azmux pcout ; pc signal ;  gain 1;  buffer 30; trig
+counts  10002 2022490 1977610    228 4000001 no-az meas -0.000,004,2V   mean(30) -0.0000038V, stddev(30) 0.34uV,
+counts  10002 2022490 1977610    225 4000001 no-az meas -0.000,003,9V   mean(30) -0.0000038V, stddev(30) 0.33uV,
+counts  10002 2022490 1977610    232 4000001 no-az meas -0.000,004,6V   mean(30) -0.0000038V, stddev(30) 0.35uV,
+counts  10002 2022490 1977610    230 4000001 no-az meas -0.000,004,4V   mean(30) -0.0000038V, stddev(30) 0.37uV,
+counts  10002 2022490 1977610    223 4000001 no-az meas -0.000,003,7V   mean(30) -0.0000038V, stddev(30) 0.37uV,
+counts  10002 2022490 1977610    223 4000001 no-az meas -0.000,003,7V   mean(30) -0.0000038V, stddev(30) 0.35uV,
+counts  10002 2022490 1977610    229 4000001 no-az meas -0.000,004,3V   mean(30) -0.0000039V, stddev(30) 0.36uV,
+
+
+
+with amplifier,
+
+az 1nplc, gain = 100.
+>  reset; azero on; nplc 1; himux ref-lo ; azmux ref-lo ; gain 100; buffer 30;  trig
+counts  10002 204765 195449    840 400001 (lo)  (hi 0.207,785,5V) (lo 0.207,950,7V, 0.207,939,0V) az meas -0.000,159,4V   mean(30) -0.0001477V, stddev(30) 7.82uV,
+counts  10002 204748 195449    246 400001 (hi)  (hi 0.207,803,0V) (lo 0.207,950,7V, 0.207,939,0V) az meas -0.000,141,8V   mean(30) -0.0001472V, stddev(30) 7.71uV,
+counts  10002 204765 195449    830 400001 (lo)  (hi 0.207,803,0V) (lo 0.207,960,5V, 0.207,950,7V) az meas -0.000,152,6V   mean(30) -0.0001470V, stddev(30) 7.51uV,
+counts  10002 204748 195449    258 400001 (hi)  (hi 0.207,791,3V) (lo 0.207,960,5V, 0.207,950,7V) az meas -0.000,164,3V   mean(30) -0.0001478V, stddev(30) 8.06uV,
+counts  10002 204765 195449    839 400001 (lo)  (hi 0.207,791,3V) (lo 0.207,951,7V, 0.207,960,5V) az meas -0.000,164,8V   mean(30) -0.0001484V, stddev(30) 8.62uV,
+counts  10002 204748 195449    235 400001 (hi)  (hi 0.207,813,7V) (lo 0.207,951,7V, 0.207,960,5V) az meas -0.000,142,3V   mean(30) -0.0001485V, stddev(30) 8.60uV,
+counts  10002 204765 195449    834 400001 (lo)  (hi 0.207,813,7V) (lo 0.207,956,5V, 0.207,951,7V) az meas -0.000,140,4V   mean(30) -0.0001482V, stddev(30) 8.73uV,
+counts  10002 204748 195449    246 400001 (hi)  (hi 0.207,803,0V) (lo 0.207,956,5V, 0.207,951,7V) az meas -0.000,151,1V   mean(30) -0.0001483V, stddev(30) 8.75uV,
+counts  10002 204765 195449    843 400001 (lo)  (hi 0.207,803,0V) (lo 0.207,947,8V, 0.207,956,5V) az meas -0.000,149,1V   mean(30) -0.0001484V, stddev(30) 8.74uV,
+
+no-az - at 1nplc  gain == 100.
+
+reset; azero off; nplc 1; himux ref-lo; azmux pcout ; pc signal ;  gain 100;   trig
+counts  10002 204748 195449    210 400001 no-az meas 0.207,838,1V   mean(30) 0.2078348V, stddev(30) 6.20uV,
+counts  10002 204748 195449    211 400001 no-az meas 0.207,837,2V   mean(30) 0.2078352V, stddev(30) 6.00uV,
+counts  10002 204748 195449    223 400001 no-az meas 0.207,825,5V   mean(30) 0.2078349V, stddev(30) 6.26uV,
+counts  10002 204748 195449    216 400001 no-az meas 0.207,832,3V   mean(30) 0.2078343V, stddev(30) 5.66uV,
+counts  10002 204765 195449    946 400001 no-az meas 0.207,847,3V   mean(30) 0.2078348V, stddev(30) 6.12uV,
+counts  10002 204748 195449    207 400001 no-az meas 0.207,841,1V   mean(30) 0.2078346V, stddev(30) 5.88uV,
+counts  10002 204748 195449    211 400001 no-az meas 0.207,837,2V   mean(30) 0.2078351V, stddev(30) 5.50uV,
+
+
+there little difference between az and non az case, sampling ref-lo via the resistance of the analog switch.
+
+there is an increase in noise with the amplifier gain at 100.  but not much difference between - between az and no az.
+perhaps indicating that ampifier isn't contributing much to noise.
+it's the resistance of the switches/passives in front of the amplifier.
+
+
+
 #endif
-
-
-
-
 
 
 

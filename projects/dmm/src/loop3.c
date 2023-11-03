@@ -196,6 +196,7 @@ void app_loop3( app_t *app )
 
         mat_set_row( xs,       row_idx,  row ) ;
 
+        // we create aperture - so that the regression 
         vec_set_val( aperture, row_idx, clk_count_mux_sig);
 
         vec_set_val( y,        row_idx,   y_  *  clk_count_mux_sig );

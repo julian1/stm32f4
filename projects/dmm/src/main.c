@@ -863,6 +863,9 @@ static void app_loop(app_t *app)
 
       if(app->b) {
 
+
+
+
         // TODO - have a scalar - version of this
         // would eases calculation. when only need a scalar.
 
@@ -881,6 +884,14 @@ static void app_loop(app_t *app)
         MAT	*m_mux_sig = m_from_scalar( clk_count_mux_sig, MNULL );
         assert(m_mux_sig);
         assert( m_is_scalar(m_mux_sig) );
+
+
+        // happens after a spurious.
+        if(m_cols(xs) != m_rows(app->b)) {
+
+          printf("xs cols doesn't match b rows \n");
+          // memory leak.
+        }
 
 
 /*
@@ -907,7 +918,7 @@ static void app_loop(app_t *app)
         if(mode->reg_mode == MODE_NO_AZ )  {
 
           // no az mode. just print the value
-          printf("no-az meas %sV", format_float_with_commas(buf, 100, 7, ret ));
+          printf(" no-az meas %sV", format_float_with_commas(buf, 100, 7, ret ));
 
           push_buffer1( app->sample_buffer, &app->sample_buffer_i, ret );
         }
@@ -939,7 +950,7 @@ static void app_loop(app_t *app)
           push_buffer1( app->sample_buffer, &app->sample_buffer_i, v );
 
           // printf(" %lf", ret );
-          printf("az meas %sV", format_float_with_commas(buf, 100, 7, v ));
+          printf(" az meas %sV", format_float_with_commas(buf, 100, 7, v ));
         }
         else {
             printf("unknown mode");

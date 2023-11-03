@@ -87,6 +87,23 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   }
 
 
+  if( sscanf(cmd, "buffer %lu", &u1 ) == 1) {
+
+    if(u1 < 2 || u1 > 100 ) {
+      printf("set buffer size bad arg\n" );
+      return 1;
+    }
+
+    printf("set buffer size\n" );
+    app->sample_buffer = m_resize( app->sample_buffer, u1 , 1 );
+
+    return 1;
+  }
+
+
+
+
+
   /*
       - perhaps rename 'acquire off/arm'.  acquire trigger/on
   */
