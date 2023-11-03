@@ -479,7 +479,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
   else if( sscanf(cmd, "cols %lu", &u1 ) == 1) {
 
-    if(u1 == 3 || u1 == 4) {
+    if(u1 >= 2 && u1 <= 4) {
       printf("set cols %lu\n", u1 );
       app->model_cols = u1;
     }
