@@ -45,7 +45,7 @@
 
 // acquisition trigger
 #define REG_SA_ARM_TRIGGER  19
-
+#define REG_SA_P_CLK_COUNT_PRECHARGE 21
 
 // adc parameters
 #define REG_ADC_P_APERTURE  20

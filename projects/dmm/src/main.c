@@ -231,12 +231,12 @@ void app_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *sy
   // set mode
   spi_ice40_reg_write32(spi, REG_MODE, mode->reg_mode );
 
-    // spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
   spi_ice40_reg_write_n(spi, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
-  // spi_ice40_reg_write_n(spi, REG_DIRECT2, &mode->reg_direct2, sizeof( mode->reg_direct) );   unused again.
 
   spi_ice40_reg_write32(spi, REG_ADC_P_APERTURE, mode->reg_adc_p_aperture );
 
+  spi_ice40_reg_write32(spi, REG_SA_P_CLK_COUNT_PRECHARGE, mode->reg_sa_p_clk_count_precharge );
+  
 
   // can add the reg reset here.
 
@@ -857,8 +857,7 @@ static void app_loop(app_t *app)
           uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_P_APERTURE );
       */
 
-      printf("counts %6lu %lu %lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
-      // printf("counts %lu %lu %6lu %lu  ", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+      printf("counts %6lu %7lu %7lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
 
       if(app->b) {
 
@@ -1100,10 +1099,12 @@ static const Mode mode_initial =  {
 
   .reg_mode = MODE_LO,
 
-  .reg_adc_p_aperture = 4000000         // wset explicitly in dcv
+  // .reg_adc_p_aperture = 4000000,         // clk_freq * 0.2 ; wset explicitly in dcv
+  .reg_adc_p_aperture = CLK_FREQ * 0.2,   // 200ms. 10nplc 50Hz. 
                                         // Not. should use current calibration?
                                         // should be authoritative source of state.
 
+  .reg_sa_p_clk_count_precharge = CLK_FREQ * 500e-6             //  `CLK_FREQ * 500e-6 ;   // 500us. 
 };
 
 

@@ -254,6 +254,38 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
 
 
+
+
+  /* TODO change name sa_precharge and adc_reset 
+      or sa precharge  ,  adc reset
+  */
+  else if( sscanf(cmd, "precharge %lu", &u1 ) == 1) {
+
+    printf("set precharge in clk counts \n");
+
+    Mode *mode = app->mode_current;
+    mode->reg_sa_p_clk_count_precharge  = u1;
+
+    // do the state transition
+    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+
+    return 1;
+  }
+  else if( strcmp(cmd, "precharge?") == 0) {
+
+    mux_ice40(app->spi);
+    uint32_t precharge = spi_ice40_reg_read32(app->spi, REG_SA_P_CLK_COUNT_PRECHARGE );
+ 
+    printf("prechare aperture %lu\n", precharge);
+
+    return 1;
+  }
+
+
+
+
+
+
   else if( sscanf(cmd, "nplc %lf", &f0 ) == 1) {
 
     if( ! nplc_valid( f0 ))  {

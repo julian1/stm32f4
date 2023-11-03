@@ -460,9 +460,6 @@ EXTR - It may just be a op-amp supply headroom issue. because integrator supplii
 ---
 
 
-For the adc, the design is similar to the one in the diy-voltmeter thread.
-A difference is the integrator reset which is managed with another spdt 4053 mux, instead of being muxed through the main buffer/amplifier.
-
 
 configuration -
 ref lt1021/7V.
@@ -524,19 +521,20 @@ There is a 3.8uV difference in non-az mode.
 But this expected thermal variation (ref, op-amp Vos,resistors) from the calibration baseline point taken about 10-15mins earlier.
 
 
-sample ref-lo with amplifier gain,
+
+For the ampliifier, the ref-lo can be sampled with gain applied,
 
 az, 1nplc, gain = 100.
 >  reset; azero on; nplc 1; himux ref-lo ; azmux ref-lo ; gain 100; buffer 30;  trig
-counts  10002 204765 195449    840 400001 (lo)  (hi 0.207,785,5V) (lo 0.207,950,7V, 0.207,939,0V) az meas -0.000,159,4V   mean(30) -0.0001477V, stddev(30) 7.82uV,
+COUNTs  10002 204765 195449    840 400001 (lo)  (hi 0.207,785,5V) (lo 0.207,950,7V, 0.207,939,0V) az meas -0.000,159,4V   mean(30) -0.0001477V, stddev(30) 7.82uV,
 counts  10002 204748 195449    246 400001 (hi)  (hi 0.207,803,0V) (lo 0.207,950,7V, 0.207,939,0V) az meas -0.000,141,8V   mean(30) -0.0001472V, stddev(30) 7.71uV,
 counts  10002 204765 195449    830 400001 (lo)  (hi 0.207,803,0V) (lo 0.207,960,5V, 0.207,950,7V) az meas -0.000,152,6V   mean(30) -0.0001470V, stddev(30) 7.51uV,
 counts  10002 204748 195449    258 400001 (hi)  (hi 0.207,791,3V) (lo 0.207,960,5V, 0.207,950,7V) az meas -0.000,164,3V   mean(30) -0.0001478V, stddev(30) 8.06uV,
 counts  10002 204765 195449    839 400001 (lo)  (hi 0.207,791,3V) (lo 0.207,951,7V, 0.207,960,5V) az meas -0.000,164,8V   mean(30) -0.0001484V, stddev(30) 8.62uV,
 
-amplifier Vos around 2mV.
+note. amplifier Vos around 2mV.
 
-no-az,  at 1nplc  gain == 100.
+no-az,  at 1nplc  gain = 100.
 > reset; azero off; nplc 1; himux ref-lo; azmux pcout ; pc signal ;  gain 100;   trig
 counts  10002 204748 195449    210 400001 no-az meas 0.207,838,1V   mean(30) 0.2078348V, stddev(30) 6.20uV,
 counts  10002 204748 195449    211 400001 no-az meas 0.207,837,2V   mean(30) 0.2078352V, stddev(30) 6.00uV,
@@ -564,7 +562,7 @@ nov 4.
 
 at 10nplc
 > reset; azero on; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; buffer 30;  trig
-counts  10002 2022507 1977610    712 4000001 (hi)  (hi -0.000,001,9V) (lo 0.000,004,6V, 0.000,004,8V) az meas -0.000,006,6V   mean(30) -0.0000074V, stddev(30) 0.67uV,
+countS  10002 2022507 1977610    712 4000001 (hi)  (hi -0.000,001,9V) (lo 0.000,004,6V, 0.000,004,8V) az meas -0.000,006,6V   mean(30) -0.0000074V, stddev(30) 0.67uV,
 counts  10002 2022507 1977610    656 4000001 (lo)  (hi -0.000,001,9V) (lo 0.000,003,5V, 0.000,004,6V) az meas -0.000,005,9V   mean(30) -0.0000073V, stddev(30) 0.72uV,
 counts  10002 2022507 1977610    720 4000001 (hi)  (hi -0.000,002,7V) (lo 0.000,003,5V, 0.000,004,6V) az meas -0.000,006,7V   mean(30) -0.0000073V, stddev(30) 0.72uV,
 counts  10002 2022507 1977610    644 4000001 (lo)  (hi -0.000,002,7V) (lo 0.000,004,7V, 0.000,003,5V) az meas -0.000,006,8V   mean(30) -0.0000073V, stddev(30) 0.72uV,
@@ -585,7 +583,7 @@ counts  10002 202317 197812    691 400001 (lo)  (hi -0.000,002,7V) (lo 0.000,005
 
 ------------
 
-When sampling star-lo (from himux, and lomux (via R417=4.7k) there is about -4 to -5uV. 
+When sampling star-lo (from himux, and lomux (via R417=4.7k) there is about -4 to -5uV.
 
 > reset; azero on; nplc 1; himux star-lo ; azmux star-lo ; gain 1; buffer 30;  trig
 counts  10002 202317 197812    804 400001 (hi)  (hi -0.000,104,1V) (lo -0.000,098,3V, -0.000,100,2V) az meas -0.000,004,8V   mean(30) -0.0000045V, stddev(30) 2.03uV,
@@ -594,12 +592,12 @@ counts  10002 202317 197812    804 400001 (hi)  (hi -0.000,104,1V) (lo -0.000,09
 counts  10002 202317 197812    801 400001 (lo)  (hi -0.000,104,1V) (lo -0.000,101,2V, -0.000,098,3V) az meas -0.000,004,3V   mean(30) -0.0000045V, stddev(30) 1.99uV,
 counts  10002 202317 197812    804 400001 (hi)  (hi -0.000,104,1V) (lo -0.000,101,2V, -0.000,098,3V) az meas -0.000,004,3V   mean(30) -0.0000044V, stddev(30) 1.98uV,
 
-  As a separate point the ~= 100uV difference between star-lo and ref-lo, looks about right.  
-  since the lt1021/sense tap is lifted wrt the star-gnd, due to trace resistance and reference current. 
+  As a separate point the ~= 100uV difference between star-lo and ref-lo, looks about right.
+  since the lt1021/sense tap is lifted wrt the star-gnd, due to trace resistance and reference current.
 
     https://www.eeweb.com/tools/trace-resistance/.  0.4mm, 6", 1 Oz copper,  get 0.185R
-    lt1021. ref current. around 1mA. 
-    V=IR =  0.001A * 0.185R = 185uV. 
+    lt1021. ref current. around 1mA.
+    V=IR =  0.001A * 0.185R = 185uV.
     It's the right order.
 
 
@@ -607,7 +605,7 @@ OK. sampling dcv-source works well.
 >
 reset; dcv-source 1 ; azero on; nplc 10; himux dcv-source ; azmux ref-lo ; gain 1; buffer 30;  trig
 
-
+-
 >  reset; dcv-source -10 ; azero on; nplc 1; himux dcv-source ; azmux ref-lo ; gain 1; buffer 30;  trig
 counts  10002 202317 197812    704 400001 (lo)  (hi -9.805,607,5V) (lo -0.000,007,6V, -0.000,006,6V) az meas -9.805,600,4V   mean(30) -9.8056006V, stddev(30) 2.55uV,
 counts  10002 88995 311168     547 400001 (hi)  (hi -9.805,608,4V) (lo -0.000,007,6V, -0.000,006,6V) az meas -9.805,601,4V   mean(30) -9.8056007V, stddev(30) 2.55uV,
@@ -617,8 +615,75 @@ counts  10002 202317 197812    700 400001 (lo)  (hi -9.805,606,5V) (lo -0.000,00
 counts  10002 88995 311168     542 400001 (hi)  (hi -9.805,603,6V) (lo -0.000,003,7V, -0.000,006,6V) az meas -9.805,598,5V   mean(30) -9.8056005V, stddev(30) 2.57uV,
 
 
-OK. negative source works too. NICE.
+OK. negative source works too. with adjusted integrator range. NICE.
+------------------
 
+stderr(V) 0.66uV  (nplc10)
+
+  //////////////////
+another problem the lo increases at 1nplc versus 10nplc.
+with -10V dc bias.
+
+reset; dcv-source -10 ; azero on; nplc 10; himux dcv-source ; azmux ref-lo ; gain 1; buffer 30;  trig
+counts  10002  889117 3111017    432 4000001 (hi)  (hi -9.805,771,0V) (lo -0.000,002,2V, -0.000,001,0V) az meas -9.805,769,4V   mean(30) -9.8057689V, stddev(30) 1.17uV,
+counts  10002 2022507 1977610    881 4000001 (lo)  (hi -9.805,771,0V) (lo -0.000,001,3V, -0.000,002,2V) az meas -9.805,769,3V   mean(30) -9.8057690V, stddev(30) 1.13uV,
+counts  10002  889117 3111017    450 4000001 (hi)  (hi -9.805,772,8V) (lo -0.000,001,3V, -0.000,002,2V) az meas -9.805,771,1V   mean(30) -9.8057691V, stddev(30) 1.16uV,
+counts  10002 2022507 1977610    889 4000001 (lo)  (hi -9.805,772,8V) (lo -0.000,002,1V, -0.000,001,3V) az meas -9.805,771,1V   mean(30) -9.8057692V, stddev(30) 1.15uV,
+counts  10002  889117 3111017    448 4000001 (hi)  (hi -9.805,772,6V) (lo -0.000,002,1V, -0.000,001,3V) az meas -9.805,770,9V   mean(30) -9.8057693V, stddev(30) 1.18uV,
+counts  10002 2022507 1977610    884 4000001 (lo)  (hi -9.805,772,6V) (lo -0.000,001,6V, -0.000,002,1V) az meas -9.805,770,8V   mean(30) -9.8057694V, stddev(30) 1.18uV,
+
+reset; dcv-source -10 ; azero on; nplc 1; himux dcv-source ; azmux ref-lo ; gain 1; buffer 30;  trig
+counts  10002  202317  197812    719 400001 (lo)  (hi -9.805,790,9V) (lo -0.000,014,9V, -0.000,012,9V) az meas -9.805,777,0V   mean(30) -9.8057774V, stddev(30) 2.30uV,
+counts  10002   88995  311168    764 400001 (hi)  (hi -9.805,792,8V) (lo -0.000,014,9V, -0.000,012,9V) az meas -9.805,778,9V   mean(30) -9.8057776V, stddev(30) 2.19uV,
+counts  10002  202317  197812    712 400001 (lo)  (hi -9.805,792,8V) (lo -0.000,008,0V, -0.000,014,9V) az meas -9.805,781,4V   mean(30) -9.8057779V, stddev(30) 2.19uV,
+counts  10002   88995  311168    759 400001 (hi)  (hi -9.805,787,9V) (lo -0.000,008,0V, -0.000,014,9V) az meas -9.805,776,5V   mean(30) -9.8057779V, stddev(30) 2.17uV,
+counts  10002  202317  197812    716 400001 (lo)  (hi -9.805,787,9V) (lo -0.000,012,0V, -0.000,008,0V) az meas -9.805,777,9V   mean(30) -9.8057779V, stddev(30) 2.17uV,
+counts  10002   88995  311168    760 400001 (hi)  (hi -9.805,788,9V) (lo -0.000,012,0V, -0.000,008,0V) az meas -9.805,778,9V   mean(30) -9.8057780V, stddev(30) 2.15uV,
+
+about a from -1uV to -12uV. offset. for lo. not good.
+
+with f+10V dc bias.
+
+et; dcv-source 10 ; azero on; nplc 10; himux dcv-source ; azmux ref-lo ; gain 1; buffer 30;  trig
+counts  10002 3164482  835703    918 4000001 (hi)  (hi 9.879,711,8V) (lo -0.000,007,4V, -0.000,007,6V) az meas 9.879,719,3V   mean(30) 9.8797202V, stddev(30) 0.89uV,
+counts  10002 2022507 1977610    947 4000001 (lo)  (hi 9.879,711,8V) (lo -0.000,007,7V, -0.000,007,4V) az meas 9.879,719,4V   mean(30) 9.8797202V, stddev(30) 0.90uV,
+counts  10002 3164482  835703    901 4000001 (hi)  (hi 9.879,713,5V) (lo -0.000,007,7V, -0.000,007,4V) az meas 9.879,721,0V   mean(30) 9.8797202V, stddev(30) 0.91uV,
+counts  10002 2022490 1977610    211 4000001 (lo)  (hi 9.879,713,5V) (lo -0.000,008,3V, -0.000,007,7V) az meas 9.879,721,5V   mean(30) 9.8797202V, stddev(30) 0.92uV,
+counts  10002 3164482  835703    914 4000001 (hi)  (hi 9.879,712,2V) (lo -0.000,008,3V, -0.000,007,7V) az meas 9.879,720,2V   mean(30) 9.8797202V, stddev(30) 0.87uV,
+counts  10002 2022490 1977610    205 4000001 (lo)  (hi 9.879,712,2V) (lo -0.000,007,7V, -0.000,008,3V) az meas 9.879,720,2V   mean(30) 9.8797201V, stddev(30) 0.85uV,
+
+ reset; dcv-source 10 ; azero on; nplc 1; himux dcv-source ; azmux ref-lo ; gain 1; buffer 30;  trig
+counts  10002  202317  197812    716 400001 (lo)  (hi 9.879,709,6V) (lo -0.000,012,0V, -0.000,013,9V) az meas 9.879,722,6V   mean(30) 9.8797211V, stddev(30) 1.32uV,
+counts  10002  316540   83657    212 400001 (hi)  (hi 9.879,705,7V) (lo -0.000,012,0V, -0.000,013,9V) az meas 9.879,718,6V   mean(30) 9.8797210V, stddev(30) 1.38uV,
+counts  10002  202317  197812    717 400001 (lo)  (hi 9.879,705,7V) (lo -0.000,012,9V, -0.000,012,0V) az meas 9.879,718,2V   mean(30) 9.8797210V, stddev(30) 1.47uV,
+counts  10002  316557   83657    952 400001 (hi)  (hi 9.879,707,3V) (lo -0.000,012,9V, -0.000,012,0V) az meas 9.879,719,8V   mean(30) 9.8797209V, stddev(30) 1.49uV,
+counts  10002  202317  197812    717 400001 (lo)  (hi 9.879,707,3V) (lo -0.000,012,9V, -0.000,012,9V) az meas 9.879,720,3V   mean(30) 9.8797209V, stddev(30) 1.49uV,
+
+the lo is shifting....
+maybe just needs amplifier divider compensation current - from amplifier.  or from adc hystersis..
+about a from -6uV to -12uV. offset. for lo. not good.
+
+EXTR - need to check its not . at 1nplc again. w
+
+-----------------------------------------
+***************
+HOW TO determine - if the difference wehen sampling ref-lo from himux versus sampling ref-lo from lo-mux in az mode. - is a real voltage difference. 
+    - we just sample in non-az mode.   using pc-out.
+***************
+  - THIS SHOULD JUST ABOUT BE A TEST.
+  - eg. take 5 samples of ref-lo via himux.   and 5 samples of ref-lo via lomux.  both in non-az mode.
+  - that will reveal if its a temperature effect.
+---------------------------------
+
+
+
+Or need compensation. for the amplifier current.
+Or need compensation for comparator.    it would be positive current.
+
+if 1mA current,  on vref.  and copper can preturb 100uV.   then slight changes in ref-currents could  effect somewhow.
+-----------------------------------
+
+  EXTR - himux - and lomux areas are thermally isolated - because they are separate copper islands for guarding.
 
 #endif
 

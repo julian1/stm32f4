@@ -209,6 +209,8 @@ typedef struct Mode
 
   uint32_t  reg_adc_p_aperture;
 
+  uint32_t  reg_sa_p_clk_count_precharge ;
+
   ////////////
 
   /* other state, that needs to be persisted. not managed on 4094 or fpga.  required to be able to change range. etc.
