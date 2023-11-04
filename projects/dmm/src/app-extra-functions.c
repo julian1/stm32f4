@@ -120,6 +120,12 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   }
   else if(strcmp(cmd, "trig") == 0) {
       printf("trigger\n" );
+
+      // clear the sample buffer
+      assert(app->sample_buffer);
+      app->sample_buffer  = m_zero( app->sample_buffer ) ;
+
+      // trigger the sample acquisition
       spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 1 );
       return 1;
   }

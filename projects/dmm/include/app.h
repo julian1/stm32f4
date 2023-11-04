@@ -175,8 +175,10 @@ typedef struct app_t
   MAT *b;
 
   // change name  sample_buffer  acquis_buffer  meas_buffer.
+  // sa_buffer .
   unsigned sample_buffer_i;
   MAT     *sample_buffer;
+  bool    sample_buffer_full; 
 
   /*  there is no reason for complicated stamping of sample data.   eg. hi, lo, hi, lo.
       instead just convert early.
