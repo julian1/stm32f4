@@ -101,6 +101,16 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   }
 
 
+  else if(strcmp(cmd, "null") == 0) {
+    // todo
+    return 1;
+  }
+  else if(strcmp(cmd, "div") == 0) {
+    // div by gain.before 
+    // should probably be gain and offset for the calibration.
+    // todo
+    return 1;
+  }
 
 
 
@@ -122,6 +132,8 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       printf("trigger\n" );
 
       // clear the sample buffer
+      // alternatively could use a separate command,  'buffer clear'
+      // have an expected buffer - means can stop when finished.
       assert(app->sample_buffer);
       app->sample_buffer  = m_zero( app->sample_buffer ) ;
 
