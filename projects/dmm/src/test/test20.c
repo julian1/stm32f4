@@ -690,7 +690,8 @@ if 1mA current,  on vref.  and copper can preturb 100uV.   then slight changes i
 
 nov 5.
 
-Wow. ok there really is around 7uV in it.
+Wow. ok there really is around 7uV in it. between ref-lo from hi-mux versus lo-mux
+by sampling in no-az. mode. so there are switch artiacts/ or settle timing issues.
 
 sample ref-lo from azmux .
 > reset; azero off; nplc 10; himux ref-lo; azmux ref-lo ; pc signal ;  gain 1;   trig
