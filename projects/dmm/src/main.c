@@ -933,7 +933,7 @@ static void app_update_new_measure(app_t *app)
         // determine if az obs high or lo
         if( status & STATUS_SA_AZ_STAMP  ) {
           // treat as hival
-          printf(" (hi) ");
+          printf(" az (hi) ");
           app->hi = ret;
         }
         else {
@@ -954,20 +954,25 @@ static void app_update_new_measure(app_t *app)
           printf(" unknown mode");
       }
 
+
+      // printf(" s=%u rows=%u", app->sample_buffer_i, m_rows(app->sample_buffer)); 
+
       // printf(" %lf", ret );
       printf(" meas %sV", format_float_with_commas(buf, 100, 7, ret ));
 
+
       push_buffer1( app->sample_buffer, &app->sample_buffer_i, ret );
-      if( app->sample_buffer_i ==  m_cols(app->sample_buffer)) {
+
+      if( app->sample_buffer_i == m_rows(app->sample_buffer)) {
         app->sample_buffer_full = true;
       }
 
       printf("   ");
 
-      if( app->sample_buffer_full == true) {
-          printf("f"); // buffer full
+      if( app->sample_buffer_full ) {
+        printf("f"); // buffer full
       } else {
-
+        printf("%u", app->sample_buffer_i); 
       };
 
       printf(" ");

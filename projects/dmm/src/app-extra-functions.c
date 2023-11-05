@@ -89,7 +89,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
   if( sscanf(cmd, "buffer %lu", &u1 ) == 1) {
 
-    if(u1 < 2 || u1 > 100 ) {
+    if(u1 < 2 || u1 > 500 ) {
       printf("set buffer size bad arg\n" );
       return 1;
     }
@@ -136,8 +136,9 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
         have an expected buffer - means can stop when finished.
       */
       assert(app->sample_buffer);
-      app->sample_buffer  = m_zero( app->sample_buffer ) ;
+      app->sample_buffer      = m_zero( app->sample_buffer ) ;
       app->sample_buffer_full = false;
+      app->sample_buffer_i    = 0;
 
       // trigger the sample acquisition
       spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 1 );

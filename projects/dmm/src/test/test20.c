@@ -711,6 +711,36 @@ counts  10002 2022507 1977610    729 4000001 no-az meas -0.000,004,2Vf   mean(10
 
 
 
+
+nov 6
+  added ltc1000,
+  stderr(V) 0.67uV  (nplc10)
+
+noise seems the same or higher,
+
+10 nplc.
+> reset; azero off; nplc 10; himux ref-lo; azmux pcout ; pc signal ;  gain 1; buffer 100;  trig
+counts  10002 2022507 1977661    536 4000001 no-az s=76 rows=100 meas -0.000,004,9V   f mean(100) -0.0000043V, stddev(100) 0.43uV,
+counts  10002 2022490 1977644    541 4000001 no-az s=77 rows=100 meas -0.000,003,8V   f mean(100) -0.0000043V, stddev(100) 0.43uV,
+counts  10002 2022507 1977661    533 4000001 no-az s=78 rows=100 meas -0.000,004,6V   f mean(100) -0.0000043V, stddev(100) 0.43uV,
+counts  10002 2022490 1977644    548 4000001 no-az s=79 rows=100 meas -0.000,004,4V   f mean(100) -0.0000043V, stddev(100) 0.43uV,
+counts  10002 2022507 1977661    537 4000001 no-az s=80 rows=100 meas -0.000,005,0V   f mean(100) -0.0000043V, stddev(100) 0.44uV,
+counts  10002 2022490 1977644    547 4000001 no-az s=81 rows=100 meas -0.000,004,3V   f mean(100) -0.0000043V, stddev(100) 0.44uV,
+counts  10002 2022507 1977661    533 4000001 no-az s=82 rows=100 meas -0.000,004,6V   f mean(100) -0.0000043V, stddev(100) 0.43uV,
+counts  10002 2022490 1977644    547 4000001 no-az s=83 rows=100 meas -0.000,004,3V   f mean(100) -0.0000043V, stddev(100) 0.43uV
+
+1nplc.
+> reset; azero off; nplc 1; himux ref-lo; azmux pcout ; pc signal ;  gain 1; buffer 100;  trig
+counts  10002  202317  197812    907 400001 no-az s=38 rows=100 meas -0.000,007,2V   f mean(100) -0.0000096V, stddev(100) 1.48uV,
+counts  10002  202317  197812    908 400001 no-az s=39 rows=100 meas -0.000,008,2V   f mean(100) -0.0000096V, stddev(100) 1.48uV,
+counts  10002  202317  197812    909 400001 no-az s=40 rows=100 meas -0.000,009,1V   f mean(100) -0.0000096V, stddev(100) 1.46uV,
+counts  10002  202317  197812    909 400001 no-az s=41 rows=100 meas -0.000,009,1V   f mean(100) -0.0000095V, stddev(100) 1.45uV,
+counts  10002  202317  197812    910 400001 no-az s=42 rows=100 meas -0.000,010,1V   f mean(100) -0.0000095V, stddev(100) 1.45uV,
+counts  10002  202317  197812    910 400001 no-az s=43 rows=100 meas -0.000,010,1V   f mean(100) -0.0000095V, stddev(100) 1.45uV,
+
+reset;  ; azero on; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; buffer 100;  trig
+counts  10002 2022490 1977644    501 4000001 lo  (lo)  (hi -0.000,011,4V) (lo 0.000,000,1V, 0.000,000,1V) meas -0.000,011,6V   f mean(100) -0.0000108V, stddev(100) 0.51uV,
+
 #endif
 
 
