@@ -514,14 +514,10 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
 
 
-
-  // else if( sscanf(cmd, "aper %lf", &f0 ) == 1) {
   else if( sscanf(cmd, "dcv-source %lf", &f0) == 1) {
 
     // have a separate commad for temp. etc.
-
     Mode *mode = app->mode_current;
-
     if(f0 >= 0)
       mode->second.U1003 =  U1003_POS;
     else
@@ -543,6 +539,33 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
     return 1;
   }
+
+  else if( sscanf(cmd, "dcv-source %100s", s0) == 1) {
+
+    // have a separate commad for temp. etc.
+    Mode *mode = app->mode_current;
+
+    mode->second.U1003 =  U1003_AGND;
+
+    // todo -  need a float compare. for rounding?.
+    if(strcmp(s0, "temp") == 0 )
+      mode->second.U1006 =  U1006_TEMP;
+    else if(strcmp(s0, "tp") == 0 )
+      mode->second.U1006 =  U1006_TP;
+    else if(strcmp(s0, "star-lo") == 0 )
+      mode->second.U1006 =  U1006_STAR_LO;
+    else if(strcmp(s0, "agnd") == 0 )
+      mode->second.U1006 =  U1006_AGND;
+    else
+      printf("bad dcv-source arg\n");
+
+    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+
+    return 1;
+  }
+
+
+
 
 
   else if(strcmp(cmd, "reset") == 0) {

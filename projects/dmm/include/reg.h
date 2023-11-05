@@ -90,6 +90,7 @@
 #define S5          ((1<<3)|(5-1))
 #define S6          ((1<<3)|(6-1))
 #define S7          ((1<<3)|(7-1))
+#define S8          ((1<<3)|(8-1))
 
 
 // muxes
@@ -111,13 +112,15 @@
 // dcv- source
 #define U1003_POS             S1
 #define U1003_NEG             S2
-#define U1003_GND             S3
+#define U1003_AGND             S3
 
 #define U1006_REF10V          S1
 #define U1006_REF1V           S2
 #define U1006_REV0V1          S3
 #define U1006_DCV_LO          S4
-// ...
+#define U1006_TP              S5
+#define U1006_AGND            S6
+#define U1006_STAR_LO         S7
 #define U1006_TEMP            S8
 
 
