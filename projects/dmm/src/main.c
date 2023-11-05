@@ -829,19 +829,19 @@ static void app_update_new_measure(app_t *app)
     mux_ice40(app->spi);
 
 
-    /* embed a 8 bit. counter in the status register
-        in order to check that all values are read in single transaction
-
+    /*
+        -a consider adding a 8 bit. counter in place of the monitor, in the status register
+        in order to check all values are read in a single transaction
+        - or else a checksum etc.
     */
-    uint32_t status =            spi_ice40_reg_read32( app->spi, REG_STATUS );
 
-    if( status & STATUS_SA_ARM_TRIGGER) {
-        // EXTR. we should put the arm/trigger in the status.
-        // uint32_t arm_trigger = spi_ice40_reg_read32( app->spi, REG_SA_ARM_TRIGGER);
+    uint32_t status =  spi_ice40_reg_read32( app->spi, REG_STATUS );
 
+    // suppress late measure samples arriving after signal_acquisition is returned to arm
+    if( ! (status & STATUS_SA_ARM_TRIGGER)) {
 
-      printf("spurious received after arm");
-      // return.
+      // printf("late meas samples received after arm");
+      return;
     }
 
 

@@ -128,8 +128,8 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 0 );
       return 1;
   }
-  else if(strcmp(cmd, "trig") == 0) {
-      printf("trigger\n" );
+  else if(strcmp(cmd, "trig") == 0 || strcmp(cmd, "t") == 0) {
+      printf("trigger sample acquisition\n" );
 
       /* clear the sample buffer
         alternatively could use a separate command,  'buffer clear'
