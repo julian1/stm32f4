@@ -801,10 +801,6 @@ static void app_update_console_cmd(app_t *app)
 
 
 
-#define STATUS_ADC_VALID    (1 << (9 -1) )
-// hi or lo
-#define STATUS_SA_AZ_STAMP    (1 << (10 -1) )
-
 
 
 
@@ -833,11 +829,21 @@ static void app_update_new_measure(app_t *app)
     mux_ice40(app->spi);
 
 
-    // EXTR. we should put the arm/trigger in the status.
-    // uint32_t arm_trigger = spi_ice40_reg_read32( app->spi, REG_SA_ARM_TRIGGER);
+    /* embed a 8 bit. counter in the status register
+        in order to check that all values are read in single transaction
 
-    // embed a 8 bit. counter ini the reg_status and use it for the measure.
+    */
     uint32_t status =            spi_ice40_reg_read32( app->spi, REG_STATUS );
+
+    if( status & STATUS_SA_ARM_TRIGGER) {
+        // EXTR. we should put the arm/trigger in the status.
+        // uint32_t arm_trigger = spi_ice40_reg_read32( app->spi, REG_SA_ARM_TRIGGER);
+
+
+      printf("spurious received after arm");
+      // return.
+    }
+
 
     uint32_t clk_count_mux_reset = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RESET);
     uint32_t clk_count_mux_neg = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_NEG);
@@ -855,18 +861,21 @@ static void app_update_new_measure(app_t *app)
 
     printf("counts %6lu %7lu %7lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
 
+
     if(app->b) {
-
-
-
 
       // TODO - have a scalar - version of this
       // would eases calculation. when only need a scalar.
-
       // WE NEED TO GET THIS CODED in a test. and the result recorded.
-
       // unsigned cols = 4;
 
+      /*
+          should keep fields stored against app_t structure. to avoid cost and complexity of always reallocating.
+          and having to free.
+          and make early return easier
+
+      // app->xs = run_to_mat( ..., app->xs );   its a good simplification.
+      */
       MAT *xs = run_to_matrix(
           clk_count_mux_neg,
           clk_count_mux_pos,
@@ -879,14 +888,6 @@ static void app_update_new_measure(app_t *app)
       assert(m_mux_sig);
       assert( m_is_scalar(m_mux_sig) );
 
-
-      // happens after recal and changing columns.
-      // would be fixed, if we could suppresssed the adc data ready.
-      if(m_cols(xs) != m_rows(app->b)) {
-
-        printf("xs cols doesn't match b rows \n");
-        // memory leak.
-      }
 
 
 /*

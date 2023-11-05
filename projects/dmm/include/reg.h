@@ -41,6 +41,15 @@
 
 
 #define REG_STATUS        17
+
+#define STATUS_ADC_VALID    (1 << (9 -1) )
+// hi or lo
+#define STATUS_SA_AZ_STAMP    (1 << (10 -1) )   // 3 bits.
+
+#define STATUS_SA_ARM_TRIGGER (1 << (13 -1) )   // 1 bit.
+
+
+
 #define REG_RESET         18
 
 // acquisition trigger
