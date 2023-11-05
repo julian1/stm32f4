@@ -246,17 +246,25 @@ void app_cal( app_t *app )
    usart1_flush();
 
 
-  // uint32_t nplc_to_aper_n( double nplc, uint32_t lfreq )
 
-  double sigma_div_aperture = regression.sigma / nplc_to_aper_n( 10, app->lfreq ) * 1e6; // 1000000;  // in uV.
-  // printf("sigma_div_aperture %.2fuV  nplc(10)\n", sigma_div_aperture);
-  printf("stderr(V) %.2fuV  (nplc10)\n", sigma_div_aperture);
+  {
+    // print some stats
+    uint32_t aperture_ = nplc_to_aper_n( 10, app->lfreq );
 
+    double sigma_div_aperture = regression.sigma / aperture_  * 1e6; // 1000000;  // in uV.
+
+    printf("stderr(V) %.2fuV  (nplc10)\n", sigma_div_aperture);
+
+    double last_b_coefficient = m_get_val(regression.b ,   0,   m_rows(regression.b) - 1);
+
+    // todo move code from funcion there. i think.
+    show_slope_b_detail( aperture_, last_b_coefficient);
+  }
 
 
   // note the predicted values are in the regression structure.
-  // app->b       = m_copy( regression.b, MNULL );
   app->b       = m_copy( regression.b, app->b );
+
   // free regression
   r_free( &regression );
 

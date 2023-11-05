@@ -864,7 +864,10 @@ static void app_update_new_measure(app_t *app)
 
 
     // quick indication without
-    printf(" %s ", (status & STATUS_SA_AZ_STAMP) ? "hi" : "lo"  );
+
+    if(app->mode_current->reg_mode == MODE_AZ)  {
+      printf(" %s ", (status & STATUS_SA_AZ_STAMP) ? "hi" : "lo"  );
+    }
 
 
 

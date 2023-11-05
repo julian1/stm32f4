@@ -33,3 +33,9 @@ bool push_buffer1( MAT *buffer, unsigned *i, double value);
 
 
 void m_stats_print( MAT *buffer );
+
+void show_slope_b_detail( unsigned aperture, double slope_b );
+
+
+
+

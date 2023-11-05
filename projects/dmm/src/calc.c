@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <stdint.h>
 
+#include <math.h>   // fabs, log10
 
 
 #include "calc.h"
@@ -73,6 +74,29 @@ bool push_buffer1( MAT *buffer, unsigned *i, double value)
 
   return full;
 }
+
+
+
+
+void show_slope_b_detail( unsigned aperture, double slope_b )
+{
+  // better name print_slope_b_detail.
+
+  // unsigned aperture =   nplc_to_aper_n( 10 );
+
+  // double   slope_b    = m_get_val(cal->b, slope_idx, 0 );   // rows
+  double   res        = fabs( slope_b / aperture ); // in V
+  // could also work out the implied count here.
+
+  printf("res       %.3fuV  ", res * 1000000);  // resolution  in uV.
+  printf("digits %.2f ", log10( 10.f / res));   // ie. decimal=10 not +-11V
+  // printf("bits %.2f ", log2( res));           // correct?   or should be aperture / slobe_b ?
+  printf("  (nplc10)\n");
+}
+
+
+
+
 
 
 
