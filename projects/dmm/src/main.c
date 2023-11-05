@@ -925,7 +925,7 @@ static void app_update_new_measure(app_t *app)
         // no az mode. just print the value
         // printf(" no-az meas %sV", format_float_with_commas(buf, 100, 7, ret ));
 
-        printf(" no-az meas");
+        printf(" no-az");
 
       }
       else if(mode->reg_mode == MODE_AZ)  {
@@ -951,7 +951,7 @@ static void app_update_new_measure(app_t *app)
         ret = app->hi - ((app->lo[ 0 ] + app->lo[1] ) / 2.0);
       }
       else {
-          printf("unknown mode");
+          printf(" unknown mode");
       }
 
       // printf(" %lf", ret );
@@ -961,13 +961,16 @@ static void app_update_new_measure(app_t *app)
       if( app->sample_buffer_i ==  m_cols(app->sample_buffer)) {
         app->sample_buffer_full = true;
       }
+
+      printf("   ");
+
       if( app->sample_buffer_full == true) {
           printf("f"); // buffer full
       } else {
 
       };
 
-      printf("   ");
+      printf(" ");
       m_stats_print( app->sample_buffer );
     }
 

@@ -695,19 +695,19 @@ by sampling in no-az. mode. so there are switch artiacts/ or settle timing issue
 
 sample ref-lo from azmux .
 > reset; azero off; nplc 10; himux ref-lo; azmux ref-lo ; pc signal ;  gain 1;   trig
-counts  10002 2022507 1977610    660 4000001 no-az meas meas 0.000,002,7Vf   mean(10) 0.0000035V, stddev(10) 0.45uV,
-counts  10002 2022507 1977610    655 4000001 no-az meas meas 0.000,003,2Vf   mean(10) 0.0000034V, stddev(10) 0.42uV,
-counts  10002 2022507 1977610    659 4000001 no-az meas meas 0.000,002,8Vf   mean(10) 0.0000034V, stddev(10) 0.47uV,
-counts  10002 2022507 1977610    643 4000001 no-az meas meas 0.000,004,3Vf   mean(10) 0.0000035V, stddev(10) 0.56uV,
-counts  10002 2022507 1977610    653 4000001 no-az meas meas 0.000,003,4Vf   mean(10) 0.0000035V, stddev(10) 0.56uV,
-counts  10002 2022507 1977610    660 4000001 no-az meas meas 0.000,002,7Vf   mean(10) 0.0000034V, stddev(10) 0.62uV,
+counts  10002 2022507 1977610    660 4000001 no-az meas 0.000,002,7Vf   mean(10) 0.0000035V, stddev(10) 0.45uV,
+counts  10002 2022507 1977610    655 4000001 no-az meas 0.000,003,2Vf   mean(10) 0.0000034V, stddev(10) 0.42uV,
+counts  10002 2022507 1977610    659 4000001 no-az meas 0.000,002,8Vf   mean(10) 0.0000034V, stddev(10) 0.47uV,
+counts  10002 2022507 1977610    643 4000001 no-az meas 0.000,004,3Vf   mean(10) 0.0000035V, stddev(10) 0.56uV,
+counts  10002 2022507 1977610    653 4000001 no-az meas 0.000,003,4Vf   mean(10) 0.0000035V, stddev(10) 0.56uV,
+counts  10002 2022507 1977610    660 4000001 no-az meas 0.000,002,7Vf   mean(10) 0.0000034V, stddev(10) 0.62uV,
 
 sample ref-lo from himux.
 > reset; azero off; nplc 10; himux ref-lo; azmux pcout ; pc signal ;  gain 1;   trig
-counts  10002 2022507 1977610    731 4000001 no-az meas meas -0.000,004,4Vf   mean(10) -0.0000039V, stddev(10) 0.55uV,
-counts  10002 2022507 1977610    735 4000001 no-az meas meas -0.000,004,8Vf   mean(10) -0.0000040V, stddev(10) 0.59uV,
-counts  10002 2022507 1977610    736 4000001 no-az meas meas -0.000,004,9Vf   mean(10) -0.0000041V, stddev(10) 0.57uV,
-counts  10002 2022507 1977610    729 4000001 no-az meas meas -0.000,004,2Vf   mean(10) -0.0000042V, stddev(10) 0.57uV,
+counts  10002 2022507 1977610    731 4000001 no-az meas -0.000,004,4Vf   mean(10) -0.0000039V, stddev(10) 0.55uV,
+counts  10002 2022507 1977610    735 4000001 no-az meas -0.000,004,8Vf   mean(10) -0.0000040V, stddev(10) 0.59uV,
+counts  10002 2022507 1977610    736 4000001 no-az meas -0.000,004,9Vf   mean(10) -0.0000041V, stddev(10) 0.57uV,
+counts  10002 2022507 1977610    729 4000001 no-az meas -0.000,004,2Vf   mean(10) -0.0000042V, stddev(10) 0.57uV,
 
 
 
