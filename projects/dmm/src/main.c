@@ -807,6 +807,179 @@ static void app_update_console_cmd(app_t *app)
 
 
 
+
+
+static void app_update_new_measure(app_t *app)
+{
+
+
+  /*
+    race condition here,,
+    adc may have produced a valid measure.
+    but the sample acquisition was put into arm state by mcu
+    So see how much we
+    --
+    this is simpler. and keeps dependencies better isolated, compared with having the sample_acquisition squash the valid signal.
+  */
+
+  if(app->adc_measure_valid) {
+
+    char buf[100];
+
+    // printf("-------------------\n");
+
+    app->adc_measure_valid = false;
+
+    mux_ice40(app->spi);
+
+
+    // EXTR. we should put the arm/trigger in the status.
+    // uint32_t arm_trigger = spi_ice40_reg_read32( app->spi, REG_SA_ARM_TRIGGER);
+
+    // embed a 8 bit. counter ini the reg_status and use it for the measure.
+    uint32_t status =            spi_ice40_reg_read32( app->spi, REG_STATUS );
+
+    uint32_t clk_count_mux_reset = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RESET);
+    uint32_t clk_count_mux_neg = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_NEG);
+    uint32_t clk_count_mux_pos = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_POS);
+    uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
+    uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_SIG);
+
+
+    /*  - OK. it doesn't matter whether aperture is for one more extra clk cycle. or one less.  eg. the clk termination condition.
+        instead what matters is that the count is recorded in the same way, as for the reference currents.
+        eg. so should should always refer to the returned count value, not the aperture ctrl register.
+
+        uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_P_APERTURE );
+    */
+
+    printf("counts %6lu %7lu %7lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+
+    if(app->b) {
+
+
+
+
+      // TODO - have a scalar - version of this
+      // would eases calculation. when only need a scalar.
+
+      // WE NEED TO GET THIS CODED in a test. and the result recorded.
+
+      // unsigned cols = 4;
+
+      MAT *xs = run_to_matrix(
+          clk_count_mux_neg,
+          clk_count_mux_pos,
+          clk_count_mux_rd,
+          app->model_cols,
+          MNULL
+        );
+      // we could make all these vars persist.
+      MAT	*m_mux_sig = m_from_scalar( clk_count_mux_sig, MNULL );
+      assert(m_mux_sig);
+      assert( m_is_scalar(m_mux_sig) );
+
+
+      // happens after recal and changing columns.
+      // would be fixed, if we could suppresssed the adc data ready.
+      if(m_cols(xs) != m_rows(app->b)) {
+
+        printf("xs cols doesn't match b rows \n");
+        // memory leak.
+      }
+
+
+/*
+      printf("app->b cols %u\n", m_cols( app->b ) );
+      printf("app->b rows %u\n", m_rows( app->b ) );
+      printf("xs     cols %u\n", m_cols( xs ) );
+      printf("xs     rows %u\n", m_rows( xs ) );
+*/
+
+      //  this may want to
+      MAT *predicted =  m_calc_predicted( app->b, xs, m_mux_sig);
+      assert(predicted);
+      assert( m_is_scalar(predicted) );
+
+      double ret = m_to_scalar(predicted );
+
+      M_FREE( xs );
+      M_FREE( m_mux_sig );
+      M_FREE( predicted );
+
+
+      Mode *mode = app->mode_current;
+
+      if(mode->reg_mode == MODE_NO_AZ )  {
+
+        // no az mode. just print the value
+        // printf(" no-az meas %sV", format_float_with_commas(buf, 100, 7, ret ));
+
+        printf(" no-az meas");
+
+      }
+      else if(mode->reg_mode == MODE_AZ)  {
+
+        printf(" az meas");
+
+        // determine if az obs high or lo
+        if( status & STATUS_SA_AZ_STAMP  ) {
+          // treat as hival
+          printf(" (hi) ");
+          app->hi = ret;
+        }
+        else {
+          // treat as lo val
+          printf(" (lo) ");
+          app->lo[ 1] = app->lo[ 0];  // shift last value
+          app->lo[ 0] = ret;
+        }
+
+        printf(" (hi %sV)",  format_float_with_commas(buf, 100, 7, app->hi ));
+        printf(" (lo %sV",   format_float_with_commas(buf, 100, 7, app->lo[0]  ));
+        printf(", %sV)",  format_float_with_commas(buf, 100, 7, app->lo[1] ));
+
+        // regardless whether we got a lo or a hi. calculate and show a new value.
+        ret = app->hi - ((app->lo[ 0 ] + app->lo[1] ) / 2.0);
+      }
+      else {
+          printf("unknown mode");
+      }
+
+      // printf(" %lf", ret );
+      printf(" meas %sV", format_float_with_commas(buf, 100, 7, ret ));
+
+      push_buffer1( app->sample_buffer, &app->sample_buffer_i, ret );
+      if( app->sample_buffer_i ==  m_cols(app->sample_buffer)) {
+        app->sample_buffer_full = true;
+      }
+      if( app->sample_buffer_full = true) {
+          printf("f"); // buffer full
+      };
+
+      printf("   ");
+      m_stats_print( app->sample_buffer );
+    }
+
+    printf("\n");
+  }
+
+
+  // did we miss data, for any reason
+  if( app->adc_measure_valid_missed == true) {
+    printf("missed data\n");
+    app->adc_measure_valid_missed = false;
+  }
+
+
+
+
+
+
+}
+
+
+
 static void app_loop(app_t *app)
 {
 /*
@@ -827,153 +1000,7 @@ static void app_loop(app_t *app)
 
   while(true) {
 
-
-    // process data in priority
-    if(app->adc_measure_valid == true) {
-
-      char buf[100];
-
-
-      // printf("-------------------\n");
-
-      app->adc_measure_valid = false;
-
-      mux_ice40(app->spi);
-
-      // embed a 8 bit. counter ini the reg_status and use it for the measure.
-      uint32_t status =            spi_ice40_reg_read32( app->spi, REG_STATUS );
-
-      uint32_t clk_count_mux_reset = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RESET);
-      uint32_t clk_count_mux_neg = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_NEG);
-      uint32_t clk_count_mux_pos = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_POS);
-      uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
-      uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_SIG);
-
-
-      /*  - OK. it doesn't matter whether aperture is for one more extra clk cycle. or one less.  eg. the clk termination condition.
-          instead what matters is that the count is recorded in the same way, as for the reference currents.
-          eg. so should should always refer to the returned count value, not the aperture ctrl register.
-
-          uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_P_APERTURE );
-      */
-
-      printf("counts %6lu %7lu %7lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
-
-      if(app->b) {
-
-
-
-
-        // TODO - have a scalar - version of this
-        // would eases calculation. when only need a scalar.
-
-        // WE NEED TO GET THIS CODED in a test. and the result recorded.
-
-        // unsigned cols = 4;
-
-        MAT *xs = run_to_matrix(
-            clk_count_mux_neg,
-            clk_count_mux_pos,
-            clk_count_mux_rd,
-            app->model_cols,
-            MNULL
-          );
-        // we could make all these vars persist.
-        MAT	*m_mux_sig = m_from_scalar( clk_count_mux_sig, MNULL );
-        assert(m_mux_sig);
-        assert( m_is_scalar(m_mux_sig) );
-
-
-        // happens after a spurious.
-        if(m_cols(xs) != m_rows(app->b)) {
-
-          printf("xs cols doesn't match b rows \n");
-          // memory leak.
-        }
-
-
-/*
-        printf("app->b cols %u\n", m_cols( app->b ) );
-        printf("app->b rows %u\n", m_rows( app->b ) );
-        printf("xs     cols %u\n", m_cols( xs ) );
-        printf("xs     rows %u\n", m_rows( xs ) );
-*/
-
-        //  this may want to
-        MAT *predicted =  m_calc_predicted( app->b, xs, m_mux_sig);
-        assert(predicted);
-        assert( m_is_scalar(predicted) );
-
-        double ret = m_to_scalar(predicted );
-
-        M_FREE( xs );
-        M_FREE( m_mux_sig );
-        M_FREE( predicted );
-
-
-        Mode *mode = app->mode_current;
-
-        if(mode->reg_mode == MODE_NO_AZ )  {
-
-          // no az mode. just print the value
-          // printf(" no-az meas %sV", format_float_with_commas(buf, 100, 7, ret ));
-
-          printf(" no-az meas");
-
-        }
-        else if(mode->reg_mode == MODE_AZ)  {
-
-          printf(" az meas");
-
-          // determine if az obs high or lo
-          if( status & STATUS_SA_AZ_STAMP  ) {
-            // treat as hival
-            printf(" (hi) ");
-            app->hi = ret;
-          }
-          else {
-            // treat as lo val
-            printf(" (lo) ");
-            app->lo[ 1] = app->lo[ 0];  // shift last value
-            app->lo[ 0] = ret;
-          }
-
-          printf(" (hi %sV)",  format_float_with_commas(buf, 100, 7, app->hi ));
-          printf(" (lo %sV",   format_float_with_commas(buf, 100, 7, app->lo[0]  ));
-          printf(", %sV)",  format_float_with_commas(buf, 100, 7, app->lo[1] ));
-
-          // regardless whether we got a lo or a hi. calculate and show a new value.
-          ret = app->hi - ((app->lo[ 0 ] + app->lo[1] ) / 2.0);
-        }
-        else {
-            printf("unknown mode");
-        }
-
-        // printf(" %lf", ret );
-        printf(" meas %sV", format_float_with_commas(buf, 100, 7, ret ));
-
-        push_buffer1( app->sample_buffer, &app->sample_buffer_i, ret );
-        if( app->sample_buffer_i ==  m_cols(app->sample_buffer)) {
-          app->sample_buffer_full = true;
-        }
-        if( app->sample_buffer_full = true) {
-            printf("f"); // buffer full
-        };
-
-        printf("   ");
-        m_stats_print( app->sample_buffer );
-      }
-
-      printf("\n");
-    }
-
-
-    // did we miss data, for any reason
-    if( app->adc_measure_valid_missed == true) {
-      printf("missed data\n");
-      app->adc_measure_valid_missed = false;
-    }
-
+    // deal with new input samples in priority
 
 
     /*
@@ -989,8 +1016,10 @@ static void app_loop(app_t *app)
       // no better for a callee to yield back to update(), while setting up a dispatch callback to get control.
     */
 
-    app_update_console_cmd(app);
+    app_update_new_measure(app);
 
+
+    app_update_console_cmd(app);
 
 
     // 100s soft timer
