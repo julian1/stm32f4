@@ -911,24 +911,21 @@ static void app_loop(app_t *app)
         M_FREE( predicted );
 
 
-
         Mode *mode = app->mode_current;
+
         if(mode->reg_mode == MODE_NO_AZ )  {
 
           // no az mode. just print the value
-          printf(" no-az meas %sV", format_float_with_commas(buf, 100, 7, ret ));
+          // printf(" no-az meas %sV", format_float_with_commas(buf, 100, 7, ret ));
 
-          push_buffer1( app->sample_buffer, &app->sample_buffer_i, ret );
-          if( app->sample_buffer_i ==  m_cols(app->sample_buffer)) {
-            app->sample_buffer_full = true;
-          }
+          printf(" no-az meas");
+
         }
         else if(mode->reg_mode == MODE_AZ)  {
 
-          // printf("az sample %sV\n", format_float_with_commas(buf, 100, 7, ret ));
-          // printf("\nadc valid %lu   az stamp %lu\n",  status & STATUS_ADC_VALID, status & STATUS_SA_AZ_STAMP   );
+          printf(" az meas");
 
-          // az  - need to determine if high or lo
+          // determine if az obs high or lo
           if( status & STATUS_SA_AZ_STAMP  ) {
             // treat as hival
             printf(" (hi) ");
@@ -945,17 +942,23 @@ static void app_loop(app_t *app)
           printf(" (lo %sV",   format_float_with_commas(buf, 100, 7, app->lo[0]  ));
           printf(", %sV)",  format_float_with_commas(buf, 100, 7, app->lo[1] ));
 
-          // regardless whether we got a lo or a hi. we calculate a new value.
-          // not sure if this is correct.
-          double v = app->hi - ((app->lo[ 0 ] + app->lo[1] ) / 2.0);
-          push_buffer1( app->sample_buffer, &app->sample_buffer_i, v );
-
-          // printf(" %lf", ret );
-          printf(" az meas %sV", format_float_with_commas(buf, 100, 7, v ));
+          // regardless whether we got a lo or a hi. calculate and show a new value.
+          ret = app->hi - ((app->lo[ 0 ] + app->lo[1] ) / 2.0);
         }
         else {
             printf("unknown mode");
-          }
+        }
+
+        // printf(" %lf", ret );
+        printf(" meas %sV", format_float_with_commas(buf, 100, 7, ret ));
+
+        push_buffer1( app->sample_buffer, &app->sample_buffer_i, ret );
+        if( app->sample_buffer_i ==  m_cols(app->sample_buffer)) {
+          app->sample_buffer_full = true;
+        }
+        if( app->sample_buffer_full = true) {
+            printf("f"); // buffer full
+        };
 
         printf("   ");
         m_stats_print( app->sample_buffer );
