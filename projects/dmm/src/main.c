@@ -862,6 +862,12 @@ static void app_update_new_measure(app_t *app)
     printf("counts %6lu %7lu %7lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
 
 
+
+    // quick indication without
+    printf(" %s ", (status & STATUS_SA_AZ_STAMP) ? "hi" : "lo"  );
+
+
+
     if(app->b) {
 
       // TODO - have a scalar - version of this
@@ -921,8 +927,6 @@ static void app_update_new_measure(app_t *app)
       }
       else if(mode->reg_mode == MODE_AZ)  {
 
-        printf(" az meas");
-
         // determine if az obs high or lo
         if( status & STATUS_SA_AZ_STAMP  ) {
           // treat as hival
@@ -954,8 +958,10 @@ static void app_update_new_measure(app_t *app)
       if( app->sample_buffer_i ==  m_cols(app->sample_buffer)) {
         app->sample_buffer_full = true;
       }
-      if( app->sample_buffer_full = true) {
+      if( app->sample_buffer_full == true) {
           printf("f"); // buffer full
+      } else {
+
       };
 
       printf("   ");
