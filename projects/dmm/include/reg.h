@@ -48,7 +48,8 @@
 #define REG_SA_P_CLK_COUNT_PRECHARGE 21
 
 // adc parameters
-#define REG_ADC_P_APERTURE  20
+#define REG_ADC_P_APERTURE          20
+#define REG_ADC_P_CLK_COUNT_RESET   25
 
 
 // adc read counts

@@ -197,7 +197,7 @@ typedef struct app_t
 // app_transition_state() ?
 void app_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *system_millis);
 
-
+// TODO - move . these are not app functions.
 // consider moving to calc.
 uint32_t nplc_to_aper_n( double nplc, uint32_t lfreq );
 double aper_n_to_nplc( uint32_t aper_n, uint32_t lfreq);

@@ -106,7 +106,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     return 1;
   }
   else if(strcmp(cmd, "div") == 0) {
-    // div by gain.before 
+    // div by gain.before
     // should probably be gain and offset for the calibration.
     // todo
     return 1;
@@ -131,11 +131,13 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   else if(strcmp(cmd, "trig") == 0) {
       printf("trigger\n" );
 
-      // clear the sample buffer
-      // alternatively could use a separate command,  'buffer clear'
-      // have an expected buffer - means can stop when finished.
+      /* clear the sample buffer
+        alternatively could use a separate command,  'buffer clear'
+        have an expected buffer - means can stop when finished.
+      */
       assert(app->sample_buffer);
       app->sample_buffer  = m_zero( app->sample_buffer ) ;
+      app->sample_buffer_full = false;
 
       // trigger the sample acquisition
       spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 1 );
@@ -185,6 +187,8 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     // can only be for dcv10,dcv1,dcv01.  ranges. but doesn't matter to turn on for dcv1000,dcv
     // but needs to persist.
 
+    Mode *mode = app->mode_current;
+
     if(strcmp(s0, "on") == 0) {
 
       printf("set fixedz on\n" );
@@ -199,10 +203,10 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     }
 
     // follow fixedz for 10Meg/high-z.
-    app->mode_current->first.K402_CTL = app->fixedz ?  LR_TOP :  LR_BOT ;
+    mode->first.K402_CTL = app->fixedz ?  LR_TOP :  LR_BOT ;
 
     // do the state transition
-    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+    app_transition_state( app->spi, mode,  &app->system_millis );
     return 1;
   }
 
@@ -232,7 +236,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       return 1;
     }
     // do the state transition
-    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+    app_transition_state( app->spi, mode,  &app->system_millis );
     return 1;
   }
 
@@ -240,6 +244,8 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
 
   else if( sscanf(cmd, "electro %100s", s0) == 1) {
+
+    // perhaps easier as meta command, expressed in terms of other parameters.
 
     Mode *mode = app->mode_current;
 
@@ -265,39 +271,52 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       return 1;
     }
     // do the state transition
-    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+    app_transition_state( app->spi, mode,  &app->system_millis );
     return 1;
   }
 
 
 
+  ////////////////////////////////////////////////////////
 
 
-
-  /* TODO change name sa_precharge and adc_reset 
+  /* TODO change name sa_precharge and adc_reset
       or sa precharge  ,  adc reset
   */
   else if( sscanf(cmd, "precharge %lu", &u1 ) == 1) {
 
     printf("set precharge in clk counts \n");
-
     Mode *mode = app->mode_current;
     mode->reg_sa_p_clk_count_precharge  = u1;
-
     // do the state transition
-    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
-
+    app_transition_state( app->spi, mode,  &app->system_millis );
     return 1;
   }
   else if( strcmp(cmd, "precharge?") == 0) {
 
     mux_ice40(app->spi);
-    uint32_t precharge = spi_ice40_reg_read32(app->spi, REG_SA_P_CLK_COUNT_PRECHARGE );
- 
-    printf("prechare aperture %lu\n", precharge);
-
+    printf("prechare aperture %lu\n", spi_ice40_reg_read32(app->spi, REG_SA_P_CLK_COUNT_PRECHARGE ));
     return 1;
   }
+
+
+
+  else if( sscanf(cmd, "adc reset %lu", &u1 ) == 1) {
+
+    printf("set adc reset in clk counts \n");
+    Mode *mode = app->mode_current;
+    mode->reg_adc_p_reset = u1;
+    // do the state transition
+    app_transition_state( app->spi, mode,  &app->system_millis );
+    return 1;
+  }
+  else if( strcmp(cmd, "adc reset?") == 0) {
+
+    mux_ice40(app->spi);
+    printf("adc reset %lu\n", spi_ice40_reg_read32(app->spi, REG_ADC_P_CLK_COUNT_RESET));
+    return 1;
+  }
+
 
 
 

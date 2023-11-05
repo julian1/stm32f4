@@ -233,10 +233,10 @@ void app_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *sy
 
   spi_ice40_reg_write_n(spi, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
 
-  spi_ice40_reg_write32(spi, REG_ADC_P_APERTURE, mode->reg_adc_p_aperture );
+  spi_ice40_reg_write32(spi, REG_ADC_P_APERTURE,          mode->reg_adc_p_aperture );
+  spi_ice40_reg_write32(spi, REG_ADC_P_CLK_COUNT_RESET,   mode->reg_adc_p_reset );
 
   spi_ice40_reg_write32(spi, REG_SA_P_CLK_COUNT_PRECHARGE, mode->reg_sa_p_clk_count_precharge );
-  
 
   // can add the reg reset here.
 
@@ -919,6 +919,9 @@ static void app_loop(app_t *app)
           printf(" no-az meas %sV", format_float_with_commas(buf, 100, 7, ret ));
 
           push_buffer1( app->sample_buffer, &app->sample_buffer_i, ret );
+          if( app->sample_buffer_i ==  m_cols(app->sample_buffer)) {
+            app->sample_buffer_full = true;
+          }
         }
         else if(mode->reg_mode == MODE_AZ)  {
 
@@ -1099,12 +1102,13 @@ static const Mode mode_initial =  {
 
   .reg_mode = MODE_LO,
 
-  // .reg_adc_p_aperture = 4000000,         // clk_freq * 0.2 ; wset explicitly in dcv
-  .reg_adc_p_aperture = CLK_FREQ * 0.2,   // 200ms. 10nplc 50Hz. 
-                                        // Not. should use current calibration?
-                                        // should be authoritative source of state.
+  .reg_sa_p_clk_count_precharge = CLK_FREQ * 500e-6,             //  `CLK_FREQ * 500e-6 ;   // 500us.
 
-  .reg_sa_p_clk_count_precharge = CLK_FREQ * 500e-6             //  `CLK_FREQ * 500e-6 ;   // 500us. 
+  .reg_adc_p_aperture = CLK_FREQ * 0.2,   // 200ms. 10nplc 50Hz.  // Not. should use current calibration?  // should be authoritative source of state.
+
+  .reg_adc_p_reset = CLK_FREQ * 500e-6                // 500us.
+
+
 };
 
 
