@@ -716,6 +716,7 @@ nov 6
   added ltc1000,
   cols 3. stderr(V) 0.67uV  (nplc10)
 
+  with 100 sample buffer.
   noise seems the same or higher,
 
   10 nplc.
@@ -737,6 +738,60 @@ nov 6
 
   measuring temperature
   reset; dcv-source temp ; azero on; nplc 10; himux dcv-source ; azmux ref-lo ; gain 1; buffer 30;  trig
+
+  ---------------------------
+  --------
+  reset; azero off; nplc 10; himux ref-lo; azmux pcout ; pc signal ;  gain 1; buffer 100;  trig;
+
+  No lid. two runs. 100 obs.
+    counts  10002 2022507 1977661    617 4000001 no-az meas -0.000,004,9V   f mean(100) -0.0000051V, stddev(100) 0.54uV,
+    counts  10002 2022507 1977661    610 4000001 no-az meas -0.000,004,2V   f mean(100) -0.0000043V, stddev(100) 0.61uV,
+
+  With lid.
+  counts  10002 2022507 1977661    620 4000001 no-az meas -0.000,005,2V   f mean(100) -0.0000045V, stddev(100) 0.42uV,
+
+
+solder in 100k zfoil for bias resistor.
+  after soldering,   and cleaning.
+  stderr(V) 24uV  (nplc10)
+  stderr(V) 7.98uV  (nplc10)
+  stderr(V) 3.25uV  (nplc10)
+  stderr(V) 0.79uV  (nplc10)
+  stderr(V) 0.67uV  (nplc10)
+  stderr(V) 0.87uV  (nplc10)
+
+    So it plays a part.
+
+  no lid.  0.61uV.  10nplc.  n=100,20 sec.
+  with lid.  0.42V.  10nplc.  n=100,20 sec.
+
+  Ok. so there's not much difference.
+
+  To rule out some potential issues - I swapped the ref over, changed the rundown bias resistor from inexpensive thin-film to zfoil to rule out thermal variantion
+  Also added gain to the slope amplifier,  from opa140 and 10k/10k to opa140 and 2.15k/21.5k (2k loading on integrator output is probably too high).
+  In the past I tried perturbing the slope-amp and gain with different bjt op-amps - ne5534, op27, op37, lt1358. but without seeing much difference.
+  the reset resistor is 3.74k. not 20k. as indicated on the schematic (also a load on the integrator op).
+
+  The biggest difference is seen by adding tin lid for shielding. 0.6uV -> 0.4uV.  10nplc. az off.
+
+  Two things in my mind are  - populate the RC between the adc mux and integrator input. 
+  It is a bit spikey when probed with a scope. but I never got around to populating them. 
+  Also to change the 2k+2k+mux rds(on). as the input resistance. 
+  But maybe white-noise/flicker noise  would be evident from a frequency/noise like plot.
+
+
+
+
+  stderr(V) 0.85uV  (nplc10)
+  adding the slope gain makes no difference or worsens the result 0.4uV to 0.5uV.
+  cols = 3, stderr(V) 0.67uV  (nplc10)
+  -----
+  with lid.
+
+  stderr(V) 0.51uV  (nplc10)    <- OK, this is slightly better.
+
+  reset; dcv-source temp ; azero on; nplc 1; himux ref-lo ; azmux ref-lo ; gain 1; buffer 200;  trig
+  counts  10002  202317  197812    681 400001 az  (hi)  (hi -0.000,013,7V) (lo -0.000,000,9V, 0.000,000,0V) meas -0.000,013,3V   f mean(200) -0.0000108V, stddev(200) 1.48uV,
 
 #endif
 

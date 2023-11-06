@@ -840,7 +840,10 @@ static void app_update_new_measure(app_t *app)
     // suppress late measure samples arriving after signal_acquisition is returned to arm
     if( ! (status & STATUS_SA_ARM_TRIGGER)) {
 
-      // printf("late meas samples received after arm");
+      /*
+          this is done in software. and can only be done in software - because there is a race- condition.
+          that adc can generate the obs - in the time that we write the arm/trigger register for signal acquisition.
+      */
       return;
     }
 
