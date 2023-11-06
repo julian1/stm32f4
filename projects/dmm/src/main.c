@@ -864,11 +864,11 @@ static void app_update_new_measure(app_t *app)
 
 
     // quick indication without
-
+/*
     if(app->mode_current->reg_mode == MODE_AZ)  {
       printf(" %s ", (status & STATUS_SA_AZ_STAMP) ? "hi" : "lo"  );
     }
-
+*/
 
 
     if(app->b) {
@@ -900,11 +900,25 @@ static void app_update_new_measure(app_t *app)
 
 
 /*
-      printf("app->b cols %u\n", m_cols( app->b ) );
-      printf("app->b rows %u\n", m_rows( app->b ) );
-      printf("xs     cols %u\n", m_cols( xs ) );
-      printf("xs     rows %u\n", m_rows( xs ) );
 */
+
+
+      if ( m_cols(xs) != m_rows( app->b) ) {
+
+        printf("m_cols(xs) != m_rows( b) \n");
+
+
+        printf("app->cols   %u\n", app->model_cols );
+        printf("app->b cols %u\n", m_cols( app->b ) );
+        printf("app->b rows %u\n", m_rows( app->b ) );
+        printf("xs     cols %u\n", m_cols( xs ) );
+        printf("xs     rows %u\n", m_rows( xs ) );
+
+
+        M_FREE( xs );
+        M_FREE( m_mux_sig );
+        return;
+      }
 
       //  this may want to
       MAT *predicted =  m_calc_predicted( app->b, xs, m_mux_sig);
@@ -922,18 +936,16 @@ static void app_update_new_measure(app_t *app)
 
       if(mode->reg_mode == MODE_NO_AZ )  {
 
-        // no az mode. just print the value
-        // printf(" no-az meas %sV", format_float_with_commas(buf, 100, 7, ret ));
-
         printf(" no-az");
-
       }
       else if(mode->reg_mode == MODE_AZ)  {
 
+        printf(" az ");
         // determine if az obs high or lo
         if( status & STATUS_SA_AZ_STAMP  ) {
+
+          printf(" (hi) ");
           // treat as hival
-          printf(" az (hi) ");
           app->hi = ret;
         }
         else {
@@ -955,7 +967,7 @@ static void app_update_new_measure(app_t *app)
       }
 
 
-      // printf(" s=%u rows=%u", app->sample_buffer_i, m_rows(app->sample_buffer)); 
+      // printf(" s=%u rows=%u", app->sample_buffer_i, m_rows(app->sample_buffer));
 
       // printf(" %lf", ret );
       printf(" meas %sV", format_float_with_commas(buf, 100, 7, ret ));
@@ -972,7 +984,7 @@ static void app_update_new_measure(app_t *app)
       if( app->sample_buffer_full ) {
         printf("f"); // buffer full
       } else {
-        printf("%u", app->sample_buffer_i); 
+        printf("%u", app->sample_buffer_i);
       };
 
       printf(" ");

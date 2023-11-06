@@ -262,6 +262,13 @@ void app_cal( app_t *app )
   }
 
 
+    // m_copy does not change dims.
+
+  app->b = m_resize(app->b,  m_rows( regression.b ), m_cols( regression.b));
+
+  // assert(app->b.m == regression->b.m && app->b.n == regression->b.n);
+  assert(app->b->m == regression.b->m && app->b->n == regression.b->n);
+
   // note the predicted values are in the regression structure.
   app->b       = m_copy( regression.b, app->b );
 
