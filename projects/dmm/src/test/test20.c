@@ -735,6 +735,9 @@ nov 6
   counts  10002  202317  197812    918 400001 az  (hi)  (hi -0.000,016,0V) (lo -0.000,003,4V, -0.000,004,3V) meas -0.000,012,2V   f mean(100) -0.0000113V, stddev(100) 1.75uV,
 
 
+  measuring temperature
+  reset; dcv-source temp ; azero on; nplc 10; himux dcv-source ; azmux ref-lo ; gain 1; buffer 30;  trig
+
 #endif
 
 

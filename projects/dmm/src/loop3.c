@@ -123,7 +123,8 @@ void app_cal( app_t *app )
         mode->reg_direct.azmux    = AZMUX_PCOUT;     // signal
         mode->reg_direct.himux    = HIMUX_HIMUX2;    // himux2
         mode->reg_direct.himux2   = HIMUX2_REF_HI;    // ref-hi.
-        y_ = 7;
+        // y_ = 7;  / lt1021/7V
+        y_ = 7.1;   // ltz
 
       } else if( j == 1) {
         printf("mux lo\n");
