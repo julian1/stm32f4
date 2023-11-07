@@ -44,8 +44,11 @@ MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture);
   before appending...
 
   - also if have this flexible buffer.  then can do the calibration collection gathering, much more simply.
-
   - also put the cal structure on app. and then just free and reallocate in place. to avoid leaking.
+
+  - use strategy of oversizing on creation then reset rows.
+  - can also call a function to potentially reallocate the mem reserve if under pressure. if really cannot determine size upfront. 
+
 */
 bool push_buffer1( MAT *buffer, unsigned *i, double value);
 
