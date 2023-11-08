@@ -176,11 +176,17 @@ typedef struct app_t
 
   MAT *b;
 
-  // change name  sample_buffer  acquis_buffer  meas_buffer.
-  // sa_buffer .
-  unsigned sample_buffer_i;
+  //////////////////
+
+  // maybe change name  sample_buffer  acquis_buffer  meas_buffer.
   MAT     *sample_buffer;
-  // bool    sample_buffer_full;
+
+  // overflow index. rename _overflow, _wraparound
+  unsigned sample_buffer_i;
+
+  // we need behavior on overflow. no. 
+  // continuous/stopping sampling after buffer is full. is independent of whether we want to keep populating. i thinik we do.
+
 
   /*  there is no reason for complicated stamping of sample data.   eg. hi, lo, hi, lo.
       instead just convert early.
