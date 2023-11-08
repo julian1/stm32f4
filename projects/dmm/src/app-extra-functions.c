@@ -153,7 +153,7 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
 
       // app->sample_buffer_full = false;
-      app->sample_count_i    = 0;
+      app->sample_count_i  = 0;
 
       // trigger the sample acquisition
       spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 1 );

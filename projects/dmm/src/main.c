@@ -904,14 +904,11 @@ static void app_update_new_measure(app_t *app)
 
 
 
-/*
-*/
-
-
       if ( m_cols(xs) != m_rows( app->b) ) {
 
+        // calibtration cols mismatch.
+        // shouldn't happen.
         printf("m_cols(xs) != m_rows( b) \n");
-
 
         printf("app->cols   %u\n", app->model_cols );
         printf("app->b cols %u\n", m_cols( app->b ) );
@@ -925,8 +922,8 @@ static void app_update_new_measure(app_t *app)
         return;
       }
 
-      //  this may want to
-      MAT *predicted =  m_calc_predicted( app->b, xs, m_mux_sig);
+      //  we should persist this.  and pass it in to m_calc_predicated.
+      MAT *predicted =  m_calc_predicted( app->b, xs, m_mux_sig /*, app->predicted */);
       assert(predicted);
       assert( m_is_scalar(predicted) );
 
