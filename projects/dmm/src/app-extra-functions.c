@@ -6,6 +6,8 @@
 #include <string.h>     // strcmp, memset
 #include <assert.h>
 
+#include <malloc.h> // malloc_stats()
+
 // lib
 #include "util.h"       // msleep()
 
@@ -607,13 +609,40 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
 
   // temp show.
-  else if(strcmp(cmd, "temp?") == 0) {
+  else if(strcmp(cmd, "temp?") == 0) {  // mcu show.
 
     double val = adc_temp_read10();
     printf("temp %.1fC\n", val);
 
     return 1;
   }
+
+
+  /*
+      we want to try to report where the stack is.
+  */
+
+  else if(strcmp(cmd, "mem malloc?") == 0) {
+
+      printf("-------\n");
+      printf("malloc\n");
+      malloc_stats();
+  }  
+
+  else if(strcmp(cmd, "mem mesch?") == 0) {
+
+      // Note that not all allocations are visible to mallinfo(); see BUGS and consider using malloc_info(3) instead.
+      // mallinfo(stdout );
+      //  The malloc_info() function is designed to address deficiencies in
+      // malloc_stats(3) and mall
+
+      printf("-------\n");
+      printf("mesch\n");
+      printf("mesch mem_info_is_on() %u\n", mem_info_is_on());
+      mem_dump_list(stdout, 0 );
+      
+  }  
+
 
 
 

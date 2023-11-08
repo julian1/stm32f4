@@ -45,6 +45,8 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 #include "util.h"   // msleep()
 
 
+#include "mcu-temp.h"
+
 #include "spi-port.h"
 #include "spi-ice40.h"
 #include "mux.h"
@@ -1204,9 +1206,23 @@ int main(void)
   // spi / ice40
   rcc_periph_clock_enable(RCC_SPI1);
 
+  
+  // adc/temp
+  rcc_periph_clock_enable(RCC_ADC1);
+
+  // this isn't right. it's for the fan.
+  // gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0);
+  // gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1);
+
+
   /*
     Do led first, even if need update() and systick loop() to blink it.
   */
+
+
+  adc_setup();
+
+
 
 #define LED_PORT  GPIOA
 #define LED_OUT   GPIO9
@@ -1307,6 +1323,12 @@ int main(void)
   app.model_cols = 3;
 
   app.azmux_lo_val  = AZMUX_STAR_LO;
+
+
+          
+  // mesch turn on mem tracking
+  mem_info_on(1 );
+
 
   // set up the sample buffer
   app.sample_buffer = m_resize( app.sample_buffer, 10, 1 );

@@ -739,6 +739,8 @@ nov 6
   measuring temperature
   reset; dcv-source temp ; azero on; nplc 10; himux dcv-source ; azmux ref-lo ; gain 1; buffer 30;  trig
 
+  reset; dcv-source temp ; azero off; nplc 10; himux dcv-source ; azmux pcout; pc signal ; gain 1; buffer 10;  trig 
+
   ---------------------------
   --------
   reset; azero off; nplc 10; himux ref-lo; azmux pcout ; pc signal ;  gain 1; buffer 100;  trig;
@@ -792,6 +794,15 @@ solder in 100k zfoil for bias resistor.
 
   reset; dcv-source temp ; azero on; nplc 1; himux ref-lo ; azmux ref-lo ; gain 1; buffer 200;  trig
   counts  10002  202317  197812    681 400001 az  (hi)  (hi -0.000,013,7V) (lo -0.000,000,9V, 0.000,000,0V) meas -0.000,013,3V   f mean(200) -0.0000108V, stddev(200) 1.48uV,
+
+
+
+nov 8.
+
+  stddev. seems worse. after making changes.
+
+  stderr(V) 1.65uV  (nplc10)   it's worse.
+  stderr(V) 0.93uV  (nplc10)
 
 #endif
 
