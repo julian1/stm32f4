@@ -16,6 +16,7 @@ MAT * run_to_matrix( // const Run *run,
 );
 
 
+// mat_set_row() and push_buffer etc. should be general and moved
 
 void mat_set_row (  MAT *xs, unsigned row_idx,   MAT *whoot );
 

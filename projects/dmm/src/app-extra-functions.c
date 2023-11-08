@@ -25,6 +25,9 @@
 // modes of operation.
 #include "mode.h"
 
+
+#include "regression.h"     // change name to general purpose matrix stuff.
+
 /*
   Ok, we want to be able to set the input source. and then the amplifier gain.
   extra_functions.
@@ -97,7 +100,13 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
     }
 
     printf("set buffer size\n" );
+
+    // the issue is that once the buffer is full.. it won't keep filling it. 
+    // actually it will.
+    // and we can specify what to - when buffer is full.
+
     app->sample_buffer = m_resize( app->sample_buffer, u1 , 1 );
+    app->sample_buffer = m_truncate_rows( app->sample_buffer, 0 );
 
     return 1;
   }

@@ -977,7 +977,9 @@ static void app_update_new_measure(app_t *app)
       // printf(" %lf", ret );
       printf(" meas %sV", format_float_with_commas(buf, 100, 7, ret ));
 
+      m_push_row( app->sample_buffer, & ret , 1 );
 
+/*
       push_buffer1( app->sample_buffer, &app->sample_buffer_i, ret );
 
       if( app->sample_buffer_i == m_rows(app->sample_buffer)) {
@@ -991,6 +993,7 @@ static void app_update_new_measure(app_t *app)
       } else {
         printf("%u", app->sample_buffer_i);
       };
+*/
 
       printf(" ");
       m_stats_print( app->sample_buffer );
@@ -1180,6 +1183,15 @@ static const Mode mode_initial =  {
 
 
 
+
+
+
+// use m_reserve_rows() to flexibly reserve/resize.
+
+
+// Can put  regression here, also.
+// static R regression;
+
 static Mode mode_current;
 
 
@@ -1206,7 +1218,7 @@ int main(void)
   // spi / ice40
   rcc_periph_clock_enable(RCC_SPI1);
 
-  
+
   // adc/temp
   rcc_periph_clock_enable(RCC_ADC1);
 
@@ -1325,7 +1337,7 @@ int main(void)
   app.azmux_lo_val  = AZMUX_STAR_LO;
 
 
-          
+
   // mesch turn on mem tracking
   mem_info_on(1 );
 
@@ -1333,6 +1345,36 @@ int main(void)
   // set up the sample buffer
   app.sample_buffer = m_resize( app.sample_buffer, 10, 1 );
   app.sample_buffer_i = 0;
+
+
+  ///////////////////
+  printf("-------------\n" );
+
+  MAT   *xs = NULL;
+  xs = m_resize(xs, 5, 2);
+  m_truncate_rows( xs, 0 );
+
+  printf("rows          %u\n", m_rows( xs) );
+  printf("rows reserve  %u\n", m_rows_reserve( xs) );
+/*
+  printf("truncate rows\n" );
+  double v[] = { 1,2, 3, 4, 5,6, 7,8, 9, 10 };
+  xs = m_fill(  xs , v, ARRAY_SIZE(v));
+  m_foutput( stdout, xs);
+*/
+  // ok. so we can create a new matrix. then truncate the rows.
+  // then push data.
+
+  double row[] = { 1, 2 } ;
+
+  m_push_row( xs, row  , 2 );
+  // m_push_row( xs, row  , 2 );
+  m_foutput( stdout, xs);
+
+  M_FREE(xs);
+
+  printf("-------------\n" );
+  ////////////////////////
 
 
   // printf("_stack      %u\n", _stack ); // linker var not exposed.

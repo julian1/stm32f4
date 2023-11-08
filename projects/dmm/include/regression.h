@@ -1,4 +1,7 @@
 
+// rename. to math.h or calc or somethng. or mcalc. this is just all very generalalized.
+
+
 #pragma once
 
 #include <stdbool.h>
@@ -6,7 +9,6 @@
 #include "matrix.h"   // MAT
 
 
-// rename. to math.h or somethng.
 
 
 /*
@@ -24,7 +26,13 @@
 // MAT	*m_element_invert( const MAT *matrix, MAT *out);
 
 unsigned m_rows(const MAT *m) ;
+unsigned m_rows_reserve(const MAT *m);
+
 unsigned m_cols(const MAT *m) ;
+
+MAT * m_truncate_rows( MAT *m, size_t m_new );
+void m_push_row( MAT *m, double *xs, size_t n );
+
 
 
 // element

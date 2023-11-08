@@ -1,4 +1,5 @@
 /*
+  calc2.c
   need a better name for this. math2.h/c?
   matrix2.h/c
 
@@ -83,9 +84,39 @@ unsigned m_rows(const MAT *m)
   return m->m;
 }
 
+unsigned m_rows_reserve(const MAT *m)
+{
+  return m->max_m;
+}
+
+
 unsigned m_cols(const MAT *m)
 {
   return m->n;
+}
+
+
+
+
+
+void m_push_row( MAT *m, double *xs, size_t n )
+{
+  assert(  m_rows(m) < m_rows_reserve(m));
+
+  for(unsigned i = 0; i < n; ++i )
+    m_set_val( m, m_rows(m), i,  xs[ i ] );
+
+  ++m->m;
+
+}
+
+
+MAT * m_truncate_rows( MAT *m, size_t m_new )
+{
+  assert(m_new <= m_rows(m));   // can truncate to the same size.
+  m->m = m_new;
+
+  return m;
 }
 
 
