@@ -977,7 +977,23 @@ static void app_update_new_measure(app_t *app)
       // printf(" %lf", ret );
       printf(" meas %sV", format_float_with_commas(buf, 100, 7, ret ));
 
-      m_push_row( app->sample_buffer, & ret , 1 );
+      if(m_rows(app->sample_buffer) == m_rows_reserve(app->sample_buffer)) {
+
+        // buffer is full, so insert and overwrite
+        // unsigned idx = app->sample_buffer_i++  % m_rows(app->sample_buffer);  // dono't think this quite works, on wrap-aroundjjj.
+        // printf("idx %u\n", idx );
+
+        assert( app->sample_buffer_i < m_rows(app->sample_buffer));
+        m_set_val( app->sample_buffer, app->sample_buffer_i, 0,  ret );
+
+        if(++app->sample_buffer_i == m_rows(app->sample_buffer))
+          app->sample_buffer_i  = 0;
+
+
+      } else {
+
+        m_push_row( app->sample_buffer, & ret , 1 );
+      }
 
 /*
       push_buffer1( app->sample_buffer, &app->sample_buffer_i, ret );
@@ -1348,6 +1364,7 @@ int main(void)
 
 
   ///////////////////
+#if 0
   printf("-------------\n" );
 
   MAT   *xs = NULL;
@@ -1372,8 +1389,8 @@ int main(void)
   m_foutput( stdout, xs);
 
   M_FREE(xs);
-
   printf("-------------\n" );
+#endif
   ////////////////////////
 
 

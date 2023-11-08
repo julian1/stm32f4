@@ -103,7 +103,7 @@ void m_push_row( MAT *m, double *xs, size_t n )
 {
   assert(  m_rows(m) < m_rows_reserve(m));
 
-  for(unsigned i = 0; i < n; ++i )
+  for(unsigned i = 0; i < n; ++i )          // iterate columns
     m_set_val( m, m_rows(m), i,  xs[ i ] );
 
   ++m->m;

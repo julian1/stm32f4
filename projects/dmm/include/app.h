@@ -100,6 +100,8 @@ typedef struct app_t
     - just need a lightweight buffer - to capture reset/stop.
     - or do it three times and exit.
     - rewrite test03, to click the relays. to run in a non-yielding loop.
+
+  // TODO remove.
   */
   unsigned test_in_progress; // enum. for test type.
 
@@ -178,13 +180,13 @@ typedef struct app_t
   // sa_buffer .
   unsigned sample_buffer_i;
   MAT     *sample_buffer;
-  bool    sample_buffer_full; 
+  // bool    sample_buffer_full;
 
   /*  there is no reason for complicated stamping of sample data.   eg. hi, lo, hi, lo.
       instead just convert early.
   */
 
-  double   hi;        // for az mode. the last hi measure
+  double   hi;        // for az mode. the last hi measure TODO change name az_hi. and az_lo ?
   double   lo[2];   // for az mode. the last two lo signals.
 
 

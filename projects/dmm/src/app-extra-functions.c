@@ -147,8 +147,12 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
         have an expected buffer - means can stop when finished.
       */
       assert(app->sample_buffer);
-      app->sample_buffer      = m_zero( app->sample_buffer ) ;
-      app->sample_buffer_full = false;
+      app->sample_buffer      = m_zero( app->sample_buffer ) ;    // we don't really even have to zero the buffer.
+
+      m_truncate_rows( app->sample_buffer, 0 );
+
+
+      // app->sample_buffer_full = false;
       app->sample_buffer_i    = 0;
 
       // trigger the sample acquisition
