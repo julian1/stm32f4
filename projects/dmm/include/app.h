@@ -171,6 +171,8 @@ typedef struct app_t
   bool adc_measure_valid_missed; // could be made a count
 
 
+  unsigned verbose;     // treated as bool at the moment
+
   /////////////////
   unsigned model_cols; // to use.
 
@@ -190,7 +192,7 @@ typedef struct app_t
                                     // wrap around can be handled. if == MAX( ) .
                             */
 
-  unsigned sa_count_stop;       // sample acquisition terminate condition. change name sa_count_i. change name done. sa_p_count_finish
+  // unsigned sa_count_stop;       // sample acquisition terminate condition. change name sa_count_i. change name done. sa_p_count_finish
 
 
   // we need behavior on overflow. no.

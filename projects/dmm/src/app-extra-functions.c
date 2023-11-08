@@ -92,6 +92,14 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
   }
 
 
+  if( sscanf(cmd, "verbose %lu", &u1 ) == 1) {
+
+    printf("set verbosity %lu\n", u1  );
+    app->verbose = u1;
+    return 1;
+  }
+
+
   if( sscanf(cmd, "buffer %lu", &u1 ) == 1) {
 
     // if(u1 < 2 || u1 > 500 ) {

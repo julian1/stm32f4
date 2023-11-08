@@ -864,7 +864,8 @@ static void app_update_new_measure(app_t *app)
         uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_P_APERTURE );
     */
 
-    printf("counts %6lu %7lu %7lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+    if(app->verbose)
+      printf("counts %6lu %7lu %7lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
 
 
 
@@ -906,8 +907,8 @@ static void app_update_new_measure(app_t *app)
 
       if ( m_cols(xs) != m_rows( app->b) ) {
 
-        // calibtration cols mismatch.
-        // shouldn't happen.
+        // calibtration sampled data, mismatch the cols mismatch.
+        // shouldn't happen if arm is working.
         printf("m_cols(xs) != m_rows( b) \n");
 
         printf("app->cols   %u\n", app->model_cols );
@@ -938,38 +939,44 @@ static void app_update_new_measure(app_t *app)
 
       if(mode->reg_mode == MODE_NO_AZ )  {
 
-        printf(" no-az");
+        if(app->verbose)
+          printf(" no-az");
       }
       else if(mode->reg_mode == MODE_AZ)  {
 
-        printf(" az ");
+        if(app->verbose)
+          printf(" az ");
+
         // determine if az obs high or lo
         if( status & STATUS_SA_AZ_STAMP  ) {
-
-          printf(" (hi) ");
           // treat as hival
+          if(app->verbose)
+            printf(" (hi) ");
           app->hi = ret;
         }
         else {
           // treat as lo val
-          printf(" (lo) ");
+          if(app->verbose)
+            printf(" (lo) ");
           app->lo[ 1] = app->lo[ 0];  // shift last value
           app->lo[ 0] = ret;
         }
 
-        printf(" (hi %sV)",  format_float_with_commas(buf, 100, 7, app->hi ));
-        printf(" (lo %sV",   format_float_with_commas(buf, 100, 7, app->lo[0]  ));
-        printf(", %sV)",  format_float_with_commas(buf, 100, 7, app->lo[1] ));
+        if(app->verbose) {
+          printf(" (hi %sV)",  format_float_with_commas(buf, 100, 7, app->hi ));
+          printf(" (lo %sV",   format_float_with_commas(buf, 100, 7, app->lo[0]  ));
+          printf(", %sV)",  format_float_with_commas(buf, 100, 7, app->lo[1] ));
+        }
 
         // regardless whether we got a lo or a hi. calculate and show a new value.
         ret = app->hi - ((app->lo[ 0 ] + app->lo[1] ) / 2.0);
       }
       else {
-          printf(" unknown mode");
+          printf(" sample acquired from unknown mode");
       }
 
 
-
+      // we could quieten this also.
       // printf(" %lf", ret );
       printf(" meas %sV", format_float_with_commas(buf, 100, 7, ret ));
 
@@ -988,9 +995,10 @@ static void app_update_new_measure(app_t *app)
         m_set_val( app->sa_buffer, idx, 0,  ret );
       }
 
-
-      printf(" ");
-      m_stats_print( app->sa_buffer );
+      if(app->verbose) {
+        printf(" ");
+        m_stats_print( app->sa_buffer );
+      }
     }
 
     printf("\n");
@@ -1340,6 +1348,7 @@ int main(void)
   app.sa_buffer = m_resize( app.sa_buffer, 10, 1 );
   app.sa_count_i = 0;
 
+  app.verbose = 1;
 
   ///////////////////
 #if 0
