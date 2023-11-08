@@ -1335,6 +1335,7 @@ int main(void)
   app.sample_buffer_i = 0;
 
 
+  // printf("_stack      %u\n", _stack ); // linker var not exposed.
 
   printf("sizeof X    %u\n", sizeof(X));
   printf("sizeof Mode %u\n", sizeof(Mode ));

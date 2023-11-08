@@ -619,17 +619,26 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
 
   /*
-      we want to try to report where the stack is.
+      can we print the heap also?
   */
+  else if(strcmp(cmd, "mem stack?") == 0) {
+
+      printf("-------\n");
+      print_stack_pointer();
+      return 1;
+  }
 
   else if(strcmp(cmd, "mem malloc?") == 0) {
 
       printf("-------\n");
       printf("malloc\n");
       malloc_stats();
-  }  
+      return 1;
+  }
 
-  else if(strcmp(cmd, "mem mesch?") == 0) {
+  else if(strcmp(cmd, "mem mesch?") == 0 
+        || strcmp(cmd, "mem matrix?") == 0 
+      ) {
 
       // Note that not all allocations are visible to mallinfo(); see BUGS and consider using malloc_info(3) instead.
       // mallinfo(stdout );
@@ -640,8 +649,8 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       printf("mesch\n");
       printf("mesch mem_info_is_on() %u\n", mem_info_is_on());
       mem_dump_list(stdout, 0 );
-      
-  }  
+      return 1;
+  }
 
 
 

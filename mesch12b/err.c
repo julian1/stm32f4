@@ -257,6 +257,8 @@ int	ev_err(const char *file, int err_num, int line_num,
 #endif
 {
    int	num;
+
+  printf("JA ev_err() error\n");
    
    if ( err_num < 0 ) err_num = 0;
    
