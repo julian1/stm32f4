@@ -969,7 +969,6 @@ static void app_update_new_measure(app_t *app)
       }
 
 
-      // printf(" s=%u rows=%u", app->sa_count_i, m_rows(app->sa_buffer));
 
       // printf(" %lf", ret );
       printf(" meas %sV", format_float_with_commas(buf, 100, 7, ret ));
@@ -981,30 +980,14 @@ static void app_update_new_measure(app_t *app)
       }
 
       else {
-        // buffer is full, so insert 
-        // if modulo overflows it's an issue.
+        // buffer is full, so insert
+        // TODO there's an issue with modulo overflow/wrap around.
 
-        unsigned idx = app->sa_count_i++ % m_rows(app->sa_buffer);  
-
-        printf(" insert at %u\n", idx );
-
+        unsigned idx = app->sa_count_i++ % m_rows(app->sa_buffer);
+        // printf(" insert at %u\n", idx );
         m_set_val( app->sa_buffer, idx, 0,  ret );
-      } 
-/*
-      push_buffer1( app->sa_buffer, &app->sa_count_i, ret );
-
-      if( app->sa_count_i == m_rows(app->sa_buffer)) {
-        app->sa_buffer_full = true;
       }
 
-      printf("   ");
-
-      if( app->sa_buffer_full ) {
-        printf("f"); // buffer full
-      } else {
-        printf("%u", app->sa_count_i);
-      };
-*/
 
       printf(" ");
       m_stats_print( app->sa_buffer );

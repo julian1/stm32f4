@@ -100,24 +100,27 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       return 1;
     }
 
-    printf("set buffer size\n" );
+    printf("set buffer size %lu\n", u1  );
 
     // the issue is that once the buffer is full.. it won't keep filling it.
     // actually it will.
     // and we can specify what to - when buffer is full.
 
-    /* we should recreate buffer here - in order to free the memory.
+    /* we should free and recreate buffer here - in order to free the memory.
         otherwise it ends up being allocated oversized.
 
       - on a large matrix,
         this frees the mesch data structure.
-        but malloc() still hangs on to the reserved memory, like a page.
+        but malloc() still hangs on to the reserved heap it took, like a page.
     */
 
     M_FREE(app->sa_buffer);
 
     app->sa_buffer = m_resize( app->sa_buffer, u1 , 1 );
+
     app->sa_buffer = m_truncate_rows( app->sa_buffer, 0 );
+
+    assert(m_rows( app->sa_buffer) == 0);
 
     return 1;
   }
