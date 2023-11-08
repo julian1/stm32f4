@@ -94,19 +94,30 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
 
   if( sscanf(cmd, "buffer %lu", &u1 ) == 1) {
 
-    if(u1 < 2 || u1 > 500 ) {
+    // if(u1 < 2 || u1 > 500 ) {
+    if(u1 < 1 || u1 > 10000 ) {
       printf("set buffer size bad arg\n" );
       return 1;
     }
 
     printf("set buffer size\n" );
 
-    // the issue is that once the buffer is full.. it won't keep filling it. 
+    // the issue is that once the buffer is full.. it won't keep filling it.
     // actually it will.
     // and we can specify what to - when buffer is full.
 
-    app->sample_buffer = m_resize( app->sample_buffer, u1 , 1 );
-    app->sample_buffer = m_truncate_rows( app->sample_buffer, 0 );
+    /* we should recreate buffer here - in order to free the memory.
+        otherwise it ends up being allocated oversized.
+
+      - on a large matrix,
+        this frees the mesch data structure.
+        but malloc() still hangs on to the reserved memory, like a page.
+    */
+
+    M_FREE(app->sa_buffer);
+
+    app->sa_buffer = m_resize( app->sa_buffer, u1 , 1 );
+    app->sa_buffer = m_truncate_rows( app->sa_buffer, 0 );
 
     return 1;
   }
@@ -146,14 +157,14 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
         alternatively could use a separate command,  'buffer clear'
         have an expected buffer - means can stop when finished.
       */
-      assert(app->sample_buffer);
-      app->sample_buffer      = m_zero( app->sample_buffer ) ;    // we don't really even have to zero the buffer.
+      assert(app->sa_buffer);
+      app->sa_buffer      = m_zero( app->sa_buffer ) ;    // we don't really even have to zero the buffer.
 
-      m_truncate_rows( app->sample_buffer, 0 );
+      m_truncate_rows( app->sa_buffer, 0 );
 
 
-      // app->sample_buffer_full = false;
-      app->sample_count_i  = 0;
+      // app->sa_buffer_full = false;
+      app->sa_count_i  = 0;
 
       // trigger the sample acquisition
       spi_ice40_reg_write32(app->spi, REG_SA_ARM_TRIGGER, 1 );
@@ -649,8 +660,8 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       return 1;
   }
 
-  else if(strcmp(cmd, "mem mesch?") == 0 
-        || strcmp(cmd, "mem matrix?") == 0 
+  else if(strcmp(cmd, "mem mesch?") == 0
+        || strcmp(cmd, "mem matrix?") == 0
       ) {
 
       // Note that not all allocations are visible to mallinfo(); see BUGS and consider using malloc_info(3) instead.

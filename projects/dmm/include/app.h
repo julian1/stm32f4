@@ -160,7 +160,7 @@ typedef struct app_t
 
   uint32_t lfreq;
 
-  uint32_t azmux_lo_val;
+  uint32_t azmux_lo_val;      // prefix. sa.
 
   uint32_t last_reg_status ;  // to detect status change,
 
@@ -172,22 +172,26 @@ typedef struct app_t
 
 
   /////////////////
-  unsigned model_cols;
+  unsigned model_cols; // to use.
 
-  MAT *b;
+  MAT *b;           // cal_b or model_b ?
 
   //////////////////
 
-  // maybe change name  sample_buffer  acquis_buffer  meas_buffer.
-  MAT     *sample_buffer;
+  // maybe change name  sa_buffer  acquis_buffer  meas_buffer.
+  // change name sa_buffer
+  MAT  *sa_buffer;
 
   // overflow index. rename _overflow, _wraparound
-  unsigned sample_count_i;    /* has two needs.
-                                   - for modulo indexing sample_buffer
+  unsigned sa_count_i;    /* has two needs.
+                                   - for modulo indexing sa_buffer
                                     - determining when to stop.
                                     - actually we - may want to stamp - from the fpga .
                                     // wrap around can be handled. if == MAX( ) .
                             */
+
+  unsigned sa_count_stop;       // sample acquisition terminate condition. change name sa_count_i. change name done. sa_p_count_finish
+
 
   // we need behavior on overflow. no.
   // continuous/stopping sampling after buffer is full. is independent of whether we want to keep populating. i thinik we do.
