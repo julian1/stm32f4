@@ -182,9 +182,14 @@ typedef struct app_t
   MAT     *sample_buffer;
 
   // overflow index. rename _overflow, _wraparound
-  unsigned sample_buffer_i;
+  unsigned sample_count_i;    /* has two needs.
+                                   - for modulo indexing sample_buffer
+                                    - determining when to stop.
+                                    - actually we - may want to stamp - from the fpga .
+                                    // wrap around can be handled. if == MAX( ) .
+                            */
 
-  // we need behavior on overflow. no. 
+  // we need behavior on overflow. no.
   // continuous/stopping sampling after buffer is full. is independent of whether we want to keep populating. i thinik we do.
 
 

@@ -972,7 +972,7 @@ static void app_update_new_measure(app_t *app)
       }
 
 
-      // printf(" s=%u rows=%u", app->sample_buffer_i, m_rows(app->sample_buffer));
+      // printf(" s=%u rows=%u", app->sample_count_i, m_rows(app->sample_buffer));
 
       // printf(" %lf", ret );
       printf(" meas %sV", format_float_with_commas(buf, 100, 7, ret ));
@@ -980,14 +980,14 @@ static void app_update_new_measure(app_t *app)
       if(m_rows(app->sample_buffer) == m_rows_reserve(app->sample_buffer)) {
 
         // buffer is full, so insert and overwrite
-        // unsigned idx = app->sample_buffer_i++  % m_rows(app->sample_buffer);  // dono't think this quite works, on wrap-aroundjjj.
+        // unsigned idx = app->sample_count_i++  % m_rows(app->sample_buffer);  // dono't think this quite works, on wrap-aroundjjj.
         // printf("idx %u\n", idx );
 
-        assert( app->sample_buffer_i < m_rows(app->sample_buffer));
-        m_set_val( app->sample_buffer, app->sample_buffer_i, 0,  ret );
+        assert( app->sample_count_i < m_rows(app->sample_buffer));
+        m_set_val( app->sample_buffer, app->sample_count_i, 0,  ret );
 
-        if(++app->sample_buffer_i == m_rows(app->sample_buffer))
-          app->sample_buffer_i  = 0;
+        if(++app->sample_count_i == m_rows(app->sample_buffer))
+          app->sample_count_i  = 0;
 
 
       } else {
@@ -996,9 +996,9 @@ static void app_update_new_measure(app_t *app)
       }
 
 /*
-      push_buffer1( app->sample_buffer, &app->sample_buffer_i, ret );
+      push_buffer1( app->sample_buffer, &app->sample_count_i, ret );
 
-      if( app->sample_buffer_i == m_rows(app->sample_buffer)) {
+      if( app->sample_count_i == m_rows(app->sample_buffer)) {
         app->sample_buffer_full = true;
       }
 
@@ -1007,7 +1007,7 @@ static void app_update_new_measure(app_t *app)
       if( app->sample_buffer_full ) {
         printf("f"); // buffer full
       } else {
-        printf("%u", app->sample_buffer_i);
+        printf("%u", app->sample_count_i);
       };
 */
 
@@ -1360,7 +1360,7 @@ int main(void)
 
   // set up the sample buffer
   app.sample_buffer = m_resize( app.sample_buffer, 10, 1 );
-  app.sample_buffer_i = 0;
+  app.sample_count_i = 0;
 
 
   ///////////////////
