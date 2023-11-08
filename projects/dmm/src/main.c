@@ -45,7 +45,7 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 #include "util.h"   // msleep()
 
 
-#include "mcu-temp.h"
+#include "temp-mcu.h"
 
 #include "spi-port.h"
 #include "spi-ice40.h"
