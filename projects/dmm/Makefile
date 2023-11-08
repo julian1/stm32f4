@@ -59,7 +59,8 @@ SRCFILES	= src/main.c   src/spi-port.c  src/w25.c  src/4094.c src/spi-ice40.c  s
 
 # f407
 #LDSCRIPT	= ${TOP}/cjmcu-407.ld
-LDSCRIPT	= ${TOP}/f410.ld
+# LDSCRIPT	= ${TOP}/f410.ld
+LDSCRIPT	= ${TOP}/f411ceu.ld
 
 
 TGT_CFLAGS  += -Wno-unused-function   \
