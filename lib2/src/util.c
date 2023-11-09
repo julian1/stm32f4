@@ -206,6 +206,10 @@ void assert_simple(const char *file, int line, const char *func, const char *exp
 }
 
 
+/*
+  2023. substraction looks wrong.  should be stack end - current . 
+
+*/
 
 
 void print_stack_pointer()
@@ -219,9 +223,19 @@ void print_stack_pointer()
 
 
 
+/*
+__attribute__((naked)) void dummy_function(void)
+{
+   __asm(".global __initial_sp\n\t"
+         ".global __heap_base\n\t"
+//         ".global __heap_limit\n\t"
+         ".equ __initial_sp, STACK_BASE\n\t"
+         ".equ __heap_base, HEAP_BASE\n\t"
+ //        ".equ __heap_limit, (HEAP_BASE+HEAP_SIZE)\n\t"
+   );
+}
 
-
-
+*/
 
 
 #if 0
