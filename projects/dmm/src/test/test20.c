@@ -804,6 +804,12 @@ nov 8.
   stderr(V) 1.65uV  (nplc10)   it's worse.
   stderr(V) 0.93uV  (nplc10)
 
+
+  produced allan deviation plot. in timelab.
+
+  reset;  azero off; nplc 1; himux ref-lo ; azmux ref-lo ; gain 1;  trig
+
+
 #endif
 
 

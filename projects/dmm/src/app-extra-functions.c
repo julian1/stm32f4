@@ -1,4 +1,6 @@
 
+// change name repl.c ?
+// need "cal load %u;",  and "cal save %u;"  for adc.
 
 
 #include <math.h>      // fabs
