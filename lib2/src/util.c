@@ -5,7 +5,7 @@
         rather than code static variables.
 
         - eg. reaching out into space for system_millis  is horrid.
-    - 
+    -
     ------
 
 // sep 16. 2023. THIS IS really crappy. with led, hanging onto local state like.
@@ -207,8 +207,25 @@ void assert_simple(const char *file, int line, const char *func, const char *exp
 
 
 /*
-  2023. substraction looks wrong.  should be stack end - current . 
+  2023. substraction looks wrong.  stack start - is stack_end - current .
+  because stack grows down.
 
+
+
+The stack does not grow from the RAM-Start (0x20000000) to the end.
+  The Stack starts at RAM-End (0x20001800) and grows downwards. You define _estack in the Linker script.
+  This value is used in the startup code and put into the vector table (Assembler file startup_stm32f …s).
+  The processor initializes his internal stack pointer register with this.
+  Global and or static variables which are available from the begin of the program are placed at the RAM-Start (0x20000000) and after that comes the heap.
+  You can see this in the linker Script. “.data”, “.bss”, “.heap…” go into the RAM in this order.
+  Starting at “RAM” which has the RAM-start address (0x20000000).
+
+
+
+  // for f411ceu.
+	// ram (rwx) : ORIGIN = 0x20000000, LENGTH = 128K
+
+  p  -  (ORIGIN + (LENGTH * 1024) )
 */
 
 
@@ -219,7 +236,10 @@ void print_stack_pointer()
   void* p = NULL;
   usart1_printf("sp %p   %d\n", (void*)&p,  ( (unsigned)(void*)&p)  - 0x20000000   );
   // return &p;
+
+  // uint32_t x = _stack;
 }
+
 
 
 
@@ -237,93 +257,4 @@ __attribute__((naked)) void dummy_function(void)
 
 */
 
-
-#if 0
-
-// change name led_blink_setup()?
-
-void led_setup(uint32_t port_, uint16_t io_ )   // innit or setup
-{
-  led.port = port_;
-  led.io   = io_;
-
-  gpio_mode_setup(led.port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, led.io );
-}
-
-/*
-void led_setup(void)
-{
-  gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT);
-}
-*/
-
-
-
-void led_toggle(void)
-{
-  gpio_toggle(led.port, led.io);
-}
-
-
-void led_set(bool val )
-{
-  // is this
-  // val ? gpio_set(led.port, led.io) : gpio_clear (led.port, led.io);
-
-  // clear turns it on????
-  val ? gpio_clear(led.port, led.io) : gpio_set(led.port, led.io);
-}
-
-#endif
-
-
-
-
-/*
-  issue here - is maintaining led state so that critical_error_bllink can work.
-
-  void  gpio_mode_setup (uint32_t gpioport, uint8_t mode, uint8_t pull_up_down, uint16_t gpios)
-*/
-
-/*
-
-typedef struct  Led
-{
-  uint32_t  port;
-  uint32_t  io;
-} Led;
-
-static Led   led;
-*/
-
-/*
-// DON"T MOVE THIS CODE TO A LIBRARY
-// just keep as separate file. because led will change
-// stm32f407 ...
-// cjmcu
-// #define LED_PORT  GPIOE
-// #define LED_OUT   GPIO0
-
-#define LED_PORT  GPIOA
-#define LED_OUT   GPIO15
-*/
-
-
-
-
-
-/*
-  May 19 2022.
-    really think should just use a structure for the led blink.  To init once in main, and encapsulate
-    And then pass by reference. like we do  for spi, etc.
-
-    eg
-    led_setup( &app->led, GPIOA,  GPIO15 );
-    led_toggle( &app->led );
-
-    - issue is having to pass arg/or initialize for critical_error_blink()
-
-*/
-
-// move this stuff back to main.c and setup...
 
