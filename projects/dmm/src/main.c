@@ -1012,14 +1012,15 @@ static void app_update_new_measure(app_t *app)
         ret = app->hi - ((app->lo[ 0 ] + app->lo[1] ) / 2.0);
       }
       else {
-          printf(" sample acquired from unknown mode");
+          printf(" unknown mode");
       }
 
 
-      // we could quieten this also.
-      // raw data. no formatting.
-      printf(" %.7lf", ret );
-      // printf(" meas %sV", format_float_with_commas(buf, 100, 7, ret ));
+      if(app->verbose)
+        printf(" meas %sV", format_float_with_commas(buf, 100, 7, ret ));
+      else
+        printf(" %.8lf", ret );
+
 
       if(m_rows(app->sa_buffer) < m_rows_reserve(app->sa_buffer)) {
 

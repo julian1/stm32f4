@@ -739,7 +739,7 @@ nov 6
   measuring temperature
   reset; dcv-source temp ; azero on; nplc 10; himux dcv-source ; azmux ref-lo ; gain 1; buffer 30;  trig
 
-  reset; dcv-source temp ; azero off; nplc 10; himux dcv-source ; azmux pcout; pc signal ; gain 1; buffer 10;  trig 
+  reset; dcv-source temp ; azero off; nplc 10; himux dcv-source ; azmux pcout; pc signal ; gain 1; buffer 10;  trig
 
   ---------------------------
   --------
@@ -776,9 +776,9 @@ solder in 100k zfoil for bias resistor.
 
   The biggest difference is seen by adding tin lid for shielding. 0.6uV -> 0.4uV.  10nplc. az off.
 
-  Two things in my mind are  - populate the RC between the adc mux and integrator input. 
-  It is a bit spikey when probed with a scope. but I never got around to populating them. 
-  Also to change the 2k+2k+mux rds(on). as the input resistance. 
+  Two things in my mind are  - populate the RC between the adc mux and integrator input.
+  It is a bit spikey when probed with a scope. but I never got around to populating them.
+  Also to change the 2k+2k+mux rds(on). as the input resistance.
   But maybe white-noise/flicker noise  would be evident from a frequency/noise like plot.
 
 
@@ -809,6 +809,104 @@ nov 8.
 
   reset;  azero off; nplc 1; himux ref-lo ; azmux ref-lo ; gain 1;  trig
 
+
+nov 10
+
+  baseline
+
+    AZ
+    > reset; azero on; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; buffer 100;  trig
+    counts  10002 2022507 1977593    822 4000001 az (lo  ref-lo) (hi -0.000,007,4V) (lo 0.000,004,4V, 0.000,003,1V) meas -0.000,011,2V mean(100) -0.0000114V, stddev(100) 0.48uV, offset = 11uV.
+    counts  10002 2022507 1977593    950 4000001 az (hi ref-lo)  (hi -0.000,008,2V) (lo 0.000,004,2V, 0.000,003,8V) meas -0.000,012,2V mean(100) -0.0000114V, stddev(100) 0.48uV,
+
+    >  reset; azero on; nplc 1; himux ref-lo ; azmux ref-lo ; gain 1; buffer 100;  trig
+    counts  10002  202317  197812    636 400001 az (lo  ref-lo) (hi -0.000,016,0V) (lo -0.000,003,2V, -0.000,004,2V) meas -0.000,012,3V mean(100) -0.0000107V, stddev(100) 1.35uV,  offset = 12uV.
+    counts  10002  202317  197812    633 400001 az (lo  ref-lo) (hi -0.000,014,0V) (lo -0.000,000,2V, -0.000,001,2V) meas -0.000,013,3V mean(100) -0.0000112V, stddev(100) 1.39uV
+
+    no AZ
+    > reset;  azero off; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 100 ;  trig
+    counts  10002 2022507 1977593    823 4000001 no-az (ref-lo) meas 0.000,004,3V mean(100) 0.0000036V, stddev(100) 0.41uV,
+
+    > reset;  azero off; nplc 1; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 100 ;  trig
+    counts  10002  202317  197812    635 400001 no-az (ref-lo) meas -0.000,002,2V mean(100) -0.0000022V, stddev(100) 1.27uV,
+    counts  10002  202317  197812    636 400001 no-az (ref-lo) meas -0.000,003,2V mean(100) -0.0000027V, stddev(100) 1.04uV,
+
+  --------------------
+  add RC filtering of ref. 1k/ 1u. PP  cap.  tin-lid shielding. could not cover reference properly.
+    ----
+    stderr(V) 0.65uV  (nplc10)
+
+
+    AZ.
+    reset; azero on; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; buffer 100;  trig
+    counts  10002 2022507 1977593    725 4000001 az (lo  ref-lo) (hi -0.000,009,0V) (lo 0.000,001,8V, 0.000,001,6V) meas -0.000,010,6V mean(100) -0.0000105V, stddev(100) 0.42uV,   offset = 10uV.
+
+    reset; azero on; nplc 1; himux ref-lo ; azmux ref-lo ; gain 1; buffer 100;  trig
+    counts  10002  202317  197812    622 400001 az (lo  ref-lo) (hi -0.000,013,9V) (lo -0.000,001,1V, -0.000,003,0V) meas -0.000,011,8V mean(100) -0.0000109V, stddev(100) 1.35uV,  offset = 11uV.
+
+    no AZ.
+    >  reset;  azero off; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 100 ;  trig
+    counts  10002 2022507 1977593    710 4000001 no-az (ref-lo) meas 0.000,003,2V mean(100) 0.0000030V, stddev(100) 0.41uV,k
+
+    > reset;  azero off; nplc 1; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 100 ;  trig
+    counts  10002  202317  197812    620 400001 no-az (ref-lo) meas -0.000,006,6V mean(100) -0.0000058V, stddev(100) 1.23uV,
+
+  -------------------
+  add RC filtering of ref - use 1k/1u x7r.  - but place tin-lid shielding.
+
+    stderr(V) 0.56uV  (nplc10)            <- this is pretty good.
+    stderr(V) 0.74uV  (nplc10)
+    stderr(V) 0.65uV  (nplc10
+
+    NO AZ.
+    > reset;  azero off; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 100 ;  trig
+    counts  10002 2022507 1977593    840 4000001 no-az (ref-lo) meas -0.000,000,8V mean(100) -0.0000005V, stddev(100) 0.38uV       a little better.
+    counts  10002 2022507 1977593    863 4000001 no-az (ref-lo) meas -0.000,003,1V mean(100) -0.0000027V, stddev(100) 0.41uV,     nope. the same.
+
+    > reset;  azero off; nplc 1; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 100 ;  trig
+    counts  10002  202317  197812    639 400001 no-az (ref-lo) meas -0.000,019,7V mean(100) -0.0000198V, stddev(100) 1.28uV
+
+    no change.
+
+  -----------------
+
+  add 220p/ 100R. at start of integrator.
+  solder and clean. around sensitive parts. may need timie to settle.
+
+    from 20uV.
+    stderr(V) 0.55uV  (nplc10)  after ten minutes.
+    stderr(V) 0.55uV  (nplc10)   <- this is a bit better.
+    stderr(V) 0.57uV  (nplc10)
+
+  > reset;  azero off; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 100 ;  trig
+  counts  10002 2022507 1977627    621 4000001 no-az (ref-lo) meas 0.000,000,9V mean(100) 0.0000010V, stddev(100) 0.38uV,
+
+
+  stderr(V) 0.43uV  (nplc10)   <- wow.
+
+
+nov 11
+
+  After refactoring. to use clk count down.
+  > cal
+  stderr(V) 0.62uV  (nplc10)
+  stderr(V) 0.40uV  (nplc10)
+  stderr(V) 0.73uV  (nplc10)
+  stderr(V) 0.61uV  (nplc10)
+
+
+  adc_modulation_04.v after simplifying the fast rundown.
+
+  stderr(V) 0.55uV  (nplc10)
+  stderr(V) 0.69uV
+
+  10nplc. the same.
+
+  > reset;  azero off; nplc 1; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 100 ;  trig
+  counts  10002  202299  197802    411 400001 no-az (ref-lo) meas -0.000,014,6V mean(100) -0.0000144V, stddev(100) 1.37uV,
+
+  > reset;  azero off; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 100 ;  trig
+  counts  10002 2022489 1977611    405 4000001 no-az (ref-lo) meas 0.000,001,1V mean(100) 0.0000013V, stddev(100) 0.37uV,
 
 #endif
 
