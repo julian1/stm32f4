@@ -976,25 +976,28 @@ static void app_update_new_measure(app_t *app)
 
       if(mode->reg_mode == MODE_NO_AZ )  {
 
-        if(app->verbose)
-          printf(" no-az");
+        if(app->verbose) {
+          printf(" no-az (%s)", azmux_to_string( mode->reg_direct.azmux));
+
+        }
       }
       else if(mode->reg_mode == MODE_AZ)  {
 
         if(app->verbose)
-          printf(" az ");
+          printf(" az");
 
         // determine if az obs high or lo
         if( status & STATUS_SA_AZ_STAMP  ) {
           // treat as hival
           if(app->verbose)
-            printf(" (hi) ");
+            printf(" (hi %s) ", himux_to_string( mode->reg_direct.himux, mode->reg_direct.himux2 ));
           app->hi = ret;
         }
         else {
           // treat as lo val
           if(app->verbose)
-            printf(" (lo) ");
+            printf(" (lo  %s)", azmux_to_string( mode->reg_direct.azmux));
+
           app->lo[ 1] = app->lo[ 0];  // shift last value
           app->lo[ 0] = ret;
         }
