@@ -224,10 +224,17 @@ The stack does not grow from the RAM-Start (0x20000000) to the end.
 
   // for f411ceu.
 	// ram (rwx) : ORIGIN = 0x20000000, LENGTH = 128K
-
   p  -  (ORIGIN + (LENGTH * 1024) )
+
+  we should be able to get the stack start, from the vector table.
 */
 
+#if 0
+static void f()
+{
+  SCB->VTOR;
+};
+#endif
 
 void print_stack_pointer()
 {

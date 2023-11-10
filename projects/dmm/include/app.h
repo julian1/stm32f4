@@ -224,8 +224,15 @@ double aper_n_to_period( uint32_t aper_n);
 uint32_t period_to_aper_n(  double period );
 bool nplc_valid( double nplc );
 
+
+const char * azmux_to_string( uint8_t azmux );
+const char * himux_to_string( uint8_t himux, uint8_t himux2 );
+
+
+
 // helper, util. better name.  pass the filestream explicitly?
 void aper_n_print( uint32_t aperture,  uint32_t lfreq);
+
 
 
 

@@ -121,7 +121,44 @@ static void state_format ( uint8_t *state, size_t n)
 
 
 
+/*
+  wnat azmux_from_string( )  also
 
+*/
+
+
+const char * azmux_to_string( uint8_t azmux )
+{
+  switch(azmux) {
+      // this is a mess. just return a pointer
+      case AZMUX_PCOUT:   return "pcout";
+      case AZMUX_BOOT:    return "boot";
+      case AZMUX_STAR_LO: return "star-lo";
+      case AZMUX_REF_LO:  return "ref-lo";
+    default:              return "unknown";
+  };
+  return NULL;
+}
+
+
+const char * himux_to_string( uint8_t himux, uint8_t himux2 )
+{
+  switch (himux)
+
+    case HIMUX_HIMUX2: {
+
+      switch(himux2 ) {
+          case HIMUX2_DCV_SOURCE: return "dcv-source";
+          case HIMUX2_STAR_LO:    return "star-lo";
+          case HIMUX2_REF_HI:     return "ref-hi";
+          case HIMUX2_REF_LO:     return "ref-lo";
+          default:                return "unknown";
+      };
+
+      case HIMUX_DCV:   return "dcv";
+      default:          return "unknown";
+  }
+}
 
 
 ////////////////////
