@@ -169,10 +169,10 @@ void app_cal( app_t *app )
         // embed a 8 bit. counter ini the reg_status and use it for the measure.
         // uint32_t status =            spi_ice40_reg_read32( app->spi, REG_STATUS );
 
-        uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RESET);
-        uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_NEG);
-        uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_POS);
-        uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
+        uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_REFMUX_RESET);
+        uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+        uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+        uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_REFMUX_RD);
         uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_SIG);
 
       /*  - OK. it doesn't matter whether aperture is for one more extra clk cycle. or one less.  eg. the clk termination condition.
@@ -197,7 +197,7 @@ void app_cal( app_t *app )
 
         mat_set_row( xs,       row_idx,  row ) ;
 
-        // we create aperture - so that the regression 
+        // we create aperture - so that the regression
         vec_set_val( aperture, row_idx, clk_count_mux_sig);
 
         vec_set_val( y,        row_idx,   y_  *  clk_count_mux_sig );

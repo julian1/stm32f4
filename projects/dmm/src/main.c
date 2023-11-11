@@ -887,10 +887,10 @@ static void app_update_new_measure(app_t *app)
     }
 
 
-    uint32_t clk_count_mux_reset = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RESET);
-    uint32_t clk_count_mux_neg = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_NEG);
-    uint32_t clk_count_mux_pos = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_POS);
-    uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_RD);
+    uint32_t clk_count_mux_reset = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_REFMUX_RESET);
+    uint32_t clk_count_mux_neg = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+    uint32_t clk_count_mux_pos = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+    uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_REFMUX_RD);
     uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_MUX_SIG);
 
 

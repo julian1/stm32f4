@@ -62,12 +62,11 @@
 
 
 // adc read counts
-#define REG_ADC_CLK_COUNT_MUX_RESET 34    // TODO fix/ re-assign enum .
-#define REG_ADC_CLK_COUNT_MUX_NEG   30
-#define REG_ADC_CLK_COUNT_MUX_POS   31
-#define REG_ADC_CLK_COUNT_MUX_RD    32
-#define REG_ADC_CLK_COUNT_MUX_SIG   33
-
+#define REG_ADC_CLK_COUNT_REFMUX_RESET 34    // TODO fix/ re-assign enum .
+#define REG_ADC_CLK_COUNT_REFMUX_NEG  30
+#define REG_ADC_CLK_COUNT_REFMUX_POS  31
+#define REG_ADC_CLK_COUNT_REFMUX_RD   32
+#define REG_ADC_CLK_COUNT_MUX_SIG     33
 
 
 
