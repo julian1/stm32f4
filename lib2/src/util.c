@@ -236,6 +236,8 @@ static void f()
 };
 #endif
 
+
+
 void print_stack_pointer()
 {
   // https://stackoverflow.com/questions/20059673/print-out-value-of-stack-pointer
@@ -245,12 +247,21 @@ void print_stack_pointer()
   // return &p;
 
   // uint32_t x = _stack;
+
 }
 
 
 
 
 /*
+  https://developer.arm.com/documentation/dui0475/j/the-arm-c-and-c---libraries/defining---initial-sp----heap-base-and---heap-limit?lang=en
+
+  used to define, not retrieve,
+
+  // extern void * __initial_sp ; 
+  // usart1_printf("p %p \n",  __initial_sp);
+
+
 __attribute__((naked)) void dummy_function(void)
 {
    __asm(".global __initial_sp\n\t"
@@ -263,5 +274,4 @@ __attribute__((naked)) void dummy_function(void)
 }
 
 */
-
 
