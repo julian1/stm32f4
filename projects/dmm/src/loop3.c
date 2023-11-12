@@ -182,7 +182,19 @@ void app_cal( app_t *app )
           uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_P_APERTURE );
       */
 
-        printf("counts %6lu %lu %lu %6lu %lu\n", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+        printf("counts %6lu %lu %lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+
+
+        if(true || app->verbose) { 
+          uint32_t stat_count_refmux_pos_up = spi_ice40_reg_read32( app->spi, REG_ADC_STAT_COUNT_REFMUX_POS_UP);
+          uint32_t stat_count_refmux_neg_up = spi_ice40_reg_read32( app->spi, REG_ADC_STAT_COUNT_REFMUX_NEG_UP);
+          uint32_t stat_count_cmpr_cross_up = spi_ice40_reg_read32( app->spi, REG_ADC_STAT_COUNT_CMPR_CROSS_UP);
+
+          printf(", stats %lu %lu %lu", stat_count_refmux_pos_up, stat_count_refmux_neg_up, stat_count_cmpr_cross_up );
+        } 
+
+        printf("\n");
+
 
         row = run_to_matrix(
           clk_count_mux_neg,
