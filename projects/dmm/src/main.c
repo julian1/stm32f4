@@ -903,10 +903,11 @@ static void app_update_new_measure(app_t *app)
 
     if(app->verbose) {
       // clkcounts
+      // printf("clk counts %6lu %7lu %7lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
       printf("clk counts %6lu %7lu %7lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
     }
 
-    if(app->verbose) {
+    if(false && app->verbose) {
 
       uint32_t stat_count_refmux_pos_up = spi_ice40_reg_read32( app->spi, REG_ADC_STAT_COUNT_REFMUX_POS_UP);
       uint32_t stat_count_refmux_neg_up = spi_ice40_reg_read32( app->spi, REG_ADC_STAT_COUNT_REFMUX_NEG_UP);
