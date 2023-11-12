@@ -908,6 +908,84 @@ nov 11
   > reset;  azero off; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 100 ;  trig
   counts  10002 2022489 1977611    405 4000001 no-az (ref-lo) meas 0.000,001,1V mean(100) 0.0000013V, stddev(100) 0.37uV,
 
+
+
+nov 12
+
+  chaged from 1.5k/475R. to 5.9k/1k compound divideer. 10mins after soldering.
+
+  stderr(V) 0.61uV  (nplc10)
+
+  >  reset;  azero off; nplc 1; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 100;  trig
+  clk counts  202299  197802    411 400001 no-az (ref-lo) meas 0.000,015,6V mean(100) 0.0000179V, stddev(100) 1.23uV,
+
+  no. change and the frequency is still the same. - hang on must check the voltage range.
+
+  change RN902 from 10k. to 1k.
+
+    res       0.176uV  digits 7.75   (nplc10)
+    but no improvement.
+
+  > reset;  azero off; nplc 1; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 100;  trig
+  clk counts  204155  195959    228 400001 no-az (ref-lo) meas -0.000,005,3V mean(100) -0.0000046V, stddev(100) 1.20uV,
+
+
+nov 13
+
+
+  - powered up using regulators on +-18V. and bridge-rectifiers.  but no improvement in noise.
+
+    stderr(V) 0.81uV  (nplc10)
+    stderr(V) 0.86uV  (nplc10)
+    stderr(V) 0.86uV  (nplc10)
+
+    > reset;  azero off; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 10;  trig
+    clk counts 2040993 1959131    242 4000001 no-az (ref-lo) meas 0.000,016,4V mean(10) 0.0000170V, stddev(10) 0.54uV,
+    - need to try the 34401a transformer.
+
+    -----
+    - soldered all lt5400 centre-pads.
+    - revert lt5400 1k.  for RN902 -> 10k
+    - revert 21k/2k.   -> 10k/10k slope
+    - revert 6k/1k -> 1.54k / 475R. for compound.
+
+    ------
+
+    - everything seems works.  within 20mins of soldering.
+    stderr(V) 1.16uV  (nplc10)
+    stderr(V) 0.78uV  (nplc10)    30mins . hmmmm
+    stderr(V) 0.62uV  (nplc10)
+    stderr(V) 0.81uV  (nplc10)    hour later.
+    stderr(V) 0.77uV  (nplc10)
+
+  change first integrator to opa202.
+    stderr(V) 1.80uV  (nplc10)    five mins after soldering.
+    stderr(V) 0.81uV  (nplc10)    about 10 mins.   quite good.
+    stderr(V) 0.75uV  (nplc10)   couple hours. no improvement.
+
+    workman usig power-tools outside. kk
+
+  - change back opa140.
+
+  stderr(V) 0.63uV  (nplc10)
+  stderr(V) 0.61uV  (nplc10)
+
+      better.
+
+
+  - chage to 34401a transformer
+      not very good 60pF. coupling capacitance. and no block filter.
+      but it works.
+
+  stderr(V) 0.85uV  (nplc10)
+  stderr(V) 0.58uV  (nplc10)
+  stderr(V) 0.67uV  (nplc10)
+
+  no difference.
+
+  1nplc.  clk counts  202296  197855    347 400001 no-az (ref-lo) meas 0.000,023,3V mean(100) 0.0000229V, stddev(100) 1.65uV,
+  10nplc  clk counts 2022225 1977899    347 4000001 no-az (ref-lo) meas 0.000,002,3V mean(100) 0.0000023V, stddev(100) 0.55uV
+
 #endif
 
 
