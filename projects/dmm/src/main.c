@@ -887,7 +887,6 @@ static void app_update_new_measure(app_t *app)
     }
 
 
-    uint32_t clk_count_mux_reset = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_REFMUX_RESET);
     uint32_t clk_count_mux_neg = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
     uint32_t clk_count_mux_pos = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_REFMUX_POS);
     uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_REFMUX_RD);
@@ -904,16 +903,25 @@ static void app_update_new_measure(app_t *app)
     if(app->verbose) {
       // clkcounts
       // printf("clk counts %6lu %7lu %7lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
-      printf("clk counts %6lu %7lu %7lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+      printf("clk counts %7lu %7lu %6lu %lu", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
     }
 
-    if(false && app->verbose) {
+    if(app->verbose > 1) {
+
+      uint32_t clk_count_mux_reset = spi_ice40_reg_read32( app->spi, REG_ADC_CLK_COUNT_REFMUX_RESET);
+      printf(", reset %6lu", clk_count_mux_reset);
 
       uint32_t stat_count_refmux_pos_up = spi_ice40_reg_read32( app->spi, REG_ADC_STAT_COUNT_REFMUX_POS_UP);
       uint32_t stat_count_refmux_neg_up = spi_ice40_reg_read32( app->spi, REG_ADC_STAT_COUNT_REFMUX_NEG_UP);
       uint32_t stat_count_cmpr_cross_up = spi_ice40_reg_read32( app->spi, REG_ADC_STAT_COUNT_CMPR_CROSS_UP);
 
       printf(", stats %lu %lu %lu", stat_count_refmux_pos_up, stat_count_refmux_neg_up, stat_count_cmpr_cross_up );
+
+      double period =  ((double)clk_count_mux_sig) / CLK_FREQ ;
+      printf(", period %.2lf", period );
+
+      double freq = ((double) stat_count_refmux_pos_up) / period;
+      printf(", freq %.0lf kHz", freq / 1000.f );
     }
 
 
