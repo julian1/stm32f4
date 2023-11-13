@@ -982,9 +982,27 @@ nov 13
   stderr(V) 0.67uV  (nplc10)
 
   no difference.
+    this was uncovered.
 
   1nplc.  clk counts  202296  197855    347 400001 no-az (ref-lo) meas 0.000,023,3V mean(100) 0.0000229V, stddev(100) 1.65uV,
   10nplc  clk counts 2022225 1977899    347 4000001 no-az (ref-lo) meas 0.000,002,3V mean(100) 0.0000023V, stddev(100) 0.55uV
+
+  covered. tin lid
+    stderr(V) 0.74uV  (nplc10)
+    stderr(V) 0.67uV  (nplc10)
+
+  the same.
+
+    stderr(V) 0.45uV  (nplc10) <- rather lo.
+    stderr(V) 0.54uV  (nplc10
+    stderr(V) 0.54uV  (nplc10)
+
+  -----
+nov 14.
+    stderr(V) 0.67uV  (nplc10)a     no lid.
+    stderr(V) 0.65uV  (nplc10)
+
+    stderr(V) 0.64uV  (nplc10)      lid.
 
 #endif
 

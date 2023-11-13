@@ -243,7 +243,7 @@ void app_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *sy
   mux_4094( spi);
 
 
-  printf("-----------\n");
+  // printf("-----------\n");
 
   // printf("app_transition_state write first state\n");
   // state_format (  (void *) &mode->first, sizeof(X) );
