@@ -998,13 +998,32 @@ nov 13
     stderr(V) 0.54uV  (nplc10)
 
   -----
+
+
+
 nov 14.
+
     stderr(V) 0.67uV  (nplc10)a     no lid.
     stderr(V) 0.65uV  (nplc10)
-
     stderr(V) 0.64uV  (nplc10)      lid.
 
-#endif
+
+    - removed ferrite bead in front of oscillator.  changed to 15R.
+
+    stderr(V) 0.63uV  (nplc10)   no lid.
+    stderr(V) 0.53uV  (nplc10)   no lid.   best without a lid.
+    stderr(V) 0.56uV  (nplc10)      no lid.
+
+    -  OK. looks a bit better.
+  clk counts 2022225 1977899    204 4000001 no-az (ref-lo) meas 0.000,001,1V mean(10) 0.0000011V, stddev(10) 0.32uV,
+
+  stderr(V) 0.62uV  (nplc10)    with lid , but sits a bit higher.
+  stderr(V) 0.61uV  (nplc10)
+
+
+  with azmux looking a lot better.
+
+  #endif
 
 
 

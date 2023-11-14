@@ -876,6 +876,9 @@ static void app_update_new_measure(app_t *app)
 
     uint32_t status =  spi_ice40_reg_read32( app->spi, REG_STATUS );
 
+
+    printf(" %s ", (status & STATUS_SA_AZ_STAMP) ? "hi" : "lo"  );
+
     // suppress late measure samples arriving after signal_acquisition is returned to arm
     if( ! (status & STATUS_SA_ARM_TRIGGER)) {
 
@@ -901,6 +904,9 @@ static void app_update_new_measure(app_t *app)
     */
 
     if(app->verbose) {
+
+
+
       // clkcounts
       // printf("clk counts %6lu %7lu %7lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
       printf("clk counts %7lu %7lu %6lu %lu", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
