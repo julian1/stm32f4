@@ -877,7 +877,7 @@ static void app_update_new_measure(app_t *app)
     uint32_t status =  spi_ice40_reg_read32( app->spi, REG_STATUS );
 
 
-    printf(" %s ", (status & STATUS_SA_AZ_STAMP) ? "hi" : "lo"  );
+    // printf(" %s ", (status & STATUS_SA_AZ_STAMP) ? "hi" : "lo"  );
 
     // suppress late measure samples arriving after signal_acquisition is returned to arm
     if( ! (status & STATUS_SA_ARM_TRIGGER)) {
@@ -1016,13 +1016,13 @@ static void app_update_new_measure(app_t *app)
         if( status & STATUS_SA_AZ_STAMP  ) {
           // treat as hival
           if(app->verbose)
-            printf(" (hi %s) ", himux_to_string( mode->reg_direct.himux, mode->reg_direct.himux2 ));
+            printf(" (hi %s)", himux_to_string( mode->reg_direct.himux, mode->reg_direct.himux2 ));
           app->hi = ret;
         }
         else {
           // treat as lo val
           if(app->verbose)
-            printf(" (lo  %s)", azmux_to_string( mode->reg_direct.azmux));
+            printf(" (lo %s)", azmux_to_string( mode->reg_direct.azmux));
 
           app->lo[ 1] = app->lo[ 0];  // shift last value
           app->lo[ 0] = ret;

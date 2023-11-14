@@ -1021,7 +1021,17 @@ nov 14.
   stderr(V) 0.61uV  (nplc10)
 
 
-  with azmux looking a lot better.
+  Fixed the AZ cycling. which was getting wrongly triggered.
+
+
+  The 8uV. offset has gone.  perhaps due to the ferite bead... Very nice.
+
+
+   hi reset; azero on; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; buffer 10;  trig
+ lo clk counts 2022224 1977899    225 4000001 az (lo  ref-lo) (hi 0.000,000,5V) (lo -0.000,001,1V, 0.000,002,1V) meas -0.000,000,0V mean(10) -0.0000004V, stddev(10) 0.73uV,
+ hi clk counts 2022224 1977899    209 4000001 az (hi ref-lo)  (hi 0.000,000,4V) (lo -0.000,001,1V, 0.000,002,1V) meas -0.000,000,1V mean(10) -0.0000005V, stddev(10) 0.68uV,
+ lo clk counts 2022224 1977899    229 4000001 az (lo  ref-lo) (hi 0.000,000,4V) (lo -0.000,001,4V, -0.000,001,1V) meas 0.000,001,7V mean(10) -0.0000003V, stddev(10) 0.95uV,
+ hi clk counts 2022224 1977899    231 4000001 az (hi ref-lo)  (hi -0.000,001,6V) (lo -0.000,001,4V, -0.000,001,1V) meas -0.000,000,4V mean(10) -0.0000003V, stddev(10) 0.94uV,
 
   #endif
 
