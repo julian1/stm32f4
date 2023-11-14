@@ -1024,7 +1024,7 @@ nov 14.
   Fixed the AZ cycling. which was getting wrongly triggered.
 
 
-  The 8uV. offset has gone.  perhaps due to the ferite bead... Very nice.
+  The 8uV. offset has gone.  perhaps due to removing the ferite bead... Very nice.
 
 
    hi reset; azero on; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; buffer 10;  trig
@@ -1033,7 +1033,202 @@ nov 14.
  lo clk counts 2022224 1977899    229 4000001 az (lo  ref-lo) (hi 0.000,000,4V) (lo -0.000,001,4V, -0.000,001,1V) meas 0.000,001,7V mean(10) -0.0000003V, stddev(10) 0.95uV,
  hi clk counts 2022224 1977899    231 4000001 az (hi ref-lo)  (hi -0.000,001,6V) (lo -0.000,001,4V, -0.000,001,1V) meas -0.000,000,4V mean(10) -0.0000003V, stddev(10) 0.94uV,
 
-  #endif
+nov 15.
+
+  no change from yesterday.  - but after  second triggering.
+
+  stderr(V) 0.60uV  (nplc10)    no lid.
+  stderr(V) 0.58uV  (nplc10)  with lid
+  stderr(V) 0.52uV  (nplc10)  with lid.
+
+  noise seems a little higher.
+  may want to revert to a little slope-gain.
+
+  clk counts  202293  197855    206 400001 no-az (ref-lo) meas -0.000,003,6V mean(100) -0.0000057V, stddev(100) 1.67uV,  with lid.
+
+
+  after soldering synchronizer. 74lv175.  replacing 74hc175
+
+    stderr(V) 0.75uV  (nplc10) with lid.
+    stderr(V) 0.77uV  (nplc10) with lid.  hmmmm its worse.
+
+    no improvement.
+      but does affect the counts/ final resolution rundown. a little . which is interesting.
+      res       0.075uV  digits 8.12   (nplc10)
+
+      now changed back.
+      stderr(V) 0.69uV  (nplc10)
+      res       0.097uV  digits 8.01   (nplc10)
+
+
+  - change lt1016. to  tl3016. and change ferrite beads to 10R.
+    - cooler, and but maybe more twitchy/  and need more hysteriis..
+
+    stderr(V) 0.71uV  (nplc10)
+    stderr(V) 0.74uV  (nplc10) res       0.075uV  digits 8.13   (nplc10)
+
+    stderr(V) 0.53uV  (nplc10)      with lid. move phone away.
+    stderr(V) 0.55uV  (nplc10)      same
+
+    stderr(V) 0.64uV  (nplc10)      with lid.   phone next to pcb.
+    stderr(V) 0.46uV  (nplc10)      same    lowest ever?
+    stderr(V) 0.46uV  (nplc10)      same.
+
+    stderr(V) 0.71uV  (nplc10)      move phone away???  bizarre.
+    stderr(V) 0.49uV  (nplc10)      same.
+
+
+
+  - BUT WE CAN SEE ALL THIS On the Scope. it's the accumulation.
+
+
+
+  replace lt5400 with MORN - - 5 mins after soldering.
+
+    stderr(V) 0.78uV  (nplc10)
+    res       0.112uV  digits 7.95   (nplc10)
+
+    stderr(V) 0.52uV  (nplc10)   with lid.
+    stderr(V) 0.63uV  (nplc10)
+    stderr(V) 0.53uV  (nplc10)
+
+    noise looks the same.
+    we have to fix the comparator triggering.  more slope. more hysterysis.
+
+    ,
+    clk counts 2022896 1977185    217 4000001 no-az (ref-lo) meas 0.000,000,7V mean(100) 0.0000007V, stddev(100) 0.39uV,
+
+    stderr(V) 0.45uV  (nplc10 )    about 20 mins after soldering. this is probably the best. we have seen. so it is a small improvement.
+
+
+  - need to let it settle overnight.  then look at latching the comparator.
+
+
+nov 16.
+
+  no change.
+
+    stderr(V) 0.70uV  (nplc10)
+    stderr(V) 0.64uV  (nplc10)
+
+    clk counts 2022891 1977190    198 4000001 no-az (ref-lo) meas 0.000,000,0V mean(100) -0.0000004V, stddev(100) 0.40uV,
+  --------------------
+  changed hysteris to 50x.  does not seem to have made rundown time much worse.
+    - eliminated oscillation at rundown.
+    - and reduced a lot at start.
+
+    stderr(V) 0.69uV  (nplc10)
+    stderr(V) 0.55uV  (nplc10)
+
+
+    wow. noise is lower.
+    wtf.  it's higher for 1nplc.
+
+    > reset;  azero off; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 10;  trig
+    clk counts 2022892 1977189    275 4000001 no-az (ref-lo) meas -0.000,001,1V mean(10) -0.0000011V, stddev(10) 0.17uV,
+
+    noise is higher.  for 1nplc - because getting o
+
+    AND NOISE IS BETTER. for 1nplc.
+    EXTR. but it's obscure. because the main counts jump
+
+    > reset;  azero off; nplc 1; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 10;  trig
+    clk counts  202372  197795    312 400001 no-az (ref-lo) meas 0.000,014,5V mean(10) 0.0000152V, stddev(10) 0.47uV,
+    clk counts  202372  197795    312 400001 no-az (ref-lo) meas 0.000,014,5V mean(10) 0.0000151V, stddev(10) 0.52uV,
+
+
+    - after get 10 items.
+    > reset;  azero off; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 10;  trig
+    clk counts 2022893 1977191    290 4000001 no-az (ref-lo) meas -0.000,006,7V mean(10) -0.0000068V, stddev(10) 0.22uV,
+    clk counts 2022893 1977191    287 4000001 no-az (ref-lo) meas -0.000,006,5V mean(10) -0.0000068V, stddev(10) 0.23uV
+
+    WOW.
+
+
+    > reset;  azero off; nplc 1; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 10;  trig
+    clk counts  202371  197795    275 400001 no-az (ref-lo) meas -0.000,003,0V mean(20) -0.0000024V, stddev(20) 0.65uV,
+    clk counts  202371  197795    275 400001 no-az (ref-lo) meas -0.000,003,0V mean(20) -0.0000020V, stddev(20) 0.83uV,
+
+
+    EXTR - doesn't have lid touching gnd post.
+
+  - changed slope amp  to 3.74k / 25k.
+
+      seemed to have mostly fixed oscill at start. although not perfect.
+
+    stderr(V) 0.71uV  (nplc10)
+    res       0.081uV  digits 8.09   (nplc10)
+
+    yep.
+    > reset;  azero off; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 10;  trig
+    clk counts 2022895 1977191    309 4000001 no-az (ref-lo) meas 0.000,006,2V mean(10) 0.0000068V, stddev(10) 0.26uV,
+    clk counts 2022894 1977190    287 4000001 no-az (ref-lo) meas 0.000,008,1V mean(10) 0.0000078V, stddev(10) 0.23uV,
+
+    > reset;  azero off; nplc 1; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 10;  trig
+    clk counts  202373  197795    297 400001 no-az (ref-lo) meas 0.000,045,3V mean(10) 0.0000447V, stddev(10) 0.83uV,
+    clk counts  202376  197795    295 400001 no-az (ref-lo) meas 0.000,177,0V mean(10) 0.0001773V, stddev(10) 0.66uV,
+    clk counts  202373  197795    297 400001 no-az (ref-lo) meas 0.000,045,3V mean(100) 0.0000456V, stddev(100) 0.77uV,   100 samples.
+
+    stderr(V) 0.57uV  (nplc10)   20mins after soldering.
+
+    lol.
+    seems worse now at least for  1nplc
+    clk counts  202373  197795    307 400001 no-az (ref-lo) meas 0.000,011,8V mean(10) 0.0000099V, stddev(10) 1.53uV,
+
+    10nplc is ok.
+    clk counts 2022895 1977193    298 4000001 no-az (ref-lo) meas 0.000,008,4V mean(10) 0.0000084V, stddev(10) 0.25uV,
+    clk counts 2022894 1977192    290 4000001 no-az (ref-lo) meas 0.000,001,1V mean(10) 0.0000010V, stddev(10) 0.25uV,      yes. it
+
+    now higher????
+    clk counts 2022894 1977192    276 4000001 no-az (ref-lo) meas 0.000,010,6V mean(10) 0.0000102V, stddev(10) 0.37uV,
+
+    - perhaps we have rounding issue.
+
+
+
+
+
+
+  - changed slope amp to fast ad847 and 10x.  similar to modern 3458a.
+      - not much difference in noise. but still good to match 3458a.
+
+      - AND - and it has stopped . the comparator output oscillation at the start.
+      - GOOD.
+
+
+
+  - try increasing slope. to reduce quantization?
+      matters for 1nplc not so much 10nplc.
+      changed  from 100k to 150k.
+
+      stderr(V) 0.60uV  (nplc10)
+      res       0.074uV  digits 8.13   (nplc10)     <- increased.  because of shallower slope.
+      stderr(V) 0.57uV  (nplc10)
+
+    OK. the noise - at least with scope leads is clearly in the o
+
+  ----
+  GAhhh. we fucked something. the scope probe dragged across pcb.
+
+    ok. can control the integrator, by controlling the direct bits.
+    we need to see the comparator output.
+
+    - comparator isn't reflecting the integrator.
+    - perhaps it's the latch.
+    - integrator and slope amp look ok.
+    - looks like comparator is fried. or else theo
+    - replaced comparator and looks like its working again.
+  -------------
+
+  OK. we - can see the horizontal movement on scope. issue with noise of integrator - it's either resistors. or op-amps.
+
+
+  change the speed/freq. of integration.
+      - lower BW -> lower noise.
+      - and will reduce influence of jitter.
+      - and will reduce reversals/ and power supply effects - for no RC on
+
+#endif
 
 
 

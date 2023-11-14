@@ -172,8 +172,9 @@ bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
       */
       assert(app->sa_buffer);
       app->sa_buffer      = m_zero( app->sa_buffer ) ;    // we don't really even have to zero the buffer.
+                                                          // we shouldn't need this.
 
-      m_truncate_rows( app->sa_buffer, 0 );
+      m_truncate_rows( app->sa_buffer, 0 );               // truncate vertical length.
 
 
       // app->sa_buffer_full = false;
