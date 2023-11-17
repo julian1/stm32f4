@@ -1228,6 +1228,404 @@ nov 16.
       - and will reduce influence of jitter.
       - and will reduce reversals/ and power supply effects - for no RC on
 
+
+
+
+nov 17
+  leave 24 hours. to settle.
+
+  10nplc around 0.22uV.
+  > reset;  azero off; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 10;  trig
+  clk counts 2015650 1984433    357 4000001 no-az (ref-lo) meas 0.000,008,9V mean(10) 0.0000092V, stddev(10) 0.21uV,
+  clk counts 2015650 1984430    354 4000001 no-az (ref-lo) meas 0.000,022,4V mean(10) 0.0000224V, stddev(10) 0.22uV,    <- low noise. but bad cal?
+
+  1nplc around 0.60uV.
+  > reset;  azero off; nplc 1; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 100;  trig
+  clk counts  201638  198509    339 400001 no-az (ref-lo) meas 0.000,158,0V mean(100) 0.0001570V, stddev(100) 0.59uV,
+  clk counts  201638  198509    343 400001 no-az (ref-lo) meas 0.000,156,4V mean(100) 0.0001568V, stddev(100) 0.55uV,
+  clk counts  201638  198509    339 400001 no-az (ref-lo) meas 0.000,158,0V mean(100) 0.0001575V, stddev(100) 0.59uV      <- notice offset. (bad cal?)
+  The adc integrator is currently using 330p.  84kHz  (by +ref current switch up count).
+  A lower integration freq would likely reduce noise more according to sqrt( BW ). and also if switch jitter, and HF transitions are relevant.
+
+
+
+  ---------
+I've made some changes to improve adc noise a bit.
+
+changes creating obvious improvement -
+  - swap lt5400 to morn resistors that I had at hand. these look superior from Castorp's published research, reduced 1.3uV  to 1uV RMS 1nplc.
+
+  - nov 18. lowering freq. 330p/84kHz to 1.5n/ 19Khz. reduced 1uV to about 0.7uV RMS 1nplc.
+    This improvement is less than the expected ( Math.sqrt( 84kHz ) / Math.sqrt( 19kHz) = 2.1x ), if integrator op-amp noise was dominant.
+
+
+other changes, with less noticeable influence
+
+  - swap synchronizer 74hc175 to lv175, not sure how I overlooked this.
+  - swap comparator from lt1016 to tl3016, mostly to reduce current and heat. lt1016, is horrible and the to-92 L7805/7905 regulators are hot and can barely be touched.
+  - shallower rundown, less quantitization, although past tests suggest this may affect INL a little due to DA.
+
+  - also increased slope-amp gain (to reduce slope-amp BW - and gave more hysteresis for the comparator, to ensure no output glitching/meta-stablility issues.
+      (control over the comparator latch to prevent glitching, is not effective if the control cannot first sample a clean value on the clock edge).
+      this seems to be more an issue for tl3016 v lt1016.
+      although none of these changes appeared to influence measurement noise.
+
+  - I couldn't see any difference, from adding LP filtering of the ref for HF noise with LC 1k/1u PP or x7r,
+      Perhaps a series RC bypass to ground would be better - similar to the 1u/5R of the adr1399 reference circuit?
+      - the ref sits right next to the adc current source ladder which is good.
+      but the ref-lo and ref-hi traces cross the adc circuitry to reach the input muxes, so this could be an issue.
+      It's not possible to LC filter the references here, so this has to be addressed with an improved layout.
+
+  - using 34401a transformer to power the board, instead of a bench supply.
+
+- I believe it's possible to see the adc noise on a scope.
+    Hooking up scope/digital probes does ground reference the circuit, and introduces additional EMI, which increases measurement stddev 2x to 3x.
+    But it is still possible to visually correlate the waveform variance and magnitude, which is mostly associated with runup (horizontal displacements of the waveform at the end of runup),
+    rather than anything around rundown/comparator sampling.
+
+- it should be possible to do a kind of rundown re-sample/multi-sample. So after final rundown, the output could be steered to perform a second rundown cycle
+    And ths would improve rundown sampling noise.
+    But given what can be seen on the scope, I doubt that it will help.
+    Also switching to an ADC to multi-sample the rundown output would be more effective and simpler.
+
+
+
+  ---------
+
+
+  stderr(V) 0.41uV  (nplc10)      <- wow.   lowest ever.
+  stderr(V) 0.49uV  (nplc10)
+  stderr(V) 0.43uV  (nplc10)
+
+  -----------
+
+  Fucking hell.  now it's higher again?????
+
+    After doing a calibration.
+
+      > reset;  azero off; nplc 1; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 100;  trig
+      clk counts  201638  198509    331 400001 no-az (ref-lo) meas 0.000,000,2V mean(100) -0.0000004V, stddev(100) 1.08uV,    <- but no offset issue. weird.
+
+      > reset;  azero off; nplc 10; himux ref-lo ; azmux ref-lo ; gain 1; verbose 1; buffer 10;  trig
+      clk counts 2015661 1984427    356 4000001 no-az (ref-lo) meas 0.000,004,3V mean(10) 0.0000044V, stddev(10) 0.42uV,
+
+      How. issue with the calibration constants?
+      Absolutely no other change. have not even touched the board....
+
+      Is there an issue with calibration and rundown slope... variation.
+
+      stderr(V) 0.45uV  (nplc10)
+      res       0.071uV  digits 8.15   (nplc10)
+
+      1nplc
+      clk counts  201638  198509    326 400001 no-az (ref-lo) meas -0.000,007,4V mean(100) -0.0000087V, stddev(100) 0.97uV,
+
+      10nplc
+      clk counts 2015662 1984427    358 4000001 no-az (ref-lo) meas 0.000,003,5V mean(10) 0.0000034V, stddev(10) 0.26uV
+
+
+      10nplc. is not too far off. 3458a. noise.
+      --
+      we need the ability to save the cal.
+
+    -----
+
+    what do we do?
+      - leave it and try again later?
+      - try larger cap.
+      - and slower counts.
+
+
+    5.1nV * Math.sqrt(84000)
+      = 1.47uV.
+
+    5.1 is a datasheet. spec.
+    But does the compound divider reduce.
+
+  Try lt1028 as second stage op.
+
+      stderr(V) 16.93uV  (nplc10),   res  0.104uV  digits 7.98   (nplc1
+      cannot get good cal.
+
+      OK. doesn't work. - integrator is current device. - so op-amp must have high imput impedance.
+      may
+
+      3458a uses jfet in front of bjt.
+
+    ---------
+
+
+    try 1.5n cap.
+      without chaging fix and var. it all works. noise is up because have probes attached.
+
+      stderr(V) 1.62uV  (nplc10)
+      res       0.086uV  digits 8.07   (nplc10)
+
+    1500/330 = 4.5x.
+      increased fix,var counts by 4.5x also.
+      freq. 19kHz.
+
+      Math.sqrt( 84 ) / Math.sqrt( 19) = 2.1 x better.
+
+    -------
+
+    1nplc
+    clk counts  201884  198691    381 400001 no-az (ref-lo) meas -0.000,022,9V mean(100) -0.0000230V, stddev(100) 0.76uV,
+
+    10nplc
+    clk counts 2016138 1984299    431 4000001 no-az (ref-lo) meas 0.000,001,9V mean(20) 0.0000023V, stddev(20) 0.27uV,
+
+    stderr(V) 0.42uV  (nplc10)    <- very good.  res       0.070uV  digits 8.15   (nplc10)
+    stderr(V) 0.46uV  (nplc10) res       0.069uV  digits 8.16   (nplc10)
+    ---
+
+    10nplc.
+    clk counts 2016138 1984299    406 4000001 no-az (ref-lo) meas 0.000,001,7V mean(10) 0.0000015V, stddev(10) 0.21uV,
+
+    1nplc
+    clk counts  201884  198691    380 400001 no-az (ref-lo) meas 0.000,003,1V mean(100) 0.0000035V, stddev(100) 0.69uV,
+
+
+    https://xdevs.mymsk.cloud/datashort/_done/DrFrank_HP3458A.txt     0.21uV.
+    https://xdevs.mymsk.cloud/datashort/_done/radioFlash_34465A.txt   0.42uV. pp. 10nplc.
+
+    https://xdevs.mymsk.cloud/datashort/_done/OldNeurons_34461A.txt  2.56uV.
+    https://xdevs.mymsk.cloud/datashort/_done/HighVoltage_34461A.txt  |    0.26 uV. ?
+
+
+nov 18
+  change compound divider. from 1.5k/475R to 10k/1k.  same as K.DVM.
+
+    -MUST check range on scope.
+    - compound divider does *not* change range.
+
+    stderr(V) 0.90uV  (nplc10)
+    res       0.072uV  digits 8.14   (nplc10)
+
+    10 mins after soldering.
+    1nplc. clk counts  201885  198691    438 400001 no-az (ref-lo) meas -0.000,032,3V mean(100) -0.0000322V, stddev(100) 0.78uV,
+           clk counts  201885  198691    434 400001 no-az (ref-lo) meas -0.000,029,4V mean(100) -0.0000289V, stddev(100) 0.84uV,
+
+    seems slightly worse.
+    maybe give time to settle.
+
+    stderr(V) 0.47uV  (nplc10)
+    res       0.067uV  digits 8.17   (nplc10)
+
+    maybe 5k/500R. would be better.
+
+    clk counts  201885  198691    434 400001 no-az (ref-lo) meas -0.000,010,3V mean(100) -0.0000097V, stddev(100) 0.83uV,
+
+
+
+nov 19.
+  no changes, since yesterday. settling board.
+    stderr(V) 0.45uV  (nplc10) res       0.061uV  digits 8.22   (nplc10)
+    stderr(V) 0.54uV  (nplc10)
+
+    clk counts  201884  198691    395 400001 no-az (ref-lo) meas -0.000,002,1V mean(100) -0.0000023V, stddev(100) 0.73uV,   Good.
+    clk counts  201884  198691    394 400001 no-az (ref-lo) meas -0.000,001,5V mean(100) -0.0000018V, stddev(100) 0.65uV,
+    clk counts  201884  198691    393 400001 no-az (ref-lo) meas -0.000,000,8V mean(100) -0.0000017V, stddev(100) 0.70uV
+    clk counts  201884  198691    393 400001 no-az (ref-lo) meas -0.000,000,8V mean(100) -0.0000003V, stddev(100) 0.67uV,
+
+
+    Yes. we have 0.7uV.  Good.
+
+
+
+
+  try low-jitter cmos xtal oscillator .
+
+    4  minutes. cannot get a clean calibration. because of different counts. odd.
+
+    stderr(V) 798951.20uV  (nplc10)
+    res       364.477uV  digits 4.44   (nplc10)
+
+    jitter sems lower on scope. but cannot. get a cal. odd.
+
+    - perhaps edge is not good enough, without schmitt, and we get double triggering.
+
+
+    - OK. changed resisotr from 50R to 10R. and it's improved. and we can get a cal. but some counts look off by one.
+
+    stderr(V) 1.39uV  (nplc10) res       0.044uV  digits 8.36   (nplc10)
+
+    noise appears the same.
+    clk counts  201884  198691    386 400001 no-az (ref-lo) meas 0.000,073,7V mean(100) 0.0000742V, stddev(100) 0.74uV,
+
+    no. noise is a lot worse,
+    clk counts  201884  198691    385 400001 no-az (ref-lo) meas -0.000,035,7V mean(100) -0.0000354V, stddev(100) 1.26uV,
+
+    SO. the resistor is really important.
+
+    stderr(V) 0.84uV  (nplc10) res       0.070uV  digits 8.15   (nplc10)
+    stderr(V) 0.47uV  (nplc10) res       0.068uV  digits 8.17   (nplc10)
+    stderr(V) 0.46uV  (nplc10)
+
+    clk counts  201884  198691    385 400001 no-az (ref-lo) meas -0.000,012,7V mean(100) -0.0000143V, stddev(100) 0.89uV,
+    clk counts  201884  198691    389 400001 no-az (ref-lo) meas -0.000,004,5V mean(100) -0.0000040V, stddev(100) 0.84uV,
+
+    Ok. think we want to revert. back to old xtal and 51R.
+
+
+
+nov 20
+
+  no changes since yesterday,
+
+      now it's worse.... fuck.
+      clk counts  201885  198691    433 400001 no-az (ref-lo) meas -0.000,015,2V mean(100) -0.0000161V, stddev(100) 0.94uV,
+
+      issue may be fpga was connected.
+
+      clk counts  201885  198691    437 400001 no-az (ref-lo) meas -0.000,017,9V mean(100) -0.0000177V, stddev(100) 0.93uV,
+      clk counts  201885  198691    437 400001 no-az (ref-lo) meas -0.000,017,9V mean(100) -0.0000175V, stddev(100) 0.93uV,
+
+
+      stderr(V) 0.44uV  (nplc10)                      <- good.
+      res       0.068uV  digits 8.17   (nplc10)
+
+      clk counts  201885  198691    439 400001 no-az (ref-lo) meas -0.000,015,2V mean(100) -0.0000145V, stddev(100) 1.02uV,
+      clk counts  201885  198691    439 400001 no-az (ref-lo) meas -0.000,015,2V mean(100) -0.0000143V, stddev(100) 0.91uV,
+
+      still bad.
+
+  OK,
+  moving the laptop away and the usb hub and wires and usb cord - improves.
+      clk counts  201885  198691    435 400001 no-az (ref-lo) meas -0.000,009,9V mean(100) -0.0000108V, stddev(100) 0.73uV,
+      clk counts  201885  198691    437 400001 no-az (ref-lo) meas -0.000,011,2V mean(100) -0.0000104V, stddev(100) 0.68uV,
+      clk counts  201885  198691    437 400001 no-az (ref-lo) meas -0.000,011,2V mean(100) -0.0000110V, stddev(100) 0.72uV,
+
+
+      stderr(V) 0.39uV  (nplc10)                    <- OK. best ever.  seat/ and laptop and usb core are moved
+      res       0.070uV  digits 8.16   (nplc10)
+
+      clk counts  201885  198691    438 400001 no-az (ref-lo) meas -0.000,020,9V mean(100) -0.0000207V, stddev(100) 0.78uV,
+      clk counts  201885  198691    438 400001 no-az (ref-lo) meas -0.000,020,9V mean(100) -0.0000213V, stddev(100) 0.66uV,
+
+  ------------------
+
+  change fpga code to equalize switch counts,
+
+  stderr(V) 0.43uV  (nplc10) res       0.062uV  digits 8.21   (nplc10)  <- good.
+
+
+  gahhh. much worse??????
+    clk counts  201883  198691    319 400001, reset  10002, stats 386 386 385, period 0.02, freq 19 kHz no-az (ref-lo) meas -0.000,001,3V mean(100) 0.0000004V, stddev(100) 2.25uV,
+
+  wow.
+    now ok???
+
+    clk counts  201883  198691    319 400001 no-az (ref-lo) meas -0.000,017,9V mean(100) -0.0000181V, stddev(100) 0.61uV,
+    clk counts  201883  198691    317 400001 no-az (ref-lo) meas -0.000,016,5V mean(100) -0.0000171V, stddev(100) 0.67uV,
+    clk counts  201883  198691    320 400001 no-az (ref-lo) meas -0.000,018,6V mean(100) -0.0000173V, stddev(100) 0.81uV,
+    clk counts  201883  198691    319 400001 no-az (ref-lo) meas -0.000,017,9V mean(100) -0.0000173V, stddev(100) 0.71uV,
+
+
+OK. did another cal and it's bad again. or there is interference.
+    but the offset is a lot less.
+
+  clk counts  201884  198691    379 400001 no-az (ref-lo) meas -0.000,003,3V mean(100) -0.0000057V, stddev(100) 2.02uV,
+
+
+  stderr(V) 0.42uV  (nplc10)
+  res       0.069uV  digits 8.16   (nplc10)
+  b row 2:   -0.275120076
+
+  ---------------
+
+  stderr(V) 0.23uV  (nplc10)                          OK.   absolutely best ever. (so i think having the
+  res       0.066uV  digits 8.18   (nplc10)
+  row 2:   -0.263541767
+
+  ======================================
+  ----------
+  NO NO NO.
+    - issue with apparent noise - depends on if we get equal/clean runup counts (not the calibration coefficients)
+    - when redo the calibration - will affects this.
+    - this is why it keeps changing,
+
+  EXTR.   we need a processing filter - to group with the same
+  ----------
+
+  eg. when get clean runup counts - have this,
+
+    clk counts  201884  198691    377 400001 no-az (ref-lo) meas -0.000,007,6V mean(10) -0.0000083V, stddev(10) 0.61uV,
+
+
+  but mix of counts
+
+    clk counts  201883  198691    318 400001 no-az (ref-lo) meas -0.000,012,4V mean(10) -0.0000087V, stddev(10) 1.83uV,
+
+
+  variation in cal - is more a function - of changes in runup counts.
+
+  stderr(V) 0.32uV  (nplc10) res       0.069uV  digits 8.16   (nplc10)    <- ANOTHER EXTREMELY GOOD CAL.
+  stderr(V) 0.46uV  (nplc10)
+  stderr(V) 0.43uV  (nplc10)
+
+
+-----------------
+
+            ref-up  ref-down  rundown.
+
+  1nplc.
+  clk counts  201884  198691    379 400001 no-az (ref-lo) meas 0.000,000,6V mean(10) 0.0000007V, stddev(10) 0.27uV,
+  clk counts  201884  198691    378 400001 no-az (ref-lo) meas 0.000,001,2V mean(10) 0.0000007V, stddev(10) 0.27uV,
+  clk counts  201884  198691    379 400001 no-az (ref-lo) meas 0.000,000,6V mean(10) 0.0000007V, stddev(10) 0.27uV,
+  clk counts  201884  198691    378 400001 no-az (ref-lo) meas 0.000,001,2V mean(10) 0.0000007V, stddev(10) 0.27uV,
+  clk counts  201884  198691    380 400001 no-az (ref-lo) meas -0.000,000,0V mean(10) 0.0000006V, stddev(10) 0.36uV,
+  clk counts  201884  198691    378 400001 no-az (ref-lo) meas 0.000,001,2V mean(10) 0.0000007V, stddev(10) 0.40uV,
+  clk counts  201884  198691    377 400001 no-az (ref-lo) meas 0.000,001,8V mean(10) 0.0000008V, stddev(10) 0.53uV,
+  clk counts  201884  198691    379 400001 no-az (ref-lo) meas 0.000,000,6V mean(10) 0.0000008V, stddev(10) 0.53uV,
+  clk counts  201884  198691    379 400001 no-az (ref-lo) meas 0.000,000,6V mean(10) 0.0000008V, stddev(10) 0.53uV,
+  clk counts  201884  198691    378 400001 no-az (ref-lo) meas 0.000,001,2V mean(10) 0.0000009V, stddev(10) 0.54uV,
+  clk counts  201884  198691    379 400001 no-az (ref-lo) meas 0.000,000,6V mean(10) 0.0000009V, stddev(10) 0.54uV,
+  clk counts  201884  198691    377 400001 no-az (ref-lo) meas 0.000,001,8V mean(10) 0.0000010V, stddev(10) 0.61uV,
+  clk counts  201884  198691    377 400001 no-az (ref-lo) meas 0.000,001,8V mean(10) 0.0000011V, stddev(10) 0.65uV,
+  clk counts  201884  198691    379 400001 no-az (ref-lo) meas 0.000,000,6V mean(10) 0.0000010V, stddev(10) 0.67uV,
+  clk counts  201884  198691    379 400001 no-az (ref-lo) meas 0.000,000,6V mean(10) 0.0000011V, stddev(10) 0.58uV,
+  clk counts  201884  198691    379 400001 no-az (ref-lo) meas 0.000,000,6V mean(10) 0.0000010V, stddev(10) 0.60uV,
+  clk counts  201884  198691    379 400001 no-az (ref-lo) meas 0.000,000,6V mean(10) 0.0000009V, stddev(10) 0.54uV,
+  clk counts  201884  198691    378 400001 no-az (ref-lo) meas 0.000,001,2V mean(10) 0.0000010V, stddev(10) 0.53uV,
+  clk counts  201884  198691    379 400001 no-az (ref-lo) meas 0.000,000,6V mean(10) 0.0000010V, stddev(10) 0.53uV,
+  clk counts  201884  198691    380 400001 no-az (ref-lo) meas -0.000,000,0V mean(10) 0.0000008V, stddev(10) 0.61uV,
+  clk counts  201884  198691    379 400001 no-az (ref-lo) meas 0.000,000,6V mean(10) 0.0000008V, stddev(10) 0.61uV,
+  clk counts  201884  198691    378 400001 no-az (ref-lo) meas 0.000,001,2V mean(10) 0.0000008V, stddev(10) 0.52uV,
+  clk counts  201884  198691    379 400001 no-az (ref-lo) meas 0.000,000,6V mean(10) 0.0000006V, stddev(10) 0.36uV,
+  clk counts  201884  198691    378 400001 no-az (ref-lo) meas 0.000,001,2V mean(10) 0.0000007V, stddev(10) 0.40uV,
+  clk counts  201884  198691    378 400001 no-az (ref-lo) meas 0.000,001,2V mean(10) 0.0000008V, stddev(10) 0.43uV,
+  clk counts  201884  198691    379 400001 no-az (ref-lo) meas 0.000,000,6V mean(10) 0.0000008V, stddev(10) 0.43uV,
+  clk counts  201884  198691    378 400001 no-az (ref-lo) meas 0.000,001,2V mean(10) 0.0000008V, stddev(10) 0.44uV,
+  clk counts  201884  198691    379 400001 no-az (ref-lo) meas 0.000,000,6V mean(10) 0.0000008V, stddev(10) 0.43uV,
+  clk counts  201884  198691    378 400001 no-az (ref-lo) meas 0.000,001,2V mean(10) 0.0000008V, stddev(10) 0.44uV,
+  clk counts  201884  198691    378 400001 no-az (ref-lo) meas 0.000,001,2V mean(10) 0.0000010V, stddev(10) 0.33uV,
+  clk counts  201884  198691    378 400001 no-az (ref-lo) meas 0.000,001,2V mean(10) 0.0000010V, stddev(10) 0.30uV,
+  clk counts  201884  198691    380 400001 no-az (ref-lo) meas -0.000,000,0V mean(10) 0.0000009V, stddev(10) 0.45uV,
+  clk counts  201884  198691    378 400001 no-az (ref-lo) meas 0.000,001,2V mean(10) 0.0000010V, stddev(10) 0.44uV,
+  clk counts  201883  198691    316 400001 no-az (ref-lo) meas -0.000,003,4V mean(10) 0.0000005V, stddev(10) 1.44uV,    <- eg. runup counts, disturbed leading to change.
+
+
+    EXTR. NOTE also meas value is very good - and no offset.
+    I think the reset approach - has a distinct advantage.
+  ---
+
+  10nplc.
+  clk counts 2016138 1984299    351 4000001 no-az (ref-lo) meas 0.000,002,7V mean(10) 0.0000026V, stddev(10) 0.19uV,
+  clk counts 2016138 1984299    351 4000001 no-az (ref-lo) meas 0.000,002,7V mean(10) 0.0000026V, stddev(10) 0.17uV,
+  clk counts 2016138 1984299    350 4000001 no-az (ref-lo) meas 0.000,002,7V mean(10) 0.0000026V, stddev(10) 0.18uV,
+  clk counts 2016138 1984299    355 4000001 no-az (ref-lo) meas 0.000,002,4V mean(10) 0.0000026V, stddev(10) 0.18uV,
+  clk counts 2016138 1984299    352 4000001 no-az (ref-lo) meas 0.000,002,6V mean(10) 0.0000026V, stddev(10) 0.18uV,
+  clk counts 2016138 1984299    354 4000001 no-az (ref-lo) meas 0.000,002,5V mean(10) 0.0000026V, stddev(10) 0.18uV,
+  clk counts 2016138 1984299    350 4000001 no-az (ref-lo) meas 0.000,002,7V mean(10) 0.0000026V, stddev(10) 0.19uV,
+  clk counts 2016138 1984299    346 4000001 no-az (ref-lo) meas 0.000,003,0V mean(10) 0.0000027V, stddev(10) 0.16uV,
+  clk counts 2016138 1984299    351 4000001 no-az (ref-lo) meas 0.000,002,7V mean(10) 0.0000027V, stddev(10) 0.15uV,
+  clk counts 2016138 1984299    354 4000001 no-az (ref-lo) meas 0.000,002,5V mean(10) 0.0000027V, stddev(10) 0.16uV,
+
+  we want the ability to save a cal.
+
+  So it's enough.
+
 #endif
 
 
