@@ -1603,7 +1603,7 @@ OK. did another cal and it's bad again. or there is interference.
   clk counts  201884  198691    378 400001 no-az (ref-lo) meas 0.000,001,2V mean(10) 0.0000010V, stddev(10) 0.30uV,
   clk counts  201884  198691    380 400001 no-az (ref-lo) meas -0.000,000,0V mean(10) 0.0000009V, stddev(10) 0.45uV,
   clk counts  201884  198691    378 400001 no-az (ref-lo) meas 0.000,001,2V mean(10) 0.0000010V, stddev(10) 0.44uV,
-  clk counts  201883  198691    316 400001 no-az (ref-lo) meas -0.000,003,4V mean(10) 0.0000005V, stddev(10) 1.44uV,    <- eg. runup counts, disturbed leading to change.
+  clk counts  201883  198691    316 400001 no-az (ref-lo) meas -0.000,003,4V mean(10) 0.0000005V, stddev(10) 1.44uV,    <- eg. runup counts, disturbed, increases stddev
 
 
     EXTR. NOTE also meas value is very good - and no offset.
@@ -1622,9 +1622,30 @@ OK. did another cal and it's bad again. or there is interference.
   clk counts 2016138 1984299    351 4000001 no-az (ref-lo) meas 0.000,002,7V mean(10) 0.0000027V, stddev(10) 0.15uV,
   clk counts 2016138 1984299    354 4000001 no-az (ref-lo) meas 0.000,002,5V mean(10) 0.0000027V, stddev(10) 0.16uV,
 
-  we want the ability to save a cal.
-
   So it's enough.
+
+  =======================
+
+  CONCLUSION. NOISE
+
+    we want the ability to save a cal.
+
+    EXTR - need to use lid, and keep usb cabling.  and laptop away.  from pcb board.
+
+    EXTR - stddev period needs to be shortish
+      - to avoid thermal walk. that increases variance.
+      - and changes to the runup pattern, creating changes in runup counts not just the rundown count.
+
+    this issue - also affects the stderr() of the calibration.  and creates abrubt differences.
+
+    Allan deviation - may be a better way to look at things.  where just use adjacent values.
+
+
+    Maybe hsould have marker/ count - for number of values - since the runup count changed .
+
+
+
+
 
 #endif
 
