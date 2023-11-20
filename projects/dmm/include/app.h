@@ -249,7 +249,7 @@ bool test14( app_t *app , const char *cmd);    // not sure if good to pass here,
 bool test16( app_t *app , const char *cmd);    // not sure if good to pass here,
 
 
-bool app_extra_functions( app_t *app , const char *cmd);
+bool app_functions( app_t *app , const char *cmd);
 
 ////////////
 

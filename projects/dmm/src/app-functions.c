@@ -46,7 +46,7 @@
 */
 
 
-bool app_extra_functions( app_t *app , const char *cmd/*, Mode *mode*/)
+bool app_functions( app_t *app , const char *cmd)
 {
   /*
       - this modifies current-state.

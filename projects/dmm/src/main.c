@@ -814,7 +814,7 @@ static void app_update_console_cmd(app_t *app)
 
       // TODO. Ok. we are manipulating mode_initial which isn't right.
 
-      else if( app_extra_functions( app, cmd  ))
+      else if( app_functions( app, cmd  ))
       {
         // test15 done
       }

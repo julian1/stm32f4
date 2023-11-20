@@ -30,7 +30,7 @@ SRCFILES	= src/main.c   src/spi-port.c  src/w25.c  src/4094.c src/spi-ice40.c  s
             src/test/test05.c src/test/test06.c src/test/test08.c src/test/test11.c src/test/test15.c src/test/test14.c  src/test/test16.c \
             src/mcu-temp.c \
             src/mcu-flash.c \
-            src/app-extra-functions.c \
+            src/app-functions.c \
             src/calc.c \
             src/cal.c \
             src/regression.c src/mesch.c \
