@@ -36,8 +36,8 @@ val 964  convert 36.23C
 
 */
 
-#include "temp-mcu.h"
-#include "stats.h"        // not clear if want this dependency
+#include "mcu-temp.h"
+#include "stats.h"        // awful dependency, can we remove.
 
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))

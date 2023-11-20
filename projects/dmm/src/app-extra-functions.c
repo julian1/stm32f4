@@ -20,7 +20,7 @@
 #include "mux.h"        // mux_ice40()
 #include "spi-ice40.h"  // spi_ice40_reg_write32()
 
-#include "temp-mcu.h"
+#include "mcu-temp.h"
 
 #include "app.h"
 
