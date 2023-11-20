@@ -60,7 +60,7 @@ void m_stats_print( MAT *buffer /* double *mean, double *stddev */ )
 
 
 
-
+#if 0
 
 bool push_buffer1( MAT *buffer, unsigned *i, double value)
 {
@@ -82,6 +82,8 @@ bool push_buffer1( MAT *buffer, unsigned *i, double value)
   return full;
 }
 
+
+#endif
 
 
 

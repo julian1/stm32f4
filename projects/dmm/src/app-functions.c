@@ -21,14 +21,14 @@
 #include "spi-ice40.h"  // spi_ice40_reg_write32()
 
 #include "mcu-temp.h"
+#include "mcu-flash.h"
 
 #include "app.h"
-
 // modes of operation.
 #include "mode.h"
 
 
-#include "calc.h"     // change name to general purpose matrix stuff.
+#include "calc.h"     // m_truncate_rows() name to general purpose matrix stuff.
 
 /*
   Ok, we want to be able to set the input source. and then the amplifier gain.
@@ -845,6 +845,20 @@ bool app_functions( app_t *app , const char *cmd)
   }
 
 
+
+  // flash erase
+  else if(strcmp(cmd, "flash erase") == 0) { 
+
+      printf("flash erasing sector\n");
+      // usart1_flush();
+
+      flash_erase_sector_();
+
+      printf("done erase\n");
+
+  }    
+
+ 
 
   else {
     return 0;

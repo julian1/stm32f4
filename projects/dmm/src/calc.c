@@ -1,10 +1,8 @@
 /*
-  calc2.c
-  need a better name for this. math2.h/c?  matrix2 calc2
-  matrix2.h/c
+  more general purpse matrix code?
 
-  matrix2.h/ matrix2.c
-  stats.c stats.h
+  calc.c
+  need a better name for this. math2.h/c?  matrix2 calc2  stats.c ?
 */
 
 #include <math.h>     // sqrt

@@ -1,7 +1,7 @@
 
 /*
   measurement/ cal specific matrix funcs
-  could 
+  could
 
 */
 #pragma once
@@ -21,7 +21,7 @@ MAT * run_to_matrix( // const Run *run,
 
 // mat_set_row() and push_buffer etc. should be general and moved
 
-// rename m_set_row() ,  m_v_set_val(). 
+// rename m_set_row() ,  m_v_set_val().
 
 void mat_set_row (  MAT *xs, unsigned row_idx,   MAT *whoot );
 
@@ -53,10 +53,13 @@ MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture);
   - also put the cal structure on app. and then just free and reallocate in place. to avoid leaking.
 
   - use strategy of oversizing on creation then reset rows.
-  - can also call a function to potentially reallocate the mem reserve if under pressure. if really cannot determine size upfront. 
+  - can also call a function to potentially reallocate the mem reserve if under pressure. if really cannot determine size upfront.
 
 */
+
+#if 0
 bool push_buffer1( MAT *buffer, unsigned *i, double value);
+#endif
 
 
 void m_stats_print( MAT *buffer );
