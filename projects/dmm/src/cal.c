@@ -26,6 +26,7 @@
 
 
 #include "calc.h"
+#include "measurement.h"
 
 
 

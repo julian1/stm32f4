@@ -28,7 +28,7 @@
 #include "mode.h"
 
 
-#include "regression.h"     // change name to general purpose matrix stuff.
+#include "calc.h"     // change name to general purpose matrix stuff.
 
 /*
   Ok, we want to be able to set the input source. and then the amplifier gain.

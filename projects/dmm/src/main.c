@@ -71,7 +71,9 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 
 
 
+
 #include "calc.h"
+#include "measurement.h"
 
 
 
