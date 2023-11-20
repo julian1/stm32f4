@@ -91,7 +91,7 @@ typedef struct X
   uint8_t U401_UNUSED : 8;    // controls U404. boot. mux
                               //
 
-
+  // input muxing
   // U403
   uint8_t K403_CTL    : 2;
   uint8_t K401_CTL    : 2;
@@ -103,10 +103,24 @@ typedef struct X
   uint8_t U506        : 3;        // adg1209.  gain mux. (MUST BE BROUGHT UP with enable-pin enabled otherwise power supplies current limit, risk of part damage).
   uint8_t U500_UNUSED : 5;        // change name _500_unused --- or similar.  think we should prefix U505_MUX. or
 
-  // jumpered.
-  // 600
+
+  // ohms current current
+  // U606
+  uint8_t U605        : 4;    // adg1208.
+  uint8_t U606_UNUSED : 3;        // change name _500_unused --- or similar.  think we should prefix U505_MUX. or
+  uint8_t LINE_SENSE_OE : 1;
+
+  // U607
+  uint8_t K603_CTL    : 2;
+  uint8_t K601_CTL    : 2;
+  uint8_t K602_CTL    : 2;
+  uint8_t U607_UNUSED : 2;
+
+
+
   // 700
 
+  // dcv source
   // U1004  - 5th bit.
   uint8_t U1003   : 4;    // adg1208  4 bits.  EN last. is inconsistent.  with chip pin-order. and 500, 600, 700.  good keep.....
   uint8_t U1006   : 4;    // adg1208  4 bits.
@@ -219,7 +233,7 @@ typedef struct Mode
   /* other state, that needs to be persisted. not managed on 4094 or fpga.  required to be able to change range. etc.
     could be placed in app_t.   or here. or somewhere else.
     ----
-    
+
   */
 
 

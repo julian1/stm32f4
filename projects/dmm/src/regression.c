@@ -1,6 +1,6 @@
 /*
   calc2.c
-  need a better name for this. math2.h/c?
+  need a better name for this. math2.h/c?  matrix2 calc2
   matrix2.h/c
 
   matrix2.h/ matrix2.c

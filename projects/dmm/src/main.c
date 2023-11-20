@@ -234,7 +234,7 @@ void aper_n_print( uint32_t aperture,  uint32_t lfreq)
 void app_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *system_millis)
 {
   assert(mode);
-  assert( sizeof(X) == 5 );
+  assert( sizeof(X) == 7 );
 
   // should we be passing as a separate argument
 
@@ -459,7 +459,7 @@ static void app_update_soft_500ms(app_t *app)
 
       // TODO . want an invert function macro
       // eg. mode_derived.first.K402_CTL = invert( mode_initial.first.K402_CTL )
-
+/*
       // switch all relays at the same time.  should be another test
       // works...
       mode_derived.first.K405_CTL    = LR_TOP;
@@ -467,9 +467,14 @@ static void app_update_soft_500ms(app_t *app)
       mode_derived.first.K401_CTL    = LR_TOP;
       mode_derived.first.K403_CTL    = LR_TOP;
 
-
+      // b2b fets
       mode_derived.first. U408_SW_CTL = 0;        // turn off b2b fets, while switching relay on.
       mode_derived.second.U408_SW_CTL = 1;       // turn on/close b2b fets.
+
+*/
+
+      mode_derived.first.K603_CTL    = LR_TOP;
+
 
 
       app_transition_state( app->spi, &mode_derived, &app->system_millis );
@@ -1235,7 +1240,12 @@ static const Mode mode_initial =  {
   // .second.K405_CTL  = LR_OFF,     // clear relay
   .second.U408_SW_CTL = 0,
 
-  .second.U506 =  W1,           // should  always be on.
+  .second.U506 =  W1,           // amplifier should always be on.
+
+
+
+  .first. K603_CTL  = LR_BOT,     // ohms relay off.
+
 
 
   // fpga mode default. blink led.
@@ -1457,7 +1467,8 @@ int main(void)
 
   // check some obvious stuff.
   assert(sizeof(F) == 4);
-  assert(sizeof(X) == 5);
+  // assert(sizeof(X) == 5);
+  assert(sizeof(X) == 7);   // add ohms source.
 
   assert( (1<<3|(6-1)) == 0b1101 );
   assert( S6  == 0b1101 );
