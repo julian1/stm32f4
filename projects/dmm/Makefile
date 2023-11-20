@@ -30,8 +30,8 @@ SRCFILES	= src/main.c   src/spi-port.c  src/w25.c  src/4094.c src/spi-ice40.c  s
             src/test/test05.c src/test/test06.c src/test/test08.c src/test/test11.c src/test/test15.c src/test/test14.c  src/test/test16.c \
             src/temp-mcu.c \
             src/app-extra-functions.c \
-            src/loop3.c \
             src/calc.c \
+            src/cal.c \
             src/regression.c src/mesch.c \
               ${LIB2SRC}/util.c ${LIB2SRC}/format.c \
               ${LIB2SRC}/cbuffer.c  ${LIB2SRC}/streams.c  ${LIB2SRC}/usart.c  ${LIB2SRC}/cstring.c \
