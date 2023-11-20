@@ -64,7 +64,7 @@
 
 #include <libopencm3/stm32/flash.h>
 
-// avoid conflict with lib2/include/flash.h
+// careful - conflicts with lib2/include/flash.h
 #include "mcu-flash.h"
 
 #include "streams.h"  // printf
@@ -222,16 +222,24 @@ static ssize_t myread(A *a, char *buf, size_t sz)
 
 
 
-static int myseek(A *a, _off64_t *offset_, int whence)
-{
-  //  int seek(void *cookie, off64_t *offset, int whence);
+/*
+  Nov 21, 2023.
+  offset is type 'long int *'  not '_off64_t *' contrary to man page for fopencookie().
 
-  int offset = (int) *offset_;
+*/
+// static int myseek(A *a, _off64_t *offset_, int whence)
+static int myseek(void *a_, long int *offset_, int whence)
+{
+  assert(a_);
+  assert(offset_);
+
+
+  A *a = (A *) a_;
+
+  long int offset = (int) *offset_;
 
 
 //  printf("** seek offset %d", offset ); // value
-
-
 //  printf(" a->pos %d", a->pos ); // value
                                     // pos should not be negative???
 
@@ -288,7 +296,7 @@ FILE * flash_open_file(void )
   static cookie_io_functions_t  memfile_func = {
     .read  = (cookie_read_function_t *) myread,
     .write = (cookie_write_function_t *) mywrite,
-    .seek  = (cookie_seek_function_t *) myseek,
+    .seek  = /*(cookie_seek_function_t *) */myseek,
     .close = NULL
   };
 
@@ -316,10 +324,10 @@ FILE * flash_open_file(void )
 
 
 
-#if 0
+#if 1
 
 
-void flash_write(void)
+void flash_test_write(void)
 {
   /*
     A sector must:w first be fully erased before attempting to program it.
@@ -354,7 +362,7 @@ void flash_write(void)
 }
 
 
-void flash_read(void)
+void flash_test_read(void)
 {
   char *s = (char *) FLASH_SECT_ADDR;
   printf( "flash char is '%c' %u\n", *s, *s);

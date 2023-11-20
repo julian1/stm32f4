@@ -23,7 +23,11 @@
 #include "usart.h"      // flush
 
 #include "mcu-temp.h"
+
+
+#include <libopencm3/stm32/flash.h>
 #include "mcu-flash.h"
+#include "file-cal.h"
 
 #include "app.h"
 // modes of operation.
@@ -846,21 +850,75 @@ bool app_functions( app_t *app , const char *cmd)
 
   }
 
+  ///////////////////////////////////////////////
 
 
   // flash erase
-  else if(strcmp(cmd, "flash erase") == 0) { 
+  else if(strcmp(cmd, "flash erase") == 0) {
 
-      printf("flash erasing sector\n");
-      usart1_flush();
+    printf("flash erasing sector\n");
+    usart1_flush();
+    flash_erase_sector_();
+    printf("done erase\n");
+    return 1;
+  }
 
-      flash_erase_sector_();
+  else if(strcmp(cmd, "flash test write") == 0) {
 
-      printf("done erase\n");
+    flash_test_write();
+    return 1;
+  }
+  else if(strcmp(cmd, "flash test read") == 0) {
 
-  }    
+    flash_test_read();
+    return 1;
+  }
 
- 
+  else if(strcmp(cmd, "flash test1") == 0) {
+
+    // Ok, this seemed to work to write a string
+    printf("flash unlock\n");
+    flash_unlock();
+    FILE *f = flash_open_file();
+    fwrite( "xxx", sizeof("xxx"), 1, f);
+    fclose(f);
+    printf("flash lock\n");
+    flash_lock();
+    return 1;
+  }
+
+
+
+  else if(sscanf(cmd, "flash save cal %lu", &u1 ) == 1) {
+
+    // now save to flash
+    printf("-----------------\n");
+    printf("flash unlock\n");
+    flash_unlock();
+
+    FILE *f = flash_open_file();
+
+    // doing a seek kills it.
+    printf("doing a seek\n");
+    int ret =  fseek( f, 0 , SEEK_SET) ;
+
+    printf("ret is %u\n", ret);
+
+    // file_skip_to_end( f);
+
+    // file_write_cal ( app->cal[ u32 ] , f );
+    fclose(f);
+
+    printf("flash lock\n");
+    flash_lock();
+    printf("done\n");
+
+    return 1;
+  }
+
+
+
+
 
   else {
     return 0;
