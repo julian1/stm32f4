@@ -26,9 +26,16 @@
 // MAT	*m_element_invert( const MAT *matrix, MAT *out);
 
 unsigned m_rows(const MAT *m) ;
+unsigned m_cols(const MAT *m) ;
+
 unsigned m_rows_reserve(const MAT *m);
 
-unsigned m_cols(const MAT *m) ;
+
+
+void mat_set_row (  MAT *xs, unsigned row_idx,   MAT *whoot );
+void vec_set_val (  MAT *xs, unsigned row_idx,   double x);
+
+
 
 MAT * m_truncate_rows( MAT *m, size_t m_new );
 void m_push_row( MAT *m, double *xs, size_t n );

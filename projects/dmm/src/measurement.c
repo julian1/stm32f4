@@ -196,34 +196,6 @@ MAT * run_to_matrix(
 
 
 
-void mat_set_row (  MAT *xs, unsigned row_idx,   MAT *whoot )
-{
-  // set row. or push row.
-  assert(xs);
-  assert(whoot);
-  assert(row_idx < m_rows(xs));
-
-
-  assert( m_cols(whoot) == m_cols(xs) );
-  assert( m_rows(whoot) == 1  );
-
-  m_row_set( xs, row_idx, whoot );
-
-}
-
-
-void vec_set_val (  MAT *xs, unsigned row_idx,   double x)
-{
-  assert(xs);
-  assert( m_cols(xs) == 1  );
-  assert(row_idx < m_rows(xs));
-
-  m_set_val( xs , row_idx, 0, x );
-
-}
-
-
-
 
 
 

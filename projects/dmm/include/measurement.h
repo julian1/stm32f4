@@ -1,7 +1,9 @@
 
 /*
   measurement/ cal specific matrix funcs
-  could
+
+
+  this code could be moved to cal.c quite reasonably.
 
 */
 #pragma once
@@ -22,10 +24,6 @@ MAT * run_to_matrix( // const Run *run,
 // mat_set_row() and push_buffer etc. should be general and moved
 
 // rename m_set_row() ,  m_v_set_val().
-
-void mat_set_row (  MAT *xs, unsigned row_idx,   MAT *whoot );
-
-void vec_set_val (  MAT *xs, unsigned row_idx,   double x);
 
 
 MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture);
@@ -60,6 +58,9 @@ MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture);
 #if 0
 bool push_buffer1( MAT *buffer, unsigned *i, double value);
 #endif
+
+
+
 
 
 void m_stats_print( MAT *buffer );
