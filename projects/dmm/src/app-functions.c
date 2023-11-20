@@ -20,6 +20,8 @@
 #include "mux.h"        // mux_ice40()
 #include "spi-ice40.h"  // spi_ice40_reg_write32()
 
+#include "usart.h"      // flush
+
 #include "mcu-temp.h"
 #include "mcu-flash.h"
 
@@ -850,7 +852,7 @@ bool app_functions( app_t *app , const char *cmd)
   else if(strcmp(cmd, "flash erase") == 0) { 
 
       printf("flash erasing sector\n");
-      // usart1_flush();
+      usart1_flush();
 
       flash_erase_sector_();
 

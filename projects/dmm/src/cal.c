@@ -1,4 +1,9 @@
 /*
+
+  perhaps rename app-cal.c
+    to distinguish from flash-cal.c
+
+
   - long running process.
   - just take control of the main loop.
   as alternative to function yielding.
@@ -186,13 +191,13 @@ void app_cal( app_t *app )
         printf("counts %6lu %lu %lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
 
 
-        if( false /*app->verbose*/) { 
+        if( false /*app->verbose*/) {
           uint32_t stat_count_refmux_pos_up = spi_ice40_reg_read32( app->spi, REG_ADC_STAT_COUNT_REFMUX_POS_UP);
           uint32_t stat_count_refmux_neg_up = spi_ice40_reg_read32( app->spi, REG_ADC_STAT_COUNT_REFMUX_NEG_UP);
           uint32_t stat_count_cmpr_cross_up = spi_ice40_reg_read32( app->spi, REG_ADC_STAT_COUNT_CMPR_CROSS_UP);
 
           printf(", stats %lu %lu %lu", stat_count_refmux_pos_up, stat_count_refmux_neg_up, stat_count_cmpr_cross_up );
-        } 
+        }
 
         printf("\n");
 
