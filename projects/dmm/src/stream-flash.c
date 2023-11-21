@@ -298,7 +298,7 @@ FILE * flash_open_file(void )
 {
   // think fopencookie will copies
   static cookie_io_functions_t  memfile_func = {
-    .read  = myread,
+    .read  = myread,                  // avoid casting ptrf, because types get confusing
     .write = mywrite,
     .seek  = myseek,
     .close = NULL

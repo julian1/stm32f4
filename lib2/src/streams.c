@@ -196,8 +196,10 @@ void cbuf_init_stdout_streams( CBuf *circ_buf )
 
 
 
-static ssize_t myread(Cookie *cookie, char *buf, size_t sz)
+static ssize_t myread(void *cookie_, char *buf, size_t sz)
 {
+  Cookie *cookie = (Cookie *) cookie_;
+
   /* return 0 on non-blocking buf empty,
   which gets turned to EOF(-1) by FILE read.
   EOF can be clear by calling clearerr()
@@ -222,7 +224,7 @@ void cbuf_init_stdin_streams( CBuf *console_in )
 
 
   cookie_io_functions_t file_func = {
-     .read  = (cookie_read_function_t *) myread,
+     .read  =  myread,      // avoid casting ptrf, because types get confusing
      .write = NULL ,
      .seek  = NULL,
      .close = NULL
