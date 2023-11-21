@@ -228,6 +228,7 @@ static ssize_t myread(void *a_, char *buf, size_t sz)
 /*
   Nov 21, 2023.
   offset is type 'long int *'  not '_off64_t *' contrary to man page for fopencookie().
+  this appears to have changed
 
 */
 // static int myseek(A *a, _off64_t *offset_, int whence)
@@ -297,9 +298,9 @@ FILE * flash_open_file(void )
 {
   // think fopencookie will copies
   static cookie_io_functions_t  memfile_func = {
-    .read  = /*(cookie_read_function_t *)*/ myread,
-    .write = /*(cookie_write_function_t *)*/ mywrite,
-    .seek  = /*(cookie_seek_function_t *) */myseek,
+    .read  = myread,
+    .write = mywrite,
+    .seek  = myseek,
     .close = NULL
   };
 
