@@ -165,8 +165,10 @@ struct A
 typedef struct A A;
 
 
-static ssize_t mywrite( A *a, const unsigned char *buf, size_t sz)
+static ssize_t mywrite( void *a_, const char *buf, size_t sz)
 {
+  A *a = (A *) a_;
+
   // printf("** mywrite %u\n", sz);
   //printf("a %p\n", a );
   // printf("a->pos %d", a->pos ); // value
@@ -175,7 +177,7 @@ static ssize_t mywrite( A *a, const unsigned char *buf, size_t sz)
   // alternatively might be able to return truncated sz...
   assert( a->pos + sz < a->n);
 
-  flash_program( (uint32_t)  a->p + a->pos , buf, sz  );
+  flash_program( (uint32_t)  a->p + a->pos , (const unsigned char *) buf, sz  );
 
   a->pos += sz;
 
@@ -185,8 +187,10 @@ static ssize_t mywrite( A *a, const unsigned char *buf, size_t sz)
 }
 
 
-static ssize_t myread(A *a, char *buf, size_t sz)
+static ssize_t myread(void *a_, char *buf, size_t sz)
 {
+  A *a = (A *) a_;
+
   // sz is just the advertized buffer space.
 
   /*
@@ -198,8 +202,7 @@ static ssize_t myread(A *a, char *buf, size_t sz)
   // printf("** myread %u\n", sz);
   //printf("a %p\n", a );
   // printf("a->pos %d\n", a->pos ); // value
-
-  usart1_flush();
+  // usart1_flush();
 
   int remain = a->n - a->pos;           // signed. but it's not quite correct
 
@@ -294,8 +297,8 @@ FILE * flash_open_file(void )
 {
   // think fopencookie will copies
   static cookie_io_functions_t  memfile_func = {
-    .read  = (cookie_read_function_t *) myread,
-    .write = (cookie_write_function_t *) mywrite,
+    .read  = /*(cookie_read_function_t *)*/ myread,
+    .write = /*(cookie_write_function_t *)*/ mywrite,
     .seek  = /*(cookie_seek_function_t *) */myseek,
     .close = NULL
   };
