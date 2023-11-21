@@ -1,5 +1,5 @@
 
-// change name repl.c ?
+// change name repl.c ? commands.c
 // need "cal load %u;",  and "cal save %u;"  for adc.
 
 
@@ -7,6 +7,7 @@
 #include <stdio.h>      // printf, scanf
 #include <string.h>     // strcmp, memset
 #include <assert.h>
+#include <ctype.h>      // isdigit
 
 #include <malloc.h> // malloc_stats()
 
@@ -77,10 +78,10 @@ bool app_functions( app_t *app , const char *cmd)
   double    f0;
   uint32_t  u1; // change name u0.
 
-  // int32_t i0;
 
   // https://stackoverflow.com/questions/24746111/scanf-field-width-string-overflow
-  char s0[100 + 1 ];
+  char s0[100 + 1];
+  char s1[100 + 1];
 
 
 
@@ -201,7 +202,77 @@ bool app_functions( app_t *app , const char *cmd)
     return 1;
   }
 
+  /*
+    It would be very nice, if we could manage all relays for testing.
+    Kind of like the direct register, for fpga outputs.
 
+  */
+
+
+
+
+
+  else if( sscanf(cmd, "set %100s %100s", s0, s1) == 2) {
+
+    // light weight interface to control.
+    // want to have the same thing for the muxes.
+    // can also have top/bot arguments.
+
+      printf("s1 is %s\n", s1 );
+
+    // why not just an integer argument... for relays as well as muxes...
+    uint32_t val = 0;
+
+    if (strcmp(s1, "on") == 0 || strcmp(s1, "bot") == 0)
+      val = 1;
+    else if(strcmp(s1, "off") == 0 || strcmp(s1, "top") == 0)
+      val = 0;
+    else if( s1[0] == '0' && s1[1] == 'x' && sscanf(s1, "%lx", &val) == 1) {
+      printf("got hex\n" );
+    }
+    else if( s1[0] == '0' && s1[1] == 'o' && sscanf(s1 + 2, "%lo", &val) == 1) {
+      // octal doesn't accept a prefix
+      printf("got octal\n" );
+    }
+
+    else if( isdigit( (unsigned char) *s1 ) && sscanf(s1, "%lu", &val) == 1) {
+      // EXTR.  can this handle octal/ and hex.
+      // eg. 0xff.  or 0b01
+      // see  strtoula arg also.
+
+    }
+    else {
+      printf("bad arg\n" );
+      return 1;
+    }
+
+    // OR allow bit select
+
+    if(strcmp(s0, "dummy") == 0) {
+      printf("val is %lu\n", val );
+    }
+
+    else if(strcmp(s0, "u605") == 0) {
+      app->mode_current->second.U605 = val ;
+    }
+
+    if(strcmp(s0, "k406") == 0 || strcmp(s0, "accum") == 0) {
+      if(val) app->mode_current->first.K406_CTL = LR_BOT;     //  off should be top.
+      else    app->mode_current->first.K406_CTL = LR_TOP;
+    }
+    else if(strcmp(s0, "k603") == 0) {
+      if(val) app->mode_current->first.K603_CTL = LR_BOT;
+      else    app->mode_current->first.K603_CTL = LR_TOP;
+    }
+
+    // do the state transition
+    // should only do this on trig.
+    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+    return 1;
+  }
+
+
+#if 0
   else if( sscanf(cmd, "accum %100s", s0) == 1) {
 
     // manual ontrol over test charge-accumulation relay - can be useful for quick checks. but a bit out-of-band for dcv operation.
@@ -209,17 +280,14 @@ bool app_functions( app_t *app , const char *cmd)
     // what happens if add 10nF. to gnd. to the signal path.
 
     if (strcmp(s0, "off") == 0) {
-
       printf("set accum off\n" );
       app->mode_current->first.K406_CTL = LR_TOP;
     }
     else if(strcmp(s0, "on") == 0) {
-
       printf("set accm on\n" );
       app->mode_current->first.K406_CTL = LR_BOT;
     }
     else {
-
       printf("bad accum arg\n" );
       return 1;
     }
@@ -227,6 +295,8 @@ bool app_functions( app_t *app , const char *cmd)
     app_transition_state( app->spi, app->mode_current,  &app->system_millis );
     return 1;
   }
+#endif
+
 
 
 
