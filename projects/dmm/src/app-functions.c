@@ -38,6 +38,9 @@
 
 #include "calc.h"     // m_truncate_rows() name to general purpose matrix stuff.
 
+#include "format.h"   // format_bits()
+
+
 /*
   Ok, we want to be able to set the input source. and then the amplifier gain.
   extra_functions.
@@ -214,60 +217,72 @@ bool app_functions( app_t *app , const char *cmd)
 
   else if( sscanf(cmd, "set %100s %100s", s0, s1) == 2) {
 
-    // light weight interface to control.
-    // want to have the same thing for the muxes.
-    // can also have top/bot arguments.
+    // light weight interface to control relays and muxes.
+    // printf("s1 is %s\n", s1 );
 
-      printf("s1 is %s\n", s1 );
-
-    // why not just an integer argument... for relays as well as muxes...
     uint32_t val = 0;
 
-    if (strcmp(s1, "on") == 0 || strcmp(s1, "bot") == 0)
+    if (strcmp(s1, "on") == 0 || strcmp(s1, "true") == 0 || strcmp(s1, "bot") == 0)
       val = 1;
-    else if(strcmp(s1, "off") == 0 || strcmp(s1, "top") == 0)
+    else if(strcmp(s1, "off") == 0 || strcmp(s1, "false") == 0 || strcmp(s1, "top") == 0)
       val = 0;
     else if( s1[0] == '0' && s1[1] == 'x' && sscanf(s1, "%lx", &val) == 1) {
       printf("got hex\n" );
     }
     else if( s1[0] == '0' && s1[1] == 'o' && sscanf(s1 + 2, "%lo", &val) == 1) {
       // octal doesn't accept a prefix
-      printf("got octal\n" );
+      // printf("got octal\n" );
     }
-
-    else if( isdigit( (unsigned char) *s1 ) && sscanf(s1, "%lu", &val) == 1) {
-      // EXTR.  can this handle octal/ and hex.
-      // eg. 0xff.  or 0b01
-      // see  strtoula arg also.
-
+    else if( s1[0] == '0' && s1[1] == 'b') {
+      // binary is very useful for muxes
+      val = strtoul(s1 + 2, NULL, 2);
+      char buf[100];
+      // printf("got binary %s\n", format_bits(buf, 32, val ) );
+    }
+    else if( isdigit( (unsigned char) s1[0] ) && sscanf(s1, "%lu", &val) == 1) {
+      // printf("got decimal\n" );
     }
     else {
-      printf("bad arg\n" );
+      printf("bad val arg\n" );
       return 1;
     }
 
-    // OR allow bit select
+
+
+
+    Mode *mode = app->mode_current;
 
     if(strcmp(s0, "dummy") == 0) {
-      printf("val is %lu\n", val );
+      printf("dummy val is %lu\n", val );
     }
+    else if(strcmp(s0, "u1003") == 0) {
 
+      mode->first.U1003 = val ;
+      mode->second.U1003 = val ;
+      printf("setting u1003 %b\n", mode->second.U1003 );
+    }
     else if(strcmp(s0, "u605") == 0) {
-      app->mode_current->second.U605 = val ;
-    }
 
-    if(strcmp(s0, "k406") == 0 || strcmp(s0, "accum") == 0) {
-      if(val) app->mode_current->first.K406_CTL = LR_BOT;     //  off should be top.
-      else    app->mode_current->first.K406_CTL = LR_TOP;
+      mode->first.U605 = val ;
+      mode->second.U605 = val ;
+      printf("setting u605 %b\n", mode->first.U605 );
+    }
+    else if(strcmp(s0, "k406") == 0 || strcmp(s0, "accum") == 0) {
+      if(val) mode->first.K406_CTL = LR_BOT;     //  off should be top.
+      else    mode->first.K406_CTL = LR_TOP;
     }
     else if(strcmp(s0, "k603") == 0) {
-      if(val) app->mode_current->first.K603_CTL = LR_BOT;
-      else    app->mode_current->first.K603_CTL = LR_TOP;
+      if(val) mode->first.K603_CTL = LR_BOT;
+      else    mode->first.K603_CTL = LR_TOP;
+    } else {
+
+      printf("bad target arg\n" );
+      return 1;
     }
 
     // do the state transition
     // should only do this on trig.
-    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+    app_transition_state( app->spi, mode,  &app->system_millis );
     return 1;
   }
 
