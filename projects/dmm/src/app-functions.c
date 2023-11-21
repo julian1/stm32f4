@@ -26,8 +26,9 @@
 
 
 #include <libopencm3/stm32/flash.h>
-#include "mcu-flash.h"
-#include "file-cal.h"
+
+#include "stream-flash.h"
+#include "file-cal.h"   // change name stream-cal.
 
 #include "app.h"
 // modes of operation.

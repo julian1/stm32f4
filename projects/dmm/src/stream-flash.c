@@ -65,7 +65,7 @@
 #include <libopencm3/stm32/flash.h>
 
 // careful - conflicts with lib2/include/flash.h
-#include "mcu-flash.h"
+#include "stream-flash.h"
 
 #include "streams.h"  // printf
 #include "usart.h"    // usart1_flush()
