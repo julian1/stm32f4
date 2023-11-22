@@ -1001,31 +1001,6 @@ bool app_functions( app_t *app , const char *cmd)
     return 1;
   }
 
-  else if(strcmp(cmd, "flash test write") == 0) {
-
-    flash_test_write();
-    return 1;
-  }
-  else if(strcmp(cmd, "flash test read") == 0) {
-
-    flash_test_read();
-    return 1;
-  }
-
-/*
-  else if(strcmp(cmd, "flash test1") == 0) {
-
-    // Ok, this seemed to work to write a string
-    printf("flash unlock\n");
-    flash_unlock();
-    FILE *f = flash_open_file();
-    fwrite( "xxx", sizeof("xxx"), 1, f);
-    fclose(f);
-    printf("flash lock\n");
-    flash_lock();
-    return 1;
-  }
-*/
 
 
   else if(sscanf(cmd, "flash save cal %lu", &u1 ) == 1) {

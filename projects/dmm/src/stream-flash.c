@@ -328,8 +328,12 @@ FILE * flash_open_file(void )
 
 
 
-#if 1
+#if 0
 
+/*
+  don't use these - except for initial flash test
+  because they don't use the blob structure and will corrupt
+*/
 
 void flash_test_write(void)
 {
