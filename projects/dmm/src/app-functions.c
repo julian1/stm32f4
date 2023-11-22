@@ -57,6 +57,41 @@
 */
 
 
+
+
+
+
+
+static void my_file_write_cal( FILE *f, MAT *b )
+{
+  assert(f);
+  assert(b);
+  m_foutput_binary( f, b);
+
+}
+
+
+
+static void my_file_scan_blobs( FILE *f, Header *header, app_t *app )
+{
+  assert(header);
+  assert(app);
+  // ctx should be the app structure.. to save.
+
+  printf("whoot got blob id=%u len=%u\n", header->id, header->len );
+
+  if(header->id == 106) {
+    // it should be readable.
+
+    // OK. hang on. it's not a file sturcture... 
+    // we should load it from memory????
+    app->b = m_finput_binary(f, MNULL );
+
+  }
+}
+
+
+
 bool app_functions( app_t *app , const char *cmd)
 {
   /*
@@ -226,6 +261,9 @@ bool app_functions( app_t *app , const char *cmd)
       val = 1;
     else if(strcmp(s1, "off") == 0 || strcmp(s1, "false") == 0 || strcmp(s1, "top") == 0)
       val = 0;
+
+    // we could factor all this handling.
+    // read_int.
     else if( s1[0] == '0' && s1[1] == 'x' && sscanf(s1, "%lx", &val) == 1) {
       printf("got hex\n" );
     }
@@ -236,7 +274,7 @@ bool app_functions( app_t *app , const char *cmd)
     else if( s1[0] == '0' && s1[1] == 'b') {
       // binary is very useful for muxes
       val = strtoul(s1 + 2, NULL, 2);
-      char buf[100];
+      // char buf[100];
       // printf("got binary %s\n", format_bits(buf, 32, val ) );
     }
     else if( isdigit( (unsigned char) s1[0] ) && sscanf(s1, "%lu", &val) == 1) {
@@ -274,7 +312,21 @@ bool app_functions( app_t *app , const char *cmd)
     else if(strcmp(s0, "k603") == 0) {
       if(val) mode->first.K603_CTL = LR_BOT;
       else    mode->first.K603_CTL = LR_TOP;
-    } else {
+    }
+
+    // cmos inverting.
+    else if(strcmp(s0, "k702") == 0) {
+      if(val) mode->first.K702_CTL = LR_BOT;
+      else    mode->first.K702_CTL = LR_TOP;
+    }
+    // cmos inverting.
+    else if(strcmp(s0, "k703") == 0) {
+      if(val) mode->first.K703_CTL = LR_BOT;
+      else    mode->first.K703_CTL = LR_TOP;
+    }
+
+
+    else {
 
       printf("bad target arg\n" );
       return 1;
@@ -960,6 +1012,7 @@ bool app_functions( app_t *app , const char *cmd)
     return 1;
   }
 
+/*
   else if(strcmp(cmd, "flash test1") == 0) {
 
     // Ok, this seemed to work to write a string
@@ -972,10 +1025,15 @@ bool app_functions( app_t *app , const char *cmd)
     flash_lock();
     return 1;
   }
-
+*/
 
 
   else if(sscanf(cmd, "flash save cal %lu", &u1 ) == 1) {
+
+    if(!app->b) {
+      printf("no cal!\n");
+      return 1;
+    }
 
     // now save to flash
     printf("-----------------\n");
@@ -984,13 +1042,10 @@ bool app_functions( app_t *app , const char *cmd)
 
     FILE *f = flash_open_file();
 
-    // doing a seek kills it.
-    printf("doing a seek\n");
-    int ret =  fseek( f, 0 , SEEK_SET) ;
+    file_skip_to_end( f);
 
-    printf("ret is %u\n", ret);
-
-    // file_skip_to_end( f);
+    // use callback to write the block.
+    file_write_blob( f,  (void (*)(FILE *, void *)) my_file_write_cal, app->b );
 
     // file_write_cal ( app->cal[ u32 ] , f );
     fclose(f);
@@ -1003,6 +1058,20 @@ bool app_functions( app_t *app , const char *cmd)
   }
 
 
+  else if(sscanf(cmd, "flash read cal %lu", &u1 ) == 1) {
+
+    flash_unlock();
+
+    FILE *f = flash_open_file();
+
+    file_scan_blobs( f,  (void (*)( FILE *f, Header *, void *ctx))  my_file_scan_blobs , app );
+
+    printf("flash lock\n");
+    flash_lock();
+    printf("done\n");
+
+    return 1;
+  }
 
 
 
@@ -1016,8 +1085,6 @@ bool app_functions( app_t *app , const char *cmd)
 
   return 0;
 }
-
-
 
 
 

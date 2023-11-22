@@ -20,25 +20,18 @@
 #include "file-cal.h"
 
 
-struct Header
-{
-  unsigned magic;
-  unsigned len;
-  unsigned id;
-};
-
-typedef struct Header Header;
-
-
 #define MAGIC 0xff00ff00
 
 /*
   skip to end. ie. pos for COW write for nor flash
+
+  end of blobs
 */
 
 
 void file_skip_to_end(  FILE *f)
 {
+  // this func goes here. because it uses the Header structure 
   assert(f );
 
   printf( "----------------------\n");
@@ -91,11 +84,189 @@ void file_skip_to_end(  FILE *f)
 
 
 
+/*
+  OK. the fundamental issue is that we often don't know the size, of the data we wish to write 
+  .  eg. the b matrix.
+  But we can skip.
+
+*/
+
+// void file_write_blob( FILE *f, const void *buf, size_t sz)
+void file_write_blob( FILE *f,    void (*pf)( FILE *, void *ctx ), void *ctx )
+{
+  assert(f );
+  assert(pf);
+
+  printf( "-----------------\n" );
+  printf( "file_write_data f is %p   ftell() is  %ld\n", f, ftell( f) );
+
+
+  usart1_flush();
+
+  assert( sizeof(Header) == 12 );
+
+  // advance past header that we will write later.
+  fseek( f, sizeof(Header), SEEK_CUR ) ;
+  long start = ftell( f);   // record postion from start.
+
+  /////////////////////
+  // file_write_cal_( cal, f);
+  
+  // write the blob data
+  // we should return the header id that we want also.
+  pf( f, ctx); 
+
+  // determine how much we advanced
+  long len = ftell( f) - start;
+  usart1_flush();
+
+  printf("len %ld\n", len );
+  // seek back to header
+  fseek( f, -len - sizeof(Header), SEEK_CUR );
+
+  // write the header
+  Header  header;
+  header.magic = MAGIC;
+  header.len = len;
+  header.id = 106;     // header id. for raw matrix.
+
+  unsigned items = fwrite( &header, sizeof(header), 1, f);
+  assert(items == 1);
+
+  // now seek forward again to the end
+  fseek( f, len, SEEK_CUR ) ;
+
+
+  printf( "ftell() now %ld\n", ftell( f) );
+}
+
+
+
+int file_scan_blobs( FILE *f,  void (*pf)( FILE *f, Header *, void *ctx ), void *ctx )
+{
+  // return 0 if success.
+
+  assert(f );
+
+  printf( "----------------------\n");
+  printf( "file_scan_cal()\n");
+  usart1_flush();
+
+  // seek the start of file
+  fseek( f, 0 , SEEK_SET) ;
+
+  Header header;
+  assert(sizeof(header) == 12);
+
+  while(true) {
+
+    // read header
+    unsigned items = fread( &header, sizeof(header), 1, f);
+    assert(items == 1);
+
+    // printf("magic is %x\n", header.magic );
+    // usart1_flush();
+
+    unsigned here0 = ftell( f);
+
+    // printf("pos %u, magic %x, header.id %u, len %u\n", here0, header.magic, header.id, header.len);
+    printf(".");
+
+
+    if(header.magic == MAGIC ) {
+      // valid slot
+
+
+      pf( f, &header, ctx );
+
+#if 0
+      switch(header.id) {
+
+        case 99:
+        case 101:
+        case 102:
+        case 103:   // some wrongly sized.
+
+          // printf("old, ignore\n" );
+          // fseek( f, header.len, SEEK_CUR ) ;
+          break;
+
+        case 104:
+          if(header.len == 78) // fix to ignore cal type 105, that was saved as 104.
+            break;
+          // allow fallthrough
+
+        case 105:
+          if(header.len == 97) // fix to ignore cal type 105, that was saved as 104.
+            break;
+
+        case 106:
+          {
+
+          // printf("reading cal type 104,105,106\n" );
+
+          Cal * cal = cal_create();
+          file_read_cal_values( header.id, cal, f);
+
+          // actually should be the cal_id_max = MAX(id cal_id_count)
+          // cal_id_count
+          *cal_id_max =  MAX( *cal_id_max , cal->id );
+
+          // bounds
+          assert( cal->slot < sz);
+
+          // free old if exists
+          if(cals[ cal->slot ] )
+            cal_free( cals[ cal->slot ] );
+
+          // set new
+          cals[ cal->slot ] = cal;
+
+          assert( here0  + header.len == (unsigned) ftell( f));
+          }
+          break;
+
+
+
+      };
+#endif
+
+
+      // position to the next frame
+      fseek( f, here0 + header.len, SEEK_SET ) ;
+
+    }
+    else if( header.magic == 0xffffffff ) {
+      // nor ram not yet written
+      break;
+    }
+    else {
+      // error
+      assert( 0);
+    }
+  }
+
+
+  // reset seek the start of file
+  fseek( f, 0 , SEEK_SET) ;
+
+  printf( "\ndone\n" );
+  return 0;
+}
+
+
+
+
+
+
+
+
 
 
 
 // OK. we want a variation. of file_skip. that fills in data... according to header ids.
 
+#if 0
 
 static void file_read_cal_values( unsigned id, Cal *cal, FILE *f)
 {
@@ -157,7 +328,7 @@ static void file_read_cal_values( unsigned id, Cal *cal, FILE *f)
   // k
 }
 
-
+#endif
 
 #if 0
 
@@ -276,7 +447,7 @@ int file_scan_cal( FILE *f, Cal **cals, unsigned sz, unsigned *cal_id_max )
   change name, file_write_cal_with_header?
 */
 
-
+#if 0
 
 static void file_write_cal_( Cal *cal, FILE *f)
 {
@@ -310,7 +481,6 @@ static void file_write_cal_( Cal *cal, FILE *f)
   fwrite( &cal->model, sizeof(cal->model), 1, f);
 #endif
 }
-
 
 
 
@@ -373,10 +543,10 @@ void file_write_cal ( Cal *cal, FILE *f)
 
 
   printf( "ftell() now %ld\n", ftell( f) );
-
 }
 
 
+#endif
 
 #if 0
 

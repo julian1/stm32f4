@@ -119,6 +119,15 @@ typedef struct X
 
 
   // 700
+  uint8_t U704_UNUSED : 2;
+  uint8_t K702_CTL    : 2;
+  uint8_t K703_CTL    : 2;
+  uint8_t K709_CTL    : 2;
+
+  uint8_t U705_UNUSED : 8;
+  uint8_t U706_UNUSED : 8;
+
+
 
   // dcv source
   // U1004  - 5th bit.

@@ -236,7 +236,7 @@ void aper_n_print( uint32_t aperture,  uint32_t lfreq)
 void app_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *system_millis)
 {
   assert(mode);
-  assert( sizeof(X) == 7 );
+  assert( sizeof(X) == 10 );
 
   // should we be passing as a separate argument
 
@@ -1219,6 +1219,11 @@ static app_t app;
 
 static const Mode mode_initial =  {
 
+  /*
+    all relays have to be defined. not left default initialization of 00 which means
+    they don't get an initial pulse.  
+  */
+
   //  maybe make explicit all values  U408_SW_CTL. at least for the initial mode, from which others derive.
 
   .first .K406_CTL  = LR_TOP,     // accumulation relay off
@@ -1247,6 +1252,20 @@ static const Mode mode_initial =  {
 
 
   .first. K603_CTL  = LR_BOT,     // ohms relay off.
+
+
+  // 700
+  // has inverting cmos buffer
+  .first. K702_CTL  = LR_BOT,
+  .second.K702_CTL  = 0b11,
+
+  // has inverting cmos buffer
+  .first. K703_CTL  = LR_BOT,
+  .second.K703_CTL  = 0b11,
+
+  // normal
+  .first. K709_CTL  = LR_BOT,
+
 
 
 
@@ -1470,7 +1489,8 @@ int main(void)
   // check some obvious stuff.
   assert(sizeof(F) == 4);
   // assert(sizeof(X) == 5);
-  assert(sizeof(X) == 7);   // add ohms source.
+  // assert(sizeof(X) == 7);   // add ohms source.
+  assert(sizeof(X) == 10);   // add current
 
   assert( (1<<3|(6-1)) == 0b1101 );
   assert( S6  == 0b1101 );
