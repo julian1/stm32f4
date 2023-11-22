@@ -59,15 +59,20 @@
 
 
 
+/*
+  EXTR.
 
+    for stuff like stddev, date etc.  of cal.
+    just store it all in a single instead . it's enough structure
+    like - can we can record this when we do a cal in a string. or string buffer.
+*/
 
-
-static void my_file_write_cal( FILE *f, MAT *b )
+static void my_file_write_cal( FILE *f, MAT *b )      // should pass app. to allow stor may be better t
 {
   assert(f);
   assert(b);
-  m_foutput_binary( f, b);
 
+  m_foutput_binary( f, b);
 }
 
 
@@ -83,7 +88,7 @@ static void my_file_scan_blobs( FILE *f, Header *header, app_t *app )
   if(header->id == 106) {
     // it should be readable.
 
-    // OK. hang on. it's not a file sturcture... 
+    // OK. hang on. it's not a file sturcture...
     // we should load it from memory????
     app->b = m_finput_binary(f, MNULL );
 
