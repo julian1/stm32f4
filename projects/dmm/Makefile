@@ -32,7 +32,7 @@ SRCFILES	= src/main.c   src/spi-port.c  src/w25.c  src/4094.c src/spi-ice40.c  s
             src/stream-flash.c \
             src/app-functions.c \
             src/cal.c \
-            src/file-cal.c \
+            src/file-blob.c \
             src/measurement.c \
             src/calc.c src/mesch.c \
               ${LIB2SRC}/util.c ${LIB2SRC}/format.c \

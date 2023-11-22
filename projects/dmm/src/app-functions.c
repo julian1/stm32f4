@@ -29,7 +29,7 @@
 #include <libopencm3/stm32/flash.h>
 
 #include "stream-flash.h"
-#include "file-cal.h"   // change name stream-cal.
+#include "file-blob.h"   // change name stream-cal.
 
 #include "app.h"
 // modes of operation.
@@ -1042,7 +1042,7 @@ bool app_functions( app_t *app , const char *cmd)
 
     FILE *f = flash_open_file();
 
-    file_skip_to_end( f);
+    file_skip_blobs_end( f);
 
     // use callback to write the block.
     file_write_blob( f,  (void (*)(FILE *, void *)) my_file_write_cal, app->b );
