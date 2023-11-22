@@ -70,7 +70,7 @@
     rename file_blob_serialize() d
 */
 
-static void my_file_write_cal( FILE *f, Header *header, MAT *b )      // should pass app. to allow stor may be better t
+static void my_file_cal_write( FILE *f, Header *header, MAT *b )      // should pass app. to allow stor may be better t
 {
   assert(f);
   assert(header);
@@ -1016,8 +1016,8 @@ bool app_functions( app_t *app , const char *cmd)
   }
 
 
-
-  else if(sscanf(cmd, "flash save cal %lu", &u1 ) == 1) {
+  // change name flash cal save
+  else if(sscanf(cmd, "flash cal save %lu", &u1 ) == 1) {
 
     if(!app->b) {
       printf("no cal!\n");
@@ -1025,47 +1025,41 @@ bool app_functions( app_t *app , const char *cmd)
     }
 
     // now save to flash
-    printf("-----------------\n");
     printf("flash unlock\n");
     flash_unlock();
 
     FILE *f = flash_open_file();
-
     file_blob_skip_end( f);
-
     // use callback to write the block.
-    file_blob_write( f,  (void (*)(FILE *, Header *, void *)) my_file_write_cal, app->b );
-
-    // file_write_cal ( app->cal[ u32 ] , f );
+    file_blob_write( f,  (void (*)(FILE *, Header *, void *)) my_file_cal_write, app->b );
     fclose(f);
 
     printf("flash lock\n");
     flash_lock();
     printf("done\n");
-
     return 1;
   }
 
   // change name load?
-  else if(sscanf(cmd, "flash read cal %lu", &u1 ) == 1) {
+  // change name flash cal read
+  else if(sscanf(cmd, "flash cal read %lu", &u1 ) == 1) {
 
+    printf("flash unlock\n");
     flash_unlock();
-
     FILE *f = flash_open_file();
-
     file_blobs_scan( f,  (void (*)( FILE *, Header *, void *))  my_file_blobs_scan , app );
+    fclose(f);
 
     printf("flash lock\n");
     flash_lock();
     printf("done\n");
-
     return 1;
   }
 
-  // flash copy cal.  n  to n.   this would be useful. if want to replace a cal.
+  // flash cal copy .  n  to n.   this would be useful. if want to replace a cal.
   // could also have a delete cal - that would invalidate.
 
-
+  // flash cal list
 
   else {
     return 0;
