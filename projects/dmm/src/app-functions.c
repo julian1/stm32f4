@@ -65,13 +65,22 @@
     for stuff like stddev, date etc.  of cal.
     just store it all in a single instead . it's enough structure
     like - can we can record this when we do a cal in a string. or string buffer.
+    ----
+
+    rename file_blob_serialize() d
 */
 
-static void my_file_write_cal( FILE *f, MAT *b )      // should pass app. to allow stor may be better t
+static void my_file_write_cal( FILE *f, Header *header, MAT *b )      // should pass app. to allow stor may be better t
 {
   assert(f);
+  assert(header);
   assert(b);
 
+  // set the blob id
+  assert(header->len == 0 && header->magic == 0);   // these are not set yet
+  header->id = 106;
+
+  // write the data
   m_foutput_binary( f, b);
 }
 
@@ -1025,7 +1034,7 @@ bool app_functions( app_t *app , const char *cmd)
     file_blob_skip_end( f);
 
     // use callback to write the block.
-    file_blob_write( f,  (void (*)(FILE *, void *)) my_file_write_cal, app->b );
+    file_blob_write( f,  (void (*)(FILE *, Header *, void *)) my_file_write_cal, app->b );
 
     // file_write_cal ( app->cal[ u32 ] , f );
     fclose(f);
@@ -1044,7 +1053,7 @@ bool app_functions( app_t *app , const char *cmd)
 
     FILE *f = flash_open_file();
 
-    file_blobs_scan( f,  (void (*)( FILE *f, Header *, void *ctx))  my_file_blobs_scan , app );
+    file_blobs_scan( f,  (void (*)( FILE *, Header *, void *))  my_file_blobs_scan , app );
 
     printf("flash lock\n");
     flash_lock();

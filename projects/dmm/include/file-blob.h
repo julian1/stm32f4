@@ -31,13 +31,15 @@ struct Header
 typedef struct Header Header;
 
 
-void file_blob_skip_end(  FILE *f);
+void file_blob_skip_end( FILE *f);
 
 /* need to give callee control over the 'id' field. pass either unsigned or the header structure.
   to let the callee write.
+  header structure makes the callbacks symmetric. even if only one field.
+  also if add other fields, then they are available.
 */
 
-void file_blob_write( FILE *f,    void (*pf)( FILE *, void *ctx ), void *ctx );
+void file_blob_write( FILE *f, void (*pf)( FILE *, Header *, void *ctx ), void *ctx );
 
 int file_blobs_scan( FILE *f,  void (*pf)( FILE *f, Header *, void *ctx ), void *ctx );
 

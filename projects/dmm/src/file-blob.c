@@ -1,9 +1,9 @@
 
 
-
 #include <stdio.h>      // FILE
 #include <stdbool.h>    // true
 #include <assert.h>
+#include <string.h>   // memset
 
 #include "usart.h"  // usart1_flush()
 
@@ -11,7 +11,7 @@
 
 #include "file-blob.h"
 
-
+// maybe rename magic_blob_header
 #define MAGIC 0xff00ff00
 
 /*
@@ -29,11 +29,10 @@ void file_blob_skip_end( FILE *f)
   printf( "file_skip_to_end()\n");
   usart1_flush();
 
-  // seek the start of file
-
-  printf("calling fseek\n");
+  // seek file start
+  printf("fseek file start\n");
   usart1_flush();
-  fseek( f, 0 , SEEK_SET) ;
+  fseek( f, 0, SEEK_SET) ;
 
   printf("done fseek\n");
   usart1_flush();
@@ -85,7 +84,8 @@ void file_blob_skip_end( FILE *f)
 
 */
 
-void file_blob_write( FILE *f,    void (*pf)( FILE *, void *ctx ), void *ctx )
+// void file_blob_write( FILE *f,    void (*pf)( FILE *, void *ctx ), void *ctx )
+void file_blob_write( FILE *f, void (*pf)( FILE *, Header *, void *ctx ), void *ctx )
 {
   assert(f );
   assert(pf);
@@ -98,36 +98,41 @@ void file_blob_write( FILE *f,    void (*pf)( FILE *, void *ctx ), void *ctx )
 
   assert( sizeof(Header) == 12 );
 
-  // advance past header that we will write later.
+  // seek past the header,  which we will write later.
   fseek( f, sizeof(Header), SEEK_CUR ) ;
   long start = ftell( f);   // record postion from start.
 
   /////////////////////
 
-  // write the blob data
-  // we should return the header id that we want to use also.
-  pf( f, ctx);
+  // clear header fields
+  Header  header;
+  memset(&header, 0, sizeof(header));
 
-  // determine how much we advanced
+  // write the blob data, and let caller set the blob id in the header
+  pf( f, &header, ctx);
+
+  // ensure callee set a valid id
+  assert(header.id);
+
+
+  // determine how far we advanced
   long len = ftell( f) - start;
   usart1_flush();
 
   printf("len %ld\n", len );
-  // seek back to header
+  // seek back to header start
   fseek( f, -len - sizeof(Header), SEEK_CUR );
 
-  // write the header
-  Header  header;
+  // set other header fields
   header.magic = MAGIC;
   header.len = len;
-  header.id = 106;     // header id. for raw matrix.
 
+  // write the header
   unsigned items = fwrite( &header, sizeof(header), 1, f);
   assert(items == 1);
 
-  // now seek forward again to the end
+  // now seek/reposition to the file end, ready for any subsequent blob writes
   fseek( f, len, SEEK_CUR ) ;
-
 
   printf( "ftell() now %ld\n", ftell( f) );
 }
