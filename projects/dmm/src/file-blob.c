@@ -20,7 +20,7 @@
 */
 
 
-void file_skip_blobs_end( FILE *f)
+void file_blob_skip_end( FILE *f)
 {
   // this func goes here. because it uses the Header structure
   assert(f );
@@ -85,7 +85,7 @@ void file_skip_blobs_end( FILE *f)
 
 */
 
-void file_write_blob( FILE *f,    void (*pf)( FILE *, void *ctx ), void *ctx )
+void file_blob_write( FILE *f,    void (*pf)( FILE *, void *ctx ), void *ctx )
 {
   assert(f );
   assert(pf);
@@ -134,7 +134,7 @@ void file_write_blob( FILE *f,    void (*pf)( FILE *, void *ctx ), void *ctx )
 
 
 
-int file_scan_blobs( FILE *f,  void (*pf)( FILE *f, Header *, void *ctx ), void *ctx )
+int file_blobs_scan( FILE *f,  void (*pf)( FILE *f, Header *, void *ctx ), void *ctx )
 {
   // return 0 if success.
 

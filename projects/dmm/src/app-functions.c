@@ -77,7 +77,7 @@ static void my_file_write_cal( FILE *f, MAT *b )      // should pass app. to all
 
 
 
-static void my_file_scan_blobs( FILE *f, Header *header, app_t *app )
+static void my_file_blobs_scan( FILE *f, Header *header, app_t *app )
 {
   assert(header);
   assert(app);
@@ -1022,10 +1022,10 @@ bool app_functions( app_t *app , const char *cmd)
 
     FILE *f = flash_open_file();
 
-    file_skip_blobs_end( f);
+    file_blob_skip_end( f);
 
     // use callback to write the block.
-    file_write_blob( f,  (void (*)(FILE *, void *)) my_file_write_cal, app->b );
+    file_blob_write( f,  (void (*)(FILE *, void *)) my_file_write_cal, app->b );
 
     // file_write_cal ( app->cal[ u32 ] , f );
     fclose(f);
@@ -1037,14 +1037,14 @@ bool app_functions( app_t *app , const char *cmd)
     return 1;
   }
 
-
+  // change name load?
   else if(sscanf(cmd, "flash read cal %lu", &u1 ) == 1) {
 
     flash_unlock();
 
     FILE *f = flash_open_file();
 
-    file_scan_blobs( f,  (void (*)( FILE *f, Header *, void *ctx))  my_file_scan_blobs , app );
+    file_blobs_scan( f,  (void (*)( FILE *f, Header *, void *ctx))  my_file_blobs_scan , app );
 
     printf("flash lock\n");
     flash_lock();
@@ -1052,6 +1052,8 @@ bool app_functions( app_t *app , const char *cmd)
 
     return 1;
   }
+
+  // flash copy cal.  n  to n.   this would be useful. if want number 1.
 
 
 
