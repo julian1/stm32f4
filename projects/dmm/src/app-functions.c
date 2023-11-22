@@ -66,8 +66,12 @@
     just store it all in a single instead . it's enough structure
     like - can we can record this when we do a cal in a string. or string buffer.
     ----
-
     rename file_blob_serialize() d
+
+    ---------
+
+    for the cal slot/name .  use a string identifier. not a number.
+    good convenience.
 */
 
 static void my_file_cal_write( FILE *f, Header *header, MAT *b )      // should pass app. to allow stor may be better t
@@ -1016,7 +1020,6 @@ bool app_functions( app_t *app , const char *cmd)
   }
 
 
-  // change name flash cal save
   else if(sscanf(cmd, "flash cal save %lu", &u1 ) == 1) {
 
     if(!app->b) {
@@ -1041,7 +1044,6 @@ bool app_functions( app_t *app , const char *cmd)
   }
 
   // change name load?
-  // change name flash cal read
   else if(sscanf(cmd, "flash cal read %lu", &u1 ) == 1) {
 
     printf("flash unlock\n");
