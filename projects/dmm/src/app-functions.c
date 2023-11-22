@@ -1053,7 +1053,8 @@ bool app_functions( app_t *app , const char *cmd)
     return 1;
   }
 
-  // flash copy cal.  n  to n.   this would be useful. if want number 1.
+  // flash copy cal.  n  to n.   this would be useful. if want to replace a cal.
+  // could also have a delete cal - that would invalidate.
 
 
 
