@@ -280,6 +280,29 @@ bool app_functions( app_t *app , const char *cmd)
     else if(strcmp(s1, "off") == 0 || strcmp(s1, "false") == 0 || strcmp(s1, "top") == 0)
       val = 0;
 
+    // 1 of 8 mux values.
+    else if(strcmp(s1, "s8") == 0 )
+      val = S8;
+    else if(strcmp(s1, "s7") == 0 )
+      val = S7;
+    else if(strcmp(s1, "s6") == 0 )
+      val = S6;
+    else if(strcmp(s1, "s5") == 0 )
+      val = S5;
+    else if(strcmp(s1, "s4") == 0 )
+      val = S4;
+    else if(strcmp(s1, "s3") == 0 )
+      val = S3;
+    else if(strcmp(s1, "s2") == 0 )
+      val = S2;
+    else if(strcmp(s1, "s1") == 0 )
+      val = S1;
+
+
+
+
+
+
     // we could factor all this handling.
     // read_int.
     else if( s1[0] == '0' && s1[1] == 'x' && sscanf(s1, "%lx", &val) == 1) {
@@ -308,6 +331,9 @@ bool app_functions( app_t *app , const char *cmd)
 
     Mode *mode = app->mode_current;
 
+    uint8_t rval = val ?  LR_BOT : LR_TOP;
+ 
+
     if(strcmp(s0, "dummy") == 0) {
       printf("dummy val is %lu\n", val );
     }
@@ -317,30 +343,37 @@ bool app_functions( app_t *app , const char *cmd)
       mode->second.U1003 = val ;
       printf("setting u1003 %b\n", mode->second.U1003 );
     }
-    else if(strcmp(s0, "u605") == 0) {
+    else if(strcmp(s0, "k406") == 0 || strcmp(s0, "accum") == 0) {
+      mode->first.K406_CTL = rval ;     //  off should be top.
+    }
 
+
+    // 500 ohms
+    else if(strcmp(s0, "u605") == 0) {
       mode->first.U605 = val ;
       mode->second.U605 = val ;
       printf("setting u605 %b\n", mode->first.U605 );
     }
-    else if(strcmp(s0, "k406") == 0 || strcmp(s0, "accum") == 0) {
-      if(val) mode->first.K406_CTL = LR_BOT;     //  off should be top.
-      else    mode->first.K406_CTL = LR_TOP;
+ 
+    else if(strcmp(s0, "k601") == 0) {
+      mode->first.K601_CTL = rval;
+    }
+    else if(strcmp(s0, "k602") == 0) {
+       mode->first.K602_CTL = rval;
     }
     else if(strcmp(s0, "k603") == 0) {
-      if(val) mode->first.K603_CTL = LR_BOT;
-      else    mode->first.K603_CTL = LR_TOP;
+      mode->first.K603_CTL = rval;
     }
+
+
 
     // cmos inverting.
     else if(strcmp(s0, "k702") == 0) {
-      if(val) mode->first.K702_CTL = LR_BOT;
-      else    mode->first.K702_CTL = LR_TOP;
+      mode->first.K702_CTL = rval;
     }
     // cmos inverting.
     else if(strcmp(s0, "k703") == 0) {
-      if(val) mode->first.K703_CTL = LR_BOT;
-      else    mode->first.K703_CTL = LR_TOP;
+      mode->first.K703_CTL = rval;
     }
 
 
