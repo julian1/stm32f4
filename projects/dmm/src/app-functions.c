@@ -332,7 +332,7 @@ bool app_functions( app_t *app , const char *cmd)
     Mode *mode = app->mode_current;
 
     uint8_t rval = val ?  LR_BOT : LR_TOP;
- 
+
 
     if(strcmp(s0, "dummy") == 0) {
       printf("dummy val is %lu\n", val );
@@ -354,7 +354,7 @@ bool app_functions( app_t *app , const char *cmd)
       mode->second.U605 = val ;
       printf("setting u605 %b\n", mode->first.U605 );
     }
- 
+
     else if(strcmp(s0, "k601") == 0) {
       mode->first.K601_CTL = rval;
     }
@@ -794,6 +794,48 @@ bool app_functions( app_t *app , const char *cmd)
       mode->second.U1006 =  U1006_AGND;
     else
       printf("bad dcv-source arg\n");
+
+    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+
+    return 1;
+  }
+
+  else if( sscanf(cmd, "dci-source %100s", s0) == 1) {
+
+    Mode *mode = app->mode_current;
+
+    if(strcmp(s0, "1mA") == 0 || strcmp(s0, "100uA") == 0
+      || strcmp(s0, "10uA") == 0 || strcmp(s0, "1uA") == 0 ) {
+
+      // >  set k603 bot; set k602 bot; set k601 bot;  set u605 s6 ;
+      mode->first.K603_CTL = LR_BOT;    // 3V 40k.
+      mode->first.K602_CTL = LR_BOT;    // intermediate shunts
+      mode->first.K601_CTL = LR_BOT;    // low-current output.
+
+      if(strcmp(s0, "1mA") == 0 )
+        mode->second.U605 = S6;
+      else if (strcmp(s0, "100uA") == 0 )
+        mode->second.U605 = S5;
+      else if (strcmp(s0, "10uA") == 0 )
+        mode->second.U605 = S4;
+      else if (strcmp(s0, "10uA") == 0 )
+        mode->second.U605 = S3;
+      else if (strcmp(s0, "1uA") == 0 )
+        mode->second.U605 = S2;
+      else
+        assert(0);
+    }
+    else if (strcmp(s0, "10mA") == 0 ) {
+      // >   set k603 bot >  set k602 top >  set k601 top >   set u605 s8
+
+      mode->first.K603_CTL = LR_BOT;    // 3V 40k.
+      mode->first.K602_CTL = LR_TOP;    // relay driven shunt
+      mode->first.K601_CTL = LR_TOP;    // hi-current output. - doesn't matter. if both the same.
+
+      mode->second.U605 = S8;
+    }
+    else
+      printf("bad dci-source arg\n");
 
     app_transition_state( app->spi, app->mode_current,  &app->system_millis );
 
