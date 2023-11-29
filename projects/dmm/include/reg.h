@@ -98,12 +98,18 @@
 
 // muxes
 #define HIMUX_HIMUX2          S2
+#define HIMUX_DCV_DIV         S3
+#define HIMUX_4W_HI           S4
 #define HIMUX_DCV             S7
+#define HIMUX_DCI             S8
+
 
 #define HIMUX2_DCV_SOURCE     S1
-#define HIMUX2_STAR_LO            S4
+#define HIMUX2_DCI_TIA        S3
+#define HIMUX2_STAR_LO        S4
 #define HIMUX2_REF_HI         S5
 #define HIMUX2_REF_LO         S6
+
 
 #define AZMUX_PCOUT           S1
 #define AZMUX_BOOT            S2

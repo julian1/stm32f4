@@ -752,10 +752,11 @@ bool app_functions( app_t *app , const char *cmd)
     Mode *mode = app->mode_current;
 
 /*
-    // REMOVE. turn external inputs off.
+    // REMOVE.
     // EXTR. - these should not really be set here.
-    // should rely on reset command instead.
+    // use reset command instead.
 
+    // turn external inputs off.
     mode->first .K406_CTL  = LR_TOP;     // accumulation relay off
     mode->first. K405_CTL  = LR_BOT;     // dcv input relay off
     mode->first. K402_CTL  = LR_BOT;     // dcv-div/directz relay off
@@ -763,11 +764,34 @@ bool app_functions( app_t *app , const char *cmd)
     mode->first. K403_CTL  = LR_BOT;     // ohms relay off.
     mode->first .U408_SW_CTL = 0;        // b2b fets/ input protection off/open
 */
-    if(strcmp(s0, "ref-lo") == 0) {
-      // don't use in normal case. take ref-lo from the lo-mux.
-      mode->reg_direct.himux  = HIMUX_HIMUX2;
-      mode->reg_direct.himux2 = HIMUX2_REF_LO ;
+/*
+#define HIMUX_HIMUX2          S2
+#define HIMUX_DCV_DIV         S3
+#define HIMUX_4W-HI           S4
+#define HIMUX_DCV             S7
+#define HIMUX_DCI             S8
+
+*/
+
+    if (strcmp(s0, "dcv") == 0) {
+      mode->reg_direct.himux  = HIMUX_DCV;
+      mode->reg_direct.himux2 = HIMUX2_STAR_LO;
     }
+    else if (strcmp(s0, "dci") == 0) {
+      mode->reg_direct.himux  = HIMUX_DCI;
+      mode->reg_direct.himux2 = HIMUX2_STAR_LO;
+    }
+
+   else if (strcmp(s0, "dcv-div") == 0) {
+      mode->reg_direct.himux  = HIMUX_DCV_DIV;
+      mode->reg_direct.himux2 = HIMUX2_STAR_LO;
+    }
+    else if (strcmp(s0, "4w-hi") == 0) {
+      mode->reg_direct.himux  = HIMUX_4W_HI;
+      mode->reg_direct.himux2 = HIMUX2_STAR_LO;
+    }
+
+    // himux2. stuff.
     else if (strcmp(s0, "ref-hi") == 0) {
       mode->reg_direct.himux  = HIMUX_HIMUX2;
       mode->reg_direct.himux2 = HIMUX2_REF_HI;
@@ -776,17 +800,13 @@ bool app_functions( app_t *app , const char *cmd)
       mode->reg_direct.himux  = HIMUX_HIMUX2;
       mode->reg_direct.himux2 = HIMUX2_DCV_SOURCE;
     }
-
+    else if(strcmp(s0, "ref-lo") == 0) {
+      // don't use in normal case. take ref-lo from the lo-mux.
+      mode->reg_direct.himux  = HIMUX_HIMUX2;
+      mode->reg_direct.himux2 = HIMUX2_REF_LO ;
+    }
     else if (strcmp(s0, "star-lo") == 0) {        // disginguished from a lo.  change name to lo,star.
       mode->reg_direct.himux  = HIMUX_HIMUX2;
-      mode->reg_direct.himux2 = HIMUX2_STAR_LO;
-    }
-    else if (strcmp(s0, "dcv") == 0) {
-
-      // turn dcv input relay  on
-      mode->first. K405_CTL  = LR_TOP,
-
-      mode->reg_direct.himux  = HIMUX_DCV;
       mode->reg_direct.himux2 = HIMUX2_STAR_LO;
     }
     else {
