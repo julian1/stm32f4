@@ -751,15 +751,18 @@ bool app_functions( app_t *app , const char *cmd)
 
     Mode *mode = app->mode_current;
 
-    // EXTR. - set these using initial and a bitmask?
-    // turn external inputs off.
+/*
+    // REMOVE. turn external inputs off.
+    // EXTR. - these should not really be set here.
+    // should rely on reset command instead.
+
     mode->first .K406_CTL  = LR_TOP;     // accumulation relay off
     mode->first. K405_CTL  = LR_BOT;     // dcv input relay off
     mode->first. K402_CTL  = LR_BOT;     // dcv-div/directz relay off
     mode->first. K401_CTL  = LR_TOP;     // dcv-source relay off.
     mode->first. K403_CTL  = LR_BOT;     // ohms relay off.
     mode->first .U408_SW_CTL = 0;        // b2b fets/ input protection off/open
-
+*/
     if(strcmp(s0, "ref-lo") == 0) {
       // don't use in normal case. take ref-lo from the lo-mux.
       mode->reg_direct.himux  = HIMUX_HIMUX2;

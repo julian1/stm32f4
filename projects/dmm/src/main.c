@@ -1217,6 +1217,7 @@ static app_t app;
 
 
 
+
 static const Mode mode_initial =  {
 
   /*
@@ -1232,8 +1233,7 @@ static const Mode mode_initial =  {
   .first. K402_CTL  = LR_BOT,     // dcv-div/directz relay off
                                 // must match app->persist_fixedz
 
-  // .first. K401_CTL  = LR_BOT,     // dcv-source relay off.    (WRONG. turns it on??).
-  .first. K401_CTL  = LR_TOP,     // dcv-source relay off.    (WRONG. turns it on??).
+  .first. K401_CTL  = LR_TOP,     // dcv-source relay off.
   .first. K403_CTL  = LR_BOT,     // ohms relay off.
 
   .first .U408_SW_CTL = 0,      // b2b fets/ input protection off/open
