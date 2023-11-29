@@ -961,8 +961,11 @@ bool app_functions( app_t *app , const char *cmd)
 
     Mode *mode = app->mode_current;
 
+    // could simplify this by handling 10mA first.
     if(strcmp(s0, "1mA") == 0 || strcmp(s0, "100uA") == 0
-      || strcmp(s0, "10uA") == 0 || strcmp(s0, "1uA") == 0 ) {
+      || strcmp(s0, "10uA") == 0 || strcmp(s0, "1uA") == 0
+      || strcmp(s0, "100nA") == 0
+    ) {
 
       // >  set k603 bot; set k602 bot; set k601 bot;  set u605 s6 ;
       mode->first.K603_CTL = LR_BOT;    // 3V 40k.
@@ -975,10 +978,12 @@ bool app_functions( app_t *app , const char *cmd)
         mode->second.U605 = S5;
       else if (strcmp(s0, "10uA") == 0 )
         mode->second.U605 = S4;
-      else if (strcmp(s0, "10uA") == 0 )
-        mode->second.U605 = S3;
       else if (strcmp(s0, "1uA") == 0 )
+        mode->second.U605 = S3;
+      else if (strcmp(s0, "100nA") == 0 ) {
+        printf("100nA");
         mode->second.U605 = S2;
+      }
       else
         assert(0);
     }
@@ -1036,7 +1041,7 @@ bool app_functions( app_t *app , const char *cmd)
     if(strcmp(s0, "10A") == 0 || strcmp(s0, "1A") == 0 || strcmp(s0, "100mA") == 0
         || strcmp(s0, "10mA") == 0 || strcmp(s0, "1mA") == 0 || strcmp(s0, "100uA") == 0) {
 
-      // shunts / TIA - default to shunts
+      // use shunts
       mode->first. K709_CTL  = LR_TOP;
 
 
