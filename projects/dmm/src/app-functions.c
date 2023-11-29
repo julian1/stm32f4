@@ -387,6 +387,7 @@ bool app_functions( app_t *app , const char *cmd)
     // discrete cmos inverting.
     else if(strcmp(s0, "k702") == 0)
       mode->first.K702_CTL = rval;
+
     // discrete cmos inverting.
     else if(strcmp(s0, "k703") == 0)
       mode->first.K703_CTL = rval;
@@ -999,7 +1000,82 @@ bool app_functions( app_t *app , const char *cmd)
   }
 
 
+  else if( sscanf(cmd, "irange-gain %100s", s0) == 1) {
 
+    // same argument but switch gain.
+    //
+    // eg. 100x for shunts.
+    // except 10A.
+    // 1x for TIA
+  }
+
+  else if( sscanf(cmd, "irange %100s", s0) == 1) {
+
+    // change name dci-range.  no because should work for aci-range also.
+    // we don't set amp gain here.  should we?  depending on the range?
+    // doing acal we don't
+    /*
+      extr. a separaet command irange-gain .  and pass the same
+    */
+
+    Mode *mode = app->mode_current;
+
+    // use shunts
+    mode->first. K709_CTL  = LR_TOP;
+
+    // rset.
+    // 0.1R.
+    mode->first. K703_CTL  = LR_BOT;
+    // agn200 shunts are off.
+    mode->first.K707_CTL  = LR_TOP;
+    mode->first.K706_CTL  = LR_TOP;
+    mode->first.K704_CTL  = LR_TOP;
+    mode->first.K705_CTL  = LR_TOP;
+
+
+    if(strcmp(s0, "10A") == 0 || strcmp(s0, "1A") == 0 || strcmp(s0, "100mA") == 0
+        || strcmp(s0, "10mA") == 0 || strcmp(s0, "1mA") == 0 || strcmp(s0, "100uA") == 0) {
+
+      // shunts / TIA - default to shunts
+      mode->first. K709_CTL  = LR_TOP;
+
+
+      if(strcmp(s0, "10A") == 0 || strcmp(s0, "1A") == 0)
+        mode->first. K703_CTL  = LR_TOP;
+      else if(strcmp(s0, "100mA") == 0)
+        mode->first. K704_CTL  = LR_BOT;
+      else if(strcmp(s0, "10mA") == 0)
+        mode->first. K705_CTL  = LR_BOT;
+      else if(strcmp(s0, "1mA") == 0)
+        mode->first. K706_CTL  = LR_BOT;
+      else if(strcmp(s0, "100uA") == 0)
+        mode->first. K707_CTL  = LR_BOT;
+      else assert(0);
+
+    } else {
+
+      // use TIA
+      mode->first. K709_CTL  = LR_BOT;
+
+      if(strcmp(s0, "10uA") == 0)
+        mode->second.U702 = W1;
+      else if(strcmp(s0, "1uA") == 0)
+        mode->second.U702 = W2;
+      else if(strcmp(s0, "100nA") == 0)
+        mode->second.U702 = W3;
+       else if(strcmp(s0, "10nA") == 0)
+        mode->second.U702 = W4;
+      else {
+
+        printf("bad irange arg\n");
+        return 0;
+      }
+    }
+
+    app_transition_state( app->spi, app->mode_current,  &app->system_millis );
+
+    return 1;
+  }
 
 
   else if(strcmp(cmd, "reset") == 0) {
