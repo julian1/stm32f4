@@ -420,6 +420,9 @@ bool app_functions( app_t *app , const char *cmd)
 
 
 #if 0
+
+  now use set accum on/off.
+
   else if( sscanf(cmd, "accum %100s", s0) == 1) {
 
     // manual ontrol over test charge-accumulation relay - can be useful for quick checks. but a bit out-of-band for dcv operation.
@@ -456,19 +459,19 @@ bool app_functions( app_t *app , const char *cmd)
 
     if(strcmp(s0, "on") == 0) {
 
-      printf("set fixedz on\n" );
-      app->fixedz = true;
+      printf("set persist_fixedz on\n" );
+      app->persist_fixedz = true;
     } else if (strcmp(s0, "off") == 0) {
 
-      printf("set fixedz off\n" );
-      app->fixedz = false;
+      printf("set persist_fixedz off\n" );
+      app->persist_fixedz = false;
     } else {
-      printf("bad fixedz arg\n" );
+      printf("bad persist_fixedz arg\n" );
       return 1;
     }
 
-    // follow fixedz for 10Meg/high-z.
-    mode->first.K402_CTL = app->fixedz ?  LR_TOP :  LR_BOT ;
+    // follow persist_fixedz for 10Meg/high-z.
+    mode->first.K402_CTL = app->persist_fixedz ?  LR_TOP :  LR_BOT ;
 
     // do the state transition
     app_transition_state( app->spi, mode,  &app->system_millis );
@@ -478,10 +481,8 @@ bool app_functions( app_t *app , const char *cmd)
 
   /*
       - switching between azero and non-az, and boot is hard.
-      - becase we have to kind of know
-      - azmux_val_in_azmode.
-      - so when we set the mode.
-      - himuxes all stay the same.
+      - becase we have to remember/persist the lo to use.
+      - persist_azmux_val.
     */
   else if( sscanf(cmd, "azero %100s", s0) == 1) {
 
@@ -489,9 +490,9 @@ bool app_functions( app_t *app , const char *cmd)
 
     if(strcmp(s0, "on") == 0) {
 
-      printf("set azero on, using app.azmux_val_in_azmode \n" );
+      printf("set azero on, using app.persist_azmux_val \n" );
       mode->reg_mode = MODE_AZ;
-      mode->reg_direct.azmux  = app->azmux_val_in_azmode;    // lo
+      mode->reg_direct.azmux  = app->persist_azmux_val;    // lo
     }
     else if (strcmp(s0, "off") == 0) {
 
@@ -727,16 +728,16 @@ bool app_functions( app_t *app , const char *cmd)
     // EXTR. important. must specify pc-out - if used for non-az mode.
 
     if(strcmp(s0, "pcout") == 0 || strcmp(s0, "pc-out") == 0) {
-      app->azmux_val_in_azmode = AZMUX_PCOUT;
+      app->persist_azmux_val = AZMUX_PCOUT;
     }
     else if(strcmp(s0, "boot") == 0) {
-      app->azmux_val_in_azmode = AZMUX_BOOT;
+      app->persist_azmux_val = AZMUX_BOOT;
     }
     else if (strcmp(s0, "star-lo") == 0) {
-      app->azmux_val_in_azmode =  AZMUX_STAR_LO;
+      app->persist_azmux_val =  AZMUX_STAR_LO;
     }
     else if (strcmp(s0, "ref-lo") == 0) {
-      app->azmux_val_in_azmode =  AZMUX_REF_LO;
+      app->persist_azmux_val =  AZMUX_REF_LO;
     }
     // dci_lo, 4w_lo
     else {
@@ -744,7 +745,7 @@ bool app_functions( app_t *app , const char *cmd)
       return 1;
     }
 
-    app->mode_current->reg_direct.azmux  = app->azmux_val_in_azmode ;    // lo
+    app->mode_current->reg_direct.azmux  = app->persist_azmux_val ;    // lo
 
     // do the state transition
     app_transition_state( app->spi, app->mode_current,  &app->system_millis );
@@ -1031,8 +1032,8 @@ bool app_functions( app_t *app , const char *cmd)
       // close/ turn on K405 relay.
       mode->first.K405_CTL  = LR_TOP;
 
-      // follow fixedz for 10Meg/high-z.
-      mode->first.K402_CTL = app->fixedz ?  LR_TOP :  LR_BOT ;
+      // follow persist_fixedz for 10Meg/high-z.
+      mode->first.K402_CTL = app->persist_fixedz ?  LR_TOP :  LR_BOT ;
 
       // set the input muxing.
       mode->reg_direct.himux2 = S4 ;    // gnd to reduce leakage on himux
@@ -1057,7 +1058,7 @@ bool app_functions( app_t *app , const char *cmd)
     // TODO populate protection - and arm the fets also.
 
     /*
-      - we want sample mode, aperture and fixedz to persist.
+      - we want sample mode, aperture and persist_fixedz to persist.
       - when auto/man changing range.
       - but that means we would have to copy. from original.
     */

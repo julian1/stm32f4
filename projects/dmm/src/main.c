@@ -1230,7 +1230,7 @@ static const Mode mode_initial =  {
 
   .first. K405_CTL  = LR_BOT,     // dcv input relay k405 switch off - works.
   .first. K402_CTL  = LR_BOT,     // dcv-div/directz relay off
-                                // must match app->fixedz
+                                // must match app->persist_fixedz
 
   // .first. K401_CTL  = LR_BOT,     // dcv-source relay off.    (WRONG. turns it on??).
   .first. K401_CTL  = LR_TOP,     // dcv-source relay off.    (WRONG. turns it on??).
@@ -1435,11 +1435,11 @@ int main(void)
   // some of this stuff could be deferred until app_loop()
   // perhaps should group into another structure.
   app.comms_ok = false;
-  app.fixedz  = false;
+  app.persist_fixedz  = false;
   app.lfreq = 50;
   app.model_cols = 3;
 
-  app.azmux_val_in_azmode  = AZMUX_STAR_LO;
+  app.persist_azmux_val  = AZMUX_STAR_LO;
 
 
 

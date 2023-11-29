@@ -28,7 +28,7 @@ typedef struct H
   */
 
 
-  // bool     fixedz;   // default off.
+  // bool     persist_fixedz;   // default off.
   // uint32_t lfreq;
 
 
@@ -153,28 +153,36 @@ typedef struct app_t
       10Meg.
   */
 
-  // stuff that needs to be persisted between range changing.
-  // should probably be grouped.
-  // could be pointer initialized.
-  bool fixedz ;
-
   uint32_t lfreq;
 
-  uint32_t azmux_val_in_azmode;      // prefix. sa.   jjjjj
 
-  uint32_t last_reg_status ;  // to detect status change,
+  /*
+      info that has to be persisted across range changing/state change.
+      but which doesn't belong  on fpga/4094.
+      and we cannot determine in other ways..
+  */
+
+  bool persist_fixedz ;             // fixedz to use, when changing from a different voltage range.
+
+  uint32_t persist_azmux_val;      // azmux lo to use if using azmode. eg. when change from a non-az mode. 
+                                  // TODO change to uint8_t. it's only 4 bits.
+
+
+
+  //////////////////////////
+
+  uint32_t last_reg_status ;  // to detect status change, from fpga.
 
 
   /* have a variable to encode the sample_acquisition. that codes himux,lowmux etc.
     enables switching between az, noaz, boot.
     Not. sure it can all be encoded in F register.  as combinations.
-  
+
     BUT we do want a way to choose the sample more easily. and switch between az, and no-az, electrom.
-            eg. dcv,dev-source, dci. ref-lo, ref-hi etc. 
+            eg. dcv,dev-source, dci. ref-lo, ref-hi etc.
 
   */
 
-  //////////////////////////
   // TODO reanme adc_valid . eg. same identifier / meaning as fpga code.
   // could also put flags/ for adc state in the status register. eg. the monitor pins.
   volatile bool  adc_measure_valid;
