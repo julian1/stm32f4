@@ -551,12 +551,14 @@ bool app_functions( app_t *app , const char *cmd)
   ////////////////////////////////////////////////////////
 
 
-  /* TODO change name sa_precharge and adc_reset
+  /* TODO
+
+      change name sa_precharge and adc_reset
       or sa precharge  ,  adc reset
   */
   else if( sscanf(cmd, "precharge %lu", &u1 ) == 1) {
 
-    printf("set precharge in clk counts \n");
+    printf("set precharge period in clk counts \n");
     Mode *mode = app->mode_current;
     mode->reg_sa_p_clk_count_precharge  = u1;
     // do the state transition
@@ -574,6 +576,7 @@ bool app_functions( app_t *app , const char *cmd)
 
   else if( sscanf(cmd, "adc reset %lu", &u1 ) == 1) {
 
+    // need a better name. this is the adc integrator reset period, not command to reset the adc.
     printf("set adc reset in clk counts \n");
     Mode *mode = app->mode_current;
     mode->reg_adc_p_reset = u1;
@@ -645,6 +648,100 @@ bool app_functions( app_t *app , const char *cmd)
   }
 
 
+#if 0
+  else if( sscanf(cmd, "sample %100s", s0) == 1) {
+
+    /* set sample acquisition input source.
+        idea is to make it simple for common tests, instead of setting set himux and himux2. and lomux. and azmode etc.
+        -----
+        EXTR. we want to support BOOT mode as well.
+        And sample ref-lo
+    */
+
+
+    Mode *mode = app->mode_current;
+
+    // EXTR. - set these using initial and a bitmask?
+    // turn external inputs off.
+    mode->first .K406_CTL  = LR_TOP;     // accumulation relay off
+    mode->first. K405_CTL  = LR_BOT;     // dcv input relay off
+    mode->first. K402_CTL  = LR_BOT;     // dcv-div/directz relay off
+    mode->first. K401_CTL  = LR_TOP;     // dcv-source relay off.
+    mode->first. K403_CTL  = LR_BOT;     // ohms relay off.
+    mode->first .U408_SW_CTL = 0;        // b2b fets/ input protection off/open
+
+
+    if (strcmp(s0, "dcv-source") == 0) {
+      mode->reg_direct.himux  = HIMUX_HIMUX2;
+      mode->reg_direct.himux2 = HIMUX2_DCV_SOURCE;
+      app->persist_azmux_val =  AZMUX_REF_LO;     // dcv-source uses ref-lo for now.
+    }
+    else if (strcmp(s0, "dcv") == 0) {
+
+      // turn dcv input relay  on
+      // need to sequence b2b fets
+      mode->first. K405_CTL  = LR_TOP,
+      mode->reg_direct.himux  = HIMUX_DCV;
+      mode->reg_direct.himux2 = HIMUX2_STAR_LO;
+      app->persist_azmux_val =  AZMUX_STAR_LO;     // star-lo
+    }
+    else if(strcmp(s0, "ref-lo") == 0) {
+      // sample ref-lo from the himux.
+      mode->reg_direct.himux  = HIMUX_HIMUX2;
+      mode->reg_direct.himux2 = HIMUX2_REF_LO ;
+      app->persist_azmux_val =  AZMUX_REF_LO;
+    }
+
+
+
+    /* how we do this depends on current azmode or not.
+        think we actually have to persist
+        -------
+        we kind of want the other case where we sample ref-lo from the lo mux without .
+        for noise tests of amp and adc.
+        -------
+        SAMPLE_MODE_.  SAMPLE_MODE_AZ, SAMPLE_MODE_NOAZ , SAMPLE_MODE_REFLO_LOMUX  etc.
+        REALLY NOT SURE ABOUT THIS. it's a lot of damn state.
+
+        rather than store persist. why not just swap the azmux lo to use.
+        OR.
+        change the structure.
+        -------
+
+        EXTR. why not just the lo in the reg_direct_azmux. ?
+        if switch to AZ it will be used.
+        - because we have to switch to pcout.
+    */
+
+    // this can be factored into a function.
+    // to make it easier
+
+    if(app->persist_sample_mode == SAMPLE_MODE_AZ) {
+      printf("set azero on, using app.persist_azmux_val \n" );
+      mode->reg_mode = MODE_AZ;
+      mode->reg_direct.azmux  = app->persist_azmux_val;    // lo
+    }
+    else if(app->persist_sample_mode == SAMPLE_MODE_NOAZ) {
+
+      printf("set azero off - muxing signal through az mux\n" );
+      // this is a constant configuration.
+      mode->reg_mode = MODE_NO_AZ;
+      mode->reg_direct.sig_pc_sw_ctl  = SW_PC_SIGNAL;   // pc switch muxes signal.
+      mode->reg_direct.azmux          = AZMUX_PCOUT;             // azmux muxes pc-out
+    }
+    else if(app->persist_sample_mode == SAMPLE_MODE_BOOT ) {   // sample from the lomux.
+      // electrometer/ boot
+      mode->reg_mode = MODE_NO_AZ;
+      mode->reg_direct.sig_pc_sw_ctl  = SW_PC_BOOT;   // reduce leakage
+      mode->reg_direct.azmux          = AZMUX_BOOT;    // azmux muxes boot directly-out
+    }
+    else if(app->persist_sample_mode == SAMPLE_MODE_REF_LO ) {   // sample from the azmux
+      // ref-lo from the lo-mux
+      mode->reg_mode = MODE_NO_AZ;
+      mode->reg_direct.azmux          = AZMUX_REF_LO;
+    }
+  }
+#endif
 
 
 
@@ -654,6 +751,7 @@ bool app_functions( app_t *app , const char *cmd)
 
     Mode *mode = app->mode_current;
 
+    // EXTR. - set these using initial and a bitmask?
     // turn external inputs off.
     mode->first .K406_CTL  = LR_TOP;     // accumulation relay off
     mode->first. K405_CTL  = LR_BOT;     // dcv input relay off
