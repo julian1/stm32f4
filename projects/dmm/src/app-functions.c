@@ -355,6 +355,22 @@ bool app_functions( app_t *app , const char *cmd)
       printf("setting u605 %b\n", mode->first.U605 );
     }
 
+    // current
+   else if(strcmp(s0, "u703") == 0) {
+      mode->first.U703= val ;
+      mode->second.U703 = val ;
+      printf("setting u703 %b\n", mode->first.U703);
+    }
+   else if(strcmp(s0, "u702") == 0) {
+      mode->first.U702= val ;
+      mode->second.U702 = val ;
+      printf("setting u702 %b\n", mode->first.U702);
+    }
+
+
+
+
+
     else if(strcmp(s0, "k601") == 0) {
       mode->first.K601_CTL = rval;
     }
@@ -366,15 +382,28 @@ bool app_functions( app_t *app , const char *cmd)
     }
 
 
-
-    // cmos inverting.
-    else if(strcmp(s0, "k702") == 0) {
+    /////////////////
+    // current
+    // discrete cmos inverting.
+    else if(strcmp(s0, "k702") == 0)
       mode->first.K702_CTL = rval;
-    }
-    // cmos inverting.
-    else if(strcmp(s0, "k703") == 0) {
+    // discrete cmos inverting.
+    else if(strcmp(s0, "k703") == 0)
       mode->first.K703_CTL = rval;
-    }
+
+
+    else if(strcmp(s0, "k709") == 0)
+      mode->first.K709_CTL = rval;
+
+    else if(strcmp(s0, "k707") == 0)
+      mode->first.K707_CTL = rval;
+    else if(strcmp(s0, "k706") == 0)
+      mode->first.K706_CTL = rval;
+    else if(strcmp(s0, "k704") == 0)
+      mode->first.K704_CTL = rval;
+    else if(strcmp(s0, "k705") == 0)
+      mode->first.K705_CTL = rval;
+
 
 
     else {
@@ -447,17 +476,22 @@ bool app_functions( app_t *app , const char *cmd)
   }
 
 
-
-
+  /*
+      - switching between azero and non-az, and boot is hard.
+      - becase we have to kind of know
+      - azmux_val_in_azmode.
+      - so when we set the mode.
+      - himuxes all stay the same.
+    */
   else if( sscanf(cmd, "azero %100s", s0) == 1) {
 
     Mode *mode = app->mode_current;
 
     if(strcmp(s0, "on") == 0) {
 
-      printf("set azero on, using app.azmux_lo_val \n" );
+      printf("set azero on, using app.azmux_val_in_azmode \n" );
       mode->reg_mode = MODE_AZ;
-      mode->reg_direct.azmux  = app->azmux_lo_val;    // lo
+      mode->reg_direct.azmux  = app->azmux_val_in_azmode;    // lo
     }
     else if (strcmp(s0, "off") == 0) {
 
@@ -693,16 +727,16 @@ bool app_functions( app_t *app , const char *cmd)
     // EXTR. important. must specify pc-out - if used for non-az mode.
 
     if(strcmp(s0, "pcout") == 0 || strcmp(s0, "pc-out") == 0) {
-      app->azmux_lo_val = AZMUX_PCOUT;
+      app->azmux_val_in_azmode = AZMUX_PCOUT;
     }
     else if(strcmp(s0, "boot") == 0) {
-      app->azmux_lo_val = AZMUX_BOOT;
+      app->azmux_val_in_azmode = AZMUX_BOOT;
     }
     else if (strcmp(s0, "star-lo") == 0) {
-      app->azmux_lo_val =  AZMUX_STAR_LO;
+      app->azmux_val_in_azmode =  AZMUX_STAR_LO;
     }
     else if (strcmp(s0, "ref-lo") == 0) {
-      app->azmux_lo_val =  AZMUX_REF_LO;
+      app->azmux_val_in_azmode =  AZMUX_REF_LO;
     }
     // dci_lo, 4w_lo
     else {
@@ -710,7 +744,7 @@ bool app_functions( app_t *app , const char *cmd)
       return 1;
     }
 
-    app->mode_current->reg_direct.azmux  = app->azmux_lo_val ;    // lo
+    app->mode_current->reg_direct.azmux  = app->azmux_val_in_azmode ;    // lo
 
     // do the state transition
     app_transition_state( app->spi, app->mode_current,  &app->system_millis );

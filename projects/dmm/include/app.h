@@ -153,17 +153,28 @@ typedef struct app_t
       10Meg.
   */
 
-  // things that might change between ranges.
+  // stuff that needs to be persisted between range changing.
   // should probably be grouped.
   // could be pointer initialized.
   bool fixedz ;
 
   uint32_t lfreq;
 
-  uint32_t azmux_lo_val;      // prefix. sa.
+  uint32_t azmux_val_in_azmode;      // prefix. sa.   jjjjj
 
   uint32_t last_reg_status ;  // to detect status change,
 
+
+  /* have a variable to encode the sample_acquisition. that codes himux,lowmux etc.
+    enables switching between az, noaz, boot.
+    Not. sure it can all be encoded in F register.  as combinations.
+  
+    BUT we do want a way to choose the sample more easily. and switch between az, and no-az, electrom.
+            eg. dcv,dev-source, dci. ref-lo, ref-hi etc. 
+
+  */
+
+  //////////////////////////
   // TODO reanme adc_valid . eg. same identifier / meaning as fpga code.
   // could also put flags/ for adc state in the status register. eg. the monitor pins.
   volatile bool  adc_measure_valid;

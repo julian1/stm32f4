@@ -117,16 +117,23 @@ typedef struct X
   uint8_t U607_UNUSED : 2;
 
 
-
-  // 700
+  // current.
+  // U704
   uint8_t U704_UNUSED : 2;
   uint8_t K702_CTL    : 2;
   uint8_t K703_CTL    : 2;
   uint8_t K709_CTL    : 2;
 
-  uint8_t U705_UNUSED : 8;
-  uint8_t U706_UNUSED : 8;
+  // U705
+  uint8_t K707_CTL    : 2;
+  uint8_t K706_CTL    : 2;
+  uint8_t K704_CTL    : 2;
+  uint8_t K705_CTL    : 2;
 
+  // U706
+  uint8_t U703        : 4;    // adg1208.
+  uint8_t U702        : 3;    // adg1209.
+  uint8_t U706_UNUSED : 1;
 
 
   // dcv source
@@ -224,6 +231,9 @@ typedef struct Mode
   // BUT. can still always control fpga directly after setting up the major state.
 
   /////////////////////////////////////
+
+  // put this in another structure.
+  // to make it clear. it is fpga state.
 
   uint32_t  reg_mode;
 

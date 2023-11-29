@@ -1645,7 +1645,18 @@ OK. did another cal and it's bad again. or there is interference.
 
 
 
+nov 28
 
+  Using
+  setting dcv-source. with noaz.
+
+  noaz.
+   reset ; dcv-source -10V ; azero off; nplc 10; himux dcv-source ; azmux pc-out ; gain 1; verbose 1; buffer 10;  trig
+
+  az.
+     reset ; dcv-source -10V ; azero on; nplc 10; himux dcv-source ; azmux ref-lo ; gain 1; verbose 1; buffer 10;  trig
+
+  working nice.
 
 #endif
 

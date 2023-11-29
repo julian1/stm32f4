@@ -1221,7 +1221,7 @@ static const Mode mode_initial =  {
 
   /*
     all relays have to be defined. not left default initialization of 00 which means
-    they don't get an initial pulse.  
+    they don't get an initial pulse.
   */
 
   //  maybe make explicit all values  U408_SW_CTL. at least for the initial mode, from which others derive.
@@ -1254,24 +1254,28 @@ static const Mode mode_initial =  {
   .first. K603_CTL  = LR_BOT,     // ohms relay off.
 
 
+  /////////////////////////
   // 700
   // has inverting cmos buffer
   .first. K702_CTL  = LR_BOT,
   .second.K702_CTL  = 0b11,
 
-  // has inverting cmos buffer
+  // 0.1R shunt off. has inverting cmos buffer
   .first. K703_CTL  = LR_BOT,
   .second.K703_CTL  = 0b11,
 
-  // normal
-  .first. K709_CTL  = LR_BOT,
+  // shunts / TIA - default to shunts
+  .first. K709_CTL  = LR_TOP,
+
+  // agn200 shunts are off.
+  .first. K707_CTL  = LR_TOP,
+  .first. K706_CTL  = LR_TOP,
+  .first. K704_CTL  = LR_TOP,
+  .first. K705_CTL  = LR_TOP,
 
 
 
-
-  // fpga mode default. blink led.
-
-  .reg_mode = MODE_LO,
+  .reg_mode = MODE_LO,                                  // default, blink led according to mcu
 
   .reg_sa_p_clk_count_precharge = CLK_FREQ * 500e-6,             //  `CLK_FREQ * 500e-6 ;   // 500us.
 
@@ -1435,7 +1439,7 @@ int main(void)
   app.lfreq = 50;
   app.model_cols = 3;
 
-  app.azmux_lo_val  = AZMUX_STAR_LO;
+  app.azmux_val_in_azmode  = AZMUX_STAR_LO;
 
 
 
