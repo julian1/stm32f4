@@ -1667,15 +1667,19 @@ nov 30
   reset
   irange 1mA ;  dci-source 1mA ;  set k702 top;
   flash cal read 1;
-  azero off; nplc 10; himux dci-hi ; azmux pc-out ; gain 1; verbose 1; buffer 10;  trig
+  gain 100;
+  azero off; nplc 10; himux dci-hi ; azmux pc-out ;  verbose 1; buffer 10;  trig
 
-  works but setting gain isn't working
+  works.
 
   reading tia.
 
   irange 10uA ;  dci-source 10uA ;  set k702 top;
   flash cal read 1;
-  azero off; nplc 10; himux dci-tia ; azmux pc-out ; gain 1; verbose 1; buffer 10;  trig
+  azero off; nplc 10; himux dci-tia ; azmux pc-out ; ; verbose 1; buffer 10;  trig
+
+
+  no. gain appears to work.
 
 
 #endif
