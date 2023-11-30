@@ -682,7 +682,7 @@ bool app_functions( app_t *app , const char *cmd)
       // turn dcv input relay  on
       // need to sequence b2b fets
       mode->first. K405_CTL  = LR_TOP,
-      mode->reg_direct.himux  = HIMUX_DCV;
+      mode->reg_direct.himux  = HIMUX_DCV_HI;
       mode->reg_direct.himux2 = HIMUX2_STAR_LO;
       app->persist_azmux_val =  AZMUX_STAR_LO;     // star-lo
     }
@@ -769,20 +769,20 @@ bool app_functions( app_t *app , const char *cmd)
 #define HIMUX_HIMUX2          S2
 #define HIMUX_DCV_DIV         S3
 #define HIMUX_4W-HI           S4
-#define HIMUX_DCV             S7
-#define HIMUX_DCI             S8
+#define HIMUX_DCV_HI             S7
+#define HIMUX_DCI_HI             S8
 
 */
 
-    if (strcmp(s0, "dcv") == 0) {
-      mode->reg_direct.himux  = HIMUX_DCV;
+    // himux
+    if (strcmp(s0, "dcv-hi") == 0) {               // change name dcv-hi
+      mode->reg_direct.himux  = HIMUX_DCV_HI;
       mode->reg_direct.himux2 = HIMUX2_STAR_LO;
     }
-    else if (strcmp(s0, "dci") == 0) {
-      mode->reg_direct.himux  = HIMUX_DCI;
+    else if (strcmp(s0, "dci-hi") == 0) {
+      mode->reg_direct.himux  = HIMUX_DCI_HI;
       mode->reg_direct.himux2 = HIMUX2_STAR_LO;
     }
-
    else if (strcmp(s0, "dcv-div") == 0) {
       mode->reg_direct.himux  = HIMUX_DCV_DIV;
       mode->reg_direct.himux2 = HIMUX2_STAR_LO;
@@ -793,6 +793,11 @@ bool app_functions( app_t *app , const char *cmd)
     }
 
     // himux2. stuff.
+
+    else if (strcmp(s0, "dci-tia") == 0) {
+      mode->reg_direct.himux  = HIMUX_HIMUX2;
+      mode->reg_direct.himux2 = HIMUX2_DCI_TIA;
+    }
     else if (strcmp(s0, "ref-hi") == 0) {
       mode->reg_direct.himux  = HIMUX_HIMUX2;
       mode->reg_direct.himux2 = HIMUX2_REF_HI;
@@ -1045,22 +1050,35 @@ bool app_functions( app_t *app , const char *cmd)
       mode->first. K709_CTL  = LR_TOP;
 
 
-      if(strcmp(s0, "10A") == 0 || strcmp(s0, "1A") == 0)
+      if(strcmp(s0, "10A") == 0 || strcmp(s0, "1A") == 0) {
         mode->first. K703_CTL  = LR_TOP;
-      else if(strcmp(s0, "100mA") == 0)
+        mode->second.U703 = S1;
+      }
+      else if(strcmp(s0, "100mA") == 0) {
         mode->first. K704_CTL  = LR_BOT;
-      else if(strcmp(s0, "10mA") == 0)
+        mode->second.U703 = S2;
+      }
+      else if(strcmp(s0, "10mA") == 0) {
         mode->first. K705_CTL  = LR_BOT;
-      else if(strcmp(s0, "1mA") == 0)
+        mode->second.U703 = S3;
+      }
+      else if(strcmp(s0, "1mA") == 0) {
         mode->first. K706_CTL  = LR_BOT;
-      else if(strcmp(s0, "100uA") == 0)
+        mode->second.U703 = S4;
+      }
+      else if(strcmp(s0, "100uA") == 0) {
         mode->first. K707_CTL  = LR_BOT;
+        mode->second.U703 = S5;
+      }
       else assert(0);
 
     } else {
 
       // use TIA
       mode->first. K709_CTL  = LR_BOT;
+
+      // mux lo on shunt sence mux, to reduce leakage on himux
+      mode->second.U703 = S8;
 
       if(strcmp(s0, "10uA") == 0)
         mode->second.U702 = W1;

@@ -100,8 +100,8 @@
 #define HIMUX_HIMUX2          S2
 #define HIMUX_DCV_DIV         S3
 #define HIMUX_4W_HI           S4
-#define HIMUX_DCV             S7
-#define HIMUX_DCI             S8
+#define HIMUX_DCV_HI          S7
+#define HIMUX_DCI_HI          S8
 
 
 #define HIMUX2_DCV_SOURCE     S1
@@ -113,7 +113,8 @@
 
 #define AZMUX_PCOUT           S1
 #define AZMUX_BOOT            S2
-#define AZMUX_STAR_LO              S6
+#define AZMUX_DCI_LO          S5
+#define AZMUX_STAR_LO         S6
 #define AZMUX_REF_LO          S7
 
 

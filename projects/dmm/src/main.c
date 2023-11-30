@@ -157,7 +157,7 @@ const char * himux_to_string( uint8_t himux, uint8_t himux2 )
           default:                return "unknown";
       };
 
-      case HIMUX_DCV:   return "dcv";
+      case HIMUX_DCV_HI:   return "dcv";
       default:          return "unknown";
   }
 }

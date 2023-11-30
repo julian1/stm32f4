@@ -1658,6 +1658,26 @@ nov 28
 
   working nice.
 
+
+
+nov 30
+
+  reading current shunt.
+
+  reset
+  irange 1mA ;  dci-source 1mA ;  set k702 top;
+  flash cal read 1;
+  azero off; nplc 10; himux dci-hi ; azmux pc-out ; gain 1; verbose 1; buffer 10;  trig
+
+  works but setting gain isn't working
+
+  reading tia.
+
+  irange 10uA ;  dci-source 10uA ;  set k702 top;
+  flash cal read 1;
+  azero off; nplc 10; himux dci-tia ; azmux pc-out ; gain 1; verbose 1; buffer 10;  trig
+
+
 #endif
 
 
