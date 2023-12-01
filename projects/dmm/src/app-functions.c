@@ -966,10 +966,10 @@ bool app_functions( app_t *app , const char *cmd)
 
     Mode *mode = app->mode_current;
 
-    // could simplify this by handling 10mA first.
+    // TODO could simplify case handling, by dealing with 10mA case first.
     if(strcmp(s0, "1mA") == 0 || strcmp(s0, "100uA") == 0
       || strcmp(s0, "10uA") == 0 || strcmp(s0, "1uA") == 0
-      || strcmp(s0, "100nA") == 0
+      || strcmp(s0, "100nA") == 0 || strcmp(s0, "10nA") == 0
     ) {
 
       // >  set k603 bot; set k602 bot; set k601 bot;  set u605 s6 ;
@@ -985,10 +985,10 @@ bool app_functions( app_t *app , const char *cmd)
         mode->second.U605 = S4;
       else if (strcmp(s0, "1uA") == 0 )
         mode->second.U605 = S3;
-      else if (strcmp(s0, "100nA") == 0 ) {
-        printf("100nA");
+      else if (strcmp(s0, "100nA") == 0 )
         mode->second.U605 = S2;
-      }
+      else if (strcmp(s0, "10nA") == 0 )
+        mode->second.U605 = S1;
       else
         assert(0);
     }

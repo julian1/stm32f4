@@ -1664,22 +1664,26 @@ nov 30
 
   reading current shunt.
 
+  flash cal read 1;
+
   reset
   irange 1mA ;  dci-source 1mA ;  set k702 top;
-  flash cal read 1;
   gain 100;
   azero off; nplc 10; himux dci-hi ; azmux pc-out ;  verbose 1; buffer 10;  trig
 
   works.
 
-  reading tia.
+  ///////////////////////////
+  TIA .
 
   irange 10uA ;  dci-source 10uA ;  set k702 top;
-  flash cal read 1;
-  azero off; nplc 10; himux dci-tia ; azmux pc-out ; ; verbose 1; buffer 10;  trig
+  azero off; nplc 10; himux dci-tia ; azmux pc-out ; verbose 1; buffer 10;  trig
 
+  irange 1uA ;  dci-source 100nA ;  set k702 top;       //  Works.  300nA.   gives -2.9V volts.
+  azero off; nplc 10; himux dci-tia ; azmux pc-out ; verbose 1; buffer 10;  trig
 
-  no. gain appears to work.
+  irange 100nA;  dci-source 10nA ;  set k702 top;       // works actually 30nA.  gives -3.02V. nice.
+  azero off; nplc 10; himux dci-tia ; azmux pc-out ; verbose 1; buffer 10;  trig
 
 
 #endif
