@@ -6,7 +6,7 @@
 
 
 TOP=../../
-LIB2SRC=${TOP}/lib2/src
+#LIB2SRC=${TOP}/lib2/src
 # LIB2INC=${TOP}/lib2/include
 
 # path needs to be /include/lib2 
@@ -48,6 +48,13 @@ SRCFILES	= src/main.c  src/spi-port.c  src/w25.c  src/4094.c src/spi-ice40.c  sr
             src/stream-flash.c src/app-functions.c src/cal.c src/file-blob.c src/measurement.c src/calc.c src/mesch.c \
 
 
+# NOW. when we compile the object files for lib2. the include path in /include/lib2  needs  to be set for the compiler.
+#  the way to do this. is either with paths.
+# OR with a separate Makefile.
+# a separate Makefile would be better.    then it only needs to be compiled once.
+
+# Just use a Makefile... in the lib2. and compile manually.  then link to a .a.
+# same as for libopencm3
 
 
 #              ${LIB2SRC}/util.c ${LIB2SRC}/format.c \
