@@ -13,6 +13,11 @@ make
 
 # or git submodules init for libopencm3 etc.
 
+git submodule update --init --recursive
+
+cd libopencm3
+make
+ccd ..
 
 # serial connection
 

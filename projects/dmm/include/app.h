@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "cbuffer.h"
-#include "cstring.h"
-#include "fbuffer.h"
+#include "lib2/cbuffer.h"
+#include "lib2/cstring.h"
+#include "lib2/fbuffer.h"
 
 // needed for forward declaration of MAT. it's a typedef anonymous struct. hard to declare.
 // https://stackoverflow.com/questions/10249548/forward-declaring-a-typedef-of-an-unnamed-struct

@@ -19,8 +19,11 @@
 #include <assert.h>
 
 
-#include "usart.h"
-#include "util.h"   // ARRAY_SIZE
+#include <lib2/usart.h>   // flush
+#include <lib2/util.h>   // ARRAY_SIZE
+
+
+
 #include "reg.h"
 // #include "mux.h"
 #include "mode.h"

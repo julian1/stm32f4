@@ -1,5 +1,9 @@
 
 /*
+
+  BUT this needs to be put top-level. 
+      and not in lib2
+
   NOT deprecated. although assert.c is.
 
   We cannot over-ride libc version at link time, because of strong link specifiers.

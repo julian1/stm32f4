@@ -27,7 +27,7 @@
 
 #include "spi-port.h"
 
-#include "util.h"   // critical_error_blink()
+#include <lib2/util.h>   // critical_error_blink()
 
 //////////////////////////
 

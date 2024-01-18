@@ -57,6 +57,7 @@
 #include <stdio.h>
 
 #include <string.h>
+#include <assert.h>
 
 // #include <limits.h>   // INT_MAX
 
@@ -64,13 +65,12 @@
 
 #include <libopencm3/stm32/flash.h>
 
+
+#include <lib2/streams.h>  // printf
+#include <lib2/usart.h>     // usart1_flush()
+
 // careful - conflicts with lib2/include/flash.h
 #include "stream-flash.h"
-
-#include "streams.h"  // printf
-#include "usart.h"    // usart1_flush()
-#include "assert.h"
-
 
 
 /*

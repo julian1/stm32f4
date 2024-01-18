@@ -9,9 +9,9 @@
 #include <libopencm3/stm32/spi.h>
 
 
-#include "usart.h"
-#include "util.h"
-#include "flash.h"   // from lib
+#include <lib2/usart.h>
+#include <lib2/util.h>
+#include <lib2/flash.h>   // from lib
 
 #include "w25.h"
 

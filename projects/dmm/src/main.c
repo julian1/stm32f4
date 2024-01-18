@@ -36,13 +36,20 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 #include <stdio.h>    // printf, scanf
 #include <string.h>   // strcmp, memset
 #include <ctype.h>    // isspace
+#include <assert.h>
+
+
+
 
 
 // library code
-#include "usart.h"
-#include "assert.h"
-#include "streams.h"
-#include "util.h"   // msleep()
+#include <lib2/usart.h>
+#include <lib2/streams.h>
+#include <lib2/util.h>   // msleep()
+#include <lib2/format.h>   // format_bits()
+
+
+
 
 
 #include "mcu-temp.h"   // needed for mcu_setup.
@@ -56,7 +63,6 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 
 // #include "fbuffer.h"
 
-#include "format.h"   // format_bits()
 
 
 

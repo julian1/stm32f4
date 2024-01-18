@@ -5,7 +5,9 @@
 #include <assert.h>
 #include <string.h>   // memset
 
-#include "usart.h"  // usart1_flush()
+
+
+#include <lib2/usart.h>  // usart1_flush()
 
 
 

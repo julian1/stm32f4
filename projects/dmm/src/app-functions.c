@@ -12,7 +12,9 @@
 #include <malloc.h> // malloc_stats()
 
 // lib
-#include "util.h"       // msleep()
+#include <lib2/util.h>       // print_stack_pointer()
+#include <lib2/usart.h>      // flush
+#include <lib2/format.h>   // format_bits()
 
 
 
@@ -21,7 +23,6 @@
 #include "mux.h"        // mux_ice40()
 #include "spi-ice40.h"  // spi_ice40_reg_write32()
 
-#include "usart.h"      // flush
 
 #include "mcu-temp.h"
 
@@ -38,7 +39,6 @@
 
 #include "calc.h"     // m_truncate_rows() name to general purpose matrix stuff.
 
-#include "format.h"   // format_bits()
 
 
 /*

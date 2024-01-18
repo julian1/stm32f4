@@ -7,8 +7,24 @@
 
 TOP=../../
 LIB2SRC=${TOP}/lib2/src
-LIB2INC=${TOP}/lib2/include
+# LIB2INC=${TOP}/lib2/include
 
+# path needs to be /include/lib2 
+#                  /include/libopencm 
+
+# need prefixing like this.
+#  ../../libopencm3/include/libopencm3/
+
+# or lib2/include/lib2  
+# then we can set up proper pathways.
+
+# we can split mesch12b. 
+
+# better.
+# or just /include/mesch12b    and src/mesch12b
+#   and   /include/lib2        and src/lib2
+
+# and project/include/dmm06   and project/src/dmm06
 
 
 mesch12b=${TOP}/mesch12b
@@ -26,24 +42,23 @@ SRCFILES	= flash.c  util.c \
 
 # SRCFILES	= src/main.c   src/mcp3208.c src/w25.c src/dac8734.c src/ads131a04.c src/spi-ice40.c src/spi1.c src/mux.c src/util.c \
 
-SRCFILES	= src/main.c   src/spi-port.c  src/w25.c  src/4094.c src/spi-ice40.c  src/mux.c  \
+SRCFILES	= src/main.c  src/spi-port.c  src/w25.c  src/4094.c src/spi-ice40.c  src/mux.c  \
             src/test/test05.c src/test/test06.c src/test/test08.c src/test/test11.c src/test/test15.c src/test/test14.c  src/test/test16.c \
             src/mcu-temp.c \
-            src/stream-flash.c \
-            src/app-functions.c \
-            src/cal.c \
-            src/file-blob.c \
-            src/measurement.c \
-            src/calc.c src/mesch.c \
-              ${LIB2SRC}/util.c ${LIB2SRC}/format.c \
-              ${LIB2SRC}/cbuffer.c  ${LIB2SRC}/streams.c  ${LIB2SRC}/usart.c  ${LIB2SRC}/cstring.c \
-              ${LIB2SRC}/fbuffer.c   ${LIB2SRC}/flash.c  ${LIB2SRC}/stats.c \
-              ${mesch12b}/copy.c  ${mesch12b}/init.c ${mesch12b}/matop.c ${mesch12b}/submat.c  \
-              ${mesch12b}/memory.c ${mesch12b}/meminfo.c  \
-              ${mesch12b}/machine.c ${mesch12b}/ivecop.c \
-              ${mesch12b}/err.c \
-              ${mesch12b}/matrixio.c \
-              ${mesch12b}/lufactor.c ${mesch12b}/pxop.c ${mesch12b}/solve.c ${mesch12b}/memstat.c ${mesch12b}/norm.c \
+            src/stream-flash.c src/app-functions.c src/cal.c src/file-blob.c src/measurement.c src/calc.c src/mesch.c \
+
+
+
+
+#              ${LIB2SRC}/util.c ${LIB2SRC}/format.c \
+#              ${LIB2SRC}/cbuffer.c  ${LIB2SRC}/streams.c  ${LIB2SRC}/usart.c  ${LIB2SRC}/cstring.c \
+#              ${LIB2SRC}/fbuffer.c   ${LIB2SRC}/flash.c  ${LIB2SRC}/stats.c \
+#              ${mesch12b}/copy.c  ${mesch12b}/init.c ${mesch12b}/matop.c ${mesch12b}/submat.c  \
+#              ${mesch12b}/memory.c ${mesch12b}/meminfo.c  \
+#              ${mesch12b}/machine.c ${mesch12b}/ivecop.c \
+#              ${mesch12b}/err.c \
+#              ${mesch12b}/matrixio.c \
+#              ${mesch12b}/lufactor.c ${mesch12b}/pxop.c ${mesch12b}/solve.c ${mesch12b}/memstat.c ${mesch12b}/norm.c \
 
 
 
@@ -74,8 +89,11 @@ TGT_CFLAGS	+= -I${mesch12b}
 #              -Werror \
 
 
-TGT_CFLAGS	+= -I${LIB2INC}
+# TGT_CFLAGS	+= -I${LIB2INC}
 TGT_CFLAGS	+= -I./include    # FIXME, should be before lib2inc
+
+TGT_CFLAGS	+= -I${TOP}/include
+
 
 # pow()
 LDLIBS		+=  -lm
