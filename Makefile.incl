@@ -142,7 +142,7 @@ clean:
 
 
 clobber: clean
-	rm -f *.elf *.bin *.hex *.srec *.list *.map $(CLOBBER)
+	rm -f *.elf *.bin *.hex *.srec *.list *.map *.a $(CLOBBER)
 
 # Flash 64k Device
 flash:	$(BINARY).bin
