@@ -10,7 +10,7 @@ extern "C" {
 
 typedef struct CBuf CBuf;
 
-
+// TODO change name usart1_portA_setup()
 void usart1_setup_gpio_portA(void);
 void usart1_setup_gpio_portB(void);
 

@@ -1,6 +1,9 @@
 /*
   helper stuff that belongs in separate file, but not in separate library
   because might change
+	--------
+
+  TODO better suffix name.   _init() instead of _setup()
 */
 
 #pragma once
