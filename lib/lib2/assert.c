@@ -12,6 +12,11 @@ DEPRECATED.
   just put handler code (eg. report and loop) in project specific util.c
   behavior depends on function. blink led. versus log and restart etc.
 
+
+	assert_simple() is now in util.c
+	where the usart stuf is.
+
+
 #include <stddef.h> // null
 
 
