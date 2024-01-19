@@ -36,8 +36,6 @@ TGT_CFLAGS	+= -I./include
 # top level include, for assert and other libraries.
 TGT_CFLAGS	+= -I${TOP}/include
 
-# mesch... but
-TGT_CFLAGS	+= -I${TOP}/include/mesch12b    # this is wrong. should be explicit
 
 
 

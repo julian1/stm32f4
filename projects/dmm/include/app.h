@@ -8,7 +8,7 @@
 
 // needed for forward declaration of MAT. it's a typedef anonymous struct. hard to declare.
 // https://stackoverflow.com/questions/10249548/forward-declaring-a-typedef-of-an-unnamed-struct
-#include "matrix.h"
+#include "mesch12b/matrix.h"
 
 typedef struct Mode Mode;
 

@@ -4,8 +4,11 @@
 */
 
 // #include "regression.h"
-#include "assert.h"   // required.
-#include <matrix.h>
+
+
+
+#include <assert.h>   // required.
+#include <mesch12b/matrix.h>
 
 // JA we need stub functions for these, because we don't compile them
 // TODO should put in mesch.c

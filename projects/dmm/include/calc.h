@@ -6,7 +6,7 @@
 
 #include <stdbool.h>
 
-#include "matrix.h"   // MAT
+#include <mesch12b/matrix.h>   // MAT
 
 
 

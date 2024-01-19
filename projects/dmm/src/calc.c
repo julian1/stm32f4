@@ -11,8 +11,8 @@
 
 
 
-#include <matrix.h>
-#include "matrix2.h"   // inverse
+#include <mesch12b/matrix.h>
+#include <mesch12b/matrix2.h>   // inverse
 
 #include "calc.h"
 
