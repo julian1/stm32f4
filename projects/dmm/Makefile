@@ -27,7 +27,7 @@ TOP=../../
 # and project/include/dmm06   and project/src/dmm06
 
 
-mesch12b=${TOP}/mesch12b
+#mesch12b=${TOP}/mesch12b
 
 
 # check ../../Makefile.incl,  no optimization flags are commented.
@@ -53,7 +53,9 @@ SRCFILES	= src/main.c  src/spi-port.c  src/w25.c  src/4094.c src/spi-ice40.c  sr
 
 
 
-LDLIBS		+= ${TOP}/lib/lib2/lib2.a -lm
+LDLIBS		+= ${TOP}/lib/lib2/lib2.a 
+LDLIBS		+= ${TOP}/lib/mesch12b/mesch12b.a 
+LDLIBS		+= -lm
 
 # NOW. when we compile the object files for lib2. the include path in /include/lib2  needs  to be set for the compiler.
 #  the way to do this. is either with paths.
@@ -98,19 +100,22 @@ TGT_CFLAGS  += -Wno-unused-function   \
               -Werror-implicit-function-declaration \
               -Wno-packed-bitfield-compat
 
-TGT_CFLAGS	+= -I${mesch12b}
+# TGT_CFLAGS	+= -I${mesch12b}
 
 #              -Werror \
-
-
 # TGT_CFLAGS	+= -I${LIB2INC}
+
+
 TGT_CFLAGS	+= -I./include    # FIXME, should be before lib2inc
 
 TGT_CFLAGS	+= -I${TOP}/include
 
 
+TGT_CFLAGS	+= -I${TOP}/include/mesch12b    # this is wrong. should be explicit
+
+
 # pow()
-LDLIBS		+=  -lm
+# LDLIBS		+=  -lm
 
 # LDLIBS		+=  -specs=nosys.specs -lnosys -lm
 # LDLIBS		+=  -specs=nano.specs -lnano -lm
