@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include <stdarg.h> // va_start etc
 #include <ctype.h>    // isdigit
+#include <assert.h>
 
-#include "assert.h"
+
 #include "format.h"
 
 
