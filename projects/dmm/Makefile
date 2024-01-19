@@ -9,16 +9,16 @@ TOP=../../
 #LIB2SRC=${TOP}/lib2/src
 # LIB2INC=${TOP}/lib2/include
 
-# path needs to be /include/lib2 
-#                  /include/libopencm 
+# path needs to be /include/lib2
+#                  /include/libopencm
 
 # need prefixing like this.
 #  ../../libopencm3/include/libopencm3/
 
-# or lib2/include/lib2  
+# or lib2/include/lib2
 # then we can set up proper pathways.
 
-# we can split mesch12b. 
+# we can split mesch12b.
 
 # better.
 # or just /include/mesch12b    and src/mesch12b
@@ -36,7 +36,11 @@ mesch12b=${TOP}/mesch12b
 
 
 
+
+# ${TOP}/lib/lib2/lib2.a
+
 BINARY		= main
+
 #SRCFILES	= mcp3208.c  util.c \
 SRCFILES	= flash.c  util.c \
 
@@ -47,6 +51,9 @@ SRCFILES	= src/main.c  src/spi-port.c  src/w25.c  src/4094.c src/spi-ice40.c  sr
             src/mcu-temp.c \
             src/stream-flash.c src/app-functions.c src/cal.c src/file-blob.c src/measurement.c src/calc.c src/mesch.c \
 
+
+
+LDLIBS		+= ${TOP}/lib/lib2/lib2.a -lm
 
 # NOW. when we compile the object files for lib2. the include path in /include/lib2  needs  to be set for the compiler.
 #  the way to do this. is either with paths.
