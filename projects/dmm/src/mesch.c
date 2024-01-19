@@ -6,6 +6,7 @@
 // #include "regression.h"
 
 
+#include <unistd.h>   // isatty()
 
 #include <assert.h>   // required.
 #include <mesch12b/matrix.h>
@@ -99,11 +100,8 @@ int isatty(int x)
 }
 #endif
 
-int isascii(int c) 
-{
-    UNUSED(c);
-    return 0;
-}
+
+
 
 void exit(int status) 
 {
