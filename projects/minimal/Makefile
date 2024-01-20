@@ -13,10 +13,8 @@ SRCFILES	= src/main.c
 
 
 
-# f407
-#LDSCRIPT	= ${TOP}/cjmcu-407.ld
-# LDSCRIPT	= ${TOP}/f410.ld
-LDSCRIPT	= ${TOP}/link/f411ceu.ld
+# f413
+LDSCRIPT	= ${TOP}/link/f413rgt6.ld
 
 
 TGT_CFLAGS  += -Wno-unused-function   \
@@ -39,6 +37,7 @@ TGT_CFLAGS	+= -I${TOP}/include
 
 LDLIBS		+= ${TOP}/lib/lib2/lib2.a
 LDLIBS		+= ${TOP}/lib/mesch12b/mesch12b.a
+LDLIBS		+= ${TOP}/lib/lzo/lzo.a
 LDLIBS		+= -lm
 # LDLIBS		+=  -specs=nosys.specs -lnosys
 # LDLIBS		+=  -specs=nano.specs -lnano

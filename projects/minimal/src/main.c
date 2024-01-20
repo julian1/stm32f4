@@ -24,6 +24,8 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 // then use the slow (digital) integrator/pid loop - as a temperature controler..
 
 
+
+
 */
 
 

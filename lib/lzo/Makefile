@@ -9,8 +9,8 @@ TOP=../../
 
 
 
-lib2.a: decompress_unlzo.o    lzo1x_decompress_safe.o  lzo1x_compress.o
-	${AR} rcs lib2.a ${OBJS}
+lzo.a: decompress_unlzo.o    lzo1x_decompress_safe.o  lzo1x_compress.o
+	${AR} rcs lzo.a ${OBJS}
 
 
 SRCFILES	=  decompress_unlzo.c    lzo1x_decompress_safe.c  lzo1x_compress.c
