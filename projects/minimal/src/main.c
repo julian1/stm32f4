@@ -53,6 +53,7 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 #include <lib2/cstring.h>
 // #include <lib2/format.h>   // format_bits()
 
+#include <malloc.h> // malloc_stats()
 
 
 
@@ -111,7 +112,9 @@ static void app_update_soft_500ms(app_t *app)
 }
 
 
-
+// TODO change name str_trim_whitespace_inipalce.
+// move to format.h.
+// or format
 
 static char * trim_whitespace_inplace( char *cmd )
 {
@@ -187,6 +190,22 @@ static void app_update_console_cmd(app_t *app)
         // scb_reset_core()
         scb_reset_system();
       }
+
+      /*
+          can we print the heap also?
+      */
+      else if(strcmp(cmd, "mem stack?") == 0) {
+          // printf("-------\n");
+          print_stack_pointer();
+          // return 1;
+      }
+
+      else if(strcmp(cmd, "mem malloc?") == 0) {
+          printf("malloc\n");
+          malloc_stats();
+          // return 1;
+      }
+
 
 
       else if(strcmp(cmd, "flash lzo test") == 0) {
