@@ -48,7 +48,15 @@
 static const unsigned char lzop_magic[] = {
 	0x89, 0x4c, 0x5a, 0x4f, 0x00, 0x0d, 0x0a, 0x1a, 0x0a };
 
-#define LZO_BLOCK_SIZE        (256*1024l)
+/*
+  JA. limitation - even if use streaming interface.
+  LZO_BLOCK_SIZE  has to be large enough to fit entire contents.
+  256k is near limit of mcu.  
+*/
+//#define LZO_BLOCK_SIZE        (256*1024l)
+// #define LZO_BLOCK_SIZE        (200*1024l)  // JA fails.
+// #define LZO_BLOCK_SIZE        (180*1024l)  // JA fails.
+#define LZO_BLOCK_SIZE        (150*1024l)  // JA OK. 2x150k < 327k.
 #define HEADER_HAS_FILTER      0x00000800L
 #define HEADER_SIZE_MIN       (9 + 7     + 4 + 8     + 1       + 4)
 #define HEADER_SIZE_MAX       (9 + 7 + 1 + 8 + 8 + 4 + 1 + 255 + 4)
@@ -121,6 +129,7 @@ STATIC inline long INIT parse_header(u8 *input, long *skip, long in_len)
 	size_t tmp;
 	u8 *in_buf, *in_buf_save, *out_buf;
 	int ret = -1;
+
 
 	if (output) {
 		out_buf = output;
