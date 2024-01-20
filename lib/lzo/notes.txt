@@ -1,0 +1,19 @@
+
+from
+https://sources.debian.org/src/linux/4.19.194-1/lib/lzo/
+
+
+nix-shell -p lzoP
+
+
+it's either
+
+/include/lzo
+/src/lzo
+
+
+or 
+
+/lzo/in
+
+
