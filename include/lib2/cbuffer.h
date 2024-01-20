@@ -28,6 +28,7 @@ typedef struct CBuf
 void cBufInit(CBuf *a, char *p, size_t sz);
 
 // bool circ_buf_is_empty(const CBuf *a);   too long winded
+// bool cbuf_is_empty(const CBuf *a);   ok.
 
 bool cBufisEmpty(const CBuf *a);
 size_t cBufCount(const CBuf *a);
