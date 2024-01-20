@@ -56,6 +56,13 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 
 
 
+int flash_lzo_test(void);
+int flash_raw_test(void);
+
+
+
+
+
 typedef struct app_t
 {
 
@@ -180,6 +187,19 @@ static void app_update_console_cmd(app_t *app)
         // scb_reset_core()
         scb_reset_system();
       }
+
+
+      else if(strcmp(cmd, "flash lzo test") == 0) {
+        flash_lzo_test();
+        // int flash_raw_test(void);
+      }
+
+      else if(strcmp(cmd, "flash raw test") == 0) {
+        flash_raw_test();
+      }
+
+
+
 
 
       else {

@@ -9,7 +9,7 @@ BINARY		= main
 
 #SRCFILES	= mcp3208.c  util.c \
 
-SRCFILES	= src/main.c
+SRCFILES	= src/main.c  src/lzo_test.c
 
 
 
