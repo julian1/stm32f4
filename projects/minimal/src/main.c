@@ -57,8 +57,10 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 
 
 
+// fix me
 int flash_lzo_test(void);
 int flash_raw_test(void);
+int flash_raw_test2(void);
 
 
 
@@ -216,6 +218,12 @@ static void app_update_console_cmd(app_t *app)
       else if(strcmp(cmd, "flash raw test") == 0) {
         flash_raw_test();
       }
+
+
+      else if(strcmp(cmd, "flash raw test 2") == 0) {
+        flash_raw_test2();
+      }
+
 
 
 
