@@ -534,16 +534,16 @@ static void app_update_console_cmd(app_t *app)
 
   // rename - include REPL.  repl ( ) conso
 
-  while( ! cBufisEmpty(&app->console_in)) {
+  while( ! cbuf_is_empty(&app->console_in)) {
 
     // got a character
-    int32_t ch = cBufPop(&app->console_in);
+    int32_t ch = cbuf_pop(&app->console_in);
     assert(ch >= 0);
 
-    if(ch != '\r' && ch != ';' && cStringCount(&app->command) < cStringReserve(&app->command) ) {
+    if(ch != '\r' && ch != ';' && cstring_count(&app->command) < cstring_reserve(&app->command) ) {
       // must accept whitespace here, since used to demarcate args
       // normal character
-      cStringPush(&app->command, ch);
+      cstring_push(&app->command, ch);
       // echo to output. required for minicom.
       putchar( ch);
 
@@ -553,7 +553,7 @@ static void app_update_console_cmd(app_t *app)
       // newline or overflow
       putchar('\n');
 
-      char *cmd = cStringPtr(&app->command);
+      char *cmd = cstring_ptr(&app->command);
 
       cmd = trim_whitespace_inplace( cmd );
 
@@ -843,7 +843,7 @@ static void app_update_console_cmd(app_t *app)
 
 
       // reset buffer
-      cStringClear( &app->command);
+      cstring_clear( &app->command);
 
       // issue new command prompt
       printf("> ");
@@ -1371,14 +1371,14 @@ int main(void)
 
 
   // uart/console
-  cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
-  cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
+  cbuf_init(&app.console_in,  buf_console_in, sizeof(buf_console_in));
+  cbuf_init(&app.console_out, buf_console_out, sizeof(buf_console_out));
 
   cbuf_init_stdout_streams(  &app.console_out );
   cbuf_init_stdin_streams( &app.console_in );
 
 
-  cStringInit(&app.command, buf_command, buf_command + sizeof( buf_command));
+  cstring_init(&app.command, buf_command, buf_command + sizeof( buf_command));
 
   //////////////
   // initialize usart before start all the app constructors, so that can print.

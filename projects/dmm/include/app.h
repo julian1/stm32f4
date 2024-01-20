@@ -49,13 +49,13 @@ typedef struct app_t
 
   */
 
-  CBuf console_in;
-  CBuf console_out;
+  cbuf_t console_in;
+  cbuf_t console_out;
 
 
 
   ////
-  CString     command;
+  cstring_t     command;
 
 
   uint32_t spi;
