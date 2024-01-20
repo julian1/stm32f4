@@ -1,7 +1,7 @@
 
 /*
   IMPORTANT.
-  fgets()  same as fread but adds a terminating 0.  which means don't need CString. structure 
+  fgets()  same as fread but adds a terminating 0.  which means don't need cstring_t. structure 
 */
 
 #include "cstring.h"
@@ -11,19 +11,19 @@
 
 
 
-void cStringInit(CString *a, char *start_, char *end_)
+void cstring_init(cstring_t *a, char *start_, char *end_)
 {
   assert(end_ - start_ > 0); // needed for null terminal
   a->start = start_;
   a->end   = end_;
 
 
-  cStringClear(a);
+  cstring_clear(a);
 }
 
 
 
-bool cStringisEmpty(const CString *a)
+bool cstring_empty(const cstring_t *a)
 {
   // always true due to terminal
   return a->pos == a->start;
@@ -32,28 +32,28 @@ bool cStringisEmpty(const CString *a)
 // isFull() ?
 
 
-size_t cStringCount(const CString *a)
+size_t cstring_count(const cstring_t *a)
 {
   // include terminal
   return a->pos - a->start;
 }
 
 
-size_t cStringReserve(const CString *a)
+size_t cstring_reserve(const cstring_t *a)
 {
   return a->end - a->start;
 }
 
 
-static void validate(const CString *a)
+static void validate(const cstring_t *a)
 {
-  assert(! cStringisEmpty(a)); // never empty due to terminal
+  assert(! cstring_empty(a)); // never empty due to terminal
   assert(*(a->pos - 1) == 0);  // should always hold
 }
 
 
 
-int32_t cStringPeekLast(const CString *a)
+int32_t cstring_peek_last(const cstring_t *a)
 {
   validate(a);
   // ie. char before the null terminal
@@ -61,14 +61,14 @@ int32_t cStringPeekLast(const CString *a)
 }
 
 
-int32_t cStringPeekFirst(const CString *a)
+int32_t cstring_peek_first(const cstring_t *a)
 {
   validate(a);
   return *a->start;
 }
 
 
-void cStringClear(CString *a)
+void cstring_clear(cstring_t *a)
 {
   a->pos   = a->start;
   *(a->pos) = 0; // null terminal
@@ -76,7 +76,7 @@ void cStringClear(CString *a)
 }
 
 
-void cStringPush(CString *a, char val)
+void cstring_push(cstring_t *a, char val)
 {
   validate(a);
   // check have space
@@ -92,7 +92,7 @@ void cStringPush(CString *a, char val)
 
 
 
-int32_t cStringPop(CString *a)
+int32_t cstring_pop(cstring_t *a)
 {
   validate(a);
   // get char before the null terminal
@@ -107,7 +107,7 @@ int32_t cStringPop(CString *a)
 
 
 
-char * cStringPtr(CString *a)
+char * cstring_ptr(cstring_t *a)
 {
   validate(a);
   return a->start;
@@ -115,7 +115,7 @@ char * cStringPtr(CString *a)
 
 
 
-ssize_t cStringWrite(CString *a, const char *buf, size_t size)
+ssize_t cstring_write(cstring_t *a, const char *buf, size_t size)
 {
   validate(a);
   // should validate have space. or just assert error ???
@@ -128,7 +128,7 @@ ssize_t cStringWrite(CString *a, const char *buf, size_t size)
     if(a->pos + 2 >= a->end)  // for character and terminal
       break;
 
-    cStringPush(a, buf[i] );
+    cstring_push(a, buf[i] );
     ++i;
   }
 
@@ -150,58 +150,58 @@ int main()
 {
   char buf[10];
 
-  CString s;
-  cStringInit(&s, buf, buf + 10);
+  cstring_t s;
+  cstring_init(&s, buf, buf + 10);
 
 #if 1
 
-  assert(cStringCount( &s) == 1);
-  std::cout << "count " << cStringCount( &s) << "   string " << cStringPtr( &s) << std::endl;
+  assert(cstring_count( &s) == 1);
+  std::cout << "count " << cstring_count( &s) << "   string " << cstring_ptr( &s) << std::endl;
 
-  cStringWrite(&s, "hello", sizeof("hello") );
-  // cStringPush(&s, 'h' );
-  // cStringPush(&s, 'e' );
+  cstring_write(&s, "hello", sizeof("hello") );
+  // cstring_push(&s, 'h' );
+  // cstring_push(&s, 'e' );
 
-  std::cout << "count " << cStringCount( &s) << "   string " << cStringPtr( &s) << std::endl;
+  std::cout << "count " << cstring_count( &s) << "   string " << cstring_ptr( &s) << std::endl;
 
 
-  std::cout << "last '" << ((char ) cStringPeekLast( &s) ) << "'" << std::endl;
-  std::cout << "first " << ((char) cStringPeekFirst( &s) )<< std::endl;
+  std::cout << "last '" << ((char ) cstring_peek_last( &s) ) << "'" << std::endl;
+  std::cout << "first " << ((char) cstring_peek_first( &s) )<< std::endl;
 
 
   
   // this isn't working???
-  cStringPop(&s );
-  std::cout << "count " << cStringCount( &s) << "   string " << cStringPtr( &s) << std::endl;
+  cstring_pop(&s );
+  std::cout << "count " << cstring_count( &s) << "   string " << cstring_ptr( &s) << std::endl;
 
 #endif
 
 
   std::cout << "push 'h'" << std::endl;
-  cStringPush(&s, 'h' );
-  assert( cStringPeekLast( &s) == 'h' ); 
-  assert( cStringPeekFirst( &s) == 'h' ); 
+  cstring_push(&s, 'h' );
+  assert( cstring_peek_last( &s) == 'h' ); 
+  assert( cstring_peek_first( &s) == 'h' ); 
   
-  std::cout << "last '" << ((char ) cStringPeekLast( &s) ) << "'" << std::endl;
-  std::cout << "count " << cStringCount( &s) << "   string " << cStringPtr( &s) << std::endl;
+  std::cout << "last '" << ((char ) cstring_peek_last( &s) ) << "'" << std::endl;
+  std::cout << "count " << cstring_count( &s) << "   string " << cstring_ptr( &s) << std::endl;
 
-  std::cout << "pop 'h'" << ((char)cStringPop(&s )) << std::endl;
+  std::cout << "pop 'h'" << ((char)cstring_pop(&s )) << std::endl;
 
-  assert( cStringPeekLast( &s) == 'o' ); 
+  assert( cstring_peek_last( &s) == 'o' ); 
 
-  std::cout << "last '" << ((char ) cStringPeekLast( &s) ) << "'" << std::endl;
-  std::cout << "count " << cStringCount( &s) << "   string " << cStringPtr( &s) << std::endl;
+  std::cout << "last '" << ((char ) cstring_peek_last( &s) ) << "'" << std::endl;
+  std::cout << "count " << cstring_count( &s) << "   string " << cstring_ptr( &s) << std::endl;
 
 
   for(unsigned i = 0; i < 5; ++i ) {
-    cStringPop(&s );
+    cstring_pop(&s );
   }
 
-  assert(cStringCount( &s) == 1);
+  assert(cstring_count( &s) == 1);
 
-  std::cout << "count " << cStringCount( &s) << "   string " << cStringPtr( &s) << std::endl;
+  std::cout << "count " << cstring_count( &s) << "   string " << cstring_ptr( &s) << std::endl;
 
-  // cStringPop(&s );
+  // cstring_pop(&s );
 }
 
 

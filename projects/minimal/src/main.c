@@ -72,7 +72,7 @@ typedef struct app_t
   cbuf_t  console_in;
   cbuf_t  console_out;
   
-  CString     command;
+  cstring_t     command;
 
 
 
@@ -138,10 +138,10 @@ static void app_update_console_cmd(app_t *app)
     int32_t ch = cbuf_pop(&app->console_in);
     assert(ch >= 0);
 
-    if(ch != '\r' && ch != ';' && cStringCount(&app->command) < cStringReserve(&app->command) ) {
+    if(ch != '\r' && ch != ';' && cstring_count(&app->command) < cstring_reserve(&app->command) ) {
       // must accept whitespace here, since used to demarcate args
       // normal character
-      cStringPush(&app->command, ch);
+      cstring_push(&app->command, ch);
       // echo to output. required for minicom.
       putchar( ch);
 
@@ -151,7 +151,7 @@ static void app_update_console_cmd(app_t *app)
       // newline or overflow
       putchar('\n');
 
-      char *cmd = cStringPtr(&app->command);
+      char *cmd = cstring_ptr(&app->command);
 
       cmd = trim_whitespace_inplace( cmd );
 
@@ -189,7 +189,7 @@ static void app_update_console_cmd(app_t *app)
 
 
       // reset buffer
-      cStringClear( &app->command);
+      cstring_clear( &app->command);
 
       // issue new command prompt
       printf("> ");
@@ -344,7 +344,7 @@ int main(void)
   cbuf_init_stdin_streams( &app.console_in );
 
 
-  cStringInit(&app.command, buf_command, buf_command + sizeof( buf_command));
+  cstring_init(&app.command, buf_command, buf_command + sizeof( buf_command));
 
   //////////////
   // initialize usart before start all the app constructors, so that can print.

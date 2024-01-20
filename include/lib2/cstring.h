@@ -26,32 +26,32 @@ extern "C" {
 
 
 
-typedef struct CString
+typedef struct cstring_t
 {
   char *start, *end;
   char *pos;
-} CString;
+} cstring_t;
 
 
 
-void cStringInit(CString *a, char *start, char *end);
+void cstring_init(cstring_t *a, char *start, char *end);
 
 
-bool cStringisEmpty(const CString *a);
-size_t cStringCount(const CString *a);
-size_t cStringReserve(const CString *a);
-int32_t cStringPeekLast(const CString *a);
-int32_t cStringPeekFirst(const CString *a);
+bool cstring_empty(const cstring_t *a);
+size_t cstring_count(const cstring_t *a);
+size_t cstring_reserve(const cstring_t *a);
+int32_t cstring_peek_last(const cstring_t *a);
+int32_t cstring_peek_first(const cstring_t *a);
 
-void cStringClear(CString *a);
-void cStringPush(CString *a, char val);
-int32_t cStringPop(CString *a);
-
-
-char * cStringPtr(CString *a);
+void cstring_clear(cstring_t *a);
+void cstring_push(cstring_t *a, char val);
+int32_t cstring_pop(cstring_t *a);
 
 
-ssize_t cStringWrite(CString *x, const char *buf, size_t size);
+char * cstring_ptr(cstring_t *a);
+
+
+ssize_t cstring_write(cstring_t *x, const char *buf, size_t size);
 
 #ifdef __cplusplus
 }
