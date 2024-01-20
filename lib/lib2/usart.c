@@ -14,8 +14,8 @@
 
 
 
-static CBuf *coutput = NULL;
-static CBuf *cinput  = NULL;
+static cbuf_t *coutput = NULL;
+static cbuf_t *cinput  = NULL;
 
 
 // TODO change name usart1_setup_portB
@@ -88,7 +88,7 @@ static void usart_configure( uint32_t usart )
 
 
 
-void usart1_set_buffers( CBuf *input, CBuf *output)
+void usart1_set_buffers( cbuf_t *input, cbuf_t *output)
 {
   // TODO change name  usart1_set_buffers
   // set buffers before configure and interupt enable.
@@ -112,7 +112,7 @@ void usart1_isr(void)
 
     // write the input buffer
     char ch = usart_recv(USART1);
-    cBufPush(cinput, ch);
+    cbuf_push(cinput, ch);
   }
 
 
@@ -126,7 +126,7 @@ void usart1_isr(void)
   if (((USART_CR1(USART1) & USART_CR1_TXEIE) != 0) &&
       ((USART_SR(USART1) & USART_SR_TXE) != 0)) {
 
-    if(cBufisEmpty(coutput)) {
+    if(cbuf_is_empty(coutput)) {
       // no more chars
       // disable transmit interupt
       usart_disable_tx_interrupt(USART1);
@@ -134,7 +134,7 @@ void usart1_isr(void)
     }
 
     // else send next char
-    int ch = cBufPop(coutput);
+    int ch = cbuf_pop(coutput);
     usart_send(USART1,ch);
   }
 
@@ -151,7 +151,7 @@ void usart1_enable_output_interupt()
   */
 
   // data in buf, then ensure that txe interupt is enabled to process
-  if(!cBufisEmpty(coutput)) {
+  if(!cbuf_is_empty(coutput)) {
     usart_enable_tx_interrupt(USART1);
   }
 }
@@ -164,7 +164,7 @@ void usart1_flush()
 
   usart1_enable_output_interupt();
 
-  while(!cBufisEmpty(coutput));
+  while(!cbuf_is_empty(coutput));
 }
 
 

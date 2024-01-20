@@ -9,14 +9,14 @@ extern "C" {
 #include <stdio.h>
 #include <stdbool.h>
 
-typedef struct CBuf CBuf;
+typedef struct cbuf_t cbuf_t ;
 
 
 // streams for both stdout, stderr
-void cbuf_init_stdout_streams( CBuf *console_out );
+void cbuf_init_stdout_streams( cbuf_t *console_out );
 
 
-void cbuf_init_stdin_streams( CBuf *console_in );
+void cbuf_init_stdin_streams( cbuf_t *console_in );
 
 // legacy printf. should move to local util.c
 void usart1_printf(const char *format, ...);

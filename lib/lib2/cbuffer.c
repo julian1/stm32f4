@@ -38,7 +38,7 @@
 
 
 
-void cBufInit(CBuf *a, char *p, size_t sz)
+void cbuf_init(cbuf_t *a, char *p, size_t sz)
 {
   assert(a);
   assert(p);
@@ -54,13 +54,13 @@ void cBufInit(CBuf *a, char *p, size_t sz)
 
 
 
-bool cBufisEmpty(const CBuf *a)
+bool cbuf_is_empty(const cbuf_t *a)
 {
   return a->ri == a->wi;
 }
 
 
-size_t cBufCount(const CBuf *a)
+size_t cbuf_count(const cbuf_t *a)
 {
   int n = a->wi - a->ri;
   if(n < 0)
@@ -71,13 +71,13 @@ size_t cBufCount(const CBuf *a)
 
 
 
-size_t cBufReserve(CBuf *a)
+size_t cbuf_reserve(cbuf_t *a)
 {
   return a->sz;
 }
 
 
-void cBufClear(CBuf *a)
+void cbuf_clear(cbuf_t *a)
 {
   assert(a);
 
@@ -87,7 +87,7 @@ void cBufClear(CBuf *a)
 
 
 
-void cBufPush(CBuf *a, char val)
+void cbuf_push(cbuf_t *a, char val)
 {
 /*
   assert(a);
@@ -115,7 +115,7 @@ void cBufPush(CBuf *a, char val)
 
 
 
-int32_t cBufPop(CBuf *a)
+int32_t cbuf_pop(cbuf_t *a)
 {
   // ie as fifo. pop first pushed. *not* most recent.
   assert(a->ri != a->wi);
@@ -130,7 +130,7 @@ int32_t cBufPop(CBuf *a)
 
 
 
-int32_t cBufPeekFirst(const CBuf *a)
+int32_t cbuf_peek_first(const cbuf_t *a)
 {
   // ie. peek first char to be pushed, considered as fifo.
   // eg. char that will be popped
@@ -142,7 +142,7 @@ int32_t cBufPeekFirst(const CBuf *a)
 
 
 
-int32_t cBufPeekLast(const CBuf *a)
+int32_t cbuf_peek_last(const cbuf_t *a)
 {
   // last item to be pushed...
   assert(a->ri != a->wi);
@@ -162,7 +162,7 @@ int32_t cBufPeekLast(const CBuf *a)
   but leave for future
 */
 
-int32_t cBufCopyString(CBuf *a, char *p, size_t n)
+int32_t cbuf_copy_string(cbuf_t *a, char *p, size_t n)
 {
   // copy and consume
   // could use more testing
@@ -170,8 +170,8 @@ int32_t cBufCopyString(CBuf *a, char *p, size_t n)
 
   size_t i = 0;
 
-  while(i < (n - 1) && !cBufisEmpty(a)) {
-    p[i++] = cBufPop(a);
+  while(i < (n - 1) && !cbuf_is_empty(a)) {
+    p[i++] = cbuf_pop(a);
   }
 
   // sentinel
@@ -180,7 +180,7 @@ int32_t cBufCopyString(CBuf *a, char *p, size_t n)
 }
 
 
-int32_t cBufCopyString2(const CBuf *a, char *p, size_t n)
+int32_t cbuf_copy_string2(const cbuf_t *a, char *p, size_t n)
 {
   // copy and and don't consume. leave buf intact
 
@@ -214,24 +214,24 @@ int32_t cBufCopyString2(const CBuf *a, char *p, size_t n)
   for use with cookie_io_functions_t
 */
 
-int32_t cBufRead(CBuf *a, char *p, size_t n)
+int32_t cbuf_read(cbuf_t *a, char *p, size_t n)
 {
 
   size_t i = 0;
-  while(i < n && !cBufisEmpty(a)) {
-    p[i++] = cBufPop(a);
+  while(i < n && !cbuf_is_empty(a)) {
+    p[i++] = cbuf_pop(a);
   }
 
   return i;
 }
 
 
-ssize_t cBufWrite(CBuf *a, const char *buf, size_t size)
+ssize_t cbuf_write(cbuf_t *a, const char *buf, size_t size)
 {
   assert(a->sz);
 
   for(size_t i = 0; i < size; ++i)
-    cBufPush(a, buf[i]);
+    cbuf_push(a, buf[i]);
 
   return size;
 }

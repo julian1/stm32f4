@@ -29,7 +29,7 @@ void my_logger( FILE **circbuffer, __FILE__, __LINE___, const char **msg) ;
 /*
   reason not to use fgetch / fread(), fgets() etc is that these are normally used blocking
   ------
-  could /should use non-blocking fread() instead of cBufPop()...
+  could /should use non-blocking fread() instead of cbuf_pop()...
 
   stdin can be set to non-block in linux. eg. like this. tested.
   so could harmonize interface
@@ -68,7 +68,7 @@ void my_logger( FILE **circbuffer, __FILE__, __LINE___, const char **msg) ;
 
 struct Cookie
 {
-  CBuf  *circ_buf;
+  cbuf_t  *circ_buf;
   int   flags;
 };
 
@@ -129,8 +129,8 @@ static ssize_t mywrite(Cookie *cookie, const char *buf, size_t size)
     int ch = buf[ i ];
 
     if(ch  == '\n') {
-      cBufPush(cookie->circ_buf, '\r');
-      cBufPush(cookie->circ_buf, ch);
+      cbuf_push(cookie->circ_buf, '\r');
+      cbuf_push(cookie->circ_buf, ch);
 
       // block control, in order to flush circular buffer
       if(cookie->flags & SYNC_OUTPUT_ON_NEWLINE)
@@ -138,7 +138,7 @@ static ssize_t mywrite(Cookie *cookie, const char *buf, size_t size)
 
     }
     else {
-      cBufPush(cookie->circ_buf, ch);
+      cbuf_push(cookie->circ_buf, ch);
     }
   }
 
@@ -151,7 +151,7 @@ static ssize_t mywrite(Cookie *cookie, const char *buf, size_t size)
 
 
 
-void cbuf_init_stdout_streams( CBuf *circ_buf )
+void cbuf_init_stdout_streams( cbuf_t *circ_buf )
 {
   /*
     advantage of using is stdout, and avoid intermediate handling with buffers
@@ -212,13 +212,13 @@ static ssize_t myread(void *cookie_, char *buf, size_t sz)
     the issue with blocking here is that it won't pump update()
   */
 
-  return cBufRead( cookie->circ_buf, buf, sz);
+  return cbuf_read( cookie->circ_buf, buf, sz);
 }
 
 
 
 
-void cbuf_init_stdin_streams( CBuf *console_in )
+void cbuf_init_stdin_streams( cbuf_t *console_in )
 {
   assert(console_in);
 

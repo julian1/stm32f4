@@ -69,8 +69,8 @@ typedef struct app_t
   // but functions that use can also declare volatile
   volatile uint32_t system_millis;
 
-  CBuf  console_in;
-  CBuf  console_out;
+  cbuf_t  console_in;
+  cbuf_t  console_out;
   
   CString     command;
 
@@ -132,10 +132,10 @@ static void app_update_console_cmd(app_t *app)
 
   // rename - include REPL.  repl ( ) conso
 
-  while( ! cBufisEmpty(&app->console_in)) {
+  while( ! cbuf_is_empty(&app->console_in)) {
 
     // got a character
-    int32_t ch = cBufPop(&app->console_in);
+    int32_t ch = cbuf_pop(&app->console_in);
     assert(ch >= 0);
 
     if(ch != '\r' && ch != ';' && cStringCount(&app->command) < cStringReserve(&app->command) ) {
@@ -337,8 +337,8 @@ int main(void)
 
 
   // uart/console
-  cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
-  cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
+  cbuf_init(&app.console_in,  buf_console_in, sizeof(buf_console_in));
+  cbuf_init(&app.console_out, buf_console_out, sizeof(buf_console_out));
 
   cbuf_init_stdout_streams(  &app.console_out );
   cbuf_init_stdin_streams( &app.console_in );
