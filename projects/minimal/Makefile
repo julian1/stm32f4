@@ -9,7 +9,7 @@ BINARY		= main
 
 #SRCFILES	= mcp3208.c  util.c \
 
-SRCFILES	= src/main.c  
+SRCFILES	= src/main.c
 
 
 
@@ -21,7 +21,7 @@ TGT_CFLAGS  += -Wno-unused-function   \
               -Werror-implicit-function-declaration \
               -Wno-packed-bitfield-compat
 
-#              -Werror \
+TGT_CFLAGS  += -Werror \
 
 
 
