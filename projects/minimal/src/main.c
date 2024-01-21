@@ -256,6 +256,26 @@ static void sys_tick_interupt(app_t *app)
 
 
 
+static void spi1_interupt(app_t *app)
+{
+  UNUSED(app);
+  // now on a positive transition.
+
+/*
+  // if flag is still active, then record we missed processing some data.
+  if(app->adc_measure_valid == true) {
+    app->adc_measure_valid_missed = true;
+    // ++app->adc_measure_valid_missed;     // count better? but harder to report.
+  }
+
+  // set adc_measure_valid flag so that update() knows to read the adc...
+  app->adc_measure_valid = true;
+*/
+}
+
+
+
+
 
 
 
