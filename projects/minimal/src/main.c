@@ -39,6 +39,7 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 */
 #include <libopencm3/stm32/rcc.h>   // for clock initialization
 #include <libopencm3/cm3/scb.h>  // reset()
+#include <libopencm3/stm32/spi.h>   // SPI1
 
 
 #include <stdio.h>    // printf, scanf
@@ -64,6 +65,7 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 #include <peripheral/ice40-extra.h>
 
 
+#include <spi-ice40.h>
 #include <ice40-bitstream.h>
 
 
@@ -90,6 +92,9 @@ typedef struct app_t
   cbuf_t  console_out;
 
   cstring_t     command;
+
+
+  uint32_t  spi;
 
 } app_t;
 
@@ -118,11 +123,26 @@ static void app_update_soft_500ms(app_t *app)
   //////////
 
 
-  if(app->led_state)
+  if(app->led_state) {
+
     ice40_port_extra_creset_enable();  // enable
-  else
+
+    printf("spi enable\n");
+    assert(app->spi == SPI1);
+    spi_enable(app->spi);
+    // spi1_port_cs1_enable();
+  }
+  else {
     ice40_port_extra_creset_disable(); // hold fpga in reset.
 
+    // Hmmmm.. not being respected????
+
+    printf("spi disable\n");
+    spi_disable(app->spi);
+
+    // spi_disable(app->spi);
+    // spi1_port_cs1_disable();
+  }
 
 
 
@@ -154,6 +174,12 @@ static void app_repl(app_t *app,  const char *cmd)
 
     printf("help <command>\n" );
   }
+
+
+  else if(strcmp(cmd, "sleep") == 0) {
+    msleep(1000, &app->system_millis);
+  }
+
   else if(strcmp(cmd, "reset mcu") == 0) {
     printf("perform mcu reset\n" );
     // reset stm32f4
@@ -374,6 +400,7 @@ int main(void)
   memset(&app, 0, sizeof(app_t));
 
 
+  app.spi = SPI1 ;
 
 
   // uart/console
@@ -416,11 +443,10 @@ int main(void)
 
   spi1_port_cs1_setup();
 
-  // adc interupt...
   spi1_port_interupt_setup( (void (*) (void *))spi1_interupt, &app);
-
-
   ice40_port_extra_setup();
+  spi_ice40_setup( app.spi );
+
 
 
 

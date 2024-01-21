@@ -26,7 +26,7 @@
 #define ER_CDONE        GPIO4   // PB4
 
 
-#define ER_TRIGGER_INT_OUT GPIO4   // PA3
+#define ER_TRIGGER_INT_OUT GPIO3   // PA3
 #define ER_UNUSED1_OUT    GPIO10   // PA10
 
 

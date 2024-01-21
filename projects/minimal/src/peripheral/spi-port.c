@@ -1,5 +1,9 @@
 /*
 
+  - this code is just about generic enough. to move to lib2
+  - perhaps should make generic for any spi.  and/or  prefix filename spi1-port.c  etc.
+
+  ---
   anything through a 6 pin adum/cap isolator
 
   Code is shared for smu and adc
@@ -70,20 +74,12 @@
 */
 
 
-void spi1_port_cs2_enable(void)
-{
-  gpio_clear(SPI_PORT, SPI_CS2);
-}
 
-
-void spi1_port_cs2_disable(void)
-{
-  gpio_set(SPI_PORT, SPI_CS2);
-}
 
 
 void spi1_port_cs1_enable(void)
 {
+  // active lo
   gpio_clear(SPI_PORT, SPI_CS1);
 }
 
@@ -93,6 +89,18 @@ void spi1_port_cs1_disable(void)
   gpio_set(SPI_PORT, SPI_CS1);
 }
 
+
+void spi1_port_cs2_enable(void)
+{
+  // active lo
+  gpio_clear(SPI_PORT, SPI_CS2);
+}
+
+
+void spi1_port_cs2_disable(void)
+{
+  gpio_set(SPI_PORT, SPI_CS2);
+}
 
 
 
@@ -139,13 +147,16 @@ void spi1_port_cs2_setup(void)
 }
 
 
-void spi1_port_cs2_gpio_setup(void)
+
+#if 0
+
+
+// not clear we even need manual control.
+
+void spi1_port_cs1_cs2_manual_setup(void)
 {
   // rcc_periph_clock_enable(RCC_SPI1);
 
-  // setup spi with cs ...
-  // uint16_t out = SPI1_CLK /* | SPI1_CS2 */  | SPI1_MOSI ; // not MISO
-  // uint16_t all = out | SPI1_MISO ;
   uint16_t out = SPI_CLK |  SPI_MOSI ; // not MISO
   uint16_t all = out | SPI_MISO;
 
@@ -154,27 +165,15 @@ void spi1_port_cs2_gpio_setup(void)
   gpio_set_af(SPI_PORT, GPIO_AF5, all); // af 5
   gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out); // probably need to reset each time.
 
-  // set cs1 hi-z/hi - with external pullup.
-  gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_CS1);
+  // set cs1 and cs2 as gpio
+  // IMPORTANT - no longer open-drain.
+  gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_CS1 | SPI_CS2);
 
-  // set CS2 to manual external gpio output
-  gpio_mode_setup(SPI_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_CS2);
-  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_CS2);
-}
-
-
-void spi1_port_cs1_cs2_gpio_setup(void)
-{
-  // control both cs1 and cs2 with gpio. for creset assert.
-
-  gpio_mode_setup(SPI_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_CS1 | SPI_CS2);
+  // set speed
   gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_CS1 | SPI_CS2);
-
 }
 
-
-
-
+#endif
 
 
 
@@ -241,5 +240,40 @@ void spi1_port_interupt_setup(void (*pfunc)(void *),  void *ctx)
 
 
 
+
+#if 0
+void spi1_port_cs2_gpio_setup(void)
+{
+  // rcc_periph_clock_enable(RCC_SPI1);
+
+  // setup spi with cs ...
+  // uint16_t out = SPI1_CLK /* | SPI1_CS2 */  | SPI1_MOSI ; // not MISO
+  // uint16_t all = out | SPI1_MISO ;
+  uint16_t out = SPI_CLK |  SPI_MOSI ; // not MISO
+  uint16_t all = out | SPI_MISO;
+
+
+  gpio_mode_setup(SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
+  gpio_set_af(SPI_PORT, GPIO_AF5, all); // af 5
+  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out); // probably need to reset each time.
+
+  // set cs1 hi-z/hi - with external pullup.
+  gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_CS1);
+
+  // set CS2 to manual external gpio output
+  gpio_mode_setup(SPI_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_CS2);
+  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_CS2);
+}
+
+
+void spi1_port_cs1_cs2_gpio_setup(void)
+{
+  // control both cs1 and cs2 with gpio. for creset assert.
+
+  gpio_mode_setup(SPI_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_CS1 | SPI_CS2);
+  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_CS1 | SPI_CS2);
+
+}
+#endif
 
 
