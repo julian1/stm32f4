@@ -23,15 +23,14 @@
 
 
 #include <stddef.h>   // NULL
-#include <assert.h>
+// #include <assert.h>
 
 #include <peripheral/spi-port.h>
 
-// #include <lib2/util.h>   // critical_error_blink()
 
 //////////////////////////
 
-#define UNUSED(x) (void)(x)
+// #define UNUSED(x) (void)(x)
 
 
 // TODO - no reason to have the ICE40  prefix here.
@@ -216,7 +215,7 @@ ads131a04  DYDR Data ready; active low; host interrupt and synchronization for m
   TODO rename spi1_port_ ...
 */
 
-void spi1_port_interupt_gpio_setup(void (*pfunc)(void *),  void *ctx)
+void spi1_port_interupt_setup(void (*pfunc)(void *),  void *ctx)
 {
   // TODO check non-null init args ...
 
