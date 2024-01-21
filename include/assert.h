@@ -1,7 +1,16 @@
 
 /*
+  jan 2024. shouldn't need this anymore.
 
-  BUT this needs to be put top-level. 
+  because
+  void cbuf_init_stdout_streams( cbuf_t *circ_buf )
+
+  sets both stdout, and stderr to log to usart1.
+  so gnu libc assert() should work.
+
+
+  --------
+  BUT this needs to be put top-level.
       and not in lib2
 
   NOT deprecated. although assert.c is.
