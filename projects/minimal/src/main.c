@@ -61,6 +61,7 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 
 #include <peripheral/led.h>
 #include <peripheral/spi-port.h>
+#include <peripheral/ice40-extra.h>
 
 
 #include <ice40-bitstream.h>
@@ -113,6 +114,18 @@ static void app_update_soft_500ms(app_t *app)
     led_on();
   else
     led_off();
+
+  //////////
+
+
+  if(app->led_state)
+    ice40_port_extra_creset_enable();  // enable
+  else
+    ice40_port_extra_creset_disable(); // hold fpga in reset.
+
+
+
+
 }
 
 
