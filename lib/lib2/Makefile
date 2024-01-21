@@ -10,14 +10,14 @@ TOP=../../
 
 
 
-lib2.a: cbuffer.o  cdcacm.o  cstring.o  fbuffer.o  flash.o  format.o    stats.o  streams.o  usart.o    util.o  stream-flash.o
+lib2.a: cbuffer.o  cdcacm.o  cstring.o  fbuffer.o  flash.o  format.o    stats.o  streams.o  usart.o    util.o  stream-flash.o assert.o
 	${AR} rcs lib2.a ${OBJS}
 
 
-SRCFILES	=   cbuffer.c  cdcacm.c  cstring.c  fbuffer.c  flash.c  format.c    stats.c  streams.c  usart.c    util.c  stream-flash.c
+SRCFILES	=   cbuffer.c  cdcacm.c  cstring.c  fbuffer.c  flash.c  format.c    stats.c  streams.c  usart.c    util.c  stream-flash.c  assert.c
 
 
-OBJS = cbuffer.o  cdcacm.o  cstring.o  fbuffer.o  flash.o  format.o    stats.o  streams.o  usart.o    util.o  stream-flash.o
+OBJS = cbuffer.o  cdcacm.o  cstring.o  fbuffer.o  flash.o  format.o    stats.o  streams.o  usart.o    util.o  stream-flash.o  assert.o
 
 
 # items not included
@@ -37,8 +37,8 @@ TGT_CFLAGS  += -Wno-unused-function   \
 
 
 
-# needed for <assert.h> in priority to pickup the function prototype 
-TGT_CFLAGS	+= -I${TOP}/include				
+# needed for <assert.h> in priority to pickup the function prototype
+TGT_CFLAGS	+= -I${TOP}/include
 
 TGT_CFLAGS	+= -I${TOP}/include/lib2/
 

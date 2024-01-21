@@ -1,54 +1,79 @@
 /*
-  
+  we override assert function, in order to provide the exit() function
+  not because we need to redirect the stream
 
-
-  - The handler, with ctx, is needed
-    eg. to pass app ctx, in order to do stuff like hardware shutdown/ power off for safety.
-    or call critical_error_blink() to halt etc
-
+    prefix assert_   to critical_error funcs
 */
 
-DEPRECATED.
-  just put handler code (eg. report and loop) in project specific util.c
-  behavior depends on function. blink led. versus log and restart etc.
 
 
-	assert_simple() is now in util.c
-	where the usart stuf is.
+// #include <libopencm3/cm3/nvic.h>
+// #include <libopencm3/cm3/systick.h>
 
 
-#include <stddef.h> // null
+#include <libopencm3/stm32/gpio.h>
 
-
-#include "assert.h"   // assert_simple()
-#include "streams.h"     // usart1_printf()
-
-#define UNUSED(x) (void)(x)
+// #include "util.h"
+// #include "streams.h"
+#include <assert.h>  // assert_simple()
+#include <stdio.h>  // printf
 
 
 
-static void assert_default(void *ctx, const char *file, int line, const char *func, const char *expr)
+
+
+
+
+
+//////////////////////////////////
+
+/*
+  only used - to set up state for led to blink.
+  BUT. avoids local /peripheral/led.c
+*/
+
+
+static uint32_t led_port = 0;
+static uint32_t led_io = 0;
+
+
+void assert_critical_error_led_setup(uint32_t port_, uint16_t io_ )
 {
-  // cannot use assert_pf_t here... because parameters will be unnamed...
-  UNUSED(ctx);
-  usart1_printf("\nassert failed %s: %d: %s: '%s'\n", file, line, func, expr);
+  led_port = port_;
+  led_io   = io_;
+
 }
 
-static assert_pf_t *assert_pf = assert_default;
-static void *assert_ctx  = NULL;
-
-
-
-void assert_set_handler( assert_pf_t *pf, void *ctx )
+void assert_critical_error_led_blink(void)
 {
-  assert_pf  = pf;
-  assert_ctx = ctx;
+  // non static, to support external
+  // needs the led port config.
+  // avoid passing arguments, consuming stack.
+  for (;;) {
+		// gpio_toggle(led.port, led.io );
+    // led_toggle();
+
+    gpio_toggle(led_port, led_io);
+
+		for(uint32_t i = 0; i < 500000; ++i)
+       __asm__("nop");
+  }
 }
+
 
 
 void assert_simple(const char *file, int line, const char *func, const char *expr)
 {
-  assert_pf( assert_ctx, file, line, func, expr);
+  // this works by using local "assert.h" with assert() macro definition
+  // see assert.h for explanation. works with external libraries/code
+  // see, https://stackoverflow.com/questions/50915274/redirecting-assert-fail-messages
+
+  // legacy version
+  // usart1_printf("\nassert simple failed %s: %d: %s: '%s'\n", file, line, func, expr);
+  printf("\nassert simple failed %s: %d: %s: '%s'\n", file, line, func, expr);
+
+  // go to endless loop
+  assert_critical_error_led_blink();
 }
 
 

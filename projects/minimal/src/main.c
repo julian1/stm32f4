@@ -356,7 +356,7 @@ int main(void)
 
   // setup external state for critical error led blink
   // because assert() cannot pass a context
-  critical_error_led_setup(LED_PORT, LED_OUT);
+  assert_critical_error_led_setup(LED_PORT, LED_OUT);
 
 
   // this is the mcu clock.  not the adc clock. or the fpga clock.

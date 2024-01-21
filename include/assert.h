@@ -1,26 +1,13 @@
-
 /*
-  jan 2024. shouldn't need this anymore.
 
-  because
-  void cbuf_init_stdout_streams( cbuf_t *circ_buf )
-
-  sets both stdout, and stderr to log to usart1.
-  so gnu libc assert() should work.
-
+  required to over-ride behavior for exit/ critical_error_blink().
+  the stream handling already works with stderr redirection
 
   --------
-  BUT this needs to be put top-level.
-      and not in lib2
+  needs to be put top-level.
 
-  NOT deprecated. although assert.c is.
 
-  We cannot over-ride libc version at link time, because of strong link specifiers.
-
-  but we can include this file in the path, so it gets included with
-  #include <assert.h>
-    not just
-  #include "assert.h"
+  It isn't possible to override libc function at link time, because of strong link specifiers.
 
   this way it's included for external libraries, so long as -E path is used.
 
@@ -36,9 +23,15 @@
 extern "C" {
 #endif
 
+#include <stdint.h> // uint32_t
+
+
+void assert_critical_error_led_setup(uint32_t port_, uint16_t io_ );
+void assert_critical_error_led_blink(void);
+
 
 // implement in util.c because project specific
-extern void assert_simple(const char *file, int line, const char *func, const char *expr);
+void assert_simple(const char *file, int line, const char *func, const char *expr);
 
 #define assert(expr)    ((expr) ? ((void)0) : assert_simple(__FILE__, __LINE__, __func__, #expr))
 

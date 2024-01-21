@@ -1,30 +1,12 @@
 /*
 
-    oct 3.
-    - EXTR. the systick handler should have a callback also.  to api-state.
-        rather than code static variables.
-
-        - eg. reaching out into space for system_millis  is horrid.
-    -
-    ------
-
-// sep 16. 2023. THIS IS really crappy. with led, hanging onto local state like.
-    - opposite of dep-inversion.
-
-  -- think it's easier to just define the state in App (.  and do the update in main.
-  - issue is critical error blink. called from assert. that has no context.
-
-  Instead - just farm out the revevant state and hold a static reference for this specific function.
-       that cannot be called in any other context.
-  ----------------
-
-  should be common now.
-  ----
   helper stuff that belongs in separate file, but not in separate library
-  because might change
 
-  also. port setup. eg. led blinker. that is very common. but different between stm32 series/part.
+  perhaps rename to systick.c or just sleep...
+
 */
+
+
 
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/systick.h>
@@ -34,64 +16,12 @@
 
 #include "util.h"
 #include "streams.h"
-#include "assert.h"  // assert simple
 
-
-
-
-
-
-
-
-//////////////////////////////////
-
-/*
-  setup external state for critical error led blink
-  because assert() cannot pass a context
-
-  only used - used only for critical_error_led_blink() and assert.
-  other things , may also write the led.
-  just use static, to hang on to the vars.  no need for struct.
-*/
-
-
-static uint32_t led_port = 0;
-static uint32_t led_io = 0;
-
-
-void critical_error_led_setup(uint32_t port_, uint16_t io_ )   // innit or setup
-{
-  led_port = port_;
-  led_io   = io_;
-
-}
-
-void critical_error_led_blink(void)
-{
-  // needs the led port config.
-  // avoid passing arguments, consuming stack.
-  for (;;) {
-		// gpio_toggle(led.port, led.io );
-    // led_toggle();
-
-    gpio_toggle(led_port, led_io);
-
-		for(uint32_t i = 0; i < 500000; ++i)
-       __asm__("nop");
-  }
-}
 
 
 
 
 ////////////////////////////////////////////////////////
-
-/* Common function descriptions */
-// #include "clock.h"
-
-/* milliseconds since boot */
-// volatile uint32_t system_millis = 0;
-// volatile uint64_t system_millis;
 
 /*
   just use a uint64_t ?
@@ -103,7 +33,6 @@ static void (*sys_tick_interupt)(void *ctx) = NULL;
 static void *sys_tick_ctx = NULL;
 
 
-// static void systick_setup(void)
 void systick_setup(uint32_t tick_divider, void (*pfunc)(void *),  void *ctx)
 {
 
@@ -129,6 +58,10 @@ void systick_setup(uint32_t tick_divider, void (*pfunc)(void *),  void *ctx)
 
 void sys_tick_handler(void)
 {
+
+  // rather than the callback function.
+  // could pass the volatile variable to increment.
+  // more lightweight
 
   if(sys_tick_interupt) {
     sys_tick_interupt(sys_tick_ctx);
@@ -193,19 +126,6 @@ int main()
 
 
 
-void assert_simple(const char *file, int line, const char *func, const char *expr)
-{
-  // this works by using local "assert.h" with assert() macro definition
-  // see assert.h for explanation. works with external libraries/code
-  // see, https://stackoverflow.com/questions/50915274/redirecting-assert-fail-messages
-
-  // legacy version
-  usart1_printf("\nassert simple failed %s: %d: %s: '%s'\n", file, line, func, expr);
-
-  critical_error_led_blink();
-}
-
-
 /*
   2023. substraction looks wrong.  stack start - is stack_end - current .
   because stack grows down.
@@ -258,7 +178,7 @@ void print_stack_pointer()
 
   used to define, not retrieve,
 
-  // extern void * __initial_sp ; 
+  // extern void * __initial_sp ;
   // usart1_printf("p %p \n",  __initial_sp);
 
 
