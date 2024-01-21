@@ -55,7 +55,7 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 #include <lib2/util.h>   // msleep()
 #include <lib2/cbuffer.h>
 #include <lib2/cstring.h>
-#include <lib2/format.h>   // trim_whitespace() 
+#include <lib2/format.h>   // trim_whitespace()
 
 
 
@@ -312,11 +312,8 @@ static app_t app;
 
 int main(void)
 {
-  // high speed internal!!!
-  // TODO. not using.
-
+  // hse
 	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz.
-
 
   // clocks
   rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
@@ -326,15 +323,11 @@ int main(void)
   rcc_periph_clock_enable(RCC_GPIOB);
   // rcc_periph_clock_enable(RCC_GPIOE);
 
-
-
   // USART
   rcc_periph_clock_enable(RCC_USART1);
 
-
   // spi / ice40
   rcc_periph_clock_enable(RCC_SPI1);
-
 
   // adc/temp
   rcc_periph_clock_enable(RCC_ADC1);
@@ -343,7 +336,7 @@ int main(void)
 
   /////////////////////////////
   /*
-    peripheral/gpio port setup
+    peripheral/ports setup
   */
 
   led_setup();
@@ -401,10 +394,10 @@ int main(void)
 
   printf("sizeof app_t %u\n", sizeof(app_t));
 
-  ////////////////////
+
 
   ////////////////
-  // to communicate with adum/ice40
+  // spi1, for adum/ice40
 
   spi1_port_cs1_setup();
 
