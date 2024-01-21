@@ -2,6 +2,17 @@
   override assert() function, for the led blink and because no appropriate exit()
   not because we need to redirect the stderr stream
 
+
+  Might be easier to use, on_exit(),  or override exit() instead?
+
+         on_exit - register a function to be called at normal process termination
+
+       #include <stdlib.h>
+       int on_exit(void (*function)(int, void *), void *arg);
+  ----
+
+  reason not to use exist handler- is extra stack overhead. when may have run out of mem.
+
 */
 
 
