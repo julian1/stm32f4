@@ -37,6 +37,17 @@
 // TODO - no reason to have the ICE40  prefix here.
 // should just name to SPI1c
 
+/*
+  jan 2024.
+  - if put all these in a data structure - then the enable/disable could be made more generic. for spi1,or spi2 etc.
+  - we would'nt have to carry around the spi integer. in app.
+  - not sure the callback works. 
+  ----
+  - rather than having to prefix with spi1... everywhere.
+
+*/
+
+
 #define SPI_SPI   SPI1
 
 #define SPI_PORT  GPIOA

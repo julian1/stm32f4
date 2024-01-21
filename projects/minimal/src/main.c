@@ -59,10 +59,10 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 
 // fix me
 int flash_lzo_test(void);
-int flash_raw_test(void);
-int flash_raw_test2(void);
+// int flash_raw_test(void);
+// int flash_raw_test2(void);
 
-
+#include <ice40-bitstream.h>
 
 
 
@@ -181,14 +181,15 @@ static void app_repl(app_t *app,  const char *cmd)
     // int flash_raw_test(void);
   }
 
+
+/*
   else if(strcmp(cmd, "flash raw test") == 0) {
     flash_raw_test();
   }
-
-
   else if(strcmp(cmd, "flash raw test 2") == 0) {
     flash_raw_test2();
   }
+*/
 
   else {
 
@@ -318,12 +319,14 @@ int main(void)
   // clocks
   rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
 
-  // LED
-  // rcc_periph_clock_enable(RCC_GPIOE);
+  // gpio
   rcc_periph_clock_enable(RCC_GPIOA);
+  rcc_periph_clock_enable(RCC_GPIOB); 
+  // rcc_periph_clock_enable(RCC_GPIOE);
+
+
 
   // USART
-  rcc_periph_clock_enable(RCC_GPIOB); // F410 / f411
   rcc_periph_clock_enable(RCC_USART1);
 
 
@@ -408,18 +411,21 @@ int main(void)
   assert( sizeof(float) == 4);
   assert( sizeof(double ) == 8);
 
-
-  // sep 16, 2023.
-  // set ER-CRESET-  hi.  not to reset.   This needs to have an external  pullup fitted.
-#define ER_CRESET_PORT  GPIOA
-#define ER_CRESET_PIN   GPIO1
-
-  gpio_mode_setup(ER_CRESET_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ER_CRESET_PIN);
-  gpio_set(ER_CRESET_PORT, ER_CRESET_PIN);
-
-
-
   printf("sizeof app_t %u\n", sizeof(app_t));
+
+  ////////////////////
+
+  ////////////////
+  // to communicate with adum/ice40
+/*
+  spi1_port_cs1_setup();
+
+  // adc interupt...
+  spi1_port_interupt_gpio_setup( (void (*) (void *))spi1_interupt, &app);
+*/
+
+  ice40_port_extra_setup();
+
 
 
   // modes_init();
