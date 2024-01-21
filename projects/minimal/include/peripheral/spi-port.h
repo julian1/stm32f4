@@ -3,7 +3,7 @@
 // #include <stdint.h>  // uint32_t
 
 
-// extern void spi_cs2_strobe_assert( uint32_t spi);
+// manual toggle cs pins.  do we still use this?
 extern void spi1_port_cs2_disable(void);
 extern void spi1_port_cs2_enable(void);
 extern void spi1_port_cs1_disable(void);

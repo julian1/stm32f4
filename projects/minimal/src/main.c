@@ -37,11 +37,7 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
   we could put low-level peripheral stuff in peripheral directory.
 
 */
-#include <libopencm3/stm32/rcc.h>   // clock
-// #include <libopencm3/stm32/gpio.h>    // led
-//#include <libopencm3/stm32/spi.h>   // SPI1
-
-
+#include <libopencm3/stm32/rcc.h>   // for clock initialization
 #include <libopencm3/cm3/scb.h>  // reset()
 
 
@@ -80,11 +76,11 @@ typedef struct app_t
 {
 
 
-  // TODO remove. should be able to query the led state  to invert it...
+  // remove. should be able to query the led state  to invert it...
   // no. it's ok. led follows the led_state
   bool led_state ;     // should rename, or just use the last bit of the count .
 
-  uint32_t soft_500ms ;
+  uint32_t soft_500ms;
 
   // updated on interupt. should probably be declared volatile.
   // but functions that use can also declare volatile
@@ -96,6 +92,7 @@ typedef struct app_t
   cstring_t     command;
 
 } app_t;
+
 
 
 
@@ -123,11 +120,11 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
-// TODO change name str_trim_whitespace_inipalce.
+// TODO change name str_str_trim_whitespace_inplace_inipalce.
 // move to format.h.
 // or format
 
-static char * trim_whitespace_inplace( char *cmd )
+static char * str_trim_whitespace_inplace_inplace( char *cmd )
 {
   assert(cmd);
   // messy functions - should probably get more testing.
@@ -236,7 +233,7 @@ static void app_update_console_cmd(app_t *app)
 
       char *cmd = cstring_ptr(&app->command);
 
-      cmd = trim_whitespace_inplace( cmd );
+      cmd = str_trim_whitespace_inplace_inplace( cmd );
       app_repl(app, cmd);
 
       // reset buffer
