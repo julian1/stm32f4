@@ -172,7 +172,7 @@ struct A
 {
   unsigned char *p;
   unsigned      pos;
-  unsigned      n;    // limit
+  // unsigned      n;    // limit
 
 
 /*
@@ -195,7 +195,7 @@ static ssize_t mywrite( void *a_, const char *buf, size_t sz)
 
 
   // alternatively might be able to return truncated sz...
-  assert( a->pos + sz < a->n);
+  // assert( a->pos + sz < a->n);
 
   flash_program( (uint32_t)  a->p + a->pos , (const unsigned char *) buf, sz  );
 
@@ -224,6 +224,7 @@ static ssize_t myread(void *a_, char *buf, size_t sz)
   // printf("a->pos %d\n", a->pos ); // value
   // usart1_flush();
 
+/*
   int remain = a->n - a->pos;           // signed. but it's not quite correct
 
   // printf("remaining %u\n", remain );
@@ -233,6 +234,7 @@ static ssize_t myread(void *a_, char *buf, size_t sz)
     sz = remain;
 
   assert(remain >= 0);
+*/
 
   // printf("sz now %u\n", sz );
   // usart1_flush();
@@ -295,7 +297,10 @@ static int myseek(void *a_, long int *offset_, int whence)
       break;
     case SEEK_END:
 //      printf(" seek_end, ");
-      a->pos = a->n + offset;
+
+
+      assert(0); // jan 2024 remove limitation of sector end
+      // a->pos = a->n + offset;
       *offset_ = a->pos;
       break;
 
@@ -330,7 +335,7 @@ FILE * flash_open_file(void )
   a.p = (void *)  FLASH_SECT_ADDR;
   a.pos = 0;
   // a.n = INT_MAX;     // 128 ...
-  a.n = 128 * 1024 ;     // 128 ...
+  // a.n = 128 * 1024 ;     // 128 ...
 
   FILE *f = fopencookie(&a, "r+", memfile_func); // read and write RW !!jjj
   assert(f);
