@@ -9,7 +9,7 @@ BINARY		= main
 
 #SRCFILES	= mcp3208.c  util.c \
 
-SRCFILES	= src/main.c  src/lzo_test.c src/ice40-extra.c src/ice40-bitstream.c  src/led.c
+SRCFILES	= src/peripheral/ice40-extra.c   src/peripheral/led.c  src/main.c  src/ice40-bitstream.c src/lzo_test.c 
 
 
 

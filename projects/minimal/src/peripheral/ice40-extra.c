@@ -1,46 +1,19 @@
-
-
-
-#include <libopencm3/stm32/gpio.h>
-#include <libopencm3/stm32/spi.h>
-
-
-#include <ice40-extra.h>
-
 /*
-  - should move all simple gpio, to separate port c perhaps.
-  - maybe want interupt for cdone.  to detect power cycle. no can do it in a poll
-  ---------------
 
-
-  OR.
-
-  we wrap the functionality - to avoid exposing.
-
-  eg.
-
-  ice40_port_extra_creset_set(  1 );
-  ice40_port_extra_cdone_get(  1 );
-  ice40_port_extra_unused1_set(  1 );
-
-  likewise for the led,  should hide the implementation detail,
-
-  led_set( 1 );
-
-  Yes. this is better.
-  It is still OK, to pass a descriptor.
-
-  Issue. for led blink, is passing out the details for the critical error blink functionality.
-  BUT. but nothing else needs to know about it.
-
-  so should have local led.c  file.
 
 */
 
+
+#include <libopencm3/stm32/gpio.h>
+
+
+#include <peripheral/ice40-extra.h>
+
+
 /*
-  no these should *not* be in the header.
-    want to localize.
-    and then expose accessors.
+  none of this should be exposed in header files.
+  want to localize.
+  and then have peripheral specific accessors.
 
 */
 
@@ -111,15 +84,13 @@ void ice40_port_extra_setup(void)
 
   /////////////////////
 
-  // should define to avoid floating adum inputs.
+  // define to avoid floating inputs on adum
   gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ER_TRIGGER_INT_OUT);
   gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ER_UNUSED1_OUT);
 
 
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, ER_TRIGGER_INT_OUT);
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, ER_UNUSED1_OUT);
-
-
 }
 
 

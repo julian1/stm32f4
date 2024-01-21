@@ -71,7 +71,7 @@ int flash_lzo_test(void);
 
 
 
-#include <led.h>
+#include <peripheral/led.h>
 #include <ice40-bitstream.h>
 
 
