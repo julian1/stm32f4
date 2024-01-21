@@ -1,38 +1,21 @@
 /*
-  we override assert function, in order to provide the exit() function
-  not because we need to redirect the stream
+  override assert() function, for the led blink and because no appropriate exit()
+  not because we need to redirect the stderr stream
 
-    prefix assert_   to critical_error funcs
 */
-
-
-
-// #include <libopencm3/cm3/nvic.h>
-// #include <libopencm3/cm3/systick.h>
 
 
 #include <libopencm3/stm32/gpio.h>
 
-// #include "util.h"
-// #include "streams.h"
 #include <assert.h>  // assert_simple()
 #include <stdio.h>  // printf
 
 
 
 
-
-
-
-
-//////////////////////////////////
-
 /*
-  only used - to set up state for led to blink.
-  BUT. avoids local /peripheral/led.c
+  state for which led/gpio to blink
 */
-
-
 static uint32_t led_port = 0;
 static uint32_t led_io = 0;
 
@@ -46,12 +29,10 @@ void assert_critical_error_led_setup(uint32_t port_, uint16_t io_ )
 
 void assert_critical_error_led_blink(void)
 {
-  // non static, to support external
+  // non static, to support other direct callers
   // needs the led port config.
   // avoid passing arguments, consuming stack.
   for (;;) {
-		// gpio_toggle(led.port, led.io );
-    // led_toggle();
 
     gpio_toggle(led_port, led_io);
 
