@@ -45,8 +45,7 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 #include <string.h>   // strcmp, memset
 #include <ctype.h>    // isspace
 #include <assert.h>
-
-
+#include <malloc.h> // malloc_stats()
 
 
 
@@ -58,17 +57,17 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 #include <lib2/cstring.h>
 #include <lib2/format.h>   // trim_whitespace() 
 
-#include <malloc.h> // malloc_stats()
 
+
+#include <peripheral/led.h>
+#include <peripheral/spi-port.h>
+
+
+#include <ice40-bitstream.h>
 
 
 // fix me
 int flash_lzo_test(void);
-
-
-
-#include <peripheral/led.h>
-#include <ice40-bitstream.h>
 
 
 
@@ -386,12 +385,12 @@ int main(void)
 
   ////////////////
   // to communicate with adum/ice40
-/*
+
   spi1_port_cs1_setup();
 
   // adc interupt...
-  spi1_port_interupt_gpio_setup( (void (*) (void *))spi1_interupt, &app);
-*/
+  spi1_port_interupt_setup( (void (*) (void *))spi1_interupt, &app);
+
 
   ice40_port_extra_setup();
 

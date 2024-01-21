@@ -209,10 +209,11 @@ void exti2_isr(void)
 
 }
 
-/*
-ads131a04  DYDR Data ready; active low; host interrupt and synchronization for multi-devices
 
-  TODO rename spi1_port_ ...
+
+
+/*
+  ads131a04  DYDR Data ready; active low; host interrupt and synchronization for multi-devices
 */
 
 void spi1_port_interupt_setup(void (*pfunc)(void *),  void *ctx)
@@ -238,71 +239,7 @@ void spi1_port_interupt_setup(void (*pfunc)(void *),  void *ctx)
 }
 
 
-// printf("interupt CONFIGURE \n");
-// usart1_flush();
-// printf("configure done\n");
-// usart1_flush();
 
 
 
-
-#if 0
-void spi_cs2_strobe_assert( uint32_t spi)
-{
-  /*
-    might be better as separate functions spi_cs1_assert() , spi_cs2_assert()  or cs1_enable(), disable() then an
-    can then do reset, or strobe, or strobe with different timing etc.
-    remember relies on port with CS2 configured as gpio.
-  */
-
-  switch(spi) {
-    case SPI1: {
-
-      gpio_set(SPI_PORT, SPI_CS2);
-
-      for(uint32_t i = 0; i < 50; ++i)
-         __asm__("nop");
-
-      gpio_clear(SPI_PORT, SPI_CS2);
-      break;
-    }
-
-    default:
-      assert(0);
-      critical_error_blink();
-  }
-}
-#endif
-
-
-
-
-#if 0
-void spi1_special_gpio_setup(void)
-{
-  // TODO change name this is not spi....
-  // special
-  gpio_mode_setup(SPI_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_SPECIAL);
-  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_SPECIAL);
-
-  gpio_set(SPI_PORT, SPI_SPECIAL ); // hi == off, active low...
-
-}
-
-
-
-void spi_special_flag_set(uint32_t spi)
-{
-  UNUSED(spi);
-  gpio_set(SPI_PORT, SPI_SPECIAL );
-}
-
-void spi_special_flag_clear(uint32_t spi)
-{
-  // TODO change name this is not spi....
-  UNUSED(spi);
-  gpio_clear(SPI_PORT, SPI_SPECIAL ); // assert special, active low...
-}
-
-#endif
 
