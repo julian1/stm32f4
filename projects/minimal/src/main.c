@@ -160,15 +160,16 @@ static void app_repl(app_t *app,  const char *cmd)
     // scb_reset_core()
     scb_reset_system();
   }
-  else if(strcmp(cmd, "mem stack?") == 0) {
-    // can we print the heap also?
-    // printf("-------\n");
-    print_stack_pointer();
-    // return 1;
+  else if(strcmp(cmd, "assert 0") == 0) {
+    // test assert(0);
+    assert(0);
   }
-  else if(strcmp(cmd, "mem malloc?") == 0) {
+  else if(strcmp(cmd, "mem?") == 0)
+  {
     printf("malloc\n");
     malloc_stats();
+
+    print_stack_pointer();
     // return 1;
   }
   else if(strcmp(cmd, "flash lzo test") == 0) {
