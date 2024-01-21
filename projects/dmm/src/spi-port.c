@@ -27,7 +27,7 @@
 
 #include "spi-port.h"
 
-#include <lib2/util.h>   // critical_error_blink()
+// #include <lib2/util.h>   // critical_error_blink()
 
 //////////////////////////
 
@@ -62,7 +62,9 @@
 
 
 /*
+  only expose enable/disable here.  whether active hi/lo is detail.
 
+  ---
   whether active high/lo depends on the peripheral device. and fpga may invert
   so use  _enable(), disable() . instead of clear
   following normal CS convention. active low

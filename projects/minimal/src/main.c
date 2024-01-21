@@ -29,9 +29,18 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 */
 
 
+/*
+  EXTR. we shouldn't need to include low-level peripheral headers stuff here.
+  instead peripheral should be configured externally.
+  ---
+
+  we could put low-level peripheral stuff in peripheral directory.
+
+*/
 #include <libopencm3/stm32/rcc.h>   // clock
-#include <libopencm3/stm32/gpio.h>    // led
-#include <libopencm3/stm32/spi.h>   // SPI1
+// #include <libopencm3/stm32/gpio.h>    // led
+//#include <libopencm3/stm32/spi.h>   // SPI1
+
 
 #include <libopencm3/cm3/scb.h>  // reset()
 
@@ -59,9 +68,10 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 
 // fix me
 int flash_lzo_test(void);
-// int flash_raw_test(void);
-// int flash_raw_test2(void);
 
+
+
+#include <led.h>
 #include <ice40-bitstream.h>
 
 
@@ -70,9 +80,8 @@ typedef struct app_t
 {
 
 
-  uint32_t led_port;
-  uint32_t led_out;
-
+  // TODO remove. should be able to query the led state  to invert it...
+  // no. it's ok. led follows the led_state
   bool led_state ;     // should rename, or just use the last bit of the count .
 
   uint32_t soft_500ms ;
@@ -86,8 +95,6 @@ typedef struct app_t
 
   cstring_t     command;
 
-
-
 } app_t;
 
 
@@ -100,18 +107,20 @@ static void app_update_soft_500ms(app_t *app)
     function should reconstruct to localize scope of app. and then dispatch to other functions.
   */
 
+  /*
+    blink led
+  */
+
   app->led_state = ! app->led_state;
 
-
-  // blink mcu led
-  // be explicit. don't hide top-level state.
   if(app->led_state)
-    gpio_clear( app->led_port, app->led_out);
+    led_on();
   else
-    gpio_set(   app->led_port, app->led_out);
-
-
+    led_off();
 }
+
+
+
 
 
 // TODO change name str_trim_whitespace_inipalce.
@@ -321,7 +330,7 @@ int main(void)
 
   // gpio
   rcc_periph_clock_enable(RCC_GPIOA);
-  rcc_periph_clock_enable(RCC_GPIOB); 
+  rcc_periph_clock_enable(RCC_GPIOB);
   // rcc_periph_clock_enable(RCC_GPIOE);
 
 
@@ -337,24 +346,14 @@ int main(void)
   // adc/temp
   rcc_periph_clock_enable(RCC_ADC1);
 
-  // this isn't right. it's for the fan.
-  // gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0);
-  // gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1);
 
 
+  /////////////////////////////
   /*
-    Do led first, even if need update() and systick loop() to blink it.
+    peripheral/gpio port setup
   */
 
-  // for temp
-  // adc_setup();
-
-
-
-#define LED_PORT  GPIOA
-#define LED_OUT   GPIO9
-
-  gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT);
+  led_setup();
 
   // setup external state for critical error led blink
   // because assert() cannot pass a context
@@ -372,10 +371,6 @@ int main(void)
   // main app setup
 
   memset(&app, 0, sizeof(app_t));
-
-
-  app.led_port = LED_PORT;
-  app.led_out  = LED_OUT;
 
 
 
