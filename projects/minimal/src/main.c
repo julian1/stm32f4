@@ -83,7 +83,7 @@ typedef struct app_t
 
   cbuf_t  console_in;
   cbuf_t  console_out;
-  
+
   cstring_t     command;
 
 
@@ -140,11 +140,70 @@ static char * trim_whitespace_inplace( char *cmd )
 
 
 
+static void app_repl(app_t *app,  const char *cmd)
+{
+
+  UNUSED(app);
+
+  // useful for debug
+  // printf("cmd '%s'  %u\n", cmd, strlen(cmd) );
+
+
+/*
+  uint32_t u0 , u1;
+  char s0[100 + 1 ];
+*/
+  ////////////////////
+
+  if(strcmp(cmd, "help") == 0) {
+
+    printf("help <command>\n" );
+  }
+  else if(strcmp(cmd, "reset mcu") == 0) {
+    printf("perform mcu reset\n" );
+    // reset stm32f4
+    // scb_reset_core()
+    scb_reset_system();
+  }
+  else if(strcmp(cmd, "mem stack?") == 0) {
+    // can we print the heap also?
+    // printf("-------\n");
+    print_stack_pointer();
+    // return 1;
+  }
+  else if(strcmp(cmd, "mem malloc?") == 0) {
+    printf("malloc\n");
+    malloc_stats();
+    // return 1;
+  }
+  else if(strcmp(cmd, "flash lzo test") == 0) {
+    flash_lzo_test();
+    // int flash_raw_test(void);
+  }
+
+  else if(strcmp(cmd, "flash raw test") == 0) {
+    flash_raw_test();
+  }
+
+
+  else if(strcmp(cmd, "flash raw test 2") == 0) {
+    flash_raw_test2();
+  }
+
+  else {
+
+    printf("unknown cmd, or bad argument '%s'\n", cmd );
+
+  }
+
+
+}
+
+
+
 
 static void app_update_console_cmd(app_t *app)
 {
-
-  // rename - include REPL.  repl ( ) conso
 
   while( ! cbuf_is_empty(&app->console_in)) {
 
@@ -168,74 +227,7 @@ static void app_update_console_cmd(app_t *app)
       char *cmd = cstring_ptr(&app->command);
 
       cmd = trim_whitespace_inplace( cmd );
-
-      // useful for debug
-      // printf("cmd '%s'  %u\n", cmd, strlen(cmd) );
-
-
-/*
-      uint32_t u0 , u1;
-      char s0[100 + 1 ];
-*/
-      ////////////////////
-
-      if(strcmp(cmd, "help") == 0) {
-
-        printf("help <command>\n" );
-      }
-
-
-      else if(strcmp(cmd, "reset mcu") == 0) {
-
-        printf("perform mcu reset\n" );
-        // reset stm32f4
-        // scb_reset_core()
-        scb_reset_system();
-      }
-
-      /*
-          can we print the heap also?
-      */
-      else if(strcmp(cmd, "mem stack?") == 0) {
-          // printf("-------\n");
-          print_stack_pointer();
-          // return 1;
-      }
-
-      else if(strcmp(cmd, "mem malloc?") == 0) {
-          printf("malloc\n");
-          malloc_stats();
-          // return 1;
-      }
-
-
-
-      else if(strcmp(cmd, "flash lzo test") == 0) {
-        flash_lzo_test();
-        // int flash_raw_test(void);
-      }
-
-      else if(strcmp(cmd, "flash raw test") == 0) {
-        flash_raw_test();
-      }
-
-
-      else if(strcmp(cmd, "flash raw test 2") == 0) {
-        flash_raw_test2();
-      }
-
-
-
-
-
-
-      else {
-
-        printf("unknown cmd, or bad argument '%s'\n", cmd );
-
-      }
-
-
+      app_repl(app, cmd);
 
       // reset buffer
       cstring_clear( &app->command);
