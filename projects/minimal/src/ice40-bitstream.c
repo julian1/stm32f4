@@ -15,6 +15,7 @@
 
 
 #include <ice40-bitstream.h>
+#include <app.h>
 
 
 
@@ -25,12 +26,20 @@
 /*
   need to pass the spi to use.
 
-
+  we need to be able to msleep, and api. 
 */
 
-int ice40_bitstream_test(void)
+
+
+
+int ice40_bitstream_test(app_t *app)
 {
-  printf("flash raw test 2\n");
+ 
+
+  msleep(10, &app->system_millis);
+
+
+  printf("ice40_bitstream_test\n");
   FILE *f = flash_open_file();
   assert(f);
 

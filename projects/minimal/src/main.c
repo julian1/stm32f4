@@ -67,36 +67,13 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 
 #include <spi-ice40.h>
 #include <ice40-bitstream.h>
+#include <app.h>
 
 
 // fix me
 int flash_lzo_test(void);
 
 
-
-typedef struct app_t
-{
-
-
-  // remove. should be able to query the led state  to invert it...
-  // no. it's ok. led follows the led_state
-  bool led_state ;     // should rename, or just use the last bit of the count .
-
-  uint32_t soft_500ms;
-
-  // updated on interupt. should probably be declared volatile.
-  // but functions that use can also declare volatile
-  volatile uint32_t system_millis;
-
-  cbuf_t  console_in;
-  cbuf_t  console_out;
-
-  cstring_t     command;
-
-
-  uint32_t  spi;
-
-} app_t;
 
 
 
@@ -203,15 +180,12 @@ static void app_repl(app_t *app,  const char *cmd)
     // int flash_raw_test(void);
   }
 
+  /// 
+  else if(strcmp(cmd, "bitstream test") == 0) {
+    ice40_bitstream_test(app);
+  }
 
-/*
-  else if(strcmp(cmd, "flash raw test") == 0) {
-    flash_raw_test();
-  }
-  else if(strcmp(cmd, "flash raw test 2") == 0) {
-    flash_raw_test2();
-  }
-*/
+
 
   else {
 
