@@ -65,10 +65,7 @@ static long flush(void*p, unsigned long n)
 }
 
 
-/*
-#define MIN(i, j) (((i) < (j)) ? (i) : (j))
-#define MAX(i, j) (((i) > (j)) ? (i) : (j))
-*/
+
 
 int flash_raw_test2(void)
 {
@@ -97,10 +94,6 @@ int flash_raw_test2(void)
   }
 
 
-  // I think there may be an issue - with the flash sector????
-  // it fails and repeats at 4k to go. which is about 130k - 128k.
-
-  // like our circular bufer fails...
 
   size_t remaining = size;
   while(remaining > 0) {
@@ -118,6 +111,7 @@ int flash_raw_test2(void)
       assert(ret);
     }
 
+    ///  print deails of blob.
     printf("%u   ", ret);
 
     for(unsigned i = 0; i < 8; ++i)
