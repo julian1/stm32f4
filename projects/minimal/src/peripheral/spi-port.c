@@ -25,11 +25,7 @@
 #include <stddef.h>   // NULL
 #include <assert.h>
 
-
-
 #include <peripheral/spi-port.h>
-
-
 
 // #include <lib2/util.h>   // critical_error_blink()
 

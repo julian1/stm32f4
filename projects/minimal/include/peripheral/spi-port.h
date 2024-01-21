@@ -1,8 +1,6 @@
 
-///////////////
-// TODO maybe rename to port?  or port_spi1
 
-#include <stdint.h>  // uint32_t
+// #include <stdint.h>  // uint32_t
 
 
 // extern void spi_cs2_strobe_assert( uint32_t spi);
