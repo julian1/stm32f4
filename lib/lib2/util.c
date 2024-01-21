@@ -1,30 +1,25 @@
 /*
 
-  helper stuff that belongs in separate file, but not in separate library
-
+  helper functions
   perhaps rename to systick.c or just sleep...
-
 */
-
 
 
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/systick.h>
-
-
 #include <libopencm3/stm32/gpio.h>
 
+
+#include <stdio.h>  // printf
+
 #include "util.h"
-#include "streams.h"
-
-
 
 
 
 ////////////////////////////////////////////////////////
 
 /*
-  just use a uint64_t ?
+  just use a uint64_t for overflow wrap-around?
 */
 
 
@@ -163,9 +158,13 @@ void print_stack_pointer()
   // https://stackoverflow.com/questions/20059673/print-out-value-of-stack-pointer
   // non-portable.
   void* p = NULL;
-  usart1_printf("sp %p   %d\n", (void*)&p,  ( (unsigned)(void*)&p)  - 0x20000000   );
-  // return &p;
+  // usart1_printf("sp %p   %d\n", (void*)&p,  ( (unsigned)(void*)&p)  - 0x20000000   );
 
+
+  printf("sp %p   %d\n", (void*)&p,  ( (unsigned)(void*)&p)  - 0x20000000   );
+
+
+  // return &p;
   // uint32_t x = _stack;
 
 }
