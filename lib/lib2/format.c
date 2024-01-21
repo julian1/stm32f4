@@ -10,7 +10,37 @@
 #include "format.h"
 
 
-char * indent_left(char *s, size_t sz, int indent, const char *string)
+
+
+
+// TODO change name str_str_trim_whitespace_inplace_inipalce.
+// move to format.h.
+// or format
+
+char * str_trim_whitespace_inplace( char *cmd )
+{
+  assert(cmd);
+  // messy functions - should probably get more testing.
+  // trim leading whitespace.
+  while(*cmd && isspace( (uint8_t ) *cmd ))
+    ++cmd;
+
+  char *p = cmd;    // position at string start
+  while(*p) ++p;    // find string end
+  --p;              // is this is a bug if given - zero length empty string ??.
+                    // no because of (p>=cmd) check
+
+  // trim trailing whitespace
+  while(p >= cmd && isspace( (uint8_t) *p ))
+    *p-- = 0;
+
+  return cmd;
+}
+
+
+
+
+char * str_indent_left(char *s, size_t sz, int indent, const char *string)
 {
   // TODO use pointer loop and remove dependency on snprintf()
   // left indent, is pad to right, for field name
@@ -20,7 +50,7 @@ char * indent_left(char *s, size_t sz, int indent, const char *string)
 
 
 
-char * indent_right(char *s, size_t sz, int indent, const char *string)
+char * str_indent_right(char *s, size_t sz, int indent, const char *string)
 {
   // right indent, is pad to left, for field value
   snprintf(s, sz, "%*s", indent, string);
@@ -43,7 +73,7 @@ char * snprintf2(char *s, size_t sz, const char *format, ...)
 
 
 
-char * format_float(char *s, size_t sz, int digits, double value)
+char * str_format_float(char *s, size_t sz, int digits, double value)
 {
   /*
     this will zero pad to the right if needed.
@@ -68,7 +98,7 @@ char * format_float(char *s, size_t sz, int digits, double value)
 
 
 
-char * format_float_with_commas(char *s, size_t sz, int digits, double value)
+char * str_format_float_with_commas(char *s, size_t sz, int digits, double value)
 { 
   // assume we have plenty of working space in buffer
   char *j = s + 50;
@@ -111,7 +141,7 @@ char * format_float_with_commas(char *s, size_t sz, int digits, double value)
 
 
 
-char * format_bits(char *buf, size_t width, uint32_t value)
+char * str_format_bits(char *buf, size_t width, uint32_t value)
 {
   // eg. size_t == width + 1 for terminal.
   // passing the buf, means can use more than once in printf expression. using separate bufs

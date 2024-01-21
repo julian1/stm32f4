@@ -56,7 +56,7 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 #include <lib2/util.h>   // msleep()
 #include <lib2/cbuffer.h>
 #include <lib2/cstring.h>
-// #include <lib2/format.h>   // format_bits()
+#include <lib2/format.h>   // trim_whitespace() 
 
 #include <malloc.h> // malloc_stats()
 
@@ -120,29 +120,6 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
-// TODO change name str_str_trim_whitespace_inplace_inipalce.
-// move to format.h.
-// or format
-
-static char * str_trim_whitespace_inplace_inplace( char *cmd )
-{
-  assert(cmd);
-  // messy functions - should probably get more testing.
-  // trim leading whitespace.
-  while(*cmd && isspace( (uint8_t ) *cmd ))
-    ++cmd;
-
-  char *p = cmd;    // position at string start
-  while(*p) ++p;    // find string end
-  --p;              // is this is a bug if given - zero length empty string ??.
-                    // no because of (p>=cmd) check
-
-  // trim trailing whitespace
-  while(p >= cmd && isspace( (uint8_t) *p ))
-    *p-- = 0;
-
-  return cmd;
-}
 
 
 
@@ -233,7 +210,7 @@ static void app_update_console_cmd(app_t *app)
 
       char *cmd = cstring_ptr(&app->command);
 
-      cmd = str_trim_whitespace_inplace_inplace( cmd );
+      cmd = str_trim_whitespace_inplace( cmd );
       app_repl(app, cmd);
 
       // reset buffer
