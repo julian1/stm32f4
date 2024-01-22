@@ -67,6 +67,8 @@ void spi_4094_setup(uint32_t spi)
     SPI_CR1_MSBFIRST
   );
 
+  // TODO.  set the SS slave manage.
+  // and can probably use spi_set_nss_low (uint32_t spi) etc. 
 }
 
 

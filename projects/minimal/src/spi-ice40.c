@@ -47,6 +47,8 @@ void spi_ice40_setup(uint32_t spi)
   // clk to 0 when idle for falling edge.
   // but phase/cpha is the leading, or secondary edge.
 
+  // hardware slave management appears to block, if ss is not active.
+
   spi_disable_software_slave_management( spi);
   spi_enable_ss_output(spi);
 }
