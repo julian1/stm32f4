@@ -86,16 +86,67 @@ static void app_update_soft_500ms(app_t *app)
     function should reconstruct to localize scope of app. and then dispatch to other functions.
   */
 
-  /*
-    blink led
-  */
 
+  /*
+    blink mcu led
+  */
   app->led_state = ! app->led_state;
 
   if(app->led_state)
     led_on();
   else
     led_off();
+
+  /*
+      - if fpga cdone() is lo, then try to configure fpga.
+  */
+  if(! ice40_port_extra_cdone_get()) {
+
+    ice40_bitstream_test(app);
+  } 
+
+#define REG_LED 7
+
+
+  if(ice40_port_extra_cdone_get()) {
+
+    // EXTR - we don'really want the electrical/comms activity of a heart-beat/led blink, during sample acquisition.
+    // but it is a useful test.
+
+    // mux_ice40()
+    spi1_port_cs1_setup();
+    spi_ice40_setup(app->spi);
+
+
+    uint32_t magic = app->led_state ? 0b010101 : 0b101010 ;
+
+    // note - led will only, actually light if fpga in mode. 1.
+     spi_ice40_reg_write32( app->spi, REG_LED, magic);
+  }
+
+
+#if 0
+  if( ice40_port_extra_cdone_get() && app->heartbeat ) { 
+      // hearbeat and led flash
+      mux_ice40(app->spi);
+
+      // use a magic number to blink the led. and test comms
+      uint32_t magic = app->led_state ? 0b010101 : 0b101010 ;
+
+      // note - led will only, actually light if fpga in mode. 1.
+      spi_ice40_reg_write32( app->spi, REG_LED, magic);
+
+      // check the magic numger
+      uint32_t ret = spi_ice40_reg_read32( app->spi, REG_LED);
+      if(ret != magic ) {
+        // comms no good
+        char buf[ 100] ;
+        printf("comms failed, returned reg value %s\n",  format_bits(buf, 32, ret ));
+        // app->comms_ok = false;
+      }
+  }
+#endif
+
 
   //////////
 
