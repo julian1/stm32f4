@@ -8,5 +8,5 @@
 
 typedef struct app_t app_t;
 
-int ice40_bitstream_test(app_t *app);
+int spi_ice40_bitstream_test(app_t *app);
 

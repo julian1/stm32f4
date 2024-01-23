@@ -66,8 +66,10 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 
 
 #include <spi-ice40.h>
-#include <ice40-bitstream.h>
+#include <spi-4094.h>
+#include <spi-ice40-bitstream.h>
 #include <app.h>
+#include <reg.h>
 
 
 // fix me
@@ -102,50 +104,56 @@ static void app_update_soft_500ms(app_t *app)
   */
   if(! ice40_port_extra_cdone_get()) {
 
-    ice40_bitstream_test(app);
-  } 
-
-#define REG_LED 7
+    spi_ice40_bitstream_test(app);
+  }
 
 
-  if(ice40_port_extra_cdone_get()) {
+
+
+
+  if(ice40_port_extra_cdone_get() /* && app->led_blink */ ) {
 
     // EXTR - we don'really want the electrical/comms activity of a heart-beat/led blink, during sample acquisition.
     // but it is a useful test.
 
-    // mux_ice40()
-    spi1_port_cs1_setup();
-    spi_ice40_setup(app->spi);
+    mux_spi_ice40( app->spi );
+
+    uint32_t magic = app->led_state ? 0b01010101 : 0b10101010 ;
+
+    // note - led will only, actually light if fpga in default mode. 1.
+    spi_ice40_reg_write32( app->spi, REG_LED, magic);
+
+    // check the magic numger
+    uint32_t ret = spi_ice40_reg_read32( app->spi, REG_LED);
+    if(ret != magic ) {
+      // comms no good
+      char buf[ 100] ;
+      printf("comms failed, returned reg value %s\n",  str_format_bits(buf, 32, ret ));
+    } else {
+      // printf("comms ok\n");
+    }
 
 
-    uint32_t magic = app->led_state ? 0b010101 : 0b101010 ;
+    // make sure assert 4094 OE is asserted.
+    spi_ice40_reg_write32( app->spi, REG_4094, 1 );
 
-    // note - led will only, actually light if fpga in mode. 1.
-     spi_ice40_reg_write32( app->spi, REG_LED, magic);
+    // write single magic byte to flip relays.
+    mux_spi_4094( app->spi );
+
+    // can probe 4094 signals - by connecting scope to 4094 extension header pins.
+    // write single byte - should be enough to flip a relay.
+    spi_4094_reg_write_n(app->spi, (uint8_t *)& magic , 1 );
+
+    // sleep 10ms.
+    msleep(10, &app->system_millis);
+
+    // now clear relay
+    uint8_t zero = 0;
+    spi_4094_reg_write_n(app->spi, & zero, 1 );
+
+    // EXTR. IMPORTANT. must call mux_spi_ice40 again - to stop signal emission on 4094 spi clk,data lines.
+    mux_spi_ice40(app->spi);
   }
-
-
-#if 0
-  if( ice40_port_extra_cdone_get() && app->heartbeat ) { 
-      // hearbeat and led flash
-      mux_ice40(app->spi);
-
-      // use a magic number to blink the led. and test comms
-      uint32_t magic = app->led_state ? 0b010101 : 0b101010 ;
-
-      // note - led will only, actually light if fpga in mode. 1.
-      spi_ice40_reg_write32( app->spi, REG_LED, magic);
-
-      // check the magic numger
-      uint32_t ret = spi_ice40_reg_read32( app->spi, REG_LED);
-      if(ret != magic ) {
-        // comms no good
-        char buf[ 100] ;
-        printf("comms failed, returned reg value %s\n",  format_bits(buf, 32, ret ));
-        // app->comms_ok = false;
-      }
-  }
-#endif
 
 
   //////////
@@ -232,9 +240,9 @@ static void app_repl(app_t *app,  const char *cmd)
     // int flash_raw_test(void);
   }
 
-  /// 
+  ///
   else if(strcmp(cmd, "bitstream test") == 0) {
-    ice40_bitstream_test(app);
+    spi_ice40_bitstream_test(app);
   }
 
 

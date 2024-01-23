@@ -15,10 +15,46 @@
 
 
 
+#include <reg.h> // REG_SPI_MUX
 
 #include <peripheral/spi-port.h>
 #include <spi-ice40.h>
 
+
+
+/*
+  move the muxing functions - where the spi setup also is.
+
+  we could consolidate the muxing function
+
+
+*/
+
+
+
+// static void spi_ice40_setup(uint32_t spi);
+
+
+void mux_spi_ice40(uint32_t spi)
+{
+  // spi on mcu side, must be correctly configured
+  // in addition, relies on the special flag to mux
+
+  spi1_port_cs1_setup();
+  spi_ice40_setup(spi);
+
+  /* IMPORTANT
+  // make sure to disable propagation of any clk,data,strobe lines
+  // from a prior active spi peripheral (eg. 4094).
+  // otherwise reading/writing adc. will transmit signals on 4094 lines.
+  -------
+  //  extr.  actually this will still emit signals - during the write to reg_spi_mux.
+  // so we need to write the register
+  // IMMEDIATELY  after finishing 4094.
+  */
+  spi_ice40_reg_write32(spi, REG_SPI_MUX,  0 );
+
+}
 
 
 

@@ -18,7 +18,7 @@
 
 
 
-#include <ice40-bitstream.h>
+#include <spi-ice40-bitstream.h>
 #include <app.h>
 
 
@@ -28,8 +28,7 @@
 
 
 
-
-static void spi_ice40_setup_manual(uint32_t spi)
+static void spi_ice40_bitstream_setup(uint32_t spi)
 {
 
   /*
@@ -66,14 +65,14 @@ static void spi_ice40_setup_manual(uint32_t spi)
 
 
 
-int ice40_bitstream_test(app_t *app)
+int spi_ice40_bitstream_test(app_t *app)
 {
 
   // remove
   msleep(10, &app->system_millis);
 
 
-  printf("ice40_bitstream_test\n");
+  printf("spi_ice40_bitstream_test\n");
   FILE *f = flash_open_file();
   assert(f);
 
@@ -105,7 +104,7 @@ int ice40_bitstream_test(app_t *app)
   spi1_port_cs1_gpio_setup();
 
   // configure with soft/manual control over ss.
-  spi_ice40_setup_manual(app->spi);
+  spi_ice40_bitstream_setup(app->spi);
 
 
   // spi must be enabled in order to output clk cycles, regardless of state of SS.
@@ -179,7 +178,7 @@ int ice40_bitstream_test(app_t *app)
     }
 
     //////////////////////
-    //  print blob details - leading, trailing bytes
+    // print some blob details - leading, trailing bytes
     printf("%u   ", ret);
 
     for(unsigned i = 0; i < 8; ++i)

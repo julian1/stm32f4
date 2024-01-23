@@ -78,31 +78,8 @@
   change name to set/clear.
 */
 
-void spi1_port_cs1_clear(void)
-{
-  // active lo
-  gpio_clear(SPI_PORT, SPI_CS1);
-}
-
-
-void spi1_port_cs1_set(void)
-{
-  gpio_set(SPI_PORT, SPI_CS1);
-}
-
 
 /*
-void spi1_port_cs2_clear(void)
-{
-  // active lo
-  gpio_clear(SPI_PORT, SPI_CS2);
-}
-
-
-void spi1_port_cs2_set(void)
-{
-  gpio_set(SPI_PORT, SPI_CS2);
-}
 */
 
 
@@ -150,6 +127,7 @@ void spi1_port_cs2_setup(void)
 
 
 
+/////////////////////
 
 
 void spi1_port_cs1_gpio_setup(void)
@@ -172,6 +150,65 @@ void spi1_port_cs1_gpio_setup(void)
   gpio_mode_setup(SPI_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_CS1);
   gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_CS1);
 }
+
+void spi1_port_cs1_clear(void)  // enable
+{
+  // active lo
+  gpio_clear(SPI_PORT, SPI_CS1);
+}
+
+
+void spi1_port_cs1_set(void)  // disable
+{
+  gpio_set(SPI_PORT, SPI_CS1);
+}
+
+
+
+
+
+/////////////////////
+
+
+
+
+
+void spi1_port_cs2_gpio_setup(void)
+{
+  // for writing 4094.
+  // rcc_periph_clock_enable(RCC_SPI1);
+
+  // setup spi with cs ...
+  uint16_t out = SPI_CLK |  SPI_MOSI ; // not MISO
+  uint16_t all = out | SPI_MISO;
+
+  gpio_mode_setup(SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
+  gpio_set_af(SPI_PORT, GPIO_AF5, all); // af 5
+  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out); // probably need to reset each time.
+
+  // set cs1 hi-z/hi - with external pullup.
+  gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_CS1);
+
+  // set CS2 to manual external gpio output
+  gpio_mode_setup(SPI_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_CS2);
+  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_CS2);
+}
+
+
+void spi1_port_cs2_clear(void)  // enable
+{
+  // active lo
+  gpio_clear(SPI_PORT, SPI_CS2);
+}
+
+
+void spi1_port_cs2_set(void) // disable
+{
+  gpio_set(SPI_PORT, SPI_CS2);
+}
+
+
+
 
 
 
@@ -239,29 +276,6 @@ void spi1_port_interupt_setup(void (*pfunc)(void *),  void *ctx)
 
 
 #if 0
-void spi1_port_cs2_gpio_setup(void)
-{
-  // rcc_periph_clock_enable(RCC_SPI1);
-
-  // setup spi with cs ...
-  // uint16_t out = SPI1_CLK /* | SPI1_CS2 */  | SPI1_MOSI ; // not MISO
-  // uint16_t all = out | SPI1_MISO ;
-  uint16_t out = SPI_CLK |  SPI_MOSI ; // not MISO
-  uint16_t all = out | SPI_MISO;
-
-
-  gpio_mode_setup(SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, all);
-  gpio_set_af(SPI_PORT, GPIO_AF5, all); // af 5
-  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, out); // probably need to reset each time.
-
-  // set cs1 hi-z/hi - with external pullup.
-  gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_CS1);
-
-  // set CS2 to manual external gpio output
-  gpio_mode_setup(SPI_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_CS2);
-  gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_CS2);
-}
-
 
 void spi1_port_cs1_cs2_gpio_setup(void)
 {
@@ -279,7 +293,7 @@ void spi1_port_cs1_cs2_gpio_setup(void)
 
 void spi1_port_cs1_cs2_manual_setup(void)
 {
-  // configure 
+  // configure
   // rcc_periph_clock_enable(RCC_SPI1);
 
   uint16_t out = SPI_CLK |  SPI_MOSI ; // not MISO

@@ -1,13 +1,18 @@
 
 
+
+
+#include <assert.h>
+
 #include <libopencm3/stm32/spi.h>
 
-#include "spi-port.h"   // spi_port_cs2_enable()
-#include "4094.h"
+#include <peripheral/spi-port.h>   // spi_port_cs2_enable()
 
-// #include "util.h"  // msleep()
-#include "assert.h"
-// #include "streams.h"    // usart1_printf
+
+#include <spi-4094.h>
+#include <spi-ice40.h>
+#include <reg.h>
+
 
 
 #define UNUSED(x) (void)(x)
@@ -51,9 +56,47 @@
 */
 
 
+static void spi_4094_setup(uint32_t spi);
 
-void spi_4094_setup(uint32_t spi)
+void mux_spi_4094(uint32_t spi )
 {
+  /*
+      1. write the fpga mux register
+      2. setup the mcu port
+      3. setup the spi parameters
+  */
+
+  // EXTR. setup on the ice40 side.
+  // printf("mux 4094\n");
+
+  assert( SPI_MUX_4094 == 1); // june 2023. for dmm03.
+
+  // dont call mux_spi_ice40() - because it also has overhead of clearing the reg_spi_mux
+  // mux_spi_ice40(spi);
+
+  // set up individually to talk to ice40
+  spi1_port_cs1_setup();
+  spi_ice40_setup(spi);
+  spi_ice40_reg_write32(spi, REG_SPI_MUX,  SPI_MUX_4094 );
+
+
+  // ensure gpio cs2 is disabled before switching from mcu AF to gpio control.
+  // may not be needed, if gpio cs2 is not used in any other context
+  spi1_port_cs2_set();  // disable == set == hi.
+
+  spi1_port_cs2_gpio_setup();
+  spi_4094_setup(spi);
+
+}
+
+
+
+
+
+static void spi_4094_setup(uint32_t spi)
+{
+  // not clear this needs to be exposed.
+  // EXTR. setup on the mcu side.
 
   spi_reset( spi );
 
@@ -74,12 +117,36 @@ void spi_4094_setup(uint32_t spi)
 
 
 
+static void assert_strobe(void)
+{
 
+  /*
+    4094 output is transparent on strobe-hi,  and latched on strobe negative edge..  normally park lo.
+    OK. there is issue that the clock parks high. before strobe goes lo. creating an extra positive clk edge.
+    which shifts the data.
+    --
+    note, this happens even if configure mcu clock to park lo. because afterwards it will still shift clkk to hi.
+  */
+
+
+  // assert 4094 strobe.
+  // fpga will invert active lo.
+
+  spi1_port_cs2_clear(); // enable == clear
+
+  for(uint32_t i = 0; i < 10; ++i)   // 100count == 5us.
+     __asm__("nop");
+
+  // normal state is lo
+  spi1_port_cs2_set();    // disable == set
+
+}
 
 
 
 uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
 {
+  assert( 0);
   // expect port is already configured with gpio for cs etc.
 
 
@@ -94,15 +161,9 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
   uint8_t ret = spi_xfer(spi, v);
   spi_disable( spi );
 
-  // TODO with invert behavior - we could change from set()/clear() to enable() disable() again.
-  // assert strobe.   fpga will invert active lo.
-  spi1_port_cs2_enable();
+  // should assert strobe before spi_disable?
 
-  for(uint32_t i = 0; i < 10; ++i)   // 100count == 5us.
-     __asm__("nop");
-
-  // normal state is lo
-  spi1_port_cs2_disable();
+  assert_strobe();
 
   return ret;
 }
@@ -135,24 +196,7 @@ uint32_t spi_4094_reg_write_n(uint32_t spi, const unsigned char *s, size_t n)
     ret <<= 8;  // check
   }
 
-
-  // flash the strobe.
-  spi1_port_cs2_enable();
-
-  /*
-    4094 output is transparent on strobe-hi,  and latched on strobe negative edge..  normally park lo.
-    OK. there is issue that the clock parks high. before strobe goes lo. creating an extra positive clk edge.
-    which shifts the data.
-    --
-    note, this happens even if configure mcu clock to park lo. because afterwards it will still shift clkk to hi.
-  */
-  for(uint32_t i = 0; i < 10; ++i) // reduce time
-     __asm__("nop");
-
-  spi1_port_cs2_disable();
-
-
-
+  assert_strobe();
 
   /* EXTR.   sep 18, 2023.
       finish 4094 strobe - before we let the stm32 know we have finished with spi.
