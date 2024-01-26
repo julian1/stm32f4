@@ -10,14 +10,14 @@ TOP=../../
 
 
 
-lib2.a: cbuffer.o  cdcacm.o  cstring.o  fbuffer.o  flash.o  format.o    stats.o  streams.o  usart.o    util.o  stream-flash.o assert.o
+lib2.a: cbuffer.o  cdcacm.o  cstring.o  fbuffer.o  flash.o  format.o    stats.o  streams.o  usart.o    util.o  stream-flash.o assert.o crc32.o
 	${AR} rcs lib2.a ${OBJS}
 
 
-SRCFILES	=   cbuffer.c  cdcacm.c  cstring.c  fbuffer.c  flash.c  format.c    stats.c  streams.c  usart.c    util.c  stream-flash.c  assert.c
+SRCFILES	=   cbuffer.c  cdcacm.c  cstring.c  fbuffer.c  flash.c  format.c    stats.c  streams.c  usart.c    util.c  stream-flash.c  assert.c  crc32.c
 
 
-OBJS = cbuffer.o  cdcacm.o  cstring.o  fbuffer.o  flash.o  format.o    stats.o  streams.o  usart.o    util.o  stream-flash.o  assert.o
+OBJS = cbuffer.o  cdcacm.o  cstring.o  fbuffer.o  flash.o  format.o    stats.o  streams.o  usart.o    util.o  stream-flash.o  assert.o  crc32.o
 
 
 # items not included
