@@ -1,0 +1,16 @@
+
+example from, 
+
+  /mongoose/examples/stm32/nucleo-f429zi-make-baremetal-builtin
+
+  $ g remote -v
+  origin  git@github.com:cesanta/mongoose (fetch)
+
+  $ git head
+  commit 8dc62c25eda47a6504dfe1e22acc68c98d5eec40 (HEAD -> master, origin/master, origin/HEAD)
+  Merge: 922d148a d8fec13d
+  Author: Sergio R. Caprile <scaprile@users.noreply.github.com>
+  Date:   Tue Jan 23 14:03:33 2024 -0300
+
+
+
