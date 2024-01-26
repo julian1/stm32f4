@@ -1,8 +1,10 @@
 
+remember nucleao board uses PG pins, rather than PB pins.
+
 see,
   https://mongoose.ws/documentation/tutorials/stm32/all-make-baremetal-builtin/
 
-example taken from, 
+example taken from,
 
 
   /mongoose/examples/stm32/nucleo-f429zi-make-baremetal-builtin
