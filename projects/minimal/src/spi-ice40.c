@@ -5,6 +5,17 @@
   ------
 
   should be able to be shared for 24 bit register system. and 8 bit register system. just suffix.
+  ---
+
+
+  see,
+
+     #include <byteswap.h>
+
+     uint16_t bswap_16(uint16_t x);
+     uint32_t bswap_32(uint32_t x);
+     uint64_t bswap_64(uint64_t x);
+
 
 */
 
