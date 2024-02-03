@@ -1,7 +1,7 @@
 
 /*
 
-  see how mongoose does it,
+  cleaner than putting them in main.c. eg. just place in syscalls.c same way mongoose does it,
 
   probably from printf
   _close_r  _fstat_r _getpid_r _kill_r _isatty_r
