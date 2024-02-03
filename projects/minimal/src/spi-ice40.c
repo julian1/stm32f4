@@ -43,6 +43,127 @@
 
 
 
+
+
+void mux_spi_ice40(uint32_t spi)
+{
+  // spi on mcu side, must be correctly configured
+  // in addition, relies on the special flag to mux
+
+
+  spi_reset( spi );
+
+  spi_port_cs1_disable(spi);  // active lo == hi.
+  spi_port_cs2_disable(spi);  //
+
+
+  spi_init_master(
+    spi,
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_2,  // div2 seems to work with iso, but not adum. actually misses a few bits with iso.
+    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_16,
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_32,
+    SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,  // park to 0/lo == positive clok edge. park to 1 == negative clk edge.
+    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == leading edge,  2 == falling edge
+    SPI_CR1_DFF_8BIT,
+    SPI_CR1_MSBFIRST
+  );
+
+  spi_enable( spi );
+
+
+  /* IMPORTANT
+  // make sure to disable propagation of any clk,data,strobe lines
+  // from a prior active spi peripheral (eg. 4094).
+  // otherwise reading/writing adc. will transmit signals on 4094 lines.
+  -------
+  //  extr.  actually this will still emit signals - during the write to reg_spi_mux.
+  // so we need to write the register
+  // IMMEDIATELY  after finishing 4094.
+  */
+  spi_ice40_reg_write32(spi, REG_SPI_MUX,  0 );
+
+}
+
+
+// catch errors
+#define spi_enable(x) WHOOT(x)
+#define spi_disable(x) WHOOT(x)
+
+
+
+static uint32_t spi_xfer_32(uint32_t spi, uint32_t val)
+{
+  uint8_t a = spi_xfer( spi, (val >> 24) & 0xff );  // correct reg should be the first bit that is sent.
+  uint8_t b = spi_xfer( spi, (val >> 16) & 0xff );
+  uint8_t c = spi_xfer( spi, (val >> 8)  & 0xff  );
+  uint8_t d = spi_xfer( spi,  val        & 0xff  );
+
+  // fixed this.
+  // + or |
+  return (a << 24) + (b << 16) + (c << 8) + d;        // this is better. needs no on reading value .
+}
+
+
+/*
+static uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
+{
+  // for write, or transfer
+  return spi_xfer_32(spi, reg << 24 | val);
+}
+*/
+
+
+
+
+uint32_t spi_ice40_reg_write32(uint32_t spi, uint8_t reg, uint32_t val)
+{
+  // spi_reg_xfer_24(SPI1, 7, 0x7f00ff );
+  // return spi_reg_xfer_24(spi, reg , val );
+
+  spi_port_cs1_enable(spi);   // enable
+
+  // write the reg we are interested in, with read bit cleared.
+  spi_xfer( spi, reg );
+  // return the data
+  uint32_t ret = spi_xfer_32(spi, val );
+
+
+  // spi_disable(spi);
+  spi_port_cs1_disable(spi);     // disiable
+
+  return ret;
+}
+
+
+
+
+uint32_t spi_ice40_reg_read32(uint32_t spi, uint8_t reg)
+{
+  // call write with, with read bit set, and passing dummy value.
+  return spi_ice40_reg_write32( spi, reg | (1 << 7), 0);
+}
+
+
+uint32_t spi_ice40_reg_write_n(uint32_t spi, uint8_t reg, const void *s, size_t n )
+{
+  // helper function for passing structs.
+  // for cast.
+  assert(n == 4); // only 32bit supported.
+
+
+  return spi_ice40_reg_write32(spi, reg, *(uint32_t *)s );
+
+
+}
+
+
+
+
+
+
+
+#if 0
 // static void spi_ice40_setup(uint32_t spi);
 
 
@@ -51,7 +172,7 @@ void mux_spi_ice40(uint32_t spi)
   // spi on mcu side, must be correctly configured
   // in addition, relies on the special flag to mux
 
-  spi1_port_cs1_setup();
+  spi_port_cs1_setup();
   spi_ice40_setup(spi);
 
   /* IMPORTANT
@@ -99,77 +220,7 @@ void spi_ice40_setup(uint32_t spi)
   spi_disable_software_slave_management( spi);
   spi_enable_ss_output(spi);
 }
-
-
-
-
-static uint32_t spi_xfer_32(uint32_t spi, uint32_t val)
-{
-  // spi_enable(spi);
-  uint8_t a = spi_xfer( spi, (val >> 24) & 0xff );  // correct reg should be the first bit that is sent.
-  uint8_t b = spi_xfer( spi, (val >> 16) & 0xff );
-  uint8_t c = spi_xfer( spi, (val >> 8)  & 0xff  );
-  uint8_t d = spi_xfer( spi,  val        & 0xff  );
-  // spi_disable(spi);
-
-  // fixed this.
-  // + or |
-  return (a << 24) + (b << 16) + (c << 8) + d;        // this is better. needs no on reading value .
-}
-
-
-/*
-static uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
-{
-  // for write, or transfer
-  return spi_xfer_32(spi, reg << 24 | val);
-}
-*/
-
-
-
-
-uint32_t spi_ice40_reg_write32(uint32_t spi, uint8_t reg, uint32_t val)
-{
-  // spi_reg_xfer_24(SPI1, 7, 0x7f00ff );
-  // return spi_reg_xfer_24(spi, reg , val );
-
-  spi_enable(spi);
-  // write the reg we are interested in, with read bit cleared.
-  spi_xfer( spi, reg );
-  // return the data
-  uint32_t ret = spi_xfer_32(spi, val );
-  spi_disable(spi);
-
-  return ret;
-}
-
-
-
-
-uint32_t spi_ice40_reg_read32(uint32_t spi, uint8_t reg)
-{
-  // call write with, with read bit set, and passing dummy value.
-  return spi_ice40_reg_write32( spi, reg | (1 << 7), 0);
-}
-
-
-uint32_t spi_ice40_reg_write_n(uint32_t spi, uint8_t reg, const void *s, size_t n )
-{
-  // helper function for passing structs.
-  // for cast.
-  assert(n == 4); // only 32bit supported.
-
-
-  return spi_ice40_reg_write32(spi, reg, *(uint32_t *)s );
-
-
-}
-
-
-
-
-
+#endif
 
 
 

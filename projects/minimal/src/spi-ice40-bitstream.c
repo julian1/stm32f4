@@ -41,7 +41,6 @@ static void spi_ice40_bitstream_setup(uint32_t spi)
   */
 
 
-
   spi_reset( spi );
 
   spi_init_master(
@@ -57,8 +56,14 @@ static void spi_ice40_bitstream_setup(uint32_t spi)
     SPI_CR1_MSBFIRST
   );
 
+  spi_enable( spi );
+
 }
 
+
+// catch errors
+#define spi_enable(x) WHOOT(x)
+#define spi_disable(x) WHOOT(x)
 
 
 
@@ -101,20 +106,23 @@ int spi_ice40_bitstream_test(app_t *app)
   // see Fig. 13.2
 
   // use spi port with soft/manual control over cs1
-  spi1_port_cs1_gpio_setup();
+
+  uint32_t spi = app->spi;
 
   // configure with soft/manual control over ss.
-  spi_ice40_bitstream_setup(app->spi);
+  spi_ice40_bitstream_setup(spi);
 
 
   // spi must be enabled in order to output clk cycles, regardless of state of SS.
   // note - because we use gpio, SS is not coupled, and doesn't wiggle when calling spi_enable/spi_disable funcs
   // possible that could use the spi_set_nss_low/high functions.
-  spi_enable( app->spi );
 
   // start with creset enabled as well as cs hi. to make it easy to LA trigger on down transition
   ice40_port_extra_creset_enable();
-  spi1_port_cs1_set();
+
+
+  spi_port_cs1_disable( spi);
+
 
   // wait
   msleep(1, &app->system_millis);
@@ -128,7 +136,7 @@ int spi_ice40_bitstream_test(app_t *app)
   ice40_port_extra_creset_disable();
 
   // drive spi_ss = 0, spi_sck = 1
-  spi1_port_cs1_clear();
+  spi_port_cs1_enable(spi);
 
   // wait minimum of 200ns
   msleep(1, &app->system_millis);
@@ -144,13 +152,13 @@ int spi_ice40_bitstream_test(app_t *app)
   msleep(2, &app->system_millis);
 
   // set spi_ss = 1.
-  spi1_port_cs1_set();
+  spi_port_cs1_disable(spi);
 
   // send 8 dummy clks
   spi_xfer( app->spi, 0x00 );
 
   // assert ss lo
-  spi1_port_cs1_clear();
+  spi_port_cs1_enable(spi);
 
 
   /* send image.
@@ -204,7 +212,7 @@ int spi_ice40_bitstream_test(app_t *app)
 
 
   // spi-ss = high
-  spi1_port_cs1_set();
+  spi_port_cs1_disable(spi);
 
 
   // wait - send up to 100 dummy clk cycles.
@@ -219,7 +227,6 @@ int spi_ice40_bitstream_test(app_t *app)
   if(! ice40_port_extra_cdone_get() ) {
     printf("failed\n");
 
-    spi_disable( app->spi );
     fclose(f);
     return -1;
   } else {
@@ -234,7 +241,6 @@ int spi_ice40_bitstream_test(app_t *app)
 
 
 
-  spi_disable( app->spi );
   fclose(f);
   return 0;
 }

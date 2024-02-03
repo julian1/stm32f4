@@ -71,27 +71,140 @@ void mux_spi_4094(uint32_t spi )
 
   assert( SPI_MUX_4094 == 1); // june 2023. for dmm03.
 
-  // dont call mux_spi_ice40() - because it also has overhead of clearing the reg_spi_mux
-  // mux_spi_ice40(spi);
 
-  // set up individually to talk to ice40
-  spi1_port_cs1_setup();
-  spi_ice40_setup(spi);
+  mux_spi_ice40( spi);
   spi_ice40_reg_write32(spi, REG_SPI_MUX,  SPI_MUX_4094 );
 
 
   // ensure gpio cs2 is disabled before switching from mcu AF to gpio control.
   // may not be needed, if gpio cs2 is not used in any other context
-  spi1_port_cs2_set();  // disable == set == hi.
 
-  spi1_port_cs2_gpio_setup();
-  spi_4094_setup(spi);
 
+  spi_port_cs1_disable( spi );  // disable == set == hi.
+  spi_port_cs2_disable( spi);  // disable == set == hi.
+
+
+   spi_init_master(
+    spi,
+    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_16,
+    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,      // park to 0/lo == positive clok edge. park to 1 == negative clk edge.
+    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == leading edge,  2 == falling edge
+    SPI_CR1_DFF_8BIT,
+    SPI_CR1_MSBFIRST
+  );
+
+  spi_enable( spi );
 }
 
 
 
 
+// catch errors
+#define spi_enable(x) WHOOT(x)
+#define spi_disable(x) WHOOT(x)
+
+
+
+
+static void assert_strobe(uint32_t spi)
+{
+
+  /*
+    4094 output is transparent on strobe-hi,  and latched on strobe negative edge..  normally park lo.
+    OK. there is issue that the clock parks high. before strobe goes lo. creating an extra positive clk edge.
+    which shifts the data.
+    --
+    note, this happens even if configure mcu clock to park lo. because afterwards it will still shift clkk to hi.
+  */
+
+
+  // assert 4094 strobe.
+  // fpga will invert active lo.
+
+  spi_port_cs2_enable(spi); // enable == clear
+
+  for(uint32_t i = 0; i < 10; ++i)   // 100count == 5us.
+     __asm__("nop");
+
+  // normal state is lo
+  spi_port_cs2_disable(spi);    // disable == set
+
+}
+
+
+
+uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
+{
+  assert( 0);
+  // expect port is already configured with gpio for cs etc.
+
+
+  // TODO maybe remove the enable.  not required by 4094. maybe required by stm32 spi hardware.
+  /*
+    EXTR
+      - without the spi_enable()/ spi_disable() the spi_xfer() will hang, because waiting for spi peripheral status registers.
+      - But if configure the peripheral without hardware toggling of cs, perhaps it is ok.
+
+  */
+  uint8_t ret = spi_xfer(spi, v);
+
+  assert_strobe( spi);
+
+  return ret;
+}
+
+
+
+// think passing a unsigned char *s. is better.
+// can then call with &value.
+
+uint32_t spi_4094_reg_write_n(uint32_t spi, const unsigned char *s, size_t n)
+{
+  uint32_t ret = 0;
+
+
+/*
+  for(unsigned i = 0; i < n; ++i) {
+    ret = spi_xfer(spi, v);
+    v >>= 8;
+    ret <<= 8;  // check
+  }
+*/
+
+  // we want to push the last byte first. but avoid addressing.
+
+
+  for(signed i = n - 1; i >= 0; --i) {
+    ret = spi_xfer(spi, s[i] );
+
+    ret <<= 8;  // check
+  }
+
+  assert_strobe(spi);
+
+
+
+  return ret;
+}
+
+
+
+#if 0
+
+  /* EXTR.   sep 18, 2023.
+      finish 4094 strobe - before we let the stm32 know we have finished with spi.
+      otherwise mcu/fpga may generate spurious extra clk or data  parking pulses.
+      that get read by 4094 while strobe is active, and 4094 is transparent.
+
+  */
+  // spi_disable( spi );
+
+
+/*
+  spi_port_cs2_gpio_setup();
+  spi_4094_setup(spi);
+*/
 
 static void spi_4094_setup(uint32_t spi)
 {
@@ -114,103 +227,5 @@ static void spi_4094_setup(uint32_t spi)
   // and can probably use spi_set_nss_low (uint32_t spi)
 }
 
-
-
-
-static void assert_strobe(void)
-{
-
-  /*
-    4094 output is transparent on strobe-hi,  and latched on strobe negative edge..  normally park lo.
-    OK. there is issue that the clock parks high. before strobe goes lo. creating an extra positive clk edge.
-    which shifts the data.
-    --
-    note, this happens even if configure mcu clock to park lo. because afterwards it will still shift clkk to hi.
-  */
-
-
-  // assert 4094 strobe.
-  // fpga will invert active lo.
-
-  spi1_port_cs2_clear(); // enable == clear
-
-  for(uint32_t i = 0; i < 10; ++i)   // 100count == 5us.
-     __asm__("nop");
-
-  // normal state is lo
-  spi1_port_cs2_set();    // disable == set
-
-}
-
-
-
-uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
-{
-  assert( 0);
-  // expect port is already configured with gpio for cs etc.
-
-
-  // TODO maybe remove the enable.  not required by 4094. maybe required by stm32 spi hardware.
-  /*
-    EXTR
-      - without the spi_enable()/ spi_disable() the spi_xfer() will hang, because waiting for spi peripheral status registers.
-      - But if configure the peripheral without hardware toggling of cs, perhaps it is ok.
-
-  */
-  spi_enable( spi );
-  uint8_t ret = spi_xfer(spi, v);
-  spi_disable( spi );
-
-  // should assert strobe before spi_disable?
-
-  assert_strobe();
-
-  return ret;
-}
-
-
-
-// think passing a unsigned char *s. is better.
-// can then call with &value.
-
-uint32_t spi_4094_reg_write_n(uint32_t spi, const unsigned char *s, size_t n)
-{
-  uint32_t ret = 0;
-
-  spi_enable( spi );
-
-/*
-  for(unsigned i = 0; i < n; ++i) {
-    ret = spi_xfer(spi, v);
-    v >>= 8;
-    ret <<= 8;  // check
-  }
-*/
-
-  // we want to push the last byte first. but avoid addressing.
-
-
-  for(signed i = n - 1; i >= 0; --i) {
-    ret = spi_xfer(spi, s[i] );
-
-    ret <<= 8;  // check
-  }
-
-  assert_strobe();
-
-  /* EXTR.   sep 18, 2023.
-      finish 4094 strobe - before we let the stm32 know we have finished with spi.
-      otherwise mcu/fpga may generate spurious extra clk or data  parking pulses.
-      that get read by 4094 while strobe is active, and 4094 is transparent.
-
-  */
-  spi_disable( spi );
-
-
-
-  return ret;
-}
-
-
-
+#endif
 

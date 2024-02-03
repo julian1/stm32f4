@@ -166,7 +166,7 @@ static void app_update_soft_500ms(app_t *app)
     // printf("spi enable\n");
     assert(app->spi == SPI1);
     // spi_enable(app->spi);
-    // spi1_port_cs1_enable();
+    // spi_port_cs1_enable();
   }
   else {
     ice40_port_extra_creset_disable(); // hold fpga in reset.
@@ -177,7 +177,7 @@ static void app_update_soft_500ms(app_t *app)
     // spi_disable(app->spi);
 
     // spi_disable(app->spi);
-    // spi1_port_cs1_disable();
+    // spi_port_cs1_disable();
   }
 #endif
 
@@ -379,7 +379,6 @@ static app_t app;
 
 
 
-#if 1
 
 
 // static Mode mode_current;
@@ -476,7 +475,7 @@ int main(void)
   ////////////////
   // spi1, for adum/ice40
 
-  spi1_port_cs1_setup();
+  spi1_port_cs1_cs2_setup();
 
   spi1_port_interupt_setup( (void (*) (void *))spi1_interupt, &app);
 
@@ -499,9 +498,6 @@ int main(void)
 
 }
 
-
-
-#endif
 
 
 
