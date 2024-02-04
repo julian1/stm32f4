@@ -104,7 +104,7 @@ static void app_update_soft_500ms(app_t *app)
   */
   if(! ice40_port_extra_cdone_get()) {
 
-    spi_ice40_bitstream_test(app);
+    spi_ice40_bitstream_send(app);
   }
 
 
@@ -242,7 +242,7 @@ static void app_repl(app_t *app,  const char *cmd)
 
   ///
   else if(strcmp(cmd, "bitstream test") == 0) {
-    spi_ice40_bitstream_test(app);
+    spi_ice40_bitstream_send(app);
   }
 
 

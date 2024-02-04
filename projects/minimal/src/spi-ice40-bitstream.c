@@ -70,14 +70,14 @@ static void spi_ice40_bitstream_setup(uint32_t spi)
 
 
 
-int spi_ice40_bitstream_test(app_t *app)
+int spi_ice40_bitstream_send(app_t *app)
 {
 
   // remove
   msleep(10, &app->system_millis);
 
 
-  printf("spi_ice40_bitstream_test\n");
+  printf("spi_ice40_bitstream_send\n");
   FILE *f = flash_open_file();
   assert(f);
 
@@ -94,7 +94,6 @@ int spi_ice40_bitstream_test(app_t *app)
   printf("magic %lx\n", magic );
   printf("size %lu\n", size );        // need to swap the byte order perhaps.
 
-  // if(magic != 0xfe00fe00) {
   if(magic != 0xfe00fe00) {
     printf("bad magic!\n");
     fclose(f);
