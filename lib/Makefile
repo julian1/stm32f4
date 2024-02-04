@@ -3,7 +3,7 @@
 ######################################################################
 
 # PROJS = blinky2  smu07 ads131a04-sl
-PROJS = minimal
+PROJS = crc32  lib2  lzo  mesch12b  mongoose
 
 all:	
 	for proj in $(PROJS) ; do \
