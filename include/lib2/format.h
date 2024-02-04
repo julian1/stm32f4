@@ -3,6 +3,8 @@
   rename to str_format.h.
 */
 
+#pragma once
+
 
 #ifdef __cplusplus
 extern "C" {

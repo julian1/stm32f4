@@ -68,6 +68,8 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 #include <spi-ice40.h>
 #include <spi-4094.h>
 #include <spi-ice40-bitstream.h>
+
+#include <lib2/format.h>   // format_bits()
 #include <app.h>
 #include <reg.h>
 
@@ -118,44 +120,52 @@ static void app_update_soft_500ms(app_t *app)
 
     mux_spi_ice40( app->spi );
 
-    // uint32_t magic = app->led_state ? 0b01010101 : 0b10101010 ;
-    static uint32_t magic = 0; 
-    ++magic;
+
+    if(app->led_blink) {
+      // we need to not blink the led, if we want to use repl to write directly.
+
+      // uint32_t magic = app->led_state ? 0b01010101 : 0b10101010 ;
+      static uint32_t magic = 0;
+      ++magic;
+
+      // blink led... want option. so can write reg_direct
+      // note - led will only, actually light if fpga in default mode. 0.
+      spi_ice40_reg_write32( app->spi, REG_DIRECT, magic);
+
+      // check the magic numger
+      uint32_t ret = spi_ice40_reg_read32( app->spi, REG_DIRECT);
+      if(ret != magic ) {
+        // comms no good
+        char buf[ 100] ;
+        printf("comms failed, returned reg value %s\n",  str_format_bits(buf, 32, ret ));
+      } else {
+        // printf("comms ok\n");
+      }
 
 
-    // note - led will only, actually light if fpga in default mode. 1.
-    spi_ice40_reg_write32( app->spi, REG_DIRECT, magic);
+      // click the relays
 
-    // check the magic numger
-    uint32_t ret = spi_ice40_reg_read32( app->spi, REG_DIRECT);
-    if(ret != magic ) {
-      // comms no good
-      char buf[ 100] ;
-      printf("comms failed, returned reg value %s\n",  str_format_bits(buf, 32, ret ));
-    } else {
-      // printf("comms ok\n");
+      // make sure assert 4094 OE is asserted.
+      spi_ice40_reg_write32( app->spi, REG_4094, 1 );
+
+      // write single magic byte to flip relays.
+      mux_spi_4094( app->spi );
+
+      // can probe 4094 signals - by connecting scope to 4094 extension header pins.
+      // write single byte - should be enough to flip a relay.
+      spi_4094_reg_write_n(app->spi, (uint8_t *)& magic , 1 );
+
+      // sleep 10ms.
+      msleep(10, &app->system_millis);
+
+      // now clear relay
+      uint8_t zero = 0;
+      spi_4094_reg_write_n(app->spi, & zero, 1 );
+
+      // EXTR. IMPORTANT. must call mux_spi_ice40 again - to stop signal emission on 4094 spi clk,data lines.
+      mux_spi_ice40(app->spi);
+
     }
-
-
-    // make sure assert 4094 OE is asserted.
-    spi_ice40_reg_write32( app->spi, REG_4094, 1 );
-
-    // write single magic byte to flip relays.
-    mux_spi_4094( app->spi );
-
-    // can probe 4094 signals - by connecting scope to 4094 extension header pins.
-    // write single byte - should be enough to flip a relay.
-    spi_4094_reg_write_n(app->spi, (uint8_t *)& magic , 1 );
-
-    // sleep 10ms.
-    msleep(10, &app->system_millis);
-
-    // now clear relay
-    uint8_t zero = 0;
-    spi_4094_reg_write_n(app->spi, & zero, 1 );
-
-    // EXTR. IMPORTANT. must call mux_spi_ice40 again - to stop signal emission on 4094 spi clk,data lines.
-    mux_spi_ice40(app->spi);
   }
 
 
@@ -205,11 +215,10 @@ static void app_repl(app_t *app,  const char *cmd)
 
 
 /*
-  uint32_t u0 , u1;
   char s0[100 + 1 ];
 */
 
-  uint32_t u0;
+  uint32_t u0 , u1;
 
 
   ////////////////////
@@ -230,6 +239,10 @@ static void app_repl(app_t *app,  const char *cmd)
     // scb_reset_core()
     scb_reset_system();
   }
+
+  // need to add reset fpga.  using external creset pin.
+
+
   else if(strcmp(cmd, "assert 0") == 0) {
     // test assert(0);
     assert(0);
@@ -244,6 +257,100 @@ static void app_repl(app_t *app,  const char *cmd)
   }
 
 
+
+
+  else if(strcmp(cmd, "flash lzo test") == 0) {
+    flash_lzo_test();
+    // int flash_raw_test(void);
+  }
+
+
+  else if( sscanf(cmd, "blink %lu", &u0 ) == 1) {
+
+    app->led_blink = u0;
+  }
+
+
+
+
+
+  ///
+  else if(strcmp(cmd, "bitstream test") == 0) {
+
+    spi_ice40_bitstream_send(app->spi, & app->system_millis );
+  }
+
+  // don't we have some code - to handle sscan as binary/octal/hex ?
+
+  else if( sscanf(cmd, "direct %lu", &u0 ) == 1) {
+
+    // set the direct register.
+    printf("set direct value to, %lu\n", u0 );
+
+    mux_spi_ice40(app->spi);
+    spi_ice40_reg_write32(app->spi, REG_DIRECT, u0 );
+    // confirm.
+    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
+    char buf[ 100 ] ;
+    printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  str_format_bits(buf, 32, ret ));
+  }
+
+  else if( sscanf(cmd, "direct bit %lu %lu", &u0, &u1 ) == 2) {
+
+    // modify direct_reg and bit by bitnum and val
+    /* eg.
+
+        mode direct
+        direct 0         - clear all bits.
+        direct bit 13 1  - led on
+        direct bit 13 0  - led off.
+        direct bit 14 1  - mon0 on
+        direct bit 22 1  - +ref current source on. pushes integrator output lo.  comparator pos-out (pin 7) hi.
+        direct bit 23 1  - -ref current source on. pushes integrator output hi.  comparator pos-out lo
+        --
+        for slow run-down current. turn on bit 23 1. to push integrator hi.
+        then add bit 22 1.  for slow run-down. works, can trigger on scope..about 2ms. can toggle bit 22 off against to go hi again.
+
+        direct bit 25   - reset. via 20k.
+        direct bit 26   - latch.  will freeze/latch in the current comparator value.
+
+      - note. run-down current creates integrator oscillation when out-of-range.
+    */
+
+    mux_spi_ice40(app->spi);
+    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
+    if(u1)
+      ret |= 1 << u0 ;
+    else
+      ret &= ~( 1 << u0 );
+
+    char buf[ 100 ] ;
+    printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  str_format_bits(buf, 32, ret ));
+    spi_ice40_reg_write32(app->spi, REG_DIRECT, ret );
+  }
+
+
+  else if( strcmp( cmd, "direct?") == 0) {
+
+    mux_spi_ice40(app->spi);
+    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
+    char buf[ 100];
+    printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  str_format_bits(buf, 32, ret ));
+  }
+  else if( strcmp( cmd, "status?") == 0) {
+
+    mux_spi_ice40(app->spi);
+    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_STATUS);
+    char buf[ 100];
+    printf("r %u  v %lu  %s\n",  REG_STATUS, ret,  str_format_bits(buf, 32, ret ));
+  }
+
+
+  ////////////////////
+
+  // could probably
+
+
   else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
 
     // set the fpga mode.
@@ -254,19 +361,33 @@ static void app_repl(app_t *app,  const char *cmd)
     printf("reg_mode return value %lu\n", ret);
   }
 
+  else if( strcmp(cmd, "mode?") == 0) {
 
+    // TODO add some decoding here.
+    mux_spi_ice40(app->spi);
+    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
+    printf("reg_mode return value %lu\n", ret);
 
-  else if(strcmp(cmd, "flash lzo test") == 0) {
-    flash_lzo_test();
-    // int flash_raw_test(void);
+    // Mode *mode = app->mode_current;
+    // printf("app      return value %lu\n", mode->reg_mode );
+
+  }
+
+/*
+  -- don't really need, just query direct reg for monitor and right shift.
+*/
+  else if( strcmp( cmd, "monitor?") == 0) {
+
+    // this is no longer corrent. should query the REG_STATUS. which includes the monitor
+    // regardless of the mode.
+    mux_spi_ice40(app->spi);
+    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT);
+    ret >>= 14;
+    char buf[ 100];
+    printf("r %u  v %lu  %s\n",  REG_DIRECT, ret, str_format_bits(buf, 8, ret ));
   }
 
 
-  ///
-  else if(strcmp(cmd, "bitstream test") == 0) {
-
-    spi_ice40_bitstream_send(app->spi, & app->system_millis );
-  }
 
 
 
@@ -458,6 +579,7 @@ int main(void)
 
 
   app.spi = SPI1 ;
+  app.led_blink = true;
 
 
   // uart/console

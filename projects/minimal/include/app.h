@@ -17,7 +17,7 @@ typedef struct app_t
 
   // remove. should be able to query the led state  to invert it...
   // no. it's ok. led follows the led_state
-  bool led_state ;     // should rename, or just use the last bit of the count .
+  bool led_state ;     // for mcu. maybe change name to distinguish
 
   uint32_t soft_500ms;
 
@@ -32,6 +32,8 @@ typedef struct app_t
 
 
   uint32_t  spi;
+
+  bool led_blink;
 
 } app_t;
 
