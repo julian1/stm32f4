@@ -124,10 +124,10 @@ static void app_update_soft_500ms(app_t *app)
 
 
     // note - led will only, actually light if fpga in default mode. 1.
-    spi_ice40_reg_write32( app->spi, REG_LED, magic);
+    spi_ice40_reg_write32( app->spi, REG_DIRECT, magic);
 
     // check the magic numger
-    uint32_t ret = spi_ice40_reg_read32( app->spi, REG_LED);
+    uint32_t ret = spi_ice40_reg_read32( app->spi, REG_DIRECT);
     if(ret != magic ) {
       // comms no good
       char buf[ 100] ;
