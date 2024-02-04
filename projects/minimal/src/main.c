@@ -118,7 +118,10 @@ static void app_update_soft_500ms(app_t *app)
 
     mux_spi_ice40( app->spi );
 
-    uint32_t magic = app->led_state ? 0b01010101 : 0b10101010 ;
+    // uint32_t magic = app->led_state ? 0b01010101 : 0b10101010 ;
+    static uint32_t magic = 0; 
+    ++magic;
+
 
     // note - led will only, actually light if fpga in default mode. 1.
     spi_ice40_reg_write32( app->spi, REG_LED, magic);
