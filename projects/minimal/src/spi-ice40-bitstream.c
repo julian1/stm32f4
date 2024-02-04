@@ -70,11 +70,12 @@ static void spi_ice40_bitstream_setup(uint32_t spi)
 
 
 
-int spi_ice40_bitstream_send(app_t *app)
+int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
+// int spi_ice40_bitstream_send(app_t *app)
 {
 
   // remove
-  msleep(10, &app->system_millis);
+  // msleep(10, system_millis);
 
 
   printf("spi_ice40_bitstream_send\n");
@@ -106,7 +107,6 @@ int spi_ice40_bitstream_send(app_t *app)
 
   // use spi port with soft/manual control over cs1
 
-  uint32_t spi = app->spi;
 
   // configure with soft/manual control over ss.
   spi_ice40_bitstream_setup(spi);
@@ -124,7 +124,7 @@ int spi_ice40_bitstream_send(app_t *app)
 
 
   // wait
-  msleep(1, &app->system_millis);
+  msleep(1, system_millis);
 
 
 
@@ -138,7 +138,7 @@ int spi_ice40_bitstream_send(app_t *app)
   spi_port_cs1_enable(spi);
 
   // wait minimum of 200ns
-  msleep(1, &app->system_millis);
+  msleep(1, system_millis);
 
   // check cdone is lo
   assert(! ice40_port_extra_cdone_get() );
@@ -148,13 +148,13 @@ int spi_ice40_bitstream_send(app_t *app)
   ice40_port_extra_creset_enable();
 
   // wait a minimum of of 1200u to clear internal config memory
-  msleep(2, &app->system_millis);
+  msleep(2, system_millis);
 
   // set spi_ss = 1.
   spi_port_cs1_disable(spi);
 
   // send 8 dummy clks
-  spi_xfer( app->spi, 0x00 );
+  spi_xfer( spi, 0x00 );
 
   // assert ss lo
   spi_port_cs1_enable(spi);
@@ -200,7 +200,7 @@ int spi_ice40_bitstream_send(app_t *app)
 
     // send data
     for(unsigned i = 0; i < ret; ++i)
-       spi_xfer( app->spi, buf[ i ] );
+       spi_xfer( spi, buf[ i ] );
 
 
     remaining -= ret;
@@ -217,7 +217,7 @@ int spi_ice40_bitstream_send(app_t *app)
   // wait - send up to 100 dummy clk cycles.
   unsigned i = 0;
   for(i = 0; i < 13  && !ice40_port_extra_cdone_get(); ++i)
-     spi_xfer( app->spi, 0x00);
+     spi_xfer( spi, 0x00);
 
   printf("need %u dymmy bytes before cdone went hi\n", i );
 
@@ -236,7 +236,7 @@ int spi_ice40_bitstream_send(app_t *app)
 
   // send another 49 clk cycles, for gpio to become active
   for(i = 0; i < 7 ; ++i)
-     spi_xfer( app->spi, 0x00);
+     spi_xfer( spi, 0x00);
 
 
 
