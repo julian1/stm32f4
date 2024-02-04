@@ -240,6 +240,17 @@ static void app_repl(app_t *app,  const char *cmd)
     scb_reset_system();
   }
 
+
+  else if(strcmp(cmd, "reset fpga") == 0) {
+
+    ice40_port_extra_creset_enable();
+    // wait
+    msleep(1, &app->system_millis);
+    ice40_port_extra_creset_disable();
+  }
+
+
+
   // need to add reset fpga.  using external creset pin.
 
 

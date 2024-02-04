@@ -111,6 +111,7 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
 
 
   spi_port_cs1_disable( spi);
+  spi_port_cs2_disable( spi);
 
 
   // wait
