@@ -205,6 +205,10 @@ static void app_repl(app_t *app,  const char *cmd)
   uint32_t u0 , u1;
   char s0[100 + 1 ];
 */
+
+  uint32_t u0;
+
+
   ////////////////////
 
   if(strcmp(cmd, "help") == 0) {
@@ -235,10 +239,25 @@ static void app_repl(app_t *app,  const char *cmd)
     print_stack_pointer();
     // return 1;
   }
+
+
+  else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
+
+    // set the fpga mode.
+    mux_spi_ice40(app->spi);
+    spi_ice40_reg_write32(app->spi, REG_MODE, u0 );
+
+    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
+    printf("reg_mode return value %lu\n", ret);
+  }
+
+
+
   else if(strcmp(cmd, "flash lzo test") == 0) {
     flash_lzo_test();
     // int flash_raw_test(void);
   }
+
 
   ///
   else if(strcmp(cmd, "bitstream test") == 0) {

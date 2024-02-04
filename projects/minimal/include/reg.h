@@ -6,9 +6,11 @@
 // CR_DIRECT ? etc.
 // SR_STATUS
 
+#define REG_MODE          12
 #define REG_LED           7
 #define REG_SPI_MUX       8
 #define REG_4094          9
+
 
 // reg spi mux
 // note active bits.
