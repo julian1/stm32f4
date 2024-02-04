@@ -122,19 +122,14 @@ static uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
 
 uint32_t spi_ice40_reg_write32(uint32_t spi, uint8_t reg, uint32_t val)
 {
-  // spi_reg_xfer_24(SPI1, 7, 0x7f00ff );
-  // return spi_reg_xfer_24(spi, reg , val );
-
-  spi_port_cs1_enable(spi);   // enable
+  spi_port_cs1_enable(spi);
 
   // write the reg we are interested in, with read bit cleared.
   spi_xfer( spi, reg );
   // return the data
   uint32_t ret = spi_xfer_32(spi, val );
 
-
-  // spi_disable(spi);
-  spi_port_cs1_disable(spi);     // disiable
+  spi_port_cs1_disable(spi);
 
   return ret;
 }
@@ -153,12 +148,10 @@ uint32_t spi_ice40_reg_write_n(uint32_t spi, uint8_t reg, const void *s, size_t 
 {
   // helper function for passing structs.
   // for cast.
-  assert(n == 4); // only 32bit supported.
+  assert(n == 4); // only 32bit supported atm.
 
 
   return spi_ice40_reg_write32(spi, reg, *(uint32_t *)s );
-
-
 }
 
 
