@@ -266,11 +266,9 @@ static void app_repl(app_t *app,  const char *cmd)
 
 
   else if( sscanf(cmd, "blink %lu", &u0 ) == 1) {
-
+    // turn off fpga blink in mode 0, allowing direct control of led.
     app->led_blink = u0;
   }
-
-
 
 
 
@@ -299,6 +297,7 @@ static void app_repl(app_t *app,  const char *cmd)
 
     // modify direct_reg and bit by bitnum and val
     /* eg.
+          OLD.
 
         mode direct
         direct 0         - clear all bits.
