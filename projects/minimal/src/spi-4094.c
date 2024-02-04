@@ -61,9 +61,9 @@ static void spi_4094_setup(uint32_t spi);
 void mux_spi_4094(uint32_t spi )
 {
   /*
-      1. write the fpga mux register
-      2. setup the mcu port
-      3. setup the spi parameters
+      0. mux the fpga.
+      1. write the fpga mux register, for the spi device which is 4094 system
+      2. then setup the port on mcu side to write 4094.
   */
 
   // EXTR. setup on the ice40 side.
@@ -80,8 +80,8 @@ void mux_spi_4094(uint32_t spi )
   // may not be needed, if gpio cs2 is not used in any other context
 
 
-  spi_port_cs1_disable( spi );  // disable == set == hi.
-  spi_port_cs2_disable( spi);  // disable == set == hi.
+  spi_port_cs1_disable( spi );  // disable, actually hi, but fpga will invert for 4094 active hi strobe.
+  spi_port_cs2_disable( spi);
 
 
    spi_init_master(

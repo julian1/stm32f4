@@ -80,6 +80,10 @@ void mux_spi_ice40(uint32_t spi)
   //  extr.  actually this will still emit signals - during the write to reg_spi_mux.
   // so we need to write the register
   // IMMEDIATELY  after finishing 4094.
+    -------
+
+    TODO - perhap better to have a mux_4094_finish()  function to do this.
+
   */
   spi_ice40_reg_write32(spi, REG_SPI_MUX,  0 );
 
