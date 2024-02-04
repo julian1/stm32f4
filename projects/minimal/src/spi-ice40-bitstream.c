@@ -19,7 +19,6 @@
 
 
 #include <spi-ice40-bitstream.h>
-#include <app.h>
 
 
 
@@ -71,26 +70,19 @@ static void spi_ice40_bitstream_setup(uint32_t spi)
 
 
 int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
-// int spi_ice40_bitstream_send(app_t *app)
 {
-
-  // remove
-  // msleep(10, system_millis);
-
-
   printf("spi_ice40_bitstream_send\n");
+
   FILE *f = flash_open_file();
   assert(f);
 
 
   // read magic and length.
-
   uint32_t magic  = 0 ;
   uint32_t size = 0;
 
   fread(&magic, 1, 4, f);
   fread(&size, 1, 4, f);
-
 
   printf("magic %lx\n", magic );
   printf("size %lu\n", size );        // need to swap the byte order perhaps.
@@ -108,13 +100,11 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   // use spi port with soft/manual control over cs1
 
 
-  // configure with soft/manual control over ss.
+  // configure with soft/manual control over cs.
   spi_ice40_bitstream_setup(spi);
 
 
-  // spi must be enabled in order to output clk cycles, regardless of state of SS.
-  // note - because we use gpio, SS is not coupled, and doesn't wiggle when calling spi_enable/spi_disable funcs
-  // possible that could use the spi_set_nss_low/high functions.
+  // must have spi enabled to output clk cycles, regardless of state of SS.
 
   // start with creset enabled as well as cs hi. to make it easy to LA trigger on down transition
   ice40_port_extra_creset_enable();
@@ -219,7 +209,7 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   for(i = 0; i < 13  && !ice40_port_extra_cdone_get(); ++i)
      spi_xfer( spi, 0x00);
 
-  printf("need %u dymmy bytes before cdone went hi\n", i );
+  printf("needed %u dummy bytes before cdone went hi\n", i );
 
 
   // check cdone really hi
