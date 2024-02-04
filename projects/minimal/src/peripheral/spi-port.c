@@ -54,7 +54,7 @@
 */
 
 
-#define SPI_SPI   SPI1
+#define SPI_PERIPH   SPI1        // better name?
 
 #define SPI1_PORT  GPIOA
 #define SPI_CLK   GPIO5     // PA5
@@ -146,51 +146,51 @@ static inline void spi_wait_ready(uint32_t spi )
 
 // we can factor this common stuff, later
 
-void spi_port_cs1_enable(uint32_t spi)  // enable
+void spi_port_cs1_enable(uint32_t spi)
 {
   spi_wait_ready( spi);
 
-  if(spi == SPI_SPI) 
+  if(spi == SPI_PERIPH)
     gpio_clear(SPI1_PORT, SPI_CS1);
   else
     assert(0);
 }
 
 
-void spi_port_cs1_disable(uint32_t spi)  // disable
+void spi_port_cs1_disable(uint32_t spi)
 {
   spi_wait_ready( spi);
 
-  if(spi == SPI_SPI)
+  if(spi == SPI_PERIPH)
     gpio_set(SPI1_PORT, SPI_CS1);
-  else 
+  else
     assert(0);
 }
 
 
 
 
-void spi_port_cs2_enable(uint32_t spi)  // enable
+void spi_port_cs2_enable(uint32_t spi)
 {
   spi_wait_ready( spi);
 
   // active lo
-  if(spi == SPI_SPI)
+  if(spi == SPI_PERIPH)
     gpio_clear(SPI1_PORT, SPI_CS2);
   else
     assert(0);
 }
 
 
-void spi_port_cs2_disable(uint32_t spi) // disable
+void spi_port_cs2_disable(uint32_t spi)
 {
   spi_wait_ready( spi);
 
   // We need
 
-  if(spi == SPI_SPI)
+  if(spi == SPI_PERIPH)
     gpio_set(SPI1_PORT, SPI_CS2);
-  else 
+  else
     assert(0);
 }
 
