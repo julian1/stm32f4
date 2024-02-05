@@ -268,6 +268,29 @@ static void app_repl(app_t *app,  const char *cmd)
   }
 
 
+  else if(strcmp(cmd, "flash unlock ") == 0) {
+
+  }
+  else if(strcmp(cmd, "flash write ") == 0) {
+    // wants to be good enough for mcu boot code, mcu code, and fpga code.
+    /*
+
+        if use base64 transfer - then a terminal sequence of whitespace - means we get the size of the bitstream.
+        without having to encode a header with the size.
+        and can calculate the crc.
+
+        the size could also be stored separately. or else assumed.
+    */
+
+  }
+  else if(strcmp(cmd, "flash crc ") == 0) {
+    // need size to compute.
+
+  }
+
+
+
+
 
 
   else if(strcmp(cmd, "flash lzo test") == 0) {
@@ -277,13 +300,13 @@ static void app_repl(app_t *app,  const char *cmd)
 
 
   else if( sscanf(cmd, "blink %lu", &u0 ) == 1) {
-    // turn off fpga blink in mode 0, allowing direct control of led.
+    // turn off fpga blink in mode 0, avoid spi transmission, during acquisition.
     app->led_blink = u0;
   }
 
 
 
-  ///
+  /// change name fpga bitstrea load/test
   else if(strcmp(cmd, "bitstream test") == 0) {
 
     spi_ice40_bitstream_send(app->spi, & app->system_millis );
