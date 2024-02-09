@@ -73,6 +73,8 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 #include <app.h>
 #include <reg.h>
 
+#include <mode.h>
+
 
 // fix me
 int flash_lzo_test(void);
@@ -125,8 +127,25 @@ static void app_update_soft_500ms(app_t *app)
       // we need to not blink the led, if we want to use repl to write directly.
 
       // uint32_t magic = app->led_state ? 0b01010101 : 0b10101010 ;
+
+/*
+keep 
+ 15   always@(posedge clk) begin
+ 16     counter <= counter + 1;
+ 17     outcnt <= counter >> LOG2DELAY;
+ 18   end
+ 19 
+ 20   assign { LED1, LED2} = outcnt ^ (outcnt >> 1);
+  */
+      
+      static uint32_t counter = 0;
+      ++counter;
+
+      uint32_t magic = counter  ^ (counter >> 1 ); 
+/*
       static uint32_t magic = 0;
       ++magic;
+*/
 
       // blink led... want option. so can write reg_direct
       // note - led will only, actually light if fpga in default mode. 0.
@@ -141,33 +160,48 @@ static void app_update_soft_500ms(app_t *app)
       } else {
         // printf("comms ok\n");
       }
-
-
-      // click the relays
-
-      // make sure assert 4094 OE is asserted.
-      spi_ice40_reg_write32( app->spi, REG_4094, 1 );
-
-      // write single magic byte to flip relays.
-      mux_spi_4094( app->spi );
-
-      // can probe 4094 signals - by connecting scope to 4094 extension header pins.
-      // write single byte - should be enough to flip a relay.
-      spi_4094_reg_write_n(app->spi, (uint8_t *)& magic , 1 );
-
-      // sleep 10ms.
-      msleep(10, &app->system_millis);
-
-      // now clear relay
-      uint8_t zero = 0;
-      spi_4094_reg_write_n(app->spi, & zero, 1 );
-
-      // EXTR. IMPORTANT. must call mux_spi_ice40 again - to stop signal emission on 4094 spi clk,data lines.
-      mux_spi_ice40(app->spi);
-
     }
-  }
 
+
+    if(1) {
+        // click the relays
+        _4094_state_t mode;
+        memset(&mode, 0, sizeof(mode));
+        
+        static bool flip = 0;
+        flip = ! flip;
+        mode.U705_UNUSED =  flip  ?   0b01 :  0b10; 
+
+
+        // make sure assert 4094 OE is asserted.
+        spi_ice40_reg_write32( app->spi, REG_4094, 1 );
+
+        // make sure we are muxing spi,
+        mux_spi_4094( app->spi );
+
+        // can probe 4094 signals - by connecting scope to 4094 extension header pins.
+        // write single byte - should be enough to flip a relay.
+        // JA spi_4094_reg_write_n(app->spi, (uint8_t *)& magic , 1 );
+        spi_4094_reg_write_n(app->spi, (uint8_t *)& mode, sizeof(mode) );
+
+        // sleep 10ms.
+        msleep(10, &app->system_millis);
+
+        // now clear relay
+        // uint8_t zero = 0;
+        // spi_4094_reg_write_n(app->spi, & zero, 1 );
+
+        mode.U705_UNUSED =  0b00; 
+        spi_4094_reg_write_n(app->spi, (uint8_t *)& mode, sizeof(mode) );
+
+
+
+        // EXTR. IMPORTANT. must call mux_spi_ice40 again - to stop signal emission on 4094 spi clk,data lines.
+        mux_spi_ice40(app->spi);
+
+      }
+
+  }
 
   //////////
 
@@ -201,8 +235,11 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
+/*
+  keep general repl stuff (related to flashing, reset etc) here,
+  put app specific/ tests in a separatefile.
 
-
+*/
 
 
 static void app_repl(app_t *app,  const char *cmd)
