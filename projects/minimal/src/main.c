@@ -88,6 +88,8 @@ static void app_update_soft_500ms_configured(app_t *app)
   /* we may want to devote a fpga led - to fpga comms 
     just flip the state - for any spi sequence. 
       - just to catch any spurious transfers.
+    -----
+    should see if we can catch something.... with simple fpga code - and without a timer.  eg. just an active slave select on cs1 or cs2.
   */
 
 
@@ -140,7 +142,7 @@ static void app_update_soft_500ms_configured(app_t *app)
 
 
   // if(app->test_relay_flip)
-  if(1) {
+  if(app->test_relay_flip) {
 
       // click the relays, and analog switch.
       _4094_state_t mode;
@@ -340,6 +342,12 @@ static void app_repl(app_t *app,  const char *cmd)
     // turn off fpga blink in mode 0, avoid spi transmission, during acquisition.
     app->led_blink = u0;
   }
+
+  else if( sscanf(cmd, "test relay flip %lu", &u0 ) == 1) {
+
+    app->test_relay_flip = u0;
+  }
+
 
 
 

@@ -33,8 +33,9 @@ typedef struct app_t
 
   uint32_t  spi;
 
+  ////////
   bool led_blink;
-
+  bool test_relay_flip;
 } app_t;
 
 
