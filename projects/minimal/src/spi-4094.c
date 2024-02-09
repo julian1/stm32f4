@@ -73,6 +73,12 @@ void mux_spi_4094(uint32_t spi )
 
 
   mux_spi_ice40( spi);
+
+  // default state - should always be not to propagate spi on 4094 lines.
+  // to avoid emi
+  assert( spi_ice40_reg_read32(spi, REG_SPI_MUX ) == 0);
+
+
   spi_ice40_reg_write32(spi, REG_SPI_MUX,  SPI_MUX_4094 );
 
 

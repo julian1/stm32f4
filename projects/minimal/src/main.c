@@ -96,6 +96,7 @@ static void app_update_soft_500ms_configured(app_t *app)
   /*
       consider rename test_led_blink  and disable by default to aoid
       spurioius spi transmissions during acquisition
+      potentially move into /src/test
   */
   if(app->led_blink) {
     // we need to not blink the led, if we want to use repl to write directly.
@@ -137,10 +138,6 @@ static void app_update_soft_500ms_configured(app_t *app)
 
   // if(app->relay_flip_test)
   if(1) {
-      // ensure 4094 OE asserted
-      // spi_ice40_reg_write32( app->spi, REG_4094, 1 );
-      assert( spi_ice40_reg_read32( app->spi, REG_4094 ));
-
 
       // click the relays, and analog switch.
       _4094_state_t mode;
@@ -209,16 +206,24 @@ static void app_update_soft_500ms(app_t *app)
 
     spi_ice40_bitstream_send(app->spi, & app->system_millis );
 
+    assert( ! spi_ice40_reg_read32( app->spi, REG_4094 ));
 
     // assert 4094 OE
     // want to do some additional checks.
     spi_ice40_reg_write32( app->spi, REG_4094, 1 );
+
+    // ensure 4094 OE asserted
+    assert( spi_ice40_reg_read32( app->spi, REG_4094 ));
+
+
   }
 
 
   if(ice40_port_extra_cdone_get()) {
 
     app_update_soft_500ms_configured( app);
+
+
   }
 
 
