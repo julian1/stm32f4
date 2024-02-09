@@ -85,12 +85,10 @@ int flash_lzo_test(void);
 
 static void app_update_soft_500ms_configured(app_t *app)
 {
-
-  // eg.
-  // EXTR - we don'really want the electrical/comms activity of a heart-beat/led blink, during sample acquisition.
-  // but it is a useful test.
-
-  mux_spi_ice40( app->spi );
+  /* we may want to devote a fpga led - to fpga comms 
+    just flip the state - for any spi sequence. 
+      - just to catch any spurious transfers.
+  */
 
 
   /*
@@ -98,8 +96,13 @@ static void app_update_soft_500ms_configured(app_t *app)
       spurioius spi transmissions during acquisition
       potentially move into /src/test
   */
-  if(app->led_blink) {
+  if(app->led_blink) { // rename test_led_blink()
     // we need to not blink the led, if we want to use repl to write directly.
+
+    /* EXTR - avoid electrical/comms activity of a heart-beat/led blink, during sample acquisition.  only use as test.
+    */
+    mux_spi_ice40( app->spi );
+
 
     // uint32_t magic = app->led_state ? 0b01010101 : 0b10101010 ;
     /*
@@ -136,7 +139,7 @@ static void app_update_soft_500ms_configured(app_t *app)
   }
 
 
-  // if(app->relay_flip_test)
+  // if(app->test_relay_flip)
   if(1) {
 
       // click the relays, and analog switch.

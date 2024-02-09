@@ -106,7 +106,7 @@ void mux_spi_4094(uint32_t spi )
 
 
 
-// catch errors
+// catch errors for funcs no longer used
 #define spi_enable(x) WHOOT(x)
 #define spi_disable(x) WHOOT(x)
 
