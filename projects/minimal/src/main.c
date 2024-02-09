@@ -93,21 +93,23 @@ static void app_update_soft_500ms_configured(app_t *app)
   mux_spi_ice40( app->spi );
 
 
+  /*
+      consider rename test_led_blink  and disable by default to aoid
+      spurioius spi transmissions during acquisition
+  */
   if(app->led_blink) {
     // we need to not blink the led, if we want to use repl to write directly.
 
     // uint32_t magic = app->led_state ? 0b01010101 : 0b10101010 ;
-
-/*
-keep
-15   always@(posedge clk) begin
-16     counter <= counter + 1;
-17     outcnt <= counter >> LOG2DELAY;
-18   end
-19
-20   assign { LED1, LED2} = outcnt ^ (outcnt >> 1);
-*/
-
+    /*
+    keep
+    15   always@(posedge clk) begin
+    16     counter <= counter + 1;
+    17     outcnt <= counter >> LOG2DELAY;
+    18   end
+    19
+    20   assign { LED1, LED2} = outcnt ^ (outcnt >> 1);
+    */
     static uint32_t counter = 0;
     ++counter;
     uint32_t magic = counter  ^ (counter >> 1 );
@@ -133,10 +135,11 @@ keep
   }
 
 
+  // if(app->relay_flip_test)
   if(1) {
-
       // ensure 4094 OE asserted
       // spi_ice40_reg_write32( app->spi, REG_4094, 1 );
+      assert( spi_ice40_reg_read32( app->spi, REG_4094 ));
 
 
       // click the relays, and analog switch.
@@ -145,9 +148,9 @@ keep
 
       static bool flip = 0;
       flip = ! flip;
-      mode.K701 =  flip  ?   0b01 :  0b10;
-      mode.K404 =  flip  ?   0b01 :  0b10;
-      mode.K407 =  flip  ?   0b01 :  0b10;
+      mode.K701 =  flip ? 0b01 : 0b10;
+      mode.K404 =  flip ? 0b01 : 0b10;
+      mode.K407 =  flip ? 0b01 : 0b10;
 
       mode.U1003 = flip ? 0b1111 : 0b000;
 
@@ -169,8 +172,10 @@ keep
       spi_4094_reg_write_n(app->spi, (uint8_t *)& mode, sizeof(mode) );
 
 
-
-      // EXTR. IMPORTANT. must call mux_spi_ice40 again - to stop signal emission on 4094 spi clk,data lines.
+      /* EXTR. IMPORTANT. must call mux_spi_ice40 again
+            - to prevent spi emission on 4094 spi clk,data lines.
+            - when reading the adc counts
+      */
       mux_spi_ice40(app->spi);
 
     }
