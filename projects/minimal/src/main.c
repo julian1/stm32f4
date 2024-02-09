@@ -172,6 +172,7 @@ keep
         flip = ! flip;
         mode.U705_UNUSED =  flip  ?   0b01 :  0b10; 
 
+        mode.U1003 = flip ? 0b1111 : 0b000;
 
         // make sure assert 4094 OE is asserted.
         spi_ice40_reg_write32( app->spi, REG_4094, 1 );
