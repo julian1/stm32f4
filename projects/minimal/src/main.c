@@ -83,6 +83,100 @@ int flash_lzo_test(void);
 
 
 
+static void app_update_soft_500ms_configured(app_t *app)
+{
+
+  // eg.
+  // EXTR - we don'really want the electrical/comms activity of a heart-beat/led blink, during sample acquisition.
+  // but it is a useful test.
+
+  mux_spi_ice40( app->spi );
+
+
+  if(app->led_blink) {
+    // we need to not blink the led, if we want to use repl to write directly.
+
+    // uint32_t magic = app->led_state ? 0b01010101 : 0b10101010 ;
+
+/*
+keep
+15   always@(posedge clk) begin
+16     counter <= counter + 1;
+17     outcnt <= counter >> LOG2DELAY;
+18   end
+19
+20   assign { LED1, LED2} = outcnt ^ (outcnt >> 1);
+*/
+
+    static uint32_t counter = 0;
+    ++counter;
+    uint32_t magic = counter  ^ (counter >> 1 );
+
+/*
+    static uint32_t magic = 0;
+    ++magic;
+*/
+
+    // blink led... want option. so can write reg_direct
+    // note - led will only, actually light if fpga in default mode. 0.
+    spi_ice40_reg_write32( app->spi, REG_DIRECT, magic);
+
+    // check the magic numger
+    uint32_t ret = spi_ice40_reg_read32( app->spi, REG_DIRECT);
+    if(ret != magic ) {
+      // comms no good
+      char buf[ 100] ;
+      printf("comms failed, returned reg value %s\n",  str_format_bits(buf, 32, ret ));
+    } else {
+      // printf("comms ok\n");
+    }
+  }
+
+
+  if(1) {
+
+      // ensure 4094 OE asserted
+      // spi_ice40_reg_write32( app->spi, REG_4094, 1 );
+
+
+      // click the relays, and analog switch.
+      _4094_state_t mode;
+      memset(&mode, 0, sizeof(mode));
+
+      static bool flip = 0;
+      flip = ! flip;
+      mode.K701 =  flip  ?   0b01 :  0b10;
+      mode.K404 =  flip  ?   0b01 :  0b10;
+      mode.K407 =  flip  ?   0b01 :  0b10;
+
+      mode.U1003 = flip ? 0b1111 : 0b000;
+
+      // make sure we are muxing spi,
+      mux_spi_4094( app->spi );
+
+      // can probe 4094 signals - by connecting scope to 4094 extension header pins.
+      // write single byte - should be enough to flip a relay.
+      // JA spi_4094_reg_write_n(app->spi, (uint8_t *)& magic , 1 );
+      spi_4094_reg_write_n(app->spi, (uint8_t *)& mode, sizeof(mode) );
+
+      // sleep 10ms.
+      msleep(10, &app->system_millis);
+
+      // now clear the relays
+      mode.K701 = 0b00;
+      mode.K404 = 0b00;
+      mode.K407 = 0b00;
+      spi_4094_reg_write_n(app->spi, (uint8_t *)& mode, sizeof(mode) );
+
+
+
+      // EXTR. IMPORTANT. must call mux_spi_ice40 again - to stop signal emission on 4094 spi clk,data lines.
+      mux_spi_ice40(app->spi);
+
+    }
+
+
+}
 
 static void app_update_soft_500ms(app_t *app)
 {
@@ -109,130 +203,18 @@ static void app_update_soft_500ms(app_t *app)
   if(! ice40_port_extra_cdone_get()) {
 
     spi_ice40_bitstream_send(app->spi, & app->system_millis );
+
+
+    // assert 4094 OE
+    // want to do some additional checks.
+    spi_ice40_reg_write32( app->spi, REG_4094, 1 );
   }
 
 
+  if(ice40_port_extra_cdone_get()) {
 
-
-
-  if(ice40_port_extra_cdone_get() /* && app->led_blink */ ) {
-
-    // EXTR - we don'really want the electrical/comms activity of a heart-beat/led blink, during sample acquisition.
-    // but it is a useful test.
-
-    mux_spi_ice40( app->spi );
-
-
-    if(app->led_blink) {
-      // we need to not blink the led, if we want to use repl to write directly.
-
-      // uint32_t magic = app->led_state ? 0b01010101 : 0b10101010 ;
-
-/*
-keep 
- 15   always@(posedge clk) begin
- 16     counter <= counter + 1;
- 17     outcnt <= counter >> LOG2DELAY;
- 18   end
- 19 
- 20   assign { LED1, LED2} = outcnt ^ (outcnt >> 1);
-  */
-      
-      static uint32_t counter = 0;
-      ++counter;
-
-      uint32_t magic = counter  ^ (counter >> 1 ); 
-/*
-      static uint32_t magic = 0;
-      ++magic;
-*/
-
-      // blink led... want option. so can write reg_direct
-      // note - led will only, actually light if fpga in default mode. 0.
-      spi_ice40_reg_write32( app->spi, REG_DIRECT, magic);
-
-      // check the magic numger
-      uint32_t ret = spi_ice40_reg_read32( app->spi, REG_DIRECT);
-      if(ret != magic ) {
-        // comms no good
-        char buf[ 100] ;
-        printf("comms failed, returned reg value %s\n",  str_format_bits(buf, 32, ret ));
-      } else {
-        // printf("comms ok\n");
-      }
-    }
-
-
-    if(1) {
-        // click the relays, and analog switch.
-        _4094_state_t mode;
-        memset(&mode, 0, sizeof(mode));
-        
-        static bool flip = 0;
-        flip = ! flip;
-        mode.K701 =  flip  ?   0b01 :  0b10; 
-        mode.K404 =  flip  ?   0b01 :  0b10; 
-        mode.K407 =  flip  ?   0b01 :  0b10; 
-
-        mode.U1003 = flip ? 0b1111 : 0b000;
-
-        // make sure assert 4094 OE is asserted.
-        spi_ice40_reg_write32( app->spi, REG_4094, 1 );
-
-        // make sure we are muxing spi,
-        mux_spi_4094( app->spi );
-
-        // can probe 4094 signals - by connecting scope to 4094 extension header pins.
-        // write single byte - should be enough to flip a relay.
-        // JA spi_4094_reg_write_n(app->spi, (uint8_t *)& magic , 1 );
-        spi_4094_reg_write_n(app->spi, (uint8_t *)& mode, sizeof(mode) );
-
-        // sleep 10ms.
-        msleep(10, &app->system_millis);
-
-        // now clear relay
-        // uint8_t zero = 0;
-        // spi_4094_reg_write_n(app->spi, & zero, 1 );
-
-        mode.K701 = 0b00; 
-        mode.K404 = 0b00;
-        mode.K407 = 0b00;
-        spi_4094_reg_write_n(app->spi, (uint8_t *)& mode, sizeof(mode) );
-
-
-
-        // EXTR. IMPORTANT. must call mux_spi_ice40 again - to stop signal emission on 4094 spi clk,data lines.
-        mux_spi_ice40(app->spi);
-
-      }
-
+    app_update_soft_500ms_configured( app);
   }
-
-  //////////
-
-#if 0
-  if(app->led_state) {
-
-    ice40_port_extra_creset_enable();  // enable
-
-    // printf("spi enable\n");
-    assert(app->spi == SPI1);
-    // spi_enable(app->spi);
-    // spi_port_cs1_enable();
-  }
-  else {
-    ice40_port_extra_creset_disable(); // hold fpga in reset.
-
-    // Hmmmm.. not being respected????
-
-    // printf("spi disable\n");
-    // spi_disable(app->spi);
-
-    // spi_disable(app->spi);
-    // spi_port_cs1_disable();
-  }
-#endif
-
 
 
 }
