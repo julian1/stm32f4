@@ -164,13 +164,15 @@ keep
 
 
     if(1) {
-        // click the relays
+        // click the relays, and analog switch.
         _4094_state_t mode;
         memset(&mode, 0, sizeof(mode));
         
         static bool flip = 0;
         flip = ! flip;
-        mode.U705_UNUSED =  flip  ?   0b01 :  0b10; 
+        mode.K701 =  flip  ?   0b01 :  0b10; 
+        mode.K404 =  flip  ?   0b01 :  0b10; 
+        mode.K407 =  flip  ?   0b01 :  0b10; 
 
         mode.U1003 = flip ? 0b1111 : 0b000;
 
@@ -192,7 +194,9 @@ keep
         // uint8_t zero = 0;
         // spi_4094_reg_write_n(app->spi, & zero, 1 );
 
-        mode.U705_UNUSED =  0b00; 
+        mode.K701 = 0b00; 
+        mode.K404 = 0b00;
+        mode.K407 = 0b00;
         spi_4094_reg_write_n(app->spi, (uint8_t *)& mode, sizeof(mode) );
 
 
