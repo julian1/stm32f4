@@ -28,14 +28,14 @@ OBJS = cbuffer.o  cdcacm.o  cstring.o  fbuffer.o  flash.o  format.o    stats.o  
 
 
 
+
 TGT_CFLAGS  += -Wno-unused-function   \
               -Werror-implicit-function-declaration \
-              -Wno-packed-bitfield-compat
+              -Wno-packed-bitfield-compat \
+              -Werror
 
 
-#              -Werror \
-
-
+TGT_CFLAGS	+= -I${TOP_DIR}/lib/libopencm3/include
 
 # needed for <assert.h> in priority to pickup the function prototype
 TGT_CFLAGS	+= -I${TOP}/include

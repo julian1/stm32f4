@@ -13,6 +13,7 @@
 #include <libopencm3/stm32/gpio.h>
 
 
+#include <assert.h>
 #include <stdio.h>  // printf
 
 #include "util.h"
@@ -79,6 +80,8 @@ void sys_tick_handler(void)
 // void msleep(uint32_t delay)
 void msleep(uint32_t delay, volatile uint32_t *system_millis )
 {
+  assert(system_millis);
+
   // works for system_millis integer wrap around
   // could be a do/while block.
   uint32_t start = *system_millis ;
