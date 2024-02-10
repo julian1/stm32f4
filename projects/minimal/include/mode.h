@@ -2,21 +2,6 @@
 #pragma once
 
 
-
-
-/*
-
-// modes of operation.
-
-
-  - I think we just about deserve a separate header.
-  - this could have references to the vectors to
-
-*/
-
-
-
-
 /*
   EXTR.
     don't care about defining inidividual registers for muxes etc.
@@ -36,12 +21,6 @@
 */
 
 // is wrong. we have to switch all the relays to a defined state
-
-
-
-
-
-
 
 
 
@@ -65,18 +44,10 @@
 
 */
 
-// #define MODE_ARR_N    3   // mode array in bytes.
 
 
-// REMEMBER this is 4094.   not fpga state.
-
-/*
-  use lower-case identifiers. why are we using capitalization / macros??
-
-  change name _4094_state. _4094_state_t   or similar.
 
 
-*/
 
 typedef struct _4094_state_t
 {
@@ -114,68 +85,6 @@ typedef struct _4094_state_t
 
   uint8_t U1008_UNUSED : 8;
 
-#if 0
-  // U406 4094.
-  uint8_t U408_SW_CTL : 1;      // perhaps change to lower case....   eg. u408_sw
-  uint8_t U406_UNUSED : 1;
-  uint8_t K406_CTL    : 2;        // Be better to encode as 2 bits.   can then assign 0b01 or 0b10 etc.
-  uint8_t U406_UNUSED_2 : 4;
-
-  // U401 4094
-  uint8_t U401_UNUSED : 8;    // controls U404. boot. mux
-                              //
-
-  // input muxing
-  // U403
-  uint8_t K403_CTL    : 2;
-  uint8_t K401_CTL    : 2;
-  uint8_t K402_CTL    : 2;
-  uint8_t K405_CTL    : 2;
-
-
-  // U506
-  uint8_t U506        : 3;        // adg1209.  gain mux. (MUST BE BROUGHT UP with enable-pin enabled otherwise power supplies current limit, risk of part damage).
-  uint8_t U500_UNUSED : 5;        // change name _500_unused --- or similar.  think we should prefix U505_MUX. or
-
-
-  // ohms current current
-  // U606
-  uint8_t U605        : 4;    // adg1208.
-  uint8_t U606_UNUSED : 3;        // change name _500_unused --- or similar.  think we should prefix U505_MUX. or
-  uint8_t LINE_SENSE_OE : 1;
-
-  // U607
-  uint8_t K603_CTL    : 2;
-  uint8_t K601_CTL    : 2;
-  uint8_t K602_CTL    : 2;
-  uint8_t U607_UNUSED : 2;
-
-
-  // current.
-  // U704
-  uint8_t U704_UNUSED : 2;
-  uint8_t K702_CTL    : 2;
-  uint8_t K703_CTL    : 2;
-  uint8_t K709_CTL    : 2;
-
-  // U705
-  uint8_t K707_CTL    : 2;
-  uint8_t K706_CTL    : 2;
-  uint8_t K704_CTL    : 2;
-  uint8_t K705_CTL    : 2;
-
-  // U706
-  uint8_t U703        : 4;    // adg1208.
-  uint8_t U702        : 3;    // adg1209.
-  uint8_t U706_UNUSED : 1;
-
-
-  // dcv source
-  // U1004  - 5th bit.
-  uint8_t U1003   : 4;    // adg1208  4 bits.  EN last. is inconsistent.  with chip pin-order. and 500, 600, 700.  good keep.....
-  uint8_t U1006   : 4;    // adg1208  4 bits.
-
-#endif
 
 } _4094_state_t;
 
@@ -245,9 +154,8 @@ F
 */
 
 
+// mode_t  conflicts with sys/types.
 
-
-// mode_t
 typedef struct Mode
 {
   // all state needed to achive a dmm function.
@@ -291,6 +199,74 @@ typedef struct Mode
   */
 
 
-} Mode;
+} Mode ;
 
+
+void mode_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *system_millis);
+
+
+
+
+#if 0
+  // U406 4094.
+  uint8_t U408_SW_CTL : 1;      // perhaps change to lower case....   eg. u408_sw
+  uint8_t U406_UNUSED : 1;
+  uint8_t K406_CTL    : 2;        // Be better to encode as 2 bits.   can then assign 0b01 or 0b10 etc.
+  uint8_t U406_UNUSED_2 : 4;
+
+  // U401 4094
+  uint8_t U401_UNUSED : 8;    // controls U404. boot. mux
+                              //
+
+  // input muxing
+  // U403
+  uint8_t K403_CTL    : 2;
+  uint8_t K401_CTL    : 2;
+  uint8_t K402_CTL    : 2;
+  uint8_t K405_CTL    : 2;
+
+
+  // U506
+  uint8_t U506        : 3;        // adg1209.  gain mux. (MUST BE BROUGHT UP with enable-pin enabled otherwise power supplies current limit, risk of part damage).
+  uint8_t U500_UNUSED : 5;        // change name _500_unused --- or similar.  think we should prefix U505_MUX. or
+
+
+  // ohms current current
+  // U606
+  uint8_t U605        : 4;    // adg1208.
+  uint8_t U606_UNUSED : 3;        // change name _500_unused --- or similar.  think we should prefix U505_MUX. or
+  uint8_t LINE_SENSE_OE : 1;
+
+  // U607
+  uint8_t K603_CTL    : 2;
+  uint8_t K601_CTL    : 2;
+  uint8_t K602_CTL    : 2;
+  uint8_t U607_UNUSED : 2;
+
+
+  // current.
+  // U704
+  uint8_t U704_UNUSED : 2;
+  uint8_t K702_CTL    : 2;
+  uint8_t K703_CTL    : 2;
+  uint8_t K709_CTL    : 2;
+
+  // U705
+  uint8_t K707_CTL    : 2;
+  uint8_t K706_CTL    : 2;
+  uint8_t K704_CTL    : 2;
+  uint8_t K705_CTL    : 2;
+
+  // U706
+  uint8_t U703        : 4;    // adg1208.
+  uint8_t U702        : 3;    // adg1209.
+  uint8_t U706_UNUSED : 1;
+
+
+  // dcv source
+  // U1004  - 5th bit.
+  uint8_t U1003   : 4;    // adg1208  4 bits.  EN last. is inconsistent.  with chip pin-order. and 500, 600, 700.  good keep.....
+  uint8_t U1006   : 4;    // adg1208  4 bits.
+
+#endif
 

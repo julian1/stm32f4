@@ -83,6 +83,20 @@ int flash_lzo_test(void);
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 static void app_update_soft_500ms_configured(app_t *app)
 {
   /* we may want to devote a fpga led - to fpga comms 
@@ -141,19 +155,31 @@ static void app_update_soft_500ms_configured(app_t *app)
   }
 
 
-  // if(app->test_relay_flip)
   if(app->test_relay_flip) {
 
+      static bool flip = 0;
+      flip = ! flip;
+
+#if 1
+      Mode mode;
+      memset(&mode, 0, sizeof(mode));
+
+      mode.first.K701 =  flip ? 0b01 : 0b10;
+      mode.first.K404 =  flip ? 0b01 : 0b10;
+      mode.first.K407 =  flip ? 0b01 : 0b10;
+      mode.first.U1003 = flip ? 0b1111 : 0b000;
+
+      mode_transition_state( app->spi, &mode, &app->system_millis);
+#endif
+
+#if 0
       // click the relays, and analog switch.
       _4094_state_t mode;
       memset(&mode, 0, sizeof(mode));
 
-      static bool flip = 0;
-      flip = ! flip;
       mode.K701 =  flip ? 0b01 : 0b10;
       mode.K404 =  flip ? 0b01 : 0b10;
       mode.K407 =  flip ? 0b01 : 0b10;
-
       mode.U1003 = flip ? 0b1111 : 0b000;
 
       // make sure we are muxing spi,
@@ -179,6 +205,7 @@ static void app_update_soft_500ms_configured(app_t *app)
             - when reading the adc counts
       */
       mux_spi_ice40(app->spi);
+#endif
 
     }
 
@@ -658,6 +685,7 @@ int main(void)
 
   app.spi = SPI1 ;
   app.led_blink = true;
+  app.test_relay_flip = true;
 
 
   // uart/console
