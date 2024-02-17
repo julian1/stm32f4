@@ -47,6 +47,7 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 #include <ctype.h>    // isspace
 #include <assert.h>
 #include <malloc.h> // malloc_stats()
+#include <stdlib.h> // strtolu
 
 
 
@@ -265,6 +266,78 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
+static unsigned str_decode_int( const char *s, uint32_t *val  )
+{
+  // set/reset  for relay.
+
+  if (strcmp(s, "on") == 0
+    || strcmp(s, "true") == 0
+    || strcmp(s, "set") == 0)     // bot
+    *val = 1;
+
+  else if(strcmp(s, "off") == 0
+    || strcmp(s, "false") == 0
+    || strcmp(s, "reset") == 0)     // top
+    *val = 0;
+
+/*
+  // 1 of 8 mux values.
+  else if(strcmp(s, "s8") == 0 )
+    val = S8;
+  else if(strcmp(s, "s7") == 0 )
+    val = S7;
+  else if(strcmp(s, "s6") == 0 )
+    val = S6;
+  else if(strcmp(s, "s5") == 0 )
+    val = S5;
+  else if(strcmp(s, "s4") == 0 )
+    val = S4;
+  else if(strcmp(s, "s3") == 0 )
+    val = S3;
+  else if(strcmp(s, "s2") == 0 )
+    val = S2;
+  else if(strcmp(s, "s") == 0 )
+    val = S1;
+*/
+/*
+  // 2 of 4 mux values
+
+*/
+
+
+  // we could factor all this handling.
+  // read_int.
+  else if( s[0] == '0' && s[1] == 'x' && sscanf(s, "%lx", val) == 1) {
+    // printf("got hex\n" );
+  }
+  else if( s[0] == '0' && s[1] == 'o' && sscanf(s + 2, "%lo", val) == 1) {
+    // octal doesn't accept a prefix
+    // printf("got octal\n" );
+  }
+  else if( s[0] == '0' && s[1] == 'b') {
+    // binary is very useful for muxes
+    *val = strtoul(s + 2, NULL, 2);
+    // char buf[100];
+    // printf("got binary %s\n", format_bits(buf, 32, val ) );
+  }
+  else if( isdigit( (unsigned char) s[0] ) && sscanf(s, "%lu", val) == 1) {
+    // printf("got decimal\n" );
+  }
+
+  else {
+    printf("bad val arg\n" );
+    return 0;   // fail
+  }
+
+  // OK.
+  return 1 ;
+}
+
+
+
+
+
+
 /*
   keep general repl stuff (related to flashing, reset etc) here,
   put app specific/ tests in a separatefile.
@@ -281,9 +354,9 @@ static void app_repl(app_t *app,  const char *cmd)
   // printf("cmd '%s'  %u\n", cmd, strlen(cmd) );
 
 
-/*
+
   char s0[100 + 1 ];
-*/
+
 
   uint32_t u0 , u1;
 
@@ -495,14 +568,26 @@ static void app_repl(app_t *app,  const char *cmd)
 
 
 
-  else if( sscanf(cmd, "dac %lu", &u0 ) == 1) {
+  // else if( sscanf(cmd, "dac %lu", &u0 ) == 1) {
 
-    spi_mux_dac8811(app->spi);
+  else if( sscanf(cmd, "dac %s", s0 ) == 1) {
 
-    // eg. 0=-0V out.   0xffff = -7V out. nice.
-    spi_dac8811_write16( app->spi, u0 );
+    uint32_t val;
 
-    spi_mux_ice40(app->spi);
+    if( str_decode_int( s0, &val)) {
+
+      spi_mux_dac8811(app->spi);
+
+      // eg. 0=-0V out.   0xffff = -7V out. nice.
+      spi_dac8811_write16( app->spi, val );
+
+      spi_mux_ice40(app->spi);
+    }
+
+    else {
+      printf("bad arg for dac command");
+
+    }
   }
 
 
