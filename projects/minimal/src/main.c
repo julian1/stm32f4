@@ -68,6 +68,7 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 #include <spi-ice40.h>
 #include <spi-4094.h>
 #include <spi-ice40-bitstream.h>
+#include <spi-dac8811.h>
 
 #include <lib2/format.h>   // format_bits()
 #include <app.h>
@@ -99,8 +100,8 @@ int flash_lzo_test(void);
 
 static void app_update_soft_500ms_configured(app_t *app)
 {
-  /* we may want to devote a fpga led - to fpga comms 
-    just flip the state - for any spi sequence. 
+  /* we may want to devote a fpga led - to fpga comms
+    just flip the state - for any spi sequence.
       - just to catch any spurious transfers.
     -----
     should see if we can catch something.... with simple fpga code - and without a timer.  eg. just an active slave select on cs1 or cs2.
@@ -493,6 +494,16 @@ static void app_repl(app_t *app,  const char *cmd)
   }
 
 
+
+  else if( sscanf(cmd, "dac %lu", &u0 ) == 1) {
+
+    mux_spi_dac8811(app->spi);
+
+    // eg. 0=-0V out.   0xffff = -7V out. nice.
+    spi_dac8811_write16( app->spi, u0 );
+
+    mux_spi_ice40(app->spi);
+  }
 
 
 

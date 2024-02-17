@@ -56,7 +56,8 @@
 */
 
 
-static void spi_4094_setup(uint32_t spi);
+
+// TODO rename spi_mux_4094().  because first arg is spi
 
 void mux_spi_4094(uint32_t spi )
 {
@@ -74,11 +75,10 @@ void mux_spi_4094(uint32_t spi )
 
   mux_spi_ice40( spi);
 
-  // default state - should always be not to propagate spi on 4094 lines.
-  // to avoid emi
-  assert( spi_ice40_reg_read32(spi, REG_SPI_MUX ) == 0);
+  // default state - should always be to *not* to propagate spi on 4094 lines.  to avoid emi
+  assert( spi_ice40_reg_read32(spi, REG_SPI_MUX ) == SPI_MUX_NONE);
 
-
+  // set ice40 to mux spi to 4094 peripheral
   spi_ice40_reg_write32(spi, REG_SPI_MUX,  SPI_MUX_4094 );
 
 
