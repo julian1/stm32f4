@@ -59,7 +59,7 @@
 
 // TODO rename spi_mux_4094().  because first arg is spi
 
-void mux_spi_4094(uint32_t spi )
+void spi_mux_4094(uint32_t spi )
 {
   /*
       0. mux the fpga.
@@ -73,7 +73,7 @@ void mux_spi_4094(uint32_t spi )
   assert( SPI_MUX_4094 == 1); // june 2023. for dmm03.
 
 
-  mux_spi_ice40( spi);
+  spi_mux_ice40( spi);
 
   // default state - should always be to *not* to propagate spi on 4094 lines.  to avoid emi
   assert( spi_ice40_reg_read32(spi, REG_SPI_MUX ) == SPI_MUX_NONE);

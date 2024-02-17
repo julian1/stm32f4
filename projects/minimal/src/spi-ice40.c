@@ -45,7 +45,7 @@
 
 
 
-void mux_spi_ice40(uint32_t spi)
+void spi_mux_ice40(uint32_t spi)
 {
   // spi on mcu side, must be correctly configured
   // in addition, relies on the special flag to mux
@@ -164,7 +164,7 @@ uint32_t spi_ice40_reg_write_n(uint32_t spi, uint8_t reg, const void *s, size_t 
 // static void spi_ice40_setup(uint32_t spi);
 
 
-void mux_spi_ice40(uint32_t spi)
+void spi_mux_ice40(uint32_t spi)
 {
   // spi on mcu side, must be correctly configured
   // in addition, relies on the special flag to mux

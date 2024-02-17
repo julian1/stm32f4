@@ -118,7 +118,7 @@ static void app_update_soft_500ms_configured(app_t *app)
 
     /* EXTR - avoid electrical/comms activity of a heart-beat/led blink, during sample acquisition.  only use as test.
     */
-    mux_spi_ice40( app->spi );
+    spi_mux_ice40( app->spi );
 
 
     // uint32_t magic = app->led_state ? 0b01010101 : 0b10101010 ;
@@ -184,7 +184,7 @@ static void app_update_soft_500ms_configured(app_t *app)
       mode.U1003 = flip ? 0b1111 : 0b000;
 
       // make sure we are muxing spi,
-      mux_spi_4094( app->spi );
+      spi_mux_4094( app->spi );
 
       // can probe 4094 signals - by connecting scope to 4094 extension header pins.
       // write single byte - should be enough to flip a relay.
@@ -201,11 +201,11 @@ static void app_update_soft_500ms_configured(app_t *app)
       spi_4094_reg_write_n(app->spi, (uint8_t *)& mode, sizeof(mode) );
 
 
-      /* EXTR. IMPORTANT. must call mux_spi_ice40 again
+      /* EXTR. IMPORTANT. must call spi_mux_ice40 again
             - to prevent spi emission on 4094 spi clk,data lines.
             - when reading the adc counts
       */
-      mux_spi_ice40(app->spi);
+      spi_mux_ice40(app->spi);
 #endif
 
     }
@@ -392,7 +392,7 @@ static void app_repl(app_t *app,  const char *cmd)
     // set the direct register.
     printf("set direct value to, %lu\n", u0 );
 
-    mux_spi_ice40(app->spi);
+    spi_mux_ice40(app->spi);
     spi_ice40_reg_write32(app->spi, REG_DIRECT, u0 );
     // confirm.
     uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
@@ -423,7 +423,7 @@ static void app_repl(app_t *app,  const char *cmd)
       - note. run-down current creates integrator oscillation when out-of-range.
     */
 
-    mux_spi_ice40(app->spi);
+    spi_mux_ice40(app->spi);
     uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
     if(u1)
       ret |= 1 << u0 ;
@@ -438,14 +438,14 @@ static void app_repl(app_t *app,  const char *cmd)
 
   else if( strcmp( cmd, "direct?") == 0) {
 
-    mux_spi_ice40(app->spi);
+    spi_mux_ice40(app->spi);
     uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
     char buf[ 100];
     printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  str_format_bits(buf, 32, ret ));
   }
   else if( strcmp( cmd, "status?") == 0) {
 
-    mux_spi_ice40(app->spi);
+    spi_mux_ice40(app->spi);
     uint32_t ret = spi_ice40_reg_read32(app->spi, REG_STATUS);
     char buf[ 100];
     printf("r %u  v %lu  %s\n",  REG_STATUS, ret,  str_format_bits(buf, 32, ret ));
@@ -460,7 +460,7 @@ static void app_repl(app_t *app,  const char *cmd)
   else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
 
     // set the fpga mode.
-    mux_spi_ice40(app->spi);
+    spi_mux_ice40(app->spi);
     spi_ice40_reg_write32(app->spi, REG_MODE, u0 );
 
     uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
@@ -470,7 +470,7 @@ static void app_repl(app_t *app,  const char *cmd)
   else if( strcmp(cmd, "mode?") == 0) {
 
     // TODO add some decoding here.
-    mux_spi_ice40(app->spi);
+    spi_mux_ice40(app->spi);
     uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
     printf("reg_mode return value %lu\n", ret);
 
@@ -486,7 +486,7 @@ static void app_repl(app_t *app,  const char *cmd)
 
     // this is no longer corrent. should query the REG_STATUS. which includes the monitor
     // regardless of the mode.
-    mux_spi_ice40(app->spi);
+    spi_mux_ice40(app->spi);
     uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT);
     ret >>= 14;
     char buf[ 100];
@@ -497,12 +497,12 @@ static void app_repl(app_t *app,  const char *cmd)
 
   else if( sscanf(cmd, "dac %lu", &u0 ) == 1) {
 
-    mux_spi_dac8811(app->spi);
+    spi_mux_dac8811(app->spi);
 
     // eg. 0=-0V out.   0xffff = -7V out. nice.
     spi_dac8811_write16( app->spi, u0 );
 
-    mux_spi_ice40(app->spi);
+    spi_mux_ice40(app->spi);
   }
 
 

@@ -4,7 +4,7 @@
 
 #include <stddef.h> // size_t
 
-void mux_spi_4094(uint32_t spi );
+void spi_mux_4094(uint32_t spi );
 
 uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v);
 

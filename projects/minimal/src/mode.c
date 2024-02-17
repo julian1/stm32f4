@@ -22,7 +22,7 @@ void mode_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *s
 
 
   // mux spi to 4094. change mcu spi params, and set spi device to 4094
-  mux_spi_4094 ( spi);
+  spi_mux_4094 ( spi);
 
 
   // printf("-----------\n");
@@ -47,7 +47,7 @@ void mode_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *s
   /////////////////////////////
 
   // now do fpga state
-  mux_spi_ice40(spi);
+  spi_mux_ice40(spi);
 
 /*
   // set mode

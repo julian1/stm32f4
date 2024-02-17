@@ -3,7 +3,7 @@
 
 #include <stddef.h> // size_t, uint32_t
 
-void mux_spi_ice40(uint32_t spi);   // moved from mux.h
+void spi_mux_ice40(uint32_t spi);   // moved from mux.h
 
 
 uint32_t spi_ice40_reg_write32(uint32_t spi, uint8_t reg, uint32_t val);

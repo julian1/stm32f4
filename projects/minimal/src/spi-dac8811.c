@@ -16,15 +16,16 @@
 
 
 // TODO change name spi_mux_dac8811()
+// or spi_init_dac
 
-void mux_spi_dac8811(uint32_t spi )
+void spi_mux_dac8811(uint32_t spi )
 {
   // EXTR. setup on the ice40 side.
   // printf("mux 4094\n");
 
   assert( SPI_MUX_DAC8811 == 2);   // (1<<1)
 
-  mux_spi_ice40( spi);
+  spi_mux_ice40( spi);
 
   // default state - should always be to *not* to propagate spi on 4094 lines.  to avoid emi
   assert( spi_ice40_reg_read32(spi, REG_SPI_MUX ) == SPI_MUX_NONE);
@@ -41,7 +42,7 @@ void mux_spi_dac8811(uint32_t spi )
 
    spi_init_master(
     spi,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_4,
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_4,       // actually ok. over 50cm. idc cable.
     // SPI_CR1_BAUDRATE_FPCLK_DIV_16,
     SPI_CR1_BAUDRATE_FPCLK_DIV_32,
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,      // park to 0/lo == positive clok edge. park to 1 == negative clk edge.
