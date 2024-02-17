@@ -268,6 +268,7 @@ static void app_update_soft_500ms(app_t *app)
 
 static unsigned str_decode_int( const char *s, uint32_t *val  )
 {
+  // decode int literal
   // set/reset  for relay.
 
   if (strcmp(s, "on") == 0
@@ -311,7 +312,7 @@ static unsigned str_decode_int( const char *s, uint32_t *val  )
     // printf("got hex\n" );
   }
   else if( s[0] == '0' && s[1] == 'o' && sscanf(s + 2, "%lo", val) == 1) {
-    // octal doesn't accept a prefix
+    // for octal, sscanf doesn't like/accept a prefix
     // printf("got octal\n" );
   }
   else if( s[0] == '0' && s[1] == 'b') {
