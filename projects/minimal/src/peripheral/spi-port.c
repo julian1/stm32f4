@@ -57,25 +57,35 @@
 #define SPI_PERIPH   SPI1        // better name?
 
 #define SPI1_PORT  GPIOA
+/*
 #define SPI_CLK   GPIO5     // PA5
-#define SPI_CS1   GPIO4     // PA4
-#define SPI_MOSI  GPIO7     // PA7
+// #define SPI_MOSI  GPIO7     // PA7
 #define SPI_MISO  GPIO6     // PA6
+*/
+
+
+#define SPI_CS1   GPIO4     // PA4
 #define SPI_CS2   GPIO15    // PA15 nss 2. moved.
 
 
 #define SPI_INTERUPT GPIO2   // PA2
 
 
+/*
+  feb 2024. splitting up the spi configuration over two ports (mosi on PB5) . is messy. but needed to free PA7 pin for ethernet.
+  keep the cs1 and cs2 gpio config separate
+
+
+  see hal.h  and PIN() macro for cleaner example looping an array.
+    vim ~/devel/mongoose/examples/stm32/nucleo-f429zi-make-baremetal-builtin/hal.
+*/
 
 
 
-
-void spi1_port_cs1_cs2_setup(void)
+static void spi1_port_setup(void)
 {
-
-  // rcc_periph_clock_enable(RCC_GPIOA);
-  // rcc_periph_clock_enable(RCC_SPI1);
+#if 0
+  // rcc_periph_clock_enable(RCC_GPIOA | RCC_GPIOB | RCC_SPI1);
 
 
   gpio_mode_setup(SPI1_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, SPI_CLK | SPI_MOSI | SPI_MISO);
@@ -86,6 +96,36 @@ void spi1_port_cs1_cs2_setup(void)
   // CS1 to manual external gpio output
   gpio_mode_setup(SPI1_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_CS1 | SPI_CS2);
   gpio_set_output_options(SPI1_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_CS1 | SPI_CS2);
+#endif
+
+
+  // perhaps simpler with array loop ia[] = { GPIOA ,  GPIO5 } etc.
+
+  // clk, miso.
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO5  | GPIO6);
+  gpio_set_af(GPIOA, GPIO_AF5, GPIO5  | GPIO6);       // af 5
+  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO5 );   // 100MHZ ??
+
+
+  // mosi.
+  gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO5 );
+  gpio_set_af(GPIOB, GPIO_AF5, GPIO5 );       // af 5
+  gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO5 );   // 100MHZ ??
+
+}
+
+
+void spi1_port_cs1_cs2_setup(void)
+{
+
+
+  spi1_port_setup();
+
+
+  // CS1 to manual external gpio output
+  gpio_mode_setup(SPI1_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_CS1 | SPI_CS2);
+  gpio_set_output_options(SPI1_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_CS1 | SPI_CS2);
+
 
 }
 

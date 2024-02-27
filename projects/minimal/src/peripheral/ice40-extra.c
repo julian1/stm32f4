@@ -18,19 +18,6 @@
 */
 
 
-// Feb 2024.
-// current on mcu side was 70mA. with wrong port assignment.
-
-#define ER_EXTRA_PORT    GPIOC
-
-#define ER_CDONE        GPIO6   // PC6
-#define ER_CRESET_PIN   GPIO7   // PC7
-
-#define ER_TRIGGER_INT_OUT GPIO8   // PC8
-#define ER_UNUSED1_OUT    GPIO9   // PC9
-
-
-
 /*
 // jan 2024.
 // wants an external pullup fitted. because can be drivern by connector header.
@@ -41,6 +28,27 @@
 #define ER_CDONE        GPIO4   // PB4
 */
 
+
+
+/*
+// Feb 2024.
+// current on mcu side was 70mA. with wrong port assignment.
+
+#define ER_EXTRA_PORT    GPIOC
+#define ER_CDONE        GPIO6   // PC6
+#define ER_CRESET_PIN   GPIO7   // PC7
+
+#define ER_TRIGGER_INT_OUT GPIO8   // PC8
+#define ER_UNUSED1_OUT    GPIO9   // PC9
+*/
+
+
+// Feb 2024.
+#define ER_EXTRA_PORT    GPIOC
+#define ER_CDONE        GPIO8
+#define ER_CRESET_PIN   GPIO9
+#define ER_TRIGGER_INT_OUT GPIO10
+#define ER_UNUSED1_OUT    GPIO11
 
 
 

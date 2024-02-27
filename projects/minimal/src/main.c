@@ -739,10 +739,14 @@ int main(void)
   rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
 
   // gpio
+
+  // rcc_periph_clock_enable(RCC_GPIOA  | RCC_GPIOB | RCC_GPIOC);
   rcc_periph_clock_enable(RCC_GPIOA);
   rcc_periph_clock_enable(RCC_GPIOB);
   rcc_periph_clock_enable(RCC_GPIOC);
   // rcc_periph_clock_enable(RCC_GPIOE);
+
+  // rcc_periph_clock_enable(RCC_USART1 | RCC_SPI1 | RCC_ADC1);
 
   // USART
   rcc_periph_clock_enable(RCC_USART1);
