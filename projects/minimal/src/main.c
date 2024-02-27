@@ -132,21 +132,25 @@ static void app_update_soft_500ms_configured(app_t *app)
     19
     20   assign { LED1, LED2} = outcnt ^ (outcnt >> 1);
     */
+
+/*
     static uint32_t counter = 0;
     ++counter;
     uint32_t magic = counter  ^ (counter >> 1 );
+*/
 
-/*
+
     static uint32_t magic = 0;
     ++magic;
-*/
+ 
 
     // blink led... want option. so can write reg_direct
     // note - led will only, actually light if fpga in default mode. 0.
-    spi_ice40_reg_write32( app->spi, REG_DIRECT, magic);
+    spi_ice40_reg_write32( app->spi, REG_DIRECT, magic << 1 );
 
     // check the magic numger
     uint32_t ret = spi_ice40_reg_read32( app->spi, REG_DIRECT);
+    ret >>= 1;
     if(ret != magic ) {
       // comms no good
       char buf[ 100] ;
@@ -159,8 +163,9 @@ static void app_update_soft_500ms_configured(app_t *app)
 
   if(app->test_relay_flip) {
 
-      static bool flip = 0;
-      flip = ! flip;
+    static bool flip = 0;
+    flip = ! flip;
+
 
 #if 1
       Mode mode;
