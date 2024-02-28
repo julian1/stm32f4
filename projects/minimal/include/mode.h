@@ -55,11 +55,13 @@ typedef struct _4094_state_t
 
   // U401
   uint8_t U401_UNUSED : 6;
+  // uint8_t U402        : 2;
+  // uint8_t U403			  : 2;
   uint8_t K404        : 2;
 
 
-
   uint8_t U402_UNUSED : 8;
+
   uint8_t U414_UNUSED : 8;
 
 
@@ -70,21 +72,24 @@ typedef struct _4094_state_t
   // 600.
 
 
+/*
   // U705
   uint8_t K701 : 2;
   uint8_t U705_UNUSED : 6;
 
   uint8_t U706_UNUSED : 8;
   uint8_t U709_UNUSED : 8;
+*/
 
 
   // u1004
   uint8_t U1003 : 4;      // 4 bit mux.
-  uint8_t U1006 : 8;
+  uint8_t U1006 : 4;
 
 
   uint8_t U1008_UNUSED : 8;
 
+  uint8_t U1017_UNUSED : 8;
 
 } _4094_state_t;
 

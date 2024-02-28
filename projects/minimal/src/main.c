@@ -171,10 +171,11 @@ static void app_update_soft_500ms_configured(app_t *app)
       Mode mode;
       memset(&mode, 0, sizeof(mode));
 
-      mode.first.K701 =  flip ? 0b01 : 0b10;
+      // mode.first.K701 =  flip ? 0b01 : 0b10;
       mode.first.K404 =  flip ? 0b01 : 0b10;
       mode.first.K407 =  flip ? 0b01 : 0b10;
-      mode.first.U1003 = flip ? 0b1111 : 0b000;
+
+      mode.second.U1003 = flip ? 0b1111 : 0b000;
 
       mode_transition_state( app->spi, &mode, &app->system_millis);
 #endif
