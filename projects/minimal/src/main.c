@@ -142,7 +142,7 @@ static void app_update_soft_500ms_configured(app_t *app)
 
     static uint32_t magic = 0;
     ++magic;
- 
+
 
     // blink led... want option. so can write reg_direct
     // note - led will only, actually light if fpga in default mode. 0.
@@ -167,7 +167,7 @@ static void app_update_soft_500ms_configured(app_t *app)
     flip = ! flip;
 
 
-#if 1
+#if 0
       Mode mode;
       memset(&mode, 0, sizeof(mode));
 
@@ -287,25 +287,25 @@ static unsigned str_decode_int( const char *s, uint32_t *val  )
     || strcmp(s, "reset") == 0)     // top
     *val = 0;
 
-/*
+
   // 1 of 8 mux values.
   else if(strcmp(s, "s8") == 0 )
-    val = S8;
+    *val = S8;
   else if(strcmp(s, "s7") == 0 )
-    val = S7;
+    *val = S7;
   else if(strcmp(s, "s6") == 0 )
-    val = S6;
+    *val = S6;
   else if(strcmp(s, "s5") == 0 )
-    val = S5;
+    *val = S5;
   else if(strcmp(s, "s4") == 0 )
-    val = S4;
+    *val = S4;
   else if(strcmp(s, "s3") == 0 )
-    val = S3;
+    *val = S3;
   else if(strcmp(s, "s2") == 0 )
-    val = S2;
-  else if(strcmp(s, "s") == 0 )
-    val = S1;
-*/
+    *val = S2;
+  else if(strcmp(s, "s1") == 0 )
+    *val = S1;
+
 /*
   // 2 of 4 mux values
 
@@ -363,6 +363,7 @@ static void app_repl(app_t *app,  const char *cmd)
 
 
   char s0[100 + 1 ];
+  char s1[100 + 1 ];
 
 
   uint32_t u0 , u1;
@@ -370,14 +371,23 @@ static void app_repl(app_t *app,  const char *cmd)
 
   ////////////////////
 
-  if(strcmp(cmd, "help") == 0) {
+
+  if(strcmp(cmd, "") == 0) {
+    // ignore
+    printf("empty\n" );
+  }
+
+
+
+  else if(strcmp(cmd, "help") == 0) {
 
     printf("help <command>\n" );
   }
 
 
-  else if(strcmp(cmd, "sleep") == 0) {
-    msleep(1000, &app->system_millis);
+  else if( sscanf(cmd, "sleep %lu", &u0 ) == 1) {
+
+    msleep(u0 , &app->system_millis);
   }
 
   else if(strcmp(cmd, "reset mcu") == 0) {
@@ -597,6 +607,34 @@ static void app_repl(app_t *app,  const char *cmd)
     }
   }
 
+  ///////////////////////
+
+
+  else if( sscanf(cmd, "set %100s %100s", s0, s1) == 2) {
+    // see dmm/src/app-functions.c
+
+    // delegate to another function.
+
+
+    uint32_t val;
+    if( str_decode_int( s1, &val)) {
+
+      assert(app->mode_current);
+
+      Mode * mode = app->mode_current;
+
+
+      if(strcmp(s0, "u1003") == 0) {
+        // mode->first.U1003  = val;
+        mode->second.U1003 = val;
+        printf("setting u703 %b\n", mode->second.U1003);
+
+
+      }
+    }
+
+
+  }
 
 
   else {
@@ -614,23 +652,63 @@ static void app_repl(app_t *app,  const char *cmd)
 static void app_update_console_cmd(app_t *app)
 {
 
+
+
   while( ! cbuf_is_empty(&app->console_in)) {
 
     // got a character
     int32_t ch = cbuf_pop(&app->console_in);
     assert(ch >= 0);
 
-    if(ch != '\r' && ch != ';' && cstring_count(&app->command) < cstring_reserve(&app->command) ) {
+    // only read as much of console_in
+
+
+
+    if (ch == ';' || ch == '\r' )
+    {
+      // a separator, - process what we command so far.
+
+      char *cmd = cstring_ptr(&app->command);
+      cmd = str_trim_whitespace_inplace( cmd );
+      printf("\n");
+      app_repl(app, cmd);
+
+      // clear the current command buffer,  
+      // there is still more data to process in console_in
+      cstring_clear( &app->command);
+    }
+
+
+    else if( cstring_count(&app->command) < cstring_reserve(&app->command) ) {
+
       // must accept whitespace here, since used to demarcate args
       // normal character
       cstring_push(&app->command, ch);
       // echo to output. required for minicom.
       putchar( ch);
+    }
 
-    }  else {
 
-      // process...
-      // newline or overflow
+    if(ch == '\r')
+    {
+      printf("calling mode_transition_state()");
+
+      mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+
+
+      // issue new command prompt
+      printf("\n> ");
+    }
+
+
+
+
+#if 0
+    else {
+      /* newline or overflow
+
+      */
+
       putchar('\n');
 
       char *cmd = cstring_ptr(&app->command);
@@ -638,12 +716,23 @@ static void app_update_console_cmd(app_t *app)
       cmd = str_trim_whitespace_inplace( cmd );
       app_repl(app, cmd);
 
+
+      /* we want to do the state transition here...
+      // just always do it. regardless whether anything has changed.
+
+          important - rather than dealing with return values - we can test if the current_state changed.
+                  before and after app_repl(), to decide whether to update.
+      */
+
+      mode_transition_state( app->spi, mode, &app->system_millis);
+
       // reset buffer
       cstring_clear( &app->command);
 
       // issue new command prompt
       printf("> ");
     }
+#endif
   }
 }
 
@@ -736,6 +825,82 @@ static app_t app;
 // static Mode mode_current;
 
 
+
+static const Mode mode_initial =  {
+
+#if 0
+  /*
+    all relays have to be defined. not left default initialization of 00 which means
+    they don't get an initial pulse.
+  */
+
+  //  maybe make explicit all values  U408_SW_CTL. at least for the initial mode, from which others derive.
+
+  .first .K406_CTL  = LR_TOP,     // accumulation relay off
+
+  .first. K405_CTL  = LR_BOT,     // dcv input relay k405 switch off - works.
+  .first. K402_CTL  = LR_BOT,     // dcv-div/directz relay off
+                                // must match app->persist_fixedz
+
+  .first. K401_CTL  = LR_TOP,     // dcv-source relay off.
+  .first. K403_CTL  = LR_BOT,     // ohms relay off.
+
+  .first .U408_SW_CTL = 0,      // b2b fets/ input protection off/open
+
+
+  // AMP FEEDBACK SHOULD NEVER BE TURNED OFF.
+  // else draws current, and has risk damaging parts. mux pin 1. of adg. to put main amplifier in buffer/G=1 configuration.
+  .first. U506 =  W1,     // should always be on
+
+  // .second.K406_CTL  = LR_OFF,     // clear relay. default.
+  // .second.K405_CTL  = LR_OFF,     // clear relay
+  .second.U408_SW_CTL = 0,
+
+  .second.U506 =  W1,           // amplifier should always be on.
+
+
+
+  .first. K603_CTL  = LR_BOT,     // ohms relay off.
+
+
+  /////////////////////////
+  // 700
+  // has inverting cmos buffer
+  .first. K702_CTL  = LR_BOT,
+  .second.K702_CTL  = 0b11,
+
+  // 0.1R shunt off. has inverting cmos buffer
+  .first. K703_CTL  = LR_BOT,
+  .second.K703_CTL  = 0b11,
+
+  // shunts / TIA - default to shunts
+  .first. K709_CTL  = LR_TOP,
+
+  // agn200 shunts are off.
+  .first. K707_CTL  = LR_TOP,
+  .first. K706_CTL  = LR_TOP,
+  .first. K704_CTL  = LR_TOP,
+  .first. K705_CTL  = LR_TOP,
+
+
+
+  .reg_mode = MODE_LO,                                  // default, blink led according to mcu
+
+  .reg_sa_p_clk_count_precharge = CLK_FREQ * 500e-6,             //  `CLK_FREQ * 500e-6 ;   // 500us.
+
+  .reg_adc_p_aperture = CLK_FREQ * 0.2,   // 200ms. 10nplc 50Hz.  // Not. should use current calibration?  // should be authoritative source of state.
+
+  .reg_adc_p_reset = CLK_FREQ * 500e-6                // 500us.
+
+#endif
+
+};
+
+
+
+static Mode mode_current;
+
+
 int main(void)
 {
   // hse
@@ -789,10 +954,17 @@ int main(void)
 
   memset(&app, 0, sizeof(app_t));
 
+  // would be neater/possible, to use a static initializer for app ?
 
   app.spi = SPI1 ;
   app.led_blink = true;
-  app.test_relay_flip = true;
+  app.test_relay_flip = false;    // TODO remove
+
+  app.mode_initial =  &mode_initial;
+  app.mode_current =  &mode_current;
+
+
+  /////////////////
 
 
   // uart/console

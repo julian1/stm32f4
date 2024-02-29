@@ -1,5 +1,9 @@
 
+
+
+
 #include <assert.h>
+#include <stdio.h>
 
 #include <libopencm3/stm32/spi.h>
 
@@ -21,7 +25,7 @@
 void spi_mux_dac8811(uint32_t spi )
 {
   // EXTR. setup on the ice40 side.
-  // printf("mux 4094\n");
+  printf("spi mux dac8811 \n");
 
   assert( SPI_MUX_DAC8811 == 2);   // (1<<1)
 

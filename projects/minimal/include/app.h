@@ -1,13 +1,12 @@
 
 #pragma once
 
-// #include <lib2/usart.h>
-// #include <lib2/streams.h>
-// #include <lib2/util.h>   // msleep()
 #include <lib2/cbuffer.h>
 #include <lib2/cstring.h>
-// #include <lib2/format.h>   // trim_whitespace()
 
+
+
+typedef struct Mode Mode;
 
 
 
@@ -36,6 +35,14 @@ typedef struct app_t
   ////////
   bool led_blink;
   bool test_relay_flip;
+
+
+  const Mode *mode_initial;
+  Mode *mode_current;
+
+
+
+
 } app_t;
 
 

@@ -46,6 +46,44 @@
 
 
 
+/*
+  muxes and relays are part of 4094 system. nothing to do with fpga.
+  and should not be associated in headers
+
+  - better name MUX_S1 ?   REL_SET.
+
+  - important we can actually put the dac state register here also.
+
+*/
+
+// 1of8 muxes.
+#define SOFF        0
+#define S1          ((1<<3)|(1-1))
+#define S2          ((1<<3)|(2-1))
+#define S3          ((1<<3)|(3-1))
+#define S4          ((1<<3)|(4-1))
+#define S5          ((1<<3)|(5-1))      // 12
+#define S6          ((1<<3)|(6-1))      // 13
+#define S7          ((1<<3)|(7-1))
+#define S8          ((1<<3)|(8-1))
+
+
+// S for switch maybe SS ? or W
+// dual 1of 4 muxes.
+#define WOFF        0
+#define W1          ((1<<2)|(1-1))
+#define W2          ((1<<2)|(2-1))
+#define W3          ((1<<2)|(3-1))
+#define W4          ((1<<2)|(4-1))
+
+
+// relay.  TODO better name  LR_SET, LR_RESET.
+#define LR_OFF      0
+#define LR_BOT      0b01      // bottom contacts closed.
+#define LR_TOP      0b10      // top contacts closed.
+
+
+
 
 
 
