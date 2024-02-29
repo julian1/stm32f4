@@ -12,7 +12,8 @@
 #include <mode.h>
 
 
-void mode_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *system_millis)
+
+void mode_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *system_millis  /*, uint32_t update_flags */ )
 {
   // could name spi_mode_transition_state
   assert(mode);

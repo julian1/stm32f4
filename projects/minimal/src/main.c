@@ -248,6 +248,7 @@ static void app_update_soft_500ms(app_t *app)
 
     assert( ! spi_ice40_reg_read32( app->spi, REG_4094 ));
 
+
     // assert 4094 OE
     // want to do some additional checks.
     spi_ice40_reg_write32( app->spi, REG_4094, 1 );
@@ -352,8 +353,12 @@ static unsigned str_decode_int( const char *s, uint32_t *val  )
 */
 
 
-static void app_repl(app_t *app,  const char *cmd)
+static void app_repl_statement(app_t *app,  const char *cmd)
 {
+  /*
+    eg. statement without semi-colon.
+
+  */
 
   UNUSED(app);
 
@@ -404,6 +409,12 @@ static void app_repl(app_t *app,  const char *cmd)
     // wait
     msleep(1, &app->system_millis);
     ice40_port_extra_creset_disable();
+  }
+
+  else if(strcmp(cmd, "reset mode") == 0) {
+
+    *app->mode_current = *app->mode_initial;
+
   }
 
 
@@ -469,7 +480,7 @@ static void app_repl(app_t *app,  const char *cmd)
 
 
 
-  /// change name fpga bitstrea load/test
+  // change name fpga bitstrea load/test
   else if(strcmp(cmd, "bitstream test") == 0) {
 
     spi_ice40_bitstream_send(app->spi, & app->system_millis );
@@ -478,6 +489,12 @@ static void app_repl(app_t *app,  const char *cmd)
   // don't we have some code - to handle sscan as binary/octal/hex ?
 
   else if( sscanf(cmd, "direct %lu", &u0 ) == 1) {
+
+    /*
+      IMPORTANT - to properly sequence, in a set of repl commands,
+      this update should be deferred to the state_update.
+
+    */
 
     // set the direct register.
     printf("set direct value to, %lu\n", u0 );
@@ -671,14 +688,12 @@ static void app_update_console_cmd(app_t *app)
       char *cmd = cstring_ptr(&app->command);
       cmd = str_trim_whitespace_inplace( cmd );
       printf("\n");
-      app_repl(app, cmd);
+      app_repl_statement(app, cmd);
 
-      // clear the current command buffer,  
+      // clear the current command buffer,
       // there is still more data to process in console_in
       cstring_clear( &app->command);
     }
-
-
     else if( cstring_count(&app->command) < cstring_reserve(&app->command) ) {
 
       // must accept whitespace here, since used to demarcate args
@@ -686,6 +701,9 @@ static void app_update_console_cmd(app_t *app)
       cstring_push(&app->command, ch);
       // echo to output. required for minicom.
       putchar( ch);
+    } else {
+      // overflow
+
     }
 
 
@@ -695,46 +713,14 @@ static void app_update_console_cmd(app_t *app)
 
       mode_transition_state( app->spi, app->mode_current, &app->system_millis);
 
-
       // issue new command prompt
       printf("\n> ");
     }
 
+  }   // while
 
-
-
-#if 0
-    else {
-      /* newline or overflow
-
-      */
-
-      putchar('\n');
-
-      char *cmd = cstring_ptr(&app->command);
-
-      cmd = str_trim_whitespace_inplace( cmd );
-      app_repl(app, cmd);
-
-
-      /* we want to do the state transition here...
-      // just always do it. regardless whether anything has changed.
-
-          important - rather than dealing with return values - we can test if the current_state changed.
-                  before and after app_repl(), to decide whether to update.
-      */
-
-      mode_transition_state( app->spi, mode, &app->system_millis);
-
-      // reset buffer
-      cstring_clear( &app->command);
-
-      // issue new command prompt
-      printf("> ");
-    }
-#endif
-  }
 }
+
 
 
 
