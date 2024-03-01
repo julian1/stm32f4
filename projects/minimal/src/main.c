@@ -70,6 +70,7 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 #include <spi-4094.h>
 #include <spi-ice40-bitstream.h>
 #include <spi-dac8811.h>
+#include <spi-ad5446.h>
 
 #include <lib2/format.h>   // format_bits()
 #include <app.h>
@@ -389,8 +390,20 @@ static void app_repl_statement(app_t *app,  const char *cmd)
     printf("help <command>\n" );
   }
 
+/*
+  - some of these are stateful. and will be done out of sequence.
+  - mode changes acccumulate until there is a new-line.
+
+  - way to handle it would be better.
+  - we could introduce a different separator  eg. ';' which would aggregate
+
+  - or else -  if have stateful command - like sleep. or reset mcu.  then just return a flag.
+  - or test whether the mode value changed.
+
+*/
 
   else if( sscanf(cmd, "sleep %lu", &u0 ) == 1) {
+    // should be done on separate line?
 
     msleep(u0 , &app->system_millis);
   }
@@ -411,10 +424,10 @@ static void app_repl_statement(app_t *app,  const char *cmd)
     ice40_port_extra_creset_disable();
   }
 
-  else if(strcmp(cmd, "reset mode") == 0) {
+  else if(strcmp(cmd, "reset") == 0) {
 
+    // reset the mode.
     *app->mode_current = *app->mode_initial;
-
   }
 
 
@@ -601,57 +614,72 @@ static void app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
+  ///////////////////////////////////////////////////
 
-  // else if( sscanf(cmd, "dac %lu", &u0 ) == 1) {
 
-  else if( sscanf(cmd, "dac %s", s0 ) == 1) {
+#if 0
+  // for test only. use the mode transitino function instead.
 
-    uint32_t val;
-
-    if( str_decode_int( s0, &val)) {
-
-      spi_mux_dac8811(app->spi);
+  else if( sscanf(cmd, "dac %s", s0 ) == 1
+    && str_decode_int( s0, &u0)
+  ) {
+       // spi_mux_dac8811(app->spi);
+      spi_mux_ad5446(app->spi );
 
       // eg. 0=-0V out.   0xffff = -7V out. nice.
-      spi_dac8811_write16( app->spi, val );
+      spi_dac8811_write16( app->spi, u0 );
 
       spi_mux_ice40(app->spi);
     }
-
-    else {
-      printf("bad arg for dac command");
-
-    }
-  }
+#endif
 
   ///////////////////////
 
 
-  else if( sscanf(cmd, "set %100s %100s", s0, s1) == 2) {
-    // see dmm/src/app-functions.c
-
-    // delegate to another function.
+  // strcasecmp() from strings.h.
+  // or just force lower case first.
 
 
-    uint32_t val;
-    if( str_decode_int( s1, &val)) {
+  else if( sscanf(cmd, "set %100s %100s", s0, s1) == 2
+    && str_decode_int( s1, &u0)
+  ) {
 
       assert(app->mode_current);
-
       Mode * mode = app->mode_current;
 
 
+      printf("set %s0 %lu\n", s0, u0);
+
+      // cannot manage pointer to bitfield. so have to hardcode.
+
       if(strcmp(s0, "u1003") == 0) {
-        // mode->first.U1003  = val;
-        mode->second.U1003 = val;
-        printf("setting u703 %b\n", mode->second.U1003);
-
-
+        mode->second.U1003 = u0;
       }
-    }
+      else if(strcmp(s0, "u1006") == 0) {
+        mode->second.U1006 = u0;
+      }
+      else if(strcmp(s0, "u1012") == 0) {
+        mode->second.U1012 = u0;
+      }
+
+      else if( strcmp(s0, "dac") == 0 || strcmp(s0, "u1016") == 0 || strcmp(s0, "u1014") == 0) {
+        // let the mode update - determine setting up spi params.
+        mode->dac_val = u0;
+      }
+
+
+
+
+      else {
+
+        printf("unknown target %s\n", s0);
+      }
 
 
   }
+
+
+
 
 
   else {
@@ -669,6 +697,10 @@ static void app_repl_statement(app_t *app,  const char *cmd)
 static void app_update_console_cmd(app_t *app)
 {
 
+  // move this into a separate function...
+  // so can be called from in code
+  // or perhaps use the clause
+
 
 
   while( ! cbuf_is_empty(&app->console_in)) {
@@ -678,7 +710,6 @@ static void app_update_console_cmd(app_t *app)
     assert(ch >= 0);
 
     // only read as much of console_in
-
 
 
     if (ch == ';' || ch == '\r' )

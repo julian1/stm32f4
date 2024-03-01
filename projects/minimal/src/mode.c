@@ -7,27 +7,26 @@
 
 #include <spi-ice40.h>
 #include <spi-4094.h>
+#include <spi-ad5446.h>
+#include <spi-dac8811.h>
+
+
 
 #include <lib2/util.h>   // msleep
 #include <mode.h>
 
 
 
-void mode_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *system_millis  /*, uint32_t update_flags */ )
+void mode_transition_state( uint32_t spi, const Mode *mode, volatile uint32_t *system_millis  /*, uint32_t update_flags */ )
 {
-  // could name spi_mode_transition_state
   assert(mode);
   // assert( sizeof(_4094_state_t) == 10 );
-
-  // should we be passing as a separate argument
-
 
   // mux spi to 4094. change mcu spi params, and set spi device to 4094
   spi_mux_4094 ( spi);
 
 
   // printf("-----------\n");
-
   // printf("app_transition_state write first state\n");
   // state_format (  (void *) &mode->first, sizeof(X) );
 
@@ -37,13 +36,28 @@ void mode_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *s
   // sleep 10ms
   msleep(10, system_millis);
 
-
   // and format
   // printf("app_transition_state write second state\n");
   // state_format ( (void *) &mode->second, sizeof(X) );
 
   // and write device
   spi_4094_reg_write_n(spi, (void *) &mode->second, sizeof(mode->second) );
+
+  /////////////////////////////
+
+  // now write dac state
+
+   // spi_mux_dac8811(app->spi);
+  spi_mux_ad5446( spi );
+
+  // for dac881 1eg. 0=-0V out.   0xffff = -7V out. nice.
+  // spi_dac8811_write16( app->spi, mode->dac_val );
+
+  // for ad5444  14bit max is 0x3fff.
+  spi_ad5446_write16( spi, mode->dac_val );
+
+
+
 
   /////////////////////////////
 

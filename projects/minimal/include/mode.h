@@ -124,10 +124,13 @@ typedef struct _4094_state_t
   uint8_t U1003 : 4;      // 4 bit mux.
   uint8_t U1006 : 4;
 
+  // U1008.
+  uint8_t U1009 : 4;
+  uint8_t U1008_UNUSED : 4;
 
-  uint8_t U1008_UNUSED : 8;
-
-  uint8_t U1017_UNUSED : 8;
+  // U1017
+  uint8_t U1010 : 4;
+  uint8_t U1012 : 4;
 
 } _4094_state_t;
 
@@ -221,6 +224,12 @@ typedef struct Mode
   // put this in another structure.
   // to make it clear. it is fpga state.
 
+
+
+  // could factor - into a struct.
+  uint16_t dac_val;
+
+
   uint32_t  reg_mode;
 
   F  reg_direct;
@@ -245,7 +254,7 @@ typedef struct Mode
 } Mode ;
 
 
-void mode_transition_state( unsigned spi, const Mode *mode, volatile uint32_t *system_millis /* uint32_t update_flags */ );
+void mode_transition_state( uint32_t spi, const Mode *mode, volatile uint32_t *system_millis /*, uint32_t update_flags */ );
 
 
 
