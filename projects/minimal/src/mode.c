@@ -33,7 +33,7 @@ static void state_format ( uint8_t *state, size_t n)
 
 
 
-void mode_transition_state( uint32_t spi, const Mode *mode, volatile uint32_t *system_millis  /*, uint32_t update_flags */ )
+void spi_mode_transition_state( uint32_t spi, const Mode *mode, volatile uint32_t *system_millis  /*, uint32_t update_flags */ )
 {
   assert(mode);
 

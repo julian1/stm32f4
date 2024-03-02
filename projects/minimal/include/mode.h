@@ -68,8 +68,8 @@
 #define S8          ((1<<3)|(8-1))
 
 
-// S for switch maybe SS ? or W
 // dual 1of 4 muxes.
+// S for switch maybe SS ? or W
 #define WOFF        0
 #define W1          ((1<<2)|(1-1))
 #define W2          ((1<<2)|(2-1))
@@ -77,12 +77,13 @@
 #define W4          ((1<<2)|(4-1))
 
 
+/*
 // relay.  TODO better name  LR_SET, LR_RESET.
 #define LR_OFF      0
 #define LR_BOT      0b01      // bottom contacts closed.
 #define LR_TOP      0b10      // top contacts closed.
 
-
+*/
 
 
 
@@ -162,14 +163,12 @@ typedef struct _4094_state_t
   assert( sizeof(F) == 4);
 */
 
-//  __attribute__((__packed__))
 
 
-// reg_direct_state_t
 typedef struct  __attribute__((__packed__))
-F
+reg_direct_t
 {
-  /* this is direct mode state.  TODO rename
+  /* this is direct mode state.
       in adc mode,   we would have 2 or four sets of mux registers for the values to switch.
       and the other lines would be given to the fpga to run
       ----
@@ -191,8 +190,29 @@ F
   uint8_t spi_interupt_ctl : 1;     // 29bits
 
   uint8_t dummy   : 3;
-} F;    // change name REG_DIRECT_MODE ????  reg_direct_t.  and also add  or Reg_direct
+} reg_direct_t;    // change name REG_DIRECT_MODE ????  reg_direct_t.  and also add  or Reg_direct
 
+
+
+
+
+
+typedef struct _adc_state_t
+{
+  /*
+       ----
+      reg_direct_t reg_direct2; only for a ratiometric function.
+      No. it's only the azmux. that needs a different value.
+  */
+
+
+  uint32_t  reg_sa_p_clk_count_precharge ;
+
+  uint32_t  reg_adc_p_aperture;
+  uint32_t  reg_adc_p_reset;
+
+
+} _adc_state_t;
 
 
 
@@ -206,7 +226,7 @@ F
 */
 
 
-// mode_t  conflicts with sys/types.
+// note that 'mode_t'  is in conflict with sys/types 'mode_t'.
 
 typedef struct Mode
 {
@@ -218,54 +238,51 @@ typedef struct Mode
   _4094_state_t     second;
 
 
-  /////////////////////////////////////
-  // put . FPGA STATE IN  HERE/
-  // fpga MODE.
 
-  // THE REASON TO NOT CONSIDER DOING THIS - is that do_state transition always pulses the relatys.
-  // BUT. can still always control fpga directly after setting up the major state.
+  /*
+     other app specific  state, that must be persisted.
+      and not managed by 4094 or fpga.
+    eg. for range-changin. etc.
+*/
 
-  /////////////////////////////////////
-
-  // put this in another structure.
-  // to make it clear. it is fpga state.
-
-
-
-  // could factor - into a struct.
+  // could factor to a struct, but only one value.
   uint16_t dac_val;
 
 
+  // confusinig name.   perhaps change name to AF. _alternative_function
+  // or ice40_reg_mode
   uint32_t  reg_mode;
 
-  F  reg_direct;
-  // F  reg_direct2; only for a ratiometric function.
-
-  uint32_t  reg_sa_p_clk_count_precharge ;
-
-  uint32_t  reg_adc_p_aperture;
-  uint32_t  reg_adc_p_reset;
+  // not explicitly an adc parameter.  signal acquisition or  adc.
+  reg_direct_t    reg_direct;
 
 
+  _adc_state_t    adc;
 
-  ////////////
-
-  /* other state, that needs to be persisted. not managed on 4094 or fpga.  required to be able to change range. etc.
-    could be placed in app_t.   or here. or somewhere else.
-    ----
-
-  */
 
 
 } Mode ;
 
 
-void mode_transition_state( uint32_t spi, const Mode *mode, volatile uint32_t *system_millis /*, uint32_t update_flags */ );
+// change name spi_spi_mode_transition_state
+// because spi is the first name
+void spi_mode_transition_state( uint32_t spi, const Mode *mode, volatile uint32_t *system_millis /*, uint32_t update_flags */ );
+
+
+
+
+
+
+
 
 
 
 
 #if 0
+
+
+
+
   // U406 4094.
   uint8_t U408_SW_CTL : 1;      // perhaps change to lower case....   eg. u408_sw
   uint8_t U406_UNUSED : 1;
@@ -327,4 +344,15 @@ void mode_transition_state( uint32_t spi, const Mode *mode, volatile uint32_t *s
   uint8_t U1006   : 4;    // adg1208  4 bits.
 
 #endif
+  /////////////////////////////////////
+  // put . FPGA STATE IN  HERE/
+  // fpga MODE.
+
+  // THE REASON TO NOT CONSIDER DOING THIS - is that do_state transition always pulses the relatys.
+  // BUT. can still always control fpga directly after setting up the major state.
+
+  /////////////////////////////////////
+
+  // put this in another structure.
+  // to make it clear. it is fpga state.
 

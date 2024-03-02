@@ -178,7 +178,7 @@ static void app_update_soft_500ms_configured(app_t *app)
 
       mode.second.U1003 = flip ? 0b1111 : 0b000;
 
-      mode_transition_state( app->spi, &mode, &app->system_millis);
+      spi_mode_transition_state( app->spi, &mode, &app->system_millis);
 #endif
 
 #if 0
@@ -774,9 +774,9 @@ static void app_update_console_cmd(app_t *app)
 
     if(ch == '\r')
     {
-      printf("calling mode_transition_state()");
+      printf("calling spi_mode_transition_state()");
 
-      mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+      spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
 
       // issue new command prompt
       printf("\n> ");
