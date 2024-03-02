@@ -44,6 +44,7 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 
 #include <stdio.h>    // printf, scanf
 #include <string.h>   // strcmp, memset
+// #include <strings.h>   // strcasecmp()
 #include <ctype.h>    // isspace
 #include <assert.h>
 #include <malloc.h> // malloc_stats()
@@ -249,15 +250,32 @@ static void app_update_soft_500ms(app_t *app)
 
     assert( ! spi_ice40_reg_read32( app->spi, REG_4094 ));
 
+    // we should write the initial mode.
+    // before we assert 40
+
+    // HERE
+
+
+    printf("spi_mode_transition_state() for mode_initial");
+    spi_mode_transition_state( app->spi, app->mode_initial, &app->system_millis);
+
+
+    /* OK. this is tricky.
+      OE must be enabled to pulse the relays. to put them in initial state.
+    */
+
+    printf("asserting 4094 OE\n");
 
     // assert 4094 OE
-    // want to do some additional checks.
+    // should check supply rails etc. first.
     spi_ice40_reg_write32( app->spi, REG_4094, 1 );
 
     // ensure 4094 OE asserted
     assert( spi_ice40_reg_read32( app->spi, REG_4094 ));
 
-
+    // now  call transition state again.
+    printf("spi_mode_transition_state() for mode_initial");
+    spi_mode_transition_state( app->spi, app->mode_initial, &app->system_millis);
   }
 
 
@@ -866,6 +884,14 @@ static app_t app;
 
 
 static const Mode mode_initial =  {
+
+
+
+  .first .K407  = LR_SET,     // disconnect dcv-source
+  .first .K406  = LR_SET,     // accumulation cap off
+  .first .K405  = LR_RESET,   // mux the himux2.
+
+
 
 #if 0
   /*
