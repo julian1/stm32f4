@@ -283,24 +283,14 @@ static unsigned str_decode_int( const char *s, uint32_t *val  )
   // reset == default position in the schematic.
 
   if (strcmp(s, "on") == 0
+    || strcmp(s, "set") == 0
     || strcmp(s, "true") == 0)
     *val = 1;
 
   else if(strcmp(s, "off") == 0
+    || strcmp(s, "reset") == 0
     || strcmp(s, "false") == 0)
     *val = 0;
-
-
-
-
-  // relay. not binary.
-  // #define LR_TOP      0b10 // 2  top contacts closed..   depends on orientation of relay.
-  // #define LR_BOT      0b01      // bottom contacts closed
-  else if ( strcmp(s, "set") == 0)      // LR_BOT
-    *val = 1;
-  else if ( strcmp(s, "reset") == 0)    // default position in schem.
-    *val = 2;
-
 
 
 
@@ -682,21 +672,19 @@ static void app_repl_statement(app_t *app,  const char *cmd)
         mode->dac_val = u0;
       }
 
+      /*
+          handle relay conversion locally, rather than at str_decode_int() time.
+          valid values are 1 (0b01)  and 2 (0b10). not 1/0.
+          reset is default schem contact position.
+      */
       else if(strcmp(s0, "k407") == 0) {
-        // note we can actually arg check here.
-        assert(u0 == 1 || u0 == 2);
-        // remember valid values are 1 (0b01)  and 2 (0b10). not 1/0.
-        // use rset and rreset ?
-        // or ls lr  for latch set, latch reset?
-        mode->first.K407 = u0;
+        mode->first.K407 = u0 ? LR_SET: LR_RESET ;      // 0 == reset
       }
       else if(strcmp(s0, "k406") == 0) {
-        assert(u0 == 1 || u0 == 2);
-        mode->first.K406 = u0;
+        mode->first.K406 = u0 ? LR_SET: LR_RESET;
       }
       else if(strcmp(s0, "k405") == 0) {
-        assert(u0 == 1 || u0 == 2);
-        mode->first.K405 = u0;
+        mode->first.K405 = u0 ? LR_SET: LR_RESET;
       }
 
 
@@ -887,14 +875,14 @@ static const Mode mode_initial =  {
 
   //  maybe make explicit all values  U408_SW_CTL. at least for the initial mode, from which others derive.
 
-  .first .K406_CTL  = LR_TOP,     // accumulation relay off
+  .first .K406_CTL  = LR_SET,     // accumulation relay off
 
-  .first. K405_CTL  = LR_BOT,     // dcv input relay k405 switch off - works.
-  .first. K402_CTL  = LR_BOT,     // dcv-div/directz relay off
+  .first. K405_CTL  = LR_RESET,     // dcv input relay k405 switch off - works.
+  .first. K402_CTL  = LR_RESET,     // dcv-div/directz relay off
                                 // must match app->persist_fixedz
 
-  .first. K401_CTL  = LR_TOP,     // dcv-source relay off.
-  .first. K403_CTL  = LR_BOT,     // ohms relay off.
+  .first. K401_CTL  = LR_SET,     // dcv-source relay off.
+  .first. K403_CTL  = LR_RESET,     // ohms relay off.
 
   .first .U408_SW_CTL = 0,      // b2b fets/ input protection off/open
 
@@ -911,27 +899,27 @@ static const Mode mode_initial =  {
 
 
 
-  .first. K603_CTL  = LR_BOT,     // ohms relay off.
+  .first. K603_CTL  = LR_RESET,     // ohms relay off.
 
 
   /////////////////////////
   // 700
   // has inverting cmos buffer
-  .first. K702_CTL  = LR_BOT,
+  .first. K702_CTL  = LR_RESET,
   .second.K702_CTL  = 0b11,
 
   // 0.1R shunt off. has inverting cmos buffer
-  .first. K703_CTL  = LR_BOT,
+  .first. K703_CTL  = LR_RESET,
   .second.K703_CTL  = 0b11,
 
   // shunts / TIA - default to shunts
-  .first. K709_CTL  = LR_TOP,
+  .first. K709_CTL  = LR_SET,
 
   // agn200 shunts are off.
-  .first. K707_CTL  = LR_TOP,
-  .first. K706_CTL  = LR_TOP,
-  .first. K704_CTL  = LR_TOP,
-  .first. K705_CTL  = LR_TOP,
+  .first. K707_CTL  = LR_SET,
+  .first. K706_CTL  = LR_SET,
+  .first. K704_CTL  = LR_SET,
+  .first. K705_CTL  = LR_SET,
 
 
 

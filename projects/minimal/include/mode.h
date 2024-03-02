@@ -80,13 +80,16 @@
 /*
 // relay.  TODO better name  LR_SET, LR_RESET.
 #define LR_OFF      0
-#define LR_BOT      0b01      // bottom contacts closed.
-#define LR_TOP      0b10      // top contacts closed.
+#define LR_RESET      0b01      // bottom contacts closed.
+#define LR_SET      0b10      // top contacts closed.
 
 RSET.   RRESET.  relay set. and relay reset.
-reset is schem default contacts. 
+reset is schem default contacts.
 
 */
+
+#define LR_SET      0b01
+#define LR_RESET    0b10
 
 
 
