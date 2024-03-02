@@ -100,9 +100,15 @@ typedef struct _4094_state_t
 
   uint8_t U402_UNUSED : 8;
 
-  uint8_t U414_UNUSED : 8;
+
+  // U414
+  uint8_t K401 : 2;
+  uint8_t K406 : 2;
+  uint8_t K405 : 2;
+  uint8_t U414_UNUSED : 2;
 
 
+  // U415
   uint8_t U415_UNUSED : 6;
   uint8_t K407        : 2;
 

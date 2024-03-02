@@ -1,6 +1,7 @@
 
 
 #include <assert.h>
+#include <stdio.h>
 
 
 
@@ -13,22 +14,40 @@
 
 
 #include <lib2/util.h>   // msleep
+#include <lib2/format.h>   // str_format_bits
 #include <mode.h>
+
+
+
+
+static void state_format ( uint8_t *state, size_t n)
+{
+  assert(state);
+
+  char buf[100];
+  for(unsigned i = 0; i < n; ++i ) {
+
+    printf("v %s\n",  str_format_bits(buf, 8, state[ i ]  ));
+  }
+}
 
 
 
 void mode_transition_state( uint32_t spi, const Mode *mode, volatile uint32_t *system_millis  /*, uint32_t update_flags */ )
 {
   assert(mode);
-  // assert( sizeof(_4094_state_t) == 10 );
+
+  // printf("4094 size %u\n", sizeof(_4094_state_t));
+  assert( sizeof(_4094_state_t) == 7 );
 
   // mux spi to 4094. change mcu spi params, and set spi device to 4094
   spi_mux_4094 ( spi);
 
-
-  // printf("-----------\n");
-  // printf("app_transition_state write first state\n");
-  // state_format (  (void *) &mode->first, sizeof(X) );
+/*
+  printf("-----------\n");
+  printf("write first state\n");
+  state_format (  (void *) &mode->first, sizeof(mode->first) );
+*/
 
   // and write device
   spi_4094_reg_write_n(spi, (void *) &mode->first, sizeof( mode->first ) );
@@ -36,9 +55,11 @@ void mode_transition_state( uint32_t spi, const Mode *mode, volatile uint32_t *s
   // sleep 10ms
   msleep(10, system_millis);
 
+/*
   // and format
-  // printf("app_transition_state write second state\n");
-  // state_format ( (void *) &mode->second, sizeof(X) );
+  // printf("write second state\n");
+  state_format ( (void *) &mode->second, sizeof(mode->second) );
+*/
 
   // and write device
   spi_4094_reg_write_n(spi, (void *) &mode->second, sizeof(mode->second) );
