@@ -256,7 +256,7 @@ static void app_update_soft_500ms(app_t *app)
     // HERE
 
 
-    printf("spi_mode_transition_state() for mode_initial");
+    printf("spi_mode_transition_state() for muxes\n");
     spi_mode_transition_state( app->spi, app->mode_initial, &app->system_millis);
 
 
@@ -274,7 +274,7 @@ static void app_update_soft_500ms(app_t *app)
     assert( spi_ice40_reg_read32( app->spi, REG_4094 ));
 
     // now  call transition state again.
-    printf("spi_mode_transition_state() for mode_initial");
+    printf("spi_mode_transition_state() for relays\n");
     spi_mode_transition_state( app->spi, app->mode_initial, &app->system_millis);
   }
 

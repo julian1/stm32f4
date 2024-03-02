@@ -18,7 +18,7 @@
 void spi_mux_dac8811(uint32_t spi )
 {
   // EXTR. setup on the ice40 side.
-  printf("spi mux dac8811 \n");
+  // printf("spi mux dac8811 \n");
 
   assert( SPI_MUX_DAC8811 == 2);   // (1<<1)
 
@@ -38,9 +38,9 @@ void spi_mux_dac8811(uint32_t spi )
   // ad5446 on falling edge.
   spi_init_master(
     spi,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_4,       // actually ok. over 50cm. idc cable.
+    SPI_CR1_BAUDRATE_FPCLK_DIV_4,       // actually works over 50cm. idc cable.
     // SPI_CR1_BAUDRATE_FPCLK_DIV_16,
-    SPI_CR1_BAUDRATE_FPCLK_DIV_32,
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_32,
     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,      // park to 0/lo == positive clok edge. park to 1 == negative clk edge.
     SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == leading edge,  2 == falling edge
     SPI_CR1_DFF_8BIT,

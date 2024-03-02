@@ -26,7 +26,6 @@ static void state_format ( uint8_t *state, size_t n)
 
   char buf[100];
   for(unsigned i = 0; i < n; ++i ) {
-
     printf("v %s\n",  str_format_bits(buf, 8, state[ i ]  ));
   }
 }

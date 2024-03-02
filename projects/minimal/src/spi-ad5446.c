@@ -18,7 +18,7 @@
 void spi_mux_ad5446(uint32_t spi )
 {
   // EXTR. setup on the ice40 side.
-  printf("spi mux ad5446\n");
+  // printf("spi mux ad5446\n");
 
   assert( SPI_MUX_DAC8811 == 2);   // (1<<1)
 
@@ -38,7 +38,7 @@ void spi_mux_ad5446(uint32_t spi )
   // ad5446 on falling edge.
   spi_init_master(
     spi,
-    SPI_CR1_BAUDRATE_FPCLK_DIV_4,       // actually ok. over 50cm. idc cable.
+    SPI_CR1_BAUDRATE_FPCLK_DIV_4,       // actually works over 50cm. idc cable.
     // SPI_CR1_BAUDRATE_FPCLK_DIV_16,
     // SPI_CR1_BAUDRATE_FPCLK_DIV_32,
     SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,      // ad5446 reads on neg edge. ONLY DIFFERENCE.   park to 0/lo == positive clok edge. park to 1 == negative clk edge.
