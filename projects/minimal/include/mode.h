@@ -83,6 +83,9 @@
 #define LR_BOT      0b01      // bottom contacts closed.
 #define LR_TOP      0b10      // top contacts closed.
 
+RSET.   RRESET.  relay set. and relay reset.
+reset is schem default contacts. 
+
 */
 
 
