@@ -635,6 +635,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
 
   }
 
+#if 0
 /*
   -- don't really need, just query direct reg for monitor and right shift.
 */
@@ -648,6 +649,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
     char buf[ 100];
     printf("r %u  v %lu  %s\n",  REG_DIRECT, ret, str_format_bits(buf, 8, ret ));
   }
+#endif
 
 
   ///////////////////////////////////////////////////
@@ -704,7 +706,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
       }
 
       /*
-          handle relay conversion locally, rather than at str_decode_int() time.
+          handle latch relay pulse encoding here, rather than at str_decode_int() time.
           valid values are 1 (0b01)  and 2 (0b10). not 1/0.
           reset is default schem contact position.
       */
@@ -719,12 +721,24 @@ static void app_repl_statement(app_t *app,  const char *cmd)
       }
 
 
-      // would be better to set direct led_o  3 prefix...
+      // this is nice.
       else if(strcmp(s0, "leds_o") == 0) {
-        mode->reg_direct.leds_o = u0; 
+        mode->reg_direct.leds_o = u0;
       }
       else if(strcmp(s0, "monitor_o") == 0) {
-        mode->reg_direct.monitor_o = u0; 
+        mode->reg_direct.monitor_o = u0;
+      }
+
+
+      // sample acquisition - direct state
+      else if(strcmp(s0, "sig_pc1_sw_o") == 0) {
+        mode->reg_direct.sig_pc1_sw_o= u0;
+      }
+      else if(strcmp(s0, "sig_pc2_sw_o") == 0) {
+        mode->reg_direct.sig_pc2_sw_o = u0;
+      }
+      else if(strcmp(s0, "azmux_o") == 0) {
+        mode->reg_direct.azmux_o = u0;
       }
 
 
