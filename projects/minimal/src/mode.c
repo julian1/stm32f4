@@ -5,6 +5,7 @@
 
 
 
+#include <ice40-reg.h>
 
 #include <spi-ice40.h>
 #include <spi-4094.h>
@@ -13,7 +14,7 @@
 
 
 
-#include <lib2/util.h>   // msleep
+#include <lib2/util.h>      // msleep
 #include <lib2/format.h>   // str_format_bits
 #include <mode.h>
 
@@ -83,6 +84,10 @@ void spi_mode_transition_state( uint32_t spi, const Mode *mode, volatile uint32_
 
   // now do fpga state
   spi_mux_ice40(spi);
+
+
+  assert( sizeof(reg_direct_t) == 4);
+  spi_ice40_reg_write_n(spi, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
 
 /*
   // set mode

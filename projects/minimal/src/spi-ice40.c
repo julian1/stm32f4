@@ -26,7 +26,7 @@
 
 
 
-#include <reg.h> // REG_SPI_MUX
+#include <ice40-reg.h>              // REG_SPI_MUX
 
 #include <peripheral/spi-port.h>
 #include <spi-ice40.h>

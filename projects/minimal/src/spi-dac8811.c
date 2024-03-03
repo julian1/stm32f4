@@ -10,7 +10,7 @@
 
 #include <spi-dac8811.h>
 #include <spi-ice40.h>
-#include <reg.h>
+#include <ice40-reg.h>
 
 
 

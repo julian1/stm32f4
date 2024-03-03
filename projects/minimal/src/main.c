@@ -74,10 +74,12 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 #include <spi-ad5446.h>
 
 #include <lib2/format.h>   // format_bits()
-#include <app.h>
-#include <reg.h>
+
+#include <ice40-reg.h>
 
 #include <mode.h>
+#include <app.h>
+
 
 
 // fix me
@@ -109,6 +111,9 @@ static void app_update_soft_500ms_configured(app_t *app)
     -----
     should see if we can catch something.... with simple fpga code - and without a timer.  eg. just an active slave select on cs1 or cs2.
   */
+
+
+  return;
 
 
   /*
@@ -395,7 +400,8 @@ static void app_repl_statement(app_t *app,  const char *cmd)
   char s1[100 + 1 ];
 
 
-  uint32_t u0 , u1;
+  // uint32_t u0 , u1;
+  uint32_t u0;
 
 
   ////////////////////
@@ -524,12 +530,16 @@ static void app_repl_statement(app_t *app,  const char *cmd)
 
   // don't we have some code - to handle sscan as binary/octal/hex ?
 
-  else if( sscanf(cmd, "direct %lu", &u0 ) == 1) {
 
+
+
+  else if( sscanf(cmd, "direct %100s", s0) == 1
+    && str_decode_int( s0, &u0)
+  ) {
     /*
       IMPORTANT - to properly sequence, in a set of repl commands,
-      this update should be deferred to the state_update.
-
+      Or just use 'set' direct.
+      Or allow set direct bits.
     */
 
     // set the direct register.
@@ -543,6 +553,8 @@ static void app_repl_statement(app_t *app,  const char *cmd)
     printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  str_format_bits(buf, 32, ret ));
   }
 
+
+#if 0
   else if( sscanf(cmd, "direct bit %lu %lu", &u0, &u1 ) == 2) {
 
     // modify direct_reg and bit by bitnum and val
@@ -577,6 +589,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
     printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  str_format_bits(buf, 32, ret ));
     spi_ice40_reg_write32(app->spi, REG_DIRECT, ret );
   }
+#endif
 
 
   else if( strcmp( cmd, "direct?") == 0) {
@@ -703,6 +716,15 @@ static void app_repl_statement(app_t *app,  const char *cmd)
       }
       else if(strcmp(s0, "k405") == 0) {
         mode->first.K405 = u0 ? LR_SET: LR_RESET;
+      }
+
+
+      // would be better to set direct led_o  3 prefix...
+      else if(strcmp(s0, "leds_o") == 0) {
+        mode->reg_direct.leds_o = u0; 
+      }
+      else if(strcmp(s0, "monitor_o") == 0) {
+        mode->reg_direct.monitor_o = u0; 
       }
 
 
@@ -1062,6 +1084,9 @@ int main(void)
   assert( sizeof(bool) == 1);
   assert( sizeof(float) == 4);
   assert( sizeof(double ) == 8);
+
+
+
 
   printf("sizeof app_t %u\n", sizeof(app_t));
 

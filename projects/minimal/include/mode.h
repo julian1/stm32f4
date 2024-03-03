@@ -181,7 +181,7 @@ reg_direct_t
       and this state would be written in the main mode state.
       -------
   */
-
+/*
   uint8_t azmux   : 4;
   uint8_t himux   : 4;
   uint8_t himux2  : 4;     // 12
@@ -196,7 +196,44 @@ reg_direct_t
   uint8_t spi_interupt_ctl : 1;     // 29bits
 
   uint8_t dummy   : 3;
-} reg_direct_t;    // change name REG_DIRECT_MODE ????  reg_direct_t.  and also add  or Reg_direct
+*/
+
+
+
+  uint8_t   leds_o     : 4;
+  uint8_t   monitor_o  : 8;
+  uint8_t   spi_interrupt_ctl_o : 1;      // 12
+  uint8_t   meas_complete_o : 1;          // 13
+  uint8_t   sig_pc1_sw_o : 1;             // 14
+  uint8_t   sig_pc2_sw_o : 1;             // 15
+  uint8_t   azmux_o : 4 ;                 // 16
+  uint8_t   adc_cmpr_latch_o : 1;          // 20
+  uint8_t   adc_refmux_o : 4;                   // 21     // better name adc_refmux   adc_cmpr_latch
+  uint8_t   dummy_bits_o : 7;               // 25 
+
+} reg_direct_t;    
+
+
+
+
+
+/*
+
+    .out( {   dummy_bits_o,               //  25 
+              adc_refmux_o,                   // 21     // better name adc_refmux   adc_cmpr_latch
+              adc_cmpr_latch_o,             // 20
+              azmux_o,                   // 16
+              sig_pc2_sw_o,             // 15
+              sig_pc1_sw_o,             // 14
+              meas_complete_o,          // 13     // interupt_ctl *IS* generic so should be at start, and connects straight to adum. so place at beginning. same argument for meas_complete
+              spi_interrupt_ctl_o,      // 12     todo rename. drop the 'ctl'.
+              monitor_o,                // 4
+              leds_o                    // 0
+            }  )
+
+
+*/
+
 
 
 
