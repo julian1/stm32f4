@@ -200,8 +200,8 @@ reg_direct_t
 
 
 
-  uint8_t   leds_o     : 4;
-  uint8_t   monitor_o  : 8;
+  uint8_t   leds_o     : 4;               // 0
+  uint8_t   monitor_o  : 8;               // 4
   uint8_t   spi_interrupt_ctl_o : 1;      // 12
   uint8_t   meas_complete_o : 1;          // 13
   uint8_t   sig_pc1_sw_o : 1;             // 14
@@ -209,30 +209,12 @@ reg_direct_t
   uint8_t   azmux_o : 4 ;                 // 16
   uint8_t   adc_cmpr_latch_o : 1;          // 20
   uint8_t   adc_refmux_o : 4;                   // 21     // better name adc_refmux   adc_cmpr_latch
-  uint8_t   dummy_bits_o : 7;               // 25 
+  uint8_t   dummy_bits_o : 7;               // 25
 
-} reg_direct_t;    
-
-
+} reg_direct_t;
 
 
 
-/*
-
-    .out( {   dummy_bits_o,               //  25 
-              adc_refmux_o,                   // 21     // better name adc_refmux   adc_cmpr_latch
-              adc_cmpr_latch_o,             // 20
-              azmux_o,                   // 16
-              sig_pc2_sw_o,             // 15
-              sig_pc1_sw_o,             // 14
-              meas_complete_o,          // 13     // interupt_ctl *IS* generic so should be at start, and connects straight to adum. so place at beginning. same argument for meas_complete
-              spi_interrupt_ctl_o,      // 12     todo rename. drop the 'ctl'.
-              monitor_o,                // 4
-              leds_o                    // 0
-            }  )
-
-
-*/
 
 
 
@@ -293,7 +275,7 @@ typedef struct Mode
 
 
   // confusinig name.   perhaps change name to AF. _alternative_function
-  // or ice40_reg_mode
+  // or reg_ice40_mode
   uint32_t  reg_mode;
 
   // not explicitly an adc parameter.  signal acquisition or  adc.
