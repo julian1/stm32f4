@@ -86,21 +86,40 @@ void spi_mode_transition_state( uint32_t spi, const Mode *mode, volatile uint32_
   spi_mux_ice40(spi);
 
 
+  spi_ice40_reg_write32(spi, REG_MODE, mode->reg_mode );
+
+  // reg_direct for outputs under fpga control
   assert( sizeof(reg_direct_t) == 4);
   spi_ice40_reg_write_n(spi, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
 
+
+  printf("writing precharge %lu\n" , mode->sa.reg_sa_p_clk_count_precharge  );
+
+  // sa
+  spi_ice40_reg_write32(spi, REG_SA_P_CLK_COUNT_PRECHARGE, mode->sa.reg_sa_p_clk_count_precharge );
+
+
+  printf("writing aperture %lu\n" ,   mode->adc.reg_adc_p_aperture  );
+
+  // adc
+  spi_ice40_reg_write32(spi, REG_ADC_P_CLK_COUNT_APERTURE,  mode->adc.reg_adc_p_aperture );
+  spi_ice40_reg_write32(spi, REG_ADC_P_CLK_COUNT_RESET,     mode->adc.reg_adc_p_reset );
+
+
+
+
 /*
-  // set mode
-  spi_ice40_reg_write32(spi, REG_MODE, mode->reg_mode );
 
-  spi_ice40_reg_write_n(spi, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
+//  sample acquisition.
+#define REG_SA_ARM_TRIGGER              19
+#define REG_SA_P_CLK_COUNT_PRECHARGE    21
 
-  spi_ice40_reg_write32(spi, REG_ADC_P_APERTURE,          mode->reg_adc_p_aperture );
-  spi_ice40_reg_write32(spi, REG_ADC_P_CLK_COUNT_RESET,   mode->reg_adc_p_reset );
+// adc parameters
+#define REG_ADC_P_CLK_COUNT_APERTURE    20   // clk sample time. change name aperture.  // TODO reassign.
+#define REG_ADC_P_CLK_COUNT_RESET       25
 
-  spi_ice40_reg_write32(spi, REG_SA_P_CLK_COUNT_PRECHARGE, mode->reg_sa_p_clk_count_precharge );
 
-  // can add the reg reset here.
+
 
 */
 }

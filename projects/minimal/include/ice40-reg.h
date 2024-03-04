@@ -22,6 +22,18 @@
 
 
 
+//  sample acquisition.
+#define REG_SA_ARM_TRIGGER              19
+#define REG_SA_P_CLK_COUNT_PRECHARGE    21
+
+// adc parameters
+#define REG_ADC_P_CLK_COUNT_APERTURE    20   // clk sample time. change name aperture.  // TODO reassign.
+#define REG_ADC_P_CLK_COUNT_RESET       25
+
+
+
+
+
 ///////////////////
 // reg spi mux
 // note active bits.

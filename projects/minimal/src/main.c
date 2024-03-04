@@ -1,5 +1,6 @@
 /*
-nix-shell ~/devel/nixos-config/examples/arm.nix
+
+  nix-shell ~/devel/nixos-config/examples/arm.nix
   rlwrap -a picocom -b 115200 /dev/ttyUSB0
 
   nix-shell ~/devel/nixos-config/examples/arm.nix
@@ -687,8 +688,14 @@ static void app_repl_statement(app_t *app,  const char *cmd)
       printf("set %s0 %lu\n", s0, u0);
 
       // cannot manage pointer to bitfield. so have to hardcode.
+  
+      // ice40 mode.
+      if(strcmp(s0, "mode") == 0) {
+        mode->reg_mode = u0;
+      }
+ 
 
-      if(strcmp(s0, "u1003") == 0) {
+      else if(strcmp(s0, "u1003") == 0) {
         mode->second.U1003 = u0;
       }
       else if(strcmp(s0, "u1006") == 0) {
@@ -738,6 +745,17 @@ static void app_repl_statement(app_t *app,  const char *cmd)
       else if(strcmp(s0, "azmux_o") == 0) {
         mode->reg_direct.azmux_o = u0;
       }
+
+      // adc precharge.
+      // want a separate decoder.  to handle ms. us. suffix.
+      // probably should move out of here...
+      else if(strcmp(s0, "aperture") == 0) {
+        mode->adc.reg_adc_p_aperture = u0;
+      }
+      else if(strcmp(s0, "precharge") == 0) {
+        mode->sa.reg_sa_p_clk_count_precharge = u0;
+      }
+
 
 
 
@@ -916,6 +934,7 @@ static app_t app;
 // static Mode mode_current;
 
 
+#define CLK_FREQ 20000000
 
 static const Mode mode_initial =  {
 
@@ -925,6 +944,14 @@ static const Mode mode_initial =  {
   .first .K406  = LR_SET,     // accumulation cap off
   .first .K405  = LR_RESET,   // mux the himux2.
 
+
+  .reg_mode = 0, // MODE_LO,                                  // default, blink led according to mcu
+
+  .sa.reg_sa_p_clk_count_precharge = CLK_FREQ * 500e-6,             //  `CLK_FREQ * 500e-6 ;   // 500us.
+
+  .adc.reg_adc_p_aperture = CLK_FREQ * 0.2,   // 200ms. 10nplc 50Hz.  // Not. should use current calibration?  // should be authoritative source of state.
+
+  .adc.reg_adc_p_reset = CLK_FREQ * 500e-6                // 500us.
 
 
 #if 0

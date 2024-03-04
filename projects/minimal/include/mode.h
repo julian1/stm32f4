@@ -222,7 +222,7 @@ reg_direct_t
 
 
 
-typedef struct _adc_state_t
+typedef struct adc_state_t
 {
   /*
        ----
@@ -230,16 +230,24 @@ typedef struct _adc_state_t
       No. it's only the azmux. that needs a different value.
   */
 
-
-  uint32_t  reg_sa_p_clk_count_precharge ;
-
-  uint32_t  reg_adc_p_aperture;
-  uint32_t  reg_adc_p_reset;
-
-
-} _adc_state_t;
+  // 'p' implies its a paraameter
+  // prefix with cc. clock_count
+  
+  uint32_t  reg_adc_p_aperture;     // regadc_cc_aperture
+  uint32_t  reg_adc_p_reset;        // regadc_cc_reset
 
 
+} adc_state_t;
+
+
+
+
+typedef struct sa_state_t
+{
+ 
+  uint32_t  reg_sa_p_clk_count_precharge ;   // regadc_cc_precharge
+
+} sa_state_t;
 
 
 /*
@@ -282,8 +290,9 @@ typedef struct Mode
   reg_direct_t    reg_direct;
 
 
-  _adc_state_t    adc;
+  adc_state_t    adc;
 
+  sa_state_t    sa;
 
 
 } Mode ;
