@@ -254,32 +254,28 @@ static void app_update_soft_500ms(app_t *app)
 
     assert( ! spi_ice40_reg_read32( app->spi, REG_4094 ));
 
-    // we should write the initial mode.
-    // before we assert 40
 
-    // HERE
-
-
-    printf("spi_mode_transition_state() for muxes\n");
-    spi_mode_transition_state( app->spi, app->mode_initial, &app->system_millis);
+    // reset the mode.
+    *app->mode_current = *app->mode_initial;
 
 
     /* OK. this is tricky.
-      OE must be enabled to pulse the relays. to put them in initial state.
+      OE must be enabled to pulse the relays. to put them in current state.
     */
+    // write the default 4094 state for muxes etc.
+    printf("spi_mode_transition_state() for muxes\n");
+    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
 
-    printf("asserting 4094 OE\n");
-
-    // assert 4094 OE
+    // now assert 4094 OE
     // should check supply rails etc. first.
+    printf("asserting 4094 OE\n");
     spi_ice40_reg_write32( app->spi, REG_4094, 1 );
-
     // ensure 4094 OE asserted
     assert( spi_ice40_reg_read32( app->spi, REG_4094 ));
 
-    // now  call transition state again.
+    // now call transition state again. which will do relays
     printf("spi_mode_transition_state() for relays\n");
-    spi_mode_transition_state( app->spi, app->mode_initial, &app->system_millis);
+    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
   }
 
 
@@ -688,12 +684,12 @@ static void app_repl_statement(app_t *app,  const char *cmd)
       printf("set %s0 %lu\n", s0, u0);
 
       // cannot manage pointer to bitfield. so have to hardcode.
-  
+
       // ice40 mode.
       if(strcmp(s0, "mode") == 0) {
         mode->reg_mode = u0;
       }
- 
+
 
       else if(strcmp(s0, "u1003") == 0) {
         mode->second.U1003 = u0;
