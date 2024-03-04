@@ -58,8 +58,7 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 #include <lib2/util.h>   // msleep()
 #include <lib2/cbuffer.h>
 #include <lib2/cstring.h>
-#include <lib2/format.h>   // trim_whitespace()
-
+#include <lib2/format.h>   // trim_whitespace()  format_bits()
 
 
 #include <peripheral/led.h>
@@ -73,7 +72,6 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 #include <peripheral/spi-dac8811.h>
 #include <peripheral/spi-ad5446.h>
 
-#include <lib2/format.h>   // format_bits()
 
 #include <ice40-reg.h>
 

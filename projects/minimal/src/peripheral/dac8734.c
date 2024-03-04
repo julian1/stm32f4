@@ -1,14 +1,29 @@
 
 /*
   mar 2024.
-  - this code is complicated, because it combines both dac specific initialation,
-    as well as dac configuration pins, and supplies etc. which needs, 4094/ or fpga gpio / or the dac.
+  - this code is complicated, because it combines both
+        - dac specific initialation,
+        - as well as dac external configuration pins, DAC_LDAC, DAC_UNI_BIP_A,
 
-    and the sequence needing, configuration before applying power, needs some care, and doesn't play well with the rest of the mode/4094 . initialization.
+        - and the configuration has to be done before applying power,
+        - and it would be good to call rst first.
+
   ---
   it may make sense - for a 4094 and dac8734 to share glb spi clk,mosipins,   but have a specific 4094 strobe/OE .
-
   - or perhaps the two dac gpio outputs would be enough. eg. one to turn on power. and one to configure something.
+  ------
+
+  two-state 4094 initialization approach may be enough.
+    - rst
+    - first stage - configure dac registers, and external pins via 4094.
+    - second stage - apply power.
+
+  if given own 4094 - then we could do a three stage.
+  --------
+
+
+    maybe best - to just configure once - at powerup/startup. similar to ice40 loading bitstream
+    then on mode updates - just write the dac output registers.
 
 */
 
