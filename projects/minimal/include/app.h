@@ -41,6 +41,7 @@ typedef struct app_t
   Mode *mode_current;
 
 
+  uint32_t line_freq;
 
 
 } app_t;

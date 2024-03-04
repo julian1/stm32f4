@@ -1,6 +1,6 @@
-
-
 /*
+  not sure how useful this is, perhaps could just add to main.c
+
   same initerface as spi_enable()/spi_disable(). etc
   and ice40_creset_enable()/disable()
 */

@@ -45,11 +45,8 @@
 
 #include <stdio.h>    // printf, scanf
 #include <string.h>   // strcmp, memset
-// #include <strings.h>   // strcasecmp()
-#include <ctype.h>    // isspace
 #include <assert.h>
 #include <malloc.h> // malloc_stats()
-#include <stdlib.h> // strtolu
 
 
 
@@ -62,11 +59,10 @@
 #include <lib2/format.h>   // trim_whitespace()  format_bits()
 
 
+
 #include <peripheral/led.h>
 #include <peripheral/spi-port.h>
 #include <peripheral/ice40-extra.h>
-
-
 #include <peripheral/spi-ice40.h>
 #include <peripheral/spi-4094.h>
 #include <peripheral/spi-ice40-bitstream.h>
@@ -74,10 +70,13 @@
 #include <peripheral/spi-ad5446.h>
 
 
+
+
 #include <ice40-reg.h>
 
 #include <mode.h>
 #include <app.h>
+#include <util.h>
 
 
 
@@ -222,9 +221,12 @@ static void app_update_soft_500ms_configured(app_t *app)
 #endif
 
     }
-
-
 }
+
+
+
+
+
 
 static void app_update_soft_500ms(app_t *app)
 {
@@ -252,6 +254,9 @@ static void app_update_soft_500ms(app_t *app)
 
     spi_ice40_bitstream_send(app->spi, & app->system_millis );
 
+    // TODO . could improve error handling here,  although subsequent spi code is harmless
+
+    // check/verify 4094 OE is not asserted
     assert( ! spi_ice40_reg_read32( app->spi, REG_4094 ));
 
 
@@ -260,7 +265,8 @@ static void app_update_soft_500ms(app_t *app)
 
 
     /* OK. this is tricky.
-      OE must be enabled to pulse the relays. to put them in current state.
+        OE must be enabled to pulse the relays. to align them to initial/current state.
+        but we probably want to configure as much other state first, before asserting 4094 OE.
     */
     // write the default 4094 state for muxes etc.
     printf("spi_mode_transition_state() for muxes\n");
@@ -287,82 +293,6 @@ static void app_update_soft_500ms(app_t *app)
   }
 
 
-}
-
-
-
-
-static unsigned str_decode_int( const char *s, uint32_t *val  )
-{
-  // decode int literal
-  // set/reset  for relay.
-
-
-  // reset == default position in the schematic.
-
-  if (strcmp(s, "on") == 0
-    || strcmp(s, "set") == 0
-    || strcmp(s, "true") == 0)
-    *val = 1;
-
-  else if(strcmp(s, "off") == 0
-    || strcmp(s, "reset") == 0
-    || strcmp(s, "false") == 0)
-    *val = 0;
-
-
-
-
-  // 1 of 8 mux values.
-  else if(strcmp(s, "s8") == 0 )
-    *val = S8;
-  else if(strcmp(s, "s7") == 0 )
-    *val = S7;
-  else if(strcmp(s, "s6") == 0 )
-    *val = S6;
-  else if(strcmp(s, "s5") == 0 )
-    *val = S5;
-  else if(strcmp(s, "s4") == 0 )
-    *val = S4;
-  else if(strcmp(s, "s3") == 0 )
-    *val = S3;
-  else if(strcmp(s, "s2") == 0 )
-    *val = S2;
-  else if(strcmp(s, "s1") == 0 )
-    *val = S1;
-
-/*
-  // 2 of 4 mux values
-
-*/
-
-
-  // we could factor all this handling.
-  // read_int.
-  else if( s[0] == '0' && s[1] == 'x' && sscanf(s, "%lx", val) == 1) {
-    // printf("got hex\n" );
-  }
-  else if( s[0] == '0' && s[1] == 'o' && sscanf(s + 2, "%lo", val) == 1) {
-    // for octal, sscanf doesn't like/accept a prefix
-    // printf("got octal\n" );
-  }
-  else if( s[0] == '0' && s[1] == 'b') {
-    // binary is very useful for muxes
-    *val = strtoul(s + 2, NULL, 2);
-    // char buf[100];
-    // printf("got binary %s\n", format_bits(buf, 32, val ) );
-  }
-  else if( isdigit( (unsigned char) s[0] ) && sscanf(s, "%lu", val) == 1) {
-    // printf("got decimal\n" );
-  }
-
-  else {
-    printf("bad val arg\n" );
-    return 0;   // fail
-  }
-
-  // OK.
-  return 1 ;
 }
 
 
@@ -397,6 +327,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
 
   // uint32_t u0 , u1;
   uint32_t u0;
+  double f0;
 
 
   ////////////////////
@@ -669,8 +600,45 @@ static void app_repl_statement(app_t *app,  const char *cmd)
   ///////////////////////
 
 
-  // strcasecmp() from strings.h.
-  // or just force lower case first.
+
+  /*
+      we have to disambiguate values with float args explicitly...
+      because float looks like int
+  */
+
+  else if( sscanf(cmd, "set aper %100s", s0) == 1
+    && str_decode_float( s0, &f0))
+  {
+    assert(app->mode_current);
+    Mode * mode = app->mode_current;
+
+    printf("set aperture\n");
+    uint32_t aperture = period_to_aper_n( f0 );
+    // assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
+    aper_n_print( aperture,  app->line_freq);
+    mode->adc.reg_adc_p_aperture = aperture;
+  }
+
+
+  else if( sscanf(cmd, "set nplc %100s", s0) == 1
+    && str_decode_float( s0, &f0))
+  {
+    // use float here, to express sub 1nplc periods
+    if( ! nplc_valid( f0 ))  {
+        printf("bad nplc arg\n");
+        // return 1;
+    } else {
+
+      assert(app->mode_current);
+      Mode * mode = app->mode_current;
+
+      // should be called cc_aperture or similar.
+      uint32_t aperture = nplc_to_aper_n( f0, app->line_freq );
+      aper_n_print( aperture,  app->line_freq);
+      mode->adc.reg_adc_p_aperture = aperture;
+    }
+  }
+
 
 
   else if( sscanf(cmd, "set %100s %100s", s0, s1) == 2
@@ -689,7 +657,11 @@ static void app_repl_statement(app_t *app,  const char *cmd)
       if(strcmp(s0, "mode") == 0) {
         mode->reg_mode = u0;
       }
-
+      else if(strcmp(s0, "direct") == 0) {
+        assert(sizeof(mode->reg_direct) == 4);
+        assert(sizeof(u0) == 4);
+        memcpy( &mode->reg_direct, &u0, sizeof(mode->reg_direct));
+      }
 
       else if(strcmp(s0, "u1003") == 0) {
         mode->second.U1003 = u0;
@@ -751,12 +723,6 @@ static void app_repl_statement(app_t *app,  const char *cmd)
       else if(strcmp(s0, "precharge") == 0) {
         mode->sa.reg_sa_p_clk_count_precharge = u0;
       }
-
-
-
-
-
-
 
       else {
 
@@ -930,8 +896,6 @@ static app_t app;
 // static Mode mode_current;
 
 
-#define CLK_FREQ 20000000
-
 static const Mode mode_initial =  {
 
 
@@ -1084,6 +1048,8 @@ int main(void)
 
   app.mode_initial =  &mode_initial;
   app.mode_current =  &mode_current;
+
+  app.line_freq = 50;
 
 
   /////////////////

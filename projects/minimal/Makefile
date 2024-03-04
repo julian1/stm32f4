@@ -16,6 +16,7 @@ SRCFILES	= src/peripheral/ice40-extra.c   src/peripheral/led.c  src/peripheral/s
             src/syscalls.o \
             src/mode.o \
             src/lzo_test.c \
+            src/util.c \
 
 
 #            src/peripheral/dac8734.c \
