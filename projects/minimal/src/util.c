@@ -53,7 +53,7 @@ uint32_t period_to_aper_n(  double period )
 bool nplc_valid( double nplc )
 {
   /*
-    used in a few places for user-input arg validate user input
+    used in a few places to validate user input
     can be relaxed later.
     maybe use a switch/case
     todo - similar to validate/check  voltage source
@@ -82,11 +82,10 @@ void aper_n_print( uint32_t aperture,  uint32_t line_freq)
 
 
 
-  // strcasecmp() from strings.h.
-  // or just force lower case first.
+/* use strcasecmp() from strings.h.
+  or just force lower case first?
 
-
-  // Ok. we prob
+*/
 
 
 
@@ -181,11 +180,11 @@ unsigned str_decode_float( const char *s, double *val )
   else if (n == 2) {
 
     if(unit == 'm')
-      *val /= 1000;
+      *val *= 1e-3;
     else if(unit == 'u')
-      *val /= 1000000;
+      *val *= 1e-6;
     else if(unit == 'n')
-      *val /= 1000000000;
+      *val *= 1e-9;
     else
       return 0;
 

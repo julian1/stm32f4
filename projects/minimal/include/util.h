@@ -5,7 +5,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// defined also in util.c
+
+
+
 #define CLK_FREQ 20000000
 
 

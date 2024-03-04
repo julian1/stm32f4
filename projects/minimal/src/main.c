@@ -693,6 +693,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
         mode->first.K405 = u0 ? LR_SET: LR_RESET;
       }
 
+      ////////////
 
       // this is nice.
       else if(strcmp(s0, "leds_o") == 0) {
@@ -701,8 +702,6 @@ static void app_repl_statement(app_t *app,  const char *cmd)
       else if(strcmp(s0, "monitor_o") == 0) {
         mode->reg_direct.monitor_o = u0;
       }
-
-
       // sample acquisition - direct state
       else if(strcmp(s0, "sig_pc1_sw_o") == 0) {
         mode->reg_direct.sig_pc1_sw_o= u0;
@@ -714,6 +713,8 @@ static void app_repl_statement(app_t *app,  const char *cmd)
         mode->reg_direct.azmux_o = u0;
       }
 
+      ////////////
+#if 0
       // adc precharge.
       // want a separate decoder.  to handle ms. us. suffix.
       // probably should move out of here...
@@ -723,6 +724,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
       else if(strcmp(s0, "precharge") == 0) {
         mode->sa.reg_sa_p_clk_count_precharge = u0;
       }
+#endif
 
       else {
 
