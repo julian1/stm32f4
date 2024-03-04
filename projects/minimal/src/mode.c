@@ -5,17 +5,17 @@
 
 
 
-#include <ice40-reg.h>
 
-#include <spi-ice40.h>
-#include <spi-4094.h>
-#include <spi-ad5446.h>
-#include <spi-dac8811.h>
-
+#include <peripheral/spi-ice40.h>
+#include <peripheral/spi-4094.h>
+#include <peripheral/spi-ad5446.h>
+#include <peripheral/spi-dac8811.h>
 
 
 #include <lib2/util.h>      // msleep
 #include <lib2/format.h>   // str_format_bits
+
+#include <ice40-reg.h>
 #include <mode.h>
 
 

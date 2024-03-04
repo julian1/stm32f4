@@ -13,12 +13,11 @@
 #include <lib2/util.h>    // MAX
 #include <lib2/stream-flash.h>
 
+
+
 #include <peripheral/spi-port.h>
 #include <peripheral/ice40-extra.h>
-
-
-
-#include <spi-ice40-bitstream.h>
+#include <peripheral/spi-ice40-bitstream.h>
 
 
 

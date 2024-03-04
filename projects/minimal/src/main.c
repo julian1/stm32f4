@@ -67,11 +67,11 @@ nix-shell ~/devel/nixos-config/examples/arm.nix
 #include <peripheral/ice40-extra.h>
 
 
-#include <spi-ice40.h>
-#include <spi-4094.h>
-#include <spi-ice40-bitstream.h>
-#include <spi-dac8811.h>
-#include <spi-ad5446.h>
+#include <peripheral/spi-ice40.h>
+#include <peripheral/spi-4094.h>
+#include <peripheral/spi-ice40-bitstream.h>
+#include <peripheral/spi-dac8811.h>
+#include <peripheral/spi-ad5446.h>
 
 #include <lib2/format.h>   // format_bits()
 
