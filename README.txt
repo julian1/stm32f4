@@ -1,4 +1,40 @@
 
+
+mar 2024.
+
+  # for tooling,
+  nix-shell ~/devel/nixos-config/examples/arm.nix
+
+  # use separate shells,
+  # for serial
+  rlwrap -a picocom -b 115200 /dev/ttyUSB0
+
+  # to make
+  make
+
+  # for st-link
+  cd minimal
+  openocd -f ../../openocd.cfg
+
+  # for st-link comms
+  rlwrap nc localhost 4444
+
+
+  # write mcu firmware
+  > reset halt ; flash write_image erase unlock /home/me/devel/stm32f4/projects/minimal/main.elf ; reset run
+
+  # fpga firmware
+  > reset halt; flash write_image erase unlock /home/me/devel/ice40-fpga/projects/minimal/build/main.bin.hdr  0x08060000 ; reset run
+
+
+libopencm3 here,
+ ../../lib/libopencm3
+
+
+
+
+OLD.
+
 quick start,
 
 nix-shell ~/devel/nixos-config/examples/arm.nix  -I nixpkgs=/home/me/devel/nixpkgs02/
