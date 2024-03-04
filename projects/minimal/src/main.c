@@ -103,40 +103,19 @@ int flash_lzo_test(void);
 
 static void app_update_soft_500ms_configured(app_t *app)
 {
-  /* we may want to devote a fpga led - to fpga comms
-    just flip the state - for any spi sequence.
-      - just to catch any spurious transfers.
-    -----
-    should see if we can catch something.... with simple fpga code - and without a timer.  eg. just an active slave select on cs1 or cs2.
-  */
-
-
-  return;
-
 
   /*
       consider rename test_led_blink  and disable by default to aoid
       spurioius spi transmissions during acquisition
       potentially move into /src/test
   */
-  if(app->led_blink) { // rename test_led_blink()
-    // we need to not blink the led, if we want to use repl to write directly.
+  if(app->mode_current->reg_mode == 0 /*app->led_blink*/ ) { 
 
-    /* EXTR - avoid electrical/comms activity of a heart-beat/led blink, during sample acquisition.  only use as test.
+
+    /* EXTR 
+        - avoid electrical/comms activity of a heart-beat/led blink, during sample acquisition.  only use as test.
     */
     spi_mux_ice40( app->spi );
-
-
-    // uint32_t magic = app->led_state ? 0b01010101 : 0b10101010 ;
-    /*
-    keep
-    15   always@(posedge clk) begin
-    16     counter <= counter + 1;
-    17     outcnt <= counter >> LOG2DELAY;
-    18   end
-    19
-    20   assign { LED1, LED2} = outcnt ^ (outcnt >> 1);
-    */
 
 /*
     static uint32_t counter = 0;
@@ -148,14 +127,12 @@ static void app_update_soft_500ms_configured(app_t *app)
     static uint32_t magic = 0;
     ++magic;
 
-
     // blink led... want option. so can write reg_direct
     // note - led will only, actually light if fpga in default mode. 0.
-    spi_ice40_reg_write32( app->spi, REG_DIRECT, magic << 1 );
+    spi_ice40_reg_write32( app->spi, REG_DIRECT, magic );
 
     // check the magic numger
     uint32_t ret = spi_ice40_reg_read32( app->spi, REG_DIRECT);
-    ret >>= 1;
     if(ret != magic ) {
       // comms no good
       char buf[ 100] ;
@@ -166,6 +143,7 @@ static void app_update_soft_500ms_configured(app_t *app)
   }
 
 
+#if 0
   if(app->test_relay_flip) {
 
     static bool flip = 0;
@@ -221,6 +199,8 @@ static void app_update_soft_500ms_configured(app_t *app)
 #endif
 
     }
+#endif
+
 }
 
 
@@ -435,6 +415,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
+#if 0
   else if( sscanf(cmd, "blink %lu", &u0 ) == 1) {
     // turn off fpga blink in mode 0, avoid spi transmission, during acquisition.
     app->led_blink = u0;
@@ -444,7 +425,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
 
     app->test_relay_flip = u0;
   }
-
+#endif
 
 
 
@@ -1045,8 +1026,10 @@ int main(void)
   // would be neater/possible, to use a static initializer for app ?
 
   app.spi = SPI1 ;
+/*
   app.led_blink = true;
   app.test_relay_flip = false;    // TODO remove
+*/
 
   app.mode_initial =  &mode_initial;
   app.mode_current =  &mode_current;
