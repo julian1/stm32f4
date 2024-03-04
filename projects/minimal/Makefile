@@ -10,11 +10,12 @@ BINARY		= main
 
 
 SRCFILES	= src/peripheral/ice40-extra.c   src/peripheral/led.c  src/peripheral/spi-port.c \
-            src/main.c  \
-            src/peripheral/spi-ice40.c src/peripheral/spi-ice40-bitstream.c src/lzo_test.c \
+            src/peripheral/spi-ice40.c src/peripheral/spi-ice40-bitstream.c \
             src/peripheral/spi-4094.c src/peripheral/spi-dac8811.c src/peripheral/spi-ad5446.c \
+            src/main.c  \
             src/syscalls.o \
-            src/mode.o
+            src/mode.o \
+            src/lzo_test.c \
 
 
 
