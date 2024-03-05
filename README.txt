@@ -9,6 +9,9 @@ mar 2024.
   # for serial
   rlwrap -a picocom -b 115200 /dev/ttyUSB0
 
+  # with new line.
+  rlwrap -a picocom  -q -b 115200  --imap crcrlf   /dev/ttyUSB0
+
   # to make
   make
 

@@ -106,13 +106,13 @@ static void app_update_soft_500ms_configured(app_t *app)
 
   /*
       consider rename test_led_blink  and disable by default to aoid
-      spurioius spi transmissions during acquisition
+      spurious spi transmissions during acquisition
       potentially move into /src/test
   */
-  if(app->mode_current->reg_mode == 0 /*app->led_blink*/ ) { 
+  if(false &&  app->mode_current->reg_mode == 0 /*app->led_blink*/ ) {
 
 
-    /* EXTR 
+    /* EXTR
         - avoid electrical/comms activity of a heart-beat/led blink, during sample acquisition.  only use as test.
     */
     spi_mux_ice40( app->spi );
@@ -337,10 +337,21 @@ static void app_repl_statement(app_t *app,  const char *cmd)
 
 */
 
-  else if( sscanf(cmd, "sleep %lu", &u0 ) == 1) {
-    // should be done on separate line?
 
-    msleep(u0 , &app->system_millis);
+  else if( strcmp(cmd, "test01") == 0) {
+
+
+      app_repl_statements(app, "set k405 set; set k406 reset; set k407 reset\n" );
+
+  }
+
+
+
+  else if( sscanf(cmd, "sleep %100s", s0) == 1
+    && str_decode_float( s0, &f0))
+  {
+    // allows 1 or 1000m  etc. not sure,
+    msleep( (uint32_t ) (f0 * 1000), &app->system_millis);
   }
 
   else if(strcmp(cmd, "reset mcu") == 0) {
@@ -630,7 +641,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
       Mode * mode = app->mode_current;
 
 
-      printf("set %s0 %lu\n", s0, u0);
+      printf("set %s %lu\n", s0, u0);
 
       // cannot manage pointer to bitfield. so have to hardcode.
 
@@ -724,9 +735,54 @@ static void app_repl_statement(app_t *app,  const char *cmd)
     printf("unknown cmd, or bad argument '%s'\n", cmd );
 
   }
+}
 
+
+
+
+void app_repl_statements(app_t *app,  const char *s)
+{
+  assert(app);
+  assert(s);
+
+
+  cstring_t stmt;
+  char buf_stmt[ 1000 ];  // stack allocation...
+  cstring_init(&stmt, buf_stmt, buf_stmt + sizeof( buf_stmt));
+
+  while(*s) {
+
+    int32_t ch = *s;
+    assert(ch >= 0);
+
+    if(ch == ';' || ch == '\n')
+    {
+      // a separator, then apply what we have so far.
+      char *cmd = cstring_ptr( &stmt);
+      cmd = str_trim_whitespace_inplace( cmd );
+      app_repl_statement(app, cmd);
+      cstring_clear( &stmt);
+    }
+    else if( cstring_count(&stmt) < cstring_reserve(&stmt) ) {
+      // push char, unless overflow
+      cstring_push(&stmt, ch);
+    } else {
+      // ignore overflow chars,
+      printf("too many chars!!\n");
+    }
+
+    // nice to be able to span multiple commands. so ignore *s == 0
+    if(ch == '\n')
+    {
+      printf("calling spi_mode_transition_state()");
+      spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+    }
+
+    ++s;
+  }
 
 }
+
 
 
 
@@ -734,25 +790,22 @@ static void app_repl_statement(app_t *app,  const char *cmd)
 static void app_update_console_cmd(app_t *app)
 {
 
-  // move this into a separate function...
-  // so can be called from in code
-  // or perhaps use the clause
+  // processing console_in buffer,
+
+  // NO. app->command persists across calls.
+  // cstring_clear( &app->command);
 
 
-
-  while( ! cbuf_is_empty(&app->console_in)) {
+  while( !cbuf_is_empty(&app->console_in)) {
 
     // got a character
     int32_t ch = cbuf_pop(&app->console_in);
     assert(ch >= 0);
 
-    // only read as much of console_in
-
 
     if (ch == ';' || ch == '\r' )
     {
-      // a separator, - process what we command so far.
-
+      // a separator, then apply what we have so far.
       char *cmd = cstring_ptr(&app->command);
       cmd = str_trim_whitespace_inplace( cmd );
       printf("\n");
@@ -770,17 +823,14 @@ static void app_update_console_cmd(app_t *app)
       // echo to output. required for minicom.
       putchar( ch);
     } else {
-      // overflow
-
+      // ignore overflow chars,
+      printf("too many chars!!\n");
     }
-
 
     if(ch == '\r')
     {
       printf("calling spi_mode_transition_state()");
-
       spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
-
       // issue new command prompt
       printf("\n> ");
     }

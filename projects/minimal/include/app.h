@@ -48,3 +48,8 @@ typedef struct app_t
 } app_t;
 
 
+void app_repl_statements(app_t *app,  const char *stmts);
+
+
+
+
