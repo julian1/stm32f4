@@ -76,7 +76,7 @@ void cstring_clear(cstring_t *a)
 }
 
 
-void cstring_push(cstring_t *a, char val)
+void cstring_push_back(cstring_t *a, char val)
 {
   validate(a);
   // check have space
@@ -92,7 +92,7 @@ void cstring_push(cstring_t *a, char val)
 
 
 
-int32_t cstring_pop(cstring_t *a)
+int32_t cstring_pop_back(cstring_t *a)
 {
   validate(a);
   // get char before the null terminal
@@ -128,7 +128,7 @@ ssize_t cstring_write(cstring_t *a, const char *buf, size_t size)
     if(a->pos + 2 >= a->end)  // for character and terminal
       break;
 
-    cstring_push(a, buf[i] );
+    cstring_push_back(a, buf[i] );
     ++i;
   }
 

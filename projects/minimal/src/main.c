@@ -765,7 +765,7 @@ void app_repl_statements(app_t *app,  const char *s)
     }
     else if( cstring_count(&stmt) < cstring_reserve(&stmt) ) {
       // push char, unless overflow
-      cstring_push(&stmt, ch);
+      cstring_push_back(&stmt, ch);
     } else {
       // ignore overflow chars,
       printf("too many chars!!\n");
@@ -819,7 +819,7 @@ static void app_update_console_cmd(app_t *app)
 
       // must accept whitespace here, since used to demarcate args
       // normal character
-      cstring_push(&app->command, ch);
+      cstring_push_back(&app->command, ch);
       // echo to output. required for minicom.
       putchar( ch);
     } else {

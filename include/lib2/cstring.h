@@ -1,5 +1,5 @@
 /*
-  like a std::string. with contiguous mem, and terminal char 0 for interfacing with C.   
+  like a std::string. with contiguous mem, and terminal char 0 for interfacing with C.
   but uses a preallocated max buffer / and does no mem allocation
   simpler than using std::string and custom allocator.
   can add/expose begin() finish() funcs to work std::algorithm<> stuff
@@ -44,8 +44,8 @@ int32_t cstring_peek_last(const cstring_t *a);
 int32_t cstring_peek_first(const cstring_t *a);
 
 void cstring_clear(cstring_t *a);
-void cstring_push(cstring_t *a, char val);
-int32_t cstring_pop(cstring_t *a);
+void cstring_push_back(cstring_t *a, char val);
+int32_t cstring_pop_back(cstring_t *a);
 
 
 char * cstring_ptr(cstring_t *a);
