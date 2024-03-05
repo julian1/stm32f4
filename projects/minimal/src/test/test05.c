@@ -43,7 +43,7 @@ bool app_test05( app_t *app , const char *cmd)
       // turn on accumulation relay
       j.first .K405 = LR_SET;     // select dcv
       j.first .K406 = LR_RESET;   // accum relay on
-      j.first .K407 = LR_RESET;   // on dcv-source
+      j.first .K407 = LR_RESET;   // select dcv-source
 
       // set up fpga
       j.reg_mode =  MODE_DIRECT;
@@ -51,34 +51,86 @@ bool app_test05( app_t *app , const char *cmd)
       // j.reg_direct.himux  = S2 ;    // s2 himux mux himux2 output
       j.reg_direct.azmux_o = SOFF;
       j.reg_direct.sig_pc1_sw_o = 1;  // precharge mux signal.
-      j.reg_direct.leds_o = 0b1;        // turn on led, because muxinig signal.
-
-      // app_transition_state( app->spi, &j,  &app->system_millis );
+      j.reg_direct.leds_o = 0b0001;        // turn on led, because muxinig signal.
 
       spi_mode_transition_state( app->spi, &j, &app->system_millis);
-
-      ////////////////////////////
-      // so charge cap to the dcv-source, then turn off the mux and see how it drifts.
-      // charge for 10sec. for DA....
       printf("sleep 10s\n");  // having a yield would be quite nice here.
       msleep(10 * 1000,  &app->system_millis);
 
-      /////////////
+      ////////////////////////
 
-      printf("switchout relay - to observe drift\n");
+      // may also be issue with 4094 pulses.
 
+      printf("switchout dcv-source - to observe drift\n");
       j.first .K407 = LR_SET;   // switch off/out dcv-source
-      spi_mode_transition_state( app->spi, &j, &app->system_millis);
+/*
+      j.second.U1006  = 0;          // weird - we switch the dc-source mux off - we have very high leakage. might be flux.
+      j.second.U1003 = 0;
 
+      ok. clean board with iso. and get very high leakage.  eg. volts.
+      no. now it's ok.
+*/
+      j.reg_direct.leds_o = 0b0010;
+      spi_mode_transition_state( app->spi, &j, &app->system_millis);
+      // need to sleep again. to see the drift. wander.
       printf("sleep 10s\n");  // having a yield would be quite nice here.
       msleep(10 * 1000,  &app->system_millis);
 
 
+      ////////////////////////
+
+      j.reg_direct.leds_o = 0b0100;
+      // now we do the sleep- to take the measurement.
+      printf("sleep 3s\n");  // having a yield would be quite nice here.
+      spi_mode_transition_state( app->spi, &j, &app->system_millis);
+      msleep(3 * 1000,  &app->system_millis);
+
+
+
+      /*
       // OK. when we release the relay - there is a small change.   inductive???
       // eg. for 10V
-      // 9.896,99 to  9.896,42     weird.   need to try just high-z on the dcv-source mux.
-      // 9.897,50  this time.
-      // about a 0.5mV.  jump.  when flick the relay.  charge injection. or something to do with the contacts spiking?
+      10V.
+        9.896,99 to  9.896,42    -570uV.   need to try just high-z on the dcv-source mux.
+
+      0V.
+          0.000,01 -> 0.000,35    +340uV
+          0.000,01 -> 0.000,26
+
+      -10V.
+          -9.899,92 -> -9.900,37    +390uV.
+        ///////////////////////////
+
+        after cleaning.
+        Ok. now getting 27mV.  drift in 10s. on -10V.  using relay for off.... not good.
+
+        and -35mV.   on +10V.   is this cap DA. or leakage. or something else?
+
+        0V. is fine <1mV.
+
+        dates. of caps are very different 1549.   eg. 2015.
+        versus 2236.                                  2022.
+
+        change of construction?
+      */
+
+      // it is not really  a problem. - in the sense.
+
+
+      // note that after finishing it will revert to the current state.
+      return 1;
+    }
+
+
+  return 0;
+}
+
+
+
+
+
+
+
 
 #if 0
       /////////
@@ -100,12 +152,4 @@ bool app_test05( app_t *app , const char *cmd)
       spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
       spi_ice40_reg_write32(app->spi, REG_MODE, MODE_NO_AZ );
 */
-
-
-      return 1;
-    }
-
-
-  return 0;
-}
 
