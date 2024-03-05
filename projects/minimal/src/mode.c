@@ -93,15 +93,15 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
   spi_ice40_reg_write_n(spi, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
 
 
-  printf("writing precharge %lu\n" , mode->sa.reg_sa_p_clk_count_precharge  );
 
   // sa
+  // printf("writing precharge %lu\n" , mode->sa.reg_sa_p_clk_count_precharge  );
   spi_ice40_reg_write32(spi, REG_SA_P_CLK_COUNT_PRECHARGE, mode->sa.reg_sa_p_clk_count_precharge );
 
 
-  printf("writing aperture %lu\n" ,   mode->adc.reg_adc_p_aperture  );
 
   // adc
+  // printf("writing aperture %lu\n" ,   mode->adc.reg_adc_p_aperture  );
   spi_ice40_reg_write32(spi, REG_ADC_P_CLK_COUNT_APERTURE,  mode->adc.reg_adc_p_aperture );
   spi_ice40_reg_write32(spi, REG_ADC_P_CLK_COUNT_RESET,     mode->adc.reg_adc_p_reset );
 

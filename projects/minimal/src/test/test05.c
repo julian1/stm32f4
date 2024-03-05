@@ -22,102 +22,68 @@ bool app_test05( app_t *app , const char *cmd)
       printf("test non-az mode - leakage by first charging for 10sec, then turn off muxes, and mux signal via pc-out to amplifier\n");
       // app->test_in_progress = 0;
 
-      _mode_t j = *app->mode_initial;
+      _mode_t mode = *app->mode_initial;
 
-      j.second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2
+      ////////////////////
+      // phase 1, soak/charge accumulation cap
+
+      mode.second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2
 
       if(i0 == 10) {
         printf("with +10V\n");
-        j.second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
+        mode.second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
       }
       else if(i0 == -10) {
         printf("with -10V\n");
-        j.second.U1003  = S2 ;       // s2.  -10V.
+        mode.second.U1003  = S2 ;       // s2.  -10V.
       }
       else if(i0 == 0) {
         printf("with 0V\n");
-        j.second.U1003 = S3;          // s3 == agnd
+        mode.second.U1003 = S3;          // s3 == agnd
       }
       else assert(0);
 
       // turn on accumulation relay
-      j.first .K405 = LR_SET;     // select dcv
-      j.first .K406 = LR_RESET;   // accum relay on
-      j.first .K407 = LR_RESET;   // select dcv-source
+      mode.first .K405 = LR_SET;     // select dcv
+      mode.first .K406 = LR_RESET;   // accum relay on
+      mode.first .K407 = LR_RESET;   // select dcv-source
 
       // set up fpga
-      j.reg_mode =  MODE_DIRECT;
-      // j.reg_direct.himux2 = S1 ;    // s1 put dc-source on himux2 output
-      // j.reg_direct.himux  = S2 ;    // s2 himux mux himux2 output
-      j.reg_direct.azmux_o = SOFF;
-      j.reg_direct.sig_pc1_sw_o = 1;  // precharge mux signal.
-      j.reg_direct.leds_o = 0b0001;        // turn on led, because muxinig signal.
+      mode.reg_mode =  MODE_DIRECT;
 
-      spi_mode_transition_state( app->spi, &j, &app->system_millis);
+      mode.reg_direct.azmux_o = SOFF;
+      mode.reg_direct.sig_pc1_sw_o = 1;  // precharge mux signal.
+      mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
+
+      spi_mode_transition_state( app->spi, &mode, &app->system_millis);
       printf("sleep 10s\n");  // having a yield would be quite nice here.
       msleep(10 * 1000,  &app->system_millis);
 
       ////////////////////////
-
-      // may also be issue with 4094 pulses.
+      // phase 2, discocnnect dcv-source
 
       printf("switchout dcv-source - to observe drift\n");
-      j.first .K407 = LR_SET;   // switch off/out dcv-source
-/*
-      j.second.U1006  = 0;          // weird - we switch the dc-source mux off - we have very high leakage. might be flux.
-      j.second.U1003 = 0;
+      mode.first .K407 = LR_SET;
+/*     mode.second.U1006  = 0;          // weird - we switch the dc-source mux off - we have very high leakage. might be flux.
+      mode.second.U1003 = 0; */
+      mode.reg_direct.leds_o = 0b0010;
 
-      ok. clean board with iso. and get very high leakage.  eg. volts.
-      no. now it's ok.
-*/
-      j.reg_direct.leds_o = 0b0010;
-      spi_mode_transition_state( app->spi, &j, &app->system_millis);
-      // need to sleep again. to see the drift. wander.
+      spi_mode_transition_state( app->spi, &mode, &app->system_millis);
       printf("sleep 10s\n");  // having a yield would be quite nice here.
       msleep(10 * 1000,  &app->system_millis);
 
 
       ////////////////////////
+      // pase 3. observe, take measurement
 
-      j.reg_direct.leds_o = 0b0100;
+      mode.reg_direct.leds_o = 0b0100;
       // now we do the sleep- to take the measurement.
-      printf("sleep 3s\n");  // having a yield would be quite nice here.
-      spi_mode_transition_state( app->spi, &j, &app->system_millis);
-      msleep(3 * 1000,  &app->system_millis);
+      printf("sleep 2s\n");  // having a yield would be quite nice here.
+      spi_mode_transition_state( app->spi, &mode, &app->system_millis);
+      msleep(2 * 1000,  &app->system_millis);
 
 
-
-      /*
-      // OK. when we release the relay - there is a small change.   inductive???
-      // eg. for 10V
-      10V.
-        9.896,99 to  9.896,42    -570uV.   need to try just high-z on the dcv-source mux.
-
-      0V.
-          0.000,01 -> 0.000,35    +340uV
-          0.000,01 -> 0.000,26
-
-      -10V.
-          -9.899,92 -> -9.900,37    +390uV.
-        ///////////////////////////
-
-        after cleaning.
-        Ok. now getting 27mV.  drift in 10s. on -10V.  using relay for off.... not good.
-
-        and -35mV.   on +10V.   is this cap DA. or leakage. or something else?
-
-        0V. is fine <1mV.
-
-        dates. of caps are very different 1549.   eg. 2015.
-        versus 2236.                                  2022.
-
-        change of construction?
-      */
-
-      // it is not really  a problem. - in the sense.
-
-
-      // note that after finishing it will revert to the current state.
+      // returning,  will revert back to mode_current state.
       return 1;
     }
 
@@ -127,6 +93,70 @@ bool app_test05( app_t *app , const char *cmd)
 
 
 
+
+
+   /*
+
+OK. mar 6. 2024.
+
+    left after cleaning for 24 hours. - seems ok. now.
+
+    do one initial round to help DA.
+    +10V   -0.2mV. +0.7mV   OK.
+    -10V    +0.7mv.  +0.58mV.
+    0V       +0.01mV    0.13mV
+
+    ----
+    Ok . but still a big jump 0.5mV when the relay sets.
+
+    9.896,91 -> ,43   ,33    9.897,26    the other direction as well. weird.
+
+
+
+
+mar 5. 2024.
+    // OK. when we release the relay - there is a small change.   inductive???
+    // eg. for 10V
+    10V.
+    9.896,99 to  9.896,42    -570uV.   need to try just high-z on the dcv-source mux.
+
+    0V.
+      0.000,01 -> 0.000,35    +340uV
+      0.000,01 -> 0.000,26
+
+    -10V.
+      -9.899,92 -> -9.900,37    +390uV.
+    ///////////////////////////
+
+    after cleaning.
+    Ok. now getting 27mV.  drift in 10s. on -10V.  using relay for off.... not good.
+
+    and -35mV.   on +10V.   is this cap DA. or leakage. or something else?
+
+    0V. is fine <1mV.
+
+    dates. of caps are very different 1549.   eg. 2015.
+    versus 2236.                                  2022.
+
+    possible causes -
+    - using guard traces, rather than copper fills for leakage?
+    - date codes - of cap, adg1208, opa140 ?
+    - having power supplies  routed on layer, directly underneath op/adg pins.
+    - may just be DA.
+
+    - we can test - using electrometer on a spare pcb.
+
+    need to wait til morning.
+    - maybe explains why when switched off dcv-source using mux - have issue. high leakage also.
+
+    - hour later. it's worse.  -10V.   50mV.
+      and when do it manually.
+
+    set u1003 s1; set u1006 s1 ;
+    set k405 set; set k406 reset; set k407 reset
+    set k407 set
+    ------------
+      */
 
 
 
