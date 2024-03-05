@@ -151,7 +151,7 @@ static void app_update_soft_500ms_configured(app_t *app)
 
 
 #if 0
-      Mode mode;
+      _mode_t mode;
       memset(&mode, 0, sizeof(mode));
 
       // mode.first.K701 =  flip ? 0b01 : 0b10;
@@ -548,7 +548,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
     uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
     printf("reg_mode return value %lu\n", ret);
 
-    // Mode *mode = app->mode_current;
+    // _mode_t *mode = app->mode_current;
     // printf("app      return value %lu\n", mode->reg_mode );
 
   }
@@ -591,6 +591,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
 
   ///////////////////////
 
+  else if( app_test05( app, cmd  )) { }
 
 
   /*
@@ -602,7 +603,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
     && str_decode_float( s0, &f0))
   {
     assert(app->mode_current);
-    Mode * mode = app->mode_current;
+    _mode_t * mode = app->mode_current;
 
     printf("set aperture\n");
     uint32_t aperture = period_to_aper_n( f0 );
@@ -622,7 +623,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
     } else {
 
       assert(app->mode_current);
-      Mode * mode = app->mode_current;
+      _mode_t * mode = app->mode_current;
 
       // should be called cc_aperture or similar.
       uint32_t aperture = nplc_to_aper_n( f0, app->line_freq );
@@ -638,7 +639,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
   ) {
 
       assert(app->mode_current);
-      Mode * mode = app->mode_current;
+      _mode_t * mode = app->mode_current;
 
 
       printf("set %s %lu\n", s0, u0);
@@ -926,10 +927,10 @@ static app_t app;
 
 
 
-// static Mode mode_current;
+// static _mode_t mode_current;
 
 
-static const Mode mode_initial =  {
+static const _mode_t mode_initial =  {
 
 
 
@@ -1017,7 +1018,7 @@ static const Mode mode_initial =  {
 
 
 
-static Mode mode_current;
+static _mode_t mode_current;
 
 
 int main(void)

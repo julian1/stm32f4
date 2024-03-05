@@ -37,7 +37,7 @@ typedef struct cstring_t
 void cstring_init(cstring_t *a, char *start, char *end);
 
 
-bool cstring_empty(const cstring_t *a);
+bool cstring_empty(const cstring_t *a);   // predicate
 size_t cstring_count(const cstring_t *a);
 size_t cstring_reserve(const cstring_t *a);
 int32_t cstring_peek_last(const cstring_t *a);

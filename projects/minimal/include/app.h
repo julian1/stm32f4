@@ -6,7 +6,7 @@
 
 
 
-typedef struct Mode Mode;
+typedef struct _mode_t _mode_t;
 
 
 
@@ -38,8 +38,8 @@ typedef struct app_t
   bool test_relay_flip;
 */
 
-  const Mode *mode_initial;
-  Mode *mode_current;
+  const _mode_t *mode_initial;
+  _mode_t *mode_current;
 
 
   uint32_t line_freq;
@@ -52,4 +52,5 @@ void app_repl_statements(app_t *app,  const char *stmts);
 
 
 
+bool app_test05( app_t *app , const char *cmd);
 

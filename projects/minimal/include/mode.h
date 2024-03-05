@@ -86,6 +86,11 @@
 RSET.   RRESET.  relay set. and relay reset.
 reset is schem default contacts.
 
+ LR_SET  ==  LR_BOT      0b01      // bottom contacts closed.
+ LR_RESET == LR_TOP      0b10      // top contacts closed.
+
+
+
 */
 
 #define LR_SET      0b01
@@ -261,7 +266,7 @@ typedef struct sa_state_t
 
 // note that 'mode_t'  is in conflict with sys/types 'mode_t'.
 
-typedef struct Mode
+typedef struct _mode_t
 {
   // all state needed to achive a dmm function.
   // but not enough for different states.
@@ -295,12 +300,12 @@ typedef struct Mode
   sa_state_t    sa;
 
 
-} Mode ;
+} _mode_t ;
 
 
 // change name spi_spi_mode_transition_state
 // because spi is the first name
-void spi_mode_transition_state( uint32_t spi, const Mode *mode, volatile uint32_t *system_millis /*, uint32_t update_flags */ );
+void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint32_t *system_millis /*, uint32_t update_flags */ );
 
 
 
