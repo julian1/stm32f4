@@ -33,7 +33,7 @@ bool app_test14( app_t *app , const char *cmd)
 
   if( sscanf(cmd, "test14 %ld %lf", &i0, &f0 ) == 2) {
 
-      printf("test leakage and charge-injection by switching pre-charge switch only (not full azmux) at different input dc-bias and frequency\n");
+      printf("test leakage and charge-injection using MODE_PC switching pre-charge switch, at different input dc-bias and frequency\n");
 
       _mode_t mode = *app->mode_initial;
 
@@ -81,9 +81,12 @@ bool app_test14( app_t *app , const char *cmd)
       mode.first .K406 = LR_RESET;   // accum relay on
       mode.first .K407 = LR_RESET;   // select dcv-source
 
-      // set up fpga
+      // set up fpga - with direct mode - for the charge phase.
       mode.reg_mode =  MODE_DIRECT;
-      mode.reg_direct.azmux_o = SOFF;
+      // mode.reg_direct.azmux_o = SOFF;
+      assert( mode.reg_direct.azmux_o == SOFF) ;    // default
+
+
       mode.reg_direct.sig_pc1_sw_o = SW_PC_SIGNAL;  // TODO - reveiew - why not mux BOOT ? during soak phase?.
       mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
 
