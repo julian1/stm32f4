@@ -634,7 +634,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
-  else if( strcmp(cmd, "nplc?") == 0) {
+  else if( strcmp(cmd, "nplc?") == 0 || strcmp(cmd, "aper?") == 0) {
     // query fpga directly. not mode
     spi_mux_ice40(app->spi);
     uint32_t aperture = spi_ice40_reg_read32(app->spi, REG_ADC_P_CLK_COUNT_APERTURE );
