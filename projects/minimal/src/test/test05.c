@@ -26,6 +26,8 @@ bool app_test05( app_t *app , const char *cmd)
       ////////////////////
       // phase 1, soak/charge accumulation cap
 
+      printf("setup dcv-source and charge cap\n");
+
       mode.second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2
 
       if(i0 == 10) {
@@ -63,7 +65,7 @@ bool app_test05( app_t *app , const char *cmd)
       ////////////////////////
       // phase 2, discocnnect dcv-source
 
-      printf("switchout dcv-source - to observe drift\n");
+      printf("disconnect dcv-source and observe drift\n");
       mode.first .K407 = LR_SET;
 /*     mode.second.U1006  = 0;          // weird - we switch the dc-source mux off - we have very high leakage. might be flux.
       mode.second.U1003 = 0; */
@@ -75,7 +77,7 @@ bool app_test05( app_t *app , const char *cmd)
 
 
       ////////////////////////
-      // pase 3. observe, take measurement
+      // phase 3. observe, take measurement etc
 
       mode.reg_direct.leds_o = 0b0100;
       // now we do the sleep- to take the measurement.
