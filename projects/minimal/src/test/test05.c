@@ -162,6 +162,37 @@ mar 5. 2024.
 
 
 
+/*
+  - this may have been done with azmux fitted - which increases leakage.
+
+  // old. date unknown.
+  // charge cap +10V hold 10sec. get 0.8mV / 10 s.  0.8pA. leave few minutes. 0.6mV. == 0.6pA.  15mins == 0.4pA.
+  // charge cap 0V.  hold 10sec. get around 2.3 -> 2.6mV. == 0.3mV/.  0.3pA.
+  // charge cap -10V hold 10sec. get around 2mV / 10s. == 2pA.  input pin, doesn't make much difference to negative leakaave
+
+  // oct 18. 2023.
+  // data lost?
+
+  // oct 19.
+  // refactor to use fpga no-az mode.
+  // 5mins between.
+
+  +10V.
+    0.5mV. 0.6mV.
+  0V.
+    1.6mV.  1.8mV.
+  -10V.
+    4.3mV.  4.3mV.
+
+
+*/
+
+
+
+
+
+
+
 #if 0
       /////////
       F  f;
