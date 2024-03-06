@@ -222,6 +222,10 @@ reg_direct_t
 
 
 
+#define SW_PC_SIGNAL    1
+#define SW_PC_BOOT      0
+
+
 
 
 

@@ -50,7 +50,7 @@
 #define MODE_LO           1     // all bits held lo. but blink led. default.
 #define MODE_HI           2     // all bits held hi
 #define MODE_PATTERN      3     // put modulation pattern on all bits
-#define MODE_PC           4     // simple precharge switching modulation.
+#define MODE_PC           4     // TODO. - rename PC_ONLY simple precharge switching modulation.
 
 /*
 #define MODE_LO           0     // all bits held lo. but blink led. default.

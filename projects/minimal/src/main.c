@@ -592,6 +592,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
   ///////////////////////
 
   else if( app_test05( app, cmd  )) { }
+  else if( app_test14( app, cmd  )) { }
 
 
   /*
