@@ -209,8 +209,10 @@ reg_direct_t
   uint8_t   monitor_o  : 8;               // 4
   uint8_t   spi_interrupt_ctl_o : 1;      // 12
   uint8_t   meas_complete_o : 1;          // 13
+/*
   uint8_t   sig_pc1_sw_o : 1;             // 14
-  uint8_t   sig_pc2_sw_o : 1;             // 15
+  uint8_t   sig_pc2_sw_o : 1;             // 15 */
+  uint8_t   sig_pc_sw_o : 2;             // 14 
   uint8_t   azmux_o : 4 ;                 // 16
   uint8_t   adc_cmpr_latch_o : 1;          // 20
   uint8_t   adc_refmux_o : 4;                   // 21     // better name adc_refmux   adc_cmpr_latch

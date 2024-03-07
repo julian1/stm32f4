@@ -86,8 +86,9 @@ bool app_test14( app_t *app , const char *cmd)
       // mode.reg_direct.azmux_o = SOFF;
       assert( mode.reg_direct.azmux_o == SOFF) ;    // default
 
+      // mode.reg_direct.sig_pc1_sw_o = SW_PC_SIGNAL;  // TODO - reveiew - why not mux BOOT ? during soak phase?.
 
-      mode.reg_direct.sig_pc1_sw_o = SW_PC_SIGNAL;  // TODO - reveiew - why not mux BOOT ? during soak phase?.
+      mode.reg_direct.sig_pc_sw_o = 0b00 ;
       mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
 
       spi_mode_transition_state( app->spi, &mode, &app->system_millis);
