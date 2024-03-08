@@ -133,3 +133,45 @@ bool app_test14( app_t *app , const char *cmd)
 
 
 
+/*
+
+
+  mar 8 2024,
+    azmux fitted.  but not switched. so just resenting high-impedance cmos input.
+    after about 6hours.
+    think we need to leave for longer
+
+    test14 10 1
+      -6mV.   -5.7mV  -5.0mV.  -4.7mV       -3mV  -1mV                     <- now minus. very odd.   still some leakage???
+                                                                                think some due
+    test14 0 1
+      +8mV. +7.6mV  +7.3mV
+
+    test14 -10 1
+      +18mV.  +17mV.  +16mV. +15.5mV.
+
+      - wow. not really what was expecting.
+      - so there's some well of capacitance.k
+      - due trace being longer?  seems weird.
+      - so around 17mV. difference.
+
+
+
+    -------------
+    azmux not populated/fitted.  which we might expect a little bit of cap loading to gnd.
+    very consistent 6mV or so.  positive charge.  exacty as expected/ and desired.
+    after leaving overnight after soldering.
+
+    > test14 10 1
+      +6.14mV.  6mV.
+
+    > test14 0 1
+      +6.6mV.   6.5mV.
+
+    > test14 -10 1
+      +8.4mV (DA),  7.2mV.   6.8mV.
+
+*/
+
+
+
