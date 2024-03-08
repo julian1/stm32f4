@@ -51,26 +51,25 @@ int flash_lzo_test(void);
 void app_repl_statement(app_t *app,  const char *cmd)
 {
   /*
+    write the app->mode_current.
+    and handle some out-of-mode  functions.
+
     eg. statement without semi-colon.
 
   */
 
-  UNUSED(app);
-
-  // useful for debug
+  // to debug
   // printf("cmd '%s'  %u\n", cmd, strlen(cmd) );
 
 
 
   char s0[100 + 1 ];
   char s1[100 + 1 ];
-
-
-  // uint32_t u0 , u1;
   uint32_t u0;
   double f0;
-
   int32_t i0;
+
+
 
   ////////////////////
 
@@ -81,31 +80,11 @@ void app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
-
   else if(strcmp(cmd, "help") == 0) {
 
     printf("help <command>\n" );
   }
 
-/*
-  - some of these are stateful. and will be done out of sequence.
-  - mode changes acccumulate until there is a new-line.
-
-  - way to handle it would be better.
-  - we could introduce a different separator  eg. ';' which would aggregate
-
-  - or else -  if have stateful command - like sleep. or reset mcu.  then just return a flag.
-  - or test whether the mode value changed.
-
-*/
-
-
-  else if( strcmp(cmd, "test01") == 0) {
-
-
-      app_repl_statements(app, "set k405 set; set k406 reset; set k407 reset\n" );
-
-  }
 
 
 
@@ -182,18 +161,6 @@ void app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
-#if 0
-  else if( sscanf(cmd, "blink %lu", &u0 ) == 1) {
-    // turn off fpga blink in mode 0, avoid spi transmission, during acquisition.
-    app->led_blink = u0;
-  }
-
-  else if( sscanf(cmd, "test relay flip %lu", &u0 ) == 1) {
-
-    app->test_relay_flip = u0;
-  }
-#endif
-
 
 
   // change name fpga bitstrea load/test
@@ -204,67 +171,6 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
   // don't we have some code - to handle sscan as binary/octal/hex ?
 
-
-#if 0
-
-  else if( sscanf(cmd, "direct %100s", s0) == 1
-    && str_decode_uint( s0, &u0)
-  ) {
-    /*
-      IMPORTANT - to properly sequence, in a set of repl commands,
-      Or just use 'set' direct.
-      Or allow set direct bits.
-    */
-
-    // set the direct register.
-    printf("set direct value to, %lu\n", u0 );
-
-    spi_mux_ice40(app->spi);
-    spi_ice40_reg_write32(app->spi, REG_DIRECT, u0 );
-    // confirm.
-    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
-    char buf[ 100 ] ;
-    printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  str_format_bits(buf, 32, ret ));
-  }
-#endif
-
-
-#if 0
-  else if( sscanf(cmd, "direct bit %lu %lu", &u0, &u1 ) == 2) {
-
-    // modify direct_reg and bit by bitnum and val
-    /* eg.
-          OLD.
-
-        mode direct
-        direct 0         - clear all bits.
-        direct bit 13 1  - led on
-        direct bit 13 0  - led off.
-        direct bit 14 1  - mon0 on
-        direct bit 22 1  - +ref current source on. pushes integrator output lo.  comparator pos-out (pin 7) hi.
-        direct bit 23 1  - -ref current source on. pushes integrator output hi.  comparator pos-out lo
-        --
-        for slow run-down current. turn on bit 23 1. to push integrator hi.
-        then add bit 22 1.  for slow run-down. works, can trigger on scope..about 2ms. can toggle bit 22 off against to go hi again.
-
-        direct bit 25   - reset. via 20k.
-        direct bit 26   - latch.  will freeze/latch in the current comparator value.
-
-      - note. run-down current creates integrator oscillation when out-of-range.
-    */
-
-    spi_mux_ice40(app->spi);
-    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
-    if(u1)
-      ret |= 1 << u0 ;
-    else
-      ret &= ~( 1 << u0 );
-
-    char buf[ 100 ] ;
-    printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  str_format_bits(buf, 32, ret ));
-    spi_ice40_reg_write32(app->spi, REG_DIRECT, ret );
-  }
-#endif
 
 
   else if( strcmp( cmd, "direct?") == 0) {
@@ -283,26 +189,13 @@ void app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
-  ////////////////////
 
-  // could probably
-
-#if 0
-  /* not useful. since is immediately written over - in the spi transition.
-      use 'set mode x'. insteadd
-  */
-
-  else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
-
-    // set the fpga mode.
+  else if( strcmp(cmd, "nplc?") == 0 || strcmp(cmd, "aper?") == 0) {
+    // query fpga directly. not mode
     spi_mux_ice40(app->spi);
-    spi_ice40_reg_write32(app->spi, REG_MODE, u0 );
-
-    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
-    printf("reg_mode return value %lu\n", ret);
+    uint32_t aperture = spi_ice40_reg_read32(app->spi, REG_ADC_P_CLK_COUNT_APERTURE );
+    aper_n_print( aperture,  app->line_freq);
   }
-#endif
-
 
 
 
@@ -318,41 +211,18 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
   }
 
-#if 0
-/*
-  -- don't really need, just query direct reg for monitor and right shift.
-*/
-  else if( strcmp( cmd, "monitor?") == 0) {
-
-    // this is no longer corrent. should query the REG_STATUS. which includes the monitor
-    // regardless of the mode.
-    spi_mux_ice40(app->spi);
-    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT);
-    ret >>= 14;
-    char buf[ 100];
-    printf("r %u  v %lu  %s\n",  REG_DIRECT, ret, str_format_bits(buf, 8, ret ));
-  }
-#endif
 
 
-  ///////////////////////////////////////////////////
 
 
-#if 0
-  // for test only. use the mode transitino function instead.
+  ////////////////////
 
-  else if( sscanf(cmd, "dac %s", s0 ) == 1
-    && str_decode_uint( s0, &u0)
-  ) {
-       // spi_mux_dac8811(app->spi);
-      spi_mux_ad5446(app->spi );
+  // could probably
 
-      // eg. 0=-0V out.   0xffff = -7V out. nice.
-      spi_dac8811_write16( app->spi, u0 );
 
-      spi_mux_ice40(app->spi);
-    }
-#endif
+
+
+
 
   ///////////////////////
 
@@ -364,6 +234,11 @@ void app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
+
+
+  else if( strcmp(cmd, "test01") == 0) {
+    app_repl_statements(app, "set k405 set; set k406 reset; set k407 reset\n" );
+  }
 
   else if( app_test05( app, cmd  )) { }
   else if( app_test14( app, cmd  )) { }
@@ -487,12 +362,6 @@ void app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
-  else if( strcmp(cmd, "nplc?") == 0 || strcmp(cmd, "aper?") == 0) {
-    // query fpga directly. not mode
-    spi_mux_ice40(app->spi);
-    uint32_t aperture = spi_ice40_reg_read32(app->spi, REG_ADC_P_CLK_COUNT_APERTURE );
-    aper_n_print( aperture,  app->line_freq);
-  }
 
 
 
@@ -648,5 +517,132 @@ void app_repl_statements(app_t *app,  const char *s)
   }
 
 }
+
+#if 0
+  /* not useful. since is immediately written over - in the spi transition.
+      use 'set mode x'. insteadd
+  */
+
+  else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
+
+    // set the fpga mode.
+    spi_mux_ice40(app->spi);
+    spi_ice40_reg_write32(app->spi, REG_MODE, u0 );
+
+    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
+    printf("reg_mode return value %lu\n", ret);
+  }
+#endif
+
+
+
+#if 0
+
+  else if( sscanf(cmd, "direct %100s", s0) == 1
+    && str_decode_uint( s0, &u0)
+  ) {
+    /*
+      IMPORTANT - to properly sequence, in a set of repl commands,
+      Or just use 'set' direct.
+      Or allow set direct bits.
+    */
+
+    // set the direct register.
+    printf("set direct value to, %lu\n", u0 );
+
+    spi_mux_ice40(app->spi);
+    spi_ice40_reg_write32(app->spi, REG_DIRECT, u0 );
+    // confirm.
+    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
+    char buf[ 100 ] ;
+    printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  str_format_bits(buf, 32, ret ));
+  }
+#endif
+
+
+#if 0
+  else if( sscanf(cmd, "direct bit %lu %lu", &u0, &u1 ) == 2) {
+
+    // modify direct_reg and bit by bitnum and val
+    /* eg.
+          OLD.
+
+        mode direct
+        direct 0         - clear all bits.
+        direct bit 13 1  - led on
+        direct bit 13 0  - led off.
+        direct bit 14 1  - mon0 on
+        direct bit 22 1  - +ref current source on. pushes integrator output lo.  comparator pos-out (pin 7) hi.
+        direct bit 23 1  - -ref current source on. pushes integrator output hi.  comparator pos-out lo
+        --
+        for slow run-down current. turn on bit 23 1. to push integrator hi.
+        then add bit 22 1.  for slow run-down. works, can trigger on scope..about 2ms. can toggle bit 22 off against to go hi again.
+
+        direct bit 25   - reset. via 20k.
+        direct bit 26   - latch.  will freeze/latch in the current comparator value.
+
+      - note. run-down current creates integrator oscillation when out-of-range.
+    */
+
+    spi_mux_ice40(app->spi);
+    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
+    if(u1)
+      ret |= 1 << u0 ;
+    else
+      ret &= ~( 1 << u0 );
+
+    char buf[ 100 ] ;
+    printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  str_format_bits(buf, 32, ret ));
+    spi_ice40_reg_write32(app->spi, REG_DIRECT, ret );
+  }
+#endif
+
+#if 0
+  else if( sscanf(cmd, "blink %lu", &u0 ) == 1) {
+    // turn off fpga blink in mode 0, avoid spi transmission, during acquisition.
+    app->led_blink = u0;
+  }
+
+  else if( sscanf(cmd, "test relay flip %lu", &u0 ) == 1) {
+
+    app->test_relay_flip = u0;
+  }
+#endif
+
+#if 0
+/*
+  -- don't really need, just query direct reg for monitor and right shift.
+*/
+  else if( strcmp( cmd, "monitor?") == 0) {
+
+    // this is no longer corrent. should query the REG_STATUS. which includes the monitor
+    // regardless of the mode.
+    spi_mux_ice40(app->spi);
+    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT);
+    ret >>= 14;
+    char buf[ 100];
+    printf("r %u  v %lu  %s\n",  REG_DIRECT, ret, str_format_bits(buf, 8, ret ));
+  }
+#endif
+
+
+  ///////////////////////////////////////////////////
+
+
+#if 0
+  // for test only. use the mode transitino function instead.
+
+  else if( sscanf(cmd, "dac %s", s0 ) == 1
+    && str_decode_uint( s0, &u0)
+  ) {
+       // spi_mux_dac8811(app->spi);
+      spi_mux_ad5446(app->spi );
+
+      // eg. 0=-0V out.   0xffff = -7V out. nice.
+      spi_dac8811_write16( app->spi, u0 );
+
+      spi_mux_ice40(app->spi);
+    }
+#endif
 
 
