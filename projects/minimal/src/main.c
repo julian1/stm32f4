@@ -650,12 +650,12 @@ static void app_repl_statement(app_t *app,  const char *cmd)
 
   // our str_decode_uint function doesn't handle signedness...
   // and we want the hex value.
-  // but we could 
+  // but we could
 
   else if( sscanf(cmd, "set dac dcv-source %100s", s0) == 1
     && str_decode_uint( s0, &u0)) {
 
-      // should  
+      // should
       // eg. set dac dcv-source 0x3fff
 
       _mode_t *mode = app->mode_current;
@@ -664,9 +664,9 @@ static void app_repl_statement(app_t *app,  const char *cmd)
         printf("with +10V\n");
         mode->second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
       }
-      else { 
+      else {
         // do do. handle signedness in str_decode_uint.
-        
+
         assert( 0 );
         printf("with -10V\n");
         mode->second.U1003  = S2 ;       // s2.  -10V.

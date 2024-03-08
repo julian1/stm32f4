@@ -140,7 +140,7 @@ bool app_test14( app_t *app , const char *cmd)
     test14 azmux fitted, but not switched. around 20 hours, after isopropyl cleaning, actually needed.
     excellent.  so there is a high sensitivity to isopropyl.
     more to self-document what am doing.
-    - indicates board routing strategy looks ok for leakage. concerned about traces to trace and trace-to-pad - 
+    - indicates board routing strategy looks ok for leakage. concerned about traces to trace and trace-to-pad -
         when route with just prepreg thickness. between them.
         eg. a +-18 or +-15V power supply routing directly underneath a row of soic pins of an opamp/analog mux.
         but it looks ok.
