@@ -53,14 +53,11 @@ bool app_test14( app_t *app , const char *cmd)
         }
       }
 
-
-
       ////////////////////
       // phase 1, soak/charge accumulation cap
 
       printf("setup dcv-source and charge cap\n");
 
-      mode.second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2
 
       if(i0 == 10) {
         printf("with +10V\n");
@@ -75,6 +72,8 @@ bool app_test14( app_t *app , const char *cmd)
         mode.second.U1003 = S3;          // s3 == agnd
       }
       else assert(0);
+
+      mode.second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2
 
       // setup input relays.
       mode.first .K405 = LR_SET;     // select dcv

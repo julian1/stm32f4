@@ -87,7 +87,7 @@ void aper_n_print( uint32_t aperture,  uint32_t line_freq)
 
 */
 
-
+// TODO change name  str_decode_uint
 
 unsigned str_decode_int( const char *s, uint32_t *val  )
 {

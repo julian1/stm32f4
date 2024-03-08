@@ -47,7 +47,7 @@
 #include <string.h>   // strcmp, memset
 #include <assert.h>
 #include <malloc.h> // malloc_stats()
-
+#include <stdlib.h>   // abs()
 
 
 // library code
@@ -608,6 +608,9 @@ static void app_repl_statement(app_t *app,  const char *cmd)
 /*
    set dcv-source 10; set mode 5; set nplc 1;
     nice.
+
+  do the same except with the dac.
+  eg. dac-source
 */
 
   // +10,0,-10.    if increment. then could use the dac.
@@ -617,7 +620,6 @@ static void app_repl_statement(app_t *app,  const char *cmd)
 
       _mode_t *mode = app->mode_current;
 
-      mode->second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2
 
       if(i0 == 10) {
         printf("with +10V\n");
@@ -631,7 +633,12 @@ static void app_repl_statement(app_t *app,  const char *cmd)
         printf("with 0V\n");
         mode->second.U1003 = S3;          // s3 == agnd
       }
-      else assert(0);
+      else {
+        printf("bad arg\n");
+        return;
+      }
+
+      mode->second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2
 
       // setup input relays.
       mode->first .K405 = LR_SET;     // select dcv
@@ -640,6 +647,43 @@ static void app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
+
+  // our str_decode_int function doesn't handle signedness...
+  // and we want the hex value.
+  // but we could 
+
+  else if( sscanf(cmd, "set dac dcv-source %100s", s0) == 1
+    && str_decode_int( s0, &u0)) {
+
+      // should  
+      // eg. set dac dcv-source 0x3fff
+
+      _mode_t *mode = app->mode_current;
+
+
+      if(u0 > 0) {
+        printf("with +10V\n");
+        mode->second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
+      }
+      else { 
+        // do do. handle signedness in str_decode_int.
+        
+        assert( 0 );
+        printf("with -10V\n");
+        mode->second.U1003  = S2 ;       // s2.  -10V.
+      }
+
+      mode->second.U1006  = S3;          // s1.   follow  .   dcv-mux2
+
+      // range check.
+
+      mode->dac_val = u0;// abs( u0 );
+
+      // setup input relays.
+      mode->first .K405 = LR_SET;     // select dcv
+      mode->first .K406 = LR_SET;   // accum relay off
+      mode->first .K407 = LR_RESET;   // select dcv-source
+  }
 
 
   /*

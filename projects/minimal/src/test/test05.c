@@ -28,8 +28,6 @@ bool app_test05( app_t *app , const char *cmd)
 
       printf("setup dcv-source and charge cap\n");
 
-      mode.second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2
-
       if(i0 == 10) {
         printf("with +10V\n");
         mode.second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
@@ -43,6 +41,8 @@ bool app_test05( app_t *app , const char *cmd)
         mode.second.U1003 = S3;          // s3 == agnd
       }
       else assert(0);
+
+      mode.second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2
 
       // setup input relays.
       mode.first .K405 = LR_SET;     // select dcv
