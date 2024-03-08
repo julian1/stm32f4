@@ -356,8 +356,11 @@ void app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
+  /*
+    perhaps keep the 'set' prefix to clearly disambiguate these actions under common syntactic form.
+  */
 
-  else if( sscanf(cmd, "%100s %100s", s0, s1) == 2
+  else if( sscanf(cmd, "set %100s %100s", s0, s1) == 2
     && str_decode_uint( s1, &u0)
   ) {
 
