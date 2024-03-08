@@ -135,13 +135,47 @@ bool app_test14( app_t *app , const char *cmd)
 
 /*
 
+  mar 9 2024.
+    ==========
+    no change. to yesterday.
+    test14 azmux fitted, but not switched. around 20 hours, after isopropyl cleaning, actually needed.
+    excellent.  so there is a high sensitivity to isopropyl.
+    more to self-document what am doing.
+    - indicates board routing strategy looks ok for leakage. concerned about traces to trace and trace-to-pad - 
+        when route with just prepreg thickness. between them.
+        eg. a +-18 or +-15V power supply routing directly underneath a row of soic pins of an opamp/analog mux.
+        but it looks ok.
+
+    1nplc
+      test14 10 1           # ie. 10V dc bias, and 1nplc.
+        +5.4mV. +5.9mV
+
+      test14 0 1            # 0V dc-bias
+        +6.0mV.  6.4mV
+
+      test14 -10 1          # -10V dc-bias
+        +6.6mV  7.1mV.
+
+
+    10nplc
+      test14 10 10
+        +0.7mV  +0.5mV.
+
+      test14 0 10
+        +0.9mV 0.9mV
+
+      test14 -10 10
+        +1.7mV.  +1.7mV
+
+    ==========
+
 
   mar 8 2024,
     azmux fitted.  but not switched. so just resenting high-impedance cmos input.
     after about 6hours.
     think we need to leave for longer
 
-    test14 10 1
+    test14 10 1   # ie. 10V dc bias, and 1nplc.
       -6mV.   -5.7mV  -5.0mV.  -4.7mV       -3mV  -1mV                     <- now minus. very odd.   still some leakage???
                                                                                 think some due
     test14 0 1
