@@ -453,7 +453,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
 #if 0
 
   else if( sscanf(cmd, "direct %100s", s0) == 1
-    && str_decode_int( s0, &u0)
+    && str_decode_uint( s0, &u0)
   ) {
     /*
       IMPORTANT - to properly sequence, in a set of repl commands,
@@ -587,7 +587,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
   // for test only. use the mode transitino function instead.
 
   else if( sscanf(cmd, "dac %s", s0 ) == 1
-    && str_decode_int( s0, &u0)
+    && str_decode_uint( s0, &u0)
   ) {
        // spi_mux_dac8811(app->spi);
       spi_mux_ad5446(app->spi );
@@ -648,25 +648,24 @@ static void app_repl_statement(app_t *app,  const char *cmd)
 
 
 
-  // our str_decode_int function doesn't handle signedness...
+  // our str_decode_uint function doesn't handle signedness...
   // and we want the hex value.
   // but we could 
 
   else if( sscanf(cmd, "set dac dcv-source %100s", s0) == 1
-    && str_decode_int( s0, &u0)) {
+    && str_decode_uint( s0, &u0)) {
 
       // should  
       // eg. set dac dcv-source 0x3fff
 
       _mode_t *mode = app->mode_current;
 
-
       if(u0 > 0) {
         printf("with +10V\n");
         mode->second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
       }
       else { 
-        // do do. handle signedness in str_decode_int.
+        // do do. handle signedness in str_decode_uint.
         
         assert( 0 );
         printf("with -10V\n");
@@ -736,7 +735,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
 
 
   else if( sscanf(cmd, "set %100s %100s", s0, s1) == 2
-    && str_decode_int( s1, &u0)
+    && str_decode_uint( s1, &u0)
   ) {
 
       assert(app->mode_current);
@@ -773,7 +772,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
       }
 
       /*
-          handle latch relay pulse encoding here, rather than at str_decode_int() time.
+          handle latch relay pulse encoding here, rather than at str_decode_uint() time.
           valid values are 1 (0b01)  and 2 (0b10). not 1/0.
           reset is default schem contact position.
       */

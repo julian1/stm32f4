@@ -82,14 +82,14 @@ void aper_n_print( uint32_t aperture,  uint32_t line_freq)
 
 
 
-/* use strcasecmp() from strings.h.
+/*
+  use strcasecmp() from strings.h.
   or just force lower case first?
 
 */
 
-// TODO change name  str_decode_uint
 
-unsigned str_decode_int( const char *s, uint32_t *val  )
+unsigned str_decode_uint( const char *s, uint32_t *val  )
 {
   // decode int literal
   // set/reset  for relay.

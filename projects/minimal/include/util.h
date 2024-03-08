@@ -24,6 +24,6 @@ void aper_n_print( uint32_t aperture,  uint32_t lfreq);
 
 //
 
-unsigned str_decode_int( const char *s, uint32_t *val);
+unsigned str_decode_uint( const char *s, uint32_t *val);
 
 unsigned str_decode_float( const char *s, double *val);
