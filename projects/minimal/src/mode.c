@@ -12,7 +12,7 @@
 #include <peripheral/spi-dac8811.h>
 
 
-#include <lib2/util.h>      // msleep
+#include <lib2/util.h>      // msleep, UNUSED
 #include <lib2/format.h>   // str_format_bits
 
 #include <ice40-reg.h>
