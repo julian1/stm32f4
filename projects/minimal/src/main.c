@@ -309,6 +309,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
   uint32_t u0;
   double f0;
 
+  int32_t i0;
 
   ////////////////////
 
@@ -602,6 +603,43 @@ static void app_repl_statement(app_t *app,  const char *cmd)
 
   else if( app_test05( app, cmd  )) { }
   else if( app_test14( app, cmd  )) { }
+
+
+/*
+   set dcv-source 10; set mode 5; set nplc 1;
+    nice.
+*/
+
+  // +10,0,-10.    if increment. then could use the dac.
+  else if( sscanf(cmd, "set dcv-source %ld", &i0 ) == 1) {
+
+      printf("setup dcv-source, input relays, on current_mode\n");
+
+      _mode_t *mode = app->mode_current;
+
+      mode->second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2
+
+      if(i0 == 10) {
+        printf("with +10V\n");
+        mode->second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
+      }
+      else if(i0 == -10) {
+        printf("with -10V\n");
+        mode->second.U1003  = S2 ;       // s2.  -10V.
+      }
+      else if(i0 == 0) {
+        printf("with 0V\n");
+        mode->second.U1003 = S3;          // s3 == agnd
+      }
+      else assert(0);
+
+      // setup input relays.
+      mode->first .K405 = LR_SET;     // select dcv
+      mode->first .K406 = LR_SET;   // accum relay off
+      mode->first .K407 = LR_RESET;   // select dcv-source
+  }
+
+
 
 
   /*

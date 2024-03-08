@@ -76,7 +76,7 @@ bool app_test14( app_t *app , const char *cmd)
       }
       else assert(0);
 
-      // turn on accumulation relay
+      // setup input relays.
       mode.first .K405 = LR_SET;     // select dcv
       mode.first .K406 = LR_RESET;   // accum relay on
       mode.first .K407 = LR_RESET;   // select dcv-source
