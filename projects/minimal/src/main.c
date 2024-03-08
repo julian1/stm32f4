@@ -449,7 +449,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
   // don't we have some code - to handle sscan as binary/octal/hex ?
 
 
-
+#if 0
 
   else if( sscanf(cmd, "direct %100s", s0) == 1
     && str_decode_int( s0, &u0)
@@ -470,6 +470,7 @@ static void app_repl_statement(app_t *app,  const char *cmd)
     char buf[ 100 ] ;
     printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  str_format_bits(buf, 32, ret ));
   }
+#endif
 
 
 #if 0
@@ -530,6 +531,10 @@ static void app_repl_statement(app_t *app,  const char *cmd)
 
   // could probably
 
+#if 0
+  /* not useful. since is immediately written over - in the spi transition.
+      use 'set mode x'. insteadd
+  */
 
   else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
 
@@ -540,6 +545,10 @@ static void app_repl_statement(app_t *app,  const char *cmd)
     uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
     printf("reg_mode return value %lu\n", ret);
   }
+#endif
+
+
+
 
   else if( strcmp(cmd, "mode?") == 0) {
 
