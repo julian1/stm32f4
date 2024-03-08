@@ -215,12 +215,6 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
 
 
-  ////////////////////
-
-  // could probably
-
-
-
 
 
 
@@ -253,9 +247,9 @@ void app_repl_statement(app_t *app,  const char *cmd)
 */
 
   // +10,0,-10.    if increment. then could use the dac.
-  else if( sscanf(cmd, "set dcv-source %ld", &i0 ) == 1) {
+  else if( sscanf(cmd, "dcv-source %ld", &i0 ) == 1) {
 
-      printf("setup dcv-source, input relays, on current_mode\n");
+      printf("set dcv-source, input relays, for current_mode\n");
 
       _mode_t *mode = app->mode_current;
 
@@ -291,7 +285,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
   // and we want the hex value.
   // but we could
 
-  else if( sscanf(cmd, "set dac dcv-source %100s", s0) == 1
+  else if( sscanf(cmd, "dac dcv-source %100s", s0) == 1
     && str_decode_uint( s0, &u0)) {
 
       // should
@@ -328,7 +322,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
       because float looks like int
   */
 
-  else if( sscanf(cmd, "set aper %100s", s0) == 1
+  else if( sscanf(cmd, "aper %100s", s0) == 1
     && str_decode_float( s0, &f0))
   {
     assert(app->mode_current);
@@ -342,7 +336,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
-  else if( sscanf(cmd, "set nplc %100s", s0) == 1
+  else if( sscanf(cmd, "nplc %100s", s0) == 1
     && str_decode_float( s0, &f0))
   {
     // use float here, to express sub 1nplc periods
@@ -363,10 +357,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
 
 
-
-
-
-  else if( sscanf(cmd, "set %100s %100s", s0, s1) == 2
+  else if( sscanf(cmd, "%100s %100s", s0, s1) == 2
     && str_decode_uint( s1, &u0)
   ) {
 
@@ -420,7 +411,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
       ////////////
 
-      // this is nice.
+      // setting direct register bitfields, nice
       else if(strcmp(s0, "leds_o") == 0) {
         mode->reg_direct.leds_o = u0;
       }
