@@ -5,8 +5,8 @@
 
 #include <mode.h>
 #include <app.h>
-#include <ice40-reg.h>    // MODE_DIRECT
-#include <lib2/util.h>         // msleep()
+#include <ice40-reg.h>    // modes
+#include <lib2/util.h>    // msleep()
 
 
 
@@ -17,18 +17,19 @@ bool app_test15( app_t *app , const char *cmd)
   assert(app->mode_initial);
 
 
+
   /*
       test charge-injection by charging to a bias voltage, holding, then entering az mode.
-      but only switching pre-charge switch.
-      baseline for charge inection.
+      with az-mux also switching .
 
-    > reset ; dcv-source 10; nplc 1; test14
+    > reset ; dcv-source 10; nplc 1; test15
 
   */
 
   if( strcmp(cmd, "test15") == 0) {
 
-      printf("test leakage and charge-injection using MODE_PC switching pre-charge switch, at different input dc-bias and frequency\n");
+
+      printf("test leakage and charge-injection by switching pre-charge/azmux at different input dc-bias and frequency\n");
 
       _mode_t mode = *app->mode_current;
 
