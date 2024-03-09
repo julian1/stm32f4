@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>   // strcmp
 
 #include <mode.h>
 #include <app.h>
@@ -16,8 +17,8 @@ bool app_test14( app_t *app , const char *cmd)
   assert(cmd);
   assert(app->mode_initial);
 
-  int32_t i0;
-  double  f0;
+  // int32_t i0;
+  // double  f0;
 
 
     /*
@@ -37,14 +38,21 @@ bool app_test14( app_t *app , const char *cmd)
       use the current mode for the test.
 
     this function can call spi_mode_transition_state()
+
+
+    reset ; dcv-source 10; nplc 1; test14
+
+
   */
 
-  if( sscanf(cmd, "test14 %ld %lf", &i0, &f0 ) == 2) {
+  // if( sscanf(cmd, "test14 %ld %lf", &i0, &f0 ) == 2) {
+  if( strcmp(cmd, "test14") == 0) {
 
       printf("test leakage and charge-injection using MODE_PC switching pre-charge switch, at different input dc-bias and frequency\n");
 
-      _mode_t mode = *app->mode_initial;
-
+      // _mode_t mode = *app->mode_initial;
+      _mode_t mode = *app->mode_current;
+#if 0
 
       // decode arg and set nplc
       {
@@ -90,6 +98,7 @@ bool app_test14( app_t *app , const char *cmd)
       else assert(0);
 
       mode.second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2
+#endif
 
       // setup input relays.
       mode.first .K405 = LR_SET;     // select dcv
@@ -100,7 +109,8 @@ bool app_test14( app_t *app , const char *cmd)
       mode.reg_mode =  MODE_DIRECT;
       // mode.reg_direct.azmux_o = SOFF;
       assert( mode.reg_direct.azmux_o == SOFF) ;    // default
-      mode.reg_direct.sig_pc_sw_o = 0b00 ;
+      // mode.reg_direct.sig_pc_sw_o = 0b00 ;
+      assert( mode.reg_direct.sig_pc_sw_o == 0b00 );
 
       mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
 
@@ -113,14 +123,14 @@ bool app_test14( app_t *app , const char *cmd)
       // phase 2, discocnnect dcv-source
       //           and switch into precharge mode.
 
-      printf("setting mode to pc-only\n");
+      printf("mode to pc-only\n");
       printf("disconnect dcv-source and observe drift\n");
-      mode.reg_mode = 4; //MODE_PC;
-      mode.first .K407 = LR_SET;
-      mode.reg_direct.leds_o = 0b0010;
+      mode.reg_mode           = MODE_PC;
+      mode.first .K407        = LR_SET;          // disconnect dcv
+      mode.reg_direct.leds_o  = 0b0010;    // advance led
 
       spi_mode_transition_state( app->spi, &mode, &app->system_millis);
-      printf("sleep 10s\n");  // having a yield would be quite nice here.
+      printf("sleep 10s\n");  // having a yield() would be quite nice here.
       msleep(10 * 1000,  &app->system_millis);
 
 

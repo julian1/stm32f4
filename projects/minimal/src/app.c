@@ -261,13 +261,19 @@ void app_repl_statement(app_t *app,  const char *cmd)
     app_repl_statements(app, "set k405 set; set k406 reset; set k407 reset\n" );
   }
 
+  /*
+    these can apply the mode state, that has previously been setup.
+    this can simplify, the code in these functions.
+
+  */
   else if( app_test05( app, cmd  )) { }
   else if( app_test14( app, cmd  )) { }
   else if( app_test15( app, cmd  )) { }
 
 
 /*
-   set dcv-source 10; set mode 5; set nplc 1;
+  eg.
+   dcv-source 10; mode 5; nplc 1;
     nice.
 
   do the same except with the dac.
