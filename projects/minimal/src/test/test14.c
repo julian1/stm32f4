@@ -5,7 +5,6 @@
 
 #include <mode.h>
 #include <app.h>
-#include <util.h>         // nplc funcs
 #include <ice40-reg.h>    // MODE_DIRECT
 #include <lib2/util.h>         // msleep()
 
@@ -17,88 +16,25 @@ bool app_test14( app_t *app , const char *cmd)
   assert(cmd);
   assert(app->mode_initial);
 
-  // int32_t i0;
-  // double  f0;
 
-
-    /*
-
+  /*
       test charge-injection by charging to a bias voltage, holding, then entering az mode.
       but only switching pre-charge switch.
       baseline for charge inection.
 
-      kind needs to be rewritten. after changes to do_transition.
-    */
-
-  /*
-    - why not call like this.
-
-    reset; dcv-source 10; nplc 1; update;  test14
-
-      use the current mode for the test.
-
-    this function can call spi_mode_transition_state()
-
-
-    reset ; dcv-source 10; nplc 1; test14
-
+    > reset ; dcv-source 10; nplc 1; test14
 
   */
 
-  // if( sscanf(cmd, "test14 %ld %lf", &i0, &f0 ) == 2) {
   if( strcmp(cmd, "test14") == 0) {
 
       printf("test leakage and charge-injection using MODE_PC switching pre-charge switch, at different input dc-bias and frequency\n");
 
-      // _mode_t mode = *app->mode_initial;
       _mode_t mode = *app->mode_current;
-#if 0
 
-      // decode arg and set nplc
-      {
-        // use float here, to express sub 1nplc periods
-        if( ! nplc_valid( f0 ))  {
-            printf("bad nplc arg\n");
-            return 1;
-        } else {
-
-          // should be called cc_aperture or similar.
-          uint32_t aperture = nplc_to_aper_n( f0, app->line_freq );
-          aper_n_print( aperture,  app->line_freq);
-          mode.adc.reg_adc_p_aperture = aperture;
-        }
-      }
-
-      ////////////////////
-      // phase 1, soak/charge accumulation cap
-
-      printf("setup dcv-source and charge cap\n");
-
-      /*
-          - would be useful to just use the dcv-source command to set this up.
-          - but issue is call order of mode update, and test function.
-          - we can use 'update' , or newline.   or else defer the actual action with a queue.
-
-          - actually it doesn't even matter.
-          - test14.  can call spi_mode_transition_state()
+      /* assume dcv-source and nplc are already setup.
+        we could check.
       */
-
-      if(i0 == 10) {
-        printf("with +10V\n");
-        mode.second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
-      }
-      else if(i0 == -10) {
-        printf("with -10V\n");
-        mode.second.U1003  = S2 ;       // s2.  -10V.
-      }
-      else if(i0 == 0) {
-        printf("with 0V\n");
-        mode.second.U1003 = S3;          // s3 == agnd
-      }
-      else assert(0);
-
-      mode.second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2
-#endif
 
       // setup input relays.
       mode.first .K405 = LR_SET;     // select dcv
