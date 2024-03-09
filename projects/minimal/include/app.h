@@ -15,7 +15,7 @@ typedef struct app_t
 
 
   // remove. should be able to query the led state  to invert it...
-  // no. it's ok. led follows the led_state
+  // no. it's ok. led follows the led_state, more than one thing follows.
   bool led_state ;     // for mcu. maybe change name to distinguish
 
   uint32_t soft_500ms;
@@ -34,7 +34,6 @@ typedef struct app_t
 
   ////////
 /*
-  bool led_blink;
   bool test_relay_flip;
 */
 
@@ -50,10 +49,12 @@ typedef struct app_t
 
 
 
+void app_repl_statement(app_t *app,  const char *cmd);
+void app_repl_statements(app_t *app,  const char *s);
+
 
 bool app_test05( app_t *app , const char *cmd);
 bool app_test14( app_t *app , const char *cmd);
+bool app_test15( app_t *app , const char *cmd);
 
-void app_repl_statement(app_t *app,  const char *cmd);
 
-void app_repl_statements(app_t *app,  const char *s);

@@ -187,8 +187,9 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
 #if 0
   /*
-    this won't work in general case, because register will be overwritten by the mode value for the register.
+    this won't work in the general case, because the register will get immediately overwritten by the mode value for the register.
     after the repl command is processed.
+    but is useful as test - before we add stuff to the mode
   */
   else if( sscanf(cmd, "reg %lu %100s", &u0, s1) == 2
     && str_decode_uint( s1, &u1)
@@ -262,6 +263,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
   else if( app_test05( app, cmd  )) { }
   else if( app_test14( app, cmd  )) { }
+  else if( app_test15( app, cmd  )) { }
 
 
 /*

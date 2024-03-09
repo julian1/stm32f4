@@ -29,7 +29,15 @@ bool app_test14( app_t *app , const char *cmd)
       kind needs to be rewritten. after changes to do_transition.
     */
 
+  /*
+    - why not call like this.
 
+    reset; dcv-source 10; nplc 1; update;  test14
+
+      use the current mode for the test.
+
+    this function can call spi_mode_transition_state()
+  */
 
   if( sscanf(cmd, "test14 %ld %lf", &i0, &f0 ) == 2) {
 
@@ -58,6 +66,14 @@ bool app_test14( app_t *app , const char *cmd)
 
       printf("setup dcv-source and charge cap\n");
 
+      /*
+          - would be useful to just use the dcv-source command to set this up.
+          - but issue is call order of mode update, and test function.
+          - we can use 'update' , or newline.   or else defer the actual action with a queue.
+
+          - actually it doesn't even matter.
+          - test14.  can call spi_mode_transition_state()
+      */
 
       if(i0 == 10) {
         printf("with +10V\n");
