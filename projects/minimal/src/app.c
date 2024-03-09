@@ -78,7 +78,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
   char s0[100 + 1 ];
   char s1[100 + 1 ];
-  uint32_t u0, u1;
+  uint32_t u0;//, u1;
   double f0;
   int32_t i0;
 
@@ -184,14 +184,12 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
   // don't we have some code - to handle sscan as binary/octal/hex ?
 
-/*
-#define REG_SPI_MUX       8
-#define REG_4094          9     // rename, add suffix. or reg_4094_cr config-register. or OE or something.
-#define REG_MODE          12
-#define REG_DIRECT        14
-#define REG_STATUS        17
-*/
 
+#if 0
+  /*
+    this won't work in general case, because register will be overwritten by the mode value for the register.
+    after the repl command is processed.
+  */
   else if( sscanf(cmd, "reg %lu %100s", &u0, s1) == 2
     && str_decode_uint( s1, &u1)
   ) {
@@ -205,6 +203,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
     printf("reg_mode return value %lu\n", ret);
 
   }
+#endif
 
 
   else if( strcmp( cmd, "spi-mux?") == 0) {
