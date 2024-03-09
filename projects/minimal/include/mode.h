@@ -224,6 +224,25 @@ reg_direct_t
 
 
 
+
+
+
+typedef struct sa_state_t
+{
+ 
+  uint32_t reg_sa_p_clk_count_precharge ;   // regadc_cc_precharge
+  uint32_t reg_sa_p_azmux_lo_val;
+  uint32_t reg_sa_p_azmux_hi_val;
+  uint32_t reg_sa_p_sw_pc_ctl_hi_val;
+
+
+} sa_state_t;
+
+
+
+
+
+// TODO remove.
 #define SW_PC_SIGNAL    1
 #define SW_PC_BOOT      0
 
@@ -251,14 +270,6 @@ typedef struct adc_state_t
 } adc_state_t;
 
 
-
-
-typedef struct sa_state_t
-{
- 
-  uint32_t  reg_sa_p_clk_count_precharge ;   // regadc_cc_precharge
-
-} sa_state_t;
 
 
 /*

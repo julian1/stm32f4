@@ -95,13 +95,16 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 
 
   // sa
-  // printf("writing precharge %lu\n" , mode->sa.reg_sa_p_clk_count_precharge  );
+  // printf("writing sig acquisition params" );
   spi_ice40_reg_write32(spi, REG_SA_P_CLK_COUNT_PRECHARGE, mode->sa.reg_sa_p_clk_count_precharge );
+  spi_ice40_reg_write32(spi, REG_SA_P_AZMUX_LO_VAL,        mode->sa.reg_sa_p_azmux_lo_val );
+  spi_ice40_reg_write32(spi, REG_SA_P_AZMUX_HI_VAL,        mode->sa.reg_sa_p_azmux_hi_val );
+  spi_ice40_reg_write32(spi, REG_SA_P_SW_PC_CTL_HI_VAL,     mode->sa.reg_sa_p_sw_pc_ctl_hi_val );
 
 
 
   // adc
-  // printf("writing aperture %lu\n" ,   mode->adc.reg_adc_p_aperture  );
+  // printf("writing adc params - aperture %lu\n" ,   mode->adc.reg_adc_p_aperture  );
   spi_ice40_reg_write32(spi, REG_ADC_P_CLK_COUNT_APERTURE,  mode->adc.reg_adc_p_aperture );
   spi_ice40_reg_write32(spi, REG_ADC_P_CLK_COUNT_RESET,     mode->adc.reg_adc_p_reset );
 
@@ -123,20 +126,6 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 
   */
 
-/*
-
-//  sample acquisition.
-#define REG_SA_ARM_TRIGGER              19
-#define REG_SA_P_CLK_COUNT_PRECHARGE    21
-
-// adc parameters
-#define REG_ADC_P_CLK_COUNT_APERTURE    20   // clk sample time. change name aperture.  // TODO reassign.
-#define REG_ADC_P_CLK_COUNT_RESET       25
-
-
-
-
-*/
 }
 
 

@@ -426,27 +426,35 @@ static app_t app;
 
 static const _mode_t mode_initial =  {
 
+  /*
+    TODO,
+    EXTR all relays should belhave to be defined. not left default initialization of 00 which means
+    they won't get an initial value. pulse.
+
+  */
 
 
   .first .K407  = LR_SET,     // disconnect dcv-source
   .first .K406  = LR_SET,     // accumulation cap off
-  .first .K405  = LR_RESET,   // mux the himux2.
+  .first .K405  = LR_RESET,   // mux the himux2 - so dcv is free
 
 
   .reg_mode = 0, // MODE_LO,                                  // default, blink led according to mcu
 
-  .sa.reg_sa_p_clk_count_precharge = CLK_FREQ * 500e-6,             //  `CLK_FREQ * 500e-6 ;   // 500us.
+  // signal acquisition defaults
+  .sa.reg_sa_p_clk_count_precharge = CLK_FREQ * 500e-6,             //  500us.
+  .sa.reg_sa_p_azmux_lo_val = S7,         // star-lo
+  .sa.reg_sa_p_azmux_hi_val = S3,         // dc
+  .sa. reg_sa_p_sw_pc_ctl_hi_val = 0b01,  // channel-1 precharge switch
 
+
+
+  // adc
   .adc.reg_adc_p_aperture = CLK_FREQ * 0.2,   // 200ms. 10nplc 50Hz.  // Not. should use current calibration?  // should be authoritative source of state.
-
   .adc.reg_adc_p_reset = CLK_FREQ * 500e-6                // 500us.
 
 
 #if 0
-  /*
-    all relays have to be defined. not left default initialization of 00 which means
-    they don't get an initial pulse.
-  */
 
   //  maybe make explicit all values  U408_SW_CTL. at least for the initial mode, from which others derive.
 
@@ -472,8 +480,6 @@ static const _mode_t mode_initial =  {
 
   .second.U506 =  W1,           // amplifier should always be on.
 
-
-
   .first. K603_CTL  = LR_RESET,     // ohms relay off.
 
 
@@ -496,15 +502,6 @@ static const _mode_t mode_initial =  {
   .first. K704_CTL  = LR_SET,
   .first. K705_CTL  = LR_SET,
 
-
-
-  .reg_mode = MODE_LO,                                  // default, blink led according to mcu
-
-  .reg_sa_p_clk_count_precharge = CLK_FREQ * 500e-6,             //  `CLK_FREQ * 500e-6 ;   // 500us.
-
-  .reg_adc_p_aperture = CLK_FREQ * 0.2,   // 200ms. 10nplc 50Hz.  // Not. should use current calibration?  // should be authoritative source of state.
-
-  .reg_adc_p_reset = CLK_FREQ * 500e-6                // 500us.
 
 #endif
 
