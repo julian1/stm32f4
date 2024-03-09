@@ -48,6 +48,19 @@ int flash_lzo_test(void);
 */
 
 
+static void print_register( uint32_t spi, uint32_t reg )
+{
+  // basic generic print
+  // query any register
+  spi_mux_ice40( spi);
+  uint32_t ret = spi_ice40_reg_read32( spi, reg );
+  char buf[ 100];
+  printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
+}
+
+
+
+
 void app_repl_statement(app_t *app,  const char *cmd)
 {
   /*
@@ -171,51 +184,47 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
   // don't we have some code - to handle sscan as binary/octal/hex ?
 
+/*
+#define REG_SPI_MUX       8
+#define REG_4094          9     // rename, add suffix. or reg_4094_cr config-register. or OE or something.
+#define REG_MODE          12
+#define REG_DIRECT        14
+#define REG_STATUS        17
+*/
 
+  else if( strcmp( cmd, "spi-mux?") == 0) {
 
+    print_register( app->spi, REG_SPI_MUX);
+  }
+  else if( strcmp( cmd, "4094?") == 0) {
+
+    print_register( app->spi, REG_4094);
+  }
+   else if( strcmp(cmd, "mode?") == 0) {
+
+    print_register( app->spi, REG_MODE);
+  }
   else if( strcmp( cmd, "direct?") == 0) {
 
-    spi_mux_ice40(app->spi);
-    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
-    char buf[ 100];
-    printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  str_format_bits(buf, 32, ret ));
+    print_register( app->spi, REG_DIRECT);
   }
   else if( strcmp( cmd, "status?") == 0) {
 
-    spi_mux_ice40(app->spi);
-    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_STATUS);
-    char buf[ 100];
-    printf("r %u  v %lu  %s\n",  REG_STATUS, ret,  str_format_bits(buf, 32, ret ));
+    print_register( app->spi, REG_STATUS);
+  }
+  else if( sscanf(cmd, "reg? %lu", &u0 ) == 1) {
+
+    print_register( app->spi, u0 );
   }
 
 
-
-  else if( strcmp(cmd, "nplc?") == 0 || strcmp(cmd, "aper?") == 0) {
+  else if( strcmp(cmd, "nplc?") == 0
+    || strcmp(cmd, "aper?") == 0) {
     // query fpga directly. not mode
     spi_mux_ice40(app->spi);
     uint32_t aperture = spi_ice40_reg_read32(app->spi, REG_ADC_P_CLK_COUNT_APERTURE );
     aper_n_print( aperture,  app->line_freq);
   }
-
-
-
-  else if( strcmp(cmd, "mode?") == 0) {
-
-    // TODO add some decoding here.
-    spi_mux_ice40(app->spi);
-    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
-    printf("reg_mode return value %lu\n", ret);
-
-    // _mode_t *mode = app->mode_current;
-    // printf("app      return value %lu\n", mode->reg_mode );
-
-  }
-
-
-
-
-
-
 
 
   ///////////////////////
