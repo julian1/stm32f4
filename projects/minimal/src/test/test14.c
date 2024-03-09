@@ -32,7 +32,7 @@ bool app_test14( app_t *app , const char *cmd)
 
       _mode_t mode = *app->mode_current;
 
-      /* assume dcv-source and nplc are already setup.
+      /* assume dcv-source and nplc have been set up already.
         we could check.
       */
 
@@ -42,10 +42,8 @@ bool app_test14( app_t *app , const char *cmd)
       mode.first .K407 = LR_RESET;   // select dcv-source
 
       // set up fpga - with direct mode - for the charge phase.
-      mode.reg_mode =  MODE_DIRECT;
-      // mode.reg_direct.azmux_o = SOFF;
-      assert( mode.reg_direct.azmux_o == SOFF) ;    // default
-      // mode.reg_direct.sig_pc_sw_o = 0b00 ;
+      mode.reg_mode     =  MODE_DIRECT;
+      assert( mode.reg_direct.azmux_o == SOFF) ;    // default, doesn't matter.
       assert( mode.reg_direct.sig_pc_sw_o == 0b00 );
 
       mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
