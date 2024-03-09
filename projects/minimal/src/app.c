@@ -78,7 +78,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
   char s0[100 + 1 ];
   char s1[100 + 1 ];
-  uint32_t u0;
+  uint32_t u0, u1;
   double f0;
   int32_t i0;
 
@@ -192,6 +192,21 @@ void app_repl_statement(app_t *app,  const char *cmd)
 #define REG_STATUS        17
 */
 
+  else if( sscanf(cmd, "reg %lu %100s", &u0, s1) == 2
+    && str_decode_uint( s1, &u1)
+  ) {
+    // directly set a register on fpga. bypassing the mode.
+    // useful occsionally for test.
+
+    spi_mux_ice40(app->spi);
+    spi_ice40_reg_write32(app->spi, u0 , u1 );
+
+    uint32_t ret = spi_ice40_reg_read32(app->spi, u0);
+    printf("reg_mode return value %lu\n", ret);
+
+  }
+
+
   else if( strcmp( cmd, "spi-mux?") == 0) {
 
     print_register( app->spi, REG_SPI_MUX);
@@ -228,6 +243,9 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
 
   ///////////////////////
+  // We want to separate this stuff - for setting mode, and indirect.
+
+
 
 
   else if(strcmp(cmd, "reset") == 0) {
