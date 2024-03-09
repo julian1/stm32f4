@@ -21,7 +21,7 @@ SRCFILES	= src/peripheral/ice40-extra.c   src/peripheral/led.c  src/peripheral/s
             src/test/test05.c src/test/test14.c \
 
 
-#            src/peripheral/dac8734.c \
+#            src/peripheral/spi-dac8734.c \
 
 
 
