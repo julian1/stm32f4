@@ -4,7 +4,7 @@
 /*
   fpga specific
   this doeesn't belong in mode.h
-  because then it would be pulled in with all the 4094 stuff and for spi peripherals.
+  because then it would then get pulled in by the spi peripheral code, which needs mode.h.
 
 
 */

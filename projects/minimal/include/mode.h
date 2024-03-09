@@ -305,6 +305,8 @@ typedef struct _mode_t
 
   sa_state_t    sa;
 
+  // single adum line.
+  // bool          trigger_source_1 ;
 
 } _mode_t ;
 

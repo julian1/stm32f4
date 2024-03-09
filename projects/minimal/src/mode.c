@@ -106,7 +106,22 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
   spi_ice40_reg_write32(spi, REG_ADC_P_CLK_COUNT_RESET,     mode->adc.reg_adc_p_reset );
 
 
+  /*
+    IMPORTANT - can put the mcu source - trigger state in mode.
+    and then set it last. after 4094, fpga state has been updated.
+    --
+    this preserves the sequencing.
+    ---
 
+    should use the adum gpio / rather than spi and fpga register, to reduce emi from spi clk/data lines.
+
+    ie. we want to be able to trigger a measurement reading, with minimal activity on adums/spi lines.
+
+    rename
+
+      trigger-int-out  to trigger-source-1   or similar
+
+  */
 
 /*
 
