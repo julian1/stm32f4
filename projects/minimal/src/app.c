@@ -315,15 +315,29 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
 
 
-  // our str_decode_uint function doesn't handle signedness...
-  // and we want the hex value.
-  // but we could
+  else if( strcmp(cmd, "dcv-source ref") == 0) {
+    // also temp.
 
-  else if( sscanf(cmd, "dac dcv-source %100s", s0) == 1
+      _mode_t *mode = app->mode_current;
+      mode->second.U1003  = S3 ;       // turn off/ mux agnd.
+      mode->second.U1006  = S4 ;    // ref-hi. unbuffered.
+
+    // setup input relays.
+      mode->first .K405 = LR_SET;     // select dcv
+      mode->first .K406 = LR_SET;   // accum relay off
+      mode->first .K407 = LR_RESET;   // select dcv-source
+  }
+
+
+  else if( sscanf(cmd, "dcv-source dac %100s", s0) == 1
     && str_decode_uint( s0, &u0)) {
 
+      // our str_decode_uint function doesn't handle signedness...
+      // and we want the hex value.
+      // but we could
+
       // should
-      // eg. set dac dcv-source 0x3fff
+      // eg. dcv-source dac 0x3fff
 
       _mode_t *mode = app->mode_current;
 
@@ -349,6 +363,10 @@ void app_repl_statement(app_t *app,  const char *cmd)
       mode->first .K406 = LR_SET;   // accum relay off
       mode->first .K407 = LR_RESET;   // select dcv-source
   }
+
+
+
+
 
 
   /*
