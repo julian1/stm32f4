@@ -243,9 +243,8 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
 
   ///////////////////////
-  // We want to separate this stuff - for setting mode, and indirect.
-
-
+  // We want clear separation - for setting mode versus setting anything directly on fpga.
+  // actually just remoe any thing that bypasses the mode.
 
 
   else if(strcmp(cmd, "reset") == 0) {
@@ -255,17 +254,11 @@ void app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
-
-
-  else if( strcmp(cmd, "test01") == 0) {
-    app_repl_statements(app, "set k405 set; set k406 reset; set k407 reset\n" );
-  }
-
   /*
     these can apply the mode state, that has previously been setup.
     this can simplify, the code in these functions.
-
   */
+  else if( app_test01( app, cmd  )) { }
   else if( app_test05( app, cmd  )) { }
   else if( app_test14( app, cmd  )) { }
   else if( app_test15( app, cmd  )) { }

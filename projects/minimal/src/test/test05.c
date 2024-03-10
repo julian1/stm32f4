@@ -17,6 +17,9 @@ bool app_test05( app_t *app , const char *cmd)
 
   int32_t i0;
 
+
+  // TODO structure same as test14, test15. using strcmp()
+
   if( sscanf(cmd, "test05 %ld", &i0 ) == 1) {
 
       printf("test non-az mode - leakage by first charging for 10sec, then turn off muxes, and mux signal via pc-out to amplifier\n");

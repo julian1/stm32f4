@@ -53,6 +53,7 @@ void app_repl_statement(app_t *app,  const char *cmd);
 void app_repl_statements(app_t *app,  const char *s);
 
 
+bool app_test01( app_t *app , const char *cmd);
 bool app_test05( app_t *app , const char *cmd);
 bool app_test14( app_t *app , const char *cmd);
 bool app_test15( app_t *app , const char *cmd);
