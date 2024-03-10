@@ -73,16 +73,17 @@
 #define MODE_LO           1     // all bits held lo. but blink led. default.
 #define MODE_HI           2     // all bits held hi
 #define MODE_PATTERN      3     // put modulation pattern on all bits
-#define MODE_PC           4     // TODO. - rename PC_ONLY simple precharge switching modulation.
+#define MODE_PC_TEST      4
 
-#define MODE_AZ_TEST      5     // az.
+
+#define MODE_AZ_TEST      5     // az. using adc-test
 //#define MODE_AZ           5     // az.
 #define MODE_NO_AZ        6     // no az. and elecm. etc
 
 
+// maybe change name MODE_AZ to MODE_SA_AZ.
 
 
-// change name MODE_AZ to MODE_SA_AZ.
 
 
 /*
@@ -90,7 +91,7 @@
 #define MODE_HI           1     // all bits held hi
 #define MODE_PATTERN      2     // put modulation pattern on all bits
 #define MODE_DIRECT       3     // support direct writing via direct register
-#define MODE_PC           4     // simple precharge switching modulation.
+#define MODE_PC_TEST           4     // simple precharge switching modulation.
 #define MODE_SA_AZ        5     // az.
 #define MODE_SA_NO_AZ     6     // no az. for electrometer style input. etc
 

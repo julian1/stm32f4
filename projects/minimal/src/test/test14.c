@@ -28,7 +28,7 @@ bool app_test14( app_t *app , const char *cmd)
 
   if( strcmp(cmd, "test14") == 0) {
 
-      printf("test leakage and charge-injection using MODE_PC switching pre-charge switch, at different input dc-bias and frequency\n");
+      printf("test leakage and charge-injection using MODE_PC_TEST switching pre-charge switch, at different input dc-bias and frequency\n");
 
       _mode_t mode = *app->mode_current;
 
@@ -59,7 +59,7 @@ bool app_test14( app_t *app , const char *cmd)
 
       printf("mode to pc-only\n");
       printf("disconnect dcv-source and observe drift\n");
-      mode.reg_mode           = MODE_PC;
+      mode.reg_mode           = MODE_PC_TEST;
       mode.first .K407        = LR_SET;          // disconnect dcv
       mode.reg_direct.leds_o  = 0b0010;    // advance led
 
