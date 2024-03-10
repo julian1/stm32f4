@@ -104,6 +104,33 @@ bool app_test15( app_t *app , const char *cmd)
 
 /*
 
+  Mar 11.
+
+  after refactor
+
+    > reset ; dcv-source 10; nplc 1; test15
+      5.0mV 4.95mV
+
+    > reset ; dcv-source 0; nplc 1; test15
+      7.5mV 8.2mV
+
+    > reset ; dcv-source -10; nplc 1; test15
+      8.15mV.
+
+  ------
+    reset ; dcv-source 10;  set azmux_o s3 ; nplc 1; test15
+      5.5mV.
+
+   reset ; dcv-source 0;  set azmux_o s3 ; nplc 1; test15
+      9.0mV 8.4mV
+
+  reset ; dcv-source -10;  set azmux_o s3 ; nplc 1; test15
+      9.1mV.  8.3mV.
+
+
+
+  Mar 10
+  ----
   10 seconds. 10nF. charge cap.
 
   with amplifier and bootin. working.

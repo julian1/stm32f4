@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <stdbool.h>
 
 /*
   EXTR.
@@ -314,14 +315,13 @@ typedef struct _mode_t
   // only in mode 0
   reg_direct_t    reg_direct;
 
+  sa_state_t    sa;
+
 
   adc_state_t    adc;
 
-  // TODO put sa before adc.
-  sa_state_t    sa;
-
   // single adum line.
-  // bool          trigger_source_internal;
+  bool          trigger_source_internal;
 
 } _mode_t ;
 
