@@ -24,6 +24,9 @@ bool app_test15( app_t *app , const char *cmd)
 
     > reset ; dcv-source 10; nplc 1; test15
 
+      only thing that really changes with test14. is the actual mode.  MODE_AZ instead of MODE_PC
+      lot of opportunity to refactor.
+
   */
 
   if( strcmp(cmd, "test15") == 0) {
@@ -60,7 +63,7 @@ bool app_test15( app_t *app , const char *cmd)
 
       printf("mode to pc-only\n");
       printf("disconnect dcv-source and observe drift\n");
-      mode.reg_mode           = MODE_PC;
+      mode.reg_mode           = MODE_AZ_TEST;
       mode.first .K407        = LR_SET;          // disconnect dcv
       mode.reg_direct.leds_o  = 0b0010;    // advance led
 
@@ -93,76 +96,24 @@ bool app_test15( app_t *app , const char *cmd)
 
 /*
 
-  mar 9 2024.
-    ==========
-    no change. to yesterday.
-    test14 azmux fitted, but not switched. around 20 hours, after isopropyl cleaning, actually needed.
-    excellent.  so there is a high sensitivity to isopropyl.
-    more to self-document what am doing.
-    - indicates board routing strategy looks ok for leakage. concerned about traces to trace and trace-to-pad -
-        when route with just prepreg thickness. between them.
-        eg. a +-18 or +-15V power supply routing directly underneath a row of soic pins of an opamp/analog mux.
-        but it looks ok.
+  mar 10 2024.
+    - signal collapses. if have 1Meg. scope probe attached.
 
-    1nplc
-      test14 10 1           # ie. 10V dc bias, and 1nplc.
-        +5.4mV. +5.9mV
+    - hmmm..  with no amplifier/bootin connected.
 
-      test14 0 1            # 0V dc-bias
-        +6.0mV.  6.4mV
+    reset ; dcv-source 10; nplc 1; test15
+      -26mV.  -26mV.
 
-      test14 -10 1          # -10V dc-bias
-        +6.6mV  7.1mV.
+    reset ; dcv-source 0; nplc 1; test15
+      +6.8mV +6.4mV
+
+    reset ; dcv-source -10; nplc 1; test15
+      +40mV. +38mV.
 
 
-    10nplc
-      test14 10 10
-        +0.7mV  +0.5mV.
+    precharge switch - is too far from azmux???
 
-      test14 0 10
-        +0.9mV 0.9mV
-
-      test14 -10 10
-        +1.7mV.  +1.7mV
-
-    ==========
-
-
-  mar 8 2024,
-    azmux fitted.  but not switched. so just resenting high-impedance cmos input.
-    after about 6hours.
-    think we need to leave for longer
-
-    test14 10 1   # ie. 10V dc bias, and 1nplc.
-      -6mV.   -5.7mV  -5.0mV.  -4.7mV       -3mV  -1mV                     <- now minus. very odd.   still some leakage???
-                                                                                think some due
-    test14 0 1
-      +8mV. +7.6mV  +7.3mV
-
-    test14 -10 1
-      +18mV.  +17mV.  +16mV. +15.5mV.
-
-      - wow. not really what was expecting.
-      - so there's some well of capacitance.k
-      - due trace being longer?  seems weird.
-      - so around 17mV. difference.
-
-
-
-    -------------
-    azmux not populated/fitted.  which we might expect a little bit of cap loading to gnd.
-    very consistent 6mV or so.  positive charge.  exacty as expected/ and desired.
-    after leaving overnight after soldering.
-
-    > test14 10 1
-      +6.14mV.  6mV.
-
-    > test14 0 1
-      +6.6mV.   6.5mV.
-
-    > test14 -10 1
-      +8.4mV (DA),  7.2mV.   6.8mV.
-
+    so next step - is to add bootin. and see if it helps.
 */
 
 

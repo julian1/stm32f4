@@ -73,6 +73,13 @@
 #define MODE_PATTERN      3     // put modulation pattern on all bits
 #define MODE_PC           4     // TODO. - rename PC_ONLY simple precharge switching modulation.
 
+#define MODE_AZ_TEST      5     // az.
+//#define MODE_AZ           5     // az.
+#define MODE_NO_AZ        6     // no az. and elecm. etc
+
+
+
+
 // change name MODE_AZ to MODE_SA_AZ.
 
 
