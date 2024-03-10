@@ -107,13 +107,13 @@ bool app_test15( app_t *app , const char *cmd)
 
   with amplifier and bootin. working.
 
-  > reset ; dcv-source 10;  set azmux_o s3 ; nplc 1; test15
+  > reset ; dcv-source 10;  set azmux s3 ; nplc 1; test15
       6.3mV. 6.0mV.
 
-  > reset ; dcv-source 0;  set azmux_o s3 ; nplc 1; test15
+  > reset ; dcv-source 0;  set azmux s3 ; nplc 1; test15
       9.4mV. 9.0mV
 
-  > reset ; dcv-source -10;  set azmux_o s3 ; nplc 1; test15
+  > reset ; dcv-source -10;  set azmux s3 ; nplc 1; test15
       9.4mV. 9.0mV 8.0mV.
 
   Good.
