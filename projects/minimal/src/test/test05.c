@@ -48,7 +48,7 @@ bool app_test05( app_t *app , const char *cmd)
       mode.second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2
 
       // setup input relays.
-      mode.first .K405 = LR_SET;     // select dcv
+      mode.first .K405 = LR_SET;     // select dcv. TODO change if support himux.
       mode.first .K406 = LR_RESET;   // accum relay on
       mode.first .K407 = LR_RESET;   // select dcv-source on
 

@@ -41,7 +41,7 @@ bool app_test15( app_t *app , const char *cmd)
       */
 
       // setup input relays.
-      mode.first .K405 = LR_SET;     // select dcv
+      mode.first .K405 = LR_SET;     // select dcv. TODO change if support himux.
       mode.first .K406 = LR_RESET;   // accum relay on
       mode.first .K407 = LR_RESET;   // select dcv-source on
 
