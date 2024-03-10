@@ -32,10 +32,7 @@ typedef struct app_t
 
   uint32_t  spi;
 
-  ////////
-/*
-  bool test_relay_flip;
-*/
+  ////
 
   const _mode_t *mode_initial;
   _mode_t *mode_current;
