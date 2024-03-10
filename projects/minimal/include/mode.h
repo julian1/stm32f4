@@ -290,8 +290,10 @@ typedef struct _mode_t
   // but not enough for different states.
 
 /*
-  // TODO rename _4094_second etc.
-    would be clearer
+  // TODO rename to include 4094 in name. 
+      eg. _4094_first _4094_second .
+
+      or shift_reg_first, serial_first, serial second
 */
 
   _4094_state_t     first;
@@ -300,21 +302,16 @@ typedef struct _mode_t
 
 
 
-  /*
-     other app specific  state, that must be persisted.
-      and not managed by 4094 or fpga.
-    eg. for range-changin. etc.
-*/
-
   // could factor to a struct, but only one value.
   uint16_t dac_val;
 
 
-  // confusinig name.   perhaps change name to AF. _alternative_function
-  // or reg_ice40_mode
+  // name is confusing, because this is ice40 mode,  while the app mode, is app mode represents all app state. 
+  // perhap rename reg_ice40_mode
   uint32_t  reg_mode;
 
   // not explicitly an adc parameter.  signal acquisition or  adc.
+  // only in mode 0
   reg_direct_t    reg_direct;
 
 
@@ -324,7 +321,6 @@ typedef struct _mode_t
   sa_state_t    sa;
 
   // single adum line.
-  // bool          trigger_source_1 ;
   // bool          trigger_source_internal;
 
 } _mode_t ;
