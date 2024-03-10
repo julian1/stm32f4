@@ -47,7 +47,10 @@ bool app_test15( app_t *app , const char *cmd)
 
       // set up fpga - with direct mode - for the charge phase.
       mode.reg_mode     =  MODE_DIRECT;
-      assert( mode.reg_direct.azmux_o == SOFF) ;    // default, doesn't matter.
+
+      // assert( mode.reg_direct.azmux_o == SOFF) ;    // default, doesn't matter.
+      mode.reg_direct.azmux_o = S3;//OFF) ;    // default, doesn't matter.
+
       assert( mode.reg_direct.sig_pc_sw_o == 0b00 );
 
       mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
@@ -96,10 +99,41 @@ bool app_test15( app_t *app , const char *cmd)
 
 /*
 
+
+  with amplifier and bootin. working.
+
+  > reset ; dcv-source 10;  set azmux_o s3 ; nplc 1; test15
+      6.3mV. 6.0mV.
+
+  > reset ; dcv-source 0;  set azmux_o s3 ; nplc 1; test15
+      9.4mV. 9.0mV
+
+  > reset ; dcv-source -10;  set azmux_o s3 ; nplc 1; test15
+      9.4mV. 9.0mV 8.0mV.
+
+  Good.
+
+  ----------
+  reset ; dcv-source 10; nplc 1; test15
+    +5.5mV.
+
+
+    issue - perhaps ampfier draws the charge out of accumulation- if it goes from disconnected. to connected.
+
+    woked got good signal on scope.
+
+    but output is sometimes going negative.  eg. something discharges the cap after release.  bad timing or short.
+    it's locked at -13VC
+    or the amplifier isn't working.
+    No. we measure -13V on the DMM.
+
+  ----
+
+
   mar 10 2024.
     - signal collapses. if have 1Meg. scope probe attached.
 
-    - hmmm..  with no amplifier/bootin connected.
+    - switching into az switch.   no amplifier.  no bootin.
 
     reset ; dcv-source 10; nplc 1; test15
       -26mV.  -26mV.
