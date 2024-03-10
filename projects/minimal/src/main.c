@@ -1,56 +1,16 @@
-/*
 
-  nix-shell ~/devel/nixos-config/examples/arm.nix
-  rlwrap -a picocom -b 115200 /dev/ttyUSB0
-
-  nix-shell ~/devel/nixos-config/examples/arm.nix
-  make
-
-  nix-shell ~/devel/nixos-config/examples/arm.nix
-  cd smu11
-  openocd -f ../../openocd.cfg
-
-  nix-shell ~/devel/nixos-config/examples/arm.nix
-  rlwrap nc localhost 4444
-
-  reset halt ; flash write_image erase unlock ./projects/minimal/main.elf; sleep 1500; reset run
-
-
-// vim :colorscheme default. loooks good.
-
-// cjmcu  stm32f407.
-// issue. is that board/stlink doesn't appear to reset cleanly. needs sleep.
-
-// - can plug a thermocouple straight into the sense +p, +n, and
-// then use the slow (digital) integrator/pid loop - as a temperature controler..
-
-
-
-
-*/
-
-
-/*
-  EXTR. we shouldn't need to include low-level peripheral headers stuff here.
-  instead peripheral should be configured externally.
-  ---
-
-  we could put low-level peripheral stuff in peripheral directory.
-
-*/
-#include <libopencm3/stm32/rcc.h>   // for clock initialization
-// #include <libopencm3/cm3/scb.h>  // reset()
-#include <libopencm3/stm32/spi.h>   // SPI1
 
 
 #include <stdio.h>    // printf, scanf
 #include <string.h>   // memset
 #include <assert.h>
-//#include <malloc.h> // malloc_stats()
-// #include <stdlib.h>   // abs()
 
 
-// library code
+
+#include <libopencm3/stm32/rcc.h>   // for clock initialization
+#include <libopencm3/stm32/spi.h>   // SPI1
+
+
 #include <lib2/usart.h>
 #include <lib2/streams.h>
 #include <lib2/util.h>   // msleep(), UNUSED
@@ -64,38 +24,20 @@
 #include <peripheral/spi-port.h>
 #include <peripheral/ice40-extra.h>
 #include <peripheral/spi-ice40.h>
-//#include <peripheral/spi-4094.h>
 #include <peripheral/spi-ice40-bitstream.h>
-//#include <peripheral/spi-dac8811.h>
-// #include <peripheral/spi-ad5446.h>
 
 
 
-
-#include <ice40-reg.h>
 
 #include <mode.h>
 #include <app.h>
 #include <util.h>
+#include <ice40-reg.h>
 
 
 
 // fix me
 // int flash_lzo_test(void);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

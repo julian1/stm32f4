@@ -5,10 +5,9 @@ mar 2024.
   # for tooling,
   nix-shell ~/devel/nixos-config/examples/arm.nix
 
-  # use separate shells,
+  # in 4 separate shells,
   # for serial
   rlwrap -a picocom -b 115200 /dev/ttyUSB0
-
   # with new line.
   rlwrap -a picocom  -q -b 115200  --imap crcrlf   /dev/ttyUSB0
 
