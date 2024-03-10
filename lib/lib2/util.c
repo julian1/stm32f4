@@ -1,10 +1,10 @@
 /*
 
-  helper functions
-  perhaps rename to systick.c or just sleep...
-  ---
-  TODO move void print_stack_pointer()
-  and rename to systtick . or soft-timer. etc.
+  some helper functions
+
+  TODO maybe move void print_stack_pointer()
+  and rename to systick, or soft-timer. etc.
+  or rename to control.c  because of sleeping yield/continuation like functions?
 */
 
 
@@ -75,36 +75,58 @@ void sys_tick_handler(void)
   https://hsel.co.uk/2014/06/20/stm32f0-tutorial-2-systick/
 */
 
-/*
-  EXTR.
-  msleep() is blocking.
-  but could pass a specific yield() function as a general update handler.
-  that is called until the elapsed time has passed.
-  this could service soft-timers, comms/usart queues etc.
-  and using the same stack.  avoids complication of co-routines, context switch, and need to manage multiple stacks.
-  --
-  can also pass null to ignore.
-*/
+#if 0
 void msleep(uint32_t delay, volatile uint32_t *system_millis /* void (*yield)(void *) */ )
 {
   assert(system_millis);
 
   // works for system_millis integer wrap around
   // could be a do/while block.
-  uint32_t start = *system_millis ;
+  uint32_t start = *system_millis;
   while (true) {
     uint32_t elapsed = *system_millis - start;
     if(elapsed > delay)
       break;
   };
 }
+#endif
 
+void msleep(uint32_t delay, volatile uint32_t *system_millis)
+{
+
+  msleep_with_yield(delay, system_millis,  NULL, NULL);
+}
+
+
+
+/*
+  msleep() is blocking.
+  but can pass a yield() function as a general update handler.
+  that is called until the elapsed time has passed.
+  this can service soft-timers, comms/usart network queues, polling etc.
+  and using the same stack.  avoids complication of co-routines, context switch, and need to manage multiple stacks.
+  --
+  can also pass null to ignore.
+
+  rename  msleep_with_continuation() ? ,
+  no because a continuation, is the next function to be sequenced, not an intermediate yielding  function.
+*/
 
 void msleep_with_yield(uint32_t delay, volatile uint32_t *system_millis,  void (*yield)(void *), void *yield_ctx  )
 {
-  assert( 0); // TODO
+  assert(system_millis);
 
+  // works for system_millis integer wrap around
+  // could be a do/while block.
+  uint32_t start = *system_millis;
+  while (true) {
+    uint32_t elapsed = *system_millis - start;
+    if(elapsed > delay)
+      break;
 
+    if(yield)
+     yield( yield_ctx);
+  };
 }
 
 
