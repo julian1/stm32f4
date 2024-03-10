@@ -238,7 +238,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
     // query fpga directly. not mode
     spi_mux_ice40(app->spi);
     uint32_t aperture = spi_ice40_reg_read32(app->spi, REG_ADC_P_CLK_COUNT_APERTURE );
-    aper_n_print( aperture,  app->line_freq);
+    aper_cc_print( aperture,  app->line_freq);
   }
 
 
@@ -376,7 +376,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
     printf("set aperture\n");
     uint32_t aperture = period_to_aper_n( f0 );
     // assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
-    aper_n_print( aperture,  app->line_freq);
+    aper_cc_print( aperture,  app->line_freq);
     mode->adc.reg_adc_p_aperture = aperture;
   }
 
@@ -395,7 +395,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
       // should be called cc_aperture or similar.
       uint32_t aperture = nplc_to_aper_n( f0, app->line_freq );
-      aper_n_print( aperture,  app->line_freq);
+      aper_cc_print( aperture,  app->line_freq);
       mode->adc.reg_adc_p_aperture = aperture;
     }
   }

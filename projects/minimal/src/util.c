@@ -68,7 +68,7 @@ bool nplc_valid( double nplc )
 }
 
 
-void aper_n_print( uint32_t aperture,  uint32_t line_freq)
+void aper_cc_print( uint32_t aperture,  uint32_t line_freq)
 {
 
 //   uint32_t aperture = nplc_to_aper_n( f0, app->line_freq );
