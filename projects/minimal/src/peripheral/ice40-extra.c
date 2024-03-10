@@ -47,7 +47,7 @@
 #define ER_EXTRA_PORT    GPIOC
 #define ER_CDONE        GPIO8
 #define ER_CRESET_PIN   GPIO9
-#define ER_TRIGGER_INT_OUT GPIO10
+#define ER_TRIGGER_SOURCE_INTERNAL GPIO10
 #define ER_UNUSED1_OUT    GPIO11
 
 
@@ -104,11 +104,11 @@ void ice40_port_extra_setup(void)
   /////////////////////
 
   // define to avoid floating inputs on adum
-  gpio_mode_setup(ER_EXTRA_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ER_TRIGGER_INT_OUT);
+  gpio_mode_setup(ER_EXTRA_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ER_TRIGGER_SOURCE_INTERNAL);
   gpio_mode_setup(ER_EXTRA_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ER_UNUSED1_OUT);
 
 
-  gpio_set_output_options(ER_EXTRA_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, ER_TRIGGER_INT_OUT);
+  gpio_set_output_options(ER_EXTRA_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, ER_TRIGGER_SOURCE_INTERNAL);
   gpio_set_output_options(ER_EXTRA_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, ER_UNUSED1_OUT);
 }
 
