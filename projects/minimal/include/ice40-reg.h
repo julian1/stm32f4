@@ -24,6 +24,8 @@
 ///////////////////////
 
 //  sample acquisition.
+// TODO. remove/rename in favor of ER_TRIGGER_SOURCE_INTERNAL
+// instead change to control trigger-sourcce select for internal or external
 #define REG_SA_ARM_TRIGGER              20
 
 #define REG_SA_P_CLK_COUNT_PRECHARGE    21
