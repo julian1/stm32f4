@@ -75,10 +75,14 @@ void sys_tick_handler(void)
   https://hsel.co.uk/2014/06/20/stm32f0-tutorial-2-systick/
 */
 
-
-
-// void msleep(uint32_t delay)
-void msleep(uint32_t delay, volatile uint32_t *system_millis )
+/*
+  EXTR. could pass a specific yield() function to use here, as general update handler.
+  to call until the elapsed time has passed.
+  this could service service soft-timers, usart etc.
+  and using the same stack.  avoids complication of co-routines, context switch, and need to setup multiple stacks.
+  --
+*/
+void msleep(uint32_t delay, volatile uint32_t *system_millis /* void (*yield)(void *) */ )
 {
   assert(system_millis);
 
