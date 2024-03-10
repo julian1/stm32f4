@@ -400,6 +400,13 @@ void app_repl_statement(app_t *app,  const char *cmd)
     }
   }
 
+#if 0
+    else if(strcmp(s0, "precharge") == 0) {
+      mode->sa.reg_sa_p_clk_count_precharge = u0;
+    }
+#endif
+
+
 
   /*
     perhaps keep the 'set' prefix to clearly disambiguate these actions under common syntactic form.
@@ -426,6 +433,23 @@ void app_repl_statement(app_t *app,  const char *cmd)
         assert(sizeof(u0) == 4);
         memcpy( &mode->reg_direct, &u0, sizeof(mode->reg_direct));
       }
+      // set red_direct via bitfield arguments, nice.
+      else if(strcmp(s0, "leds") == 0) {
+        mode->reg_direct.leds_o = u0;
+      }
+      else if(strcmp(s0, "monitor") == 0) {
+        mode->reg_direct.monitor_o = u0;
+      }
+      // sample acquisition - direct state
+      else if(strcmp(s0, "sig_pc_sw") == 0) {
+        mode->reg_direct.sig_pc_sw_o= u0;
+      }
+      else if(strcmp(s0, "azmux") == 0) {
+        mode->reg_direct.azmux_o = u0;
+      }
+
+      // 4094 components.
+      // perhaps rename second. _4094_second etc.
 
       else if(strcmp(s0, "u1003") == 0) {
         mode->second.U1003 = u0;
@@ -456,36 +480,6 @@ void app_repl_statement(app_t *app,  const char *cmd)
       else if(strcmp(s0, "k405") == 0) {
         mode->first.K405 = u0 ? LR_SET: LR_RESET;
       }
-
-      ////////////
-
-      // setting fpga outputs directly via the direct register/ and bitfields, nice
-      else if(strcmp(s0, "leds") == 0) {
-        mode->reg_direct.leds_o = u0;
-      }
-      else if(strcmp(s0, "monitor") == 0) {
-        mode->reg_direct.monitor_o = u0;
-      }
-      // sample acquisition - direct state
-      else if(strcmp(s0, "sig_pc_sw") == 0) {
-        mode->reg_direct.sig_pc_sw_o= u0;
-      }
-      else if(strcmp(s0, "azmux") == 0) {
-        mode->reg_direct.azmux_o = u0;
-      }
-
-      ////////////
-#if 0
-      // adc precharge.
-      // want a separate decoder.  to handle ms. us. suffix.
-      // probably should move out of here...
-      else if(strcmp(s0, "aperture") == 0) {
-        mode->adc.reg_adc_p_aperture = u0;
-      }
-      else if(strcmp(s0, "precharge") == 0) {
-        mode->sa.reg_sa_p_clk_count_precharge = u0;
-      }
-#endif
 
       else {
 

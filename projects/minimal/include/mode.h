@@ -212,7 +212,7 @@ reg_direct_t
 /*
   uint8_t   sig_pc1_sw_o : 1;             // 14
   uint8_t   sig_pc2_sw_o : 1;             // 15 */
-  uint8_t   sig_pc_sw_o : 2;             // 14 
+  uint8_t   sig_pc_sw_o : 2;             // 14
   uint8_t   azmux_o : 4 ;                 // 16
   uint8_t   adc_cmpr_latch_o : 1;          // 20
   uint8_t   adc_refmux_o : 4;                   // 21     // better name adc_refmux   adc_cmpr_latch
@@ -229,8 +229,9 @@ reg_direct_t
 
 typedef struct sa_state_t
 {
- 
+
   uint32_t reg_sa_p_clk_count_precharge ;   // regadc_cc_precharge
+
   uint32_t reg_sa_p_azmux_lo_val;
   uint32_t reg_sa_p_azmux_hi_val;
   uint32_t reg_sa_p_sw_pc_ctl_hi_val;
@@ -262,7 +263,7 @@ typedef struct adc_state_t
 
   // 'p' implies its a paraameter
   // prefix with cc. clock_count
-  
+
   uint32_t  reg_adc_p_aperture;     // regadc_cc_aperture
   uint32_t  reg_adc_p_reset;        // regadc_cc_reset
 
@@ -287,6 +288,11 @@ typedef struct _mode_t
 {
   // all state needed to achive a dmm function.
   // but not enough for different states.
+
+/*
+  // TODO rename _4094_second etc.
+    would be clearer
+*/
 
   _4094_state_t     first;
 
@@ -314,10 +320,12 @@ typedef struct _mode_t
 
   adc_state_t    adc;
 
+  // TODO put sa before adc.
   sa_state_t    sa;
 
   // single adum line.
   // bool          trigger_source_1 ;
+  // bool          trigger_source_internal;
 
 } _mode_t ;
 
