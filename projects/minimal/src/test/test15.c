@@ -99,6 +99,7 @@ bool app_test15( app_t *app , const char *cmd)
 
 /*
 
+  10 seconds. 10nF. charge cap.
 
   with amplifier and bootin. working.
 
