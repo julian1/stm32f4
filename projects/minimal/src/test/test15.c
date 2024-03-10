@@ -48,6 +48,10 @@ bool app_test15( app_t *app , const char *cmd)
       // set up fpga - with direct mode - for the charge phase.
       mode.reg_mode     =  MODE_DIRECT;
 
+      /*
+        EXTR. TODO
+        change to follow the azmux-hi-val.  by reading the mode.
+      */
       // assert( mode.reg_direct.azmux_o == SOFF) ;    // default, doesn't matter.
       mode.reg_direct.azmux_o = S3;//OFF) ;    // default, doesn't matter.
 
