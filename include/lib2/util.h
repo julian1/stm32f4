@@ -24,15 +24,15 @@ extern "C" {
   since for assert() we cannot pass a context
 */
 
-extern void critical_error_led_setup(uint32_t port_, uint16_t io_ );
+void critical_error_led_setup(uint32_t port_, uint16_t io_ );
 
-extern void critical_error_led_blink(void);
+void critical_error_led_blink(void);
 
 
 /////////////////////
 
 
-extern void systick_setup(uint32_t tick_divider, void (*)(void *),  void *ctx);
+void systick_setup(uint32_t tick_divider, void (*)(void *),  void *ctx);
 
 
 /*
@@ -41,8 +41,10 @@ extern void systick_setup(uint32_t tick_divider, void (*)(void *),  void *ctx);
   - but it doesn't matter. for single variable.
 */
 
-extern void msleep(uint32_t delay, volatile uint32_t *system_millis );
+void msleep(uint32_t delay, volatile uint32_t *system_millis );
 // extern void msleep(uint32_t delay);
+
+void msleep_with_yield(uint32_t delay, volatile uint32_t *system_millis,  void (*yield)(void *), void *yield_ctx  );
 
 
 void print_stack_pointer(void);

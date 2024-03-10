@@ -76,11 +76,14 @@ void sys_tick_handler(void)
 */
 
 /*
-  EXTR. could pass a specific yield() function to use here, as general update handler.
-  to call until the elapsed time has passed.
-  this could service service soft-timers, usart etc.
-  and using the same stack.  avoids complication of co-routines, context switch, and need to setup multiple stacks.
+  EXTR.
+  msleep() is blocking.
+  but could pass a specific yield() function as a general update handler.
+  that is called until the elapsed time has passed.
+  this could service soft-timers, comms/usart queues etc.
+  and using the same stack.  avoids complication of co-routines, context switch, and need to manage multiple stacks.
   --
+  can also pass null to ignore.
 */
 void msleep(uint32_t delay, volatile uint32_t *system_millis /* void (*yield)(void *) */ )
 {
@@ -95,6 +98,18 @@ void msleep(uint32_t delay, volatile uint32_t *system_millis /* void (*yield)(vo
       break;
   };
 }
+
+
+void msleep_with_yield(uint32_t delay, volatile uint32_t *system_millis,  void (*yield)(void *), void *yield_ctx  )
+{
+  assert( 0); // TODO
+
+
+}
+
+
+
+
 
 
 /*
