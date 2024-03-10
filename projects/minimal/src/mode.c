@@ -110,6 +110,14 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 
 
   /*
+    AND. ensure that at end of this function - the spi_mux is so only communicating with fpga.
+      to limit emi. on spi peripheral lines (4094, dac etc).
+  */
+
+
+
+
+  /*
     IMPORTANT - can put the mcu source - trigger state in mode.
     and then set it last. after 4094, fpga state has been updated.
     --
