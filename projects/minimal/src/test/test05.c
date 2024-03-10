@@ -50,7 +50,7 @@ bool app_test05( app_t *app , const char *cmd)
       // setup input relays.
       mode.first .K405 = LR_SET;     // select dcv
       mode.first .K406 = LR_RESET;   // accum relay on
-      mode.first .K407 = LR_RESET;   // select dcv-source
+      mode.first .K407 = LR_RESET;   // select dcv-source on
 
       // set up fpga
       mode.reg_mode =  MODE_DIRECT;

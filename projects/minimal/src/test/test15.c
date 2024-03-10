@@ -43,17 +43,18 @@ bool app_test15( app_t *app , const char *cmd)
       // setup input relays.
       mode.first .K405 = LR_SET;     // select dcv
       mode.first .K406 = LR_RESET;   // accum relay on
-      mode.first .K407 = LR_RESET;   // select dcv-source
+      mode.first .K407 = LR_RESET;   // select dcv-source on
 
       // set up fpga - with direct mode - for the charge phase.
       mode.reg_mode     =  MODE_DIRECT;
 
       /*
-        EXTR. TODO
-        change to follow the azmux-hi-val.  by reading the mode.
+        in direct_mode we manually set azmux to the azmux-hi-val while soaking/charging the accumulation capacitor.
+        this keeps amplifier following input. and avoids case of amplifier oing out-of-range on floating input,
+        and then discharging the accum cap, when coming back into stable-state, on entering az mode.
       */
-      // assert( mode.reg_direct.azmux_o == SOFF) ;    // default, doesn't matter.
-      mode.reg_direct.azmux_o = S3;//OFF) ;    // default, doesn't matter.
+      mode.reg_direct.azmux_o = mode.sa.reg_sa_p_azmux_hi_val;
+      assert( mode.reg_direct.azmux_o == S3);       // can relax this to the other input later
 
       assert( mode.reg_direct.sig_pc_sw_o == 0b00 );
 
