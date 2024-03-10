@@ -459,18 +459,18 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
       ////////////
 
-      // setting direct register bitfields, nice
-      else if(strcmp(s0, "leds_o") == 0) {
+      // setting fpga outputs directly via the direct register/ and bitfields, nice
+      else if(strcmp(s0, "leds") == 0) {
         mode->reg_direct.leds_o = u0;
       }
-      else if(strcmp(s0, "monitor_o") == 0) {
+      else if(strcmp(s0, "monitor") == 0) {
         mode->reg_direct.monitor_o = u0;
       }
       // sample acquisition - direct state
-      else if(strcmp(s0, "sig_pc_sw_o") == 0) {
+      else if(strcmp(s0, "sig_pc_sw") == 0) {
         mode->reg_direct.sig_pc_sw_o= u0;
       }
-      else if(strcmp(s0, "azmux_o") == 0) {
+      else if(strcmp(s0, "azmux") == 0) {
         mode->reg_direct.azmux_o = u0;
       }
 
