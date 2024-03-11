@@ -325,7 +325,7 @@ static const _mode_t mode_initial =  {
 
 
 
-static _mode_t mode_current;
+static _mode_t mode_current = { 0 } ;
 
 
 
