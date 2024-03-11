@@ -28,7 +28,7 @@
 #include <mode.h>
 #include <app.h>
 #include <util.h>
-#include <ice40-reg.h>
+#include <ice40-reg.h>    // reg_4094 oe.
 
 
 
@@ -180,6 +180,9 @@ static void app_loop(app_t *app)
     // 500ms soft timer
     if( (app->system_millis - app->soft_500ms) > 500) {
       app->soft_500ms += 500;
+
+      // system_millis is shared, for msleep() and soft_timer.
+      // but to avoid integer overflow - could make dedicated and then subtract 500.
       app_update_soft_500ms(app);
     }
 

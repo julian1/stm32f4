@@ -40,6 +40,9 @@ typedef struct app_t
 
   uint32_t line_freq;
 
+  /*void (*yield)(void *);
+  void *yield_ctx;
+  */
 
 } app_t;
 
