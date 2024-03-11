@@ -247,8 +247,8 @@ static const _mode_t mode_initial =  {
 
   /*
     TODO,
-    EXTR all relays should belhave to be defined. not left default initialization of 00 which means
-    they won't get an initial value. pulse.
+    EXTR all relays need to be defined b01 or b10. otherwise a default initialization value of b00
+    will mean they won't receive an initial pulse/value.
 
   */
 
@@ -278,7 +278,6 @@ static const _mode_t mode_initial =  {
   //  maybe make explicit all values  U408_SW_CTL. at least for the initial mode, from which others derive.
 
   .first .K406_CTL  = LR_SET,     // accumulation relay off
-
   .first. K405_CTL  = LR_RESET,     // dcv input relay k405 switch off - works.
   .first. K402_CTL  = LR_RESET,     // dcv-div/directz relay off
                                 // must match app->persist_fixedz
