@@ -49,6 +49,12 @@ typedef struct app_t
 void app_repl_statement(app_t *app,  const char *cmd);
 void app_repl_statements(app_t *app,  const char *s);
 
+/*
+  IMPORTANT - none of these take arguments anymore,
+  the precondition state, should be setup in other commands.
+  so we could remove the cmd argument.  and do the test in the repl command.
+  but leave for moment, in case want to be able to pass flags.
+*/
 
 bool app_test01( app_t *app , const char *cmd);
 bool app_test02( app_t *app , const char *cmd);
