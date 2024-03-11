@@ -396,20 +396,6 @@ int main(void)
 
   //////////////////////
   // main app setup
-/*
-  memset(&app, 0, sizeof(app_t));
-
-  // would be neater/possible, to use a static initializer for app ?
-
-  app.spi = SPI1 ;
-  app.mode_initial =  &mode_initial;
-  app.mode_current =  &mode_current;
-
-  app.line_freq = 50;
-*/
-
-  /////////////////
-
 
   // uart/console
   cbuf_init(&app.console_in,  buf_console_in, sizeof(buf_console_in));
