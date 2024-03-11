@@ -259,6 +259,8 @@ void app_repl_statement(app_t *app,  const char *cmd)
     this can simplify, the code in these functions.
   */
   else if( app_test01( app, cmd  )) { }
+  else if( app_test02( app, cmd  )) { }
+  else if( app_test03( app, cmd  )) { }
   else if( app_test05( app, cmd  )) { }
   else if( app_test14( app, cmd  )) { }
   else if( app_test15( app, cmd  )) { }
