@@ -1,6 +1,5 @@
 
 
-
 #include <stdio.h>    // printf, scanf
 #include <string.h>   // memset
 #include <assert.h>
@@ -31,10 +30,6 @@
 #include <util.h>
 #include <ice40-reg.h>
 
-
-
-// fix me
-// int flash_lzo_test(void);
 
 
 
@@ -112,8 +107,6 @@ static void app_update_soft_500ms(app_t *app)
   if(ice40_port_extra_cdone_get()) {
 
     app_update_soft_500ms_configured( app);
-
-
   }
 
 
@@ -124,16 +117,9 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
-
-
 static void app_update_console_cmd(app_t *app)
 {
-
-  // processing console_in buffer,
-
-  // NO. app->command persists across calls.
-  // cstring_clear( &app->command);
-
+  // process console_in buffer
 
   while( !cbuf_is_empty(&app->console_in)) {
 
@@ -147,21 +133,23 @@ static void app_update_console_cmd(app_t *app)
       // a separator, then apply what we have so far.
       char *cmd = cstring_ptr(&app->command);
       cmd = str_trim_whitespace_inplace( cmd );
+      // could transform lower case
       printf("\n");
       app_repl_statement(app, cmd);
 
       // clear the current command buffer,
-      // there is still more data to process in console_in
+      // note, still more data to process in console_in
       cstring_clear( &app->command);
     }
     else if( cstring_count(&app->command) < cstring_reserve(&app->command) ) {
 
-      // must accept whitespace here, since used to demarcate args
       // normal character
+      // must accept whitespace here, since used to demarcate args
       cstring_push_back(&app->command, ch);
       // echo to output. required for minicom.
       putchar( ch);
     } else {
+
       // ignore overflow chars,
       printf("too many chars!!\n");
     }
@@ -173,9 +161,7 @@ static void app_update_console_cmd(app_t *app)
       // issue new command prompt
       printf("\n> ");
     }
-
   }   // while
-
 }
 
 
@@ -392,7 +378,7 @@ int main(void)
 
   led_setup();
 
-  // setup external state for critical error led blink
+  // setup external state for critical error led blink in priority
   // because assert() cannot pass a context
   assert_critical_error_led_setup(LED_PORT, LED_OUT);
 
@@ -412,11 +398,6 @@ int main(void)
   // would be neater/possible, to use a static initializer for app ?
 
   app.spi = SPI1 ;
-/*
-  app.led_blink = true;
-  app.test_relay_flip = false;    // TODO remove
-*/
-
   app.mode_initial =  &mode_initial;
   app.mode_current =  &mode_current;
 
@@ -458,9 +439,7 @@ int main(void)
   assert( sizeof(double ) == 8);
 
 
-
-
-  printf("sizeof app_t %u\n", sizeof(app_t));
+  // printf("sizeof app_t %u\n", sizeof(app_t));
 
 
 
@@ -473,13 +452,6 @@ int main(void)
 
   ice40_port_extra_setup();
 
-
- // spi_ice40_setup( app.spi );
-
-
-
-
-  // modes_init();
 
   // go to main loop
   app_loop(&app);
