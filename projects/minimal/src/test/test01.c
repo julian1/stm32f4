@@ -1,4 +1,9 @@
 
+/*
+  more an example of how to use embedded repl.
+  need to call sleep though. sleep .
+
+*/
 
 #include <stdio.h>
 #include <assert.h>
@@ -8,7 +13,6 @@
 // #include <lib2/util.h>         // msleep()
 
 
-// more an example or placeholder,
 
 bool app_test01( app_t *app , const char *cmd)
 {
