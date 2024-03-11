@@ -439,18 +439,15 @@ void app_repl_statement(app_t *app,  const char *cmd)
       else if(strcmp(s0, "leds") == 0) {
         mode->reg_direct.leds_o = u0;
       }
+      // by field
       else if(strcmp(s0, "monitor") == 0) {
         mode->reg_direct.monitor_o = u0;
       }
-      // sample acquisition - direct state
       else if(strcmp(s0, "sig_pc_sw") == 0) {
         mode->reg_direct.sig_pc_sw_o= u0;
       }
       else if(strcmp(s0, "azmux") == 0) {
         mode->reg_direct.azmux_o = u0;
-      }
-      else if(strcmp(s0, "spi_interrupt_ctl") == 0) {
-        mode->reg_direct.spi_interrupt_ctl_o = u0;
       }
       else if(strcmp(s0, "adc_refmux") == 0) {
         mode->reg_direct.adc_refmux_o = u0;
@@ -458,7 +455,12 @@ void app_repl_statement(app_t *app,  const char *cmd)
       else if(strcmp(s0, "adc_cmpr_latch") == 0) {
         mode->reg_direct.adc_cmpr_latch_o = u0;
       }
-
+      else if(strcmp(s0, "spi_interrupt_ctl") == 0) {
+        mode->reg_direct.spi_interrupt_ctl_o = u0;
+      }
+      else if(strcmp(s0, "meas_complete") == 0) {
+        mode->reg_direct.meas_complete_o = u0;
+      }
 
 
 
