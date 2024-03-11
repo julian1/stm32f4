@@ -1,16 +1,19 @@
 
 /*
   test function, when first populating board, to test mcu/fpga spi comms
+  note this checks the return reg_direct return value. so forms a self-test.
+
+  - writes reg_direct, avoids mode. good for first test
 
 */
 
 #include <stdio.h>
 #include <assert.h>
-#include <string.h>   // strcmp
+#include <string.h>         // strcmp
 
 
-#include <lib2/util.h>         // msleep()
-#include <lib2/format.h>   // trim_whitespace()  format_bits()
+#include <lib2/util.h>     // msleep()
+#include <lib2/format.h>   // format_bits()
 
 
 
@@ -31,7 +34,7 @@ static void test (app_t *app)
 
     static uint32_t counter = 0;
     ++counter;
-    uint32_t magic = counter  ^ (counter >> 1 );
+    uint32_t magic = counter  ^ (counter >> 1);
     /*
     static uint32_t magic = 0;
     ++magic;

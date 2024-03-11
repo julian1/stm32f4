@@ -1,6 +1,6 @@
 
 /*
-  useful test function, to test 4094
+  useful test function, to test 4094.
 
 */
 
@@ -9,18 +9,14 @@
 #include <string.h>   // strcmp
 
 
-#include <lib2/util.h>         // msleep()
-#include <lib2/format.h>   // trim_whitespace()  format_bits()
+#include <lib2/util.h>      // msleep()
+#include <lib2/format.h>   // format_bits()
 
 
 
 #include <app.h>
-// #include <peripheral/spi-ice40.h>
-// #include <ice40-reg.h>
-
 #include <mode.h>
 #include <app.h>
-#include <ice40-reg.h>    // MODE_DIRECT
 
 
 
@@ -28,7 +24,6 @@ static void test (app_t *app)
 {
 
   _mode_t mode = * app->mode_initial;
-
   bool flip = 0;
 
   for(unsigned i = 0; i < 6; ++i ) {

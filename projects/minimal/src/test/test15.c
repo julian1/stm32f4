@@ -34,12 +34,12 @@ bool app_test15( app_t *app , const char *cmd)
 
       printf("test leakage and charge-injection by switching pre-charge/azmux at different input dc-bias and frequency\n");
 
+
+      /* assume dcv-source and nplc have been set up on mode already.
+        we could verify with some checks.  */
+
       _mode_t mode = *app->mode_current;
-
-      /* assume dcv-source and nplc have been set up already.
-        we could check.
-      */
-
+ 
       ////////////////////////
       // phase 1, soak/charge accumulation cap
 
