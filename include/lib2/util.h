@@ -13,8 +13,6 @@ extern "C" {
 #endif
 
 
-// #include <stddef.h> // size_t
-// #include <stdbool.h> // bool
 #include <stdint.h> // uint32_t
 
 
@@ -25,24 +23,26 @@ extern "C" {
 */
 
 void critical_error_led_setup(uint32_t port_, uint16_t io_ );
-
 void critical_error_led_blink(void);
 
 
-/////////////////////
 
 
-void systick_setup(uint32_t tick_divider, void (*)(void *),  void *ctx);
+
+void systick_setup(uint32_t tick_divider);
+void systick_interupt_setup( void (*pfunc)(void *),  void *ctx);
+
+
+
 
 
 /*
-  - passing system_millis explicitly makes it clear what the dependency is.
+  - passing system_millis explicitly is good, and makes it clear what the dependency is.
   - could pass sleep dependent object/environment.
   - but it doesn't matter. for single variable.
 */
 
 void msleep(uint32_t delay, volatile uint32_t *system_millis );
-// extern void msleep(uint32_t delay);
 
 void msleep_with_yield(uint32_t delay, volatile uint32_t *system_millis,  void (*yield)(void *), void *yield_ctx  );
 
@@ -50,9 +50,6 @@ void msleep_with_yield(uint32_t delay, volatile uint32_t *system_millis,  void (
 void print_stack_pointer(void);
 
 
-
-
-///////////////
 
 
 #define UNUSED(x) (void)(x)

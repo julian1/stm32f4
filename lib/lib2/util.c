@@ -22,26 +22,32 @@
 
 ////////////////////////////////////////////////////////
 
-/*
-  just use a uint64_t for overflow wrap-around?
-*/
+
+
+static void (*systick_interupt)(void *ctx) = NULL;
+static void *systick_ctx = NULL;
 
 
 
-static void (*sys_tick_interupt)(void *ctx) = NULL;
-static void *sys_tick_ctx = NULL;
-
-
-void systick_setup(uint32_t tick_divider, void (*pfunc)(void *),  void *ctx)
+void systick_interupt_setup( void (*pfunc)(void *),  void *ctx)
 {
+  systick_interupt = pfunc;
+  systick_ctx = ctx;
+}
 
-  sys_tick_interupt = pfunc;
-  sys_tick_ctx = ctx;
 
-    ///////////////////////////
-  // NOTE. doesn not seem to work without external xtal.
-  // TODO change name systick_setup().
-  // TODO pass clock reload divider as argument, to localize.
+void sys_tick_handler(void)
+{
+  // prototype declared in cm3/systick.
+  if(systick_interupt) {
+    systick_interupt(systick_ctx);
+  }
+}
+
+
+
+void systick_setup(uint32_t tick_divider)
+{
 
   /* clock rate / 168000 to get 1mS interrupt rate */
   // systick_set_reload(168000);
@@ -55,18 +61,7 @@ void systick_setup(uint32_t tick_divider, void (*pfunc)(void *),  void *ctx)
 
 
 
-void sys_tick_handler(void)
-{
 
-  // rather than the callback function.
-  // could pass the volatile variable to increment.
-  // more lightweight
-
-  if(sys_tick_interupt) {
-    sys_tick_interupt(sys_tick_ctx);
-  }
-
-}
 
 
 

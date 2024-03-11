@@ -69,7 +69,7 @@ static void app_update_soft_500ms(app_t *app)
   /*
       - if fpga cdone() is lo, then try to configure fpga.
   */
-  if(! ice40_port_extra_cdone_get()) {
+  if( !ice40_port_extra_cdone_get()) {
 
     spi_ice40_bitstream_send(app->spi, & app->system_millis );
 
@@ -190,7 +190,7 @@ static void app_loop(app_t *app)
 
 
 
-static void sys_tick_interupt(app_t *app)
+static void systick_interupt(app_t *app)
 {
   // interupt context. don't do anything compliicated here.
 
@@ -227,31 +227,17 @@ static void spi1_interupt(app_t *app)
 /////////////////////////
 /*
   TODO.
-  Maybe move raw buffers into app structure?
-
-
+  could put raw buffers directly in app structure? but poointer keeps clearer
   Why not put on the stack? in app_t ?
 */
 
 static char buf_console_in[1000];
 static char buf_console_out[1000];    // changing this and it freezes. indicates. bug
 
-// static char buf_cmds[1000];
 
 static char buf_command[1000];
 
 
-// move to main ?
-// no reason to be static.
-// no... because we collect/assemble dependencies. ok in main()
-static app_t app;
-
-
-
-
-
-
-// static _mode_t mode_current;
 
 
 static const _mode_t mode_initial =  {
@@ -342,6 +328,20 @@ static const _mode_t mode_initial =  {
 static _mode_t mode_current;
 
 
+
+static app_t app = {
+
+  .spi = SPI1 ,
+  .mode_initial =  &mode_initial,
+  .mode_current =  &mode_current,
+
+  .line_freq = 50
+
+};
+
+
+
+
 int main(void)
 {
   // hse
@@ -387,12 +387,16 @@ int main(void)
   // systick_setup(16000);
 
   // extern void systick_setup(uint32_t tick_divider, void (*pfunc)(void *),  void *ctx);
-  systick_setup(84000,  (void (*)(void *)) sys_tick_interupt, &app);  // 84MHz.
+  // systick_setup(84000,  (void (*)(void *)) systick_interupt, &app);  // 84MHz.
+
+  systick_setup(84000);
+  systick_interupt_setup( (void (*)(void *)) systick_interupt, &app );
+
 
 
   //////////////////////
   // main app setup
-
+/*
   memset(&app, 0, sizeof(app_t));
 
   // would be neater/possible, to use a static initializer for app ?
@@ -402,7 +406,7 @@ int main(void)
   app.mode_current =  &mode_current;
 
   app.line_freq = 50;
-
+*/
 
   /////////////////
 
