@@ -1,6 +1,8 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>   // strcmp
+
 
 #include <mode.h>
 #include <app.h>
@@ -15,49 +17,40 @@ bool app_test05( app_t *app , const char *cmd)
   assert(cmd);
   assert(app->mode_initial);
 
-  int32_t i0;
+  /*
+    > reset ; dcv-source 10; test05
+
+  */
 
 
-  // TODO structure same as test14, test15. using strcmp()
+  if( strcmp(cmd, "test05") == 0) {
 
-  if( sscanf(cmd, "test05 %ld", &i0 ) == 1) {
+      printf("test input leakage by first charging cap for 10sec, then turn off azmux and observe leakage on boot\n");
 
-      printf("test non-az mode - leakage by first charging for 10sec, then turn off muxes, and mux signal via pc-out to amplifier\n");
+      /* note - doesnt test amplifier leakage. and cannot use amplifier to sample.
+        needs external dmm - to measure voltage at the boot.
+      */
 
-      _mode_t mode = *app->mode_initial;
+
+      /* assume dcv-source and nplc have been set up on mode already.
+        we could verify with some checks.  */
+
+      _mode_t mode = *app->mode_current;
+
 
       ////////////////////
       // phase 1, soak/charge accumulation cap
-
-      printf("setup dcv-source and charge cap\n");
-
-      if(i0 == 10) {
-        printf("with +10V\n");
-        mode.second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
-      }
-      else if(i0 == -10) {
-        printf("with -10V\n");
-        mode.second.U1003  = S2 ;       // s2.  -10V.
-      }
-      else if(i0 == 0) {
-        printf("with 0V\n");
-        mode.second.U1003 = S3;          // s3 == agnd
-      }
-      else assert(0);
-
-      mode.second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2
 
       // setup input relays.
       mode.first .K405 = LR_SET;     // select dcv. TODO change if support himux.
       mode.first .K406 = LR_RESET;   // accum relay on
       mode.first .K407 = LR_RESET;   // select dcv-source on
 
-      // set up fpga
+      // set up fpga - with direct mode - for soak/charge of accum cap.
       mode.reg_mode =  MODE_DIRECT;
-      mode.reg_direct.azmux_o = SOFF;
-      // mode.reg_direct.sig_pc1_sw_o = SW_PC_SIGNAL;  // TODO - reveiew - why not mux BOOT ? during soak phase?.
-      // mode.reg_direct.sig_pc1_sw_o = 1;  // precharge mux signal.
-      mode.reg_direct.sig_pc_sw_o = 0b00 ;
+
+      mode.reg_direct.azmux_o = SOFF;         // azmux off amplifier floats
+      mode.reg_direct.sig_pc_sw_o = 0b00 ;    // switch boot.
       mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
 
       spi_mode_transition_state( app->spi, &mode, &app->system_millis);
@@ -83,6 +76,7 @@ bool app_test05( app_t *app , const char *cmd)
       ////////////////////////
       // phase 3. observe, take measurement etc
 
+      assert( mode.reg_mode == MODE_DIRECT );
       mode.reg_direct.leds_o = 0b0100;
       // now we do the sleep- to take the measurement.
       printf("sleep 2s\n");  // having a yield would be quite nice here.
@@ -103,6 +97,22 @@ bool app_test05( app_t *app , const char *cmd)
 
 
    /*
+
+
+mar 11,
+
+  > reset ; dcv-source 10; test05
+      0.57mV 0.54mV
+
+  > reset ; dcv-source 0; test05
+      0.7mV 0.8mV
+
+  > reset ; dcv-source -10; test05
+      1.2mV 1.1mV.
+
+    nice leakage is very controlled.
+
+
 
 OK. mar 6. 2024.
 

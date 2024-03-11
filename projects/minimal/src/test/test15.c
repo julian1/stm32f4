@@ -40,12 +40,15 @@ bool app_test15( app_t *app , const char *cmd)
         we could check.
       */
 
+      ////////////////////////
+      // phase 1, soak/charge accumulation cap
+
       // setup input relays.
       mode.first .K405 = LR_SET;     // select dcv. TODO change if support himux.
       mode.first .K406 = LR_RESET;   // accum relay on
       mode.first .K407 = LR_RESET;   // select dcv-source on
 
-      // set up fpga - with direct mode - for the charge phase.
+      // set up fpga - with direct mode - for soak/charge of accum cap.
       mode.reg_mode     =  MODE_DIRECT;
 
       /*

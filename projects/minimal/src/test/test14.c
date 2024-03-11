@@ -22,6 +22,8 @@ bool app_test14( app_t *app , const char *cmd)
       but only switching pre-charge switch.
       baseline for charge inection.
 
+      azmux is held off to lower leakage.
+
     > reset ; dcv-source 10; nplc 1; test14
 
   */
@@ -30,20 +32,26 @@ bool app_test14( app_t *app , const char *cmd)
 
       printf("test leakage and charge-injection using MODE_PC_TEST switching pre-charge switch, at different input dc-bias and frequency\n");
 
+      /*
+        needs external dmm. to monitor at boot.
+      */
+
+      /* assume dcv-source and nplc have been set up on mode already.
+        we could verify with some checks.  */
+
       _mode_t mode = *app->mode_current;
 
-      /* assume dcv-source and nplc have been set up already.
-        we could check.
-      */
+      ////////////////////////
+      // phase 1, soak/charge accumulation cap
 
       // setup input relays.
       mode.first .K405 = LR_SET;     // select dcv. TODO change if support himux.
       mode.first .K406 = LR_RESET;   // accum relay on
       mode.first .K407 = LR_RESET;   // select dcv-source on
 
-      // set up fpga - with direct mode - for the charge phase.
+      // set up fpga - with direct mode - for soak/charge of accum cap.
       mode.reg_mode     =  MODE_DIRECT;
-      assert( mode.reg_direct.azmux_o == SOFF) ;    // default, doesn't matter.
+      assert( mode.reg_direct.azmux_o == SOFF) ;
       assert( mode.reg_direct.sig_pc_sw_o == 0b00 );
 
       mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
@@ -95,7 +103,7 @@ bool app_test14( app_t *app , const char *cmd)
   mar 9 2024.
     ==========
     no change. to yesterday.
-    test14 azmux fitted, but not switched. around 20 hours, after isopropyl cleaning, actually needed.
+    test14 azmux fitted, but turned off, and not switched. around 20 hours, after isopropyl cleaning, actually needed.
     excellent.  so there is a high sensitivity to isopropyl.
     more to self-document what am doing.
     - indicates board routing strategy looks ok for leakage. concerned about traces to trace and trace-to-pad -
