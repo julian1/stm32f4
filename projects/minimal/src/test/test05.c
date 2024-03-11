@@ -20,16 +20,13 @@ bool app_test05( app_t *app , const char *cmd)
   /*
     > reset ; dcv-source 10; test05
 
+      azmux is held off to lower leakage through amplifier. so need external DMM to sample BOOT.
   */
 
 
   if( strcmp(cmd, "test05") == 0) {
 
       printf("test input leakage by first charging cap for 10sec, then turn off azmux and observe leakage on boot\n");
-
-      /* note - doesnt test amplifier leakage. and cannot use amplifier to sample.
-        needs external dmm - to measure voltage at the boot.
-      */
 
 
       /* assume dcv-source and nplc have been set up on mode already.
@@ -120,8 +117,8 @@ OK. mar 6. 2024.
 
     do one initial round to help DA.
     +10V   -0.2mV. +0.7mV   OK.
-    -10V    +0.7mv.  +0.58mV.
     0V       +0.01mV    0.13mV
+    -10V    +0.7mv.  +0.58mV.
 
     ----
     Ok . but still a big jump 0.5mV when the relay sets.

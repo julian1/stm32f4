@@ -22,7 +22,7 @@ bool app_test14( app_t *app , const char *cmd)
       but only switching pre-charge switch.
       baseline for charge inection.
 
-      azmux is held off to lower leakage.
+      azmux is held off to lower leakage through amplifier. so need external DMM.
 
     > reset ; dcv-source 10; nplc 1; test14
 
