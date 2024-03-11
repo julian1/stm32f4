@@ -449,6 +449,18 @@ void app_repl_statement(app_t *app,  const char *cmd)
       else if(strcmp(s0, "azmux") == 0) {
         mode->reg_direct.azmux_o = u0;
       }
+      else if(strcmp(s0, "spi_interrupt_ctl") == 0) {
+        mode->reg_direct.spi_interrupt_ctl_o = u0;
+      }
+      else if(strcmp(s0, "adc_refmux") == 0) {
+        mode->reg_direct.adc_refmux_o = u0;
+      }
+      else if(strcmp(s0, "adc_cmpr_latch") == 0) {
+        mode->reg_direct.adc_cmpr_latch_o = u0;
+      }
+
+
+
 
       // 4094 components.
       // perhaps rename second. _4094_second etc.

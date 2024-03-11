@@ -176,15 +176,31 @@ reg_direct_t
 
   uint8_t   leds_o     : 4;               // 0
   uint8_t   monitor_o  : 8;               // 4
+  uint8_t   sig_pc_sw_o : 2;             // 14
+  uint8_t   azmux_o : 4 ;                 // 16
+
+  uint8_t   adc_refmux_o : 4;                   // 21     // better name adc_refmux   adc_cmpr_latch
+  uint8_t   adc_cmpr_latch_o : 1;          // 20
+
   uint8_t   spi_interrupt_ctl_o : 1;      // 12
   uint8_t   meas_complete_o : 1;          // 13
 
-  uint8_t   sig_pc_sw_o : 2;             // 14
-  uint8_t   azmux_o : 4 ;                 // 16
-  uint8_t   adc_cmpr_latch_o : 1;          // 20
-  uint8_t   adc_refmux_o : 4;                   // 21     // better name adc_refmux   adc_cmpr_latch
-  uint8_t   dummy_bits_o : 7;               // 25
 
+
+  uint8_t   dummy_bits_o : 7;               // 25 = (32-25)
+
+/*
+471     .out( {   dummy_bits_o,               // 25
+472               meas_complete_o,          // 24+1     // interupt_ctl *IS* generic so should be at start, and connects straight to adum. so place at beginning. same argument for meas_complete
+473               spi_interrupt_ctl_o,      // 23+1     todo rename. drop the 'ctl'.
+474               adc_cmpr_latch_o,         // 22+1
+475               adc_refmux_o,             // 18+4     // better name adc_refmux   adc_cmpr_latch
+476               azmux_o,                  // 14+4
+477               sig_pc_sw_o,              // 12+2
+478               monitor_o,                // 4+8
+479               leds_o                    // 0+4
+
+*/
 } reg_direct_t;
 
 
