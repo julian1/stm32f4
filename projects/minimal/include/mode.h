@@ -94,6 +94,8 @@ reset is schem default contacts.
 
 */
 
+
+// not sure
 #define LR_SET      0b01
 #define LR_RESET    0b10
 
@@ -157,23 +159,6 @@ typedef struct _4094_state_t
 
 //////////
 
-/*
-      SPI_INTERUPT_OUT,
-      MEAS_COMPLETE_CTL,
-      CMPR_LATCH_CTL,
-      adcmux,                  // 19 bits.
-
-      monitor,                // 15.    bit 14 from 0.. + 8= j    bit 10,    1024.
-      LED0,                   // bit 13.  8192.
-      SIG_PC_SW_CTL,
-      himux2,              // remove the himux2  12.
-      himux,
-      azmux
-
-  so put in direct mode. then try to bllink the led.
-  so try to blink
-  assert( sizeof(F) == 4);
-*/
 
 
 
@@ -187,32 +172,13 @@ reg_direct_t
       and this state would be written in the main mode state.
       -------
   */
-/*
-  uint8_t azmux   : 4;
-  uint8_t himux   : 4;
-  uint8_t himux2  : 4;     // 12
-  uint8_t sig_pc_sw_ctl : 1;
-  uint8_t led0    : 1;       // bit 13.   14   2 bytes.
-
-  uint8_t monitor : 8;    // bit 14. 15 // this bit vector overflows - so gets aligned on a new byte boundary. which is not what we want...
-
-  uint8_t adcmux : 4;     // 26
-  uint8_t cmpr_latch_ctl : 1;
-  uint8_t meas_complete_ctl : 1;    // // perhaps change name meas_valid,  or sa_valid.  to reflect the trig,valid control interface.
-  uint8_t spi_interupt_ctl : 1;     // 29bits
-
-  uint8_t dummy   : 3;
-*/
-
 
 
   uint8_t   leds_o     : 4;               // 0
   uint8_t   monitor_o  : 8;               // 4
   uint8_t   spi_interrupt_ctl_o : 1;      // 12
   uint8_t   meas_complete_o : 1;          // 13
-/*
-  uint8_t   sig_pc1_sw_o : 1;             // 14
-  uint8_t   sig_pc2_sw_o : 1;             // 15 */
+
   uint8_t   sig_pc_sw_o : 2;             // 14
   uint8_t   azmux_o : 4 ;                 // 16
   uint8_t   adc_cmpr_latch_o : 1;          // 20
@@ -291,7 +257,7 @@ typedef struct _mode_t
   // but not enough for different states.
 
 /*
-  // TODO rename to include 4094 in name. 
+  // TODO rename to include 4094 in name.
       eg. _4094_first _4094_second .
 
       or shift_reg_first, serial_first, serial second
@@ -307,7 +273,7 @@ typedef struct _mode_t
   uint16_t dac_val;
 
 
-  // name is confusing, because this is ice40 mode,  while the app mode, is app mode represents all app state. 
+  // name is confusing, because this is ice40 mode,  while the app mode, is app mode represents all app state.
   // perhap rename reg_ice40_mode
   uint32_t  reg_mode;
 
@@ -326,13 +292,11 @@ typedef struct _mode_t
 } _mode_t ;
 
 
-// change name spi_spi_mode_transition_state
-// because spi is the first name
+
+/*
+    chage name spi_mode_transition() ?
+*/
 void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint32_t *system_millis /*, uint32_t update_flags */ );
-
-
-
-
 
 
 
@@ -406,15 +370,4 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
   uint8_t U1006   : 4;    // adg1208  4 bits.
 
 #endif
-  /////////////////////////////////////
-  // put . FPGA STATE IN  HERE/
-  // fpga MODE.
-
-  // THE REASON TO NOT CONSIDER DOING THIS - is that do_state transition always pulses the relatys.
-  // BUT. can still always control fpga directly after setting up the major state.
-
-  /////////////////////////////////////
-
-  // put this in another structure.
-  // to make it clear. it is fpga state.
 
