@@ -1,7 +1,10 @@
 /*
-  need to rename usart2.c to usart.c
 
-  TODO - consider loop, to process more than one char on interrupt?
+  TODO - consider using loop in the interupt, to process all/multiple chars for the interrupt.
+      alternatively - perhaps can rely on the interupt re-raise, and control will jump straight back to the context of the queuing function, and that will be enough?
+
+  eg.
+     " ISRs run very fast on these chips. I have ISRs running is 3-4us on a 168MHz 32F417."
 */
 
 #include <libopencm3/stm32/rcc.h>

@@ -110,6 +110,7 @@ void cbuf_push(cbuf_t *a, char val)
   */
   if(a->wi == a->ri) {
 
+    // could set/raise overflow flag here.
     a->ri = (a->ri + 1) % a->sz;
   }
 }
