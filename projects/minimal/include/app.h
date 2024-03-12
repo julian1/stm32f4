@@ -55,18 +55,37 @@ typedef struct app_t
       while( queue_count(app->measurements) < 10)
         app->yield( app->yield_ctx);
 
+      // sleep
+      system_millis = 0;
+      while( system_millis < 500 )
+        app->yield( app->yield_ctx);
+
+      etc
+
 
       the limitation of a single stack yield(), is no nested co-recursion.
       but thats ok, we only engage in one user task/sequence/ at a time
 
       actually we can block on more than two events.  we just need to write the poll loop for the tests, and call app->yield.
+      ----
+      uses -
+        1. for blocking when need to wait on some condition eg. measurement data
+        2. long running functions, to keep processing.
 */
 
-  /*void (*yield)(void *);
+  // yield abstracts the function, and allows substitution, but may not be needed.
+  // eg. versus just calling app_service_process(app); or app_loop2() app_yield( app) etc.
+  void (*yield)(void *);
   void *yield_ctx;
-  */
+
+
 
 } app_t;
+
+
+
+void app_yield_with_delay(app_t *app, uint32_t delay );   // better name
+void app_yield(app_t *app);   // better name
 
 
 

@@ -165,12 +165,16 @@ static void app_update_console_cmd(app_t *app)
 }
 
 
-
-
+/*
+    - for the yield we don't want to accept commands
+    - and probably don't want to test or update the fpga
+*/
 
 
 static void app_loop(app_t *app)
 {
+
+  // consider change name to app_process(),
 
   while(true) {
 
@@ -186,6 +190,28 @@ static void app_loop(app_t *app)
       // eg. have a deciated signed int 500ms counter,   if(app->soft_500ms >= 500) app->soft_500ms -= 500;
       // for msleep() use another dedicated counter.  since msleep() is not used recursively. simple, just reset count to zero, on entering msleep(), and count up.
       // actually msleep_with_yield() could be called recursively.
+      // probably want to check, with a count/mutex.
+      app_update_soft_500ms(app);
+    }
+
+  }
+}
+
+
+
+static void app_loop2(app_t *app)
+{
+  // for use in yield function.
+  // just call, to keep pumping
+
+  while(true) {
+
+    // no console - or else just process quit() , or some kind of interupt.
+
+    // 500ms soft timer
+    if( (app->system_millis - app->soft_500ms) > 500) {
+      app->soft_500ms += 500;
+
       // probably want to check, with a count/mutex.
       app_update_soft_500ms(app);
     }
@@ -341,7 +367,12 @@ static app_t app = {
   .mode_initial =  &mode_initial,
   .mode_current =  &mode_current,
 
-  .line_freq = 50
+  .line_freq = 50,
+
+  // . yield = (void (*)(void *)) app_loop2,
+  . yield = (void (*)(void *)) app_loop2,
+  . yield_ctx = (void *) &app   // self reference!
+
 
 };
 
