@@ -50,11 +50,16 @@ typedef struct app_t
       while(!app->data_ready)
         app->yield( app->yield_ctx);
 
-      while(! queue_empty(app->values)  )
+
+      // wait for obs etc.
+      while( queue_count(app->measurements) < 10)
         app->yield( app->yield_ctx);
+
 
       the limitation of a single stack yield(), is no nested co-recursion.
       but thats ok, we only engage in one user task/sequence/ at a time
+
+      actually we can block on more than two events.  we just need to write the poll loop for the tests, and call app->yield.
 */
 
   /*void (*yield)(void *);
@@ -64,6 +69,8 @@ typedef struct app_t
 } app_t;
 
 
+
+void app_msleep_with_yield(app_t *app, uint32_t delay );
 
 
 void app_repl_statement(app_t *app,  const char *cmd);
