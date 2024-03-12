@@ -185,27 +185,6 @@ void app_repl_statement(app_t *app,  const char *cmd)
   // don't we have some code - to handle sscan as binary/octal/hex ?
 
 
-#if 0
-  /*
-    this won't work in the general case, because the register will get overwritten by the mode value for the register.
-    after the repl command is processed.
-    but is useful as test - before we add stuff to the mode
-  */
-  else if( sscanf(cmd, "reg %lu %100s", &u0, s1) == 2
-    && str_decode_uint( s1, &u1)
-  ) {
-    // directly set a register on fpga. bypassing the mode.
-    // useful occsionally for test.
-
-    spi_mux_ice40(app->spi);
-    spi_ice40_reg_write32(app->spi, u0 , u1 );
-
-    uint32_t ret = spi_ice40_reg_read32(app->spi, u0);
-    printf("reg_mode return value %lu\n", ret);
-
-  }
-#endif
-
 
   else if( strcmp( cmd, "spi-mux?") == 0) {
 
@@ -501,11 +480,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
         printf("unknown target %s\n", s0);
       }
-
-
   }
-
-
 
 
 
@@ -514,6 +489,59 @@ void app_repl_statement(app_t *app,  const char *cmd)
     printf("unknown cmd, or bad argument '%s'\n", cmd );
 
   }
+}
+
+
+
+
+static void app_repl_statement_direct(app_t *app,  const char *cmd)
+{
+  /* test code - writes direct to fpga.
+      noting values will get immiedately overwritten by the mode transition function.
+      So useful, but only for tests, for new functions, or when not using the mode transition.
+      eg. testing the dac.
+  */
+
+  char s0[100 + 1 ];
+  uint32_t u0, u1;
+
+
+  if( sscanf(cmd, "reg %lu %100s", &u0, s0) == 2
+    && str_decode_uint( s0, &u1)
+  ) {
+    spi_mux_ice40(app->spi);
+    spi_ice40_reg_write32(app->spi, u0 , u1 );
+    print_register( app->spi, u0);
+  }
+  else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
+
+    spi_mux_ice40(app->spi);
+    spi_ice40_reg_write32(app->spi, REG_MODE, u0 );
+    print_register( app->spi, REG_MODE)
+  }
+  else if( sscanf(cmd, "direct %100s", s0) == 1
+    && str_decode_uint( s0, &u0);
+  ) {
+
+    spi_mux_ice40(app->spi);
+    spi_ice40_reg_write32(app->spi, REG_DIRECT, u0 );
+    print_register( app->spi, REG_DIRECT);
+  }
+
+
+  else if( sscanf(cmd, "dac %s", s0 ) == 1
+    && str_decode_uint( s0, &u0)
+  ) {
+       // spi_mux_dac8811(app->spi);
+      spi_mux_ad5446(app->spi );
+
+      // eg. 0=-0V out.   0xffff = -7V out. nice.
+      spi_dac8811_write16( app->spi, u0 );
+
+      spi_mux_ice40(app->spi);
+    }
+
+
 }
 
 
@@ -562,46 +590,8 @@ void app_repl_statements(app_t *app,  const char *s)
 
 }
 
-#if 0
-  /* not useful. since is immediately written over - in the spi transition.
-      use 'set mode x'. insteadd
-  */
-
-  else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
-
-    // set the fpga mode.
-    spi_mux_ice40(app->spi);
-    spi_ice40_reg_write32(app->spi, REG_MODE, u0 );
-
-    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_MODE );
-    printf("reg_mode return value %lu\n", ret);
-  }
-#endif
 
 
-
-#if 0
-
-  else if( sscanf(cmd, "direct %100s", s0) == 1
-    && str_decode_uint( s0, &u0)
-  ) {
-    /*
-      IMPORTANT - to properly sequence, in a set of repl commands,
-      Or just use 'set' direct.
-      Or allow set direct bits.
-    */
-
-    // set the direct register.
-    printf("set direct value to, %lu\n", u0 );
-
-    spi_mux_ice40(app->spi);
-    spi_ice40_reg_write32(app->spi, REG_DIRECT, u0 );
-    // confirm.
-    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT );
-    char buf[ 100 ] ;
-    printf("r %u  v %lu  %s\n",  REG_DIRECT, ret,  str_format_bits(buf, 32, ret ));
-  }
-#endif
 
 
 #if 0
@@ -641,52 +631,7 @@ void app_repl_statements(app_t *app,  const char *s)
   }
 #endif
 
-#if 0
-  else if( sscanf(cmd, "blink %lu", &u0 ) == 1) {
-    // turn off fpga blink in mode 0, avoid spi transmission, during acquisition.
-    app->led_blink = u0;
-  }
-
-  else if( sscanf(cmd, "test relay flip %lu", &u0 ) == 1) {
-
-    app->test_relay_flip = u0;
-  }
-#endif
-
-#if 0
-/*
-  -- don't really need, just query direct reg for monitor and right shift.
-*/
-  else if( strcmp( cmd, "monitor?") == 0) {
-
-    // this is no longer corrent. should query the REG_STATUS. which includes the monitor
-    // regardless of the mode.
-    spi_mux_ice40(app->spi);
-    uint32_t ret = spi_ice40_reg_read32(app->spi, REG_DIRECT);
-    ret >>= 14;
-    char buf[ 100];
-    printf("r %u  v %lu  %s\n",  REG_DIRECT, ret, str_format_bits(buf, 8, ret ));
-  }
-#endif
 
 
-  ///////////////////////////////////////////////////
-
-
-#if 0
-  // for test only. use the mode transitino function instead.
-
-  else if( sscanf(cmd, "dac %s", s0 ) == 1
-    && str_decode_uint( s0, &u0)
-  ) {
-       // spi_mux_dac8811(app->spi);
-      spi_mux_ad5446(app->spi );
-
-      // eg. 0=-0V out.   0xffff = -7V out. nice.
-      spi_dac8811_write16( app->spi, u0 );
-
-      spi_mux_ice40(app->spi);
-    }
-#endif
 
 
