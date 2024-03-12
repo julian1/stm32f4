@@ -12,8 +12,8 @@ extern "C" {
 typedef struct CBuf CBuf;
 
 
-void usart1_setup_gpio_portA(void);
-void usart1_setup_gpio_portB(void);
+void usart1_setup_portA(void);
+void usart1_setup_portB(void);
 
 
 

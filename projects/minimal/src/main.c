@@ -416,8 +416,8 @@ int main(void)
   //////////////
   // initialize usart before start all the app constructors, so that can print.
   // uart
-  // usart1_setup_gpio_portA();
-  usart1_setup_gpio_portB();
+  // usart1_setup_portA();
+  usart1_setup_portB();
 
   usart1_set_buffers(&app.console_in, &app.console_out);
 

@@ -11,8 +11,8 @@ extern "C" {
 typedef struct cbuf_t cbuf_t;
 
 // TODO change name usart1_portA_setup()
-void usart1_setup_gpio_portA(void);
-void usart1_setup_gpio_portB(void);
+void usart1_setup_portA(void);
+void usart1_setup_portB(void);
 
 
 

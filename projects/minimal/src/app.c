@@ -517,10 +517,10 @@ static void app_repl_statement_direct(app_t *app,  const char *cmd)
 
     spi_mux_ice40(app->spi);
     spi_ice40_reg_write32(app->spi, REG_MODE, u0 );
-    print_register( app->spi, REG_MODE)
+    print_register( app->spi, REG_MODE);
   }
   else if( sscanf(cmd, "direct %100s", s0) == 1
-    && str_decode_uint( s0, &u0);
+    && str_decode_uint( s0, &u0)
   ) {
 
     spi_mux_ice40(app->spi);

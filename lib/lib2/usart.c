@@ -19,13 +19,10 @@
 
 
 
-static cbuf_t *coutput = NULL;
-static cbuf_t *cinput  = NULL;
 
 
-// TODO change name usart1_setup_portB
 
-void usart1_setup_gpio_portB(void)
+void usart1_setup_portB(void)
 {
   // we moved usart 1 for stm32f410. to different pins,
   // PB6 = tx, PB7=rx
@@ -36,10 +33,8 @@ void usart1_setup_gpio_portB(void)
 }
 
 
-// TODO change name usart1_setup_portA
-// Actually maybe better to pass the arguments...
 
-void usart1_setup_gpio_portA(void)
+void usart1_setup_portA(void)
 {
   // stm32f407 usart1.
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9 | GPIO10);
@@ -69,7 +64,7 @@ static void usart_configure( uint32_t usart )
       break;
 
     default:
-      // assert is problematic here... because no usart configured to debug.
+      // assert() won't work here, because no usart configured for debug output
       // assert(0);
       critical_error_led_blink();
   }
@@ -90,6 +85,14 @@ static void usart_configure( uint32_t usart )
   usart_enable(usart);
 }
 
+
+
+
+
+
+
+static cbuf_t *coutput = NULL;
+static cbuf_t *cinput  = NULL;
 
 
 
