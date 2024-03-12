@@ -30,6 +30,10 @@ static void test (app_t *app)
 
   spi_mux_ice40( app->spi );
 
+  spi_ice40_reg_write32( app->spi, REG_MODE , MODE_DIRECT );
+
+
+
   for(unsigned i = 0; i < 50; ++i )  {
 
     static uint32_t counter = 0;
