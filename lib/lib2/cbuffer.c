@@ -1,5 +1,6 @@
 /*
-  TODO, Should change name cCircBuf
+
+  TODO - consider adding clearable flag, set on overflow condition, that caller can use to check status
 
   ----------
   point of circular buffer, with separate ri,wi is thread safety.

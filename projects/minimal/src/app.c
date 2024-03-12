@@ -187,7 +187,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
 #if 0
   /*
-    this won't work in the general case, because the register will get immediately overwritten by the mode value for the register.
+    this won't work in the general case, because the register will get overwritten by the mode value for the register.
     after the repl command is processed.
     but is useful as test - before we add stuff to the mode
   */

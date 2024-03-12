@@ -182,7 +182,11 @@ static void app_loop(app_t *app)
       app->soft_500ms += 500;
 
       // system_millis is shared, for msleep() and soft_timer.
-      // but to avoid integer overflow - could make dedicated and then subtract 500.
+      // but to avoid integer overflow/wraparound - could make dedicated and then subtract 500.
+      // eg. have a deciated signed int 500ms counter,   if(app->soft_500ms >= 500) app->soft_500ms -= 500;
+      // for msleep() use another dedicated counter.  since msleep() is not used recursively. simple, just reset count to zero, on entering msleep(), and count up.
+      // actually msleep_with_yield() could be called recursively.
+      // probably want to check, with a count/mutex.
       app_update_soft_500ms(app);
     }
 

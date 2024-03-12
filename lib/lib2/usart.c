@@ -1,5 +1,7 @@
 /*
   need to rename usart2.c to usart.c
+
+  TODO - consider loop, to process more than one char on interrupt?
 */
 
 #include <libopencm3/stm32/rcc.h>
