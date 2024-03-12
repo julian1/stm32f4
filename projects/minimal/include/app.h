@@ -40,6 +40,23 @@ typedef struct app_t
 
   uint32_t line_freq;
 
+
+
+/*
+  - yield function - can be used to process/service incomming raw data - eg. convert adc counts to a value.
+      while control is blocking waiting for measurement data.
+      without needing two stacks.  eg.
+
+      while(!app->data_ready)
+        app->yield( app->yield_ctx);
+
+      while(! queue_empty(app->values)  )
+        app->yield( app->yield_ctx);
+
+      the limitation of a single stack yield(), is no nested co-recursion.
+      but thats ok, we only engage in one user task/sequence/ at a time
+*/
+
   /*void (*yield)(void *);
   void *yield_ctx;
   */
