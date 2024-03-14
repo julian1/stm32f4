@@ -2,7 +2,7 @@
 /*
   rename measurement?
 
-  localize data handliing. here. keep this structure opaque in app.
+  localize data handling, and keep this structure opaque in app_t.
 
 */
 

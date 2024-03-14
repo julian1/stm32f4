@@ -7,7 +7,7 @@
 
 
 
-
+// move to ice40_reg.h ?
 #define CLK_FREQ 20000000
 
 

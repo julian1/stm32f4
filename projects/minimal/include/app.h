@@ -5,48 +5,6 @@
 #include <lib2/cstring.h>
 
 
-#include <data.h>
-
-
-typedef struct _mode_t _mode_t;
-
-
-
-typedef struct app_t
-{
-  uint32_t magic;
-
-
-  // remove. should be able to query the led state  to invert it...
-  // no. it's ok. led follows the led_state, more than one thing follows.
-  bool led_state ;     // for mcu. maybe change name to distinguish
-
-  uint32_t soft_500ms;
-
-  // updated on interupt. should probably be declared volatile.
-  // but functions that use can also declare volatile
-  volatile uint32_t system_millis;
-
-  cbuf_t  console_in;
-  cbuf_t  console_out;
-
-  cstring_t     command;
-
-
-  uint32_t  spi;
-
-  ////
-
-  const _mode_t *mode_initial;
-  _mode_t *mode_current;
-
-
-  // static input property of the environment
-  // does not really belon in mode. mode has values dependent.
-  uint32_t line_freq;
-
-
-
 /*
   there are two main cases to yield.
     - for time,delay.
@@ -86,8 +44,51 @@ typedef struct app_t
         2. long running functions, to keep processing.
 */
 
+
+typedef struct _mode_t _mode_t;
+
+typedef struct data_t data_t;
+
+
+
+
+
+typedef struct app_t
+{
+  uint32_t magic;
+
+
+  // remove. should be able to query the led state  to invert it...
+  // no. it's ok. led follows the led_state, more than one thing follows.
+  bool led_state ;     // for mcu. maybe change name to distinguish
+
+  uint32_t soft_500ms;
+
+  // updated on interupt. should probably be declared volatile.
+  // but functions that use can also declare volatile
+  volatile uint32_t system_millis;
+
+  cbuf_t  console_in;
+  cbuf_t  console_out;
+
+  cstring_t     command;
+
+
+  uint32_t  spi;
+
+
+  const _mode_t *mode_initial;
+
+  _mode_t *mode_current;
+
+
+  // static input property of the environment
+  // does not really belon in mode. mode has values dependent.
+  uint32_t line_freq;
+
+
   // yield abstracts the function, and allows substitution, but may not be needed.
-  // eg. versus just calling app_service_process(app); or app_loop2() app_yield( app) etc.
+  // eg. versus just calling app_update(app); or  app_yield( app) etc.
   void (*yield)(void *);
   void *yield_ctx;
 
@@ -98,12 +99,24 @@ typedef struct app_t
 
 
 
-void app_yield_with_delay(app_t *app, uint32_t delay );   // better name
-void app_yield(app_t *app);   // better name
+#define APP_MAGIC   456
 
 
 
-void app_msleep_with_yield(app_t *app, uint32_t delay );
+void app_init_buffers(app_t *app);
+void app_update(app_t *app);
+void app_loop(app_t *app);
+void app_systick_interupt(app_t *app);
+
+
+
+/*
+
+void app_yield_with_delay(app_t *app, uint32_t delay );
+void app_yield(app_t *app);
+
+*/
+
 
 
 void app_repl_statement(app_t *app,  const char *cmd);

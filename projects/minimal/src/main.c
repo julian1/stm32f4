@@ -1,283 +1,34 @@
 
 
 #include <stdio.h>    // printf, scanf
-#include <string.h>   // memset
+//#include <string.h>   // memset
 #include <assert.h>
 
 
 
-#include <libopencm3/stm32/rcc.h>   // for clock initialization
+#include <libopencm3/stm32/rcc.h>   // mcu clock initialization
 #include <libopencm3/stm32/spi.h>   // SPI1
 
 
 #include <lib2/usart.h>
-#include <lib2/streams.h>
-#include <lib2/util.h>   // msleep(), UNUSED
-#include <lib2/format.h>   // trim_whitespace()  format_bits()
+#include <lib2/util.h>      // systick_setup()
 
 
 
 #include <peripheral/led.h>
 #include <peripheral/spi-port.h>
 #include <peripheral/ice40-extra.h>
-#include <peripheral/spi-ice40.h>
-#include <peripheral/spi-ice40-bitstream.h>
 
 
 
 #include <mode.h>
 #include <app.h>
-#include <util.h>
-#include <ice40-reg.h>    // reg_4094 oe.
+#include <util.h>   // CLK_FREQ
 
 
-#include <data.h>     // needed to instantiate
+#include <data.h>     // to instantiate
 
 
-#define APP_MAGIC   456
-
-
-
-/*
-static void app_update_soft_500ms_configured(app_t *app)
-{
-  UNUSED(app);
-
-
-}
-*/
-
-
-
-
-
-static void app_update_soft_500ms(app_t *app)
-{
-  assert(app);
-  assert(app->magic == APP_MAGIC);
-
-  /*
-    function should reconstruct to localize scope of app. and then dispatch to other functions.
-  */
-
-
-  /*
-    blink mcu led
-  */
-  app->led_state = ! app->led_state;
-
-  if(app->led_state)
-    led_on();
-  else
-    led_off();
-
-  /*
-      - if fpga cdone() is lo, then try to configure fpga.
-  */
-  if( !ice40_port_extra_cdone_get()) {
-
-    spi_ice40_bitstream_send(app->spi, & app->system_millis );
-
-    // TODO . could improve error handling here,  although subsequent spi code is harmless
-
-    // check/verify 4094 OE is not asserted
-    assert( ! spi_ice40_reg_read32( app->spi, REG_4094 ));
-
-
-    // reset the mode.
-    *app->mode_current = *app->mode_initial;
-
-
-    /* OK. this is tricky.
-        OE must be enabled to pulse the relays. to align them to initial/current state.
-        but we probably want to configure as much other state first, before asserting 4094 OE.
-    */
-    // write the default 4094 state for muxes etc.
-    printf("spi_mode_transition_state() for muxes\n");
-    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
-
-    // now assert 4094 OE
-    // should check supply rails etc. first.
-    printf("asserting 4094 OE\n");
-    spi_ice40_reg_write32( app->spi, REG_4094, 1 );
-    // ensure 4094 OE asserted
-    assert( spi_ice40_reg_read32( app->spi, REG_4094 ));
-
-    // now call transition state again. which will do relays
-    printf("spi_mode_transition_state() for relays\n");
-    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
-  }
-
-
-  if(ice40_port_extra_cdone_get()) {
-
-    // app_update_soft_500ms_configured( app);
-  }
-
-
-}
-
-
-
-
-
-
-static void app_update_console(app_t *app)
-{
-  assert(app);
-  assert(app->magic == APP_MAGIC);
-
-
-
-  while( !cbuf_is_empty(&app->console_in)) {
-
-    // got a character
-    int32_t ch = cbuf_pop(&app->console_in);
-    assert(ch >= 0);
-
-
-    if (ch == ';' || ch == '\r' )
-    {
-      // a separator, then apply what we have so far.
-      char *cmd = cstring_ptr(&app->command);
-      cmd = str_trim_whitespace_inplace( cmd );
-      // could transform lower case
-      printf("\n");
-      app_repl_statement(app, cmd);
-
-      // clear the current command buffer,
-      // note, still more data to process in console_in
-      cstring_clear( &app->command);
-    }
-    else if( cstring_count(&app->command) < cstring_reserve(&app->command) ) {
-
-      // normal character
-      // must accept whitespace here, since used to demarcate args
-      cstring_push_back(&app->command, ch);
-      // echo to output. required for minicom.
-      putchar( ch);
-    } else {
-
-      // ignore overflow chars,
-      printf("too many chars!!\n");
-    }
-
-    if(ch == '\r')
-    {
-      printf("calling spi_mode_transition_state()");
-      spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
-      // issue new command prompt
-      printf("\n> ");
-    }
-  }   // while
-}
-
-
-/*
-    - for the yield we don't want to accept commands
-    - and probably don't want to test or update the fpga
-*/
-
-
-static void app_loop(app_t *app)
-{
-  /*
-    main outer app loop, bottom of control stack
-  */
-
-  assert(app);
-  assert(app->magic == APP_MAGIC);
-
-
-
-  // consider change name to app_process(),
-
-  while(true) {
-
-    // process potential new incomming data in priority
-    data_update(app->data);
-
-
-    // handle console
-    app_update_console(app);
-
-    // 500ms soft timer
-    if( (app->system_millis - app->soft_500ms) > 500) {
-      app->soft_500ms += 500;
-
-      // system_millis is shared, for msleep() and soft_timer.
-      // but to avoid integer overflow/wraparound - could make dedicated and then subtract 500.
-      // eg. have a deciated signed int 500ms counter,   if(app->soft_500ms >= 500) app->soft_500ms -= 500;
-      // for msleep() use another dedicated counter.  since msleep() is not used recursively. simple, just reset count to zero, on entering msleep(), and count up.
-      // actually msleep_with_yield() could be called recursively.
-      // probably want to check, with a count/mutex.
-      app_update_soft_500ms(app);
-    }
-
-  }
-}
-
-
-
-static void app_update(app_t *app)
-{
-  /* non looping. for use in yield function.
-      call, to keep pumping data input processing.
-      useful for yield functions
-    */
-  assert(app);
-  assert(app->magic == APP_MAGIC);
-
-
-  // process new incomming data in priority
-  data_update(app->data);
-
-
-  // no console process. - or else just process quit() , or some kind of interupt.
-
-  // 500ms soft timer
-  if( (app->system_millis - app->soft_500ms) > 500) {
-    app->soft_500ms += 500;
-
-    // probably want to check, with a count/mutex.
-    app_update_soft_500ms(app);
-  }
-
-}
-
-
-
-
-
-static void systick_interupt(app_t *app)
-{
-  // interupt context. don't do anything compliicated here.
-
-  ++ app->system_millis;
-}
-
-
-
-
-
-
-
-
-
-
-
-/////////////////////////
-/*
-  TODO.
-  could put raw buffers directly in app structure? but poointer keeps clearer
-  Why not put on the stack? in app_t ?
-*/
-
-static char buf_console_in[1000];
-static char buf_console_out[1000];    // changing this and it freezes. indicates. bug
-
-
-static char buf_command[1000];
 
 
 
@@ -400,6 +151,9 @@ static app_t app = {
 
 
 
+
+
+
 int main(void)
 {
   // hse
@@ -438,45 +192,26 @@ int main(void)
 
   // setup external state for critical error led blink in priority
   // because assert() cannot pass a context
-  assert_critical_error_led_setup(LED_PORT, LED_OUT);
+  assert_critical_error_led_setup( LED_PORT, LED_OUT);
 
 
-  // this is the mcu clock.  not the adc clock. or the fpga clock.
-  // systick_setup(16000);
-
-  // extern void systick_setup(uint32_t tick_divider, void (*pfunc)(void *),  void *ctx);
-  // systick_setup(84000,  (void (*)(void *)) systick_interupt, &app);  // 84MHz.
-
-  systick_setup(84000);
-  systick_interupt_setup( (void (*)(void *)) systick_interupt, &app );
+  // mcu clock
+  systick_setup(84000); // 84MHz.
+  systick_interupt_setup( (void (*)(void *)) app_systick_interupt, &app );
 
 
 
   //////////////////////
   // main app setup
-  // get the console up in priority, to support error reporting
+  // initialzes the console buffers, that support printf() and error reporting
+  app_init_buffers( &app );
 
-  /*  TODO consider - move console init to app_init()  function?
-      would probably move the buffers to app also
-  */
-
-  // uart/console
-  cbuf_init(&app.console_in,  buf_console_in, sizeof(buf_console_in));
-  cbuf_init(&app.console_out, buf_console_out, sizeof(buf_console_out));
-
-  cbuf_init_stdout_streams(  &app.console_out );
-  cbuf_init_stdin_streams( &app.console_in );
-
-
-  cstring_init(&app.command, buf_command, buf_command + sizeof( buf_command));
 
   //////////////
-  // initialize usart before start all the app constructors, so that can print.
-  // uart
-  // usart1_setup_portA();
+  // now can init usart peripheral using app console buffers
   usart1_setup_portB();
 
-  usart1_set_buffers(&app.console_in, &app.console_out);
+  usart1_set_buffers( &app.console_in, &app.console_out);
 
 
 
@@ -492,26 +227,22 @@ int main(void)
   assert( sizeof(double ) == 8);
 
 
-
+  // init data
   data_init( app.data );
-
-  // printf("sizeof app_t %u\n", sizeof(app_t));
 
 
 
   ////////////////
-  // spi1, for adum/ice40
-
+  // init the spi port, for adum/ice40 comms
   spi1_port_cs1_cs2_setup();
 
   // spi1_port_interupt_setup( (void (*) (void *))spi1_interupt, &app);
   spi1_port_interupt_setup( (void (*) (void *)) data_rdy_interupt, app.data );
 
-
   ice40_port_extra_setup();
 
 
-  // go to main loop
+  // jump to main loop
   app_loop( &app);
 
   for (;;);
