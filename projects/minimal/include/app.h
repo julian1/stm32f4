@@ -5,6 +5,8 @@
 #include <lib2/cstring.h>
 
 
+#include <data.h>
+
 
 typedef struct _mode_t _mode_t;
 
@@ -12,6 +14,7 @@ typedef struct _mode_t _mode_t;
 
 typedef struct app_t
 {
+  uint32_t magic;
 
 
   // remove. should be able to query the led state  to invert it...
@@ -38,6 +41,8 @@ typedef struct app_t
   _mode_t *mode_current;
 
 
+  // static input property of the environment
+  // does not really belon in mode. mode has values dependent.
   uint32_t line_freq;
 
 
@@ -87,6 +92,7 @@ typedef struct app_t
   void *yield_ctx;
 
 
+  data_t  *data;
 
 } app_t;
 

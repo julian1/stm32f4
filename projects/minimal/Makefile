@@ -18,6 +18,7 @@ SRCFILES	= src/peripheral/ice40-extra.c   src/peripheral/led.c  src/peripheral/s
             src/mode.o \
             src/lzo_test.c \
             src/util.c \
+            src/data.c \
             src/test/test01.c src/test/test02.c  src/test/test03.c src/test/test05.c src/test/test14.c src/test/test15.c \
 
 

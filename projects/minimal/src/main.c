@@ -31,6 +31,7 @@
 #include <ice40-reg.h>    // reg_4094 oe.
 
 
+#include <data.h>     // needed to instantiate
 
 
 
@@ -178,6 +179,10 @@ static void app_loop(app_t *app)
 
   while(true) {
 
+    // process potential new incomming data in priority
+    data_update(app->data);
+
+
     // handle console
     app_update_console_cmd(app);
 
@@ -199,24 +204,26 @@ static void app_loop(app_t *app)
 
 
 
-static void app_loop2(app_t *app)
+static void app_update(app_t *app)
 {
-  // for use in yield function.
+  // non looping. for use in yield function.
   // just call, to keep pumping
 
-  while(true) {
 
-    // no console - or else just process quit() , or some kind of interupt.
+  // process potential new incomming data in priority
+  data_update(app->data);
 
-    // 500ms soft timer
-    if( (app->system_millis - app->soft_500ms) > 500) {
-      app->soft_500ms += 500;
 
-      // probably want to check, with a count/mutex.
-      app_update_soft_500ms(app);
-    }
+  // no console process. - or else just process quit() , or some kind of interupt.
 
+  // 500ms soft timer
+  if( (app->system_millis - app->soft_500ms) > 500) {
+    app->soft_500ms += 500;
+
+    // probably want to check, with a count/mutex.
+    app_update_soft_500ms(app);
   }
+
 }
 
 
@@ -232,23 +239,6 @@ static void systick_interupt(app_t *app)
 
 
 
-
-static void spi1_interupt(app_t *app)
-{
-  UNUSED(app);
-  // now on a positive transition.
-
-/*
-  // if flag is still active, then record we missed processing some data.
-  if(app->adc_measure_valid == true) {
-    app->adc_measure_valid_missed = true;
-    // ++app->adc_measure_valid_missed;     // count better? but harder to report.
-  }
-
-  // set adc_measure_valid flag so that update() knows to read the adc...
-  app->adc_measure_valid = true;
-*/
-}
 
 
 
@@ -295,7 +285,7 @@ static const _mode_t mode_initial =  {
 
   .sa.reg_sa_p_seq_n = 2,
 
-  .sa.reg_sa_p_seq0 = (0b01 << 4) |  S3,         // dcv 
+  .sa.reg_sa_p_seq0 = (0b01 << 4) |  S3,         // dcv
   .sa.reg_sa_p_seq1 = (0b00 << 4) | S7,         // star-lo
   .sa.reg_sa_p_seq2 = 0,  // channel-1 precharge switch
   .sa.reg_sa_p_seq3 = 0,  // channel-1 precharge switch
@@ -365,7 +355,14 @@ static _mode_t mode_current = { 0 } ;
 
 
 
+
+static data_t data = { 0 } ;
+
+
+
 static app_t app = {
+
+  .magic = 456, // APP_MAGIC
 
   .spi = SPI1 ,
   .mode_initial =  &mode_initial,
@@ -374,10 +371,11 @@ static app_t app = {
   .line_freq = 50,
 
   // . yield = (void (*)(void *)) app_loop2,
-  . yield = (void (*)(void *)) app_loop2,
-  . yield_ctx = (void *) &app   // self reference!
+  . yield = (void (*)(void *)) app_update,
+  . yield_ctx = (void *) &app,                      // self reference!
 
 
+  . data = &data
 };
 
 
@@ -437,6 +435,11 @@ int main(void)
 
   //////////////////////
   // main app setup
+  // get the console up in priority, to support error reporting
+
+  /*  TODO consider - move console init to app_init()  function?
+      would probably move the buffers to app also
+  */
 
   // uart/console
   cbuf_init(&app.console_in,  buf_console_in, sizeof(buf_console_in));
@@ -470,6 +473,9 @@ int main(void)
   assert( sizeof(double ) == 8);
 
 
+
+  data_init( app.data );
+
   // printf("sizeof app_t %u\n", sizeof(app_t));
 
 
@@ -479,13 +485,15 @@ int main(void)
 
   spi1_port_cs1_cs2_setup();
 
-  spi1_port_interupt_setup( (void (*) (void *))spi1_interupt, &app);
+  // spi1_port_interupt_setup( (void (*) (void *))spi1_interupt, &app);
+  spi1_port_interupt_setup( (void (*) (void *)) data_rdy_interupt, app.data );
+
 
   ice40_port_extra_setup();
 
 
   // go to main loop
-  app_loop(&app);
+  app_loop( &app);
 
   for (;;);
   return 0;

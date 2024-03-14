@@ -63,6 +63,10 @@ static void print_register( uint32_t spi, uint32_t reg )
 
 void app_repl_statement(app_t *app,  const char *cmd)
 {
+
+  assert(app);
+  assert(app->magic == 456 );
+
   /*
     write the app->mode_current.
     and handle some out-of-mode  functions.
@@ -518,6 +522,14 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
 static void app_repl_statement_direct(app_t *app,  const char *cmd)
 {
+  assert(app);
+  assert(app->magic == 456 );
+
+  /* this doesn't need app structure.
+    except for the spi.
+
+  */
+
   /* test code - writes direct to fpga.
       noting values will get immiedately overwritten by the mode transition function.
       So useful, but only for tests, for new functions, or when not using the mode transition.
@@ -572,6 +584,7 @@ static void app_repl_statement_direct(app_t *app,  const char *cmd)
 void app_repl_statements(app_t *app,  const char *s)
 {
   assert(app);
+  assert(app->magic == 456 );
   assert(s);
 
 
