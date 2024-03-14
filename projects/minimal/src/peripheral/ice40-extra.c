@@ -1,5 +1,6 @@
-/*
 
+/*
+  could be prefixed gpio_ice40_port
 
 */
 
@@ -76,6 +77,30 @@ bool ice40_port_extra_cdone_get(void)
    return gpio_get(ER_EXTRA_PORT, ER_CDONE)  != 0;
 
 }
+
+
+
+
+
+
+void ice40_port_trigger_source_internal_enable(void)
+{
+  // better name
+  gpio_set(ER_EXTRA_PORT, ER_TRIGGER_SOURCE_INTERNAL);
+}
+
+
+void ice40_port_trigger_source_internal_disable(void)
+{
+  // better name
+  gpio_clear(ER_EXTRA_PORT, ER_TRIGGER_SOURCE_INTERNAL);
+}
+
+
+
+
+
+
 
 
 

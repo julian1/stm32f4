@@ -484,6 +484,15 @@ void app_repl_statement(app_t *app,  const char *cmd)
         mode->sa.reg_sa_p_azmux_hi_val  = u0;
       }
 
+      /*
+        not completely clear if trig wants to be out-of-band. eg not put in the mode structure.
+      */
+
+      else if(strcmp(s0, "trig") == 0) {
+        // should move/place in signal acquisition?
+        mode->trigger_source_internal = u0;
+      }
+
 
       else {
 

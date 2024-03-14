@@ -303,6 +303,7 @@ typedef struct _mode_t
   adc_state_t    adc;
 
   // single adum line.
+  // should move/place in signal acquisition?
   bool          trigger_source_internal;
 
 } _mode_t ;
