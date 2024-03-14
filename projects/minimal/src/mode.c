@@ -126,7 +126,9 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
   */
 
   // ensure no spurious emi on 4094 lines, when we read fpga state readings
-  spi_ice40_reg_write32(spi, REG_SPI_MUX,  0 );
+  // can probably just assert and reaad.
+  assert( spi_ice40_reg_read32(spi, REG_SPI_MUX) == 0 ); 
+  // spi_ice40_reg_write32(spi, REG_SPI_MUX,  0 );
 
   if(mode->trigger_source_internal)
     ice40_port_trigger_source_internal_enable();
