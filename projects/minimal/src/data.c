@@ -7,18 +7,22 @@
 
 
 
+#define DATA_MAGIC 123
+
+
 void data_init ( data_t *data )
 {
-  data->magic = 123;
+  data->magic = DATA_MAGIC;
 
 }
 
 
 void data_rdy_interupt( data_t *data)
 {
-  // interupt context.
+  // interupt context. don't do anything compliicated here.
 
-  assert(data->magic == 123) ;
+  assert(data);
+  assert(data->magic == DATA_MAGIC) ;
 
 
 //   printf("got data\n");
@@ -39,6 +43,7 @@ void data_rdy_interupt( data_t *data)
 
 void data_update(data_t *data)
 {
+  assert(data->magic == DATA_MAGIC) ;
 
   if(data->adc_measure_valid ) {
 

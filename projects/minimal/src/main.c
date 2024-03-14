@@ -34,15 +34,18 @@
 #include <data.h>     // needed to instantiate
 
 
+#define APP_MAGIC   456
 
 
+
+/*
 static void app_update_soft_500ms_configured(app_t *app)
 {
   UNUSED(app);
 
 
 }
-
+*/
 
 
 
@@ -51,6 +54,7 @@ static void app_update_soft_500ms_configured(app_t *app)
 static void app_update_soft_500ms(app_t *app)
 {
   assert(app);
+  assert(app->magic == APP_MAGIC);
 
   /*
     function should reconstruct to localize scope of app. and then dispatch to other functions.
@@ -107,7 +111,7 @@ static void app_update_soft_500ms(app_t *app)
 
   if(ice40_port_extra_cdone_get()) {
 
-    app_update_soft_500ms_configured( app);
+    // app_update_soft_500ms_configured( app);
   }
 
 
@@ -118,9 +122,12 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
-static void app_update_console_cmd(app_t *app)
+static void app_update_console(app_t *app)
 {
-  // process console_in buffer
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+
+
 
   while( !cbuf_is_empty(&app->console_in)) {
 
@@ -174,6 +181,14 @@ static void app_update_console_cmd(app_t *app)
 
 static void app_loop(app_t *app)
 {
+  /*
+    main outer app loop, bottom of control stack
+  */
+
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+
+
 
   // consider change name to app_process(),
 
@@ -184,7 +199,7 @@ static void app_loop(app_t *app)
 
 
     // handle console
-    app_update_console_cmd(app);
+    app_update_console(app);
 
     // 500ms soft timer
     if( (app->system_millis - app->soft_500ms) > 500) {
@@ -206,11 +221,15 @@ static void app_loop(app_t *app)
 
 static void app_update(app_t *app)
 {
-  // non looping. for use in yield function.
-  // just call, to keep pumping
+  /* non looping. for use in yield function.
+      call, to keep pumping data input processing.
+      useful for yield functions
+    */
+  assert(app);
+  assert(app->magic == APP_MAGIC);
 
 
-  // process potential new incomming data in priority
+  // process new incomming data in priority
   data_update(app->data);
 
 
@@ -362,7 +381,7 @@ static data_t data = { 0 } ;
 
 static app_t app = {
 
-  .magic = 456, // APP_MAGIC
+  .magic = APP_MAGIC,
 
   .spi = SPI1 ,
   .mode_initial =  &mode_initial,
