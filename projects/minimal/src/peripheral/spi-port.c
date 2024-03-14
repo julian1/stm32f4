@@ -107,7 +107,7 @@ static void spi1_port_setup(void)
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO5 );   // 100MHZ ??
 
 
-  // mosi.
+  // mosi. on gpio B.
   gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO5 );
   gpio_set_af(GPIOB, GPIO_AF5, GPIO5 );       // af 5
   gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO5 );   // 100MHZ ??
@@ -117,16 +117,12 @@ static void spi1_port_setup(void)
 
 void spi1_port_cs1_cs2_setup(void)
 {
-
-
   spi1_port_setup();
 
 
   // CS1 to manual external gpio output
   gpio_mode_setup(SPI1_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_CS1 | SPI_CS2);
   gpio_set_output_options(SPI1_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_CS1 | SPI_CS2);
-
-
 }
 
 
@@ -255,7 +251,6 @@ static void *spi1_ctx = NULL;
 void exti2_isr(void)
 {
   // interupt from ice40/fpga.
-
   /*
     EXTREME
     OK. bizarre. resetting immediately, prevents being called a second time
@@ -266,11 +261,7 @@ void exti2_isr(void)
   if(spi1_interupt) {
     spi1_interupt(spi1_ctx);
   }
-
 }
-
-
-
 
 /*
   ads131a04  DYDR Data ready; active low; host interrupt and synchronization for multi-devices
