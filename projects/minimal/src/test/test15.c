@@ -56,6 +56,9 @@ bool app_test15( app_t *app , const char *cmd)
         this keeps amplifier following input. and avoids case of amplifier oing out-of-range on floating input,
         and then discharging the accum cap, when coming back into stable-state, on entering az mode.
       */
+      // TODO fixme, review
+      // why not just set it vias direct register externally?
+      // it will almost always be dcv/S3.
       mode.reg_direct.azmux_o = mode.sa.reg_sa_p_seq0;
 
       assert( mode.reg_direct.azmux_o == S3);       // can relax this to the other input later

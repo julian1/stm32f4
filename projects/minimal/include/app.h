@@ -43,6 +43,14 @@ typedef struct app_t
 
 
 /*
+  there are two main cases to yield.
+    - for time,delay.
+    - until we have enough measurements in buffer.
+
+    - both cases - should be handled with functions with 'app_yield_wait_dealay( app, mdelay )' ,  'app_yield_wait_measurements( app, 10 ) like naming .
+    - don't even really need the indirection of function pointer and context.
+
+  ---
   - yield function - can be used to process/service incomming raw data - eg. convert adc counts to a value.
       while control is blocking waiting for measurement data.
       without needing two stacks.  eg.
