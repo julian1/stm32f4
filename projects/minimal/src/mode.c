@@ -117,14 +117,16 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 
   /*
     IMPORTANT - can put the mcu source - trigger state in mode.
-    and then set it last. after the 4094, fpga state has been updated.
+    and then set it last. after all the 4094 and fpga register state has been updated.
     --
-    this preserves the sequencing.
+    this preserves the sequencing.  and minimizes emi.
+    because it's a single gpio toggle, rather than spi transaction.
     ---
-    should use the adum gpio / rather than spi and fpga register, to reduce emi from spi clk/data lines.
-    ie. we want to be able to trigger a measurement reading, with minimal activity on adums/spi lines.
-
+    also ensure the spi_mux == 0.
   */
+
+  // ensure no spurious emi on 4094 lines, when we read fpga state readings
+  spi_ice40_reg_write32(spi, REG_SPI_MUX,  0 );
 
   if(mode->trigger_source_internal)
     ice40_port_trigger_source_internal_enable();
