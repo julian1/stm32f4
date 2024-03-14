@@ -215,9 +215,12 @@ typedef struct sa_state_t
 
   uint32_t reg_sa_p_clk_count_precharge ;   // regadc_cc_precharge
 
-  uint32_t reg_sa_p_azmux_lo_val;
-  uint32_t reg_sa_p_azmux_hi_val;
-  uint32_t reg_sa_p_sw_pc_ctl_hi_val;
+  uint32_t reg_sa_p_seq_n;
+
+  uint32_t reg_sa_p_seq0;
+  uint32_t reg_sa_p_seq1;
+  uint32_t reg_sa_p_seq2;
+  uint32_t reg_sa_p_seq3;
 
 
 } sa_state_t;

@@ -292,9 +292,13 @@ static const _mode_t mode_initial =  {
 
   // signal acquisition defaults
   .sa.reg_sa_p_clk_count_precharge = CLK_FREQ * 500e-6,             //  500us.
-  .sa.reg_sa_p_azmux_lo_val = S7,         // star-lo
-  .sa.reg_sa_p_azmux_hi_val = S3,         // dc
-  .sa. reg_sa_p_sw_pc_ctl_hi_val = 0b01,  // channel-1 precharge switch
+
+  .sa.reg_sa_p_seq_n = 2,
+
+  .sa.reg_sa_p_seq0 = (0b01 << 4) |  S3,         // dcv 
+  .sa.reg_sa_p_seq1 = (0b00 << 4) | S7,         // star-lo
+  .sa.reg_sa_p_seq2 = 0,  // channel-1 precharge switch
+  .sa.reg_sa_p_seq3 = 0,  // channel-1 precharge switch
 
 
 

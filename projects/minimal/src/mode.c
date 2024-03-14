@@ -98,10 +98,15 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
   // sa
   // printf("writing sig acquisition params" );
   spi_ice40_reg_write32(spi, REG_SA_P_CLK_COUNT_PRECHARGE, mode->sa.reg_sa_p_clk_count_precharge );
-  spi_ice40_reg_write32(spi, REG_SA_P_AZMUX_LO_VAL,        mode->sa.reg_sa_p_azmux_lo_val );
-  spi_ice40_reg_write32(spi, REG_SA_P_AZMUX_HI_VAL,        mode->sa.reg_sa_p_azmux_hi_val );
-  spi_ice40_reg_write32(spi, REG_SA_P_SW_PC_CTL_HI_VAL,     mode->sa.reg_sa_p_sw_pc_ctl_hi_val );
 
+#if 0
+  // don't overwrite yet.
+  spi_ice40_reg_write32(spi, REG_SA_P_SEQ_N,        mode->sa.reg_sa_p_seq_n );
+  spi_ice40_reg_write32(spi, REG_SA_P_SEQ0,        mode->sa.reg_sa_p_seq0 );
+  spi_ice40_reg_write32(spi, REG_SA_P_SEQ1,        mode->sa.reg_sa_p_seq1 );
+  spi_ice40_reg_write32(spi, REG_SA_P_SEQ2,       mode->sa.reg_sa_p_seq2 );
+  spi_ice40_reg_write32(spi, REG_SA_P_SEQ3,       mode->sa.reg_sa_p_seq3 );
+#endif
 
 
   // adc

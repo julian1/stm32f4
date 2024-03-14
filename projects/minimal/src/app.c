@@ -476,6 +476,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
         mode->first.K405 = u0 ? LR_SET: LR_RESET;
       }
 
+/*
       // registers.
       // for the no az case.  should we use the direct register? for azmux and pc switch?
       // perhaps. there is no concept of hi and lo. so it doesn't make sense to set it to hi.
@@ -483,6 +484,9 @@ void app_repl_statement(app_t *app,  const char *cmd)
       else if(strcmp(s0, "azmux_hi_val") == 0) {
         mode->sa.reg_sa_p_azmux_hi_val  = u0;
       }
+*/
+
+
 
       /*
         not completely clear if trig wants to be out-of-band. eg not put in the mode structure.
