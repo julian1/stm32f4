@@ -68,7 +68,7 @@
 #define SPI_CS2   GPIO15    // PA15 nss 2. moved.
 
 
-#define SPI_INTERUPT GPIO2   // PA2
+#define SPI_INTERUPT GPIO3   // PA2
 
 
 /*
@@ -248,14 +248,14 @@ static void (*spi1_interupt)(void *ctx) = NULL;
 static void *spi1_ctx = NULL;
 
 
-void exti2_isr(void)
+void exti3_isr(void)
 {
   // interupt from ice40/fpga.
   /*
     EXTREME
     OK. bizarre. resetting immediately, prevents being called a second time
   */
-  exti_reset_request(EXTI2);
+  exti_reset_request(EXTI3);
 
 
   if(spi1_interupt) {
@@ -265,6 +265,8 @@ void exti2_isr(void)
 
 /*
   ads131a04  DYDR Data ready; active low; host interrupt and synchronization for multi-devices
+  should split this into two functions. config. and setting the handler.
+  
 */
 
 void spi1_port_interupt_setup(void (*pfunc)(void *),  void *ctx)
@@ -276,18 +278,29 @@ void spi1_port_interupt_setup(void (*pfunc)(void *),  void *ctx)
 
   gpio_mode_setup(SPI1_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_INTERUPT);
 
-  // gpio_set_output_options(SPI1_PORT, GPIO_ITYPE, GPIO_ISPEED_50MHZ, SPI_SPECIAL);   is there a way to set the speed?
-                                                                                                  // looks like GPIO_ITYPE is recognized.
 
   // ie. use exti2 for pa2
-  nvic_enable_irq(NVIC_EXTI2_IRQ);
-  // nvic_set_priority(NVIC_EXTI2_IRQ, 5 );
+  nvic_enable_irq(NVIC_EXTI3_IRQ);
+  // nvic_set_priority(NVIC_EXTI3_IRQ, 5 );
 
-  exti_select_source(EXTI2, SPI1_PORT);
-  // exti_set_trigger(EXTI2 , EXTI_TRIGGER_FALLING);
-  exti_set_trigger(EXTI2 , EXTI_TRIGGER_RISING );         // JA. nov 1. 2023. to make consistent with _valid signal hi.
-  exti_enable_request(EXTI2);
+  exti_select_source(EXTI3, SPI1_PORT);
+  // exti_set_trigger(EXTI3 , EXTI_TRIGGER_FALLING);
+  exti_set_trigger(EXTI3 , EXTI_TRIGGER_RISING );         // JA. nov 1. 2023. to make consistent with _valid signal hi.
+  exti_enable_request(EXTI3);
 }
+
+
+
+
+
+// mar. 2024.  interuupt is on PA3.
+
+
+
+
+
+
+
 
 
 

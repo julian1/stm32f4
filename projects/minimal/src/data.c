@@ -27,9 +27,6 @@ void data_rdy_interupt( data_t *data)
   assert(data->magic == DATA_MAGIC) ;
 
 
-  printf("data interrupt\n");
-
-
   // if flag is still active, then record we missed processing some data.
   if(data->adc_measure_valid == true) {
     data->adc_measure_valid_missed = true;
