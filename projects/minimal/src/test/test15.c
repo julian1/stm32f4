@@ -31,6 +31,7 @@ bool app_test15( app_t *app , const char *cmd)
 
   if( strcmp(cmd, "test15") == 0) {
 
+      assert( 0 ); // FIXME
 
       printf("test leakage and charge-injection by switching pre-charge/azmux at different input dc-bias and frequency\n");
 
@@ -78,7 +79,12 @@ bool app_test15( app_t *app , const char *cmd)
 
       printf("mode to pc-only\n");
       printf("disconnect dcv-source and observe drift\n");
+
+/*
+      // FIXME here.
       mode.reg_mode           = MODE_AZ_TEST;
+*/
+
       mode.first .K407        = LR_SET;          // disconnect dcv
       mode.reg_direct.leds_o  = 0b0010;    // advance led
 
