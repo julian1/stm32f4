@@ -317,7 +317,7 @@ void app_update(app_t *app)
 
 
 
-static void print_register( uint32_t spi, uint32_t reg )
+static void spi_print_register( uint32_t spi, uint32_t reg )
 {
   // basic generic print
   // query any register
@@ -461,27 +461,27 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
   else if( strcmp( cmd, "spi-mux?") == 0) {
 
-    print_register( app->spi, REG_SPI_MUX);
+    spi_print_register( app->spi, REG_SPI_MUX);
   }
   else if( strcmp( cmd, "4094?") == 0) {
 
-    print_register( app->spi, REG_4094);
+    spi_print_register( app->spi, REG_4094);
   }
    else if( strcmp(cmd, "mode?") == 0) {
 
-    print_register( app->spi, REG_MODE);
+    spi_print_register( app->spi, REG_MODE);
   }
   else if( strcmp( cmd, "direct?") == 0) {
 
-    print_register( app->spi, REG_DIRECT);
+    spi_print_register( app->spi, REG_DIRECT);
   }
   else if( strcmp( cmd, "status?") == 0) {
 
-    print_register( app->spi, REG_STATUS);
+    spi_print_register( app->spi, REG_STATUS);
   }
   else if( sscanf(cmd, "reg? %lu", &u0 ) == 1) {
 
-    print_register( app->spi, u0 );
+    spi_print_register( app->spi, u0 );
   }
 
 
@@ -814,13 +814,13 @@ static void app_repl_statement_direct(app_t *app,  const char *cmd)
   ) {
     spi_mux_ice40(app->spi);
     spi_ice40_reg_write32(app->spi, u0 , u1 );
-    print_register( app->spi, u0);
+    spi_print_register( app->spi, u0);
   }
   else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
 
     spi_mux_ice40(app->spi);
     spi_ice40_reg_write32(app->spi, REG_MODE, u0 );
-    print_register( app->spi, REG_MODE);
+    spi_print_register( app->spi, REG_MODE);
   }
   else if( sscanf(cmd, "direct %100s", s0) == 1
     && str_decode_uint( s0, &u0)
@@ -828,7 +828,7 @@ static void app_repl_statement_direct(app_t *app,  const char *cmd)
 
     spi_mux_ice40(app->spi);
     spi_ice40_reg_write32(app->spi, REG_DIRECT, u0 );
-    print_register( app->spi, REG_DIRECT);
+    spi_print_register( app->spi, REG_DIRECT);
   }
 
 
