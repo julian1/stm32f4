@@ -65,7 +65,7 @@ void data_update(data_t *data)
     // clear flag as first thing, in order to better catch missed data, if get interupt while still processing
     data->adc_measure_valid  = false;
 
-    printf("got data\n");
+    // printf("got data\n");
 
   }
 }
