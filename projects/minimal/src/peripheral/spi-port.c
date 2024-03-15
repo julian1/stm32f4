@@ -233,7 +233,7 @@ void spi1_port_interupt_handler_set( void (*f)(void *), void *ctx)
 
 */
 
-void exti3_isr(void)
+void exti3_isr(void) // called by runtime
 {
   /*
     OK. bizarre. resetting immediately, prevents being called a second time

@@ -499,7 +499,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
   // actually just remoe any thing that bypasses the mode.
 
 
-  else if(strcmp(cmd, "reset") == 0) {
+  else if(strcmp(cmd, "reset") == 0) {  // or "h" or use "h" with trigger?
 
     // reset the mode.
     *app->mode_current = *app->mode_initial;

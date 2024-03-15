@@ -21,7 +21,9 @@ void data_init ( data_t *data )
 
 void data_rdy_interupt( data_t *data)
 {
-  // interupt context. don't do anything compliicated here.
+  /* interupt context.  don't do anything compliicated here.
+    but called relatively infrequent.
+  */
 
   assert(data);
   assert(data->magic == DATA_MAGIC) ;
@@ -42,7 +44,7 @@ void data_rdy_interupt( data_t *data)
 
 void data_update(data_t *data)
 {
-  /* called in main loop. 
+  /* called in main loop.
     eg. 1M / s.
   */
   assert(data->magic == DATA_MAGIC) ;
