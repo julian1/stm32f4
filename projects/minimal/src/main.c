@@ -234,7 +234,7 @@ int main(void)
 
   ////////////////
   // init the spi port, for adum/ice40 comms
-  spi1_port_cs1_cs2_setup();
+  spi1_port_setup();
 
   // spi1_port_interupt_setup( (void (*) (void *))spi1_interupt, &app);
 

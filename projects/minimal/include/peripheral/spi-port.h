@@ -4,7 +4,7 @@
 #include <stdint.h>  // uint32_t
 
 
-void spi1_port_cs1_cs2_setup(void);
+void spi1_port_setup(void);
 
 
 ///////
