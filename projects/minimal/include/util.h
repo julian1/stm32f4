@@ -27,3 +27,8 @@ void aper_cc_print( uint32_t aperture,  uint32_t lfreq);
 unsigned str_decode_uint( const char *s, uint32_t *val);
 
 unsigned str_decode_float( const char *s, double *val);
+
+// better name mux_to_string?
+char * mux_to_string( unsigned val,  char *buf, unsigned n  );
+
+

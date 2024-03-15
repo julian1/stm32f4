@@ -99,7 +99,7 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
   // printf("writing sig acquisition params" );
   spi_ice40_reg_write32(spi, REG_SA_P_CLK_COUNT_PRECHARGE, mode->sa.reg_sa_p_clk_count_precharge );
 
-#if 0
+#if 1
   // don't overwrite yet.
   spi_ice40_reg_write32(spi, REG_SA_P_SEQ_N,        mode->sa.reg_sa_p_seq_n );
   spi_ice40_reg_write32(spi, REG_SA_P_SEQ0,        mode->sa.reg_sa_p_seq0 );

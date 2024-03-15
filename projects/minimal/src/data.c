@@ -19,7 +19,7 @@ void data_init ( data_t *data )
 }
 
 
-void data_rdy_interupt( data_t *data)
+void data_rdy_interupt( data_t *data) // runtime context
 {
   /* interupt context.  don't do anything compliicated here.
     but called relatively infrequent.

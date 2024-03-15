@@ -1,6 +1,6 @@
 
 /*
-  useful test function, to test 4094.
+  just bounce relay 407 a few times, to audibly check 4094 comms.
 
 */
 

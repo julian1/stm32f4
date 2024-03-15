@@ -329,6 +329,26 @@ static void spi_print_register( uint32_t spi, uint32_t reg )
 
 
 
+static void spi_print_seq_register( uint32_t spi, uint32_t reg )
+{
+  // basic generic print
+  // query any register
+  spi_mux_ice40( spi);
+  uint32_t ret = spi_ice40_reg_read32( spi, reg );
+  char buf[ 100];
+  char buf2[ 100];
+  // printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
+
+  printf("r %lu   pc:%s   azmux:%s\n",  reg,
+      str_format_bits(buf, 2, ret >> 4  ),          // pc switch value
+      mux_to_string( ret & 0b1111,  buf2, 100  )    // azmux value
+    );
+}
+
+
+
+
+
 
 void app_repl_statement(app_t *app,  const char *cmd)
 {
@@ -351,7 +371,8 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
   char s0[100 + 1 ];
   char s1[100 + 1 ];
-  uint32_t u0;//, u1;
+  char s2[100 + 1 ];
+  uint32_t u0, u1;
   double f0;
   int32_t i0;
 
@@ -483,6 +504,30 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
     spi_print_register( app->spi, u0 );
   }
+
+  // querying fpga direct. bypassing mode.
+  else if( strcmp( cmd, "seq0?") == 0) {
+    spi_print_seq_register( app->spi, REG_SA_P_SEQ0);
+  }
+  else if( strcmp( cmd, "seq1?") == 0) {
+    spi_print_seq_register( app->spi, REG_SA_P_SEQ1);
+  }
+  else if( strcmp( cmd, "seq2?") == 0) {
+    spi_print_seq_register( app->spi, REG_SA_P_SEQ2);
+  }
+  else if( strcmp( cmd, "seq3?") == 0) {
+    spi_print_seq_register( app->spi, REG_SA_P_SEQ3);
+  }
+
+  else if( strcmp( cmd, "seqn?") == 0) {
+
+    spi_print_register( app->spi, REG_SA_P_SEQ_N);
+  }
+
+
+
+
+
 
 
   else if( strcmp(cmd, "nplc?") == 0
@@ -683,6 +728,40 @@ void app_repl_statement(app_t *app,  const char *cmd)
     perhaps keep the 'set' prefix to clearly disambiguate these actions under common syntactic form.
   */
 
+  else if( sscanf(cmd, "set %100s %100s %100s", s0, s1, s2) == 3
+    && str_decode_uint( s1, &u0)
+    && str_decode_uint( s2, &u1)
+  ) {
+
+      assert(app->mode_current);
+      _mode_t * mode = app->mode_current;
+
+      /*
+        > set seq0 0b01 s3
+        > set seq0 0b00 soff
+      */
+
+      uint32_t val =  ((u0 & 0b11) << 4) | ( u1 & 0b1111);
+
+      if(strcmp(s0, "seq0") == 0) {
+        mode->sa.reg_sa_p_seq0 = val;
+      }
+      else if(strcmp(s0, "seq1") == 0) {
+        mode->sa.reg_sa_p_seq1 = val;
+      }
+       else if(strcmp(s0, "seq2") == 0) {
+        mode->sa.reg_sa_p_seq2 = val;
+      }
+      else if(strcmp(s0, "seq3") == 0) {
+        mode->sa.reg_sa_p_seq3 = val;
+      }
+      else {
+        printf("unknown target %s for 3 var set\n", s0);
+      }
+
+  }
+
+  // two value set.
   else if( sscanf(cmd, "set %100s %100s", s0, s1) == 2
     && str_decode_uint( s1, &u0)
   ) {
@@ -730,6 +809,13 @@ void app_repl_statement(app_t *app,  const char *cmd)
       else if(strcmp(s0, "meas_complete") == 0) {
         mode->reg_direct.meas_complete_o = u0;
       }
+
+
+
+
+    // spi_print_seq_register( app->spi, REG_SA_P_SEQ0);
+
+
 
 
 
@@ -790,7 +876,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
       else {
 
-        printf("unknown target %s\n", s0);
+        printf("unknown target %s for 2 var set\n", s0);
       }
   }
 

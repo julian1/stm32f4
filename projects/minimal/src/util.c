@@ -79,6 +79,28 @@ void aper_cc_print( uint32_t aperture,  uint32_t line_freq)
 
 
 
+char * mux_to_string( unsigned val,  char *buf, unsigned n  )
+{
+  // this is 1ofN mux.
+  char *s = 0;
+
+  switch(val) {
+    case SOFF: s = "soff";  break;
+    case S1 : s = "s1";  break;
+    case S2 : s = "s2";  break;
+    case S3 : s = "s3";  break;
+    case S4 : s = "s4";  break;
+    case S5 : s = "s5";  break;
+    case S6 : s = "s6";  break;
+    case S7 : s = "s7";  break;
+    default: assert(0);
+  };
+
+  snprintf(buf, n, "%s", s);
+
+  // return the working buffer as convenience to caller
+  return buf;
+}
 
 
 
@@ -127,6 +149,11 @@ unsigned str_decode_uint( const char *s, uint32_t *val  )
     *val = S2;
   else if(strcmp(s, "s1") == 0 )
     *val = S1;
+  else if(strcmp(s, "soff") == 0 )
+    *val = SOFF;
+
+
+
 
 /*
   // 2 of 4 mux values
