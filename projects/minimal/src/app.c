@@ -479,6 +479,14 @@ void app_repl_statement(app_t *app,  const char *cmd)
   // don't we have some code - to handle sscan as binary/octal/hex ?
 
 
+  else if(strcmp(cmd, "cal") == 0) {
+
+    data_cal( app->spi, app->data /* void (*yield)( void * ) */ );
+
+  }
+
+
+
 
   else if( strcmp( cmd, "spi-mux?") == 0) {
 

@@ -140,10 +140,12 @@ static app_t app = {
 
   .line_freq = 50,
 
+/*
   // . yield = (void (*)(void *)) app_loop2,
   . yield = (void (*)(void *)) app_update,
   . yield_ctx = (void *) &app,                      // self reference!
 
+*/
 
   . data = &data
 };

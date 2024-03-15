@@ -60,10 +60,15 @@ typedef struct data_t
 
 void data_init ( data_t *);
 
-
 void data_rdy_interupt( data_t *data);
-
 
 void data_update(data_t *);
 
 
+
+// could move to data/cal.h
+// can pass the yield function here, down from app,
+// but note - the yield should not process adc raw data / counts.
+
+
+void data_cal( uint32_t spi, data_t *data /* void (*yield)( void * ) */ );
