@@ -100,6 +100,15 @@ reset is schem default contacts.
 #define LR_RESET    0b10
 
 
+// two channels.
+// eg. (PC0 | PC1) <<
+
+#define PCOFF       0b00
+#define PC1         0b01
+#define PC2         0b10
+
+
+
 
 
 typedef struct _4094_state_t
@@ -216,7 +225,8 @@ typedef struct sa_state_t
   uint32_t reg_sa_p_clk_count_precharge ;   // regadc_cc_precharge
 
   uint32_t reg_sa_p_seq_n;
-
+  
+    // better name? 
   uint32_t reg_sa_p_seq0;
   uint32_t reg_sa_p_seq1;
   uint32_t reg_sa_p_seq2;

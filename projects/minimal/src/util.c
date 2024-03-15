@@ -97,10 +97,28 @@ char * mux_to_string( unsigned val,  char *buf, unsigned n  )
   };
 
   snprintf(buf, n, "%s", s);
+  // strncpy(buf, s, n);
 
   // return the working buffer as convenience to caller
   return buf;
 }
+
+
+
+#if 0
+static void set_seq( uint32_t *val,  uint32_t pc, uint32_t azmux)
+{
+      // would be handy to have in a function. or else return
+      //uint32_t val =  ((u0 & 0b11) << 4) | ( u1 & 0b1111);
+  assert(pc <= 0b11);
+  assert(azmux <= 0b1111);
+
+  // *val =  ((u0 & 0b11) << 4) | ( u1 & 0b1111);
+  *val =  pc << 4 |  azmux ;
+}
+
+#endif
+
 
 
 

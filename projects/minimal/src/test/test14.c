@@ -1,4 +1,26 @@
 
+/*
+    test charge-injection by charging to a bias voltage, holding, then entering az mode.
+    but only switching pre-charge switch.
+    baseline for charge inection.
+
+    azmux is held off to lower leakage through amplifier. so need external DMM.
+
+  > reset ; dcv-source 10; nplc 1; test14
+
+  ---------
+
+  not sure - if can do self-diagnostic.
+    when connect amplifier - then amplifier can discharge cap.
+
+  EXTR.
+    but what if - at finish we go to PC= boot.  let the amplifier follow, and then, connect  the azmux. then switch back to boot.
+
+*/
+
+
+
+
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>   // strcmp
@@ -16,17 +38,6 @@ bool app_test14( app_t *app , const char *cmd)
   assert(cmd);
   assert(app->mode_initial);
 
-
-  /*
-      test charge-injection by charging to a bias voltage, holding, then entering az mode.
-      but only switching pre-charge switch.
-      baseline for charge inection.
-
-      azmux is held off to lower leakage through amplifier. so need external DMM.
-
-    > reset ; dcv-source 10; nplc 1; test14
-
-  */
 
   if( strcmp(cmd, "test14") == 0) {
 
@@ -67,14 +78,25 @@ bool app_test14( app_t *app , const char *cmd)
 
       printf("mode to pc-only\n");
       printf("disconnect dcv-source and observe drift\n");
+/*
       mode.reg_mode           = MODE_PC_TEST;
+*/
+      // 2 phase, azmux always off, but switch pc in one phase and not the other.
+      // to simulate the real muxing an AZ signal between HI, and LO, where Lo doesn't get the PC on.
+      // rather than 0b01  can use PC1
+      mode.reg_mode = MODE_SA_MOCK_ADC;
+      mode.sa.reg_sa_p_seq0 = (PCOFF << 4) | SOFF;        // 0b00
+      mode.sa.reg_sa_p_seq0 = (PC1 << 4 )  | SOFF;        // 0b01
+      mode.trigger_source_internal = 1;
+
       mode.first .K407        = LR_SET;          // disconnect dcv
-      mode.reg_direct.leds_o  = 0b0010;    // advance led
+      mode.reg_direct.leds_o  = 0b0010;    // advance led.   note. won't display in different mode.
 
       spi_mode_transition_state( app->spi, &mode, &app->system_millis);
       printf("sleep 10s\n");  // having a yield() would be quite nice here.
       msleep(10 * 1000,  &app->system_millis);
 
+      // we might be able to manage the transition - to connecting amplifier up, by switching on pc first in direct mode.
 
 
       ////////////////////////
