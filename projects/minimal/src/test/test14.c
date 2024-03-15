@@ -121,6 +121,18 @@ bool app_test14( app_t *app , const char *cmd)
 
 
 /*
+  mar 15.
+    new sequence controller. replacing pc-only controller,
+
+    reset ; dcv-source 10; nplc 1; test14
+      6mV. 6.4mV
+
+    reset ; dcv-source 0; nplc 1; test14
+      7.2mV  7.2mV
+
+    reset ; dcv-source -10; nplc 1; test14
+      7.8mV 7.6mV
+
 
   mar 9 2024.
     ==========
