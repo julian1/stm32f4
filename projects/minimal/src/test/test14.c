@@ -92,7 +92,7 @@ bool app_test14( app_t *app , const char *cmd)
   */
       mode.reg_mode = MODE_SA_MOCK_ADC;
       mode.sa.reg_sa_p_seq0 = (PCOFF << 4) | SOFF;        // 0b00
-      mode.sa.reg_sa_p_seq0 = (PC1 << 4 )  | SOFF;        // 0b01     FIXME.   should be seq0.
+      mode.sa.reg_sa_p_seq0 = (PC1 << 4 )  | SOFF;        // 0b01     FIXME.   should be seq1. eg. only on for hi signal.
       mode.trigger_source_internal = 1;
 
       mode.first .K407        = LR_SET;          // disconnect dcv
@@ -102,11 +102,16 @@ bool app_test14( app_t *app , const char *cmd)
       printf("sleep 10s\n");  // having a yield() would be quite nice here.
       msleep(10 * 1000,  &app->system_millis);
 
-      // we might be able to manage the transition - to connecting amplifier up, by switching on pc first in direct mode.
+      /* issue, with hard sync reset, the sequence transition may finish with azmux .
+        so that the amplifier doesn't suck all the charge out of the capacitor.
+        normal AZ mode - can do this.
+        can change sequence acquisition - to take one more measurement - and finish.
+        rather than hard synchronous reset - by changing the mode.
+      ---
+        actually no. azmux is always off here.
+        it's the opening up again that needs to be managed, with precharge switch active.
+      */
 
-      // EXTR - actually we just need the sequence cycle to end gracefully. so that it finishes with BOOT being muxed.
-      // rather than cutoff midsample.
-      // so we may need another way to do this. or else single trigger. etc.
 
 
       ////////////////////////
