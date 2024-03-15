@@ -499,8 +499,8 @@ void app_repl_statement(app_t *app,  const char *cmd)
   // actually just remoe any thing that bypasses the mode.
 
 
-  else if(strcmp(cmd, "reset") == 0) {  // or "h" or use "h" with trigger?
-
+  else if(strcmp(cmd, "reset") == 0) {
+    // reset mode. distinct from  trigger control
     // reset the mode.
     *app->mode_current = *app->mode_initial;
   }
@@ -659,6 +659,23 @@ void app_repl_statement(app_t *app,  const char *cmd)
       mode->sa.reg_sa_p_clk_count_precharge = u0;
     }
 #endif
+
+
+
+  // "h" for halt
+  else if(strcmp(cmd, "h") == 0) {
+
+    _mode_t * mode = app->mode_current;
+    mode->trigger_source_internal = 0;
+  }
+  // "t" to trigger
+  else if(strcmp(cmd, "t") == 0) {
+    _mode_t * mode = app->mode_current;
+    mode->trigger_source_internal = 1;
+  }
+
+
+
 
 
 
