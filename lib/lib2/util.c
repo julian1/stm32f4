@@ -28,15 +28,15 @@ static void (*systick_interupt)(void *ctx) = NULL;
 static void *systick_ctx = NULL;
 
 
-
-void systick_interupt_setup( void (*pfunc)(void *),  void *ctx)
+void systick_handler_set( void (*pfunc)(void *),  void *ctx)
 {
   systick_interupt = pfunc;
   systick_ctx = ctx;
 }
 
 
-void sys_tick_handler(void)
+
+void sys_tick_handler(void) // called by runtime
 {
   // prototype declared in cm3/systick.
   if(systick_interupt) {

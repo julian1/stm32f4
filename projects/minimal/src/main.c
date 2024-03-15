@@ -197,7 +197,7 @@ int main(void)
 
   // mcu clock
   systick_setup(84000); // 84MHz.
-  systick_interupt_setup( (void (*)(void *)) app_systick_interupt, &app );  // rename systick_handler_set()
+  systick_handler_set( (void (*)(void *)) app_systick_interupt, &app );  // rename systick_handler_set()
 
 
 

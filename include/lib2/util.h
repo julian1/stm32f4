@@ -30,7 +30,7 @@ void critical_error_led_blink(void);
 
 
 void systick_setup(uint32_t tick_divider);
-void systick_interupt_setup( void (*pfunc)(void *),  void *ctx);
+void systick_handler_set( void (*pfunc)(void *),  void *ctx);
 
 
 
