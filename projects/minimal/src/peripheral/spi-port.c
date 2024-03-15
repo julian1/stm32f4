@@ -57,11 +57,6 @@
 #define SPI_PERIPH   SPI1        // better name?
 
 #define SPI1_PORT  GPIOA
-/*
-#define SPI_CLK   GPIO5     // PA5
-// #define SPI_MOSI  GPIO7     // PA7
-#define SPI_MISO  GPIO6     // PA6
-*/
 
 
 #define SPI_CS1   GPIO4     // PA4
@@ -84,20 +79,6 @@
 
 static void spi1_port_setup(void)
 {
-#if 0
-  // rcc_periph_clock_enable(RCC_GPIOA | RCC_GPIOB | RCC_SPI1);
-
-
-  gpio_mode_setup(SPI1_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, SPI_CLK | SPI_MOSI | SPI_MISO);
-  gpio_set_af(SPI1_PORT, GPIO_AF5, SPI_CLK | SPI_MOSI | SPI_MISO);       // af 5
-  gpio_set_output_options(SPI1_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_CLK | SPI_MOSI );   // 100MHZ ??
-
-
-  // CS1 to manual external gpio output
-  gpio_mode_setup(SPI1_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_CS1 | SPI_CS2);
-  gpio_set_output_options(SPI1_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_CS1 | SPI_CS2);
-#endif
-
 
   // perhaps simpler with array loop ia[] = { GPIOA ,  GPIO5 } etc.
 
