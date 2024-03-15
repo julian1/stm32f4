@@ -21,8 +21,8 @@ void spi_port_cs2_enable(uint32_t) ;
 void spi_port_cs2_disable(uint32_t );
 
 
-void spi1_port_interupt_setup( void (*pfunc_)(void *), void *ctx);
 
-
+void spi1_port_interupt_setup(void);
+void spi1_port_interupt_handler_set( void (*pfunc_)(void *), void *ctx);
 
 

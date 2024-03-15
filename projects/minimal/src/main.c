@@ -197,7 +197,7 @@ int main(void)
 
   // mcu clock
   systick_setup(84000); // 84MHz.
-  systick_interupt_setup( (void (*)(void *)) app_systick_interupt, &app );
+  systick_interupt_setup( (void (*)(void *)) app_systick_interupt, &app );  // rename systick_handler_set()
 
 
 
@@ -237,7 +237,12 @@ int main(void)
   spi1_port_cs1_cs2_setup();
 
   // spi1_port_interupt_setup( (void (*) (void *))spi1_interupt, &app);
-  spi1_port_interupt_setup( (void (*) (void *)) data_rdy_interupt, app.data );
+
+  spi1_port_interupt_setup();
+  spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app.data );
+
+
+
 
   ice40_port_extra_setup();
 
