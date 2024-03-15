@@ -26,7 +26,7 @@
 #include <util.h>   // CLK_FREQ
 
 
-#include <data.h>     // to instantiate
+#include <data/data.h>     // to instantiate
 
 
 

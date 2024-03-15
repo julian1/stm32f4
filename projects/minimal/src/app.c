@@ -37,7 +37,7 @@
 #include <ice40-reg.h>
 
 
-#include <data.h>     // for data_update()
+#include <data/data.h>     // for data_update()
 
 
 // fix me
@@ -741,6 +741,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
         > set seq0 0b00 soff
       */
 
+      // would be handy to have in a function. or else return
       uint32_t val =  ((u0 & 0b11) << 4) | ( u1 & 0b1111);
 
       if(strcmp(s0, "seq0") == 0) {
