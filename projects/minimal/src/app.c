@@ -72,6 +72,10 @@ static char buf_command[1000];
 
 void app_init_buffers( app_t *app )
 {
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+
+
   /* note no printf yet.
   */
 
@@ -93,6 +97,10 @@ void app_init_buffers( app_t *app )
 
 void app_systick_interupt(app_t *app)
 {
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+
+
   // interupt context. don't do anything compliicated here.
 
   ++ app->system_millis;
