@@ -18,8 +18,8 @@ extern "C" {
 
 
 /*
-  setup led port state for critical error led blink
-  since for assert() we cannot pass a context
+  farm-out led port config state for critical error led blink
+  since for assert() cannot take a context
 */
 
 void critical_error_led_setup(uint32_t port_, uint16_t io_ );
