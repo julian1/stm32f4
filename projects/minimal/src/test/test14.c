@@ -84,9 +84,15 @@ bool app_test14( app_t *app , const char *cmd)
       // 2 phase, azmux always off, but switch pc in one phase and not the other.
       // to simulate the real muxing an AZ signal between HI, and LO, where Lo doesn't get the PC on.
       // rather than 0b01  can use PC1
+
+/*
+      try again. second entry should be seq1. not seq0.
+      check it again on the monitor.
+
+  */
       mode.reg_mode = MODE_SA_MOCK_ADC;
       mode.sa.reg_sa_p_seq0 = (PCOFF << 4) | SOFF;        // 0b00
-      mode.sa.reg_sa_p_seq0 = (PC1 << 4 )  | SOFF;        // 0b01
+      mode.sa.reg_sa_p_seq0 = (PC1 << 4 )  | SOFF;        // 0b01     FIXME.   should be seq0.
       mode.trigger_source_internal = 1;
 
       mode.first .K407        = LR_SET;          // disconnect dcv
@@ -97,6 +103,10 @@ bool app_test14( app_t *app , const char *cmd)
       msleep(10 * 1000,  &app->system_millis);
 
       // we might be able to manage the transition - to connecting amplifier up, by switching on pc first in direct mode.
+
+      // EXTR - actually we just need the sequence cycle to end gracefully. so that it finishes with BOOT being muxed.
+      // rather than cutoff midsample.
+      // so we may need another way to do this. or else single trigger. etc.
 
 
       ////////////////////////
