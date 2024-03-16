@@ -12,7 +12,6 @@
 
 
 
-#define DATA_MAGIC 123
 
 
 void data_init ( data_t *data )

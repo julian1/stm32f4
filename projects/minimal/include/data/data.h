@@ -60,6 +60,9 @@ typedef struct data_t
 } data_t;
 
 
+#define DATA_MAGIC 123
+
+
 void data_init ( data_t *);
 void data_rdy_interupt( data_t *data);    // handler setup in app context.
 
@@ -72,9 +75,9 @@ void data_update(data_t *data, uint32_t spi );
 // but note - the yield should not process adc raw data / counts.
 
 
-void data_cal( data_t *data , uint32_t spi, _mode_t *mode /* void (*yield)( void * ) */ );
 
 
+void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *system_millis   /* void (*yield)( void * ) */ );
 
 
 

@@ -36,11 +36,14 @@
     could be used in app also.
 */
 
+// we need system mills
 
-
-void data_cal( data_t *data , uint32_t spi, _mode_t *mode /* void (*yield)( void * ) */ )
+void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *system_millis   /* void (*yield)( void * ) */ )
 {
-  // UNUSED(mode);
+  assert(data);
+  assert(data->magic == DATA_MAGIC) ;
+  assert(mode);
+
 
   mode_set_dcv_source( mode , 10 );   // set the ref.
                                       // set_ref_dcv_source( ); hi and lo.
@@ -48,8 +51,18 @@ void data_cal( data_t *data , uint32_t spi, _mode_t *mode /* void (*yield)( void
 
 
 
-  printf("whoot data_cal\n");
+  printf("whoot cal() \n");
 
+
+
+  mode_set_dcv_source( mode, 10 );
+
+  mode->reg_mode = MODE_SA_ADC;       // set mode adc.
+  mode->trigger_source_internal = 1;  // turn on adc  // perhapkkkkk
+
+
+  printf("spi_mode_transition_state()\n");
+  spi_mode_transition_state( spi, mode, system_millis);
 
 
 

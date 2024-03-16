@@ -103,7 +103,7 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
   spi_ice40_reg_write32(spi, REG_SA_P_CLK_COUNT_PRECHARGE, mode->sa.reg_sa_p_clk_count_precharge );
 
 #if 1
-  // don't overwrite yet.
+
   spi_ice40_reg_write32(spi, REG_SA_P_SEQ_N,        mode->sa.reg_sa_p_seq_n );
   spi_ice40_reg_write32(spi, REG_SA_P_SEQ0,        mode->sa.reg_sa_p_seq0 );
   spi_ice40_reg_write32(spi, REG_SA_P_SEQ1,        mode->sa.reg_sa_p_seq1 );
@@ -127,8 +127,8 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
     IMPORTANT - can put the mcu source - trigger state in mode.
     and then set it last. after all the 4094 and fpga register state has been updated.
     --
-    this preserves the sequencing.  and minimizes emi.
-    because it's a single gpio toggle, rather than spi transaction.
+    this preserves the sequencing.  and minimizes spi xfer emi.
+    since it's a single gpio toggle, rather than spi transaction.
     ---
     also ensure the spi_mux == 0.
   */
@@ -139,7 +139,7 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
   // spi_ice40_reg_write32(spi, REG_SPI_MUX,  0 );
 
   if(mode->trigger_source_internal)
-    ice40_port_trigger_source_internal_enable();
+    ice40_port_trigger_source_internal_enable();    // rename set/clear() ? better?
   else
     ice40_port_trigger_source_internal_disable();
 
@@ -169,8 +169,8 @@ void mode_set_dcv_source( _mode_t *mode, signed i0)
     mode->second.U1003 = S3;          // s3 == agnd
   }
   else {
-    printf("bad arg\n");
-    return;
+    // when called programmatically, should not fail.
+    assert(0);
   }
 
   mode->second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2

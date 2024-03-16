@@ -88,7 +88,7 @@
 #define MODE_LO           1     // all bits held lo. but blink led. default.
 #define MODE_HI           2     // all bits held hi
 #define MODE_PATTERN      3     // put modulation pattern on all bits
-#define MODE_PC_TEST      4
+// #define MODE_PC_TEST      4
 
 
 // #define MODE_AZ_TEST      5     // az. using adc-test

@@ -493,7 +493,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
     // void data_cal( data_t *data , uint32_t spi, _mode_t *mode /* void (*yield)( void * ) */ )
     _mode_t mode = *app->mode_initial;
-    data_cal( app->data,  app->spi, &mode /* void (*yield)( void * ) */ );
+    data_cal( app->data,  app->spi, &mode, &app->system_millis /* void (*yield)( void * ) */ );
 
   }
 

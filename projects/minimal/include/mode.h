@@ -217,7 +217,7 @@ reg_direct_t
 
 
 
-
+// sequence acquisition
 
 typedef struct sa_state_t
 {
