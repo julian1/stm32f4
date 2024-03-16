@@ -17,9 +17,10 @@
 void data_init ( data_t *data )
 {
   assert(data);
-  data->magic = DATA_MAGIC;
+  assert(data->magic == DATA_MAGIC) ;
 
 
+  // not sure if really even need this. 
   printf("whoot data init!\n");
 }
 

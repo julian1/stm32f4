@@ -82,9 +82,6 @@ typedef struct app_t
   _mode_t *mode_current;
 
 
-  // static input property of the environment
-  // does not really belon in mode. mode has values dependent.
-  uint32_t line_freq;
 
 /*
   // yield abstracts the function, and allows substitution, but may not be needed.

@@ -360,9 +360,9 @@ static void spi_print_seq_register( uint32_t spi, uint32_t reg )
 
 /*
   EXTR.
-  most of this is just setting the mode.  and should be expressed, 
+  most of this is just setting the mode.  and should be expressed,
 
-    mode_repl_statement( mode,  cmd ). 
+    mode_repl_statement( mode,  cmd ).
 
 
   anything that needs the app - can be a separate function
@@ -555,7 +555,9 @@ void app_repl_statement(app_t *app,  const char *cmd)
     // query fpga directly. not mode
     spi_mux_ice40(app->spi);
     uint32_t aperture = spi_ice40_reg_read32(app->spi, REG_ADC_P_CLK_COUNT_APERTURE );
-    aper_cc_print( aperture,  app->line_freq);
+
+    assert( app->data);
+    aper_cc_print( aperture,  app->data->line_freq);
   }
 
 
@@ -584,7 +586,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
 
 
-  else if( mode_repl_statement( app->mode_current,  cmd, app->line_freq )) { } 
+  else if( app->data && mode_repl_statement( app->mode_current,  cmd, app->data->line_freq )) { }
 
 
   else {

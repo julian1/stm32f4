@@ -25,6 +25,11 @@ typedef struct data_t
 
   uint32_t magic;
 
+  // static input property of the environment
+  // does not really belon in mode. mode has values dependent.
+  uint32_t line_freq;
+
+
   // TODO reanme adc_valid . eg. same identifier / meaning as fpga code.
   // could also put flags/ for adc state in the status register. eg. the monitor pins.
   volatile bool  adc_measure_valid;

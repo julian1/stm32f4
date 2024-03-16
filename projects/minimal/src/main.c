@@ -126,7 +126,12 @@ static _mode_t mode_current = { 0 } ;
 
 
 
-static data_t data = { 0 } ;
+static data_t data = { 
+
+  . magic = DATA_MAGIC,
+  .line_freq = 50,
+
+ } ;
 
 
 
@@ -138,7 +143,6 @@ static app_t app = {
   .mode_initial =  &mode_initial,
   .mode_current =  &mode_current,
 
-  .line_freq = 50,
 
 /*
   // . yield = (void (*)(void *)) app_loop2,
