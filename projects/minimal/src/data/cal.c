@@ -52,24 +52,16 @@ void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *s
   assert(mode);
 
 
-  mode_set_dcv_source( mode , 10 );   // set the ref.
-                                      // set_ref_dcv_source( ); hi and lo.
-
-
-
 
   printf("whoot cal() \n");
 
 
-
+  // set up the dcv source
   mode_set_dcv_source( mode, 10 );
 
+  // setup the adc
   mode->reg_mode = MODE_SA_ADC;       // set mode adc.
   mode->trigger_source_internal = 1;  // turn on adc  // perhapkkkkk
-
-      // uint32_t aperture = nplc_to_aperture( f0, line_freq );
-      // aper_cc_print( aperture,  line_freq);
-
   mode->adc.reg_adc_p_aperture = nplc_to_aperture( 10, data->line_freq );;
  
 
