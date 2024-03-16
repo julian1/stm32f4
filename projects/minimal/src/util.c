@@ -17,7 +17,7 @@
 // consider rename aper_n to just aper or aperture
 
 
-uint32_t nplc_to_aperture( double nplc, uint32_t line_freq )
+uint32_t nplc_to_aper_n( double nplc, uint32_t line_freq )
 {
   assert( line_freq);
 
@@ -71,7 +71,7 @@ bool nplc_valid( double nplc )
 void aper_cc_print( uint32_t aperture,  uint32_t line_freq)
 {
 
-//   uint32_t aperture = nplc_to_aperture( f0, app->line_freq );
+//   uint32_t aperture = nplc_to_aper_n( f0, app->line_freq );
   printf("aperture %lu\n",   aperture );
   printf("nplc     %.2lf\n",  aper_n_to_nplc( aperture, line_freq ));
   printf("period   %.2lfs\n", aper_n_to_period( aperture ));

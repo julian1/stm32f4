@@ -289,7 +289,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     } else {
 
       // should be called cc_aperture or similar.
-      uint32_t aperture = nplc_to_aperture( f0, line_freq );
+      uint32_t aperture = nplc_to_aper_n( f0, line_freq );
 
       aper_cc_print( aperture,  line_freq);
 

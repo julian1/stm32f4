@@ -11,7 +11,7 @@
 #define CLK_FREQ 20000000
 
 
-uint32_t nplc_to_aperture( double nplc, uint32_t lfreq );
+uint32_t nplc_to_aper_n( double nplc, uint32_t lfreq );
 
 double aper_n_to_nplc( uint32_t aper_n, uint32_t lfreq);
 
