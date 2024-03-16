@@ -30,7 +30,12 @@
 #include <ice40-reg.h>    // modes
 #include <lib2/util.h>    // msleep()
 
+/*
+  OK, this test doesn't actually even need the app structure.
+  and it doesn't write the app structure.
 
+  - it just needs spi, and a mode, to work with.
+*/
 
 bool app_test14( app_t *app , const char *cmd)
 {

@@ -7,6 +7,10 @@
   but note - the yield should not process adc raw data / counts.
 
   as a strategy - it is simpler/less state interaction - if this function is written to take over control/and block and manage everything relayed to cal.
+  ------
+
+  OK. issue is that cal has to set up the mode. to control ref voltages etc.
+  BUT. perhaps we can handle from here?
 
 
 */
