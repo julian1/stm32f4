@@ -3,6 +3,8 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include <string.h>   // strcmp, memset
+
 
 
 #include <peripheral/ice40-extra.h>
@@ -19,6 +21,7 @@
 #include <ice40-reg.h>
 #include <mode.h>
 
+#include <util.h> // str_decode_uint
 
 
 
@@ -182,6 +185,272 @@ void mode_set_dcv_source( _mode_t *mode, signed i0)
 
 
 
+
+bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
+{
+
+  // move this to mode.
+
+  char s0[100 + 1 ];
+  char s1[100 + 1 ];
+  char s2[100 + 1 ];
+  uint32_t u0, u1;
+  double f0;
+  int32_t i0;
+
+
+  // uint32_t line_freq = app->line_freq;
+      // _mode_t *mode = app->mode_current;
+
+
+  // +10,0,-10.    if increment. then could use the dac.
+  if( sscanf(cmd, "dcv-source %ld", &i0 ) == 1) {
+
+      printf("set dcv-source, input relays, for current_mode\n");
+
+
+      mode_set_dcv_source( mode, i0);
+  }
+
+
+
+  else if( strcmp(cmd, "dcv-source ref") == 0) {
+    // also temp.
+
+      mode->second.U1003  = S3 ;       // turn off/ mux agnd.
+      mode->second.U1006  = S4 ;    // ref-hi. unbuffered.
+
+    // setup input relays.
+      mode->first .K405 = LR_SET;     // select dcv
+      mode->first .K406 = LR_SET;   // accum relay off
+      mode->first .K407 = LR_RESET;   // select dcv-source
+  }
+
+
+  else if( sscanf(cmd, "dcv-source dac %100s", s0) == 1
+    && str_decode_uint( s0, &u0)) {
+
+      // our str_decode_uint function doesn't handle signedness...
+      // and we want the hex value.
+      // but we could
+
+      // should
+      // eg. dcv-source dac 0x3fff
+
+
+      if(u0 > 0) {
+        printf("with +10V\n");
+        mode->second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
+      }
+      else {
+        // TODO. handle signedness in str_decode_uint.
+        assert( 0 );
+        printf("with -10V\n");
+        mode->second.U1003  = S2 ;       // s2.  -10V.
+      }
+
+      mode->second.U1006  = S3;          // s1.   follow  .   dcv-mux2
+
+      // range check.
+
+      mode->dac_val = u0;// abs( u0 );
+
+      // setup input relays.
+      mode->first .K405 = LR_SET;     // select dcv
+      mode->first .K406 = LR_SET;   // accum relay off
+      mode->first .K407 = LR_RESET;   // select dcv-source
+  }
+
+
+  /*
+      we have to disambiguate values with float args explicitly...
+      because float looks like int
+  */
+
+  else if( sscanf(cmd, "aper %100s", s0) == 1
+    && str_decode_float( s0, &f0))
+  {
+
+    printf("set aperture\n");
+    uint32_t aperture = period_to_aper_n( f0 );
+    // assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
+    aper_cc_print( aperture,  line_freq);
+    mode->adc.reg_adc_p_aperture = aperture;
+  }
+
+
+  else if( sscanf(cmd, "nplc %100s", s0) == 1
+    && str_decode_float( s0, &f0))
+  {
+    // use float here, to express sub 1nplc periods
+    if( ! nplc_valid( f0 ))  {
+        printf("bad nplc arg\n");
+        // return 1;
+    } else {
+
+      // should be called cc_aperture or similar.
+      uint32_t aperture = nplc_to_aper_n( f0, line_freq );
+
+      aper_cc_print( aperture,  line_freq);
+
+      mode->adc.reg_adc_p_aperture = aperture;
+    }
+  }
+
+#if 0
+    else if(strcmp(s0, "precharge") == 0) {
+      mode->sa.reg_sa_p_clk_count_precharge = u0;
+    }
+#endif
+
+
+
+  // "h" for halt
+  else if(strcmp(cmd, "h") == 0) {
+
+    mode->trigger_source_internal = 0;
+  }
+  // "t" to trigger
+  else if(strcmp(cmd, "t") == 0) {
+
+    mode->trigger_source_internal = 1;
+  }
+
+
+  /*
+    perhaps keep the 'set' prefix to clearly disambiguate these actions under common syntactic form.
+  */
+
+  else if( sscanf(cmd, "set %100s %100s %100s", s0, s1, s2) == 3
+    && str_decode_uint( s1, &u0)
+    && str_decode_uint( s2, &u1)
+  ) {
+
+      /*
+        > set seq0 0b01 s3
+        > set seq0 0b00 soff
+      */
+
+      // would be handy to have in a function. or else return
+      uint32_t val =  ((u0 & 0b11) << 4) | ( u1 & 0b1111);
+
+      if(strcmp(s0, "seq0") == 0) {
+        mode->sa.reg_sa_p_seq0 = val;
+      }
+      else if(strcmp(s0, "seq1") == 0) {
+        mode->sa.reg_sa_p_seq1 = val;
+      }
+       else if(strcmp(s0, "seq2") == 0) {
+        mode->sa.reg_sa_p_seq2 = val;
+      }
+      else if(strcmp(s0, "seq3") == 0) {
+        mode->sa.reg_sa_p_seq3 = val;
+      }
+      else {
+        printf("unknown target %s for 3 var set\n", s0);
+        return 0;
+      }
+
+  }
+
+  // two value set.
+  else if( sscanf(cmd, "set %100s %100s", s0, s1) == 2
+    && str_decode_uint( s1, &u0)
+  ) {
+
+      printf("set %s %lu\n", s0, u0);
+
+      // cannot manage pointer to bitfield. so have to hardcode.
+
+      // ice40 mode.
+      if(strcmp(s0, "mode") == 0) {
+        mode->reg_mode = u0;
+      }
+      else if(strcmp(s0, "direct") == 0) {
+        assert(sizeof(mode->reg_direct) == 4);
+        assert(sizeof(u0) == 4);
+        memcpy( &mode->reg_direct, &u0, sizeof(mode->reg_direct));
+      }
+      // set red_direct via bitfield arguments, nice.
+      else if(strcmp(s0, "leds") == 0) {
+        mode->reg_direct.leds_o = u0;
+      }
+      // by field
+      else if(strcmp(s0, "monitor") == 0) {
+        mode->reg_direct.monitor_o = u0;
+      }
+      else if(strcmp(s0, "sig_pc_sw") == 0) {
+        mode->reg_direct.sig_pc_sw_o= u0;
+      }
+      else if(strcmp(s0, "azmux") == 0) {
+        mode->reg_direct.azmux_o = u0;
+      }
+      else if(strcmp(s0, "adc_refmux") == 0) {
+        mode->reg_direct.adc_refmux_o = u0;
+      }
+      else if(strcmp(s0, "adc_cmpr_latch") == 0) {
+        mode->reg_direct.adc_cmpr_latch_o = u0;
+      }
+      else if(strcmp(s0, "spi_interrupt_ctl") == 0) {
+        mode->reg_direct.spi_interrupt_ctl_o = u0;
+      }
+      else if(strcmp(s0, "meas_complete") == 0) {
+        mode->reg_direct.meas_complete_o = u0;
+      }
+
+      // 4094 components.
+      // perhaps rename second. _4094_second etc.
+
+      else if(strcmp(s0, "u1003") == 0) {
+        mode->second.U1003 = u0;
+      }
+      else if(strcmp(s0, "u1006") == 0) {
+        mode->second.U1006 = u0;
+      }
+      else if(strcmp(s0, "u1012") == 0) {
+        mode->second.U1012 = u0;
+      }
+
+      else if( strcmp(s0, "dac") == 0 || strcmp(s0, "u1016") == 0 || strcmp(s0, "u1014") == 0) {
+        // let the mode update - determine setting up spi params.
+        mode->dac_val = u0;
+      }
+
+      /*
+          handle latch relay pulse encoding here, rather than at str_decode_uint() time.
+          valid values are 1 (0b01)  and 2 (0b10). not 1/0.
+          reset is default schem contact position.
+      */
+      else if(strcmp(s0, "k407") == 0) {
+        mode->first.K407 = u0 ? LR_SET: LR_RESET ;      // 0 == reset
+      }
+      else if(strcmp(s0, "k406") == 0) {
+        mode->first.K406 = u0 ? LR_SET: LR_RESET;
+      }
+      else if(strcmp(s0, "k405") == 0) {
+        mode->first.K405 = u0 ? LR_SET: LR_RESET;
+      }
+
+      /*
+        not completely clear if trig wants to be out-of-band. eg not put in the mode structure.
+      */
+
+      else if(strcmp(s0, "trig") == 0) {
+        // should move/place in signal acquisition?
+        mode->trigger_source_internal = u0;
+      }
+
+
+      else {
+
+        printf("unknown target %s for 2 var set\n", s0);
+        return 0;
+
+      }
+  }
+
+  return 1;
+}
 
 
 

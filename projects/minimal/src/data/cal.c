@@ -51,6 +51,9 @@ void data_cal( data_t *data , uint32_t spi, _mode_t *mode /* void (*yield)( void
   printf("whoot data_cal\n");
 
 
+
+
+
   uint32_t model_cols = 3;
 
   // unsigned row_idx = 0;

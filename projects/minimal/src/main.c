@@ -241,7 +241,10 @@ int main(void)
   // spi1_port_interupt_setup( (void (*) (void *))spi1_interupt, &app);
 
   spi1_port_interupt_setup();
-  spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app.data );
+
+  // shouldnt setup the interupt handler - until fpga is configured, else looks like get  
+  //  
+  // spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app.data );
 
 
 
