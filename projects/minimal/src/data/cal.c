@@ -24,7 +24,7 @@
 
 
 #include <mode.h>
-#include <util.h> // nplc_to_aper_n()
+#include <util.h> // nplc_to_aperture()
 
 #include <data/data.h>
 #include <data/data.h>
@@ -67,10 +67,10 @@ void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *s
   mode->reg_mode = MODE_SA_ADC;       // set mode adc.
   mode->trigger_source_internal = 1;  // turn on adc  // perhapkkkkk
 
-      // uint32_t aperture = nplc_to_aper_n( f0, line_freq );
+      // uint32_t aperture = nplc_to_aperture( f0, line_freq );
       // aper_cc_print( aperture,  line_freq);
 
-  mode->adc.reg_adc_p_aperture = nplc_to_aper_n( 10, data->line_freq );;
+  mode->adc.reg_adc_p_aperture = nplc_to_aperture( 10, data->line_freq );;
  
 
 
