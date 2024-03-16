@@ -144,3 +144,47 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 
 
 
+
+void mode_set_dcv_source( _mode_t *mode, signed i0)
+{
+  // 10,0,-10
+  printf("set dcv-source\n");
+
+  // _mode_t *mode = app->mode_current;
+
+
+  if(i0 == 10) {
+    printf("with +10V\n");
+    mode->second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
+  }
+  else if(i0 == -10) {
+    printf("with -10V\n");
+    mode->second.U1003  = S2 ;       // s2.  -10V.
+  }
+  else if(i0 == 0) {
+    printf("with 0V\n");
+    mode->second.U1003 = S3;          // s3 == agnd
+  }
+  else {
+    printf("bad arg\n");
+    return;
+  }
+
+  mode->second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2
+
+  // setup input relays.
+  mode->first .K405 = LR_SET;     // select dcv
+  mode->first .K406 = LR_SET;   // accum relay off
+  mode->first .K407 = LR_RESET;   // select dcv-source
+
+}
+
+
+
+
+
+
+
+
+
+

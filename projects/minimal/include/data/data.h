@@ -14,6 +14,8 @@
 #include <mesch12b/matrix.h>   // MAT
 
 
+typedef struct _mode_t _mode_t;
+
 typedef struct data_t
 {
   /*
@@ -59,9 +61,7 @@ typedef struct data_t
 
 
 void data_init ( data_t *);
-
-void data_rdy_interupt( data_t *data);
-
+void data_rdy_interupt( data_t *data);    // handler setup in app context.
 void data_update(data_t *);
 
 
@@ -71,7 +71,11 @@ void data_update(data_t *);
 // but note - the yield should not process adc raw data / counts.
 
 
-void data_cal( uint32_t spi, data_t *data /* void (*yield)( void * ) */ );
+void data_cal( data_t *data , uint32_t spi, _mode_t *mode /* void (*yield)( void * ) */ );
+
+
+
+
 
 // consider rename. this is more model_encode_row_from_counts()) - according to the model.
 // taking model as first arg

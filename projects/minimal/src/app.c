@@ -347,7 +347,15 @@ static void spi_print_seq_register( uint32_t spi, uint32_t reg )
 
 
 
+/*
+  EXTR.
+  most of this is just setting the mode.  and should be expressed, 
 
+    mode_repl_statement( mode,  cmd ). 
+
+
+  anything that needs the app - can be a separate function
+*/
 
 
 void app_repl_statement(app_t *app,  const char *cmd)
@@ -481,7 +489,9 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
   else if(strcmp(cmd, "cal") == 0) {
 
-    data_cal( app->spi, app->data /* void (*yield)( void * ) */ );
+    // void data_cal( data_t *data , uint32_t spi, _mode_t *mode /* void (*yield)( void * ) */ )
+    _mode_t mode = *app->mode_initial;
+    data_cal( app->data,  app->spi, &mode /* void (*yield)( void * ) */ );
 
   }
 
@@ -580,6 +590,14 @@ void app_repl_statement(app_t *app,  const char *cmd)
   eg. dac-source
 */
 
+
+  /*
+      these functions just work with mode. why not factor them.
+      because they aer generally useful. for test code, and calibration.
+      
+  */
+
+
   // +10,0,-10.    if increment. then could use the dac.
   else if( sscanf(cmd, "dcv-source %ld", &i0 ) == 1) {
 
@@ -587,30 +605,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
       _mode_t *mode = app->mode_current;
 
-
-      if(i0 == 10) {
-        printf("with +10V\n");
-        mode->second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
-      }
-      else if(i0 == -10) {
-        printf("with -10V\n");
-        mode->second.U1003  = S2 ;       // s2.  -10V.
-      }
-      else if(i0 == 0) {
-        printf("with 0V\n");
-        mode->second.U1003 = S3;          // s3 == agnd
-      }
-      else {
-        printf("bad arg\n");
-        return;
-      }
-
-      mode->second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2
-
-      // setup input relays.
-      mode->first .K405 = LR_SET;     // select dcv
-      mode->first .K406 = LR_SET;   // accum relay off
-      mode->first .K407 = LR_RESET;   // select dcv-source
+      mode_set_dcv_source( mode, i0);
   }
 
 

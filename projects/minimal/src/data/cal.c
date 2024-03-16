@@ -25,13 +25,31 @@
 #include <ice40-reg.h>
 #include <peripheral/spi-ice40.h>
 
+
+#include <mode.h>
+
+#include <data/data.h>
 #include <data/data.h>
 
 
 // we will need to pass the spi also.
 
-void data_cal( uint32_t spi, data_t *data /* void (*yield)( void * ) */ )
+
+/*
+    could be used in app also.
+*/
+
+
+
+void data_cal( data_t *data , uint32_t spi, _mode_t *mode /* void (*yield)( void * ) */ )
 {
+  // UNUSED(mode);
+
+  mode_set_dcv_source( mode , 10 );   // set the ref.
+                                      // set_ref_dcv_source( ); hi and lo.
+
+
+
 
   printf("whoot data_cal\n");
 

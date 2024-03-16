@@ -330,6 +330,7 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 
 
 
+void mode_set_dcv_source( _mode_t *mode, signed i0);
 
 
 
