@@ -51,10 +51,18 @@ int flash_lzo_test(void);
 */
 
 
+/*
+  3 events
 
+    - systick/soft-timer interupt.
+    - fpga interupt
+    - external ui interupt
+    - (also uart but never blocks).
 
+    - yield can be used, on any long-running process to continue to service updates
+        and out-of-band function
 
-
+*/
 
 /////////////////////////
 /*

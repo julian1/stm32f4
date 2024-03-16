@@ -135,8 +135,10 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 
   // ensure no spurious emi on 4094 lines, when we read fpga state readings
   // can probably just assert and reaad.
-  assert( spi_ice40_reg_read32(spi, REG_SPI_MUX) == 0 ); 
+  assert( spi_ice40_reg_read32(spi, REG_SPI_MUX) == 0 );
   // spi_ice40_reg_write32(spi, REG_SPI_MUX,  0 );
+
+  // we may want delay here. or make the trigger  an external control state to the mode.
 
   if(mode->trigger_source_internal)
     ice40_port_trigger_source_internal_enable();    // rename set/clear() ? better?
@@ -152,9 +154,6 @@ void mode_set_dcv_source( _mode_t *mode, signed i0)
 {
   // 10,0,-10
   printf("set dcv-source\n");
-
-  // _mode_t *mode = app->mode_current;
-
 
   if(i0 == 10) {
     printf("with +10V\n");
@@ -181,6 +180,29 @@ void mode_set_dcv_source( _mode_t *mode, signed i0)
   mode->first .K407 = LR_RESET;   // select dcv-source
 
 }
+
+
+void mode_set_ref_source( _mode_t *mode, unsigned u0 )
+{
+
+  // U1012 should source gnd.
+  mode->second.U1012  = SOFF;       // should probably be agnd.
+
+  if(u0 == 7) {
+    printf("with ref +7V\n");
+    mode->second.U1006  = S4;       // ref-hi
+  }
+  else if( u0 == 0 ) {
+    // need bodge for this
+    mode->second.U1006  = S7;       // ref-lo
+  }
+  else
+    assert(0);
+
+
+}
+
+
 
 
 

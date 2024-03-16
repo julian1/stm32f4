@@ -101,11 +101,15 @@ reset is schem default contacts.
 
 
 // two channels.
-// eg. (PC0 | PC1) <<
+// eg. (PC0 | PC01) <<
 
 #define PCOFF       0b00
-#define PC1         0b01
-#define PC2         0b10
+
+// THIS IS TOO CONFUSING.
+// PC1, PC2 is confusing.
+#define PC01         0b01
+#define PC10         0b10
+#define PCBOTH      0b10
 
 
 
@@ -221,12 +225,16 @@ reg_direct_t
 
 typedef struct sa_state_t
 {
+  // could remove the reg_sa prefix.
 
   uint32_t reg_sa_p_clk_count_precharge ;   // regadc_cc_precharge
 
+  //  number of phase -  rename seq_phase_n
+  // no. shoud not end in _n which in verilog indicates   inverted signal.
   uint32_t reg_sa_p_seq_n;
-  
-    // better name? 
+
+  // sequence acquisition.  sac
+    // better name?
   uint32_t reg_sa_p_seq0;
   uint32_t reg_sa_p_seq1;
   uint32_t reg_sa_p_seq2;
@@ -251,6 +259,9 @@ typedef struct sa_state_t
 
 typedef struct adc_state_t
 {
+
+  // could remove the reg_adc  prefix.
+
   /*
        ----
       reg_direct_t reg_direct2; only for a ratiometric function.
@@ -329,8 +340,20 @@ typedef struct _mode_t
 void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint32_t *system_millis /*, uint32_t update_flags */ );
 
 
+/*
+  consider - how useful these setters are.
+  versus -simply coding the mode fields/flags in-place.
+  perhaps useful for repl.
+  -
+  sometime - we just need to flip a single mux - and then these obscure the simple action.
+  -
+  consider change name dcv1-source perhaps.
+  actually implied. because dcv2 is always constant function of dcv1.  - eg. inverted.
+*/
 
-void mode_set_dcv_source( _mode_t *mode, signed i0);
+void mode_set_dcv_source( _mode_t *mode, signed i0);  // arg is 10,0,-10
+
+void mode_set_ref_source(  _mode_t *mode, unsigned u0 );
 
 
 bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );

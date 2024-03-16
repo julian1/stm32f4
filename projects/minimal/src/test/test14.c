@@ -88,7 +88,7 @@ bool app_test14( app_t *app , const char *cmd)
 */
       // 2 phase, azmux always off, but switch pc in one phase and not the other.
       // to simulate the real muxing an AZ signal between HI, and LO, where Lo doesn't get the PC on.
-      // rather than 0b01  can use PC1
+      // rather than 0b01  can use PC01
 
 /*
       try again. second entry should be seq1. not seq0.
@@ -96,8 +96,9 @@ bool app_test14( app_t *app , const char *cmd)
 
   */
       mode.reg_mode = MODE_SA_MOCK_ADC;
+      mode.sa.reg_sa_p_seq_n  = 2; 
       mode.sa.reg_sa_p_seq0 = (PCOFF << 4) | SOFF;        // 0b00
-      mode.sa.reg_sa_p_seq0 = (PC1 << 4 )  | SOFF;        // 0b01     FIXME.   should be seq1. eg. only on for hi signal.
+      mode.sa.reg_sa_p_seq0 = (PC01 << 4 )  | SOFF;        // 0b01     FIXME.   should be seq1. eg. only on for hi signal.
       mode.trigger_source_internal = 1;
 
       mode.first .K407        = LR_SET;          // disconnect dcv
