@@ -349,9 +349,10 @@ static void spi_print_seq_register( uint32_t spi, uint32_t reg )
 
 
 
-static void app_repl_statement2(app_t *app,  const char *cmd)
+static bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 {
 
+  // move this to mode.
 
   char s0[100 + 1 ];
   char s1[100 + 1 ];
@@ -361,6 +362,8 @@ static void app_repl_statement2(app_t *app,  const char *cmd)
   int32_t i0;
 
 
+  // uint32_t line_freq = app->line_freq;
+      // _mode_t *mode = app->mode_current;
 
 
   // +10,0,-10.    if increment. then could use the dac.
@@ -368,7 +371,6 @@ static void app_repl_statement2(app_t *app,  const char *cmd)
 
       printf("set dcv-source, input relays, for current_mode\n");
 
-      _mode_t *mode = app->mode_current;
 
       mode_set_dcv_source( mode, i0);
   }
@@ -378,7 +380,6 @@ static void app_repl_statement2(app_t *app,  const char *cmd)
   else if( strcmp(cmd, "dcv-source ref") == 0) {
     // also temp.
 
-      _mode_t *mode = app->mode_current;
       mode->second.U1003  = S3 ;       // turn off/ mux agnd.
       mode->second.U1006  = S4 ;    // ref-hi. unbuffered.
 
@@ -399,7 +400,6 @@ static void app_repl_statement2(app_t *app,  const char *cmd)
       // should
       // eg. dcv-source dac 0x3fff
 
-      _mode_t *mode = app->mode_current;
 
       if(u0 > 0) {
         printf("with +10V\n");
@@ -433,13 +433,11 @@ static void app_repl_statement2(app_t *app,  const char *cmd)
   else if( sscanf(cmd, "aper %100s", s0) == 1
     && str_decode_float( s0, &f0))
   {
-    assert(app->mode_current);
-    _mode_t * mode = app->mode_current;
 
     printf("set aperture\n");
     uint32_t aperture = period_to_aper_n( f0 );
     // assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
-    aper_cc_print( aperture,  app->line_freq);
+    aper_cc_print( aperture,  line_freq);
     mode->adc.reg_adc_p_aperture = aperture;
   }
 
@@ -453,12 +451,11 @@ static void app_repl_statement2(app_t *app,  const char *cmd)
         // return 1;
     } else {
 
-      assert(app->mode_current);
-      _mode_t * mode = app->mode_current;
-
       // should be called cc_aperture or similar.
-      uint32_t aperture = nplc_to_aper_n( f0, app->line_freq );
-      aper_cc_print( aperture,  app->line_freq);
+      uint32_t aperture = nplc_to_aper_n( f0, line_freq );
+
+      aper_cc_print( aperture,  line_freq);
+
       mode->adc.reg_adc_p_aperture = aperture;
     }
   }
@@ -474,18 +471,13 @@ static void app_repl_statement2(app_t *app,  const char *cmd)
   // "h" for halt
   else if(strcmp(cmd, "h") == 0) {
 
-    _mode_t * mode = app->mode_current;
     mode->trigger_source_internal = 0;
   }
   // "t" to trigger
   else if(strcmp(cmd, "t") == 0) {
-    _mode_t * mode = app->mode_current;
+
     mode->trigger_source_internal = 1;
   }
-
-
-
-
 
 
   /*
@@ -496,9 +488,6 @@ static void app_repl_statement2(app_t *app,  const char *cmd)
     && str_decode_uint( s1, &u0)
     && str_decode_uint( s2, &u1)
   ) {
-
-      assert(app->mode_current);
-      _mode_t * mode = app->mode_current;
 
       /*
         > set seq0 0b01 s3
@@ -522,6 +511,7 @@ static void app_repl_statement2(app_t *app,  const char *cmd)
       }
       else {
         printf("unknown target %s for 3 var set\n", s0);
+        return 0;
       }
 
   }
@@ -530,10 +520,6 @@ static void app_repl_statement2(app_t *app,  const char *cmd)
   else if( sscanf(cmd, "set %100s %100s", s0, s1) == 2
     && str_decode_uint( s1, &u0)
   ) {
-
-      assert(app->mode_current);
-      _mode_t * mode = app->mode_current;
-
 
       printf("set %s %lu\n", s0, u0);
 
@@ -575,15 +561,6 @@ static void app_repl_statement2(app_t *app,  const char *cmd)
         mode->reg_direct.meas_complete_o = u0;
       }
 
-
-
-
-    // spi_print_seq_register( app->spi, REG_SA_P_SEQ0);
-
-
-
-
-
       // 4094 components.
       // perhaps rename second. _4094_second etc.
 
@@ -617,18 +594,6 @@ static void app_repl_statement2(app_t *app,  const char *cmd)
         mode->first.K405 = u0 ? LR_SET: LR_RESET;
       }
 
-/*
-      // registers.
-      // for the no az case.  should we use the direct register? for azmux and pc switch?
-      // perhaps. there is no concept of hi and lo. so it doesn't make sense to set it to hi.
-
-      else if(strcmp(s0, "azmux_hi_val") == 0) {
-        mode->sa.reg_sa_p_azmux_hi_val  = u0;
-      }
-*/
-
-
-
       /*
         not completely clear if trig wants to be out-of-band. eg not put in the mode structure.
       */
@@ -642,11 +607,12 @@ static void app_repl_statement2(app_t *app,  const char *cmd)
       else {
 
         printf("unknown target %s for 2 var set\n", s0);
+        return 0;
+
       }
   }
 
-
-
+  return 1;
 }
 
 
@@ -763,25 +729,16 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
         the size could also be stored separately. or else assumed.
     */
-
   }
   else if(strcmp(cmd, "flash crc ") == 0) {
     // need size to compute.
 
   }
 
-
-
-
-
-
   else if(strcmp(cmd, "flash lzo test") == 0) {
     flash_lzo_test();
     // int flash_raw_test(void);
   }
-
-
-
 
   // change name fpga bitstrea load/test
   else if(strcmp(cmd, "bitstream test") == 0) {
@@ -886,21 +843,8 @@ void app_repl_statement(app_t *app,  const char *cmd)
   else if( app_test15( app, cmd  )) { }
 
 
-/*
-  eg.
-   dcv-source 10; mode 5; nplc 1;
-    nice.
 
-  do the same except with the dac.
-  eg. dac-source
-*/
-
-
-  /*
-      these functions just work with mode. why not factor them.
-      because they aer generally useful. for test code, and calibration.
-      
-  */
+  else if( mode_repl_statement( app->mode_current,  cmd, app->line_freq )) { } 
 
 
   else {
