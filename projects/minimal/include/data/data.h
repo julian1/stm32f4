@@ -73,16 +73,11 @@ void data_update(data_t *);
 
 void data_cal( uint32_t spi, data_t *data /* void (*yield)( void * ) */ );
 
+// consider rename. this is more model_encode_row_from_counts()) - according to the model.
+// taking model as first arg
 
 
-MAT * run_to_matrix(
-    // const Run *run,
-    uint32_t clk_count_mux_neg,
-    uint32_t clk_count_mux_pos,
-    uint32_t clk_count_mux_rd,
-    unsigned model,
-    MAT * out
-);
+MAT * run_to_matrix( uint32_t clk_count_mux_neg, uint32_t clk_count_mux_pos, uint32_t clk_count_mux_rd, unsigned model, MAT * out);
 
 
 

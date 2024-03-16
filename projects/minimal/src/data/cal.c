@@ -32,6 +32,12 @@ void data_cal( uint32_t spi, data_t *data /* void (*yield)( void * ) */ )
   printf("whoot data_cal\n");
 
 
+  uint32_t model_cols = 3;
+
+  // unsigned row_idx = 0;
+  MAT *row = NULL;
+
+
   for(unsigned i = 0; i < 5; ++i ) {
 
 
@@ -59,6 +65,11 @@ void data_cal( uint32_t spi, data_t *data /* void (*yield)( void * ) */ )
   */
 
     printf("counts %6lu %lu %lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+
+
+    // consider rename. this is more model_encode_row_from_counts()) - according to the model.
+    // taking model as first arg
+    row = run_to_matrix( clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, /*app->*/model_cols, row);
 
 
 
