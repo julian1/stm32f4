@@ -72,3 +72,17 @@ void data_update(data_t *);
 
 
 void data_cal( uint32_t spi, data_t *data /* void (*yield)( void * ) */ );
+
+
+
+MAT * run_to_matrix(
+    // const Run *run,
+    uint32_t clk_count_mux_neg,
+    uint32_t clk_count_mux_pos,
+    uint32_t clk_count_mux_rd,
+    unsigned model,
+    MAT * out
+);
+
+
+
