@@ -347,34 +347,10 @@ static void spi_print_seq_register( uint32_t spi, uint32_t reg )
 
 
 
-/*
-  EXTR.
-  most of this is just setting the mode.  and should be expressed, 
-
-    mode_repl_statement( mode,  cmd ). 
 
 
-  anything that needs the app - can be a separate function
-*/
-
-
-void app_repl_statement(app_t *app,  const char *cmd)
+static void app_repl_statement2(app_t *app,  const char *cmd)
 {
-
-  assert(app);
-  assert(app->magic == APP_MAGIC);
-
-  /*
-    write the app->mode_current.
-    and handle some out-of-mode  functions.
-
-    eg. statement without semi-colon.
-
-  */
-
-  // to debug
-  // printf("cmd '%s'  %u\n", cmd, strlen(cmd) );
-
 
 
   char s0[100 + 1 ];
@@ -386,220 +362,9 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
 
 
-  ////////////////////
-
-
-  if(strcmp(cmd, "") == 0) {
-    // ignore
-    printf("empty\n" );
-  }
-
-
-  else if(strcmp(cmd, "help") == 0) {
-
-    printf("help <command>\n" );
-  }
-
-
-
-
-  else if( sscanf(cmd, "sleep %100s", s0) == 1
-    && str_decode_float( s0, &f0))
-  {
-    // allows 1 or 1000m  etc. not sure,
-    msleep( (uint32_t ) (f0 * 1000), &app->system_millis);
-  }
-
-  else if(strcmp(cmd, "reset mcu") == 0) {
-    printf("perform mcu reset\n" );
-    // reset stm32f4
-    // scb_reset_core()
-    scb_reset_system();
-  }
-
-
-  else if(strcmp(cmd, "reset fpga") == 0) {
-
-    ice40_port_extra_creset_enable();
-    // wait
-    msleep(1, &app->system_millis);
-    ice40_port_extra_creset_disable();
-  }
-
-
-
-  // need to add reset fpga.  using external creset pin.
-
-
-  else if(strcmp(cmd, "assert 0") == 0) {
-    // test assert(0);
-    assert(0);
-  }
-  else if(strcmp(cmd, "mem?") == 0)
-  {
-    printf("malloc\n");
-    malloc_stats();
-
-    print_stack_pointer();
-    // return 1;
-  }
-
-
-  else if(strcmp(cmd, "flash unlock ") == 0) {
-
-  }
-  else if(strcmp(cmd, "flash write ") == 0) {
-    // wants to be good enough for mcu boot code, mcu code, and fpga code.
-    /*
-
-        if use base64 transfer - then a terminal sequence of whitespace - means we get the size of the bitstream.
-        without having to encode a header with the size.
-        and can calculate the crc.
-
-        the size could also be stored separately. or else assumed.
-    */
-
-  }
-  else if(strcmp(cmd, "flash crc ") == 0) {
-    // need size to compute.
-
-  }
-
-
-
-
-
-
-  else if(strcmp(cmd, "flash lzo test") == 0) {
-    flash_lzo_test();
-    // int flash_raw_test(void);
-  }
-
-
-
-
-  // change name fpga bitstrea load/test
-  else if(strcmp(cmd, "bitstream test") == 0) {
-
-    spi_ice40_bitstream_send(app->spi, & app->system_millis );
-  }
-
-  // don't we have some code - to handle sscan as binary/octal/hex ?
-
-
-  else if(strcmp(cmd, "cal") == 0) {
-
-    // void data_cal( data_t *data , uint32_t spi, _mode_t *mode /* void (*yield)( void * ) */ )
-    _mode_t mode = *app->mode_initial;
-    data_cal( app->data,  app->spi, &mode /* void (*yield)( void * ) */ );
-
-  }
-
-
-
-
-  else if( strcmp( cmd, "spi-mux?") == 0) {
-
-    spi_print_register( app->spi, REG_SPI_MUX);
-  }
-  else if( strcmp( cmd, "4094?") == 0) {
-
-    spi_print_register( app->spi, REG_4094);
-  }
-   else if( strcmp(cmd, "mode?") == 0) {
-
-    spi_print_register( app->spi, REG_MODE);
-  }
-  else if( strcmp( cmd, "direct?") == 0) {
-
-    spi_print_register( app->spi, REG_DIRECT);
-  }
-  else if( strcmp( cmd, "status?") == 0) {
-
-    spi_print_register( app->spi, REG_STATUS);
-  }
-  else if( sscanf(cmd, "reg? %lu", &u0 ) == 1) {
-
-    spi_print_register( app->spi, u0 );
-  }
-
-  // querying fpga direct. bypassing mode.
-  else if( strcmp( cmd, "seq0?") == 0) {
-    spi_print_seq_register( app->spi, REG_SA_P_SEQ0);
-  }
-  else if( strcmp( cmd, "seq1?") == 0) {
-    spi_print_seq_register( app->spi, REG_SA_P_SEQ1);
-  }
-  else if( strcmp( cmd, "seq2?") == 0) {
-    spi_print_seq_register( app->spi, REG_SA_P_SEQ2);
-  }
-  else if( strcmp( cmd, "seq3?") == 0) {
-    spi_print_seq_register( app->spi, REG_SA_P_SEQ3);
-  }
-
-  else if( strcmp( cmd, "seqn?") == 0) {
-
-    spi_print_register( app->spi, REG_SA_P_SEQ_N);
-  }
-
-
-
-
-
-
-
-  else if( strcmp(cmd, "nplc?") == 0
-    || strcmp(cmd, "aper?") == 0) {
-    // query fpga directly. not mode
-    spi_mux_ice40(app->spi);
-    uint32_t aperture = spi_ice40_reg_read32(app->spi, REG_ADC_P_CLK_COUNT_APERTURE );
-    aper_cc_print( aperture,  app->line_freq);
-  }
-
-
-  ///////////////////////
-  // We want clear separation - for setting mode versus setting anything directly on fpga.
-  // actually just remoe any thing that bypasses the mode.
-
-
-  else if(strcmp(cmd, "reset") == 0) {
-    // reset mode. distinct from  trigger control
-    // reset the mode.
-    *app->mode_current = *app->mode_initial;
-  }
-
-
-  /*
-    these can apply the mode state, that has previously been setup.
-    this can simplify, the code in these functions.
-  */
-  else if( app_test01( app, cmd  )) { }
-  else if( app_test02( app, cmd  )) { }
-  else if( app_test03( app, cmd  )) { }
-  else if( app_test05( app, cmd  )) { }
-  else if( app_test14( app, cmd  )) { }
-  else if( app_test15( app, cmd  )) { }
-
-
-/*
-  eg.
-   dcv-source 10; mode 5; nplc 1;
-    nice.
-
-  do the same except with the dac.
-  eg. dac-source
-*/
-
-
-  /*
-      these functions just work with mode. why not factor them.
-      because they aer generally useful. for test code, and calibration.
-      
-  */
-
 
   // +10,0,-10.    if increment. then could use the dac.
-  else if( sscanf(cmd, "dcv-source %ld", &i0 ) == 1) {
+  if( sscanf(cmd, "dcv-source %ld", &i0 ) == 1) {
 
       printf("set dcv-source, input relays, for current_mode\n");
 
@@ -658,10 +423,6 @@ void app_repl_statement(app_t *app,  const char *cmd)
       mode->first .K406 = LR_SET;   // accum relay off
       mode->first .K407 = LR_RESET;   // select dcv-source
   }
-
-
-
-
 
 
   /*
@@ -884,6 +645,262 @@ void app_repl_statement(app_t *app,  const char *cmd)
       }
   }
 
+
+
+}
+
+
+
+
+/*
+  EXTR.
+  most of this is just setting the mode.  and should be expressed, 
+
+    mode_repl_statement( mode,  cmd ). 
+
+
+  anything that needs the app - can be a separate function
+*/
+
+
+void app_repl_statement(app_t *app,  const char *cmd)
+{
+
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+
+  /*
+    write the app->mode_current.
+    and handle some out-of-mode  functions.
+
+    eg. statement without semi-colon.
+
+  */
+
+  // to debug
+  // printf("cmd '%s'  %u\n", cmd, strlen(cmd) );
+
+
+
+  char s0[100 + 1 ];
+  // char s1[100 + 1 ];
+  // char s2[100 + 1 ];
+  uint32_t u0;//, u1;
+  double f0;
+  // int32_t i0;
+
+
+
+  ////////////////////
+
+
+  if(strcmp(cmd, "") == 0) {
+    // ignore
+    printf("empty\n" );
+  }
+
+
+  else if(strcmp(cmd, "help") == 0) {
+
+    printf("help <command>\n" );
+  }
+
+
+
+
+  else if( sscanf(cmd, "sleep %100s", s0) == 1
+    && str_decode_float( s0, &f0))
+  {
+    // allows 1 or 1000m  etc. not sure,
+    msleep( (uint32_t ) (f0 * 1000), &app->system_millis);
+  }
+
+  else if(strcmp(cmd, "reset mcu") == 0) {
+    printf("perform mcu reset\n" );
+    // reset stm32f4
+    // scb_reset_core()
+    scb_reset_system();
+  }
+
+
+  else if(strcmp(cmd, "reset fpga") == 0) {
+
+    ice40_port_extra_creset_enable();
+    // wait
+    msleep(1, &app->system_millis);
+    ice40_port_extra_creset_disable();
+  }
+
+
+
+  // need to add reset fpga.  using external creset pin.
+
+
+  else if(strcmp(cmd, "assert 0") == 0) {
+    // test assert(0);
+    assert(0);
+  }
+  else if(strcmp(cmd, "mem?") == 0)
+  {
+    printf("malloc\n");
+    malloc_stats();
+
+    print_stack_pointer();
+    // return 1;
+  }
+
+
+  else if(strcmp(cmd, "flash unlock ") == 0) {
+
+  }
+  else if(strcmp(cmd, "flash write ") == 0) {
+    // wants to be good enough for mcu boot code, mcu code, and fpga code.
+    /*
+
+        if use base64 transfer - then a terminal sequence of whitespace - means we get the size of the bitstream.
+        without having to encode a header with the size.
+        and can calculate the crc.
+
+        the size could also be stored separately. or else assumed.
+    */
+
+  }
+  else if(strcmp(cmd, "flash crc ") == 0) {
+    // need size to compute.
+
+  }
+
+
+
+
+
+
+  else if(strcmp(cmd, "flash lzo test") == 0) {
+    flash_lzo_test();
+    // int flash_raw_test(void);
+  }
+
+
+
+
+  // change name fpga bitstrea load/test
+  else if(strcmp(cmd, "bitstream test") == 0) {
+
+    spi_ice40_bitstream_send(app->spi, & app->system_millis );
+  }
+
+  // don't we have some code - to handle sscan as binary/octal/hex ?
+
+
+  else if(strcmp(cmd, "cal") == 0) {
+
+    // void data_cal( data_t *data , uint32_t spi, _mode_t *mode /* void (*yield)( void * ) */ )
+    _mode_t mode = *app->mode_initial;
+    data_cal( app->data,  app->spi, &mode /* void (*yield)( void * ) */ );
+
+  }
+
+
+
+
+  else if( strcmp( cmd, "spi-mux?") == 0) {
+
+    spi_print_register( app->spi, REG_SPI_MUX);
+  }
+  else if( strcmp( cmd, "4094?") == 0) {
+
+    spi_print_register( app->spi, REG_4094);
+  }
+   else if( strcmp(cmd, "mode?") == 0) {
+
+    spi_print_register( app->spi, REG_MODE);
+  }
+  else if( strcmp( cmd, "direct?") == 0) {
+
+    spi_print_register( app->spi, REG_DIRECT);
+  }
+  else if( strcmp( cmd, "status?") == 0) {
+
+    spi_print_register( app->spi, REG_STATUS);
+  }
+  else if( sscanf(cmd, "reg? %lu", &u0 ) == 1) {
+
+    spi_print_register( app->spi, u0 );
+  }
+
+  // querying fpga direct. bypassing mode.
+  else if( strcmp( cmd, "seq0?") == 0) {
+    spi_print_seq_register( app->spi, REG_SA_P_SEQ0);
+  }
+  else if( strcmp( cmd, "seq1?") == 0) {
+    spi_print_seq_register( app->spi, REG_SA_P_SEQ1);
+  }
+  else if( strcmp( cmd, "seq2?") == 0) {
+    spi_print_seq_register( app->spi, REG_SA_P_SEQ2);
+  }
+  else if( strcmp( cmd, "seq3?") == 0) {
+    spi_print_seq_register( app->spi, REG_SA_P_SEQ3);
+  }
+
+  else if( strcmp( cmd, "seqn?") == 0) {
+
+    spi_print_register( app->spi, REG_SA_P_SEQ_N);
+  }
+
+
+
+
+
+
+
+  else if( strcmp(cmd, "nplc?") == 0
+    || strcmp(cmd, "aper?") == 0) {
+    // query fpga directly. not mode
+    spi_mux_ice40(app->spi);
+    uint32_t aperture = spi_ice40_reg_read32(app->spi, REG_ADC_P_CLK_COUNT_APERTURE );
+    aper_cc_print( aperture,  app->line_freq);
+  }
+
+
+  ///////////////////////
+  // We want clear separation - for setting mode versus setting anything directly on fpga.
+  // actually just remoe any thing that bypasses the mode.
+
+
+  else if(strcmp(cmd, "reset") == 0) {
+    // reset mode. distinct from  trigger control
+    // reset the mode.
+    *app->mode_current = *app->mode_initial;
+  }
+
+
+  /*
+    these can apply the mode state, that has previously been setup.
+    this can simplify, the code in these functions.
+  */
+  else if( app_test01( app, cmd  )) { }
+  else if( app_test02( app, cmd  )) { }
+  else if( app_test03( app, cmd  )) { }
+  else if( app_test05( app, cmd  )) { }
+  else if( app_test14( app, cmd  )) { }
+  else if( app_test15( app, cmd  )) { }
+
+
+/*
+  eg.
+   dcv-source 10; mode 5; nplc 1;
+    nice.
+
+  do the same except with the dac.
+  eg. dac-source
+*/
+
+
+  /*
+      these functions just work with mode. why not factor them.
+      because they aer generally useful. for test code, and calibration.
+      
+  */
 
 
   else {
