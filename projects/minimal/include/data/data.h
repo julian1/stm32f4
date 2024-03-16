@@ -62,7 +62,8 @@ typedef struct data_t
 
 void data_init ( data_t *);
 void data_rdy_interupt( data_t *data);    // handler setup in app context.
-void data_update(data_t *);
+
+void data_update(data_t *data, uint32_t spi );
 
 
 

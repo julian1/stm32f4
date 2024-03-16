@@ -258,7 +258,7 @@ void app_loop(app_t *app)
   while(true) {
 
     // process potential new incomming data in priority
-    data_update(app->data);
+    data_update(app->data, app->spi);
 
 
     // handle console
@@ -293,7 +293,7 @@ void app_update(app_t *app)
 
 
   // process new incomming data in priority
-  data_update(app->data);
+  data_update(app->data, app->spi);
 
 
   // no console process. - or else just process quit() , or some kind of interupt.

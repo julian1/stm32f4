@@ -18,9 +18,6 @@
 #include <stdio.h>
 #include <assert.h>
 
-// #include <lib2/util.h>      // UNUSED()
-
-
 
 #include <ice40-reg.h>
 #include <peripheral/spi-ice40.h>
@@ -88,6 +85,7 @@ void data_cal( data_t *data , uint32_t spi, _mode_t *mode /* void (*yield)( void
 
     printf("counts %6lu %lu %lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
 
+    printf("\n");
 
     // consider rename. this is more model_encode_row_from_counts()) - according to the model.
     // taking model as first arg
