@@ -98,6 +98,8 @@ typedef struct app_t
 
   data_t  *data;
 
+  bool verbose;
+
 } app_t;
 
 

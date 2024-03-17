@@ -10,6 +10,7 @@
 // move to ice40_reg.h ?
 #define CLK_FREQ 20000000
 
+// rename aper_n  to just aperture which is always expressed in clock count
 
 uint32_t nplc_to_aperture( double nplc, uint32_t lfreq );
 

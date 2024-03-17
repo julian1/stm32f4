@@ -8,12 +8,15 @@
 
 
 #include <data/data.h>
+#include <util.h>     // aper_n_to_period
+#include <data/matrix.h>     // m_from_scalar
 
 
 #include <ice40-reg.h>
 #include <peripheral/spi-ice40.h>
 
 
+#define UNUSED(x) (void)(x)
 
 
 
@@ -51,6 +54,7 @@ void data_rdy_interupt( data_t *data) // runtime context
 
 
 
+#if 0
 
 void data_update(data_t *data, uint32_t spi )
 {
@@ -70,9 +74,7 @@ void data_update(data_t *data, uint32_t spi )
     count -= 1000000;
   } */
 
-
   if(data->adc_measure_valid ) {
-
 
     // clear flag as first thing, in order to better catch missed data, if get interupt while still processing
     data->adc_measure_valid  = false;
@@ -91,14 +93,286 @@ void data_update(data_t *data, uint32_t spi )
 
       uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_P_APERTURE );
   */
-
     printf("counts %6lu %lu %lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
 
     printf("\n");
-
-
   }
 }
+
+#endif
+
+
+
+static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
+{
+  /*
+    we have comitted to processing a new incomming reading
+  */
+
+  char buf[100];
+  UNUSED(buf);
+
+  // printf("-------------------\n");
+
+
+  // shouldn't  be needed.
+  spi_mux_ice40(spi);
+
+
+  /*
+      -a consider adding a 8 bit. counter in place of the monitor, in the status register
+      in order to check all values are read in a single transaction
+      - or else a checksum etc.
+  */
+
+  uint32_t status = spi_ice40_reg_read32( spi, REG_STATUS );
+  UNUSED(status);
+
+
+  // printf(" %s ", (status & STATUS_SA_AZ_STAMP) ? "hi" : "lo"  );
+#if 0 // JA
+  // suppress late measure samples arriving after signal_acquisition is returned to arm
+  if( ! (status & STATUS_SA_ARM_TRIGGER)) {
+    /*
+        this is done in software. and can only be done in software - because there is a race- condition.
+        that adc can generate the obs - in the time that we write the arm/trigger register for signal acquisition.
+    */
+    return;
+  }
+#endif
+
+
+  uint32_t clk_count_mux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+  uint32_t clk_count_mux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+  uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RD);
+  uint32_t clk_count_mux_sig = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_MUX_SIG);
+
+
+  /*  - OK. it doesn't matter whether aperture is for one more extra clk cycle. or one less.  eg. the clk termination condition.
+      instead what matters is that the count is recorded in the same way, as for the reference currents.
+      eg. so should should always refer to the returned count value, not the aperture ctrl register.
+
+      uint32_t clk_count_mux_sig = spi_ice40_reg_read32( spi, REG_ADC_P_APERTURE );
+  */
+
+
+  if(verbose) {
+
+    // clkcounts
+    // printf("clk counts %6lu %7lu %7lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+    printf("clk counts %7lu %7lu %6lu %lu", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+  }
+
+
+  if(verbose) {
+
+    uint32_t clk_count_mux_reset = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RESET);
+    printf(", reset %6lu", clk_count_mux_reset);
+
+    uint32_t stat_count_refmux_pos_up = spi_ice40_reg_read32( spi, REG_ADC_STAT_COUNT_REFMUX_POS_UP);
+    uint32_t stat_count_refmux_neg_up = spi_ice40_reg_read32( spi, REG_ADC_STAT_COUNT_REFMUX_NEG_UP);
+    uint32_t stat_count_cmpr_cross_up = spi_ice40_reg_read32( spi, REG_ADC_STAT_COUNT_CMPR_CROSS_UP);
+
+    printf(", stats %lu %lu %lu", stat_count_refmux_pos_up, stat_count_refmux_neg_up, stat_count_cmpr_cross_up );
+
+
+    double period = aper_n_to_period( clk_count_mux_sig);
+    // double period =  ((double)clk_count_mux_sig) / CLK_FREQ ;
+    printf(", period %.2lf", period );
+
+    double freq = ((double) stat_count_refmux_pos_up) / period;
+    printf(", freq %.0lf kHz", freq / 1000.f );
+  }
+
+
+
+  // quick indication without
+/*
+  if(app->mode_current->reg_mode == MODE_AZ)  {
+    printf(" %s ", (status & STATUS_SA_AZ_STAMP) ? "hi" : "lo"  );
+  }
+*/
+
+
+  if(data->b) {
+
+    // TODO - have a scalar - version of this
+    // would eases calculation. when only need a scalar.
+    // WE NEED TO GET THIS CODED in a test. and the result recorded.
+    // unsigned cols = 4;
+
+    /*
+        should keep fields stored against app_t structure. to avoid cost and complexity of always reallocating.
+        and having to free.
+        and make early return easier
+
+    // app->xs = run_to_mat( ..., app->xs );   its a good simplification.
+    */
+    MAT *xs = run_to_matrix(
+        clk_count_mux_neg,
+        clk_count_mux_pos,
+        clk_count_mux_rd,
+        data->model_cols,
+        MNULL
+      );
+
+    // we could make all these vars persist.
+    MAT	*m_mux_sig = m_from_scalar( clk_count_mux_sig, MNULL );
+    assert(m_mux_sig);
+    assert( m_is_scalar(m_mux_sig) );
+
+
+
+    if ( m_cols(xs) != m_rows( data->b) ) {
+
+      // calibtration sampled data, mismatch the cols mismatch.
+      // shouldn't happen if arm is working.
+      printf("m_cols(xs) != m_rows( b) \n");
+
+      printf("app->cols   %u\n", data->model_cols );
+      printf("app->b cols %u\n", m_cols( data->b ) );
+      printf("app->b rows %u\n", m_rows( data->b ) );
+      printf("xs     cols %u\n", m_cols( xs ) );
+      printf("xs     rows %u\n", m_rows( xs ) );
+
+
+      M_FREE( xs );
+      M_FREE( m_mux_sig );
+      return;
+    }
+
+    //  we should persist this.  and pass it in to m_calc_predicated.
+    MAT *predicted =  m_calc_predicted( data->b, xs, m_mux_sig /*, app->predicted */);
+    assert(predicted);
+    assert( m_is_scalar(predicted) );
+
+    double ret = m_to_scalar(predicted );
+    UNUSED(ret);
+
+    M_FREE( xs );
+    M_FREE( m_mux_sig );
+    M_FREE( predicted );
+
+
+
+
+#if 0
+    Mode *mode = app->mode_current;
+
+    if(mode->reg_mode == MODE_NO_AZ )  {
+
+      if(app->verbose) {
+        printf(" no-az (%s)", azmux_to_string( mode->reg_direct.azmux));
+
+      }
+    }
+    else if(mode->reg_mode == MODE_AZ)  {
+
+      if(app->verbose)
+        printf(" az");
+
+      // determine if az obs high or lo
+      if( status & STATUS_SA_AZ_STAMP  ) {
+        // treat as hival
+        if(app->verbose)
+          printf(" (hi %s)", himux_to_string( mode->reg_direct.himux, mode->reg_direct.himux2 ));
+        app->hi = ret;
+      }
+      else {
+        // treat as lo val
+        if(app->verbose)
+          printf(" (lo %s)", azmux_to_string( mode->reg_direct.azmux));
+
+        app->lo[ 1] = app->lo[ 0];  // shift last value
+        app->lo[ 0] = ret;
+      }
+
+      if(app->verbose) {
+        printf(" (hi %sV)",  format_float_with_commas(buf, 100, 7, app->hi ));
+        printf(" (lo %sV",   format_float_with_commas(buf, 100, 7, app->lo[0]  ));
+        printf(", %sV)",  format_float_with_commas(buf, 100, 7, app->lo[1] ));
+      }
+
+      // regardless whether we got a lo or a hi. calculate and show a new value.
+      ret = app->hi - ((app->lo[ 0 ] + app->lo[1] ) / 2.0);
+    }
+    else {
+        printf(" unknown mode");
+    }
+
+
+    if(app->verbose)
+      printf(" meas %sV", format_float_with_commas(buf, 100, 7, ret ));
+    else
+      printf(" %.8lf", ret );
+
+
+    if(m_rows(app->sa_buffer) < m_rows_reserve(app->sa_buffer)) {
+
+      // just push onto sample buffer
+      m_push_row( app->sa_buffer, & ret , 1 );
+    }
+
+    else {
+      // buffer is full, so insert
+      // TODO there's an issue with modulo overflow/wrap around.
+
+      unsigned idx = app->sa_count_i++ % m_rows(app->sa_buffer);
+      // printf(" insert at %u\n", idx );
+      m_set_val( app->sa_buffer, idx, 0,  ret );
+    }
+
+    if(app->verbose) {
+      printf(" ");
+      m_stats_print( app->sa_buffer );
+    }
+#endif
+  }
+
+
+
+}
+
+
+// static void app_update_new_measure(app_t *app)
+void data_update_new_reading(data_t *data, uint32_t spi, bool verbose)
+{
+  assert(data);
+  assert(data->magic == DATA_MAGIC);
+
+
+  /*
+    race condition here,,
+    adc may have produced a valid measure.
+    but the sample acquisition was put into arm state by mcu
+    So see how much we
+    --
+    this is simpler. and keeps dependencies better isolated, compared with having the sa_acquisition squash the valid signal.
+  */
+
+  // TODO - fix me,   factor this condition test out.
+  // to avoid the nesting.
+  if(data->adc_measure_valid) {
+
+    data->adc_measure_valid = false;
+
+    data_update_new_reading2( data, spi, verbose);
+  }
+
+
+  // did we miss data, for any reason
+  if( data->adc_measure_valid_missed == true) {
+    printf("missed data\n");
+    data->adc_measure_valid_missed = false;
+  }
+
+
+}
+
+
+
+
+
 
 
 
@@ -194,6 +468,36 @@ MAT * run_to_matrix(
 }
 
 
+
+MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture)
+{
+  /*
+    - careful - this function may crash on embedded - due to memoryeneeds of m_mlt().
+      actually it shouldn't be too bad - compared with decomposition.
+    do matrix multiply, and adjust by the aperture.
+  */
+
+  // don't free input arguments
+  // b is 4x1, x is nx4
+
+  assert( m_cols(x) == m_rows( b) );
+  assert( m_rows(x) == m_rows( aperture) );
+
+  // matrix multiply
+  MAT *predicted = m_mlt(x, b, MNULL );
+
+  MAT *corrected = m_element_div( predicted, aperture, MNULL );
+
+  M_FREE(predicted );
+
+/*
+  printf("corrected\n");
+  m_foutput(stdout, corrected);
+  usart1_flush();
+*/
+
+  return corrected;
+}
 
 
 

@@ -252,29 +252,24 @@ static void app_update_console(app_t *app)
 }
 
 
-/*
-    - for the yield we don't want to accept commands
-    - and probably don't want to test or update the fpga
-*/
+
 
 
 void app_loop(app_t *app)
 {
   /*
     main outer app loop, eg. bottom of control stack
+    // consider change name to app_process(),
   */
 
   assert(app);
   assert(app->magic == APP_MAGIC);
 
 
-
-  // consider change name to app_process(),
-
   while(true) {
 
     // process potential new incomming data in priority
-    data_update(app->data, app->spi);
+    data_update_new_reading( app->data, app->spi, app->verbose);
 
 
     // handle console
@@ -284,12 +279,15 @@ void app_loop(app_t *app)
     if( (app->system_millis - app->soft_500ms) > 500) {
       app->soft_500ms += 500;
 
-      // system_millis is shared, for msleep() and soft_timer.
-      // but to avoid integer overflow/wraparound - could make dedicated and then subtract 500.
-      // eg. have a deciated signed int 500ms counter,   if(app->soft_500ms >= 500) app->soft_500ms -= 500;
-      // for msleep() use another dedicated counter.  since msleep() is not used recursively. simple, just reset count to zero, on entering msleep(), and count up.
-      // actually msleep_with_yield() could be called recursively.
-      // probably want to check, with a count/mutex.
+      /*
+        TODO review
+        system_millis is shared, for msleep() and soft_timer.
+        but to avoid integer overflow/wraparound - could make dedicated and then subtract 500.
+        eg. have a deciated signed int 500ms counter,   if(app->soft_500ms >= 500) app->soft_500ms -= 500;
+        for msleep() use another dedicated counter.  since msleep() is not used recursively. simple, just reset count to zero, on entering msleep(), and count up.
+        actually msleep_with_yield() could be called recursively.
+        probably want to check, with a count/mutex.
+      */
       app_update_soft_500ms(app);
     }
 
@@ -300,10 +298,12 @@ void app_loop(app_t *app)
 
 void app_simple_update(app_t *app)
 {
-  /* use in yield function.
-      - need to process quit/ cancel like console messages.
+  /*
+    for the general simple update for long-running yielding function
+    we don't want to accept new console commands
+    - and avoid probably don't want to test or update the fpga
+  */
 
-    */
   assert(app);
   assert(app->magic == APP_MAGIC);
 

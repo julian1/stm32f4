@@ -71,8 +71,8 @@ typedef struct data_t
 void data_init ( data_t *);
 void data_rdy_interupt( data_t *data);    // handler setup in app context.
 
-void data_update(data_t *data, uint32_t spi );
 
+void data_update_new_reading(data_t *data, uint32_t spi, bool verbose);
 
 
 // could create and add to data/cal.h
@@ -97,6 +97,13 @@ void data_cal(
 
 MAT * run_to_matrix( uint32_t clk_count_mux_neg, uint32_t clk_count_mux_pos, uint32_t clk_count_mux_rd, unsigned model, MAT * out);
 
+MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture);
+
 
 bool data_flash_repl_statement( data_t *data, const char *cmd);
+
+
+
+
+
 
