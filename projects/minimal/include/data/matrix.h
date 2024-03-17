@@ -83,7 +83,7 @@ bool m_is_scalar(const MAT *mat );
 double m_to_scalar(const MAT *mat );
 
 
-struct R
+struct regression_t
 {
   MAT *b;
 
@@ -113,16 +113,16 @@ struct R
 
 };
 
-typedef struct R R;
+typedef struct regression_t regression_t ;
 
 
 
 // TODO change name regression_free()
-void r_free( R *regression);
-void r_regression_show( const R * regression, FILE *f );
+void r_free( regression_t *regression);
+void r_regression_show( const regression_t * regression, FILE *f );
 
-// TODO change name regression_run()
-int m_regression( const MAT *x, const MAT *y,  R * regression );
+// TODO change name regression_run() or m_cal_regression_params() 
+int m_regression( const MAT *x, const MAT *y,  regression_t * regression );
 int m_regression_test(void);
 
 void m_octave_foutput( FILE *f, const char *format, const MAT *m);

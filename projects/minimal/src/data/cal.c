@@ -222,7 +222,7 @@ void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *s
   assert(m_rows(y) == m_rows(xs));
   assert(m_rows(y) == m_rows(aperture));
 
-  R regression;
+  regression_t regression;
 
   m_regression( xs, y, &regression );   // rename reg_regression()...
   // usart1_flush();

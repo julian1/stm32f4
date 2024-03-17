@@ -716,7 +716,7 @@ MAT * m_regression( MAT *x, MAT * y, MAT *out)
 
 
 
-int m_regression( const MAT *x, const MAT *y,  R * regression )
+int m_regression( const MAT *x, const MAT *y,  regression_t * regression )
 {
   /*
       example from "basic econometrics" p 291.
@@ -811,7 +811,7 @@ int m_regression( const MAT *x, const MAT *y,  R * regression )
 
 
 
-void r_free( R *regression)
+void r_free( regression_t *regression)
 {
 
   M_FREE( regression->b);
@@ -825,8 +825,9 @@ void r_free( R *regression)
 
 
 
-void r_regression_show( const R * regression, FILE *f )
+void r_regression_show( const regression_t * regression, FILE *f )
 {
+  // change name print? no . its for a structure
   // could pass the stream
 
   fprintf(f, "b\n");
@@ -901,7 +902,7 @@ int m_regression_test()
   MAT *x      =  m_concat_ones( x_, MNULL );
 
 
-  R regression;
+  regression_t regression;
   memset( &regression, 0, sizeof(regression));
 
   m_regression(  x, y,  &regression );
