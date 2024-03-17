@@ -89,6 +89,11 @@ void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *s
 // consider rename. this is more model_encode_row_from_counts()) - according to the model.
 // taking model as first arg
 
+/*
+  rename name row_to_matrix() to   model_adc_counts_to_m() or similar.
+  and make the model the first arg.
+
+*/
 
 MAT * run_to_matrix( uint32_t clk_count_mux_neg, uint32_t clk_count_mux_pos, uint32_t clk_count_mux_rd, unsigned model, MAT * out);
 

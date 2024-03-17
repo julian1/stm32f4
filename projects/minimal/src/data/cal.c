@@ -98,15 +98,19 @@ void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *s
   assert(mode);
 
 
+  printf("whoot cal() \n");
+
+
 
   // set. in default?
   data->model_cols = 3;
 
 
-  // unsigned  max_rows =  obs_n * ARRAY_SIZE(nplc) * 2 /** ARRAY_SIZE(params)*/;
-  unsigned max_rows = 10;
-
-  printf("whoot cal() \n");
+  const unsigned obs_to_take_n = 7; // how many obs to take
+  const unsigned nplc[] = { 8, 9, 10, 11, 12, 13, 14, 15, 16  };
+  // unsigned  max_rows =  obs_to_take_n * ARRAY_SIZE(nplc) * 2 /** ARRAY_SIZE(params)*/;
+  unsigned  max_rows =  obs_to_take_n * ARRAY_SIZE(nplc) * 2 ;
+  // unsigned max_rows = 10;
 
 
 
@@ -137,85 +141,81 @@ void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *s
   mode->trigger_source_internal = 1;
 
 
-  // setup adc nplc
-  mode->adc.reg_adc_p_aperture = nplc_to_aperture( 10, data->line_freq );;
-
-
-
-
-  // this is horrible.
+  // this isnt' that nice. versus pushing a reserve sized array but is reasonably simple.
   // just overside the matrix and use push_row
   unsigned row_idx = 0;
 
-  // ref hi/ref lo
-  for(unsigned j = 0; j < 2; ++j ) {
 
 
-    double y_ = 0;
-    if(j == 0) {
-      y_ = 7;   // ref-hi / 7V
-      mode_set_ref_source(  mode, 7);
-    } else {
-      y_ = 0;  // ref-lo / 0V
-      mode_set_ref_source(  mode, 0);
-    }
+  for(unsigned h = 0; h < ARRAY_SIZE(nplc); ++h)
+  {
+
+    printf("nplc %u\n", nplc[h]);
+
+    // setup adc nplc
+    mode->adc.reg_adc_p_aperture = nplc_to_aperture( 10, data->line_freq );;
 
 
-    printf("spi_mode_transition_state()\n");
-    spi_mode_transition_state( spi, mode, system_millis);
-
-    // note, adc is triggered/running here, even as we sleep
-
-    printf("sleep\n");
-    //  let things settle from spi emi burst, and board DA settle.
-    msleep(1 * 1000, system_millis);
+    // ref hi/ref lo
+    for(unsigned j = 0; j < 2; ++j ) {
 
 
-    // take obs loop
-    for(unsigned i = 0; i < 5; ++i ) {
-
-
-      // block on interupt.
-      while(! data->adc_measure_valid ) {
-        // yield( yield_ctx);
+      double y_ = 0;
+      if(j == 0) {
+        y_ = 7;   // ref-hi / 7V
+        mode_set_ref_source(  mode, 7);
+      } else {
+        y_ = 0;  // ref-lo / 0V
+        mode_set_ref_source(  mode, 0);
       }
-      data->adc_measure_valid = false;
 
+      printf("spi_mode_transition_state()\n");
+      spi_mode_transition_state( spi, mode, system_millis);
 
-      // embed a 8 bit. counter ini the reg_status and use it for the measure.
-      // uint32_t status =            spi_ice40_reg_read32( app->spi, REG_STATUS );
+      // note, adc is triggered/running here, even as we sleep
 
-      uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RESET);   // time refmux is in reset. useful check. not adc initialization time.
-      uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-      uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-      uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RD);
-      uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_MUX_SIG);
+      printf("sleep\n");
+      //  let things settle from spi emi burst, and board DA settle.
+      // same as discarding values
+      msleep(1 * 1000, system_millis /* , yield  ... */);
 
+      // take obs loop
+      for(unsigned i = 0; i < obs_to_take_n; ++i ) {
 
-      printf("counts %6lu %lu %lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+        // block on interupt.
+        while(! data->adc_measure_valid ) {
+          // yield( yield_ctx);
+        }
+        data->adc_measure_valid = false;
 
-      printf("\n");
+        // embed a 8 bit. counter ini the reg_status and use it for the measure.
+        // uint32_t status =            spi_ice40_reg_read32( app->spi, REG_STATUS );
+        uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RESET);   // time refmux is in reset. useful check. not adc initialization time.
+        uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+        uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+        uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RD);
+        uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_MUX_SIG);
 
-      // consider rename. this is more model_encode_row_from_counts()) - according to the model.
-      // taking model as first arg
-      row = run_to_matrix( clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, data->model_cols, row);
+        printf("counts %6lu %lu %lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+        printf("\n");
 
+        // consider rename. this is more model_encode_row_from_counts()) - according to the model.
+        // taking model as first arg
+        row = run_to_matrix( clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, data->model_cols, row);
 
-      mat_set_row( xs,       row_idx,  row ) ;
-      vec_set_val( y,        row_idx,   y_  *  clk_count_mux_sig );
-      vec_set_val( aperture, row_idx, clk_count_mux_sig);
-      ++row_idx;
+        mat_set_row( xs,       row_idx,  row ) ;
+        vec_set_val( y,        row_idx,   y_  *  clk_count_mux_sig );
+        vec_set_val( aperture, row_idx, clk_count_mux_sig);
+        ++row_idx;
 
-      /*
-      m_push_row( xs,       row ) ;
-      vec_push_row_val( y,  y_  *  clk_count_mux_sig );
-      vec_set_val( aperture, row_idx, clk_count_mux_sig);
-      */
-
-
-    }
-
-  }
+        /*
+        m_push_row( xs,       row ) ;
+        vec_push_row_val( y,  y_  *  clk_count_mux_sig );
+        vec_set_val( aperture, row_idx, clk_count_mux_sig);
+        */
+      } // i
+    } // j
+  } // h
 
 
   // shrink matrixes to size collected data
@@ -251,23 +251,96 @@ void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *s
 
   {
     // print some stats
-    uint32_t aperture_ = nplc_to_aperture( 10, data->line_freq );
+    uint32_t aperture_          = nplc_to_aperture( 10, data->line_freq );
 
-    double sigma_div_aperture = regression.sigma / aperture_  * 1e6; // 1000000;  // in uV.
+    double sigma_div_aperture   = regression.sigma / aperture_  * 1e6; // 1000000;  // in uV.
 
     printf("stderr(V) %.2fuV  (nplc10)\n", sigma_div_aperture);
 
-    double last_b_coefficient = m_get_val(regression.b ,   0,   m_rows(regression.b) - 1);
+    double last_b_coefficient   = m_get_val(regression.b ,   0,   m_rows(regression.b) - 1);
 
     print_slope_b_detail( aperture_, last_b_coefficient);
   }
 
 
+  // copy to data->b
+  // set data->b size first, because m_copy() does not change dims.
+  data->b = m_resize(data->b,  m_rows( regression.b ), m_cols( regression.b));
+  assert(data->b->m == regression.b->m && data->b->n == regression.b->n);
+
+  // note the predicted values are still in the regression structure.
+  data->b       = m_copy( regression.b, data->b );
+
+  // free regression
+  r_free( &regression );
+
+  //////////////////////////
+
+
+
+  m_free(row);
+  m_free(xs);
+  m_free(y);
+  m_free(aperture);
+
 
 
 }
 
+// ok. we want the ability to save the cal. so can reuse.
+// want to fix the amp inductor.
+// high variance - indicates perhaps flicker noise.
+
 /*
+
+
+  stderr(V) 1.03uV  (nplc10)
+  res       0.023uV  digits 8.65   (nplc10)
+
+  no change. nice.
+  stderr(V) 1.61uV  (nplc10)
+  res       0.030uV  digits 8.52   (nplc10)
+
+  after adding inductor
+  stderr(V) 1.51uV  (nplc10)
+  res       0.022uV  digits 8.65   (nplc10)
+
+  no change
+  stderr(V) 3.19uV  (nplc10)
+  res       0.036uV  digits 8.45   (nplc10)
+
+
+  no change.
+  stderr(V) 1.12uV  (nplc10)
+  res       0.028uV  digits 8.55   (nplc10)
+  calling spi_mode_transition_state()
+
+
+  no change from previous. better.
+  stderr(V) 1.64uV  (nplc10)
+  res       0.026uV  digits 8.59   (nplc10)
+
+
+  after disconnecting leads.
+  stderr(V) 3.40uV  (nplc10)
+  res       0.025uV  digits 8.61   (nplc10)
+
+
+  using all nplc, and - with mso and scope leads connected.   and no amplifier inductor. and lt1021 ref, no shielding. uncleaned
+
+  stderr(V) 4.17uV  (nplc10)
+  res       0.020uV  digits 8.69   (nplc10)
+  calling spi_mode_transition_state()
+
+  max system bytes =      14500
+  system bytes     =      14500
+  in use bytes     =       1364
+  sp 0x2004ff0c   327436
+  calling spi_mode_transition_state()
+
+
+
+
   mar 17. initial code.  with just  10obs.
 
   stderr(V) 1.04uV  (nplc10)

@@ -194,6 +194,7 @@ void mode_set_ref_source( _mode_t *mode, unsigned u0 )
   }
   else if( u0 == 0 ) {
     // need bodge for this
+    printf("with ref lo\n");
     mode->second.U1006  = S7;       // ref-lo
   }
   else

@@ -1,4 +1,8 @@
+/*
+  consider rename this file. perhaps to measurement.
+  and move the more cal specific functions to cal. perhaps.
 
+*/
 #include <stdio.h>
 #include <assert.h>
 
@@ -20,7 +24,7 @@ void data_init ( data_t *data )
   assert(data->magic == DATA_MAGIC) ;
 
 
-  // not sure if really even need this. 
+  // not sure if really even need this.
   printf("whoot data init!\n");
 }
 
@@ -99,10 +103,11 @@ void data_update(data_t *data, uint32_t spi )
 
 
 /*
-  also
- change name row_to_matrix() to   adc_counts_to_row() or similar.
-  model argument should probably go first.
-  and this isn't a function that takes data_ as arg. so more a helper, and perhaps belong in different func
+
+  rename name row_to_matrix() to   model_adc_counts_to_m() or similar.
+  and make the model the first arg.
+
+  REVIEW - should go in cal. because the model that defines. is part of the cal
 
 */
 
