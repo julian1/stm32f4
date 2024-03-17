@@ -20,6 +20,7 @@ SRCFILES	= src/peripheral/ice40-extra.c   src/peripheral/led.c  src/peripheral/s
             src/util.c \
             src/data/data.c src/data/cal.c src/data/matrix.c src/data/mesch-support.c src/data/regression.c \
             src/test/test01.c src/test/test02.c  src/test/test03.c src/test/test05.c src/test/test14.c src/test/test15.c \
+            src/flash/stream-flash.c  src/flash/file-blob.c
 
 
 #            src/peripheral/spi-dac8734.c \
