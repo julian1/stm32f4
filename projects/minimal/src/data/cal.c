@@ -30,6 +30,7 @@
 #include <data/data.h>
 #include <data/data.h>
 
+#include <data/matrix.h> // m_set_row()
 
 // we will need to pass the spi also.
 
@@ -64,11 +65,28 @@ void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *s
 
 
 
-  printf("whoot cal() \n");
-  uint32_t model_cols = 3;
+  // set. in default?
+  data->model_cols = 3;
 
-  // unsigned row_idx = 0;
-  MAT *row = NULL;
+
+  // unsigned  max_rows =  obs_n * ARRAY_SIZE(nplc) * 2 /** ARRAY_SIZE(params)*/;
+  unsigned max_rows = 10;
+
+  printf("whoot cal() \n");
+
+
+
+  // storage
+  MAT *xs       = m_get(max_rows, data->model_cols );
+  MAT *y        = m_get(max_rows, 1);
+  MAT *aperture = m_get(max_rows, 1); // required to calc predicted
+  MAT *row      = NULL;
+
+/*
+  m_truncate_rows(xs, 0);
+  m_truncate_rows(y, 0);
+  m_truncate_rows(aperture, 0);
+*/
 
 
   // setup input relays - for dcv-source
@@ -90,11 +108,23 @@ void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *s
 
 
 
+
+  // this is horrible.
+  // just overside the matrix and use push_row
+  unsigned row_idx = 0;
+
   // ref hi/ref lo
   for(unsigned j = 0; j < 2; ++j ) {
 
-    // 7V. or Lo. from the ref.
-    mode_set_ref_source(  mode, j == 0 ? 7 : 0 );
+
+    double y_ = 0;
+    if(j == 0) {
+      y_ = 7;   // ref-hi / 7V
+      mode_set_ref_source(  mode, 7);
+    } else {
+      y_ = 0;  // ref-lo / 0V
+      mode_set_ref_source(  mode, 0);
+    }
 
 
     printf("spi_mode_transition_state()\n");
@@ -134,7 +164,21 @@ void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *s
 
       // consider rename. this is more model_encode_row_from_counts()) - according to the model.
       // taking model as first arg
-      row = run_to_matrix( clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, /*app->*/model_cols, row);
+      row = run_to_matrix( clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, data->model_cols, row);
+
+
+      mat_set_row( xs,       row_idx,  row ) ;
+      vec_set_val( y,        row_idx,   y_  *  clk_count_mux_sig );
+      vec_set_val( aperture, row_idx, clk_count_mux_sig);
+      ++row_idx;
+
+      /*
+      m_push_row( xs,       row ) ;
+      vec_push_row_val( y,  y_  *  clk_count_mux_sig );
+      vec_set_val( aperture, row_idx, clk_count_mux_sig);
+      */
+
+
     }
 
   }

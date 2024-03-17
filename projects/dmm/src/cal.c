@@ -72,7 +72,7 @@ void app_cal( app_t *app )
   */
   MAT *xs       = m_get(max_rows, app->model_cols );
   MAT *y        = m_get(max_rows, 1);
-  MAT *aperture = m_get(max_rows, 1); // required for predicted
+  MAT *aperture = m_get(max_rows, 1); // required to calc predicted
 
 
   UNUSED(y);
