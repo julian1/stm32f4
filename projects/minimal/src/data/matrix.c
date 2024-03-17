@@ -1,20 +1,12 @@
-/*
-  more general purpse matrix code?
 
-  calc.c
-  need a better name for this. math2.h/c?  matrix2 calc2  stats.c ?
-*/
 
 #include <math.h>     // sqrt
 #include <assert.h>
-#include <stdbool.h>
 
 
 
 #include <mesch12b/matrix.h>
-// #include <mesch12b/matrix2.h>   // inverse TODO - review needed in the header?
 
-// #include "calc.h"
 #include "data/matrix.h"
 
 
@@ -713,7 +705,7 @@ int m_output_test()
 
 void m_print_details(MAT *m)
 {
-  // rename m_show_detail ?
+  // TODO consider rename m_show_detail ?
 
 
   assert(m);

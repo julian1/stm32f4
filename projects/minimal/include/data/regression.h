@@ -8,7 +8,7 @@ struct regression_t
 {
   MAT *b;
 
-  MAT *predicted;
+  MAT *predicted;   // good to always calculate - if sufficient memory
 
   unsigned df;      // degrees of freedom
 
@@ -38,11 +38,11 @@ typedef struct regression_t regression_t ;
 
 
 
-// TODO change name regression_free()
+// TODO consider change name regression_free()
 void r_free( regression_t *regression);
 void r_regression_show( const regression_t * regression, FILE *f );
 
-// TODO change name regression_run() or m_cal_regression_params() 
+// TODO consider change name regression_run() or m_regression_calc()
 int m_regression( const MAT *x, const MAT *y,  regression_t * regression );
 int m_regression_test(void);
 

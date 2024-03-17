@@ -1,9 +1,7 @@
 
 
-
 #include <math.h>     // sqrt
 #include <assert.h>
-#include <stdbool.h>
 
 
 #include <data/matrix.h>      // m_rows()
