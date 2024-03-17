@@ -183,6 +183,21 @@ void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *s
 
   }
 
+
+  // shrink matrixes to size collected data
+  m_resize( xs, row_idx, m_cols( xs) );
+  m_resize( y,  row_idx, m_cols( y) );
+  m_resize( aperture, row_idx, m_cols( aperture) ); // we don't use aperture
+
+
+  printf("xs\n");
+  m_foutput( stdout, xs );
+  // usart1_flush();  // block until data flushed. 
+                      // helps, but issue is uart circular buffers still overflow
+                      // could also just sleep for a bit.
+
+
+
 }
 
 
