@@ -87,6 +87,7 @@ void app_init_console_buffers( app_t *app )
 
 
   /* note no printf yet.
+      avoid assert()
   */
 
   // uart/console

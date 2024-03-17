@@ -103,7 +103,11 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
   spi_ice40_reg_write32(spi, REG_SA_P_CLK_COUNT_PRECHARGE, mode->sa.reg_sa_p_clk_count_precharge );
 
 #if 1
-
+  /*
+    had a spi_reg_write8. it would ease this,.
+    or use a bitfield having an array.  eg.   seq[ 0].pc   and seq[0].azmux etc.
+    but separate regs, eases destructuring on fpga side.
+  */
   spi_ice40_reg_write32(spi, REG_SA_P_SEQ_N,        mode->sa.reg_sa_p_seq_n );
   spi_ice40_reg_write32(spi, REG_SA_P_SEQ0,        mode->sa.reg_sa_p_seq0 );
   spi_ice40_reg_write32(spi, REG_SA_P_SEQ1,        mode->sa.reg_sa_p_seq1 );

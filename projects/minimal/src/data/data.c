@@ -103,6 +103,24 @@ void data_update(data_t *data, uint32_t spi )
 #endif
 
 
+/*
+  - we dont want to care about azmux values here.
+  - we only want to know enough to decode the stream
+  - so could pass a function, setup
+  ---
+  - or just adhere - to a convetinon.   eg. seq0 == lo. and seq1 == hi.
+      that allows us to decode.
+      if seq_idx == 0 -> lo
+      if seq_idx == 1->  hi
+
+      adc_seq_idxo
+
+    sequence acquisition can set it. when we get the adc valid signal.
+
+    seq_idx_last <= seq_idx;
+
+*/
+
 
 static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
 {

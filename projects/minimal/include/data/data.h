@@ -40,9 +40,13 @@ typedef struct data_t
   unsigned verbose;     // treated as bool at the moment
 
   /////////////////
+  /*
+    perhaps remove. since only used to produce the cal.
+    so just pass as arg when cal process is called
+  */
   unsigned model_cols; // to use.
 
-  MAT *b;           // cal_b or model_b ?
+  MAT *b;           // consider rename cal_b or model_b ?
 
   //////////////////
 
