@@ -240,8 +240,6 @@ void app_cal( app_t *app )
 
   printf("xs\n");
   m_foutput( stdout, xs );
-  
-  // fflush(stdout) is not equivalent. since it doesn't know about the usart1 buffer.
   usart1_flush(); // block
 
 
@@ -262,12 +260,12 @@ void app_cal( app_t *app )
   R regression;
 
   m_regression( xs, y, &regression );   // rename reg_regression()...
-  usart1_flush();   // block
+  usart1_flush();
 
   // TODO change name regression_report.
   // or _output..
   r_regression_show( &regression, stdout);
-  usart1_flush(); // block
+   usart1_flush();
 
 
 
