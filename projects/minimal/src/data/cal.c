@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <math.h>     // fabs
 
 
 #include <ice40-reg.h>
@@ -53,6 +54,24 @@
 // perhaps line_freq should go in data...
 
 
+
+
+
+static void print_slope_b_detail( unsigned aperture, double slope_b )
+{
+  // better name print_slope_b_detail.
+
+  // unsigned aperture =   nplc_to_aper_n( 10 );
+
+  // double   slope_b    = m_get_val(cal->b, slope_idx, 0 );   // rows
+  double   res        = fabs( slope_b / aperture ); // in V
+  // could also work out the implied count here.
+
+  printf("res       %.3fuV  ", res * 1000000);  // resolution  in uV.
+  printf("digits %.2f ", log10( 10.f / res));   // ie. decimal=10 not +-11V
+  // printf("bits %.2f ", log2( res));           // correct?   or should be aperture / slobe_b ?
+  printf("  (nplc10)\n");
+}
 
 
 
@@ -192,13 +211,58 @@ void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *s
 
   printf("xs\n");
   m_foutput( stdout, xs );
-  // usart1_flush();  // block until data flushed. 
+  // usart1_flush();  // block until data flushed.
                       // helps, but issue is uart circular buffers still overflow
                       // could also just sleep for a bit.
 
 
+  ///////////////////////////////////////////////////////
+  // calc_cal( app, y, xs, aperture );
+
+  assert(m_rows(y) == m_rows(xs));
+  assert(m_rows(y) == m_rows(aperture));
+
+  R regression;
+
+  m_regression( xs, y, &regression );   // rename reg_regression()...
+  // usart1_flush();
+
+  // TODO change name regression_report.
+  // or _output..
+  r_regression_show( &regression, stdout);
+   //usart1_flush();
+
+
+
+  {
+    // print some stats
+    uint32_t aperture_ = nplc_to_aperture( 10, data->line_freq );
+
+    double sigma_div_aperture = regression.sigma / aperture_  * 1e6; // 1000000;  // in uV.
+
+    printf("stderr(V) %.2fuV  (nplc10)\n", sigma_div_aperture);
+
+    double last_b_coefficient = m_get_val(regression.b ,   0,   m_rows(regression.b) - 1);
+
+    print_slope_b_detail( aperture_, last_b_coefficient);
+  }
+
+
+
 
 }
+
+/*
+  mar 17. initial code.  with just  10obs.
+
+  stderr(V) 1.04uV  (nplc10)
+  res       0.040uV  digits 8.40   (nplc10)
+  calling spi_mode_transition_state()
+
+*/
+
+
+
 
 
 
