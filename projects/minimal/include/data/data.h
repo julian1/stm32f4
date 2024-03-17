@@ -98,4 +98,5 @@ void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *s
 MAT * run_to_matrix( uint32_t clk_count_mux_neg, uint32_t clk_count_mux_pos, uint32_t clk_count_mux_rd, unsigned model, MAT * out);
 
 
+bool data_flash_repl_statement( data_t *data, const char *cmd);
 

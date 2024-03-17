@@ -141,9 +141,6 @@ bool app_test05( app_t *app , const char *cmd);
 bool app_test14( app_t *app , const char *cmd);
 bool app_test15( app_t *app , const char *cmd);
 
-// app-flash.c
-bool app_flash_repl_statement( app_t *app, const char *cmd) ;
-
 
 
 

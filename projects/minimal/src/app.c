@@ -597,7 +597,8 @@ void app_repl_statement(app_t *app,  const char *cmd)
   else if(  mode_repl_statement( app->mode_current,  cmd, app->data->line_freq )) { }
 
 
-  else if( app_flash_repl_statement(app, cmd)) { }
+  else if( data_flash_repl_statement(app->data, cmd)) { }
+  // else if( app_flash_repl_statement(app, cmd)) { }
 
 
   else {

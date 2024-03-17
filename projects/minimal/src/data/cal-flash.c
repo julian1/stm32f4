@@ -94,17 +94,16 @@ static void handler_scan_cal( FILE *f, blob_header_t *header, data_t *data )
 
 
 /*
-  - it's not clear that this needs the app structure at all.
-  - can work with data.
-    in which case can move into dir /data
+  try maintaining this using data as context.
 
 */
 
-bool app_flash_repl_statement( app_t *app, const char *cmd)
+bool data_flash_repl_statement( data_t *data, const char *cmd)
 {
+/*
   assert(app);
-
   data_t *data = app->data;
+*/
   assert(data);
   assert(data->magic == DATA_MAGIC);
 
