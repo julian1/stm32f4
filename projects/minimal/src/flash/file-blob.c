@@ -30,7 +30,7 @@
 
 void file_blob_skip_end( FILE *f)
 {
-  // this func goes here. because it uses the Header structure
+  // this func goes here. because it uses the blob_header_t structure
   assert(f );
 
   printf( "----------------------\n");
@@ -46,7 +46,7 @@ void file_blob_skip_end( FILE *f)
   usart1_flush();
 
 
-  Header header;
+  blob_header_t header;
   assert(sizeof(header) == 12);
 
   while(true) {
@@ -92,8 +92,7 @@ void file_blob_skip_end( FILE *f)
 
 */
 
-// void file_blob_write( FILE *f,    void (*pf)( FILE *, void *ctx ), void *ctx )
-void file_blob_write( FILE *f, void (*pf)( FILE *, Header *, void *ctx ), void *ctx )
+void file_blob_write( FILE *f, void (*pf)( FILE *, blob_header_t *, void *ctx ), void *ctx )
 {
   assert(f );
   assert(pf);
@@ -104,16 +103,16 @@ void file_blob_write( FILE *f, void (*pf)( FILE *, Header *, void *ctx ), void *
 
   usart1_flush();
 
-  assert( sizeof(Header) == 12 );
+  assert( sizeof(blob_header_t) == 12 );
 
   // seek past the header,  which we will write later.
-  fseek( f, sizeof(Header), SEEK_CUR ) ;
+  fseek( f, sizeof(blob_header_t), SEEK_CUR ) ;
   long start = ftell( f);   // record postion from start.
 
   /////////////////////
 
   // clear header fields
-  Header  header;
+  blob_header_t  header;
   memset(&header, 0, sizeof(header));
 
   // write the blob data, and let caller set the blob id in the header
@@ -129,7 +128,7 @@ void file_blob_write( FILE *f, void (*pf)( FILE *, Header *, void *ctx ), void *
 
   printf("len %ld\n", len );
   // seek back to header start
-  fseek( f, -len - sizeof(Header), SEEK_CUR );
+  fseek( f, -len - sizeof(blob_header_t), SEEK_CUR );
 
   // set other header fields
   header.magic = MAGIC;
@@ -147,7 +146,7 @@ void file_blob_write( FILE *f, void (*pf)( FILE *, Header *, void *ctx ), void *
 
 
 
-int file_blobs_scan( FILE *f,  void (*pf)( FILE *f, Header *, void *ctx ), void *ctx )
+int file_blobs_scan( FILE *f,  void (*pf)( FILE *f, blob_header_t *, void *ctx ), void *ctx )
 {
   // return 0 if success.
 
@@ -160,7 +159,7 @@ int file_blobs_scan( FILE *f,  void (*pf)( FILE *f, Header *, void *ctx ), void 
   // seek the start of file
   fseek( f, 0 , SEEK_SET) ;
 
-  Header header;
+  blob_header_t header;
   assert(sizeof(header) == 12);
 
   while(true) {
@@ -213,55 +212,58 @@ int file_blobs_scan( FILE *f,  void (*pf)( FILE *f, Header *, void *ctx ), void 
 
 
 #if 0
-      switch(header.id) {
 
-        case 99:
-        case 101:
-        case 102:
-        case 103:   // some wrongly sized.
+  // OLD
 
-          // printf("old, ignore\n" );
-          // fseek( f, header.len, SEEK_CUR ) ;
-          break;
+  switch(header.id) {
 
-        case 104:
-          if(header.len == 78) // fix to ignore cal type 105, that was saved as 104.
-            break;
-          // allow fallthrough
+    case 99:
+    case 101:
+    case 102:
+    case 103:   // some wrongly sized.
 
-        case 105:
-          if(header.len == 97) // fix to ignore cal type 105, that was saved as 104.
-            break;
+      // printf("old, ignore\n" );
+      // fseek( f, header.len, SEEK_CUR ) ;
+      break;
 
-        case 106:
-          {
+    case 104:
+      if(header.len == 78) // fix to ignore cal type 105, that was saved as 104.
+        break;
+      // allow fallthrough
 
-          // printf("reading cal type 104,105,106\n" );
+    case 105:
+      if(header.len == 97) // fix to ignore cal type 105, that was saved as 104.
+        break;
 
-          Cal * cal = cal_create();
-          file_read_cal_values( header.id, cal, f);
+    case 106:
+      {
 
-          // actually should be the cal_id_max = MAX(id cal_id_count)
-          // cal_id_count
-          *cal_id_max =  MAX( *cal_id_max , cal->id );
+      // printf("reading cal type 104,105,106\n" );
 
-          // bounds
-          assert( cal->slot < sz);
+      Cal * cal = cal_create();
+      file_read_cal_values( header.id, cal, f);
 
-          // free old if exists
-          if(cals[ cal->slot ] )
-            cal_free( cals[ cal->slot ] );
+      // actually should be the cal_id_max = MAX(id cal_id_count)
+      // cal_id_count
+      *cal_id_max =  MAX( *cal_id_max , cal->id );
 
-          // set new
-          cals[ cal->slot ] = cal;
+      // bounds
+      assert( cal->slot < sz);
 
-          assert( here0  + header.len == (unsigned) ftell( f));
-          }
-          break;
+      // free old if exists
+      if(cals[ cal->slot ] )
+        cal_free( cals[ cal->slot ] );
+
+      // set new
+      cals[ cal->slot ] = cal;
+
+      assert( here0  + header.len == (unsigned) ftell( f));
+      }
+      break;
 
 
 
-      };
+  };
 #endif
 
 

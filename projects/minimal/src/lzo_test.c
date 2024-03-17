@@ -63,7 +63,8 @@ static long flush(void*p, unsigned long n)
 }
 
 
-
+// same as ice40 bitstream
+#define FLASH_SECT_ADDR   0x08060000
 
 
 int flash_lzo_test(void)
@@ -72,7 +73,7 @@ int flash_lzo_test(void)
   // fill_file = fopen(argv[1], "r") ;
 
   printf("flash lzo test 0\n");
-  fill_file = flash_open_file();
+  fill_file = flash_open_file(  FLASH_SECT_ADDR );
 
   printf("lzo test 1\n");
   assert(fill_file);

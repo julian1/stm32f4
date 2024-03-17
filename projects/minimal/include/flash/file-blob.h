@@ -21,14 +21,14 @@
 
 
 // change name blob_header_t etc.
-struct Header
+struct blob_header_t
 {
   unsigned magic;
   unsigned len;
   unsigned id;
 };
 
-typedef struct Header Header;
+typedef struct blob_header_t blob_header_t;
 
 
 void file_blob_skip_end( FILE *f);
@@ -39,8 +39,8 @@ void file_blob_skip_end( FILE *f);
   also if add other fields, then they are available.
 */
 
-void file_blob_write( FILE *f, void (*pf)( FILE *, Header *, void *ctx ), void *ctx );
+void file_blob_write( FILE *f, void (*pf)( FILE *, blob_header_t *, void *ctx ), void *ctx );
 
-int file_blobs_scan( FILE *f,  void (*pf)( FILE *f, Header *, void *ctx ), void *ctx );
+int file_blobs_scan( FILE *f,  void (*pf)( FILE *f, blob_header_t *, void *ctx ), void *ctx );
 
 

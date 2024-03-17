@@ -28,15 +28,6 @@
 #include <peripheral/spi-ad5446.h>
 
 
-// all this flash stuff should be moved.  3 different files.
-// flash stuff
-#include <libopencm3/stm32/flash.h>
-
-#include <flash/stream-flash.h>
-#include <flash/file-blob.h>   // change name stream-cal.
-#include <data/matrix.h> // m_foutput_binary 
-
-
 
 
 
@@ -89,7 +80,7 @@ static char buf_console_out[1000];    // changing this and it freezes. indicates
 static char buf_command[1000];
 
 
-void app_init_buffers( app_t *app )
+void app_init_console_buffers( app_t *app )
 {
   assert(app);
   assert(app->magic == APP_MAGIC);
@@ -378,66 +369,6 @@ static void spi_print_seq_register( uint32_t spi, uint32_t reg )
 
 /*
   EXTR.
-
-    for stuff like stddev, date etc.  of cal.
-    just store it all in a single string instead . it's enough structure
-    like - can we can record this when we do a cal in a string. or string buffer.
-    ----
-    rename file_blob_serialize() d
-
-    ---------
-
-    for the cal slot/name .  use a string identifier. not a number.
-    good convenience.
-*/
-
-static void my_file_cal_write( FILE *f, Header *header, MAT *b )      // should pass app. to allow stor may be better t
-{
-  assert(f);
-  assert(header);
-  assert(b);
-
-  // set the blob id
-  assert(header->len == 0 && header->magic == 0);   // these are not set yet
-  header->id = 106;
-
-  // write the data
-  m_foutput_binary( f, b);
-}
-
-
-
-static void my_file_blobs_scan( FILE *f, Header *header, app_t *app )
-{
-  assert(header);
-  assert(app);
-  assert(app->magic == APP_MAGIC);
-
-
-
-  // ctx should be the app structure.. to save.
-
-  printf("whoot got blob id=%u len=%u\n", header->id, header->len );
-
-  if(header->id == 106) {
-    // it should be readable.
-
-    // OK. hang on. it's not a file sturcture...
-    // we should load it from memory????
-
-    
-    // app->b = m_finput_binary(f, MNULL );
-    app->data->b = m_finput_binary(f, MNULL );
-
-
-  }
-}
-
-
-
-
-/*
-  EXTR.
   most of this is just setting the mode.  and should be expressed,
 
     mode_repl_statement( mode,  cmd ).
@@ -663,90 +594,10 @@ void app_repl_statement(app_t *app,  const char *cmd)
   else if( app_test15( app, cmd  )) { }
 
 
-
-  else if( app->data && mode_repl_statement( app->mode_current,  cmd, app->data->line_freq )) { }
-
-
-  else if(sscanf(cmd, "flash cal save %lu", &u0 ) == 1) {
-
-    if(!app->data->b) {
-      printf("no cal!\n");
-      // return 1;
-    }
-    else {
-
-      // now save to flash
-      printf("flash unlock\n");
-      flash_unlock();
-
-      FILE *f = flash_open_file();
-      file_blob_skip_end( f);
-      // use callback to write the block.
-      file_blob_write( f,  (void (*)(FILE *, Header *, void *)) my_file_cal_write, app->data->b );
-      fclose(f);
-
-      printf("flash lock\n");
-      flash_lock();
-      printf("done\n");
-      }
-    // return 1;
-  }
+  else if(  mode_repl_statement( app->mode_current,  cmd, app->data->line_freq )) { }
 
 
-
-#if 0
-
-  // flash erase
-  else if(strcmp(cmd, "flash erase") == 0) {
-
-    printf("flash erasing sector\n");
-    usart1_flush();
-    flash_erase_sector_();
-    printf("done erase\n");
-    return 1;
-  }
-
-
-  else if(sscanf(cmd, "flash cal save %lu", &u1 ) == 1) {
-
-    if(!app->b) {
-      printf("no cal!\n");
-      return 1;
-    }
-
-    // now save to flash
-    printf("flash unlock\n");
-    flash_unlock();
-
-    FILE *f = flash_open_file();
-    file_blob_skip_end( f);
-    // use callback to write the block.
-    file_blob_write( f,  (void (*)(FILE *, Header *, void *)) my_file_cal_write, app->b );
-    fclose(f);
-
-    printf("flash lock\n");
-    flash_lock();
-    printf("done\n");
-    return 1;
-  }
-
-  // change name load?
-  else if(sscanf(cmd, "flash cal read %lu", &u1 ) == 1) {
-
-    printf("flash unlock\n");
-    flash_unlock();
-    FILE *f = flash_open_file();
-    file_blobs_scan( f,  (void (*)( FILE *, Header *, void *))  my_file_blobs_scan , app );
-    fclose(f);
-
-    printf("flash lock\n");
-    flash_lock();
-    printf("done\n");
-    return 1;
-  }
-
-#endif
-
+  else if( app_flash_repl_statement(app, cmd)) { }
 
 
   else {

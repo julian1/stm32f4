@@ -1,9 +1,6 @@
 
 
 
-// #include <stdint.h>
-// #include <stdio.h>
-// #include <stdlib.h>
 #include <assert.h>
 
 #include <libopencm3/stm32/gpio.h>
@@ -20,6 +17,9 @@
 #include <peripheral/spi-ice40-bitstream.h>
 
 
+// last 128 . on 512k.
+// this be declared in /periphal  perhaps. it's an arch/build dependency
+#define FLASH_SECT_ADDR   0x08060000
 
 
 
@@ -72,7 +72,7 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
 {
   printf("spi_ice40_bitstream_send\n");
 
-  FILE *f = flash_open_file();
+  FILE *f = flash_open_file( FLASH_SECT_ADDR );
   assert(f);
 
 

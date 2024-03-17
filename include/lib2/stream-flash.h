@@ -5,10 +5,9 @@
 
 
 
-void flash_erase_sector_(void);
-// could take arguments for the sector to open...
+void flash_erase_sector_( uint8_t flash_sect_num);
 
-FILE * flash_open_file(void);
+FILE * flash_open_file( uint32_t flash_sect_addr );
 
 void flash_test_write(void);
 void flash_test_read(void);

@@ -108,13 +108,9 @@
   If we passed these by argument instead.  at fopen()
   then this code could be moved to library code lib2.
 */
-// last 128 . on 512k.
-#define FLASH_SECT_ADDR   0x08060000
-#define FLASH_SECT_NUM    7
 
 
-
-void flash_erase_sector_(void)
+void flash_erase_sector_( uint8_t flash_sect_num)
 {
 
   // put in a command
@@ -124,7 +120,7 @@ void flash_erase_sector_(void)
   printf("flase erase sector\n");
   usart1_flush();
 
-  flash_erase_sector(FLASH_SECT_NUM, 0 );
+  flash_erase_sector(flash_sect_num, 0 );
   // unsigned char buf[] = "whoot";
 
   // could do a test read ensure. value...
@@ -136,7 +132,7 @@ void flash_erase_sector_(void)
 
 
 
-static void * file_to_cookie( FILE *f )
+static void *file_to_cookie( FILE *f )
 {
   /* should not be exposed.
     but allows supporting other file based operations over our structure
@@ -185,11 +181,11 @@ struct A
 typedef struct A A;
 
 
-static ssize_t mywrite( void *a_, const char *buf, size_t sz)
+static ssize_t write_handler( void *a_, const char *buf, size_t sz)
 {
   A *a = (A *) a_;
 
-  // printf("** mywrite %u\n", sz);
+  // printf("** write_handler %u\n", sz);
   //printf("a %p\n", a );
   // printf("a->pos %d", a->pos ); // value
 
@@ -207,7 +203,7 @@ static ssize_t mywrite( void *a_, const char *buf, size_t sz)
 }
 
 
-static ssize_t myread(void *a_, char *buf, size_t sz)
+static ssize_t read_handler(void *a_, char *buf, size_t sz)
 {
   A *a = (A *) a_;
 
@@ -219,7 +215,7 @@ static ssize_t myread(void *a_, char *buf, size_t sz)
     this is a buffering action. it is ok to read past the local datastructure.
   */
 
-  // printf("** myread %u\n", sz);
+  // printf("** read_handler %u\n", sz);
   //printf("a %p\n", a );
   // printf("a->pos %d\n", a->pos ); // value
   // usart1_flush();
@@ -253,8 +249,8 @@ static ssize_t myread(void *a_, char *buf, size_t sz)
   this appears to have changed
 
 */
-// static int myseek(A *a, _off64_t *offset_, int whence)
-static int myseek(void *a_, long int *offset_, int whence)
+// static int seek_handler(A *a, _off64_t *offset_, int whence)
+static int seek_handler(void *a_, long int *offset_, int whence)
 {
   assert(a_);
   assert(offset_);
@@ -319,20 +315,20 @@ static int myseek(void *a_, long int *offset_, int whence)
 
 
 
-FILE * flash_open_file(void )
+FILE * flash_open_file( uint32_t flash_sect_addr )
 {
   // think fopencookie will copies
   static cookie_io_functions_t  memfile_func = {
-    .read  = myread,                  // avoid casting ptrf, because types get confusing
-    .write = mywrite,
-    .seek  = myseek,
+    .read  = read_handler,                  // avoid casting ptrf, because types get confusing
+    .write = write_handler,
+    .seek  = seek_handler,
     .close = NULL
   };
 
   // WARNING A is static.
   static A a;
   memset(&a, 0, sizeof(a));
-  a.p = (void *)  FLASH_SECT_ADDR;
+  a.p = (void *)  flash_sect_addr;
   a.pos = 0;
   // a.n = INT_MAX;     // 128 ...
   // a.n = 128 * 1024 ;     // 128 ...

@@ -470,6 +470,9 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
         return 0;
 
       }
+  } else {
+
+    return 0;
   }
 
   return 1;

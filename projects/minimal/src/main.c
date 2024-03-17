@@ -1,7 +1,6 @@
 
 
 #include <stdio.h>    // printf, scanf
-//#include <string.h>   // memset
 #include <assert.h>
 
 
@@ -126,7 +125,7 @@ static _mode_t mode_current = { 0 } ;
 
 
 
-static data_t data = { 
+static data_t data = {
 
   . magic = DATA_MAGIC,
   .line_freq = 50,
@@ -210,7 +209,7 @@ int main(void)
   //////////////////////
   // main app setup
   // initialzes the console buffers, that support printf() and error reporting
-  app_init_buffers( &app );
+  app_init_console_buffers( &app );
 
 
   //////////////
@@ -246,8 +245,8 @@ int main(void)
 
   spi1_port_interupt_setup();
 
-  // shouldnt setup the interupt handler - until fpga is configured, else looks like get  
-  //  
+  // shouldnt setup the interupt handler - until fpga is configured, else looks like get
+  //
   // spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app.data );
 
 

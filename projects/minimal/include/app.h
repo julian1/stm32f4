@@ -88,10 +88,10 @@ typedef struct app_t
   // eg. versus just calling app_update(app); or  app_yield( app) etc.
   void (*yield)(void *);
   void *yield_ctx;
-  
+
   not quite right. because anything running at app context - can determine the yield.
     anything below - eg. peripheral,data,  should not have any knowledge of app structure.
-  
+
   eg. the yield func, is a dependency, and should be passed explicitly to whatever is calling it.
 */
 
@@ -106,7 +106,7 @@ typedef struct app_t
 
 
 
-void app_init_buffers(app_t *app);
+void app_init_console_buffers(app_t *app);
 void app_update(app_t *app);
 void app_loop(app_t *app);
 void app_systick_interupt(app_t *app);
@@ -132,11 +132,20 @@ void app_repl_statements(app_t *app,  const char *s);
   but leave for moment, in case want to be able to pass flags.
 */
 
+
+// from /test
 bool app_test01( app_t *app , const char *cmd);
 bool app_test02( app_t *app , const char *cmd);
 bool app_test03( app_t *app , const char *cmd);
 bool app_test05( app_t *app , const char *cmd);
 bool app_test14( app_t *app , const char *cmd);
 bool app_test15( app_t *app , const char *cmd);
+
+// app-flash.c
+bool app_flash_repl_statement( app_t *app, const char *cmd) ;
+
+
+
+
 
 
