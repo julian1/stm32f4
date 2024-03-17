@@ -153,6 +153,17 @@ static void app_update_soft_500ms(app_t *app)
 
     // TODO . could improve error handling here,  although subsequent spi code is harmless
 
+    /*
+    for(unsigned i = 0; i < 50; ++i )  {
+      static uint32_t counter = 0;
+      ++counter;
+      uint32_t magic = counter  ^ (counter >> 1);
+      spi_ice40_reg_write32( app->spi, REG_DIRECT, magic );
+      msleep( 50,  &app->system_millis);
+    }
+    */
+
+
     // check/verify 4094 OE is not asserted
     assert( ! spi_ice40_reg_read32( app->spi, REG_4094 ));
 
@@ -422,7 +433,11 @@ void app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
+  else if( sscanf(cmd, "verbose %lu", &u0 ) == 1) {
 
+    printf("set verbosity %lu\n", u0  );
+    app->verbose = u0;
+  }
 
   else if( sscanf(cmd, "sleep %100s", s0) == 1
     && str_decode_float( s0, &f0))

@@ -329,6 +329,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
 #endif
   }
 
+  printf("\n");
 
 
 }
@@ -350,16 +351,16 @@ void data_update_new_reading(data_t *data, uint32_t spi, bool verbose)
     this is simpler. and keeps dependencies better isolated, compared with having the sa_acquisition squash the valid signal.
   */
 
+
   // TODO - fix me,   factor this condition test out.
   // to avoid the nesting.
   if(data->adc_measure_valid) {
 
     data->adc_measure_valid = false;
-
     data_update_new_reading2( data, spi, verbose);
   }
 
-
+  // TODO - i think we forgot to bring code across for this check
   // did we miss data, for any reason
   if( data->adc_measure_valid_missed == true) {
     printf("missed data\n");
