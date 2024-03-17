@@ -11,6 +11,7 @@
 #include <util.h>     // aper_n_to_period
 #include <data/matrix.h>     // m_from_scalar
 
+#include <lib2/format.h>  // format_float
 
 #include <ice40-reg.h>
 #include <peripheral/spi-ice40.h>
@@ -208,21 +209,28 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
 
     // app->xs = run_to_mat( ..., app->xs );   its a good simplification.
     */
+
+
     MAT *xs = run_to_matrix(
         clk_count_mux_neg,
         clk_count_mux_pos,
         clk_count_mux_rd,
-        data->model_cols,
+
+        // what model here,
+        // data->model_cols,
+        m_rows( data->b ),       // why not just use data->b here, and conform to what the model requires???
         MNULL
       );
+
+    assert( m_cols(xs) == m_rows( data->b) ) ;
 
     // we could make all these vars persist.
     MAT	*m_mux_sig = m_from_scalar( clk_count_mux_sig, MNULL );
     assert(m_mux_sig);
     assert( m_is_scalar(m_mux_sig) );
 
-
-
+    // Mar 2024.
+#if 0
     if ( m_cols(xs) != m_rows( data->b) ) {
 
       // calibtration sampled data, mismatch the cols mismatch.
@@ -240,6 +248,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
       M_FREE( m_mux_sig );
       return;
     }
+#endif
 
     //  we should persist this.  and pass it in to m_calc_predicated.
     MAT *predicted =  m_calc_predicted( data->b, xs, m_mux_sig /*, app->predicted */);
@@ -254,7 +263,10 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
     M_FREE( predicted );
 
 
+    // eg. no az.
+    printf(" this meas %sV", str_format_float_with_commas(buf, 100, 7, ret ));
 
+  // ok. if seq_n  == 1. then  its not ag.
 
 #if 0
     Mode *mode = app->mode_current;
