@@ -107,11 +107,11 @@ typedef struct app_t
 
 
 void app_init_console_buffers(app_t *app);
-void app_update(app_t *app);
 void app_loop(app_t *app);
 void app_systick_interupt(app_t *app);
 
 
+void app_simple_update(app_t *app);
 
 /*
 

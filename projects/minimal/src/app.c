@@ -298,33 +298,34 @@ void app_loop(app_t *app)
 
 
 
-void app_update(app_t *app)
+void app_simple_update(app_t *app)
 {
-  /* non looping. for use in yield function.
-      call, to keep pumping data input processing.
-      useful for yield functions
+  /* use in yield function.
+      - need to process quit/ cancel like console messages.
+
     */
   assert(app);
   assert(app->magic == APP_MAGIC);
 
 
-  // process new incomming data in priority
-  data_update(app->data, app->spi);
-
-
-  // no console process. - or else just process quit() , or some kind of interupt.
 
   // 500ms soft timer
   if( (app->system_millis - app->soft_500ms) > 500) {
     app->soft_500ms += 500;
 
-    // probably want to check, with a count/mutex.
-    app_update_soft_500ms(app);
+
+    /*
+      blink mcu led
+    */
+    app->led_state = ! app->led_state;
+
+    if(app->led_state)
+      led_on();
+    else
+      led_off();
   }
 
 }
-
-
 
 
 
@@ -501,8 +502,11 @@ void app_repl_statement(app_t *app,  const char *cmd)
   else if(strcmp(cmd, "cal") == 0) {
 
     // void data_cal( data_t *data , uint32_t spi, _mode_t *mode /* void (*yield)( void * ) */ )
+
+    // copy to get working mode
     _mode_t mode = *app->mode_initial;
-    data_cal( app->data,  app->spi, &mode, &app->system_millis /* void (*yield)( void * ) */ );
+
+    data_cal( app->data,  app->spi, &mode, &app->system_millis, (void (*)(void *))app_simple_update, app  );
 
   }
 

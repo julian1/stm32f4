@@ -75,16 +75,16 @@ void data_update(data_t *data, uint32_t spi );
 
 
 
-// could move to data/cal.h
-// can pass the yield function here, down from app,
-// but note - the yield should not process adc raw data / counts.
+// could create and add to data/cal.h
 
-
-
-
-void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *system_millis   /* void (*yield)( void * ) */ );
-
-
+void data_cal(
+    data_t *data ,
+    uint32_t spi,
+    _mode_t *mode,
+    volatile uint32_t *system_millis,
+    void (*yield)( void * ),
+    void * yield_ctx
+);
 
 // consider rename. this is more model_encode_row_from_counts()) - according to the model.
 // taking model as first arg

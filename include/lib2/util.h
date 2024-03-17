@@ -44,7 +44,8 @@ void systick_handler_set( void (*pfunc)(void *),  void *ctx);
 
 void msleep(uint32_t delay, volatile uint32_t *system_millis );
 
-void msleep_with_yield(uint32_t delay, volatile uint32_t *system_millis,  void (*yield)(void *), void *yield_ctx  );
+// void msleep_with_yield(uint32_t delay, volatile uint32_t *system_millis,  void (*yield)(void *), void *yield_ctx  );
+void yield_with_msleep(uint32_t delay, volatile uint32_t *system_millis,  void (*yield)(void *), void *yield_ctx  );
 
 
 void print_stack_pointer(void);

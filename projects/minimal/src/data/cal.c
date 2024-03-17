@@ -91,7 +91,14 @@ static void print_slope_b_detail( unsigned aperture, double slope_b )
 
 
 
-void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *system_millis   /* void (*yield)( void * ) */ )
+void data_cal(
+    data_t *data ,
+    uint32_t spi,
+    _mode_t *mode,
+    volatile uint32_t *system_millis,
+    void (*yield)( void * ),
+    void * yield_ctx
+)
 {
   assert(data);
   assert(data->magic == DATA_MAGIC) ;
@@ -169,22 +176,24 @@ void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *s
         mode_set_ref_source(  mode, 0);
       }
 
+      // start adc,
       printf("spi_mode_transition_state()\n");
       spi_mode_transition_state( spi, mode, system_millis);
 
-      // note, adc is triggered/running here, even as we sleep
 
+      // let things settle from spi emi burst, and board DA settle, amp to come out of lockup.
+      // equivalent to discarding values
       printf("sleep\n");
-      //  let things settle from spi emi burst, and board DA settle.
-      // same as discarding values
-      msleep(1 * 1000, system_millis /* , yield  ... */);
+      yield_with_msleep( 1 * 1000, system_millis, yield, yield_ctx);
+
 
       // take obs loop
       for(unsigned i = 0; i < obs_to_take_n; ++i ) {
 
         // block on interupt.
-        while(! data->adc_measure_valid ) {
-          // yield( yield_ctx);
+        while( !data->adc_measure_valid ) {
+          if(yield)
+            yield( yield_ctx);
         }
         data->adc_measure_valid = false;
 
@@ -200,6 +209,7 @@ void data_cal( data_t *data , uint32_t spi, _mode_t *mode,  volatile uint32_t *s
         printf("\n");
 
         // consider rename. this is more model_encode_row_from_counts()) - according to the model.
+        // at least adc_counts_to_model()
         // taking model as first arg
         row = run_to_matrix( clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, data->model_cols, row);
 

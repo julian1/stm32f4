@@ -89,7 +89,8 @@ void msleep(uint32_t delay, volatile uint32_t *system_millis /* void (*yield)(vo
 void msleep(uint32_t delay, volatile uint32_t *system_millis)
 {
 
-  msleep_with_yield(delay, system_millis,  NULL, NULL);
+  yield_with_msleep(delay, system_millis,  NULL, NULL);
+
 }
 
 
@@ -107,7 +108,7 @@ void msleep(uint32_t delay, volatile uint32_t *system_millis)
   no because a continuation, is the next function to be sequenced, not an intermediate yielding  function.
 */
 
-void msleep_with_yield(uint32_t delay, volatile uint32_t *system_millis,  void (*yield)(void *), void *yield_ctx  )
+void yield_with_msleep(uint32_t delay, volatile uint32_t *system_millis,  void (*yield)(void *), void *yield_ctx  )
 {
   assert(system_millis);
 
@@ -120,7 +121,7 @@ void msleep_with_yield(uint32_t delay, volatile uint32_t *system_millis,  void (
       break;
 
     if(yield)
-     yield( yield_ctx);
+      yield( yield_ctx);
   };
 }
 
