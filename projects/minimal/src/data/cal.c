@@ -29,9 +29,13 @@
 #include <util.h> // nplc_to_aperture()
 
 #include <data/data.h>
-#include <data/data.h>
 
 #include <data/matrix.h> // m_set_row()
+#include <data/regression.h>
+
+
+
+
 
 // we will need to pass the spi also.
 
