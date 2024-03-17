@@ -1,4 +1,15 @@
+/*
+  EXTR. REVIEW
+  need to consider - if should use AZ mode here, to reduce flicker, to get a better stderr, and improved fit.
+  or interleve data collection with ref-hi/ref-lo -
+  ---
+  EXTR. remember we can always use the azmux - to get the lo. via the lo-mux.
+  the fpga has control over the azmux. so it doesn't need the slow spi mode transition.
 
+
+  the only issue - really seems to be that the input path is different. and doesn't equalize the relays - with seebeck effect of disjoint metals.
+
+*/
 /*
   replicate function app_cal(app ) .  from dmm
 
