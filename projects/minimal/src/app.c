@@ -515,6 +515,11 @@ void app_repl_statement(app_t *app,  const char *cmd)
   // don't we have some code - to handle sscan as binary/octal/hex ?
 
 
+  /*
+    - the cal function requires mode. which is only available in app.
+    -
+  */
+
   else if(strcmp(cmd, "cal") == 0) {
 
     // void data_cal( data_t *data , uint32_t spi, _mode_t *mode /* void (*yield)( void * ) */ )
@@ -524,6 +529,26 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
     data_cal( app->data,  app->spi, &mode, &app->system_millis, (void (*)(void *))app_simple_update, app  );
 
+  }
+
+  // "h" for halt
+  else if(strcmp(cmd, "h") == 0) {
+
+    _mode_t *mode = app->mode_current;
+    mode->trigger_source_internal = 0;
+  }
+  // "t" to trigger
+  else if(strcmp(cmd, "t") == 0) {
+
+    // trigger - has a dependency on both data and the mode
+    // because we want to clear the data buffer
+
+    data_t *data = app->data;
+    buffer_clear( data->buffer, &data->buffer_idx );
+
+   _mode_t *mode = app->mode_current;
+
+    mode->trigger_source_internal = 1;
   }
 
 
@@ -616,9 +641,9 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
   else if(  mode_repl_statement( app->mode_current,  cmd, app->data->line_freq )) { }
 
+  else if( data_repl_statement( app->data, cmd )) { }
 
   else if( data_flash_repl_statement(app->data, cmd)) { }
-  // else if( app_flash_repl_statement(app, cmd)) { }
 
 
   else {

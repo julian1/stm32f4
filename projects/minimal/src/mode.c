@@ -332,17 +332,6 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
 
 
-  // "h" for halt
-  else if(strcmp(cmd, "h") == 0) {
-
-    mode->trigger_source_internal = 0;
-  }
-  // "t" to trigger
-  else if(strcmp(cmd, "t") == 0) {
-
-    mode->trigger_source_internal = 1;
-  }
-
 
   /*
     perhaps keep the 'set' prefix to clearly disambiguate these actions under common syntactic form.

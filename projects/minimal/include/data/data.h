@@ -110,6 +110,16 @@ MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture);
 bool data_flash_repl_statement( data_t *data, const char *cmd);
 
 
+bool data_repl_statement( data_t *data,  const char *cmd );
+
+
+
+
+void buffer_push( MAT *buffer, uint32_t *idx, double val );
+void buffer_clear( MAT *buffer, uint32_t *idx);
+void buffer_set_size( MAT *buffer, uint32_t sz);
+
+void buffer_stats_print( MAT *buffer /* double *mean, double *stddev */ /* verbose */ );
 
 
 
