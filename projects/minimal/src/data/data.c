@@ -125,6 +125,10 @@ void data_update(data_t *data, uint32_t spi )
 static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
 {
   /*
+    the question - is can we do this without interaction with the mode_t.
+                  ideally we shouldn't need anything.
+                  just querying the adc, and sequence acquisition.
+
     we have comitted to processing a new incomming reading
   */
 
@@ -142,13 +146,26 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
       -a consider adding a 8 bit. counter in place of the monitor, in the status register
       in order to check all values are read in a single transaction
       - or else a checksum etc.
+      --------
+
+      Do we expose mode here....
+      Ideally NO.
+
+      we can encode seqn in the status register.  to alleviate another call.
+      and use that to determine
   */
 
   uint32_t status = spi_ice40_reg_read32( spi, REG_STATUS );
-  UNUSED(status);
+  // printf("r %u  v %lu  %s\n",  REG_STATUS, status,  str_format_bits(buf, 32, status));
+
+  // TODO create a bitfield for the status register
+  uint8_t sample_idx_last =  0b111 & (status >> 16) ;
+  uint8_t sample_seq_n    =  0b111 & (status >> 20) ;
+
+  // printf(" %u of %u \n",   sample_idx_last, sample_seq_n );
 
 
-  // printf(" %s ", (status & STATUS_SA_AZ_STAMP) ? "hi" : "lo"  );
+
 #if 0 // JA
   // suppress late measure samples arriving after signal_acquisition is returned to arm
   if( ! (status & STATUS_SA_ARM_TRIGGER)) {
@@ -282,9 +299,28 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
 
 
     // eg. no az.
-    printf(" this meas %sV", str_format_float_with_commas(buf, 100, 7, ret ));
+    // printf(" this meas %sV", str_format_float_with_commas(buf, 100, 7, ret ));
 
-  // ok. if seq_n  == 1. then  its not ag.
+
+
+    if( sample_seq_n == 2) {    // some kind of AZ mode. with hi first.
+
+      if( sample_idx_last == 0 )
+        data->hi = ret;
+      else if( sample_idx_last == 1 )  {
+        data->lo[ 1] = data->lo[ 0];  // shift last value
+        data->lo[ 0] = ret;
+      }
+      else assert(0);
+
+      // recalculate  ret.
+      ret = data->hi - ((data->lo[ 0 ] + data->lo[1] ) / 2.0);
+    }
+    else if( sample_seq_n == 4) {
+
+        printf("whoot RM / or 4 cycle\n");
+
+    }
 
 #if 0
     Mode *mode = app->mode_current;
@@ -330,13 +366,17 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
         printf(" unknown mode");
     }
 
+#endif
 
-    if(app->verbose)
-      printf(" meas %sV", format_float_with_commas(buf, 100, 7, ret ));
+    printf(" meas %sV", str_format_float_with_commas(buf, 100, 7, ret ));
+/*
+    if(verbose)
+      printf(" meas %sV", str_format_float_with_commas(buf, 100, 7, ret ));
     else
       printf(" %.8lf", ret );
+*/
 
-
+#if 0
     if(m_rows(app->sa_buffer) < m_rows_reserve(app->sa_buffer)) {
 
       // just push onto sample buffer
