@@ -352,8 +352,8 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     && str_decode_uint( s1, &u0)
     && str_decode_uint( s2, &u1)
   ) {
-
       /*
+        eg.
         > set seq0 0b01 s3
         > set seq0 0b00 soff
       */
@@ -389,8 +389,15 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
       // cannot manage pointer to bitfield. so have to hardcode.
 
+
+      // better name. _count.
+      if(strcmp(s0, "seqn") == 0) {
+        mode->sa.reg_sa_p_seq_n = u0;
+      }
+
+
       // ice40 mode.
-      if(strcmp(s0, "mode") == 0) {
+      else if(strcmp(s0, "mode") == 0) {
         mode->reg_mode = u0;
       }
       else if(strcmp(s0, "direct") == 0) {
