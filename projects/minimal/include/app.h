@@ -66,6 +66,15 @@ typedef struct app_t
 
   // updated on interupt. should probably be declared volatile.
   // but functions that use can also declare volatile
+
+  /*
+      should be downcount decrement.
+      one for 500ms timer. and another for msleep/yield_with_delay.
+      needs to be signed.
+      eg.
+      if(soft_500ms <= 0)
+        soft_500ms += 500;
+  */
   volatile uint32_t system_millis;
 
   cbuf_t  console_in;
