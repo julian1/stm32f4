@@ -103,6 +103,34 @@ void data_update(data_t *data, uint32_t spi )
 #endif
 
 
+
+
+
+static void push_buffer_val( MAT *sa_buffer, uint32_t *idx, double val )
+{
+  assert(sa_buffer);
+
+  if(m_rows(sa_buffer) < m_rows_reserve(sa_buffer)) {
+
+    // just push onto sample buffer
+    m_push_row( sa_buffer, & val, 1 );
+  }
+
+  else {
+    // buffer is full, so insert
+    // TODO there's an issue with modulo overflow/wrap around.
+
+    unsigned imod = *idx++ % m_rows(sa_buffer);
+    // printf(" insert at %u\n", idx );
+    m_set_val( sa_buffer, imod, 0,  val );
+  }
+
+}
+
+
+
+
+
 /*
   - we dont want to care about azmux values here.
   - we only want to know enough to decode the stream
@@ -322,51 +350,6 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
 
     }
 
-#if 0
-    Mode *mode = app->mode_current;
-
-    if(mode->reg_mode == MODE_NO_AZ )  {
-
-      if(app->verbose) {
-        printf(" no-az (%s)", azmux_to_string( mode->reg_direct.azmux));
-
-      }
-    }
-    else if(mode->reg_mode == MODE_AZ)  {
-
-      if(app->verbose)
-        printf(" az");
-
-      // determine if az obs high or lo
-      if( status & STATUS_SA_AZ_STAMP  ) {
-        // treat as hival
-        if(app->verbose)
-          printf(" (hi %s)", himux_to_string( mode->reg_direct.himux, mode->reg_direct.himux2 ));
-        app->hi = ret;
-      }
-      else {
-        // treat as lo val
-        if(app->verbose)
-          printf(" (lo %s)", azmux_to_string( mode->reg_direct.azmux));
-
-        app->lo[ 1] = app->lo[ 0];  // shift last value
-        app->lo[ 0] = ret;
-      }
-
-      if(app->verbose) {
-        printf(" (hi %sV)",  format_float_with_commas(buf, 100, 7, app->hi ));
-        printf(" (lo %sV",   format_float_with_commas(buf, 100, 7, app->lo[0]  ));
-        printf(", %sV)",  format_float_with_commas(buf, 100, 7, app->lo[1] ));
-      }
-
-      // regardless whether we got a lo or a hi. calculate and show a new value.
-      ret = app->hi - ((app->lo[ 0 ] + app->lo[1] ) / 2.0);
-    }
-    else {
-        printf(" unknown mode");
-    }
-
-#endif
 
     printf(" meas %sV", str_format_float_with_commas(buf, 100, 7, ret ));
 /*
@@ -376,27 +359,9 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
       printf(" %.8lf", ret );
 */
 
-#if 0
-    if(m_rows(app->sa_buffer) < m_rows_reserve(app->sa_buffer)) {
 
-      // just push onto sample buffer
-      m_push_row( app->sa_buffer, & ret , 1 );
-    }
+  push_buffer_val( data->buffer, &data->buffer_idx, ret );
 
-    else {
-      // buffer is full, so insert
-      // TODO there's an issue with modulo overflow/wrap around.
-
-      unsigned idx = app->sa_count_i++ % m_rows(app->sa_buffer);
-      // printf(" insert at %u\n", idx );
-      m_set_val( app->sa_buffer, idx, 0,  ret );
-    }
-
-    if(app->verbose) {
-      printf(" ");
-      m_stats_print( app->sa_buffer );
-    }
-#endif
   }
 
   printf("\n");
@@ -573,4 +538,73 @@ MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture)
 
 
 
+#if 0
+    Mode *mode = app->mode_current;
+
+    if(mode->reg_mode == MODE_NO_AZ )  {
+
+      if(app->verbose) {
+        printf(" no-az (%s)", azmux_to_string( mode->reg_direct.azmux));
+
+      }
+    }
+    else if(mode->reg_mode == MODE_AZ)  {
+
+      if(app->verbose)
+        printf(" az");
+
+      // determine if az obs high or lo
+      if( status & STATUS_SA_AZ_STAMP  ) {
+        // treat as hival
+        if(app->verbose)
+          printf(" (hi %s)", himux_to_string( mode->reg_direct.himux, mode->reg_direct.himux2 ));
+        app->hi = ret;
+      }
+      else {
+        // treat as lo val
+        if(app->verbose)
+          printf(" (lo %s)", azmux_to_string( mode->reg_direct.azmux));
+
+        app->lo[ 1] = app->lo[ 0];  // shift last value
+        app->lo[ 0] = ret;
+      }
+
+      if(app->verbose) {
+        printf(" (hi %sV)",  format_float_with_commas(buf, 100, 7, app->hi ));
+        printf(" (lo %sV",   format_float_with_commas(buf, 100, 7, app->lo[0]  ));
+        printf(", %sV)",  format_float_with_commas(buf, 100, 7, app->lo[1] ));
+      }
+
+      // regardless whether we got a lo or a hi. calculate and show a new value.
+      ret = app->hi - ((app->lo[ 0 ] + app->lo[1] ) / 2.0);
+    }
+    else {
+        printf(" unknown mode");
+    }
+
+#endif
+
+
+
+#if 0
+    if(m_rows(app->sa_buffer) < m_rows_reserve(app->sa_buffer)) {
+
+      // just push onto sample buffer
+      m_push_row( app->sa_buffer, & ret , 1 );
+    }
+
+    else {
+      // buffer is full, so insert
+      // TODO there's an issue with modulo overflow/wrap around.
+
+      unsigned idx = app->sa_count_i++ % m_rows(app->sa_buffer);
+      // printf(" insert at %u\n", idx );
+      m_set_val( app->sa_buffer, idx, 0,  ret );
+    }
+
+    if(app->verbose) {
+      printf(" ");
+      m_stats_print( app->sa_buffer );
+    }
+#endif
 

@@ -50,12 +50,17 @@ typedef struct data_t
 
   //////////////////
 
-  // maybe change name  sa_buffer  acquis_buffer  meas_buffer.
-  // change name sa_buffer
-  MAT  *sa_buffer;
 
-  // overflow index. rename _overflow, _wraparound
-  unsigned sa_count_i;    /* has two needs.
+  double   hi;        // for az mode. the last hi measure TODO change name az_hi. and az_lo ?
+  double   lo[2];   // for az mode. the last two lo signals.
+
+  /////////////////
+
+  // data buffer
+  MAT  *buffer;
+
+  //
+  uint32_t buffer_idx;    /* has two needs.
                                    - for modulo indexing sa_buffer
                                     - determining when to stop.
                                     - actually we - may want to stamp - from the fpga .
@@ -63,8 +68,6 @@ typedef struct data_t
                             */
 
 
-  double   hi;        // for az mode. the last hi measure TODO change name az_hi. and az_lo ?
-  double   lo[2];   // for az mode. the last two lo signals.
 
 } data_t;
 
