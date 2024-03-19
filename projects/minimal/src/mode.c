@@ -230,12 +230,12 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       // _mode_t *mode = app->mode_current;
 
 
-  /* EXTR - 
+  /* EXTR -
       review move dcv-source function handling
       to another file. in an
       /source  ?
 
-    
+
   */
 
   // +10,0,-10.    if increment. then could use the dac.
@@ -329,10 +329,12 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       // 4 cycle
     }
      else if(strcmp(s0, "diff") == 0) {
-      // 2 cycle, just difference between the two hi inputs
+      // 2 cycle, hi- hi2
     }
      else if(strcmp(s0, "sum-test") == 0) {
-      // similar. take hi/lo, hi2/lo
+      // similar. take hi/lo, hi2/lo, .  so can calculate hi-lo, hi2-lo, hi-hi2.
+      // advantage of a single sequence - is that flicker noise should cancel some.
+      // noting that input can be external terminals - or the dcv-source and its inverted output.
     }
 
 
