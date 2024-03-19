@@ -36,13 +36,14 @@ typedef struct data_t
 
   bool adc_measure_valid_missed; // could be made a count
 
-
-  unsigned verbose;     // treated as bool at the moment
+  // top level concept.
+  // unsigned verbose;     // treated as bool at the moment
 
   /////////////////
   /*
     perhaps remove. since only used to produce the cal.
     so just pass as arg when cal process is called
+    - except can be used to encode model representatino if have two models with same number of coefficients
   */
   unsigned model_cols; // to use.
 
@@ -58,6 +59,8 @@ typedef struct data_t
 
   // data buffer
   MAT  *buffer;
+
+  // MAT  *buffer2; second buffer.
 
   //
   uint32_t buffer_idx;    /* has two needs.

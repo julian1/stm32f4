@@ -432,11 +432,18 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
     printf("help <command>\n" );
   }
+  else if( sscanf(cmd, "print %100s", s0) == 1
+    || sscanf(cmd, "echo %100s", s0) == 1) {
+    // review . from old code
+    printf( s0  );
+    printf("\n");
+  }
 
 
+  // verbosity?
   else if( sscanf(cmd, "verbose %lu", &u0 ) == 1) {
 
-    printf("set verbosity %lu\n", u0  );
+    printf("setting verbose %lu\n", u0  );
     app->verbose = u0;
   }
 

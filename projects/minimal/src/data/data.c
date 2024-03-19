@@ -350,7 +350,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
     buffer_push( data->buffer, &data->buffer_idx, ret );
 
 
-    if(data->verbose) {
+    if(verbose) {
       printf(" ");
       buffer_stats_print( data->buffer );
     }
@@ -585,8 +585,10 @@ void buffer_push( MAT *buffer, uint32_t *idx, double val )
 {
   assert(buffer);
 
+
   if(m_rows(buffer) < m_rows_reserve(buffer)) {
 
+    printf("just pushing\n" );
     // just push onto sample buffer
     m_push_row( buffer, & val, 1 );
   }
@@ -595,9 +597,13 @@ void buffer_push( MAT *buffer, uint32_t *idx, double val )
     // buffer is full, so insert
     // TODO there's an issue with modulo overflow/wrap around.
 
-    unsigned imod = *idx++ % m_rows(buffer);
+    printf("buffer full using idx  %lu\n", *idx );
+
+    unsigned imod = *idx % m_rows(buffer);
     // printf(" insert at %u\n", idx );
     m_set_val( buffer, imod, 0,  val );
+
+    ++(*idx);
   }
 }
 
@@ -607,6 +613,9 @@ void buffer_push( MAT *buffer, uint32_t *idx, double val )
 void buffer_clear( MAT *buffer, uint32_t *idx)
 {
   assert(buffer);
+
+
+  printf("**** buffer clear %u\n", m_rows(buffer) );
 
   /* clear the sample buffer
     alternatively could use a separate command,  'buffer clear'
@@ -620,6 +629,8 @@ void buffer_clear( MAT *buffer, uint32_t *idx)
   m_truncate_rows( buffer, 0 );               // truncate vertical length.
 
   *idx = 0;
+
+  printf("**** buffer now %u\n", m_rows(buffer) );
 }
 
 
@@ -659,6 +670,7 @@ bool data_repl_statement( data_t *data,  const char *cmd )
   uint32_t u0;
 
 
+
   if( sscanf(cmd, "data buffer size %lu", &u0 ) == 1) {
 
     // if(u0 < 2 || u0 > 500 ) {
@@ -672,7 +684,7 @@ bool data_repl_statement( data_t *data,  const char *cmd )
 
   }
 
-  else if( strcmp(cmd, "data buffer clear")) {
+  else if( strcmp(cmd, "data buffer clear") == 0) {
 
     buffer_clear( data->buffer, &data->buffer_idx);
   }
@@ -683,6 +695,29 @@ bool data_repl_statement( data_t *data,  const char *cmd )
     // print/show?
   }
 */
+
+  else if( sscanf(cmd, "line freq %lu", &u0 ) == 1) {
+
+    if(  !(u0 == 50 || u0 == 60)) {
+      // be safe for moment.
+      printf("bad line freq arg\n" );
+      return 1;
+    }
+
+    printf("set lfreq\n" );
+    data->line_freq = u0;
+  }
+
+  else if(strcmp(cmd, "data null") == 0) {
+    // todo
+    // eg. very easy, but useful. add an offset based on last value
+
+  }
+  else if(strcmp(cmd, "data div") == 0) {
+    // div by gain.before
+    // should probably be gain and offset for the calibration.
+    // todo
+  }
 
 
 
