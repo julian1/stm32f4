@@ -113,6 +113,21 @@ reset is schem default contacts.
 
 
 
+//
+// fpga has no concept of these - pass-through, so define in mode.
+
+#define SEQ_MODE_AZ           1
+#define SEQ_MODE_NOAZ         2
+#define SEQ_MODE_ELECTO       3
+#define SEQ_MODE_RATIO        4
+#define SEQ_MODE_AG           5
+#define SEQ_MODE_DIFF         6
+#define SEQ_MODE_SUM          7
+
+
+
+
+
 
 
 typedef struct _4094_state_t

@@ -19,6 +19,7 @@
 #define REG_MODE                        12
 #define REG_DIRECT                      14
 // pass-through parameter, for comms.
+// - o encode how to decode the sample sequence
 // just 4 bits. projected in the status register.
 #define REG_SEQ_MODE                    18
 
@@ -89,6 +90,12 @@
 // sequence acquisition
 #define MODE_SA_MOCK_ADC    6     // no az. and elecm. etc
 #define MODE_SA_ADC        7     // no az. and elecm. etc
+
+
+
+
+
+
 
 
 

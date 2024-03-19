@@ -319,32 +319,103 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       this is a read_mode.  or sequence_mode.
     */
 
-    else if(strcmp(s0, "azero") == 0) {
+
+#define SEQ_MODE_NOAZ         2
+#define SEQ_MODE_ELECTO       3
+#define SEQ_MODE_RATIO        4
+#define SEQ_MODE_AG           5
+#define SEQ_MODE_DIFF         6
+#define SEQ_MODE_SUM          7
+
+  // - only the first two modes - can be either channel
+
+  // Might be cleaner to have functions() for these.
+  // since set up
+
+
+    else if(strcmp(cmd, "azero ch1") == 0) {     // we channel 1.
       // write the seq
+      // applies both chanels.
 
+      mode->sa.reg_sa_p_seq_n = 2,
+      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3,        // dcv
+      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7,        // star-lo
+      mode->reg_seq_mode = SEQ_MODE_AZ;                 // to guide decoder
     }
-    else if(strcmp(s0, "noazero") == 0) {
+    else if(strcmp(cmd, "azero ch2") == 0) {     // we channel 1.
+
+      mode->sa.reg_sa_p_seq_n = 2,
+      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S1,        // himux
+      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S8,        // lomux
+      mode->reg_seq_mode = SEQ_MODE_AZ;                 // to guide decoder
+    }
+
+
+    else if(strcmp(cmd, "noazero ch1") == 0) {
       // clearer - to express as another mode, rather than as a bool.
-      // azero off - just means swtich the pc, but only use a single sample
+      // azero off - just means swtich the pc for symmetry/ and keep charge-injetion the same with azero mode. 
+
+      mode->sa.reg_sa_p_seq_n = 1,
+      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3,        // dcv
+      mode->reg_seq_mode = SEQ_MODE_NOAZ;               // to guide decoder
+    }
+    else if(strcmp(cmd, "noazero ch2") == 0) {
+
+      mode->sa.reg_sa_p_seq_n = 1,
+      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S1,        // himux
+      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S8,        // lomux
+      mode->reg_seq_mode = SEQ_MODE_NOAZ;               // to guide decoder
     }
 
-    else if(strcmp(s0, "electro") == 0) {
-      // here write the seq
-      // same as noazero, except we also don't switch the pc switch
+
+    else if(strcmp(cmd, "electro") == 0) {
+
+      // same as no az, except don't switch the precharge
+      mode->sa.reg_sa_p_seq_n = 1,
+      mode->sa.reg_sa_p_seq0 = (0b00 << 4) | S3,        // dcv
+      mode->reg_seq_mode = SEQ_MODE_NOAZ;               // to guide decoder
     }
-     else if(strcmp(s0, "ratio") == 0) {
-      // produces a single output
+    else if(strcmp(cmd, "ratio") == 0) {
+      // 4 cycle, producing single output
+
+      mode->sa.reg_sa_p_seq_n = 4,
+      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3,        // dcv
+      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7,        // star-lo
+      mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1,        // himux
+      mode->sa.reg_sa_p_seq3 = (0b00 << 4) | S7,        // lomux
+      mode->reg_seq_mode = SEQ_MODE_RATIO;
     }
-    else if(strcmp(s0, "ag") == 0) {
-      // 4 cycle
+    else if(strcmp(cmd, "ag") == 0) {
+      // auto-gain 4 cycle - same as ratio. producing a single output
+      mode->sa.reg_sa_p_seq_n = 4,
+      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3,        // dcv
+      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7,        // star-lo
+      mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1,        // himux
+      mode->sa.reg_sa_p_seq3 = (0b00 << 4) | S7,        // lomux
+      mode->reg_seq_mode = SEQ_MODE_RATIO;
     }
-     else if(strcmp(s0, "diff") == 0) {
-      // 2 cycle, hi- hi2
+
+
+    else if(strcmp(cmd, "diff") == 0) {
+      // 2 cycle, hi- hi2, with both precharge switches switches. single output.
+      mode->sa.reg_sa_p_seq_n = 2,
+      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3,        // dcv
+      mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1,        // himux
+      mode->reg_seq_mode = SEQ_MODE_DIFF;                 // to guide decoder
     }
-     else if(strcmp(s0, "sum-test") == 0) {
-      // similar. take hi/lo, hi2/lo, .  so can calculate hi-lo, hi2-lo, hi-hi2.
+    else if(strcmp(cmd, "sum-test") == 0) {
+
+      // similar. take hi/lo, hi2/lo, .  but where lo is shared. so can calculate hi-lo, hi2-lo, hi-hi2.
       // advantage of a single sequence - is that flicker noise should cancel some.
       // noting that input can be external terminals - or the dcv-source and its inverted output.
+      // to encodekkkkkkkkk
+      // can do as 3 values or 4 values.   3 is more logical.
+
+      mode->sa.reg_sa_p_seq_n = 3,
+      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3,        // dcv
+      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7,        // star-lo
+      mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1,        // himux
+      mode->reg_seq_mode = SEQ_MODE_SUM;                 // to guide decoder
     }
 
 
@@ -404,6 +475,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     && str_decode_uint( s2, &u1)
   ) {
       /*
+        setting/encoding sequence values directly.
         eg.
         > set seq0 0b01 s3
         > set seq0 0b00 soff

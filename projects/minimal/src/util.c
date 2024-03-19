@@ -93,6 +93,7 @@ char * mux_to_string( unsigned val,  char *buf, unsigned n  )
     case S5 : s = "s5";  break;
     case S6 : s = "s6";  break;
     case S7 : s = "s7";  break;
+    case S8 : s = "s8";  break;
     default: assert(0);
   };
 
