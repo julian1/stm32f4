@@ -559,8 +559,11 @@ void app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
-
-
+  /*
+    direct fpga register query/access.  for debugging
+    could write as array loop.
+    consider remove
+  */
   else if( strcmp( cmd, "spi-mux?") == 0) {
 
     spi_print_register( app->spi, REG_SPI_MUX);
@@ -577,9 +580,18 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
     spi_print_register( app->spi, REG_DIRECT);
   }
+  else if( strcmp( cmd, "seq mode?") == 0) {
+
+    spi_print_register( app->spi, REG_SEQ_MODE);
+  }
+
   else if( strcmp( cmd, "status?") == 0) {
 
     spi_print_register( app->spi, REG_STATUS);
+
+    // don't bother decode contents.  because  sequence update is too fast.
+
+
   }
   else if( sscanf(cmd, "reg? %lu", &u0 ) == 1) {
 

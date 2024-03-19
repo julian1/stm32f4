@@ -86,7 +86,7 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 
   /////////////////////////////
 
-  // now do fpga state
+  // now write fpga register state
   spi_mux_ice40(spi);
 
 
@@ -96,6 +96,9 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
   assert( sizeof(reg_direct_t) == 4);
   spi_ice40_reg_write_n(spi, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
 
+
+  // sequence mode,
+  spi_ice40_reg_write32(spi, REG_SEQ_MODE, mode->reg_seq_mode );
 
 
   // sa
@@ -189,7 +192,7 @@ void mode_set_dcv_source( _mode_t *mode, signed i0)
 void mode_set_ref_source( _mode_t *mode, unsigned u0 )
 {
 
-  // U1012 should source gnd.
+  // TODO U1012 should source a gnd, when add it
   mode->second.U1012  = SOFF;       // should probably be agnd.
 
   if(u0 == 7) {
@@ -299,6 +302,13 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
 
 
+
+    else if( sscanf(cmd, "seq mode %100s", s0) == 1
+      && str_decode_uint( s0, &u0)) {
+
+      mode->reg_seq_mode = u0;
+
+    }
 
 
     /*

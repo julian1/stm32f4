@@ -321,6 +321,10 @@ typedef struct _mode_t
   // only in mode 0
   reg_direct_t    reg_direct;
 
+
+  uint32_t  reg_seq_mode;
+
+
   sa_state_t    sa;
 
 
@@ -353,7 +357,7 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 
 void mode_set_dcv_source( _mode_t *mode, signed i0);  // arg is 10,0,-10
 
-void mode_set_ref_source(  _mode_t *mode, unsigned u0 );
+void mode_set_ref_source(  _mode_t *mode, unsigned u0 ); // 7 == ref-hi  or 0 == ref-lo
 
 
 bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );

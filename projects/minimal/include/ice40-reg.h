@@ -9,7 +9,7 @@
 
 */
 
-// better name CR_  for control register?
+// better name for 4094 register - CR_  for control register?
 // CR_DIRECT ? etc.
 // SR_STATUS
 
@@ -18,7 +18,12 @@
 #define REG_4094                        9
 #define REG_MODE                        12
 #define REG_DIRECT                      14
+// pass-through parameter, for comms.
+// just 4 bits. projected in the status register.
+#define REG_SEQ_MODE                    18
+
 #define REG_STATUS                      17
+
 
 
 ///////////////////////
@@ -26,29 +31,17 @@
 //  sample acquisition.
 // TODO. remove/rename in favor of ER_TRIGGER_SOURCE_INTERNAL
 // instead change to control trigger-sourcce select for internal or external
-#define REG_SA_P_SEQ_N              20
+#define REG_SA_P_SEQ_N                  20
 
 #define REG_SA_P_CLK_COUNT_PRECHARGE    21
-#define REG_SA_P_SEQ0           22
-#define REG_SA_P_SEQ1           23
-#define REG_SA_P_SEQ2           24
-#define REG_SA_P_SEQ3           25
-
-
-/*
-//  sample acquisition.
-`define REG_SA_P_SEQ_N              20      // probably change reg to be a maskable source trigger.
-
-`define REG_SA_P_CLK_COUNT_PRECHARGE    21
-
-`define REG_SA_P_SEQ0           22
-`define REG_SA_P_SEQ1           23
-`define REG_SA_P_SEQ2           24
-`define REG_SA_P_SEQ3           25
-*/
+#define REG_SA_P_SEQ0                   22
+#define REG_SA_P_SEQ1                   23
+#define REG_SA_P_SEQ2                   24
+#define REG_SA_P_SEQ3                   25
 
 
 
+///////////////////////
 // adc parameters
 #define REG_ADC_P_CLK_COUNT_APERTURE    30
 #define REG_ADC_P_CLK_COUNT_RESET       31
@@ -70,8 +63,6 @@
 
 
 
-
-
 ///////////////////
 // reg spi mux
 // note active bits.
@@ -85,8 +76,8 @@
 
 
 #define MODE_DIRECT       0     // support direct writing via direct register
-#define MODE_LO           1     // all bits held lo. but blink led. default.
-#define MODE_HI           2     // all bits held hi
+// #define MODE_LO           1     // all bits held lo. but blink led. default.
+// #define MODE_HI           2     // all bits held hi
 #define MODE_PATTERN      3     // put modulation pattern on all bits
 // #define MODE_PC_TEST      4
 
