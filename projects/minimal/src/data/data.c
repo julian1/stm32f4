@@ -347,6 +347,13 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
     else
       printf(" %.8lf", ret );
 */
+
+    /*
+      can drive this with policy arg.
+      if data->buffer is full we either want to keep cycling.
+      or stop. so we can retrieve/print the buffer without change
+
+    */
     buffer_push( data->buffer, &data->buffer_idx, ret );
 
 
@@ -671,22 +678,25 @@ bool data_repl_statement( data_t *data,  const char *cmd )
 
 
 
-  if( sscanf(cmd, "data buffer size %lu", &u0 ) == 1) {
+  if( sscanf(cmd, "data buffer reserve %lu", &u0 ) == 1) {
 
     // if(u0 < 2 || u0 > 500 ) {
     if(u0 < 1 || u0 > 10000 ) {
       printf("set buffer size bad arg\n" );
       return 1;
     }
-    printf("set buffer size %lu\n", u0  );
 
     buffer_set_size( data->buffer, u0 );
 
+    // this is the reserve size.
+    // printf("buffer now %u\n", m_rows(data->buffer) );
   }
 
   else if( strcmp(cmd, "data buffer clear") == 0) {
 
     buffer_clear( data->buffer, &data->buffer_idx);
+
+    printf("buffer now %u\n", m_rows(data->buffer) );
   }
 
 /*
