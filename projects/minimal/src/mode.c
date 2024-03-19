@@ -230,6 +230,14 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       // _mode_t *mode = app->mode_current;
 
 
+  /* EXTR - 
+      review move dcv-source function handling
+      to another file. in an
+      /source  ?
+
+    
+  */
+
   // +10,0,-10.    if increment. then could use the dac.
   if( sscanf(cmd, "dcv-source %ld", &i0 ) == 1) {
 
@@ -238,6 +246,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
       mode_set_dcv_source( mode, i0);
   }
+
 
 
 
@@ -287,6 +296,47 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       mode->first .K406 = LR_SET;   // accum relay off
       mode->first .K407 = LR_RESET;   // select dcv-source
   }
+
+
+
+
+
+    /*
+      setup the sequence numbers for the different modes.
+      we could inject this field - as a string - into data as well.
+        or write it using a status bit, of adc for good synchronization. from mode -> adc -> to stamped values, read by data.
+
+      this is a read_mode.  or sequence_mode.
+    */
+
+    else if(strcmp(s0, "azero") == 0) {
+      // write the seq
+
+    }
+    else if(strcmp(s0, "noazero") == 0) {
+      // clearer - to express as another mode, rather than as a bool.
+      // azero off - just means swtich the pc, but only use a single sample
+    }
+
+    else if(strcmp(s0, "electro") == 0) {
+      // here write the seq
+      // same as noazero, except we also don't switch the pc switch
+    }
+     else if(strcmp(s0, "ratio") == 0) {
+      // produces a single output
+    }
+    else if(strcmp(s0, "ag") == 0) {
+      // 4 cycle
+    }
+     else if(strcmp(s0, "diff") == 0) {
+      // 2 cycle, just difference between the two hi inputs
+    }
+     else if(strcmp(s0, "sum-test") == 0) {
+      // similar. take hi/lo, hi2/lo
+    }
+
+
+
 
 
   /*
@@ -463,44 +513,6 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
         mode->trigger_source_internal = u0;
       }
 
-
-      /*
-        setup the sequence numbers for the different modes.
-        we could inject this field - as a string - into data as well.
-          or write it using a status bit, of adc for good synchronization. from mode -> adc -> to stamped values, read by data.
-
-        this is a read_mode.  or sequence_mode.
-      */
-
-      else if(strcmp(s0, "azero") == 0) {
-        // write the seq
-
-      }
-      else if(strcmp(s0, "noazero") == 0) {
-        // clearer - to express as another mode, rather than as a bool.
-        // azero off - just means swtich the pc, but only use a single sample
-      }
-
-      else if(strcmp(s0, "electro") == 0) {
-        // here write the seq
-        // same as noazero, except we also don't switch the pc switch
-      }
-       else if(strcmp(s0, "ratio") == 0) {
-        // produces a single output
-      }
-      else if(strcmp(s0, "ag") == 0) {
-        // 4 cycle
-      }
-       else if(strcmp(s0, "diff") == 0) {
-        // 2 cycle, just difference between the two hi inputs
-      }
-       else if(strcmp(s0, "sum-test") == 0) {
-        // similar. take hi/lo, hi2/lo
-      }
-
-
-
-*/
 
       else {
 
