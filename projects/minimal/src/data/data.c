@@ -8,8 +8,12 @@
 
 
 #include <data/data.h>
-#include <util.h>     // aper_n_to_period
 #include <data/matrix.h>     // m_from_scalar
+
+
+#include <util.h>     // aper_n_to_period
+
+#include <ice40-reg.h>    // for seq mode
 
 #include <lib2/format.h>  // format_float
 
@@ -155,18 +159,6 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
   spi_mux_ice40(spi);
 
 
-  /*
-      -a consider adding a 8 bit. counter in place of the monitor, in the status register
-      in order to check all values are read in a single transaction
-      - or else a checksum etc.
-      --------
-
-      Do we expose mode here....
-      Ideally NO.
-
-      we can encode seqn in the status register.  to alleviate another call.
-      and use that to determine
-  */
 
   uint32_t status = spi_ice40_reg_read32( spi, REG_STATUS );
   // printf("r %u  v %lu  %s\n",  REG_STATUS, status,  str_format_bits(buf, 32, status));
@@ -174,21 +166,11 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
   // TODO create a bitfield for the status register
   uint8_t sample_idx_last =  0b111 & (status >> 16) ;
   uint8_t sample_seq_n    =  0b111 & (status >> 20) ;
+  uint8_t sample_seq_mode =  0b111 & (status >> 24) ;
 
-  // printf(" %u of %u \n",   sample_idx_last, sample_seq_n );
+  printf(" seq_mode %u  %u of %u \n", sample_seq_mode,   sample_idx_last, sample_seq_n );
 
 
-
-#if 0 // JA
-  // suppress late measure samples arriving after signal_acquisition is returned to arm
-  if( ! (status & STATUS_SA_ARM_TRIGGER)) {
-    /*
-        this is done in software. and can only be done in software - because there is a race- condition.
-        that adc can generate the obs - in the time that we write the arm/trigger register for signal acquisition.
-    */
-    return;
-  }
-#endif
 /*
   // suppress late measure samples arriving after signal_acquisition is returned to arm
   if(!mode->trigger_source_internal)
@@ -199,14 +181,6 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
   uint32_t clk_count_mux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
   uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RD);
   uint32_t clk_count_mux_sig = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_MUX_SIG);
-
-
-  /*  - OK. it doesn't matter whether aperture is for one more extra clk cycle. or one less.  eg. the clk termination condition.
-      instead what matters is that the count is recorded in the same way, as for the reference currents.
-      eg. so should should always refer to the returned count value, not the aperture ctrl register.
-
-      uint32_t clk_count_mux_sig = spi_ice40_reg_read32( spi, REG_ADC_P_APERTURE );
-  */
 
 
   if(verbose) {
@@ -237,14 +211,6 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
     printf(", freq %.0lf kHz", freq / 1000.f );
   }
 
-
-
-  // quick indication without
-/*
-  if(app->mode_current->reg_mode == MODE_AZ)  {
-    printf(" %s ", (status & STATUS_SA_AZ_STAMP) ? "hi" : "lo"  );
-  }
-*/
 
   // could factor into another func - to ease this nesting.
   if(data->b) {
@@ -282,25 +248,6 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
     assert( m_is_scalar(m_mux_sig) );
 
     // Mar 2024.
-#if 0
-    if ( m_cols(xs) != m_rows( data->b) ) {
-
-      // calibtration sampled data, mismatch the cols mismatch.
-      // shouldn't happen if arm is working.
-      printf("m_cols(xs) != m_rows( b) \n");
-
-      printf("app->cols   %u\n", data->model_cols );
-      printf("app->b cols %u\n", m_cols( data->b ) );
-      printf("app->b rows %u\n", m_rows( data->b ) );
-      printf("xs     cols %u\n", m_cols( xs ) );
-      printf("xs     rows %u\n", m_rows( xs ) );
-
-
-      M_FREE( xs );
-      M_FREE( m_mux_sig );
-      return;
-    }
-#endif
 
     //  we should persist this.  and pass it in to m_calc_predicated.
     MAT *predicted =  m_calc_predicted( data->b, xs, m_mux_sig /*, app->predicted */);
@@ -315,10 +262,13 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
     M_FREE( predicted );
 
 
-    // eg. no az.
-    // printf(" this meas %sV", str_format_float_with_commas(buf, 100, 7, ret ));
+
+    if( sample_seq_mode == SEQ_MODE_NOAZ ) {    // some kind of AZ mode. with hi first.
+
+      printf("no azero! \n");
 
 
+    }
 
     if( sample_seq_n == 2) {    // some kind of AZ mode. with hi first.
 
@@ -337,7 +287,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
 
         printf("whoot RM / or 4 cycle\n");
 
-    }
+    } else assert(0);
 
 
     printf(" meas %sV", str_format_float_with_commas(buf, 100, 7, ret ));
@@ -739,6 +689,60 @@ bool data_repl_statement( data_t *data,  const char *cmd )
 
 }
 
+
+#if 0
+    if ( m_cols(xs) != m_rows( data->b) ) {
+
+      // calibtration sampled data, mismatch the cols mismatch.
+      // shouldn't happen if arm is working.
+      printf("m_cols(xs) != m_rows( b) \n");
+
+      printf("app->cols   %u\n", data->model_cols );
+      printf("app->b cols %u\n", m_cols( data->b ) );
+      printf("app->b rows %u\n", m_rows( data->b ) );
+      printf("xs     cols %u\n", m_cols( xs ) );
+      printf("xs     rows %u\n", m_rows( xs ) );
+
+
+      M_FREE( xs );
+      M_FREE( m_mux_sig );
+      return;
+    }
+#endif
+
+
+  /*  - OK. it doesn't matter whether aperture is for one more extra clk cycle. or one less.  eg. the clk termination condition.
+      instead what matters is that the count is recorded in the same way, as for the reference currents.
+      eg. so should should always refer to the returned count value, not the aperture ctrl register.
+
+      uint32_t clk_count_mux_sig = spi_ice40_reg_read32( spi, REG_ADC_P_APERTURE );
+  */
+
+
+
+#if 0 // JA
+  // suppress late measure samples arriving after signal_acquisition is returned to arm
+  if( ! (status & STATUS_SA_ARM_TRIGGER)) {
+    /*
+        this is done in software. and can only be done in software - because there is a race- condition.
+        that adc can generate the obs - in the time that we write the arm/trigger register for signal acquisition.
+    */
+    return;
+  }
+#endif
+
+  /*
+      -a consider adding a 8 bit. counter in place of the monitor, in the status register
+      in order to check all values are read in a single transaction
+      - or else a checksum etc.
+      --------
+
+      Do we expose mode here....
+      Ideally NO.
+
+      we can encode seqn in the status register.  to alleviate another call.
+      and use that to determine
+  */
 
 #if 0
     Mode *mode = app->mode_current;

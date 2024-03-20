@@ -189,6 +189,7 @@ void mode_set_dcv_source( _mode_t *mode, signed i0)
 }
 
 
+
 void mode_set_ref_source( _mode_t *mode, unsigned u0 )
 {
 
@@ -207,10 +208,104 @@ void mode_set_ref_source( _mode_t *mode, unsigned u0 )
   else
     assert(0);
 
+  mode->first .K405 = LR_SET;     // select dcv
+  mode->first .K406 = LR_SET;   // accum relay off
+  mode->first .K407 = LR_RESET;   // select dcv-source
+
 
 }
 
 
+void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint32_t channel )
+{
+  /*
+    doesn't have to be exhausive wrt cases.
+    can still setup manually.
+  */
+
+  mode->reg_seq_mode = seq_mode;                 // to guide decoder
+
+  if(seq_mode == SEQ_MODE_AZ) {     // we channel 1.
+    // write the seq
+
+      mode->sa.reg_sa_p_seq_n = 2;
+    // applies both chanels.
+    if(channel == 1) {
+      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
+      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
+    }
+    else if(channel == 2)  {
+      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S1;        // himux
+      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S8;        // lomux
+    }
+    else assert(0);
+  }
+
+
+  else if(seq_mode == SEQ_MODE_NOAZ) {
+    // clearer - to express as another mode, rather than as a bool.
+    // azero off - just means swtich the pc for symmetry/ and keep charge-injetion the same with azero mode.
+
+    mode->sa.reg_sa_p_seq_n = 1;
+    if(channel == 1) {
+      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
+    }
+    else if(channel == 2 ) {
+      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S1;        // himux
+    }
+    else assert(0);
+  }
+
+
+  else if(seq_mode == SEQ_MODE_ELECTRO ) {
+
+    // same as no az, except don't switch the precharge
+    mode->sa.reg_sa_p_seq_n = 1;
+    mode->sa.reg_sa_p_seq0 = (0b00 << 4) | S3;        // dcv
+  }
+  else if(seq_mode == SEQ_MODE_ELECTRO) {
+    // 4 cycle, producing single output
+
+    mode->sa.reg_sa_p_seq_n = 4;
+    mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
+    mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
+    mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1;        // himux
+    mode->sa.reg_sa_p_seq3 = (0b00 << 4) | S7;        // lomux
+  }
+  else if(seq_mode == SEQ_MODE_AG ) {
+    // auto-gain 4 cycle - same as ratio. producing a single output
+    mode->sa.reg_sa_p_seq_n = 4;
+    mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
+    mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
+    mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1;        // himux
+    mode->sa.reg_sa_p_seq3 = (0b00 << 4) | S7;        // lomux
+  }
+
+
+  else if(seq_mode == SEQ_MODE_DIFF ) {
+    // 2 cycle, hi- hi2, with both precharge switches switches. single output.
+    mode->sa.reg_sa_p_seq_n = 2;
+    mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
+    mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1;        // himux
+  }
+
+  else if(seq_mode == SEQ_MODE_SUM) {
+
+    // similar. take hi/lo, hi2/lo, .  but where lo is shared. so can calculate hi-lo, hi2-lo, hi-hi2.
+    // advantage of a single sequence - is that flicker noise should cancel some.
+    // noting that input can be external terminals - or the dcv-source and its inverted output.
+    // to encodekkkkkkkkk
+    // can do as 3 values or 4 values.   3 is more logical.
+
+    mode->sa.reg_sa_p_seq_n = 3;
+    mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
+    mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
+    mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1;        // himux
+  }
+  else assert( 0);
+
+
+}
 
 
 
@@ -252,20 +347,6 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
 
 
-
-  else if( strcmp(cmd, "dcv-source ref") == 0) {
-    // also temp.
-
-      mode->second.U1003  = S3 ;       // turn off/ mux agnd.
-      mode->second.U1006  = S4 ;    // ref-hi. unbuffered.
-
-    // setup input relays.
-      mode->first .K405 = LR_SET;     // select dcv
-      mode->first .K406 = LR_SET;   // accum relay off
-      mode->first .K407 = LR_RESET;   // select dcv-source
-  }
-
-
   else if( sscanf(cmd, "dcv-source dac %100s", s0) == 1
     && str_decode_uint( s0, &u0)) {
 
@@ -301,122 +382,45 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   }
 
 
+  // ref-hi , ref-lo
+  else if( strcmp(cmd, "dcv-source ref-hi") == 0)
+      mode_set_ref_source( mode, 7 );
+
+  else if( strcmp(cmd, "dcv-source ref-lo") == 0)
+      mode_set_ref_source( mode, 0 );
 
 
-    else if( sscanf(cmd, "seq mode %100s", s0) == 1
-      && str_decode_uint( s0, &u0)) {
-
-      mode->reg_seq_mode = u0;
-
-    }
 
 
-    /*
-      setup the sequence numbers for the different modes.
-      we could inject this field - as a string - into data as well.
-        or write it using a status bit, of adc for good synchronization. from mode -> adc -> to stamped values, read by data.
+  else if(strcmp(cmd, "azero ch1") == 0)
+    set_seq_mode( mode, SEQ_MODE_AZ, 1 );
 
-      this is a read_mode.  or sequence_mode.
-    */
+  else if(strcmp(cmd, "azero ch2") == 0)
+    set_seq_mode( mode, SEQ_MODE_AZ, 2 );
 
 
-#define SEQ_MODE_NOAZ         2
-#define SEQ_MODE_ELECTO       3
-#define SEQ_MODE_RATIO        4
-#define SEQ_MODE_AG           5
-#define SEQ_MODE_DIFF         6
-#define SEQ_MODE_SUM          7
+  else if(strcmp(cmd, "noazero ch1") == 0)
+    set_seq_mode( mode, SEQ_MODE_NOAZ, 1 );
 
-  // - only the first two modes - can be either channel
-
-  // Might be cleaner to have functions() for these.
-  // since set up
+  else if(strcmp(cmd, "noazero ch2") == 0)
+    set_seq_mode( mode, SEQ_MODE_NOAZ, 2 );
 
 
-    else if(strcmp(cmd, "azero ch1") == 0) {     // we channel 1.
-      // write the seq
-      // applies both chanels.
-
-      mode->sa.reg_sa_p_seq_n = 2,
-      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3,        // dcv
-      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7,        // star-lo
-      mode->reg_seq_mode = SEQ_MODE_AZ;                 // to guide decoder
-    }
-    else if(strcmp(cmd, "azero ch2") == 0) {     // we channel 1.
-
-      mode->sa.reg_sa_p_seq_n = 2,
-      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S1,        // himux
-      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S8,        // lomux
-      mode->reg_seq_mode = SEQ_MODE_AZ;                 // to guide decoder
-    }
+  else if(strcmp(cmd, "electro") == 0)
+    set_seq_mode( mode, SEQ_MODE_ELECTRO, 0 );
 
 
-    else if(strcmp(cmd, "noazero ch1") == 0) {
-      // clearer - to express as another mode, rather than as a bool.
-      // azero off - just means swtich the pc for symmetry/ and keep charge-injetion the same with azero mode. 
+  else if(strcmp(cmd, "ratio") == 0)
+    set_seq_mode( mode, SEQ_MODE_RATIO, 0 );
 
-      mode->sa.reg_sa_p_seq_n = 1,
-      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3,        // dcv
-      mode->reg_seq_mode = SEQ_MODE_NOAZ;               // to guide decoder
-    }
-    else if(strcmp(cmd, "noazero ch2") == 0) {
+  else if(strcmp(cmd, "ag") == 0)
+    set_seq_mode( mode, SEQ_MODE_AG, 0 );
 
-      mode->sa.reg_sa_p_seq_n = 1,
-      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S1,        // himux
-      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S8,        // lomux
-      mode->reg_seq_mode = SEQ_MODE_NOAZ;               // to guide decoder
-    }
+  else if(strcmp(cmd, "diff") == 0)
+    set_seq_mode( mode, SEQ_MODE_DIFF, 0 );
 
-
-    else if(strcmp(cmd, "electro") == 0) {
-
-      // same as no az, except don't switch the precharge
-      mode->sa.reg_sa_p_seq_n = 1,
-      mode->sa.reg_sa_p_seq0 = (0b00 << 4) | S3,        // dcv
-      mode->reg_seq_mode = SEQ_MODE_NOAZ;               // to guide decoder
-    }
-    else if(strcmp(cmd, "ratio") == 0) {
-      // 4 cycle, producing single output
-
-      mode->sa.reg_sa_p_seq_n = 4,
-      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3,        // dcv
-      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7,        // star-lo
-      mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1,        // himux
-      mode->sa.reg_sa_p_seq3 = (0b00 << 4) | S7,        // lomux
-      mode->reg_seq_mode = SEQ_MODE_RATIO;
-    }
-    else if(strcmp(cmd, "ag") == 0) {
-      // auto-gain 4 cycle - same as ratio. producing a single output
-      mode->sa.reg_sa_p_seq_n = 4,
-      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3,        // dcv
-      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7,        // star-lo
-      mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1,        // himux
-      mode->sa.reg_sa_p_seq3 = (0b00 << 4) | S7,        // lomux
-      mode->reg_seq_mode = SEQ_MODE_RATIO;
-    }
-
-
-    else if(strcmp(cmd, "diff") == 0) {
-      // 2 cycle, hi- hi2, with both precharge switches switches. single output.
-      mode->sa.reg_sa_p_seq_n = 2,
-      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3,        // dcv
-      mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1,        // himux
-      mode->reg_seq_mode = SEQ_MODE_DIFF;                 // to guide decoder
-    }
-    else if(strcmp(cmd, "sum-test") == 0) {
-
-      // similar. take hi/lo, hi2/lo, .  but where lo is shared. so can calculate hi-lo, hi2-lo, hi-hi2.
-      // advantage of a single sequence - is that flicker noise should cancel some.
-      // noting that input can be external terminals - or the dcv-source and its inverted output.
-      // to encodekkkkkkkkk
-      // can do as 3 values or 4 values.   3 is more logical.
-
-      mode->sa.reg_sa_p_seq_n = 3,
-      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3,        // dcv
-      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7,        // star-lo
-      mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1,        // himux
-      mode->reg_seq_mode = SEQ_MODE_SUM;                 // to guide decoder
-    }
+  else if(strcmp(cmd, "sum-test") == 0)
+    set_seq_mode( mode, SEQ_MODE_SUM, 0 );
 
 
 
@@ -464,12 +468,20 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 #endif
 
 
+  else if( sscanf(cmd, "seq mode %100s", s0) == 1
+    && str_decode_uint( s0, &u0)) {
+
+    mode->reg_seq_mode = u0;
+
+  }
+
 
 
   /*
     perhaps keep the 'set' prefix to clearly disambiguate these actions under common syntactic form.
   */
 
+  // three val
   else if( sscanf(cmd, "set %100s %100s %100s", s0, s1, s2) == 3
     && str_decode_uint( s1, &u0)
     && str_decode_uint( s2, &u1)
@@ -615,5 +627,19 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
 
 
+
+
+  /*
+    setup the sequence numbers for the different modes.
+    we could inject this field - as a string - into data as well.
+      or write it using a status bit, of adc for good synchronization. from mode -> adc -> to stamped values, read by data.
+
+    this is a read_mode.  or sequence_mode.
+  */
+
+
+
+// Might be cleaner to have functions() for these.
+// or just pass. note the CH can be represented as an argument.
 
 

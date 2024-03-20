@@ -100,6 +100,8 @@ reset is schem default contacts.
 #define LR_RESET    0b10
 
 
+
+// not sure if should move to ice40_reg.  or just remove.
 // two channels.
 // eg. (PC0 | PC01) <<
 
@@ -110,19 +112,6 @@ reset is schem default contacts.
 #define PC01         0b01
 #define PC10         0b10
 #define PCBOTH      0b10
-
-
-
-//
-// fpga has no concept of these - pass-through, so define in mode.
-
-#define SEQ_MODE_AZ           1
-#define SEQ_MODE_NOAZ         2
-#define SEQ_MODE_ELECTO       3
-#define SEQ_MODE_RATIO        4
-#define SEQ_MODE_AG           5
-#define SEQ_MODE_DIFF         6
-#define SEQ_MODE_SUM          7
 
 
 
@@ -376,6 +365,16 @@ void mode_set_ref_source(  _mode_t *mode, unsigned u0 ); // 7 == ref-hi  or 0 ==
 
 
 bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );
+
+
+void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint32_t channel );
+
+
+
+
+
+
+
 
 
 #if 0
