@@ -281,7 +281,7 @@ void app_loop(app_t *app)
   while(true) {
 
     // process potential new incomming data in priority
-    data_update_new_reading( app->data, app->spi, app->verbose);
+    data_update_new_reading( app->data, app->spi/*, app->verbose*/);
 
 
     // handle console
@@ -550,8 +550,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
     // trigger - has a dependency on both data and the mode
     // because we want to clear the data buffer
 
-    data_t *data = app->data;
-    buffer_clear( data->buffer, &data->buffer_idx );
+    data_buffers_reset( app->data );
 
    _mode_t *mode = app->mode_current;
 

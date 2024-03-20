@@ -225,84 +225,99 @@ void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint32_t channel )
 
   mode->reg_seq_mode = seq_mode;                 // to guide decoder
 
-  if(seq_mode == SEQ_MODE_AZ) {     // we channel 1.
+  switch(seq_mode) {
+
+    case SEQ_MODE_AZ: { // we channel 1.
     // write the seq
 
       mode->sa.reg_sa_p_seq_n = 2;
     // applies both chanels.
-    if(channel == 1) {
+      if(channel == 1) {
+        mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
+        mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
+      }
+      else if(channel == 2)  {
+        mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S1;        // himux
+        mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S8;        // lomux
+      }
+      else assert(0);
+      break;
+    }
+
+
+    case SEQ_MODE_NOAZ: {
+      // clearer - to express as another mode, rather than as a bool.
+      // azero off - just means swtich the pc for symmetry/ and keep charge-injetion the same with azero mode.
+
+      mode->sa.reg_sa_p_seq_n = 1;
+      if(channel == 1) {
+        mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
+      }
+      else if(channel == 2 ) {
+        mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S1;        // himux
+      }
+      else assert(0);
+      break;
+    }
+
+
+    case SEQ_MODE_ELECTRO: {
+
+      // same as no az, except don't switch the precharge
+      mode->sa.reg_sa_p_seq_n = 1;
+      mode->sa.reg_sa_p_seq0 = (0b00 << 4) | S3;        // dcv
+      break;
+    }
+
+    case SEQ_MODE_RATIO: {
+      // 4 cycle, producing single output
+
+      mode->sa.reg_sa_p_seq_n = 4;
       mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
       mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
+      mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1;        // himux
+      mode->sa.reg_sa_p_seq3 = (0b00 << 4) | S7;        // lomux
+      break;
     }
-    else if(channel == 2)  {
-      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S1;        // himux
-      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S8;        // lomux
-    }
-    else assert(0);
-  }
 
-
-  else if(seq_mode == SEQ_MODE_NOAZ) {
-    // clearer - to express as another mode, rather than as a bool.
-    // azero off - just means swtich the pc for symmetry/ and keep charge-injetion the same with azero mode.
-
-    mode->sa.reg_sa_p_seq_n = 1;
-    if(channel == 1) {
+    case SEQ_MODE_AG: {
+      // auto-gain 4 cycle - same as ratio. producing a single output
+      mode->sa.reg_sa_p_seq_n = 4;
+      // sample
       mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
+      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
+      // reference
+      mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1;        // himux
+      mode->sa.reg_sa_p_seq3 = (0b00 << 4) | S7;        // lomux
+      break;
     }
-    else if(channel == 2 ) {
-      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S1;        // himux
+
+    case SEQ_MODE_DIFF: {
+      // 2 cycle, hi- hi2, with both precharge switches switches. single output.
+      mode->sa.reg_sa_p_seq_n = 2;
+      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
+      mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1;        // himux
+      break;
     }
-    else assert(0);
+
+    case SEQ_MODE_SUM_DELTA: {    // change name.  SUM_DELTA. 0w
+
+      // similar. take hi/lo, hi2/lo, .  but where lo is shared. so can calculate hi-lo, hi2-lo, hi-hi2.
+      // advantage of a single sequence - is that flicker noise should cancel some.
+      // noting that input can be external terminals - or the dcv-source and its inverted output.
+      // to encodekkkkkkkkk
+      // can do as 3 values or 4 values.   3 is more logical.
+
+      mode->sa.reg_sa_p_seq_n = 3;
+      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
+      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
+      mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1;        // himux
+      break;
+    }
+
+    default:
+      assert( 0);
   }
-
-
-  else if(seq_mode == SEQ_MODE_ELECTRO ) {
-
-    // same as no az, except don't switch the precharge
-    mode->sa.reg_sa_p_seq_n = 1;
-    mode->sa.reg_sa_p_seq0 = (0b00 << 4) | S3;        // dcv
-  }
-  else if(seq_mode == SEQ_MODE_ELECTRO) {
-    // 4 cycle, producing single output
-
-    mode->sa.reg_sa_p_seq_n = 4;
-    mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
-    mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
-    mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1;        // himux
-    mode->sa.reg_sa_p_seq3 = (0b00 << 4) | S7;        // lomux
-  }
-  else if(seq_mode == SEQ_MODE_AG ) {
-    // auto-gain 4 cycle - same as ratio. producing a single output
-    mode->sa.reg_sa_p_seq_n = 4;
-    mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
-    mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
-    mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1;        // himux
-    mode->sa.reg_sa_p_seq3 = (0b00 << 4) | S7;        // lomux
-  }
-
-
-  else if(seq_mode == SEQ_MODE_DIFF ) {
-    // 2 cycle, hi- hi2, with both precharge switches switches. single output.
-    mode->sa.reg_sa_p_seq_n = 2;
-    mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
-    mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1;        // himux
-  }
-
-  else if(seq_mode == SEQ_MODE_SUM) {
-
-    // similar. take hi/lo, hi2/lo, .  but where lo is shared. so can calculate hi-lo, hi2-lo, hi-hi2.
-    // advantage of a single sequence - is that flicker noise should cancel some.
-    // noting that input can be external terminals - or the dcv-source and its inverted output.
-    // to encodekkkkkkkkk
-    // can do as 3 values or 4 values.   3 is more logical.
-
-    mode->sa.reg_sa_p_seq_n = 3;
-    mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
-    mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
-    mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1;        // himux
-  }
-  else assert( 0);
 
 
 }
@@ -420,7 +435,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     set_seq_mode( mode, SEQ_MODE_DIFF, 0 );
 
   else if(strcmp(cmd, "sum-test") == 0)
-    set_seq_mode( mode, SEQ_MODE_SUM, 0 );
+    set_seq_mode( mode, SEQ_MODE_SUM_DELTA, 0 );
 
 
 

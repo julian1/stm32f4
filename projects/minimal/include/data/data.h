@@ -51,9 +51,17 @@ typedef struct data_t
 
   //////////////////
 
-
+/*
   double   hi;        // for az mode. the last hi measure TODO change name az_hi. and az_lo ?
   double   lo[2];   // for az mode. the last two lo signals.
+*/
+
+
+  // values corresponding indexed sequence idx
+  // better name data/ vals? reading
+  // reading?
+  double reading[  4 ] ;
+  double reading_last[  4 ] ;
 
   /////////////////
 
@@ -62,7 +70,7 @@ typedef struct data_t
 
   // MAT  *buffer2; second buffer.
 
-  //
+  //  name readinx_idx
   uint32_t buffer_idx;    /* has two needs.
                                    - for modulo indexing sa_buffer
                                     - determining when to stop.
@@ -70,6 +78,10 @@ typedef struct data_t
                                     // wrap around can be handled. if == MAX( ) .
                             */
 
+
+  bool show_counts;
+  bool show_stats;
+  bool show_extra;
 
 
 } data_t;
@@ -81,8 +93,8 @@ typedef struct data_t
 void data_init ( data_t *);
 void data_rdy_interupt( data_t *data);    // handler setup in app context.
 
-
-void data_update_new_reading(data_t *data, uint32_t spi, bool verbose);
+// better name process reading.
+void data_update_new_reading(data_t *data, uint32_t spi);
 
 
 // could create and add to data/cal.h
@@ -116,10 +128,13 @@ bool data_flash_repl_statement( data_t *data, const char *cmd);
 bool data_repl_statement( data_t *data,  const char *cmd );
 
 
+// reset...
+void data_buffers_reset( data_t * data );
+
 
 
 void buffer_push( MAT *buffer, uint32_t *idx, double val );
-void buffer_clear( MAT *buffer, uint32_t *idx);
+
 void buffer_set_size( MAT *buffer, uint32_t sz);
 
 void buffer_stats_print( MAT *buffer /* double *mean, double *stddev */ /* verbose */ );

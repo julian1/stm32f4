@@ -7,6 +7,8 @@
 #include <assert.h>
 
 
+#include <lib2/util.h>      // ARRAY_SIZE
+
 #include <data/data.h>
 #include <data/matrix.h>     // m_from_scalar
 
@@ -139,7 +141,7 @@ void data_update(data_t *data, uint32_t spi )
 */
 
 
-static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
+static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*/)
 {
   /*
     the question - is can we do this without interaction with the mode_t.
@@ -164,11 +166,11 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
   // printf("r %u  v %lu  %s\n",  REG_STATUS, status,  str_format_bits(buf, 32, status));
 
   // TODO create a bitfield for the status register
-  uint8_t sample_idx_last =  0b111 & (status >> 16) ;
+  uint8_t sample_idx =  0b111 & (status >> 16) ;
   uint8_t sample_seq_n    =  0b111 & (status >> 20) ;
   uint8_t sample_seq_mode =  0b111 & (status >> 24) ;
 
-  printf(" seq_mode %u  %u of %u \n", sample_seq_mode,   sample_idx_last, sample_seq_n );
+  printf(" seq_mode %u  %u of %u \n", sample_seq_mode,   sample_idx, sample_seq_n );
 
 
 /*
@@ -183,7 +185,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
   uint32_t clk_count_mux_sig = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_MUX_SIG);
 
 
-  if(verbose) {
+  if(data->show_counts) {
 
     // clkcounts
     // printf("clk counts %6lu %7lu %7lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
@@ -191,7 +193,8 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
   }
 
 
-  if(verbose) {
+  // data show_count_extra?
+  if(data->show_extra) {
 
     uint32_t clk_count_mux_reset = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RESET);
     printf(", reset %6lu", clk_count_mux_reset);
@@ -200,7 +203,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
     uint32_t stat_count_refmux_neg_up = spi_ice40_reg_read32( spi, REG_ADC_STAT_COUNT_REFMUX_NEG_UP);
     uint32_t stat_count_cmpr_cross_up = spi_ice40_reg_read32( spi, REG_ADC_STAT_COUNT_CMPR_CROSS_UP);
 
-    printf(", stats %lu %lu %lu", stat_count_refmux_pos_up, stat_count_refmux_neg_up, stat_count_cmpr_cross_up );
+    printf(", adc stats %lu %lu %lu", stat_count_refmux_pos_up, stat_count_refmux_neg_up, stat_count_cmpr_cross_up );
 
 
     double period = aper_n_to_period( clk_count_mux_sig);
@@ -255,42 +258,116 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
     assert( m_is_scalar(predicted) );
 
     double ret = m_to_scalar(predicted );
-    UNUSED(ret);
+
+    // store the value against the sample idx.
+    assert(sample_idx < ARRAY_SIZE( data->reading));
+
+    // shift previous reading
+    data->reading_last[ sample_idx ] = data->reading[ sample_idx ] ;
+
+    // update.
+    data->reading[ sample_idx ] = ret;
+
+
+/*
+    - there's an issue, that on the first iteration,  the last reading will corrupt the calculation
+    - and then the stats buffer will be wrong - until it cycles through.
+    - BUT - we may have improved this it a lot - by clearing this value - when we reset the buffer.
+    ----
+    - can fix - by storing same reading into the last, if it's the first time through the acquistion sequence.
+*/
 
     M_FREE( xs );
     M_FREE( m_mux_sig );
     M_FREE( predicted );
 
 
+    /* / EXTR.   rather than having separate variables for hi  and lo[2 ]
+    // why not store in an array????  according to the sequence - then we can always update
+    //  data[ sample_idx ] [ ]  = val.
+    // EXTR.   Do we even need to do the shuffle, with the lo value .  Just use j
+    */
 
-    if( sample_seq_mode == SEQ_MODE_NOAZ ) {    // some kind of AZ mode. with hi first.
+    // a switch would be cleaner...
 
-      printf("no azero! \n");
+    // change name to computed readding
+    double computed_val = 0;
 
+    switch(sample_seq_mode) {
 
-    }
+      case SEQ_MODE_NOAZ:
+      case SEQ_MODE_ELECTRO: {
 
-    if( sample_seq_n == 2) {    // some kind of AZ mode. with hi first.
-
-      if( sample_idx_last == 0 )
-        data->hi = ret;
-      else if( sample_idx_last == 1 )  {
-        data->lo[ 1] = data->lo[ 0];  // shift last value
-        data->lo[ 0] = ret;
+        // AZ mode, on channel 1 or channel 2, but encoded in first two readings
+        assert( sample_seq_n == 1);
+        // eg. just the hi.
+        computed_val = data->reading[ 0 ] ;
+        break;
       }
-      else assert(0);
 
-      // recalculate  ret.
-      ret = data->hi - ((data->lo[ 0 ] + data->lo[1] ) / 2.0);
-    }
-    else if( sample_seq_n == 4) {
+      case SEQ_MODE_AZ: {
 
-        printf("whoot RM / or 4 cycle\n");
+        assert( sample_seq_n == 2);
+        // eg. hi - average two lo
+        computed_val = data->reading[0]  - ((data->reading[ 0 ] + data->reading_last[1] ) / 2.f);
+        break;
+      }
 
-    } else assert(0);
+      case SEQ_MODE_RATIO: {
+
+        assert( sample_seq_n == 4);
+        // ratio of two az values
+        // NOTE - REVIEW - we could also used the last/lagged LO. for more reading stability
+        computed_val = (data->reading[0] - data->reading[1]) / (data->reading[2] - data->reading[3]);
+        break;
+      }
+
+      case SEQ_MODE_AG: {
+
+        assert( sample_seq_n == 4);
+        // need
+        double coeff = 1.f;
+        // channel 1 reading, adjusted according to gain on the dcv-source used as reference on channel 2
+        computed_val = (data->reading[0] - data->reading[1]) / (data->reading[2] - data->reading[3]) * coeff;
+        break;
+      }
+
+      case SEQ_MODE_DIFF: {
+
+        assert( sample_seq_n == 2);
+        // channel1 hi - channel 2 hi
+        computed_val = data->reading[0] - data->reading[2];
+        break;
+      }
+
+      case SEQ_MODE_SUM_DELTA:  {
+        // think this doesn't work - we have to be able to swap the inputs around .   eg. use caps.
+        /*
+        mode->sa.reg_sa_p_seq_n = 3;
+        mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
+        mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
+        mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1;        // himux
+        */
+        // hang on isn't this true by definition?
+        /*
+        double dcv   = (data->reading[0] - data->reading[1];
+        double himux = (data->reading[2] - data->reading[1];
+        computed_val = dcv + ;
+        */
+        assert( 0);
+        break;
+      }
+
+      default:
+        assert(0);
+
+    };
 
 
-    printf(" meas %sV", str_format_float_with_commas(buf, 100, 7, ret ));
+
+    // we want with commas (easier to read) and without commas (easier to process programatically).
+
+    printf(" meas %sV", str_format_float_with_commas(buf, 100, 7, computed_val));
 /*
     if(verbose)
       printf(" meas %sV", str_format_float_with_commas(buf, 100, 7, ret ));
@@ -304,10 +381,10 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
       or stop. so we can retrieve/print the buffer without change
 
     */
-    buffer_push( data->buffer, &data->buffer_idx, ret );
+    buffer_push( data->buffer, &data->buffer_idx, computed_val );
 
 
-    if(verbose) {
+    if(data->show_stats) {
       printf(" ");
       buffer_stats_print( data->buffer );
     }
@@ -320,8 +397,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi, bool verbose)
 }
 
 
-// static void app_update_new_measure(app_t *app)
-void data_update_new_reading(data_t *data, uint32_t spi, bool verbose)
+void data_update_new_reading(data_t *data, uint32_t spi)
 {
   assert(data);
   assert(data->magic == DATA_MAGIC);
@@ -342,7 +418,7 @@ void data_update_new_reading(data_t *data, uint32_t spi, bool verbose)
   if(data->adc_measure_valid) {
 
     data->adc_measure_valid = false;
-    data_update_new_reading2( data, spi, verbose);
+    data_update_new_reading2( data, spi);
   }
 
   // TODO - i think we forgot to bring code across for this check
@@ -567,27 +643,33 @@ void buffer_push( MAT *buffer, uint32_t *idx, double val )
 
 
 
-void buffer_clear( MAT *buffer, uint32_t *idx)
+void data_buffers_reset( data_t * data )
 {
-  assert(buffer);
+  assert(data);
+  assert(data->magic == DATA_MAGIC);
 
 
-  printf("**** buffer clear %u\n", m_rows(buffer) );
+  printf("**** data->buffer reset %u\n", m_rows(data->buffer) );
 
-  /* clear the sample buffer
-    alternatively could use a separate command,  'buffer clear'
-    have an expected buffer - means can stop when finished.
+  /* clear the sample data->buffer
+    alternatively could use a separate command,  'data->buffer clear'
+    have an expected data->buffer - means can stop when finished.
   */
 
-  assert(buffer);
-  buffer      = m_zero( buffer ) ;    // don't even really need to zero the buffer here.
+  assert(data->buffer);
+  data->buffer      = m_zero( data->buffer ) ;    // don't even really need to zero the data->buffer here.
                                                   // because we will truncate
+  m_truncate_rows( data->buffer, 0 );               // truncate vertical length.
 
-  m_truncate_rows( buffer, 0 );               // truncate vertical length.
+  data->buffer_idx = 0;
 
-  *idx = 0;
 
-  printf("**** buffer now %u\n", m_rows(buffer) );
+
+  memset(  data->reading, 0, sizeof( data->reading));
+  memset(  data->reading_last, 0, sizeof( data->reading_last));
+
+
+  printf("**** data->buffer now %u\n", m_rows(data->buffer) );
 }
 
 
@@ -627,6 +709,7 @@ bool data_repl_statement( data_t *data,  const char *cmd )
   uint32_t u0;
 
 
+  // reserve or resize...
 
   if( sscanf(cmd, "data buffer reserve %lu", &u0 ) == 1) {
 
@@ -644,7 +727,7 @@ bool data_repl_statement( data_t *data,  const char *cmd )
 
   else if( strcmp(cmd, "data buffer clear") == 0) {
 
-    buffer_clear( data->buffer, &data->buffer_idx);
+    data_buffers_reset( data);
 
     printf("buffer now %u\n", m_rows(data->buffer) );
   }
@@ -656,7 +739,7 @@ bool data_repl_statement( data_t *data,  const char *cmd )
   }
 */
 
-  else if( sscanf(cmd, "line freq %lu", &u0 ) == 1) {
+  else if( sscanf(cmd, "data line freq %lu", &u0 ) == 1) {
 
     if(  !(u0 == 50 || u0 == 60)) {
       // be safe for moment.
@@ -678,6 +761,16 @@ bool data_repl_statement( data_t *data,  const char *cmd )
     // should probably be gain and offset for the calibration.
     // todo
   }
+
+
+  else if(strcmp(cmd, "data show counts") == 0)
+    data->show_counts = 1;
+
+  else if(strcmp(cmd, "data show extra") == 0)
+    data->show_extra = 1;
+
+  else if(strcmp(cmd, "data show stats") == 0)
+    data->show_stats = 1;
 
 
 

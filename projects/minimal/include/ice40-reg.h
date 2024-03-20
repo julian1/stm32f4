@@ -103,7 +103,7 @@
 #define SEQ_MODE_RATIO        4
 #define SEQ_MODE_AG           5
 #define SEQ_MODE_DIFF         6
-#define SEQ_MODE_SUM          7
+#define SEQ_MODE_SUM_DELTA          7
 
 
 
