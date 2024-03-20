@@ -84,9 +84,6 @@
 // #define MODE_PC_TEST      4
 
 
-// #define MODE_AZ_TEST      5     // az. using adc-test
-// #define MODE_NO_AZ        6     // no az. and elecm. etc
-
 // sequence acquisition
 #define MODE_SA_MOCK_ADC    6     // no az. and elecm. etc
 #define MODE_SA_ADC        7     // no az. and elecm. etc
@@ -96,8 +93,9 @@
 
 
 //
-// fpga has no concept of these - pass-through, so define in mode.
-// this has to be shared between mode.c setting and data reading.
+// fpga has no concept of these - pass-through, so would be good to define in mode, where used.
+// but have to be shared to data as well.
+// so put here
 
 #define SEQ_MODE_AZ           1
 #define SEQ_MODE_NOAZ         2
@@ -106,11 +104,6 @@
 #define SEQ_MODE_AG           5
 #define SEQ_MODE_DIFF         6
 #define SEQ_MODE_SUM          7
-
-
-
-
-
 
 
 
