@@ -81,6 +81,7 @@ void aper_cc_print( uint32_t aperture,  uint32_t line_freq)
 
 char * mux_to_string( unsigned val,  char *buf, unsigned n  )
 {
+  // change name mux_to_str() at least.
   // this is 1ofN mux.
   char *s = 0;
 
@@ -97,10 +98,7 @@ char * mux_to_string( unsigned val,  char *buf, unsigned n  )
     default: assert(0);
   };
 
-  snprintf(buf, n, "%s", s);
-  // strncpy(buf, s, n);
-
-  // return the working buffer as convenience to caller
+  strncpy(buf, s, n);
   return buf;
 }
 
