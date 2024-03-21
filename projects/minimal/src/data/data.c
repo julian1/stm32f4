@@ -141,6 +141,35 @@ void data_update(data_t *data, uint32_t spi )
 */
 
 
+
+static char * seq_mode_str( uint32_t sample_seq_mode, char *buf, unsigned n  )
+{
+  char *s = 0;
+
+  switch(sample_seq_mode) {
+
+    case 0:                 s = "none"; break;
+    case SEQ_MODE_NOAZ:     s = "noaz"; break;
+    case SEQ_MODE_ELECTRO:  s = "electro"; break;
+    case SEQ_MODE_AZ:       s = "az"; break;
+    case SEQ_MODE_RATIO:    s =  "ratio"; break;
+    case SEQ_MODE_AG:       s = "ag"; break;
+    case SEQ_MODE_DIFF:     s = "diff"; break;
+    case SEQ_MODE_SUM_DELTA:  s = "sum-delta"; break;
+    default:
+      assert(0);
+  };
+
+  strncpy(buf, s, n);
+  return buf;
+}
+
+
+
+
+
+
+
 static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*/)
 {
   /*
@@ -157,20 +186,29 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
   // printf("-------------------\n");
 
 
-  // shouldn't  be needed.
-  spi_mux_ice40(spi);
-
-
 
   uint32_t status = spi_ice40_reg_read32( spi, REG_STATUS );
   // printf("r %u  v %lu  %s\n",  REG_STATUS, status,  str_format_bits(buf, 32, status));
 
-  // TODO create a bitfield for the status register
-  uint8_t sample_idx =  0b111 & (status >> 16) ;
+  // TODO consider create a bitfield for the status register
+
+  uint8_t hw_flags        =  0b111 & (status >> 8 ) ;
+  UNUSED(hw_flags);
+  uint8_t reg_spi_mux     =  0b111 & (status >> 12 ) ;
+  uint8_t sample_idx      =  0b111 & (status >> 16) ;     // we set this to 0b111 somewhere in verilog?
   uint8_t sample_seq_n    =  0b111 & (status >> 20) ;
   uint8_t sample_seq_mode =  0b111 & (status >> 24) ;
 
-  printf(" seq_mode %u  %u of %u \n", sample_seq_mode,   sample_idx, sample_seq_n );
+
+  assert( reg_spi_mux == SPI_MUX_NONE);
+
+  // store the value against the sample idx.
+  assert(sample_idx < ARRAY_SIZE( data->reading));
+
+
+
+  // printf(" seq_mode %u  %u of %u ", sample_seq_mode,   sample_idx, sample_seq_n );
+  printf(", %u of %u", sample_idx, sample_seq_n );
 
 
 /*
@@ -189,7 +227,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
     // clkcounts
     // printf("clk counts %6lu %7lu %7lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
-    printf("clk counts %7lu %7lu %6lu %lu", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+    printf(", clk counts %7lu %7lu %6lu %lu", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
   }
 
 
@@ -268,6 +306,17 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
     // update.
     data->reading[ sample_idx ] = ret;
 
+    // show all readings
+    if(0) {
+      // printf("%s", seq_mode_str( sample_seq_mode, buf, 8 )); // puts
+      // printf("%u, ", sample_seq_mode); // puts
+
+
+        printf("\n");
+        for(unsigned i = 0; i < sample_seq_n; ++i ) {
+          printf("%u %lf\n", i, data->reading[ i ] ) ;
+        }
+    }
 
 /*
     - there's an issue, that on the first iteration,  the last reading will corrupt the calculation
@@ -309,7 +358,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
         assert( sample_seq_n == 2);
         // eg. hi - average two lo
-        computed_val = data->reading[0]  - ((data->reading[ 0 ] + data->reading_last[1] ) / 2.f);
+        computed_val = data->reading[0]  - ((data->reading[ 1 ] + data->reading_last[1] ) / 2.f);
         break;
       }
 
@@ -341,7 +390,10 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
       }
 
       case SEQ_MODE_SUM_DELTA:  {
-        // think this doesn't work - we have to be able to swap the inputs around .   eg. use caps.
+        /* think this doesn't work - we have to be able to swap the inputs around .   eg. use caps.
+          so we have a sequence acquisition sampling mode - where take hi on channel 1, and lo on channel 2.
+          and a lo common, but doesn't help. because (hi1 - lo ) + (hi2 - lo ) == (hi1 - hi2) as an identity.
+        */
         /*
         mode->sa.reg_sa_p_seq_n = 3;
         mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
@@ -621,17 +673,12 @@ void buffer_push( MAT *buffer, uint32_t *idx, double val )
 
   if(m_rows(buffer) < m_rows_reserve(buffer)) {
 
-    printf("just pushing\n" );
     // just push onto sample buffer
     m_push_row( buffer, & val, 1 );
   }
 
   else {
     // buffer is full, so insert
-    // TODO there's an issue with modulo overflow/wrap around.
-
-    printf("buffer full using idx  %lu\n", *idx );
-
     unsigned imod = *idx % m_rows(buffer);
     // printf(" insert at %u\n", idx );
     m_set_val( buffer, imod, 0,  val );

@@ -189,6 +189,7 @@ void mode_set_dcv_source( _mode_t *mode, signed i0)
 }
 
 
+//    mode->second.U409 = S1;         // lo-mux,  source dcv-source-com which is ref-lo
 
 void mode_set_ref_source( _mode_t *mode, unsigned u0 )
 {
@@ -197,12 +198,13 @@ void mode_set_ref_source( _mode_t *mode, unsigned u0 )
   mode->second.U1012  = SOFF;       // should probably be agnd.
 
   if(u0 == 7) {
-    printf("with ref +7V\n");
+    printf("with ref-hi +7V\n");
     mode->second.U1006  = S4;       // ref-hi
+                                    // no . we shouldn't be setting lo-mux here
   }
   else if( u0 == 0 ) {
     // need bodge for this
-    printf("with ref lo\n");
+    printf("with ref-lo\n");
     mode->second.U1006  = S7;       // ref-lo
   }
   else
@@ -211,8 +213,6 @@ void mode_set_ref_source( _mode_t *mode, unsigned u0 )
   mode->first .K405 = LR_SET;     // select dcv
   mode->first .K406 = LR_SET;   // accum relay off
   mode->first .K407 = LR_RESET;   // select dcv-source
-
-
 }
 
 
@@ -238,6 +238,10 @@ void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint32_t channel )
       }
       else if(channel == 2)  {
         mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S1;        // himux
+        mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S8;        // lomux
+      }
+      else if(channel == 3)  {    // eg. for ref.
+        mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
         mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S8;        // lomux
       }
       else assert(0);
@@ -413,6 +417,11 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   else if(strcmp(cmd, "azero ch2") == 0)
     set_seq_mode( mode, SEQ_MODE_AZ, 2 );
 
+  else if(strcmp(cmd, "azero ch3") == 0)      // rather than a integer argument - perhaps should pass the two az switch conditions?. 
+    set_seq_mode( mode, SEQ_MODE_AZ, 3 );       // actually why not expose in string api.   eg. 'azero S1 S7' etc.
+
+
+
 
   else if(strcmp(cmd, "noazero ch1") == 0)
     set_seq_mode( mode, SEQ_MODE_NOAZ, 1 );
@@ -582,6 +591,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
         mode->reg_direct.meas_complete_o = u0;
       }
 
+      ////////////////////////////////////////////
       // 4094 components.
       // perhaps rename second. _4094_second etc.
 
@@ -614,6 +624,18 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       else if(strcmp(s0, "k405") == 0) {
         mode->first.K405 = u0 ? LR_SET: LR_RESET;
       }
+
+
+
+      else if(strcmp(s0, "u409") == 0 || strcmp(s0, "lomux") == 0) { //  lomux / could use alternate name
+        mode->second.U409 = u0 ;
+      }
+      else if(strcmp(s0, "u410") == 0 || strcmp(s0, "himux") == 0) {    // himux
+        mode->second.U410 = u0 ;
+      }
+
+
+
 
       /*
         not completely clear if trig wants to be out-of-band. eg not put in the mode structure.
