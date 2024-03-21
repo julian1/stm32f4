@@ -81,7 +81,6 @@ void aper_cc_print( uint32_t aperture,  uint32_t line_freq)
 
 char * mux_to_string( unsigned val,  char *buf, unsigned n  )
 {
-  // change name mux_to_str() at least.
   // this is 1ofN mux.
   char *s = 0;
 

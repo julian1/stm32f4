@@ -207,9 +207,6 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
 
 
-  printf("%s", seq_mode_str( sample_seq_mode, buf, 8 )); // puts
-  // printf("%u, ", sample_seq_mode); // puts
-
   // printf(" seq_mode %u  %u of %u ", sample_seq_mode,   sample_idx, sample_seq_n );
   printf(", %u of %u", sample_idx, sample_seq_n );
 
@@ -311,6 +308,10 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
     // show all readings
     if(0) {
+      // printf("%s", seq_mode_str( sample_seq_mode, buf, 8 )); // puts
+      // printf("%u, ", sample_seq_mode); // puts
+
+
         printf("\n");
         for(unsigned i = 0; i < sample_seq_n; ++i ) {
           printf("%u %lf\n", i, data->reading[ i ] ) ;

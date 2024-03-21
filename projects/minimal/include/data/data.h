@@ -57,9 +57,6 @@ typedef struct data_t
 */
 
 
-  /*
-  - stored readings by sequence_idx.  which works very well for calculating output for the different modes.
-  */
   // values corresponding indexed sequence idx
   // better name data/ vals? reading
   // reading?

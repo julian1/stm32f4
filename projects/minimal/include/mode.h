@@ -130,7 +130,9 @@ typedef struct _4094_state_t
   uint8_t K404        : 2;
 
 
-  uint8_t U402_UNUSED : 8;
+  // U402
+  uint8_t U409    : 4;    //  lomux / could use alternate name
+  uint8_t U410    : 4;    //  himux
 
 
   // U414
