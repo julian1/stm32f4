@@ -539,13 +539,13 @@ void app_repl_statement(app_t *app,  const char *cmd)
   }
 
   // "h" for halt
-  else if(strcmp(cmd, "h") == 0) {
+  else if(strcmp(cmd, "halt") == 0 || strcmp(cmd, "h") == 0) {
 
     _mode_t *mode = app->mode_current;
     mode->trigger_source_internal = 0;
   }
   // "t" to trigger
-  else if(strcmp(cmd, "t") == 0) {
+  else if(strcmp(cmd, "trig") == 0 || strcmp(cmd, "t") == 0) {
 
     // trigger - has a dependency on both data and the mode
     // because we want to clear the data buffer

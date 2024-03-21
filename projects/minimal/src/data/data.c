@@ -33,8 +33,7 @@ void data_init ( data_t *data )
   assert(data);
   assert(data->magic == DATA_MAGIC) ;
 
-  // not sure if really even need this.
-  printf("whoot data init!\n");
+  // not sure we really even need this.
 
 
   data->buffer = m_resize( data->buffer, 10, 1 );
@@ -207,6 +206,8 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
 
 
+
+  printf("%s", seq_mode_str( sample_seq_mode, buf, 8 )); // puts()
   // printf(" seq_mode %u  %u of %u ", sample_seq_mode,   sample_idx, sample_seq_n );
   printf(", %u of %u", sample_idx, sample_seq_n );
 
@@ -308,9 +309,6 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
     // show all readings
     if(0) {
-      // printf("%s", seq_mode_str( sample_seq_mode, buf, 8 )); // puts
-      // printf("%u, ", sample_seq_mode); // puts
-
 
         printf("\n");
         for(unsigned i = 0; i < sample_seq_n; ++i ) {
@@ -696,7 +694,7 @@ void data_buffers_reset( data_t * data )
   assert(data->magic == DATA_MAGIC);
 
 
-  printf("**** data->buffer reset %u\n", m_rows(data->buffer) );
+  // printf("**** data->buffer reset %u\n", m_rows(data->buffer) );
 
   /* clear the sample data->buffer
     alternatively could use a separate command,  'data->buffer clear'
@@ -716,7 +714,7 @@ void data_buffers_reset( data_t * data )
   memset(  data->reading_last, 0, sizeof( data->reading_last));
 
 
-  printf("**** data->buffer now %u\n", m_rows(data->buffer) );
+  //printf("**** data->buffer now %u\n", m_rows(data->buffer) );
 }
 
 
@@ -772,11 +770,11 @@ bool data_repl_statement( data_t *data,  const char *cmd )
     // printf("buffer now %u\n", m_rows(data->buffer) );
   }
 
-  else if( strcmp(cmd, "data buffer clear") == 0) {
+  else if( strcmp(cmd, "data buffer reset") == 0) {
 
     data_buffers_reset( data);
 
-    printf("buffer now %u\n", m_rows(data->buffer) );
+    // printf("buffer now %u\n", m_rows(data->buffer) );
   }
 
 /*
@@ -794,7 +792,7 @@ bool data_repl_statement( data_t *data,  const char *cmd )
       return 1;
     }
 
-    printf("set lfreq\n" );
+    // printf("set lfreq\n" );
     data->line_freq = u0;
   }
 

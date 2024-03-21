@@ -358,9 +358,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   // +10,0,-10.    if increment. then could use the dac.
   if( sscanf(cmd, "dcv-source %ld", &i0 ) == 1) {
 
-      printf("set dcv-source, input relays, for current_mode\n");
-
-
+      // printf("set dcv-source, input relays, for current_mode\n");
       mode_set_dcv_source( mode, i0);
   }
 
@@ -411,19 +409,21 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
 
 
-  else if(strcmp(cmd, "azero ch1") == 0)
+  else if(strcmp(cmd, "azero ch1") == 0)    // dcv using star-gnd as lo
     set_seq_mode( mode, SEQ_MODE_AZ, 1 );
 
-  else if(strcmp(cmd, "azero ch2") == 0)
+  else if(strcmp(cmd, "azero ch2") == 0)    // himux/lomux
     set_seq_mode( mode, SEQ_MODE_AZ, 2 );
 
-  else if(strcmp(cmd, "azero ch3") == 0)      // rather than a integer argument - perhaps should pass the two az switch conditions?. 
+  // this should be called 'cross'.
+  // better name?
+  else if(strcmp(cmd, "azero cross") == 0)      // rather than a integer argument - perhaps should pass the two az switch cases?. 
     set_seq_mode( mode, SEQ_MODE_AZ, 3 );       // actually why not expose in string api.   eg. 'azero S1 S7' etc.
 
 
 
 
-  else if(strcmp(cmd, "noazero ch1") == 0)
+  else if(strcmp(cmd, "noazero ch1") == 0)    // could take arg as to theinput.
     set_seq_mode( mode, SEQ_MODE_NOAZ, 1 );
 
   else if(strcmp(cmd, "noazero ch2") == 0)
@@ -459,7 +459,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     && str_decode_float( s0, &f0))
   {
 
-    printf("set aperture\n");
+    // printf("set aperture\n");
     uint32_t aperture = period_to_aper_n( f0 );
     // assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
     aper_cc_print( aperture,  line_freq);
@@ -544,7 +544,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     && str_decode_uint( s1, &u0)
   ) {
 
-      printf("set %s %lu\n", s0, u0);
+      // printf("set %s %lu\n", s0, u0);
 
       // cannot manage pointer to bitfield. so have to hardcode.
 
@@ -640,12 +640,12 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       /*
         not completely clear if trig wants to be out-of-band. eg not put in the mode structure.
       */
-
+/*
       else if(strcmp(s0, "trig") == 0) {
         // should move/place in signal acquisition?
         mode->trigger_source_internal = u0;
       }
-
+*/
 
       else {
 
