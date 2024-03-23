@@ -26,6 +26,8 @@ bool app_test20( app_t *app, const char *cmd)
 
     // sample ref-hi on dcv in boot mode, no pc or az switching/ high-impedance.
     // adds Vos of the boot op-amp.
+    // actually doesn't seem to have much Vos offset relative. to az/or noaz.
+    // maybe 5uV opa-140 Vos..
     app_repl_statements(app, "        \
         flash cal read 123;           \
         reset;                        \
