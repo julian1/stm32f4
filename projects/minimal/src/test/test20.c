@@ -1,5 +1,5 @@
-
 /*
+    it is good to code as repl, because it tests the repl. also.
 
 */
 
@@ -8,25 +8,13 @@
 #include <assert.h>
 #include <string.h>   // strcmp
 
-// #include <mode.h>
 #include <app.h>
-// #include <ice40-reg.h>    // modes
-// #include <lib2/util.h>    // msleep()
-
-
 
 
 bool app_test20( app_t *app, const char *cmd)
 {
   assert(app);
   assert(cmd);
-  assert(app->mode_initial);
-
-  // just some basic test modes. ratiometric.
-  // first test should be az. mode for dcv.
-
-  // TODO. add no az. cases
-
 
 
 
