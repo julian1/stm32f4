@@ -178,7 +178,7 @@ bool app_test20( app_t *app, const char *cmd)
 
   else if( strcmp(cmd, "test28") == 0) {
 
-    // ratiometric/ 4 cycle
+    // ratiometric/ 4 cycle - ref-hi through both input channels/separate pre-charge switches.
     /*
     ratio, 3 of 4 meas 0.999,999,9
     ratio, 0 of 4 meas 1.000,000,0
@@ -204,6 +204,27 @@ bool app_test20( app_t *app, const char *cmd)
     return 1;
   }
 
+
+  ///////////////////////////////
+
+  if( strcmp(cmd, "test29") == 0) {
+
+    // sample external cap on dcv in boot mode, no pc or az switching/ high-impedance.
+    // with 10uF. cap  has leakage of several uV / s.
+    // >  set u1010 0b1011
+    // > set u1010 0b1110
+
+    app_repl_statements(app, "                \
+        flash cal read 123;                   \
+        reset;                                \
+        dcv-source cap; set u1010 0b1011 ;    \
+        set k407 0;   set k405 1;             \
+        nplc 10; set mode 7 ; boot s3;  trig; \
+      " );
+
+    // check_data( == 7.000 )  etc.
+    return 1;
+  }
 
 
 

@@ -367,6 +367,9 @@ void mode_set_ref_source(  _mode_t *mode, unsigned u0 ); // 7 == ref-hi  or 0 ==
 
 void mode_set_dac_source( _mode_t *mode, signed u0 );
 
+void mode_set_dac_source_cap( _mode_t *mode );
+
+
 
 bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );
 

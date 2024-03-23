@@ -159,6 +159,7 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 
 void mode_set_dcv_source( _mode_t *mode, signed i0)
 {
+  // need a better name.
   // 10,0,-10
   printf("set dcv-source\n");
 
@@ -229,6 +230,22 @@ void mode_set_dac_source( _mode_t *mode, signed u0 )
 
   mode->dac_val = u0;// abs( u0 );
 }
+
+
+
+void mode_set_dac_source_cap( _mode_t *mode )
+{
+
+  mode->second.U1006  = S8;          // cap.
+
+
+  mode->second.U1003  = S3;          // agnd.
+}
+
+
+
+
+
 
 
 
@@ -446,11 +463,9 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   else if( sscanf(cmd, "dcv-source dac %100s", s0) == 1
     && str_decode_uint( s0, &u0)) {
 
-      // perhaps should be able to handle +-
-     // should
+      // TODO perhaps should be able to handle +-
       // eg. dcv-source dac 0x3fff
       mode_set_dac_source( mode, u0);
-
   }
 
   // ref-hi , ref-lo
@@ -459,6 +474,10 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
   else if( strcmp(cmd, "dcv-source ref-lo") == 0)
       mode_set_ref_source( mode, 0 );
+
+  // cap
+  else if( strcmp(cmd, "dcv-source cap") == 0)
+    mode_set_dac_source_cap( mode);
 
 
 
