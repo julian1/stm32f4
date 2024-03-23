@@ -308,7 +308,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
     data->reading[ sample_idx ] = ret;
 
     if(data->show_extra) {
-      printf(", %f", ret); 
+      printf(", %f", ret);
     }
 
     // show all readings
@@ -385,7 +385,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
         assert( sample_seq_n == 4);
         // need
-        double coeff = 1.f;
+        double coeff = 2.f; // two to test.
         // channel 1 reading, adjusted according to gain on the dcv-source used as reference on channel 2
         computed_val = (data->reading[0] - data->reading[1]) / (data->reading[2] - data->reading[3]) * coeff;
 
@@ -430,7 +430,12 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
     // we want with commas (easier to read) and without commas (easier to process programatically).
 
-    printf(" meas %sV", str_format_float_with_commas(buf, 100, 7, computed_val));
+    if(sample_seq_mode == SEQ_MODE_RATIO)
+      printf(" meas %s", str_format_float_with_commas(buf, 100, 7, computed_val));
+    else
+      printf(" meas %sV", str_format_float_with_commas(buf, 100, 7, computed_val));
+
+
 /*
     if(verbose)
       printf(" meas %sV", str_format_float_with_commas(buf, 100, 7, ret ));

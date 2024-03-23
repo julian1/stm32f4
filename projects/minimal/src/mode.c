@@ -328,6 +328,7 @@ void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
       break;
     }
 
+    case SEQ_MODE_AG: 
     case SEQ_MODE_RATIO: {
       // 4 cycle, producing single output
       // Issue - is for internal - we need to set the common lo. eg. ref-lo. or start 
@@ -340,8 +341,11 @@ void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
       break;
     }
 
+/*
     case SEQ_MODE_AG: {
       // auto-gain 4 cycle - same as ratio. producing a single output
+
+
       mode->sa.reg_sa_p_seq_n = 4;
       // sample
       mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
@@ -351,7 +355,7 @@ void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
       mode->sa.reg_sa_p_seq3 = (0b00 << 4) | S7;        // lomux
       break;
     }
-
+*/
     case SEQ_MODE_DIFF: {
       // 2 cycle, hi- hi2, with both precharge switches switches. single output.
       mode->sa.reg_sa_p_seq_n = 2;

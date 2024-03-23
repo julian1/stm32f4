@@ -32,6 +32,7 @@ bool app_test20( app_t *app, const char *cmd)
 
     // REVIW
     // test ref-hi noaz. on ch2 . himux/lomux - has +60uV offset. why?
+    // was because of bad pre-charge switching . was sampling boot. now 7uV.
     app_repl_statements(app, "        \
         flash cal read 123;           \
         reset;                        \
@@ -162,8 +163,17 @@ bool app_test20( app_t *app, const char *cmd)
   else if( strcmp(cmd, "test27") == 0) {
 
     // sample ref-hi on ch1, via the low mux, and ref-lo should be 7.000,000V.
+    /*
+    ratio, 3 of 4 meas 0.999,999,9
+    ratio, 0 of 4 meas 1.000,000,0
+    ratio, 1 of 4 meas 1.000,000,1
+    ratio, 2 of 4 meas 1.000,000,0
+    ratio, 3 of 4 meas 0.999,999,9
+    ratio, 0 of 4 meas 1.000,000,1
+    */
 
-    // ch1 has voltage. 
+
+    // ch1 has voltage.
     app_repl_statements(app, "        \
         flash cal read 123;           \
         reset;                        \
