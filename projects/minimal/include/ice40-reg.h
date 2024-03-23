@@ -96,14 +96,18 @@
 // fpga has no concept of these - pass-through, so would be good to define in mode, where used.
 // but have to be shared to data as well.
 // so put here
-
-#define SEQ_MODE_AZ           1
+/*
+  // EXTR - but status should be recording the last.
+      not what is set in mode.
+*/
+#define SEQ_MODE_BOOT         1
 #define SEQ_MODE_NOAZ         2
-#define SEQ_MODE_ELECTRO      3
+#define SEQ_MODE_AZ           3
 #define SEQ_MODE_RATIO        4
 #define SEQ_MODE_AG           5
 #define SEQ_MODE_DIFF         6
 #define SEQ_MODE_SUM_DELTA          7
 
 
+// #define SEQ_MODE_ELECTRO      3
 

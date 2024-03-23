@@ -141,15 +141,17 @@ void data_update(data_t *data, uint32_t spi )
 
 
 
-static char * seq_mode_str( uint32_t sample_seq_mode, char *buf, unsigned n  )
+// static char * seq_mode_str( uint32_t sample_seq_mode, char *buf, unsigned n  )
+static char * seq_mode_str( uint8_t sample_seq_mode, char *buf, size_t n  )
 {
   char *s = 0;
 
   switch(sample_seq_mode) {
 
     case 0:                 s = "none"; break;
+    case SEQ_MODE_BOOT:       s = "boot"; break;
     case SEQ_MODE_NOAZ:     s = "noaz"; break;
-    case SEQ_MODE_ELECTRO:  s = "electro"; break;
+//    case SEQ_MODE_ELECTRO:  s = "electro"; break;
     case SEQ_MODE_AZ:       s = "az"; break;
     case SEQ_MODE_RATIO:    s =  "ratio"; break;
     case SEQ_MODE_AG:       s = "ag"; break;
@@ -346,8 +348,8 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
     switch(sample_seq_mode) {
 
-      case SEQ_MODE_NOAZ:
-      case SEQ_MODE_ELECTRO: {
+      case SEQ_MODE_BOOT:
+      case SEQ_MODE_NOAZ: {
 
         // AZ mode, on channel 1 or channel 2, but encoded in first two readings
         assert( sample_seq_n == 1);

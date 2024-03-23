@@ -28,25 +28,34 @@ bool app_test20( app_t *app, const char *cmd)
   // TODO. add no az. cases
 
 
+
+
+  ////////////////////////////
+  // boot
+
+
   if( strcmp(cmd, "test20") == 0) {
 
-    // REVIW
-    // test ref-hi noaz. on ch2 . himux/lomux - has +60uV offset. why?
-    // was because of bad pre-charge switching . was sampling boot. now 7uV.
+    // sample ref-hi on dcv in boot mode, no pc or az switching/ high-impedance.
+    // adds Vos of the boot op-amp.
     app_repl_statements(app, "        \
         flash cal read 123;           \
         reset;                        \
         dcv-source ref-hi;            \
-        set lomux s1;                 \
-        set himux s1;                 \
-        nplc 10; set mode 7 ; noazero s1;  trig; \
+        set k407 0;   set k405 1;                 \
+        nplc 10; set mode 7 ; boot s3;  trig; \
       " );
 
     // check_data( == 7.000 )  etc.
     return 1;
   }
 
-  if( strcmp(cmd, "test21") == 0) {
+
+
+  ////////////////////////////
+  // noazero
+
+  else if( strcmp(cmd, "test21") == 0) {
 
     // test ref-hi noaz. on dcv. against star-lo
     app_repl_statements(app, "        \
@@ -61,10 +70,27 @@ bool app_test20( app_t *app, const char *cmd)
     return 1;
   }
 
+  else if( strcmp(cmd, "test22") == 0) {
+
+    // test ref-hi noaz. on ch2 . himux/lomux - has +60uV offset. why?
+    // was due to bad pre-charge switching codinig. was sampling boot eg. op-amp output. now 7uV.
+    app_repl_statements(app, "        \
+        flash cal read 123;           \
+        reset;                        \
+        dcv-source ref-hi;            \
+        set lomux s1;                 \
+        set himux s1;                 \
+        nplc 10; set mode 7 ; noazero s1;  trig; \
+      " );
+
+    // check_data( == 7.000 )  etc.
+    return 1;
+  }
 
   ////////////////////////////
+  // azero
 
-  if( strcmp(cmd, "test22") == 0) {
+  else if( strcmp(cmd, "test23") == 0) {
 
     // sample ref-hi on ch1. azero - works there is 40uV offset.  because s7 is star-lo. rataher than ref-lo.
     app_repl_statements(app, "        \
@@ -82,7 +108,7 @@ bool app_test20( app_t *app, const char *cmd)
 
   ////////////////////
 
-  else if( strcmp(cmd, "test23") == 0) {
+  else if( strcmp(cmd, "test24") == 0) {
 
     // sample ref-hi on ch1, via the low mux, and ref-lo should be 7.000,000V.
     app_repl_statements(app, "        \
@@ -98,7 +124,7 @@ bool app_test20( app_t *app, const char *cmd)
     return 1;
   }
 
-  else if( strcmp(cmd, "test24") == 0) {
+  else if( strcmp(cmd, "test25") == 0) {
 
     // sample ref hi on ch2 himux/lomux,  azmux s1 s8. . _
     app_repl_statements(app, "        \
@@ -120,7 +146,7 @@ bool app_test20( app_t *app, const char *cmd)
   //////////////////////////
   // sampple dac.
 
-  else if( strcmp(cmd, "test25") == 0) {
+  else if( strcmp(cmd, "test26") == 0) {
 
     // sample dac on ch1.
     app_repl_statements(app, "        \
@@ -141,7 +167,7 @@ bool app_test20( app_t *app, const char *cmd)
   */
 
 
-  else if( strcmp(cmd, "test26") == 0) {
+  else if( strcmp(cmd, "test27") == 0) {
 
     // sample dac on ch2.
     // we should probably switch the inupt relays off.
@@ -160,9 +186,9 @@ bool app_test20( app_t *app, const char *cmd)
 
   //////////////////////////////////
 
-  else if( strcmp(cmd, "test27") == 0) {
+  else if( strcmp(cmd, "test28") == 0) {
 
-    // sample ref-hi on ch1, via the low mux, and ref-lo should be 7.000,000V.
+    // ratiometric/ 4 cycle
     /*
     ratio, 3 of 4 meas 0.999,999,9
     ratio, 0 of 4 meas 1.000,000,0
