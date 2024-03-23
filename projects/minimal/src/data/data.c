@@ -307,6 +307,10 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
     // update.
     data->reading[ sample_idx ] = ret;
 
+    if(data->show_extra) {
+      printf(", %f", ret); 
+    }
+
     // show all readings
     if(0) {
 
@@ -366,6 +370,14 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
         // ratio of two az values
         // NOTE - REVIEW - we could also used the last/lagged LO. for more reading stability
         computed_val = (data->reading[0] - data->reading[1]) / (data->reading[2] - data->reading[3]);
+/*
+          printf("\n");
+          printf("0 %f\n", data->reading[0] );
+          printf("1 %f\n", data->reading[1] );
+          printf("2 %f\n", data->reading[2] );
+          printf("3 %f\n", data->reading[3] );
+*/
+
         break;
       }
 
@@ -376,6 +388,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
         double coeff = 1.f;
         // channel 1 reading, adjusted according to gain on the dcv-source used as reference on channel 2
         computed_val = (data->reading[0] - data->reading[1]) / (data->reading[2] - data->reading[3]) * coeff;
+
         break;
       }
 

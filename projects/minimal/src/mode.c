@@ -181,11 +181,6 @@ void mode_set_dcv_source( _mode_t *mode, signed i0)
 
   mode->second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2
 
-  // setup input relays.
-  mode->first .K405 = LR_SET;     // select dcv
-  mode->first .K406 = LR_SET;   // accum relay off
-  mode->first .K407 = LR_RESET;   // select dcv-source
-
 }
 
 
@@ -209,11 +204,33 @@ void mode_set_ref_source( _mode_t *mode, unsigned u0 )
   }
   else
     assert(0);
-
-  mode->first .K405 = LR_SET;     // select dcv
-  mode->first .K406 = LR_SET;   // accum relay off
-  mode->first .K407 = LR_RESET;   // select dcv-source
 }
+
+
+
+void mode_set_dac_source( _mode_t *mode, signed u0 )
+{
+
+  if(u0 > 0) {
+    printf("with +10V\n");
+    mode->second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
+  }
+  else {
+    // TODO. handle signedness in str_decode_uint.
+    assert( 0 );
+    printf("with -10V\n");
+    mode->second.U1003  = S2 ;       // s2.  -10V.
+  }
+
+  mode->second.U1006  = S3;          // s1.   follow  .   dcv-mux2
+
+  // do range check.
+  assert(u0 <= 0x3fff);
+
+  mode->dac_val = u0;// abs( u0 );
+}
+
+
 
 
 void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 )
@@ -289,7 +306,7 @@ void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
         mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
       }
       else if(arg0 == S1 ) {
-        mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S1;        // himux
+        mode->sa.reg_sa_p_seq0 = (0b10 << 4) | S1;        // himux
       }
       else if(arg0 == S7 ) {
         mode->sa.reg_sa_p_seq0 = (0b00 << 4) | S7;        // star-lo
@@ -313,12 +330,13 @@ void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
 
     case SEQ_MODE_RATIO: {
       // 4 cycle, producing single output
+      // Issue - is for internal - we need to set the common lo. eg. ref-lo. or start 
 
       mode->sa.reg_sa_p_seq_n = 4;
       mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
-      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
-      mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1;        // himux
-      mode->sa.reg_sa_p_seq3 = (0b00 << 4) | S7;        // lomux
+      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S8;        // ref-lo // star-lo
+      mode->sa.reg_sa_p_seq2 = (0b10 << 4) | S1;        // himux
+      mode->sa.reg_sa_p_seq3 = (0b00 << 4) | S8;        // ref-lo /// lomux
       break;
     }
 
@@ -329,7 +347,7 @@ void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
       mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
       mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
       // reference
-      mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1;        // himux
+      mode->sa.reg_sa_p_seq2 = (0b10 << 4) | S1;        // himux
       mode->sa.reg_sa_p_seq3 = (0b00 << 4) | S7;        // lomux
       break;
     }
@@ -353,7 +371,7 @@ void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
       mode->sa.reg_sa_p_seq_n = 3;
       mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
       mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
-      mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1;        // himux
+      mode->sa.reg_sa_p_seq2 = (0b10 << 4) | S1;        // himux
       break;
     }
 
@@ -400,46 +418,15 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       mode_set_dcv_source( mode, i0);
   }
 
-
-  /* if we want this to work on ch1, or channel 2
-      input ch1 .
-
-  */
-
   else if( sscanf(cmd, "dcv-source dac %100s", s0) == 1
     && str_decode_uint( s0, &u0)) {
 
-      // our str_decode_uint function doesn't handle signedness...
-      // and we want the hex value.
-      // but we could
-
-      // should
+      // perhaps should be able to handle +-
+     // should
       // eg. dcv-source dac 0x3fff
+      mode_set_dac_source( mode, u0);
 
-
-      if(u0 > 0) {
-        printf("with +10V\n");
-        mode->second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
-      }
-      else {
-        // TODO. handle signedness in str_decode_uint.
-        assert( 0 );
-        printf("with -10V\n");
-        mode->second.U1003  = S2 ;       // s2.  -10V.
-      }
-
-      mode->second.U1006  = S3;          // s1.   follow  .   dcv-mux2
-
-      // range check.
-
-      mode->dac_val = u0;// abs( u0 );
-
-      // setup input relays.
-      mode->first .K405 = LR_SET;     // select dcv
-      mode->first .K406 = LR_SET;   // accum relay off
-      mode->first .K407 = LR_RESET;   // select dcv-source
   }
-
 
   // ref-hi , ref-lo
   else if( strcmp(cmd, "dcv-source ref-hi") == 0)
@@ -457,18 +444,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     set_seq_mode( mode, SEQ_MODE_AZ, u0, u1 );
   }
 
-/*
-  else if(strcmp(cmd, "azero ch1") == 0)    // dcv using star-gnd as lo
-    set_seq_mode( mode, SEQ_MODE_AZ, 1 );
 
-  else if(strcmp(cmd, "azero ch2") == 0)    // himux/lomux
-    set_seq_mode( mode, SEQ_MODE_AZ, 2 );
-
-  // this should be called 'cross'.
-  // better name?
-  else if(strcmp(cmd, "azero cross") == 0)      // rather than a integer argument - perhaps should pass the two az switch cases?.
-    set_seq_mode( mode, SEQ_MODE_AZ, 3 );       // actually why not expose in string api.   eg. 'azero S1 S7' etc.
-*/
 
 
  else if( sscanf(cmd, "noazero %100s", s0) == 1
@@ -477,20 +453,14 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     set_seq_mode( mode, SEQ_MODE_NOAZ, u0, 0 );
   }
 
-/*
-  else if(strcmp(cmd, "noazero ch1") == 0)    // could take arg as to theinput.
-    set_seq_mode( mode, SEQ_MODE_NOAZ, 1 );
-
-  else if(strcmp(cmd, "noazero ch2") == 0)
-    set_seq_mode( mode, SEQ_MODE_NOAZ, 2 );
-*/
 
   else if(strcmp(cmd, "electro") == 0)
     set_seq_mode( mode, SEQ_MODE_ELECTRO, 0, 0 );
 
 
-  else if(strcmp(cmd, "ratio") == 0)
+  else if(strcmp(cmd, "ratio") == 0) {
     set_seq_mode( mode, SEQ_MODE_RATIO, 0,0 );
+  }
 
   else if(strcmp(cmd, "ag") == 0)
     set_seq_mode( mode, SEQ_MODE_AG, 0, 0 );

@@ -42,9 +42,9 @@ static const _mode_t mode_initial =  {
   */
 
 
-  .first .K407  = LR_SET,     // disconnect dcv-source
-  .first .K406  = LR_SET,     // accumulation cap off
-  .first .K405  = LR_RESET,   // mux the himux2 - so dcv is free
+  .first .K407  = LR_SET,     // disengage - dcv-source
+  .first .K406  = LR_SET,     // disengage - accum cap
+  .first .K405  = LR_RESET,   // select ch2 himux out
 
 
   .reg_mode = 0, // MODE_LO,                                  // default, blink led according to mcu

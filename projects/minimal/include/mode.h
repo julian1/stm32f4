@@ -365,6 +365,8 @@ void mode_set_dcv_source( _mode_t *mode, signed i0);  // arg is 10,0,-10
 
 void mode_set_ref_source(  _mode_t *mode, unsigned u0 ); // 7 == ref-hi  or 0 == ref-lo
 
+void mode_set_dac_source( _mode_t *mode, signed u0 );
+
 
 bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );
 

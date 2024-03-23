@@ -645,6 +645,13 @@ void app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
+  else if(  mode_repl_statement( app->mode_current,  cmd, app->data->line_freq )) { }
+
+  else if( data_repl_statement( app->data, cmd )) { }
+
+  else if( data_flash_repl_statement(app->data, cmd)) { }
+
+
   /*
     these can apply the mode state, that has previously been setup.
     this can simplify, the code in these functions.
@@ -655,13 +662,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
   else if( app_test05( app, cmd  )) { }
   else if( app_test14( app, cmd  )) { }
   else if( app_test15( app, cmd  )) { }
-
-
-  else if(  mode_repl_statement( app->mode_current,  cmd, app->data->line_freq )) { }
-
-  else if( data_repl_statement( app->data, cmd )) { }
-
-  else if( data_flash_repl_statement(app->data, cmd)) { }
+  else if( app_test20( app, cmd  )) { }
 
 
   else {
