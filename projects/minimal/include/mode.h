@@ -369,9 +369,10 @@ void mode_set_ref_source(  _mode_t *mode, unsigned u0 ); // 7 == ref-hi  or 0 ==
 bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );
 
 
-void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint32_t channel );
+// void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint32_t channel );
 
 
+void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 );
 
 
 

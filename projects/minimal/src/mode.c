@@ -216,12 +216,21 @@ void mode_set_ref_source( _mode_t *mode, unsigned u0 )
 }
 
 
-void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint32_t channel )
+void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 )
 {
   /*
     doesn't have to be exhausive wrt cases.
     can still setup manually.
   */
+/*
+    we could define these in define int. also.
+    so that the strings would be correctly decoded.
+
+    S3 - dcv
+    S7 - star-lo
+    S1 - himux
+    S8 - lomux
+*/
 
   mode->reg_seq_mode = seq_mode;                 // to guide decoder
 
@@ -231,35 +240,64 @@ void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint32_t channel )
     // write the seq
 
       mode->sa.reg_sa_p_seq_n = 2;
+
+      // hi goes first
+
+      if(arg0 == S3 )
+        mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;      // dcv
+      else if(arg0 == S1 )
+        mode->sa.reg_sa_p_seq0 = (0b10 << 4) | S1;        // himux
+      else
+        assert(0);
+
+      if(arg1 == S7)
+        mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
+      else if(arg1 == S8)
+        mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S8;        // lomux
+      else
+        assert(0);
+/*
     // applies both chanels.
-      if(channel == 1) {
+      if(arg0 == S3 && arg1 == S7) {
         mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
         mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
       }
-      else if(channel == 2)  {
-        mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S1;        // himux
+      else if(arg0 == S1 && arg1 == S8)  {
+        mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S1;        // himux   WRONG. FIXME.   not switching the PC.
         mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S8;        // lomux
       }
-      else if(channel == 3)  {    // eg. for ref.
+      else if(arg0 == S3 && arg1 == S8 )  {                // eg. for ref.
         mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
         mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S8;        // lomux
       }
       else assert(0);
+*/
       break;
     }
 
+    /*/ for noaz.
+    // if we were to slect a lo here...
+    // if it's a hi - then switch the PC - for symmetry. if lo. then don't bother.
+    */
 
     case SEQ_MODE_NOAZ: {
       // clearer - to express as another mode, rather than as a bool.
       // azero off - just means swtich the pc for symmetry/ and keep charge-injetion the same with azero mode.
 
       mode->sa.reg_sa_p_seq_n = 1;
-      if(channel == 1) {
+      if(arg0 == S3 ) {
         mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
       }
-      else if(channel == 2 ) {
+      else if(arg0 == S1 ) {
         mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S1;        // himux
       }
+      else if(arg0 == S7 ) {
+        mode->sa.reg_sa_p_seq0 = (0b00 << 4) | S7;        // star-lo
+      }
+      else if(arg0 == S8 ) {
+        mode->sa.reg_sa_p_seq0 = (0b00 << 4) | S8;        // lomux
+      }
+
       else assert(0);
       break;
     }
@@ -363,6 +401,10 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   }
 
 
+  /* if we want this to work on ch1, or channel 2
+      input ch1 .
+
+  */
 
   else if( sscanf(cmd, "dcv-source dac %100s", s0) == 1
     && str_decode_uint( s0, &u0)) {
@@ -408,7 +450,14 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
 
 
+  else if( sscanf(cmd, "azero %100s %100s", s0, s1) == 2
+    && str_decode_uint( s0, &u0)
+    && str_decode_uint( s1, &u1)) {
 
+    set_seq_mode( mode, SEQ_MODE_AZ, u0, u1 );
+  }
+
+/*
   else if(strcmp(cmd, "azero ch1") == 0)    // dcv using star-gnd as lo
     set_seq_mode( mode, SEQ_MODE_AZ, 1 );
 
@@ -417,34 +466,40 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
   // this should be called 'cross'.
   // better name?
-  else if(strcmp(cmd, "azero cross") == 0)      // rather than a integer argument - perhaps should pass the two az switch cases?. 
+  else if(strcmp(cmd, "azero cross") == 0)      // rather than a integer argument - perhaps should pass the two az switch cases?.
     set_seq_mode( mode, SEQ_MODE_AZ, 3 );       // actually why not expose in string api.   eg. 'azero S1 S7' etc.
+*/
 
 
+ else if( sscanf(cmd, "noazero %100s", s0) == 1
+    && str_decode_uint( s0, &u0))  {
 
+    set_seq_mode( mode, SEQ_MODE_NOAZ, u0, 0 );
+  }
 
+/*
   else if(strcmp(cmd, "noazero ch1") == 0)    // could take arg as to theinput.
     set_seq_mode( mode, SEQ_MODE_NOAZ, 1 );
 
   else if(strcmp(cmd, "noazero ch2") == 0)
     set_seq_mode( mode, SEQ_MODE_NOAZ, 2 );
-
+*/
 
   else if(strcmp(cmd, "electro") == 0)
-    set_seq_mode( mode, SEQ_MODE_ELECTRO, 0 );
+    set_seq_mode( mode, SEQ_MODE_ELECTRO, 0, 0 );
 
 
   else if(strcmp(cmd, "ratio") == 0)
-    set_seq_mode( mode, SEQ_MODE_RATIO, 0 );
+    set_seq_mode( mode, SEQ_MODE_RATIO, 0,0 );
 
   else if(strcmp(cmd, "ag") == 0)
-    set_seq_mode( mode, SEQ_MODE_AG, 0 );
+    set_seq_mode( mode, SEQ_MODE_AG, 0, 0 );
 
   else if(strcmp(cmd, "diff") == 0)
-    set_seq_mode( mode, SEQ_MODE_DIFF, 0 );
+    set_seq_mode( mode, SEQ_MODE_DIFF, 0 , 0);
 
   else if(strcmp(cmd, "sum-test") == 0)
-    set_seq_mode( mode, SEQ_MODE_SUM_DELTA, 0 );
+    set_seq_mode( mode, SEQ_MODE_SUM_DELTA, 0, 0 );
 
 
 

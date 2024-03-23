@@ -756,7 +756,7 @@ bool data_repl_statement( data_t *data,  const char *cmd )
 
   // reserve or resize...
 
-  if( sscanf(cmd, "data buffer reserve %lu", &u0 ) == 1) {
+  if( sscanf(cmd, "data buffer size %lu", &u0 ) == 1) {
 
     // if(u0 < 2 || u0 > 500 ) {
     if(u0 < 1 || u0 > 10000 ) {
