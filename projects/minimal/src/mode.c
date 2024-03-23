@@ -651,6 +651,14 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       else if(strcmp(s0, "u1012") == 0) {
         mode->second.U1012 = u0;
       }
+      else if(strcmp(s0, "u1010") == 0) {
+        mode->second.U1010 = u0;
+      }
+      else if(strcmp(s0, "u1009") == 0) {
+        mode->second.U1009 = u0;
+      }
+
+
 
       else if( strcmp(s0, "dac") == 0 || strcmp(s0, "u1016") == 0 || strcmp(s0, "u1014") == 0) {
         // let the mode update - determine setting up spi params.
