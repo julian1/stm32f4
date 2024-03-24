@@ -86,6 +86,7 @@ bool app_test20( app_t *app, const char *cmd)
         without gnd-current comp of the ref-lo.
         EXTR.but the Vos of the integrator input amplifer - still means - need an offset parameter in the calibration  model
         - regardless.  if star-lo == ref-lo using gnd current comp.
+        - actually might get absorbed into the coefficients for the ref-currents. so 3 parameter model is enough.
     */
 
     app_repl_statements(app, "        \
