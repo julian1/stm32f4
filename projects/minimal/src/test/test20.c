@@ -82,7 +82,12 @@ bool app_test20( app_t *app, const char *cmd)
 
   else if( strcmp(cmd, "test23") == 0) {
 
-    // sample ref-hi on ch1. azero - works there is 40uV offset.  because s7 is star-lo. rataher than ref-lo.
+    /* sample ref-hi on ch1. azero - works there is 40uV offset.  because s7 is star-lo. rataher than ref-lo.
+        without gnd-current comp of the ref-lo.
+        EXTR.but the Vos of the integrator input amplifer - still means - need an offset parameter in the calibration  model
+        - regardless.  if star-lo == ref-lo using gnd current comp.
+    */
+
     app_repl_statements(app, "        \
         flash cal read 123;           \
         reset;                        \
