@@ -31,12 +31,13 @@ bool app_test20(
 
   assert(yield);
   assert(yield_ctx);
-
+/*
   // note that we access the buffer - to test if it is full. so it's correct to expose its functionality.
   data_t *data = app->data;
   assert(data);
   assert(data->magic == DATA_MAGIC);
   // assert(data->buffer); // may not be guaranteed, at start up first time
+*/
 
 
   ////////////////////////////

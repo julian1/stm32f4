@@ -143,13 +143,6 @@ static app_t app = {
   .mode_current =  &mode_current,
 
 
-/*
-  // . yield = (void (*)(void *)) app_loop2,
-  . yield = (void (*)(void *)) app_update,
-  . yield_ctx = (void *) &app,                      // self reference!
-
-*/
-
   . data = &data
 };
 
@@ -256,19 +249,11 @@ int main(void)
   ice40_port_extra_setup();
 
 
-  // jump to main loop
-  // app_loop( &app);
-
-
-  // main outer app loop, eg. bottom of control stack
-  // consider change name to app_process(),
- 
+  // outer app loop, eg. bottom of control stack
   while(true)
     app_update_main( &app);
 
 
-
-  // for (;;);
   return 0;
 
 

@@ -92,19 +92,6 @@ typedef struct app_t
 
 
 
-/*
-  // yield abstracts the function, and allows substitution, but may not be needed.
-  // eg. versus just calling app_update(app); or  app_yield( app) etc.
-  void (*yield)(void *);
-  void *yield_ctx;
-
-  not quite right. because anything running at app context - can determine the yield.
-    anything below - eg. peripheral,data,  should not have any knowledge of app structure.
-
-  eg. the yield func, is a dependency, and should be passed explicitly to whatever is calling it.
-*/
-
-
   data_t  *data;
 
   bool verbose;
@@ -123,7 +110,8 @@ void app_systick_interupt(app_t *app);
 
 
 void app_update_main(app_t *app);
-void app_update_simple(app_t *app);
+
+void app_update_simple_led_blink(app_t *app);
 void app_update_simple_with_data(app_t *app);
 
 
@@ -160,6 +148,8 @@ bool app_test15( app_t *app , const char *cmd);
 // bool app_test20( app_t *app , const char *cmd);
 
 bool app_test20( app_t *app, const char *cmd, void (*yield)( void * ), void * yield_ctx) ;
+
+bool app_test40( app_t *app, const char *cmd, void (*yield)( void * ), void * yield_ctx) ;
 
 
 

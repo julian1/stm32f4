@@ -77,6 +77,17 @@ void buffer_push( MAT *buffer, uint32_t *idx, double val )
 
 
 
+#if 0
+
+
+void buffer_print( MAT *buffer  )
+{
+  m_foutput(stdout, buffer);
+} 
+#endif
+
+
+
 void buffer_stats_print( MAT *buffer /* double *mean, double *stddev */ )
 {
   /*

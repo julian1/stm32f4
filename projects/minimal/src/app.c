@@ -13,7 +13,7 @@
 #include <libopencm3/cm3/scb.h>  // reset()
 #include <libopencm3/stm32/spi.h>   // SPI1
 
-#include <lib2/util.h>   // msleep(), UNUSED
+#include <lib2/util.h>   // msleep(), UNUSED, print_stack_pointer()
 #include <lib2/format.h>   // trim_whitespace()  format_bits()
 
 #include <lib2/streams.h>
@@ -339,7 +339,7 @@ void app_update_simple_with_data(app_t *app)
 
 
 
-void app_update_simple(app_t *app)
+void app_update_simple_led_blink(app_t *app)
 {
   // or just app_update_led_blink()
   // change name app_update_no_data() or app_update_restricted()
@@ -556,7 +556,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
     // copy to get working mode
     _mode_t mode = *app->mode_initial;
 
-    data_cal( app->data,  app->spi, &mode, &app->system_millis, (void (*)(void *))app_update_simple, app  );
+    data_cal( app->data,  app->spi, &mode, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
 
   }
 
@@ -666,6 +666,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
   else if( app_test14( app, cmd  )) { }
   else if( app_test15( app, cmd  )) { }
   else if( app_test20( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
+  else if( app_test40( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
 
 
   else {
