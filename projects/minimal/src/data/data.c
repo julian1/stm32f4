@@ -293,12 +293,11 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
     // Mar 2024.
 
+    // TODO rename predicted == ret.  use reading
     //  we should persist this.  and pass it in to m_calc_predicated.
     MAT *predicted =  m_calc_predicted( data->b, xs, m_mux_sig /*, app->predicted */);
     assert(predicted);
     assert( m_is_scalar(predicted) );
-
-    double ret = m_to_scalar(predicted );
 
     // store the value against the sample idx.
     assert(sample_idx < ARRAY_SIZE( data->reading));
@@ -307,6 +306,8 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
     data->reading_last[ sample_idx ] = data->reading[ sample_idx ] ;
 
     // update.
+    double ret = m_to_scalar(predicted );
+    assert(ret != 0); // we use 0 to encode no-value recorded yet.
     data->reading[ sample_idx ] = ret;
 
     if(data->show_extra) {
@@ -354,15 +355,27 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
         // AZ mode, on channel 1 or channel 2, but encoded in first two readings
         assert( sample_seq_n == 1);
         // eg. just the hi.
-        computed_val = data->reading[ 0 ] ;
+        if(data->reading[0] != 0)
+          computed_val = data->reading[ 0 ] ;
+
         break;
       }
+
 
       case SEQ_MODE_AZ: {
 
         assert( sample_seq_n == 2);
-        // eg. hi - average two lo
-        computed_val = data->reading[0]  - ((data->reading[ 1 ] + data->reading_last[1] ) / 2.f);
+
+        // assume 0 value means never been updated.
+        if(  data->reading[0] != 0
+          && data->reading[1] != 0
+          && data->reading_last[1] != 0) {
+
+          // eg. hi - average two lo
+          computed_val = data->reading[0]  - ((data->reading[ 1 ] + data->reading_last[1] ) / 2.f);
+        }
+
+
         break;
       }
 
@@ -371,26 +384,39 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
         assert( sample_seq_n == 4);
         // ratio of two az values
         // NOTE - REVIEW - we could also used the last/lagged LO. for more reading stability
-        computed_val = (data->reading[0] - data->reading[1]) / (data->reading[2] - data->reading[3]);
-/*
+
+        if(  data->reading[0] != 0
+          && data->reading[1] != 0
+          && data->reading[2] != 0 
+          && data->reading[3] != 0)  {
+
+          computed_val = (data->reading[0] - data->reading[1]) / (data->reading[2] - data->reading[3]);
+
+          /*
           printf("\n");
           printf("0 %f\n", data->reading[0] );
           printf("1 %f\n", data->reading[1] );
           printf("2 %f\n", data->reading[2] );
           printf("3 %f\n", data->reading[3] );
-*/
-
+          */
+        }
         break;
       }
 
       case SEQ_MODE_AG: {
 
         assert( sample_seq_n == 4);
-        // need
-        double coeff = 2.f; // two to test.
-        // channel 1 reading, adjusted according to gain on the dcv-source used as reference on channel 2
-        computed_val = (data->reading[0] - data->reading[1]) / (data->reading[2] - data->reading[3]) * coeff;
 
+        if(  data->reading[0] != 0
+          && data->reading[1] != 0
+          && data->reading[2] != 0 
+          && data->reading[3] != 0)  {
+
+          // need
+          double coeff = 2.f; // two to test.
+          // channel 1 reading, adjusted according to gain on the dcv-source used as reference on channel 2
+          computed_val = (data->reading[0] - data->reading[1]) / (data->reading[2] - data->reading[3]) * coeff;
+        }
         break;
       }
 
@@ -398,11 +424,16 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
         assert( sample_seq_n == 2);
         // channel1 hi - channel 2 hi
-        computed_val = data->reading[0] - data->reading[2];
+        if(  data->reading[0] != 0
+          && data->reading[2] != 0)
+          computed_val = data->reading[0] - data->reading[2];
+
         break;
       }
 
       case SEQ_MODE_SUM_DELTA:  {
+
+        assert( 0);
         /* think this doesn't work - we have to be able to swap the inputs around .   eg. use caps.
           so we have a sequence acquisition sampling mode - where take hi on channel 1, and lo on channel 2.
           and a lo common, but doesn't help. because (hi1 - lo ) + (hi2 - lo ) == (hi1 - hi2) as an identity.
@@ -419,7 +450,6 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
         double himux = (data->reading[2] - data->reading[1];
         computed_val = dcv + ;
         */
-        assert( 0);
         break;
       }
 
@@ -429,34 +459,28 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
     };
 
 
+    if(computed_val) {
 
-    // we want with commas (easier to read) and without commas (easier to process programatically).
+      // we want with commas (easier to read) and without commas (easier to process programatically).
 
-    if(sample_seq_mode == SEQ_MODE_RATIO)
-      printf(" meas %s", str_format_float_with_commas(buf, 100, 7, computed_val));
-    else
-      printf(" meas %sV", str_format_float_with_commas(buf, 100, 7, computed_val));
+      if(sample_seq_mode == SEQ_MODE_RATIO)
+        printf(" meas %s", str_format_float_with_commas(buf, 100, 7, computed_val));
+      else
+        printf(" meas %sV", str_format_float_with_commas(buf, 100, 7, computed_val));
 
+      /*
+        can drive this with policy arg/flag.
+        if data->buffer is full either keep cycling.
+        or stop. so we can retrieve/print the buffer without change
+        ---
+        actually we may be in a yield().  so policy is handled externally.
+      */
+      buffer_push( data->buffer, &data->buffer_idx, computed_val );
 
-/*
-    if(verbose)
-      printf(" meas %sV", str_format_float_with_commas(buf, 100, 7, ret ));
-    else
-      printf(" %.8lf", ret );
-*/
-
-    /*
-      can drive this with policy arg.
-      if data->buffer is full we either want to keep cycling.
-      or stop. so we can retrieve/print the buffer without change
-
-    */
-    buffer_push( data->buffer, &data->buffer_idx, computed_val );
-
-
-    if(data->show_stats) {
-      printf(" ");
-      buffer_stats_print( data->buffer );
+      if(data->show_stats) {
+        printf(" ");
+        buffer_stats_print( data->buffer );
+      }
     }
 
   }
@@ -465,6 +489,18 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
 
 }
+
+
+
+
+  /*
+      if(verbose)
+        printf(" meas %sV", str_format_float_with_commas(buf, 100, 7, ret ));
+      else
+        printf(" %.8lf", ret );
+  */
+
+
 
 
 void data_update_new_reading(data_t *data, uint32_t spi)
@@ -729,7 +765,7 @@ void data_buffers_reset( data_t * data )
   data->buffer_idx = 0;
 
 
-
+  // clear buffers, so we can detect if have enough vals to compute reading
   memset(  data->reading, 0, sizeof( data->reading));
   memset(  data->reading_last, 0, sizeof( data->reading_last));
 

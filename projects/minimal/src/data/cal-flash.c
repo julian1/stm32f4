@@ -77,16 +77,16 @@ static void handler_scan_cal( FILE *f, blob_header_t *header, data_t *data )
   assert(data->magic == DATA_MAGIC);
 
 
-  printf("whoot got blob id=%u len=%u\n", header->id, header->len );
+  // printf("whoot got blob id=%u len=%u\n", header->id, header->len );
 
   if(header->id == 106) {
 
     // payload should be readable.
-    printf("loading cal OK\n"); 
+    printf("loaded cal OK\n"); 
 
     data->b = m_finput_binary(f, MNULL);
 
-    m_foutput( stdout, data-> b);
+    // m_foutput( stdout, data-> b);
 
   }
 }

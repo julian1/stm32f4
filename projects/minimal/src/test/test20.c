@@ -62,8 +62,7 @@ bool app_test20( app_t *app, const char *cmd)
 
   else if( strcmp(cmd, "test22") == 0) {
 
-    // test ref-hi noaz. on ch2 . himux/lomux - has +60uV offset. why?
-    // was due to bad pre-charge switching codinig. was sampling boot eg. op-amp output. now 7uV.
+    // test ref-hi noaz. on ch2 . himux/lomux - using ref-lo
     app_repl_statements(app, "        \
         flash cal read 123;           \
         reset;                        \
@@ -215,6 +214,7 @@ bool app_test20( app_t *app, const char *cmd)
 
   if( strcmp(cmd, "test29") == 0) {
 
+
     // sample external cap on dcv in boot mode, no pc or az switching/ high-impedance.
     // with 10uF. cap  has leakage of several uV / s.
     // >  set u1010 0b1011
@@ -234,6 +234,48 @@ bool app_test20( app_t *app, const char *cmd)
 
 
 
+  if( strcmp(cmd, "test30") == 0) {
+
+    app_repl_statements(app, "                \
+        flash cal read 123;                   \
+        reset;                                \
+        dcv-source cap; set u1010 0b0010;    \
+        set k407 0;   set k405 1;             \
+        nplc 10; set mode 7 ; boot s3;  trig; \
+      " );
+
+    // check_data( == 7.000 )  etc.
+    return 1;
+  }
+
+  if( strcmp(cmd, "test31") == 0) {
+
+    app_repl_statements(app, "                \
+        flash cal read 123;                   \
+        reset;                                \
+        dcv-source cap; set u1010 0b0011;    \
+        set k407 0;   set k405 1;             \
+        nplc 10; set mode 7 ; boot s3;  trig; \
+      " );
+
+    // check_data( == 7.000 )  etc.
+    return 1;
+  }
+
+
+
+  /*
+    AB   0b1011
+      // boot, 0 of 1 meas 4.830,793,8V
+      // boot, 0 of 1 meas 4.830,819,8V
+
+    BC   0b0010
+    // boot, 0 of 1 meas 4.826,508,8V
+    // boot, 0 of 1 meas 4.826,530,8V
+  
+    A    0b0011
+
+  */
 
   return 0;
 }
@@ -262,14 +304,6 @@ bool app_test20( app_t *app, const char *cmd)
     > flash cal read 123; reset ; azero cross; set k406 1 ; set k407 1; set himux s1 ; set lomux s1 ;  dcv-source ref-hi ; nplc10; set mode 7 ; trig
 
       az, 1 of 2 meas 6.999,997,3V
-*/
-
-
-
-/*
-
-
-
 */
 
 
