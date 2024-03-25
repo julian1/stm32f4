@@ -82,7 +82,7 @@ static void print_slope_b_detail( unsigned aperture, double slope_b )
   double   res        = fabs( slope_b / aperture ); // in V
   // could also work out the implied count here.
 
-  printf("res       %.3fuV  ", res * 1000000);  // resolution  in uV.
+  printf("res       %.3fuV  ", res * 10e6 );  // resolution  in uV.
   printf("digits %.2f ", log10( 10.f / res));   // ie. decimal=10 not +-11V
   // printf("bits %.2f ", log2( res));           // correct?   or should be aperture / slobe_b ?
   printf("  (nplc10)\n");
@@ -190,7 +190,7 @@ void data_cal(
       // take obs loop
       for(unsigned i = 0; i < obs_to_take_n; ++i ) {
 
-        // block on interupt.
+        // wait for adc data, on interupt
         while( !data->adc_measure_valid ) {
           if(yield)
             yield( yield_ctx);
