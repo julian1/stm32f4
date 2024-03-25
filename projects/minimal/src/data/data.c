@@ -293,11 +293,11 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
     // Mar 2024.
 
-    // TODO rename predicted == ret.  use reading
+    // TODO rename m_predicted == ret.  use reading
     //  we should persist this.  and pass it in to m_calc_predicated.
-    MAT *predicted =  m_calc_predicted( data->b, xs, m_mux_sig /*, app->predicted */);
-    assert(predicted);
-    assert( m_is_scalar(predicted) );
+    MAT *m_predicted =  m_calc_predicted( data->b, xs, m_mux_sig /*, app->m_predicted */);
+    assert(m_predicted);
+    assert(m_is_scalar(m_predicted) );
 
     // store the value against the sample idx.
     assert(sample_idx < ARRAY_SIZE( data->reading));
@@ -305,13 +305,15 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
     // shift previous reading
     data->reading_last[ sample_idx ] = data->reading[ sample_idx ] ;
 
-    // update.
-    double ret = m_to_scalar(predicted );
-    assert(ret != 0); // we use 0 to encode no-value recorded yet.
-    data->reading[ sample_idx ] = ret;
+    // update for this reading
+    double predicted = m_to_scalar(m_predicted );
+
+    // we use 0 to encode no-value recorded yet..   or if(predicted == 0) predicted = EPSILON;
+    assert(predicted != 0);
+    data->reading[ sample_idx ] = predicted;
 
     if(data->show_extra) {
-      printf(", %f", ret);
+      printf(", %f", predicted);
     }
 
     // show all readings
@@ -333,7 +335,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
     M_FREE( xs );
     M_FREE( m_mux_sig );
-    M_FREE( predicted );
+    M_FREE( m_predicted );
 
 
     /* / EXTR.   rather than having separate variables for hi  and lo[2 ]
@@ -387,7 +389,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
         if(  data->reading[0] != 0
           && data->reading[1] != 0
-          && data->reading[2] != 0 
+          && data->reading[2] != 0
           && data->reading[3] != 0)  {
 
           computed_val = (data->reading[0] - data->reading[1]) / (data->reading[2] - data->reading[3]);
@@ -409,7 +411,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
         if(  data->reading[0] != 0
           && data->reading[1] != 0
-          && data->reading[2] != 0 
+          && data->reading[2] != 0
           && data->reading[3] != 0)  {
 
           // need
