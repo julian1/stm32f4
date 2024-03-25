@@ -118,11 +118,15 @@ typedef struct app_t
 
 
 void app_init_console_buffers(app_t *app);
-void app_loop(app_t *app);
+// void app_loop(app_t *app);
 void app_systick_interupt(app_t *app);
 
 
-void app_simple_update(app_t *app);
+void app_update_main(app_t *app);
+void app_update_simple(app_t *app);
+void app_update_simple_with_data(app_t *app);
+
+
 
 /*
 
@@ -153,8 +157,9 @@ bool app_test14( app_t *app , const char *cmd);
 bool app_test15( app_t *app , const char *cmd);
 
 
-bool app_test20( app_t *app , const char *cmd);
+// bool app_test20( app_t *app , const char *cmd);
 
+bool app_test20( app_t *app, const char *cmd, void (*yield)( void * ), void * yield_ctx) ;
 
 
 

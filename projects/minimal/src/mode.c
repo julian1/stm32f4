@@ -513,6 +513,27 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     set_seq_mode( mode, SEQ_MODE_SUM_DELTA, 0, 0 );
 
 
+  // "h" for halt
+  else if(strcmp(cmd, "halt") == 0 || strcmp(cmd, "h") == 0) {
+
+    // _mode_t *mode = app->mode_current;
+    mode->trigger_source_internal = 0;
+  }
+  // "t" to trigger
+  else if(strcmp(cmd, "trig") == 0 || strcmp(cmd, "t") == 0) {
+
+    /* / trigger - has a dependency on both data and the mode
+    // because we want to clear the data buffer
+    // No. I think the trigger. should not change or clear the data buff. it just starts the adc.
+    */
+
+    printf("trigger set\n");
+
+   // _mode_t *mode = app->mode_current;
+
+    mode->trigger_source_internal = 1;
+  }
+
 
 
 

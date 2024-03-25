@@ -94,6 +94,10 @@ typedef struct data_t
 
 
 void data_init ( data_t *);
+
+void data_reset( data_t * data );
+
+
 void data_rdy_interupt( data_t *data);    // handler setup in app context.
 
 // better name process reading.
@@ -130,17 +134,6 @@ bool data_flash_repl_statement( data_t *data, const char *cmd);
 
 bool data_repl_statement( data_t *data,  const char *cmd );
 
-
-// reset...
-void data_buffers_reset( data_t * data );
-
-
-
-void buffer_push( MAT *buffer, uint32_t *idx, double val );
-
-void buffer_set_size( MAT *buffer, uint32_t sz);
-
-void buffer_stats_print( MAT *buffer /* double *mean, double *stddev */ /* verbose */ );
 
 
 

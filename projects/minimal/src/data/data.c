@@ -11,6 +11,7 @@
 
 #include <data/data.h>
 #include <data/matrix.h>     // m_from_scalar
+#include <data/buffer.h>     // m_from_scalar
 
 
 #include <util.h>     // aper_n_to_period
@@ -28,18 +29,55 @@
 
 
 
-void data_init ( data_t *data )
+
+
+
+void data_init( data_t *data)
 {
   assert(data);
   assert(data->magic == DATA_MAGIC) ;
 
-  // not sure we really even need this.
+  // make a default buffer. available. on start
+  // might be clearer - to just call this in main()
+
+  data->buffer = buffer_reset( data->buffer, 10);
+  assert( data->buffer);
+  data_reset( data );
+}
 
 
-  data->buffer = m_resize( data->buffer, 10, 1 );
 
+
+void data_reset( data_t * data )
+{
+/*
+    there's no reason this needs to make calls on the buffer, to change memory etc,
+    buffer is expected to be appropriately sized.
+    we just need need to truncate the rows, and reset the insert idx.
+*/
+
+  // rename
+  assert(data);
+  assert(data->magic == DATA_MAGIC);
+
+
+  assert(data->buffer);
+
+  m_truncate_rows( data->buffer, 0 );               // truncate vertical length.
+
+  data->buffer_idx = 0;
+
+
+  // clear buffers, so we can detect if have enough vals to compute reading
+  memset( data->reading, 0, sizeof( data->reading));
+  memset( data->reading_last, 0, sizeof( data->reading_last));
 
 }
+
+
+
+
+
 
 
 void data_rdy_interupt( data_t *data) // runtime context
@@ -671,132 +709,6 @@ MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture)
 
 
 
-/*
-  for two channel inputs -
-  we could use two columns .
-  --
-  to keep everything aligned. although perhaps easier with 2 separate buffers.
-*/
-
-// we have to initialize the buffer.
-
-
-void buffer_stats_print( MAT *buffer /* double *mean, double *stddev */ )
-{
-  /*
-    should just take some - doubles as arguments. .printing
-
-    needs to return values, and used with better formatting instructions , that are not exposed here.
-    format_float_with_commas()
-  */
-  assert(buffer);
-  assert( m_cols(buffer) == 1);
-
-  // take the mean of the buffer.
-  MAT *mean = m_mean( buffer, MNULL );
-  assert( m_is_scalar( mean ));
-  double mean_ = m_to_scalar( mean);
-  M_FREE(mean);
-
-
-
-  MAT *stddev = m_stddev( buffer, 0, MNULL );
-  assert( m_is_scalar( stddev ));
-  double stddev_ = m_to_scalar( stddev);
-  M_FREE(stddev);
-
-  // report
-  // char buf[100];
-  // printf("value %sV ",          format_float_with_commas(buf, 100, 7, value));
-
-  // printf("mean(%u) %.2fuV, ", m_rows(buffer),   mean_ * 1e6 );   // multiply by 10^6. for uV
-  printf("mean(%u) %.7fV, ", m_rows(buffer),   mean_  );
-
-  printf("stddev(%u) %.2fuV, ", m_rows(buffer), stddev_  * 1e6 );   // multiply by 10^6. for uV
-
-  // printf("\n");
-
-
-}
-
-
-
-
-void buffer_push( MAT *buffer, uint32_t *idx, double val )
-{
-  assert(buffer);
-
-
-  if(m_rows(buffer) < m_rows_reserve(buffer)) {
-
-    // just push onto sample buffer
-    m_push_row( buffer, & val, 1 );
-  }
-
-  else {
-    // buffer is full, so insert
-    unsigned imod = *idx % m_rows(buffer);
-    // printf(" insert at %u\n", idx );
-    m_set_val( buffer, imod, 0,  val );
-
-    ++(*idx);
-  }
-}
-
-
-
-
-void data_buffers_reset( data_t * data )
-{
-  assert(data);
-  assert(data->magic == DATA_MAGIC);
-
-
-  // printf("**** data->buffer reset %u\n", m_rows(data->buffer) );
-
-  /* clear the sample data->buffer
-    alternatively could use a separate command,  'data->buffer clear'
-    have an expected data->buffer - means can stop when finished.
-  */
-
-  assert(data->buffer);
-  data->buffer      = m_zero( data->buffer ) ;    // don't even really need to zero the data->buffer here.
-                                                  // because we will truncate
-  m_truncate_rows( data->buffer, 0 );               // truncate vertical length.
-
-  data->buffer_idx = 0;
-
-
-  // clear buffers, so we can detect if have enough vals to compute reading
-  memset(  data->reading, 0, sizeof( data->reading));
-  memset(  data->reading_last, 0, sizeof( data->reading_last));
-
-
-  //printf("**** data->buffer now %u\n", m_rows(data->buffer) );
-}
-
-
-void buffer_set_size( MAT *buffer, uint32_t sz)
-{
-  /* we should free and recreate buffer here - in order to free the memory.
-      otherwise it can end up being allocated oversized.
-
-    - on a large matrix,
-      this frees the mesch data structure.
-      although malloc() still hangs on to the reserved heap it took, like a page.
-  */
-
-
-  M_FREE(buffer);
-
-  buffer = m_resize( buffer, sz , 1 );
-
-  buffer = m_truncate_rows( buffer, 0 );
-
-  assert(m_rows( buffer) == 0);
-
-}
-
 
 
 
@@ -822,18 +734,22 @@ bool data_repl_statement( data_t *data,  const char *cmd )
       return 1;
     }
 
-    buffer_set_size( data->buffer, u0 );
+    // set buffer size, efault
+    data->buffer = buffer_reset( data->buffer, u0);
 
-    // this is the reserve size.
-    // printf("buffer now %u\n", m_rows(data->buffer) );
+    assert( data->buffer);
+    data_reset( data );
   }
 
   else if( strcmp(cmd, "data buffer reset") == 0) {
 
-    data_buffers_reset( data);
-
-    // printf("buffer now %u\n", m_rows(data->buffer) );
+    // set buffer size, efault
+    data->buffer = buffer_reset( data->buffer, 10 );
+    assert( data->buffer);
+    data_reset( data );
   }
+
+
 
 /*
   else if( strcmp(cmd, "data buffer print")) {

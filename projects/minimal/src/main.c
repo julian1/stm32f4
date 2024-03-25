@@ -232,6 +232,7 @@ int main(void)
   assert( sizeof(double ) == 8);
 
 
+
   // init data
   data_init( app.data );
 
@@ -256,9 +257,18 @@ int main(void)
 
 
   // jump to main loop
-  app_loop( &app);
+  // app_loop( &app);
 
-  for (;;);
+
+  // main outer app loop, eg. bottom of control stack
+  // consider change name to app_process(),
+ 
+  while(true)
+    app_update_main( &app);
+
+
+
+  // for (;;);
   return 0;
 
 

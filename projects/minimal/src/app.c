@@ -265,60 +265,57 @@ static void app_update_console(app_t *app)
 
 
 
+/*
+  In order to use the simple functions in yield statements, we want to split out the update() from the loop() t want the
+
+  Actually we don't even want a app_loop() just loop at the bottom of the main statement.
+*/
 
 
-void app_loop(app_t *app)
+void app_update_main(app_t *app)
 {
-  /*
-    main outer app loop, eg. bottom of control stack
-    // consider change name to app_process(),
-  */
-
   assert(app);
   assert(app->magic == APP_MAGIC);
 
 
-  while(true) {
-
-    // process potential new incomming data in priority
-    data_update_new_reading( app->data, app->spi/*, app->verbose*/);
+  // process potential new incomming data in priority
+  data_update_new_reading( app->data, app->spi/*, app->verbose*/);
 
 
-    // handle console
-    app_update_console(app);
+  // handle console
+  // note this calls app_update_repl() that starts actions.
+  // we could pass a flag indicicating if it whoudl be processed.
+  app_update_console(app);
 
-    // 500ms soft timer
-    if( (app->system_millis - app->soft_500ms) > 500) {
-      app->soft_500ms += 500;
+  // 500ms soft timer
+  if( (app->system_millis - app->soft_500ms) > 500) {
+    app->soft_500ms += 500;
 
-      /*
-        TODO review
-        system_millis is shared, for msleep() and soft_timer.
-        but to avoid integer overflow/wraparound - could make dedicated and then subtract 500.
-        eg. have a deciated signed int 500ms counter,   if(app->soft_500ms >= 500) app->soft_500ms -= 500;
-        for msleep() use another dedicated counter.  since msleep() is not used recursively. simple, just reset count to zero, on entering msleep(), and count up.
-        actually msleep_with_yield() could be called recursively.
-        probably want to check, with a count/mutex.
-      */
-      app_update_soft_500ms(app);
-    }
-
+    /*
+      TODO review
+      system_millis is shared, for msleep() and soft_timer.
+      but to avoid integer overflow/wraparound - could make dedicated and then subtract 500.
+      eg. have a deciated signed int 500ms counter,   if(app->soft_500ms >= 500) app->soft_500ms -= 500;
+      for msleep() use another dedicated counter.  since msleep() is not used recursively. simple, just reset count to zero, on entering msleep(), and count up.
+      actually msleep_with_yield() could be called recursively.
+      probably want to check, with a count/mutex.
+    */
+    app_update_soft_500ms(app);
   }
 }
 
 
 
-void app_simple_update(app_t *app)
-{
-  /*
-    for the general simple update for long-running yielding function
-    we don't want to accept new console commands
-    - and avoid probably don't want to test or update the fpga
-  */
 
+
+void app_update_simple_with_data(app_t *app)
+{
   assert(app);
   assert(app->magic == APP_MAGIC);
 
+
+  // process potential new incomming data in priority
+  data_update_new_reading( app->data, app->spi/*, app->verbose*/);
 
 
   // 500ms soft timer
@@ -326,11 +323,36 @@ void app_simple_update(app_t *app)
     app->soft_500ms += 500;
 
 
-    /*
-      blink mcu led
-    */
+    // blink mcu led
     app->led_state = ! app->led_state;
+    if(app->led_state)
+      led_on();
+    else
+      led_off();
+  }
+}
 
+
+
+
+
+
+
+
+void app_update_simple(app_t *app)
+{
+  // or just app_update_led_blink()
+  // change name app_update_no_data() or app_update_restricted()
+
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+
+  // 500ms soft timer
+  if( (app->system_millis - app->soft_500ms) > 500) {
+    app->soft_500ms += 500;
+
+    // blink mcu led
+    app->led_state = ! app->led_state;
     if(app->led_state)
       led_on();
     else
@@ -534,27 +556,8 @@ void app_repl_statement(app_t *app,  const char *cmd)
     // copy to get working mode
     _mode_t mode = *app->mode_initial;
 
-    data_cal( app->data,  app->spi, &mode, &app->system_millis, (void (*)(void *))app_simple_update, app  );
+    data_cal( app->data,  app->spi, &mode, &app->system_millis, (void (*)(void *))app_update_simple, app  );
 
-  }
-
-  // "h" for halt
-  else if(strcmp(cmd, "halt") == 0 || strcmp(cmd, "h") == 0) {
-
-    _mode_t *mode = app->mode_current;
-    mode->trigger_source_internal = 0;
-  }
-  // "t" to trigger
-  else if(strcmp(cmd, "trig") == 0 || strcmp(cmd, "t") == 0) {
-
-    // trigger - has a dependency on both data and the mode
-    // because we want to clear the data buffer
-
-    data_buffers_reset( app->data );
-
-   _mode_t *mode = app->mode_current;
-
-    mode->trigger_source_internal = 1;
   }
 
 
@@ -662,7 +665,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
   else if( app_test05( app, cmd  )) { }
   else if( app_test14( app, cmd  )) { }
   else if( app_test15( app, cmd  )) { }
-  else if( app_test20( app, cmd  )) { }
+  else if( app_test20( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
 
 
   else {
