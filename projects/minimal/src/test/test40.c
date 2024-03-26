@@ -18,6 +18,38 @@
 #include <mode.h>       // transition state
 
 
+static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx) 
+{
+
+  data_t *data = app->data;
+
+  // start acquisition, generating interupts, which sets data ready flags, which we ignore for the moemnt. - with trig
+  printf("change state\n");
+  spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+
+
+  // reset the input data buffer
+  // data->buffer = buffer_reset( data->buffer, 5 );
+  data_reset( data );
+
+  // start the yield loop, and wait for buffer to fill
+  while( m_rows(data->buffer ) < m_rows_reserve(data->buffer) ) {
+    yield( yield_ctx);
+  }
+
+  // stop sample acquisition, perhaps unnecessary
+  app->mode_current->trigger_source_internal = 0;
+  spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+
+
+  // print output
+  m_foutput( stdout, data->buffer );
+
+}
+
+
+
+ 
 
 bool app_test40(
   app_t *app,
@@ -50,27 +82,15 @@ bool app_test40(
         nplc 10; set mode 7 ; azero s3 s8;  trig; \
       " );
 
-    // start acquisition, generating interupts, which sets data ready flags, which we ignore for the moemnt. - with trig
-    printf("change state\n");
-    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+    // ok. 
+    fill_buffer( app, yield, yield_ctx) ;
 
+    // charnge params.
+    app_repl_statements(app, " nplc 1;   trig;");
 
-    // reset the input data buffer
-    // data->buffer = buffer_reset( data->buffer, 5 );
-    data_reset( app->data );
+    // collect other data
+    fill_buffer( app, yield, yield_ctx) ;
 
-    // start the yield loop, and wait for buffer to fill
-    while( m_rows(data->buffer ) < m_rows_reserve(data->buffer) ) {
-      yield( yield_ctx);
-    }
-
-    // stop sample acquisition, perhaps unnecessary
-    app->mode_current->trigger_source_internal = 0;
-    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
-
-
-    // print output
-    m_foutput( stdout, data->buffer );
 
 
     // check_data( == 7.000 )  etc.
