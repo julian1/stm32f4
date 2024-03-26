@@ -119,19 +119,12 @@ bool app_test40(
 
 
   /*
+    U1010
     AB   0b1011
-      // boot, 0 of 1 meas 4.830,793,8V
-      // boot, 0 of 1 meas 4.830,819,8V
-
     BC   0b0010
-    // boot, 0 of 1 meas 4.826,508,8V
-    // boot, 0 of 1 meas 4.826,530,8V
-
-    A    0b0011
+    AC   0b0011
 
   */
-
-
   else if( strcmp(cmd, "test41") == 0) {
 
     /* from test29
@@ -170,9 +163,9 @@ bool app_test40(
 
     double diff = a + b - c;
 
-    printf("diff %lf\n", diff);
+    printf("diff %.6lf\n", diff);
 
-    printf("diff %.2lfuV\n", diff * 10e6);
+    printf("diff %.2lfuV\n", diff * 1e6);
 
     // check_data( == 7.000 )  etc.
     return 1;
@@ -186,88 +179,41 @@ bool app_test40(
 
 
 /*
+  mar 26.
 
-  whoahh.
+  Second attempt - is 8x 1.2V enneloup batteries in a battery-holder with centre tap, for the middle voltage.
 
-c mean 9.659951
-diff -0.00
-diff -0.47uV
+  The cal done a few days ago, so there may be some temp drift on the cal coefficients.
+  There seems to be some noise, which I think is from the adc ref - currently lt1021.
+  So several runs are kind of needed to get any sense of it.
 
+  Method - is to sample AB (top half battery pack) for 10 readings, then BC (bottom half) , then AC (series ), take the means, and calculate the diff/delta.
+  eg. diff = 4.8V + 4.8V - 9.6V
 
-c mean 9.659957
-diff -0.00
-diff -24.44uV
+  10nplc, sample n=10, azmode
+  diff -3.97uV
+  diff -2.53uV
+  diff -1.90uVo
+  diff -2.50uV
+  diff -0.09uV
+  diff -4.44uV
 
-c mean 9.659957
-diff 0.00
-diff 2.78uV
+  1nplc, sample n=10, azmode
+  diff 3.09uV
+  diff -1.50uV
+  diff 0.79uV
+  diff 4.45uV
+  diff 1.70uV
+  diff -0.63uV
+  diff 0.88uV
 
-nplc 1
-diff -7.83uV
-diff 7.11uV
-diff -13.50uV
-diff -23.06uV
-diff -9.92uV
-diff 8.30uV
+  So there's quite a bit of noise, and upgrading the adc ref may be the next step.
+  It may make sense to do more interleaving for the different voltage more, althouth it needs all the serial peripheral state on the board to update.
+
 
 */
 
 
-#if 0
-flash lock
-done
-aperture 4000000
-nplc     10.00
-period   0.20s
-trigger set
-change state
-az, 0 of 2
-az, 1 of 2
-az, 0 of 2
-az, 1 of 2 meas 4.832,098,0V
-az, 0 of 2 meas 4.832,098,2V
-az, 1 of 2 meas 4.832,098,1V
-az, 0 of 2 meas 4.832,097,3V
-az, 1 of 2 meas 4.832,096,9V
-az, 0 of 2 meas 4.832,096,9V
-az, 1 of 2 meas 4.832,096,8V
-az, 0 of 2 meas 4.832,096,1V
-az, 1 of 2 meas 4.832,096,1V
-az, 0 of 2 meas 4.832,096,8V
-a mean 4.832097
-trigger set
-change state
-az, 0 of 2
-az, 1 of 2
-az, 0 of 2
-az, 1 of 2 meas 4.827,854,6V
-az, 0 of 2 meas 4.827,854,3V
-az, 1 of 2 meas 4.827,854,0V
-az, 0 of 2 meas 4.827,854,1V
-az, 1 of 2 meas 4.827,854,1V
-az, 0 of 2 meas 4.827,853,8V
-az, 1 of 2 meas 4.827,853,7V
-az, 0 of 2 meas 4.827,853,9V
-az, 1 of 2 meas 4.827,853,8V
-az, 0 of 2 meas 4.827,852,9V
-b mean 4.827854
-trigger set
-change state
-az, 0 of 2
-az, 1 of 2
-az, 0 of 2
-az, 1 of 2 meas 9.659,951,9V
-az, 0 of 2 meas 9.659,950,2V
-az, 1 of 2 meas 9.659,950,2V
-az, 0 of 2 meas 9.659,952,6V
-az, 1 of 2 meas 9.659,952,0V
-az, 0 of 2 meas 9.659,949,4V
-az, 1 of 2 meas 9.659,948,6V
-az, 0 of 2 meas 9.659,952,1V
-az, 1 of 2 meas 9.659,951,9V
-az, 0 of 2 meas 9.659,951,7V
-c mean 9.659951
-diff -0.00
-diff -0.47uV
-#endif
+
+
 

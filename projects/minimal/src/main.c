@@ -204,7 +204,10 @@ int main(void)
   // initialzes the console buffers, that support printf() and error reporting
   app_init_console_buffers( &app );
 
-
+  /*
+    dont' think it makes any sense to use a circular buffer on the output.
+    instead just block control until the output is flushed.
+  */
   //////////////
   // now can init usart peripheral using app console buffers
   usart1_setup_portB();

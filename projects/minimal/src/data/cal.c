@@ -1,4 +1,10 @@
 /*
+  remember stderr is check of fit.
+    and reflects noise
+      but also it is a basic check of linearity.  for the runup parameters.
+*/
+
+/*
   EXTR. REVIEW
   need to consider - if should use AZ mode here, to reduce flicker, to get a better stderr, and improved fit.
   or interleve data collection with ref-hi/ref-lo -
@@ -82,7 +88,7 @@ static void print_slope_b_detail( unsigned aperture, double slope_b )
   double   res        = fabs( slope_b / aperture ); // in V
   // could also work out the implied count here.
 
-  printf("res       %.3fuV  ", res * 10e6 );  // resolution  in uV.
+  printf("res       %.3fuV  ", res * 1e6 );  // resolution  in uV.
   printf("digits %.2f ", log10( 10.f / res));   // ie. decimal=10 not +-11V
   // printf("bits %.2f ", log2( res));           // correct?   or should be aperture / slobe_b ?
   printf("  (nplc10)\n");
@@ -303,7 +309,19 @@ void data_cal(
 
 /*
 
+  mar 27 2024.
+    after changing lt1021 to ltz. and running about 15mins.  unshielded
 
+    stderr(V) 0.91uV  (nplc10)                          11.30am.
+    res       0.271uV  digits 8.57   (nplc10)
+
+    stderr(V) 1.01uV  (nplc10)
+    res       0.174uV  digits 8.76   (nplc10)
+
+
+
+
+  -------------------
   stderr(V) 1.03uV  (nplc10)
   res       0.023uV  digits 8.65   (nplc10)
 
