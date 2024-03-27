@@ -18,7 +18,7 @@
 #include <app.h>
 #include <data/data.h>
 #include <data/matrix.h>  // m_rows()
-// #include <data/buffer.h>
+#include <data/buffer.h>
 
 
 #include <mode.h>       // transition state
@@ -92,28 +92,28 @@ bool app_test40(
 
     // az sample ref-hi on ch1, via the low mux, and ref-lo should be 7.000,000V.
 
+    // note, if we call data buffer reset in repl. it will be done out of order.
+    // we want the data_reset after the adc is running.
+
+    if( !data->model_b) {
+      printf("no cal model\n");
+      return 1;
+    }
+
     app_repl_statements(app, "        \
-        flash cal read 123;           \
         reset;                        \
         dcv-source ref-lo;            \
         set k407 0;  set k405 1;       \
         set lomux s1;                 \
         nplc 10; set mode 7 ; azero s3 s8;  trig; \
-        data show stats;                  \
       " );
-/*
-    // ok.
-    fill_buffer( app, yield, yield_ctx) ;
-    printf("mean %lf\n", m_get_mean( data->buffer ));
 
+    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
 
-    // charnge params.
-    app_repl_statements(app, " nplc 1;   trig;");
+    data->show_stats = true;
+    data->buffer = buffer_reset( data->buffer, 10 );
+    data_reset( data );
 
-    // collect other data
-    fill_buffer( app, yield, yield_ctx) ;
-    printf("mean %lf\n", m_get_mean( data->buffer ));
-*/
     // check_data( == 7.000 )  etc.
     return 1;
   }
@@ -129,6 +129,12 @@ bool app_test40(
   */
   else if( strcmp(cmd, "test41") == 0) {
 
+    if( !data->model_b) {
+      printf("no cal model\n");
+      return 1;
+    }
+
+
     /* from test29
     // sample external cap on dcv in boot mode, no pc or az switching/ high-impedance.
     // with 10uF. cap  has leakage of several uV / s.
@@ -143,33 +149,46 @@ bool app_test40(
         reset;                                \
         dcv-source cap; set u1010 0b1011 ;    \
         set k407 0;   set k405 1;             \
-        set lomux s1;                 \
-        nplc 10; set mode 7 ; azero s3 s8;  trig; \
+        set lomux s1;                         \
+        nplc 10; set mode 7 ; azero s3 s8;    \
+        data show stats;  trig;               \
       " );
 
-    fill_buffer( app, yield, yield_ctx) ;
-    double a  = m_get_mean( data->buffer );
-    printf("a mean %lf\n", a );
+    double ar[ 5 ] ;
+
+    for( unsigned i = 0; i < 5; ++i ) { 
+
+      app_repl_statements(app, " set u1010 0b1011; trig;");
+      fill_buffer( app, yield, yield_ctx) ;
+      double a  = m_get_mean( data->buffer );
+      printf("a mean %lf\n", a );
 
 
-    // setup b
-    app_repl_statements(app, " set u1010 0b0010; trig;");
-    fill_buffer( app, yield, yield_ctx) ;
-    double b  = m_get_mean( data->buffer );
-    printf("b mean %lf\n", b);
+      // setup b
+      app_repl_statements(app, " set u1010 0b0010; trig;");
+      fill_buffer( app, yield, yield_ctx) ;
+      double b  = m_get_mean( data->buffer );
+      printf("b mean %lf\n", b);
 
 
-    // setup c.
-    app_repl_statements(app, " set u1010 0b0011; trig;");
-    fill_buffer( app, yield, yield_ctx) ;
-    double c  = m_get_mean( data->buffer );
-    printf("c mean %lf\n", c);
+      // setup c.
+      app_repl_statements(app, " set u1010 0b0011; trig;");
+      fill_buffer( app, yield, yield_ctx) ;
+      double c  = m_get_mean( data->buffer );
+      printf("c mean %lf\n", c);
 
-    double diff = a + b - c;
+      double diff = a + b - c;
+      ar[i] = diff;
 
-    printf("diff %.6lf\n", diff);
+      // printf("diff %.6lf\n", diff);
+      printf("diff %.2lfuV\n", diff * 1e6);
+    }
+    printf("--\n");
+    for( unsigned i = 0; i < 5; ++i ) { 
 
-    printf("diff %.2lfuV\n", diff * 1e6);
+      printf("diff %.2lfuV\n", ar[i ] * 1e6);
+    }
+
 
     // check_data( == 7.000 )  etc.
     return 1;
@@ -254,5 +273,37 @@ bool app_test40(
 
 
 
+
+
+#if 0
+    // az sample ref-hi on ch1, via the low mux, and ref-lo should be 7.000,000V.
+
+    /* note, there's real confusion - with in order, and out of order repl statements.
+      eg. flash cal read, and data show stats etc will be done in sequence, while mode update is out of bound
+      we want to do the data_reset after the adc is running.
+    */
+
+
+    app_repl_statements(app, "        \
+        flash cal read 123;           \
+        reset;                        \
+        dcv-source ref-lo;            \
+        set k407 0;  set k405 1;      \
+        set lomux s1;                 \
+        nplc 10; set mode 7 ; azero s3 s8;  halt; \
+        data show stats;              \
+        data buffer size 30;          \
+      " );
+
+    // cal
+    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+
+    // data->buffer = buffer_reset( data->buffer, 30);     // resise buffer
+    // data_reset( data );                                 // reset
+
+    // note - we could set the buffer, etc. and then do the trigger later.
+
+    ice40_port_trigger_source_internal_enable();    // rename set/clear() ? better?
+#endif
 
 

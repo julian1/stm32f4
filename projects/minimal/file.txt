@@ -1,0 +1,79 @@
+
+i think there's high local DNL chang
+
+- try 2 variable model.
+- try fix the gnd-current-comp.  offset. because we are calibrating ref-lo.
+
+- with 1of9 mux - we could automate.  also select different bounds. to get more data points. 
+
+-------
+
+> data cal show
+Matrix: 3 by 1
+row 0:      17.498738 
+row 1:    -17.5971143 
+row 2:   -0.109584164 
+model_id   0
+model_cols 3
+stderr(V) 0.88uV  (nplc10)
+res       0.027uV  digits 8.56   (nplc10)
+
+-----------------
+
+  restart.
+  now automated loop of 5 obs.
+
+4.8V
+diff -7.56uV
+diff -6.91uV
+diff -5.16uV
+diff -9.69uV
+diff -8.53uV
+
+2.4
+diff -1.86uV
+diff -1.97uV
+diff -2.00uV
+diff -1.59uV
+diff -3.96uV
+
+7.2
+diff 0.64uV
+diff -0.73uV
+diff 0.95uV
+diff 0.37uV
+diff 0.82uV
+
+3.6
+diff -12.10uV
+diff -10.28uV
+diff -10.44uV
+diff -9.02uV
+diff -9.87uV
+
+6
+diff -10.33uV
+diff -10.99uV
+diff -10.36uV
+diff -11.31uV
+diff -11.95uV
+
+
+1.2
+diff -3.79uV
+diff -2.87uV
+diff -1.87uV
+diff -1.60uV
+diff -2.09uV
+
+8.4
+diff -5.99uV
+diff -5.89uV
+diff -4.63uV
+diff -4.59uV
+diff -4.86uV
+
+
+
+
+

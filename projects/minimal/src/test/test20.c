@@ -108,6 +108,8 @@ bool app_test20(
         EXTR.but the Vos of the integrator input amplifer - still means - need an offset parameter in the calibration  model
         - regardless.  if star-lo == ref-lo using gnd current comp.
         - actually might get absorbed into the coefficients for the ref-currents. so 3 parameter model is enough.
+        ---
+        wow 460uV. with ltz1000.  mar 27. 2024.
     */
 
     app_repl_statements(app, "        \
@@ -297,48 +299,8 @@ bool app_test20(
   }
 
 
-
-  /*
-    AB   0b1011
-      // boot, 0 of 1 meas 4.830,793,8V
-      // boot, 0 of 1 meas 4.830,819,8V
-
-    BC   0b0010
-    // boot, 0 of 1 meas 4.826,508,8V
-    // boot, 0 of 1 meas 4.826,530,8V
-
-    A    0b0011
-
-  */
-
   return 0;
 }
-
-
-
-/*
-  > flash cal read 123; reset ; noazero s1 ; set k406 1 ; set k407 1; set himux s1 ; dcv-source ref-hi ; nplc10; set mode 7 ; trig
-    and ref.lo
-    flash cal read 123; reset ; noazero s1 ; set k406 1 ; set k407 1; set himux s1 ; dcv-source ref-lo ; nplc10; set mode 7 ; trig
-
-    - but the azero version doesn't work.
-      looks like there is 7V coming out of the precharge switch ok.
-
-  >  flash cal read 123; reset ; azero s1 s8 ; set k406 1 ; set k407 1; set himux s1 ; set lomux s1 ;  dcv-source ref-hi ; nplc10; set mode 7 ; trig
-
-        az, 1 of 2 meas 7.000,059,0V
-        works. it was the lo that was floating.
-
-        but note. the 60u offset. sampling through the hi-muxes.
-
-    # sample dcv-source on s1 s8. through the relay.
-    >  flash cal read 123; reset ; azero s1 s8; set k405 1 ;   set lomux s1 ;  dcv-source ref-hi ; nplc10; set mode 7 ; trig
-
-    # but when we do az cross it's very good.
-    > flash cal read 123; reset ; azero cross; set k406 1 ; set k407 1; set himux s1 ; set lomux s1 ;  dcv-source ref-hi ; nplc10; set mode 7 ; trig
-
-      az, 1 of 2 meas 6.999,997,3V
-*/
 
 
 

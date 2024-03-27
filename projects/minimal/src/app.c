@@ -546,8 +546,8 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
   /*
     - the cal function requires mode. which is only available in app.
-
      - should take an argument. for model_id.
+    - no. only set the id, when it is saved to flash.
   */
 
   else if(strcmp(cmd, "cal") == 0) {
