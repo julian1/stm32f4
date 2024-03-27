@@ -85,7 +85,7 @@
 
 
 
-static void print_slope_b_detail( unsigned aperture, double slope_b )
+void data_print_slope_b_detail( unsigned aperture, double slope_b )
 {
   // better name print_slope_b_detail.
 
@@ -276,13 +276,13 @@ void data_cal(
     // print some stats
     uint32_t aperture_          = nplc_to_aperture( 10, data->line_freq );
 
-    data->model_sigma_div_aperture   = regression.sigma / aperture_  * 1e6; // 1000000;  // in uV.
+    data->model_sigma_div_aperture   = regression.sigma / aperture_;
 
-    printf("stderr(V) %.2fuV  (nplc10)\n", data->model_sigma_div_aperture);
+    printf("stderr(V) %.2fuV  (nplc10)\n", data->model_sigma_div_aperture * 1e6);   // in uV.
 
     double last_b_coefficient   = m_get_val(regression.b ,   0,   m_rows(regression.b) - 1);
 
-    print_slope_b_detail( aperture_, last_b_coefficient);
+    data_print_slope_b_detail( aperture_, last_b_coefficient);
   }
 
 

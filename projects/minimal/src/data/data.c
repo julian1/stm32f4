@@ -781,6 +781,7 @@ bool data_repl_statement( data_t *data,  const char *cmd )
     // todo
   }
 
+  // could be called, 'buffer show stats', 'buffer show extra' etc.
 
   else if(strcmp(cmd, "data show counts") == 0)
     data->show_counts = 1;
@@ -790,6 +791,26 @@ bool data_repl_statement( data_t *data,  const char *cmd )
 
   else if(strcmp(cmd, "data show stats") == 0)
     data->show_stats = 1;
+
+
+  else if(strcmp(cmd, "data cal show") == 0) {
+
+    if(data->model_b) {
+      m_foutput( stdout, data->model_b );
+
+      // print some stats
+      uint32_t aperture_          = nplc_to_aperture( 10, data->line_freq );
+
+      printf("stderr(V) %.2fuV  (nplc10)\n", data->model_sigma_div_aperture * 1e6); // in uV.
+
+      double last_b_coefficient   = m_get_val(data->model_b ,   0,   m_rows( data->model_b) - 1);
+
+      data_print_slope_b_detail( aperture_, last_b_coefficient);
+    } else {
+      printf("no model\n");
+    }
+  }
+
 
 
 

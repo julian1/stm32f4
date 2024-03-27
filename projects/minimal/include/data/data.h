@@ -136,6 +136,7 @@ bool data_flash_repl_statement( data_t *data, const char *cmd);
 
 bool data_repl_statement( data_t *data,  const char *cmd );
 
+void data_print_slope_b_detail( unsigned aperture, double slope_b );
 
 
 
