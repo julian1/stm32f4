@@ -45,26 +45,20 @@ typedef struct data_t
     so just pass as arg when cal process is called
     - except can be used to encode model representatino if have two models with same number of coefficients
   */
+  unsigned model_id;
   unsigned model_cols; // to use.
 
   MAT *model_b;           // consider rename cal_b or model_b ?
 
-  double model_sigma_div_aperture;    // stderr() of the regression..  change name model_sigma_div_aperture?
+  double model_sigma_div_aperture;    // stderr() of the regression..  maybe rename model_stderr change name model_sigma_div_aperture?
 
   //////////////////
 
-/*
-  double   hi;        // for az mode. the last hi measure TODO change name az_hi. and az_lo ?
-  double   lo[2];   // for az mode. the last two lo signals.
-*/
-
 
   /*
-  - stored readings by sequence_idx.  which works very well for calculating output for the different modes.
+  - readings stored by sequence_idx.  which works very well for calculating output for the different modes.
   */
-  // values corresponding indexed sequence idx
-  // better name data/ vals? reading
-  // reading?
+  // better name,  data/ vals? reading
   double reading[  4 ] ;
   double reading_last[  4 ] ;
 
@@ -136,8 +130,9 @@ bool data_flash_repl_statement( data_t *data, const char *cmd);
 
 bool data_repl_statement( data_t *data,  const char *cmd );
 
-void data_print_slope_b_detail( unsigned aperture, double slope_b );
+// void data_print_slope_b_detail( unsigned aperture, double slope_b );
 
+void data_cal_show( data_t *data );
 
 
 

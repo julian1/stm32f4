@@ -85,7 +85,7 @@
 
 
 
-void data_print_slope_b_detail( unsigned aperture, double slope_b )
+static void data_print_slope_b_detail( unsigned aperture, double slope_b )
 {
   // better name print_slope_b_detail.
 
@@ -99,6 +99,32 @@ void data_print_slope_b_detail( unsigned aperture, double slope_b )
   printf("digits %.2f ", log10( 10.f / res));   // ie. decimal=10 not +-11V
   // printf("bits %.2f ", log2( res));           // correct?   or should be aperture / slobe_b ?
   printf("  (nplc10)\n");
+}
+
+
+
+void data_cal_show( data_t *data )
+{
+  if( !data->model_b) {
+    printf("no model\n");
+    return;
+  }
+
+
+  m_foutput( stdout, data->model_b );
+
+  printf("model_id   %u\n", data->model_id );
+  printf("model_cols %u\n", data->model_cols );
+
+  // print some stats
+  uint32_t aperture_          = nplc_to_aperture( 10, data->line_freq );
+
+  printf("stderr(V) %.2fuV  (nplc10)\n", data->model_sigma_div_aperture * 1e6); // in uV.
+
+  double last_b_coefficient   = m_get_val(data->model_b ,   0,   m_rows( data->model_b) - 1);
+
+  data_print_slope_b_detail( aperture_, last_b_coefficient);
+
 }
 
 

@@ -91,15 +91,17 @@ bool app_test40(
   if( strcmp(cmd, "test40") == 0) {
 
     // az sample ref-hi on ch1, via the low mux, and ref-lo should be 7.000,000V.
+
     app_repl_statements(app, "        \
         flash cal read 123;           \
         reset;                        \
-        dcv-source ref-hi;            \
+        dcv-source ref-lo;            \
         set k407 0;  set k405 1;       \
         set lomux s1;                 \
         nplc 10; set mode 7 ; azero s3 s8;  trig; \
+        data show stats;                  \
       " );
-
+/*
     // ok.
     fill_buffer( app, yield, yield_ctx) ;
     printf("mean %lf\n", m_get_mean( data->buffer ));
@@ -111,7 +113,7 @@ bool app_test40(
     // collect other data
     fill_buffer( app, yield, yield_ctx) ;
     printf("mean %lf\n", m_get_mean( data->buffer ));
-
+*/
     // check_data( == 7.000 )  etc.
     return 1;
   }
@@ -133,9 +135,11 @@ bool app_test40(
       TODO - rename external cap. to external pin-header. or port or somehting.
     */
 
+    // we should use our current cal. not load a new one??
+    // flash cal read 123;
+
     // setup a
     app_repl_statements(app, "                \
-        flash cal read 123;                   \
         reset;                                \
         dcv-source cap; set u1010 0b1011 ;    \
         set k407 0;   set k405 1;             \

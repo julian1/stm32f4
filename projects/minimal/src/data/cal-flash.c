@@ -29,7 +29,7 @@
 
 
 
-// mar 2024. 
+// mar 2024.
 // see link/f413rgt6.ld
 // #  7: 0x00060000 (0x20000 128kB) not protected
 // # 11: 0x000e0000 (0x20000 128kB) not protected
@@ -52,20 +52,34 @@
 
     for the cal slot/name .  use a string identifier. not a number.
     good convenience.
+
+
+       size_t fread(void *restrict ptr, size_t size, size_t nmemb,
+                    FILE *restrict stream);
+       size_t fwrite(const void *restrict ptr, size_t size, size_t nmemb,
+                    FILE *restrict stream);
+
 */
 
-static void handler_write_cal( FILE *f, blob_header_t *header, MAT *b )      // should pass app. to allow stor may be better t
+static void handler_write_cal( FILE *f, blob_header_t *header,  data_t *data )      // should pass app. to allow stor may be better t
 {
   assert(f);
   assert(header);
-  assert(b);
+  assert(data);
+  assert(data->magic == DATA_MAGIC);
+
 
   // set the blob id
   assert(header->len == 0 && header->magic == 0);   // this handler doesn't care or know yet
-  header->id = 106;
+  header->id = 108;
 
   // write the data
-  m_foutput_binary( f, b);
+  fwrite( &data->model_id,                  sizeof(data->model_id), 1, f);
+  fwrite( &data->model_cols,                sizeof(data->model_cols), 1, f);
+  fwrite( &data->model_sigma_div_aperture,  sizeof(data->model_sigma_div_aperture), 1, f);
+
+  m_foutput_binary( f, data->model_b);
+
 }
 
 
@@ -76,17 +90,19 @@ static void handler_scan_cal( FILE *f, blob_header_t *header, data_t *data )
   assert(data);
   assert(data->magic == DATA_MAGIC);
 
-
   // printf("whoot got blob id=%u len=%u\n", header->id, header->len );
 
-  if(header->id == 106) {
+  if(header->id == 108) {
 
-    // payload should be readable.
-    printf("loaded cal OK\n"); 
+    // read the data
+    fread( &data->model_id,                 sizeof(data->model_id), 1, f);
+    fread( &data->model_cols,               sizeof(data->model_cols), 1, f);
+    fread( &data->model_sigma_div_aperture, sizeof(data->model_sigma_div_aperture), 1, f);
 
     data->model_b = m_finput_binary(f, MNULL);
 
-    // m_foutput( stdout, data-> b);
+    // payload should be readable.
+    printf("loaded cal OK\n");
 
   }
 }
@@ -140,7 +156,7 @@ bool data_flash_repl_statement( data_t *data, const char *cmd)
     FILE *f = flash_open_file( FLASH_SECT_ADDR );
     file_blob_skip_end( f);
     // use callback to write the block.
-    file_blob_write( f,  (void (*)(FILE *, blob_header_t *, void *)) handler_write_cal, data->model_b );
+    file_blob_write( f,  (void (*)(FILE *, blob_header_t *, void *)) handler_write_cal, data /*data->model_b */);
     fclose(f);
 
     printf("flash lock\n");
@@ -150,7 +166,7 @@ bool data_flash_repl_statement( data_t *data, const char *cmd)
     return 1;
   }
 
-
+/*
   else if(sscanf(cmd, "flash cal save %lu", &u0 ) == 1) {
 
     if(!data->model_b) {
@@ -173,7 +189,7 @@ bool data_flash_repl_statement( data_t *data, const char *cmd)
     printf("done\n");
     return 1;
   }
-
+*/
 
   // change name load?
   else if(sscanf(cmd, "flash cal read %lu", &u0 ) == 1) {
