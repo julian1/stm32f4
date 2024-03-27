@@ -47,7 +47,9 @@ typedef struct data_t
   */
   unsigned model_cols; // to use.
 
-  MAT *b;           // consider rename cal_b or model_b ?
+  MAT *model_b;           // consider rename cal_b or model_b ?
+
+  double model_sigma_div_aperture;    // stderr() of the regression..  change name model_sigma_div_aperture?
 
   //////////////////
 

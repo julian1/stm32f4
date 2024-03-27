@@ -84,7 +84,7 @@ static void handler_scan_cal( FILE *f, blob_header_t *header, data_t *data )
     // payload should be readable.
     printf("loaded cal OK\n"); 
 
-    data->b = m_finput_binary(f, MNULL);
+    data->model_b = m_finput_binary(f, MNULL);
 
     // m_foutput( stdout, data-> b);
 
@@ -128,7 +128,7 @@ bool data_flash_repl_statement( data_t *data, const char *cmd)
   else if(sscanf(cmd, "flash cal save %lu", &u0 ) == 1) {
 
     // u0 arg ignored at moment,
-    if(!data->b) {
+    if(!data->model_b) {
       printf("no cal!\n");
       return 1;
     }
@@ -140,7 +140,7 @@ bool data_flash_repl_statement( data_t *data, const char *cmd)
     FILE *f = flash_open_file( FLASH_SECT_ADDR );
     file_blob_skip_end( f);
     // use callback to write the block.
-    file_blob_write( f,  (void (*)(FILE *, blob_header_t *, void *)) handler_write_cal, data->b );
+    file_blob_write( f,  (void (*)(FILE *, blob_header_t *, void *)) handler_write_cal, data->model_b );
     fclose(f);
 
     printf("flash lock\n");
@@ -153,7 +153,7 @@ bool data_flash_repl_statement( data_t *data, const char *cmd)
 
   else if(sscanf(cmd, "flash cal save %lu", &u0 ) == 1) {
 
-    if(!data->b) {
+    if(!data->model_b) {
       printf("no cal!\n");
       return 1;
     }
@@ -165,7 +165,7 @@ bool data_flash_repl_statement( data_t *data, const char *cmd)
     FILE *f = flash_open_file( FLASH_SECT_ADDR );
     file_blob_skip_end( f);
     // use callback to write the block.
-    file_blob_write( f,  (void (*)(FILE *, blob_header_t *, void *)) handler_write_cal, data->b );
+    file_blob_write( f,  (void (*)(FILE *, blob_header_t *, void *)) handler_write_cal, data->model_b );
     fclose(f);
 
     printf("flash lock\n");

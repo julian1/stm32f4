@@ -295,7 +295,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
 
   // could factor into another func - to ease this nesting.
-  if(data->b) {
+  if(data->model_b) {
 
     // TODO - have a scalar - version of this
     // would eases calculation. when only need a scalar.
@@ -318,11 +318,11 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
         // what model here,
         // data->model_cols,
-        m_rows( data->b ),       // why not just use data->b here, and conform to what the model requires???
+        m_rows( data->model_b ),       // why not just use data->b here, and conform to what the model requires???
         MNULL
       );
 
-    assert( m_cols(xs) == m_rows( data->b) ) ;
+    assert( m_cols(xs) == m_rows( data->model_b) ) ;
 
     // we could make all these vars persist.
     MAT	*m_mux_sig = m_from_scalar( clk_count_mux_sig, MNULL );
@@ -333,7 +333,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
     // TODO rename m_predicted == ret.  use reading
     //  we should persist this.  and pass it in to m_calc_predicated.
-    MAT *m_predicted =  m_calc_predicted( data->b, xs, m_mux_sig /*, app->m_predicted */);
+    MAT *m_predicted =  m_calc_predicted( data->model_b, xs, m_mux_sig /*, app->m_predicted */);
     assert(m_predicted);
     assert(m_is_scalar(m_predicted) );
 

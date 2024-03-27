@@ -2,6 +2,8 @@
   we have to try the 2 var model again, with offset.
     eg. +ref,-ref, and offset for Vos+ref-lo diff.
   - there's also a question - should gnd current comp be used - to compensate Vos - and zero the offset.
+
+  - eg. tie signal input to star- lo , and integrate.  and it should go nowhere.
 */
 /*
   remember stderr is check of fit.
@@ -274,9 +276,9 @@ void data_cal(
     // print some stats
     uint32_t aperture_          = nplc_to_aperture( 10, data->line_freq );
 
-    double sigma_div_aperture   = regression.sigma / aperture_  * 1e6; // 1000000;  // in uV.
+    data->model_sigma_div_aperture   = regression.sigma / aperture_  * 1e6; // 1000000;  // in uV.
 
-    printf("stderr(V) %.2fuV  (nplc10)\n", sigma_div_aperture);
+    printf("stderr(V) %.2fuV  (nplc10)\n", data->model_sigma_div_aperture);
 
     double last_b_coefficient   = m_get_val(regression.b ,   0,   m_rows(regression.b) - 1);
 
@@ -286,11 +288,11 @@ void data_cal(
 
   // copy to data->b
   // set data->b size first, because m_copy() does not change dims.
-  data->b = m_resize(data->b,  m_rows( regression.b ), m_cols( regression.b));
-  assert(data->b->m == regression.b->m && data->b->n == regression.b->n);
+  data->model_b = m_resize(data->model_b,  m_rows( regression.b ), m_cols( regression.b));
+  assert(data->model_b->m == regression.b->m && data->model_b->n == regression.b->n);
 
   // note the predicted values are still in the regression structure.
-  data->b       = m_copy( regression.b, data->b );
+  data->model_b       = m_copy( regression.b, data->model_b );
 
   // free regression
   r_free( &regression );
