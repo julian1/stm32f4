@@ -1,4 +1,9 @@
 /*
+  we have to try the 2 var model again, with offset.
+    eg. +ref,-ref, and offset for Vos+ref-lo diff.
+  - there's also a question - should gnd current comp be used - to compensate Vos - and zero the offset.
+*/
+/*
   remember stderr is check of fit.
     and reflects noise
       but also it is a basic check of linearity.  for the runup parameters.
@@ -308,6 +313,20 @@ void data_cal(
 // high variance - indicates perhaps flicker noise.
 
 /*
+
+
+  mar 27.
+    r      1.0000000000                            12.15am.       Ok. this looks a lot better.
+    stderr(V) 0.67uV  (nplc10)
+    res       0.233uV  digits 8.63   (nplc10)
+    calling spi_mode_transition_state()
+
+  -------
+  stderr(V) 0.49uV  (nplc10)
+  res       0.043uV  digits 9.37   (nplc10)     12.12pm
+
+        weird?????  9 digtss.
+
 
   mar 27 2024.
     after changing lt1021 to ltz. and running about 15mins.  unshielded

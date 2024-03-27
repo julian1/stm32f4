@@ -140,7 +140,7 @@ bool app_test40(
         dcv-source cap; set u1010 0b1011 ;    \
         set k407 0;   set k405 1;             \
         set lomux s1;                 \
-        nplc 1; set mode 7 ; azero s3 s8;  trig; \
+        nplc 10; set mode 7 ; azero s3 s8;  trig; \
       " );
 
     fill_buffer( app, yield, yield_ctx) ;
@@ -179,6 +179,41 @@ bool app_test40(
 
 
 /*
+  after doing another cal.
+
+  10nplc.  sample n=10, for each of AB (4.8V), BC (4.8V), AC (9.6V).
+  diff -4.06uV
+  diff -3.74uV
+  diff -4.70uV
+  diff -4.84uV
+  diff -4.97uV
+  diff -3.40uV
+
+    at least it's stable.
+    waitin
+
+----
+
+  mar 27.
+    after upgrading ltz1000.
+  1nplc.
+    diff -1.67uV
+    diff -5.79uV
+    diff -9.30uVo
+    diff -5.10uV
+    diff -5.46uV
+
+    doesn't look very good.
+
+  10 nplc
+    diff -2.06uV
+    diff -3.51uV
+    diff -3.00uV
+    diff -2.43uV
+    diff -3.52uV
+
+      Ok. so noise is down a lot kkkkkk
+
   mar 26.
 
   Second attempt - is 8x 1.2V enneloup batteries in a battery-holder with centre tap, for the middle voltage.
