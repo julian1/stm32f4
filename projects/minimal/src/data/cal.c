@@ -128,6 +128,7 @@ void data_cal(
     data_t *data ,
     uint32_t spi,
     _mode_t *mode,
+    unsigned model_cols,
     volatile uint32_t *system_millis,
     void (*yield)( void * ),
     void * yield_ctx
@@ -142,8 +143,8 @@ void data_cal(
 
 
 
-  // set. in default?
-  data->model_cols = 3;
+  // note that we are comitted, at this point, by setting fields on data
+  data->model_cols = model_cols;
 
 
   const unsigned obs_to_take_n = 7; // how many obs to take

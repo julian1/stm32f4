@@ -550,15 +550,22 @@ void app_repl_statement(app_t *app,  const char *cmd)
     - no. only set the id, when it is saved to flash.
   */
 
-  else if(strcmp(cmd, "cal") == 0) {
 
-    // void data_cal( data_t *data , uint32_t spi, _mode_t *mode /* void (*yield)( void * ) */ )
+  else if( sscanf(cmd, "cal %lu", &u0 ) == 1) {
 
-    // copy to get working mode
     _mode_t mode = *app->mode_initial;
+    unsigned model_cols = u0;
 
-    data_cal( app->data,  app->spi, &mode, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+    data_cal( app->data,  app->spi, &mode, model_cols, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+  }
 
+  else if(strcmp(cmd, "cal") == 0) {
+    // cal with default model
+
+    _mode_t mode = *app->mode_initial;
+    unsigned model_cols = 3;
+
+    data_cal( app->data,  app->spi, &mode, model_cols, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
   }
 
 

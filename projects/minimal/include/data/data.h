@@ -106,6 +106,7 @@ void data_cal(
     data_t *data ,
     uint32_t spi,
     _mode_t *mode,
+    unsigned model_cols,
     volatile uint32_t *system_millis,
     void (*yield)( void * ),
     void * yield_ctx
