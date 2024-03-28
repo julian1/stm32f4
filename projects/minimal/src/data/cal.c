@@ -85,23 +85,6 @@
 
 
 
-static void data_print_slope_b_detail( unsigned aperture, double slope_b )
-{
-  // better name print_slope_b_detail.
-
-  // unsigned aperture =   nplc_to_aper_n( 10 );
-
-  // double   slope_b    = m_get_val(cal->b, slope_idx, 0 );   // rows
-  double   res        = fabs( slope_b / aperture ); // in V
-  // could also work out the implied count here.
-
-  printf("res       %.3fuV  ", res * 1e6 );  // resolution  in uV.
-  printf("digits %.2f ", log10( 10.f / res));   // ie. decimal=10 not +-11V
-  // printf("bits %.2f ", log2( res));           // correct?   or should be aperture / slobe_b ?
-  printf("  (nplc10)\n");
-}
-
-
 
 void data_cal_show( data_t *data )
 {
@@ -121,9 +104,20 @@ void data_cal_show( data_t *data )
 
   printf("stderr(V) %.2fuV  (nplc10)\n", data->model_sigma_div_aperture * 1e6); // in uV.
 
-  double last_b_coefficient   = m_get_val(data->model_b ,   0,   m_rows( data->model_b) - 1);
+  double last_b   = m_get_val(data->model_b ,   0,   m_rows( data->model_b) - 1);
 
-  data_print_slope_b_detail( aperture_, last_b_coefficient);
+
+  ///////////////
+  // data_print_slope_b_detail( aperture_, last_b);
+
+  double   res        = fabs( last_b / aperture_ ); // in V
+  // could also work out the implied count here.
+
+  printf("res       %.3fuV  ", res * 1e6 );  // resolution  in uV.
+  printf("digits %.2f ", log10( 10.f / res));   // ie. decimal=10 not +-11V
+  // printf("bits %.2f ", log2( res));           // correct?   or should be aperture / slobe_b ?
+  printf("  (nplc10)\n");
+
 
 }
 
@@ -297,7 +291,7 @@ void data_cal(
    //usart1_flush();
 
 
-
+/*
   {
     // print some stats
     uint32_t aperture_          = nplc_to_aperture( 10, data->line_freq );
@@ -310,10 +304,12 @@ void data_cal(
 
     data_print_slope_b_detail( aperture_, last_b_coefficient);
   }
+*/
 
 
   // copy to data->b
   // set data->b size first, because m_copy() does not change dims.
+  // TODO - better to just copy. then reallocate and shrink
   data->model_b = m_resize(data->model_b,  m_rows( regression.b ), m_cols( regression.b));
   assert(data->model_b->m == regression.b->m && data->model_b->n == regression.b->n);
 
@@ -333,6 +329,8 @@ void data_cal(
   m_free(aperture);
 
 
+  // print some stats
+  data_cal_show( data );
 
 }
 

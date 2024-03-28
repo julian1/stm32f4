@@ -4,15 +4,17 @@ i think there's high local DNL chang
 - try 2 variable model.
 - try fix the gnd-current-comp.  offset. because we are calibrating ref-lo.
 
-- with 1of9 mux - we could automate.  also select different bounds. to get more data points. 
+- with 1of9 mux - we could automate.  also select different bounds. to get more data points.
+
+- check the acutal run-down resistor.   resolution looks way too high. leading to DA.
 
 -------
 
 > data cal show
 Matrix: 3 by 1
-row 0:      17.498738 
-row 1:    -17.5971143 
-row 2:   -0.109584164 
+row 0:      17.498738
+row 1:    -17.5971143
+row 2:   -0.109584164
 model_id   0
 model_cols 3
 stderr(V) 0.88uV  (nplc10)
