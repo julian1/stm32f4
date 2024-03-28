@@ -88,7 +88,7 @@ bool app_test41(
 
   ////////////////////
 
-  
+
 
   /*
     U1010
@@ -126,7 +126,7 @@ bool app_test41(
 
     double ar[ 5 ] ;
 
-    for( unsigned i = 0; i < 5; ++i ) { 
+    for( unsigned i = 0; i < 5; ++i ) {
 
       app_repl_statements(app, " set u1010 0b1011; trig;");
       fill_buffer( app, yield, yield_ctx) ;
@@ -154,7 +154,7 @@ bool app_test41(
       printf("diff %.2lfuV\n", diff * 1e6);
     }
     printf("--\n");
-    for( unsigned i = 0; i < 5; ++i ) { 
+    for( unsigned i = 0; i < 5; ++i ) {
 
       printf("diff %.2lfuV\n", ar[i ] * 1e6);
     }
@@ -172,6 +172,91 @@ bool app_test41(
 
 
 /*
+
+mar 28.
+
+
+8x 1.2V enneloup batteries in a battery-holder with taps, switched manually
+Method - is sample AB for 10 readings, 10nplc, then BC (bottom half) , then AC (series ), take the means, and calculate the diff/delta.
+repeat 5 times.
+eg. diff = 4.8V + 4.8V - 9.6V
+
+
+reduce resolution, change series rundown bias-resistor from 220R to 1k. and new cal.
+
+> data cal show
+Matrix: 3 by 1
+row 0:     17.4986934
+row 1:    -17.9358312
+row 2:   -0.458200302
+model_id    0
+model_cols  3
+stderr(V)   0.86uV  (nplc10)
+res         0.115uV  digits      7.94 (nplc 10)
+
+4.8
+diff -3.50uV
+diff -5.12uV
+diff -4.66uV
+diff -4.04uV
+diff -1.76uV
+
+2.4
+diff -5.39uV
+diff -4.11uV
+diff -3.88uV
+diff -0.94uV
+diff -3.44uV
+
+7.2
+diff -5.95uV
+diff -2.77uV
+diff -3.09uV
+diff -4.99uV
+diff -2.00uV
+
+3.6
+diff -4.51uV
+diff -6.62uV
+diff -5.07uV
+diff -4.34uV
+diff -1.98uV
+
+
+6.0
+diff -8.43uV
+diff -7.10uV
+diff -3.93uV
+diff -7.28uV
+diff -2.49uV
+
+6.0 repeat.
+diff -8.09uV
+diff -4.13uV
+diff -3.95uV
+diff -3.43uV
+diff -4.59uV
+
+
+1.2
+diff -1.94uV
+diff -2.22uV
+diff 0.08uV
+diff -2.07uV
+diff -4.10uV
+
+8.4
+diff -3.94uV
+diff -1.96uV
+diff -2.35uV
+diff -2.66uV
+diff -2.43uV
+
+
+
+
+
+  -------------
   after doing another cal.
 
   10nplc.  sample n=10, for each of AB (4.8V), BC (4.8V), AC (9.6V).
