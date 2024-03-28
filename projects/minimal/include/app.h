@@ -150,6 +150,7 @@ bool app_test15( app_t *app , const char *cmd);
 bool app_test20( app_t *app, const char *cmd, void (*yield)( void * ), void * yield_ctx) ;
 
 bool app_test40( app_t *app, const char *cmd, void (*yield)( void * ), void * yield_ctx) ;
+bool app_test41( app_t *app, const char *cmd, void (*yield)( void * ), void * yield_ctx) ;
 
 
 
