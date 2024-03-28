@@ -96,13 +96,13 @@ void data_cal_show( data_t *data )
 
   m_foutput( stdout, data->model_b );
 
-  printf("model_id   %u\n", data->model_id );
-  printf("model_cols %u\n", data->model_cols );
+  printf("model_id    %u\n", data->model_id );
+  printf("model_cols  %u\n", data->model_cols );
 
   // print some stats
   uint32_t aperture_          = nplc_to_aperture( 10, data->line_freq );
 
-  printf("stderr(V) %.2fuV  (nplc10)\n", data->model_sigma_div_aperture * 1e6); // in uV.
+  printf("stderr(V)   %.2fuV  (nplc10)\n", data->model_sigma_div_aperture * 1e6); // in uV.
 
   double last_b   = m_get_val(data->model_b ,   0,   m_rows( data->model_b) - 1);
 
@@ -113,10 +113,9 @@ void data_cal_show( data_t *data )
   double   res        = fabs( last_b / aperture_ ); // in V
   // could also work out the implied count here.
 
-  printf("res       %.3fuV  ", res * 1e6 );  // resolution  in uV.
-  printf("digits %.2f ", log10( 10.f / res));   // ie. decimal=10 not +-11V
+  printf("res         %.3fuV  ", res * 1e6 );  // resolution  in uV.
+  printf("digits      %.2f (nplc 10)", log10( 10.f / res));   // ie. decimal=10 not +-11V
   // printf("bits %.2f ", log2( res));           // correct?   or should be aperture / slobe_b ?
-  printf("  (nplc10)\n");
 
 
 }
@@ -292,12 +291,12 @@ void data_cal(
    //usart1_flush();
 
 
+  uint32_t aperture_          = nplc_to_aperture( 10, data->line_freq );
+  data->model_sigma_div_aperture   = regression.sigma / aperture_;
 /*
   {
     // print some stats
-    uint32_t aperture_          = nplc_to_aperture( 10, data->line_freq );
 
-    data->model_sigma_div_aperture   = regression.sigma / aperture_;
 
     printf("stderr(V) %.2fuV  (nplc10)\n", data->model_sigma_div_aperture * 1e6);   // in uV.
 

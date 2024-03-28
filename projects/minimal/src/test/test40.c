@@ -83,3 +83,45 @@ bool app_test40(
 }
 
 
+/*
+mar 28
+
+
+  Ok. resolution is too hi. it is in the 10s of nanovolts.  with our 226R resistor.
+
+  az, 0 of 2 meas -0.000,000,71V
+  az, 1 of 2 meas -0.000,000,72V
+  az, 0 of 2 meas -0.000,000,74V
+  az, 1 of 2 meas -0.000,000,77V
+
+  stderr(V) 0.88uV  (nplc10)
+  res       0.026uV  digits 8.59   (nplc10)
+  calling spi_mode_transition_state()
+
+  ----
+  change bias to 1k. foil.
+
+
+  model_id   0
+  model_cols 3
+  stderr(V) 0.86uV  (nplc10)
+  res       0.115uV  digits 7.94   (nplc10)
+
+  resolution looks better.
+  az, 0 of 2 meas -0.000,000,24V mean(10) -0.0000014V, stddev(10) 0.62uV,
+  az, 1 of 2 meas -0.000,000,42V mean(10) -0.0000013V, stddev(10) 0.63uV,
+  az, 1 of 2 meas -0.000,000,42V mean(10) -0.0000014V, stddev(10) 0.70uV,
+  az, 0 of 2 meas -0.000,000,42V mean(10) -0.0000009V, stddev(10) 0.47uV,
+  az, 0 of 2 meas -0.000,000,55V mean(10) -0.0000012V, stddev(10) 0.54uV,
+  az, 1 of 2 meas -0.000,000,64V mean(10) -0.0000011V, stddev(10) 0.56uV,
+  az, 0 of 2 meas -0.000,000,64V mean(10) -0.0000010V, stddev(10) 0.52uV,
+  az, 1 of 2 meas -0.000,000,69V mean(10) -0.0000010V, stddev(10) 0.46uV,
+  az, 0 of 2 meas -0.000,000,86V mean(10) -0.0000013V, stddev(10) 0.59uV,
+  az, 1 of 2 meas -0.000,000,86V mean(10) -0.0000015V, stddev(10) 0.47uV,
+  az, 1 of 2 meas -0.000,000,90V mean(10) -0.0000016V, stddev(10) 0.47uV,
+  az, 0 of 2 meas -0.000,000,95V mean(10) -0.0000013V, stddev(10) 0.71uV,
+
+
+
+*/
+

@@ -506,7 +506,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
       if(sample_seq_mode == SEQ_MODE_RATIO)
         printf(" meas %s", str_format_float_with_commas(buf, 100, 7, computed_val));
       else
-        printf(" meas %sV", str_format_float_with_commas(buf, 100, 7, computed_val));
+        printf(" meas %sV", str_format_float_with_commas(buf, 100, 8, computed_val));
 
       /*
         can drive this with policy arg/flag.
