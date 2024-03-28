@@ -1,6 +1,10 @@
 
 i think there's high local DNL chang
 
+
+- ahhh. we have the dmm ground connected to the switch input.
+  fix this.
+
 - try 2 variable model.
 - try fix the gnd-current-comp.  offset. because we are calibrating ref-lo.
 
