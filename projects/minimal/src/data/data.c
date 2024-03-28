@@ -605,15 +605,14 @@ MAT * run_to_matrix(
 {
   // change name ,   adc_counts_to_matrix() ?
 
+/*
+  EXTR.
+    - try adding apperture as independent variable.
+    try a model that includes aperture. ie. if there are small changes between nplc=1, nplc=10
+    then perhaps just including aperture.
 
-  /*
-    we have aperture stored in the Param.
-    - it's easy to pull off device.  so perhaps it should be moved to Run. or else store in both Run and Param.
-    - OR. it should always be passed here. - because it is a fundamental data on device, and for calculating predicted..
-    ------
-    - not sure. we want to test a model with aperture as independent var.
+*/
 
-  */
 
   // TODO can we move this inside each if clause?
   if(out == MNULL)
@@ -626,13 +625,22 @@ MAT * run_to_matrix(
       rundown that has both currents on - just sums
       this is nice because doesn't require anything on fpga side.
     */
-    double x0_ = clk_count_mux_neg + clk_count_mux_rd;
-    double x1_ = clk_count_mux_pos + clk_count_mux_rd;
 
     out = m_resize(out, 1, 2);
-    m_set_val( out, 0, 0,  x0_ );
-    m_set_val( out, 0, 1,  x1_  );
+    m_set_val( out, 0, 0,  clk_count_mux_neg + clk_count_mux_rd );
+    m_set_val( out, 0, 1,  clk_count_mux_pos + clk_count_mux_rd  );
   }
+
+
+  else if(model == 21) {
+
+    out = m_resize(out, 1, 3);
+    m_set_val( out, 0, 0,  1.f );   // ones, offset
+    m_set_val( out, 0, 1,  clk_count_mux_neg + clk_count_mux_rd );
+    m_set_val( out, 0, 2,  clk_count_mux_pos + clk_count_mux_rd  );
+  }
+
+
 
   else if( model == 3) {
 
@@ -642,14 +650,7 @@ MAT * run_to_matrix(
     m_set_val( out, 0, 2,  clk_count_mux_rd );
   }
 
-/*
-  EXTR.
-    - try adding apperture as independent variable.
-    try a model that includes aperture. ie. if there are small changes between nplc=1, nplc=10
-    then perhaps just including aperture.
-
-*/
-  else if ( model == 4) {
+  else if ( model == 31) {
 
     out = m_resize(out, 1, 4);
     m_set_val( out, 0, 0,  1.f ); // ones, offset
@@ -797,7 +798,7 @@ bool data_repl_statement( data_t *data,  const char *cmd )
 
 
     data_cal_show( data );
- 
+
   }
 
 
