@@ -95,7 +95,7 @@ bool app_test41(
 
   ////////////////////
 
-// A is +10V. B is tap,   C is Gnd.
+// A is +10V. B is tap wrt gnd,   C is Gnd.
 // C is gnd referenced.
 
 // remember to read right to left
