@@ -20,12 +20,16 @@
 #include <data/matrix.h>  // m_rows()
 // #include <data/buffer.h>
 
+#include <lib2/util.h>    // yield_with_msleep
 
 #include <mode.h>       // transition state
 
 
 static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
 {
+  /*
+    we probably don't need to pass app here.
+  */
 
   data_t *data = app->data;
 
@@ -33,6 +37,9 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
   printf("change state\n");
   spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
 
+  // sleep?
+  // keep sleep time low, means less flicker wander
+  yield_with_msleep( 1 * 100, &app->system_millis, yield, yield_ctx);
 
   // reset the input data buffer
   // data->buffer = buffer_reset( data->buffer, 5 );
@@ -88,13 +95,22 @@ bool app_test41(
 
   ////////////////////
 
+// A is +10V. B is tap,   C is Gnd.
+// C is gnd referenced.
+
+// remember to read right to left
+#define A 0b11
+#define B 0b10
+#define C 0b00
+
+
 
 
   /*
     U1010
-    AB   0b1011
-    BC   0b0010
-    AC   0b0011
+    BA   0b1011     sw 1. not used. not quite right.
+    CB   0b0010
+    CA  0b0011
 
   */
   if( strcmp(cmd, "test41") == 0) {
@@ -114,35 +130,41 @@ bool app_test41(
     // we should use our current cal. not load a new one??
     // flash cal read 123;
 
+    // dcv-source cap; set u1010 0b1011 ;
     // setup a
     app_repl_statements(app, "                \
         reset;                                \
-        dcv-source cap; set u1010 0b1011 ;    \
+        dcv-source cap;     \
         set k407 0;   set k405 1;             \
         set lomux s1;                         \
         nplc 10; set mode 7 ; azero s3 s8;    \
         data show stats;  trig;               \
       " );
 
+
     double ar[ 5 ] ;
 
     for( unsigned i = 0; i < 5; ++i ) {
 
-      app_repl_statements(app, " set u1010 0b1011; trig;");
+      // app_repl_statements(app, " set u1010 0b1011; trig;");
+      app->mode_current->second.U1010 = (B << 2) | A ;      // BA 1011, A-B,  10V -TAP
+
       fill_buffer( app, yield, yield_ctx) ;
       double a  = m_get_mean( data->buffer );
       printf("a mean %lf\n", a );
 
 
-      // setup b
-      app_repl_statements(app, " set u1010 0b0010; trig;");
+      // app_repl_statements(app, " set u1010 0b0010; trig;");
+      app->mode_current->second.U1010 = (C << 2) | B ;      // CB  0010, B-C,  TAP-GND
+
       fill_buffer( app, yield, yield_ctx) ;
       double b  = m_get_mean( data->buffer );
       printf("b mean %lf\n", b);
 
 
-      // setup c.
-      app_repl_statements(app, " set u1010 0b0011; trig;");
+      // app_repl_statements(app, " set u1010 0b0011; trig;");
+      app->mode_current->second.U1010 = (C << 2) | A ;      // CA 0b0011, A-C, 10V-GND
+
       fill_buffer( app, yield, yield_ctx) ;
       double c  = m_get_mean( data->buffer );
       printf("c mean %lf\n", c);
@@ -176,13 +198,20 @@ bool app_test41(
 mar 28.
 
 
+For sum-tests,
+I spent quote some time trying to get two series 10u film caps to work.
+This included a lot of over-engineered muxing - for cap selection, and polarity, and to be able to charge to different spot voltages.
+But I couldn't avoid a constant leakage of -2uV/s probably to the negative rail (probably due to 0.65" ssop dpdt mux package).
+In the past I used relays, but that would be too cumbersome for a single board.
+
+Trying the battery approach,
 8x 1.2V enneloup batteries in a battery-holder with taps, switched manually
 Method - is sample AB for 10 readings, 10nplc, then BC (bottom half) , then AC (series ), take the means, and calculate the diff/delta.
 repeat 5 times.
 eg. diff = 4.8V + 4.8V - 9.6V
 
 
-reduce resolution, change series rundown bias-resistor from 220R to 1k. and new cal.
+After reducing resolution, change series rundown bias-resistor from 220R to 1k. and new cal.
 
 > data cal show
 Matrix: 3 by 1
@@ -251,6 +280,18 @@ diff -1.96uV
 diff -2.35uV
 diff -2.66uV
 diff -2.43uV
+
+I've only just got this working, and am not quite sure what to make of the offset.
+Probably it would be good to try the negative polarity, and I would like to experiment more with a two-variable weighting model for the adc reference currents.
+
+The board includes footprints for 8, and 10pin mdacs, for creating +- spot voltage and are working,
+these might be used to test inl in a sum-type ratio mode, through a polarity flip.
+But I forgot to add a resistor divider, which would need to be bodged.
+And I don't like the idea of lower-impedance source, as one cannot buffer the divider since the buffer Vos will not invert through the polarity refernce voltage flip.
+The mdacs look to be reasonbly low noise as far as I can tell.
+
+
+
 
 
 

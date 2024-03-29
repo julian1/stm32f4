@@ -47,7 +47,7 @@
 #include <ice40-reg.h>
 #include <peripheral/spi-ice40.h>
 
-#include <lib2/util.h>    // msleep
+#include <lib2/util.h>    // yield_with_msleep
 
 #include <mode.h>
 #include <util.h> // nplc_to_aperture()

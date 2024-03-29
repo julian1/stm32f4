@@ -40,7 +40,7 @@ bool app_test15( app_t *app , const char *cmd)
         we could verify with some checks.  */
 
       _mode_t mode = *app->mode_current;
- 
+
       ////////////////////////
       // phase 1, soak/charge accumulation cap
 
@@ -116,6 +116,74 @@ bool app_test15( app_t *app , const char *cmd)
 
 
 /*
+
+A quick update,
+
+One goal for a new board, is to change the copper features to improve the input switching parasitics, based on the previous experiments.
+The design now features traditional ring guards wherever leakage needs to be controlled.
+As well as a copper fill at BOOTIN potential, underneath the AZ mux, and surrounding the azmux node and amplifer jfets, to reduce capacitive loading.
+
+
+Lekage - input leakage can be tested by first charging 10n cap for 10sec, then turn off azmux and observe leakage by sampling boot.
+leakage looks very controlled.
+
+    > reset ; dcv-source 10; test05
+        0.57mV 0.54mV
+
+    > reset ; dcv-source 0; test05
+        0.7mV 0.8mV
+
+    > reset ; dcv-source -10; test05
+        1.2mV 1.1mV.
+
+
+Precharge switching,
+Change injection is constant at different input bias voltages - as expected due to the switch bootstapping.
+This can be improved/trimmed, by lowering the supply voltage on 4053, and trimming VEE relative to BOOT, with a bipolar current source.
+But I haven't bothered for the moment.
+Accumulated charge injection, nplc 1, on 10nF for 10s, using lv4053,
+
+    > reset ; dcv-source 10; nplc 1; test14
+      6mV. 6.4mV
+
+    > reset ; dcv-source 0; nplc 1; test14
+      7.2mV  7.2mV
+
+    > reset ; dcv-source -10; nplc 1; test14
+      7.8mV 7.6mV
+
+
+Normal Az switching,
+The copper fill at BOOTIN (copying the AZ input voltage), under the azmux works to suppress the capacitive loading of the switch-node output.
+
+    > reset ; dcv-source 10; nplc 1; test15
+      5.0mV 4.95mV
+
+    > reset ; dcv-source 0; nplc 1; test15
+      7.5mV 8.2mV
+
+    > reset ; dcv-source -10; nplc 1; test15
+      8.15mV.
+
+
+Board has two distinct input channels, with separate pre-charge switches.
+So four-cycle RM and AG (to compensate thermal walk of a high-gain amplifier) functions are possible,
+
+ratio of ref-hi, 10nplc, sampled on two separate channels,
+ratio, 3 of 4 meas 0.999,999,9 mean(10) 0.9999999V, stddev(10) 0.06uV,
+ratio, 0 of 4 meas 0.999,999,9 mean(10) 0.9999999V, stddev(10) 0.06uV,
+ratio, 1 of 4 meas 0.999,999,9 mean(10) 0.9999999V, stddev(10) 0.06uV,
+ratio, 2 of 4 meas 1.000,000,1 mean(10) 0.9999999V, stddev(10) 0.07uV,
+ratio, 3 of 4 meas 1.000,000,0 mean(10) 0.9999999V, stddev(10) 0.07uV,
+ratio, 0 of 4 meas 1.000,000,0 mean(10) 0.9999999V, stddev(10) 0.07uV,
+
+
+
+
+
+
+
+
 
   Mar 11.
 
