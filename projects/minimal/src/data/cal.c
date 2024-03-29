@@ -203,10 +203,10 @@ void data_cal(
       double y_ = 0;
       if(j == 0) {
         y_ = 7;   // ref-hi / 7V
-        mode_set_ref_source(  mode, 7);
+        mode_set_dcv_source_ref(  mode, 7);
       } else {
         y_ = 0;  // ref-lo / 0V
-        mode_set_ref_source(  mode, 0);
+        mode_set_dcv_source_ref(  mode, 0);
       }
 
       // start adc,

@@ -187,7 +187,7 @@ void mode_set_dcv_source( _mode_t *mode, signed i0)
 
 //    mode->second.U409 = S1;         // lo-mux,  source dcv-source-com which is ref-lo
 
-void mode_set_ref_source( _mode_t *mode, unsigned u0 )
+void mode_set_dcv_source_ref( _mode_t *mode, unsigned u0 )
 {
 
   // TODO U1012 should source a gnd, when add it
@@ -209,7 +209,7 @@ void mode_set_ref_source( _mode_t *mode, unsigned u0 )
 
 
 
-void mode_set_dac_source( _mode_t *mode, signed u0 )
+void mode_set_dcv_source_dac( _mode_t *mode, signed u0 )
 {
 
   if(u0 > 0) {
@@ -233,7 +233,7 @@ void mode_set_dac_source( _mode_t *mode, signed u0 )
 
 
 
-void mode_set_dac_source_cap( _mode_t *mode )
+void mode_set_dcv_source_header( _mode_t *mode )
 {
 
   mode->second.U1006  = S8;          // cap.
@@ -454,30 +454,32 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   */
 
   // +10,0,-10.    if increment. then could use the dac.
+  // perhaps change name dcv-source fixed
   if( sscanf(cmd, "dcv-source %ld", &i0 ) == 1) {
 
       // printf("set dcv-source, input relays, for current_mode\n");
       mode_set_dcv_source( mode, i0);
   }
 
+  // ref-hi , ref-lo
+  else if( strcmp(cmd, "dcv-source ref-hi") == 0)
+      mode_set_dcv_source_ref( mode, 7 );
+
+  else if( strcmp(cmd, "dcv-source ref-lo") == 0)
+      mode_set_dcv_source_ref( mode, 0 );
+
+
   else if( sscanf(cmd, "dcv-source dac %100s", s0) == 1
     && str_decode_uint( s0, &u0)) {
 
       // TODO perhaps should be able to handle +-
       // eg. dcv-source dac 0x3fff
-      mode_set_dac_source( mode, u0);
+      mode_set_dcv_source_dac( mode, u0);
   }
 
-  // ref-hi , ref-lo
-  else if( strcmp(cmd, "dcv-source ref-hi") == 0)
-      mode_set_ref_source( mode, 7 );
-
-  else if( strcmp(cmd, "dcv-source ref-lo") == 0)
-      mode_set_ref_source( mode, 0 );
-
   // cap
-  else if( strcmp(cmd, "dcv-source cap") == 0)
-    mode_set_dac_source_cap( mode);
+  else if( strcmp(cmd, "dcv-source header") == 0)
+    mode_set_dcv_source_header( mode);
 
 
 

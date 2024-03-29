@@ -363,11 +363,11 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 
 void mode_set_dcv_source( _mode_t *mode, signed i0);  // arg is 10,0,-10
 
-void mode_set_ref_source(  _mode_t *mode, unsigned u0 ); // 7 == ref-hi  or 0 == ref-lo
+void mode_set_dcv_source_ref(  _mode_t *mode, unsigned u0 ); // 7 == ref-hi  or 0 == ref-lo
 
-void mode_set_dac_source( _mode_t *mode, signed u0 );
+void mode_set_dcv_source_dac( _mode_t *mode, signed u0 );
 
-void mode_set_dac_source_cap( _mode_t *mode );
+void mode_set_dcv_source_header( _mode_t *mode );
 
 
 

@@ -103,9 +103,6 @@ bool app_test41(
 #define B 0b10
 #define C 0b00
 
-
-
-
   /*
     U1010
     BA   0b1011     sw 1. not used. not quite right.
@@ -120,21 +117,11 @@ bool app_test41(
       return 1;
     }
 
-
-    /* from test29
-    // sample external cap on dcv in boot mode, no pc or az switching/ high-impedance.
-    // with 10uF. cap  has leakage of several uV / s.
-      TODO - rename external cap. to external pin-header. or port or somehting.
-    */
-
-    // we should use our current cal. not load a new one??
-    // flash cal read 123;
-
-    // dcv-source cap; set u1010 0b1011 ;
+    // dcv-source header; set u1010 0b1011 ;
     // setup a
     app_repl_statements(app, "                \
         reset;                                \
-        dcv-source cap;     \
+        dcv-source header;     \
         set k407 0;   set k405 1;             \
         set lomux s1;                         \
         nplc 10; set mode 7 ; azero s3 s8;    \

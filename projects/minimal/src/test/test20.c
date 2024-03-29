@@ -257,7 +257,7 @@ bool app_test20(
     app_repl_statements(app, "                \
         flash cal read 123;                   \
         reset;                                \
-        dcv-source cap; set u1010 0b1011 ;    \
+        dcv-source header; set u1010 0b1011 ;    \
         set k407 0;   set k405 1;             \
         nplc 10; set mode 7 ; boot s3;  trig; \
       " );
@@ -273,7 +273,7 @@ bool app_test20(
     app_repl_statements(app, "                \
         flash cal read 123;                   \
         reset;                                \
-        dcv-source cap; set u1010 0b0010;    \
+        dcv-source header; set u1010 0b0010;    \
         set k407 0;   set k405 1;             \
         nplc 10; set mode 7 ; boot s3;  trig; \
       " );
@@ -288,7 +288,7 @@ bool app_test20(
     app_repl_statements(app, "                \
         flash cal read 123;                   \
         reset;                                \
-        dcv-source cap; set u1010 0b0011;    \
+        dcv-source header; set u1010 0b0011;    \
         set k407 0;   set k405 1;             \
         nplc 10; set mode 7 ; boot s3;  trig; \
       " );
