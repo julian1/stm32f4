@@ -178,18 +178,18 @@ bool app_test41(
 
       app->mode_current->second.U1010 = (A << 2) | B ;      // B-A,  TAP-10V
       fill_buffer( app, yield, yield_ctx) ;
-      double bag  = m_get_mean( data->buffer );
-      printf("a-b mean %lf\n", bag );
+      double ba  = m_get_mean( data->buffer );
+      printf("b-a mean %lf\n", ba );
 
       app->mode_current->second.U1010 = (B << 2) | C ;      // C-B,  GND-TAP
       fill_buffer( app, yield, yield_ctx) ;
       double cb  = m_get_mean( data->buffer );
-      printf("b-c mean %lf\n", cb);
+      printf("c-b mean %lf\n", cb);
 
       app->mode_current->second.U1010 = (A << 2) | C ;      // C-A, GND-10V
       fill_buffer( app, yield, yield_ctx) ;
       double ca  = m_get_mean( data->buffer );
-      printf("a-c mean %lf\n", ca);
+      printf("c-a mean %lf\n", ca);
 
       app->mode_current->second.U1010 = (B << 2) | B ;      // B-B, TAP-TAP. on dcv-source-1 and dcv-source-com, from different inputs
       fill_buffer( app, yield, yield_ctx) ;
