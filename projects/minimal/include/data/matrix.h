@@ -46,6 +46,7 @@ void m_push_row( MAT *m, double *xs, size_t n );
 MAT	*m_element_mlt(const MAT *mat1, const MAT *mat2, MAT *out);
 MAT	*m_element_div(const MAT *mat1, const MAT *mat2, MAT *out);
 MAT	*m_element_sub(const MAT *mat1, const MAT *mat2, MAT *out);
+MAT *m_element_add(const MAT *mat1, const MAT *mat2, MAT *out);
 
 
 MAT	*m_from_scalar( double val, MAT *out );

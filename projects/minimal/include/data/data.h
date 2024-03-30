@@ -66,6 +66,16 @@ typedef struct data_t
 
   /////////////////
 
+  /*
+      Should we use a buffer here.   A simple double float array might be easier. 
+      And we can compute means(), stddev() on it ok.
+
+      - The thing we do with truncate_rows(),  rather than setting an index. is it adding complexity?
+      When we want to substitute - the buffer.
+
+      - could also just have a function pointer, ctx.    new_measurement ( fp, ctx. double val ) 
+  */
+
   // data buffer
   MAT  *buffer;
 
@@ -93,6 +103,7 @@ typedef struct data_t
 
 void data_init ( data_t *);
 
+void data_reading_reset( data_t *data );
 void data_reset( data_t * data );
 
 

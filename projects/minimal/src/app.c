@@ -676,6 +676,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
   else if( app_test20( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
   else if( app_test40( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
   else if( app_test41( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
+  else if( app_test42( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
 
 
   else {

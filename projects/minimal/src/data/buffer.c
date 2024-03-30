@@ -37,7 +37,7 @@ MAT * buffer_reset( MAT *buffer, uint32_t sz)
     M_FREE(buffer);
   }
 
-  buffer    = m_resize( buffer, sz , 1 );
+  buffer    = m_resize( buffer, sz , 1 );   // rows x cols
 
   buffer    = m_zero( buffer ) ;    // just in case, probably not needed.
   buffer    = m_truncate_rows( buffer, 0 );

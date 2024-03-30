@@ -220,6 +220,26 @@ MAT *m_element_sub(const MAT *mat1, const MAT *mat2, MAT *out)
 }
 
 
+MAT *m_element_add(const MAT *mat1, const MAT *mat2, MAT *out)
+{
+  unsigned int  m,n,i, j;
+
+  if ( mat1==(MAT *)NULL || mat2==(MAT *)NULL )
+    error(E_NULL,"m_element_sub");
+  if ( mat1->m != mat2->m || mat1->n != mat2->n )
+    error(E_SIZES,"m_element_sub");
+  if ( out==(MAT *)NULL || out->m != mat1->m || out->n != mat1->n )
+    out = m_resize(out,mat1->m,mat1->n);
+  m = mat1->m;  n = mat1->n;
+
+  for ( i=0; i<m; i++ )
+  for ( j=0; j<n; j++ )
+      out->me[i][j] = mat1->me[i][j] + mat2->me[i][j];
+
+  return (out);
+}
+
+
 
 
 

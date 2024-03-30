@@ -47,10 +47,22 @@ void data_init( data_t *data)
 
 
 
+void data_reading_reset( data_t *data )
+{
+  // clear the reading buffers,
+  // but leave the buffer alone
+  memset( data->reading, 0, sizeof( data->reading));
+  memset( data->reading_last, 0, sizeof( data->reading_last));
+}
+
+
 
 void data_reset( data_t * data )
 {
 /*
+    normal buffer handling
+
+    ---
     there's no reason this needs to make calls on the buffer, to change memory etc,
     buffer is expected to be appropriately sized.
     we just need need to truncate the rows, and reset the insert idx.
@@ -59,19 +71,13 @@ void data_reset( data_t * data )
   // rename
   assert(data);
   assert(data->magic == DATA_MAGIC);
-
-
   assert(data->buffer);
 
-  m_truncate_rows( data->buffer, 0 );               // truncate vertical length.
+  m_truncate_rows( data->buffer, 0 );  // reset buffer, truncate vertical length.
 
-  data->buffer_idx = 0;
+  data->buffer_idx = 0;                // reset overflow index, rename?
 
-
-  // clear buffers, so we can detect if have enough vals to compute reading
-  memset( data->reading, 0, sizeof( data->reading));
-  memset( data->reading_last, 0, sizeof( data->reading_last));
-
+  data_reading_reset( data);            // reset the reading buffer
 }
 
 
@@ -521,6 +527,8 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
         printf(" ");
         buffer_stats_print( data->buffer );
       }
+    } else { 
+      // printf( "no cal or computed val\n");
     }
 
   }
