@@ -94,16 +94,28 @@ static void handler_scan_cal( FILE *f, blob_header_t *header, data_t *data )
 
   if(header->id == 108) {
 
-    // read the data
-    fread( &data->model_id,                 sizeof(data->model_id), 1, f);
-    fread( &data->model_cols,               sizeof(data->model_cols), 1, f);
-    fread( &data->model_sigma_div_aperture, sizeof(data->model_sigma_div_aperture), 1, f);
+    unsigned model_id;
+    fread( &model_id,  sizeof(model_id), 1, f);
 
-    data->model_b = m_finput_binary(f, MNULL);
+    printf("found model_id %u", model_id);
 
-    // payload should be readable.
-    printf("loaded cal OK\n");
+    if(model_id == data->model_id_to_load) {
+      // || data->model_id_to_load == -1    // to always load, and thus get the most recent.
 
+      data->model_id = model_id;
+
+      // read the rest of the data
+      fread( &data->model_cols,               sizeof(data->model_cols), 1, f);
+      fread( &data->model_sigma_div_aperture, sizeof(data->model_sigma_div_aperture), 1, f);
+
+      data->model_b = m_finput_binary(f, MNULL);
+
+      // payload should be readable.
+      printf(", loaded cal OK\n");
+    } else {
+
+      printf(", ignore\n");
+    }
   }
 }
 
@@ -141,13 +153,14 @@ bool data_flash_repl_statement( data_t *data, const char *cmd)
   }
 
 
-  else if(sscanf(cmd, "flash cal save %lu", &u0 ) == 1) {
+  else if(sscanf(cmd, "flash cal write %lu", &u0 ) == 1) {
 
-    // u0 arg ignored at moment,
     if(!data->model_b) {
       printf("no cal!\n");
       return 1;
     }
+
+    data->model_id = u0;
 
     // now save to flash
     printf("flash unlock\n");
@@ -166,33 +179,14 @@ bool data_flash_repl_statement( data_t *data, const char *cmd)
     return 1;
   }
 
-/*
-  else if(sscanf(cmd, "flash cal save %lu", &u0 ) == 1) {
-
-    if(!data->model_b) {
-      printf("no cal!\n");
-      return 1;
-    }
-
-    // now save to flash
-    printf("flash unlock\n");
-    flash_unlock();
-
-    FILE *f = flash_open_file( FLASH_SECT_ADDR );
-    file_blob_skip_end( f);
-    // use callback to write the block.
-    file_blob_write( f,  (void (*)(FILE *, blob_header_t *, void *)) handler_write_cal, data->model_b );
-    fclose(f);
-
-    printf("flash lock\n");
-    flash_lock();
-    printf("done\n");
-    return 1;
-  }
-*/
 
   // change name load?
   else if(sscanf(cmd, "flash cal read %lu", &u0 ) == 1) {
+
+    // OK. we don't want to override the model_id, if we don't find a valid cal.
+    // so use a separate variable.
+
+    data->model_id_to_load = u0;
 
     printf("flash unlock\n");
     flash_unlock();

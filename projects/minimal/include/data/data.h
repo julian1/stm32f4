@@ -40,6 +40,8 @@ typedef struct data_t
   // unsigned verbose;     // treated as bool at the moment
 
   /////////////////
+
+  unsigned model_id_to_load;
   /*
     perhaps remove. since only used to produce the cal.
     so just pass as arg when cal process is called
