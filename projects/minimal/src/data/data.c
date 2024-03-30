@@ -590,6 +590,8 @@ void data_update_new_reading(data_t *data, uint32_t spi)
   and make the model the first arg.
 
   REVIEW - perhaps move to cal. because the model that defines this, is determined in cal
+
+  rename mode_spec_cols() .   eg. arg first.
 */
 
 
@@ -598,11 +600,10 @@ unsigned cols_in_model( unsigned model_spec )
 
   switch(model_spec) {
 
-    case 2: return 2; 
+    case 2: return 2;
     case 21: return 3;
-    case 3: return 3; 
-    case 31: return 4; 
-
+    case 3: return 3;
+    case 31: return 4;
     default:
       assert(0);
   }
@@ -611,7 +612,7 @@ unsigned cols_in_model( unsigned model_spec )
 }
 
 
-
+// rename counts_to_m.
 
 MAT * run_to_matrix(
     // const Run *run,
