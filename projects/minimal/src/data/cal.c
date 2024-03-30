@@ -154,7 +154,7 @@ void data_cal(
 
 
   // storage
-  MAT *xs       = m_get(max_rows, cols_in_model( data->model_spec ));
+  MAT *xs       = m_get(max_rows, model_spec_cols( data->model_spec ));
   MAT *y        = m_get(max_rows, 1);
   MAT *aperture = m_get(max_rows, 1); // required to calc predicted
   MAT *row      = NULL;
@@ -244,7 +244,7 @@ void data_cal(
         // at least adc_counts_to_model()
         // taking model as first arg
 
-        row = run_to_matrix( clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, cols_in_model(data->model_spec), row);
+        row = run_to_matrix( clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, model_spec_cols(data->model_spec), row);
 
         mat_set_row( xs,       row_idx,  row ) ;
         vec_set_val( y,        row_idx,   y_  *  clk_count_mux_sig );

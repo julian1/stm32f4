@@ -584,18 +584,9 @@ void data_update_new_reading(data_t *data, uint32_t spi)
 
 
 
-/*
-
-  rename name row_to_matrix() or to   adc_counts_to_model() or similar.
-  and make the model the first arg.
-
-  REVIEW - perhaps move to cal. because the model that defines this, is determined in cal
-
-  rename mode_spec_cols() .   eg. arg first.
-*/
 
 
-unsigned cols_in_model( unsigned model_spec )
+unsigned model_spec_cols( unsigned model_spec )
 {
 
   switch(model_spec) {
@@ -611,6 +602,14 @@ unsigned cols_in_model( unsigned model_spec )
   return -1; // compiler
 }
 
+
+
+/*
+
+  rename   adc_counts_to_m similar.
+  and make the model the first arg.
+  REVIEW - perhaps move to cal. because the model that defines this, is determined in cal
+*/
 
 // rename counts_to_m.
 

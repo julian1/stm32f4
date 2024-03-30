@@ -123,7 +123,7 @@ void data_cal(
 
 */
 
-unsigned cols_in_model( unsigned model_spec );
+unsigned model_spec_cols( unsigned model_spec );
 
 MAT * run_to_matrix( uint32_t clk_count_mux_neg, uint32_t clk_count_mux_pos, uint32_t clk_count_mux_rd, unsigned model, MAT * out);
 
