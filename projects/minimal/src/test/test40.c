@@ -54,8 +54,10 @@ bool app_test40(
     // we want the data_reset after the adc is running.
 
     if( !data->model_b) {
-      printf("no cal model\n");
-      return 1;
+      printf("no cal model - loading one\n");
+
+      app_repl_statements(app, "flash cal read 123;");
+      // return 1;
     }
 
     app_repl_statements(app, "        \

@@ -35,20 +35,29 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
 
   // start acquisition, generating interupts, which sets data ready flags, which we ignore for the moemnt. - with trig
   printf("change state\n");
+
+  // we need to toggle the trigger/ reset of sa controller. to get clean values.
+  // we should do  this via the register.
+  app->mode_current->trigger_source_internal = 1;
+
   spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+
 
   // sleep?
   // keep sleep time low, means less flicker wander
-  yield_with_msleep( 1 * 100, &app->system_millis, yield, yield_ctx);
+  // yield_with_msleep( 1 * 100, &app->system_millis, yield, yield_ctx);
 
   // reset the input data buffer
   // data->buffer = buffer_reset( data->buffer, 5 );
   data_reset( data );
 
+  printf("waiting for data\n");
+
   // start the yield loop, and wait for buffer to fill
   while( m_rows(data->buffer ) < m_rows_reserve(data->buffer) ) {
     yield( yield_ctx);
   }
+
 
   // stop sample acquisition, perhaps unnecessary
   app->mode_current->trigger_source_internal = 0;
@@ -62,6 +71,9 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
 
 static double m_get_mean( MAT *buffer )
 {
+  // rename m_get_mean_as_scalar
+  // should assert single column.
+
   // take the mean of the buffer.
   MAT *mean = m_mean( buffer, MNULL );
   assert( m_is_scalar( mean ));
@@ -92,84 +104,124 @@ bool app_test41(
   assert(data);
   assert(data->magic == DATA_MAGIC);
 
-
   ////////////////////
 
-// A is +10V. B is tap wrt gnd,   C is Gnd.
+/* A is +10V. B is tap wrt gnd,   C is Gnd.
 // C is gnd referenced.
+*/
 
-// remember to read right to left
+// remember to read right to left, for the bitwise encoding for the mux
+// could also name this as a 3-way select.  like S1-8, or W1-4.  eg.
 #define A 0b11
 #define B 0b10
 #define C 0b00
 
   /*
-    U1010
-    BA   0b1011     sw 1. not used. not quite right.
-    CB   0b0010
-    CA  0b0011
+    It is easier to think about as A-B,   etc.
+    it is just the codeing when passed to the mux that has the order swapped
 
   */
   if( strcmp(cmd, "test41") == 0) {
 
+
+    if( !data->model_b) {
+      printf("no cal model - loading one\n");
+      app_repl_statements(app, "flash cal read 123;");
+      // return 1;
+    }
+/*
     if( !data->model_b) {
       printf("no cal model\n");
       return 1;
     }
+*/
 
-    // dcv-source header; set u1010 0b1011 ;
-    // setup a
+    // setup
     app_repl_statements(app, "                \
         reset;                                \
         dcv-source header;     \
         set k407 0;   set k405 1;             \
         set lomux s1;                         \
         nplc 10; set mode 7 ; azero s3 s8;    \
+        data buffer size 5                    \
         data show stats;  trig;               \
       " );
 
 
     double ar[ 5 ] ;
+    double ar_bb[ 5 ] ;
 
     for( unsigned i = 0; i < 5; ++i ) {
-
-      // app_repl_statements(app, " set u1010 0b1011; trig;");
-      app->mode_current->second.U1010 = (B << 2) | A ;      // BA 1011, A-B,  10V -TAP
-
+#if 0
+      app->mode_current->second.U1010 = (B << 2) | A ;      // A-B,  10V -TAP
       fill_buffer( app, yield, yield_ctx) ;
-      double a  = m_get_mean( data->buffer );
-      printf("a mean %lf\n", a );
+      double ab  = m_get_mean( data->buffer );
+      printf("a-b mean %lf\n", ab );
 
-
-      // app_repl_statements(app, " set u1010 0b0010; trig;");
-      app->mode_current->second.U1010 = (C << 2) | B ;      // CB  0010, B-C,  TAP-GND
-
+      app->mode_current->second.U1010 = (C << 2) | B ;      // B-C,  TAP-GND
       fill_buffer( app, yield, yield_ctx) ;
-      double b  = m_get_mean( data->buffer );
-      printf("b mean %lf\n", b);
+      double bc  = m_get_mean( data->buffer );
+      printf("b-c mean %lf\n", bc);
 
-
-      // app_repl_statements(app, " set u1010 0b0011; trig;");
-      app->mode_current->second.U1010 = (C << 2) | A ;      // CA 0b0011, A-C, 10V-GND
-
+      app->mode_current->second.U1010 = (C << 2) | A ;      // A-C, 10V-GND
       fill_buffer( app, yield, yield_ctx) ;
-      double c  = m_get_mean( data->buffer );
-      printf("c mean %lf\n", c);
+      double ac  = m_get_mean( data->buffer );
+      printf("a-c mean %lf\n", ac);
 
-      double diff = a + b - c;
+      app->mode_current->second.U1010 = (B << 2) | B ;      // B-B, TAP-TAP. on dcv-source-1 and dcv-source-com, from different inputs
+      fill_buffer( app, yield, yield_ctx) ;
+      double bb = m_get_mean( data->buffer );
+      printf("b-b mean %lf\n", bb);
+
+      double diff = ab + bc - ac;   // store
+#endif
+
+      app->mode_current->second.U1010 = (A << 2) | B ;      // B-A,  TAP-10V
+      fill_buffer( app, yield, yield_ctx) ;
+      double bag  = m_get_mean( data->buffer );
+      printf("a-b mean %lf\n", bag );
+
+      app->mode_current->second.U1010 = (B << 2) | C ;      // C-B,  GND-TAP
+      fill_buffer( app, yield, yield_ctx) ;
+      double cb  = m_get_mean( data->buffer );
+      printf("b-c mean %lf\n", cb);
+
+      app->mode_current->second.U1010 = (A << 2) | C ;      // C-A, GND-10V
+      fill_buffer( app, yield, yield_ctx) ;
+      double ca  = m_get_mean( data->buffer );
+      printf("a-c mean %lf\n", ca);
+
+      app->mode_current->second.U1010 = (B << 2) | B ;      // B-B, TAP-TAP. on dcv-source-1 and dcv-source-com, from different inputs
+      fill_buffer( app, yield, yield_ctx) ;
+      double bb = m_get_mean( data->buffer );
+      printf("b-b mean %lf\n", bb);
+
+      double diff = ba + cb - ca;   // store
       ar[i] = diff;
 
-      // printf("diff %.6lf\n", diff);
+      ar_bb[i] = bb;
+
+      printf("-------\n");
       printf("diff %.2lfuV\n", diff * 1e6);
+      printf("bb   %.2lfuV\n", bb * 1e6);
     }
-    printf("--\n");
+
+
+    printf("-------\n");
+
     for( unsigned i = 0; i < 5; ++i ) {
 
-      printf("diff %.2lfuV\n", ar[i ] * 1e6);
+      printf("diff %.2lfuV", ar[i ] * 1e6);
+      printf(", bb %.2lfuV", ar_bb[i ] * 1e6);
+      printf("\n");
     }
 
 
     // check_data( == 7.000 )  etc.
+
+
+    app->mode_current->trigger_source_internal = 0;
+
     return 1;
   }
 
@@ -182,9 +234,134 @@ bool app_test41(
 
 /*
 
-mar 28.
+mar 30.
+
+  get a baseline.  in both directions.  and plot
+  - then fix gnd current comp.
+  - and remove extra mux. and jumper
+  - and try two var cal.
+
+> data cal show
+Matrix: 3 by 1
+row 0:     17.4986934
+row 1:    -17.9358312
+row 2:   -0.458200302
+model_id    0
+model_cols  3
+stderr(V)   0.86uV  (nplc10)
+res         0.115uV  digits      7.94 (nplc 10)calling spi_mode_transition_state()
+
+positive
+double diff = ab + bc - ac;   // store
+
+4.8 tap.
+
+diff -3.85uV, bb -0.87uV
+diff -2.69uV, bb -0.10uV
+diff -1.94uV, bb -1.07uV
+diff -4.47uV, bb -1.05uV
+diff -4.15uV, bb -1.44uV
+
+2.4
+diff -4.83uV, bb -1.23uV
+diff -4.02uV, bb -1.44uV
+diff -4.65uV, bb -0.38uV
+diff -3.56uV, bb -1.56uV
+diff -5.22uV, bb -1.81uV
+
+7.2
+diff -3.43uV, bb -1.91uV
+diff -4.30uV, bb -0.62uV
+diff -4.08uV, bb -1.23uV
+diff -3.28uV, bb -0.55uV
+diff -3.97uV, bb -1.15uV
+
+3.6
+diff -7.96uV, bb -1.17uV
+diff -4.89uV, bb -0.93uV
+diff -4.98uV, bb -0.92uV
+diff -6.19uV, bb -0.55uV
+diff -6.13uV, bb -0.87uV
+
+6.0
+diff -5.18uV, bb -0.64uV
+diff -6.04uV, bb -1.40uV
+diff -5.46uV, bb -0.85uV
+diff -5.01uV, bb -1.10uV
+diff -5.35uV, bb -1.39uV
+
+1.2
+diff -6.36uV, bb -0.92uV
+diff -4.58uV, bb -1.28uV
+diff -6.08uV, bb -1.19uV
+diff -6.07uV, bb -1.43uV
+diff -5.10uV, bb -1.00uV
+
+8.4
+diff -4.53uV, bb -1.71uV
+diff -6.24uV, bb -1.84uV
+diff -4.71uV, bb -1.20uV
+diff -5.75uV, bb -1.18uV
+diff -5.16uV, bb -0.79uV
 
 
+negative
+double diff = ba + cb - ca;   // store
+
+4.8 tap.
+diff 3.78uV, bb -1.21uV
+diff 2.69uV, bb -0.68uV
+diff 2.47uV, bb -1.16uV
+diff 1.85uV, bb -1.10uV
+diff 1.84uV, bb -0.95uV
+
+2.4
+diff 0.55uV, bb -0.52uV
+diff 0.23uV, bb -1.07uV
+diff 1.44uV, bb -0.81uV
+diff -0.18uV, bb -0.60uV
+diff -0.30uV, bb -1.66uV
+
+7.2
+diff 0.75uV, bb -1.79uV
+diff 1.09uV, bb -0.68uV
+diff 1.62uV, bb -1.83uV
+diff 0.68uV, bb -1.46uV
+diff -0.13uV, bb -1.18uV
+
+3.6
+diff 0.98uV, bb -1.52uV
+diff -1.14uV, bb -0.69uV
+diff -1.20uV, bb -1.49uV
+diff -1.87uV, bb -1.11uV
+diff -2.22uV, bb -1.00uV
+
+6.0
+diff 0.35uV, bb -1.07uV
+diff -2.53uV, bb -1.71uV
+diff -2.50uV, bb -1.29uV
+diff -1.04uV, bb -1.65uV
+diff -2.38uV, bb -1.60uV
+
+1.2
+diff -2.67uV, bb -1.92uV
+diff -2.61uV, bb -1.08uV
+diff -1.54uV, bb -1.24uV
+diff -1.71uV, bb -1.71uV
+diff -1.95uV, bb -0.48uV
+
+8.4
+diff -1.57uV, bb -0.60uV
+diff -3.30uV, bb -0.62uV
+diff -2.36uV, bb -1.16uV
+diff -3.39uV, bb -1.81uV
+diff -3.81uV, bb -1.18uV
+
+
+
+
+
+---------------------
 For sum-tests,
 I spent quote some time trying to get two series 10u film caps to work.
 This included a lot of over-engineered muxing - for cap selection, and polarity, and to be able to charge to different spot voltages.
