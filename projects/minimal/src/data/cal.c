@@ -97,19 +97,17 @@ void data_cal_show( data_t *data )
   m_foutput( stdout, data->model_b );
 
   printf("model_id    %u\n", data->model_id );
-  printf("model_cols  %u\n", data->model_cols );
-
-  // print some stats
-  uint32_t aperture_          = nplc_to_aperture( 10, data->line_freq );
+  printf("model_spec  %u\n", data->model_spec );
 
   printf("stderr(V)   %.2fuV  (nplc10)\n", data->model_sigma_div_aperture * 1e6); // in uV.
 
+#if 0
+
+  // none of this works with a two variable model.
+  // print some stats
+  uint32_t aperture_          = nplc_to_aperture( 10, data->line_freq );
+
   double last_b   = m_get_val(data->model_b ,   0,   m_rows( data->model_b) - 1);
-
-
-  ///////////////
-  // data_print_slope_b_detail( aperture_, last_b);
-
   double   res        = fabs( last_b / aperture_ ); // in V
   // could also work out the implied count here.
 
@@ -117,6 +115,7 @@ void data_cal_show( data_t *data )
   printf("digits      %.2f (nplc 10)", log10( 10.f / res));   // ie. decimal=10 not +-11V
   // printf("bits %.2f ", log2( res));           // correct?   or should be aperture / slobe_b ?
 
+#endif
 
 }
 
@@ -124,13 +123,13 @@ void data_cal_show( data_t *data )
 
 
 void data_cal(
-    data_t *data ,
-    uint32_t spi,
-    _mode_t *mode,
-    unsigned model_cols,
-    volatile uint32_t *system_millis,
-    void (*yield)( void * ),
-    void * yield_ctx
+  data_t *data ,
+  uint32_t spi,
+  _mode_t *mode,
+  unsigned model_spec,
+  volatile uint32_t *system_millis,
+  void (*yield)( void * ),
+  void * yield_ctx
 )
 {
   assert(data);
@@ -143,7 +142,7 @@ void data_cal(
 
 
   // note that we are comitted, at this point, by setting fields on data
-  data->model_cols = model_cols;
+  data->model_spec = model_spec;
 
 
   const unsigned obs_to_take_n = 7; // how many obs to take
@@ -155,7 +154,7 @@ void data_cal(
 
 
   // storage
-  MAT *xs       = m_get(max_rows, data->model_cols );
+  MAT *xs       = m_get(max_rows, cols_in_model( data->model_spec ));
   MAT *y        = m_get(max_rows, 1);
   MAT *aperture = m_get(max_rows, 1); // required to calc predicted
   MAT *row      = NULL;
@@ -244,7 +243,8 @@ void data_cal(
         // consider rename. this is more model_encode_row_from_counts()) - according to the model.
         // at least adc_counts_to_model()
         // taking model as first arg
-        row = run_to_matrix( clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, data->model_cols, row);
+
+        row = run_to_matrix( clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, cols_in_model(data->model_spec), row);
 
         mat_set_row( xs,       row_idx,  row ) ;
         vec_set_val( y,        row_idx,   y_  *  clk_count_mux_sig );

@@ -317,7 +317,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
         clk_count_mux_rd,
 
         // what model here,
-        // data->model_cols,
+        // data->model_spec,
         m_rows( data->model_b ),       // why not just use data->b here, and conform to what the model requires???
         MNULL
       );
@@ -506,7 +506,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
       if(sample_seq_mode == SEQ_MODE_RATIO)
         printf(" meas %s", str_format_float_with_commas(buf, 100, 7, computed_val));
       else
-        printf(" meas %sV", str_format_float_with_commas(buf, 100, 8, computed_val));
+        printf(" meas %sV", str_format_float_with_commas(buf, 100, 7, computed_val));
 
       /*
         can drive this with policy arg/flag.
@@ -586,12 +586,31 @@ void data_update_new_reading(data_t *data, uint32_t spi)
 
 /*
 
-  rename name row_to_matrix() to   model_adc_counts_to_m() or similar.
+  rename name row_to_matrix() or to   adc_counts_to_model() or similar.
   and make the model the first arg.
 
-  REVIEW - should go in cal. because the model that defines. is part of the cal
-
+  REVIEW - perhaps move to cal. because the model that defines this, is determined in cal
 */
+
+
+unsigned cols_in_model( unsigned model_spec )
+{
+
+  switch(model_spec) {
+
+    case 2: return 2; 
+    case 21: return 3;
+    case 3: return 3; 
+    case 31: return 4; 
+
+    default:
+      assert(0);
+  }
+
+  return -1; // compiler
+}
+
+
 
 
 MAT * run_to_matrix(
@@ -599,7 +618,7 @@ MAT * run_to_matrix(
     uint32_t clk_count_mux_neg,
     uint32_t clk_count_mux_pos,
     uint32_t clk_count_mux_rd,
-    unsigned model,
+    unsigned model_spec,
     MAT * out
 )
 {
@@ -619,48 +638,53 @@ MAT * run_to_matrix(
     out = m_get(1,1);
 
 
-  if(model == 2) {
-    /*
-      more constrained.
-      rundown that has both currents on - just sums
-      this is nice because doesn't require anything on fpga side.
-    */
+  switch(model_spec) {
 
-    out = m_resize(out, 1, 2);
-    m_set_val( out, 0, 0,  clk_count_mux_neg + clk_count_mux_rd );
-    m_set_val( out, 0, 1,  clk_count_mux_pos + clk_count_mux_rd  );
-  }
+    case 2: {
+      /*
+        more constrained.
+        rundown that has both currents on - just sums
+        this is nice because doesn't require anything on fpga side.
+      */
+      out = m_resize(out, 1, 2);
+      m_set_val( out, 0, 0,  clk_count_mux_neg + clk_count_mux_rd );
+      m_set_val( out, 0, 1,  clk_count_mux_pos + clk_count_mux_rd  );
+      break;
+      }
+
+    case 21: {
+      out = m_resize(out, 1, 3);
+      m_set_val( out, 0, 0,  1.f );   // ones, offset
+      m_set_val( out, 0, 1,  clk_count_mux_neg + clk_count_mux_rd );
+      m_set_val( out, 0, 2,  clk_count_mux_pos + clk_count_mux_rd  );
+    break;
+    }
 
 
-  else if(model == 21) {
+    case 3: {
+      out = m_resize(out, 1, 3);
+      m_set_val( out, 0, 0,  clk_count_mux_neg );
+      m_set_val( out, 0, 1,  clk_count_mux_pos );
+      m_set_val( out, 0, 2,  clk_count_mux_rd );
+      break;
+    }
 
-    out = m_resize(out, 1, 3);
-    m_set_val( out, 0, 0,  1.f );   // ones, offset
-    m_set_val( out, 0, 1,  clk_count_mux_neg + clk_count_mux_rd );
-    m_set_val( out, 0, 2,  clk_count_mux_pos + clk_count_mux_rd  );
-  }
+    case 31: {
 
+      out = m_resize(out, 1, 4);
+      m_set_val( out, 0, 0,  1.f ); // ones, offset
+      m_set_val( out, 0, 1,  clk_count_mux_neg );
+      m_set_val( out, 0, 2,  clk_count_mux_pos );
+      m_set_val( out, 0, 3,  clk_count_mux_rd);
+      break;
+    }
 
-
-  else if( model == 3) {
-
-    out = m_resize(out, 1, 3);
-    m_set_val( out, 0, 0,  clk_count_mux_neg );
-    m_set_val( out, 0, 1,  clk_count_mux_pos );
-    m_set_val( out, 0, 2,  clk_count_mux_rd );
-  }
-
-  else if ( model == 31) {
-
-    out = m_resize(out, 1, 4);
-    m_set_val( out, 0, 0,  1.f ); // ones, offset
-    m_set_val( out, 0, 1,  clk_count_mux_neg );
-    m_set_val( out, 0, 2,  clk_count_mux_pos );
-    m_set_val( out, 0, 3,  clk_count_mux_rd);
+    default:
+      assert(0);
   }
 
 #if 0
-  else if( model == 5) {
+  else if( model_spec == 5) {
 
     out = m_resize(out, 1, 4);
     m_set_val( out, 0, 0,  x0 );
@@ -671,7 +695,6 @@ MAT * run_to_matrix(
 #endif
 
 
-  else assert( 0);
 
   return out;
 }
@@ -820,7 +843,7 @@ bool data_repl_statement( data_t *data,  const char *cmd )
       // shouldn't happen if arm is working.
       printf("m_cols(xs) != m_rows( b) \n");
 
-      printf("app->cols   %u\n", data->model_cols );
+      printf("app->cols   %u\n", data->model_spec );
       printf("app->b cols %u\n", m_cols( data->b ) );
       printf("app->b rows %u\n", m_rows( data->b ) );
       printf("xs     cols %u\n", m_cols( xs ) );

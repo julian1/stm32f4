@@ -48,7 +48,7 @@ typedef struct data_t
     - except can be used to encode model representatino if have two models with same number of coefficients
   */
   unsigned model_id;
-  unsigned model_cols; // to use.
+  unsigned model_spec; // to use.
 
   MAT *model_b;           // consider rename cal_b or model_b ?
 
@@ -108,7 +108,7 @@ void data_cal(
     data_t *data ,
     uint32_t spi,
     _mode_t *mode,
-    unsigned model_cols,
+    unsigned model_spec,
     volatile uint32_t *system_millis,
     void (*yield)( void * ),
     void * yield_ctx
@@ -122,6 +122,8 @@ void data_cal(
   and make the model the first arg.
 
 */
+
+unsigned cols_in_model( unsigned model_spec );
 
 MAT * run_to_matrix( uint32_t clk_count_mux_neg, uint32_t clk_count_mux_pos, uint32_t clk_count_mux_rd, unsigned model, MAT * out);
 

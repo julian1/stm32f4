@@ -75,7 +75,7 @@ static void handler_write_cal( FILE *f, blob_header_t *header,  data_t *data )  
 
   // write the data
   fwrite( &data->model_id,                  sizeof(data->model_id), 1, f);
-  fwrite( &data->model_cols,                sizeof(data->model_cols), 1, f);
+  fwrite( &data->model_spec,                sizeof(data->model_spec), 1, f);
   fwrite( &data->model_sigma_div_aperture,  sizeof(data->model_sigma_div_aperture), 1, f);
 
   m_foutput_binary( f, data->model_b);
@@ -105,7 +105,7 @@ static void handler_scan_cal( FILE *f, blob_header_t *header, data_t *data )
       data->model_id = model_id;
 
       // read the rest of the data
-      fread( &data->model_cols,               sizeof(data->model_cols), 1, f);
+      fread( &data->model_spec,               sizeof(data->model_spec), 1, f);
       fread( &data->model_sigma_div_aperture, sizeof(data->model_sigma_div_aperture), 1, f);
 
       data->model_b = m_finput_binary(f, MNULL);
