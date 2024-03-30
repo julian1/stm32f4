@@ -90,7 +90,7 @@ static void handler_scan_cal( FILE *f, blob_header_t *header, data_t *data )
   assert(data);
   assert(data->magic == DATA_MAGIC);
 
-  // printf("whoot got blob id=%u len=%u\n", header->id, header->len );
+  // printf("found blob id=%u len=%u\n", header->id, header->len );
 
   if(header->id == 108) {
 
