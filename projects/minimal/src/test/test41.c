@@ -125,16 +125,11 @@ bool app_test41(
 
 
     if( !data->model_b) {
+      // avoid loading deafult
       printf("no cal model - loading one\n");
-      app_repl_statements(app, "flash cal read 123;");
-      // return 1;
-    }
-/*
-    if( !data->model_b) {
-      printf("no cal model\n");
       return 1;
     }
-*/
+
 
     // setup
     app_repl_statements(app, "                \

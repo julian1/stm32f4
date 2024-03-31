@@ -2,20 +2,15 @@
 
 mar 2024.
 
-  # for tooling,
-  nix-shell ~/devel/nixos-config/examples/arm.nix
+  # tooling,
+  nix-shell 
 
-  # in 4 separate shells,
+  # use four shells,
   # for serial
   rlwrap -a picocom -b 115200 /dev/ttyUSB0
-  # with new line.
-  rlwrap -a picocom  -q -b 115200  --imap crcrlf   /dev/ttyUSB0
-
-  # to make
-  make
 
   # for st-link
-  cd minimal
+  cd projects minimal
   openocd -f ../../openocd.cfg
 
   # for st-link comms
@@ -34,6 +29,13 @@ libopencm3 here,
 
 
 
+  # to make
+  make
+
+
+
+  # with new line.
+  rlwrap -a picocom  -q -b 115200  --imap crcrlf   /dev/ttyUSB0
 
 OLD.
 
