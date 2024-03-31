@@ -84,6 +84,170 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
 
 
 
+static void negative_side( 
+  app_t *app ,
+  void (*yield)( void *),
+  void *yield_ctx
+) 
+{
+    unsigned rows = 3;
+
+    MAT *ba =  m_get(  rows * 3, 1 );   // rows x cols
+    MAT *cb =  m_get(  rows * 3, 1 );   // rows x cols
+    MAT *ca =  m_get(  rows * 3, 1 );   // rows x cols
+    MAT *bb =  m_get(  rows * 3, 1 );   // rows x cols
+
+    m_truncate_rows( ba, 0);
+    m_truncate_rows( cb, 0);
+    m_truncate_rows( ca, 0);
+    m_truncate_rows( bb, 0);
+
+    for( unsigned i = 0; i < rows; ++i ) {
+
+      printf("------\nb-a\n");
+      app->mode_current->second.U1010 = (A << 2) | B ;      // B-A,  TAP-10V
+      fill_buffer( app, ba, 3, yield, yield_ctx) ;
+
+      printf("------\nc-b\n");
+      app->mode_current->second.U1010 = (B << 2) | C ;      // C-B,  GND-TAP
+      fill_buffer( app, cb, 3, yield, yield_ctx) ;
+
+      printf("------\nc-a\n");
+      app->mode_current->second.U1010 = (A << 2) | C ;      // C-A, GND-10V
+      fill_buffer( app, ca, 3, yield, yield_ctx) ;
+
+      printf("------\b-b\n");
+      app->mode_current->second.U1010 = (B << 2) | B ;      // B-B, TAP-TAP. on dcv-source-1 and dcv-source-com, from different inputs
+      fill_buffer( app, bb, 3, yield, yield_ctx) ;
+    }
+
+    assert(m_rows(ba) == m_rows(cb));
+    assert(m_rows(ba) == m_rows(ca));
+    assert(m_rows(ba) == m_rows(bb));
+
+    printf("------\nb-a\n"); m_foutput(stdout, ba );
+    printf("------\nc-b\n"); m_foutput(stdout, cb );
+    printf("------\nc-a\n"); m_foutput(stdout, ca );
+
+    // actually rather than generate a new matrix. just calculate in output loop
+    // double diff = ba + cb - ca;   // store
+    MAT *sum =  m_element_add(ba, cb, MNULL);
+    MAT *diff = m_element_sub( sum, ca, MNULL);
+
+    printf("diff\n");
+    m_foutput(stdout, diff);
+
+    printf("-------\n");
+
+    // idea is to dealay preprocessing  the data.
+    // loop rows and print data.
+    for(unsigned i = 0; i < m_rows(ba); ++i ) {
+
+      printf("%u", 1  );                              // group id . needs
+      printf(", %.7f",  m_get_val( cb, i, 0)  );      // eg. tap voltage. for plotting.  we will need to round this to be the same across voltages.. no . no need to round
+      printf(", %.7f", m_get_val( diff, i, 0) );      // diff
+      printf(", %.7f", m_get_val( bb, i, 0)   );       // bb for ref
+      printf(",\n");
+    }
+
+    // also restore the buffer
+    // free ab , ba  etc.
+    // MFREE(sum);.
+    // MFREE(diff);.
+}
+
+
+
+
+
+
+
+static void positve_side( 
+  app_t *app ,
+  void (*yield)( void *),
+  void *yield_ctx
+) 
+{
+    unsigned rows = 3;
+
+    MAT *ab =  m_get(  rows * 3, 1 );   // rows x cols
+    MAT *bc =  m_get(  rows * 3, 1 );   // rows x cols
+    MAT *ac =  m_get(  rows * 3, 1 );   // rows x cols
+    MAT *bb =  m_get(  rows * 3, 1 );   // rows x cols
+
+    m_truncate_rows( ab, 0);
+    m_truncate_rows( bc, 0);
+    m_truncate_rows( ac, 0);
+    m_truncate_rows( bb, 0);
+
+    for( unsigned i = 0; i < rows; ++i ) {
+
+      printf("------\na-b\n");
+      app->mode_current->second.U1010 = (B << 2) | A ;      // A-B,  10V -TAP
+      fill_buffer( app, ab, 3, yield, yield_ctx) ;
+
+      printf("------\nb-c\n");
+      app->mode_current->second.U1010 = (C << 2) | B ;      // B-C,  TAP-GND
+      fill_buffer( app, bc, 3, yield, yield_ctx) ;
+
+      printf("------\na-c\n");
+      app->mode_current->second.U1010 = (C << 2) | A ;      // A-C, 10V-GND
+      fill_buffer( app, ac, 3, yield, yield_ctx) ;
+
+      printf("------\b-b\n");
+      app->mode_current->second.U1010 = (B << 2) | B ;      // B-B, TAP-TAP. on dcv-source-1 and dcv-source-com, from different inputs
+      fill_buffer( app, bb, 3, yield, yield_ctx) ;
+    }
+
+    assert(m_rows(ab) == m_rows(bc));
+    assert(m_rows(ab) == m_rows(ac));
+    assert(m_rows(ab) == m_rows(bb));
+
+    printf("------\nb-a\n");
+    m_foutput(stdout, ab );
+
+    printf("------\nc-b\n");
+    m_foutput(stdout, bc );
+
+    printf("------\nc-a\n");
+    m_foutput(stdout, ac );
+
+    // actually rather than generate a new matrix. just aclculate in output loop
+    // double diff = ab + bc - ac;   // store
+    MAT *sum =  m_element_add(ab, bc, MNULL);
+    MAT *diff = m_element_sub( sum, ac, MNULL);
+
+    printf("diff\n");
+    m_foutput(stdout, diff);
+
+    printf("-------\n");
+
+    // idea is to dealay preprocessing  the data.
+    // loop rows and print data.
+    for(unsigned i = 0; i < m_rows(ab); ++i ) {
+
+      printf("%u", 1  );                              // group id . needs
+      printf(", %.7f",  m_get_val( bc, i, 0)  );      // eg. tap voltage. for plotting.  we will need to round this to be the same across voltages.. no . no need to round
+      printf(", %.7f", m_get_val( diff, i, 0) );      // diff
+      printf(", %.7f", m_get_val( bb, i, 0)   );       // bb for ref
+      printf(",\n");
+    }
+
+    // also restore the buffer
+    // free ab , ab  etc.
+    // MFREE(sum);.
+    // MFREE(diff);.
+}
+
+
+
+
+
+
+
+
+
+
 bool app_test42(
   app_t *app,
   const char *cmd,
@@ -104,10 +268,13 @@ bool app_test42(
 
   /*
     It is easier to think about as A-B,   etc.
-    it is just the codeing when passed to the mux that has the order swapped
-
+    it is just the bytecode ordering when passed to the mux that needs to be swapped
   */
-  if( strcmp(cmd, "test41") == 0) {
+
+  int32_t d0;
+
+  if( sscanf(cmd, "test42 %ld", &d0 ) == 1) {
+  // if( strcmp(cmd, "test42") == 0) {
 
 
     if( !data->model_b) {
@@ -127,109 +294,40 @@ bool app_test42(
         data show stats;  trig;               \
       " );
 
-/*
-    double ar_tap[ 5 ] ;
-    double ar_diff[ 5 ] ;
-    double ar_bb[ 5 ] ;
-*/
-
-    // buffer    = m_resize( buffer, sz , 1 );   // rows x cols
-
-    // eg. 30
-    unsigned rows = 3;
-
-    MAT *ba =  m_get(  rows * 3, 1 );   // rows x cols
-    MAT *cb =  m_get(  rows * 3, 1 );   // rows x cols
-    MAT *ca =  m_get(  rows * 3, 1 );   // rows x cols
-    MAT *bb =  m_get(  rows * 3, 1 );   // rows x cols
-
-    m_truncate_rows( ba, 0);
-    m_truncate_rows( cb, 0);
-    m_truncate_rows( ca, 0);
-    m_truncate_rows( bb, 0);
-
-
-    for( unsigned i = 0; i < rows; ++i ) {
-#if 0
-      app->mode_current->second.U1010 = (B << 2) | A ;      // A-B,  10V -TAP
-      fill_buffer( app, yield, yield_ctx) ;
-      double ab  = m_get_mean( data->buffer );
-      printf("a-b mean %lf\n", ab );
-
-      app->mode_current->second.U1010 = (C << 2) | B ;      // B-C,  TAP-GND
-      fill_buffer( app, yield, yield_ctx) ;
-      double bc  = m_get_mean( data->buffer );
-      printf("b-c mean %lf\n", bc);
-
-      app->mode_current->second.U1010 = (C << 2) | A ;      // A-C, 10V-GND
-      fill_buffer( app, yield, yield_ctx) ;
-      double ac  = m_get_mean( data->buffer );
-      printf("a-c mean %lf\n", ac);
-
-      app->mode_current->second.U1010 = (B << 2) | B ;      // B-B, TAP-TAP. on dcv-source-1 and dcv-source-com, from different inputs
-      fill_buffer( app, yield, yield_ctx) ;
-      double bb = m_get_mean( data->buffer );
-      printf("b-b mean %lf\n", bb);
-
-      double diff = ab + bc - ac;   // store
-#endif
-
-
-      printf("------\nb-a\n");
-      app->mode_current->second.U1010 = (A << 2) | B ;      // B-A,  TAP-10V
-      fill_buffer( app, ba, 3, yield, yield_ctx) ;
-
-      printf("------\nc-b\n");
-      app->mode_current->second.U1010 = (B << 2) | C ;      // C-B,  GND-TAP
-      fill_buffer( app, cb, 3, yield, yield_ctx) ;
-
-      printf("------\nc-a\n");
-      app->mode_current->second.U1010 = (A << 2) | C ;      // C-A, GND-10V
-      fill_buffer( app, ca, 3, yield, yield_ctx) ;
-
-      printf("------\b-b\n");
-      app->mode_current->second.U1010 = (B << 2) | B ;      // B-B, TAP-TAP. on dcv-source-1 and dcv-source-com, from different inputs
-      fill_buffer( app, bb, 3, yield, yield_ctx) ;
-
+    if(d0 == 1) 
+      positve_side( app, yield, yield_ctx); 
+    else if(d0 == -1) 
+      negative_side( app, yield, yield_ctx); 
+    else {
+      printf("bad argument\n");
+      return 1;
     }
 
-    assert(m_rows(ba) == m_rows(cb));
-    assert(m_rows(ba) == m_rows(ca));
-    assert(m_rows(ba) == m_rows(bb));
 
-    printf("------\nb-a\n");
-    m_foutput(stdout, ba );
+    app->mode_current->trigger_source_internal = 0;
 
-    printf("------\nc-b\n");
-    m_foutput(stdout, cb );
+    return 1;
+  }
 
-    printf("------\nc-a\n");
-    m_foutput(stdout, ca );
 
+
+
+  return 0;
+}
+
+
+/*
 
     // actually rather than generate a new matrix. just calculate in output loop
     // double diff = ba + cb - ca;   // store
     MAT *tmp = 0;
     MAT *tmp2 = 0;
-    MAT *diff = m_element_sub( m_element_add(ba, cb, tmp), ca, tmp2 );
+    MAT *diff = m_element_sub( m_element_add(ba, cb, tmp), ca, tmp2 );    // this leaks. because tmp will still be NULL after the call.
+    assert(tmp == NULL);  // issue. so we cannot free it.
 
-    printf("diff\n");
-    m_foutput(stdout, diff);
 
-    printf("-------\n");
 
-    // idea is to not preprocess the data. 
 
-    // loop rows and print data.
-    for(unsigned i = 0; i < m_rows(ba); ++i ) {
-
-      printf("%u", 1  );                              // group id . needs
-      printf(", %.2f",  m_get_val( cb, i, 0)  );      // eg. tap voltage. for plotting.  we will need to round this to be the same across voltages..
-      printf(", %.7f", m_get_val( diff, i, 0) );      // diff
-      printf(", %.7f", m_get_val( bb, i, 0)   );       // bb for ref
-
-      printf("\n");
-    }
 
     // ok. so we have everything and should be able to output the data ok.
 
@@ -254,19 +352,7 @@ bool app_test42(
     // check_data( == 7.000 )  etc.
 
 
-    app->mode_current->trigger_source_internal = 0;
 
-    return 1;
-  }
-
-
-
-
-  return 0;
-}
-
-
-/*
 
 mar 30.
 
