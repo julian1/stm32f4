@@ -1,9 +1,17 @@
 
 
-mar 2024.
 
-  # tooling,
-  nix-shell 
+
+may 2024.
+
+ # tooling,
+  nix-shell
+
+  # for libopencm3
+  git submodule update --init --recursive
+
+  ./build.sh
+
 
   # use four shells,
   # for serial
@@ -24,18 +32,19 @@ mar 2024.
   > reset halt; flash write_image erase unlock /home/me/devel/ice40-fpga/projects/minimal/build/main.bin.hdr  0x08060000 ; reset run
 
 
-libopencm3 here,
- ../../lib/libopencm3
-
 
 
   # to make
+  cd projects/minimal
   make
-
 
 
   # with new line.
   rlwrap -a picocom  -q -b 115200  --imap crcrlf   /dev/ttyUSB0
+
+
+
+
 
 OLD.
 
