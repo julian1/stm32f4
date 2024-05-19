@@ -12,6 +12,7 @@ BINARY		= main
 SRCFILES	= src/peripheral/ice40-extra.c   src/peripheral/led.c  src/peripheral/spi-port.c \
             src/peripheral/spi-ice40.c src/peripheral/spi-ice40-bitstream.c \
             src/peripheral/spi-4094.c src/peripheral/spi-dac8811.c src/peripheral/spi-ad5446.c \
+            src/peripheral/fsmc.c src/peripheral/vfd.c \
             src/main.c  \
             src/app.c  \
             src/syscalls.o \
@@ -34,7 +35,8 @@ SRCFILES	= src/peripheral/ice40-extra.c   src/peripheral/led.c  src/peripheral/s
 # this uses ,
 # TGT_LDFLAGS	+= -T$(LDSCRIPT)
 # but there is an flag order issue, so rely on toplevel Makefile.incl LDSCRIPT variable
-LDSCRIPT +=  ${TOP_DIR}/link/f413rgt6.ld
+# LDSCRIPT +=  ${TOP_DIR}/link/f413rgt6.ld
+LDSCRIPT +=  ${TOP_DIR}/link/f429.ld
 
 
 

@@ -18,6 +18,8 @@
 #include <peripheral/spi-port.h>
 #include <peripheral/ice40-extra.h>
 
+#include <peripheral/fsmc.h>
+#include <peripheral/vfd.h>
 
 
 #include <mode.h>
@@ -166,7 +168,12 @@ int main(void)
   rcc_periph_clock_enable(RCC_GPIOA);
   rcc_periph_clock_enable(RCC_GPIOB);
   rcc_periph_clock_enable(RCC_GPIOC);
-  // rcc_periph_clock_enable(RCC_GPIOE);
+
+  // Enable PORTD and PORTE for fsmc
+  rcc_periph_clock_enable(RCC_GPIOD);
+  rcc_periph_clock_enable(RCC_GPIOE);
+
+
 
   // rcc_periph_clock_enable(RCC_USART1 | RCC_SPI1 | RCC_ADC1);
 
@@ -178,6 +185,9 @@ int main(void)
 
   // adc/temp
   rcc_periph_clock_enable(RCC_ADC1);
+
+  // Enable FSMC
+  rcc_periph_clock_enable(RCC_FSMC);
 
 
 
@@ -195,6 +205,7 @@ int main(void)
 
   // mcu clock
   systick_setup(84000); // 84MHz.
+  // systick_setup(12000); // 12MHz. default lsi.
   systick_handler_set( (void (*)(void *)) app_systick_interupt, &app );  // rename systick_handler_set()
 
 
@@ -243,13 +254,19 @@ int main(void)
   spi1_port_interupt_setup();
 
   // shouldnt setup the interupt handler - until fpga is configured, else looks like get
-  //
   // spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app.data );
 
-
-
-
   ice40_port_extra_setup();
+
+  /////////////
+
+
+  fsmc_gpio_setup();
+  // fsmc_setup( 12 );   // slow.
+  // with divider == 1. is is easier to see the address is already well asserted on WR rising edge. before CS.
+  fsmc_setup( 1 );   // fase.
+  vfd_init_gpio();
+
 
 
   // outer app loop, eg. bottom of control stack

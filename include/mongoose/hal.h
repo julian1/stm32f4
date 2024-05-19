@@ -19,9 +19,10 @@
 #define PINNO(pin) (pin & 255)
 #define PINBANK(pin) (pin >> 8)
 
-#define LED1 PIN('B', 0)   // On-board LED pin (green)
-#define LED2 PIN('B', 7)   // On-board LED pin (blue)
-#define LED3 PIN('B', 14)  // On-board LED pin (red)
+//#define LED1 PIN('B', 0)   // On-board LED pin (green)
+// #define LED2 PIN('B', 7)   // On-board LED pin (blue)
+#define LED2 PIN('A', 9)   // JA
+// #define LED3 PIN('B', 14)  // On-board LED pin (red)
 
 #define LED LED2              // Use blue LED for blinking
 
@@ -92,7 +93,7 @@ static inline void irq_exti_attach(uint16_t pin) {
 }
 
 #ifndef UART_DEBUG
-#define UART_DEBUG USART3
+#define UART_DEBUG USART1
 #endif
 
 static inline void uart_init(USART_TypeDef *uart, unsigned long baud) {
@@ -104,7 +105,8 @@ static inline void uart_init(USART_TypeDef *uart, unsigned long baud) {
   if (uart == USART2) freq = APB1_FREQUENCY, RCC->APB1ENR |= BIT(17);
   if (uart == USART3) freq = APB1_FREQUENCY, RCC->APB1ENR |= BIT(18);
 
-  if (uart == USART1) tx = PIN('A', 9), rx = PIN('A', 10);
+  // if (uart == USART1) tx = PIN('A', 9), rx = PIN('A', 10);
+  if (uart == USART1) tx = PIN('B', 6), rx = PIN('B', 7);     // JA
   if (uart == USART2) tx = PIN('A', 2), rx = PIN('A', 3);
   if (uart == USART3) tx = PIN('D', 8), rx = PIN('D', 9);
 

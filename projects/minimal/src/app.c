@@ -9,9 +9,9 @@
 
 
 
-#include <libopencm3/stm32/rcc.h>   // for clock initialization
+// #include <libopencm3/stm32/rcc.h>   // for clock initialization
 #include <libopencm3/cm3/scb.h>  // reset()
-#include <libopencm3/stm32/spi.h>   // SPI1
+// #include <libopencm3/stm32/spi.h>   // SPI1
 
 #include <lib2/util.h>   // msleep(), UNUSED, print_stack_pointer()
 #include <lib2/format.h>   // trim_whitespace()  format_bits()
@@ -26,6 +26,8 @@
 #include <peripheral/spi-ice40-bitstream.h>
 #include <peripheral/spi-dac8811.h>
 #include <peripheral/spi-ad5446.h>
+
+#include <peripheral/vfd.h>
 
 
 
@@ -123,8 +125,6 @@ void app_systick_interupt(app_t *app)
 
 
 
-
-
 static void app_update_soft_500ms(app_t *app)
 {
   assert(app);
@@ -145,8 +145,16 @@ static void app_update_soft_500ms(app_t *app)
   else
     led_off();
 
+
+  // 
+  vfd_write_cmd(  0b10101010 );
+  vfd_write_data( 0b10101010 );
+  // vfd_write_cmd( 0b01010101);
+
+
+
   /*
-      - if fpga cdone() is lo, then try to configure fpga.
+    if fpga cdone() is lo, then try to configure fpga.
   */
   if( !ice40_port_extra_cdone_get()) {
 
