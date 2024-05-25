@@ -169,11 +169,12 @@ int main(void)
   rcc_periph_clock_enable(RCC_GPIOB);
   rcc_periph_clock_enable(RCC_GPIOC);
 
+/*
   // Enable PORTD and PORTE for fsmc
   rcc_periph_clock_enable(RCC_GPIOD);
   rcc_periph_clock_enable(RCC_GPIOE);
 
-
+*/
 
   // rcc_periph_clock_enable(RCC_USART1 | RCC_SPI1 | RCC_ADC1);
 
@@ -260,13 +261,14 @@ int main(void)
 
   /////////////
 
+/*
 
   fsmc_gpio_setup();
   // fsmc_setup( 12 );   // slow.
   // with divider == 1. is is easier to see the address is already well asserted on WR rising edge. before CS.
   fsmc_setup( 1 );   // fase.
   vfd_init_gpio();
-
+*/
 
 
   // outer app loop, eg. bottom of control stack

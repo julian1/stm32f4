@@ -35,8 +35,9 @@ SRCFILES	= src/peripheral/ice40-extra.c   src/peripheral/led.c  src/peripheral/s
 # this uses ,
 # TGT_LDFLAGS	+= -T$(LDSCRIPT)
 # but there is an flag order issue, so rely on toplevel Makefile.incl LDSCRIPT variable
-# LDSCRIPT +=  ${TOP_DIR}/link/f413rgt6.ld
-LDSCRIPT +=  ${TOP_DIR}/link/f429.ld
+
+LDSCRIPT +=  ${TOP_DIR}/link/f413rgt6.ld
+# LDSCRIPT +=  ${TOP_DIR}/link/f429.ld
 
 
 

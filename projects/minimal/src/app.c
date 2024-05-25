@@ -145,12 +145,12 @@ static void app_update_soft_500ms(app_t *app)
   else
     led_off();
 
-
+/*
   // 
   vfd_write_cmd(  0b10101010 );
   vfd_write_data( 0b10101010 );
   // vfd_write_cmd( 0b01010101);
-
+*/
 
 
   /*
