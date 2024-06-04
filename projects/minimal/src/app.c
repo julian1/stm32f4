@@ -146,7 +146,7 @@ static void app_update_soft_500ms(app_t *app)
     led_off();
 
 /*
-  // 
+  //
   vfd_write_cmd(  0b10101010 );
   vfd_write_data( 0b10101010 );
   // vfd_write_cmd( 0b01010101);
@@ -172,6 +172,10 @@ static void app_update_soft_500ms(app_t *app)
     }
     */
 
+    /* we expect fpga is now configured. failure could be due to isolators not populated.
+      do we want more graceful handling here?
+      better to fail fast for the moment. */
+    assert(ice40_port_extra_cdone_get()) ;
 
     // check/verify 4094 OE is not asserted
     assert( ! spi_ice40_reg_read32( app->spi, REG_4094 ));
