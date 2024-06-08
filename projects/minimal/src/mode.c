@@ -72,6 +72,7 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 
   // now write dac state
 
+#if 0
    // spi_mux_dac8811(app->spi);
   spi_mux_ad5446( spi );
 
@@ -80,7 +81,7 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 
   // for ad5444  14bit max is 0x3fff.
   spi_ad5446_write16( spi, mode->dac_val );
-
+#endif
 
 
 
@@ -146,6 +147,7 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
   // spi_ice40_reg_write32(spi, REG_SPI_MUX,  0 );
 
   // we may want delay here. or make the trigger  an external control state to the mode.
+
 
   if(mode->trigger_source_internal)
     ice40_port_trigger_source_internal_enable();    // rename set/clear() ? better?

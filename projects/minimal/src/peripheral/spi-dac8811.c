@@ -1,5 +1,7 @@
 
+/*
 
+*/
 #include <assert.h>
 #include <stdio.h>
 
@@ -13,22 +15,10 @@
 
 
 
-
-void spi_mux_dac8811(uint32_t spi )
+void spi_port_configure_dac8811(uint32_t spi)
 {
   // EXTR. setup on the ice40 side.
   // printf("spi mux dac8811 \n");
-
-  assert( SPI_MUX_DAC8811 == 2);   // (1<<1)
-
-  spi_mux_ice40( spi);  // should not need.
-
-  // default state - should always be to *not* to propagate spi on 4094 lines.  to avoid emi
-  assert( spi_ice40_reg_read32(spi, REG_SPI_MUX ) == SPI_MUX_NONE);
-
-  // set ice40 to mux spi to dac peripheral
-  spi_ice40_reg_write32(spi, REG_SPI_MUX,  SPI_MUX_DAC8811 );
-
   // ensure cs disabled
   spi_port_cs1_disable( spi );  // disable, acvei lo
   spi_port_cs2_disable( spi);
@@ -74,5 +64,45 @@ void spi_dac8811_write16(uint32_t spi, uint16_t val)
 }
 
 
+
+
+#if 0
+static void spi_write_mux_reg( uint32_t spi, uint32_t reg_spi_mux_val) 
+{
+  assert( reg_spi_mux_val == SPI_MUX_DAC8811 
+      || reg_spi_mux_val == SPI_ISO_CS );   // (1<<1)
+
+  spi_mux_ice40( spi);  // should not need.
+
+  // default state - should always be to *not* to propagate spi on 4094 lines.  to avoid emi
+  assert( spi_ice40_reg_read32(spi, REG_SPI_MUX ) == SPI_MUX_NONE);
+
+  // set ice40 to mux spi to dac peripheral
+  spi_ice40_reg_write32(spi, REG_SPI_MUX,  reg_spi_mux_val  /*SPI_MUX_DAC8811*/  );
+}
+
+#endif
+
+
+
+
+// void spi_mux_dac(uint32_t spi );
+// void spi_mux_iso_dac(uint32_t spi);
+
+
+
+#if 0
+void spi_mux_dac8811(uint32_t spi)
+{
+  spi_write_mux_reg( spi, SPI_MUX_DAC8811);
+  spi_configure_port(spi);
+}
+
+void spi_mux_iso(uint32_t spi)
+{
+  spi_write_mux_reg( spi, SPI_ISO_CS);
+  spi_configure_port(spi);
+}
+#endif
 
 

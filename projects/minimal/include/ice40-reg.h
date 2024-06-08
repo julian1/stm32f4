@@ -38,11 +38,11 @@
 // note active bits.
 
 // spi mux is one-hot
-#define SPI_MUX_NONE      0
-#define SPI_MUX_4094      1
-#define SPI_MUX_DAC8811   (1<<1)
-#define SPI_ISO_CS        (1<<2)
-#define SPI_ISO_CS2       (1<<3)
+#define SPI_MUX_NONE          0
+#define SPI_MUX_4094          1
+#define SPI_MUX_DAC          (1<<1)
+#define SPI_MUX_ISO_DAC      (1<<2)
+#define SPI_MUX_ISO_DAC2     (1<<3)
 
 
 

@@ -10,6 +10,8 @@ void ice40_port_extra_creset_disable(void); // hold in reset.
 
 bool ice40_port_extra_cdone_get(void);
 
+// this is the trigger. must rename
 void ice40_port_trigger_source_internal_enable(void);
 void ice40_port_trigger_source_internal_disable(void);
+
 

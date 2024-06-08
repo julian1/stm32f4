@@ -172,6 +172,7 @@ static void app_update_soft_500ms(app_t *app)
     }
     */
 
+#if 1
     /* we expect fpga is now configured. failure could be due to isolators not populated.
       do we want more graceful handling here?
       better to fail fast for the moment. */
@@ -209,6 +210,8 @@ static void app_update_soft_500ms(app_t *app)
     // need to delay until after fpga is configured, else get spurious
     */
     spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app->data );
+
+#endif
   }
 
 
@@ -411,6 +414,7 @@ static void spi_print_seq_register( uint32_t spi, uint32_t reg )
 
 
 
+static bool app_repl_statement_direct(app_t *app,  const char *cmd);
 
 
 
@@ -668,6 +672,11 @@ void app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
+
+
+  else if(  app_repl_statement_direct( app,  cmd )) { }
+
+
   else if(  mode_repl_statement( app->mode_current,  cmd, app->data->line_freq )) { }
 
   else if( data_repl_statement( app->data, cmd )) { }
@@ -701,7 +710,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
 
 
-static void app_repl_statement_direct(app_t *app,  const char *cmd)
+static bool app_repl_statement_direct(app_t *app,  const char *cmd)
 {
   assert(app);
   assert(app->magic == APP_MAGIC);
@@ -748,7 +757,13 @@ static void app_repl_statement_direct(app_t *app,  const char *cmd)
     && str_decode_uint( s0, &u0)
   ) {
        // spi_mux_dac8811(app->spi);
-      spi_mux_ad5446(app->spi );
+      // spi_mux_ad5446(app->spi );
+
+      // there  are multiple configurations here
+      spi_mux_ice40( app->spi);
+      spi_ice40_reg_write32(app->spi, REG_SPI_MUX,  SPI_MUX_DAC );
+      spi_port_configure_dac8811( app->spi);
+
 
       // eg. 0=-0V out.   0xffff = -7V out. nice.
       spi_dac8811_write16( app->spi, u0 );
@@ -757,6 +772,28 @@ static void app_repl_statement_direct(app_t *app,  const char *cmd)
     }
 
 
+  // should be in test code.
+
+  else if( sscanf(cmd, "iso dac %s", s0 ) == 1
+    && str_decode_uint( s0, &u0)
+  ) {
+
+      // there  are multiple configurations here
+      spi_mux_ice40( app->spi);
+      spi_ice40_reg_write32(app->spi, REG_SPI_MUX,  SPI_MUX_ISO_DAC );
+      spi_port_configure_ad5446( app->spi);
+
+      spi_ad5446_write16(app->spi, u0 );
+
+      spi_mux_ice40(app->spi);
+    }
+
+
+  else
+    return 0;
+
+
+  return 1;
 }
 
 

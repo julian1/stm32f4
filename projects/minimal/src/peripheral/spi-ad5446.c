@@ -13,9 +13,10 @@
 
 
 
-
-void spi_mux_ad5446(uint32_t spi )
+void spi_port_configure_ad5446( uint32_t spi)
+// void spi_mux_ad5446(uint32_t spi )
 {
+#if 0
   // EXTR. setup on the ice40 side.
   // printf("spi mux ad5446\n");
 
@@ -28,6 +29,7 @@ void spi_mux_ad5446(uint32_t spi )
 
   // set ice40 to mux spi to dac peripheral
   spi_ice40_reg_write32(spi, REG_SPI_MUX,  SPI_MUX_DAC8811 );
+#endif
 
   // ensure cs disabled
   spi_port_cs1_disable( spi );  // disable, acvei lo

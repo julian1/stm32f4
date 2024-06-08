@@ -46,10 +46,15 @@
 
 // Feb 2024.
 #define ER_EXTRA_PORT    GPIOC
+
+
+#define ER_TRIGGER_SA_LOCAL GPIO7
+
 #define ER_CDONE        GPIO8
 #define ER_CRESET_PIN   GPIO9
-#define ER_TRIGGER_SOURCE_INTERNAL GPIO10
 #define ER_UNUSED1_OUT    GPIO11
+#define ER_UNUSED2_OUT    GPIO12
+#define ER_ER_UNUSED3_CTL GPIO10
 
 
 
@@ -82,20 +87,18 @@ bool ice40_port_extra_cdone_get(void)
 
 
 
-
 void ice40_port_trigger_source_internal_enable(void)
 {
   // better name
-  gpio_set(ER_EXTRA_PORT, ER_TRIGGER_SOURCE_INTERNAL);
+  gpio_set(ER_EXTRA_PORT, ER_TRIGGER_SA_LOCAL);
 }
 
 
 void ice40_port_trigger_source_internal_disable(void)
 {
   // better name
-  gpio_clear(ER_EXTRA_PORT, ER_TRIGGER_SOURCE_INTERNAL);
+  gpio_clear(ER_EXTRA_PORT, ER_TRIGGER_SA_LOCAL);
 }
-
 
 
 
@@ -128,13 +131,15 @@ void ice40_port_extra_setup(void)
 
   /////////////////////
 
+  gpio_mode_setup(ER_EXTRA_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ER_TRIGGER_SA_LOCAL);
+  gpio_set_output_options(ER_EXTRA_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, ER_TRIGGER_SA_LOCAL);
+
+
   // define to avoid floating inputs on adum
-  gpio_mode_setup(ER_EXTRA_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ER_TRIGGER_SOURCE_INTERNAL);
-  gpio_mode_setup(ER_EXTRA_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ER_UNUSED1_OUT);
 
-
-  gpio_set_output_options(ER_EXTRA_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, ER_TRIGGER_SOURCE_INTERNAL);
-  gpio_set_output_options(ER_EXTRA_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, ER_UNUSED1_OUT);
+  // unused pins.
+  gpio_mode_setup(ER_EXTRA_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ER_UNUSED1_OUT | ER_UNUSED2_OUT);
+  gpio_set_output_options(ER_EXTRA_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, ER_UNUSED1_OUT | ER_UNUSED2_OUT);
 }
 
 
