@@ -14,22 +14,7 @@
 
 
 void spi_port_configure_ad5446( uint32_t spi)
-// void spi_mux_ad5446(uint32_t spi )
 {
-#if 0
-  // EXTR. setup on the ice40 side.
-  // printf("spi mux ad5446\n");
-
-  assert( SPI_MUX_DAC8811 == 2);   // (1<<1)
-
-  spi_mux_ice40( spi);    // should not need.
-
-  // default state - should always be to *not* to propagate spi on 4094 lines.  to avoid emi
-  assert( spi_ice40_reg_read32(spi, REG_SPI_MUX ) == SPI_MUX_NONE);
-
-  // set ice40 to mux spi to dac peripheral
-  spi_ice40_reg_write32(spi, REG_SPI_MUX,  SPI_MUX_DAC8811 );
-#endif
 
   // ensure cs disabled
   spi_port_cs1_disable( spi );  // disable, acvei lo
@@ -55,9 +40,11 @@ void spi_port_configure_ad5446( uint32_t spi)
 
 
 
-/* code is the same for dac8811 and ad5446
-  but keep separate. enable bounds check for 14 bit etc.
+/* value writing code is the same for dac8811 and ad5446
+  but keep separate. could enable bounds check for 14 bit etc.
   ad5446, requires top two bits kept low to maintain spi polarity.
+
+  14bit. range 0 - 0x3fff
 */
 
 
@@ -79,4 +66,21 @@ void spi_ad5446_write16(uint32_t spi, uint16_t val)
 
 
 
+#if 0
+
+// void spi_mux_ad5446(uint32_t spi )
+
+  // EXTR. setup on the ice40 side.
+  // printf("spi mux ad5446\n");
+
+  assert( SPI_MUX_DAC8811 == 2);   // (1<<1)
+
+  spi_mux_ice40( spi);    // should not need.
+
+  // default state - should always be to *not* to propagate spi on 4094 lines.  to avoid emi
+  assert( spi_ice40_reg_read32(spi, REG_SPI_MUX ) == SPI_MUX_NONE);
+
+  // set ice40 to mux spi to dac peripheral
+  spi_ice40_reg_write32(spi, REG_SPI_MUX,  SPI_MUX_DAC8811 );
+#endif
 
