@@ -38,7 +38,7 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
 
   // we need to toggle the trigger/ reset of sa controller. to get clean values.
   // we should do  this via the register.
-  app->mode_current->trigger_source_internal = 1;
+  app->mode_current->trig_sa = 1;
 
   spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
 
@@ -60,7 +60,7 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
 
 
   // stop sample acquisition, perhaps unnecessary
-  app->mode_current->trigger_source_internal = 0;
+  app->mode_current->trig_sa = 0;
   spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
 
 
@@ -215,7 +215,7 @@ bool app_test41(
     // check_data( == 7.000 )  etc.
 
 
-    app->mode_current->trigger_source_internal = 0;
+    app->mode_current->trig_sa = 0;
 
     return 1;
   }
@@ -558,7 +558,7 @@ The mdacs look to be reasonbly low noise as far as I can tell.
 
     // note - we could set the buffer, etc. and then do the trigger later.
 
-    ice40_port_trigger_source_internal_enable();    // rename set/clear() ? better?
+    ice40_port_trig_sa_enable();    // rename set/clear() ? better?
 #endif
 
 

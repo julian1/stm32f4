@@ -260,7 +260,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
 /*
   // suppress late measure samples arriving after signal_acquisition is returned to arm
-  if(!mode->trigger_source_internal)
+  if(!mode->trig_sa)
     return
 */
 

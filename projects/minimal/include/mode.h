@@ -338,7 +338,7 @@ typedef struct _mode_t
 
   // single adum line.
   // should move/place in signal acquisition?
-  bool          trigger_source_internal;
+  bool          trig_sa;
 
 } _mode_t ;
 

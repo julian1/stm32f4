@@ -19,42 +19,16 @@
 */
 
 
-/*
-// jan 2024.
-// wants an external pullup fitted. because can be drivern by connector header.
-#define ER_EXTRA_PORT  GPIOB
-#define ER_CRESET_PIN   GPIO5   // PB5
-
-#define ER_EXTRA_PORT   GPIOB
-#define ER_CDONE        GPIO4   // PB4
-*/
-
-
-
-/*
-// Feb 2024.
-// current on mcu side was 70mA. with wrong port assignment.
-
-#define ER_EXTRA_PORT    GPIOC
-#define ER_CDONE        GPIO6   // PC6
-#define ER_CRESET_PIN   GPIO7   // PC7
-
-#define ER_TRIGGER_INT_OUT GPIO8   // PC8
-#define ER_UNUSED1_OUT    GPIO9   // PC9
-*/
-
-
-// Feb 2024.
+// jun 2024.
 #define ER_EXTRA_PORT    GPIOC
 
 
-#define ER_TRIGGER_SA_LOCAL GPIO7
-
-#define ER_CDONE        GPIO8
-#define ER_CRESET_PIN   GPIO9
+#define ER_TRIG_SA        GPIO7
+#define ER_CDONE          GPIO8
+#define ER_CRESET_PIN     GPIO9
+#define ER_UNUSED3_CTL    GPIO10    // input
 #define ER_UNUSED1_OUT    GPIO11
 #define ER_UNUSED2_OUT    GPIO12
-#define ER_ER_UNUSED3_CTL GPIO10
 
 
 
@@ -87,17 +61,17 @@ bool ice40_port_extra_cdone_get(void)
 
 
 
-void ice40_port_trigger_source_internal_enable(void)
+void ice40_port_trig_sa_enable(void)
 {
   // better name
-  gpio_set(ER_EXTRA_PORT, ER_TRIGGER_SA_LOCAL);
+  gpio_set(ER_EXTRA_PORT, ER_TRIG_SA);
 }
 
 
-void ice40_port_trigger_source_internal_disable(void)
+void ice40_port_trig_sa_disable(void)
 {
   // better name
-  gpio_clear(ER_EXTRA_PORT, ER_TRIGGER_SA_LOCAL);
+  gpio_clear(ER_EXTRA_PORT, ER_TRIG_SA);
 }
 
 
@@ -131,8 +105,8 @@ void ice40_port_extra_setup(void)
 
   /////////////////////
 
-  gpio_mode_setup(ER_EXTRA_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ER_TRIGGER_SA_LOCAL);
-  gpio_set_output_options(ER_EXTRA_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, ER_TRIGGER_SA_LOCAL);
+  gpio_mode_setup(ER_EXTRA_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ER_TRIG_SA);
+  gpio_set_output_options(ER_EXTRA_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, ER_TRIG_SA);
 
 
   // define to avoid floating inputs on adum

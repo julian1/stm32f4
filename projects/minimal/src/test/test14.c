@@ -99,7 +99,7 @@ bool app_test14( app_t *app , const char *cmd)
       mode.sa.reg_sa_p_seq_n  = 2; 
       mode.sa.reg_sa_p_seq0 = (PCOFF << 4) | SOFF;        // 0b00
       mode.sa.reg_sa_p_seq0 = (PC01 << 4 )  | SOFF;        // 0b01     FIXME.   should be seq1. eg. only on for hi signal.
-      mode.trigger_source_internal = 1;
+      mode.trig_sa = 1;
 
       mode.first .K407        = LR_SET;          // disconnect dcv
       mode.reg_direct.leds_o  = 0b0010;    // advance led.   note. won't display in different mode.

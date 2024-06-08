@@ -43,7 +43,7 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
 
   // we need to toggle the trigger/ reset of sa controller. to get clean values.
   // we should do  this via the register.
-  app->mode_current->trigger_source_internal = 1;
+  app->mode_current->trig_sa = 1;
   spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
 
   // reset the reading values buffer, no value will be recorded before this is filled.
@@ -63,7 +63,7 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
 
   // potential race condition here, we don't want to collect spurious data.
 
-  ice40_port_trigger_source_internal_disable();
+  ice40_port_trig_sa_disable();
 
   // print output
   // m_foutput( stdout, data->buffer );
@@ -304,7 +304,7 @@ bool app_test42(
     }
 
 
-    app->mode_current->trigger_source_internal = 0;
+    app->mode_current->trig_sa = 0;
 
     return 1;
   }
@@ -683,7 +683,7 @@ The mdacs look to be reasonbly low noise as far as I can tell.
 
     // note - we could set the buffer, etc. and then do the trigger later.
 
-    ice40_port_trigger_source_internal_enable();    // rename set/clear() ? better?
+    ice40_port_trig_sa_enable();    // rename set/clear() ? better?
 #endif
 
 

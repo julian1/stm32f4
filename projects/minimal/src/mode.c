@@ -149,10 +149,10 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
   // we may want delay here. or make the trigger  an external control state to the mode.
 
 
-  if(mode->trigger_source_internal)
-    ice40_port_trigger_source_internal_enable();    // rename set/clear() ? better?
+  if(mode->trig_sa)
+    ice40_port_trig_sa_enable();    // rename set/clear() ? better?
   else
-    ice40_port_trigger_source_internal_disable();
+    ice40_port_trig_sa_disable();
 
 }
 
@@ -521,7 +521,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   else if(strcmp(cmd, "halt") == 0 || strcmp(cmd, "h") == 0) {
 
     // _mode_t *mode = app->mode_current;
-    mode->trigger_source_internal = 0;
+    mode->trig_sa = 0;
   }
   // "t" to trigger
   else if(strcmp(cmd, "trig") == 0 || strcmp(cmd, "t") == 0) {
@@ -535,7 +535,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
    // _mode_t *mode = app->mode_current;
 
-    mode->trigger_source_internal = 1;
+    mode->trig_sa = 1;
   }
 
 
@@ -742,7 +742,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 /*
       else if(strcmp(s0, "trig") == 0) {
         // should move/place in signal acquisition?
-        mode->trigger_source_internal = u0;
+        mode->trig_sa = u0;
       }
 */
 
