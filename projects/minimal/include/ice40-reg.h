@@ -2,6 +2,9 @@
 #pragma once
 
 /*
+  could we improve the modlseparation.
+
+  ----
   fpga specific
   this doeesn't belong in mode.h
   because then it would then get pulled in by the spi peripheral code, which needs mode.h.
@@ -24,6 +27,38 @@
 #define REG_SEQ_MODE                    18
 
 #define REG_STATUS                      17
+
+
+
+
+
+
+///////////////////
+// reg spi mux
+// note active bits.
+
+// spi mux is one-hot
+#define SPI_MUX_NONE      0
+#define SPI_MUX_4094      1
+#define SPI_MUX_DAC8811   (1<<1)
+#define SPI_ISO_CS        (1<<2)
+#define SPI_ISO_CS2       (1<<3)
+
+
+
+#define MODE_DIRECT       0     // support direct writing via direct register
+// #define MODE_LO           1     // all bits held lo. but blink led. default.
+// #define MODE_HI           2     // all bits held hi
+#define MODE_PATTERN      3     // put modulation pattern on all bits
+// #define MODE_PC_TEST      4
+
+
+// sequence acquisition
+#define MODE_SA_MOCK_ADC    6     // no az. and elecm. etc
+#define MODE_SA_ADC        7     // no az. and elecm. etc
+
+
+
 
 
 
@@ -62,31 +97,6 @@
 #define REG_ADC_STAT_COUNT_REFMUX_NEG_UP  51
 #define REG_ADC_STAT_COUNT_CMPR_CROSS_UP  52
 
-
-
-
-///////////////////
-// reg spi mux
-// note active bits.
-
-// spi mux is one-hot/
-
-#define SPI_MUX_NONE      0
-#define SPI_MUX_4094      1
-#define SPI_MUX_DAC8811   (1<<1)
-
-
-
-#define MODE_DIRECT       0     // support direct writing via direct register
-// #define MODE_LO           1     // all bits held lo. but blink led. default.
-// #define MODE_HI           2     // all bits held hi
-#define MODE_PATTERN      3     // put modulation pattern on all bits
-// #define MODE_PC_TEST      4
-
-
-// sequence acquisition
-#define MODE_SA_MOCK_ADC    6     // no az. and elecm. etc
-#define MODE_SA_ADC        7     // no az. and elecm. etc
 
 
 
