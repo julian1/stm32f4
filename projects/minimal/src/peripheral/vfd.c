@@ -126,17 +126,26 @@ uint8_t vfd_read_data( void)
 
 
 
+
+
 void vfd_init_gpio( void )
 {
   printf("vfd_init_gpio()\n");
-  // Ikon reset is pf12.   jun 2024.
+  // what is frp_out.  is output from vfd.
+  // need interupt.
 
+
+  gpio_set( GPIOD, GPIO6);   // keep high - to avoid supirious seting.
+  gpio_mode_setup(  GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO6 );
+
+
+#if 0
+  // Ikon reset is pf12.   for control-panel-7.jun 2024.
+  // PD6 for
   // reset.
   gpio_set( GPIOF, GPIO12);   // keep high - to avoid supirious seting.
   gpio_mode_setup(  GPIOF, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12 );
-
-  // what is frp_out.  is output from vfd.
-  // need interupt.
+#endif
 
 }
 
@@ -165,9 +174,9 @@ void vfd_init(  volatile uint32_t *system_millis)
   printf("vfd_init()\n");
 
   // perform reset hold reset pin lo for 2ms.
-  gpio_clear ( GPIOF, GPIO12);
-  msleep( 2,  system_millis);
-  gpio_set( GPIOF, GPIO12);
+  gpio_clear ( GPIOD, GPIO6);
+  msleep( 2,  system_millis);     // seems to be 3ms. not 2?
+  gpio_set( GPIOD, GPIO6);
 
 
   // display clear - it is part of sequence in s8. so may be required
@@ -178,7 +187,8 @@ void vfd_init(  volatile uint32_t *system_millis)
   for(unsigned i = 0; i < 8; ++i) {
 
     vfd_write_cmd( 0x62 );
-    vfd_write_cmd( 0x00 );
+    // vfd_write_cmd( 0x00 );   //
+    vfd_write_cmd( i );   //
     vfd_write_data( 0xff );
   }
 
@@ -188,9 +198,11 @@ void vfd_init(  volatile uint32_t *system_millis)
 
     uint8_t l0 = 1 << 2;    // layer 0
  //   uint8_t l1 = 1 << 3;    // layer 1
-    
+
     uint8_t gs = 1 << 6;    // gs area off/on
-//    uint8_t grv = 1 << 4;   // reverse or normal   EXTR.  should flip this
+     uint8_t grv = 1 << 4;   // reverse or normal   EXTR.  should flip this
+    UNUSED(grv);
+
 //    uint8_t and_ = 1 << 3;
 //    uint8_t exor = 1 << 2;
 
@@ -199,10 +211,22 @@ void vfd_init(  volatile uint32_t *system_millis)
    cmd[0] |= l0;
    cmd[1] |= gs;
 
+//    cmd[1] |= grv;      // inverse
+                      // OK. inverse actually worked.
+
+
+    // if (layer0) cmd[0] |= l0;
+    // if (layer1) cmd[0] |= l1;
+
+    // if (on) cmd[1] |= gs;
+    // if (inverse) cmd[1] |= grv;
+
 
     vfd_write_cmd( cmd[0] );
     vfd_write_cmd( cmd[1] );
 
+
+  // this seems to turn on two dots in top-left?
 }
 
 
@@ -240,19 +264,36 @@ void vfd_init(  volatile uint32_t *system_millis)
 
     Ok. so it just draws horizontal or vertical lines.
 
+
+#define GU800_WIDTH 128
+#define GU800_HEIGHT 64
+
+#define GU800_HEIGHTBYTES (GU800_HEIGHT / 8)
+
 */
 
 void vfd_do_something(void)
 {
+  // return;
 
-    vfd_write_cmd( 0b01100100);          // data write setx
-    vfd_write_data( 0x05 );
+  printf("vfd_do_something()\n");
+
+    vfd_write_cmd( 0b10000100 );          // set igx  to increment x, but draw vertical. odd.
+
+    vfd_write_cmd( 0b01100100);          // write setx
+    vfd_write_cmd( 30 );                  // 30pixels to the right.
 
     vfd_write_cmd( 0b01100000  );          // data write sety
-    vfd_write_data( 0x05 );
+    vfd_write_cmd( 3 );                     // eg. moves down 3x8=24 bits.
 
-    for(unsigned i = 0; i < 10; ++i)
-      vfd_write_data( 0xff );
+    for(unsigned i = 0; i < 4; ++i)
+      vfd_write_data( 0b10101010 );     // OK. this *is* writing to the ramp. but in a funny position.
+
+  // it is incrementing x.  and then drawing y as 8 bits vertically.
+  // but it is not at 10pixels.  actually maybe it is at 80pixels.
+
+  // ok. it's very weird there is one 3 bit
+
 
 }
 

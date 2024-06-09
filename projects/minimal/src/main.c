@@ -150,13 +150,13 @@ static app_t app = {
 
 
 
-
-int main(void)
+static int main_f429(void)
 {
+  // use  f429.ld
   // hse
-	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz.
+	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  //
 
-  // clocks
+  // clocks - TODO move after gpio ports?
   rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
 
   // gpio
@@ -166,15 +166,13 @@ int main(void)
   rcc_periph_clock_enable(RCC_GPIOB);
   rcc_periph_clock_enable(RCC_GPIOC);
 
-/*
-  // Enable PORTD and PORTE for fsmc
+  // for fsmc
   rcc_periph_clock_enable(RCC_GPIOD);
   rcc_periph_clock_enable(RCC_GPIOE);
-  rcc_periph_clock_enable(RCC_GPIOF);   // for ikon gpio.
 
-*/
-
-  // rcc_periph_clock_enable(RCC_USART1 | RCC_SPI1 | RCC_ADC1);
+  // more gpio.
+  rcc_periph_clock_enable(RCC_GPIOF);
+  rcc_periph_clock_enable(RCC_GPIOG);
 
   // USART
   rcc_periph_clock_enable(RCC_USART1);
@@ -185,10 +183,9 @@ int main(void)
   // adc/temp
   rcc_periph_clock_enable(RCC_ADC1);
 
+
   // Enable FSMC
   rcc_periph_clock_enable(RCC_FSMC);
-
-
 
   /////////////////////////////
   /*
@@ -201,13 +198,10 @@ int main(void)
   // because assert() cannot pass a context
   assert_critical_error_led_setup( LED_PORT, LED_OUT);
 
-
   // mcu clock
   systick_setup(84000); // 84MHz.
   // systick_setup(12000); // 12MHz. default lsi.
   systick_handler_set( (void (*)(void *)) app_systick_interupt, &app );  // rename systick_handler_set()
-
-
 
   //////////////////////
   // main app setup
@@ -224,25 +218,118 @@ int main(void)
 
   usart1_set_buffers( &app.console_in, &app.console_out);
 
-
-
   printf("\n\n\n\n--------\n");
-  printf("addr main() %p\n", main );
+  printf("addr main() %p\n", main_f429);
 
   printf("\n--------");
   printf("\nstarting\n");
-
 
   assert( sizeof(bool) == 1);
   assert( sizeof(float) == 4);
   assert( sizeof(double ) == 8);
 
-
-
   // init data
   data_init( app.data );
 
+  ////////////////
+  // init the spi port, for adum/ice40 comms
+  spi1_port_setup();
 
+  // spi1_port_interupt_setup( (void (*) (void *))spi1_interupt, &app);
+  // why are we not passing the interupt here?
+  spi1_port_interupt_setup();
+
+  // shouldnt setup the interupt handler - until fpga is configured, else looks like get
+  // spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app.data );
+  ice40_port_extra_setup();
+
+  // outer app loop, eg. bottom of control stack
+  while(true)
+    app_update_main( &app);
+
+
+  return 0;
+}
+
+
+
+
+
+
+
+
+
+
+static int main_f413(void)
+{
+  // hse
+	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz.
+
+  // clocks
+  rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
+
+  // gpio
+
+  // rcc_periph_clock_enable(RCC_GPIOA  | RCC_GPIOB | RCC_GPIOC);
+  rcc_periph_clock_enable(RCC_GPIOA);
+  rcc_periph_clock_enable(RCC_GPIOB);
+  rcc_periph_clock_enable(RCC_GPIOC);
+
+
+  // rcc_periph_clock_enable(RCC_USART1 | RCC_SPI1 | RCC_ADC1);
+
+  // USART
+  rcc_periph_clock_enable(RCC_USART1);
+
+  // spi / ice40
+  rcc_periph_clock_enable(RCC_SPI1);
+
+  // adc/temp
+  rcc_periph_clock_enable(RCC_ADC1);
+
+  /////////////////////////////
+  /*
+    peripheral/ports setup
+  */
+
+  led_setup();
+
+  // setup external state for critical error led blink in priority
+  // because assert() cannot pass a context
+  assert_critical_error_led_setup( LED_PORT, LED_OUT);
+
+  // mcu clock
+  systick_setup(84000); // 84MHz.
+  // systick_setup(12000); // 12MHz. default lsi.
+  systick_handler_set( (void (*)(void *)) app_systick_interupt, &app );  // rename systick_handler_set()
+
+  //////////////////////
+  // main app setup
+  // initialzes the console buffers, that support printf() and error reporting
+  app_init_console_buffers( &app );
+
+  /*
+    dont' think it makes any sense to use a circular buffer on the output.
+    instead just block control until the output is flushed.
+  */
+  //////////////
+  // now can init usart peripheral using app console buffers
+  usart1_setup_portB();
+
+  usart1_set_buffers( &app.console_in, &app.console_out);
+
+  printf("\n\n\n\n--------\n");
+  printf("addr main() %p\n", main_f413);
+
+  printf("\n--------");
+  printf("\nstarting\n");
+
+  assert( sizeof(bool) == 1);
+  assert( sizeof(float) == 4);
+  assert( sizeof(double ) == 8);
+
+  // init data
+  data_init( app.data );
 
   ////////////////
   // init the spi port, for adum/ice40 comms
@@ -254,11 +341,7 @@ int main(void)
 
   // shouldnt setup the interupt handler - until fpga is configured, else looks like get
   // spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app.data );
-
   ice40_port_extra_setup();
-
-  /////////////
-
 
   // outer app loop, eg. bottom of control stack
   while(true)
@@ -266,10 +349,12 @@ int main(void)
 
 
   return 0;
-
-
 }
 
 
 
+int main(void)
+{
+  return main_f429();
+}
 
