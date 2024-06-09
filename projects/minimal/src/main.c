@@ -18,9 +18,6 @@
 #include <peripheral/spi-port.h>
 #include <peripheral/ice40-extra.h>
 
-#include <peripheral/fsmc.h>
-#include <peripheral/vfd.h>
-
 
 #include <mode.h>
 #include <app.h>
@@ -173,6 +170,7 @@ int main(void)
   // Enable PORTD and PORTE for fsmc
   rcc_periph_clock_enable(RCC_GPIOD);
   rcc_periph_clock_enable(RCC_GPIOE);
+  rcc_periph_clock_enable(RCC_GPIOF);   // for ikon gpio.
 
 */
 
@@ -260,15 +258,6 @@ int main(void)
   ice40_port_extra_setup();
 
   /////////////
-
-/*
-
-  fsmc_gpio_setup();
-  // fsmc_setup( 12 );   // slow.
-  // with divider == 1. is is easier to see the address is already well asserted on WR rising edge. before CS.
-  fsmc_setup( 1 );   // fase.
-  vfd_init_gpio();
-*/
 
 
   // outer app loop, eg. bottom of control stack

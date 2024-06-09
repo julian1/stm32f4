@@ -27,6 +27,9 @@
 #include <peripheral/spi-dac8811.h>
 #include <peripheral/spi-ad5446.h>
 
+
+// vfd
+#include <peripheral/fsmc.h>
 #include <peripheral/vfd.h>
 
 
@@ -787,6 +790,30 @@ static bool app_repl_statement_direct(app_t *app,  const char *cmd)
 
       spi_mux_ice40(app->spi);
     }
+
+
+
+  else if( strcmp( cmd, "vfd") == 0) {
+    // vfd
+
+
+    fsmc_gpio_setup();
+
+
+    // fsmc_setup( 12 );   // slow.
+    // with divider == 1. is is easier to see the address is already well asserted on WR rising edge. before CS.
+    fsmc_setup( 1 );   // fase.
+    vfd_init_gpio();
+
+    msleep( 10, &app->system_millis );
+
+
+    ///////////
+    vfd_init(  &app->system_millis);
+
+    vfd_do_something();
+  }
+
 
 
   else

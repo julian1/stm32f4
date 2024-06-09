@@ -128,14 +128,15 @@ uint8_t vfd_read_data( void)
 
 void vfd_init_gpio( void )
 {
-  // Ikon reset is PD6
+  printf("vfd_init_gpio()\n");
+  // Ikon reset is pf12.   jun 2024.
 
-  // led is required....
-  gpio_set( GPIOD, GPIO6);
-  gpio_mode_setup(  GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO6 );
-  // msleep(20);
+  // reset.
+  gpio_set( GPIOF, GPIO12);   // keep high - to avoid supirious seting.
+  gpio_mode_setup(  GPIOF, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12 );
 
   // what is frp_out.  is output from vfd.
+  // need interupt.
 
 }
 
@@ -157,16 +158,24 @@ void vfd_init_gpio( void )
 */
 
 
-static void vfd_init(  volatile uint32_t *system_millis)
+void vfd_init(  volatile uint32_t *system_millis)
 {
   // see s8 manual.  everything must be initialized with gram
 
-  // display clear
+  printf("vfd_init()\n");
+
+  // perform reset hold reset pin lo for 2ms.
+  gpio_clear ( GPIOF, GPIO12);
+  msleep( 2,  system_millis);
+  gpio_set( GPIOF, GPIO12);
+
+
+  // display clear - it is part of sequence in s8. so may be required
   vfd_write_cmd( 0x5f);
 
   msleep( 1,  system_millis);
 
-  for(unsigned i = 0; i < 8; ++i) { 
+  for(unsigned i = 0; i < 8; ++i) {
 
     vfd_write_cmd( 0x62 );
     vfd_write_cmd( 0x00 );
@@ -174,16 +183,66 @@ static void vfd_init(  volatile uint32_t *system_millis)
   }
 
   // need to turn display on.
+  // EXTR.  quite easy to turn on the brightness.
+
+
+    uint8_t l0 = 1 << 2;    // layer 0
+ //   uint8_t l1 = 1 << 3;    // layer 1
+    
+    uint8_t gs = 1 << 6;    // gs area off/on
+//    uint8_t grv = 1 << 4;   // reverse or normal   EXTR.  should flip this
+//    uint8_t and_ = 1 << 3;
+//    uint8_t exor = 1 << 2;
+
+  uint8_t cmd[] = { 0b00100000, 0 };
+
+   cmd[0] |= l0;
+   cmd[1] |= gs;
+
+
+    vfd_write_cmd( cmd[0] );
+    vfd_write_cmd( cmd[1] );
+
 }
+
+
+
+
 
 /*
   https://github.com/rhalkyard/Noritake_GU800_GFX
 
   https://github.com/rhalkyard/Noritake_GU800_GFX/blob/master/src/GU800_GFX.cpp
 
+  see begin . // Hold /RESET low for 2ms to initialise display (only strictly required on
+      // a cold poweron)
+      digitalWrite(resetPin, LOW);
+      delay(2);
+      digitalWrite(resetPin, HIGH);
+
+
+
+  see the void GU800::display() {
+  for copying buffer to the display.
+  it
+
+
+
+
+
+    this->addrMode(true, false);    // Autoincrement X address, hold Y address
+
+  loop the y rows.
+    set x to 0.
+    set y to y.
+    write spi
+    then flip the page.
+
+    Ok. so it just draws horizontal or vertical lines.
+
 */
 
-static void vfd_do_something(void)
+void vfd_do_something(void)
 {
 
     vfd_write_cmd( 0b01100100);          // data write setx
@@ -191,6 +250,9 @@ static void vfd_do_something(void)
 
     vfd_write_cmd( 0b01100000  );          // data write sety
     vfd_write_data( 0x05 );
+
+    for(unsigned i = 0; i < 10; ++i)
+      vfd_write_data( 0xff );
 
 }
 
