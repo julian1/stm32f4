@@ -385,8 +385,13 @@ static void vfd_write_string2( const char *s, uint8_t xpix, uint8_t ychar )
 
 
 
-
-
+// looks good.
+//     BMH-fonts/bmh_fonts/bmh_char/Bitstream Vera Sans/Bitstream Vera Sans_64.png
+// https://github.com/jdmorise/BMH-fonts/blob/master/bmh_fonts/bmh_char/Bitstream%20Vera%20Sans/Bitstream%20Vera%20Sans_24.h
+// actually use the mono
+//     BMH-fonts/bmh_fonts/bmh_char/Bitstream Vera Sans Mono
+// /Bitstream Vera Sans Mono_64.png
+// https://github.com/jdmorise/BMH-fonts/blob/master/bmh_fonts/bmh_char/Bitstream%20Vera%20Sans%20Mono/Bitstream%20Vera%20Sans%20Mono_64.png
 
 
 static void vfd_write_big_zero( uint8_t xpix, uint8_t ychar )

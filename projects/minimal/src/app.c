@@ -148,18 +148,10 @@ static void app_update_soft_500ms(app_t *app)
   else
     led_off();
 
-/*
-  //
-  vfd_write_cmd(  0b10101010 );
-  vfd_write_data( 0b10101010 );
-  // vfd_write_cmd( 0b01010101);
-*/
 
 
-  /*
-    if fpga cdone() is lo, then try to configure fpga.
-  */
-  if( !ice40_port_extra_cdone_get()) {
+
+  if( false && !ice40_port_extra_cdone_get() ) {
 
     spi_ice40_bitstream_send(app->spi, & app->system_millis );
 
@@ -179,41 +171,45 @@ static void app_update_soft_500ms(app_t *app)
     /* we expect fpga is now configured. failure could be due to isolators not populated.
       do we want more graceful handling here?
       better to fail fast for the moment. */
-    assert(ice40_port_extra_cdone_get()) ;
+    // assert(ice40_port_extra_cdone_get()) ;
 
-    // check/verify 4094 OE is not asserted
-    assert( ! spi_ice40_reg_read32( app->spi, REG_4094 ));
+    if( ! ice40_port_extra_cdone_get()) {
+
+      printf("ice40 fpga config failed\n");
+    }
+    else {
+
+      // check/verify 4094 OE is not asserted
+      assert( ! spi_ice40_reg_read32( app->spi, REG_4094 ));
+
+      // reset the mode.
+      *app->mode_current = *app->mode_initial;
+
+      /* OK. this is tricky.
+          OE must be enabled to pulse the relays. to align them to initial/current state.
+          but we probably want to configure as much other state first, before asserting 4094 OE.
+      */
+      // write the default 4094 state for muxes etc.
+      printf("spi_mode_transition_state() for muxes\n");
+      spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+
+      // now assert 4094 OE
+      // should check supply rails etc. first.
+      printf("asserting 4094 OE\n");
+      spi_ice40_reg_write32( app->spi, REG_4094, 1 );
+      // ensure 4094 OE asserted
+      assert( spi_ice40_reg_read32( app->spi, REG_4094 ));
+
+      // now call transition state again. which will do relays
+      printf("spi_mode_transition_state() for relays\n");
+      spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
 
 
-    // reset the mode.
-    *app->mode_current = *app->mode_initial;
-
-
-    /* OK. this is tricky.
-        OE must be enabled to pulse the relays. to align them to initial/current state.
-        but we probably want to configure as much other state first, before asserting 4094 OE.
-    */
-    // write the default 4094 state for muxes etc.
-    printf("spi_mode_transition_state() for muxes\n");
-    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
-
-    // now assert 4094 OE
-    // should check supply rails etc. first.
-    printf("asserting 4094 OE\n");
-    spi_ice40_reg_write32( app->spi, REG_4094, 1 );
-    // ensure 4094 OE asserted
-    assert( spi_ice40_reg_read32( app->spi, REG_4094 ));
-
-    // now call transition state again. which will do relays
-    printf("spi_mode_transition_state() for relays\n");
-    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
-
-
-    /* enable the ice40 interupt
-    // need to delay until after fpga is configured, else get spurious
-    */
-    spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app->data );
-
+      /* enable the ice40 interupt
+      // need to delay until after fpga is configured, else get spurious
+      */
+      spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app->data );
+    }
 #endif
   }
 
@@ -273,10 +269,14 @@ static void app_update_console(app_t *app)
 
     if(ch == '\r')
     {
+/*
+      JA jun 2024. disable.  for now.
+
       printf("calling spi_mode_transition_state()");
       spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
       // issue new command prompt
       printf("\n> ");
+*/
     }
   }   // while
 }

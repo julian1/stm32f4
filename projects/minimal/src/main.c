@@ -154,7 +154,8 @@ static int main_f429(void)
 {
   // use  f429.ld
   // hse
-	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  //
+	// rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  //  f413.
+	// rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  //  f429 will use ethernet clock, and different setup.
 
   // clocks - TODO move after gpio ports?
   rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
@@ -199,8 +200,8 @@ static int main_f429(void)
   assert_critical_error_led_setup( LED_PORT, LED_OUT);
 
   // mcu clock
-  systick_setup(84000); // 84MHz.
-  // systick_setup(12000); // 12MHz. default lsi.
+  // systick_setup(84000); // 84MHz.
+  systick_setup(12000); // 12MHz. default lsi.
   systick_handler_set( (void (*)(void *)) app_systick_interupt, &app );  // rename systick_handler_set()
 
   //////////////////////
