@@ -382,7 +382,7 @@ static void vfd_write_string2( const char *s, uint8_t xpix, uint8_t ychar )
 }
 
 
-
+// TODO change name write to blit.
 
 
 // looks good.
