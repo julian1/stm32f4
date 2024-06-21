@@ -26,18 +26,8 @@
 */
 
 
-#include <libopencm3/stm32/rcc.h>
-// #include <libopencm3/stm32/gpio.h>
-#include <libopencm3/stm32/spi.h>
 
-// #include <libopencm3/cm3/nvic.h>
-// #include <libopencm3/cm3/systick.h>
-
-
-
-#include <libopencm3/usb/usbd.h>
-
-
+#include <assert.h>
 // #include <setjmp.h>
 #include <stddef.h> // size_t
 //#include <math.h> // nanf
@@ -46,27 +36,79 @@
 #include <stdio.h>   // putChar
 
 
-#include "cbuffer.h"
-#include "streams.h"
-#include "cstring.h"
-#include "usart.h"
-#include "util.h"
-#include "assert.h"
-#include "cdcacm.h"
+
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/gpio.h>    // led
+#include <libopencm3/stm32/spi.h>
+
+// #include <libopencm3/cm3/nvic.h>
+// #include <libopencm3/cm3/systick.h>
+
+#include <libopencm3/usb/usbd.h>
+
+
+
+
+#include <lib2/cbuffer.h>
+#include <lib2/streams.h>
+#include <lib2/cstring.h>
+#include <lib2/usart.h>
+#include <lib2/util.h>
+// #include <cdcacm.h>
 
 
 // #include "str.h"  //format_bits
-#include "format.h"  //format_bits
+// #include <format.h>  //format_bits
 
 
+
+#define LED_PORT  GPIOA
+#define LED_OUT   GPIO9
+
+
+static void led_on(void)
+{
+    gpio_set( LED_PORT, LED_OUT);
+}
+
+
+static void led_off(void)
+{
+    gpio_clear( LED_PORT, LED_OUT);
+}
+
+
+static void led_setup(void)
+{
+  // rcc_periph_clock_enable(RCC_GPIOA);
+  gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT);
+  gpio_set_output_options(LED_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, LED_OUT);
+}
+
+
+
+
+
+#define APP_MAGIC   456
 
 
 typedef struct app_t
 {
-  CBuf console_in;
-  CBuf console_out;
 
-  CString     command;
+  uint32_t  magic;
+  bool      led_state ;     // for mcu. maybe change name to distinguish
+  uint32_t  soft_500ms;
+
+  volatile uint32_t system_millis;
+
+
+
+
+
+  cbuf_t console_in;
+  cbuf_t console_out;
+
+  cstring_t     command;
 
 
   uint32_t    timer ;
@@ -81,22 +123,45 @@ typedef struct app_t
 
 
 
+static void app_systick_interupt(app_t *app)
+{
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+
+
+  // interupt context. don't do anything compliicated here.
+
+  ++ app->system_millis;
+}
+
+
+
+
+
+
+
+
+
+
 static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t deadtime );
 
 
 static void update_console_cmd(app_t *app)
 {
+  assert(app);
+  assert(app->magic == APP_MAGIC);
 
 
-  while( ! cBufisEmpty(&app->console_in)) {
+
+  while( ! cbuf_is_empty(&app->console_in)) {
 
     // got a character
-    int32_t ch = cBufPop(&app->console_in);
+    int32_t ch = cbuf_pop(&app->console_in);
     assert(ch >= 0);
 
-    if(ch != '\r' && cStringCount(&app->command) < cStringReserve(&app->command) ) {
+    if(ch != '\r' && cstring_count(&app->command) < cstring_reserve(&app->command) ) {
       // normal character
-      cStringPush(&app->command, ch);
+      cstring_push_back(&app->command, ch);
       // echo to output. required for minicom.
       putchar( ch);
 
@@ -105,7 +170,7 @@ static void update_console_cmd(app_t *app)
       // newline or overflow
       putchar('\n');
 
-      char *cmd = cStringPtr(&app->command);
+      char *cmd = cstring_ptr(&app->command);
 
       // printf("cmd whoot is '%s'\n", cmd);
 
@@ -114,8 +179,8 @@ static void update_console_cmd(app_t *app)
 
       if( sscanf(cmd, "freq %lu", &u0 ) == 1) {
 
-        // 1uF + (10 + 3uH) == 44kHz resonant. avoid capacitive region. 
-        if(u0 >= 40 && u0 <= 500) {
+        // 1uF + (10 + 3uH) == 44kHz resonant. avoid capacitive region.
+        if(u0 >= 10 && u0 <= 500) {
           app->freq = u0 * 1000;
           timer_set_frequency( app->timer, app->freq, app->deadtime );
         } else {
@@ -134,7 +199,7 @@ static void update_console_cmd(app_t *app)
       }
 
       // reset buffer
-      cStringClear( &app->command);
+      cstring_clear( &app->command);
 
       // issue new command prompt
       printf("> ");
@@ -152,27 +217,46 @@ static void update_console_cmd(app_t *app)
 
 static void loop(app_t *app)
 {
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+
+
   /*
     loop() subsumes update()
   */
 
+/*
   // TODO move to app_t structure?.
   static uint32_t soft_500ms = 0;
   static uint32_t soft_1000ms = 0;
-
+*/
   while(true) {
 
 		// usbd_poll(app->usbd_dev);
 
     update_console_cmd(app);
 
+/*
     // usart1_enable_output_interupt(); // shouldn't be necessary
     if( (system_millis - soft_500ms) > 500) {
       soft_500ms += 500;
       led_toggle();
     }
+*/
 
+    // 500ms soft timer
+    if( (app->system_millis - app->soft_500ms) > 500) {
+      app->soft_500ms += 500;
 
+      app->led_state = ! app->led_state;
+      if(app->led_state)
+        led_on();
+      else
+        led_off();
+
+    }
+
+#if 0
     // 500ms soft timer. should handle wrap around
     if( (system_millis - soft_1000ms) > 1000) {
 
@@ -199,20 +283,12 @@ static void loop(app_t *app)
 #endif
 
     }
+#endif
 
   }
 }
 
 
-
-
-static char buf_console_in[1000];
-static char buf_console_out[1000];
-
-
-static char buf_command[100];
-
-static app_t app;
 
 
 
@@ -230,7 +306,8 @@ static app_t app;
 static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t deadtime )
 {
   // assert(deadtime >= 1 /*&& deadtime <= 50 */);
-  assert(freq >= 40000 && freq <= 500000);
+  // assert(freq >= 40000 && freq <= 500000);
+  assert(freq >= 10000 && freq <= 500000);
 
 
   timer_disable_counter(timer);
@@ -366,6 +443,60 @@ static void timer_setup( uint32_t timer )
 
 
 
+
+
+
+
+
+
+
+static char buf_console_in[1000];
+static char buf_console_out[1000];    // changing this and it freezes. indicates. bug
+
+
+static char buf_command[1000];
+
+
+
+
+static void app_init_console_buffers( app_t *app )
+{
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+
+
+  /* note no printf yet.
+      avoid assert()
+  */
+
+  // uart/console
+  cbuf_init(&app->console_in,  buf_console_in, sizeof(buf_console_in));
+  cbuf_init(&app->console_out, buf_console_out, sizeof(buf_console_out));
+
+  cbuf_init_stdout_streams(  &app->console_out );
+  cbuf_init_stdin_streams( &app->console_in );
+
+
+  cstring_init(&app->command, buf_command, buf_command + sizeof( buf_command));
+}
+
+
+
+
+
+static app_t app = {
+
+  .magic = APP_MAGIC,
+
+};
+
+
+
+
+
+
+
+
 int main(void)
 {
 
@@ -421,18 +552,48 @@ int main(void)
 
 
 
+
+  // mcu clock
+  systick_setup(84000); // 84MHz.
+  // systick_setup(12000); // 12MHz. default lsi.
+  systick_handler_set( (void (*)(void *)) app_systick_interupt, &app );  // rename systick_handler_set()
+
+
+
   // led blink
-  led_setup(GPIOA, GPIO15);
+  // led_setup(LED_PORT, LED_OUT);
+  led_setup();
 
 
+  // setup external state for critical error led blink in priority
+  // because assert() cannot pass a context
+  assert_critical_error_led_setup( LED_PORT, LED_OUT);
+
+
+
+  app_init_console_buffers( &app );
+
+  /*
+    dont' think it makes any sense to use a circular buffer on the output.
+    instead just block control until the output is flushed.
+  */
+  //////////////
+  // now can init usart peripheral using app console buffers
+  usart1_setup_portB();
+
+  usart1_set_buffers( &app.console_in, &app.console_out);
+
+
+
+#if 0
   memset(&app, 0, sizeof(app_t));
 
   // uart/console
-  cBufInit(&app.console_in,  buf_console_in, sizeof(buf_console_in));
-  cBufInit(&app.console_out, buf_console_out, sizeof(buf_console_out));
+  cbuf_init(&app.console_in,  buf_console_in, sizeof(buf_console_in));
+  cbuf_init(&app.console_out, buf_console_out, sizeof(buf_console_out));
 
 
-  cStringInit(&app.command, buf_command, buf_command + sizeof( buf_command));
+  cstring_init(&app.command, buf_command, buf_command + sizeof( buf_command));
 
 
   // standard streams for printf, fprintf, putc.
@@ -443,8 +604,9 @@ int main(void)
   // for fread, fgetch etc
   cbuf_init_stdin_streams( &app.console_in );
 
+#endif
 
-
+#if 0
 
   //////////////
   // initialize usart before start all the app constructors, so that can print.
@@ -453,7 +615,7 @@ int main(void)
   usart1_setup_gpio_portB();
 
   usart1_set_buffers(&app.console_in, &app.console_out);
-
+#endif
 
 
   printf("\n--------\n");
