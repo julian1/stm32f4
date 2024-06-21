@@ -115,7 +115,7 @@ typedef struct app_t
   // usbd_device *usbd_dev ;
 
   uint32_t    freq;     // in Hz
-  uint32_t    deadtime; // in clock counts
+  uint32_t    clk_deadtime; // in clock counts
 
 } app_t;
 
@@ -182,17 +182,17 @@ static void update_console_cmd(app_t *app)
         // 1uF + (10 + 3uH) == 44kHz resonant. avoid capacitive region.
         if(u0 >= 10 && u0 <= 500) {
           app->freq = u0 * 1000;
-          timer_set_frequency( app->timer, app->freq, app->deadtime );
+          timer_set_frequency( app->timer, app->freq, app->clk_deadtime );
         } else {
           printf("freq out of range\n");
         }
       }
 
-      if( sscanf(cmd, "deadtime %lu", &u0 ) == 1) {
+      if( sscanf(cmd, "deadtime %lu", &u0 ) == 1 || sscanf(cmd, "dead %lu", &u0 ) == 1) {
 
         if( /* u0 >= 0 && */ u0 <= 50  ) {
-          app->deadtime = u0 ;
-          timer_set_frequency( app->timer, app->freq, app->deadtime );
+          app->clk_deadtime = u0 ;
+          timer_set_frequency( app->timer, app->freq, app->clk_deadtime );
         } else {
           printf("deadtime out of range\n");
         }
@@ -326,7 +326,11 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t deadtim
   printf("period        %.1f uS\n", period * clk_period  * 1000000 );
 
   printf("clk deadtime  %lu (%lu)\n", deadtime,  deadtime * 2 );
-  printf("deadtime      %.0f nS\n", (deadtime * 2.f)  * clk_period * 1000000000 );
+
+
+  double deadtime_ns = deadtime * clk_period * 1e9 ;
+  printf("deadtime      %.0fnS  (%.0fnS)\n", deadtime_ns , deadtime_ns * 2  );
+
   printf("deadtime      %.1f %%\n", (deadtime * 2.f ) / period * 100);
 
 
@@ -648,10 +652,10 @@ int main(void)
   timer_port_setup();
   timer_setup( app.timer );
 
-  app.freq = 300000;
-  app.deadtime = 4; // determined from scope, at higher current
+  app.freq = 10000;
+  app.clk_deadtime = 1; // determined from scope, at higher current
 
-  timer_set_frequency( app.timer, app.freq, app.deadtime );
+  timer_set_frequency( app.timer, app.freq, app.clk_deadtime );
   timer_enable_counter(app.timer);
 
 
