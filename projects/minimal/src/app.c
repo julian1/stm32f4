@@ -148,10 +148,14 @@ static void app_update_soft_500ms(app_t *app)
   else
     led_off();
 
+  /*
+    TODO. EXTR. much check the magic of the bitstream before we try to send it.
+          it is easy to forget to actually put bitstream in the stm32 flash
+
+  */
 
 
-
-  if( false && !ice40_port_extra_cdone_get() ) {
+  if( /*false &&*/ !ice40_port_extra_cdone_get() ) {
 
     spi_ice40_bitstream_send(app->spi, & app->system_millis );
 
