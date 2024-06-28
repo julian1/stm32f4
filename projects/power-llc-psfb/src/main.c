@@ -180,7 +180,7 @@ static void update_console_cmd(app_t *app)
       if( sscanf(cmd, "freq %lu", &u0 ) == 1) {
 
         // 1uF + (10 + 3uH) == 44kHz resonant. avoid capacitive region.
-        if(u0 >= 10 && u0 <= 500) {
+        if(u0 >= 3 && u0 <= 100) { // 3 - 100 kHz
           app->freq = u0 * 1000;
           timer_set_frequency( app->timer, app->freq, app->clk_deadtime );
         } else {
@@ -307,7 +307,8 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t deadtim
 {
   // assert(deadtime >= 1 /*&& deadtime <= 50 */);
   // assert(freq >= 40000 && freq <= 500000);
-  assert(freq >= 10000 && freq <= 500000);
+  // assert(freq >= 10000 && freq <= 500000);
+  assert(freq >= 3600 && freq <= 100000);
 
 
   timer_disable_counter(timer);
@@ -653,7 +654,8 @@ int main(void)
   timer_setup( app.timer );
 
   app.freq = 10000;
-  app.clk_deadtime = 1; // determined from scope, at higher current
+  // app.clk_deadtime = 15; // 15 == 357ns.
+  app.clk_deadtime = 25;    // 25 == 595ns , (1190ns) .
 
   timer_set_frequency( app.timer, app.freq, app.clk_deadtime );
   timer_enable_counter(app.timer);
