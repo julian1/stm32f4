@@ -653,7 +653,7 @@ int main(void)
   timer_port_setup();
   timer_setup( app.timer );
 
-  app.freq = 10000;
+  app.freq = 15000;     // 15kHz.
   // app.clk_deadtime = 15; // 15 == 357ns.
   app.clk_deadtime = 25;    // 25 == 595ns , (1190ns) .
 
