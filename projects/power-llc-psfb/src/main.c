@@ -190,7 +190,7 @@ static void update_console_cmd(app_t *app)
 
       if( sscanf(cmd, "deadtime %lu", &u0 ) == 1 || sscanf(cmd, "dead %lu", &u0 ) == 1) {
 
-        if( /* u0 >= 0 && */ u0 <= 50  ) {
+        if( /* u0 >= 0 && */ u0 <= 250  ) {
           app->clk_deadtime = u0 ;
           timer_set_frequency( app->timer, app->freq, app->clk_deadtime );
         } else {
@@ -349,6 +349,7 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t deadtim
 
   timer_disable_counter(timer); // helps when resetting
 
+
   // 1 & 4 are the same
   timer_enable_oc_output(timer, TIM_OC1 );
   timer_set_oc_mode(timer, TIM_OC1 , TIM_OCM_PWM1);    // Output is active (high) when counter is less than output compare value
@@ -367,6 +368,37 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t deadtim
   timer_enable_oc_output(timer, TIM_OC3);
   timer_set_oc_mode(timer, TIM_OC3, TIM_OCM_PWM2);    // Output is active (high) when counter is greater than output compare value
   timer_set_oc_value(timer, TIM_OC3, half_period + deadtime);
+
+
+
+/*
+  jul 9, 2024.
+  // PSFB - would look more like this
+      - with RHB put on TIM1.
+      doesn't look like TIM9 can do up and downcount
+
+  // LHB
+  timer_enable_oc_output(timer, TIM_OC1 );
+  timer_set_oc_mode(timer, TIM_OC1 , TIM_OCM_PWM1);    // Output is active (high) when counter is less than output compare value
+  timer_set_oc_value(timer, TIM_OC1, half_period - deadtime);
+
+  timer_enable_oc_output(timer, TIM_OC2);
+  timer_set_oc_mode(timer, TIM_OC2, TIM_OCM_PWM2);    // Output is active (high) when counter is greater than output compare value
+  timer_set_oc_value(timer, TIM_OC2, half_period + deadtime);
+
+  /////////////////
+
+  // RHB
+  timer_enable_oc_output(timer, TIM_OC3);
+  timer_set_oc_mode(timer, TIM_OC3, TIM_OCM_PWM2);    // Output is active (high) when counter is greater than output compare value
+  timer_set_oc_value(timer, TIM_OC3, half_period + deadtime);
+
+  timer_enable_oc_output(timer, TIM_OC4);
+  timer_set_oc_mode(timer, TIM_OC4, TIM_OCM_PWM1);    // Output is active (high) when counter is less than output compare value
+  timer_set_oc_value(timer, TIM_OC4, half_period - deadtime);
+*/
+
+
 
   timer_set_counter( timer, 0 );    // make sure timer count does  not escape when shortening period
 
@@ -655,7 +687,9 @@ int main(void)
 
   app.freq = 15000;     // 15kHz.
   // app.clk_deadtime = 15; // 15 == 357ns.
-  app.clk_deadtime = 25;    // 25 == 595ns , (1190ns) .
+  // app.clk_deadtime = 25;    // 25 == 595ns , (1190ns) .
+  // app.clk_deadtime = 50;    // with 1k. gate resistors.  works better.
+  app.clk_deadtime = 70;       // for full-bridge.  time for primary to reset.
 
   timer_set_frequency( app.timer, app.freq, app.clk_deadtime );
   timer_enable_counter(app.timer);
