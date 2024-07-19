@@ -39,7 +39,7 @@ static void test (app_t *app)
 
 
 
-  for(unsigned i = 0; i < 50; ++i )  {
+  for(unsigned i = 0; i < 31; ++i )  {
 
     static uint32_t counter = 0;
     ++counter;

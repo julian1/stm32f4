@@ -200,8 +200,8 @@ static int main_f429(void)
   assert_critical_error_led_setup( LED_PORT, LED_OUT);
 
   // mcu clock
-  // systick_setup(84000); // 84MHz.
   systick_setup(12000); // 12MHz. default lsi.
+  // systick_setup(84000); // 84MHz.
   systick_handler_set( (void (*)(void *)) app_systick_interupt, &app );  // rename systick_handler_set()
 
   //////////////////////
@@ -258,13 +258,27 @@ static int main_f429(void)
 
 
 
+/*
+  - for mcu startup
+    - must have correct link script (eg. f413rgt6.) declared in Makefile declared, ie with correct ram for heap placement.
+    - and if hse, then xtal populated
+    -----------
 
+    - note iso7662 isolators *appear* to draw a lot of current (43mA) on the fpga/secondary side..
+        if mcu primary side is unpowered.
+        - quite odd.  because tryng to drive unconfigured fpga gpio?
+        - otherwise fpga/ needs 5V/15mA.  with only the leds/ no xtal. etc.
+
+*/
 
 
 static int main_f413(void)
 {
   // hse
-	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz.
+	// rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  // stm32f411  upto 100MHz.
+
+  // hsi
+  rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_3V3_84MHZ ]);
 
   // clocks
   rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
@@ -300,8 +314,8 @@ static int main_f413(void)
   assert_critical_error_led_setup( LED_PORT, LED_OUT);
 
   // mcu clock
-  systick_setup(84000); // 84MHz.
   // systick_setup(12000); // 12MHz. default lsi.
+  systick_setup(84000); // 84MHz. hsi/hse
   systick_handler_set( (void (*)(void *)) app_systick_interupt, &app );  // rename systick_handler_set()
 
   //////////////////////
@@ -356,6 +370,7 @@ static int main_f413(void)
 
 int main(void)
 {
-  return main_f429();
+  // return main_f429();
+  return main_f413();
 }
 
