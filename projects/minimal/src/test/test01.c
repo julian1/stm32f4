@@ -72,7 +72,10 @@ static void test (app_t *app)
 bool app_test01( app_t *app , const char *cmd)
 {
   assert(app);
+  assert(app->magic == APP_MAGIC);
   assert(cmd);
+
+
 
   if( strcmp(cmd, "test01") == 0) {
     test( app );

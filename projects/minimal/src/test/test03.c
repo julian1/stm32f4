@@ -2,6 +2,8 @@
 /*
   more an example - showing how to use the embedded text repl.
   need to call sleep though. sleep .
+----
+  todo - remove. not just how useful
 
 */
 
