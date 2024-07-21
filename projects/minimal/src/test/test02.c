@@ -1,6 +1,6 @@
 
 /*
-  more an example of how to use embedded repl.
+  more an example - showing how to use the embedded text repl.
   need to call sleep though. sleep .
 
 */
@@ -10,7 +10,6 @@
 #include <string.h>   // strcmp
 
 #include <app.h>
-// #include <lib2/util.h>         // msleep()
 
 
 
