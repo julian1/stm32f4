@@ -13,13 +13,13 @@
 
 
 
-bool app_test02( app_t *app , const char *cmd)
+bool app_test03( app_t *app , const char *cmd)
 {
   assert(app);
   assert(cmd);
 
 
-  if( strcmp(cmd, "test02") == 0) {
+  if( strcmp(cmd, "test03") == 0) {
 
     app_repl_statements(app, "set k405 1; set k406 0; set k407 0\n" );
     return 1;

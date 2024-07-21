@@ -1,6 +1,6 @@
 
 /*
-  just bounce relay 407 a few times, to audibly check 4094 comms.
+  just test 4094, by bouncing relay K407 a few times, to audibly check 4094 comms.
 
 */
 
@@ -37,12 +37,12 @@ static void test (app_t *app)
 
 
 
-bool app_test03( app_t *app , const char *cmd)
+bool app_test02( app_t *app , const char *cmd)
 {
   assert(app);
   assert(cmd);
 
-  if( strcmp(cmd, "test03") == 0) {
+  if( strcmp(cmd, "test02") == 0) {
     test( app );
     return 1;
   }
