@@ -54,16 +54,13 @@
 */
 
 
-#define SPI_PERIPH   SPI1        // better name?
 
-#define SPI1_PORT  GPIOA
-
-
-#define SPI_CS1   GPIO4     // PA4
-#define SPI_CS2   GPIO15    // PA15 nss 2. moved.
-
-
-#define SPI_INTERUPT GPIO3   // PA2
+#define SPI_PERIPH    SPI1      // better name?
+#define SPI1_PORT     GPIOA
+#define SPI_CS1       GPIO4     // PA4
+// #define SPI_CS2   GPIO15     // PA15 nss 2. moved.
+#define SPI_CS2       GPIO10    // PA10 july 2024. nss moved.
+#define SPI_INTERUPT  GPIO3     // PA3
 
 
 /*
@@ -74,6 +71,8 @@
   see hal.h  and PIN() macro for cleaner example looping an array.
     vim ~/devel/mongoose/examples/stm32/nucleo-f429zi-make-baremetal-builtin/hal.
 */
+
+
 
 
 

@@ -269,6 +269,8 @@ static int main_f429(void)
         - quite odd.  because tryng to drive unconfigured fpga gpio?
         - otherwise fpga/ needs 5V/15mA.  with only the leds/ no xtal. etc.
 
+      Default output high (ISO776x) and low (ISO776xF) Options
+
 */
 
 
