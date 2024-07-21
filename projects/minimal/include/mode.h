@@ -96,6 +96,7 @@ reset is schem default contacts.
 
 
 // not sure
+// rename RLY for relay. or similar
 #define LR_SET      0b01
 #define LR_RESET    0b10
 
@@ -146,8 +147,22 @@ typedef struct _4094_state_t
   uint8_t U415_UNUSED : 6;
   uint8_t K407        : 2;
 
-  // 500.
+  /////////////////////
+  // 506.
+  uint8_t U504        : 3; // adg1209.
+  uint8_t U506_UNUSED : 5;
+
   // 600.
+  uint8_t U606_UNUSED : 8;
+  uint8_t U607_UNUSED : 8;
+
+  // 700
+  uint8_t U705_UNUSED : 8;
+  uint8_t U706_UNUSED : 8;
+  uint8_t U709_UNUSED : 8;
+
+  /////////////////////
+
 
 
 /*
@@ -162,7 +177,7 @@ typedef struct _4094_state_t
 
   // u1004
   uint8_t U1003 : 4;      // 4 bit mux.
-  uint8_t U1006 : 4;
+  uint8_t U1006 : 4;      // fixme.
 
   // U1008.
   uint8_t U1009 : 4;

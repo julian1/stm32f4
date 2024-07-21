@@ -41,8 +41,9 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 {
   assert(mode);
 
+  printf("spi_mode_transition_state()\n");
   // printf("4094 size %u\n", sizeof(_4094_state_t));
-  assert( sizeof(_4094_state_t) == 7 );
+  assert( sizeof(_4094_state_t) == 13 );
 
   // mux spi to 4094. change mcu spi params, and set spi device to 4094
   spi_mux_4094 ( spi);
@@ -225,7 +226,8 @@ void mode_set_dcv_source_dac( _mode_t *mode, signed u0 )
     mode->second.U1003  = S2 ;       // s2.  -10V.
   }
 
-  mode->second.U1006  = S3;          // s1.   follow  .   dcv-mux2
+  // FIXME
+  // mode->second.U1006  = S3;          // s1.   follow  .   dcv-mux2
 
   // do range check.
   assert(u0 <= 0x3fff);
@@ -685,6 +687,12 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       ////////////////////////////////////////////
       // 4094 components.
       // perhaps rename second. _4094_second etc.
+
+
+      else if(strcmp(s0, "u504") == 0) {
+        mode->second.U504 = u0;
+      }
+
 
       else if(strcmp(s0, "u1003") == 0) {
         mode->second.U1003 = u0;

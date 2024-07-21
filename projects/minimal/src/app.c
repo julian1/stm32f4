@@ -271,16 +271,17 @@ static void app_update_console(app_t *app)
       printf("too many chars!!\n");
     }
 
+
     if(ch == '\r')
     {
-/*
-      JA jun 2024. disable.  for now.
+
+      // JA jun 2024. disable.  for now.
 
       printf("calling spi_mode_transition_state()");
       spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
       // issue new command prompt
       printf("\n> ");
-*/
+
     }
   }   // while
 }
