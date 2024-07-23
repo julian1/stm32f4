@@ -16,6 +16,7 @@
 #include <peripheral/spi-dac8811.h>
 
 
+
 #include <lib2/util.h>      // msleep, UNUSED
 #include <lib2/format.h>   // str_format_bits
 
@@ -74,15 +75,15 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 
   // now write dac state
 
-#if 0
-   // spi_mux_dac8811(app->spi);
-  spi_mux_ad5446( spi );
+#if 1
 
-  // for dac881 1eg. 0=-0V out.   0xffff = -7V out. nice.
-  // spi_dac8811_write16( app->spi, mode->dac_val );
+  spi_mux_ice40( spi);
+  spi_ice40_reg_write32( spi, REG_SPI_MUX,  SPI_MUX_DAC );
 
-  // for ad5444  14bit max is 0x3fff.
+  spi_port_configure_ad5446( spi);
+
   spi_ad5446_write16( spi, mode->dac_val );
+
 #endif
 
 
@@ -251,7 +252,7 @@ void mode_set_dcv_source_ref( _mode_t *mode, unsigned u0 )
     // need bodge for this
     printf("with ref-lo\n");
     mode->second.U1006  = S8;       // ref-lo
-    mode->second.U1007  = S4;       // ref-lo
+    mode->second.U1007  = S4;       // ref-lo - looks funny. gives bad measurement. on DMM.
   }
   else
     assert(0);
@@ -261,6 +262,13 @@ void mode_set_dcv_source_ref( _mode_t *mode, unsigned u0 )
 
 void mode_set_dcv_source_dac( _mode_t *mode, signed u0 )
 {
+    printf("dac\n");
+
+    mode->second.U1012  = S8 ;       // reset/not used..
+
+
+    mode->second.U1006  = S3;       // dac
+    mode->second.U1007  = S3;       // dac
 
   if(u0 >= 0) {
     printf("with +");
@@ -271,24 +279,7 @@ void mode_set_dcv_source_dac( _mode_t *mode, signed u0 )
     mode->second.U1003  = S2 ;      // negatie source
   }
 
-/*
-
-  if(u0 > 0) {
-    printf("with +10V\n");
-    mode->second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
-  }
-  else {
-    // TODO. handle signedness in str_decode_uint.
-    assert( 0 );
-    printf("with -10V\n");
-    mode->second.U1003  = S2 ;       // s2.  -10V.
-  }
-*/
-
-  // FIXME
-  // mode->second.U1006  = S3;          // s1.   follow  .   dcv-mux2
-
-  // do range check.
+  // should do better range check.
   assert(u0 <= 0x3fff);
 
   mode->dac_val = u0;// abs( u0 );
