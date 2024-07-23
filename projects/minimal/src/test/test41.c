@@ -24,6 +24,7 @@
 
 #include <mode.h>       // transition state
 
+#define UNUSED(x) (void)(x)
 
 static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
 {
@@ -171,6 +172,11 @@ bool app_test41(
       double diff = ab + bc - ac;   // store
 #endif
 
+
+  // july 2024.  disabled because we changed around relays.
+  assert(0); 
+/*
+
       app->mode_current->second.U1010 = (A << 2) | B ;      // B-A,  TAP-10V
       fill_buffer( app, yield, yield_ctx) ;
       double ba  = m_get_mean( data->buffer );
@@ -191,6 +197,7 @@ bool app_test41(
       double bb = m_get_mean( data->buffer );
       printf("b-b mean %lf\n", bb);
 
+
       double diff = ba + cb - ca;   // store
       ar[i] = diff;
 
@@ -199,6 +206,7 @@ bool app_test41(
       printf("-------\n");
       printf("diff %.2lfuV\n", diff * 1e6);
       printf("bb   %.2lfuV\n", bb * 1e6);
+*/
     }
 
 

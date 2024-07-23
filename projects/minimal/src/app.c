@@ -274,7 +274,7 @@ static void app_update_console(app_t *app)
 
     if(ch == '\r')
     {
-
+      // this is correct.  AND it is ok. to call transition_state(), even if nothing changed. 
       // JA jun 2024. disable.  for now.
 
       printf("calling spi_mode_transition_state()");

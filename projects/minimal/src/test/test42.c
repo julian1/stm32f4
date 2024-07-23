@@ -26,6 +26,9 @@
 #include <peripheral/ice40-extra.h>      // trigger
 
 
+#define UNUSED(x) (void)(x)
+
+
 static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void *), void *yield_ctx)
 {
   assert(buffer);
@@ -90,6 +93,11 @@ static void negative_side(
   void *yield_ctx
 ) 
 {
+
+  UNUSED(app);
+  UNUSED(yield);
+  UNUSED(yield_ctx);
+
     unsigned rows = 3;
 
     MAT *ba =  m_get(  rows * 3, 1 );   // rows x cols
@@ -104,6 +112,9 @@ static void negative_side(
 
     for( unsigned i = 0; i < rows; ++i ) {
 
+      // JA disabled july 2024.
+      assert(0);
+/*
       printf("------\nb-a\n");
       app->mode_current->second.U1010 = (A << 2) | B ;      // B-A,  TAP-10V
       fill_buffer( app, ba, 3, yield, yield_ctx) ;
@@ -119,6 +130,7 @@ static void negative_side(
       printf("------\b-b\n");
       app->mode_current->second.U1010 = (B << 2) | B ;      // B-B, TAP-TAP. on dcv-source-1 and dcv-source-com, from different inputs
       fill_buffer( app, bb, 3, yield, yield_ctx) ;
+*/
     }
 
     assert(m_rows(ba) == m_rows(cb));
@@ -168,6 +180,11 @@ static void positve_side(
   void *yield_ctx
 ) 
 {
+
+  UNUSED(app);
+  UNUSED(yield);
+  UNUSED(yield_ctx);
+
     unsigned rows = 3;
 
     MAT *ab =  m_get(  rows * 3, 1 );   // rows x cols
@@ -182,6 +199,10 @@ static void positve_side(
 
     for( unsigned i = 0; i < rows; ++i ) {
 
+    // JA disable july 2024.
+    assert(0);
+
+/*
       printf("------\na-b\n");
       app->mode_current->second.U1010 = (B << 2) | A ;      // A-B,  10V -TAP
       fill_buffer( app, ab, 3, yield, yield_ctx) ;
@@ -197,6 +218,7 @@ static void positve_side(
       printf("------\b-b\n");
       app->mode_current->second.U1010 = (B << 2) | B ;      // B-B, TAP-TAP. on dcv-source-1 and dcv-source-com, from different inputs
       fill_buffer( app, bb, 3, yield, yield_ctx) ;
+*/
     }
 
     assert(m_rows(ab) == m_rows(bc));

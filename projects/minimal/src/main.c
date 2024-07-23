@@ -345,6 +345,11 @@ static int main_f413(void)
   assert( sizeof(float) == 4);
   assert( sizeof(double ) == 8);
 
+  printf("4094 size %u\n", sizeof(_4094_state_t));
+  assert( sizeof(_4094_state_t) == 12 );
+
+
+
   // init data
   data_init( app.data );
 

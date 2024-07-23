@@ -177,15 +177,16 @@ typedef struct _4094_state_t
 
   // u1004
   uint8_t U1003 : 4;      // 4 bit mux.
-  uint8_t U1006 : 4;      // fixme.
-
-  // U1008.
-  uint8_t U1009 : 4;
-  uint8_t U1008_UNUSED : 4;
+  uint8_t U1012 : 4;      // fixme.
 
   // U1017
-  uint8_t U1010 : 4;
-  uint8_t U1012 : 4;
+  uint8_t U1006 : 4;
+  uint8_t U1007 : 4;
+
+  // U1008.
+  // uint8_t U1009 : 4;
+  // uint8_t U1008_UNUSED : 4;
+
 
 } _4094_state_t;
 
@@ -376,7 +377,7 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
   actually implied. because dcv2 is always constant function of dcv1.  - eg. inverted.
 */
 
-void mode_set_dcv_source( _mode_t *mode, signed i0);  // arg is 10,0,-10
+void mode_set_dcv_source( _mode_t *mode, double f0 /*signed i0*/);  // arg is 10,0,-10
 
 void mode_set_dcv_source_ref(  _mode_t *mode, unsigned u0 ); // 7 == ref-hi  or 0 == ref-lo
 

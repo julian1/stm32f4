@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include <string.h>   // strcmp, memset
+#include <math.h>   // fabs
 
 
 
@@ -43,7 +44,7 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 
   printf("spi_mode_transition_state()\n");
   // printf("4094 size %u\n", sizeof(_4094_state_t));
-  assert( sizeof(_4094_state_t) == 13 );
+  assert( sizeof(_4094_state_t) == 12 );
 
   // mux spi to 4094. change mcu spi params, and set spi device to 4094
   spi_mux_4094 ( spi);
@@ -159,33 +160,68 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 
 
 
+/*
+    U1003==S5. is A1000-1 gnd. should have used a ref-lo.
+      But A1000-1 has current on it - because used with dac.
 
-void mode_set_dcv_source( _mode_t *mode, signed i0)
+*/
+
+void mode_set_dcv_source( _mode_t *mode, double f0 /*signed i0*/)     // needs to be a float... for 0.1 0.01 etc.
 {
-  // need a better name.
-  // 10,0,-10
+  // better name?
+
   printf("set dcv-source\n");
 
-  if(i0 == 10) {
-    printf("with +10V\n");
-    mode->second.U1003  = S1 ;       // s1. dcv-source s1. +10V.
+
+  mode->second.U1006  = S2;   // dcv-source
+  mode->second.U1007  = S2;   // dcv-source
+
+
+  if(f0 >= 0) {
+    printf("with +");
+    mode->second.U1003  = S1 ;       // positive source.
+  } else if (f0 < 0) {
+
+    printf("with -");
+    mode->second.U1003  = S2 ;      // negatie source
   }
-  else if(i0 == -10) {
-    printf("with -10V\n");
-    mode->second.U1003  = S2 ;       // s2.  -10V.
+
+
+  if( fabs(f0)  == 10) {
+    printf("10V\n");
+    mode->second.U1012  = S1;         // 10V tap
   }
-  else if(i0 == 0) {
-    printf("with 0V\n");
-    mode->second.U1003 = S3;          // s3 == agnd
+  else if(fabs(f0) == 1) {
+    printf("1V\n");
+    mode->second.U1012  = S2;       // 1V.
   }
+  else if(fabs(f0) == 0.1) {
+    printf("1V\n");
+    mode->second.U1012  = S3;       // 0.1V.
+  }
+  else if(fabs(f0) == 0.01) {
+    // not implemented/resistor not poplated
+    printf("0.01V\n");
+    mode->second.U1012  = S4;       // 0.01V.
+  }
+  else if(fabs(f0) == 0) {
+    printf("0V\n");
+    mode->second.U1012  = S5;       // 0.01V.
+  }
+
   else {
+    // need better argument validation here,
     // when called programmatically, should not fail.
+
     assert(0);
   }
 
-  mode->second.U1006  = S1 ;          // s1.   follow  .   dcv-mux2
+
 
 }
+
+
+
 
 
 //    mode->second.U409 = S1;         // lo-mux,  source dcv-source-com which is ref-lo
@@ -442,7 +478,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   char s2[100 + 1 ];
   uint32_t u0, u1;
   double f0;
-  int32_t i0;
+  // int32_t i0;
 
 
   // uint32_t line_freq = app->line_freq;
@@ -459,10 +495,10 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
   // +10,0,-10.    if increment. then could use the dac.
   // perhaps change name dcv-source fixed
-  if( sscanf(cmd, "dcv-source %ld", &i0 ) == 1) {
+  if( sscanf(cmd, "dcv-source %lf", &f0) == 1) {
 
       // printf("set dcv-source, input relays, for current_mode\n");
-      mode_set_dcv_source( mode, i0);
+      mode_set_dcv_source( mode, f0);
   }
 
   // ref-hi , ref-lo
@@ -703,13 +739,14 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       else if(strcmp(s0, "u1012") == 0) {
         mode->second.U1012 = u0;
       }
+/*
       else if(strcmp(s0, "u1010") == 0) {
         mode->second.U1010 = u0;
       }
       else if(strcmp(s0, "u1009") == 0) {
         mode->second.U1009 = u0;
       }
-
+*/
 
 
       else if( strcmp(s0, "dac") == 0 || strcmp(s0, "u1016") == 0 || strcmp(s0, "u1014") == 0) {
