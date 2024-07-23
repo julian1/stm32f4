@@ -206,7 +206,7 @@ void mode_set_dcv_source( _mode_t *mode, double f0 /*signed i0*/)     // needs t
   }
   else if(fabs(f0) == 0) {
     printf("0V\n");
-    mode->second.U1012  = S5;       // 0.01V.
+    mode->second.U1012  = S5;       // 0V tap.
   }
 
   else {
