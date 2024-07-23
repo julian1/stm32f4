@@ -247,7 +247,7 @@ static void app_update_console(app_t *app)
 
     if (ch == ';' || ch == '\r' )
     {
-      // a separator, then apply state changes to local structure - what we have so far.
+      // a separator, update state with changes according to string.
 
       char *cmd = cstring_ptr(&app->command);
       cmd = str_trim_whitespace_inplace( cmd );
@@ -272,13 +272,12 @@ static void app_update_console(app_t *app)
       printf("too many chars!!\n");
     }
 
-
+    // apply state change
     if(ch == '\r')
     {
-      // this is correct.  AND it is ok/ even desirable. to update analog state by calling transition_state(),
-      // even if state was not modified. eg. it ensures that everyghing is aligned.
+      // correct. it is ok/desirable. to update analog board state by calling transition_state(),
+      // even if state hasn't been modified. eg. ensures that state is consistent/aligned.
 
-      printf("calling spi_mode_transition_state()");
       spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
       // issue new command prompt
       printf("\n> ");

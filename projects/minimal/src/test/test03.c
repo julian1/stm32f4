@@ -1,5 +1,7 @@
 
 /*
+  perhaps deprecate - although did we use this to help setup some of the manual input tests?
+
   more an example - showing how to use the embedded text repl.
   need to call sleep though. sleep .
 ----

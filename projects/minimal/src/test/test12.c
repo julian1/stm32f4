@@ -1,5 +1,5 @@
 /*
-  test12 renamed from test05.
+  test12 renamed from test05. july 2024.
 */
 
 #include <stdio.h>

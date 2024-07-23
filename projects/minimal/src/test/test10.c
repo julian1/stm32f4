@@ -1,6 +1,9 @@
 
 /*
-  we need this repeated - whereby the adc actually verifies the value.
+  we need this same test duplicated - and where the adc verifies the value is within bounds.
+
+  perhaps consolidate tests here.
+  for ref and dac?
 
 */
 
@@ -8,40 +11,35 @@
 #include <assert.h>
 #include <string.h>   // strcmp
 
-#include <lib2/util.h>      // msleep()
+#include <lib2/util.h>      // msleep(), ARRAY_SIZE
 
 #include <app.h>
 
 
 
-static void test (app_t *app)
+static void test (app_t *app)     // should be passing the continuation.
 {
-  unsigned pause = 1000; // in milli
 
-  /*
-    would be better to construct as loop and array.
-    could sprintf to format the double value to use.
-    and for
-  */
+  // test voltages
+  double fa[]  = { 10, 1, 0.1, 0.01, 0,  -0.01, -0.1, -1, -10  } ;
 
-  app_repl_statements(app, "dcv-source 10\n" );
-  msleep( pause, &app->system_millis);
+  for(unsigned i = 0; i < ARRAY_SIZE(fa); ++i)  {
 
-  app_repl_statements(app, "dcv-source 1\n" );
-  msleep( pause, &app->system_millis);
+    char buf[100];
+    snprintf( buf, 100, "dcv-source %lf\n", fa[i]);
+    app_repl_statements( app, buf);
 
-  app_repl_statements(app, "dcv-source 0.1\n" );
-  msleep( pause, &app->system_millis);
-
-  app_repl_statements(app, "dcv-source 0.01\n" );     // resistor not fitted, but can still run the test.
-  msleep( pause, &app->system_millis);
-
+    msleep( 1000, &app->system_millis);   // sleep 1s.
+  }
 }
 
 
 
 bool app_test10( app_t *app , const char *cmd)
 {
+
+  printf( "value is %x\n",  -0x7F );
+
   assert(app);
   assert(app->magic == APP_MAGIC);
   assert(cmd);

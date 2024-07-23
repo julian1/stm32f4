@@ -201,7 +201,7 @@ void mode_set_dcv_source( _mode_t *mode, double f0 /*signed i0*/)     // needs t
     mode->second.U1012  = S2;       // 1V.
   }
   else if(fabs(f0) == 0.1) {
-    printf("1V\n");
+    printf("0.1V\n");
     mode->second.U1012  = S3;       // 0.1V.
   }
   else if(fabs(f0) == 0.01) {
