@@ -166,6 +166,11 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 
 */
 
+/*
+    - need a reset of all dcv-source muxes.  that we call first.
+    - eg. to reset U1003.
+*/
+
 void mode_set_dcv_source( _mode_t *mode, double f0 /*signed i0*/)     // needs to be a float... for 0.1 0.01 etc.
 {
   // better name?
@@ -228,19 +233,25 @@ void mode_set_dcv_source( _mode_t *mode, double f0 /*signed i0*/)     // needs t
 
 void mode_set_dcv_source_ref( _mode_t *mode, unsigned u0 )
 {
+  /*
 
+  */
+
+/*
   // TODO U1012 should source a gnd, when add it
   mode->second.U1012  = SOFF;       // should probably be agnd.
+*/
 
   if(u0 == 7) {
     printf("with ref-hi +7V\n");
     mode->second.U1006  = S4;       // ref-hi
-                                    // no . we shouldn't be setting lo-mux here
+    mode->second.U1007  = S4;       // ref-lo
   }
   else if( u0 == 0 ) {
     // need bodge for this
     printf("with ref-lo\n");
-    mode->second.U1006  = S7;       // ref-lo
+    mode->second.U1006  = S8;       // ref-lo
+    mode->second.U1007  = S4;       // ref-lo
   }
   else
     assert(0);
@@ -250,6 +261,17 @@ void mode_set_dcv_source_ref( _mode_t *mode, unsigned u0 )
 
 void mode_set_dcv_source_dac( _mode_t *mode, signed u0 )
 {
+
+  if(u0 >= 0) {
+    printf("with +");
+    mode->second.U1003  = S1 ;       // positive source.
+  } else if (u0 < 0) {
+
+    printf("with -");
+    mode->second.U1003  = S2 ;      // negatie source
+  }
+
+/*
 
   if(u0 > 0) {
     printf("with +10V\n");
@@ -261,6 +283,7 @@ void mode_set_dcv_source_dac( _mode_t *mode, signed u0 )
     printf("with -10V\n");
     mode->second.U1003  = S2 ;       // s2.  -10V.
   }
+*/
 
   // FIXME
   // mode->second.U1006  = S3;          // s1.   follow  .   dcv-mux2
