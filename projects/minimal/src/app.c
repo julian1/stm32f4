@@ -247,7 +247,8 @@ static void app_update_console(app_t *app)
 
     if (ch == ';' || ch == '\r' )
     {
-      // a separator, then apply what we have so far.
+      // a separator, then apply state changes to local structure - what we have so far.
+
       char *cmd = cstring_ptr(&app->command);
       cmd = str_trim_whitespace_inplace( cmd );
       // could transform lower case
@@ -274,8 +275,8 @@ static void app_update_console(app_t *app)
 
     if(ch == '\r')
     {
-      // this is correct.  AND it is ok. to call transition_state(), even if nothing changed. 
-      // JA jun 2024. disable.  for now.
+      // this is correct.  AND it is ok/ even desirable. to update analog state by calling transition_state(),
+      // even if state was not modified. eg. it ensures that everyghing is aligned.
 
       printf("calling spi_mode_transition_state()");
       spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
@@ -699,9 +700,12 @@ void app_repl_statement(app_t *app,  const char *cmd)
   else if( app_test01( app, cmd  )) { }
   else if( app_test02( app, cmd  )) { }
   else if( app_test03( app, cmd  )) { }
-  else if( app_test05( app, cmd  )) { }
+
+  else if( app_test10( app, cmd  )) { }
+  else if( app_test12( app, cmd  )) { }
   else if( app_test14( app, cmd  )) { }
   else if( app_test15( app, cmd  )) { }
+
   else if( app_test20( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
   else if( app_test40( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
   else if( app_test41( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }

@@ -1,3 +1,6 @@
+/*
+  test12 renamed from test05.
+*/
 
 #include <stdio.h>
 #include <assert.h>
@@ -11,20 +14,20 @@
 
 
 
-bool app_test05( app_t *app , const char *cmd)
+bool app_test12( app_t *app , const char *cmd)
 {
   assert(app);
   assert(cmd);
   assert(app->mode_initial);
 
   /*
-    > reset ; dcv-source 10; test05
+    > reset ; dcv-source 10; test12
 
       azmux is held off to lower leakage through amplifier. so need external DMM to sample BOOT.
   */
 
 
-  if( strcmp(cmd, "test05") == 0) {
+  if( strcmp(cmd, "test12") == 0) {
 
       printf("test input leakage by first charging cap for 10sec, then turn off azmux and observe leakage on boot\n");
 
@@ -98,13 +101,13 @@ bool app_test05( app_t *app , const char *cmd)
 
 mar 11,
 
-  > reset ; dcv-source 10; test05
+  > reset ; dcv-source 10; test12
       0.57mV 0.54mV
 
-  > reset ; dcv-source 0; test05
+  > reset ; dcv-source 0; test12
       0.7mV 0.8mV
 
-  > reset ; dcv-source -10; test05
+  > reset ; dcv-source -10; test12
       1.2mV 1.1mV.
 
     nice leakage is very controlled.
