@@ -66,21 +66,4 @@ void spi_ad5446_write16(uint32_t spi, uint16_t val)
 
 
 
-#if 0
-
-// void spi_mux_ad5446(uint32_t spi )
-
-  // EXTR. setup on the ice40 side.
-  // printf("spi mux ad5446\n");
-
-  assert( SPI_MUX_DAC8811 == 2);   // (1<<1)
-
-  spi_mux_ice40( spi);    // should not need.
-
-  // default state - should always be to *not* to propagate spi on 4094 lines.  to avoid emi
-  assert( spi_ice40_reg_read32(spi, REG_SPI_MUX ) == SPI_MUX_NONE);
-
-  // set ice40 to mux spi to dac peripheral
-  spi_ice40_reg_write32(spi, REG_SPI_MUX,  SPI_MUX_DAC8811 );
-#endif
 
