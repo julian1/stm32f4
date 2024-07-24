@@ -30,6 +30,7 @@ static void test (app_t *app)
 
     flip = ! flip;
     mode.first.K407 =  flip ? 0b01 : 0b10;
+    // mode.first.K703 =  flip ? 0b01 : 0b10;
     spi_mode_transition_state( app->spi, &mode, &app->system_millis);
     msleep( 300, &app->system_millis);
   }

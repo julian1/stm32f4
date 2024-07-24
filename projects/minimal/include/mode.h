@@ -157,7 +157,13 @@ typedef struct _4094_state_t
   uint8_t U607_UNUSED : 8;
 
   // 700
-  uint8_t U705_UNUSED : 8;
+  uint8_t K701 : 2;
+  uint8_t K702 : 2;
+  uint8_t K703 : 2;
+  uint8_t U705_UNUSED : 2;
+
+
+
   uint8_t U706_UNUSED : 8;
   uint8_t U709_UNUSED : 8;
 
