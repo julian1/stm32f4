@@ -1,6 +1,6 @@
 
 /*
-  we need this same test duplicated - and where the adc verifies the value is within bounds.
+  should duplicate test and use adc to verify  value is ok/within bounds.
 
   perhaps consolidate tests here.
   for ref and dac?
@@ -37,9 +37,6 @@ static void test (app_t *app)     // should be passing the continuation.
 
 bool app_test10( app_t *app , const char *cmd)
 {
-
-  printf( "value is %x\n",  -0x7F );
-
   assert(app);
   assert(app->magic == APP_MAGIC);
   assert(cmd);

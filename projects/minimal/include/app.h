@@ -142,7 +142,8 @@ bool app_test02( app_t *app , const char *cmd);
 bool app_test03( app_t *app , const char *cmd);
 
 // dcvsource
-bool app_test10( app_t *app , const char *cmd);     // move? test10
+bool app_test10( app_t *app , const char *cmd);
+bool app_test11( app_t *app , const char *cmd);
 
 // input mux tests
 bool app_test12( app_t *app , const char *cmd);     // formerly test05.
