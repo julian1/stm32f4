@@ -2,6 +2,8 @@
 /*
   just test 4094, by bouncing relay K407 a few times, to audibly check 4094 comms.
 
+  could also pass an argument for which relay...
+
 */
 
 #include <stdio.h>

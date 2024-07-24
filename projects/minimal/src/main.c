@@ -40,10 +40,17 @@ static const _mode_t mode_initial =  {
 
   */
 
-
+/*
   .first .K407  = LR_SET,     // disengage - dcv-source
   .first .K406  = LR_SET,     // disengage - accum cap
   .first .K405  = LR_RESET,   // select ch2 himux out
+*/
+
+  // july 2024.
+  .first .K407  = LR_RESET,     // /disengage, dcv-source routed through to ch1 input.
+  .first .K405  = LR_SET,       // guard follows ch1 input.
+  .first .K406  = LR_RESET,     // disengage - accum cap
+
 
 
   .reg_mode = 0, // MODE_LO,                                  // default, blink led according to mcu
