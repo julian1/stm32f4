@@ -717,6 +717,21 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       else if(strcmp(s0, "sig_pc_sw") == 0) {
         mode->reg_direct.sig_pc_sw_o= u0;
       }
+/*
+      else if(strcmp(s0, "sig_pc_sw0") == 0) {
+
+        uint8_t val = mode->reg_direct.sig_pc_sw_o;
+
+        val |= u0  ;
+        val &= ~ u0 ;
+        mode->reg_direct.sig_pc_sw_o |= u0 ;
+      }
+*/
+
+
+
+
+
       else if(strcmp(s0, "azmux") == 0) {
         mode->reg_direct.azmux_o = u0;
       }
@@ -780,6 +795,10 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       }
       else if(strcmp(s0, "k405") == 0) {
         mode->first.K405 = u0 ? LR_SET: LR_RESET;
+      }
+
+      else if(strcmp(s0, "k703") == 0) {
+        mode->first.K703 = u0 ? LR_SET: LR_RESET;
       }
 
 

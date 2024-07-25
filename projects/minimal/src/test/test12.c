@@ -1,5 +1,7 @@
 /*
   test12 renamed from test05. july 2024.
+
+
 */
 
 #include <stdio.h>
@@ -91,6 +93,24 @@ bool app_test12( app_t *app , const char *cmd)
 
   return 0;
 }
+
+
+
+/*
+
+  july 2024.
+
+  to run manually.  using tp1501.
+
+  dcv-source 10; set k407 1; set k405 1; set k406 0;
+  charge.
+   set k407 0;
+
+    10V. no real detectable leakage - without 4053.
+    -10V a little leakage.
+
+*/
+
 
 
 

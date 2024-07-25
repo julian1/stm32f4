@@ -766,38 +766,34 @@ static bool app_repl_statement_direct(app_t *app,  const char *cmd)
   }
 
 
+/*
+  we don't really have good test points.  for this. without controlling dcv-source output. u1006,u1007.
+
   else if( sscanf(cmd, "dac %s", s0 ) == 1
     && str_decode_uint( s0, &u0)
   ) {
-       // spi_mux_dac8811(app->spi);
-      // spi_mux_ad5446(app->spi );
-
-      // there  are multiple configurations here
       spi_mux_ice40( app->spi);
       spi_ice40_reg_write32(app->spi, REG_SPI_MUX,  SPI_MUX_DAC );
-      spi_port_configure_dac8811( app->spi);
+      spi_port_configure_ad5446( app->spi);
 
-
-      // eg. 0=-0V out.   0xffff = -7V out. nice.
-      spi_dac8811_write16( app->spi, u0 );
-
+      spi_ad5446_write16(app->spi, u0 );
       spi_mux_ice40(app->spi);
     }
+*/
 
 
-  // should be in test code.
+  // TODO remove. and move to normal 4094. transition-state() july 2024.
+  // we dont
 
   else if( sscanf(cmd, "iso dac %s", s0 ) == 1
     && str_decode_uint( s0, &u0)
   ) {
-
-      // there  are multiple configurations here
+      // working july
       spi_mux_ice40( app->spi);
       spi_ice40_reg_write32(app->spi, REG_SPI_MUX,  SPI_MUX_ISO_DAC );
       spi_port_configure_ad5446( app->spi);
 
       spi_ad5446_write16(app->spi, u0 );
-
       spi_mux_ice40(app->spi);
     }
 
