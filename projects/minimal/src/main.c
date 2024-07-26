@@ -47,9 +47,9 @@ static const _mode_t mode_initial =  {
 */
 
   // july 2024.
-  .first .K407  = LR_RESET,     // /disengage, dcv-source routed through to ch1 input.
+  .first .K407  = LR_RESET,     // deselect dcv-source on ch1 
   .first .K405  = LR_SET,       // guard follows ch1 input.
-  .first .K406  = LR_RESET,     // disengage - accum cap
+  .first .K406  = LR_SET,       // disengage - accum cap
 
 
 
