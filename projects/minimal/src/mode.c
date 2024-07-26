@@ -233,14 +233,10 @@ void mode_set_dcv_source( _mode_t *mode, double f0 /*signed i0*/)     // needs t
 
 void mode_set_dcv_source_ref( _mode_t *mode, unsigned u0 )
 {
-  /*
 
-  */
+    mode->second.U1012  = S8 ;       // agnd. reset/not used..
+    mode->second.U1003  = S8 ;       // agnd. reset/not used..
 
-/*
-  // TODO U1012 should source a gnd, when add it
-  mode->second.U1012  = SOFF;       // should probably be agnd.
-*/
 
   if(u0 == 7) {
     printf("with ref-hi +7V\n");
@@ -263,8 +259,8 @@ void mode_set_dcv_source_dac( _mode_t *mode, signed u0 )
 {
     printf("dac\n");
 
-    mode->second.U1012  = S8 ;       // reset/not used..
-
+    mode->second.U1012  = S8 ;       // agnd. reset/not used..
+    mode->second.U1003  = S8 ;       // agnd. reset/not used..
 
     mode->second.U1006  = S3;       // dac
     mode->second.U1007  = S3;       // dac

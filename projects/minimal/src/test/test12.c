@@ -2,6 +2,7 @@
   test12 renamed from test05. july 2024.
 
 
+
 */
 
 #include <stdio.h>
@@ -16,77 +17,84 @@
 
 
 
+
+
+static void test (app_t *app)     // should be passing the continuation.
+{
+
+  printf("test input leakage by first charging cap for 10sec, then turn off azmux and observe leakage on boot\n");
+
+
+  /* assume dcv-source and nplc have been set up on mode already.
+    we could verify with some checks.  */
+
+  _mode_t mode = *app->mode_current;
+
+
+  ////////////////////
+  // phase 1, soak/charge accumulation cap
+
+  // setup input relays.
+  mode.first .K407 = LR_SET;    // select dcv-source on ch1.
+  mode.first .K405 = LR_SET;     // select ch1. to feed through to accum cap.
+  mode.first .K406 = LR_RESET;   // accum relay on
+
+
+  // set up fpga - with direct mode - for soak/charge of accum cap.
+  mode.reg_mode =  MODE_DIRECT;
+
+  mode.reg_direct.azmux_o = SOFF;         // azmux off amplifier floats
+  mode.reg_direct.sig_pc_sw_o = 0b00 ;    // precharge switches off / select boot.
+  mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
+
+  spi_mode_transition_state( app->spi, &mode, &app->system_millis);
+  printf("sleep 10s\n");  // having a yield would be quite nice here.
+  msleep(10 * 1000,  &app->system_millis);
+
+
+
+  ////////////////////////
+  // phase 2, discocnnect dcv-source
+
+  printf("disconnect dcv-source and observe drift\n");
+/*   mode.first .K407 = LR_SET; */
+  mode.first .K407 = LR_RESET;      // turn off dcv-source
+
+
+/*     mode.second.U1006  = 0;          // weird - we switch the dc-source mux off - we have very high leakage. might be flux.
+  mode.second.U1003 = 0; */
+  mode.reg_direct.leds_o = 0b0010;
+
+  spi_mode_transition_state( app->spi, &mode, &app->system_millis);
+  printf("sleep 10s\n");  // having a yield would be quite nice here.
+  msleep(10 * 1000,  &app->system_millis);
+
+
+  ////////////////////////
+  // phase 3. observe, take measurement etc
+
+  assert( mode.reg_mode == MODE_DIRECT );
+  mode.reg_direct.leds_o = 0b0100;
+  // now we do the sleep- to take the measurement.
+  printf("sleep 2s\n");  // having a yield would be quite nice here.
+  spi_mode_transition_state( app->spi, &mode, &app->system_millis);
+  msleep(2 * 1000,  &app->system_millis);
+
+}
+
+
+
+
+
 bool app_test12( app_t *app , const char *cmd)
 {
   assert(app);
   assert(cmd);
   assert(app->mode_initial);
 
-  /*
-    > reset ; dcv-source 10; test12
-
-      azmux is held off to lower leakage through amplifier. so need external DMM to sample BOOT.
-  */
-
 
   if( strcmp(cmd, "test12") == 0) {
-
-      printf("test input leakage by first charging cap for 10sec, then turn off azmux and observe leakage on boot\n");
-
-
-      /* assume dcv-source and nplc have been set up on mode already.
-        we could verify with some checks.  */
-
-      _mode_t mode = *app->mode_current;
-
-
-      ////////////////////
-      // phase 1, soak/charge accumulation cap
-
-      // setup input relays.
-      mode.first .K405 = LR_SET;     // select dcv. TODO change if support himux.
-      mode.first .K406 = LR_RESET;   // accum relay on
-      mode.first .K407 = LR_RESET;   // select dcv-source on
-
-      // set up fpga - with direct mode - for soak/charge of accum cap.
-      mode.reg_mode =  MODE_DIRECT;
-
-      mode.reg_direct.azmux_o = SOFF;         // azmux off amplifier floats
-      mode.reg_direct.sig_pc_sw_o = 0b00 ;    // switch boot.
-      mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
-
-      spi_mode_transition_state( app->spi, &mode, &app->system_millis);
-      printf("sleep 10s\n");  // having a yield would be quite nice here.
-      msleep(10 * 1000,  &app->system_millis);
-
-
-
-      ////////////////////////
-      // phase 2, discocnnect dcv-source
-
-      printf("disconnect dcv-source and observe drift\n");
-      mode.first .K407 = LR_SET;
-/*     mode.second.U1006  = 0;          // weird - we switch the dc-source mux off - we have very high leakage. might be flux.
-      mode.second.U1003 = 0; */
-      mode.reg_direct.leds_o = 0b0010;
-
-      spi_mode_transition_state( app->spi, &mode, &app->system_millis);
-      printf("sleep 10s\n");  // having a yield would be quite nice here.
-      msleep(10 * 1000,  &app->system_millis);
-
-
-      ////////////////////////
-      // phase 3. observe, take measurement etc
-
-      assert( mode.reg_mode == MODE_DIRECT );
-      mode.reg_direct.leds_o = 0b0100;
-      // now we do the sleep- to take the measurement.
-      printf("sleep 2s\n");  // having a yield would be quite nice here.
-      spi_mode_transition_state( app->spi, &mode, &app->system_millis);
-      msleep(2 * 1000,  &app->system_millis);
-
-
-      // returning,  will revert back to mode_current state.
+      test(app);
       return 1;
     }
 
@@ -97,15 +105,26 @@ bool app_test12( app_t *app , const char *cmd)
 
 
 /*
+  july 2024.  after soldering. no cleaning.
+      with 4053. switches.  no input amplifier
 
-  july 2024.
+   reset; dcv-source 10; test12;
+    -2mV. 0mV.  0.4mV.      (note DA. for first reading).
+
+   reset; dcv-source 0; test12;
+    1.7mV  0.9mV.
+
+
+   reset; dcv-source -10; test12;
+    2.7mV  1.35mV.
+
+  ---------------
+  july 2024.  these results probably wrong.
 
   to run manually.  using tp1501.
-
   dcv-source 10; set k407 1; set k405 1; set k406 0;
   charge.
    set k407 0;
-
     10V. no real detectable leakage - without 4053.
     -10V a little leakage.
 
