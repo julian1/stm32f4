@@ -6,6 +6,9 @@
 
     azmux is held off to lower leakage through amplifier. so need external DMM.
 
+
+    currently needs external dmm. to monitor at boot at tp1501..
+
   > reset ; dcv-source 10; nplc 1; test14
 
   ---------
@@ -37,6 +40,102 @@
   - it just needs spi, and a mode, to work with.
 */
 
+
+
+static void test (app_t *app)     // should be passing the continuation.
+{
+
+  printf("test leakage and charge-injection using mock adc mode, while switching pre-charge switch, at different input dc-bias and frequency\n");
+
+  /*
+    currently needs external dmm. to monitor at boot at tp1501..
+  */
+
+  /* we assume dcv-source and nplc have been set up on mode already.
+    we could verify with some checks.  */
+
+  _mode_t mode = *app->mode_current;
+
+  ////////////////////////
+  // phase 1, soak/charge accumulation cap
+
+  // setup input relays.
+  mode.first .K407 = LR_SET;    // select dcv-source on ch1.
+  mode.first .K405 = LR_SET;     // select ch1. to feed through to accum cap.
+  mode.first .K406 = LR_RESET;   // accum relay on
+
+
+
+  // set up fpga - with direct mode - for soak/charge of accum cap.
+  mode.reg_mode     =  MODE_DIRECT;
+  assert( mode.reg_direct.azmux_o == SOFF) ;
+  assert( mode.reg_direct.sig_pc_sw_o == 0b00 );
+
+  mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
+
+  spi_mode_transition_state( app->spi, &mode, &app->system_millis);
+  printf("sleep 10s\n");  // having a yield would be quite nice here.
+  msleep(10 * 1000, &app->system_millis);
+
+
+  ////////////////////////
+  // phase 2, discocnnect dcv-source
+  //           and switch into precharge mode.
+
+  printf("mode to pc-only\n");
+  printf("disconnect dcv-source and observe drift\n");
+
+  // 2 phase, azmux always off, but switch pc in one phase and not the other.
+  // to simulate the real muxing an AZ signal between HI, and LO, where Lo doesn't get the PC on.
+  // rather than 0b01  can use PC01
+
+/*
+  try again. second entry should be seq1. not seq0.
+  check it again on the monitor.
+
+*/
+  mode.reg_mode = MODE_SA_MOCK_ADC;
+  mode.sa.reg_sa_p_seq_n  = 2;
+  mode.sa.reg_sa_p_seq0 = (PCOFF << 4) | SOFF;        // 0b00
+  mode.sa.reg_sa_p_seq1 = (PC01 << 4 )  | SOFF;
+
+  // trigger start of sample acquisition
+  mode.trig_sa = 1;
+
+  mode.first .K407 = LR_RESET;      // turn off dcv-source
+  mode.reg_direct.leds_o  = 0b0010;    // advance led.   note. won't display in different mode.
+
+  spi_mode_transition_state( app->spi, &mode, &app->system_millis);
+  printf("sleep 10s\n");  // having a yield() would be quite nice here.
+  msleep(10 * 1000,  &app->system_millis);
+
+  /* issue, with hard sync reset, the sequence transition may finish with azmux .
+    so that the amplifier doesn't suck all the charge out of the capacitor.
+    normal AZ mode - can do this.
+    can change sequence acquisition - to take one more measurement - and finish.
+    rather than hard synchronous reset - by changing the mode.
+  ---
+    actually no. azmux is always off here.
+    it's the opening up again that needs to be managed, with precharge switch active.
+  */
+
+
+
+  ////////////////////////
+  // phase 3. observe, take measurement etc
+
+  mode.reg_mode = MODE_DIRECT;
+  mode.reg_direct.leds_o = 0b0100;
+  // now we do the sleep- to take the measurement.
+  printf("sleep 2s\n");  // having a yield would be quite nice here.
+  spi_mode_transition_state( app->spi, &mode, &app->system_millis);
+  msleep(2 * 1000,  &app->system_millis);
+}
+
+
+
+
+
 bool app_test14( app_t *app , const char *cmd)
 {
   assert(app);
@@ -46,101 +145,7 @@ bool app_test14( app_t *app , const char *cmd)
 
   if( strcmp(cmd, "test14") == 0) {
 
-      printf("test leakage and charge-injection using MODE_PC_TEST switching pre-charge switch, at different input dc-bias and frequency\n");
-
-      /*
-        needs external dmm. to monitor at boot.
-      */
-
-      /* assume dcv-source and nplc have been set up on mode already.
-        we could verify with some checks.  */
-
-      _mode_t mode = *app->mode_current;
-
-      ////////////////////////
-      // phase 1, soak/charge accumulation cap
-
-      // setup input relays.
-/*
-      mode.first .K405 = LR_SET;     // select dcv. TODO change if support himux.
-      mode.first .K406 = LR_RESET;   // accum relay on
-      mode.first .K407 = LR_RESET;   // select dcv-source on
-*/
-      mode.first .K407 = LR_SET;    // select dcv-source on ch1.
-      mode.first .K405 = LR_SET;     // select ch1. to feed through to accum cap.
-      mode.first .K406 = LR_RESET;   // accum relay on
-
-
-
-      // set up fpga - with direct mode - for soak/charge of accum cap.
-      mode.reg_mode     =  MODE_DIRECT;
-      assert( mode.reg_direct.azmux_o == SOFF) ;
-      assert( mode.reg_direct.sig_pc_sw_o == 0b00 );
-
-      mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
-
-      spi_mode_transition_state( app->spi, &mode, &app->system_millis);
-      printf("sleep 10s\n");  // having a yield would be quite nice here.
-      msleep(10 * 1000, &app->system_millis);
-
-
-      ////////////////////////
-      // phase 2, discocnnect dcv-source
-      //           and switch into precharge mode.
-
-      printf("mode to pc-only\n");
-      printf("disconnect dcv-source and observe drift\n");
-/*
-      mode.reg_mode           = MODE_PC_TEST;
-*/
-      // 2 phase, azmux always off, but switch pc in one phase and not the other.
-      // to simulate the real muxing an AZ signal between HI, and LO, where Lo doesn't get the PC on.
-      // rather than 0b01  can use PC01
-
-/*
-      try again. second entry should be seq1. not seq0.
-      check it again on the monitor.
-
-  */
-      mode.reg_mode = MODE_SA_MOCK_ADC;
-      mode.sa.reg_sa_p_seq_n  = 2;
-      mode.sa.reg_sa_p_seq0 = (PCOFF << 4) | SOFF;        // 0b00
-      // mode.sa.reg_sa_p_seq0 = (PC01 << 4 )  | SOFF;        // 0b01     FIXME.   should be seq1. eg. only on for hi signal.
-      mode.sa.reg_sa_p_seq1 = (PC01 << 4 )  | SOFF;
-
-      // trigger start of sample acquisition
-      mode.trig_sa = 1;
-
-      /*  mode.first .K407        = LR_SET;          // disconnect dcv */
-      mode.first .K407 = LR_RESET;      // turn off dcv-source
-      mode.reg_direct.leds_o  = 0b0010;    // advance led.   note. won't display in different mode.
-
-      spi_mode_transition_state( app->spi, &mode, &app->system_millis);
-      printf("sleep 10s\n");  // having a yield() would be quite nice here.
-      msleep(10 * 1000,  &app->system_millis);
-
-      /* issue, with hard sync reset, the sequence transition may finish with azmux .
-        so that the amplifier doesn't suck all the charge out of the capacitor.
-        normal AZ mode - can do this.
-        can change sequence acquisition - to take one more measurement - and finish.
-        rather than hard synchronous reset - by changing the mode.
-      ---
-        actually no. azmux is always off here.
-        it's the opening up again that needs to be managed, with precharge switch active.
-      */
-
-
-
-      ////////////////////////
-      // phase 3. observe, take measurement etc
-
-      mode.reg_mode = MODE_DIRECT;
-      mode.reg_direct.leds_o = 0b0100;
-      // now we do the sleep- to take the measurement.
-      printf("sleep 2s\n");  // having a yield would be quite nice here.
-      spi_mode_transition_state( app->spi, &mode, &app->system_millis);
-      msleep(2 * 1000,  &app->system_millis);
-
+      test(app);
 
       // returning,  will revert back to mode_current state.
       return 1;
@@ -154,6 +159,8 @@ bool app_test14( app_t *app , const char *cmd)
 
 /*
   july 2024.
+
+    using dmm. to monitor at boot at tp1501..
     azmux fitted, no amplifier fitted.
 
     reset; dcv-source 10; nplc 11; test14
