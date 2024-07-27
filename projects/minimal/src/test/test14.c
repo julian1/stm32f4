@@ -160,10 +160,11 @@ bool app_test14( app_t *app , const char *cmd)
 /*
   july 2024.
 
-    using dmm. to monitor at boot at tp1501..
-    azmux fitted, no amplifier fitted.
+    using dmm. to monitor boot at tp1501..
+    azmux fitted, amplifier not fitted.
+    amplifier leakage shouldn't matter anyway - because azmux only muxes boot.
 
-    reset; dcv-source 10; nplc 11; test14
+    reset; dcv-source 10; nplc 1; test14
       3.4mV.  3.6mV
 
     reset; dcv-source 0; nplc 1; test14
