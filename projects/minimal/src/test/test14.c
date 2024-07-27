@@ -61,9 +61,16 @@ bool app_test14( app_t *app , const char *cmd)
       // phase 1, soak/charge accumulation cap
 
       // setup input relays.
+/*
       mode.first .K405 = LR_SET;     // select dcv. TODO change if support himux.
       mode.first .K406 = LR_RESET;   // accum relay on
       mode.first .K407 = LR_RESET;   // select dcv-source on
+*/
+      mode.first .K407 = LR_SET;    // select dcv-source on ch1.
+      mode.first .K405 = LR_SET;     // select ch1. to feed through to accum cap.
+      mode.first .K406 = LR_RESET;   // accum relay on
+
+
 
       // set up fpga - with direct mode - for soak/charge of accum cap.
       mode.reg_mode     =  MODE_DIRECT;
@@ -74,7 +81,7 @@ bool app_test14( app_t *app , const char *cmd)
 
       spi_mode_transition_state( app->spi, &mode, &app->system_millis);
       printf("sleep 10s\n");  // having a yield would be quite nice here.
-      msleep(10 * 1000,  &app->system_millis);
+      msleep(10 * 1000, &app->system_millis);
 
 
       ////////////////////////
@@ -96,12 +103,16 @@ bool app_test14( app_t *app , const char *cmd)
 
   */
       mode.reg_mode = MODE_SA_MOCK_ADC;
-      mode.sa.reg_sa_p_seq_n  = 2; 
+      mode.sa.reg_sa_p_seq_n  = 2;
       mode.sa.reg_sa_p_seq0 = (PCOFF << 4) | SOFF;        // 0b00
-      mode.sa.reg_sa_p_seq0 = (PC01 << 4 )  | SOFF;        // 0b01     FIXME.   should be seq1. eg. only on for hi signal.
+      // mode.sa.reg_sa_p_seq0 = (PC01 << 4 )  | SOFF;        // 0b01     FIXME.   should be seq1. eg. only on for hi signal.
+      mode.sa.reg_sa_p_seq1 = (PC01 << 4 )  | SOFF;
+
+      // trigger start of sample acquisition
       mode.trig_sa = 1;
 
-      mode.first .K407        = LR_SET;          // disconnect dcv
+      /*  mode.first .K407        = LR_SET;          // disconnect dcv */
+      mode.first .K407 = LR_RESET;      // turn off dcv-source
       mode.reg_direct.leds_o  = 0b0010;    // advance led.   note. won't display in different mode.
 
       spi_mode_transition_state( app->spi, &mode, &app->system_millis);
@@ -139,6 +150,23 @@ bool app_test14( app_t *app , const char *cmd)
   return 0;
 }
 
+
+
+/*
+  july 2024.
+    azmux fitted, no amplifier fitted.
+
+    reset; dcv-source 10; nplc 11; test14
+      3.4mV.  3.6mV
+
+    reset; dcv-source 0; nplc 1; test14
+      5.2mV  4.3mV.
+
+    reset; dcv-source -10; nplc 1; test14
+      5.0mV  4.8mV.
+
+    wow. not much difference.
+*/
 
 
 /*

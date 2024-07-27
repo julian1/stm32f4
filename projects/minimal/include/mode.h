@@ -106,13 +106,13 @@ reset is schem default contacts.
 // two channels.
 // eg. (PC0 | PC01) <<
 
-#define PCOFF       0b00
+#define PCOFF       0b00    // both off.
 
 // THIS IS TOO CONFUSING.
 // PC1, PC2 is confusing.
 #define PC01         0b01
 #define PC10         0b10
-#define PCBOTH      0b10
+// #define PCBOTH      0b11 // both on.
 
 
 
