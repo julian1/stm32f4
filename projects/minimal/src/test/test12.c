@@ -106,7 +106,7 @@ bool app_test12( app_t *app , const char *cmd)
 
 /*
   july 2024.  after soldering. no cleaning.
-      with 4053. switches.  no input amplifier
+      with 4053. switches populated.  no input amplifier populated.
 
    reset; dcv-source 10; test12;
     -2mV. 0mV.  0.4mV.      (note DA. for first reading).
