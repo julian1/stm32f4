@@ -71,11 +71,11 @@
 
 // dual 1of 4 muxes.
 // S for switch maybe SS ? or W
-#define WOFF        0
-#define W1          ((1<<2)|(1-1))
-#define W2          ((1<<2)|(2-1))
-#define W3          ((1<<2)|(3-1))
-#define W4          ((1<<2)|(4-1))
+#define WOFF        0                 // 0    gain x1.     remember amp has pullup. on EN. bit.
+#define W1          ((1<<2)|(1-1))    // 4.   gain x1
+#define W2          ((1<<2)|(2-1))    // 5    gain x10
+#define W3          ((1<<2)|(3-1))    // 6.   gain x100.
+#define W4          ((1<<2)|(4-1))    // 7
 
 
 /*

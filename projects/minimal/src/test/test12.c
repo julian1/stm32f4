@@ -1,6 +1,8 @@
 /*
   test12 renamed from test05. july 2024.
 
+  test input leakage by first charging cap for 10sec, then turn off azmux and observe leakage at boot node.
+
 
 
 */
@@ -22,7 +24,7 @@
 static void test (app_t *app)     // should be passing the continuation.
 {
 
-  printf("test input leakage by first charging cap for 10sec, then turn off azmux and observe leakage on boot\n");
+  printf("test input leakage by first charging cap for 10sec, then turn off azmux and observe leakage at boot node\n");
 
 
   /* assume dcv-source and nplc have been set up on mode already.
