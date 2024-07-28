@@ -83,8 +83,16 @@ static void test(app_t *app)
   // july 2024 - note that this is all default.
   // need to review. make sure that pc switches first, then azmux.
   mode.sa.reg_sa_p_seq_n = 2,
+
+// +6.5mV..
   mode.sa.reg_sa_p_seq0 = (0b01 << 4) |  S3,         // dcv
   mode.sa.reg_sa_p_seq1 = (0b00 << 4) | S7,         // star-lo
+
+/*  +6.5mV
+  mode.sa.reg_sa_p_seq0 = (PCOFF << 4) | S7 ;        // lo.
+  mode.sa.reg_sa_p_seq1 = (PC01 << 4 )  | S3 ;    // dcv-source
+*/
+
   // trigger start of sample acquisition
   mode.trig_sa = 1;
 
@@ -142,7 +150,8 @@ bool app_test15( app_t *app , const char *cmd)
     seems to have increased.
     need to review the switching cycle. since we changed.
     -------
-    EXTR. - it is not the pc switching.  because test14. switches just the pc switch. and there is  no strong leakage/ bias.
+    EXTR. - it is not the pc switching.  because test14. just switches the pc switch. and there is  no strong leakage/ bias.
+                  - actually it is close to test14.
     EXTR. - it could just be amplifier input leakage. need another test. like test 12. without any whitchwithout
     EXTR. - should try copying test14. and just change the seq0, seq1.
 

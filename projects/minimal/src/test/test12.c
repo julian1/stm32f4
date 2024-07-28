@@ -45,7 +45,11 @@ static void test (app_t *app)     // should be passing the continuation.
   // set up fpga - with direct mode - for soak/charge of accum cap.
   mode.reg_mode =  MODE_DIRECT;
 
-  mode.reg_direct.azmux_o = SOFF;         // azmux off amplifier floats
+  // mode.reg_direct.azmux_o = SOFF;         // azmux off amplifier floats
+  assert( mode.reg_direct.azmux_o == SOFF);
+  //     || mode.reg_direct.azmux_o == S3 ) ; allow override, eg. 'reset ; dcv-source -10; set azmux s3 ;   test12'
+
+
   mode.reg_direct.sig_pc_sw_o = 0b00 ;    // precharge switches off / select boot.
   mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
 

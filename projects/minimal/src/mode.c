@@ -59,7 +59,7 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
   // and write device
   spi_4094_reg_write_n(spi, (void *) &mode->first, sizeof( mode->first ) );
 
-  // sleep 10ms
+  // sleep 10ms, for relays
   msleep(10, system_millis);
 
 /*
