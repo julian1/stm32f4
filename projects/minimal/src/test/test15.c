@@ -1,4 +1,16 @@
 
+
+/*
+    test charge-injection by charging to a bias voltage, holding, then entering az mode.
+    with az-mux also switching .
+
+  > reset ; dcv-source 10; nplc 1; test15
+
+    only thing that really changes with test14. is the actual mode.  MODE_AZ instead of MODE_PC
+    lot of opportunity to refactor.
+
+*/
+
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>   // strcmp
@@ -10,6 +22,94 @@
 
 
 
+static void test(app_t *app)
+{
+  // assert( 0 ); // FIXME
+
+  printf("test leakage and charge-injection by switching pre-charge/azmux at different input dc-bias and frequency\n");
+
+
+  /* assume dcv-source and nplc have been set up on mode already.
+    we could verify with some checks.  */
+
+  _mode_t mode = *app->mode_current;
+
+  ////////////////////////
+  // phase 1, soak/charge accumulation cap
+
+  // setup input relays.
+  mode.first .K407 = LR_SET;    // select dcv-source on ch1.
+  mode.first .K405 = LR_SET;     // select ch1. to feed through to accum cap.
+  mode.first .K406 = LR_RESET;   // accum relay on
+
+
+
+  // set up fpga - with direct mode - for soak/charge of accum cap.
+  mode.reg_mode     =  MODE_DIRECT;
+
+  /*
+    in direct_mode we manually set azmux to the azmux-hi-val while soaking/charging the accumulation capacitor.
+    this keeps amplifier following input. and avoids case of amplifier oing out-of-range on floating input,
+    and then discharging the accum cap, when coming back into stable-state, on entering az mode.
+  */
+  // TODO fixme, review
+  // why not just set it vias direct register externally?
+  // it will almost always be dcv/S3.
+  mode.reg_direct.azmux_o = mode.sa.reg_sa_p_seq0;
+
+  assert( mode.reg_direct.azmux_o == S3);       // can relax this to the other input later
+  assert( mode.reg_direct.sig_pc_sw_o == 0b00 );
+
+  mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
+
+  spi_mode_transition_state( app->spi, &mode, &app->system_millis);
+  printf("sleep 10s\n");  // having a yield would be quite nice here.
+  msleep(10 * 1000,  &app->system_millis);
+
+
+  ////////////////////////
+  // phase 2, discocnnect dcv-source
+  //           and switch into precharge mode.
+
+  printf("mode to pc-only\n");
+  printf("disconnect dcv-source and observe drift\n");
+
+
+
+  mode.reg_mode = MODE_SA_MOCK_ADC;
+
+  // july 2024 - note that this is all default.
+  mode.sa.reg_sa_p_seq_n = 2,
+  mode.sa.reg_sa_p_seq0 = (0b01 << 4) |  S3,         // dcv
+  mode.sa.reg_sa_p_seq1 = (0b00 << 4) | S7,         // star-lo
+  // trigger start of sample acquisition
+  mode.trig_sa = 1;
+
+  mode.first .K407        = LR_RESET;   // disconnect dcv
+
+
+  mode.reg_direct.leds_o  = 0b0010;    // won't display when running.
+
+  spi_mode_transition_state( app->spi, &mode, &app->system_millis);
+  printf("sleep 10s\n");  // having a yield() would be quite nice here.
+  msleep(10 * 1000,  &app->system_millis);
+
+
+
+  ////////////////////////
+  // phase 3. observe, take measurement etc
+
+  mode.reg_mode = MODE_DIRECT;
+  mode.reg_direct.leds_o = 0b0100;
+  // now we do the sleep- to take the measurement.
+  printf("sleep 2s\n");  // having a yield would be quite nice here.
+  spi_mode_transition_state( app->spi, &mode, &app->system_millis);
+  msleep(2 * 1000,  &app->system_millis);
+
+}
+
+
+
 bool app_test15( app_t *app , const char *cmd)
 {
   assert(app);
@@ -17,92 +117,9 @@ bool app_test15( app_t *app , const char *cmd)
   assert(app->mode_initial);
 
 
-
-  /*
-      test charge-injection by charging to a bias voltage, holding, then entering az mode.
-      with az-mux also switching .
-
-    > reset ; dcv-source 10; nplc 1; test15
-
-      only thing that really changes with test14. is the actual mode.  MODE_AZ instead of MODE_PC
-      lot of opportunity to refactor.
-
-  */
-
   if( strcmp(cmd, "test15") == 0) {
 
-      assert( 0 ); // FIXME
-
-      printf("test leakage and charge-injection by switching pre-charge/azmux at different input dc-bias and frequency\n");
-
-
-      /* assume dcv-source and nplc have been set up on mode already.
-        we could verify with some checks.  */
-
-      _mode_t mode = *app->mode_current;
-
-      ////////////////////////
-      // phase 1, soak/charge accumulation cap
-
-      // setup input relays.
-      mode.first .K405 = LR_SET;     // select dcv. TODO change if support himux.
-      mode.first .K406 = LR_RESET;   // accum relay on
-      mode.first .K407 = LR_RESET;   // select dcv-source on
-
-      // set up fpga - with direct mode - for soak/charge of accum cap.
-      mode.reg_mode     =  MODE_DIRECT;
-
-      /*
-        in direct_mode we manually set azmux to the azmux-hi-val while soaking/charging the accumulation capacitor.
-        this keeps amplifier following input. and avoids case of amplifier oing out-of-range on floating input,
-        and then discharging the accum cap, when coming back into stable-state, on entering az mode.
-      */
-      // TODO fixme, review
-      // why not just set it vias direct register externally?
-      // it will almost always be dcv/S3.
-      mode.reg_direct.azmux_o = mode.sa.reg_sa_p_seq0;
-
-      assert( mode.reg_direct.azmux_o == S3);       // can relax this to the other input later
-
-      assert( mode.reg_direct.sig_pc_sw_o == 0b00 );
-
-      mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
-
-      spi_mode_transition_state( app->spi, &mode, &app->system_millis);
-      printf("sleep 10s\n");  // having a yield would be quite nice here.
-      msleep(10 * 1000,  &app->system_millis);
-
-
-      ////////////////////////
-      // phase 2, discocnnect dcv-source
-      //           and switch into precharge mode.
-
-      printf("mode to pc-only\n");
-      printf("disconnect dcv-source and observe drift\n");
-
-/*
-      // FIXME here.
-      mode.reg_mode           = MODE_AZ_TEST;
-*/
-
-      mode.first .K407        = LR_SET;          // disconnect dcv
-      mode.reg_direct.leds_o  = 0b0010;    // advance led
-
-      spi_mode_transition_state( app->spi, &mode, &app->system_millis);
-      printf("sleep 10s\n");  // having a yield() would be quite nice here.
-      msleep(10 * 1000,  &app->system_millis);
-
-
-
-      ////////////////////////
-      // phase 3. observe, take measurement etc
-
-      mode.reg_mode = MODE_DIRECT;
-      mode.reg_direct.leds_o = 0b0100;
-      // now we do the sleep- to take the measurement.
-      printf("sleep 2s\n");  // having a yield would be quite nice here.
-      spi_mode_transition_state( app->spi, &mode, &app->system_millis);
-      msleep(2 * 1000,  &app->system_millis);
+    test(app);
 
 
       // returning,  will revert back to mode_current state.
@@ -112,6 +129,23 @@ bool app_test15( app_t *app , const char *cmd)
 
   return 0;
 }
+
+
+/*
+  july 2024.
+    after adding full amplifier. board not cleaned.
+
+  >  reset ; dcv-source 10; nplc 1; test15
+    0.7mV.  0.7mV.
+
+  > reset ; dcv-source 0; nplc 1; test15
+    +4mV.  +4mV.  +4mV.
+
+  reset ; dcv-source -10; nplc 1; test15
+    8mV. 7mV. 7mV.
+
+*/
+
 
 
 
