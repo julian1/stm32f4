@@ -39,7 +39,7 @@ static void test (app_t *app)     // should be passing the continuation.
   // setup input relays.
   mode.first .K407 = LR_SET;    // select dcv-source on ch1.
   mode.first .K405 = LR_SET;     // select ch1. to feed through to accum cap.
-  mode.first .K406 = LR_RESET;   // accum relay on
+  mode.first .K406 = LR_RESET;   // select accum cap
 
 
   // set up fpga - with direct mode - for soak/charge of accum cap.

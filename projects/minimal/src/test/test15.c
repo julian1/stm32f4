@@ -1,6 +1,8 @@
 
 
 /*
+  same as test14.  except switch the azmux also.
+
     test charge-injection by charging to a bias voltage, holding, then entering az mode.
     with az-mux also switching .
 
@@ -40,7 +42,7 @@ static void test(app_t *app)
   // setup input relays.
   mode.first .K407 = LR_SET;    // select dcv-source on ch1.
   mode.first .K405 = LR_SET;     // select ch1. to feed through to accum cap.
-  mode.first .K406 = LR_RESET;   // accum relay on
+  mode.first .K406 = LR_RESET;   // select accum cap
 
 
 
@@ -68,17 +70,18 @@ static void test(app_t *app)
 
 
   ////////////////////////
-  // phase 2, discocnnect dcv-source
+  // phase 2, discocnnect dcv-source, enter az mode
   //           and switch into precharge mode.
 
-  printf("mode to pc-only\n");
-  printf("disconnect dcv-source and observe drift\n");
+  printf("mode to az\n");
+  printf("disconnect dcv-source,  and observe drift\n");
 
 
 
   mode.reg_mode = MODE_SA_MOCK_ADC;
 
   // july 2024 - note that this is all default.
+  // need to review. make sure that pc switches first, then azmux.
   mode.sa.reg_sa_p_seq_n = 2,
   mode.sa.reg_sa_p_seq0 = (0b01 << 4) |  S3,         // dcv
   mode.sa.reg_sa_p_seq1 = (0b00 << 4) | S7,         // star-lo
@@ -88,7 +91,7 @@ static void test(app_t *app)
   mode.first .K407        = LR_RESET;   // disconnect dcv
 
 
-  mode.reg_direct.leds_o  = 0b0010;    // won't display when running.
+  // mode.reg_direct.leds_o  = 0b0010;    // won't display when running.
 
   spi_mode_transition_state( app->spi, &mode, &app->system_millis);
   printf("sleep 10s\n");  // having a yield() would be quite nice here.
@@ -135,6 +138,15 @@ bool app_test15( app_t *app , const char *cmd)
   july 2024.
     after adding full amplifier. board not cleaned.
 
+    we have not properly guarded the azmux output.  could be leakage from u410,p8.
+    seems to have increased.
+    need to review the switching cycle. since we changed.
+    -------
+    EXTR. - it is not the pc switching.  because test14. switches just the pc switch. and there is  no strong leakage/ bias.
+    EXTR. - it could just be amplifier input leakage. need another test. like test 12. without any whitchwithout
+    EXTR. - should try copying test14. and just change the seq0, seq1.
+
+
   >  reset ; dcv-source 10; nplc 1; test15
     0.7mV.  0.7mV.
 
@@ -144,6 +156,8 @@ bool app_test15( app_t *app , const char *cmd)
   reset ; dcv-source -10; nplc 1; test15
     8mV. 7mV. 7mV.
 
+    - could be leakage from jfet input.
+    - we need another test, like test12.  but with azmux switched on, through to the amplifier input.
 */
 
 

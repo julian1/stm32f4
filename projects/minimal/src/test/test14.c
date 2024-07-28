@@ -62,7 +62,7 @@ static void test (app_t *app)     // should be passing the continuation.
   // setup input relays.
   mode.first .K407 = LR_SET;    // select dcv-source on ch1.
   mode.first .K405 = LR_SET;     // select ch1. to feed through to accum cap.
-  mode.first .K406 = LR_RESET;   // accum relay on
+  mode.first .K406 = LR_RESET;   // select accum cap
 
 
 
@@ -103,7 +103,7 @@ static void test (app_t *app)     // should be passing the continuation.
   mode.trig_sa = 1;
 
   mode.first .K407 = LR_RESET;      // turn off dcv-source
-  mode.reg_direct.leds_o  = 0b0010;    // advance led.   note. won't display in different mode.
+  // mode.reg_direct.leds_o  = 0b0010;    // advance led.   note. won't display in different mode.
 
   spi_mode_transition_state( app->spi, &mode, &app->system_millis);
   printf("sleep 10s\n");  // having a yield() would be quite nice here.
@@ -158,6 +158,9 @@ bool app_test14( app_t *app , const char *cmd)
 
 
 /*
+
+
+  -------------
   july 2024.
 
     using dmm. to monitor boot at tp1501..
