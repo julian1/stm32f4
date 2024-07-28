@@ -143,7 +143,35 @@ bool app_test15( app_t *app , const char *cmd)
 
 
 /*
-  july 2024.
+
+  29 july.  the same after cleaning board.
+              we changed test12. to test leakage with azmux and pc 1 on.
+              perhaps it's just a different 4053 part that is less balanced.
+
+      - OK. the bootstrap supply voltage - shifts a little. when running.
+          Perhaps - should add more capacitance at C1507, or R1508.
+
+         10V. charge        3.480,50V.
+              switching.    3.470,
+
+        -10V. charge        3.479.
+              switching     3.467
+
+
+   reset ; dcv-source 10; nplc 1; test15       <- nplc 10.
+    -1mV.
+
+
+
+  reset ; dcv-source -10; nplc 1; test15        <- nplc 1.
+    +8.0mV. 8.0mV.
+
+  reset ; dcv-source -10; nplc 10; test15       <- nplc 10.  indicates that it is switching related
+    +2.9mV.
+
+
+
+  28 july 2024.
     after adding full amplifier. board not cleaned.
 
     we have not properly guarded the azmux output.  could be leakage from u410,p8.
@@ -153,6 +181,7 @@ bool app_test15( app_t *app , const char *cmd)
     EXTR. - it is not the pc switching.  because test14. just switches the pc switch. and there is  no strong leakage/ bias.
                   - actually it is close to test14.
     EXTR. - it could just be amplifier input leakage. need another test. like test 12. without any whitchwithout
+                  - AHH. running test 12.
     EXTR. - should try copying test14. and just change the seq0, seq1.
 
 

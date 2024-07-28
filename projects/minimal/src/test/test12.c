@@ -3,7 +3,13 @@
 
   test input leakage by first charging cap for 10sec, then turn off azmux and observe leakage at boot node.
 
+  test might be simplified with repl. commands...
+  ------------
 
+
+  reset ; dcv-source -10;   test12;
+
+  reset ; dcv-source -10;  set azmux s3; set pc 0b01 ; test12
 
 */
 
@@ -32,38 +38,43 @@ static void test (app_t *app)     // should be passing the continuation.
 
   _mode_t mode = *app->mode_current;
 
-
   ////////////////////
   // phase 1, soak/charge accumulation cap
-
   // setup input relays.
   mode.first .K407 = LR_SET;    // select dcv-source on ch1.
   mode.first .K405 = LR_SET;     // select ch1. to feed through to accum cap.
   mode.first .K406 = LR_RESET;   // select accum cap
 
-
-  // set up fpga - with direct mode - for soak/charge of accum cap.
+  // use direct mode - for soak/charge of accum cap.
   mode.reg_mode =  MODE_DIRECT;
-
-  // mode.reg_direct.azmux_o = SOFF;         // azmux off amplifier floats
-  assert( mode.reg_direct.azmux_o == SOFF);
-  //     || mode.reg_direct.azmux_o == S3 ) ; allow override, eg. 'reset ; dcv-source -10; set azmux s3 ;   test12'
-
-
-  mode.reg_direct.sig_pc_sw_o = 0b00 ;    // precharge switches off / select boot.
   mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
+
+  printf("azmux       %u\n", mode.reg_direct.azmux_o );
+  printf("sig_pc_sw_o %u\n", mode.reg_direct.sig_pc_sw_o );
+
+
+  // we  can control these  'set azmux SOFF, set pc 0b00'
+  assert(
+       (mode.reg_direct.azmux_o == SOFF && mode.reg_direct.sig_pc_sw_o == 0b00 )    // azmux off, precharge select boot.
+    || (mode.reg_direct.azmux_o == S3   && mode.reg_direct.sig_pc_sw_o == 0b01)    // azmux select dcv,  pre-charge select signal.
+    );
+
+/*
+  // test input leakage - including precharge, and azmux, but without amplifier
+  mode.reg_direct.azmux_o = SOFF;         // azmux off, so amplifier floats
+  mode.reg_direct.sig_pc_sw_o = 0b00 ;    // precharge switches off / select boot.
+
+*/
+
 
   spi_mode_transition_state( app->spi, &mode, &app->system_millis);
   printf("sleep 10s\n");  // having a yield would be quite nice here.
   msleep(10 * 1000,  &app->system_millis);
 
 
-
   ////////////////////////
   // phase 2, discocnnect dcv-source
-
   printf("disconnect dcv-source and observe drift\n");
-/*   mode.first .K407 = LR_SET; */
   mode.first .K407 = LR_RESET;      // turn off dcv-source
 
 

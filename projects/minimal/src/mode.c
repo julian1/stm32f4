@@ -710,7 +710,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       else if(strcmp(s0, "monitor") == 0) {
         mode->reg_direct.monitor_o = u0;
       }
-      else if(strcmp(s0, "sig_pc_sw") == 0) {
+      else if(strcmp(s0, "sig_pc_sw") == 0 || strcmp(s0, "pc") == 0   ) {
         mode->reg_direct.sig_pc_sw_o= u0;
       }
 /*

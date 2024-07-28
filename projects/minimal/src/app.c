@@ -474,6 +474,32 @@ void app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
+
+/*
+  EXTR.  jul 2024.
+    sleep time can be treated as a var , and moved into mode.
+    And it will then be applied at the time of transition state.
+    eg. on a '\r'
+
+    that way we can use it embedded.
+    --------
+    alternatively if we see a sleep. we should apply the current mode.
+
+*/
+
+  else if( sscanf(cmd, "sleep %100s", s0) == 1
+    && str_decode_float( s0, &f0))
+  {
+#if 1
+    // update state based on current mode
+    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+#endif
+    // sleep
+    msleep( (uint32_t ) (f0 * 1000), &app->system_millis);
+
+  }
+
+
   else if(strcmp(cmd, "help") == 0) {
 
     printf("help <command>\n" );
@@ -493,33 +519,6 @@ void app_repl_statement(app_t *app,  const char *cmd)
     app->verbose = u0;
   }
 
-/*
-  EXTR.  jul 2024.
-    sleep time can be treated as a var , and moved into mode.
-    And it will then be applied at the time of transition state.
-    eg. on a '\r'
-
-    that way we can use it embedded.
-    --------
-    alternatively if we see a sleep. we should apply the current mode.
-
-*/
-
-  else if( sscanf(cmd, "sleep %100s", s0) == 1
-    && str_decode_float( s0, &f0))
-  {
-#if 0
-    // update state based on current change
-    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
-
-    // sleep
-    msleep( (uint32_t ) (f0 * 1000), &app->system_millis);
-#endif
-
-    // issue new command prompt
-    printf("\n> ");
-
-  }
 
   else if(strcmp(cmd, "reset mcu") == 0) {
     printf("perform mcu reset\n" );
