@@ -51,8 +51,7 @@
 // #define MODE_HI           2     // all bits held hi
 #define MODE_PATTERN      3       // TODO probably should remove. could cause hardware problems, when components fitted.
                                   // and direct mode is enough.
-// #define MODE_PC_TEST      4
-
+#define MODE_ADC_REFMUX_TEST 5
 
 // sequence acquisition
 #define MODE_SA_MOCK_ADC    6     // no az. and elecm. etc

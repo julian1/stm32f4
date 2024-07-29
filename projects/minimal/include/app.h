@@ -150,8 +150,9 @@ bool app_test12( app_t *app , const char *cmd);     // formerly test05.
 bool app_test14( app_t *app , const char *cmd);
 bool app_test15( app_t *app , const char *cmd);
 
+// adc refmux test.
+bool app_test19( app_t *app , const char *cmd);
 
-// bool app_test20( app_t *app , const char *cmd);
 
 bool app_test20( app_t *app, const char *cmd, void (*yield)( void * ), void * yield_ctx) ;
 

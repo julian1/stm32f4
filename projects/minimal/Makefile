@@ -23,6 +23,7 @@ SRCFILES	= src/peripheral/ice40-extra.c   src/peripheral/led.c  src/peripheral/s
             src/test/test01.c src/test/test02.c  src/test/test03.c  \
             src/test/test10.c  src/test/test11.c \
             src/test/test12.c  src/test/test14.c src/test/test15.c \
+            src/test/test19.c \
             src/test/test20.c src/test/test40.c src/test/test41.c  src/test/test42.c   \
             src/flash/file-blob.c \
             src/data/cal-flash.c \
