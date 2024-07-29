@@ -150,6 +150,7 @@ bool app_test15( app_t *app , const char *cmd)
 
       - OK. the bootstrap supply voltage - shifts a little. when running.
           Perhaps - should add more capacitance at C1507, or R1508.
+          Looks reasonable under a scope.
 
          10V. charge        3.480,50V.
               switching.    3.470,

@@ -422,7 +422,7 @@ static void spi_print_seq_register( uint32_t spi, uint32_t reg )
 
 
 
-static bool app_repl_statement_direct(app_t *app,  const char *cmd);
+// static bool app_repl_statement_direct(app_t *app,  const char *cmd);
 
 
 
@@ -535,6 +535,49 @@ void app_repl_statement(app_t *app,  const char *cmd)
     msleep(1, &app->system_millis);
     ice40_port_extra_creset_disable();
   }
+
+
+
+
+
+  // TODO remove. and move to normal 4094. transition-state() july 2024.
+  // we dont
+
+  else if( sscanf(cmd, "iso dac %s", s0 ) == 1
+    && str_decode_uint( s0, &u0)
+  ) {
+      // working july
+      spi_mux_ice40( app->spi);
+      spi_ice40_reg_write32(app->spi, REG_SPI_MUX,  SPI_MUX_ISO_DAC );
+      spi_port_configure_ad5446( app->spi);
+
+      spi_ad5446_write16(app->spi, u0 );
+      spi_mux_ice40(app->spi);
+    }
+
+
+
+  else if( strcmp( cmd, "vfd") == 0) {
+    // vfd
+
+
+    fsmc_gpio_setup();
+
+
+    // fsmc_setup( 12 );   // slow.
+    // with divider == 1. is is easier to see the address is already well asserted on WR rising edge. before CS.
+    fsmc_setup( 1 );   // fase.
+    vfd_init_gpio();
+
+    msleep( 10, &app->system_millis );
+
+
+    ///////////
+    vfd_init(  &app->system_millis);
+
+    vfd_do_something();
+  }
+
 
 
 
@@ -702,7 +745,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
 
 
-  else if(  app_repl_statement_direct( app,  cmd )) { }
+  // else if(  app_repl_statement_direct( app,  cmd )) { }
 
 
   else if(  mode_repl_statement( app->mode_current,  cmd, app->data->line_freq )) { }
@@ -741,7 +784,7 @@ void app_repl_statement(app_t *app,  const char *cmd)
 }
 
 
-
+#if 0
 
 static bool app_repl_statement_direct(app_t *app,  const char *cmd)
 {
@@ -753,15 +796,16 @@ static bool app_repl_statement_direct(app_t *app,  const char *cmd)
 
   */
 
-  /* test code - writes direct to fpga.
-      noting values will get immiedately overwritten by the mode transition function.
-      So useful, but only for tests, for new functions, or when not using the mode transition.
-      eg. testing the dac.
-  */
 
   char s0[100 + 1 ];
-  uint32_t u0, u1;
+  uint32_t u0;// , u1;
 
+#if 0
+
+  /*  test code - writes direct to fpga.
+      THESE Dont WORK - since values will get immiedately updated/overwritten by the mode transition function.
+      use set reg, set mode, set direct instead.
+  */
 
   if( sscanf(cmd, "reg %lu %100s", &u0, s0) == 2
     && str_decode_uint( s0, &u1)
@@ -801,44 +845,7 @@ static bool app_repl_statement_direct(app_t *app,  const char *cmd)
     }
 */
 
-
-  // TODO remove. and move to normal 4094. transition-state() july 2024.
-  // we dont
-
-  else if( sscanf(cmd, "iso dac %s", s0 ) == 1
-    && str_decode_uint( s0, &u0)
-  ) {
-      // working july
-      spi_mux_ice40( app->spi);
-      spi_ice40_reg_write32(app->spi, REG_SPI_MUX,  SPI_MUX_ISO_DAC );
-      spi_port_configure_ad5446( app->spi);
-
-      spi_ad5446_write16(app->spi, u0 );
-      spi_mux_ice40(app->spi);
-    }
-
-
-
-  else if( strcmp( cmd, "vfd") == 0) {
-    // vfd
-
-
-    fsmc_gpio_setup();
-
-
-    // fsmc_setup( 12 );   // slow.
-    // with divider == 1. is is easier to see the address is already well asserted on WR rising edge. before CS.
-    fsmc_setup( 1 );   // fase.
-    vfd_init_gpio();
-
-    msleep( 10, &app->system_millis );
-
-
-    ///////////
-    vfd_init(  &app->system_millis);
-
-    vfd_do_something();
-  }
+#endif
 
 
 
@@ -849,7 +856,7 @@ static bool app_repl_statement_direct(app_t *app,  const char *cmd)
   return 1;
 }
 
-
+#endif
 
 
 void app_repl_statements(app_t *app,  const char *s)
