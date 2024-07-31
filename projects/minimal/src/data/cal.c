@@ -165,11 +165,18 @@ void data_cal(
   m_truncate_rows(aperture, 0);
 */
 
-
+/*
   // setup input relays - for dcv-source
   mode->first.K405 = LR_SET;     // select dcv. TODO change if support himux.
   assert( mode->first.K406 == LR_SET);   // accum relay off
   mode->first.K407 = LR_RESET;   // select dcv-source on
+*/
+  mode->first .K407 = LR_SET;    // select dcv-source on ch1.
+  mode->first .K405 = LR_SET;     // select ch1. to feed through to accum cap.
+  mode->first .K406 = LR_SET;   // select accum cap
+
+
+
 
 
   // set up sequence acquision
@@ -192,7 +199,7 @@ void data_cal(
     printf("nplc %u\n", nplc[h]);
 
     // setup adc nplc
-    mode->adc.reg_adc_p_aperture = nplc_to_aperture( 10, data->line_freq );;
+    mode->adc.reg_adc_p_aperture = nplc_to_aperture( nplc[ h] , data->line_freq ); // fix jul 2024.
 
 
     // ref hi/ref lo
@@ -237,7 +244,11 @@ void data_cal(
         uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RD);
         uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_MUX_SIG);
 
-        printf("counts %6lu %lu %lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+        printf("counts %6lu %lu %lu %lu %6lu",
+          clk_count_mux_reset,
+          clk_count_mux_sig,
+          clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd
+        );
         printf("\n");
 
         // consider rename. this is more model_encode_row_from_counts()) - according to the model.
