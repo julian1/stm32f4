@@ -63,6 +63,26 @@ bool app_test20(
   }
 
 
+  // azmode- sample ref-lo - test noise
+  else if( strcmp(cmd, "test20.5") == 0) {
+
+    // sample ref-lo via dcv-source
+    app_repl_statements(app, "        \
+        flash cal read 123;           \
+        reset;                        \
+        dcv-source ref-lo;            \
+        set lomux s1;                 \
+        set himux s2;                 \
+        set k407 1;   set k405 1;  set k406 1;  \
+        nplc 10; set mode 7 ; azero s3 s8;  trig; \
+        data show stats;  \
+      " );
+
+    // check_data( == 7.000 )  etc.
+    return 1;
+  }
+
+
 
   ////////////////////////////
   // noazero
@@ -130,8 +150,6 @@ bool app_test20(
 
   else if( strcmp(cmd, "test24") == 0) {
 
-
-
     // az sample ref-hi on ch1, via the low mux, and ref-lo should be 7.000,000V.
     app_repl_statements(app, "        \
         flash cal read 123;           \
@@ -152,6 +170,10 @@ bool app_test20(
     // check_data( == 7.000 )  etc.
     return 1;
   }
+
+
+
+
 
   else if( strcmp(cmd, "test25") == 0) {
 
