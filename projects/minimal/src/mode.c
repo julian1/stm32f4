@@ -494,15 +494,14 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       // _mode_t *mode = app->mode_current;
 
 
-  /* EXTR -
-      review move dcv-source function handling
-      to another file. in an
-      /source  ?
-
-
+  /*
+      could move the dcv-source function handling
   */
 
-  // +10,0,-10.    if increment. then could use the dac.
+  // we want
+
+  // +10,0,-10.    fixed divider.
+  // if increment. then could use the dac.
   // perhaps change name dcv-source fixed
   if( sscanf(cmd, "dcv-source %lf", &f0) == 1) {
 
@@ -798,14 +797,19 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       }
 
 
-
-      else if(strcmp(s0, "u409") == 0 || strcmp(s0, "lomux") == 0) { //  lomux / could use alternate name
+      else if(strcmp(s0, "u408") == 0 || strcmp(s0, "himux") == 0) {
+        mode->second.U408 = u0 ;
+      }
+      else if(strcmp(s0, "u409") == 0 || strcmp(s0, "lomux") == 0) {
         mode->second.U409 = u0 ;
       }
-      else if(strcmp(s0, "u410") == 0 || strcmp(s0, "himux") == 0) {    // himux
+
+/*
+      set via fpga direct reg. not 4094.
+      else if(strcmp(s0, "u410") == 0 || strcmp(s0, "azmux") == 0) {
         mode->second.U410 = u0 ;
       }
-
+*/
 
 
 

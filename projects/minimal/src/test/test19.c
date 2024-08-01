@@ -34,7 +34,7 @@ bool app_test19( app_t *app , const char *cmd)
     spi_mode_transition_state( app->spi, &mode, &app->system_millis);
 
     printf("sleep 5s\n");  // really need the yield would be quite nice here.
-    msleep(5 * 1000,  &app->system_millis);
+    msleep(60 * 1000,  &app->system_millis);
 
 
     return 1;

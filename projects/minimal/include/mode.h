@@ -133,8 +133,8 @@ typedef struct _4094_state_t
 
 
   // U402
-  uint8_t U409    : 4;    //  lomux / could use alternate name
-  uint8_t U410    : 4;    //  himux
+  uint8_t U409    : 4;    //  lomux
+  uint8_t U408    : 4;    //  himux
 
 
   // U414

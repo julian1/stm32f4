@@ -54,7 +54,7 @@ bool app_test20(
         flash cal read 123;           \
         reset;                        \
         dcv-source ref-hi;            \
-        set k407 0;   set k405 1;                 \
+        set k407 1;   set k405 1;  set k406 1;  \
         nplc 10; set mode 7 ; boot s3;  trig; \
       " );
 
@@ -74,7 +74,7 @@ bool app_test20(
         flash cal read 123;           \
         reset;                        \
         dcv-source ref-hi;            \
-        set k407 0;   set k405 1;                 \
+        set k407 1;   set k405 1;  set k406 1;  \
         nplc 10; set mode 7 ; noazero s3;  trig; \
       " );
 
@@ -137,7 +137,7 @@ bool app_test20(
         flash cal read 123;           \
         reset;                        \
         dcv-source ref-hi;            \
-        set k407 0;  set k405 1;       \
+        set k407 1;   set k405 1;  set k406 1;  \
         set lomux s1;                 \
         nplc 10; set mode 7 ; azero s3 s8;  trig; \
       " );
