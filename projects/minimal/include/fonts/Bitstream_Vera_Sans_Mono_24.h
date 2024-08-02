@@ -61,6 +61,7 @@ const char bitmap_88[] = {4,12,60,124,248,224,192,0,192,224,248,124,60,12,4,0,0,
 const char bitmap_89[] = {4,28,60,252,240,192,128,0,128,192,240,252,60,28,4,0,0,0,0,3,15,255,254,255,15,3,0,0,0,0,0,0,0,0,0,0,31,31,31,0,0,0,0,0,0};
 const char bitmap_90[] = {12,12,12,12,12,12,12,140,236,252,252,60,28,0,0,128,224,240,252,62,31,7,3,0,0,0,28,30,31,31,27,24,24,24,24,24,24,24,24};
 const char bitmap_91[] = {254,254,254,6,6,6,255,255,255,0,0,0,255,255,255,192,192,192};
+// const char bitmap_47[] = {0,0,0,0,0,0,0,128,224,248,124,28,4,0,0,0,0,192,248,254,63,7,1,0,0,0,64,112,124,63,15,3,0,0,0,0,0,0,0};
 const char bitmap_93[] = {6,6,6,254,254,254,0,0,0,255,255,255,192,192,192,255,255,255};
 const char bitmap_94[] = {0,128,192,224,112,60,28,28,60,112,224,192,128,0,1,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 const char bitmap_95[] = {};
@@ -95,5 +96,12 @@ const char bitmap_123[] = {0,0,0,0,248,252,254,14,6,6,6,48,48,48,120,255,207,135
 const char bitmap_124[] = {254,254,255,255,255,255};
 const char bitmap_125[] = {6,6,6,14,254,252,248,0,0,0,0,0,0,0,0,135,207,255,120,48,48,48,128,128,128,192,255,255,127,0,0,0,0};
 const char bitmap_126[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,48,48,24,24,24,24,48,112,96,96,96,48,48,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+
 const char char_width[] = {3,7,16,11,15,15,2,6,6,11,14,4,7,3,13,12,11,12,12,13,12,12,12,12,12,3,4,13,13,13,10,15,15,12,12,12,12,12,13,12,11,11,14,12,13,12,13,12,13,14,12,15,12,14,16,15,15,13,6,13,6,14,-18,6,12,12,11,12,13,12,12,11,13,7,12,13,13,11,12,12,12,10,10,12,11,13,16,14,13,11,11,2,11,13};
-const char* char_addr[] = {&bitmap_33,&bitmap_34,&bitmap_35,&bitmap_36,&bitmap_37,&bitmap_38,&bitmap_39,&bitmap_40,&bitmap_41,&bitmap_42,&bitmap_43,&bitmap_44,&bitmap_45,&bitmap_46,&bitmap_47,&bitmap_48,&bitmap_49,&bitmap_50,&bitmap_51,&bitmap_52,&bitmap_53,&bitmap_54,&bitmap_55,&bitmap_56,&bitmap_57,&bitmap_58,&bitmap_59,&bitmap_60,&bitmap_61,&bitmap_62,&bitmap_63,&bitmap_64,&bitmap_65,&bitmap_66,&bitmap_67,&bitmap_68,&bitmap_69,&bitmap_70,&bitmap_71,&bitmap_72,&bitmap_73,&bitmap_74,&bitmap_75,&bitmap_76,&bitmap_77,&bitmap_78,&bitmap_79,&bitmap_80,&bitmap_81,&bitmap_82,&bitmap_83,&bitmap_84,&bitmap_85,&bitmap_86,&bitmap_87,&bitmap_88,&bitmap_89,&bitmap_90,&bitmap_91,&bitmap_47,&bitmap_93,&bitmap_94,&bitmap_95,&bitmap_96,&bitmap_97,&bitmap_98,&bitmap_99,&bitmap_100,&bitmap_101,&bitmap_102,&bitmap_103,&bitmap_104,&bitmap_105,&bitmap_106,&bitmap_107,&bitmap_108,&bitmap_109,&bitmap_110,&bitmap_111,&bitmap_112,&bitmap_113,&bitmap_114,&bitmap_115,&bitmap_116,&bitmap_117,&bitmap_118,&bitmap_119,&bitmap_120,&bitmap_121,&bitmap_122,&bitmap_123,&bitmap_124,&bitmap_125,&bitmap_126};
+
+
+const char* char_addr[] = { bitmap_33, bitmap_34, bitmap_35, bitmap_36, bitmap_37, bitmap_38, bitmap_39, bitmap_40, bitmap_41, bitmap_42, bitmap_43, bitmap_44, bitmap_45, bitmap_46, bitmap_47, bitmap_48, bitmap_49, bitmap_50, bitmap_51, bitmap_52, bitmap_53, bitmap_54, bitmap_55, bitmap_56, bitmap_57, bitmap_58, bitmap_59, bitmap_60, bitmap_61, bitmap_62, bitmap_63, bitmap_64, bitmap_65, bitmap_66, bitmap_67, bitmap_68, bitmap_69, bitmap_70, bitmap_71, bitmap_72, bitmap_73, bitmap_74, bitmap_75, bitmap_76, bitmap_77, bitmap_78, bitmap_79, bitmap_80, bitmap_81, bitmap_82, bitmap_83, bitmap_84, bitmap_85, bitmap_86, bitmap_87, bitmap_88, bitmap_89, bitmap_90, bitmap_91, bitmap_47, bitmap_93, bitmap_94, bitmap_95, bitmap_96, bitmap_97, bitmap_98, bitmap_99, bitmap_100, bitmap_101, bitmap_102, bitmap_103, bitmap_104, bitmap_105, bitmap_106, bitmap_107, bitmap_108, bitmap_109, bitmap_110, bitmap_111, bitmap_112, bitmap_113, bitmap_114, bitmap_115, bitmap_116, bitmap_117, bitmap_118, bitmap_119, bitmap_120, bitmap_121, bitmap_122, bitmap_123, bitmap_124, bitmap_125, bitmap_126};
+
+
+

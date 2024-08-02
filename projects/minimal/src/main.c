@@ -28,6 +28,10 @@
 
 
 
+// vfd
+#include <peripheral/fsmc.h>
+#include <peripheral/vfd.h>
+
 
 
 
@@ -251,6 +255,23 @@ static int main_f429(void)
   // spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app.data );
   ice40_port_extra_setup();
 
+
+
+
+  ///////////////////////////////
+    fsmc_gpio_setup();
+
+    // fsmc_setup( 12 );   // slow.
+    // with divider == 1. is is easier to see the address is already well asserted on WR rising edge. before CS.
+    fsmc_setup( 1 );   // fase.
+    vfd_init_gpio();
+    msleep( 10, &app.system_millis );
+    vfd_init(  &app.system_millis);
+
+    vfd_do_something();
+  //////////////////
+ 
+
   // outer app loop, eg. bottom of control stack
   while(true)
     app_update_main( &app);
@@ -372,6 +393,10 @@ static int main_f413(void)
   // spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app.data );
   ice40_port_extra_setup();
 
+
+
+
+
   // outer app loop, eg. bottom of control stack
   while(true)
     app_update_main( &app);
@@ -384,7 +409,7 @@ static int main_f413(void)
 
 int main(void)
 {
-  // return main_f429();
-  return main_f413();
+  return main_f429();
+  // return main_f413();
 }
 

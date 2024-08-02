@@ -23,6 +23,8 @@
 #include <ice40-reg.h>
 #include <peripheral/spi-ice40.h>
 
+#include <peripheral/vfd.h>
+
 
 #define UNUSED(x) (void)(x)
 
@@ -511,8 +513,16 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
       if(sample_seq_mode == SEQ_MODE_RATIO)
         printf(" meas %s", str_format_float_with_commas(buf, 100, 7, computed_val));
-      else
-        printf(" meas %sV", str_format_float_with_commas(buf, 100, 7, computed_val));
+      else {
+
+        str_format_float_with_commas(buf, 100, 7, computed_val);
+        printf(" meas %sV", buf );
+
+        // TODO - don't think this is the right place. should instead store - against app state. 
+        // and have another function called from main to update.
+        // write vfd
+        vfd_write_bitmap_string2( buf, 0 , 0 );
+      }
 
       /*
         can drive this with policy arg/flag.

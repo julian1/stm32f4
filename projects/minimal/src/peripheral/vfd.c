@@ -382,7 +382,19 @@ static void vfd_write_string2( const char *s, uint8_t xpix, uint8_t ychar )
 }
 
 
-// TODO change name write to blit.
+
+
+
+
+/////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+// TODO consider change 'write' to 'blit'.
 
 
 // looks good.
@@ -393,23 +405,21 @@ static void vfd_write_string2( const char *s, uint8_t xpix, uint8_t ychar )
 // /Bitstream Vera Sans Mono_64.png
 // https://github.com/jdmorise/BMH-fonts/blob/master/bmh_fonts/bmh_char/Bitstream%20Vera%20Sans%20Mono/Bitstream%20Vera%20Sans%20Mono_64.png
 
+#include <fonts/Bitstream_Vera_Sans_Mono_24.h>
 
-static void vfd_write_big_zero( uint8_t xpix, uint8_t ychar )
+
+static void vfd_write_bitmap_char( uint8_t xpix, uint8_t ychar, const char *bitmap, uint8_t width )
 {
-  // letter 0. char 48
-  // https://github.com/jdmorise/BMH-fonts/blob/master/bmh_fonts/bmh_digits/Arimo%20Regular/Arimo%20Regular_24.h
-  // const char bitmap_48[] = {128,224,240,56,24,24,24,24,48,240,224,0,255,255,129,0,0,0,0,0,0,129,255,255,0,7,15,12,24,24,24,24,12,15,7,0};
-
-  const char bitmap_51[] = {192,224,240,56,24,24,24,24,56,240,224,0,0,0,0,0,24,24,24,24,60,247,227,192,3,15,14,28,24,24,24,24,28,15,15,3};
-
-  // 36 chars.
-  // 36 * 8  / 24 ==  12
-
-
-    setincx();
-
   // important - note that it didn't need to be rotated.
   // need to try another letter.  eg. 3.
+
+  // bitmap_33.  width is 9.  3x3     '!'
+  // bitmap 34   width is 21  7x3
+  // bitmap 48   width is 36  12x3
+  // ??
+
+
+  setincx();
 
 
   for(unsigned k = 0; k < 3; ++k )  {
@@ -417,14 +427,42 @@ static void vfd_write_big_zero( uint8_t xpix, uint8_t ychar )
     setx( xpix );
     sety( ychar  + k );
 
-    for(unsigned i = 0; i < 12 ; ++i)     // how far horizontally
-      vfd_write_data( bitmap_51[ (k * 12) + i ]  );   // could just use a pointer.
+    for(unsigned i = 0; i < width ; ++i)              // how far horizontally
+      vfd_write_data( bitmap[ (k * width) + i ]  );   // could just use a pointer.
   }
 }
 
 
 
+static void vfd_write_bitmap_string( const char *s, size_t n, uint8_t xpix, uint8_t ychar )
+{
+  // uses proporitional spacing.
+  // can also have fixed width.
 
+  /*
+    - the pixel wide space added between chars - needs to be cleared.
+    - or use monospace.
+    - possibly want a monospace format version .
+    - avoid - a separate blanking pass, that would need to be synchronized with device scan.
+
+  */
+
+  for(unsigned i = 0; i < n; ++i) {
+
+    uint32_t char_idx = s[i] - '!';
+    assert(char_idx < ARRAY_SIZE( char_addr));
+
+    vfd_write_bitmap_char( xpix , /*0*/ ychar, char_addr[ char_idx ], char_width[ char_idx ] );
+    xpix += char_width[ char_idx ] + 1;
+  }
+}
+
+
+
+void vfd_write_bitmap_string2( const char *s, uint8_t xpix, uint8_t ychar )
+{
+  vfd_write_bitmap_string( s, strlen(s), xpix, ychar );
+}
 
 
 
@@ -442,15 +480,15 @@ void vfd_do_something(void)
   vfd_write_string2( "WORLD", 0, 4 );
   vfd_write_string2( "123467890", 0, 5 );
 
+  // vfd_write_bitmap_string2( "apple", 0 , 0 );
+  vfd_write_bitmap_string2( "7.168,259,0", 0 , 0 );
 
-
-  vfd_write_big_zero( 0 , 0 );
 }
 
 
 
 
-
+#if 0
 
 static void vfd_do_something_old(void)
 {
@@ -474,6 +512,38 @@ static void vfd_do_something_old(void)
   // ok. it's very weird there is one 3 bit
 }
 
+#endif
 
+
+/*
+
+  ///////////
+  // letter 0. char 48
+  // https://github.com/jdmorise/BMH-fonts/blob/master/bmh_fonts/bmh_digits/Arimo%20Regular/Arimo%20Regular_24.h
+  // const char bitmap_48[] = {128,224,240,56,24,24,24,24,48,240,224,0,255,255,129,0,0,0,0,0,0,129,255,255,0,7,15,12,24,24,24,24,12,15,7,0};
+
+  // const char bitmap_51[] = {192,224,240,56,24,24,24,24,56,240,224,0,0,0,0,0,24,24,24,24,60,247,227,192,3,15,14,28,24,24,24,24,28,15,15,3};
+  // assert(sizeof(bitmap_51) == 36);
+
+
+  // bitmap_33.  width is 9.  3x3     '!'
+  // bitmap 34   width is 21  7x3
+  // bitmap 48   width is 36  12x3
+  // ??
+
+
+  uint32_t char_idx = 'a' - '!';
+
+  uint32_t x = 0;
+
+  // vfd_write_big_zero
+  vfd_write_bitmap_char( x , 0, char_addr[ char_idx ], char_width[ char_idx ] );
+
+  x += char_width[ char_idx ] + 2;
+
+  char_idx = 'b' - '!';
+  vfd_write_bitmap_char( x , 0, char_addr[ char_idx ], char_width[ char_idx ] );
+
+*/
 
 

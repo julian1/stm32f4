@@ -83,6 +83,26 @@ bool app_test20(
   }
 
 
+  // azmode- sample ref-lo - test noise
+  else if( strcmp(cmd, "dcv") == 0) {
+
+    // sample ref-lo via dcv-source
+    app_repl_statements(app, "        \
+        flash cal read 123;           \
+        reset;                        \
+        set k407 0;   set k405 1;  set k406 1;  \
+        nplc 10; set mode 7 ; azero s3 s7;  trig; \
+        data show stats;  \
+      " );
+
+    // check_data( == 7.000 )  etc.
+    return 1;
+  }
+
+
+
+
+
 
   ////////////////////////////
   // noazero
