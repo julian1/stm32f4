@@ -51,7 +51,7 @@ static const _mode_t mode_initial =  {
 */
 
   // july 2024.
-  .first .K407  = LR_RESET,     // deselect dcv-source on ch1 
+  .first .K407  = LR_RESET,     // deselect dcv-source on ch1
   .first .K405  = LR_SET,       // guard follows ch1 input.
   .first .K406  = LR_SET,       // disengage - accum cap
 
@@ -270,7 +270,7 @@ static int main_f429(void)
 
     vfd_do_something();
   //////////////////
- 
+
 
   // outer app loop, eg. bottom of control stack
   while(true)
@@ -404,6 +404,22 @@ static int main_f413(void)
 
   return 0;
 }
+
+
+
+// https://interrupt.memfault.com/blog/how-to-write-a-bootloader-from-scratch
+
+// static void start_app(uint32_t pc, uint32_t sp) __attribute__((naked))
+static  __attribute__((naked)) void start_app(uint32_t pc, uint32_t sp) 
+{
+  UNUSED(pc);
+  UNUSED(sp);
+    __asm("           \n\
+          msr msp, r1 /* load r1 into MSP */\n\
+          bx r0       /* branch to the address at r0 */\n\
+    ");
+}
+
 
 
 
