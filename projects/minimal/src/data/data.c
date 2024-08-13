@@ -228,14 +228,44 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
     we have comitted to processing a new incomming reading
   */
 
-  char buf[100];
-  UNUSED(buf);
+
+
+  /*
+      do all spi transfers in prioity, without any other mcu work,
+  */
+
+  uint32_t status = spi_ice40_reg_read32( spi, REG_STATUS );
+
+  uint32_t clk_count_mux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+  uint32_t clk_count_mux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+  uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RD);
+  uint32_t clk_count_mux_sig = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_MUX_SIG);
+
+  uint32_t clk_count_mux_reset = 0;
+  uint32_t stat_count_refmux_pos_up = 0;
+  uint32_t stat_count_refmux_neg_up = 0;
+  uint32_t stat_count_cmpr_cross_up = 0;
+
+  if(data->show_extra) {
+
+    clk_count_mux_reset       = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RESET);
+
+    stat_count_refmux_pos_up = spi_ice40_reg_read32( spi, REG_ADC_STAT_COUNT_REFMUX_POS_UP);
+    stat_count_refmux_neg_up = spi_ice40_reg_read32( spi, REG_ADC_STAT_COUNT_REFMUX_NEG_UP);
+    stat_count_cmpr_cross_up = spi_ice40_reg_read32( spi, REG_ADC_STAT_COUNT_CMPR_CROSS_UP);
+  }
+
+
 
   // printf("-------------------\n");
 
+/*
+  // suppress late measure samples arriving after signal_acquisition is returned to arm
+  if(!mode->trig_sa)
+    return
+*/
 
 
-  uint32_t status = spi_ice40_reg_read32( spi, REG_STATUS );
   // printf("r %u  v %lu  %s\n",  REG_STATUS, status,  str_format_bits(buf, 32, status));
 
   // TODO consider create a bitfield for the status register
@@ -250,11 +280,10 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
   assert( reg_spi_mux == SPI_MUX_NONE);
 
-  // store the value against the sample idx.
+  // ensure we can store the value against the sample idx.
   assert(sample_idx < ARRAY_SIZE( data->reading));
 
-
-
+  char buf[100];
 
 
  // if(data->show_seq)
@@ -265,46 +294,38 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
     printf(", %u of %u", sample_idx, sample_seq_n );
   }
 
-/*
-  // suppress late measure samples arriving after signal_acquisition is returned to arm
-  if(!mode->trig_sa)
-    return
-*/
-
-  uint32_t clk_count_mux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-  uint32_t clk_count_mux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-  uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RD);
-  uint32_t clk_count_mux_sig = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_MUX_SIG);
-
 
   if(data->show_counts) {
 
-    // clkcounts
-    // printf("clk counts %6lu %7lu %7lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
-    printf(", clk counts %7lu %7lu %6lu %lu", clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+    printf(", clk counts %7lu %7lu %6lu %lu",
+      clk_count_mux_neg,
+      clk_count_mux_pos,
+      clk_count_mux_rd,
+      clk_count_mux_sig
+    );
   }
 
 
   // data show_count_extra?
   if(data->show_extra) {
 
-    uint32_t clk_count_mux_reset = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RESET);
     printf(", reset %6lu", clk_count_mux_reset);
 
-    uint32_t stat_count_refmux_pos_up = spi_ice40_reg_read32( spi, REG_ADC_STAT_COUNT_REFMUX_POS_UP);
-    uint32_t stat_count_refmux_neg_up = spi_ice40_reg_read32( spi, REG_ADC_STAT_COUNT_REFMUX_NEG_UP);
-    uint32_t stat_count_cmpr_cross_up = spi_ice40_reg_read32( spi, REG_ADC_STAT_COUNT_CMPR_CROSS_UP);
-
-    printf(", adc stats %lu %lu %lu", stat_count_refmux_pos_up, stat_count_refmux_neg_up, stat_count_cmpr_cross_up );
-
+    printf(", adc stats %lu %lu %lu",
+      stat_count_refmux_pos_up,
+      stat_count_refmux_neg_up,
+      stat_count_cmpr_cross_up
+    );
 
     double period = aper_n_to_period( clk_count_mux_sig);
-    // double period =  ((double)clk_count_mux_sig) / CLK_FREQ ;
     printf(", period %.2lf", period );
 
     double freq = ((double) stat_count_refmux_pos_up) / period;
     printf(", freq %.0lf kHz", freq / 1000.f );
   }
+
+
+
 
 
   // could factor into another func - to ease this nesting.
@@ -531,15 +552,13 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
         */
 
+        // STTCPW
 
         str_format_float_with_commas(buf, 100, 7, computed_val);
         printf(" meas %sV", buf );
 
-        // STTCPW
-
         // write value
         vfd_write_bitmap_string2( buf, 0 , 0 );
-
 
         // write mode
         seq_mode_str( sample_seq_mode, buf, 8 );
@@ -552,7 +571,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
         snprintf(buf, 100, "%.1lf", nplc );
         vfd_write_string2( buf, 0, 4 );
 
-        // write a star
+        // write a star, for the sample
         vfd_write_string2( sample_idx % 2 == 0 ? "*" : " ", 0, 5 );
 
         // vfd_write_string2( "123467890", 0, 5 );
