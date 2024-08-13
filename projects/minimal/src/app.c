@@ -171,7 +171,6 @@ static void app_update_soft_500ms(app_t *app)
     }
     */
 
-#if 1
     /* we expect fpga is now configured. failure could be due to isolators not populated.
       do we want more graceful handling here?
       better to fail fast for the moment. */
@@ -181,7 +180,9 @@ static void app_update_soft_500ms(app_t *app)
 
       printf("ice40 fpga config failed\n");
     }
+
     else {
+      // fpga config succeeded
 
       // check/verify 4094 OE is not asserted
       assert( ! spi_ice40_reg_read32( app->spi, REG_4094 ));
@@ -213,15 +214,26 @@ static void app_update_soft_500ms(app_t *app)
       // need to delay until after fpga is configured, else get spurious
       */
       spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app->data );
+
+      // not needed
+      // msleep( 10, &app->system_millis);
+
+      // start in dcv mode.
+      app_repl_statements(app, "        \
+          flash cal read 123;           \
+          reset;                        \
+          data show stats;              \
+          dcv;   \n                     \
+        " );
+
     }
-#endif
+
   }
 
+  /*
+      perhaps should have app state flag - to detect if we lose configuration eg. for power supply
 
-  if(ice40_port_extra_cdone_get()) {
-
-    // app_update_soft_500ms_configured( app);
-  }
+  */
 
 
 }
@@ -303,6 +315,15 @@ void app_update_main(app_t *app)
 
   // process potential new incomming data in priority
   data_update_new_reading( app->data, app->spi/*, app->verbose*/);
+
+  /* OK. to handle the display of the value...
+      - can communicate - through shared state of the output variable.
+      - or just compose a continuation?  with a context.
+          continuation - is more testable.
+          We need to know the mode. for printing other stuff.
+
+  */
+  // should update
 
 
   // handle console
@@ -556,6 +577,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     }
 
 
+  // TODO move to test code.
 
   else if( strcmp( cmd, "vfd") == 0) {
     // vfd
@@ -668,26 +690,24 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
 
   /*
-    would be much better if this was put in mode.
-    and
+    TODO would be much better if could move this to mode.
+    do read cal at startup.
+    and move reset. to mode reset.
   */
-
+#if 1
   else if( strcmp(cmd, "dcv") == 0) {
 
     // sample ref-lo via dcv-source
     app_repl_statements(app, "        \
-        flash cal read 123;           \
-        reset;                        \
         set k407 0;   set k405 1;  set k406 1;  \
         nplc 10; set mode 7 ; azero s3 s7;  trig; \
-        data show stats;  \
       " );
 
     // check_data( == 7.000 )  etc.
     // return 1;
   }
 
-
+#endif
 
 
 

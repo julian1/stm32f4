@@ -268,7 +268,7 @@ static int main_f429(void)
     msleep( 10, &app.system_millis );
     vfd_init(  &app.system_millis);
 
-    vfd_do_something();
+    // vfd_do_something();
   //////////////////
 
 

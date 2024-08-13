@@ -569,7 +569,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
       // write nplc
       double nplc = aper_n_to_nplc( clk_count_mux_sig, data->line_freq );
-      snprintf(buf, 100, "%.1lf", nplc );
+      snprintf(buf, 100, "nplc %.1lf ", nplc );
       vfd_write_string2( buf, 0, 4 );
 
       // write a star, for the sample
