@@ -437,7 +437,7 @@ static void spi_print_seq_register( uint32_t spi, uint32_t reg )
 */
 
 
-void app_repl_statement(app_t *app,  const char *cmd)
+bool app_repl_statement(app_t *app,  const char *cmd)
 {
 
   assert(app);
@@ -657,6 +657,41 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
 
   /*
+      would be better if this could be done in mode, rather than app.
+  */
+
+  else if(strcmp(cmd, "reset") == 0) {
+    // reset mode. distinct from  trigger control
+    // reset the mode.
+    *app->mode_current = *app->mode_initial;
+  }
+
+
+  /*
+    would be much better if this was put in mode.
+    and
+  */
+
+  else if( strcmp(cmd, "dcv") == 0) {
+
+    // sample ref-lo via dcv-source
+    app_repl_statements(app, "        \
+        flash cal read 123;           \
+        reset;                        \
+        set k407 0;   set k405 1;  set k406 1;  \
+        nplc 10; set mode 7 ; azero s3 s7;  trig; \
+        data show stats;  \
+      " );
+
+    // check_data( == 7.000 )  etc.
+    // return 1;
+  }
+
+
+
+
+
+  /*
     direct fpga register query/access.  for debugging
     could write as array loop.
     consider remove
@@ -736,13 +771,6 @@ void app_repl_statement(app_t *app,  const char *cmd)
   // actually just remoe any thing that bypasses the mode.
 
 
-  else if(strcmp(cmd, "reset") == 0) {
-    // reset mode. distinct from  trigger control
-    // reset the mode.
-    *app->mode_current = *app->mode_initial;
-  }
-
-
 
 
   // else if(  app_repl_statement_direct( app,  cmd )) { }
@@ -782,7 +810,12 @@ void app_repl_statement(app_t *app,  const char *cmd)
 
     printf("unknown cmd, or bad argument '%s'\n", cmd );
 
+    return 0;
   }
+
+
+  // handled something.
+  return 1;
 }
 
 

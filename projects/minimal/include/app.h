@@ -125,7 +125,7 @@ void app_yield(app_t *app);
 
 
 
-void app_repl_statement(app_t *app,  const char *cmd);
+bool app_repl_statement(app_t *app,  const char *cmd);
 void app_repl_statements(app_t *app,  const char *s);
 
 /*

@@ -586,7 +586,6 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
 
 
-
   /*
       we have to disambiguate values with float args explicitly...
       because float looks like int
