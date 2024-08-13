@@ -5,6 +5,7 @@
 */
 #include <stdio.h>
 #include <assert.h>
+#include <ctype.h>        // toupper
 
 
 #include <lib2/util.h>      // ARRAY_SIZE
@@ -255,10 +256,14 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
 
 
-  printf("%s", seq_mode_str( sample_seq_mode, buf, 8 )); // puts()
-  // printf(" seq_mode %u  %u of %u ", sample_seq_mode,   sample_idx, sample_seq_n );
-  printf(", %u of %u", sample_idx, sample_seq_n );
 
+ // if(data->show_seq)
+  {
+
+    printf("%s", seq_mode_str( sample_seq_mode, buf, 8 )); // puts()
+    // printf(" seq_mode %u  %u of %u ", sample_seq_mode,   sample_idx, sample_seq_n );
+    printf(", %u of %u", sample_idx, sample_seq_n );
+  }
 
 /*
   // suppress late measure samples arriving after signal_acquisition is returned to arm
@@ -362,7 +367,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
       printf(", %f", predicted);
     }
 
-    // show all readings
+    // debug. show all readings
     if(0) {
 
         printf("\n");
@@ -515,13 +520,42 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
         printf(" meas %s", str_format_float_with_commas(buf, 100, 7, computed_val));
       else {
 
+        /* / TODO - this isn't the right place. should instead store - against app state.
+          // potentially can have a continuation. function.
+          // or just rely on shared state.
+        --------------
+          // if factor - then we can pass a few other variables - like the sequencing mode, nplc. etc
+          // to the handler function.
+          // likewise the handling for stats.
+          // we also
+
+        */
+
+
         str_format_float_with_commas(buf, 100, 7, computed_val);
         printf(" meas %sV", buf );
 
-        // TODO - don't think this is the right place. should instead store - against app state. 
-        // and have another function called from main to update.
-        // write vfd
+        // STTCPW
+
+        // write value
         vfd_write_bitmap_string2( buf, 0 , 0 );
+
+
+        // write mode
+        seq_mode_str( sample_seq_mode, buf, 8 );
+        for(unsigned i = 0; i < strlen(buf); ++i)   // stoupper
+          buf[i] = toupper(buf[i] );
+        vfd_write_string2( buf, 0, 3 );
+
+        // write nplc
+        double nplc = aper_n_to_nplc( clk_count_mux_sig, data->line_freq );
+        snprintf(buf, 100, "%.1lf", nplc );
+        vfd_write_string2( buf, 0, 4 );
+
+        // write a star
+        vfd_write_string2( sample_idx % 2 == 0 ? "*" : " ", 0, 5 );
+
+        // vfd_write_string2( "123467890", 0, 5 );
       }
 
       /*
@@ -537,7 +571,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
         printf(" ");
         buffer_stats_print( data->buffer );
       }
-    } else { 
+    } else {
       // printf( "no cal or computed val\n");
     }
 

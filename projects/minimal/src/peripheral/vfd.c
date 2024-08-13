@@ -375,7 +375,7 @@ static void vfd_write_string( const char *s, size_t n, uint8_t xpix, uint8_t ych
   }
 }
 
-static void vfd_write_string2( const char *s, uint8_t xpix, uint8_t ychar )
+void vfd_write_string2( const char *s, uint8_t xpix, uint8_t ychar )
 {
 
   vfd_write_string( s, strlen(s), xpix, ychar );
