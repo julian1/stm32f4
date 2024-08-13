@@ -537,64 +537,67 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
       // we want with commas (easier to read) and without commas (easier to process programatically).
 
+
+      /* / TODO - this isn't the right place. should instead store - against app state.
+        // potentially can have a continuation. function.
+        // or just rely on shared state.
+      --------------
+        // if factor - then we can pass a few other variables - like the sequencing mode, nplc. etc
+        // to the handler function.
+        // likewise the handling for stats.
+        // we also
+
+      */
+
+      // STTCPW
+
+      str_format_float_with_commas(buf, 100, 7, computed_val);
+
       if(sample_seq_mode == SEQ_MODE_RATIO)
         printf(" meas %s", str_format_float_with_commas(buf, 100, 7, computed_val));
-      else {
-
-        /* / TODO - this isn't the right place. should instead store - against app state.
-          // potentially can have a continuation. function.
-          // or just rely on shared state.
-        --------------
-          // if factor - then we can pass a few other variables - like the sequencing mode, nplc. etc
-          // to the handler function.
-          // likewise the handling for stats.
-          // we also
-
-        */
-
-        // STTCPW
-
-        str_format_float_with_commas(buf, 100, 7, computed_val);
+      else
         printf(" meas %sV", buf );
 
-        // write value
-        vfd_write_bitmap_string2( buf, 0 , 0 );
+      // write value
+      vfd_write_bitmap_string2( buf, 0 , 0 );
 
-        // write mode
-        seq_mode_str( sample_seq_mode, buf, 8 );
-        for(unsigned i = 0; i < strlen(buf); ++i)   // stoupper
-          buf[i] = toupper(buf[i] );
-        vfd_write_string2( buf, 0, 3 );
+      // write mode
+      seq_mode_str( sample_seq_mode, buf, 8 );
+      for(unsigned i = 0; i < strlen(buf); ++i)   // stoupper
+        buf[i] = toupper(buf[i] );
+      vfd_write_string2( buf, 0, 3 );
 
-        // write nplc
-        double nplc = aper_n_to_nplc( clk_count_mux_sig, data->line_freq );
-        snprintf(buf, 100, "%.1lf", nplc );
-        vfd_write_string2( buf, 0, 4 );
+      // write nplc
+      double nplc = aper_n_to_nplc( clk_count_mux_sig, data->line_freq );
+      snprintf(buf, 100, "%.1lf", nplc );
+      vfd_write_string2( buf, 0, 4 );
 
-        // write a star, for the sample
-        vfd_write_string2( sample_idx % 2 == 0 ? "*" : " ", 0, 5 );
+      // write a star, for the sample
+      vfd_write_string2( sample_idx % 2 == 0 ? "*" : " ", 0, 5 );
 
-        // vfd_write_string2( "123467890", 0, 5 );
-      }
-
-      /*
-        can drive this with policy arg/flag.
-        if data->buffer is full either keep cycling.
-        or stop. so we can retrieve/print the buffer without change
-        ---
-        actually we may be in a yield().  so policy is handled externally.
-      */
-      buffer_push( data->buffer, &data->buffer_idx, computed_val );
-
-      if(data->show_stats) {
-        printf(" ");
-        buffer_stats_print( data->buffer );
-      }
-    } else {
-      // printf( "no cal or computed val\n");
+      // vfd_write_string2( "123467890", 0, 5 );
     }
 
+    /*
+      can drive this with policy arg/flag.
+      if data->buffer is full either keep cycling.
+      or stop. so we can retrieve/print the buffer without change
+      ---
+      actually we may be in a yield().  so policy is handled externally.
+    */
+    buffer_push( data->buffer, &data->buffer_idx, computed_val );
+
+    if(data->show_stats) {
+      printf(" ");
+      buffer_stats_print( data->buffer );
+    }
   }
+
+  else {
+    printf( "-");
+    // printf( "no cal or computed val\n");
+  }
+
 
   printf("\n");
 
