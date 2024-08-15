@@ -317,39 +317,27 @@ void app_update_main(app_t *app)
 
 
   // process new incoming data.
+  // change name adc_have_interupt
   if(data->adc_measure_valid) {
 
     data->adc_measure_valid = false;
     data_update_new_reading2( data, app->spi);
+
+    // we don't need a continuation, so long as we have the interupt condition.
+    // update vfd/gui
+    vfd_update_new_reading( app->data );  // use the data previously computed.
   }
+
 
   // TODO - i think we forgot to bring code across for this check
   // did we miss data, for any reason
   if( data->adc_measure_valid_missed == true) {
-    printf("missed data\n");
+    printf("missed adc interupt\n");
     data->adc_measure_valid_missed = false;
   }
 
 
 
-#if 0
-  // process potential new incomming data in priority
-  data_update_new_reading( app->data, app->spi/*, app->verbose*/);
-
-  /* OK. to handle the display of the value...
-      - can communicate - through shared state of the output variable.
-      - or just compose a continuation?  with a context.
-          continuation - is more testable.
-          We need to know the mode. for printing other stuff.
-  */
-
-  // OK. this isn't right.  
-  // should limit display update - only if change?
-  // Yes.  at least for the moment.
-
-  // update vfd/gui
-  vfd_update_new_reading( app->data );  // use the data previously computed.
-#endif
 
   // handle console
   // note this calls app_update_repl() that starts actions.
