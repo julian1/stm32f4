@@ -81,9 +81,9 @@ char * str_format_float(char *s, size_t sz, int digits, double value)
     this is probably mostly what we want. eg. 6 digits of uV.
     -------------
     EXTR.
-    
+
       when we draw graphically. we want to draw from rhs digit to lhs digit.
-      eg.  so if the most significant digit changes adds a digit. 
+      eg.  so if the most significant digit changes adds a digit.
       then it does not disturb the precision of the lower bits.
 
       this is a bit difficult with glyph advance which assumes right direction.
@@ -99,7 +99,10 @@ char * str_format_float(char *s, size_t sz, int digits, double value)
 
 
 char * str_format_float_with_commas(char *s, size_t sz, int digits, double value)
-{ 
+{
+  // FIXME this is horrible.
+  // should use two buffers.
+
   // assume we have plenty of working space in buffer
   char *j = s + 50;
   snprintf(j , sz - 50 , "%.*f", digits, value);
@@ -119,7 +122,7 @@ char * str_format_float_with_commas(char *s, size_t sz, int digits, double value
     *dst++ = *j++;
 
     // if(dotdigitdst == 6)
-    // eg. comma every third digit 
+    // eg. comma every third digit
     if( dotdigits != 0
       && (dotdigits % 3) == 0
       && dst < s + sz)
@@ -130,7 +133,7 @@ char * str_format_float_with_commas(char *s, size_t sz, int digits, double value
   if( dst < s + sz)
     *dst = 0;
   else
-    dst[sz - 1] = 0; 
+    dst[sz - 1] = 0;
 
 
   return s;
