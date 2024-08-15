@@ -27,6 +27,7 @@ SRCFILES	= src/peripheral/ice40-extra.c   src/peripheral/led.c  src/peripheral/s
             src/test/test20.c src/test/test40.c src/test/test41.c  src/test/test42.c   \
             src/flash/file-blob.c \
             src/data/cal-flash.c \
+            src/vfd.c \
 
 
 #            src/peripheral/spi-dac8734.c \

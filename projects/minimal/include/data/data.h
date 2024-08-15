@@ -66,14 +66,23 @@ typedef struct data_t
 
   /////////////////
 
+  /* the final result
+    issue whether we should store this here.
+    or else call a continuation.
+  ------
+    if we maintain the stats buffer here, then we should include this value.
+  */
+  double computed_val ;
+
+
   /*
-      Should we use a buffer here.   A simple double float array might be easier. 
+      Should we use a buffer here.   A simple double float array might be easier.
       And we can compute means(), stddev() on it ok.
 
       - The thing we do with truncate_rows(),  rather than setting an index. is it adding complexity?
       When we want to substitute - the buffer.
 
-      - could also just have a function pointer, ctx.    new_measurement ( fp, ctx. double val ) 
+      - could also just have a function pointer, ctx.    new_measurement ( fp, ctx. double val )
   */
 
   // data buffer

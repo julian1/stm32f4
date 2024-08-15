@@ -32,7 +32,7 @@
 #include <peripheral/fsmc.h>
 #include <peripheral/vfd.h>
 
-
+#include <vfd.h>
 
 
 
@@ -321,9 +321,10 @@ void app_update_main(app_t *app)
       - or just compose a continuation?  with a context.
           continuation - is more testable.
           We need to know the mode. for printing other stuff.
-
   */
-  // should update
+
+  // update gui
+  vfd_update_new_reading( app->data );  // use the data previously computed.
 
 
   // handle console

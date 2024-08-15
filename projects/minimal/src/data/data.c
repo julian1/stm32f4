@@ -216,6 +216,14 @@ static char * seq_mode_str( uint8_t sample_seq_mode, char *buf, size_t n  )
 
 
 
+// defining this once means can store this in data for other display routines.
+
+#define ADC_STATUS_HW_FLAGS(status)         (0b111 & (status >> 8 ))
+#define ADC_STATUS_SPI_MUX(status)          (0b111 & (status >> 12 ))     // bad name - nothing to do with ADC. do with spi.
+#define ADC_STATUS_SAMPLE_IDX(status)       (0b111 & (status >> 16))
+#define ADC_STATUS_SAMPLE_SEQ_N(status)     (0b111 & (status >> 20))
+#define ADC_STATUS_SAMPLE_SEQ_MODE(status)  (0b111 & (status >> 24) )
+
 
 
 static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*/)
@@ -270,12 +278,12 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
   // TODO consider create a bitfield for the status register
 
-  uint8_t hw_flags        =  0b111 & (status >> 8 ) ;
+  uint8_t hw_flags        =  ADC_STATUS_HW_FLAGS( status) ;         // 0b111 & (status >> 8 ) ;
   UNUSED(hw_flags);
-  uint8_t reg_spi_mux     =  0b111 & (status >> 12 ) ;
-  uint8_t sample_idx      =  0b111 & (status >> 16) ;     // we set this to 0b111 somewhere in verilog?
-  uint8_t sample_seq_n    =  0b111 & (status >> 20) ;
-  uint8_t sample_seq_mode =  0b111 & (status >> 24) ;
+  uint8_t reg_spi_mux     =  ADC_STATUS_SPI_MUX( status)  ;
+  uint8_t sample_idx      =  ADC_STATUS_SAMPLE_IDX( status) ;       // 0b111 & (status >> 16) ;     // we set this to 0b111 somewhere in verilog?
+  uint8_t sample_seq_n    =  ADC_STATUS_SAMPLE_SEQ_N( status) ;     // 0b111 & (status >> 20) ;
+  uint8_t sample_seq_mode =  ADC_STATUS_SAMPLE_SEQ_MODE( status);   // 0b111 & (status >> 24) ;
 
 
   assert( reg_spi_mux == SPI_MUX_NONE);
@@ -419,7 +427,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
     // a switch would be cleaner...
 
     // change name to computed readding
-    double computed_val = 0;
+    data->computed_val = 0;
 
     switch(sample_seq_mode) {
 
@@ -430,7 +438,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
         assert( sample_seq_n == 1);
         // eg. just the hi.
         if(data->reading[0] != 0)
-          computed_val = data->reading[ 0 ] ;
+          data->computed_val = data->reading[ 0 ] ;
 
         break;
       }
@@ -446,7 +454,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
           && data->reading_last[1] != 0) {
 
           // eg. hi - average two lo
-          computed_val = data->reading[0]  - ((data->reading[ 1 ] + data->reading_last[1] ) / 2.f);
+          data->computed_val = data->reading[0]  - ((data->reading[ 1 ] + data->reading_last[1] ) / 2.f);
         }
 
 
@@ -464,7 +472,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
           && data->reading[2] != 0
           && data->reading[3] != 0)  {
 
-          computed_val = (data->reading[0] - data->reading[1]) / (data->reading[2] - data->reading[3]);
+          data->computed_val = (data->reading[0] - data->reading[1]) / (data->reading[2] - data->reading[3]);
 
           /*
           printf("\n");
@@ -489,7 +497,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
           // need
           double coeff = 2.f; // two to test.
           // channel 1 reading, adjusted according to gain on the dcv-source used as reference on channel 2
-          computed_val = (data->reading[0] - data->reading[1]) / (data->reading[2] - data->reading[3]) * coeff;
+          data->computed_val = (data->reading[0] - data->reading[1]) / (data->reading[2] - data->reading[3]) * coeff;
         }
         break;
       }
@@ -500,7 +508,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
         // channel1 hi - channel 2 hi
         if(  data->reading[0] != 0
           && data->reading[2] != 0)
-          computed_val = data->reading[0] - data->reading[2];
+          data->computed_val = data->reading[0] - data->reading[2];
 
         break;
       }
@@ -522,7 +530,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
         /*
         double dcv   = (data->reading[0] - data->reading[1];
         double himux = (data->reading[2] - data->reading[1];
-        computed_val = dcv + ;
+        data->computed_val = dcv + ;
         */
         break;
       }
@@ -533,7 +541,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
     };
 
 
-    if(computed_val) {
+    if(data->computed_val) {
 
       // we want with commas (easier to read) and without commas (easier to process programatically).
 
@@ -551,10 +559,10 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
       // STTCPW
 
-      str_format_float_with_commas(buf, 100, 7, computed_val);
+      str_format_float_with_commas(buf, 100, 7, data->computed_val);
 
       if(sample_seq_mode == SEQ_MODE_RATIO)
-        printf(" meas %s", str_format_float_with_commas(buf, 100, 7, computed_val));
+        printf(" meas %s", str_format_float_with_commas(buf, 100, 7, data->computed_val));
       else
         printf(" meas %sV", buf );
 
@@ -575,6 +583,11 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
       // write a star, for the sample
       vfd_write_string2( sample_idx % 2 == 0 ? "*" : " ", 0, 5 );
 
+      snprintf(buf, 100, "local, range DCV, 10M" );   // dummy other stuff.
+      vfd_write_string2( buf, 0, 6 );
+
+
+
       // vfd_write_string2( "123467890", 0, 5 );
     }
 
@@ -585,7 +598,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
       ---
       actually we may be in a yield().  so policy is handled externally.
     */
-    buffer_push( data->buffer, &data->buffer_idx, computed_val );
+    buffer_push( data->buffer, &data->buffer_idx, data->computed_val );
 
     if(data->show_stats) {
       printf(" ");
