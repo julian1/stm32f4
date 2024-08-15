@@ -23,11 +23,6 @@
 #include <ice40-reg.h>
 #include <peripheral/spi-ice40.h>
 
-// #include <peripheral/vfd.h>
-
-
-#define UNUSED(x) (void)(x)
-
 
 
 
@@ -467,7 +462,6 @@ void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*/)
       data->adc_clk_count_mux_sig = clk_count_mux_sig;
 
 
-
       // STTCPW
 
       str_format_float_with_commas(buf, 100, 7, data->computed_val);
@@ -477,31 +471,6 @@ void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*/)
       else
         printf(" meas %sV", buf );
 
-#if 0
-
-      // write value
-      vfd_write_bitmap_string2( buf, 0 , 0 );
-
-      // write mode
-      seq_mode_str( sample_seq_mode, buf, 8 );
-      for(unsigned i = 0; i < strlen(buf); ++i)   // stoupper
-        buf[i] = toupper(buf[i] );
-      vfd_write_string2( buf, 0, 3 );
-
-      // write nplc
-      double nplc = aper_n_to_nplc( clk_count_mux_sig, data->line_freq );
-      snprintf(buf, 100, "nplc %.1lf ", nplc );
-      vfd_write_string2( buf, 0, 4 );
-
-      // write a star, for the sample
-      vfd_write_string2( sample_idx % 2 == 0 ? "*" : " ", 0, 5 );
-
-      snprintf(buf, 100, "local, range DCV, 10M" );   // dummy other stuff.
-      vfd_write_string2( buf, 0, 6 );
-#endif
-
-
-      // vfd_write_string2( "123467890", 0, 5 );
     }
 
     /*
