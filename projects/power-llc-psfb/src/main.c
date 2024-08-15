@@ -63,7 +63,8 @@
 
 
 #define LED_PORT  GPIOA
-#define LED_OUT   GPIO9
+// #define LED_OUT   GPIO9
+#define LED_OUT   GPIO7   // aug, 2024.
 
 
 static void led_on(void)
@@ -372,6 +373,45 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t deadtim
 
 
 /*
+
+  EXTR - given the application - that calls for controllable phase - precise synch isn't needed.
+      although would be nice.
+
+  To 'synchronize two timers' with phase relationship.
+
+    - issue - is the synchronization of the enable.  not the actual input clk.
+    - just set the counter if necessry
+
+    practially it probably doesn't matter - if start slightly out of phase. due to calls to the the peripheral from  c.
+    (eg. set_counter() or enable().)
+    but would be nice if there was a ways to start, so that
+
+    just do something like this,
+
+        TIM_CR1(TIM1) |= TIM_CR1_CEN;
+        TIM_CR1(TIM9) |= TIM_CR1_CEN;
+
+    with counter start adjustment.
+
+
+    void timer_enable_counter(uint32_t timer_peripheral)
+    {
+        TIM_CR1(timer_peripheral) |= TIM_CR1_CEN;
+    }
+
+    https://community.st.com/t5/stm32-mcus-products/synchronize-two-timers-with-each-other/td-p/652168
+       Three options
+          You can access the registers directly to enable them. Will cut down on delay.
+
+          You can set the CNT of one to be a few counts in front of the other one so
+          that when it starts a little delayed, the counters match. Will eliminate delay,
+          but offset will depend on compiler settings.
+
+          You can drive both timer with a master timer. Will be the most complex code,
+          but will eliminate the delay.
+
+
+
   jul 9, 2024.
   // PSFB - would look more like this
       - with RHB put on TIM1.
