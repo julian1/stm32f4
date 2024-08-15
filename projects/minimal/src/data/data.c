@@ -110,81 +110,6 @@ void data_rdy_interupt( data_t *data) // runtime context
 
 
 
-#if 0
-
-void data_update(data_t *data, uint32_t spi )
-{
-  /* called from main loop.
-    eg. 1M / s.
-  */
-
-  assert(data);
-  assert(data->magic == DATA_MAGIC) ;
-
-
-/*
-  static uint32_t count = 0;
-  ++count;
-  if(count > 1000000) {
-    printf("%lu\n", count);
-    count -= 1000000;
-  } */
-
-  if(data->adc_interupt_valid ) {
-
-    // clear flag as first thing, in order to better catch missed data, if get interupt while still processing
-    data->adc_interupt_valid  = false;
-
-    // printf("got data\n");
-
-    uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RESET);   // time refmux is in reset. useful check. not adc initialization time.
-    uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-    uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-    uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RD);
-    uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_MUX_SIG);
-
-  /*  - OK. it doesn't matter whether aperture is for one more extra clk cycle. or one less.  eg. the clk termination condition.
-      instead what matters is that the count is recorded in the same way, as for the reference currents.
-      eg. so should should always refer to the returned count value, not the aperture ctrl register.
-
-      uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_P_APERTURE );
-  */
-    printf("counts %6lu %lu %lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
-
-    printf("\n");
-  }
-}
-
-#endif
-
-
-
-
-
-
-
-
-
-
-
-/*
-  - we dont want to care about azmux values here.
-  - we only want to know enough to decode the stream
-  - so could pass a function, setup
-  ---
-  - or just adhere - to a convetinon.   eg. seq0 == lo. and seq1 == hi.
-      that allows us to decode.
-      if seq_idx == 0 -> lo
-      if seq_idx == 1->  hi
-
-      adc_seq_idxo
-
-    sequence acquisition can set it. when we get the adc valid signal.
-
-    seq_idx_last <= seq_idx;
-
-*/
-
 
 
 char * seq_mode_str( uint8_t sample_seq_mode, char *buf, size_t n  )
@@ -894,9 +819,6 @@ bool data_repl_statement( data_t *data,  const char *cmd )
 
   }
 
-
-
-
   else
     return 0;
 
@@ -904,6 +826,94 @@ bool data_repl_statement( data_t *data,  const char *cmd )
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+#if 0
+
+void data_update(data_t *data, uint32_t spi )
+{
+  /* called from main loop.
+    eg. 1M / s.
+  */
+
+  assert(data);
+  assert(data->magic == DATA_MAGIC) ;
+
+
+/*
+  static uint32_t count = 0;
+  ++count;
+  if(count > 1000000) {
+    printf("%lu\n", count);
+    count -= 1000000;
+  } */
+
+  if(data->adc_interupt_valid ) {
+
+    // clear flag as first thing, in order to better catch missed data, if get interupt while still processing
+    data->adc_interupt_valid  = false;
+
+    // printf("got data\n");
+
+    uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RESET);   // time refmux is in reset. useful check. not adc initialization time.
+    uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+    uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+    uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RD);
+    uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_MUX_SIG);
+
+  /*  - OK. it doesn't matter whether aperture is for one more extra clk cycle. or one less.  eg. the clk termination condition.
+      instead what matters is that the count is recorded in the same way, as for the reference currents.
+      eg. so should should always refer to the returned count value, not the aperture ctrl register.
+
+      uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_P_APERTURE );
+  */
+    printf("counts %6lu %lu %lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+
+    printf("\n");
+  }
+}
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+/*
+  - we dont want to care about azmux values here.
+  - we only want to know enough to decode the stream
+  - so could pass a function, setup
+  ---
+  - or just adhere - to a convetinon.   eg. seq0 == lo. and seq1 == hi.
+      that allows us to decode.
+      if seq_idx == 0 -> lo
+      if seq_idx == 1->  hi
+
+      adc_seq_idxo
+
+    sequence acquisition can set it. when we get the adc valid signal.
+
+    seq_idx_last <= seq_idx;
+
+*/
+
+
 
 
 #if 0
