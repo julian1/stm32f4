@@ -323,7 +323,7 @@ void app_update_main(app_t *app)
           We need to know the mode. for printing other stuff.
   */
 
-  // update gui
+  // update vfd/gui
   vfd_update_new_reading( app->data );  // use the data previously computed.
 
 
