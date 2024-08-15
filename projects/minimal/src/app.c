@@ -316,11 +316,10 @@ void app_update_main(app_t *app)
   assert(data);
 
 
-  // process new incoming data.
-  // change name adc_have_interupt
-  if(data->adc_measure_valid) {
+  // process new adc data in priority
+  if(data->adc_interupt_valid) {
 
-    data->adc_measure_valid = false;
+    data->adc_interupt_valid = false;
     data_update_new_reading2( data, app->spi);
 
     // we don't need a continuation, so long as we have the interupt condition.
@@ -329,11 +328,11 @@ void app_update_main(app_t *app)
   }
 
 
-  // TODO - i think we forgot to bring code across for this check
-  // did we miss data, for any reason
-  if( data->adc_measure_valid_missed == true) {
+  // TODO - check - we brought the right code across in the interupt handler also.
+  if( data->adc_interupt_valid_missed == true) {
+    // just report for now
     printf("missed adc interupt\n");
-    data->adc_measure_valid_missed = false;
+    data->adc_interupt_valid_missed = false;
   }
 
 
@@ -379,9 +378,9 @@ void app_update_simple_with_data(app_t *app)
   // data_update_new_reading( app->data, app->spi/*, app->verbose*/);
 
   // process new incoming data.
-  if(data->adc_measure_valid) {
+  if(data->adc_interupt_valid) {
 
-    data->adc_measure_valid = false;
+    data->adc_interupt_valid = false;
     data_update_new_reading2( data, app->spi);
   }
 

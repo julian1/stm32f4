@@ -61,10 +61,10 @@ static signed strpos( char *s, size_t len, char ch)
 static void string_align_dot( char *s, size_t len, signed pos )
 {
   /*
-    simpler way to do this - would be to calc prefix digits represented using log10().
+    simpler way to do this - would be with log10().
     eg. prefix_digits = floor(log10( aval)) + 1;
-    but doesn't quite work. because sprintf will add a single leading zero.
-    so do it using string manipulation/interrogation instead
+    but it doesn't quite work, since sprintf always adds a leading zero.
+    so use string manipulation/interrogation instead
   */
 
   signed cur = strpos(s, len, '.' );
@@ -156,7 +156,8 @@ static void stoupper( char *s)
 
 void vfd_update_new_reading(data_t *data)
 {
-  UNUSED(data);
+  assert(data);
+  assert(data->magic == DATA_MAGIC);
 
 
   char buf[100];

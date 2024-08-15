@@ -35,9 +35,9 @@ typedef struct data_t
 
   // TODO reanme adc_valid . eg. same identifier / meaning as fpga code.
   // could also put flags/ for adc state in the status register. eg. the monitor pins.
-  volatile bool  adc_measure_valid;
+  volatile bool  adc_interupt_valid;
 
-  bool adc_measure_valid_missed; // could be made a count
+  bool adc_interupt_valid_missed; // could be made a count
 
   // top level concept.
   // unsigned verbose;     // treated as bool at the moment

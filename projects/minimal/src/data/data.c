@@ -99,13 +99,13 @@ void data_rdy_interupt( data_t *data) // runtime context
 
 
   // if flag is still active, then record we missed processing some data.
-  if(data->adc_measure_valid == true) {
-    data->adc_measure_valid_missed = true;
-    // ++data->adc_measure_valid_missed;     // count better? but harder to report.
+  if(data->adc_interupt_valid == true) {
+    data->adc_interupt_valid_missed = true;
+    // ++data->adc_interupt_valid_missed;     // count better? but harder to report.
   }
 
-  // set adc_measure_valid flag so that update() knows to read the adc...
-  data->adc_measure_valid = true;
+  // set adc_interupt_valid flag so that update() knows to read the adc...
+  data->adc_interupt_valid = true;
 }
 
 
@@ -130,10 +130,10 @@ void data_update(data_t *data, uint32_t spi )
     count -= 1000000;
   } */
 
-  if(data->adc_measure_valid ) {
+  if(data->adc_interupt_valid ) {
 
     // clear flag as first thing, in order to better catch missed data, if get interupt while still processing
-    data->adc_measure_valid  = false;
+    data->adc_interupt_valid  = false;
 
     // printf("got data\n");
 
@@ -217,6 +217,9 @@ char * seq_mode_str( uint8_t sample_seq_mode, char *buf, size_t n  )
 
 void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*/)
 {
+  assert(data);
+  assert(data->magic == DATA_MAGIC);
+
   /*
     the question - is can we do this without interaction with the mode_t.
                   ideally we shouldn't need anything.
@@ -628,17 +631,17 @@ void data_update_new_reading(data_t *data, uint32_t spi)
 
   // TODO - fix me,   factor this condition test out.
   // to avoid the nesting.
-  if(data->adc_measure_valid) {
+  if(data->adc_interupt_valid) {
 
-    data->adc_measure_valid = false;
+    data->adc_interupt_valid = false;
     data_update_new_reading2( data, spi);
   }
 
   // TODO - i think we forgot to bring code across for this check
   // did we miss data, for any reason
-  if( data->adc_measure_valid_missed == true) {
+  if( data->adc_interupt_valid_missed == true) {
     printf("missed data\n");
-    data->adc_measure_valid_missed = false;
+    data->adc_interupt_valid_missed = false;
   }
 
 

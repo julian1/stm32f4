@@ -230,11 +230,11 @@ void data_cal(
       for(unsigned i = 0; i < obs_to_take_n; ++i ) {
 
         // wait for adc data, on interupt
-        while( !data->adc_measure_valid ) {
+        while( !data->adc_interupt_valid ) {
           if(yield)
             yield( yield_ctx);
         }
-        data->adc_measure_valid = false;
+        data->adc_interupt_valid = false;
 
         // embed a 8 bit. counter ini the reg_status and use it for the measure.
         // uint32_t status =            spi_ice40_reg_read32( app->spi, REG_STATUS );
