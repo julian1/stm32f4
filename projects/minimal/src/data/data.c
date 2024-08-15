@@ -215,7 +215,7 @@ char * seq_mode_str( uint8_t sample_seq_mode, char *buf, size_t n  )
 
 
 
-static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*/)
+void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*/)
 {
   /*
     the question - is can we do this without interaction with the mode_t.
@@ -603,20 +603,15 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 }
 
 
-
-
-  /*
-      if(verbose)
-        printf(" meas %sV", str_format_float_with_commas(buf, 100, 7, ret ));
-      else
-        printf(" %.8lf", ret );
-  */
-
-
-
+#if 0
 
 void data_update_new_reading(data_t *data, uint32_t spi)
 {
+  assert(0);
+  // TODO - get rid of this function.
+  // move functionality higher.
+  
+
   assert(data);
   assert(data->magic == DATA_MAGIC);
 
@@ -649,7 +644,7 @@ void data_update_new_reading(data_t *data, uint32_t spi)
 
 }
 
-
+#endif
 
 
 

@@ -312,7 +312,27 @@ void app_update_main(app_t *app)
   assert(app);
   assert(app->magic == APP_MAGIC);
 
+  data_t *data = app->data;
+  assert(data);
 
+
+  // process new incoming data.
+  if(data->adc_measure_valid) {
+
+    data->adc_measure_valid = false;
+    data_update_new_reading2( data, app->spi);
+  }
+
+  // TODO - i think we forgot to bring code across for this check
+  // did we miss data, for any reason
+  if( data->adc_measure_valid_missed == true) {
+    printf("missed data\n");
+    data->adc_measure_valid_missed = false;
+  }
+
+
+
+#if 0
   // process potential new incomming data in priority
   data_update_new_reading( app->data, app->spi/*, app->verbose*/);
 
@@ -323,9 +343,13 @@ void app_update_main(app_t *app)
           We need to know the mode. for printing other stuff.
   */
 
+  // OK. this isn't right.  
+  // should limit display update - only if change?
+  // Yes.  at least for the moment.
+
   // update vfd/gui
   vfd_update_new_reading( app->data );  // use the data previously computed.
-
+#endif
 
   // handle console
   // note this calls app_update_repl() that starts actions.
@@ -358,9 +382,22 @@ void app_update_simple_with_data(app_t *app)
   assert(app);
   assert(app->magic == APP_MAGIC);
 
+  data_t *data = app->data;
+  assert(data);
+
+
 
   // process potential new incomming data in priority
-  data_update_new_reading( app->data, app->spi/*, app->verbose*/);
+  // data_update_new_reading( app->data, app->spi/*, app->verbose*/);
+
+  // process new incoming data.
+  if(data->adc_measure_valid) {
+
+    data->adc_measure_valid = false;
+    data_update_new_reading2( data, app->spi);
+  }
+
+
 
 
   // 500ms soft timer

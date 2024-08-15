@@ -30,6 +30,9 @@ typedef struct data_t
   uint32_t line_freq;
 
 
+  // TODO rename to adc_interupt.
+  // consider moving to app.
+
   // TODO reanme adc_valid . eg. same identifier / meaning as fpga code.
   // could also put flags/ for adc state in the status register. eg. the monitor pins.
   volatile bool  adc_measure_valid;
@@ -122,7 +125,9 @@ void data_reset( data_t * data );
 void data_rdy_interupt( data_t *data);    // handler setup in app context.
 
 // better name process reading.
-void data_update_new_reading(data_t *data, uint32_t spi);
+// void data_update_new_reading(data_t *data, uint32_t spi);
+
+void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*/);
 
 
 // could create and add to data/cal.h
