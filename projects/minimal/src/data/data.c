@@ -5,7 +5,6 @@
 */
 #include <stdio.h>
 #include <assert.h>
-#include <ctype.h>        // toupper
 
 
 #include <lib2/util.h>      // ARRAY_SIZE
@@ -24,7 +23,7 @@
 #include <ice40-reg.h>
 #include <peripheral/spi-ice40.h>
 
-#include <peripheral/vfd.h>
+// #include <peripheral/vfd.h>
 
 
 #define UNUSED(x) (void)(x)
@@ -188,8 +187,7 @@ void data_update(data_t *data, uint32_t spi )
 
 
 
-// static char * seq_mode_str( uint32_t sample_seq_mode, char *buf, unsigned n  )
-static char * seq_mode_str( uint8_t sample_seq_mode, char *buf, size_t n  )
+char * seq_mode_str( uint8_t sample_seq_mode, char *buf, size_t n  )
 {
   char *s = 0;
 
@@ -536,17 +534,11 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
       // we want with commas (easier to read) and without commas (easier to process programatically).
 
+      // record these
+      data->adc_status = status;
+      data->adc_clk_count_mux_sig = clk_count_mux_sig;
 
-      /* / TODO - this isn't the right place. should instead store - against app state.
-        // potentially can have a continuation. function.
-        // or just rely on shared state.
-      --------------
-        // if factor - then we can pass a few other variables - like the sequencing mode, nplc. etc
-        // to the handler function.
-        // likewise the handling for stats.
-        // we also
 
-      */
 
       // STTCPW
 
@@ -556,6 +548,8 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
         printf(" meas %s", str_format_float_with_commas(buf, 100, 7, data->computed_val));
       else
         printf(" meas %sV", buf );
+
+#if 0
 
       // write value
       vfd_write_bitmap_string2( buf, 0 , 0 );
@@ -576,7 +570,7 @@ static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*
 
       snprintf(buf, 100, "local, range DCV, 10M" );   // dummy other stuff.
       vfd_write_string2( buf, 0, 6 );
-
+#endif
 
 
       // vfd_write_string2( "123467890", 0, 5 );

@@ -73,6 +73,9 @@ typedef struct data_t
     if we maintain the stats buffer here, then we should include this value.
   */
   double computed_val ;
+  // used to communicate between adc reading and display of adc data.
+  uint32_t adc_status;
+  uint32_t adc_clk_count_mux_sig;
 
 
   /*
@@ -160,4 +163,5 @@ bool data_repl_statement( data_t *data,  const char *cmd );
 void data_cal_show( data_t *data );
 
 
+char * seq_mode_str( uint8_t sample_seq_mode, char *buf, size_t n  );
 
