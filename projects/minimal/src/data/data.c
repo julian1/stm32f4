@@ -216,15 +216,6 @@ static char * seq_mode_str( uint8_t sample_seq_mode, char *buf, size_t n  )
 
 
 
-// defining this once means can store this in data for other display routines.
-
-#define ADC_STATUS_HW_FLAGS(status)         (0b111 & (status >> 8 ))
-#define ADC_STATUS_SPI_MUX(status)          (0b111 & (status >> 12 ))     // bad name - nothing to do with ADC. do with spi.
-#define ADC_STATUS_SAMPLE_IDX(status)       (0b111 & (status >> 16))
-#define ADC_STATUS_SAMPLE_SEQ_N(status)     (0b111 & (status >> 20))
-#define ADC_STATUS_SAMPLE_SEQ_MODE(status)  (0b111 & (status >> 24) )
-
-
 
 static void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*/)
 {
