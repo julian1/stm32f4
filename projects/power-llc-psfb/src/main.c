@@ -44,8 +44,9 @@
 // #include <libopencm3/cm3/nvic.h>
 // #include <libopencm3/cm3/systick.h>
 
-#include <libopencm3/usb/usbd.h>
+// #include <libopencm3/usb/usbd.h>
 
+#include <libopencm3/cm3/scb.h>  // reset()
 
 
 
@@ -178,7 +179,15 @@ static void update_console_cmd(app_t *app)
 
       uint32_t u0;
 
-      if( sscanf(cmd, "freq %lu", &u0 ) == 1) {
+
+      if(strcmp(cmd, "reset mcu") == 0) {
+        printf("perform mcu reset\n" );
+        // reset stm32f4
+        // scb_reset_core()
+        scb_reset_system();
+      }
+
+      else if( sscanf(cmd, "freq %lu", &u0 ) == 1) {
 
         // 1uF + (10 + 3uH) == 44kHz resonant. avoid capacitive region.
         if(u0 >= 3 && u0 <= 100) { // 3 - 100 kHz
@@ -309,7 +318,7 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t deadtim
   // assert(deadtime >= 1 /*&& deadtime <= 50 */);
   // assert(freq >= 40000 && freq <= 500000);
   // assert(freq >= 10000 && freq <= 500000);
-  assert(freq >= 3600 && freq <= 100000);
+  assert(freq >= 3000 && freq <= 100000);
 
 
   timer_disable_counter(timer);
@@ -460,9 +469,10 @@ static void timer_port_setup(void )
   gpio_set_af(GPIOA, GPIO_AF2, outputs );
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, outputs);
 
-
-
 }
+
+
+
 
 static void timer_setup( uint32_t timer )
 {
@@ -473,7 +483,10 @@ static void timer_setup( uint32_t timer )
   // uint32_t timer = TIM5;
   assert( timer == TIM5 );
 
-  rcc_periph_reset_pulse( RST_TIM5 );   // is this needed
+  if(timer == TIM5)
+    rcc_periph_reset_pulse( RST_TIM5 );   // is this needed?
+  else
+    assert(0);
 
   timer_set_prescaler(timer, 0 );  // No prescaler = 42Mhz.
 
@@ -665,7 +678,8 @@ int main(void)
   timer_port_setup();
   timer_setup( app.timer );
 
-  app.freq = 15000;     // 15kHz.
+  // app.freq = 15000;     // 15kHz.
+  app.freq = 10000;     // 15kHz.
   // app.clk_deadtime = 15; // 15 == 357ns.
   // app.clk_deadtime = 25;    // 25 == 595ns , (1190ns) .
   // app.clk_deadtime = 50;    // with 1k. gate resistors.  works better.
