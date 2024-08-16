@@ -612,22 +612,6 @@ int main(void)
   rcc_periph_clock_enable(RCC_USART1);
 
 
-  // USB
-	// rcc_periph_clock_enable(RCC_OTGFS);
-
-
-
-  // spi1
-  // rcc_periph_clock_enable(RCC_SPI1);
-
-  // spi2
-  // rcc_periph_clock_enable(RCC_SPI2);
-
-
-  //////////////////////
-  // setup
-
-
 
 
   // mcu clock
@@ -661,52 +645,8 @@ int main(void)
   usart1_set_buffers( &app.console_in, &app.console_out);
 
 
-
-#if 0
-  memset(&app, 0, sizeof(app_t));
-
-  // uart/console
-  cbuf_init(&app.console_in,  buf_console_in, sizeof(buf_console_in));
-  cbuf_init(&app.console_out, buf_console_out, sizeof(buf_console_out));
-
-
-  cstring_init(&app.command, buf_command, buf_command + sizeof( buf_command));
-
-
-  // standard streams for printf, fprintf, putc.
-  // cbuf_init_std_streams( &app.console_out );
-
-  // standard streams for printf, fprintf, putc.
-  cbuf_init_stdout_streams(  &app.console_out );
-  // for fread, fgetch etc
-  cbuf_init_stdin_streams( &app.console_in );
-
-#endif
-
-#if 0
-
-  //////////////
-  // initialize usart before start all the app constructors, so that can print.
-  // uart
-  // usart1_setup_gpio_portA();
-  usart1_setup_gpio_portB();
-
-  usart1_set_buffers(&app.console_in, &app.console_out);
-#endif
-
-
   printf("\n--------\n");
   printf("addr main() %p\n", main );
-
-
-
-#if 0
-  ////////////////////////////
-  // usb
-  // might be better to pass as handler?
-	app.usbd_dev = usb_setup();
-  assert(app.usbd_dev);
-#endif
 
 
   printf("\n--------");
@@ -741,6 +681,73 @@ int main(void)
 // put the code after the function. to prevent inlining.
 
 
+
+
+
+
+
+
+
+  // USB
+	// rcc_periph_clock_enable(RCC_OTGFS);
+
+
+
+  // spi1
+  // rcc_periph_clock_enable(RCC_SPI1);
+
+  // spi2
+  // rcc_periph_clock_enable(RCC_SPI2);
+
+
+  //////////////////////
+  // setup
+
+
+
+
+
+#if 0
+  ////////////////////////////
+  // usb
+  // might be better to pass as handler?
+	app.usbd_dev = usb_setup();
+  assert(app.usbd_dev);
+#endif
+
+
+
+#if 0
+  memset(&app, 0, sizeof(app_t));
+
+  // uart/console
+  cbuf_init(&app.console_in,  buf_console_in, sizeof(buf_console_in));
+  cbuf_init(&app.console_out, buf_console_out, sizeof(buf_console_out));
+
+
+  cstring_init(&app.command, buf_command, buf_command + sizeof( buf_command));
+
+
+  // standard streams for printf, fprintf, putc.
+  // cbuf_init_std_streams( &app.console_out );
+
+  // standard streams for printf, fprintf, putc.
+  cbuf_init_stdout_streams(  &app.console_out );
+  // for fread, fgetch etc
+  cbuf_init_stdin_streams( &app.console_in );
+
+#endif
+
+#if 0
+
+  //////////////
+  // initialize usart before start all the app constructors, so that can print.
+  // uart
+  // usart1_setup_gpio_portA();
+  usart1_setup_gpio_portB();
+
+  usart1_set_buffers(&app.console_in, &app.console_out);
+#endif
 
 
 
