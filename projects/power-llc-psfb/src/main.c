@@ -14,6 +14,7 @@
 
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>    // led/timer output
+#include <libopencm3/stm32/timer.h>
 
 #include <libopencm3/cm3/scb.h>  // reset()
 
@@ -226,12 +227,6 @@ static void loop(app_t *app)
 
 
 
-
-
-
-
-#include <libopencm3/stm32/gpio.h>
-#include <libopencm3/stm32/timer.h>
 
 
 
