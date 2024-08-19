@@ -1,50 +1,19 @@
 /*
 
-  spi master and slave on the same device.
-
-  ------------
-  nix-shell ~/devel/nixos-config/examples/arm.nix
-  make
-
-  serial,
-  rlwrap -a picocom -b 115200 /dev/ttyUSB0
-
-  usb
-  screen /dev/ttyACM0 115200
-
-  screen
-  openocd -f openocd.cfg
-  rlwrap nc localhost 4444  # in new window
-
-  reset halt ; flash write_image erase unlock /home/me/devel/stm32/stm32f4/projects/control-panel-2/main.elf; sleep 1; reset run
-
-  *********
-  with gnu sprintf, and floating point code, this still fits in 27k, tested by editing f410.ld.  good!!
-  *********
-  -----------------------------
 
 */
 
 
 
 #include <assert.h>
-// #include <setjmp.h>
 #include <stddef.h> // size_t
-//#include <math.h> // nanf
-//#include <stdio.h>
-#include <string.h>   // memset
-#include <stdio.h>   // putChar
+#include <string.h>   // strcmp
+#include <stdio.h>
 
 
 
 #include <libopencm3/stm32/rcc.h>
-#include <libopencm3/stm32/gpio.h>    // led
-#include <libopencm3/stm32/spi.h>
-
-// #include <libopencm3/cm3/nvic.h>
-// #include <libopencm3/cm3/systick.h>
-
-// #include <libopencm3/usb/usbd.h>
+#include <libopencm3/stm32/gpio.h>    // led/timer output
 
 #include <libopencm3/cm3/scb.h>  // reset()
 
@@ -55,11 +24,7 @@
 #include <lib2/cstring.h>
 #include <lib2/usart.h>
 #include <lib2/util.h>
-// #include <cdcacm.h>
 
-
-// #include "str.h"  //format_bits
-// #include <format.h>  //format_bits
 
 
 
@@ -180,8 +145,8 @@ static void update_console_cmd(app_t *app)
       uint32_t u0;
 
 
-      if(strcmp(cmd, "reset mcu") == 0) {
-        printf("perform mcu reset\n" );
+      if(strcmp(cmd, "reset") == 0) {
+        printf("mcu reset\n" );
         // reset stm32f4
         // scb_reset_core()
         scb_reset_system();
@@ -231,28 +196,14 @@ static void loop(app_t *app)
   assert(app->magic == APP_MAGIC);
 
 
-  /*
-    loop() subsumes update()
-  */
 
-/*
-  // TODO move to app_t structure?.
-  static uint32_t soft_500ms = 0;
-  static uint32_t soft_1000ms = 0;
-*/
   while(true) {
 
 		// usbd_poll(app->usbd_dev);
 
     update_console_cmd(app);
 
-/*
-    // usart1_enable_output_interupt(); // shouldn't be necessary
-    if( (system_millis - soft_500ms) > 500) {
-      soft_500ms += 500;
-      led_toggle();
-    }
-*/
+
 
     // 500ms soft timer
     if( (app->system_millis - app->soft_500ms) > 500) {
@@ -266,34 +217,6 @@ static void loop(app_t *app)
 
     }
 
-#if 0
-    // 500ms soft timer. should handle wrap around
-    if( (system_millis - soft_1000ms) > 1000) {
-
-      soft_1000ms += 1000;
-
-#if 0
-      static unsigned count = 0;
-
-      printf("writing spi1 using cs2 \n" );
-      spi_enable( SPI1 );
-      // uint8_t val =  spi_xfer(SPI1, count % 2 == 0 ? 0xff : 0x00  ); // commmand.
-
-      /*
-      // this works. nice.
-      // OK. reading back the last written value. works. but is QS1. high-z.  when strobe not set.
-      uint8_t val =  spi_xfer(SPI1,  count );
-      printf("count %d read value %d\n", count, val );
-      */
-
-      UNUSED(val);
-      spi_disable( SPI1 );
-
-      ++count;
-#endif
-
-    }
-#endif
 
   }
 }
@@ -678,8 +601,8 @@ int main(void)
   timer_port_setup();
   timer_setup( app.timer );
 
-  // app.freq = 15000;     // 15kHz.
-  app.freq = 10000;     // 15kHz.
+  app.freq = 15000;     // 15kHz.
+  // app.freq = 10000;     // 10kHz.
   // app.clk_deadtime = 15; // 15 == 357ns.
   // app.clk_deadtime = 25;    // 25 == 595ns , (1190ns) .
   // app.clk_deadtime = 50;    // with 1k. gate resistors.  works better.
@@ -719,6 +642,34 @@ int main(void)
 
 
 
+#if 0
+    // 500ms soft timer. should handle wrap around
+    if( (system_millis - soft_1000ms) > 1000) {
+
+      soft_1000ms += 1000;
+
+#if 0
+      static unsigned count = 0;
+
+      printf("writing spi1 using cs2 \n" );
+      spi_enable( SPI1 );
+      // uint8_t val =  spi_xfer(SPI1, count % 2 == 0 ? 0xff : 0x00  ); // commmand.
+
+      /*
+      // this works. nice.
+      // OK. reading back the last written value. works. but is QS1. high-z.  when strobe not set.
+      uint8_t val =  spi_xfer(SPI1,  count );
+      printf("count %d read value %d\n", count, val );
+      */
+
+      UNUSED(val);
+      spi_disable( SPI1 );
+
+      ++count;
+#endif
+
+    }
+#endif
 
 
 #if 0
