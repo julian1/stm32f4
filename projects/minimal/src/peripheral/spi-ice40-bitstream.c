@@ -106,11 +106,11 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   // must have spi enabled to output clk cycles, regardless of state of SS.
 
   // start with creset enabled as well as cs hi. to make it easy to LA trigger on down transition
-  ice40_port_extra_creset_enable();
+  ice40_port_extra_creset_enable();       // reset lo. start reset.
 
 
-  spi_port_cs1_disable( spi);
-  spi_port_cs2_disable( spi);
+  spi_port_cs1_disable( spi);             // cs1 hi.
+  spi_port_cs2_disable( spi);             // it would be easier to use cs2 as rst by itself/ then reconfigure at runtime.  but it isn't unconditional.
 
 
   // wait
@@ -122,10 +122,10 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   // configure sequence
 
   // drive creset_b = 0  (pin lo).
-  ice40_port_extra_creset_disable();
+  ice40_port_extra_creset_disable();      // creset/ clear / lo. inverse.
 
   // drive spi_ss = 0, spi_sck = 1
-  spi_port_cs1_enable(spi);
+  spi_port_cs1_enable(spi);                 // cs1 lo.   (*have to try doing this before the creset).
 
   // wait minimum of 200ns
   msleep(1, system_millis);
@@ -134,14 +134,14 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   assert(! ice40_port_extra_cdone_get() );
 
   // release creset (eg. pullup), or drive creset = 1
-  // TODO change name enable to clear() or low()
-  ice40_port_extra_creset_enable();
+  // TODO change name enable to clear() or set()
+  ice40_port_extra_creset_enable();         // creset set/ hi. inverse.  (Can do this by releasing cs2 ).
 
   // wait a minimum of of 1200u to clear internal config memory
   msleep(2, system_millis);
 
   // set spi_ss = 1.
-  spi_port_cs1_disable(spi);
+  spi_port_cs1_disable(spi);                // cs1 hi.
 
   // send 8 dummy clks
   spi_xfer( spi, 0x00 );

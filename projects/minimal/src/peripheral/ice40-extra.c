@@ -33,8 +33,8 @@
 
 
 
-void ice40_port_extra_creset_enable(void)
-{
+void ice40_port_extra_creset_enable(void)     // FIXME - enable/disable is bad naming convention for rst.
+{                                             // clear(), set() would be better.
   /* IMPORTANT - eg. follow same interface as spi_assert(),
     enable means normal function.   eg. output enable
   */
