@@ -29,6 +29,7 @@
 #include <libopencm3/stm32/exti.h>
 
 
+#include <stdio.h>
 #include <stddef.h>   // NULL
 #include <assert.h>
 
@@ -53,18 +54,22 @@
 
 */
 
-
+// For dsn257.
 
 #define SPI_PERIPH    SPI1      // better name?
 #define SPI1_PORT     GPIOA
 #define SPI_CS1       GPIO4     // PA4
-// #define SPI_CS2   GPIO15     // PA15 nss 2. moved.
-#define SPI_CS2       GPIO10    // PA10 july 2024. nss moved.
+
+//
+#define SPI_CS2   GPIO15     // gerber157.
+// #define SPI_CS2       GPIO10    // PA10 july 2024. nss moved.
 #define SPI_INTERUPT  GPIO3     // PA3
+
+// clk,PA5   mosi, PB5.  miso PA6
 
 
 /*
-  feb 2024. splitting up the spi configuration over two ports (mosi on PB5) . is messy. but needed to free PA7 pin for ethernet.
+  feb 2024. splitting spi configuration over two ports (mosi on PB5) . is messy. but needed to free PA7 pin for ethernet.
   keep the cs1 and cs2 gpio config separate
 
 
@@ -76,8 +81,46 @@
 
 
 
+
+
+
+
+
 void spi1_port_setup(void)
 {
+  printf("spi1 port setup\n");
+
+  /* port, not driver.
+    performed once only.
+  */
+
+	// hold cs lines lo - to put fpga in reset, avoid isolator/fpga contention, with both trying to drivecontention pins.
+  // probably ok, if just SS held lo.
+	spi_port_cs2_enable( SPI1);
+  spi_port_cs1_enable( SPI1);
+
+  /*
+  oct 2024.
+
+  if cs hi, we get contention/fight - regardless of cs2/gpio pin. probably due on the cs pin itself.  or perhaps due to clk/mosi pin.
+  if cs is lo.  then ok.   regardless of gpio.
+
+
+	// locks up.
+	spi_port_cs2_disable(SPI1 );      // both gpio and cs hi. worst case. both fight.   both cs hi.  CC 2.9V / 29mA.  eg.
+  spi_port_cs1_disable(SPI1 );
+
+  // locks up
+	spi_port_cs2_enable(SPI1 );			  // gpio pin lo.  but cs is hi. and fights.   but less worse CC 3.28V/29mA .
+  spi_port_cs1_disable(SPI1 );
+
+	// OK. works.
+	spi_port_cs2_disable(SPI1 );			// gpio hi, and cs lo.   ok. doesn't fight. because gpio is high-z before bitstream configuration.
+  spi_port_cs1_enable(SPI1 );       // this is the same state, as when, we are trying to configure the bitstream.
+
+  */
+
+
 
   // perhaps simpler with array loop ia[] = { GPIOA ,  GPIO5 } etc.
 
@@ -87,7 +130,7 @@ void spi1_port_setup(void)
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO5 );   // 100MHZ ??
 
 
-  // mosi. on gpio B.
+  // mosi. on PB5.
   gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO5 );
   gpio_set_af(GPIOB, GPIO_AF5, GPIO5 );       // af 5
   gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO5 );   // 100MHZ ??
@@ -163,6 +206,9 @@ void spi_port_cs1_enable(uint32_t spi)
     gpio_clear(SPI1_PORT, SPI_CS1);
   else
     assert(0);
+
+  // printf("spi1 cs1 lo\n");
+
 }
 
 
@@ -174,6 +220,8 @@ void spi_port_cs1_disable(uint32_t spi)
     gpio_set(SPI1_PORT, SPI_CS1);
   else
     assert(0);
+
+  // printf("spi1 cs1 hi\n");
 }
 
 
@@ -188,6 +236,8 @@ void spi_port_cs2_enable(uint32_t spi)
     gpio_clear(SPI1_PORT, SPI_CS2);
   else
     assert(0);
+
+  // printf("spi1 cs2 lo\n");
 }
 
 
@@ -201,12 +251,17 @@ void spi_port_cs2_disable(uint32_t spi)
     gpio_set(SPI1_PORT, SPI_CS2);
   else
     assert(0);
+
+  // printf("spi1 cs2 hi\n");
 }
 
 
 
+bool ice40_port_extra_cdone_get(void)
+{
+   return gpio_get(SPI1_PORT, SPI_INTERUPT)  != 0;
 
-
+}
 
 //////////////////
 
@@ -243,6 +298,9 @@ void exti3_isr(void) // called by runtime
     spi1_interupt(spi1_ctx);
   }
 }
+
+
+
 
 
 void spi1_port_interupt_setup()

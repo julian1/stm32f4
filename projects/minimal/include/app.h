@@ -84,6 +84,7 @@ typedef struct app_t
 
 
   uint32_t  spi;
+  bool      cdone; // ice40 config done
 
 
   const _mode_t *mode_initial;
@@ -110,6 +111,9 @@ void app_systick_interupt(app_t *app);
 
 
 void app_update_main(app_t *app);
+
+
+void app_configure( app_t *app );
 
 void app_update_simple_led_blink(app_t *app);
 void app_update_simple_with_data(app_t *app);

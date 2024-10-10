@@ -13,7 +13,9 @@
 
 
 #include <peripheral/spi-port.h>
-#include <peripheral/ice40-extra.h>
+
+
+// #include <peripheral/ice40-extra.h>
 #include <peripheral/spi-ice40-bitstream.h>
 
 
@@ -90,6 +92,9 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
     printf("bad magic!\n");
     fclose(f);
     return -1;
+  } else {
+
+    printf("magic ok!\n");
   }
 
   ////////////////////////////////////
@@ -105,12 +110,16 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
 
   // must have spi enabled to output clk cycles, regardless of state of SS.
 
+#if 0
   // start with creset enabled as well as cs hi. to make it easy to LA trigger on down transition
   ice40_port_extra_creset_enable();       // reset lo. start reset.
+#endif
 
+  // enable == lo.
+  // disable == hi.
 
   spi_port_cs1_disable( spi);             // cs1 hi.
-  spi_port_cs2_disable( spi);             // it would be easier to use cs2 as rst by itself/ then reconfigure at runtime.  but it isn't unconditional.
+  spi_port_cs2_disable( spi);             // cs2 hi.   but it isn't unconditional.
 
 
   // wait
@@ -121,11 +130,15 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   //////////////////////////////////////////////
   // configure sequence
 
+#if 0
   // drive creset_b = 0  (pin lo).
   ice40_port_extra_creset_disable();      // creset/ clear / lo. inverse.
+#endif
+
+  spi_port_cs2_enable(spi);                 // cs2 lo.
 
   // drive spi_ss = 0, spi_sck = 1
-  spi_port_cs1_enable(spi);                 // cs1 lo.   (*have to try doing this before the creset).
+  spi_port_cs1_enable(spi);                 // cs1 lo.   - now in reset.
 
   // wait minimum of 200ns
   msleep(1, system_millis);
@@ -133,20 +146,25 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   // check cdone is lo
   assert(! ice40_port_extra_cdone_get() );
 
+  printf("here0\n");
+#if 0
   // release creset (eg. pullup), or drive creset = 1
   // TODO change name enable to clear() or set()
   ice40_port_extra_creset_enable();         // creset set/ hi. inverse.  (Can do this by releasing cs2 ).
+#endif
+
+  spi_port_cs2_disable(spi);          // cs2 hi.  out of reset.
 
   // wait a minimum of of 1200u to clear internal config memory
   msleep(2, system_millis);
 
-  // set spi_ss = 1.
+  // set spi_ss hi = 1.
   spi_port_cs1_disable(spi);                // cs1 hi.
 
   // send 8 dummy clks
   spi_xfer( spi, 0x00 );
 
-  // assert ss lo
+  // assert ss lo = 0
   spi_port_cs1_enable(spi);
 
 
@@ -209,17 +227,23 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   for(i = 0; i < 13  && !ice40_port_extra_cdone_get(); ++i)
      spi_xfer( spi, 0x00);
 
-  printf("needed %u dummy bytes before cdone went hi\n", i );
+
 
 
   // check cdone really hi
   if(! ice40_port_extra_cdone_get() ) {
     printf("failed\n");
 
+
+    // set cs. ports lo again..  so if fpga gets powered up. it will succeed.
+    spi_port_cs2_enable( spi );
+    spi_port_cs1_enable( spi );
+
     fclose(f);
     return -1;
   } else {
 
+    printf("needed %u dummy bytes before cdone went hi\n", i );
     printf("ok\n");
   }
 
@@ -227,6 +251,8 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   // send another 49 clk cycles, for gpio to become active
   for(i = 0; i < 7 ; ++i)
      spi_xfer( spi, 0x00);
+
+
 
 
 

@@ -125,6 +125,98 @@ void app_systick_interupt(app_t *app)
 
 
 
+void app_configure( app_t *app )
+{
+
+
+  /*
+    TODO. EXTR. much check the magic of the bitstream before we try to send it.
+          it is easy to forget to actually put bitstream in the stm32 flash
+  */
+
+  // Oct 2024.    we mux interupt and cdone.
+  // but can keep this test.
+
+  /*
+    - we may not even want to do this automatically.
+    - perhaps a repl command.
+
+  */
+
+
+
+  printf("ice40 cdone lo. must configure bitstream\n");
+
+  spi_ice40_bitstream_send(app->spi, & app->system_millis );
+
+
+
+  if( ! ice40_port_extra_cdone_get()) {
+
+    printf("fpga config failed\n");
+
+  }
+
+  else {
+    // fpga config succeeded
+
+    app->cdone = true;
+
+    // do a led dance
+    for(unsigned i = 0; i < 50; ++i )  {
+      static uint32_t counter = 0;
+      ++counter;
+      uint32_t magic = counter  ^ (counter >> 1);
+      spi_ice40_reg_write32( app->spi, REG_DIRECT, magic );
+      msleep( 50,  &app->system_millis);
+    }
+
+
+    // check/verify 4094 OE is not asserted
+    assert( ! spi_ice40_reg_read32( app->spi, REG_4094 ));
+
+    // reset the mode.
+    *app->mode_current = *app->mode_initial;
+
+    /* OK. this is tricky.
+        OE must be enabled to pulse the relays. to align them to initial/current state.
+        but we probably want to configure as much other state first, before asserting 4094 OE.
+    */
+    // write the default 4094 state for muxes etc.
+    printf("spi_mode_transition_state() for muxes\n");
+    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+
+    // now assert 4094 OE
+    // should check supply rails etc. first.
+    printf("asserting 4094 OE\n");
+    spi_ice40_reg_write32( app->spi, REG_4094, 1 );
+    // ensure 4094 OE asserted
+    assert( spi_ice40_reg_read32( app->spi, REG_4094 ));
+
+    // now call transition state again. which will do relays
+    printf("spi_mode_transition_state() for relays\n");
+    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+
+
+    /* enable the ice40 interupt
+    // need to delay until after fpga is configured, else get spurious
+    */
+    spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app->data );
+
+    // not needed
+    // msleep( 10, &app->system_millis);
+
+    // default, start in dcv mode.
+    app_repl_statements(app, "        \
+        flash cal read 123;           \
+        reset;                        \
+        data show stats;              \
+        dcv;   \n                     \
+      " );
+
+  }
+
+}
 
 
 
@@ -148,87 +240,13 @@ static void app_update_soft_500ms(app_t *app)
   else
     led_off();
 
-  /*
-    TODO. EXTR. much check the magic of the bitstream before we try to send it.
-          it is easy to forget to actually put bitstream in the stm32 flash
 
-  */
+  if( false && !app->cdone && !ice40_port_extra_cdone_get() ) {
 
-
-  if( /*false &&*/ !ice40_port_extra_cdone_get() ) {
-
-    spi_ice40_bitstream_send(app->spi, & app->system_millis );
-
-    // TODO . could improve error handling here,  although subsequent spi code is harmless
-
-    /*
-    for(unsigned i = 0; i < 50; ++i )  {
-      static uint32_t counter = 0;
-      ++counter;
-      uint32_t magic = counter  ^ (counter >> 1);
-      spi_ice40_reg_write32( app->spi, REG_DIRECT, magic );
-      msleep( 50,  &app->system_millis);
-    }
-    */
-
-    /* we expect fpga is now configured. failure could be due to isolators not populated.
-      do we want more graceful handling here?
-      better to fail fast for the moment. */
-    // assert(ice40_port_extra_cdone_get()) ;
-
-    if( ! ice40_port_extra_cdone_get()) {
-
-      printf("ice40 fpga config failed\n");
-    }
-
-    else {
-      // fpga config succeeded
-
-      // check/verify 4094 OE is not asserted
-      assert( ! spi_ice40_reg_read32( app->spi, REG_4094 ));
-
-      // reset the mode.
-      *app->mode_current = *app->mode_initial;
-
-      /* OK. this is tricky.
-          OE must be enabled to pulse the relays. to align them to initial/current state.
-          but we probably want to configure as much other state first, before asserting 4094 OE.
-      */
-      // write the default 4094 state for muxes etc.
-      printf("spi_mode_transition_state() for muxes\n");
-      spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
-
-      // now assert 4094 OE
-      // should check supply rails etc. first.
-      printf("asserting 4094 OE\n");
-      spi_ice40_reg_write32( app->spi, REG_4094, 1 );
-      // ensure 4094 OE asserted
-      assert( spi_ice40_reg_read32( app->spi, REG_4094 ));
-
-      // now call transition state again. which will do relays
-      printf("spi_mode_transition_state() for relays\n");
-      spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
-
-
-      /* enable the ice40 interupt
-      // need to delay until after fpga is configured, else get spurious
-      */
-      spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app->data );
-
-      // not needed
-      // msleep( 10, &app->system_millis);
-
-      // start in dcv mode.
-      app_repl_statements(app, "        \
-          flash cal read 123;           \
-          reset;                        \
-          data show stats;              \
-          dcv;   \n                     \
-        " );
-
-    }
+    app_configure( app );
 
   }
+
 
   /*
       perhaps should have app state flag - to detect if we lose configuration eg. for power supply
@@ -290,7 +308,9 @@ static void app_update_console(app_t *app)
       // correct. it is ok/desirable. to update analog board state by calling transition_state(),
       // even if state hasn't been modified. eg. ensures that state is consistent/aligned.
 
-      spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+      if(app->cdone)
+        spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+
       // issue new command prompt
       printf("\n> ");
 
@@ -337,11 +357,11 @@ void app_update_main(app_t *app)
 
 
 
-
   // handle console
   // note this calls app_update_repl() that starts actions.
   // we could pass a flag indicicating if it whoudl be processed.
   app_update_console(app);
+
 
   // 500ms soft timer
   if( (app->system_millis - app->soft_500ms) > 500) {
@@ -574,6 +594,18 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
+
+  else if(strcmp(cmd, "configure") == 0) {
+
+    // reset fpga. load bitstream. turn on 4094. 
+    // init().   is better name.
+
+    app_configure( app );
+  }
+
+
+
+#if 0
   else if(strcmp(cmd, "reset fpga") == 0) {
 
     ice40_port_extra_creset_enable();
@@ -581,7 +613,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     msleep(1, &app->system_millis);
     ice40_port_extra_creset_disable();
   }
-
+#endif
 
 
 

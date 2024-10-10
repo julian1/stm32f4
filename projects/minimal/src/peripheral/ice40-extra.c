@@ -4,6 +4,8 @@
 
 */
 
+#include <assert.h>
+
 
 #include <libopencm3/stm32/gpio.h>
 
@@ -20,18 +22,26 @@
 
 
 // jun 2024.
-#define ER_EXTRA_PORT    GPIOC
+// 
+
+#if 0
+#define ER_EXTRA_PORT    GPIOA
+
+
+#define ER_CDONE          GPIO3
 
 
 #define ER_TRIG_SA        GPIO7
-#define ER_CDONE          GPIO8
+
 #define ER_CRESET_PIN     GPIO9
 #define ER_UNUSED3_CTL    GPIO10    // input
 #define ER_UNUSED1_OUT    GPIO11
 #define ER_UNUSED2_OUT    GPIO12
+#endif
 
 
 
+#if 0
 
 void ice40_port_extra_creset_enable(void)     // FIXME - enable/disable is bad naming convention for rst.
 {                                             // clear(), set() would be better.
@@ -50,28 +60,41 @@ void ice40_port_extra_creset_disable(void)
   gpio_clear(ER_EXTRA_PORT, ER_CRESET_PIN);
 }
 
+#endif
+
+#if 0
+
+
+
+
 
 bool ice40_port_extra_cdone_get(void)
 {
    return gpio_get(ER_EXTRA_PORT, ER_CDONE)  != 0;
 
 }
-
-
+#endif
 
 
 
 void ice40_port_trig_sa_enable(void)
 {
+
+#if 0
+
   // better name
   gpio_set(ER_EXTRA_PORT, ER_TRIG_SA);
+#endif
 }
 
 
 void ice40_port_trig_sa_disable(void)
 {
+
+#if 0
   // better name
   gpio_clear(ER_EXTRA_PORT, ER_TRIG_SA);
+#endif
 }
 
 
@@ -79,7 +102,7 @@ void ice40_port_trig_sa_disable(void)
 
 
 
-
+#if 0
 
 void ice40_port_extra_setup(void)
 {
@@ -98,10 +121,10 @@ void ice40_port_extra_setup(void)
   // actually we can just poll in main loop. for power cycle issues.
   gpio_mode_setup(ER_EXTRA_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ER_CDONE);
 
-
   gpio_mode_setup(ER_EXTRA_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ER_CRESET_PIN);
   gpio_set_output_options(ER_EXTRA_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, ER_CRESET_PIN);
   // cdone - has no input ;  //
+
 
   /////////////////////
 
@@ -114,6 +137,8 @@ void ice40_port_extra_setup(void)
   // unused pins.
   gpio_mode_setup(ER_EXTRA_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ER_UNUSED1_OUT | ER_UNUSED2_OUT);
   gpio_set_output_options(ER_EXTRA_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, ER_UNUSED1_OUT | ER_UNUSED2_OUT);
+
 }
 
+#endif
 

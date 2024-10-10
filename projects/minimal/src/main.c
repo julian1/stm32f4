@@ -149,6 +149,9 @@ static app_t app = {
   .magic = APP_MAGIC,
 
   .spi = SPI1 ,
+
+  .cdone = false,
+
   .mode_initial =  &mode_initial,
   .mode_current =  &mode_current,
 
@@ -251,11 +254,13 @@ static int main_f429(void)
   // why are we not passing the interupt here?
   spi1_port_interupt_setup();
 
+#if 0
   // shouldnt setup the interupt handler - until fpga is configured, else looks like get
   // spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app.data );
   ice40_port_extra_setup();
+#endif
 
-
+#if 0
 
 
   ///////////////////////////////
@@ -271,6 +276,8 @@ static int main_f429(void)
     // vfd_do_something();
   //////////////////
 
+#endif
+
 
   // outer app loop, eg. bottom of control stack
   while(true)
@@ -285,7 +292,7 @@ static int main_f429(void)
 
 
 
-
+#if 0
 /*
   - for mcu startup
     - must have correct link script (eg. f413rgt6.) declared in Makefile declared, ie with correct ram for heap placement.
@@ -404,13 +411,14 @@ static int main_f413(void)
 
   return 0;
 }
+#endif
 
 
 
 // https://interrupt.memfault.com/blog/how-to-write-a-bootloader-from-scratch
 
 // static void start_app(uint32_t pc, uint32_t sp) __attribute__((naked))
-static  __attribute__((naked)) void start_app(uint32_t pc, uint32_t sp) 
+static  __attribute__((naked)) void start_app(uint32_t pc, uint32_t sp)
 {
   UNUSED(pc);
   UNUSED(sp);
