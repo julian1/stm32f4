@@ -58,13 +58,15 @@
 #define SPI_PERIPH    SPI1      // better name?
 #define SPI1_PORT     GPIOA
 #define SPI_CS1       GPIO4     // PA4
-// #define SPI_CS2   GPIO15     // PA15 nss 2. moved.
-#define SPI_CS2       GPIO10    // PA10 july 2024. nss moved.
+
+//
+#define SPI_CS2   GPIO15     // gerber157.
+// #define SPI_CS2       GPIO10    // PA10 july 2024. nss moved.
 #define SPI_INTERUPT  GPIO3     // PA3
 
 
 /*
-  feb 2024. splitting up the spi configuration over two ports (mosi on PB5) . is messy. but needed to free PA7 pin for ethernet.
+  feb 2024. splitting spi configuration over two ports (mosi on PB5) . is messy. but needed to free PA7 pin for ethernet.
   keep the cs1 and cs2 gpio config separate
 
 
@@ -87,7 +89,7 @@ void spi1_port_setup(void)
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO5 );   // 100MHZ ??
 
 
-  // mosi. on gpio B.
+  // mosi. on PB5.
   gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO5 );
   gpio_set_af(GPIOB, GPIO_AF5, GPIO5 );       // af 5
   gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO5 );   // 100MHZ ??

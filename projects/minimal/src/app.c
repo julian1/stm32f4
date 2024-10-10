@@ -148,6 +148,24 @@ static void app_update_soft_500ms(app_t *app)
   else
     led_off();
 
+
+
+  if(app->led_state) {
+
+    spi_port_cs1_enable(app->spi);
+    spi_port_cs2_enable(app->spi);
+
+	} else {
+
+
+    spi_port_cs1_disable(app->spi);
+    spi_port_cs1_disable(app->spi);
+  }
+
+
+
+#if 0
+
   /*
     TODO. EXTR. much check the magic of the bitstream before we try to send it.
           it is easy to forget to actually put bitstream in the stm32 flash
@@ -229,6 +247,8 @@ static void app_update_soft_500ms(app_t *app)
     }
 
   }
+
+#endif
 
   /*
       perhaps should have app state flag - to detect if we lose configuration eg. for power supply
@@ -334,7 +354,6 @@ void app_update_main(app_t *app)
     printf("missed adc interupt\n");
     data->adc_interupt_valid_missed = false;
   }
-
 
 
 

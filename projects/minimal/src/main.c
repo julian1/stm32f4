@@ -255,7 +255,7 @@ static int main_f429(void)
   // spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app.data );
   ice40_port_extra_setup();
 
-
+#if 0
 
 
   ///////////////////////////////
@@ -270,6 +270,8 @@ static int main_f429(void)
 
     // vfd_do_something();
   //////////////////
+
+#endif
 
 
   // outer app loop, eg. bottom of control stack
