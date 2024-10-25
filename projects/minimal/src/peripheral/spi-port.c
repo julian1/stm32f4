@@ -112,6 +112,25 @@ void spi1_port_setup(void)
 	// configure port so clk, mosi are lo. and don't fight isolator
 	spi_ice40_bitstream_setup( SPI1);
 
+	// OK works.
+	spi_port_cs2_enable(SPI1 );          // both lo.  hold fpga in reset.
+    spi_port_cs1_enable(SPI1 );
+
+	// aha.  no good. it locks up.
+	// spi_port_cs2_disable(SPI1 );          // both gpio and cs hi. worst case. both fight.   both cs hi.  CC 2.9V / 29mA.  eg.
+    // spi_port_cs1_disable(SPI1 );
+
+	// spi_port_cs2_enable(SPI1 );			// gpio pin lo.  but cs is hi. and fights.   but less worse CC 3.28V/29mA .
+    // spi_port_cs1_disable(SPI1 );
+
+	// OK. works.
+	// spi_port_cs2_disable(SPI1 );			// gpio hi, and cs lo.   ok. doesn't fight. because gpio is high-z before bitstream configuration.
+    // spi_port_cs1_enable(SPI1 );
+
+	// spi1 needs to b lo.
+
+
+
   // perhaps simpler with array loop ia[] = { GPIOA ,  GPIO5 } etc.
 
   // clk, miso.
