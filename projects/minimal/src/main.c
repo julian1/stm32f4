@@ -16,7 +16,6 @@
 
 #include <peripheral/led.h>
 #include <peripheral/spi-port.h>
-#include <peripheral/ice40-extra.h>
 
 
 #include <mode.h>

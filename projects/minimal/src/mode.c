@@ -8,7 +8,7 @@
 
 
 
-#include <peripheral/ice40-extra.h>
+#include <peripheral/trigger.h>
 
 #include <peripheral/spi-ice40.h>
 #include <peripheral/spi-4094.h>

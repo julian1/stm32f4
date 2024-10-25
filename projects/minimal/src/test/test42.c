@@ -23,7 +23,7 @@
 #include <lib2/util.h>    // yield_with_msleep
 
 #include <mode.h>       // transition state
-#include <peripheral/ice40-extra.h>      // trigger
+#include <peripheral/trigger.h>      // trigger
 
 
 #define UNUSED(x) (void)(x)

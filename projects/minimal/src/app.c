@@ -20,7 +20,7 @@
 
 #include <peripheral/led.h>
 #include <peripheral/spi-port.h>
-#include <peripheral/ice40-extra.h>
+// #include <peripheral/trigger.h>
 #include <peripheral/spi-ice40.h>
 #include <peripheral/spi-4094.h>
 #include <peripheral/spi-ice40-bitstream.h>
