@@ -145,7 +145,7 @@ void app_configure( app_t *app )
 
 
 
-  printf("ice40 cdone lo. must configure bitstream\n");
+  printf("configure fpga bitstream\n");
 
   spi_ice40_bitstream_send(app->spi, & app->system_millis );
 
@@ -162,7 +162,7 @@ void app_configure( app_t *app )
 
     app->cdone = true;
 
-    // do a led dance
+    // led dance
     for(unsigned i = 0; i < 50; ++i )  {
       static uint32_t counter = 0;
       ++counter;
@@ -241,16 +241,17 @@ static void app_update_soft_500ms(app_t *app)
     led_off();
 
 
-  if( false && !app->cdone && !ice40_port_extra_cdone_get() ) {
+  if( /*false &&*/ !app->cdone && !ice40_port_extra_cdone_get() ) {
 
     app_configure( app );
-
   }
 
 
   /*
       perhaps should have app state flag - to detect if we lose configuration eg. for power supply
 
+      we may be able to detect with a cdone==lo.
+      disable the 4094-oe. check the cdone flag. re-enable 4094-oe.
   */
 
 
@@ -362,6 +363,10 @@ void app_update_main(app_t *app)
   // we could pass a flag indicicating if it whoudl be processed.
   app_update_console(app);
 
+  /* to side-step overflow/wrap around issues
+      just a dedicated signed upward counter
+      and subtract 500 eachtime.
+    */
 
   // 500ms soft timer
   if( (app->system_millis - app->soft_500ms) > 500) {
@@ -597,7 +602,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
   else if(strcmp(cmd, "configure") == 0) {
 
-    // reset fpga. load bitstream. turn on 4094. 
+    // reset fpga. load bitstream. turn on 4094.
     // init().   is better name.
 
     app_configure( app );

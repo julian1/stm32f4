@@ -32,8 +32,9 @@ static void test (app_t *app)
   for(unsigned i = 0; i < 6; ++i ) {
 
     flip = ! flip;
-    mode.first.K407 =  flip ? 0b01 : 0b10;
+    // mode.first.K407 =  flip ? 0b01 : 0b10;
     // mode.first.K703 =  flip ? 0b01 : 0b10;
+    mode.first.K403 =  flip ? 0b01 : 0b10;
     spi_mode_transition_state( app->spi, &mode, &app->system_millis);
     msleep( 300, &app->system_millis);
   }
@@ -58,6 +59,7 @@ bool app_test02( app_t *app , const char *cmd)
 
 
 #if 0
+  // done directly.
 
    // click the relays, and analog switch.
   _4094_state_t mode;

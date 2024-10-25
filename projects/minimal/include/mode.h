@@ -126,9 +126,9 @@ typedef struct _4094_state_t
 
   /////////////////////
   // U401
-  uint8_t U401_UNUSED : 6;
+  uint8_t K403			  : 2;
+  uint8_t U401_UNUSED : 4;
   // uint8_t U402        : 2;
-  // uint8_t U403			  : 2;
   uint8_t K404        : 2;
 
 

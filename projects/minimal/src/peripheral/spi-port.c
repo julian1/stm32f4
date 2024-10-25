@@ -102,6 +102,10 @@ void spi1_port_setup(void)
   /*
   oct 2024.
 
+  Once it has entered a contention/latchup condition. we cannot get out of it. without repower.
+  even if set all pins lo. eg. if analog side, loses power,
+  while spi port is configured with hi pins
+
   if cs hi, we get contention/fight - regardless of cs2/gpio pin. probably due on the cs pin itself.  or perhaps due to clk/mosi pin.
   if cs is lo.  then ok.   regardless of gpio.
 
