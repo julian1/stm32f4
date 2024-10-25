@@ -308,7 +308,9 @@ static void app_update_console(app_t *app)
       // correct. it is ok/desirable. to update analog board state by calling transition_state(),
       // even if state hasn't been modified. eg. ensures that state is consistent/aligned.
 
-      spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+      if(app->cdone)
+        spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+
       // issue new command prompt
       printf("\n> ");
 

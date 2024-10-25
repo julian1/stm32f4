@@ -149,6 +149,9 @@ static app_t app = {
   .magic = APP_MAGIC,
 
   .spi = SPI1 ,
+
+  .cdone = false,
+
   .mode_initial =  &mode_initial,
   .mode_current =  &mode_current,
 
