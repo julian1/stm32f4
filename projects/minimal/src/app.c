@@ -125,33 +125,9 @@ void app_systick_interupt(app_t *app)
 
 
 
-
-
-
-static void app_update_soft_500ms(app_t *app)
+static void app_configure( app_t *app )
 {
-  assert(app);
-  assert(app->magic == APP_MAGIC);
 
-  /*
-    function should reconstruct to localize scope of app. and then dispatch to other functions.
-  */
-
-
-  /*
-    blink mcu led
-  */
-  app->led_state = ! app->led_state;
-
-  if(app->led_state)
-    led_on();
-  else
-    led_off();
-
-
-
-
-#if 1
 
   /*
     TODO. EXTR. much check the magic of the bitstream before we try to send it.
@@ -161,8 +137,12 @@ static void app_update_soft_500ms(app_t *app)
   // Oct 2024.    we mux interupt and cdone.
   // but can keep this test.
 
+  /*
+    - we may not even want to do this automatically.
+    - perhaps a repl command.
 
-  if( false && !ice40_port_extra_cdone_get() ) {
+  */
+
 
 
     printf("ice40 cdone lo. must configure bitstream\n");
@@ -189,6 +169,8 @@ static void app_update_soft_500ms(app_t *app)
 
     else {
       // fpga config succeeded
+
+      app->cdone = true;
 
       // we haven't configured the
       for(unsigned i = 0; i < 50; ++i )  {
@@ -244,9 +226,42 @@ static void app_update_soft_500ms(app_t *app)
 
     }
 
+
+
+
+
+}
+
+
+
+static void app_update_soft_500ms(app_t *app)
+{
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+
+  /*
+    function should reconstruct to localize scope of app. and then dispatch to other functions.
+  */
+
+
+  /*
+    blink mcu led
+  */
+  app->led_state = ! app->led_state;
+
+  if(app->led_state)
+    led_on();
+  else
+    led_off();
+
+
+
+  if( true && !ice40_port_extra_cdone_get() ) {
+
+    app_configure( app );
+
   }
 
-#endif
 
   /*
       perhaps should have app state flag - to detect if we lose configuration eg. for power supply
