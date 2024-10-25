@@ -187,7 +187,7 @@ static void app_update_soft_500ms(app_t *app)
       // but it still hangs. 
 
       // recongigure port.
-      spi1_port_setup();
+      // spi1_port_setup();
 
 
 
@@ -339,9 +339,7 @@ void app_update_main(app_t *app)
   data_t *data = app->data;
   assert(data);
 
-  printf("app-update-main()\n");
 
-#if 0
   // process new adc data in priority
   if(data->adc_interupt_valid) {
 
@@ -367,7 +365,7 @@ void app_update_main(app_t *app)
   // note this calls app_update_repl() that starts actions.
   // we could pass a flag indicicating if it whoudl be processed.
   app_update_console(app);
-#endif
+
 
   // 500ms soft timer
   if( (app->system_millis - app->soft_500ms) > 500) {

@@ -217,7 +217,7 @@ void spi_port_cs1_enable(uint32_t spi)
   else
     assert(0);
 
-  printf("spi1 cs1 lo\n");
+  // printf("spi1 cs1 lo\n");
 
 }
 
@@ -231,7 +231,7 @@ void spi_port_cs1_disable(uint32_t spi)
   else
     assert(0);
 
-  printf("spi1 cs1 hi\n");
+  // printf("spi1 cs1 hi\n");
 }
 
 
@@ -247,7 +247,7 @@ void spi_port_cs2_enable(uint32_t spi)
   else
     assert(0);
 
-  printf("spi1 cs2 lo\n");
+  // printf("spi1 cs2 lo\n");
 }
 
 
@@ -262,7 +262,7 @@ void spi_port_cs2_disable(uint32_t spi)
   else
     assert(0);
 
-  printf("spi1 cs2 hi\n");
+  // printf("spi1 cs2 hi\n");
 }
 
 
