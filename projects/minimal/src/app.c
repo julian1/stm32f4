@@ -164,16 +164,21 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
-#if 0
+#if 1
 
   /*
     TODO. EXTR. much check the magic of the bitstream before we try to send it.
           it is easy to forget to actually put bitstream in the stm32 flash
-
   */
+
+  // Oct 2024.    we mux interupt and cdone.
+  // but can keep this test.
 
 
   if( /*false &&*/ !ice40_port_extra_cdone_get() ) {
+
+
+    printf("ice40 cdone lo. must configure bitstream\n");
 
     spi_ice40_bitstream_send(app->spi, & app->system_millis );
 
@@ -593,6 +598,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
+#if 0
   else if(strcmp(cmd, "reset fpga") == 0) {
 
     ice40_port_extra_creset_enable();
@@ -600,7 +606,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     msleep(1, &app->system_millis);
     ice40_port_extra_creset_disable();
   }
-
+#endif
 
 
 

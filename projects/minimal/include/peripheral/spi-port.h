@@ -26,3 +26,8 @@ void spi1_port_interupt_setup(void);
 void spi1_port_interupt_handler_set( void (*pfunc_)(void *), void *ctx);
 
 
+bool ice40_port_extra_cdone_get(void);
+
+
+
+
