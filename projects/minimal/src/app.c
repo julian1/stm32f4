@@ -184,7 +184,6 @@ static void app_update_soft_500ms(app_t *app)
 
     // TODO . could improve error handling here,  although subsequent spi code is harmless
 
-    /*
     for(unsigned i = 0; i < 50; ++i )  {
       static uint32_t counter = 0;
       ++counter;
@@ -192,7 +191,6 @@ static void app_update_soft_500ms(app_t *app)
       spi_ice40_reg_write32( app->spi, REG_DIRECT, magic );
       msleep( 50,  &app->system_millis);
     }
-    */
 
     /* we expect fpga is now configured. failure could be due to isolators not populated.
       do we want more graceful handling here?
