@@ -135,10 +135,10 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   ice40_port_extra_creset_disable();      // creset/ clear / lo. inverse.
 #endif
 
-  spi_port_cs2_enable(spi);                 // cs2 lo.   
+  spi_port_cs2_enable(spi);                 // cs2 lo.
 
   // drive spi_ss = 0, spi_sck = 1
-  spi_port_cs1_enable(spi);                 // cs1 lo.   - now in reset. 
+  spi_port_cs1_enable(spi);                 // cs1 lo.   - now in reset.
 
   // wait minimum of 200ns
   msleep(1, system_millis);
@@ -158,13 +158,13 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   // wait a minimum of of 1200u to clear internal config memory
   msleep(2, system_millis);
 
-  // set spi_ss = 1.
+  // set spi_ss hi = 1.
   spi_port_cs1_disable(spi);                // cs1 hi.
 
   // send 8 dummy clks
   spi_xfer( spi, 0x00 );
 
-  // assert ss lo
+  // assert ss lo = 0
   spi_port_cs1_enable(spi);
 
 

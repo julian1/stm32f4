@@ -109,6 +109,11 @@ static void spi_ice40_bitstream_setup(uint32_t spi)
 
 void spi1_port_setup(void)
 {
+  printf("spi1 port setup\n");
+
+  /* port, not driver. 
+    performed once only.
+  */
 
 	// configure port so clk, mosi are lo. and don't fight isolator
 	spi_ice40_bitstream_setup( SPI1);
@@ -126,9 +131,14 @@ void spi1_port_setup(void)
 
 	// OK. works.
 	// spi_port_cs2_disable(SPI1 );			// gpio hi, and cs lo.   ok. doesn't fight. because gpio is high-z before bitstream configuration.
-    // spi_port_cs1_enable(SPI1 );
+    // spi_port_cs1_enable(SPI1 );    // this is the same state, as when, we are trying to configure the bitstream.
 
-	// spi1 needs to b lo.
+  /*
+      EXTR.  interaction isolator and ice40 spi
+      // summarize.
+      // if cs hi, then it contention/fights - regardless of cs2/gpio pin. perhaps on cs itself.  or perhaps on a clk/mosi pin.
+      // if cs is lo.  then ok.   regardless of gpio.
+  */
 
 
 

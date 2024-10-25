@@ -162,7 +162,7 @@ static void app_update_soft_500ms(app_t *app)
   // but can keep this test.
 
 
-  if( /*false &&*/ !ice40_port_extra_cdone_get() ) {
+  if( false && !ice40_port_extra_cdone_get() ) {
 
 
     printf("ice40 cdone lo. must configure bitstream\n");
