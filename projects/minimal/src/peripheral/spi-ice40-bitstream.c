@@ -227,12 +227,17 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   for(i = 0; i < 13  && !ice40_port_extra_cdone_get(); ++i)
      spi_xfer( spi, 0x00);
 
- 
+
 
 
   // check cdone really hi
   if(! ice40_port_extra_cdone_get() ) {
     printf("failed\n");
+
+
+    // set cs. ports lo again..  so if fpga gets powered up. it will succeed.
+    spi_port_cs2_enable( spi );
+    spi_port_cs1_enable( spi );
 
     fclose(f);
     return -1;
@@ -246,6 +251,8 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   // send another 49 clk cycles, for gpio to become active
   for(i = 0; i < 7 ; ++i)
      spi_xfer( spi, 0x00);
+
+
 
 
 

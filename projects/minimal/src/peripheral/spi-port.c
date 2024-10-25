@@ -81,27 +81,6 @@
 
 
 
-static void spi_ice40_bitstream_setup(uint32_t spi)
-{
-
-  spi_reset( spi );
-
-  spi_init_master(
-    spi,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_2,  // div2 seems to work with iso, but not adum. actually misses a few bits with iso.
-//    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
-    SPI_CR1_BAUDRATE_FPCLK_DIV_16,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_32,
-    // SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,  // park to 0/lo == positive clok edge. park to 1 == negative clk edge.
-    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,  // park to 0/lo == positive clok edge. park to 1 == negative clk edge.
-    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == leading edge,  2 == falling edge
-    SPI_CR1_DFF_8BIT,
-    SPI_CR1_MSBFIRST
-  );
-
-  spi_enable( spi );
-
-}
 
 
 
@@ -111,33 +90,33 @@ void spi1_port_setup(void)
 {
   printf("spi1 port setup\n");
 
-  /* port, not driver. 
+  /* port, not driver.
     performed once only.
   */
 
-	// configure port so clk, mosi are lo. and don't fight isolator
-	spi_ice40_bitstream_setup( SPI1);
-
-	// OK works.
-	spi_port_cs2_enable(SPI1 );          // both lo.  hold fpga in reset.
-    spi_port_cs1_enable(SPI1 );
-
-	// aha.  no good. it locks up.
-	// spi_port_cs2_disable(SPI1 );          // both gpio and cs hi. worst case. both fight.   both cs hi.  CC 2.9V / 29mA.  eg.
-    // spi_port_cs1_disable(SPI1 );
-
-	// spi_port_cs2_enable(SPI1 );			// gpio pin lo.  but cs is hi. and fights.   but less worse CC 3.28V/29mA .
-    // spi_port_cs1_disable(SPI1 );
-
-	// OK. works.
-	// spi_port_cs2_disable(SPI1 );			// gpio hi, and cs lo.   ok. doesn't fight. because gpio is high-z before bitstream configuration.
-    // spi_port_cs1_enable(SPI1 );    // this is the same state, as when, we are trying to configure the bitstream.
+	// hold cs lines lo - to put fpga in reset, avoid isolator/fpga contention, with both trying to drivecontention pins.
+  // probably ok, if just SS held lo.
+	spi_port_cs2_enable( SPI1);
+  spi_port_cs1_enable( SPI1);
 
   /*
-      EXTR.  interaction isolator and ice40 spi
-      // summarize.
-      // if cs hi, then it contention/fights - regardless of cs2/gpio pin. perhaps on cs itself.  or perhaps on a clk/mosi pin.
-      // if cs is lo.  then ok.   regardless of gpio.
+
+  if cs hi, we get contention/fight - regardless of cs2/gpio pin. probably due to the cs pin itself.  or perhaps due to clk/mosi pin.
+  if cs is lo.  then ok.   regardless of gpio.
+
+
+	// locks up.
+	spi_port_cs2_disable(SPI1 );      // both gpio and cs hi. worst case. both fight.   both cs hi.  CC 2.9V / 29mA.  eg.
+  spi_port_cs1_disable(SPI1 );
+
+  // locks up
+	spi_port_cs2_enable(SPI1 );			  // gpio pin lo.  but cs is hi. and fights.   but less worse CC 3.28V/29mA .
+  spi_port_cs1_disable(SPI1 );
+
+	// OK. works.
+	spi_port_cs2_disable(SPI1 );			// gpio hi, and cs lo.   ok. doesn't fight. because gpio is high-z before bitstream configuration.
+  spi_port_cs1_enable(SPI1 );       // this is the same state, as when, we are trying to configure the bitstream.
+
   */
 
 
