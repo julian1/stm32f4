@@ -125,7 +125,7 @@ void app_systick_interupt(app_t *app)
 
 
 
-static void app_configure( app_t *app )
+void app_configure( app_t *app )
 {
 
 
@@ -255,8 +255,7 @@ static void app_update_soft_500ms(app_t *app)
     led_off();
 
 
-
-  if( true && !ice40_port_extra_cdone_get() ) {
+  if( false && !ice40_port_extra_cdone_get() ) {
 
     app_configure( app );
 
@@ -607,6 +606,17 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     // scb_reset_core()
     scb_reset_system();
   }
+
+
+
+  else if(strcmp(cmd, "configure") == 0) {
+
+    // reset fpga. load bitstream. turn on 4094. 
+    // init().   is better name.
+
+    app_configure( app );
+  }
+
 
 
 #if 0

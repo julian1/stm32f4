@@ -227,7 +227,7 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   for(i = 0; i < 13  && !ice40_port_extra_cdone_get(); ++i)
      spi_xfer( spi, 0x00);
 
-  printf("needed %u dummy bytes before cdone went hi\n", i );
+ 
 
 
   // check cdone really hi
@@ -238,6 +238,7 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
     return -1;
   } else {
 
+    printf("needed %u dummy bytes before cdone went hi\n", i );
     printf("ok\n");
   }
 
