@@ -251,9 +251,11 @@ static int main_f429(void)
   // why are we not passing the interupt here?
   spi1_port_interupt_setup();
 
+#if 0
   // shouldnt setup the interupt handler - until fpga is configured, else looks like get
   // spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app.data );
   ice40_port_extra_setup();
+#endif
 
 #if 0
 

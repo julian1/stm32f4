@@ -79,7 +79,6 @@ bool ice40_port_extra_cdone_get(void)
 
 void ice40_port_trig_sa_enable(void)
 {
-  assert(0);
 
 #if 0
 
@@ -92,7 +91,6 @@ void ice40_port_trig_sa_enable(void)
 void ice40_port_trig_sa_disable(void)
 {
 
-  assert(0);
 #if 0
   // better name
   gpio_clear(ER_EXTRA_PORT, ER_TRIG_SA);
@@ -104,6 +102,7 @@ void ice40_port_trig_sa_disable(void)
 
 
 
+#if 0
 
 void ice40_port_extra_setup(void)
 {
@@ -111,7 +110,6 @@ void ice40_port_extra_setup(void)
   // rcc_periph_clock_enable(RCC_GPIOB);
   // rcc_periph_clock_enable(RCC_GPIOC);
 
-#if 0
 
   // set high, as initial value
   // set first, before initialize, to reduce glitch
@@ -140,7 +138,7 @@ void ice40_port_extra_setup(void)
   gpio_mode_setup(ER_EXTRA_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ER_UNUSED1_OUT | ER_UNUSED2_OUT);
   gpio_set_output_options(ER_EXTRA_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, ER_UNUSED1_OUT | ER_UNUSED2_OUT);
 
-#endif
 }
 
+#endif
 
