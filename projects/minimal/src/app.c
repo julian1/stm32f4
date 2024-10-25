@@ -172,14 +172,6 @@ static void app_update_soft_500ms(app_t *app)
     // TODO . could improve error handling here,  although subsequent spi code is harmless
 
 
-    // we haven't configured the 
-    for(unsigned i = 0; i < 50; ++i )  {
-      static uint32_t counter = 0;
-      ++counter;
-      uint32_t magic = counter  ^ (counter >> 1);
-      spi_ice40_reg_write32( app->spi, REG_DIRECT, magic );
-      msleep( 50,  &app->system_millis);
-    }
 
     /* we expect fpga is now configured. failure could be due to isolators not populated.
       do we want more graceful handling here?
@@ -189,14 +181,6 @@ static void app_update_soft_500ms(app_t *app)
     if( ! ice40_port_extra_cdone_get()) {
 
       printf("ice40 fpga config failed\n");
-
-      // park cs in reset.
-      // thinnk we may be reading elsewhere.
-
-
-      // this should be the same as normal programming mode.
-      // spi_port_cs1_enable(app->spi);          // lo
-      // spi_port_cs2_disable(app->spi);         // hi
 
 
       //  this is the spi state during programming.
@@ -211,6 +195,16 @@ static void app_update_soft_500ms(app_t *app)
 
     else {
       // fpga config succeeded
+
+      // we haven't configured the 
+      for(unsigned i = 0; i < 50; ++i )  {
+        static uint32_t counter = 0;
+        ++counter;
+        uint32_t magic = counter  ^ (counter >> 1);
+        spi_ice40_reg_write32( app->spi, REG_DIRECT, magic );
+        msleep( 50,  &app->system_millis);
+      }
+
 
       // check/verify 4094 OE is not asserted
       assert( ! spi_ice40_reg_read32( app->spi, REG_4094 ));
@@ -345,7 +339,9 @@ void app_update_main(app_t *app)
   data_t *data = app->data;
   assert(data);
 
+  printf("app-update-main()\n");
 
+#if 0
   // process new adc data in priority
   if(data->adc_interupt_valid) {
 
@@ -371,6 +367,7 @@ void app_update_main(app_t *app)
   // note this calls app_update_repl() that starts actions.
   // we could pass a flag indicicating if it whoudl be processed.
   app_update_console(app);
+#endif
 
   // 500ms soft timer
   if( (app->system_millis - app->soft_500ms) > 500) {

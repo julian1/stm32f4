@@ -29,6 +29,7 @@
 #include <libopencm3/stm32/exti.h>
 
 
+#include <stdio.h>
 #include <stddef.h>   // NULL
 #include <assert.h>
 
@@ -215,6 +216,9 @@ void spi_port_cs1_enable(uint32_t spi)
     gpio_clear(SPI1_PORT, SPI_CS1);
   else
     assert(0);
+
+  printf("spi1 cs1 lo\n");
+
 }
 
 
@@ -226,6 +230,8 @@ void spi_port_cs1_disable(uint32_t spi)
     gpio_set(SPI1_PORT, SPI_CS1);
   else
     assert(0);
+
+  printf("spi1 cs1 hi\n");
 }
 
 
@@ -240,6 +246,8 @@ void spi_port_cs2_enable(uint32_t spi)
     gpio_clear(SPI1_PORT, SPI_CS2);
   else
     assert(0);
+
+  printf("spi1 cs2 lo\n");
 }
 
 
@@ -253,6 +261,8 @@ void spi_port_cs2_disable(uint32_t spi)
     gpio_set(SPI1_PORT, SPI_CS2);
   else
     assert(0);
+
+  printf("spi1 cs2 hi\n");
 }
 
 
