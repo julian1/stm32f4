@@ -100,8 +100,9 @@ void spi1_port_setup(void)
   spi_port_cs1_enable( SPI1);
 
   /*
+  oct 2024.
 
-  if cs hi, we get contention/fight - regardless of cs2/gpio pin. probably due to the cs pin itself.  or perhaps due to clk/mosi pin.
+  if cs hi, we get contention/fight - regardless of cs2/gpio pin. probably due on the cs pin itself.  or perhaps due to clk/mosi pin.
   if cs is lo.  then ok.   regardless of gpio.
 
 
