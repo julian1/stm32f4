@@ -182,21 +182,15 @@ static void app_update_soft_500ms(app_t *app)
 
       printf("ice40 fpga config failed\n");
 
-
-      //  this is the spi state during programming.
-      // but it still hangs. 
-
-      // recongigure port.
+      // we may want to reinstate this.
+      // reset port.
       // spi1_port_setup();
-
-
-
     }
 
     else {
       // fpga config succeeded
 
-      // we haven't configured the 
+      // we haven't configured the
       for(unsigned i = 0; i < 50; ++i )  {
         static uint32_t counter = 0;
         ++counter;
