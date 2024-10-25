@@ -150,19 +150,6 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
-  if(app->led_state) {
-
-    spi_port_cs1_enable(app->spi);
-    spi_port_cs2_enable(app->spi);
-
-	} else {
-
-
-    spi_port_cs1_disable(app->spi);
-    spi_port_cs1_disable(app->spi);
-  }
-
-
 
 #if 1
 
@@ -175,7 +162,7 @@ static void app_update_soft_500ms(app_t *app)
   // but can keep this test.
 
 
-  if( /*false &&*/ !ice40_port_extra_cdone_get() ) {
+  if( true && !ice40_port_extra_cdone_get() ) {
 
 
     printf("ice40 cdone lo. must configure bitstream\n");
@@ -184,6 +171,8 @@ static void app_update_soft_500ms(app_t *app)
 
     // TODO . could improve error handling here,  although subsequent spi code is harmless
 
+
+    // we haven't configured the 
     for(unsigned i = 0; i < 50; ++i )  {
       static uint32_t counter = 0;
       ++counter;
@@ -200,6 +189,16 @@ static void app_update_soft_500ms(app_t *app)
     if( ! ice40_port_extra_cdone_get()) {
 
       printf("ice40 fpga config failed\n");
+
+      // park cs in reset.
+      // thinnk we may be reading elsewhere.
+
+
+      // this should be the same as normal programming mode.
+      // spi_port_cs1_enable(app->spi);          // lo
+      // spi_port_cs2_disable(app->spi);         // hi
+
+
     }
 
     else {
