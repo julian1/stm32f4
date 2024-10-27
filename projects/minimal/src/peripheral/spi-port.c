@@ -94,7 +94,7 @@ void spi1_port_setup(void)
     performed once only.
   */
 
-	// hold cs lines lo - to put fpga in reset, avoid isolator/fpga contention, with both trying to drivecontention pins.
+	// hold cs lines lo - to put fpga in reset, avoid isolator/fpga contention, because fpga wants to become master and drive spi lines.
   // probably ok, if just SS held lo.
 	spi_port_cs2_enable( SPI1);
   spi_port_cs1_enable( SPI1);
@@ -102,12 +102,22 @@ void spi1_port_setup(void)
   /*
   oct 2024.
 
-  Once it has entered a contention/latchup condition. we cannot get out of it. without repower.
-  even if set all pins lo. eg. if analog side, loses power,
-  while spi port is configured with hi pins
+  If/once fpga enters contention/latchup condition. we cannot get out of it. without re-power.
+  even if set all pins lo / including RST . eg. if analog side, loses power and is repowered.
+  There is no general way to avoid this. without having a power sense/monitor to report back to digital side.
 
-  if cs hi, we get contention/fight - regardless of cs2/gpio pin. probably due on the cs pin itself.  or perhaps due to clk/mosi pin.
+  if cs hi, we get contention/fight - regardless of state of cs2/gpio pin. probably due on the cs pin itself.  or perhaps due to clk/mosi pin.
   if cs is lo.  then ok.   regardless of gpio.
+
+  EXTR. this is because SS is sampled at POR, to determine if fpga should orient/act as master or peripheral, see DS, p11. configuration chart.
+  But all this makes spi1 not a generalizable service that the fpga hangs off.
+  the solution is move the control of/and start deefault value of SS off the cs1/cs2 assert condition.
+
+  Actually RST is a gate in the sequence before SS is sampled to determine master/slave orientation.
+  So just holding in RST. is also sufficient.
+
+  We get correct behavior at the moment by using 'F' version of isolator that emits lo. at start if mcu/digital side unpowered.
+  and presumably when mcu is in reset, emitting high-z on gpio.
 
 
 	// locks up.
