@@ -9,10 +9,13 @@
 BINARY		= main
 
 
-SRCFILES	= src/peripheral/trigger.c   src/peripheral/led.c  src/peripheral/spi-port.c \
+SRCFILES	= src/peripheral/trigger.c     \
+            src/support.c \
             src/peripheral/spi-ice40.c src/peripheral/spi-ice40-bitstream.c \
             src/peripheral/spi-4094.c src/peripheral/spi-dac8811.c src/peripheral/spi-ad5446.c \
-            src/peripheral/fsmc.c src/peripheral/vfd.c \
+            src/peripheral/vfd.c \
+            src/device/spi1-port.c src/device/spi2-port.c  \
+            src/device/u202.c src/device/fsmc.c src/device/led0.c src/device/u102.c  \
             src/main.c  \
             src/app.c  \
             src/syscalls.o \
@@ -28,6 +31,7 @@ SRCFILES	= src/peripheral/trigger.c   src/peripheral/led.c  src/peripheral/spi-p
             src/flash/file-blob.c \
             src/data/cal-flash.c \
             src/vfd.c \
+
 
 
 #            src/peripheral/spi-dac8734.c \

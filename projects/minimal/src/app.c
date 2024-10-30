@@ -11,26 +11,32 @@
 
 // #include <libopencm3/stm32/rcc.h>   // for clock initialization
 #include <libopencm3/cm3/scb.h>  // reset()
-// #include <libopencm3/stm32/spi.h>   // SPI1
+#include <libopencm3/stm32/spi.h>   // try to remove.
+
+
+
+
 
 #include <lib2/util.h>   // msleep(), UNUSED, print_stack_pointer()
 #include <lib2/format.h>   // trim_whitespace()  format_bits()
 
 #include <lib2/streams.h>
 
-#include <peripheral/led.h>
-#include <peripheral/spi-port.h>
+
 // #include <peripheral/trigger.h>
 #include <peripheral/spi-ice40.h>
 #include <peripheral/spi-4094.h>
 #include <peripheral/spi-ice40-bitstream.h>
 #include <peripheral/spi-dac8811.h>
 #include <peripheral/spi-ad5446.h>
+#include <peripheral/led.h>
 
 
-// vfd
-#include <peripheral/fsmc.h>
-#include <peripheral/vfd.h>
+// remove me.
+#include <device/spi-port.h>      // TODO remove.  app should deal with peripheral abstractions. not peripheral devices.
+
+#include <device/fsmc.h>      // can removee?  setup should be in main()
+#include <peripheral/vfd.h>   // this is ok.
 
 #include <vfd.h>
 
@@ -147,11 +153,13 @@ void app_configure( app_t *app )
 
   printf("configure fpga bitstream\n");
 
-  spi_ice40_bitstream_send(app->spi, & app->system_millis );
+  // spi_ice40_bitstream_send(app->spi, & app->system_millis );
+  spi_ice40_bitstream_send( app->spi_u202, & app->system_millis );
 
 
 
-  if( ! spi_port_cdone_get()) {
+  // if( ! spi_port_cdone_get()) {
+  if( ! app->spi_u202->cdone( app->spi_u202)) {
 
     printf("fpga config failed\n");
 
@@ -167,13 +175,13 @@ void app_configure( app_t *app )
       static uint32_t counter = 0;
       ++counter;
       uint32_t magic = counter  ^ (counter >> 1);
-      spi_ice40_reg_write32( app->spi, REG_DIRECT, magic );
+      spi_ice40_reg_write32( app->spi_u102, REG_DIRECT, magic );
       msleep( 50,  &app->system_millis);
     }
 
 
     // check/verify 4094 OE is not asserted
-    assert( ! spi_ice40_reg_read32( app->spi, REG_4094 ));
+    assert( ! spi_ice40_reg_read32( app->spi_u102, REG_4094 ));
 
     // reset the mode.
     *app->mode_current = *app->mode_initial;
@@ -184,18 +192,18 @@ void app_configure( app_t *app )
     */
     // write the default 4094 state for muxes etc.
     printf("spi_mode_transition_state() for muxes\n");
-    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+    spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
 
     // now assert 4094 OE
     // should check supply rails etc. first.
     printf("asserting 4094 OE\n");
-    spi_ice40_reg_write32( app->spi, REG_4094, 1 );
+    spi_ice40_reg_write32( app->spi_u102, REG_4094, 1 );
     // ensure 4094 OE asserted
-    assert( spi_ice40_reg_read32( app->spi, REG_4094 ));
+    assert( spi_ice40_reg_read32( app->spi_u102, REG_4094 ));
 
     // now call transition state again. which will do relays
     printf("spi_mode_transition_state() for relays\n");
-    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+    spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
 
 
     /* enable the ice40 interupt
@@ -230,28 +238,45 @@ static void app_update_soft_500ms(app_t *app)
   */
 
 
-  /*
-    blink mcu led
-  */
+  // blink mcu led
   app->led_state = ! app->led_state;
-
-  if(app->led_state)
-    led_on( app->led_status);
-  else
-    led_off( app->led_status);
+  led_set( app->led_status, app->led_state);
 
 
-  if( /*false &&*/ !app->cdone && !spi_port_cdone_get() ) {
+
+/*
+  // u102 analog board
+  // if( false && !app->cdone && !spi_port_cdone_get() ) {
+  if( false && !app->cdone && !  app->spi_u202->cdone( app->spi_u202) ) {
+
+    // we should separate these.
 
     app_configure( app );
   }
+*/
+
+  // u202 local ice40
+  if( !spi_ice40_cdone( app->spi_u202)) {
+
+    spi_ice40_bitstream_send( app->spi_u202, & app->system_millis );
+
+    if( !spi_ice40_cdone( app->spi_u202)) {
+
+      printf("fpga config failed\n");
+    } else {
+
+      printf("fpga ok!\n");
+    }
+  }
+
+
 
 
   /*
-      perhaps should have app state flag - to detect if we lose configuration eg. for power supply
+    would be nice if could detect if we lose configuration eg. for power supply
 
-      we may be able to detect with a cdone==lo.
-      disable the 4094-oe. check the cdone flag. re-enable 4094-oe.
+    we may be able to detect with a cdone==lo.
+    disable the 4094-oe. check the cdone flag. re-enable 4094-oe.
   */
 
 
@@ -310,7 +335,7 @@ static void app_update_console(app_t *app)
       // even if state hasn't been modified. eg. ensures that state is consistent/aligned.
 
       if(app->cdone)
-        spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+        spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
 
       // issue new command prompt
       printf("\n> ");
@@ -341,7 +366,7 @@ void app_update_main(app_t *app)
   if(data->adc_interupt_valid) {
 
     data->adc_interupt_valid = false;
-    data_update_new_reading2( data, app->spi);
+    data_update_new_reading2( data, app->spi_u102);
 
     // we don't need a continuation, so long as we have the interupt condition.
     // update vfd/gui
@@ -406,7 +431,7 @@ void app_update_simple_with_data(app_t *app)
   if(data->adc_interupt_valid) {
 
     data->adc_interupt_valid = false;
-    data_update_new_reading2( data, app->spi);
+    data_update_new_reading2( data, app->spi_u102);
   }
 
 
@@ -417,12 +442,15 @@ void app_update_simple_with_data(app_t *app)
     app->soft_500ms += 500;
 
 
+    assert(0);
+#if 0
     // blink mcu led
     app->led_state = ! app->led_state;
     if(app->led_state)
       led_on(app->led_status);
     else
       led_off(app->led_status);
+#endif
   }
 }
 
@@ -445,12 +473,15 @@ void app_update_simple_led_blink(app_t *app)
   if( (app->system_millis - app->soft_500ms) > 500) {
     app->soft_500ms += 500;
 
+    assert(0);
+#if 0
     // blink mcu led
     app->led_state = ! app->led_state;
     if(app->led_state)
       led_on(app->led_status);
     else
       led_off(app->led_status);
+#endif
   }
 
 }
@@ -462,11 +493,13 @@ void app_update_simple_led_blink(app_t *app)
 
 
 
-static void spi_print_register( uint32_t spi, uint32_t reg )
+static void spi_print_register( spi_ice40_t *spi, uint32_t reg )
 {
   // basic generic print
   // query any register
-  spi_mux_ice40( spi);
+
+  //assert(0);
+  // spi_mux_ice40( spi);
   uint32_t ret = spi_ice40_reg_read32( spi, reg );
   char buf[ 100];
   printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
@@ -474,11 +507,13 @@ static void spi_print_register( uint32_t spi, uint32_t reg )
 
 
 
-static void spi_print_seq_register( uint32_t spi, uint32_t reg )
+static void spi_print_seq_register( spi_ice40_t *spi, uint32_t reg )
 {
   // basic generic print
   // query any register
-  spi_mux_ice40( spi);
+
+  assert(0);
+  // spi_mux_ice40( spi);
   uint32_t ret = spi_ice40_reg_read32( spi, reg );
   char buf[ 100];
   char buf2[ 100];
@@ -563,7 +598,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   {
 #if 1
     // update state based on current mode
-    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+    spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
 #endif
     // sleep
     msleep( (uint32_t ) (f0 * 1000), &app->system_millis);
@@ -630,12 +665,16 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     && str_decode_uint( s0, &u0)
   ) {
       // working july
-      spi_mux_ice40( app->spi);
-      spi_ice40_reg_write32(app->spi, REG_SPI_MUX,  SPI_MUX_ISO_DAC );
-      spi_port_configure_ad5446( app->spi);
+      assert(0);
+      // spi_mux_ice40( app->spi);
+      spi_ice40_reg_write32(app->spi_u102, REG_SPI_MUX,  SPI_MUX_ISO_DAC );
 
-      spi_ad5446_write16(app->spi, u0 );
-      spi_mux_ice40(app->spi);
+      assert(0);
+      // spi_port_configure_ad5446( app->spi);
+      // spi_ad5446_write16(app->spi, u0 );
+
+      assert(0);
+      // spi_mux_ice40(app->spi);
     }
 
 
@@ -706,11 +745,35 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     // int flash_raw_test(void);
   }
 
-  // change name fpga bitstrea load/test
+
+
+  ///////////////////////
+
+  // need better name u202 load bitstream
   else if(strcmp(cmd, "bitstream test") == 0) {
 
-    spi_ice40_bitstream_send(app->spi, & app->system_millis );
+    spi_ice40_bitstream_send( app->spi_u202, & app->system_millis );
   }
+
+
+  // need better name
+  // u202 reg write
+  else if( sscanf(cmd, "whoot %lu", &u0 ) == 1) {
+
+    // write a value to u202 register
+
+    char buf[100];
+    printf("writing v %lu  %s\n",  u0,  str_format_bits(buf, 4, u0));
+
+    spi_ice40_t *spi = app->spi_u202;
+    spi_ice40_port_configure(spi);
+    spi_ice40_reg_write32( spi, REG_DIRECT, u0 );
+    spi_print_register( spi, REG_DIRECT );
+  }
+
+  ///////////////////////
+
+
 
   // don't we have some code - to handle sscan as binary/octal/hex ?
 
@@ -727,7 +790,8 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     _mode_t mode = *app->mode_initial;
     unsigned model_spec = u0;
 
-    data_cal( app->data,  app->spi, &mode, model_spec, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+
+    data_cal( app->data,  app->spi_u102, app->spi_4094,  app->spi_ad5446,  &mode, model_spec, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
   }
 
   else if(strcmp(cmd, "cal") == 0) {
@@ -736,7 +800,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     _mode_t mode = *app->mode_initial;
     unsigned model_spec = 3;
 
-    data_cal( app->data,  app->spi, &mode, model_spec, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+    data_cal( app->data,  app->spi_u102, app->spi_4094,  app->spi_ad5446,  &mode, model_spec, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
   }
 
 
@@ -780,28 +844,28 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   */
   else if( strcmp( cmd, "spi-mux?") == 0) {
 
-    spi_print_register( app->spi, REG_SPI_MUX);
+    spi_print_register( app->spi_u102, REG_SPI_MUX);
   }
   else if( strcmp( cmd, "4094?") == 0) {
 
-    spi_print_register( app->spi, REG_4094);
+    spi_print_register( app->spi_u102, REG_4094);
   }
    else if( strcmp(cmd, "mode?") == 0) {
 
-    spi_print_register( app->spi, REG_MODE);
+    spi_print_register( app->spi_u102, REG_MODE);
   }
   else if( strcmp( cmd, "direct?") == 0) {
 
-    spi_print_register( app->spi, REG_DIRECT);
+    spi_print_register( app->spi_u102, REG_DIRECT);
   }
   else if( strcmp( cmd, "seq mode?") == 0) {
 
-    spi_print_register( app->spi, REG_SEQ_MODE);
+    spi_print_register( app->spi_u102, REG_SEQ_MODE);
   }
 
   else if( strcmp( cmd, "status?") == 0) {
 
-    spi_print_register( app->spi, REG_STATUS);
+    spi_print_register( app->spi_u102, REG_STATUS);
 
     // don't bother decode contents.  because  sequence update is too fast.
 
@@ -809,26 +873,26 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   }
   else if( sscanf(cmd, "reg? %lu", &u0 ) == 1) {
 
-    spi_print_register( app->spi, u0 );
+    spi_print_register( app->spi_u102, u0 );
   }
 
   // querying fpga direct. bypassing mode.
   else if( strcmp( cmd, "seq0?") == 0) {
-    spi_print_seq_register( app->spi, REG_SA_P_SEQ0);
+    spi_print_seq_register( app->spi_u102, REG_SA_P_SEQ0);
   }
   else if( strcmp( cmd, "seq1?") == 0) {
-    spi_print_seq_register( app->spi, REG_SA_P_SEQ1);
+    spi_print_seq_register( app->spi_u102, REG_SA_P_SEQ1);
   }
   else if( strcmp( cmd, "seq2?") == 0) {
-    spi_print_seq_register( app->spi, REG_SA_P_SEQ2);
+    spi_print_seq_register( app->spi_u102, REG_SA_P_SEQ2);
   }
   else if( strcmp( cmd, "seq3?") == 0) {
-    spi_print_seq_register( app->spi, REG_SA_P_SEQ3);
+    spi_print_seq_register( app->spi_u102, REG_SA_P_SEQ3);
   }
 
   else if( strcmp( cmd, "seqn?") == 0) {
 
-    spi_print_register( app->spi, REG_SA_P_SEQ_N);
+    spi_print_register( app->spi_u102, REG_SA_P_SEQ_N);
   }
 
 
@@ -840,8 +904,10 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   else if( strcmp(cmd, "nplc?") == 0
     || strcmp(cmd, "aper?") == 0) {
     // query fpga directly. not mode
-    spi_mux_ice40(app->spi);
-    uint32_t aperture = spi_ice40_reg_read32(app->spi, REG_ADC_P_CLK_COUNT_APERTURE );
+
+    assert(0);
+    // spi_mux_ice40(app->spi);
+    uint32_t aperture = spi_ice40_reg_read32(app->spi_u102, REG_ADC_P_CLK_COUNT_APERTURE );
 
     assert( app->data);
     aper_cc_print( aperture,  app->data->line_freq);
@@ -1012,7 +1078,7 @@ void app_repl_statements(app_t *app,  const char *s)
     if(ch == '\n')
     {
       printf("calling spi_mode_transition_state()");
-      spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+      spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
     }
 
     ++s;

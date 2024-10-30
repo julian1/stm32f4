@@ -68,7 +68,7 @@ bool app_test40(
         nplc 10; set mode 7 ; azero s3 s8;  trig; \
       " );
 
-    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+    spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
 
     data->show_stats = true;
     data->buffer = buffer_reset( data->buffer, 10 );

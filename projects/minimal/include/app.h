@@ -5,6 +5,7 @@
 #include <lib2/cstring.h>
 
 
+
 /*
   there are two main cases to yield.
     - for time,delay.
@@ -50,7 +51,26 @@ typedef struct _mode_t _mode_t;
 typedef struct data_t data_t;
 
 
+typedef struct led_t led_t;
 
+
+typedef struct spi_ice40_t spi_ice40_t;
+typedef struct spi_4094_t spi_4094_t;
+typedef struct spi_t spi_t;
+// typedef struct spi_ad5446_t spi_ad5446_t;
+
+
+
+
+
+/*
+  TODO nov 2024.
+
+  rather than using pointers. should instantiate the memory properly here
+  No. hide state here.
+  But instantiate all state in main.c or appc
+
+*/
 
 
 typedef struct app_t
@@ -62,8 +82,9 @@ typedef struct app_t
   // no. it's ok. led follows the led_state, more than one thing follows.
   bool led_state ;     // for mcu. maybe change name to distinguish
 
-  // port/no 
-  uint16_t led_status;
+  // port/pinno
+  // uint16_t led_status;
+  led_t *led_status;
 
   uint32_t soft_500ms;
 
@@ -85,11 +106,28 @@ typedef struct app_t
 
   cstring_t     command;
 
+  // probably a better name.  fpga1 analog board.
+  // but it will do. for the moment
+  spi_ice40_t *spi_u102;   // need a better name.  ice40 analog board.
 
-  uint32_t  spi;
+
+  spi_4094_t *spi_4094;   // eg. separate system.
+
+  spi_t       *spi_ad5446;   // separate system
+
+  // virtual device. sample mosi, on single clk. can just bit-bang it, from mcu side.
+  // two d-flip flops. with cs rising edge operating to latch input.
+  // spi_trigger_t *spi_trigger;
+
+
+  // uint32_t  spi;
   bool      cdone; // ice40 config done
 
+  spi_ice40_t    *spi_u202;   // separate system.
 
+
+  // why use pointers here?
+  // can we avoid
   const _mode_t *mode_initial;
 
   _mode_t *mode_current;

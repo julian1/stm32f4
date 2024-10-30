@@ -8,14 +8,15 @@
 #include <libopencm3/stm32/rcc.h>   // mcu clock initialization
 #include <libopencm3/stm32/spi.h>   // SPI1
 
+#include <libopencm3/stm32/gpio.h>    // remove
 
 #include <lib2/usart.h>
 #include <lib2/util.h>      // systick_setup()
 
 
 
-#include <peripheral/led.h>
-#include <peripheral/spi-port.h>
+
+
 
 
 #include <mode.h>
@@ -25,14 +26,20 @@
 
 #include <data/data.h>     // to instantiate
 
-
-
-// vfd
-#include <peripheral/fsmc.h>
+/* split vfd - so the rst gpio setup  is moved to device.
+*/
 #include <peripheral/vfd.h>
+#include <peripheral/spi-ice40.h>
 
 
-#include <peripheral/hal.h>
+#include <device/led0.h>
+#include <device/u202.h>
+#include <device/u102.h>
+#include <device/fsmc.h>
+#include <device/spi-port.h>
+
+
+// #include <hal/hal.h>
 
 
 static const _mode_t mode_initial =  {
@@ -135,6 +142,11 @@ static _mode_t mode_current = { 0 } ;
 
 
 
+
+// static spi_ice40_t   spi_u202 ;   //
+
+
+
 static data_t data = {
 
   . magic = DATA_MAGIC,
@@ -148,10 +160,18 @@ static app_t app = {
 
   .magic = APP_MAGIC,
 
-  .spi = SPI1 ,
+  // .spi = SPI1 ,
+
+
+  //////////////
+  // device.
+  // the led ought to be a structure with a function.
 
   // initialization
-  .led_status = PIN('A', 9 ),
+  // .led_status = PIN('A', 9 ),
+
+  // device
+  // . spi_u202 = &spi_u202,
 
   .cdone = false,
 
@@ -197,6 +217,7 @@ static int main_f429(void)
 
   // spi / ice40
   rcc_periph_clock_enable(RCC_SPI1);
+  rcc_periph_clock_enable(RCC_SPI2);
 
   // adc/temp
   rcc_periph_clock_enable(RCC_ADC1);
@@ -210,12 +231,18 @@ static int main_f429(void)
     peripheral/ports setup
   */
 
-  led_setup( app.led_status);
+
+  // create and init
+  app.led_status = led0_create();
+  app.led_status->setup( app.led_status );
+
+
+  // led_setup( app.led_status);
 
   // setup external state for critical error led blink in priority
   // because assert() cannot pass a context
 
-  assert_critical_error_led_setup( PINBANK( app.led_status), PINNO(app.led_status ));
+  assert_critical_error_led_setup( GPIOA, GPIO9 );
 
   // mcu clock
   systick_setup(12000); // 12MHz. default lsi.
@@ -252,17 +279,26 @@ static int main_f429(void)
 
   ////////////////
   // init the spi port, for adum/ice40 comms
-  spi1_port_setup();
 
-  // spi1_port_interupt_setup( (void (*) (void *))spi1_interupt, &app);
-  // why are we not passing the interupt here?
+
+
+  // should move before the spi1_port_setup(). to hold in rst.
+  // analog board fpga
+  app.spi_u102 = spi_u102_create( );
+  spi_ice40_setup( app.spi_u102 );     // eg. cs/rst/cdeon
+
+
+  // create and init.
+  app.spi_u202 = spi2_u202_create( );   // should perhaps pass spi2. here.
+  spi_ice40_setup(app.spi_u202 );
+
+
+  // init spi port, only after cs,rst have been configured
+  spi1_port_setup();
   spi1_port_interupt_setup();
 
-#if 0
-  // shouldnt setup the interupt handler - until fpga is configured, else looks like get
-  // spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app.data );
-  ice40_port_extra_setup();
-#endif
+  spi2_port_setup();
+
 
 #if 0
 

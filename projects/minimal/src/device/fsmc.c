@@ -10,7 +10,7 @@
 #include <libopencm3/stm32/fsmc.h>
 
 
-#include <peripheral/fsmc.h>
+#include <device/fsmc.h>
 
 // #include "util.h"      // msleep
 // #include "streams.h"  // printf

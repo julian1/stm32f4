@@ -7,21 +7,22 @@
 
 #include <libopencm3/stm32/spi.h>
 
-#include <ice40-reg.h>
 
-#include <peripheral/spi-port.h>   // spi_port_cs2_enable()
 #include <peripheral/spi-dac8811.h>
-#include <peripheral/spi-ice40.h>
+
+#include <peripheral/spi.h>
 
 
-
-void spi_port_configure_dac8811(uint32_t spi)
+void spi_dac8811_port_configure(uint32_t spi)
 {
   // EXTR. setup on the ice40 side.
   // printf("spi mux dac8811 \n");
   // ensure cs disabled
-  spi_port_cs1_disable( spi );  // disable, acvei lo
-  spi_port_cs2_disable( spi);
+
+
+  assert( 0); // nov 2024.
+  // spi_port_cs1_disable( spi );  // disable, acvei lo
+  // spi_port_cs2_disable( spi);
 
   // dac8811  data is clked in on clk leading rising edge.
   // ad5446 on falling edge.
@@ -56,11 +57,15 @@ static uint16_t spi_xfer_16(uint32_t spi, uint16_t val)
 }
 
 
-void spi_dac8811_write16(uint32_t spi, uint16_t val)
+
+void spi_dac8811_write16( spi_t *spi, uint16_t val)
+// void spi_dac8811_write16(uint32_t spi, uint16_t val)
 {
-  spi_port_cs2_enable(spi);
-  spi_xfer_16(spi, val );
-  spi_port_cs2_disable(spi);
+  // spi_port_cs2_enable(spi);
+  spi->cs(spi, 0);
+  spi_xfer_16(spi->spi, val );
+  // spi_port_cs2_disable(spi);
+  spi->cs(spi, 1);
 }
 
 

@@ -321,6 +321,13 @@ typedef struct adc_state_t
 */
 
 
+
+typedef struct spi_ice40_t  spi_ice40_t ;
+typedef struct spi_4094_t  spi_4094_t ;
+// typedef struct spi_ad5446_t  spi_ad5446_t;
+typedef struct spi_t  spi_t;
+
+
 // note that 'mode_t'  is in conflict with sys/types 'mode_t'.
 
 typedef struct _mode_t
@@ -373,7 +380,15 @@ typedef struct _mode_t
 /*
     chage name spi_mode_transition() ?
 */
-void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint32_t *system_millis /*, uint32_t update_flags */ );
+void spi_mode_transition_state( 
+  spi_ice40_t *spi, 
+  spi_4094_t *spi_4094,    
+  spi_t     *spi_ad5446,
+  const _mode_t *mode, 
+    volatile uint32_t *system_millis /*, uint32_t update_flags */ 
+
+);
+       
 
 
 /*
