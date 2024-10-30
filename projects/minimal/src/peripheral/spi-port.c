@@ -58,12 +58,12 @@
 
 #define SPI_PERIPH    SPI1      // better name?
 #define SPI1_PORT     GPIOA
-#define SPI_CS1       GPIO4     // PA4
+#define SPI1_CS1       GPIO4     // PA4
 
 //
-#define SPI_CS2   GPIO15     // gerber157.
-// #define SPI_CS2       GPIO10    // PA10 july 2024. nss moved.
-#define SPI_INTERUPT  GPIO3     // PA3
+#define SPI1_CS2   GPIO15     // gerber157.
+// #define SPI1_CS2       GPIO10    // PA10 july 2024. nss moved.
+#define SPI1_INTERUPT  GPIO3     // PA3
 
 // clk,PA5   mosi, PB5.  miso PA6
 
@@ -151,8 +151,8 @@ void spi1_port_setup(void)
 
 
   // CS1 to manual external gpio output
-  gpio_mode_setup(SPI1_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI_CS1 | SPI_CS2);
-  gpio_set_output_options(SPI1_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI_CS1 | SPI_CS2);
+  gpio_mode_setup(SPI1_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI1_CS1 | SPI1_CS2);
+  gpio_set_output_options(SPI1_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI1_CS1 | SPI1_CS2);
 
 }
 
@@ -217,7 +217,7 @@ void spi_port_cs1_enable(uint32_t spi)
   spi_wait_ready( spi);
 
   if(spi == SPI_PERIPH)
-    gpio_clear(SPI1_PORT, SPI_CS1);
+    gpio_clear(SPI1_PORT, SPI1_CS1);
   else
     assert(0);
 
@@ -231,7 +231,7 @@ void spi_port_cs1_disable(uint32_t spi)
   spi_wait_ready( spi);
 
   if(spi == SPI_PERIPH)
-    gpio_set(SPI1_PORT, SPI_CS1);
+    gpio_set(SPI1_PORT, SPI1_CS1);
   else
     assert(0);
 
@@ -247,7 +247,7 @@ void spi_port_cs2_enable(uint32_t spi)
 
   // active lo
   if(spi == SPI_PERIPH)
-    gpio_clear(SPI1_PORT, SPI_CS2);
+    gpio_clear(SPI1_PORT, SPI1_CS2);
   else
     assert(0);
 
@@ -262,7 +262,7 @@ void spi_port_cs2_disable(uint32_t spi)
   // We need
 
   if(spi == SPI_PERIPH)
-    gpio_set(SPI1_PORT, SPI_CS2);
+    gpio_set(SPI1_PORT, SPI1_CS2);
   else
     assert(0);
 
@@ -273,7 +273,7 @@ void spi_port_cs2_disable(uint32_t spi)
 
 bool spi_port_cdone_get(void)
 {
-   return gpio_get(SPI1_PORT, SPI_INTERUPT)  != 0;
+   return gpio_get(SPI1_PORT, SPI1_INTERUPT)  != 0;
 
 }
 
@@ -319,7 +319,7 @@ void exti3_isr(void) // called by runtime
 
 void spi1_port_interupt_setup()
 {
-  gpio_mode_setup(SPI1_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_INTERUPT);
+  gpio_mode_setup(SPI1_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI1_INTERUPT);
 
   // ie. use exti2 for pa2, exti3 for pa3
   nvic_enable_irq(NVIC_EXTI3_IRQ);
