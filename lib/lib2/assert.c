@@ -28,13 +28,13 @@
   state for which led/gpio to blink
 */
 static uint32_t led_port = 0;
-static uint32_t led_io = 0;
+static uint32_t led_no = 0;
 
 
-void assert_critical_error_led_setup(uint32_t port_, uint16_t io_ )
+void assert_critical_error_led_setup(uint32_t port_, uint16_t led_no )
 {
   led_port = port_;
-  led_io   = io_;
+  led_no   = led_no;
 
 }
 
@@ -45,7 +45,7 @@ void assert_critical_error_led_blink(void)
   // avoid passing arguments, consuming stack.
   for (;;) {
 
-    gpio_toggle(led_port, led_io);
+    gpio_toggle(led_port, led_no);
 
 		for(uint32_t i = 0; i < 500000; ++i)
        __asm__("nop");
