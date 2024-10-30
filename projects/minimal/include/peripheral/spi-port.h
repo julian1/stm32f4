@@ -16,6 +16,12 @@ void spi1_port_setup(void);
 /*
   we cannot abstract over these.
     cs1 will be common. but that functionality will be different
+    ----------
+
+  But consumers/users of this spi - should not have to know if its spi1 or spi2.
+    eg. dac code, 4094 code etc.
+
+  so something is not right.
 
 */
 
