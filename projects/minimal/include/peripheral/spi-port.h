@@ -37,9 +37,14 @@ void spi_port_cs2_disable(uint32_t );
 void spi1_port_interupt_setup(void);
 void spi1_port_interupt_handler_set( void (*pfunc_)(void *), void *ctx);
 
-
+// actually this is probably wrongly named.
+// should be gpio_cdone_get().
 bool spi_port_cdone_get(void);
 
 
+//////////////////////
 
+
+void spi2_port_setup(void);
+void spi_port_cs_u202(uint32_t spi, unsigned val);
 

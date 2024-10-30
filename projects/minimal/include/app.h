@@ -89,6 +89,7 @@ typedef struct app_t
   uint32_t  spi;
   bool      cdone; // ice40 config done
 
+  uint32_t  spi2;
 
   const _mode_t *mode_initial;
 

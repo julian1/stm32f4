@@ -11,7 +11,11 @@
 
 // #include <libopencm3/stm32/rcc.h>   // for clock initialization
 #include <libopencm3/cm3/scb.h>  // reset()
-// #include <libopencm3/stm32/spi.h>   // SPI1
+#include <libopencm3/stm32/spi.h>   // try to remove.
+
+
+
+
 
 #include <lib2/util.h>   // msleep(), UNUSED, print_stack_pointer()
 #include <lib2/format.h>   // trim_whitespace()  format_bits()
@@ -245,6 +249,21 @@ static void app_update_soft_500ms(app_t *app)
 
     app_configure( app );
   }
+
+
+
+
+
+
+  // test write something with spi2
+  assert( app->spi2 == SPI2 );
+  spi_mux_ice40_simple(app->spi2 );
+  spi_port_cs_u202(app->spi2, 0 );  // assert
+  spi_xfer( app->spi2, 0b01010101 );
+  // spi_xfer( app->spi2, 0x0 );
+  spi_port_cs_u202(app->spi2, 1 );  // de-assert
+
+
 
 
   /*

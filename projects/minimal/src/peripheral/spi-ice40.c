@@ -90,10 +90,6 @@ void spi_mux_ice40(uint32_t spi)
 }
 
 
-// catch errors
-#define spi_enable(x) WHOOT(x)
-#define spi_disable(x) WHOOT(x)
-
 
 
 static uint32_t spi_xfer_32(uint32_t spi, uint32_t val)
@@ -156,6 +152,45 @@ uint32_t spi_ice40_reg_write_n(uint32_t spi, uint8_t reg, const void *s, size_t 
 
 
 
+
+
+
+
+
+
+
+
+
+void spi_mux_ice40_simple(uint32_t spi)
+{
+  // this is spi2. setup. u509.
+
+  assert(spi == SPI2);
+
+  spi_reset( spi );
+
+
+
+  spi_init_master(
+    spi,
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_2,  // div2 seems to work with iso, but not adum. actually misses a few bits with iso.
+    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_16,
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_32,
+    SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,  // park to 0/lo == positive clok edge. park to 1 == negative clk edge.
+    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == leading edge,  2 == falling edge
+    SPI_CR1_DFF_8BIT,
+    SPI_CR1_MSBFIRST
+  );
+
+  spi_enable( spi );
+
+
+}
+
+// catch errors
+#define spi_enable(x) WHOOT(x)
+#define spi_disable(x) WHOOT(x)
 
 
 

@@ -136,6 +136,11 @@ void spi1_port_setup(void)
 
   // perhaps simpler with array loop ia[] = { GPIOA ,  GPIO5 } etc.
 
+  /*
+    The simpler way is to group. according to setup,af, output.
+
+  */
+
   // clk, miso.
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO5  | GPIO6);
   gpio_set_af(GPIOA, GPIO_AF5, GPIO5  | GPIO6);       // af 5
@@ -336,8 +341,70 @@ void spi1_port_interupt_setup()
 
 
 
+// with all the enable/disable.
+// probably better. to have  a  cs_set( val )   // lo,hi.
 
 
+void spi2_port_setup(void)
+{
+  printf("spi2 port setup\n");
+
+  // rcc_periph_clock_enable(RCC_SPI2);
+
+
+  // spi2.  oct 2024.
+  // clk. PB10.
+  // miso PB14
+  // mosi PB15
+
+  gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO10  | GPIO14 | GPIO15  );    // clk/miso/mosi
+  gpio_set_af(GPIOB, GPIO_AF5, GPIO10 | GPIO14 | GPIO15);       // clk/miso/mosi
+  gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO10 | GPIO15);   // clk, mosi
+
+
+  printf("spi2 port setup done\n");
+
+#if 0
+  // as well as more than one interupt. may get more 
+
+  // CS_u202 / pc0 / ice40 general
+  // CS_u509 / pc7  / ice40 gpib
+  gpio_mode_setup( GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0 |  GPIO7);
+  gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO0 | GPIO7 );
+
+
+  // CS_u704 / pe1
+  gpio_mode_setup( GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,  GPIO1);
+  gpio_set_output_options(GPIOE, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ,  GPIO1 );
+
+  // CS_spt2046 / pb9
+  gpio_mode_setup( GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,  GPIO9);
+  gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ,  GPIO9 );
+
+
+  // spi2_u202_int  pc2
+  // spi2_u509_int   pc8.
+  // spi2_xpt2046   pb4.
+
+#endif
+
+}
+
+
+
+void spi_port_cs_u202(uint32_t spi, unsigned val)
+{
+  assert(spi == SPI2);
+
+  spi_wait_ready( spi);
+
+  if(val)  
+    gpio_set(GPIOC, GPIO0);
+  else
+    gpio_clear(GPIOC, GPIO0);   // assert, active lo
+
+
+}
 
 
 

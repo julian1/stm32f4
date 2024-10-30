@@ -149,6 +149,8 @@ static app_t app = {
   .magic = APP_MAGIC,
 
   .spi = SPI1 ,
+  
+  .spi2 = SPI2,       // looks redundant. but correct abstraction
 
   // initialization
   .led_status = PIN('A', 9 ),
@@ -197,6 +199,7 @@ static int main_f429(void)
 
   // spi / ice40
   rcc_periph_clock_enable(RCC_SPI1);
+  rcc_periph_clock_enable(RCC_SPI2);
 
   // adc/temp
   rcc_periph_clock_enable(RCC_ADC1);
@@ -253,16 +256,11 @@ static int main_f429(void)
   ////////////////
   // init the spi port, for adum/ice40 comms
   spi1_port_setup();
-
-  // spi1_port_interupt_setup( (void (*) (void *))spi1_interupt, &app);
-  // why are we not passing the interupt here?
   spi1_port_interupt_setup();
 
-#if 0
-  // shouldnt setup the interupt handler - until fpga is configured, else looks like get
-  // spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app.data );
-  ice40_port_extra_setup();
-#endif
+
+
+  spi2_port_setup();
 
 #if 0
 

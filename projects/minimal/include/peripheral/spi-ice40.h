@@ -14,3 +14,7 @@ uint32_t spi_ice40_reg_write_n(uint32_t spi, uint8_t reg, const void *s, size_t 
 
 
 
+void spi_mux_ice40_simple(uint32_t spi);
+
+
+
