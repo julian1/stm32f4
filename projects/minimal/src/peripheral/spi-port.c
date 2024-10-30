@@ -364,8 +364,7 @@ void spi2_port_setup(void)
 
   printf("spi2 port setup done\n");
 
-#if 0
-  // as well as more than one interupt. may get more 
+  // as well as more than one interupt. may get more
 
   // CS_u202 / pc0 / ice40 general
   // CS_u509 / pc7  / ice40 gpib
@@ -386,7 +385,6 @@ void spi2_port_setup(void)
   // spi2_u509_int   pc8.
   // spi2_xpt2046   pb4.
 
-#endif
 
 }
 
@@ -398,11 +396,10 @@ void spi_port_cs_u202(uint32_t spi, unsigned val)
 
   spi_wait_ready( spi);
 
-  if(val)  
+  if(val)
     gpio_set(GPIOC, GPIO0);
   else
     gpio_clear(GPIOC, GPIO0);   // assert, active lo
-
 
 }
 
