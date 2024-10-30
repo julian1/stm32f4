@@ -104,9 +104,6 @@ void spi1_port_setup(void)
   even if set all pins lo / including RST . eg. if analog side, loses power and is repowered.
   There is no general way to avoid this. without having a power sense/monitor to report back to digital side.
 
-  if cs hi, we get contention/fight - regardless of state of cs2/gpio pin. probably due on the cs pin itself.  or perhaps due to clk/mosi pin.
-  if cs is lo.  then ok.   regardless of gpio.
-
   EXTR. this is because SS is sampled at POR, to determine if fpga should orient/act as master or peripheral, see DS, p11. configuration chart.
   But all this makes spi1 not a generalizable service that the fpga hangs off.
   the solution is move the control of/and start deefault value of SS off the cs1/cs2 assert condition.
@@ -117,6 +114,11 @@ void spi1_port_setup(void)
   We get correct behavior at the moment by using 'F' version of isolator that emits lo. at start if mcu/digital side unpowered.
   and presumably when mcu is in reset, emitting high-z on gpio.
 
+  ---
+  we could move RST, SS to a hc175 type latch. that can start with outputs lo. using asynch CLR.
+
+  ---
+  eg.
 
 	// locks up.
 	spi_port_cs2_disable(SPI1 );      // both gpio and cs hi. worst case. both fight.   both cs hi.  CC 2.9V / 29mA.  eg.
@@ -130,6 +132,8 @@ void spi1_port_setup(void)
 	spi_port_cs2_disable(SPI1 );			// gpio hi, and cs lo.   ok. doesn't fight. because gpio is high-z before bitstream configuration.
   spi_port_cs1_enable(SPI1 );       // this is the same state, as when, we are trying to configure the bitstream.
 
+  summary if cs hi, we get contention/fight - regardless of state of cs2/gpio pin. probably due on the cs pin itself.  or perhaps due to clk/mosi pin.
+  if cs is lo.  then ok.   regardless of gpio.
   */
 
 
@@ -357,9 +361,9 @@ void spi2_port_setup(void)
   // miso PB14
   // mosi PB15
 
-  gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO10  | GPIO14 | GPIO15  );    // clk/miso/mosi
+  gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO10  | GPIO14 | GPIO15  );    // clk/miso/mosi  PB10,PB14,PB15
   gpio_set_af(GPIOB, GPIO_AF5, GPIO10 | GPIO14 | GPIO15);       // clk/miso/mosi
-  gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO10 | GPIO15);   // clk, mosi
+  gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO10 | GPIO15);   // clk, mosi   PB10,PB15
 
 
   printf("spi2 port setup done\n");
@@ -368,22 +372,25 @@ void spi2_port_setup(void)
 
   // CS_u202 / pc0 / ice40 general
   // CS_u509 / pc7  / ice40 gpib
-  gpio_mode_setup( GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0 |  GPIO7);
+  gpio_mode_setup( GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0 |  GPIO7);      // PC0,PC7
   gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO0 | GPIO7 );
 
 
   // CS_u704 / pe1
-  gpio_mode_setup( GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,  GPIO1);
+  gpio_mode_setup( GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,  GPIO1);              // PE1
   gpio_set_output_options(GPIOE, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ,  GPIO1 );
 
   // CS_spt2046 / pb9
-  gpio_mode_setup( GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,  GPIO9);
+  gpio_mode_setup( GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,  GPIO9);              // PB9
   gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ,  GPIO9 );
 
 
   // spi2_u202_int  pc2
   // spi2_u509_int   pc8.
   // spi2_xpt2046   pb4.
+
+  // need reset/cdone.    perhaps spi_port_creset_u202().
+  // bool spi_port_cdone_u202_get(void)
 
 
 }

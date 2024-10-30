@@ -48,3 +48,25 @@ bool spi_port_cdone_get(void);
 void spi2_port_setup(void);
 void spi_port_cs_u202(uint32_t spi, unsigned val);
 
+
+
+/*
+  could use an abstraction like the following.
+  but most of the cs is device/peripheral specific.
+  so except for stuff like fpga initialization
+  there is not a lot of use.
+*/
+
+typedef struct spi_t  spi_t ;
+
+struct spi_t
+{
+  uint32_t  spi;
+
+  // this is ice40 peripheral specific
+  void (*cs)(spi_t *, uint8_t );
+  void (*rst)(spi_t *, uint8_t );
+  bool (*cdone)(spi_t * );
+
+} ;
+
