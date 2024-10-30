@@ -13,6 +13,12 @@ void spi1_port_setup(void);
 // hardware ness with set_nss_high etc.
 // doesn't work well with more than one cs.
 
+/*
+  we cannot abstract over these.
+    cs1 will be common. but that functionality will be different
+
+*/
+
 void spi_port_cs1_enable(uint32_t );    // active lo
 void spi_port_cs1_disable(uint32_t);
 
