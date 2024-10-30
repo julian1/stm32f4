@@ -88,6 +88,19 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   printf("magic %lx\n", magic );
   printf("size %lu\n", size );        // need to swap the byte order perhaps.
 
+  /*
+  Once the AP sends the 0x7EAA997E synchronization pattern, the generated SPI_SCK clock frequency must
+  be within the range specified in the data sheet while sending the configuration image.
+      https://blog.aleksander.kaweczynski.pl/wp-content/uploads/2024/07/iCE40_Programming_Configuration_2022.pdf
+
+   me@flow:~/devel/ice40-fpga/projects/minimal$ hexdump -C build/main.bin | head
+  00000000  ff 00 00 ff 7e aa 99 7e  51 00 01 05 92 00 20 62  |....~..~Q..... b|
+
+  should just this as the magic number. and then hardcode the size.
+  rather than prepend a separate header.
+
+  */
+
   if(magic != 0xfe00fe00) {
     printf("bad magic!\n");
     fclose(f);
@@ -144,7 +157,7 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   msleep(1, system_millis);
 
   // check cdone is lo
-  assert(! ice40_port_extra_cdone_get() );
+  assert(! spi_port_cdone_get() );
 
   printf("here0\n");
 #if 0
@@ -224,14 +237,14 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
 
   // wait - send up to 100 dummy clk cycles.
   unsigned i = 0;
-  for(i = 0; i < 13  && !ice40_port_extra_cdone_get(); ++i)
+  for(i = 0; i < 13  && !spi_port_cdone_get(); ++i)
      spi_xfer( spi, 0x00);
 
 
 
 
   // check cdone really hi
-  if(! ice40_port_extra_cdone_get() ) {
+  if(! spi_port_cdone_get() ) {
     printf("failed\n");
 
 

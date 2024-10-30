@@ -32,6 +32,7 @@
 #include <peripheral/vfd.h>
 
 
+#include <peripheral/hal.h>
 
 
 static const _mode_t mode_initial =  {
@@ -149,6 +150,9 @@ static app_t app = {
 
   .spi = SPI1 ,
 
+  // initialization
+  .led_status = PIN('A', 9 ),
+
   .cdone = false,
 
   .mode_initial =  &mode_initial,
@@ -206,11 +210,12 @@ static int main_f429(void)
     peripheral/ports setup
   */
 
-  led_setup();
+  led_setup( app.led_status);
 
   // setup external state for critical error led blink in priority
   // because assert() cannot pass a context
-  assert_critical_error_led_setup( LED_PORT, LED_OUT);
+
+  assert_critical_error_led_setup( PINBANK( app.led_status), PINNO(app.led_status ));
 
   // mcu clock
   systick_setup(12000); // 12MHz. default lsi.

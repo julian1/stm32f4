@@ -271,7 +271,7 @@ void spi_port_cs2_disable(uint32_t spi)
 
 
 
-bool ice40_port_extra_cdone_get(void)
+bool spi_port_cdone_get(void)
 {
    return gpio_get(SPI1_PORT, SPI_INTERUPT)  != 0;
 

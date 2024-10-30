@@ -151,7 +151,7 @@ void app_configure( app_t *app )
 
 
 
-  if( ! ice40_port_extra_cdone_get()) {
+  if( ! spi_port_cdone_get()) {
 
     printf("fpga config failed\n");
 
@@ -236,12 +236,12 @@ static void app_update_soft_500ms(app_t *app)
   app->led_state = ! app->led_state;
 
   if(app->led_state)
-    led_on();
+    led_on( app->led_status);
   else
-    led_off();
+    led_off( app->led_status);
 
 
-  if( /*false &&*/ !app->cdone && !ice40_port_extra_cdone_get() ) {
+  if( /*false &&*/ !app->cdone && !spi_port_cdone_get() ) {
 
     app_configure( app );
   }
@@ -420,9 +420,9 @@ void app_update_simple_with_data(app_t *app)
     // blink mcu led
     app->led_state = ! app->led_state;
     if(app->led_state)
-      led_on();
+      led_on(app->led_status);
     else
-      led_off();
+      led_off(app->led_status);
   }
 }
 
@@ -448,9 +448,9 @@ void app_update_simple_led_blink(app_t *app)
     // blink mcu led
     app->led_state = ! app->led_state;
     if(app->led_state)
-      led_on();
+      led_on(app->led_status);
     else
-      led_off();
+      led_off(app->led_status);
   }
 
 }

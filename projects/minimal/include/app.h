@@ -62,6 +62,9 @@ typedef struct app_t
   // no. it's ok. led follows the led_state, more than one thing follows.
   bool led_state ;     // for mcu. maybe change name to distinguish
 
+  // port/no 
+  uint16_t led_status;
+
   uint32_t soft_500ms;
 
   // updated on interupt. should probably be declared volatile.
