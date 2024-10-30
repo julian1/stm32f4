@@ -38,8 +38,19 @@ static void state_format ( uint8_t *state, size_t n)
 }
 
 
+/*
+  eg. we will probably need to pass app
+    for all the different spi devices spi devneed
 
-void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint32_t *system_millis  /*, uint32_t update_flags */ )
+*/
+
+
+void spi_mode_transition_state( 
+      spi_ice40_t   *spi, 
+      spi_4094_t    *spi_4094, 
+      spi_ad5446_t  *spi_ad5446,
+
+      const _mode_t *mode, volatile uint32_t *system_millis  /*, uint32_t update_flags */ )
 {
   assert(mode);
 
@@ -48,7 +59,8 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
   assert( sizeof(_4094_state_t) == 12 );
 
   // mux spi to 4094. change mcu spi params, and set spi device to 4094
-  spi_mux_4094 ( spi);
+  assert(0);
+  // spi_mux_4094 ( spi);
 
 /*
   printf("-----------\n");
@@ -57,7 +69,7 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 */
 
   // and write device
-  spi_4094_reg_write_n(spi, (void *) &mode->first, sizeof( mode->first ) );
+  spi_4094_reg_write_n( spi_4094, (void *) &mode->first, sizeof( mode->first ) );
 
   // sleep 10ms, for relays
   msleep(10, system_millis);
@@ -69,7 +81,7 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 */
 
   // and write device
-  spi_4094_reg_write_n(spi, (void *) &mode->second, sizeof(mode->second) );
+  spi_4094_reg_write_n( spi_4094, (void *) &mode->second, sizeof(mode->second) );
 
   /////////////////////////////
 
@@ -77,11 +89,13 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 #if 1
 
   // now write dac state
-  spi_mux_ice40( spi);
+  assert(0);
+  // spi_mux_ice40( spi);
   spi_ice40_reg_write32( spi, REG_SPI_MUX,  SPI_MUX_DAC );
 
-  spi_port_configure_ad5446( spi);
-  spi_ad5446_write16( spi, mode->dac_val );
+  assert( 0);
+  // spi_port_configure_ad5446( spi);
+  spi_ad5446_write16( spi_ad5446, mode->dac_val );
 
 #endif
 
@@ -90,7 +104,8 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
   /////////////////////////////
 
   // now write fpga register state
-  spi_mux_ice40(spi);
+  assert(0);
+  // spi_mux_ice40(spi);
 
 
   spi_ice40_reg_write32(spi, REG_MODE, mode->reg_mode );

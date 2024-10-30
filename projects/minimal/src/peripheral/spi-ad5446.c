@@ -12,13 +12,14 @@
 #include <peripheral/spi-ice40.h>
 
 
+#if 0
 
-void spi_port_configure_ad5446( uint32_t spi)
+void spi_port_configure_ad5446( spi_ad5446_t *spi)
 {
 
   // ensure cs disabled
-  spi_port_cs1_disable( spi );  // disable, acvei lo
-  spi_port_cs2_disable( spi);
+  // spi_port_cs1_disable( spi );  // disable, acvei lo
+  // spi_port_cs2_disable( spi);
 
   // dac8811  data is clked in on clk leading rising edge.
   // ad5446 on falling edge.
@@ -36,8 +37,10 @@ void spi_port_configure_ad5446( uint32_t spi)
   spi_enable( spi );
 }
 
+#endif
 
 
+// Need to create the device.  with approapriate config().
 
 
 /* value writing code is the same for dac8811 and ad5446
@@ -48,20 +51,24 @@ void spi_port_configure_ad5446( uint32_t spi)
 */
 
 
-static uint16_t spi_xfer_16(uint32_t spi, uint16_t val)
+static uint16_t spi_xfer_16( spi_ad5446_t *spi, uint16_t val)
 {
-  uint8_t a = spi_xfer( spi, (val >> 8) & 0xff );  // correct reg should be the first bit that is sent.
-  uint8_t b = spi_xfer( spi, val & 0xff );
+  uint8_t a = spi_xfer( spi->spi, (val >> 8) & 0xff );  // correct reg should be the first bit that is sent.
+  uint8_t b = spi_xfer( spi->spi, val & 0xff );
 
   return (a << 8) + b;
 }
 
 
-void spi_ad5446_write16(uint32_t spi, uint16_t val)
+void spi_ad5446_write16(  spi_ad5446_t *spi, uint16_t val)
 {
-  spi_port_cs2_enable(spi);
+  // spi_port_cs2_enable(spi);
+  spi->cs( spi, 0 ); 
+
   spi_xfer_16(spi, val );
-  spi_port_cs2_disable(spi);
+
+  // spi_port_cs2_disable(spi);
+  spi->cs( spi, 1 ); 
 }
 
 

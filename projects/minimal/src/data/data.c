@@ -135,7 +135,7 @@ char * seq_mode_str( uint8_t sample_seq_mode, char *buf, size_t n  )
 
 
 
-void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*/)
+void data_update_new_reading2(data_t *data, spi_ice40_t *spi/*, bool verbose*/)
 {
   assert(data);
   assert(data->magic == DATA_MAGIC);

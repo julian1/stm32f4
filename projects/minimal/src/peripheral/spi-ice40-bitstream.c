@@ -12,7 +12,8 @@
 
 
 
-#include <peripheral/spi-port.h>
+//#include <peripheral/spi-port.h>
+#include <peripheral/spi-ice40.h>
 
 
 // #include <peripheral/ice40-extra.h>
@@ -70,7 +71,8 @@ static void spi_ice40_bitstream_setup(uint32_t spi)
 
 
 
-int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
+// int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
+int spi_ice40_bitstream_send( spi_ice40_t *spi ,  volatile uint32_t *system_millis)
 {
   printf("spi_ice40_bitstream_send\n");
 
@@ -80,13 +82,20 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
 
   // read magic and length.
   uint32_t magic  = 0 ;
-  uint32_t size = 0;
+  // uint32_t magic2  = 0 ;
+
 
   fread(&magic, 1, 4, f);
-  fread(&size, 1, 4, f);
+  fseek(f, 0, SEEK_SET );    // seek start again.
+
+
+  // fread(&magic2, 1, 4, f);
+
+  // fread(&size, 1, 4, f);
 
   printf("magic %lx\n", magic );
-  printf("size %lu\n", size );        // need to swap the byte order perhaps.
+  // printf("magic2 %lx\n", magic2 );
+  // printf("size %lu\n", size );        // need to swap the byte order perhaps.
 
   /*
   Once the AP sends the 0x7EAA997E synchronization pattern, the generated SPI_SCK clock frequency must
@@ -101,7 +110,8 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
 
   */
 
-  if(magic != 0xfe00fe00) {
+  // if(magic != 0xfe00fe00) {
+  if(magic != 0xff0000ff ) {
     printf("bad magic!\n");
     fclose(f);
     return -1;
@@ -109,6 +119,12 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
 
     printf("magic ok!\n");
   }
+
+
+
+  uint32_t size = 104090 ;      // UP5K
+
+
 
   ////////////////////////////////////
 
@@ -118,7 +134,7 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
 
 
   // configure with soft/manual control over cs.
-  spi_ice40_bitstream_setup(spi);
+  spi_ice40_bitstream_setup(spi->spi);
 
 
   // must have spi enabled to output clk cycles, regardless of state of SS.
@@ -131,8 +147,13 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   // enable == lo.
   // disable == hi.
 
-  spi_port_cs1_disable( spi);             // cs1 hi.
-  spi_port_cs2_disable( spi);             // cs2 hi.   but it isn't unconditional.
+  // spi_port_cs1_disable( spi);             // cs1 hi.
+  spi->cs(spi, 1);
+
+  // spi_port_cs2_disable( spi);             // cs2 hi.   but it isn't unconditional.
+  spi->rst(spi, 1);
+
+
 
 
   // wait
@@ -148,16 +169,20 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   ice40_port_extra_creset_disable();      // creset/ clear / lo. inverse.
 #endif
 
-  spi_port_cs2_enable(spi);                 // cs2 lo.
-
+  // spi_port_cs2_enable(spi);                 // cs2 lo.
   // drive spi_ss = 0, spi_sck = 1
-  spi_port_cs1_enable(spi);                 // cs1 lo.   - now in reset.
+  // spi_port_cs1_enable(spi);                 // cs1 lo.   - now in reset.
+
+  spi->cs(spi, 0);
+  spi->rst(spi, 0);       // now in reset
+
 
   // wait minimum of 200ns
   msleep(1, system_millis);
 
   // check cdone is lo
-  assert(! spi_port_cdone_get() );
+  // assert(! cdone-spi_port_cdone_get() );
+  assert( ! spi->cdone(spi));
 
   printf("here0\n");
 #if 0
@@ -166,19 +191,26 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   ice40_port_extra_creset_enable();         // creset set/ hi. inverse.  (Can do this by releasing cs2 ).
 #endif
 
-  spi_port_cs2_disable(spi);          // cs2 hi.  out of reset.
+  // spi_port_cs2_disable(spi);          // cs2 hi.  out of reset.
+  spi->rst(spi, 1);                       // out of reset
 
   // wait a minimum of of 1200u to clear internal config memory
   msleep(2, system_millis);
 
   // set spi_ss hi = 1.
-  spi_port_cs1_disable(spi);                // cs1 hi.
+  // spi_port_cs1_disable(spi);                // cs1 hi.
+  spi->cs(spi, 1);
 
   // send 8 dummy clks
-  spi_xfer( spi, 0x00 );
+  spi_xfer( spi->spi, 0x00 );
 
   // assert ss lo = 0
-  spi_port_cs1_enable(spi);
+  // spi_port_cs1_enable(spi);
+  spi->cs(spi, 0);
+
+
+  // cs(spi, 0);
+  // or dev_spi_cs
 
 
   /* send image.
@@ -221,7 +253,7 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
 
     // send data
     for(unsigned i = 0; i < ret; ++i)
-       spi_xfer( spi, buf[ i ] );
+       spi_xfer( spi->spi, buf[ i ] );
 
 
     remaining -= ret;
@@ -231,28 +263,38 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
   assert(remaining == 0);
 
 
+  fclose(f);
+
+
   // spi-ss = high
-  spi_port_cs1_disable(spi);
+  // spi_port_cs1_disable(spi);
+  spi->cs(spi, 1);
 
 
   // wait - send up to 100 dummy clk cycles.
   unsigned i = 0;
-  for(i = 0; i < 13  && !spi_port_cdone_get(); ++i)
-     spi_xfer( spi, 0x00);
+  // for(i = 0; i < 13  && !   spi_port_cdone_get(); ++i)
+  for(i = 0; i < 13  && !  spi->cdone(spi); ++i)
+     spi_xfer( spi->spi, 0x00);
 
 
 
 
   // check cdone really hi
-  if(! spi_port_cdone_get() ) {
+  if(! spi->cdone(spi) ) {
     printf("failed\n");
 
 
     // set cs. ports lo again..  so if fpga gets powered up. it will succeed.
-    spi_port_cs2_enable( spi );
-    spi_port_cs1_enable( spi );
+    // this is only for isolator.
+    // HMMMM...
+    // spi_port_cs2_enable( spi );
+    // spi_port_cs1_enable( spi );
 
-    fclose(f);
+//    spi->cs(spi, 0);
+ //   spi->rst(spi, 0);
+
+    // fclose(f);
     return -1;
   } else {
 
@@ -263,13 +305,10 @@ int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
 
   // send another 49 clk cycles, for gpio to become active
   for(i = 0; i < 7 ; ++i)
-     spi_xfer( spi, 0x00);
+     spi_xfer( spi->spi, 0x00);
 
 
-
-
-
-  fclose(f);
+  // fclose(f);
   return 0;
 }
 

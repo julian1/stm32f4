@@ -58,8 +58,12 @@
 
 // TODO rename spi_mux_4094().  because first arg is spi
 
+#if 0
 void spi_mux_4094(uint32_t spi )
 {
+  UNUSED(spi);
+  assert(0);
+
   /*
       0. mux the fpga.
       1. write the fpga mux register, for the spi device which is 4094 system
@@ -71,8 +75,8 @@ void spi_mux_4094(uint32_t spi )
 
   assert( SPI_MUX_4094 == 1); // june 2023. for dmm03.
 
-
-  spi_mux_ice40( spi);
+  assert(0); 
+  // spi_mux_ice40( spi);
 
   // default state - should always be to *not* to propagate spi on 4094 lines.  to avoid emi
   assert( spi_ice40_reg_read32(spi, REG_SPI_MUX ) == SPI_MUX_NONE);
@@ -101,6 +105,7 @@ void spi_mux_4094(uint32_t spi )
 
   spi_enable( spi );
 }
+#endif
 
 
 
@@ -112,7 +117,7 @@ void spi_mux_4094(uint32_t spi )
 
 
 
-static void assert_strobe(uint32_t spi)
+static void assert_strobe( spi_4094_t *spi)
 {
 
   /*
@@ -127,19 +132,21 @@ static void assert_strobe(uint32_t spi)
   // assert 4094 strobe.
   // fpga will invert active lo.
 
-  spi_port_cs2_enable(spi); // enable == clear
+  // spi_port_cs2_enable(spi); // enable == clear
+  spi->strobe(spi, 0 ); 
 
   for(uint32_t i = 0; i < 10; ++i)   // 100count == 5us.
      __asm__("nop");
 
   // normal state is lo
-  spi_port_cs2_disable(spi);    // disable == set
+  // spi_port_cs2_disable(spi);    // disable == set
+  spi->strobe(spi, 1 ); 
 
 }
 
 
 
-uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
+uint8_t spi_4094_reg_write( spi_4094_t *spi, uint8_t v)
 {
   assert( 0);
   // expect port is already configured with gpio for cs etc.
@@ -152,7 +159,7 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
       - But if configure the peripheral without hardware toggling of cs, perhaps it is ok.
 
   */
-  uint8_t ret = spi_xfer(spi, v);
+  uint8_t ret = spi_xfer(spi->spi, v);
 
   assert_strobe( spi);
 
@@ -164,7 +171,7 @@ uint8_t spi_4094_reg_write(uint32_t spi, uint8_t v)
 // think passing a unsigned char *s. is better.
 // can then call with &value.
 
-uint32_t spi_4094_reg_write_n(uint32_t spi, const unsigned char *s, size_t n)
+uint32_t spi_4094_reg_write_n( spi_4094_t *spi, const unsigned char *s, size_t n)
 {
   uint32_t ret = 0;
 
@@ -181,7 +188,7 @@ uint32_t spi_4094_reg_write_n(uint32_t spi, const unsigned char *s, size_t n)
 
 
   for(signed i = n - 1; i >= 0; --i) {
-    ret = spi_xfer(spi, s[i] );
+    ret = spi_xfer(spi->spi, s[i] );
 
     ret <<= 8;  // check
   }

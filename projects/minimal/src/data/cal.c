@@ -124,7 +124,13 @@ void data_cal_show( data_t *data )
 
 void data_cal(
   data_t *data ,
-  uint32_t spi,
+
+  // uint32_t spi,
+  spi_ice40_t * spi,
+  spi_4094_t *spi_4094,
+  spi_ad5446_t *spi_ad5446,
+
+
   _mode_t *mode,
   unsigned model_spec,
   volatile uint32_t *system_millis,
@@ -217,7 +223,9 @@ void data_cal(
 
       // start adc,
       printf("spi_mode_transition_state()\n");
-      spi_mode_transition_state( spi, mode, system_millis);
+
+
+      spi_mode_transition_state( spi, spi_4094, spi_ad5446, mode, system_millis);
 
 
       // let things settle from spi emi burst, and board DA settle, amp to come out of lockup.

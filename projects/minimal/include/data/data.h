@@ -127,14 +127,23 @@ void data_rdy_interupt( data_t *data);    // handler setup in app context.
 // better name process reading.
 // void data_update_new_reading(data_t *data, uint32_t spi);
 
-void data_update_new_reading2(data_t *data, uint32_t spi/*, bool verbose*/);
+
+typedef struct spi_ice40_t  spi_ice40_t ;
+typedef struct spi_4094_t spi_4094_t;
+typedef struct spi_ad5446_t  spi_ad5446_t;
+
+void data_update_new_reading2(data_t *data, spi_ice40_t *spi/*, bool verbose*/);
 
 
 // could create and add to data/cal.h
 
 void data_cal(
     data_t *data ,
-    uint32_t spi,
+
+  spi_ice40_t * spi,
+  spi_4094_t *spi_4094,
+  spi_ad5446_t *spi_ad5446,
+
     _mode_t *mode,
     unsigned model_spec,
     volatile uint32_t *system_millis,

@@ -31,8 +31,8 @@
 
 static void test (app_t *app)
 {
-
-  spi_mux_ice40( app->spi );
+  assert( 0);
+  // spi_mux_ice40( app->spi );
 
   // put direct mode
   spi_ice40_reg_write32( app->spi, REG_MODE , MODE_DIRECT );

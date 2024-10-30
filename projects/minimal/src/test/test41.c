@@ -41,7 +41,7 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
   // we should do  this via the register.
   app->mode_current->trig_sa = 1;
 
-  spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+  spi_mode_transition_state( app->spi, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
 
 
   // sleep?
@@ -62,7 +62,7 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
 
   // stop sample acquisition, perhaps unnecessary
   app->mode_current->trig_sa = 0;
-  spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+  spi_mode_transition_state( app->spi, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
 
 
   // print output
