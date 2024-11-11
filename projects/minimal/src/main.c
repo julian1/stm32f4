@@ -32,7 +32,7 @@
 #include <peripheral/fsmc.h>
 #include <peripheral/vfd.h>
 
-
+#include <hal/hal.h>
 
 
 static const _mode_t mode_initial =  {
@@ -153,7 +153,7 @@ static app_t app = {
   .spi2 = SPI2,       // looks redundant. but correct abstraction
 
   // initialization
-  // .led_status = PIN('A', 9 ),
+  .led_status = PIN('A', 9 ),
 
   .cdone = false,
 

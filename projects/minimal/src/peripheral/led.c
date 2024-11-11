@@ -19,40 +19,8 @@
 
 #include <peripheral/led.h>
 
-#define CM3_PINBANK(a)   ((a>>8)-'A')
+#include <hal/hal.h>
 
-#if 0
-
-void led_on(uint16_t led)
-{
-
-  // gpio_set( CM3_PINBANK(led), CM3_PINNO(led) );
-
-  UNUSED(led);
-  gpio_set( GPIOA , GPIO9 );
-
-}
-
-
-void led_off(uint16_t led)
-{
-
-  UNUSED(led);
-  gpio_clear( GPIOA, GPIO9 );
-  gpio_clear( CM3_PINBANK(led), CM3_PINNO(led) );
-}
-
-
-void led_setup(uint16_t led)
-{
-  // rcc_periph_clock_enable(RCC_GPIOA);
-
-  gpio_mode_setup( CM3_PINBANK(led), GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, CM3_PINNO(led));
-
-  gpio_set_output_options( CM3_PINBANK(led), GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, CM3_PINNO(led));
-}
-
-#endif
 
 #define UNUSED(a)   ((void)(a))
 #define LED_PORT  GPIOA
@@ -60,7 +28,23 @@ void led_setup(uint16_t led)
 
 
 
-#if 1
+#if 0
+void led_on(uint16_t led)
+{
+  gpio_set_( led, 1);
+/*
+  printf("GPIOA %x\n" , GPIOA );
+
+  assert( PORT(led) == GPIOA );
+
+  UNUSED(led);
+  gpio_set( LED_PORT, LED_OUT);
+*/
+}
+#endif
+
+
+
 void led_on(uint16_t led)
 {
   UNUSED(led);
@@ -87,5 +71,4 @@ void led_setup(uint16_t led)
 }
 
 
-#endif
 
