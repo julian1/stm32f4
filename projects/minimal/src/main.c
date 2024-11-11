@@ -262,6 +262,11 @@ static int main_f429(void)
 
   spi2_port_setup();
 
+
+  spi_t spi_u202;
+  spi2_u202_init( &spi_u202 );
+
+
 #if 0
 
 

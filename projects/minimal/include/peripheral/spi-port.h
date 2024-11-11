@@ -46,7 +46,9 @@ bool spi_port_cdone_get(void);
 
 
 void spi2_port_setup(void);
+
 void spi_port_cs_u202(uint32_t spi, unsigned val);
+void spi_port_creset_u202(uint32_t spi, unsigned val);
 
 
 
@@ -55,6 +57,12 @@ void spi_port_cs_u202(uint32_t spi, unsigned val);
   but most of the cs is device/peripheral specific.
   so except for stuff like fpga initialization
   there is not a lot of use.
+
+  using functions - can make static and just bind the cs,rest,done opaquely.
+
+  spi->cs(spi, 1 );     // de-assert
+
+  EXTR.  don't have to worry about trying to use pin encoding.
 */
 
 typedef struct spi_t  spi_t ;
@@ -67,6 +75,22 @@ struct spi_t
   void (*cs)(spi_t *, uint8_t );
   void (*rst)(spi_t *, uint8_t );
   bool (*cdone)(spi_t * );
-
 } ;
 
+void spi2_u202_init( spi_t *);
+
+
+
+/*
+// or even just the following.
+
+struct spi2_t
+{
+  uint32_t  spi;
+
+  uint16_t  cs;   //pin.  using hal ?
+  uint16_t  rst;   //pin.  using hal ?
+  uint16_t  cdone;
+} ;
+
+*/

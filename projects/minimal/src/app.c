@@ -253,7 +253,7 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
-
+#if 0
 
   // test write something with spi2
   assert( app->spi2 == SPI2 );
@@ -263,7 +263,7 @@ static void app_update_soft_500ms(app_t *app)
   // spi_xfer( app->spi2, 0x0 );
   spi_port_cs_u202(app->spi2, 1 );  // de-assert
 
-
+#endif
 
 
   /*

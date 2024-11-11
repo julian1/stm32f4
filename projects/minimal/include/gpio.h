@@ -2,7 +2,7 @@
 
 #pragma once
 
-inline void gpio_write_val(uint32_t gpioport, uint16_t gpios, bool val)
+static inline void gpio_write_val(uint32_t gpioport, uint16_t gpios, bool val)
 {
   /*
   // set/clear gpios bits, according to bool val

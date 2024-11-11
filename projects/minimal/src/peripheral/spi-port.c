@@ -30,11 +30,14 @@
 
 
 #include <stdio.h>
+#include <string.h>   // memset
 #include <stddef.h>   // NULL
 #include <assert.h>
 
 #include <peripheral/spi-port.h>
 
+
+#include <gpio.h>
 
 //////////////////////////
 
@@ -370,10 +373,12 @@ void spi2_port_setup(void)
 
   // as well as more than one interupt. may get more
 
-  // CS_u202 / pc0 / ice40 general
+  // u202,
+  // cs pc0
+  // creset pc6
   // CS_u509 / pc7  / ice40 gpib
-  gpio_mode_setup( GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0 |  GPIO7);      // PC0,PC7
-  gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO0 | GPIO7 );
+  gpio_mode_setup( GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0 | GPIO6 | GPIO7);      // PC0,PC6, PC7
+  gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO0 | GPIO6 | GPIO7 );
 
 
   // CS_u704 / pe1
@@ -393,29 +398,59 @@ void spi2_port_setup(void)
   // bool spi_port_cdone_u202_get(void)
 
 
+  // input
+  // cdone u202ca pc3.
+  gpio_mode_setup(GPIOC, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO3);
+
 }
 
 
+// this isn't really spi2 cs.  it is specifially u202.
+// BUT we could name it u202.
 
 
-void spi_port_cs_u202(uint32_t spi, unsigned val)
+/*
+  - advantage of using functions. is don't have to expose  gpio. port and pin detail. 
+  - enough function to program fpga.
+
+*/
+
+
+
+static void spi2_u202_cs( spi_t *spi, uint8_t val)
 {
-  assert(spi == SPI2);
+  assert(spi->spi == SPI2);
 
-  spi_wait_ready( spi);
+  spi_wait_ready( spi->spi);
+  gpio_write_val( GPIOC, GPIO0, val);   // PC0
+}
+
+static void spi2_u202_rst( spi_t *spi, uint8_t val)
+{
+  assert(spi->spi == SPI2);
+
+  // spi_wait_ready( spi->spi); not needed for rst
+  gpio_write_val( GPIOC, GPIO6, val);   // PC6
+}
 
 
-
-  if(val)
-    gpio_set(GPIOC, GPIO0);
-  else
-    gpio_clear(GPIOC, GPIO0);   // assert, active lo
-
+static bool spi2_u202_cdone(spi_t *spi )
+{
+  assert(spi->spi == SPI2);
+  return gpio_get(GPIOC, GPIO3) != 0;   // PC3
 }
 
 
 
+void spi2_u202_init( spi_t *spi)
+{
+  assert(spi);
+  memset(spi, 0, sizeof(spi_t));
 
-
+  spi->spi    = SPI2;
+  spi->cs     = spi2_u202_cs;
+  spi->rst    = spi2_u202_rst;
+  spi->cdone  = spi2_u202_cdone;
+}
 
 
