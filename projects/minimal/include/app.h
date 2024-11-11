@@ -63,7 +63,7 @@ typedef struct app_t
   bool led_state ;     // for mcu. maybe change name to distinguish
 
   // port/no 
-  uint16_t led_status;
+  // uint16_t led_status;
 
   uint32_t soft_500ms;
 

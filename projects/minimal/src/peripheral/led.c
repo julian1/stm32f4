@@ -15,16 +15,21 @@
 #include <libopencm3/stm32/gpio.h>
 
 
-#include <peripheral/hal.h>
+// #include <peripheral/hal.h>
 
 #include <peripheral/led.h>
 
-#if 1
+#define CM3_PINBANK(a)   ((a>>8)-'A')
+
+#if 0
 
 void led_on(uint16_t led)
 {
 
-  gpio_set( CM3_PINBANK(led), CM3_PINNO(led) );
+  // gpio_set( CM3_PINBANK(led), CM3_PINNO(led) );
+
+  UNUSED(led);
+  gpio_set( GPIOA , GPIO9 );
 
 }
 
@@ -32,6 +37,8 @@ void led_on(uint16_t led)
 void led_off(uint16_t led)
 {
 
+  UNUSED(led);
+  gpio_clear( GPIOA, GPIO9 );
   gpio_clear( CM3_PINBANK(led), CM3_PINNO(led) );
 }
 
@@ -47,18 +54,23 @@ void led_setup(uint16_t led)
 
 #endif
 
+#define UNUSED(a)   ((void)(a))
+#define LED_PORT  GPIOA
+#define LED_OUT   GPIO9
 
 
 
-#if 0
+#if 1
 void led_on(uint16_t led)
 {
+  UNUSED(led);
   gpio_set( LED_PORT, LED_OUT);
 }
 
 
 void led_off(uint16_t led)
 {
+  UNUSED(led);
   gpio_clear( LED_PORT, LED_OUT);
 }
 
@@ -66,6 +78,7 @@ void led_off(uint16_t led)
 
 void led_setup(uint16_t led)
 {
+  UNUSED(led);
   // rcc_periph_clock_enable(RCC_GPIOA);
 
   gpio_mode_setup( LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT );

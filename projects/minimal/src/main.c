@@ -8,6 +8,7 @@
 #include <libopencm3/stm32/rcc.h>   // mcu clock initialization
 #include <libopencm3/stm32/spi.h>   // SPI1
 
+#include <libopencm3/stm32/gpio.h>    // remove
 
 #include <lib2/usart.h>
 #include <lib2/util.h>      // systick_setup()
@@ -32,7 +33,6 @@
 #include <peripheral/vfd.h>
 
 
-#include <peripheral/hal.h>
 
 
 static const _mode_t mode_initial =  {
@@ -153,7 +153,7 @@ static app_t app = {
   .spi2 = SPI2,       // looks redundant. but correct abstraction
 
   // initialization
-  .led_status = PIN('A', 9 ),
+  // .led_status = PIN('A', 9 ),
 
   .cdone = false,
 
@@ -213,12 +213,12 @@ static int main_f429(void)
     peripheral/ports setup
   */
 
-  led_setup( app.led_status);
+  led_setup( 0 /*app.led_status */);
 
   // setup external state for critical error led blink in priority
   // because assert() cannot pass a context
 
-  assert_critical_error_led_setup( PINBANK( app.led_status), PINNO(app.led_status ));
+  assert_critical_error_led_setup( GPIOA, GPIO9 ); // PINBANK( app.led_status), PINNO(app.led_status ));
 
   // mcu clock
   systick_setup(12000); // 12MHz. default lsi.
