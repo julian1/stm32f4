@@ -59,10 +59,19 @@ void spi_port_creset_u202(uint32_t spi, unsigned val);
 
 /* thiis is an spi device.  not port abstraction
   probably a better place to put it.
+
+  rename dev_spi.
   -------
   associate spi, and a cs.
 
-  - we just need to abstract - over cs.  when we have several devices of the same type.
+
+
+  - mostly needed when need to abstract over the device / cs.  because there are several devices of the same type. - ice40, 4094 chaing, dac.
+      otherwise we could mostly get by - calling specific functions.  eg. spi_cs_u202();
+
+      but we cannot pass this to a low function read()/write() funcs that need to assert/deassert cs.
+      eg. standard writing of registers etc. for different ice40, dacs, 4094 systems.
+
     eg. ice40.
 
   1. array of funcs
