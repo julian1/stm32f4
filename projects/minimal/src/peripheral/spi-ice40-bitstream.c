@@ -208,6 +208,9 @@ int spi_ice40_bitstream_send( spi_t *spi ,  volatile uint32_t *system_millis)
   spi->cs(spi, 0);
 
 
+  // cs(spi, 0);
+
+
   /* send image.
     note the 4 byte start sequence of ff0000ff, before magic token 7eaa997e. seems ok
 

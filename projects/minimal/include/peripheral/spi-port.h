@@ -57,16 +57,16 @@ void spi_port_creset_u202(uint32_t spi, unsigned val);
 
 
 
-/* thiis is an spi device.  not port abstraction
-  probably a better place to put it.
+/* thiis is an spi device.  not a spi port abstraction
+  probably should name  dev_.  or spi_.
 
   rename dev_spi.
   -------
-  associate spi, and a cs.
+  we need to associate spi id, and cs.  and a spi parameter configure function.
 
 
-
-  - mostly needed when need to abstract over the device / cs.  because there are several devices of the same type. - ice40, 4094 chaing, dac.
+  - required to abstract over device - when have several devices of the same type. - ice40, 4094 chaing, dac.
+      to allow writing functions, that dont care which instance they are operating on.
       otherwise we could mostly get by - calling specific functions.  eg. spi_cs_u202();
 
       but we cannot pass this to a low function read()/write() funcs that need to assert/deassert cs.
@@ -86,6 +86,7 @@ typedef struct spi_t  spi_t ;
 
 struct spi_t
 {
+  // magic, type, size.
   uint32_t  spi;
 
   void (*config)(spi_t *);      // wont work if using a register muxing. although we can make it.
@@ -103,15 +104,26 @@ struct spi_t
   optional extra functions.  not common enough to carry around on spi_t structure.
   oe.  cdone.  perhaps rst.
   ---------
-  We can always just downcast the device.
+  Simplest - is probably just a (safe) downcast the interface of the device.
 */
 uint32_t ioctl_spi(spi_t *t, uint32_t request, uint32_t *val);
 
 
 static inline void rst( spi_t *s, uint8_t val)
 {
+  // convenience.
   s->rst( s, val);
 };
+
+static inline void cs( spi_t *s, uint8_t val)
+{
+  // convenience.
+  s->cs( s, val);
+};
+
+
+
+
 
 
 
