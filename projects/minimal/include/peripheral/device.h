@@ -2,9 +2,12 @@
 
 #pragma once
 
+/*
+  light abstraction -
+    over raw low level libopencm3 calls.
+    and for devices. so functions can work on abstractions instead of specfic instances. eg. if several fpgas, or 4094 chains. for leds, etc.
 
-
-
+*/
 
 /* EXTR. the way to do this - is to call config.
 
