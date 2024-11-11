@@ -59,22 +59,50 @@ void spi_port_creset_u202(uint32_t spi, unsigned val);
 
 /* thiis is an spi device.  not port abstraction
   probably a better place to put it.
+  -------
+  associate spi, and a cs.
+
+  - we just need to abstract - over cs.  when we have several devices of the same type.
+    eg. ice40.
+
+  1. array of funcs
+  2. safe downcasting. of opaque structures.  safely. for extended func.
+  3. using filre descriptor like switch statements
 */
 
+
+
+// dev_t or dev_spi_t.
 typedef struct spi_t  spi_t ;
 
 struct spi_t
 {
   uint32_t  spi;
 
-  void (*config_mcu)(spi_t *);      // wont work if using a register muxing. although we can make it.
+  void (*config)(spi_t *);      // wont work if using a register muxing. although we can make it.
   void (*cs)(spi_t *, uint8_t );
   void (*rst)(spi_t *, uint8_t );
-  // void (*oe)(spi_t *, uint8_t );
 
+  ///////////
   // ice40 peripheral specific. use ioctl?
   bool (*cdone)(spi_t * );
+  // void (*oe)(spi_t *, uint8_t );
 } ;
+
+
+/*
+  optional extra functions.  not common enough to carry around on spi_t structure.
+  oe.  cdone.  perhaps rst.
+  ---------
+  We can always just downcast the device.
+*/
+uint32_t ioctl_spi(spi_t *t, uint32_t request, uint32_t *val);
+
+
+static inline void rst( spi_t *s, uint8_t val)
+{
+  s->rst( s, val);
+};
 
 
 
