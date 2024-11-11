@@ -81,22 +81,19 @@ int spi_ice40_bitstream_send( spi_t *spi ,  volatile uint32_t *system_millis)
 
   // read magic and length.
   uint32_t magic  = 0 ;
-  uint32_t magic2  = 0 ;
-
-
-
+  // uint32_t magic2  = 0 ;
 
 
   fread(&magic, 1, 4, f);
-  fseek(f, 0, SEEK_CUR);
+  fseek(f, 0, SEEK_SET );    // seek start again.
 
 
-  fread(&magic2, 1, 4, f);
+  // fread(&magic2, 1, 4, f);
 
   // fread(&size, 1, 4, f);
 
   printf("magic %lx\n", magic );
-  printf("magic2 %lx\n", magic2 );
+  // printf("magic2 %lx\n", magic2 );
   // printf("size %lu\n", size );        // need to swap the byte order perhaps.
 
   /*
@@ -112,7 +109,8 @@ int spi_ice40_bitstream_send( spi_t *spi ,  volatile uint32_t *system_millis)
 
   */
 
-  if(magic != 0xfe00fe00) {
+  // if(magic != 0xfe00fe00) {
+  if(magic != 0xff0000ff ) {
     printf("bad magic!\n");
     fclose(f);
     return -1;
@@ -288,8 +286,8 @@ int spi_ice40_bitstream_send( spi_t *spi ,  volatile uint32_t *system_millis)
     // spi_port_cs2_enable( spi );
     // spi_port_cs1_enable( spi );
 
-    spi->cs(spi, 0);
-    spi->rst(spi, 0);
+//    spi->cs(spi, 0);
+ //   spi->rst(spi, 0);
 
     // fclose(f);
     return -1;

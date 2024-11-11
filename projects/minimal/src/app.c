@@ -247,7 +247,7 @@ static void app_update_soft_500ms(app_t *app)
     led_off( app->led_status);
 
 
-  if( /*false &&*/ !app->cdone && !spi_port_cdone_get() ) {
+  if( false && !app->cdone && !spi_port_cdone_get() ) {
 
     app_configure( app );
   }
@@ -740,6 +740,17 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
     spi_ice40_bitstream_send( app->spi_u202, & app->system_millis );
   }
+
+  else if(strcmp(cmd, "cs 1") == 0) {
+
+    app->spi_u202->cs(app->spi_u202, 1);
+  }
+  else if(strcmp(cmd, "cs 0") == 0) {
+
+    app->spi_u202->cs(app->spi_u202, 0);
+  }
+
+
 
   // don't we have some code - to handle sscan as binary/octal/hex ?
 

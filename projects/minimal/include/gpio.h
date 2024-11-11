@@ -20,7 +20,8 @@ static inline void gpio_write_val(uint32_t gpioport, uint16_t gpios, bool val)
 
   // BSRR == bit set/reset register.
 
-  GPIO_BSRR( gpioport) |= gpios  << (val ? 16: 0);
+  // GPIO_BSRR( gpioport) |= gpios  << (val ? 16: 0);
+  GPIO_BSRR( gpioport) |= gpios  << (val ? 0: 16);
 }
 
 
