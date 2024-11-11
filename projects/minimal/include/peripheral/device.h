@@ -3,28 +3,14 @@
 #pragma once
 
 /*
-  light abstraction -
-    over raw low level libopencm3 calls.
-    and for devices. so functions can work on abstractions instead of specfic instances. eg. if several fpgas, or 4094 chains. for leds, etc.
+  very light abstraction -
+    so functions can work on abstractions instead of specfic instances. eg. if several fpgas, or 4094 chains. for leds, etc.
+  ------------
 
-*/
-
-/* EXTR. the way to to do this - is to call config.
-
-    and just check and check a static boolean to see - if we have already initialized.
-    then we can flatten the structure.
-
-    and have spi,
-
-    No. because we will end up writing the xfer funcs multiple times.
-
-
-*/
-
-/*
-  Should be device specific.
-    eg. just add the functions we need
-    cs,rst,cdone.   all vary (use different pins) so make them all explitic.
+  only enough to work with different devices - not caring which instance.
+  not over libopencm3 calls.
+  -----
+  just an adapater.
 
 
 */
@@ -40,7 +26,10 @@ struct led_t
 };
 
 
+#if 0
 
+// problem with this abstraction - is that specific spi device, needs access to underlying spi device. eg. SPI1. etc.
+  to reconfigure phase/pol.
 
 typedef struct spi_port_t  spi_port_t ;
 
@@ -58,8 +47,13 @@ struct spi_port_t
 };
 
 
+#endif
+
 // different insta
 
+// double issue. is that the bitstream loading. maybe different port configuration from use.
+// so create two instances.
+// so the con
 
 
 // dev_t or dev_spi_ice40_t.
@@ -68,9 +62,14 @@ typedef struct spi_ice40_t  spi_ice40_t ;
 struct spi_ice40_t
 {
   // magic, type, size.
-  uint32_t  spi;
+  uint32_t  spi;      // dont hide. because we need to configure.
+                      // and there is no value - abstracting spi_xfer()  etc.
 
-  void (*config)(spi_ice40_t *);      // spi phase,edge.  needs access to underlying spi.
+  // void (*port_config)(spi_ice40_t *);      // issue is that port is shared.
+                                              // so needs to be a free-standing func. called once.
+
+  // void (*config)(spi_ice40_t *);      // spi phase,edge.  needs access to underlying spi.
+  // problem is that it is different for bitstream.
 
   // gpio pin assignment varies between instance. so need explitic functions
   void (*cs)(spi_ice40_t *, uint8_t );
