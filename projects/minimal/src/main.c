@@ -150,7 +150,6 @@ static app_t app = {
 
   .spi = SPI1 ,
   
-  .spi2 = SPI2,       // looks redundant. but correct abstraction
 
   // initialization
   .led_status = PIN('A', 9 ),
@@ -263,8 +262,7 @@ static int main_f429(void)
   spi2_port_setup();
 
 
-  spi_t spi_u202;
-  spi2_u202_init( &spi_u202 );
+  spi2_u202_init( &app.spi_u202);
 
 
 #if 0

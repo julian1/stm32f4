@@ -4,6 +4,7 @@
 #include <lib2/cbuffer.h>
 #include <lib2/cstring.h>
 
+#include <peripheral/spi-port.h>  // spi_u202
 
 /*
   there are two main cases to yield.
@@ -50,7 +51,12 @@ typedef struct _mode_t _mode_t;
 typedef struct data_t data_t;
 
 
+/*
+  TODO nov 2024.
 
+  rather than using pointers. should instantiate the memory properly here
+
+*/
 
 
 typedef struct app_t
@@ -89,8 +95,13 @@ typedef struct app_t
   uint32_t  spi;
   bool      cdone; // ice40 config done
 
-  uint32_t  spi2;
+  spi_t    spi_u202;   // this is a specific spi device. with cs, rst,cdoenbbbbbbbb
+                    // should be called spi_u202.
+                    // even if 
 
+
+  // why use pointers here?
+  // can we avoid
   const _mode_t *mode_initial;
 
   _mode_t *mode_current;

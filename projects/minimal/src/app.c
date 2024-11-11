@@ -151,11 +151,13 @@ void app_configure( app_t *app )
 
   printf("configure fpga bitstream\n");
 
-  spi_ice40_bitstream_send(app->spi, & app->system_millis );
+  // spi_ice40_bitstream_send(app->spi, & app->system_millis );
+  spi_ice40_bitstream_send( &app->spi_u202, & app->system_millis );
 
 
 
-  if( ! spi_port_cdone_get()) {
+  // if( ! spi_port_cdone_get()) {
+  if( ! app->spi_u202.cdone( &app->spi_u202)) {
 
     printf("fpga config failed\n");
 
@@ -734,7 +736,9 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   // change name fpga bitstrea load/test
   else if(strcmp(cmd, "bitstream test") == 0) {
 
-    spi_ice40_bitstream_send(app->spi, & app->system_millis );
+    // spi_ice40_bitstream_send(app->spi, & app->system_millis );
+
+    spi_ice40_bitstream_send( &app->spi_u202, & app->system_millis );
   }
 
   // don't we have some code - to handle sscan as binary/octal/hex ?

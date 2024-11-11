@@ -61,8 +61,21 @@ void spi_port_creset_u202(uint32_t spi, unsigned val);
   using functions - can make static and just bind the cs,rest,done opaquely.
 
   spi->cs(spi, 1 );     // de-assert
-
   EXTR.  don't have to worry about trying to use pin encoding.
+  ------------------------------
+*/
+
+
+/*
+  - abstraction for spi device. over the top of spi.
+  - eg. can have multiple devices sitting on the same spi line.
+  ---
+  - it is nice - because can bind the cs without exposing port,pin,
+  - and bind the mcu configuration. in same place.
+  - cdone can be ignored.
+  -----
+  - stuff like cdone,oe,rst - could be done out-of-band .   eg. like linux fctl 
+
 */
 
 typedef struct spi_t  spi_t ;
@@ -71,9 +84,12 @@ struct spi_t
 {
   uint32_t  spi;
 
-  // this is ice40 peripheral specific
+  void (*config_mcu)(spi_t *);      // wont work if using a register muxing. although we can make it.
   void (*cs)(spi_t *, uint8_t );
   void (*rst)(spi_t *, uint8_t );
+  // void (*oe)(spi_t *, uint8_t );
+
+  // ice40 peripheral specific
   bool (*cdone)(spi_t * );
 } ;
 
