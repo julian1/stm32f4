@@ -74,7 +74,7 @@ void spi_port_creset_u202(uint32_t spi, unsigned val);
   - and bind the mcu configuration. in same place.
   - cdone can be ignored.
   -----
-  - stuff like cdone,oe,rst - could be done out-of-band .   eg. like linux fctl 
+  - stuff like cdone,oe,rst - could all be done out-of-band .   eg. like linux ioctl()
 
 */
 
@@ -89,7 +89,7 @@ struct spi_t
   void (*rst)(spi_t *, uint8_t );
   // void (*oe)(spi_t *, uint8_t );
 
-  // ice40 peripheral specific
+  // ice40 peripheral specific. use ioctl?
   bool (*cdone)(spi_t * );
 } ;
 
