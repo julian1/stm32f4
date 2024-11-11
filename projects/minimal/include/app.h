@@ -4,6 +4,8 @@
 #include <lib2/cbuffer.h>
 #include <lib2/cstring.h>
 
+#include <peripheral/device.h>
+
 
 /*
   there are two main cases to yield.
@@ -71,7 +73,7 @@ typedef struct app_t
   // no. it's ok. led follows the led_state, more than one thing follows.
   bool led_state ;     // for mcu. maybe change name to distinguish
 
-  // port/no
+  // port/pinno
   uint16_t led_status;
 
   uint32_t soft_500ms;
@@ -98,7 +100,7 @@ typedef struct app_t
   uint32_t  spi;
   bool      cdone; // ice40 config done
 
-  spi_t    *spi_u202;   // this is a specific spi device. with cs, rst,cdoenbbbbbbbb
+  spi_ice40_t    *spi_u202;   // this is a specific spi device. with cs, rst,cdoenbbbbbbbb
                     // should be called spi_u202.
                     // even if
 

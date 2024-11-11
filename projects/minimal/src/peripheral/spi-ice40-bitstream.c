@@ -71,7 +71,7 @@ static void spi_ice40_bitstream_setup(uint32_t spi)
 
 
 // int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
-int spi_ice40_bitstream_send( spi_t *spi ,  volatile uint32_t *system_millis)
+int spi_ice40_bitstream_send( spi_ice40_t *spi ,  volatile uint32_t *system_millis)
 {
   printf("spi_ice40_bitstream_send\n");
 
@@ -209,6 +209,7 @@ int spi_ice40_bitstream_send( spi_t *spi ,  volatile uint32_t *system_millis)
 
 
   // cs(spi, 0);
+  // or dev_spi_cs
 
 
   /* send image.

@@ -39,7 +39,7 @@
 
 
 // has to return a pointer, not take a pointer.
-void spi2_u202_init( spi_t *);
+void spi2_u202_init( spi_ice40_t *);
 
 
 

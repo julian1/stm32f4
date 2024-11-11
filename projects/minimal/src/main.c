@@ -139,7 +139,7 @@ static _mode_t mode_current = { 0 } ;
 
 
 
-static spi_t   spi_u202 ;   // 
+static spi_ice40_t   spi_u202 ;   // 
 
 
 
@@ -159,9 +159,14 @@ static app_t app = {
   .spi = SPI1 ,
   
 
+  //////////////
+  // device.
+  // the led ought to be a structure with a function.
+
   // initialization
   .led_status = PIN('A', 9 ),
 
+  // device
   . spi_u202 = &spi_u202,
 
   .cdone = false,
@@ -269,7 +274,7 @@ static int main_f429(void)
 
 
 
-  spi2_port_setup();
+  spi2_port_setup();  
 
   // init needs to return the state. 
   spi2_u202_init( app.spi_u202);

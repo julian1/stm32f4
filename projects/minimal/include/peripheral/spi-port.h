@@ -77,53 +77,47 @@ void spi_port_creset_u202(uint32_t spi, unsigned val);
   1. array of funcs
   2. safe downcasting. of opaque structures.  safely. for extended func.
   3. using filre descriptor like switch statements
+  ----
+
+
+
+  zephir. SPI peripherals. [that hang off the contrller node].
+    An index representing the peripheral’s chip select line number. (If there is no chip select line, 0 is used.)
+
+  while we can just flatten the structure.
+
+
 */
 
 
+/*
+  interface/ abstraction.
+
+*/
+
+#if 0
+// have an abstraction for spi controller
+// eg. port.
+// and read/write.
 
 // dev_t or dev_spi_t.
-typedef struct spi_t  spi_t ;
+typedef struct spi_c_t  spi_c_t ;
 
-struct spi_t
+struct spi_c_t
 {
   // magic, type, size.
   uint32_t  spi;
 
-  void (*config)(spi_t *);      // wont work if using a register muxing. although we can make it.
-  void (*cs)(spi_t *, uint8_t );
-  void (*rst)(spi_t *, uint8_t );
-
-  ///////////
-  // ice40 peripheral specific. use ioctl?
-  bool (*cdone)(spi_t * );
-  // void (*oe)(spi_t *, uint8_t );
-} ;
-
-
-/*
-  optional extra functions.  not common enough to carry around on spi_t structure.
-  oe.  cdone.  perhaps rst.
-  ---------
-  Simplest - is probably just a (safe) downcast the interface of the device.
-*/
-uint32_t ioctl_spi(spi_t *t, uint32_t request, uint32_t *val);
-
-
-static inline void rst( spi_t *s, uint8_t val)
-{
-  // convenience.
-  s->rst( s, val);
-};
-
-static inline void cs( spi_t *s, uint8_t val)
-{
-  // convenience.
-  s->cs( s, val);
 };
 
 
+// remember we jave the wait/busy signals that we need
+
+#endif
 
 
+
+#include <peripheral/device.h>
 
 
 
