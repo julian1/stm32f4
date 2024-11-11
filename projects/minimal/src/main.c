@@ -213,7 +213,7 @@ static int main_f429(void)
     peripheral/ports setup
   */
 
-  led_setup( 0 /*app.led_status */);
+  led_setup( app.led_status);
 
   // setup external state for critical error led blink in priority
   // because assert() cannot pass a context

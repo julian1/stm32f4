@@ -397,11 +397,14 @@ void spi2_port_setup(void)
 
 
 
+
 void spi_port_cs_u202(uint32_t spi, unsigned val)
 {
   assert(spi == SPI2);
 
   spi_wait_ready( spi);
+
+
 
   if(val)
     gpio_set(GPIOC, GPIO0);
