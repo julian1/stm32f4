@@ -9,14 +9,15 @@
 
 */
 
-/* EXTR. the way to do this - is to call config.
+/* EXTR. the way to to do this - is to call config.
 
     and just check and check a static boolean to see - if we have already initialized.
     then we can flatten the structure.
 
     and have spi,
 
-    No. because we end up writing the xfer funcs multiple times.
+    No. because we will end up writing the xfer funcs multiple times.
+
 
 */
 
@@ -46,11 +47,14 @@ typedef struct spi_port_t  spi_port_t ;
 struct spi_port_t
 {
   // magic, type, size.
-  // uint32_t  spi;     // should not be exposed. be hidden
+  uint32_t  spi;                      // should not be exposed. be hidden
+                                      // config() of devices - needs the actual spi number.
 
   void (*config)(spi_port_t *);      // differs per port.eg. different gpio pins.
-  void (*spi_wait_ready) ( spi_port_t *);
-  uint8_t (*xfer)( spi_port_t *, uint8_t );
+
+  // these can actually be
+  ///void (*spi_wait_ready) ( spi_port_t *);
+  // uint8_t (*xfer)( spi_port_t *, uint8_t );
 };
 
 
@@ -66,9 +70,9 @@ struct spi_ice40_t
   // magic, type, size.
   uint32_t  spi;
 
-  void (*config)(spi_ice40_t *);      // call before use.
+  void (*config)(spi_ice40_t *);      // spi phase,edge.  needs access to underlying spi.
 
-  //  pin assignment varies between instance. so give explitic functions
+  // gpio pin assignment varies between instance. so need explitic functions
   void (*cs)(spi_ice40_t *, uint8_t );
   void (*rst)(spi_ice40_t *, uint8_t );
   bool (*cdone)(spi_ice40_t * );
