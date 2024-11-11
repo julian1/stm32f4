@@ -19,6 +19,9 @@
 #include <peripheral/spi-port.h>
 
 
+#include <peripheral/u202.h>
+
+
 #include <mode.h>
 #include <app.h>
 #include <util.h>   // CLK_FREQ
@@ -135,6 +138,11 @@ static _mode_t mode_current = { 0 } ;
 
 
 
+
+static spi_t   spi_u202 ;   // 
+
+
+
 static data_t data = {
 
   . magic = DATA_MAGIC,
@@ -153,6 +161,8 @@ static app_t app = {
 
   // initialization
   .led_status = PIN('A', 9 ),
+
+  . spi_u202 = &spi_u202,
 
   .cdone = false,
 
@@ -261,8 +271,8 @@ static int main_f429(void)
 
   spi2_port_setup();
 
-
-  spi2_u202_init( &app.spi_u202);
+  // init needs to return the state. 
+  spi2_u202_init( app.spi_u202);
 
 
 #if 0

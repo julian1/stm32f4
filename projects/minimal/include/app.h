@@ -4,7 +4,6 @@
 #include <lib2/cbuffer.h>
 #include <lib2/cstring.h>
 
-#include <peripheral/spi-port.h>  // spi_u202
 
 /*
   there are two main cases to yield.
@@ -50,11 +49,15 @@ typedef struct _mode_t _mode_t;
 
 typedef struct data_t data_t;
 
+typedef struct spi_t spi_t;   // spi device. not port.
+
 
 /*
   TODO nov 2024.
 
   rather than using pointers. should instantiate the memory properly here
+  No. hide state here.
+  But instantiate all state in main.c or appc
 
 */
 
@@ -68,7 +71,7 @@ typedef struct app_t
   // no. it's ok. led follows the led_state, more than one thing follows.
   bool led_state ;     // for mcu. maybe change name to distinguish
 
-  // port/no 
+  // port/no
   uint16_t led_status;
 
   uint32_t soft_500ms;
@@ -95,9 +98,9 @@ typedef struct app_t
   uint32_t  spi;
   bool      cdone; // ice40 config done
 
-  spi_t    spi_u202;   // this is a specific spi device. with cs, rst,cdoenbbbbbbbb
+  spi_t    *spi_u202;   // this is a specific spi device. with cs, rst,cdoenbbbbbbbb
                     // should be called spi_u202.
-                    // even if 
+                    // even if
 
 
   // why use pointers here?
