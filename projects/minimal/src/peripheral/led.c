@@ -1,5 +1,15 @@
 /*
-  not sure how useful this is, perhaps could just add to main.c
+  not clear useful this abstraction is, although demonstates peripheral .
+    perhaps just move to app.c
+
+    eg.
+
+
+    hal_gpio_write( app->led_status, state);
+      or
+
+    gpio_write_val( app->led_gpio, app->led_pin, state );
+
 
   same initerface as spi_enable()/spi_disable(). etc
   and ice40_creset_enable()/disable()
@@ -19,6 +29,7 @@
 
 #include <hal/hal.h>
 
+#include <gpio.h>
 
 #define UNUSED(a)   ((void)(a))
 
@@ -26,28 +37,6 @@
 #define LED_PORT  GPIOA
 #define LED_OUT   GPIO9
 */
-
-
-
-
-static void gpio_write_val(uint32_t gpioport, uint16_t gpios, bool val)
-{
-  /*
-  // set/clear gpios bits, according to bool val
-  // call with CM3 arguments
-  // eg. gpio_write_val( GPIOA, GPIO9, 1);
-  // eg.
-
-  assert( GPIO9 == 1<< 9 );
-  assert( GPIOA ==  (PERIPH_BASE_AHB1 + 0x0000) );
-
-  */
-
-  // where should this go?
-
-
-  GPIO_BSRR( gpioport) |= gpios  << (val ? 16: 0);
-}
 
 
 
