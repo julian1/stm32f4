@@ -4,7 +4,7 @@
 #include <lib2/cbuffer.h>
 #include <lib2/cstring.h>
 
-#include <peripheral/device.h>
+#include <peripheral/spi-port.h> // spi_t
 #include <peripheral/led.h>
 
 

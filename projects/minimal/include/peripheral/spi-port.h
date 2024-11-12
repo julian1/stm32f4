@@ -50,74 +50,75 @@ void spi_wait_ready(uint32_t spi );
 
 void spi2_port_setup(void);
 
-/*
-void spi_port_cs_u202(uint32_t spi, unsigned val);
-void spi_port_creset_u202(uint32_t spi, unsigned val);
-*/
 
 
 
-/* thiis is an spi device.  not a spi port abstraction
-  probably should name  dev_.  or spi_.
-
-  rename dev_spi.
-  -------
-  we need to associate spi id, and cs.  and a spi parameter configure function.
-
-
-  - required to abstract over device - when have several devices of the same type. - ice40, 4094 chaing, dac.
-      to allow writing functions, that dont care which instance they are operating on.
-      otherwise we could mostly get by - calling specific functions.  eg. spi_cs_u202();
-
-      but we cannot pass this to a low function read()/write() funcs that need to assert/deassert cs.
-      eg. standard writing of registers etc. for different ice40, dacs, 4094 systems.
-
-    eg. ice40.
-
-  1. array of funcs
-  2. safe downcasting. of opaque structures.  safely. for extended func.
-  3. using filre descriptor like switch statements
-  ----
 
 
 
-  zephir. SPI peripherals. [that hang off the contrller node].
-    An index representing the peripheral’s chip select line number. (If there is no chip select line, 0 is used.)
 
-  while we can just flatten the structure.
+//////////////////////////////////////////////////////////////
 
-
-*/
+// these are not specific devices.  they are device abstractions.
+// should be in a different file.
 
 
-/*
-  interface/ abstraction.
+typedef struct spi_ice40_t  spi_ice40_t ;
 
-*/
-
-#if 0
-// have an abstraction for spi controller
-// eg. port.
-// and read/write.
-
-// dev_t or dev_spi_t.
-typedef struct spi_c_t  spi_c_t ;
-
-struct spi_c_t
+struct spi_ice40_t
 {
+  /*
+    - access to spi is required.  for the busy_wait() fucntion needed for any cs().
+        and we need to call reset() and config() on spi device.
+    - we dont need a port_config()  actually config for port can be done once.
+  */
+
   // magic, type, size.
   uint32_t  spi;
 
-};
+  /*
+  // problem is that the configure() is different for bitstream loading, versus use.
+    doesn't matter. just handle it as is .   eg. out-of-band.they are like two different devices.
+    */
+
+  // all of this is device specific. so belongs here.
+  void (*setup)(spi_ice40_t *);
+  void (*config)(spi_ice40_t *);
+  void (*cs)(spi_ice40_t *, uint8_t );
+
+  // specific to ice40.  perhaps have a different structure
+  void (*rst)(spi_ice40_t *, uint8_t );
+  bool (*cdone)(spi_ice40_t * );
+
+  // we also have the interupt.
+} ;
 
 
-// remember we jave the wait/busy signals that we need
+/*
+  - so we will have two create for the u202. and spi1 ice40.
+  fundamental problem is the size of the structure.
+  - we would like the size to be opaque.
+  - but that will require a malloc().
+  - Ok
 
-#endif
+*/
 
 
 
-#include <peripheral/device.h>
+typedef struct spi_4094_t  spi_4094_t ;
+struct spi_4094_t
+{
+  // magic, type, size.
+
+  void (*config)(spi_4094_t *);      // call before use.
+
+  //  pin assignment varies between instance. so give explitic functions
+  void (*strobe)(spi_4094_t *, uint8_t );
+  void (*oe)(spi_4094_t *, uint8_t );
+} ;
+
+
+
 
 
 

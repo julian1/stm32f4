@@ -128,7 +128,14 @@ static void config(spi_ice40_t *spi_)
 }
 
 
+/*
+  
+  now we need spi functions. to read/write registers.
+  these are not u202. specific.
 
+  they are generic.
+
+*/
 
 
 static void init( spi_ice40_t *spi)
@@ -143,11 +150,6 @@ static void init( spi_ice40_t *spi)
   spi->setup   =  setup;
   spi->config =  config;
 }
-
-
-
-// add the spi config().  also.  because it is specific to u202.
-// the fact that ice40 might be configured with different params. is not relevant.. 
 
 
 
