@@ -369,7 +369,8 @@ void spi2_port_setup(void)
   gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO10 | GPIO15);   // clk, mosi   PB10,PB15
 
 
-  gpio_mode_setup(GPIOB, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO14)     ;   // miso PB14.   default
+// for some reason this fucks up ability to read spi...
+//  gpio_mode_setup(GPIOB, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO14)     ;   // miso PB14.   default
 
 
   printf("spi2 port setup done\n");

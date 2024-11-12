@@ -497,7 +497,7 @@ static void spi_print_register( spi_ice40_t *spi, uint32_t reg )
   // basic generic print
   // query any register
 
-  assert(0);
+  //assert(0);
   // spi_mux_ice40( spi);
   uint32_t ret = spi_ice40_reg_read32( spi, reg );
   char buf[ 100];
@@ -747,22 +747,69 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   // change name fpga bitstrea load/test
   else if(strcmp(cmd, "bitstream test") == 0) {
 
+    spi_ice40_t *spi = app->spi_u202;
 
-    spi_ice40_bitstream_send( app->spi_u202, & app->system_millis );
+    spi_ice40_bitstream_send( spi, & app->system_millis );
 
+
+    spi->config( spi );
+    printf("here1\n");
+    spi_ice40_reg_write32( spi, REG_DIRECT, 0b1111 );
+    // spi_ice40_reg_write32( spi, REG_DIRECT, 0b0000 );
+
+    printf("here2\n");
 
     // need to have dummy config. and try writing/reading a register.
+    uint32_t ret = spi_ice40_reg_read32( spi, REG_DIRECT);
+
+    printf("result of read %lb  %lu\n", ret, ret );
 
   }
 
-  else if(strcmp(cmd, "cs 1") == 0) {
+  /*
+    OK. try to read a register with fixed value
+    ------
+    try removing the 125.  and using a resistor.  since there is nothing else on the line.
 
-    app->spi_u202->cs(app->spi_u202, 1);
-  }
-  else if(strcmp(cmd, "cs 0") == 0) {
+    bit strange there are values.
 
-    app->spi_u202->cs(app->spi_u202, 0);
+    ALSO just try setting SO.  to hi.  
+
+    Try.  without setting mcu pin to input type. just with default mcu
+    -------
+
+    OK. can hold miso high. from fpga side. and it's correctly high.
+    So the  muxer isn't working.  or spi port isn't working.
+
+    c255.
+    
+
+
+  */
+
+  else if( sscanf(cmd, "whoot %lu", &u0 ) == 1) {
+
+    // write works
+
+    char buf[100];
+    printf("writing v %lu  %s\n",  u0,  str_format_bits(buf, 4, u0));
+
+
+    spi_ice40_t *spi = app->spi_u202;
+
+    spi->config( spi );
+    spi_ice40_reg_write32( spi, REG_DIRECT, u0 );
+
+    // uint32_t ret = spi_ice40_reg_read32( spi, REG_DIRECT);
+
+
+    // printf("read v %lu  %s\n",  ret ,  str_format_bits(buf, 4, ret));
+
+
+    spi_print_register( spi, REG_DIRECT );
+
   }
+
 
 
 

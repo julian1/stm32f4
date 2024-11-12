@@ -108,8 +108,8 @@ static void config(spi_ice40_t *spi_)
 
   spi_reset( spi );
 
-  spi_port_cs1_disable(spi);  // active lo == hi.
-  spi_port_cs2_disable(spi);  //
+  // spi_port_cs1_disable(spi);  // active lo == hi.
+  // spi_port_cs2_disable(spi);  //
 
 
   spi_init_master(

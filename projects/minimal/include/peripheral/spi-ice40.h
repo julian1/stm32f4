@@ -57,8 +57,8 @@ struct spi_ice40_t
     */
 
   // all of this is device specific. so belongs here.
-  void (*setup)(spi_ice40_t *);
-  void (*config)(spi_ice40_t *);
+  void (*setup)(spi_ice40_t *);   // gpio
+  void (*config)(spi_ice40_t *);  // clk,pol,phase
   void (*cs)(spi_ice40_t *, uint8_t );
 
   // EXTR. we don't pass/set  cs2. at all. instead the 4094/dac devices own this pin.
