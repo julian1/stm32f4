@@ -71,7 +71,8 @@ static void spi_ice40_bitstream_setup(uint32_t spi)
 /*
   need to pass address and size.
 
-  Do it after. demonstrate that everything is working.
+  change this - instead of passing the address, instead pass in the FILE *f descriptor.
+  also fclose() outside this function.
 */
 
 // int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
