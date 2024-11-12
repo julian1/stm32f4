@@ -57,7 +57,7 @@ struct spi_ice40_t
 {
   /*
     - access to spi is required.  for the busy_wait() fucntion needed for any cs().
-        and we will call reset() and configure() on spi device.
+        and we need to call reset() and config() on spi device.
     - we dont need a port_config()  actually config for port can be done once.
   */
 
@@ -65,12 +65,13 @@ struct spi_ice40_t
   uint32_t  spi;
 
   /*
-  // void (*config)(spi_ice40_t *);      // spi phase,edge.  needs access to underlying spi.
-  // problem is that the configure() is different for bitstream loading, versus use. they are like two different devices.
+  // problem is that the configure() is different for bitstream loading, versus use.
+    doesn't matter. just handle it as is .   eg. out-of-band.they are like two different devices.
     */
 
-
+  // all of this is device specific. so belongs here.
   void (*setup)(spi_ice40_t *);
+  void (*config)(spi_ice40_t *);
 
   // gpio pin assignment varies between instance. so need explitic functions
   void (*cs)(spi_ice40_t *, uint8_t );
