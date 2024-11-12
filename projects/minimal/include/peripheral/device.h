@@ -74,6 +74,8 @@ struct spi_ice40_t
   void (*cs)(spi_ice40_t *, uint8_t );
   void (*rst)(spi_ice40_t *, uint8_t );
   bool (*cdone)(spi_ice40_t * );
+
+  // we also have the interupt.
 } ;
 
 
