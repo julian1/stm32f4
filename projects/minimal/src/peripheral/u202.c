@@ -1,4 +1,5 @@
 
+// should move to /device - because instance/implementation?
 
 
 #include <libopencm3/stm32/gpio.h>
@@ -18,12 +19,12 @@
 #include <peripheral/u202.h>        // implementation/device
 
 
-/* 
+/*
   - actual instantiation of data structure (eg. actual memory requirement) should be done here.
-    or else in main/app. 
+    or else in main/app.
   and should not exposed anywhere else.
 
-  - this means returning a pointer. but we really dont want to use malloc.
+  - this means returning a pointer. althouth we prefer to not use malloc.
 
   - NO. instantiate  in main.c.    and reference pointer
   or including this filei.   in the app.c
@@ -32,7 +33,7 @@
   Do if we did distinguish between spi controller, and spi peripheral.
   Then could organize the port_config()  more effectively.
 
-  - 
+  -
 
 
 */
@@ -42,7 +43,7 @@
 
 
 /*
-  - advantage of using functions. is don't have to expose  gpio. port and pin detail. 
+  - advantage of using functions. is don't have to expose  gpio. port and pin detail.
   - enough function to program fpga.
   ----------
 
@@ -91,7 +92,7 @@ static void setup(spi_ice40_t *spi )    // rename port() ?.
   // input
   // cdone u202ca pc3.
   gpio_mode_setup(GPIOC, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO3);
-} 
+}
 
 
 
@@ -99,7 +100,7 @@ static void setup(spi_ice40_t *spi )    // rename port() ?.
 static void config(spi_ice40_t *spi_)
 {
   //  this is device specific. so belongs on the device structure
-  // taken from,  void spi_mux_ice40(uint32_t spi) in spi-ice40.c 
+  // taken from,  void spi_mux_ice40(uint32_t spi) in spi-ice40.c
 
   assert(spi_);
   assert(spi_->spi == SPI2);
@@ -130,7 +131,7 @@ static void config(spi_ice40_t *spi_)
 
 
 /*
-  
+
   now we need spi functions. to read/write registers.
   these are not u202. specific.
 
@@ -166,7 +167,7 @@ spi_ice40_t * spi2_u202_create()
   spi_ice40_t *p = malloc(sizeof(  spi_ice40_t));
   assert(p);
   init(p);
-  return p;  
+  return p;
 }
 
 
@@ -175,7 +176,7 @@ spi_ice40_t * spi2_u202_create()
 /*
 
   Hang on.  the u202. can setup the cs,rst,cdone lines.
-  
+
 
 */
 
