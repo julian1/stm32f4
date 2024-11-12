@@ -496,7 +496,9 @@ static void spi_print_register( uint32_t spi, uint32_t reg )
 {
   // basic generic print
   // query any register
-  spi_mux_ice40( spi);
+
+  assert(0); 
+  // spi_mux_ice40( spi);
   uint32_t ret = spi_ice40_reg_read32( spi, reg );
   char buf[ 100];
   printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
@@ -508,7 +510,9 @@ static void spi_print_seq_register( uint32_t spi, uint32_t reg )
 {
   // basic generic print
   // query any register
-  spi_mux_ice40( spi);
+
+  assert(0); 
+  // spi_mux_ice40( spi);
   uint32_t ret = spi_ice40_reg_read32( spi, reg );
   char buf[ 100];
   char buf2[ 100];
@@ -660,12 +664,15 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     && str_decode_uint( s0, &u0)
   ) {
       // working july
-      spi_mux_ice40( app->spi);
+      assert(0);
+      // spi_mux_ice40( app->spi);
       spi_ice40_reg_write32(app->spi, REG_SPI_MUX,  SPI_MUX_ISO_DAC );
       spi_port_configure_ad5446( app->spi);
 
       spi_ad5446_write16(app->spi, u0 );
-      spi_mux_ice40(app->spi);
+
+      assert(0);
+      // spi_mux_ice40(app->spi);
     }
 
 
@@ -883,7 +890,9 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   else if( strcmp(cmd, "nplc?") == 0
     || strcmp(cmd, "aper?") == 0) {
     // query fpga directly. not mode
-    spi_mux_ice40(app->spi);
+
+    assert(0);
+    // spi_mux_ice40(app->spi);
     uint32_t aperture = spi_ice40_reg_read32(app->spi, REG_ADC_P_CLK_COUNT_APERTURE );
 
     assert( app->data);

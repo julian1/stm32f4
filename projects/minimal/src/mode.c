@@ -77,7 +77,8 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
 #if 1
 
   // now write dac state
-  spi_mux_ice40( spi);
+  assert(0);
+  // spi_mux_ice40( spi);
   spi_ice40_reg_write32( spi, REG_SPI_MUX,  SPI_MUX_DAC );
 
   spi_port_configure_ad5446( spi);
@@ -90,7 +91,8 @@ void spi_mode_transition_state( uint32_t spi, const _mode_t *mode, volatile uint
   /////////////////////////////
 
   // now write fpga register state
-  spi_mux_ice40(spi);
+  assert(0);
+  // spi_mux_ice40(spi);
 
 
   spi_ice40_reg_write32(spi, REG_MODE, mode->reg_mode );

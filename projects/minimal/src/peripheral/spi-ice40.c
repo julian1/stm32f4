@@ -43,7 +43,7 @@
 
 
 
-
+#if 0
 
 void spi_mux_ice40(uint32_t spi)
 {
@@ -89,6 +89,7 @@ void spi_mux_ice40(uint32_t spi)
 
 }
 
+#endif
 
 
 
@@ -113,6 +114,10 @@ static uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
 }
 */
 
+
+
+////////////////////
+// ok. these functions have the enable
 
 
 

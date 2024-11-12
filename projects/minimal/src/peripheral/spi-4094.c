@@ -71,8 +71,8 @@ void spi_mux_4094(uint32_t spi )
 
   assert( SPI_MUX_4094 == 1); // june 2023. for dmm03.
 
-
-  spi_mux_ice40( spi);
+  assert(0); 
+  // spi_mux_ice40( spi);
 
   // default state - should always be to *not* to propagate spi on 4094 lines.  to avoid emi
   assert( spi_ice40_reg_read32(spi, REG_SPI_MUX ) == SPI_MUX_NONE);
