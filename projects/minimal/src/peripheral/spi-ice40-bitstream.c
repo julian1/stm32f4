@@ -68,8 +68,11 @@ static void spi_ice40_bitstream_setup(uint32_t spi)
 
 
 
+/*
+  need to pass address and size.
 
-
+  Do it after. demonstrate that everything is working.
+*/
 
 // int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
 int spi_ice40_bitstream_send( spi_ice40_t *spi ,  volatile uint32_t *system_millis)
@@ -80,6 +83,11 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi ,  volatile uint32_t *system_mill
   assert(f);
 
 
+
+  uint32_t size = 104090 ;      // UP5K
+
+  assert(size == 104090 || size == 0  );
+
   // read magic and length.
   uint32_t magic  = 0 ;
   // uint32_t magic2  = 0 ;
@@ -89,13 +97,8 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi ,  volatile uint32_t *system_mill
   fseek(f, 0, SEEK_SET );    // seek start again.
 
 
-  // fread(&magic2, 1, 4, f);
-
-  // fread(&size, 1, 4, f);
 
   printf("magic %lx\n", magic );
-  // printf("magic2 %lx\n", magic2 );
-  // printf("size %lu\n", size );        // need to swap the byte order perhaps.
 
   /*
   Once the AP sends the 0x7EAA997E synchronization pattern, the generated SPI_SCK clock frequency must
@@ -122,7 +125,6 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi ,  volatile uint32_t *system_mill
 
 
 
-  uint32_t size = 104090 ;      // UP5K
 
 
 

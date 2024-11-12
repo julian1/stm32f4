@@ -497,7 +497,7 @@ static void spi_print_register( spi_ice40_t *spi, uint32_t reg )
   // basic generic print
   // query any register
 
-  assert(0); 
+  assert(0);
   // spi_mux_ice40( spi);
   uint32_t ret = spi_ice40_reg_read32( spi, reg );
   char buf[ 100];
@@ -511,7 +511,7 @@ static void spi_print_seq_register( spi_ice40_t *spi, uint32_t reg )
   // basic generic print
   // query any register
 
-  assert(0); 
+  assert(0);
   // spi_mux_ice40( spi);
   uint32_t ret = spi_ice40_reg_read32( spi, reg );
   char buf[ 100];
@@ -747,9 +747,12 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   // change name fpga bitstrea load/test
   else if(strcmp(cmd, "bitstream test") == 0) {
 
-    // spi_ice40_bitstream_send(app->spi, & app->system_millis );
 
     spi_ice40_bitstream_send( app->spi_u202, & app->system_millis );
+
+
+    // need to have dummy config. and try writing/reading a register.
+
   }
 
   else if(strcmp(cmd, "cs 1") == 0) {
