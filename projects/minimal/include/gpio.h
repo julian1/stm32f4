@@ -4,6 +4,9 @@
 
 static inline void gpio_write_val(uint32_t gpioport, uint16_t gpios, bool val)
 {
+  // better place for this?
+  // inline in include/gpio perhaps.
+
   /*
   // set/clear gpios bits, according to bool val
   // use CM3 style args
@@ -15,12 +18,9 @@ static inline void gpio_write_val(uint32_t gpioport, uint16_t gpios, bool val)
 
   */
 
-  // where should this go?
-  // just inline in include/gpio perhaps.
 
   // BSRR == bit set/reset register.
 
-  // GPIO_BSRR( gpioport) |= gpios  << (val ? 16: 0);
   GPIO_BSRR( gpioport) |= gpios  << (val ? 0: 16);
 }
 
