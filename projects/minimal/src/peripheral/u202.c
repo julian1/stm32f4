@@ -6,6 +6,7 @@
 
 #include <string.h>   // memset
 #include <assert.h>
+#include <stdlib.h>
 
 
 
@@ -75,7 +76,7 @@ static bool spi2_u202_cdone(spi_ice40_t *spi )
 
 
 
-void spi2_u202_init( spi_ice40_t *spi)
+static void spi2_u202_init( spi_ice40_t *spi)
 {
   assert(spi);
   memset(spi, 0, sizeof(spi_ice40_t));
@@ -85,5 +86,23 @@ void spi2_u202_init( spi_ice40_t *spi)
   spi->rst    = spi2_u202_rst;
   spi->cdone  = spi2_u202_cdone;
 }
+
+
+spi_ice40_t * spi2_u202_create()
+{
+  /* done once at startup.
+    it is really the malloc that buys us structure opaqueness.
+    - only other way is to pull the structure in as a header.
+    --------
+  */
+  spi_ice40_t *p = malloc(sizeof(  spi_ice40_t));
+  assert(p);
+  spi2_u202_init(p);
+  return p;  
+}
+
+
+
+
 
 

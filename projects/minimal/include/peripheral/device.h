@@ -51,25 +51,32 @@ struct spi_port_t
 
 // different insta
 
-// double issue. is that the bitstream loading. maybe different port configuration from use.
-// so create two instances.
-// so the con
+/*
+  // double issue. is that the bitstream loading. maybe different port configuration from use.
+  // or just
 
 
-// dev_t or dev_spi_ice40_t.
+
+*/
+
 typedef struct spi_ice40_t  spi_ice40_t ;
 
 struct spi_ice40_t
 {
+  /*
+    - access to spi is required.  for the busy_wait() fucntion needed for any cs().
+        and we will call reset() and configure() on spi device.
+    - we dont need a port_config()  actually config for port can be done once.
+  */
+
   // magic, type, size.
-  uint32_t  spi;      // dont hide. because we need to configure.
-                      // and there is no value - abstracting spi_xfer()  etc.
+  uint32_t  spi;
 
+  /*
   // void (*port_config)(spi_ice40_t *);      // issue is that port is shared.
-                                              // so needs to be a free-standing func. called once.
-
   // void (*config)(spi_ice40_t *);      // spi phase,edge.  needs access to underlying spi.
-  // problem is that it is different for bitstream.
+  // problem is that the configure() is different for bitstream loading, versus use. they are like two different devices.
+    */
 
   // gpio pin assignment varies between instance. so need explitic functions
   void (*cs)(spi_ice40_t *, uint8_t );
@@ -77,6 +84,14 @@ struct spi_ice40_t
   bool (*cdone)(spi_ice40_t * );
 } ;
 
+
+/*
+  - so we will have two create for the u202. and spi1 ice40.
+  fundamental problem is the size of the structure.
+  - we would like the size to be opaque.
+  - but that will require a malloc().
+
+*/
 
 
 

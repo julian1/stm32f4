@@ -2,6 +2,32 @@
 
 #include <peripheral/spi-port.h>
 
+
+
+/* has to return a pointer, not take a pointer. to be opaque.  which means calling malloc() . 
+    but only needs to be done once at startup.
+
+*/
+
+
+spi_ice40_t * spi2_u202_create( void);
+
+
+
+/*
+// or even just the following.
+
+struct spi2_t
+{
+  uint32_t  spi;
+
+  uint16_t  cs;   //pin.  using hal ?
+  uint16_t  rst;   //pin.  using hal ?
+  uint16_t  cdone;
+} ;
+
+*/
+
 /*
   could use an abstraction like the following.
   but most of the cs is device/peripheral specific.
@@ -37,22 +63,3 @@
 
 
 
-
-// has to return a pointer, not take a pointer.
-void spi2_u202_init( spi_ice40_t *);
-
-
-
-/*
-// or even just the following.
-
-struct spi2_t
-{
-  uint32_t  spi;
-
-  uint16_t  cs;   //pin.  using hal ?
-  uint16_t  rst;   //pin.  using hal ?
-  uint16_t  cdone;
-} ;
-
-*/
