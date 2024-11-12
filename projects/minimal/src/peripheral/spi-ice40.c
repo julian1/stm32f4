@@ -158,7 +158,7 @@ uint32_t spi_ice40_reg_write_n(uint32_t spi, uint8_t reg, const void *s, size_t 
 
 
 
-
+#if 0
 
 
 void spi_mux_ice40_simple(uint32_t spi)
@@ -187,6 +187,9 @@ void spi_mux_ice40_simple(uint32_t spi)
 
 
 }
+
+#endif
+
 
 // catch errors
 #define spi_enable(x) WHOOT(x)
