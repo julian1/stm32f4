@@ -9,11 +9,11 @@
 BINARY		= main
 
 
-SRCFILES	= src/peripheral/trigger.c   src/peripheral/led.c  src/peripheral/spi-port.c \
+SRCFILES	= src/peripheral/trigger.c     \
             src/peripheral/spi-ice40.c src/peripheral/spi-ice40-bitstream.c \
             src/peripheral/spi-4094.c src/peripheral/spi-dac8811.c src/peripheral/spi-ad5446.c \
-            src/peripheral/fsmc.c src/peripheral/vfd.c \
-            src/peripheral/u202.c \
+            src/peripheral/vfd.c \
+            src/device/spi-port.c src/device/u202.c src/device/fsmc.c src/device/led.c \
             src/main.c  \
             src/app.c  \
             src/syscalls.o \
