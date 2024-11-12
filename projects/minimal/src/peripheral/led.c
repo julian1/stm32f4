@@ -17,11 +17,9 @@
 
 #include <peripheral/led.h>
 
-// #include <hal/hal.h>
 
 #include <gpio.h>     // gpio_write_val
 
-#define UNUSED(a)   ((void)(a))
 
 
 // PA9
@@ -31,7 +29,7 @@
 
 static void set( led_t *led, bool val)
 {
-  UNUSED(led);
+  assert(led);
 
   gpio_write_val(LED_PORT, LED_PIN, val );
 }
@@ -40,7 +38,7 @@ static void set( led_t *led, bool val)
 
 static void setup(led_t *led)
 {
-  UNUSED(led);
+  assert(led);
 
   gpio_mode_setup( LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_PIN);
   gpio_set_output_options( LED_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, LED_PIN);
