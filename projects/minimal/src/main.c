@@ -228,9 +228,8 @@ static int main_f429(void)
   */
 
 
+  // create and init
   app.led_status = led_create();
-
-  // initalize
   app.led_status->setup( app.led_status );
 
 
@@ -286,7 +285,9 @@ static int main_f429(void)
   // init needs to return the state.
   // spi2_u202_init( app.spi_u202);
 
-  app.spi_u202 = spi2_u202_create( );
+  // create and init.
+  app.spi_u202 = spi2_u202_create( );   // should perhaps pass spi2. here.
+  app.spi_u202->setup( app.spi_u202);
 
   // device
   // . spi_u202 = &spi_u202,

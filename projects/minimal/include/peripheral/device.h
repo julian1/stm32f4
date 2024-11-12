@@ -65,10 +65,12 @@ struct spi_ice40_t
   uint32_t  spi;
 
   /*
-  // void (*port_config)(spi_ice40_t *);      // issue is that port is shared.
   // void (*config)(spi_ice40_t *);      // spi phase,edge.  needs access to underlying spi.
   // problem is that the configure() is different for bitstream loading, versus use. they are like two different devices.
     */
+
+
+  void (*setup)(spi_ice40_t *);
 
   // gpio pin assignment varies between instance. so need explitic functions
   void (*cs)(spi_ice40_t *, uint8_t );
@@ -84,7 +86,7 @@ struct spi_ice40_t
   fundamental problem is the size of the structure.
   - we would like the size to be opaque.
   - but that will require a malloc().
-  - Ok 
+  - Ok
 
 */
 

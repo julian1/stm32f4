@@ -76,16 +76,38 @@ static bool spi2_u202_cdone(spi_ice40_t *spi )
 
 
 
+static void spi2_u202_setup(spi_ice40_t *spi )
+{
+  assert(spi->spi == SPI2);
+
+  // u202,
+  // cs pc0
+  // creset pc6
+  gpio_mode_setup( GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0 | GPIO6 );      // PC0,PC6
+  gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO0 | GPIO6 );
+
+
+  // input
+  // cdone u202ca pc3.
+  gpio_mode_setup(GPIOC, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO3);
+} 
+
+
 static void spi2_u202_init( spi_ice40_t *spi)
 {
   assert(spi);
   memset(spi, 0, sizeof(spi_ice40_t));
 
-  spi->spi    = SPI2;
+  spi->spi    = SPI2;   // could move this into the setup() func
   spi->cs     = spi2_u202_cs;
   spi->rst    = spi2_u202_rst;
   spi->cdone  = spi2_u202_cdone;
+  spi->setup   =  spi2_u202_setup;
 }
+
+
+
+
 
 
 spi_ice40_t * spi2_u202_create()
@@ -102,7 +124,14 @@ spi_ice40_t * spi2_u202_create()
 }
 
 
+// Hmmmm
 
+/*
+
+  Hang on.  the u202. can setup the cs,rst,cdone lines.
+  
+
+*/
 
 
 
