@@ -37,7 +37,7 @@
 #include <peripheral/spi-port.h>
 
 
-#include <gpio.h>
+// #include <gpio.h>
 
 //////////////////////////
 
@@ -373,12 +373,12 @@ void spi2_port_setup(void)
 
   // as well as more than one interupt. may get more
 
-  // u202,
-  // cs pc0
+#if 0
+
   // creset pc6
-  // CS_u509 / pc7  / ice40 gpib
-  gpio_mode_setup( GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0 | GPIO6 | GPIO7);      // PC0,PC6, PC7
-  gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO0 | GPIO6 | GPIO7 );
+  // CS_u509 / pc7
+  gpio_mode_setup( GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,  GPIO7);      // PC0,PC6, PC7
+  gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ,  | GPIO7 );
 
 
   // CS_u704 / pe1
@@ -399,9 +399,8 @@ void spi2_port_setup(void)
 
 
   // input
-  // cdone u202ca pc3.
-  gpio_mode_setup(GPIOC, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO3);
 
+#endif
 }
 
 

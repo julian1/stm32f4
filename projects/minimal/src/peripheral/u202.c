@@ -51,7 +51,7 @@
 
 
 
-static void spi2_u202_cs( spi_ice40_t *spi, uint8_t val)
+static void cs( spi_ice40_t *spi, uint8_t val)
 {
   assert(spi->spi == SPI2);
 
@@ -59,7 +59,7 @@ static void spi2_u202_cs( spi_ice40_t *spi, uint8_t val)
   gpio_write_val( GPIOC, GPIO0, val);   // PC0
 }
 
-static void spi2_u202_rst( spi_ice40_t *spi, uint8_t val)
+static void rst( spi_ice40_t *spi, uint8_t val)
 {
   assert(spi->spi == SPI2);
 
@@ -68,7 +68,7 @@ static void spi2_u202_rst( spi_ice40_t *spi, uint8_t val)
 }
 
 
-static bool spi2_u202_cdone(spi_ice40_t *spi )
+static bool cdone(spi_ice40_t *spi )
 {
   assert(spi->spi == SPI2);
   return gpio_get(GPIOC, GPIO3) != 0;   // PC3
@@ -76,7 +76,7 @@ static bool spi2_u202_cdone(spi_ice40_t *spi )
 
 
 
-static void spi2_u202_setup(spi_ice40_t *spi )
+static void setup(spi_ice40_t *spi )
 {
   assert(spi->spi == SPI2);
 
@@ -93,16 +93,16 @@ static void spi2_u202_setup(spi_ice40_t *spi )
 } 
 
 
-static void spi2_u202_init( spi_ice40_t *spi)
+static void init( spi_ice40_t *spi)
 {
   assert(spi);
   memset(spi, 0, sizeof(spi_ice40_t));
 
   spi->spi    = SPI2;   // could move this into the setup() func
-  spi->cs     = spi2_u202_cs;
-  spi->rst    = spi2_u202_rst;
-  spi->cdone  = spi2_u202_cdone;
-  spi->setup   =  spi2_u202_setup;
+  spi->cs     = cs;
+  spi->rst    = rst;
+  spi->cdone  = cdone;
+  spi->setup   =  setup;
 }
 
 
@@ -119,7 +119,7 @@ spi_ice40_t * spi2_u202_create()
   */
   spi_ice40_t *p = malloc(sizeof(  spi_ice40_t));
   assert(p);
-  spi2_u202_init(p);
+  init(p);
   return p;  
 }
 
