@@ -72,9 +72,9 @@ struct spi_ice40_t
   // all of this is device specific. so belongs here.
   void (*setup)(spi_ice40_t *);
   void (*config)(spi_ice40_t *);
-
-  // gpio pin assignment varies between instance. so need explitic functions
   void (*cs)(spi_ice40_t *, uint8_t );
+
+  // specific to ice40.  perhaps have a different structure
   void (*rst)(spi_ice40_t *, uint8_t );
   bool (*cdone)(spi_ice40_t * );
 
