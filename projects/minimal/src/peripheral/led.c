@@ -1,24 +1,14 @@
 /*
-  not clear useful this abstraction is, although demonstates peripheral .
-    perhaps just move to app.c
-
-    eg.
-
-
-    hal_gpio_write( app->led_status, state);
-      or
-
-    gpio_write_val( app->led_gpio, app->led_pin, state );
-
-
-  same initerface as spi_enable()/spi_disable(). etc
-  and ice40_creset_enable()/disable()
+  demonstrates interface
+  only really useful with multiple leds
 */
 
 
 
+// #include <stdio.h>  // printf don't use printf not configured.
 #include <assert.h>  // assert_simple()
-#include <stdio.h>  // printf
+#include <string.h>  // memset
+#include <stdlib.h>  // malloc
 
 
 
@@ -27,18 +17,54 @@
 
 #include <peripheral/led.h>
 
-#include <hal/hal.h>
+// #include <hal/hal.h>
 
-#include <gpio.h>
+#include <gpio.h>     // gpio_write_val
 
 #define UNUSED(a)   ((void)(a))
 
-/*
+
+// PA9
 #define LED_PORT  GPIOA
-#define LED_OUT   GPIO9
-*/
+#define LED_PIN   GPIO9
 
 
+static void set( led_t *led, bool val)
+{
+  UNUSED(led);
+
+  gpio_write_val(LED_PORT, LED_PIN, val );
+}
+
+
+
+static void setup(led_t *led)
+{
+  UNUSED(led);
+
+  gpio_mode_setup( LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_PIN);
+  gpio_set_output_options( LED_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, LED_PIN);
+}
+
+
+
+led_t *led_create()
+{
+  led_t *p= malloc(sizeof(  led_t ));
+  assert(p);
+
+  p->set = set;
+  p->setup = setup;
+
+  return p;
+}
+
+
+
+
+
+
+#if 0
 
 
 
@@ -118,5 +144,5 @@ void  gpio_clear(uint32_t gpioport, uint16_t gpios)
 #endif
 
 
-
+#endif
 

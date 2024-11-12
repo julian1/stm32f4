@@ -2,68 +2,39 @@
 
 #pragma once
 
-// #include <libopencm3/stm32/gpio.h>    // led
 
 
 /*
-  implementation detail escape, but has to be shared - to support passing  to critical_error_blink() function.
-  hang on.
+  very light abstraction.
+  only really useful with multiple leds
+
+  can pass this to critical_error_blink() function easily.
 
   this cannot really be generic.
+  ----------
+
+  passing an array/struct of funcs for behavior. better than passing specific port/pin info
 */
 
 
 
-#if 0
+typedef struct led_t  led_t ;
 
-#define LED_PORT  GPIOA
-#define LED_OUT   GPIO9
-
-void led_on(void);
-void led_off(void);
-void led_setup(void);
-
-
-#endif
-
-
-
-
-void led_on(uint16_t led);
-void led_off(uint16_t led);
-void led_setup(uint16_t led);
-
-
-/*
-  - actually really has to be more of a blink led controller.
-  - controller
-
-*/
-
-#if 0
-
-static inline void led_set( led_t *l, uint8_t val)
+struct led_t
 {
-  // convenience.
-  l->set( l, val);
+  void (*setup)(led_t *);
+  void (*set)(led_t *, bool val);
 };
 
 
+// constructors, non opaque, should be called in main()
+led_t *led_create(void);
+led_t *led_create2(uint32_t port, uint32_t gpios);   // another way...
 
-static void led_create( led_t *l)
+static inline void led_set( led_t *led, bool val)
 {
-  // different leds. will have 
-  // fill in the functions etc.
-  // issue is where/ and how to advertize the size of the  structure, to allocate it.
-  // can inclde led.c in main.c
-  //  
-
-  l->port_setup = NULL;
-  l->set = NULL;
-  
-
+  led->set(led, val);
 }
 
-#endif
 
 

@@ -17,14 +17,6 @@
 
 
 
-typedef struct led_t  led_t ;
-
-struct led_t
-{
-  void (*port_setup)(led_t *);
-  void (*set)(led_t *, uint8_t );
-};
-
 
 #if 0
 
@@ -90,6 +82,7 @@ struct spi_ice40_t
   fundamental problem is the size of the structure.
   - we would like the size to be opaque.
   - but that will require a malloc().
+  - Ok 
 
 */
 

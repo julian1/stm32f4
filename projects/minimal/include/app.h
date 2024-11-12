@@ -5,6 +5,7 @@
 #include <lib2/cstring.h>
 
 #include <peripheral/device.h>
+#include <peripheral/led.h>
 
 
 /*
@@ -74,7 +75,8 @@ typedef struct app_t
   bool led_state ;     // for mcu. maybe change name to distinguish
 
   // port/pinno
-  uint16_t led_status;
+  // uint16_t led_status;
+  led_t *led_status;
 
   uint32_t soft_500ms;
 

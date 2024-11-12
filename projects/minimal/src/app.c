@@ -242,9 +242,12 @@ static void app_update_soft_500ms(app_t *app)
   app->led_state = ! app->led_state;
 
   if(app->led_state)
-    led_on( app->led_status);
+
+    led_set( app->led_status, 1 );
+    // led_on( app->led_status);
   else
-    led_off( app->led_status);
+    led_set( app->led_status, 0 );
+    // led_off( app->led_status);
 
 
   if( false && !app->cdone && !spi_port_cdone_get() ) {

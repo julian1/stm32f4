@@ -35,7 +35,7 @@
 #include <peripheral/fsmc.h>
 #include <peripheral/vfd.h>
 
-#include <hal/hal.h>
+// #include <hal/hal.h>
 
 
 static const _mode_t mode_initial =  {
@@ -139,7 +139,7 @@ static _mode_t mode_current = { 0 } ;
 
 
 
-// static spi_ice40_t   spi_u202 ;   // 
+// static spi_ice40_t   spi_u202 ;   //
 
 
 
@@ -157,14 +157,14 @@ static app_t app = {
   .magic = APP_MAGIC,
 
   .spi = SPI1 ,
-  
+
 
   //////////////
   // device.
   // the led ought to be a structure with a function.
 
   // initialization
-  .led_status = PIN('A', 9 ),
+  // .led_status = PIN('A', 9 ),
 
   // device
   // . spi_u202 = &spi_u202,
@@ -227,12 +227,19 @@ static int main_f429(void)
     peripheral/ports setup
   */
 
-  led_setup( app.led_status);
+
+  app.led_status = led_create();
+
+  // initalize
+  app.led_status->setup( app.led_status );
+
+
+  // led_setup( app.led_status);
 
   // setup external state for critical error led blink in priority
   // because assert() cannot pass a context
 
-  assert_critical_error_led_setup( GPIOA, GPIO9 ); // PINBANK( app.led_status), PINNO(app.led_status ));
+  assert_critical_error_led_setup( GPIOA, GPIO9 );
 
   // mcu clock
   systick_setup(12000); // 12MHz. default lsi.
@@ -274,9 +281,9 @@ static int main_f429(void)
 
 
 
-  spi2_port_setup();  
+  spi2_port_setup();
 
-  // init needs to return the state. 
+  // init needs to return the state.
   // spi2_u202_init( app.spi_u202);
 
   app.spi_u202 = spi2_u202_create( );
