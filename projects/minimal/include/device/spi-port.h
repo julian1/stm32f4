@@ -44,8 +44,6 @@ bool spi_port_cdone_get(void);
 
 //////////////////////
 
-void spi_wait_ready(uint32_t spi );
-
 //////////////
 
 

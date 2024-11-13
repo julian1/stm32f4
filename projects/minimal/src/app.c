@@ -29,10 +29,12 @@
 #include <peripheral/spi-ice40-bitstream.h>
 #include <peripheral/spi-dac8811.h>
 #include <peripheral/spi-ad5446.h>
+#include <peripheral/led.h>
 
 
-// remove me. 
-#include <device/spi-port.h>      // TODO remove.  code should only need deal peripheral interface.
+// remove me.
+#include <device/spi-port.h>      // TODO remove.  app should deal with peripheral abstractions. not peripheral devices.
+
 
 
 #include <vfd.h>
@@ -772,7 +774,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
     bit strange there are values.
 
-    ALSO just try setting SO.  to hi.  
+    ALSO just try setting SO.  to hi.
 
     Try.  without setting mcu pin to input type. just with default mcu
     -------
@@ -781,7 +783,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     So the  muxer isn't working.  or spi port isn't working.
 
     c255.
-    
+
 
 
   */

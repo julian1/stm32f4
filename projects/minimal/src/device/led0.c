@@ -15,7 +15,7 @@
 #include <libopencm3/stm32/gpio.h>
 
 
-#include <device/led.h>
+#include <device/led0.h>
 
 
 #include <gpio.h>     // gpio_write_val()
@@ -46,7 +46,7 @@ static void setup(led_t *led)
 
 
 
-led_t *led_create()
+led_t *led0_create()
 {
   led_t *p= malloc(sizeof(  led_t ));
   assert(p);

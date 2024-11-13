@@ -29,11 +29,13 @@
 /* split vfd - so the rst gpio setup  is moved to device.
 */
 #include <peripheral/vfd.h>
+#include <peripheral/spi-ice40.h>
 
 
-#include <device/led.h>
+#include <device/led0.h>
 #include <device/u202.h>
 #include <device/fsmc.h>
+#include <device/spi-port.h>
 
 
 // #include <hal/hal.h>
@@ -230,7 +232,7 @@ static int main_f429(void)
 
 
   // create and init
-  app.led_status = led_create();
+  app.led_status = led0_create();
   app.led_status->setup( app.led_status );
 
 
@@ -276,6 +278,7 @@ static int main_f429(void)
 
   ////////////////
   // init the spi port, for adum/ice40 comms
+
   spi1_port_setup();
   spi1_port_interupt_setup();
 
@@ -291,6 +294,7 @@ static int main_f429(void)
 
   // create and init.
   app.spi_u202 = spi2_u202_create( );   // should perhaps pass spi2. here.
+
   app.spi_u202->setup( app.spi_u202);
 
   // device

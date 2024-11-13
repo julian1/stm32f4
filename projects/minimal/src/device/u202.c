@@ -15,8 +15,12 @@
 #include <gpio.h>
 
 
-#include <peripheral/spi-port.h>      // spi_wait_read()  generic function
+// #include <peripheral/spi-port.h>      // spi_wait_read()  generic function
 #include <peripheral/spi-ice40.h>   // interface/abstraction
+
+#include <peripheral/spi-common.h>      // spi_wait_ready();
+
+
 #include <device/u202.h>        // implementation/device
 
 
@@ -98,38 +102,6 @@ static void setup(spi_ice40_t *spi )    // rename port() ?.
 
 
 
-static void config(spi_ice40_t *spi_)
-{
-  //  this is device specific. so belongs on the device structure
-  // taken from,  void spi_mux_ice40(uint32_t spi) in spi-ice40.c
-
-  assert(spi_);
-  assert(spi_->spi == SPI2);
-
-  uint32_t spi = spi_->spi;
-
-  spi_reset( spi );
-
-  // spi_port_cs1_disable(spi);  // active lo == hi.
-  // spi_port_cs2_disable(spi);  //
-
-
-  spi_init_master(
-    spi,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_2,  // div2 seems to work with iso, but not adum. actually misses a few bits with iso.
-    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_16,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_32,
-    SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,  // park to 0/lo == positive clok edge. park to 1 == negative clk edge.
-    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == leading edge,  2 == falling edge
-    SPI_CR1_DFF_8BIT,
-    SPI_CR1_MSBFIRST
-  );
-
-  spi_enable( spi );
-
-}
-
 
 /*
 
@@ -151,7 +123,7 @@ static void init( spi_ice40_t *spi)
   spi->rst    = rst;
   spi->cdone  = cdone;
   spi->setup   =  setup;
-  spi->config =  config;
+  // spi->config =  config;
 }
 
 

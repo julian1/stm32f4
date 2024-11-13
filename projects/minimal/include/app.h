@@ -56,7 +56,8 @@ typedef struct led_t led_t;
 
 typedef struct spi_ice40_t spi_ice40_t;
 typedef struct spi_4094_t spi_4094_t;
-typedef struct spi_ad5446_t spi_ad5446_t;
+typedef struct spi_t spi_t;
+// typedef struct spi_ad5446_t spi_ad5446_t;
 
 
 
@@ -109,7 +110,7 @@ typedef struct app_t
 
   spi_4094_t *spi_4094;   // eg. separate system.
 
-  spi_ad5446_t *spi_ad5446;   // separate system
+  spi_t       *spi_ad5446;   // separate system
 
   // virtual device. sample mosi, on single clk. can just bit-bang it, from mcu side.
   // two d-flip flops. with cs rising edge operating to latch input.
