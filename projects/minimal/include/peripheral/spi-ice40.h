@@ -32,7 +32,8 @@ struct spi_ice40_t
 
 
 void spi_ice40_port_configure( spi_ice40_t *spi); // for normal spi operation.
-// and a spearate configure for bitstream
+
+// void spi_ice40_port_bitstream_configure( spi_ice40_t *spi);   doesn't need to be exposed.
 
 uint32_t spi_ice40_reg_write32( spi_ice40_t *, uint8_t reg, uint32_t val);
 uint32_t spi_ice40_reg_read32( spi_ice40_t *, uint8_t reg);
