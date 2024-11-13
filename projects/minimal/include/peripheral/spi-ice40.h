@@ -6,6 +6,62 @@
 
 
 
+
+
+typedef struct spi_ice40_t  spi_ice40_t ;
+
+struct spi_ice40_t
+{
+
+  // magic, type, size.
+  uint32_t  spi;
+
+
+  // all of this is device specific. so belongs here.
+  void (*setup)(spi_ice40_t *);   // gpio
+  void (*cs)(spi_ice40_t *, uint8_t );
+  void (*rst)(spi_ice40_t *, uint8_t );
+  bool (*cdone)(spi_ice40_t * );
+
+  /* we have the interupt to deal with.
+    since it is a specific gpio pin. it should be put here.
+    and we should register the handler here.
+  */
+} ;
+
+
+
+void spi_ice40_port_configure( spi_ice40_t *spi); // for normal spi operation.
+// and a spearate configure for bitstream
+
+uint32_t spi_ice40_reg_write32( spi_ice40_t *, uint8_t reg, uint32_t val);
+uint32_t spi_ice40_reg_read32( spi_ice40_t *, uint8_t reg);
+
+
+uint32_t spi_ice40_reg_write_n( spi_ice40_t *, uint8_t reg, const void *s, size_t n );
+
+
+
+
+
+
+  /*
+    problem is that the configure() is different for bitstream loading, versus use.
+    doesn't matter. just handle it, out-of-band. as if it was a different device.
+    ----------
+
+    configure should be a freestanding function.
+  */
+
+  // void (*config)(spi_ice40_t *);  // clk,pol,phase
+
+
+  // EXTR. we don't pass/set  cs2. at all. instead the 4094/dac devices own this pin.
+
+  // specific to ice40.  perhaps should be a different structure/ or base structure
+
+
+
 /*
   GOOD.
     EXTR. it should be easy to use the different peripherals,   4094,mdac.
@@ -57,13 +113,6 @@ struct spi_basic_t
 
 
 
-
-
-typedef struct spi_ice40_t  spi_ice40_t ;
-
-struct spi_ice40_t
-{
-
   // spi_basic_t spi;
 
 
@@ -73,27 +122,6 @@ struct spi_ice40_t
     - port setup can be done once.
   */
 
-  // magic, type, size.
-  uint32_t  spi;
-
-  /*
-    problem is that the configure() is different for bitstream loading, versus use.
-    doesn't matter. just handle it, out-of-band. as if it was a different device.
-  */
-
-  // all of this is device specific. so belongs here.
-  void (*setup)(spi_ice40_t *);   // gpio
-  // void (*config)(spi_ice40_t *);  // clk,pol,phase
-  void (*cs)(spi_ice40_t *, uint8_t );
-
-  // EXTR. we don't pass/set  cs2. at all. instead the 4094/dac devices own this pin.
-
-  // specific to ice40.  perhaps should be a different structure/ or base structure
-  void (*rst)(spi_ice40_t *, uint8_t );
-  bool (*cdone)(spi_ice40_t * );
-
-  // we also have the interupt.
-} ;
 
 
 /*
@@ -111,20 +139,6 @@ uint32_t spi_ice40_reg_write_n(uint32_t spi, uint8_t reg, const void *s, size_t 
 // and they are not devices.
 //
 */
-
-
-void spi_ice40_port_configure( spi_ice40_t *spi);
-
-
-uint32_t spi_ice40_reg_write32( spi_ice40_t *, uint8_t reg, uint32_t val);
-uint32_t spi_ice40_reg_read32( spi_ice40_t *, uint8_t reg);
-
-
-uint32_t spi_ice40_reg_write_n( spi_ice40_t *, uint8_t reg, const void *s, size_t n );
-
-
-
-
 
 
 /*
