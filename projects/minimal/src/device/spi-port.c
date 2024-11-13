@@ -99,8 +99,12 @@ void spi1_port_setup(void)
 
 	// hold cs lines lo - to put fpga in reset, avoid isolator/fpga contention, because fpga wants to become master and drive spi lines.
   // probably ok, if just SS held lo.
-	spi_port_cs2_enable( SPI1);
-  spi_port_cs1_enable( SPI1);
+  // there's a delay of about 1ms. though before ice40 samples inputs.
+
+  assert(0);  // these are no longer in scope.
+              // but we can enforce order  in main.c
+	// spi_port_cs2_enable( SPI1);
+  // spi_port_cs1_enable( SPI1);
 
   /*
   oct 2024.
@@ -162,16 +166,18 @@ void spi1_port_setup(void)
   gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO5 );   // 100MHZ ??
 
 
-  // CS1 to manual external gpio output
+#if 0
+  // CS1, CS2 to manual external gpio output
   gpio_mode_setup(SPI1_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI1_CS1 | SPI1_CS2);
   gpio_set_output_options(SPI1_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI1_CS1 | SPI1_CS2);
+#endif
 
 }
 
 
 
 
-
+#if 0
   //////////////////////
 
 // we can factor this common stuff, later
@@ -201,7 +207,6 @@ void spi_port_cs1_disable(uint32_t spi)
 
   // printf("spi1 cs1 hi\n");
 }
-
 
 
 
@@ -240,6 +245,8 @@ bool spi_port_cdone_get(void)
    return gpio_get(SPI1_PORT, SPI1_INTERUPT)  != 0;
 
 }
+
+#endif
 
 //////////////////
 

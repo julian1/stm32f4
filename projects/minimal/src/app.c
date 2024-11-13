@@ -252,7 +252,11 @@ static void app_update_soft_500ms(app_t *app)
     // led_off( app->led_status);
 
 
-  if( false && !app->cdone && !spi_port_cdone_get() ) {
+  // bool (*cdone)(spi_ice40_t * );
+  
+
+  // if( false && !app->cdone && !spi_port_cdone_get() ) {
+  if( false && !app->cdone && !  app->spi_u202->cdone( app->spi_u202) ) {
 
     app_configure( app );
   }
