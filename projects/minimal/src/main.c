@@ -34,6 +34,7 @@
 
 #include <device/led0.h>
 #include <device/u202.h>
+#include <device/u102.h>
 #include <device/fsmc.h>
 #include <device/spi-port.h>
 
@@ -287,15 +288,16 @@ static int main_f429(void)
   // init needs to return the state.
   // spi2_u202_init( app.spi_u202);
 
+
+  // analog board fpga
+  app.spi_u102 = spi_u102_create( );
+ // spi_ice40_setup(app.spi_u102);
+
+
   // create and init.
   app.spi_u202 = spi2_u202_create( );   // should perhaps pass spi2. here.
-
-  app.spi_u202->setup( app.spi_u202);
-
-  // device
-  // . spi_u202 = &spi_u202,
-
-
+  spi_ice40_setup(app.spi_u202 );
+  // app.spi_u202->setup( app.spi_u202);
 
 
 

@@ -36,7 +36,7 @@
 
 #include <device/spi-port.h>
 
-#include <peripheral/spi-common.h>  //wait functions
+#include <support.h>  // spi wait functions
 
 
 // #include <gpio.h>

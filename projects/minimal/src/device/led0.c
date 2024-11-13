@@ -11,6 +11,7 @@
 #include <stdlib.h>  // malloc
 
 
+#include <support.h>     // gpio_write_val()
 
 #include <libopencm3/stm32/gpio.h>
 
@@ -18,7 +19,6 @@
 #include <device/led0.h>
 
 
-#include <gpio.h>     // gpio_write_val()
 
 
 

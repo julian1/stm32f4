@@ -106,9 +106,10 @@ typedef struct app_t
 
   cstring_t     command;
 
+  // probably a better name.  fpga1 analog board.
+  // but it will do. for the moment
   spi_ice40_t *spi_u102;   // need a better name.  ice40 analog board.
-                        // u102 .  
-                        // remember there are other devices that use the spi.
+
 
   spi_4094_t *spi_4094;   // eg. separate system.
 

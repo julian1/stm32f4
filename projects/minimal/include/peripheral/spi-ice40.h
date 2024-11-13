@@ -42,8 +42,10 @@ uint32_t spi_ice40_reg_read32( spi_ice40_t *, uint8_t reg);
 uint32_t spi_ice40_reg_write_n( spi_ice40_t *, uint8_t reg, const void *s, size_t n );
 
 
-
-
+static inline void spi_ice40_setup( spi_ice40_t *spi)
+{
+  spi->setup( spi);
+}
 
 
   /*

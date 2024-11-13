@@ -10,47 +10,12 @@
 #include <stdlib.h>
 
 
+#include <support.h>
 
-
-#include <support.h>      // spi_wait_ready(), write_val();
 
 #include <peripheral/spi-ice40.h>   // interface/abstraction
+#include <device/u102.h>        // implementation/device
 
-
-#include <device/u202.h>        // implementation/device
-
-
-/*
-  - actual instantiation of data structure (eg. actual memory requirement) should be done here.
-    or else in main/app.
-  and should not exposed anywhere else.
-
-  - this means returning a pointer. althouth we prefer to not use malloc.
-
-  - NO. instantiate  in main.c.    and reference pointer
-  or including this filei.   in the app.c
-  ----------
-
-  Do if we did distinguish between spi controller, and spi peripheral.
-  Then could organize the port_config()  more effectively.
-
-  -
-
-
-*/
-
-// this isn't really spi2 cs.  it is specifially u202.
-// BUT we could name it u202.
-
-
-/*
-  - advantage of using functions. is don't have to expose  gpio. port and pin detail.
-  - enough function to program fpga.
-  ----------
-
-  this is device specific. not a spi port viewed from mcu side.
-  should move to separate file.
-*/
 
 
 
@@ -125,8 +90,17 @@ static void init( spi_ice40_t *spi)
 
 
 
+/*
+  func has to return a pointer, not take a pointer.
+  to be opaque.  which requires calling malloc() .
+  but only needs to be done once at startup.
+  -  otherwise would have to instantiate in main.c
 
-spi_ice40_t * spi2_u202_create()
+*/
+
+
+
+spi_ice40_t * spi_u102_create( )
 {
   /* done once at startup.
     it is really the malloc that buys us structure opaqueness.

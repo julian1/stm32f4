@@ -1,8 +1,11 @@
 
-/* specific device/ instance.
+#pragma once
 
-*/
-// #include <peripheral/spi-port.h>
+
+typedef struct spi_ice40_t spi_ice40_t;
+
+spi_ice40_t * spi2_u202_create( void);
+
 
 
 
@@ -13,11 +16,4 @@
   -  otherwise would have to instantiate in main.c
 
 */
-
-
-typedef struct spi_ice40_t spi_ice40_t;
-
-spi_ice40_t * spi2_u202_create( void);
-
-
 
