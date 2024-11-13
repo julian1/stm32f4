@@ -24,9 +24,10 @@
 
 */
 
-#if 0
+#if 1
 
-void spi_port_configure_ad5446( spi_ad5446_t *spi)
+// void spi_port_configure_ad5446( spi_ad5446_t *spi)
+void spi_ad5446_port_configure( uint32_t spi)
 {
 
   // ensure cs disabled
@@ -63,21 +64,22 @@ void spi_port_configure_ad5446( spi_ad5446_t *spi)
 */
 
 
-static uint16_t spi_xfer_16( spi_ad5446_t *spi, uint16_t val)
+static uint16_t spi_xfer_16( uint32_t spi, uint16_t val)
 {
-  uint8_t a = spi_xfer( spi->spi, (val >> 8) & 0xff );  // correct reg should be the first bit that is sent.
-  uint8_t b = spi_xfer( spi->spi, val & 0xff );
+  uint8_t a = spi_xfer( spi, (val >> 8) & 0xff );  // correct reg should be the first bit that is sent.
+  uint8_t b = spi_xfer( spi, val & 0xff );
 
   return (a << 8) + b;
 }
 
 
-void spi_ad5446_write16(  spi_ad5446_t *spi, uint16_t val)
+void spi_ad5446_write16( spi_t *spi, uint16_t val)
+// void spi_ad5446_write16(  spi_ad5446_t *spi, uint16_t val)
 {
   // spi_port_cs2_enable(spi);
   spi->cs( spi, 0 ); 
 
-  spi_xfer_16(spi, val );
+  spi_xfer_16(spi->spi, val );
 
   // spi_port_cs2_disable(spi);
   spi->cs( spi, 1 ); 

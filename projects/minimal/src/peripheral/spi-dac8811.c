@@ -10,9 +10,10 @@
 
 #include <peripheral/spi-dac8811.h>
 
+#include <peripheral/spi.h>
 
 
-void spi_port_configure_dac8811(uint32_t spi)
+void spi_dac8811_port_configure(uint32_t spi)
 {
   // EXTR. setup on the ice40 side.
   // printf("spi mux dac8811 \n");
@@ -56,11 +57,15 @@ static uint16_t spi_xfer_16(uint32_t spi, uint16_t val)
 }
 
 
-void spi_dac8811_write16(uint32_t spi, uint16_t val)
+
+void spi_dac8811_write16( spi_t *spi, uint16_t val)
+// void spi_dac8811_write16(uint32_t spi, uint16_t val)
 {
-  spi_port_cs2_enable(spi);
-  spi_xfer_16(spi, val );
-  spi_port_cs2_disable(spi);
+  // spi_port_cs2_enable(spi);
+  spi->cs(spi, 0);
+  spi_xfer_16(spi->spi, val );
+  // spi_port_cs2_disable(spi);
+  spi->cs(spi, 1);
 }
 
 
