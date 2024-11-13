@@ -35,7 +35,8 @@
 // remove me.
 #include <device/spi-port.h>      // TODO remove.  app should deal with peripheral abstractions. not peripheral devices.
 
-
+#include <device/fsmc.h>      // can removee?  setup should be in main()
+#include <peripheral/vfd.h>   // this is ok. 
 
 #include <vfd.h>
 
@@ -753,7 +754,9 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     spi_ice40_bitstream_send( spi, & app->system_millis );
 
 
-    spi->config( spi );
+    // spi->config( spi );
+    spi_ice40_port_configure(spi);
+
     printf("here1\n");
     spi_ice40_reg_write32( spi, REG_DIRECT, 0b1111 );
     // spi_ice40_reg_write32( spi, REG_DIRECT, 0b0000 );
@@ -798,7 +801,9 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
     spi_ice40_t *spi = app->spi_u202;
 
-    spi->config( spi );
+    // spi->config( spi );
+
+    spi_ice40_port_configure(spi);
     spi_ice40_reg_write32( spi, REG_DIRECT, u0 );
 
     // uint32_t ret = spi_ice40_reg_read32( spi, REG_DIRECT);

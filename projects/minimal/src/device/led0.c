@@ -50,6 +50,7 @@ led_t *led0_create()
 {
   led_t *p= malloc(sizeof(  led_t ));
   assert(p);
+  memset(p, 0, sizeof( led_t));
 
   p->set = set;
   p->setup = setup;

@@ -48,7 +48,8 @@ static void state_format ( uint8_t *state, size_t n)
 void spi_mode_transition_state( 
       spi_ice40_t   *spi, 
       spi_4094_t    *spi_4094, 
-      spi_ad5446_t  *spi_ad5446,
+      // spi_ad5446_t  *spi_ad5446,
+      spi_t  *spi_ad5446,
 
       const _mode_t *mode, volatile uint32_t *system_millis  /*, uint32_t update_flags */ )
 {

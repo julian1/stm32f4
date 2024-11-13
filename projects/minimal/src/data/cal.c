@@ -128,7 +128,7 @@ void data_cal(
   // uint32_t spi,
   spi_ice40_t * spi,
   spi_4094_t *spi_4094,
-  spi_ad5446_t *spi_ad5446,
+  spi_t *spi_ad5446,
 
 
   _mode_t *mode,
