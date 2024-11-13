@@ -83,7 +83,7 @@ struct spi_ice40_t
 
   // all of this is device specific. so belongs here.
   void (*setup)(spi_ice40_t *);   // gpio
-  void (*config)(spi_ice40_t *);  // clk,pol,phase
+  // void (*config)(spi_ice40_t *);  // clk,pol,phase
   void (*cs)(spi_ice40_t *, uint8_t );
 
   // EXTR. we don't pass/set  cs2. at all. instead the 4094/dac devices own this pin.
@@ -103,6 +103,17 @@ uint32_t spi_ice40_reg_write_n(uint32_t spi, uint8_t reg, const void *s, size_t 
 */
 
 
+/*
+  EXTR.
+
+// making the port_configure() external
+// means peripheals like generic spi - become abstract and can be used for several adc/dac. etc.
+// and they are not devices.
+//
+*/
+
+
+void spi_ice40_port_configure( spi_ice40_t *spi);
 
 
 uint32_t spi_ice40_reg_write32( spi_ice40_t *, uint8_t reg, uint32_t val);

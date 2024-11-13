@@ -5,12 +5,24 @@
 
 #include <libopencm3/stm32/spi.h>
 
-#include <ice40-reg.h>
-
-#include <peripheral/spi-port.h>   // spi_port_cs2_enable()
 #include <peripheral/spi-ad5446.h>
-#include <peripheral/spi-ice40.h>
 
+/*
+  issue is that the config is gpio setup.
+
+  ---------------
+  EXTR. make the configure a free standing function.
+        rather than create it with the device.
+
+      do this for ice40 also.
+      if
+    
+     - i think the port configure should be free-standing. otherwise it forces us to put stuff in device
+
+      void spi_ad5446_port_configure( spi_ad5446_t *spi)
+  -------------------
+
+*/
 
 #if 0
 

@@ -8,7 +8,6 @@
 
 #include <ice40-reg.h>
 
-#include <peripheral/spi-port.h>   // spi_port_cs2_enable()
 #include <peripheral/spi-4094.h>
 #include <peripheral/spi-ice40.h>
 

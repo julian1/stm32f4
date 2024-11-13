@@ -15,8 +15,9 @@
 #include <gpio.h>
 
 
+#include <peripheral/spi-port.h>      // spi_wait_read()  generic function
 #include <peripheral/spi-ice40.h>   // interface/abstraction
-#include <peripheral/u202.h>        // implementation/device
+#include <device/u202.h>        // implementation/device
 
 
 /*

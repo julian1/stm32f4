@@ -22,8 +22,7 @@
 
 #include <lib2/streams.h>
 
-#include <peripheral/led.h>
-#include <peripheral/spi-port.h>
+
 // #include <peripheral/trigger.h>
 #include <peripheral/spi-ice40.h>
 #include <peripheral/spi-4094.h>
@@ -32,9 +31,9 @@
 #include <peripheral/spi-ad5446.h>
 
 
-// vfd
-#include <peripheral/fsmc.h>
-#include <peripheral/vfd.h>
+// remove me. 
+#include <device/spi-port.h>      // TODO remove.  code should only need deal peripheral interface.
+
 
 #include <vfd.h>
 

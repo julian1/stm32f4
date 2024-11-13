@@ -2,7 +2,7 @@
 /* specific device/ instance.
 
 */
-#include <peripheral/spi-port.h>
+// #include <peripheral/spi-port.h>
 
 
 

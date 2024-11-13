@@ -4,8 +4,6 @@
 #include <lib2/cbuffer.h>
 #include <lib2/cstring.h>
 
-#include <peripheral/spi-port.h> // spi_t
-#include <peripheral/led.h>
 
 
 /*
@@ -51,6 +49,10 @@
 typedef struct _mode_t _mode_t;
 
 typedef struct data_t data_t;
+
+
+typedef struct led_t led_t;
+
 
 typedef struct spi_ice40_t spi_ice40_t;
 typedef struct spi_4094_t spi_4094_t;

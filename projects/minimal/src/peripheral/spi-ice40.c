@@ -28,7 +28,7 @@
 
 #include <ice40-reg.h>              // REG_SPI_MUX
 
-#include <peripheral/spi-port.h>
+// #include <peripheral/spi-port.h>
 #include <peripheral/spi-ice40.h>
 
 
@@ -43,18 +43,22 @@
 
 
 
-#if 0
 
-void spi_mux_ice40(uint32_t spi)
+// static void config(spi_ice40_t *spi_)
+void spi_ice40_port_configure( spi_ice40_t *spi_)
 {
-  // spi on mcu side, must be correctly configured
-  // in addition, relies on the special flag to mux
+  //  this is device specific. so belongs on the device structure
+  // taken from,  void spi_mux_ice40(uint32_t spi) in spi-ice40.c
 
+  assert(spi_);
+  assert(spi_->spi == SPI2);
+
+  uint32_t spi = spi_->spi;
 
   spi_reset( spi );
 
-  spi_port_cs1_disable(spi);  // active lo == hi.
-  spi_port_cs2_disable(spi);  //
+  // spi_port_cs1_disable(spi);  // active lo == hi.
+  // spi_port_cs2_disable(spi);  //
 
 
   spi_init_master(
@@ -71,25 +75,8 @@ void spi_mux_ice40(uint32_t spi)
 
   spi_enable( spi );
 
-
-  /* IMPORTANT
-  // make sure to disable propagation of any clk,data,strobe lines
-  // from a prior active spi peripheral (eg. 4094).
-  // otherwise reading/writing adc. will transmit signals on 4094 lines.
-  -------
-  //  extr.  actually this will still emit signals - during the write to reg_spi_mux.
-  // so we need to write the register
-  // IMMEDIATELY  after finishing 4094.
-    -------
-
-    TODO - perhap better to have a mux_4094_finish()  function to do this.
-
-  */
-  spi_ice40_reg_write32(spi, REG_SPI_MUX,  0 );
-
 }
 
-#endif
 
 
 
@@ -160,6 +147,54 @@ uint32_t spi_ice40_reg_write_n( spi_ice40_t *spi, uint8_t reg, const void *s, si
 
 
 
+
+#if 0
+
+void spi_mux_ice40(uint32_t spi)
+{
+  // spi on mcu side, must be correctly configured
+  // in addition, relies on the special flag to mux
+
+
+  spi_reset( spi );
+
+  spi_port_cs1_disable(spi);  // active lo == hi.
+  spi_port_cs2_disable(spi);  //
+
+
+  spi_init_master(
+    spi,
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_2,  // div2 seems to work with iso, but not adum. actually misses a few bits with iso.
+    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_16,
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_32,
+    SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,  // park to 0/lo == positive clok edge. park to 1 == negative clk edge.
+    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == leading edge,  2 == falling edge
+    SPI_CR1_DFF_8BIT,
+    SPI_CR1_MSBFIRST
+  );
+
+  spi_enable( spi );
+
+
+  /* IMPORTANT
+  // make sure to disable propagation of any clk,data,strobe lines
+  // from a prior active spi peripheral (eg. 4094).
+  // otherwise reading/writing adc. will transmit signals on 4094 lines.
+  -------
+  //  extr.  actually this will still emit signals - during the write to reg_spi_mux.
+  // so we need to write the register
+  // IMMEDIATELY  after finishing 4094.
+    -------
+
+    TODO - perhap better to have a mux_4094_finish()  function to do this.
+
+  */
+  spi_ice40_reg_write32(spi, REG_SPI_MUX,  0 );
+
+}
+
+#endif
 
 
 

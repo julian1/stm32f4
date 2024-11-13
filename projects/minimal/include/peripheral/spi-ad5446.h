@@ -21,11 +21,22 @@ struct spi_ad5446_t
 
   // all of this is device specific. so belongs here.
   void (*setup)(spi_ad5446_t *);
-  void (*config)(spi_ad5446_t *);
+  // void (*config)(spi_ad5446_t *);
   void (*cs)(spi_ad5446_t *, uint8_t );
 
 } ;
 
+
+/*
+
+  Think this is wrong. 
+  ok.  the configure function is a bit wrong.
+
+  This can take a generic spi structure. on initialization.  the
+
+  the spi - is the device.
+
+*/
 
 
 

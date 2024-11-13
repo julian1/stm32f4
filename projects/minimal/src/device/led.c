@@ -15,10 +15,10 @@
 #include <libopencm3/stm32/gpio.h>
 
 
-#include <peripheral/led.h>
+#include <device/led.h>
 
 
-#include <gpio.h>     // gpio_write_val
+#include <gpio.h>     // gpio_write_val()
 
 
 

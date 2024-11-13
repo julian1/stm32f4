@@ -15,12 +15,8 @@
 
 
 
-#include <peripheral/led.h>
-//#include <peripheral/spi-port.h>
 
 
-#include <peripheral/spi-ice40.h>
-#include <peripheral/u202.h>
 
 
 #include <mode.h>
@@ -30,11 +26,15 @@
 
 #include <data/data.h>     // to instantiate
 
-
-
-// vfd
-#include <peripheral/fsmc.h>
+/* split vfd - so the rst gpio setup  is moved to device.
+*/
 #include <peripheral/vfd.h>
+
+
+#include <device/led.h>
+#include <device/u202.h>
+#include <device/fsmc.h>
+
 
 // #include <hal/hal.h>
 

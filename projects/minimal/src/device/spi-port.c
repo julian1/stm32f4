@@ -34,7 +34,7 @@
 #include <stddef.h>   // NULL
 #include <assert.h>
 
-#include <peripheral/spi-port.h>
+#include <device/spi-port.h>
 
 
 // #include <gpio.h>
