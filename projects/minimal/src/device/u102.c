@@ -41,9 +41,9 @@ static void rst( spi_ice40_t *spi, uint8_t val)
   gpio_write_val( GPIOC, GPIO6, val);   // PC6
 
   /*
-    OK. 
+    OK.
       CS2 works to assert reset, when CS1 is already lo.
-      ONLY MANIPULATE CS2 here - relying on the OR gate to assert the reset, 
+      ONLY MANIPULATE CS2 here - relying on the OR gate to assert the reset,
       not cs1, and cs2.
   */
   gpio_write_val( SPI1_PORT, SPI1_CS2, val);   // PC6
@@ -75,6 +75,18 @@ static void setup(spi_ice40_t *spi )
   // cdone u202ca pc3.
   gpio_mode_setup(GPIOC, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO3);
 #endif
+
+
+	// hold cs lines lo - to put fpga in reset, avoid isolator/fpga contention, because fpga wants to become spi master and drive spi lines.
+  // probably ok, if just SS held lo.
+  // there's a delay of about 1ms. though before ice40 samples inputs.
+	// spi_port_cs2_enable( SPI1);
+  // spi_port_cs1_enable( SPI1);
+
+
+  spi->cs( spi, 0);
+  spi->rst( spi, 0);
+
 
 
   // CS1, CS2 to manual external gpio output

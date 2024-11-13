@@ -97,7 +97,7 @@ void spi1_port_setup(void)
     performed once only.
   */
 
-	// hold cs lines lo - to put fpga in reset, avoid isolator/fpga contention, because fpga wants to become master and drive spi lines.
+	// hold cs lines lo - to put fpga in reset, avoid isolator/fpga contention, because fpga wants to become spi master and drive spi lines.
   // probably ok, if just SS held lo.
   // there's a delay of about 1ms. though before ice40 samples inputs.
 
