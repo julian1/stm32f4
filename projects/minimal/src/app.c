@@ -175,13 +175,13 @@ void app_configure( app_t *app )
       static uint32_t counter = 0;
       ++counter;
       uint32_t magic = counter  ^ (counter >> 1);
-      spi_ice40_reg_write32( app->spi, REG_DIRECT, magic );
+      spi_ice40_reg_write32( app->spi_u102, REG_DIRECT, magic );
       msleep( 50,  &app->system_millis);
     }
 
 
     // check/verify 4094 OE is not asserted
-    assert( ! spi_ice40_reg_read32( app->spi, REG_4094 ));
+    assert( ! spi_ice40_reg_read32( app->spi_u102, REG_4094 ));
 
     // reset the mode.
     *app->mode_current = *app->mode_initial;
@@ -192,18 +192,18 @@ void app_configure( app_t *app )
     */
     // write the default 4094 state for muxes etc.
     printf("spi_mode_transition_state() for muxes\n");
-    spi_mode_transition_state( app->spi, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
+    spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
 
     // now assert 4094 OE
     // should check supply rails etc. first.
     printf("asserting 4094 OE\n");
-    spi_ice40_reg_write32( app->spi, REG_4094, 1 );
+    spi_ice40_reg_write32( app->spi_u102, REG_4094, 1 );
     // ensure 4094 OE asserted
-    assert( spi_ice40_reg_read32( app->spi, REG_4094 ));
+    assert( spi_ice40_reg_read32( app->spi_u102, REG_4094 ));
 
     // now call transition state again. which will do relays
     printf("spi_mode_transition_state() for relays\n");
-    spi_mode_transition_state( app->spi, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
+    spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
 
 
     /* enable the ice40 interupt
@@ -336,7 +336,7 @@ static void app_update_console(app_t *app)
       // even if state hasn't been modified. eg. ensures that state is consistent/aligned.
 
       if(app->cdone)
-        spi_mode_transition_state( app->spi, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
+        spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
 
       // issue new command prompt
       printf("\n> ");
@@ -367,7 +367,7 @@ void app_update_main(app_t *app)
   if(data->adc_interupt_valid) {
 
     data->adc_interupt_valid = false;
-    data_update_new_reading2( data, app->spi);
+    data_update_new_reading2( data, app->spi_u102);
 
     // we don't need a continuation, so long as we have the interupt condition.
     // update vfd/gui
@@ -432,7 +432,7 @@ void app_update_simple_with_data(app_t *app)
   if(data->adc_interupt_valid) {
 
     data->adc_interupt_valid = false;
-    data_update_new_reading2( data, app->spi);
+    data_update_new_reading2( data, app->spi_u102);
   }
 
 
@@ -599,7 +599,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   {
 #if 1
     // update state based on current mode
-    spi_mode_transition_state( app->spi, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
+    spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
 #endif
     // sleep
     msleep( (uint32_t ) (f0 * 1000), &app->system_millis);
@@ -668,7 +668,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
       // working july
       assert(0);
       // spi_mux_ice40( app->spi);
-      spi_ice40_reg_write32(app->spi, REG_SPI_MUX,  SPI_MUX_ISO_DAC );
+      spi_ice40_reg_write32(app->spi_u102, REG_SPI_MUX,  SPI_MUX_ISO_DAC );
 
       assert(0);
       // spi_port_configure_ad5446( app->spi);
@@ -835,7 +835,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     unsigned model_spec = u0;
 
 
-    data_cal( app->data,  app->spi, app->spi_4094,  app->spi_ad5446,  &mode, model_spec, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+    data_cal( app->data,  app->spi_u102, app->spi_4094,  app->spi_ad5446,  &mode, model_spec, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
   }
 
   else if(strcmp(cmd, "cal") == 0) {
@@ -844,7 +844,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     _mode_t mode = *app->mode_initial;
     unsigned model_spec = 3;
 
-    data_cal( app->data,  app->spi, app->spi_4094,  app->spi_ad5446,  &mode, model_spec, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+    data_cal( app->data,  app->spi_u102, app->spi_4094,  app->spi_ad5446,  &mode, model_spec, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
   }
 
 
@@ -888,28 +888,28 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   */
   else if( strcmp( cmd, "spi-mux?") == 0) {
 
-    spi_print_register( app->spi, REG_SPI_MUX);
+    spi_print_register( app->spi_u102, REG_SPI_MUX);
   }
   else if( strcmp( cmd, "4094?") == 0) {
 
-    spi_print_register( app->spi, REG_4094);
+    spi_print_register( app->spi_u102, REG_4094);
   }
    else if( strcmp(cmd, "mode?") == 0) {
 
-    spi_print_register( app->spi, REG_MODE);
+    spi_print_register( app->spi_u102, REG_MODE);
   }
   else if( strcmp( cmd, "direct?") == 0) {
 
-    spi_print_register( app->spi, REG_DIRECT);
+    spi_print_register( app->spi_u102, REG_DIRECT);
   }
   else if( strcmp( cmd, "seq mode?") == 0) {
 
-    spi_print_register( app->spi, REG_SEQ_MODE);
+    spi_print_register( app->spi_u102, REG_SEQ_MODE);
   }
 
   else if( strcmp( cmd, "status?") == 0) {
 
-    spi_print_register( app->spi, REG_STATUS);
+    spi_print_register( app->spi_u102, REG_STATUS);
 
     // don't bother decode contents.  because  sequence update is too fast.
 
@@ -917,26 +917,26 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   }
   else if( sscanf(cmd, "reg? %lu", &u0 ) == 1) {
 
-    spi_print_register( app->spi, u0 );
+    spi_print_register( app->spi_u102, u0 );
   }
 
   // querying fpga direct. bypassing mode.
   else if( strcmp( cmd, "seq0?") == 0) {
-    spi_print_seq_register( app->spi, REG_SA_P_SEQ0);
+    spi_print_seq_register( app->spi_u102, REG_SA_P_SEQ0);
   }
   else if( strcmp( cmd, "seq1?") == 0) {
-    spi_print_seq_register( app->spi, REG_SA_P_SEQ1);
+    spi_print_seq_register( app->spi_u102, REG_SA_P_SEQ1);
   }
   else if( strcmp( cmd, "seq2?") == 0) {
-    spi_print_seq_register( app->spi, REG_SA_P_SEQ2);
+    spi_print_seq_register( app->spi_u102, REG_SA_P_SEQ2);
   }
   else if( strcmp( cmd, "seq3?") == 0) {
-    spi_print_seq_register( app->spi, REG_SA_P_SEQ3);
+    spi_print_seq_register( app->spi_u102, REG_SA_P_SEQ3);
   }
 
   else if( strcmp( cmd, "seqn?") == 0) {
 
-    spi_print_register( app->spi, REG_SA_P_SEQ_N);
+    spi_print_register( app->spi_u102, REG_SA_P_SEQ_N);
   }
 
 
@@ -951,7 +951,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
     assert(0);
     // spi_mux_ice40(app->spi);
-    uint32_t aperture = spi_ice40_reg_read32(app->spi, REG_ADC_P_CLK_COUNT_APERTURE );
+    uint32_t aperture = spi_ice40_reg_read32(app->spi_u102, REG_ADC_P_CLK_COUNT_APERTURE );
 
     assert( app->data);
     aper_cc_print( aperture,  app->data->line_freq);
@@ -1122,7 +1122,7 @@ void app_repl_statements(app_t *app,  const char *s)
     if(ch == '\n')
     {
       printf("calling spi_mode_transition_state()");
-      spi_mode_transition_state( app->spi, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
+      spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
     }
 
     ++s;

@@ -73,7 +73,7 @@ static void test (app_t *app)     // should be passing the continuation.
 
   mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
 
-  spi_mode_transition_state( app->spi, app->spi_4094, app->spi_ad5446, &mode, &app->system_millis);
+  spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, &mode, &app->system_millis);
   printf("sleep 10s\n");  // having a yield would be quite nice here.
   msleep(10 * 1000, &app->system_millis);
 
@@ -105,7 +105,7 @@ static void test (app_t *app)     // should be passing the continuation.
   mode.first .K407 = LR_RESET;      // turn off dcv-source
   // mode.reg_direct.leds_o  = 0b0010;    // advance led.   note. won't display in different mode.
 
-  spi_mode_transition_state( app->spi, app->spi_4094, app->spi_ad5446, &mode, &app->system_millis);
+  spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, &mode, &app->system_millis);
   printf("sleep 10s\n");  // having a yield() would be quite nice here.
   msleep(10 * 1000,  &app->system_millis);
 
@@ -128,7 +128,7 @@ static void test (app_t *app)     // should be passing the continuation.
   mode.reg_direct.leds_o = 0b0100;
   // now we do the sleep- to take the measurement.
   printf("sleep 2s\n");  // having a yield would be quite nice here.
-  spi_mode_transition_state( app->spi, app->spi_4094, app->spi_ad5446, &mode, &app->system_millis);
+  spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, &mode, &app->system_millis);
   msleep(2 * 1000,  &app->system_millis);
 }
 

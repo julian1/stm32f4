@@ -32,10 +32,10 @@
 static void test (app_t *app)
 {
   assert( 0);
-  // spi_mux_ice40( app->spi );
+  // spi_mux_ice40( app->spi_u102 );
 
   // put direct mode
-  spi_ice40_reg_write32( app->spi, REG_MODE , MODE_DIRECT );
+  spi_ice40_reg_write32( app->spi_u102, REG_MODE , MODE_DIRECT );
 
 
 
@@ -51,10 +51,10 @@ static void test (app_t *app)
 
     // blink led... want option. so can write reg_direct
     // note - led will only, actually light if fpga in default mode. 0.
-    spi_ice40_reg_write32( app->spi, REG_DIRECT, magic );
+    spi_ice40_reg_write32( app->spi_u102, REG_DIRECT, magic );
 
     // check the magic numger
-    uint32_t ret = spi_ice40_reg_read32( app->spi, REG_DIRECT);
+    uint32_t ret = spi_ice40_reg_read32( app->spi_u102, REG_DIRECT);
     if(ret != magic ) {
       // comms no good
       char buf[ 100] ;

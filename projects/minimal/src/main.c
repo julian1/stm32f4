@@ -282,11 +282,6 @@ static int main_f429(void)
   spi1_port_setup();
   spi1_port_interupt_setup();
 
-
-
-  app.spi = NULL;  // TODO.
-
-
   spi2_port_setup();
 
   // init needs to return the state.
