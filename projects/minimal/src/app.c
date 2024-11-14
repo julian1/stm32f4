@@ -49,6 +49,15 @@
 
 #include <ice40-reg.h>
 
+#include <lib2/stream-flash.h>
+
+// last 128 . on 512k.
+// this be declared in /periphal  perhaps. it's an arch/build dependency
+#define FLASH_SECT_ADDR   0x08060000
+#define FLASH_SECT_SIZE  104090       // UP5K
+
+
+
 
 #include <data/data.h>     // for main loop, data_update()
 
@@ -131,6 +140,40 @@ void app_systick_interupt(app_t *app)
 
 
 
+
+static void spi_print_register( spi_ice40_t *spi, uint32_t reg )
+{
+  // basic generic print
+  // query any register
+
+  //assert(0);
+  // spi_mux_ice40( spi);
+  uint32_t ret = spi_ice40_reg_read32( spi, reg );
+  char buf[ 100];
+  printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
+}
+
+
+
+static void spi_print_seq_register( spi_ice40_t *spi, uint32_t reg )
+{
+  // basic generic print
+  // query any register
+
+  assert(0);
+  // spi_mux_ice40( spi);
+  uint32_t ret = spi_ice40_reg_read32( spi, reg );
+  char buf[ 100];
+  char buf2[ 100];
+  // printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
+
+  printf("r %lu   pc:%s   azmux:%s\n",  reg,
+      str_format_bits(buf, 2, ret >> 4  ),          // pc switch value
+      mux_to_string( ret & 0b1111,  buf2, 100  )    // azmux value
+    );
+}
+
+
 void app_configure( app_t *app )
 {
 
@@ -154,7 +197,11 @@ void app_configure( app_t *app )
   printf("configure fpga bitstream\n");
 
   // spi_ice40_bitstream_send(app->spi, & app->system_millis );
-  spi_ice40_bitstream_send( app->spi_u202, & app->system_millis );
+
+  assert( 0);
+  FILE *f = flash_open_file( FLASH_SECT_ADDR );
+  spi_ice40_bitstream_send( app->spi_u202, f, FLASH_SECT_SIZE, & app->system_millis );
+  fclose(f);
 
 
 
@@ -228,6 +275,29 @@ void app_configure( app_t *app )
 
 
 
+static void beep( app_t * app, uint32_t n)
+{
+    // double beep ok.
+    uint32_t t = 70;
+
+  printf("configuring port\n");
+  spi_ice40_port_configure( app->spi_u202);
+
+    for(unsigned i = 0; i < n; ++i)  {
+      printf("on\n");
+      spi_ice40_reg_write32( app->spi_u202, REG_DIRECT, 1 /*1<<10 */);
+      spi_print_register( app->spi_u202, REG_DIRECT );
+      msleep( t , &app->system_millis);
+
+      printf("o\n");
+      spi_ice40_reg_write32( app->spi_u202, REG_DIRECT, 0 );
+      spi_print_register( app->spi_u202, REG_DIRECT );
+      msleep( t , &app->system_millis);
+  }
+}
+
+
+
 static void app_update_soft_500ms(app_t *app)
 {
   assert(app);
@@ -258,14 +328,22 @@ static void app_update_soft_500ms(app_t *app)
   // u202 local ice40
   if( !spi_ice40_cdone( app->spi_u202)) {
 
-    spi_ice40_bitstream_send( app->spi_u202, & app->system_millis );
+    FILE *f = flash_open_file( FLASH_SECT_ADDR );
+    spi_ice40_bitstream_send( app->spi_u202, f, FLASH_SECT_SIZE, & app->system_millis );
+    fclose(f);
 
     if( !spi_ice40_cdone( app->spi_u202)) {
 
       printf("fpga config failed\n");
     } else {
 
+
+
+      // msleep( 100 , &app->system_millis);
+
       printf("fpga ok!\n");
+      beep( app, 2 );
+
     }
   }
 
@@ -493,37 +571,6 @@ void app_update_simple_led_blink(app_t *app)
 
 
 
-static void spi_print_register( spi_ice40_t *spi, uint32_t reg )
-{
-  // basic generic print
-  // query any register
-
-  //assert(0);
-  // spi_mux_ice40( spi);
-  uint32_t ret = spi_ice40_reg_read32( spi, reg );
-  char buf[ 100];
-  printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
-}
-
-
-
-static void spi_print_seq_register( spi_ice40_t *spi, uint32_t reg )
-{
-  // basic generic print
-  // query any register
-
-  assert(0);
-  // spi_mux_ice40( spi);
-  uint32_t ret = spi_ice40_reg_read32( spi, reg );
-  char buf[ 100];
-  char buf2[ 100];
-  // printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
-
-  printf("r %lu   pc:%s   azmux:%s\n",  reg,
-      str_format_bits(buf, 2, ret >> 4  ),          // pc switch value
-      mux_to_string( ret & 0b1111,  buf2, 100  )    // azmux value
-    );
-}
 
 
 
@@ -752,9 +799,17 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   // need better name u202 load bitstream
   else if(strcmp(cmd, "bitstream test") == 0) {
 
-    spi_ice40_bitstream_send( app->spi_u202, & app->system_millis );
+    FILE *f = flash_open_file( FLASH_SECT_ADDR );
+    spi_ice40_bitstream_send( app->spi_u202, f, FLASH_SECT_SIZE, & app->system_millis );
+    fclose(f);
   }
 
+
+
+  else if(strcmp(cmd, "beep") == 0) {
+
+    beep( app, 1 );
+  }
 
   // need better name
   // u202 reg write

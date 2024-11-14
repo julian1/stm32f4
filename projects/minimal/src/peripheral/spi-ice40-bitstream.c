@@ -8,7 +8,7 @@
 
 
 #include <lib2/util.h>    // MAX
-#include <lib2/stream-flash.h>
+//#include <lib2/stream-flash.h>
 
 
 
@@ -19,10 +19,6 @@
 // #include <peripheral/ice40-extra.h>
 #include <peripheral/spi-ice40-bitstream.h>
 
-
-// last 128 . on 512k.
-// this be declared in /periphal  perhaps. it's an arch/build dependency
-#define FLASH_SECT_ADDR   0x08060000
 
 
 
@@ -62,32 +58,19 @@ static void spi_ice40_bitstream_setup(uint32_t spi)
 }
 
 
-// catch errors
-#define spi_enable(x) WHOOT(x)
-#define spi_disable(x) WHOOT(x)
 
 
-
-/*
-  need to pass address and size.
-
-  change this - instead of passing the address, instead pass in the FILE *f descriptor.
-  also fclose() outside this function.
-*/
-
-// int spi_ice40_bitstream_send(uint32_t spi,  volatile uint32_t *system_millis)
-int spi_ice40_bitstream_send( spi_ice40_t *spi ,  volatile uint32_t *system_millis)
+int spi_ice40_bitstream_send( spi_ice40_t *spi , FILE *f, size_t size , volatile uint32_t *system_millis)
 {
   printf("spi_ice40_bitstream_send\n");
 
-  FILE *f = flash_open_file( FLASH_SECT_ADDR );
   assert(f);
 
 
 
-  uint32_t size = 104090 ;      // UP5K
+  // uint32_t size = 104090 ;      // UP5K
 
-  assert(size == 104090 || size == 0  );
+  assert(size == 104090 /* || size == hx8k_size */ );
 
   // read magic and length.
   uint32_t magic  = 0 ;
@@ -117,7 +100,6 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi ,  volatile uint32_t *system_mill
   // if(magic != 0xfe00fe00) {
   if(magic != 0xff0000ff ) {
     printf("bad magic!\n");
-    fclose(f);
     return -1;
   } else {
 
@@ -266,7 +248,6 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi ,  volatile uint32_t *system_mill
   assert(remaining == 0);
 
 
-  fclose(f);
 
 
   // spi-ss = high
@@ -289,15 +270,10 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi ,  volatile uint32_t *system_mill
 
 
     // set cs. ports lo again..  so if fpga gets powered up. it will succeed.
-    // this is only for isolator.
-    // HMMMM...
-    // spi_port_cs2_enable( spi );
-    // spi_port_cs1_enable( spi );
+    // TODO re-enable
+    //spi->cs(spi, 0);
+    // spi->rst(spi, 0);
 
-//    spi->cs(spi, 0);
- //   spi->rst(spi, 0);
-
-    // fclose(f);
     return -1;
   } else {
 
@@ -311,7 +287,6 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi ,  volatile uint32_t *system_mill
      spi_xfer( spi->spi, 0x00);
 
 
-  // fclose(f);
   return 0;
 }
 

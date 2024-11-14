@@ -115,6 +115,20 @@ void spi1_port_setup(void)
 
 
 
+typedef struct interupt_gpio_t  interupt_gpio_t;
+
+struct interupt_gpio_t
+{
+
+  uint32_t extis;   // ok to expose, for the moment.
+
+  void (*f) (void *, void *ctx  );   // should probably hide state.
+
+  void (*setup)(  interupt_gpio_t *);
+  void (*handler)(  void (*f)(void *), void *ctx    );
+};
+
+
 
 /*
   this interupt can be for any kind of status change notice
