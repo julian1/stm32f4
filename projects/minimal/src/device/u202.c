@@ -145,9 +145,9 @@ spi_ice40_t * spi2_u202_create()
 /*
 
   Hang on.  the u202. can setup the cs,rst,cdone lines.
-
-
 */
 
+
+// interupt could go here also.
 
 

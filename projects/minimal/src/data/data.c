@@ -83,8 +83,9 @@ void data_reset( data_t * data )
 
 
 
-void data_rdy_interupt( data_t *data) // runtime context
+void data_rdy_interupt( data_t *data, interrupt_t *x) // runtime context
 {
+  UNUSED(x);
   /* interupt context.  don't do anything compliicated here.
     but called relatively infrequent.
   */
@@ -507,7 +508,7 @@ void data_update_new_reading(data_t *data, uint32_t spi)
   assert(0);
   // TODO - get rid of this function.
   // move functionality higher.
-  
+
 
   assert(data);
   assert(data->magic == DATA_MAGIC);

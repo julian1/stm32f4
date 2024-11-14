@@ -30,6 +30,7 @@
 #include <peripheral/spi-dac8811.h>
 #include <peripheral/spi-ad5446.h>
 #include <peripheral/led.h>
+#include <peripheral/interrupt.h>
 
 
 // remove me.
@@ -254,9 +255,15 @@ void app_configure( app_t *app )
 
 
     /* enable the ice40 interupt
-    // need to delay until after fpga is configured, else get spurious
+    // to delay until after fpga is configured, else get spurious
     */
-    spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app->data );
+    // spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app->data );
+
+
+    interrupt_t *x =  app->interrupt_u202;
+    assert(x);
+    x->handler = ( interupt_handler_t ) data_rdy_interupt;
+    x->ctx = app->data ;
 
     // not needed
     // msleep( 10, &app->system_millis);

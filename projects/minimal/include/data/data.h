@@ -122,7 +122,13 @@ void data_reading_reset( data_t *data );
 void data_reset( data_t * data );
 
 
-void data_rdy_interupt( data_t *data);    // handler setup in app context.
+// void data_rdy_interupt( data_t *data);    // handler setup in app context.
+
+
+typedef struct interrupt_t  interrupt_t;
+void data_rdy_interupt( data_t *data, interrupt_t *);    // handler setup in app context.
+
+
 
 // better name process reading.
 // void data_update_new_reading(data_t *data, uint32_t spi);

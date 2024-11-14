@@ -61,6 +61,9 @@ typedef struct spi_t spi_t;
 
 
 
+typedef struct interrupt_t interrupt_t;
+
+
 
 
 /*
@@ -106,35 +109,36 @@ typedef struct app_t
 
   cstring_t     command;
 
-  // probably a better name.  fpga1 analog board.
-  // but it will do. for the moment
-  spi_ice40_t *spi_u102;   // need a better name.  ice40 analog board.
+
+  /* for virtual trigger device. sample mosi, on single clk. can just bit-bang it, from mcu side.
+    two d-flip flops. with cs rising edge operating to latch input.
+    spi_trigger_t *spi_trigger;
+
+  */
+
+  bool          cdone; // ice40 config done
 
 
-  spi_4094_t *spi_4094;   // eg. separate system.
+  spi_ice40_t   *spi_u102;   // need a better name.  ice40 analog board.
 
-  spi_t       *spi_ad5446;   // separate system
+  spi_4094_t    *spi_4094;   // eg. separate system.
 
-  // virtual device. sample mosi, on single clk. can just bit-bang it, from mcu side.
-  // two d-flip flops. with cs rising edge operating to latch input.
-  // spi_trigger_t *spi_trigger;
+  spi_t         *spi_ad5446;   // separate system
 
+  spi_ice40_t   *spi_u202;   // separate system.
 
-  // uint32_t  spi;
-  bool      cdone; // ice40 config done
-
-  spi_ice40_t    *spi_u202;   // separate system.
+  interrupt_t   *interrupt_u202;
 
 
   // why use pointers here?
   // can we avoid
   const _mode_t *mode_initial;
 
-  _mode_t *mode_current;
+  _mode_t       *mode_current;
 
 
 
-  data_t  *data;
+  data_t        *data;
 
   bool verbose;
 

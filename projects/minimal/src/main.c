@@ -31,6 +31,8 @@
 #include <peripheral/vfd.h>
 #include <peripheral/spi-ice40.h>
 
+#include <peripheral/interrupt.h>
+
 
 #include <device/led0.h>
 #include <device/u202.h>
@@ -38,6 +40,8 @@
 #include <device/fsmc.h>
 #include <device/spi-port.h>
 
+
+#include <device/interrupt_u202.h>
 
 // #include <hal/hal.h>
 
@@ -295,10 +299,13 @@ static int main_f429(void)
 
   // init spi port, only after cs,rst have been configured
   spi1_port_setup();
-  spi1_port_interupt_setup();
-
   spi2_port_setup();
 
+
+  app.interrupt_u202 = interrupt_u202_create();
+
+
+  // spi1_port_interupt_setup();
 
 #if 0
 
