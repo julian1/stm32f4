@@ -27,6 +27,14 @@ struct led_t
   void (*set)(led_t *, bool val);
 };
 
+
+static inline void led_setup( led_t *led)
+{
+  led->setup(led);
+}
+
+
+
 static inline void led_set( led_t *led, bool val)
 {
   led->set(led, val);

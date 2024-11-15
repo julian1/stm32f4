@@ -128,7 +128,7 @@ spi_ice40_t * spi2_u202_create()
   memset(spi, 0, sizeof(spi_ice40_t));
 
   // base
-  spi->spi    = SPI2;   // could move this into the setup() func
+  spi->spi    = SPI2;
   spi->setup   =  setup;
   spi->port_configure = port_configure;
   spi->cs     = cs;

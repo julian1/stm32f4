@@ -25,9 +25,6 @@ struct spi_t
   void (*setup)(spi_t *);
   void (*port_configure)(spi_t *);
   void (*cs)(spi_t *, uint8_t );
-
-  // this should do port_configure().
-  // the only trick is that it is likely to be repeated and the same. for the same type of device.
 } ;
 
 

@@ -238,7 +238,7 @@ static int main_f429(void)
 
   // create and init
   app.led_status = led0_create();
-  app.led_status->setup( app.led_status );
+  led_setup( app.led_status);
 
 
   // led_setup( app.led_status);
@@ -282,24 +282,18 @@ static int main_f429(void)
   data_init( app.data );
 
   ////////////////
-  // init the spi port, for adum/ice40 comms
+  // init spi related port state. before do spi port.
+  // to prevent ice40 wanting to become spi master
+
+  app.spi_u102 = spi_u102_create();
+  spi_setup( app.spi_u102 );
 
 
-
-  // should move before the spi1_port_setup(). to hold in rst.
-  // analog board fpga
-  app.spi_u102 = spi_u102_create( );
-  //spi_ice40_setup( app.spi_u102 );     // eg. cs/rst/cdeon
-  spi_setup( app.spi_u102 );     // eg. cs/rst/cdeon
-
-
-  // create and init.
-  app.spi_u202 = spi2_u202_create( );   // should perhaps pass spi2. here.
-  //spi_ice40_setup(app.spi_u202 );
+  app.spi_u202 = spi2_u202_create();
   spi_setup(app.spi_u202 );
 
 
-  // init spi port, only after cs,rst have been configured
+  // now init spi ports
   spi1_port_setup();
   spi2_port_setup();
 
