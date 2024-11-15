@@ -8,13 +8,16 @@
 // but also not in spi.h.  because that's a basic spi peripheral interface
 
 
-// wait ready is not related to device. 
+// spi wait ready is not related to any device.
 void spi_wait_ready(uint32_t spi );
 
-// but this isn't the right place. because it's 
-// spi
-
-
+// gpio helper
 void gpio_write_val(uint32_t gpioport, uint16_t gpios, bool val);
+
+
+// avoid pulling libopencm3 headers as dependency, in high level code
+void mcu_reset(void);
+
+
 
 

@@ -1,6 +1,7 @@
 
 #include <libopencm3/stm32/gpio.h>    // bsrr
 #include <libopencm3/stm32/spi.h>
+#include <libopencm3/cm3/scb.h>  // reset()
 
 #include <support.h>
 
@@ -77,5 +78,19 @@ void gpio_write_val(uint32_t gpioport, uint16_t gpios, bool val)
 
   GPIO_BSRR( gpioport) |= gpios  << (val ? 0: 16);
 }
+
+
+
+void mcu_reset()
+{
+  // reset stm32f4
+  // scb_reset_core()
+  scb_reset_system();
+
+
+}
+
+
+
 
 

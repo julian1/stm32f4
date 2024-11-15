@@ -9,13 +9,6 @@
 
 
 
-// #include <libopencm3/stm32/rcc.h>   // for clock initialization
-#include <libopencm3/cm3/scb.h>  // reset()
-#include <libopencm3/stm32/spi.h>   // try to remove.
-
-
-
-
 
 #include <lib2/util.h>   // msleep(), UNUSED, print_stack_pointer()
 #include <lib2/format.h>   // trim_whitespace()  format_bits()
@@ -42,6 +35,7 @@
 #include <vfd.h>
 
 
+#include <support.h>    // mcu_reset
 
 #include <mode.h>
 #include <app.h>
@@ -703,9 +697,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
   else if(strcmp(cmd, "reset mcu") == 0) {
     printf("perform mcu reset\n" );
-    // reset stm32f4
-    // scb_reset_core()
-    scb_reset_system();
+    mcu_reset();
   }
 
 

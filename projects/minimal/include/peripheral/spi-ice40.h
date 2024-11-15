@@ -26,6 +26,13 @@ struct spi_ice40_t
 
 
 
+static inline void spi_ice40_rst( spi_ice40_t *spi, uint8_t val)
+{
+  spi->rst( spi, val);
+}
+
+
+
 static inline bool spi_ice40_cdone( spi_ice40_t *spi)
 {
   return spi->cdone( spi);
