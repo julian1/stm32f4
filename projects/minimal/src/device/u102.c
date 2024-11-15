@@ -21,7 +21,7 @@
 #define SPI1_PORT       GPIOA
 #define SPI1_CS1        GPIO4     // PA4
 #define SPI1_CS2        GPIO15     // gerber157.
-#define SPI1_INTERUPT   GPIO3     // PA3
+#define SPI1_INTERUPT   GPIO3     // PA3  shared for cdone/ and interrupt
 
 
 
@@ -30,39 +30,8 @@ static void setup(spi_t *spi )
 {
   assert(spi->spi == SPI1);
 
-#if 0
-  // u102,
-  // cs pc0
-  // creset pc6
-  gpio_mode_setup( GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0 | GPIO6 );      // PC0,PC6
-  gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO0 | GPIO6 );
 
-
-  // input
-  // cdone u202ca pc3.
-  gpio_mode_setup(GPIOC, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO3);
-#endif
-
-
-	// hold cs lines lo - to put fpga in reset, avoid isolator/fpga contention, because fpga wants to become spi master and drive spi lines.
-  // probably ok, if just SS held lo.
-  // there's a delay of about 1ms. though before ice40 samples inputs.
-	// spi_port_cs2_enable( SPI1);
-  // spi_port_cs1_enable( SPI1);
-
-
-/*
-
-  // rst is the derived function.  should not call from base.
-  // EXTR.  just set values expliticcty.
-  // gpio_clear( SPI1_PORT, SPI1_CS1 | SPI1_CS2 );
-
-
-  spi->cs( spi, 0);
-  spi->rst( spi, 0);
-*/
-
-  // set reset, ss lo. before we configure. to prevent ice40 assuming spi master
+  // set reset, ss lo. before we enable outputs. to prevent ice40 assuming spi master
   gpio_clear( SPI1_PORT, SPI1_CS1 | SPI1_CS2 );
 
 
@@ -155,8 +124,9 @@ static bool cdone(spi_ice40_t *spi )
 
 spi_ice40_t * spi_u102_create( )
 {
-  /* done once at startup.
+  /* called once at startup only, in main().
     it is really the malloc that buys us structure opaqueness.
+    where opaqueness - is the header dependencies, and struct size needed to instantiate
     - only other way is to pull the structure in as a header.
     --------
   */
@@ -177,4 +147,37 @@ spi_ice40_t * spi_u102_create( )
   return spi;
 }
 
+
+
+#if 0
+  // u102,
+  // cs pc0
+  // creset pc6
+  gpio_mode_setup( GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0 | GPIO6 );      // PC0,PC6
+  gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO0 | GPIO6 );
+
+
+  // input
+  // cdone u202ca pc3.
+  gpio_mode_setup(GPIOC, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO3);
+#endif
+
+
+	// hold cs lines lo - to put fpga in reset, avoid isolator/fpga contention, because fpga wants to become spi master and drive spi lines.
+  // probably ok, if just SS held lo.
+  // there's a delay of about 1ms. though before ice40 samples inputs.
+	// spi_port_cs2_enable( SPI1);
+  // spi_port_cs1_enable( SPI1);
+
+
+/*
+
+  // rst is the derived function.  should not call from base.
+  // EXTR.  just set values expliticcty.
+  // gpio_clear( SPI1_PORT, SPI1_CS1 | SPI1_CS2 );
+
+
+  spi->cs( spi, 0);
+  spi->rst( spi, 0);
+*/
 

@@ -179,6 +179,7 @@ static app_t app = {
 
   .cdone = false,
 
+  // ugly.
   .mode_initial =  &mode_initial,
   .mode_current =  &mode_current,
 
@@ -323,8 +324,9 @@ static int main_f429(void)
 
 
   // outer app loop, eg. bottom of control stack
-  while(true)
+  while(true) {
     app_update_main( &app);
+  }
 
 
   return 0;

@@ -42,10 +42,9 @@ static inline bool spi_ice40_cdone( spi_ice40_t *spi)
 
 
 /*
-  these functions are not typed on spi_ice40_t.   not clear if should go here.
-  even if usage will only be associated with ice40
+  these functions are not typed on spi_ice40_t.   not clear if should be placed in this file.
+  even if they are always used and associated with ice40
 */
-//
 uint32_t spi_ice40_reg_write32( spi_t *, uint8_t reg, uint32_t val);
 uint32_t spi_ice40_reg_read32( spi_t *, uint8_t reg);
 uint32_t spi_ice40_reg_write_n( spi_t *, uint8_t reg, const void *s, size_t n );
@@ -53,29 +52,26 @@ uint32_t spi_ice40_reg_write_n( spi_t *, uint8_t reg, const void *s, size_t n );
 
 
 
-
-
 /*
-    easy to switch betweetn peripherals, using fpga to mux,   4094,mdac.
+  it is easy to switch betweetn peripherals, when using the fpga to mux.
+  eg. between 4094,mdac.
 
-    they are just a different ice40 device.  where cs is mapped to cs2.
+  they are just a different ice40 device.  where cs is mapped to cs2.
 
-    we just take care to write the mux register, first on the ice40 cs1 device.
-    no need for ugly nesting of spi structures or anything.
+  we just take care to write the mux register, first on the ice40 cs1 device.
+  no need for ugly attempts to nest the functionality.
 
-    spi.config_port()                // configure spi,
-    spi.set_mux_reg( REG_MUX, _4094 ).            // using ice40 cs1.
+  spi.config_port()                // configure spi,
+  spi.set_mux_reg( REG_MUX, _4094 ).            // using ice40 cs1.
 
-    4094.config_port()
-    4094  write.          //  using ice40 cs2.
+  4094.config_port()
+  4094  write.          //  using ice40 cs2.
 
-    EXTR. and the caller should be responsible. for setting it up.
-      not nested delegation.
+  EXTR. and the caller should be responsible. for setting it up.
+    not nested delegation.
 
-    eg. remove these types of functions,
-      void spi_mux_4094(uint32_t spi )
-  ----------------
-
+  eg. remove these types of functions,
+    void spi_mux_4094(uint32_t spi )
 */
 
 

@@ -7,9 +7,12 @@
   can be used by different peripheral types (fpga,adc,dac)  and devices (instances, u202,u102 etc).
 
   the spi port_configure(). should be implemented per device.
-  even if it is the same - for different *types*.
+  even if the function is the same - for a device *type* .
 
 */
+
+#include <stdbool.h>
+#include <stddef.h> // size_t, uint32_t
 
 
 typedef struct spi_t spi_t;
