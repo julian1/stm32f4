@@ -19,11 +19,12 @@
 
 #include <device/u202.h>        // implementation/device
 
+#define UNUSED(x) ((void)(x))
 
 
 static void setup( spi_t *spi )    // rename port() ?.
 {
-  assert(spi->spi == SPI2);
+  UNUSED(spi);
 
 
   // set reset, ss lo. before we configure. to prevent ice40 assuming spi master

@@ -5,8 +5,6 @@
 // not device/instance
 
 
-#include <stdbool.h>
-#include <stddef.h> // size_t, uint32_t
 
 #include <peripheral/spi.h>
 
@@ -15,7 +13,7 @@ typedef struct spi_ice40_t  spi_ice40_t ;
 
 struct spi_ice40_t
 {
-  spi_t  ;   // anonymous.
+  spi_t  ;   // anonymous.  for composition.
 
 
   // derived functionality
@@ -56,9 +54,7 @@ uint32_t spi_ice40_reg_write_n( spi_t *, uint8_t reg, const void *s, size_t n );
   it is easy to switch betweetn peripherals, when using the fpga to mux.
   eg. between 4094,mdac.
 
-  they are just a different ice40 device.  where cs is mapped to cs2.
-
-  we just take care to write the mux register, first on the ice40 cs1 device.
+  we just take care to write the mux register, first on the ice40 using cs1.
   no need for ugly attempts to nest the functionality.
 
   spi.config_port()                // configure spi,

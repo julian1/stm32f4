@@ -24,11 +24,12 @@
 #define SPI1_INTERUPT   GPIO3     // PA3  shared for cdone/ and interrupt
 
 
+#define UNUSED(x) ((void)(x))
 
 
 static void setup(spi_t *spi )
 {
-  assert(spi->spi == SPI1);
+  UNUSED(spi);
 
 
   // set reset, ss lo. before we enable outputs. to prevent ice40 assuming spi master
