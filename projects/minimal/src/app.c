@@ -288,18 +288,19 @@ static void beep( app_t * app, uint32_t n)
     uint32_t t = 70;
 
   printf("configuring port\n");
-  spi_ice40_port_configure( app->spi_u202);
 
-    for(unsigned i = 0; i < n; ++i)  {
-      printf("on\n");
-      spi_ice40_reg_write32( app->spi_u202, REG_DIRECT, 1 /*1<<10 */);
-      spi_print_register( app->spi_u202, REG_DIRECT );
-      msleep( t , &app->system_millis);
+  spi_port_configure( app->spi_u202 );
 
-      printf("o\n");
-      spi_ice40_reg_write32( app->spi_u202, REG_DIRECT, 0 );
-      spi_print_register( app->spi_u202, REG_DIRECT );
-      msleep( t , &app->system_millis);
+  for(unsigned i = 0; i < n; ++i)  {
+    printf("on\n");
+    spi_ice40_reg_write32( app->spi_u202, REG_DIRECT, 1 /*1<<10 */);
+    spi_print_register( app->spi_u202, REG_DIRECT );
+    msleep( t , &app->system_millis);
+
+    printf("o\n");
+    spi_ice40_reg_write32( app->spi_u202, REG_DIRECT, 0 );
+    spi_print_register( app->spi_u202, REG_DIRECT );
+    msleep( t , &app->system_millis);
   }
 }
 
@@ -327,7 +328,7 @@ static void app_update_soft_500ms(app_t *app)
 
     // spi_print_register( app->spi_u202, REG_STATUS );    // show fan speed.
 
-    spi_ice40_port_configure( app->spi_u202);
+    spi_port_configure( app->spi_u202 );
 
     // perhaps should put on a separate register.
     uint8_t reg = REG_STATUS;
@@ -848,7 +849,8 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     printf("writing v %lu  %s\n",  u0,  str_format_bits(buf, 4, u0));
 
     spi_ice40_t *spi = app->spi_u202;
-    spi_ice40_port_configure(spi);
+
+    spi_port_configure( spi );
     spi_ice40_reg_write32( spi, REG_DIRECT, u0 );
     spi_print_register( spi, REG_DIRECT );
   }

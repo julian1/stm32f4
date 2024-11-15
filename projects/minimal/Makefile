@@ -53,7 +53,16 @@ LDSCRIPT +=  ${TOP_DIR}/link/f429.ld
 
 TGT_CFLAGS  += -Wno-unused-function   \
               -Werror-implicit-function-declaration \
-              -Wno-packed-bitfield-compat
+              -Wno-packed-bitfield-compat \
+              -fplan9-extensions
+
+
+# https://gcc.gnu.org/onlinedocs/gcc-6.1.0/gcc/Unnamed-Fields.html
+
+#                -fms-extensions
+#                  -fplan9-extensions    allows casting also.
+
+
 
 TGT_CFLAGS  += -Werror \
 

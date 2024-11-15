@@ -8,37 +8,23 @@
 #include <stdbool.h>
 #include <stddef.h> // size_t, uint32_t
 
+#include <peripheral/spi.h>
 
 
 typedef struct spi_ice40_t  spi_ice40_t ;
 
 struct spi_ice40_t
 {
-  // magic, type, size.
-  uint32_t  spi;
+  spi_t  ;   // anonymous.
 
-  // all of this is device specific. so belongs here.
-  void (*setup)(spi_ice40_t *);   // gpio
-  void (*cs)(spi_ice40_t *, uint8_t );
+
+  // derived functionality
   void (*rst)(spi_ice40_t *, uint8_t );
   bool (*cdone)(spi_ice40_t * );
 };
 
 
 
-void spi_ice40_port_configure( spi_ice40_t *spi); // for normal spi operation.
-
-uint32_t spi_ice40_reg_write32( spi_ice40_t *, uint8_t reg, uint32_t val);
-uint32_t spi_ice40_reg_read32( spi_ice40_t *, uint8_t reg);
-
-
-uint32_t spi_ice40_reg_write_n( spi_ice40_t *, uint8_t reg, const void *s, size_t n );
-
-
-static inline void spi_ice40_setup( spi_ice40_t *spi)
-{
-  spi->setup( spi);
-}
 
 static inline bool spi_ice40_cdone( spi_ice40_t *spi)
 {
@@ -48,12 +34,18 @@ static inline bool spi_ice40_cdone( spi_ice40_t *spi)
 
 
 
-
 /*
-  the configure() is different for bitstream loading, versus use.
-  doesn't matter for a peripheral. configure is device specific.
-
+  these functions are not typed on spi_ice40_t.   not clear if should go here.
+  even if usage will only be associated with ice40
 */
+//
+uint32_t spi_ice40_reg_write32( spi_t *, uint8_t reg, uint32_t val);
+uint32_t spi_ice40_reg_read32( spi_t *, uint8_t reg);
+uint32_t spi_ice40_reg_write_n( spi_t *, uint8_t reg, const void *s, size_t n );
+
+
+
+
 
 
 /*
@@ -64,9 +56,10 @@ static inline bool spi_ice40_cdone( spi_ice40_t *spi)
     we just take care to write the mux register, first on the ice40 cs1 device.
     no need for ugly nesting of spi structures or anything.
 
-    spi.config()                // configure spi,
-    spi.set_mux_reg().    // using ice40 cs1.
-    4094.config()
+    spi.config_port()                // configure spi,
+    spi.set_mux_reg( REG_MUX, _4094 ).            // using ice40 cs1.
+
+    4094.config_port()
     4094  write.          //  using ice40 cs2.
 
     EXTR. and the caller should be responsible. for setting it up.

@@ -289,12 +289,14 @@ static int main_f429(void)
   // should move before the spi1_port_setup(). to hold in rst.
   // analog board fpga
   app.spi_u102 = spi_u102_create( );
-  spi_ice40_setup( app.spi_u102 );     // eg. cs/rst/cdeon
+  //spi_ice40_setup( app.spi_u102 );     // eg. cs/rst/cdeon
+  spi_setup( app.spi_u102 );     // eg. cs/rst/cdeon
 
 
   // create and init.
   app.spi_u202 = spi2_u202_create( );   // should perhaps pass spi2. here.
-  spi_ice40_setup(app.spi_u202 );
+  //spi_ice40_setup(app.spi_u202 );
+  spi_setup(app.spi_u202 );
 
 
   // init spi port, only after cs,rst have been configured

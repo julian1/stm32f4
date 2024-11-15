@@ -4,9 +4,11 @@
 // spi-basic
 /*
   simple spi peripheral abstraction.
-  can be used by different peripheral types (adc,dac)  and devices (instances).
+  can be used by different peripheral types (fpga,adc,dac)  and devices (instances, u202,u102 etc).
 
-  the spi port config . should be implemented per device. and not on this structure.
+  the spi port_configure(). should be implemented per device.
+  even if it is the same - for different *types*.
+
 */
 
 
@@ -18,12 +20,33 @@ struct spi_t
 {
 
   // magic, type, size.
-  uint32_t  spi;
+  uint32_t  spi;    // controller. maybe shared.
 
   void (*setup)(spi_t *);
+  void (*port_configure)(spi_t *);
   void (*cs)(spi_t *, uint8_t );
+
+  // this should do port_configure().
+  // the only trick is that it is likely to be repeated and the same. for the same type of device.
 } ;
 
 
+static inline void spi_setup( spi_t *spi)
+{
+  // assert(spi);
+  spi->setup( spi);
+}
+
+static inline void spi_cs( spi_t *spi, uint8_t val)
+{
+  spi->cs( spi, val);
+}
+
+
+static inline void spi_port_configure( spi_t *spi)
+{
+  assert(spi);
+  spi->port_configure( spi);
+}
 
 

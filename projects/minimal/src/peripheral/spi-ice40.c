@@ -24,52 +24,11 @@
 
 #include <libopencm3/stm32/spi.h>
 
-#include <peripheral/spi-ice40.h>
 
-
-
-/*
-  move the muxing functions - where the spi setup also is.
-
-  we could consolidate the muxing function
-
-
+/* note. none of the functions are typed on spi_ice40.  only spi_t.
+   not sure if should move this file.
 */
-
-
-
-
-void spi_ice40_port_configure( spi_ice40_t *spi_)
-{
-  //  this is device specific. so belongs on the device structure
-  // taken from,  void spi_mux_ice40(uint32_t spi) in spi-ice40.c
-
-  assert(spi_);
-  assert(spi_->spi == SPI2);
-
-  uint32_t spi = spi_->spi;
-
-  spi_reset( spi );
-
-  // spi_port_cs1_disable(spi);  // active lo == hi.
-  // spi_port_cs2_disable(spi);  //
-
-
-  spi_init_master(
-    spi,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_2,  // div2 seems to work with iso, but not adum. actually misses a few bits with iso.
-    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_16,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_32,
-    SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,  // park to 0/lo == positive clok edge. park to 1 == negative clk edge.
-    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == leading edge,  2 == falling edge
-    SPI_CR1_DFF_8BIT,
-    SPI_CR1_MSBFIRST
-  );
-
-  spi_enable( spi );
-
-}
+#include <peripheral/spi-ice40.h>
 
 
 
@@ -97,23 +56,17 @@ static uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
 
 
 
-////////////////////
-// ok. these functions have the enable
 
-
-
-uint32_t spi_ice40_reg_write32( spi_ice40_t *spi, uint8_t reg, uint32_t val)
+uint32_t spi_ice40_reg_write32( spi_t *spi, uint8_t reg, uint32_t val)
 {
-  // spi_port_cs1_enable(spi);
-  spi->cs( spi, 0 );
+  spi_cs(spi, 0);
 
   // write single byte, for the reg we are interested in, with read bit cleared.
   spi_xfer( spi->spi, reg );
   // return the data
   uint32_t ret = spi_xfer_32(spi->spi, val );
 
-  // spi_port_cs1_disable(spi);
-  spi->cs( spi, 1 );
+  spi_cs(spi, 1);
 
   return ret;
 }
@@ -121,14 +74,14 @@ uint32_t spi_ice40_reg_write32( spi_ice40_t *spi, uint8_t reg, uint32_t val)
 
 
 
-uint32_t spi_ice40_reg_read32(  spi_ice40_t *spi, uint8_t reg)
+uint32_t spi_ice40_reg_read32(  spi_t *spi, uint8_t reg)
 {
   // call write with, with read bit set, and passing dummy value.
   return spi_ice40_reg_write32( spi, reg | (1 << 7), 0);
 }
 
 
-uint32_t spi_ice40_reg_write_n( spi_ice40_t *spi, uint8_t reg, const void *s, size_t n )
+uint32_t spi_ice40_reg_write_n( spi_t *spi, uint8_t reg, const void *s, size_t n )
 {
   // helper function for passing structs.
   // for cast.
@@ -137,6 +90,10 @@ uint32_t spi_ice40_reg_write_n( spi_ice40_t *spi, uint8_t reg, const void *s, si
 
   return spi_ice40_reg_write32(spi, reg, *(uint32_t *)s );
 }
+
+
+
+
 
 
 
