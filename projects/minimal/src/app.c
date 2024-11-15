@@ -48,7 +48,7 @@
 #include <util.h> // str_decode_uint
 
 
-#include <ice40-reg.h>
+#include <device/reg_u102.h>
 
 #include <lib2/stream-flash.h>
 
@@ -319,6 +319,26 @@ static void app_update_soft_500ms(app_t *app)
   app->led_state = ! app->led_state;
   led_set( app->led_status, app->led_state);
 
+
+
+  // only try to read registers if configured.
+  if( spi_ice40_cdone( app->spi_u202)) {
+
+
+    // spi_print_register( app->spi_u202, REG_STATUS );    // show fan speed.
+
+    spi_ice40_port_configure( app->spi_u202);
+
+    // perhaps should put on a separate register.
+    uint8_t reg = REG_STATUS;
+    uint32_t ret = spi_ice40_reg_read32( app->spi_u202, reg );
+
+    uint32_t speed = ret & 0xffff;
+    uint32_t rpm = speed * 60;
+
+    printf("r %u  v %lu %lu\n",  reg, speed, rpm);
+
+  }
 
 
 /*

@@ -61,8 +61,11 @@
 	spi_port_cs2_disable(SPI1 );			// gpio hi, and cs lo.   ok. doesn't fight. because gpio is high-z before bitstream configuration.
   spi_port_cs1_enable(SPI1 );       // this is the same state, as when, we are trying to configure the bitstream.
 
-  summary if cs hi, we get contention/fight - regardless of state of cs2/gpio pin. probably due on the cs pin itself.  or perhaps due to clk/mosi pin.
+  summary if cs hi, we get contention/fight - regardless of state of cs2/gpio pin . probably due on the cs pin itself.  or perhaps due to clk/mosi pin.
   if cs is lo.  then ok.   regardless of gpio.
+
+  eg. because ss is sampled at startup, to determine spi orientation.
+  so SS should be held lo. at startup.  when configured as slave.
   */
 
 

@@ -30,8 +30,9 @@
 
 #include <mode.h>
 #include <app.h>
-#include <ice40-reg.h>    // modes
 #include <lib2/util.h>    // msleep()
+
+#include <device/reg_u102.h>    // modes
 
 /*
   OK, this test doesn't actually even need the app structure.

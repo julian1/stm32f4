@@ -23,7 +23,7 @@
 
 #include <app.h>
 #include <peripheral/spi-ice40.h>
-#include <ice40-reg.h>
+#include <device/reg_u102.h>
 
 
 

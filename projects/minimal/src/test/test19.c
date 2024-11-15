@@ -14,8 +14,9 @@
 
 #include <mode.h>
 #include <app.h>
-#include <ice40-reg.h>    // MODE
 #include <lib2/util.h>    // msleep()
+
+#include <device/reg_u102.h>  // modes
 
 
 bool app_test19( app_t *app , const char *cmd)

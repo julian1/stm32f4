@@ -16,14 +16,14 @@
 
 #include <util.h>     // aper_n_to_period
 
-#include <ice40-reg.h>    // for seq mode
+
 
 #include <lib2/format.h>  // format_float
 
-#include <ice40-reg.h>
 #include <peripheral/spi-ice40.h>
 
 
+#include <device/reg_u102.h>   // for seq mode
 
 
 

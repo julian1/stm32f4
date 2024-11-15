@@ -20,7 +20,8 @@
 #include <lib2/util.h>      // msleep, UNUSED
 #include <lib2/format.h>   // str_format_bits
 
-#include <ice40-reg.h>
+#include <device/reg_u102.h>
+
 #include <mode.h>
 
 #include <util.h> // str_decode_uint

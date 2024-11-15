@@ -12,11 +12,14 @@
 #include <vfd.h>
 
 
-#include <ice40-reg.h>    // for seq mode
 #include <data/data.h>
 #include <util.h>
 
 #include <lib2/format.h>  // format_float
+
+
+
+#include <device/reg_u102.h>    // for seq mode
 
 
 #define UNUSED(x) (void)(x)

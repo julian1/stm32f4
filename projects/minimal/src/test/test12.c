@@ -20,10 +20,10 @@
 
 #include <mode.h>
 #include <app.h>
-#include <ice40-reg.h>    // MODE_DIRECT
 #include <lib2/util.h>         // msleep()
 
 
+#include <device/reg_u102.h> // MODE_DIRECT
 
 
 

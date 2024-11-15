@@ -19,9 +19,9 @@
 
 #include <mode.h>
 #include <app.h>
-#include <ice40-reg.h>    // modes
 #include <lib2/util.h>    // msleep()
 
+#include <device/reg_u102.h>    // modes
 
 
 static void test(app_t *app)

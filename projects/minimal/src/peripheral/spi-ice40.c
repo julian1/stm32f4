@@ -24,11 +24,6 @@
 
 #include <libopencm3/stm32/spi.h>
 
-
-
-#include <ice40-reg.h>              // REG_SPI_MUX
-
-// #include <peripheral/spi-port.h>
 #include <peripheral/spi-ice40.h>
 
 
@@ -44,7 +39,6 @@
 
 
 
-// static void config(spi_ice40_t *spi_)
 void spi_ice40_port_configure( spi_ice40_t *spi_)
 {
   //  this is device specific. so belongs on the device structure
@@ -111,7 +105,7 @@ static uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
 uint32_t spi_ice40_reg_write32( spi_ice40_t *spi, uint8_t reg, uint32_t val)
 {
   // spi_port_cs1_enable(spi);
-  spi->cs( spi, 0 ); 
+  spi->cs( spi, 0 );
 
   // write single byte, for the reg we are interested in, with read bit cleared.
   spi_xfer( spi->spi, reg );
@@ -119,7 +113,7 @@ uint32_t spi_ice40_reg_write32( spi_ice40_t *spi, uint8_t reg, uint32_t val)
   uint32_t ret = spi_xfer_32(spi->spi, val );
 
   // spi_port_cs1_disable(spi);
-  spi->cs( spi, 1 ); 
+  spi->cs( spi, 1 );
 
   return ret;
 }

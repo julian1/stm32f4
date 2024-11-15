@@ -6,8 +6,6 @@
 
 #include <libopencm3/stm32/spi.h>
 
-#include <ice40-reg.h>
-
 #include <peripheral/spi-4094.h>
 #include <peripheral/spi-ice40.h>
 

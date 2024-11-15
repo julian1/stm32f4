@@ -44,8 +44,8 @@
 #include <math.h>     // fabs
 
 
-#include <ice40-reg.h>
 #include <peripheral/spi-ice40.h>
+#include <device/reg_u102.h>
 
 #include <lib2/util.h>    // yield_with_msleep
 
@@ -56,6 +56,9 @@
 
 #include <data/matrix.h> // m_set_row()
 #include <data/regression.h>
+
+
+
 
 
 
