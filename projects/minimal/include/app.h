@@ -116,7 +116,7 @@ typedef struct app_t
 
   */
 
-  bool          cdone; // ice40 config done
+  bool          cdone_u102; // ice40 config done
 
 
   spi_ice40_t   *spi_u102;   // need a better name.  ice40 analog board.

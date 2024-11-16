@@ -37,6 +37,8 @@ static void spi_ice40_bitstream_setup(uint32_t spi)
     - mini-grabbers on soic is a problem, because they end up touching eash other, giving wrong signals.
   */
 
+  assert(spi == SPI1 || spi == SPI2);
+
 
   spi_reset( spi );
 
@@ -66,11 +68,7 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi , FILE *f, size_t size , volatile
 
   assert(f);
 
-
-
-  // uint32_t size = 104090 ;      // UP5K
-
-  assert(size == 104090 /* || size == hx8k_size */ );
+  assert(size == 104090  || size == 135100 );
 
   // read magic and length.
   uint32_t magic  = 0 ;

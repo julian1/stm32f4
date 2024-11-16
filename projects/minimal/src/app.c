@@ -48,10 +48,13 @@
 
 // last 128 . on 512k.
 // this be declared in /periphal  perhaps. it's an arch/build dependency
-#define FLASH_SECT_ADDR   0x08060000
-#define FLASH_SECT_SIZE  104090       // UP5K
 
+#define FLASH_U202_ADDR   0x08060000
+#define FLASH_UP5K_SIZE  104090           // fits in one sect.
 
+// analog board.
+#define FLASH_U102_ADDR   0x08080000
+#define FLASH_HX8K_SIZE   135100          // needs two sect
 
 
 #include <data/data.h>     // for main loop, data_update()
@@ -169,6 +172,8 @@ static void spi_print_seq_register( spi_ice40_t *spi, uint32_t reg )
 }
 
 
+
+#if 0
 void app_configure( app_t *app )
 {
 
@@ -194,8 +199,8 @@ void app_configure( app_t *app )
   // spi_ice40_bitstream_send(app->spi, & app->system_millis );
 
   assert( 0);
-  FILE *f = flash_open_file( FLASH_SECT_ADDR );
-  spi_ice40_bitstream_send( app->spi_u202, f, FLASH_SECT_SIZE, & app->system_millis );
+  FILE *f = flash_open_file( FLASH_U202_ADDR );
+  spi_ice40_bitstream_send( app->spi_u202, f, FLASH_UP5K_SIZE, & app->system_millis );
   fclose(f);
 
 
@@ -273,7 +278,7 @@ void app_configure( app_t *app )
   }
 
 }
-
+#endif
 
 
 static void beep( app_t * app, uint32_t n)
@@ -316,6 +321,7 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
+#if 0
   // only try to read registers if configured.
   if( spi_ice40_cdone( app->spi_u202)) {
 
@@ -332,12 +338,38 @@ static void app_update_soft_500ms(app_t *app)
     uint32_t rpm = speed * 60;
 
     printf("r %u  v %lu %lu\n",  reg, speed, rpm);
+  }
+#endif
 
+
+
+
+  // u102 analog board
+  if( false && !app->cdone_u102) {
+
+    FILE *f = flash_open_file( FLASH_U102_ADDR);
+    spi_ice40_bitstream_send( app->spi_u102, f, FLASH_HX8K_SIZE, & app->system_millis );
+    fclose(f);
+
+    if( !spi_ice40_cdone( app->spi_u102)) {
+
+      printf("fpga config failed\n");
+    } else {
+
+      printf("fpga ok!\n");
+
+      app->cdone_u102 = true;
+
+      beep( app, 2 );
+    }
+
+
+    // app_configure( app );
   }
 
 
 /*
-  // u102 analog board
+  // u102 analog board - old
   // if( false && !app->cdone && !spi_port_cdone_get() ) {
   if( false && !app->cdone && !  app->spi_u202->cdone( app->spi_u202) ) {
 
@@ -347,11 +379,12 @@ static void app_update_soft_500ms(app_t *app)
   }
 */
 
-  // u202 local ice40
-  if( !spi_ice40_cdone( app->spi_u202)) {
 
-    FILE *f = flash_open_file( FLASH_SECT_ADDR );
-    spi_ice40_bitstream_send( app->spi_u202, f, FLASH_SECT_SIZE, & app->system_millis );
+  // u202 local ice40
+  if( true && !spi_ice40_cdone( app->spi_u202)) {
+
+    FILE *f = flash_open_file( FLASH_U202_ADDR );
+    spi_ice40_bitstream_send( app->spi_u202, f, FLASH_UP5K_SIZE, & app->system_millis );
     fclose(f);
 
     if( !spi_ice40_cdone( app->spi_u202)) {
@@ -359,13 +392,8 @@ static void app_update_soft_500ms(app_t *app)
       printf("fpga config failed\n");
     } else {
 
-
-
-      // msleep( 100 , &app->system_millis);
-
       printf("fpga ok!\n");
       beep( app, 2 );
-
     }
   }
 
@@ -434,7 +462,7 @@ static void app_update_console(app_t *app)
       // correct. it is ok/desirable. to update analog board state by calling transition_state(),
       // even if state hasn't been modified. eg. ensures that state is consistent/aligned.
 
-      if(app->cdone)
+      if(app->cdone_u102)
         spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
 
       // issue new command prompt
@@ -701,7 +729,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
-
+#if 0
   else if(strcmp(cmd, "configure") == 0) {
 
     // reset fpga. load bitstream. turn on 4094.
@@ -709,7 +737,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
     app_configure( app );
   }
-
+#endif
 
 
 #if 0
@@ -819,8 +847,8 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   // need better name u202 load bitstream
   else if(strcmp(cmd, "bitstream test") == 0) {
 
-    FILE *f = flash_open_file( FLASH_SECT_ADDR );
-    spi_ice40_bitstream_send( app->spi_u202, f, FLASH_SECT_SIZE, & app->system_millis );
+    FILE *f = flash_open_file( FLASH_U202_ADDR );
+    spi_ice40_bitstream_send( app->spi_u202, f, FLASH_UP5K_SIZE, & app->system_millis );
     fclose(f);
   }
 

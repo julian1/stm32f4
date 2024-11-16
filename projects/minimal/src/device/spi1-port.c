@@ -76,7 +76,7 @@ void spi1_port_setup(void)
 {
   printf("spi1 port setup\n");
 
-  // clk, miso.
+  // clk PA5, miso. PA6
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO5  | GPIO6);
   gpio_set_af(GPIOA, GPIO_AF5, GPIO5  | GPIO6);       // af 5
   gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO5 );   // 100MHZ ??
@@ -88,11 +88,6 @@ void spi1_port_setup(void)
   gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO5 );   // 100MHZ ??
 
 
-#if 0
-  // CS1, CS2 to manual external gpio output
-  gpio_mode_setup(SPI1_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI1_CS1 | SPI1_CS2);
-  gpio_set_output_options(SPI1_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI1_CS1 | SPI1_CS2);
-#endif
 
 }
 

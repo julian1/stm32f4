@@ -177,7 +177,7 @@ static app_t app = {
   // device
   // . spi_u202 = &spi_u202,
 
-  .cdone = false,
+  .cdone_u102 = false,
 
   // ugly.
   .mode_initial =  &mode_initial,
@@ -288,18 +288,19 @@ static int main_f429(void)
 
   app.spi_u102 = spi_u102_create();
   spi_setup( app.spi_u102 );
+  // now init spi ports
+  spi1_port_setup();
 
+#if 1
 
   app.spi_u202 = spi2_u202_create();
   spi_setup(app.spi_u202 );
-
-
-  // now init spi ports
-  spi1_port_setup();
   spi2_port_setup();
 
-
   app.interrupt_u202 = interrupt_u202_create();
+#endif
+
+
 
 
   // spi1_port_interupt_setup();

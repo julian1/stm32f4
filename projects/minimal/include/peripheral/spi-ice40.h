@@ -40,7 +40,8 @@ static inline bool spi_ice40_cdone( spi_ice40_t *spi)
 
 
 /*
-  these functions are not typed on spi_ice40_t.   not clear if should be placed in this file.
+  these functions are typed on spi_t and not on spi_ice40_t.
+  not clear if should be placed here in this file.
   even if they are always used and associated with ice40
 */
 uint32_t spi_ice40_reg_write32( spi_t *, uint8_t reg, uint32_t val);

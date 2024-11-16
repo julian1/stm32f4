@@ -5,6 +5,7 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
 
+#include <stdio.h>
 #include <string.h>   // memset
 #include <assert.h>
 #include <stdlib.h>
@@ -20,7 +21,8 @@
 // pulled from spi-port code.
 #define SPI1_PORT       GPIOA
 #define SPI1_CS1        GPIO4     // PA4
-#define SPI1_CS2        GPIO15     // gerber157.
+// #define SPI1_CS2        GPIO15     // gerber157.
+#define SPI1_CS2        GPIO10
 #define SPI1_INTERUPT   GPIO3     // PA3  shared for cdone/ and interrupt
 
 
@@ -31,6 +33,9 @@ static void setup(spi_t *spi )
 {
   UNUSED(spi);
 
+  printf("u102 setup\n");
+
+  // perhaps  
 
   // set reset, ss lo. before we enable outputs. to prevent ice40 assuming spi master
   gpio_clear( SPI1_PORT, SPI1_CS1 | SPI1_CS2 );
@@ -55,7 +60,7 @@ static void port_configure( spi_t *spi_)
   assert(spi_);
   uint32_t spi = spi_->spi;
 
-  assert(spi == SPI2);
+  assert(spi == SPI1);
 
   spi_reset( spi );
 
@@ -99,7 +104,7 @@ static void rst( spi_ice40_t *spi, uint8_t val)
   assert(spi->spi == SPI1);
 
   // spi_wait_ready( spi->spi); not needed for rst
-  gpio_write_val( GPIOC, GPIO6, val);   // PC6
+  // gpio_write_val( GPIOC, GPIO6, val);   // PC6
 
   /*
     OK.
