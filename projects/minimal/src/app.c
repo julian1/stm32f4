@@ -218,14 +218,7 @@ void app_configure( app_t *app )
     app->cdone = true;
 
     // led dance
-    for(unsigned i = 0; i < 50; ++i )  {
-      static uint32_t counter = 0;
-      ++counter;
-      uint32_t magic = counter  ^ (counter >> 1);
-      spi_ice40_reg_write32( app->spi_u102, REG_DIRECT, magic );
-      msleep( 50,  &app->system_millis);
-    }
-
+    led_dance( app->spi_u102 );
 
     // check/verify 4094 OE is not asserted
     assert( ! spi_ice40_reg_read32( app->spi_u102, REG_4094 ));
@@ -305,6 +298,27 @@ static void beep( app_t * app, uint32_t n)
 
 
 
+static void led_dance( app_t * app )
+{
+  // should pass the spi/ and millis?. perhaps.
+  // config.
+
+  spi_port_configure( app->spi_u102);
+
+  // led dance
+  for(unsigned i = 0; i < 50; ++i )  {
+    static uint32_t counter = 0;
+    ++counter;
+    uint32_t magic = counter  ^ (counter >> 1);
+    spi_ice40_reg_write32( app->spi_u102, REG_DIRECT, magic );
+    msleep( 50,  &app->system_millis);
+  }
+
+  spi_ice40_reg_write32( app->spi_u102, REG_DIRECT, 0 );
+}
+
+
+
 static void app_update_soft_500ms(app_t *app)
 {
   assert(app);
@@ -342,10 +356,13 @@ static void app_update_soft_500ms(app_t *app)
 #endif
 
 
-
+  static unsigned count =  0;
+  ++count;
 
   // u102 analog board
-  if( false && !app->cdone_u102) {
+  if( ((count % 10) == 0) && !app->cdone_u102) {
+
+     printf("count %u  %u %u\n" , count, count % 5,  (count % 5 == 0 ) );
 
     FILE *f = flash_open_file( FLASH_U102_ADDR);
     spi_ice40_bitstream_send( app->spi_u102, f, FLASH_HX8K_SIZE, & app->system_millis );
@@ -361,6 +378,9 @@ static void app_update_soft_500ms(app_t *app)
       app->cdone_u102 = true;
 
       beep( app, 2 );
+
+      led_dance( app );
+
     }
 
 

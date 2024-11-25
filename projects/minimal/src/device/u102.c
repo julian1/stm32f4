@@ -35,7 +35,7 @@ static void setup(spi_t *spi )
 
   printf("u102 setup\n");
 
-  // perhaps  
+  // perhaps
 
   // set reset, ss lo. before we enable outputs. to prevent ice40 assuming spi master
   gpio_clear( SPI1_PORT, SPI1_CS1 | SPI1_CS2 );
@@ -90,21 +90,17 @@ static void cs( spi_t *spi, uint8_t val)
   assert(spi->spi == SPI1);
 
   spi_wait_ready( spi->spi);
-  gpio_write_val( SPI1_PORT, SPI1_CS1, val);   // PC0
+  gpio_write_val( SPI1_PORT, SPI1_CS1, val);
 }
 
 
 
-
-/////////////////
 
 
 static void rst( spi_ice40_t *spi, uint8_t val)
 {
   assert(spi->spi == SPI1);
 
-  // spi_wait_ready( spi->spi); not needed for rst
-  // gpio_write_val( GPIOC, GPIO6, val);   // PC6
 
   /*
     OK.
@@ -112,7 +108,7 @@ static void rst( spi_ice40_t *spi, uint8_t val)
       ONLY MANIPULATE CS2 here - relying on the OR gate to assert the reset,
       not cs1, and cs2.
   */
-  gpio_write_val( SPI1_PORT, SPI1_CS2, val);   // PC6
+  gpio_write_val( SPI1_PORT, SPI1_CS2, val);
 }
 
 

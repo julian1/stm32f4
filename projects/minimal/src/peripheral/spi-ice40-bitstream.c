@@ -64,7 +64,7 @@ static void spi_ice40_bitstream_setup(uint32_t spi)
 
 int spi_ice40_bitstream_send( spi_ice40_t *spi , FILE *f, size_t size , volatile uint32_t *system_millis)
 {
-  printf("spi_ice40_bitstream_send\n");
+  printf("spi_ice40_bitstream_send, size %u\n", size);
 
   assert(f);
 
@@ -259,7 +259,7 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi , FILE *f, size_t size , volatile
   for(i = 0; i < 13  && !  spi->cdone(spi); ++i)
      spi_xfer( spi->spi, 0x00);
 
-
+  printf("sent %u bytes dummy clk cycles\n", i );
 
 
   // check cdone really hi
@@ -275,7 +275,6 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi , FILE *f, size_t size , volatile
     return -1;
   } else {
 
-    printf("needed %u dummy bytes before cdone went hi\n", i );
     printf("ok\n");
   }
 
