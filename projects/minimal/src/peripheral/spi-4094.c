@@ -53,6 +53,103 @@
 
 
 
+
+// catch errors for funcs no longer used
+#define spi_enable(x) WHOOT(x)
+#define spi_disable(x) WHOOT(x)
+
+
+
+
+static void assert_strobe( spi_t *spi)
+{
+
+  /*
+    4094 output is transparent on strobe-hi,  and latched on strobe negative edge..  normally park lo.
+    OK. there is issue that the clock parks high. before strobe goes lo. creating an extra positive clk edge.
+    which shifts the data.
+    --
+    note, this happens even if configure mcu clock to park lo. because afterwards it will still shift clkk to hi.
+  */
+
+
+  // assert 4094 strobe.
+  // fpga will invert active lo.
+
+  // spi_port_cs2_enable(spi); // enable == clear
+  spi->cs(spi, 0 );
+
+  for(uint32_t i = 0; i < 10; ++i)   // 100count == 5us.
+     __asm__("nop");
+
+  // normal state is lo
+  // spi_port_cs2_disable(spi);    // disable == set
+  spi->cs(spi, 1 );
+
+}
+
+
+
+uint8_t spi_4094_reg_write( spi_t *spi, uint8_t v)
+{
+  assert( 0);
+  // expect port is already configured with gpio for cs etc.
+
+
+  // TODO maybe remove the enable.  not required by 4094. maybe required by stm32 spi hardware.
+  /*
+    EXTR
+      - without the spi_enable()/ spi_disable() the spi_xfer() will hang, because waiting for spi peripheral status registers.
+      - But if configure the peripheral without hardware toggling of cs, perhaps it is ok.
+
+  */
+  uint8_t ret = spi_xfer(spi->spi, v);
+
+  assert_strobe( spi);
+
+  return ret;
+}
+
+
+
+// think passing a unsigned char *s. is better.
+// can then call with &value.
+
+uint32_t spi_4094_reg_write_n( spi_t *spi, const unsigned char *s, size_t n)
+{
+  uint32_t ret = 0;
+
+
+/*
+  for(unsigned i = 0; i < n; ++i) {
+    ret = spi_xfer(spi, v);
+    v >>= 8;
+    ret <<= 8;  // check
+  }
+*/
+
+  // we want to push the last byte first. but avoid addressing.
+
+
+  for(signed i = n - 1; i >= 0; --i) {
+    ret = spi_xfer(spi->spi, s[i] );
+
+    ret <<= 8;  // check
+  }
+
+  assert_strobe(spi);
+
+
+
+  return ret;
+}
+
+
+
+
+
+
+
 // TODO rename spi_mux_4094().  because first arg is spi
 
 #if 0
@@ -72,7 +169,7 @@ void spi_mux_4094(uint32_t spi )
 
   assert( SPI_MUX_4094 == 1); // june 2023. for dmm03.
 
-  assert(0); 
+  assert(0);
   // spi_mux_ice40( spi);
 
   // default state - should always be to *not* to propagate spi on 4094 lines.  to avoid emi
@@ -107,95 +204,12 @@ void spi_mux_4094(uint32_t spi )
 
 
 
-// catch errors for funcs no longer used
-#define spi_enable(x) WHOOT(x)
-#define spi_disable(x) WHOOT(x)
 
 
 
 
-static void assert_strobe( spi_4094_t *spi)
-{
-
-  /*
-    4094 output is transparent on strobe-hi,  and latched on strobe negative edge..  normally park lo.
-    OK. there is issue that the clock parks high. before strobe goes lo. creating an extra positive clk edge.
-    which shifts the data.
-    --
-    note, this happens even if configure mcu clock to park lo. because afterwards it will still shift clkk to hi.
-  */
 
 
-  // assert 4094 strobe.
-  // fpga will invert active lo.
-
-  // spi_port_cs2_enable(spi); // enable == clear
-  spi->strobe(spi, 0 ); 
-
-  for(uint32_t i = 0; i < 10; ++i)   // 100count == 5us.
-     __asm__("nop");
-
-  // normal state is lo
-  // spi_port_cs2_disable(spi);    // disable == set
-  spi->strobe(spi, 1 ); 
-
-}
-
-
-
-uint8_t spi_4094_reg_write( spi_4094_t *spi, uint8_t v)
-{
-  assert( 0);
-  // expect port is already configured with gpio for cs etc.
-
-
-  // TODO maybe remove the enable.  not required by 4094. maybe required by stm32 spi hardware.
-  /*
-    EXTR
-      - without the spi_enable()/ spi_disable() the spi_xfer() will hang, because waiting for spi peripheral status registers.
-      - But if configure the peripheral without hardware toggling of cs, perhaps it is ok.
-
-  */
-  uint8_t ret = spi_xfer(spi->spi, v);
-
-  assert_strobe( spi);
-
-  return ret;
-}
-
-
-
-// think passing a unsigned char *s. is better.
-// can then call with &value.
-
-uint32_t spi_4094_reg_write_n( spi_4094_t *spi, const unsigned char *s, size_t n)
-{
-  uint32_t ret = 0;
-
-
-/*
-  for(unsigned i = 0; i < n; ++i) {
-    ret = spi_xfer(spi, v);
-    v >>= 8;
-    ret <<= 8;  // check
-  }
-*/
-
-  // we want to push the last byte first. but avoid addressing.
-
-
-  for(signed i = n - 1; i >= 0; --i) {
-    ret = spi_xfer(spi->spi, s[i] );
-
-    ret <<= 8;  // check
-  }
-
-  assert_strobe(spi);
-
-
-
-  return ret;
-}
 
 
 
@@ -212,10 +226,10 @@ uint32_t spi_4094_reg_write_n( spi_4094_t *spi, const unsigned char *s, size_t n
 
 /*
   spi_port_cs2_gpio_setup();
-  spi_4094_setup(spi);
+  spi_setup(spi);
 */
 
-static void spi_4094_setup(uint32_t spi)
+static void spi_setup(uint32_t spi)
 {
   // not clear this needs to be exposed.
   // EXTR. setup on the mcu side.

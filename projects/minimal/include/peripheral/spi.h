@@ -14,7 +14,8 @@
 */
 
 #include <stdbool.h>
-#include <stddef.h> // size_t, uint32_t
+#include <stdint.h> // uint32_t
+#include <stddef.h> // size_t
 
 
 typedef struct spi_t spi_t;
@@ -27,7 +28,7 @@ struct spi_t
   // magic, type, size.
   uint32_t  spi;    // controller. maybe shared.  should make opaque/hidden?
 
-  void (*setup)(spi_t *);
+  void (*setup)(spi_t *);                     // cs interupt gpio
   void (*port_configure)(spi_t *);
   void (*cs)(spi_t *, uint8_t );
 } ;
@@ -41,7 +42,7 @@ static inline void spi_setup( spi_t *spi)
 
 static inline void spi_port_configure( spi_t *spi)
 {
-  assert(spi);
+  // assert(spi);
   spi->port_configure( spi);
 }
 

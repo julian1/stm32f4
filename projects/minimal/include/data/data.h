@@ -135,7 +135,6 @@ void data_rdy_interupt( data_t *data, interrupt_t *);    // handler setup in app
 
 
 typedef struct spi_ice40_t  spi_ice40_t ;
-typedef struct spi_4094_t spi_4094_t;
 // typedef struct spi_ad5446_t  spi_ad5446_t;
 typedef struct spi_t spi_t ;
 
@@ -147,8 +146,8 @@ void data_update_new_reading2(data_t *data, spi_ice40_t *spi/*, bool verbose*/);
 void data_cal(
     data_t *data ,
 
-    spi_ice40_t * spi,
-    spi_4094_t *spi_4094,
+    spi_ice40_t * spi,  // TODO change name spi_fpga.
+    spi_t *spi_4094,
     spi_t *spi_ad5446,
 
     _mode_t *mode,

@@ -46,54 +46,89 @@ static void state_format ( uint8_t *state, size_t n)
 */
 
 
-void spi_mode_transition_state( 
-      spi_ice40_t   *spi, 
-      spi_4094_t    *spi_4094, 
-      // spi_ad5446_t  *spi_ad5446,
+void spi_mode_transition_state(
+      spi_t  *spi_ice40,         // TODO type on spi not spi_ice40_t.
+      spi_t  *spi_4094,
       spi_t  *spi_ad5446,
 
       const _mode_t *mode, volatile uint32_t *system_millis  /*, uint32_t update_flags */ )
 {
   assert(mode);
+  UNUSED(spi_ad5446);
+  UNUSED(system_millis);
+
 
   printf("spi_mode_transition_state()\n");
-  // printf("4094 size %u\n", sizeof(_4094_state_t));
-  assert( sizeof(_4094_state_t) == 12 );
+  printf("4094 size %u\n", sizeof(_4094_state_t));
+  // assert( sizeof(_4094_state_t) == 3 );
 
   // mux spi to 4094. change mcu spi params, and set spi device to 4094
-  assert(0);
+  // assert(0);
   // spi_mux_4094 ( spi);
 
-/*
-  printf("-----------\n");
-  printf("write first state\n");
-  state_format (  (void *) &mode->first, sizeof(mode->first) );
-*/
+  // JA write the spi mux select register.
+  spi_port_configure( spi_ice40);
+  spi_ice40_reg_write32(spi_ice40, REG_SPI_MUX,  SPI_MUX_4094 );
 
-  // and write device
-  spi_4094_reg_write_n( spi_4094, (void *) &mode->first, sizeof( mode->first ) );
+
+
+
+
+#if 0
+  spi_port_configure( spi_4094);
+  spi_4094_reg_write_n( spi_4094, (void *) &x , 4  );
+/*
+  uint32_t x = 0xffffffff;
+  uint32_t x = 0b10101010101010101010101010101010;
+  uint32_t y = 0b01010101010101010101010101010101;
 
   // sleep 10ms, for relays
   msleep(10, system_millis);
 
-/*
-  // and format
-  // printf("write second state\n");
-  state_format ( (void *) &mode->second, sizeof(mode->second) );
-*/
+  // and write device
+  spi_4094_reg_write_n( spi_4094, (void *) &y , 2  );
+
+  // sleep 10ms, for relays
+  msleep(10, system_millis);
 
   // and write device
-  spi_4094_reg_write_n( spi_4094, (void *) &mode->second, sizeof(mode->second) );
+  spi_4094_reg_write_n( spi_4094, (void *) &x , 2  );
+*/
+#endif
+
+
+#if 1
+  // write the 4094 device
+  spi_port_configure( spi_4094);
+
+
+  printf("-----------\n");
+  printf("write first state\n");
+  state_format (  (void *) &mode->first, 3 /* sizeof( mode->first)*/ );
+
+  spi_4094_reg_write_n( spi_4094, (void *) &mode->first, 3 /*sizeof( mode->first ) */ );
+
+  // sleep 10ms, for relays
+  msleep(10, system_millis);
+
+  // and format
+  printf("write second state\n");
+  state_format ( (void *) &mode->second, 3 /* sizeof(mode->second)*/ );
+
+  // and write device
+  spi_4094_reg_write_n( spi_4094, (void *) &mode->second, 3 /* sizeof(mode->second) */ );
+
+#endif
 
   /////////////////////////////
 
 
-#if 1
+#if 0
 
   // now write dac state
   assert(0);
   // spi_mux_ice40( spi);
-  spi_ice40_reg_write32( spi, REG_SPI_MUX,  SPI_MUX_DAC );
+  spi_ice40_reg_write32( spi_ice40, REG_SPI_MUX,  SPI_MUX_DAC );
 
   assert( 0);
   // spi_port_configure_ad5446( spi);
@@ -102,6 +137,7 @@ void spi_mode_transition_state(
 #endif
 
 
+#if 0
 
   /////////////////////////////
 
@@ -110,20 +146,20 @@ void spi_mode_transition_state(
   // spi_mux_ice40(spi);
 
 
-  spi_ice40_reg_write32(spi, REG_MODE, mode->reg_mode );
+  spi_ice40_reg_write32(spi_ice40, REG_MODE, mode->reg_mode );
 
   // reg_direct for outputs under fpga control
   assert( sizeof(reg_direct_t) == 4);
-  spi_ice40_reg_write_n(spi, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
+  spi_ice40_reg_write_n(spi_ice40, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
 
 
   // sequence mode,
-  spi_ice40_reg_write32(spi, REG_SEQ_MODE, mode->reg_seq_mode );
+  spi_ice40_reg_write32(spi_ice40, REG_SEQ_MODE, mode->reg_seq_mode );
 
 
   // sa
   // printf("writing sig acquisition params" );
-  spi_ice40_reg_write32(spi, REG_SA_P_CLK_COUNT_PRECHARGE, mode->sa.reg_sa_p_clk_count_precharge );
+  spi_ice40_reg_write32(spi_ice40, REG_SA_P_CLK_COUNT_PRECHARGE, mode->sa.reg_sa_p_clk_count_precharge );
 
 #if 1
   /*
@@ -131,18 +167,18 @@ void spi_mode_transition_state(
     or use a bitfield having an array.  eg.   seq[ 0].pc   and seq[0].azmux etc.
     but separate regs, eases destructuring on fpga side.
   */
-  spi_ice40_reg_write32(spi, REG_SA_P_SEQ_N,        mode->sa.reg_sa_p_seq_n );
-  spi_ice40_reg_write32(spi, REG_SA_P_SEQ0,        mode->sa.reg_sa_p_seq0 );
-  spi_ice40_reg_write32(spi, REG_SA_P_SEQ1,        mode->sa.reg_sa_p_seq1 );
-  spi_ice40_reg_write32(spi, REG_SA_P_SEQ2,       mode->sa.reg_sa_p_seq2 );
-  spi_ice40_reg_write32(spi, REG_SA_P_SEQ3,       mode->sa.reg_sa_p_seq3 );
+  spi_ice40_reg_write32(spi_ice40, REG_SA_P_SEQ_N,        mode->sa.reg_sa_p_seq_n );
+  spi_ice40_reg_write32(spi_ice40, REG_SA_P_SEQ0,        mode->sa.reg_sa_p_seq0 );
+  spi_ice40_reg_write32(spi_ice40, REG_SA_P_SEQ1,        mode->sa.reg_sa_p_seq1 );
+  spi_ice40_reg_write32(spi_ice40, REG_SA_P_SEQ2,       mode->sa.reg_sa_p_seq2 );
+  spi_ice40_reg_write32(spi_ice40, REG_SA_P_SEQ3,       mode->sa.reg_sa_p_seq3 );
 #endif
 
 
   // adc
   // printf("writing adc params - aperture %lu\n" ,   mode->adc.reg_adc_p_aperture  );
-  spi_ice40_reg_write32(spi, REG_ADC_P_CLK_COUNT_APERTURE,  mode->adc.reg_adc_p_aperture );
-  spi_ice40_reg_write32(spi, REG_ADC_P_CLK_COUNT_RESET,     mode->adc.reg_adc_p_reset );
+  spi_ice40_reg_write32(spi_ice40, REG_ADC_P_CLK_COUNT_APERTURE,  mode->adc.reg_adc_p_aperture );
+  spi_ice40_reg_write32(spi_ice40, REG_ADC_P_CLK_COUNT_RESET,     mode->adc.reg_adc_p_reset );
 
 
   /*
@@ -162,8 +198,8 @@ void spi_mode_transition_state(
 
   // ensure no spurious emi on 4094 lines, when we read fpga state readings
   // can probably just assert and reaad.
-  assert( spi_ice40_reg_read32(spi, REG_SPI_MUX) == 0 );
-  // spi_ice40_reg_write32(spi, REG_SPI_MUX,  0 );
+  assert( spi_ice40_reg_read32(spi_ice40, REG_SPI_MUX) == 0 );
+  // spi_ice40_reg_write32(spi_ice40, REG_SPI_MUX,  0 );
 
   // we may want delay here. or make the trigger  an external control state to the mode.
 
@@ -173,6 +209,7 @@ void spi_mode_transition_state(
   else
     ice40_port_trig_sa_disable();
 
+#endif
 }
 
 
@@ -807,18 +844,20 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       else if(strcmp(s0, "k405") == 0) {
         mode->first.K405 = u0 ? LR_SET: LR_RESET;
       }
-
+#if 0
       else if(strcmp(s0, "k703") == 0) {
         mode->first.K703 = u0 ? LR_SET: LR_RESET;
       }
+#endif
 
-
+#if 0
       else if(strcmp(s0, "u408") == 0 || strcmp(s0, "himux") == 0) {
         mode->second.U408 = u0 ;
       }
       else if(strcmp(s0, "u409") == 0 || strcmp(s0, "lomux") == 0) {
         mode->second.U409 = u0 ;
       }
+#endif
 
 /*
       set via fpga direct reg. not 4094.

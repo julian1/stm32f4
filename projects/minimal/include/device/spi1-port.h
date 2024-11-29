@@ -7,7 +7,4 @@
 
 void spi1_port_setup(void);
 
-void spi2_port_setup(void);
-
-
 

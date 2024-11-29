@@ -87,9 +87,9 @@ typedef struct app_t
 
   // port/pinno
   // uint16_t led_status;
-  led_t *led_status;
+  led_t         *led_status;
 
-  uint32_t soft_500ms;
+  uint32_t      soft_500ms;
 
   // updated on interupt. should probably be declared volatile.
   // but functions that use can also declare volatile
@@ -104,8 +104,10 @@ typedef struct app_t
   */
   volatile uint32_t system_millis;
 
-  cbuf_t  console_in;
-  cbuf_t  console_out;
+
+  // should probably be pointers again. to keep structure opaque.  instantiate in main.
+  cbuf_t        console_in;
+  cbuf_t        console_out;
 
   cstring_t     command;
 
@@ -119,19 +121,20 @@ typedef struct app_t
   bool          cdone_u102; // ice40 config done
 
 
-  spi_ice40_t   *spi_u102;   // need a better name.  ice40 analog board.
+  spi_ice40_t   *spi_u102;   // TODO better name.  a-control-fpga- ice40 analog board.
 
-  spi_4094_t    *spi_4094;   // eg. separate system.
+  spi_t         *spi_4094;   // eg. separate system.
 
   spi_t         *spi_ad5446;   // separate system
+
+  ////
 
   spi_ice40_t   *spi_u202;   // separate system.
 
   interrupt_t   *interrupt_u202;
 
 
-  // why use pointers here?
-  // can we avoid
+  // use pointers to keep structure opaque
   const _mode_t *mode_initial;
 
   _mode_t       *mode_current;

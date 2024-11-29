@@ -6,7 +6,7 @@
 
 /*
   very light abstraction.
-  only really useful with multiple leds
+  more demo. perhaps useful for multiple leds
 
   can pass this to critical_error_blink() function easily.
 

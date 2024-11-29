@@ -38,7 +38,12 @@
 #include <device/u202.h>
 #include <device/u102.h>
 #include <device/fsmc.h>
-#include <device/spi-port.h>
+
+
+#include <device/4094-0.h>
+
+#include <device/spi1-port.h>
+#include <device/spi2-port.h>
 
 
 #include <device/interrupt_u202.h>
@@ -55,6 +60,29 @@ static const _mode_t mode_initial =  {
 
   */
 
+
+  // U401
+  .first. K404    = 0,
+  .first. U402    = 0,
+  .first. K405    = 0,
+  .first. K406    = 0,
+
+
+  // U402
+  .first. U409    = 0,    //  hi/lomux. CAREFUL. 2x4 but, enable is on 4th pin. instead of 3rd. DIFFERENT.  use enum?
+  .first. K407    = 0,
+  .first. K403		= 0,
+
+
+  // 506.
+  // .first. U504        : 3, // adg1209.
+  // .first. U506_UNUSED : 1,
+  .first. K401    = 0,
+
+
+
+
+#if 0
 /*
   .first .K407  = LR_SET,     // disengage - dcv-source
   .first .K406  = LR_SET,     // disengage - accum cap
@@ -65,7 +93,7 @@ static const _mode_t mode_initial =  {
   .first .K407  = LR_RESET,     // deselect dcv-source on ch1
   .first .K405  = LR_SET,       // guard follows ch1 input.
   .first .K406  = LR_SET,       // disengage - accum cap
-
+#endif
 
 
   .reg_mode = 0, // MODE_LO,                                  // default, blink led according to mcu
@@ -301,7 +329,8 @@ static int main_f429(void)
 #endif
 
 
-
+  app.spi_4094 = spi_4094_0_create();
+  spi_setup( app.spi_4094 );
 
   // spi1_port_interupt_setup();
 

@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include <device/spi-port.h>
+#include <device/spi1-port.h>
 
 
 /*

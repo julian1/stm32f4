@@ -123,37 +123,52 @@ reset is schem default contacts.
 typedef struct _4094_state_t
 {
 
+  // U401
+  uint8_t K404    : 2;
+  uint8_t U402    : 2;
+  uint8_t K405    : 2;
+  uint8_t K406    : 2;
 
+
+  // U402
+  uint8_t U409    : 4;    //  hi/lomux. CAREFUL. 2x4 but, enable is on 4th pin. instead of 3rd. DIFFERENT.  use enum?
+  uint8_t K407    : 2;
+  uint8_t K403		: 2;
+
+
+  // 506.
+  uint8_t U504        : 3; // adg1209.
+  uint8_t U506_UNUSED : 1;
+  uint8_t K401    : 2;
+  uint8_t U506_UNUSED_2 : 2;
+
+
+
+#if 0
   /////////////////////
+
   // U401
   uint8_t K403			  : 2;
   uint8_t U401_UNUSED : 4;
   // uint8_t U402        : 2;
-  uint8_t K404        : 2;
 
 
   // U402
-  uint8_t U409    : 4;    //  lomux
   uint8_t U408    : 4;    //  himux
 
 
   // U414
-  uint8_t K401 : 2;
-  uint8_t K406 : 2;
-  uint8_t K405 : 2;
-  uint8_t U414_UNUSED : 2;
+
+  uint8_t U414_UNUSED : 8;
 
   // U415
-  uint8_t U415_UNUSED : 6;
-  uint8_t K407        : 2;
+  uint8_t U415_UNUSED : 8;
 
+#endif
 
   /////////////////////
-  // 506.
-  uint8_t U504        : 3; // adg1209.
-  uint8_t U506_UNUSED : 5;
 
-
+#if 1
 
 /////////////////////
   // 600.
@@ -172,7 +187,6 @@ typedef struct _4094_state_t
   uint8_t U709_UNUSED : 8;
 
   /////////////////////
-
 
 
 /*
@@ -197,6 +211,7 @@ typedef struct _4094_state_t
   // uint8_t U1009 : 4;
   // uint8_t U1008_UNUSED : 4;
 
+#endif
 
 } _4094_state_t;
 
@@ -322,9 +337,7 @@ typedef struct adc_state_t
 
 
 
-typedef struct spi_ice40_t  spi_ice40_t ;
-typedef struct spi_4094_t  spi_4094_t ;
-// typedef struct spi_ad5446_t  spi_ad5446_t;
+// typedef struct spi_ice40_t  spi_ice40_t ;
 typedef struct spi_t  spi_t;
 
 
@@ -380,15 +393,15 @@ typedef struct _mode_t
 /*
     chage name spi_mode_transition() ?
 */
-void spi_mode_transition_state( 
-  spi_ice40_t *spi, 
-  spi_4094_t *spi_4094,    
+void spi_mode_transition_state(
+  spi_t     *spi_ice40,         // TODO change name fpga. and use spi_t. instead.
+  spi_t     *spi_4094,
   spi_t     *spi_ad5446,
-  const _mode_t *mode, 
-    volatile uint32_t *system_millis /*, uint32_t update_flags */ 
+  const _mode_t *mode,
+    volatile uint32_t *system_millis /*, uint32_t update_flags */
 
 );
-       
+
 
 
 /*

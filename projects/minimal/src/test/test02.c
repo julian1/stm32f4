@@ -1,9 +1,7 @@
 
 /*
-  just test 4094, by bouncing relay K407 a few times, to audibly check 4094 comms.
-
-  could also pass an argument for which relay...
-  no. can test easily with 'set k407 1' etc
+  simplest possible test.
+  test 4094, by bouncing relay K403 a few times,
 
 */
 
@@ -35,7 +33,10 @@ static void test (app_t *app)
     // mode.first.K407 =  flip ? 0b01 : 0b10;
     // mode.first.K703 =  flip ? 0b01 : 0b10;
     mode.first.K403 =  flip ? 0b01 : 0b10;
-    spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, &mode, &app->system_millis);
+
+    printf("flip %u\n", mode.first.K403 );
+
+    spi_mode_transition_state(  (spi_t *)app->spi_u102, app->spi_4094, app->spi_ad5446, &mode, &app->system_millis);
     msleep( 300, &app->system_millis);
   }
 }

@@ -1,5 +1,7 @@
 
 /*
+  same as led_dance() now?
+
   blink the fpga leds in a nice pattern.
   using direct mode.
   shouldn't need fpga clk.

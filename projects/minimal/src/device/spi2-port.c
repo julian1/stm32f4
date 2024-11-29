@@ -4,7 +4,7 @@
 
 #include <libopencm3/stm32/gpio.h>
 
-#include <device/spi-port.h>
+#include <device/spi2-port.h>
 
 
 

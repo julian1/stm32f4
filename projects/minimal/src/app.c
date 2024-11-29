@@ -12,11 +12,9 @@
 
 #include <lib2/util.h>   // msleep(), UNUSED, print_stack_pointer()
 #include <lib2/format.h>   // trim_whitespace()  format_bits()
-
 #include <lib2/streams.h>
 
 
-// #include <peripheral/trigger.h>
 #include <peripheral/spi-ice40.h>
 #include <peripheral/spi-4094.h>
 #include <peripheral/spi-ice40-bitstream.h>
@@ -24,13 +22,12 @@
 #include <peripheral/spi-ad5446.h>
 #include <peripheral/led.h>
 #include <peripheral/interrupt.h>
-
-
-// remove me.
-#include <device/spi-port.h>      // TODO remove.  app should deal with peripheral abstractions. not peripheral devices.
-
-#include <device/fsmc.h>      // can removee?  setup should be in main()
 #include <peripheral/vfd.h>   // this is ok.
+
+// app/app.c  should  not deal with devices
+
+#include <device/fsmc.h>      // should removee. ?  setup should be in main()
+
 
 #include <vfd.h>
 
@@ -173,10 +170,10 @@ static void spi_print_seq_register( spi_ice40_t *spi, uint32_t reg )
 
 
 
-#if 0
 void app_configure( app_t *app )
 {
 
+#if 0
 
   /*
     TODO. EXTR. much check the magic of the bitstream before we try to send it.
@@ -220,6 +217,12 @@ void app_configure( app_t *app )
     // led dance
     led_dance( app->spi_u102 );
 
+#endif
+
+    printf("app_configure()\n");
+
+    assert( app->cdone_u102 == true);
+
     // check/verify 4094 OE is not asserted
     assert( ! spi_ice40_reg_read32( app->spi_u102, REG_4094 ));
 
@@ -234,17 +237,24 @@ void app_configure( app_t *app )
     printf("spi_mode_transition_state() for muxes\n");
     spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
 
+    /*
+        nov 2024. 4094-oe could just include in mode. to simplify this
+    */
+
     // now assert 4094 OE
     // should check supply rails etc. first.
     printf("asserting 4094 OE\n");
+    spi_port_configure( app->spi_u102);
     spi_ice40_reg_write32( app->spi_u102, REG_4094, 1 );
-    // ensure 4094 OE asserted
+
+    // check/ensure 4094 OE asserted
     assert( spi_ice40_reg_read32( app->spi_u102, REG_4094 ));
 
     // now call transition state again. which will do relays
     printf("spi_mode_transition_state() for relays\n");
     spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
 
+#if 0
 
     /* enable the ice40 interupt
     // to delay until after fpga is configured, else get spurious
@@ -269,9 +279,8 @@ void app_configure( app_t *app )
       " );
 
   }
-
-}
 #endif
+}
 
 
 static void beep( app_t * app, uint32_t n)
@@ -381,6 +390,8 @@ static void app_update_soft_500ms(app_t *app)
 
       led_dance( app );
 
+
+      app_configure( app);
     }
 
 
@@ -481,9 +492,11 @@ static void app_update_console(app_t *app)
     {
       // correct. it is ok/desirable. to update analog board state by calling transition_state(),
       // even if state hasn't been modified. eg. ensures that state is consistent/aligned.
-
+#if 0
       if(app->cdone_u102)
         spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
+
+#endif
 
       // issue new command prompt
       printf("\n> ");

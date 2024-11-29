@@ -47,7 +47,7 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
   // we need to toggle the trigger/ reset of sa controller. to get clean values.
   // we should do  this via the register.
   app->mode_current->trig_sa = 1;
-  spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
+  spi_mode_transition_state( (spi_t *)app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
 
   // reset the reading values buffer, no value will be recorded before this is filled.
   data_reading_reset( data );
