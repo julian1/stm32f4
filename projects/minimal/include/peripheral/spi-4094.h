@@ -4,11 +4,12 @@
 
 #include <stddef.h> // size_t
 
-/* we don't need a separate structure for 4094
+/* spi_t is sufficient structure for 4094,
 
   OE.  is handled  directly - with an fpga register.
 
-  cs==strobe.  with inverting handled by mcu/fpga/discrete logic.
+  cs==strobe.  with invert handled by mcu/fpga/discrete logic.
+  sequencing strobe handdled in write
 */
 
 
@@ -49,9 +50,5 @@ struct spi_4094_t
 } ;
 
 #endif
-
-
-
-// void spi_mux_4094(uint32_t spi );
 
 
