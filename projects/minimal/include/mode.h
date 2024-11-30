@@ -428,10 +428,8 @@ void mode_set_dcv_source_header( _mode_t *mode );
 bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );
 
 
-// void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint32_t channel );
 
-
-void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 );
+void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 );
 
 
 

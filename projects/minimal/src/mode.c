@@ -349,11 +349,7 @@ void mode_set_dcv_source_header( _mode_t *mode )
 
 
 
-
-
-
-
-void set_seq_mode( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 )
+void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 )
 {
   /*
     doesn't have to be exhausive wrt cases.
@@ -588,33 +584,33 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   else if( sscanf(cmd, "boot%100s", s0) == 1
     && str_decode_uint( s0, &u0))  {
 
-    set_seq_mode( mode, SEQ_MODE_BOOT, u0, 0 );
+    mode_set_seq( mode, SEQ_MODE_BOOT, u0, 0 );
   }
   else if( sscanf(cmd, "noazero %100s", s0) == 1
     && str_decode_uint( s0, &u0))  {
 
-    set_seq_mode( mode, SEQ_MODE_NOAZ, u0, 0 );
+    mode_set_seq( mode, SEQ_MODE_NOAZ, u0, 0 );
   }
   else if( sscanf(cmd, "azero %100s %100s", s0, s1) == 2
     && str_decode_uint( s0, &u0)
     && str_decode_uint( s1, &u1)) {
 
-    set_seq_mode( mode, SEQ_MODE_AZ, u0, u1 );
+    mode_set_seq( mode, SEQ_MODE_AZ, u0, u1 );
   }
 
     // ratio is hardcoded to use lomux at the moment. and not star-lo.
   else if(strcmp(cmd, "ratio") == 0) {
-    set_seq_mode( mode, SEQ_MODE_RATIO, 0,0 );
+    mode_set_seq( mode, SEQ_MODE_RATIO, 0,0 );
   }
 
   else if(strcmp(cmd, "ag") == 0)
-    set_seq_mode( mode, SEQ_MODE_AG, 0, 0 );
+    mode_set_seq( mode, SEQ_MODE_AG, 0, 0 );
 
   else if(strcmp(cmd, "diff") == 0)
-    set_seq_mode( mode, SEQ_MODE_DIFF, 0 , 0);
+    mode_set_seq( mode, SEQ_MODE_DIFF, 0 , 0);
 
   else if(strcmp(cmd, "sum-test") == 0)
-    set_seq_mode( mode, SEQ_MODE_SUM_DELTA, 0, 0 );
+    mode_set_seq( mode, SEQ_MODE_SUM_DELTA, 0, 0 );
 
 
   // "h" for halt
