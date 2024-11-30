@@ -88,34 +88,12 @@ static void assert_strobe( spi_t *spi)
 
 }
 
-#if 0
-
-uint8_t spi_4094_reg_write( spi_t *spi, uint8_t v)
-{
-  assert( 0);
-  // expect port is already configured with gpio for cs etc.
-
-
-  // TODO maybe remove the enable.  not required by 4094. maybe required by stm32 spi hardware.
-  /*
-    EXTR
-      - without the spi_enable()/ spi_disable() the spi_xfer() will hang, because waiting for spi peripheral status registers.
-      - But if configure the peripheral without hardware toggling of cs, perhaps it is ok.
-
-  */
-  uint8_t ret = spi_xfer(spi->spi, v);
-
-  assert_strobe( spi);
-
-  return ret;
-}
-#endif
 
 
 // think passing a unsigned char *s. is better.
 // can then call with &value.
 
-uint32_t spi_4094_reg_write_n( spi_t *spi, const unsigned char *s, size_t n)
+uint32_t spi_4094_write_n( spi_t *spi, const unsigned char *s, size_t n)
 {
   uint32_t ret = 0;
 
@@ -144,6 +122,36 @@ uint32_t spi_4094_reg_write_n( spi_t *spi, const unsigned char *s, size_t n)
   return ret;
 }
 
+
+
+
+
+
+
+
+
+#if 0
+
+uint8_t spi_4094_write( spi_t *spi, uint8_t v)
+{
+  assert( 0);
+  // expect port is already configured with gpio for cs etc.
+
+
+  // TODO maybe remove the enable.  not required by 4094. maybe required by stm32 spi hardware.
+  /*
+    EXTR
+      - without the spi_enable()/ spi_disable() the spi_xfer() will hang, because waiting for spi peripheral status registers.
+      - But if configure the peripheral without hardware toggling of cs, perhaps it is ok.
+
+  */
+  uint8_t ret = spi_xfer(spi->spi, v);
+
+  assert_strobe( spi);
+
+  return ret;
+}
+#endif
 
 
 

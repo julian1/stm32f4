@@ -76,7 +76,7 @@ void spi_mode_transition_state(
 
 #if 0
   spi_port_configure( spi_4094);
-  spi_4094_reg_write_n( spi_4094, (void *) &x , 4  );
+  spi_4094_write_n( spi_4094, (void *) &x , 4  );
 /*
   uint32_t x = 0xffffffff;
   uint32_t x = 0b10101010101010101010101010101010;
@@ -86,13 +86,13 @@ void spi_mode_transition_state(
   msleep(10, system_millis);
 
   // and write device
-  spi_4094_reg_write_n( spi_4094, (void *) &y , 2  );
+  spi_4094_write_n( spi_4094, (void *) &y , 2  );
 
   // sleep 10ms, for relays
   msleep(10, system_millis);
 
   // and write device
-  spi_4094_reg_write_n( spi_4094, (void *) &x , 2  );
+  spi_4094_write_n( spi_4094, (void *) &x , 2  );
 */
 #endif
 
@@ -106,7 +106,7 @@ void spi_mode_transition_state(
   printf("write first state\n");
   state_format (  (void *) &mode->first, 3 /* sizeof( mode->first)*/ );
 
-  spi_4094_reg_write_n( spi_4094, (void *) &mode->first, 3 /*sizeof( mode->first ) */ );
+  spi_4094_write_n( spi_4094, (void *) &mode->first, 3 /*sizeof( mode->first ) */ );
 
   // sleep 10ms, for relays
   msleep(10, system_millis);
@@ -116,7 +116,7 @@ void spi_mode_transition_state(
   state_format ( (void *) &mode->second, 3 /* sizeof(mode->second)*/ );
 
   // and write device
-  spi_4094_reg_write_n( spi_4094, (void *) &mode->second, 3 /* sizeof(mode->second) */ );
+  spi_4094_write_n( spi_4094, (void *) &mode->second, 3 /* sizeof(mode->second) */ );
 
 #endif
 

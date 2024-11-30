@@ -76,8 +76,8 @@ bool app_test02( app_t *app , const char *cmd)
 
   // can probe 4094 signals - by connecting scope to 4094 extension header pins.
   // write single byte - should be enough to flip a relay.
-  // JA spi_4094_reg_write_n(app->spi, (uint8_t *)& magic , 1 );
-  spi_4094_reg_write_n(app->spi, (uint8_t *)& mode, sizeof(mode) );
+  // JA spi_4094_write_n(app->spi, (uint8_t *)& magic , 1 );
+  spi_4094_write_n(app->spi, (uint8_t *)& mode, sizeof(mode) );
 
   // sleep 10ms.
   msleep(10, &app->system_millis);
@@ -86,7 +86,7 @@ bool app_test02( app_t *app , const char *cmd)
   mode.K701 = 0b00;
   mode.K404 = 0b00;
   mode.K407 = 0b00;
-  spi_4094_reg_write_n(app->spi, (uint8_t *)& mode, sizeof(mode) );
+  spi_4094_write_n(app->spi, (uint8_t *)& mode, sizeof(mode) );
 
 
   /* EXTR. IMPORTANT. must call spi_mux_ice40 again
