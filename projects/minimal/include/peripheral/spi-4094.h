@@ -18,7 +18,7 @@ typedef struct spi_t  spi_t ;
 
 
 // rename spi_4094_write8()
-uint8_t spi_4094_reg_write( spi_t *spi, uint8_t v);
+// uint8_t spi_4094_reg_write( spi_t *spi, uint8_t v);
 
 uint32_t spi_4094_reg_write_n( spi_t *spi, const unsigned char *s, size_t n);
 

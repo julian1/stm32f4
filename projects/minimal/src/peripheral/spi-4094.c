@@ -88,7 +88,7 @@ static void assert_strobe( spi_t *spi)
 
 }
 
-
+#if 0
 
 uint8_t spi_4094_reg_write( spi_t *spi, uint8_t v)
 {
@@ -109,7 +109,7 @@ uint8_t spi_4094_reg_write( spi_t *spi, uint8_t v)
 
   return ret;
 }
-
+#endif
 
 
 // think passing a unsigned char *s. is better.
