@@ -22,7 +22,7 @@
 #include <device/reg_u102.h>    // for seq mode
 
 
-#define UNUSED(x) (void)(x)
+#define UNUSED(x) ((void)(x))
 
 
 

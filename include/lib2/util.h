@@ -52,7 +52,7 @@ void print_stack_pointer(void);
 
 
 
-#define UNUSED(x) (void)(x)
+#define UNUSED(x) ((void)(x))
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 

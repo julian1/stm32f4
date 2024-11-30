@@ -11,7 +11,7 @@
 
 
 
-#define UNUSED(x) (void)(x)
+#define UNUSED(x) ((void)(x))
 
     /*
     // 4094 output is transparent on strobe-hi,  and latched on strobe negative edge..  normally park lo.

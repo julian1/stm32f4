@@ -26,7 +26,7 @@
 #include <peripheral/trigger.h>      // trigger
 
 
-#define UNUSED(x) (void)(x)
+#define UNUSED(x) ((void)(x))
 
 
 static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void *), void *yield_ctx)

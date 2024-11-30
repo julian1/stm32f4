@@ -24,7 +24,11 @@
 
 #include <mode.h>       // transition state
 
-#define UNUSED(x) (void)(x)
+#define UNUSED(x) ((void)(x))
+
+
+
+
 
 static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
 {

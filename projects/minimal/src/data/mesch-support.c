@@ -16,7 +16,9 @@
 
 
 
-#define UNUSED(x) (void)(x)
+#define UNUSED(x) ((void)(x))
+
+
 
 typedef struct ITER ITER;
 typedef struct SPROW  SPROW;
