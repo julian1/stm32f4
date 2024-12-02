@@ -116,18 +116,18 @@ typedef struct app_t
 
   */
 
-  bool          cdone_u102; // ice40 config done
+  bool          cdone_u102; // ice40 config done.   cdone_fpga0
 
 
-  spi_ice40_t   *spi_u102;   // TODO better name.  a-control-fpga- ice40 analog board.
+  spi_ice40_t   *spi_u102;   // TODO better name.  spi_fpga0 .   eg. similar to led0. device to indicate an instance.
 
   spi_t         *spi_4094;   // eg. separate system.
 
-  spi_t         *spi_ad5446;   // separate system
+  spi_t         *spi_ad5446;   // separate system.   rename mdac0. or sts_mdac. ?
 
   ////
 
-  spi_ice40_t   *spi_u202;   // separate system.
+  spi_ice40_t   *spi_u202;   // separate system.  rename spi_fpga1.
 
   interrupt_t   *interrupt_u202;
 
