@@ -31,8 +31,9 @@ static void test (app_t *app)
 
     flip = ! flip;
     // mode.first.K407 =  flip ? 0b01 : 0b10;
-    // mode.first.K703 =  flip ? 0b01 : 0b10;
-    mode.first.K403 =  flip ? 0b01 : 0b10;
+
+    mode.first.K703 =  flip ? 0b01 : 0b10;
+    //mode.first.K403 =  flip ? 0b01 : 0b10;
 
     printf("flip %u\n", mode.first.K403 );
 

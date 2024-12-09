@@ -102,21 +102,22 @@ void spi_mode_transition_state(
   spi_port_configure( spi_4094);
 
 
+
   printf("-----------\n");
   printf("write first state\n");
-  state_format (  (void *) &mode->first, 3 /* sizeof( mode->first)*/ );
+  state_format (  (void *) &mode->first, sizeof( mode->first));
 
-  spi_4094_write_n( spi_4094, (void *) &mode->first, 3 /*sizeof( mode->first ) */ );
+  spi_4094_write_n( spi_4094, (void *) &mode->first, sizeof( mode->first));
 
   // sleep 10ms, for relays
   msleep(10, system_millis);
 
   // and format
   printf("write second state\n");
-  state_format ( (void *) &mode->second, 3 /* sizeof(mode->second)*/ );
+  state_format ( (void *) &mode->second, sizeof(mode->second));
 
   // and write device
-  spi_4094_write_n( spi_4094, (void *) &mode->second, 3 /* sizeof(mode->second) */ );
+  spi_4094_write_n( spi_4094, (void *) &mode->second, sizeof(mode->second));
 
 #endif
 
@@ -796,12 +797,12 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       // 4094 components.
       // perhaps rename second. _4094_second etc.
 
-
+/*
       else if(strcmp(s0, "u504") == 0) {
         mode->second.U504 = u0;
       }
 
-
+*/
       else if(strcmp(s0, "u1003") == 0) {
         mode->second.U1003 = u0;
       }

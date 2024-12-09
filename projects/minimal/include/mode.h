@@ -124,94 +124,71 @@ typedef struct _4094_state_t
 {
 
   // U401
-  uint8_t K404    : 2;
-  uint8_t U402    : 2;
-  uint8_t K405    : 2;
-  uint8_t K406    : 2;
+  uint8_t K404  : 2;
+  uint8_t U402  : 2;
+  uint8_t K405  : 2;
+  uint8_t K406  : 2;
 
 
   // U402
-  uint8_t U409    : 4;    //  hi/lomux. CAREFUL. 2x4 but, enable is on 4th pin. instead of 3rd. DIFFERENT.  use enum?
-  uint8_t K407    : 2;
-  uint8_t K403		: 2;
-
-
-  // 506.
-  uint8_t U504        : 3; // adg1209.
-  uint8_t U506_UNUSED : 1;
-  uint8_t K401    : 2;
-  uint8_t U506_UNUSED_2 : 2;
+  uint8_t U409  : 3;    //  adg1209. 2x4.
+  uint8_t       : 1;
+  uint8_t K407  : 2;
+  uint8_t K403  : 2;
 
 
 
-#if 0
-  /////////////////////
-
-  // U401
-  uint8_t K403			  : 2;
-  uint8_t U401_UNUSED : 4;
-  // uint8_t U402        : 2;
+  // u405
+  uint8_t U506  : 3; // adg1209.
+  uint8_t       : 1;
+  uint8_t K401  : 2;
+  uint8_t       : 2;
 
 
-  // U402
-  uint8_t U408    : 4;    //  himux
-
-
-  // U414
-
-  uint8_t U414_UNUSED : 8;
-
-  // U415
-  uint8_t U415_UNUSED : 8;
-
-#endif
-
-  /////////////////////
-
-#if 1
-
-/////////////////////
-  // 600.
-  uint8_t U606_UNUSED : 8;
-  uint8_t U607_UNUSED : 8;
-
-  // 700
-  uint8_t K701 : 2;
-  uint8_t K702 : 2;
-  uint8_t K703 : 2;
-  uint8_t U705_UNUSED : 2;
-
-
-
-  uint8_t U706_UNUSED : 8;
-  uint8_t U709_UNUSED : 8;
-
-  /////////////////////
-
-
-/*
-  // U705
-  uint8_t K701 : 2;
-  uint8_t U705_UNUSED : 6;
-
-  uint8_t U706_UNUSED : 8;
-  uint8_t U709_UNUSED : 8;
-*/
+  // u1017
+  uint8_t U1007 : 4;
+  uint8_t U1006 : 4;
 
 
   // u1004
   uint8_t U1003 : 4;      // 4 bit mux.
-  uint8_t U1012 : 4;      // fixme.
+  uint8_t U1012 : 4;      //
 
-  // U1017
-  uint8_t U1006 : 4;
-  uint8_t U1007 : 4;
 
-  // U1008.
-  // uint8_t U1009 : 4;
-  // uint8_t U1008_UNUSED : 4;
+  // u1008
+  uint8_t U1009 : 4;
+  uint8_t U1010 : 4;
 
-#endif
+
+  // u606
+  uint8_t U605  : 4;
+  uint8_t U610  : 3;
+  uint8_t       : 1;
+
+  // u607
+  uint8_t       : 2;
+  uint8_t U608_SW : 1;
+  uint8_t       : 1;
+  uint8_t K602  : 2;
+  uint8_t       : 2;
+
+  // u705
+  uint8_t K701  : 2;
+  uint8_t K702  : 2;
+  uint8_t K703  : 2;
+  uint8_t       : 2;
+
+
+  // u706
+  uint8_t K704  : 2;
+  uint8_t K705  : 2;
+  uint8_t U703  : 4;
+
+  // u709
+  uint8_t       : 4;
+  uint8_t U702  : 3;
+  uint8_t       : 1;
+
 
 } _4094_state_t;
 

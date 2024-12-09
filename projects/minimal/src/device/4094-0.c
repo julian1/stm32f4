@@ -25,7 +25,11 @@
 
 // copy from u102.c
 #define SPI1_PORT       GPIOA
-#define SPI1_CS2        GPIO10
+
+// #define SPI1_CS2        GPIO10      // control-panel-08
+#define SPI1_CS2        GPIO15     // gerber 257. control-panel-07
+
+
 
 #define UNUSED(x) ((void)(x))
 

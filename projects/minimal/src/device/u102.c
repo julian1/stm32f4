@@ -23,6 +23,7 @@
 #define SPI1_PORT       GPIOA
 #define SPI1_CS1        GPIO4     // PA4
 
+// change in 4094-0.c also
 // #define SPI1_CS2        GPIO10      // control-panel-08
 #define SPI1_CS2        GPIO15     // gerber 257. control-panel-07
 
