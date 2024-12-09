@@ -1,5 +1,6 @@
 
-// should move to /device - because instance/implementation?
+// rename fpga0. or similar.
+// device / instance/implementation
 
 
 #include <libopencm3/stm32/gpio.h>
@@ -21,9 +22,11 @@
 // pulled from spi-port code.
 #define SPI1_PORT       GPIOA
 #define SPI1_CS1        GPIO4     // PA4
-// #define SPI1_CS2        GPIO15     // gerber157.
-#define SPI1_CS2        GPIO10
-#define SPI1_INTERUPT   GPIO3     // PA3  shared for cdone/ and interrupt
+
+// #define SPI1_CS2        GPIO10      // control-panel-08
+#define SPI1_CS2        GPIO15     // gerber 257. control-panel-07
+
+#define SPI1_INT_CDONE   GPIO3     // PA3  shared for cdone/ and interrupt
 
 
 #define UNUSED(x) ((void)(x))
@@ -47,7 +50,7 @@ static void setup(spi_t *spi )
   gpio_set_output_options(SPI1_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI1_CS1 | SPI1_CS2);
 
   // shared for cdone/ interupt.
-  gpio_mode_setup(SPI1_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI1_INTERUPT);
+  gpio_mode_setup(SPI1_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI1_INT_CDONE);
 }
 
 
@@ -116,7 +119,7 @@ static bool cdone(spi_ice40_t *spi )
 {
   assert(spi->spi == SPI1);
 
-  return gpio_get(SPI1_PORT, SPI1_INTERUPT)  != 0;
+  return gpio_get(SPI1_PORT, SPI1_INT_CDONE)  != 0;
 }
 
 

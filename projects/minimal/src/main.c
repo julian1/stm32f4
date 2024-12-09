@@ -319,7 +319,7 @@ static int main_f429(void)
   // now init spi ports
   spi1_port_setup();
 
-#if 1
+#if 0
 
   app.spi_u202 = spi2_u202_create();
   spi_setup(app.spi_u202 );

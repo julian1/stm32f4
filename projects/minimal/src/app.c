@@ -386,33 +386,19 @@ static void app_update_soft_500ms(app_t *app)
 
       app->cdone_u102 = true;
 
-      beep( app, 2 );
+//      beep( app, 2 );
 
       led_dance( app );
 
-
+      // TODO better name
       app_configure( app);
     }
 
-
-    // app_configure( app );
   }
-
-
-/*
-  // u102 analog board - old
-  // if( false && !app->cdone && !spi_port_cdone_get() ) {
-  if( false && !app->cdone && !  app->spi_u202->cdone( app->spi_u202) ) {
-
-    // we should separate these.
-
-    app_configure( app );
-  }
-*/
 
 
   // u202 local ice40
-  if( true && !spi_ice40_cdone( app->spi_u202)) {
+  if( false && !spi_ice40_cdone( app->spi_u202)) {
 
     FILE *f = flash_open_file( FLASH_U202_ADDR );
     spi_ice40_bitstream_send( app->spi_u202, f, FLASH_UP5K_SIZE, & app->system_millis );
@@ -429,17 +415,25 @@ static void app_update_soft_500ms(app_t *app)
   }
 
 
-
-
   /*
     would be nice if could detect if we lose configuration eg. for power supply
 
     we may be able to detect with a cdone==lo.
     disable the 4094-oe. check the cdone flag. re-enable 4094-oe.
   */
-
-
 }
+
+
+/*
+  // u102 analog board - old
+  // if( false && !app->cdone && !spi_port_cdone_get() ) {
+  if( false && !app->cdone && !  app->spi_u202->cdone( app->spi_u202) ) {
+
+    // we should separate these.
+
+    app_configure( app );
+  }
+*/
 
 
 

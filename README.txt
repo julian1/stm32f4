@@ -1,5 +1,18 @@
 
 
+nov 24
+cd stm32f4
+nix-shell
+cd projects/minimal
+openocd -f ../../openocd.cfg
+
+
+reset halt; flash write_image erase unlock /home/me/devel/ice40-fpga/projects/u202/build/main.bin  0x08060000 ; reset run
+
+reset halt; flash write_image erase unlock /home/me/devel/ice40-fpga/projects/minimal/build/main.bin  0x08080000 ; reset run
+
+reset halt ; flash write_image erase unlock /home/me/devel/stm32f4/projects/minimal/main.elf ;  reset run
+
 
 
 may 2024.
