@@ -404,10 +404,8 @@ void mode_set_dcv_source_temp( _mode_t *mode );
 
 void mode_set_dcv_source_daq( _mode_t *mode, unsigned u0, unsigned u1 );
 
+void mode_set_dcv_source_tia( _mode_t *mode );
 
-
-// tia.
-// daq
 
 
 bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );

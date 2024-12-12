@@ -356,6 +356,13 @@ void mode_set_dcv_source_daq( _mode_t *mode, unsigned u0, unsigned u1 )
 
 
 
+void mode_set_dcv_source_tia( _mode_t *mode )
+{
+  UNUSED(mode);
+
+  assert(0);
+
+}
 
 
 
