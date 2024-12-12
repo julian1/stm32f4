@@ -402,7 +402,7 @@ void mode_set_dcv_source_ref(  _mode_t *mode, unsigned u0 );
 
 void mode_set_dcv_source_temp( _mode_t *mode );
 
-void mode_set_dcv_source_header( _mode_t *mode );   // daq
+void mode_set_dcv_source_daq( _mode_t *mode, unsigned u0, unsigned u1 );
 
 
 

@@ -212,6 +212,10 @@ static void mode_dcv_source_reset( _mode_t *mode )
   mode->second.U1003  = S8 ;
   mode->second.U1006  = S8;
   mode->second.U1007  = S8;
+
+  mode->second.U1009  = SOFF;
+  mode->second.U1010  = SOFF;
+
 }
 
 
@@ -296,7 +300,7 @@ void mode_set_dcv_source_sts( _mode_t *mode, signed u0 )
   }
 
   // should do better range check.
-  assert(u0 <= 0x3fff);
+  //assert(u0 <= 0x3fff);
 
   mode->dac_val = u0;// abs( u0 );
 }
@@ -337,19 +341,20 @@ void mode_set_dcv_source_temp( _mode_t *mode )
 }
 
 
-#if 0
 
-  // change name daq/
-void mode_set_dcv_source_header( _mode_t *mode )
+void mode_set_dcv_source_daq( _mode_t *mode, unsigned u0, unsigned u1 )
 {
-  // TOwhat is this for????
   mode_dcv_source_reset( mode);
 
-  mode->second.U1006  = S8;          // cap.
-  mode->second.U1003  = S3;          // agnd.
+  mode->second.U1006  = S7;
+  mode->second.U1007  = S7;
+
+  // set the hig/lo dac inputs.
+  mode->second.U1009  = u0;
+  mode->second.U1010  = u1;
 }
 
-#endif
+
 
 
 
@@ -545,23 +550,12 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   int32_t i0;
 
 
-  // uint32_t line_freq = app->line_freq;
-      // _mode_t *mode = app->mode_current;
 
 
-  /*
-      could move the dcv-source function handling
-  */
-
-  // we want
-
-  // +10,0,-10.    fixed divider.
-  // if increment. then could use the dac.
-  // perhaps change name dcv-source fixed
   if( sscanf(cmd, "dcv-source lts %lf", &f0) == 1) {
 
       // printf("set dcv-source, input relays, for current_mode\n");
-      mode_set_dcv_source_lts( mode, f0);
+    mode_set_dcv_source_lts( mode, f0);
   }
 
 
@@ -569,23 +563,22 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   else if( sscanf(cmd, "dcv-source sts %100s", s0) == 1
     && str_decode_int( s0, &i0)) {
 
-      // hex values are not working.
-      printf("value %ld hex %lx\n", i0, i0 );
+    // hex values are not working.
+    printf("value %ld hex %lx\n", i0, i0 );
 
-        // this isnt quite working.
-      // note. can take a negative value.
-      // eg. 0x3fff or -0x3fff
-      mode_set_dcv_source_sts( mode, i0);
+      // this isnt quite working.
+    // note. can take a negative value.
+    // eg. 0x3fff or -0x3fff
+    mode_set_dcv_source_sts( mode, i0);
   }
 
 
   else if( sscanf(cmd, "dcv-source ref %100s", s0) == 1
     && str_decode_uint( s0, &u0))  {
 
-      // arg could be "hi"/"lo".
-      // 0 or 7
-      mode_set_dcv_source_ref( mode, u0 );
-
+    // arg could be "hi"/"lo".
+    // 0 or 7
+    mode_set_dcv_source_ref( mode, u0 );
   }
 
 
@@ -594,12 +587,17 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     mode_set_dcv_source_temp( mode);
   }
 
-#if 0
-  // cap
-  else if( strcmp(cmd, "dcv-source header") == 0)
-    mode_set_dcv_source_header( mode);
-#endif
 
+
+  else if( sscanf(cmd, "dcv-source daq %100s %100s", s0, s1 ) == 2
+    && str_decode_uint( s0, &u0)
+    && str_decode_uint( s1, &u1)
+  )  {
+
+    // eg. 'dcv-source daq s1 s2'
+
+    mode_set_dcv_source_daq( mode, u0, u1);
+  }
 
 
 
