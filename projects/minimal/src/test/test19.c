@@ -32,7 +32,7 @@ bool app_test19( app_t *app , const char *cmd)
     _mode_t mode = *app->mode_current;
 
     mode.reg_mode =  MODE_ADC_REFMUX_TEST;
-    spi_mode_transition_state( (spi_t *) app->spi_u102, app->spi_4094, app->spi_mdac0, &mode, &app->system_millis);
+    spi_mode_transition_state( (spi_t *) app->spi_fpga0, app->spi_4094, app->spi_mdac0, &mode, &app->system_millis);
 
     printf("sleep 5s\n");  // really need the yield would be quite nice here.
     msleep(60 * 1000,  &app->system_millis);

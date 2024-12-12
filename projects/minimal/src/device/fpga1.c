@@ -17,9 +17,11 @@
 #include <peripheral/spi-ice40.h>   // interface/abstraction
 
 
-#include <device/u202.h>        // implementation/device
+#include <device/fpga1.h>        // implementation/device
 
 #define UNUSED(x) ((void)(x))
+
+
 
 
 static void setup( spi_t *spi )    // rename port() ?.

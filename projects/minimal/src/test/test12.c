@@ -67,7 +67,7 @@ static void test (app_t *app)     // should be passing the continuation.
 */
 
 
-  spi_mode_transition_state( (spi_t *) app->spi_u102, app->spi_4094, app->spi_mdac0, &mode, &app->system_millis);
+  spi_mode_transition_state( (spi_t *) app->spi_fpga0, app->spi_4094, app->spi_mdac0, &mode, &app->system_millis);
   printf("sleep 10s\n");  // having a yield would be quite nice here.
   msleep(10 * 1000,  &app->system_millis);
 
@@ -82,7 +82,7 @@ static void test (app_t *app)     // should be passing the continuation.
   mode.second.U1003 = 0; */
   mode.reg_direct.leds_o = 0b0010;
 
-  spi_mode_transition_state( (spi_t *)app->spi_u102, app->spi_4094, app->spi_mdac0, &mode, &app->system_millis);
+  spi_mode_transition_state( (spi_t *)app->spi_fpga0, app->spi_4094, app->spi_mdac0, &mode, &app->system_millis);
   printf("sleep 10s\n");  // having a yield would be quite nice here.
   msleep(10 * 1000,  &app->system_millis);
 
@@ -94,7 +94,7 @@ static void test (app_t *app)     // should be passing the continuation.
   mode.reg_direct.leds_o = 0b0100;
   // now we do the sleep- to take the measurement.
   printf("sleep 2s\n");  // having a yield would be quite nice here.
-  spi_mode_transition_state( (spi_t *) app->spi_u102, app->spi_4094, app->spi_mdac0, &mode, &app->system_millis);
+  spi_mode_transition_state( (spi_t *) app->spi_fpga0, app->spi_4094, app->spi_mdac0, &mode, &app->system_millis);
   msleep(2 * 1000,  &app->system_millis);
 
 }

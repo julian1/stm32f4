@@ -4,12 +4,15 @@
 /*
   simple spi peripheral abstraction.
   can be used by different peripheral types (fpga,adc,dac)  and device/instances ( u202,u102, dac2,mcu1 etc).
-  abstracts gpio setup, and spi pol/phase.
-  could abstract the spi by typing spi_xfer() on spi_t.
+  abstracts gpio setup, and spi pol/phase configuration.
+  could also abstract the spi by typing spi_xfer() on spi_t. but we dont bother
   eg. uint8_t spi_xfer(spi_t *, uint8_t ); but we don't bother
 
   the spi port_configure(). should be implemented per device.
   even if the function is repeated/the same for devices of the same *type* .
+
+  ---
+  could put interrupt callback on this structure also.  but not clear how useful.
 
 */
 
@@ -26,7 +29,7 @@ struct spi_t
 {
 
   // magic, type, size.
-  uint32_t  spi;    // controller. maybe shared.  should make opaque/hidden?
+  uint32_t  spi;    // controller. maybe shared.  should hide/make opaque?
 
   void (*setup)(spi_t *);                     // cs interupt gpio
   void (*port_configure)(spi_t *);

@@ -12,8 +12,5 @@ typedef struct spi_t spi_t;
 
 void spi_ad5446_write16( spi_t *spi, uint16_t val);
 
-// wrong. move.
-void spi_ad5446_port_configure( uint32_t spi);
-
 
 

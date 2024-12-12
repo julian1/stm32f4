@@ -35,19 +35,20 @@
 
 
 #include <device/led0.h>
-#include <device/u202.h>
-#include <device/u102.h>
-#include <device/fsmc.h>
-
-
+#include <device/fpga0.h>
 #include <device/4094-0.h>
 #include <device/mdac0.h>
+#include <device/fsmc.h>
+
 
 #include <device/spi1-port.h>
 #include <device/spi2-port.h>
 
 
-#include <device/interrupt_u202.h>
+
+#include <device/fpga1.h>
+
+#include <device/interrupt_u202.h>  // rename interrupt_fpga1.
 
 // #include <hal/hal.h>
 
@@ -176,7 +177,6 @@ static _mode_t mode_current = { 0 } ;
 
 
 
-// static spi_ice40_t   spi_u202 ;   //
 
 
 
@@ -206,7 +206,7 @@ static app_t app = {
   // device
   // . spi_u202 = &spi_u202,
 
-  .cdone_u102 = false,
+  .cdone_fpga0 = false,
 
   // ugly.
   .mode_initial =  &mode_initial,
@@ -315,8 +315,8 @@ static int main_f429(void)
   // init spi related port state. before do spi port.
   // to prevent ice40 wanting to become spi master
 
-  app.spi_u102 = spi_u102_create();
-  spi_setup( app.spi_u102 );
+  app.spi_fpga0 = spi_u102_create();
+  spi_setup( app.spi_fpga0 );
   // now init spi ports
   spi1_port_setup();
 

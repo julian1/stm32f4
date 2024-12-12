@@ -1,5 +1,4 @@
 
-// rename fpga0. or similar.
 // device / instance/implementation
 
 
@@ -16,7 +15,7 @@
 
 
 #include <peripheral/spi-ice40.h>   // interface/abstraction
-#include <device/u102.h>        // implementation/device
+#include <device/fpga0.h>        // implementation/device
 
 
 // pulled from spi-port code.
