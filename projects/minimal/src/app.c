@@ -215,7 +215,7 @@ void app_configure( app_t *app )
     app->cdone = true;
 
     // led dance
-    led_dance( app->spi_u102 );
+    app_led_dance( app->spi_u102 );
 
 #endif
 
@@ -283,7 +283,10 @@ void app_configure( app_t *app )
 }
 
 
-static void beep( app_t * app, uint32_t n)
+
+
+
+void app_beep( app_t * app, uint32_t n)
 {
     // double beep ok.
     uint32_t t = 70;
@@ -307,10 +310,12 @@ static void beep( app_t * app, uint32_t n)
 
 
 
-static void led_dance( app_t * app )
+void app_led_dance( app_t * app )
 {
   // should pass the spi/ and millis?. perhaps.
   // config.
+
+  // needs to be in mode direct.
 
   spi_port_configure( app->spi_u102);
 
@@ -320,6 +325,19 @@ static void led_dance( app_t * app )
     ++counter;
     uint32_t magic = counter  ^ (counter >> 1);
     spi_ice40_reg_write32( app->spi_u102, REG_DIRECT, magic );
+
+    // check the magic numger
+    uint32_t ret = spi_ice40_reg_read32( app->spi_u102, REG_DIRECT);
+    if(ret != magic ) {
+      // comms no good
+      char buf[ 100] ;
+      printf("comms failed, returned reg value %s\n",  str_format_bits(buf, 32, ret ));
+    } else {
+      // printf("comms ok\n");
+    }
+
+
+
     msleep( 50,  &app->system_millis);
   }
 
@@ -388,7 +406,7 @@ static void app_update_soft_500ms(app_t *app)
 
 //      beep( app, 2 );
 
-      led_dance( app );
+      app_led_dance( app );
 
       // TODO better name
       app_configure( app);
@@ -410,7 +428,7 @@ static void app_update_soft_500ms(app_t *app)
     } else {
 
       printf("fpga ok!\n");
-      beep( app, 2 );
+      app_beep( app, 2 );
     }
   }
 
@@ -883,7 +901,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
   else if(strcmp(cmd, "beep") == 0) {
 
-    beep( app, 1 );
+    app_beep( app, 1 );
   }
 
   // need better name

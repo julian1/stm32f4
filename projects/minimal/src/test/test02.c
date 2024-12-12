@@ -30,16 +30,21 @@ static void test (app_t *app)
   for(unsigned i = 0; i < 6; ++i ) {
 
     flip = ! flip;
-    // mode.first.K407 =  flip ? 0b01 : 0b10;
-
-    mode.first.K703 =  flip ? 0b01 : 0b10;
-    //mode.first.K403 =  flip ? 0b01 : 0b10;
-
+    mode.first.K403 =  flip ? 0b01 : 0b10;
     printf("flip %u\n", mode.first.K403 );
-
     spi_mode_transition_state(  (spi_t *)app->spi_u102, app->spi_4094, app->spi_ad5446, &mode, &app->system_millis);
     msleep( 300, &app->system_millis);
   }
+
+
+  for(unsigned i = 0; i < 6; ++i ) {
+
+    flip = ! flip;
+    mode.first.K703 =  flip ? 0b01 : 0b10;
+    spi_mode_transition_state(  (spi_t *)app->spi_u102, app->spi_4094, app->spi_ad5446, &mode, &app->system_millis);
+    msleep( 300, &app->system_millis);
+  }
+
 }
 
 

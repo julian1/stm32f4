@@ -31,46 +31,6 @@
 
 
 
-static void test (app_t *app)
-{
-  assert( 0);
-  // spi_mux_ice40( app->spi_u102 );
-
-  // put direct mode
-  spi_ice40_reg_write32( app->spi_u102, REG_MODE , MODE_DIRECT );
-
-
-
-  for(unsigned i = 0; i < 31; ++i )  {
-
-    static uint32_t counter = 0;
-    ++counter;
-    uint32_t magic = counter  ^ (counter >> 1);
-    /*
-    static uint32_t magic = 0;
-    ++magic;
-    */
-
-    // blink led... want option. so can write reg_direct
-    // note - led will only, actually light if fpga in default mode. 0.
-    spi_ice40_reg_write32( app->spi_u102, REG_DIRECT, magic );
-
-    // check the magic numger
-    uint32_t ret = spi_ice40_reg_read32( app->spi_u102, REG_DIRECT);
-    if(ret != magic ) {
-      // comms no good
-      char buf[ 100] ;
-      printf("comms failed, returned reg value %s\n",  str_format_bits(buf, 32, ret ));
-    } else {
-      // printf("comms ok\n");
-    }
-
-    msleep( 100,  &app->system_millis);
-  }
-}
-
-
-
 bool app_test01( app_t *app , const char *cmd)
 {
   assert(app);
@@ -78,9 +38,10 @@ bool app_test01( app_t *app , const char *cmd)
   assert(cmd);
 
 
-
   if( strcmp(cmd, "test01") == 0) {
-    test( app );
+
+    app_led_dance( app);
+
     return 1;
   }
 

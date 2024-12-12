@@ -151,6 +151,12 @@ typedef struct app_t
 
 
 
+
+void app_beep( app_t * app, uint32_t n);
+void app_led_dance( app_t * app );
+
+
+
 void app_init_console_buffers(app_t *app);
 // void app_loop(app_t *app);
 void app_systick_interupt(app_t *app);
