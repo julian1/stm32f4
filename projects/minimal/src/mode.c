@@ -47,15 +47,16 @@ static void state_format ( uint8_t *state, size_t n)
 
 
 void spi_mode_transition_state(
-      spi_t  *spi_ice40,         // TODO type on spi not spi_ice40_t.
-      spi_t  *spi_4094,
-      spi_t  *spi_ad5446,
+  spi_t  *spi_fpga0,         // TODO type on spi not spi_ice40_t.
+  spi_t  *spi_4094,
+  spi_t  *spi_mdac0,
 
-      const _mode_t *mode, volatile uint32_t *system_millis  /*, uint32_t update_flags */ )
+  const _mode_t *mode,
+  volatile uint32_t *system_millis
+  /*, uint32_t update_flags */
+)
 {
   assert(mode);
-  UNUSED(spi_ad5446);
-  UNUSED(system_millis);
 
 
   printf("spi_mode_transition_state()\n");
@@ -67,8 +68,8 @@ void spi_mode_transition_state(
   // spi_mux_4094 ( spi);
 
   // JA write the spi mux select register.
-  spi_port_configure( spi_ice40);
-  spi_ice40_reg_write32(spi_ice40, REG_SPI_MUX,  SPI_MUX_4094 );
+  spi_port_configure( spi_fpga0);
+  spi_ice40_reg_write32(spi_fpga0, REG_SPI_MUX,  SPI_MUX_4094 );
 
 
 
@@ -102,21 +103,16 @@ void spi_mode_transition_state(
   /////////////////////////////
 
 #if 1
-  assert( spi_ad5446);
+  assert( spi_mdac0);
 
   // now write mdac state
-  spi_port_configure( spi_ice40);
-  spi_ice40_reg_write32( spi_ice40, REG_SPI_MUX,  SPI_MUX_DAC );
+  spi_port_configure( spi_fpga0);
+  spi_ice40_reg_write32( spi_fpga0, REG_SPI_MUX,  SPI_MUX_DAC );
 
-  // assert( 0);
-  // spi_port_configure_ad5446( spi);
-  spi_port_configure( spi_ad5446);
+  // write mdac
+  spi_port_configure( spi_mdac0);
+  spi_ad5446_write16( spi_mdac0, mode->dac_val );
 
-  spi_ad5446_write16( spi_ad5446, mode->dac_val );  // fails.
-
-  // restore mode.
-  spi_port_configure( spi_ice40);
-  spi_ice40_reg_write32( spi_ice40, REG_SPI_MUX,  0 );
 
 #endif
 
@@ -194,6 +190,12 @@ void spi_mode_transition_state(
     ice40_port_trig_sa_disable();
 
 #endif
+
+
+  // restore mode.
+  spi_port_configure( spi_fpga0);
+  spi_ice40_reg_write32( spi_fpga0, REG_SPI_MUX,  0 );
+
 }
 
 
@@ -323,18 +325,6 @@ void mode_set_dcv_source_ref( _mode_t *mode, unsigned u0 )
 }
 
 
-#if 0
-void mode_set_dcv_source_header( _mode_t *mode )
-{
-  // TOwhat is this for????
-  mode_dcv_source_reset( mode);
-
-  mode->second.U1006  = S8;          // cap.
-  mode->second.U1003  = S3;          // agnd.
-}
-
-#endif
-
 
 
 void mode_set_dcv_source_temp( _mode_t *mode )
@@ -346,6 +336,20 @@ void mode_set_dcv_source_temp( _mode_t *mode )
   mode->second.U1007  = S6;
 }
 
+
+#if 0
+
+  // change name daq/
+void mode_set_dcv_source_header( _mode_t *mode )
+{
+  // TOwhat is this for????
+  mode_dcv_source_reset( mode);
+
+  mode->second.U1006  = S8;          // cap.
+  mode->second.U1003  = S3;          // agnd.
+}
+
+#endif
 
 
 
@@ -538,7 +542,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   char s2[100 + 1 ];
   uint32_t u0, u1;
   double f0;
-  // int32_t i0;
+  int32_t i0;
 
 
   // uint32_t line_freq = app->line_freq;
@@ -560,12 +564,18 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       mode_set_dcv_source_lts( mode, f0);
   }
 
-  else if( sscanf(cmd, "dcv-source sts %100s", s0) == 1
-    && str_decode_uint( s0, &u0)) {
 
-      // TODO perhaps should be able to handle +-
-      // eg. dcv-source dac 0x3fff
-      mode_set_dcv_source_sts( mode, u0);
+
+  else if( sscanf(cmd, "dcv-source sts %100s", s0) == 1
+    && str_decode_int( s0, &i0)) {
+
+      // hex values are not working.
+      printf("value %ld hex %lx\n", i0, i0 );
+
+        // this isnt quite working.
+      // note. can take a negative value.
+      // eg. 0x3fff or -0x3fff
+      mode_set_dcv_source_sts( mode, i0);
   }
 
 

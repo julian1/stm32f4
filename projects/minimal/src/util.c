@@ -170,12 +170,10 @@ unsigned str_decode_uint( const char *s, uint32_t *val  )
     *val = SOFF;
 
 
+  /*
+    // 2 of 4 mux values
 
-
-/*
-  // 2 of 4 mux values
-
-*/
+  */
 
 
   // we could factor all this handling.
@@ -205,6 +203,30 @@ unsigned str_decode_uint( const char *s, uint32_t *val  )
   // OK.
   return 1 ;
 }
+
+
+
+unsigned str_decode_int( const char *s, int32_t *val  )
+{
+  // it's useful to express a negative hex value for mdac.
+  assert(s);
+
+  bool dash = false;
+  if(*s == '-') {
+    ++s;
+    dash = true;
+  }
+
+  unsigned ret = str_decode_uint( s, (uint32_t *)val);
+
+  if(dash) 
+    *val *= -1;
+
+  return ret;
+}
+
+
+
 
 
 

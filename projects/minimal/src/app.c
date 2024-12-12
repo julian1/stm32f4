@@ -383,13 +383,10 @@ static void app_update_soft_500ms(app_t *app)
 #endif
 
 
-  static unsigned count =  0;
-  ++count;
 
-  // u102 analog board
-  if( ((count % 10) == 0) && !app->cdone_fpga0) {
+  // fpga0 on analog board
+  if(  !app->cdone_fpga0) {
 
-     printf("count %u  %u %u\n" , count, count % 5,  (count % 5 == 0 ) );
 
     FILE *f = flash_open_file( FLASH_U102_ADDR);
     spi_ice40_bitstream_send( app->spi_fpga0, f, FLASH_HX8K_SIZE, & app->system_millis );
@@ -404,8 +401,7 @@ static void app_update_soft_500ms(app_t *app)
 
       app->cdone_fpga0 = true;
 
-//      beep( app, 2 );
-
+      // app_beep( app, 2 );
       app_led_dance( app );
 
       // TODO better name

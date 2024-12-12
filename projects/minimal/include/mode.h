@@ -370,7 +370,7 @@ typedef struct _mode_t
     chage name spi_mode_transition() ?
 */
 void spi_mode_transition_state(
-  spi_t     *spi_ice40,         // TODO change name fpga. and use spi_t. instead.
+  spi_t     *spi_fpga0,         // TODO change name fpga. and use spi_t. instead.
   spi_t     *spi_4094,
 
   // should perhaps accept passing null here.
@@ -400,20 +400,17 @@ void mode_set_dcv_source_sts( _mode_t *mode, signed u0 );
 
 void mode_set_dcv_source_ref(  _mode_t *mode, unsigned u0 );
 
-void mode_set_dcv_source_header( _mode_t *mode );
-
 void mode_set_dcv_source_temp( _mode_t *mode );
 
+void mode_set_dcv_source_header( _mode_t *mode );   // daq
 
 
-// temp
+
 // tia.
 // daq
 
 
 bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );
-
-
 
 void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 );
 
