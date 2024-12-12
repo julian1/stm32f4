@@ -15,9 +15,9 @@
 
 
 
-#include <support.h>    // spi_wait_ready().  should perhaps move to spi.  no. because it's an peripheral abstraction
 
 #include <peripheral/spi.h>
+#include <support.h>    // spi_wait_ready().  should perhaps move to spi.  no. because it's an peripheral abstraction
 
 
 #include <device/4094-0.h>
@@ -78,7 +78,7 @@ static void cs( spi_t *spi, uint8_t val)
 {
   assert(spi->spi == SPI1);
 
-  printf("4094-0 strobe %u\n", val );
+  // printf("4094-0 strobe %u\n", val );
 
   spi_wait_ready( spi->spi);
   gpio_write_val( SPI1_PORT, SPI1_CS2, val);

@@ -72,50 +72,28 @@ void spi_mode_transition_state(
 
 
 
-
-
-#if 0
-  spi_port_configure( spi_4094);
-  spi_4094_write_n( spi_4094, (void *) &x , 4  );
-/*
-  uint32_t x = 0xffffffff;
-  uint32_t x = 0b10101010101010101010101010101010;
-  uint32_t y = 0b01010101010101010101010101010101;
-
-  // sleep 10ms, for relays
-  msleep(10, system_millis);
-
-  // and write device
-  spi_4094_write_n( spi_4094, (void *) &y , 2  );
-
-  // sleep 10ms, for relays
-  msleep(10, system_millis);
-
-  // and write device
-  spi_4094_write_n( spi_4094, (void *) &x , 2  );
-*/
-#endif
-
-
 #if 1
+
+  assert( spi_4094);
+
   // write the 4094 device
   spi_port_configure( spi_4094);
 
-
-
+/*
   printf("-----------\n");
   printf("write first state\n");
   state_format (  (void *) &mode->first, sizeof( mode->first));
+*/
 
   spi_4094_write_n( spi_4094, (void *) &mode->first, sizeof( mode->first));
 
   // sleep 10ms, for relays
   msleep(10, system_millis);
-
+/*
   // and format
   printf("write second state\n");
   state_format ( (void *) &mode->second, sizeof(mode->second));
-
+*/
   // and write device
   spi_4094_write_n( spi_4094, (void *) &mode->second, sizeof(mode->second));
 
@@ -123,17 +101,22 @@ void spi_mode_transition_state(
 
   /////////////////////////////
 
+#if 1
+  assert( spi_ad5446);
 
-#if 0
-
-  // now write dac state
-  assert(0);
-  // spi_mux_ice40( spi);
+  // now write mdac state
+  spi_port_configure( spi_ice40);
   spi_ice40_reg_write32( spi_ice40, REG_SPI_MUX,  SPI_MUX_DAC );
 
-  assert( 0);
+  // assert( 0);
   // spi_port_configure_ad5446( spi);
-  spi_ad5446_write16( spi_ad5446, mode->dac_val );
+  spi_port_configure( spi_ad5446);
+
+  spi_ad5446_write16( spi_ad5446, mode->dac_val );  // fails.
+
+  // restore mode.
+  spi_port_configure( spi_ice40);
+  spi_ice40_reg_write32( spi_ice40, REG_SPI_MUX,  0 );
 
 #endif
 
@@ -216,25 +199,34 @@ void spi_mode_transition_state(
 
 
 /*
-    U1003==S5. is A1000-1 gnd. should have used a ref-lo.
-      But A1000-1 has current on it - because used with dac.
+  could put all these in separate file, if really wanted.
 
 */
 
-/*
-    - need a reset of all dcv-source muxes.  that we call first.
-    - eg. to reset U1003.
-*/
-
-void mode_set_dcv_source( _mode_t *mode, double f0 /*signed i0*/)     // needs to be a float... for 0.1 0.01 etc.
+static void mode_dcv_source_reset( _mode_t *mode )
 {
+  // agnd, to reduce input leakage on mux followers.
+  mode->second.U1012  = S8 ;
+  mode->second.U1003  = S8 ;
+  mode->second.U1006  = S8;
+  mode->second.U1007  = S8;
+}
+
+
+void mode_set_dcv_source_lts( _mode_t *mode, double f0)
+{
+  /*
   // better name?
+  // TODO . rename lts-source   or dcv-lts  and dcv-ref. and dcv-sts
+
+  */
 
   printf("set dcv-source\n");
 
+  mode_dcv_source_reset( mode);
 
-  mode->second.U1006  = S2;   // dcv-source
-  mode->second.U1007  = S2;   // dcv-source
+  mode->second.U1006  = S2;
+  mode->second.U1007  = S2;       // ref-lo
 
 
   if(f0 >= 0) {
@@ -282,40 +274,12 @@ void mode_set_dcv_source( _mode_t *mode, double f0 /*signed i0*/)     // needs t
 
 
 
-
-
-//    mode->second.U409 = S1;         // lo-mux,  source dcv-source-com which is ref-lo
-
-void mode_set_dcv_source_ref( _mode_t *mode, unsigned u0 )
-{
-
-    mode->second.U1012  = S8 ;       // agnd. reset/not used..
-    mode->second.U1003  = S8 ;       // agnd. reset/not used..
-
-
-  if(u0 == 7) {
-    printf("with ref-hi +7V\n");
-    mode->second.U1006  = S4;       // ref-hi
-    mode->second.U1007  = S4;       // ref-lo
-  }
-  else if( u0 == 0 ) {
-    // need bodge for this
-    printf("with ref-lo\n");
-    mode->second.U1006  = S8;       // ref-lo
-    mode->second.U1007  = S4;       // ref-lo - looks funny. gives bad measurement. on DMM.
-  }
-  else
-    assert(0);
-}
-
-
-
-void mode_set_dcv_source_dac( _mode_t *mode, signed u0 )
+void mode_set_dcv_source_sts( _mode_t *mode, signed u0 )
 {
     printf("dac\n");
 
-    mode->second.U1012  = S8 ;       // agnd. reset/not used..
-    mode->second.U1003  = S8 ;       // agnd. reset/not used..
+    mode_dcv_source_reset( mode);
+
 
     mode->second.U1006  = S3;       // dac
     mode->second.U1007  = S3;       // dac
@@ -337,13 +301,49 @@ void mode_set_dcv_source_dac( _mode_t *mode, signed u0 )
 
 
 
+void mode_set_dcv_source_ref( _mode_t *mode, unsigned u0 )
+{
+  // rename mode_dcv_ref_source
+
+  mode_dcv_source_reset( mode);
+
+  if(u0 == 7) {
+    printf("with ref-hi +7V\n");
+    mode->second.U1006  = S4;       // ref-hi
+    mode->second.U1007  = S4;       // ref-lo
+  }
+  else if( u0 == 0 ) {
+    // need bodge for this
+    printf("with ref-lo\n");
+    mode->second.U1006  = S8;       // ref-lo
+    mode->second.U1007  = S4;       // ref-lo - looks funny. gives bad measurement. on DMM.
+  }
+  else
+    assert(0);
+}
+
+
+#if 0
 void mode_set_dcv_source_header( _mode_t *mode )
 {
+  // TOwhat is this for????
+  mode_dcv_source_reset( mode);
 
   mode->second.U1006  = S8;          // cap.
-
-
   mode->second.U1003  = S3;          // agnd.
+}
+
+#endif
+
+
+
+void mode_set_dcv_source_temp( _mode_t *mode )
+{
+
+  mode_dcv_source_reset( mode);
+
+  mode->second.U1006  = S6;
+  mode->second.U1007  = S6;
 }
 
 
@@ -554,31 +554,44 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   // +10,0,-10.    fixed divider.
   // if increment. then could use the dac.
   // perhaps change name dcv-source fixed
-  if( sscanf(cmd, "dcv-source %lf", &f0) == 1) {
+  if( sscanf(cmd, "dcv-source lts %lf", &f0) == 1) {
 
       // printf("set dcv-source, input relays, for current_mode\n");
-      mode_set_dcv_source( mode, f0);
+      mode_set_dcv_source_lts( mode, f0);
   }
 
-  // ref-hi , ref-lo
-  else if( strcmp(cmd, "dcv-source ref-hi") == 0)
-      mode_set_dcv_source_ref( mode, 7 );
-
-  else if( strcmp(cmd, "dcv-source ref-lo") == 0)
-      mode_set_dcv_source_ref( mode, 0 );
-
-
-  else if( sscanf(cmd, "dcv-source dac %100s", s0) == 1
+  else if( sscanf(cmd, "dcv-source sts %100s", s0) == 1
     && str_decode_uint( s0, &u0)) {
 
       // TODO perhaps should be able to handle +-
       // eg. dcv-source dac 0x3fff
-      mode_set_dcv_source_dac( mode, u0);
+      mode_set_dcv_source_sts( mode, u0);
   }
 
+
+  else if( sscanf(cmd, "dcv-source ref %100s", s0) == 1
+    && str_decode_uint( s0, &u0))  {
+
+      // arg could be "hi"/"lo".
+      // 0 or 7
+      mode_set_dcv_source_ref( mode, u0 );
+
+  }
+
+
+  else if(strcmp(cmd, "dcv-source temp") == 0) {
+
+    mode_set_dcv_source_temp( mode);
+  }
+
+#if 0
   // cap
   else if( strcmp(cmd, "dcv-source header") == 0)
     mode_set_dcv_source_header( mode);
+#endif
+
+
+
 
 
 
@@ -890,6 +903,31 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 }
 
 
+
+
+
+
+#if 0
+  spi_port_configure( spi_4094);
+  spi_4094_write_n( spi_4094, (void *) &x , 4  );
+/*
+  uint32_t x = 0xffffffff;
+  uint32_t x = 0b10101010101010101010101010101010;
+  uint32_t y = 0b01010101010101010101010101010101;
+
+  // sleep 10ms, for relays
+  msleep(10, system_millis);
+
+  // and write device
+  spi_4094_write_n( spi_4094, (void *) &y , 2  );
+
+  // sleep 10ms, for relays
+  msleep(10, system_millis);
+
+  // and write device
+  spi_4094_write_n( spi_4094, (void *) &x , 2  );
+*/
+#endif
 
 
 

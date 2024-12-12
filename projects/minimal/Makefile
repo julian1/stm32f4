@@ -18,6 +18,7 @@ SRCFILES	= src/peripheral/trigger.c     \
             src/device/spi1-port.c src/device/spi2-port.c  \
             src/device/u202.c src/device/fsmc.c src/device/led0.c src/device/u102.c  \
             src/device/interrupt_u202.c src/device/4094-0.c \
+            src/device/mdac0.c \
             src/main.c  \
             src/app.c  \
             src/syscalls.o \

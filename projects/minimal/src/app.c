@@ -235,7 +235,7 @@ void app_configure( app_t *app )
     */
     // write the default 4094 state for muxes etc.
     printf("spi_mode_transition_state() for muxes\n");
-    spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
+    spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_mdac0, app->mode_current, &app->system_millis);
 
     /*
         nov 2024. 4094-oe could just include in mode. to simplify this
@@ -252,7 +252,7 @@ void app_configure( app_t *app )
 
     // now call transition state again. which will do relays
     printf("spi_mode_transition_state() for relays\n");
-    spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
+    spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_mdac0, app->mode_current, &app->system_millis);
 
 #if 0
 
@@ -504,11 +504,10 @@ static void app_update_console(app_t *app)
     {
       // correct. it is ok/desirable. to update analog board state by calling transition_state(),
       // even if state hasn't been modified. eg. ensures that state is consistent/aligned.
-#if 0
-      if(app->cdone_u102)
-        spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
 
-#endif
+      if(app->cdone_u102)
+        spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_mdac0, app->mode_current, &app->system_millis);
+
 
       // issue new command prompt
       printf("\n> ");
@@ -740,7 +739,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   {
 #if 1
     // update state based on current mode
-    spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
+    spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_mdac0, app->mode_current, &app->system_millis);
 #endif
     // sleep
     msleep( (uint32_t ) (f0 * 1000), &app->system_millis);
@@ -810,8 +809,8 @@ bool app_repl_statement(app_t *app,  const char *cmd)
       spi_ice40_reg_write32(app->spi_u102, REG_SPI_MUX,  SPI_MUX_ISO_DAC );
 
       assert(0);
-      // spi_port_configure_ad5446( app->spi);
-      // spi_ad5446_write16(app->spi, u0 );
+      // spi_port_configure_mdac0( app->spi);
+      // spi_mdac0_write16(app->spi, u0 );
 
       assert(0);
       // spi_mux_ice40(app->spi);
@@ -940,7 +939,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     unsigned model_spec = u0;
 
 
-    data_cal( app->data,  app->spi_u102, app->spi_4094,  app->spi_ad5446,  &mode, model_spec, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+    data_cal( app->data,  app->spi_u102, app->spi_4094,  app->spi_mdac0,  &mode, model_spec, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
   }
 
   else if(strcmp(cmd, "cal") == 0) {
@@ -949,7 +948,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     _mode_t mode = *app->mode_initial;
     unsigned model_spec = 3;
 
-    data_cal( app->data,  app->spi_u102, app->spi_4094,  app->spi_ad5446,  &mode, model_spec, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+    data_cal( app->data,  app->spi_u102, app->spi_4094,  app->spi_mdac0,  &mode, model_spec, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
   }
 
 
@@ -1170,9 +1169,9 @@ static bool app_repl_statement_direct(app_t *app,  const char *cmd)
   ) {
       spi_mux_ice40( app->spi);
       spi_ice40_reg_write32(app->spi, REG_SPI_MUX,  SPI_MUX_DAC );
-      spi_port_configure_ad5446( app->spi);
+      spi_port_configure_mdac0( app->spi);
 
-      spi_ad5446_write16(app->spi, u0 );
+      spi_mdac0_write16(app->spi, u0 );
       spi_mux_ice40(app->spi);
     }
 */
@@ -1227,7 +1226,7 @@ void app_repl_statements(app_t *app,  const char *s)
     if(ch == '\n')
     {
       printf("calling spi_mode_transition_state()");
-      spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_ad5446, app->mode_current, &app->system_millis);
+      spi_mode_transition_state( app->spi_u102, app->spi_4094, app->spi_mdac0, app->mode_current, &app->system_millis);
     }
 
     ++s;

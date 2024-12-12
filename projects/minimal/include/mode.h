@@ -314,7 +314,6 @@ typedef struct adc_state_t
 
 
 
-// typedef struct spi_ice40_t  spi_ice40_t ;
 typedef struct spi_t  spi_t;
 
 
@@ -373,7 +372,10 @@ typedef struct _mode_t
 void spi_mode_transition_state(
   spi_t     *spi_ice40,         // TODO change name fpga. and use spi_t. instead.
   spi_t     *spi_4094,
-  spi_t     *spi_ad5446,
+
+  // should perhaps accept passing null here.
+  // to not update.
+  spi_t     *spi_mdac0,
   const _mode_t *mode,
     volatile uint32_t *system_millis /*, uint32_t update_flags */
 
@@ -392,14 +394,21 @@ void spi_mode_transition_state(
   actually implied. because dcv2 is always constant function of dcv1.  - eg. inverted.
 */
 
-void mode_set_dcv_source( _mode_t *mode, double f0 /*signed i0*/);  // arg is 10,0,-10
+void mode_set_dcv_source_lts( _mode_t *mode, double f0 /*signed i0*/);  // arg is 10,0,-10
 
-void mode_set_dcv_source_ref(  _mode_t *mode, unsigned u0 ); // 7 == ref-hi  or 0 == ref-lo
+void mode_set_dcv_source_sts( _mode_t *mode, signed u0 );
 
-void mode_set_dcv_source_dac( _mode_t *mode, signed u0 );
+void mode_set_dcv_source_ref(  _mode_t *mode, unsigned u0 );
 
 void mode_set_dcv_source_header( _mode_t *mode );
 
+void mode_set_dcv_source_temp( _mode_t *mode );
+
+
+
+// temp
+// tia.
+// daq
 
 
 bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );

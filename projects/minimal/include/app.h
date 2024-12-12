@@ -123,7 +123,8 @@ typedef struct app_t
 
   spi_t         *spi_4094;   // eg. separate system.
 
-  spi_t         *spi_ad5446;   // separate system.   rename mdac0. or sts_mdac. ?
+  spi_t         *spi_mdac0;   // separate system.   rename mdac0. or sts_mdac. ?
+                                // bad naming.   mdac0.  or sts_dac
 
   ////
 

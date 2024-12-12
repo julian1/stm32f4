@@ -24,34 +24,6 @@
 
 */
 
-#if 1
-
-// void spi_port_configure_ad5446( spi_ad5446_t *spi)
-void spi_ad5446_port_configure( uint32_t spi)
-{
-
-  // ensure cs disabled
-  // spi_port_cs1_disable( spi );  // disable, acvei lo
-  // spi_port_cs2_disable( spi);
-
-  // dac8811  data is clked in on clk leading rising edge.
-  // ad5446 on falling edge.
-  spi_init_master(
-    spi,
-    SPI_CR1_BAUDRATE_FPCLK_DIV_4,       // actually works over 50cm. idc cable.
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_16,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_32,
-    SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,      // ad5446 reads on neg edge. ONLY DIFFERENCE.   park to 0/lo == positive clok edge. park to 1 == negative clk edge.
-    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == leading edge,  2 == falling edge
-    SPI_CR1_DFF_8BIT,
-    SPI_CR1_MSBFIRST
-  );
-
-  spi_enable( spi );
-}
-
-#endif
-
 
 // Need to create the device.  with approapriate config().
 
@@ -76,6 +48,10 @@ static uint16_t spi_xfer_16( uint32_t spi, uint16_t val)
 void spi_ad5446_write16( spi_t *spi, uint16_t val)
 // void spi_ad5446_write16(  spi_ad5446_t *spi, uint16_t val)
 {
+
+  printf("spi_ad5446_write16\n");
+  assert(spi);            // spi is blank...
+
   // spi_port_cs2_enable(spi);
   spi->cs( spi, 0 ); 
 

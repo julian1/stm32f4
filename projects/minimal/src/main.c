@@ -41,6 +41,7 @@
 
 
 #include <device/4094-0.h>
+#include <device/mdac0.h>
 
 #include <device/spi1-port.h>
 #include <device/spi2-port.h>
@@ -331,6 +332,13 @@ static int main_f429(void)
 
   app.spi_4094 = spi_4094_0_create();
   spi_setup( app.spi_4094 );
+
+
+  app.spi_mdac0 = spi_mdac0_create();
+  spi_setup( app.spi_mdac0 );
+
+
+
 
   // spi1_port_interupt_setup();
 
