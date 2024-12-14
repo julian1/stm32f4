@@ -218,12 +218,6 @@ static void mode_dcv_source_reset( _mode_t *mode )
   mode->second.U1010  = SOFF;
 
 
-  // OK. whether we route to channel 1 via relay, or channel 2.  needs to to be separate
-  // eg.
-  // dcv-source chanl 1 . ch2.
-
-  // route to hi/lo mux. move this
-  mode->second.U409 = W4;
 }
 
 
@@ -371,6 +365,31 @@ void mode_set_dcv_source_tia( _mode_t *mode )
   assert(0);
 
 }
+
+
+
+
+static void mode_set_dcv_source_channel( _mode_t *mode, unsigned u0 )
+{
+
+  if(u0 == 1) { 
+
+    mode->first.K407 = LR_SET; // : LR_RESET ;      // 0 == reset
+  } else if(u0 == 2) { 
+
+    mode->second.U409 = W4;
+  } else {
+
+    // neither channel
+    mode->first.K407 = LR_RESET; 
+    mode->second.U409 = WOFF;       // hi/lo mux.
+  }
+
+}
+
+
+
+
 
 
 
@@ -602,6 +621,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     mode_set_dcv_source_temp( mode);
   }
 
+  // TODO rename mode_set_dcv_source ()  to mode_dcv_source_set()
 
 
   else if( sscanf(cmd, "dcv-source daq %100s %100s", s0, s1 ) == 2
@@ -612,6 +632,18 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     // eg. 'dcv-source daq s1 s2'
 
     mode_set_dcv_source_daq( mode, u0, u1);
+  }
+
+
+  // 
+  //  set channel.  1 on.  2. on 1 off.
+  // kind of need off and on.?
+
+  else if( sscanf(cmd, "dcv-source chan %lu", &u0) == 1)  {
+
+    // eg. 'dcv-source daq s1 s2'
+
+    mode_set_dcv_source_channel( mode, u0);
   }
 
 
