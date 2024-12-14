@@ -59,8 +59,8 @@ void spi_mode_transition_state(
   assert(mode);
 
 
-  printf("spi_mode_transition_state()\n");
-  printf("4094 size %u\n", sizeof(_4094_state_t));
+  // printf("spi_mode_transition_state()\n");
+  // printf("4094 size %u\n", sizeof(_4094_state_t));
   // assert( sizeof(_4094_state_t) == 3 );
 
   // mux spi to 4094. change mcu spi params, and set spi device to 4094
@@ -89,6 +89,7 @@ void spi_mode_transition_state(
   spi_4094_write_n( spi_4094, (void *) &mode->first, sizeof( mode->first));
 
   // sleep 10ms, for relays
+  // EXTR.  large relay needs longer????   
   msleep(10, system_millis);
 /*
   // and format

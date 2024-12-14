@@ -38,7 +38,7 @@ static void test (app_t *app)     // should be passing the continuation.
 
 
     char buf[100];
-    snprintf( buf, 100, "dcv-source dac %lu\n", val );
+    snprintf( buf, 100, "dcv-source sts %lu\n", val );
     app_repl_statements( app, buf);
 
     msleep( 500, &app->system_millis);   // sleep 1s.

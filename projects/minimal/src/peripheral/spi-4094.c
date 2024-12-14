@@ -11,15 +11,13 @@
 
 
 
-#define UNUSED(x) ((void)(x))
+/*
+// 4094 output is transparent on strobe-hi,  and latched on strobe negative edge..  normally park lo.
+// OK. there is issue that the clock parks high. when strobe goes lo. so there's an extra clk edge.
 
-    /*
-    // 4094 output is transparent on strobe-hi,  and latched on strobe negative edge..  normally park lo.
-    // OK. there is issue that the clock parks high. when strobe goes lo. so there's an extra clk edge.
-
-    // WHICH is probably caused by our fpga code change...
-    // the clock is returning to high. (eg. another edge). before the strobe negative edge, that latches everything.has finished.
-    */
+// WHICH is probably caused by our fpga code change...
+// the clock is returning to high. (eg. another edge). before the strobe negative edge, that latches everything.has finished.
+*/
 
 
 
@@ -54,16 +52,10 @@
 
 
 
-// catch errors for funcs no longer used
-#define spi_enable(x) WHOOT(x)
-#define spi_disable(x) WHOOT(x)
-
-
 
 
 static void assert_strobe( spi_t *spi)
 {
-
   /*
     4094 output is transparent on strobe-hi,  and latched on strobe negative edge..  normally park lo.
     OK. there is issue that the clock parks high. before strobe goes lo. creating an extra positive clk edge.
@@ -74,23 +66,22 @@ static void assert_strobe( spi_t *spi)
 
 
   // assert 4094 strobe.
-  // fpga will invert active lo.
+  // fpga inverts active lo.
 
-  // spi_port_cs2_enable(spi); // enable == clear
-  spi->cs(spi, 0 );
+  spi_cs(spi, 0 );
+
 
   for(uint32_t i = 0; i < 10; ++i)   // 100count == 5us.
      __asm__("nop");
 
   // normal state is lo
-  // spi_port_cs2_disable(spi);    // disable == set
-  spi->cs(spi, 1 );
+  spi_cs(spi, 1 );
 
 }
 
 
 
-// think passing a unsigned char *s. is better.
+// think passing a unsigned char *s. is cleaner than void *.
 // can then call with &value.
 
 uint32_t spi_4094_write_n( spi_t *spi, const unsigned char *s, size_t n)
@@ -98,13 +89,13 @@ uint32_t spi_4094_write_n( spi_t *spi, const unsigned char *s, size_t n)
   uint32_t ret = 0;
 
 
-/*
-  for(unsigned i = 0; i < n; ++i) {
-    ret = spi_xfer(spi, v);
-    v >>= 8;
-    ret <<= 8;  // check
-  }
-*/
+  /*
+    for(unsigned i = 0; i < n; ++i) {
+      ret = spi_xfer(spi, v);
+      v >>= 8;
+      ret <<= 8;  // check
+    }
+  */
 
   // we want to push the last byte first. but avoid addressing.
 
@@ -116,8 +107,6 @@ uint32_t spi_4094_write_n( spi_t *spi, const unsigned char *s, size_t n)
   }
 
   assert_strobe(spi);
-
-
 
   return ret;
 }
