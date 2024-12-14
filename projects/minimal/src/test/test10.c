@@ -21,12 +21,12 @@ static void test (app_t *app)     // should be passing the continuation.
 {
 
   // test voltages
-  double fa[]  = { 10, 1, 0.1, 0.01, 0,  -0.01, -0.1, -1, -10  } ;
+  double fa[]  = { 10, 1, 0.1, 0.01, 0,  -0.01, -0.1, -1, -10, 0  } ;
 
   for(unsigned i = 0; i < ARRAY_SIZE(fa); ++i)  {
 
     char buf[100];
-    snprintf( buf, 100, "dcv-source %lf\n", fa[i]);
+    snprintf( buf, 100, "dcv-source lts %lf\n", fa[i]);
     app_repl_statements( app, buf);
 
     msleep( 1000, &app->system_millis);   // sleep 1s.
