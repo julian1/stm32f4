@@ -147,7 +147,11 @@ unsigned str_decode_uint( const char *s, uint32_t *val  )
     *val = 0;
 
 
-
+  /*
+    Can probably use this for adg1209. also - by puting the EN pin on 4th bit.
+    eg. easy to remap in fpga.  but not for 4094.
+    this allows az-mux. to usse either type of analog switch - 1x08 instead of 2x04 mux.
+  */
 
   // 1 of 8 mux values.
   else if(strcmp(s, "s8") == 0 )
@@ -170,10 +174,20 @@ unsigned str_decode_uint( const char *s, uint32_t *val  )
     *val = SOFF;
 
 
-  /*
-    // 2 of 4 mux values
 
-  */
+  // 2 of 4 mux values
+  else if(strcmp(s, "w4") == 0 )
+    *val = W4;
+  else if(strcmp(s, "w3") == 0 )
+    *val = W3;
+  else if(strcmp(s, "w2") == 0 )
+    *val = W2;
+  else if(strcmp(s, "w1") == 0 )
+    *val = W1;
+  else if(strcmp(s, "woff") == 0 )
+    *val = WOFF;
+
+
 
 
   // we could factor all this handling.
@@ -219,7 +233,7 @@ unsigned str_decode_int( const char *s, int32_t *val  )
 
   unsigned ret = str_decode_uint( s, (uint32_t *)val);
 
-  if(dash) 
+  if(dash)
     *val *= -1;
 
   return ret;

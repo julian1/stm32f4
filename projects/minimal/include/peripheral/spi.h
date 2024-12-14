@@ -34,7 +34,7 @@ struct spi_t
   void (*setup)(spi_t *);                     // cs interupt gpio
   void (*port_configure)(spi_t *);
   void (*cs)(spi_t *, uint8_t );
-} ;
+};
 
 
 static inline void spi_setup( spi_t *spi)

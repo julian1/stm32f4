@@ -4,6 +4,10 @@
 
   perhaps consolidate tests here.
   for ref and dac?
+	-------
+
+  useful to test dcv-source lts, amplifier, adc. - and full chain for a few voltages.
+
 
 */
 

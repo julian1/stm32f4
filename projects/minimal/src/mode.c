@@ -89,7 +89,7 @@ void spi_mode_transition_state(
   spi_4094_write_n( spi_4094, (void *) &mode->first, sizeof( mode->first));
 
   // sleep 10ms, for relays
-  // EXTR.  large relay needs longer????   
+  // EXTR.  large relay needs longer????
   msleep(10, system_millis);
 /*
   // and format
