@@ -372,16 +372,16 @@ void mode_set_dcv_source_tia( _mode_t *mode )
 static void mode_set_dcv_source_channel( _mode_t *mode, unsigned u0 )
 {
 
-  if(u0 == 1) { 
+  if(u0 == 1) {
 
-    mode->first.K407 = LR_SET; // : LR_RESET ;      // 0 == reset
-  } else if(u0 == 2) { 
+    mode->first.K407 = LR_SET;
+  } else if(u0 == 2) {
 
     mode->second.U409 = W4;
   } else {
 
     // neither channel
-    mode->first.K407 = LR_RESET; 
+    mode->first.K407 = LR_RESET;
     mode->second.U409 = WOFF;       // hi/lo mux.
   }
 
@@ -635,12 +635,12 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   }
 
 
-  // 
-  //  set channel.  1 on.  2. on 1 off.
-  // kind of need off and on.?
 
   else if( sscanf(cmd, "dcv-source chan %lu", &u0) == 1)  {
 
+    //
+    //  set channel.  1 on.  2. on 1 off.
+    // kind of need off and on.?
     // eg. 'dcv-source daq s1 s2'
 
     mode_set_dcv_source_channel( mode, u0);
