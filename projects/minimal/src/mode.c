@@ -575,8 +575,6 @@ void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
 bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 {
 
-  // move this to mode.
-
   char s0[100 + 1 ];
   char s1[100 + 1 ];
   char s2[100 + 1 ];
@@ -924,14 +922,6 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
         mode->second.U409 = u0 ;
       }
 #endif
-
-/*
-      set via fpga direct reg. not 4094.
-      else if(strcmp(s0, "u410") == 0 || strcmp(s0, "azmux") == 0) {
-        mode->second.U410 = u0 ;
-      }
-*/
-
 
 
       /*
