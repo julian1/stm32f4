@@ -207,15 +207,23 @@ void spi_mode_transition_state(
 
 static void mode_dcv_source_reset( _mode_t *mode )
 {
-  // agnd, to reduce input leakage on mux followers.
+  // mux agnd, instead of off. to reduce input leakage on mux followers.
   mode->second.U1012  = S8 ;
   mode->second.U1003  = S8 ;
   mode->second.U1006  = S8;
   mode->second.U1007  = S8;
 
+  // daq off.
   mode->second.U1009  = SOFF;
   mode->second.U1010  = SOFF;
 
+
+  // OK. whether we route to channel 1 via relay, or channel 2.  needs to to be separate
+  // eg.
+  // dcv-source chanl 1 . ch2.
+
+  // route to hi/lo mux. move this
+  mode->second.U409 = W4;
 }
 
 

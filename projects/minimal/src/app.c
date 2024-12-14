@@ -175,32 +175,10 @@ void app_configure( app_t *app )
 
 #if 0
 
-  /*
-    TODO. EXTR. much check the magic of the bitstream before we try to send it.
-          it is easy to forget to actually put bitstream in the stm32 flash
-  */
-
-  // Oct 2024.    we mux interupt and cdone.
-  // but can keep this test.
-
-  /*
-    - we may not even want to do this automatically.
-    - perhaps a repl command.
-
-  */
-
-
-
-  printf("configure fpga bitstream\n");
-
-  // spi_ice40_bitstream_send(app->spi, & app->system_millis );
-
   assert( 0);
   FILE *f = flash_open_file( FLASH_U202_ADDR );
   spi_ice40_bitstream_send( app->spi_u202, f, FLASH_UP5K_SIZE, & app->system_millis );
   fclose(f);
-
-
 
   // if( ! spi_port_cdone_get()) {
   if( ! app->spi_u202->cdone( app->spi_u202)) {
@@ -209,19 +187,12 @@ void app_configure( app_t *app )
 
   }
 
-  else {
-    // fpga config succeeded
-
-    app->cdone = true;
-
-    // led dance
-    app_led_dance( app->spi_fpga0 );
 
 #endif
 
     printf("app_configure()\n");
 
-    assert( app->cdone_fpga0 == true);
+    assert( app->cdone_fpga0 );
 
     // check/verify 4094 OE is not asserted
     assert( ! spi_ice40_reg_read32( app->spi_fpga0, REG_4094 ));
@@ -253,6 +224,9 @@ void app_configure( app_t *app )
     // now call transition state again. which will do relays
     printf("spi_mode_transition_state() for relays\n");
     spi_mode_transition_state( app->spi_fpga0, app->spi_4094, app->spi_mdac0, app->mode_current, &app->system_millis);
+
+
+
 
 #if 0
 

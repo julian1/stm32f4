@@ -64,39 +64,24 @@ static const _mode_t mode_initial =  {
 
 
   // U401
-  .first. K404    = 0,
-  .first. U402    = 0,
-  .first. K405    = 0,
-  .first. K406    = 0,
+  .first. K404    = LR_RESET,
+  .first. U402    = LR_RESET,
+  .first. K405    = LR_RESET,
+  .first. K406    = LR_RESET,
 
 
   // U402
-  .first. U409    = 0,    //  hi/lomux. CAREFUL. 2x4 but, enable is on 4th pin. instead of 3rd. DIFFERENT.  use enum?
-  .first. K407    = 0,
-  .first. K403		= 0,
+  .first. U409    = 0,    //  hi/lo mux. adg1209. 2x04.  dec 2024.
+  .first. K407    = LR_RESET,
+  .first. K403		= LR_RESET,
 
 
-  // 506.
-  // .first. U504        : 3, // adg1209.
-  // .first. U506_UNUSED : 1,
-  .first. K401    = 0,
+  // u405
+  // uint8_t U506  : 3; // adg1209.
+  .first. K401    = LR_RESET,
 
 
-
-
-#if 0
-/*
-  .first .K407  = LR_SET,     // disengage - dcv-source
-  .first .K406  = LR_SET,     // disengage - accum cap
-  .first .K405  = LR_RESET,   // select ch2 himux out
-*/
-
-  // july 2024.
-  .first .K407  = LR_RESET,     // deselect dcv-source on ch1
-  .first .K405  = LR_SET,       // guard follows ch1 input.
-  .first .K406  = LR_SET,       // disengage - accum cap
-#endif
-
+    //////////////
 
   .reg_mode = 0, // MODE_LO,                                  // default, blink led according to mcu
 
