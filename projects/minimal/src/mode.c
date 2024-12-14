@@ -47,7 +47,7 @@ static void state_format ( uint8_t *state, size_t n)
 
 
 void spi_mode_transition_state(
-  spi_t  *spi_fpga0,         // TODO type on spi not spi_ice40_t.
+  spi_t  *spi_fpga,         // TODO rename fpga not fpga.  it is clear we are in context of analog board here.
   spi_t  *spi_4094,
   spi_t  *spi_mdac0,
 
@@ -67,9 +67,12 @@ void spi_mode_transition_state(
   // assert(0);
   // spi_mux_4094 ( spi);
 
+
+  assert( spi_fpga);
+
   // JA write the spi mux select register.
-  spi_port_configure( spi_fpga0);
-  spi_ice40_reg_write32(spi_fpga0, REG_SPI_MUX,  SPI_MUX_4094 );
+  spi_port_configure( spi_fpga);
+  spi_ice40_reg_write32(spi_fpga, REG_SPI_MUX,  SPI_MUX_4094 );
 
 
 
@@ -107,8 +110,8 @@ void spi_mode_transition_state(
   assert( spi_mdac0);
 
   // now write mdac state
-  spi_port_configure( spi_fpga0);
-  spi_ice40_reg_write32( spi_fpga0, REG_SPI_MUX,  SPI_MUX_DAC );
+  spi_port_configure( spi_fpga);
+  spi_ice40_reg_write32( spi_fpga, REG_SPI_MUX,  SPI_MUX_DAC );
 
   // write mdac
   spi_port_configure( spi_mdac0);
@@ -118,29 +121,32 @@ void spi_mode_transition_state(
 #endif
 
 
-#if 0
+
+  // restore spi mode
+  spi_port_configure( spi_fpga);
+  spi_ice40_reg_write32( spi_fpga, REG_SPI_MUX, 0 );
+
+
+
 
   /////////////////////////////
 
-  // now write fpga register state
-  assert(0);
-  // spi_mux_ice40(spi);
+  // fpga stuff
 
 
-  spi_ice40_reg_write32(spi_ice40, REG_MODE, mode->reg_mode );
+  spi_ice40_reg_write32(spi_fpga, REG_MODE, mode->reg_mode );
 
   // reg_direct for outputs under fpga control
   assert( sizeof(reg_direct_t) == 4);
-  spi_ice40_reg_write_n(spi_ice40, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
+  spi_ice40_reg_write_n(spi_fpga, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
 
 
   // sequence mode,
-  spi_ice40_reg_write32(spi_ice40, REG_SEQ_MODE, mode->reg_seq_mode );
+  spi_ice40_reg_write32(spi_fpga, REG_SEQ_MODE, mode->reg_seq_mode );
 
 
-  // sa
-  // printf("writing sig acquisition params" );
-  spi_ice40_reg_write32(spi_ice40, REG_SA_P_CLK_COUNT_PRECHARGE, mode->sa.reg_sa_p_clk_count_precharge );
+  // signal acquisition
+  spi_ice40_reg_write32(spi_fpga, REG_SA_P_CLK_COUNT_PRECHARGE, mode->sa.reg_sa_p_clk_count_precharge );
 
 #if 1
   /*
@@ -148,27 +154,31 @@ void spi_mode_transition_state(
     or use a bitfield having an array.  eg.   seq[ 0].pc   and seq[0].azmux etc.
     but separate regs, eases destructuring on fpga side.
   */
-  spi_ice40_reg_write32(spi_ice40, REG_SA_P_SEQ_N,        mode->sa.reg_sa_p_seq_n );
-  spi_ice40_reg_write32(spi_ice40, REG_SA_P_SEQ0,        mode->sa.reg_sa_p_seq0 );
-  spi_ice40_reg_write32(spi_ice40, REG_SA_P_SEQ1,        mode->sa.reg_sa_p_seq1 );
-  spi_ice40_reg_write32(spi_ice40, REG_SA_P_SEQ2,       mode->sa.reg_sa_p_seq2 );
-  spi_ice40_reg_write32(spi_ice40, REG_SA_P_SEQ3,       mode->sa.reg_sa_p_seq3 );
+  spi_ice40_reg_write32( spi_fpga, REG_SA_P_SEQ_N,        mode->sa.reg_sa_p_seq_n );
+  spi_ice40_reg_write32( spi_fpga, REG_SA_P_SEQ0,        mode->sa.reg_sa_p_seq0 );
+  spi_ice40_reg_write32( spi_fpga, REG_SA_P_SEQ1,        mode->sa.reg_sa_p_seq1 );
+  spi_ice40_reg_write32( spi_fpga, REG_SA_P_SEQ2,       mode->sa.reg_sa_p_seq2 );
+  spi_ice40_reg_write32( spi_fpga, REG_SA_P_SEQ3,       mode->sa.reg_sa_p_seq3 );
 #endif
 
 
   // adc
   // printf("writing adc params - aperture %lu\n" ,   mode->adc.reg_adc_p_aperture  );
-  spi_ice40_reg_write32(spi_ice40, REG_ADC_P_CLK_COUNT_APERTURE,  mode->adc.reg_adc_p_aperture );
-  spi_ice40_reg_write32(spi_ice40, REG_ADC_P_CLK_COUNT_RESET,     mode->adc.reg_adc_p_reset );
+  spi_ice40_reg_write32( spi_fpga, REG_ADC_P_CLK_COUNT_APERTURE,  mode->adc.reg_adc_p_aperture );
+  spi_ice40_reg_write32( spi_fpga, REG_ADC_P_CLK_COUNT_RESET,     mode->adc.reg_adc_p_reset );
 
+
+
+  // ensure no spurious emi on 4094 lines, when we read fpga state readings
+  // can probably just assert and reaad.
+  assert( spi_ice40_reg_read32( spi_fpga, REG_SPI_MUX) == 0 );
+
+
+
+  // we may want delay here. or make the trigger  an external control state to the mode.
 
   /*
-    AND. ensure that at end of this function - the spi_mux is so only communicating with fpga.
-      to limit emi. on spi peripheral lines (4094, dac etc).
-  */
-
-  /*
-    IMPORTANT - can put the mcu source - trigger state in mode.
+    whether to put mcu trigger state in mode.
     and then set it last. after all the 4094 and fpga register state has been updated.
     --
     this preserves the sequencing.  and minimizes spi xfer emi.
@@ -177,13 +187,7 @@ void spi_mode_transition_state(
     also ensure the spi_mux == 0.
   */
 
-  // ensure no spurious emi on 4094 lines, when we read fpga state readings
-  // can probably just assert and reaad.
-  assert( spi_ice40_reg_read32(spi_ice40, REG_SPI_MUX) == 0 );
-  // spi_ice40_reg_write32(spi_ice40, REG_SPI_MUX,  0 );
-
-  // we may want delay here. or make the trigger  an external control state to the mode.
-
+#if 0
 
   if(mode->trig_sa)
     ice40_port_trig_sa_enable();    // rename set/clear() ? better?
@@ -191,11 +195,6 @@ void spi_mode_transition_state(
     ice40_port_trig_sa_disable();
 
 #endif
-
-
-  // restore mode.
-  spi_port_configure( spi_fpga0);
-  spi_ice40_reg_write32( spi_fpga0, REG_SPI_MUX,  0 );
 
 }
 
