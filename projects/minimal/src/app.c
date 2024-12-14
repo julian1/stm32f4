@@ -1055,7 +1055,6 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   */
   else if( app_test01( app, cmd  )) { }
   else if( app_test02( app, cmd  )) { }
-  else if( app_test03( app, cmd  )) { }
 
   else if( app_test10( app, cmd  )) { }
   else if( app_test11( app, cmd  )) { }
