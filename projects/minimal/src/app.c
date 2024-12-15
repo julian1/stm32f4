@@ -660,6 +660,7 @@ static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq
 
   uint32_t u0;
 
+  // spi_port_configure( spi_fpga);
 
 
   if( strcmp( cmd, "spi-mux?") == 0) {
@@ -715,13 +716,11 @@ static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq
   }
 
 
-
   else if( strcmp(cmd, "nplc?") == 0
-    || strcmp(cmd, "aper?") == 0) {
-    // query fpga directly. not mode
+    || strcmp(cmd, "aper?") == 0
+  ) {
 
-    assert(0);
-    // spi_mux_ice40(app->spi);
+    // spi_port_configure( spi_fpga);
     uint32_t aperture = spi_ice40_reg_read32( spi, REG_ADC_P_CLK_COUNT_APERTURE );
 
     aper_cc_print( aperture,  line_freq);
@@ -734,50 +733,46 @@ static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq
 }
 
 
+
 #if 0
 
-// old code for direct writing registers
+these wont
 
-static bool app_repl_statement_direct(app_t *app,  const char *cmd)
+static bool spi_repl_reg_write( spi_t *spi,  const char *cmd)
 {
-  assert(app);
-  assert(app->magic == APP_MAGIC);
 
-  /* this doesn't need app structure.
-    except for the spi.
+  /*
+    these wont work. because will immediately be over-written by the mode write.
+    when repl gets a '\n'
 
   */
-
 
   char s0[100 + 1 ];
-  uint32_t u0;// , u1;
+  uint32_t u0, u1;
 
-
-  /*  test code - writes direct to fpga.
-      THESE Dont WORK - since values will get immiedately updated/overwritten by the mode transition function.
-      use set reg, set mode, set direct instead.
-  */
-
-  if( sscanf(cmd, "reg %lu %100s", &u0, s0) == 2
+  if( sscanf(cmd, "reg! %lu %100s", &u0, s0) == 2
     && str_decode_uint( s0, &u1)
   ) {
-    spi_mux_ice40(app->spi);
-    spi_ice40_reg_write32(app->spi, u0 , u1 );
-    spi_print_register( app->spi, u0);
-  }
-  else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
+    spi_port_configure( spi);
 
-    spi_mux_ice40(app->spi);
-    spi_ice40_reg_write32(app->spi, REG_MODE, u0 );
-    spi_print_register( app->spi, REG_MODE);
+    spi_ice40_reg_write32( spi, u0 , u1 );
+    spi_print_register(  spi, u0);
   }
-  else if( sscanf(cmd, "direct %100s", s0) == 1
+  else if( sscanf(cmd, "mode! %lu", &u0 ) == 1) {
+
+    spi_port_configure( spi);
+
+    spi_ice40_reg_write32( spi, REG_MODE, u0 );
+    spi_print_register(  spi, REG_MODE);
+  }
+  else if( sscanf(cmd, "direct! %100s", s0) == 1
     && str_decode_uint( s0, &u0)
   ) {
 
-    spi_mux_ice40(app->spi);
-    spi_ice40_reg_write32(app->spi, REG_DIRECT, u0 );
-    spi_print_register( app->spi, REG_DIRECT);
+    spi_port_configure( spi);
+
+    spi_ice40_reg_write32( spi, REG_DIRECT, u0 );
+    spi_print_register(  spi, REG_DIRECT);
   }
 
 
@@ -787,15 +782,15 @@ static bool app_repl_statement_direct(app_t *app,  const char *cmd)
   else if( sscanf(cmd, "dac %s", s0 ) == 1
     && str_decode_uint( s0, &u0)
   ) {
-      spi_mux_ice40( app->spi);
-      spi_ice40_reg_write32(app->spi, REG_SPI_MUX,  SPI_MUX_DAC );
-      spi_port_configure_mdac0( app->spi);
+      spi_port_configure( spi);
 
-      spi_mdac0_write16(app->spi, u0 );
-      spi_mux_ice40(app->spi);
+      spi_ice40_reg_write32( spi, REG_SPI_MUX,  SPI_MUX_DAC );
+      spi_port_configure_mdac0( spi);
+
+      spi_mdac0_write16( spi, u0 );
+      spi_mux_ice40( spi);
     }
 */
-
 
   else
     return 0;
@@ -803,7 +798,6 @@ static bool app_repl_statement_direct(app_t *app,  const char *cmd)
 
   return 1;
 }
-
 #endif
 
 
@@ -1108,6 +1102,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
 
 
+  // else if ( spi_repl_reg_write( app->spi_fpga0,  cmd)) { }
 
   else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, app->data->line_freq)) { }
 
@@ -1115,7 +1110,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
 
 
-  else if(  mode_repl_statement( app->mode_current,  cmd, app->data->line_freq )) { }
+  else if( mode_repl_statement( app->mode_current,  cmd, app->data->line_freq )) { }
 
   else if( data_repl_statement( app->data, cmd )) { }
 
