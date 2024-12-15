@@ -2,6 +2,9 @@
 /*
   simplest possible test.
   test 4094, by bouncing relay K403 a few times,
+  -----
+
+  TODO consider changing to test all relays . eg just click each one.
 
 */
 
@@ -31,7 +34,6 @@ static void test (app_t *app)
 
     flip = ! flip;
     mode.first.K403 =  flip ? 0b01 : 0b10;
-    printf("flip %u\n", mode.first.K403 );
     spi_mode_transition_state(  (spi_t *)app->spi_fpga0, app->spi_4094, app->spi_mdac0, &mode, &app->system_millis);
     msleep( 300, &app->system_millis);
   }
