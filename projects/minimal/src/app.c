@@ -635,9 +635,12 @@ void app_update_simple_led_blink(app_t *app)
 
 
 
-static bool app_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq)
+static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq)
 {
   /*
+    typed on spi arg, should move?
+
+    --
     direct fpga register query/access.  useful for debugging
     could also write as array loop.
     consider remove
@@ -724,25 +727,85 @@ static bool app_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq
     aper_cc_print( aperture,  line_freq);
   }
 
-  else return  0;
+  else return 0;
 
 
   return 1;
 }
 
 
+#if 0
 
+// old code for direct writing registers
+
+static bool app_repl_statement_direct(app_t *app,  const char *cmd)
+{
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+
+  /* this doesn't need app structure.
+    except for the spi.
+
+  */
+
+
+  char s0[100 + 1 ];
+  uint32_t u0;// , u1;
+
+
+  /*  test code - writes direct to fpga.
+      THESE Dont WORK - since values will get immiedately updated/overwritten by the mode transition function.
+      use set reg, set mode, set direct instead.
+  */
+
+  if( sscanf(cmd, "reg %lu %100s", &u0, s0) == 2
+    && str_decode_uint( s0, &u1)
+  ) {
+    spi_mux_ice40(app->spi);
+    spi_ice40_reg_write32(app->spi, u0 , u1 );
+    spi_print_register( app->spi, u0);
+  }
+  else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
+
+    spi_mux_ice40(app->spi);
+    spi_ice40_reg_write32(app->spi, REG_MODE, u0 );
+    spi_print_register( app->spi, REG_MODE);
+  }
+  else if( sscanf(cmd, "direct %100s", s0) == 1
+    && str_decode_uint( s0, &u0)
+  ) {
+
+    spi_mux_ice40(app->spi);
+    spi_ice40_reg_write32(app->spi, REG_DIRECT, u0 );
+    spi_print_register( app->spi, REG_DIRECT);
+  }
 
 
 /*
-  EXTR.
-  most of this is just setting the mode.  and should be expressed,
+  we don't really have good test points.  for this. without controlling dcv-source output. u1006,u1007.
 
-    mode_repl_statement( mode,  cmd ).
+  else if( sscanf(cmd, "dac %s", s0 ) == 1
+    && str_decode_uint( s0, &u0)
+  ) {
+      spi_mux_ice40( app->spi);
+      spi_ice40_reg_write32(app->spi, REG_SPI_MUX,  SPI_MUX_DAC );
+      spi_port_configure_mdac0( app->spi);
 
-
-  anything that needs the app - can be a separate function
+      spi_mdac0_write16(app->spi, u0 );
+      spi_mux_ice40(app->spi);
+    }
 */
+
+
+  else
+    return 0;
+
+
+  return 1;
+}
+
+#endif
+
 
 
 bool app_repl_statement(app_t *app,  const char *cmd)
@@ -751,13 +814,6 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   assert(app);
   assert(app->magic == APP_MAGIC);
 
-  /*
-    write the app->mode_current.
-    and handle some out-of-mode  functions.
-
-    eg. statement without semi-colon.
-
-  */
 
   // to debug
   // printf("cmd '%s'  %u\n", cmd, strlen(cmd) );
@@ -1053,7 +1109,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
 
 
-  else if ( app_repl_reg_query( app->spi_fpga0,  cmd, app->data->line_freq)) { }
+  else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, app->data->line_freq)) { }
 
 
 
@@ -1101,79 +1157,6 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 }
 
 
-#if 0
-
-static bool app_repl_statement_direct(app_t *app,  const char *cmd)
-{
-  assert(app);
-  assert(app->magic == APP_MAGIC);
-
-  /* this doesn't need app structure.
-    except for the spi.
-
-  */
-
-
-  char s0[100 + 1 ];
-  uint32_t u0;// , u1;
-
-#if 0
-
-  /*  test code - writes direct to fpga.
-      THESE Dont WORK - since values will get immiedately updated/overwritten by the mode transition function.
-      use set reg, set mode, set direct instead.
-  */
-
-  if( sscanf(cmd, "reg %lu %100s", &u0, s0) == 2
-    && str_decode_uint( s0, &u1)
-  ) {
-    spi_mux_ice40(app->spi);
-    spi_ice40_reg_write32(app->spi, u0 , u1 );
-    spi_print_register( app->spi, u0);
-  }
-  else if( sscanf(cmd, "mode %lu", &u0 ) == 1) {
-
-    spi_mux_ice40(app->spi);
-    spi_ice40_reg_write32(app->spi, REG_MODE, u0 );
-    spi_print_register( app->spi, REG_MODE);
-  }
-  else if( sscanf(cmd, "direct %100s", s0) == 1
-    && str_decode_uint( s0, &u0)
-  ) {
-
-    spi_mux_ice40(app->spi);
-    spi_ice40_reg_write32(app->spi, REG_DIRECT, u0 );
-    spi_print_register( app->spi, REG_DIRECT);
-  }
-
-
-/*
-  we don't really have good test points.  for this. without controlling dcv-source output. u1006,u1007.
-
-  else if( sscanf(cmd, "dac %s", s0 ) == 1
-    && str_decode_uint( s0, &u0)
-  ) {
-      spi_mux_ice40( app->spi);
-      spi_ice40_reg_write32(app->spi, REG_SPI_MUX,  SPI_MUX_DAC );
-      spi_port_configure_mdac0( app->spi);
-
-      spi_mdac0_write16(app->spi, u0 );
-      spi_mux_ice40(app->spi);
-    }
-*/
-
-#endif
-
-
-
-  else
-    return 0;
-
-
-  return 1;
-}
-
-#endif
 
 
 void app_repl_statements(app_t *app,  const char *s)
