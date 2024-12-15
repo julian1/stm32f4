@@ -136,7 +136,7 @@ void app_systick_interupt(app_t *app)
 
 
 
-static void spi_print_register( spi_ice40_t *spi, uint32_t reg )
+static void spi_print_register( spi_t *spi, uint32_t reg )
 {
   // basic generic print
   // query any register
@@ -150,7 +150,7 @@ static void spi_print_register( spi_ice40_t *spi, uint32_t reg )
 
 
 
-static void spi_print_seq_register( spi_ice40_t *spi, uint32_t reg )
+static void spi_print_seq_register( spi_t *spi, uint32_t reg )
 {
   // basic generic print
   // query any register
@@ -635,11 +635,102 @@ void app_update_simple_led_blink(app_t *app)
 
 
 
+static bool app_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq)
+{
+  /*
+    direct fpga register query/access.  useful for debugging
+    could also write as array loop.
+    consider remove
+
+    - consider prefix with 'reg' to indicate register query of fpga rather than mode structure.
+    eg.
+
+    reg spi-mux
+    reg mode
+    reg direct
+    reg seq-mode
+    reg status
+
+    etc
+  */
+
+
+  uint32_t u0;
 
 
 
+  if( strcmp( cmd, "spi-mux?") == 0) {
 
-// static bool app_repl_statement_direct(app_t *app,  const char *cmd);
+    spi_print_register( spi, REG_SPI_MUX);
+  }
+  else if( strcmp( cmd, "4094?") == 0) {
+
+    spi_print_register( spi, REG_4094);     // needs a better name. use a general control register. "CR" con
+  }
+   else if( strcmp(cmd, "mode?") == 0) {
+
+    spi_print_register( spi, REG_MODE);
+  }
+  else if( strcmp( cmd, "direct?") == 0) {
+
+    spi_print_register( spi, REG_DIRECT);
+  }
+  else if( strcmp( cmd, "seq mode?") == 0) {
+
+    spi_print_register( spi, REG_SEQ_MODE);
+  }
+
+  else if( strcmp( cmd, "status?") == 0) {
+
+    spi_print_register( spi, REG_STATUS);
+
+    // don't bother decode contents.  because  sequence update is too fast.
+  }
+
+  else if( sscanf(cmd, "reg? %lu", &u0 ) == 1) {
+
+    spi_print_register( spi, u0 );
+  }
+
+  // querying fpga direct. bypassing mode.
+  else if( strcmp( cmd, "seq0?") == 0) {
+    spi_print_seq_register( spi, REG_SA_P_SEQ0);
+  }
+  else if( strcmp( cmd, "seq1?") == 0) {
+    spi_print_seq_register( spi, REG_SA_P_SEQ1);
+  }
+  else if( strcmp( cmd, "seq2?") == 0) {
+    spi_print_seq_register( spi, REG_SA_P_SEQ2);
+  }
+  else if( strcmp( cmd, "seq3?") == 0) {
+    spi_print_seq_register( spi, REG_SA_P_SEQ3);
+  }
+
+  else if( strcmp( cmd, "seqn?") == 0) {
+
+    spi_print_register( spi, REG_SA_P_SEQ_N);
+  }
+
+
+
+  else if( strcmp(cmd, "nplc?") == 0
+    || strcmp(cmd, "aper?") == 0) {
+    // query fpga directly. not mode
+
+    assert(0);
+    // spi_mux_ice40(app->spi);
+    uint32_t aperture = spi_ice40_reg_read32( spi, REG_ADC_P_CLK_COUNT_APERTURE );
+
+    aper_cc_print( aperture,  line_freq);
+  }
+
+  else return  0;
+
+
+  return 1;
+}
+
+
 
 
 
@@ -955,93 +1046,6 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
 
 
-  /*
-    direct fpga register query/access.  for debugging
-    could write as array loop.
-    consider remove
-
-    - prefix with 'reg' to indicate from fpga not mode.
-
-    reg spi-mux
-    reg mode
-    reg direct
-    reg seq-mode
-    reg status
-
-    etc
-  */
-  else if( strcmp( cmd, "spi-mux?") == 0) {
-
-    spi_print_register( app->spi_fpga0, REG_SPI_MUX);
-  }
-  else if( strcmp( cmd, "4094?") == 0) {
-
-    spi_print_register( app->spi_fpga0, REG_4094);
-  }
-   else if( strcmp(cmd, "mode?") == 0) {
-
-    spi_print_register( app->spi_fpga0, REG_MODE);
-  }
-  else if( strcmp( cmd, "direct?") == 0) {
-
-    spi_print_register( app->spi_fpga0, REG_DIRECT);
-  }
-  else if( strcmp( cmd, "seq mode?") == 0) {
-
-    spi_print_register( app->spi_fpga0, REG_SEQ_MODE);
-  }
-
-  else if( strcmp( cmd, "status?") == 0) {
-
-    spi_print_register( app->spi_fpga0, REG_STATUS);
-
-    // don't bother decode contents.  because  sequence update is too fast.
-
-
-  }
-  else if( sscanf(cmd, "reg? %lu", &u0 ) == 1) {
-
-    spi_print_register( app->spi_fpga0, u0 );
-  }
-
-  // querying fpga direct. bypassing mode.
-  else if( strcmp( cmd, "seq0?") == 0) {
-    spi_print_seq_register( app->spi_fpga0, REG_SA_P_SEQ0);
-  }
-  else if( strcmp( cmd, "seq1?") == 0) {
-    spi_print_seq_register( app->spi_fpga0, REG_SA_P_SEQ1);
-  }
-  else if( strcmp( cmd, "seq2?") == 0) {
-    spi_print_seq_register( app->spi_fpga0, REG_SA_P_SEQ2);
-  }
-  else if( strcmp( cmd, "seq3?") == 0) {
-    spi_print_seq_register( app->spi_fpga0, REG_SA_P_SEQ3);
-  }
-
-  else if( strcmp( cmd, "seqn?") == 0) {
-
-    spi_print_register( app->spi_fpga0, REG_SA_P_SEQ_N);
-  }
-
-
-
-
-
-
-
-  else if( strcmp(cmd, "nplc?") == 0
-    || strcmp(cmd, "aper?") == 0) {
-    // query fpga directly. not mode
-
-    assert(0);
-    // spi_mux_ice40(app->spi);
-    uint32_t aperture = spi_ice40_reg_read32(app->spi_fpga0, REG_ADC_P_CLK_COUNT_APERTURE );
-
-    assert( app->data);
-    aper_cc_print( aperture,  app->data->line_freq);
-  }
-
-
   ///////////////////////
   // We want clear separation - for setting mode versus setting anything directly on fpga.
   // actually just remoe any thing that bypasses the mode.
@@ -1049,7 +1053,10 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
 
 
-  // else if(  app_repl_statement_direct( app,  cmd )) { }
+  else if ( app_repl_reg_query( app->spi_fpga0,  cmd, app->data->line_freq)) { }
+
+
+
 
 
   else if(  mode_repl_statement( app->mode_current,  cmd, app->data->line_freq )) { }

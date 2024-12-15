@@ -370,14 +370,15 @@ typedef struct _mode_t
     chage name spi_mode_transition() ?
 */
 void spi_mode_transition_state(
-  spi_t     *spi_fpga0,         // TODO change name fpga. and use spi_t. instead.
+  spi_t     *spi_fpga0,
   spi_t     *spi_4094,
 
-  // should perhaps accept passing null here.
-  // to not update.
+  // consider accepting null being passed here.
+  // as alternative to flags
   spi_t     *spi_mdac0,
   const _mode_t *mode,
-    volatile uint32_t *system_millis /*, uint32_t update_flags */
+  volatile uint32_t *system_millis
+  /*, uint32_t update_flags */
 
 );
 
