@@ -959,6 +959,16 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     direct fpga register query/access.  for debugging
     could write as array loop.
     consider remove
+
+    - prefix with 'reg' to indicate from fpga not mode.
+
+    reg spi-mux
+    reg mode
+    reg direct
+    reg seq-mode
+    reg status
+
+    etc
   */
   else if( strcmp( cmd, "spi-mux?") == 0) {
 

@@ -174,7 +174,7 @@ unsigned str_decode_uint( const char *s, uint32_t *val  )
     *val = SOFF;
 
 
-
+#if 0
   // 2 of 4 mux values
   else if(strcmp(s, "w4") == 0 )
     *val = W4;
@@ -186,7 +186,7 @@ unsigned str_decode_uint( const char *s, uint32_t *val  )
     *val = W1;
   else if(strcmp(s, "woff") == 0 )
     *val = WOFF;
-
+#endif
 
 
 
