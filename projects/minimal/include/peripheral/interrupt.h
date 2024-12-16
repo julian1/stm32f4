@@ -20,8 +20,7 @@ struct interrupt_t
   /* user settable - better to use a setter func to hide state
     but ok for now */
 
-  interupt_handler_t  handler;
-  void *ctx;
+  uint32_t magic;   // not sure if place here, 
 
   void (*setup)( interrupt_t *);
   void (*set_handler)( interrupt_t *, void *ctx, interupt_handler_t);
@@ -37,7 +36,7 @@ static inline void interrupt_setup( interrupt_t *i)
 
 
 
-static inline  void set_handler( interrupt_t *i, void *ctx, interupt_handler_t h)
+static inline  void interrupt_set_handler( interrupt_t *i, void *ctx, interupt_handler_t h)
 {
   // assert(i);
   i->set_handler( i, ctx, h );

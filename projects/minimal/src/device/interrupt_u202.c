@@ -4,23 +4,39 @@
   since u202 specific
 */
 
+
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/stm32/exti.h>
+
+
+#include <stdlib.h> // malloc
+#include <string.h> // memset
+#include <assert.h>
 
 
 #include <peripheral/interrupt.h>
 #include <device/interrupt_u202.h>
 
 
-#include <string.h> // memset
-
-
 #define UNUSED(x) ((void)(x))
 
 
+#define INT_MAGIC   789
 
-static interrupt_t   x;
+
+
+typedef struct interrupt2_t interrupt2_t;
+
+struct interrupt2_t
+{
+  interrupt_t  ;   // anonymous.  for composition.
+  interupt_handler_t  handler;
+  void *ctx;
+};
+
+
+static interrupt2_t   *x = NULL;
 
 
 void exti3_isr(void) // called by runtime
@@ -31,16 +47,16 @@ void exti3_isr(void) // called by runtime
   exti_reset_request( EXTI3);
 
 
-  if(x.handler) {
-    x.handler( x.ctx, &x );
+  if(x && x->handler) {
+    x->handler( x->ctx, NULL );
   }
 
 }
 
 
-static void setup( interrupt_t *ctx)
+static void setup( interrupt2_t *i)
 {
-  UNUSED(ctx);
+  UNUSED(i);
 
   gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO3);
 
@@ -54,12 +70,30 @@ static void setup( interrupt_t *ctx)
 }
 
 
+
+static void set_handler( interrupt2_t *i, void *ctx, interupt_handler_t handler)
+{
+  assert(i->magic == INT_MAGIC);
+  i->ctx = ctx;
+  i->handler = handler;
+}
+
+
+
+
 interrupt_t * interrupt_u202_create()
 {
-  memset(&x, 0, sizeof( interrupt_t));
+  interrupt2_t *i = malloc(sizeof(  interrupt2_t ));
+  assert(i);
+  memset(i, 0, sizeof(interrupt2_t));
 
-  x.setup = setup;
-  return &x;
+  i->magic        = INT_MAGIC;
+  i->setup        = (void (*)( interrupt_t *))  setup;
+  i->set_handler  = (void (*)( interrupt_t *, void *, interupt_handler_t)) set_handler;
+
+  x = i;
+
+  return i;
 }
 
 
