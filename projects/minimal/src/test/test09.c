@@ -19,17 +19,17 @@
 #include <device/reg_u102.h>  // modes
 
 
-bool app_test19( app_t *app , const char *cmd)
+bool app_test09( app_t *app , const char *cmd)
 {
   assert(app);
   assert(cmd);
   assert(app->mode_initial);
 
-  if( strcmp(cmd, "test19") == 0) {
+  if( strcmp(cmd, "test09") == 0) {
 
     printf("test adc refmux switching\n");
 
-    // app_repl_statements(app, "reset;   set mode 5;" );
+    // app_repl_statements(app, "reset;   set mode 5;" );  should work???
 
 #if 1
 

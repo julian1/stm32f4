@@ -1124,6 +1124,8 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   else if( app_test01( app, cmd  )) { }
   else if( app_test02( app, cmd  )) { }
 
+  else if( app_test09( app, cmd  )) { }
+
   else if( app_test10( app, cmd  )) { }
   else if( app_test11( app, cmd  )) { }
 
@@ -1131,7 +1133,6 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   else if( app_test14( app, cmd  )) { }
   else if( app_test15( app, cmd  )) { }
 
-  else if( app_test19( app, cmd  )) { }
 
   else if( app_test20( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
   else if( app_test40( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }

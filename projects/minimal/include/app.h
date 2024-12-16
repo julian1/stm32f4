@@ -196,7 +196,14 @@ void app_repl_statements(app_t *app,  const char *s);
 // from /test
 bool app_test01( app_t *app , const char *cmd);
 bool app_test02( app_t *app , const char *cmd);
+
+// adc refmux test.
+bool app_test09( app_t *app , const char *cmd);
+
+
+// adc refmux
 bool app_test03( app_t *app , const char *cmd);
+
 
 // dcvsource
 bool app_test10( app_t *app , const char *cmd);
@@ -207,8 +214,6 @@ bool app_test12( app_t *app , const char *cmd);     // formerly test05.
 bool app_test14( app_t *app , const char *cmd);
 bool app_test15( app_t *app , const char *cmd);
 
-// adc refmux test.
-bool app_test19( app_t *app , const char *cmd);
 
 
 bool app_test20( app_t *app, const char *cmd, void (*yield)( void * ), void * yield_ctx) ;
