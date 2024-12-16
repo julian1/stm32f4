@@ -202,7 +202,7 @@ void app_configure( app_t *app )
 
     /* OK. this is tricky.
         OE must be enabled to pulse the relays. to align them to initial/current state.
-        but we probably want to configure as much other state first, before asserting 4094 OE.
+        but want to configure as much 4094 state as possible (eg. muxes), before asserting 4094 OE.
     */
     // write the default 4094 state for muxes etc.
     printf("spi_mode_transition_state() for muxes\n");
@@ -226,7 +226,8 @@ void app_configure( app_t *app )
     spi_mode_transition_state( app->spi_fpga0, app->spi_4094, app->spi_mdac0, app->mode_current, &app->system_millis);
 
 
-
+    // setup the ice40 interrupt handler
+    interrupt_set_handler( app->fpga0_interrupt, app->data, (interupt_handler_t ) data_rdy_interupt);
 
 #if 0
 
