@@ -78,25 +78,11 @@
 #define W4          ((1<<2)|(4-1))    // 7
 
 
-/*
-// relay.  TODO better name  LR_SET, LR_RESET.
-#define LR_OFF      0
-#define LR_RESET      0b01      // bottom contacts closed.
-#define LR_SET      0b10      // top contacts closed.
-
-RSET.   RRESET.  relay set. and relay reset.
-reset is schem default contacts.
-
- LR_SET  ==  LR_BOT      0b01      // bottom contacts closed.
- LR_RESET == LR_TOP      0b10      // top contacts closed.
-
-
-
-*/
-
-
 // not sure
+// just SR_  for set/reset relay.
 // rename RLY for relay. or similar
+// better nams. SR_SET. SR_RESET
+// RLY_SETkk
 #define LR_SET      0b01
 #define LR_RESET    0b10
 

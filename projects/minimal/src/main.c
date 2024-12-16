@@ -6,9 +6,8 @@
 
 
 #include <libopencm3/stm32/rcc.h>   // mcu clock initialization
-#include <libopencm3/stm32/spi.h>   // SPI1
 
-#include <libopencm3/stm32/gpio.h>    // remove
+#include <libopencm3/stm32/gpio.h>    // needed to initialize critical_error_led blink.  context.
 
 #include <lib2/usart.h>
 #include <lib2/util.h>      // systick_setup()
@@ -252,14 +251,13 @@ static int main_f429(void)
   */
 
 
-  // create and init
+  // led0
   app.led_status = led0_create();
   led_setup( app.led_status);
 
 
-  // led_setup( app.led_status);
 
-  // setup external state for critical error led blink in priority
+  // setup external state required for critical error led blink in priority
   // because assert() cannot pass a context
 
   assert_critical_error_led_setup( GPIOA, GPIO9 );
@@ -303,6 +301,7 @@ static int main_f429(void)
 
   app.spi_fpga0 = spi_u102_create();
   spi_setup( app.spi_fpga0 );
+
   // now init spi ports
   spi1_port_setup();
 
@@ -328,7 +327,6 @@ static int main_f429(void)
 
 
 
-  // spi1_port_interupt_setup();
 
 #if 0
 
