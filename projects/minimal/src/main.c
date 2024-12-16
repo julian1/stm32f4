@@ -36,6 +36,8 @@
 
 #include <device/led0.h>
 #include <device/fpga0.h>
+#include <device/fpga0_interrupt.h>
+
 #include <device/4094-0.h>
 #include <device/mdac0.h>
 #include <device/fsmc.h>
@@ -48,7 +50,6 @@
 
 #include <device/fpga1.h>
 
-#include <device/interrupt_u202.h>  // rename interrupt_fpga1.
 
 // #include <hal/hal.h>
 

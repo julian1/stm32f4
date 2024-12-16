@@ -1,10 +1,5 @@
 
 
-/* could move to u202.c
-  since u202 specific
-*/
-
-
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/stm32/exti.h>
@@ -16,7 +11,7 @@
 
 
 #include <peripheral/interrupt.h>
-#include <device/interrupt_u202.h>
+#include <device/fpga0_interrupt.h>
 
 
 #define UNUSED(x) ((void)(x))
