@@ -121,6 +121,8 @@ typedef struct app_t
 
   spi_ice40_t   *spi_fpga0;
 
+  interrupt_t   *fpga0_interrupt;
+
   spi_t         *spi_4094;   // state
 
   spi_t         *spi_mdac0;   // rename sts_mdac. ?

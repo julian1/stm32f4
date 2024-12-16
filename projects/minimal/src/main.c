@@ -306,13 +306,15 @@ static int main_f429(void)
   // now init spi ports
   spi1_port_setup();
 
+
+  app.fpga0_interrupt = fpga0_interrupt_create();
+  interrupt_setup( app.fpga0_interrupt);
+
+
 #if 0
 
-  app.spi_u202 = spi2_u202_create();
-  spi_setup(app.spi_u202 );
   spi2_port_setup();
 
-  app.interrupt_u202 = interrupt_u202_create();
 #endif
 
 

@@ -76,7 +76,7 @@ static void set_handler( interrupt2_t *i, void *ctx, interupt_handler_t handler)
 
 
 
-interrupt_t * interrupt_u202_create()
+interrupt_t * fpga0_interrupt_create()
 {
   interrupt2_t *i = malloc(sizeof(  interrupt2_t ));
   assert(i);
