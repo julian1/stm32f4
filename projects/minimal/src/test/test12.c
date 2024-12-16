@@ -41,9 +41,9 @@ static void test (app_t *app)     // should be passing the continuation.
   ////////////////////
   // phase 1, soak/charge accumulation cap
   // setup input relays.
-  mode.first .K407 = LR_SET;    // select dcv-source on ch1.
-  mode.first .K405 = LR_SET;     // select ch1. to feed through to accum cap.
-  mode.first .K406 = LR_RESET;   // select accum cap
+  mode.first .K407 = SR_SET;    // select dcv-source on ch1.
+  mode.first .K405 = SR_SET;     // select ch1. to feed through to accum cap.
+  mode.first .K406 = SR_RESET;   // select accum cap
 
   // use direct mode - for soak/charge of accum cap.
   mode.reg_mode =  MODE_DIRECT;
@@ -75,7 +75,7 @@ static void test (app_t *app)     // should be passing the continuation.
   ////////////////////////
   // phase 2, discocnnect dcv-source
   printf("disconnect dcv-source and observe drift\n");
-  mode.first .K407 = LR_RESET;      // turn off dcv-source
+  mode.first .K407 = SR_RESET;      // turn off dcv-source
 
 
 /*     mode.second.U1006  = 0;          // weird - we switch the dc-source mux off - we have very high leakage. might be flux.

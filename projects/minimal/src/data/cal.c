@@ -176,13 +176,13 @@ void data_cal(
 
 /*
   // setup input relays - for dcv-source
-  mode->first.K405 = LR_SET;     // select dcv. TODO change if support himux.
-  assert( mode->first.K406 == LR_SET);   // accum relay off
-  mode->first.K407 = LR_RESET;   // select dcv-source on
+  mode->first.K405 = SR_SET;     // select dcv. TODO change if support himux.
+  assert( mode->first.K406 == SR_SET);   // accum relay off
+  mode->first.K407 = SR_RESET;   // select dcv-source on
 */
-  mode->first .K407 = LR_SET;    // select dcv-source on ch1.
-  mode->first .K405 = LR_SET;     // select ch1. to feed through to accum cap.
-  mode->first .K406 = LR_SET;   // select accum cap
+  mode->first .K407 = SR_SET;    // select dcv-source on ch1.
+  mode->first .K405 = SR_SET;     // select ch1. to feed through to accum cap.
+  mode->first .K406 = SR_SET;   // select accum cap
 
 
 

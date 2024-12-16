@@ -374,14 +374,14 @@ static void mode_set_dcv_source_channel( _mode_t *mode, unsigned u0 )
 
   if(u0 == 1) {
 
-    mode->first.K407 = LR_SET;
+    mode->first.K407 = SR_SET;
   } else if(u0 == 2) {
 
     mode->second.U409 = W4;
   } else {
 
     // neither channel
-    mode->first.K407 = LR_RESET;
+    mode->first.K407 = SR_RESET;
     mode->second.U409 = WOFF;       // hi/lo mux.
   }
 
@@ -899,17 +899,17 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
           reset is default schem contact position.
       */
       else if(strcmp(s0, "k407") == 0) {
-        mode->first.K407 = u0 ? LR_SET: LR_RESET ;      // 0 == reset
+        mode->first.K407 = u0 ? SR_SET: SR_RESET ;      // 0 == reset
       }
       else if(strcmp(s0, "k406") == 0) {
-        mode->first.K406 = u0 ? LR_SET: LR_RESET;
+        mode->first.K406 = u0 ? SR_SET: SR_RESET;
       }
       else if(strcmp(s0, "k405") == 0) {
-        mode->first.K405 = u0 ? LR_SET: LR_RESET;
+        mode->first.K405 = u0 ? SR_SET: SR_RESET;
       }
 #if 0
       else if(strcmp(s0, "k703") == 0) {
-        mode->first.K703 = u0 ? LR_SET: LR_RESET;
+        mode->first.K703 = u0 ? SR_SET: SR_RESET;
       }
 #endif
 

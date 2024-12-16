@@ -61,9 +61,9 @@ static void test (app_t *app)     // should be passing the continuation.
   // phase 1, soak/charge accumulation cap
 
   // setup input relays.
-  mode.first .K407 = LR_SET;    // select dcv-source on ch1.
-  mode.first .K405 = LR_SET;     // select ch1. to feed through to accum cap.
-  mode.first .K406 = LR_RESET;   // select accum cap
+  mode.first .K407 = SR_SET;    // select dcv-source on ch1.
+  mode.first .K405 = SR_SET;     // select ch1. to feed through to accum cap.
+  mode.first .K406 = SR_RESET;   // select accum cap
 
 
 
@@ -103,7 +103,7 @@ static void test (app_t *app)     // should be passing the continuation.
   // trigger start of sample acquisition
   mode.trig_sa = 1;
 
-  mode.first .K407 = LR_RESET;      // turn off dcv-source
+  mode.first .K407 = SR_RESET;      // turn off dcv-source
   // mode.reg_direct.leds_o  = 0b0010;    // advance led.   note. won't display in different mode.
 
   spi_mode_transition_state( (spi_t *)app->spi_fpga0, app->spi_4094, app->spi_mdac0, &mode, &app->system_millis);

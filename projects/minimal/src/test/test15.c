@@ -40,9 +40,9 @@ static void test(app_t *app)
   // phase 1, soak/charge accumulation cap
 
   // setup input relays.
-  mode.first .K407 = LR_SET;    // select dcv-source on ch1.
-  mode.first .K405 = LR_SET;     // select ch1. to feed through to accum cap.
-  mode.first .K406 = LR_RESET;   // select accum cap
+  mode.first .K407 = SR_SET;    // select dcv-source on ch1.
+  mode.first .K405 = SR_SET;     // select ch1. to feed through to accum cap.
+  mode.first .K406 = SR_RESET;   // select accum cap
 
 
 
@@ -96,7 +96,7 @@ static void test(app_t *app)
   // trigger start of sample acquisition
   mode.trig_sa = 1;
 
-  mode.first .K407        = LR_RESET;   // disconnect dcv
+  mode.first .K407        = SR_RESET;   // disconnect dcv
 
 
   // mode.reg_direct.leds_o  = 0b0010;    // won't display when running.

@@ -78,13 +78,9 @@
 #define W4          ((1<<2)|(4-1))    // 7
 
 
-// not sure
-// just SR_  for set/reset relay.
-// rename RLY for relay. or similar
-// better nams. SR_SET. SR_RESET
-// RLY_SETkk
-#define LR_SET      0b01
-#define LR_RESET    0b10
+// prefix naming SR for set/reset relaysure
+#define SR_SET      0b01
+#define SR_RESET    0b10
 
 
 

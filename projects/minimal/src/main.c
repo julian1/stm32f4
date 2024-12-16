@@ -64,21 +64,21 @@ static const _mode_t mode_initial =  {
 
 
   // U401
-  .first. K404    = LR_RESET,
-  .first. U402    = LR_RESET,
-  .first. K405    = LR_RESET,
-  .first. K406    = LR_RESET,
+  .first. K404    = SR_RESET,
+  .first. U402    = SR_RESET,
+  .first. K405    = SR_RESET,
+  .first. K406    = SR_RESET,
 
 
   // U402
   .first. U409    = 0,    //  hi/lo mux. adg1209. 2x04.  dec 2024.
-  .first. K407    = LR_RESET,
-  .first. K403		= LR_RESET,
+  .first. K407    = SR_RESET,
+  .first. K403		= SR_RESET,
 
 
   // u405
   // uint8_t U506  : 3; // adg1209.
-  .first. K401    = LR_RESET,
+  .first. K401    = SR_RESET,
 
 
     //////////////
@@ -90,7 +90,7 @@ static const _mode_t mode_initial =  {
 
   .sa.reg_sa_p_seq_n = 2,
 
-  .sa.reg_sa_p_seq0 = (0b01 << 4) |  S3,         // dcv
+  .sa.reg_sa_p_seq0 = (0b01 << 4) | S3,         // dcv
   .sa.reg_sa_p_seq1 = (0b00 << 4) | S7,         // star-lo
   .sa.reg_sa_p_seq2 = 0,  // channel-1 precharge switch
   .sa.reg_sa_p_seq3 = 0,  // channel-1 precharge switch
@@ -106,13 +106,13 @@ static const _mode_t mode_initial =  {
 
   //  maybe make explicit all values  U408_SW_CTL. at least for the initial mode, from which others derive.
 
-  .first .K406_CTL  = LR_SET,     // accumulation relay off
-  .first. K405_CTL  = LR_RESET,     // dcv input relay k405 switch off - works.
-  .first. K402_CTL  = LR_RESET,     // dcv-div/directz relay off
+  .first .K406_CTL  = SR_SET,     // accumulation relay off
+  .first. K405_CTL  = SR_RESET,     // dcv input relay k405 switch off - works.
+  .first. K402_CTL  = SR_RESET,     // dcv-div/directz relay off
                                 // must match app->persist_fixedz
 
-  .first. K401_CTL  = LR_SET,     // dcv-source relay off.
-  .first. K403_CTL  = LR_RESET,     // ohms relay off.
+  .first. K401_CTL  = SR_SET,     // dcv-source relay off.
+  .first. K403_CTL  = SR_RESET,     // ohms relay off.
 
   .first .U408_SW_CTL = 0,      // b2b fets/ input protection off/open
 
@@ -127,27 +127,27 @@ static const _mode_t mode_initial =  {
 
   .second.U506 =  W1,           // amplifier should always be on.
 
-  .first. K603_CTL  = LR_RESET,     // ohms relay off.
+  .first. K603_CTL  = SR_RESET,     // ohms relay off.
 
 
   /////////////////////////
   // 700
   // has inverting cmos buffer
-  .first. K702_CTL  = LR_RESET,
+  .first. K702_CTL  = SR_RESET,
   .second.K702_CTL  = 0b11,
 
   // 0.1R shunt off. has inverting cmos buffer
-  .first. K703_CTL  = LR_RESET,
+  .first. K703_CTL  = SR_RESET,
   .second.K703_CTL  = 0b11,
 
   // shunts / TIA - default to shunts
-  .first. K709_CTL  = LR_SET,
+  .first. K709_CTL  = SR_SET,
 
   // agn200 shunts are off.
-  .first. K707_CTL  = LR_SET,
-  .first. K706_CTL  = LR_SET,
-  .first. K704_CTL  = LR_SET,
-  .first. K705_CTL  = LR_SET,
+  .first. K707_CTL  = SR_SET,
+  .first. K706_CTL  = SR_SET,
+  .first. K704_CTL  = SR_SET,
+  .first. K705_CTL  = SR_SET,
 
 
 #endif
