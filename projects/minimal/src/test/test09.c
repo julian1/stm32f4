@@ -1,8 +1,6 @@
 
 /*
-  test adc ref mux current switching and integrator.
-  just a mode on the fpga.
-  so this is simple enough that does not need to be a separate test, but good to make express.
+  test adc.
 
 */
 
@@ -27,17 +25,30 @@ bool app_test09( app_t *app , const char *cmd)
 
   if( strcmp(cmd, "test09") == 0) {
 
-    printf("test adc refmux switching\n");
+    printf("test sa/adc \n");
 
-    // app_repl_statements(app, "reset;   set mode 5;" );  should work???
 
-#if 1
 
-    _mode_t mode = *app->mode_current;
+    // this is using the current mode...
 
-    mode.reg_mode =  MODE_ADC_REFMUX_TEST;
-    spi_mode_transition_state( (spi_t *) app->spi_fpga0, app->spi_4094, app->spi_mdac0, &mode, &app->system_millis);
-#endif
+    // should work???
+    app_repl_statements(app, "reset; dcv-source lts 1;  dcv-source chan 1 ; " );
+
+
+   _mode_t *mode = app->mode_current;
+
+
+    // set up sequence acquision
+    mode->reg_mode = MODE_SA_ADC;
+    mode->sa.reg_sa_p_seq_n  = 2;
+    mode->sa.reg_sa_p_seq0 = (PC01 << 4) | S3;        // dcv,
+    mode->sa.reg_sa_p_seq1 = mode->sa.reg_sa_p_seq0 ;         // the same
+
+    // ok. so we need to encode the trigger.
+    mode->trig_sa = 1;
+
+
+    spi_mode_transition_state( (spi_t *) app->spi_fpga0, app->spi_4094, app->spi_mdac0, mode, &app->system_millis);
 
     printf("sleep 5s\n");  // really need the yield would be quite nice here.
     msleep(5 * 1000,  &app->system_millis);

@@ -192,6 +192,11 @@ void app_repl_statements(app_t *app,  const char *s);
   the precondition state, should be setup in other commands.
   so we could remove the cmd argument.  and do the test in the repl command.
   but leave for moment, in case want to be able to pass flags.
+  --------
+
+  should pass a more limited structure than app.
+
+    eg. not sure.
 */
 
 
@@ -199,12 +204,12 @@ void app_repl_statements(app_t *app,  const char *s);
 bool app_test01( app_t *app , const char *cmd);
 bool app_test02( app_t *app , const char *cmd);
 
+
 // adc refmux test.
+bool app_test08( app_t *app , const char *cmd);
+
+// sa/adc test
 bool app_test09( app_t *app , const char *cmd);
-
-
-// adc refmux
-bool app_test03( app_t *app , const char *cmd);
 
 
 // dcvsource
