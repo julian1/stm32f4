@@ -16,7 +16,7 @@
 #include <app.h>
 #include <lib2/util.h>    // msleep()
 
-#include <device/reg_u102.h>  // modes
+#include <device/fpga0_reg.h>  // modes
 
 
 bool app_test08( app_t *app , const char *cmd)

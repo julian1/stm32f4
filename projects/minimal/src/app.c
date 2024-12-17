@@ -39,7 +39,7 @@
 #include <util.h> // str_decode_uint
 
 
-#include <device/reg_u102.h>
+#include <device/fpga0_reg.h>
 
 #include <lib2/stream-flash.h>
 

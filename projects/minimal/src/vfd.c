@@ -19,7 +19,7 @@
 
 
 
-#include <device/reg_u102.h>    // for seq mode
+#include <device/fpga0_reg.h>    // TODO REMOVE. for seq mode
 
 
 #define UNUSED(x) ((void)(x))

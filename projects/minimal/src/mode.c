@@ -15,12 +15,12 @@
 #include <peripheral/spi-ad5446.h>
 #include <peripheral/spi-dac8811.h>
 
+#include <device/fpga0_reg.h>
 
 
 #include <lib2/util.h>      // msleep, UNUSED
 #include <lib2/format.h>   // str_format_bits
 
-#include <device/reg_u102.h>
 
 #include <mode.h>
 

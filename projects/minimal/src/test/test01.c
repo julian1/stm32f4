@@ -25,7 +25,7 @@
 
 #include <app.h>
 #include <peripheral/spi-ice40.h>
-#include <device/reg_u102.h>
+#include <device/fpga0_reg.h>
 
 
 

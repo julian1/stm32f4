@@ -21,7 +21,7 @@
 #include <app.h>
 #include <lib2/util.h>    // msleep()
 
-#include <device/reg_u102.h>    // modes
+#include <device/fpga0_reg.h>    // modes
 
 
 static void test(app_t *app)

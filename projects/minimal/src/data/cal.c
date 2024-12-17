@@ -45,7 +45,7 @@
 
 
 #include <peripheral/spi-ice40.h>
-#include <device/reg_u102.h>
+#include <device/fpga0_reg.h>
 
 #include <lib2/util.h>    // yield_with_msleep
 
