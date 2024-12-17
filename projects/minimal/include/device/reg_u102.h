@@ -49,7 +49,7 @@
 #define MODE_DIRECT       0     // support direct writing via direct register
 // #define MODE_LO           1     // all bits held lo. but blink led. default.
 // #define MODE_HI           2     // all bits held hi
-#define MODE_PATTERN      3       // TODO probably should remove. could cause hardware problems, when components fitted.
+// #define MODE_PATTERN      3       // TODO probably should remove. could cause hardware problems, when components fitted.
                                   // and direct mode is enough.
 #define MODE_ADC_REFMUX_TEST 5
 
