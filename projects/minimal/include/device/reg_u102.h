@@ -12,7 +12,7 @@
 
 */
 
-// better name for 4094 register - CR_  for control register?
+// better name for the 4094 oe register - CR_  for control register?
 // CR_DIRECT ? etc.
 // SR_STATUS
 
@@ -45,17 +45,14 @@
 #define SPI_MUX_ISO_DAC2     (1<<3)
 
 
+// better name for combined sa+adc functinality of fpga??
 
-#define MODE_DIRECT       0     // support direct writing via direct register
-// #define MODE_LO           1     // all bits held lo. but blink led. default.
-// #define MODE_HI           2     // all bits held hi
-// #define MODE_PATTERN      3       // TODO probably should remove. could cause hardware problems, when components fitted.
-                                  // and direct mode is enough.
-#define MODE_ADC_REFMUX_TEST 5
+#define MODE_DIRECT           0     // output control using the direct register
+#define MODE_ADC_REFMUX_TEST  5
 
 // sequence acquisition
-#define MODE_SA_MOCK_ADC    6     // no az. and elecm. etc
-#define MODE_SA_ADC        7     // no az. and elecm. etc
+#define MODE_SA_MOCK_ADC      6     // no az. and elecm. etc
+#define MODE_SA_ADC           7      // normal operation. with sa and adc
 
 
 
