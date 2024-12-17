@@ -21,6 +21,7 @@
 #define REG_4094                        9
 #define REG_MODE                        12
 #define REG_DIRECT                      14
+
 // pass-through parameter, for comms.
 // - o encode how to decode the sample sequence
 // just 4 bits. projected in the status register.
@@ -62,8 +63,6 @@
 ///////////////////////
 
 //  sample acquisition.
-// TODO. remove/rename in favor of ER_TRIGGER_SOURCE_INTERNAL
-// instead change to control trigger-sourcce select for internal or external
 
 #define REG_SA_P_CLK_COUNT_PRECHARGE    20
 

@@ -122,7 +122,7 @@ void spi_mode_transition_state(
 
 
 
-  // restore spi mode
+  // restore spi mode, after writing 4094, dac board state
   spi_port_configure( spi_fpga);
   spi_ice40_reg_write32( spi_fpga, REG_SPI_MUX, 0 );
 
@@ -142,6 +142,8 @@ void spi_mode_transition_state(
 
 
   // sequence mode,
+  // just pass-through communcation. from reg to the status register out.
+  // this needs a better name REG_STATUS_SEQ_MODE
   spi_ice40_reg_write32(spi_fpga, REG_SEQ_MODE, mode->reg_seq_mode );
 
 

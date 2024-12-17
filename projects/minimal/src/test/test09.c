@@ -1,6 +1,6 @@
 
 /*
-  test adc.
+  test sa/adc.
 
 */
 
@@ -27,9 +27,8 @@ bool app_test09( app_t *app , const char *cmd)
 
     printf("test sa/adc \n");
 
-
-
     // this is using the current mode...
+    // would be better if could apply repl to a custom mode.
 
     // should work???
     app_repl_statements(app, "reset; dcv-source lts 1;  dcv-source chan 1 ; " );
