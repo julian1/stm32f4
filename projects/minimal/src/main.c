@@ -119,13 +119,13 @@ static const _mode_t mode_initial =  {
 
   // AMP FEEDBACK SHOULD NEVER BE TURNED OFF.
   // else draws current, and has risk damaging parts. mux pin 1. of adg. to put main amplifier in buffer/G=1 configuration.
-  .first. U506 =  W1,     // should always be on
+  .first. U506 =  D1,     // should always be on
 
   // .second.K406_CTL  = LR_OFF,     // clear relay. default.
   // .second.K405_CTL  = LR_OFF,     // clear relay
   .second.U408_SW_CTL = 0,
 
-  .second.U506 =  W1,           // amplifier should always be on.
+  .second.U506 =  D1,           // amplifier should always be on.
 
   .first. K603_CTL  = SR_RESET,     // ohms relay off.
 

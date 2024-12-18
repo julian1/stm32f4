@@ -71,12 +71,12 @@
 
 
 // dual 1of 4 muxes.
-// S for switch maybe SS ? or W
-#define WOFF        0                 // 0    gain x1.     remember amp has pullup. on EN. bit.
-#define W1          ((1<<2)|(1-1))    // 4.   gain x1
-#define W2          ((1<<2)|(2-1))    // 5    gain x10
-#define W3          ((1<<2)|(3-1))    // 6.   gain x100.
-#define W4          ((1<<2)|(4-1))    // 7
+// S for switch maybe D for dual/double.
+#define DOFF        0                 // 0    gain x1.     remember amp has pullup. on EN. bit.
+#define D1          ((1<<2)|(1-1))    // 4.   gain x1
+#define D2          ((1<<2)|(2-1))    // 5    gain x10
+#define D3          ((1<<2)|(3-1))    // 6.   gain x100.
+#define D4          ((1<<2)|(4-1))    // 7
 
 
 // prefix naming SR for set/reset relaysure

@@ -121,7 +121,7 @@ bool app_test41(
 */
 
 // remember to read right to left, for the bitwise encoding for the mux
-// could also name this as a 3-way select.  like S1-8, or W1-4.  eg.
+// could also name this as a 3-way select.  like S1-8, or D1-4.  eg.
 #define A 0b11
 #define B 0b10
 #define C 0b00

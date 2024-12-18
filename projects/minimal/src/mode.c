@@ -365,12 +365,12 @@ static void mode_set_dcv_source_channel( _mode_t *mode, unsigned u0 )
     mode->first.K407 = SR_SET;
   } else if(u0 == 2) {
 
-    mode->second.U409 = W4;
+    mode->second.U409 = D4;
   } else {
 
     // neither channel
     mode->first.K407 = SR_RESET;
-    mode->second.U409 = WOFF;       // hi/lo mux.
+    mode->second.U409 = DOFF;       // hi/lo mux.
   }
 
 }

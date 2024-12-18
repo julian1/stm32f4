@@ -28,6 +28,7 @@
 // pass-through parameter, for comms.
 // - o encode how to decode the sample sequence
 // just 4 bits. projected in the status register.
+// rename reg_seq_mode_status  perhaps.
 #define REG_SEQ_MODE                    18
 
 #define REG_STATUS                      17

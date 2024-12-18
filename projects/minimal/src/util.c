@@ -176,16 +176,16 @@ unsigned str_decode_uint( const char *s, uint32_t *val  )
 
 #if 0
   // 2 of 4 mux values
-  else if(strcmp(s, "w4") == 0 )
-    *val = W4;
-  else if(strcmp(s, "w3") == 0 )
-    *val = W3;
-  else if(strcmp(s, "w2") == 0 )
-    *val = W2;
-  else if(strcmp(s, "w1") == 0 )
-    *val = W1;
-  else if(strcmp(s, "woff") == 0 )
-    *val = WOFF;
+  else if(strcmp(s, "d4") == 0 )
+    *val = D4;
+  else if(strcmp(s, "d3") == 0 )
+    *val = D3;
+  else if(strcmp(s, "d2") == 0 )
+    *val = D2;
+  else if(strcmp(s, "d1") == 0 )
+    *val = D1;
+  else if(strcmp(s, "doff") == 0 )
+    *val = DOFF;
 #endif
 
 
