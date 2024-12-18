@@ -25,7 +25,7 @@ bool app_test08( app_t *app , const char *cmd)
   assert(cmd);
   assert(app->mode_initial);
 
-  if( strcmp(cmd, "test09") == 0) {
+  if( strcmp(cmd, "test08") == 0) {
 
     printf("test adc refmux switching\n");
 
