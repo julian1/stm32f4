@@ -5,8 +5,8 @@
 
   - Note. we can redirect the data ready interrupt here too.
 
-    which would be useful when populating/testing adc.
-    and when no calibration values, are available to interpret adc counts.
+    adc test is useful when populating/testing adc coponents.
+    and when no calibration is available to interpret adc counts.
 */
 
 
@@ -36,16 +36,17 @@ bool app_test09( app_t *app , const char *cmd)
     // would be better if could apply repl to a custom mode.
 
     // should work???
-    app_repl_statements(app, "reset; dcv-source lts 1;  dcv-source chan 1 ; " );
+    // thiis could be setup externally . and doesn't really matter
+    app_repl_statements(app, "reset; dcv-source lts 1;  dcv-source chan 1 ; " ); // nplc.
 
 
    _mode_t *mode = app->mode_current;
 
 
     // set up sequence acquision
-    mode->reg_mode = MODE_SA_ADC;
+    mode->reg_mode = MODE_SA_ADC;       // mode 7
     mode->sa.reg_sa_p_seq_n  = 2;
-    mode->sa.reg_sa_p_seq0 = (PC01 << 4) | S3;        // dcv,
+    mode->sa.reg_sa_p_seq0 = (PC01 << 4) | S1;                // dcv/ chan 1.
     mode->sa.reg_sa_p_seq1 = mode->sa.reg_sa_p_seq0 ;         // the same
 
     // ok. so we need to encode the trigger.
