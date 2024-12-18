@@ -17,6 +17,9 @@
 // SR_STATUS
 
 
+// prefix with REG_GEN. for general
+// No. doesn't work for direct. or sequence mode. or status.
+
 #define REG_SPI_MUX                     8
 #define REG_4094                        9
 #define REG_MODE                        12
@@ -71,6 +74,12 @@
 #define REG_SA_P_SEQ1                   23
 #define REG_SA_P_SEQ2                   24
 #define REG_SA_P_SEQ3                   25
+
+// dec 2024.
+#define REG_SA_P_TRIG                     26
+
+
+
 
 
 
