@@ -193,7 +193,9 @@ void data_cal(
   mode->sa.reg_sa_p_seq_n  = 2;
   mode->sa.reg_sa_p_seq0 = (PC01 << 4) | S3;        // dcv,
   mode->sa.reg_sa_p_seq1 = mode->sa.reg_sa_p_seq0 ;         // the same
-  mode->trig_sa = 1;
+
+  // mode->trig_sa = 1;
+  mode->sa.reg_sa_p_trig = 1;
 
 
   // this isnt' that nice. versus pushing a reserve sized array but is reasonably simple.

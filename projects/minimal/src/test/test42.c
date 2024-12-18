@@ -23,7 +23,7 @@
 #include <lib2/util.h>    // yield_with_msleep
 
 #include <mode.h>       // transition state
-#include <peripheral/trigger.h>      // trigger
+// #include <peripheral/trigger.h>      // trigger
 
 
 #define UNUSED(x) ((void)(x))
@@ -46,7 +46,10 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
 
   // we need to toggle the trigger/ reset of sa controller. to get clean values.
   // we should do  this via the register.
-  app->mode_current->trig_sa = 1;
+  // app->mode_current->trig_sa = 1;
+  app->mode_current->sa.reg_sa_p_trig = 1;
+
+
   spi_mode_transition_state( (spi_t *)app->spi_fpga0, app->spi_4094, app->spi_mdac0, app->mode_current, &app->system_millis);
 
   // reset the reading values buffer, no value will be recorded before this is filled.
@@ -66,7 +69,15 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
 
   // potential race condition here, we don't want to collect spurious data.
 
-  ice40_port_trig_sa_disable();
+  //ice40_port_trig_sa_disable();
+
+  app->mode_current->sa.reg_sa_p_trig = 0;
+    // JA. dec 2024. need to call transition state again.
+    // or just write the register.
+
+
+
+  assert( 0);
 
   // print output
   // m_foutput( stdout, data->buffer );
@@ -87,11 +98,11 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
 
 
 
-static void negative_side( 
+static void negative_side(
   app_t *app ,
   void (*yield)( void *),
   void *yield_ctx
-) 
+)
 {
 
   UNUSED(app);
@@ -174,11 +185,11 @@ static void negative_side(
 
 
 
-static void positve_side( 
+static void positve_side(
   app_t *app ,
   void (*yield)( void *),
   void *yield_ctx
-) 
+)
 {
 
   UNUSED(app);
@@ -316,17 +327,21 @@ bool app_test42(
         data show stats;  trig;               \
       " );
 
-    if(d0 == 1) 
-      positve_side( app, yield, yield_ctx); 
-    else if(d0 == -1) 
-      negative_side( app, yield, yield_ctx); 
+    if(d0 == 1)
+      positve_side( app, yield, yield_ctx);
+    else if(d0 == -1)
+      negative_side( app, yield, yield_ctx);
     else {
       printf("bad argument\n");
       return 1;
     }
 
 
-    app->mode_current->trig_sa = 0;
+    // app->mode_current->trig_sa = 0;
+
+    app->mode_current->sa.reg_sa_p_trig = 0;
+    // JA. dec 2024. need to call transition state again.
+    // or just write the register.
 
     return 1;
   }

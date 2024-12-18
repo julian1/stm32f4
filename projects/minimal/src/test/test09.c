@@ -2,6 +2,11 @@
 /*
   test sa/adc.
 
+
+  - Note. we can redirect the data ready interrupt here too.
+
+    which would be useful when populating/testing adc.
+    and when no calibration values, are available to interpret adc counts.
 */
 
 
@@ -44,7 +49,7 @@ bool app_test09( app_t *app , const char *cmd)
     mode->sa.reg_sa_p_seq1 = mode->sa.reg_sa_p_seq0 ;         // the same
 
     // ok. so we need to encode the trigger.
-    mode->trig_sa = 1;
+    mode->sa.reg_sa_p_trig = 1;
 
 
     spi_mode_transition_state( (spi_t *) app->spi_fpga0, app->spi_4094, app->spi_mdac0, mode, &app->system_millis);

@@ -43,7 +43,10 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
 
   // we need to toggle the trigger/ reset of sa controller. to get clean values.
   // we should do  this via the register.
-  app->mode_current->trig_sa = 1;
+  // app->mode_current->trig_sa = 1;
+  app->mode_current->sa.reg_sa_p_trig = 1;
+
+
 
   spi_mode_transition_state( (spi_t *)app->spi_fpga0, app->spi_4094, app->spi_mdac0, app->mode_current, &app->system_millis);
 
@@ -65,7 +68,9 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
 
 
   // stop sample acquisition, perhaps unnecessary
-  app->mode_current->trig_sa = 0;
+  // app->mode_current->trig_sa = 0;
+  app->mode_current->sa.reg_sa_p_trig = 0;
+
   spi_mode_transition_state( (spi_t *)app->spi_fpga0, app->spi_4094, app->spi_mdac0, app->mode_current, &app->system_millis);
 
 
@@ -178,7 +183,7 @@ bool app_test41(
 
 
   // july 2024.  disabled because we changed around relays.
-  assert(0); 
+  assert(0);
 /*
 
       app->mode_current->second.U1010 = (A << 2) | B ;      // B-A,  TAP-10V
@@ -227,7 +232,8 @@ bool app_test41(
     // check_data( == 7.000 )  etc.
 
 
-    app->mode_current->trig_sa = 0;
+    // app->mode_current->trig_sa = 0;
+    app->mode_current->sa.reg_sa_p_trig = 0;
 
     return 1;
   }

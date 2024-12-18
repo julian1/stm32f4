@@ -94,7 +94,8 @@ static void test(app_t *app)
 */
 
   // trigger start of sample acquisition
-  mode.trig_sa = 1;
+  // mode.trig_sa = 1;
+  mode.sa.reg_sa_p_trig = 1;
 
   mode.first .K407        = SR_RESET;   // disconnect dcv
 

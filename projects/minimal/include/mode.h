@@ -246,6 +246,9 @@ typedef struct sa_state_t
   uint32_t reg_sa_p_seq2;
   uint32_t reg_sa_p_seq3;
 
+  
+  uint32_t reg_sa_p_trig;
+
 
 } sa_state_t;
 
@@ -340,9 +343,6 @@ typedef struct _mode_t
 
   adc_state_t    adc;
 
-  // single adum line.
-  // should move/place in signal acquisition?
-  bool          trig_sa;
 
 } _mode_t ;
 

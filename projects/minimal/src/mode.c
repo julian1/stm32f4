@@ -171,32 +171,19 @@ void spi_mode_transition_state(
 
 
 
-  // ensure no spurious emi on 4094 lines, when we read fpga state readings
+  // just check/ensure again, no spurious emi on 4094 lines, for when we read fpga adc counts
   // can probably just assert and reaad.
   assert( spi_ice40_reg_read32( spi_fpga, REG_SPI_MUX) == 0 );
 
-
-
   // we may want delay here. or make the trigger  an external control state to the mode.
 
-  /*
-    whether to put mcu trigger state in mode.
-    and then set it last. after all the 4094 and fpga register state has been updated.
-    --
-    this preserves the sequencing.  and minimizes spi xfer emi.
-    since it's a single gpio toggle, rather than spi transaction.
-    ---
-    also ensure the spi_mux == 0.
-  */
 
-#if 0
+  // assert trigger condition
+  // set last. to avoid spi xfer emi. 
+  spi_ice40_reg_write32(spi_fpga, REG_SA_P_TRIG, mode->sa.reg_sa_p_trig );
 
-  if(mode->trig_sa)
-    ice40_port_trig_sa_enable();    // rename set/clear() ? better?
-  else
-    ice40_port_trig_sa_disable();
 
-#endif
+
 
 }
 
@@ -686,7 +673,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   else if(strcmp(cmd, "halt") == 0 || strcmp(cmd, "h") == 0) {
 
     // _mode_t *mode = app->mode_current;
-    mode->trig_sa = 0;
+    mode->sa.reg_sa_p_trig= 0;
   }
   // "t" to trigger
   else if(strcmp(cmd, "trig") == 0 || strcmp(cmd, "t") == 0) {
@@ -700,7 +687,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
    // _mode_t *mode = app->mode_current;
 
-    mode->trig_sa = 1;
+    mode->sa.reg_sa_p_trig = 1;
   }
 
 

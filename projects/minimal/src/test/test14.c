@@ -101,7 +101,9 @@ static void test (app_t *app)     // should be passing the continuation.
   mode.sa.reg_sa_p_seq1 = (PC01 << 4 )  | SOFF;
 
   // trigger start of sample acquisition
-  mode.trig_sa = 1;
+  // mode.trig_sa = 1;
+  mode.sa.reg_sa_p_trig = 1;
+
 
   mode.first .K407 = SR_RESET;      // turn off dcv-source
   // mode.reg_direct.leds_o  = 0b0010;    // advance led.   note. won't display in different mode.
