@@ -122,7 +122,7 @@ void spi_mode_transition_state(
 
 
 
-  // restore spi mode, after writing 4094, dac board state
+  // restore spi mode, after writing the non-fpga part of the board state
   spi_port_configure( spi_fpga);
   spi_ice40_reg_write32( spi_fpga, REG_SPI_MUX, 0 );
 
@@ -138,6 +138,7 @@ void spi_mode_transition_state(
 
   // reg_direct for outputs under fpga control
   assert( sizeof(reg_direct_t) == 4);
+  // TODO. review - why are we using write_n() rather than write32()?
   spi_ice40_reg_write_n(spi_fpga, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
 
 
@@ -179,18 +180,16 @@ void spi_mode_transition_state(
 
 
   // assert trigger condition
-  // set last. to avoid spi xfer emi. 
+  // set last. to avoid spi xfer emi.
   spi_ice40_reg_write32(spi_fpga, REG_SA_P_TRIG, mode->sa.reg_sa_p_trig );
-
-
-
 
 }
 
 
 
+
 /*
-  could put all these in separate file, if really wanted.
+  could put these funcs in separate file, if really wanted.
 
 */
 

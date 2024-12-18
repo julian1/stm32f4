@@ -226,7 +226,7 @@ void app_configure( app_t *app )
     spi_mode_transition_state( app->spi_fpga0, app->spi_4094, app->spi_mdac0, app->mode_current, &app->system_millis);
 
 
-    // setup the ice40 interrupt handler
+    // setup the fpga0 interrupt handler
     interrupt_set_handler( app->fpga0_interrupt, app->data, (interupt_handler_t ) data_rdy_interupt);
 
 #if 0
