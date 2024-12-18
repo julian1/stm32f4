@@ -21,7 +21,7 @@
 // No. doesn't work for direct. or sequence mode. or status.
 
 #define REG_SPI_MUX                     8
-#define REG_4094                        9
+#define REG_4094_OE                        9
 #define REG_MODE                        12
 #define REG_DIRECT                      14
 

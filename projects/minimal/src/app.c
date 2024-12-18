@@ -195,7 +195,7 @@ void app_configure( app_t *app )
     assert( app->cdone_fpga0 );
 
     // check/verify 4094 OE is not asserted
-    assert( ! spi_ice40_reg_read32( app->spi_fpga0, REG_4094 ));
+    assert( ! spi_ice40_reg_read32( app->spi_fpga0, REG_4094_OE ));
 
     // reset the mode.
     *app->mode_current = *app->mode_initial;
@@ -216,10 +216,10 @@ void app_configure( app_t *app )
     // should check supply rails etc. first.
     printf("asserting 4094 OE\n");
     spi_port_configure( app->spi_fpga0);
-    spi_ice40_reg_write32( app->spi_fpga0, REG_4094, 1 );
+    spi_ice40_reg_write32( app->spi_fpga0, REG_4094_OE, 1 );
 
     // check/ensure 4094 OE asserted
-    assert( spi_ice40_reg_read32( app->spi_fpga0, REG_4094 ));
+    assert( spi_ice40_reg_read32( app->spi_fpga0, REG_4094_OE ));
 
     // now call transition state again. which will do relays
     printf("spi_mode_transition_state() for relays\n");
@@ -670,7 +670,7 @@ static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq
   }
   else if( strcmp( cmd, "4094?") == 0) {
 
-    spi_print_register( spi, REG_4094);     // needs a better name. use a general control register. "CR" con
+    spi_print_register( spi, REG_4094_OE);     // needs a better name. use a general control register. "CR" con
   }
    else if( strcmp(cmd, "mode?") == 0) {
 
