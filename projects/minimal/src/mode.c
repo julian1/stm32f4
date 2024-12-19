@@ -355,7 +355,7 @@ void mode_set_dcv_source_tia( _mode_t *mode )
 
 
 
-static void mode_set_dcv_source_channel( _mode_t *mode, unsigned u0 )
+void mode_set_dcv_source_channel( _mode_t *mode, unsigned u0 )
 {
 
   if(u0 == 1) {
@@ -375,6 +375,12 @@ static void mode_set_dcv_source_channel( _mode_t *mode, unsigned u0 )
 
 
 
+void mode_set_trigger( _mode_t *mode, bool val )
+{
+
+  mode->sa.reg_sa_p_trig = val;
+
+}
 
 
 
@@ -669,8 +675,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   // "h" for halt
   else if(strcmp(cmd, "halt") == 0 || strcmp(cmd, "h") == 0) {
 
-    // _mode_t *mode = app->mode_current;
-    mode->sa.reg_sa_p_trig= 0;
+    mode_set_trigger( mode, 0);
   }
   // "t" to trigger
   else if(strcmp(cmd, "trig") == 0 || strcmp(cmd, "t") == 0) {
@@ -680,11 +685,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     // No. I think the trigger. should not change or clear the data buff. it just starts the adc.
     */
 
-    printf("trigger set\n");
-
-   // _mode_t *mode = app->mode_current;
-
-    mode->sa.reg_sa_p_trig = 1;
+    mode_set_trigger( mode, 1);
   }
 
 

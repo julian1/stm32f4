@@ -180,22 +180,31 @@ void data_cal(
   assert( mode->first.K406 == SR_SET);   // accum relay off
   mode->first.K407 = SR_RESET;   // select dcv-source on
 */
+/*
   mode->first .K407 = SR_SET;    // select dcv-source on ch1.
   mode->first .K405 = SR_SET;     // select ch1. to feed through to accum cap.
   mode->first .K406 = SR_SET;   // select accum cap
+*/
+
+  // dec 2024.
+  // set up input relays.
+  mode_set_dcv_source_ref( mode, 0 );
+  mode_set_dcv_source_channel( mode, 1 ); // dcv
 
 
-
-
+  // TODO. use mode_set_seq function.
+ //  void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 )
 
   // set up sequence acquision
   mode->reg_mode = MODE_SA_ADC;
   mode->sa.reg_sa_p_seq_n  = 2;
-  mode->sa.reg_sa_p_seq0 = (PC01 << 4) | S3;        // dcv,
-  mode->sa.reg_sa_p_seq1 = mode->sa.reg_sa_p_seq0 ;         // the same
+  mode->sa.reg_sa_p_seq0 = (PC01 << 4) | S1;          // dcv,  update dec 2024.
+  mode->sa.reg_sa_p_seq1 = mode->sa.reg_sa_p_seq0;    // the same
+
+
 
   // mode->trig_sa = 1;
-  mode->sa.reg_sa_p_trig = 1;
+  mode_set_trigger( mode, true);
 
 
   // this isnt' that nice. versus pushing a reserve sized array but is reasonably simple.

@@ -247,7 +247,7 @@ typedef struct sa_state_t
   uint32_t reg_sa_p_seq2;
   uint32_t reg_sa_p_seq3;
 
-  
+
   uint32_t reg_sa_p_trig;
 
 
@@ -392,11 +392,17 @@ void mode_set_dcv_source_tia( _mode_t *mode );
 
 
 
-bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );
+
+void mode_set_dcv_source_channel( _mode_t *mode, unsigned u0 );
+
+void mode_set_trigger( _mode_t *mode, bool );
+
 
 void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 );
 
 
+
+bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );
 
 
 

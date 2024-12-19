@@ -584,17 +584,11 @@ void app_update_simple_with_data(app_t *app)
   if( (app->system_millis - app->soft_500ms) > 500) {
     app->soft_500ms += 500;
 
-
-    assert(0);
-#if 0
     // blink mcu led
     app->led_state = ! app->led_state;
-    if(app->led_state)
-      led_on(app->led_status);
-    else
-      led_off(app->led_status);
-#endif
+    led_set( app->led_status, app->led_state);
   }
+
 }
 
 
@@ -616,15 +610,10 @@ void app_update_simple_led_blink(app_t *app)
   if( (app->system_millis - app->soft_500ms) > 500) {
     app->soft_500ms += 500;
 
-    assert(0);
-#if 0
     // blink mcu led
     app->led_state = ! app->led_state;
-    if(app->led_state)
-      led_on(app->led_status);
-    else
-      led_off(app->led_status);
-#endif
+    led_set( app->led_status, app->led_state);
+
   }
 
 }
