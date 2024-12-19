@@ -8,12 +8,10 @@
 
 
 
-#include <peripheral/trigger.h>
-
 #include <peripheral/spi-ice40.h>
 #include <peripheral/spi-4094.h>
 #include <peripheral/spi-ad5446.h>
-#include <peripheral/spi-dac8811.h>
+// #include <peripheral/spi-dac8811.h>
 
 #include <device/fpga0_reg.h>
 

@@ -9,8 +9,7 @@
 BINARY		= main
 
 
-SRCFILES	= src/peripheral/trigger.c     \
-            src/support.c \
+SRCFILES	= src/support.c \
             src/peripheral/spi-ice40.c src/peripheral/spi-ice40-bitstream.c \
             src/peripheral/spi-4094.c src/peripheral/spi-dac8811.c src/peripheral/spi-ad5446.c \
             src/peripheral/vfd.c \
