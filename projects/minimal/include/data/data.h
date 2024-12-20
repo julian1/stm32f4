@@ -16,6 +16,9 @@
 
 typedef struct _mode_t _mode_t;
 
+typedef struct data_t data_t;
+
+
 typedef struct data_t
 {
   /*
@@ -59,13 +62,15 @@ typedef struct data_t
 
   //////////////////
 
-
+#if 0
   /*
   - readings stored by sequence_idx.  which works very well for calculating output for the different modes.
   */
   // better name,  data/ vals? reading
   double reading[  4 ] ;
   double reading_last[  4 ] ;
+
+#endif
 
   /////////////////
 
@@ -75,6 +80,15 @@ typedef struct data_t
   ------
     if we maintain the stats buffer here, then we should include this value.
   */
+
+
+
+  double (*handler_computed_val)( void *ctx, double val, uint32_t status);
+  void    *ctx_computed_val;
+
+
+
+
   double computed_val ;
   // used to communicate between adc reading and display of adc data.
   uint32_t adc_status;
@@ -118,7 +132,7 @@ typedef struct data_t
 
 void data_init ( data_t *);
 
-void data_reading_reset( data_t *data );
+// void data_reading_reset( data_t *data );
 void data_reset( data_t * data );
 
 
@@ -128,30 +142,31 @@ void data_reset( data_t * data );
 typedef struct interrupt_t  interrupt_t;
 void data_rdy_interupt( data_t *data, interrupt_t *);    // handler setup in app context.
 
+void data_rdy_clear( data_t *data);
 
 
 // better name process reading.
 // void data_update_new_reading(data_t *data, uint32_t spi);
 
 
-typedef struct spi_ice40_t  spi_ice40_t ;
-// typedef struct spi_ad5446_t  spi_ad5446_t;
 typedef struct spi_t spi_t ;
 
-void data_update_new_reading2(data_t *data, spi_ice40_t *spi/*, bool verbose*/);
+void data_update_new_reading2(data_t *data, spi_t *spi_fpga0/*, bool verbose*/);
 
-
-// could create and add to data/cal.h
 
 void data_cal(
+
     data_t *data ,
 
-    spi_ice40_t * spi,  // TODO change name spi_fpga.
+    // needed to control board state, for calling mode_transition_state()
+    spi_t *spi_fpga0,
     spi_t *spi_4094,
     spi_t *spi_ad5446,
 
     _mode_t *mode,
     unsigned model_spec,
+
+    // app level stuff.
     volatile uint32_t *system_millis,
     void (*yield)( void * ),
     void * yield_ctx
@@ -182,6 +197,14 @@ bool data_repl_statement( data_t *data,  const char *cmd );
 
 void data_cal_show( data_t *data );
 
-
+#if 0
 char * seq_mode_str( uint8_t sample_seq_mode, char *buf, size_t n  );
+
+#endif
+
+
+// handler/catcher.
+double data_sa_simple_computed_val( void *ctx, double val, uint32_t status);
+
+
 

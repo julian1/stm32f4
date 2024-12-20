@@ -140,33 +140,29 @@ void spi_mode_transition_state(
   spi_ice40_reg_write_n(spi_fpga, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
 
 
-  // sequence mode,
-  // just pass-through communcation. from reg to the status register out.
-  // this needs a better name REG_STATUS_SEQ_MODE
-  spi_ice40_reg_write32(spi_fpga, REG_SEQ_MODE, mode->reg_seq_mode );
 
 
   // signal acquisition
-  spi_ice40_reg_write32(spi_fpga, REG_SA_P_CLK_COUNT_PRECHARGE, mode->sa.reg_sa_p_clk_count_precharge );
+  spi_ice40_reg_write32(spi_fpga, REG_SA_P_CLK_COUNT_PRECHARGE, mode->sa.p_clk_count_precharge );
 
 #if 1
-  /*
-    had a spi_reg_write8. it would ease this,.
-    or use a bitfield having an array.  eg.   seq[ 0].pc   and seq[0].azmux etc.
-    but separate regs, eases destructuring on fpga side.
-  */
-  spi_ice40_reg_write32( spi_fpga, REG_SA_P_SEQ_N,        mode->sa.reg_sa_p_seq_n );
-  spi_ice40_reg_write32( spi_fpga, REG_SA_P_SEQ0,        mode->sa.reg_sa_p_seq0 );
-  spi_ice40_reg_write32( spi_fpga, REG_SA_P_SEQ1,        mode->sa.reg_sa_p_seq1 );
-  spi_ice40_reg_write32( spi_fpga, REG_SA_P_SEQ2,       mode->sa.reg_sa_p_seq2 );
-  spi_ice40_reg_write32( spi_fpga, REG_SA_P_SEQ3,       mode->sa.reg_sa_p_seq3 );
+
+  spi_ice40_reg_write32( spi_fpga, REG_SA_P_SEQ_N,  mode->sa.p_seq_n );
+
+  // use write_n to work around strict aliasing
+  // we can consolidate using a single register.
+  spi_ice40_reg_write_n( spi_fpga, REG_SA_P_SEQ0, &mode->sa.p_seq_elt[ 0], sizeof( seq_elt_t));
+  spi_ice40_reg_write_n( spi_fpga, REG_SA_P_SEQ1, &mode->sa.p_seq_elt[ 1], sizeof( seq_elt_t));
+  spi_ice40_reg_write_n( spi_fpga, REG_SA_P_SEQ2, &mode->sa.p_seq_elt[ 2], sizeof( seq_elt_t));
+  spi_ice40_reg_write_n( spi_fpga, REG_SA_P_SEQ3, &mode->sa.p_seq_elt[ 3], sizeof( seq_elt_t));
+
 #endif
 
 
   // adc
-  // printf("writing adc params - aperture %lu\n" ,   mode->adc.reg_adc_p_aperture  );
-  spi_ice40_reg_write32( spi_fpga, REG_ADC_P_CLK_COUNT_APERTURE,  mode->adc.reg_adc_p_aperture );
-  spi_ice40_reg_write32( spi_fpga, REG_ADC_P_CLK_COUNT_RESET,     mode->adc.reg_adc_p_reset );
+  // printf("writing adc params - aperture %lu\n" ,   mode->adc.p_aperture  );
+  spi_ice40_reg_write32( spi_fpga, REG_ADC_P_CLK_COUNT_APERTURE,  mode->adc.p_aperture );
+  spi_ice40_reg_write32( spi_fpga, REG_ADC_P_CLK_COUNT_RESET,     mode->adc.p_reset );
 
 
 
@@ -179,7 +175,7 @@ void spi_mode_transition_state(
 
   // assert trigger condition
   // set last. to avoid spi xfer emi.
-  spi_ice40_reg_write32(spi_fpga, REG_SA_P_TRIG, mode->sa.reg_sa_p_trig );
+  spi_ice40_reg_write32(spi_fpga, REG_SA_P_TRIG, mode->sa.p_trig );
 
 }
 
@@ -378,7 +374,7 @@ void mode_set_dcv_source_channel( _mode_t *mode, unsigned u0 )
 void mode_set_trigger( _mode_t *mode, bool val )
 {
 
-  mode->sa.reg_sa_p_trig = val;
+  mode->sa.p_trig = val;
 
 }
 
@@ -395,11 +391,14 @@ void mode_set_trigger( _mode_t *mode, bool val )
      set_seq_n();
 
   also the catcher/interpreter of the result.
-
   remember it's main use used can also
+
+  just encode by hand. as we setup modes at top level.
 
 */
 
+
+#if 0
 
 void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 )
 {
@@ -427,12 +426,12 @@ void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
     case SEQ_MODE_BOOT: {
       // sample a hi, but don't switch the pc switch, generally only used for electrometer, very high input impedance.
 
-      mode->sa.reg_sa_p_seq_n = 1;
+      mode->sa.p_seq_n = 1;
       if(arg0 == S3 ) {
-        mode->sa.reg_sa_p_seq0 = (0b00 << 4) | S3;        // dcv
+        mode->sa.p_seq0 = (0b00 << 4) | S3;        // dcv
       }
       else if(arg0 == S1 ) {
-        mode->sa.reg_sa_p_seq0 = (0b00 << 4) | S1;        // himux
+        mode->sa.p_seq0 = (0b00 << 4) | S1;        // himux
       }
       else assert(0);
       break;
@@ -448,18 +447,18 @@ void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
       // clearer - to express as another mode, rather than as a bool.
       // azero off - just means swtich the pc for symmetry/ and keep charge-injetion the same with azero mode.
 
-      mode->sa.reg_sa_p_seq_n = 1;
+      mode->sa.p_seq_n = 1;
       if(arg0 == S3 ) {
-        mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
+        mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
       }
       else if(arg0 == S1 ) {
-        mode->sa.reg_sa_p_seq0 = (0b10 << 4) | S1;        // himux
+        mode->sa.p_seq0 = (0b10 << 4) | S1;        // himux
       }
       else if(arg0 == S7 ) {
-        mode->sa.reg_sa_p_seq0 = (0b00 << 4) | S7;        // star-lo
+        mode->sa.p_seq0 = (0b00 << 4) | S7;        // star-lo
       }
       else if(arg0 == S8 ) {
-        mode->sa.reg_sa_p_seq0 = (0b00 << 4) | S8;        // lomux
+        mode->sa.p_seq0 = (0b00 << 4) | S8;        // lomux
       }
 
       else assert(0);
@@ -471,36 +470,36 @@ void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
     case SEQ_MODE_AZ: {
     // write the seq
 
-      mode->sa.reg_sa_p_seq_n = 2;
+      mode->sa.p_seq_n = 2;
 
       // hi goes first
 
       if(arg0 == S3 )
-        mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;      // dcv
+        mode->sa.p_seq0 = (0b01 << 4) | S3;      // dcv
       else if(arg0 == S1 )
-        mode->sa.reg_sa_p_seq0 = (0b10 << 4) | S1;        // himux
+        mode->sa.p_seq0 = (0b10 << 4) | S1;        // himux
       else
         assert(0);
 
       if(arg1 == S7)
-        mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
+        mode->sa.p_seq1 = (0b00 << 4) | S7;        // star-lo
       else if(arg1 == S8)
-        mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S8;        // lomux
+        mode->sa.p_seq1 = (0b00 << 4) | S8;        // lomux
       else
         assert(0);
 /*
     // applies both chanels.
       if(arg0 == S3 && arg1 == S7) {
-        mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
-        mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
+        mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
+        mode->sa.p_seq1 = (0b00 << 4) | S7;        // star-lo
       }
       else if(arg0 == S1 && arg1 == S8)  {
-        mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S1;        // himux   WRONG. FIXME.   not switching the PC.
-        mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S8;        // lomux
+        mode->sa.p_seq0 = (0b01 << 4) | S1;        // himux   WRONG. FIXME.   not switching the PC.
+        mode->sa.p_seq1 = (0b00 << 4) | S8;        // lomux
       }
       else if(arg0 == S3 && arg1 == S8 )  {                // eg. for ref.
-        mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
-        mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S8;        // lomux
+        mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
+        mode->sa.p_seq1 = (0b00 << 4) | S8;        // lomux
       }
       else assert(0);
 */
@@ -511,8 +510,8 @@ void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
     case SEQ_MODE_ELECTRO: {
 
       // same as no az, except don't switch the precharge
-      mode->sa.reg_sa_p_seq_n = 1;
-      mode->sa.reg_sa_p_seq0 = (0b00 << 4) | S3;        // dcv
+      mode->sa.p_seq_n = 1;
+      mode->sa.p_seq0 = (0b00 << 4) | S3;        // dcv
       break;
     }
 */
@@ -522,11 +521,11 @@ void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
       // 4 cycle, producing single output
       // Issue - is for internal - we need to set the common lo. eg. ref-lo. or start
 
-      mode->sa.reg_sa_p_seq_n = 4;
-      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
-      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S8;        // ref-lo // star-lo
-      mode->sa.reg_sa_p_seq2 = (0b10 << 4) | S1;        // himux
-      mode->sa.reg_sa_p_seq3 = (0b00 << 4) | S8;        // ref-lo /// lomux
+      mode->sa.p_seq_n = 4;
+      mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
+      mode->sa.p_seq1 = (0b00 << 4) | S8;        // ref-lo // star-lo
+      mode->sa.p_seq2 = (0b10 << 4) | S1;        // himux
+      mode->sa.p_seq3 = (0b00 << 4) | S8;        // ref-lo /// lomux
       break;
     }
 
@@ -535,21 +534,21 @@ void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
       // auto-gain 4 cycle - same as ratio. producing a single output
 
 
-      mode->sa.reg_sa_p_seq_n = 4;
+      mode->sa.p_seq_n = 4;
       // sample
-      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
-      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
+      mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
+      mode->sa.p_seq1 = (0b00 << 4) | S7;        // star-lo
       // reference
-      mode->sa.reg_sa_p_seq2 = (0b10 << 4) | S1;        // himux
-      mode->sa.reg_sa_p_seq3 = (0b00 << 4) | S7;        // lomux
+      mode->sa.p_seq2 = (0b10 << 4) | S1;        // himux
+      mode->sa.p_seq3 = (0b00 << 4) | S7;        // lomux
       break;
     }
 */
     case SEQ_MODE_DIFF: {
       // 2 cycle, hi- hi2, with both precharge switches switches. single output.
-      mode->sa.reg_sa_p_seq_n = 2;
-      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
-      mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1;        // himux
+      mode->sa.p_seq_n = 2;
+      mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
+      mode->sa.p_seq2 = (0b01 << 4) | S1;        // himux
       break;
     }
 
@@ -561,10 +560,10 @@ void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
       // to encodekkkkkkkkk
       // can do as 3 values or 4 values.   3 is more logical.
 
-      mode->sa.reg_sa_p_seq_n = 3;
-      mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
-      mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
-      mode->sa.reg_sa_p_seq2 = (0b10 << 4) | S1;        // himux
+      mode->sa.p_seq_n = 3;
+      mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
+      mode->sa.p_seq1 = (0b00 << 4) | S7;        // star-lo
+      mode->sa.p_seq2 = (0b10 << 4) | S1;        // himux
       break;
     }
 
@@ -575,7 +574,7 @@ void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
 
 }
 
-
+#endif
 
 
 
@@ -584,7 +583,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
   char s0[100 + 1 ];
   char s1[100 + 1 ];
-  char s2[100 + 1 ];
+  // char s2[100 + 1 ];
   uint32_t u0, u1;
   double f0;
   int32_t i0;
@@ -654,7 +653,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
 
 
-
+#if 0
 
   else if( sscanf(cmd, "boot%100s", s0) == 1
     && str_decode_uint( s0, &u0))  {
@@ -687,6 +686,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   else if(strcmp(cmd, "sum-test") == 0)
     mode_set_seq( mode, SEQ_MODE_SUM_DELTA, 0, 0 );
 
+#endif
 
   // "h" for halt
   else if(strcmp(cmd, "halt") == 0 || strcmp(cmd, "h") == 0) {
@@ -719,7 +719,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     uint32_t aperture = period_to_aper_n( f0 );
     // assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
     aper_cc_print( aperture,  line_freq);
-    mode->adc.reg_adc_p_aperture = aperture;
+    mode->adc.p_aperture = aperture;
   }
 
 
@@ -737,26 +737,19 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
       aper_cc_print( aperture,  line_freq);
 
-      mode->adc.reg_adc_p_aperture = aperture;
+      mode->adc.p_aperture = aperture;
     }
   }
 
 #if 0
     else if(strcmp(s0, "precharge") == 0) {
-      mode->sa.reg_sa_p_clk_count_precharge = u0;
+      mode->sa.p_clk_count_precharge = u0;
     }
 #endif
 
 
-  else if( sscanf(cmd, "seq mode %100s", s0) == 1
-    && str_decode_uint( s0, &u0)) {
 
-    mode->reg_seq_mode = u0;
-
-  }
-
-
-
+#if 0
   /*
     perhaps keep the 'set' prefix to clearly disambiguate these actions under common syntactic form.
   */
@@ -777,16 +770,16 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       uint32_t val =  ((u0 & 0b11) << 4) | ( u1 & 0b1111);
 
       if(strcmp(s0, "seq0") == 0) {
-        mode->sa.reg_sa_p_seq0 = val;
+        mode->sa.p_seq0 = val;
       }
       else if(strcmp(s0, "seq1") == 0) {
-        mode->sa.reg_sa_p_seq1 = val;
+        mode->sa.p_seq1 = val;
       }
        else if(strcmp(s0, "seq2") == 0) {
-        mode->sa.reg_sa_p_seq2 = val;
+        mode->sa.p_seq2 = val;
       }
       else if(strcmp(s0, "seq3") == 0) {
-        mode->sa.reg_sa_p_seq3 = val;
+        mode->sa.p_seq3 = val;
       }
       else {
         printf("unknown target %s for 3 var set\n", s0);
@@ -794,6 +787,8 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       }
 
   }
+
+#endif
 
   // two value set.
   else if( sscanf(cmd, "set %100s %100s", s0, s1) == 2
@@ -807,7 +802,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
       // better name. _count.
       if(strcmp(s0, "seqn") == 0) {
-        mode->sa.reg_sa_p_seq_n = u0;
+        mode->sa.p_seq_n = u0;
       }
 
 

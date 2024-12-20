@@ -42,7 +42,7 @@ void data_init( data_t *data)
   data_reset( data );
 }
 
-
+#if 0
 
 void data_reading_reset( data_t *data )
 {
@@ -52,10 +52,12 @@ void data_reading_reset( data_t *data )
   memset( data->reading_last, 0, sizeof( data->reading_last));
 }
 
+#endif
 
 
 void data_reset( data_t * data )
 {
+  // better name .  data_buffer_clear()
 /*
     normal buffer handling
 
@@ -74,7 +76,9 @@ void data_reset( data_t * data )
 
   data->buffer_idx = 0;                // reset overflow index, rename?
 
+#if 0
   data_reading_reset( data);            // reset the reading buffer
+#endif
 }
 
 
@@ -105,8 +109,13 @@ void data_rdy_interupt( data_t *data, interrupt_t *x) // runtime context
 }
 
 
+void data_rdy_clear( data_t *data)
+{
+  data->adc_interupt_valid = false;
+}
 
 
+#if 0
 
 char * seq_mode_str( uint8_t sample_seq_mode, char *buf, size_t n  )
 {
@@ -131,12 +140,52 @@ char * seq_mode_str( uint8_t sample_seq_mode, char *buf, size_t n  )
   return buf;
 }
 
+#endif
+
+
+
+// double (*handler_computed_val)( data_t * );
+
+/*
+    should probably be given data_sa_simple_computed_val().
+*/
+
+double data_sa_simple_computed_val( void *ctx, double val, uint32_t status)
+{
+  UNUSED(ctx);
+
+  /*
+    would be a much cleaner interface to just push a value.  here.
+    and have a closure or structure. handle the state.
+
+    eg. storing the reading against the sample_idx.
+
+    Because non- of the complexity is needed for simple noaz values.
+
+    rather than store in data->reading.
+  */
+
+  uint8_t sample_seq_n    =  ADC_STATUS_SAMPLE_SEQ_N( status) ;     // 0b111 & (status >> 20) ;
+
+#if 0
+    switch(sample_seq_mode) {
+
+      case SEQ_MODE_BOOT:
+      case SEQ_MODE_NOAZ: {
+#endif
+
+  // AZ mode, on channel 1 or channel 2, but encoded in first two readings
+  assert( sample_seq_n == 1);
+
+  return val;
+
+}
 
 
 
 
-
-void data_update_new_reading2(data_t *data, spi_ice40_t *spi/*, bool verbose*/)
+// void data_update_new_reading2(data_t *data, spi_ice40_t *spi/*, bool verbose*/)
+void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 {
   assert(data);
   assert(data->magic == DATA_MAGIC);
@@ -155,12 +204,12 @@ void data_update_new_reading2(data_t *data, spi_ice40_t *spi/*, bool verbose*/)
       do all spi transfers in prioity, without any other mcu work,
   */
 
-  uint32_t status = spi_ice40_reg_read32( spi, REG_STATUS );
+  uint32_t status = spi_ice40_reg_read32( spi_fpga0, REG_STATUS );
 
-  uint32_t clk_count_mux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-  uint32_t clk_count_mux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-  uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RD);
-  uint32_t clk_count_mux_sig = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_MUX_SIG);
+  uint32_t clk_count_mux_neg = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
+  uint32_t clk_count_mux_pos = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
+  uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_RD);
+  uint32_t clk_count_mux_sig = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_MUX_SIG);
 
   uint32_t clk_count_mux_reset = 0;
   uint32_t stat_count_refmux_pos_up = 0;
@@ -169,11 +218,11 @@ void data_update_new_reading2(data_t *data, spi_ice40_t *spi/*, bool verbose*/)
 
   if(data->show_extra) {
 
-    clk_count_mux_reset       = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RESET);
+    clk_count_mux_reset       = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_RESET);
 
-    stat_count_refmux_pos_up = spi_ice40_reg_read32( spi, REG_ADC_STAT_COUNT_REFMUX_POS_UP);
-    stat_count_refmux_neg_up = spi_ice40_reg_read32( spi, REG_ADC_STAT_COUNT_REFMUX_NEG_UP);
-    stat_count_cmpr_cross_up = spi_ice40_reg_read32( spi, REG_ADC_STAT_COUNT_CMPR_CROSS_UP);
+    stat_count_refmux_pos_up = spi_ice40_reg_read32( spi_fpga0, REG_ADC_STAT_COUNT_REFMUX_POS_UP);
+    stat_count_refmux_neg_up = spi_ice40_reg_read32( spi_fpga0, REG_ADC_STAT_COUNT_REFMUX_NEG_UP);
+    stat_count_cmpr_cross_up = spi_ice40_reg_read32( spi_fpga0, REG_ADC_STAT_COUNT_CMPR_CROSS_UP);
   }
 
 
@@ -193,20 +242,28 @@ void data_update_new_reading2(data_t *data, spi_ice40_t *spi/*, bool verbose*/)
 
   uint8_t hw_flags        =  ADC_STATUS_HW_FLAGS( status) ;         // 0b111 & (status >> 8 ) ;
   UNUSED(hw_flags);
+
+
   uint8_t reg_spi_mux     =  ADC_STATUS_SPI_MUX( status)  ;
-  uint8_t sample_idx      =  ADC_STATUS_SAMPLE_IDX( status) ;       // 0b111 & (status >> 16) ;     // we set this to 0b111 somewhere in verilog?
-  uint8_t sample_seq_n    =  ADC_STATUS_SAMPLE_SEQ_N( status) ;     // 0b111 & (status >> 20) ;
-  uint8_t sample_seq_mode =  ADC_STATUS_SAMPLE_SEQ_MODE( status);   // 0b111 & (status >> 24) ;
-
-
   assert( reg_spi_mux == SPI_MUX_NONE);
 
+#if 0
+  uint8_t sample_idx      =  ADC_STATUS_SAMPLE_IDX( status) ;       // 0b111 & (status >> 16) ;     // we set this to 0b111 somewhere in verilog?
+  uint8_t sample_seq_n    =  ADC_STATUS_SAMPLE_SEQ_N( status) ;     // 0b111 & (status >> 20) ;
+
+  uint8_t sample_seq_mode =  ADC_STATUS_SAMPLE_SEQ_MODE( status);   // 0b111 & (status >> 24) ;
+
+#endif
+
+
+#if 0
   // ensure we can store the value against the sample idx.
   assert(sample_idx < ARRAY_SIZE( data->reading));
+#endif
 
   char buf[100];
 
-
+#if 0
  // if(data->show_seq)
   {
 
@@ -214,7 +271,7 @@ void data_update_new_reading2(data_t *data, spi_ice40_t *spi/*, bool verbose*/)
     // printf(" seq_mode %u  %u of %u ", sample_seq_mode,   sample_idx, sample_seq_n );
     printf(", %u of %u", sample_idx, sample_seq_n );
   }
-
+#endif
 
   if(data->show_counts) {
 
@@ -292,18 +349,25 @@ void data_update_new_reading2(data_t *data, spi_ice40_t *spi/*, bool verbose*/)
     assert(m_predicted);
     assert(m_is_scalar(m_predicted) );
 
+
+    /////////////////////////////////
+#if 0
     // store the value against the sample idx.
     assert(sample_idx < ARRAY_SIZE( data->reading));
 
     // shift previous reading
     data->reading_last[ sample_idx ] = data->reading[ sample_idx ] ;
+#endif
 
     // update for this reading
     double predicted = m_to_scalar(m_predicted );
 
+#if 0
     // we use 0 to encode no-value recorded yet..   or if(predicted == 0) predicted = EPSILON;
     assert(predicted != 0);
     data->reading[ sample_idx ] = predicted;
+
+    /////////////////////////////////
 
     if(data->show_extra) {
       printf(", %f", predicted);
@@ -317,6 +381,8 @@ void data_update_new_reading2(data_t *data, spi_ice40_t *spi/*, bool verbose*/)
           printf("%u %lf\n", i, data->reading[ i ] ) ;
         }
     }
+
+#endif
 
 /*
     - there's an issue, that on the first iteration,  the last reading will corrupt the calculation
@@ -339,8 +405,12 @@ void data_update_new_reading2(data_t *data, spi_ice40_t *spi/*, bool verbose*/)
 
     // a switch would be cleaner...
 
+
+#if 0
     // change name to computed readding
     data->computed_val = 0;
+
+
 
     switch(sample_seq_mode) {
 
@@ -434,10 +504,10 @@ void data_update_new_reading2(data_t *data, spi_ice40_t *spi/*, bool verbose*/)
           and a lo common, but doesn't help. because (hi1 - lo ) + (hi2 - lo ) == (hi1 - hi2) as an identity.
         */
         /*
-        mode->sa.reg_sa_p_seq_n = 3;
-        mode->sa.reg_sa_p_seq0 = (0b01 << 4) | S3;        // dcv
-        mode->sa.reg_sa_p_seq1 = (0b00 << 4) | S7;        // star-lo
-        mode->sa.reg_sa_p_seq2 = (0b01 << 4) | S1;        // himux
+        mode->sa.p_seq_n = 3;
+        mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
+        mode->sa.p_seq1 = (0b00 << 4) | S7;        // star-lo
+        mode->sa.p_seq2 = (0b01 << 4) | S1;        // himux
         */
         // hang on isn't this true by definition?
         /*
@@ -453,6 +523,19 @@ void data_update_new_reading2(data_t *data, spi_ice40_t *spi/*, bool verbose*/)
 
     };
 
+#endif
+
+/*
+  double (*handler_computed_val)( void *ctx, double val, uint32_t status);
+  void    *ctx_computed_val;
+
+*/
+      if(  data->handler_computed_val) {
+        data->computed_val = data->handler_computed_val( data->ctx_computed_val, predicted, status );
+      } else
+        data->computed_val = 0;
+
+
 
     if(data->computed_val) {
 
@@ -466,10 +549,11 @@ void data_update_new_reading2(data_t *data, spi_ice40_t *spi/*, bool verbose*/)
       // STTCPW
 
       str_format_float_with_commas(buf, 100, 7, data->computed_val);
-
+#if 0
       if(sample_seq_mode == SEQ_MODE_RATIO)
         printf(" meas %s", str_format_float_with_commas(buf, 100, 7, data->computed_val));
       else
+#endif
         printf(" meas %sV", buf );
 
     }

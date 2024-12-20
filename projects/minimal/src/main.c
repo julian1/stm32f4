@@ -86,20 +86,20 @@ static const _mode_t mode_initial =  {
   .reg_mode = 0, // MODE_LO,                                  // default, blink led according to mcu
 
   // signal acquisition defaults
-  .sa.reg_sa_p_clk_count_precharge = CLK_FREQ * 500e-6,             //  500us.
+  .sa.p_clk_count_precharge = CLK_FREQ * 500e-6,             //  500us.
 
-  .sa.reg_sa_p_seq_n = 2,
-
-  .sa.reg_sa_p_seq0 = (0b01 << 4) | S3,         // dcv
-  .sa.reg_sa_p_seq1 = (0b00 << 4) | S7,         // star-lo
-  .sa.reg_sa_p_seq2 = 0,  // channel-1 precharge switch
-  .sa.reg_sa_p_seq3 = 0,  // channel-1 precharge switch
-
+/*
+  .sa.p_seq_n = 2,
+  .sa.p_seq0 = (0b01 << 4) | S3,         // dcv
+  .sa.p_seq1 = (0b00 << 4) | S7,         // star-lo
+  .sa.p_seq2 = 0,  // channel-1 precharge switch
+  .sa.p_seq3 = 0,  // channel-1 precharge switch
+*/
 
 
   // adc
-  .adc.reg_adc_p_aperture = CLK_FREQ * 0.2,   // 200ms. 10nplc 50Hz.  // Not. should use current calibration?  // should be authoritative source of state.
-  .adc.reg_adc_p_reset = CLK_FREQ * 500e-6                // 500us.
+  .adc.p_aperture = CLK_FREQ * 0.2,   // 200ms. 10nplc 50Hz.  // Not. should use current calibration?  // should be authoritative source of state.
+  .adc.p_reset = CLK_FREQ * 500e-6                // 500us.
 
 
 #if 0

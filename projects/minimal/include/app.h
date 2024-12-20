@@ -103,14 +103,15 @@ typedef struct app_t
   volatile uint32_t system_millis;
 
 
-  // should probably be pointers again. to keep structure opaque.  instantiate in main.
+  // make pointers again. for opaque structure .  instantiate in main.
   cbuf_t        console_in;
   cbuf_t        console_out;
 
   cstring_t     command;
 
 
-  /* for virtual trigger device. sample mosi, on single clk. can just bit-bang it, from mcu side.
+  /*
+    for a virtual trigger device. could sample mosi, on single clk. can just bit-bang it, from mcu side.
     two d-flip flops. with cs rising edge operating to latch input.
     spi_trigger_t *spi_trigger;
 
@@ -118,19 +119,20 @@ typedef struct app_t
 
   bool          cdone_fpga0;
 
-
+  // board0 devices
   spi_ice40_t   *spi_fpga0;
 
   interrupt_t   *fpga0_interrupt;
 
-  spi_t         *spi_4094;   // state
+  spi_t         *spi_4094;
 
-  spi_t         *spi_mdac0;   // rename sts_mdac. ?
+  spi_t         *spi_mdac0;   // rename sts_mdac?
 
 
   ///////
 
-  spi_ice40_t   *spi_u202;   // separate system.  rename spi_fpga1.
+  // separate system.  rename spi_fpga1.
+  spi_ice40_t   *spi_u202;
 
   interrupt_t   *interrupt_u202;
 

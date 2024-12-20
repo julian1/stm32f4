@@ -57,7 +57,11 @@ static void test(app_t *app)
   // TODO fixme, review
   // why not just set it vias direct register externally?
   // it will almost always be dcv/S3.
-  mode.reg_direct.azmux_o = mode.sa.reg_sa_p_seq0;
+
+  assert(0); // dec 2024. review
+#if 0
+  mode.reg_direct.azmux_o = mode.sa.p_seq0;
+#endif
 
   assert( mode.reg_direct.azmux_o == S3);       // can relax this to the other input later
   assert( mode.reg_direct.sig_pc_sw_o == 0b00 );
@@ -82,20 +86,25 @@ static void test(app_t *app)
 
   // july 2024 - note that this is all default.
   // need to review. make sure that pc switches first, then azmux.
-  mode.sa.reg_sa_p_seq_n = 2,
+  mode.sa.p_seq_n = 2,
+
+  assert(0); // dec 2024. review
+
+#if 0
 
 // +6.5mV..
-  mode.sa.reg_sa_p_seq0 = (0b01 << 4) |  S3,         // dcv
-  mode.sa.reg_sa_p_seq1 = (0b00 << 4) | S7,         // star-lo
+  mode.sa.p_seq0 = (0b01 << 4) |  S3,         // dcv
+  mode.sa.p_seq1 = (0b00 << 4) | S7,         // star-lo
 
 /*  +6.5mV
-  mode.sa.reg_sa_p_seq0 = (PCOFF << 4) | S7 ;        // lo.
-  mode.sa.reg_sa_p_seq1 = (PC01 << 4 )  | S3 ;    // dcv-source
+  mode.sa.p_seq0 = (PCOFF << 4) | S7 ;        // lo.
+  mode.sa.p_seq1 = (PC01 << 4 )  | S3 ;    // dcv-source
 */
+#endif
 
   // trigger start of sample acquisition
   // mode.trig_sa = 1;
-  mode.sa.reg_sa_p_trig = 1;
+  mode.sa.p_trig = 1;
 
   mode.first .K407        = SR_RESET;   // disconnect dcv
 

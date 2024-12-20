@@ -47,13 +47,15 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
   // we need to toggle the trigger/ reset of sa controller. to get clean values.
   // we should do  this via the register.
   // app->mode_current->trig_sa = 1;
-  app->mode_current->sa.reg_sa_p_trig = 1;
+  app->mode_current->sa.p_trig = 1;
 
 
   spi_mode_transition_state( (spi_t *)app->spi_fpga0, app->spi_4094, app->spi_mdac0, app->mode_current, &app->system_millis);
 
   // reset the reading values buffer, no value will be recorded before this is filled.
-  data_reading_reset( data );
+//  data_reading_reset( data );
+// JA dec 2024. review.
+  data_reset( data );
 
   // sleep?
   // yield_with_msleep( 1 * 100, &app->system_millis, yield, yield_ctx);
@@ -71,7 +73,7 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
 
   //ice40_port_trig_sa_disable();
 
-  app->mode_current->sa.reg_sa_p_trig = 0;
+  app->mode_current->sa.p_trig = 0;
     // JA. dec 2024. need to call transition state again.
     // or just write the register.
 
@@ -339,7 +341,7 @@ bool app_test42(
 
     // app->mode_current->trig_sa = 0;
 
-    app->mode_current->sa.reg_sa_p_trig = 0;
+    app->mode_current->sa.p_trig = 0;
     // JA. dec 2024. need to call transition state again.
     // or just write the register.
 

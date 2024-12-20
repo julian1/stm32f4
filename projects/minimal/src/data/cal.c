@@ -129,7 +129,8 @@ void data_cal(
   data_t *data ,
 
   // uint32_t spi,
-  spi_ice40_t * spi,    // TODO change name spi_ice40 and type. of spi_t.
+  // spi_ice40_t * spi,
+  spi_t *spi_fpga0,
   spi_t *spi_4094,
   spi_t *spi_ad5446,
 
@@ -197,9 +198,19 @@ void data_cal(
 
   // set up sequence acquision
   mode->reg_mode = MODE_SA_ADC;
-  mode->sa.reg_sa_p_seq_n  = 2;
-  mode->sa.reg_sa_p_seq0 = (PC01 << 4) | S1;          // dcv,  update dec 2024.
-  mode->sa.reg_sa_p_seq1 = mode->sa.reg_sa_p_seq0;    // the same
+
+/*
+  mode->sa.p_seq_n  = 2;
+  mode->sa.p_seq0 = (PC01 << 4) | S1;          // dcv,  update dec 2024.
+  mode->sa.p_seq1 = mode->sa.p_seq0;    // the same
+*/
+
+  sa_state_t *sa = &mode->sa;
+  sa->p_seq_n      = 2;
+  sa->p_seq_elt[ 0].azmux   = S1;
+  sa->p_seq_elt[ 0].pc      = 0b01;
+  sa->p_seq_elt[ 1]         = sa->p_seq_elt[ 0];
+
 
 
 
@@ -219,7 +230,7 @@ void data_cal(
     printf("nplc %u\n", nplc[h]);
 
     // setup adc nplc
-    mode->adc.reg_adc_p_aperture = nplc_to_aperture( nplc[ h] , data->line_freq ); // fix jul 2024.
+    mode->adc.p_aperture = nplc_to_aperture( nplc[ h] , data->line_freq ); // fix jul 2024.
 
 
     // ref hi/ref lo
@@ -239,7 +250,7 @@ void data_cal(
       printf("spi_mode_transition_state()\n");
 
 
-      spi_mode_transition_state( spi, spi_4094, spi_ad5446, mode, system_millis);
+      spi_mode_transition_state( spi_fpga0, spi_4094, spi_ad5446, mode, system_millis);
 
 
       // let things settle from spi emi burst, and board DA settle, amp to come out of lockup.
@@ -259,12 +270,12 @@ void data_cal(
         data->adc_interupt_valid = false;
 
         // embed a 8 bit. counter ini the reg_status and use it for the measure.
-        // uint32_t status =            spi_ice40_reg_read32( app->spi, REG_STATUS );
-        uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RESET);   // time refmux is in reset. useful check. not adc initialization time.
-        uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-        uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-        uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RD);
-        uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_MUX_SIG);
+        // uint32_t status =            spi_ice40_reg_read32( spi_fpga0, REG_STATUS );
+        uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_RESET);   // time refmux is in reset. useful check. not adc initialization time.
+        uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
+        uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
+        uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_RD);
+        uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_MUX_SIG);
 
         printf("counts %6lu %lu %lu %lu %6lu",
           clk_count_mux_reset,

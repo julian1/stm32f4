@@ -190,6 +190,9 @@ void app_configure( app_t *app )
 
 #endif
 
+
+
+
     printf("app_configure()\n");
 
     assert( app->cdone_fpga0 );
@@ -336,6 +339,21 @@ static void app_update_soft_500ms(app_t *app)
   led_set( app->led_status, app->led_state);
 
 
+  //////////////
+    assert( sizeof(seq_elt_t) == 4);
+
+    seq_elt_t x;
+    memset(&x, 0, sizeof(x));
+
+    x.azmux = S1;
+    x.pc = 0b01;
+
+    void *px = &x;
+
+    assert( *(uint32_t *)  px  == ((0b01 << 4) | S1));
+
+  //////////////
+
 
 #if 0
   // only try to read registers if configured.
@@ -476,8 +494,23 @@ static void app_update_console(app_t *app)
       // correct. it is ok/desirable. to update analog board state by calling transition_state(),
       // even if state hasn't been modified. eg. ensures that state is consistent/aligned.
 
-      if(app->cdone_fpga0)
+      if(app->cdone_fpga0) {
         spi_mode_transition_state( app->spi_fpga0, app->spi_4094, app->spi_mdac0, app->mode_current, &app->system_millis);
+
+
+        /*
+          whether to restore interupt handler - could be predicated on trigger.
+
+        */
+
+
+        // restore fpga0 interrupt handler
+        //if(app->mode_current->sa.p_trig)
+
+        interrupt_set_handler( app->fpga0_interrupt, app->data, (interupt_handler_t ) data_rdy_interupt);
+
+      }
+
 
 
       // issue new command prompt
@@ -669,10 +702,12 @@ static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq
 
     spi_print_register( spi, REG_DIRECT);
   }
+/*
   else if( strcmp( cmd, "seq mode?") == 0) {
 
     spi_print_register( spi, REG_SEQ_MODE);
   }
+*/
 
   else if( strcmp( cmd, "status?") == 0) {
 
@@ -1084,17 +1119,41 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
 #endif
 
+  // better name dcv-chan1.  this is just noaz chan1.  operation.
+
   else if( strcmp(cmd, "dcv") == 0) {
 
     // sample ref-lo via dcv-source
     app_repl_statements(app, "        \
-        nplc 10; set mode 7 ;   trig; \
+        nplc 10; set mode 7 ;         \
       " );
 
-      app->mode_current->sa.reg_sa_p_seq_n = 1;
 
-      app->mode_current->sa.reg_sa_p_seq0 = (0b01 << 4) | S1;        // dcv
+    // we want to be able to sample any input, easily.
+    // app->mode->first.K407 = SR_SET;
+    // mode_set_dcv_source_channel( app->mode, 1 ); // dcv
 
+    // sa.p_seq0 = (0b01 << 4) | S1;        // dcv
+
+    sa_state_t *sa = &app->mode_current->sa;
+    sa->p_seq_n = 1;
+    sa->p_seq_elt[ 0].azmux = S1;
+    sa->p_seq_elt[ 0].pc = 0b01;
+
+    sa->p_trig = 1;
+
+    // clear the interrupt handler, will be re-enabled at the end of mode transition state
+    interrupt_set_handler( app->fpga0_interrupt, NULL, NULL );
+
+    data_t *data = app->data;
+
+    // clear the data buffers
+    data_reset( data );
+    data_rdy_clear( data);
+
+    // set the data handler/catcher
+    data->handler_computed_val = data_sa_simple_computed_val;
+    data->ctx_computed_val = NULL;
 
 
     // check_data( == 7.000 )  etc.

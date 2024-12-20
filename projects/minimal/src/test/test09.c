@@ -45,12 +45,23 @@ bool app_test09( app_t *app , const char *cmd)
 
     // set up sequence acquision
     mode->reg_mode = MODE_SA_ADC;       // mode 7
-    mode->sa.reg_sa_p_seq_n  = 2;
-    mode->sa.reg_sa_p_seq0 = (PC01 << 4) | S1;                // dcv/ chan 1.
-    mode->sa.reg_sa_p_seq1 = mode->sa.reg_sa_p_seq0 ;         // the same
+
+/*
+    mode->sa.p_seq_n  = 2;
+    mode->sa.p_seq0 = (PC01 << 4) | S1;                // dcv/ chan 1.
+    mode->sa.p_seq1 = mode->sa.p_seq0 ;         // the same
+*/
+
+    sa_state_t *sa = &mode->sa;
+    sa->p_seq_n = 2;
+    sa->p_seq_elt[ 0].azmux = S1;
+    sa->p_seq_elt[ 0].pc = 0b01;
+
+
+
 
     // ok. so we need to encode the trigger.
-    mode->sa.reg_sa_p_trig = 1;
+    mode->sa.p_trig = 1;
 
 
     spi_mode_transition_state( (spi_t *) app->spi_fpga0, app->spi_4094, app->spi_mdac0, mode, &app->system_millis);

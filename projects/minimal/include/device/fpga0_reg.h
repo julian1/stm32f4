@@ -29,7 +29,7 @@
 // - o encode how to decode the sample sequence
 // just 4 bits. projected in the status register.
 // rename reg_seq_mode_status  perhaps.
-#define REG_SEQ_MODE                    18
+// #define REG_SEQ_MODE                    18
 
 #define REG_STATUS                      17
 
@@ -116,6 +116,16 @@
   // EXTR - but status should be recording the last.
       not what is set in mode.
 */
+
+
+
+/*
+dec 2024.
+  absolutely no reason to try to hard encode all these behaviors
+
+  instead - just create ad-hoc strategy handlers, for data decoding.
+
+
 #define SEQ_MODE_BOOT         1
 #define SEQ_MODE_NOAZ         2
 #define SEQ_MODE_AZ           3
@@ -126,7 +136,7 @@
 
 
 // #define SEQ_MODE_ELECTRO      3
-
+*/
 
 
 
@@ -137,7 +147,7 @@
 #define ADC_STATUS_SPI_MUX(status)          (0b111 & (status >> 12 ))     // bad name - nothing to do with ADC. do with spi.
 #define ADC_STATUS_SAMPLE_IDX(status)       (0b111 & (status >> 16))
 #define ADC_STATUS_SAMPLE_SEQ_N(status)     (0b111 & (status >> 20))
-#define ADC_STATUS_SAMPLE_SEQ_MODE(status)  (0b111 & (status >> 24) )
+// #define ADC_STATUS_SAMPLE_SEQ_MODE(status)  (0b111 & (status >> 24) )   // TODO remove
 
 
 

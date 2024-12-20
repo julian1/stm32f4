@@ -184,22 +184,19 @@ void vfd_update_new_reading(data_t *data)
 
 
 
+#if 0
   uint8_t sample_idx      =  ADC_STATUS_SAMPLE_IDX( data->adc_status) ;
 
   uint8_t sample_seq_mode =  ADC_STATUS_SAMPLE_SEQ_MODE( data->adc_status);
 
-
-
   // write a star, for the sample
   vfd_write_string2( sample_idx % 2 == 0 ? "*" : " ", 0, 3 );
-
-
 
   // write mode
   seq_mode_str( sample_seq_mode, buf, 8 );
   stoupper( buf);
   vfd_write_string2( buf, 0, 4 );
-
+#endif
 
 
   // write nplc

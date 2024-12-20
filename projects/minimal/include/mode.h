@@ -230,13 +230,13 @@ reg_direct_t
 // instead of the left-shift bits.
 // similarly.
 
-typedef struct sa_elt_t
+typedef struct seq_elt_t
 {
   uint32_t    azmux : 4;
   uint32_t    pc    : 2;
 
   uint32_t          : 26;
-} sa_elt_t;   // size 32
+} seq_elt_t;   // size 32
 
 
 
@@ -245,25 +245,17 @@ typedef struct sa_elt_t
 
 typedef struct sa_state_t
 {
-  // could remove the reg_sa prefix.
 
-  uint32_t reg_sa_p_clk_count_precharge ;   // reg_sa_cc_precharge
+  uint32_t p_clk_count_precharge ;   // p_cc_precharge
 
-  //  number of phase -  rename seq_phase_n
-  // no. shoud not end in _n which in verilog indicates   inverted signal.
-  uint32_t reg_sa_p_seq_n;
+  // number of phase
+  // rename? - opportunity for confusion, suffix of _n in verilog indicates  inverted signal.
+  uint32_t p_seq_n;
 
-  sa_elt_t    seq_elt [ 4] ;
-
-  // sequence acquisition.  sac
-    // better name?
-  uint32_t reg_sa_p_seq0;
-  uint32_t reg_sa_p_seq1;
-  uint32_t reg_sa_p_seq2;
-  uint32_t reg_sa_p_seq3;
+  seq_elt_t p_seq_elt [ 4] ;
 
 
-  uint32_t reg_sa_p_trig;
+  uint32_t p_trig;
 
 
 } sa_state_t;
@@ -285,7 +277,6 @@ typedef struct sa_state_t
 typedef struct adc_state_t
 {
 
-  // could remove the reg_adc  prefix.
 
   /*
        ----
@@ -294,10 +285,10 @@ typedef struct adc_state_t
   */
 
   // 'p' implies its a paraameter
-  // prefix with cc. clock_count
+  // could prefix with cc. clock_count
 
-  uint32_t  reg_adc_p_aperture;     // regadc_cc_aperture
-  uint32_t  reg_adc_p_reset;        // regadc_cc_reset
+  uint32_t  p_aperture;     // p_cc_aperture
+  uint32_t  p_reset;        // p_cc_reset
 
 
 } adc_state_t;
@@ -351,7 +342,7 @@ typedef struct _mode_t
   reg_direct_t    reg_direct;
 
 
-  uint32_t  reg_seq_mode;
+  // uint32_t  reg_seq_mode;
 
 
   sa_state_t    sa;
@@ -423,70 +414,4 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );
 
 
 
-#if 0
-
-
-
-
-  // U406 4094.
-  uint8_t U408_SW_CTL : 1;      // perhaps change to lower case....   eg. u408_sw
-  uint8_t U406_UNUSED : 1;
-  uint8_t K406_CTL    : 2;        // Be better to encode as 2 bits.   can then assign 0b01 or 0b10 etc.
-  uint8_t U406_UNUSED_2 : 4;
-
-  // U401 4094
-  uint8_t U401_UNUSED : 8;    // controls U404. boot. mux
-                              //
-
-  // input muxing
-  // U403
-  uint8_t K403_CTL    : 2;
-  uint8_t K401_CTL    : 2;
-  uint8_t K402_CTL    : 2;
-  uint8_t K405_CTL    : 2;
-
-
-  // U506
-  uint8_t U506        : 3;        // adg1209.  gain mux. (MUST BE BROUGHT UP with enable-pin enabled otherwise power supplies current limit, risk of part damage).
-  uint8_t U500_UNUSED : 5;        // change name _500_unused --- or similar.  think we should prefix U505_MUX. or
-
-
-  // ohms current current
-  // U606
-  uint8_t U605        : 4;    // adg1208.
-  uint8_t U606_UNUSED : 3;        // change name _500_unused --- or similar.  think we should prefix U505_MUX. or
-  uint8_t LINE_SENSE_OE : 1;
-
-  // U607
-  uint8_t K603_CTL    : 2;
-  uint8_t K601_CTL    : 2;
-  uint8_t K602_CTL    : 2;
-  uint8_t U607_UNUSED : 2;
-
-
-  // current.
-  // U704
-  uint8_t U704_UNUSED : 2;
-  uint8_t K702_CTL    : 2;
-  uint8_t K703_CTL    : 2;
-  uint8_t K709_CTL    : 2;
-
-  // U705
-  uint8_t K707_CTL    : 2;
-  uint8_t K706_CTL    : 2;
-  uint8_t K704_CTL    : 2;
-  uint8_t K705_CTL    : 2;
-
-  // U706
-  uint8_t U703        : 4;    // adg1208.
-  uint8_t U702        : 3;    // adg1209.
-  uint8_t U706_UNUSED : 1;
-
-
-  // dcv source
-  // U1004  - 5th bit.
-  uint8_t U1003   : 4;    // adg1208  4 bits.  EN last. is inconsistent.  with chip pin-order. and 500, 600, 700.  good keep.....
-  uint8_t U1006   : 4;    // adg1208  4 bits.
-
-#endif
 

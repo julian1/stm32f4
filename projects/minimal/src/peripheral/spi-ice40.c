@@ -83,7 +83,7 @@ uint32_t spi_ice40_reg_read32(  spi_t *spi, uint8_t reg)
 
 uint32_t spi_ice40_reg_write_n( spi_t *spi, uint8_t reg, const void *s, size_t n )
 {
-  // helper function for passing structs.
+  // helper function when passing structs.
   // for cast.
   assert(n == 4); // only 32bit supported atm.
 

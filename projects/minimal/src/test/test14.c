@@ -96,13 +96,20 @@ static void test (app_t *app)     // should be passing the continuation.
 
 */
   mode.reg_mode = MODE_SA_MOCK_ADC;
-  mode.sa.reg_sa_p_seq_n  = 2;
-  mode.sa.reg_sa_p_seq0 = (PCOFF << 4) | SOFF;        // 0b00
-  mode.sa.reg_sa_p_seq1 = (PC01 << 4 )  | SOFF;
+
+  assert(0);  // dec 2024. review
+/*
+  mode.sa.p_seq_n  = 2;
+  mode.sa.p_seq0 = (PCOFF << 4) | SOFF;        // 0b00
+  mode.sa.p_seq1 = (PC01 << 4 )  | SOFF;
+*/
+
+
+
 
   // trigger start of sample acquisition
   // mode.trig_sa = 1;
-  mode.sa.reg_sa_p_trig = 1;
+  mode.sa.p_trig = 1;
 
 
   mode.first .K407 = SR_RESET;      // turn off dcv-source
