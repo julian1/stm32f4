@@ -385,6 +385,22 @@ void mode_set_trigger( _mode_t *mode, bool val )
 
 
 
+/*
+  TODO.
+  this function is awful.
+
+  instead code as,
+
+     set_seq( idx, pc, azmux );
+     set_seq_n();
+
+  also the catcher/interpreter of the result.
+
+  remember it's main use used can also
+
+*/
+
+
 void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 )
 {
   /*

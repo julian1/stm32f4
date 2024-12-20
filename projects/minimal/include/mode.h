@@ -207,7 +207,7 @@ reg_direct_t
 
 
 
-  uint8_t   dummy_bits_o : 7;               // 25 = (32-25)
+  uint8_t   dummy_bits_o : 7;               // 25 = (32-25)  TODO. make anonymous
 
 /*
 471     .out( {   dummy_bits_o,               // 25
@@ -226,6 +226,19 @@ reg_direct_t
 
 
 
+// need somehting like this...
+// instead of the left-shift bits.
+// similarly.
+
+typedef struct sa_elt_t
+{
+  uint32_t    azmux : 4;
+  uint32_t    pc    : 2;
+
+  uint32_t          : 26;
+} sa_elt_t;   // size 32
+
+
 
 
 // sequence acquisition
@@ -234,11 +247,13 @@ typedef struct sa_state_t
 {
   // could remove the reg_sa prefix.
 
-  uint32_t reg_sa_p_clk_count_precharge ;   // regadc_cc_precharge
+  uint32_t reg_sa_p_clk_count_precharge ;   // reg_sa_cc_precharge
 
   //  number of phase -  rename seq_phase_n
   // no. shoud not end in _n which in verilog indicates   inverted signal.
   uint32_t reg_sa_p_seq_n;
+
+  sa_elt_t    seq_elt [ 4] ;
 
   // sequence acquisition.  sac
     // better name?

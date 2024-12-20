@@ -1069,7 +1069,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     do read cal at startup.
     and move reset. to mode reset.
   */
-#if 1
+#if 0
   else if( strcmp(cmd, "dcv") == 0) {
 
     // sample ref-lo via dcv-source
@@ -1083,6 +1083,25 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   }
 
 #endif
+
+  else if( strcmp(cmd, "dcv") == 0) {
+
+    // sample ref-lo via dcv-source
+    app_repl_statements(app, "        \
+        nplc 10; set mode 7 ;   trig; \
+      " );
+
+      app->mode_current->sa.reg_sa_p_seq_n = 1;
+
+      app->mode_current->sa.reg_sa_p_seq0 = (0b01 << 4) | S1;        // dcv
+
+
+
+    // check_data( == 7.000 )  etc.
+    // return 1;
+  }
+
+
 
 
 
