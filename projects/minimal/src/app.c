@@ -1135,6 +1135,18 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
     // sa.p_seq0 = (0b01 << 4) | S1;        // dcv
 
+
+    dcv should open channel. 1.
+      and setup the muxing.
+      can be az or noaz.
+      eg. 'dcv az' or dcv noaz'
+
+    - we could perhaps look at the azmux - to determine the input. to what values to use if switching between az/noaz even boot..
+    - actually the first element can stay the same.  we just change p_seq_n to 2. and change the data handler.
+
+    remove the 'dcv-source chan 1' command.
+
+
     sa_state_t *sa = &app->mode_current->sa;
     sa->p_seq_n = 1;
     sa->p_seq_elt[ 0].azmux = S1;
