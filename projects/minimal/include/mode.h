@@ -99,6 +99,16 @@
 
 
 
+// could use these - slightly more specific
+#define PC-DCV        0b01
+#define PC-HIMUX      0b10
+
+//  Seq. elts.  U410
+// for both, direct register mode, and normal sample acquisition.
+#define AZMUX-DCV     S1
+#define AZMUX-LO      S2
+#define AZMUX-HIMUX   S3
+#define AZMUX-LOMUX   S4
 
 
 
