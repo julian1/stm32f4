@@ -203,6 +203,109 @@ static app_t app = {
 
 
 
+#include <support.h>     // gpio_write_val()
+
+// this all looks ok. to me.
+// is something else trying
+
+static void timer_port_setup(void )
+{
+
+  printf("timer port setup\n");
+
+  // PA0.   TIM5/CH1
+
+
+  //  port set up for alt function.
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO0);
+  gpio_set_af(GPIOA, GPIO_AF2, GPIO0 );
+  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO0);
+
+
+
+/*
+  // ok. this code works. to set, pin value as gpio.
+  gpio_mode_setup( GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0);
+  gpio_set_output_options( GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO0);
+  gpio_write_val(GPIOA, GPIO0 , 0 );
+
+*/
+}
+
+
+
+#include <libopencm3/stm32/timer.h>
+
+static void timer_setup( uint32_t timer )
+{
+  // HMMMMM...
+
+  // rcc_periph_clock_enable(RCC_TIM5);
+
+  printf("timer setup\n");
+
+  // uint32_t timer = TIM5;
+  assert( timer == TIM5 );
+
+  if(timer == TIM5)
+    rcc_periph_reset_pulse( RST_TIM5 );   // is this needed?
+  else
+    assert(0);
+
+  timer_set_prescaler(timer, 0 );  // No prescaler = 42Mhz.
+
+  timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);  // alternating up/down
+}
+
+
+
+static void timer_set_frequency( uint32_t timer, uint32_t freq /*, uint32_t deadtime */ )
+{
+  // assert(deadtime >= 1 /*&& deadtime <= 50 */);
+  // assert(freq >= 40000 && freq <= 500000);
+  // assert(freq >= 10000 && freq <= 500000);
+  assert(freq >= 10000 && freq <= 100000);
+  assert( timer == TIM5 );
+
+  timer_disable_counter(timer);
+
+  // uint32_t freq = 200 * 1000;               // in Hz.
+  // double clk_period = 2 / 84000000.f ;
+
+  uint32_t period = (84000000.f / freq) / 2; // calculated.
+  uint32_t half_period = period / 2;
+
+  printf("------\n");
+  printf("freq          %.1f kHz\n", freq / 1000.f );
+  printf("clk period    %lu\n", period );
+
+  // timer_enable_break_main_output(timer);
+  timer_set_period(timer, period );    // 42kHz
+
+  // 1
+  timer_enable_oc_output(timer, TIM_OC1 );
+  timer_set_oc_mode(timer, TIM_OC1 , TIM_OCM_PWM1);    // Output is active (high) when counter is less than output compare value
+  timer_set_oc_value(timer, TIM_OC1, half_period );
+
+
+  timer_set_counter( timer, 0 );    // make sure timer count does  not escape when shortening period
+
+  timer_enable_counter(timer);  // seems to need this
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -212,6 +315,8 @@ static int main_f429(void)
   // hse
 	// rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  //  f413.
 	// rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  //  f429 will use ethernet clock, and different setup.
+
+  rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_3V3_84MHZ ]);    // HSI WORKS stm32f410, may 2022, f407 2025.
 
   // clocks - TODO move after gpio ports?
   rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
@@ -244,6 +349,10 @@ static int main_f429(void)
 
   // Enable FSMC
   rcc_periph_clock_enable(RCC_FSMC);
+
+
+  // Tim 5
+  rcc_periph_clock_enable(RCC_TIM5);
 
   /////////////////////////////
   /*
@@ -299,6 +408,7 @@ static int main_f429(void)
   // init spi related port state. before do spi port.
   // to prevent ice40 wanting to become spi master
 
+#if 0
   app.spi_fpga0 = spi_u102_create();
   spi_setup( app.spi_fpga0 );
 
@@ -309,6 +419,7 @@ static int main_f429(void)
   app.fpga0_interrupt = fpga0_interrupt_create();
   interrupt_setup( app.fpga0_interrupt);
 
+#endif
 
 #if 0
 
@@ -317,14 +428,21 @@ static int main_f429(void)
 #endif
 
 
+#if 0
   app.spi_4094 = spi_4094_0_create();
   spi_setup( app.spi_4094 );
 
 
   app.spi_mdac0 = spi_mdac0_create();
   spi_setup( app.spi_mdac0 );
+#endif
 
 
+  printf("----------\nsetting up timer\n");
+  uint32_t timer = TIM5;
+  timer_port_setup();
+  timer_setup( timer );
+  timer_set_frequency( timer, 15000 );
 
 
 

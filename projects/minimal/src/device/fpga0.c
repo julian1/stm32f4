@@ -20,11 +20,12 @@
 
 // pulled from spi-port code.
 #define SPI1_PORT       GPIOA
-#define SPI1_CS1        GPIO4     // PA4
+// #define SPI1_CS1        GPIO4     // PA4
+#define SPI1_CS1        GPIO8     // moved. april. 2025.
 
 // change in 4094-0.c also
-// #define SPI1_CS2        GPIO10      // control-panel-08
-#define SPI1_CS2        GPIO15     // gerber 257. control-panel-07
+#define SPI1_CS2        GPIO10      // moved april 2025.
+// #define SPI1_CS2        GPIO15     // gerber 257. control-panel-07
 
 #define SPI1_INT_CDONE   GPIO3     // PA3  shared for cdone/ and interrupt
 

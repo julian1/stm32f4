@@ -97,11 +97,12 @@
 #define PC10         0b10
 // #define PCBOTH      0b11 // both on.
 
-
+/*
 
 // could use these - slightly more specific
 #define PC-DCV        0b01
 #define PC-HIMUX      0b10
+
 
 //  Seq. elts.  U410
 // for both, direct register mode, and normal sample acquisition.
@@ -110,6 +111,7 @@
 #define AZMUX-HIMUX   S3
 #define AZMUX-LOMUX   S4
 
+*/
 
 
 

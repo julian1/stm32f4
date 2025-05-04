@@ -1134,7 +1134,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     // mode_set_dcv_source_channel( app->mode, 1 ); // dcv
 
     // sa.p_seq0 = (0b01 << 4) | S1;        // dcv
-
+/*
 
     dcv should open channel. 1.
       and setup the muxing.
@@ -1145,7 +1145,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     - actually the first element can stay the same.  we just change p_seq_n to 2. and change the data handler.
 
     remove the 'dcv-source chan 1' command.
-
+*/
 
     sa_state_t *sa = &app->mode_current->sa;
     sa->p_seq_n = 1;

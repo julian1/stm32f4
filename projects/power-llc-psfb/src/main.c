@@ -275,7 +275,7 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq, uint32_t deadtim
 
   */
 
-  timer_disable_counter(timer); // helps when resetting
+  timer_disable_counter(timer); // we already disabled?elps when resetting
 
 
   // 1 & 4 are the same
@@ -380,6 +380,7 @@ static void timer_port_setup(void )
 {
   printf("timer port setup\n");
 
+
   uint16_t outputs = GPIO0 | GPIO1 | GPIO2 | GPIO3;
 
   //  port set up for alt function.
@@ -395,6 +396,8 @@ static void timer_port_setup(void )
 static void timer_setup( uint32_t timer )
 {
   // HMMMMM...
+
+  // rcc_periph_clock_enable(RCC_TIM5);
 
   printf("timer setup\n");
 
