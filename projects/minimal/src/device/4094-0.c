@@ -27,7 +27,9 @@
 #define SPI1_PORT       GPIOA
 
 // #define SPI1_CS2        GPIO10      // control-panel-08
-#define SPI1_CS2        GPIO15     // gerber 257. control-panel-07
+// #define SPI1_CS2        GPIO15     // gerber 257. control-panel-07
+
+#define SPI1_CS2        GPIO10      // moved april 2025.
 
 
 

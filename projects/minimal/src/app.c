@@ -378,14 +378,19 @@ static void app_update_soft_500ms(app_t *app)
 
 
   // fpga0 on analog board
-  if(  !app->cdone_fpga0) {
+  if( /*false &&*/ !app->cdone_fpga0) {
 
 
     FILE *f = flash_open_file( FLASH_U102_ADDR);
-    spi_ice40_bitstream_send( app->spi_fpga0, f, FLASH_HX8K_SIZE, & app->system_millis );
+    int ret = spi_ice40_bitstream_send( app->spi_fpga0, f, FLASH_HX8K_SIZE, & app->system_millis );
     fclose(f);
 
-    if( !spi_ice40_cdone( app->spi_fpga0)) {
+
+    /* don't rely on cdone here.
+      if no analog board is connected, this pin floats.
+      instead use the return value of the spi_ice40_bitstream_send().
+    */
+    if( ret < 0) {
 
       printf("fpga config failed\n");
     } else {

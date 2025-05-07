@@ -372,8 +372,8 @@ static int main_f429(void)
   assert_critical_error_led_setup( GPIOA, GPIO9 );
 
   // mcu clock
-  systick_setup(12000); // 12MHz. default lsi.
-  // systick_setup(84000); // 84MHz.
+  // systick_setup(12000); // 12MHz. default lsi.
+  systick_setup(84000); // 84MHz.
   systick_handler_set( (void (*)(void *)) app_systick_interupt, &app );  // rename systick_handler_set()
 
   //////////////////////
@@ -408,7 +408,7 @@ static int main_f429(void)
   // init spi related port state. before do spi port.
   // to prevent ice40 wanting to become spi master
 
-#if 0
+#if 1
   app.spi_fpga0 = spi_u102_create();
   spi_setup( app.spi_fpga0 );
 
@@ -421,14 +421,14 @@ static int main_f429(void)
 
 #endif
 
-#if 0
+#if 1
 
   spi2_port_setup();
 
 #endif
 
 
-#if 0
+#if 1
   app.spi_4094 = spi_4094_0_create();
   spi_setup( app.spi_4094 );
 

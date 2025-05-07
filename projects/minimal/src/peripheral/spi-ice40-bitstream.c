@@ -164,8 +164,11 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi , FILE *f, size_t size , volatile
   msleep(1, system_millis);
 
   // check cdone is lo
-  // assert(! cdone-spi_port_cdone_get() );
-  assert( ! spi->cdone(spi));
+  // assert( ! spi->cdone(spi));
+  if( spi->cdone(spi))
+    return -2;
+
+
 
   printf("here0\n");
 #if 0
@@ -284,6 +287,7 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi , FILE *f, size_t size , volatile
      spi_xfer( spi->spi, 0x00);
 
 
+  // success
   return 0;
 }
 
