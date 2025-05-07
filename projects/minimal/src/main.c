@@ -238,7 +238,7 @@ static void timer_port_setup(void )
 
 static void timer_setup( uint32_t timer )
 {
-  // HMMMMM...
+  // timer counter is peripheral.
 
   // rcc_periph_clock_enable(RCC_TIM5);
 
@@ -255,12 +255,21 @@ static void timer_setup( uint32_t timer )
   timer_set_prescaler(timer, 0 );  // No prescaler = 42Mhz.
 
   timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);  // alternating up/down
+
+  // timer_enable_counter(timer);
 }
 
 
 
 static void timer_set_frequency( uint32_t timer, uint32_t freq /*, uint32_t deadtime */ )
 {
+  /* output channel is device.
+    - but cannot share easily,
+      although oc channel only needs halfperiod, the timer itselfs needs period.
+      so cannot hang another simple square wave off the same timer.
+      - so should probably treat everything as a device.
+  */
+
   // assert(deadtime >= 1 /*&& deadtime <= 50 */);
   // assert(freq >= 40000 && freq <= 500000);
   // assert(freq >= 10000 && freq <= 500000);
@@ -442,7 +451,9 @@ static int main_f429(void)
   uint32_t timer = TIM5;
   timer_port_setup();
   timer_setup( timer );
-  timer_set_frequency( timer, 15000 );
+  timer_set_frequency( timer, 15000 );    // need to know the main mcu clock freq to do this.
+                                          // perhaps record with the timer?
+                                          // as device.
 
 
 
