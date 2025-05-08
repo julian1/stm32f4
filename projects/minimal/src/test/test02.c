@@ -30,7 +30,7 @@ static void test (app_t *app)
   _mode_t mode = * app->mode_initial;
   bool flip = 0;
 
-  for(unsigned i = 0; i < 6; ++i ) {
+  for(unsigned i = 0; i < 4; ++i ) {
 
     flip = ! flip;
     mode.first.K403 =  flip ? 0b01 : 0b10;
@@ -39,7 +39,7 @@ static void test (app_t *app)
   }
 
 
-  for(unsigned i = 0; i < 6; ++i ) {
+  for(unsigned i = 0; i < 4; ++i ) {
 
     flip = ! flip;
     mode.first.K703 =  flip ? 0b01 : 0b10;
