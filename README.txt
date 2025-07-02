@@ -7,11 +7,15 @@ cd projects/minimal
 openocd -f ../../openocd.cfg
 
 
-reset halt; flash write_image erase unlock /home/me/devel/ice40-fpga/projects/u202/build/main.bin  0x08060000 ; reset run
 
+mcu firmware
+reset halt ; flash write_image erase unlock /home/me/devel/stm32f4/projects/minimal/main.elf ;  reset run
+
+analog firmware
 reset halt; flash write_image erase unlock /home/me/devel/ice40-fpga/projects/minimal/build/main.bin  0x08080000 ; reset run
 
-reset halt ; flash write_image erase unlock /home/me/devel/stm32f4/projects/minimal/main.elf ;  reset run
+u202
+reset halt; flash write_image erase unlock /home/me/devel/ice40-fpga/projects/u202/build/main.bin  0x08060000 ; reset run
 
 
 
@@ -38,19 +42,12 @@ may 2024.
   rlwrap nc localhost 4444
 
 
-  # write mcu firmware
-  > reset halt ; flash write_image erase unlock /home/me/devel/stm32f4/projects/minimal/main.elf ; reset run
-
-  # fpga firmware
-  > reset halt; flash write_image erase unlock /home/me/devel/ice40-fpga/projects/minimal/build/main.bin.hdr  0x08060000 ; reset run
-
-
-
 
   # to make
   cd projects/minimal
   make
 
+  write firmware.
 
   # with new line.
   rlwrap -a picocom  -q -b 115200  --imap crcrlf   /dev/ttyUSB0
