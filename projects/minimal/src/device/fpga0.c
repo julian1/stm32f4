@@ -17,7 +17,7 @@
 #include <peripheral/spi-ice40.h>   // interface/abstraction
 #include <device/fpga0.h>        // implementation/device
 
-
+/*
 // pulled from spi-port code.
 #define SPI1_PORT       GPIOA
 // #define SPI1_CS1        GPIO4     // PA4
@@ -28,9 +28,14 @@
 // #define SPI1_CS2        GPIO15     // gerber 257. control-panel-07
 
 #define SPI1_INT_CDONE   GPIO3     // PA3  shared for cdone/ and interrupt
+*/
 
 
 #define UNUSED(x) ((void)(x))
+
+
+
+
 
 
 static void setup(spi_t *spi )
@@ -42,16 +47,36 @@ static void setup(spi_t *spi )
   // perhaps
 
   // set reset, ss lo. before we enable outputs. to prevent ice40 assuming spi master
-  gpio_clear( SPI1_PORT, SPI1_CS1 | SPI1_CS2 );
+  // gpio_clear( GPIOC, CS /*| CS2 | CS3*/ );
+
+
+  // deselect
+  // gpio_set( GPIOC, CS /*| CS2 | CS3*/ );
+
+
+  // TODO not clear we should init extra CS. here.
+  // it is extra device funcionality.
+
+  // cs  PC7
+  gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO7 );
+  gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO7 );
+
+
+  // interupt PA3
+  // should not be done here.
+  // gpio_mode_setup( GPIOA , GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO3 );
+
+
+  // cdone PE0
+  gpio_mode_setup( GPIOE , GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO0 );
 
 
 
-  // CS1, CS2 to manual external gpio output
-  gpio_mode_setup(SPI1_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SPI1_CS1 | SPI1_CS2);
-  gpio_set_output_options(SPI1_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI1_CS1 | SPI1_CS2);
+  // creset  PE1
+  gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO1 );
+  gpio_set_output_options(GPIOE, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO1 );
 
-  // shared for cdone/ interupt.
-  gpio_mode_setup(SPI1_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI1_INT_CDONE);
+
 }
 
 
@@ -69,7 +94,9 @@ static void port_configure( spi_t *spi_)
   spi_reset( spi );
 
   // consider could/should assert()) SS is HI/disabled here.
-  assert( gpio_get( SPI1_PORT, SPI1_CS1) != 0  );
+  // TODO. does not belong here. anymore.
+
+  // assert( gpio_get( SPI1_PORT, SPI1_CS1) != 0  );
 
 
   spi_init_master(
@@ -94,7 +121,7 @@ static void cs( spi_t *spi, uint8_t val)
   assert(spi->spi == SPI1);
 
   spi_wait_ready( spi->spi);
-  gpio_write_val( SPI1_PORT, SPI1_CS1, val);
+  gpio_write_val( GPIOC, GPIO7, val);
 }
 
 
@@ -106,13 +133,9 @@ static void rst( spi_ice40_t *spi, uint8_t val)
   assert(spi->spi == SPI1);
 
 
-  /*
-    OK.
-      CS2 works to assert reset, when CS1 is already lo.
-      ONLY MANIPULATE CS2 here - relying on the OR gate to assert the reset,
-      not cs1, and cs2.
-  */
-  gpio_write_val( SPI1_PORT, SPI1_CS2, val);
+  // gpio_write_val( SPI1_PORT, SPI1_CS2, val);
+
+  gpio_write_val( GPIOE, GPIO1, val);
 }
 
 
@@ -120,7 +143,9 @@ static bool cdone(spi_ice40_t *spi )
 {
   assert(spi->spi == SPI1);
 
-  return gpio_get(SPI1_PORT, SPI1_INT_CDONE)  != 0;
+
+  // return gpio_get(SPI1_PORT, SPI1_INT_CDONE)  != 0;
+  return gpio_get(GPIOE , GPIO0)  != 0;
 }
 
 
@@ -149,6 +174,8 @@ spi_ice40_t * spi_u102_create( )
   // derived stuff
   spi->rst    = rst;
   spi->cdone  = cdone;
+
+  // interupt not
 
   return spi;
 }
