@@ -120,7 +120,10 @@ typedef struct app_t
   bool          cdone_fpga0;
 
   // board0 devices
-  spi_ice40_t   *spi_fpga0;
+
+  spi_ice40_t   *spi_fpga0_pc;    //  fpga pre-configuration
+
+  spi_t         *spi_fpga0;       // fpga post-configuration - normal registers. etc.  change to spi_t
 
   interrupt_t   *fpga0_interrupt;
 

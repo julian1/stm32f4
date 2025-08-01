@@ -14,7 +14,7 @@
 #include <support.h>
 
 
-#include <peripheral/spi-ice40.h>   // interface/abstraction
+#include <peripheral/spi.h>   // interface/abstraction
 #include <device/fpga0.h>        // implementation/device
 
 /*
@@ -44,38 +44,18 @@ static void setup(spi_t *spi )
 
   printf("u102 setup\n");
 
-  // perhaps
-
   // set reset, ss lo. before we enable outputs. to prevent ice40 assuming spi master
   // gpio_clear( GPIOC, CS /*| CS2 | CS3*/ );
 
 
-  // deselect
-  // gpio_set( GPIOC, CS /*| CS2 | CS3*/ );
-
-
-  // TODO not clear we should init extra CS. here.
-  // it is extra device funcionality.
-
-  // cs  PC7
-  gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO7 | GPIO8 | GPIO9);
-  gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO7 | GPIO8 | GPIO9);
+  // cs  PC7,8,9
+  gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,          GPIO7 | GPIO8 | GPIO9);
+  gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ,  GPIO7 | GPIO8 | GPIO9);
 
 
   // interupt PA3
   // should not be done here.
   // gpio_mode_setup( GPIOA , GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO3 );
-
-
-  // cdone PE0
-  gpio_mode_setup( GPIOE , GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO0 );
-
-
-
-  // creset  PE1
-  gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO1 );
-  gpio_set_output_options(GPIOE, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO1 );
-
 
 }
 
@@ -126,6 +106,8 @@ static void cs( spi_t *spi, uint8_t val)
   spi_wait_ready( spi->spi);
   // gpio_write_val( GPIOC, GPIO7, val);
 
+  // this extended cs - is not a property of the fpga before configuration
+  // the difficulty is that this stuff is shared - for all spi devices. and probably only wants to be done once.
 
   uint32_t shift = 7;     // PC7
   uint32_t mask = 0b111;  // 3 bits PC7,8,9
@@ -135,34 +117,7 @@ static void cs( spi_t *spi, uint8_t val)
 
 
 
-
-
-static void rst( spi_ice40_t *spi, uint8_t val)
-{
-  assert(spi->spi == SPI1);
-
-
-  // gpio_write_val( SPI1_PORT, SPI1_CS2, val);
-
-  gpio_write_val( GPIOE, GPIO1, val);
-}
-
-
-static bool cdone(spi_ice40_t *spi )
-{
-  assert(spi->spi == SPI1);
-
-
-  // return gpio_get(SPI1_PORT, SPI1_INT_CDONE)  != 0;
-  return gpio_get(GPIOE , GPIO0)  != 0;
-}
-
-
-
-
-
-
-spi_ice40_t * spi_u102_create( )
+spi_t * spi_u102_create( )
 {
   /* called once at startup only, in main().
     it is really the malloc that buys us structure opaqueness.
@@ -170,9 +125,10 @@ spi_ice40_t * spi_u102_create( )
     - only other way is to pull the structure in as a header.
     --------
   */
-  spi_ice40_t *spi = malloc(sizeof(  spi_ice40_t));
+  // spi_ice40_t *spi = malloc(sizeof(  spi_ice40_t));
+  spi_t *spi = malloc(sizeof(  spi_t));
   assert(spi);
-  memset(spi, 0, sizeof(spi_ice40_t));
+  memset(spi, 0, sizeof(spi_t));
 
   // base
   spi->spi    = SPI1;
@@ -180,9 +136,6 @@ spi_ice40_t * spi_u102_create( )
   spi->setup   =  setup;
   spi->port_configure = port_configure;
 
-  // derived stuff
-  spi->rst    = rst;
-  spi->cdone  = cdone;
 
   // interupt not
 
@@ -190,36 +143,4 @@ spi_ice40_t * spi_u102_create( )
 }
 
 
-
-#if 0
-  // u102,
-  // cs pc0
-  // creset pc6
-  gpio_mode_setup( GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0 | GPIO6 );      // PC0,PC6
-  gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO0 | GPIO6 );
-
-
-  // input
-  // cdone u202ca pc3.
-  gpio_mode_setup(GPIOC, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO3);
-#endif
-
-
-	// hold cs lines lo - to put fpga in reset, avoid isolator/fpga contention, because fpga wants to become spi master and drive spi lines.
-  // probably ok, if just SS held lo.
-  // there's a delay of about 1ms. though before ice40 samples inputs.
-	// spi_port_cs2_enable( SPI1);
-  // spi_port_cs1_enable( SPI1);
-
-
-/*
-
-  // rst is the derived function.  should not call from base.
-  // EXTR.  just set values expliticcty.
-  // gpio_clear( SPI1_PORT, SPI1_CS1 | SPI1_CS2 );
-
-
-  spi->cs( spi, 0);
-  spi->rst( spi, 0);
-*/
 

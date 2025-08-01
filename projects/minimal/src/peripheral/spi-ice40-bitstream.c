@@ -25,41 +25,6 @@
 
 
 
-static void spi_ice40_bitstream_setup(uint32_t spi)
-{
-
-  /*
-    - assert mosi on neg edge.  ice40 reads on pos edge.
-
-    the 49 additional clock cycles is useful-  since it clearly demarcates where configuration ends, and when spi becomes active with user comms.
-    actually cs is high already by this time. so it doesn't matter too much.
-
-    - mini-grabbers on soic is a problem, because they end up touching eash other, giving wrong signals.
-  */
-
-  assert(spi == SPI1 || spi == SPI2);
-
-
-  spi_reset( spi );
-
-  spi_init_master(
-    spi,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_2,  // div2 seems to work with iso, but not adum. actually misses a few bits with iso.
-//    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
-    SPI_CR1_BAUDRATE_FPCLK_DIV_16,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_32,
-    // SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,  // park to 0/lo == positive clok edge. park to 1 == negative clk edge.
-    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,  // park to 0/lo == positive clok edge. park to 1 == negative clk edge.
-    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == leading edge,  2 == falling edge
-    SPI_CR1_DFF_8BIT,
-    SPI_CR1_MSBFIRST
-  );
-
-  spi_enable( spi );
-
-}
-
-
 
 
 int spi_ice40_bitstream_send( spi_ice40_t *spi , FILE *f, size_t size , volatile uint32_t *system_millis)
@@ -117,7 +82,9 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi , FILE *f, size_t size , volatile
 
 
   // configure with soft/manual control over cs.
-  spi_ice40_bitstream_setup(spi->spi);
+  // spi_ice40_bitstream_setup(spi->spi);
+
+  spi->port_configure( spi );
 
 
   // must have spi enabled to output clk cycles, regardless of state of SS.

@@ -376,21 +376,24 @@ static void app_update_soft_500ms(app_t *app)
   }
 #endif
 
+#if 1
   if( app->cdone_fpga0) {
 
       // Ahhh. no. dont want to toggle the fpga cs. only
 
       printf("toggle cs2\n");
-      spi_cs( app->spi_fpga0,   app->led_state ? 0b111 : 0b011 ) ;  // remember active lo.
+      spi_cs( app->spi_fpga0, app->led_state ? 0b111 : 0b011 ) ;  // remember active lo.
 
   }
+#endif
 
   // fpga0 on analog board
   if( /*false &&*/ !app->cdone_fpga0) {
 
 
     FILE *f = flash_open_file( FLASH_U102_ADDR);
-    int ret = spi_ice40_bitstream_send( app->spi_fpga0, f, FLASH_HX8K_SIZE, & app->system_millis );
+
+    int ret = spi_ice40_bitstream_send( app->spi_fpga0_pc, f, FLASH_HX8K_SIZE, & app->system_millis );
     fclose(f);
 
 

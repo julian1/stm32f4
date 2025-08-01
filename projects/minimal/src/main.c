@@ -35,6 +35,7 @@
 
 #include <device/led0.h>
 #include <device/fpga0.h>
+#include <device/fpga0-pc.h>
 #include <device/fpga0_interrupt.h>
 
 #include <device/4094-0.h>
@@ -418,6 +419,13 @@ static int main_f429(void)
   // to prevent ice40 wanting to become spi master
 
 #if 1
+
+
+  // fpga0 pre-configure bitstream
+  app.spi_fpga0_pc = spi_u102_pc_create();
+  spi_setup( app.spi_fpga0_pc );
+
+  // normal post configure
   app.spi_fpga0 = spi_u102_create();
   spi_setup( app.spi_fpga0 );
 

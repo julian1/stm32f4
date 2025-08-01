@@ -88,7 +88,7 @@ static void cs( spi_t *spi, uint8_t val)
 
 
 
-spi_t * spi_4094_0_create( )
+spi_t * spi_4094_0_create( /* pass the spi_ice40 */  )
 {
   /* called once at startup only, in main().
     it is really the malloc that buys us structure opaqueness.
