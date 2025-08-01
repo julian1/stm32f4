@@ -58,8 +58,8 @@ static void setup(spi_t *spi )
   // it is extra device funcionality.
 
   // cs  PC7
-  gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO7 );
-  gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO7 );
+  gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO7 | GPIO8 | GPIO9);
+  gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO7 | GPIO8 | GPIO9);
 
 
   // interupt PA3
@@ -116,12 +116,21 @@ static void port_configure( spi_t *spi_)
 
 
 
+
+
+
 static void cs( spi_t *spi, uint8_t val)
 {
   assert(spi->spi == SPI1);
 
   spi_wait_ready( spi->spi);
-  gpio_write_val( GPIOC, GPIO7, val);
+  // gpio_write_val( GPIOC, GPIO7, val);
+
+
+  uint32_t shift = 7;     // PC7
+  uint32_t mask = 0b111;  // 3 bits PC7,8,9
+  gpio_write_with_mask( GPIOC, shift, mask, val);
+
 }
 
 

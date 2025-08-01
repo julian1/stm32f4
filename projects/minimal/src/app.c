@@ -336,6 +336,7 @@ static void app_update_soft_500ms(app_t *app)
 
   // blink mcu led
   app->led_state = ! app->led_state;
+  // excessive abstraction
   led_set( app->led_status, app->led_state);
 
 
@@ -375,7 +376,14 @@ static void app_update_soft_500ms(app_t *app)
   }
 #endif
 
+  if( app->cdone_fpga0) {
 
+      // Ahhh. no. dont want to toggle the fpga cs. only
+
+      printf("toggle cs2\n");
+      spi_cs( app->spi_fpga0,   app->led_state ? 0b111 : 0b011 ) ;  // remember active lo.
+
+  }
 
   // fpga0 on analog board
   if( /*false &&*/ !app->cdone_fpga0) {

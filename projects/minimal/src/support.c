@@ -81,6 +81,20 @@ void gpio_write_val(uint32_t gpioport, uint16_t gpios, bool val)
 
 
 
+
+void gpio_write_with_mask( uint32_t gpioport, uint32_t shift, uint32_t mask, uint32_t val)
+{
+  // better name? write consequtive bits into BSRR with shift and mask.
+
+  GPIO_BSRR( gpioport) =
+    // ((val << shift) & mask << shift)
+    ((val & mask) << shift)                             // set bits
+    | (((~val << shift) & (mask << shift) ) << 16);     // clear bits
+}
+
+
+
+
 void mcu_reset()
 {
   // reset stm32f4
