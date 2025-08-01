@@ -34,6 +34,9 @@ struct spi_t
   void (*setup)(spi_t *);                     // cs interupt gpio
   void (*port_configure)(spi_t *);
   void (*cs)(spi_t *, uint8_t );
+
+  // void (*cs_assert)(spi_t *, uint8_t );  // better  if using the mcu line encoding/
+  // void (*cs_deassert)(spi_t *, uint8_t );
 };
 
 
@@ -51,7 +54,19 @@ static inline void spi_port_configure( spi_t *spi)
 
 static inline void spi_cs( spi_t *spi, uint8_t val)
 {
+  // should not really
   spi->cs( spi, val);
+}
+
+static inline void spi_cs_assert( spi_t *spi)
+{
+  // placeholder, until refactor
+  spi->cs( spi, 0);
+}
+
+static inline void spi_cs_deassert( spi_t *spi)
+{
+  spi->cs( spi, 1);
 }
 
 

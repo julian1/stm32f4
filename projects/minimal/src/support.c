@@ -59,6 +59,8 @@ void spi_wait_ready(uint32_t spi )
 
 void gpio_write_val(uint32_t gpioport, uint16_t gpios, bool val)
 {
+  // sets all the gpios to the val.  although we only use for single bit values
+  // not very clear.
   // better place for this?
   // inline in include/gpio perhaps.
 
@@ -73,8 +75,8 @@ void gpio_write_val(uint32_t gpioport, uint16_t gpios, bool val)
 
   */
 
-
   // BSRR == bit set/reset register.
+
 
   GPIO_BSRR( gpioport) |= gpios  << (val ? 0: 16);
 }

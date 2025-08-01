@@ -103,7 +103,7 @@ typedef struct app_t
   volatile uint32_t system_millis;
 
 
-  // make pointers again. for opaque structure .  instantiate in main.
+  // TODO - make these pointers again. for opaque structure .  instantiate in main.
   cbuf_t        console_in;
   cbuf_t        console_out;
 
