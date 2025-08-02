@@ -1,388 +1,305 @@
 
-/*
-  ice40 spi is just one of multiple targets, like adc,dac,w25q etc.
-  spi_ice40_
-  ------
 
-  should be able to be shared for 24 bit register system. and 8 bit register system. just suffix.
-  ---
-
-
-  see,
-
-     #include <byteswap.h>
-
-     uint16_t bswap_16(uint16_t x);
-     uint32_t bswap_32(uint32_t x);
-     uint64_t bswap_64(uint64_t x);
-
-
-*/
 
 #include <assert.h>
 
-
+#include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
 
 
-/* note. none of the functions are typed on spi_ice40.  only spi_t.
-   not sure if should move this file.
-*/
-#include <peripheral/spi-ice40.h>
+#include <lib2/util.h>    // MAX
+//#include <lib2/stream-flash.h>
+
+
+
+//#include <peripheral/spi-port.h>
+// #include <peripheral/spi-ice40.h>
+
+// #include <peripheral/spi-fpga.h>
+#include <peripheral/spi-ice40-pc.h>
+
+
+// #include <peripheral/ice40-extra.h>
+// #include <peripheral/spi-ice40-bitstream.h>
 
 
 
 
-static uint32_t spi_xfer_32(uint32_t spi, uint32_t val)
+
+
+
+
+
+int spi_ice40_bitstream_send( spi_ice40_t *spi , FILE *f, size_t size , volatile uint32_t *system_millis)
 {
-  uint8_t a = spi_xfer( spi, (val >> 24) & 0xff );  // correct reg should be the first bit that is sent.
-  uint8_t b = spi_xfer( spi, (val >> 16) & 0xff );
-  uint8_t c = spi_xfer( spi, (val >> 8)  & 0xff  );
-  uint8_t d = spi_xfer( spi,  val        & 0xff  );
+  printf("spi_ice40_bitstream_send, size %u\n", size);
 
-  // fixed this.
-  // + or |
-  return (a << 24) + (b << 16) + (c << 8) + d;        // this is better. needs no on reading value .
-}
+  assert(f);
+
+  assert(size == 104090  || size == 135100 );
+
+  // read magic and length.
+  uint32_t magic  = 0 ;
+  // uint32_t magic2  = 0 ;
 
 
-/*
-static uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
-{
-  // for write, or transfer
-  return spi_xfer_32(spi, reg << 24 | val);
-}
-*/
+  fread(&magic, 1, 4, f);
+  fseek(f, 0, SEEK_SET );    // seek start again.
 
 
 
+  printf("magic %lx\n", magic );
 
-uint32_t spi_ice40_reg_write32( spi_t *spi, uint8_t reg, uint32_t val)
-{
-  spi_cs(spi, 0);
+  /*
+  Once the AP sends the 0x7EAA997E synchronization pattern, the generated SPI_SCK clock frequency must
+  be within the range specified in the data sheet while sending the configuration image.
+      https://blog.aleksander.kaweczynski.pl/wp-content/uploads/2024/07/iCE40_Programming_Configuration_2022.pdf
 
-  // write single byte, for the reg we are interested in, with read bit cleared.
-  spi_xfer( spi->spi, reg );
-  // return the data
-  uint32_t ret = spi_xfer_32(spi->spi, val );
+   me@flow:~/devel/ice40-fpga/projects/minimal$ hexdump -C build/main.bin | head
+  00000000  ff 00 00 ff 7e aa 99 7e  51 00 01 05 92 00 20 62  |....~..~Q..... b|
 
-  spi_cs(spi, 1);
-
-  return ret;
-}
-
-
-
-
-uint32_t spi_ice40_reg_read32(  spi_t *spi, uint8_t reg)
-{
-  // call write with, with read bit set, and passing dummy value.
-  return spi_ice40_reg_write32( spi, reg | (1 << 7), 0);
-}
-
-
-uint32_t spi_ice40_reg_write_n( spi_t *spi, uint8_t reg, const void *s, size_t n )
-{
-  // helper function when passing structs.
-  // for cast.
-  assert(n == 4); // only 32bit supported atm.
-
-
-  return spi_ice40_reg_write32(spi, reg, *(uint32_t *)s );
-}
-
-
-
-
-
-
-
-
-
-#if 0
-
-void spi_mux_ice40(uint32_t spi)
-{
-  // spi on mcu side, must be correctly configured
-  // in addition, relies on the special flag to mux
-
-
-  spi_reset( spi );
-
-  spi_port_cs1_disable(spi);  // active lo == hi.
-  spi_port_cs2_disable(spi);  //
-
-
-  spi_init_master(
-    spi,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_2,  // div2 seems to work with iso, but not adum. actually misses a few bits with iso.
-    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_16,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_32,
-    SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,  // park to 0/lo == positive clok edge. park to 1 == negative clk edge.
-    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == leading edge,  2 == falling edge
-    SPI_CR1_DFF_8BIT,
-    SPI_CR1_MSBFIRST
-  );
-
-  spi_enable( spi );
-
-
-  /* IMPORTANT
-  // make sure to disable propagation of any clk,data,strobe lines
-  // from a prior active spi peripheral (eg. 4094).
-  // otherwise reading/writing adc. will transmit signals on 4094 lines.
-  -------
-  //  extr.  actually this will still emit signals - during the write to reg_spi_mux.
-  // so we need to write the register
-  // IMMEDIATELY  after finishing 4094.
-    -------
-
-    TODO - perhap better to have a mux_4094_finish()  function to do this.
+  should just this as the magic number. and then hardcode the size.
+  rather than prepend a separate header.
 
   */
-  spi_ice40_reg_write32(spi, REG_SPI_MUX,  0 );
 
-}
+  // if(magic != 0xfe00fe00) {
+  if(magic != 0xff0000ff ) {
+    printf("bad magic!\n");
+    return -1;
+  } else {
 
-#endif
-
-
-
-
-
-#if 0
-
-
-void spi_mux_ice40_simple(uint32_t spi)
-{
-  // this is spi2. setup. u509.
-
-  assert(spi == SPI2);
-
-  spi_reset( spi );
+    printf("magic ok!\n");
+  }
 
 
 
-  spi_init_master(
-    spi,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_2,  // div2 seems to work with iso, but not adum. actually misses a few bits with iso.
-    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_16,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_32,
-    SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,  // park to 0/lo == positive clok edge. park to 1 == negative clk edge.
-    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == leading edge,  2 == falling edge
-    SPI_CR1_DFF_8BIT,
-    SPI_CR1_MSBFIRST
-  );
-
-  spi_enable( spi );
-
-
-}
-
-#endif
-
-
-// catch errors
-#define spi_enable(x) WHOOT(x)
-#define spi_disable(x) WHOOT(x)
 
 
 
+  ////////////////////////////////////
+
+  // see Fig. 13.2
+
+  // use spi port with soft/manual control over cs1
+
+
+  // configure with soft/manual control over cs.
+  // spi_ice40_bitstream_setup(spi->spi);
+
+  spi->port_configure( spi );
+
+
+  // must have spi enabled to output clk cycles, regardless of state of SS.
 
 #if 0
-// static void spi_ice40_setup(uint32_t spi);
+  // start with creset enabled as well as cs hi. to make it easy to LA trigger on down transition
+  ice40_port_extra_creset_enable();       // reset lo. start reset.
+#endif
+
+  // enable == lo.
+  // disable == hi.
+
+  // spi_port_cs1_disable( spi);             // cs1 hi.
+  //spi->cs(spi, 1);
+  spi_cs_deassert( spi);
+
+  // spi_port_cs2_disable( spi);             // cs2 hi.   but it isn't unconditional.
+  spi->rst(spi, 1);
 
 
-void spi_mux_ice40(uint32_t spi)
-{
-  // spi on mcu side, must be correctly configured
-  // in addition, relies on the special flag to mux
 
-  spi_port_cs1_setup();
-  spi_ice40_setup(spi);
 
-  /* IMPORTANT
-  // make sure to disable propagation of any clk,data,strobe lines
-  // from a prior active spi peripheral (eg. 4094).
-  // otherwise reading/writing adc. will transmit signals on 4094 lines.
-  -------
-  //  extr.  actually this will still emit signals - during the write to reg_spi_mux.
-  // so we need to write the register
-  // IMMEDIATELY  after finishing 4094.
+  // wait
+  msleep(1, system_millis);
+
+
+
+  //////////////////////////////////////////////
+  // configure sequence
+
+#if 0
+  // drive creset_b = 0  (pin lo).
+  ice40_port_extra_creset_disable();      // creset/ clear / lo. inverse.
+#endif
+
+  // spi_port_cs2_enable(spi);                 // cs2 lo.
+  // drive spi_ss = 0, spi_sck = 1
+  // spi_port_cs1_enable(spi);                 // cs1 lo.   - now in reset.
+
+  // spi->cs(spi, 0);
+  spi_cs_assert( spi);
+
+  spi->rst(spi, 0);       // now in reset
+
+
+  // wait minimum of 200ns
+  msleep(1, system_millis);
+
+  // check cdone is lo
+  // assert( ! spi->cdone(spi));
+  if( spi->cdone(spi))
+    return -2;
+
+
+
+  printf("here0\n");
+#if 0
+  // release creset (eg. pullup), or drive creset = 1
+  // TODO change name enable to clear() or set()
+  ice40_port_extra_creset_enable();         // creset set/ hi. inverse.  (Can do this by releasing cs2 ).
+#endif
+
+  // spi_port_cs2_disable(spi);          // cs2 hi.  out of reset.
+  spi->rst(spi, 1);                       // out of reset
+
+  // wait a minimum of of 1200u to clear internal config memory
+  msleep(2, system_millis);
+
+  // set spi_ss hi = 1.
+  // spi_port_cs1_disable(spi);                // cs1 hi.
+  // spi->cs(spi, 1);
+  spi_cs_deassert( spi);
+
+  // send 8 dummy clks
+  spi_xfer( spi->spi, 0x00 );
+
+  // assert ss lo = 0
+  // spi_port_cs1_enable(spi);
+  // spi->cs(spi, 0);
+  spi_cs_assert( spi);
+
+
+  // cs(spi, 0);
+  // or dev_spi_cs
+
+
+  /* send image.
+    note the 4 byte start sequence of ff0000ff, before magic token 7eaa997e. seems ok
+
+    size 135100
+    10000   ff  0  0 ff 7e aa 99 7e  ..  0  0  0  0  0  1  0  0
+    ...
+    5100    0  0  0  0  0  0  0  0  ..  0  0 22 46 f6  1  6  0
   */
-  spi_ice40_reg_write32(spi, REG_SPI_MUX,  0 );
 
+  size_t remaining = size;
+  while(remaining > 0) {
+
+    char buf[10000];
+    size_t ret = 0;
+
+    if(remaining >= 10000) {
+      ret =  fread(buf, 1, 10000, f);
+      assert(ret);
+    }
+    else {
+      ret = fread(buf, 1, remaining , f);
+      assert(ret);
+    }
+
+    //////////////////////
+    // print some blob details - leading, trailing bytes
+    printf("%u   ", ret);
+
+    for(unsigned i = 0; i < 8; ++i)
+      printf("%2x ", buf[i]);
+
+    printf(" .. ");
+    // not sure if the max deals with signedness here...
+    for(unsigned i = MAX( (signed)ret - 8, 0); i < ret; ++i)
+      printf("%2x ", buf[i]);
+    printf("\n");
+    /////////////////////////////
+
+    // send data
+    for(unsigned i = 0; i < ret; ++i)
+       spi_xfer( spi->spi, buf[ i ] );
+
+
+    remaining -= ret;
+  }
+
+  // printf("done remaining now %u\n", remaining);
+  assert(remaining == 0);
+
+
+
+
+  // spi-ss = high
+  // spi_port_cs1_disable(spi);
+  // spi->cs(spi, 1);
+  spi_cs_deassert( spi);
+
+
+  // wait - send up to 100 dummy clk cycles.
+  unsigned i = 0;
+  // for(i = 0; i < 13  && !   spi_port_cdone_get(); ++i)
+  for(i = 0; i < 13  && !  spi->cdone(spi); ++i)
+     spi_xfer( spi->spi, 0x00);
+
+  printf("sent %u bytes dummy clk cycles\n", i );
+
+
+  // check cdone really hi
+  if(! spi->cdone(spi) ) {
+    printf("failed\n");
+
+
+    // set cs. ports lo again..  so if fpga gets powered up. it will succeed.
+    // TODO re-enable
+    //spi->cs(spi, 0);
+    // spi->rst(spi, 0);
+
+    return -1;
+  } else {
+
+    printf("ok\n");
+  }
+
+
+  // send another 49 clk cycles, for gpio to become active
+  for(i = 0; i < 7 ; ++i)
+     spi_xfer( spi->spi, 0x00);
+
+
+  // success
+  return 0;
 }
-
-
-
-
-// fpga as a target
-
-void spi_ice40_setup(uint32_t spi)
-{
-  // the fpga as a spi slave.
-
-  spi_reset( spi );
-
-  spi_init_master(
-    spi,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_2,  // div2 seems to work with iso, but not adum. actually misses a few bits with iso.
-    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_16,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_32,
-    SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,  // park to 0/lo == positive clok edge. park to 1 == negative clk edge.
-    SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == leading edge,  2 == falling edge
-    SPI_CR1_DFF_8BIT,
-    SPI_CR1_MSBFIRST
-  );
-
-  // JA. ok. importantant. the transition is not correct.
-  // clk to 0 when idle for falling edge.
-  // but phase/cpha is the leading, or secondary edge.
-
-  // hardware slave management appears to block, if ss is not active.
-
-  spi_disable_software_slave_management( spi);
-  spi_enable_ss_output(spi);
-}
-#endif
-
 
 
 
 
 #if 0
 
-static uint32_t spi_xfer_register_16(uint32_t spi, uint32_t r)
+// should be passing an argument to check.
+
+int flash_raw_test(void)
 {
-  uint8_t a = spi_xfer( spi, (r >> 8) & 0xff  );
-  uint8_t b = spi_xfer( spi, r & 0xff  );
+  printf("flash raw test\n");
+  FILE *f = flash_open_file();
+  assert(f);
+  // print first 100 chars.
+  char buf[ 100 ] ;
+  size_t ret = fread(buf, 1, 100, f);
+  if(!ret ) {
+      printf("flash read returned nothing\n");
+  } else {
 
-  return (a << 8) + b; // msb first, same as dac
+    for(unsigned i = 0; i < ret; ++i ) {
+      putchar( buf[ i] );
+    }
+    printf("\n");
+    for(unsigned i = 0; i < ret; ++i ) {
+      printf("%2x ", buf[ i] );
+    }
+
+    printf("\n");
+  }
+
+  fclose(f);
+  return 0;
 }
-
-
-
-
-
-static uint16_t spi_ice40_xfer(uint32_t spi, uint32_t r)
-{
-//  spi_special_flag_clear(spi);
-  spi_enable(spi);
-  uint16_t ret = spi_xfer_register_16(spi, r );
-  spi_disable(spi);
-//  spi_special_flag_set(spi);
-  return ret;
-}
-
-
-// OK. we are using this to write the spi muxing register with 8 bits.
-// if need more bits then it's problematic
-
-static uint16_t spi_ice40_xfer2( uint32_t spi, uint8_t r, uint8_t v)
-{
-  // change name to xfer also. I think.
-  uint16_t ret = spi_ice40_xfer(spi, r << 8 | v );
-  return ret;
-}
-
-
-
-
-// consumers should use the reg_ functions.
-
-
-uint8_t ice40_reg_read( uint32_t spi, uint8_t r)
-{
-  return spi_ice40_xfer2(spi, r, 0 ); // ie. no set, or clear bits set
-}
-
-// OK. don't think we need a separate hardware register...
-
-void ice40_reg_write( uint32_t spi, uint8_t r, uint8_t v)
-{
-  uint8_t x = (~v << 4) | (v & 0xF );
-  spi_ice40_xfer2(spi, r, x);
-}
-
-
-
-
-void ice40_reg_set( uint32_t spi, uint8_t r, uint8_t v)
-{
-  spi_ice40_xfer2(spi, r, (v & 0xF)); // ie. lo 4 bits
-}
-
-void ice40_reg_clear( uint32_t spi, uint8_t r, uint8_t v)
-{
-  spi_ice40_xfer2(spi, r, v << 4);    // ie. hi 4 bits
-}
-
-
-
-void ice40_reg_toggle( uint32_t spi, uint8_t r, uint8_t v)
-{
-  uint8_t x = (v << 4) | (v & 0xF );
-  spi_ice40_xfer2(spi, r, x);
-}
-
-
-void ice40_reg_write_mask( uint32_t spi, uint8_t r, uint8_t mask, uint8_t v)
-{
-  mask = mask & 0xf;
-
-  uint8_t x = ((~v << 4) & (mask << 4)) | ((v & 0xF ) & mask);
-  spi_ice40_xfer2(spi, r, x);
-}
-
-
-
-
-
-////////////////
-
-
-static uint32_t spi_xfer_32(uint32_t spi, uint32_t val)
-{
-  spi_enable(spi);
-  uint8_t a = spi_xfer( spi, (val >> 24) & 0xff );  // correct reg should be the first bit that is sent.
-  uint8_t b = spi_xfer( spi, (val >> 16) & 0xff );
-  uint8_t c = spi_xfer( spi, (val >> 8)  & 0xff  );
-  uint8_t d = spi_xfer( spi,  val        & 0xff  );
-  spi_disable(spi);
-
-  // fixed this.
-  // + or |
-  return (a << 24) + (b << 16) + (c << 8) + d;        // this is better. needs no on reading value .
-}
-
-
-
-static uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
-{
-  // for write, or transfer
-  return spi_xfer_32(spi, reg << 24 | val);
-
-}
-
-uint32_t spi_ice40_reg_read(uint32_t spi, uint8_t reg)
-{
-  // TODO. maybe rename to drop the 24. since 24 refers to val.
-  // set the hi bit of the register
-  // allows read, without value overwrite
-  return spi_reg_xfer_24(spi, reg | (1 << 7), 0);
-}
-
-
-uint32_t spi_ice40_reg_write(uint32_t spi, uint8_t reg, uint32_t val)
-{
-  // spi_reg_xfer_24(SPI1, 7, 0x7f00ff );
-  return spi_reg_xfer_24(spi, reg , val );
-}
-
 
 #endif
 

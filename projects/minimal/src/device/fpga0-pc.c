@@ -14,7 +14,7 @@
 #include <support.h>
 
 
-#include <peripheral/spi-fpga.h>   // interface/abstraction
+#include <peripheral/spi-ice40-pc.h>   // interface/abstraction
 #include <device/fpga0-pc.h>        // implementation/device
 
 /*

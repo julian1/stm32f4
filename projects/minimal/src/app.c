@@ -18,7 +18,8 @@
 #include <peripheral/spi-ice40.h>
 #include <peripheral/spi-4094.h>
 // #include <peripheral/spi-ice40-bitstream.h>
-#include <peripheral/spi-fpga.h>
+//#include <peripheral/spi-fpga.h>
+#include <peripheral/spi-ice40-pc.h>
 
 #include <peripheral/spi-dac8811.h>
 #include <peripheral/spi-ad5446.h>
