@@ -88,7 +88,7 @@ static void cs( spi_t *spi, uint8_t val)
   assert( val == 0 || val == 1);
 
   if(val == 0)  // assert
-    gpio_write_with_mask( GPIOC, 7, 0b111, 2 );      // second virtual spi device == 4094
+    gpio_write_with_mask( GPIOC, 7, 0b111, 2 );      // assert - second virtual spi device == 4094
   else          // deassert
     gpio_write_with_mask( GPIOC, 7, 0b111, 0 );      // deassert
 

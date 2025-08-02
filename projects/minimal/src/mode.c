@@ -55,7 +55,7 @@ void spi_mode_transition_state(
 )
 {
   assert(mode);
-
+  UNUSED( spi_mdac0);
 
   // printf("spi_mode_transition_state()\n");
   // printf("4094 size %u\n", sizeof(_4094_state_t));
@@ -104,6 +104,10 @@ void spi_mode_transition_state(
 #endif
 
   /////////////////////////////
+
+    printf("here0\n");
+
+#if 0
 
 #if 1
   assert( spi_mdac0);
@@ -182,6 +186,9 @@ void spi_mode_transition_state(
   // set last. to avoid spi xfer emi.
   spi_ice40_reg_write32(spi_fpga, REG_SA_P_TRIG, mode->sa.p_trig );
 
+#endif
+
+    printf("here 999\n");
 }
 
 

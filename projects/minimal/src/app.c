@@ -381,10 +381,8 @@ static void app_update_soft_500ms(app_t *app)
 
       // Ahhh. no. dont want to toggle the fpga cs. only
 
-      printf("toggle cs2\n");
-      // spi_cs( app->spi_fpga0, app->led_state ? 0b111 : 0b011 ) ;  // no longer acrive lo
-      spi_cs( app->spi_fpga0, app->led_state ? 0b010 : 0b000 ) ;  // toggle.  4094 strobe.
-
+      printf("toggle 4094 cs\n");
+      spi_cs( app->spi_4094, app->led_state ? 0 : 1 ) ;
   }
 #endif
 
