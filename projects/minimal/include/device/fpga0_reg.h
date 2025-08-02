@@ -20,7 +20,8 @@
 // prefix with REG_GEN. for general
 // No. doesn't work for direct. or sequence mode. or status.
 
-#define REG_SPI_MUX                     8
+// #define REG_SPI_MUX                     8
+
 #define REG_4094_OE                        9
 #define REG_MODE                        12
 #define REG_DIRECT                      14
@@ -41,13 +42,14 @@
 ///////////////////
 // reg spi mux
 // note active bits.
-
+/* HERE
 // spi mux is one-hot
 #define SPI_MUX_NONE          0
 #define SPI_MUX_4094          1
 #define SPI_MUX_DAC          (1<<1)
 #define SPI_MUX_ISO_DAC      (1<<2)
 #define SPI_MUX_ISO_DAC2     (1<<3)
+*/
 
 
 // better name for combined sa+adc functinality of fpga??

@@ -382,7 +382,7 @@ static void app_update_soft_500ms(app_t *app)
       // Ahhh. no. dont want to toggle the fpga cs. only
 
       printf("toggle cs2\n");
-      spi_cs( app->spi_fpga0, app->led_state ? 0b111 : 0b011 ) ;  // remember active lo.. no. use an address
+      spi_cs( app->spi_fpga0, app->led_state ? 0b111 : 0b011 ) ;  // no longer acrive lo
 
   }
 #endif
@@ -707,11 +707,7 @@ static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq
   // spi_port_configure( spi_fpga);
 
 
-  if( strcmp( cmd, "spi-mux?") == 0) {
-
-    spi_print_register( spi, REG_SPI_MUX);
-  }
-  else if( strcmp( cmd, "4094?") == 0) {
+  if( strcmp( cmd, "4094?") == 0) {
 
     spi_print_register( spi, REG_4094_OE);     // needs a better name. use a general control register. "CR" con
   }
@@ -963,7 +959,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
       // working july
       assert(0);
       // spi_mux_ice40( app->spi);
-      spi_ice40_reg_write32(app->spi_fpga0, REG_SPI_MUX,  SPI_MUX_ISO_DAC );
+      // spi_ice40_reg_write32(app->spi_fpga0, REG_SPI_MUX,  SPI_MUX_ISO_DAC );
 
       assert(0);
       // spi_port_configure_mdac0( app->spi);

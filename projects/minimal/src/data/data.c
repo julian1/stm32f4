@@ -243,9 +243,10 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
   uint8_t hw_flags        =  ADC_STATUS_HW_FLAGS( status) ;         // 0b111 & (status >> 8 ) ;
   UNUSED(hw_flags);
 
-
+/* HERE
   uint8_t reg_spi_mux     =  ADC_STATUS_SPI_MUX( status)  ;
   assert( reg_spi_mux == SPI_MUX_NONE);
+*/
 
 #if 0
   uint8_t sample_idx      =  ADC_STATUS_SAMPLE_IDX( status) ;       // 0b111 & (status >> 16) ;     // we set this to 0b111 somewhere in verilog?

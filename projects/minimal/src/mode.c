@@ -68,10 +68,11 @@ void spi_mode_transition_state(
 
   assert( spi_fpga);
 
+/*  HERE
   // JA write the spi mux select register.
   spi_port_configure( spi_fpga);
   spi_ice40_reg_write32(spi_fpga, REG_SPI_MUX,  SPI_MUX_4094 );
-
+*/
 
 
 #if 1
@@ -107,9 +108,12 @@ void spi_mode_transition_state(
 #if 1
   assert( spi_mdac0);
 
+/*
+    HERE
   // now write mdac state
   spi_port_configure( spi_fpga);
   spi_ice40_reg_write32( spi_fpga, REG_SPI_MUX,  SPI_MUX_DAC );
+*/
 
   // write mdac
   spi_port_configure( spi_mdac0);
@@ -119,11 +123,11 @@ void spi_mode_transition_state(
 #endif
 
 
-
+/* HERE
   // restore spi mode, after writing the non-fpga part of the board state
   spi_port_configure( spi_fpga);
   spi_ice40_reg_write32( spi_fpga, REG_SPI_MUX, 0 );
-
+*/
 
 
 
@@ -165,11 +169,12 @@ void spi_mode_transition_state(
   spi_ice40_reg_write32( spi_fpga, REG_ADC_P_CLK_COUNT_RESET,     mode->adc.p_reset );
 
 
-
+/*
+    HERE
   // just check/ensure again, no spurious emi on 4094 lines, for when we read fpga adc counts
   // can probably just assert and reaad.
   assert( spi_ice40_reg_read32( spi_fpga, REG_SPI_MUX) == 0 );
-
+*/
   // we may want delay here. or make the trigger  an external control state to the mode.
 
 
