@@ -192,7 +192,7 @@ static app_t app = {
   // device
   // . spi_u202 = &spi_u202,
 
-  .cdone_fpga0 = false,
+  // .cdone_fpga0 = false,
 
   // ugly.
   .mode_initial =  &mode_initial,

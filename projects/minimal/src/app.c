@@ -195,7 +195,8 @@ void app_configure( app_t *app )
 
     printf("app_configure()\n");
 
-    assert( app->cdone_fpga0 );
+    // assert( app->cdone_fpga0 );
+    assert( spi_ice40_cdone( app->spi_fpga0_pc));
 
     // check/verify 4094 OE is not asserted
     assert( ! spi_ice40_reg_read32( app->spi_fpga0, REG_4094_OE ));
@@ -376,19 +377,22 @@ static void app_update_soft_500ms(app_t *app)
   }
 #endif
 
-#if 1
-  if( app->cdone_fpga0) {
 
-      // Ahhh. no. dont want to toggle the fpga cs. only
+#if 0
 
-      printf("toggle 4094 cs\n");
-      spi_cs( app->spi_4094, app->led_state ? 0 : 1 ) ;
+  if( spi_ice40_cdone( app->spi_fpga0_pc)) {
+
+    // toggle the 4094 cs. only
+    printf("toggle 4094 cs\n");
+
+    // confusing.  without the assert/deassert structure
+    spi_cs( app->spi_4094, app->led_state ? 0 : 1 ) ;
   }
 #endif
 
   // fpga0 on analog board
-  if( /*false &&*/ !app->cdone_fpga0) {
 
+  if( ! spi_ice40_cdone( app->spi_fpga0_pc)) {
 
     FILE *f = flash_open_file( FLASH_U102_ADDR);
 
@@ -407,14 +411,9 @@ static void app_update_soft_500ms(app_t *app)
 
       printf("fpga ok!\n");
 
-      // TODO make sure the CS vec. - when we have changed fpga register table to respond to 0b001.
-      //spi_cs( app->spi_fpga0, 1);   // 1 disable.  for active high
-
+      // ensure CS vec. is not asserting anything
       spi_cs_deassert( app->spi_fpga0 );
 
-
-
-      app->cdone_fpga0 = true;
 
       // app_beep( app, 2 );
       app_led_dance( app );
@@ -516,7 +515,8 @@ static void app_update_console(app_t *app)
       // correct. it is ok/desirable. to update analog board state by calling transition_state(),
       // even if state hasn't been modified. eg. ensures that state is consistent/aligned.
 
-      if(app->cdone_fpga0) {
+      if(spi_ice40_cdone( app->spi_fpga0_pc))  {
+      // if(app->cdone_fpga0) {
         spi_mode_transition_state( app->spi_fpga0, app->spi_4094, app->spi_mdac0, app->mode_current, &app->system_millis);
 
 

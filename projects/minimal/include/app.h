@@ -119,8 +119,6 @@ typedef struct app_t
 
   */
 
-  bool          cdone_fpga0;
-
   // board0 devices
 
   spi_ice40_t   *spi_fpga0_pc;    //  fpga pre-configuration
