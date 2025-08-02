@@ -14,7 +14,7 @@
 #include <support.h>
 
 
-#include <peripheral/spi-ice40.h>   // interface/abstraction
+#include <peripheral/spi-fpga.h>   // interface/abstraction
 #include <device/fpga0-pc.h>        // implementation/device
 
 /*
@@ -106,7 +106,7 @@ static void port_configure( spi_t *spi_)
 
 }
 
-
+/*
 
 static void cs( spi_t *spi, uint8_t val)
 {
@@ -116,10 +116,26 @@ static void cs( spi_t *spi, uint8_t val)
 
   spi_wait_ready( spi->spi);
   gpio_write_val( GPIOC, GPIO7, val);
+}
+*/
+
+
+static void cs_assert(spi_t *spi)
+{
+  // TODO magic
+
+  assert(spi->spi == SPI1);
+
+  spi_wait_ready( spi->spi);
+  gpio_write_val( GPIOC, GPIO7, 0);
 
 }
 
-
+static void cs_deassert(spi_t *spi)
+{
+  spi_wait_ready( spi->spi);
+  gpio_write_val( GPIOC, GPIO7, 1);
+}
 
 
 
@@ -160,7 +176,11 @@ spi_ice40_t * spi_u102_pc_create( )
 
   // base
   spi->spi    = SPI1;
-  spi->cs     = cs;
+  // spi->cs     = cs;
+  spi->cs_assert    = cs_assert;
+  spi->cs_deassert  = cs_deassert;
+
+
   spi->setup   =  setup;
   spi->port_configure = port_configure;
 

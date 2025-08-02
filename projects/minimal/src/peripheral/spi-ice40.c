@@ -59,14 +59,14 @@ static uint32_t spi_reg_xfer_24(uint32_t spi, uint8_t reg, uint32_t val)
 
 uint32_t spi_ice40_reg_write32( spi_t *spi, uint8_t reg, uint32_t val)
 {
-  spi_cs(spi, 0);
+  spi_cs_assert(spi);
 
   // write single byte, for the reg we are interested in, with read bit cleared.
   spi_xfer( spi->spi, reg );
   // return the data
   uint32_t ret = spi_xfer_32(spi->spi, val );
 
-  spi_cs(spi, 1);
+  spi_cs_deassert(spi);
 
   return ret;
 }

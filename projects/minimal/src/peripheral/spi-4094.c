@@ -68,14 +68,16 @@ static void assert_strobe( spi_t *spi)
   // assert 4094 strobe.
   // fpga inverts active lo.
 
-  spi_cs(spi, 0 );
+  // spi_cs(spi, 0 );
+  spi_cs_assert( spi);
 
 
   for(uint32_t i = 0; i < 10; ++i)   // 100count == 5us.
      __asm__("nop");
 
   // normal state is lo
-  spi_cs(spi, 1 );
+  // spi_cs(spi, 1 );
+  spi_cs_deassert( spi);
 
 }
 

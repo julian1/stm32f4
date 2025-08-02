@@ -62,10 +62,14 @@ void spi_dac8811_write16( spi_t *spi, uint16_t val)
 // void spi_dac8811_write16(uint32_t spi, uint16_t val)
 {
   // spi_port_cs2_enable(spi);
-  spi->cs(spi, 0);
+  // spi->cs(spi, 0);
+  spi_cs_assert( spi);
+
   spi_xfer_16(spi->spi, val );
+
   // spi_port_cs2_disable(spi);
-  spi->cs(spi, 1);
+  // spi->cs(spi, 1);
+  spi_cs_deassert( spi);
 }
 
 

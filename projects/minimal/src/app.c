@@ -17,7 +17,9 @@
 
 #include <peripheral/spi-ice40.h>
 #include <peripheral/spi-4094.h>
-#include <peripheral/spi-ice40-bitstream.h>
+// #include <peripheral/spi-ice40-bitstream.h>
+#include <peripheral/spi-fpga.h>
+
 #include <peripheral/spi-dac8811.h>
 #include <peripheral/spi-ad5446.h>
 #include <peripheral/led.h>
@@ -378,7 +380,7 @@ static void app_update_soft_500ms(app_t *app)
 #endif
 
 
-#if 0
+#if 1
 
   if( spi_ice40_cdone( app->spi_fpga0_pc)) {
 
@@ -386,7 +388,11 @@ static void app_update_soft_500ms(app_t *app)
     printf("toggle 4094 cs\n");
 
     // confusing.  without the assert/deassert structure
-    spi_cs( app->spi_4094, app->led_state ? 0 : 1 ) ;
+      // spi_cs( app->spi_4094, app->led_state ? 0 : 1 ) ;
+    if(app->led_state )
+      spi_cs_assert( app->spi_4094);
+    else
+      spi_cs_deassert( app->spi_4094);
   }
 #endif
 

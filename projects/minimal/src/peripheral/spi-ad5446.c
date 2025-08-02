@@ -29,11 +29,13 @@ void spi_ad5446_write16( spi_t *spi, uint16_t val)
 {
   assert(spi);
 
-  spi_cs( spi, 0);
+  // spi_cs( spi, 0);
+  spi_cs_assert( spi);
 
   spi_xfer_16(spi->spi, val );
 
-  spi_cs( spi, 1 );
+  // spi_cs( spi, 1 );
+  spi_cs_deassert( spi);
 }
 
 

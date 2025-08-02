@@ -13,11 +13,13 @@
 
 
 //#include <peripheral/spi-port.h>
-#include <peripheral/spi-ice40.h>
+// #include <peripheral/spi-ice40.h>
+
+#include <peripheral/spi-fpga.h>
 
 
 // #include <peripheral/ice40-extra.h>
-#include <peripheral/spi-ice40-bitstream.h>
+// #include <peripheral/spi-ice40-bitstream.h>
 
 
 
@@ -98,7 +100,8 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi , FILE *f, size_t size , volatile
   // disable == hi.
 
   // spi_port_cs1_disable( spi);             // cs1 hi.
-  spi->cs(spi, 1);
+  //spi->cs(spi, 1);
+  spi_cs_deassert( spi);
 
   // spi_port_cs2_disable( spi);             // cs2 hi.   but it isn't unconditional.
   spi->rst(spi, 1);
@@ -123,7 +126,9 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi , FILE *f, size_t size , volatile
   // drive spi_ss = 0, spi_sck = 1
   // spi_port_cs1_enable(spi);                 // cs1 lo.   - now in reset.
 
-  spi->cs(spi, 0);
+  // spi->cs(spi, 0);
+  spi_cs_assert( spi);
+
   spi->rst(spi, 0);       // now in reset
 
 
@@ -152,14 +157,16 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi , FILE *f, size_t size , volatile
 
   // set spi_ss hi = 1.
   // spi_port_cs1_disable(spi);                // cs1 hi.
-  spi->cs(spi, 1);
+  // spi->cs(spi, 1);
+  spi_cs_deassert( spi);
 
   // send 8 dummy clks
   spi_xfer( spi->spi, 0x00 );
 
   // assert ss lo = 0
   // spi_port_cs1_enable(spi);
-  spi->cs(spi, 0);
+  // spi->cs(spi, 0);
+  spi_cs_assert( spi);
 
 
   // cs(spi, 0);
@@ -220,7 +227,8 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi , FILE *f, size_t size , volatile
 
   // spi-ss = high
   // spi_port_cs1_disable(spi);
-  spi->cs(spi, 1);
+  // spi->cs(spi, 1);
+  spi_cs_deassert( spi);
 
 
   // wait - send up to 100 dummy clk cycles.

@@ -97,13 +97,12 @@ static void port_configure( spi_t *spi_)
 
 
 
-
-
+#if 0
 static void cs( spi_t *spi, uint8_t val)
 {
   assert(spi->spi == SPI1);
-
   spi_wait_ready( spi->spi);
+
   // gpio_write_val( GPIOC, GPIO7, val);
 
   // this extended cs - is not a property of the fpga before configuration
@@ -121,6 +120,29 @@ static void cs( spi_t *spi, uint8_t val)
   else          // deassert
     gpio_write_with_mask( GPIOC, 7, 0b111, 0 );      // v
 }
+
+#endif
+
+
+static void cs_assert(spi_t *spi)
+{
+  // TODO magic
+  assert(spi->spi == SPI1);
+  spi_wait_ready( spi->spi);
+
+  gpio_write_with_mask( GPIOC, 7, 0b111, 1 );      // virtual device  == 1
+}
+
+static void cs_deassert(spi_t *spi)
+{
+  assert(spi->spi == SPI1);
+  spi_wait_ready( spi->spi);
+
+  gpio_write_with_mask( GPIOC, 7, 0b111, 0 );      // clear virtual device
+}
+
+
+
 
 
 
@@ -141,7 +163,9 @@ spi_t * spi_u102_create( )
 
   // base
   spi->spi    = SPI1;
-  spi->cs     = cs;
+  spi->cs_assert    = cs_assert;
+  spi->cs_deassert  = cs_deassert;
+
   spi->setup   =  setup;
   spi->port_configure = port_configure;
 

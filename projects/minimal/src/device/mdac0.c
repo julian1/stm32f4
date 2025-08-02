@@ -66,7 +66,7 @@ static void port_configure( spi_t *spi_)
 
 
 
-
+/*
 static void cs( spi_t *spi, uint8_t val)
 {
   assert(spi->spi == SPI1);
@@ -76,6 +76,23 @@ static void cs( spi_t *spi, uint8_t val)
   spi_wait_ready( spi->spi);
   gpio_write_val( SPI1_PORT, SPI1_CS2, val);
 }
+*/
+
+
+static void cs_assert(spi_t *spi)
+{
+  UNUSED(spi);
+  assert(0);
+}
+
+static void cs_deassert(spi_t *spi)
+{
+  UNUSED(spi);
+  assert(0);
+}
+
+
+
 
 
 
@@ -87,7 +104,10 @@ spi_t * spi_mdac0_create( )
 
   // base
   spi->spi    = SPI1;     // NOT sure if the spi should be passed in the contructor.
-  spi->cs     = cs;
+  // spi->cs     = cs;
+  spi->cs_assert    = cs_assert;
+  spi->cs_deassert  = cs_deassert;
+
   spi->setup   =  setup;
   spi->port_configure = port_configure;
 
