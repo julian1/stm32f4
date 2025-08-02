@@ -45,8 +45,8 @@ static void setup(spi_t *spi )
 
   printf("u102 setup\n");
 
-  // set reset, ss lo. before we enable outputs. to prevent ice40 assuming spi master
-  // gpio_clear( GPIOC, CS /*| CS2 | CS3*/ );
+
+  // note GPIO7 is already set up in fpga0-pc.
 
 
   // cs  PC7,8,9
@@ -73,11 +73,6 @@ static void port_configure( spi_t *spi_)
   assert(spi == SPI1);
 
   spi_reset( spi );
-
-  // consider could/should assert()) SS is HI/disabled here.
-  // TODO. does not belong here. anymore.
-
-  // assert( gpio_get( SPI1_PORT, SPI1_CS1) != 0  );
 
 
   spi_init_master(
@@ -106,20 +101,6 @@ static void cs( spi_t *spi, uint8_t val)
 
   // gpio_write_val( GPIOC, GPIO7, val);
 
-  // this extended cs - is not a property of the fpga before configuration
-  // the difficulty is that this stuff is shared - for all spi devices. and probably only wants to be done once.
-
-/*
-  uint32_t shift = 7;     // PC7
-  uint32_t mask = 0b111;  // 3 bits PC7,8,9
-  gpio_write_with_mask( GPIOC, shift, mask, val);
-*/
-  assert( val == 0 || val == 1);
-
-  if(val == 0)  // assert
-    gpio_write_with_mask( GPIOC, 7, 0b111, 1 );      // virtual device  == 1
-  else          // deassert
-    gpio_write_with_mask( GPIOC, 7, 0b111, 0 );      // v
 }
 
 #endif
@@ -141,10 +122,6 @@ static void cs_deassert(spi_t *spi)
 
   gpio_write_with_mask( GPIOC, 7, 0b111, 0 );      // clear virtual device
 }
-
-
-
-
 
 
 
