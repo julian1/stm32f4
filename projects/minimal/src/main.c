@@ -423,7 +423,7 @@ static int main_f429(void)
 
   // fpga0 pre-configure bitstream
   app.spi_fpga0_pc = spi_u102_pc_create();
-  spi_setup( (spi_t *) app.spi_fpga0_pc );
+  spi_setup( (spi_t *) app.spi_fpga0_pc );                // upcast
 
   // normal post configure
   app.spi_fpga0 = spi_u102_create();

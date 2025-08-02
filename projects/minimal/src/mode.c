@@ -98,14 +98,12 @@ void spi_mode_transition_state(
   printf("write second state\n");
   state_format ( (void *) &mode->second, sizeof(mode->second));
 */
-  // and write device
   spi_4094_write_n( spi_4094, (void *) &mode->second, sizeof(mode->second));
 
 #endif
 
   /////////////////////////////
 
-    printf("here0\n");
 
 #if 0
 
@@ -188,7 +186,6 @@ void spi_mode_transition_state(
 
 #endif
 
-    printf("here 999\n");
 }
 
 

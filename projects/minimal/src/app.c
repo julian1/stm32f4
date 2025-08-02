@@ -381,8 +381,14 @@ static void app_update_soft_500ms(app_t *app)
 #endif
 
 
-#if 1
+#if 0
+  /* a better way to do this
 
+    - for tests etc. would be just to have a hook function.
+    - 500ms_hook.  that tests could use.
+      eg. to blink a led, or flick a relay.
+      except we dont want state changed from outside the context of a test.
+  */
   if( spi_ice40_cdone( app->spi_fpga0_pc)) {
 
     // toggle the 4094 cs. only
@@ -598,6 +604,9 @@ void app_update_main(app_t *app)
 
   // 500ms soft timer
   if( (app->system_millis - app->soft_500ms) > 500) {
+
+    // rename and make a signed down counter.   soft_500_down
+    // and can then remove the subtraction
     app->soft_500ms += 500;
 
     /*
