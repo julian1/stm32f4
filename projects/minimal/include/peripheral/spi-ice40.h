@@ -4,6 +4,7 @@
 // peripheral interface/abstraction
 // not device/instance
 
+#include <stddef.h> // size_t
 
 
 #include <peripheral/spi.h>

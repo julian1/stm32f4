@@ -8,19 +8,8 @@
 
 
 #include <lib2/util.h>    // MAX
-//#include <lib2/stream-flash.h>
 
-
-
-//#include <peripheral/spi-port.h>
-// #include <peripheral/spi-ice40.h>
-
-// #include <peripheral/spi-fpga.h>
 #include <peripheral/spi-ice40-pc.h>
-
-
-// #include <peripheral/ice40-extra.h>
-// #include <peripheral/spi-ice40-bitstream.h>
 
 
 

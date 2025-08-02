@@ -381,7 +381,7 @@ static void app_update_soft_500ms(app_t *app)
 #endif
 
 
-#if 0
+#if 1
 
   if( spi_ice40_cdone( app->spi_fpga0_pc)) {
 
