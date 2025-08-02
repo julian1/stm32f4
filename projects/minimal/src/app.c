@@ -380,15 +380,13 @@ static void app_update_soft_500ms(app_t *app)
 #endif
 
 
-#if 1
+#if 0
 
   if( spi_ice40_cdone( app->spi_fpga0_pc)) {
 
     // toggle the 4094 cs. only
     printf("toggle 4094 cs\n");
 
-    // confusing.  without the assert/deassert structure
-      // spi_cs( app->spi_4094, app->led_state ? 0 : 1 ) ;
     if(app->led_state )
       spi_cs_assert( app->spi_4094);
     else
