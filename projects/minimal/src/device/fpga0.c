@@ -117,9 +117,9 @@ static void cs( spi_t *spi, uint8_t val)
   assert( val == 0 || val == 1);
 
   if(val == 0)  // assert
-    gpio_write_with_mask( GPIOC, 7, 0b111, 1 );      // first virtual device == fpga register set.
+    gpio_write_with_mask( GPIOC, 7, 0b111, 1 );      // virtual device  == 1
   else          // deassert
-    gpio_write_with_mask( GPIOC, 7, 0b111, 0 );      // deassert
+    gpio_write_with_mask( GPIOC, 7, 0b111, 0 );      // v
 }
 
 

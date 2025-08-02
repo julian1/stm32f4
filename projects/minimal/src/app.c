@@ -382,7 +382,8 @@ static void app_update_soft_500ms(app_t *app)
       // Ahhh. no. dont want to toggle the fpga cs. only
 
       printf("toggle cs2\n");
-      spi_cs( app->spi_fpga0, app->led_state ? 0b111 : 0b011 ) ;  // no longer acrive lo
+      // spi_cs( app->spi_fpga0, app->led_state ? 0b111 : 0b011 ) ;  // no longer acrive lo
+      spi_cs( app->spi_fpga0, app->led_state ? 0b010 : 0b000 ) ;  // toggle.  4094 strobe.
 
   }
 #endif
@@ -408,8 +409,10 @@ static void app_update_soft_500ms(app_t *app)
 
       printf("fpga ok!\n");
 
-      // TODO clear the CS vec. - when we have changed fpga register table to respond to 0b001.
-      // spi_cs( app->spi_fpga0, 0b000);
+      // TODO make sure the CS vec. - when we have changed fpga register table to respond to 0b001.
+      //spi_cs( app->spi_fpga0, 1);   // 1 disable.  for active high
+
+      spi_cs_deassert( app->spi_fpga0 );
 
 
 
