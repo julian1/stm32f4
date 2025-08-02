@@ -102,6 +102,8 @@ typedef struct app_t
   */
   volatile uint32_t system_millis;
 
+  // volatile int32_t sleep_millis;  // signed count down.
+
 
   // TODO - make these pointers again. for opaque structure .  instantiate in main.
   cbuf_t        console_in;

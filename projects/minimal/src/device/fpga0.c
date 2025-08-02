@@ -109,11 +109,20 @@ static void cs( spi_t *spi, uint8_t val)
   // this extended cs - is not a property of the fpga before configuration
   // the difficulty is that this stuff is shared - for all spi devices. and probably only wants to be done once.
 
+/*
   uint32_t shift = 7;     // PC7
   uint32_t mask = 0b111;  // 3 bits PC7,8,9
   gpio_write_with_mask( GPIOC, shift, mask, val);
+*/
+  assert( val == 0 || val == 1);
 
+  if(val == 0)  // assert
+    gpio_write_with_mask( GPIOC, 7, 0b111, 1 );      // first virtual device == fpga register set.
+  else          // deassert
+    gpio_write_with_mask( GPIOC, 7, 0b111, 0 );      // deassert
 }
+
+
 
 
 

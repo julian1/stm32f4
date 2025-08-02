@@ -29,7 +29,7 @@
 // #define SPI1_CS2        GPIO10      // control-panel-08
 // #define SPI1_CS2        GPIO15     // gerber 257. control-panel-07
 
-#define SPI1_CS2        GPIO10      // moved april 2025.
+// #define SPI1_CS2        GPIO10      // moved april 2025.
 
 
 
@@ -58,7 +58,7 @@ static void port_configure( spi_t *spi_)
   spi_reset( spi );
 
   // should always rest hi.
-  assert( gpio_get( SPI1_PORT, SPI1_CS2) /*!= 0 */ );
+  // assert( gpio_get( SPI1_PORT, SPI1_CS2) /*!= 0 */ );
 
 
   spi_init_master(
@@ -83,7 +83,16 @@ static void cs( spi_t *spi, uint8_t val)
   // printf("4094-0 strobe %u\n", val );
 
   spi_wait_ready( spi->spi);
-  gpio_write_val( SPI1_PORT, SPI1_CS2, val);
+  // gpio_write_val( SPI1_PORT, SPI1_CS2, val);
+
+  assert( val == 0 || val == 1);
+
+  if(val == 0)  // assert
+    gpio_write_with_mask( GPIOC, 7, 0b111, 2 );      // second virtual spi device == 4094
+  else          // deassert
+    gpio_write_with_mask( GPIOC, 7, 0b111, 0 );      // deassert
+
+
 }
 
 
