@@ -16,6 +16,7 @@
 
 #include <peripheral/spi.h>   // interface/abstraction
 #include <device/fpga0.h>        // implementation/device
+#include <device/fpga0_reg.h>   // cs vec
 
 
 
@@ -85,7 +86,8 @@ static void cs_assert(spi_t *spi)
   assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
 
-  gpio_write_with_mask( GPIOC, 7, 0b111, 1 );      // virtual device  == 1
+  assert(CS_VEC_FPGA0 == 1);
+  gpio_write_with_mask( GPIOC, 7, 0b111, CS_VEC_FPGA0);
 }
 
 static void cs_deassert(spi_t *spi)
@@ -93,7 +95,7 @@ static void cs_deassert(spi_t *spi)
   assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
 
-  gpio_write_with_mask( GPIOC, 7, 0b111, 0 );      // clear virtual device
+  gpio_write_with_mask( GPIOC, 7, 0b111, CS_VEC_DEASSERT);
 }
 
 

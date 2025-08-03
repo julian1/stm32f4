@@ -21,6 +21,7 @@
 
 
 #include <device/4094-0.h>
+#include <device/fpga0_reg.h>   // cs vec
 
 
 // copy from u102.c
@@ -79,7 +80,8 @@ static void cs_assert(spi_t *spi)
   assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
 
-  gpio_write_with_mask( GPIOC, 7, 0b111, 2 );      // virtual device  == 1
+  assert(CS_VEC_4094 == 2);
+  gpio_write_with_mask( GPIOC, 7, 0b111, CS_VEC_4094);
 }
 
 static void cs_deassert(spi_t *spi)
@@ -87,7 +89,7 @@ static void cs_deassert(spi_t *spi)
   assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
 
-  gpio_write_with_mask( GPIOC, 7, 0b111, 0 );      // clear virtual device
+  gpio_write_with_mask( GPIOC, 7, 0b111, CS_VEC_DEASSERT);
 }
 
 

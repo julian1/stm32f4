@@ -12,6 +12,18 @@
 
 */
 
+
+
+// line encoding for cs devices
+#define CS_VEC_DEASSERT             0
+#define CS_VEC_FPGA0                1
+#define CS_VEC_4094                 2
+#define CS_VEC_MDAC0                3
+
+
+
+
+
 // better name for the 4094 oe register - CR_  for control register?
 // CR_DIRECT ? etc.
 // SR_STATUS

@@ -17,6 +17,10 @@
 #include <support.h>      // spi_wait_read()
 
 #include <device/mdac0.h>
+#include <device/fpga0_reg.h>   // cs vec
+
+
+
 
 #define UNUSED(x) ((void)(x))
 
@@ -66,17 +70,17 @@ static void cs_assert(spi_t *spi)
   assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
 
-  gpio_write_with_mask( GPIOC, 7, 0b111, 3 );      // virtual device  == 3
+  assert(CS_VEC_MDAC0 == 3);
+  gpio_write_with_mask( GPIOC, 7, 0b111, CS_VEC_MDAC0);
 
 }
 
 static void cs_deassert(spi_t *spi)
 {
-
   assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
 
-  gpio_write_with_mask( GPIOC, 7, 0b111, 0 );      // clear virtual device
+  gpio_write_with_mask( GPIOC, 7, 0b111, CS_VEC_DEASSERT);
 }
 
 
