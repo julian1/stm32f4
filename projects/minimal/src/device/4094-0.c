@@ -68,8 +68,8 @@ static void cs_assert(spi_t *spi)
   assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
 
-  assert(CS_VEC_4094 == 2);
-  gpio_write_with_mask( GPIOC, 7, 0b111, CS_VEC_4094);
+  assert(SPI_CS_VEC_4094 == 2);
+  gpio_write_with_mask( GPIOC, 7, 0b111, SPI_CS_VEC_4094);
 }
 
 static void cs_deassert(spi_t *spi)
@@ -77,7 +77,7 @@ static void cs_deassert(spi_t *spi)
   assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
 
-  gpio_write_with_mask( GPIOC, 7, 0b111, CS_VEC_DEASSERT);
+  gpio_write_with_mask( GPIOC, 7, 0b111, SPI_CS_VEC_DEASSERT);
 }
 
 

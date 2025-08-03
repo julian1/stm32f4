@@ -15,11 +15,11 @@
 
 
 // line encoding for cs of spi devices
-#define CS_VEC_DEASSERT             0
-#define CS_VEC_FPGA0                1
-#define CS_VEC_4094                 2
-#define CS_VEC_MDAC0                3
-#define CS_VEC_MDAC1                4
+#define SPI_CS_VEC_DEASSERT             0
+#define SPI_CS_VEC_FPGA0                1
+#define SPI_CS_VEC_4094                 2
+#define SPI_CS_VEC_MDAC0                3
+#define SPI_CS_VEC_MDAC1                4
 
 
 

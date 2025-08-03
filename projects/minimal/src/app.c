@@ -397,12 +397,12 @@ static void app_update_soft_500ms(app_t *app)
   if( spi_ice40_cdone( app->spi_fpga0_pc)) {
 
     // toggle the 4094 cs. only
-    printf("toggle mdac0 cs\n");
+    printf("toggle mdac1 cs\n");
 
     if(app->led_state )
-      spi_cs_assert( app->spi_mdac0);
+      spi_cs_assert( app->spi_mdac1);
     else
-      spi_cs_deassert( app->spi_mdac0);
+      spi_cs_deassert( app->spi_mdac1);
   }
 #endif
 
