@@ -40,6 +40,8 @@
 
 #include <device/4094-0.h>
 #include <device/mdac0.h>
+#include <device/mdac1.h>
+
 #include <device/fsmc.h>
 
 
@@ -421,13 +423,12 @@ static int main_f429(void)
 #if 1
 
 
-  // fpga0 pre-configure bitstream
   app.spi_fpga0_pc = spi_u102_pc_create();
   spi_setup( (spi_t *) app.spi_fpga0_pc );                // upcast
 
-  // normal post configure
   app.spi_fpga0 = spi_u102_create();
   spi_setup( app.spi_fpga0 );
+
 
   // now init spi ports
   spi1_port_setup();
@@ -436,23 +437,27 @@ static int main_f429(void)
   app.fpga0_interrupt = fpga0_interrupt_create();
   interrupt_setup( app.fpga0_interrupt);
 
-#endif
 
-#if 1
-
-  spi2_port_setup();
-
-#endif
-
-
-#if 1
   app.spi_4094 = spi_4094_0_create();
   spi_setup( app.spi_4094 );
 
 
   app.spi_mdac0 = spi_mdac0_create();
   spi_setup( app.spi_mdac0 );
+
+
+  app.spi_mdac1 = spi_mdac1_create();
+  spi_setup( app.spi_mdac1 );
+
+
+
 #endif
+
+
+
+  spi2_port_setup();
+
+
 
 
   printf("----------\nsetting up timer\n");

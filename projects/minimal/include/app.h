@@ -131,11 +131,15 @@ typedef struct app_t
 
   spi_t         *spi_mdac0;     // rename sts_mdac?
 
+  spi_t         *spi_mdac1;     // rename iso_sts_mdac?
+
 
   ///////
 
-  // separate system.  rename spi_fpga1.
-  spi_ice40_t   *spi_u202;
+  // power board devices
+
+  // separate system.
+  spi_ice40_t   *spi_u202;        // rename spi_fpga1?.
 
   interrupt_t   *interrupt_u202;
 

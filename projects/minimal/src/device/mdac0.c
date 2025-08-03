@@ -1,8 +1,4 @@
-/*
-  - fpga will invert the cs/strobe.
 
-
-*/
 
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>

@@ -1,8 +1,4 @@
-/*
-  - fpga will invert the cs/strobe.
 
-
-*/
 
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
@@ -15,7 +11,6 @@
 
 
 
-
 #include <peripheral/spi.h>
 #include <support.h>    // spi_wait_ready().  should perhaps move to spi.  no. because it's an peripheral abstraction
 
@@ -24,13 +19,6 @@
 #include <device/fpga0_reg.h>   // cs vec
 
 
-// copy from u102.c
-#define SPI1_PORT       GPIOA
-
-// #define SPI1_CS2        GPIO10      // control-panel-08
-// #define SPI1_CS2        GPIO15     // gerber 257. control-panel-07
-
-// #define SPI1_CS2        GPIO10      // moved april 2025.
 
 
 

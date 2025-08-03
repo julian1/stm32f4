@@ -381,23 +381,28 @@ static void app_update_soft_500ms(app_t *app)
 #endif
 
 
-#if 0
-  /* a better way to do this
+#if 1
 
-    - for tests etc. would be just to have a hook function.
-    - 500ms_hook.  that tests could use.
-      eg. to blink a led, or flick a relay.
-      except we dont want state changed from outside the context of a test.
-  */
+
+/*
+  should be a better way to do these one-off tests
+
+  - for tests etc. would be just to have a hook function.
+  - 500ms_hook.  that tests could use.
+  eg. to blink a led, or flick a relay.
+  except we dont want state changed from outside the context of a test.
+
+*/
+
   if( spi_ice40_cdone( app->spi_fpga0_pc)) {
 
     // toggle the 4094 cs. only
-    printf("toggle 4094 cs\n");
+    printf("toggle mdac0 cs\n");
 
     if(app->led_state )
-      spi_cs_assert( app->spi_4094);
+      spi_cs_assert( app->spi_mdac0);
     else
-      spi_cs_deassert( app->spi_4094);
+      spi_cs_deassert( app->spi_mdac0);
   }
 #endif
 
