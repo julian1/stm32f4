@@ -176,13 +176,11 @@ spi_ice40_t * spi_u102_pc_create( )
 
   // base
   spi->spi    = SPI1;
-  // spi->cs     = cs;
+  spi->setup   =  setup;
+  spi->port_configure = port_configure;
   spi->cs_assert    = cs_assert;
   spi->cs_deassert  = cs_deassert;
 
-
-  spi->setup   =  setup;
-  spi->port_configure = port_configure;
 
   // derived stuff
   spi->rst    = rst;

@@ -30,11 +30,7 @@ static void setup(spi_t *spi )
 {
   UNUSED(spi);
 
-
-  // SPI1_CS2 should already have been setup by spi.
-  // because it is used for configure.
-
-  // assert(0);
+  // cs vec already have been setup by the spi controller.
 }
 
 
@@ -65,30 +61,22 @@ static void port_configure( spi_t *spi_)
 
 
 
-
-/*
-static void cs( spi_t *spi, uint8_t val)
-{
-  assert(spi->spi == SPI1);
-
-  // printf("mdac0 strobe %u\n", val );
-
-  spi_wait_ready( spi->spi);
-  gpio_write_val( SPI1_PORT, SPI1_CS2, val);
-}
-*/
-
-
 static void cs_assert(spi_t *spi)
 {
-  UNUSED(spi);
-  assert(0);
+  assert(spi->spi == SPI1);
+  spi_wait_ready( spi->spi);
+
+  gpio_write_with_mask( GPIOC, 7, 0b111, 3 );      // virtual device  == 3
+
 }
 
 static void cs_deassert(spi_t *spi)
 {
-  UNUSED(spi);
-  assert(0);
+
+  assert(spi->spi == SPI1);
+  spi_wait_ready( spi->spi);
+
+  gpio_write_with_mask( GPIOC, 7, 0b111, 0 );      // clear virtual device
 }
 
 
@@ -104,12 +92,11 @@ spi_t * spi_mdac0_create( )
 
   // base
   spi->spi    = SPI1;     // NOT sure if the spi should be passed in the contructor.
-  // spi->cs     = cs;
+  spi->setup   =  setup;
+  spi->port_configure = port_configure;
   spi->cs_assert    = cs_assert;
   spi->cs_deassert  = cs_deassert;
 
-  spi->setup   =  setup;
-  spi->port_configure = port_configure;
 
   return spi;
 }

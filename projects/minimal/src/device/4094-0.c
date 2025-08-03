@@ -57,9 +57,6 @@ static void port_configure( spi_t *spi_)
 
   spi_reset( spi );
 
-  // should always rest hi.
-  // assert( gpio_get( SPI1_PORT, SPI1_CS2) /*!= 0 */ );
-
 
   spi_init_master(
     spi,
@@ -74,25 +71,6 @@ static void port_configure( spi_t *spi_)
   spi_enable( spi );
 }
 
-
-/*
-static void cs( spi_t *spi, uint8_t val)
-{
-  assert(spi->spi == SPI1);
-
-  // printf("4094-0 strobe %u\n", val );
-
-  spi_wait_ready( spi->spi);
-  // gpio_write_val( SPI1_PORT, SPI1_CS2, val);
-
-  assert( val == 0 || val == 1);
-
-  if(val == 0)  // assert
-    gpio_write_with_mask( GPIOC, 7, 0b111, 2 );      // assert - second virtual spi device == 4094
-  else          // deassert
-    gpio_write_with_mask( GPIOC, 7, 0b111, 0 );      // deassert
-}
-*/
 
 
 static void cs_assert(spi_t *spi)
@@ -130,14 +108,13 @@ spi_t * spi_4094_0_create( /* pass the spi_ice40 */  )
   assert(spi);
   memset(spi, 0, sizeof(spi_t));
 
-  // base
+
   spi->spi    = SPI1;     // NOT sure if the spi should be passed in the contructor.
-  // spi->cs     = cs;
+  spi->setup   =  setup;
+  spi->port_configure = port_configure;
   spi->cs_assert    = cs_assert;
   spi->cs_deassert  = cs_deassert;
 
-  spi->setup   =  setup;
-  spi->port_configure = port_configure;
 
   return spi;
 }

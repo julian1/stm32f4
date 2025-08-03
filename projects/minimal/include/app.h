@@ -123,13 +123,13 @@ typedef struct app_t
 
   spi_ice40_t   *spi_fpga0_pc;    //  fpga pre-configuration
 
-  spi_t         *spi_fpga0;       // fpga post-configuration - normal registers. etc.  change to spi_t
+  spi_t         *spi_fpga0;       // fpga post-configuration - register set etc
 
   interrupt_t   *fpga0_interrupt;
 
   spi_t         *spi_4094;
 
-  spi_t         *spi_mdac0;   // rename sts_mdac?
+  spi_t         *spi_mdac0;     // rename sts_mdac?
 
 
   ///////

@@ -15,25 +15,11 @@
 
 
 #include <peripheral/spi.h>   // interface/abstraction
-#include <peripheral/spi-ice40.h>   // interface/abstraction
 #include <device/fpga0.h>        // implementation/device
 
-/*
-// pulled from spi-port code.
-#define SPI1_PORT       GPIOA
-// #define SPI1_CS1        GPIO4     // PA4
-#define SPI1_CS1        GPIO8     // moved. april. 2025.
-
-// change in 4094-0.c also
-#define SPI1_CS2        GPIO10      // moved april 2025.
-// #define SPI1_CS2        GPIO15     // gerber 257. control-panel-07
-
-#define SPI1_INT_CDONE   GPIO3     // PA3  shared for cdone/ and interrupt
-*/
 
 
 #define UNUSED(x) ((void)(x))
-
 
 
 
@@ -93,22 +79,9 @@ static void port_configure( spi_t *spi_)
 
 
 
-#if 0
-static void cs( spi_t *spi, uint8_t val)
-{
-  assert(spi->spi == SPI1);
-  spi_wait_ready( spi->spi);
-
-  // gpio_write_val( GPIOC, GPIO7, val);
-
-}
-
-#endif
-
-
 static void cs_assert(spi_t *spi)
 {
-  // TODO magic
+  // TODO add magic number?
   assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
 
@@ -129,26 +102,23 @@ static void cs_deassert(spi_t *spi)
 spi_t * spi_u102_create( )
 {
   /* called once at startup only, in main().
-    it is really the malloc that buys us structure opaqueness.
+    it is the malloc that buys us structure opaqueness.
     where opaqueness - is the header dependencies, and struct size needed to instantiate
     - only other way is to pull the structure in as a header.
     --------
   */
-  // spi_ice40_t *spi = malloc(sizeof(  spi_ice40_t));
+
   spi_t *spi = malloc(sizeof(  spi_t));
   assert(spi);
   memset(spi, 0, sizeof(spi_t));
 
-  // base
   spi->spi    = SPI1;
+  spi->setup   =  setup;
+  spi->port_configure = port_configure;
   spi->cs_assert    = cs_assert;
   spi->cs_deassert  = cs_deassert;
 
-  spi->setup   =  setup;
-  spi->port_configure = port_configure;
-
-
-  // interupt not
+  // interupt not handled here
 
   return spi;
 }
