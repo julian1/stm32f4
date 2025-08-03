@@ -422,11 +422,13 @@ static int main_f429(void)
 
 #if 1
 
+  // devices
 
-  app.spi_fpga0_pc = spi_u102_pc_create();
-  spi_setup( (spi_t *) app.spi_fpga0_pc );                // upcast
 
-  app.spi_fpga0 = spi_u102_create();
+  app.spi_fpga0_pc = spi_fpga0_pc_create();
+  spi_setup( (spi_t *) app.spi_fpga0_pc );                // note upcast
+
+  app.spi_fpga0 = spi_fpga0_create();
   spi_setup( app.spi_fpga0 );
 
 

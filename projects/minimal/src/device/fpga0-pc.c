@@ -162,7 +162,7 @@ static bool cdone(spi_ice40_t *spi )
 
 
 
-spi_ice40_t * spi_u102_pc_create( )
+spi_ice40_t * spi_fpga0_pc_create( )
 {
   /* called once at startup only, in main().
     it is really the malloc that buys us structure opaqueness.

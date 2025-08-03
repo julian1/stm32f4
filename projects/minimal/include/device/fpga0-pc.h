@@ -4,6 +4,6 @@
 typedef struct spi_ice40_t spi_ice40_t;
 
 
-spi_ice40_t * spi_u102_pc_create( void);
+spi_ice40_t * spi_fpga0_pc_create( void);
 
 
