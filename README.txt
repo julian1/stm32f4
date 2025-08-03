@@ -33,6 +33,7 @@ may 2024.
   # use four shells,
   # for serial
   rlwrap -a picocom -b 115200 /dev/ttyUSB0
+  rlwrap -a picocom -b 115200 /dev/ttyACM0
 
   # for st-link
   cd projects minimal

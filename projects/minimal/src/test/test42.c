@@ -50,7 +50,7 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
   app->mode_current->sa.p_trig = 1;
 
 
-  spi_mode_transition_state( (spi_t *)app->spi_fpga0, app->spi_4094, app->spi_mdac0, app->mode_current, &app->system_millis);
+  spi_mode_transition_state( &app->devices, app->mode_current, &app->system_millis);
 
   // reset the reading values buffer, no value will be recorded before this is filled.
 //  data_reading_reset( data );

@@ -48,7 +48,7 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
 
 
 
-  spi_mode_transition_state( (spi_t *)app->spi_fpga0, app->spi_4094, app->spi_mdac0, app->mode_current, &app->system_millis);
+  spi_mode_transition_state( &app->devices, app->mode_current, &app->system_millis);
 
 
   // sleep?
@@ -71,7 +71,7 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
   // app->mode_current->trig_sa = 0;
   app->mode_current->sa.p_trig = 0;
 
-  spi_mode_transition_state( (spi_t *)app->spi_fpga0, app->spi_4094, app->spi_mdac0, app->mode_current, &app->system_millis);
+  spi_mode_transition_state( &app->devices, app->mode_current, &app->system_millis);
 
 
   // print output

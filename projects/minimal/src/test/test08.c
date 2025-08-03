@@ -14,6 +14,7 @@
 
 #include <mode.h>
 #include <app.h>
+
 #include <lib2/util.h>    // msleep()
 
 #include <device/fpga0_reg.h>  // modes
@@ -36,7 +37,7 @@ bool app_test08( app_t *app , const char *cmd)
     _mode_t mode = *app->mode_current;
 
     mode.reg_mode =  MODE_ADC_REFMUX_TEST;
-    spi_mode_transition_state( (spi_t *) app->spi_fpga0, app->spi_4094, app->spi_mdac0, &mode, &app->system_millis);
+    spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
 #endif
 
     printf("sleep 5s\n");  // really need the yield would be quite nice here.

@@ -60,6 +60,7 @@
 
 
 
+#include <devices.h>
 
 
 
@@ -128,12 +129,15 @@ void data_cal_show( data_t *data )
 void data_cal(
   data_t *data ,
 
+  devices_t *devices,
+
   // uint32_t spi,
   // spi_ice40_t * spi,
+/*
   spi_t *spi_fpga0,
   spi_t *spi_4094,
   spi_t *spi_ad5446,
-
+*/
 
   _mode_t *mode,
   unsigned model_spec,
@@ -142,6 +146,7 @@ void data_cal(
   void * yield_ctx
 )
 {
+  assert(devices);
   assert(data);
   assert(data->magic == DATA_MAGIC) ;
   assert(mode);
@@ -218,6 +223,7 @@ void data_cal(
   mode_set_trigger( mode, true);
 
 
+
   // this isnt' that nice. versus pushing a reserve sized array but is reasonably simple.
   // just overside the matrix and use push_row
   unsigned row_idx = 0;
@@ -250,7 +256,9 @@ void data_cal(
       printf("spi_mode_transition_state()\n");
 
 
-      spi_mode_transition_state( spi_fpga0, spi_4094, spi_ad5446, mode, system_millis);
+      // JA. changed. july 2025.
+      spi_mode_transition_state( devices, mode, system_millis);
+
 
 
       // let things settle from spi emi burst, and board DA settle, amp to come out of lockup.
@@ -268,6 +276,11 @@ void data_cal(
             yield( yield_ctx);
         }
         data->adc_interupt_valid = false;
+
+
+        spi_t *spi_fpga0  = devices->spi_fpga0;
+        assert(spi_fpga0);
+
 
         // embed a 8 bit. counter ini the reg_status and use it for the measure.
         // uint32_t status =            spi_ice40_reg_read32( spi_fpga0, REG_STATUS );

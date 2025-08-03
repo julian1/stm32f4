@@ -424,34 +424,36 @@ static int main_f429(void)
 
   // devices
 
+  devices_t *devices = &app.devices;
 
-  app.spi_fpga0_pc = spi_fpga0_pc_create();
-  spi_setup( (spi_t *) app.spi_fpga0_pc );                // note upcast
+  devices->spi_fpga0_pc = spi_fpga0_pc_create();
+  spi_setup( (spi_t *) devices->spi_fpga0_pc );                // note upcast
 
-  app.spi_fpga0 = spi_fpga0_create();
-  spi_setup( app.spi_fpga0 );
+  devices->spi_fpga0 = spi_fpga0_create();
+  spi_setup( devices->spi_fpga0 );
 
 
   // now init spi ports
   spi1_port_setup();
 
 
-  app.fpga0_interrupt = fpga0_interrupt_create();
-  interrupt_setup( app.fpga0_interrupt);
+  devices->fpga0_interrupt = fpga0_interrupt_create();
+  interrupt_setup( devices->fpga0_interrupt);
 
 
-  app.spi_4094 = spi_4094_0_create();
-  spi_setup( app.spi_4094 );
+  devices->spi_4094 = spi_4094_0_create();
+  spi_setup( devices->spi_4094 );
 
 
-  app.spi_mdac0 = spi_mdac0_create();
-  spi_setup( app.spi_mdac0 );
+  devices->spi_mdac0 = spi_mdac0_create();
+  spi_setup( devices->spi_mdac0 );
 
 
-  app.spi_mdac1 = spi_mdac1_create();
-  spi_setup( app.spi_mdac1 );
+  devices->spi_mdac1 = spi_mdac1_create();
+  spi_setup( devices->spi_mdac1 );
 
 
+  printf("&app.devices %p \n", &app.devices);
 
 #endif
 

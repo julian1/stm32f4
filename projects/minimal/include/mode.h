@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+
 /*
   EXTR.
     don't care about defining inidividual registers for muxes etc.
@@ -369,18 +370,29 @@ typedef struct _mode_t
 
 /*
     chage name spi_mode_transition() ?
+
+  // consider can pass null
+  // as alternative to flags to indicate should skip field update
+
 */
+
+
+
+typedef struct devices_t devices_t;
+
 void spi_mode_transition_state(
+
+  devices_t *devices,
+/*
   spi_t     *spi_fpga0,
   spi_t     *spi_4094,
-
-  // consider accepting null being passed here.
-  // as alternative to flags
   spi_t     *spi_mdac0,
+  spi_t     *spi_mdac1,
+*/
+
   const _mode_t *mode,
   volatile uint32_t *system_millis
   /*, uint32_t update_flags */
-
 );
 
 

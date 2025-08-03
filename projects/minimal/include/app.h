@@ -4,6 +4,7 @@
 #include <lib2/cbuffer.h>
 #include <lib2/cstring.h>
 
+#include <devices.h>
 
 
 /*
@@ -46,6 +47,8 @@
 */
 
 
+typedef struct devices_t devices_t;
+
 typedef struct _mode_t _mode_t;
 
 typedef struct data_t data_t;
@@ -54,12 +57,8 @@ typedef struct data_t data_t;
 typedef struct led_t led_t;
 
 
-typedef struct spi_ice40_t spi_ice40_t;
-typedef struct spi_t spi_t;
 
 
-
-typedef struct interrupt_t interrupt_t;
 
 
 
@@ -72,6 +71,8 @@ typedef struct interrupt_t interrupt_t;
   But instantiate all state in main.c or appc
 
 */
+
+
 
 
 typedef struct app_t
@@ -121,17 +122,11 @@ typedef struct app_t
 
   // board0 devices
 
-  spi_ice40_t   *spi_fpga0_pc;    //  fpga pre-configuration
+  // if we grouped all these devices under one structure
+  // it would be a lot easier to pass them around.
 
-  spi_t         *spi_fpga0;       // fpga post-configuration - register set etc
 
-  interrupt_t   *fpga0_interrupt;
-
-  spi_t         *spi_4094;
-
-  spi_t         *spi_mdac0;     // rename sts_mdac?
-
-  spi_t         *spi_mdac1;     // rename iso_sts_mdac?
+  devices_t   devices;
 
 
   ///////

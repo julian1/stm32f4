@@ -21,6 +21,7 @@
 
 
 #include <mode.h>
+#include <devices.h>
 
 #include <util.h> // str_decode_uint
 
@@ -31,8 +32,8 @@ static void state_format ( uint8_t *state, size_t n)
   assert(state);
 
   char buf[100];
-  for(unsigned i = 0; i < n; ++i ) {
-    printf("v %s\n",  str_format_bits(buf, 8, state[ i ]  ));
+  for( unsigned i = 0; i < n; ++i) {
+    printf("v %s\n",  str_format_bits(buf, 8, state[ i]));
   }
 }
 
@@ -44,20 +45,12 @@ static void state_format ( uint8_t *state, size_t n)
 */
 
 
-void spi_mode_transition_state(
-  spi_t  *spi_fpga,         // TODO rename fpga not fpga.  it is clear we are in context of analog board here.
-  spi_t  *spi_4094,
-  spi_t  *spi_mdac0,
-
-  const _mode_t *mode,
-  volatile uint32_t *system_millis
-  /*, uint32_t update_flags */
-)
+void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volatile uint32_t *system_millis /*, uint32_t update_flags */)
 {
-  assert(mode);
-  UNUSED( spi_mdac0);
+  assert( mode);
+  assert( devices);
 
-  // printf("spi_mode_transition_state()\n");
+  // printf("spi_mode_transition_state()  %p \n", devices);
   // printf("4094 size %u\n", sizeof(_4094_state_t));
   // assert( sizeof(_4094_state_t) == 3 );
 
@@ -66,7 +59,6 @@ void spi_mode_transition_state(
   // spi_mux_4094 ( spi);
 
 
-  assert( spi_fpga);
 
 /*  HERE
   // JA write the spi mux select register.
@@ -77,10 +69,11 @@ void spi_mode_transition_state(
 
 #if 1
 
-  assert( spi_4094);
+  assert( devices->spi_4094);
 
   // write the 4094 device
-  spi_port_configure( spi_4094);
+  spi_port_configure( devices->spi_4094);
+
 
 /*
   printf("-----------\n");
@@ -88,7 +81,7 @@ void spi_mode_transition_state(
   state_format (  (void *) &mode->first, sizeof( mode->first));
 */
 
-  spi_4094_write_n( spi_4094, (void *) &mode->first, sizeof( mode->first));
+  spi_4094_write_n( devices->spi_4094, (void *) &mode->first, sizeof( mode->first));
 
   // sleep 10ms, for relays
   // EXTR.  large relay needs longer????
@@ -98,17 +91,15 @@ void spi_mode_transition_state(
   printf("write second state\n");
   state_format ( (void *) &mode->second, sizeof(mode->second));
 */
-  spi_4094_write_n( spi_4094, (void *) &mode->second, sizeof(mode->second));
+  spi_4094_write_n( devices->spi_4094, (void *) &mode->second, sizeof(mode->second));
 
 #endif
 
   /////////////////////////////
 
 
-#if 0
 
-#if 1
-  assert( spi_mdac0);
+#if 0
 
 /*
     HERE
@@ -117,12 +108,22 @@ void spi_mode_transition_state(
   spi_ice40_reg_write32( spi_fpga, REG_SPI_MUX,  SPI_MUX_DAC );
 */
 
-  // write mdac
-  spi_port_configure( spi_mdac0);
-  spi_ad5446_write16( spi_mdac0, mode->dac_val );
+  // write mdac0
+  assert( devices->spi_mdac0);
+  spi_port_configure( devices->spi_mdac0);
+  spi_ad5446_write16( devices->spi_mdac0, mode->dac_val );     // TODO change to dac0_val
 
+
+  // write mdac1
+  assert( devices->spi_mdac1);
+  spi_port_configure( devices->spi_mdac1);
+  spi_ad5446_write16( devices->spi_mdac1, mode->dac_val );       // TODO change to dac1_val
 
 #endif
+
+
+
+#if 0
 
 
 /* HERE
@@ -280,7 +281,7 @@ void mode_set_dcv_source_sts( _mode_t *mode, signed u0 )
     mode_dcv_source_reset( mode);
 
 
-    mode->second.U1006  = S3;       // dac
+    mode->second.U1006  = S3;       // mux dac
     mode->second.U1007  = S3;       // dac
 
   if(u0 >= 0) {
@@ -599,8 +600,18 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
 
 
+  // set dac value with a direct value.
+  // mdac0, mdac1.
+  if( sscanf(cmd, "mdac1 %lu", &u0) == 1) {
 
-  if( sscanf(cmd, "dcv-source lts %lf", &f0) == 1) {
+    printf("WHOOT set mdac1 %lu\n", u0);
+
+    mode->dac_val = u0;
+  }
+
+
+
+  else if( sscanf(cmd, "dcv-source lts %lf", &f0) == 1) {
 
       // printf("set dcv-source, input relays, for current_mode\n");
     mode_set_dcv_source_lts( mode, f0);
