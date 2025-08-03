@@ -106,18 +106,6 @@ static void port_configure( spi_t *spi_)
 
 }
 
-/*
-
-static void cs( spi_t *spi, uint8_t val)
-{
-  // normal pin control of cs
-
-  assert(spi->spi == SPI1);
-
-  spi_wait_ready( spi->spi);
-  gpio_write_val( GPIOC, GPIO7, val);
-}
-*/
 
 
 static void cs_assert(spi_t *spi)
