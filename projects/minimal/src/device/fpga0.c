@@ -1,5 +1,5 @@
 
-// device / instance/implementation
+// fpga device after configuration
 
 
 #include <libopencm3/stm32/gpio.h>
@@ -33,7 +33,8 @@ static void setup(spi_t *spi )
   printf("u102 setup\n");
 
 
-  // note GPIO7 is already set up in fpga0-pc.
+  // note GPIO7 was already set up in fpga0-pc.
+  // potential for conflict
 
 
   // cs  PC7,8,9
@@ -51,9 +52,6 @@ static void setup(spi_t *spi )
 
 static void port_configure( spi_t *spi_)
 {
-  //  this is device specific. so belongs on the device structure
-  // taken from,  void spi_mux_ice40(uint32_t spi) in spi-ice40.c
-
   assert(spi_);
   uint32_t spi = spi_->spi;
 

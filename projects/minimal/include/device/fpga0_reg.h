@@ -14,11 +14,12 @@
 
 
 
-// line encoding for cs devices
+// line encoding for cs of spi devices
 #define CS_VEC_DEASSERT             0
 #define CS_VEC_FPGA0                1
 #define CS_VEC_4094                 2
 #define CS_VEC_MDAC0                3
+#define CS_VEC_MDAC1                4
 
 
 
@@ -26,7 +27,6 @@
 
 // better name for the 4094 oe register - CR_  for control register?
 // CR_DIRECT ? etc.
-// SR_STATUS
 
 
 // prefix with REG_GEN. for general
@@ -34,6 +34,7 @@
 
 // #define REG_SPI_MUX                     8
 
+// rename CR_ ?
 #define REG_4094_OE                        9
 #define REG_MODE                        12
 #define REG_DIRECT                      14
@@ -44,6 +45,7 @@
 // rename reg_seq_mode_status  perhaps.
 // #define REG_SEQ_MODE                    18
 
+// rename SR ?
 #define REG_STATUS                      17
 
 
