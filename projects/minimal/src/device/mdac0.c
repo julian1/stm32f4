@@ -41,7 +41,7 @@ static void port_configure( spi_t *spi_)
   uint32_t spi = spi_->spi;
   assert(spi == SPI1);
 
-  // ensure cs disabled
+  spi_reset( spi );   // critical, avoid hang
 
   // dac8811  data is clked in on clk leading rising edge.
   // ad5446 on falling edge.

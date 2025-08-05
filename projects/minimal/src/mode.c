@@ -99,7 +99,6 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
 
 
 
-#if 0
 
 /*
     HERE
@@ -108,18 +107,25 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
   spi_ice40_reg_write32( spi_fpga, REG_SPI_MUX,  SPI_MUX_DAC );
 */
 
+#if 0
   // write mdac0
   assert( devices->spi_mdac0);
   spi_port_configure( devices->spi_mdac0);
   spi_ad5446_write16( devices->spi_mdac0, mode->dac_val );     // TODO change to dac0_val
 
+#endif
 
+/*
+  // OK. fundamentally wrong.  the port configure is not being called.
+    even if it passes through it.
+
+*/
   // write mdac1
   assert( devices->spi_mdac1);
+
   spi_port_configure( devices->spi_mdac1);
   spi_ad5446_write16( devices->spi_mdac1, mode->dac_val );       // TODO change to dac1_val
 
-#endif
 
 
 

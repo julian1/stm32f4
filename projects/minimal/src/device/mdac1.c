@@ -48,7 +48,7 @@ static void port_configure( spi_t *spi_)
   uint32_t spi = spi_->spi;
   assert(spi == SPI1);
 
-  // ensure cs disabled
+  spi_reset( spi ); // critical, avoid hang
 
   // dac8811  data is clked in on clk leading rising edge.
   // ad5446 on falling edge.
@@ -89,8 +89,6 @@ static void cs_deassert(spi_t *spi)
 
 
 
-
-
 spi_t * spi_mdac1_create( )
 {
   spi_t *spi = malloc(sizeof( spi_t));
@@ -103,6 +101,8 @@ spi_t * spi_mdac1_create( )
   spi->port_configure = port_configure;
   spi->cs_assert    = cs_assert;
   spi->cs_deassert  = cs_deassert;
+
+  // printf("port configure %p\n", port_configure );
 
   return spi;
 }

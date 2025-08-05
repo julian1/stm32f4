@@ -422,6 +422,15 @@ static int main_f429(void)
 
 #if 1
 
+
+  // now init spi ports
+  spi1_port_setup();
+
+
+  spi2_port_setup();
+
+
+
   // devices
 
   devices_t *devices = &app.devices;
@@ -432,9 +441,6 @@ static int main_f429(void)
   devices->spi_fpga0 = spi_fpga0_create();
   spi_setup( devices->spi_fpga0 );
 
-
-  // now init spi ports
-  spi1_port_setup();
 
 
   devices->fpga0_interrupt = fpga0_interrupt_create();
@@ -453,13 +459,8 @@ static int main_f429(void)
   spi_setup( devices->spi_mdac1 );
 
 
-  printf("&app.devices %p \n", &app.devices);
-
 #endif
 
-
-
-  spi2_port_setup();
 
 
 
