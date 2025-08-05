@@ -31,6 +31,7 @@ struct spi_t
 {
   // magic, type, size.
 
+  uint32_t  magic;
   uint32_t  spi;    // controller maybe shared.  should hide/make opaque?
 
   void (*setup)(spi_t *);

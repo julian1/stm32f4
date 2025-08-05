@@ -610,6 +610,9 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   // mdac0, mdac1.
   if( sscanf(cmd, "mdac1 %lu", &u0) == 1) {
 
+    // 8192 - 1.
+    // value 140 , 200 looks incorrect.
+    // many slightly wrong looking values
     printf("WHOOT set mdac1 %lu\n", u0);
 
     mode->dac_val = u0;

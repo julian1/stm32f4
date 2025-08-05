@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <string.h>   // memset
 #include <assert.h>
-#include <stdlib.h>
+#include <stdlib.h>   // malloc
 
 
 #include <peripheral/spi.h>
@@ -23,13 +23,10 @@
 #include <device/fpga0_reg.h>   // cs vec
 
 
+#define MDAC1_MAGIC 1898851674
 
 
 #define UNUSED(x) ((void)(x))
-
-
-#define SPI1_PORT       GPIOA
-#define SPI1_CS2        GPIO15     // gerber 257. control-panel-07
 
 
 
@@ -44,7 +41,8 @@ static void setup(spi_t *spi )
 
 static void port_configure( spi_t *spi_)
 {
-  assert( spi_ && spi_->spi );
+  assert( spi_ && spi_->magic == MDAC1_MAGIC);
+
   uint32_t spi = spi_->spi;
   assert(spi == SPI1);
 
@@ -54,8 +52,8 @@ static void port_configure( spi_t *spi_)
   // ad5446 on falling edge.
   spi_init_master(
     spi,
-    SPI_CR1_BAUDRATE_FPCLK_DIV_4,       // actually works over 50cm. idc cable.
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_16,
+//    SPI_CR1_BAUDRATE_FPCLK_DIV_4,       // actually works over 50cm. idc cable.
+    SPI_CR1_BAUDRATE_FPCLK_DIV_16,
     // SPI_CR1_BAUDRATE_FPCLK_DIV_32,
     SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,      // ad5446 reads on neg edge. ONLY DIFFERENCE.   park to 0/lo == positive clok edge. park to 1 == negative clk edge.
     SPI_CR1_CPHA_CLK_TRANSITION_1,    // 1 == leading edge,  2 == falling edge
@@ -70,6 +68,8 @@ static void port_configure( spi_t *spi_)
 
 static void cs_assert(spi_t *spi)
 {
+  assert( spi && spi->magic == MDAC1_MAGIC);
+
   assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
 
@@ -96,11 +96,12 @@ spi_t * spi_mdac1_create( )
   memset(spi, 0, sizeof(spi_t));
 
   // base
-  spi->spi    = SPI1;     // NOT sure if the spi should be passed in the contructor.
-  spi->setup   =  setup;
+  spi->magic          = MDAC1_MAGIC;
+  spi->spi            = SPI1;     // NOT sure if the spi should be passed in the contructor.
+  spi->setup          = setup;
   spi->port_configure = port_configure;
-  spi->cs_assert    = cs_assert;
-  spi->cs_deassert  = cs_deassert;
+  spi->cs_assert      = cs_assert;
+  spi->cs_deassert    = cs_deassert;
 
   // printf("port configure %p\n", port_configure );
 

@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>   // memset
 #include <assert.h>
-#include <stdlib.h>
+#include <stdlib.h>   // malloc
 
 
 #include <peripheral/spi.h>
@@ -20,9 +20,6 @@
 
 #define UNUSED(x) ((void)(x))
 
-
-#define SPI1_PORT       GPIOA
-#define SPI1_CS2        GPIO15     // gerber 257. control-panel-07
 
 
 

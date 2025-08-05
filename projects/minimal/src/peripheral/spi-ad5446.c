@@ -13,6 +13,14 @@
   ad5446, requires top two bits kept low to maintain spi polarity.
 
   14bit. range 0 - 0x3fff
+
+  No. to 16383.   == 9.75V.  seems to be working.
+
+    drawing +18V is 6mA. and -18V is 4mA.
+
+  if we forget to add the ref. then -18V rail, draws about 30mA.
+  and it fails.
+
 */
 
 
