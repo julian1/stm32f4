@@ -19,9 +19,6 @@
 #include <stdint.h> // uint32_t
 
 
-// should be implemented per device/ or per peripheral?
-// #define SPI_MAGIC   789
-
 
 typedef struct spi_t spi_t;
 
