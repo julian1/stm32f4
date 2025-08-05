@@ -106,26 +106,14 @@ typedef struct app_t
   // volatile int32_t sleep_millis;  // signed count down.
 
 
-  // TODO - make these pointers again. for opaque structure .  instantiate in main.
+  // TODO - consider make these pointers again. for opaque structure .  instantiate in main.
   cbuf_t        console_in;
   cbuf_t        console_out;
 
   cstring_t     command;
 
 
-  /*
-    for a virtual trigger device. could sample mosi, on single clk. can just bit-bang it, from mcu side.
-    two d-flip flops. with cs rising edge operating to latch input.
-    spi_trigger_t *spi_trigger;
-
-  */
-
-  // board0 devices
-
-  // if we grouped all these devices under one structure
-  // it would be a lot easier to pass them around.
-
-
+  // analog board devices
   devices_t   devices;
 
 

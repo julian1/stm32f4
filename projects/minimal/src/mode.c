@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include <string.h>   // strcmp, memset
+// #include <strings.h>   // strcasecmp().  use to_lower() instead
 #include <math.h>   // fabs
 
 
@@ -604,7 +605,12 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   double f0;
   int32_t i0;
 
+  /*
 
+      TODO For case handling. just convert the entire command to lower case.
+      except we dont really have a buffer
+
+  */
 
   // set dac value with a direct value.
   // mdac0, mdac1.
@@ -905,14 +911,14 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       else if(strcmp(s0, "u1012") == 0) {
         mode->second.U1012 = u0;
       }
-/*
-      else if(strcmp(s0, "u1010") == 0) {
-        mode->second.U1010 = u0;
-      }
+
       else if(strcmp(s0, "u1009") == 0) {
         mode->second.U1009 = u0;
       }
-*/
+      else if(strcmp(s0, "u1010") == 0) {
+        mode->second.U1010 = u0;
+      }
+
 
 
       else if( strcmp(s0, "dac") == 0 || strcmp(s0, "u1016") == 0 || strcmp(s0, "u1014") == 0) {
