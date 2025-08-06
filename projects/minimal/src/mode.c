@@ -604,18 +604,8 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
   */
 
-  // set dac values directly
 
-  if( sscanf(cmd, "mdac0 %lu", &u0) == 1) {
-    mode->mdac0_val = u0;
-  }
-
-  else if( sscanf(cmd, "mdac1 %lu", &u0) == 1) {
-    mode->mdac1_val = u0;
-  }
-
-
-  else if( sscanf(cmd, "dcv-source lts %lf", &f0) == 1) {
+  if( sscanf(cmd, "dcv-source lts %lf", &f0) == 1) {
 
       // printf("set dcv-source, input relays, for current_mode\n");
     mode_set_dcv_source_lts( mode, f0);
@@ -861,6 +851,14 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       }
 */
 
+
+
+      else if(strcmp(s0, "mdac0") == 0) {
+        mode->mdac0_val = u0;
+      }
+      else if(strcmp(s0, "mdac1") == 0) {
+        mode->mdac0_val = u1;
+      }
 
 
 
