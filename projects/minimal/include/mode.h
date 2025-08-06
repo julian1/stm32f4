@@ -322,7 +322,7 @@ typedef struct adc_state_t
 typedef struct spi_t  spi_t;
 
 
-// note that 'mode_t'  is in conflict with sys/types 'mode_t'.
+// prefix with underscore because 'mode_t'  is in conflict with sys/types 'mode_t'.
 
 typedef struct _mode_t
 {
@@ -330,7 +330,7 @@ typedef struct _mode_t
   // but not enough for different states.
 
 /*
-  // TODO rename to include 4094 in name.
+  // TODO add 4094 to name.
       eg. _4094_first _4094_second .
 
       or shift_reg_first, serial_first, serial second
@@ -343,15 +343,16 @@ typedef struct _mode_t
 
 
   // could factor to a struct, but only one value.
-  uint16_t dac_val;
+  uint16_t mdac0_val;
 
+  uint16_t mdac1_val;
 
   // name is confusing, because this is ice40 mode,  while the app mode, is app mode represents all app state.
   // perhap rename reg_ice40_mode
   uint32_t  reg_mode;
 
   // not explicitly an adc parameter.  signal acquisition or  adc.
-  // only in mode 0
+  // only when fpga is in mode 0
   reg_direct_t    reg_direct;
 
 
@@ -368,32 +369,12 @@ typedef struct _mode_t
 
 
 
-/*
-    chage name spi_mode_transition() ?
-
-  // consider can pass null
-  // as alternative to flags to indicate should skip field update
-
-*/
 
 
 
 typedef struct devices_t devices_t;
 
-void spi_mode_transition_state(
-
-  devices_t *devices,
-/*
-  spi_t     *spi_fpga0,
-  spi_t     *spi_4094,
-  spi_t     *spi_mdac0,
-  spi_t     *spi_mdac1,
-*/
-
-  const _mode_t *mode,
-  volatile uint32_t *system_millis
-  /*, uint32_t update_flags */
-);
+void spi_mode_transition_state( devices_t *devices, const _mode_t *mode, volatile uint32_t *system_millis /*, uint32_t update_flags */);
 
 
 

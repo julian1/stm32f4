@@ -108,24 +108,16 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
   spi_ice40_reg_write32( spi_fpga, REG_SPI_MUX,  SPI_MUX_DAC );
 */
 
-#if 0
   // write mdac0
   assert( devices->spi_mdac0);
   spi_port_configure( devices->spi_mdac0);
-  spi_ad5446_write16( devices->spi_mdac0, mode->dac_val );     // TODO change to dac0_val
+  spi_ad5446_write16( devices->spi_mdac0, mode->mdac0_val );
 
-#endif
 
-/*
-  // OK. fundamentally wrong.  the port configure is not being called.
-    even if it passes through it.
-
-*/
   // write mdac1
   assert( devices->spi_mdac1);
-
   spi_port_configure( devices->spi_mdac1);
-  spi_ad5446_write16( devices->spi_mdac1, mode->dac_val );       // TODO change to dac1_val
+  spi_ad5446_write16( devices->spi_mdac1, mode->mdac1_val );
 
 
 
@@ -303,7 +295,7 @@ void mode_set_dcv_source_sts( _mode_t *mode, signed u0 )
   // should do better range check.
   //assert(u0 <= 0x3fff);
 
-  mode->dac_val = u0;// abs( u0 );
+  mode->mdac0_val = u0;// abs( u0 );
 }
 
 
@@ -612,18 +604,15 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
   */
 
-  // set dac value with a direct value.
-  // mdac0, mdac1.
-  if( sscanf(cmd, "mdac1 %lu", &u0) == 1) {
+  // set dac values directly
 
-    // 8192 - 1.
-    // value 140 , 200 looks incorrect.
-    // many slightly wrong looking values
-    printf("WHOOT set mdac1 %lu\n", u0);
-
-    mode->dac_val = u0;
+  if( sscanf(cmd, "mdac0 %lu", &u0) == 1) {
+    mode->mdac0_val = u0;
   }
 
+  else if( sscanf(cmd, "mdac1 %lu", &u0) == 1) {
+    mode->mdac1_val = u0;
+  }
 
 
   else if( sscanf(cmd, "dcv-source lts %lf", &f0) == 1) {
@@ -920,12 +909,12 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       }
 
 
-
+#if 0
       else if( strcmp(s0, "dac") == 0 || strcmp(s0, "u1016") == 0 || strcmp(s0, "u1014") == 0) {
         // let the mode update - determine setting up spi params.
         mode->dac_val = u0;
       }
-
+#endif
       /*
           handle latch relay pulse encoding here, rather than at str_decode_uint() time.
           valid values are 1 (0b01)  and 2 (0b10). not 1/0.
