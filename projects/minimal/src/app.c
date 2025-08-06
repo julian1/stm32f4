@@ -517,7 +517,9 @@ static void app_update_console(app_t *app)
 
       char *cmd = cstring_ptr(&app->command);
       cmd = str_trim_whitespace_inplace( cmd );
-      // could transform lower case
+
+      // TODO - transform lower case
+
       printf("\n");
       app_repl_statement(app, cmd);
 
