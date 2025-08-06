@@ -857,7 +857,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
         mode->mdac0_val = u0;
       }
       else if(strcmp(s0, "mdac1") == 0) {
-        mode->mdac0_val = u1;
+        mode->mdac1_val = u0;
       }
 
 
