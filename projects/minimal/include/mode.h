@@ -135,8 +135,13 @@ typedef struct _4094_state_t
 
 
   // u405
+/*
   uint8_t U506  : 3; // adg1209.
   uint8_t       : 1;
+*/
+  uint8_t U506  : 4; // adg1208. july 2025
+
+
   uint8_t K401  : 2;
   uint8_t       : 2;
 
@@ -389,6 +394,10 @@ void spi_mode_transition_state( devices_t *devices, const _mode_t *mode, volatil
   consider change name dcv1-source perhaps.
   actually implied. because dcv2 is always constant function of dcv1.  - eg. inverted.
 */
+
+
+void mode_set_amp_gain( _mode_t *mode, uint32_t u);
+
 
 void mode_set_dcv_source_lts( _mode_t *mode, double f0 /*signed i0*/);  // arg is 10,0,-10
 

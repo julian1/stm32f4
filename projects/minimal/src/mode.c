@@ -212,6 +212,27 @@ static void mode_dcv_source_reset( _mode_t *mode )
 }
 
 
+
+void mode_set_amp_gain( _mode_t *mode, uint32_t u)
+{
+
+  printf("set amp gain\n");
+
+
+  if( u == 1)
+    mode->second.U506 = S8;
+  else if( u == 10)
+    mode->second.U506 = S2;
+  else if( u == 100)
+    mode->second.U506 = S3;
+  else if( u == 1000)
+    mode->second.U506 = S4;
+  else
+    assert(0);
+
+}
+
+
 void mode_set_dcv_source_lts( _mode_t *mode, double f0)
 {
   /*
@@ -385,6 +406,8 @@ void mode_set_trigger( _mode_t *mode, bool val )
   mode->sa.p_trig = val;
 
 }
+
+
 
 
 
@@ -604,7 +627,19 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   */
 
 
-  if( sscanf(cmd, "dcv-source lts %lf", &f0) == 1) {
+
+
+
+
+  if( sscanf(cmd, "amp gain %100s", s0) == 1
+    && str_decode_uint( s0, &u0))  {
+
+
+    mode_set_amp_gain( mode, u0 );
+  }
+
+
+  else if( sscanf(cmd, "dcv-source lts %lf", &f0) == 1) {
 
       // printf("set dcv-source, input relays, for current_mode\n");
     mode_set_dcv_source_lts( mode, f0);

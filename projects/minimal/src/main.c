@@ -74,14 +74,21 @@ static const _mode_t mode_initial =  {
 
 
   // U402
-  .first. U409    = 0,    //  hi/lo mux. adg1209. 2x04.  dec 2024.
+  .second. U409    = 0,    //  hi/lo mux. adg1209. 2x04.  dec 2024.
+
   .first. K407    = SR_RESET,
   .first. K403		= SR_RESET,
 
 
   // u405
-  // uint8_t U506  : 3; // adg1209.
   .first. K401    = SR_RESET,
+
+
+
+  // amplifier
+  // dont let feedback float, else current sources lock up
+  .first . U506    =  S8,  // 1x gain, adg1208.  july 2025
+  .second. U506    =  S8,  // 1x gain, adg1208.  july 2025
 
 
     //////////////
