@@ -202,7 +202,7 @@ static void mode_dcv_source_reset( _mode_t *mode )
   mode->second.U1012  = S8 ;
   mode->second.U1003  = S8 ;
   mode->second.U1006  = S8;
-  mode->second.U1007  = S8;
+  // mode->second.U1007  = S8;
 
   // daq off.
   mode->second.U1009  = SOFF;
@@ -225,7 +225,7 @@ void mode_set_dcv_source_lts( _mode_t *mode, double f0)
   mode_dcv_source_reset( mode);
 
   mode->second.U1006  = S2;
-  mode->second.U1007  = S2;       // ref-lo
+  // mode->second.U1007  = S2;       // ref-lo
 
 
   if(f0 >= 0) {
@@ -255,11 +255,10 @@ void mode_set_dcv_source_lts( _mode_t *mode, double f0)
     printf("0.01V\n");
     mode->second.U1012  = S4;       // 0.01V.
   }
-  else if(fabs(f0) == 0) {
-    printf("0V\n");
-    mode->second.U1012  = S5;       // 0V tap.
-  }
+/*
+  note. makes no sense to source a zero here
 
+*/
   else {
     // need better argument validation here,
     // when called programmatically, should not fail.
@@ -281,7 +280,7 @@ void mode_set_dcv_source_sts( _mode_t *mode, signed u0 )
 
 
     mode->second.U1006  = S3;       // mux dac
-    mode->second.U1007  = S3;       // dac
+    // mode->second.U1007  = S3;       // dac
 
   if(u0 >= 0) {
     printf("with +");
@@ -309,13 +308,13 @@ void mode_set_dcv_source_ref( _mode_t *mode, unsigned u0 )
   if(u0 == 7) {
     printf("with ref-hi +7V\n");
     mode->second.U1006  = S4;       // ref-hi
-    mode->second.U1007  = S4;       // ref-lo
+    // mode->second.U1007  = S4;       // ref-lo
   }
   else if( u0 == 0 ) {
     // need bodge for this
     printf("with ref-lo\n");
     mode->second.U1006  = S8;       // ref-lo
-    mode->second.U1007  = S4;       // ref-lo - looks funny. gives bad measurement. on DMM.
+    // mode->second.U1007  = S4;       // ref-lo - looks funny. gives bad measurement. on DMM.
   }
   else
     assert(0);
@@ -330,7 +329,7 @@ void mode_set_dcv_source_temp( _mode_t *mode )
   mode_dcv_source_reset( mode);
 
   mode->second.U1006  = S6;
-  mode->second.U1007  = S6;
+  // mode->second.U1007  = S6;
 }
 
 
@@ -340,7 +339,7 @@ void mode_set_dcv_source_daq( _mode_t *mode, unsigned u0, unsigned u1 )
   mode_dcv_source_reset( mode);
 
   mode->second.U1006  = S7;
-  mode->second.U1007  = S7;
+  // mode->second.U1007  = S7;
 
   // set the hig/lo dac inputs.
   mode->second.U1009  = u0;

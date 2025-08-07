@@ -142,7 +142,8 @@ typedef struct _4094_state_t
 
 
   // u1017
-  uint8_t U1007 : 4;
+  // uint8_t U1007 : 4;  // removed july 2025
+  uint8_t       : 4;
   uint8_t U1006 : 4;
 
 
