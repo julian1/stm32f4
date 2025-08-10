@@ -39,14 +39,9 @@ static void state_format ( uint8_t *state, size_t n)
 }
 
 
-/*
-  eg. we will probably need to pass app
-    for all the different spi devices spi devneed
-
-*/
 
 
-void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volatile uint32_t *system_millis /*, uint32_t update_flags */)
+void spi_mode_transition_state( devices_t *devices, const _mode_t *mode, volatile uint32_t *system_millis /*, uint32_t update_flags */)
 {
   assert( mode);
   assert( devices);
