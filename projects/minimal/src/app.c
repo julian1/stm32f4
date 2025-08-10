@@ -315,6 +315,10 @@ void app_led_dance( app_t * app )
     static uint32_t counter = 0;
     ++counter;
     uint32_t magic = counter  ^ (counter >> 1);
+
+    // TODO should take ore care not to write other fields of the direct register.
+    // not re
+
     spi_ice40_reg_write32( devices->spi_fpga0, REG_DIRECT, magic );
 
     // check the magic numger
@@ -819,7 +823,7 @@ static bool spi_repl_reg_write( spi_t *spi,  const char *cmd)
 {
 
   /*
-    these wont work. because will immediately be over-written by the mode write.
+    these no longer work. state will immediately be over-written by the write of the mode,
     when repl gets a '\n'
 
   */
