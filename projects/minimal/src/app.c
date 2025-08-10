@@ -23,9 +23,11 @@
 
 #include <peripheral/spi-dac8811.h>
 #include <peripheral/spi-ad5446.h>
-#include <peripheral/led.h>
 #include <peripheral/interrupt.h>
 #include <peripheral/vfd.h>   // this is ok.
+
+
+#include <peripheral/gpio.h>
 
 // app/app.c  should  not deal with devices
 
@@ -353,8 +355,9 @@ static void app_update_soft_500ms(app_t *app)
 
   // blink mcu led
   app->led_state = ! app->led_state;
+
   // excessive abstraction
-  led_set( app->led_status, app->led_state);
+  gpio_write( app->status_led, app->led_state);
 
 
 
@@ -702,7 +705,8 @@ void app_update_simple_with_data(app_t *app)
 
     // blink mcu led
     app->led_state = ! app->led_state;
-    led_set( app->led_status, app->led_state);
+
+    gpio_write( app->status_led, app->led_state);
   }
 
 }
@@ -728,7 +732,7 @@ void app_update_simple_led_blink(app_t *app)
 
     // blink mcu led
     app->led_state = ! app->led_state;
-    led_set( app->led_status, app->led_state);
+    gpio_write( app->status_led, app->led_state);
 
   }
 

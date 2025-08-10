@@ -4,17 +4,10 @@
 
 
 
-#include <peripheral/led.h>
+#include <peripheral/gpio.h>
 
 
-
-
-// constructors, non opaque, should be called in main()
-led_t *led0_create(void);
-
-
-// could even pass
-// led_t *led0_create2(uint32_t port, uint32_t gpios);   // another way...
-
+// constructor, opaque, should be called in main()
+gpio_t *led0_create( void);
 
 

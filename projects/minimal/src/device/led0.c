@@ -1,6 +1,6 @@
 /*
+
   demonstrates interface
-  only really useful with multiple leds
 */
 
 
@@ -27,16 +27,8 @@
 #define LED_PIN   GPIO9
 
 
-static void set( led_t *led, bool val)
-{
-  assert(led);
 
-  gpio_write_val(LED_PORT, LED_PIN, val );
-}
-
-
-
-static void setup(led_t *led)
+static void setup(gpio_t *led)
 {
   assert(led);
 
@@ -45,15 +37,23 @@ static void setup(led_t *led)
 }
 
 
-
-led_t *led0_create()
+static void write( gpio_t *led, uint8_t val)
 {
-  led_t *p= malloc(sizeof(  led_t ));
-  assert(p);
-  memset(p, 0, sizeof( led_t));
+  assert(led);
 
-  p->set = set;
+  gpio_write_val(LED_PORT, LED_PIN, val );
+}
+
+
+
+gpio_t *led0_create()
+{
+  gpio_t *p = malloc(sizeof( gpio_t));
+  assert(p);
+  memset(p, 0, sizeof( gpio_t));
+
   p->setup = setup;
+  p->write = write;
 
   return p;
 }

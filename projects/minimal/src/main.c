@@ -382,8 +382,10 @@ static int main_f429(void)
 
 
   // led0
-  app.led_status = led0_create();
-  led_setup( app.led_status);
+  // app.status_led = led0_create();
+
+  app.status_led = led0_create();
+  gpio_setup( app.status_led);
 
 
 
