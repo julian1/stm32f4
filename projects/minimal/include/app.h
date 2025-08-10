@@ -80,9 +80,11 @@ typedef struct app_t
   uint32_t magic;
 
 
-  // remove. should be able to query the led state  to invert it...
-  // no. it's ok. led follows the led_state, more than one thing follows.
-  bool led_state ;     // for mcu. maybe change name to distinguish
+  bool led_state ;          // for mcu. maybe change name to distinguish
+
+  bool led_blink_enable;    // for analog board. whether to blink the led on the analog board.
+                            // useful activity indicator, but also need to be able to to suppress
+
 
   // port/pinno
   // uint16_t led_status;

@@ -190,6 +190,8 @@ static app_t app = {
 
   // .spi = SPI1 ,
 
+  .led_blink_enable = true,
+
 
   //////////////
   // device.

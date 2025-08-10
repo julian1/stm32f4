@@ -357,6 +357,8 @@ static void app_update_soft_500ms(app_t *app)
   led_set( app->led_status, app->led_state);
 
 
+
+#if 0
   //////////////
     assert( sizeof(seq_elt_t) == 4);
 
@@ -371,6 +373,7 @@ static void app_update_soft_500ms(app_t *app)
     assert( *(uint32_t *)  px  == ((0b01 << 4) | S1));
 
   //////////////
+#endif
 
 
 #if 0
@@ -397,6 +400,25 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
+
+  if( app->led_blink_enable
+    && spi_ice40_cdone( devices->spi_fpga0_pc)
+    && app->mode_current->reg_mode == MODE_DIRECT
+  ) {
+
+    // not doing anything interesting, so blink the led, to show activity.
+    if(app->led_state)
+      app->mode_current->reg_direct.leds_o |= 1;
+    else
+      app->mode_current->reg_direct.leds_o &= ~1;
+
+    spi_mode_transition_state( &app->devices, app->mode_current, &app->system_millis);
+  }
+
+
+
+
+
 /*
   should be a better way to do these one-off tests
 
@@ -410,7 +432,7 @@ static void app_update_soft_500ms(app_t *app)
 
 
 #if 0
-
+  // test toggle of 4094 cs
   if( spi_ice40_cdone( devices->spi_fpga0_pc)) {
 
     // toggle the 4094 cs. only
@@ -425,7 +447,7 @@ static void app_update_soft_500ms(app_t *app)
 
   // fpga0 on analog board
 
-  if( ! spi_ice40_cdone( devices->spi_fpga0_pc)) {
+  if( !spi_ice40_cdone( devices->spi_fpga0_pc)) {
 
     FILE *f = flash_open_file( FLASH_U102_ADDR);
 
@@ -445,11 +467,12 @@ static void app_update_soft_500ms(app_t *app)
       printf("fpga ok!\n");
 
       // ensure CS vec. is not asserting anything
+      // should be asserted?
       spi_cs_deassert( devices->spi_fpga0 );
 
 
       // app_beep( app, 2 );
-      app_led_dance( app );
+      // app_led_dance( app );
 
       // TODO better name
       app_configure( app);
@@ -1017,8 +1040,6 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
 
 
-  // need to add reset fpga.  using external creset pin.
-
 
   else if(strcmp(cmd, "assert 0") == 0) {
     // test assert(0);
@@ -1097,6 +1118,16 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
 
 
+
+
+
+  else if( sscanf(cmd, "led blink %lu", &u0 ) == 1) {
+
+    app->led_blink_enable = u0;
+  }
+
+
+
   // don't we have some code - to handle sscan as binary/octal/hex ?
 
 
@@ -1127,11 +1158,14 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
 
   /*
-      would be better if this could be done in mode, rather than app.
+      TODO - move this to mode, rather than app.
   */
 
   else if(strcmp(cmd, "reset") == 0) {
-    // reset mode. distinct from  trigger control
+
+    // reset the mode - would be better in mode.c
+    // but do not have access to initial/default
+
     // reset the mode.
     *app->mode_current = *app->mode_initial;
   }
