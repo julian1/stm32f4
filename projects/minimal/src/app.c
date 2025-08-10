@@ -314,12 +314,12 @@ void app_led_dance( app_t * app )
 
   // led dance
   for(unsigned i = 0; i < 50; ++i )  {
+
     static uint32_t counter = 0;
     ++counter;
     uint32_t magic = counter  ^ (counter >> 1);
 
-    // TODO should take ore care not to write other fields of the direct register.
-    // not re
+    // TODO should mask value - to avoid writing other fields of the direct register.
 
     spi_ice40_reg_write32( devices->spi_fpga0, REG_DIRECT, magic );
 
