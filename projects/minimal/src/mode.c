@@ -122,7 +122,6 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
 
 
 
-#if 0
 
 
 /* HERE
@@ -138,37 +137,37 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
   // fpga stuff
 
 
-  spi_ice40_reg_write32(spi_fpga, REG_MODE, mode->reg_mode );
+  spi_ice40_reg_write32( devices->spi_fpga0, REG_MODE, mode->reg_mode );
 
   // reg_direct for outputs under fpga control
   assert( sizeof(reg_direct_t) == 4);
-  // TODO. review - why are we using write_n() rather than write32()?
-  spi_ice40_reg_write_n(spi_fpga, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
+  // TODO. review - why do we use write_n() rather than write32() here?
+  spi_ice40_reg_write_n( devices->spi_fpga0, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
 
 
 
 
   // signal acquisition
-  spi_ice40_reg_write32(spi_fpga, REG_SA_P_CLK_COUNT_PRECHARGE, mode->sa.p_clk_count_precharge );
+  spi_ice40_reg_write32( devices->spi_fpga0, REG_SA_P_CLK_COUNT_PRECHARGE, mode->sa.p_clk_count_precharge );
 
 #if 1
 
-  spi_ice40_reg_write32( spi_fpga, REG_SA_P_SEQ_N,  mode->sa.p_seq_n );
+  spi_ice40_reg_write32( devices->spi_fpga0, REG_SA_P_SEQ_N,  mode->sa.p_seq_n );
 
   // use write_n to work around strict aliasing
   // we can consolidate using a single register.
-  spi_ice40_reg_write_n( spi_fpga, REG_SA_P_SEQ0, &mode->sa.p_seq_elt[ 0], sizeof( seq_elt_t));
-  spi_ice40_reg_write_n( spi_fpga, REG_SA_P_SEQ1, &mode->sa.p_seq_elt[ 1], sizeof( seq_elt_t));
-  spi_ice40_reg_write_n( spi_fpga, REG_SA_P_SEQ2, &mode->sa.p_seq_elt[ 2], sizeof( seq_elt_t));
-  spi_ice40_reg_write_n( spi_fpga, REG_SA_P_SEQ3, &mode->sa.p_seq_elt[ 3], sizeof( seq_elt_t));
+  assert( sizeof( seq_elt_t) == 4);
+  spi_ice40_reg_write_n( devices->spi_fpga0, REG_SA_P_SEQ0, &mode->sa.p_seq_elt[ 0], sizeof( seq_elt_t));
+  spi_ice40_reg_write_n( devices->spi_fpga0, REG_SA_P_SEQ1, &mode->sa.p_seq_elt[ 1], sizeof( seq_elt_t));
+  spi_ice40_reg_write_n( devices->spi_fpga0, REG_SA_P_SEQ2, &mode->sa.p_seq_elt[ 2], sizeof( seq_elt_t));
+  spi_ice40_reg_write_n( devices->spi_fpga0, REG_SA_P_SEQ3, &mode->sa.p_seq_elt[ 3], sizeof( seq_elt_t));
 
 #endif
 
-
   // adc
   // printf("writing adc params - aperture %lu\n" ,   mode->adc.p_aperture  );
-  spi_ice40_reg_write32( spi_fpga, REG_ADC_P_CLK_COUNT_APERTURE,  mode->adc.p_aperture );
-  spi_ice40_reg_write32( spi_fpga, REG_ADC_P_CLK_COUNT_RESET,     mode->adc.p_reset );
+  spi_ice40_reg_write32( devices->spi_fpga0, REG_ADC_P_CLK_COUNT_APERTURE,  mode->adc.p_aperture );
+  spi_ice40_reg_write32( devices->spi_fpga0, REG_ADC_P_CLK_COUNT_RESET,     mode->adc.p_reset );
 
 
 /*
@@ -179,12 +178,12 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
 */
   // we may want delay here. or make the trigger  an external control state to the mode.
 
-
+#if 0
   // assert trigger condition
   // set last. to avoid spi xfer emi.
   spi_ice40_reg_write32(spi_fpga, REG_SA_P_TRIG, mode->sa.p_trig );
-
 #endif
+
 
 }
 
