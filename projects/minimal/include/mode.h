@@ -120,12 +120,14 @@
 */
 
 // from dmm16 to dmm17.  DCV changed from S3 to S1.    and CH2 went from S1 to S3. confusing.
-// azmux coded using S not D.
+// remember azmux is coded with 4 bits, so use S not D.
+
 
 #define AZMUX_CH1_HI  S1    // DCV
 #define AZMUX_CH1_LO  S2
 #define AZMUX_CH2_HI  S3    // INMUX
 #define AZMUX_CH2_LO  S4
+
 
 
 
@@ -309,12 +311,12 @@ typedef struct sa_state_t
 
 
 
-
+/*
 // TODO remove.
 #define SW_PC_SIGNAL    1
 #define SW_PC_BOOT      0
 
-
+*/
 
 
 
@@ -423,6 +425,8 @@ void spi_mode_transition_state( devices_t *devices, const _mode_t *mode, volatil
 */
 
 
+// TODO - consider remove the _set_
+
 void mode_set_amp_gain( _mode_t *mode, uint32_t u);
 
 
@@ -441,8 +445,9 @@ void mode_set_dcv_source_tia( _mode_t *mode );
 
 
 
-void mode_set_dcv_source_channel( _mode_t *mode, unsigned u0 );
+// void mode_set_dcv_source_channel( _mode_t *mode, unsigned u0 );
 
+// TODO fixme, remove trigger now independent of mode.
 void mode_set_trigger( _mode_t *mode, bool );
 
 
@@ -451,6 +456,37 @@ void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
 
 
 bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );
+
+
+/////////
+// better name mode_input_ch( ) ?
+// helper functions for clarity - with test code, better than manipulating underlying relays
+// remembering both channels can be active at the same time
+
+#define MODE_CH1_OFF         0
+#define MODE_CH1_DCV         1
+#define MODE_CH1_DCV_SOURCE  2
+
+
+void mode_set_ch1( _mode_t *mode, uint32_t val );
+
+
+// void mode_ch2_input( uint32_t val )
+#define MODE_CH2_OFF         0
+#define MODE_CH2_SENSE       1
+#define MODE_CH2_DCI         2
+#define MODE_CH2_DCV_DIV     3
+#define MODE_CH2_DCV_SOURCE  3
+
+void mode_set_ch2( _mode_t *mode, uint32_t val);
+
+
+void mode_set_accum( _mode_t *mode, bool val);
+
+
+
+
+
 
 
 

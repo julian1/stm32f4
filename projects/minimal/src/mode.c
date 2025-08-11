@@ -372,10 +372,14 @@ void mode_set_dcv_source_tia( _mode_t *mode )
 }
 
 
-
+#if 0
 
 void mode_set_dcv_source_channel( _mode_t *mode, unsigned u0 )
 {
+
+  // neither channel
+  mode->first.K407 = SR_RESET;
+  mode->second.U409 = DOFF;       // hi/lo mux.
 
   if(u0 == 1) {
 
@@ -383,15 +387,11 @@ void mode_set_dcv_source_channel( _mode_t *mode, unsigned u0 )
   } else if(u0 == 2) {
 
     mode->second.U409 = D4;
-  } else {
-
-    // neither channel
-    mode->first.K407 = SR_RESET;
-    mode->second.U409 = DOFF;       // hi/lo mux.
   }
 
 }
 
+#endif
 
 
 void mode_set_trigger( _mode_t *mode, bool val )
@@ -682,7 +682,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   }
 
 
-
+#if 0
   else if( sscanf(cmd, "dcv-source chan %lu", &u0) == 1)  {
 
     //
@@ -692,6 +692,8 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
     mode_set_dcv_source_channel( mode, u0);
   }
+
+#endif
 
 
 

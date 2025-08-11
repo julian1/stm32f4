@@ -195,7 +195,9 @@ void data_cal(
   // dec 2024.
   // set up input relays.
   mode_set_dcv_source_ref( mode, 0 );
-  mode_set_dcv_source_channel( mode, 1 ); // dcv
+
+  assert(0); // FIXME JA. aug 2025.
+  // mode_set_dcv_source_channel( mode, 1 ); // dcv
 
 
   // TODO. use mode_set_seq function.

@@ -63,10 +63,9 @@ static void test (app_t *app)     // should be passing the continuation.
     );
 */
 
-  // No. the code is using the relay K407.
   assert(
-       (mode.reg_direct.azmux_o == SOFF && mode.reg_direct.pc_ch1_o == PC_BUF)    // TODO review - why support this?
-    || (mode.reg_direct.azmux_o == AZMUX_CH1_HI   && mode.reg_direct.pc_ch1_o == PC_SIG)
+       (mode.reg_direct.azmux_o == SOFF && mode.reg_direct.pc_ch1_o == PC_BUF)            // without routing through az mux
+    || (mode.reg_direct.azmux_o == AZMUX_CH1_HI   && mode.reg_direct.pc_ch1_o == PC_SIG)  // normal mode, route to amplifier
     );
 
 
