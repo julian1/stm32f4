@@ -49,8 +49,8 @@ static void test (app_t *app)     // should be passing the continuation.
   mode.reg_mode =  MODE_DIRECT;
   mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
 
-  printf("azmux       %u\n", mode.reg_direct.azmux_o );
-  printf("pc_ch1      %u\n", mode.reg_direct.pc_ch1_o );
+  printf("azmux       %u\n", mode.reg_direct.azmux_o );   // consider - formatting
+  printf("pc_ch1      %u\n", mode.reg_direct.pc_ch1_o );  // add formatting
 
 
 
@@ -63,10 +63,10 @@ static void test (app_t *app)     // should be passing the continuation.
     );
 */
 
-  // i think this is like this - so input can be setup for either ch1, or ch2.
+  // No. the code is using the relay K407.
   assert(
-       (mode.reg_direct.azmux_o == SOFF && mode.reg_direct.pc_ch1_o == PC_BUF)    // azmux off, precharge select boot.
-    || (mode.reg_direct.azmux_o == S3   && mode.reg_direct.pc_ch1_o == PC_SIG)    // FIXME azmux select dcv,  pre-charge select signal.
+       (mode.reg_direct.azmux_o == SOFF && mode.reg_direct.pc_ch1_o == PC_BUF)    // TODO review - why support this?
+    || (mode.reg_direct.azmux_o == AZMUX_CH1_HI   && mode.reg_direct.pc_ch1_o == PC_SIG)
     );
 
 

@@ -117,8 +117,17 @@
 #define AZMUX-LO      S2
 #define AZMUX-HIMUX   S3
 #define AZMUX-LOMUX   S4
-
 */
+
+// from dmm16 to dmm17.  DCV changed from S3 to S1.    and CH2 went from S1 to S3. confusing.
+// azmux coded using S not D.
+
+#define AZMUX_CH1_HI  S1    // DCV
+#define AZMUX_CH1_LO  S2
+#define AZMUX_CH2_HI  S3    // INMUX
+#define AZMUX_CH2_LO  S4
+
+
 
 
 
