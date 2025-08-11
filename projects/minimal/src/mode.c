@@ -842,8 +842,17 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       // cannot manage pointer to bitfield. so have to hardcode.
 
 
+      if(strcmp(s0, "mdac0") == 0) {
+        mode->mdac0_val = u0;
+      }
+      else if(strcmp(s0, "mdac1") == 0) {
+        mode->mdac1_val = u0;
+      }
+
+
+
       // better name. _count.
-      if(strcmp(s0, "seqn") == 0) {
+      else if(strcmp(s0, "seqn") == 0) {
         mode->sa.p_seq_n = u0;
       }
 
@@ -866,10 +875,8 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
         mode->reg_direct.monitor_o = u0;
       }
 
-/*
-  - EXTR. TODO change the precharge bit representation here.
-  - to provide separate control over both switches.
-*/
+
+
       else if(strcmp(s0, "pc_ch1") == 0) {
         mode->reg_direct.pc_ch1_o = u0;
       }
@@ -877,10 +884,6 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       else if(strcmp(s0, "pc_ch2") == 0) {
         mode->reg_direct.pc_ch2_o = u0;
       }
-
-
-
-// o pc_ch_o[0]     102
 
 /*
       else if(strcmp(s0, "sig_pc_ch0") == 0) {
@@ -892,22 +895,10 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
         mode->reg_direct.sig_pc_ch_o |= u0 ;
       }
 */
-
-
-
-      else if(strcmp(s0, "mdac0") == 0) {
-        mode->mdac0_val = u0;
-      }
-      else if(strcmp(s0, "mdac1") == 0) {
-        mode->mdac1_val = u0;
-      }
-
-
-
-
       else if(strcmp(s0, "azmux") == 0) {
         mode->reg_direct.azmux_o = u0;
       }
+
       else if(strcmp(s0, "adc_refmux") == 0) {
         mode->reg_direct.adc_refmux_o = u0;
       }
