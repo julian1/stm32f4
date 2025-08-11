@@ -41,7 +41,7 @@ static void state_format ( uint8_t *state, size_t n)
 
 
 
-void spi_mode_transition_state( devices_t *devices, const _mode_t *mode, volatile uint32_t *system_millis /*, uint32_t update_flags */)
+void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volatile uint32_t *system_millis /*, uint32_t update_flags */)
 {
   assert( mode);
   assert( devices);
@@ -865,17 +865,31 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       else if(strcmp(s0, "monitor") == 0) {
         mode->reg_direct.monitor_o = u0;
       }
-      else if(strcmp(s0, "sig_pc_sw") == 0 || strcmp(s0, "pc") == 0   ) {
-        mode->reg_direct.sig_pc_sw_o= u0;
-      }
-/*
-      else if(strcmp(s0, "sig_pc_sw0") == 0) {
 
-        uint8_t val = mode->reg_direct.sig_pc_sw_o;
+/*
+  - EXTR. TODO change the precharge bit representation here.
+  - to provide separate control over both switches.
+*/
+      else if(strcmp(s0, "pc_ch1") == 0) {
+        mode->reg_direct.pc_ch1_o = u0;
+      }
+
+      else if(strcmp(s0, "pc_ch2") == 0) {
+        mode->reg_direct.pc_ch2_o = u0;
+      }
+
+
+
+// o pc_ch_o[0]     102
+
+/*
+      else if(strcmp(s0, "sig_pc_ch0") == 0) {
+
+        uint8_t val = mode->reg_direct.sig_pc_ch_o;
 
         val |= u0  ;
         val &= ~ u0 ;
-        mode->reg_direct.sig_pc_sw_o |= u0 ;
+        mode->reg_direct.sig_pc_ch_o |= u0 ;
       }
 */
 
@@ -965,14 +979,16 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       else if(strcmp(s0, "u408") == 0 || strcmp(s0, "himux") == 0) {
         mode->second.U408 = u0 ;
       }
-      else if(strcmp(s0, "u409") == 0 || strcmp(s0, "lomux") == 0) {
+#endif
+
+      else if(strcmp(s0, "u409") == 0 || strcmp(s0, "inmux") == 0) {
         mode->second.U409 = u0 ;
       }
-#endif
+
 
 
       /*
-        not completely clear if trig wants to be out-of-band. eg not put in the mode structure.
+        not completely clear if trig should be out-of-band. eg not put in the mode structure.
       */
 /*
       else if(strcmp(s0, "trig") == 0) {

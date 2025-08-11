@@ -85,7 +85,7 @@
 #define SR_RESET    0b10
 
 
-
+/*
 // not sure if should move to ice40_reg.  or just remove.
 // two channels.
 // eg. (PC0 | PC01) <<
@@ -97,6 +97,12 @@
 #define PC01         0b01
 #define PC10         0b10
 // #define PCBOTH      0b11 // both on.
+*/
+
+
+#define PC_BUF        0
+#define PC_SIG        1
+
 
 /*
 
@@ -215,7 +221,19 @@ reg_direct_t
 
   uint8_t   leds_o     : 4;               // 0
   uint8_t   monitor_o  : 8;               // 4
-  uint8_t   sig_pc_sw_o : 2;             // 14
+
+/*
+  - EXTR. TODO use spearate vars for the precharge switches.
+  - to provide separate control over both switches.
+  - will be much cleaner
+
+*/
+
+  // uint8_t   sig_pc_ch_o : 2;           // 14
+  uint8_t   pc_ch1_o : 1;                 // 14
+  uint8_t   pc_ch2_o : 1;                 // 15
+
+
   uint8_t   azmux_o : 4 ;                 // 16
 
   uint8_t   adc_refmux_o : 4;                   // 21     // better name adc_refmux   adc_cmpr_latch
@@ -235,7 +253,7 @@ reg_direct_t
 474               adc_cmpr_latch_o,         // 22+1
 475               adc_refmux_o,             // 18+4     // better name adc_refmux   adc_cmpr_latch
 476               azmux_o,                  // 14+4
-477               sig_pc_sw_o,              // 12+2
+477               sig_pc_ch_o,              // 12+2
 478               monitor_o,                // 4+8
 479               leds_o                    // 0+4
 

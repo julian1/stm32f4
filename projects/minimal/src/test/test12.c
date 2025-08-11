@@ -50,19 +50,31 @@ static void test (app_t *app)     // should be passing the continuation.
   mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
 
   printf("azmux       %u\n", mode.reg_direct.azmux_o );
-  printf("sig_pc_sw_o %u\n", mode.reg_direct.sig_pc_sw_o );
+  printf("pc_ch1      %u\n", mode.reg_direct.pc_ch1_o );
 
 
+
+/*
+  HERE
   // we  can control these  'set azmux SOFF, set pc 0b00'
   assert(
-       (mode.reg_direct.azmux_o == SOFF && mode.reg_direct.sig_pc_sw_o == 0b00 )    // azmux off, precharge select boot.
-    || (mode.reg_direct.azmux_o == S3   && mode.reg_direct.sig_pc_sw_o == 0b01)    // azmux select dcv,  pre-charge select signal.
+       (mode.reg_direct.azmux_o == SOFF && mode.reg_direct.sig_pc_ch_o == 0b00 )    // azmux off, precharge select boot.
+    || (mode.reg_direct.azmux_o == S3   && mode.reg_direct.sig_pc_ch_o == 0b01)    // azmux select dcv,  pre-charge select signal.
     );
+*/
+
+  // i think this is like this - so input can be setup for either ch1, or ch2.
+  assert(
+       (mode.reg_direct.azmux_o == SOFF && mode.reg_direct.pc_ch1_o == PC_BUF)    // azmux off, precharge select boot.
+    || (mode.reg_direct.azmux_o == S3   && mode.reg_direct.pc_ch1_o == PC_SIG)    // FIXME azmux select dcv,  pre-charge select signal.
+    );
+
+
 
 /*
   // test input leakage - including precharge, and azmux, but without amplifier
   mode.reg_direct.azmux_o = SOFF;         // azmux off, so amplifier floats
-  mode.reg_direct.sig_pc_sw_o = 0b00 ;    // precharge switches off / select boot.
+  mode.reg_direct.sig_pc_ch_o = 0b00 ;    // precharge switches off / select boot.
 
 */
 
@@ -272,7 +284,7 @@ mar 5. 2024.
       memset(&f, 0, sizeof(f));         // turn off himux, and azmux.
 
       f.himux2 = S4 ;               // s4 gnd. himux2 to reduce leakage.
-      f.sig_pc_sw_ctl  = 1;         // precharge mux signal. into azmux which is off.
+      f.sig_pc_ch_ctl  = 1;         // precharge mux signal. into azmux which is off.
       f.led0 = 1;                   // because muxinig signal.
 
       spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );

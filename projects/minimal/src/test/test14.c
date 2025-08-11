@@ -70,7 +70,8 @@ static void test (app_t *app)     // should be passing the continuation.
   // set up fpga - with direct mode - for soak/charge of accum cap.
   mode.reg_mode     =  MODE_DIRECT;
   assert( mode.reg_direct.azmux_o == SOFF) ;
-  assert( mode.reg_direct.sig_pc_sw_o == 0b00 );
+  // HERE assert( mode.reg_direct.sig_pc_ch_o == 0b00 );
+  assert( mode.reg_direct.pc_ch1_o == PC_BUF );
 
   mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
 
