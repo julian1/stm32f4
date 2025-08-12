@@ -363,6 +363,10 @@ void mode_set_dcv_source_daq( _mode_t *mode, unsigned u0, unsigned u1 )
 
 
 
+
+
+
+
 void mode_set_dcv_source_tia( _mode_t *mode )
 {
   UNUSED(mode);
@@ -469,6 +473,19 @@ void mode_set_ch2_dcv_source(_mode_t *mode)
 }
 
 
+
+
+void mode_ch1_accum( _mode_t *mode, bool val)
+{
+  mode->first.K406 = val ? SR_SET : SR_RESET;
+}
+
+
+void mode_ch2_accum( _mode_t *mode, bool val)
+{
+  mode->first.K406 = val ? SR_SET : SR_RESET;
+
+}
 
 
 

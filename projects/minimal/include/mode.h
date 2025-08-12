@@ -406,6 +406,9 @@ void spi_mode_transition_state( devices_t *devices, const _mode_t *mode, volatil
 
 
 /*
+
+  a light set of functions to help with common mode settings
+
   consider - how useful these setters are.
   versus -simply coding the mode fields/flags in-place.
   perhaps useful for repl.
@@ -459,6 +462,10 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );
   and does a reasonable job to abstract pinouts.
 
   consider if encoding and passing an argument may better
+  ------
+  issue is encoding in the interpreter.
+    set ch1  off
+    set ch1  dcv
 */
 
 void mode_set_ch1_off(_mode_t *mode);
@@ -489,7 +496,12 @@ void mode_set_ch2( _mode_t *mode, uint32_t val);
 #endif
 
 
-void mode_set_accum( _mode_t *mode, bool val);
+void mode_ch1_accum( _mode_t *mode, bool);
+void mode_ch2_accum( _mode_t *mode, bool);
+
+
+
+// void mode_set_accum( _mode_t *mode, bool val);
 
 
 
