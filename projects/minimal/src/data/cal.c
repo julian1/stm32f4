@@ -191,7 +191,7 @@ void data_cal(
 
   // dec 2024.
   // set up input relays.
-  mode_set_dcv_source_ref( mode, 0 );
+  mode_set_dcv_source_ref_lo( mode);
 
   assert(0); // FIXME JA. aug 2025.
   // mode_set_dcv_source_channel( mode, 1 ); // dcv
@@ -246,10 +246,12 @@ void data_cal(
       double y_ = 0;
       if(j == 0) {
         y_ = 7;   // ref-hi / 7V
-        mode_set_dcv_source_ref(  mode, 7);
+        // mode_set_dcv_source_ref(  mode, 7);
+        mode_set_dcv_source_ref_hi( mode);
       } else {
         y_ = 0;  // ref-lo / 0V
-        mode_set_dcv_source_ref(  mode, 0);
+        // mode_set_dcv_source_ref(  mode, 0);
+        mode_set_dcv_source_ref_lo( mode);
       }
 
       // start adc,

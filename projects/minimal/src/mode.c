@@ -306,8 +306,8 @@ void mode_set_dcv_source_sts( _mode_t *mode, signed u0 )
 }
 
 
-
-void mode_set_dcv_source_ref( _mode_t *mode, unsigned u0 )
+/*
+void mode_set_dcv_source_ref_hi( _mode_t *mode )
 {
   // rename mode_dcv_ref_source
 
@@ -326,6 +326,22 @@ void mode_set_dcv_source_ref( _mode_t *mode, unsigned u0 )
   }
   else
     assert(0);
+}
+*/
+
+void mode_set_dcv_source_ref_hi( _mode_t *mode )
+{
+  // rename mode_dcv_ref_source
+  mode_dcv_source_reset( mode);
+  mode->second.U1006  = S4;       // ref-hi
+}
+
+
+void mode_set_dcv_source_ref_lo( _mode_t *mode )
+{
+  // rename mode_dcv_ref_source
+  mode_dcv_source_reset( mode);
+  mode->second.U1006  = S8;       // ref-lo
 }
 
 
@@ -720,14 +736,15 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     mode_set_dcv_source_sts( mode, i0);
   }
 
-
-  else if( sscanf(cmd, "dcv-source ref %100s", s0) == 1
-    && str_decode_uint( s0, &u0))  {
-
-    // arg could be "hi"/"lo".
-    // 0 or 7
-    mode_set_dcv_source_ref( mode, u0 );
+  else if(strcmp(cmd, "dcv-source ref-hi") == 0) {  // ref-hi
+    mode_set_dcv_source_ref_hi( mode);
   }
+  else if(strcmp(cmd, "dcv-source ref-lo") == 0) {  // ref-hi
+    // this is through the dcv-source. can also mux direct from the azmux
+    mode_set_dcv_source_ref_lo( mode);
+  }
+
+
 
 
   else if(strcmp(cmd, "dcv-source temp") == 0) {

@@ -431,7 +431,10 @@ void mode_set_dcv_source_lts( _mode_t *mode, double f0 /*signed i0*/);  // arg i
 
 void mode_set_dcv_source_sts( _mode_t *mode, signed u0 );
 
-void mode_set_dcv_source_ref(  _mode_t *mode, unsigned u0 );
+void mode_set_dcv_source_ref_hi( _mode_t *mode);
+void mode_set_dcv_source_ref_lo( _mode_t *mode);
+
+
 
 void mode_set_dcv_source_temp( _mode_t *mode );
 
