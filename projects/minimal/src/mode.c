@@ -683,8 +683,8 @@ void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
 bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 {
 
-  char s0[100 + 1 ];
-  char s1[100 + 1 ];
+  char s0[ 100 + 1];
+  char s1[ 100 + 1];
   // char s2[100 + 1 ];
   uint32_t u0, u1;
   double f0;
@@ -862,6 +862,51 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     }
   }
 
+
+
+
+  // channel set
+  else if( sscanf(cmd, "set ch1 %100s", s0) == 1)
+  {
+    if(strcmp(s0, "off") == 0) {
+      mode_set_ch1_off(mode);
+    }
+    else if(strcmp(s0, "dcv") == 0) {
+      mode_set_ch1_dcv(mode);
+    }
+    else if(strcmp(s0, "dcv-source") == 0) {
+      mode_set_ch1_dcv_source(mode);
+    }
+    else assert(0);
+  }
+
+
+  else if( sscanf(cmd, "set ch2 %100s", s0) == 1)
+  {
+
+    if(strcmp(s0, "off") == 0) {
+      mode_set_ch2_off(mode);
+    }
+    else if(strcmp(s0, "sense") == 0) {
+      mode_set_ch2_sense(mode);
+    }
+    else if(strcmp(s0, "dci") == 0) {
+      mode_set_ch2_dci(mode);
+    }
+    else if(strcmp(s0, "dcv-div") == 0) {
+      mode_set_ch2_dcv_div(mode);
+    }
+     else if(strcmp(s0, "dcv-source") == 0) {
+      mode_set_ch2_dcv_source(mode);
+    }
+    else assert(0);
+  }
+
+
+
+
+
+
 #if 0
     else if(strcmp(s0, "precharge") == 0) {
       mode->sa.p_clk_count_precharge = u0;
@@ -911,7 +956,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
 #endif
 
-  // two value set.
+  // two val set cmd
   else if( sscanf(cmd, "set %100s %100s", s0, s1) == 2
     && str_decode_uint( s1, &u0)
   ) {
