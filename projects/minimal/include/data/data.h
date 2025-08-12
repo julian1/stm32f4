@@ -15,10 +15,12 @@
 
 
 typedef struct _mode_t _mode_t;
-
 typedef struct data_t data_t;
-
 typedef struct devices_t devices_t;
+typedef struct gpio_t gpio_t;
+
+
+
 
 
 typedef struct data_t
@@ -158,21 +160,13 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0/*, bool verbose*/);
 
 void data_cal(
 
-    data_t *data ,
-
+    data_t *data,
     devices_t *devices,
-
-/*
-    // needed to control board state, for calling mode_transition_state()
-    spi_t *spi_fpga0,
-    spi_t *spi_4094,
-    spi_t *spi_ad5446,
-*/
-
     _mode_t *mode,
     unsigned model_spec,
 
-    // app level stuff.
+    // app stuff
+    gpio_t      *gpio_trigger_internal,
     volatile uint32_t *system_millis,
     void (*yield)( void * ),
     void * yield_ctx

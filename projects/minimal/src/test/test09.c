@@ -63,7 +63,8 @@ bool app_test09( app_t *app , const char *cmd)
 
 
     // ok. so we need to encode the trigger.
-    mode->sa.p_trig = 1;
+    // mode->sa.p_trig = 1;
+    app_trigger_internal( app, 1);   // aug 2025.
 
 
     spi_mode_transition_state( &app->devices, mode, &app->system_millis);

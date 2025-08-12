@@ -43,8 +43,11 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
 
   // we need to toggle the trigger/ reset of sa controller. to get clean values.
   // we should do  this via the register.
+
+
+  // EXTR. TODO move the triger to after the transition state. because no longer relies on transition state
   // app->mode_current->trig_sa = 1;
-  app->mode_current->sa.p_trig = 1;
+  app_trigger_internal( app, 1);   // aug 2025.
 
 
 
@@ -69,7 +72,8 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
 
   // stop sample acquisition, perhaps unnecessary
   // app->mode_current->trig_sa = 0;
-  app->mode_current->sa.p_trig = 0;
+  app_trigger_internal( app, 0);   // aug 2025.
+
 
   spi_mode_transition_state( &app->devices, app->mode_current, &app->system_millis);
 
@@ -233,7 +237,9 @@ bool app_test41(
 
 
     // app->mode_current->trig_sa = 0;
-    app->mode_current->sa.p_trig = 0;
+    // app->mode_current->sa.p_trig = 0;
+    app_trigger_internal( app, 0);   // aug 2025.
+
 
     return 1;
   }

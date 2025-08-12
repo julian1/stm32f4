@@ -352,10 +352,10 @@ static void app_update_soft_500ms(app_t *app)
   */
 
 
-  // blink mcu led
+  // led state
   app->led_state = ! app->led_state;
 
-  // excessive abstraction
+  // blink mcu led
   gpio_write( app->gpio_status_led, app->led_state);
 
 
@@ -429,6 +429,8 @@ static void app_update_soft_500ms(app_t *app)
 
 /*
   should be a better way to do these one-off tests
+  move to a test?
+  issue is the 500ms hook.
 
   - for tests etc. would be just to have a hook function.
   - 500ms_hook.  that tests could use.
@@ -436,9 +438,6 @@ static void app_update_soft_500ms(app_t *app)
   except we dont want state changed from outside the context of a test.
 
 */
-
-
-
 #if 0
   // test toggle of 4094 cs
   if( spi_ice40_cdone( devices->spi_fpga0_pc)) {
@@ -451,15 +450,15 @@ static void app_update_soft_500ms(app_t *app)
     else
       spi_cs_deassert( devices->spi_mdac1);
   }
-
 #endif
 
+#if 0
   if( spi_ice40_cdone( devices->spi_fpga0_pc)) {
     // toggle the trigger.
 
     gpio_write( app->gpio_trigger_internal, app->led_state);
   }
-
+#endif
 
 
 
@@ -926,6 +925,16 @@ static bool spi_repl_reg_write( spi_t *spi,  const char *cmd)
 
 
 
+
+void app_trigger_internal( app_t *app, bool val )
+{
+  gpio_write( app->gpio_trigger_internal, val);   // aug 2025.
+
+}
+
+
+
+
 bool app_repl_statement(app_t *app,  const char *cmd)
 {
 
@@ -954,6 +963,32 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     // ignore
     printf("empty\n" );
   }
+
+
+
+
+
+
+
+
+  // "h" for halt
+  else if(strcmp(cmd, "halt") == 0 || strcmp(cmd, "h") == 0) {
+
+
+    app_trigger_internal( app, 0);
+  }
+  // "t" to trigger
+  else if(strcmp(cmd, "trig") == 0 || strcmp(cmd, "t") == 0) {
+
+    /* / trigger - has a dependency on both data and the mode
+    // because we want to clear the data buffer
+    // No. I think the trigger. should not change or clear the data buff. it just starts the adc.
+    */
+
+    app_trigger_internal( app, 1);
+  }
+
+
 
 
 
@@ -1163,8 +1198,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     _mode_t mode = *app->mode_initial;
     unsigned model_spec = u0;
 
-
-    data_cal( app->data,  &app->devices,  &mode, model_spec, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+    data_cal( app->data,  &app->devices,  &mode, model_spec, app->gpio_trigger_internal,  &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
   }
 
   else if(strcmp(cmd, "cal") == 0) {
@@ -1173,7 +1207,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     _mode_t mode = *app->mode_initial;
     unsigned model_spec = 3;
 
-    data_cal( app->data,  &app->devices,  &mode, model_spec, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+    data_cal( app->data,  &app->devices,  &mode, model_spec, app->gpio_trigger_internal, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
   }
 
 
@@ -1244,7 +1278,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     sa->p_seq_elt[ 0].azmux = S1;
     sa->p_seq_elt[ 0].pc = 0b01;
 
-    sa->p_trig = 1;
+    // sa->p_trig = 1;
 
     // clear the interrupt handler, will be re-enabled at the end of mode transition state
     interrupt_set_handler( app->devices.fpga0_interrupt, NULL, NULL );

@@ -184,6 +184,11 @@ void app_yield(app_t *app);
 */
 
 
+// aug 2025.
+// using this, means we dont need to include peripheral/gpio.h everywhere
+void app_trigger_internal( app_t *app, bool val );
+
+
 
 bool app_repl_statement(app_t *app,  const char *cmd);
 void app_repl_statements(app_t *app,  const char *s);

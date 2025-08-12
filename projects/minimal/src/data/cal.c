@@ -44,6 +44,7 @@
 #include <math.h>     // fabs
 
 
+#include <peripheral/gpio.h>
 #include <peripheral/spi-ice40.h>
 #include <device/spi-fpga0-reg.h>
 
@@ -127,20 +128,16 @@ void data_cal_show( data_t *data )
 
 
 void data_cal(
-  data_t *data ,
 
+  data_t    *data ,
   devices_t *devices,
 
-  // uint32_t spi,
-  // spi_ice40_t * spi,
-/*
-  spi_t *spi_fpga0,
-  spi_t *spi_4094,
-  spi_t *spi_ad5446,
-*/
 
   _mode_t *mode,
   unsigned model_spec,
+
+  // app stuff
+  gpio_t      *gpio_trigger_internal,
   volatile uint32_t *system_millis,
   void (*yield)( void * ),
   void * yield_ctx
@@ -222,7 +219,8 @@ void data_cal(
 
 
   // mode->trig_sa = 1;
-  mode_set_trigger( mode, true);
+  // mode_set_trigger( mode, true);
+  gpio_write( gpio_trigger_internal, 1 );   // aug 2025.
 
 
 

@@ -391,16 +391,6 @@ void mode_set_dcv_source_channel( _mode_t *mode, unsigned u0 )
 #endif
 
 
-// TODO aug. 2025. remove.  trigger not part of mode.
-
-void mode_set_trigger( _mode_t *mode, bool val )
-{
-
-  mode->sa.p_trig = val;
-
-}
-
-
 
 
 
@@ -759,74 +749,6 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   }
 
 
-#if 0
-  else if( sscanf(cmd, "dcv-source chan %lu", &u0) == 1)  {
-
-    //
-    //  set channel.  1 on.  2. on 1 off.
-    // kind of need off and on.?
-    // eg. 'dcv-source daq s1 s2'
-
-    mode_set_dcv_source_channel( mode, u0);
-  }
-
-#endif
-
-
-
-#if 0
-
-  else if( sscanf(cmd, "boot%100s", s0) == 1
-    && str_decode_uint( s0, &u0))  {
-
-    mode_set_seq( mode, SEQ_MODE_BOOT, u0, 0 );
-  }
-  else if( sscanf(cmd, "noazero %100s", s0) == 1
-    && str_decode_uint( s0, &u0))  {
-
-    mode_set_seq( mode, SEQ_MODE_NOAZ, u0, 0 );
-  }
-  else if( sscanf(cmd, "azero %100s %100s", s0, s1) == 2
-    && str_decode_uint( s0, &u0)
-    && str_decode_uint( s1, &u1)) {
-
-    mode_set_seq( mode, SEQ_MODE_AZ, u0, u1 );
-  }
-
-    // ratio is hardcoded to use lomux at the moment. and not star-lo.
-  else if(strcmp(cmd, "ratio") == 0) {
-    mode_set_seq( mode, SEQ_MODE_RATIO, 0,0 );
-  }
-
-  else if(strcmp(cmd, "ag") == 0)
-    mode_set_seq( mode, SEQ_MODE_AG, 0, 0 );
-
-  else if(strcmp(cmd, "diff") == 0)
-    mode_set_seq( mode, SEQ_MODE_DIFF, 0 , 0);
-
-  else if(strcmp(cmd, "sum-test") == 0)
-    mode_set_seq( mode, SEQ_MODE_SUM_DELTA, 0, 0 );
-
-#endif
-
-  // "h" for halt
-  else if(strcmp(cmd, "halt") == 0 || strcmp(cmd, "h") == 0) {
-
-    mode_set_trigger( mode, 0);
-  }
-  // "t" to trigger
-  else if(strcmp(cmd, "trig") == 0 || strcmp(cmd, "t") == 0) {
-
-    /* / trigger - has a dependency on both data and the mode
-    // because we want to clear the data buffer
-    // No. I think the trigger. should not change or clear the data buff. it just starts the adc.
-    */
-
-    mode_set_trigger( mode, 1);
-  }
-
-
-
   /*
       we have to disambiguate values with float args explicitly...
       because float looks like int
@@ -906,56 +828,6 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
 
 
-
-#if 0
-    else if(strcmp(s0, "precharge") == 0) {
-      mode->sa.p_clk_count_precharge = u0;
-    }
-#endif
-
-
-
-#if 0
-  /*
-    perhaps keep the 'set' prefix to clearly disambiguate these actions under common syntactic form.
-  */
-
-  // three val
-  else if( sscanf(cmd, "set %100s %100s %100s", s0, s1, s2) == 3
-    && str_decode_uint( s1, &u0)
-    && str_decode_uint( s2, &u1)
-  ) {
-      /*
-        setting/encoding sequence values directly.
-        eg.
-        > set seq0 0b01 s3
-        > set seq0 0b00 soff
-      */
-
-      // maybe be handy to have in a function. or else return
-      uint32_t val =  ((u0 & 0b11) << 4) | ( u1 & 0b1111);
-
-      if(strcmp(s0, "seq0") == 0) {
-        mode->sa.p_seq0 = val;
-      }
-      else if(strcmp(s0, "seq1") == 0) {
-        mode->sa.p_seq1 = val;
-      }
-       else if(strcmp(s0, "seq2") == 0) {
-        mode->sa.p_seq2 = val;
-      }
-      else if(strcmp(s0, "seq3") == 0) {
-        mode->sa.p_seq3 = val;
-      }
-      else {
-        printf("unknown target %s for 3 var set\n", s0);
-        return 0;
-      }
-
-  }
-
-#endif
-
   // two val set cmd
   else if( sscanf(cmd, "set %100s %100s", s0, s1) == 2
     && str_decode_uint( s1, &u0)
@@ -1021,7 +893,17 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 */
       else if(strcmp(s0, "azmux") == 0) {
         mode->reg_direct.azmux_o = u0;
+
+
+        // TODO consider moving this to support arg decoding
+        // s1 == ch1-hi
+        // s3 == ch2-hi
+
       }
+
+
+
+
 
       else if(strcmp(s0, "adc_refmux") == 0) {
         mode->reg_direct.adc_refmux_o = u0;
@@ -1084,6 +966,14 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       else if(strcmp(s0, "k405") == 0) {
         mode->first.K405 = u0 ? SR_SET: SR_RESET;
       }
+      else if(strcmp(s0, "u409") == 0 || strcmp(s0, "inmux") == 0) {
+
+        // should use set channel functionality instead.
+        mode->second.U409 = u0 ;
+      }
+
+
+
 #if 0
       else if(strcmp(s0, "k703") == 0) {
         mode->first.K703 = u0 ? SR_SET: SR_RESET;
@@ -1096,10 +986,56 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       }
 #endif
 
-      else if(strcmp(s0, "u409") == 0 || strcmp(s0, "inmux") == 0) {
-        mode->second.U409 = u0 ;
+
+
+#if 0
+    else if(strcmp(s0, "precharge") == 0) {
+      mode->sa.p_clk_count_precharge = u0;
+    }
+#endif
+
+
+
+#if 0
+  /*
+    perhaps keep the 'set' prefix to clearly disambiguate these actions under common syntactic form.
+  */
+
+  // three val
+  else if( sscanf(cmd, "set %100s %100s %100s", s0, s1, s2) == 3
+    && str_decode_uint( s1, &u0)
+    && str_decode_uint( s2, &u1)
+  ) {
+      /*
+        setting/encoding sequence values directly.
+        eg.
+        > set seq0 0b01 s3
+        > set seq0 0b00 soff
+      */
+
+      // maybe be handy to have in a function. or else return
+      uint32_t val =  ((u0 & 0b11) << 4) | ( u1 & 0b1111);
+
+      if(strcmp(s0, "seq0") == 0) {
+        mode->sa.p_seq0 = val;
+      }
+      else if(strcmp(s0, "seq1") == 0) {
+        mode->sa.p_seq1 = val;
+      }
+       else if(strcmp(s0, "seq2") == 0) {
+        mode->sa.p_seq2 = val;
+      }
+      else if(strcmp(s0, "seq3") == 0) {
+        mode->sa.p_seq3 = val;
+      }
+      else {
+        printf("unknown target %s for 3 var set\n", s0);
+        return 0;
       }
 
+  }
+
+#endif
 
 
       /*
@@ -1118,10 +1054,72 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
         return 0;
 
       }
-  } else {
+  } 
+
+
+
+
+
+#if 0
+  else if( sscanf(cmd, "dcv-source chan %lu", &u0) == 1)  {
+
+    //
+    //  set channel.  1 on.  2. on 1 off.
+    // kind of need off and on.?
+    // eg. 'dcv-source daq s1 s2'
+
+    mode_set_dcv_source_channel( mode, u0);
+  }
+
+#endif
+
+
+
+#if 0
+
+  else if( sscanf(cmd, "boot%100s", s0) == 1
+    && str_decode_uint( s0, &u0))  {
+
+    mode_set_seq( mode, SEQ_MODE_BOOT, u0, 0 );
+  }
+  else if( sscanf(cmd, "noazero %100s", s0) == 1
+    && str_decode_uint( s0, &u0))  {
+
+    mode_set_seq( mode, SEQ_MODE_NOAZ, u0, 0 );
+  }
+  else if( sscanf(cmd, "azero %100s %100s", s0, s1) == 2
+    && str_decode_uint( s0, &u0)
+    && str_decode_uint( s1, &u1)) {
+
+    mode_set_seq( mode, SEQ_MODE_AZ, u0, u1 );
+  }
+
+    // ratio is hardcoded to use lomux at the moment. and not star-lo.
+  else if(strcmp(cmd, "ratio") == 0) {
+    mode_set_seq( mode, SEQ_MODE_RATIO, 0,0 );
+  }
+
+  else if(strcmp(cmd, "ag") == 0)
+    mode_set_seq( mode, SEQ_MODE_AG, 0, 0 );
+
+  else if(strcmp(cmd, "diff") == 0)
+    mode_set_seq( mode, SEQ_MODE_DIFF, 0 , 0);
+
+  else if(strcmp(cmd, "sum-test") == 0)
+    mode_set_seq( mode, SEQ_MODE_SUM_DELTA, 0, 0 );
+
+#endif
+
+
+  else {
 
     return 0;
   }
+
+
+
+
+
 
   return 1;
 }

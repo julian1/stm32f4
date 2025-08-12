@@ -110,7 +110,9 @@ static void test (app_t *app)     // should be passing the continuation.
 
   // trigger start of sample acquisition
   // mode.trig_sa = 1;
-  mode.sa.p_trig = 1;
+  app_trigger_internal( app, 1);   // aug 2025.
+
+
 
 
   mode.first .K407 = SR_RESET;      // turn off dcv-source

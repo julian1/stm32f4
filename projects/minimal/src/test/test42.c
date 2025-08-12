@@ -47,7 +47,10 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
   // we need to toggle the trigger/ reset of sa controller. to get clean values.
   // we should do  this via the register.
   // app->mode_current->trig_sa = 1;
-  app->mode_current->sa.p_trig = 1;
+  // app->mode_current->sa.p_trig = 1;
+
+  // TODO - move to after the transition state
+  app_trigger_internal( app, 1);   // aug 2025.
 
 
   spi_mode_transition_state( &app->devices, app->mode_current, &app->system_millis);
@@ -73,10 +76,10 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
 
   //ice40_port_trig_sa_disable();
 
-  app->mode_current->sa.p_trig = 0;
-    // JA. dec 2024. need to call transition state again.
-    // or just write the register.
-
+  // app->mode_current->sa.p_trig = 0;
+  // JA. dec 2024. need to call transition state again.
+  // or just write the register.
+  app_trigger_internal( app, 0);   // aug 2025.
 
 
   assert( 0);
@@ -340,10 +343,10 @@ bool app_test42(
 
 
     // app->mode_current->trig_sa = 0;
-
-    app->mode_current->sa.p_trig = 0;
+    // app->mode_current->sa.p_trig = 0;
     // JA. dec 2024. need to call transition state again.
     // or just write the register.
+    app_trigger_internal( app, 0);   // aug 2025.
 
     return 1;
   }

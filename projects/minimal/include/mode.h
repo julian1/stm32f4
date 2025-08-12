@@ -305,7 +305,8 @@ typedef struct sa_state_t
   seq_elt_t p_seq_elt [ 4] ;
 
 
-  uint32_t p_trig;
+  // remove. aug. 2025
+  // uint32_t p_trig;
 
 
 } sa_state_t;
@@ -439,12 +440,6 @@ void mode_set_dcv_source_daq( _mode_t *mode, unsigned u0, unsigned u1 );
 void mode_set_dcv_source_tia( _mode_t *mode );
 
 
-
-
-// void mode_set_dcv_source_channel( _mode_t *mode, unsigned u0 );
-
-// TODO fixme, remove trigger now independent of mode.
-void mode_set_trigger( _mode_t *mode, bool );
 
 
 
