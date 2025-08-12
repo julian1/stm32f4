@@ -391,6 +391,7 @@ typedef struct _mode_t
 
   adc_state_t    adc;
 
+  bool         trigger_selection;     // stm32. state
 
 } _mode_t ;
 

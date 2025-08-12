@@ -93,9 +93,6 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
 
   /////////////////////////////
 
-
-
-
 /*
     HERE
   // now write mdac state
@@ -115,22 +112,15 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
   spi_ad5446_write16( devices->spi_mdac1, mode->mdac1_val );
 
 
-
-
-
-
 /* HERE
   // restore spi mode, after writing the non-fpga part of the board state
   spi_port_configure( spi_fpga);
   spi_ice40_reg_write32( spi_fpga, REG_SPI_MUX, 0 );
 */
 
-
-
   /////////////////////////////
 
   // fpga stuff
-
 
   spi_ice40_reg_write32( devices->spi_fpga0, REG_MODE, mode->reg_mode );
 
@@ -179,7 +169,7 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
   spi_ice40_reg_write32(spi_fpga, REG_SA_P_TRIG, mode->sa.p_trig );
 #endif
 
-
+  
 }
 
 

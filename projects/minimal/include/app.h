@@ -81,15 +81,13 @@ typedef struct app_t
 
 
   bool led_state ;          // for mcu. maybe change name to distinguish
-                            // TODO remove.  just query the state of status_led .  eg. gpio_read( )
+                            // TODO consider remove.  and query the state of status_led .  eg. gpio_read( )
+                            // not sure the point is to communicate it.
 
   bool led_blink_enable;    // for analog board. whether to blink the led on the analog board.
                             // useful activity indicator, but also need to be able to to suppress
 
 
-  // port/pinno
-  // uint16_t led_status;
-  // led_t         *led_status;
   gpio_t        *status_led;
 
   uint32_t      soft_500ms;
@@ -119,6 +117,8 @@ typedef struct app_t
 
   // analog board devices
   devices_t   devices;
+
+
 
 
   ///////
