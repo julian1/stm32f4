@@ -402,6 +402,12 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
+#if 0
+  /*
+    blinking the led by pulsing the state transition.
+    will will turn some analog switches on/off for 10ms..
+    which means non consisten reading of values
+  */
 
   if( app->led_blink_enable
     && spi_ice40_cdone( devices->spi_fpga0_pc)
@@ -416,7 +422,7 @@ static void app_update_soft_500ms(app_t *app)
 
     spi_mode_transition_state( &app->devices, app->mode_current, &app->system_millis);
   }
-
+#endif
 
 
 
