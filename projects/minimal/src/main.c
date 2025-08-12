@@ -399,8 +399,8 @@ static int main_f429(void)
   // led0
   // app.status_led = led0_create();
 
-  app.status_led = led0_create();
-  gpio_setup( app.status_led);
+  app.gpio_status_led = gpio_led0_create();
+  gpio_setup( app.gpio_status_led);
 
 
 
@@ -485,14 +485,14 @@ static int main_f429(void)
 
   // should prefix with gpio?
   // probably. do it with sed.
-  devices->trigger_selection = trigger_selection_create();
-  gpio_setup( devices->trigger_selection);
+  devices->gpio_trigger_selection = trigger_selection_create();
+  gpio_setup( devices->gpio_trigger_selection);
 
 
 
   // trigger internal
-  app.trigger_internal = trigger_internal_create();
-  gpio_setup( app.trigger_internal);
+  app.gpio_trigger_internal = trigger_internal_create();
+  gpio_setup( app.gpio_trigger_internal);
 
 
   ///////////

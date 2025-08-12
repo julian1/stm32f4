@@ -38,7 +38,7 @@ typedef struct devices_t
   */
 
 
-  gpio_t        *trigger_selection;
+  gpio_t        *gpio_trigger_selection;
 
 } devices_t;
 

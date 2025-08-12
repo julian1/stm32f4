@@ -8,6 +8,6 @@
 
 
 // constructor, opaque, should be called in main()
-gpio_t *led0_create( void);
+gpio_t *gpio_led0_create( void);
 
 

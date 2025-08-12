@@ -39,7 +39,7 @@ static void write( gpio_t *p, uint8_t val)
 
 
 
-gpio_t *led0_create()
+gpio_t *gpio_led0_create()
 {
   gpio_t *p = malloc(sizeof( gpio_t));
   assert(p);

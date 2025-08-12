@@ -357,7 +357,7 @@ static void app_update_soft_500ms(app_t *app)
   app->led_state = ! app->led_state;
 
   // excessive abstraction
-  gpio_write( app->status_led, app->led_state);
+  gpio_write( app->gpio_status_led, app->led_state);
 
 
 
@@ -452,7 +452,7 @@ static void app_update_soft_500ms(app_t *app)
   if( spi_ice40_cdone( devices->spi_fpga0_pc)) {
     // toggle the trigger.
 
-    gpio_write( app->trigger_internal, app->led_state);
+    gpio_write( app->gpio_trigger_internal, app->led_state);
   }
 
 
@@ -717,7 +717,7 @@ void app_update_simple_with_data(app_t *app)
     // blink mcu led
     app->led_state = ! app->led_state;
 
-    gpio_write( app->status_led, app->led_state);
+    gpio_write( app->gpio_status_led, app->led_state);
   }
 
 }
@@ -743,7 +743,7 @@ void app_update_simple_led_blink(app_t *app)
 
     // blink mcu led
     app->led_state = ! app->led_state;
-    gpio_write( app->status_led, app->led_state);
+    gpio_write( app->gpio_status_led, app->led_state);
 
   }
 

@@ -88,7 +88,7 @@ typedef struct app_t
                             // useful activity indicator, but also need to be able to to suppress
 
 
-  gpio_t        *status_led;
+  gpio_t        *gpio_status_led;
 
   uint32_t      soft_500ms;
 
@@ -108,7 +108,8 @@ typedef struct app_t
   // volatile int32_t sleep_millis;  // signed count down.
 
 
-  // TODO - consider make these pointers again. for opaque structure .  instantiate in main.
+  // TODO - consider make pointers if want opaque structure .  instantiate in main.
+  // rename cbuf_console_in
   cbuf_t        console_in;
   cbuf_t        console_out;
 
@@ -119,7 +120,7 @@ typedef struct app_t
   devices_t   devices;
 
 
-  gpio_t      *trigger_internal;
+  gpio_t      *gpio_trigger_internal;
 
 
   ///////
