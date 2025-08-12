@@ -15,7 +15,8 @@
 #include <support.h>      // spi_wait_ready(), write_val();
 
 #include <peripheral/spi-ice40-pc.h>   // interface/abstraction
-#include <device/fpga1.h>        // implementation/device
+
+#include <device/spi-fpga1.h>        // implementation/device
 
 #define UNUSED(x) ((void)(x))
 

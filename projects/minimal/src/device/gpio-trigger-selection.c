@@ -11,7 +11,7 @@
 #include <libopencm3/stm32/gpio.h>
 
 
-#include <device/trigger-selection.h>
+#include <device/gpio-trigger-selection.h>
 
 
 
@@ -39,7 +39,7 @@ static void write( gpio_t *p, uint8_t val)
 
 
 
-gpio_t *trigger_selection_create()
+gpio_t *gpio_trigger_selection_create()
 {
   gpio_t *p = malloc(sizeof( gpio_t));
   assert(p);

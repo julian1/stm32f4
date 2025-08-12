@@ -15,8 +15,8 @@
 #include <support.h>    // spi_wait_ready().  should perhaps move to spi.  no. because it's an peripheral abstraction
 
 
-#include <device/4094-0.h>
-#include <device/fpga0_reg.h>   // cs vec
+#include <device/spi-4094-0.h>
+#include <device/spi-fpga0-reg.h>   // cs vec
 
 
 

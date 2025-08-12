@@ -44,7 +44,7 @@
 #include <util.h> // str_decode_uint
 
 
-#include <device/fpga0_reg.h>
+#include <device/spi-fpga0-reg.h>
 
 #include <lib2/stream-flash.h>
 

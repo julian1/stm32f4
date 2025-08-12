@@ -14,9 +14,9 @@
 #include <support.h>
 
 
-#include <peripheral/spi.h>   // interface/abstraction
-#include <device/fpga0.h>        // implementation/device
-#include <device/fpga0_reg.h>   // cs vec
+#include <peripheral/spi.h>           // interface/abstraction
+#include <device/spi-fpga0.h>         // implementation/device
+#include <device/spi-fpga0-reg.h>     // cs vec
 
 
 

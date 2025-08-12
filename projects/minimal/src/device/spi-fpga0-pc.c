@@ -15,7 +15,7 @@
 
 
 #include <peripheral/spi-ice40-pc.h>   // interface/abstraction
-#include <device/fpga0-pc.h>        // implementation/device
+#include <device/spi-fpga0-pc.h>        // implementation/device
 
 /*
 // pulled from spi-port code.

@@ -32,7 +32,7 @@
 #include <app.h>
 #include <lib2/util.h>    // msleep()
 
-#include <device/fpga0_reg.h>    // modes
+#include <device/spi-fpga0-reg.h>    // modes
 
 /*
   OK, this test doesn't actually even need the app structure.

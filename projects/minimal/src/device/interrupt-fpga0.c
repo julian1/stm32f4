@@ -11,7 +11,7 @@
 
 
 #include <peripheral/interrupt.h>
-#include <device/fpga0_interrupt.h>
+#include <device/interrupt-fpga0.h>
 
 
 #define UNUSED(x) ((void)(x))

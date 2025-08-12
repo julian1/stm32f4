@@ -19,7 +19,7 @@
 
 
 
-#include <device/fpga0_reg.h>    // TODO REMOVE. for seq mode
+#include <device/spi-fpga0-reg.h>    // TODO REMOVE. does not belong here. for seq mode
 
 
 #define UNUSED(x) ((void)(x))

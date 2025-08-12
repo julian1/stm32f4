@@ -1,13 +1,10 @@
 
-
 #pragma once
-
 
 
 #include <peripheral/gpio.h>
 
 
-// constructor, opaque, should be called in main()
-gpio_t *gpio_led0_create( void);
+gpio_t *gpio_status_led_create( void);
 
 

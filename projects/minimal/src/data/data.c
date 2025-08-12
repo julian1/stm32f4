@@ -23,7 +23,7 @@
 #include <peripheral/spi-ice40.h>
 
 
-#include <device/fpga0_reg.h>   // for seq mode
+#include <device/spi-fpga0-reg.h>   // for seq mode
 
 
 

@@ -19,8 +19,8 @@
 #include <peripheral/spi.h>
 #include <support.h>      // spi_wait_read()
 
-#include <device/mdac1.h>
-#include <device/fpga0_reg.h>   // cs vec
+#include <device/spi-mdac1.h>
+#include <device/spi-fpga0-reg.h>   // cs vec
 
 
 #define MDAC1_MAGIC 1898851674

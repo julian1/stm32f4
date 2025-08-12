@@ -27,10 +27,8 @@
 
 /* split vfd - so the rst gpio setup  is moved to device.
 */
-#include <peripheral/vfd.h>
-#include <peripheral/spi-ice40.h>
 
-#include <peripheral/interrupt.h>
+
 
 
 #include <device/spi1-port.h>
@@ -38,28 +36,30 @@
 
 
 
-#include <device/led0.h>
-#include <device/fpga0.h>
-#include <device/fpga0-pc.h>
-#include <device/fpga0_interrupt.h>
+#include <device/spi-fpga0.h>
+#include <device/spi-fpga0-pc.h>
+#include <device/spi-4094-0.h>
+#include <device/spi-mdac0.h>
+#include <device/spi-mdac1.h>
 
-#include <device/4094-0.h>
-#include <device/mdac0.h>
-#include <device/mdac1.h>
+#include <device/interrupt-fpga0.h>
 
-
-#include <device/trigger-internal.h>
-#include <device/trigger-selection.h>
-
+#include <device/gpio-status-led.h>
+#include <device/gpio-trigger-internal.h>
+#include <device/gpio-trigger-selection.h>
 
 #include <device/fsmc.h>
 
+#include <device/spi-fpga1.h>
 
 
-#include <device/fpga1.h>
+
+#include <peripheral/vfd.h>
+#include <peripheral/spi-ice40.h>
+#include <peripheral/interrupt.h>
 
 
-// #include <hal/hal.h>
+
 
 
 static const _mode_t mode_initial =  {
@@ -403,7 +403,7 @@ static int main_f429(void)
   // led0
   // app.status_led = led0_create();
 
-  app.gpio_status_led = gpio_led0_create();
+  app.gpio_status_led = gpio_status_led_create();
   gpio_setup( app.gpio_status_led);
 
 
@@ -489,13 +489,13 @@ static int main_f429(void)
 
   // should prefix with gpio?
   // probably. do it with sed.
-  devices->gpio_trigger_selection = trigger_selection_create();
+  devices->gpio_trigger_selection = gpio_trigger_selection_create();
   gpio_setup( devices->gpio_trigger_selection);
 
 
 
   // trigger internal
-  app.gpio_trigger_internal = trigger_internal_create();
+  app.gpio_trigger_internal = gpio_trigger_internal_create();
   gpio_setup( app.gpio_trigger_internal);
 
 

@@ -15,7 +15,7 @@
 // #include <peripheral/spi-dac8811.h>
 #include <peripheral/gpio.h>
 
-#include <device/fpga0_reg.h>
+#include <device/spi-fpga0-reg.h>
 
 
 #include <lib2/util.h>      // msleep, UNUSED
@@ -170,7 +170,7 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
   spi_ice40_reg_write32(spi_fpga, REG_SA_P_TRIG, mode->sa.p_trig );
 #endif
 
-  
+
   gpio_write( devices->gpio_trigger_selection, mode->trigger_selection);
 
 }

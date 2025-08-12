@@ -23,7 +23,7 @@
 #include <lib2/util.h>         // msleep()
 
 
-#include <device/fpga0_reg.h> // MODE_DIRECT
+#include <device/spi-fpga0-reg.h> // MODE_DIRECT
 
 
 

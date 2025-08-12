@@ -6,6 +6,6 @@
 #include <peripheral/gpio.h>
 
 
-gpio_t *trigger_selection_create( void);
+gpio_t *gpio_trigger_selection_create( void);
 
 
