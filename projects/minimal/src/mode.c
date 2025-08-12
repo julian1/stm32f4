@@ -13,6 +13,7 @@
 #include <peripheral/spi-4094.h>
 #include <peripheral/spi-ad5446.h>
 // #include <peripheral/spi-dac8811.h>
+#include <peripheral/gpio.h>
 
 #include <device/fpga0_reg.h>
 
@@ -170,6 +171,8 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
 #endif
 
   
+  gpio_write( devices->gpio_trigger_selection, mode->trigger_selection);
+
 }
 
 
