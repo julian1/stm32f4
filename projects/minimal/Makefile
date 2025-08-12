@@ -16,6 +16,7 @@ SRCFILES	= src/support.c \
             src/peripheral/interrupt.c \
             src/device/spi1-port.c src/device/spi2-port.c  \
             src/device/fpga1.c src/device/fsmc.c src/device/led0.c src/device/fpga0.c src/device/fpga0-pc.c  \
+            src/device/trigger-internal.c \
             src/device/fpga0_interrupt.c src/device/4094-0.c \
             src/device/mdac0.c src/device/mdac1.c \
             src/main.c  \
@@ -57,7 +58,7 @@ TGT_CFLAGS  += -Wno-unused-function   \
               -fplan9-extensions \
 
 
-#                -Wno-strict-aliasing 
+#                -Wno-strict-aliasing
 
 
 # https://gcc.gnu.org/onlinedocs/gcc-6.1.0/gcc/Unnamed-Fields.html

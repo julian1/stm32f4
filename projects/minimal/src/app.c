@@ -446,7 +446,18 @@ static void app_update_soft_500ms(app_t *app)
     else
       spi_cs_deassert( devices->spi_mdac1);
   }
+
 #endif
+
+  if( spi_ice40_cdone( devices->spi_fpga0_pc)) {
+    // toggle the trigger.
+
+    gpio_write( app->trigger_internal, app->led_state);
+  }
+
+
+
+
 
   // fpga0 on analog board
 

@@ -119,6 +119,7 @@ typedef struct app_t
   devices_t   devices;
 
 
+  gpio_t      *trigger_internal;
 
 
   ///////
@@ -147,6 +148,9 @@ typedef struct app_t
 
 
 #define APP_MAGIC   456
+
+
+
 
 
 

@@ -1,12 +1,7 @@
-/*
-
-  demonstrates interface
-*/
 
 
 
-// #include <stdio.h>  // printf don't use printf not configured.
-#include <assert.h>  // assert_simple()
+#include <assert.h>
 #include <string.h>  // memset
 #include <stdlib.h>  // malloc
 
@@ -23,25 +18,23 @@
 
 
 // PA9
-#define LED_PORT  GPIOA
-#define LED_PIN   GPIO9
+#define PORT  GPIOA
+#define PIN   GPIO9
 
 
 
-static void setup(gpio_t *led)
+static void setup(gpio_t *p)
 {
-  assert(led);
-
-  gpio_mode_setup( LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_PIN);
-  gpio_set_output_options( LED_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, LED_PIN);
+  assert(p);
+  gpio_mode_setup( PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, PIN);
+  gpio_set_output_options( PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, PIN);
 }
 
 
-static void write( gpio_t *led, uint8_t val)
+static void write( gpio_t *p, uint8_t val)
 {
-  assert(led);
-
-  gpio_write_val(LED_PORT, LED_PIN, val );
+  assert(p);
+  gpio_write_val( PORT, PIN, val);
 }
 
 
@@ -70,7 +63,7 @@ gpio_t *led0_create()
 void led_on(uint16_t led)
 {
   UNUSED(led);
-  // gpio_set( LED_PORT, LED_OUT);      // cm3
+  // gpio_set( PORT, LED_OUT);      // cm3
   // hal_gpio_write( led, 1);           // hal
   // hal_gpio_write( PIN('A', 9), 1);   // hal
   // GPIO_BSRR( GPIOA ) |= (1<<9);      // cm3
@@ -86,7 +79,7 @@ void led_on(uint16_t led)
 void led_off(uint16_t led)
 {
   UNUSED(led);
-  // gpio_clear( LED_PORT, LED_OUT);      // cm3
+  // gpio_clear( PORT, LED_OUT);      // cm3
   // hal_gpio_write( led, 0);             // hal
   // hal_gpio_write( PIN('A', 9), 0);     // hal
   // GPIO_BSRR( GPIOA ) |= (1<<(9+16));   // cm3
@@ -102,8 +95,8 @@ void led_setup(uint16_t led)
   // rcc_periph_clock_enable(RCC_GPIOA);
 
 /*
-  gpio_mode_setup( LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT );
-  gpio_set_output_options( LED_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, LED_OUT );
+  gpio_mode_setup( PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_OUT );
+  gpio_set_output_options( PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, LED_OUT );
 */
 
   // works

@@ -26,6 +26,7 @@ struct gpio_t
 
 static inline void gpio_setup( gpio_t *io)
 {
+  // assert(io);
   io->setup( io);
 }
 
@@ -33,6 +34,7 @@ static inline void gpio_setup( gpio_t *io)
 
 static inline void gpio_write( gpio_t *io, uint8_t val)
 {
+  // assert(io);
   io->write(io, val);
 }
 

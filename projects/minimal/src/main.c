@@ -33,6 +33,11 @@
 #include <peripheral/interrupt.h>
 
 
+#include <device/spi1-port.h>
+#include <device/spi2-port.h>
+
+
+
 #include <device/led0.h>
 #include <device/fpga0.h>
 #include <device/fpga0-pc.h>
@@ -42,11 +47,11 @@
 #include <device/mdac0.h>
 #include <device/mdac1.h>
 
+
+#include <device/trigger-internal.h>
+
+
 #include <device/fsmc.h>
-
-
-#include <device/spi1-port.h>
-#include <device/spi2-port.h>
 
 
 
@@ -440,7 +445,6 @@ static int main_f429(void)
   // init spi related port state. before do spi port.
   // to prevent ice40 wanting to become spi master
 
-#if 1
 
 
   // now init spi ports
@@ -479,9 +483,14 @@ static int main_f429(void)
   spi_setup( devices->spi_mdac1 );
 
 
-#endif
+
+  // trigger
+
+  app.trigger_internal = trigger_internal_create();
+  gpio_setup( app.trigger_internal);
 
 
+  ///////////
 
 
 
