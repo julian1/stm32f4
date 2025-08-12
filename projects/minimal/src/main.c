@@ -49,6 +49,7 @@
 
 
 #include <device/trigger-internal.h>
+#include <device/trigger-selection.h>
 
 
 #include <device/fsmc.h>
@@ -482,10 +483,14 @@ static int main_f429(void)
   devices->spi_mdac1 = spi_mdac1_create();
   spi_setup( devices->spi_mdac1 );
 
+  // should prefix with gpio?
+  // probably. do it with sed.
+  devices->trigger_selection = trigger_selection_create();
+  gpio_setup( devices->trigger_selection);
 
 
-  // trigger
 
+  // trigger internal
   app.trigger_internal = trigger_internal_create();
   gpio_setup( app.trigger_internal);
 
