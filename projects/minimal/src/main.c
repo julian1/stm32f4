@@ -54,9 +54,9 @@
 
 
 
-#include <peripheral/vfd.h>
 #include <peripheral/spi-ice40.h>
 #include <peripheral/interrupt.h>
+#include <peripheral/vfd.h>
 
 
 

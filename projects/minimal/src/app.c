@@ -17,17 +17,16 @@
 
 #include <peripheral/spi-ice40.h>
 #include <peripheral/spi-4094.h>
-// #include <peripheral/spi-ice40-bitstream.h>
-//#include <peripheral/spi-fpga.h>
 #include <peripheral/spi-ice40-pc.h>
-
 #include <peripheral/spi-dac8811.h>
 #include <peripheral/spi-ad5446.h>
+
+#include <peripheral/gpio.h>
+
 #include <peripheral/interrupt.h>
 #include <peripheral/vfd.h>   // this is ok.
 
 
-#include <peripheral/gpio.h>
 
 // app/app.c  should  not deal with devices
 
