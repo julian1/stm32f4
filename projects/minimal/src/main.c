@@ -427,7 +427,7 @@ static int main_f429(void)
   // now can init usart peripheral using app console buffers
   usart1_setup_portB();
 
-  usart1_set_buffers( &app.console_in, &app.console_out);
+  usart1_set_buffers( &app.cbuf_console_in, &app.cbuf_console_out);
 
   printf("\n\n\n\n--------\n");
   printf("addr main() %p\n", main_f429);
@@ -618,7 +618,7 @@ static int main_f413(void)
   // now can init usart peripheral using app console buffers
   usart1_setup_portB();
 
-  usart1_set_buffers( &app.console_in, &app.console_out);
+  usart1_set_buffers( &app.cbuf_console_in, &app.cbuf_console_out);
 
   printf("\n\n\n\n--------\n");
   printf("addr main() %p\n", main_f413);

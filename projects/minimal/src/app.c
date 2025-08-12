@@ -93,8 +93,8 @@ int flash_lzo_test(void);
   Why not put on the stack? in app_t ?
 */
 
-static char buf_console_in[1000];
-static char buf_console_out[1000];    // changing this and it freezes. indicates. bug
+static char buf_cbuf_console_in[1000];
+static char buf_cbuf_console_out[1000];    // changing this and it freezes. indicates. bug
 
 
 static char buf_command[1000];
@@ -111,11 +111,11 @@ void app_init_console_buffers( app_t *app )
   */
 
   // uart/console
-  cbuf_init(&app->console_in,  buf_console_in, sizeof(buf_console_in));
-  cbuf_init(&app->console_out, buf_console_out, sizeof(buf_console_out));
+  cbuf_init(&app->cbuf_console_in,  buf_cbuf_console_in, sizeof(buf_cbuf_console_in));
+  cbuf_init(&app->cbuf_console_out, buf_cbuf_console_out, sizeof(buf_cbuf_console_out));
 
-  cbuf_init_stdout_streams(  &app->console_out );
-  cbuf_init_stdin_streams( &app->console_in );
+  cbuf_init_stdout_streams(  &app->cbuf_console_out );
+  cbuf_init_stdin_streams( &app->cbuf_console_in );
 
 
   cstring_init(&app->command, buf_command, buf_command + sizeof( buf_command));
@@ -545,10 +545,10 @@ static void app_update_console(app_t *app)
 
 
 
-  while( !cbuf_is_empty(&app->console_in)) {
+  while( !cbuf_is_empty(&app->cbuf_console_in)) {
 
     // got a character
-    int32_t ch = cbuf_pop(&app->console_in);
+    int32_t ch = cbuf_pop(&app->cbuf_console_in);
     assert(ch >= 0);
 
 
@@ -565,7 +565,7 @@ static void app_update_console(app_t *app)
       app_repl_statement(app, cmd);
 
       // clear the current command buffer,
-      // note, still more data to process in console_in
+      // note, still more data to process in cbuf_console_in
       cstring_clear( &app->command);
     }
     else if( cstring_count(&app->command) < cstring_reserve(&app->command) ) {

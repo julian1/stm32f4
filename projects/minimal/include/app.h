@@ -109,9 +109,9 @@ typedef struct app_t
 
 
   // TODO - consider make pointers if want opaque structure .  instantiate in main.
-  // rename cbuf_console_in
-  cbuf_t        console_in;
-  cbuf_t        console_out;
+  // rename cbuf_cbuf_console_in
+  cbuf_t        cbuf_console_in;
+  cbuf_t        cbuf_console_out;
 
   cstring_t     command;
 
