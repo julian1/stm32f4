@@ -282,21 +282,20 @@ void mode_set_dcv_source_lts( _mode_t *mode, double f0)
 
 void mode_set_dcv_source_sts( _mode_t *mode, signed u0 )
 {
-    printf("dac\n");
+  printf("mdac\n");
 
-    mode_dcv_source_reset( mode);
+  mode_dcv_source_reset( mode);
 
 
-    mode->second.U1006  = S3;       // mux dac
-    // mode->second.U1007  = S3;       // dac
+  mode->second.U1006  = S3;       // mux dac
 
   if(u0 >= 0) {
-    printf("with +");
-    mode->second.U1003  = S1 ;       // positive source.
+    printf("positive");
+    mode->second.U1003  = S2;       // positive source.
   } else if (u0 < 0) {
 
-    printf("with -");
-    mode->second.U1003  = S2 ;      // negatie source
+    printf("neg");
+    mode->second.U1003  = S1;      // negatie source
   }
 
   // should do better range check.
@@ -1060,7 +1059,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
         return 0;
 
       }
-  } 
+  }
 
 
 
