@@ -15,10 +15,12 @@ SRCFILES	= src/support.c \
             src/peripheral/vfd.c \
             src/peripheral/interrupt.c \
             src/device/spi1-port.c src/device/spi2-port.c  \
-            src/device/fpga1.c src/device/fsmc.c src/device/led0.c src/device/fpga0.c src/device/fpga0-pc.c  \
-            src/device/trigger-internal.c src/device/trigger-selection.c \
-            src/device/fpga0_interrupt.c src/device/4094-0.c \
-            src/device/mdac0.c src/device/mdac1.c \
+            src/device/fsmc.c  \
+            src/device/spi-fpga1.c src/device/spi-fpga0.c src/device/spi-fpga0-pc.c  \
+            src/device/spi-mdac0.c src/device/spi-mdac1.c \
+            src/device/spi-4094-0.c \
+            src/device/gpio-status-led.c src/device/gpio-trigger-internal.c src/device/gpio-trigger-selection.c \
+            src/device/interrupt-fpga0.c \
             src/main.c  \
             src/app.c  \
             src/syscalls.o \
