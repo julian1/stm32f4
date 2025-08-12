@@ -108,7 +108,7 @@ static const _mode_t mode_initial =  {
 
     //////////////
 
-  .reg_mode = 0, // MODE_LO,                                  // default, blink led according to mcu
+  .reg_mode = 0,                  // MODE_LO,
 
   // signal acquisition defaults
   .sa.p_clk_count_precharge = CLK_FREQ * 500e-6,             //  500us.
@@ -124,7 +124,11 @@ static const _mode_t mode_initial =  {
 
   // adc
   .adc.p_aperture = CLK_FREQ * 0.2,   // 200ms. 10nplc 50Hz.  // Not. should use current calibration?  // should be authoritative source of state.
-  .adc.p_reset = CLK_FREQ * 500e-6                // 500us.
+  .adc.p_reset = CLK_FREQ * 500e-6,                // 500us.
+
+
+
+  .trigger_selection = 1   // internal trigger active
 
 
 #if 0
