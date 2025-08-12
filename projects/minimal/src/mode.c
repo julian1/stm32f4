@@ -461,6 +461,7 @@ void mode_set_ch2_dcv_div(_mode_t *mode)
 {
   mode_set_ch2_off(mode);
   mode->second.U409 = D3;         // dcv div
+  mode->first.K403 = SR_SET;      //
 }
 
 
@@ -801,6 +802,13 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   }
 
 
+#if 0
+    else if(strcmp(s0, "precharge") == 0) {
+      mode->sa.p_clk_count_precharge = u0;
+    }
+#endif
+
+
 
 
   // channel set
@@ -977,6 +985,15 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
         mode->second.U409 = u0 ;
       }
 
+      else if(strcmp(s0, "k402") == 0) {
+        mode->first.K402 = u0 ? SR_SET: SR_RESET;
+      }
+      else if(strcmp(s0, "k403") == 0) {
+        mode->first.K403 = u0 ? SR_SET: SR_RESET;
+      }
+      else if(strcmp(s0, "k404") == 0) {
+        mode->first.K404 = u0 ? SR_SET: SR_RESET;
+      }
 
 
 #if 0
@@ -985,19 +1002,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       }
 #endif
 
-#if 0
-      else if(strcmp(s0, "u408") == 0 || strcmp(s0, "himux") == 0) {
-        mode->second.U408 = u0 ;
-      }
-#endif
 
-
-
-#if 0
-    else if(strcmp(s0, "precharge") == 0) {
-      mode->sa.p_clk_count_precharge = u0;
-    }
-#endif
 
 
 
