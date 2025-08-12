@@ -394,11 +394,78 @@ void mode_set_dcv_source_channel( _mode_t *mode, unsigned u0 )
 #endif
 
 
+// TODO aug. 2025. remove.  trigger not part of mode.
+
 void mode_set_trigger( _mode_t *mode, bool val )
 {
 
   mode->sa.p_trig = val;
 
+}
+
+
+
+
+
+void mode_set_ch1_off(_mode_t *mode)
+{
+
+  mode->first.K402 = SR_RESET;    // input off
+  mode->first.K406 = SR_RESET;    // accum ch1 off
+  mode->first.K407 = SR_RESET;    // dcv-source off
+
+  mode->first.K401 = SR_RESET;    // ohms off
+  mode->first.K404 = SR_RESET;    // lts-source off
+  mode->first.K403 = SR_RESET;    // 10Meg impedance off
+}
+
+
+void mode_set_ch1_dcv(_mode_t *mode)
+{
+  mode_set_ch1_off( mode);
+  mode->first.K402 = SR_SET;      // input on
+}
+
+void mode_set_ch1_dcv_source(_mode_t *mode)
+{
+  mode_set_ch1_off( mode);
+  mode->first.K407 = SR_SET;      // dcv-source on
+}
+
+
+
+void mode_set_ch2_off(_mode_t *mode)
+{
+  mode->first.K405 = SR_RESET;    // accum ch2 off
+  mode->second.U409 = DOFF;       // hi/lo mux.
+}
+
+
+
+void mode_set_ch2_sense(_mode_t *mode)
+{
+  mode_set_ch2_off(mode);
+  mode->second.U409 = D1;         // sense hi and lo
+}
+
+
+void mode_set_ch2_dci(_mode_t *mode)
+{
+  mode_set_ch2_off(mode);
+  mode->second.U409 = D2;         // dci hi and lo
+}
+
+void mode_set_ch2_dcv_div(_mode_t *mode)
+{
+  mode_set_ch2_off(mode);
+  mode->second.U409 = D3;         // dcv div
+}
+
+
+void mode_set_ch2_dcv_source(_mode_t *mode)
+{
+  mode_set_ch2_off(mode);
+  mode->second.U409 = D4;         // dcv-source hi, and ref-lo
 }
 
 

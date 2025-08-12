@@ -100,8 +100,10 @@
 */
 
 
-#define PC_BUF        0
-#define PC_SIG        1
+#define SW_PC_BOOT        0
+#define SW_PC_SIGNAL      1
+
+
 
 
 /*
@@ -138,7 +140,7 @@ typedef struct _4094_state_t
 
   // U401
   uint8_t K404  : 2;
-  uint8_t U402  : 2;
+  uint8_t K402  : 2;
   uint8_t K405  : 2;
   uint8_t K406  : 2;
 
@@ -311,16 +313,6 @@ typedef struct sa_state_t
 
 
 
-/*
-// TODO remove.
-#define SW_PC_SIGNAL    1
-#define SW_PC_BOOT      0
-
-*/
-
-
-
-
 
 typedef struct adc_state_t
 {
@@ -451,6 +443,7 @@ void mode_set_dcv_source_tia( _mode_t *mode );
 void mode_set_trigger( _mode_t *mode, bool );
 
 
+
 void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 );
 
 
@@ -458,20 +451,34 @@ void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
 bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );
 
 
-/////////
-// better name mode_input_ch( ) ?
-// helper functions for clarity - with test code, better than manipulating underlying relays
-// remembering both channels can be active at the same time
 
+/*
+  helper functions to select channel inputs
+
+  for clarity and test code, better than manipulating underlying relays
+  and does a reasonable job to abstract pinouts.
+
+  consider if encoding and passing an argument may better
+*/
+
+void mode_set_ch1_off(_mode_t *mode);
+void mode_set_ch1_dcv(_mode_t *mode);
+void mode_set_ch1_dcv_source(_mode_t *mode);
+
+void mode_set_ch2_off(_mode_t *mode);
+void mode_set_ch2_sense(_mode_t *mode);
+void mode_set_ch2_dci(_mode_t *mode);
+void mode_set_ch2_dcv_div(_mode_t *mode);
+void mode_set_ch2_dcv_source(_mode_t *mode);
+
+
+#if 0
 #define MODE_CH1_OFF         0
 #define MODE_CH1_DCV         1
 #define MODE_CH1_DCV_SOURCE  2
 
-
 void mode_set_ch1( _mode_t *mode, uint32_t val );
 
-
-// void mode_ch2_input( uint32_t val )
 #define MODE_CH2_OFF         0
 #define MODE_CH2_SENSE       1
 #define MODE_CH2_DCI         2
@@ -479,6 +486,7 @@ void mode_set_ch1( _mode_t *mode, uint32_t val );
 #define MODE_CH2_DCV_SOURCE  3
 
 void mode_set_ch2( _mode_t *mode, uint32_t val);
+#endif
 
 
 void mode_set_accum( _mode_t *mode, bool val);

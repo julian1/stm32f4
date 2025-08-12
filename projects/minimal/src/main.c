@@ -59,22 +59,31 @@
 static const _mode_t mode_initial =  {
 
   /*
-    TODO,
-    EXTR all relays need to be defined b01 or b10. otherwise a default initialization value of b00
-    will mean they won't receive an initial pulse/value.
+  EXTR all relays should be defined b01 or b10.
+  a default initialization of b00
+  means they won't receive any initial pulse/value.
+
+
+  mode->first.K402 = SR_RESET;    // input off
+  mode->first.K406 = SR_RESET;    // accum off
+  mode->first.K407 = SR_RESET;    // dcv-source off
+
+  mode->first.K401 = SR_RESET;    // ohms off
+  mode->first.K404 = SR_RESET;    // lts source off
+  mode->first.K403 = SR_RESET;    // 10Meg impedance off
 
   */
 
 
   // U401
   .first. K404    = SR_RESET,
-  .first. U402    = SR_RESET,
+  .first. K402    = SR_RESET,
   .first. K405    = SR_RESET,
   .first. K406    = SR_RESET,
 
 
   // U402
-  .second. U409    = 0,    //  hi/lo mux. adg1209. 2x04.  dec 2024.
+  .second. U409    = DOFF,           //  input hi/lo mux. adg1209. 2x04.  dec 2024.
 
   .first. K407    = SR_RESET,
   .first. K403		= SR_RESET,
