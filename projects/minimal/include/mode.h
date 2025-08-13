@@ -427,20 +427,20 @@ void spi_mode_transition_state( devices_t *devices, const _mode_t *mode, volatil
 void mode_set_amp_gain( _mode_t *mode, uint32_t u);
 
 
-void mode_set_dcv_source_lts( _mode_t *mode, double f0 /*signed i0*/);  // arg is 10,0,-10
+void mode_dcv_source_set_lts( _mode_t *mode, double f0 /*signed i0*/);  // arg is 10,0,-10
 
-void mode_set_dcv_source_sts( _mode_t *mode, signed u0 );
+void mode_dcv_source_set_sts( _mode_t *mode, signed u0 );
 
-void mode_set_dcv_source_ref_hi( _mode_t *mode);
-void mode_set_dcv_source_ref_lo( _mode_t *mode);
+void mode_dcv_source_set_ref_hi( _mode_t *mode);
+void mode_dcv_source_set_ref_lo( _mode_t *mode);
 
 
 
-void mode_set_dcv_source_temp( _mode_t *mode );
+void mode_dcv_source_set_temp( _mode_t *mode );
 
-void mode_set_dcv_source_daq( _mode_t *mode, unsigned u0, unsigned u1 );
+void mode_dcv_source_set_daq( _mode_t *mode, unsigned u0, unsigned u1 );
 
-void mode_set_dcv_source_tia( _mode_t *mode );
+void mode_dcv_source_set_tia( _mode_t *mode );
 
 
 

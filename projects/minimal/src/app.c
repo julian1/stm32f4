@@ -1257,7 +1257,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
     // we want to be able to sample any input, easily.
     // app->mode->first.K407 = SR_SET;
-    // mode_set_dcv_source_channel( app->mode, 1 ); // dcv
+    // mode_dcv_source_set_channel( app->mode, 1 ); // dcv
 
     // sa.p_seq0 = (0b01 << 4) | S1;        // dcv
 /*
