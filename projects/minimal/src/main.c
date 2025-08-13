@@ -87,13 +87,11 @@ static const _mode_t mode_initial =  {
   .first. K405    = SR_RESET,
   .first. K406    = SR_RESET,
 
-
   // U402
   .second. U409    = DOFF,           //  input hi/lo mux. adg1209. 2x04.  dec 2024.
 
   .first. K407    = SR_RESET,
   .first. K403		= SR_RESET,
-
 
   // u405
   .first. K401    = SR_RESET,
@@ -101,7 +99,7 @@ static const _mode_t mode_initial =  {
 
 
   // amplifier
-  // dont let feedback float, else current sources lock up
+  // amp should also have feedback, avoid float, else current sources lock up
   .first . U506    =  S8,  // 1x gain, adg1208.  july 2025
   .second. U506    =  S8,  // 1x gain, adg1208.  july 2025
 
@@ -128,32 +126,25 @@ static const _mode_t mode_initial =  {
 
 
 
-  .trigger_selection = 1   // internal trigger active
+  .trigger_selection = 1,   // internal trigger active
+
+
+  .first. K701  = SR_RESET,
+  .first. K702  = SR_RESET,
+  .first. K703  = SR_RESET,
+
 
 
 #if 0
 
   //  maybe make explicit all values  U408_SW_CTL. at least for the initial mode, from which others derive.
 
-  .first .K406_CTL  = SR_SET,     // accumulation relay off
-  .first. K405_CTL  = SR_RESET,     // dcv input relay k405 switch off - works.
-  .first. K402_CTL  = SR_RESET,     // dcv-div/directz relay off
-                                // must match app->persist_fixedz
-
-  .first. K401_CTL  = SR_SET,     // dcv-source relay off.
-  .first. K403_CTL  = SR_RESET,     // ohms relay off.
-
   .first .U408_SW_CTL = 0,      // b2b fets/ input protection off/open
-
+  .second.U408_SW_CTL = 0,
 
   // AMP FEEDBACK SHOULD NEVER BE TURNED OFF.
   // else draws current, and has risk damaging parts. mux pin 1. of adg. to put main amplifier in buffer/G=1 configuration.
   .first. U506 =  D1,     // should always be on
-
-  // .second.K406_CTL  = LR_OFF,     // clear relay. default.
-  // .second.K405_CTL  = LR_OFF,     // clear relay
-  .second.U408_SW_CTL = 0,
-
   .second.U506 =  D1,           // amplifier should always be on.
 
   .first. K603_CTL  = SR_RESET,     // ohms relay off.

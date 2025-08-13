@@ -1001,11 +1001,15 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       }
 
 
-#if 0
+      else if(strcmp(s0, "k701") == 0) {
+        mode->first.K701 = u0 ? SR_SET: SR_RESET;
+      }
+      else if(strcmp(s0, "k702") == 0) {
+        mode->first.K702 = u0 ? SR_SET: SR_RESET;
+      }
       else if(strcmp(s0, "k703") == 0) {
         mode->first.K703 = u0 ? SR_SET: SR_RESET;
       }
-#endif
 
 
 
