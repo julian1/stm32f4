@@ -289,12 +289,18 @@ void mode_dcv_source_set_sts( _mode_t *mode, signed u0 )
 
 static void mode_dcv_source_set_iso( _mode_t *mode, signed u0 )
 {
-  /* this function is possible. but it is a bit confusing parallel state. because
-    input is actually taken from the daq.
+  /* this function is possible. but it is a bit confusing parallel state.
+    because output does not appear
+    and it is read from from the daq.
+    so should probably be handled exceptionally
+
+    and would need a call to the daq.
+  - void mode_dcv_source_set_daq( _mode_t *mode, unsigned u0, unsigned u1 )
   */
 
   UNUSED(mode);
   UNUSED(u0);
+  assert(0);
 }
 
 
