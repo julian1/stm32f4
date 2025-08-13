@@ -970,21 +970,17 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
           valid values are 1 (0b01)  and 2 (0b10). not 1/0.
           reset is default schem contact position.
       */
-      else if(strcmp(s0, "k407") == 0) {
-        mode->first.K407 = u0 ? SR_SET: SR_RESET ;      // 0 == reset
-      }
-      else if(strcmp(s0, "k406") == 0) {
-        mode->first.K406 = u0 ? SR_SET: SR_RESET;
-      }
-      else if(strcmp(s0, "k405") == 0) {
-        mode->first.K405 = u0 ? SR_SET: SR_RESET;
-      }
+
       else if(strcmp(s0, "u409") == 0 || strcmp(s0, "inmux") == 0) {
 
         // should use set channel functionality instead.
         mode->second.U409 = u0 ;
       }
 
+
+      else if(strcmp(s0, "k401") == 0) {
+        mode->first.K401 = u0 ? SR_SET: SR_RESET;
+      }
       else if(strcmp(s0, "k402") == 0) {
         mode->first.K402 = u0 ? SR_SET: SR_RESET;
       }
@@ -993,6 +989,15 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       }
       else if(strcmp(s0, "k404") == 0) {
         mode->first.K404 = u0 ? SR_SET: SR_RESET;
+      }
+      else if(strcmp(s0, "k405") == 0) {
+        mode->first.K405 = u0 ? SR_SET: SR_RESET;
+      }
+      else if(strcmp(s0, "k406") == 0) {
+        mode->first.K406 = u0 ? SR_SET: SR_RESET;
+      }
+      else if(strcmp(s0, "k407") == 0) {
+        mode->first.K407 = u0 ? SR_SET: SR_RESET ;      // 0 == reset
       }
 
 
