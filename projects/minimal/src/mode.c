@@ -198,7 +198,6 @@ static void mode_dcv_source_reset( _mode_t *mode )
 
 }
 
-// TODO change name  mode_dcv_source_set
 
 
 void mode_dcv_source_set_lts( _mode_t *mode, double f0)
@@ -261,12 +260,14 @@ void mode_dcv_source_set_lts( _mode_t *mode, double f0)
 
 
 
+
+
+
 void mode_dcv_source_set_sts( _mode_t *mode, signed u0 )
 {
   printf("mdac\n");
 
   mode_dcv_source_reset( mode);
-
 
   mode->second.U1006  = S3;       // mux dac
 
@@ -286,28 +287,16 @@ void mode_dcv_source_set_sts( _mode_t *mode, signed u0 )
 }
 
 
-/*
-void mode_dcv_source_set_ref_hi( _mode_t *mode )
+static void mode_dcv_source_set_iso( _mode_t *mode, signed u0 )
 {
-  // rename mode_dcv_ref_source
+  /* this function is possible. but it is a bit confusing parallel state. because
+    input is actually taken from the daq.
+  */
 
-  mode_dcv_source_reset( mode);
-
-  if(u0 == 7) {
-    printf("with ref-hi +7V\n");
-    mode->second.U1006  = S4;       // ref-hi
-    // mode->second.U1007  = S4;       // ref-lo
-  }
-  else if( u0 == 0 ) {
-    // need bodge for this
-    printf("with ref-lo\n");
-    mode->second.U1006  = S8;       // ref-lo
-    // mode->second.U1007  = S4;       // ref-lo - looks funny. gives bad measurement. on DMM.
-  }
-  else
-    assert(0);
+  UNUSED(mode);
+  UNUSED(u0);
 }
-*/
+
 
 void mode_dcv_source_set_ref_hi( _mode_t *mode )
 {
@@ -391,6 +380,31 @@ void mode_set_amp_gain( _mode_t *mode, uint32_t u)
 
 
 #if 0
+
+
+// remove argument handling is messy here.
+void mode_dcv_source_set_ref_hi( _mode_t *mode )
+{
+  // rename mode_dcv_ref_source
+
+  mode_dcv_source_reset( mode);
+
+  if(u0 == 7) {
+    printf("with ref-hi +7V\n");
+    mode->second.U1006  = S4;       // ref-hi
+    // mode->second.U1007  = S4;       // ref-lo
+  }
+  else if( u0 == 0 ) {
+    // need bodge for this
+    printf("with ref-lo\n");
+    mode->second.U1006  = S8;       // ref-lo
+    // mode->second.U1007  = S4;       // ref-lo - looks funny. gives bad measurement. on DMM.
+  }
+  else
+    assert(0);
+}
+
+
 
 
 // this is a poor abstraction.
