@@ -65,18 +65,17 @@
 #define S2          ((1<<3)|(2-1))
 #define S3          ((1<<3)|(3-1))
 #define S4          ((1<<3)|(4-1))
-#define S5          ((1<<3)|(5-1))      // 12
-#define S6          ((1<<3)|(6-1))      // 13
+#define S5          ((1<<3)|(5-1))    // 12
+#define S6          ((1<<3)|(6-1))    // 13
 #define S7          ((1<<3)|(7-1))
 #define S8          ((1<<3)|(8-1))
 
 
 // dual 1of 4 muxes.
-// S for switch maybe D for dual/double.
-#define DOFF        0                 // 0    gain x1.     remember amp has pullup. on EN. bit.
-#define D1          ((1<<2)|(1-1))    // 4.   gain x1
-#define D2          ((1<<2)|(2-1))    // 5    gain x10
-#define D3          ((1<<2)|(3-1))    // 6.   gain x100.
+#define DOFF        0
+#define D1          ((1<<2)|(1-1))    // 4.
+#define D2          ((1<<2)|(2-1))    // 5
+#define D3          ((1<<2)|(3-1))    // 6
 #define D4          ((1<<2)|(4-1))    // 7
 
 
