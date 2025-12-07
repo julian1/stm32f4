@@ -30,23 +30,29 @@ static void test (app_t *app)
   _mode_t mode = * app->mode_initial;
   bool flip = 0;
 
-  for(unsigned i = 0; i < 4; ++i ) {
 
-    flip = ! flip;
-    mode.first.K403 =  flip ? 0b01 : 0b10;
-    spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
 
-    msleep( 300, &app->system_millis);
+  for(unsigned k = 0; k < 6; k++) {
+
+      for(unsigned i = 0; i < 4; ++i ) {
+        flip = ! flip;
+
+        switch(k) {
+          case 0: mode.first.K401 =  flip ? 0b01 : 0b10;  break;
+          case 1: mode.first.K402 =  flip ? 0b01 : 0b10;  break;
+          case 2: mode.first.K403 =  flip ? 0b01 : 0b10;  break;
+          case 3: mode.first.K404 =  flip ? 0b01 : 0b10; break;
+
+          case 4: mode.first.K702 =  flip ? 0b01 : 0b10; break;
+          case 5: mode.first.K703 =  flip ? 0b01 : 0b10; break;
+        }
+
+        spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
+
+        msleep( 300, &app->system_millis);
+      }
   }
 
-
-  for(unsigned i = 0; i < 4; ++i ) {
-
-    flip = ! flip;
-    mode.first.K703 =  flip ? 0b01 : 0b10;
-    spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
-    msleep( 300, &app->system_millis);
-  }
 
 }
 
@@ -65,6 +71,47 @@ bool app_test02( app_t *app , const char *cmd)
 
   return 0;
 }
+
+
+
+
+
+
+
+/*
+
+  for(unsigned i = 0; i < 4; ++i ) {
+    flip = ! flip;
+    mode.first.K401 =  flip ? 0b01 : 0b10;
+    spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
+
+    msleep( 300, &app->system_millis);
+  }
+
+
+  for(unsigned i = 0; i < 4; ++i ) {
+    flip = ! flip;
+    mode.first.K402 =  flip ? 0b01 : 0b10;
+    spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
+    msleep( 300, &app->system_millis);
+  }
+
+
+  for(unsigned i = 0; i < 4; ++i ) {
+    flip = ! flip;
+    mode.first.K403 =  flip ? 0b01 : 0b10;
+    spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
+    msleep( 300, &app->system_millis);
+  }
+
+  for(unsigned i = 0; i < 4; ++i ) {
+    flip = ! flip;
+    mode.first.K404 =  flip ? 0b01 : 0b10;
+    spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
+    msleep( 300, &app->system_millis);
+  }
+*/
+
 
 
 

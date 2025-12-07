@@ -139,41 +139,43 @@ typedef struct _4094_state_t
 
   // U401
   uint8_t K404  : 2;
-  uint8_t K402  : 2;
+  uint8_t K403  : 2;
   uint8_t K405  : 2;
   uint8_t K406  : 2;
 
 
   // U402
-  uint8_t U409  : 3;    //  adg1209. 2x4.
+  uint8_t U409  : 3;
   uint8_t       : 1;
   uint8_t K407  : 2;
-  uint8_t K403  : 2;
+  uint8_t K402  : 2;
 
 
 
   // u405
-/*
-  uint8_t U506  : 3; // adg1209.
-  uint8_t       : 1;
-*/
-  uint8_t U506  : 4; // adg1208. july 2025
+  uint8_t U423 : 3;
+  uint8_t U426 : 3;
+  uint8_t K401 : 2;
 
 
-  uint8_t K401  : 2;
-  uint8_t       : 2;
-
-
-  // u1017
-  // uint8_t U1007 : 4;  // removed july 2025
+  // to amplifier.
+  // U510
   uint8_t       : 4;
-  uint8_t U1006 : 4;
+  uint8_t U506  : 4;    // adg1208.
+  // uint8_t       : 1;
+
+  // from amplifier
+  // u421
+  uint8_t U419 : 4;
+  uint8_t U420 : 4;
+
+
+  /////////
 
 
   // u1004
   uint8_t U1003 : 4;      // 4 bit mux.
   uint8_t U1012 : 4;      //
-
 
   // u1008
   uint8_t U1009 : 4;
@@ -192,22 +194,35 @@ typedef struct _4094_state_t
   uint8_t K602  : 2;
   uint8_t       : 2;
 
-  // u705
+
+
+  // u713
   uint8_t K701  : 2;
+  uint8_t K704  : 2;
+  uint8_t K707  : 2;
+  uint8_t       : 2;
+
+
+  // u705
+  uint8_t       : 2;
   uint8_t K702  : 2;
   uint8_t K703  : 2;
   uint8_t       : 2;
 
 
   // u706
-  uint8_t K704  : 2;
+  uint8_t K708  : 2;
   uint8_t K705  : 2;
-  uint8_t U703  : 4;
+  uint8_t U706  : 4;
+
 
   // u709
+  uint8_t U703  : 4;
   uint8_t       : 4;
-  uint8_t U702  : 3;
-  uint8_t       : 1;
+
+
+
+
 
 
 } _4094_state_t;

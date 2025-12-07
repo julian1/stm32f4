@@ -188,7 +188,7 @@ static void mode_dcv_source_reset( _mode_t *mode )
   // mux agnd, instead of off. to reduce input leakage on mux followers.
   mode->second.U1012  = S8 ;
   mode->second.U1003  = S8 ;
-  mode->second.U1006  = S8;
+  // mode->second.U1006  = S8;  JA
   // mode->second.U1007  = S8;
 
   // daq off.
@@ -212,7 +212,7 @@ void mode_dcv_source_set_lts( _mode_t *mode, double f0)
 
   mode_dcv_source_reset( mode);
 
-  mode->second.U1006  = S2;
+  // mode->second.U1006  = S2;      // JA
   // mode->second.U1007  = S2;       // ref-lo
 
 
@@ -269,7 +269,7 @@ void mode_dcv_source_set_sts( _mode_t *mode, signed u0 )
 
   mode_dcv_source_reset( mode);
 
-  mode->second.U1006  = S3;       // mux dac
+  // mode->second.U1006  = S3;       // JA mux dac
 
   if(u0 >= 0) {
     printf("positive");
@@ -308,7 +308,7 @@ void mode_dcv_source_set_ref_hi( _mode_t *mode )
 {
   // rename mode_dcv_ref_source
   mode_dcv_source_reset( mode);
-  mode->second.U1006  = S4;       // ref-hi
+  // mode->second.U1006  = S4;       // JA ref-hi
 }
 
 
@@ -316,7 +316,7 @@ void mode_dcv_source_set_ref_lo( _mode_t *mode )
 {
   // rename mode_dcv_ref_source
   mode_dcv_source_reset( mode);
-  mode->second.U1006  = S8;       // ref-lo
+  // mode->second.U1006  = S8;       // JA ref-lo
 }
 
 
@@ -327,7 +327,7 @@ void mode_dcv_source_set_temp( _mode_t *mode )
 
   mode_dcv_source_reset( mode);
 
-  mode->second.U1006  = S6;
+  // mode->second.U1006  = S6;      // JA
   // mode->second.U1007  = S6;
 }
 
@@ -337,7 +337,7 @@ void mode_dcv_source_set_daq( _mode_t *mode, unsigned u0, unsigned u1 )
 {
   mode_dcv_source_reset( mode);
 
-  mode->second.U1006  = S7;
+  // mode->second.U1006  = S7;    // JA
   // mode->second.U1007  = S7;
 
   // set the hig/lo dac inputs.
@@ -972,9 +972,10 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       else if(strcmp(s0, "u1003") == 0) {
         mode->second.U1003 = u0;
       }
-      else if(strcmp(s0, "u1006") == 0) {
+/*      else if(strcmp(s0, "u1006") == 0) {
         mode->second.U1006 = u0;
       }
+*/
       else if(strcmp(s0, "u1012") == 0) {
         mode->second.U1012 = u0;
       }
