@@ -323,7 +323,8 @@ void mode_dcv_source_set_ref_lo( _mode_t *mode )
 }
 
 
-// The name dcv-source is not quite right. it is all the ch2 inpputs. that are possible.
+// The name dcv-source name scheme. is not quite right.
+// it is all the ch2 inpputs. that are possible.
 // i thinkk should set the feeder mux also.
 // rather than ch1. and ch2.
 
