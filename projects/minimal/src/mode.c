@@ -188,13 +188,6 @@ static void mode_dcv_source_reset( _mode_t *mode )
   // mux agnd, instead of off. to reduce input leakage on mux followers.
   mode->second.U1012  = S8 ;
   mode->second.U1003  = S8 ;
-  // mode->second.U1006  = S8;  JA
-  // mode->second.U1007  = S8;
-
-  // daq off.
-  mode->second.U1009  = SOFF;
-  mode->second.U1010  = SOFF;
-
 
 }
 
@@ -211,9 +204,6 @@ void mode_dcv_source_set_lts( _mode_t *mode, double f0)
   printf("set dcv-source\n");
 
   mode_dcv_source_reset( mode);
-
-  // mode->second.U1006  = S2;      // JA
-  // mode->second.U1007  = S2;       // ref-lo
 
 
   if(f0 >= 0) {
@@ -248,19 +238,16 @@ void mode_dcv_source_set_lts( _mode_t *mode, double f0)
 
 */
   else {
-    // need better argument validation here,
+    // TODO argument validation
     // when called programmatically, should not fail.
 
     assert(0);
   }
-
-
-
 }
 
 
 
-
+#if 0
 
 
 void mode_dcv_source_set_sts( _mode_t *mode, signed u0 )
@@ -285,6 +272,9 @@ void mode_dcv_source_set_sts( _mode_t *mode, signed u0 )
 
   mode->mdac0_val = u0;// abs( u0 );
 }
+
+#endif
+
 
 
 static void mode_dcv_source_set_iso( _mode_t *mode, signed u0 )
@@ -722,7 +712,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   // char s2[100 + 1 ];
   uint32_t u0, u1;
   double f0;
-  int32_t i0;
+  // int32_t i0;
 
   /*
 
@@ -730,9 +720,6 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       except we dont really have a buffer
 
   */
-
-
-
 
 
 
@@ -751,7 +738,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   }
 
 
-
+#if 0
   else if( sscanf(cmd, "dcv-source sts %100s", s0) == 1
     && str_decode_int( s0, &i0)) {
 
@@ -763,6 +750,8 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     // eg. 0x3fff or -0x3fff
     mode_dcv_source_set_sts( mode, i0);
   }
+
+#endif
 
   else if(strcmp(cmd, "dcv-source ref-hi") == 0) {  // ref-hi
     mode_dcv_source_set_ref_hi( mode);
