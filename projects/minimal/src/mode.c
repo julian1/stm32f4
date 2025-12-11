@@ -189,6 +189,10 @@ static void mode_dcv_source_reset( _mode_t *mode )
   mode->second.U1012  = S8 ;
   mode->second.U1003  = S8 ;
 
+  // inpput muxes.
+  mode->second.U419 = S8 ;    // himux. off.  or ref-lo?
+  mode->second.U420 = S8 ;    // lomux
+
 }
 
 
@@ -204,6 +208,9 @@ void mode_dcv_source_set_lts( _mode_t *mode, double f0)
   printf("set dcv-source\n");
 
   mode_dcv_source_reset( mode);
+
+
+  mode->second.U419 = S2;   // LTS-SOURCE-HI
 
 
   if(f0 >= 0) {
@@ -277,6 +284,7 @@ void mode_dcv_source_set_sts( _mode_t *mode, signed u0 )
 
 
 
+#if 0
 static void mode_dcv_source_set_iso( _mode_t *mode, signed u0 )
 {
   /* this function is possible. but it is a bit confusing parallel state.
@@ -292,33 +300,45 @@ static void mode_dcv_source_set_iso( _mode_t *mode, signed u0 )
   UNUSED(u0);
   assert(0);
 }
-
+#endif
 
 void mode_dcv_source_set_ref_hi( _mode_t *mode )
 {
-  // rename mode_dcv_ref_source
+  // ref-hi on ch2 input
   mode_dcv_source_reset( mode);
-  // mode->second.U1006  = S4;       // JA ref-hi
+
+  mode->second.U419 = S4;   // REF-HI
+  mode->second.U420 = S7;   // REF-LO
+
 }
 
 
 void mode_dcv_source_set_ref_lo( _mode_t *mode )
 {
-  // rename mode_dcv_ref_source
+  // ref lo. on ch2 input
   mode_dcv_source_reset( mode);
-  // mode->second.U1006  = S8;       // JA ref-lo
+
+  mode->second.U419 = S3;   // REF-LO
+  mode->second.U420 = S7;   // REF-LO
 }
 
 
+// The name dcv-source is not quite right. it is all the ch2 inpputs. that are possible.
+// i thinkk should set the feeder mux also.
+// rather than ch1. and ch2.
+
+// set ch2 temp.
+// set ch2 ref
+// set ch2 lts
+// set ch2 sense
+// set ch2 hv-div
 
 
 void mode_dcv_source_set_temp( _mode_t *mode )
 {
-
   mode_dcv_source_reset( mode);
 
-  // mode->second.U1006  = S6;      // JA
-  // mode->second.U1007  = S6;
+  mode->second.U419 = S1;   // TEMP
 }
 
 
@@ -452,7 +472,7 @@ void mode_set_ch1_dcv_source(_mode_t *mode)
   mode->first.K407 = SR_SET;      // dcv-source on
 }
 
-
+///////
 
 void mode_set_ch2_off(_mode_t *mode)
 {
