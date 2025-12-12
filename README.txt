@@ -32,12 +32,13 @@ may 2024.
 
   # use four shells,
   # for serial
-  rlwrap -a picocom -b 115200 /dev/ttyUSB0
+  # rlwrap -a picocom -b 115200 /dev/ttyUSB0
   rlwrap -a picocom -b 115200 /dev/ttyACM0
 
   # for st-link
-  cd projects minimal
-  openocd -f ../../openocd.cfg
+  # cd projects minimal
+  # openocd -f ../../openocd.cfg
+  openocd -f ./openocd.cfg
 
   # for st-link comms
   rlwrap nc localhost 4444

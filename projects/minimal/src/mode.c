@@ -405,7 +405,7 @@ void mode_ch1_set_dcv(_mode_t *mode)
   mode->first.K402 = SR_SET;      // input on
 }
 
-void mode_ch1_set_dcv_source(_mode_t *mode)
+void mode_ch1_set_dcv_source(_mode_t *mode)   // rename use K404. instead.
 {
   mode_ch1_reset( mode);
   mode->first.K407 = SR_SET;      // dcv-source on
@@ -418,6 +418,7 @@ void mode_ch1_set_dcv_source(_mode_t *mode)
 
 ///////
 
+/*
 // The name dcv-source name scheme. is not quite right.
 // it is all the ch2 inpputs. that are possible.
 // i thinkk should set the feeder mux also.
@@ -429,16 +430,18 @@ void mode_ch1_set_dcv_source(_mode_t *mode)
 // set ch2 sense
 // set ch2 hv-div
 
+it works well to coordinate the three muxes like this.
+
+*/
 
 
-  // mode->second.U419 = S2;   // LTS-SOURCE-HI
 
-void mode_ch2_reset(_mode_t *mode)  // change name reset() ?
+void mode_ch2_reset(_mode_t *mode)
 {
   // mode->first.K405 = SR_RESET;    // accum ch2 off
 
   // inpput muxes.
-  mode->second.U419 = SOFF;     // himux. off.  or ref-lo?
+  mode->second.U419 = SOFF;     // himux or should be ref-lo? or agnd - for leakage?
   mode->second.U420 = SOFF;     // lomux
   mode->second.U409 = DOFF;     // hi/lo mux.
 }
@@ -448,8 +451,7 @@ void mode_ch2_reset(_mode_t *mode)  // change name reset() ?
 
 void mode_ch2_set_ref_hi( _mode_t *mode )
 {
-  // ref-hi on ch2 input
-  mode_lts_reset( mode);
+  mode_ch2_reset(mode);
 
   mode->second.U419 = S4;   // REF-HI
   mode->second.U420 = S7;   // REF-LO
@@ -459,8 +461,7 @@ void mode_ch2_set_ref_hi( _mode_t *mode )
 
 void mode_ch2_set_ref_lo( _mode_t *mode )
 {
-  // ref lo. on ch2 input
-  mode_lts_reset( mode);
+  mode_ch2_reset(mode);
 
   mode->second.U419 = S3;   // REF-LO
   mode->second.U420 = S7;   // REF-LO
@@ -472,7 +473,7 @@ void mode_ch2_set_ref_lo( _mode_t *mode )
 
 void mode_ch2_set_temp( _mode_t *mode )
 {
-  mode_lts_reset( mode);
+  mode_ch2_reset(mode);
 
   mode->second.U419 = S1;   // TEMP
   mode->second.U409 = D4;   // feedmux  hi/lo
@@ -482,15 +483,38 @@ void mode_ch2_set_temp( _mode_t *mode )
 void mode_ch2_set_lts(_mode_t *mode)
 {
   mode_ch2_reset(mode);
-  mode->second.U409 = D4;         // dcv-source hi, and ref-lo
+
+  mode->second.U419 = S2;   // lts
+  mode->second.U409 = D4;   // feedmux  hi/lo
 }
 
 
 
 void mode_ch2_set_daq( _mode_t *mode )
 {
-  UNUSED(mode);
+  mode_ch2_reset(mode);
 
+  mode->second.U419 = S5;   // daq
+  mode->second.U409 = D4;   // feedmux  hi/lo
+}
+
+
+
+void mode_ch2_set_shunts(_mode_t *mode)
+{
+  mode_ch2_reset(mode);
+
+  mode->second.U419 = S6;   // shunts
+  mode->second.U409 = D4;   // feedmux  hi/lo
+}
+
+
+void mode_ch2_set_tia( _mode_t *mode )
+{
+  mode_ch2_reset(mode);
+
+  mode->second.U419 = S8;   // tia
+  mode->second.U409 = D4;   // feedmux  hi/lo
 }
 
 
@@ -498,31 +522,21 @@ void mode_ch2_set_daq( _mode_t *mode )
 void mode_ch2_set_sense(_mode_t *mode)
 {
   mode_ch2_reset(mode);
+
   mode->second.U409 = D1;         // sense hi and lo
 }
 
 
-void mode_ch2_set_dci(_mode_t *mode)
-{
-  mode_ch2_reset(mode);
-  mode->second.U409 = D2;         // dci hi and lo
-}
 
 void mode_ch2_set_dcv_div(_mode_t *mode)
 {
   mode_ch2_reset(mode);
+
   mode->second.U409 = D3;         // dcv div
-  mode->first.K403 = SR_SET;      //
+
+  // mode->first.K403 = SR_SET;      //
 }
 
-
-void mode_ch2_set_tia( _mode_t *mode )
-{
-  UNUSED(mode);
-
-  assert(0);
-
-}
 
 
 
@@ -848,13 +862,13 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
 
 
-  else if( sscanf(cmd, "lts %lf", &f0) == 1) {
+  else if( sscanf(cmd, "set lts %lf", &f0) == 1) {
 
     mode_lts_set( mode, f0);
   }
 
 
-  else if( sscanf(cmd, "daq %100s %100s", s0, s1 ) == 2
+  else if( sscanf(cmd, "set daq %100s %100s", s0, s1 ) == 2
     && str_decode_uint( s0, &u0)
     && str_decode_uint( s1, &u1)
   )  {
@@ -863,6 +877,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     // mode_ch2_set_daq( mode, u0, u1);
     mode_daq_set( mode, u0, u1);
   }
+
 
 
 
@@ -888,19 +903,18 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     else if(strcmp(s0, "daq") == 0) {
       mode_ch2_set_daq( mode);
     }
-    else if(strcmp(s0, "sense") == 0) {
-      mode_ch2_set_sense(mode);
-    }
-    else if(strcmp(s0, "dci") == 0) {
-      mode_ch2_set_dci(mode);
-    }
-    else if(strcmp(s0, "dcv-div") == 0) {
-      mode_ch2_set_dcv_div(mode);
+    else if(strcmp(s0, "shunts") == 0) {
+      mode_ch2_set_shunts(mode);
     }
     else if(strcmp(s0, "tia") == 0) {
       mode_ch2_set_tia( mode );
     }
-
+    else if(strcmp(s0, "sense") == 0) {
+      mode_ch2_set_sense(mode);
+    }
+    else if(strcmp(s0, "dcv-div") == 0) {
+      mode_ch2_set_dcv_div(mode);
+    }
     else assert(0);
   }
 

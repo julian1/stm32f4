@@ -483,10 +483,10 @@ void mode_ch2_set_ref_lo( _mode_t *mode);
 void mode_ch2_set_temp( _mode_t *mode );
 void mode_ch2_set_lts(_mode_t *mode);
 void mode_ch2_set_daq( _mode_t *mode );
-void mode_ch2_set_sense(_mode_t *mode);
-void mode_ch2_set_dci(_mode_t *mode);
-void mode_ch2_set_dcv_div(_mode_t *mode);
+void mode_ch2_set_shunts(_mode_t *mode);
 void mode_ch2_set_tia( _mode_t *mode );
+void mode_ch2_set_sense(_mode_t *mode);
+void mode_ch2_set_dcv_div(_mode_t *mode);
 
 
 // void mode_ch2_set_sts( _mode_t *mode, signed u0 );
