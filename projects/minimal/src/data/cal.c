@@ -191,10 +191,10 @@ void data_cal(
 
   // dec 2024.
   // set up input relays.
-  mode_dcv_source_set_ref_lo( mode);
+  mode_ch2_set_ref_lo( mode);
 
   assert(0); // FIXME JA. aug 2025.
-  // mode_dcv_source_set_channel( mode, 1 ); // dcv
+  // mode_ch2_set_channel( mode, 1 ); // dcv
 
 
   // TODO. use mode_set_seq function.
@@ -246,12 +246,12 @@ void data_cal(
       double y_ = 0;
       if(j == 0) {
         y_ = 7;   // ref-hi / 7V
-        // mode_dcv_source_set_ref(  mode, 7);
-        mode_dcv_source_set_ref_hi( mode);
+        // mode_ch2_set_ref(  mode, 7);
+        mode_ch2_set_ref_hi( mode);
       } else {
         y_ = 0;  // ref-lo / 0V
-        // mode_dcv_source_set_ref(  mode, 0);
-        mode_dcv_source_set_ref_lo( mode);
+        // mode_ch2_set_ref(  mode, 0);
+        mode_ch2_set_ref_lo( mode);
       }
 
       // start adc,
@@ -506,7 +506,7 @@ void data_cal(
 
 /*
   // set up the dcv source
-  mode_dcv_source_set( mode, 10 );
+  mode_ch2_set( mode, 10 );
 
   // setup the adc
   mode->reg_mode = MODE_SA_ADC;       // set mode adc.

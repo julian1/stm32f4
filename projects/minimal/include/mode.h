@@ -441,22 +441,6 @@ void spi_mode_transition_state( devices_t *devices, const _mode_t *mode, volatil
 void mode_set_amp_gain( _mode_t *mode, uint32_t u);
 
 
-void mode_dcv_source_set_lts( _mode_t *mode, double f0 /*signed i0*/);  // arg is 10,0,-10
-
-void mode_dcv_source_set_sts( _mode_t *mode, signed u0 );
-
-void mode_dcv_source_set_ref_hi( _mode_t *mode);
-void mode_dcv_source_set_ref_lo( _mode_t *mode);
-
-
-
-void mode_dcv_source_set_temp( _mode_t *mode );
-
-void mode_dcv_source_set_daq( _mode_t *mode, unsigned u0, unsigned u1 );
-
-void mode_dcv_source_set_tia( _mode_t *mode );
-
-
 
 
 
@@ -481,15 +465,33 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );
     set ch1  dcv
 */
 
-void mode_set_ch1_off(_mode_t *mode);
-void mode_set_ch1_dcv(_mode_t *mode);
-void mode_set_ch1_dcv_source(_mode_t *mode);
 
-void mode_set_ch2_off(_mode_t *mode);
-void mode_set_ch2_sense(_mode_t *mode);
-void mode_set_ch2_dci(_mode_t *mode);
-void mode_set_ch2_dcv_div(_mode_t *mode);
-void mode_set_ch2_dcv_source(_mode_t *mode);
+
+void mode_lts_set( _mode_t *mode, double f0 /*signed i0*/);  // arg is 10,0,-10
+void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 );   // factor into daq_set and ch2_set
+
+
+void mode_ch1_reset(_mode_t *mode);
+void mode_ch1_set_dcv(_mode_t *mode);
+void mode_ch1_set_dcv_source(_mode_t *mode);    // change name lts
+
+
+
+void mode_ch2_reset(_mode_t *mode);
+void mode_ch2_set_ref_hi( _mode_t *mode);
+void mode_ch2_set_ref_lo( _mode_t *mode);
+void mode_ch2_set_temp( _mode_t *mode );
+void mode_ch2_set_lts(_mode_t *mode);
+void mode_ch2_set_daq( _mode_t *mode );
+void mode_ch2_set_sense(_mode_t *mode);
+void mode_ch2_set_dci(_mode_t *mode);
+void mode_ch2_set_dcv_div(_mode_t *mode);
+void mode_ch2_set_tia( _mode_t *mode );
+
+
+// void mode_ch2_set_sts( _mode_t *mode, signed u0 );
+
+
 
 
 #if 0
@@ -497,7 +499,7 @@ void mode_set_ch2_dcv_source(_mode_t *mode);
 #define MODE_CH1_DCV         1
 #define MODE_CH1_DCV_SOURCE  2
 
-void mode_set_ch1( _mode_t *mode, uint32_t val );
+void mode_ch1_set( _mode_t *mode, uint32_t val );
 
 #define MODE_CH2_OFF         0
 #define MODE_CH2_SENSE       1
@@ -505,7 +507,7 @@ void mode_set_ch1( _mode_t *mode, uint32_t val );
 #define MODE_CH2_DCV_DIV     3
 #define MODE_CH2_DCV_SOURCE  3
 
-void mode_set_ch2( _mode_t *mode, uint32_t val);
+void mode_ch2_set( _mode_t *mode, uint32_t val);
 #endif
 
 

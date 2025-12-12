@@ -183,34 +183,26 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
 
 */
 
-static void mode_dcv_source_reset( _mode_t *mode )
+
+static void mode_lts_reset( _mode_t *mode )
 {
   // mux agnd, instead of off. to reduce input leakage on mux followers.
   mode->second.U1012  = S8 ;
   mode->second.U1003  = S8 ;
 
-  // inpput muxes.
-  mode->second.U419 = S8 ;    // himux. off.  or ref-lo?
-  mode->second.U420 = S8 ;    // lomux
 
 }
 
 
 
-void mode_dcv_source_set_lts( _mode_t *mode, double f0)
+void mode_lts_set( _mode_t *mode, double f0)
 {
-  /*
-  // better name?
-  // TODO . rename lts-source   or dcv-lts  and dcv-ref. and dcv-sts
 
-  */
+  printf("set lts\n");
 
-  printf("set dcv-source\n");
-
-  mode_dcv_source_reset( mode);
+  mode_lts_reset( mode);
 
 
-  mode->second.U419 = S2;   // LTS-SOURCE-HI
 
 
   if(f0 >= 0) {
@@ -257,11 +249,11 @@ void mode_dcv_source_set_lts( _mode_t *mode, double f0)
 #if 0
 
 
-void mode_dcv_source_set_sts( _mode_t *mode, signed u0 )
+void mode_ch2_set_sts( _mode_t *mode, signed u0 )
 {
   printf("mdac\n");
 
-  mode_dcv_source_reset( mode);
+  mode_lts_reset( mode);
 
   // mode->second.U1006  = S3;       // JA mux dac
 
@@ -285,7 +277,7 @@ void mode_dcv_source_set_sts( _mode_t *mode, signed u0 )
 
 
 #if 0
-static void mode_dcv_source_set_iso( _mode_t *mode, signed u0 )
+static void mode_ch2_set_iso( _mode_t *mode, signed u0 )
 {
   /* this function is possible. but it is a bit confusing parallel state.
     because output does not appear
@@ -293,7 +285,7 @@ static void mode_dcv_source_set_iso( _mode_t *mode, signed u0 )
     so should probably be handled exceptionally
 
     and would need a call to the daq.
-  - void mode_dcv_source_set_daq( _mode_t *mode, unsigned u0, unsigned u1 )
+  - void mode_ch2_set_daq( _mode_t *mode, unsigned u0, unsigned u1 )
   */
 
   UNUSED(mode);
@@ -302,51 +294,10 @@ static void mode_dcv_source_set_iso( _mode_t *mode, signed u0 )
 }
 #endif
 
-void mode_dcv_source_set_ref_hi( _mode_t *mode )
+
+void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 )
 {
-  // ref-hi on ch2 input
-  mode_dcv_source_reset( mode);
-
-  mode->second.U419 = S4;   // REF-HI
-  mode->second.U420 = S7;   // REF-LO
-
-}
-
-
-void mode_dcv_source_set_ref_lo( _mode_t *mode )
-{
-  // ref lo. on ch2 input
-  mode_dcv_source_reset( mode);
-
-  mode->second.U419 = S3;   // REF-LO
-  mode->second.U420 = S7;   // REF-LO
-}
-
-
-// The name dcv-source name scheme. is not quite right.
-// it is all the ch2 inpputs. that are possible.
-// i thinkk should set the feeder mux also.
-// rather than ch1. and ch2.
-
-// set ch2 temp.
-// set ch2 ref
-// set ch2 lts
-// set ch2 sense
-// set ch2 hv-div
-
-
-void mode_dcv_source_set_temp( _mode_t *mode )
-{
-  mode_dcv_source_reset( mode);
-
-  mode->second.U419 = S1;   // TEMP
-}
-
-
-
-void mode_dcv_source_set_daq( _mode_t *mode, unsigned u0, unsigned u1 )
-{
-  mode_dcv_source_reset( mode);
+  // mode_lts_reset( mode);
 
   // mode->second.U1006  = S7;    // JA
   // mode->second.U1007  = S7;
@@ -356,19 +307,6 @@ void mode_dcv_source_set_daq( _mode_t *mode, unsigned u0, unsigned u1 )
   mode->second.U1010  = u1;
 }
 
-
-
-
-
-
-
-void mode_dcv_source_set_tia( _mode_t *mode )
-{
-  UNUSED(mode);
-
-  assert(0);
-
-}
 
 
 
@@ -400,11 +338,11 @@ void mode_set_amp_gain( _mode_t *mode, uint32_t u)
 
 
 // remove argument handling is messy here.
-void mode_dcv_source_set_ref_hi( _mode_t *mode )
+void mode_ch2_set_ref_hi( _mode_t *mode )
 {
   // rename mode_dcv_ref_source
 
-  mode_dcv_source_reset( mode);
+  mode_lts_reset( mode);
 
   if(u0 == 7) {
     printf("with ref-hi +7V\n");
@@ -425,7 +363,7 @@ void mode_dcv_source_set_ref_hi( _mode_t *mode )
 
 
 // this is a poor abstraction.
-void mode_dcv_source_set_channel( _mode_t *mode, unsigned u0 )
+void mode_ch2_set_channel( _mode_t *mode, unsigned u0 )
 {
 
   // neither channel
@@ -448,7 +386,7 @@ void mode_dcv_source_set_channel( _mode_t *mode, unsigned u0 )
 
 
 
-void mode_set_ch1_off(_mode_t *mode)
+void mode_ch1_reset(_mode_t *mode)      // change name reset() ?
 {
 
   mode->first.K402 = SR_RESET;    // input off
@@ -461,54 +399,131 @@ void mode_set_ch1_off(_mode_t *mode)
 }
 
 
-void mode_set_ch1_dcv(_mode_t *mode)
+void mode_ch1_set_dcv(_mode_t *mode)
 {
-  mode_set_ch1_off( mode);
+  mode_ch1_reset( mode);
   mode->first.K402 = SR_SET;      // input on
 }
 
-void mode_set_ch1_dcv_source(_mode_t *mode)
+void mode_ch1_set_dcv_source(_mode_t *mode)
 {
-  mode_set_ch1_off( mode);
+  mode_ch1_reset( mode);
   mode->first.K407 = SR_SET;      // dcv-source on
 }
 
+
+
+
+
+
 ///////
 
-void mode_set_ch2_off(_mode_t *mode)
+// The name dcv-source name scheme. is not quite right.
+// it is all the ch2 inpputs. that are possible.
+// i thinkk should set the feeder mux also.
+// rather than ch1. and ch2.
+
+// set ch2 temp.
+// set ch2 ref
+// set ch2 lts
+// set ch2 sense
+// set ch2 hv-div
+
+
+
+  // mode->second.U419 = S2;   // LTS-SOURCE-HI
+
+void mode_ch2_reset(_mode_t *mode)  // change name reset() ?
 {
-  mode->first.K405 = SR_RESET;    // accum ch2 off
-  mode->second.U409 = DOFF;       // hi/lo mux.
+  // mode->first.K405 = SR_RESET;    // accum ch2 off
+
+  // inpput muxes.
+  mode->second.U419 = SOFF;     // himux. off.  or ref-lo?
+  mode->second.U420 = SOFF;     // lomux
+  mode->second.U409 = DOFF;     // hi/lo mux.
 }
 
 
 
-void mode_set_ch2_sense(_mode_t *mode)
+
+void mode_ch2_set_ref_hi( _mode_t *mode )
 {
-  mode_set_ch2_off(mode);
+  // ref-hi on ch2 input
+  mode_lts_reset( mode);
+
+  mode->second.U419 = S4;   // REF-HI
+  mode->second.U420 = S7;   // REF-LO
+  mode->second.U409 = D4;   // feedmux  hi/lo
+}
+
+
+void mode_ch2_set_ref_lo( _mode_t *mode )
+{
+  // ref lo. on ch2 input
+  mode_lts_reset( mode);
+
+  mode->second.U419 = S3;   // REF-LO
+  mode->second.U420 = S7;   // REF-LO
+  mode->second.U409 = D4;   // feedmux  hi/lo
+}
+
+
+
+
+void mode_ch2_set_temp( _mode_t *mode )
+{
+  mode_lts_reset( mode);
+
+  mode->second.U419 = S1;   // TEMP
+  mode->second.U409 = D4;   // feedmux  hi/lo
+}
+
+
+void mode_ch2_set_lts(_mode_t *mode)
+{
+  mode_ch2_reset(mode);
+  mode->second.U409 = D4;         // dcv-source hi, and ref-lo
+}
+
+
+
+void mode_ch2_set_daq( _mode_t *mode )
+{
+  UNUSED(mode);
+
+}
+
+
+
+void mode_ch2_set_sense(_mode_t *mode)
+{
+  mode_ch2_reset(mode);
   mode->second.U409 = D1;         // sense hi and lo
 }
 
 
-void mode_set_ch2_dci(_mode_t *mode)
+void mode_ch2_set_dci(_mode_t *mode)
 {
-  mode_set_ch2_off(mode);
+  mode_ch2_reset(mode);
   mode->second.U409 = D2;         // dci hi and lo
 }
 
-void mode_set_ch2_dcv_div(_mode_t *mode)
+void mode_ch2_set_dcv_div(_mode_t *mode)
 {
-  mode_set_ch2_off(mode);
+  mode_ch2_reset(mode);
   mode->second.U409 = D3;         // dcv div
   mode->first.K403 = SR_SET;      //
 }
 
 
-void mode_set_ch2_dcv_source(_mode_t *mode)
+void mode_ch2_set_tia( _mode_t *mode )
 {
-  mode_set_ch2_off(mode);
-  mode->second.U409 = D4;         // dcv-source hi, and ref-lo
+  UNUSED(mode);
+
+  assert(0);
+
 }
+
 
 
 
@@ -752,11 +767,6 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   }
 
 
-  else if( sscanf(cmd, "dcv-source lts %lf", &f0) == 1) {
-
-      // printf("set dcv-source, input relays, for current_mode\n");
-    mode_dcv_source_set_lts( mode, f0);
-  }
 
 
 #if 0
@@ -769,39 +779,11 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       // this isnt quite working.
     // note. can take a negative value.
     // eg. 0x3fff or -0x3fff
-    mode_dcv_source_set_sts( mode, i0);
+    mode_ch2_set_sts( mode, i0);
   }
 
 #endif
 
-  else if(strcmp(cmd, "dcv-source ref-hi") == 0) {  // ref-hi
-    mode_dcv_source_set_ref_hi( mode);
-  }
-  else if(strcmp(cmd, "dcv-source ref-lo") == 0) {  // ref-hi
-    // this is through the dcv-source. can also mux direct from the azmux
-    mode_dcv_source_set_ref_lo( mode);
-  }
-
-
-
-
-  else if(strcmp(cmd, "dcv-source temp") == 0) {
-
-    mode_dcv_source_set_temp( mode);
-  }
-
-  // TODO rename mode_dcv_source_set ()  to mode_dcv_source_set()
-
-
-  else if( sscanf(cmd, "dcv-source daq %100s %100s", s0, s1 ) == 2
-    && str_decode_uint( s0, &u0)
-    && str_decode_uint( s1, &u1)
-  )  {
-
-    // eg. 'dcv-source daq s1 s2'
-
-    mode_dcv_source_set_daq( mode, u0, u1);
-  }
 
 
   /*
@@ -852,37 +834,73 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   // channel set
   else if( sscanf(cmd, "set ch1 %100s", s0) == 1)
   {
-    if(strcmp(s0, "off") == 0) {
-      mode_set_ch1_off(mode);
+    if(strcmp(s0, "off") == 0 || strcmp(s0, "reset") == 0) {
+      mode_ch1_reset(mode);
     }
     else if(strcmp(s0, "dcv") == 0) {
-      mode_set_ch1_dcv(mode);
+      mode_ch1_set_dcv(mode);
     }
     else if(strcmp(s0, "dcv-source") == 0) {
-      mode_set_ch1_dcv_source(mode);
+      mode_ch1_set_dcv_source(mode);
     }
     else assert(0);
   }
 
 
+
+  else if( sscanf(cmd, "lts %lf", &f0) == 1) {
+
+    mode_lts_set( mode, f0);
+  }
+
+
+  else if( sscanf(cmd, "daq %100s %100s", s0, s1 ) == 2
+    && str_decode_uint( s0, &u0)
+    && str_decode_uint( s1, &u1)
+  )  {
+
+    // eg. 'dcv-source daq s1 s2'
+    // mode_ch2_set_daq( mode, u0, u1);
+    mode_daq_set( mode, u0, u1);
+  }
+
+
+
   else if( sscanf(cmd, "set ch2 %100s", s0) == 1)
   {
 
-    if(strcmp(s0, "off") == 0) {
-      mode_set_ch2_off(mode);
+    if(strcmp(s0, "off") == 0 || strcmp(s0, "reset") == 0) {      // reset
+      mode_ch2_reset(mode);
+    }
+
+    else if(strcmp(s0, "ref-hi") == 0) {
+      mode_ch2_set_ref_hi( mode);
+    }
+    else if(strcmp(s0, "ref-lo") == 0) {
+      mode_ch2_set_ref_lo( mode);
+    }
+    else if(strcmp(s0, "temp") == 0) {
+      mode_ch2_set_temp( mode);
+    }
+    else if(strcmp(s0, "lts") == 0) {
+      mode_ch2_set_lts( mode);
+    }
+    else if(strcmp(s0, "daq") == 0) {
+      mode_ch2_set_daq( mode);
     }
     else if(strcmp(s0, "sense") == 0) {
-      mode_set_ch2_sense(mode);
+      mode_ch2_set_sense(mode);
     }
     else if(strcmp(s0, "dci") == 0) {
-      mode_set_ch2_dci(mode);
+      mode_ch2_set_dci(mode);
     }
     else if(strcmp(s0, "dcv-div") == 0) {
-      mode_set_ch2_dcv_div(mode);
+      mode_ch2_set_dcv_div(mode);
     }
-     else if(strcmp(s0, "dcv-source") == 0) {
-      mode_set_ch2_dcv_source(mode);
+    else if(strcmp(s0, "tia") == 0) {
+      mode_ch2_set_tia( mode );
     }
+
     else assert(0);
   }
 
@@ -1134,7 +1152,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     // kind of need off and on.?
     // eg. 'dcv-source daq s1 s2'
 
-    mode_dcv_source_set_channel( mode, u0);
+    mode_ch2_set_channel( mode, u0);
   }
 
 #endif
