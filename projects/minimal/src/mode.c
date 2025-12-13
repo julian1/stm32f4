@@ -338,7 +338,7 @@ void mode_set_amp_gain( _mode_t *mode, uint32_t u)
 
 
 // remove argument handling is messy here.
-void mode_ch2_set_ref_hi( _mode_t *mode )
+void mode_ch2_set_ref( _mode_t *mode )
 {
   // rename mode_dcv_ref_source
 
@@ -449,8 +449,10 @@ void mode_ch2_reset(_mode_t *mode)
 
 
 
-void mode_ch2_set_ref_hi( _mode_t *mode )
+void mode_ch2_set_ref( _mode_t *mode )
 {
+  // TODO. rename be set_ref.  to sets both the hi and the lo.
+
   mode_ch2_reset(mode);
 
   mode->second.U419 = S4;   // REF-HI
@@ -888,8 +890,8 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       mode_ch2_reset(mode);
     }
 
-    else if(strcmp(s0, "ref-hi") == 0) {
-      mode_ch2_set_ref_hi( mode);
+    else if(strcmp(s0, "ref") == 0) {
+      mode_ch2_set_ref( mode);
     }
     else if(strcmp(s0, "ref-lo") == 0) {
       mode_ch2_set_ref_lo( mode);
