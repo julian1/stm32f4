@@ -247,7 +247,9 @@ void data_cal(
       if(j == 0) {
         y_ = 7;   // ref-hi / 7V
         // mode_ch2_set_ref(  mode, 7);
-        mode_ch2_set_ref_hi( mode);
+
+
+        mode_ch2_set_ref( mode);
       } else {
         y_ = 0;  // ref-lo / 0V
         // mode_ch2_set_ref(  mode, 0);

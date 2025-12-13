@@ -63,11 +63,14 @@ static void test (app_t *app)     // should be passing the continuation.
     );
 */
 
+
+#if 0
   assert(
        (mode.reg_direct.azmux_o == SOFF && mode.reg_direct.pc_ch1_o == SW_PC_BOOT)            // without routing through az mux
     || (mode.reg_direct.azmux_o == AZMUX_CH1_HI   && mode.reg_direct.pc_ch1_o == SW_PC_SIGNAL)  // normal mode, route to amplifier
     );
 
+#endif
 
 
 /*

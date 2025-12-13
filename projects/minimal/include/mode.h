@@ -70,6 +70,11 @@
 #define S7          ((1<<3)|(7-1))
 #define S8          ((1<<3)|(8-1))
 
+/*
+  if we had put the enable pin first, on each 4094.
+  then the same codes could be used for both.
+
+*/
 
 // dual 1of 4 muxes.
 #define DOFF        0
@@ -79,55 +84,16 @@
 #define D4          ((1<<2)|(4-1))    // 7
 
 
-// prefix naming SR for set/reset relaysure
+// better prefix - SR for set/reset
 #define SR_SET      0b01
 #define SR_RESET    0b10
 
 
-/*
-// not sure if should move to ice40_reg.  or just remove.
-// two channels.
-// eg. (PC0 | PC01) <<
-
-#define PCOFF       0b00    // both off.
-
-// THIS IS TOO CONFUSING.
-// PC1, PC2 is confusing.
-#define PC01         0b01
-#define PC10         0b10
-// #define PCBOTH      0b11 // both on.
-*/
 
 
 #define SW_PC_BOOT        0
 #define SW_PC_SIGNAL      1
 
-
-
-
-/*
-
-// could use these - slightly more specific
-#define PC-DCV        0b01
-#define PC-HIMUX      0b10
-
-
-//  Seq. elts.  U410
-// for both, direct register mode, and normal sample acquisition.
-#define AZMUX-DCV     S1
-#define AZMUX-LO      S2
-#define AZMUX-HIMUX   S3
-#define AZMUX-LOMUX   S4
-*/
-
-// from dmm16 to dmm17.  DCV changed from S3 to S1.    and CH2 went from S1 to S3. confusing.
-// remember azmux is coded with 4 bits, so use S not D.
-
-
-#define AZMUX_CH1_HI  S1    // DCV
-#define AZMUX_CH1_LO  S2
-#define AZMUX_CH2_HI  S3    // INMUX
-#define AZMUX_CH2_LO  S4
 
 
 
@@ -478,7 +444,7 @@ void mode_ch1_set_dcv_source(_mode_t *mode);    // change name lts
 
 
 void mode_ch2_reset(_mode_t *mode);
-void mode_ch2_set_ref_hi( _mode_t *mode);
+void mode_ch2_set_ref( _mode_t *mode);
 void mode_ch2_set_ref_lo( _mode_t *mode);
 void mode_ch2_set_temp( _mode_t *mode );
 void mode_ch2_set_lts(_mode_t *mode);
@@ -492,6 +458,44 @@ void mode_ch2_set_dcv_div(_mode_t *mode);
 // void mode_ch2_set_sts( _mode_t *mode, signed u0 );
 
 
+
+
+void mode_ch1_accum( _mode_t *mode, bool);
+void mode_ch2_accum( _mode_t *mode, bool);
+
+
+
+// void mode_set_accum( _mode_t *mode, bool val);
+
+
+
+
+
+/*
+
+// could use these - slightly more specific
+#define PC-DCV        0b01
+#define PC-HIMUX      0b10
+
+
+//  Seq. elts.  U410
+// for both, direct register mode, and normal sample acquisition.
+#define AZMUX-DCV     S1
+#define AZMUX-LO      S2
+#define AZMUX-HIMUX   S3
+#define AZMUX-LOMUX   S4
+*/
+
+// from dmm16 to dmm17.  DCV changed from S3 to S1.    and CH2 went from S1 to S3. confusing.
+// remember azmux is coded with 4 bits, so use S not D.
+
+#if 0
+#define AZMUX_CH1_HI  S1    // DCV
+#define AZMUX_CH1_LO  S2
+#define AZMUX_CH2_HI  S3    // INMUX
+#define AZMUX_CH2_LO  S4
+
+#endif
 
 
 #if 0
@@ -511,18 +515,19 @@ void mode_ch2_set( _mode_t *mode, uint32_t val);
 #endif
 
 
-void mode_ch1_accum( _mode_t *mode, bool);
-void mode_ch2_accum( _mode_t *mode, bool);
+/*
+// not sure if should move to ice40_reg.  or just remove.
+// two channels.
+// eg. (PC0 | PC01) <<
 
+#define PCOFF       0b00    // both off.
 
-
-// void mode_set_accum( _mode_t *mode, bool val);
-
-
-
-
-
-
+// THIS IS TOO CONFUSING.
+// PC1, PC2 is confusing.
+#define PC01         0b01
+#define PC10         0b10
+// #define PCBOTH      0b11 // both on.
+*/
 
 
 
