@@ -104,6 +104,7 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
   // write mdac0
   assert( devices->spi_mdac0);
   spi_port_configure( devices->spi_mdac0);
+  printf("write mdac val- transition state\n");
   spi_ad5446_write16( devices->spi_mdac0, mode->mdac0_val );
 
 
@@ -245,15 +246,31 @@ void mode_lts_set( _mode_t *mode, double f0)
 }
 
 
+void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 )
+{
+  // mode_lts_reset( mode);
 
-#if 0
+  // mode->second.U1006  = S7;    // JA
+  // mode->second.U1007  = S7;
+
+  // set the hig/lo dac inputs.
+  mode->second.U1009  = u0;
+  mode->second.U1010  = u1;
+}
 
 
-void mode_ch2_set_sts( _mode_t *mode, signed u0 )
+
+
+#if 1
+
+void mode_mdac0_set( _mode_t *mode, signed u0 )
 {
   printf("mdac\n");
 
-  mode_lts_reset( mode);
+  UNUSED(u0);
+
+#if 0
+  // mode_lts_reset( mode);
 
   // mode->second.U1006  = S3;       // JA mux dac
 
@@ -266,10 +283,22 @@ void mode_ch2_set_sts( _mode_t *mode, signed u0 )
     mode->second.U1003  = S1;      // negatie source
   }
 
+#endif
+
+
+  mode->second.U426  = D2;    // input - boot ch2
+  mode->second.U423  = D1;    // com-lc output - mdac inverter
+
   // should do better range check.
   //assert(u0 <= 0x3fff);
+  //  mode->mdac0_val = u0;// abs( u0 );
 
-  mode->mdac0_val = u0;// abs( u0 );
+
+  // dac7811.
+  // 12 bits -  mask is FFF  == 4095
+  // 0001 command to load and update.
+
+  mode->mdac0_val = (1<<12) | 0xfff ;
 }
 
 #endif
@@ -293,19 +322,6 @@ static void mode_ch2_set_iso( _mode_t *mode, signed u0 )
   assert(0);
 }
 #endif
-
-
-void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 )
-{
-  // mode_lts_reset( mode);
-
-  // mode->second.U1006  = S7;    // JA
-  // mode->second.U1007  = S7;
-
-  // set the hig/lo dac inputs.
-  mode->second.U1009  = u0;
-  mode->second.U1010  = u1;
-}
 
 
 
@@ -883,6 +899,19 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
 
 
+  else if( sscanf(cmd, "set mdac0 %100s", s0) == 1
+    && str_decode_uint( s0, &u0)
+  )  {
+
+    mode_mdac0_set( mode, u0);
+  }
+
+
+
+
+
+
+
   else if( sscanf(cmd, "set ch2 %100s", s0) == 1)
   {
 
@@ -934,10 +963,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       // cannot manage pointer to bitfield. so have to hardcode.
 
 
-      if(strcmp(s0, "mdac0") == 0) {
-        mode->mdac0_val = u0;
-      }
-      else if(strcmp(s0, "mdac1") == 0) {
+      if(strcmp(s0, "mdac1") == 0) {
         mode->mdac1_val = u0;
       }
 

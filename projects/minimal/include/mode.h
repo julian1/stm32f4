@@ -433,13 +433,14 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );
 
 
 
-void mode_lts_set( _mode_t *mode, double f0 /*signed i0*/);  // arg is 10,0,-10
+void mode_lts_set( _mode_t *mode, double f0 /*signed i0*/);       // arg is 10,0,-10
 void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 );   // factor into daq_set and ch2_set
+void mode_mdac0_set( _mode_t *mode, signed u0 );                // inverter
 
 
 void mode_ch1_reset(_mode_t *mode);
 void mode_ch1_set_dcv(_mode_t *mode);
-void mode_ch1_set_dcv_source(_mode_t *mode);    // change name lts
+void mode_ch1_set_dcv_source(_mode_t *mode);    // change name lts eg.  using input relay
 
 
 
@@ -453,9 +454,6 @@ void mode_ch2_set_shunts(_mode_t *mode);
 void mode_ch2_set_tia( _mode_t *mode );
 void mode_ch2_set_sense(_mode_t *mode);
 void mode_ch2_set_dcv_div(_mode_t *mode);
-
-
-// void mode_ch2_set_sts( _mode_t *mode, signed u0 );
 
 
 
