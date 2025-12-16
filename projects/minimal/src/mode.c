@@ -262,7 +262,7 @@ void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 )
 
 
 #if 1
-
+// change name inverter_dac.
 void mode_mdac0_set( _mode_t *mode, signed u0 )
 {
   printf("mdac\n");
@@ -502,8 +502,26 @@ void mode_ch2_set_lts(_mode_t *mode)
 {
   mode_ch2_reset(mode);
 
-  mode->second.U419 = S2;   // lts
-  mode->second.U409 = D4;   // feedmux  hi/lo
+  mode->second.U419 = S2;   // himux.  lts-source-hi
+  mode->second.U420 = S7;   // lomux - ref-lo for u415 buffer.
+  mode->second.U409 = D4;   // feedmux - hi/lomux
+
+  sa_state_t *sa = &mode->sa;
+  sa->p_seq_n = 2;
+
+  // zero
+  sa->p_seq_elt[ 0].azmux  = S6;     // A400-1
+  sa->p_seq_elt[ 0].pc = 0b00;
+
+  // val
+  sa->p_seq_elt[ 1].azmux  = S3;     // CH2-IN
+  sa->p_seq_elt[ 1].pc = 0b10;
+
+
+  // could set the LS drive. first input switch here - eg. BOOT1/BOOT2/ agnd. if wanted.
+  // so it is set up for the double range.
+
+  // set the data catcher closurec.
 }
 
 
@@ -544,7 +562,7 @@ void mode_ch2_set_sense(_mode_t *mode)
   mode->second.U409 = D1;         // sense hi and lo
 }
 
-
+// TODO change hv-div.
 
 void mode_ch2_set_dcv_div(_mode_t *mode)
 {
