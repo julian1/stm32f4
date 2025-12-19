@@ -104,7 +104,6 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
   // write mdac0
   assert( devices->spi_mdac0);
   spi_port_configure( devices->spi_mdac0);
-  printf("write mdac val- transition state\n");
   spi_ad5446_write16( devices->spi_mdac0, mode->mdac0_val );
 
 
@@ -261,47 +260,45 @@ void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 )
 
 
 
-#if 1
-// change name inverter_dac.
+// change name mode_invert_dac_set
 void mode_mdac0_set( _mode_t *mode, signed u0 )
 {
-  printf("mdac\n");
-
-  UNUSED(u0);
-
-#if 0
-  // mode_lts_reset( mode);
-
-  // mode->second.U1006  = S3;       // JA mux dac
-
-  if(u0 >= 0) {
-    printf("positive");
-    mode->second.U1003  = S2;       // positive source.
-  } else if (u0 < 0) {
-
-    printf("neg");
-    mode->second.U1003  = S1;      // negatie source
-  }
-
-#endif
-
+  printf("mdac0\n");
 
   mode->second.U426  = D2;    // input - boot ch2
-  mode->second.U423  = D1;    // com-lc output - mdac inverter
+  mode->second.U423  = D1;    // use inverter on com-lc
 
-  // should do better range check.
-  //assert(u0 <= 0x3fff);
-  //  mode->mdac0_val = u0;// abs( u0 );
+  // assert(u0 <= 0x3fff);
+  assert(u0 <= 0xfff);
 
 
   // dac7811.
   // 12 bits -  mask is FFF  == 4095
   // 0001 command to load and update.
 
-  mode->mdac0_val = (1<<12) | 0xfff ;
+  // move this to where dac is written. or insider the peripheral
+  uint8_t cmd = 0x01;
+  mode->mdac0_val = (cmd <<12) | (u0 & 0xfff);
 }
 
-#endif
+
+
+
+void mode_mdac1_set( _mode_t *mode, signed u0 )
+{
+  printf("mdac1n");
+
+  // dac7811.
+  // 12 bits -  mask is FFF  == 4095
+  // 0001 command to load and update.
+
+  assert(u0 <= 0xfff);
+
+  // move this to where dac is written. or insider the peripheral
+  uint8_t cmd = 0x01;
+  mode->mdac1_val = (cmd <<12) | (u0 & 0xfff);
+}
+
 
 
 
@@ -925,6 +922,12 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   }
 
 
+  else if( sscanf(cmd, "set mdac1 %100s", s0) == 1
+    && str_decode_uint( s0, &u0)
+  )  {
+
+    mode_mdac1_set( mode, u0);
+  }
 
 
 
@@ -1202,6 +1205,48 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
 
 
+  else {
+
+    return 0;
+  }
+
+
+
+  return 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+#if 0
+  // mode_lts_reset( mode);
+
+  // mode->second.U1006  = S3;       // JA mux dac
+
+  if(u0 >= 0) {
+    printf("positive");
+    mode->second.U1003  = S2;       // positive source.
+  } else if (u0 < 0) {
+
+    printf("neg");
+    mode->second.U1003  = S1;      // negatie source
+  }
+
+#endif
+
+
+
+
+
+
+
 
 
 #if 0
@@ -1255,18 +1300,8 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 #endif
 
 
-  else {
-
-    return 0;
-  }
 
 
-
-
-
-
-  return 1;
-}
 
 
 
