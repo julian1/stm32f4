@@ -61,6 +61,7 @@
 
 // 1of8 muxes.
 #define SOFF        0
+/*
 #define S1          ((1<<3)|(1-1))
 #define S2          ((1<<3)|(2-1))
 #define S3          ((1<<3)|(3-1))
@@ -69,6 +70,20 @@
 #define S6          ((1<<3)|(6-1))    // 13
 #define S7          ((1<<3)|(7-1))
 #define S8          ((1<<3)|(8-1))
+*/
+
+#define S1          ((1-1)<<1|0b1)
+#define S2          ((2-1)<<1|0b1)
+#define S3          ((3-1)<<1|0b1)
+#define S4          ((4-1)<<1|0b1)
+#define S5          ((5-1)<<1|0b1)
+#define S6          ((6-1)<<1|0b1)
+#define S7          ((7-1)<<1|0b1)
+#define S8          ((8-1)<<1|0b1)
+
+
+
+
 
 /*
   if we had put the enable pin first, on each 4094.
@@ -78,10 +93,16 @@
 
 // dual 1of 4 muxes.
 #define DOFF        0
+/*
 #define D1          ((1<<2)|(1-1))    // 4.
 #define D2          ((1<<2)|(2-1))    // 5
 #define D3          ((1<<2)|(3-1))    // 6
 #define D4          ((1<<2)|(4-1))    // 7
+*/
+#define D1          ((1-1)<<1|0b1)
+#define D2          ((2-1)<<1|0b1)
+#define D3          ((3-1)<<1|0b1)
+#define D4          ((4-1)<<1|0b1)
 
 
 // better prefix - SR for set/reset
