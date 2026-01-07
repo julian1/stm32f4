@@ -38,13 +38,14 @@ static void test (app_t *app)
         flip = ! flip;
 
         switch(k) {
-          case 0: mode.first.K401 =  flip ? 0b01 : 0b10;  break;
-          case 1: mode.first.K402 =  flip ? 0b01 : 0b10;  break;
-          case 2: mode.first.K403 =  flip ? 0b01 : 0b10;  break;
-          case 3: mode.first.K404 =  flip ? 0b01 : 0b10; break;
+          case 0: mode.first.K702 =  flip ? 0b01 : 0b10; break;
+          case 1: mode.first.K703 =  flip ? 0b01 : 0b10; break;
 
-          case 4: mode.first.K702 =  flip ? 0b01 : 0b10; break;
-          case 5: mode.first.K703 =  flip ? 0b01 : 0b10; break;
+          case 2: mode.first.K401 =  flip ? 0b01 : 0b10;  break;
+          case 3: mode.first.K402 =  flip ? 0b01 : 0b10;  break;
+          case 4: mode.first.K403 =  flip ? 0b01 : 0b10;  break;
+          case 5: mode.first.K404 =  flip ? 0b01 : 0b10; break;
+
         }
 
         spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
