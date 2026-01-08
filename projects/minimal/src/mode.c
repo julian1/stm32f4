@@ -252,24 +252,24 @@ void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 )
   // mode->second.U1006  = S7;    // JA
   // mode->second.U1007  = S7;
 
+  // OK. we have to pass encoded arguments here.
+
   // set the hig/lo dac inputs.
   mode->second.U1009  = u0;
   mode->second.U1010  = u1;
+
+
+
+
 }
 
 
 
 
-// change name mode_invert_dac_set
-void mode_mdac0_set( _mode_t *mode, signed u0 )
+void mode_mdac0_set( _mode_t *mode, unsigned u0 )
 {
   printf("mdac0\n");
 
-  mode->second.U426  = D2;    // input - boot ch2
-  mode->second.U423  = D1;    // use inverter on com-lc
-
-  // assert(u0 <= 0x3fff);
-  assert(u0 <= 0xfff);
 
 
   // dac7811.
@@ -283,8 +283,31 @@ void mode_mdac0_set( _mode_t *mode, signed u0 )
 
 
 
+void mode_invert_set( _mode_t *mode, bool  u0)
+{
+  if( u0) {
 
-void mode_mdac1_set( _mode_t *mode, signed u0 )
+    // we need a channel  argument here.
+    // should this
+    mode->second.U426  = D2;    // input select - boot ch2
+    mode->second.U423  = D1;    // drive com-lc with mdac
+
+    uint16_t  val = 0xfff;      // eg. full.
+    mode_mdac0_set( mode, val);
+  } else {
+
+    mode->second.U426  = D4;    // A400-1. star-ground
+    mode->second.U423  = D3;    // A400-1. star-ground
+
+    uint16_t  val = 0x0;      // off.
+    mode_mdac0_set( mode, val);
+  }
+
+}
+
+
+
+void mode_mdac1_set( _mode_t *mode, unsigned u0 )
 {
   printf("mdac1n");
 
@@ -912,7 +935,11 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   }
 
 
-
+#if 0
+  // need some much better fleshed out, control here.
+  // set invert on.
+  // set invert off.
+  // would be much easier.  and just ignore the dithering
 
   else if( sscanf(cmd, "set mdac0 %100s", s0) == 1
     && str_decode_uint( s0, &u0)
@@ -920,13 +947,22 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
     mode_mdac0_set( mode, u0);
   }
+#endif
 
-
-  else if( sscanf(cmd, "set mdac1 %100s", s0) == 1
+  else if(( sscanf(cmd, "set iso %100s", s0) == 1
+    || sscanf(cmd, "set mdac1 %100s", s0) == 1 )
     && str_decode_uint( s0, &u0)
   )  {
 
     mode_mdac1_set( mode, u0);
+  }
+
+
+  else if( sscanf(cmd, "set invert %100s", s0) == 1
+    && str_decode_uint( s0, &u0)
+  )  {
+    // bool. off/on.
+    mode_invert_set( mode, u0);
   }
 
 
@@ -967,7 +1003,11 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     else if(strcmp(s0, "dcv-div") == 0) {
       mode_ch2_set_dcv_div(mode);
     }
-    else assert(0);
+    else {
+      printf("unrecognized\n");
+      return 0;
+      // assert(0);
+    }
   }
 
 
