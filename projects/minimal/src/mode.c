@@ -471,6 +471,25 @@ it works well to coordinate the three muxes like this.
 */
 
 
+static void mode_ch2_az_set(_mode_t *mode)
+{
+  // signal can come in on S3, S7
+  sa_state_t *sa = &mode->sa;
+  sa->p_seq_n = 2;
+
+  // zero first
+  sa->p_seq_elt[ 0].azmux  = S7;     // channel2 lo. from feed mux.
+  sa->p_seq_elt[ 0].pc = 0b00;
+
+  // val
+  sa->p_seq_elt[ 1].azmux  = S3;     // CH2-IN
+  sa->p_seq_elt[ 1].pc = 0b10;
+
+  // set the catcher handler/closure
+}
+
+
+
 
 void mode_ch2_reset(_mode_t *mode)
 {
@@ -480,6 +499,9 @@ void mode_ch2_reset(_mode_t *mode)
   mode->second.U419 = SOFF;     // himux or should be ref-lo? or agnd - for leakage?
   mode->second.U420 = SOFF;     // lomux
   mode->second.U409 = DOFF;     // hi/lo mux.
+
+  // not sure that we want this floating value...
+  mode_ch2_az_set( mode);
 }
 
 
@@ -494,6 +516,8 @@ void mode_ch2_set_ref( _mode_t *mode )
   mode->second.U419 = S4;   // REF-HI
   mode->second.U420 = S7;   // REF-LO
   mode->second.U409 = D4;   // feedmux  hi/lo
+
+  mode_ch2_az_set( mode);
 }
 
 
@@ -504,6 +528,8 @@ void mode_ch2_set_ref_lo( _mode_t *mode )
   mode->second.U419 = S3;   // REF-LO
   mode->second.U420 = S7;   // REF-LO
   mode->second.U409 = D4;   // feedmux  hi/lo
+
+  mode_ch2_az_set( mode);
 }
 
 
@@ -514,22 +540,31 @@ void mode_ch2_set_temp( _mode_t *mode )
   mode_ch2_reset(mode);
 
   mode->second.U419 = S1;   // TEMP
+  mode->second.U420 = S1;   // A400-1
   mode->second.U409 = D4;   // feedmux  hi/lo
+
+  mode_ch2_az_set( mode);
 }
+
+
+
 
 
 void mode_ch2_set_lts(_mode_t *mode)
 {
   mode_ch2_reset(mode);
 
-  mode->second.U419 = S2;   // himux.  lts-source-hi
-  mode->second.U420 = S7;   // lomux - ref-lo for u415 buffer.
-  mode->second.U409 = D4;   // feedmux - hi/lomux
+  mode->second.U419 = S2;   // lts-source-hi
+  mode->second.U420 = S1;   // A400-1
+  mode->second.U409 = D4;   // feedmux
 
-  sa_state_t *sa = &mode->sa;
-  sa->p_seq_n = 2;
+  mode_ch2_az_set( mode);
 
-  // zero
+
+  // anything on channel two.
+
+/*
+  // zero first
   sa->p_seq_elt[ 0].azmux  = S6;     // A400-1
   sa->p_seq_elt[ 0].pc = 0b00;
 
@@ -540,8 +575,8 @@ void mode_ch2_set_lts(_mode_t *mode)
 
   // could set the LS drive. first input switch here - eg. BOOT1/BOOT2/ agnd. if wanted.
   // so it is set up for the double range.
-
   // set the data catcher closurec.
+*/
 }
 
 
@@ -551,7 +586,10 @@ void mode_ch2_set_daq( _mode_t *mode )
   mode_ch2_reset(mode);
 
   mode->second.U419 = S5;   // daq
+  mode->second.U420 = S5;   // com-lc
   mode->second.U409 = D4;   // feedmux  hi/lo
+
+  mode_ch2_az_set( mode);
 }
 
 
@@ -560,8 +598,11 @@ void mode_ch2_set_shunts(_mode_t *mode)
 {
   mode_ch2_reset(mode);
 
-  mode->second.U419 = S6;   // shunts
+  mode->second.U419 = S6;   // shunts hi
+  mode->second.U420 = S6;   // shunts lo
   mode->second.U409 = D4;   // feedmux  hi/lo
+
+  mode_ch2_az_set( mode);
 }
 
 
@@ -570,7 +611,10 @@ void mode_ch2_set_tia( _mode_t *mode )
   mode_ch2_reset(mode);
 
   mode->second.U419 = S8;   // tia
+  mode->second.U420 = S1;   // A400-1
   mode->second.U409 = D4;   // feedmux  hi/lo
+
+  mode_ch2_az_set( mode);
 }
 
 
@@ -580,6 +624,8 @@ void mode_ch2_set_sense(_mode_t *mode)
   mode_ch2_reset(mode);
 
   mode->second.U409 = D1;         // sense hi and lo
+
+  mode_ch2_az_set( mode);
 }
 
 // TODO change hv-div.
@@ -590,7 +636,7 @@ void mode_ch2_set_dcv_div(_mode_t *mode)
 
   mode->second.U409 = D3;         // dcv div
 
-  // mode->first.K403 = SR_SET;      //
+  mode_ch2_az_set( mode);
 }
 
 
@@ -935,11 +981,12 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   }
 
 
-#if 0
+#if 1
   // need some much better fleshed out, control here.
-  // set invert on.
-  // set invert off.
-  // would be much easier.  and just ignore the dithering
+  // set invert on/ on.
+
+  // we have off/on control.  BUT want  control over the dac value as well.
+  // 'set invert dac'.
 
   else if( sscanf(cmd, "set mdac0 %100s", s0) == 1
     && str_decode_uint( s0, &u0)
