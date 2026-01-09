@@ -178,10 +178,112 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
 
 
 
-/*
-  could put these funcs in separate file, if really wanted.
 
-*/
+
+
+
+
+#if 0
+#endif
+
+
+
+
+
+
+void mode_set_amp_gain( _mode_t *mode, uint32_t u)
+{
+
+  printf("set amp gain\n");
+
+
+  if( u == 1)
+    mode->second.U506 = S8;
+  else if( u == 10)
+    mode->second.U506 = S2;
+  else if( u == 100)
+    mode->second.U506 = S3;
+  else if( u == 1000)
+    mode->second.U506 = S4;
+  else
+    assert(0);
+
+}
+
+
+
+
+#if 0
+
+
+
+static void mode_ch2_set_iso( _mode_t *mode, signed u0 )
+{
+  /* this function is possible. but it is a bit confusing parallel state.
+    because output does not appear
+    and it is read from from the daq.
+    so should probably be handled exceptionally
+
+    and would need a call to the daq.
+  - void mode_ch2_set_daq( _mode_t *mode, unsigned u0, unsigned u1 )
+  */
+
+  UNUSED(mode);
+  UNUSED(u0);
+  assert(0);
+}
+
+
+
+// remove argument handling is messy here.
+void mode_ch2_set_ref( _mode_t *mode )
+{
+  // rename mode_dcv_ref_source
+
+  mode_lts_reset( mode);
+
+  if(u0 == 7) {
+    printf("with ref-hi +7V\n");
+    mode->second.U1006  = S4;       // ref-hi
+    // mode->second.U1007  = S4;       // ref-lo
+  }
+  else if( u0 == 0 ) {
+    // need bodge for this
+    printf("with ref-lo\n");
+    mode->second.U1006  = S8;       // ref-lo
+    // mode->second.U1007  = S4;       // ref-lo - looks funny. gives bad measurement. on DMM.
+  }
+  else
+    assert(0);
+}
+
+
+
+
+// this is a poor abstraction.
+void mode_ch2_set_channel( _mode_t *mode, unsigned u0 )
+{
+
+  // neither channel
+  mode->first.K407 = SR_RESET;
+  mode->second.U409 = DOFF;       // hi/lo mux.
+
+  if(u0 == 1) {
+
+    mode->first.K407 = SR_SET;
+  } else if(u0 == 2) {
+
+    mode->second.U409 = D4;
+  }
+
+}
+
+#endif
+
+
+
+
+
 
 
 static void mode_lts_reset( _mode_t *mode )
@@ -282,31 +384,6 @@ void mode_mdac0_set( _mode_t *mode, unsigned u0 )
 }
 
 
-
-void mode_invert_set( _mode_t *mode, bool  u0)
-{
-  if( u0) {
-
-    // we need a channel  argument here.
-    // should this
-    mode->second.U426  = D2;    // input select - boot ch2
-    mode->second.U423  = D1;    // drive com-lc with mdac
-
-    uint16_t  val = 0xfff;      // eg. full.
-    mode_mdac0_set( mode, val);
-  } else {
-
-    mode->second.U426  = D4;    // A400-1. star-ground
-    mode->second.U423  = D3;    // A400-1. star-ground
-
-    uint16_t  val = 0x0;      // off.
-    mode_mdac0_set( mode, val);
-  }
-
-}
-
-
-
 void mode_mdac1_set( _mode_t *mode, unsigned u0 )
 {
   printf("mdac1n");
@@ -325,98 +402,49 @@ void mode_mdac1_set( _mode_t *mode, unsigned u0 )
 
 
 
-#if 0
-static void mode_ch2_set_iso( _mode_t *mode, signed u0 )
+
+static void mode_loside_set( _mode_t *mode, const char *s)
 {
-  /* this function is possible. but it is a bit confusing parallel state.
-    because output does not appear
-    and it is read from from the daq.
-    so should probably be handled exceptionally
+  // loside drive/connections
 
-    and would need a call to the daq.
-  - void mode_ch2_set_daq( _mode_t *mode, unsigned u0, unsigned u1 )
-  */
+  if(strcmp(s, "gnd") == 0
+    || strcmp(s, "star") == 0) {
 
-  UNUSED(mode);
-  UNUSED(u0);
-  assert(0);
-}
-#endif
+    // consider making this default.
+    mode->second.U426  = D4;    // A400-1. star-ground. ie. mdac unused. set input to 0V.
+    mode->second.U423  = D3;    // drive com-lc with A400-1. star-ground
 
+    uint16_t  val = 0x0;        // turn off
+    mode_mdac0_set( mode, val);
+  }
 
+  else if(strcmp(s, "invert") == 0) {
 
+    // need an argument for the input channel here.
+    mode->second.U426  = D2;    // ch 2
+    mode->second.U423  = D1;    // drive com-lc from mdac outputt
 
+    uint16_t  val = 0xfff;      // full.
+    mode_mdac0_set( mode, val);
+  }
 
+  else if(strcmp(s, "offset") == 0) {     // normal mode, but with small dac driven offset to apply a dither
 
-void mode_set_amp_gain( _mode_t *mode, uint32_t u)
-{
+    // invert but using the divider.
+    // need an argument for the input channel here.
+    mode->second.U426  = D2;      // ch2
+    mode->second.U423  = D2;      // drive com-lc from mdac and divider
 
-  printf("set amp gain\n");
+    uint16_t  val = 0x0;      // off
+    mode_mdac0_set( mode, val);
+  }
 
-
-  if( u == 1)
-    mode->second.U506 = S8;
-  else if( u == 10)
-    mode->second.U506 = S2;
-  else if( u == 100)
-    mode->second.U506 = S3;
-  else if( u == 1000)
-    mode->second.U506 = S4;
   else
     assert(0);
 
 }
 
 
-
-
-#if 0
-
-
-// remove argument handling is messy here.
-void mode_ch2_set_ref( _mode_t *mode )
-{
-  // rename mode_dcv_ref_source
-
-  mode_lts_reset( mode);
-
-  if(u0 == 7) {
-    printf("with ref-hi +7V\n");
-    mode->second.U1006  = S4;       // ref-hi
-    // mode->second.U1007  = S4;       // ref-lo
-  }
-  else if( u0 == 0 ) {
-    // need bodge for this
-    printf("with ref-lo\n");
-    mode->second.U1006  = S8;       // ref-lo
-    // mode->second.U1007  = S4;       // ref-lo - looks funny. gives bad measurement. on DMM.
-  }
-  else
-    assert(0);
-}
-
-
-
-
-// this is a poor abstraction.
-void mode_ch2_set_channel( _mode_t *mode, unsigned u0 )
-{
-
-  // neither channel
-  mode->first.K407 = SR_RESET;
-  mode->second.U409 = DOFF;       // hi/lo mux.
-
-  if(u0 == 1) {
-
-    mode->first.K407 = SR_SET;
-  } else if(u0 == 2) {
-
-    mode->second.U409 = D4;
-  }
-
-}
-
-#endif
 
 
 
@@ -466,7 +494,7 @@ void mode_ch1_set_dcv_source(_mode_t *mode)   // rename use K404. instead.
 // set ch2 sense
 // set ch2 hv-div
 
-it works well to coordinate the three muxes like this.
+it works well to coordinate the three input muxes together like this.
 
 */
 
@@ -662,6 +690,8 @@ void mode_ch2_accum( _mode_t *mode, bool val)
 /*
   TODO.
   this function is awful.
+
+  instead just set up a closure/handler - at the time we set the AZ mux sequencing.
 
   instead code as,
 
@@ -981,21 +1011,20 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   }
 
 
-#if 1
-  // need some much better fleshed out, control here.
-  // set invert on/ on.
 
-  // we have off/on control.  BUT want  control over the dac value as well.
-  // 'set invert dac'.
+  // TODO consider better name than iso. eg. just sts,  or floating sts. flt-sts-dcv-source
+  // consider remove prefix m. from the dac.
 
-  else if( sscanf(cmd, "set mdac0 %100s", s0) == 1
+  // inverter dac
+  else if(( sscanf(cmd, "set mdac0 %100s", s0) == 1
+    || sscanf(cmd, "set inverter %100s", s0) == 1 )
     && str_decode_uint( s0, &u0)
   )  {
 
     mode_mdac0_set( mode, u0);
   }
-#endif
 
+  // iso dac
   else if(( sscanf(cmd, "set iso %100s", s0) == 1
     || sscanf(cmd, "set mdac1 %100s", s0) == 1 )
     && str_decode_uint( s0, &u0)
@@ -1005,14 +1034,11 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   }
 
 
-  else if( sscanf(cmd, "set invert %100s", s0) == 1
-    && str_decode_uint( s0, &u0)
+  else if( sscanf(cmd, "set loside %100s", s0) == 1
   )  {
-    // bool. off/on.
-    mode_invert_set( mode, u0);
+
+    mode_loside_set( mode, s0);
   }
-
-
 
 
 
