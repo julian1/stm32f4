@@ -243,7 +243,8 @@ reg_direct_t
 
 */
 
-  // uint8_t   sig_pc_ch_o : 2;           // 14
+  // use two bit representation - to be consistent with az. sequen
+  // uint8_t   pc_o : 2;                       // 14
   uint8_t   pc_ch1_o : 1;                 // 14
   uint8_t   pc_ch2_o : 1;                 // 15
 

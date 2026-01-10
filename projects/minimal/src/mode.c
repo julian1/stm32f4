@@ -447,6 +447,47 @@ static void mode_loside_set( _mode_t *mode, const char *s)
 
 
 
+// NO. express this a different way.
+// mode_azmux_set "ch2" ...
+
+//static void mode_ch2_az_set(_mode_t *mode)
+
+
+// actually may be better to have noaz. to set up. to run with p_seq_n = 1;
+// and no switching.
+
+static void mode_azmux_set(_mode_t *mode, const char *s)
+{
+  // note the same syntax
+
+  if(strcmp(s, "ch2") == 0 ) {
+
+    // direct mode
+    mode->reg_direct.azmux_o = S3;
+    mode->reg_direct.pc_ch2_o = 1;
+
+
+    // az mode
+    // signal can come in on S3, S7
+    sa_state_t *sa = &mode->sa;
+    sa->p_seq_n = 2;
+
+    // zero first
+    sa->p_seq_elt[ 0].azmux  = S7;     // channel2 lo. from feed mux.
+    sa->p_seq_elt[ 0].pc = 0b00;
+
+    // val
+    sa->p_seq_elt[ 1].azmux  = S3;     // CH2-IN
+    sa->p_seq_elt[ 1].pc = 0b10;
+
+    // set the catcher handler/closure
+  }
+  else
+    assert( 0);
+
+}
+
+
 
 
 
@@ -498,39 +539,6 @@ it works well to coordinate the three input muxes together like this.
 
 */
 
-
-
-// NO. express this a different way.
-// mode_azmux_set "ch2" ...
-
-//static void mode_ch2_az_set(_mode_t *mode)
-
-static void mode_azmux_set(_mode_t *mode, const char *s)
-{
-  // note the same syntax
-
-  if(strcmp(s, "ch2") == 0 ) {
-
-    // just normal channel
-
-    // signal can come in on S3, S7
-    sa_state_t *sa = &mode->sa;
-    sa->p_seq_n = 2;
-
-    // zero first
-    sa->p_seq_elt[ 0].azmux  = S7;     // channel2 lo. from feed mux.
-    sa->p_seq_elt[ 0].pc = 0b00;
-
-    // val
-    sa->p_seq_elt[ 1].azmux  = S3;     // CH2-IN
-    sa->p_seq_elt[ 1].pc = 0b10;
-
-    // set the catcher handler/closure
-  }
-  else
-    assert( 0);
-
-}
 
 
 
