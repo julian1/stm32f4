@@ -901,13 +901,6 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
 
 
-  if( sscanf(cmd, "amp gain %100s", s0) == 1
-    && str_decode_uint( s0, &u0))  {
-
-
-    mode_set_amp_gain( mode, u0 );
-  }
-
 
 
 
@@ -933,7 +926,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       because float looks like int
   */
 
-  else if( sscanf(cmd, "aper %100s", s0) == 1
+  if( sscanf(cmd, "aper %100s", s0) == 1
     && str_decode_float( s0, &f0))
   {
 
@@ -969,6 +962,18 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       mode->sa.p_clk_count_precharge = u0;
     }
 #endif
+
+
+  // need to work out if keep the set...
+
+
+  else if((sscanf(cmd, "set gain %100s", s0) == 1
+    || sscanf(cmd, "set amp gain %100s", s0) == 1)
+    && str_decode_uint( s0, &u0))  {
+
+
+    mode_set_amp_gain( mode, u0 );
+  }
 
 
 
