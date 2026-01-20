@@ -222,7 +222,7 @@ void app_configure( app_t *app )
 
 
     /*
-        nov 2024. 4094-oe could just include in mode. to simplify this
+        nov 2024. 4094-oe could just be included in mode. to simplify this
     */
 
     // now assert 4094 OE
