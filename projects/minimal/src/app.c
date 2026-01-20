@@ -232,6 +232,7 @@ void app_configure( app_t *app )
     spi_ice40_reg_write32( devices->spi_fpga0, REG_4094_OE, 1 );
 
     // check/ensure 4094 OE asserted
+    // serves as basic test of comms/miso also
     assert( spi_ice40_reg_read32( devices->spi_fpga0, REG_4094_OE ));
 
     // now call transition state again. which will do relays
