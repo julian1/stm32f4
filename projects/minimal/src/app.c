@@ -493,7 +493,7 @@ static void app_update_soft_500ms(app_t *app)
 
       // app_beep( app, 2 );
       // this checks comms
-      app_led_dance( app );
+      // app_led_dance( app );
 
       // TODO better name
       app_configure( app);

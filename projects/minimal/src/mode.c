@@ -372,11 +372,11 @@ void mode_mdac0_set( _mode_t *mode, unsigned u0 )
 {
   printf("mdac0\n");
 
-
-
   // dac7811.
   // 12 bits -  mask is FFF  == 4095
   // 0001 command to load and update.
+
+  assert( u0 <= 0xfff);
 
   // move this to where dac is written. or insider the peripheral
   uint8_t cmd = 0x01;
@@ -386,17 +386,18 @@ void mode_mdac0_set( _mode_t *mode, unsigned u0 )
 
 void mode_mdac1_set( _mode_t *mode, unsigned u0 )
 {
-  printf("mdac1n");
+  printf("mdac1\n");
 
   // dac7811.
   // 12 bits -  mask is FFF  == 4095
   // 0001 command to load and update.
 
-  assert(u0 <= 0xfff);
+  assert( u0 <= 0xfff);
 
   // move this to where dac is written. or insider the peripheral
   uint8_t cmd = 0x01;
   mode->mdac1_val = (cmd <<12) | (u0 & 0xfff);
+
 }
 
 
@@ -407,40 +408,46 @@ static void mode_loside_set( _mode_t *mode, const char *s)
 {
   // loside drive/connections
 
+  // TODO need argument for the input channel to use
+  // set to use channel 2.
+  mode->second.U426  = D2;      // ch 2
+
   if(strcmp(s, "gnd") == 0
     || strcmp(s, "star") == 0) {
 
-    // consider making this default.
-    mode->second.U426  = D4;    // A400-1. star-ground. ie. mdac unused. set input to 0V.
-    mode->second.U423  = D3;    // drive com-lc with A400-1. star-ground
+    // consider setting as default in the main.c mode initialization
+    // could turn off the boot here.
+    mode->second.U423  = D3;      // drive com-lc with A400-1. star-ground
 
-    uint16_t  val = 0x0;        // turn off
+    uint16_t  val = 0x0;          // turn off
     mode_mdac0_set( mode, val);
   }
+  else if(strcmp(s, "invert") == 0
+    || strcmp(s, "inverter") == 0) {
 
-  else if(strcmp(s, "invert") == 0) {
+    mode->second.U423  = D1;      // drive com-lc from mdac output
 
-    // need an argument for the input channel here.
-    mode->second.U426  = D2;    // ch 2
-    mode->second.U423  = D1;    // drive com-lc from mdac outputt
-
-    uint16_t  val = 0xfff;      // full.
+    uint16_t  val = 0xfff;        // full.
     mode_mdac0_set( mode, val);
   }
-
-  else if(strcmp(s, "offset") == 0) {     // normal mode, but with small dac driven offset to apply a dither
+  else if(strcmp(s, "divider") == 0
+    || strcmp(s, "offset") == 0) {   // invert + divider.... for dither
 
     // invert but using the divider.
-    // need an argument for the input channel here.
-    mode->second.U426  = D2;      // ch2
     mode->second.U423  = D2;      // drive com-lc from mdac and divider
 
-    uint16_t  val = 0x0;      // off
+    uint16_t  val = 0x0;          // off
     mode_mdac0_set( mode, val);
   }
+  else if(strcmp(s, "boot") == 0) {
 
-  else
-    assert(0);
+    mode->second.U423  = D4;      // drive com-lc with boot direct
+    uint16_t  val = 0x0;          // off
+    mode_mdac0_set( mode, val);
+  }
+  else {
+    printf("bad lo-side argument\n");
+  }
 
 }
 
@@ -1018,11 +1025,17 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
   // inverter dac
   else if(( sscanf(cmd, "set mdac0 %100s", s0) == 1
-    || sscanf(cmd, "set inverter %100s", s0) == 1 )
+    || sscanf(cmd, "set invert %100s", s0) == 1
+    || sscanf(cmd, "set inverter %100s", s0) == 1)    // doesn't work?
+
     && str_decode_uint( s0, &u0)
   )  {
 
-    mode_mdac0_set( mode, u0);
+    if( u0 <= 0xfff)
+      mode_mdac0_set( mode, u0);
+    else
+      printf("arg out of range\n");
+
   }
 
   // iso dac
@@ -1031,8 +1044,13 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     && str_decode_uint( s0, &u0)
   )  {
 
-    mode_mdac1_set( mode, u0);
+    if( u0 < 0xfff)
+      mode_mdac1_set( mode, u0);
+    else
+      printf("arg out of range\n");
   }
+
+
 
 
   else if( sscanf(cmd, "set loside %100s", s0) == 1
