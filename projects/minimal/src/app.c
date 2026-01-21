@@ -231,9 +231,11 @@ void app_configure( app_t *app )
     spi_port_configure( devices->spi_fpga0);
     spi_ice40_reg_write32( devices->spi_fpga0, REG_4094_OE, 1 );
 
+
     // check/ensure 4094 OE asserted
     // serves as basic test of comms/miso also
     assert( spi_ice40_reg_read32( devices->spi_fpga0, REG_4094_OE ));
+
 
     // now call transition state again. which will do relays
     printf("spi_mode_transition_state() for relays\n");
@@ -489,9 +491,9 @@ static void app_update_soft_500ms(app_t *app)
       // should be asserted?
       spi_cs_deassert( devices->spi_fpga0 );
 
-
       // app_beep( app, 2 );
-      // app_led_dance( app );
+      // this checks comms
+      app_led_dance( app );
 
       // TODO better name
       app_configure( app);

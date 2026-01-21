@@ -84,8 +84,8 @@ static void cs_assert(spi_t *spi)
   assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
 
-  assert(SPI_CS_VEC_FPGA0 == 1);
-  gpio_write_with_mask( GPIOC, 7, 0b111, SPI_CS_VEC_FPGA0);
+  assert(SPI_CS_FPGA0 == 1);
+  gpio_write_with_mask( GPIOC, 7, 0b111, SPI_CS_FPGA0);
 }
 
 static void cs_deassert(spi_t *spi)
@@ -93,7 +93,7 @@ static void cs_deassert(spi_t *spi)
   assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
 
-  gpio_write_with_mask( GPIOC, 7, 0b111, SPI_CS_VEC_DEASSERT);
+  gpio_write_with_mask( GPIOC, 7, 0b111, SPI_CS_DEASSERT);
 }
 
 
