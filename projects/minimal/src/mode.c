@@ -1044,7 +1044,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     && str_decode_uint( s0, &u0)
   )  {
 
-    if( u0 < 0xfff)
+    if( u0 <= 0xfff)
       mode_mdac1_set( mode, u0);
     else
       printf("arg out of range\n");
