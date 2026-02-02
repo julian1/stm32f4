@@ -659,6 +659,12 @@ unsigned model_spec_cols( unsigned model_spec )
   rename   adc_counts_to_m similar.
   and make the model the first arg.
   REVIEW - perhaps move to cal. because the model that defines this, is determined in cal
+
+  feb 2. 2026.
+  should really try to remove.  the model_spec. etc. it is all too complicated.
+  just populate the matrix with values.
+  directly. as needed.
+    - just do the rd addition as/where needed.
 */
 
 // rename counts_to_m.

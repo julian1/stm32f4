@@ -156,6 +156,15 @@ dec 2024.
 
 
 
+/*
+  Feb. 2026
+  - more important than the seq. idx.   we should return the azmux value and may be pc value that was used.
+      can then test this against S1, S2. etc   to know if the value is a hi or lo value
+
+    ie. for n==2
+    S1,S3 == hi
+    S5,S6,S7 == lo.
+*/
 
 // defining this once means can store this in data for other display routines.
 

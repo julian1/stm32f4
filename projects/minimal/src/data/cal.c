@@ -242,6 +242,14 @@ void data_cal(
     // ref hi/ref lo
     for(unsigned j = 0; j < 2; ++j ) {
 
+      /*
+        feb. 2026. this code. is simple to change around.
+          remove the j<2 loop.
+
+          instead - just query the AZ flags.
+          and if the value should be 7 or 0.
+          - can also ignore initial readings
+      */
 
       double y_ = 0;
       if(j == 0) {
