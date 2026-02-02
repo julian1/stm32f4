@@ -168,7 +168,7 @@ void data_cal(
   // storage
   MAT *xs       = m_get(max_rows, model_spec_cols( data->model_spec ));
   MAT *y        = m_get(max_rows, 1);
-  MAT *aperture = m_get(max_rows, 1); // required to calc predicted
+  // MAT *aperture = m_get(max_rows, 1); // required to calc predicted
   MAT *row      = NULL;
 
 /*
@@ -295,7 +295,10 @@ void data_cal(
 
 
         // embed a 8 bit. counter ini the reg_status and use it for the measure.
-        // uint32_t status =            spi_ice40_reg_read32( spi_fpga0, REG_STATUS );
+
+        uint32_t status = spi_ice40_reg_read32( spi_fpga0, REG_STATUS );
+        UNUSED(status);
+
         uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_RESET);   // time refmux is in reset. useful check. not adc initialization time.
         uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
         uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
@@ -313,11 +316,15 @@ void data_cal(
         // at least adc_counts_to_model()
         // taking model as first arg
 
-        row = run_to_matrix( clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, model_spec_cols(data->model_spec), row);
+        /*
+          this is really ugly handling. should reset it.
 
+        */
+        row = run_to_matrix( clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, model_spec_cols(data->model_spec), row);
         mat_set_row( xs,       row_idx,  row ) ;
+
         vec_set_val( y,        row_idx,   y_  *  clk_count_mux_sig );
-        vec_set_val( aperture, row_idx, clk_count_mux_sig);
+//        vec_set_val( aperture, row_idx, clk_count_mux_sig);
         ++row_idx;
 
         /*
@@ -333,7 +340,7 @@ void data_cal(
   // shrink matrixes to size collected data
   m_resize( xs, row_idx, m_cols( xs) );
   m_resize( y,  row_idx, m_cols( y) );
-  m_resize( aperture, row_idx, m_cols( aperture) ); // we don't use aperture
+//  m_resize( aperture, row_idx, m_cols( aperture) ); // we don't use aperture
 
 
   printf("xs\n");
@@ -347,7 +354,7 @@ void data_cal(
   // calc_cal( app, y, xs, aperture );
 
   assert(m_rows(y) == m_rows(xs));
-  assert(m_rows(y) == m_rows(aperture));
+  // assert(m_rows(y) == m_rows(aperture));
 
   regression_t regression;
 
@@ -395,7 +402,7 @@ void data_cal(
   m_free(row);
   m_free(xs);
   m_free(y);
-  m_free(aperture);
+  // m_free(aperture);
 
 
   // print some stats
