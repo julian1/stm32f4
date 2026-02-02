@@ -96,7 +96,7 @@ typedef struct data_t
   double computed_val ;
   // used to communicate between adc reading and display of adc data.
   uint32_t adc_status;
-  uint32_t adc_clk_count_mux_sig;
+  uint32_t adc_clk_count_sigmux;
 
 
   /*
