@@ -209,7 +209,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
   uint32_t clk_count_mux_neg = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
   uint32_t clk_count_mux_pos = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
   uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_RD);
-  uint32_t clk_count_sigmux = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_SIGMUX);
+  uint32_t clk_count_mux_sig = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_MUX_SIG);
 
   uint32_t clk_count_mux_reset = 0;
   uint32_t stat_count_refmux_pos_up = 0;
@@ -280,7 +280,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
       clk_count_mux_neg,
       clk_count_mux_pos,
       clk_count_mux_rd,
-      clk_count_sigmux
+      clk_count_mux_sig
     );
   }
 
@@ -296,7 +296,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
       stat_count_cmpr_cross_up
     );
 
-    double period = aper_n_to_period( clk_count_sigmux);
+    double period = aper_n_to_period( clk_count_mux_sig);
     printf(", period %.2lf", period );
 
     double freq = ((double) stat_count_refmux_pos_up) / period;
@@ -338,15 +338,15 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
     assert( m_cols(xs) == m_rows( data->model_b) ) ;
 
     // we could make all these vars persist.
-    MAT	*m_sigmux = m_from_scalar( clk_count_sigmux, MNULL );
-    assert(m_sigmux);
-    assert( m_is_scalar(m_sigmux) );
+    MAT	*m_mux_sig = m_from_scalar( clk_count_mux_sig, MNULL );
+    assert(m_mux_sig);
+    assert( m_is_scalar(m_mux_sig) );
 
     // Mar 2024.
 
     // TODO rename m_predicted == ret.  use reading
     //  we should persist this.  and pass it in to m_calc_predicated.
-    MAT *m_predicted =  m_calc_predicted( data->model_b, xs, m_sigmux /*, app->m_predicted */);
+    MAT *m_predicted =  m_calc_predicted( data->model_b, xs, m_mux_sig /*, app->m_predicted */);
     assert(m_predicted);
     assert(m_is_scalar(m_predicted) );
 
@@ -394,7 +394,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 */
 
     M_FREE( xs );
-    M_FREE( m_sigmux );
+    M_FREE( m_mux_sig );
     M_FREE( m_predicted );
 
 
@@ -544,7 +544,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 
       // record these
       data->adc_status = status;
-      data->adc_clk_count_sigmux = clk_count_sigmux;
+      data->adc_clk_count_mux_sig = clk_count_mux_sig;
 
 
       // STTCPW
@@ -930,15 +930,15 @@ void data_update(data_t *data, uint32_t spi )
     uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
     uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
     uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RD);
-    uint32_t clk_count_sigmux    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX);
+    uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_MUX_SIG);
 
   /*  - OK. it doesn't matter whether aperture is for one more extra clk cycle. or one less.  eg. the clk termination condition.
       instead what matters is that the count is recorded in the same way, as for the reference currents.
       eg. so should should always refer to the returned count value, not the aperture ctrl register.
 
-      uint32_t clk_count_sigmux = spi_ice40_reg_read32( app->spi, REG_ADC_P_APERTURE );
+      uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_P_APERTURE );
   */
-    printf("counts %6lu %lu %lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_sigmux);
+    printf("counts %6lu %lu %lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
 
     printf("\n");
   }
@@ -992,7 +992,7 @@ void data_update(data_t *data, uint32_t spi )
 
 
       M_FREE( xs );
-      M_FREE( m_sigmux );
+      M_FREE( m_mux_sig );
       return;
     }
 #endif
@@ -1002,7 +1002,7 @@ void data_update(data_t *data, uint32_t spi )
       instead what matters is that the count is recorded in the same way, as for the reference currents.
       eg. so should should always refer to the returned count value, not the aperture ctrl register.
 
-      uint32_t clk_count_sigmux = spi_ice40_reg_read32( spi, REG_ADC_P_APERTURE );
+      uint32_t clk_count_mux_sig = spi_ice40_reg_read32( spi, REG_ADC_P_APERTURE );
   */
 
 

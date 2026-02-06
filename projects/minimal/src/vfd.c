@@ -200,7 +200,7 @@ void vfd_update_new_reading(data_t *data)
 
 
   // write nplc
-  double nplc = aper_n_to_nplc( data->adc_clk_count_sigmux, data->line_freq );
+  double nplc = aper_n_to_nplc( data->adc_clk_count_mux_sig, data->line_freq );
   snprintf(buf, 100, "nplc %.1lf ", nplc );
   vfd_write_string2( buf, 0, 5 );
 

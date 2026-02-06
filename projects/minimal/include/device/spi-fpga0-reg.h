@@ -111,7 +111,7 @@
 #define REG_ADC_CLK_COUNT_REFMUX_NEG    41
 #define REG_ADC_CLK_COUNT_REFMUX_POS    42
 #define REG_ADC_CLK_COUNT_REFMUX_RD     43
-#define REG_ADC_CLK_COUNT_SIGMUX       44
+#define REG_ADC_CLK_COUNT_MUX_SIG       44
 
 
 // extra stat counts.
