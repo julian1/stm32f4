@@ -56,9 +56,6 @@
 #define REG_SA_P_SEQ2                     24
 #define REG_SA_P_SEQ3                     25
 
-// dec 2024.
-#define REG_SA_P_TRIG                     26
-
 
 
 ///////////////////////
@@ -81,6 +78,61 @@
 #define REG_ADC_STAT_COUNT_CMPR_CROSS_UP  52
 
 
+
+
+
+
+/*
+  Feb. 2026
+  - more important than the seq. idx.   we should return the azmux value and may be pc value that was used.
+      can then test this against S1, S2. etc   to know if the value is a hi or lo value
+
+    ie. for n==2
+    S1,S3 == hi
+    S5,S6,S7 == lo.
+*/
+
+
+
+// define  - once means can store this in data for other display routines.
+// TODO - should use macro for mask and shift
+
+// reg_status values
+// TODO - remove ADC_prefix.
+#define ADC_STATUS_HW_FLAGS(status)         (0b111 & (status >> 8 ))
+#define ADC_STATUS_SAMPLE_IDX(status)       (0b111 & (status >> 16))
+#define ADC_STATUS_SAMPLE_SEQ_N(status)     (0b111 & (status >> 20))
+
+
+
+
+
+// #define REG_SPI_MUX                    8
+
+///////////////////
+// reg spi mux
+// note active bits.
+/* HERE
+// spi mux is one-hot
+#define SPI_MUX_NONE          0
+#define SPI_MUX_4094          1
+#define SPI_MUX_DAC          (1<<1)
+#define SPI_MUX_ISO_DAC      (1<<2)
+#define SPI_MUX_ISO_DAC2     (1<<3)
+*/
+
+
+// pass-through parameter, for comms.
+// - o encode how to decode the sample sequence
+// just 4 bits. projected in the status register.
+// rename reg_seq_mode_status  perhaps.
+// #define REG_SEQ_MODE                   18
+
+// dec 2024.
+// #define REG_SA_P_TRIG                     26
+
+// #define ADC_STATUS_SAMPLE_SEQ_MODE(status)  (0b111 & (status >> 24) )   // TODO remove
+// #define ADC_STATUS_SPI_MUX(status)          (0b111 & (status >> 12 ))     // bad name - nothing to do with ADC. do with spi.
 
 
 
@@ -115,48 +167,4 @@ dec 2024.
 // #define SEQ_MODE_ELECTRO      3
 */
 
-
-
-/*
-  Feb. 2026
-  - more important than the seq. idx.   we should return the azmux value and may be pc value that was used.
-      can then test this against S1, S2. etc   to know if the value is a hi or lo value
-
-    ie. for n==2
-    S1,S3 == hi
-    S5,S6,S7 == lo.
-*/
-
-// defining this once means can store this in data for other display routines.
-
-#define ADC_STATUS_HW_FLAGS(status)         (0b111 & (status >> 8 ))
-#define ADC_STATUS_SPI_MUX(status)          (0b111 & (status >> 12 ))     // bad name - nothing to do with ADC. do with spi.
-#define ADC_STATUS_SAMPLE_IDX(status)       (0b111 & (status >> 16))
-#define ADC_STATUS_SAMPLE_SEQ_N(status)     (0b111 & (status >> 20))
-// #define ADC_STATUS_SAMPLE_SEQ_MODE(status)  (0b111 & (status >> 24) )   // TODO remove
-
-
-
-
-
-// #define REG_SPI_MUX                    8
-
-///////////////////
-// reg spi mux
-// note active bits.
-/* HERE
-// spi mux is one-hot
-#define SPI_MUX_NONE          0
-#define SPI_MUX_4094          1
-#define SPI_MUX_DAC          (1<<1)
-#define SPI_MUX_ISO_DAC      (1<<2)
-#define SPI_MUX_ISO_DAC2     (1<<3)
-*/
-
-
-// pass-through parameter, for comms.
-// - o encode how to decode the sample sequence
-// just 4 bits. projected in the status register.
-// rename reg_seq_mode_status  perhaps.
-// #define REG_SEQ_MODE                   18
 
