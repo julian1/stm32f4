@@ -6,8 +6,8 @@
 
   ----
   fpga specific
-  this doeesn't belong in mode.h
-  because then it would then get pulled in by the spi peripheral code, which needs mode.h.
+  this code does not belong in mode.h
+  since would be pulled in by the unrelated spi peripheral code, which does needs mode.h.
 
 
 */
@@ -15,68 +15,32 @@
 
 
 // line encoding for cs of spi devices
-#define SPI_CS_DEASSERT             0
-#define SPI_CS_FPGA0                1
-#define SPI_CS_4094                 2
-#define SPI_CS_MDAC0                3     // SPI_CS_INVERT_DAC
-#define SPI_CS_MDAC1                4
+#define SPI_CS_DEASSERT                   0
+#define SPI_CS_FPGA0                      1
+#define SPI_CS_4094                       2
+#define SPI_CS_MDAC0                      3     // SPI_CS_INVERT_DAC
+#define SPI_CS_MDAC1                      4
 
 
 
+// OE is separate register, rather than combined _CR_control register.
+// because set once only, and config time
 
 
-// better name for the 4094 oe register - CR_  for control register?
-// CR_DIRECT ? etc.
+#define REG_4094_OE                       9
+#define REG_MODE                          12
+#define REG_DIRECT                        14
 
-
-// prefix with REG_GEN. for general
-// No. doesn't work for direct. or sequence mode. or status.
-
-// #define REG_SPI_MUX                     8
-
-// rename CR_ ?
-#define REG_4094_OE                        9
-#define REG_MODE                        12
-#define REG_DIRECT                      14
-
-// pass-through parameter, for comms.
-// - o encode how to decode the sample sequence
-// just 4 bits. projected in the status register.
-// rename reg_seq_mode_status  perhaps.
-// #define REG_SEQ_MODE                    18
 
 // rename SR ?
-#define REG_STATUS                      17
+#define REG_STATUS                        17
 
 
-
-
-
-
-///////////////////
-// reg spi mux
-// note active bits.
-/* HERE
-// spi mux is one-hot
-#define SPI_MUX_NONE          0
-#define SPI_MUX_4094          1
-#define SPI_MUX_DAC          (1<<1)
-#define SPI_MUX_ISO_DAC      (1<<2)
-#define SPI_MUX_ISO_DAC2     (1<<3)
-*/
-
-
-// better name for combined sa+adc functinality of fpga??
-
-#define MODE_DIRECT           0     // output control using the direct register
-#define MODE_ADC_MUX_REF_TEST  5
-
-// sequence acquisition
-#define MODE_SA_MOCK_ADC      6     // no az. and elecm. etc
-#define MODE_SA_ADC           7      // normal operation. with sa and adc
-
-
-
+// reg_mode values
+#define MODE_DIRECT                       0     // mcu spi control of the direct register
+#define MODE_ADC_MUX_REF_TEST             5
+#define MODE_SA_MOCK_ADC                  6     // no az. and elecm. etc
+#define MODE_SA_ADC                       7      // normal operation. with sa and adc
 
 
 
@@ -84,39 +48,36 @@
 
 //  sample acquisition.
 
-#define REG_SA_P_CLK_COUNT_PRECHARGE    20
+#define REG_SA_P_CLK_COUNT_PRECHARGE      20
 
-#define REG_SA_P_SEQ_N                  21
-#define REG_SA_P_SEQ0                   22
-#define REG_SA_P_SEQ1                   23
-#define REG_SA_P_SEQ2                   24
-#define REG_SA_P_SEQ3                   25
+#define REG_SA_P_SEQ_N                    21
+#define REG_SA_P_SEQ0                     22
+#define REG_SA_P_SEQ1                     23
+#define REG_SA_P_SEQ2                     24
+#define REG_SA_P_SEQ3                     25
 
 // dec 2024.
 #define REG_SA_P_TRIG                     26
 
 
 
-
-
-
 ///////////////////////
 // adc parameters
-#define REG_ADC_P_CLK_COUNT_APERTURE    30
-#define REG_ADC_P_CLK_COUNT_RESET       31
+#define REG_ADC_P_CLK_COUNT_APERTURE      30
+#define REG_ADC_P_CLK_COUNT_RESET         31
 
 
 // adc counts
-#define REG_ADC_CLK_COUNT_MUX_RESET  40
-#define REG_ADC_CLK_COUNT_MUX_REF_NEG    41
-#define REG_ADC_CLK_COUNT_MUX_REF_POS    42
-#define REG_ADC_CLK_COUNT_MUX_REF_RD     43
-#define REG_ADC_CLK_COUNT_MUX_SIG       44
+#define REG_ADC_CLK_COUNT_MUX_RESET       40
+#define REG_ADC_CLK_COUNT_MUX_REF_NEG     41
+#define REG_ADC_CLK_COUNT_MUX_REF_POS     42
+#define REG_ADC_CLK_COUNT_MUX_REF_RD      43
+#define REG_ADC_CLK_COUNT_MUX_SIG         44
 
 
 // extra stat counts.
-#define REG_ADC_STAT_COUNT_MUX_REF_POS_UP  50
-#define REG_ADC_STAT_COUNT_MUX_REF_NEG_UP  51
+#define REG_ADC_STAT_COUNT_MUX_REF_POS_UP 50
+#define REG_ADC_STAT_COUNT_MUX_REF_NEG_UP 51
 #define REG_ADC_STAT_COUNT_CMPR_CROSS_UP  52
 
 
@@ -178,4 +139,24 @@ dec 2024.
 
 
 
+// #define REG_SPI_MUX                    8
+
+///////////////////
+// reg spi mux
+// note active bits.
+/* HERE
+// spi mux is one-hot
+#define SPI_MUX_NONE          0
+#define SPI_MUX_4094          1
+#define SPI_MUX_DAC          (1<<1)
+#define SPI_MUX_ISO_DAC      (1<<2)
+#define SPI_MUX_ISO_DAC2     (1<<3)
+*/
+
+
+// pass-through parameter, for comms.
+// - o encode how to decode the sample sequence
+// just 4 bits. projected in the status register.
+// rename reg_seq_mode_status  perhaps.
+// #define REG_SEQ_MODE                   18
 
