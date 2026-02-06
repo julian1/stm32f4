@@ -69,7 +69,7 @@
 // better name for combined sa+adc functinality of fpga??
 
 #define MODE_DIRECT           0     // output control using the direct register
-#define MODE_ADC_REFMUX_TEST  5
+#define MODE_ADC_MUX_REF_TEST  5
 
 // sequence acquisition
 #define MODE_SA_MOCK_ADC      6     // no az. and elecm. etc
@@ -107,16 +107,16 @@
 
 
 // adc counts
-#define REG_ADC_CLK_COUNT_REFMUX_RESET  40
-#define REG_ADC_CLK_COUNT_REFMUX_NEG    41
-#define REG_ADC_CLK_COUNT_REFMUX_POS    42
-#define REG_ADC_CLK_COUNT_REFMUX_RD     43
+#define REG_ADC_CLK_COUNT_MUX_RESET  40
+#define REG_ADC_CLK_COUNT_MUX_REF_NEG    41
+#define REG_ADC_CLK_COUNT_MUX_REF_POS    42
+#define REG_ADC_CLK_COUNT_MUX_REF_RD     43
 #define REG_ADC_CLK_COUNT_MUX_SIG       44
 
 
 // extra stat counts.
-#define REG_ADC_STAT_COUNT_REFMUX_POS_UP  50
-#define REG_ADC_STAT_COUNT_REFMUX_NEG_UP  51
+#define REG_ADC_STAT_COUNT_MUX_REF_POS_UP  50
+#define REG_ADC_STAT_COUNT_MUX_REF_NEG_UP  51
 #define REG_ADC_STAT_COUNT_CMPR_CROSS_UP  52
 
 

@@ -299,10 +299,10 @@ void data_cal(
         uint32_t status = spi_ice40_reg_read32( spi_fpga0, REG_STATUS );
         UNUSED(status);
 
-        uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_RESET);   // time refmux is in reset. useful check. not adc initialization time.
-        uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
-        uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
-        uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_RD);
+        uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_MUX_RESET);   // useful check.
+        uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_MUX_REF_NEG);
+        uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_MUX_REF_POS);
+        uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_MUX_REF_RD);
         uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_MUX_SIG);
 
         printf("counts %6lu %lu %lu %lu %6lu",

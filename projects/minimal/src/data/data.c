@@ -206,9 +206,9 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 
   uint32_t status = spi_ice40_reg_read32( spi_fpga0, REG_STATUS );
 
-  uint32_t clk_count_mux_neg = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
-  uint32_t clk_count_mux_pos = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
-  uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_RD);
+  uint32_t clk_count_mux_neg = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_MUX_REF_NEG);
+  uint32_t clk_count_mux_pos = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_MUX_REF_POS);
+  uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_MUX_REF_RD);
   uint32_t clk_count_mux_sig = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_MUX_SIG);
 
   uint32_t clk_count_mux_reset = 0;
@@ -218,10 +218,10 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 
   if(data->show_extra) {
 
-    clk_count_mux_reset       = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_RESET);
+    clk_count_mux_reset       = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_MUX_RESET);
 
-    stat_count_refmux_pos_up = spi_ice40_reg_read32( spi_fpga0, REG_ADC_STAT_COUNT_REFMUX_POS_UP);
-    stat_count_refmux_neg_up = spi_ice40_reg_read32( spi_fpga0, REG_ADC_STAT_COUNT_REFMUX_NEG_UP);
+    stat_count_refmux_pos_up = spi_ice40_reg_read32( spi_fpga0, REG_ADC_STAT_COUNT_MUX_REF_POS_UP);
+    stat_count_refmux_neg_up = spi_ice40_reg_read32( spi_fpga0, REG_ADC_STAT_COUNT_MUX_REF_NEG_UP);
     stat_count_cmpr_cross_up = spi_ice40_reg_read32( spi_fpga0, REG_ADC_STAT_COUNT_CMPR_CROSS_UP);
   }
 
@@ -926,10 +926,10 @@ void data_update(data_t *data, uint32_t spi )
 
     // printf("got data\n");
 
-    uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RESET);   // time refmux is in reset. useful check. not adc initialization time.
-    uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-    uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-    uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_RD);
+    uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_MUX_RESET);   // time refmux is in reset. useful check. not adc initialization time.
+    uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_MUX_REF_NEG);
+    uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_MUX_REF_POS);
+    uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_MUX_REF_RD);
     uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_MUX_SIG);
 
   /*  - OK. it doesn't matter whether aperture is for one more extra clk cycle. or one less.  eg. the clk termination condition.
