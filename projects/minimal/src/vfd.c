@@ -185,9 +185,9 @@ void vfd_update_new_reading(data_t *data)
 
 
 #if 0
-  uint8_t sample_idx      =  ADC_STATUS_SAMPLE_IDX( data->adc_status) ;
+  uint8_t sample_idx      =  STATUS_SAMPLE_IDX( data->adc_status) ;
 
-  uint8_t sample_seq_mode =  ADC_STATUS_SAMPLE_SEQ_MODE( data->adc_status);
+  uint8_t sample_seq_mode =  STATUS_SAMPLE_SEQ_MODE( data->adc_status);
 
   // write a star, for the sample
   vfd_write_string2( sample_idx % 2 == 0 ? "*" : " ", 0, 3 );

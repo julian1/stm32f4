@@ -165,7 +165,7 @@ double data_sa_simple_computed_val( void *ctx, double val, uint32_t status)
     rather than store in data->reading.
   */
 
-  uint8_t sample_seq_n    =  ADC_STATUS_SAMPLE_SEQ_N( status) ;     // 0b111 & (status >> 20) ;
+  uint8_t sample_seq_n    =  STATUS_SAMPLE_SEQ_N( status) ;     // 0b111 & (status >> 20) ;
 
 #if 0
     switch(sample_seq_mode) {
@@ -240,19 +240,19 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 
   // TODO consider create a bitfield for the status register
 
-  uint8_t hw_flags        =  ADC_STATUS_HW_FLAGS( status) ;         // 0b111 & (status >> 8 ) ;
+  uint8_t hw_flags        =  STATUS_HW_FLAGS( status) ;         // 0b111 & (status >> 8 ) ;
   UNUSED(hw_flags);
 
 /* HERE
-  uint8_t reg_spi_mux     =  ADC_STATUS_SPI_MUX( status)  ;
+  uint8_t reg_spi_mux     =  STATUS_SPI_MUX( status)  ;
   assert( reg_spi_mux == SPI_MUX_NONE);
 */
 
 #if 0
-  uint8_t sample_idx      =  ADC_STATUS_SAMPLE_IDX( status) ;       // 0b111 & (status >> 16) ;     // we set this to 0b111 somewhere in verilog?
-  uint8_t sample_seq_n    =  ADC_STATUS_SAMPLE_SEQ_N( status) ;     // 0b111 & (status >> 20) ;
+  uint8_t sample_idx      =  STATUS_SAMPLE_IDX( status) ;       // 0b111 & (status >> 16) ;     // we set this to 0b111 somewhere in verilog?
+  uint8_t sample_seq_n    =  STATUS_SAMPLE_SEQ_N( status) ;     // 0b111 & (status >> 20) ;
 
-  uint8_t sample_seq_mode =  ADC_STATUS_SAMPLE_SEQ_MODE( status);   // 0b111 & (status >> 24) ;
+  uint8_t sample_seq_mode =  STATUS_SAMPLE_SEQ_MODE( status);   // 0b111 & (status >> 24) ;
 
 #endif
 

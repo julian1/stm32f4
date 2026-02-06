@@ -2,13 +2,9 @@
 #pragma once
 
 /*
-  could we improve the modlseparation.
-
-  ----
   fpga specific
-  this code does not belong in mode.h
-  since would be pulled in by the unrelated spi peripheral code, which does needs mode.h.
-
+  low level comms - code does not belong in mode.h
+  otherwise would be pulled in by unrelated spi peripheral handling code
 
 */
 
@@ -44,7 +40,6 @@
 
 
 ///////////////////////
-
 //  sample acquisition.
 
 #define REG_SA_P_CLK_COUNT_PRECHARGE      20
@@ -59,6 +54,7 @@
 
 ///////////////////////
 // adc parameters
+
 #define REG_ADC_P_CLK_COUNT_APERTURE      30
 #define REG_ADC_P_CLK_COUNT_RESET         31
 
@@ -94,13 +90,11 @@
 
 
 // define  - once means can store this in data for other display routines.
-// TODO - should use macro for mask and shift
-
+// TODO - use macro for mask and shift
 // reg_status values
-// TODO - remove ADC_prefix.
-#define ADC_STATUS_HW_FLAGS(status)         (0b111 & (status >> 8 ))
-#define ADC_STATUS_SAMPLE_IDX(status)       (0b111 & (status >> 16))
-#define ADC_STATUS_SAMPLE_SEQ_N(status)     (0b111 & (status >> 20))
+#define STATUS_HW_FLAGS(status)         (0b111 & (status >> 8 ))
+#define STATUS_SAMPLE_IDX(status)       (0b111 & (status >> 16))
+#define STATUS_SAMPLE_SEQ_N(status)     (0b111 & (status >> 20))
 
 
 
@@ -130,8 +124,8 @@
 // dec 2024.
 // #define REG_SA_P_TRIG                     26
 
-// #define ADC_STATUS_SAMPLE_SEQ_MODE(status)  (0b111 & (status >> 24) )   // TODO remove
-// #define ADC_STATUS_SPI_MUX(status)          (0b111 & (status >> 12 ))     // bad name - nothing to do with ADC. do with spi.
+// #define STATUS_SAMPLE_SEQ_MODE(status)  (0b111 & (status >> 24) )   // TODO remove
+// #define STATUS_SPI_MUX(status)          (0b111 & (status >> 12 ))     // bad name - nothing to do with ADC. do with spi.
 
 
 
