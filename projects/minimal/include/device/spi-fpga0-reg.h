@@ -23,9 +23,8 @@
 
 
 
-// OE is separate register, rather than combined _CR_control register.
-// because set once only, and config time
-
+// place OE in own separate register, rather than general combined _CR_control register.
+// because used once only at config time
 
 #define REG_4094_OE                       9
 #define REG_MODE                          12
