@@ -176,7 +176,7 @@ void vfd_update_new_reading(data_t *data)
 
 
 /*
-  if(sample_seq_mode == SEQ_MODE_RATIO)
+  if(status_seq_mode == SEQ_MODE_RATIO)
     printf(" meas %s", str_format_float_with_commas(buf, 100, 7, data->computed_val));
   else
     printf(" meas %sV", buf );
@@ -185,15 +185,15 @@ void vfd_update_new_reading(data_t *data)
 
 
 #if 0
-  uint8_t sample_idx      =  STATUS_SAMPLE_IDX( data->adc_status) ;
+  uint8_t status_sample_idx      =  STATUS_SAMPLE_IDX( data->adc_status) ;
 
-  uint8_t sample_seq_mode =  STATUS_SAMPLE_SEQ_MODE( data->adc_status);
+  uint8_t status_seq_mode =  STATUS_SAMPLE_SEQ_MODE( data->adc_status);
 
   // write a star, for the sample
-  vfd_write_string2( sample_idx % 2 == 0 ? "*" : " ", 0, 3 );
+  vfd_write_string2( status_sample_idx % 2 == 0 ? "*" : " ", 0, 3 );
 
   // write mode
-  seq_mode_str( sample_seq_mode, buf, 8 );
+  seq_mode_str( status_seq_mode, buf, 8 );
   stoupper( buf);
   vfd_write_string2( buf, 0, 4 );
 #endif

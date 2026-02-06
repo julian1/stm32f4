@@ -117,11 +117,11 @@ void data_rdy_clear( data_t *data)
 
 #if 0
 
-char * seq_mode_str( uint8_t sample_seq_mode, char *buf, size_t n  )
+char * seq_mode_str( uint8_t status_sample_seq_mode, char *buf, size_t n  )
 {
   char *s = 0;
 
-  switch(sample_seq_mode) {
+  switch(status_sample_seq_mode) {
 
     case 0:                 s = "none"; break;
     case SEQ_MODE_BOOT:       s = "boot"; break;
@@ -158,24 +158,24 @@ double data_sa_simple_computed_val( void *ctx, double val, uint32_t status)
     would be a much cleaner interface to just push a value.  here.
     and have a closure or structure. handle the state.
 
-    eg. storing the reading against the sample_idx.
+    eg. storing the reading against the status_sample_idx.
 
     Because non- of the complexity is needed for simple noaz values.
 
     rather than store in data->reading.
   */
 
-  uint8_t sample_seq_n    =  STATUS_SAMPLE_SEQ_N( status) ;     // 0b111 & (status >> 20) ;
+  uint8_t status_sample_seq_n    =  STATUS_SAMPLE_SEQ_N( status) ;     // 0b111 & (status >> 20) ;
 
 #if 0
-    switch(sample_seq_mode) {
+    switch(status_sample_seq_mode) {
 
       case SEQ_MODE_BOOT:
       case SEQ_MODE_NOAZ: {
 #endif
 
   // AZ mode, on channel 1 or channel 2, but encoded in first two readings
-  assert( sample_seq_n == 1);
+  assert( status_sample_seq_n == 1);
 
   return val;
 
@@ -249,17 +249,17 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 */
 
 #if 0
-  uint8_t sample_idx      =  STATUS_SAMPLE_IDX( status) ;       // 0b111 & (status >> 16) ;     // we set this to 0b111 somewhere in verilog?
-  uint8_t sample_seq_n    =  STATUS_SAMPLE_SEQ_N( status) ;     // 0b111 & (status >> 20) ;
+  uint8_t status_sample_idx      =  STATUS_SAMPLE_IDX( status) ;       // 0b111 & (status >> 16) ;     // we set this to 0b111 somewhere in verilog?
+  uint8_t status_sample_seq_n    =  STATUS_SAMPLE_SEQ_N( status) ;     // 0b111 & (status >> 20) ;
 
-  uint8_t sample_seq_mode =  STATUS_SAMPLE_SEQ_MODE( status);   // 0b111 & (status >> 24) ;
+  uint8_t status_sample_seq_mode =  STATUS_SAMPLE_SEQ_MODE( status);   // 0b111 & (status >> 24) ;
 
 #endif
 
 
 #if 0
   // ensure we can store the value against the sample idx.
-  assert(sample_idx < ARRAY_SIZE( data->reading));
+  assert(status_sample_idx < ARRAY_SIZE( data->reading));
 #endif
 
   char buf[100];
@@ -268,9 +268,9 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
  // if(data->show_seq)
   {
 
-    printf("%s", seq_mode_str( sample_seq_mode, buf, 8 )); // puts()
-    // printf(" seq_mode %u  %u of %u ", sample_seq_mode,   sample_idx, sample_seq_n );
-    printf(", %u of %u", sample_idx, sample_seq_n );
+    printf("%s", seq_mode_str( status_sample_seq_mode, buf, 8 )); // puts()
+    // printf(" seq_mode %u  %u of %u ", status_sample_seq_mode,   status_sample_idx, status_sample_seq_n );
+    printf(", %u of %u", status_sample_idx, status_sample_seq_n );
   }
 #endif
 
@@ -354,10 +354,10 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
     /////////////////////////////////
 #if 0
     // store the value against the sample idx.
-    assert(sample_idx < ARRAY_SIZE( data->reading));
+    assert(status_sample_idx < ARRAY_SIZE( data->reading));
 
     // shift previous reading
-    data->reading_last[ sample_idx ] = data->reading[ sample_idx ] ;
+    data->reading_last[ status_sample_idx ] = data->reading[ status_sample_idx ] ;
 #endif
 
     // update for this reading
@@ -366,7 +366,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 #if 0
     // we use 0 to encode no-value recorded yet..   or if(predicted == 0) predicted = EPSILON;
     assert(predicted != 0);
-    data->reading[ sample_idx ] = predicted;
+    data->reading[ status_sample_idx ] = predicted;
 
     /////////////////////////////////
 
@@ -378,7 +378,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
     if(0) {
 
         printf("\n");
-        for(unsigned i = 0; i < sample_seq_n; ++i ) {
+        for(unsigned i = 0; i < status_sample_seq_n; ++i ) {
           printf("%u %lf\n", i, data->reading[ i ] ) ;
         }
     }
@@ -400,7 +400,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 
     /* / EXTR.   rather than having separate variables for hi  and lo[2 ]
     // why not store in an array????  according to the sequence - then we can always update
-    //  data[ sample_idx ] [ ]  = val.
+    //  data[ status_sample_idx ] [ ]  = val.
     // EXTR.   Do we even need to do the shuffle, with the lo value .  Just use j
     */
 
@@ -413,13 +413,13 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 
 
 
-    switch(sample_seq_mode) {
+    switch(status_sample_seq_mode) {
 
       case SEQ_MODE_BOOT:
       case SEQ_MODE_NOAZ: {
 
         // AZ mode, on channel 1 or channel 2, but encoded in first two readings
-        assert( sample_seq_n == 1);
+        assert( status_sample_seq_n == 1);
         // eg. just the hi.
         if(data->reading[0] != 0)
           data->computed_val = data->reading[ 0 ] ;
@@ -430,7 +430,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 
       case SEQ_MODE_AZ: {
 
-        assert( sample_seq_n == 2);
+        assert( status_sample_seq_n == 2);
 
         // assume 0 value means never been updated.
         if(  data->reading[0] != 0
@@ -447,7 +447,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 
       case SEQ_MODE_RATIO: {
 
-        assert( sample_seq_n == 4);
+        assert( status_sample_seq_n == 4);
         // ratio of two az values
         // NOTE - REVIEW - we could also used the last/lagged LO. for more reading stability
 
@@ -471,7 +471,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 
       case SEQ_MODE_AG: {
 
-        assert( sample_seq_n == 4);
+        assert( status_sample_seq_n == 4);
 
         if(  data->reading[0] != 0
           && data->reading[1] != 0
@@ -488,7 +488,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 
       case SEQ_MODE_DIFF: {
 
-        assert( sample_seq_n == 2);
+        assert( status_sample_seq_n == 2);
         // channel1 hi - channel 2 hi
         if(  data->reading[0] != 0
           && data->reading[2] != 0)
@@ -551,7 +551,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 
       str_format_float_with_commas(buf, 100, 7, data->computed_val);
 #if 0
-      if(sample_seq_mode == SEQ_MODE_RATIO)
+      if(status_sample_seq_mode == SEQ_MODE_RATIO)
         printf(" meas %s", str_format_float_with_commas(buf, 100, 7, data->computed_val));
       else
 #endif

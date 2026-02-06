@@ -92,6 +92,8 @@
 // define  - once means can store this in data for other display routines.
 // TODO - use macro for mask and shift
 // reg_status values
+
+// TODO - consider rename sample to reading  ie. status_reading_idx.  or  status_sa_idx status_sa_azmux sa_pc etc.
 #define STATUS_HW_FLAGS(status)         (0b111 & (status >> 8 ))
 #define STATUS_SAMPLE_IDX(status)       (0b111 & (status >> 16))
 #define STATUS_SAMPLE_SEQ_N(status)     (0b111 & (status >> 20))
