@@ -10,7 +10,7 @@
 
 
 
-// line encoding for cs of spi devices
+// encoding for cs select of spi devices
 #define SPI_CS_DEASSERT                   0
 #define SPI_CS_FPGA0                      1
 #define SPI_CS_4094                       2
