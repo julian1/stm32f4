@@ -455,7 +455,7 @@ static void mode_loside_set( _mode_t *mode, const char *s)
 
 
 // NO. express this a different way.
-// mode_azmux_set "ch2" ...
+// mode_sa_set "ch2" ...
 
 //static void mode_ch2_az_set(_mode_t *mode)
 
@@ -463,9 +463,13 @@ static void mode_loside_set( _mode_t *mode, const char *s)
 // actually may be better to have noaz. to set up. to run with p_seq_n = 1;
 // and no switching.
 
-static void mode_azmux_set(_mode_t *mode, const char *s)
+static void mode_sa_set(_mode_t *mode, const char *s)
 {
-  // note the same syntax
+  /* note the same syntax
+
+      options here.   ch1, ch2, ratio.
+      keep the az flag separate.
+  */
 
   if(strcmp(s, "ch2") == 0 ) {
 
@@ -489,8 +493,15 @@ static void mode_azmux_set(_mode_t *mode, const char *s)
 
     // set the catcher handler/closure
   }
-  else
+  else if(strcmp(s, "ch1") == 0 ) {
     assert( 0);
+  }
+  else if(strcmp(s, "ratio") == 0 ) {
+    assert( 0);
+  }
+  else assert(0);
+
+
 
 }
 
@@ -1059,10 +1070,10 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     mode_loside_set( mode, s0);
   }
 
-  else if( sscanf(cmd, "set azmux %100s", s0) == 1
-  )  {
+  else if( sscanf(cmd, "set sa %100s", s0) == 1
+    || sscanf(cmd, "set azmux %100s", s0) == 1)  {
 
-    mode_azmux_set( mode, s0 );
+    mode_sa_set( mode, s0 );
   }
 
 
