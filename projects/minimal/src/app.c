@@ -1214,6 +1214,19 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
+
+  else if(strcmp(cmd, "cal2") == 0) {
+    // cal with default model
+
+    _mode_t mode = *app->mode_initial;
+    unsigned model_spec = 3;
+
+    data_cal2( app->data,  &app->devices,  &mode, model_spec, app->gpio_trigger_internal, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+  }
+
+
+
+
   /*
       TODO - move this to mode, rather than app.
   */

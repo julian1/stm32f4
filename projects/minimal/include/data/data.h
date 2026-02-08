@@ -160,17 +160,35 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0/*, bool verbose*/);
 
 void data_cal(
 
-    data_t *data,
+    data_t    *data,
     devices_t *devices,
-    _mode_t *mode,
-    unsigned model_spec,
+    _mode_t   *mode,
+    unsigned  model_spec,
 
     // app stuff
-    gpio_t      *gpio_trigger_internal,
+    gpio_t    *gpio_trigger_internal,
     volatile uint32_t *system_millis,
-    void (*yield)( void * ),
-    void * yield_ctx
+    void      (*yield)( void * ),
+    void      *yield_ctx
 );
+
+
+void data_cal2(
+
+    data_t    *data,
+    devices_t *devices,
+    _mode_t   *mode,
+    unsigned  model_spec,
+
+    // app stuff
+    gpio_t    *gpio_trigger_internal,
+    volatile uint32_t *system_millis,
+    void      (*yield)( void * ),
+    void      *yield_ctx
+);
+
+
+
 
 // consider rename. this is more model_encode_row_from_counts()) - according to the model.
 // taking model as first arg

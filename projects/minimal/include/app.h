@@ -103,6 +103,16 @@ typedef struct app_t
       if(soft_500ms <= 0)
         soft_500ms += 500;
   */
+
+
+  /*
+    TODO.  rename tick_millis .  for system tick.
+    separate out the tick_millis . that always updates with += 1000;
+    from the sleep. that can be set where used.
+
+    And - perhaps hide it.
+  */
+
   volatile uint32_t system_millis;
 
   // volatile int32_t sleep_millis;  // signed count down.
