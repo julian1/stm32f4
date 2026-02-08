@@ -27,7 +27,11 @@
 static void test (app_t *app)
 {
 
-  _mode_t mode = * app->mode_initial;
+  // new mode
+  _mode_t mode ;
+  mode_reset( &mode);
+
+
   bool flip = 0;
 
 

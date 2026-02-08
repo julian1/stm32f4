@@ -210,7 +210,9 @@ void app_configure( app_t *app )
     assert( ! spi_ice40_reg_read32( devices->spi_fpga0, REG_4094_OE ));
 
     // reset the mode.
-    *app->mode_current = *app->mode_initial;
+    // *app->mode_current = *app->mode_initial;
+    mode_reset( app->mode_current );
+
 
     /* OK. this is tricky.
         OE must be enabled to pulse the relays. to align them to initial/current state.
@@ -1198,19 +1200,19 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
   else if( sscanf(cmd, "cal %lu", &u0 ) == 1) {
 
-    _mode_t mode = *app->mode_initial;
+    mode_reset( app->mode_current ); // TODO remove. data_cal can now reset the mode.
     unsigned model_spec = u0;
 
-    data_cal( app->data,  &app->devices,  &mode, model_spec, app->gpio_trigger_internal,  &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+    data_cal( app->data,  &app->devices,  app->mode_current, model_spec, app->gpio_trigger_internal,  &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
   }
 
   else if(strcmp(cmd, "cal") == 0) {
     // cal with default model
 
-    _mode_t mode = *app->mode_initial;
+    mode_reset( app->mode_current );    // TODO remove. data_cal can now reset the mode.
     unsigned model_spec = 3;
 
-    data_cal( app->data,  &app->devices,  &mode, model_spec, app->gpio_trigger_internal, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+    data_cal( app->data,  &app->devices, app->mode_current, model_spec, app->gpio_trigger_internal, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
   }
 
 
@@ -1218,27 +1220,13 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   else if(strcmp(cmd, "cal2") == 0) {
     // cal with default model
 
-    _mode_t mode = *app->mode_initial;
+    mode_reset( app->mode_current ); // TODO remove. data_cal can now reset the mode.
     unsigned model_spec = 3;
 
-    data_cal2( app->data,  &app->devices,  &mode, model_spec, app->gpio_trigger_internal, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+    data_cal2( app->data,  &app->devices, app->mode_current, model_spec, app->gpio_trigger_internal, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
   }
 
 
-
-
-  /*
-      TODO - move this to mode, rather than app.
-  */
-
-  else if(strcmp(cmd, "reset") == 0) {
-
-    // reset the mode - would be better in mode.c
-    // but do not have access to initial/default
-
-    // reset the mode.
-    *app->mode_current = *app->mode_initial;
-  }
 
 
   /*

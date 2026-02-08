@@ -28,7 +28,8 @@ bool app_test09( app_t *app , const char *cmd)
 {
   assert(app);
   assert(cmd);
-  assert(app->mode_initial);
+
+
 
   if( strcmp(cmd, "test09") == 0) {
 
@@ -42,19 +43,21 @@ bool app_test09( app_t *app , const char *cmd)
     app_repl_statements(app, "reset; dcv-source lts 1;  dcv-source chan 1 ; " ); // nplc.
 
 
-   _mode_t *mode = app->mode_current;
+    // new mode
+    _mode_t mode ; 
+    mode_reset( &mode);
 
 
     // set up sequence acquision
-    mode->reg_mode = MODE_SA_ADC;       // mode 7
+    mode.reg_mode = MODE_SA_ADC;       // mode 7
 
 /*
-    mode->sa.p_seq_n  = 2;
-    mode->sa.p_seq0 = (PC01 << 4) | S1;                // dcv/ chan 1.
-    mode->sa.p_seq1 = mode->sa.p_seq0 ;         // the same
+    mode.sa.p_seq_n  = 2;
+    mode.sa.p_seq0 = (PC01 << 4) | S1;                // dcv/ chan 1.
+    mode.sa.p_seq1 = mode.sa.p_seq0 ;         // the same
 */
 
-    sa_state_t *sa = &mode->sa;
+    sa_state_t *sa = &mode.sa;
     sa->p_seq_n = 2;
     sa->p_seq_elt[ 0].azmux = S1;
     sa->p_seq_elt[ 0].pc = 0b01;
@@ -63,11 +66,11 @@ bool app_test09( app_t *app , const char *cmd)
 
 
     // ok. so we need to encode the trigger.
-    // mode->sa.p_trig = 1;
+    // mode.sa.p_trig = 1;
     app_trigger_internal( app, 1);   // aug 2025.
 
 
-    spi_mode_transition_state( &app->devices, mode, &app->system_millis);
+    spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
 
     // printf("sleep 5s\n");  // really need the yield would be quite nice here.
     // msleep(5 * 1000,  &app->system_millis);

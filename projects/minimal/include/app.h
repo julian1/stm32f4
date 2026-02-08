@@ -144,7 +144,7 @@ typedef struct app_t
 
 
   // use pointers to keep structure opaque
-  const _mode_t *mode_initial;
+  // const _mode_t *mode_initial;
 
   _mode_t       *mode_current;
 

@@ -108,6 +108,18 @@ void data_cal2(
   yield_with_msleep( 1 * 1000, system_millis, yield, yield_ctx);
 
 
+
+  // have to set the mode. and the sequence inputs .
+
+  // it would be really nice to be able to set the mode.  here.
+  // perhaps just pass app...
+  // *app->mode_current = *app->mode_initial;
+
+
+
+  mode_sa_set(mode, "0" );      // special mode. where just samples zero.
+
+  // should have an accessor ...
   // trig on
   gpio_write( gpio_trigger_internal, 1 );
 
@@ -153,7 +165,7 @@ void data_cal2(
     printf("\n");
 
 
-    double w =  (clk_count_mux_pos  +  clk_count_mux_rd)  /   (clk_count_mux_neg + +  clk_count_mux_rd) ;
+    double w =  (clk_count_mux_pos  +  clk_count_mux_rd)  /   (clk_count_mux_neg + clk_count_mux_rd) ;
 
     printf("w %f", w );
     values[ i ] = w;

@@ -183,10 +183,119 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
 
 
 
+
+
+static const _mode_t mode_initial =  {
+
+  /*
+  EXTR all relays should be defined b01 or b10.
+  a default initialization of b00
+  means they won't receive any initial pulse/value.
+
+  */
+
+
+  // U401
+  .first. K404    = SR_RESET,
+  .first. K403    = SR_RESET,
+  .first. K405    = SR_RESET,
+  .first. K406    = SR_RESET,
+
+  // U402
+  .first. K407    = SR_RESET,
+  .first. K402		= SR_RESET,
+
+  // u405
+  .first. K401    = SR_RESET,
+
+
+/*
+
+  // amplifier
+  // amp should also have feedback, avoid float, else current sources lock up
+  .first . U506    =  S8,  // 1x gain, adg1208.  july 2025
+  .second. U506    =  S8,  // 1x gain, adg1208.  july 2025
+
+*/
+
+    //////////////
+
+  .reg_mode = 0,                  // MODE_LO,
+
+  // signal acquisition defaults
+  .sa.p_clk_count_precharge = CLK_FREQ * 500e-6,             //  500us.
+
+/*
+  .sa.p_seq_n = 2,
+  .sa.p_seq0 = (0b01 << 4) | S3,         // dcv
+  .sa.p_seq1 = (0b00 << 4) | S7,         // star-lo
+  .sa.p_seq2 = 0,  // channel-1 precharge switch
+  .sa.p_seq3 = 0,  // channel-1 precharge switch
+*/
+
+
+  // adc
+  .adc.p_aperture = CLK_FREQ * 0.2,   // 200ms. 10nplc 50Hz.  // Not. should use current calibration?  // should be authoritative source of state.
+  .adc.p_reset = CLK_FREQ * 500e-6,                // 500us.
+
+
+
+  .trigger_selection = 1,   // internal trigger active
+
+
+  .first. K701  = SR_RESET,
+  .first. K702  = SR_RESET,
+  .first. K703  = SR_RESET,
+
+
+
 #if 0
+
+  //  maybe make explicit all values  U408_SW_CTL. at least for the initial mode, from which others derive.
+
+  .first .U408_SW_CTL = 0,      // b2b fets/ input protection off/open
+  .second.U408_SW_CTL = 0,
+
+  // AMP FEEDBACK SHOULD NEVER BE TURNED OFF.
+  // else draws current, and has risk damaging parts. mux pin 1. of adg. to put main amplifier in buffer/G=1 configuration.
+  .first. U506 =  D1,     // should always be on
+  .second.U506 =  D1,           // amplifier should always be on.
+
+  .first. K603_CTL  = SR_RESET,     // ohms relay off.
+
+
+  /////////////////////////
+  // 700
+  // has inverting cmos buffer
+  .first. K702_CTL  = SR_RESET,
+  .second.K702_CTL  = 0b11,
+
+  // 0.1R shunt off. has inverting cmos buffer
+  .first. K703_CTL  = SR_RESET,
+  .second.K703_CTL  = 0b11,
+
+  // shunts / TIA - default to shunts
+  .first. K709_CTL  = SR_SET,
+
+  // agn200 shunts are off.
+  .first. K707_CTL  = SR_SET,
+  .first. K706_CTL  = SR_SET,
+  .first. K704_CTL  = SR_SET,
+  .first. K705_CTL  = SR_SET,
+
+
 #endif
 
+};
 
+
+
+
+void mode_reset(_mode_t *mode)
+{
+
+  *mode = mode_initial;
+}
 
 
 
@@ -281,6 +390,52 @@ void mode_ch2_set_channel( _mode_t *mode, unsigned u0 )
 #endif
 
 
+
+
+// actually may be better to have noaz. to set up. to run with p_seq_n = 1;
+// and no switching.
+
+void mode_sa_set(_mode_t *mode, const char *s)
+{
+  /* note the same syntax
+
+      options here.   ch1, ch2, ratio.
+      keep the az flag separate.
+  */
+
+  if(strcmp(s, "ch2") == 0 ) {
+
+    // direct mode
+    mode->reg_direct.azmux_o = S3;
+    mode->reg_direct.pc_ch2_o = 1;
+
+
+    // az mode
+    // signal can come in on S3, S7
+    sa_state_t *sa = &mode->sa;
+    sa->p_seq_n = 2;
+
+    // zero first
+    sa->p_seq_elt[ 0].azmux  = S7;     // channel2 lo. from feed mux.
+    sa->p_seq_elt[ 0].pc = 0b00;
+
+    // val
+    sa->p_seq_elt[ 1].azmux  = S3;     // CH2-IN
+    sa->p_seq_elt[ 1].pc = 0b10;
+
+    // set the catcher handler/closure
+  }
+  else if(strcmp(s, "ch1") == 0 ) {
+    assert( 0);
+  }
+  else if(strcmp(s, "ratio") == 0 ) {
+    assert( 0);
+  }
+  else assert(0);
+
+
+
+}
 
 
 
@@ -453,57 +608,6 @@ static void mode_loside_set( _mode_t *mode, const char *s)
 
 
 
-
-// NO. express this a different way.
-// mode_sa_set "ch2" ...
-
-//static void mode_ch2_az_set(_mode_t *mode)
-
-
-// actually may be better to have noaz. to set up. to run with p_seq_n = 1;
-// and no switching.
-
-static void mode_sa_set(_mode_t *mode, const char *s)
-{
-  /* note the same syntax
-
-      options here.   ch1, ch2, ratio.
-      keep the az flag separate.
-  */
-
-  if(strcmp(s, "ch2") == 0 ) {
-
-    // direct mode
-    mode->reg_direct.azmux_o = S3;
-    mode->reg_direct.pc_ch2_o = 1;
-
-
-    // az mode
-    // signal can come in on S3, S7
-    sa_state_t *sa = &mode->sa;
-    sa->p_seq_n = 2;
-
-    // zero first
-    sa->p_seq_elt[ 0].azmux  = S7;     // channel2 lo. from feed mux.
-    sa->p_seq_elt[ 0].pc = 0b00;
-
-    // val
-    sa->p_seq_elt[ 1].azmux  = S3;     // CH2-IN
-    sa->p_seq_elt[ 1].pc = 0b10;
-
-    // set the catcher handler/closure
-  }
-  else if(strcmp(s, "ch1") == 0 ) {
-    assert( 0);
-  }
-  else if(strcmp(s, "ratio") == 0 ) {
-    assert( 0);
-  }
-  else assert(0);
-
-
-
-}
 
 
 
@@ -918,6 +1022,16 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   */
 
 
+
+
+  if(strcmp(cmd, "reset") == 0) {
+
+    // reset the mode - would be better in mode.c
+    // but do not have access to initial/default
+
+    // reset the mode.
+    mode_reset( mode);
+  }
 
 
 

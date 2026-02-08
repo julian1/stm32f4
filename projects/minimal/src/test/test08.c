@@ -24,7 +24,6 @@ bool app_test08( app_t *app , const char *cmd)
 {
   assert(app);
   assert(cmd);
-  assert(app->mode_initial);
 
   if( strcmp(cmd, "test08") == 0) {
 
@@ -34,7 +33,10 @@ bool app_test08( app_t *app , const char *cmd)
 
 #if 1
 
-    _mode_t mode = *app->mode_current;
+    // new mode
+    _mode_t mode ;
+    mode_reset( &mode);
+
 
     mode.reg_mode =  MODE_ADC_MUX_REF_TEST;
     spi_mode_transition_state( &app->devices, &mode, &app->system_millis);

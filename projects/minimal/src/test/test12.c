@@ -36,7 +36,13 @@ static void test (app_t *app)     // should be passing the continuation.
   /* assume dcv-source and nplc have been set up on mode already.
     we could verify with some checks.  */
 
-  _mode_t mode = *app->mode_current;
+
+
+  // new mode
+  _mode_t mode ;
+  mode_reset( &mode);
+
+
 
   ////////////////////
   // phase 1, soak/charge accumulation cap
@@ -121,7 +127,6 @@ bool app_test12( app_t *app , const char *cmd)
 {
   assert(app);
   assert(cmd);
-  assert(app->mode_initial);
 
 
   if( strcmp(cmd, "test12") == 0) {
