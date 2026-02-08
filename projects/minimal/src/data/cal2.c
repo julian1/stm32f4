@@ -35,6 +35,7 @@
 
 #include <devices.h>
 
+
   /*
       separate out the tick_millis . that always updates with += 1000;
       from the sleep. that can be set where used.
@@ -88,8 +89,6 @@ void data_cal2(
   // UNUSED(yield_ctx);
 
 
-  // trig. off.
-  //  call reset.
 
   printf("whoot cal2() \n");
 
@@ -104,23 +103,29 @@ void data_cal2(
   // trig off
   gpio_write( gpio_trigger_internal, 0 );
 
+
+  mode_reset( mode);
+
+  mode_reg_mode_set( mode, MODE_SA_ADC);    // set fpga reg_mode.
+
+  // setup adc nplc
+  mode->adc.p_aperture = nplc_to_aperture( 10, data->line_freq );				// fix jul 2024.
+
+  mode_sa_set(mode, "0" );      // special sample acquisition.  for adc running standalone.
+
+
+
+  // write board state
+  printf("spi_mode_transition_state()\n");
+  spi_mode_transition_state( devices, mode, system_millis);
+
+
   printf("sleep\n");
   yield_with_msleep( 1 * 1000, system_millis, yield, yield_ctx);
 
 
 
-  // have to set the mode. and the sequence inputs .
-
-  // it would be really nice to be able to set the mode.  here.
-  // perhaps just pass app...
-  // *app->mode_current = *app->mode_initial;
-
-
-
-  mode_sa_set(mode, "0" );      // special mode. where just samples zero.
-
-  // should have an accessor ...
-  // trig on
+  // trig on - should add accessor ...
   gpio_write( gpio_trigger_internal, 1 );
 
 
@@ -128,10 +133,8 @@ void data_cal2(
   for(unsigned i = 0; i < ARRAY_SIZE(values); ++i)
   {
 
-    printf("i %u\n", i );
+    printf("i %u", i);
 
-    // setup adc nplc
-    mode->adc.p_aperture = nplc_to_aperture( 10, data->line_freq );				// fix jul 2024.
 
 
     // wait for adc data, on interupt
@@ -157,7 +160,7 @@ void data_cal2(
     uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_MUX_REF_RD);   // check.
     uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_MUX_SIG);
 
-    printf("counts %6lu %lu %lu %lu %6lu",
+    printf("  counts %6lu %lu %lu %lu %6lu",
       clk_count_mux_reset,
       clk_count_mux_sig,
       clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd
@@ -165,26 +168,31 @@ void data_cal2(
     printf("\n");
 
 
-    double w =  (clk_count_mux_pos  +  clk_count_mux_rd)  /   (clk_count_mux_neg + clk_count_mux_rd) ;
+    double w =  (double) (clk_count_mux_pos  +  clk_count_mux_rd)  /   (clk_count_mux_neg + clk_count_mux_rd) ;
 
-    printf("w %f", w );
+    printf("  w %.8f", w );
     values[ i ] = w;
 
+
+    printf("\n");
+
     /*
-      w is independent of aperture/nplc.  and independent of constant parasitics. and signal input.
+      w is independent of aperture/nplc.  and independent of constant parasitics.
+      but not independent of signal input.
 
-      no.  it is still not quite right.
-      because if signal input changes - this will change the currents pushed.
-      except the    input circuit - can have a different offset.
-
-      not sure.
+      but i think  ok.  because.
 
     */
 
     // so we would just push into a column array.  then take some averages.
     // actually simpler way.  is to compute the average.
 
+
   }
+
+  // trig off
+  gpio_write( gpio_trigger_internal, 0 );
+
 
 
 }

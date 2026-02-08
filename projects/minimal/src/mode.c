@@ -299,6 +299,90 @@ void mode_reset(_mode_t *mode)
 
 
 
+void mode_reg_mode_set(_mode_t *mode, unsigned u0)
+{
+  mode->reg_mode = u0;
+}
+
+
+
+
+// actually may be better to have noaz. to set up. to run with p_seq_n = 1;
+// and no switching.
+
+void mode_sa_set(_mode_t *mode, const char *s)
+{
+  /* note the same syntax
+
+      options here.   ch1, ch2, ratio.
+      keep the az flag separate.
+  */
+
+
+  if(strcmp(s, "0") == 0 ) {
+
+    // sample star-ground
+    // use n=2 for good led activity indicator
+
+    // signal can come in on S3, S7
+    sa_state_t *sa = &mode->sa;
+    sa->p_seq_n = 2;
+
+    // zero first
+    sa->p_seq_elt[ 0].azmux  = S6;     // A400-1
+    sa->p_seq_elt[ 0].pc = 0b00;
+
+    // val
+    sa->p_seq_elt[ 0].azmux  = S6;     // A400-1
+    sa->p_seq_elt[ 0].pc = 0b00;
+
+    // could set the catcher handler/closure here
+  }
+
+
+  else if(strcmp(s, "ch2") == 0 ) {
+
+    // direct mode
+    mode->reg_direct.azmux_o = S3;
+    mode->reg_direct.pc_ch2_o = 1;
+
+
+    // az mode
+    // signal can come in on S3, S7
+    sa_state_t *sa = &mode->sa;
+    sa->p_seq_n = 2;
+
+    // zero first
+    sa->p_seq_elt[ 0].azmux  = S7;     // channel2 lo. from feed mux.
+    sa->p_seq_elt[ 0].pc = 0b00;
+
+    // val
+    sa->p_seq_elt[ 1].azmux  = S3;     // CH2-IN
+    sa->p_seq_elt[ 1].pc = 0b10;
+
+    // could set the catcher handler/closure here
+  }
+  else if(strcmp(s, "ch1") == 0 ) {
+    assert( 0);
+  }
+  else if(strcmp(s, "ratio") == 0 ) {
+    assert( 0);
+  }
+  else assert(0);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
 
 void mode_set_amp_gain( _mode_t *mode, uint32_t u)
 {
@@ -389,53 +473,6 @@ void mode_ch2_set_channel( _mode_t *mode, unsigned u0 )
 
 #endif
 
-
-
-
-// actually may be better to have noaz. to set up. to run with p_seq_n = 1;
-// and no switching.
-
-void mode_sa_set(_mode_t *mode, const char *s)
-{
-  /* note the same syntax
-
-      options here.   ch1, ch2, ratio.
-      keep the az flag separate.
-  */
-
-  if(strcmp(s, "ch2") == 0 ) {
-
-    // direct mode
-    mode->reg_direct.azmux_o = S3;
-    mode->reg_direct.pc_ch2_o = 1;
-
-
-    // az mode
-    // signal can come in on S3, S7
-    sa_state_t *sa = &mode->sa;
-    sa->p_seq_n = 2;
-
-    // zero first
-    sa->p_seq_elt[ 0].azmux  = S7;     // channel2 lo. from feed mux.
-    sa->p_seq_elt[ 0].pc = 0b00;
-
-    // val
-    sa->p_seq_elt[ 1].azmux  = S3;     // CH2-IN
-    sa->p_seq_elt[ 1].pc = 0b10;
-
-    // set the catcher handler/closure
-  }
-  else if(strcmp(s, "ch1") == 0 ) {
-    assert( 0);
-  }
-  else if(strcmp(s, "ratio") == 0 ) {
-    assert( 0);
-  }
-  else assert(0);
-
-
-
-}
 
 
 
@@ -1035,30 +1072,12 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
 
 
-
-#if 0
-  else if( sscanf(cmd, "dcv-source sts %100s", s0) == 1
-    && str_decode_int( s0, &i0)) {
-
-    // hex values are not working.
-    printf("value %ld hex %lx\n", i0, i0 );
-
-      // this isnt quite working.
-    // note. can take a negative value.
-    // eg. 0x3fff or -0x3fff
-    mode_ch2_set_sts( mode, i0);
-  }
-
-#endif
-
-
-
   /*
       we have to disambiguate values with float args explicitly...
       because float looks like int
   */
 
-  if( sscanf(cmd, "aper %100s", s0) == 1
+  else if( sscanf(cmd, "aper %100s", s0) == 1
     && str_decode_float( s0, &f0))
   {
 
@@ -1133,6 +1152,8 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   }
 
 
+
+
   else if( sscanf(cmd, "set daq %100s %100s", s0, s1 ) == 2
     && str_decode_uint( s0, &u0)
     && str_decode_uint( s1, &u1)
@@ -1174,6 +1195,24 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     else
       printf("arg out of range\n");
   }
+
+
+
+
+#if 0
+  else if( sscanf(cmd, "dcv-source sts %100s", s0) == 1
+    && str_decode_int( s0, &i0)) {
+
+    // hex values are not working.
+    printf("value %ld hex %lx\n", i0, i0 );
+
+      // this isnt quite working.
+    // note. can take a negative value.
+    // eg. 0x3fff or -0x3fff
+    mode_ch2_set_sts( mode, i0);
+  }
+
+#endif
 
 
 

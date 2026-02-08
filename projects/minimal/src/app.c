@@ -1198,12 +1198,24 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   */
 
 
+  else if(strcmp(cmd, "cal2") == 0) {
+    // cal with default model
+
+    unsigned model_spec = 3;
+
+    data_cal2( app->data,  &app->devices, app->mode_current, model_spec, app->gpio_trigger_internal,
+      &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+  }
+
+
+
   else if( sscanf(cmd, "cal %lu", &u0 ) == 1) {
 
     mode_reset( app->mode_current ); // TODO remove. data_cal can now reset the mode.
     unsigned model_spec = u0;
 
-    data_cal( app->data,  &app->devices,  app->mode_current, model_spec, app->gpio_trigger_internal,  &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+    data_cal( app->data,  &app->devices,  app->mode_current, model_spec, app->gpio_trigger_internal,
+     &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
   }
 
   else if(strcmp(cmd, "cal") == 0) {
@@ -1212,18 +1224,8 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     mode_reset( app->mode_current );    // TODO remove. data_cal can now reset the mode.
     unsigned model_spec = 3;
 
-    data_cal( app->data,  &app->devices, app->mode_current, model_spec, app->gpio_trigger_internal, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
-  }
-
-
-
-  else if(strcmp(cmd, "cal2") == 0) {
-    // cal with default model
-
-    mode_reset( app->mode_current ); // TODO remove. data_cal can now reset the mode.
-    unsigned model_spec = 3;
-
-    data_cal2( app->data,  &app->devices, app->mode_current, model_spec, app->gpio_trigger_internal, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+    data_cal( app->data,  &app->devices, app->mode_current, model_spec, app->gpio_trigger_internal,
+      &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
   }
 
 
