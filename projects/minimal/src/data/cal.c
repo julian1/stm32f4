@@ -302,13 +302,13 @@ void data_cal(
         uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_RSTMUX);   // useful check.
         uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
         uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
-        uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_BOTH);
+        uint32_t clk_count_mux_both     = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_BOTH);
         uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_SIGMUX);
 
         printf("counts %6lu %lu %lu %lu %6lu",
           clk_count_mux_reset,
           clk_count_mux_sig,
-          clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd
+          clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_both
         );
         printf("\n");
 
@@ -320,7 +320,7 @@ void data_cal(
           this is really ugly handling. should reset it.
 
         */
-        row = run_to_matrix( clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, model_spec_cols(data->model_spec), row);
+        row = run_to_matrix( clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_both, model_spec_cols(data->model_spec), row);
         mat_set_row( xs,       row_idx,  row ) ;
 
         vec_set_val( y,        row_idx,   y_  *  clk_count_mux_sig );

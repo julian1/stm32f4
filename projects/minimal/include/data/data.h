@@ -201,7 +201,7 @@ void data_cal2(
 
 unsigned model_spec_cols( unsigned model_spec );
 
-MAT * run_to_matrix( uint32_t clk_count_mux_neg, uint32_t clk_count_mux_pos, uint32_t clk_count_mux_rd, unsigned model, MAT * out);
+MAT * run_to_matrix( uint32_t clk_count_mux_neg, uint32_t clk_count_mux_pos, uint32_t clk_count_mux_both, unsigned model, MAT * out);
 
 MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture);
 

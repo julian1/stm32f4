@@ -208,7 +208,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 
   uint32_t clk_count_mux_neg = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
   uint32_t clk_count_mux_pos = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
-  uint32_t clk_count_mux_rd  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_BOTH);
+  uint32_t clk_count_mux_both  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_BOTH);
   uint32_t clk_count_mux_sig = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_SIGMUX);
 
   uint32_t clk_count_mux_reset = 0;
@@ -279,7 +279,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
     printf(", clk counts %7lu %7lu %6lu %lu",
       clk_count_mux_neg,
       clk_count_mux_pos,
-      clk_count_mux_rd,
+      clk_count_mux_both,
       clk_count_mux_sig
     );
   }
@@ -327,7 +327,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
     MAT *xs = run_to_matrix(
         clk_count_mux_neg,
         clk_count_mux_pos,
-        clk_count_mux_rd,
+        clk_count_mux_both,
 
         // what model here,
         // data->model_spec,
@@ -673,7 +673,7 @@ MAT * run_to_matrix(
     // const Run *run,
     uint32_t clk_count_mux_neg,
     uint32_t clk_count_mux_pos,
-    uint32_t clk_count_mux_rd,
+    uint32_t clk_count_mux_both,
     unsigned model_spec,
     MAT * out
 )
@@ -703,16 +703,16 @@ MAT * run_to_matrix(
         this is nice because doesn't require anything on fpga side.
       */
       out = m_resize(out, 1, 2);
-      m_set_val( out, 0, 0,  clk_count_mux_neg + clk_count_mux_rd );
-      m_set_val( out, 0, 1,  clk_count_mux_pos + clk_count_mux_rd  );
+      m_set_val( out, 0, 0,  clk_count_mux_neg + clk_count_mux_both );
+      m_set_val( out, 0, 1,  clk_count_mux_pos + clk_count_mux_both  );
       break;
       }
 
     case 21: {
       out = m_resize(out, 1, 3);
       m_set_val( out, 0, 0,  1.f );   // ones, offset
-      m_set_val( out, 0, 1,  clk_count_mux_neg + clk_count_mux_rd );
-      m_set_val( out, 0, 2,  clk_count_mux_pos + clk_count_mux_rd  );
+      m_set_val( out, 0, 1,  clk_count_mux_neg + clk_count_mux_both );
+      m_set_val( out, 0, 2,  clk_count_mux_pos + clk_count_mux_both  );
     break;
     }
 
@@ -721,7 +721,7 @@ MAT * run_to_matrix(
       out = m_resize(out, 1, 3);
       m_set_val( out, 0, 0,  clk_count_mux_neg );
       m_set_val( out, 0, 1,  clk_count_mux_pos );
-      m_set_val( out, 0, 2,  clk_count_mux_rd );
+      m_set_val( out, 0, 2,  clk_count_mux_both );
       break;
     }
 
@@ -731,7 +731,7 @@ MAT * run_to_matrix(
       m_set_val( out, 0, 0,  1.f ); // ones, offset
       m_set_val( out, 0, 1,  clk_count_mux_neg );
       m_set_val( out, 0, 2,  clk_count_mux_pos );
-      m_set_val( out, 0, 3,  clk_count_mux_rd);
+      m_set_val( out, 0, 3,  clk_count_mux_both);
       break;
     }
 
@@ -929,7 +929,7 @@ void data_update(data_t *data, uint32_t spi )
     uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_RSTMUX);   // time refmux is in reset. useful check. not adc initialization time.
     uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
     uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-    uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_BOTH);
+    uint32_t clk_count_mux_both     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_BOTH);
     uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX);
 
   /*  - OK. it doesn't matter whether aperture is for one more extra clk cycle. or one less.  eg. the clk termination condition.
@@ -938,7 +938,7 @@ void data_update(data_t *data, uint32_t spi )
 
       uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_P_APERTURE );
   */
-    printf("counts %6lu %lu %lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd, clk_count_mux_sig);
+    printf("counts %6lu %lu %lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_both, clk_count_mux_sig);
 
     printf("\n");
   }
