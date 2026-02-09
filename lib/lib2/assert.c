@@ -31,10 +31,10 @@ static uint32_t led_port = 0;
 static uint32_t led_no = 0;
 
 
-void assert_critical_error_led_setup(uint32_t port_, uint16_t led_no )
+void assert_critical_error_led_setup(uint32_t port_, uint16_t led_no_ )
 {
   led_port = port_;
-  led_no   = led_no;
+  led_no   = led_no_;
 
 }
 
