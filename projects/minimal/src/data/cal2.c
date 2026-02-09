@@ -166,6 +166,16 @@ void data_cal2(
     uint32_t clk_count_aperture   = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_APERTURE);     // check.
 
 
+
+    printf("  first=%lu  idx=%lu seq_n=%lu\n",
+        STATUS_SAMPLE_FIRST(status),
+        STATUS_SAMPLE_IDX(status),
+        STATUS_SAMPLE_SEQ_N(status)   // eg. constant == 2.   not that useful
+      );
+
+
+
+
     printf("  counts %6lu %lu %lu %lu %lu %6lu",
       clk_count_mux_reset,
       clk_count_aperture,

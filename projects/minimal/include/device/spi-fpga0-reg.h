@@ -96,11 +96,21 @@
 // reg_status values
 
 // TODO - consider rename sample to reading  ie. status_reading_idx.  or  status_sa_idx status_sa_azmux sa_pc etc.
+
+#define STATUS_MAGIC(status)            (0xff  & status)                // { 8'b10101010
+
 #define STATUS_HW_FLAGS(status)         (0b111 & (status >> 8 ))
+
 #define STATUS_SAMPLE_IDX(status)       (0b111 & (status >> 16))
+
+#define STATUS_SAMPLE_FIRST(status)     (0b1 & (status >> 19))
+
 #define STATUS_SAMPLE_SEQ_N(status)     (0b111 & (status >> 20))
 
 
+// state of the azmux and pc.
+#define STATUS_SAMPLE_AZMUX(status)     ()
+#define STATUS_SAMPLE_PC(status)     ()
 
 
 
