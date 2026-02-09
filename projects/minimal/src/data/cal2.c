@@ -115,7 +115,7 @@ void data_cal2(
   mode_reg_mode_set( mode, MODE_SA_ADC);    // set fpga reg_mode.
 
   // setup adc nplc
-  mode->adc.p_aperture = nplc_to_aperture( 1, data->line_freq );				// fix jul 2024.
+  mode->adc.p_aperture = nplc_to_aperture( 10, data->line_freq );				// fix jul 2024.
 
   mode_sa_set(mode, "0" );      // special sample acquisition.  for adc running standalone.
 
@@ -172,7 +172,7 @@ void data_cal2(
     printf("\n");
 
 
-    double w =  (double) (clk_count_mux_pos  +  clk_count_mux_rd)  /   (clk_count_mux_neg + clk_count_mux_rd) ;
+    double w =  (double) (clk_count_mux_pos  )  /   clk_count_mux_neg  ;
 
     printf("  w %.8f", w );
     values[ i ] = w;
