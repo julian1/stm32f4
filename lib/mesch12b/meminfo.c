@@ -135,7 +135,7 @@ int mem_attach_list(int list, int ntypes,
    
    mem_connect[list].ntypes = ntypes;
    mem_connect[list].type_names = type_names;
-   mem_connect[list].free_funcs = free_funcs;
+   mem_connect[list].free_funcs = (int (**)(void)) free_funcs;          // JA. added cast. looks buggy
    mem_connect[list].info_sum = info_sum;
    return 0;
 }
