@@ -163,12 +163,16 @@ void data_cal2(
     uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
     uint32_t clk_count_mux_rd     = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_BOTH);   // check.
     uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_SIGMUX);
+    uint32_t clk_count_aperture   = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_APERTURE);     // check.
 
 
-    printf("  counts %6lu %lu %lu %lu %6lu",
+    printf("  counts %6lu %lu %lu %lu %lu %6lu",
       clk_count_mux_reset,
+      clk_count_aperture,
       clk_count_mux_sig,
-      clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_rd
+      clk_count_mux_neg,
+      clk_count_mux_pos,
+      clk_count_mux_rd
     );
     printf("\n");
 
