@@ -55,21 +55,23 @@
 ///////////////////////
 // adc parameters
 
+
 #define REG_ADC_P_CLK_COUNT_APERTURE      30
 #define REG_ADC_P_CLK_COUNT_RESET         31
 
 
 // adc counts
-#define REG_ADC_CLK_COUNT_MUX_RESET       40
-#define REG_ADC_CLK_COUNT_MUX_REF_NEG     41
-#define REG_ADC_CLK_COUNT_MUX_REF_POS     42
-#define REG_ADC_CLK_COUNT_MUX_REF_RD      43
-#define REG_ADC_CLK_COUNT_MUX_SIG         44
+#define REG_ADC_CLK_COUNT_REFMUX_NEG     40
+#define REG_ADC_CLK_COUNT_REFMUX_POS     41
+#define REG_ADC_CLK_COUNT_REFMUX_BOTH    42
+#define REG_ADC_CLK_COUNT_RSTMUX         43
+#define REG_ADC_CLK_COUNT_SIGMUX         44
+
 
 
 // extra stat counts.
-#define REG_ADC_STAT_COUNT_MUX_REF_POS_UP 50
-#define REG_ADC_STAT_COUNT_MUX_REF_NEG_UP 51
+#define REG_ADC_STAT_COUNT_REFMUX_POS_UP 50
+#define REG_ADC_STAT_COUNT_REFMUX_NEG_UP 51
 #define REG_ADC_STAT_COUNT_CMPR_CROSS_UP  52
 
 
@@ -97,6 +99,9 @@
 #define STATUS_HW_FLAGS(status)         (0b111 & (status >> 8 ))
 #define STATUS_SAMPLE_IDX(status)       (0b111 & (status >> 16))
 #define STATUS_SAMPLE_SEQ_N(status)     (0b111 & (status >> 20))
+
+
+
 
 
 
