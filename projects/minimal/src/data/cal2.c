@@ -25,6 +25,7 @@
 
 #include <lib2/util.h>    // yield_with_msleep
 #include <lib2/stats.h>
+#include <lib2/format.h>  // format_with_commas
 
 
 #include <mode.h>
@@ -99,7 +100,7 @@ void data_cal2(
 
 
   // we are not doing hi/lo herer
-  float values[ 10 ];
+  double values[ 10 ];
 
 
  // let things settle from spi emi burst, and board DA settle, amp to come out of lockup.
@@ -114,7 +115,7 @@ void data_cal2(
   mode_reg_mode_set( mode, MODE_SA_ADC);    // set fpga reg_mode.
 
   // setup adc nplc
-  mode->adc.p_aperture = nplc_to_aperture( 10, data->line_freq );				// fix jul 2024.
+  mode->adc.p_aperture = nplc_to_aperture( 1, data->line_freq );				// fix jul 2024.
 
   mode_sa_set(mode, "0" );      // special sample acquisition.  for adc running standalone.
 
@@ -188,16 +189,24 @@ void data_cal2(
 
   }
 
-  printf( "mean   %.8f", mean(   values, ARRAY_SIZE(values)));
-  printf( "stddev %.8f", stddev( values, ARRAY_SIZE(values)));
+  // trig off
+  gpio_write( gpio_trigger_internal, 0 );
+
+
+  double mean_   = mean(   values, ARRAY_SIZE(values));     // should prefix functions stats_mean ?
+  double stddev_ = stddev( values, ARRAY_SIZE(values));
+  // printf( "mean   %.8f\n", mean_ );
+  // printf( "stddev %.10f\n", stddev_);
+
+  char buf[100 + 1];
+  printf( "mean   %s\n", str_format_float_with_commas(buf, 100, 9, mean_));
+  printf( "stddev %s\n", str_format_float_with_commas(buf, 100, 9, stddev_));
+;
 
 
   // A 4-byte float (IEEE 754 single-precision) is accurate to approximately 7 decimal digits
   // so should really use double prec array.
   // perhaps move stats. from lib2. to change.
-
-  // trig off
-  gpio_write( gpio_trigger_internal, 0 );
 
 
 
