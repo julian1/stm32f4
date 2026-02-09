@@ -1,11 +1,11 @@
 
 /*
-  The STM32F4 only supports 32 bit floating point in hardware, so these functions
+  The STM32F4 only supports 32 bit doubleing point in hardware, so these functions
   must be done in software and will take many cycles to execute. To ensure that
-  all calculations are done in 32 bit you should define all your floating point
-  numbers (including constants) as type float.
+  all calculations are done in 32 bit you should define all your doubleing point
+  numbers (including constants) as type double.
 
-  https://electronics.stackexchange.com/questions/231705/stm32f4-floating-point-instructions-too-slow
+  https://electronics.stackexchange.com/questions/231705/stm32f4-doubleing-point-instructions-too-slow
 
   ------------
 
@@ -17,6 +17,12 @@
   First, standard deviation gives us the “AC coupled” RMS amplitude of a
   waveform: we can calculate standard deviation when the DC offset of a signal is
   irrelevant, and this gives us the RMS amplitude of only the AC portion.
+
+  -------
+
+  Use double everywhere.
+  A 4-byte float (IEEE 754 single-precision) is accurate to approximately 7 decimal digits.
+
 
 */
 
@@ -32,7 +38,7 @@
 
 #include <math.h>   // sqrt,sqrtf
 #include <assert.h>
-// #include <float.h>   // FLT_MAX, FLT_MIN
+// #include <double.h>   // FLT_MAX, FLT_MIN
 
 
 #include "stats.h"
@@ -46,15 +52,15 @@ static inline double square(double x)
 }
 
 
-double sum(const float *p, size_t n)
+double sum(const double *p, size_t n)
 {
   /*
     for initializer is valid C99
-    for( const float *end = p + n; p < end; ++p)
+    for( const double *end = p + n; p < end; ++p)
   */
 
   double sum = 0;
-  const float *end = p + n;
+  const double *end = p + n;
   while(p < end)
     sum += *p++;
 
@@ -62,10 +68,10 @@ double sum(const float *p, size_t n)
 }
 
 
-static double sumX2(const float *p, size_t n)
+static double sumX2(const double *p, size_t n)
 {
   double sum = 0;
-  const float *end = p + n;
+  const double *end = p + n;
   while(p < end)
     sum += square(*p++);
 
@@ -75,18 +81,18 @@ static double sumX2(const float *p, size_t n)
 // mean, stddeve, rms are all the same values?????
 // so if they're the same then we return 0...
 
-double mean(const float *p, size_t n)
+double mean(const double *p, size_t n)
 {
   return sum(p, n) / n;
 }
 
 
-double variance(const float *p, size_t n)
+double variance(const double *p, size_t n)
 {
   double m = mean(p, n);
   double sum = 0;
 
-  const float *end = p + n;
+  const double *end = p + n;
   while(p < end)
     sum += square(*p++ - m);
 
@@ -95,13 +101,13 @@ double variance(const float *p, size_t n)
 
 // population. should probably be sample.
 
-double stddev(const float *p, size_t n)
+double stddev(const double *p, size_t n)
 {
   return sqrt(variance(p, n));
 }
 
 
-double stddev2(const float *p, size_t n)
+double stddev2(const double *p, size_t n)
 {
   // alternate calc approach. also works.
   double j = (sumX2(p, n) / n) - square(sum(p, n) / n);
@@ -110,7 +116,7 @@ double stddev2(const float *p, size_t n)
 
 
 
-double rms(const float *p, size_t n)
+double rms(const double *p, size_t n)
 {
   // seems like a problematic calculation if DC not blocked.
   return sqrt(sumX2(p, n) / n);
@@ -122,13 +128,13 @@ double rms(const float *p, size_t n)
 #define min(a, b) ((a) < (b) ? (a) : (b))
 */
 
-void minmax(const float *p, size_t n, float *min, float *max)
+void minmax(const double *p, size_t n, double *min, double *max)
 {
   assert(n > 0);
   *min = *p;
   *max = *p;
 
-  for(const float *end = p + n; p < end; ++p)
+  for(const double *end = p + n; p < end; ++p)
   {
     if(*p > *max)
       *max = *p;
@@ -146,7 +152,7 @@ void minmax(const float *p, size_t n, float *min, float *max)
 
 
 #if 0
-void push(float *p, size_t n, size_t *idx, float val)
+void push(double *p, size_t n, size_t *idx, double val)
 {
   // don't advance if idx == n, to support overflow detect
   // assert(*idx < n);
@@ -166,7 +172,7 @@ void push(float *p, size_t n, size_t *idx, float val)
 
 void stat_test()
 {
-  float buf [ 10];
+  double buf [ 10];
   size_t n = 0;
 
   // eg. add values 3, 4, 5

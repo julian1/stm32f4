@@ -13,23 +13,26 @@ extern "C" {
 
   this stuff might be faster using double. to avoid the conversion.
   even if we already do calculations with double
+
+  Use double everywhere.
+  A 4-byte float (IEEE 754 single-precision) is accurate to approximately 7 decimal digits.
 */
 
-double sum(const float *p, size_t n);
-double mean(const float *p, size_t n);
+double sum(const double *p, size_t n);
+double mean(const double *p, size_t n);
 
 
-double variance(const float *p, size_t n);
+double variance(const double *p, size_t n);
 
 // Need to distinguish... student and global...
 // or just use (n-k) as arg
-double stddev(const float *p, size_t n);
-double stddev2(const float *p, size_t n);
+double stddev(const double *p, size_t n);
+double stddev2(const double *p, size_t n);
 
-double rms(const float *p, size_t n);
+double rms(const double *p, size_t n);
 
 
-void minmax(const float *p, size_t n, float *min, float *max);
+void minmax(const double *p, size_t n, double *min, double *max);
 
 
 
