@@ -13,14 +13,19 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include <math.h>     // fabs
+// #include <math.h>     // fabs
+
+
 
 
 #include <peripheral/gpio.h>
 #include <peripheral/spi-ice40.h>
 #include <device/spi-fpga0-reg.h>
 
+
 #include <lib2/util.h>    // yield_with_msleep
+#include <lib2/stats.h>
+
 
 #include <mode.h>
 #include <util.h> // nplc_to_aperture()
@@ -94,7 +99,7 @@ void data_cal2(
 
 
   // we are not doing hi/lo herer
-  double values[ 10 ];
+  float values[ 10 ];
 
 
  // let things settle from spi emi burst, and board DA settle, amp to come out of lockup.
@@ -134,8 +139,6 @@ void data_cal2(
   {
 
     printf("i %u", i);
-
-
 
     // wait for adc data, on interupt
     while( !data->adc_interupt_valid ) {
@@ -177,18 +180,21 @@ void data_cal2(
     printf("\n");
 
     /*
-      w is independent of aperture/nplc.  and independent of constant parasitics.
-      but not independent of signal input.
+      w is independent of aperture/nplc.
+      and independent of a constant leakage.  actually no.   will be cancelled.  when do proper AZ.
 
-      but i think  ok.  because.
-
+      a constant current leakage is same as as having an input signal.
     */
 
-    // so we would just push into a column array.  then take some averages.
-    // actually simpler way.  is to compute the average.
-
-
   }
+
+  printf( "mean   %.8f", mean(   values, ARRAY_SIZE(values)));
+  printf( "stddev %.8f", stddev( values, ARRAY_SIZE(values)));
+
+
+  // A 4-byte float (IEEE 754 single-precision) is accurate to approximately 7 decimal digits
+  // so should really use double prec array.
+  // perhaps move stats. from lib2. to change.
 
   // trig off
   gpio_write( gpio_trigger_internal, 0 );
