@@ -349,7 +349,6 @@ typedef struct adc_state_t
 
 
 
-typedef struct spi_t  spi_t;
 
 
 // prefix with underscore because 'mode_t'  is in conflict with sys/types 'mode_t'.
