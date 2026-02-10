@@ -44,12 +44,13 @@ bool app_test09( app_t *app , const char *cmd)
 
 
     // new mode
-    _mode_t mode ; 
+    _mode_t mode ;
     mode_reset( &mode);
 
 
     // set up sequence acquision
-    mode.reg_mode = MODE_SA_ADC;       // mode 7
+    // mode.reg_mode = MODE_SA_ADC;       // mode 7
+    mode_reg_cr_mode_set( &mode, MODE_SA_ADC);
 
 /*
     mode.sa.p_seq_n  = 2;

@@ -52,7 +52,9 @@ static void test (app_t *app)     // should be passing the continuation.
   mode.first .K406 = SR_RESET;   // select accum cap
 
   // use direct mode - for soak/charge of accum cap.
-  mode.reg_mode =  MODE_DIRECT;
+  // mode.reg_mode =  MODE_DIRECT;
+  mode_reg_cr_mode_set( &mode, MODE_DIRECT);
+
   mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
 
   printf("azmux       %u\n", mode.reg_direct.azmux_o );   // consider - formatting
@@ -110,7 +112,8 @@ static void test (app_t *app)     // should be passing the continuation.
   ////////////////////////
   // phase 3. observe, take measurement etc
 
-  assert( mode.reg_mode == MODE_DIRECT );
+  assert( mode.reg_cr.mode == MODE_DIRECT );
+
   mode.reg_direct.leds_o = 0b0100;
   // now we do the sleep- to take the measurement.
   printf("sleep 2s\n");  // having a yield would be quite nice here.

@@ -31,7 +31,7 @@
 #define REG_STATUS                        17
 
 
-// reg_mode values
+// fpga operating mode
 #define MODE_DIRECT                       0     // mcu spi control of the direct register
 #define MODE_ADC_MUX_REF_TEST             5
 #define MODE_SA_MOCK_ADC                  6     // no az. and elecm. etc
@@ -107,6 +107,15 @@
 // reg_status values
 
 // TODO - consider rename sample to reading  ie. status_reading_idx.  or  status_sa_idx status_sa_azmux sa_pc etc.
+
+/*
+
+  EXTR.
+  FIX THIS - use bitfields...
+
+  just the same as reg_direct... or reg_cr
+
+*/
 
 #define STATUS_MAGIC(status)            (0xff  & status)                // { 8'b10101010
 

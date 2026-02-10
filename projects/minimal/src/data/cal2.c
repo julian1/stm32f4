@@ -112,7 +112,7 @@ void data_cal2(
 
   mode_reset( mode);
 
-  mode_reg_mode_set( mode, MODE_SA_ADC);    // set fpga reg_mode.
+  mode_reg_cr_mode_set( mode, MODE_SA_ADC);    // set fpga reg_mode.
 
   // setup adc nplc
   mode->adc.p_aperture = nplc_to_aperture( 10, data->line_freq );				// fix jul 2024.

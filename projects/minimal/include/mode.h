@@ -221,6 +221,33 @@ typedef struct _4094_state_t
 
 
 
+
+
+typedef struct __attribute__((__packed__))
+reg_cr_t
+{
+
+  uint8_t   mode        : 3;      // only 3 bits
+
+ // input           p_use_slow_rundown,
+ // input           p_use_fast_rundown,
+ // input           p_use_input_signal,     // adc whether to swtich in the input signal
+
+  uint8_t p_adc_use_input_signal : 1;   // better name ? p_adc_switch_input_signal
+
+
+  uint32_t   dummy_bits_o : 28;
+
+} reg_cr_t;
+
+
+_Static_assert (sizeof(reg_cr_t) == 4, "bad typedef size");
+
+
+
+
+
+
 typedef struct  __attribute__((__packed__))
 reg_direct_t
 {
@@ -276,6 +303,10 @@ reg_direct_t
 } reg_direct_t;
 
 
+_Static_assert (sizeof(reg_direct_t ) == 4, "bad typedef size");
+
+
+
 
 
 
@@ -287,6 +318,7 @@ typedef struct seq_elt_t
   uint32_t          : 26;
 } seq_elt_t;   // size 32
 
+_Static_assert (sizeof(seq_elt_t) == 4, "bad typedef size");
 
 
 
@@ -318,7 +350,7 @@ typedef struct adc_state_t
   */
 
   // 'p' implies its a paraameter
-  // could prefix with cc. clock_count
+  // consider prefix with cc. clock_count
 
   uint32_t  p_aperture;     // p_cc_aperture
   uint32_t  p_reset;        // p_cc_reset
@@ -339,7 +371,6 @@ typedef struct adc_state_t
 
 
 
-// typedef struct  __attribute__((__packed__))
 
 
 
@@ -351,10 +382,8 @@ typedef struct _mode_t
   // but not enough for different states.
 
 /*
-  // TODO add 4094 to name.
+  // TODO prefix 4094 to var as well as type
       eg. _4094_first _4094_second .
-
-      or shift_reg_first, serial_first, serial second
 */
 
   _4094_state_t     first;
@@ -368,22 +397,18 @@ typedef struct _mode_t
 
   uint16_t mdac1_val;
 
-  // name is confusing, because this is ice40 mode,  while the app mode, is app mode represents all app state.
-  // perhap rename reg_ice40_mode
-  uint32_t  reg_mode;
 
-  // not explicitly an adc parameter.  signal acquisition or  adc.
+  // control register
+  reg_cr_t      reg_cr;
+
   // only when fpga is in mode 0
-  reg_direct_t    reg_direct;
+  reg_direct_t  reg_direct;
 
 
-  // uint32_t  reg_seq_mode;
+  sa_state_t   sa;
 
 
-  sa_state_t    sa;
-
-
-  adc_state_t    adc;
+  adc_state_t  adc;
 
   bool         trigger_selection;     // stm32. state
 
@@ -453,7 +478,7 @@ void mode_reset(_mode_t *mode);
 
 
 void mode_sa_set(_mode_t *mode, const char *s);
-void mode_reg_mode_set(_mode_t *mode, unsigned u0);
+void mode_reg_cr_mode_set(_mode_t *mode, unsigned u0);
 
 
 void mode_lts_set( _mode_t *mode, double f0 /*signed i0*/);       // arg is 10,0,-10

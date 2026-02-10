@@ -72,7 +72,10 @@ static void test (app_t *app)     // should be passing the continuation.
 
 
   // set up fpga - with direct mode - for soak/charge of accum cap.
-  mode.reg_mode     =  MODE_DIRECT;
+  // mode.reg_mode     =  MODE_DIRECT;
+  mode_reg_cr_mode_set( &mode, MODE_DIRECT);
+
+
   assert( mode.reg_direct.azmux_o == SOFF) ;
   // HERE assert( mode.reg_direct.sig_pc_ch_o == 0b00 );
   assert( mode.reg_direct.pc_ch1_o == SW_PC_BOOT );
@@ -100,7 +103,8 @@ static void test (app_t *app)     // should be passing the continuation.
   check it again on the monitor.
 
 */
-  mode.reg_mode = MODE_SA_MOCK_ADC;
+  // mode.reg_mode = MODE_SA_MOCK_ADC;
+  mode_reg_cr_mode_set( &mode, MODE_SA_MOCK_ADC);
 
   assert(0);  // dec 2024. review
 /*
@@ -141,7 +145,9 @@ static void test (app_t *app)     // should be passing the continuation.
   ////////////////////////
   // phase 3. observe, take measurement etc
 
-  mode.reg_mode = MODE_DIRECT;
+  // mode.reg_mode = MODE_DIRECT;
+  mode_reg_cr_mode_set( &mode, MODE_DIRECT);
+
   mode.reg_direct.leds_o = 0b0100;
   // now we do the sleep- to take the measurement.
   printf("sleep 2s\n");  // having a yield would be quite nice here.

@@ -197,13 +197,15 @@ void data_cal(
   // mode_ch2_set_channel( mode, 1 ); // dcv
 
 
-  // TODO. use mode_set_seq function.
- //  void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 )
+  // mode->reg_mode = MODE_SA_ADC;
+  mode_reg_cr_mode_set( mode, MODE_SA_ADC);
 
-  // set up sequence acquision
-  mode->reg_mode = MODE_SA_ADC;
+
+  // TODO. use mode_set_seq function.
+  //  void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 )
 
 /*
+  // set up sequence acquision
   mode->sa.p_seq_n  = 2;
   mode->sa.p_seq0 = (PC01 << 4) | S1;          // dcv,  update dec 2024.
   mode->sa.p_seq1 = mode->sa.p_seq0;    // the same

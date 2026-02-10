@@ -123,10 +123,12 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
 
   // fpga stuff
 
-  spi_ice40_reg_write32( devices->spi_fpga0, REG_MODE, mode->reg_mode );
+  // spi_ice40_reg_write32( devices->spi_fpga0, REG_MODE, mode->reg_mode );
+  assert( sizeof( mode->reg_cr) == 4);
+  spi_ice40_reg_write_n( devices->spi_fpga0, REG_MODE,  &mode->reg_cr,  sizeof( mode->reg_cr) );
 
   // reg_direct for outputs under fpga control
-  assert( sizeof(reg_direct_t) == 4);
+  assert( sizeof( mode->reg_direct) == 4);
   // TODO. review - why do we use write_n() rather than write32() here?
   spi_ice40_reg_write_n( devices->spi_fpga0, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
 
@@ -220,7 +222,7 @@ static const _mode_t mode_initial =  {
 
     //////////////
 
-  .reg_mode = 0,                  // MODE_LO,
+  //.reg_mode = 0,                  // MODE_LO,
 
   // signal acquisition defaults
   .sa.p_clk_count_precharge = CLK_FREQ * 500e-6,             //  500us.
@@ -299,9 +301,15 @@ void mode_reset(_mode_t *mode)
 
 
 
-void mode_reg_mode_set(_mode_t *mode, unsigned u0)
+void mode_reg_cr_mode_set(_mode_t *mode, unsigned u0)
 {
-  mode->reg_mode = u0;
+
+  // ease setting.
+  // change name of access to mode_cr_mode_set() ... or similar...
+
+  assert(u0 < 1<<3);
+
+  mode->reg_cr.mode = u0;
 }
 
 
@@ -1318,8 +1326,15 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
       // ice40 mode.
       else if(strcmp(s0, "mode") == 0) {
-        mode->reg_mode = u0;
+
+
+        // mode->reg_mode = u0;
+        // mode->reg_cr.mode = u0;
+
+        mode_reg_cr_mode_set( mode, u0);
       }
+
+
       else if(strcmp(s0, "direct") == 0) {
         assert(sizeof(mode->reg_direct) == 4);
         assert(sizeof(u0) == 4);
