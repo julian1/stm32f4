@@ -2,8 +2,7 @@
 #pragma once
 
 /*
-  fpga specific structures -  for low level comms
-  otherwise would be pulled in by unrelated spi peripheral handling code
+  fpga specific structure -  for comms
 
 */
 
@@ -26,21 +25,20 @@
 #define REG_DIRECT                        14
 
 
-// rename SR ?
+// consider rename SR ?
 #define REG_STATUS                        17
 
 
-// fpga operating mode
-#define MODE_DIRECT                       0     // mcu spi control of the direct register
-#define MODE_ADC_MUX_REF_TEST             5
-#define MODE_SA_MOCK_ADC                  6     // no az. and elecm. etc
-#define MODE_SA_ADC                       7      // normal operation. with sa and adc
+// operation modes
+#define MODE_DIRECT                       0     // mcu can control outputs directly by writing the direct register
+#define MODE_ADC_MUX_REF_TEST             5     // test integrator, refmux switching
+#define MODE_SA_MOCK_ADC                  6     // sample acquisition, but adc is mocked
+#define MODE_SA_ADC                       7     // normal operation. with sa and adc
 
 
 
 ///////////////////////
-//  sample acquisition.
-
+// sample acquisition control parameters
 #define REG_SA_P_CLK_COUNT_PRECHARGE      20
 
 #define REG_SA_P_SEQ_N                    21
@@ -52,14 +50,13 @@
 
 
 ///////////////////////
-// adc parameters
-
-
+// adc control parameters
 #define REG_ADC_P_CLK_COUNT_APERTURE      30
 #define REG_ADC_P_CLK_COUNT_RESET         31
 
 
-// adc counts
+
+// adc reading counts
 #define REG_ADC_CLK_COUNT_REFMUX_NEG      40
 #define REG_ADC_CLK_COUNT_REFMUX_POS      41
 #define REG_ADC_CLK_COUNT_REFMUX_BOTH     42
@@ -68,7 +65,7 @@
 #define REG_ADC_CLK_COUNT_APERTURE        45
 
 
-// extra stat counts.
+// adc reading extra stat counts
 #define REG_ADC_STAT_COUNT_REFMUX_POS_UP  50
 #define REG_ADC_STAT_COUNT_REFMUX_NEG_UP  51
 #define REG_ADC_STAT_COUNT_CMPR_CROSS_UP  52
@@ -132,16 +129,16 @@ reg_sr_t
 
   uint8_t   magic ;     // 8
 
-  uint8_t   hw_flags : 4;
-  uint8_t   : 4;   // 16
+  uint8_t   hw_flags    : 4;
+  uint8_t               : 4;   // 16
 
-  uint8_t   sample_idx : 3;
-  uint8_t   first : 1;
+  uint8_t   sample_idx  : 3;
+  uint8_t   first       : 1;
   uint8_t   sample_seq_n : 3;
-  uint8_t   : 1;   // 24
+  uint8_t               : 1;   // 24
 
 
-  uint32_t   : 8;    // 31
+  uint32_t              : 8;    // 31
 
 
   // uint32_t   azmux : 4;
