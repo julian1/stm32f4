@@ -155,25 +155,30 @@ void data_cal2(
 
     // embed a 8 bit. counter ini the reg_status and use it for the measure.
 
-    uint32_t status = spi_ice40_reg_read32( spi_fpga0, REG_STATUS );
-    UNUSED(status);
+    uint32_t status_ = spi_ice40_reg_read32( spi_fpga0, REG_STATUS );
+     // error: dereferencing type-punned pointer will break strict-aliasing rules [-Werror=strict-aliasing]
+    // reg_sr_t  status = * (reg_sr_t*)((void *) &status_);  // gives error
+
+    reg_sr_t  status;
+     _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
+
+    memcpy( &status, &status_,  sizeof( status_));
+
+    printf("  first=%u  idx=%u seq_n=%u\n",
+      status.first,
+      status.sample_idx,
+      status.sample_seq_n
+    );
+
+
+
 
     uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_RSTMUX);    // useful check.
     uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
     uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
-    uint32_t clk_count_mux_both     = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_BOTH);   // check.
+    uint32_t clk_count_mux_both   = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_BOTH);   // check.
     uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_SIGMUX);
     uint32_t clk_count_aperture   = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_APERTURE);     // check.
-
-
-
-    printf("  first=%lu  idx=%lu seq_n=%lu\n",
-        STATUS_SAMPLE_FIRST(status),
-        STATUS_SAMPLE_IDX(status),
-        STATUS_SAMPLE_SEQ_N(status)   // eg. constant == 2.   not that useful
-      );
-
-
 
 
     printf("  counts %6lu %lu %lu %lu %lu %6lu",

@@ -222,7 +222,8 @@ char * seq_mode_str( uint8_t sample_seq_mode, char *buf, size_t n  );
 
 
 // handler/catcher.
-double data_sa_simple_computed_val( void *ctx, double val, uint32_t status);
+// double data_sa_simple_computed_val( void *ctx, double val, uint32_t status);
 
+// double data_sa_simple_computed_val( void *ctx, double val, reg_sr_t status);
 
 

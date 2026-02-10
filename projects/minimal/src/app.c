@@ -1295,9 +1295,13 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     data_reset( data );
     data_rdy_clear( data);
 
+
+  // JA. disable feb 2026.
+#if 0
     // set the data handler/catcher
     data->handler_computed_val = data_sa_simple_computed_val;
     data->ctx_computed_val = NULL;
+#endif
 
 
     // check_data( == 7.000 )  etc.

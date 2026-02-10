@@ -144,13 +144,15 @@ char * seq_mode_str( uint8_t status_sample_seq_mode, char *buf, size_t n  )
 
 
 
+#if 0
+
 // double (*handler_computed_val)( data_t * );
 
 /*
     should probably be given data_sa_simple_computed_val().
 */
 
-double data_sa_simple_computed_val( void *ctx, double val, uint32_t status)
+double data_sa_simple_computed_val( void *ctx, double val, reg_sr_t status)
 {
   UNUSED(ctx);
 
@@ -165,7 +167,8 @@ double data_sa_simple_computed_val( void *ctx, double val, uint32_t status)
     rather than store in data->reading.
   */
 
-  uint8_t status_sample_seq_n    =  STATUS_SAMPLE_SEQ_N( status) ;     // 0b111 & (status >> 20) ;
+  // uint8_t status_sample_seq_n    =  STATUS_SAMPLE_SEQ_N( status) ;     // 0b111 & (status >> 20) ;
+  uint8_t status_sample_seq_n    =  status.sample_seq_n;
 
 #if 0
     switch(status_sample_seq_mode) {
@@ -180,7 +183,7 @@ double data_sa_simple_computed_val( void *ctx, double val, uint32_t status)
   return val;
 
 }
-
+#endif
 
 
 
@@ -240,8 +243,8 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 
   // TODO consider create a bitfield for the status register
 
-  uint8_t hw_flags        =  STATUS_HW_FLAGS( status) ;         // 0b111 & (status >> 8 ) ;
-  UNUSED(hw_flags);
+  // uint8_t hw_flags        =  STATUS_HW_FLAGS( status) ;         // 0b111 & (status >> 8 ) ;
+  // UNUSED(hw_flags);
 
 /* HERE
   uint8_t reg_spi_mux     =  STATUS_SPI_MUX( status)  ;
