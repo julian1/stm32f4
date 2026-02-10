@@ -5,6 +5,7 @@
 #include <libopencm3/stm32/exti.h>
 
 
+// #include <stdio.h>
 #include <stdlib.h> // malloc
 #include <string.h> // memset
 #include <assert.h>
@@ -21,11 +22,15 @@
 
 
 
+
 typedef struct interrupt2_t interrupt2_t;
 
 struct interrupt2_t
 {
+  // this is  a lot of work - just to set the ctx, and callee.
+
   interrupt_t  ;   // anonymous.  for composition.
+
   interupt_handler_t  handler;
   void *ctx;
 };
@@ -37,16 +42,25 @@ static interrupt2_t   *x = NULL;
 void exti3_isr(void) // called by runtime
 {
   /*
+    context is not atomic
     OK. bizarre. resetting immediately, prevents being called a second time
   */
   exti_reset_request( EXTI3);
 
 
-  if(x && x->handler) {
+  assert(x);
+  assert(x->magic == INT_MAGIC);
+
+  if( x->handler) {
+
+    // printf("x       is %p\n", x );
+    // printf("x->ctx  is %p\n", x->ctx);
+    // printf("f       is %p\n", x->handler);
+
     x->handler( x->ctx, NULL );
   }
-
 }
+
 
 
 static void setup( interrupt2_t *i)

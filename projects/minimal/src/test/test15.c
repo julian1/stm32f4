@@ -72,7 +72,7 @@ static void test(app_t *app)
 
   mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
 
-  spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
+  app_transition_state( app);
   printf("sleep 10s\n");  // having a yield would be quite nice here.
   msleep(10 * 1000,  &app->system_millis);
 
@@ -116,7 +116,7 @@ static void test(app_t *app)
 
   // mode.reg_direct.leds_o  = 0b0010;    // won't display when running.
 
-  spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
+  app_transition_state( app);
   printf("sleep 10s\n");  // having a yield() would be quite nice here.
   msleep(10 * 1000,  &app->system_millis);
 
@@ -131,7 +131,7 @@ static void test(app_t *app)
   mode.reg_direct.leds_o = 0b0100;
   // now we do the sleep- to take the measurement.
   printf("sleep 2s\n");  // having a yield would be quite nice here.
-  spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
+  app_transition_state( app);
   msleep(2 * 1000,  &app->system_millis);
 
 }
@@ -149,7 +149,7 @@ bool app_test15( app_t *app , const char *cmd)
     test(app);
 
 
-      // returning,  will revert back to mode_current state.
+      // returning,  will revert back to mode state.
       return 1;
     }
 

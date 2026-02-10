@@ -46,12 +46,12 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
 
 
   // EXTR. TODO move the triger to after the transition state. because no longer relies on transition state
-  // app->mode_current->trig_sa = 1;
+  // app->mode->trig_sa = 1;
   app_trigger_internal( app, 1);   // aug 2025.
 
 
 
-  spi_mode_transition_state( &app->devices, app->mode_current, &app->system_millis);
+  app_transition_state( app);
 
 
   // sleep?
@@ -71,11 +71,11 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
 
 
   // stop sample acquisition, perhaps unnecessary
-  // app->mode_current->trig_sa = 0;
+  // app->mode->trig_sa = 0;
   app_trigger_internal( app, 0);   // aug 2025.
 
 
-  spi_mode_transition_state( &app->devices, app->mode_current, &app->system_millis);
+  app_transition_state( app);
 
 
   // print output
@@ -162,22 +162,22 @@ bool app_test41(
 
     for( unsigned i = 0; i < 5; ++i ) {
 #if 0
-      app->mode_current->second.U1010 = (B << 2) | A ;      // A-B,  10V -TAP
+      app->mode->second.U1010 = (B << 2) | A ;      // A-B,  10V -TAP
       fill_buffer( app, yield, yield_ctx) ;
       double ab  = m_get_mean( data->buffer );
       printf("a-b mean %lf\n", ab );
 
-      app->mode_current->second.U1010 = (C << 2) | B ;      // B-C,  TAP-GND
+      app->mode->second.U1010 = (C << 2) | B ;      // B-C,  TAP-GND
       fill_buffer( app, yield, yield_ctx) ;
       double bc  = m_get_mean( data->buffer );
       printf("b-c mean %lf\n", bc);
 
-      app->mode_current->second.U1010 = (C << 2) | A ;      // A-C, 10V-GND
+      app->mode->second.U1010 = (C << 2) | A ;      // A-C, 10V-GND
       fill_buffer( app, yield, yield_ctx) ;
       double ac  = m_get_mean( data->buffer );
       printf("a-c mean %lf\n", ac);
 
-      app->mode_current->second.U1010 = (B << 2) | B ;      // B-B, TAP-TAP. on dcv-source-1 and dcv-source-com, from different inputs
+      app->mode->second.U1010 = (B << 2) | B ;      // B-B, TAP-TAP. on dcv-source-1 and dcv-source-com, from different inputs
       fill_buffer( app, yield, yield_ctx) ;
       double bb = m_get_mean( data->buffer );
       printf("b-b mean %lf\n", bb);
@@ -190,22 +190,22 @@ bool app_test41(
   assert(0);
 /*
 
-      app->mode_current->second.U1010 = (A << 2) | B ;      // B-A,  TAP-10V
+      app->mode->second.U1010 = (A << 2) | B ;      // B-A,  TAP-10V
       fill_buffer( app, yield, yield_ctx) ;
       double ba  = m_get_mean( data->buffer );
       printf("b-a mean %lf\n", ba );
 
-      app->mode_current->second.U1010 = (B << 2) | C ;      // C-B,  GND-TAP
+      app->mode->second.U1010 = (B << 2) | C ;      // C-B,  GND-TAP
       fill_buffer( app, yield, yield_ctx) ;
       double cb  = m_get_mean( data->buffer );
       printf("c-b mean %lf\n", cb);
 
-      app->mode_current->second.U1010 = (A << 2) | C ;      // C-A, GND-10V
+      app->mode->second.U1010 = (A << 2) | C ;      // C-A, GND-10V
       fill_buffer( app, yield, yield_ctx) ;
       double ca  = m_get_mean( data->buffer );
       printf("c-a mean %lf\n", ca);
 
-      app->mode_current->second.U1010 = (B << 2) | B ;      // B-B, TAP-TAP. on dcv-source-1 and dcv-source-com, from different inputs
+      app->mode->second.U1010 = (B << 2) | B ;      // B-B, TAP-TAP. on dcv-source-1 and dcv-source-com, from different inputs
       fill_buffer( app, yield, yield_ctx) ;
       double bb = m_get_mean( data->buffer );
       printf("b-b mean %lf\n", bb);
@@ -236,8 +236,8 @@ bool app_test41(
     // check_data( == 7.000 )  etc.
 
 
-    // app->mode_current->trig_sa = 0;
-    // app->mode_current->sa.p_trig = 0;
+    // app->mode->trig_sa = 0;
+    // app->mode->sa.p_trig = 0;
     app_trigger_internal( app, 0);   // aug 2025.
 
 
@@ -575,7 +575,7 @@ The mdacs look to be reasonbly low noise as far as I can tell.
       " );
 
     // cal
-    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+    spi_mode_transition_state( app->spi, app->mode, &app->system_millis);
 
     // data->buffer = buffer_reset( data->buffer, 30);     // resise buffer
     // data_reset( data );                                 // reset

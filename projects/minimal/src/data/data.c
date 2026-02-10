@@ -28,6 +28,41 @@
 
 
 
+data_t * data_create( /* no constructor dependencies */ )
+{
+  // called once at initialization
+
+  data_t *data = malloc( sizeof(data_t));
+  assert(data);
+  memset( data, 0, sizeof( data_t));
+
+  data->magic = DATA_MAGIC,
+  data->line_freq = 50,
+
+
+  // TODO move this
+  // buffer is separate external concept.  inject low level data into buffer.
+
+  data->buffer = buffer_reset( data->buffer, 10);
+  assert( data->buffer);
+  data_reset( data );
+
+  return data;
+}
+
+
+/*
+static data_t data = {
+
+  . magic = DATA_MAGIC,
+  .line_freq = 50,
+
+ } ;
+*/
+
+
+
+#if 0
 
 void data_init( data_t *data)
 {
@@ -42,6 +77,8 @@ void data_init( data_t *data)
   data_reset( data );
 }
 
+#endif
+
 #if 0
 
 void data_reading_reset( data_t *data )
@@ -53,6 +90,9 @@ void data_reading_reset( data_t *data )
 }
 
 #endif
+
+
+
 
 
 void data_reset( data_t * data )
@@ -87,32 +127,7 @@ void data_reset( data_t * data )
 
 
 
-void data_rdy_interupt( data_t *data, interrupt_t *x) // runtime context
-{
-  UNUSED(x);
-  /* interupt context.  don't do anything compliicated here.
-    but called relatively infrequent.
-  */
 
-  assert(data);
-  assert(data->magic == DATA_MAGIC) ;
-
-
-  // if flag is still active, then record we missed processing some data.
-  if(data->adc_interupt_valid == true) {
-    data->adc_interupt_valid_missed = true;
-    // ++data->adc_interupt_valid_missed;     // count better? but harder to report.
-  }
-
-  // set adc_interupt_valid flag so that update() knows to read the adc...
-  data->adc_interupt_valid = true;
-}
-
-
-void data_rdy_clear( data_t *data)
-{
-  data->adc_interupt_valid = false;
-}
 
 
 #if 0
@@ -1035,7 +1050,7 @@ void data_update(data_t *data, uint32_t spi )
   */
 
 #if 0
-    Mode *mode = app->mode_current;
+    Mode *mode = app->mode;
 
     if(mode->reg_mode == MODE_NO_AZ )  {
 

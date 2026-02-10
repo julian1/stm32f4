@@ -30,7 +30,7 @@ struct interrupt_t
 
 static inline void interrupt_setup( interrupt_t *i)
 {
-  // assert(i);
+  assert(i);
   i->setup( i);
 }
 
@@ -38,7 +38,7 @@ static inline void interrupt_setup( interrupt_t *i)
 
 static inline  void interrupt_set_handler( interrupt_t *i, void *ctx, interupt_handler_t h)
 {
-  // assert(i);
+  assert(i);
   i->set_handler( i, ctx, h );
 }
 

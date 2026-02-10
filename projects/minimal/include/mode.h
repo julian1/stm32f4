@@ -60,6 +60,9 @@
 
 */
 
+
+
+
 // 1of8 muxes.
 #define SOFF        0
 /*
@@ -120,6 +123,7 @@
 
 
 
+#define MODE_MAGIC   445
 
 
 typedef struct _4094_state_t
@@ -281,6 +285,9 @@ typedef struct adc_state_t
 
 typedef struct _mode_t
 {
+
+  uint32_t magic;
+
   // all state needed to achive a dmm function.
   // but not enough for different states.
 
@@ -321,63 +328,22 @@ typedef struct _mode_t
 
 
 
-
-typedef struct devices_t devices_t;
-
-void spi_mode_transition_state( devices_t *devices, const _mode_t *mode, volatile uint32_t *system_millis /*, uint32_t update_flags */);
+_mode_t *mode_create( void /* no dependenceies */ );
 
 
-
-/*
-
-  a light set of functions to help with common mode settings
-
-  consider - how useful these setters are.
-  versus -simply coding the mode fields/flags in-place.
-  perhaps useful for repl.
-  -
-  sometime - we just need to flip a single mux - and then these obscure the simple action.
-  -
-  consider change name dcv1-source perhaps.
-  actually implied. because dcv2 is always constant function of dcv1.  - eg. inverted.
-*/
-
-
-// TODO - consider remove the _set_
-
-void mode_set_amp_gain( _mode_t *mode, uint32_t u);
-
-
-
-
-
-void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 );
-
+void mode_reset(_mode_t *mode);
 
 
 bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );
 
 
 
-/*
-  helper functions to select channel inputs
+// TODO - set should be suffix.
 
-  for clarity and test code, better than manipulating underlying relays
-  and does a reasonable job to abstract pinouts.
+void mode_set_amp_gain( _mode_t *mode, uint32_t u);
 
-  consider if encoding and passing an argument may better
-  ------
-  issue is encoding in the interpreter.
-    set ch1  off
-    set ch1  dcv
-*/
+void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 );
 
-
-
-
-// TODO. this would be incredibly useful to have.
-// we would just move the mode initializatiion from app to mode.
-void mode_reset(_mode_t *mode);
 
 
 void mode_sa_set(_mode_t *mode, const char *s);

@@ -15,9 +15,17 @@
 
 
 typedef struct _mode_t _mode_t;
-typedef struct data_t data_t;
+// typedef struct data_t data_t;
 typedef struct devices_t devices_t;
 typedef struct gpio_t gpio_t;
+
+
+
+
+
+
+// consider constrain in data.c
+#define DATA_MAGIC 123
 
 
 
@@ -37,14 +45,6 @@ typedef struct data_t
   uint32_t line_freq;
 
 
-  // TODO rename to adc_interupt.
-  // consider moving to app.
-
-  // TODO reanme adc_valid . eg. same identifier / meaning as fpga code.
-  // could also put flags/ for adc state in the status register. eg. the monitor pins.
-  volatile bool  adc_interupt_valid;
-
-  bool adc_interupt_valid_missed; // could be made a count
 
   // top level concept.
   // unsigned verbose;     // treated as bool at the moment
@@ -131,22 +131,27 @@ typedef struct data_t
 } data_t;
 
 
-#define DATA_MAGIC 123
 
 
-void data_init ( data_t *);
+
+data_t * data_create( void /* no constructor dependencies */ );
+// void data_init ( data_t *);
+
+
 
 // void data_reading_reset( data_t *data );
 void data_reset( data_t * data );
 
-
+#if 0
 // void data_rdy_interupt( data_t *data);    // handler setup in app context.
 
 
 typedef struct interrupt_t  interrupt_t;
 void data_rdy_interupt( data_t *data, interrupt_t *);    // handler setup in app context.
 
-void data_rdy_clear( data_t *data);
+// void data_rdy_clear( data_t *data);
+
+#endif
 
 
 // better name process reading.
@@ -156,36 +161,6 @@ void data_rdy_clear( data_t *data);
 typedef struct spi_t spi_t ;
 
 void data_update_new_reading2(data_t *data, spi_t *spi_fpga0/*, bool verbose*/);
-
-
-void data_cal(
-
-    data_t    *data,
-    devices_t *devices,
-    _mode_t   *mode,
-    unsigned  model_spec,
-
-    // app stuff
-    gpio_t    *gpio_trigger_internal,
-    volatile uint32_t *system_millis,
-    void      (*yield)( void * ),
-    void      *yield_ctx
-);
-
-
-void data_cal2(
-
-    data_t    *data,
-    devices_t *devices,
-    _mode_t   *mode,
-    unsigned  model_spec,
-
-    // app stuff
-    gpio_t    *gpio_trigger_internal,
-    volatile uint32_t *system_millis,
-    void      (*yield)( void * ),
-    void      *yield_ctx
-);
 
 
 

@@ -4,7 +4,7 @@
 #include <lib2/cbuffer.h>
 #include <lib2/cstring.h>
 
-#include <devices.h>
+// #include <devices.h>
 
 
 /*
@@ -47,15 +47,17 @@
 */
 
 
-typedef struct devices_t devices_t;
+// typedef struct devices_t devices_t;
 
 typedef struct _mode_t _mode_t;
 
 typedef struct data_t data_t;
-
-
 typedef struct gpio_t gpio_t;
 
+
+typedef struct spi_t spi_t;
+typedef struct spi_ice40_t spi_ice40_t;
+typedef struct interrupt_t interrupt_t;
 
 
 
@@ -71,6 +73,9 @@ typedef struct gpio_t gpio_t;
   But instantiate all state in main.c or appc
 
 */
+
+
+#define APP_MAGIC   456
 
 
 
@@ -126,14 +131,41 @@ typedef struct app_t
   cstring_t     command;
 
 
-  // analog board devices
-  devices_t   devices;
 
+
+  ////////////////////////////////
+
+  // analog board devices
+  // devices_t   devices;
+
+  spi_ice40_t   *spi_fpga0_pc;    //  fpga pre-configuration
+
+  spi_t         *spi_fpga0;       // fpga post-configuration - register set etc
+
+  interrupt_t   *fpga0_interrupt; // TODO review. not clear if really belongs here.
+                                  // depends if we configured more than once
+  spi_t         *spi_4094;
+
+  spi_t         *spi_mdac0;     // consider rename sts_mdac?
+
+  spi_t         *spi_mdac1;     // rename iso_sts_mdac?
 
   gpio_t      *gpio_trigger_internal;
 
+  /* trigger selection - ext/int belongs here, as a device.
+    it should be managed by the mode.
 
-  ///////
+    - trigger should perhaps be put here.
+  */
+  gpio_t        *gpio_trigger_selection;
+
+  ////////////////////////////////
+
+
+
+
+
+  ////////////////////////////////
 
   // power board devices
 
@@ -142,15 +174,27 @@ typedef struct app_t
 
   interrupt_t   *interrupt_u202;
 
+  ////////////////////////////////
 
-  // use pointers to keep structure opaque
-  // const _mode_t *mode_initial;
 
-  _mode_t       *mode_current;
+
+  // feb 2026.  current mode
+  _mode_t       *mode;
+
+
+  //////////////////////////////////
+
+  // consider moving to app.
+
+  volatile bool  adc_interupt_valid;
+
+  bool adc_interupt_valid_missed; // could make a count
 
 
 
   data_t        *data;
+
+  // buffer_t  *buffer;
 
   bool verbose;
 
@@ -158,10 +202,10 @@ typedef struct app_t
 
 
 
-#define APP_MAGIC   456
 
 
-
+void app_rdy_interupt( app_t *app, interrupt_t *x);
+// void app_rdy_clear( app_t *app);
 
 
 
@@ -183,6 +227,23 @@ void app_configure( app_t *app );
 
 void app_update_simple_led_blink(app_t *app);
 void app_update_simple_with_data(app_t *app);
+
+
+
+void app_transition_state( app_t *app  /*, uint32_t update_flags */);
+
+
+
+void app_cal( app_t *app);
+
+
+void app_cal2( app_t *app );
+
+
+
+
+
+
 
 
 

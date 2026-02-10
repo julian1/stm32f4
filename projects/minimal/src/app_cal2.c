@@ -20,7 +20,10 @@
 
 #include <peripheral/gpio.h>
 #include <peripheral/spi-ice40.h>
-#include <device/spi-fpga0-reg.h>
+#include <peripheral/interrupt.h>     // TODO remove
+
+
+// #include <device/spi-fpga0-reg.h>
 
 
 #include <lib2/util.h>    // yield_with_msleep
@@ -29,74 +32,43 @@
 
 
 #include <mode.h>
+
 #include <util.h> // nplc_to_aperture()
 
+#include <app.h>
 #include <data/data.h>
 
-#include <data/matrix.h> // m_set_row()
-#include <data/regression.h>
+// #include <data/matrix.h> // m_set_row()
+// #include <data/regression.h>
 
 
 
 
-#include <devices.h>
 
 
-  /*
-      separate out the tick_millis . that always updates with += 1000;
-      from the sleep. that can be set where used.
+void app_cal2(
 
-      rename sleep_with_yield()
-      and call like this
-
-      *sleep_millis = 1000;
-      sleep_with_yield_with_msleep( sleep_millis, yield, yield_ctx);
-  */
-
-  /*
-    EXTR.
-    we simplify this a lot ...
-    and avoid passing around system_millis.
-
-
-    *sleep_millis = 1000;
-    while( system_millis > 0) {
-      yield( yield_ctx);
-    }
-
-  */
-
-
-void data_cal2(
-
-  data_t    *data ,
-  devices_t *devices,
-
-
-  _mode_t *mode,
-  unsigned model_spec,
-
-  // app stuff
-  gpio_t      *gpio_trigger_internal,
-  volatile uint32_t *system_millis,
-  void (*yield)( void * ),
-  void * yield_ctx
+  app_t *app
 )
 {
-  assert(devices);
+
+
+  data_t    *data = app->data;
+  _mode_t *mode = app->mode;
+
   assert(data);
   assert(data->magic == DATA_MAGIC) ;
   assert(mode);
-
-  // UNUSED(gpio_trigger_internal);
-  UNUSED(model_spec);
-  // UNUSED(system_millis);
-  // UNUSED(yield);
-  // UNUSED(yield_ctx);
+  assert(mode->magic == MODE_MAGIC) ;
 
 
+  spi_t *spi_fpga0  = app->spi_fpga0;
+  assert(spi_fpga0);
 
-  printf("whoot cal2() \n");
+
+  printf("whoot app_cal2() \n");
+
+
 
 
   // we are not doing hi/lo herer
@@ -107,7 +79,7 @@ void data_cal2(
   // equivalent to discarding values
 
   // trig off
-  gpio_write( gpio_trigger_internal, 0 );
+  gpio_write( app->gpio_trigger_internal, 0 );
 
 
   mode_reset( mode);
@@ -125,34 +97,35 @@ void data_cal2(
 
   // write board state
   printf("spi_mode_transition_state()\n");
-  spi_mode_transition_state( devices, mode, system_millis);
+  // spi_mode_transition_state( devices, mode, system_millis);
+  app_transition_state( app);
 
 
   printf("sleep\n");
-  yield_with_msleep( 1 * 1000, system_millis, yield, yield_ctx);
+  // yield_with_msleep( 1 * 1000, system_millis, yield, yield_ctx);
+  yield_with_msleep( 1 * 1000, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
 
 
+  // check magic.
+  assert( app->fpga0_interrupt->magic == 789);
 
   // trig on - should add accessor ...
-  gpio_write( gpio_trigger_internal, 1 );
+  gpio_write( app->gpio_trigger_internal, 1 );
 
 
   // take obs loop
   for(unsigned i = 0; i < ARRAY_SIZE(values); ++i)
   {
 
-    printf("i %u", i);
+    printf("i %u\n", i);
+
 
     // wait for adc data, on interupt
-    while( !data->adc_interupt_valid ) {
-      if(yield)
-        yield( yield_ctx);
-    }
-    data->adc_interupt_valid = false;
+    // use express yield function here. not app->yield etc
+    while( !app->adc_interupt_valid )
+      app_update_simple_led_blink( app);
 
-
-    spi_t *spi_fpga0  = devices->spi_fpga0;
-    assert(spi_fpga0);
+    app->adc_interupt_valid = false;
 
 
     // embed a 8 bit. counter ini the reg_status and use it for the measure.
@@ -212,13 +185,14 @@ void data_cal2(
   }
 
   // trig off
-  gpio_write( gpio_trigger_internal, 0 );
+  gpio_write( app->gpio_trigger_internal, 0 );
 
 
   double mean_   = mean(   values, ARRAY_SIZE(values));     // should prefix functions stats_mean ?
   double stddev_ = stddev( values, ARRAY_SIZE(values));
   // printf( "mean   %.8f\n", mean_ );
   // printf( "stddev %.10f\n", stddev_);
+
 
   char buf[100 + 1];
   printf( "mean   %s\n", str_format_float_with_commas(buf, 100, 9, mean_));

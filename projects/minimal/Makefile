@@ -27,8 +27,8 @@ SRCFILES	= src/support.c \
             src/mode.o \
             src/lzo_test.c \
             src/util.c \
-            src/data/data.c src/data/cal.c src/data/matrix.c src/data/mesch-support.c src/data/regression.c src/data/buffer.c \
-            src/data/cal2.c \
+            src/app_cal.c src/app_cal2.c \
+            src/data/data.c src/data/matrix.c src/data/mesch-support.c src/data/regression.c src/data/buffer.c \
             src/test/test01.c src/test/test02.c  \
             src/test/test08.c src/test/test09.c \
             src/test/test10.c  src/test/test11.c \

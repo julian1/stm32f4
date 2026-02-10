@@ -46,14 +46,14 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
 
   // we need to toggle the trigger/ reset of sa controller. to get clean values.
   // we should do  this via the register.
-  // app->mode_current->trig_sa = 1;
-  // app->mode_current->sa.p_trig = 1;
+  // app->mode->trig_sa = 1;
+  // app->mode->sa.p_trig = 1;
 
   // TODO - move to after the transition state
   app_trigger_internal( app, 1);   // aug 2025.
 
 
-  spi_mode_transition_state( &app->devices, app->mode_current, &app->system_millis);
+  app_transition_state( app);
 
   // reset the reading values buffer, no value will be recorded before this is filled.
 //  data_reading_reset( data );
@@ -76,7 +76,7 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
 
   //ice40_port_trig_sa_disable();
 
-  // app->mode_current->sa.p_trig = 0;
+  // app->mode->sa.p_trig = 0;
   // JA. dec 2024. need to call transition state again.
   // or just write the register.
   app_trigger_internal( app, 0);   // aug 2025.
@@ -132,19 +132,19 @@ static void negative_side(
       assert(0);
 /*
       printf("------\nb-a\n");
-      app->mode_current->second.U1010 = (A << 2) | B ;      // B-A,  TAP-10V
+      app->mode->second.U1010 = (A << 2) | B ;      // B-A,  TAP-10V
       fill_buffer( app, ba, 3, yield, yield_ctx) ;
 
       printf("------\nc-b\n");
-      app->mode_current->second.U1010 = (B << 2) | C ;      // C-B,  GND-TAP
+      app->mode->second.U1010 = (B << 2) | C ;      // C-B,  GND-TAP
       fill_buffer( app, cb, 3, yield, yield_ctx) ;
 
       printf("------\nc-a\n");
-      app->mode_current->second.U1010 = (A << 2) | C ;      // C-A, GND-10V
+      app->mode->second.U1010 = (A << 2) | C ;      // C-A, GND-10V
       fill_buffer( app, ca, 3, yield, yield_ctx) ;
 
       printf("------\b-b\n");
-      app->mode_current->second.U1010 = (B << 2) | B ;      // B-B, TAP-TAP. on dcv-source-1 and dcv-source-com, from different inputs
+      app->mode->second.U1010 = (B << 2) | B ;      // B-B, TAP-TAP. on dcv-source-1 and dcv-source-com, from different inputs
       fill_buffer( app, bb, 3, yield, yield_ctx) ;
 */
     }
@@ -220,19 +220,19 @@ static void positve_side(
 
 /*
       printf("------\na-b\n");
-      app->mode_current->second.U1010 = (B << 2) | A ;      // A-B,  10V -TAP
+      app->mode->second.U1010 = (B << 2) | A ;      // A-B,  10V -TAP
       fill_buffer( app, ab, 3, yield, yield_ctx) ;
 
       printf("------\nb-c\n");
-      app->mode_current->second.U1010 = (C << 2) | B ;      // B-C,  TAP-GND
+      app->mode->second.U1010 = (C << 2) | B ;      // B-C,  TAP-GND
       fill_buffer( app, bc, 3, yield, yield_ctx) ;
 
       printf("------\na-c\n");
-      app->mode_current->second.U1010 = (C << 2) | A ;      // A-C, 10V-GND
+      app->mode->second.U1010 = (C << 2) | A ;      // A-C, 10V-GND
       fill_buffer( app, ac, 3, yield, yield_ctx) ;
 
       printf("------\b-b\n");
-      app->mode_current->second.U1010 = (B << 2) | B ;      // B-B, TAP-TAP. on dcv-source-1 and dcv-source-com, from different inputs
+      app->mode->second.U1010 = (B << 2) | B ;      // B-B, TAP-TAP. on dcv-source-1 and dcv-source-com, from different inputs
       fill_buffer( app, bb, 3, yield, yield_ctx) ;
 */
     }
@@ -342,8 +342,8 @@ bool app_test42(
     }
 
 
-    // app->mode_current->trig_sa = 0;
-    // app->mode_current->sa.p_trig = 0;
+    // app->mode->trig_sa = 0;
+    // app->mode->sa.p_trig = 0;
     // JA. dec 2024. need to call transition state again.
     // or just write the register.
     app_trigger_internal( app, 0);   // aug 2025.
@@ -718,7 +718,7 @@ The mdacs look to be reasonbly low noise as far as I can tell.
       " );
 
     // cal
-    spi_mode_transition_state( app->spi, app->mode_current, &app->system_millis);
+    spi_mode_transition_state( app->spi, app->mode, &app->system_millis);
 
     // data->buffer = buffer_reset( data->buffer, 30);     // resise buffer
     // data_reset( data );                                 // reset

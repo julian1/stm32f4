@@ -52,7 +52,8 @@ static void test (app_t *app)
 
         }
 
-        spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
+        // spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
+        app_transition_state( app);
 
         msleep( 300, &app->system_millis);
       }

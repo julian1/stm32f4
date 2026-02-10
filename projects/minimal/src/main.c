@@ -61,34 +61,29 @@
 
 
 
+/* feb. 2026. TODO remove  this.   value will be default init with zero.
+    and does not need hiding.
+*/
 
-
-static _mode_t mode_current = { 0 } ;
-
-
-
-
-
+// static _mode_t mode = { 0 } ;
 
 
 
-static data_t data = {
+/*
+  OK. I think we should malloc the data.
+  to hide implementation and pass dependencies in constructor.
 
-  . magic = DATA_MAGIC,
-  .line_freq = 50,
-
- } ;
-
+*/
 
 
 static app_t app = {
 
   .magic = APP_MAGIC,
 
-  // .spi = SPI1 ,
 
   .led_blink_enable = true,
 
+  // .spi = SPI1 ,
 
   //////////////
   // device.
@@ -104,10 +99,10 @@ static app_t app = {
 
   // ugly.
   // .mode_initial =  &mode_initial,
-  .mode_current =  &mode_current,
+//  .mode =  &mode,
 
 
-  . data = &data
+  // . data = &data
 };
 
 
@@ -324,10 +319,21 @@ static int main_f429(void)
  _Static_assert( sizeof(float) == 4);
  _Static_assert( sizeof(double ) == 8);
 
+  /////////////////////////////////
 
 
-  // init data
-  data_init( app.data );
+
+  // TODO.  app structure init to after the spi devices.
+
+  app.mode = mode_create( /* no dependenceies */ );
+
+
+  app.data = data_create( /* no dependencies */ );
+
+
+
+  // app.buffers = buffers_create(  app.data );
+
 
   ////////////////
   // init spi related port state. before do spi port.
@@ -342,47 +348,47 @@ static int main_f429(void)
   spi2_port_setup();
 
 
-
+  ///////////////////////////////
   // devices
 
-  devices_t *devices = &app.devices;
+  app.spi_fpga0_pc = spi_fpga0_pc_create();
+  spi_setup( (spi_t *) app.spi_fpga0_pc );                // note upcast
 
-  devices->spi_fpga0_pc = spi_fpga0_pc_create();
-  spi_setup( (spi_t *) devices->spi_fpga0_pc );                // note upcast
-
-  devices->spi_fpga0 = spi_fpga0_create();
-  spi_setup( devices->spi_fpga0 );
+  app.spi_fpga0 = spi_fpga0_create();
+  spi_setup( app.spi_fpga0 );
 
 
 
-  devices->fpga0_interrupt = fpga0_interrupt_create();
-  interrupt_setup( devices->fpga0_interrupt);
+  app.fpga0_interrupt = fpga0_interrupt_create();
+  interrupt_setup( app.fpga0_interrupt);
 
 
-  devices->spi_4094 = spi_4094_0_create();
-  spi_setup( devices->spi_4094 );
+  app.spi_4094 = spi_4094_0_create();
+  spi_setup( app.spi_4094 );
 
 
-  devices->spi_mdac0 = spi_mdac0_create();
-  spi_setup( devices->spi_mdac0 );
+  app.spi_mdac0 = spi_mdac0_create();
+  spi_setup( app.spi_mdac0 );
 
 
-  devices->spi_mdac1 = spi_mdac1_create();
-  spi_setup( devices->spi_mdac1 );
-
-  // should prefix with gpio?
-  // probably. do it with sed.
-  devices->gpio_trigger_selection = gpio_trigger_selection_create();
-  gpio_setup( devices->gpio_trigger_selection);
+  app.spi_mdac1 = spi_mdac1_create();
+  spi_setup( app.spi_mdac1 );
 
 
-
-  // trigger internal
   app.gpio_trigger_internal = gpio_trigger_internal_create();
   gpio_setup( app.gpio_trigger_internal);
 
 
-  ///////////
+  //////////////
+
+
+  app.gpio_trigger_selection = gpio_trigger_selection_create();
+  gpio_setup( app.gpio_trigger_selection);
+
+
+
+  ///////////////////////////////
+
 
 
 #if 0

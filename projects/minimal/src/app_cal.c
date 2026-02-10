@@ -53,6 +53,7 @@
 #include <mode.h>
 #include <util.h> // nplc_to_aperture()
 
+#include <app.h>
 #include <data/data.h>
 
 #include <data/matrix.h> // m_set_row()
@@ -61,7 +62,6 @@
 
 
 
-#include <devices.h>
 
 
 
@@ -126,9 +126,17 @@ void data_cal_show( data_t *data )
 
 
 
+/*
+  feb 2026.
+  cal is going to need app
 
-void data_cal(
+*/
 
+
+void app_cal(
+
+  app_t  *app
+/*
   data_t    *data ,
   devices_t *devices,
 
@@ -141,20 +149,25 @@ void data_cal(
   volatile uint32_t *system_millis,
   void (*yield)( void * ),
   void * yield_ctx
+*/
 )
 {
-  assert(devices);
+
+  data_t    *data = app->data;
+  _mode_t *mode = app->mode;
+
   assert(data);
   assert(data->magic == DATA_MAGIC) ;
   assert(mode);
+  assert(mode->magic == MODE_MAGIC) ;
 
 
-  printf("whoot cal() \n");
+  printf("whoot app_cal() \n");
 
 
 
   // note that we are comitted, at this point, by setting fields on data
-  data->model_spec = model_spec;
+  // data->model_spec = model_spec;
 
 
   const unsigned obs_to_take_n = 7; // how many obs to take
@@ -222,7 +235,7 @@ void data_cal(
 
   // mode->trig_sa = 1;
   // mode_set_trigger( mode, true);
-  gpio_write( gpio_trigger_internal, 1 );   // aug 2025.
+  gpio_write( app->gpio_trigger_internal, 1 );   // aug 2025.
 
 
 
@@ -271,28 +284,49 @@ void data_cal(
 
 
       // JA. changed. july 2025.
-      spi_mode_transition_state( devices, mode, system_millis);
+      // spi_mode_transition_state( devices, mode, system_millis);
+      app_transition_state( app);
 
 
 
       // let things settle from spi emi burst, and board DA settle, amp to come out of lockup.
       // equivalent to discarding values
       printf("sleep\n");
-      yield_with_msleep( 1 * 1000, system_millis, yield, yield_ctx);
+      // yield_with_msleep( 1 * 1000, app->system_millis, app->yield, app->yield_ctx);
+
+      yield_with_msleep( 1 * 1000, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
+
+        // &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app
 
 
       // take obs loop
       for(unsigned i = 0; i < obs_to_take_n; ++i ) {
 
+
+        // JA feb 2026 - we moved the data_rdy interupt up to the app level.
+        // consider just making cal take app argument.
+        // if we really want - then we just redirect the interupt handler.
+        assert( 0);
+
+#if 0
         // wait for adc data, on interupt
         while( !data->adc_interupt_valid ) {
           if(yield)
             yield( yield_ctx);
         }
         data->adc_interupt_valid = false;
+#endif
+
+         // wait for adc data, on interupt
+        while( !app->adc_interupt_valid )
+          app_update_simple_led_blink( app);
+        
+        app->adc_interupt_valid = false;
 
 
-        spi_t *spi_fpga0  = devices->spi_fpga0;
+
+
+        spi_t *spi_fpga0  = app->spi_fpga0;
         assert(spi_fpga0);
 
 
@@ -304,7 +338,7 @@ void data_cal(
         uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_RSTMUX);   // useful check.
         uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
         uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
-        uint32_t clk_count_mux_both     = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_BOTH);
+        uint32_t clk_count_mux_both   = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_BOTH);
         uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_SIGMUX);
 
         printf("counts %6lu %lu %lu %lu %6lu",

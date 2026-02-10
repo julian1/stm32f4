@@ -20,8 +20,12 @@
 #include <peripheral/spi-ice40-pc.h>
 #include <peripheral/spi-dac8811.h>
 #include <peripheral/spi-ad5446.h>
-
 #include <peripheral/gpio.h>
+
+
+#include <device/spi-fpga0-reg.h>
+
+
 
 #include <peripheral/interrupt.h>
 #include <peripheral/vfd.h>   // this is ok.
@@ -140,6 +144,229 @@ void app_systick_interupt(app_t *app)
 
 
 
+
+
+
+void app_rdy_interupt( app_t *app, interrupt_t *x) // runtime context
+{
+
+  UNUSED(x);
+  /* interupt context.  don't do anything compliicated here.
+    but called relatively infrequent.
+  */
+
+  assert(app);
+  assert(app->magic == APP_MAGIC) ;    // this is wrong.
+
+
+  // if flag is still active, then record we missed processing some app.
+  if(app->adc_interupt_valid == true) {
+    app->adc_interupt_valid_missed = true;
+    // ++app->adc_interupt_valid_missed;     // count better? but harder to report.
+  }
+
+  // set adc_interupt_valid flag so that update() knows to read the adc...
+  app->adc_interupt_valid = true;
+}
+
+
+/*
+void app_rdy_clear( app_t *app)
+{
+  app->adc_interupt_valid = false;
+}
+
+*/
+
+
+
+
+
+
+
+
+
+#if 0
+static void state_format ( uint8_t *state, size_t n)
+{
+  assert(state);
+
+  char buf[100];
+  for( unsigned i = 0; i < n; ++i) {
+    printf("v %s\n",  str_format_bits(buf, 8, state[ i]));
+  }
+}
+#endif
+
+
+
+/*
+    feb 2026.
+    moved the spi_mode_transition_state() function to app level.
+    gets rid of all the low level includes in mode. for fpga regs. much better.
+    also get rid of the devices_t type
+*/
+
+
+
+void app_transition_state( app_t  *app)
+// void app_transition_state( app_t  *app, const _mode_t *mode, volatile uint32_t *system_millis /*, uint32_t update_flags */)
+{
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+
+
+  _mode_t *mode = app->mode;
+
+  assert( mode);
+  assert(mode->magic == MODE_MAGIC);
+
+
+  printf("app transition state\n");
+
+  // printf("spi_mode_transition_state()  %p \n", devices);
+  // printf("4094 size %u\n", sizeof(_4094_state_t));
+  // assert( sizeof(_4094_state_t) == 3 );
+
+  // mux spi to 4094. change mcu spi params, and set spi device to 4094
+  // assert(0);
+  // spi_mux_4094 ( spi);
+
+
+
+/*  HERE
+  // JA write the spi mux select register.
+  spi_port_configure( spi_fpga);
+  spi_ice40_reg_write32(spi_fpga, REG_SPI_MUX,  SPI_MUX_4094 );
+*/
+
+
+#if 1
+
+  assert( app->spi_4094);
+
+  // write the 4094 device
+  spi_port_configure( app->spi_4094);
+
+
+/*
+  printf("-----------\n");
+  printf("write first state\n");
+  state_format (  (void *) &mode->first, sizeof( mode->first));
+*/
+
+  spi_4094_write_n( app->spi_4094, (void *) &mode->first, sizeof( mode->first));
+
+  // sleep 10ms, for relays
+  // EXTR.  large relay needs longer????
+  msleep(10, &app->system_millis);
+/*
+  // and format
+  printf("write second state\n");
+  state_format ( (void *) &mode->second, sizeof(mode->second));
+*/
+  spi_4094_write_n( app->spi_4094, (void *) &mode->second, sizeof(mode->second));
+
+#endif
+
+  /////////////////////////////
+
+/*
+    HERE
+  // now write mdac state
+  spi_port_configure( spi_fpga);
+  spi_ice40_reg_write32( spi_fpga, REG_SPI_MUX,  SPI_MUX_DAC );
+*/
+
+  // write mdac0
+  assert( app->spi_mdac0);
+  spi_port_configure( app->spi_mdac0);
+  spi_ad5446_write16( app->spi_mdac0, mode->mdac0_val );
+
+
+  // write mdac1
+  assert( app->spi_mdac1);
+  spi_port_configure( app->spi_mdac1);
+  spi_ad5446_write16( app->spi_mdac1, mode->mdac1_val );
+
+
+/* HERE
+  // restore spi mode, after writing the non-fpga part of the board state
+  spi_port_configure( spi_fpga);
+  spi_ice40_reg_write32( spi_fpga, REG_SPI_MUX, 0 );
+*/
+
+  /////////////////////////////
+
+  // fpga stuff
+
+  // spi_ice40_reg_write32( app->spi_fpga0, REG_CR, mode->reg_mode );
+  _Static_assert ( sizeof( mode->reg_cr) == 4);
+  spi_ice40_reg_write_n( app->spi_fpga0, REG_CR,  &mode->reg_cr,  sizeof( mode->reg_cr) );
+
+  // reg_direct for outputs under fpga control
+  _Static_assert ( sizeof( mode->reg_direct) == 4);
+  // TODO. review - why do we use write_n() rather than write32() here?
+  spi_ice40_reg_write_n( app->spi_fpga0, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
+
+
+
+
+  // signal acquisition
+  spi_ice40_reg_write32( app->spi_fpga0, REG_SA_P_CLK_COUNT_PRECHARGE, mode->sa.p_clk_count_precharge );
+
+#if 1
+
+  spi_ice40_reg_write32( app->spi_fpga0, REG_SA_P_SEQ_N,  mode->sa.p_seq_n );
+
+  // use write_n to work around strict aliasing
+  // we can consolidate using a single register.
+  _Static_assert ( sizeof( seq_elt_t) == 4);
+  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_SEQ0, &mode->sa.p_seq_elt[ 0], sizeof( seq_elt_t));
+  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_SEQ1, &mode->sa.p_seq_elt[ 1], sizeof( seq_elt_t));
+  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_SEQ2, &mode->sa.p_seq_elt[ 2], sizeof( seq_elt_t));
+  spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_SEQ3, &mode->sa.p_seq_elt[ 3], sizeof( seq_elt_t));
+
+#endif
+
+  // adc
+  // printf("writing adc params - aperture %lu\n" ,   mode->adc.p_aperture  );
+  spi_ice40_reg_write32( app->spi_fpga0, REG_ADC_P_CLK_COUNT_APERTURE,  mode->adc.p_aperture );
+  spi_ice40_reg_write32( app->spi_fpga0, REG_ADC_P_CLK_COUNT_RESET,     mode->adc.p_reset );
+
+
+/*
+    HERE
+  // just check/ensure again, no spurious emi on 4094 lines, for when we read fpga adc counts
+  // can probably just assert and reaad.
+  assert( spi_ice40_reg_read32( spi_fpga, REG_SPI_MUX) == 0 );
+*/
+  // we may want delay here. or make the trigger  an external control state to the mode.
+
+#if 0
+  // assert trigger condition
+  // set last. to avoid spi xfer emi.
+  spi_ice40_reg_write32(spi_fpga, REG_SA_P_TRIG, mode->sa.p_trig );
+#endif
+
+
+  gpio_write( app->gpio_trigger_selection, mode->trigger_selection);
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 static void spi_print_register( spi_t *spi, uint32_t reg )
 {
   // basic generic print
@@ -196,22 +423,17 @@ void app_configure( app_t *app )
 
 #endif
 
-
-    devices_t *devices = &app->devices;
-    assert(devices);
-
-
     printf("app_configure()\n");
 
     // assert( app->cdone_fpga0 );
-    assert( spi_ice40_cdone( devices->spi_fpga0_pc));
+    assert( spi_ice40_cdone( app->spi_fpga0_pc));
 
     // check/verify 4094 OE is not asserted
-    assert( ! spi_ice40_reg_read32( devices->spi_fpga0, REG_4094_OE ));
+    assert( ! spi_ice40_reg_read32( app->spi_fpga0, REG_4094_OE ));
 
     // reset the mode.
-    // *app->mode_current = *app->mode_initial;
-    mode_reset( app->mode_current );
+    // *app->mode = *app->mode_initial;
+    mode_reset( app->mode );
 
 
     /* OK. this is tricky.
@@ -220,7 +442,7 @@ void app_configure( app_t *app )
     */
     // write the default 4094 state for muxes etc.
     printf("spi_mode_transition_state() for muxes\n");
-    spi_mode_transition_state( devices, app->mode_current, &app->system_millis);
+    app_transition_state( app /*devices, app->mode, &app->system_millis */);
 
 
     /*
@@ -230,23 +452,29 @@ void app_configure( app_t *app )
     // now assert 4094 OE
     // should check supply rails etc. first.
     printf("asserting 4094 OE\n");
-    spi_port_configure( devices->spi_fpga0);
-    spi_ice40_reg_write32( devices->spi_fpga0, REG_4094_OE, 1 );
+    spi_port_configure( app->spi_fpga0);
+    spi_ice40_reg_write32( app->spi_fpga0, REG_4094_OE, 1 );
 
 
     // check/ensure 4094 OE asserted
     // serves as basic test of comms/miso also
-    assert( spi_ice40_reg_read32( devices->spi_fpga0, REG_4094_OE ));
+    assert( spi_ice40_reg_read32( app->spi_fpga0, REG_4094_OE ));
 
 
     // now call transition state again. which will do relays
     printf("spi_mode_transition_state() for relays\n");
-    spi_mode_transition_state( devices, app->mode_current, &app->system_millis);
+    app_transition_state( app /*devices, app->mode, &app->system_millis*/);
 
 
 
     // setup the fpga0 interrupt handler
-    interrupt_set_handler( devices->fpga0_interrupt, app->data, (interupt_handler_t ) data_rdy_interupt);
+    // interrupt_set_handler( app->fpga0_interrupt, app->data, (interupt_handler_t ) data_rdy_interupt);
+    assert( app->fpga0_interrupt);
+    interrupt_set_handler( app->fpga0_interrupt, app, (interupt_handler_t ) app_rdy_interupt);
+
+
+
+
 
 #if 0
 
@@ -282,6 +510,10 @@ void app_configure( app_t *app )
 
 void app_beep( app_t * app, uint32_t n)
 {
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+
+
     // double beep ok.
     uint32_t t = 70;
 
@@ -306,15 +538,19 @@ void app_beep( app_t * app, uint32_t n)
 
 void app_led_dance( app_t * app )
 {
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+
+
   // should pass the spi/ and millis?. perhaps.
   // config.
 
   // needs to be in mode direct.
 
 
-  devices_t *devices = &app->devices;
+  // devices_t *devices = &app->devices;
 
-  spi_port_configure( devices->spi_fpga0);
+  spi_port_configure( app->spi_fpga0);
 
   // led dance
   for(unsigned i = 0; i < 50; ++i )  {
@@ -325,10 +561,10 @@ void app_led_dance( app_t * app )
 
     // TODO should mask value - to avoid writing other fields of the direct register.
 
-    spi_ice40_reg_write32( devices->spi_fpga0, REG_DIRECT, magic );
+    spi_ice40_reg_write32( app->spi_fpga0, REG_DIRECT, magic );
 
     // check the magic numger
-    uint32_t ret = spi_ice40_reg_read32( devices->spi_fpga0, REG_DIRECT);
+    uint32_t ret = spi_ice40_reg_read32( app->spi_fpga0, REG_DIRECT);
     if(ret != magic ) {
       // comms no good
       char buf[ 100] ;
@@ -342,7 +578,7 @@ void app_led_dance( app_t * app )
     msleep( 50,  &app->system_millis);
   }
 
-  spi_ice40_reg_write32( devices->spi_fpga0, REG_DIRECT, 0 );
+  spi_ice40_reg_write32( app->spi_fpga0, REG_DIRECT, 0 );
 }
 
 
@@ -403,7 +639,7 @@ static void app_update_soft_500ms(app_t *app)
   }
 #endif
 
-  devices_t *devices = &app->devices;
+  /// devices_t *devices = &app->devices;
 
 
 
@@ -415,17 +651,17 @@ static void app_update_soft_500ms(app_t *app)
   */
 
   if( app->led_blink_enable
-    && spi_ice40_cdone( devices->spi_fpga0_pc)
-    && app->mode_current->reg_mode == MODE_DIRECT
+    && spi_ice40_cdone( app->spi_fpga0_pc)
+    && app->mode->reg_mode == MODE_DIRECT
   ) {
 
     // not doing anything interesting, so blink the led, to show activity.
     if(app->led_state)
-      app->mode_current->reg_direct.leds_o |= 1;
+      app->mode->reg_direct.leds_o |= 1;
     else
-      app->mode_current->reg_direct.leds_o &= ~1;
+      app->mode->reg_direct.leds_o &= ~1;
 
-    spi_mode_transition_state( &app->devices, app->mode_current, &app->system_millis);
+    spi_mode_transition_state( &app->devices, app->mode, &app->system_millis);
   }
 #endif
 
@@ -445,20 +681,20 @@ static void app_update_soft_500ms(app_t *app)
 */
 #if 0
   // test toggle of 4094 cs
-  if( spi_ice40_cdone( devices->spi_fpga0_pc)) {
+  if( spi_ice40_cdone( app->spi_fpga0_pc)) {
 
     // toggle the 4094 cs. only
     printf("toggle mdac1 cs\n");
 
     if(app->led_state )
-      spi_cs_assert( devices->spi_mdac1);
+      spi_cs_assert( app->spi_mdac1);
     else
-      spi_cs_deassert( devices->spi_mdac1);
+      spi_cs_deassert( app->spi_mdac1);
   }
 #endif
 
 #if 0
-  if( spi_ice40_cdone( devices->spi_fpga0_pc)) {
+  if( spi_ice40_cdone( app->spi_fpga0_pc)) {
     // toggle the trigger.
 
     gpio_write( app->gpio_trigger_internal, app->led_state);
@@ -470,11 +706,11 @@ static void app_update_soft_500ms(app_t *app)
 
   // fpga0 on analog board
 
-  if( !spi_ice40_cdone( devices->spi_fpga0_pc)) {
+  if( !spi_ice40_cdone( app->spi_fpga0_pc)) {
 
     FILE *f = flash_open_file( FLASH_U102_ADDR);
 
-    int ret = spi_ice40_bitstream_send( devices->spi_fpga0_pc, f, FLASH_HX8K_SIZE, & app->system_millis );
+    int ret = spi_ice40_bitstream_send( app->spi_fpga0_pc, f, FLASH_HX8K_SIZE, & app->system_millis );
     fclose(f);
 
 
@@ -491,7 +727,7 @@ static void app_update_soft_500ms(app_t *app)
 
       // ensure CS vec. is not asserting anything
       // should be asserted?
-      spi_cs_deassert( devices->spi_fpga0 );
+      spi_cs_deassert( app->spi_fpga0 );
 
       // app_beep( app, 2 );
       // this checks comms
@@ -596,9 +832,11 @@ static void app_update_console(app_t *app)
       // correct. it is ok/desirable. to update analog board state by calling transition_state(),
       // even if state hasn't been modified. eg. ensures that state is consistent/aligned.
 
-      if(spi_ice40_cdone( app->devices.spi_fpga0_pc))  {
-      // if(app->cdone_fpga0) {
-        spi_mode_transition_state( &app->devices, app->mode_current, &app->system_millis);
+      if(spi_ice40_cdone( app->spi_fpga0_pc))  {
+        // if(app->cdone_fpga0) {
+        // spi_mode_transition_state( &app->devices, app->mode, &app->system_millis);
+
+        app_transition_state( app );
 
 
         /*
@@ -614,17 +852,31 @@ static void app_update_console(app_t *app)
           and call like this -
 
           app_update() {
-            data_update( app->data );
+            data_update( app->data );         <- this
             buffers_update( app->buffers );
             vfd_update( app->vfd  );
           }
 
+          - EXTR - consider injecting data - into buffers.
+          - and the buffers into the vfd display
+
+          - there is clear nested structure exposure - as needed.
+
           eg. same as a game update() that displatches to all the submodules
 
+
+          - and test that we have to do something is not handled at top level.  then we cannot precolate the update() .
+
           note that all the test code passes around app. so it is ok.
+
+          - EXTR.   we don't even have to have data,buffers,display  structure pointers at top level.
+                if just inject them.
+
         */
 
-        interrupt_set_handler( app->devices.fpga0_interrupt, app->data, (interupt_handler_t ) data_rdy_interupt);
+        // Feb 2026.  looks completely wrong.
+        // interrupt_set_handler( app->devices.fpga0_interrupt, app->data, (interupt_handler_t ) data_rdy_interupt);
+
 
       }
 
@@ -656,22 +908,22 @@ void app_update_main(app_t *app)
 
 
   // process new adc data in priority
-  if(data->adc_interupt_valid) {
+  if(app->adc_interupt_valid) {
 
-    data->adc_interupt_valid = false;
-    data_update_new_reading2( data, app->devices.spi_fpga0);
+    app->adc_interupt_valid = false;
 
-    // we don't need a continuation, so long as we have the interupt condition.
-    // update vfd/gui
+    // TODO.  feb 2026.  rename just data_update() and vfd_update()
+    data_update_new_reading2( data, app->spi_fpga0);
+
     vfd_update_new_reading( app->data );  // use the data previously computed.
   }
 
 
   // TODO - check - we brought the right code across in the interupt handler also.
-  if( data->adc_interupt_valid_missed == true) {
+  if( app->adc_interupt_valid_missed == true) {
     // just report for now
     printf("missed adc interupt\n");
-    data->adc_interupt_valid_missed = false;
+    app->adc_interupt_valid_missed = false;
   }
 
 
@@ -709,7 +961,7 @@ void app_update_main(app_t *app)
 
 
 
-
+#if 0
 void app_update_simple_with_data(app_t *app)
 {
   assert(app);
@@ -745,7 +997,7 @@ void app_update_simple_with_data(app_t *app)
 
 }
 
-
+#endif
 
 
 
@@ -811,7 +1063,7 @@ static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq
 
     spi_print_register( spi, REG_4094_OE);     // needs a better name. use a general control register. "CR" con
   }
-   else if( strcmp(cmd, "mode?") == 0) {
+  else if( strcmp(cmd, "cr?") == 0) {
 
     spi_print_register( spi, REG_CR);
   }
@@ -1028,7 +1280,8 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   {
 #if 1
     // update state based on current mode
-    spi_mode_transition_state( &app->devices, app->mode_current, &app->system_millis);
+    // spi_mode_transition_state( &app->devices, app->mode, &app->system_millis);
+    app_transition_state( app);
 #endif
     // sleep
     msleep( (uint32_t ) (f0 * 1000), &app->system_millis);
@@ -1215,31 +1468,43 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   else if(strcmp(cmd, "cal2") == 0) {
     // cal with default model
 
-    unsigned model_spec = 3;
+    // unsigned model_spec = 3;
 
-    data_cal2( app->data,  &app->devices, app->mode_current, model_spec, app->gpio_trigger_internal,
+/*
+    data_cal2( app->data,  &app->devices, app->mode, model_spec, app->gpio_trigger_internal,
       &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+
+*/
+
+   app_cal2( app ) ;
+
   }
 
 
-
+#if 0
   else if( sscanf(cmd, "cal %lu", &u0 ) == 1) {
 
-    mode_reset( app->mode_current ); // TODO remove. data_cal can now reset the mode.
+    mode_reset( app->mode ); // TODO remove. data_cal can now reset the mode.
     unsigned model_spec = u0;
 
-    data_cal( app->data,  &app->devices,  app->mode_current, model_spec, app->gpio_trigger_internal,
+    data_cal( app->data,  &app->devices,  app->mode, model_spec, app->gpio_trigger_internal,
      &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+
   }
+#endif
 
   else if(strcmp(cmd, "cal") == 0) {
     // cal with default model
 
-    mode_reset( app->mode_current );    // TODO remove. data_cal can now reset the mode.
+    /*
+    mode_reset( app->mode );    // TODO remove. data_cal can now reset the mode.
     unsigned model_spec = 3;
 
-    data_cal( app->data,  &app->devices, app->mode_current, model_spec, app->gpio_trigger_internal,
+    data_cal( app->data,  &app->devices, app->mode, model_spec, app->gpio_trigger_internal,
       &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
+      */
+
+    app_cal2( app ) ;
   }
 
 
@@ -1293,7 +1558,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     remove the 'dcv-source chan 1' command.
 */
 
-    sa_state_t *sa = &app->mode_current->sa;
+    sa_state_t *sa = &app->mode->sa;
     sa->p_seq_n = 1;
     sa->p_seq_elt[ 0].azmux = S1;
     sa->p_seq_elt[ 0].pc = 0b01;
@@ -1301,13 +1566,16 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     // sa->p_trig = 1;
 
     // clear the interrupt handler, will be re-enabled at the end of mode transition state
-    interrupt_set_handler( app->devices.fpga0_interrupt, NULL, NULL );
+
+    // JA.  feb. 2026. looks completely wrong.
+    assert(0);
+    // interrupt_set_handler( app->devices.fpga0_interrupt, NULL, NULL );
 
     data_t *data = app->data;
 
     // clear the data buffers
     data_reset( data );
-    data_rdy_clear( data);
+    // data_rdy_clear( data);
 
 
   // JA. disable feb 2026.
@@ -1334,13 +1602,13 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
   // else if ( spi_repl_reg_write( app->spi_fpga0,  cmd)) { }
 
-  else if ( spi_repl_reg_query( app->devices.spi_fpga0,  cmd, app->data->line_freq)) { }
+  else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, app->data->line_freq)) { }
 
 
 
 
 
-  else if( mode_repl_statement( app->mode_current,  cmd, app->data->line_freq )) { }
+  else if( mode_repl_statement( app->mode,  cmd, app->data->line_freq )) { }
 
   else if( data_repl_statement( app->data, cmd )) { }
 
@@ -1364,12 +1632,13 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   else if( app_test14( app, cmd  )) { }
   else if( app_test15( app, cmd  )) { }
 
+#if 0
 
   else if( app_test20( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
   else if( app_test40( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
   else if( app_test41( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
   else if( app_test42( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
-
+#endif
 
   else {
 
@@ -1422,7 +1691,8 @@ void app_repl_statements(app_t *app,  const char *s)
     if(ch == '\n')
     {
       printf("calling spi_mode_transition_state()");
-      spi_mode_transition_state( &app->devices, app->mode_current, &app->system_millis);
+      // spi_mode_transition_state( &app->devices, app->mode, &app->system_millis);
+      app_transition_state( app);
     }
 
     ++s;

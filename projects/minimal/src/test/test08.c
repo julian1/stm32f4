@@ -41,13 +41,15 @@ bool app_test08( app_t *app , const char *cmd)
     // mode.reg_mode =  MODE_ADC_MUX_REF_TEST;
     mode_reg_cr_mode_set( &mode, MODE_ADC_MUX_REF_TEST);
 
-    spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
+    // spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
+    app_transition_state( app);
 #endif
 
     printf("sleep 5s\n");  // really need the yield would be quite nice here.
     msleep(5 * 1000,  &app->system_millis);
 
 
+    // could reset here.
 
     return 1;
   }

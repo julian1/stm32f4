@@ -3,183 +3,21 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include <string.h>   // strcmp, memset
 // #include <strings.h>   // strcasecmp().  use to_lower() instead
 #include <math.h>   // fabs
 
 
-
-#include <peripheral/spi-ice40.h>
-#include <peripheral/spi-4094.h>
-#include <peripheral/spi-ad5446.h>
-// #include <peripheral/spi-dac8811.h>
-#include <peripheral/gpio.h>
-
-#include <device/spi-fpga0-reg.h>
+#include <string.h>   // strcmp, memset
+#include <stdlib.h>   // malloc
 
 
-#include <lib2/util.h>      // msleep, UNUSED
+// #include <lib2/util.h>      // msleep, UNUSED
 #include <lib2/format.h>   // str_format_bits
-
-
-#include <mode.h>
-#include <devices.h>
-
 #include <util.h> // str_decode_uint
 
 
 
-static void state_format ( uint8_t *state, size_t n)
-{
-  assert(state);
-
-  char buf[100];
-  for( unsigned i = 0; i < n; ++i) {
-    printf("v %s\n",  str_format_bits(buf, 8, state[ i]));
-  }
-}
-
-
-
-
-void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volatile uint32_t *system_millis /*, uint32_t update_flags */)
-{
-  assert( mode);
-  assert( devices);
-
-  // printf("spi_mode_transition_state()  %p \n", devices);
-  // printf("4094 size %u\n", sizeof(_4094_state_t));
-  // assert( sizeof(_4094_state_t) == 3 );
-
-  // mux spi to 4094. change mcu spi params, and set spi device to 4094
-  // assert(0);
-  // spi_mux_4094 ( spi);
-
-
-
-/*  HERE
-  // JA write the spi mux select register.
-  spi_port_configure( spi_fpga);
-  spi_ice40_reg_write32(spi_fpga, REG_SPI_MUX,  SPI_MUX_4094 );
-*/
-
-
-#if 1
-
-  assert( devices->spi_4094);
-
-  // write the 4094 device
-  spi_port_configure( devices->spi_4094);
-
-
-/*
-  printf("-----------\n");
-  printf("write first state\n");
-  state_format (  (void *) &mode->first, sizeof( mode->first));
-*/
-
-  spi_4094_write_n( devices->spi_4094, (void *) &mode->first, sizeof( mode->first));
-
-  // sleep 10ms, for relays
-  // EXTR.  large relay needs longer????
-  msleep(10, system_millis);
-/*
-  // and format
-  printf("write second state\n");
-  state_format ( (void *) &mode->second, sizeof(mode->second));
-*/
-  spi_4094_write_n( devices->spi_4094, (void *) &mode->second, sizeof(mode->second));
-
-#endif
-
-  /////////////////////////////
-
-/*
-    HERE
-  // now write mdac state
-  spi_port_configure( spi_fpga);
-  spi_ice40_reg_write32( spi_fpga, REG_SPI_MUX,  SPI_MUX_DAC );
-*/
-
-  // write mdac0
-  assert( devices->spi_mdac0);
-  spi_port_configure( devices->spi_mdac0);
-  spi_ad5446_write16( devices->spi_mdac0, mode->mdac0_val );
-
-
-  // write mdac1
-  assert( devices->spi_mdac1);
-  spi_port_configure( devices->spi_mdac1);
-  spi_ad5446_write16( devices->spi_mdac1, mode->mdac1_val );
-
-
-/* HERE
-  // restore spi mode, after writing the non-fpga part of the board state
-  spi_port_configure( spi_fpga);
-  spi_ice40_reg_write32( spi_fpga, REG_SPI_MUX, 0 );
-*/
-
-  /////////////////////////////
-
-  // fpga stuff
-
-  // spi_ice40_reg_write32( devices->spi_fpga0, REG_CR, mode->reg_mode );
-  _Static_assert ( sizeof( mode->reg_cr) == 4);
-  spi_ice40_reg_write_n( devices->spi_fpga0, REG_CR,  &mode->reg_cr,  sizeof( mode->reg_cr) );
-
-  // reg_direct for outputs under fpga control
-  _Static_assert ( sizeof( mode->reg_direct) == 4);
-  // TODO. review - why do we use write_n() rather than write32() here?
-  spi_ice40_reg_write_n( devices->spi_fpga0, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
-
-
-
-
-  // signal acquisition
-  spi_ice40_reg_write32( devices->spi_fpga0, REG_SA_P_CLK_COUNT_PRECHARGE, mode->sa.p_clk_count_precharge );
-
-#if 1
-
-  spi_ice40_reg_write32( devices->spi_fpga0, REG_SA_P_SEQ_N,  mode->sa.p_seq_n );
-
-  // use write_n to work around strict aliasing
-  // we can consolidate using a single register.
-  _Static_assert ( sizeof( seq_elt_t) == 4);
-  spi_ice40_reg_write_n( devices->spi_fpga0, REG_SA_P_SEQ0, &mode->sa.p_seq_elt[ 0], sizeof( seq_elt_t));
-  spi_ice40_reg_write_n( devices->spi_fpga0, REG_SA_P_SEQ1, &mode->sa.p_seq_elt[ 1], sizeof( seq_elt_t));
-  spi_ice40_reg_write_n( devices->spi_fpga0, REG_SA_P_SEQ2, &mode->sa.p_seq_elt[ 2], sizeof( seq_elt_t));
-  spi_ice40_reg_write_n( devices->spi_fpga0, REG_SA_P_SEQ3, &mode->sa.p_seq_elt[ 3], sizeof( seq_elt_t));
-
-#endif
-
-  // adc
-  // printf("writing adc params - aperture %lu\n" ,   mode->adc.p_aperture  );
-  spi_ice40_reg_write32( devices->spi_fpga0, REG_ADC_P_CLK_COUNT_APERTURE,  mode->adc.p_aperture );
-  spi_ice40_reg_write32( devices->spi_fpga0, REG_ADC_P_CLK_COUNT_RESET,     mode->adc.p_reset );
-
-
-/*
-    HERE
-  // just check/ensure again, no spurious emi on 4094 lines, for when we read fpga adc counts
-  // can probably just assert and reaad.
-  assert( spi_ice40_reg_read32( spi_fpga, REG_SPI_MUX) == 0 );
-*/
-  // we may want delay here. or make the trigger  an external control state to the mode.
-
-#if 0
-  // assert trigger condition
-  // set last. to avoid spi xfer emi.
-  spi_ice40_reg_write32(spi_fpga, REG_SA_P_TRIG, mode->sa.p_trig );
-#endif
-
-
-  gpio_write( devices->gpio_trigger_selection, mode->trigger_selection);
-
-}
-
-
-
-
+#include <mode.h>
 
 
 
@@ -195,6 +33,8 @@ static const _mode_t mode_initial =  {
   means they won't receive any initial pulse/value.
 
   */
+
+  .magic  = MODE_MAGIC,
 
 
   // U401
@@ -257,6 +97,20 @@ static const _mode_t mode_initial =  {
 
 };
 
+
+
+
+_mode_t *mode_create( /* no dependenceies */ )
+{
+
+  _mode_t *mode = malloc( sizeof(_mode_t));
+  assert(mode);
+  // memset( mode, 0, sizeof( mode));
+
+  mode_reset(mode);
+
+  return mode;
+}
 
 
 
