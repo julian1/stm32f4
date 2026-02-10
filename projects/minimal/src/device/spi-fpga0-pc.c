@@ -1,6 +1,8 @@
 
+/*
 // device / instance/implementation
-
+  fpga-pc   -  fpga pre bitstream configuration
+*/
 
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
@@ -17,18 +19,6 @@
 #include <peripheral/spi-ice40-pc.h>   // interface/abstraction
 #include <device/spi-fpga0-pc.h>        // implementation/device
 
-/*
-// pulled from spi-port code.
-#define SPI1_PORT       GPIOA
-// #define SPI1_CS1        GPIO4     // PA4
-#define SPI1_CS1        GPIO8     // moved. april. 2025.
-
-// change in 4094-0.c also
-#define SPI1_CS2        GPIO10      // moved april 2025.
-// #define SPI1_CS2        GPIO15     // gerber 257. control-panel-07
-
-#define SPI1_INT_CDONE   GPIO3     // PA3  shared for cdone/ and interrupt
-*/
 
 
 #define UNUSED(x) ((void)(x))
@@ -51,19 +41,14 @@ static void setup(spi_t *spi )
   gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO7 /*| GPIO8 | GPIO9*/);
 
 
-
   // cdone PE0
   gpio_mode_setup( GPIOE , GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO0 );
-
 
 
   // creset  PE1
   gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO1 );
   gpio_set_output_options(GPIOE, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO1 );
-
-
 }
-
 
 
 
@@ -72,9 +57,7 @@ static void port_configure( spi_t *spi_)
   assert(spi_);
   uint32_t spi = spi_->spi;
 
-
   assert(spi == SPI1 || spi == SPI2);
-
 
   spi_reset( spi );
 
@@ -87,11 +70,9 @@ static void port_configure( spi_t *spi_)
     - mini-grabbers on soic is a problem, because they end up touching eash other, giving wrong signals.
   */
 
-
-
   spi_init_master(
     spi,
-    // SPI_CR1_BAUDRATE_FPCLK_DIV_2,  // div2 seems to work with iso, but not adum. actually misses a few bits with iso.
+    // SPI_CR1_BAUDRATE_FPCLK_DIV_2,  // div2 seems to work with cap iso, but not with adum. actually misses a few bits with cap iso.
 //    SPI_CR1_BAUDRATE_FPCLK_DIV_4,
     SPI_CR1_BAUDRATE_FPCLK_DIV_16,
     // SPI_CR1_BAUDRATE_FPCLK_DIV_32,
@@ -105,7 +86,6 @@ static void port_configure( spi_t *spi_)
   spi_enable( spi );
 
 }
-
 
 
 static void cs_assert(spi_t *spi)
@@ -146,10 +126,6 @@ static bool cdone(spi_ice40_t *spi )
 }
 
 
-
-
-
-
 spi_ice40_t * spi_fpga0_pc_create( )
 {
   /* called once at startup only, in main().
@@ -163,11 +139,11 @@ spi_ice40_t * spi_fpga0_pc_create( )
   memset(spi, 0, sizeof(spi_ice40_t));
 
   // base
-  spi->spi    = SPI1;
-  spi->setup   =  setup;
+  spi->spi            = SPI1;
+  spi->setup          = setup;
   spi->port_configure = port_configure;
-  spi->cs_assert    = cs_assert;
-  spi->cs_deassert  = cs_deassert;
+  spi->cs_assert      = cs_assert;
+  spi->cs_deassert    = cs_deassert;
 
 
   // derived stuff
@@ -181,4 +157,16 @@ spi_ice40_t * spi_fpga0_pc_create( )
 
 
 
+/*
+  // pulled from old spi-port code.
+  #define SPI1_PORT       GPIOA
+  // #define SPI1_CS1        GPIO4     // PA4
+  #define SPI1_CS1        GPIO8     // moved. april. 2025.
+
+  // change in 4094-0.c also
+  #define SPI1_CS2        GPIO10      // moved april 2025.
+  // #define SPI1_CS2        GPIO15     // gerber 257. control-panel-07
+
+  #define SPI1_INT_CDONE   GPIO3     // PA3  shared for cdone/ and interrupt
+*/
 

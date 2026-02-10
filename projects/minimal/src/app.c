@@ -606,9 +606,23 @@ static void app_update_console(app_t *app)
 
         */
 
+        /*
+          The better way to handle this.
+          is handle the dispatch from the top level.
+          eg. move the data_rdy_flag. into app.
 
-        // restore fpga0 interrupt handler
-        //if(app->mode_current->sa.p_trig)
+          and call like this -
+
+          app_update() {
+            data_update( app->data );
+            buffers_update( app->buffers );
+            vfd_update( app->vfd  );
+          }
+
+          eg. same as a game update() that displatches to all the submodules
+
+          note that all the test code passes around app. so it is ok.
+        */
 
         interrupt_set_handler( app->devices.fpga0_interrupt, app->data, (interupt_handler_t ) data_rdy_interupt);
 
