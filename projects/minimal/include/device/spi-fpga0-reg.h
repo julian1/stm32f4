@@ -87,6 +87,17 @@
     ie. for n==2
     S1,S3 == hi
     S5,S6,S7 == lo.
+
+    no.
+
+        we do not need the azmux value.
+    if n == 2.  and idx == 0 then value is a zero.
+                 idx == 1 then hi.
+      if n == 4 ratiometric then as above.
+          and 2 is lo, and 3 is hi.
+
+    EXTR. can use first to clear buffers. after a trigger.
+
 */
 
 
