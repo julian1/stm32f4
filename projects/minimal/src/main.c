@@ -318,9 +318,11 @@ static int main_f429(void)
   printf("\n--------");
   printf("\nstarting\n");
 
-  assert( sizeof(bool) == 1);
-  assert( sizeof(float) == 4);
-  assert( sizeof(double ) == 8);
+
+
+ _Static_assert( sizeof(bool) == 1);
+ _Static_assert( sizeof(float) == 4);
+ _Static_assert( sizeof(double ) == 8);
 
 
 

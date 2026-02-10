@@ -124,11 +124,11 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
   // fpga stuff
 
   // spi_ice40_reg_write32( devices->spi_fpga0, REG_CR, mode->reg_mode );
-  assert( sizeof( mode->reg_cr) == 4);
+  _Static_assert ( sizeof( mode->reg_cr) == 4);
   spi_ice40_reg_write_n( devices->spi_fpga0, REG_CR,  &mode->reg_cr,  sizeof( mode->reg_cr) );
 
   // reg_direct for outputs under fpga control
-  assert( sizeof( mode->reg_direct) == 4);
+  _Static_assert ( sizeof( mode->reg_direct) == 4);
   // TODO. review - why do we use write_n() rather than write32() here?
   spi_ice40_reg_write_n( devices->spi_fpga0, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
 
@@ -144,7 +144,7 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
 
   // use write_n to work around strict aliasing
   // we can consolidate using a single register.
-  assert( sizeof( seq_elt_t) == 4);
+  _Static_assert ( sizeof( seq_elt_t) == 4);
   spi_ice40_reg_write_n( devices->spi_fpga0, REG_SA_P_SEQ0, &mode->sa.p_seq_elt[ 0], sizeof( seq_elt_t));
   spi_ice40_reg_write_n( devices->spi_fpga0, REG_SA_P_SEQ1, &mode->sa.p_seq_elt[ 1], sizeof( seq_elt_t));
   spi_ice40_reg_write_n( devices->spi_fpga0, REG_SA_P_SEQ2, &mode->sa.p_seq_elt[ 2], sizeof( seq_elt_t));
