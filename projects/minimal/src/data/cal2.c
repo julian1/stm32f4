@@ -120,6 +120,8 @@ void data_cal2(
   mode_sa_set(mode, "0" );      // special sample acquisition.  for adc running standalone.
 
 
+  mode->reg_cr.adc_p_active_sigmux = 0;   // dont turn on sigmux
+
 
   // write board state
   printf("spi_mode_transition_state()\n");
