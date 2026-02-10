@@ -123,9 +123,9 @@ void spi_mode_transition_state( devices_t  *devices, const _mode_t *mode, volati
 
   // fpga stuff
 
-  // spi_ice40_reg_write32( devices->spi_fpga0, REG_MODE, mode->reg_mode );
+  // spi_ice40_reg_write32( devices->spi_fpga0, REG_CR, mode->reg_mode );
   assert( sizeof( mode->reg_cr) == 4);
-  spi_ice40_reg_write_n( devices->spi_fpga0, REG_MODE,  &mode->reg_cr,  sizeof( mode->reg_cr) );
+  spi_ice40_reg_write_n( devices->spi_fpga0, REG_CR,  &mode->reg_cr,  sizeof( mode->reg_cr) );
 
   // reg_direct for outputs under fpga control
   assert( sizeof( mode->reg_direct) == 4);

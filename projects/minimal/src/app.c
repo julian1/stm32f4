@@ -799,7 +799,7 @@ static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq
   }
    else if( strcmp(cmd, "mode?") == 0) {
 
-    spi_print_register( spi, REG_MODE);
+    spi_print_register( spi, REG_CR);
   }
   else if( strcmp( cmd, "direct?") == 0) {
 
@@ -890,8 +890,8 @@ static bool spi_repl_reg_write( spi_t *spi,  const char *cmd)
 
     spi_port_configure( spi);
 
-    spi_ice40_reg_write32( spi, REG_MODE, u0 );
-    spi_print_register(  spi, REG_MODE);
+    spi_ice40_reg_write32( spi, REG_CR, u0 );
+    spi_print_register(  spi, REG_CR);
   }
   else if( sscanf(cmd, "direct! %100s", s0) == 1
     && str_decode_uint( s0, &u0)

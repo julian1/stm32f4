@@ -301,11 +301,3 @@ mar 5. 2024.
 #endif
 
 
-/*
-      F  f;
-      memset(&f, 0, sizeof(f));         // turn off himux
-      f.himux2 = S4 ;                   // s4 gnd. himux2 to reduce leakage.
-      spi_ice40_reg_write_n(app->spi, REG_DIRECT, &f, sizeof(f) );
-      spi_ice40_reg_write32(app->spi, REG_MODE, MODE_NO_AZ );
-*/
-

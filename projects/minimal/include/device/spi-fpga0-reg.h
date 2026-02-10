@@ -23,7 +23,7 @@
 // because used once only at config time
 
 #define REG_4094_OE                       9
-#define REG_MODE                          12
+#define REG_CR                            12
 #define REG_DIRECT                        14
 
 
