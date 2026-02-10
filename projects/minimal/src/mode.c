@@ -211,6 +211,13 @@ static const _mode_t mode_initial =  {
   .first. K401    = SR_RESET,
 
 
+
+
+  .first. K701  = SR_RESET,
+  .first. K702  = SR_RESET,
+  .first. K703  = SR_RESET,
+
+
 /*
 
   // amplifier
@@ -227,14 +234,16 @@ static const _mode_t mode_initial =  {
   // signal acquisition defaults
   .sa.p_clk_count_precharge = CLK_FREQ * 500e-6,             //  500us.
 
-/*
-  .sa.p_seq_n = 2,
-  .sa.p_seq0 = (0b01 << 4) | S3,         // dcv
-  .sa.p_seq1 = (0b00 << 4) | S7,         // star-lo
-  .sa.p_seq2 = 0,  // channel-1 precharge switch
-  .sa.p_seq3 = 0,  // channel-1 precharge switch
-*/
+  /*
+    .sa.p_seq_n = 2,
+    .sa.p_seq0 = (0b01 << 4) | S3,         // dcv
+    .sa.p_seq1 = (0b00 << 4) | S7,         // star-lo
+    .sa.p_seq2 = 0,  // channel-1 precharge switch
+    .sa.p_seq3 = 0,  // channel-1 precharge switch
+  */
 
+
+  .trigger_selection = 1,   // internal trigger active
 
   // adc
   .adc.p_aperture = CLK_FREQ * 0.2,   // 200ms. 10nplc 50Hz.  // Not. should use current calibration?  // should be authoritative source of state.
@@ -242,51 +251,9 @@ static const _mode_t mode_initial =  {
 
 
 
-  .trigger_selection = 1,   // internal trigger active
-
-
-  .first. K701  = SR_RESET,
-  .first. K702  = SR_RESET,
-  .first. K703  = SR_RESET,
-
-
-
-#if 0
-
-  //  maybe make explicit all values  U408_SW_CTL. at least for the initial mode, from which others derive.
-
-  .first .U408_SW_CTL = 0,      // b2b fets/ input protection off/open
-  .second.U408_SW_CTL = 0,
-
-  // AMP FEEDBACK SHOULD NEVER BE TURNED OFF.
-  // else draws current, and has risk damaging parts. mux pin 1. of adg. to put main amplifier in buffer/G=1 configuration.
-  .first. U506 =  D1,     // should always be on
-  .second.U506 =  D1,           // amplifier should always be on.
-
-  .first. K603_CTL  = SR_RESET,     // ohms relay off.
-
-
-  /////////////////////////
-  // 700
-  // has inverting cmos buffer
-  .first. K702_CTL  = SR_RESET,
-  .second.K702_CTL  = 0b11,
-
-  // 0.1R shunt off. has inverting cmos buffer
-  .first. K703_CTL  = SR_RESET,
-  .second.K703_CTL  = 0b11,
-
-  // shunts / TIA - default to shunts
-  .first. K709_CTL  = SR_SET,
-
-  // agn200 shunts are off.
-  .first. K707_CTL  = SR_SET,
-  .first. K706_CTL  = SR_SET,
-  .first. K704_CTL  = SR_SET,
-  .first. K705_CTL  = SR_SET,
-
-
-#endif
+  // eg turn sigmux on, during integration.
+  // encode in general register, since only one bit, and to avoid an extra register
+  .reg_cr.p_adc_use_input_signal  = true
 
 };
 
@@ -1546,6 +1513,43 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
 
 
 
+
+#if 0
+
+  //  maybe make explicit all values  U408_SW_CTL. at least for the initial mode, from which others derive.
+
+  .first .U408_SW_CTL = 0,      // b2b fets/ input protection off/open
+  .second.U408_SW_CTL = 0,
+
+  // AMP FEEDBACK SHOULD NEVER BE TURNED OFF.
+  // else draws current, and has risk damaging parts. mux pin 1. of adg. to put main amplifier in buffer/G=1 configuration.
+  .first. U506 =  D1,     // should always be on
+  .second.U506 =  D1,           // amplifier should always be on.
+
+  .first. K603_CTL  = SR_RESET,     // ohms relay off.
+
+
+  /////////////////////////
+  // 700
+  // has inverting cmos buffer
+  .first. K702_CTL  = SR_RESET,
+  .second.K702_CTL  = 0b11,
+
+  // 0.1R shunt off. has inverting cmos buffer
+  .first. K703_CTL  = SR_RESET,
+  .second.K703_CTL  = 0b11,
+
+  // shunts / TIA - default to shunts
+  .first. K709_CTL  = SR_SET,
+
+  // agn200 shunts are off.
+  .first. K707_CTL  = SR_SET,
+  .first. K706_CTL  = SR_SET,
+  .first. K704_CTL  = SR_SET,
+  .first. K705_CTL  = SR_SET,
+
+
+#endif
 
 
 
