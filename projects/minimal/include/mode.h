@@ -278,9 +278,6 @@ reg_direct_t
 
 
 
-// need somehting like this...
-// instead of the left-shift bits.
-// similarly.
 
 typedef struct seq_elt_t
 {
@@ -297,7 +294,6 @@ typedef struct seq_elt_t
 
 typedef struct sa_state_t
 {
-
   uint32_t p_clk_count_precharge ;   // p_cc_precharge
 
   // number of phase
@@ -305,10 +301,6 @@ typedef struct sa_state_t
   uint32_t p_seq_n;
 
   seq_elt_t p_seq_elt [ 4] ;
-
-
-  // remove. aug. 2025
-  // uint32_t p_trig;
 
 
 } sa_state_t;
@@ -319,8 +311,6 @@ typedef struct sa_state_t
 
 typedef struct adc_state_t
 {
-
-
   /*
        ----
       reg_direct_t reg_direct2; only for a ratiometric function.
@@ -348,6 +338,8 @@ typedef struct adc_state_t
 */
 
 
+
+// typedef struct  __attribute__((__packed__))
 
 
 
