@@ -110,7 +110,7 @@ reg_cr_t
  // input           p_use_fast_rundown,
  // input           p_use_input_signal,     // adc whether to swtich in the input signal
 
-  uint8_t p_adc_use_input_signal : 1;   // better name ? p_adc_switch_input_signal
+  uint8_t adc_p_active_sigmux : 1;   // better name ? p_adc_switch_input_signal
 
 
   uint32_t   dummy_bits_o : 28;

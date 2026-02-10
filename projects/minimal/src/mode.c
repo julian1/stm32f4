@@ -227,9 +227,7 @@ static const _mode_t mode_initial =  {
 
 */
 
-    //////////////
 
-  //.reg_mode = 0,                  // MODE_LO,
 
   // signal acquisition defaults
   .sa.p_clk_count_precharge = CLK_FREQ * 500e-6,             //  500us.
@@ -246,14 +244,16 @@ static const _mode_t mode_initial =  {
   .trigger_selection = 1,   // internal trigger active
 
   // adc
-  .adc.p_aperture = CLK_FREQ * 0.2,   // 200ms. 10nplc 50Hz.  // Not. should use current calibration?  // should be authoritative source of state.
-  .adc.p_reset = CLK_FREQ * 500e-6,                // 500us.
+  .adc.p_aperture     = CLK_FREQ * 0.2,   // 200ms. 10nplc 50Hz.  // Not. should use current calibration?  // should be authoritative source of state.
+  .adc.p_reset        = CLK_FREQ * 500e-6,                // 500us.
 
 
+
+  .reg_cr.mode = 0,
 
   // eg turn sigmux on, during integration.
   // encode in general register, since only one bit, and to avoid an extra register
-  .reg_cr.p_adc_use_input_signal  = true
+  .reg_cr.adc_p_active_sigmux  = true
 
 };
 
