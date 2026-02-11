@@ -224,19 +224,19 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 
   uint32_t status = spi_ice40_reg_read32( spi_fpga0, REG_STATUS );
 
-  uint32_t clk_count_mux_neg = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
-  uint32_t clk_count_mux_pos = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
-  uint32_t clk_count_mux_both  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_BOTH);
-  uint32_t clk_count_mux_sig = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_SIGMUX);
+  uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
+  uint32_t clk_count_refmux_pos = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
+  uint32_t clk_count_refmux_both  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_BOTH);
+  uint32_t clk_count_sigmux = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_SIGMUX);
 
-  uint32_t clk_count_mux_reset = 0;
+  uint32_t clk_count_rstmux = 0;
   uint32_t stat_count_refmux_pos_up = 0;
   uint32_t stat_count_refmux_neg_up = 0;
   uint32_t stat_count_cmpr_cross_up = 0;
 
   if(data->show_extra) {
 
-    clk_count_mux_reset       = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_RSTMUX);
+    clk_count_rstmux       = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_RSTMUX);
 
     stat_count_refmux_pos_up = spi_ice40_reg_read32( spi_fpga0, REG_ADC_STAT_COUNT_REFMUX_POS_UP);
     stat_count_refmux_neg_up = spi_ice40_reg_read32( spi_fpga0, REG_ADC_STAT_COUNT_REFMUX_NEG_UP);
@@ -295,10 +295,10 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
   if(data->show_counts) {
 
     printf(", clk counts %7lu %7lu %6lu %lu",
-      clk_count_mux_neg,
-      clk_count_mux_pos,
-      clk_count_mux_both,
-      clk_count_mux_sig
+      clk_count_refmux_neg,
+      clk_count_refmux_pos,
+      clk_count_refmux_both,
+      clk_count_sigmux
     );
   }
 
@@ -306,7 +306,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
   // data show_count_extra?
   if(data->show_extra) {
 
-    printf(", reset %6lu", clk_count_mux_reset);
+    printf(", reset %6lu", clk_count_rstmux);
 
     printf(", adc stats %lu %lu %lu",
       stat_count_refmux_pos_up,
@@ -314,7 +314,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
       stat_count_cmpr_cross_up
     );
 
-    double period = aper_n_to_period( clk_count_mux_sig);
+    double period = aper_n_to_period( clk_count_sigmux);
     printf(", period %.2lf", period );
 
     double freq = ((double) stat_count_refmux_pos_up) / period;
@@ -343,9 +343,9 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 
 
     MAT *xs = run_to_matrix(
-        clk_count_mux_neg,
-        clk_count_mux_pos,
-        clk_count_mux_both,
+        clk_count_refmux_neg,
+        clk_count_refmux_pos,
+        clk_count_refmux_both,
 
         // what model here,
         // data->model_spec,
@@ -356,7 +356,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
     assert( m_cols(xs) == m_rows( data->model_b) ) ;
 
     // we could make all these vars persist.
-    MAT	*m_mux_sig = m_from_scalar( clk_count_mux_sig, MNULL );
+    MAT	*m_mux_sig = m_from_scalar( clk_count_sigmux, MNULL );
     assert(m_mux_sig);
     assert( m_is_scalar(m_mux_sig) );
 
@@ -562,7 +562,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0 )
 
       // record these
       data->adc_status = status;
-      data->adc_clk_count_mux_sig = clk_count_mux_sig;
+      data->adc_clk_count_sigmux = clk_count_sigmux;
 
 
       // STTCPW
@@ -689,9 +689,9 @@ unsigned model_spec_cols( unsigned model_spec )
 
 MAT * run_to_matrix(
     // const Run *run,
-    uint32_t clk_count_mux_neg,
-    uint32_t clk_count_mux_pos,
-    uint32_t clk_count_mux_both,
+    uint32_t clk_count_refmux_neg,
+    uint32_t clk_count_refmux_pos,
+    uint32_t clk_count_refmux_both,
     unsigned model_spec,
     MAT * out
 )
@@ -721,25 +721,25 @@ MAT * run_to_matrix(
         this is nice because doesn't require anything on fpga side.
       */
       out = m_resize(out, 1, 2);
-      m_set_val( out, 0, 0,  clk_count_mux_neg + clk_count_mux_both );
-      m_set_val( out, 0, 1,  clk_count_mux_pos + clk_count_mux_both  );
+      m_set_val( out, 0, 0,  clk_count_refmux_neg + clk_count_refmux_both );
+      m_set_val( out, 0, 1,  clk_count_refmux_pos + clk_count_refmux_both  );
       break;
       }
 
     case 21: {
       out = m_resize(out, 1, 3);
       m_set_val( out, 0, 0,  1.f );   // ones, offset
-      m_set_val( out, 0, 1,  clk_count_mux_neg + clk_count_mux_both );
-      m_set_val( out, 0, 2,  clk_count_mux_pos + clk_count_mux_both  );
+      m_set_val( out, 0, 1,  clk_count_refmux_neg + clk_count_refmux_both );
+      m_set_val( out, 0, 2,  clk_count_refmux_pos + clk_count_refmux_both  );
     break;
     }
 
 
     case 3: {
       out = m_resize(out, 1, 3);
-      m_set_val( out, 0, 0,  clk_count_mux_neg );
-      m_set_val( out, 0, 1,  clk_count_mux_pos );
-      m_set_val( out, 0, 2,  clk_count_mux_both );
+      m_set_val( out, 0, 0,  clk_count_refmux_neg );
+      m_set_val( out, 0, 1,  clk_count_refmux_pos );
+      m_set_val( out, 0, 2,  clk_count_refmux_both );
       break;
     }
 
@@ -747,9 +747,9 @@ MAT * run_to_matrix(
 
       out = m_resize(out, 1, 4);
       m_set_val( out, 0, 0,  1.f ); // ones, offset
-      m_set_val( out, 0, 1,  clk_count_mux_neg );
-      m_set_val( out, 0, 2,  clk_count_mux_pos );
-      m_set_val( out, 0, 3,  clk_count_mux_both);
+      m_set_val( out, 0, 1,  clk_count_refmux_neg );
+      m_set_val( out, 0, 2,  clk_count_refmux_pos );
+      m_set_val( out, 0, 3,  clk_count_refmux_both);
       break;
     }
 
@@ -944,19 +944,19 @@ void data_update(data_t *data, uint32_t spi )
 
     // printf("got data\n");
 
-    uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_RSTMUX);   // time refmux is in reset. useful check. not adc initialization time.
-    uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-    uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-    uint32_t clk_count_mux_both     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_BOTH);
-    uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX);
+    uint32_t clk_count_rstmux  = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_RSTMUX);   // time refmux is in reset. useful check. not adc initialization time.
+    uint32_t clk_count_refmux_neg    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+    uint32_t clk_count_refmux_pos    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+    uint32_t clk_count_refmux_both     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_BOTH);
+    uint32_t clk_count_sigmux    = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX);
 
   /*  - OK. it doesn't matter whether aperture is for one more extra clk cycle. or one less.  eg. the clk termination condition.
       instead what matters is that the count is recorded in the same way, as for the reference currents.
       eg. so should should always refer to the returned count value, not the aperture ctrl register.
 
-      uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_P_APERTURE );
+      uint32_t clk_count_sigmux = spi_ice40_reg_read32( app->spi, REG_ADC_P_APERTURE );
   */
-    printf("counts %6lu %lu %lu %6lu %lu", clk_count_mux_reset, clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_both, clk_count_mux_sig);
+    printf("counts %6lu %lu %lu %6lu %lu", clk_count_rstmux, clk_count_refmux_neg, clk_count_refmux_pos, clk_count_refmux_both, clk_count_sigmux);
 
     printf("\n");
   }
@@ -1020,7 +1020,7 @@ void data_update(data_t *data, uint32_t spi )
       instead what matters is that the count is recorded in the same way, as for the reference currents.
       eg. so should should always refer to the returned count value, not the aperture ctrl register.
 
-      uint32_t clk_count_mux_sig = spi_ice40_reg_read32( spi, REG_ADC_P_APERTURE );
+      uint32_t clk_count_sigmux = spi_ice40_reg_read32( spi, REG_ADC_P_APERTURE );
   */
 
 

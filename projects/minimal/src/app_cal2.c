@@ -20,10 +20,8 @@
 
 #include <peripheral/gpio.h>
 #include <peripheral/spi-ice40.h>
-#include <peripheral/interrupt.h>     // TODO remove
+#include <peripheral/interrupt.h>
 
-
-// #include <device/spi-fpga0-reg.h>
 
 
 #include <lib2/util.h>    // yield_with_msleep
@@ -37,6 +35,8 @@
 
 #include <app.h>
 #include <data/data.h>
+
+
 
 // #include <data/matrix.h> // m_set_row()
 // #include <data/regression.h>
@@ -146,28 +146,26 @@ void app_cal2(
     );
 
 
-
-
-    uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_RSTMUX);    // useful check.
-    uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
-    uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
-    uint32_t clk_count_mux_both   = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_BOTH);   // check.
-    uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_SIGMUX);
-    uint32_t clk_count_aperture   = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_APERTURE);     // check.
+    uint32_t clk_count_rstmux       = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_RSTMUX);    // useful check.
+    uint32_t clk_count_refmux_neg   = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
+    uint32_t clk_count_refmux_pos   = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
+    uint32_t clk_count_refmux_both  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_BOTH);   // check.
+    uint32_t clk_count_sigmux       = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_SIGMUX);
+    uint32_t clk_count_aperture     = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_APERTURE);     // check.
 
 
     printf("  counts %6lu %lu %lu %lu %lu %6lu",
-      clk_count_mux_reset,
+      clk_count_rstmux,
       clk_count_aperture,
-      clk_count_mux_sig,
-      clk_count_mux_neg,
-      clk_count_mux_pos,
-      clk_count_mux_both
+      clk_count_sigmux,
+      clk_count_refmux_neg,
+      clk_count_refmux_pos,
+      clk_count_refmux_both
     );
     printf("\n");
 
 
-    double w =  (double) (clk_count_mux_pos  )  /   clk_count_mux_neg  ;
+    double w =  (double) (clk_count_refmux_pos  )  /   clk_count_refmux_neg  ;
 
     printf("  w %.8f", w );
     values[ i ] = w;

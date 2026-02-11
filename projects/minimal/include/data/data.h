@@ -96,7 +96,7 @@ typedef struct data_t
   double computed_val ;
   // used to communicate between adc reading and display of adc data.
   uint32_t adc_status;
-  uint32_t adc_clk_count_mux_sig;
+  uint32_t adc_clk_count_sigmux;
 
 
   /*
@@ -176,7 +176,7 @@ void data_update_new_reading2(data_t *data, spi_t *spi_fpga0/*, bool verbose*/);
 
 unsigned model_spec_cols( unsigned model_spec );
 
-MAT * run_to_matrix( uint32_t clk_count_mux_neg, uint32_t clk_count_mux_pos, uint32_t clk_count_mux_both, unsigned model, MAT * out);
+MAT * run_to_matrix( uint32_t clk_count_refmux_neg, uint32_t clk_count_refmux_pos, uint32_t clk_count_refmux_both, unsigned model, MAT * out);
 
 MAT * m_calc_predicted( const MAT *b, const MAT *x, const MAT *aperture);
 

@@ -335,16 +335,16 @@ void app_cal(
         uint32_t status = spi_ice40_reg_read32( spi_fpga0, REG_STATUS );
         UNUSED(status);
 
-        uint32_t clk_count_mux_reset  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_RSTMUX);   // useful check.
-        uint32_t clk_count_mux_neg    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
-        uint32_t clk_count_mux_pos    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
-        uint32_t clk_count_mux_both   = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_BOTH);
-        uint32_t clk_count_mux_sig    = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_SIGMUX);
+        uint32_t clk_count_rstmux       = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_RSTMUX);   // useful check.
+        uint32_t clk_count_refmux_neg   = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
+        uint32_t clk_count_refmux_pos   = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
+        uint32_t clk_count_refmux_both  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_BOTH);
+        uint32_t clk_count_sigmux       = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_SIGMUX);
 
         printf("counts %6lu %lu %lu %lu %6lu",
-          clk_count_mux_reset,
-          clk_count_mux_sig,
-          clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_both
+          clk_count_rstmux,
+          clk_count_sigmux,
+          clk_count_refmux_neg, clk_count_refmux_pos, clk_count_refmux_both
         );
         printf("\n");
 
@@ -356,17 +356,17 @@ void app_cal(
           this is really ugly handling. should reset it.
 
         */
-        row = run_to_matrix( clk_count_mux_neg, clk_count_mux_pos, clk_count_mux_both, model_spec_cols(data->model_spec), row);
+        row = run_to_matrix( clk_count_refmux_neg, clk_count_refmux_pos, clk_count_refmux_both, model_spec_cols(data->model_spec), row);
         mat_set_row( xs,       row_idx,  row ) ;
 
-        vec_set_val( y,        row_idx,   y_  *  clk_count_mux_sig );
-//        vec_set_val( aperture, row_idx, clk_count_mux_sig);
+        vec_set_val( y,        row_idx,   y_  *  clk_count_sigmux );
+//        vec_set_val( aperture, row_idx, clk_count_sigmux);
         ++row_idx;
 
         /*
         m_push_row( xs,       row ) ;
-        vec_push_row_val( y,  y_  *  clk_count_mux_sig );
-        vec_set_val( aperture, row_idx, clk_count_mux_sig);
+        vec_push_row_val( y,  y_  *  clk_count_sigmux );
+        vec_set_val( aperture, row_idx, clk_count_sigmux);
         */
       } // i
     } // j
@@ -543,7 +543,7 @@ void app_cal(
     instead what matters is that the count is recorded in the same way, as for the reference currents.
     eg. so should should always refer to the returned count value, not the aperture ctrl register.
 
-    uint32_t clk_count_mux_sig = spi_ice40_reg_read32( app->spi, REG_ADC_P_APERTURE );
+    uint32_t clk_count_sigmux = spi_ice40_reg_read32( app->spi, REG_ADC_P_APERTURE );
 */
 
 
