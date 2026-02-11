@@ -340,15 +340,12 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );
 
 // TODO - set should be suffix.
 
-void mode_set_amp_gain( _mode_t *mode, uint32_t u);
-
-void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 );
-
-
-
+void mode_reg_cr_set(_mode_t *mode, unsigned u0);
 void mode_sa_set(_mode_t *mode, const char *s);
-void mode_reg_cr_mode_set(_mode_t *mode, unsigned u0);
+void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 );
 
+
+void mode_amp_gain_set( _mode_t *mode, uint32_t u);
 
 void mode_lts_set( _mode_t *mode, double f0 /*signed i0*/);       // arg is 10,0,-10
 void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 );   // factor into daq_set and ch2_set
@@ -366,7 +363,7 @@ void mode_ch1_set_dcv(_mode_t *mode);
 void mode_ch1_set_dcv_source(_mode_t *mode);    // change name lts eg.  using input relay
 
 
-
+// TODO fix the prefix here...
 void mode_ch2_reset(_mode_t *mode);
 void mode_ch2_set_ref( _mode_t *mode);
 void mode_ch2_set_ref_lo( _mode_t *mode);

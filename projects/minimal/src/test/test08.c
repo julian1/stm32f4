@@ -39,7 +39,7 @@ bool app_test08( app_t *app , const char *cmd)
 
 
     // mode.reg_mode =  MODE_ADC_MUX_REF_TEST;
-    mode_reg_cr_mode_set( &mode, MODE_ADC_MUX_REF_TEST);
+    mode_reg_cr_set( &mode, MODE_ADC_MUX_REF_TEST);
 
     // spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
     app_transition_state( app);

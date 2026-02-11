@@ -73,7 +73,7 @@ static void test (app_t *app)     // should be passing the continuation.
 
   // set up fpga - with direct mode - for soak/charge of accum cap.
   // mode.reg_mode     =  MODE_DIRECT;
-  mode_reg_cr_mode_set( &mode, MODE_DIRECT);
+  mode_reg_cr_set( &mode, MODE_DIRECT);
 
 
   assert( mode.reg_direct.azmux_o == SOFF) ;
@@ -105,7 +105,7 @@ static void test (app_t *app)     // should be passing the continuation.
 
 */
   // mode.reg_mode = MODE_SA_MOCK_ADC;
-  mode_reg_cr_mode_set( &mode, MODE_SA_MOCK_ADC);
+  mode_reg_cr_set( &mode, MODE_SA_MOCK_ADC);
 
   assert(0);  // dec 2024. review
 /*
@@ -148,7 +148,7 @@ static void test (app_t *app)     // should be passing the continuation.
   // phase 3. observe, take measurement etc
 
   // mode.reg_mode = MODE_DIRECT;
-  mode_reg_cr_mode_set( &mode, MODE_DIRECT);
+  mode_reg_cr_set( &mode, MODE_DIRECT);
 
   mode.reg_direct.leds_o = 0b0100;
   // now we do the sleep- to take the measurement.

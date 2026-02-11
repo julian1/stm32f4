@@ -122,7 +122,7 @@ void mode_reset(_mode_t *mode)
 
 
 
-void mode_reg_cr_mode_set(_mode_t *mode, unsigned u0)
+void mode_reg_cr_set(_mode_t *mode, unsigned u0)
 {
 
   // ease setting.
@@ -213,7 +213,7 @@ void mode_sa_set(_mode_t *mode, const char *s)
 
 
 
-void mode_set_amp_gain( _mode_t *mode, uint32_t u)
+void mode_amp_gain_set( _mode_t *mode, uint32_t u)
 {
 
   printf("set amp gain\n");
@@ -692,7 +692,7 @@ void mode_ch2_accum( _mode_t *mode, bool val)
 
 #if 0
 
-void mode_set_seq( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 )
+void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 )
 {
   /*
     doesn't have to be exhausive wrt cases.
@@ -952,7 +952,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     && str_decode_uint( s0, &u0))  {
 
 
-    mode_set_amp_gain( mode, u0 );
+    mode_amp_gain_set( mode, u0 );
   }
 
 
@@ -1152,7 +1152,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
         // mode->reg_mode = u0;
         // mode->reg_cr.mode = u0;
 
-        mode_reg_cr_mode_set( mode, u0);
+        mode_reg_cr_set( mode, u0);
       }
 
 
@@ -1452,33 +1452,33 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   else if( sscanf(cmd, "boot%100s", s0) == 1
     && str_decode_uint( s0, &u0))  {
 
-    mode_set_seq( mode, SEQ_MODE_BOOT, u0, 0 );
+    mode_seq_set( mode, SEQ_MODE_BOOT, u0, 0 );
   }
   else if( sscanf(cmd, "noazero %100s", s0) == 1
     && str_decode_uint( s0, &u0))  {
 
-    mode_set_seq( mode, SEQ_MODE_NOAZ, u0, 0 );
+    mode_seq_set( mode, SEQ_MODE_NOAZ, u0, 0 );
   }
   else if( sscanf(cmd, "azero %100s %100s", s0, s1) == 2
     && str_decode_uint( s0, &u0)
     && str_decode_uint( s1, &u1)) {
 
-    mode_set_seq( mode, SEQ_MODE_AZ, u0, u1 );
+    mode_seq_set( mode, SEQ_MODE_AZ, u0, u1 );
   }
 
     // ratio is hardcoded to use lomux at the moment. and not star-lo.
   else if(strcmp(cmd, "ratio") == 0) {
-    mode_set_seq( mode, SEQ_MODE_RATIO, 0,0 );
+    mode_seq_set( mode, SEQ_MODE_RATIO, 0,0 );
   }
 
   else if(strcmp(cmd, "ag") == 0)
-    mode_set_seq( mode, SEQ_MODE_AG, 0, 0 );
+    mode_seq_set( mode, SEQ_MODE_AG, 0, 0 );
 
   else if(strcmp(cmd, "diff") == 0)
-    mode_set_seq( mode, SEQ_MODE_DIFF, 0 , 0);
+    mode_seq_set( mode, SEQ_MODE_DIFF, 0 , 0);
 
   else if(strcmp(cmd, "sum-test") == 0)
-    mode_set_seq( mode, SEQ_MODE_SUM_DELTA, 0, 0 );
+    mode_seq_set( mode, SEQ_MODE_SUM_DELTA, 0, 0 );
 
 #endif
 
