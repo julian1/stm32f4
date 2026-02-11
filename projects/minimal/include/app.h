@@ -97,7 +97,7 @@ typedef struct app_t
 
   uint32_t      soft_500ms;
 
-  // updated on interupt. should probably be declared volatile.
+  // updated on interrupt. should probably be declared volatile.
   // but functions that use can also declare volatile
 
   /*
@@ -186,9 +186,9 @@ typedef struct app_t
 
   // consider moving to app.
 
-  volatile bool  adc_interupt_valid;
+  volatile bool  adc_interrupt_valid;
 
-  bool adc_interupt_valid_missed; // could make a count
+  bool adc_interrupt_valid_missed; // could make a count
 
 
 
@@ -204,7 +204,7 @@ typedef struct app_t
 
 
 
-void app_rdy_interupt( app_t *app, interrupt_t *x);
+void app_rdy_interrupt( app_t *app, interrupt_t *x);
 // void app_rdy_clear( app_t *app);
 
 
@@ -217,7 +217,7 @@ void app_led_dance( app_t * app );
 
 void app_init_console_buffers(app_t *app);
 // void app_loop(app_t *app);
-void app_systick_interupt(app_t *app);
+void app_systick_interrupt(app_t *app);
 
 
 void app_update_main(app_t *app);

@@ -132,7 +132,7 @@ void vfd_init_gpio( void )
 {
   printf("vfd_init_gpio()\n");
   // what is frp_out.  is output from vfd.
-  // need interupt.
+  // need interrupt.
 
 
   gpio_set( GPIOD, GPIO6);   // keep high - to avoid supirious seting.

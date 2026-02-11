@@ -143,11 +143,11 @@ data_t * data_create( void /* no constructor dependencies */ );
 void data_reset( data_t * data );
 
 #if 0
-// void data_rdy_interupt( data_t *data);    // handler setup in app context.
+// void data_rdy_interrupt( data_t *data);    // handler setup in app context.
 
 
 typedef struct interrupt_t  interrupt_t;
-void data_rdy_interupt( data_t *data, interrupt_t *);    // handler setup in app context.
+void data_rdy_interrupt( data_t *data, interrupt_t *);    // handler setup in app context.
 
 // void data_rdy_clear( data_t *data);
 

@@ -30,11 +30,11 @@
   LCD interface supply power (VDDLCD): 1.65V to 3.6V
   ----
   Issue is that pin was bridged.
-  Also old bodge was tied to interupt of xt2046.
+  Also old bodge was tied to interrupt of xt2046.
 */
 
 /*
-// Mapped to spi2 nss2 unused. using bodge wire.  ssd1963 TE tear interupt pin.
+// Mapped to spi2 nss2 unused. using bodge wire.  ssd1963 TE tear interrupt pin.
 #define TEAR_PORT           GPIOB
 #define TEAR_IRQ            GPIO9
 */

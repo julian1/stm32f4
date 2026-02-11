@@ -196,7 +196,7 @@ reg_direct_t
 
   /*
   471     .out( {   dummy_bits_o,               // 25
-  472               meas_complete_o,          // 24+1     // interupt_ctl *IS* generic so should be at start, and connects straight to adum. so place at beginning. same argument for meas_complete
+  472               meas_complete_o,          // 24+1     // interrupt_ctl *IS* generic so should be at start, and connects straight to adum. so place at beginning. same argument for meas_complete
   473               spi_interrupt_ctl_o,      // 23+1     todo rename. drop the 'ctl'.
   474               adc_cmpr_latch_o,         // 22+1
   475               adc_refmux_o,             // 18+4     // better name adc_refmux   adc_cmpr_latch

@@ -120,12 +120,12 @@ void app_cal2(
     printf("i %u\n", i);
 
 
-    // wait for adc data, on interupt
+    // wait for adc data, on interrupt
     // use express yield function here. not app->yield etc
-    while( !app->adc_interupt_valid )
+    while( !app->adc_interrupt_valid )
       app_update_simple_led_blink( app);
 
-    app->adc_interupt_valid = false;
+    app->adc_interrupt_valid = false;
 
 
     // embed a 8 bit. counter ini the reg_status and use it for the measure.

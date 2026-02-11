@@ -42,7 +42,7 @@ static void setup(spi_t *spi )
   gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ,  GPIO7 | GPIO8 | GPIO9);
 
 
-  // interupt PA3
+  // interrupt PA3
   // should not be done here.
   // gpio_mode_setup( GPIOA , GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO3 );
 
@@ -118,7 +118,7 @@ spi_t * spi_fpga0_create( )
   spi->cs_assert    = cs_assert;
   spi->cs_deassert  = cs_deassert;
 
-  // interupt not handled here
+  // interrupt not handled here
 
   return spi;
 }

@@ -303,25 +303,25 @@ void app_cal(
       for(unsigned i = 0; i < obs_to_take_n; ++i ) {
 
 
-        // JA feb 2026 - we moved the data_rdy interupt up to the app level.
+        // JA feb 2026 - we moved the data_rdy interrupt up to the app level.
         // consider just making cal take app argument.
-        // if we really want - then we just redirect the interupt handler.
+        // if we really want - then we just redirect the interrupt handler.
         assert( 0);
 
 #if 0
-        // wait for adc data, on interupt
-        while( !data->adc_interupt_valid ) {
+        // wait for adc data, on interrupt
+        while( !data->adc_interrupt_valid ) {
           if(yield)
             yield( yield_ctx);
         }
-        data->adc_interupt_valid = false;
+        data->adc_interrupt_valid = false;
 #endif
 
-         // wait for adc data, on interupt
-        while( !app->adc_interupt_valid )
+         // wait for adc data, on interrupt
+        while( !app->adc_interrupt_valid )
           app_update_simple_led_blink( app);
         
-        app->adc_interupt_valid = false;
+        app->adc_interrupt_valid = false;
 
 
 

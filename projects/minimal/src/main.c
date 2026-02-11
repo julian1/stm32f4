@@ -233,7 +233,7 @@ static int main_f429(void)
   rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_3V3_84MHZ ]);    // HSI WORKS stm32f410, may 2022, f407 2025.
 
   // clocks - TODO move after gpio ports?
-  rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
+  rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interrupts?
 
   // gpio
 
@@ -290,7 +290,7 @@ static int main_f429(void)
   // mcu clock
   // systick_setup(12000); // 12MHz. default lsi.
   systick_setup(84000); // 84MHz.
-  systick_handler_set( (void (*)(void *)) app_systick_interupt, &app );  // rename systick_handler_set()
+  systick_handler_set( (void (*)(void *)) app_systick_interrupt, &app );  // rename systick_handler_set()
 
   //////////////////////
   // main app setup
@@ -464,7 +464,7 @@ static int main_f413(void)
   rcc_clock_setup_pll(&rcc_hsi_configs[RCC_CLOCK_3V3_84MHZ ]);
 
   // clocks
-  rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interupts?
+  rcc_periph_clock_enable(RCC_SYSCFG); // maybe required for external interrupts?
 
   // gpio
 
@@ -499,7 +499,7 @@ static int main_f413(void)
   // mcu clock
   // systick_setup(12000); // 12MHz. default lsi.
   systick_setup(84000); // 84MHz. hsi/hse
-  systick_handler_set( (void (*)(void *)) app_systick_interupt, &app );  // rename systick_handler_set()
+  systick_handler_set( (void (*)(void *)) app_systick_interrupt, &app );  // rename systick_handler_set()
 
   //////////////////////
   // main app setup
@@ -538,12 +538,12 @@ static int main_f413(void)
   // init the spi port, for adum/ice40 comms
   spi1_port_setup();
 
-  // spi1_port_interupt_setup( (void (*) (void *))spi1_interupt, &app);
+  // spi1_port_interrupt_setup( (void (*) (void *))spi1_interrupt, &app);
 
-  spi1_port_interupt_setup();
+  spi1_port_interrupt_setup();
 
-  // shouldnt setup the interupt handler - until fpga is configured, else looks like get
-  // spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app.data );
+  // shouldnt setup the interrupt handler - until fpga is configured, else looks like get
+  // spi1_port_interrupt_handler_set( (void (*) (void *)) data_rdy_interrupt, app.data );
   ice40_port_extra_setup();
 
 

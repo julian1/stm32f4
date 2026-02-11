@@ -5,14 +5,14 @@
 // basic interrupt should be abstract, and un-associated with any device.
 
 
-// should try to put the systick interupt on this structure also
+// should try to put the systick interrupt on this structure also
 */
 
 typedef struct interrupt_t  interrupt_t;
 
 
 
-typedef void (*interupt_handler_t)(void *ctx, void *arg);
+typedef void (*interrupt_handler_t)(void *ctx, void *arg);
 
 
 struct interrupt_t
@@ -23,7 +23,7 @@ struct interrupt_t
   uint32_t magic;   // not sure if place here, 
 
   void (*setup)( interrupt_t *);
-  void (*set_handler)( interrupt_t *, void *ctx, interupt_handler_t);
+  void (*handler_set)( interrupt_t *, void *ctx, interrupt_handler_t);
 };
 
 
@@ -36,9 +36,9 @@ static inline void interrupt_setup( interrupt_t *i)
 
 
 
-static inline  void interrupt_set_handler( interrupt_t *i, void *ctx, interupt_handler_t h)
+static inline  void interrupt_handler_set( interrupt_t *i, void *ctx, interrupt_handler_t h)
 {
   assert(i);
-  i->set_handler( i, ctx, h );
+  i->handler_set( i, ctx, h );
 }
 

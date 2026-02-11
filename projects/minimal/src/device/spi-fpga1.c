@@ -221,6 +221,6 @@ spi_ice40_t * spi2_u202_create()
 */
 
 
-// interupt could go here also.
+// interrupt could go here also.
 
 

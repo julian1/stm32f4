@@ -79,9 +79,9 @@ int flash_lzo_test(void);
 /*
   3 events
 
-    - systick/soft-timer interupt.
-    - fpga interupt
-    - external ui interupt
+    - systick/soft-timer interrupt.
+    - fpga interrupt
+    - external ui interrupt
     - (also uart but never blocks).
 
     - yield can be used, on any long-running process to continue to service updates
@@ -129,13 +129,13 @@ void app_init_console_buffers( app_t *app )
 
 
 
-void app_systick_interupt(app_t *app)
+void app_systick_interrupt(app_t *app)
 {
   assert(app);
   assert(app->magic == APP_MAGIC);
 
 
-  // interupt context. don't do anything compliicated here.
+  // interrupt context. don't do anything compliicated here.
 
   ++ app->system_millis;
 }
@@ -147,11 +147,11 @@ void app_systick_interupt(app_t *app)
 
 
 
-void app_rdy_interupt( app_t *app, interrupt_t *x) // runtime context
+void app_rdy_interrupt( app_t *app, interrupt_t *x) // runtime context
 {
 
   UNUSED(x);
-  /* interupt context.  don't do anything compliicated here.
+  /* interrupt context.  don't do anything compliicated here.
     but called relatively infrequent.
   */
 
@@ -160,20 +160,20 @@ void app_rdy_interupt( app_t *app, interrupt_t *x) // runtime context
 
 
   // if flag is still active, then record we missed processing some app.
-  if(app->adc_interupt_valid == true) {
-    app->adc_interupt_valid_missed = true;
-    // ++app->adc_interupt_valid_missed;     // count better? but harder to report.
+  if(app->adc_interrupt_valid == true) {
+    app->adc_interrupt_valid_missed = true;
+    // ++app->adc_interrupt_valid_missed;     // count better? but harder to report.
   }
 
-  // set adc_interupt_valid flag so that update() knows to read the adc...
-  app->adc_interupt_valid = true;
+  // set adc_interrupt_valid flag so that update() knows to read the adc...
+  app->adc_interrupt_valid = true;
 }
 
 
 /*
 void app_rdy_clear( app_t *app)
 {
-  app->adc_interupt_valid = false;
+  app->adc_interrupt_valid = false;
 }
 
 */
@@ -468,9 +468,9 @@ void app_configure( app_t *app )
 
 
     // setup the fpga0 interrupt handler
-    // interrupt_set_handler( app->fpga0_interrupt, app->data, (interupt_handler_t ) data_rdy_interupt);
+    // interrupt_handler_set( app->fpga0_interrupt, app->data, (interrupt_handler_t ) data_rdy_interrupt);
     assert( app->fpga0_interrupt);
-    interrupt_set_handler( app->fpga0_interrupt, app, (interupt_handler_t ) app_rdy_interupt);
+    interrupt_handler_set( app->fpga0_interrupt, app, (interrupt_handler_t ) app_rdy_interrupt);
 
 
 
@@ -478,15 +478,15 @@ void app_configure( app_t *app )
 
 #if 0
 
-    /* enable the ice40 interupt
+    /* enable the ice40 interrupt
     // to delay until after fpga is configured, else get spurious
     */
-    // spi1_port_interupt_handler_set( (void (*) (void *)) data_rdy_interupt, app->data );
+    // spi1_port_interrupt_handler_set( (void (*) (void *)) data_rdy_interrupt, app->data );
 
 
     interrupt_t *x =  app->interrupt_u202;
     assert(x);
-    x->handler = ( interupt_handler_t ) data_rdy_interupt;
+    x->handler = ( interrupt_handler_t ) data_rdy_interrupt;
     x->ctx = app->data ;
 
     // not needed
@@ -840,7 +840,7 @@ static void app_update_console(app_t *app)
 
 
         /*
-          whether to restore interupt handler - could be predicated on trigger.
+          whether to restore interrupt handler - could be predicated on trigger.
 
         */
 
@@ -875,7 +875,7 @@ static void app_update_console(app_t *app)
         */
 
         // Feb 2026.  looks completely wrong.
-        // interrupt_set_handler( app->devices.fpga0_interrupt, app->data, (interupt_handler_t ) data_rdy_interupt);
+        // interrupt_handler_set( app->devices.fpga0_interrupt, app->data, (interrupt_handler_t ) data_rdy_interrupt);
 
 
       }
@@ -908,9 +908,9 @@ void app_update_main(app_t *app)
 
 
   // process new adc data in priority
-  if(app->adc_interupt_valid) {
+  if(app->adc_interrupt_valid) {
 
-    app->adc_interupt_valid = false;
+    app->adc_interrupt_valid = false;
 
     // TODO.  feb 2026.  rename just data_update() and vfd_update()
     data_update_new_reading2( data, app->spi_fpga0);
@@ -919,11 +919,11 @@ void app_update_main(app_t *app)
   }
 
 
-  // TODO - check - we brought the right code across in the interupt handler also.
-  if( app->adc_interupt_valid_missed == true) {
+  // TODO - check - we brought the right code across in the interrupt handler also.
+  if( app->adc_interrupt_valid_missed == true) {
     // just report for now
-    printf("missed adc interupt\n");
-    app->adc_interupt_valid_missed = false;
+    printf("missed adc interrupt\n");
+    app->adc_interrupt_valid_missed = false;
   }
 
 
@@ -976,9 +976,9 @@ void app_update_simple_with_data(app_t *app)
   // data_update_new_reading( app->data, app->spi/*, app->verbose*/);
 
   // process new incoming data.
-  if(data->adc_interupt_valid) {
+  if(data->adc_interrupt_valid) {
 
-    data->adc_interupt_valid = false;
+    data->adc_interrupt_valid = false;
     data_update_new_reading2( data, app->devices.spi_fpga0);
   }
 
@@ -1569,7 +1569,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
     // JA.  feb. 2026. looks completely wrong.
     assert(0);
-    // interrupt_set_handler( app->devices.fpga0_interrupt, NULL, NULL );
+    // interrupt_handler_set( app->devices.fpga0_interrupt, NULL, NULL );
 
     data_t *data = app->data;
 

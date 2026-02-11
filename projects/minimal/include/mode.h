@@ -353,16 +353,13 @@ void mode_mdac0_set( _mode_t *mode, unsigned u0 );                // inverter
 void mode_mdac1_set( _mode_t *mode, unsigned u0 );                // isolated sts dac.
 
 
-
-
-// void mode_invert_set( _mode_t *mode, bool u0);    // off/on.
-
-
+// ch1.
 void mode_ch1_reset(_mode_t *mode);
 void mode_ch1_set_dcv(_mode_t *mode);
 void mode_ch1_set_dcv_source(_mode_t *mode);    // change name lts eg.  using input relay
 
 
+// ch2
 // TODO fix the prefix here...
 void mode_ch2_reset(_mode_t *mode);
 void mode_ch2_set_ref( _mode_t *mode);
@@ -380,10 +377,6 @@ void mode_ch2_set_dcv_div(_mode_t *mode);
 
 void mode_ch1_accum( _mode_t *mode, bool);
 void mode_ch2_accum( _mode_t *mode, bool);
-
-
-
-// void mode_set_accum( _mode_t *mode, bool val);
 
 
 

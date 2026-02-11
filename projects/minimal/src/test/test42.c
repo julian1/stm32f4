@@ -38,7 +38,7 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
 
   data_t *data = app->data;
 
-  // start acquisition, generating interupts, which sets data ready flags, which we ignore for the moemnt. - with trig
+  // start acquisition, generating interrupts, which sets data ready flags, which we ignore for the moemnt. - with trig
   printf("change state and buffer\n");
 
   // swap the buffer to use

@@ -163,7 +163,7 @@ bool app_test20(
         nplc 10; set mode 7 ; azero s3 s8;  trig; \
       " );
 
-    // we have started generating interupts. - with trig
+    // we have started generating interrupts. - with trig
     // adc
 
     // data->buffer = buffer_reset( data->buffer, 5 );

@@ -629,17 +629,17 @@ void data_update_new_reading(data_t *data, uint32_t spi)
 
   // TODO - fix me,   factor this condition test out.
   // to avoid the nesting.
-  if(data->adc_interupt_valid) {
+  if(data->adc_interrupt_valid) {
 
-    data->adc_interupt_valid = false;
+    data->adc_interrupt_valid = false;
     data_update_new_reading2( data, spi);
   }
 
   // TODO - i think we forgot to bring code across for this check
   // did we miss data, for any reason
-  if( data->adc_interupt_valid_missed == true) {
+  if( data->adc_interrupt_valid_missed == true) {
     printf("missed data\n");
-    data->adc_interupt_valid_missed = false;
+    data->adc_interrupt_valid_missed = false;
   }
 
 
@@ -937,10 +937,10 @@ void data_update(data_t *data, uint32_t spi )
     count -= 1000000;
   } */
 
-  if(data->adc_interupt_valid ) {
+  if(data->adc_interrupt_valid ) {
 
-    // clear flag as first thing, in order to better catch missed data, if get interupt while still processing
-    data->adc_interupt_valid  = false;
+    // clear flag as first thing, in order to better catch missed data, if get interrupt while still processing
+    data->adc_interrupt_valid  = false;
 
     // printf("got data\n");
 

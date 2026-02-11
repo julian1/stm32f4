@@ -38,7 +38,7 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
 
   data_t *data = app->data;
 
-  // start acquisition, generating interupts, which sets data ready flags, which we ignore for the moemnt. - with trig
+  // start acquisition, generating interrupts, which sets data ready flags, which we ignore for the moemnt. - with trig
   printf("change state\n");
 
   // we need to toggle the trigger/ reset of sa controller. to get clean values.

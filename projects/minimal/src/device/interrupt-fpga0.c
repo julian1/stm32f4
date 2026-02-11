@@ -31,7 +31,7 @@ struct interrupt2_t
 
   interrupt_t  ;   // anonymous.  for composition.
 
-  interupt_handler_t  handler;
+  interrupt_handler_t  handler;
   void *ctx;
 };
 
@@ -80,7 +80,7 @@ static void setup( interrupt2_t *i)
 
 
 
-static void set_handler( interrupt2_t *i, void *ctx, interupt_handler_t handler)
+static void handler_set( interrupt2_t *i, void *ctx, interrupt_handler_t handler)
 {
   assert(i->magic == INT_MAGIC);
   i->ctx = ctx;
@@ -98,7 +98,7 @@ interrupt_t * fpga0_interrupt_create()
 
   i->magic        = INT_MAGIC;
   i->setup        = (void (*)( interrupt_t *))  setup;
-  i->set_handler  = (void (*)( interrupt_t *, void *, interupt_handler_t)) set_handler;
+  i->handler_set  = (void (*)( interrupt_t *, void *, interrupt_handler_t)) handler_set;
 
   x = i;
 
