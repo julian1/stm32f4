@@ -145,6 +145,20 @@ void app_cal2(
       status.sample_seq_n
     );
 
+/*
+    EXTR. we should be able to change this  - .to do it once.  in data.
+    ie. localize in one place.
+
+    eg. because we call cal with app context.n
+    we can call.
+
+    data->update();     to do the spi reading.
+    buffer->update()   if we want to.
+
+    and relying  on the 'first' flag to clear the buffers. if needed.
+
+*/
+
 
     uint32_t clk_count_rstmux       = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_RSTMUX);    // useful check.
     uint32_t clk_count_refmux_neg   = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
