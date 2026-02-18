@@ -156,14 +156,16 @@ void app_cal2(
     );
 
 /*
-    EXTR. we should be able to change this  - .to do it once.  in data.
+    EXTR. should be able to change all this  - do it once.  in data.
     ie. localize in one place.
 
     eg. because we call cal with app context.n
     we can call.
 
-    data->update();     to do the spi reading.
-    buffer->update()   if we want to.
+    app_update()
+      data->update();     to do the spi reading.
+      buffers->update()   if we want to.
+      etc.
 
     and relying  on the 'first' flag to clear the buffers. if needed.
 
