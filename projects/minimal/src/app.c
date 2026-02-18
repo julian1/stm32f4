@@ -1620,9 +1620,6 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, app->data->line_freq)) { }
 
 
-
-
-
   else if( mode_repl_statement( app->mode,  cmd, app->data->line_freq )) { }
 
   else if( data_repl_statement( app->data, cmd )) { }
@@ -1634,18 +1631,18 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     these can apply the mode state, that has previously been setup.
     this can simplify, the code in these functions.
   */
-  else if( app_test01( app, cmd  )) { }
-  else if( app_test02( app, cmd  )) { }
+  else if( app_test01( app, cmd)) { }
+  else if( app_test02( app, cmd)) { }
 
-  else if( app_test08( app, cmd  )) { }
-  else if( app_test09( app, cmd  )) { }
+  else if( app_test08( app, cmd)) { }
+  else if( app_test09( app, cmd)) { }
 
-  else if( app_test10( app, cmd  )) { }
-  else if( app_test11( app, cmd  )) { }
+  else if( app_test10( app, cmd)) { }
+  else if( app_test11( app, cmd)) { }
 
-  else if( app_test12( app, cmd  )) { }
-  else if( app_test14( app, cmd  )) { }
-  else if( app_test15( app, cmd  )) { }
+  else if( app_test12( app, cmd)) { }
+  else if( app_test14( app, cmd)) { }
+  else if( app_test15( app, cmd)) { }
 
 #if 0
 
@@ -1654,6 +1651,10 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   else if( app_test41( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
   else if( app_test42( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
 #endif
+
+
+  else if( app_test50( app, cmd)) { }
+  else if( app_test51( app, cmd)) { }
 
   else {
 
