@@ -35,6 +35,8 @@ may 2024.
   # rlwrap -a picocom -b 115200 /dev/ttyUSB0
   rlwrap -a picocom -b 115200 /dev/ttyACM0
 
+  rlwrap -a picocom -b 115200 /dev/ttyACM0 | tee  ./out.txt
+
   # for st-link
   # cd projects minimal
   # openocd -f ../../openocd.cfg

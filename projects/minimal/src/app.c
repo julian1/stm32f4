@@ -170,6 +170,21 @@ void app_rdy_interrupt( app_t *app, interrupt_t *x) // runtime context
 }
 
 
+
+
+
+void app_trigger( app_t *app, bool val)
+{
+
+  gpio_write( app->gpio_trigger_internal, val);
+
+}
+
+
+
+
+
+
 /*
 void app_rdy_clear( app_t *app)
 {

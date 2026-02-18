@@ -63,15 +63,6 @@
 
 
 
-void app_trigger( app_t *app, bool val)
-{
-
-  gpio_write( app->gpio_trigger_internal, val);
-
-}
-
-
-
 
 void app_cal2(
 
@@ -83,14 +74,17 @@ void app_cal2(
   data_t    *data = app->data;
   _mode_t *mode = app->mode;
 
+  char buf[100 + 1];
+
+
   assert(data);
   assert(data->magic == DATA_MAGIC) ;
   assert(mode);
   assert(mode->magic == MODE_MAGIC) ;
 
 
-  spi_t *spi_fpga0  = app->spi_fpga0;
-  assert(spi_fpga0);
+  spi_t *spi = app->spi_fpga0;
+  assert(spi);
 
 
   printf("whoot app_cal2() \n");
@@ -158,7 +152,7 @@ void app_cal2(
 
       // embed a 8 bit. counter ini the reg_status and use it for the measure.
 
-      uint32_t status_ = spi_ice40_reg_read32( spi_fpga0, REG_STATUS );
+      uint32_t status_ = spi_ice40_reg_read32( spi, REG_STATUS );
        // error: dereferencing type-punned pointer will break strict-aliasing rules [-Werror=strict-aliasing]
       // reg_sr_t  status = * (reg_sr_t*)((void *) &status_);  // gives error
 
@@ -173,17 +167,19 @@ void app_cal2(
         status.sample_seq_n
       );
 
-      // uint32_t clk_count_rstmux       = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_RSTMUX);    // useful check.
-      uint32_t clk_count_refmux_neg   = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
-      uint32_t clk_count_refmux_pos   = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
-      // uint32_t clk_count_refmux_both  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_BOTH);   // check.
-      // uint32_t clk_count_sigmux       = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_SIGMUX);
-      // uint32_t clk_count_aperture     = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_APERTURE);     // check.
+      // uint32_t clk_count_rstmux       = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_RSTMUX);    // useful check.
+      uint32_t clk_count_refmux_neg   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+      uint32_t clk_count_refmux_pos   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+      // uint32_t clk_count_refmux_both  = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_BOTH);   // check.
+      // uint32_t clk_count_sigmux       = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX);
+      // uint32_t clk_count_aperture     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);     // check.
 
       double w =  (double) (clk_count_refmux_pos  )  /   clk_count_refmux_neg  ;
       values[ i ] = w;
 
-      printf(" w %.8f, n", w );
+
+      // printf(" w %.8f, ", w );
+      printf( "w %s ", str_format_float_with_commas(buf, 100, 9, w));
 
       /*
           printf("  counts %6lu %lu %lu %lu %lu %6lu",
@@ -210,7 +206,6 @@ void app_cal2(
     // printf( "stddev %.10f\n", stddev_);
 
 
-    char buf[100 + 1];
     printf("%u ", k );
     printf("(n %u) ", ARRAY_SIZE(values));
     printf( "mean   %s ", str_format_float_with_commas(buf, 100, 9, mean_));
