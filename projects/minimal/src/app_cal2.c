@@ -45,6 +45,15 @@
 
 
 
+void app_trigger( app_t *app, bool val)
+{
+
+  gpio_write( app->gpio_trigger_internal, val);
+
+}
+
+
+
 
 void app_cal2(
 
@@ -78,39 +87,40 @@ void app_cal2(
  // let things settle from spi emi burst, and board DA settle, amp to come out of lockup.
   // equivalent to discarding values
 
-  // trig off
-  gpio_write( app->gpio_trigger_internal, 0 );
+  // asmplifing off
+  app_trigger( app, false);
 
 
   mode_reset( mode);
 
-  mode_reg_cr_set( mode, MODE_SA_ADC);    // set fpga reg_mode.
+  // normal sample acquisition/adc operation
+  mode_reg_cr_set( mode, MODE_SA_ADC);
 
-  // setup adc nplc
+
+  // nplc
   mode->adc.p_aperture = nplc_to_aperture( 10, data->line_freq );				// fix jul 2024.
 
-  mode_sa_set(mode, "0" );      // special sample acquisition.  for adc running standalone.
+
+  // sample acquisition mode - for adc running standalone.
+  // REVIEW ME
+  mode_sa_set(mode, "0" );
 
 
-  mode->reg_cr.adc_p_active_sigmux = 0;   // dont turn on sigmux
+  mode->reg_cr.adc_p_active_sigmux = 0;   // sigmux not active.
 
 
   // write board state
   printf("spi_mode_transition_state()\n");
-  // spi_mode_transition_state( devices, mode, system_millis);
+
   app_transition_state( app);
 
 
   printf("sleep\n");
-  // yield_with_msleep( 1 * 1000, system_millis, yield, yield_ctx);
   yield_with_msleep( 1 * 1000, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
 
 
-  // check magic.
-  assert( app->fpga0_interrupt->magic == 789);
-
-  // trig on - should add accessor ...
-  gpio_write( app->gpio_trigger_internal, 1 );
+  // start sampling
+  app_trigger( app, true);
 
 
   // take obs loop
