@@ -222,7 +222,7 @@ void app_transition_state( app_t  *app)
   assert(mode->magic == MODE_MAGIC);
 
 
-  printf("app transition state\n");
+  // printf("app transition state\n");
 
   // printf("spi_mode_transition_state()  %p \n", devices);
   // printf("4094 size %u\n", sizeof(_4094_state_t));
