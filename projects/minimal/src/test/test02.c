@@ -17,8 +17,6 @@
 #include <lib2/format.h>   // format_bits()
 
 
-
-#include <app.h>
 #include <mode.h>
 #include <app.h>
 
