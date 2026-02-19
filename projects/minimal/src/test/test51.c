@@ -113,7 +113,7 @@ static void test( app_t *app)
       uint32_t clk_count_refmux_pos   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
       uint32_t clk_count_refmux_neg   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
 
-      w_clk_count_aperture            = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);     // check.
+      w_clk_count_aperture            = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);
 
       printf("  counts pos %lu neg %lu", clk_count_refmux_pos, clk_count_refmux_neg);
 
@@ -211,11 +211,6 @@ static void test( app_t *app)
 
       printf(" pos %lu neg %lu, ", clk_count_refmux_pos, clk_count_refmux_neg);
 
-
-      /*
-          the difference value increases - BUT remember we will divide by the aperture.
-      */
-
       // difference in weighted.
 
       double neg_w = clk_count_refmux_neg  * w;
@@ -227,7 +222,7 @@ static void test( app_t *app)
       printf("\n");
     }
 
-    // trig off
+    // stop sampling
     app_trigger( app, false);
 
 
@@ -237,9 +232,8 @@ static void test( app_t *app)
     printf("(n %u) ", ARRAY_SIZE(values));
     printf( "mean   %.3f ",  mean_);
     printf( "stddev %.3f ",  stddev_);
-
-
-    printf( " mean ap. adj %.3f ",  mean_  / clk_count_aperture * w_clk_count_aperture);
+    printf( "mean ap. adj %.3f ",  mean_  / clk_count_aperture * w_clk_count_aperture);
+    printf( "aperture %lu ",  clk_count_aperture);
 
     printf("\n");
 
@@ -270,3 +264,145 @@ bool app_test51(
 
 
 
+#if 0
+
+feb 2026.
+
+> test51
+test51()
+i 0,   first=1  idx=0 seq_n=2,   counts pos 198412 neg 203364
+i 1,   first=0  idx=1 seq_n=2,   counts pos 198411 neg 203363
+i 2,   first=0  idx=0 seq_n=2,   counts pos 198412 neg 203364
+i 3,   first=0  idx=1 seq_n=2,   counts pos 198411 neg 203363
+i 4,   first=0  idx=0 seq_n=2,   counts pos 198451 neg 203404
+i 5,   first=0  idx=1 seq_n=2,   counts pos 198411 neg 203363
+i 6,   first=0  idx=0 seq_n=2,   counts pos 198412 neg 203364
+i 7,   first=0  idx=1 seq_n=2,   counts pos 198411 neg 203363
+i 8,   first=0  idx=0 seq_n=2,   counts pos 198410 neg 203362
+i 9,   first=0  idx=1 seq_n=2,   counts pos 198451 neg 203404
+pos mean   198419.200,000,000,
+pos stddev 15.911,002,483,
+neg mean   203371.400,000,000,
+neg stddev 16.310,732,663,
+aperture   400001
+w 0.975,649,477,
+nplc 1
+i 0,   first=1  idx=0 seq_n=2,  pos 198412 neg 203364, neg_w 198411.980,  v 0.020
+i 1,   first=0  idx=1 seq_n=2,  pos 198411 neg 203363, neg_w 198411.005,  v -0.005
+i 2,   first=0  idx=0 seq_n=2,  pos 198411 neg 203363, neg_w 198411.005,  v -0.005
+i 3,   first=0  idx=1 seq_n=2,  pos 198412 neg 203364, neg_w 198411.980,  v 0.020
+i 4,   first=0  idx=0 seq_n=2,  pos 198412 neg 203364, neg_w 198411.980,  v 0.020
+i 5,   first=0  idx=1 seq_n=2,  pos 198412 neg 203364, neg_w 198411.980,  v 0.020
+i 6,   first=0  idx=0 seq_n=2,  pos 198411 neg 203363, neg_w 198411.005,  v -0.005
+i 7,   first=0  idx=1 seq_n=2,  pos 198451 neg 203404, neg_w 198451.006,  v -0.006
+i 8,   first=0  idx=0 seq_n=2,  pos 198411 neg 203363, neg_w 198411.005,  v -0.005
+i 9,   first=0  idx=1 seq_n=2,  pos 198451 neg 203404, neg_w 198451.006,  v -0.006
+(n 10) mean   0.005 stddev 0.012  mean ap. adj 0.005 aperture 400001
+nplc 2
+i 0,   first=1  idx=0 seq_n=2,  pos 395493 neg 405364, neg_w 395493.175,  v -0.175
+i 1,   first=0  idx=1 seq_n=2,  pos 395494 neg 405365, neg_w 395494.150,  v -0.150
+i 2,   first=0  idx=0 seq_n=2,  pos 395492 neg 405363, neg_w 395492.199,  v -0.199
+i 3,   first=0  idx=1 seq_n=2,  pos 395493 neg 405364, neg_w 395493.175,  v -0.175
+i 4,   first=0  idx=0 seq_n=2,  pos 395494 neg 405365, neg_w 395494.150,  v -0.150
+i 5,   first=0  idx=1 seq_n=2,  pos 395493 neg 405364, neg_w 395493.175,  v -0.175
+i 6,   first=0  idx=0 seq_n=2,  pos 395492 neg 405363, neg_w 395492.199,  v -0.199
+i 7,   first=0  idx=1 seq_n=2,  pos 395495 neg 405366, neg_w 395495.126,  v -0.126
+i 8,   first=0  idx=0 seq_n=2,  pos 395493 neg 405364, neg_w 395493.175,  v -0.175
+i 9,   first=0  idx=1 seq_n=2,  pos 395493 neg 405364, neg_w 395493.175,  v -0.175
+(n 10) mean   -0.170 stddev 0.021  mean ap. adj -0.085 aperture 800001
+nplc 3
+i 0,   first=1  idx=0 seq_n=2,  pos 593575 neg 608390, neg_w 593575.385,  v -0.385
+i 1,   first=0  idx=1 seq_n=2,  pos 593575 neg 608390, neg_w 593575.385,  v -0.385
+i 2,   first=0  idx=0 seq_n=2,  pos 593575 neg 608390, neg_w 593575.385,  v -0.385
+i 3,   first=0  idx=1 seq_n=2,  pos 593576 neg 608391, neg_w 593576.361,  v -0.361
+i 4,   first=0  idx=0 seq_n=2,  pos 593573 neg 608388, neg_w 593573.434,  v -0.434
+i 5,   first=0  idx=1 seq_n=2,  pos 593576 neg 608391, neg_w 593576.361,  v -0.361
+i 6,   first=0  idx=0 seq_n=2,  pos 593574 neg 608389, neg_w 593574.410,  v -0.410
+i 7,   first=0  idx=1 seq_n=2,  pos 593574 neg 608389, neg_w 593574.410,  v -0.410
+i 8,   first=0  idx=0 seq_n=2,  pos 593576 neg 608391, neg_w 593576.361,  v -0.361
+i 9,   first=0  idx=1 seq_n=2,  pos 593574 neg 608389, neg_w 593574.410,  v -0.410
+(n 10) mean   -0.390 stddev 0.024  mean ap. adj -0.130 aperture 1200001
+nplc 4
+...
+i 3,   first=0  idx=1 seq_n=2,  pos 790737 neg 810473, neg_w 790737.558,  v -0.558
+i 4,   first=0  idx=0 seq_n=2,  pos 790737 neg 810473, neg_w 790737.558,  v -0.558
+i 5,   first=0  idx=1 seq_n=2,  pos 790737 neg 810473, neg_w 790737.558,  v -0.558
+i 6,   first=0  idx=0 seq_n=2,  pos 790739 neg 810475, neg_w 790739.510,  v -0.510
+i 7,   first=0  idx=1 seq_n=2,  pos 790738 neg 810474, neg_w 790738.534,  v -0.534
+i 8,   first=0  idx=0 seq_n=2,  pos 790736 neg 810472, neg_w 790736.583,  v -0.583
+i 9,   first=0  idx=1 seq_n=2,  pos 790738 neg 810474, neg_w 790738.534,  v -0.534
+(n 10) mean   -0.544 stddev 0.022  mean ap. adj -0.136 aperture 1600001
+nplc 5
+i 0,   first=1  idx=0 seq_n=2,  pos 988738 neg 1013416, neg_w 988738.790,  v -0.790
+i 1,   first=0  idx=1 seq_n=2,  pos 988738 neg 1013416, neg_w 988738.790,  v -0.790
+i 2,   first=0  idx=0 seq_n=2,  pos 988739 neg 1013417, neg_w 988739.766,  v -0.766
+i 3,   first=0  idx=1 seq_n=2,  pos 988741 neg 1013419, neg_w 988741.717,  v -0.717
+i 4,   first=0  idx=0 seq_n=2,  pos 988738 neg 1013416, neg_w 988738.790,  v -0.790
+i 5,   first=0  idx=1 seq_n=2,  pos 988739 neg 1013417, neg_w 988739.766,  v -0.766
+i 6,   first=0  idx=0 seq_n=2,  pos 988740 neg 1013418, neg_w 988740.741,  v -0.741
+i 7,   first=0  idx=1 seq_n=2,  pos 988740 neg 1013418, neg_w 988740.741,  v -0.741
+i 8,   first=0  idx=0 seq_n=2,  pos 988740 neg 1013418, neg_w 988740.741,  v -0.741
+i 9,   first=0  idx=1 seq_n=2,  pos 988739 neg 1013417, neg_w 988739.766,  v -0.766
+(n 10) mean   -0.761 stddev 0.024  mean ap. adj -0.152 aperture 2000001
+nplc 6
+i 0,   first=1  idx=0 seq_n=2,  pos 1185940 neg 1215540, neg_w 1185940.965,  v -0.965
+i 1,   first=0  idx=1 seq_n=2,  pos 1185943 neg 1215543, neg_w 1185943.892,  v -0.892
+i 2,   first=0  idx=0 seq_n=2,  pos 1185944 neg 1215544, neg_w 1185944.868,  v -0.868
+i 3,   first=0  idx=1 seq_n=2,  pos 1185941 neg 1215541, neg_w 1185941.941,  v -0.941
+i 4,   first=0  idx=0 seq_n=2,  pos 1185942 neg 1215542, neg_w 1185942.916,  v -0.916
+i 5,   first=0  idx=1 seq_n=2,  pos 1185939 neg 1215539, neg_w 1185939.989,  v -0.989
+i 6,   first=0  idx=0 seq_n=2,  pos 1185942 neg 1215542, neg_w 1185942.916,  v -0.916
+i 7,   first=0  idx=1 seq_n=2,  pos 1185941 neg 1215541, neg_w 1185941.941,  v -0.941
+i 8,   first=0  idx=0 seq_n=2,  pos 1185940 neg 1215540, neg_w 1185940.965,  v -0.965
+i 9,   first=0  idx=1 seq_n=2,  pos 1185943 neg 1215543, neg_w 1185943.892,  v -0.892
+(n 10) mean   -0.928 stddev 0.037  mean ap. adj -0.155 aperture 2400001
+nplc 7
+i 0,   first=1  idx=0 seq_n=2,  pos 1383904 neg 1418445, neg_w 1383905.122,  v -1.122
+i 1,   first=0  idx=1 seq_n=2,  pos 1383905 neg 1418446, neg_w 1383906.098,  v -1.098
+i 2,   first=0  idx=0 seq_n=2,  pos 1383903 neg 1418444, neg_w 1383904.146,  v -1.146
+i 3,   first=0  idx=1 seq_n=2,  pos 1383906 neg 1418447, neg_w 1383907.073,  v -1.073
+i 4,   first=0  idx=0 seq_n=2,  pos 1383904 neg 1418445, neg_w 1383905.122,  v -1.122
+i 5,   first=0  idx=1 seq_n=2,  pos 1383904 neg 1418445, neg_w 1383905.122,  v -1.122
+i 6,   first=0  idx=0 seq_n=2,  pos 1383904 neg 1418445, neg_w 1383905.122,  v -1.122
+i 7,   first=0  idx=1 seq_n=2,  pos 1383907 neg 1418448, neg_w 1383908.049,  v -1.049
+i 8,   first=0  idx=0 seq_n=2,  pos 1383903 neg 1418444, neg_w 1383904.146,  v -1.146
+i 9,   first=0  idx=1 seq_n=2,  pos 1383904 neg 1418445, neg_w 1383905.122,  v -1.122
+(n 10) mean   -1.112 stddev 0.029  mean ap. adj -0.159 aperture 2800001
+nplc 8
+i 0,   first=1  idx=0 seq_n=2,  pos 1581187 neg 1620652, neg_w 1581188.276,  v -1.276
+i 1,   first=0  idx=1 seq_n=2,  pos 1581185 neg 1620650, neg_w 1581186.325,  v -1.325
+i 2,   first=0  idx=0 seq_n=2,  pos 1581186 neg 1620651, neg_w 1581187.300,  v -1.300
+i 3,   first=0  idx=1 seq_n=2,  pos 1581186 neg 1620651, neg_w 1581187.300,  v -1.300
+i 4,   first=0  idx=0 seq_n=2,  pos 1581187 neg 1620652, neg_w 1581188.276,  v -1.276
+i 5,   first=0  idx=1 seq_n=2,  pos 1581189 neg 1620654, neg_w 1581190.227,  v -1.227
+i 6,   first=0  idx=0 seq_n=2,  pos 1581186 neg 1620651, neg_w 1581187.300,  v -1.300
+i 7,   first=0  idx=1 seq_n=2,  pos 1581187 neg 1620652, neg_w 1581188.276,  v -1.276
+i 8,   first=0  idx=0 seq_n=2,  pos 1581188 neg 1620653, neg_w 1581189.251,  v -1.251
+i 9,   first=0  idx=1 seq_n=2,  pos 1581185 neg 1620650, neg_w 1581186.325,  v -1.325
+(n 10) mean   -1.286 stddev 0.029  mean ap. adj -0.161 aperture 3200001
+nplc 9
+i 0,   first=1  idx=0 seq_n=2,  pos 1778505 neg 1822895, neg_w 1778506.553,  v -1.553
+i 1,   first=0  idx=1 seq_n=2,  pos 1778507 neg 1822897, neg_w 1778508.504,  v -1.504
+i 2,   first=0  idx=0 seq_n=2,  pos 1778507 neg 1822897, neg_w 1778508.504,  v -1.504
+i 3,   first=0  idx=1 seq_n=2,  pos 1778508 neg 1822898, neg_w 1778509.480,  v -1.480
+i 4,   first=0  idx=0 seq_n=2,  pos 1778509 neg 1822899, neg_w 1778510.456,  v -1.456
+i 5,   first=0  idx=1 seq_n=2,  pos 1778506 neg 1822896, neg_w 1778507.529,  v -1.529
+i 6,   first=0  idx=0 seq_n=2,  pos 1778509 neg 1822899, neg_w 1778510.456,  v -1.456
+i 7,   first=0  idx=1 seq_n=2,  pos 1778509 neg 1822899, neg_w 1778510.456,  v -1.456
+i 8,   first=0  idx=0 seq_n=2,  pos 1778509 neg 1822899, neg_w 1778510.456,  v -1.456
+i 9,   first=0  idx=1 seq_n=2,  pos 1778507 neg 1822897, neg_w 1778508.504,  v -1.504
+(n 10) mean   -1.490 stddev 0.033  mean ap. adj -0.166 aperture 3600001
+nplc 10
+i 0,   first=1  idx=0 seq_n=2,  pos 1975908 neg 2025225, neg_w 1975909.712,  v -1.712
+i 1,   first=0  idx=1 seq_n=2,  pos 1975908 neg 2025225, neg_w 1975909.712,  v -1.712
+i 2,   first=0  idx=0 seq_n=2,  pos 1975911 neg 2025228, neg_w 1975912.639,  v -1.639
+i 3,   first=0  idx=1 seq_n=2,  pos 1975910 neg 2025227, neg_w 1975911.663,  v -1.663
+i 4,   first=0  idx=0 seq_n=2,  pos 1975909 neg 2025226, neg_w 1975910.687,  v -1.687
+i 5,   first=0  idx=1 seq_n=2,  pos 1975910 neg 2025227, neg_w 1975911.663,  v -1.663
+i 6,   first=0  idx=0 seq_n=2,  pos 1975909 neg 2025226, neg_w 1975910.687,  v -1.687
+i 7,   first=0  idx=1 seq_n=2,  pos 1975910 neg 2025227, neg_w 1975911.663,  v -1.663
+i 8,   first=0  idx=0 seq_n=2,  pos 1975910 neg 2025227, neg_w 1975911.663,  v -1.663
+i 9,   first=0  idx=1 seq_n=2,  pos 1975910 neg 2025227, neg_w 1975911.663,  v -1.663
+(n 10) mean   -1.675 stddev 0.022  mean ap. adj -0.168 aperture 4000001
+
+#endif

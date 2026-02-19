@@ -177,7 +177,7 @@ static void test( app_t *app)
       printf("\n");
     }
 
-    // trig off
+    // stop sampling
     app_trigger( app, false);
 
 
@@ -220,4 +220,136 @@ bool app_test50(
 }
 
 
+#if 0
+
+
+feb 2026.
+
+empty
+
+> test50
+test50()
+nplc 1
+i 0,   first=1  idx=0 seq_n=2, w 0.975,649,566,
+i 1,   first=0  idx=1 seq_n=2, w 0.975,649,574,
+i 2,   first=0  idx=0 seq_n=2, w 0.975,649,446,
+i 3,   first=0  idx=1 seq_n=2, w 0.975,649,454,
+i 4,   first=0  idx=0 seq_n=2, w 0.975,649,454,
+i 5,   first=0  idx=1 seq_n=2, w 0.975,649,574,
+i 6,   first=0  idx=0 seq_n=2, w 0.975,649,454,
+i 7,   first=0  idx=1 seq_n=2, w 0.975,649,566,
+i 8,   first=0  idx=0 seq_n=2, w 0.975,649,574,
+i 9,   first=0  idx=1 seq_n=2, w 0.975,649,566,
+1 (n 10) mean   0.975,649,523, stddev 0.000,000,058,
+nplc 2
+i 0,   first=1  idx=0 seq_n=2, w 0.975,649,227,
+i 1,   first=0  idx=1 seq_n=2, w 0.975,649,106,
+i 2,   first=0  idx=0 seq_n=2, w 0.975,649,106,
+i 3,   first=0  idx=1 seq_n=2, w 0.975,649,106,
+i 4,   first=0  idx=0 seq_n=2, w 0.975,649,046,
+i 5,   first=0  idx=1 seq_n=2, w 0.975,649,106,
+i 6,   first=0  idx=0 seq_n=2, w 0.975,649,166,
+i 7,   first=0  idx=1 seq_n=2, w 0.975,649,106,
+i 8,   first=0  idx=0 seq_n=2, w 0.975,649,046,
+i 9,   first=0  idx=1 seq_n=2, w 0.975,649,166,
+2 (n 10) mean   0.975,649,118, stddev 0.000,000,052,
+nplc 3
+i 0,   first=1  idx=0 seq_n=2, w 0.975,648,884,
+i 1,   first=0  idx=1 seq_n=2, w 0.975,648,884,
+i 2,   first=0  idx=0 seq_n=2, w 0.975,648,844,
+i 3,   first=0  idx=1 seq_n=2, w 0.975,648,924,
+i 4,   first=0  idx=0 seq_n=2, w 0.975,648,804,
+i 5,   first=0  idx=1 seq_n=2, w 0.975,648,844,
+i 6,   first=0  idx=0 seq_n=2, w 0.975,648,844,
+i 7,   first=0  idx=1 seq_n=2, w 0.975,648,844,
+i 8,   first=0  idx=0 seq_n=2, w 0.975,648,924,
+i 9,   first=0  idx=1 seq_n=2, w 0.975,648,844,
+3 (n 10) mean   0.975,648,864, stddev 0.000,000,037,
+nplc 4
+i 0,   first=1  idx=0 seq_n=2, w 0.975,648,758,
+i 1,   first=0  idx=1 seq_n=2, w 0.975,648,818,
+i 2,   first=0  idx=0 seq_n=2, w 0.975,648,818,
+i 3,   first=0  idx=1 seq_n=2, w 0.975,648,848,
+i 4,   first=0  idx=0 seq_n=2, w 0.975,648,788,
+i 5,   first=0  idx=1 seq_n=2, w 0.975,648,818,
+i 6,   first=0  idx=0 seq_n=2, w 0.975,648,818,
+i 7,   first=0  idx=1 seq_n=2, w 0.975,648,880,
+i 8,   first=0  idx=0 seq_n=2, w 0.975,648,788,
+i 9,   first=0  idx=1 seq_n=2, w 0.975,648,848,
+4 (n 10) mean   0.975,648,818, stddev 0.000,000,033,
+nplc 5
+i 0,   first=1  idx=0 seq_n=2, w 0.975,648,697,
+i 1,   first=0  idx=1 seq_n=2, w 0.975,648,673,
+i 2,   first=0  idx=0 seq_n=2, w 0.975,648,721,
+i 3,   first=0  idx=1 seq_n=2, w 0.975,648,745,
+i 4,   first=0  idx=0 seq_n=2, w 0.975,648,745,
+i 5,   first=0  idx=1 seq_n=2, w 0.975,648,721,
+i 6,   first=0  idx=0 seq_n=2, w 0.975,648,769,
+i 7,   first=0  idx=1 seq_n=2, w 0.975,648,793,
+i 8,   first=0  idx=0 seq_n=2, w 0.975,648,721,
+i 9,   first=0  idx=1 seq_n=2, w 0.975,648,721,
+5 (n 10) mean   0.975,648,731, stddev 0.000,000,033,
+nplc 6
+i 0,   first=1  idx=0 seq_n=2, w 0.975,648,703,
+i 1,   first=0  idx=1 seq_n=2, w 0.975,648,723,
+i 2,   first=0  idx=0 seq_n=2, w 0.975,648,723,
+i 3,   first=0  idx=1 seq_n=2, w 0.975,648,723,
+i 4,   first=0  idx=0 seq_n=2, w 0.975,648,743,
+i 5,   first=0  idx=1 seq_n=2, w 0.975,648,743,
+i 6,   first=0  idx=0 seq_n=2, w 0.975,648,723,
+i 7,   first=0  idx=1 seq_n=2, w 0.975,648,703,
+i 8,   first=0  idx=0 seq_n=2, w 0.975,648,703,
+i 9,   first=0  idx=1 seq_n=2, w 0.975,648,723,
+6 (n 10) mean   0.975,648,721, stddev 0.000,000,014,
+nplc 7
+i 0,   first=1  idx=0 seq_n=2, w 0.975,648,686,
+i 1,   first=0  idx=1 seq_n=2, w 0.975,648,703,
+i 2,   first=0  idx=0 seq_n=2, w 0.975,648,703,
+i 3,   first=0  idx=1 seq_n=2, w 0.975,648,686,
+i 4,   first=0  idx=0 seq_n=2, w 0.975,648,686,
+i 5,   first=0  idx=1 seq_n=2, w 0.975,648,720,
+i 6,   first=0  idx=0 seq_n=2, w 0.975,648,669,
+i 7,   first=0  idx=1 seq_n=2, w 0.975,648,686,
+i 8,   first=0  idx=0 seq_n=2, w 0.975,648,669,
+i 9,   first=0  idx=1 seq_n=2, w 0.975,648,651,
+7 (n 10) mean   0.975,648,686, stddev 0.000,000,019,
+nplc 8
+i 0,   first=1  idx=0 seq_n=2, w 0.975,648,690,
+i 1,   first=0  idx=1 seq_n=2, w 0.975,648,690,
+i 2,   first=0  idx=0 seq_n=2, w 0.975,648,690,
+i 3,   first=0  idx=1 seq_n=2, w 0.975,648,690,
+i 4,   first=0  idx=0 seq_n=2, w 0.975,648,675,
+i 5,   first=0  idx=1 seq_n=2, w 0.975,648,690,
+i 6,   first=0  idx=0 seq_n=2, w 0.975,648,690,
+i 7,   first=0  idx=1 seq_n=2, w 0.975,648,659,
+i 8,   first=0  idx=0 seq_n=2, w 0.975,648,675,
+i 9,   first=0  idx=1 seq_n=2, w 0.975,648,690,
+8 (n 10) mean   0.975,648,684, stddev 0.000,000,010,
+nplc 9
+i 0,   first=1  idx=0 seq_n=2, w 0.975,648,638,
+i 1,   first=0  idx=1 seq_n=2, w 0.975,648,665,
+i 2,   first=0  idx=0 seq_n=2, w 0.975,648,652,
+i 3,   first=0  idx=1 seq_n=2, w 0.975,648,678,
+i 4,   first=0  idx=0 seq_n=2, w 0.975,648,638,
+i 5,   first=0  idx=1 seq_n=2, w 0.975,648,665,
+i 6,   first=0  idx=0 seq_n=2, w 0.975,648,638,
+i 7,   first=0  idx=1 seq_n=2, w 0.975,648,638,
+i 8,   first=0  idx=0 seq_n=2, w 0.975,648,665,
+i 9,   first=0  idx=1 seq_n=2, w 0.975,648,652,
+9 (n 10) mean   0.975,648,653, stddev 0.000,000,014,
+nplc 10
+i 0,   first=1  idx=0 seq_n=2, w 0.975,648,668,
+i 1,   first=0  idx=1 seq_n=2, w 0.975,648,644,
+i 2,   first=0  idx=0 seq_n=2, w 0.975,648,644,
+i 3,   first=0  idx=1 seq_n=2, w 0.975,648,656,
+i 4,   first=0  idx=0 seq_n=2, w 0.975,648,644,
+i 5,   first=0  idx=1 seq_n=2, w 0.975,648,656,
+i 6,   first=0  idx=0 seq_n=2, w 0.975,648,656,
+i 7,   first=0  idx=1 seq_n=2, w 0.975,648,644,
+i 8,   first=0  idx=0 seq_n=2, w 0.975,648,644,
+i 9,   first=0  idx=1 seq_n=2, w 0.975,648,668,
+10 (n 10) mean   0.975,648,652, stddev 0.000,000,009,
+
+
+#endif
 
