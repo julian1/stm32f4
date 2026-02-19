@@ -27,10 +27,8 @@
 static void test (app_t *app)
 {
 
-  // new mode
-  _mode_t mode ;
-  mode_reset( &mode);
-
+  _mode_t *mode = app->mode;
+  mode_reset( mode);
 
   bool flip = 0;
 
@@ -42,13 +40,13 @@ static void test (app_t *app)
         flip = ! flip;
 
         switch(k) {
-          case 0: mode.first.K702 =  flip ? 0b01 : 0b10; break;
-          case 1: mode.first.K703 =  flip ? 0b01 : 0b10; break;
+          case 0: mode->first.K702 =  flip ? 0b01 : 0b10; break;
+          case 1: mode->first.K703 =  flip ? 0b01 : 0b10; break;
 
-          case 2: mode.first.K401 =  flip ? 0b01 : 0b10;  break;
-          case 3: mode.first.K402 =  flip ? 0b01 : 0b10;  break;
-          case 4: mode.first.K403 =  flip ? 0b01 : 0b10;  break;
-          case 5: mode.first.K404 =  flip ? 0b01 : 0b10; break;
+          case 2: mode->first.K401 =  flip ? 0b01 : 0b10;  break;
+          case 3: mode->first.K402 =  flip ? 0b01 : 0b10;  break;
+          case 4: mode->first.K403 =  flip ? 0b01 : 0b10;  break;
+          case 5: mode->first.K404 =  flip ? 0b01 : 0b10; break;
 
         }
 
