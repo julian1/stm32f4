@@ -37,28 +37,29 @@ static void test (app_t *app)     // should be passing the continuation.
     we could verify with some checks.  */
 
 
+  assert(0);
+  _mode_t *mode = app->mode;
+  mode_reset( mode);
 
-  // new mode
-  _mode_t mode ;
-  mode_reset( &mode);
+
 
 
 
   ////////////////////
   // phase 1, soak/charge accumulation cap
   // setup input relays.
-  mode.first .K407 = SR_SET;    // select dcv-source on ch1.
-  mode.first .K405 = SR_SET;     // select ch1. to feed through to accum cap.
-  mode.first .K406 = SR_RESET;   // select accum cap
+  mode->first.K407 = SR_SET;    // select dcv-source on ch1.
+  mode->first.K405 = SR_SET;     // select ch1. to feed through to accum cap.
+  mode->first.K406 = SR_RESET;   // select accum cap
 
   // use direct mode - for soak/charge of accum cap.
-  // mode.reg_mode =  MODE_DIRECT;
-  mode_reg_cr_set( &mode, MODE_DIRECT);
+  // mode->reg_mode =  MODE_DIRECT;
+  mode_reg_cr_set( mode, MODE_DIRECT);
 
-  mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
+  mode->reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
 
-  printf("azmux       %u\n", mode.reg_direct.azmux_o );   // consider - formatting
-  printf("pc_ch1      %u\n", mode.reg_direct.pc_ch1_o );  // add formatting
+  printf("azmux       %u\n", mode->reg_direct.azmux_o );   // consider - formatting
+  printf("pc_ch1      %u\n", mode->reg_direct.pc_ch1_o );  // add formatting
 
 
 
@@ -66,16 +67,16 @@ static void test (app_t *app)     // should be passing the continuation.
   HERE
   // we  can control these  'set azmux SOFF, set pc 0b00'
   assert(
-       (mode.reg_direct.azmux_o == SOFF && mode.reg_direct.sig_pc_ch_o == 0b00 )    // azmux off, precharge select boot.
-    || (mode.reg_direct.azmux_o == S3   && mode.reg_direct.sig_pc_ch_o == 0b01)    // azmux select dcv,  pre-charge select signal.
+       (mode->reg_direct.azmux_o == SOFF && mode->reg_direct.sig_pc_ch_o == 0b00 )    // azmux off, precharge select boot.
+    || (mode->reg_direct.azmux_o == S3   && mode->reg_direct.sig_pc_ch_o == 0b01)    // azmux select dcv,  pre-charge select signal.
     );
 */
 
 
 #if 0
   assert(
-       (mode.reg_direct.azmux_o == SOFF && mode.reg_direct.pc_ch1_o == SW_PC_BOOT)            // without routing through az mux
-    || (mode.reg_direct.azmux_o == AZMUX_CH1_HI   && mode.reg_direct.pc_ch1_o == SW_PC_SIGNAL)  // normal mode, route to amplifier
+       (mode->reg_direct.azmux_o == SOFF && mode->reg_direct.pc_ch1_o == SW_PC_BOOT)            // without routing through az mux
+    || (mode->reg_direct.azmux_o == AZMUX_CH1_HI   && mode->reg_direct.pc_ch1_o == SW_PC_SIGNAL)  // normal mode, route to amplifier
     );
 
 #endif
@@ -83,8 +84,8 @@ static void test (app_t *app)     // should be passing the continuation.
 
 /*
   // test input leakage - including precharge, and azmux, but without amplifier
-  mode.reg_direct.azmux_o = SOFF;         // azmux off, so amplifier floats
-  mode.reg_direct.sig_pc_ch_o = 0b00 ;    // precharge switches off / select boot.
+  mode->reg_direct.azmux_o = SOFF;         // azmux off, so amplifier floats
+  mode->reg_direct.sig_pc_ch_o = 0b00 ;    // precharge switches off / select boot.
 
 */
 
@@ -98,12 +99,12 @@ static void test (app_t *app)     // should be passing the continuation.
   ////////////////////////
   // phase 2, discocnnect dcv-source
   printf("disconnect dcv-source and observe drift\n");
-  mode.first .K407 = SR_RESET;      // turn off dcv-source
+  mode->first .K407 = SR_RESET;      // turn off dcv-source
 
 
-/*     mode.second.U1006  = 0;          // weird - we switch the dc-source mux off - we have very high leakage. might be flux.
-  mode.second.U1003 = 0; */
-  mode.reg_direct.leds_o = 0b0010;
+/*     mode->second.U1006  = 0;          // weird - we switch the dc-source mux off - we have very high leakage. might be flux.
+  mode->second.U1003 = 0; */
+  mode->reg_direct.leds_o = 0b0010;
 
   // spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
   app_transition_state( app);
@@ -114,9 +115,9 @@ static void test (app_t *app)     // should be passing the continuation.
   ////////////////////////
   // phase 3. observe, take measurement etc
 
-  assert( mode.reg_cr.mode == MODE_DIRECT );
+  assert( mode->reg_cr.mode == MODE_DIRECT );
 
-  mode.reg_direct.leds_o = 0b0100;
+  mode->reg_direct.leds_o = 0b0100;
   // now we do the sleep- to take the measurement.
   printf("sleep 2s\n");  // having a yield would be quite nice here.
   // spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
@@ -274,7 +275,7 @@ mar 5. 2024.
   // data lost?
 
   // oct 19.
-  // refactor to use fpga no-az mode.
+  // refactor to use fpga no-az mode->
   // 5mins between.
 
   +10V.

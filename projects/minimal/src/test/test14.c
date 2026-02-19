@@ -55,9 +55,10 @@ static void test (app_t *app)     // should be passing the continuation.
   /* we assume dcv-source and nplc have been set up on mode already.
     we could verify with some checks.  */
 
-  // new mode
-  _mode_t mode ;
-  mode_reset( &mode);
+  assert( 0);
+  _mode_t *mode = app->mode;
+  mode_reset( mode);
+
 
 
 
@@ -65,24 +66,24 @@ static void test (app_t *app)     // should be passing the continuation.
   // phase 1, soak/charge accumulation cap
 
   // setup input relays.
-  mode.first .K407 = SR_SET;    // select dcv-source on ch1.
-  mode.first .K405 = SR_SET;     // select ch1. to feed through to accum cap.
-  mode.first .K406 = SR_RESET;   // select accum cap
+  mode->first .K407 = SR_SET;    // select dcv-source on ch1.
+  mode->first .K405 = SR_SET;     // select ch1. to feed through to accum cap.
+  mode->first .K406 = SR_RESET;   // select accum cap
 
 
 
   // set up fpga - with direct mode - for soak/charge of accum cap.
-  // mode.reg_mode     =  MODE_DIRECT;
-  mode_reg_cr_set( &mode, MODE_DIRECT);
+  // mode->reg_mode     =  MODE_DIRECT;
+  mode_reg_cr_set( mode, MODE_DIRECT);
 
 
-  assert( mode.reg_direct.azmux_o == SOFF) ;
-  // HERE assert( mode.reg_direct.sig_pc_ch_o == 0b00 );
-  assert( mode.reg_direct.pc_ch1_o == SW_PC_BOOT );
+  assert( mode->reg_direct.azmux_o == SOFF) ;
+  // HERE assert( mode->reg_direct.sig_pc_ch_o == 0b00 );
+  assert( mode->reg_direct.pc_ch1_o == SW_PC_BOOT );
 
-  mode.reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
+  mode->reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
 
-  // spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
+  // spi_mode_transition_state( &app->devices, mode, &app->system_millis);
   app_transition_state( app);
   printf("sleep 10s\n");  // having a yield would be quite nice here.
   msleep(10 * 1000, &app->system_millis);
@@ -90,7 +91,7 @@ static void test (app_t *app)     // should be passing the continuation.
 
   ////////////////////////
   // phase 2, discocnnect dcv-source
-  //           and switch into precharge mode.
+  //           and switch into precharge mode->
 
   printf("mode to pc-only\n");
   printf("disconnect dcv-source and observe drift\n");
@@ -104,30 +105,30 @@ static void test (app_t *app)     // should be passing the continuation.
   check it again on the monitor.
 
 */
-  // mode.reg_mode = MODE_SA_MOCK_ADC;
-  mode_reg_cr_set( &mode, MODE_SA_MOCK_ADC);
+  // mode->reg_mode = MODE_SA_MOCK_ADC;
+  mode_reg_cr_set( mode, MODE_SA_MOCK_ADC);
 
   assert(0);  // dec 2024. review
 /*
-  mode.sa.p_seq_n  = 2;
-  mode.sa.p_seq0 = (PCOFF << 4) | SOFF;        // 0b00
-  mode.sa.p_seq1 = (PC01 << 4 )  | SOFF;
+  mode->sa.p_seq_n  = 2;
+  mode->sa.p_seq0 = (PCOFF << 4) | SOFF;        // 0b00
+  mode->sa.p_seq1 = (PC01 << 4 )  | SOFF;
 */
 
 
 
 
   // trigger start of sample acquisition
-  // mode.trig_sa = 1;
+  // mode->trig_sa = 1;
   app_trigger_internal( app, 1);   // aug 2025.
 
 
 
 
-  mode.first .K407 = SR_RESET;      // turn off dcv-source
-  // mode.reg_direct.leds_o  = 0b0010;    // advance led.   note. won't display in different mode.
+  mode->first .K407 = SR_RESET;      // turn off dcv-source
+  // mode->reg_direct.leds_o  = 0b0010;    // advance led.   note. won't display in different mode->
 
-  // spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
+  // spi_mode_transition_state( &app->devices, mode, &app->system_millis);
   app_transition_state( app);
   printf("sleep 10s\n");  // having a yield() would be quite nice here.
   msleep(10 * 1000,  &app->system_millis);
@@ -136,7 +137,7 @@ static void test (app_t *app)     // should be passing the continuation.
     so that the amplifier doesn't suck all the charge out of the capacitor.
     normal AZ mode - can do this.
     can change sequence acquisition - to take one more measurement - and finish.
-    rather than hard synchronous reset - by changing the mode.
+    rather than hard synchronous reset - by changing the mode->
   ---
     actually no. azmux is always off here.
     it's the opening up again that needs to be managed, with precharge switch active.
@@ -147,13 +148,13 @@ static void test (app_t *app)     // should be passing the continuation.
   ////////////////////////
   // phase 3. observe, take measurement etc
 
-  // mode.reg_mode = MODE_DIRECT;
-  mode_reg_cr_set( &mode, MODE_DIRECT);
+  // mode->reg_mode = MODE_DIRECT;
+  mode_reg_cr_set( mode, MODE_DIRECT);
 
-  mode.reg_direct.leds_o = 0b0100;
+  mode->reg_direct.leds_o = 0b0100;
   // now we do the sleep- to take the measurement.
   printf("sleep 2s\n");  // having a yield would be quite nice here.
-  // spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
+  // spi_mode_transition_state( &app->devices, mode, &app->system_millis);
   app_transition_state( app);
   msleep(2 * 1000,  &app->system_millis);
 }

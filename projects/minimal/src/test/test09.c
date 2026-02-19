@@ -43,27 +43,24 @@ bool app_test09( app_t *app , const char *cmd)
     app_repl_statements(app, "reset; dcv-source lts 1;  dcv-source chan 1 ; " ); // nplc.
 
 
-    // new mode
-    _mode_t mode ;
-    mode_reset( &mode);
+    _mode_t *mode = app->mode;
+    mode_reset( mode);
 
 
     // set up sequence acquision
     // mode.reg_mode = MODE_SA_ADC;       // mode 7
-    mode_reg_cr_set( &mode, MODE_SA_ADC);
+    mode_reg_cr_set( mode, MODE_SA_ADC);
 
 /*
-    mode.sa.p_seq_n  = 2;
-    mode.sa.p_seq0 = (PC01 << 4) | S1;                // dcv/ chan 1.
-    mode.sa.p_seq1 = mode.sa.p_seq0 ;         // the same
+    mode->sa.p_seq_n  = 2;
+    mode->sa.p_seq0 = (PC01 << 4) | S1;                // dcv/ chan 1.
+    mode->sa.p_seq1 = mode.sa.p_seq0 ;         // the same
 */
 
-    sa_state_t *sa = &mode.sa;
+    sa_state_t *sa = &mode->sa;
     sa->p_seq_n = 2;
     sa->p_seq_elt[ 0].azmux = S1;
     sa->p_seq_elt[ 0].pc = 0b01;
-
-
 
 
     // ok. so we need to encode the trigger.

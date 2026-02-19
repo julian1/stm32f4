@@ -47,10 +47,8 @@ static void test (app_t *app)
           case 3: mode->first.K402 =  flip ? 0b01 : 0b10;  break;
           case 4: mode->first.K403 =  flip ? 0b01 : 0b10;  break;
           case 5: mode->first.K404 =  flip ? 0b01 : 0b10; break;
-
         }
 
-        // spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
         app_transition_state( app);
 
         msleep( 300, &app->system_millis);
