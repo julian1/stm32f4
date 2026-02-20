@@ -348,7 +348,7 @@ void mode_reg_cr_set(_mode_t *mode, unsigned u0);
 void mode_az_set(_mode_t *mode, const char *s);
 
 
-void mode_amp_gain_set( _mode_t *mode, uint32_t u);
+void mode_gain_set( _mode_t *mode, uint32_t u);
 
 void mode_lts_set( _mode_t *mode, double f0 /*signed i0*/);       // arg is 10,0,-10
 void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 );   // factor into daq_set and ch2_set

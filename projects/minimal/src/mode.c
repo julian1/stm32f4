@@ -211,9 +211,9 @@ void mode_az_set(_mode_t *mode, const char *s)
 
 
 
+// renam mode_gain_set(). simpler.
 
-
-void mode_amp_gain_set( _mode_t *mode, uint32_t u)
+void mode_gain_set( _mode_t *mode, uint32_t u)
 {
 
   printf("set amp gain\n");
@@ -947,12 +947,11 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
   // need to work out if keep the set...
 
 
-  else if((sscanf(cmd, "set gain %100s", s0) == 1
-    || sscanf(cmd, "set amp gain %100s", s0) == 1)
+  else if((sscanf(cmd, "set gain %100s", s0) == 1)
     && str_decode_uint( s0, &u0))  {
 
 
-    mode_amp_gain_set( mode, u0 );
+    mode_gain_set( mode, u0 );
   }
 
 
