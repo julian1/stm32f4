@@ -341,16 +341,19 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );
 // TODO - set should be suffix.
 
 void mode_reg_cr_set(_mode_t *mode, unsigned u0);
-void mode_sa_set(_mode_t *mode, const char *s);
-void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 );
+
+// feb 2026. do we even really need this
+// void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 );
+
+void mode_az_set(_mode_t *mode, const char *s);
 
 
 void mode_amp_gain_set( _mode_t *mode, uint32_t u);
 
 void mode_lts_set( _mode_t *mode, double f0 /*signed i0*/);       // arg is 10,0,-10
 void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 );   // factor into daq_set and ch2_set
-void mode_mdac0_set( _mode_t *mode, unsigned u0 );                // inverter
-void mode_mdac1_set( _mode_t *mode, unsigned u0 );                // isolated sts dac.
+void mode_mdac0_set( _mode_t *mode, unsigned u0 );                // inverter  rename dac_invert_set
+void mode_mdac1_set( _mode_t *mode, unsigned u0 );                // floating  rename dac_float_set  or dac_sts_set
 
 
 // ch1.

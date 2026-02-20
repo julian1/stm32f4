@@ -139,11 +139,11 @@ void mode_reg_cr_set(_mode_t *mode, unsigned u0)
 // actually may be better to have noaz. to set up. to run with p_seq_n = 1;
 // and no switching.
 
-void mode_sa_set(_mode_t *mode, const char *s)
+void mode_az_set(_mode_t *mode, const char *s)
 {
   /* note the same syntax
 
-      options here.   ch1, ch2, ratio.
+      options here.   "ch1", "ch2", "ratio", "0".
       keep the az flag separate.
   */
 
@@ -1052,10 +1052,10 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
     mode_loside_set( mode, s0);
   }
 
-  else if( sscanf(cmd, "set sa %100s", s0) == 1
-    || sscanf(cmd, "set azmux %100s", s0) == 1)  {
+  else if( sscanf(cmd, "set az %100s", s0) == 1
+    /* || sscanf(cmd, "set sa %100s", s0) == 1 */)  {
 
-    mode_sa_set( mode, s0 );
+    mode_az_set( mode, s0 );
   }
 
 

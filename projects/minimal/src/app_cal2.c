@@ -108,7 +108,7 @@ void app_cal2(
 
 
   // sample acquisition mode - for adc running standalone.  // REVIEW ME
-  mode_sa_set(mode, "0" );
+  mode_az_set(mode, "0" );
 
 
   mode->reg_cr.adc_p_active_sigmux = 0;   // sigmux not active.
