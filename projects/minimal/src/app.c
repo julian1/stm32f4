@@ -1655,6 +1655,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
   else if( app_test50( app, cmd)) { }
   else if( app_test51( app, cmd)) { }
+  else if( app_test52( app, cmd)) { }
 
   else {
 

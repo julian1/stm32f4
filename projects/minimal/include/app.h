@@ -314,6 +314,7 @@ bool app_test42( app_t *app, const char *cmd, void (*yield)( void * ), void * yi
 
 bool app_test50( app_t *app , const char *cmd);
 bool app_test51( app_t *app , const char *cmd);
+bool app_test52( app_t *app , const char *cmd);
 
 
 

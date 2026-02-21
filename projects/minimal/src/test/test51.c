@@ -68,6 +68,7 @@ static void test( app_t *app)
 
   /////////////////////////
 
+  // cal stuff
   double w = 0;
   uint32_t w_clk_count_aperture = 0;
 
@@ -143,6 +144,9 @@ static void test( app_t *app)
     w =  mean_pos / mean_neg;
 
   }
+  // stop sampling
+  app_trigger( app, false);
+
 
   // printf(" w %.8f, ", w );
   printf( "w %s\n", str_format_float_with_commas(buf, 100, 9, w));
@@ -168,8 +172,6 @@ static void test( app_t *app)
 
     printf("nplc %u\n", nplc);
 
-    // sampling off
-    app_trigger( app, false);
 
     // set nplc
     mode->adc.p_aperture = nplc_to_aperture( nplc, data->line_freq );				// fix jul 2024.
