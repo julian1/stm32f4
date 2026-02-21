@@ -363,7 +363,6 @@ void mode_ch1_set_dcv_source(_mode_t *mode);    // change name lts eg.  using in
 
 
 // ch2
-// TODO fix the prefix here...
 void mode_ch2_reset(_mode_t *mode);
 void mode_ch2_set_ref( _mode_t *mode);
 void mode_ch2_set_ref_lo( _mode_t *mode);
@@ -377,7 +376,7 @@ void mode_ch2_set_dcv_div(_mode_t *mode);
 
 
 
-
+// better name.  set_cap. or something
 void mode_ch1_accum( _mode_t *mode, bool);
 void mode_ch2_accum( _mode_t *mode, bool);
 

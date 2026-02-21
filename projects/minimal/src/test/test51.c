@@ -55,9 +55,11 @@ static void test( app_t *app)
   // normal sample acquisition/adc operation
   mode_reg_cr_set( mode, MODE_SA_ADC);
 
-
   // sample acquisition mode - for adc running standalone.  // REVIEW ME
   mode_az_set(mode, "0" );
+
+  // hold input to adc at lo. to reduce leakage.
+  mode_ch2_set_ref_lo( mode);
 
 
   mode->reg_cr.adc_p_active_sigmux = 0;   // sigmux not active.
@@ -97,7 +99,7 @@ static void test( app_t *app)
     {
       printf("i %u, ", i);
 
-      // wait for adc data, on interrupt
+      // wait for adc data
       // use express yield function here. not app->yield etc
       while( !app->adc_interrupt_valid )
         app_update_simple_led_blink( app);
@@ -189,7 +191,7 @@ static void test( app_t *app)
       printf("i %u, ", i);
 
 
-      // wait for adc data, on interrupt
+      // wait for adc data
       // use express yield function here. not app->yield etc
       while( !app->adc_interrupt_valid )
         app_update_simple_led_blink( app);
