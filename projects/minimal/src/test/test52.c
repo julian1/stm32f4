@@ -58,6 +58,9 @@ static void test( app_t *app)
   // sample acquisition mode - for adc running standalone.  // REVIEW ME
   mode_az_set(mode, "0" );
 
+  // REVIWE should not need this....
+  mode_gain_set(mode, 1);
+
   // hold input to adc at lo. to reduce leakage.
   mode_ch2_set_ref_lo( mode);
 
@@ -67,10 +70,11 @@ static void test( app_t *app)
 
   /////////////////////////
 
+  unsigned nplc = 10;
+
   // cal stuff
   double w = 0;
   // uint32_t w_clk_count_aperture = 0;
-
 
   {
     // need double for mean()
@@ -83,7 +87,7 @@ static void test( app_t *app)
     app_trigger( app, false);
 
     // nplc to use
-    mode->adc.p_aperture = nplc_to_aperture( 1 , data->line_freq );
+    mode->adc.p_aperture = nplc_to_aperture( nplc , data->line_freq );
     app_transition_state( app);
     // sleep
     yield_with_msleep( 1 * 1000, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
@@ -156,40 +160,40 @@ static void test( app_t *app)
   // printf(" w %.8f, ", w );
   printf( "w %s\n", str_format_float_with_commas(buf, 100, 9, w));
 
-
   assert( w);
 
 
 
-    ////////////////////////
 
 
+  ////////////////////////
+  // may need larger int ....
+  // for long
+  // better name clk_count_refmux_net
+  int32_t w_clk_count_refmux = 0;     // MUST BE SIGNED.
+  uint32_t w_clk_count_aperture  = 0 ;
+
+  {
     // set nplc
-    mode->adc.p_aperture = nplc_to_aperture( 1, data->line_freq );
+    mode->adc.p_aperture = nplc_to_aperture( nplc, data->line_freq );
 
     // reset ; set lts 10; set gain 1;  set ch2 lts; set az ch2; set mode 6; trig;
     // need to set the ref.
 
-
-    // use the internal reference
+    // calibrate against ref.
     mode_ch2_set_ref( mode);
 
     mode_az_set(mode, "ch2" );
 
-
-
     app_transition_state( app);
+
+
     // sleep
     yield_with_msleep( 1 * 1000, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
     // start sampling
     app_trigger( app, true);
 
 
-    // may need larger int ....
-    // for long
-    // better name clk_count_refmux_net
-    uint32_t w_clk_count_refmux = 0;     // this is weight/adjusted.
-    uint32_t w_clk_count_aperture  = 0 ;
 
     // compute ref for diff
     // take obs loop
@@ -209,28 +213,42 @@ static void test( app_t *app)
        _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
       memcpy( &status, &status_,  sizeof( status_));
 
-      printf("  first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
+      uint32_t clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+      uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+      uint32_t clk_count_aperture   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);
+
+
+      printf(" first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
+      printf(" counts pos %lu neg %lu", clk_count_refmux_pos, clk_count_refmux_neg);
+
+
 
       // we care about hi v lo. yes because we want the diff.
-      if(status.sample_idx == 0) {
-        // lo
-        w_clk_count_refmux   += spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-        w_clk_count_refmux   -= w * spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG) ;
-      } else {
+      if(status.sample_idx == 1) {
         // hi
-        w_clk_count_refmux   -= spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-        w_clk_count_refmux   -= w * spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+        w_clk_count_refmux   +=     clk_count_refmux_pos;
+        w_clk_count_refmux   -= w * clk_count_refmux_neg;
+      }
+      else if(status.sample_idx == 0) {
+        // lo
+        w_clk_count_refmux   -=     clk_count_refmux_pos;
+        w_clk_count_refmux   -= w * clk_count_refmux_neg;
+      } else {
+        assert(0);
       }
 
-      w_clk_count_aperture  += spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);
+      printf( "w_clk_count_refmux   %ld\n", w_clk_count_refmux);
+
+      w_clk_count_aperture  += clk_count_aperture;
       printf("\n");
     }
 
     // stop sampling
     app_trigger( app, false);
 
-
-
+    printf( "w_clk_count_refmux   %ld\n", w_clk_count_refmux);
+    printf( "w_clk_count_aperture %lu\n", w_clk_count_aperture);
+  }
 
 
 
@@ -263,34 +281,41 @@ static void test( app_t *app)
        _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
       memcpy( &status, &status_,  sizeof( status_));
 
-      printf("  first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
 
       uint32_t clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
       uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
       uint32_t clk_count_aperture   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);
 
+      // why are these the same??????
+      printf(" first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
+      printf(" counts pos %lu neg %lu", clk_count_refmux_pos, clk_count_refmux_neg);
+
       // we care about hi v lo. yes because we want the diff.
       if(status.sample_idx == 0) {
         // lo
 
-        // just record to use for later...
+        // record, for when we get the hi...
         // we can produce a value here as well.
         clk_count_refmux_pos_lo = clk_count_refmux_pos;
         clk_count_refmux_neg_lo = clk_count_refmux_neg;
-      } else {
+      }
+      else if (status.sample_idx == 1) {
         // hi
 
 
-        double v = ((double) +clk_count_refmux_pos - (w * clk_count_refmux_neg))
-                - ( clk_count_refmux_pos_lo  - (w * clk_count_refmux_neg_lo));
+        // think this isn't right.  it is hi - lo.  not pos - neg.
+        double v = ((double) clk_count_refmux_pos - (w * clk_count_refmux_neg))
+                - ( (double) clk_count_refmux_pos_lo  - (w * clk_count_refmux_neg_lo));
 
+        printf("v %f\n", v );
 
         double v2 = v / clk_count_aperture  * w_clk_count_aperture  * 7.1 ;  //  need to adjust for the cal voltage
-
 
         printf("v2 %f\n", v2 );
 
       }
+      else
+        assert(0);
 
 
       // ahhh no. we have to repeat the hi lo. thing going.
@@ -302,7 +327,11 @@ static void test( app_t *app)
     // trig off
     app_trigger( app, false);
 
+    // normal sample acquisition/adc operation
+    mode_reg_cr_set( mode, MODE_DIRECT);
 
+
+    app_transition_state( app);
 
 
 

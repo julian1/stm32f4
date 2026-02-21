@@ -171,7 +171,7 @@ void mode_az_set(_mode_t *mode, const char *s)
 
   else if(strcmp(s, "ch2") == 0 ) {
 
-    // direct mode
+    // Keep this - it is really helpful for direct mode.
     mode->reg_direct.azmux_o = S3;
     mode->reg_direct.pc_ch2_o = 1;
 
@@ -1069,10 +1069,13 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
       mode_ch2_reset(mode);
     }
 
-    else if(strcmp(s0, "ref") == 0) {
+    else if(strcmp(s0, "ref") == 0
+		|| strcmp(s0, "ref-hi") == 0) {
+
       mode_ch2_set_ref( mode);
     }
-    else if(strcmp(s0, "ref-lo") == 0) {
+    else if(strcmp(s0, "ref-lo") == 0
+		||  strcmp(s0, "ref_lo") == 0) {
       mode_ch2_set_ref_lo( mode);
     }
     else if(strcmp(s0, "temp") == 0) {
