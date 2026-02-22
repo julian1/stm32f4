@@ -127,8 +127,10 @@ static void test( app_t *app)
 
       // w_clk_count_aperture            = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);
 
-      printf("  counts pos %lu neg %lu, ", clk_count_refmux_pos, clk_count_refmux_neg);
-      printf("sigmux %lu, ", clk_count_sigmux);
+      printf("counts pos %7lu neg %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg);
+      printf("sigmux %7lu, ", clk_count_sigmux);
+
+
 
       pos_values[i] = clk_count_refmux_pos;
       neg_values[i] = clk_count_refmux_neg;
@@ -173,24 +175,28 @@ static void test( app_t *app)
   // may need larger int ....
   // for long
   // better name clk_count_refmux_net
-  int32_t w_clk_count_refmux = 0;     // MUST BE SIGNED.
-  uint32_t w_clk_count_aperture  = 0 ;
+  // int32_t w_clk_count_refmux = 0;     // MUST BE SIGNED.
+  // uint32_t w_clk_count_aperture  = 0 ;
+
+    ////////
+  // only record the last lo.
+  uint32_t clk_count_refmux_pos_lo = 0;     // this is adjusted...
+  uint32_t clk_count_refmux_neg_lo = 0;
+
+  // better name. count divisor/ factor.
+  double values[ 10 ];
 
   {
-    // set nplc
+    // nplc
     mode->adc.p_aperture = nplc_to_aperture( nplc, data->line_freq );
 
-    // reset ; set lts 10; set gain 1;  set ch2 lts; set az ch2; set mode 6; trig;
-    // need to set the ref.
-
-    // calibrate against ref.
+    // calibrate against ref
     mode_ch2_set_ref( mode);
 
     mode_az_set(mode, "ch2" );
 
     // sigmux active
     mode->reg_cr.adc_p_active_sigmux = 1;
-
 
     app_transition_state( app);
 
@@ -201,12 +207,10 @@ static void test( app_t *app)
     app_trigger( app, true);
 
 
-
     // compute ref for diff
-    // take obs loop
-    for(unsigned i = 0; i < 10; ++i)
+    for(unsigned i = 0; i < ARRAY_SIZE( values);)
     {
-      printf("i %u, ", i);
+      printf("i %u, ", i);      // two readings per value...
 
       // wait for adc data
       // use express yield function here. not app->yield etc
@@ -222,58 +226,68 @@ static void test( app_t *app)
 
       uint32_t clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
       uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-      uint32_t clk_count_aperture   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);
+      // uint32_t clk_count_aperture   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);
       uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
 
-
       printf("first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
-      printf("counts pos %lu neg %lu, ", clk_count_refmux_pos, clk_count_refmux_neg);
-      printf("sigmux %lu, ", clk_count_sigmux);
+      printf("counts pos %7lu neg %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg);
+      printf("sigmux %7lu, ", clk_count_sigmux);
 
-
-      // we care about hi v lo. yes because we want the diff.
-      if(status.sample_idx == 1) {
+      if(status.sample_idx == 0) {
+        // lo - record counts
+        clk_count_refmux_pos_lo = clk_count_refmux_pos;
+        clk_count_refmux_neg_lo = clk_count_refmux_neg;
+      }
+      else if (status.sample_idx == 1) {
         // hi
-        w_clk_count_refmux   +=     clk_count_refmux_pos;
-        w_clk_count_refmux   -= w * clk_count_refmux_neg;
+        double v = ((double) clk_count_refmux_pos - (w * clk_count_refmux_neg))
+                - ( (double) clk_count_refmux_pos_lo  - (w * clk_count_refmux_neg_lo));
+
+        printf("v %f, ", v );
+        values[ i ] = v;
+        // only increment on hi.
+        ++i;
       }
-      else if(status.sample_idx == 0) {
-        // lo
-        w_clk_count_refmux   -=     clk_count_refmux_pos;
-        w_clk_count_refmux   -= w * clk_count_refmux_neg;
-      } else {
+      else
         assert(0);
-      }
 
-      printf( "w_clk_count_refmux   %ld\n", w_clk_count_refmux);
-
-      w_clk_count_aperture  += clk_count_aperture;
       printf("\n");
     }
 
     // stop sampling
     app_trigger( app, false);
 
-    printf( "w_clk_count_refmux   %ld\n", w_clk_count_refmux);
-    printf( "w_clk_count_aperture %lu\n", w_clk_count_aperture);
+    // printf( "w_clk_count_refmux   %ld\n", w_clk_count_refmux);
+    // printf( "w_clk_count_aperture %lu\n", w_clk_count_aperture);
   }
+
+  double mean_values = mean(   values, ARRAY_SIZE(values));
+  // printf( "mean_values %s\n", str_format_float_with_commas(buf, 100, 9, mean_values));
+  printf( "mean_values %.3f\n",  mean_values);
 
 
 
   ////////////////////////
 
+
+    // mode_ch2_set_ref( mode);
+    // mode_ch2_set_ref_lo( mode);
+    // mode_az_set(mode, "ch2" );
+
+    // set 10V.
+    // mode_lts_set( mode, 10 );
+    // mode_ch2_set_lts( mode);
+
+    app_transition_state( app);
+
     // sleep
     yield_with_msleep( 1 * 1000, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
+
     // start sampling
     app_trigger( app, true);
 
-    ////////
-    // only record the last lo.
-    uint32_t clk_count_refmux_pos_lo = 0;     // this is adjusted...
-    uint32_t clk_count_refmux_neg_lo = 0;
-
     // take obs loop
-    for(unsigned i = 0; i < 10; ++i)
+    for(unsigned i = 0; i < 5 ;)
     {
       printf("i %u, ", i);
 
@@ -289,41 +303,33 @@ static void test( app_t *app)
        _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
       memcpy( &status, &status_,  sizeof( status_));
 
-
       uint32_t clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
       uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-      uint32_t clk_count_aperture   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);
+      // uint32_t clk_count_aperture   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);
       uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
 
-
       printf("first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
-      printf("counts pos %lu neg %lu, ", clk_count_refmux_pos, clk_count_refmux_neg);
-      printf("sigmux %lu, ", clk_count_sigmux);
+      printf("counts pos %7lu neg %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg);
+      printf("sigmux %7lu, ", clk_count_sigmux);
 
-
-
-      // we care about hi v lo. yes because we want the diff.
       if(status.sample_idx == 0) {
-        // lo
-
-        // record, for when we get the hi...
-        // we can produce a value here as well.
+        // lo - record counts
         clk_count_refmux_pos_lo = clk_count_refmux_pos;
         clk_count_refmux_neg_lo = clk_count_refmux_neg;
       }
       else if (status.sample_idx == 1) {
         // hi
-
-
-        // think this isn't right.  it is hi - lo.  not pos - neg.
         double v = ((double) clk_count_refmux_pos - (w * clk_count_refmux_neg))
                 - ( (double) clk_count_refmux_pos_lo  - (w * clk_count_refmux_neg_lo));
 
         printf("v %f, ", v );
 
-        double v2 = v / clk_count_aperture  * w_clk_count_aperture  * 7.1 ;  //  need to adjust for the cal voltage
+        double v2 = v / mean_values * 7.1 ;  //  need to adjust for the cal voltage
 
-        printf("v2 %f, ", v2 );
+        printf( "v2 %s, ", str_format_float_with_commas(buf, 100, 9, v2));
+        // printf("v2 %f, ", v2 );
+
+        ++i;
 
       }
       else
@@ -373,5 +379,65 @@ bool app_test52(
 
   return 0;
 }
+
+#if 0
+
+
+> test52
+test52()
+set amp gain
+i 0,   first=1  idx=0 seq_n=2, counts pos 1975922 neg 2025233, sigmux       0,
+i 1,   first=0  idx=1 seq_n=2, counts pos 1975926 neg 2025237, sigmux       0,
+i 2,   first=0  idx=0 seq_n=2, counts pos 1975924 neg 2025235, sigmux       0,
+i 3,   first=0  idx=1 seq_n=2, counts pos 1975926 neg 2025237, sigmux       0,
+i 4,   first=0  idx=0 seq_n=2, counts pos 1975921 neg 2025232, sigmux       0,
+i 5,   first=0  idx=1 seq_n=2, counts pos 1975925 neg 2025236, sigmux       0,
+i 6,   first=0  idx=0 seq_n=2, counts pos 1975924 neg 2025235, sigmux       0,
+i 7,   first=0  idx=1 seq_n=2, counts pos 1975924 neg 2025235, sigmux       0,
+i 8,   first=0  idx=0 seq_n=2, counts pos 1975922 neg 2025233, sigmux       0,
+i 9,   first=0  idx=1 seq_n=2, counts pos 1975924 neg 2025235, sigmux       0,
+pos mean   1975923.800,000,000,
+pos stddev 1.600,000,000,
+neg mean   2025234.800,000,000,
+neg stddev 1.600,000,000,
+w 0.975,651,712,
+i 0, first=1  idx=0 seq_n=2, counts pos 1976363 neg 2025633, sigmux 4000001,
+i 0, first=0  idx=1 seq_n=2, counts pos  988741 neg 3013361, sigmux 4000001, v -1951300.514277,
+i 1, first=0  idx=0 seq_n=2, counts pos 1976362 neg 2025632, sigmux 4000001,
+i 1, first=0  idx=1 seq_n=2, counts pos  988741 neg 3013361, sigmux 4000001, v -1951300.489929,
+i 2, first=0  idx=0 seq_n=2, counts pos 1976361 neg 2025631, sigmux 4000001,
+i 2, first=0  idx=1 seq_n=2, counts pos  988741 neg 3013361, sigmux 4000001, v -1951300.465581,
+i 3, first=0  idx=0 seq_n=2, counts pos 1976357 neg 2025627, sigmux 4000001,
+i 3, first=0  idx=1 seq_n=2, counts pos  988740 neg 3013360, sigmux 4000001, v -1951300.392536,
+i 4, first=0  idx=0 seq_n=2, counts pos 1976357 neg 2025627, sigmux 4000001,
+i 4, first=0  idx=1 seq_n=2, counts pos  988736 neg 3013356, sigmux 4000001, v -1951300.489929,
+i 5, first=0  idx=0 seq_n=2, counts pos 1976357 neg 2025627, sigmux 4000001,
+i 5, first=0  idx=1 seq_n=2, counts pos  988736 neg 3013356, sigmux 4000001, v -1951300.489929,
+i 6, first=0  idx=0 seq_n=2, counts pos 1976359 neg 2025629, sigmux 4000001,
+i 6, first=0  idx=1 seq_n=2, counts pos  988738 neg 3013358, sigmux 4000001, v -1951300.489929,
+i 7, first=0  idx=0 seq_n=2, counts pos 1976362 neg 2025632, sigmux 4000001,
+i 7, first=0  idx=1 seq_n=2, counts pos  988742 neg 3013362, sigmux 4000001, v -1951300.465581,
+i 8, first=0  idx=0 seq_n=2, counts pos 1976365 neg 2025635, sigmux 4000001,
+i 8, first=0  idx=1 seq_n=2, counts pos  988744 neg 3013364, sigmux 4000001, v -1951300.489929,
+i 9, first=0  idx=0 seq_n=2, counts pos 1976367 neg 2025637, sigmux 4000001,
+i 9, first=0  idx=1 seq_n=2, counts pos  988744 neg 3013364, sigmux 4000001, v -1951300.538625,
+mean_values -1951300.483
+i 0, first=1  idx=0 seq_n=2, counts pos 1976371 neg 2025641, sigmux 4000001,
+i 0, first=0  idx=1 seq_n=2, counts pos  988750 neg 3013370, sigmux 4000001, v -1951300.489929, v2 7.100,000,027,,
+i 1, first=0  idx=0 seq_n=2, counts pos 1976365 neg 2025635, sigmux 4000001,
+i 1, first=0  idx=1 seq_n=2, counts pos  988744 neg 3013364, sigmux 4000001, v -1951300.489929, v2 7.100,000,027,,
+i 2, first=0  idx=0 seq_n=2, counts pos 1976363 neg 2025633, sigmux 4000001,
+i 2, first=0  idx=1 seq_n=2, counts pos  988745 neg 3013365, sigmux 4000001, v -1951300.416884, v2 7.099,999,761,,
+i 3, first=0  idx=0 seq_n=2, counts pos 1976366 neg 2025636, sigmux 4000001,
+i 3, first=0  idx=1 seq_n=2, counts pos  988746 neg 3013366, sigmux 4000001, v -1951300.465581, v2 7.099,999,938,,
+i 4, first=0  idx=0 seq_n=2, counts pos 1976370 neg 2025640, sigmux 4000001,
+i 4, first=0  idx=1 seq_n=2, counts pos  988747 neg 3013367, sigmux 4000001, v -1951300.538625, v2 7.100,000,204,,
+
+#endif
+
+
+
+
+
 
 
