@@ -150,18 +150,16 @@ typedef struct app_t
 
   spi_t         *spi_mdac1;     // rename iso_sts_mdac?
 
-  gpio_t      *gpio_trigger_internal;
+  gpio_t        *gpio_trigger_internal;
+
 
   /* trigger selection - ext/int belongs here, as a device.
-    it should be managed by the mode.
-
-    - trigger should perhaps be put here.
+      even if on digital board side.
+      consider move to mode.
   */
   gpio_t        *gpio_trigger_selection;
 
   ////////////////////////////////
-
-
 
 
 

@@ -1,4 +1,15 @@
 
+/*
+  TODO
+    - add count ratio.  in output
+        so can adjust var pos to var neg.  for the bounds.
+
+    - better variable prefix would use cal_w and cal_divisor, cal_aper  and cal_ref_v
+
+    - should include noise check with input short.  eg. subtract ref-lo.  not ref-hi.
+      - add test of zero.  for noise rms.
+*/
+
 
 
 #include <stdio.h>
@@ -271,6 +282,7 @@ static void test( app_t *app)
   printf("\n");
 
 
+  //
 
 
   ////////////////////////
@@ -280,6 +292,7 @@ static void test( app_t *app)
     // mode_ch2_set_ref( mode);
     // mode_ch2_set_ref_lo( mode);
     // mode_az_set(mode, "ch2" );
+
 
     // set 10V.
     // mode_lts_set( mode, 10 );
