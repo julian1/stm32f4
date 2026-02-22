@@ -58,14 +58,11 @@ static const _mode_t mode_initial =  {
   .first. K703  = SR_RESET,
 
 
-/*
 
-  // amplifier
-  // amp should also have feedback, avoid float, else current sources lock up
-  .first . U506    =  S8,  // 1x gain, adg1208.  july 2025
-  .second. U506    =  S8,  // 1x gain, adg1208.  july 2025
+  // amplifier feb 2026.
+  .first .U506 = S8,
+  .second.U506 = S8,
 
-*/
 
 
 
@@ -210,25 +207,36 @@ void mode_az_set(_mode_t *mode, const char *s)
 
 
 
-
-// renam mode_gain_set(). simpler.
-
 void mode_gain_set( _mode_t *mode, uint32_t u)
 {
 
   printf("set amp gain\n");
 
+  switch(u) {
 
-  if( u == 1)
-    mode->second.U506 = S8;
-  else if( u == 10)
-    mode->second.U506 = S2;
-  else if( u == 100)
-    mode->second.U506 = S3;
-  else if( u == 1000)
-    mode->second.U506 = S4;
-  else
-    assert(0);
+    case 1:
+      mode->first .U506 = S8;
+      mode->second.U506 = S8;
+      break;
+
+    case 10:
+      mode->first. U506 = S2;
+      mode->second.U506 = S2;
+      break;
+
+    case 100:
+      mode->first. U506 = S3;
+      mode->second.U506 = S3;
+      break;
+
+    case 1000:
+      mode->first. U506 = S4;
+      mode->second.U506 = S4;
+      break;
+
+    default:
+      assert(0);
+  }
 
 }
 
