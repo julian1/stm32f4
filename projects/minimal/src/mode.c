@@ -38,17 +38,17 @@ static const _mode_t mode_initial =  {
 
 
   // U401
-  .first. K404    = SR_RESET,
-  .first. K403    = SR_RESET,
-  .first. K405    = SR_RESET,
-  .first. K406    = SR_RESET,
+  .first. K404  = SR_RESET,
+  .first. K403  = SR_RESET,
+  .first. K405  = SR_RESET,
+  .first. K406  = SR_RESET,
 
   // U402
-  .first. K407    = SR_RESET,
-  .first. K402		= SR_RESET,
+  .first. K407  = SR_RESET,
+  .first. K402  = SR_RESET,
 
   // u405
-  .first. K401    = SR_RESET,
+  .first. K401  = SR_RESET,
 
 
 
