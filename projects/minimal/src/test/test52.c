@@ -65,7 +65,8 @@ static void test( app_t *app)
   mode_ch2_set_ref_lo( mode);
 
 
-  mode->reg_cr.adc_p_active_sigmux = 0;   // sigmux not active.
+  // sigmux not active. for initial weight.
+  mode->reg_cr.adc_p_active_sigmux = 0;
 
 
   /////////////////////////
@@ -122,10 +123,12 @@ static void test( app_t *app)
 
       uint32_t clk_count_refmux_pos   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
       uint32_t clk_count_refmux_neg   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+      uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
 
       // w_clk_count_aperture            = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);
 
-      printf("  counts pos %lu neg %lu", clk_count_refmux_pos, clk_count_refmux_neg);
+      printf("  counts pos %lu neg %lu, ", clk_count_refmux_pos, clk_count_refmux_neg);
+      printf("sigmux %lu, ", clk_count_sigmux);
 
       pos_values[i] = clk_count_refmux_pos;
       neg_values[i] = clk_count_refmux_neg;
@@ -185,6 +188,10 @@ static void test( app_t *app)
 
     mode_az_set(mode, "ch2" );
 
+    // sigmux active
+    mode->reg_cr.adc_p_active_sigmux = 1;
+
+
     app_transition_state( app);
 
 
@@ -216,11 +223,12 @@ static void test( app_t *app)
       uint32_t clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
       uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
       uint32_t clk_count_aperture   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);
+      uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
 
 
-      printf(" first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
-      printf(" counts pos %lu neg %lu", clk_count_refmux_pos, clk_count_refmux_neg);
-
+      printf("first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
+      printf("counts pos %lu neg %lu, ", clk_count_refmux_pos, clk_count_refmux_neg);
+      printf("sigmux %lu, ", clk_count_sigmux);
 
 
       // we care about hi v lo. yes because we want the diff.
@@ -285,10 +293,14 @@ static void test( app_t *app)
       uint32_t clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
       uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
       uint32_t clk_count_aperture   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);
+      uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
 
-      // why are these the same??????
-      printf(" first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
-      printf(" counts pos %lu neg %lu", clk_count_refmux_pos, clk_count_refmux_neg);
+
+      printf("first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
+      printf("counts pos %lu neg %lu, ", clk_count_refmux_pos, clk_count_refmux_neg);
+      printf("sigmux %lu, ", clk_count_sigmux);
+
+
 
       // we care about hi v lo. yes because we want the diff.
       if(status.sample_idx == 0) {
@@ -307,11 +319,11 @@ static void test( app_t *app)
         double v = ((double) clk_count_refmux_pos - (w * clk_count_refmux_neg))
                 - ( (double) clk_count_refmux_pos_lo  - (w * clk_count_refmux_neg_lo));
 
-        printf("v %f\n", v );
+        printf("v %f, ", v );
 
         double v2 = v / clk_count_aperture  * w_clk_count_aperture  * 7.1 ;  //  need to adjust for the cal voltage
 
-        printf("v2 %f\n", v2 );
+        printf("v2 %f, ", v2 );
 
       }
       else
