@@ -44,6 +44,8 @@ typedef struct buffers_t
 
   bool show_buffers;
 
+  bool show;
+
 } buffers_t;
 
 
