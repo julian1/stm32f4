@@ -11,7 +11,6 @@
 
 #include <lib2/util.h>   // msleep(), UNUSED, print_stack_pointer()
 #include <lib2/format.h>   // trim_whitespace()  format_bits()
-#include <lib2/streams.h>
 #include <lib2/stream-flash.h>
 
 
@@ -61,8 +60,11 @@
 
 
 
-// fix me
+// fix me - forward declaration should be from header.
 int flash_lzo_test(void);
+
+
+
 
 
 /*
@@ -86,46 +88,11 @@ int flash_lzo_test(void);
 */
 
 /////////////////////////
-/*
-  TODO.
-
-  feb 2026.
-  This initializtion code.  is static memory and should move to main.
-
-*/
-
-static char buf_cbuf_console_in[1000];
-static char buf_cbuf_console_out[1000];    // changing this and it freezes. indicates. bug
 
 
-static char buf_command[1000];
 
 
-void app_init_console_buffers( app_t *app )
-{
-  assert(app);
-  assert(app->magic == APP_MAGIC);
 
-
-  // feb 2026. should move to main and init code there
-
-  /*
-      no printf available yet.
-      avoid assert()
-  */
-
-  // uart/console
-  cbuf_init(&app->cbuf_console_in,  buf_cbuf_console_in, sizeof(buf_cbuf_console_in));
-  cbuf_init(&app->cbuf_console_out, buf_cbuf_console_out, sizeof(buf_cbuf_console_out));
-
-  cbuf_init_stdout_streams(  &app->cbuf_console_out );
-  cbuf_init_stdin_streams( &app->cbuf_console_in );
-
-
-  cstring_init(&app->command, buf_command, buf_command + sizeof( buf_command));
-
-
-}
 
 
 
@@ -152,8 +119,8 @@ void app_rdy_interrupt( app_t *app, interrupt_t *x) // runtime context
 {
 
   UNUSED(x);
-  /* interrupt context.  don't do anything compliicated here.
-    but called relatively infrequent.
+  /* interrupt context.  avoid doiing anything compliicated
+    but relatively infrequent.
   */
 
   assert(app);
@@ -166,7 +133,7 @@ void app_rdy_interrupt( app_t *app, interrupt_t *x) // runtime context
     // ++app->adc_interrupt_valid_missed;     // count better? but harder to report.
   }
 
-  // set adc_interrupt_valid flag so that update() knows to read the adc...
+  // set flag
   app->adc_interrupt_valid = true;
 }
 
@@ -177,7 +144,7 @@ void app_rdy_interrupt( app_t *app, interrupt_t *x) // runtime context
 void app_trigger( app_t *app, bool val)
 {
   /*
-    build in a pause here...
+    cannot add a pause here...
     to let relay pulse settle.
 
     OR. sleep right after app_transition_state().
@@ -260,7 +227,7 @@ void app_transition_state( app_t  *app)
 
   assert( app->spi_4094);
 
-  // write the 4094 device
+  // configure
   spi_port_configure( app->spi_4094);
 
 
@@ -301,7 +268,7 @@ void app_transition_state( app_t  *app)
 
   /////////////////////////////
 
-  // fpga stuff
+  // registers
 
   // spi_ice40_reg_write32( app->spi_fpga0, REG_CR, mode->reg_mode );
   _Static_assert ( sizeof( mode->reg_cr) == 4);
@@ -311,8 +278,6 @@ void app_transition_state( app_t  *app)
   _Static_assert ( sizeof( mode->reg_direct) == 4);
   // TODO. review - why do we use write_n() rather than write32() here?
   spi_ice40_reg_write_n( app->spi_fpga0, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
-
-
 
 
   // signal acquisition
@@ -338,7 +303,8 @@ void app_transition_state( app_t  *app)
   spi_ice40_reg_write32( app->spi_fpga0, REG_ADC_P_CLK_COUNT_RESET,     mode->adc.p_reset );
 
 
-  // write the mcu board trigger source, nothing to do with fpga/sample acquisition trigger
+  // write the mcu board trigger source,
+  // this has nothing to do with the actual fpga/sample acquisition trigger
   gpio_write( app->gpio_trigger_selection, mode->trigger_selection);
 
 }
@@ -355,6 +321,9 @@ void app_transition_state( app_t  *app)
 
 static void spi_print_register( spi_t *spi, uint32_t reg )
 {
+  // code does not belong in app.c
+  // move to /src/device/fpga0-reg.c ?
+
   // basic generic print
   // query any register
 
@@ -1220,7 +1189,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
         set ch2   ref;  \
         set az    ch2;  \
         set mode  7 ;   \
-        trig            \
+        trig;           \
       " );
 
   }

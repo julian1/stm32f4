@@ -1,121 +1,63 @@
 
 
+
+/*
+  create app dependencies
+  then create app, and run app_update()
+
+*/
+
 #include <stdio.h>    // printf, scanf
 #include <assert.h>
+#include <string.h>
 
 
 
 #include <libopencm3/stm32/rcc.h>   // mcu clock initialization
-
-#include <libopencm3/stm32/gpio.h>    // needed to initialize critical_error_led blink.  context.
+#include <libopencm3/stm32/gpio.h>    // required to initialize critical_error_led blink.  context.
+#include <libopencm3/stm32/timer.h>
 
 #include <lib2/usart.h>
 #include <lib2/util.h>      // systick_setup()
-
-
-
-
-
-
-
-#include <mode.h>
-#include <app.h>
-#include <util.h>   // CLK_FREQ
-
-
-/* split vfd - so the rst gpio setup  is moved to device.
-*/
-
+#include <lib2/streams.h>
 
 
 
 #include <device/spi1-port.h>
 #include <device/spi2-port.h>
-
-
-
 #include <device/spi-fpga0.h>
 #include <device/spi-fpga0-pc.h>
 #include <device/spi-4094-0.h>
 #include <device/spi-mdac0.h>
 #include <device/spi-mdac1.h>
-
 #include <device/interrupt-fpga0.h>
-
 #include <device/gpio-status-led.h>
 #include <device/gpio-trigger-internal.h>
 #include <device/gpio-trigger-selection.h>
-
 #include <device/fsmc.h>
-
 #include <device/spi-fpga1.h>
 
 
 
 #include <peripheral/spi-ice40.h>
 #include <peripheral/interrupt.h>
+#include <peripheral/vfd.h>
 
 
+#include <util.h>   // CLK_FREQ
 
+#include <mode.h>
+#include <app.h>
 #include <data/cal.h>
 #include <data/data.h>
 #include <data/buffers.h>
 
 
-#include <peripheral/vfd.h>
 
 
 
 
-/* feb. 2026. TODO remove  this.   value will be default init with zero.
-    and does not need hiding.
-*/
 
-// static _mode_t mode = { 0 } ;
-
-
-
-/*
-  OK. I think we should malloc the data.
-  to hide implementation and pass dependencies in constructor.
-
-*/
-
-
-static app_t app = {
-
-  .magic = APP_MAGIC,
-
-
-  .led_blink_enable = true,
-
-  // .spi = SPI1 ,
-
-  //////////////
-  // device.
-  // the led ought to be a structure with a function.
-
-  // initialization
-  // .led_status = PIN('A', 9 ),
-
-  // device
-  // . spi_u202 = &spi_u202,
-
-  // .cdone_fpga0 = false,
-
-  // ugly.
-  // .mode_initial =  &mode_initial,
-//  .mode =  &mode,
-
-
-  // . data = &data
-
-  .line_freq = 50
-};
-
-
-
-#include <support.h>     // gpio_write_val()
 
 // this all looks ok. to me.
 // is something else trying
@@ -147,7 +89,6 @@ static void timer_port_setup(void )
 
 
 
-#include <libopencm3/stm32/timer.h>
 
 static void timer_setup( uint32_t timer )
 {
@@ -233,6 +174,13 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq /*, uint32_t dead
 
 static int main_f429(void)
 {
+
+
+ _Static_assert( sizeof(bool) == 1);
+ _Static_assert( sizeof(float) == 4);
+ _Static_assert( sizeof(double ) == 8);
+
+
   // use  f429.ld
   // hse
 	// rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ] );  //  f413.
@@ -282,13 +230,45 @@ static int main_f429(void)
   */
 
 
-  // led0
-  // app.status_led = led0_create();
+
+  //////////////////////
+  // main app setup
+
+
+  // nothing wrong with stack allocation here
+
+  char buf_cbuf_console_in[1000];
+  char buf_cbuf_console_out[1000];    // changing this and it freezes. indicates. bug
+  char buf_command[1000];
+
+
+  app_t app ;
+  memset(&app, 0, sizeof(app));
+
+  app.magic = APP_MAGIC;
+  app.led_blink_enable = true;
+  app.line_freq = 50;
+
+
+  ///////////////////
+
+  // uart/console
+  cbuf_init(&app.cbuf_console_in,  buf_cbuf_console_in, sizeof(buf_cbuf_console_in));
+  cbuf_init(&app.cbuf_console_out, buf_cbuf_console_out, sizeof(buf_cbuf_console_out));
+
+  cbuf_init_stdout_streams(  &app.cbuf_console_out );
+  cbuf_init_stdin_streams( &app.cbuf_console_in );
+
+
+  cstring_init(&app.command, buf_command, buf_command + sizeof( buf_command));
+
+
+
+
+  ///////////////////
 
   app.gpio_status_led = gpio_status_led_create();
   gpio_setup( app.gpio_status_led);
-
-
 
   // setup external state required for critical error led blink in priority
   // because assert() cannot pass a context
@@ -297,16 +277,15 @@ static int main_f429(void)
 
   // mcu clock
   // systick_setup(12000); // 12MHz. default lsi.
-  systick_setup(84000); // 84MHz.
-  systick_handler_set( (void (*)(void *)) app_systick_interrupt, &app );  // rename systick_handler_set()
+  systick_setup( 84000); // 84MHz.
+  systick_handler_set( (void (*)(void *)) app_systick_interrupt, &app );
 
-  //////////////////////
-  // main app setup
-  // initialzes the console buffers, that support printf() and error reporting
-  app_init_console_buffers( &app );
+
+  ///////////////////
+
 
   /*
-    dont' think it makes any sense to use a circular buffer on the output.
+    the circular buffer on the output, makes no sense.
     instead just block control until the output is flushed.
   */
   //////////////
@@ -322,10 +301,6 @@ static int main_f429(void)
   printf("\nstarting\n");
 
 
-
- _Static_assert( sizeof(bool) == 1);
- _Static_assert( sizeof(float) == 4);
- _Static_assert( sizeof(double ) == 8);
 
   /////////////////////////////////
 
@@ -427,11 +402,7 @@ static int main_f429(void)
 
   app.mode = mode_create( /* no dependenceies */ );
 
-
-  // app.data = data_create( /* no dependencies */ );
-
   app.data = data_create( &app.cal, app.spi_fpga0);
-
 
   app.buffers = buffers_create( app.data );
 
