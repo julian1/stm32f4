@@ -77,9 +77,11 @@ typedef struct data_t
 } data_t;
 
 
-
-
-
+/*
+    we may need to pass line_freq.  from app.
+    even just to format.
+    actually we can use the sigmux value ...
+*/
 
 data_t * data_create( cal_t * cal, spi_t *spi  )
 {
