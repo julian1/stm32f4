@@ -22,7 +22,14 @@
 
 
 
+/*
+  should just use a wrapped deque.
+  contiguous.  -
 
+  and maintain order rather than a modul
+  and ability to resize as we are working.
+
+*/
 
 buffers_t * buffers_create( data_t *data)
 {
