@@ -62,8 +62,9 @@
 #define FLASH_HX8K_SIZE   135100          // needs two sect
 
 
-#include <data/data.h>     // for main loop, data_update()
-#include <data/cal.h>     // for main loop, data_update()
+#include <data/cal.h>
+#include <data/data.h>
+#include <data/buffers.h>
 
 
 // fix me
@@ -927,7 +928,8 @@ void app_update( app_t *app)
 
 
     data_update( app->data);
-    // buffers_update( app->buffers);
+    buffers_update( app->buffers);
+
 
 #if 0
     // TODO.  feb 2026.  rename just data_update() and vfd_update()
