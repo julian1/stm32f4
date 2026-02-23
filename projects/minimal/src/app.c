@@ -2,10 +2,9 @@
 
 
 #include <stdio.h>    // printf, scanf
-#include <string.h>   // strcmp, memset
+#include <string.h>   // strcmp
 #include <assert.h>
 #include <malloc.h> // malloc_stats()
-#include <stdlib.h>   // abs()
 
 
 
@@ -13,6 +12,7 @@
 #include <lib2/util.h>   // msleep(), UNUSED, print_stack_pointer()
 #include <lib2/format.h>   // trim_whitespace()  format_bits()
 #include <lib2/streams.h>
+#include <lib2/stream-flash.h>
 
 
 #include <peripheral/spi-ice40.h>
@@ -21,32 +21,31 @@
 #include <peripheral/spi-dac8811.h>
 #include <peripheral/spi-ad5446.h>
 #include <peripheral/gpio.h>
-
-
-#include <device/spi-fpga0-reg.h>
-
-
-
 #include <peripheral/interrupt.h>
 #include <peripheral/vfd.h>   // this is ok.
 
 
 
-// app/app.c  should  not deal with devices
+// devices should not be here
+#include <device/fsmc.h>      // this should removee. ?  setup should be in main()
 
-#include <device/fsmc.h>      // should removee. ?  setup should be in main()
-
-#include <device/spi-fpga0-reg.h>
-
-#include <lib2/stream-flash.h>
-
-
-#include <mode.h>
 
 #include <support.h>    // mcu_reset
+#include <util.h> // str_decode_uint
+
+
 
 #include <app.h>
-#include <util.h> // str_decode_uint
+#include <mode.h>
+#include <data/cal.h>
+#include <data/data.h>
+#include <data/buffers.h>
+
+#include <vfd.h>
+
+
+
+
 
 
 
@@ -59,18 +58,6 @@
 // analog board.
 #define FLASH_U102_ADDR   0x08080000
 #define FLASH_HX8K_SIZE   135100          // needs two sect
-
-
-#include <data/cal.h>
-#include <data/data.h>
-#include <data/buffers.h>
-
-#include <vfd.h>
-
-
-
-
-
 
 
 
@@ -101,8 +88,10 @@ int flash_lzo_test(void);
 /////////////////////////
 /*
   TODO.
-  could put raw buffers directly in app structure? but poointer keeps clearer
-  Why not put on the stack? in app_t ?
+
+  feb 2026.
+  This initializtion code.  is static memory and should move to main.
+
 */
 
 static char buf_cbuf_console_in[1000];
@@ -118,7 +107,10 @@ void app_init_console_buffers( app_t *app )
   assert(app->magic == APP_MAGIC);
 
 
-  /* note no printf yet.
+  // feb 2026. should move to main and init code there
+
+  /*
+      no printf available yet.
       avoid assert()
   */
 
@@ -144,7 +136,7 @@ void app_systick_interrupt(app_t *app)
   assert(app->magic == APP_MAGIC);
 
 
-  // interrupt context. don't do anything compliicated here.
+  // interrupt context. avoid doing anything complicatedhere.
 
   ++ app->system_millis;
 }
@@ -196,29 +188,13 @@ void app_trigger( app_t *app, bool val)
   */
 
   if(val == 1) {
-    // let board state settle.
+    // allow board state settle after last relay pulse.
     yield_with_msleep( 500, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
   }
 
   gpio_write( app->gpio_trigger_internal, val);
 
 }
-
-
-
-
-
-
-/*
-void app_rdy_clear( app_t *app)
-{
-  app->adc_interrupt_valid = false;
-}
-
-*/
-
-
-
 
 
 
@@ -241,7 +217,7 @@ static void state_format ( uint8_t *state, size_t n)
 
 /*
     feb 2026.
-    moved the spi_mode_transition_state() function to app level.
+    moved spi_mode_transition_state() function to app level.
     gets rid of all the low level includes in mode. for fpga regs. much better.
     also get rid of the devices_t type
 */
@@ -271,13 +247,6 @@ void app_transition_state( app_t  *app)
   // assert(0);
   // spi_mux_4094 ( spi);
 
-
-
-/*  HERE
-  // JA write the spi mux select register.
-  spi_port_configure( spi_fpga);
-  spi_ice40_reg_write32(spi_fpga, REG_SPI_MUX,  SPI_MUX_4094 );
-*/
 
 
 #if 1
@@ -310,12 +279,6 @@ void app_transition_state( app_t  *app)
 
   /////////////////////////////
 
-/*
-    HERE
-  // now write mdac state
-  spi_port_configure( spi_fpga);
-  spi_ice40_reg_write32( spi_fpga, REG_SPI_MUX,  SPI_MUX_DAC );
-*/
 
   // write mdac0
   assert( app->spi_mdac0);
@@ -328,12 +291,6 @@ void app_transition_state( app_t  *app)
   spi_port_configure( app->spi_mdac1);
   spi_ad5446_write16( app->spi_mdac1, mode->mdac1_val );
 
-
-/* HERE
-  // restore spi mode, after writing the non-fpga part of the board state
-  spi_port_configure( spi_fpga);
-  spi_ice40_reg_write32( spi_fpga, REG_SPI_MUX, 0 );
-*/
 
   /////////////////////////////
 
@@ -374,27 +331,10 @@ void app_transition_state( app_t  *app)
   spi_ice40_reg_write32( app->spi_fpga0, REG_ADC_P_CLK_COUNT_RESET,     mode->adc.p_reset );
 
 
-/*
-    HERE
-  // just check/ensure again, no spurious emi on 4094 lines, for when we read fpga adc counts
-  // can probably just assert and reaad.
-  assert( spi_ice40_reg_read32( spi_fpga, REG_SPI_MUX) == 0 );
-*/
-  // we may want delay here. or make the trigger  an external control state to the mode.
-
-#if 0
-  // assert trigger condition
-  // set last. to avoid spi xfer emi.
-  spi_ice40_reg_write32(spi_fpga, REG_SA_P_TRIG, mode->sa.p_trig );
-#endif
-
-
+  // write the mcu board trigger source, nothing to do with fpga/sample acquisition trigger
   gpio_write( app->gpio_trigger_selection, mode->trigger_selection);
 
 }
-
-
-
 
 
 
@@ -580,14 +520,7 @@ void app_led_dance( app_t * app )
   assert(app);
   assert(app->magic == APP_MAGIC);
 
-
-  // should pass the spi/ and millis?. perhaps.
-  // config.
-
-  // needs to be in mode direct.
-
-
-  // devices_t *devices = &app->devices;
+  // must be in mode direct.
 
   spi_port_configure( app->spi_fpga0);
 
@@ -612,13 +545,14 @@ void app_led_dance( app_t * app )
       // printf("comms ok\n");
     }
 
-
-
     msleep( 50,  &app->system_millis);
   }
 
   spi_ice40_reg_write32( app->spi_fpga0, REG_DIRECT, 0 );
 }
+
+
+
 
 
 
@@ -638,107 +572,6 @@ static void app_update_soft_500ms(app_t *app)
   // blink mcu led
   gpio_write( app->gpio_status_led, app->led_state);
 
-
-
-#if 0
-  //////////////
-    assert( sizeof(seq_elt_t) == 4);
-
-    seq_elt_t x;
-    memset(&x, 0, sizeof(x));
-
-    x.azmux = S1;
-    x.pc = 0b01;
-
-    void *px = &x;
-
-    assert( *(uint32_t *)  px  == ((0b01 << 4) | S1));
-
-  //////////////
-#endif
-
-
-#if 0
-  // only try to read registers if configured.
-  if( spi_ice40_cdone( app->spi_u202)) {
-
-
-    // spi_print_register( app->spi_u202, REG_STATUS );    // show fan speed.
-
-    spi_port_configure( app->spi_u202 );
-
-    // perhaps should put on a separate register.
-    uint8_t reg = REG_STATUS;
-    uint32_t ret = spi_ice40_reg_read32( app->spi_u202, reg );
-
-    uint32_t speed = ret & 0xffff;
-    uint32_t rpm = speed * 60;
-
-    printf("r %u  v %lu %lu\n",  reg, speed, rpm);
-  }
-#endif
-
-  /// devices_t *devices = &app->devices;
-
-
-
-#if 0
-  /*
-    blinking the led by pulsing the state transition.
-    will will turn some analog switches on/off for 10ms..
-    which means non consisten reading of values
-  */
-
-  if( app->led_blink_enable
-    && spi_ice40_cdone( app->spi_fpga0_pc)
-    && app->mode->reg_mode == MODE_DIRECT
-  ) {
-
-    // not doing anything interesting, so blink the led, to show activity.
-    if(app->led_state)
-      app->mode->reg_direct.leds_o |= 1;
-    else
-      app->mode->reg_direct.leds_o &= ~1;
-
-    spi_mode_transition_state( &app->devices, app->mode, &app->system_millis);
-  }
-#endif
-
-
-
-
-/*
-  should be a better way to do these one-off tests
-  move to a test?
-  issue is the 500ms hook.
-
-  - for tests etc. would be just to have a hook function.
-  - 500ms_hook.  that tests could use.
-  eg. to blink a led, or flick a relay.
-  except we dont want state changed from outside the context of a test.
-
-*/
-#if 0
-  // test toggle of 4094 cs
-  if( spi_ice40_cdone( app->spi_fpga0_pc)) {
-
-    // toggle the 4094 cs. only
-    printf("toggle mdac1 cs\n");
-
-    if(app->led_state )
-      spi_cs_assert( app->spi_mdac1);
-    else
-      spi_cs_deassert( app->spi_mdac1);
-  }
-#endif
-
-#if 0
-  if( spi_ice40_cdone( app->spi_fpga0_pc)) {
-    // toggle the trigger.
-
-    gpio_write( app->gpio_trigger_internal, app->led_state);
-  }
-#endif
 
 
 
@@ -1708,6 +1541,111 @@ void app_repl_statements(app_t *app,  const char *s)
   }
 
 }
+
+
+
+
+
+
+#if 0
+  //////////////
+    assert( sizeof(seq_elt_t) == 4);
+
+    seq_elt_t x;
+    memset(&x, 0, sizeof(x));
+
+    x.azmux = S1;
+    x.pc = 0b01;
+
+    void *px = &x;
+
+    assert( *(uint32_t *)  px  == ((0b01 << 4) | S1));
+
+  //////////////
+#endif
+
+
+#if 0
+  // only try to read registers if configured.
+  if( spi_ice40_cdone( app->spi_u202)) {
+
+
+    // spi_print_register( app->spi_u202, REG_STATUS );    // show fan speed.
+
+    spi_port_configure( app->spi_u202 );
+
+    // perhaps should put on a separate register.
+    uint8_t reg = REG_STATUS;
+    uint32_t ret = spi_ice40_reg_read32( app->spi_u202, reg );
+
+    uint32_t speed = ret & 0xffff;
+    uint32_t rpm = speed * 60;
+
+    printf("r %u  v %lu %lu\n",  reg, speed, rpm);
+  }
+#endif
+
+  /// devices_t *devices = &app->devices;
+
+
+
+#if 0
+  /*
+    blinking the led by pulsing the state transition.
+    will will turn some analog switches on/off for 10ms..
+    which means non consisten reading of values
+  */
+
+  if( app->led_blink_enable
+    && spi_ice40_cdone( app->spi_fpga0_pc)
+    && app->mode->reg_mode == MODE_DIRECT
+  ) {
+
+    // not doing anything interesting, so blink the led, to show activity.
+    if(app->led_state)
+      app->mode->reg_direct.leds_o |= 1;
+    else
+      app->mode->reg_direct.leds_o &= ~1;
+
+    spi_mode_transition_state( &app->devices, app->mode, &app->system_millis);
+  }
+#endif
+
+
+
+
+/*
+  should be a better way to do these one-off tests
+  move to a test?
+  issue is the 500ms hook.
+
+  - for tests etc. would be just to have a hook function.
+  - 500ms_hook.  that tests could use.
+  eg. to blink a led, or flick a relay.
+  except we dont want state changed from outside the context of a test.
+
+*/
+#if 0
+  // test toggle of 4094 cs
+  if( spi_ice40_cdone( app->spi_fpga0_pc)) {
+
+    // toggle the 4094 cs. only
+    printf("toggle mdac1 cs\n");
+
+    if(app->led_state )
+      spi_cs_assert( app->spi_mdac1);
+    else
+      spi_cs_deassert( app->spi_mdac1);
+  }
+#endif
+
+#if 0
+  if( spi_ice40_cdone( app->spi_fpga0_pc)) {
+    // toggle the trigger.
+
+    gpio_write( app->gpio_trigger_internal, app->led_state);
+  }
+#endif
 
 
 
