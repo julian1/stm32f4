@@ -36,20 +36,19 @@
 
 #include <device/fsmc.h>      // should removee. ?  setup should be in main()
 
+#include <device/spi-fpga0-reg.h>
 
-#include <vfd.h>
+#include <lib2/stream-flash.h>
 
+
+#include <mode.h>
 
 #include <support.h>    // mcu_reset
 
-#include <mode.h>
 #include <app.h>
 #include <util.h> // str_decode_uint
 
 
-#include <device/spi-fpga0-reg.h>
-
-#include <lib2/stream-flash.h>
 
 // last 128 . on 512k.
 // this be declared in /periphal  perhaps. it's an arch/build dependency
@@ -65,6 +64,14 @@
 #include <data/cal.h>
 #include <data/data.h>
 #include <data/buffers.h>
+
+#include <vfd.h>
+
+
+
+
+
+
 
 
 // fix me
