@@ -187,10 +187,17 @@ void app_trigger( app_t *app, bool val)
     EXTR.  only only sleep - if using NOAZ.
   */
 
+#if 0
+
+  No. a sleep here will not work.
+  because transition_state() is still going to get called after it.
+
   if(val == 1) {
     // allow board state settle after last relay pulse.
     yield_with_msleep( 500, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
   }
+
+#endif
 
   gpio_write( app->gpio_trigger_internal, val);
 
