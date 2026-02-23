@@ -28,21 +28,20 @@ typedef struct data_t data_t;
 
 
 
+typedef struct cal_t cal_t;
+typedef struct spi_t spi_t;
 
 
-data_t * data_create( void /* no constructor dependencies */ );
+data_t * data_create( cal_t * cal, spi_t *spi  );
+
 
 
 // void data_init ( data_t *);
 
 
-
-
-bool data_flash_repl_statement( data_t *data, const char *cmd);
-
-
 bool data_repl_statement( data_t *data,  const char *cmd );
 
+bool data_flash_repl_statement( data_t *data, const char *cmd);
 
 void data_cal_show( data_t *data );
 

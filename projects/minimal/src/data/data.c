@@ -66,7 +66,8 @@ typedef struct data_t
   // move line_freq to app
 
 
-
+  cal_t *cal;
+  spi_t *spi ;
 
   bool show_counts;
   bool show_stats;
@@ -80,7 +81,7 @@ typedef struct data_t
 
 
 
-data_t * data_create( /* no constructor dependencies */ )
+data_t * data_create( cal_t * cal, spi_t *spi  )
 {
   // called once at initialization
 
@@ -104,6 +105,11 @@ data_t * data_create( /* no constructor dependencies */ )
   assert( data->buffer);
   data_reset( data );
 */
+
+  data->cal = cal;
+  data->spi = spi;
+
+
 
   return data;
 }

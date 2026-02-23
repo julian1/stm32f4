@@ -325,17 +325,6 @@ static int main_f429(void)
 
 
 
-  // TODO.  app structure init to after the spi devices.
-
-  app.mode = mode_create( /* no dependenceies */ );
-
-
-  app.data = data_create( /* no dependencies */ );
-
-
-
-  // app.buffers = buffers_create(  app.data );
-
 
   ////////////////
   // init spi related port state. before do spi port.
@@ -424,6 +413,23 @@ static int main_f429(void)
   //////////////////
 
 #endif
+
+
+
+
+  // TODO.  app structure init to after the spi devices.
+
+  app.mode = mode_create( /* no dependenceies */ );
+
+
+  // app.data = data_create( /* no dependencies */ );
+
+  app.data = data_create( &app.cal, app.spi_fpga0);
+
+
+  // app.buffers = buffers_create(  app.data );
+
+
 
 
   // outer app loop, eg. bottom of control stack

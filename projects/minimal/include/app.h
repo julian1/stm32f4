@@ -60,7 +60,7 @@ typedef struct spi_ice40_t spi_ice40_t;
 typedef struct interrupt_t interrupt_t;
 
 
-
+#include <data/cal.h>
 
 
 
@@ -195,6 +195,7 @@ typedef struct app_t
   uint32_t line_freq;
 
 
+  cal_t         cal;
 
   data_t        *data;
 
