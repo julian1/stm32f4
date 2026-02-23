@@ -419,6 +419,9 @@ static void test( app_t *app)
   printf("\n");
 
 
+  app->cal.w        = cal_w;
+  app->cal.divisor  = cal_divisor;
+
 
   test2( app, cal_w, cal_divisor);
 
