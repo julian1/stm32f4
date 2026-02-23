@@ -434,7 +434,8 @@ static int main_f429(void)
 
   // outer app loop, eg. bottom of control stack
   while(true) {
-    app_update_main( &app);
+
+    app_update( &app);
   }
 
 

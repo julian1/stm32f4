@@ -914,19 +914,20 @@ static void app_update_console(app_t *app)
 */
 
 
-void app_update_main(app_t *app)
+void app_update( app_t *app)
 {
   assert(app);
   assert(app->magic == APP_MAGIC);
-
-  data_t *data = app->data;
-  assert(data);
 
 
   // process new adc data in priority
   if(app->adc_interrupt_valid) {
 
     app->adc_interrupt_valid = false;
+
+
+    data_update( app->data);
+    // buffers_update( app->buffers);
 
 #if 0
     // TODO.  feb 2026.  rename just data_update() and vfd_update()

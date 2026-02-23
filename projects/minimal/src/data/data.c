@@ -5,13 +5,15 @@
 */
 #include <stdio.h>
 #include <assert.h>
+#include <stdlib.h>     // malloc
+#include <string.h>     // memcpy
 
 
 #include <lib2/util.h>      // ARRAY_SIZE
 
 #include <data/data.h>
-#include <data/matrix.h>     // m_from_scalar
-#include <data/buffer.h>     // m_from_scalar
+// #include <data/matrix.h>     // m_from_scalar
+// #include <data/buffer.h>     // m_from_scalar
 
 
 #include <util.h>     // aper_n_to_period
@@ -21,8 +23,6 @@
 #include <lib2/format.h>  // format_float
 
 #include <peripheral/spi-ice40.h>
-
-
 #include <device/spi-fpga0-reg.h>   // for seq mode
 
 
@@ -43,44 +43,19 @@
 */
 
 
-// consider constrain in data.c
-#define DATA_MAGIC 123
-
-
-
-typedef struct data_t
-{
-  /*
-  // TODO move to own file.
-  // the MAT structures are annoying to deal with, cannot be easily opaquely prototyped.
-
-  // EXTR> the cal structure should be injected into data.
-  // then all the flash cal stuff can be kept independent.
-
-  */
-
-  uint32_t magic;
-
-
-  // feb 2026.
-  // move line_freq to app
-
-
-  cal_t *cal;
-  spi_t *spi ;
-
-  bool show_counts;
-  bool show_stats;
-  bool show_extra;
-
-
-} data_t;
 
 
 /*
-    we may need to pass line_freq.  from app.
-    even just to format.
-    actually we can use the sigmux value ...
+  we may need to pass line_freq.  from app.
+  even just to format.
+  actually we can use the sigmux value ...
+  //////////
+
+
+  why use a malloc creation function like this.
+  if the structure has to be exposed???
+
+
 */
 
 data_t * data_create( cal_t * cal, spi_t *spi  )
@@ -90,15 +65,14 @@ data_t * data_create( cal_t * cal, spi_t *spi  )
   data_t *data = malloc( sizeof(data_t));
   assert(data);
   memset( data, 0, sizeof( data_t));
-
   data->magic = DATA_MAGIC;
+
   // data->line_freq = 50;
 
   /*
     pass spi in constructor.  or at update time.
 
   */
-
   // TODO move this
   // buffer is separate external concept.  inject low level data into buffer.
 
@@ -111,12 +85,34 @@ data_t * data_create( cal_t * cal, spi_t *spi  )
   data->cal = cal;
   data->spi = spi;
 
-
-
   return data;
 }
 
 
+
+
+void data_update( data_t *data )
+{
+  assert( data);
+  assert( data->magic == DATA_MAGIC);
+
+  spi_t *spi = data->spi;
+
+  uint32_t status_ = spi_ice40_reg_read32( spi, REG_STATUS );
+  reg_sr_t  status;
+   _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
+  memcpy( &status, &status_,  sizeof( status_));
+
+  uint32_t clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+  uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+  uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
+
+  printf("first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
+  printf("counts pos %7lu neg %7lu, sig %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg, clk_count_sigmux);
+
+
+
+}
 
 
 

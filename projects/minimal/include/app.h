@@ -225,7 +225,7 @@ void app_init_console_buffers(app_t *app);
 void app_systick_interrupt(app_t *app);
 
 
-void app_update_main(app_t *app);
+void app_update(app_t *app);
 
 
 void app_configure( app_t *app );

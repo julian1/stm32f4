@@ -1,17 +1,71 @@
 /*
 
-  buffer holds data vals.  but also maintains the concept of its size.
+  buffers holds historic data vals.  to calculate stats
+    maintain own size
+
+  have access to data for value.  and flags like first
+  that are used to clear
 
 */
 
+
 #include <stdio.h>
-#include <stdbool.h>
 #include <assert.h>
+#include <stdlib.h>     // malloc
+#include <string.h>     // memcpy
 
 
-#include <data/matrix.h>     // m_from_scalar
+#include <lib2/util.h>      // UNUSED, ARRAY_SIZE
 
-#include <data/buffer.h>
+#include <data/buffers.h>
+
+
+// #include <data/matrix.h>     // m_from_scalar
+
+
+
+buffers_t * buffers_create( buffers_t *)
+{
+  // why have the creation function like this?
+  //  one reason - is to pass constructor dependencies at same time we create the object
+  //  makes it easier to determine instantiatino order in main
+  // also easier to hide if we want
+
+  buffers_t *buffers = malloc( sizeof(buffers_t));
+  assert(buffers);
+  memset( buffers, 0, sizeof( buffers_t));
+  buffers->magic = BUFFERS_MAGIC;
+
+
+  return buffers;
+}
+
+
+void buffers_update( buffers_t *buffers)
+{
+  assert(buffers);
+  assert(buffers->magic == BUFFERS_MAGIC);
+
+}
+
+
+bool buffers_repl_statement( buffers_t *buffers, const char *cmd)
+{
+  assert(buffers);
+  assert(buffers->magic == BUFFERS_MAGIC);
+
+  UNUSED(cmd);
+
+
+  return 0;
+}
+
+
+
+
+
+
+
 
 
 
