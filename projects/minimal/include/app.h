@@ -190,6 +190,12 @@ typedef struct app_t
 
 
 
+  // static input property of the environment
+  // does not really belon in mode. mode has values dependent.
+  uint32_t line_freq;
+
+
+
   data_t        *data;
 
   // buffer_t  *buffer;

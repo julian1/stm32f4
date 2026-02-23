@@ -28,6 +28,7 @@
 
 #define UNUSED(x) ((void)(x))
 
+#if 0
 
 static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void *), void *yield_ctx)
 {
@@ -89,7 +90,7 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
 }
 
 
-
+#endif
 
 /* A is +10V. B is tap wrt gnd,   C is Gnd.
 // C is gnd referenced.
@@ -102,6 +103,7 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
 #define C 0b00
 
 
+#if 0
 
 static void negative_side(
   app_t *app ,
@@ -280,7 +282,7 @@ static void positve_side(
 
 
 
-
+#endif
 
 
 
@@ -298,6 +300,12 @@ bool app_test42(
   assert(yield);
   assert(yield_ctx);
 
+  // feb 2026
+  assert(0);
+
+
+
+#if 0
   data_t *data = app->data;
   assert(data);
   assert(data->magic == DATA_MAGIC);
@@ -352,7 +360,7 @@ bool app_test42(
   }
 
 
-
+#endif
 
   return 0;
 }

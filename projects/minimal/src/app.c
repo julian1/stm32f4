@@ -63,6 +63,7 @@
 
 
 #include <data/data.h>     // for main loop, data_update()
+#include <data/cal.h>     // for main loop, data_update()
 
 
 // fix me
@@ -927,10 +928,12 @@ void app_update_main(app_t *app)
 
     app->adc_interrupt_valid = false;
 
+#if 0
     // TODO.  feb 2026.  rename just data_update() and vfd_update()
     data_update_new_reading2( data, app->spi_fpga0);
 
     vfd_update_new_reading( app->data );  // use the data previously computed.
+#endif
   }
 
 
@@ -1480,46 +1483,13 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   */
 
 
-  else if(strcmp(cmd, "cal2") == 0) {
-    // cal with default model
-
-    // unsigned model_spec = 3;
-
-/*
-    data_cal2( app->data,  &app->devices, app->mode, model_spec, app->gpio_trigger_internal,
-      &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
-
-*/
-
-   app_cal2( app ) ;
-
-  }
-
-
-#if 0
-  else if( sscanf(cmd, "cal %lu", &u0 ) == 1) {
-
-    mode_reset( app->mode ); // TODO remove. data_cal can now reset the mode.
-    unsigned model_spec = u0;
-
-    data_cal( app->data,  &app->devices,  app->mode, model_spec, app->gpio_trigger_internal,
-     &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
-
-  }
-#endif
-
   else if(strcmp(cmd, "cal") == 0) {
     // cal with default model
 
-    /*
-    mode_reset( app->mode );    // TODO remove. data_cal can now reset the mode.
-    unsigned model_spec = 3;
 
-    data_cal( app->data,  &app->devices, app->mode, model_spec, app->gpio_trigger_internal,
-      &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app  );
-      */
+    assert(0);
 
-    app_cal2( app ) ;
+    // app_cal2( app ) ;
   }
 
 
@@ -1582,16 +1552,18 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
     // clear the interrupt handler, will be re-enabled at the end of mode transition state
 
-    // JA.  feb. 2026. looks completely wrong.
+    // JA.  feb. 2026. code looks completely wrong.
     assert(0);
     // interrupt_handler_set( app->devices.fpga0_interrupt, NULL, NULL );
 
+#if 0
     data_t *data = app->data;
 
     // clear the data buffers
     data_reset( data );
     // data_rdy_clear( data);
 
+#endif
 
   // JA. disable feb 2026.
 #if 0
@@ -1617,15 +1589,18 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
   // else if ( spi_repl_reg_write( app->spi_fpga0,  cmd)) { }
 
+#if 0
   else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, app->data->line_freq)) { }
 
 
   else if( mode_repl_statement( app->mode,  cmd, app->data->line_freq )) { }
+#endif
 
   else if( data_repl_statement( app->data, cmd )) { }
 
-  else if( data_flash_repl_statement(app->data, cmd)) { }
-
+#if 0
+  else if( cal_flash_repl_statement(app->data, cmd)) { }
+#endif
 
   /*
     these can apply the mode state, that has previously been setup.

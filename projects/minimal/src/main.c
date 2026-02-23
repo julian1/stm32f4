@@ -103,6 +103,8 @@ static app_t app = {
 
 
   // . data = &data
+
+  .line_freq = 50
 };
 
 

@@ -26,6 +26,7 @@
 #include <app.h>
 #include <data/data.h>
 
+#include <data/cal.h>
 
 
 
@@ -61,34 +62,56 @@
 
 */
 
-static void handler_write_cal( FILE *f, blob_header_t *header,  data_t *data )      // should pass app. to allow stor may be better t
+static void handler_write_cal( FILE *f, blob_header_t *header,  cal_t *cal)      // should pass app. to allow stor may be better t
 {
   assert(f);
   assert(header);
-  assert(data);
-  assert(data->magic == DATA_MAGIC);
+  assert(cal);
+  assert(cal->magic == CAL_MAGIC);
 
 
   // set the blob id
   assert(header->len == 0 && header->magic == 0);   // this handler doesn't care or know yet
   header->id = 108;
 
-  // write the data
-  fwrite( &data->model_id,                  sizeof(data->model_id), 1, f);
-  fwrite( &data->model_spec,                sizeof(data->model_spec), 1, f);
-  fwrite( &data->model_sigma_div_aperture,  sizeof(data->model_sigma_div_aperture), 1, f);
 
-  m_foutput_binary( f, data->model_b);
+  // write the cal
+  fwrite( &cal->model_id,                  sizeof(cal->model_id), 1, f);
+  fwrite( &cal->model_spec,                sizeof(cal->model_spec), 1, f);
+  fwrite( &cal->model_sigma_div_aperture,  sizeof(cal->model_sigma_div_aperture), 1, f);
 
+  m_foutput_binary( f, cal->model_b);
 }
 
 
 
-static void handler_scan_cal( FILE *f, blob_header_t *header, data_t *data )
+/*
+  feb 2026
+  OK.... this function is a pain... 
+
+  because we do not have the context - for the the extra missing predicate argument - model_id_to_load
+  
+  we will have to dummy up a more complicated structure
+*/
+
+typedef struct predicate_t 
 {
+
+  cal_t     *cal; 
+  uint32_t  model_id_to_load;
+
+} predicate_t;
+
+
+
+static void handler_scan_cal( FILE *f, blob_header_t *header, cal_t *cal /*, uint32_t  model_id_to_load */)
+{
+
+  assert(0);
+
   assert(header);
-  assert(data);
-  assert(data->magic == DATA_MAGIC);
+  assert(cal);
+  assert(cal->magic == CAL_MAGIC);
 
   // printf("found blob id=%u len=%u\n", header->id, header->len );
 
@@ -99,16 +122,17 @@ static void handler_scan_cal( FILE *f, blob_header_t *header, data_t *data )
 
     printf("found model_id %u", model_id);
 
-    if(model_id == data->model_id_to_load) {
-      // || data->model_id_to_load == -1    // to always load, and thus get the most recent.
+    // TODO FIXME. feb 2026.
+    if(model_id == 999999999 /*model_id_to_load */) {
+      // || cal->model_id_to_load == -1    // to always load, and thus get the most recent.
 
-      data->model_id = model_id;
+      cal->model_id = model_id;
 
-      // read the rest of the data
-      fread( &data->model_spec,               sizeof(data->model_spec), 1, f);
-      fread( &data->model_sigma_div_aperture, sizeof(data->model_sigma_div_aperture), 1, f);
+      // read the rest of the cal
+      fread( &cal->model_spec,               sizeof(cal->model_spec), 1, f);
+      fread( &cal->model_sigma_div_aperture, sizeof(cal->model_sigma_div_aperture), 1, f);
 
-      data->model_b = m_finput_binary(f, MNULL);
+      cal->model_b = m_finput_binary(f, MNULL);
 
       // payload should be readable.
       printf(", loaded cal OK\n");
@@ -126,14 +150,14 @@ static void handler_scan_cal( FILE *f, blob_header_t *header, data_t *data )
 
 */
 
-bool data_flash_repl_statement( data_t *data, const char *cmd)
+bool cal_flash_repl_statement( cal_t *cal, const char *cmd)
 {
 /*
   assert(app);
-  data_t *data = app->data;
+  cal_t *cal = app->cal;
 */
-  assert(data);
-  assert(data->magic == DATA_MAGIC);
+  assert(cal);
+  assert(cal->magic == CAL_MAGIC);
 
   uint32_t u0;
 
@@ -155,12 +179,16 @@ bool data_flash_repl_statement( data_t *data, const char *cmd)
 
   else if(sscanf(cmd, "flash cal write %lu", &u0 ) == 1) {
 
-    if(!data->model_b) {
+    // feb 2026
+    assert( 0);
+#if 0
+    if(!cal->model_b) {
       printf("no cal!\n");
       return 1;
     }
 
-    data->model_id = u0;
+    cal->model_id = u0;
+#endif
 
     // now save to flash
     printf("flash unlock\n");
@@ -169,7 +197,7 @@ bool data_flash_repl_statement( data_t *data, const char *cmd)
     FILE *f = flash_open_file( FLASH_SECT_ADDR );
     file_blob_skip_end( f);
     // use callback to write the block.
-    file_blob_write( f,  (void (*)(FILE *, blob_header_t *, void *)) handler_write_cal, data /*data->model_b */);
+    file_blob_write( f,  (void (*)(FILE *, blob_header_t *, void *)) handler_write_cal, cal /*cal->model_b */);
     fclose(f);
 
     printf("flash lock\n");
@@ -186,12 +214,16 @@ bool data_flash_repl_statement( data_t *data, const char *cmd)
     // OK. we don't want to override the model_id, if we don't find a valid cal.
     // so use a separate variable.
 
-    data->model_id_to_load = u0;
+    // feb 2026
+    assert(0);
+#if 0
+    cal->model_id_to_load = u0;
+#endif
 
     printf("flash unlock\n");
     flash_unlock();
     FILE *f = flash_open_file( FLASH_SECT_ADDR );
-    file_blobs_scan( f,  (void (*)( FILE *, blob_header_t *, void *))  handler_scan_cal , data ); // note passing data here.
+    file_blobs_scan( f,  (void (*)( FILE *, blob_header_t *, void *))  handler_scan_cal , cal ); // note passing cal here.
     fclose(f);
 
     printf("flash lock\n");

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>       // fabs
+#include <string.h>       // memcpy
 
 
 
@@ -159,6 +160,12 @@ static void stoupper( char *s)
 
 void vfd_update_new_reading(data_t *data)
 {
+  UNUSED(data);
+
+
+// feb 2026
+#if 0
+
   assert(data);
   assert(data->magic == DATA_MAGIC);
 
@@ -209,6 +216,7 @@ void vfd_update_new_reading(data_t *data)
   snprintf(buf, 100, "DCV 10M" );
   vfd_write_string2( buf, 0, 6 );
 
+#endif
 
 }
 

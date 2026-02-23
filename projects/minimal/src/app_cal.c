@@ -79,52 +79,6 @@
     could be used in app also.
 */
 
-// we need system mills
-// HMMMM.  there's quite a bit of data we need.
-// where are we going to store the cal?
-// in data.
-
-// perhaps line_freq should go in data...
-
-
-
-
-
-
-void data_cal_show( data_t *data )
-{
-  if( !data->model_b) {
-    printf("no model\n");
-    return;
-  }
-
-
-  m_foutput( stdout, data->model_b );
-
-  printf("model_id    %u\n", data->model_id );
-  printf("model_spec  %u\n", data->model_spec );
-
-  printf("stderr(V)   %.2fuV  (nplc10)\n", data->model_sigma_div_aperture * 1e6); // in uV.
-
-#if 0
-
-  // none of this works with a two variable model.
-  // print some stats
-  uint32_t aperture_          = nplc_to_aperture( 10, data->line_freq );
-
-  double last_b   = m_get_val(data->model_b ,   0,   m_rows( data->model_b) - 1);
-  double   res        = fabs( last_b / aperture_ ); // in V
-  // could also work out the implied count here.
-
-  printf("res         %.3fuV  ", res * 1e6 );  // resolution  in uV.
-  printf("digits      %.2f (nplc 10)", log10( 10.f / res));   // ie. decimal=10 not +-11V
-  // printf("bits %.2f ", log2( res));           // correct?   or should be aperture / slobe_b ?
-
-#endif
-
-}
-
-
 
 /*
   feb 2026.
@@ -136,28 +90,15 @@ void data_cal_show( data_t *data )
 void app_cal(
 
   app_t  *app
-/*
-  data_t    *data ,
-  devices_t *devices,
-
-
-  _mode_t *mode,
-  unsigned model_spec,
-
-  // app stuff
-  gpio_t      *gpio_trigger_internal,
-  volatile uint32_t *system_millis,
-  void (*yield)( void * ),
-  void * yield_ctx
-*/
 )
 {
 
   data_t    *data = app->data;
+  assert(data);
+  // assert(data->magic == DATA_MAGIC) ;
+
   _mode_t *mode = app->mode;
 
-  assert(data);
-  assert(data->magic == DATA_MAGIC) ;
   assert(mode);
   assert(mode->magic == MODE_MAGIC) ;
 
@@ -166,285 +107,15 @@ void app_cal(
 
 
 
-  // note that we are comitted, at this point, by setting fields on data
-  // data->model_spec = model_spec;
-
-
-  const unsigned obs_to_take_n = 7; // how many obs to take
-  const unsigned nplc[] = { 8, 9, 10, 11, 12, 13, 14, 15, 16  };
-  // unsigned  max_rows =  obs_to_take_n * ARRAY_SIZE(nplc) * 2 /** ARRAY_SIZE(params)*/;
-  unsigned  max_rows =  obs_to_take_n * ARRAY_SIZE(nplc) * 2 ;
-  // unsigned max_rows = 10;
-
-
-
-  // storage
-  MAT *xs       = m_get(max_rows, model_spec_cols( data->model_spec ));
-  MAT *y        = m_get(max_rows, 1);
-  // MAT *aperture = m_get(max_rows, 1); // required to calc predicted
-  MAT *row      = NULL;
-
-/*
-  m_truncate_rows(xs, 0);
-  m_truncate_rows(y, 0);
-  m_truncate_rows(aperture, 0);
-*/
-
-/*
-  // setup input relays - for dcv-source
-  mode->first.K405 = SR_SET;     // select dcv. TODO change if support himux.
-  assert( mode->first.K406 == SR_SET);   // accum relay off
-  mode->first.K407 = SR_RESET;   // select dcv-source on
-*/
-/*
-  mode->first .K407 = SR_SET;    // select dcv-source on ch1.
-  mode->first .K405 = SR_SET;     // select ch1. to feed through to accum cap.
-  mode->first .K406 = SR_SET;   // select accum cap
-*/
-
-  // dec 2024.
-  // set up input relays.
-  mode_ch2_set_ref_lo( mode);
-
-  assert(0); // FIXME JA. aug 2025.
-  // mode_ch2_set_channel( mode, 1 ); // dcv
-
-
-  // mode->reg_mode = MODE_SA_ADC;
-  mode_reg_cr_set( mode, MODE_SA_ADC);
-
-
-  // TODO. use mode_seq_set function.
-  //  void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 )
-
-/*
-  // set up sequence acquision
-  mode->sa.p_seq_n  = 2;
-  mode->sa.p_seq0 = (PC01 << 4) | S1;          // dcv,  update dec 2024.
-  mode->sa.p_seq1 = mode->sa.p_seq0;    // the same
-*/
-
-  sa_state_t *sa = &mode->sa;
-  sa->p_seq_n      = 2;
-  sa->p_seq_elt[ 0].azmux   = S1;
-  sa->p_seq_elt[ 0].pc      = 0b01;
-  sa->p_seq_elt[ 1]         = sa->p_seq_elt[ 0];
-
-
-
-
-  // mode->trig_sa = 1;
-  // mode_set_trigger( mode, true);
-  gpio_write( app->gpio_trigger_internal, 1 );   // aug 2025.
-
-
-
-  // this isnt' that nice. versus pushing a reserve sized array but is reasonably simple.
-  // just overside the matrix and use push_row
-  unsigned row_idx = 0;
-
-
-
-  for(unsigned h = 0; h < ARRAY_SIZE(nplc); ++h)
-  {
-
-    printf("nplc %u\n", nplc[h]);
-
-    // setup adc nplc
-    mode->adc.p_aperture = nplc_to_aperture( nplc[ h] , data->line_freq ); // fix jul 2024.
-
-
-    // ref hi/ref lo
-    for(unsigned j = 0; j < 2; ++j ) {
-
-      /*
-        feb. 2026. this code. is simple to change around.
-          remove the j<2 loop.
-
-          instead - just query the AZ flags.
-          and if the value should be 7 or 0.
-          - can also ignore initial readings
-      */
-
-      double y_ = 0;
-      if(j == 0) {
-        y_ = 7;   // ref-hi / 7V
-        // mode_ch2_set_ref(  mode, 7);
-
-
-        mode_ch2_set_ref( mode);
-      } else {
-        y_ = 0;  // ref-lo / 0V
-        // mode_ch2_set_ref(  mode, 0);
-        mode_ch2_set_ref_lo( mode);
-      }
-
-      // start adc,
-      printf("spi_mode_transition_state()\n");
-
-
-      // JA. changed. july 2025.
-      // spi_mode_transition_state( devices, mode, system_millis);
-      app_transition_state( app);
-
-
-
-      // let things settle from spi emi burst, and board DA settle, amp to come out of lockup.
-      // equivalent to discarding values
-      printf("sleep\n");
-      // yield_with_msleep( 1 * 1000, app->system_millis, app->yield, app->yield_ctx);
-
-      yield_with_msleep( 1 * 1000, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
-
-        // &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app
-
-
-      // take obs loop
-      for(unsigned i = 0; i < obs_to_take_n; ++i ) {
-
-
-        // JA feb 2026 - we moved the data_rdy interrupt up to the app level.
-        // consider just making cal take app argument.
-        // if we really want - then we just redirect the interrupt handler.
-        assert( 0);
-
-#if 0
-        // wait for adc data, on interrupt
-        while( !data->adc_interrupt_valid ) {
-          if(yield)
-            yield( yield_ctx);
-        }
-        data->adc_interrupt_valid = false;
-#endif
-
-         // wait for adc data, on interrupt
-        while( !app->adc_interrupt_valid )
-          app_update_simple_led_blink( app);
-        
-        app->adc_interrupt_valid = false;
-
-
-
-
-        spi_t *spi_fpga0  = app->spi_fpga0;
-        assert(spi_fpga0);
-
-
-        // embed a 8 bit. counter ini the reg_status and use it for the measure.
-
-        uint32_t status = spi_ice40_reg_read32( spi_fpga0, REG_STATUS );
-        UNUSED(status);
-
-        uint32_t clk_count_rstmux       = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_RSTMUX);   // useful check.
-        uint32_t clk_count_refmux_neg   = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_NEG);
-        uint32_t clk_count_refmux_pos   = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_POS);
-        uint32_t clk_count_refmux_both  = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_REFMUX_BOTH);
-        uint32_t clk_count_sigmux       = spi_ice40_reg_read32( spi_fpga0, REG_ADC_CLK_COUNT_SIGMUX);
-
-        printf("counts %6lu %lu %lu %lu %6lu",
-          clk_count_rstmux,
-          clk_count_sigmux,
-          clk_count_refmux_neg, clk_count_refmux_pos, clk_count_refmux_both
-        );
-        printf("\n");
-
-        // consider rename. this is more model_encode_row_from_counts()) - according to the model.
-        // at least adc_counts_to_model()
-        // taking model as first arg
-
-        /*
-          this is really ugly handling. should reset it.
-
-        */
-        row = run_to_matrix( clk_count_refmux_neg, clk_count_refmux_pos, clk_count_refmux_both, model_spec_cols(data->model_spec), row);
-        mat_set_row( xs,       row_idx,  row ) ;
-
-        vec_set_val( y,        row_idx,   y_  *  clk_count_sigmux );
-//        vec_set_val( aperture, row_idx, clk_count_sigmux);
-        ++row_idx;
-
-        /*
-        m_push_row( xs,       row ) ;
-        vec_push_row_val( y,  y_  *  clk_count_sigmux );
-        vec_set_val( aperture, row_idx, clk_count_sigmux);
-        */
-      } // i
-    } // j
-  } // h
-
-
-  // shrink matrixes to size collected data
-  m_resize( xs, row_idx, m_cols( xs) );
-  m_resize( y,  row_idx, m_cols( y) );
-//  m_resize( aperture, row_idx, m_cols( aperture) ); // we don't use aperture
-
-
-  printf("xs\n");
-  m_foutput( stdout, xs );
-  // usart1_flush();  // block until data flushed.
-                      // helps, but issue is uart circular buffers still overflow
-                      // could also just sleep for a bit.
-
-
-  ///////////////////////////////////////////////////////
-  // calc_cal( app, y, xs, aperture );
-
-  assert(m_rows(y) == m_rows(xs));
-  // assert(m_rows(y) == m_rows(aperture));
-
-  regression_t regression;
-
-  m_regression( xs, y, &regression );   // rename reg_regression()...
-  // usart1_flush();
-
-  // TODO change name regression_report.
-  // or _output..
-  r_regression_show( &regression, stdout);
-   //usart1_flush();
-
-
-  uint32_t aperture_          = nplc_to_aperture( 10, data->line_freq );
-  data->model_sigma_div_aperture   = regression.sigma / aperture_;
-/*
-  {
-    // print some stats
-
-
-    printf("stderr(V) %.2fuV  (nplc10)\n", data->model_sigma_div_aperture * 1e6);   // in uV.
-
-    double last_b_coefficient   = m_get_val(regression.b ,   0,   m_rows(regression.b) - 1);
-
-    data_print_slope_b_detail( aperture_, last_b_coefficient);
-  }
-*/
-
-
-  // copy to data->b
-  // set data->b size first, because m_copy() does not change dims.
-  // TODO - better to just copy. then reallocate and shrink
-  data->model_b = m_resize(data->model_b,  m_rows( regression.b ), m_cols( regression.b));
-  assert(data->model_b->m == regression.b->m && data->model_b->n == regression.b->n);
-
-  // note the predicted values are still in the regression structure.
-  data->model_b       = m_copy( regression.b, data->model_b );
-
-  // free regression
-  r_free( &regression );
-
-  //////////////////////////
-
-
-
-  m_free(row);
-  m_free(xs);
-  m_free(y);
-  // m_free(aperture);
-
-
-  // print some stats
-  data_cal_show( data );
 
 }
+
+
+
+
+
+
+
 
 // ok. we want the ability to save the cal. so can reuse.
 // want to fix the amp inductor.

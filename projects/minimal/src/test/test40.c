@@ -20,7 +20,7 @@
 #include <data/buffer.h>
 
 
-#include <mode.h>       // transition state
+// #include <mode.h>       // transition state
 
 
 
@@ -41,6 +41,12 @@ bool app_test40(
 
   data_t *data = app->data;
   assert(data);
+
+  // feb 2026.
+  assert(0);
+
+#if 0
+
   assert(data->magic == DATA_MAGIC);
 
 
@@ -79,7 +85,7 @@ bool app_test40(
   }
 
 
-
+  #endif
 
   return 0;
 }

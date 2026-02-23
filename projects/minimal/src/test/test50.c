@@ -29,12 +29,13 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 // #include <math.h>     // fabs
 
 
-#include <peripheral/gpio.h>
+// #include <peripheral/gpio.h>
+// #include <peripheral/interrupt.h>
 #include <peripheral/spi-ice40.h>
-#include <peripheral/interrupt.h>
 
 
 #include <lib2/util.h>    // yield_with_msleep
@@ -45,7 +46,7 @@
 #include <mode.h>
 #include <util.h> // nplc_to_aperture()
 #include <app.h>
-#include <data/data.h>
+// #include <data/data.h>
 
 
 
@@ -57,14 +58,16 @@ static void test( app_t *app)
 {
 
 
-  data_t    *data = app->data;
+  // data_t    *data = app->data;
   _mode_t *mode = app->mode;
 
   char buf[100 + 1];
 
-
+/*
   assert(data);
   assert(data->magic == DATA_MAGIC) ;
+*/
+
   assert(mode);
   assert(mode->magic == MODE_MAGIC) ;
 
@@ -103,7 +106,7 @@ static void test( app_t *app)
     app_trigger( app, false);
 
     // set nplc
-    mode->adc.p_aperture = nplc_to_aperture( k, data->line_freq );				// fix jul 2024.
+    mode->adc.p_aperture = nplc_to_aperture( k, app->line_freq );				// fix jul 2024. feb 2026
 
     app_transition_state( app);
 

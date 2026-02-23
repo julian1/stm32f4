@@ -27,7 +27,7 @@
 #define UNUSED(x) ((void)(x))
 
 
-
+#if 0
 
 
 static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
@@ -98,6 +98,7 @@ static double m_get_mean( MAT *buffer )
 }
 
 
+#endif
 
 
 
@@ -113,6 +114,13 @@ bool app_test41(
   assert(cmd);
   assert(yield);
   assert(yield_ctx);
+
+
+
+  // feb 2026
+  assert(0);
+
+#if 0
 
   data_t *data = app->data;
   assert(data);
@@ -245,7 +253,7 @@ bool app_test41(
   }
 
 
-
+#endif
 
   return 0;
 }

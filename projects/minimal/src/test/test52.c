@@ -18,12 +18,13 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include <math.h>     // NAN
+// #include <math.h>     // NAN
+#include <string.h>
 
 
-#include <peripheral/gpio.h>
+// #include <peripheral/gpio.h>
+// #include <peripheral/interrupt.h>
 #include <peripheral/spi-ice40.h>
-#include <peripheral/interrupt.h>
 
 
 #include <lib2/util.h>    // yield_with_msleep
@@ -34,7 +35,7 @@
 #include <mode.h>
 #include <util.h> // nplc_to_aperture()
 #include <app.h>
-#include <data/data.h>
+// #include <data/data.h>
 
 
 
@@ -50,11 +51,12 @@ static void test2( app_t *app, double cal_w, double cal_divisor)
   assert(mode);
   assert(mode->magic == MODE_MAGIC) ;
 
+/*
   // TODO review/remove - only needed for line_freq... which indicates issue
   data_t    *data = app->data;
   assert(data);
   assert(data->magic == DATA_MAGIC) ;
-
+*/
 
   spi_t *spi = app->spi_fpga0;
   assert(spi);
@@ -76,7 +78,7 @@ static void test2( app_t *app, double cal_w, double cal_divisor)
   // mode_ch2_set_lts( mode);
 
   // nplc to use
-  mode_aperture_set( mode, nplc_to_aperture( 10, data->line_freq ));
+  mode_aperture_set( mode, nplc_to_aperture( 10, app->line_freq ));
 
 
   ////////////////////
@@ -182,11 +184,12 @@ static void test( app_t *app)
   assert(mode);
   assert(mode->magic == MODE_MAGIC) ;
 
+/*
   // TODO review/remove - only needed for line_freq... which indicates issue
   data_t    *data = app->data;
   assert(data);
   assert(data->magic == DATA_MAGIC) ;
-
+*/
 
   spi_t *spi = app->spi_fpga0;
   assert(spi);
@@ -235,7 +238,7 @@ static void test( app_t *app)
   app_trigger( app, false);
 
   // set nplc
-  mode_aperture_set( mode, nplc_to_aperture( 10, data->line_freq ));
+  mode_aperture_set( mode, nplc_to_aperture( 10, app->line_freq ));
 
 
   app_transition_state( app);
@@ -323,7 +326,7 @@ static void test( app_t *app)
 
   {
     // nplc
-    mode->adc.p_aperture = nplc_to_aperture( nplc, data->line_freq );
+    mode_aperture_set( mode, nplc_to_aperture( nplc, app->line_freq ));
 
     /*
       expressing diff as a ratio of ref current - which is derived from main-ref is a decent approach.

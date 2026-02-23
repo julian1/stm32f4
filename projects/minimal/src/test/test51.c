@@ -3,12 +3,13 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include <math.h>     // NAN
+#include <string.h>
+// #include <math.h>     // NAN
 
 
-#include <peripheral/gpio.h>
+// #include <peripheral/gpio.h>
+// #include <peripheral/interrupt.h>
 #include <peripheral/spi-ice40.h>
-#include <peripheral/interrupt.h>
 
 
 #include <lib2/util.h>    // yield_with_msleep
@@ -19,7 +20,7 @@
 #include <mode.h>
 #include <util.h> // nplc_to_aperture()
 #include <app.h>
-#include <data/data.h>
+// #include <data/data.h>
 
 
 
@@ -30,14 +31,11 @@
 static void test( app_t *app)
 {
 
-  data_t    *data = app->data;
+  // data_t    *data = app->data;
+  // assert(data);
+  // assert(data->magic == DATA_MAGIC) ;
+
   _mode_t *mode = app->mode;
-
-  char buf[100 + 1];
-
-
-  assert(data);
-  assert(data->magic == DATA_MAGIC) ;
   assert(mode);
   assert(mode->magic == MODE_MAGIC) ;
 
@@ -46,6 +44,7 @@ static void test( app_t *app)
   assert(spi);
 
 
+  char buf[100 + 1];
 
   // sample off
   app_trigger( app, false);
@@ -86,7 +85,9 @@ static void test( app_t *app)
     app_trigger( app, false);
 
     // nplc to use
-    mode->adc.p_aperture = nplc_to_aperture( 1 , data->line_freq );
+    mode_aperture_set( mode, nplc_to_aperture( 1, app->line_freq ));
+
+
     app_transition_state( app);
     // sleep
     yield_with_msleep( 1 * 1000, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
@@ -176,7 +177,9 @@ static void test( app_t *app)
 
 
     // set nplc
-    mode->adc.p_aperture = nplc_to_aperture( nplc, data->line_freq );				// fix jul 2024.
+    mode_aperture_set( mode, nplc_to_aperture( nplc, app->line_freq ));
+
+
     app_transition_state( app);
     // sleep
     yield_with_msleep( 1 * 1000, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
