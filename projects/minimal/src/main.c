@@ -23,8 +23,6 @@
 #include <util.h>   // CLK_FREQ
 
 
-#include <data/data.h>     // to instantiate
-
 /* split vfd - so the rst gpio setup  is moved to device.
 */
 
@@ -56,6 +54,14 @@
 
 #include <peripheral/spi-ice40.h>
 #include <peripheral/interrupt.h>
+
+
+
+#include <data/cal.h>
+#include <data/data.h>
+#include <data/buffers.h>
+
+
 #include <peripheral/vfd.h>
 
 
@@ -427,7 +433,7 @@ static int main_f429(void)
   app.data = data_create( &app.cal, app.spi_fpga0);
 
 
-  // app.buffers = buffers_create(  app.data );
+  app.buffers = buffers_create( app.data );
 
 
 

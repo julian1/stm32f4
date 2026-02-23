@@ -24,7 +24,7 @@
 
 
 
-buffers_t * buffers_create( buffers_t *)
+buffers_t * buffers_create( data_t *data)
 {
   // why have the creation function like this?
   //  one reason - is to pass constructor dependencies at same time we create the object
@@ -35,6 +35,8 @@ buffers_t * buffers_create( buffers_t *)
   assert(buffers);
   memset( buffers, 0, sizeof( buffers_t));
   buffers->magic = BUFFERS_MAGIC;
+
+  buffers->data = data;
 
 
   return buffers;

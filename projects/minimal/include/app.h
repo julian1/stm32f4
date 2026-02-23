@@ -47,11 +47,10 @@
 */
 
 
-// typedef struct devices_t devices_t;
 
-typedef struct _mode_t _mode_t;
 
-typedef struct data_t data_t;
+#include <data/cal.h>
+
 typedef struct gpio_t gpio_t;
 
 
@@ -60,7 +59,13 @@ typedef struct spi_ice40_t spi_ice40_t;
 typedef struct interrupt_t interrupt_t;
 
 
-#include <data/cal.h>
+
+
+typedef struct _mode_t _mode_t;
+typedef struct data_t data_t;
+typedef struct buffers_t buffers_t;
+
+
 
 
 
@@ -182,25 +187,26 @@ typedef struct app_t
 
   //////////////////////////////////
 
-  // consider moving to app.
 
   volatile bool  adc_interrupt_valid;
 
-  bool adc_interrupt_valid_missed; // could make a count
+  bool adc_interrupt_valid_missed; // could be a count
 
 
 
-  // static input property of the environment
-  // does not really belon in mode. mode has values dependent.
-  uint32_t line_freq;
-
+  // line_freq is environment property
+  // does it belong in cal or data?
+  // issue is that the tests code wants easy access
+  uint32_t      line_freq;
 
   cal_t         cal;
 
   data_t        *data;
 
-  // buffer_t  *buffer;
+  buffers_t     *buffers;
 
+
+  // not sure belongs here
   bool verbose;
 
 } app_t;

@@ -46,7 +46,7 @@ typedef struct buffers_t
 
 
 
-buffers_t * buffers_create( buffers_t *);
+buffers_t * buffers_create(  data_t *);
 
 bool buffers_repl_statement( buffers_t *, const char *cmd);
 
