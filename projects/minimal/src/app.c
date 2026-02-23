@@ -184,6 +184,21 @@ void app_rdy_interrupt( app_t *app, interrupt_t *x) // runtime context
 
 void app_trigger( app_t *app, bool val)
 {
+  /*
+    build in a pause here...
+    to let relay pulse settle.
+
+    OR. sleep right after app_transition_state().
+        - no because expect to chain commands.
+
+    OR. use a timer - from the last board_transition_state.
+    EXTR.  only only sleep - if using NOAZ.
+  */
+
+  if(val == 1) {
+    // let board state settle.
+    yield_with_msleep( 500, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
+  }
 
   gpio_write( app->gpio_trigger_internal, val);
 
