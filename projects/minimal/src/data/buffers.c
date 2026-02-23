@@ -18,18 +18,21 @@
 #include <lib2/util.h>      // UNUSED, ARRAY_SIZE
 
 #include <data/buffers.h>
+#include <data/data.h>
 
 
-// #include <data/matrix.h>     // m_from_scalar
 
 
 
 buffers_t * buffers_create( data_t *data)
 {
-  // why have the creation function like this?
-  //  one reason - is to pass constructor dependencies at same time we create the object
-  //  makes it easier to determine instantiatino order in main
-  // also easier to hide if we want
+  /*
+    why have the creation function like this?
+    when not hiding structure.
+    one reason - is to pass constructor dependencies at same time we create the object
+    makes it easier to determine good instantiatino order in main
+    can also hide later if we want
+  */
 
   buffers_t *buffers = malloc( sizeof(buffers_t));
   assert(buffers);
@@ -47,6 +50,12 @@ void buffers_update( buffers_t *buffers)
 {
   assert(buffers);
   assert(buffers->magic == BUFFERS_MAGIC);
+
+  double value = buffers->data->value;
+  bool first = buffers->data->first;
+
+  UNUSED(value);
+  UNUSED(first);
 
 }
 

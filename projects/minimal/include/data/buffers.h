@@ -26,10 +26,14 @@ void buffer_stats_print( MAT *buffer /* flags */ );
 
 #define BUFFERS_MAGIC 88888123
 
+typedef struct data_t data_t;
+
 
 typedef struct buffers_t
 {
   uint32_t magic;
+
+  data_t *data;
 
   // malloc'd.
   double *values;
@@ -46,7 +50,7 @@ typedef struct buffers_t
 
 
 
-buffers_t * buffers_create(  data_t *);
+buffers_t * buffers_create( data_t *);
 
 bool buffers_repl_statement( buffers_t *, const char *cmd);
 
