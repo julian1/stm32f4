@@ -11,22 +11,17 @@
 #include <stdbool.h>
 
 
-typedef struct data_t data_t;
 typedef struct cal_t cal_t;
 typedef struct spi_t spi_t;
 
 
-// consider constrain in data.c
+// consider place in data.c
 #define DATA_MAGIC 123
 
 
 
 typedef struct data_t
 {
-  /*
-    //
-
-  */
 
   uint32_t magic;
 

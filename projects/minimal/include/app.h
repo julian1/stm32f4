@@ -58,9 +58,6 @@ typedef struct spi_t spi_t;
 typedef struct spi_ice40_t spi_ice40_t;
 typedef struct interrupt_t interrupt_t;
 
-
-
-
 typedef struct _mode_t _mode_t;
 typedef struct data_t data_t;
 typedef struct buffers_t buffers_t;

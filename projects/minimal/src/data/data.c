@@ -9,22 +9,17 @@
 #include <string.h>     // memcpy
 
 
-#include <lib2/util.h>      // ARRAY_SIZE
 
-#include <data/data.h>
-// #include <data/matrix.h>     // m_from_scalar
-// #include <data/buffer.h>     // m_from_scalar
-
-
-#include <util.h>     // aper_n_to_period
-
-
-
-#include <lib2/format.h>  // format_float
 
 #include <peripheral/spi-ice40.h>
 #include <device/spi-fpga0-reg.h>   // for seq mode
 
+
+#include <util.h>     // aper_n_to_period
+#include <lib2/util.h>      // ARRAY_SIZE
+#include <lib2/format.h>  // format_float
+
+#include <data/data.h>
 
 
 /*

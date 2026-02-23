@@ -8,23 +8,14 @@
 
 #include <stdio.h>    // printf, scanf
 #include <assert.h>
+#include <string.h>
 
 
 
 #include <libopencm3/stm32/flash.h>
 
-
 #include <lib2/stream-flash.h>
-
-
-#include <flash/file-blob.h>    //
-#include <data/matrix.h>        // m_foutput_binary ()
-
-
-// possibly this file should be at top level. or in /app.
-// not sure it's good to be including this like this
-#include <app.h>
-#include <data/data.h>
+#include <flash/file-blob.h>
 
 #include <data/cal.h>
 
