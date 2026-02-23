@@ -334,7 +334,7 @@ _mode_t *mode_create( void /* no dependenceies */ );
 void mode_reset(_mode_t *mode);
 
 
-bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq );
+bool mode_repl_statement( _mode_t *mode,  const char *cmd, const uint32_t line_freq);
 
 
 

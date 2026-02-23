@@ -886,7 +886,7 @@ void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
 
 
 
-bool mode_repl_statement( _mode_t *mode,  const char *cmd, uint32_t line_freq )
+bool mode_repl_statement( _mode_t *mode,  const char *cmd, const uint32_t line_freq )
 {
 
   char s0[ 100 + 1];

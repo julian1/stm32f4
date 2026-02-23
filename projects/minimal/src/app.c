@@ -1264,12 +1264,6 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   }
 
 
-
-
-
-
-
-
   // "h" for halt
   else if(strcmp(cmd, "halt") == 0 || strcmp(cmd, "h") == 0) {
 
@@ -1286,8 +1280,6 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
     app_trigger_internal( app, 1);
   }
-
-
 
 
 
@@ -1602,9 +1594,9 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 #if 0
   else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, app->data->line_freq)) { }
 
-
-  else if( mode_repl_statement( app->mode,  cmd, app->data->line_freq )) { }
 #endif
+
+  else if( mode_repl_statement( app->mode,  cmd, app->line_freq )) { }
 
   else if( data_repl_statement( app->data, cmd )) { }
 

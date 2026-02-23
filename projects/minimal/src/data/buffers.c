@@ -28,10 +28,19 @@
 
   and maintain order rather than a modul
   and ability to resize as we are working.
+  -------------
+
+  No. want allocation of max buffer once at the start.
+  So we should pass the buffer as a dependency of buffers_t.
+  -------------
+
+  write modulus is  good.   can extract a historically continguous buffer also
+        by just decrementing backwards.  from the current point.
+
 
 */
 
-buffers_t * buffers_create( data_t *data)
+buffers_t * buffers_create( data_t *data /* double values, size_t sz */)
 {
   /*
     why have the creation function like this?
@@ -63,6 +72,12 @@ void buffers_update( buffers_t *buffers)
 
   UNUSED(value);
   UNUSED(first);
+
+
+  if(first) {
+    // clear buffers
+
+  }
 
 }
 
