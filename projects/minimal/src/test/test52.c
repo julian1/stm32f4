@@ -1,13 +1,17 @@
 
 /*
   TODO
-    - add count ratio.  in output
-        so can adjust var pos to var neg.  for the bounds.
 
-    - better variable prefix would use cal_w and cal_divisor, cal_aper  and cal_ref_v
+  - add count ratio.  in output
+      so can adjust var pos to var neg.  for the bounds.
 
-    - should include noise check with input short.  eg. subtract ref-lo.  not ref-hi.
-      - add test of zero.  for noise rms.
+  - better variable prefix would use cal_w and cal_divisor, cal_aper  and cal_ref_v
+
+  - should include noise check with input short.  eg. subtract ref-lo.  not ref-hi.
+    - add test of zero.  for noise rms.
+
+
+  // why is there both aperture clk count, and sigmux clk count.  because runup does not turn on sigmux, for weight calculation
 */
 
 
@@ -38,24 +42,160 @@
 
 
 
-static void test( app_t *app)
+
+static void test2( app_t *app, double cal_w, double cal_divisor)
 {
 
-  data_t    *data = app->data;
   _mode_t *mode = app->mode;
-
-  char buf[100 + 1];
-
-
-  assert(data);
-  assert(data->magic == DATA_MAGIC) ;
   assert(mode);
   assert(mode->magic == MODE_MAGIC) ;
+
+  // TODO review/remove - only needed for line_freq... which indicates issue
+  data_t    *data = app->data;
+  assert(data);
+  assert(data->magic == DATA_MAGIC) ;
 
 
   spi_t *spi = app->spi_fpga0;
   assert(spi);
 
+
+  char buf[100 + 1];
+
+
+  ////////////////////
+
+
+  // mode_ch2_set_ref( mode);
+
+  mode_ch2_set_ref_lo( mode);
+  mode_az_set(mode, "ch2" );
+
+  // set 10V.
+  // mode_lts_set( mode, 10 );
+  // mode_ch2_set_lts( mode);
+
+  // nplc to use
+  mode_aperture_set( mode, nplc_to_aperture( 10, data->line_freq ));
+
+
+  ////////////////////
+
+  // previous lo
+  uint32_t clk_count_refmux_pos_lo = 0;
+  uint32_t clk_count_refmux_neg_lo = 0;   // no adjustment
+
+  // TODO better name - readings
+  double values[ 10 ];
+  memset(values, 0, sizeof(values));
+
+
+  ////////////////////
+  app_transition_state( app);
+
+  // sleep
+  yield_with_msleep( 1 * 1000, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
+
+  // start sampling
+  app_trigger( app, true);
+
+
+  // take obs loop
+  for(unsigned i = 0; i < ARRAY_SIZE( values);)
+  {
+    printf("i %u, ", i);
+
+    // wait for adc data
+    // use express yield function here. not app->yield etc
+    while( !app->adc_interrupt_valid )
+      app_update_simple_led_blink( app);
+
+    app->adc_interrupt_valid = false;
+
+    uint32_t status_ = spi_ice40_reg_read32( spi, REG_STATUS );
+    reg_sr_t  status;
+     _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
+    memcpy( &status, &status_,  sizeof( status_));
+
+    uint32_t clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+    uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+    uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
+
+    printf("first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
+    printf("counts pos %7lu neg %7lu, sigmux %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg, clk_count_sigmux);
+
+    if(status.sample_idx == 0) {
+      // lo - record counts
+      clk_count_refmux_pos_lo = clk_count_refmux_pos;
+      clk_count_refmux_neg_lo = clk_count_refmux_neg;
+    }
+    else if (status.sample_idx == 1) {
+      // hi
+      double v = ((double) clk_count_refmux_pos    - (cal_w * clk_count_refmux_neg))
+              - ( (double) clk_count_refmux_pos_lo - (cal_w * clk_count_refmux_neg_lo));
+
+      printf("v %f, ", v );
+
+      double v2 = v / clk_count_sigmux / cal_divisor * 7.1 ;  //  need to adjust for the cal voltage
+
+      printf( "v2 %s, ", str_format_float_with_commas(buf, 100, 9, v2));
+      // printf("v2 %f, ", v2 );
+
+      values[i] = v2;
+      ++i;
+    }
+    else
+      assert(0);
+
+
+    printf("\n");
+  }
+  // trig off
+  app_trigger( app, false);
+
+
+  // rename values_mean
+  double values_mean   = mean(   values, ARRAY_SIZE(values));
+  double values_stddev = stddev( values, ARRAY_SIZE(values));
+
+  printf( "mean   %s, ", str_format_float_with_commas(buf, 100, 9, values_mean));
+  printf( "stddev %s, ", str_format_float_with_commas(buf, 100, 9, values_stddev));
+  printf("\n");
+
+
+  // switch back to direct mode operation
+  mode_reg_cr_set( mode, MODE_DIRECT);
+
+  app_transition_state( app);
+
+  printf("\n");
+
+}
+
+
+
+
+
+
+
+
+static void test( app_t *app)
+{
+
+  _mode_t *mode = app->mode;
+  assert(mode);
+  assert(mode->magic == MODE_MAGIC) ;
+
+  // TODO review/remove - only needed for line_freq... which indicates issue
+  data_t    *data = app->data;
+  assert(data);
+  assert(data->magic == DATA_MAGIC) ;
+
+
+  spi_t *spi = app->spi_fpga0;
+  assert(spi);
+
+  char buf[100 + 1];
 
 
   // sample off
@@ -84,117 +224,107 @@ static void test( app_t *app)
 
   unsigned nplc = 10;
 
-  // cal stuff
-  double w = 0;
-  // uint32_t w_clk_count_aperture = 0;
 
+  // need double for mean()
+  double pos_values[ 10 ];
+  double neg_values[ 10 ];
+
+  memset(pos_values, 0, sizeof(pos_values));
+  memset(neg_values, 0, sizeof(neg_values));
+
+
+  _Static_assert(ARRAY_SIZE(pos_values) == ARRAY_SIZE(neg_values), "whoot");
+
+  // stop sampling
+  app_trigger( app, false);
+
+  // nplc to use
+  // TODO - want an accessor.
+  // mode->adc.p_aperture = nplc_to_aperture( nplc , data->line_freq );    // ugghhh....
+
+  mode_aperture_set( mode, nplc_to_aperture( 10, data->line_freq ));
+
+
+  app_transition_state( app);
+  // sleep
+  yield_with_msleep( 1 * 1000, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
+  // start sampling
+  app_trigger( app, true);
+
+
+  /* we can run this loop more simply
+      just sum up the values.
+      no need for mean function etc...  although having the stddev is useful.
+
+  */
+
+  // take obs loop
+  for(unsigned i = 0; i < ARRAY_SIZE(pos_values); ++i)
   {
-    // need double for mean()
-    double pos_values[ 10 ];
-    double neg_values[ 10 ];
+    printf("i %u, ", i);
 
-    _Static_assert(ARRAY_SIZE(pos_values) == ARRAY_SIZE(neg_values), "whoot");
+    // wait for adc data
+    // use express yield function here. not app->yield etc
+    while( !app->adc_interrupt_valid )
+      app_update_simple_led_blink( app);
 
-    // stop sampling
-    app_trigger( app, false);
+    app->adc_interrupt_valid = false;
 
-    // nplc to use
-    mode->adc.p_aperture = nplc_to_aperture( nplc , data->line_freq );
-    app_transition_state( app);
-    // sleep
-    yield_with_msleep( 1 * 1000, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
-    // start sampling
-    app_trigger( app, true);
+    uint32_t status_ = spi_ice40_reg_read32( spi, REG_STATUS );
+    reg_sr_t  status;
+     _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
+    memcpy( &status, &status_,  sizeof( status_));
 
 
-    /* we can run this loop more simply
-        just sum up the values.
-        no need for mean function etc...  although having the stddev is useful.
+    uint32_t clk_count_refmux_pos   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+    uint32_t clk_count_refmux_neg   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+    uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
 
-    */
+    printf("first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
+    printf("counts pos %7lu neg %7lu, sig %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg, clk_count_sigmux);
 
-    // take obs loop
-    for(unsigned i = 0; i < ARRAY_SIZE(pos_values); ++i)
-    {
-      printf("i %u, ", i);
+    pos_values[i] = clk_count_refmux_pos;
+    neg_values[i] = clk_count_refmux_neg;
 
-      // wait for adc data
-      // use express yield function here. not app->yield etc
-      while( !app->adc_interrupt_valid )
-        app_update_simple_led_blink( app);
-
-      app->adc_interrupt_valid = false;
-
-      uint32_t status_ = spi_ice40_reg_read32( spi, REG_STATUS );
-      reg_sr_t  status;
-       _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
-      memcpy( &status, &status_,  sizeof( status_));
-
-      printf("  first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
-
-      uint32_t clk_count_refmux_pos   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-      uint32_t clk_count_refmux_neg   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-      uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
-
-      // w_clk_count_aperture            = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);
-
-      printf("counts pos %7lu neg %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg);
-      printf("sigmux %7lu, ", clk_count_sigmux);
-
-
-
-      pos_values[i] = clk_count_refmux_pos;
-      neg_values[i] = clk_count_refmux_neg;
-
-      printf("\n");
-    }
-    // trig off
-    app_trigger( app, false);
-
-
-    double pos_mean   = mean(   pos_values, ARRAY_SIZE(pos_values));
-    double neg_mean   = mean(   neg_values, ARRAY_SIZE(neg_values));
-    double stddev_pos = stddev( pos_values, ARRAY_SIZE(pos_values));
-    double stddev_neg = stddev( neg_values, ARRAY_SIZE(neg_values));
-
-    printf( "pos mean   %.3f, ", pos_mean);
-    printf( "stddev %.3f, ", stddev_pos);
     printf("\n");
-
-    printf( "neg mean   %.3f, ", neg_mean);
-    printf( "stddev %.3f, ", stddev_neg);
-    printf("\n");
-
-    // set w
-    w =  pos_mean / neg_mean;
-
   }
+
   // sampling off
   app_trigger( app, false);
 
 
-  // printf(" w %.8f, ", w );
-  printf( "w %s\n", str_format_float_with_commas(buf, 100, 9, w));
+  double pos_mean   = mean(   pos_values, ARRAY_SIZE(pos_values));
+  double neg_mean   = mean(   neg_values, ARRAY_SIZE(neg_values));
+  double stddev_pos = stddev( pos_values, ARRAY_SIZE(pos_values));
+  double stddev_neg = stddev( neg_values, ARRAY_SIZE(neg_values));
 
-  assert( w);
+  printf( "pos mean   %.3f, ", pos_mean);
+  printf( "stddev %.3f, ", stddev_pos);
+  printf("\n");
+
+  printf( "neg mean   %.3f, ", neg_mean);
+  printf( "stddev %.3f, ", stddev_neg);
+  printf("\n");
+
+  // cal_w
+  double cal_w = pos_mean / neg_mean;
+  assert( cal_w);
+
+  // printf(" w %.8f, ", w );
+  printf( "cal_w %s\n", str_format_float_with_commas(buf, 100, 9, cal_w));
+
 
 
 
 
 
   ////////////////////////
-  // may need larger int ....
-  // for long
-  // better name clk_count_refmux_net
-  // int32_t w_clk_count_refmux = 0;     // MUST BE SIGNED.
-  // uint32_t w_clk_count_aperture  = 0 ;
 
-    ////////
-  // only record the last lo.
-  uint32_t clk_count_refmux_pos_lo = 0;     // this is adjusted...
-  uint32_t clk_count_refmux_neg_lo = 0;
+  // previous lo
+  uint32_t clk_count_refmux_pos_lo = 0;
+  uint32_t clk_count_refmux_neg_lo = 0;   // no adjustment
 
-  // better name. count divisor/ factor.
+  // TODO better name here. count divisor/ factor.
   double values[ 10 ];
   memset(values, 0, sizeof(values));
 
@@ -238,12 +368,10 @@ static void test( app_t *app)
 
       uint32_t clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
       uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-      // uint32_t clk_count_aperture   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);
       uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
 
       printf("first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
-      printf("counts pos %7lu neg %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg);
-      printf("sigmux %7lu, ", clk_count_sigmux);
+      printf("counts pos %7lu neg %7lu, sig %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg, clk_count_sigmux);
 
       if(status.sample_idx == 0) {
         // lo - record counts
@@ -252,11 +380,13 @@ static void test( app_t *app)
       }
       else if (status.sample_idx == 1) {
         // hi
-        double v = ((double) clk_count_refmux_pos - (w * clk_count_refmux_neg))
-                - ( (double) clk_count_refmux_pos_lo  - (w * clk_count_refmux_neg_lo));
+        double v = ((double) clk_count_refmux_pos    - (cal_w * clk_count_refmux_neg))
+                - ( (double) clk_count_refmux_pos_lo - (cal_w * clk_count_refmux_neg_lo));
 
         printf("v %f, ", v );
-        values[ i ] = v;
+
+        // OK. we could incorporate the voltage target, here as well, if we wanted.
+        values[ i ] = v / clk_count_sigmux;
         // only increment on hi.
         ++i;
       }
@@ -269,107 +399,23 @@ static void test( app_t *app)
     // stop sampling
     app_trigger( app, false);
 
-    // printf( "w_clk_count_refmux   %ld\n", w_clk_count_refmux);
-    // printf( "w_clk_count_aperture %lu\n", w_clk_count_aperture);
   }
 
 
-  double values_mean = mean(   values, ARRAY_SIZE(values));
-  double values_stddev = stddev( values, ARRAY_SIZE(values));
+  double cal_divisor = mean(   values, ARRAY_SIZE(values));
+  double cal_divisor_stddev = stddev( values, ARRAY_SIZE(values));
 
-  printf( "mean   %.3f, ", values_mean );
-  printf( "stddev %.3f, ", values_stddev);
+  printf( "mean   %.3f, ", cal_divisor );
+  printf( "stddev %.9f, ", cal_divisor_stddev);
   printf("\n");
 
 
-  //
+
+  test2( app, cal_w, cal_divisor);
+
 
 
   ////////////////////////
-
-  memset(values, 0, sizeof(values));
-
-    // mode_ch2_set_ref( mode);
-    // mode_ch2_set_ref_lo( mode);
-    // mode_az_set(mode, "ch2" );
-
-
-    // set 10V.
-    // mode_lts_set( mode, 10 );
-    // mode_ch2_set_lts( mode);
-
-    app_transition_state( app);
-
-    // sleep
-    yield_with_msleep( 1 * 1000, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
-
-    // start sampling
-    app_trigger( app, true);
-
-    // take obs loop
-    for(unsigned i = 0; i < ARRAY_SIZE( values);)
-    {
-      printf("i %u, ", i);
-
-      // wait for adc data
-      // use express yield function here. not app->yield etc
-      while( !app->adc_interrupt_valid )
-        app_update_simple_led_blink( app);
-
-      app->adc_interrupt_valid = false;
-
-      uint32_t status_ = spi_ice40_reg_read32( spi, REG_STATUS );
-      reg_sr_t  status;
-       _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
-      memcpy( &status, &status_,  sizeof( status_));
-
-      uint32_t clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-      uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-      // uint32_t clk_count_aperture   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);
-      uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
-
-      printf("first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
-      printf("counts pos %7lu neg %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg);
-      printf("sigmux %7lu, ", clk_count_sigmux);
-
-      if(status.sample_idx == 0) {
-        // lo - record counts
-        clk_count_refmux_pos_lo = clk_count_refmux_pos;
-        clk_count_refmux_neg_lo = clk_count_refmux_neg;
-      }
-      else if (status.sample_idx == 1) {
-        // hi
-        double v = ((double) clk_count_refmux_pos - (w * clk_count_refmux_neg))
-                - ( (double) clk_count_refmux_pos_lo  - (w * clk_count_refmux_neg_lo));
-
-        printf("v %f, ", v );
-
-        double v2 = v / values_mean * 7.1 ;  //  need to adjust for the cal voltage
-
-        printf( "v2 %s, ", str_format_float_with_commas(buf, 100, 9, v2));
-        // printf("v2 %f, ", v2 );
-
-        values[i] = v2;
-        ++i;
-      }
-      else
-        assert(0);
-
-
-      printf("\n");
-    }
-    // trig off
-    app_trigger( app, false);
-
-
-    // rename values_mean
-    values_mean = mean(   values, ARRAY_SIZE(values));
-    values_stddev = stddev( values, ARRAY_SIZE(values));
-
-    printf( "mean   %s, ", str_format_float_with_commas(buf, 100, 9, values_mean));
-    printf( "stddev %s, ", str_format_float_with_commas(buf, 100, 9, values_stddev));
-    printf("\n");
-
 
     // switch back to direct mode operation
     mode_reg_cr_set( mode, MODE_DIRECT);

@@ -119,6 +119,14 @@ void mode_reset(_mode_t *mode)
 
 
 
+
+void mode_aperture_set( _mode_t *mode, uint32_t u)
+{
+  mode->adc.p_aperture = u;    // ugghhh....
+}
+
+
+
 void mode_reg_cr_set(_mode_t *mode, unsigned u0)
 {
 
