@@ -325,8 +325,20 @@ static void test( app_t *app)
     // nplc
     mode->adc.p_aperture = nplc_to_aperture( nplc, data->line_freq );
 
-    // calibrate against ref
+    /*
+      expressing diff as a ratio of ref current - which is derived from main-ref is a decent approach.
+      mean   -0.488   for 7.1V.
+      mean   -0.689,  for 10V.
+
+      then different ranges dcv/shunts can use a different multiplier.
+    */
+
+    // calibrate using ref-current sources, derived from main ref
     mode_ch2_set_ref( mode);
+
+    // calibrate against 10V.
+    // mode_lts_set( mode, 10 );
+    // mode_ch2_set_lts( mode);
 
     mode_az_set(mode, "ch2" );
 
@@ -395,6 +407,7 @@ static void test( app_t *app)
   }
 
 
+  // eg. the cal source (7.1 or external 10V) expressed  as ratio of the pos-ref-current
   double cal_divisor = mean(   values, ARRAY_SIZE(values));
   double cal_divisor_stddev = stddev( values, ARRAY_SIZE(values));
 
@@ -438,8 +451,78 @@ bool app_test52(
   return 0;
 }
 
+
+
+
+
 #if 0
 
+
+
+> test52
+test52()
+nplc 10 for everything
+set amp gain
+i 0, first=1  idx=0 seq_n=2, counts pos 1975923 neg 2025236, sig       0,
+i 1, first=0  idx=1 seq_n=2, counts pos 1975927 neg 2025240, sig       0,
+i 2, first=0  idx=0 seq_n=2, counts pos 1975925 neg 2025238, sig       0,
+i 3, first=0  idx=1 seq_n=2, counts pos 1975924 neg 2025237, sig       0,
+i 4, first=0  idx=0 seq_n=2, counts pos 1975923 neg 2025236, sig       0,
+i 5, first=0  idx=1 seq_n=2, counts pos 1975926 neg 2025239, sig       0,
+i 6, first=0  idx=0 seq_n=2, counts pos 1975926 neg 2025239, sig       0,
+i 7, first=0  idx=1 seq_n=2, counts pos 1975928 neg 2025241, sig       0,
+i 8, first=0  idx=0 seq_n=2, counts pos 1975924 neg 2025237, sig       0,
+i 9, first=0  idx=1 seq_n=2, counts pos 1975926 neg 2025239, sig       0,
+pos mean   1975925.200, stddev 1.600,
+neg mean   2025238.200, stddev 1.600,
+cal_w 0.975,650,765,
+i 0, first=1  idx=0 seq_n=2, counts pos 1976353 neg 2025623, sig 4000001,
+i 0, first=0  idx=1 seq_n=2, counts pos  988735 neg 3013356, sig 4000001, v -1951300.457487,
+i 1, first=0  idx=0 seq_n=2, counts pos 1976360 neg 2025630, sig 4000001,
+i 1, first=0  idx=1 seq_n=2, counts pos  988738 neg 3013359, sig 4000001, v -1951300.554883,
+i 2, first=0  idx=0 seq_n=2, counts pos 1976358 neg 2025628, sig 4000001,
+i 2, first=0  idx=1 seq_n=2, counts pos  988735 neg 3013356, sig 4000001, v -1951300.579233,
+i 3, first=0  idx=0 seq_n=2, counts pos 1976359 neg 2025629, sig 4000001,
+i 3, first=0  idx=1 seq_n=2, counts pos  988740 neg 3013361, sig 4000001, v -1951300.481836,
+i 4, first=0  idx=0 seq_n=2, counts pos 1976360 neg 2025630, sig 4000001,
+i 4, first=0  idx=1 seq_n=2, counts pos  988739 neg 3013360, sig 4000001, v -1951300.530534,
+i 5, first=0  idx=0 seq_n=2, counts pos 1976365 neg 2025635, sig 4000001,
+i 5, first=0  idx=1 seq_n=2, counts pos  988738 neg 3013359, sig 4000001, v -1951300.676630,
+i 6, first=0  idx=0 seq_n=2, counts pos 1976361 neg 2025631, sig 4000001,
+i 6, first=0  idx=1 seq_n=2, counts pos  988737 neg 3013358, sig 4000001, v -1951300.603582,
+i 7, first=0  idx=0 seq_n=2, counts pos 1976361 neg 2025631, sig 4000001,
+i 7, first=0  idx=1 seq_n=2, counts pos  988738 neg 3013359, sig 4000001, v -1951300.579233,
+i 8, first=0  idx=0 seq_n=2, counts pos 1976361 neg 2025631, sig 4000001,
+i 8, first=0  idx=1 seq_n=2, counts pos  988737 neg 3013358, sig 4000001, v -1951300.603582,
+i 9, first=0  idx=0 seq_n=2, counts pos 1976362 neg 2025632, sig 4000001,
+i 9, first=0  idx=1 seq_n=2, counts pos  988741 neg 3013362, sig 4000001, v -1951300.530534,
+mean   -0.488, stddev 0.000000015,
+i 0, first=1  idx=0 seq_n=2, counts pos 1976354 neg 2025624, sigmux 4000001,
+i 0, first=0  idx=1 seq_n=2, counts pos 1976360 neg 2025630, sigmux 4000001, v 0.146095, v2 -0.000,000,532,,
+i 1, first=0  idx=0 seq_n=2, counts pos 1976359 neg 2025629, sigmux 4000001,
+i 1, first=0  idx=1 seq_n=2, counts pos 1976362 neg 2025632, sigmux 4000001, v 0.073048, v2 -0.000,000,266,,
+i 2, first=0  idx=0 seq_n=2, counts pos 1976357 neg 2025627, sigmux 4000001,
+i 2, first=0  idx=1 seq_n=2, counts pos 1976363 neg 2025633, sigmux 4000001, v 0.146095, v2 -0.000,000,532,,
+i 3, first=0  idx=0 seq_n=2, counts pos 1976361 neg 2025631, sigmux 4000001,
+i 3, first=0  idx=1 seq_n=2, counts pos 1976363 neg 2025633, sigmux 4000001, v 0.048698, v2 -0.000,000,177,,
+i 4, first=0  idx=0 seq_n=2, counts pos 1976360 neg 2025630, sigmux 4000001,
+i 4, first=0  idx=1 seq_n=2, counts pos 1976365 neg 2025635, sigmux 4000001, v 0.121746, v2 -0.000,000,443,,
+i 5, first=0  idx=0 seq_n=2, counts pos 1976359 neg 2025629, sigmux 4000001,
+i 5, first=0  idx=1 seq_n=2, counts pos 1976361 neg 2025631, sigmux 4000001, v 0.048698, v2 -0.000,000,177,,
+i 6, first=0  idx=0 seq_n=2, counts pos 1976359 neg 2025629, sigmux 4000001,
+i 6, first=0  idx=1 seq_n=2, counts pos 1976362 neg 2025632, sigmux 4000001, v 0.073048, v2 -0.000,000,266,,
+i 7, first=0  idx=0 seq_n=2, counts pos 1976356 neg 2025626, sigmux 4000001,
+i 7, first=0  idx=1 seq_n=2, counts pos 1976359 neg 2025629, sigmux 4000001, v 0.073048, v2 -0.000,000,266,,
+i 8, first=0  idx=0 seq_n=2, counts pos 1976356 neg 2025626, sigmux 4000001,
+i 8, first=0  idx=1 seq_n=2, counts pos 1976361 neg 2025631, sigmux 4000001, v 0.121746, v2 -0.000,000,443,,
+i 9, first=0  idx=0 seq_n=2, counts pos 1976356 neg 2025626, sigmux 4000001,
+i 9, first=0  idx=1 seq_n=2, counts pos 1976363 neg 2025633, sigmux 4000001, v 0.170445, v2 -0.000,000,620,,
+mean   -0.000,000,372,, stddev 0.000,000,152,,
+
+
+
+
+Feb 22. 2026.
 > test52
 test52()
 set amp gain
