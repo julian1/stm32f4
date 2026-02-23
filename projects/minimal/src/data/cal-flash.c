@@ -74,30 +74,31 @@ static void handler_write_cal( FILE *f, blob_header_t *header,  cal_t *cal)     
   assert(header->len == 0 && header->magic == 0);   // this handler doesn't care or know yet
   header->id = 108;
 
-
+#if 0
   // write the cal
   fwrite( &cal->model_id,                  sizeof(cal->model_id), 1, f);
   fwrite( &cal->model_spec,                sizeof(cal->model_spec), 1, f);
   fwrite( &cal->model_sigma_div_aperture,  sizeof(cal->model_sigma_div_aperture), 1, f);
 
   m_foutput_binary( f, cal->model_b);
+#endif
 }
 
 
 
 /*
   feb 2026
-  OK.... this function is a pain... 
+  OK.... this function is a pain...
 
   because we do not have the context - for the the extra missing predicate argument - model_id_to_load
-  
+
   we will have to dummy up a more complicated structure
 */
 
-typedef struct predicate_t 
+typedef struct predicate_t
 {
 
-  cal_t     *cal; 
+  cal_t     *cal;
   uint32_t  model_id_to_load;
 
 } predicate_t;
@@ -117,15 +118,16 @@ static void handler_scan_cal( FILE *f, blob_header_t *header, cal_t *cal /*, uin
 
   if(header->id == 108) {
 
-    unsigned model_id;
-    fread( &model_id,  sizeof(model_id), 1, f);
+    unsigned id;
+    fread( &id,  sizeof(id), 1, f);
 
-    printf("found model_id %u", model_id);
+    printf("found id %u", id);
 
     // TODO FIXME. feb 2026.
-    if(model_id == 999999999 /*model_id_to_load */) {
+    if(id == 999999999 /*model_id_to_load */) {
       // || cal->model_id_to_load == -1    // to always load, and thus get the most recent.
 
+#if 0
       cal->model_id = model_id;
 
       // read the rest of the cal
@@ -133,6 +135,7 @@ static void handler_scan_cal( FILE *f, blob_header_t *header, cal_t *cal /*, uin
       fread( &cal->model_sigma_div_aperture, sizeof(cal->model_sigma_div_aperture), 1, f);
 
       cal->model_b = m_finput_binary(f, MNULL);
+#endif
 
       // payload should be readable.
       printf(", loaded cal OK\n");
@@ -187,7 +190,7 @@ bool cal_flash_repl_statement( cal_t *cal, const char *cmd)
       return 1;
     }
 
-    cal->model_id = u0;
+    cal->id = u0;
 #endif
 
     // now save to flash
@@ -211,7 +214,7 @@ bool cal_flash_repl_statement( cal_t *cal, const char *cmd)
   // change name load?
   else if(sscanf(cmd, "flash cal read %lu", &u0 ) == 1) {
 
-    // OK. we don't want to override the model_id, if we don't find a valid cal.
+    // OK. we don't want to override the id, if we don't find a valid cal.
     // so use a separate variable.
 
     // feb 2026
