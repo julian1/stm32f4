@@ -699,62 +699,18 @@ static void app_update_console(app_t *app)
     }
 
     // apply state change
-    if(ch == '\r')
+    if( ch == '\r')
     {
-      // correct. it is ok/desirable. to update analog board state by calling transition_state(),
-      // even if state hasn't been modified. eg. ensures that state is consistent/aligned.
+      // correct. update analog board state by calling transition_state(),
+      // even if state has not changed. ensures everything is consistent/aligned at this juncture.
 
-      if(spi_ice40_cdone( app->spi_fpga0_pc))  {
-        // if(app->cdone_fpga0) {
-        // spi_mode_transition_state( &app->devices, app->mode, &app->system_millis);
+      if( spi_ice40_cdone( app->spi_fpga0_pc))  {
 
         app_transition_state( app );
 
-
-        /*
-          whether to restore interrupt handler - could be predicated on trigger.
-
-        */
-
-        /*
-          The better way to handle this.
-          is handle the dispatch from the top level.
-          eg. move the data_rdy_flag. into app.
-
-          and call like this -
-
-          app_update() {
-            data_update( app->data );         <- this
-            buffers_update( app->buffers );
-            vfd_update( app->vfd  );
-          }
-
-          - EXTR - consider injecting data - into buffers.
-          - and the buffers into the vfd display
-
-          - there is clear nested structure exposure - as needed.
-
-          eg. same as a game update() that displatches to all the submodules
-
-
-          - and test that we have to do something is not handled at top level.  then we cannot precolate the update() .
-
-          note that all the test code passes around app. so it is ok.
-
-          - EXTR.   we don't even have to have data,buffers,display  structure pointers at top level.
-                if just inject them.
-
-        */
-
-        // Feb 2026.  looks completely wrong.
-        // interrupt_handler_set( app->devices.fpga0_interrupt, app->data, (interrupt_handler_t ) data_rdy_interrupt);
-
-
       }
 
-
-
-      // issue new command prompt
+      // issue new prompt
       printf("\n> ");
 
     }
@@ -780,7 +736,6 @@ void app_update( app_t *app)
   if(app->adc_interrupt_valid) {
 
     app->adc_interrupt_valid = false;
-
 
     data_update( app->data);
     buffers_update( app->buffers);
@@ -837,44 +792,6 @@ void app_update( app_t *app)
 
 
 
-#if 0
-void app_update_simple_with_data(app_t *app)
-{
-  assert(app);
-  assert(app->magic == APP_MAGIC);
-
-  data_t *data = app->data;
-  assert(data);
-
-
-
-  // process potential new incomming data in priority
-  // data_update_new_reading( app->data, app->spi/*, app->verbose*/);
-
-  // process new incoming data.
-  if(data->adc_interrupt_valid) {
-
-    data->adc_interrupt_valid = false;
-    data_update_new_reading2( data, app->devices.spi_fpga0);
-  }
-
-
-
-
-  // 500ms soft timer
-  if( (app->system_millis - app->soft_500ms) > 500) {
-    app->soft_500ms += 500;
-
-    // blink mcu led
-    app->led_state = ! app->led_state;
-
-    gpio_write( app->gpio_status_led, app->led_state);
-  }
-
-}
-
-#endif
-
 
 
 
@@ -910,23 +827,16 @@ void app_update_simple_led_blink(app_t *app)
 static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq)
 {
   /*
-    typed on spi arg, should move?
+    this is typed on fpga spi,
+    It does not belong here in app.c
+    should move?
 
     --
     direct fpga register query/access.  useful for debugging
     could also write as array loop.
     consider remove
 
-    - consider prefix with 'reg' to indicate register query of fpga rather than mode structure.
-    eg.
-
-    reg spi-mux
-    reg mode
-    reg direct
-    reg seq-mode
-    reg status
-
-    etc
+    should pehaps type on fpga0_
   */
 
 
@@ -998,9 +908,11 @@ static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq
 
   else return 0;
 
-
   return 1;
 }
+
+
+
 
 
 
@@ -1545,6 +1457,44 @@ void app_repl_statements(app_t *app,  const char *s)
 
 
 
+#if 0
+void app_update_simple_with_data(app_t *app)
+{
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+
+  data_t *data = app->data;
+  assert(data);
+
+
+
+  // process potential new incomming data in priority
+  // data_update_new_reading( app->data, app->spi/*, app->verbose*/);
+
+  // process new incoming data.
+  if(data->adc_interrupt_valid) {
+
+    data->adc_interrupt_valid = false;
+    data_update_new_reading2( data, app->devices.spi_fpga0);
+  }
+
+
+
+
+  // 500ms soft timer
+  if( (app->system_millis - app->soft_500ms) > 500) {
+    app->soft_500ms += 500;
+
+    // blink mcu led
+    app->led_state = ! app->led_state;
+
+    gpio_write( app->gpio_status_led, app->led_state);
+  }
+
+}
+
+#endif
+
 
 
 #if 0
@@ -1689,6 +1639,46 @@ void app_repl_statements(app_t *app,  const char *s)
 #endif
 
 
+
+
+
+        /*
+          whether to restore interrupt handler - could be predicated on trigger.
+
+        */
+
+        /*
+          The better way to handle this.
+          is handle the dispatch from the top level.
+          eg. move the data_rdy_flag. into app.
+
+          and call like this -
+
+          app_update() {
+            data_update( app->data );         <- this
+            buffers_update( app->buffers );
+            vfd_update( app->vfd  );
+          }
+
+          - EXTR - consider injecting data - into buffers.
+          - and the buffers into the vfd display
+
+          - there is clear nested structure exposure - as needed.
+
+          eg. same as a game update() that displatches to all the submodules
+
+
+          - and test that we have to do something is not handled at top level.  then we cannot precolate the update() .
+
+          note that all the test code passes around app. so it is ok.
+
+          - EXTR.   we don't even have to have data,buffers,display  structure pointers at top level.
+                if just inject them.
+
+        */
+
+        // Feb 2026.  looks completely wrong.
+        // interrupt_handler_set( app->devices.fpga0_interrupt, app->data, (interrupt_handler_t ) data_rdy_interrupt);
 
 
 
