@@ -81,11 +81,11 @@ static void test2( app_t *app, double cal_w, double cal_divisor)
 
   ////////////////////
 
-  // previous lo
+  // record previous lo
   uint32_t clk_count_refmux_pos_lo = 0;
   uint32_t clk_count_refmux_neg_lo = 0;   // no adjustment
 
-  // TODO better name - readings
+  // TODO consider better name - readings
   double values[ 10 ];
   memset(values, 0, sizeof(values));
 
@@ -154,7 +154,7 @@ static void test2( app_t *app, double cal_w, double cal_divisor)
   app_trigger( app, false);
 
 
-  // rename values_mean
+  // better names - readings_mean ?
   double values_mean   = mean(   values, ARRAY_SIZE(values));
   double values_stddev = stddev( values, ARRAY_SIZE(values));
 
@@ -163,10 +163,6 @@ static void test2( app_t *app, double cal_w, double cal_divisor)
   printf("\n");
 
 
-  // switch back to direct mode operation
-  mode_reg_cr_set( mode, MODE_DIRECT);
-
-  app_transition_state( app);
 
   printf("\n");
 
@@ -216,7 +212,7 @@ static void test( app_t *app)
   mode_ch2_set_ref_lo( mode);
 
 
-  // sigmux not active. for initial weight.
+  // sigmux not active. to caulcate relative pos/neg ref current weight.
   mode->reg_cr.adc_p_active_sigmux = 0;
 
 
@@ -238,10 +234,7 @@ static void test( app_t *app)
   // stop sampling
   app_trigger( app, false);
 
-  // nplc to use
-  // TODO - want an accessor.
-  // mode->adc.p_aperture = nplc_to_aperture( nplc , data->line_freq );    // ugghhh....
-
+  // set nplc
   mode_aperture_set( mode, nplc_to_aperture( 10, data->line_freq ));
 
 
