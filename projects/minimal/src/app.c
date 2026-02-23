@@ -827,16 +827,14 @@ void app_update_simple_led_blink(app_t *app)
 static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq)
 {
   /*
+    low level fpga register accessors
     this is typed on fpga spi,
-    It does not belong here in app.c
-    should move?
+    but does not belong here in app.c move?
 
-    --
-    direct fpga register query/access.  useful for debugging
-    could also write as array loop.
-    consider remove
+    the registers correspond with, ./include/device/spi-fpga0-reg.h
+    so create src/device/spi-fpga0-reg.c ?
 
-    should pehaps type on fpga0_
+    or else could just about move to, src/device/spi-fpga0.c
   */
 
 
@@ -914,73 +912,6 @@ static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq
 
 
 
-
-
-#if 0
-
-these wont
-
-static bool spi_repl_reg_write( spi_t *spi,  const char *cmd)
-{
-
-  /*
-    these no longer work. state will immediately be over-written by the write of the mode,
-    when repl gets a '\n'
-
-  */
-
-  char s0[100 + 1 ];
-  uint32_t u0, u1;
-
-  if( sscanf(cmd, "reg! %lu %100s", &u0, s0) == 2
-    && str_decode_uint( s0, &u1)
-  ) {
-    spi_port_configure( spi);
-
-    spi_ice40_reg_write32( spi, u0 , u1 );
-    spi_print_register(  spi, u0);
-  }
-  else if( sscanf(cmd, "mode! %lu", &u0 ) == 1) {
-
-    spi_port_configure( spi);
-
-    spi_ice40_reg_write32( spi, REG_CR, u0 );
-    spi_print_register(  spi, REG_CR);
-  }
-  else if( sscanf(cmd, "direct! %100s", s0) == 1
-    && str_decode_uint( s0, &u0)
-  ) {
-
-    spi_port_configure( spi);
-
-    spi_ice40_reg_write32( spi, REG_DIRECT, u0 );
-    spi_print_register(  spi, REG_DIRECT);
-  }
-
-
-/*
-  we don't really have good test points.  for this. without controlling dcv-source output. u1006,u1007.
-
-  else if( sscanf(cmd, "dac %s", s0 ) == 1
-    && str_decode_uint( s0, &u0)
-  ) {
-      spi_port_configure( spi);
-
-      spi_ice40_reg_write32( spi, REG_SPI_MUX,  SPI_MUX_DAC );
-      spi_port_configure_mdac0( spi);
-
-      spi_mdac0_write16( spi, u0 );
-      spi_mux_ice40( spi);
-    }
-*/
-
-  else
-    return 0;
-
-
-  return 1;
-}
-#endif
 
 
 
@@ -1119,8 +1050,6 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
 
 
-
-
   // TODO move to test code.
 
   else if( strcmp( cmd, "vfd") == 0) {
@@ -1248,9 +1177,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   else if(strcmp(cmd, "cal") == 0) {
     // cal with default model
 
-
     assert(0);
-
     // app_cal2( app ) ;
   }
 
@@ -1277,88 +1204,27 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
 #endif
 
-  // better name dcv-chan1.  this is just noaz chan1.  operation.
 
   else if( strcmp(cmd, "dcv") == 0) {
 
-    // sample ref-lo via dcv-source
+    // sample ref-lo
+    // reset ; set ch2 ref;  set az ch2;  set mode 7; trig;
     app_repl_statements(app, "        \
-        nplc 10; set mode 7 ;         \
+        set ch2   ref;  \
+        set az    ch2;  \
+        set mode  7 ;   \
+        trig            \
       " );
 
-
-    // we want to be able to sample any input, easily.
-    // app->mode->first.K407 = SR_SET;
-    // mode_dcv_source_set_channel( app->mode, 1 ); // dcv
-
-    // sa.p_seq0 = (0b01 << 4) | S1;        // dcv
-/*
-
-    dcv should open channel. 1.
-      and setup the muxing.
-      can be az or noaz.
-      eg. 'dcv az' or dcv noaz'
-
-    - we could perhaps look at the azmux - to determine the input. to what values to use if switching between az/noaz even boot..
-    - actually the first element can stay the same.  we just change p_seq_n to 2. and change the data handler.
-
-    remove the 'dcv-source chan 1' command.
-*/
-
-    sa_state_t *sa = &app->mode->sa;
-    sa->p_seq_n = 1;
-    sa->p_seq_elt[ 0].azmux = S1;
-    sa->p_seq_elt[ 0].pc = 0b01;
-
-    // sa->p_trig = 1;
-
-    // clear the interrupt handler, will be re-enabled at the end of mode transition state
-
-    // JA.  feb. 2026. code looks completely wrong.
-    assert(0);
-    // interrupt_handler_set( app->devices.fpga0_interrupt, NULL, NULL );
-
-#if 0
-    data_t *data = app->data;
-
-    // clear the data buffers
-    data_reset( data );
-    // data_rdy_clear( data);
-
-#endif
-
-  // JA. disable feb 2026.
-#if 0
-    // set the data handler/catcher
-    data->handler_computed_val = data_sa_simple_computed_val;
-    data->ctx_computed_val = NULL;
-#endif
-
-
-    // check_data( == 7.000 )  etc.
-    // return 1;
   }
 
-
-
-
-
-  ///////////////////////
-  // We want clear separation - for setting mode versus setting anything directly on fpga.
-  // actually just remoe any thing that bypasses the mode.
-
-
-
-  // else if ( spi_repl_reg_write( app->spi_fpga0,  cmd)) { }
-
-#if 0
-  else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, app->data->line_freq)) { }
-
-#endif
 
   else if( mode_repl_statement( app->mode,  cmd, app->line_freq )) { }
 
   else if( data_repl_statement( app->data, cmd )) { }
+
+  else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, app->line_freq)) { }
+
 
 #if 0
   else if( cal_flash_repl_statement(app->data, cmd)) { }
@@ -1453,6 +1319,137 @@ void app_repl_statements(app_t *app,  const char *s)
   }
 
 }
+
+
+
+
+
+
+
+
+#if 0
+    // we want to be able to sample any input, easily.
+    // app->mode->first.K407 = SR_SET;
+    // mode_dcv_source_set_channel( app->mode, 1 ); // dcv
+
+    // sa.p_seq0 = (0b01 << 4) | S1;        // dcv
+/*
+
+    dcv should open channel. 1.
+      and setup the muxing.
+      can be az or noaz.
+      eg. 'dcv az' or dcv noaz'
+
+    - we could perhaps look at the azmux - to determine the input. to what values to use if switching between az/noaz even boot..
+    - actually the first element can stay the same.  we just change p_seq_n to 2. and change the data handler.
+
+    remove the 'dcv-source chan 1' command.
+*/
+
+    sa_state_t *sa = &app->mode->sa;
+    sa->p_seq_n = 1;
+    sa->p_seq_elt[ 0].azmux = S1;
+    sa->p_seq_elt[ 0].pc = 0b01;
+
+    // sa->p_trig = 1;
+
+    // clear the interrupt handler, will be re-enabled at the end of mode transition state
+
+    // JA.  feb. 2026. code looks completely wrong.
+    assert(0);
+    // interrupt_handler_set( app->devices.fpga0_interrupt, NULL, NULL );
+
+#if 0
+    data_t *data = app->data;
+
+    // clear the data buffers
+    data_reset( data );
+    // data_rdy_clear( data);
+
+#endif
+
+  // JA. disable feb 2026.
+#if 0
+    // set the data handler/catcher
+    data->handler_computed_val = data_sa_simple_computed_val;
+    data->ctx_computed_val = NULL;
+#endif
+
+
+    // check_data( == 7.000 )  etc.
+    // return 1;
+#endif
+
+
+
+
+#if 0
+
+these wont
+
+static bool spi_repl_reg_write( spi_t *spi,  const char *cmd)
+{
+
+  /*
+    these no longer work. state will immediately be over-written by the write of the mode,
+    when repl gets a '\n'
+
+  */
+
+  char s0[100 + 1 ];
+  uint32_t u0, u1;
+
+  if( sscanf(cmd, "reg! %lu %100s", &u0, s0) == 2
+    && str_decode_uint( s0, &u1)
+  ) {
+    spi_port_configure( spi);
+
+    spi_ice40_reg_write32( spi, u0 , u1 );
+    spi_print_register(  spi, u0);
+  }
+  else if( sscanf(cmd, "mode! %lu", &u0 ) == 1) {
+
+    spi_port_configure( spi);
+
+    spi_ice40_reg_write32( spi, REG_CR, u0 );
+    spi_print_register(  spi, REG_CR);
+  }
+  else if( sscanf(cmd, "direct! %100s", s0) == 1
+    && str_decode_uint( s0, &u0)
+  ) {
+
+    spi_port_configure( spi);
+
+    spi_ice40_reg_write32( spi, REG_DIRECT, u0 );
+    spi_print_register(  spi, REG_DIRECT);
+  }
+
+
+/*
+  we don't really have good test points.  for this. without controlling dcv-source output. u1006,u1007.
+
+  else if( sscanf(cmd, "dac %s", s0 ) == 1
+    && str_decode_uint( s0, &u0)
+  ) {
+      spi_port_configure( spi);
+
+      spi_ice40_reg_write32( spi, REG_SPI_MUX,  SPI_MUX_DAC );
+      spi_port_configure_mdac0( spi);
+
+      spi_mdac0_write16( spi, u0 );
+      spi_mux_ice40( spi);
+    }
+*/
+
+  else
+    return 0;
+
+
+  return 1;
+}
+#endif
+
+
 
 
 
