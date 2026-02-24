@@ -34,13 +34,14 @@
   So we should pass the buffer as a dependency of buffers_t.
   -------------
 
-  write modulus is  good.   can extract a historically continguous buffer also
-        by just decrementing backwards.  from the current point.
+  write modulus is  good.
+  if really want a historically continguous buffer also
+  by just decrementing backwards.  from the current point.
 
 
 */
 
-buffers_t * buffers_create( data_t *data /* double values, size_t sz */)
+buffers_t * buffers_create( data_t *data /* double values, size_t max_sz */)
 {
   /*
     why have the creation function like this?
@@ -57,7 +58,6 @@ buffers_t * buffers_create( data_t *data /* double values, size_t sz */)
 
   buffers->data = data;
 
-
   return buffers;
 }
 
@@ -67,15 +67,19 @@ void buffers_update( buffers_t *buffers)
   assert(buffers);
   assert(buffers->magic == BUFFERS_MAGIC);
 
-  double value = buffers->data->value;
-  bool first = buffers->data->first;
-
-  UNUSED(value);
-  UNUSED(first);
+  data_t *data = buffers->data;
+  assert(data);
+  assert(data->magic == DATA_MAGIC);
 
 
-  if(first) {
+
+  if(data->first) {
     // clear buffers
+  }
+
+  if(data->valid) {
+    assert(!data->first);
+    // push buffers.
 
   }
 

@@ -89,19 +89,27 @@ void data_update( data_t *data )
 
 
   if(status.sample_idx == 0) {
+
     // lo - record counts
     data->clk_count_refmux_pos_lo = clk_count_refmux_pos;
     data->clk_count_refmux_neg_lo = clk_count_refmux_neg;
+
+    data->value = false;
   }
+
   else if (status.sample_idx == 1) {
+
     // hi
-    double v = ((double) clk_count_refmux_pos           - (cal->w * clk_count_refmux_neg))
-            - ( (double) data->clk_count_refmux_pos_lo  - (cal->w * data->clk_count_refmux_neg_lo));
+    double v = ((double) clk_count_refmux_pos          - (cal->w * clk_count_refmux_neg))
+            - ( (double) data->clk_count_refmux_pos_lo - (cal->w * data->clk_count_refmux_neg_lo));
 
     printf("v %f, ", v );
 
-    data->value = v / clk_count_sigmux / cal->divisor * 7.1 ;  //  need to adjust for the cal voltage
-                                                                // ok. this is a bit tricky.
+    // do we even need a divisor - when we have to manage ... a range specific unit..
+    // and value
+
+    data->value = v / clk_count_sigmux / cal->divisor * 7.1 ;  //  need to adjust for the cal voltage // ok. this is a bit tricky.
+    data->value = true;
 
     printf( "v2 %s, ", str_format_float_with_commas(buf, 100, 9, data->value));
 
