@@ -7,7 +7,6 @@
 #pragma once
 
 
-
 #include <stdbool.h>
 
 
@@ -15,20 +14,13 @@ typedef struct cal_t cal_t;
 typedef struct spi_t spi_t;
 
 
-// consider place in data.c
+// consider move to data.c
 #define DATA_MAGIC 123
-
 
 
 typedef struct data_t
 {
-
   uint32_t magic;
-
-
-  // feb 2026.
-  // move line_freq to app
-
 
   cal_t *cal;
   spi_t *spi ;
@@ -37,14 +29,15 @@ typedef struct data_t
   bool  first;
 
 
-  // these have to persist...
-  // from last recorded reading
-  uint32_t clk_count_refmux_pos_lo ;
-  uint32_t clk_count_refmux_neg_lo ;   // no adjustment
+  // persist...  for AZ. from last reading
+  uint32_t clk_count_refmux_pos_lo;
+  uint32_t clk_count_refmux_neg_lo;
 
+  ///////////////////////
 
-
-  // reading value
+  // for other modules
+  bool   valid;
+  // reading
   double value;
 
   bool show_counts;
@@ -56,18 +49,14 @@ typedef struct data_t
 
 
 
-data_t * data_create( cal_t * cal, spi_t *spi  );
 
-
-
-// void data_init ( data_t *);
+data_t * data_create( cal_t * cal, spi_t *spi);
 
 
 bool data_repl_statement( data_t *data,  const char *cmd );
 
-bool data_flash_repl_statement( data_t *data, const char *cmd);
-
-void data_cal_show( data_t *data );
-
 void data_update( data_t *data );
+
+
+
 
