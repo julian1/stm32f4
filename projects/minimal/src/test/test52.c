@@ -45,6 +45,10 @@
 
 static void test2( app_t *app, double cal_w, double cal_divisor)
 {
+  /*
+    should be able to use data_t and data_update() to handle all this
+
+  */
 
   _mode_t *mode = app->mode;
   assert(mode);

@@ -17,8 +17,8 @@
 
 
 
-// place OE in own separate register, rather than general combined _CR_control register.
-// because use once only at config time
+// put OE in separate register, not _CR_ combined register.
+// because only used once at config time
 
 #define REG_4094_OE                       9
 #define REG_CR                            12
@@ -39,6 +39,7 @@
 
 ///////////////////////
 // sample acquisition control parameters
+// #define REG_SA_P_CLK_COUNT_TRIG_DELAY  19
 #define REG_SA_P_CLK_COUNT_PRECHARGE      20
 
 #define REG_SA_P_SEQ_N                    21
