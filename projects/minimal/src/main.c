@@ -161,17 +161,6 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq /*, uint32_t dead
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 static int main_f429(void)
 {
 
@@ -179,6 +168,7 @@ static int main_f429(void)
  _Static_assert( sizeof(bool) == 1);
  _Static_assert( sizeof(float) == 4);
  _Static_assert( sizeof(double ) == 8);
+ _Static_assert( sizeof(size_t) == 4);
 
 
   // use  f429.ld
@@ -415,13 +405,16 @@ static int main_f429(void)
   app.cal = &cal;
 
 
+
   data_t        data;
   data_reset( &data, app.cal, app.spi_fpga0);
   app.data = & data;// data_create( app.cal, app.spi_fpga0);
 
 
+  double values[ 1000];
+
   buffers_t     buffers;
-  buffers_reset( &buffers, app.data);
+  buffers_reset( &buffers, app.data, values, ARRAY_SIZE(values));
   app.buffers = &buffers; // buffers_create( app.data );
 
 

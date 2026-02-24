@@ -16,6 +16,10 @@
 
 
 #include <lib2/util.h>      // UNUSED, ARRAY_SIZE
+#include <lib2/stats.h>
+#include <lib2/format.h>  // format_with_commas
+
+
 
 #include <data/buffers.h>
 #include <data/data.h>
@@ -41,28 +45,33 @@
 
 
 
-// buffers_t * buffers_create( data_t *data /* double values, size_t max_sz */)
 
-void buffers_reset( buffers_t *buffers, data_t *data)
+
+void buffers_reset( buffers_t *buffers, data_t *data, double *values, size_t n)
 {
-  /*
-    - we can actually allocate this on the stack. in main.c
-    - the structure is necessarily exposed.
-    - just have to change this function -
-  */
-
-  // buffers_t *buffers = malloc( sizeof(buffers_t));
   assert(buffers);
   assert(data && data->magic == DATA_MAGIC);
 
   memset( buffers, 0, sizeof( buffers_t));
   buffers->magic = BUFFERS_MAGIC;
 
+  assert(data);
   buffers->data = data;
 
-  // return buffers;
+  buffers->values = values;
+  buffers->max_n = n;
 }
 
+
+
+// want a separate buffers_data_reset();
+
+
+/*
+  could only do the modulo  for the indexing action,  to know how many values there are.
+  but issue of integer wrap around...
+  so use a separate variable
+*/
 
 void buffers_update( buffers_t *buffers)
 {
@@ -70,22 +79,55 @@ void buffers_update( buffers_t *buffers)
   assert(buffers->magic == BUFFERS_MAGIC);
 
   data_t *data = buffers->data;
-  assert(data);
-  assert(data->magic == DATA_MAGIC);
+  assert(data && data->magic == DATA_MAGIC);
 
 
 
   if(data->first) {
-    // clear buffers
+
+    assert(!data->valid);
+
+    // clear data
+    // memset( buffers->values, 0, sizeof(double) * buffers->max_n );
+
+    buffers->n = 10;
+    buffers->i = 0;
+    buffers->size = 0;
+
   }
 
   if(data->valid) {
     assert(!data->first);
     // push buffers.
 
+    printf("buffers i %u, size %u, ", buffers->i, buffers->size );
+
+    buffers->values[ buffers->i ] = data->value;
+
+    buffers->i    = (buffers->i + 1 ) % buffers->n;
+    buffers->size = MIN( buffers->size  + 1, buffers->n) ;
+
+
+    double values_mean   = mean(   buffers->values, buffers->size);
+    double values_stddev = stddev( buffers->values, buffers->size);
+
+    char buf[100 + 1];
+
+    printf( "n %u, ", buffers->size);
+    printf( "mean   %s, ", str_format_float_with_commas(buf, 100, 9, values_mean));
+    printf( "stddev %s, ", str_format_float_with_commas(buf, 100, 9, values_stddev));
+    printf("\n");
+
+
   }
 
 }
+
+
+
+
+
+
 
 
 bool buffers_repl_statement( buffers_t *buffers, const char *cmd)

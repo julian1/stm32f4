@@ -37,10 +37,13 @@ typedef struct buffers_t
 
   // memory dependency, pass on construction
   double *values;
+  size_t max_n ;  // max memory to work size
 
-  unsigned size;
-  unsigned i;   //  modulus
-  unsigned n;
+
+
+  size_t n;       // expand size of buffer
+  size_t i;       // next index/ modulus
+  size_t size;    // number of elements present
 
   bool show_buffers;
 
@@ -53,7 +56,8 @@ typedef struct buffers_t
 
 
 // buffers_t * buffers_create( data_t *);
-void buffers_reset( buffers_t *, data_t *);
+
+void buffers_reset( buffers_t *buffers, data_t *data, double *values, size_t n);
 
 bool buffers_repl_statement( buffers_t *, const char *cmd);
 
