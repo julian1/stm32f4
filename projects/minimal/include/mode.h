@@ -326,7 +326,17 @@ typedef struct _mode_t
 
 
 
+/*
+  EXTR.  feb 2026.
+    all of this open structure can just be allocated on the stack.
+    none of it is opaque, or polymorphic.
 
+    for mode_t, cal_t, data_t, buffer_t,
+
+
+    instead of create. we would use reset(  )
+
+*/
 
 _mode_t *mode_create( void /* no dependenceies */ );
 

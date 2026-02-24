@@ -35,7 +35,7 @@ typedef struct buffers_t
 
   data_t *data;
 
-  // malloc'd.
+  // memory dependency, pass on construction
   double *values;
 
   unsigned size;

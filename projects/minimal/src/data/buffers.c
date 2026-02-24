@@ -44,11 +44,11 @@
 buffers_t * buffers_create( data_t *data /* double values, size_t max_sz */)
 {
   /*
-    why have the creation function like this?
-    when not hiding structure.
-    one reason - is to pass constructor dependencies at same time we create the object
-    makes it easier to determine good instantiatino order in main
-    can also hide later if we want
+    - we can actually allocate this on the stack. in main.c
+    - the structure is necessarily exposed.
+    - just have to change this function -
+
+
   */
 
   buffers_t *buffers = malloc( sizeof(buffers_t));
