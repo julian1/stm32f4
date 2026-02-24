@@ -32,10 +32,11 @@
 #include <lib2/format.h>  // format_with_commas
 
 
+#include <data/cal.h>
 #include <mode.h>
 #include <util.h> // nplc_to_aperture()
 #include <app.h>
-// #include <data/data.h>
+
 
 
 
@@ -419,8 +420,11 @@ static void test( app_t *app)
   printf("\n");
 
 
-  app->cal.w        = cal_w;
-  app->cal.divisor  = cal_divisor;
+  assert(app->cal);
+  assert(app->cal->magic == CAL_MAGIC);
+
+  app->cal->w        = cal_w;
+  app->cal->divisor  = cal_divisor;
 
 
   test2( app, cal_w, cal_divisor);

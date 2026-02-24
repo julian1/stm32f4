@@ -49,7 +49,6 @@
 
 
 
-#include <data/cal.h>
 
 typedef struct gpio_t gpio_t;
 
@@ -58,6 +57,8 @@ typedef struct spi_t spi_t;
 typedef struct spi_ice40_t spi_ice40_t;
 typedef struct interrupt_t interrupt_t;
 
+
+typedef struct cal_t cal_t;
 typedef struct _mode_t _mode_t;
 typedef struct data_t data_t;
 typedef struct buffers_t buffers_t;
@@ -124,9 +125,11 @@ typedef struct app_t
 
   // volatile int32_t sleep_millis;  // signed count down.
 
+  ////////
 
-  // TODO - consider make pointers if want opaque structure .  instantiate in main.
-  // rename cbuf_cbuf_console_in
+
+  // TODO - consider make pointers, for opaque structure
+  // and instantiate in main.
   cbuf_t        cbuf_console_in;
   cbuf_t        cbuf_console_out;
 
@@ -196,7 +199,7 @@ typedef struct app_t
   // issue is that the tests code wants easy access
   uint32_t      line_freq;
 
-  cal_t         cal;
+  cal_t         *cal;
 
   data_t        *data;
 

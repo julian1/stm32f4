@@ -402,7 +402,14 @@ static int main_f429(void)
 
   app.mode = mode_create( /* no dependenceies */ );
 
-  app.data = data_create( &app.cal, app.spi_fpga0);
+
+
+  cal_t         cal;
+  cal_reset( &cal);
+
+  app.cal = &cal;
+
+  app.data = data_create( app.cal, app.spi_fpga0);
 
   app.buffers = buffers_create( app.data );
 
