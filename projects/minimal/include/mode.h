@@ -338,7 +338,7 @@ typedef struct _mode_t
 
 */
 
-_mode_t *mode_create( void /* no dependenceies */ );
+// _mode_t *mode_create( void /* no dependenceies */ );
 
 
 void mode_reset(_mode_t *mode);

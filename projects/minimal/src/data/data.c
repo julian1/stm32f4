@@ -32,12 +32,17 @@
 */
 
 
-data_t * data_create( cal_t * cal, spi_t *spi  )
+// data_t * data_create( cal_t * cal, spi_t *spi  )
+
+void data_reset( data_t *data, cal_t *cal, spi_t *spi)
 {
   // called once at initialization
 
-  data_t *data = malloc( sizeof(data_t));
+  // data_t *data = malloc( sizeof(data_t));
   assert(data);
+  assert(cal && cal->magic == CAL_MAGIC);
+
+
   memset( data, 0, sizeof( data_t));
   data->magic = DATA_MAGIC;
 
@@ -47,7 +52,6 @@ data_t * data_create( cal_t * cal, spi_t *spi  )
   data->cal = cal;
   data->spi = spi;
 
-  return data;
 }
 
 

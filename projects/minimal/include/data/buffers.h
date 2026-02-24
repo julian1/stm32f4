@@ -18,8 +18,8 @@ void buffer_stats_print( MAT *buffer /* flags */ );
 #endif
 
 /* feb 2026.
-      we want to add the repl command to change the buffer size
-      and add a buffers update.
+    we want to add the repl command to change the buffer size
+    and add a buffers update.
 
 */
 
@@ -52,7 +52,8 @@ typedef struct buffers_t
 
 
 
-buffers_t * buffers_create( data_t *);
+// buffers_t * buffers_create( data_t *);
+void buffers_reset( buffers_t *, data_t *);
 
 bool buffers_repl_statement( buffers_t *, const char *cmd);
 

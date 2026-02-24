@@ -37,28 +37,30 @@
   write modulus is  good.
   if really want a historically continguous buffer also
   by just decrementing backwards.  from the current point.
-
-
 */
 
-buffers_t * buffers_create( data_t *data /* double values, size_t max_sz */)
+
+
+// buffers_t * buffers_create( data_t *data /* double values, size_t max_sz */)
+
+void buffers_reset( buffers_t *buffers, data_t *data)
 {
   /*
     - we can actually allocate this on the stack. in main.c
     - the structure is necessarily exposed.
     - just have to change this function -
-
-
   */
 
-  buffers_t *buffers = malloc( sizeof(buffers_t));
+  // buffers_t *buffers = malloc( sizeof(buffers_t));
   assert(buffers);
+  assert(data && data->magic == DATA_MAGIC);
+
   memset( buffers, 0, sizeof( buffers_t));
   buffers->magic = BUFFERS_MAGIC;
 
   buffers->data = data;
 
-  return buffers;
+  // return buffers;
 }
 
 

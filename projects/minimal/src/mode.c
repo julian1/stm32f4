@@ -95,7 +95,7 @@ static const _mode_t mode_initial =  {
 };
 
 
-
+#if 0
 
 _mode_t *mode_create( /* no dependenceies */ )
 {
@@ -108,6 +108,7 @@ _mode_t *mode_create( /* no dependenceies */ )
 
   return mode;
 }
+#endif
 
 
 

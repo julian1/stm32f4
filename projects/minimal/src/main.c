@@ -237,9 +237,6 @@ static int main_f429(void)
 
   // nothing wrong with stack allocation here
 
-  char buf_cbuf_console_in[1000];
-  char buf_cbuf_console_out[1000];    // changing this and it freezes. indicates. bug
-  char buf_command[1000];
 
 
   app_t app ;
@@ -252,16 +249,20 @@ static int main_f429(void)
 
   ///////////////////
 
+  char buf_cbuf_console_in[1000];
+  char buf_cbuf_console_out[1000];    // changing this and it freezes. indicates. bug
+  char buf_command[1000];
+
+
   // uart/console
-  cbuf_init(&app.cbuf_console_in,  buf_cbuf_console_in, sizeof(buf_cbuf_console_in));
+  cbuf_init(&app.cbuf_console_in,  buf_cbuf_console_in,  sizeof(buf_cbuf_console_in));
   cbuf_init(&app.cbuf_console_out, buf_cbuf_console_out, sizeof(buf_cbuf_console_out));
 
-  cbuf_init_stdout_streams(  &app.cbuf_console_out );
-  cbuf_init_stdin_streams( &app.cbuf_console_in );
+  cbuf_init_stdout_streams( &app.cbuf_console_out );
+  cbuf_init_stdin_streams(  &app.cbuf_console_in );
 
 
   cstring_init(&app.command, buf_command, buf_command + sizeof( buf_command));
-
 
 
 
@@ -322,6 +323,8 @@ static int main_f429(void)
 
   ///////////////////////////////
   // devices
+
+  // these are all polymorphic/opaque
 
   app.spi_fpga0_pc = spi_fpga0_pc_create();
   spi_setup( (spi_t *) app.spi_fpga0_pc );                // note upcast
@@ -400,18 +403,26 @@ static int main_f429(void)
 
   // TODO.  app structure init to after the spi devices.
 
-  app.mode = mode_create( /* no dependenceies */ );
+
+  _mode_t       mode;
+  mode_reset( &mode);
+  app.mode = &mode; // = mode_create( /* no dependenceies */ );
 
 
 
   cal_t         cal;
   cal_reset( &cal);
-
   app.cal = &cal;
 
-  app.data = data_create( app.cal, app.spi_fpga0);
 
-  app.buffers = buffers_create( app.data );
+  data_t        data;
+  data_reset( &data, app.cal, app.spi_fpga0);
+  app.data = & data;// data_create( app.cal, app.spi_fpga0);
+
+
+  buffers_t     buffers;
+  buffers_reset( &buffers, app.data);
+  app.buffers = &buffers; // buffers_create( app.data );
 
 
 
