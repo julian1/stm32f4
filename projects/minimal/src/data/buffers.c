@@ -133,12 +133,35 @@ bool buffers_repl_statement( buffers_t *buffers, const char *cmd)
 {
   assert(buffers);
   assert(buffers->magic == BUFFERS_MAGIC);
-
   UNUSED(cmd);
+
+  uint32_t u0;
+
+
+  if( sscanf(cmd, "data buffer size %lu", &u0 ) == 1) {
+
+#if 0
+    // if(u0 < 2 || u0 > 500 ) {
+    if(u0 < 1 || u0 > 10000 ) {
+      printf("set buffer size bad arg\n" );
+      return 1;
+    }
+
+    // set buffer size, efault
+    data->buffer = buffer_reset( data->buffer, u0);
+
+    assert( data->buffer);
+    data_reset( data );
+#endif
+  }
 
 
   return 0;
 }
+
+
+
+
 
 
 
