@@ -133,8 +133,27 @@ bool buffers_repl_statement( buffers_t *buffers, const char *cmd)
 {
   assert(buffers);
   assert(buffers->magic == BUFFERS_MAGIC);
-
   UNUSED(cmd);
+
+  uint32_t u0;
+
+
+  if( sscanf(cmd, "data buffer size %lu", &u0 ) == 1) {
+
+#if 0
+    // if(u0 < 2 || u0 > 500 ) {
+    if(u0 < 1 || u0 > 10000 ) {
+      printf("set buffer size bad arg\n" );
+      return 1;
+    }
+
+    // set buffer size, efault
+    data->buffer = buffer_reset( data->buffer, u0);
+
+    assert( data->buffer);
+    data_reset( data );
+#endif
+  }
 
 
   return 0;
@@ -146,124 +165,103 @@ bool buffers_repl_statement( buffers_t *buffers, const char *cmd)
 
 
 
-
-
-
 #if 0
-
-// perhaps better name resize()
-// reset with argument
-
-
-MAT * buffer_init( MAT *buffer, uint32_t sz)
+bool data_repl_statement( data_t *data,  const char *cmd )
 {
-  printf("buffer_init\n");
-  // no magic for buffer, which may be NULL
+  assert(data);
+  assert(data->magic == DATA_MAGIC);
 
-  /* we should free and recreate buffer here - in order to free the memory.
-      otherwise we can end up holding onto oversized allocation
 
-    - on a large matrix,
-      this frees the mesch data structure.
-      although malloc() still hangs on to the reserved heap it took, like a page.
-  */
+  // prefix with data.  same as the struct, function prefix. eg.   'data cal'  'data buffer size x' ?
+  uint32_t u0;
 
-  if(buffer) {
 
-    M_FREE(buffer);
+  // reserve or resize...
+
+  if( sscanf(cmd, "data buffer size %lu", &u0 ) == 1) {
+
+    // if(u0 < 2 || u0 > 500 ) {
+    if(u0 < 1 || u0 > 10000 ) {
+      printf("set buffer size bad arg\n" );
+      return 1;
+    }
+
+    // set buffer size, efault
+    data->buffer = buffer_reset( data->buffer, u0);
+
+    assert( data->buffer);
+    data_reset( data );
   }
 
-  buffer    = m_resize( buffer, sz , 1 );   // rows x cols
+  else if( strcmp(cmd, "data buffer reset") == 0) {
 
-  buffer    = m_zero( buffer ) ;    // just in case, probably not needed.
-  buffer    = m_truncate_rows( buffer, 0 );
-
-  assert(m_rows( buffer) == 0);
-
-  printf("done buffer_init\n");
-
-  assert(buffer);
-  return buffer;
-}
-
-
-
-
-
-void buffer_push( MAT *buffer, uint32_t *idx, double val )
-{
-  assert(buffer);
-
-
-  if(m_rows(buffer) < m_rows_reserve(buffer)) {
-
-    // just push onto sample buffer
-    m_push_row( buffer, & val, 1 );
+    // set buffer size, efault
+    data->buffer = buffer_reset( data->buffer, 10 );
+    assert( data->buffer);
+    data_reset( data );
   }
 
-  else {
-    // buffer is full, so insert inplace
-    unsigned imod = *idx % m_rows(buffer);
-    // printf(" insert at %u\n", idx );
-    m_set_val( buffer, imod, 0,  val );
 
-    ++(*idx);
+
+/*
+  else if( strcmp(cmd, "data buffer print")) {
+    // dump all vals.
+    // print/show?
   }
-}
+*/
+
+  else if( sscanf(cmd, "data line freq %lu", &u0 ) == 1) {
+
+    if(  !(u0 == 50 || u0 == 60)) {
+      // be safe for moment.
+      printf("bad line freq arg\n" );
+      return 1;
+    }
+
+    // printf("set lfreq\n" );
+    data->line_freq = u0;
+  }
+
+  else if(strcmp(cmd, "data null") == 0) {
+    // todo
+    // eg. very easy, but useful. add an offset based on last value
+
+  }
+  else if(strcmp(cmd, "data div") == 0) {
+    // div by gain.before
+    // should probably be gain and offset for the calibration.
+    // todo
+  }
+
+  // could be called, 'buffer show stats', 'buffer show extra' etc.
+
+  else if(strcmp(cmd, "data show counts") == 0)
+    data->show_counts = 1;
+
+  else if(strcmp(cmd, "data show extra") == 0)
+    data->show_extra = 1;
+
+  else if(strcmp(cmd, "data show stats") == 0)
+    data->show_stats = 1;
 
 
-
-#if 0
-
-
-void buffer_print( MAT *buffer  )
-{
-  m_foutput(stdout, buffer);
-}
-#endif
+  else if(strcmp(cmd, "data cal show") == 0) {
 
 
+    data_cal_show( data );
 
-void buffer_stats_print( MAT *buffer /* double *mean, double *stddev */ )
-{
-  /*
-    should just take some - doubles as arguments. .printing
+  }
 
-    needs to return values, and used with better formatting instructions , that are not exposed here.
-    format_float_with_commas()
-  */
-  assert(buffer);
-  assert( m_cols(buffer) == 1);
+  else
+    return 0;
 
-  // take the mean of the buffer.
-  MAT *mean = m_mean( buffer, MNULL );
-  assert( m_is_scalar( mean ));
-  double mean_ = m_to_scalar( mean);
-  M_FREE(mean);
+  return 1;
 
-
-
-  MAT *stddev = m_stddev( buffer, 0, MNULL );
-  assert( m_is_scalar( stddev ));
-  double stddev_ = m_to_scalar( stddev);
-  M_FREE(stddev);
-
-  // report
-  // char buf[100];
-  // printf("value %sV ",          format_float_with_commas(buf, 100, 7, value));
-
-  // printf("mean(%u) %.2fuV, ", m_rows(buffer),   mean_ * 1e6 );   // multiply by 10^6. for uV
-  printf("mean(%u) %.7fV, ", m_rows(buffer),   mean_  );
-
-  printf("stddev(%u) %.2fuV, ", m_rows(buffer), stddev_  * 1e6 );   // multiply by 10^6. for uV
-
-  // printf("\n");
 
 }
 
 
 #endif
-
 
 
 
