@@ -68,15 +68,6 @@ typedef struct buffers_t buffers_t;
 
 
 
-/*
-  TODO nov 2024.
-
-  rather than using pointers. should instantiate the memory properly here
-  No. hide state here.
-  But instantiate all state in main.c or appc
-
-*/
-
 
 #define APP_MAGIC   456
 
@@ -217,24 +208,16 @@ typedef struct app_t
 
 void app_init( app_t *app);
 
+void app_update(app_t *app);
+
 void app_rdy_interrupt( app_t *app, interrupt_t *x);
-// void app_rdy_clear( app_t *app);
-
-
 
 
 void app_beep( app_t * app, uint32_t n);
 void app_led_dance( app_t * app );
 
 
-
-void app_init_console_buffers(app_t *app);
-// void app_loop(app_t *app);
 void app_systick_interrupt(app_t *app);
-
-
-void app_update(app_t *app);
-
 
 void app_configure( app_t *app );
 
@@ -245,19 +228,11 @@ void app_update_simple_with_data(app_t *app);
 
 void app_transition_state( app_t *app  /*, uint32_t update_flags */);
 
-
-
 void app_cal( app_t *app);
 
 void app_trigger( app_t *app, bool);
 
 void app_cal2( app_t *app );
-
-
-
-
-
-
 
 
 

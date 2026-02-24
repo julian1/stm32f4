@@ -1,9 +1,8 @@
 
-
-
 /*
   create app dependencies
-  then create app, and run app_update()
+  create app,
+  run app_update()
 
 */
 
@@ -430,6 +429,32 @@ static int main_f429(void)
 
 
 
+// https://interrupt.memfault.com/blog/how-to-write-a-bootloader-from-scratch
+
+// static void start_app(uint32_t pc, uint32_t sp) __attribute__((naked))
+static  __attribute__((naked)) void start_app(uint32_t pc, uint32_t sp)
+{
+  UNUSED(pc);
+  UNUSED(sp);
+    __asm("           \n\
+          msr msp, r1 /* load r1 into MSP */\n\
+          bx r0       /* branch to the address at r0 */\n\
+    ");
+}
+
+
+
+
+int main(void)
+{
+  return main_f429();
+  // return main_f413();
+}
+
+
+
+
+
 #if 0
 /*
   - for mcu startup
@@ -551,27 +576,4 @@ static int main_f413(void)
 }
 #endif
 
-
-
-// https://interrupt.memfault.com/blog/how-to-write-a-bootloader-from-scratch
-
-// static void start_app(uint32_t pc, uint32_t sp) __attribute__((naked))
-static  __attribute__((naked)) void start_app(uint32_t pc, uint32_t sp)
-{
-  UNUSED(pc);
-  UNUSED(sp);
-    __asm("           \n\
-          msr msp, r1 /* load r1 into MSP */\n\
-          bx r0       /* branch to the address at r0 */\n\
-    ");
-}
-
-
-
-
-int main(void)
-{
-  return main_f429();
-  // return main_f413();
-}
 
