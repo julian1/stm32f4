@@ -19,39 +19,18 @@
 #include <lib2/util.h>      // ARRAY_SIZE
 #include <lib2/format.h>  // format_float
 
+
+#include <data/cal.h>
 #include <data/data.h>
 
 
+
 /*
-    feb 2026.
-  HANG ON. no reason to expose this structure in the header...
-  when we are create ing it...
-  ----
+  we may need to pass down line_freq.  from app.
 
-  because cal-flash accesses it.
-  but that is not very good.
-  ---------
-
-
-  EXTR. feb 2026. solution would be to just move the repl.. code in here.
 
 */
 
-
-
-
-/*
-  we may need to pass line_freq.  from app.
-  even just to format.
-  actually we can use the sigmux value ...
-  //////////
-
-
-  why use a malloc creation function like this.
-  if the structure has to be exposed???
-
-
-*/
 
 data_t * data_create( cal_t * cal, spi_t *spi  )
 {
@@ -64,18 +43,6 @@ data_t * data_create( cal_t * cal, spi_t *spi  )
 
   // data->line_freq = 50;
 
-  /*
-    pass spi in constructor.  or at update time.
-
-  */
-  // TODO move this
-  // buffer is separate external concept.  inject low level data into buffer.
-
-/*
-  data->buffer = buffer_reset( data->buffer, 10);
-  assert( data->buffer);
-  data_reset( data );
-*/
 
   data->cal = cal;
   data->spi = spi;
@@ -91,6 +58,13 @@ void data_update( data_t *data )
   assert( data);
   assert( data->magic == DATA_MAGIC);
 
+  cal_t *cal = data->cal;
+  assert(cal);
+  assert(cal->magic == CAL_MAGIC);
+
+  char buf[100 + 1];
+
+  // could actually pass this dependency - in the update_call().  since this is only time it is needed
   spi_t *spi = data->spi;
 
   uint32_t status_ = spi_ice40_reg_read32( spi, REG_STATUS );
@@ -110,6 +84,35 @@ void data_update( data_t *data )
 
   printf( "first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
   printf( "counts pos %7lu neg %7lu, sig %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg, clk_count_sigmux);
+
+
+
+
+  if(status.sample_idx == 0) {
+    // lo - record counts
+    data->clk_count_refmux_pos_lo = clk_count_refmux_pos;
+    data->clk_count_refmux_neg_lo = clk_count_refmux_neg;
+  }
+  else if (status.sample_idx == 1) {
+    // hi
+    double v = ((double) clk_count_refmux_pos           - (cal->w * clk_count_refmux_neg))
+            - ( (double) data->clk_count_refmux_pos_lo  - (cal->w * data->clk_count_refmux_neg_lo));
+
+    printf("v %f, ", v );
+
+    data->value = v / clk_count_sigmux / cal->divisor * 7.1 ;  //  need to adjust for the cal voltage
+                                                                // ok. this is a bit tricky.
+
+    printf( "v2 %s, ", str_format_float_with_commas(buf, 100, 9, data->value));
+
+    // printf("v2 %f, ", v2 );
+    // values[i] = v2;
+    // ++i;
+  }
+  else
+    assert(0);
+
+
 
 
 

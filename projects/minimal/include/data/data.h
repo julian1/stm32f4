@@ -36,6 +36,14 @@ typedef struct data_t
   // first reading
   bool  first;
 
+
+  // these have to persist...
+  // from last recorded reading
+  uint32_t clk_count_refmux_pos_lo ;
+  uint32_t clk_count_refmux_neg_lo ;   // no adjustment
+
+
+
   // reading value
   double value;
 
