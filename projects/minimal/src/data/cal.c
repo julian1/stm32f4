@@ -35,7 +35,7 @@ void cal_reset( cal_t *cal)
 {
   memset(cal, 0, sizeof(cal_t));
 
-  cal->magic = CAL_MAGIC; 
+  cal->magic = CAL_MAGIC;
 
 }
 
