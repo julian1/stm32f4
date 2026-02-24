@@ -724,6 +724,8 @@ void app_update( app_t *app)
     data_update( app->data);
     buffers_update( app->buffers);
 
+    printf( "\n");
+
 
 #if 0
     // TODO.  feb 2026.  rename just data_update() and vfd_update()

@@ -115,7 +115,7 @@ void data_update( data_t *data )
     data->value = v / clk_count_sigmux / cal->divisor * 7.1 ;  //  need to adjust for the cal voltage // ok. this is a bit tricky.
     data->valid = true;
 
-    printf( "v2 %s, ", str_format_float_with_commas(buf, 100, 9, data->value));
+    printf( "v2 %s, ", str_format_float_with_commas(buf, 100, 8, data->value));
 
     // printf("v2 %f, ", v2 );
     // values[i] = v2;
@@ -125,10 +125,6 @@ void data_update( data_t *data )
     assert(0);
 
 
-
-
-
-  printf( "\n");
 }
 
 

@@ -100,7 +100,8 @@ void buffers_update( buffers_t *buffers)
     assert(!data->first);
     // push buffers.
 
-    printf("buffers i %u, size %u, ", buffers->i, buffers->size );
+    // printf("buffers i %u, size %u, ", buffers->i, buffers->size );
+    printf("(%u, %u), ", buffers->i, buffers->size );
 
     buffers->values[ buffers->i ] = data->value;
 
@@ -113,11 +114,9 @@ void buffers_update( buffers_t *buffers)
 
     char buf[100 + 1];
 
-    printf( "n %u, ", buffers->size);
-    printf( "mean   %s, ", str_format_float_with_commas(buf, 100, 9, values_mean));
-    printf( "stddev %s, ", str_format_float_with_commas(buf, 100, 9, values_stddev));
-    printf("\n");
-
+    // printf( "(n %u) ", buffers->size);
+    printf( "mean   %s, ", str_format_float_with_commas(buf, 100, 8, values_mean));
+    printf( "stddev %s, ", str_format_float_with_commas(buf, 100, 8, values_stddev));
 
   }
 
