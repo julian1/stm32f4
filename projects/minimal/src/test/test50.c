@@ -94,7 +94,7 @@ static void test( app_t *app)
     app_trigger( app, false);
 
     // set nplc
-    mode->adc.p_aperture = nplc_to_aperture( k, app->line_freq );				// fix jul 2024. feb 2026
+    mode_aperture_set( mode, nplc_to_aperture( k, app->line_freq ));
 
     app_transition_state( app);
 
