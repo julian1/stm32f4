@@ -47,7 +47,7 @@
 
 
 
-void buffers_reset( buffers_t *buffers, data_t *data, double *values, size_t n)
+void buffers_init( buffers_t *buffers, data_t *data, double *values, size_t n)
 {
   assert(buffers);
   assert(data && data->magic == DATA_MAGIC);
@@ -64,7 +64,7 @@ void buffers_reset( buffers_t *buffers, data_t *data, double *values, size_t n)
 
 
 
-// want a separate buffers_data_reset();
+// want a separate buffers_data_init();
 
 
 /*
@@ -155,9 +155,9 @@ bool buffers_repl_statement( buffers_t *buffers, const char *cmd)
 // reset with argument
 
 
-MAT * buffer_reset( MAT *buffer, uint32_t sz)
+MAT * buffer_init( MAT *buffer, uint32_t sz)
 {
-  printf("buffer_reset\n");
+  printf("buffer_init\n");
   // no magic for buffer, which may be NULL
 
   /* we should free and recreate buffer here - in order to free the memory.
@@ -180,7 +180,7 @@ MAT * buffer_reset( MAT *buffer, uint32_t sz)
 
   assert(m_rows( buffer) == 0);
 
-  printf("done buffer_reset\n");
+  printf("done buffer_init\n");
 
   assert(buffer);
   return buffer;

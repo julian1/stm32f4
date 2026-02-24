@@ -93,7 +93,7 @@ int flash_lzo_test(void);
 
 
 
-void app_reset( app_t *app)
+void app_init( app_t *app)
 {
   assert(app);
 
@@ -392,11 +392,10 @@ void app_configure( app_t *app )
     assert( spi_ice40_cdone( app->spi_fpga0_pc));
 
     // check/verify 4094 OE is not asserted
-    assert( ! spi_ice40_reg_read32( app->spi_fpga0, REG_4094_OE ));
+    assert( !spi_ice40_reg_read32( app->spi_fpga0, REG_4094_OE ));
 
     // reset the mode.
-    // *app->mode = *app->mode_initial;
-    mode_reset( app->mode );
+    mode_init( app->mode );
 
 
     /* OK. this is tricky.

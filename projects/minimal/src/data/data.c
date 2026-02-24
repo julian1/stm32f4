@@ -34,7 +34,7 @@
 
 // data_t * data_create( cal_t * cal, spi_t *spi  )
 
-void data_reset( data_t *data, cal_t *cal, spi_t *spi)
+void data_init( data_t *data, cal_t *cal, spi_t *spi)
 {
   // called once at initialization
 

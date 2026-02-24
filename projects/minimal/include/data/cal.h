@@ -41,7 +41,7 @@ typedef struct cal_t
 
 
 
-void cal_reset( cal_t *cal);
+void cal_init( cal_t *cal);
 
 bool cal_flash_repl_statement( cal_t *cal, const char *cmd);
 

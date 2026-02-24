@@ -6,10 +6,10 @@
 
 
 #if 0
-// better name clear_reset?
+// better name clear_init?
 // void buffer_set_size( MAT *buffer, uint32_t sz);
 
-MAT * buffer_reset( MAT *buffer, uint32_t sz);
+MAT * buffer_init( MAT *buffer, uint32_t sz);
 
 void buffer_push( MAT *buffer, uint32_t *idx, double val );
 
@@ -55,9 +55,8 @@ typedef struct buffers_t
 
 
 
-// buffers_t * buffers_create( data_t *);
 
-void buffers_reset( buffers_t *buffers, data_t *data, double *values, size_t n);
+void buffers_init( buffers_t *buffers, data_t *data, double *values, size_t n);
 
 bool buffers_repl_statement( buffers_t *, const char *cmd);
 

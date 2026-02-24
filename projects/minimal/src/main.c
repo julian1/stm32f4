@@ -230,8 +230,7 @@ static int main_f429(void)
 
 
   app_t app ;
-
-  app_reset( &app);
+  app_init( &app);
 
   app.led_blink_enable = true;
   app.line_freq = 50;
@@ -395,26 +394,26 @@ static int main_f429(void)
 
 
   _mode_t       mode;
-  mode_reset( &mode);
+  mode_init( &mode);
   app.mode = &mode; // = mode_create( /* no dependenceies */ );
 
 
 
   cal_t         cal;
-  cal_reset( &cal);
+  cal_init( &cal);
   app.cal = &cal;
 
 
 
   data_t        data;
-  data_reset( &data, app.cal, app.spi_fpga0);
+  data_init( &data, app.cal, app.spi_fpga0);
   app.data = & data;// data_create( app.cal, app.spi_fpga0);
 
 
   double values[ 1000];
 
   buffers_t     buffers;
-  buffers_reset( &buffers, app.data, values, ARRAY_SIZE(values));
+  buffers_init( &buffers, app.data, values, ARRAY_SIZE(values));
   app.buffers = &buffers; // buffers_create( app.data );
 
 

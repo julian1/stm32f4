@@ -31,7 +31,7 @@
 
 
 
-void cal_reset( cal_t *cal)
+void cal_init( cal_t *cal)
 {
   memset(cal, 0, sizeof(cal_t));
 

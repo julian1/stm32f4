@@ -50,9 +50,7 @@ typedef struct data_t
 
 
 
-// data_t * data_create( cal_t * cal, spi_t *spi);
-// reset or init...
-void data_reset( data_t *, cal_t * cal, spi_t *spi);
+void data_init( data_t *, cal_t * cal, spi_t *spi);
 
 
 bool data_repl_statement( data_t *data,  const char *cmd );

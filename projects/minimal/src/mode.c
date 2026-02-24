@@ -95,29 +95,19 @@ static const _mode_t mode_initial =  {
 };
 
 
-#if 0
 
-_mode_t *mode_create( /* no dependenceies */ )
-{
-
-  _mode_t *mode = malloc( sizeof(_mode_t));
-  assert(mode);
-  // memset( mode, 0, sizeof( mode));
-
-  mode_reset(mode);
-
-  return mode;
-}
-#endif
-
-
-
-void mode_reset(_mode_t *mode)
+void mode_init(_mode_t *mode)
 {
 
   *mode = mode_initial;
 }
 
+
+void mode_reset(_mode_t *mode)
+{
+  // same as init
+  mode_init( mode);
+}
 
 
 
@@ -908,9 +898,6 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, const uint32_t line_f
 
 
   if(strcmp(cmd, "reset") == 0) {
-
-    // reset the mode - would be better in mode.c
-    // but do not have access to initial/default
 
     // reset the mode.
     mode_reset( mode);
