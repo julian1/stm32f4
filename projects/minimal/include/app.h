@@ -208,6 +208,12 @@ typedef struct app_t
 
 void app_init( app_t *app);
 
+
+void app_yield( app_t *app);
+void app_msleep( app_t *app, uint32_t delay);
+
+
+
 void app_update(app_t *app);
 
 void app_rdy_interrupt( app_t *app, interrupt_t *x);
@@ -221,9 +227,10 @@ void app_systick_interrupt(app_t *app);
 
 void app_configure( app_t *app );
 
+/*
 void app_update_simple_led_blink(app_t *app);
 void app_update_simple_with_data(app_t *app);
-
+*/
 
 
 void app_transition_state( app_t *app  /*, uint32_t update_flags */);

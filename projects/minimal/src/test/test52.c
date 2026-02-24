@@ -22,12 +22,10 @@
 #include <string.h>
 
 
-// #include <peripheral/gpio.h>
-// #include <peripheral/interrupt.h>
 #include <peripheral/spi-ice40.h>
 
 
-#include <lib2/util.h>    // yield_with_msleep
+#include <lib2/util.h>    // ARRAY_SIZE
 #include <lib2/stats.h>
 #include <lib2/format.h>  // format_with_commas
 
@@ -52,12 +50,6 @@ static void test2( app_t *app, double cal_w, double cal_divisor)
   assert(mode);
   assert(mode->magic == MODE_MAGIC) ;
 
-/*
-  // TODO review/remove - only needed for line_freq... which indicates issue
-  data_t    *data = app->data;
-  assert(data);
-  assert(data->magic == DATA_MAGIC) ;
-*/
 
   spi_t *spi = app->spi_fpga0;
   assert(spi);
@@ -96,8 +88,9 @@ static void test2( app_t *app, double cal_w, double cal_divisor)
   ////////////////////
   app_transition_state( app);
 
+
   // sleep
-  yield_with_msleep( 1 * 1000, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
+  app_msleep( app, 1000);
 
   // start sampling
   app_trigger( app, true);
@@ -109,9 +102,8 @@ static void test2( app_t *app, double cal_w, double cal_divisor)
     printf("i %u, ", i);
 
     // wait for adc data
-    // use express yield function here. not app->yield etc
     while( !app->adc_interrupt_valid )
-      app_update_simple_led_blink( app);
+      app_yield( app);
 
     app->adc_interrupt_valid = false;
 
@@ -244,7 +236,8 @@ static void test( app_t *app)
 
   app_transition_state( app);
   // sleep
-  yield_with_msleep( 1 * 1000, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
+  app_msleep( app, 1000);
+
   // start sampling
   app_trigger( app, true);
 
@@ -261,9 +254,8 @@ static void test( app_t *app)
     printf("i %u, ", i);
 
     // wait for adc data
-    // use express yield function here. not app->yield etc
     while( !app->adc_interrupt_valid )
-      app_update_simple_led_blink( app);
+      app_yield( app);
 
     app->adc_interrupt_valid = false;
 
@@ -353,7 +345,8 @@ static void test( app_t *app)
 
 
     // sleep
-    yield_with_msleep( 1 * 1000, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
+    app_msleep( app, 1000);
+
     // start sampling
     app_trigger( app, true);
 
@@ -364,9 +357,8 @@ static void test( app_t *app)
       printf("i %u, ", i);      // two readings per value...
 
       // wait for adc data
-      // use express yield function here. not app->yield etc
       while( !app->adc_interrupt_valid )
-        app_update_simple_led_blink( app);
+        app_yield( app);
 
       app->adc_interrupt_valid = false;
 

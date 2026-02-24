@@ -119,6 +119,53 @@ void app_systick_interrupt(app_t *app)
 
 
 
+static void app_update_simple_led_blink(app_t *app)
+{
+  // or just app_update_led_blink()
+  // change name app_update_no_data() or app_update_restricted()
+
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+
+  // 500ms soft timer
+  if( (app->system_millis - app->soft_500ms) > 500) {
+    app->soft_500ms += 500;
+
+    // blink mcu led
+    app->led_state = ! app->led_state;
+    gpio_write( app->gpio_status_led, app->led_state);
+
+  }
+
+}
+
+
+
+
+void app_yield( app_t *app)
+{
+  // simple api, that should handle most cases as default
+  // can always override the continuation
+
+  app_update_simple_led_blink( app);
+
+}
+
+
+
+void app_msleep( app_t *app, uint32_t delay)
+{
+  /*
+    simple apli, that should handle most cases as default
+    can always override the continuation
+    the yield function in util.c should probably be moved here.
+  */
+
+  yield_with_msleep( delay, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
+
+}
+
+
 
 
 
@@ -183,7 +230,6 @@ void app_trigger( app_t *app, bool val)
 
 
 
-#if 0
 static void state_format ( uint8_t *state, size_t n)
 {
   assert(state);
@@ -193,7 +239,6 @@ static void state_format ( uint8_t *state, size_t n)
     printf("v %s\n",  str_format_bits(buf, 8, state[ i]));
   }
 }
-#endif
 
 
 
@@ -781,26 +826,6 @@ void app_update( app_t *app)
 
 
 
-
-void app_update_simple_led_blink(app_t *app)
-{
-  // or just app_update_led_blink()
-  // change name app_update_no_data() or app_update_restricted()
-
-  assert(app);
-  assert(app->magic == APP_MAGIC);
-
-  // 500ms soft timer
-  if( (app->system_millis - app->soft_500ms) > 500) {
-    app->soft_500ms += 500;
-
-    // blink mcu led
-    app->led_state = ! app->led_state;
-    gpio_write( app->gpio_status_led, app->led_state);
-
-  }
-
-}
 
 
 
