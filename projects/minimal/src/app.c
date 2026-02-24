@@ -93,6 +93,14 @@ int flash_lzo_test(void);
 
 
 
+void app_reset( app_t *app)
+{
+  assert(app);
+
+  // to be consistent with other code
+  memset( app, 0, sizeof(app_t));
+  app->magic = APP_MAGIC;
+}
 
 
 

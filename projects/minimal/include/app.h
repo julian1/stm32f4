@@ -215,6 +215,8 @@ typedef struct app_t
 
 
 
+void app_reset( app_t *app);
+
 void app_rdy_interrupt( app_t *app, interrupt_t *x);
 // void app_rdy_clear( app_t *app);
 

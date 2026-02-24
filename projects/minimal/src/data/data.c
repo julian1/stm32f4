@@ -98,7 +98,7 @@ void data_update( data_t *data )
     data->clk_count_refmux_pos_lo = clk_count_refmux_pos;
     data->clk_count_refmux_neg_lo = clk_count_refmux_neg;
 
-    data->value = false;
+    data->valid = false;
   }
 
   else if (status.sample_idx == 1) {
@@ -113,7 +113,7 @@ void data_update( data_t *data )
     // and value
 
     data->value = v / clk_count_sigmux / cal->divisor * 7.1 ;  //  need to adjust for the cal voltage // ok. this is a bit tricky.
-    data->value = true;
+    data->valid = true;
 
     printf( "v2 %s, ", str_format_float_with_commas(buf, 100, 9, data->value));
 

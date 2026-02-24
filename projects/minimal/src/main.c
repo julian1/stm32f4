@@ -240,16 +240,16 @@ static int main_f429(void)
 
 
   app_t app ;
-  memset(&app, 0, sizeof(app));
 
-  app.magic = APP_MAGIC;
+  app_reset( &app);
+
   app.led_blink_enable = true;
   app.line_freq = 50;
 
 
   ///////////////////
 
-  char buf_cbuf_console_in[1000];
+  char buf_cbuf_console_in[ 1000];
   char buf_cbuf_console_out[1000];    // changing this and it freezes. indicates. bug
   char buf_command[1000];
 
