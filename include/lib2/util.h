@@ -17,17 +17,6 @@ extern "C" {
 
 
 
-/*
-  farm-out led port config state for critical error led blink
-  since for assert() cannot take a context
-*/
-
-void critical_error_led_setup(uint32_t port_, uint16_t io_ );
-void critical_error_led_blink(void);
-
-
-
-
 
 void systick_setup(uint32_t tick_divider);
 void systick_handler_set( void (*pfunc)(void *),  void *ctx);
