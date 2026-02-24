@@ -86,7 +86,7 @@ static void cs_deassert(spi_t *spi)
 
 
 
-spi_t * spi_4094_0_create( /* pass the spi_ice40 */  )
+spi_t * spi_4094_0_new( /* pass the spi_ice40 */  )
 {
   /* called once at startup only, in main().
     it is really the malloc that buys us structure opaqueness.

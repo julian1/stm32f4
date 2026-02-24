@@ -81,7 +81,7 @@ static void cs_deassert(spi_t *spi)
 
 
 
-spi_t * spi_mdac0_create( )
+spi_t * spi_mdac0_new( )
 {
   spi_t *spi = malloc(sizeof( spi_t));
   assert(spi);

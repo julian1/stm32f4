@@ -257,7 +257,7 @@ static int main_f429(void)
 
   ///////////////////
 
-  app.gpio_status_led = gpio_status_led_create();
+  app.gpio_status_led = gpio_status_led_new();
   gpio_setup( app.gpio_status_led);
 
   // setup external state required for critical error led blink in priority
@@ -315,38 +315,38 @@ static int main_f429(void)
 
   // these are all polymorphic/opaque
 
-  app.spi_fpga0_pc = spi_fpga0_pc_create();
+  app.spi_fpga0_pc = spi_fpga0_pc_new();
   spi_setup( (spi_t *) app.spi_fpga0_pc );                // note upcast
 
-  app.spi_fpga0 = spi_fpga0_create();
+  app.spi_fpga0 = spi_fpga0_new();
   spi_setup( app.spi_fpga0 );
 
 
 
-  app.fpga0_interrupt = fpga0_interrupt_create();
+  app.fpga0_interrupt = fpga0_interrupt_new();
   interrupt_setup( app.fpga0_interrupt);
 
 
-  app.spi_4094 = spi_4094_0_create();
+  app.spi_4094 = spi_4094_0_new();
   spi_setup( app.spi_4094 );
 
 
-  app.spi_mdac0 = spi_mdac0_create();
+  app.spi_mdac0 = spi_mdac0_new();
   spi_setup( app.spi_mdac0 );
 
 
-  app.spi_mdac1 = spi_mdac1_create();
+  app.spi_mdac1 = spi_mdac1_new();
   spi_setup( app.spi_mdac1 );
 
 
-  app.gpio_trigger_internal = gpio_trigger_internal_create();
+  app.gpio_trigger_internal = gpio_trigger_internal_new();
   gpio_setup( app.gpio_trigger_internal);
 
 
   //////////////
 
 
-  app.gpio_trigger_selection = gpio_trigger_selection_create();
+  app.gpio_trigger_selection = gpio_trigger_selection_new();
   gpio_setup( app.gpio_trigger_selection);
 
 
@@ -389,13 +389,9 @@ static int main_f429(void)
 
 
 
-
-  // TODO.  app structure init to after the spi devices.
-
-
   _mode_t       mode;
   mode_init( &mode);
-  app.mode = &mode; // = mode_create( /* no dependenceies */ );
+  app.mode = &mode;
 
 
 
@@ -407,20 +403,20 @@ static int main_f429(void)
 
   data_t        data;
   data_init( &data, app.cal, app.spi_fpga0);
-  app.data = & data;// data_create( app.cal, app.spi_fpga0);
+  app.data = & data;
 
 
   double values[ 1000];
 
   buffers_t     buffers;
   buffers_init( &buffers, app.data, values, ARRAY_SIZE(values));
-  app.buffers = &buffers; // buffers_create( app.data );
+  app.buffers = &buffers;
 
 
 
 
   // outer app loop, eg. bottom of control stack
-  while(true) {
+  while( true) {
 
     app_update( &app);
   }

@@ -3,7 +3,7 @@
 
 typedef struct spi_t spi_t;
 
-spi_t * spi_mdac1_create( void );
+spi_t * spi_mdac1_new( void );
 
 
 

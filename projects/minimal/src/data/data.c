@@ -32,7 +32,7 @@
 */
 
 
-// data_t * data_create( cal_t * cal, spi_t *spi  )
+// data_t * data_new( cal_t * cal, spi_t *spi  )
 
 void data_init( data_t *data, cal_t *cal, spi_t *spi)
 {

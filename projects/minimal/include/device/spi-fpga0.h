@@ -6,7 +6,7 @@
 typedef struct spi_t spi_t;
 
 
-spi_t * spi_fpga0_create( void);
+spi_t * spi_fpga0_new( void);
 
 
 

@@ -99,7 +99,7 @@ static void cs_deassert(spi_t *spi)
 
 
 
-spi_t * spi_fpga0_create( )
+spi_t * spi_fpga0_new( )
 {
   /* called once at startup only, in main().
     it is the malloc that buys us structure opaqueness.

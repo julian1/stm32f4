@@ -240,7 +240,7 @@ int file_blobs_scan( FILE *f,  void (*pf)( FILE *f, blob_header_t *, void *ctx )
 
       // printf("reading cal type 104,105,106\n" );
 
-      Cal * cal = cal_create();
+      Cal * cal = cal_new();
       file_read_cal_values( header.id, cal, f);
 
       // actually should be the cal_id_max = MAX(id cal_id_count)

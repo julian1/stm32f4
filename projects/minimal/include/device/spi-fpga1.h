@@ -4,7 +4,7 @@
 
 typedef struct spi_ice40_t spi_ice40_t;
 
-spi_ice40_t * spi2_u202_create( void);
+spi_ice40_t * spi2_u202_new( void);
 
 
 
