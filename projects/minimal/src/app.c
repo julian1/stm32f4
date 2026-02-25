@@ -455,35 +455,6 @@ void app_configure( app_t *app )
     interrupt_handler_set( app->fpga0_interrupt, app, (interrupt_handler_t ) app_rdy_interrupt);
 
 
-
-
-
-#if 0
-
-    /* enable the ice40 interrupt
-    // to delay until after fpga is configured, else get spurious
-    */
-    // spi1_port_interrupt_handler_set( (void (*) (void *)) data_rdy_interrupt, app->data );
-
-
-    interrupt_t *x =  app->interrupt_u202;
-    assert(x);
-    x->handler = ( interrupt_handler_t ) data_rdy_interrupt;
-    x->ctx = app->data ;
-
-    // not needed
-    // msleep( 10, &app->system_millis);
-
-    // default, start in dcv mode.
-    app_repl_statements(app, "        \
-        flash cal read 123;           \
-        reset;                        \
-        data show stats;              \
-        dcv;   \n                     \
-      " );
-
-  }
-#endif
 }
 
 
@@ -1320,6 +1291,35 @@ void app_repl_statements(app_t *app,  const char *s)
 
 
 
+
+
+
+#if 0
+
+    /* enable the ice40 interrupt
+    // to delay until after fpga is configured, else get spurious
+    */
+    // spi1_port_interrupt_handler_set( (void (*) (void *)) data_rdy_interrupt, app->data );
+
+
+    interrupt_t *x =  app->interrupt_u202;
+    assert(x);
+    x->handler = ( interrupt_handler_t ) data_rdy_interrupt;
+    x->ctx = app->data ;
+
+    // not needed
+    // msleep( 10, &app->system_millis);
+
+    // default, start in dcv mode.
+    app_repl_statements(app, "        \
+        flash cal read 123;           \
+        reset;                        \
+        data show stats;              \
+        dcv;   \n                     \
+      " );
+
+  }
+#endif
 
 
 
