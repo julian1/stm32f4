@@ -347,42 +347,6 @@ void app_transition_state( app_t  *app)
 
 
 
-static void spi_print_register( spi_t *spi, uint32_t reg )
-{
-  // code does not belong in app.c
-  // move to /src/device/fpga0-reg.c ?
-
-  // basic generic print
-  // query any register
-
-  //assert(0);
-  // spi_mux_ice40( spi);
-  uint32_t ret = spi_ice40_reg_read32( spi, reg );
-  char buf[ 100];
-  printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
-}
-
-
-
-static void spi_print_seq_register( spi_t *spi, uint32_t reg )
-{
-  // basic generic print
-  // query any register
-
-  assert(0);
-  // spi_mux_ice40( spi);
-  uint32_t ret = spi_ice40_reg_read32( spi, reg );
-  char buf[ 100];
-  char buf2[ 100];
-  // printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
-
-  printf("r %lu   pc:%s   azmux:%s\n",  reg,
-      str_format_bits(buf, 2, ret >> 4  ),          // pc switch value
-      mux_to_string( ret & 0b1111,  buf2, 100  )    // azmux value
-    );
-}
-
-
 
 void app_configure( app_t *app )
 {
@@ -457,6 +421,48 @@ void app_configure( app_t *app )
 
 }
 
+
+
+
+
+
+
+
+static void spi_print_register( spi_t *spi, uint32_t reg )
+{
+  // TODO this code does not here in app.c
+  // move to /src/device/fpga0-reg.c ?
+
+  // basic generic print
+  // query any register
+
+  //assert(0);
+  // spi_mux_ice40( spi);
+  uint32_t ret = spi_ice40_reg_read32( spi, reg );
+  char buf[ 100];
+  printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
+}
+
+
+
+static void spi_print_seq_register( spi_t *spi, uint32_t reg )
+{
+  // TODO
+  // basic generic print
+  // query any register
+
+  assert(0);
+  // spi_mux_ice40( spi);
+  uint32_t ret = spi_ice40_reg_read32( spi, reg );
+  char buf[ 100];
+  char buf2[ 100];
+  // printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
+
+  printf("r %lu   pc:%s   azmux:%s\n",  reg,
+      str_format_bits(buf, 2, ret >> 4  ),          // pc switch value
+      mux_to_string( ret & 0b1111,  buf2, 100  )    // azmux value
+    );
+}
 
 
 
@@ -691,9 +697,10 @@ static void app_update_console(app_t *app)
           app->repl_trigger_pending = false;
 
           // let board state settle
-          // consider removing in favour of putting this on the fpga
+          // consider adding trigger delay to sample acquisition
+          // this looks to work well in practice
           if(app->repl_trigger_value)
-            app_msleep( app, 100 );
+            app_msleep( app, 100);
 
           // apply trigger value
           gpio_write( app->gpio_trigger, app->repl_trigger_value);
