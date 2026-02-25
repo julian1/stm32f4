@@ -15,6 +15,7 @@ SRCFILES	= src/support.c \
             src/peripheral/vfd.c \
             src/peripheral/interrupt.c \
             src/device/spi1-port.c src/device/spi2-port.c  \
+            src/device/systick.c  \
             src/device/fsmc.c  \
             src/device/spi-fpga1.c src/device/spi-fpga0.c src/device/spi-fpga0-pc.c  \
             src/device/spi-mdac0.c src/device/spi-mdac1.c \

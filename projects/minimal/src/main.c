@@ -17,7 +17,7 @@
 #include <libopencm3/stm32/timer.h>
 
 #include <lib2/usart.h>
-#include <lib2/util.h>      // systick_setup()
+#include <lib2/util.h>          // UNUSED,ARRAY_SIZE
 #include <lib2/streams.h>
 
 
@@ -35,6 +35,7 @@
 #include <device/gpio-trigger-selection.h>
 #include <device/fsmc.h>
 #include <device/spi-fpga1.h>
+#include <device/systick.h>
 
 
 
@@ -43,7 +44,6 @@
 #include <peripheral/vfd.h>
 
 
-#include <util.h>   // CLK_FREQ
 
 #include <mode.h>
 #include <app.h>

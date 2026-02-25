@@ -22,7 +22,7 @@
 
 ////////////////////////////////////////////////////////
 
-
+#if 0
 
 static void (*systick_interupt)(void *ctx) = NULL;
 static void *systick_ctx = NULL;
@@ -60,7 +60,7 @@ void systick_setup(uint32_t tick_divider)
 }
 
 
-
+#endif
 
 
 

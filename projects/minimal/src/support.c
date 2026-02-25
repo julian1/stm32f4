@@ -137,5 +137,29 @@ void print_stack_pointer()
 
 
 
+#if 0
 
+/*
+  we use a msleep() without app context,
+  when initializing fpga and vfd
+  could localize here if desired.
+*/
+
+void msleep(uint32_t delay, volatile uint32_t *system_millis)
+{
+
+  // works for system_millis integer wrap around
+  // could be a do/while block.
+  uint32_t start = *system_millis;
+  while (true) {
+    uint32_t elapsed = *system_millis - start;
+    if(elapsed > delay)
+      break;
+
+    // yield()
+  };
+}
+
+
+#endif
 

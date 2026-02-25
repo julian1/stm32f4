@@ -12,16 +12,16 @@
 extern "C" {
 #endif
 
-
+#if 0
 #include <stdint.h> // uint32_t
+#endif
 
-
-
+#if 0
 
 void systick_setup(uint32_t tick_divider);
 void systick_handler_set( void (*pfunc)(void *),  void *ctx);
 
-
+#endif
 
 
 
