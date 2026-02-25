@@ -237,7 +237,13 @@ void app_transition_state( app_t *app  /*, uint32_t update_flags */);
 
 void app_cal( app_t *app);
 
-void app_trigger( app_t *app, bool);
+void app_trigger( app_t *app, bool);    // internal. assumes source is internal
+
+// aug 2025.
+// using this, means we dont need to include peripheral/gpio.h everywhere
+// void app_trigger_internal( app_t *app, bool val );
+
+
 
 void app_cal2( app_t *app );
 
@@ -251,9 +257,6 @@ void app_yield(app_t *app);
 */
 
 
-// aug 2025.
-// using this, means we dont need to include peripheral/gpio.h everywhere
-void app_trigger_internal( app_t *app, bool val );
 
 
 
