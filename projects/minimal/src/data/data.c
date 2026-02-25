@@ -109,10 +109,13 @@ void data_update( data_t *data )
 
     printf("v %f, ", v );
 
-    // do we even need a divisor - when we have to manage ... a range specific unit..
-    // and value
 
-    data->value = v / clk_count_sigmux / cal->divisor * 7.1 ;  //  need to adjust for the cal voltage // ok. this is a bit tricky.
+    // data->value = v / clk_count_sigmux / cal->cal_7v1_b * 7.1 ;
+    data->value = (v / clk_count_sigmux ) * cal->cal_7v1_b ;
+
+
+    // data->value = v / clk_count_sigmux  * cal->range_b[ range ];
+
     data->valid = true;
 
     printf( "v2 %s, ", str_format_float_with_commas(buf, 100, 8, data->value));

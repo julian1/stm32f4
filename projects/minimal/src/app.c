@@ -227,6 +227,17 @@ void app_trigger( app_t *app, bool val)
 
 
 
+#if 0
+
+void app_trigger_internal( app_t *app, bool val )
+{
+  gpio_write( app->gpio_trigger_internal, val);   // aug 2025.
+
+}
+#endif
+
+
+
 
 
 
@@ -924,17 +935,6 @@ static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq
 
 
 
-
-
-void app_trigger_internal( app_t *app, bool val )
-{
-  gpio_write( app->gpio_trigger_internal, val);   // aug 2025.
-
-}
-
-
-
-
 bool app_repl_statement(app_t *app,  const char *cmd)
 {
 
@@ -969,7 +969,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   else if(strcmp(cmd, "halt") == 0 || strcmp(cmd, "h") == 0) {
 
 
-    app_trigger_internal( app, 0);
+    app_trigger( app, 0);
   }
   // "t" to trigger
   else if(strcmp(cmd, "trig") == 0 || strcmp(cmd, "t") == 0) {
@@ -979,7 +979,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     // No. I think the trigger. should not change or clear the data buff. it just starts the adc.
     */
 
-    app_trigger_internal( app, 1);
+    app_trigger( app, 1);
   }
 
 

@@ -35,7 +35,13 @@ typedef struct cal_t
 
   // want better name weight_ref_neg;
   double w;
-  double divisor;
+
+  ///////////////////////
+
+  // slope for 7v1. range. where ref is treated as nominal 7v1. without offset.
+  // should be b_7v1.
+  // or just b[ index ] =
+  double cal_7v1_b;
 
 } cal_t;
 

@@ -5,7 +5,7 @@
   - add count ratio.  in output
       so can adjust var pos to var neg.  for the bounds.
 
-  - better variable prefix would use cal_w and cal_divisor, cal_aper  and cal_ref_v
+  - better variable prefix would use cal_w and cal_7v1_b, cal_aper  and cal_ref_v
 
   - should include noise check with input short.  eg. subtract ref-lo.  not ref-hi.
     - add test of zero.  for noise rms.
@@ -43,7 +43,7 @@
 
 
 
-static void test2( app_t *app, double cal_w, double cal_divisor)
+static void test2( app_t *app, double cal_w, double cal_7v1_b)
 {
   /*
     should be able to use data_t and data_update() to handle all this
@@ -135,7 +135,7 @@ static void test2( app_t *app, double cal_w, double cal_divisor)
 
       printf("v %f, ", v );
 
-      double v2 = v / clk_count_sigmux / cal_divisor * 7.1 ;  //  need to adjust for the cal voltage
+      double v2 = v / clk_count_sigmux / cal_7v1_b * 7.1 ;  //  need to adjust for the cal voltage
 
       printf( "v2 %s, ", str_format_float_with_commas(buf, 100, 9, v2));
       // printf("v2 %f, ", v2 );
@@ -317,7 +317,7 @@ static void test( app_t *app)
   uint32_t clk_count_refmux_pos_lo = 0;
   uint32_t clk_count_refmux_neg_lo = 0;   // no adjustment
 
-  // TODO better name here. count divisor/ factor.
+  // TODO better name here. count cal_7v1_b/ factor.
   double values[ 10 ];
   memset(values, 0, sizeof(values));
 
@@ -391,6 +391,9 @@ static void test( app_t *app)
         printf("v %f, ", v );
 
         // OK. we could incorporate the voltage target, here as well, if we wanted.
+
+        // eg. values[ i ] = 7.1 / ( v / clk_count_sigmux );
+
         values[ i ] = v / clk_count_sigmux;
         // only increment on hi.
         ++i;
@@ -406,13 +409,22 @@ static void test( app_t *app)
 
   }
 
+  /*
+    above code - should be able to just call data_update()  directly
+      but keep separate. for independence when facoring etc.
+
+  */
+
+  // range[ range_10V ]  = 7.1 /   mean;
 
   // eg. the cal source (7.1 or external 10V) expressed  as ratio of the pos-ref-current
-  double cal_divisor = mean(   values, ARRAY_SIZE(values));
-  double cal_divisor_stddev = stddev( values, ARRAY_SIZE(values));
+  // stddev.  doesn't mean much.
 
-  printf( "mean   %.3f, ", cal_divisor );
-  printf( "stddev %.9f, ", cal_divisor_stddev);
+  double cal_7v1_b        = 7.1 / mean(   values, ARRAY_SIZE(values));
+  // double cal_7v1_b_stddev = stddev( values, ARRAY_SIZE(values));
+
+  printf( "cal_7v1_b %.3f, ", cal_7v1_b );
+  // printf( "stddev %.9f, ", cal_7v1_b_stddev);
   printf("\n");
 
 
@@ -420,10 +432,10 @@ static void test( app_t *app)
   assert(app->cal->magic == CAL_MAGIC);
 
   app->cal->w        = cal_w;
-  app->cal->divisor  = cal_divisor;
+  app->cal->cal_7v1_b  = cal_7v1_b;
 
 
-  test2( app, cal_w, cal_divisor);
+  test2( app, cal_w, cal_7v1_b);
 
 
 

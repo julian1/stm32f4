@@ -111,8 +111,7 @@ static void test(app_t *app)
 #endif
 
   // trigger start of sample acquisition
-  // mode->trig_sa = 1;
-  app_trigger_internal( app, 1);   // aug 2025.
+  app_trigger( app, 1);
 
   mode->first .K407        = SR_RESET;   // disconnect dcv
 
