@@ -25,7 +25,7 @@
 
 
 
-// devices should not be here
+// TODO device code should not be here
 #include <device/fsmc.h>      // this should removee. ?  setup should be in main()
 
 
@@ -1025,12 +1025,12 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   else if( sscanf(cmd, "sleep %100s", s0) == 1
     && str_decode_float( s0, &f0))
   {
+    // this approach isn't great
 #if 1
-    // update state based on current mode
-    // spi_mode_transition_state( &app->devices, app->mode, &app->system_millis);
+    // update the current state
     app_transition_state( app);
 #endif
-    // sleep
+    // and sleep
     msleep( (uint32_t ) (f0 * 1000), &app->system_millis);
 
   }
@@ -1244,11 +1244,9 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   else if( strcmp(cmd, "dcv") == 0) {
 
 /*
-    should these functions be put in mode.
-    perhaps in order to demonstate that mode can manage the necessary state
-    but the semi-colon parsing. only happens from app_repl_statements()
+    code cannot be put in mode, because needs app_repl parsing.
 */
-    // sample ref-lo
+    // sample ref
     // reset ; set ch2 ref;  set az ch2;  set mode 7; trig;
     app_repl_statements(app, "        \
         set ch2   ref;  \

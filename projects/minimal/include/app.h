@@ -232,12 +232,6 @@ void app_transition_state( app_t *app  /*, uint32_t update_flags */);
 
 void app_cal( app_t *app);
 
-// void app_trigger( app_t *app, bool);    // internal. assumes source is internal
-
-
-
-// void app_cal2( app_t *app );
-
 
 bool app_repl_statement(app_t *app,  const char *cmd);
 void app_repl_statements(app_t *app,  const char *s);
@@ -295,22 +289,5 @@ bool app_test52( app_t *app , const char *cmd);
 
 
 
-
-// aug 2025.
-// using this, means we dont need to include peripheral/gpio.h everywhere
-// void app_trigger_internal( app_t *app, bool val );
-
-
-/*
-void app_update_simple_led_blink(app_t *app);
-void app_update_simple_with_data(app_t *app);
-*/
-
-/*
-
-void app_yield_with_delay(app_t *app, uint32_t delay );
-void app_yield(app_t *app);
-
-*/
 
 
