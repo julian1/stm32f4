@@ -12,7 +12,8 @@
 
 #include <peripheral/vfd.h>
 
-#include <lib2/util.h>      // msleep
+#include <lib2/util.h>      // UNUSED, ARRAY_SIZE
+
 
 
 /*
