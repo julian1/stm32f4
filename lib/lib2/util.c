@@ -196,6 +196,7 @@ static void f()
 #endif
 
 
+#if 0
 
 void print_stack_pointer()
 {
@@ -214,6 +215,7 @@ void print_stack_pointer()
 }
 
 
+#endif
 
 
 /*

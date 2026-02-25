@@ -1,4 +1,6 @@
 
+#include <stdio.h>
+
 #include <libopencm3/stm32/gpio.h>    // bsrr
 #include <libopencm3/stm32/spi.h>
 #include <libopencm3/cm3/scb.h>  // reset()
@@ -104,6 +106,33 @@ void mcu_reset()
   scb_reset_system();
 
 
+}
+
+
+
+#if 0
+static void f()
+{
+  SCB->VTOR;
+};
+#endif
+
+/*
+  see lib2/util.c  for other approaches
+
+*/
+
+
+void print_stack_pointer()
+{
+  // https://stackoverflow.com/questions/20059673/print-out-value-of-stack-pointer
+  // non-portable.
+  void* p = NULL;
+
+  printf("sp %p   %d\n", (void*)&p,  ( (unsigned)(void*)&p) - 0x20000000   );
+
+  // return &p;
+  // uint32_t x = _stack;
 }
 
 

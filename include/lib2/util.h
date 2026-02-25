@@ -38,9 +38,10 @@ void msleep(uint32_t delay, volatile uint32_t *system_millis );
 void yield_with_msleep(uint32_t delay, volatile uint32_t *system_millis,  void (*yield)(void *), void *yield_ctx  );
 */
 
+#if 0
 void print_stack_pointer(void);
 
-
+#endif
 
 
 #define UNUSED(x) ((void)(x))
