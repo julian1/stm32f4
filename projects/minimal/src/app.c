@@ -261,9 +261,9 @@ void app_transition_state( app_t  *app)
   spi_4094_write_n( app->spi_4094, (void *) &mode->first, sizeof( mode->first));
 
   // sleep 10ms, for relays
-  // EXTR.  large relay needs longer????
-  // feb 2026. why not app_sleep( app, 10);
-  msleep(10, &app->system_millis);
+  app_msleep( app, 10);
+
+
 /*
   // and format
   printf("write second state\n");
