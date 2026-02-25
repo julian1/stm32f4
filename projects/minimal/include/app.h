@@ -147,7 +147,7 @@ typedef struct app_t
       even if on digital board side.
       consider move to mode.
   */
-  gpio_t        *gpio_trigger_selection;
+  gpio_t        *gpio_trigger_source;
 
 
 

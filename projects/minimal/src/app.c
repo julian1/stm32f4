@@ -369,7 +369,7 @@ void app_transition_state( app_t  *app)
 
   // write the mcu board trigger source,
   // this has nothing to do with the actual fpga/sample acquisition trigger
-  gpio_write( app->gpio_trigger_selection, mode->trigger_selection);
+  gpio_write( app->gpio_trigger_source, mode->trigger_source);
 
 }
 
