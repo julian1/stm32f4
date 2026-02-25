@@ -29,7 +29,6 @@ SRCFILES	= src/support.c \
             src/util.c \
             src/app_cal.c  \
             src/data/data.c src/data/cal.c src/data/buffers.c \
-            src/data/matrix.c src/data/mesch-support.c src/data/regression.c \
             src/test/test01.c src/test/test02.c  \
             src/test/test08.c src/test/test09.c \
             src/test/test10.c  src/test/test11.c \

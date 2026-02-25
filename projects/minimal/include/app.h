@@ -211,30 +211,26 @@ void app_init( app_t *app);
 void app_yield( app_t *app);
 void app_msleep( app_t *app, uint32_t delay);
 
-
-
 void app_update(app_t *app);
 
 void app_rdy_interrupt( app_t *app, interrupt_t *x);
 
-
 void app_beep( app_t * app, uint32_t n);
 void app_led_dance( app_t * app );
-
 
 void app_systick_interrupt(app_t *app);
 
 void app_configure( app_t *app );
 
-
-
 void app_transition_state( app_t *app  /*, uint32_t update_flags */);
-
-void app_cal( app_t *app);
-
 
 bool app_repl_statement(app_t *app,  const char *cmd);
 void app_repl_statements(app_t *app,  const char *s);
+
+
+
+
+bool app_cal( app_t *app, const char *cmd);
 
 /*
   IMPORTANT - none of these take arguments anymore,

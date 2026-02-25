@@ -7,9 +7,6 @@
 
   - better variable prefix would use cal_w and cal_7v1_b, cal_aper  and cal_ref_v
 
-  - should include noise check with input short.  eg. subtract ref-lo.  not ref-hi.
-    - add test of zero.  for noise rms.
-
 
   // why is there both aperture clk count, and sigmux clk count.  because runup does not turn on sigmux, for weight calculation
 */
@@ -214,7 +211,7 @@ static void test( app_t *app)
   mode_ch2_set_ref_lo( mode);
 
 
-  // sigmux not active. to caulcate relative pos/neg ref current weight.
+  // set sigmux not active. needed to calculate relative pos/neg ref current weight.
   mode->reg_cr.adc_p_active_sigmux = 0;
 
 
@@ -231,7 +228,7 @@ static void test( app_t *app)
   memset(neg_values, 0, sizeof(neg_values));
 
 
-  _Static_assert(ARRAY_SIZE(pos_values) == ARRAY_SIZE(neg_values), "whoot");
+  _Static_assert(ARRAY_SIZE(pos_values) == ARRAY_SIZE(neg_values), "array sizes do not match");
 
   // stop sampling
   // app_trigger( app, false);
