@@ -20,7 +20,6 @@
 // #include <data/matrix.h>  // m_rows()
 // #include <data/buffer.h>
 
-#include <lib2/util.h>    // yield_with_msleep
 
 #include <mode.h>       // transition state
 // #include <peripheral/trigger.h>      // trigger
@@ -62,7 +61,7 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
   data_reset( data );
 
   // sleep?
-  // yield_with_msleep( 1 * 100, &app->system_millis, yield, yield_ctx);
+  // app_msleep( app, 100);
 
 
   printf("waiting for data\n");
@@ -70,7 +69,10 @@ static void fill_buffer( app_t *app, MAT *buffer, size_t sz, void (*yield)( void
   size_t sz_now = m_rows( data->buffer);
   // wait until have extra vals
   while( m_rows(data->buffer ) < sz_now + sz ) {
-    yield( yield_ctx);
+    // yield( yield_ctx);
+
+    app_yield( app);
+
   }
 
   // potential race condition here, we don't want to collect spurious data.

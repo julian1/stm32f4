@@ -20,7 +20,7 @@
 // #include <data/matrix.h>  // m_rows()
 // #include <data/buffer.h>
 
-#include <lib2/util.h>    // yield_with_msleep
+// #include <lib2/util.h>
 
 #include <mode.h>       // transition state
 
@@ -56,7 +56,7 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
 
   // sleep?
   // keep sleep time low, means less flicker wander
-  // yield_with_msleep( 1 * 100, &app->system_millis, yield, yield_ctx);
+  app_msleep( app, 100);
 
   // reset the input data buffer
   // data->buffer = buffer_reset( data->buffer, 5 );
