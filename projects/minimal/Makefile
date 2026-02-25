@@ -85,8 +85,8 @@ TGT_CFLAGS	+= -I${TOP_DIR}/lib/libopencm3/include
 
 # libs
 LDLIBS		+= ${TOP_DIR}/lib/lib2/lib2.a
-LDLIBS		+= ${TOP_DIR}/lib/mesch12b/mesch12b.a
 LDLIBS		+= ${TOP_DIR}/lib/lzo/lzo.a
+# LDLIBS		+= ${TOP_DIR}/lib/mesch12b/mesch12b.a
 
 # EXTR.   cortex-m-generic.ld is picked using the -L flag to libopencm3
 # and not from $TOP/link/
