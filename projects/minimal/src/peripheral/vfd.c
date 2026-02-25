@@ -152,6 +152,27 @@ void vfd_init_gpio( void )
 //////////////////////
 
 
+
+
+static void msleep(uint32_t delay, volatile uint32_t *system_millis)
+{
+
+  // works for system_millis integer wrap around
+  // could be a do/while block.
+  uint32_t start = *system_millis;
+  while (true) {
+    uint32_t elapsed = *system_millis - start;
+    if(elapsed > delay)
+      break;
+
+    // yield()
+  };
+
+}
+
+
+
+
 /*
   - read/write  are for reading writing.
   - CD command/data - are whether the operation is a command. or if its data.  this is orthogonal. to read/write.

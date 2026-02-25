@@ -17,10 +17,6 @@
 
 #include <app.h>
 #include <data/data.h>
-// #include <data/matrix.h>  // m_rows()
-// #include <data/buffer.h>
-
-// #include <lib2/util.h>
 
 #include <mode.h>       // transition state
 

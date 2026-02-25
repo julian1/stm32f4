@@ -86,6 +86,7 @@ void msleep(uint32_t delay, volatile uint32_t *system_millis /* void (*yield)(vo
 }
 #endif
 
+#if 0
 void msleep(uint32_t delay, volatile uint32_t *system_millis)
 {
 
@@ -125,7 +126,7 @@ void yield_with_msleep(uint32_t delay, volatile uint32_t *system_millis,  void (
   };
 }
 
-
+#endif
 
 
 

@@ -15,7 +15,7 @@
 #include <assert.h>
 #include <string.h>   // strcmp
 
-#include <lib2/util.h>      // msleep(), ARRAY_SIZE
+#include <lib2/util.h>      // ARRAY_SIZE
 
 #include <app.h>
 
@@ -33,7 +33,8 @@ static void test (app_t *app)     // should be passing the continuation.
     snprintf( buf, 100, "dcv-source lts %lf\n", fa[i]);
     app_repl_statements( app, buf);
 
-    msleep( 1000, &app->system_millis);   // sleep 1s.
+    // sleep 1s.
+    app_msleep( app, 1000);
   }
 }
 

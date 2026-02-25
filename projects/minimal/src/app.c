@@ -153,15 +153,56 @@ void app_yield( app_t *app)
 
 
 
+#if 0
+
+// from lib2/util.c
+
+void yield_with_msleep(uint32_t delay, volatile uint32_t *system_millis,  void (*yield)(void *), void *yield_ctx  )
+{
+  assert(system_millis);
+
+  // works for system_millis integer wrap around
+  // could be a do/while block.
+  uint32_t start = *system_millis;
+  while (true) {
+    uint32_t elapsed = *system_millis - start;
+    if(elapsed > delay)
+      break;
+
+    if(yield)
+      yield( yield_ctx);
+  };
+}
+
+#endif
+
+
+
+
 void app_msleep( app_t *app, uint32_t delay)
 {
   /*
-    simple apli, that should handle most cases as default
+    simple api, that should cover most cases as default
     can always override the continuation
     the yield function in util.c should probably be moved here.
   */
 
-  yield_with_msleep( delay, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
+  // this is now the the only places that calls yield
+  // avoid lib2.
+  // yield_with_msleep( delay, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
+
+  // remember system_millis is volatile.
+
+  uint32_t start = app->system_millis;
+  while (true) {
+    uint32_t elapsed = app->system_millis - start;
+    if(elapsed > delay)
+      break;
+
+    // if(yield)
+    //  yield( yield_ctx);
+    app_yield( app);
+  };
 
 }
 
@@ -474,7 +515,7 @@ void app_beep( app_t * app, uint32_t n)
 
 
     // double beep ok.
-    uint32_t t = 70;
+    uint32_t d = 70;
 
   printf("configuring port\n");
 
@@ -484,12 +525,12 @@ void app_beep( app_t * app, uint32_t n)
     printf("on\n");
     spi_ice40_reg_write32( app->spi_u202, REG_DIRECT, 1 /*1<<10 */);
     spi_print_register( app->spi_u202, REG_DIRECT );
-    msleep( t , &app->system_millis);
+    app_msleep( app, d);
 
     printf("o\n");
     spi_ice40_reg_write32( app->spi_u202, REG_DIRECT, 0 );
     spi_print_register( app->spi_u202, REG_DIRECT );
-    msleep( t , &app->system_millis);
+    app_msleep( app, d);
   }
 }
 
@@ -525,7 +566,7 @@ void app_led_dance( app_t * app )
       // printf("comms ok\n");
     }
 
-    msleep( 50,  &app->system_millis);
+    app_msleep( app, 50);
   }
 
   spi_ice40_reg_write32( app->spi_fpga0, REG_DIRECT, 0 );
@@ -966,7 +1007,8 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     app_transition_state( app);
 #endif
     // and sleep
-    msleep( (uint32_t ) (f0 * 1000), &app->system_millis);
+
+    app_msleep( app, (uint32_t ) (f0 * 1000) );
 
   }
 
@@ -1035,7 +1077,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     fsmc_setup( 1 );   // fase.
     vfd_init_gpio();
 
-    msleep( 10, &app->system_millis );
+    app_msleep( app, 10);
 
 
     ///////////

@@ -7,6 +7,9 @@
      " ISRs run very fast on these chips. I have ISRs running is 3-4us on a 168MHz 32F417."
 */
 
+
+#include <assert.h>   // assert_critical_error_led_blink()
+
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/usart.h>
@@ -15,7 +18,6 @@
 
 #include "usart.h"
 #include "cbuffer.h"
-#include "util.h"   // critical_error_blink()
 
 
 
@@ -66,7 +68,9 @@ static void usart_configure( uint32_t usart )
     default:
       // assert() won't work here, because no usart configured for debug output
       // assert(0);
-      critical_error_led_blink();
+      // critical_error_led_blink();
+
+      assert_critical_error_led_blink();
   }
 
 

@@ -13,7 +13,6 @@
 #include <string.h>   // strcmp
 
 
-#include <lib2/util.h>      // msleep()
 #include <lib2/format.h>   // format_bits()
 
 
@@ -49,7 +48,7 @@ static void test (app_t *app)
 
         app_transition_state( app);
 
-        msleep( 300, &app->system_millis);
+        app_msleep( app, 300);
       }
   }
 

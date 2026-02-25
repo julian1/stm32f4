@@ -20,7 +20,6 @@
 
 #include <mode.h>
 #include <app.h>
-#include <lib2/util.h>         // msleep()
 
 
 #include <device/spi-fpga0-reg.h> // MODE_DIRECT
@@ -93,7 +92,7 @@ static void test (app_t *app)     // should be passing the continuation.
   // spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
   app_transition_state( app);
   printf("sleep 10s\n");  // having a yield would be quite nice here.
-  msleep(10 * 1000,  &app->system_millis);
+  app_msleep( app, 10 * 1000);
 
 
   ////////////////////////
@@ -109,7 +108,7 @@ static void test (app_t *app)     // should be passing the continuation.
   // spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
   app_transition_state( app);
   printf("sleep 10s\n");  // having a yield would be quite nice here.
-  msleep(10 * 1000,  &app->system_millis);
+  app_msleep( app, 10 * 1000);
 
 
   ////////////////////////
@@ -124,7 +123,7 @@ static void test (app_t *app)     // should be passing the continuation.
   app_transition_state( app);
 
 
-  msleep(2 * 1000,  &app->system_millis);
+  app_msleep( app, 2 * 1000);
 
 }
 
