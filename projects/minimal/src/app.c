@@ -221,7 +221,7 @@ void app_trigger( app_t *app, bool val)
 
 #endif
 
-  gpio_write( app->gpio_trigger, val);
+  gpio_write( app->gpio_trigger_internal, val);
 
 }
 #endif
@@ -231,7 +231,7 @@ void app_trigger( app_t *app, bool val)
 
 void app_trigger_internal( app_t *app, bool val )
 {
-  gpio_write( app->gpio_trigger, val);   // aug 2025.
+  gpio_write( app->gpio_trigger_internal, val);   // aug 2025.
 
 }
 #endif
@@ -373,9 +373,11 @@ void app_transition_state( app_t  *app)
   gpio_write( app->gpio_trigger_source, mode->trigger_source);
 
 
-  // do not write the trigger here.
-  // in c code it is explicit.
-  // in repl.  is is queued and pending and handled outside here.
+  /*
+    do not write the trigger here, on board state update.
+    in c code it is explicit.
+    in repl.  is is queued and pending and handled outside here.
+  */
 }
 
 
@@ -758,7 +760,7 @@ static void app_update_console(app_t *app)
         // clear for next time
         app->repl_trigger_pending = false;
 
-        // let board state settle 
+        // let board state settle
         // consider removing in favour of doing this on the fpga
         if(app->repl_trigger_value)
           app_msleep( app, 100 );
@@ -1624,7 +1626,7 @@ void app_update_simple_with_data(app_t *app)
   if( spi_ice40_cdone( app->spi_fpga0_pc)) {
     // toggle the trigger.
 
-    gpio_write( app->gpio_trigger, app->led_state);
+    gpio_write( app->gpio_trigger_internal, app->led_state);
   }
 #endif
 
