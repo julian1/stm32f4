@@ -752,21 +752,26 @@ static void app_update_console(app_t *app)
 
       if( spi_ice40_cdone( app->spi_fpga0_pc))  {
 
+        // transition state
         app_transition_state( app );
-      }
 
-      if( app->repl_trigger_pending) {
 
-        // clear for next time
-        app->repl_trigger_pending = false;
+        // pending, changes to trigger apply only after state transition
+        if( app->repl_trigger_pending) {
 
-        // let board state settle
-        // consider removing in favour of doing this on the fpga
-        if(app->repl_trigger_value)
-          app_msleep( app, 100 );
+          // clear for next time
+          app->repl_trigger_pending = false;
 
-        // apply trigger value
-        gpio_write( app->gpio_trigger, app->repl_trigger_value);
+          // let board state settle
+          // consider removing in favour of putting this on the fpga
+          if(app->repl_trigger_value)
+            app_msleep( app, 100 );
+
+          // apply trigger value
+          gpio_write( app->gpio_trigger, app->repl_trigger_value);
+        }
+
+
       }
 
       // issue new prompt
