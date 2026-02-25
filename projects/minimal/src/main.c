@@ -231,7 +231,6 @@ static int main_f429(void)
   app_t app ;
   app_init( &app);
 
-  app.led_blink_enable = true;
   app.line_freq = 50;
 
 

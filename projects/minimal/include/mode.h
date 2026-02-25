@@ -120,6 +120,10 @@
 #define SW_PC_SIGNAL      1
 
 
+// ranges to index cal, unit, and state setup functions.
+#define RANGE_DCV_10
+#define RANGE_DCV_1
+#define RANGE_OHMSF
 
 
 

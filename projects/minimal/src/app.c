@@ -1166,12 +1166,12 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
 
 
-
+/*
   else if( sscanf(cmd, "led blink %lu", &u0 ) == 1) {
 
     app->led_blink_enable = u0;
   }
-
+*/
 
 
   // don't we have some code - to handle sscan as binary/octal/hex ?
@@ -1217,6 +1217,11 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
   else if( strcmp(cmd, "dcv") == 0) {
 
+/*
+    should these functions be put in mode.
+    perhaps in order to demonstate that mode can manage the necessary state
+    but the semi-colon parsing. only happens from app_repl_statements()
+*/
     // sample ref-lo
     // reset ; set ch2 ref;  set az ch2;  set mode 7; trig;
     app_repl_statements(app, "        \

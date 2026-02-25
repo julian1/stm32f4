@@ -51,19 +51,13 @@
 
 
 typedef struct gpio_t gpio_t;
-
-
 typedef struct spi_t spi_t;
 typedef struct spi_ice40_t spi_ice40_t;
 typedef struct interrupt_t interrupt_t;
-
-
 typedef struct cal_t cal_t;
 typedef struct _mode_t _mode_t;
 typedef struct data_t data_t;
 typedef struct buffers_t buffers_t;
-
-
 
 
 
@@ -79,11 +73,11 @@ typedef struct app_t
   uint32_t magic;
 
 
-  bool led_state ;          // for mcu. maybe change name to distinguish
-                            // TODO consider remove.  and query the state of status_led .  eg. gpio_read( )
+  bool led_state ;          // for digital/mcu board.
+                            // TODO consider remove.  and just query for the current state of status_led .  eg. gpio_read( )
                             // not sure the point is to communicate it.
 
-  bool led_blink_enable;    // for analog board. whether to blink the led on the analog board.
+  // bool led_blink_enable;    // for analog board. whether to blink the led on the analog board.
                             // useful activity indicator, but also need to be able to to suppress
 
 
@@ -155,8 +149,6 @@ typedef struct app_t
   */
   gpio_t        *gpio_trigger_selection;
 
-  ////////////////////////////////
-
 
 
   ////////////////////////////////
@@ -227,10 +219,6 @@ void app_systick_interrupt(app_t *app);
 
 void app_configure( app_t *app );
 
-/*
-void app_update_simple_led_blink(app_t *app);
-void app_update_simple_with_data(app_t *app);
-*/
 
 
 void app_transition_state( app_t *app  /*, uint32_t update_flags */);
@@ -239,25 +227,9 @@ void app_cal( app_t *app);
 
 void app_trigger( app_t *app, bool);    // internal. assumes source is internal
 
-// aug 2025.
-// using this, means we dont need to include peripheral/gpio.h everywhere
-// void app_trigger_internal( app_t *app, bool val );
 
 
-
-void app_cal2( app_t *app );
-
-
-
-/*
-
-void app_yield_with_delay(app_t *app, uint32_t delay );
-void app_yield(app_t *app);
-
-*/
-
-
-
+// void app_cal2( app_t *app );
 
 
 bool app_repl_statement(app_t *app,  const char *cmd);
@@ -317,5 +289,21 @@ bool app_test52( app_t *app , const char *cmd);
 
 
 
+// aug 2025.
+// using this, means we dont need to include peripheral/gpio.h everywhere
+// void app_trigger_internal( app_t *app, bool val );
+
+
+/*
+void app_update_simple_led_blink(app_t *app);
+void app_update_simple_with_data(app_t *app);
+*/
+
+/*
+
+void app_yield_with_delay(app_t *app, uint32_t delay );
+void app_yield(app_t *app);
+
+*/
 
 
