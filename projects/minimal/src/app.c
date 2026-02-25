@@ -144,38 +144,16 @@ static void app_update_simple_led_blink(app_t *app)
 
 void app_yield( app_t *app)
 {
-  // simple api, that should handle most cases as default
-  // can always override the continuation
+  /*
+    simple api, that should handle most cases as default
+    can always override the continuation
+
+    if(app->yield)
+      app->yield( app->yield_ctx);
+  */
 
   app_update_simple_led_blink( app);
-
 }
-
-
-
-#if 0
-
-// from lib2/util.c
-
-void yield_with_msleep(uint32_t delay, volatile uint32_t *system_millis,  void (*yield)(void *), void *yield_ctx  )
-{
-  assert(system_millis);
-
-  // works for system_millis integer wrap around
-  // could be a do/while block.
-  uint32_t start = *system_millis;
-  while (true) {
-    uint32_t elapsed = *system_millis - start;
-    if(elapsed > delay)
-      break;
-
-    if(yield)
-      yield( yield_ctx);
-  };
-}
-
-#endif
-
 
 
 
@@ -183,13 +161,10 @@ void app_msleep( app_t *app, uint32_t delay)
 {
   /*
     simple api, that should cover most cases as default
-    can always override the continuation
-    the yield function in util.c should probably be moved here.
-  */
 
-  // this is now the the only places that calls yield
-  // avoid lib2.
-  // yield_with_msleep( delay, &app->system_millis, (void (*)(void *))app_update_simple_led_blink, app);
+    callees should not know about the yield context.
+    we can always override continuation by changing app->yield before calling the func that calls this
+  */
 
   // remember system_millis is volatile.
 
@@ -199,11 +174,8 @@ void app_msleep( app_t *app, uint32_t delay)
     if(elapsed > delay)
       break;
 
-    // if(yield)
-    //  yield( yield_ctx);
     app_yield( app);
   };
-
 }
 
 
