@@ -305,6 +305,7 @@ void app_transition_state( app_t  *app)
 
   // sleep 10ms, for relays
   // EXTR.  large relay needs longer????
+  // feb 2026. why not app_sleep( app, 10);
   msleep(10, &app->system_millis);
 /*
   // and format
@@ -371,6 +372,10 @@ void app_transition_state( app_t  *app)
   // this has nothing to do with the actual fpga/sample acquisition trigger
   gpio_write( app->gpio_trigger_source, mode->trigger_source);
 
+
+  // do not write the trigger here.
+  // in c code it is explicit.
+  // in repl.  is is queued and pending and handled outside here.
 }
 
 

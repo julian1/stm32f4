@@ -143,9 +143,9 @@ typedef struct app_t
   gpio_t        *gpio_trigger_internal;
 
 
-  /* trigger selection - ext/int belongs here, as a device.
-      even if on digital board side.
-      consider move to mode.
+  /* trigger selection is just a regular device.
+      even if it is on the digital board, not analog board.
+      state is managed on the mode.
   */
   gpio_t        *gpio_trigger_source;
 
