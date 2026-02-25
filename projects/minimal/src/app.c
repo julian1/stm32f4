@@ -370,53 +370,53 @@ void app_configure( app_t *app )
 
 #endif
 
-    printf("app_configure()\n");
+  printf("app_configure()\n");
 
-    // assert( app->cdone_fpga0 );
-    assert( spi_ice40_cdone( app->spi_fpga0_pc));
+  // assert( app->cdone_fpga0 );
+  assert( spi_ice40_cdone( app->spi_fpga0_pc));
 
-    // check/verify 4094 OE is not asserted
-    assert( !spi_ice40_reg_read32( app->spi_fpga0, REG_4094_OE ));
+  // check/verify 4094 OE is not asserted
+  assert( !spi_ice40_reg_read32( app->spi_fpga0, REG_4094_OE ));
 
-    // reset the mode.
-    mode_init( app->mode );
-
-
-    /* OK. this is tricky.
-        OE must be enabled to pulse the relays. to align them to initial/current state.
-        but want to configure as much 4094 state as possible (eg. muxes), before asserting 4094 OE.
-    */
-    // write the default 4094 state for muxes etc.
-    printf("spi_mode_transition_state() for muxes\n");
-    app_transition_state( app /*devices, app->mode, &app->system_millis */);
+  // reset the mode.
+  mode_init( app->mode );
 
 
-    /*
-        nov 2024. 4094-oe could just be included in mode. to simplify this
-    */
-
-    // now assert 4094 OE
-    // should check supply rails etc. first.
-    printf("asserting 4094 OE\n");
-    spi_port_configure( app->spi_fpga0);
-    spi_ice40_reg_write32( app->spi_fpga0, REG_4094_OE, 1 );
+  /* OK. this is tricky.
+      OE must be enabled to pulse the relays. to align them to initial/current state.
+      but want to configure as much 4094 state as possible (eg. muxes), before asserting 4094 OE.
+  */
+  // write the default 4094 state for muxes etc.
+  printf("spi_mode_transition_state() for muxes\n");
+  app_transition_state( app /*devices, app->mode, &app->system_millis */);
 
 
-    // check/ensure 4094 OE asserted
-    // serves as basic test of comms/miso also
-    assert( spi_ice40_reg_read32( app->spi_fpga0, REG_4094_OE ));
+  /*
+      nov 2024. 4094-oe could just be included in mode. to simplify this
+  */
+
+  // now assert 4094 OE
+  // should check supply rails etc. first.
+  printf("asserting 4094 OE\n");
+  spi_port_configure( app->spi_fpga0);
+  spi_ice40_reg_write32( app->spi_fpga0, REG_4094_OE, 1 );
 
 
-    // now call transition state again. which will do relays
-    printf("spi_mode_transition_state() for relays\n");
-    app_transition_state( app /*devices, app->mode, &app->system_millis*/);
+  // check/ensure 4094 OE asserted
+  // serves as basic test of comms/miso also
+  assert( spi_ice40_reg_read32( app->spi_fpga0, REG_4094_OE ));
+
+
+  // now call transition state again. which will do relays
+  printf("spi_mode_transition_state() for relays\n");
+  app_transition_state( app /*devices, app->mode, &app->system_millis*/);
 
 
 
-    // setup the fpga0 interrupt handler
-    // interrupt_handler_set( app->fpga0_interrupt, app->data, (interrupt_handler_t ) data_rdy_interrupt);
-    assert( app->fpga0_interrupt);
-    interrupt_handler_set( app->fpga0_interrupt, app, (interrupt_handler_t ) app_rdy_interrupt);
+  // setup the fpga0 interrupt handler
+  // interrupt_handler_set( app->fpga0_interrupt, app->data, (interrupt_handler_t ) data_rdy_interrupt);
+  assert( app->fpga0_interrupt);
+  interrupt_handler_set( app->fpga0_interrupt, app, (interrupt_handler_t ) app_rdy_interrupt);
 
 
 }
@@ -1125,57 +1125,6 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
 
 
-
-
-/*
-  else if( sscanf(cmd, "led blink %lu", &u0 ) == 1) {
-
-    app->led_blink_enable = u0;
-  }
-*/
-
-
-  // don't we have some code - to handle sscan as binary/octal/hex ?
-
-
-  /*
-    - the cal function requires mode. which is only available in app.
-     - should take an argument. for model_id.
-    - no. only set the id, when it is saved to flash.
-  */
-
-
-  else if(strcmp(cmd, "cal") == 0) {
-    // cal with default model
-
-    assert(0);
-    // app_cal2( app ) ;
-  }
-
-
-
-
-  /*
-    TODO would be much better if could move this to mode.
-    do read cal at startup.
-    and move reset. to mode reset.
-  */
-#if 0
-  else if( strcmp(cmd, "dcv") == 0) {
-
-    // sample ref-lo via dcv-source
-    app_repl_statements(app, "        \
-        set k407 0;   set k405 1;  set k406 1;  \
-        nplc 10; set mode 7 ; azero s3 s7;  trig; \
-      " );
-
-    // check_data( == 7.000 )  etc.
-    // return 1;
-  }
-
-#endif
-
-
   else if( strcmp(cmd, "dcv") == 0) {
 
 /*
@@ -1198,6 +1147,10 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   else if( data_repl_statement( app->data, cmd )) { }
 
   else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, app->line_freq)) { }
+
+
+  // let cal decode its own arguments if it needs
+  else if(  app_cal( app, cmd ))   { }
 
 
 #if 0
@@ -1298,6 +1251,29 @@ void app_repl_statements(app_t *app,  const char *s)
 
 
 
+
+
+
+
+  /*
+    TODO would be much better if could move this to mode.
+    do read cal at startup.
+    and move reset. to mode reset.
+  */
+#if 0
+  else if( strcmp(cmd, "dcv") == 0) {
+
+    // sample ref-lo via dcv-source
+    app_repl_statements(app, "        \
+        set k407 0;   set k405 1;  set k406 1;  \
+        nplc 10; set mode 7 ; azero s3 s7;  trig; \
+      " );
+
+    // check_data( == 7.000 )  etc.
+    // return 1;
+  }
+
+#endif
 
 
 
