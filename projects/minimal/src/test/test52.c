@@ -22,7 +22,6 @@
 #include <string.h>
 
 
-#include <peripheral/spi-ice40.h>
 
 
 #include <lib2/util.h>    // ARRAY_SIZE
@@ -36,8 +35,8 @@
 #include <app.h>
 
 
-
-
+#include <peripheral/spi-ice40.h>
+#include <peripheral/gpio.h>        // trigger manipulation
 
 
 
@@ -97,7 +96,7 @@ static void test2( app_t *app, double cal_w, double cal_7v1_b)
   app_msleep( app, 1000);
 
   // start sampling
-  app_trigger( app, true);
+  gpio_write( app->gpio_trigger, true);
 
 
   // take obs loop
@@ -149,8 +148,11 @@ static void test2( app_t *app, double cal_w, double cal_7v1_b)
 
     printf("\n");
   }
-  // trig off
-  app_trigger( app, false);
+
+  // stop sampling
+  gpio_write( app->gpio_trigger, false);
+
+
 
 
   // better names - readings_mean ?
@@ -195,7 +197,7 @@ static void test( app_t *app)
 
 
   // sample off
-  app_trigger( app, false);
+  gpio_write( app->gpio_trigger, false);
 
   mode_reset( mode);
 
@@ -232,7 +234,8 @@ static void test( app_t *app)
   _Static_assert(ARRAY_SIZE(pos_values) == ARRAY_SIZE(neg_values), "whoot");
 
   // stop sampling
-  app_trigger( app, false);
+  // app_trigger( app, false);
+  gpio_write( app->gpio_trigger, false);
 
   // set nplc
   mode_aperture_set( mode, nplc_to_aperture( 10, app->line_freq ));
@@ -243,7 +246,7 @@ static void test( app_t *app)
   app_msleep( app, 1000);
 
   // start sampling
-  app_trigger( app, true);
+  gpio_write( app->gpio_trigger, true);
 
 
   /* we can run this loop more simply
@@ -283,7 +286,7 @@ static void test( app_t *app)
   }
 
   // sampling off
-  app_trigger( app, false);
+  gpio_write( app->gpio_trigger, false);
 
 
   double pos_mean   = mean(   pos_values, ARRAY_SIZE(pos_values));
@@ -352,7 +355,7 @@ static void test( app_t *app)
     app_msleep( app, 1000);
 
     // start sampling
-    app_trigger( app, true);
+  gpio_write( app->gpio_trigger, true);
 
 
     // compute ref for diff
@@ -405,7 +408,7 @@ static void test( app_t *app)
     }
 
     // stop sampling
-    app_trigger( app, false);
+    gpio_write( app->gpio_trigger, false);
 
   }
 

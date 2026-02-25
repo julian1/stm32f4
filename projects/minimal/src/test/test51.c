@@ -4,12 +4,8 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
-// #include <math.h>     // NAN
 
 
-// #include <peripheral/gpio.h>
-// #include <peripheral/interrupt.h>
-#include <peripheral/spi-ice40.h>
 
 
 #include <lib2/util.h>    // ARRAY_SIZE
@@ -20,8 +16,10 @@
 #include <mode.h>
 #include <util.h> // nplc_to_aperture()
 #include <app.h>
-// #include <data/data.h>
 
+
+#include <peripheral/spi-ice40.h>
+#include <peripheral/gpio.h>        // trigger manipulation
 
 
 
@@ -44,7 +42,8 @@ static void test( app_t *app)
   char buf[100 + 1];
 
   // sample off
-  app_trigger( app, false);
+  gpio_write( app->gpio_trigger, false);
+
 
   mode_reset( mode);
 
@@ -79,7 +78,7 @@ static void test( app_t *app)
     _Static_assert(ARRAY_SIZE(pos_values) == ARRAY_SIZE(neg_values), "whoot");
 
     // stop sampling
-    app_trigger( app, false);
+    gpio_write( app->gpio_trigger, false);
 
     // nplc to use
     mode_aperture_set( mode, nplc_to_aperture( 1, app->line_freq ));
@@ -88,8 +87,9 @@ static void test( app_t *app)
     app_transition_state( app);
     // sleep
     app_msleep( app, 1000);
+
     // start sampling
-    app_trigger( app, true);
+    gpio_write( app->gpio_trigger, true);
 
 
     // take obs loop
@@ -122,8 +122,9 @@ static void test( app_t *app)
 
       printf("\n");
     }
-    // trig off
-    app_trigger( app, false);
+
+    // stop sampling
+    gpio_write( app->gpio_trigger, false);
 
 
     double mean_pos   = mean( pos_values, ARRAY_SIZE(pos_values));
@@ -143,8 +144,9 @@ static void test( app_t *app)
     w =  mean_pos / mean_neg;
 
   }
+
   // stop sampling
-  app_trigger( app, false);
+  gpio_write( app->gpio_trigger, false);
 
 
   // printf(" w %.8f, ", w );
@@ -182,7 +184,7 @@ static void test( app_t *app)
     app_msleep( app, 1000);
 
     // start sampling
-    app_trigger( app, true);
+    gpio_write( app->gpio_trigger, true);
 
     uint32_t clk_count_aperture  ;
 
@@ -227,7 +229,7 @@ static void test( app_t *app)
     }
 
     // stop sampling
-    app_trigger( app, false);
+    gpio_write( app->gpio_trigger, false);
 
 
     double mean_   = mean(   values, ARRAY_SIZE(values));     // should prefix functions stats_mean ?

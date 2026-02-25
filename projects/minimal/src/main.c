@@ -337,8 +337,8 @@ static int main_f429(void)
   spi_setup( app.spi_mdac1 );
 
 
-  app.gpio_trigger_internal = gpio_trigger_internal_new();
-  gpio_setup( app.gpio_trigger_internal);
+  app.gpio_trigger = gpio_trigger_new();
+  gpio_setup( app.gpio_trigger);
 
 
   //////////////

@@ -30,9 +30,12 @@
 
 #include <mode.h>
 #include <app.h>
-#include <lib2/util.h>    // msleep()
+
 
 #include <device/spi-fpga0-reg.h>    // modes
+#include <peripheral/gpio.h>        // trigger manipulation
+
+
 
 /*
   OK, this test doesn't actually even need the app structure.
@@ -86,7 +89,8 @@ static void test (app_t *app)     // should be passing the continuation.
   // spi_mode_transition_state( &app->devices, mode, &app->system_millis);
   app_transition_state( app);
   printf("sleep 10s\n");  // having a yield would be quite nice here.
-  msleep(10 * 1000, &app->system_millis);
+  // msleep(10 * 1000, &app->system_millis);
+  app_msleep( app, 10 * 1000);
 
 
   ////////////////////////
@@ -119,8 +123,8 @@ static void test (app_t *app)     // should be passing the continuation.
 
 
   // trigger start of sample acquisition
-  app_trigger( app, 1);   // aug 2025.
-
+  // app_trigger( app, 1);   // aug 2025.
+  gpio_write( app->gpio_trigger, 1);
 
 
 
@@ -130,7 +134,9 @@ static void test (app_t *app)     // should be passing the continuation.
   // spi_mode_transition_state( &app->devices, mode, &app->system_millis);
   app_transition_state( app);
   printf("sleep 10s\n");  // having a yield() would be quite nice here.
-  msleep(10 * 1000,  &app->system_millis);
+  // msleep(10 * 1000,  &app->system_millis);
+  app_msleep( app, 10 * 1000);
+
 
   /* issue, with hard sync reset, the sequence transition may finish with azmux .
     so that the amplifier doesn't suck all the charge out of the capacitor.
@@ -155,7 +161,10 @@ static void test (app_t *app)     // should be passing the continuation.
   printf("sleep 2s\n");  // having a yield would be quite nice here.
   // spi_mode_transition_state( &app->devices, mode, &app->system_millis);
   app_transition_state( app);
-  msleep(2 * 1000,  &app->system_millis);
+  // msleep(2 * 1000,  &app->system_millis);
+  app_msleep( app, 10 * 1000);
+
+
 }
 
 

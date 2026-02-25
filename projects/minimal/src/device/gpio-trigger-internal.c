@@ -39,7 +39,7 @@ static void write( gpio_t *p, uint8_t val)
 
 
 
-gpio_t *gpio_trigger_internal_new()
+gpio_t *gpio_trigger_new()
 {
   gpio_t *p = malloc(sizeof( gpio_t));
   assert(p);

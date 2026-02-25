@@ -19,9 +19,12 @@
 
 #include <mode.h>
 #include <app.h>
-#include <lib2/util.h>    // msleep()
 
 #include <device/spi-fpga0-reg.h>    // modes
+#include <peripheral/gpio.h>        // trigger manipulation
+
+
+
 
 
 static void test(app_t *app)
@@ -77,7 +80,8 @@ static void test(app_t *app)
 
   app_transition_state( app);
   printf("sleep 10s\n");  // having a yield would be quite nice here.
-  msleep(10 * 1000,  &app->system_millis);
+  // msleep(10 * 1000,  &app->system_millis);
+  app_msleep( app, 10 * 1000);
 
 
   ////////////////////////
@@ -111,7 +115,8 @@ static void test(app_t *app)
 #endif
 
   // trigger start of sample acquisition
-  app_trigger( app, 1);
+  // app_trigger( app, 1);
+  gpio_write( app->gpio_trigger, 1);
 
   mode->first .K407        = SR_RESET;   // disconnect dcv
 
@@ -120,7 +125,8 @@ static void test(app_t *app)
 
   app_transition_state( app);
   printf("sleep 10s\n");  // having a yield() would be quite nice here.
-  msleep(10 * 1000,  &app->system_millis);
+  // msleep(10 * 1000,  &app->system_millis);
+  app_msleep( app, 10 * 1000);
 
 
 
@@ -134,7 +140,8 @@ static void test(app_t *app)
   // now we do the sleep- to take the measurement.
   printf("sleep 2s\n");  // having a yield would be quite nice here.
   app_transition_state( app);
-  msleep(2 * 1000,  &app->system_millis);
+  // msleep(2 * 1000,  &app->system_millis);
+  app_msleep( app, 2 * 1000);
 
 }
 

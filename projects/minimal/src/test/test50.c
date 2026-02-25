@@ -33,8 +33,6 @@
 // #include <math.h>     // fabs
 
 
-#include <peripheral/spi-ice40.h>
-
 
 #include <lib2/util.h>    // ARRAY_SIZE
 #include <lib2/stats.h>
@@ -45,6 +43,9 @@
 #include <util.h> // nplc_to_aperture()
 #include <app.h>
 
+
+#include <peripheral/spi-ice40.h>
+#include <peripheral/gpio.h>        // trigger manipulation
 
 
 
@@ -71,7 +72,9 @@ static void test( app_t *app)
 
 
   // sample off
-  app_trigger( app, false);
+  // app_trigger( app, false);
+  gpio_write( app->gpio_trigger, false);
+
 
   mode_reset( mode);
 
@@ -91,7 +94,7 @@ static void test( app_t *app)
   for(unsigned k = 1; k <= 10; ++k) {
 
     // sampling off
-    app_trigger( app, false);
+    gpio_write( app->gpio_trigger, false);
 
     // set nplc
     mode_aperture_set( mode, nplc_to_aperture( k, app->line_freq ));
@@ -102,7 +105,7 @@ static void test( app_t *app)
     app_msleep( app, 1000);
 
     // start sampling
-    app_trigger( app, true);
+    gpio_write( app->gpio_trigger, true);
 
 
     printf("nplc %u\n", k);
@@ -169,7 +172,7 @@ static void test( app_t *app)
     }
 
     // stop sampling
-    app_trigger( app, false);
+    gpio_write( app->gpio_trigger, false);
 
 
     double mean_   = mean(   values, ARRAY_SIZE(values));     // should prefix functions stats_mean ?

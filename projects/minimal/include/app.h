@@ -140,7 +140,7 @@ typedef struct app_t
 
   spi_t         *spi_mdac1;     // rename iso_sts_mdac?
 
-  gpio_t        *gpio_trigger_internal;
+  gpio_t        *gpio_trigger;
 
 
   /* trigger selection is just a regular device.
@@ -192,6 +192,13 @@ typedef struct app_t
   // not sure belongs here
   bool verbose;
 
+
+  // repl
+  bool          repl_trigger_pending;
+  bool          repl_trigger_value;
+
+
+
 } app_t;
 
 
@@ -225,7 +232,7 @@ void app_transition_state( app_t *app  /*, uint32_t update_flags */);
 
 void app_cal( app_t *app);
 
-void app_trigger( app_t *app, bool);    // internal. assumes source is internal
+// void app_trigger( app_t *app, bool);    // internal. assumes source is internal
 
 
 

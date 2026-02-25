@@ -194,7 +194,7 @@ void app_rdy_interrupt( app_t *app, interrupt_t *x) // runtime context
 
 
 
-
+#if 0
 
 void app_trigger( app_t *app, bool val)
 {
@@ -221,17 +221,17 @@ void app_trigger( app_t *app, bool val)
 
 #endif
 
-  gpio_write( app->gpio_trigger_internal, val);
+  gpio_write( app->gpio_trigger, val);
 
 }
-
+#endif
 
 
 #if 0
 
 void app_trigger_internal( app_t *app, bool val )
 {
-  gpio_write( app->gpio_trigger_internal, val);   // aug 2025.
+  gpio_write( app->gpio_trigger, val);   // aug 2025.
 
 }
 #endif
@@ -713,10 +713,9 @@ static void app_update_console(app_t *app)
     assert(ch >= 0);
 
 
-    if (ch == ';' || ch == '\r' )
-    {
-      // a separator, update state with changes according to string.
+    if (ch == ';' || ch == '\r' ) {
 
+      // a separator, update state with changes according to string.
       char *cmd = cstring_ptr(&app->command);
       cmd = str_trim_whitespace_inplace( cmd );
 
@@ -736,13 +735,14 @@ static void app_update_console(app_t *app)
       cstring_push_back(&app->command, ch);
       // echo to output. required for minicom.
       putchar( ch);
+
     } else {
 
-      // ignore overflow chars,
+      // ignore overflow chars
       printf("too many chars!!\n");
     }
 
-    // apply state change
+    // apply state changes
     if( ch == '\r')
     {
       // correct. update analog board state by calling transition_state(),
@@ -751,7 +751,20 @@ static void app_update_console(app_t *app)
       if( spi_ice40_cdone( app->spi_fpga0_pc))  {
 
         app_transition_state( app );
+      }
 
+      if( app->repl_trigger_pending) {
+
+        // clear for next time
+        app->repl_trigger_pending = false;
+
+        // let board state settle 
+        // consider removing in favour of doing this on the fpga
+        if(app->repl_trigger_value)
+          app_msleep( app, 100 );
+
+        // apply trigger value
+        gpio_write( app->gpio_trigger, app->repl_trigger_value);
       }
 
       // issue new prompt
@@ -760,7 +773,6 @@ static void app_update_console(app_t *app)
     }
   }   // while
 }
-
 
 
 /*
@@ -973,8 +985,8 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   // "h" for halt
   else if(strcmp(cmd, "halt") == 0 || strcmp(cmd, "h") == 0) {
 
-
-    app_trigger( app, 0);
+    app->repl_trigger_pending  = true;
+    app->repl_trigger_value = 0;
   }
   // "t" to trigger
   else if(strcmp(cmd, "trig") == 0 || strcmp(cmd, "t") == 0) {
@@ -983,8 +995,10 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     // because we want to clear the data buffer
     // No. I think the trigger. should not change or clear the data buff. it just starts the adc.
     */
+    // app_trigger( app, 1);
 
-    app_trigger( app, 1);
+    app->repl_trigger_pending  = true;
+    app->repl_trigger_value = 1;
   }
 
 
@@ -1610,7 +1624,7 @@ void app_update_simple_with_data(app_t *app)
   if( spi_ice40_cdone( app->spi_fpga0_pc)) {
     // toggle the trigger.
 
-    gpio_write( app->gpio_trigger_internal, app->led_state);
+    gpio_write( app->gpio_trigger, app->led_state);
   }
 #endif
 

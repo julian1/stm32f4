@@ -19,9 +19,10 @@
 #include <app.h>
 
 
-#include <lib2/util.h>    // msleep()
-
 #include <device/spi-fpga0-reg.h>  // modes
+#include <peripheral/gpio.h>        // trigger manipulation
+
+
 
 
 bool app_test09( app_t *app , const char *cmd)
@@ -63,12 +64,15 @@ bool app_test09( app_t *app , const char *cmd)
     sa->p_seq_elt[ 0].pc = 0b01;
 
 
-    // ok. so we need to encode the trigger.
-    app_trigger( app, 1);   // aug 2025.
-
 
     // spi_mode_transition_state( &app->devices, &mode, &app->system_millis);
     app_transition_state( app);
+
+
+    // ok. so we need to encode the trigger.
+    // app_trigger( app, 1);   // aug 2025.
+    gpio_write( app->gpio_trigger, 1);
+
 
     // printf("sleep 5s\n");  // really need the yield would be quite nice here.
     // msleep(5 * 1000,  &app->system_millis);
