@@ -48,6 +48,9 @@
 #include <mode.h>
 #include <app.h>
 #include <data/cal.h>
+#include <data/ranges.h>
+
+
 #include <data/data.h>
 #include <data/buffers.h>
 
@@ -399,14 +402,38 @@ static int main_f429(void)
   memset( b, 0, sizeof(a));
   memset( a, 0, sizeof(b));
 
-  cal_t         cal;
+
+  // pointer to array
+  app.ranges = init_range_values;
+
+
+/*
   cal_init( &cal, b, a, ARRAY_SIZE(b));
+  app.cal = &cal;
+*/
+
+  // structure just references state in app.
+  // and makes it eay to serialize/deserialize to flash
+  cal_t         cal;
+  cal_init(
+    &cal,
+    &app.cal_id,
+    &app.cal_w,
+    app.ranges
+  );
   app.cal = &cal;
 
 
 
   data_t        data;
-  data_init( &data, app.cal, app.spi_fpga0);
+  // data_init( &data, app.cal, app.spi_fpga0);
+  data_init(
+    &data,
+    app.spi_fpga0,
+    &app.cal_w,
+    app.ranges,
+    &app.range_idx
+  );
   app.data = & data;
 
 

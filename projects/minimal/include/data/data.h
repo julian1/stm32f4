@@ -12,6 +12,7 @@
 
 typedef struct cal_t cal_t;
 typedef struct spi_t spi_t;
+typedef struct range_t range_t;
 
 
 // consider move to data.c
@@ -20,10 +21,16 @@ typedef struct spi_t spi_t;
 
 typedef struct data_t
 {
-  uint32_t magic;
+  uint32_t    magic;
 
-  cal_t *cal;
-  spi_t *spi ;
+  spi_t       *spi ;
+
+
+  double      *cal_w;
+  range_t     *ranges;
+  unsigned    *range_idx;    // current active range
+
+
 
   // first reading
   bool  first;
@@ -50,7 +57,15 @@ typedef struct data_t
 
 
 
-void data_init( data_t *, cal_t * cal, spi_t *spi);
+
+// void data_init( data_t *, cal_t * cal, spi_t *spi);
+void data_init(
+  data_t    *data,
+  spi_t     *spi,
+  double    *cal_w,
+  range_t   *ranges,
+  unsigned *range_idx
+);
 
 
 bool data_repl_statement( data_t *data,  const char *cmd );

@@ -30,16 +30,21 @@
 #include <peripheral/gpio.h>        // trigger manipulation
 
 
-// #include <data/cal.h>
 #include <mode.h>
 #include <util.h> // nplc_to_aperture()
 #include <app.h>
 
 
+/*
+  simple test.
+
+  code should avoid using the range_t structure
+
+*/
 
 
 
-static void test2( app_t *app, double cal_w, double cal_7v1_b)
+static void display_some_data( app_t *app, double cal_w, double cal_7v1_b)
 {
   /*
     should be able to use data_t and data_update() to handle all this
@@ -61,9 +66,9 @@ static void test2( app_t *app, double cal_w, double cal_7v1_b)
   ////////////////////
 
 
-  // mode_ch2_set_ref( mode);
+  mode_ch2_set_ref( mode);
+  // mode_ch2_set_ref_lo( mode);
 
-  mode_ch2_set_ref_lo( mode);
   mode_az_set(mode, "ch2" );
 
   // set 10V.
@@ -131,7 +136,7 @@ static void test2( app_t *app, double cal_w, double cal_7v1_b)
 
       printf("v %f, ", v );
 
-      double v2 = v / clk_count_sigmux / cal_7v1_b * 7.1 ;  //  need to adjust for the cal voltage
+      double v2 = v / clk_count_sigmux * cal_7v1_b  ;
 
       printf( "v2 %s, ", str_format_float_with_commas(buf, 100, 9, v2));
       // printf("v2 %f, ", v2 );
@@ -201,11 +206,11 @@ static void test( app_t *app)
   // normal sample acquisition/adc operation
   mode_reg_cr_set( mode, MODE_SA_ADC);
 
-  // sample acquisition mode - for adc running standalone.  // REVIEW ME
+  // special sample acquisition mode - for adc running standalone.  // REVIEW ME
   mode_az_set(mode, "0" );
 
   // REVIWE should not need this....
-  mode_gain_set(mode, 1);
+  // mode_gain_set(mode, 1);
 
   // hold input to adc at lo. to reduce leakage.
   mode_ch2_set_ref_lo( mode);
@@ -389,12 +394,8 @@ static void test( app_t *app)
                 - ( (double) clk_count_refmux_pos_lo - (cal_w * clk_count_refmux_neg_lo));
 
         printf("v %f, ", v );
+        values[ i] = v / clk_count_sigmux;
 
-        // OK. we could incorporate the voltage target, here as well, if we wanted.
-
-        // eg. values[ i ] = 7.1 / ( v / clk_count_sigmux );
-
-        values[ i ] = v / clk_count_sigmux;
         // only increment on hi.
         ++i;
       }
@@ -423,7 +424,9 @@ static void test( app_t *app)
 
   printf( "b %.3f, ", b );
 
-  test2( app, cal_w, b);
+  printf("\n");
+
+  display_some_data( app, cal_w, b);
 
 
 

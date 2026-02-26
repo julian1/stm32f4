@@ -54,7 +54,11 @@ typedef struct gpio_t gpio_t;
 typedef struct spi_t spi_t;
 typedef struct spi_ice40_t spi_ice40_t;
 typedef struct interrupt_t interrupt_t;
+
+
 typedef struct cal_t cal_t;
+typedef struct range_t range_t;
+
 typedef struct _mode_t _mode_t;
 typedef struct data_t data_t;
 typedef struct buffers_t buffers_t;
@@ -182,7 +186,16 @@ typedef struct app_t
   // issue is that the tests code wants easy access
   uint32_t      line_freq;
 
-  cal_t         *cal;
+  unsigned      cal_id;
+  double        cal_w;
+
+
+  range_t       *ranges;      // better name
+  unsigned      range_idx;    // active range
+
+  ////////////
+
+  cal_t         *cal;     // array
 
   data_t        *data;
 
@@ -193,9 +206,12 @@ typedef struct app_t
   bool verbose;
 
 
-  // repl
+  // repl trigger behavior
   bool          repl_trigger_pending;
   bool          repl_trigger_value;
+
+
+
 
 
 

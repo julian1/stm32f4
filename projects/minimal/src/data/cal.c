@@ -31,6 +31,22 @@
 
 
 
+
+void cal_init( cal_t *cal, unsigned *id, double *w, range_t *ranges)
+{
+  assert(cal);
+  memset(cal, 0, sizeof(cal_t));
+
+  cal->magic = CAL_MAGIC;
+
+  cal->id  = id;
+  cal->w  = w;
+  cal->ranges = ranges;
+
+}
+
+
+#if 0
 void cal_init( cal_t *cal, double *b, double *a, size_t sz)
 {
   assert(cal);
@@ -43,6 +59,7 @@ void cal_init( cal_t *cal, double *b, double *a, size_t sz)
   cal->a = a;
 
 }
+#endif
 
 
 
