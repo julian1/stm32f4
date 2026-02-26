@@ -4,21 +4,19 @@
   fpga-pc   -  fpga pre bitstream configuration
 */
 
-#include <libopencm3/stm32/gpio.h>
-#include <libopencm3/stm32/spi.h>
-
 #include <stdio.h>
 #include <string.h>   // memset
 #include <assert.h>
 #include <stdlib.h>
 
 
-#include <support.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/spi.h>
 
 
 #include <peripheral/spi-ice40-pc.h>   // interface/abstraction
 #include <device/spi-fpga0-pc.h>        // implementation/device
-
+#include <device/support.h>
 
 
 #define UNUSED(x) ((void)(x))

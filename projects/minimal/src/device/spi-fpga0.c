@@ -2,21 +2,22 @@
 // fpga device after configuration
 
 
-#include <libopencm3/stm32/gpio.h>
-#include <libopencm3/stm32/spi.h>
-
 #include <stdio.h>
 #include <string.h>   // memset
 #include <assert.h>
 #include <stdlib.h>
 
 
-#include <support.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/spi.h>
+
+
 
 
 #include <peripheral/spi.h>           // interface/abstraction
 #include <device/spi-fpga0.h>         // implementation/device
 #include <device/spi-fpga0-reg.h>     // cs vec
+#include <device/support.h>
 
 
 

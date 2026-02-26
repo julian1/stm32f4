@@ -5,7 +5,7 @@
 #include <libopencm3/stm32/spi.h>
 #include <libopencm3/cm3/scb.h>  // reset()
 
-#include <support.h>
+#include <device/support.h>
 
 
 /*

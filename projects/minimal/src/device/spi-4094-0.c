@@ -1,23 +1,22 @@
 
 
-#include <libopencm3/stm32/gpio.h>
-#include <libopencm3/stm32/spi.h>
-
-
 #include <stdio.h>
 #include <string.h>   // memset
 #include <assert.h>
 #include <stdlib.h>
 
 
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/spi.h>
+
+
 
 #include <peripheral/spi.h>
-#include <support.h>    // spi_wait_ready().  should perhaps move to spi.  no. because it's an peripheral abstraction
 
 
 #include <device/spi-4094-0.h>
 #include <device/spi-fpga0-reg.h>   // cs vec
-
+#include <device/support.h>
 
 
 

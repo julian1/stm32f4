@@ -9,8 +9,7 @@
 BINARY		= main
 
 
-SRCFILES	= src/support.c \
-            src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
+SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/peripheral/spi-4094.c src/peripheral/spi-dac8811.c src/peripheral/spi-ad5446.c \
             src/peripheral/vfd.c \
             src/peripheral/interrupt.c \
@@ -22,6 +21,7 @@ SRCFILES	= src/support.c \
             src/device/spi-4094-0.c \
             src/device/gpio-status-led.c src/device/gpio-trigger-internal.c src/device/gpio-trigger-selection.c \
             src/device/interrupt-fpga0.c \
+            src/device/support.c \
             src/main.c  \
             src/app.c  \
             src/syscalls.o \

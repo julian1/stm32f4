@@ -2,21 +2,24 @@
 // should move to /device - because instance/implementation?
 
 
-#include <libopencm3/stm32/gpio.h>
-#include <libopencm3/stm32/spi.h>
 
 #include <string.h>   // memset
 #include <assert.h>
 #include <stdlib.h>
 
 
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/spi.h>
 
 
-#include <support.h>      // spi_wait_ready(), write_val();
 
-#include <peripheral/spi-ice40-pc.h>   // interface/abstraction
+#include <peripheral/spi-ice40-pc.h>    // interface/abstraction
 
-#include <device/spi-fpga1.h>        // implementation/device
+#include <device/spi-fpga1.h>           // implementation/device
+#include <device/support.h>             // spi_wait_ready(), write_val();
+
+
+
 
 #define UNUSED(x) ((void)(x))
 

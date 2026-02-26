@@ -7,8 +7,6 @@
 
 */
 
-#include <libopencm3/stm32/gpio.h>
-#include <libopencm3/stm32/spi.h>
 
 #include <stdio.h>
 #include <string.h>   // memset
@@ -16,11 +14,20 @@
 #include <stdlib.h>   // malloc
 
 
+
+
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/spi.h>
+
+
 #include <peripheral/spi.h>
-#include <support.h>      // spi_wait_read()
+
 
 #include <device/spi-mdac1.h>
 #include <device/spi-fpga0-reg.h>   // cs vec
+#include <device/support.h>      // spi_wait_read()
+
+
 
 
 #define MDAC1_MAGIC 1898851674

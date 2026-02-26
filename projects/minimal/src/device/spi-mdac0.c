@@ -1,19 +1,22 @@
 
 
-#include <libopencm3/stm32/gpio.h>
-#include <libopencm3/stm32/spi.h>
-
 #include <stdio.h>
 #include <string.h>   // memset
 #include <assert.h>
 #include <stdlib.h>   // malloc
 
 
+
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/spi.h>
+
+
 #include <peripheral/spi.h>
-#include <support.h>      // spi_wait_read()
+
 
 #include <device/spi-mdac0.h>
 #include <device/spi-fpga0-reg.h>   // cs vec
+#include <device/support.h>      // spi_wait_read()
 
 
 

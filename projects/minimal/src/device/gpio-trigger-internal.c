@@ -6,12 +6,11 @@
 #include <stdlib.h>  // malloc
 
 
-#include <support.h>     // gpio_write_val()
-
 #include <libopencm3/stm32/gpio.h>
 
 
 #include <device/gpio-trigger-internal.h>
+#include <device/support.h>     // gpio_write_val()
 
 
 

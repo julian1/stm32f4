@@ -28,9 +28,9 @@
 // TODO device code should not be here
 #include <device/fsmc.h>      // this should removee. ?  setup should be in main()
 
+#include <device/support.h>    // mcu_reset, print_stack_pointer
 
-#include <support.h>    // mcu_reset
-#include <util.h> // str_decode_uint
+#include <util.h>       // str_decode_uint
 
 
 
