@@ -1144,10 +1144,8 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
   else if( strcmp(cmd, "dcv ref") == 0) {
 
-    // EXTR.   may be able to move all the range code
-    // straight into mode
-    // OK. very intereesting
-    // do we call transition state here...
+    // could add function mode_set_range()
+    // NO. because do not want the concept of a range in any mode code.
 
     // update the range idx.
     app->range_idx = DCV_10_REF;

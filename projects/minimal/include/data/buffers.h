@@ -45,6 +45,12 @@ typedef struct buffers_t
   size_t i;       // next index/ modulus
   size_t size;    // number of elements present
 
+
+  double mean;
+  double stddev;
+  double min, max;
+
+
   bool show_buffers;
 
   bool show;

@@ -109,14 +109,14 @@ void buffers_update( buffers_t *buffers)
     buffers->size = MIN( buffers->size  + 1, buffers->n) ;
 
 
-    double values_mean   = mean(   buffers->values, buffers->size);
-    double values_stddev = stddev( buffers->values, buffers->size);
+    buffers->mean   = mean(   buffers->values, buffers->size);
+    buffers->stddev = stddev( buffers->values, buffers->size);
 
     char buf[100 + 1];
 
     // printf( "(n %u) ", buffers->size);
-    printf( "mean   %s, ", str_format_float_with_commas(buf, 100, 8, values_mean));
-    printf( "stddev %s, ", str_format_float_with_commas(buf, 100, 8, values_stddev));
+    printf( "mean   %s, ", str_format_float_with_commas(buf, 100, 8, buffers->mean));
+    printf( "stddev %s, ", str_format_float_with_commas(buf, 100, 8, buffers->stddev));
 
   }
 
