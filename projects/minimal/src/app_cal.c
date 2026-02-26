@@ -176,7 +176,7 @@ static void test2( app_t *app, double cal_w, double cal_7v1_b)
 
 
 
-static void cal_dcv10( app_t *app)
+static void cal_dcv10_nom( app_t *app)
 {
 
 /*
@@ -467,7 +467,7 @@ bool app_cal( app_t *app, const char *cmd)
 
     printf("cal()\n");
 
-    cal_dcv10( app);
+    cal_dcv10_nom( app);
     return 1;
   }
 

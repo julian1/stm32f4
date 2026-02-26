@@ -11,6 +11,6 @@
 // the arrays should reference from app.
 // although the cal values ....
 
-
+// arrays for   b, a,  name, unit,    and perhaps to put the mode into position.
 
 
