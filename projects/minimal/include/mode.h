@@ -324,7 +324,11 @@ typedef struct _mode_t
 
   adc_state_t  adc;
 
-  bool         trigger_source;     // stm32. state
+  bool         trigger_source;     // digital board state
+
+
+  // consider injecting this from app...
+  // bool        _10Meg_meg_impedance;
 
 } _mode_t ;
 
@@ -334,7 +338,20 @@ void mode_init(_mode_t *mode);
 void mode_reset(_mode_t *mode);
 
 
-bool mode_repl_statement( _mode_t *mode,  const char *cmd, const uint32_t line_freq);
+
+/*
+  this is looking a bit complicated.
+  having the mode update the uuuuuuuuuuuuuuuuuu
+
+*/
+typedef struct range_t range_t;
+
+// bool mode_repl_statement( _mode_t *mode,  const char *cmd, const uint32_t line_freq);
+bool mode_repl_statement(
+  _mode_t     *mode,
+  const char  *cmd,
+  const uint32_t line_freq
+);
 
 
 

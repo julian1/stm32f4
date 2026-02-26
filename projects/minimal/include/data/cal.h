@@ -9,6 +9,16 @@
 #define CAL_MAGIC 9999123
 
 
+/*
+  structure used for reading and writing to flash.
+  It is not exposed/passed to cal routing or data.c etc.
+
+
+
+*/
+
+
+typedef struct range_t range_t;
 
 typedef struct cal_t
 {
@@ -21,25 +31,31 @@ typedef struct cal_t
   */
 
   // referenceable name
-  unsigned id;
+  unsigned *id;
+
+  // date.
 
 
-  // TODO better name w_neg
-  double w;
+  double    *w;     // pointer to &app->cal_w
+
+  range_t   *ranges;    // same as app->ranges
+
+
 
   ///////////////////////
 
-
+/*
   size_t  sz;
   double  *b;
   double  *a;
-
+*/
 
 } cal_t;
 
 
 
-void cal_init( cal_t *cal, double *b, double *a, size_t sz);
+// void cal_init( cal_t *cal, double *b, double *a, size_t sz);
+void cal_init( cal_t *cal, unsigned *id, double *w, range_t *ranges);
 
 bool cal_flash_repl_statement( cal_t *cal, const char *cmd);
 

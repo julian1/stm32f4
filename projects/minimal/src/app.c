@@ -39,6 +39,7 @@
 // #include <data/cal.h>
 #include <data/data.h>
 #include <data/buffers.h>
+#include <data/ranges.h>
 
 #include <vfd.h>
 
@@ -1139,7 +1140,32 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
 
 
+
+
+  else if( strcmp(cmd, "dcv ref") == 0) {
+
+    // EXTR.   may be able to move all the range code
+    // straight into mode
+    // OK. very intereesting
+    // do we call transition state here...
+
+    // update the range idx.
+    app->range_idx = DCV_10_REF;
+
+    range_t *range = &app->ranges[  DCV_10_REF ];
+
+    // update the mode
+    range->f(  app->mode );
+
+  }
+
+
+
+
+#if 0
   else if( strcmp(cmd, "dcv") == 0) {
+
+    assert(0);
 
 /*
     code cannot be put in mode, because needs app_repl parsing.
@@ -1154,9 +1180,10 @@ bool app_repl_statement(app_t *app,  const char *cmd)
       " );
 
   }
+#endif
 
 
-  else if( mode_repl_statement( app->mode,  cmd, app->line_freq )) { }
+  else if( mode_repl_statement( app->mode, /*app->ranges, app->range_idx,*/ cmd, app->line_freq )) { }
 
   else if( data_repl_statement( app->data, cmd )) { }
 

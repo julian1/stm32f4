@@ -42,7 +42,7 @@
 
 
 
-static void test2( app_t *app, double cal_w, double cal_7v1_b)
+static void display_some_data( app_t *app )
 {
   /*
     should be able to use data_t and data_update() to handle all this
@@ -57,6 +57,10 @@ static void test2( app_t *app, double cal_w, double cal_7v1_b)
   spi_t *spi = app->spi_fpga0;
   assert(spi);
 
+  range_t *range = &app->ranges[  app->range_idx ];
+  assert( range);
+
+
 
   char buf[100 + 1];
 
@@ -64,9 +68,9 @@ static void test2( app_t *app, double cal_w, double cal_7v1_b)
   ////////////////////
 
 
-  // mode_ch2_set_ref( mode);
+  mode_ch2_set_ref( mode);
 
-  mode_ch2_set_ref_lo( mode);
+  // mode_ch2_set_ref_lo( mode);
   mode_az_set(mode, "ch2" );
 
   // set 10V.
@@ -129,12 +133,13 @@ static void test2( app_t *app, double cal_w, double cal_7v1_b)
     }
     else if (status.sample_idx == 1) {
       // hi
-      double v = ((double) clk_count_refmux_pos    - (cal_w * clk_count_refmux_neg))
-              - ( (double) clk_count_refmux_pos_lo - (cal_w * clk_count_refmux_neg_lo));
+      double v = ((double) clk_count_refmux_pos    - (app->cal_w * clk_count_refmux_neg))
+              - ( (double) clk_count_refmux_pos_lo - (app->cal_w * clk_count_refmux_neg_lo));
 
       printf("v %f, ", v );
 
-      double v2 = v / clk_count_sigmux / cal_7v1_b * 7.1 ;  //  need to adjust for the cal voltage
+
+      double v2 = v / clk_count_sigmux * range->b /*cal_7v1_b */ ;
 
       printf( "v2 %s, ", str_format_float_with_commas(buf, 100, 9, v2));
       // printf("v2 %f, ", v2 );
@@ -189,9 +194,11 @@ static void cal_dcv10_nom( app_t *app)
   assert(mode);
   assert(mode->magic == MODE_MAGIC);
 
+/*
   cal_t *cal = app->cal;
   assert(cal);
   assert(cal->magic == CAL_MAGIC);
+*/
 
   spi_t *spi = app->spi_fpga0;
   assert(spi);
@@ -207,11 +214,11 @@ static void cal_dcv10_nom( app_t *app)
   // normal sample acquisition/adc operation
   mode_reg_cr_set( mode, MODE_SA_ADC);
 
-  // sample acquisition mode - for adc running standalone.  // REVIEW ME
+  // special sample acquisition mode - for adc running standalone.  // REVIEW ME
   mode_az_set(mode, "0" );
 
   // REVIWE should not need this....
-  mode_gain_set(mode, 1);
+  // mode_gain_set(mode, 1);
 
   // hold input to adc at lo. to reduce leakage.
   mode_ch2_set_ref_lo( mode);
@@ -306,11 +313,11 @@ static void cal_dcv10_nom( app_t *app)
   printf("\n");
 
   // cal_w
-  double cal_w = pos_mean / neg_mean;
-  assert( cal_w);
+  app->cal_w = pos_mean / neg_mean;
+  assert( app->cal_w);
 
   // printf(" w %.8f, ", w );
-  printf( "cal_w %s\n", str_format_float_with_commas(buf, 100, 9, cal_w));
+  printf( "cal_w %s\n", str_format_float_with_commas(buf, 100, 9, app->cal_w));
 
 
 
@@ -391,16 +398,12 @@ static void cal_dcv10_nom( app_t *app)
       }
       else if (status.sample_idx == 1) {
         // hi
-        double v = ((double) clk_count_refmux_pos    - (cal_w * clk_count_refmux_neg))
-                - ( (double) clk_count_refmux_pos_lo - (cal_w * clk_count_refmux_neg_lo));
+        double v = ((double) clk_count_refmux_pos    - (app->cal_w * clk_count_refmux_neg))
+                - ( (double) clk_count_refmux_pos_lo - (app->cal_w * clk_count_refmux_neg_lo));
 
         printf("v %f, ", v );
+        values[ i] = v / clk_count_sigmux;
 
-        // OK. we could incorporate the voltage target, here as well, if we wanted.
-
-        // eg. values[ i ] = 7.1 / ( v / clk_count_sigmux );
-
-        values[ i ] = v / clk_count_sigmux;
         // only increment on hi.
         ++i;
       }
@@ -423,20 +426,32 @@ static void cal_dcv10_nom( app_t *app)
 
 
 
-  cal->b[ DCV10_NOM ] = 7.0 / mean( values, ARRAY_SIZE(values));
-  cal->a[ DCV10_NOM ] = 0;
+  // set app range.
+  app->range_idx = DCV_10_REF;
 
-  printf( "cal->b[ DCV10_NOM ] %.3f, ", cal->b[ DCV10 ] );
+  range_t *range = &app->ranges[  app->range_idx ];
+  assert( range);
+
+  // could call transition state... here...
 
 
+  // update range coeffs
+  range->b = 7.0 / mean( values, ARRAY_SIZE(values));
+  range->a = 0;
 
-  test2( app, cal_w, cal->b[ DCV10 ] );
+  printf( "name= %s  b=%.3f, a=%.3f", range->name,  range->b, range->a );
+  printf("\n");
+
+
+  display_some_data( app);
 
 
 
   ////////////////////////
 
   // switch back to direct mode operation
+  // why???
+  // why not stay in the mode we used for cal
   mode_reg_cr_set( mode, MODE_DIRECT);
 
   app_transition_state( app);

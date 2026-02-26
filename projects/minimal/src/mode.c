@@ -80,16 +80,15 @@ static const _mode_t mode_initial =  {
 
   .trigger_source = 1,   // internal trigger active
 
-  // adc
-  .adc.p_aperture     = CLK_FREQ * 0.2,   // 200ms. 10nplc 50Hz.  // Not. should use current calibration?  // should be authoritative source of state.
-  .adc.p_reset        = CLK_FREQ * 500e-6,                // 500us.
+  // default adc
+  .adc.p_aperture     = CLK_FREQ * 0.2,             // 200ms. 10nplc 50Hz.  // Not. should use current calibration?  // should be authoritative source of state.
+  .adc.p_reset        = CLK_FREQ * 500e-6,          // 500us.
 
 
 
   .reg_cr.mode = 0,
 
-  // eg turn sigmux on, during integration.
-  // encode in general register, since only one bit, and to avoid an extra register
+  // eg sigmux should be on during normal integration.
   .reg_cr.adc_p_active_sigmux  = true
 
 };
@@ -875,9 +874,14 @@ void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
 
 #endif
 
+// bool mode_repl_statement( _mode_t *mode,  ranges_t *ranges, const char *cmd, const uint32_t line_freq )
 
+bool mode_repl_statement( 
+  _mode_t     *mode,  
+  const char  *cmd, 
+  const uint32_t line_freq 
+)
 
-bool mode_repl_statement( _mode_t *mode,  const char *cmd, const uint32_t line_freq )
 {
 
   char s0[ 100 + 1];
@@ -902,6 +906,7 @@ bool mode_repl_statement( _mode_t *mode,  const char *cmd, const uint32_t line_f
     // reset the mode.
     mode_reset( mode);
   }
+
 
 
 
