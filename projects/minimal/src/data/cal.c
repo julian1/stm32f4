@@ -21,45 +21,32 @@
 
 
 
-// mar 2024.
-// see link/f413rgt6.ld
-// #  7: 0x00060000 (0x20000 128kB) not protected
-// # 11: 0x000e0000 (0x20000 128kB) not protected
-#define FLASH_SECT_ADDR   0x080e0000
-#define FLASH_SECT_NUM    11
 
 
+void cal_init(
+  cal_t     *cal,
 
+  uint32_t  flash_sect_addr,
+  uint8_t   flash_sect_num,
 
-
-void cal_init( cal_t *cal, unsigned *id, double *w, range_t *ranges)
-{
+  unsigned  *id,
+  double    *w,
+  range_t   *ranges
+) {
   assert(cal);
   memset(cal, 0, sizeof(cal_t));
 
   cal->magic = CAL_MAGIC;
+
+  cal->flash_sect_addr = flash_sect_addr;
+  cal->flash_sect_num = flash_sect_num;
 
   cal->id  = id;
   cal->w  = w;
   cal->ranges = ranges;
-
 }
 
 
-#if 0
-void cal_init( cal_t *cal, double *b, double *a, size_t sz)
-{
-  assert(cal);
-  memset(cal, 0, sizeof(cal_t));
-
-  cal->magic = CAL_MAGIC;
-
-  cal->sz = sz;
-  cal->b = b;
-  cal->a = a;
-
-}
-#endif
 
 
 
@@ -197,7 +184,7 @@ bool cal_flash_repl_statement( cal_t *cal, const char *cmd)
     // fflush(stdout);
 
 
-    flash_erase_sector_( FLASH_SECT_NUM );
+    flash_erase_sector_( cal->flash_sect_num /*FLASH_SECT_NUM */ );
     printf("done erase\n");
     return 1;
   }
@@ -220,7 +207,7 @@ bool cal_flash_repl_statement( cal_t *cal, const char *cmd)
     printf("flash unlock\n");
     flash_unlock();
 
-    FILE *f = flash_open_file( FLASH_SECT_ADDR );
+    FILE *f = flash_open_file( cal->flash_sect_addr /*FLASH_SECT_ADDR */);
     file_blob_skip_end( f);
     // use callback to write the block.
     file_blob_write( f,  (void (*)(FILE *, blob_header_t *, void *)) handler_write_cal, cal /*cal->model_b */);
@@ -248,7 +235,7 @@ bool cal_flash_repl_statement( cal_t *cal, const char *cmd)
 
     printf("flash unlock\n");
     flash_unlock();
-    FILE *f = flash_open_file( FLASH_SECT_ADDR );
+    FILE *f = flash_open_file( cal->flash_sect_addr /*FLASH_SECT_ADDR */);
     file_blobs_scan( f,  (void (*)( FILE *, blob_header_t *, void *))  handler_scan_cal , cal ); // note passing cal here.
     fclose(f);
 
@@ -263,4 +250,18 @@ bool cal_flash_repl_statement( cal_t *cal, const char *cmd)
 
 }
 
+#if 0
+void cal_init( cal_t *cal, double *b, double *a, size_t sz)
+{
+  assert(cal);
+  memset(cal, 0, sizeof(cal_t));
+
+  cal->magic = CAL_MAGIC;
+
+  cal->sz = sz;
+  cal->b = b;
+  cal->a = a;
+
+}
+#endif
 

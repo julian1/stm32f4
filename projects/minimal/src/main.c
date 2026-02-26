@@ -57,6 +57,18 @@
 
 
 
+// the flash addresses used for cal. should be defined here, and passed as dependencies
+
+
+// mar 2024.
+// see link/f413rgt6.ld
+// #  7: 0x00060000 (0x20000 128kB) not protected
+// # 11: 0x000e0000 (0x20000 128kB) not protected
+#define FLASH_SECT_ADDR   0x080e0000                  // uint32_t
+#define FLASH_SECT_NUM    11                          // uint8_t
+
+
+
 
 
 // this all looks ok. to me.
@@ -415,6 +427,8 @@ static int main_f429(void)
   cal_t         cal;
   cal_init(
     &cal,
+    FLASH_SECT_ADDR,
+    FLASH_SECT_NUM,
     &app.cal_id,
     &app.cal_w,
     app.ranges

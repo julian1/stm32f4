@@ -52,16 +52,14 @@
 // last 128 . on 512k.
 // this be declared in /periphal  perhaps. it's an arch/build dependency
 
+// actually should be declared in main.c
+
 #define FLASH_U202_ADDR   0x08060000
 #define FLASH_UP5K_SIZE  104090           // fits in one sect.
 
 // analog board.
 #define FLASH_U102_ADDR   0x08080000
 #define FLASH_HX8K_SIZE   135100          // needs two sect
-
-
-// TODO the flash addresses used for cal. should be defined here.
-// and then passed down as a dependency
 
 
 

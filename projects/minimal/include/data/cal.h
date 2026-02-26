@@ -30,6 +30,9 @@ typedef struct cal_t
     - except can be used to encode model representatino if have two models with same number of coefficients
   */
 
+  uint32_t  flash_sect_addr;
+  uint8_t   flash_sect_num;
+
   // referenceable name
   unsigned *id;
 
@@ -55,7 +58,19 @@ typedef struct cal_t
 
 
 // void cal_init( cal_t *cal, double *b, double *a, size_t sz);
-void cal_init( cal_t *cal, unsigned *id, double *w, range_t *ranges);
+// void cal_init( cal_t *cal, unsigned *id, double *w, range_t *ranges);
+
+void cal_init(
+  cal_t     *cal,
+
+  uint32_t  flash_sect_addr,
+  uint8_t   flash_sect_num,
+
+  unsigned  *id,
+  double    *w,
+  range_t   *ranges
+);
+
 
 bool cal_flash_repl_statement( cal_t *cal, const char *cmd);
 
