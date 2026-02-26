@@ -449,10 +449,10 @@ static void cal_dcv10_nom( app_t *app)
 
 /*
   function should have a different name/repl
-
   cal dcv10 nominal
-
   or something.
+
+  no. it is nominal because it is internal.
 */
 
 
