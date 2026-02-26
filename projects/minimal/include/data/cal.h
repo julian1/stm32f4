@@ -39,7 +39,7 @@ typedef struct cal_t
   // date.
 
 
-  double    *w;     // pointer to &app->cal_w
+  double    *w;         // same as &app->cal_w
 
   range_t   *ranges;    // same as app->ranges
 

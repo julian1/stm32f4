@@ -102,7 +102,7 @@
 typedef struct _4094_state_t
 {
 
-  // U401
+  // U401 conditioning
   uint8_t K404  : 2;
   uint8_t K403  : 2;
   uint8_t K405  : 2;
@@ -127,7 +127,7 @@ typedef struct _4094_state_t
   // U510
   uint8_t       : 4;
   uint8_t U506  : 4;    // adg1208.
-  // uint8_t       : 1;
+
 
   // from amplifier
   // u421
@@ -138,16 +138,16 @@ typedef struct _4094_state_t
   /////////
 
 
-  // u1004
+  // u1004 LTS
   uint8_t U1003 : 4;      // 4 bit mux.
   uint8_t U1012 : 4;      //
 
-  // u1008
+  // u1008 DAQ/STS
   uint8_t U1009 : 4;
   uint8_t U1010 : 4;
 
 
-  // u606
+  // u606 OHMS
   uint8_t U605  : 4;
   uint8_t U610  : 3;
   uint8_t       : 1;
@@ -161,7 +161,7 @@ typedef struct _4094_state_t
 
 
 
-  // u713
+  // u713 AMPS
   uint8_t K701  : 2;
   uint8_t K704  : 2;
   uint8_t K707  : 2;
@@ -292,14 +292,11 @@ typedef struct _mode_t
 
   adc_state_t  adc;
 
-  bool         trigger_source;     // digital board state
+
+  // 1 == internal trigger (mcu) active
+  bool         trigger_source;
 
 
-  // could inject on creation - from app  or just set
-  // No. should not need.
-  // bool        _10Meg_meg_impedance;
-
-  // in one sense, trig. is board state. that is not written.
 
 } _mode_t ;
 
@@ -356,6 +353,19 @@ void mode_ch1_set_dcv_source(_mode_t *mode);    // change name lts eg.  using in
 
 // ch2
 void mode_ch2_reset(_mode_t *mode);
+
+
+/*
+  not sure we need all these setters/accessors.
+  instead just use the range mechanicm as the starting point
+  keep in mind daq. does not have 100 and 1000V. etc.
+  temp has one range,
+  internal ref has one range
+
+  resistance / diode - can use ordinary DCV ranges. with cal.
+  Not. sure. the cal values may be the same..
+
+*/
 
 // We would have ranges for each of these - eg. 10,1,0.1.
 // because need to control appropriate amplifier gain.

@@ -1,23 +1,24 @@
 
 
 
-#include <stdio.h>    // printf, scanf
-#include <string.h>   // strcmp
+#include <stdio.h>      // printf, scanf
+#include <string.h>     // memset
 #include <assert.h>
-#include <malloc.h> // malloc_stats()
+#include <malloc.h>     // malloc_stats()
+#include <strings.h>    // strcasecmp
 
 
 
 
-#include <lib2/util.h>   // msleep(), UNUSED, print_stack_pointer()
-#include <lib2/format.h>   // trim_whitespace()  format_bits()
+#include <lib2/util.h>        // UNUSED
+#include <lib2/format.h>      // str_format_bits()
 #include <lib2/stream-flash.h>
 
 
 #include <peripheral/spi-ice40.h>
 #include <peripheral/spi-4094.h>
 #include <peripheral/spi-ice40-pc.h>
-#include <peripheral/spi-dac8811.h>
+// #include <peripheral/spi-dac8811.h>
 #include <peripheral/spi-ad5446.h>
 #include <peripheral/gpio.h>
 #include <peripheral/interrupt.h>
@@ -27,10 +28,8 @@
 
 // TODO device code should not be here
 #include <device/fsmc.h>      // this should removee. ?  setup should be in main()
-
 #include <device/support.h>    // mcu_reset, print_stack_pointer
-
-#include <util.h>       // str_decode_uint
+#include <util.h>             // str_decode_uint
 
 
 
@@ -48,11 +47,13 @@
 
 
 
-
+/*
 // last 128 . on 512k.
 // this be declared in /periphal  perhaps. it's an arch/build dependency
 
-// actually should be declared in main.c
+  actually should be declared in main.c
+  which is where dependencies for app are created
+*/
 
 #define FLASH_U202_ADDR   0x08060000
 #define FLASH_UP5K_SIZE  104090           // fits in one sect.
@@ -935,7 +936,60 @@ bool app_repl_statement(app_t *app,  const char *cmd)
   ////////////////////
 
 
-  if(strcmp(cmd, "") == 0) {
+
+  // we need a looping structure to pick out the ranges.
+
+
+  bool got_range = false;
+
+
+
+  for( unsigned i = 0; i < MAX_RANGE; ++i )  {
+
+    range_t *range = &app->ranges[ i];
+
+    assert( range->id == i || range->id == 0);
+
+    if(range->name) {
+
+      printf("%u %u %s", i, range->id ,  range->name);
+
+      if( strcasecmp(cmd, range->name) == 0) {
+
+        printf("*");
+        app->range_idx = i;
+
+        // update the mode
+        range->f(  app->mode, app->_10meg_impedance );
+        got_range = true;
+        break;
+      }
+      printf("\n");
+    }
+  }
+
+#if 0
+  else if( strcmp(cmd, "dcv ref") == 0) {
+
+
+    // could add function mode_set_range()
+    // NO. because do not want the concept of a range in any mode code.
+
+    // update the range idx.
+    app->range_idx = DCV_REF;
+
+    range_t *range = &app->ranges[  DCV_REF ];
+
+    // update the mode
+    range->f(  app->mode, app->_10meg_impedance );
+
+  }
+#endif
+
+
+  if( got_range ) { }
+
+  else if(strcmp(cmd, "") == 0) {
     // ignore
     printf("empty\n" );
   }
@@ -1141,24 +1195,6 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
   ///////////////////////
 
-
-
-
-
-  else if( strcmp(cmd, "dcv ref") == 0) {
-
-    // could add function mode_set_range()
-    // NO. because do not want the concept of a range in any mode code.
-
-    // update the range idx.
-    app->range_idx = DCV_10_REF;
-
-    range_t *range = &app->ranges[  DCV_10_REF ];
-
-    // update the mode
-    range->f(  app->mode );
-
-  }
 
 
 

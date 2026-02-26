@@ -4,35 +4,54 @@
 
 
 // DCV_INITIAL
-#define DCV_10_REF   0          // non derived
-#define DCV_10       1          // with b + a - for thermal EMF.
-#define DCV_1        2           // derived
-#define DCV_01       3           // 100mV
+#define DCV_REF    0          // non derived
+#define DCV_10        1          // with b + a - for thermal EMF.
+#define DCV_1         2           // derived
+#define DCV_01        3           // 100mV
+#define DCV_001       4           // 100mV
+#define DCV_100       5           // 100mV
+#define DCV_1000      6           // 100mV
+#define TEMP_          7           // single range
 
-#define MAX_RANGE   20
+#define MAX_RANGE     20
 
-// the arrays should reference from app.
-// although the cal values ....
 
-// arrays for   b, a,  name, unit,    and perhaps to put the mode into position.
+/*
+  the arrays should reference from app.
+  although the cal values ....
 
+  arrays for   b, a,  name, unit,    and perhaps to put the mode into position.
+
+*/
 
 typedef struct _mode_t _mode_t;
 
 
 typedef struct range_t
 {
+  unsigned  id;     // same as index in range_t [] array
 
   // const char *repl_name;
   const char *name;         // for repl and display
   const char *unit;
 
-  void (*f)( _mode_t *);
+  ///////////////////
+
+  /*
+      should we pass the 10meg. impedance state here...
+      i think it would be better.
+      mode represents spi writable state.
+  */
+  void (*f)( _mode_t *, bool _10meg_impedance);
+
+  ///////////////////
 
   // cal coeffs.  as experiment. instead of using a separate structure
+  // the amplifier  gain. should be included in b.
   double b;
-  double a;
 
+  // thermal EMF.
+  double a;
 
 } range_t;
 

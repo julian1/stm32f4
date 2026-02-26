@@ -67,7 +67,7 @@ static const _mode_t mode_initial =  {
   */
 
 
-  .trigger_source = 1,   // internal trigger active
+  .trigger_source = 1,   // set internal trigger active
 
   // default adc
   .adc.p_aperture     = CLK_FREQ * 0.2,             // 200ms. 10nplc 50Hz.  // Not. should use current calibration?  // should be authoritative source of state.

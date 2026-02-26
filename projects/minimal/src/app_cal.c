@@ -424,7 +424,7 @@ static void cal_dcv10_nom( app_t *app)
 
 
   // set app range.
-  app->range_idx = DCV_10_REF;
+  app->range_idx = DCV_REF;
 
   range_t *range = &app->ranges[  app->range_idx ];
   assert( range);
