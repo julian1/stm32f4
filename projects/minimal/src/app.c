@@ -60,6 +60,11 @@
 #define FLASH_HX8K_SIZE   135100          // needs two sect
 
 
+// TODO the flash addresses used for cal. should be defined here.
+// and then passed down as a dependency
+
+
+
 
 // fix me - forward declaration should be from header.
 int flash_lzo_test(void);
