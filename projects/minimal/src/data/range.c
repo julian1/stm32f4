@@ -1,11 +1,12 @@
 
 #include <stddef.h>
 
-#include <data/ranges.h>
 #include <mode.h>
+#include <data/range.h>
+
+
 
 // arrays for   b, a,  name, unit,    and perhaps to put the mode into position.
-
 
 
 // are we going to use a static initializer

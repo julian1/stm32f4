@@ -30,14 +30,11 @@
 #include <peripheral/spi-ice40.h>
 #include <peripheral/gpio.h>        // trigger manipulation
 
-
-#include <data/cal.h>
-#include <data/ranges.h>
-
-#include <mode.h>
-#include <util.h> // nplc_to_aperture()
 #include <app.h>
+#include <util.h> // nplc_to_aperture()
+#include <mode.h>
 
+#include <data/range.h>
 
 
 
