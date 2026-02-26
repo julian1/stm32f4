@@ -3,6 +3,7 @@
 #pragma once
 
 
+// DCV_INITIAL
 #define DCV_10_REF   0          // non derived
 #define DCV_10       1          // with b + a - for thermal EMF.
 #define DCV_1        2           // derived
