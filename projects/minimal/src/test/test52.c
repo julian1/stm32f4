@@ -121,8 +121,8 @@ static void display_some_data( app_t *app, double cal_w, double cal_7v1_b)
     uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
     uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
 
-    printf("first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
-    printf("counts pos %7lu neg %7lu, sigmux %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg, clk_count_sigmux);
+    printf( "first=%u idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
+    printf( "counts pos %7lu neg %7lu sig %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg, clk_count_sigmux);
 
     if(status.sample_idx == 0) {
       // lo - record counts
@@ -278,8 +278,9 @@ static void test( app_t *app)
     uint32_t clk_count_refmux_neg   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
     uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
 
-    printf("first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
-    printf("counts pos %7lu neg %7lu, sig %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg, clk_count_sigmux);
+    printf( "first=%u idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
+    printf( "counts pos %7lu neg %7lu sig %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg, clk_count_sigmux);
+
 
     pos_values[i] = clk_count_refmux_pos;
     neg_values[i] = clk_count_refmux_neg;
