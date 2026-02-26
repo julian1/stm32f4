@@ -26,15 +26,6 @@
 
 
 
-/*
-  we may need to pass down line_freq.  from app.
-
-
-*/
-
-
-// data_t * data_new( cal_t * cal, spi_t *spi  )
-// void data_init( data_t *data, cal_t *cal, spi_t *spi)
 
 void data_init(
   data_t    *data,
@@ -75,11 +66,14 @@ void data_update( data_t *data )
   assert( data);
   assert( data->magic == DATA_MAGIC);
 
-/*
-  cal_t *cal = data->cal;
-  assert(cal);
-  assert(cal->magic == CAL_MAGIC);
-*/
+  assert( data->cal_w);
+  double cal_w = *data->cal_w;
+
+  range_t *range = &data->ranges[ *data->range_idx ];
+  assert(range);
+
+
+
   char buf[100 + 1];
 
   // could actually pass this dependency - in the update_call().  since this is only time it is needed
@@ -104,12 +98,6 @@ void data_update( data_t *data )
   printf( "counts pos %7lu neg %7lu, sig %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg, clk_count_sigmux);
 
 
-  assert( data->cal_w);
-  double cal_w = *data->cal_w;
-
-  range_t *range = &data->ranges[ *data->range_idx ];
-  assert(range);
-
 
   if(status.sample_idx == 0) {
 
@@ -128,23 +116,13 @@ void data_update( data_t *data )
 
     printf("v %f, ", v );
 
-    // data->value = v / clk_count_sigmux / cal->cal_7v1_b * 7.1 ;
-    // data->value = (v / clk_count_sigmux ) * cal->cal_7v1_b ;
-    // data->value = v / clk_count_sigmux  * cal->range_b[ range ];
-    // data->value = (v / clk_count_sigmux ) * cal->b[ DCV_10_REF ];
-
-    data->value = (v / clk_count_sigmux ) * range->b ;
-
-
+    data->value = (v / clk_count_sigmux ) * range->b + range->a;
     data->valid = true;
 
     printf( "v2 %s, ", str_format_float_with_commas(buf, 100, 8, data->value));
-    
+
     printf( "%s %s, ", range->name, range->unit );
 
-    // printf("v2 %f, ", v2 );
-    // values[i] = v2;
-    // ++i;
   }
   else
     assert(0);
