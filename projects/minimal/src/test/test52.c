@@ -26,14 +26,14 @@
 #include <lib2/format.h>  // format_with_commas
 
 
-#include <data/cal.h>
+#include <peripheral/spi-ice40.h>
+#include <peripheral/gpio.h>        // trigger manipulation
+
+
+// #include <data/cal.h>
 #include <mode.h>
 #include <util.h> // nplc_to_aperture()
 #include <app.h>
-
-
-#include <peripheral/spi-ice40.h>
-#include <peripheral/gpio.h>        // trigger manipulation
 
 
 
@@ -415,6 +415,49 @@ static void test( app_t *app)
 
   */
 
+
+
+  // this is just test code. we should not touch cal.
+
+  double b =  7.0 / mean( values, ARRAY_SIZE(values));
+
+  printf( "b %.3f, ", b );
+
+  test2( app, cal_w, b);
+
+
+
+  ////////////////////////
+
+    // switch back to direct mode operation
+    mode_reg_cr_set( mode, MODE_DIRECT);
+
+    app_transition_state( app);
+
+    printf("\n");
+}
+
+
+
+bool app_test52( app_t *app, const char *cmd)
+{
+
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+  assert(cmd);
+
+  if( strcmp(cmd, "test52") == 0) {
+
+    printf("test52()\n");
+    test( app);
+    return 1;
+  }
+
+  return 0;
+}
+
+
+#if 0
   // range[ range_10V ]  = 7.1 /   mean;
 
   // eg. the cal source (7.1 or external 10V) expressed  as ratio of the pos-ref-current
@@ -434,42 +477,7 @@ static void test( app_t *app)
   app->cal->w        = cal_w;
   app->cal->cal_7v1_b  = cal_7v1_b;
 
-
-  test2( app, cal_w, cal_7v1_b);
-
-
-
-  ////////////////////////
-
-    // switch back to direct mode operation
-    mode_reg_cr_set( mode, MODE_DIRECT);
-
-    app_transition_state( app);
-
-    printf("\n");
-}
-
-
-
-bool app_test52(
-  app_t *app,
-  const char *cmd
-) {
-  assert(app);
-  assert(app->magic == APP_MAGIC);
-  assert(cmd);
-
-  if( strcmp(cmd, "test52") == 0) {
-
-    printf("test52()\n");
-    test( app);
-    return 1;
-  }
-
-  return 0;
-}
-
-
+#endif
 
 
 

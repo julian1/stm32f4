@@ -393,8 +393,14 @@ static int main_f429(void)
 
 
 
+  double b[20] ;
+  double a[20] ;
+
+  memset( b, 0, sizeof(a));
+  memset( a, 0, sizeof(b));
+
   cal_t         cal;
-  cal_init( &cal);
+  cal_init( &cal, b, a, ARRAY_SIZE(b));
   app.cal = &cal;
 
 

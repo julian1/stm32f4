@@ -31,11 +31,16 @@
 
 
 
-void cal_init( cal_t *cal)
+void cal_init( cal_t *cal, double *b, double *a, size_t sz)
 {
+  assert(cal);
   memset(cal, 0, sizeof(cal_t));
 
   cal->magic = CAL_MAGIC;
+
+  cal->sz = sz;
+  cal->b = b;
+  cal->a = a;
 
 }
 

@@ -20,8 +20,36 @@ typedef struct cal_t
     - except can be used to encode model representatino if have two models with same number of coefficients
   */
 
-  // change name to just id.
+  // referenceable name
   unsigned id;
+
+
+  // TODO better name w_neg
+  double w;
+
+  ///////////////////////
+
+
+  size_t  sz;
+  double  *b;
+  double  *a;
+
+
+} cal_t;
+
+
+
+void cal_init( cal_t *cal, double *b, double *a, size_t sz);
+
+bool cal_flash_repl_statement( cal_t *cal, const char *cmd);
+
+
+
+
+
+
+
+
 
 #if 0
   unsigned model_spec; // to use.
@@ -31,25 +59,5 @@ typedef struct cal_t
 
   double model_sigma_div_aperture;    // stderr() of the regression..  maybe rename model_stderr change name model_sigma_div_aperture?
 #endif
-
-
-  // want better name weight_ref_neg;
-  double w;
-
-  ///////////////////////
-
-  // slope for 7v1. range. where ref is treated as nominal 7v1. without offset.
-  // should be b_7v1.
-  // or just b[ index ] =
-  double cal_7v1_b;
-
-} cal_t;
-
-
-
-void cal_init( cal_t *cal);
-
-bool cal_flash_repl_statement( cal_t *cal, const char *cmd);
-
 
 

@@ -21,6 +21,7 @@
 
 
 #include <data/cal.h>
+#include <data/ranges.h>
 #include <data/data.h>
 
 
@@ -111,10 +112,12 @@ void data_update( data_t *data )
 
 
     // data->value = v / clk_count_sigmux / cal->cal_7v1_b * 7.1 ;
-    data->value = (v / clk_count_sigmux ) * cal->cal_7v1_b ;
-
-
+    // data->value = (v / clk_count_sigmux ) * cal->cal_7v1_b ;
     // data->value = v / clk_count_sigmux  * cal->range_b[ range ];
+
+    data->value = (v / clk_count_sigmux ) * cal->b[ DCV10 ];
+
+
 
     data->valid = true;
 

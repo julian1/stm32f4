@@ -26,14 +26,17 @@
 #include <lib2/format.h>  // format_with_commas
 
 
-#include <data/cal.h>
-#include <mode.h>
-#include <util.h> // nplc_to_aperture()
-#include <app.h>
-
 
 #include <peripheral/spi-ice40.h>
 #include <peripheral/gpio.h>        // trigger manipulation
+
+
+#include <data/cal.h>
+#include <data/ranges.h>
+
+#include <mode.h>
+#include <util.h> // nplc_to_aperture()
+#include <app.h>
 
 
 
@@ -173,19 +176,22 @@ static void test2( app_t *app, double cal_w, double cal_7v1_b)
 
 
 
-static void test( app_t *app)
+static void cal_dcv10( app_t *app)
 {
+
+/*
+  This is the cal. for the primary (not acal derived) DCV 10 range.
+  It is irrelevant. that we use the local 7V ref as nominal value..
+
+*/
 
   _mode_t *mode = app->mode;
   assert(mode);
-  assert(mode->magic == MODE_MAGIC) ;
+  assert(mode->magic == MODE_MAGIC);
 
-/*
-  // TODO review/remove - only needed for line_freq... which indicates issue
-  data_t    *data = app->data;
-  assert(data);
-  assert(data->magic == DATA_MAGIC) ;
-*/
+  cal_t *cal = app->cal;
+  assert(cal);
+  assert(cal->magic == CAL_MAGIC);
 
   spi_t *spi = app->spi_fpga0;
   assert(spi);
@@ -415,81 +421,53 @@ static void test( app_t *app)
 
   */
 
-  // range[ range_10V ]  = 7.1 /   mean;
-
-  // eg. the cal source (7.1 or external 10V) expressed  as ratio of the pos-ref-current
-  // stddev.  doesn't mean much.
-
-  double cal_7v1_b        = 7.1 / mean(   values, ARRAY_SIZE(values));
-  // double cal_7v1_b_stddev = stddev( values, ARRAY_SIZE(values));
-
-  printf( "cal_7v1_b %.3f, ", cal_7v1_b );
-  // printf( "stddev %.9f, ", cal_7v1_b_stddev);
-  printf("\n");
 
 
-  assert(app->cal);
-  assert(app->cal->magic == CAL_MAGIC);
+  cal->b[ DCV10_NOM ] = 7.0 / mean( values, ARRAY_SIZE(values));
+  cal->a[ DCV10_NOM ] = 0;
 
-  app->cal->w        = cal_w;
-  app->cal->cal_7v1_b  = cal_7v1_b;
+  printf( "cal->b[ DCV10_NOM ] %.3f, ", cal->b[ DCV10 ] );
 
 
-  test2( app, cal_w, cal_7v1_b);
+
+  test2( app, cal_w, cal->b[ DCV10 ] );
 
 
 
   ////////////////////////
 
-    // switch back to direct mode operation
-    mode_reg_cr_set( mode, MODE_DIRECT);
+  // switch back to direct mode operation
+  mode_reg_cr_set( mode, MODE_DIRECT);
 
-    app_transition_state( app);
+  app_transition_state( app);
 
-    printf("\n");
+  printf("\n");
+
 }
-
-
-
 
 
 
 /*
-void app_cal(
+  function should have a different name/repl
 
-  app_t  *app
-)
-{
+  cal dcv10 nominal
 
-  data_t    *data = app->data;
-  assert(data);
-  // assert(data->magic == DATA_MAGIC) ;
-
-  _mode_t *mode = app->mode;
-
-  assert(mode);
-  assert(mode->magic == MODE_MAGIC) ;
-
-
-  printf("whoot app_cal() \n");
-
-}
-
+  or something.
 */
 
 
-bool app_cal(
-  app_t *app,
-  const char *cmd
-) {
+
+bool app_cal( app_t *app, const char *cmd)
+{
   assert(app);
   assert(app->magic == APP_MAGIC);
   assert(cmd);
 
-  if( strcmp(cmd, "cal") == 0) {
+  if( strcmp(cmd, "cal") == 0) {      // cal nominal
 
     printf("cal()\n");
-    test( app);
+
+    cal_dcv10( app);
     return 1;
   }
 
