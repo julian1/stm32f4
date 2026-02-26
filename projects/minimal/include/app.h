@@ -188,10 +188,11 @@ typedef struct app_t
 
   unsigned      cal_id;
   double        cal_w;
-
-
-  range_t       *ranges;      // better name
+  range_t       *ranges;      // that have/contain cal co-efficients
   unsigned      range_idx;    // active range
+
+  // there is a bit of confusion (or potential for state mismatch) between range and the active mode.
+  // but we need to permit the mode to deviate (eg. for adc settings/nplc, LTS,  etc).
 
   ////////////
 

@@ -50,32 +50,15 @@
 
 
 
+
+
 /*
-  muxes and relays are part of 4094 system. nothing to do with fpga.
-  and should not be associated in headers
-
-  - better name MUX_S1 ?   REL_SET.
-
-  - important we can actually put the dac state register here also.
-
+  for hardware - make the enable pin the first bit in representation.
+  that way can keep the same encoding for 2x04, and 1x08 muxes.
 */
 
-
-
-
-// 1of8 muxes.
+// 1of8 muxes
 #define SOFF        0
-/*
-#define S1          ((1<<3)|(1-1))
-#define S2          ((1<<3)|(2-1))
-#define S3          ((1<<3)|(3-1))
-#define S4          ((1<<3)|(4-1))
-#define S5          ((1<<3)|(5-1))    // 12
-#define S6          ((1<<3)|(6-1))    // 13
-#define S7          ((1<<3)|(7-1))
-#define S8          ((1<<3)|(8-1))
-*/
-
 #define S1          ((1-1)<<1|0b1)
 #define S2          ((2-1)<<1|0b1)
 #define S3          ((3-1)<<1|0b1)
@@ -86,36 +69,22 @@
 #define S8          ((8-1)<<1|0b1)
 
 
-
-
-
-/*
-  if we had put the enable pin first, on each 4094.
-  then the same codes could be used for both.
-
-*/
-
-// dual 1of 4 muxes.
+// dual 1 of 4 muxes
 #define DOFF        0
-/*
-#define D1          ((1<<2)|(1-1))    // 4.
-#define D2          ((1<<2)|(2-1))    // 5
-#define D3          ((1<<2)|(3-1))    // 6
-#define D4          ((1<<2)|(4-1))    // 7
-*/
 #define D1          ((1-1)<<1|0b1)
 #define D2          ((2-1)<<1|0b1)
 #define D3          ((3-1)<<1|0b1)
 #define D4          ((4-1)<<1|0b1)
 
 
-// better prefix - SR for set/reset
+
+// relay
 #define SR_SET      0b01
 #define SR_RESET    0b10
 
 
 
-
+// precharge switches
 #define SW_PC_BOOT        0
 #define SW_PC_SIGNAL      1
 
@@ -306,10 +275,9 @@ typedef struct _mode_t
 
 
 
-  // could factor to a struct, but only one value.
-  uint16_t mdac0_val;
+  uint16_t mdac0_val;     // inverter
 
-  uint16_t mdac1_val;
+  uint16_t mdac1_val;     // sts
 
 
   // control register
@@ -327,8 +295,11 @@ typedef struct _mode_t
   bool         trigger_source;     // digital board state
 
 
-  // consider injecting this from app...
+  // could inject on creation - from app  or just set
+  // No. should not need.
   // bool        _10Meg_meg_impedance;
+
+  // in one sense, trig. is board state. that is not written.
 
 } _mode_t ;
 
@@ -385,11 +356,15 @@ void mode_ch1_set_dcv_source(_mode_t *mode);    // change name lts eg.  using in
 
 // ch2
 void mode_ch2_reset(_mode_t *mode);
+
+// We would have ranges for each of these - eg. 10,1,0.1.
+// because need to control appropriate amplifier gain.
 void mode_ch2_set_ref( _mode_t *mode);
 void mode_ch2_set_ref_lo( _mode_t *mode);
 void mode_ch2_set_temp( _mode_t *mode );
 void mode_ch2_set_lts(_mode_t *mode);
 void mode_ch2_set_daq( _mode_t *mode );
+//
 void mode_ch2_set_shunts(_mode_t *mode);
 void mode_ch2_set_tia( _mode_t *mode );
 void mode_ch2_set_sense(_mode_t *mode);
@@ -403,6 +378,27 @@ void mode_ch2_accum( _mode_t *mode, bool);
 
 
 
+
+
+
+
+/*
+#define S1          ((1<<3)|(1-1))
+#define S2          ((1<<3)|(2-1))
+#define S3          ((1<<3)|(3-1))
+#define S4          ((1<<3)|(4-1))
+#define S5          ((1<<3)|(5-1))    // 12
+#define S6          ((1<<3)|(6-1))    // 13
+#define S7          ((1<<3)|(7-1))
+#define S8          ((1<<3)|(8-1))
+*/
+
+/*
+#define D1          ((1<<2)|(1-1))    // 4.
+#define D2          ((1<<2)|(2-1))    // 5
+#define D3          ((1<<2)|(3-1))    // 6
+#define D4          ((1<<2)|(4-1))    // 7
+*/
 
 
 /*

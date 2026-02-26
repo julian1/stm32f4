@@ -2,17 +2,10 @@
 
 #include <assert.h>
 #include <stdio.h>
-
-// #include <strings.h>   // strcasecmp().  use to_lower() instead
 #include <math.h>   // fabs
-
-
 #include <string.h>   // strcmp, memset
-#include <stdlib.h>   // malloc
 
 
-// #include <lib2/util.h>      // msleep, UNUSED
-#include <lib2/format.h>   // str_format_bits
 #include <util.h> // str_decode_uint
 
 
@@ -28,10 +21,9 @@
 static const _mode_t mode_initial =  {
 
   /*
-  EXTR all relays should be defined b01 or b10.
-  a default initialization of b00
-  means they won't receive any initial pulse/value.
-
+    all relays need to be defined as b01 or b10.
+    for default initialization
+    otherwise they will not get an initial pulse/value.
   */
 
   .magic  = MODE_MAGIC,
@@ -49,9 +41,6 @@ static const _mode_t mode_initial =  {
 
   // u405
   .first. K401  = SR_RESET,
-
-
-
 
   .first. K701  = SR_RESET,
   .first. K702  = SR_RESET,
@@ -876,10 +865,10 @@ void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
 
 // bool mode_repl_statement( _mode_t *mode,  ranges_t *ranges, const char *cmd, const uint32_t line_freq )
 
-bool mode_repl_statement( 
-  _mode_t     *mode,  
-  const char  *cmd, 
-  const uint32_t line_freq 
+bool mode_repl_statement(
+  _mode_t     *mode,
+  const char  *cmd,
+  const uint32_t line_freq
 )
 
 {
