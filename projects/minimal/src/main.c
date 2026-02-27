@@ -415,7 +415,6 @@ static int main_f429(void)
 
   // pointer to array
   app.ranges = init_range_values;
-
   app.ranges_sz = init_ranges_sz;
 
 
@@ -444,7 +443,8 @@ static int main_f429(void)
     FLASH_SECT_NUM,
     &app.cal_id,
     &app.cal_w,
-    app.ranges
+    app.ranges,
+    app.ranges_sz
   );
   app.cal = &cal;
 

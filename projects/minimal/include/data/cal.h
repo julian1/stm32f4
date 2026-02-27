@@ -34,6 +34,7 @@ typedef struct cal_t
   uint8_t   flash_sect_num;
 
   // referenceable name
+  // this state does not need to be shared...
   unsigned *id;
 
   // date.
@@ -42,7 +43,11 @@ typedef struct cal_t
   double    *w;         // same as &app->cal_w
 
   range_t   *ranges;    // same as app->ranges
+  size_t    ranges_sz;
 
+
+  // used for communication during file scan
+  uint32_t  model_id_to_load;
 
 
   ///////////////////////
@@ -63,16 +68,22 @@ typedef struct cal_t
 void cal_init(
   cal_t     *cal,
 
+  /*
+    should pass an already opened file descriptor
+  */
   uint32_t  flash_sect_addr,
   uint8_t   flash_sect_num,
 
   unsigned  *id,
   double    *w,
-  range_t   *ranges
+
+  range_t   *ranges,
+  size_t    ranges_sz
+
 );
 
 
-bool cal_flash_repl_statement( cal_t *cal, const char *cmd);
+bool cal_repl_statement( cal_t *cal, const char *cmd);
 
 
 

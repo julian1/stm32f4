@@ -35,7 +35,7 @@
 
 #include <app.h>
 #include <mode.h>
-// #include <data/cal.h>
+#include <data/cal.h>
 #include <data/data.h>
 #include <data/buffers.h>
 #include <data/range.h>
@@ -988,7 +988,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
     for( unsigned i = 0; i < app->ranges_sz ; ++i )  {
 
       range_t *range = &app->ranges[ i];
-      printf("%u %u %s", i, range->id ,  range->name);
+      printf("%u %u %s\n", i, range->id ,  range->name);
     }
   }
 
@@ -1219,14 +1219,12 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
   else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, app->line_freq)) { }
 
+  else if( cal_repl_statement( app->cal, cmd)) { }
+
 
   // let cal decode its own arguments if it needs
   else if(  app_cal( app, cmd ))   { }
 
-
-#if 0
-  else if( cal_flash_repl_statement(app->data, cmd)) { }
-#endif
 
   /*
     these can apply the mode state, that has previously been setup.
