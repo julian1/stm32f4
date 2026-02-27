@@ -39,7 +39,7 @@
 
 ///////////////////////
 // sample acquisition control parameters
-// #define REG_SA_P_CLK_COUNT_TRIG_DELAY  19
+#define REG_SA_P_CLK_COUNT_TRIG_DELAY     19
 #define REG_SA_P_CLK_COUNT_PRECHARGE      20
 
 #define REG_SA_P_SEQ_N                    21
@@ -107,14 +107,21 @@ reg_cr_t
 
   uint8_t   mode        : 3;      // only 3 bits
 
+
+  // adc - whether to switch the input sigmux
+  uint8_t adc_p_active_sigmux : 1;
+
+  // sa - no az mode
+  uint8_t sa_p_noaz : 1;
+
+
  // input           p_use_slow_rundown,
  // input           p_use_fast_rundown,
  // input           p_active_sigmux,     // adc whether to swtich in the input signal
 
-  uint8_t adc_p_active_sigmux : 1;   // better name ? p_adc_switch_input_signal
 
 
-  uint32_t   dummy_bits_o : 28;
+  uint32_t   dummy_bits_o : 27;
 
 } reg_cr_t;
 

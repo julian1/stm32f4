@@ -53,17 +53,16 @@ static const _mode_t mode_initial =  {
   .second.U506 = S8,
 
 
-
-
   // signal acquisition defaults
-  .sa.p_clk_count_precharge = CLK_FREQ * 500e-6,             //  500us.
+  .sa.p_clk_count_trig_delay  = CLK_FREQ * 100e-3,         // 100ms
+  .sa.p_clk_count_precharge   = CLK_FREQ * 500e-6,          //  500us.
 
   /*
     .sa.p_seq_n = 2,
     .sa.p_seq0 = (0b01 << 4) | S3,         // dcv
     .sa.p_seq1 = (0b00 << 4) | S7,         // star-lo
-    .sa.p_seq2 = 0,  // channel-1 precharge switch
-    .sa.p_seq3 = 0,  // channel-1 precharge switch
+    .sa.p_seq2 = 0,
+    .sa.p_seq3 = 0,
   */
 
 
@@ -935,11 +934,20 @@ bool mode_repl_statement(
   }
 
 
-#if 0
-    else if(strcmp(s0, "precharge") == 0) {
-      mode->sa.p_clk_count_precharge = u0;
-    }
-#endif
+  else if((sscanf(cmd, "precharge %100s", s0) == 1)
+    && str_decode_uint( s0, &u0))  {
+
+    // TODO consider use time, rather than raw count
+    mode->sa.p_clk_count_precharge = u0;
+  }
+
+  else if((sscanf(cmd, "trig delay %100s", s0) == 1)
+    && str_decode_uint( s0, &u0))  {
+
+    // TODO consider use time, rather than raw count
+    mode->sa.p_clk_count_trig_delay = u0;
+  }
+
 
 
   // need to work out if keep the set...

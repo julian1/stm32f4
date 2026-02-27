@@ -206,9 +206,10 @@ typedef struct _4094_state_t
 
 typedef struct sa_state_t
 {
-  uint32_t p_clk_count_precharge ;   // p_cc_precharge
+  uint32_t p_clk_count_trig_delay;  // consider rename p_trig_delay
+  uint32_t p_clk_count_precharge;   // consider rename p_precharge   or p_cc_precharge
 
-  // number of phase
+  // number of phases
   // rename? - opportunity for confusion, suffix of _n in verilog indicates  inverted signal.
   uint32_t p_seq_n;
 
