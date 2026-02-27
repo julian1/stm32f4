@@ -362,7 +362,7 @@ static void cal_dcv10_nom( app_t *app)
     app_msleep( app, 1000);
 
     // start sampling
-  gpio_write( app->gpio_trigger, true);
+    gpio_write( app->gpio_trigger, true);
 
 
     // compute ref for diff
