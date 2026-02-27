@@ -983,15 +983,6 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   else if ( app_repl_range( app, cmd)) { }
 
 
-  else if( strcmp(cmd, "ranges?") == 0) {
-
-    for( unsigned i = 0; i < app->ranges_sz ; ++i )  {
-
-      range_t *range = &app->ranges[ i];
-      printf("%u %u %s\n", i, range->id ,  range->name);
-    }
-  }
-
 
 
 

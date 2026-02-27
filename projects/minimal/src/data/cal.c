@@ -89,28 +89,18 @@ static void file_write_cal_handler( FILE *f, blob_header_t *header,  cal_t *cal)
   assert(header->len == 0 && header->magic == 0);   // this handler doesn't care or know yet
   header->id = 108;
 
-  fwrite( cal->id,                  sizeof(cal->id), 1, f);
-  fwrite( cal->w,                   sizeof(cal->w), 1, f);
+  fwrite( cal->id,                  sizeof( *cal->id), 1, f);
+  fwrite( cal->w,                   sizeof( *cal->w), 1, f);
 
 
   for( unsigned i = 0; i < cal->ranges_sz ; ++i )  {
-    // just range idx are ok
-    range_t *range = &cal->ranges[ i];
-    assert( range->id == i);
-    assert( range->name);
 
-    // now write the b and a coeffs.
+    range_t *range = &cal->ranges[ i];
+    fwrite( &range->b,                   sizeof( range->b), 1, f);
+    fwrite( &range->a,                   sizeof( range->a), 1, f);
   }
 
 
-#if 0
-  // write the cal
-  fwrite( &cal->model_id,                  sizeof(cal->model_id), 1, f);
-  fwrite( &cal->model_spec,                sizeof(cal->model_spec), 1, f);
-  fwrite( &cal->model_sigma_div_aperture,  sizeof(cal->model_sigma_div_aperture), 1, f);
-
-  m_foutput_binary( f, cal->model_b);
-#endif
 }
 
 
@@ -135,17 +125,17 @@ static void file_scan_cal_handler( FILE *f, blob_header_t *header, cal_t *cal )
 
 
       *cal->id = id ;
-      fread( cal->w,               sizeof(cal->w), 1, f);
+      fread( cal->w,               sizeof( *cal->w), 1, f);
 
-#if 0
-      cal->model_id = model_id;
 
-      // read the rest of the cal
-      fread( &cal->model_spec,               sizeof(cal->model_spec), 1, f);
-      fread( &cal->model_sigma_div_aperture, sizeof(cal->model_sigma_div_aperture), 1, f);
+      for( unsigned i = 0; i < cal->ranges_sz ; ++i )  {
 
-      cal->model_b = m_finput_binary(f, MNULL);
-#endif
+        range_t *range = &cal->ranges[ i];
+        fread( &range->b,                   sizeof( range->b), 1, f);
+        fread( &range->a,                   sizeof( range->a), 1, f);
+      }
+
+
 
       // payload should be readable.
       printf(", loaded cal OK\n");
@@ -169,19 +159,10 @@ bool cal_repl_statement( cal_t *cal, const char *cmd)
 
   uint32_t u0;
 
-  if(strcmp(cmd, "cal show") == 0) {
 
-    printf("id    %u\n",  *cal->id);
-    printf("w     %f\n",  *cal->w);
+  if(strcmp(cmd, "cal flash erase") == 0) {
 
-
-    return 1;
-  }
-
-
-  // flash erase
-  else if(strcmp(cmd, "cal flash erase") == 0) {
-
+    // flash erase
     printf("flash erasing sector\n");
 
     // usart1_flush();
@@ -189,14 +170,21 @@ bool cal_repl_statement( cal_t *cal, const char *cmd)
 
     flash_erase_sector_( cal->flash_sect_num /*FLASH_SECT_NUM */ );
     printf("done erase\n");
-    return 1;
   }
 
 
-  else if(sscanf(cmd, "cal flash write %lu", &u0 ) == 1) {
+  /*
+    naming use save,load... instead of write/read ?
+  */
 
-    // perhaps should have a separate repl commend to set the id... in order to save it.
+
+  else if( sscanf(cmd, "cal set id %lu", &u0) == 1) {
+
     *cal->id = u0;
+  }
+
+
+  else if(strcmp(cmd, "cal flash save") == 0) {
 
     // now save to flash
     printf("flash unlock\n");
@@ -211,15 +199,16 @@ bool cal_repl_statement( cal_t *cal, const char *cmd)
     printf("flash lock\n");
     flash_lock();
     printf("done\n");
-
-    return 1;
   }
 
 
-  // consider name load?
-  else if(sscanf(cmd, "cal flash read %lu", &u0 ) == 1) {
+  else if(sscanf(cmd, "cal flash load %lu", &u0 ) == 1
+    || (u0 = 0, strcmp(cmd, "cal flash load") == 0)
+    ) {
 
     // set the predicate
+    // 0 means last entry
+    // should use -1.
     cal->model_id_to_load = u0;
 
     printf("flash unlock\n");
@@ -232,13 +221,55 @@ bool cal_repl_statement( cal_t *cal, const char *cmd)
     printf("flash lock\n");
     flash_lock();
     printf("done\n");
-    return 1;
+
+    // simple print
+    printf("id    %u\n",  *cal->id);
+    printf("w     %f\n",  *cal->w);
   }
+
+
+
+  // NO. this is a cal function...
+  else if( strcmp(cmd, "cal show") == 0) {
+
+    printf("id    %u\n",  *cal->id);
+    printf("w     %f\n",  *cal->w);
+
+
+    for( unsigned i = 0; i < cal->ranges_sz ; ++i )  {
+
+      range_t *range = &cal->ranges[ i];
+      printf("%u %-10s", range->id ,  range->name);
+
+      printf("%3.6f %3.6f ", range->b,  range->a);
+      printf("\n");
+    }
+  }
+
+
+
 
   else
     return 0;
 
+  return 1;
 }
+
+
+
+
+
+
+#if 0
+      cal->model_id = model_id;
+
+      // read the rest of the cal
+      fread( &cal->model_spec,               sizeof(cal->model_spec), 1, f);
+      fread( &cal->model_sigma_div_aperture, sizeof(cal->model_sigma_div_aperture), 1, f);
+
+      cal->model_b = m_finput_binary(f, MNULL);
+#endif
+
 
 #if 0
 void cal_init( cal_t *cal, double *b, double *a, size_t sz)
@@ -254,4 +285,15 @@ void cal_init( cal_t *cal, double *b, double *a, size_t sz)
 
 }
 #endif
+
+
+#if 0
+  // write the cal
+  fwrite( &cal->model_id,                  sizeof(cal->model_id), 1, f);
+  fwrite( &cal->model_spec,                sizeof(cal->model_spec), 1, f);
+  fwrite( &cal->model_sigma_div_aperture,  sizeof(cal->model_sigma_div_aperture), 1, f);
+
+  m_foutput_binary( f, cal->model_b);
+#endif
+
 
