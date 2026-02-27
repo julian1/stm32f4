@@ -362,15 +362,6 @@ void app_transition_state( app_t  *app)
 
 
 
-
-
-
-
-
-
-
-
-
 void app_configure( app_t *app )
 {
   assert(app);
@@ -708,15 +699,15 @@ static void app_update_console(app_t *app)
     // apply state changes
     if( ch == '\r')
     {
-      // correct. update analog board state by calling transition_state(),
-      // even if state has not changed. ensures everything is consistent/aligned at this juncture.
 
       if( spi_ice40_cdone( app->spi_fpga0_pc))  {
 
-        // transition state
+        // update analog board state by calling transition_state(),
+        // this ensures everything is consistent/aligned at this juncture.
         app_transition_state( app );
 
 
+        // only now consider the trigger
         // pending, changes to trigger apply only after state transition
         if( app->repl_trigger_pending) {
 
