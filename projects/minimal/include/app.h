@@ -181,6 +181,8 @@ typedef struct app_t
 
 
 
+  ////////////////////////
+
   // line_freq is environment property
   // does it belong in cal or data?
   // issue is that the tests code wants easy access
@@ -189,7 +191,13 @@ typedef struct app_t
   unsigned      cal_id;
   double        cal_w;
   range_t       *ranges;      // that have/contain cal co-efficients
+
+  size_t        ranges_sz;
+
   unsigned      range_idx;    // active range
+
+  ////////////////////////
+
 
   // there is a bit of confusion (or potential for state mismatch) between range and the active mode.
   // but we need to permit the mode to deviate (eg. for adc settings/nplc, LTS,  etc).

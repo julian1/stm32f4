@@ -944,28 +944,26 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
 
 
-  for( unsigned i = 0; i < MAX_RANGE; ++i )  {
+  for( unsigned i = 0; i < app->ranges_sz ; ++i )  {
 
     range_t *range = &app->ranges[ i];
 
-    assert( range->id == i || range->id == 0);
+    assert( range->id == i);
+    assert(range->name);
 
-    if(range->name) {
+    printf("%u %u %s", i, range->id ,  range->name);
 
-      printf("%u %u %s", i, range->id ,  range->name);
+    if( strcasecmp(cmd, range->name) == 0) {
 
-      if( strcasecmp(cmd, range->name) == 0) {
+      printf("*");
+      app->range_idx = i;
 
-        printf("*");
-        app->range_idx = i;
-
-        // update the mode
-        range->f(  app->mode, app->_10meg_impedance );
-        got_range = true;
-        break;
-      }
-      printf("\n");
+      // update the mode
+      range->f(  app->mode, app->_10meg_impedance );
+      got_range = true;
+      break;
     }
+    printf("\n");
   }
 
 #if 0

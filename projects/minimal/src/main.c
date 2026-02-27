@@ -416,6 +416,11 @@ static int main_f429(void)
   // pointer to array
   app.ranges = init_range_values;
 
+  app.ranges_sz = init_ranges_sz;
+
+
+
+
 
 /*
   cal_init( &cal, b, a, ARRAY_SIZE(b));

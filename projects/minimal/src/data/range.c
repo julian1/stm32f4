@@ -169,7 +169,7 @@ static void temp( _mode_t *mode, bool _10meg_impedance)
 
 
 
-range_t init_range_values[ MAX_RANGE] = {
+range_t init_range_values[] = {
 
   { DCV_REF,    "DCV REF",    "V", dcv_ref, 0, 0 },
   { DCV_10,     "DCV 10",     "V", dcv_10, 0, 0 },
@@ -184,6 +184,7 @@ range_t init_range_values[ MAX_RANGE] = {
 
 };
 
+const size_t init_ranges_sz = ARRAY_SIZE( init_range_values );
 
 
 

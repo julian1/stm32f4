@@ -13,7 +13,6 @@
 #define DCV_1000      6           // 100mV
 #define TEMP_          7           // single range
 
-#define MAX_RANGE     20
 
 
 /*
@@ -61,7 +60,7 @@ typedef struct range_t
 // do not use this directly... instead use app->range_values
 extern range_t  init_range_values[];
 
-
+extern const size_t init_ranges_sz ;
 
 
 
