@@ -860,6 +860,20 @@ static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq
   }
 */
 
+
+  else if( strcmp( cmd, "precharge?") == 0) {
+
+    spi_print_register( spi, REG_SA_P_CLK_COUNT_PRECHARGE);
+  }
+
+
+  else if( strcmp( cmd, "trig_delay?") == 0) {
+
+    spi_print_register( spi, REG_SA_P_CLK_COUNT_TRIG_DELAY);
+  }
+
+
+
   else if( strcmp( cmd, "status?") == 0) {
 
     spi_print_register( spi, REG_STATUS);
