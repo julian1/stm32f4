@@ -419,6 +419,14 @@ static int main_f429(void)
   app.ranges_sz = init_ranges_sz;
 
 
+  for( unsigned i = 0; i < app.ranges_sz ; ++i )  {
+    // just range idx are ok
+    range_t *range = &app.ranges[ i];
+    assert( range->id == i);
+    assert( range->name);
+  }
+
+
 
 
 

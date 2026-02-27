@@ -574,10 +574,14 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
-  // fpga0 on analog board
+  // fpga0 on analog board, pre-configuration
 
   if( !spi_ice40_cdone( app->spi_fpga0_pc)) {
 
+    /* feb 2026.  consider pass f as a constructor dependency to app on construction.
+        not pass the flash address and size.
+        seek() would need to work.
+    */
     FILE *f = flash_open_file( FLASH_U102_ADDR);
 
     int ret = spi_ice40_bitstream_send( app->spi_fpga0_pc, f, FLASH_HX8K_SIZE, & app->system_millis );
@@ -912,11 +916,34 @@ static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq
 
 
 
-bool app_repl_statement(app_t *app,  const char *cmd)
+static bool app_repl_range( app_t *app, const char *cmd)
 {
 
-  assert(app);
-  assert(app->magic == APP_MAGIC);
+  for( unsigned i = 0; i < app->ranges_sz; ++i )  {
+
+    range_t *range = &app->ranges[ i];
+    if( strcasecmp(cmd, range->name) == 0) {
+
+      // update range index
+      app->range_idx = i;
+
+      // update the mode to use the range
+      range->f( app->mode, app->_10meg_impedance );
+      return true;
+    }
+  }
+
+  return false;
+}
+
+
+
+
+bool app_repl_statement( app_t *app,  const char *cmd)
+{
+
+  assert( app);
+  assert( app->magic == APP_MAGIC);
 
 
   // to debug
@@ -939,57 +966,40 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
   // we need a looping structure to pick out the ranges.
 
-
-  bool got_range = false;
-
-
-
-  for( unsigned i = 0; i < app->ranges_sz ; ++i )  {
-
-    range_t *range = &app->ranges[ i];
-
-    assert( range->id == i);
-    assert(range->name);
-
-    printf("%u %u %s", i, range->id ,  range->name);
-
-    if( strcasecmp(cmd, range->name) == 0) {
-
-      printf("*");
-      app->range_idx = i;
-
-      // update the mode
-      range->f(  app->mode, app->_10meg_impedance );
-      got_range = true;
-      break;
-    }
-    printf("\n");
-  }
-
-#if 0
-  else if( strcmp(cmd, "dcv ref") == 0) {
+/*
+    factor this into a function...
+    also add a ranges?  query function.
+*/
 
 
-    // could add function mode_set_range()
-    // NO. because do not want the concept of a range in any mode code.
 
-    // update the range idx.
-    app->range_idx = DCV_REF;
+  if(strcmp(cmd, "") == 0) {
 
-    range_t *range = &app->ranges[  DCV_REF ];
-
-    // update the mode
-    range->f(  app->mode, app->_10meg_impedance );
-
-  }
-#endif
-
-
-  if( got_range ) { }
-
-  else if(strcmp(cmd, "") == 0) {
     // ignore
     printf("empty\n" );
+  }
+
+
+  else if ( app_repl_range( app, cmd)) { }
+
+
+  else if( strcmp(cmd, "ranges?") == 0) {
+
+    for( unsigned i = 0; i < app->ranges_sz ; ++i )  {
+
+      range_t *range = &app->ranges[ i];
+      printf("%u %u %s", i, range->id ,  range->name);
+    }
+  }
+
+
+
+
+  // "t" to trigger
+  else if(strcmp(cmd, "trig") == 0 || strcmp(cmd, "t") == 0) {
+
+    app->repl_trigger_pending  = true;
+    app->repl_trigger_value = 1;
   }
 
 
@@ -999,19 +1009,6 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     app->repl_trigger_pending  = true;
     app->repl_trigger_value = 0;
   }
-  // "t" to trigger
-  else if(strcmp(cmd, "trig") == 0 || strcmp(cmd, "t") == 0) {
-
-    /* / trigger - has a dependency on both data and the mode
-    // because we want to clear the data buffer
-    // No. I think the trigger. should not change or clear the data buff. it just starts the adc.
-    */
-    // app_trigger( app, 1);
-
-    app->repl_trigger_pending  = true;
-    app->repl_trigger_value = 1;
-  }
-
 
 
 /*
@@ -1022,7 +1019,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
     that way we can use it embedded.
     --------
-    alternatively if we see a sleep. we should apply the current mode.
+    alternatively if want a sleep. we should apply the current mode.
 
 */
 
@@ -1030,14 +1027,11 @@ bool app_repl_statement(app_t *app,  const char *cmd)
     && str_decode_float( s0, &f0))
   {
     // this approach isn't great
-#if 1
     // update the current state
     app_transition_state( app);
-#endif
+
     // and sleep
-
     app_msleep( app, (uint32_t ) (f0 * 1000) );
-
   }
 
 
@@ -1045,6 +1039,7 @@ bool app_repl_statement(app_t *app,  const char *cmd)
 
     printf("help <command>\n" );
   }
+
   else if( sscanf(cmd, "print %100s", s0) == 1
     || sscanf(cmd, "echo %100s", s0) == 1) {
     // review . from old code

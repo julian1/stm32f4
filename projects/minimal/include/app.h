@@ -175,9 +175,9 @@ typedef struct app_t
   //////////////////////////////////
 
 
-  volatile bool  adc_interrupt_valid;
+  volatile bool adc_interrupt_valid;
 
-  bool adc_interrupt_valid_missed; // could be a count
+  bool          adc_interrupt_valid_missed; // could be a count
 
 
 
@@ -190,10 +190,11 @@ typedef struct app_t
 
   unsigned      cal_id;
   double        cal_w;
-  range_t       *ranges;      // that have/contain cal co-efficients
 
+  //////////////
+
+  range_t       *ranges;      // including cal co-efficients
   size_t        ranges_sz;
-
   unsigned      range_idx;    // active range
 
   ////////////////////////
