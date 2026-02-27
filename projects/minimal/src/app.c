@@ -1127,6 +1127,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   }
 
 
+#if 0
   else if(strcmp(cmd, "flash unlock ") == 0) {
 
   }
@@ -1145,6 +1146,8 @@ bool app_repl_statement( app_t *app,  const char *cmd)
     // need size to compute.
 
   }
+
+#endif
 
   else if(strcmp(cmd, "flash lzo test") == 0) {
     flash_lzo_test();
