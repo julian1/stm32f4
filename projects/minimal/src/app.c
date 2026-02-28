@@ -127,7 +127,8 @@ void app_systick_interrupt(app_t *app)
 static void app_update_simple_led_blink(app_t *app)
 {
   // or just app_update_led_blink()
-  // change name app_update_no_data() or app_update_restricted()
+  // change name app_update_no_data() or app_update_limited()
+  // or just app_update_simple()
 
   assert(app);
   assert(app->magic == APP_MAGIC);
@@ -431,15 +432,13 @@ void app_configure( app_t *app )
 
   // now call transition state again. which will do relays
   printf("spi_mode_transition_state() for relays\n");
-  app_transition_state( app /*devices, app->mode, &app->system_millis*/);
+  app_transition_state( app );
 
 
 
-  // setup the fpga0 interrupt handler
-  // interrupt_handler_set( app->fpga0_interrupt, app->data, (interrupt_handler_t ) data_rdy_interrupt);
+  // set up the fpga0 interrupt handler
   assert( app->fpga0_interrupt);
   interrupt_handler_set( app->fpga0_interrupt, app, (interrupt_handler_t ) app_rdy_interrupt);
-
 
 }
 
@@ -841,10 +840,9 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, uint32_t line_freq)
 
   if( sscanf(cmd, "reg? %lu", &u0 ) == 1) {
 
-    // any register using known numberregister
+    // any register if we known the number
     spi_print_register( spi, u0 );
   }
-
   else if( strcmp( cmd, "4094?") == 0) {
 
     spi_print_register( spi, REG_4094_OE);
@@ -905,7 +903,7 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, uint32_t line_freq)
     || strcmp(cmd, "aper?") == 0
   ) {
 
-    uint32_t aperture = spi_ice40_reg_read32( spi, REG_ADC_P_CLK_COUNT_APERTURE );
+    uint32_t aperture = spi_ice40_reg_read32( spi, REG_ADC_P_CLK_COUNT_APERTURE);
     aper_cc_print( aperture,  line_freq);
   }
 
@@ -929,7 +927,7 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, uint32_t line_freq)
 
 static bool app_repl_range( app_t *app, const char *cmd)
 {
-  // consider rename app_repl_maybe_set_range()
+  // consider rename app_repl_set_range()  app_repl_maybe_set_range()
 
   for( unsigned i = 0; i < app->ranges_sz; ++i )  {
 
@@ -975,15 +973,6 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
 
 
-  // we need a looping structure to pick out the ranges.
-
-/*
-    factor this into a function...
-    also add a ranges?  query function.
-*/
-
-
-
   if(strcmp(cmd, "") == 0) {
 
     // ignore
@@ -1026,7 +1015,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   else if( sscanf(cmd, "sleep %100s", s0) == 1
     && str_decode_float( s0, &f0))
   {
-    // this approach isn't great
+    // this isn't great
     // update the current state
     app_transition_state( app);
 
