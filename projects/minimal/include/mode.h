@@ -89,10 +89,6 @@
 #define SW_PC_SIGNAL      1
 
 
-// ranges to index cal, unit, and state setup functions.
-#define RANGE_DCV_10
-#define RANGE_DCV_1
-#define RANGE_OHMSF
 
 
 
@@ -224,11 +220,6 @@ typedef struct sa_state_t
 
 typedef struct adc_state_t
 {
-  /*
-       ----
-      reg_direct_t reg_direct2; only for a ratiometric function.
-      No. it's only the azmux. that needs a different value.
-  */
 
   // 'p' implies its a paraameter
   // consider prefix with cc. clock_count
@@ -284,7 +275,7 @@ typedef struct _mode_t
   // control register
   reg_cr_t      reg_cr;
 
-  // only when fpga is in mode 0
+  // when in mode 0
   reg_direct_t  reg_direct;
 
 

@@ -222,19 +222,6 @@ typedef struct app_t
 
 
 
-  // for state setup by ranges.
-  // this is like the adc, in being independent.
-  bool          _10meg_impedance;
-
-  /*
-    consider pulling the adc parameters out of mode...
-    no. we want to write it on state_transition().
-
-    but it becomes more complicated.
-
-  */
-
-
 
 
 } app_t;

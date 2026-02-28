@@ -41,7 +41,7 @@ typedef struct range_t
       i think it would be better.
       mode represents spi writable state.
   */
-  void (*f)( _mode_t *, bool _10meg_impedance);
+  void (*f)( _mode_t *);
 
   ///////////////////
 

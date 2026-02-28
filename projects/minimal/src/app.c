@@ -931,7 +931,7 @@ static bool app_repl_range( app_t *app, const char *cmd)
       app->range_idx = i;
 
       // update the mode to use the range
-      range->f( app->mode, app->_10meg_impedance );
+      range->f( app->mode );
       return true;
     }
   }

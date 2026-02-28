@@ -105,7 +105,8 @@ typedef struct __attribute__((__packed__))
 reg_cr_t
 {
 
-  uint8_t   mode        : 3;      // only 3 bits
+  // fpga mode. 3 bits
+  uint8_t   mode        : 3;
 
 
   // adc - whether to switch the input sigmux
@@ -114,6 +115,9 @@ reg_cr_t
   // sa - no az mode
   uint8_t sa_p_noaz : 1;
 
+  // board state, that must persist range change, not used directly by fpga
+  uint8_t _10meg_impedance : 1;
+
 
  // input           p_use_slow_rundown,
  // input           p_use_fast_rundown,
@@ -121,7 +125,7 @@ reg_cr_t
 
 
 
-  uint32_t   dummy_bits_o : 27;
+  uint32_t   dummy_bits_o : 26;
 
 } reg_cr_t;
 

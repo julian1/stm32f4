@@ -83,6 +83,8 @@ static void partial_reset( _mode_t *mode)
   // persist noaz flag
   mode->reg_cr.sa_p_noaz = tmp.reg_cr.sa_p_noaz;
 
+  // persist state of 10meg. impedance flag
+  mode->reg_cr._10meg_impedance =  tmp.reg_cr._10meg_impedance;
 
   // keep the LTS setting , AG
   // mode->second.U1003 = tmp.second.U1003;
@@ -94,14 +96,13 @@ static void partial_reset( _mode_t *mode)
 
 
 
-static void dcv_ref( _mode_t *mode, bool _10meg_impedance)
+static void dcv_ref( _mode_t *mode)
 {
   /*
     internal ref.  not a particularly useful function
     only 1x gain applies
   */
 
-  UNUSED( _10meg_impedance );
   partial_reset( mode);
 
   mode_reg_cr_mode_set( mode, MODE_SA_ADC);
@@ -111,7 +112,7 @@ static void dcv_ref( _mode_t *mode, bool _10meg_impedance)
 
 
 
-static void dcv_10( _mode_t *mode, bool _10meg_impedance)
+static void dcv_10( _mode_t *mode)
 {
 
   partial_reset( mode);
@@ -121,26 +122,25 @@ static void dcv_10( _mode_t *mode, bool _10meg_impedance)
   mode->first.K402 = SR_SET;
 
   // apply impedance
-  mode->first.K403 = _10meg_impedance ? SR_SET : SR_RESET;
+  mode->first.K403 = mode->reg_cr._10meg_impedance ? SR_SET : SR_RESET;
 }
 
-static void dcv_1( _mode_t *mode, bool _10meg_impedance)
+static void dcv_1( _mode_t *mode)
 {
-  dcv_10( mode, _10meg_impedance);
+  dcv_10( mode);
   mode_gain_set(mode, 10);
 }
 
-static void dcv_01( _mode_t *mode, bool _10meg_impedance)
+static void dcv_01( _mode_t *mode)
 {
-  dcv_10( mode, _10meg_impedance);
+  dcv_10( mode);
   mode_gain_set(mode, 100);
 }
 
 
 
-static void dcv_100( _mode_t *mode, bool _10meg_impedance)
+static void dcv_100( _mode_t *mode)
 {
-  UNUSED(_10meg_impedance);
 
   partial_reset( mode);
 
@@ -154,18 +154,16 @@ static void dcv_100( _mode_t *mode, bool _10meg_impedance)
 }
 
 
-static void dcv_1000( _mode_t *mode, bool _10meg_impedance)
+static void dcv_1000( _mode_t *mode)
 {
-  dcv_100( mode, _10meg_impedance);
+  dcv_100( mode);
   mode_gain_set( mode, 1);
 }
 
 
-static void temp( _mode_t *mode, bool _10meg_impedance)
+static void temp( _mode_t *mode)
 {
-  UNUSED(_10meg_impedance);
   partial_reset( mode);
-
 
   mode_reg_cr_mode_set( mode, MODE_SA_ADC);
   mode_sa_az_set(mode, "ch2" );
