@@ -1153,15 +1153,20 @@ bool mode_repl_statement(
       }
 
 
-      // ice40 mode.
+      // fpga0 mode.
       else if(strcmp(s0, "mode") == 0) {
-
-
-        // mode->reg_mode = u0;
-        // mode->reg_cr.mode = u0;
 
         mode_reg_cr_set( mode, u0);
       }
+
+
+      else if(strcmp(s0, "noaz") == 0) {
+
+        // this will be over-written by a range. reset...
+        mode->reg_cr.sa_p_noaz = u0;
+      }
+
+
 
 
       else if(strcmp(s0, "direct") == 0) {

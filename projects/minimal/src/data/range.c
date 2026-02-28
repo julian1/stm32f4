@@ -66,12 +66,22 @@ static void partial_reset( _mode_t *mode)
 
 
   _mode_t tmp = *mode;
+  UNUSED(tmp);
 
   // reset to known  good state
   mode_reset( mode);
 
-  // keep adc parameters eg. nplc
-  mode->adc = tmp.adc;
+
+  // persist adc parameters, aperture and reset period
+  mode->adc.p_aperture  = tmp.adc.p_aperture;
+  mode->adc.p_reset     = tmp.adc.p_reset;
+
+  // persist the sa trigger-delay,  and precharge period
+  mode->sa.p_clk_count_trig_delay   = tmp.sa.p_clk_count_trig_delay;
+  mode->sa.p_clk_count_precharge    = tmp.sa.p_clk_count_precharge;
+
+  // persist noaz flag
+  mode->reg_cr.sa_p_noaz = tmp.reg_cr.sa_p_noaz;
 
 
   // keep the LTS setting , AG
