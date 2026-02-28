@@ -83,7 +83,7 @@ void buffers_update( buffers_t *buffers)
 
 
 
-  if(data->first) {
+  if(data->status.first) {
 
     assert(!data->valid);
 
@@ -97,13 +97,14 @@ void buffers_update( buffers_t *buffers)
   }
 
   if(data->valid) {
-    assert(!data->first);
+
+    assert(!data->status.first);
     // push buffers.
 
     // printf("buffers i %u, size %u, ", buffers->i, buffers->size );
     printf("(%u, %u), ", buffers->i, buffers->size );
 
-    buffers->values[ buffers->i ] = data->value;
+    buffers->values[ buffers->i ] = data->reading;
 
     buffers->i    = (buffers->i + 1 ) % buffers->n;
     buffers->size = MIN( buffers->size  + 1, buffers->n) ;

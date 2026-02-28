@@ -2,6 +2,9 @@
 /*
   TODO
 
+    - keep this code simple. with low dependencies.
+      don't use app->data, app->cal, app->buffer etc.
+
   - add count ratio.  in output
       so can adjust var pos to var neg.  for the bounds.
 

@@ -35,20 +35,19 @@
 #include <mode.h>
 
 #include <data/range.h>
+#include <data/data.h>
 
 
 
 
-static void display_some_data( app_t *app )
+static void display_readings( app_t *app )
 {
-  /*
-    should be able to use data_t and data_update() to handle all this
-
-  */
 
   _mode_t *mode = app->mode;
-  assert(mode);
-  assert(mode->magic == MODE_MAGIC) ;
+  assert(mode && mode->magic == MODE_MAGIC) ;
+
+  data_t *data = app->data;
+  assert( data && data->magic == DATA_MAGIC);
 
 
   spi_t *spi = app->spi_fpga0;
@@ -58,12 +57,10 @@ static void display_some_data( app_t *app )
   assert( range);
 
 
-
   char buf[100 + 1];
 
 
   ////////////////////
-
 
   mode_ch2_set_ref( mode);
 
@@ -77,31 +74,24 @@ static void display_some_data( app_t *app )
   // nplc to use
   // mode_adc_aperture_set( mode, nplc_to_aperture( 10, app->line_freq ));
 
-
   ////////////////////
 
-  // record previous lo
-  uint32_t clk_count_refmux_pos_lo = 0;
-  uint32_t clk_count_refmux_neg_lo = 0;   // no adjustment
-
-  // TODO consider better name - readings
+  // TODO consider rename to - readings
   double values[ 10 ];
   memset(values, 0, sizeof(values));
-
 
   ////////////////////
   app_transition_state( app);
 
-
-  // sleep
-  // app_msleep( app, 1000);
-
   // start sampling
   gpio_write( app->gpio_trigger, true);
 
+  data->show_counts   = true;
+  data->show_sum      = true;
+  data->show_reading  = true;
 
   // take obs loop
-  for(unsigned i = 0; i < ARRAY_SIZE( values);)
+  for( unsigned i = 0; i < ARRAY_SIZE( values);)
   {
     printf("i %u, ", i);
 
@@ -111,50 +101,19 @@ static void display_some_data( app_t *app )
 
     app->adc_interrupt_valid = false;
 
-    uint32_t status_ = spi_ice40_reg_read32( spi, REG_STATUS );
-    reg_sr_t  status;
-     _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
-    memcpy( &status, &status_,  sizeof( status_));
-
-    uint32_t clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-    uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-    uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
-
-    printf( "first=%u idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
-    printf( "counts pos %7lu neg %7lu sig %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg, clk_count_sigmux);
-
-    if(status.sample_idx == 0) {
-      // lo - record counts
-      clk_count_refmux_pos_lo = clk_count_refmux_pos;
-      clk_count_refmux_neg_lo = clk_count_refmux_neg;
-    }
-    else if (status.sample_idx == 1) {
-      // hi
-      double v = ((double) clk_count_refmux_pos    - (app->cal_w * clk_count_refmux_neg))
-              - ( (double) clk_count_refmux_pos_lo - (app->cal_w * clk_count_refmux_neg_lo));
-
-      printf("v %f, ", v );
+    data_update( data);
 
 
-      double v2 = v / clk_count_sigmux * range->b /*cal_7v1_b */ ;
-
-      printf( "v2 %s, ", str_format_float_with_commas(buf, 100, 9, v2));
-      // printf("v2 %f, ", v2 );
-
-      values[i] = v2;
+    if( data->valid ) {
+      values[ i] = data->value  * range->b  + range->a ;
       ++i;
     }
-    else
-      assert(0);
-
 
     printf("\n");
   }
 
   // stop sampling
   gpio_write( app->gpio_trigger, false);
-
-
 
 
   // better names - readings_mean ?
@@ -165,9 +124,6 @@ static void display_some_data( app_t *app )
   printf( "stddev %s, ", str_format_float_with_commas(buf, 100, 9, values_stddev));
   printf("\n");
 
-
-
-  printf("\n");
 
 }
 
@@ -180,7 +136,6 @@ static void display_some_data( app_t *app )
 
 static void cal_dcv10_nom( app_t *app)
 {
-
 /*
   This is the cal. for the primary (not acal derived) DCV 10 range.
   It is irrelevant. that we use the local 7V ref as nominal value..
@@ -188,12 +143,15 @@ static void cal_dcv10_nom( app_t *app)
 */
 
   _mode_t *mode = app->mode;
-  assert(mode);
-  assert(mode->magic == MODE_MAGIC);
+  assert(mode && mode->magic == MODE_MAGIC);
 
+  data_t *data = app->data;
+  assert( data && data->magic == DATA_MAGIC);
 
   spi_t *spi = app->spi_fpga0;
   assert(spi);
+
+
 
   char buf[100 + 1];
 
@@ -203,8 +161,8 @@ static void cal_dcv10_nom( app_t *app)
 
   mode_reset( mode);
 
-
-  mode_sa_trig_delay_set( mode, 20000000 ); // 1 sec.
+  // set the trigger delay for settle time
+  mode_sa_trig_delay_set( mode, period_to_aper_n(  1.f )); // 1 sec.
 
   // normal sample acquisition/adc operation
   mode_reg_cr_mode_set( mode, MODE_SA_ADC);
@@ -217,7 +175,6 @@ static void cal_dcv10_nom( app_t *app)
 
   // hold input to adc at lo. to reduce leakage.
   mode_ch2_set_ref_lo( mode);
-
 
   // set sigmux not active. needed to calculate relative pos/neg ref current weight.
   mode->reg_cr.adc_p_active_sigmux = 0;
@@ -239,16 +196,12 @@ static void cal_dcv10_nom( app_t *app)
   _Static_assert(ARRAY_SIZE(pos_values) == ARRAY_SIZE(neg_values), "array sizes do not match");
 
   // stop sampling
-  // app_trigger( app, false);
   gpio_write( app->gpio_trigger, false);
 
   // set nplc
   mode_adc_aperture_set( mode, nplc_to_aperture( 10, app->line_freq ));
 
-
   app_transition_state( app);
-  // sleep
-  // app_msleep( app, 1000);
 
   // start sampling
   gpio_write( app->gpio_trigger, true);
@@ -259,6 +212,10 @@ static void cal_dcv10_nom( app_t *app)
       no need for mean function etc...  although having the stddev is useful.
 
   */
+
+  data->show_counts  = true;
+  data->show_sum     = false;
+  data->show_reading = false;
 
   // take obs loop
   for(unsigned i = 0; i < ARRAY_SIZE(pos_values); ++i)
@@ -271,21 +228,10 @@ static void cal_dcv10_nom( app_t *app)
 
     app->adc_interrupt_valid = false;
 
-    uint32_t status_ = spi_ice40_reg_read32( spi, REG_STATUS );
-    reg_sr_t  status;
-     _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
-    memcpy( &status, &status_,  sizeof( status_));
+    data_update( data);
 
-
-    uint32_t clk_count_refmux_pos   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-    uint32_t clk_count_refmux_neg   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-    uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
-
-    printf( "first=%u idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
-    printf( "counts pos %7lu neg %7lu sig %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg, clk_count_sigmux);
-
-    pos_values[i] = clk_count_refmux_pos;
-    neg_values[i] = clk_count_refmux_neg;
+    pos_values[i] = data->clk_count_refmux_pos;
+    neg_values[i] = data->clk_count_refmux_neg;
 
     printf("\n");
   }
@@ -321,10 +267,6 @@ static void cal_dcv10_nom( app_t *app)
 
   ////////////////////////
 
-  // previous lo
-  uint32_t clk_count_refmux_pos_lo = 0;
-  uint32_t clk_count_refmux_neg_lo = 0;   // no adjustment
-
   // TODO better name here. count cal_7v1_b/ factor.
   double values[ 10 ];
   memset(values, 0, sizeof(values));
@@ -355,13 +297,11 @@ static void cal_dcv10_nom( app_t *app)
 
     app_transition_state( app);
 
-
-    // sleep
-    // app_msleep( app, 1000);
-
     // start sampling
     gpio_write( app->gpio_trigger, true);
 
+
+    data->show_sum     = true;
 
     // compute ref for diff
     for(unsigned i = 0; i < ARRAY_SIZE( values);)
@@ -374,36 +314,14 @@ static void cal_dcv10_nom( app_t *app)
 
       app->adc_interrupt_valid = false;
 
-      uint32_t status_ = spi_ice40_reg_read32( spi, REG_STATUS );
-      reg_sr_t  status;
-       _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
-      memcpy( &status, &status_,  sizeof( status_));
+      data_update( data);
 
-      uint32_t clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-      uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-      uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
+      if( data->valid) {
 
-      printf( "first=%u idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
-      printf( "counts pos %7lu neg %7lu sig %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg, clk_count_sigmux);
-
-      if(status.sample_idx == 0) {
-        // lo - record counts
-        clk_count_refmux_pos_lo = clk_count_refmux_pos;
-        clk_count_refmux_neg_lo = clk_count_refmux_neg;
-      }
-      else if (status.sample_idx == 1) {
-        // hi
-        double v = ((double) clk_count_refmux_pos    - (app->cal_w * clk_count_refmux_neg))
-                - ( (double) clk_count_refmux_pos_lo - (app->cal_w * clk_count_refmux_neg_lo));
-
-        printf("v %f, ", v );
-        values[ i] = v / clk_count_sigmux;
-
-        // only increment on hi.
+        // value is sum / sigmux
+        values[ i] = data->value;
         ++i;
       }
-      else
-        assert(0);
 
       printf("\n");
     }
@@ -438,7 +356,7 @@ static void cal_dcv10_nom( app_t *app)
   printf("\n");
 
 
-  display_some_data( app);
+  display_readings( app);
 
 
 

@@ -80,48 +80,58 @@ void data_update( data_t *data )
   spi_t *spi = data->spi;
 
   uint32_t status_ = spi_ice40_reg_read32( spi, REG_STATUS );
-  reg_sr_t  status;
-   _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
-  memcpy( &status, &status_,  sizeof( status_));
+  // reg_sr_t  status;
+   _Static_assert(sizeof(data->status) == sizeof(status_), "bad typedef size");
+  memcpy( &data->status, &status_,  sizeof( status_));
 
-  uint32_t clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-  uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-  uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
+  data->clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+  data->clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+  data->clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
 
 
-  data->first =  status.first;
-  if(data->first ) {
-    printf("\n");
+  // data->first =  status.first;
+  // if(data->first ) {
+  if(data->status.first ) {
+
+    // printf("\n");
   }
 
-  printf( "first=%u idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
-  printf( "counts pos %7lu neg %7lu sig %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg, clk_count_sigmux);
+
+  if(data->show_counts) {
+    printf( "first=%u idx=%u seq_n=%u, ", data->status.first, data->status.sample_idx, data->status.sample_seq_n);
+    printf( "counts pos %7lu neg %7lu sig %7lu, ", data->clk_count_refmux_pos, data->clk_count_refmux_neg, data->clk_count_sigmux);
+  }
 
 
 
-  if(status.sample_idx == 0) {
+  if(data->status.sample_idx == 0) {
 
     // lo - record counts
-    data->clk_count_refmux_pos_lo = clk_count_refmux_pos;
-    data->clk_count_refmux_neg_lo = clk_count_refmux_neg;
+    data->clk_count_refmux_pos_lo = data->clk_count_refmux_pos;
+    data->clk_count_refmux_neg_lo = data->clk_count_refmux_neg;
 
     data->valid = false;
   }
 
-  else if (status.sample_idx == 1) {
+  else if (data->status.sample_idx == 1) {
 
     // hi
-    double v = ((double) clk_count_refmux_pos          - (cal_w * clk_count_refmux_neg))
-            - ( (double) data->clk_count_refmux_pos_lo - (cal_w * data->clk_count_refmux_neg_lo));
+    data->clk_count_sum =
+          ((double) data->clk_count_refmux_pos    - (cal_w * data->clk_count_refmux_neg))
+        - ((double) data->clk_count_refmux_pos_lo - (cal_w * data->clk_count_refmux_neg_lo));
 
-    printf("v %f, ", v );
 
-    data->value = (v / clk_count_sigmux ) * range->b + range->a;
-    data->valid = true;
+    if(data->show_sum)
+      printf("sum %.2f, ", data->clk_count_sum);
 
-    printf( "v2 %s, ", str_format_float_with_commas(buf, 100, 8, data->value));
+    data->value     = data->clk_count_sum  / data->clk_count_sigmux;
+    data->reading   = data->value  * range->b + range->a;
+    data->valid     = true;
 
-    printf( "%s %s, ", range->name, range->unit );
+    if(data->show_reading) {
+      printf( "read %s, ", str_format_float_with_commas(buf, 100, 8, data->reading ));
+      printf( "%s %s, ", range->name, range->unit );
+    }
 
   }
   else
@@ -141,9 +151,12 @@ bool data_repl_statement( data_t *data,  const char *cmd )
   assert(data);
   assert(data->magic == DATA_MAGIC);
 
+  UNUSED(cmd);
+
 
   // could be called, 'buffer show stats', 'buffer show extra' etc.
-
+  // consider a boolean here
+#if 0
   if(strcmp(cmd, "data show counts") == 0)
     data->show_counts = 1;
 
@@ -153,18 +166,20 @@ bool data_repl_statement( data_t *data,  const char *cmd )
   else if(strcmp(cmd, "data show stats") == 0)
     data->show_stats = 1;
 
+#endif
 #if 0
   else if(strcmp(cmd, "data cal show") == 0) {
 
     data_cal_show( data );
 
   }
-#endif
-
-  else
+else
     return 0;
 
-  return 1;
+#endif
+
+  
+  return 0;
 }
 
 

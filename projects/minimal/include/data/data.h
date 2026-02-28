@@ -9,6 +9,9 @@
 
 #include <stdbool.h>
 
+#include <device/spi-fpga0-reg.h>     // for reg_sr_t
+
+
 
 typedef struct cal_t cal_t;
 typedef struct spi_t spi_t;
@@ -31,9 +34,21 @@ typedef struct data_t
   unsigned    *range_idx;    // current active range
 
 
-
+  //////////////////////////////////
   // first reading
-  bool  first;
+  // TODO we should just copy the status register here... to get the flags.
+  // bool  first;
+  reg_sr_t  status;
+
+  uint32_t clk_count_refmux_pos ;
+  uint32_t clk_count_refmux_neg;
+  uint32_t clk_count_sigmux;
+
+
+  // reading AZ. value weight adjusted.
+  double  clk_count_sum;
+
+  ////////////////////////////////
 
 
   // persist...  for AZ. from last reading
@@ -42,14 +57,26 @@ typedef struct data_t
 
   ///////////////////////
 
-  // for other modules
-  bool   valid;
-  // reading
-  double value;
+  // computed using range
+  bool   valid;   // rename reading_valid
 
+  // reading
+  // reading_value or just reading
+  double value;
+  // adjusted by range
+  double reading;
+
+/*
+  // repl control stuff
   bool show_counts;
   bool show_stats;
   bool show_extra;
+*/
+
+  bool show_counts;
+  bool show_sum;
+  bool show_reading;
+
 
 
 } data_t;
@@ -58,13 +85,12 @@ typedef struct data_t
 
 
 
-// void data_init( data_t *, cal_t * cal, spi_t *spi);
 void data_init(
   data_t    *data,
   spi_t     *spi,
   double    *cal_w,
   range_t   *ranges,
-  unsigned *range_idx
+  unsigned  *range_idx
 );
 
 
