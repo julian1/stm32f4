@@ -708,23 +708,16 @@ static void app_update_console(app_t *app)
 
 
         // only now consider the trigger
-        // pending, changes to trigger apply only after state transition
+        // update only after board state transition, to minimize disruption
+        // use the trigger delay  if needed
         if( app->repl_trigger_pending) {
 
           // clear for next time
           app->repl_trigger_pending = false;
-/*
-          // let board state settle
-          // consider adding trigger delay to sample acquisition
-          // this looks to work well in practice
-          if(app->repl_trigger_value)
-            app_msleep( app, 100);
-*/
+
           // apply trigger value
           gpio_write( app->gpio_trigger, app->repl_trigger_value);
         }
-
-
       }
 
       // issue new prompt
