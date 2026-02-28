@@ -15,12 +15,10 @@
 #include <device/spi-fpga0-reg.h>   // for seq mode
 
 
-#include <util.h>     // aper_n_to_period
-#include <lib2/util.h>      // ARRAY_SIZE
-#include <lib2/format.h>  // format_float
+#include <lib2/util.h>      // UNUSED
+#include <lib2/format.h>    // format_float
 
 
-// #include <data/cal.h>
 #include <data/data.h>
 #include <data/range.h>
 
@@ -79,8 +77,8 @@ void data_update( data_t *data )
   // could actually pass this dependency - in the update_call().  since this is only time it is needed
   spi_t *spi = data->spi;
 
-  uint32_t status_ = spi_ice40_reg_read32( spi, REG_STATUS );
-  // reg_sr_t  status;
+  uint32_t status_          = spi_ice40_reg_read32( spi, REG_STATUS );
+
    _Static_assert(sizeof(data->status) == sizeof(status_), "bad typedef size");
   memcpy( &data->status, &status_,  sizeof( status_));
 
@@ -178,7 +176,7 @@ else
 
 #endif
 
-  
+
   return 0;
 }
 

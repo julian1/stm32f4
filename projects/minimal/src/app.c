@@ -12,7 +12,7 @@
 
 #include <lib2/util.h>        // UNUSED
 #include <lib2/format.h>      // str_format_bits()
-#include <lib2/stream-flash.h>
+#include <lib2/stream-flash.h>  // flash_open_file()
 
 
 #include <peripheral/spi-ice40.h>
@@ -156,6 +156,9 @@ void app_yield( app_t *app)
     if(app->yield)
       app->yield( app->yield_ctx);
   */
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+
 
   app_update_simple_led_blink( app);
 }
@@ -167,9 +170,14 @@ void app_msleep( app_t *app, uint32_t delay)
   /*
     simple api, that should cover most cases as default
 
-    callees should not know about the yield context.
-    we can always override continuation by changing app->yield before calling the func that calls this
+    caller should not know the yield context.
+    can always override the continuation with
+    app->yield before calling the func that calls this
   */
+
+  assert(app);
+  assert(app->magic == APP_MAGIC);
+
 
   // remember system_millis is volatile.
 
@@ -238,7 +246,6 @@ static void state_format ( uint8_t *state, size_t n)
 
 
 void app_transition_state( app_t  *app)
-// void app_transition_state( app_t  *app, const _mode_t *mode, volatile uint32_t *system_millis /*, uint32_t update_flags */)
 {
   assert(app);
   assert(app->magic == APP_MAGIC);
@@ -314,12 +321,12 @@ void app_transition_state( app_t  *app)
 
   // spi_ice40_reg_write32( app->spi_fpga0, REG_CR, mode->reg_mode );
   _Static_assert ( sizeof( mode->reg_cr) == 4);
-  spi_ice40_reg_write_n( app->spi_fpga0, REG_CR,  &mode->reg_cr,  sizeof( mode->reg_cr) );
+  spi_ice40_reg_write_n( app->spi_fpga0, REG_CR,  &mode->reg_cr,  sizeof( mode->reg_cr));
 
   // reg_direct for outputs under fpga control
   _Static_assert ( sizeof( mode->reg_direct) == 4);
   // TODO. review - why use write_n() rather than write32() here?
-  spi_ice40_reg_write_n( app->spi_fpga0, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct) );
+  spi_ice40_reg_write_n( app->spi_fpga0, REG_DIRECT,  &mode->reg_direct,  sizeof( mode->reg_direct));
 
 
   ///////////////
@@ -354,9 +361,10 @@ void app_transition_state( app_t  *app)
 
 
   /*
-    do not write the trigger here, on board state update.
-    in c code it is explicit.
-    in repl.  is is queued and pending and handled outside here.
+    trigger is not set here. instead,
+    for c code manage manually/explicitly.
+    for repl, update when repl string is processed
+    ie. after the call to state update
   */
 }
 
@@ -364,8 +372,8 @@ void app_transition_state( app_t  *app)
 
 void app_configure( app_t *app )
 {
-  assert(app);
-  assert(app->magic == APP_MAGIC);
+  assert( app);
+  assert( app->magic == APP_MAGIC);
 
 #if 0
 
@@ -390,10 +398,10 @@ void app_configure( app_t *app )
   assert( spi_ice40_cdone( app->spi_fpga0_pc));
 
   // check/verify 4094 OE is not asserted
-  assert( !spi_ice40_reg_read32( app->spi_fpga0, REG_4094_OE ));
+  assert( !spi_ice40_reg_read32( app->spi_fpga0, REG_4094_OE));
 
   // reset the mode.
-  mode_init( app->mode );
+  mode_init( app->mode);
 
 
   /* OK. this is tricky.
@@ -707,9 +715,9 @@ static void app_update_console(app_t *app)
         app_transition_state( app );
 
 
-        // only now consider the trigger
-        // update only after board state transition, to minimize disruption
-        // use the trigger delay  if needed
+        // repl also controls the trigger state
+        // consider the trigger
+        // only after the board state has been updated for good settle time
         if( app->repl_trigger_pending) {
 
           // clear for next time
@@ -815,17 +823,15 @@ void app_update( app_t *app)
 
 
 
-static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq)
+static bool spi_repl_reg_query( spi_t *spi, const char *cmd, uint32_t line_freq)
 {
   /*
-    low level fpga register accessors
-    this is typed on fpga spi,
-    but does not belong here in app.c move?
+    repl query low-level registers
 
-    the registers correspond with, ./include/device/spi-fpga0-reg.h
-    so create src/device/spi-fpga0-reg.c ?
+    function is typed on spi_t,
+    so code does not belong here in app.c
 
-    or else could just about move to, src/device/spi-fpga0.c
+    or move to, src/device/spi-fpga0.c   or support.c ?
   */
 
 
@@ -833,10 +839,15 @@ static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq
 
   // spi_port_configure( spi_fpga);
 
+  if( sscanf(cmd, "reg? %lu", &u0 ) == 1) {
 
-  if( strcmp( cmd, "4094?") == 0) {
+    // any register using known numberregister
+    spi_print_register( spi, u0 );
+  }
 
-    spi_print_register( spi, REG_4094_OE);     // needs a better name. use a general control register. "CR" con
+  else if( strcmp( cmd, "4094?") == 0) {
+
+    spi_print_register( spi, REG_4094_OE);
   }
   else if( strcmp(cmd, "cr?") == 0) {
 
@@ -846,41 +857,35 @@ static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq
 
     spi_print_register( spi, REG_DIRECT);
   }
-/*
-  else if( strcmp( cmd, "seq mode?") == 0) {
-
-    spi_print_register( spi, REG_SEQ_MODE);
-  }
-*/
-
-
   else if( strcmp( cmd, "precharge?") == 0) {
 
     spi_print_register( spi, REG_SA_P_CLK_COUNT_PRECHARGE);
   }
-
-
   else if( strcmp( cmd, "trig_delay?") == 0) {
 
+    // tdelay ?
     spi_print_register( spi, REG_SA_P_CLK_COUNT_TRIG_DELAY);
   }
-
-
-
   else if( strcmp( cmd, "status?") == 0) {
 
+    // TODO consider decode.
+    // don't bother because not that useful.
+    // since registed is updated too quickly
     spi_print_register( spi, REG_STATUS);
 
-    // don't bother decode contents.  because  sequence update is too fast.
   }
 
-  else if( sscanf(cmd, "reg? %lu", &u0 ) == 1) {
+  /////////////////////
+  // sample acquisition
 
-    spi_print_register( spi, u0 );
+  else if( strcmp( cmd, "seqn?") == 0) {
+
+    spi_print_register( spi, REG_SA_P_SEQ_N);
   }
 
-  // querying fpga direct. bypassing mode.
   else if( strcmp( cmd, "seq0?") == 0) {
+
+    // TODO consider decode.
     spi_print_seq_register( spi, REG_SA_P_SEQ0);
   }
   else if( strcmp( cmd, "seq1?") == 0) {
@@ -893,21 +898,24 @@ static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq
     spi_print_seq_register( spi, REG_SA_P_SEQ3);
   }
 
-  else if( strcmp( cmd, "seqn?") == 0) {
-
-    spi_print_register( spi, REG_SA_P_SEQ_N);
-  }
-
+  /////////////////////
+  // adc
 
   else if( strcmp(cmd, "nplc?") == 0
     || strcmp(cmd, "aper?") == 0
   ) {
 
-    // spi_port_configure( spi_fpga);
     uint32_t aperture = spi_ice40_reg_read32( spi, REG_ADC_P_CLK_COUNT_APERTURE );
-
     aper_cc_print( aperture,  line_freq);
   }
+
+  else if( strcmp(cmd, "reset?") == 0) {
+
+    spi_print_seq_register( spi, REG_ADC_P_CLK_COUNT_RESET);
+  }
+
+
+
 
   else return 0;
 
@@ -921,6 +929,7 @@ static bool spi_repl_reg_query( spi_t *spi,  const char *cmd, uint32_t line_freq
 
 static bool app_repl_range( app_t *app, const char *cmd)
 {
+  // consider rename app_repl_maybe_set_range()
 
   for( unsigned i = 0; i < app->ranges_sz; ++i )  {
 
@@ -949,7 +958,6 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   assert( app->magic == APP_MAGIC);
 
 
-  // to debug
   // printf("cmd '%s'  %u\n", cmd, strlen(cmd) );
 
 

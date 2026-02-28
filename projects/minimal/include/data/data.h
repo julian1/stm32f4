@@ -36,16 +36,14 @@ typedef struct data_t
 
   //////////////////////////////////
   // first reading
-  // TODO we should just copy the status register here... to get the flags.
-  // bool  first;
-  reg_sr_t  status;
 
+  reg_sr_t status;
   uint32_t clk_count_refmux_pos ;
   uint32_t clk_count_refmux_neg;
   uint32_t clk_count_sigmux;
 
 
-  // reading AZ. value weight adjusted.
+  // AZ HI-LO clk count sum, weight adjusted.
   double  clk_count_sum;
 
   ////////////////////////////////
@@ -58,25 +56,18 @@ typedef struct data_t
   ///////////////////////
 
   // computed using range
-  bool   valid;   // rename reading_valid
+  bool   valid;   // rename value_valid
 
-  // reading
-  // reading_value or just reading
+  // scaled by sigmux
   double value;
-  // adjusted by range
-  double reading;
 
-/*
-  // repl control stuff
-  bool show_counts;
-  bool show_stats;
-  bool show_extra;
-*/
+  // reading scaled and offset
+  double reading;
 
   bool show_counts;
   bool show_sum;
   bool show_reading;
-
+  bool show_ratio;
 
 
 } data_t;
