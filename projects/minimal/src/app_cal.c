@@ -75,7 +75,7 @@ static void display_some_data( app_t *app )
   // mode_ch2_set_lts( mode);
 
   // nplc to use
-  mode_adc_aperture_set( mode, nplc_to_aperture( 10, app->line_freq ));
+  // mode_adc_aperture_set( mode, nplc_to_aperture( 10, app->line_freq ));
 
 
   ////////////////////
@@ -94,7 +94,7 @@ static void display_some_data( app_t *app )
 
 
   // sleep
-  app_msleep( app, 1000);
+  // app_msleep( app, 1000);
 
   // start sampling
   gpio_write( app->gpio_trigger, true);
@@ -191,11 +191,6 @@ static void cal_dcv10_nom( app_t *app)
   assert(mode);
   assert(mode->magic == MODE_MAGIC);
 
-/*
-  cal_t *cal = app->cal;
-  assert(cal);
-  assert(cal->magic == CAL_MAGIC);
-*/
 
   spi_t *spi = app->spi_fpga0;
   assert(spi);
@@ -207,6 +202,9 @@ static void cal_dcv10_nom( app_t *app)
   gpio_write( app->gpio_trigger, false);
 
   mode_reset( mode);
+
+
+  mode_sa_trig_delay_set( mode, 20000000 ); // 1 sec.
 
   // normal sample acquisition/adc operation
   mode_reg_cr_mode_set( mode, MODE_SA_ADC);
@@ -250,7 +248,7 @@ static void cal_dcv10_nom( app_t *app)
 
   app_transition_state( app);
   // sleep
-  app_msleep( app, 1000);
+  // app_msleep( app, 1000);
 
   // start sampling
   gpio_write( app->gpio_trigger, true);
@@ -359,7 +357,7 @@ static void cal_dcv10_nom( app_t *app)
 
 
     // sleep
-    app_msleep( app, 1000);
+    // app_msleep( app, 1000);
 
     // start sampling
     gpio_write( app->gpio_trigger, true);
