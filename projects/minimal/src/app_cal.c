@@ -68,14 +68,14 @@ static void display_some_data( app_t *app )
   mode_ch2_set_ref( mode);
 
   // mode_ch2_set_ref_lo( mode);
-  mode_az_set(mode, "ch2" );
+  mode_sa_az_set(mode, "ch2" );
 
   // set 10V.
   // mode_lts_set( mode, 10 );
   // mode_ch2_set_lts( mode);
 
   // nplc to use
-  mode_aperture_set( mode, nplc_to_aperture( 10, app->line_freq ));
+  mode_adc_aperture_set( mode, nplc_to_aperture( 10, app->line_freq ));
 
 
   ////////////////////
@@ -209,10 +209,10 @@ static void cal_dcv10_nom( app_t *app)
   mode_reset( mode);
 
   // normal sample acquisition/adc operation
-  mode_reg_cr_set( mode, MODE_SA_ADC);
+  mode_reg_cr_mode_set( mode, MODE_SA_ADC);
 
   // special sample acquisition mode - for adc running standalone.  // REVIEW ME
-  mode_az_set(mode, "0" );
+  mode_sa_az_set(mode, "0" );
 
   // REVIWE should not need this....
   // mode_gain_set(mode, 1);
@@ -245,7 +245,7 @@ static void cal_dcv10_nom( app_t *app)
   gpio_write( app->gpio_trigger, false);
 
   // set nplc
-  mode_aperture_set( mode, nplc_to_aperture( 10, app->line_freq ));
+  mode_adc_aperture_set( mode, nplc_to_aperture( 10, app->line_freq ));
 
 
   app_transition_state( app);
@@ -333,7 +333,7 @@ static void cal_dcv10_nom( app_t *app)
 
   {
     // nplc
-    mode_aperture_set( mode, nplc_to_aperture( nplc, app->line_freq ));
+    mode_adc_aperture_set( mode, nplc_to_aperture( nplc, app->line_freq ));
 
     /*
       expressing diff as a ratio of ref current - which is derived from main-ref is a decent approach.
@@ -350,7 +350,7 @@ static void cal_dcv10_nom( app_t *app)
     // mode_lts_set( mode, 10 );
     // mode_ch2_set_lts( mode);
 
-    mode_az_set(mode, "ch2" );
+    mode_sa_az_set(mode, "ch2" );
 
     // sigmux active
     mode->reg_cr.adc_p_active_sigmux = 1;
@@ -449,7 +449,7 @@ static void cal_dcv10_nom( app_t *app)
   // switch back to direct mode operation
   // why???
   // why not stay in the mode we used for cal
-  mode_reg_cr_set( mode, MODE_DIRECT);
+  mode_reg_cr_mode_set( mode, MODE_DIRECT);
 
   app_transition_state( app);
 

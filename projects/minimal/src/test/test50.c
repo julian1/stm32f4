@@ -79,11 +79,11 @@ static void test( app_t *app)
   mode_reset( mode);
 
   // normal sample acquisition/adc operation
-  mode_reg_cr_set( mode, MODE_SA_ADC);
+  mode_reg_cr_mode_set( mode, MODE_SA_ADC);
 
 
   // sample acquisition mode - for adc running standalone.  // REVIEW ME
-  mode_az_set(mode, "0" );
+  mode_sa_az_set(mode, "0" );
 
 
   mode->reg_cr.adc_p_active_sigmux = 0;   // sigmux not active.
@@ -97,7 +97,7 @@ static void test( app_t *app)
     gpio_write( app->gpio_trigger, false);
 
     // set nplc
-    mode_aperture_set( mode, nplc_to_aperture( k, app->line_freq ));
+    mode_adc_aperture_set( mode, nplc_to_aperture( k, app->line_freq ));
 
     app_transition_state( app);
 

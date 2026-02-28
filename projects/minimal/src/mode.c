@@ -98,14 +98,14 @@ void mode_reset(_mode_t *mode)
 
 
 
-void mode_aperture_set( _mode_t *mode, uint32_t u)
+void mode_adc_aperture_set( _mode_t *mode, uint32_t u)
 {
-  mode->adc.p_aperture = u;    // ugghhh....
+  mode->adc.p_aperture = u;
 }
 
 
 
-void mode_reg_cr_set(_mode_t *mode, unsigned u0)
+void mode_reg_cr_mode_set(_mode_t *mode, unsigned u0)
 {
 
   // ease setting.
@@ -117,12 +117,19 @@ void mode_reg_cr_set(_mode_t *mode, unsigned u0)
 }
 
 
+void mode_sa_trig_delay_set( _mode_t *mode, uint32_t u)
+{
+  mode->sa. p_clk_count_trig_delay = u;
+}
+
+
+
 
 
 // actually may be better to have noaz. to set up. to run with p_seq_n = 1;
 // and no switching.
 
-void mode_az_set(_mode_t *mode, const char *s)
+void mode_sa_az_set(_mode_t *mode, const char *s)
 {
   /* note the same syntax
 
@@ -1060,7 +1067,7 @@ bool mode_repl_statement(
   else if( sscanf(cmd, "set az %100s", s0) == 1
     /* || sscanf(cmd, "set sa %100s", s0) == 1 */)  {
 
-    mode_az_set( mode, s0 );
+    mode_sa_az_set( mode, s0 );
   }
 
 
@@ -1156,7 +1163,7 @@ bool mode_repl_statement(
       // fpga0 mode.
       else if(strcmp(s0, "mode") == 0) {
 
-        mode_reg_cr_set( mode, u0);
+        mode_reg_cr_mode_set( mode, u0);
       }
 
 

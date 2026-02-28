@@ -326,17 +326,21 @@ bool mode_repl_statement(
 
 // TODO - set should be suffix.
 
-void mode_reg_cr_set(_mode_t *mode, unsigned u0);
+void mode_reg_cr_mode_set(_mode_t *mode, unsigned u0);
 
 // feb 2026. do we even really need this
 // void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 );
 
-void mode_az_set(_mode_t *mode, const char *s);
+
+void mode_sa_trig_delay_set( _mode_t *mode, uint32_t u);
+
+void mode_sa_az_set(_mode_t *mode, const char *s);
 
 
 void mode_gain_set( _mode_t *mode, uint32_t u);
 
-void mode_aperture_set( _mode_t *mode, uint32_t u);
+// prefix with adc... mode_adc_aperture_set
+void mode_adc_aperture_set( _mode_t *mode, uint32_t u);
 
 
 
