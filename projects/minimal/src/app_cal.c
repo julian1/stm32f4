@@ -40,7 +40,7 @@
 
 
 
-static void display_readings( app_t *app )
+static void app_show_readings( app_t *app )
 {
 
   _mode_t *mode = app->mode;
@@ -356,7 +356,7 @@ static void cal_dcv10_nom( app_t *app)
   printf("\n");
 
 
-  display_readings( app);
+  app_show_readings( app);
 
 
 

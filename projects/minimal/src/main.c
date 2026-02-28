@@ -244,7 +244,6 @@ static int main_f429(void)
   app_t app ;
   app_init( &app);
 
-  app.line_freq = 50;
 
 
   ///////////////////
@@ -405,34 +404,19 @@ static int main_f429(void)
   app.mode = &mode;
 
 
-
-  double b[20] ;
-  double a[20] ;
-
-  memset( b, 0, sizeof(a));
-  memset( a, 0, sizeof(b));
-
-
-  // pointer to array
-  app.ranges = init_range_values;
+  app.ranges    = init_range_values;
   app.ranges_sz = init_ranges_sz;
 
-
+  // check range idx matches id.
+  // consider factor this out to range.c
   for( unsigned i = 0; i < app.ranges_sz ; ++i )  {
-    // just range idx are ok
+
     range_t *range = &app.ranges[ i];
     assert( range->id == i);
     assert( range->name);
   }
 
 
-
-
-
-/*
-  cal_init( &cal, b, a, ARRAY_SIZE(b));
-  app.cal = &cal;
-*/
 
   // structure just references state in app.
   // and makes it eay to serialize/deserialize to flash
@@ -450,8 +434,10 @@ static int main_f429(void)
 
 
 
+  app.line_freq = 50;
+
+
   data_t        data;
-  // data_init( &data, app.cal, app.spi_fpga0);
   data_init(
     &data,
     app.spi_fpga0,
@@ -471,7 +457,7 @@ static int main_f429(void)
 
 
 
-  // outer app loop, eg. bottom of control stack
+  // loop, bottom of the control stack
   while( true) {
 
     app_update( &app);

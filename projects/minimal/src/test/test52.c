@@ -40,14 +40,43 @@
 
 /*
   simple test.
-
-  code should avoid using the range_t structure
+  avoid hanging other dependencies on this code
 
 */
 
 
 
-static void display_some_data( app_t *app, double cal_w, double cal_7v1_b)
+static void spi_read_registers(
+  spi_t     *spi,
+  reg_sr_t  *status,
+  uint32_t  *clk_count_refmux_pos,
+  uint32_t  *clk_count_refmux_neg,
+  uint32_t  *clk_count_sigmux
+) {
+  /*
+    probably better to use this, so test test can run independly to/in isolation
+    to data_t and data_update() function
+    and range_t
+  */
+
+  uint32_t status_              = spi_ice40_reg_read32( spi, REG_STATUS );
+
+
+  // reg_sr_t  status;
+   _Static_assert(sizeof(*status) == sizeof(status_), "bad typedef size");
+  memcpy( status, &status_,  sizeof( status_));
+
+  *clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+  *clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+  *clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
+
+  printf( "first=%u idx=%u seq_n=%u, ", status->first, status->sample_idx, status->sample_seq_n);
+  printf( "counts pos %7lu neg %7lu sig %7lu, ", *clk_count_refmux_pos, *clk_count_refmux_neg, *clk_count_sigmux);
+
+}
+
+
+static void app_display_some_data( app_t *app, double cal_w, double cal_7v1_b)
 {
   /*
     should be able to use data_t and data_update() to handle all this
@@ -430,7 +459,7 @@ static void test( app_t *app)
 
   printf("\n");
 
-  display_some_data( app, cal_w, b);
+  app_display_some_data( app, cal_w, b);
 
 
 
