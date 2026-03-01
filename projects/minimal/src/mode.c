@@ -46,9 +46,20 @@ static const _mode_t mode_initial =  {
   .first. K702  = SR_RESET,
   .first. K703  = SR_RESET,
 
+  ////////////
+
+  // set lo-side drive of com-lc to A400-1/ star-ground
+  .first.U423   = D3,
+  .second.U423  = D3,
+
+  // set loside input boot buffer mux to A400-1/ star ground
+  .first.U426   = S4,
+  .second .U426 = S4,
 
 
-  // amplifier feb 2026.
+  ////////////
+
+  // amplifier set fb 1x feb 2026.
   .first .U506 = S8,
   .second.U506 = S8,
 
@@ -392,7 +403,8 @@ void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 )
 
 void mode_mdac0_set( _mode_t *mode, unsigned u0 )
 {
-  printf("mdac0\n");
+  // invert dac
+  printf("invert mdac\n");
 
   // dac7811.
   // 12 bits -  mask is FFF  == 4095
@@ -408,7 +420,8 @@ void mode_mdac0_set( _mode_t *mode, unsigned u0 )
 
 void mode_mdac1_set( _mode_t *mode, unsigned u0 )
 {
-  printf("mdac1\n");
+  // sts dac
+  printf("sts mdac\n");
 
   // dac7811.
   // 12 bits -  mask is FFF  == 4095
@@ -428,18 +441,26 @@ void mode_mdac1_set( _mode_t *mode, unsigned u0 )
 
 static void mode_loside_set( _mode_t *mode, const char *s)
 {
-  // loside drive/connections
+  /*
+      decode two arguments here. for boot channel U426.
+      and output drive U423
+
+  */
 
   // TODO need argument for the input channel to use
   // set to use channel 2.
-  mode->second.U426  = D2;      // ch 2
+
+  /*
+    set boot for ch2. boot.
+  */
+  mode->first.U426  = mode->second.U426  = D2;      // ch 2  BOOT
 
   if(strcmp(s, "gnd") == 0
     || strcmp(s, "star") == 0) {
 
     // consider setting as default in the main.c mode initialization
     // could turn off the boot here.
-    mode->second.U423  = D3;      // drive com-lc with A400-1. star-ground
+    mode->first.U423  = mode->second.U423  = D3;      // drive com-lc with A400-1. star-ground
 
     uint16_t  val = 0x0;          // turn off
     mode_mdac0_set( mode, val);
@@ -447,7 +468,11 @@ static void mode_loside_set( _mode_t *mode, const char *s)
   else if(strcmp(s, "invert") == 0
     || strcmp(s, "inverter") == 0) {
 
-    mode->second.U423  = D1;      // drive com-lc from mdac output
+    /*
+      should only really set boot.  if using the invert
+    */
+
+    mode->first.U423  =  mode->second.U423  = D1;      // drive com-lc from mdac output
 
     uint16_t  val = 0xfff;        // full.
     mode_mdac0_set( mode, val);
@@ -456,14 +481,14 @@ static void mode_loside_set( _mode_t *mode, const char *s)
     || strcmp(s, "offset") == 0) {   // invert + divider.... for dither
 
     // invert but using the divider.
-    mode->second.U423  = D2;      // drive com-lc from mdac and divider
+    mode->first.U423 =  mode->second.U423  = D2;      // drive com-lc from mdac and divider
 
     uint16_t  val = 0x0;          // off
     mode_mdac0_set( mode, val);
   }
   else if(strcmp(s, "boot") == 0) {
 
-    mode->second.U423  = D4;      // drive com-lc with boot direct
+    mode->first.U423 = mode->second.U423  = D4;      // drive com-lc with boot direct
     uint16_t  val = 0x0;          // off
     mode_mdac0_set( mode, val);
   }
@@ -473,10 +498,18 @@ static void mode_loside_set( _mode_t *mode, const char *s)
 
 }
 
+/*
+- I think we can simplify the way we manage the first/ second.
 
+  just make a tmp copy of the first.
+  write and wait 10ms.
 
+  then clear the relay pins  of the copy
+  and write
 
+  then we do not have to keep
 
+*/
 
 
 
@@ -539,8 +572,8 @@ void mode_ch2_reset(_mode_t *mode)
   // inpput muxes.
   mode->second.U419 = SOFF;     // himux or should be ref-lo? or agnd - for leakage?
   mode->second.U420 = SOFF;     // lomux
-  mode->second.U409 = DOFF;     // hi/lo mux.
 
+  mode->second.U409 = D4;   // feedmux  hi/lo
 }
 
 
@@ -595,6 +628,8 @@ void mode_ch2_set_daq( _mode_t *mode )
   mode->second.U419 = S5;   // daq
   mode->second.U420 = S5;   // com-lc
   mode->second.U409 = D4;   // feedmux  hi/lo
+
+  // USES com-lc.  but we have not set the BOOT here.
 }
 
 
@@ -654,220 +689,6 @@ void mode_ch2_accum( _mode_t *mode, bool val)
 }
 
 
-
-
-/*
-  TODO.
-  this function is awful.
-
-  instead just set up a closure/handler - at the time we set the AZ mux sequencing.
-
-  instead code as,
-
-     set_seq( idx, pc, azmux );
-     set_seq_n();
-
-  also the catcher/interpreter of the result.
-  remember it's main use used can also
-
-  just encode by hand. as we setup modes at top level.
-
-*/
-
-  // anything on channel two.
-
-/*
-  // zero first
-  sa->p_seq_elt[ 0].azmux  = S6;     // A400-1
-  sa->p_seq_elt[ 0].pc = 0b00;
-
-  // val
-  sa->p_seq_elt[ 1].azmux  = S3;     // CH2-IN
-  sa->p_seq_elt[ 1].pc = 0b10;
-
-
-  // could set the LS drive. first input switch here - eg. BOOT1/BOOT2/ agnd. if wanted.
-  // so it is set up for the double range.
-  // set the data catcher closurec.
-*/
-
-#if 0
-
-void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 )
-{
-  /*
-    doesn't have to be exhausive wrt cases.
-    can still setup manually.
-  */
-/*
-    we could define these in define int. also.
-    so that the strings would be correctly decoded.
-
-    S3 - dcv
-    S7 - star-lo
-    S1 - himux
-    S8 - lomux
-*/
-
-  mode->reg_seq_mode = seq_mode;                 // to guide decoder
-
-  switch(seq_mode) {
-
-
-    // boot mode - might be particularly useful when sampling.
-
-    case SEQ_MODE_BOOT: {
-      // sample a hi, but don't switch the pc switch, generally only used for electrometer, very high input impedance.
-
-      mode->sa.p_seq_n = 1;
-      if(arg0 == S3 ) {
-        mode->sa.p_seq0 = (0b00 << 4) | S3;        // dcv
-      }
-      else if(arg0 == S1 ) {
-        mode->sa.p_seq0 = (0b00 << 4) | S1;        // himux
-      }
-      else assert(0);
-      break;
-    }
-
-
-    /*/ for noaz.
-    // if we were to slect a lo here...
-    // if it's a hi - then switch the PC - for symmetry. if lo. then don't bother.
-    */
-
-    case SEQ_MODE_NOAZ: {
-      // clearer - to express as another mode, rather than as a bool.
-      // azero off - just means swtich the pc for symmetry/ and keep charge-injetion the same with azero mode.
-
-      mode->sa.p_seq_n = 1;
-      if(arg0 == S3 ) {
-        mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
-      }
-      else if(arg0 == S1 ) {
-        mode->sa.p_seq0 = (0b10 << 4) | S1;        // himux
-      }
-      else if(arg0 == S7 ) {
-        mode->sa.p_seq0 = (0b00 << 4) | S7;        // star-lo
-      }
-      else if(arg0 == S8 ) {
-        mode->sa.p_seq0 = (0b00 << 4) | S8;        // lomux
-      }
-
-      else assert(0);
-      break;
-    }
-
-
-
-    case SEQ_MODE_AZ: {
-    // write the seq
-
-      mode->sa.p_seq_n = 2;
-
-      // hi goes first
-
-      if(arg0 == S3 )
-        mode->sa.p_seq0 = (0b01 << 4) | S3;      // dcv
-      else if(arg0 == S1 )
-        mode->sa.p_seq0 = (0b10 << 4) | S1;        // himux
-      else
-        assert(0);
-
-      if(arg1 == S7)
-        mode->sa.p_seq1 = (0b00 << 4) | S7;        // star-lo
-      else if(arg1 == S8)
-        mode->sa.p_seq1 = (0b00 << 4) | S8;        // lomux
-      else
-        assert(0);
-/*
-    // applies both chanels.
-      if(arg0 == S3 && arg1 == S7) {
-        mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
-        mode->sa.p_seq1 = (0b00 << 4) | S7;        // star-lo
-      }
-      else if(arg0 == S1 && arg1 == S8)  {
-        mode->sa.p_seq0 = (0b01 << 4) | S1;        // himux   WRONG. FIXME.   not switching the PC.
-        mode->sa.p_seq1 = (0b00 << 4) | S8;        // lomux
-      }
-      else if(arg0 == S3 && arg1 == S8 )  {                // eg. for ref.
-        mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
-        mode->sa.p_seq1 = (0b00 << 4) | S8;        // lomux
-      }
-      else assert(0);
-*/
-      break;
-    }
-
-/*
-    case SEQ_MODE_ELECTRO: {
-
-      // same as no az, except don't switch the precharge
-      mode->sa.p_seq_n = 1;
-      mode->sa.p_seq0 = (0b00 << 4) | S3;        // dcv
-      break;
-    }
-*/
-
-    case SEQ_MODE_AG:
-    case SEQ_MODE_RATIO: {
-      // 4 cycle, producing single output
-      // Issue - is for internal - we need to set the common lo. eg. ref-lo. or start
-
-      mode->sa.p_seq_n = 4;
-      mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
-      mode->sa.p_seq1 = (0b00 << 4) | S8;        // ref-lo // star-lo
-      mode->sa.p_seq2 = (0b10 << 4) | S1;        // himux
-      mode->sa.p_seq3 = (0b00 << 4) | S8;        // ref-lo /// lomux
-      break;
-    }
-
-/*
-    case SEQ_MODE_AG: {
-      // auto-gain 4 cycle - same as ratio. producing a single output
-
-
-      mode->sa.p_seq_n = 4;
-      // sample
-      mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
-      mode->sa.p_seq1 = (0b00 << 4) | S7;        // star-lo
-      // reference
-      mode->sa.p_seq2 = (0b10 << 4) | S1;        // himux
-      mode->sa.p_seq3 = (0b00 << 4) | S7;        // lomux
-      break;
-    }
-*/
-    case SEQ_MODE_DIFF: {
-      // 2 cycle, hi- hi2, with both precharge switches switches. single output.
-      mode->sa.p_seq_n = 2;
-      mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
-      mode->sa.p_seq2 = (0b01 << 4) | S1;        // himux
-      break;
-    }
-
-    case SEQ_MODE_SUM_DELTA: {    // change name.  SUM_DELTA. 0w
-
-      // similar. take hi/lo, hi2/lo, .  but where lo is shared. so can calculate hi-lo, hi2-lo, hi-hi2.
-      // advantage of a single sequence - is that flicker noise should cancel some.
-      // noting that input can be external terminals - or the dcv-source and its inverted output.
-      // to encodekkkkkkkkk
-      // can do as 3 values or 4 values.   3 is more logical.
-
-      mode->sa.p_seq_n = 3;
-      mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
-      mode->sa.p_seq1 = (0b00 << 4) | S7;        // star-lo
-      mode->sa.p_seq2 = (0b10 << 4) | S1;        // himux
-      break;
-    }
-
-    default:
-      assert( 0);
-  }
-
-
-}
-
-#endif
 
 // bool mode_repl_statement( _mode_t *mode,  ranges_t *ranges, const char *cmd, const uint32_t line_freq )
 
@@ -1011,9 +832,8 @@ bool mode_repl_statement(
   // consider remove prefix m. from the dac.
 
   // inverter dac
-  else if(( sscanf(cmd, "set mdac0 %100s", s0) == 1
-    || sscanf(cmd, "set invert %100s", s0) == 1
-    || sscanf(cmd, "set inverter %100s", s0) == 1)    // doesn't work?
+  else if(( sscanf(cmd, "set invert %100s", s0) == 1
+    || sscanf(cmd, "set mdac0 %100s", s0) == 1)    // doesn't work?
 
     && str_decode_uint( s0, &u0)
   )  {
@@ -1026,7 +846,7 @@ bool mode_repl_statement(
   }
 
   // iso dac
-  else if(( sscanf(cmd, "set iso %100s", s0) == 1
+  else if(( sscanf(cmd, "set sts %100s", s0) == 1
     || sscanf(cmd, "set mdac1 %100s", s0) == 1 )
     && str_decode_uint( s0, &u0)
   )  {
@@ -1254,6 +1074,7 @@ bool mode_repl_statement(
         // should use set channel functionality instead.
         mode->second.U409 = u0 ;
       }
+
       else if(strcmp(s0, "u423") == 0) {
         mode->second.U423 = u0 ;
       }
@@ -1384,6 +1205,220 @@ bool mode_repl_statement(
 
 
 
+
+
+/*
+  TODO.
+  this function is awful.
+
+  instead just set up a closure/handler - at the time we set the AZ mux sequencing.
+
+  instead code as,
+
+     set_seq( idx, pc, azmux );
+     set_seq_n();
+
+  also the catcher/interpreter of the result.
+  remember it's main use used can also
+
+  just encode by hand. as we setup modes at top level.
+
+*/
+
+  // anything on channel two.
+
+/*
+  // zero first
+  sa->p_seq_elt[ 0].azmux  = S6;     // A400-1
+  sa->p_seq_elt[ 0].pc = 0b00;
+
+  // val
+  sa->p_seq_elt[ 1].azmux  = S3;     // CH2-IN
+  sa->p_seq_elt[ 1].pc = 0b10;
+
+
+  // could set the LS drive. first input switch here - eg. BOOT1/BOOT2/ agnd. if wanted.
+  // so it is set up for the double range.
+  // set the data catcher closurec.
+*/
+
+#if 0
+
+void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 )
+{
+  /*
+    doesn't have to be exhausive wrt cases.
+    can still setup manually.
+  */
+/*
+    we could define these in define int. also.
+    so that the strings would be correctly decoded.
+
+    S3 - dcv
+    S7 - star-lo
+    S1 - himux
+    S8 - lomux
+*/
+
+  mode->reg_seq_mode = seq_mode;                 // to guide decoder
+
+  switch(seq_mode) {
+
+
+    // boot mode - might be particularly useful when sampling.
+
+    case SEQ_MODE_BOOT: {
+      // sample a hi, but don't switch the pc switch, generally only used for electrometer, very high input impedance.
+
+      mode->sa.p_seq_n = 1;
+      if(arg0 == S3 ) {
+        mode->sa.p_seq0 = (0b00 << 4) | S3;        // dcv
+      }
+      else if(arg0 == S1 ) {
+        mode->sa.p_seq0 = (0b00 << 4) | S1;        // himux
+      }
+      else assert(0);
+      break;
+    }
+
+
+    /*/ for noaz.
+    // if we were to slect a lo here...
+    // if it's a hi - then switch the PC - for symmetry. if lo. then don't bother.
+    */
+
+    case SEQ_MODE_NOAZ: {
+      // clearer - to express as another mode, rather than as a bool.
+      // azero off - just means swtich the pc for symmetry/ and keep charge-injetion the same with azero mode.
+
+      mode->sa.p_seq_n = 1;
+      if(arg0 == S3 ) {
+        mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
+      }
+      else if(arg0 == S1 ) {
+        mode->sa.p_seq0 = (0b10 << 4) | S1;        // himux
+      }
+      else if(arg0 == S7 ) {
+        mode->sa.p_seq0 = (0b00 << 4) | S7;        // star-lo
+      }
+      else if(arg0 == S8 ) {
+        mode->sa.p_seq0 = (0b00 << 4) | S8;        // lomux
+      }
+
+      else assert(0);
+      break;
+    }
+
+
+
+    case SEQ_MODE_AZ: {
+    // write the seq
+
+      mode->sa.p_seq_n = 2;
+
+      // hi goes first
+
+      if(arg0 == S3 )
+        mode->sa.p_seq0 = (0b01 << 4) | S3;      // dcv
+      else if(arg0 == S1 )
+        mode->sa.p_seq0 = (0b10 << 4) | S1;        // himux
+      else
+        assert(0);
+
+      if(arg1 == S7)
+        mode->sa.p_seq1 = (0b00 << 4) | S7;        // star-lo
+      else if(arg1 == S8)
+        mode->sa.p_seq1 = (0b00 << 4) | S8;        // lomux
+      else
+        assert(0);
+/*
+    // applies both chanels.
+      if(arg0 == S3 && arg1 == S7) {
+        mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
+        mode->sa.p_seq1 = (0b00 << 4) | S7;        // star-lo
+      }
+      else if(arg0 == S1 && arg1 == S8)  {
+        mode->sa.p_seq0 = (0b01 << 4) | S1;        // himux   WRONG. FIXME.   not switching the PC.
+        mode->sa.p_seq1 = (0b00 << 4) | S8;        // lomux
+      }
+      else if(arg0 == S3 && arg1 == S8 )  {                // eg. for ref.
+        mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
+        mode->sa.p_seq1 = (0b00 << 4) | S8;        // lomux
+      }
+      else assert(0);
+*/
+      break;
+    }
+
+/*
+    case SEQ_MODE_ELECTRO: {
+
+      // same as no az, except don't switch the precharge
+      mode->sa.p_seq_n = 1;
+      mode->sa.p_seq0 = (0b00 << 4) | S3;        // dcv
+      break;
+    }
+*/
+
+    case SEQ_MODE_AG:
+    case SEQ_MODE_RATIO: {
+      // 4 cycle, producing single output
+      // Issue - is for internal - we need to set the common lo. eg. ref-lo. or start
+
+      mode->sa.p_seq_n = 4;
+      mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
+      mode->sa.p_seq1 = (0b00 << 4) | S8;        // ref-lo // star-lo
+      mode->sa.p_seq2 = (0b10 << 4) | S1;        // himux
+      mode->sa.p_seq3 = (0b00 << 4) | S8;        // ref-lo /// lomux
+      break;
+    }
+
+/*
+    case SEQ_MODE_AG: {
+      // auto-gain 4 cycle - same as ratio. producing a single output
+
+
+      mode->sa.p_seq_n = 4;
+      // sample
+      mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
+      mode->sa.p_seq1 = (0b00 << 4) | S7;        // star-lo
+      // reference
+      mode->sa.p_seq2 = (0b10 << 4) | S1;        // himux
+      mode->sa.p_seq3 = (0b00 << 4) | S7;        // lomux
+      break;
+    }
+*/
+    case SEQ_MODE_DIFF: {
+      // 2 cycle, hi- hi2, with both precharge switches switches. single output.
+      mode->sa.p_seq_n = 2;
+      mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
+      mode->sa.p_seq2 = (0b01 << 4) | S1;        // himux
+      break;
+    }
+
+    case SEQ_MODE_SUM_DELTA: {    // change name.  SUM_DELTA. 0w
+
+      // similar. take hi/lo, hi2/lo, .  but where lo is shared. so can calculate hi-lo, hi2-lo, hi-hi2.
+      // advantage of a single sequence - is that flicker noise should cancel some.
+      // noting that input can be external terminals - or the dcv-source and its inverted output.
+      // to encodekkkkkkkkk
+      // can do as 3 values or 4 values.   3 is more logical.
+
+      mode->sa.p_seq_n = 3;
+      mode->sa.p_seq0 = (0b01 << 4) | S3;        // dcv
+      mode->sa.p_seq1 = (0b00 << 4) | S7;        // star-lo
+      mode->sa.p_seq2 = (0b10 << 4) | S1;        // himux
+      break;
+    }
+
+    default:
+      assert( 0);
+  }
+
+
+}
+
+#endif
 
 
 

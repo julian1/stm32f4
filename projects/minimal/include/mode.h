@@ -266,10 +266,11 @@ typedef struct _mode_t
   _4094_state_t     second;
 
 
+  // inverter - rename invert_dac
+  uint16_t mdac0_val;
 
-  uint16_t mdac0_val;     // inverter
-
-  uint16_t mdac1_val;     // sts
+  // sts_dac
+  uint16_t mdac1_val;
 
 
   // control register
@@ -296,6 +297,11 @@ typedef struct _mode_t
 
 void mode_init(_mode_t *mode);
 void mode_reset(_mode_t *mode);
+
+
+
+// clear relay state
+void mode_clear_relays(_mode_t *mode);
 
 
 
@@ -352,11 +358,12 @@ void mode_ch2_reset(_mode_t *mode);
 
 
 /*
-  not sure we need all these setters/accessors.
+  not sure we need all the setters
   instead just use the range mechanicm as the starting point
-  keep in mind daq. does not have 100 and 1000V. etc.
-  temp has one range,
+
+  temp has single range,
   internal ref has one range
+  keep in mind daq. only has 10,1,0.1,0.01.  20,2,200mV. no 100 and 1000V. etc.
 
   resistance / diode - can use ordinary DCV ranges. with cal.
   Not. sure. the cal values may be the same..

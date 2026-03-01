@@ -54,6 +54,12 @@ void data_init(
   data->ranges    = ranges;
   data->range_idx = range_idx;
 
+
+  // default
+  data->show_counts = true;
+  data->show_sum    = true;
+  data->show_reading = true;
+  data->show_ratio = true;
 }
 
 

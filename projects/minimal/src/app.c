@@ -744,12 +744,12 @@ static void app_update_console(app_t *app)
 
 void app_update( app_t *app)
 {
-  assert(app);
-  assert(app->magic == APP_MAGIC);
+  assert( app);
+  assert( app->magic == APP_MAGIC);
 
 
   // process new adc data in priority
-  if(app->adc_interrupt_valid) {
+  if( app->adc_interrupt_valid) {
 
     app->adc_interrupt_valid = false;
 

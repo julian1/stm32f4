@@ -83,8 +83,20 @@ static void partial_reset( _mode_t *mode)
   // persist noaz flag
   mode->reg_cr.sa_p_noaz = tmp.reg_cr.sa_p_noaz;
 
-  // persist state of 10meg. impedance flag
+  // persist the 10meg. impedance flag
   mode->reg_cr._10meg_impedance =  tmp.reg_cr._10meg_impedance;
+
+
+  // persist the daq input selection muxes
+  // this is silly having first,second states for 4094.
+  mode->first.U1009 =  tmp.first.U1009;
+  mode->first.U1010 =  tmp.first.U1010;
+
+  mode->second.U1009 =  tmp.second.U1009;
+  mode->second.U1010 =  tmp.second.U1010;
+
+  // persist sts datc
+  mode->mdac1_val     = tmp.mdac1_val;
 
   // keep the LTS setting , AG
   // mode->second.U1003 = tmp.second.U1003;

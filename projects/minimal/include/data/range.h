@@ -4,13 +4,13 @@
 
 
 // DCV_INITIAL
-#define DCV_REF    0          // non derived
-#define DCV_10        1          // with b + a - for thermal EMF.
+#define DCV_REF    0              // default. nominal. for 7.1V. reference
+#define DCV_10        1           // with b + a - for thermal EMF.
 #define DCV_1         2           // derived
 #define DCV_01        3           // 100mV
-#define DCV_001       4           // 100mV
-#define DCV_100       5           // 100mV
-#define DCV_1000      6           // 100mV
+#define DCV_001       4           // 10mV
+#define DCV_100       5           // 100V
+#define DCV_1000      6           // 1000
 #define TEMP_          7           // single range
 
 
@@ -49,7 +49,7 @@ typedef struct range_t
   // the amplifier  gain. should be included in b.
   double b;
 
-  // thermal EMF.
+  // offset/intercept. thermal EMF.
   double a;
 
 } range_t;
