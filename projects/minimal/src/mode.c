@@ -148,14 +148,25 @@ void _4094_state_clear_relays(_4094_state_t *state)
 
 
 
-void mode_adc_aperture_set( _mode_t *mode, uint32_t u)
+void adc_aperture_set( adc_state_t *adc, uint32_t u)
+// void mode_adc_aperture_set( _mode_t *mode, uint32_t u)
 {
-  mode->adc.p_aperture = u;
+  adc->p_aperture = u;
 }
 
 
 
-void mode_reg_cr_mode_set(_mode_t *mode, unsigned u0)
+
+void sa_trig_delay_set( sa_state_t *sa, uint32_t u)
+// void sa_trig_delay_set( _mode_t *mode, uint32_t u)
+{
+  sa->p_clk_count_trig_delay = u;
+}
+
+
+
+void reg_cr_mode_set( reg_cr_t *reg_cr, unsigned u0)
+// void mode_reg_cr_mode_set(_mode_t *mode, unsigned u0)
 {
 
   // ease setting.
@@ -163,14 +174,22 @@ void mode_reg_cr_mode_set(_mode_t *mode, unsigned u0)
 
   assert(u0 < 1<<3);
 
-  mode->reg_cr.mode = u0;
+  reg_cr->mode = u0;
 }
 
 
-void mode_sa_trig_delay_set( _mode_t *mode, uint32_t u)
-{
-  mode->sa. p_clk_count_trig_delay = u;
-}
+
+
+
+
+
+
+
+
+
+///////////////////////////
+
+
 
 
 
@@ -1022,7 +1041,7 @@ bool mode_repl_statement(
       // fpga0 mode.
       else if(strcmp(s0, "mode") == 0) {
 
-        mode_reg_cr_mode_set( mode, u0);
+        reg_cr_mode_set( &mode->reg_cr, u0);
       }
 
 

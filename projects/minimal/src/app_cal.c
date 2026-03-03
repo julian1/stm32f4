@@ -161,10 +161,10 @@ static void cal_dcv10_nom( app_t *app)
   mode_reset( mode);
 
   // set the trigger delay for settle time
-  mode_sa_trig_delay_set( mode, period_to_aper_n(  1.f )); // 1 sec.
+  sa_trig_delay_set( &mode->sa, period_to_aper_n(  1.f )); // 1 sec.
 
   // normal sample acquisition/adc operation
-  mode_reg_cr_mode_set( mode, MODE_SA_ADC);
+  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
   // special sample acquisition mode - for adc running standalone.  // REVIEW ME
   mode_sa_az_set(mode, "0" );
@@ -175,7 +175,7 @@ static void cal_dcv10_nom( app_t *app)
   // hold input to adc at lo. to reduce leakage.
   mode_ch2_set_ref_lo( mode);
 
-  // set sigmux not active. needed to calculate relative pos/neg ref current weight.
+  // disable sigmux. required to calc relative pos/neg ref current weight.
   mode->reg_cr.adc_p_active_sigmux = 0;
 
 
@@ -198,7 +198,7 @@ static void cal_dcv10_nom( app_t *app)
   gpio_write( app->gpio_trigger, false);
 
   // set nplc
-  mode_adc_aperture_set( mode, nplc_to_aperture( 10, app->line_freq ));
+  adc_aperture_set( &mode->adc, nplc_to_aperture( 10, app->line_freq ));
 
   app_transition_state( app);
 
@@ -271,7 +271,7 @@ static void cal_dcv10_nom( app_t *app)
 
   {
     // nplc
-    mode_adc_aperture_set( mode, nplc_to_aperture( nplc, app->line_freq ));
+    adc_aperture_set( &mode->adc, nplc_to_aperture( nplc, app->line_freq ));
 
     /*
       expressing diff as a ratio of ref current - which is derived from main-ref is a decent approach.
@@ -361,7 +361,7 @@ static void cal_dcv10_nom( app_t *app)
   // switch back to direct mode operation
   // why???
   // why not stay in the mode we used for cal
-  mode_reg_cr_mode_set( mode, MODE_DIRECT);
+  reg_cr_mode_set( &mode->reg_cr, MODE_DIRECT);
 
   app_transition_state( app);
 

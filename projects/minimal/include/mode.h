@@ -221,6 +221,8 @@ typedef struct sa_state_t
 } sa_state_t;
 
 
+void sa_trig_delay_set( sa_state_t *sa, uint32_t u);
+
 
 
 
@@ -235,6 +237,10 @@ typedef struct adc_state_t
 
 
 } adc_state_t;
+
+
+//   TODO - should be typed on the sa.  not mode.
+void adc_aperture_set( adc_state_t *adc, uint32_t u);
 
 
 
@@ -307,6 +313,7 @@ void mode_reset(_mode_t *mode);
 
 
 
+
 /*
   this is looking a bit complicated.
   having the mode update the uuuuuuuuuuuuuuuuuu
@@ -323,30 +330,18 @@ bool mode_repl_statement(
 
 
 
-// TODO - set should be suffix.
+// TODO fixme - type on reg_cr
+void reg_cr_mode_set( reg_cr_t *reg_cr, unsigned u0);
 
-void mode_reg_cr_mode_set(_mode_t *mode, unsigned u0);
 
 // feb 2026. do we even really need this
 // void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 );
 
 
-void mode_sa_trig_delay_set( _mode_t *mode, uint32_t u);
-
 void mode_sa_az_set(_mode_t *mode, const char *s);
-
 
 void mode_gain_set( _mode_t *mode, uint32_t u);
 
-// prefix with adc... mode_adc_aperture_set
-
-/*
-  TODO - should be typed on the sa.  not mode.
-  and similar for other functions
-    adc_aperture_set( sa *, uint32_t );
-  same for trig_delay etc.
-*/
-void mode_adc_aperture_set( _mode_t *mode, uint32_t u);
 
 
 

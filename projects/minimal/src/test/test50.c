@@ -79,7 +79,7 @@ static void test( app_t *app)
   mode_reset( mode);
 
   // normal sample acquisition/adc operation
-  mode_reg_cr_mode_set( mode, MODE_SA_ADC);
+  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
 
   // sample acquisition mode - for adc running standalone.  // REVIEW ME
@@ -97,7 +97,7 @@ static void test( app_t *app)
     gpio_write( app->gpio_trigger, false);
 
     // set nplc
-    mode_adc_aperture_set( mode, nplc_to_aperture( k, app->line_freq ));
+    adc_aperture_set( &mode->adc, nplc_to_aperture( k, app->line_freq ));
 
     app_transition_state( app);
 

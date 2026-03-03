@@ -108,7 +108,7 @@ static void app_display_some_data( app_t *app, double cal_w, double cal_7v1_b)
   // mode_ch2_set_lts( mode);
 
   // nplc to use
-  mode_adc_aperture_set( mode, nplc_to_aperture( 10, app->line_freq ));
+  adc_aperture_set( &mode->adc, nplc_to_aperture( 10, app->line_freq ));
 
 
   ////////////////////
@@ -236,7 +236,7 @@ static void test( app_t *app)
   mode_reset( mode);
 
   // normal sample acquisition/adc operation
-  mode_reg_cr_mode_set( mode, MODE_SA_ADC);
+  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
   // special sample acquisition mode - for adc running standalone.  // REVIEW ME
   mode_sa_az_set(mode, "0" );
@@ -272,7 +272,7 @@ static void test( app_t *app)
   gpio_write( app->gpio_trigger, false);
 
   // set nplc
-  mode_adc_aperture_set( mode, nplc_to_aperture( 10, app->line_freq ));
+  adc_aperture_set( &mode->adc, nplc_to_aperture( 10, app->line_freq ));
 
 
   app_transition_state( app);
@@ -361,7 +361,7 @@ static void test( app_t *app)
 
   {
     // nplc
-    mode_adc_aperture_set( mode, nplc_to_aperture( nplc, app->line_freq ));
+    adc_aperture_set( &mode->adc, nplc_to_aperture( nplc, app->line_freq ));
 
     /*
       expressing diff as a ratio of ref current - which is derived from main-ref is a decent approach.
@@ -466,7 +466,7 @@ static void test( app_t *app)
   ////////////////////////
 
     // switch back to direct mode operation
-    mode_reg_cr_mode_set( mode, MODE_DIRECT);
+    reg_cr_mode_set( &mode->reg_cr, MODE_DIRECT);
 
     app_transition_state( app);
 
