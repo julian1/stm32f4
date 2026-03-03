@@ -267,16 +267,16 @@ typedef struct _mode_t
       eg. _4094_first _4094_second .
 */
 
-  _4094_state_t     first;
+  _4094_state_t serial;
 
 //   _4094_state_t     second;
 
 
   // inverter - rename invert_dac
-  uint16_t mdac0_val;
+  uint16_t      mdac0_val;
 
   // sts_dac
-  uint16_t mdac1_val;
+  uint16_t      mdac1_val;
 
 
   // control register

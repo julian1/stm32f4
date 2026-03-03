@@ -48,9 +48,9 @@ static void test(app_t *app)
   // phase 1, soak/charge accumulation cap
 
   // setup input relays.
-  mode->first .K407 = SR_SET;    // select dcv-source on ch1.
-  mode->first .K405 = SR_SET;     // select ch1. to feed through to accum cap.
-  mode->first .K406 = SR_RESET;   // select accum cap
+  mode->serial .K407 = SR_SET;    // select dcv-source on ch1.
+  mode->serial .K405 = SR_SET;     // select ch1. to feed through to accum cap.
+  mode->serial .K406 = SR_RESET;   // select accum cap
 
 
 
@@ -76,7 +76,7 @@ static void test(app_t *app)
   // HERE assert( mode->reg_direct.sig_pc_ch_o == 0b00 );
   assert( mode->reg_direct.pc_ch1_o == SW_PC_BOOT );   //
 
-  mode->reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
+  mode->reg_direct.leds_o = 0b0001;        // phase serial led turn on led, because muxinig signal.
 
   app_transition_state( app);
   printf("sleep 10s\n");  // having a yield would be quite nice here.
@@ -97,7 +97,7 @@ static void test(app_t *app)
   mode_reg_cr_mode_set( mode, MODE_SA_MOCK_ADC);
 
   // july 2024 - note that this is all default.
-  // need to review. make sure that pc switches first, then azmux.
+  // need to review. make sure that pc switches serial, then azmux.
   mode->sa.p_seq_n = 2,
 
   assert(0); // dec 2024. review
@@ -118,7 +118,7 @@ static void test(app_t *app)
   // app_trigger( app, 1);
   gpio_write( app->gpio_trigger, 1);
 
-  mode->first .K407        = SR_RESET;   // disconnect dcv
+  mode->serial .K407        = SR_RESET;   // disconnect dcv
 
 
   // mode->reg_direct.leds_o  = 0b0010;    // won't display when running.

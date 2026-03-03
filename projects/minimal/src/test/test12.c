@@ -47,15 +47,15 @@ static void test (app_t *app)     // should be passing the continuation.
   ////////////////////
   // phase 1, soak/charge accumulation cap
   // setup input relays.
-  mode->first.K407 = SR_SET;    // select dcv-source on ch1.
-  mode->first.K405 = SR_SET;     // select ch1. to feed through to accum cap.
-  mode->first.K406 = SR_RESET;   // select accum cap
+  mode->serial.K407 = SR_SET;    // select dcv-source on ch1.
+  mode->serial.K405 = SR_SET;     // select ch1. to feed through to accum cap.
+  mode->serial.K406 = SR_RESET;   // select accum cap
 
   // use direct mode - for soak/charge of accum cap.
   // mode->reg_mode =  MODE_DIRECT;
   mode_reg_cr_mode_set( mode, MODE_DIRECT);
 
-  mode->reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
+  mode->reg_direct.leds_o = 0b0001;        // phase serial led turn on led, because muxinig signal.
 
   printf("azmux       %u\n", mode->reg_direct.azmux_o );   // consider - formatting
   printf("pc_ch1      %u\n", mode->reg_direct.pc_ch1_o );  // add formatting
@@ -98,7 +98,7 @@ static void test (app_t *app)     // should be passing the continuation.
   ////////////////////////
   // phase 2, discocnnect dcv-source
   printf("disconnect dcv-source and observe drift\n");
-  mode->first .K407 = SR_RESET;      // turn off dcv-source
+  mode->serial .K407 = SR_RESET;      // turn off dcv-source
 
 
 /*     mode->second.U1006  = 0;          // weird - we switch the dc-source mux off - we have very high leakage. might be flux.
@@ -153,7 +153,7 @@ bool app_test12( app_t *app , const char *cmd)
       with 4053. switches populated.  no input amplifier populated.
 
    reset; dcv-source 10; test12;
-    -2mV. 0mV.  0.4mV.      (note DA. for first reading).
+    -2mV. 0mV.  0.4mV.      (note DA. for serial reading).
 
    reset; dcv-source 0; test12;
     1.7mV  0.9mV.

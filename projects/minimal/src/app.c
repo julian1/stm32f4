@@ -284,7 +284,7 @@ void app_transition_state( app_t  *app)
   state_format (  (void *) &mode->first, sizeof( mode->first));
 */
 
-  spi_4094_write_n( app->spi_4094, (void *) &mode->first, sizeof( mode->first));
+  spi_4094_write_n( app->spi_4094, (void *) &mode->serial, sizeof( mode->serial));
 
   // sleep 10ms, for relays
   app_msleep( app, 10);
@@ -298,10 +298,10 @@ void app_transition_state( app_t  *app)
 
   // void _4094_state_clear_relays(_4094_state_t state *)
 
-  _4094_state_t tmp = mode->first;
+  _4094_state_t tmp = mode->serial;
   _4094_state_clear_relays( &tmp);
 
-  spi_4094_write_n( app->spi_4094, (void *) &tmp, sizeof(tmp));
+  spi_4094_write_n( app->spi_4094, (void *) &tmp, sizeof( tmp));
   // spi_4094_write_n( app->spi_4094, (void *) &mode->second, sizeof(mode->second));
 
 #endif

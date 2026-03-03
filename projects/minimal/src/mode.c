@@ -30,38 +30,35 @@ static const _mode_t mode_initial =  {
 
 
   // U401
-  .first. K404  = SR_RESET,
-  .first. K403  = SR_RESET,
-  .first. K405  = SR_RESET,
-  .first. K406  = SR_RESET,
+  .serial. K404  = SR_RESET,
+  .serial. K403  = SR_RESET,
+  .serial. K405  = SR_RESET,
+  .serial. K406  = SR_RESET,
 
   // U402
-  .first. K407  = SR_RESET,
-  .first. K402  = SR_RESET,
+  .serial. K407  = SR_RESET,
+  .serial. K402  = SR_RESET,
 
   // u405
-  .first. K401  = SR_RESET,
+  .serial. K401  = SR_RESET,
 
-  .first. K701  = SR_RESET,
-  .first. K702  = SR_RESET,
-  .first. K703  = SR_RESET,
+  .serial. K701  = SR_RESET,
+  .serial. K702  = SR_RESET,
+  .serial. K703  = SR_RESET,
 
   ////////////
 
   // set lo-side drive of com-lc to A400-1/ star-ground
-  .first.U423   = D3,
-  .second.U423  = D3,
+  .serial.U423   = D3,
 
   // set loside input boot buffer mux to A400-1/ star ground
-  .first.U426   = S4,
-  .second .U426 = S4,
+  .serial.U426   = S4,
 
 
   ////////////
 
   // amplifier set fb 1x feb 2026.
-  .first .U506 = S8,
-  .second.U506 = S8,
+  .serial .U506 = S8,
 
 
   // signal acquisition defaults
@@ -112,8 +109,6 @@ void mode_reset(_mode_t *mode)
 
 void _4094_state_clear_relays(_4094_state_t *state)
 {
-#if 0
-  _4094_state_t *first = &mode->first;
 
 
   // U401 conditioning
@@ -148,7 +143,6 @@ void _4094_state_clear_relays(_4094_state_t *state)
   state->K708  = SR_NONE;
   state->K705  = SR_NONE;
 
-#endif
 }
 
 
@@ -203,7 +197,7 @@ void mode_sa_az_set(_mode_t *mode, const char *s)
     sa_state_t *sa = &mode->sa;
     sa->p_seq_n = 2;
 
-    // zero first
+    // zero serial
     sa->p_seq_elt[ 0].azmux  = S6;     // A400-1
     sa->p_seq_elt[ 0].pc = 0b00;
 
@@ -227,7 +221,7 @@ void mode_sa_az_set(_mode_t *mode, const char *s)
     sa_state_t *sa = &mode->sa;
     sa->p_seq_n = 2;
 
-    // zero first
+    // zero serial
     sa->p_seq_elt[ 0].azmux  = S7;     // channel2 lo. from feed mux.
     sa->p_seq_elt[ 0].pc = 0b00;
 
@@ -264,23 +258,23 @@ void mode_gain_set( _mode_t *mode, uint32_t u)
   switch(u) {
 
     case 1:
-      mode->first .U506 = S8;
-      mode->second.U506 = S8;
+      mode->serial .U506 = S8;
+      mode->serial.U506 = S8;
       break;
 
     case 10:
-      mode->first. U506 = S2;
-      mode->second.U506 = S2;
+      mode->serial. U506 = S2;
+      mode->serial.U506 = S2;
       break;
 
     case 100:
-      mode->first. U506 = S3;
-      mode->second.U506 = S3;
+      mode->serial. U506 = S3;
+      mode->serial.U506 = S3;
       break;
 
     case 1000:
-      mode->first. U506 = S4;
-      mode->second.U506 = S4;
+      mode->serial. U506 = S4;
+      mode->serial.U506 = S4;
       break;
 
     default:
@@ -323,14 +317,14 @@ void mode_ch2_set_ref( _mode_t *mode )
 
   if(u0 == 7) {
     printf("with ref-hi +7V\n");
-    mode->second.U1006  = S4;       // ref-hi
-    // mode->second.U1007  = S4;       // ref-lo
+    mode->serial.U1006  = S4;       // ref-hi
+    // mode->serial.U1007  = S4;       // ref-lo
   }
   else if( u0 == 0 ) {
     // need bodge for this
     printf("with ref-lo\n");
-    mode->second.U1006  = S8;       // ref-lo
-    // mode->second.U1007  = S4;       // ref-lo - looks funny. gives bad measurement. on DMM.
+    mode->serial.U1006  = S8;       // ref-lo
+    // mode->serial.U1007  = S4;       // ref-lo - looks funny. gives bad measurement. on DMM.
   }
   else
     assert(0);
@@ -344,15 +338,15 @@ void mode_ch2_set_channel( _mode_t *mode, unsigned u0 )
 {
 
   // neither channel
-  mode->first.K407 = SR_RESET;
-  mode->second.U409 = DOFF;       // hi/lo mux.
+  mode->serial.K407 = SR_RESET;
+  mode->serial.U409 = DOFF;       // hi/lo mux.
 
   if(u0 == 1) {
 
-    mode->first.K407 = SR_SET;
+    mode->serial.K407 = SR_SET;
   } else if(u0 == 2) {
 
-    mode->second.U409 = D4;
+    mode->serial.U409 = D4;
   }
 
 }
@@ -367,8 +361,8 @@ void mode_ch2_set_channel( _mode_t *mode, unsigned u0 )
 static void mode_lts_reset( _mode_t *mode )
 {
   // mux agnd, instead of off. to reduce input leakage on mux followers.
-  mode->second.U1012  = S8 ;
-  mode->second.U1003  = S8 ;
+  mode->serial.U1012  = S8 ;
+  mode->serial.U1003  = S8 ;
 
 
 }
@@ -387,30 +381,30 @@ void mode_lts_set( _mode_t *mode, double f0)
 
   if(f0 >= 0) {
     printf("with +");
-    mode->second.U1003  = S1 ;       // positive source.
+    mode->serial.U1003  = S1 ;       // positive source.
   } else if (f0 < 0) {
 
     printf("with -");
-    mode->second.U1003  = S2 ;      // negatie source
+    mode->serial.U1003  = S2 ;      // negatie source
   }
 
 
   if( fabs(f0)  == 10) {
     printf("10V\n");
-    mode->second.U1012  = S1;         // 10V tap
+    mode->serial.U1012  = S1;         // 10V tap
   }
   else if(fabs(f0) == 1) {
     printf("1V\n");
-    mode->second.U1012  = S2;       // 1V.
+    mode->serial.U1012  = S2;       // 1V.
   }
   else if(fabs(f0) == 0.1) {
     printf("0.1V\n");
-    mode->second.U1012  = S3;       // 0.1V.
+    mode->serial.U1012  = S3;       // 0.1V.
   }
   else if(fabs(f0) == 0.01) {
     // not implemented/resistor not poplated
     printf("0.01V\n");
-    mode->second.U1012  = S4;       // 0.01V.
+    mode->serial.U1012  = S4;       // 0.01V.
   }
 /*
   note. makes no sense to source a zero here
@@ -429,14 +423,14 @@ void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 )
 {
   // mode_lts_reset( mode);
 
-  // mode->second.U1006  = S7;    // JA
-  // mode->second.U1007  = S7;
+  // mode->serial.U1006  = S7;    // JA
+  // mode->serial.U1007  = S7;
 
   // OK. we have to pass encoded arguments here.
 
   // set the hig/lo dac inputs.
-  mode->second.U1009  = u0;
-  mode->second.U1010  = u1;
+  mode->serial.U1009  = u0;
+  mode->serial.U1010  = u1;
 
 
 
@@ -498,14 +492,14 @@ static void mode_loside_set( _mode_t *mode, const char *s)
   /*
     set boot for ch2. boot.
   */
-  mode->first.U426  = mode->second.U426  = D2;      // ch 2  BOOT
+  mode->serial.U426    = D2;      // ch 2  BOOT
 
   if(strcmp(s, "gnd") == 0
     || strcmp(s, "star") == 0) {
 
     // consider setting as default in the main.c mode initialization
     // could turn off the boot here.
-    mode->first.U423  = mode->second.U423  = D3;      // drive com-lc with A400-1. star-ground
+    mode->serial.U423 = D3;      // drive com-lc with A400-1. star-ground
 
     uint16_t  val = 0x0;          // turn off
     mode_mdac0_set( mode, val);
@@ -517,7 +511,7 @@ static void mode_loside_set( _mode_t *mode, const char *s)
       should only really set boot.  if using the invert
     */
 
-    mode->first.U423  =  mode->second.U423  = D1;      // drive com-lc from mdac output
+    mode->serial.U423 = D1;      // drive com-lc from mdac output
 
     uint16_t  val = 0xfff;        // full.
     mode_mdac0_set( mode, val);
@@ -526,14 +520,14 @@ static void mode_loside_set( _mode_t *mode, const char *s)
     || strcmp(s, "offset") == 0) {   // invert + divider.... for dither
 
     // invert but using the divider.
-    mode->first.U423 =  mode->second.U423  = D2;      // drive com-lc from mdac and divider
+    mode->serial.U423 = D2;      // drive com-lc from mdac and divider
 
     uint16_t  val = 0x0;          // off
     mode_mdac0_set( mode, val);
   }
   else if(strcmp(s, "boot") == 0) {
 
-    mode->first.U423 = mode->second.U423  = D4;      // drive com-lc with boot direct
+    mode->serial.U423 = D4;      // drive com-lc with boot direct
     uint16_t  val = 0x0;          // off
     mode_mdac0_set( mode, val);
   }
@@ -544,9 +538,9 @@ static void mode_loside_set( _mode_t *mode, const char *s)
 }
 
 /*
-- I think we can simplify the way we manage the first/ second.
+- I think we can simplify the way we manage the serial/ serial.
 
-  just make a tmp copy of the first.
+  just make a tmp copy of the serial.
   write and wait 10ms.
 
   then clear the relay pins  of the copy
@@ -561,26 +555,26 @@ static void mode_loside_set( _mode_t *mode, const char *s)
 void mode_ch1_reset(_mode_t *mode)      // change name reset() ?
 {
 
-  mode->first.K402 = SR_RESET;    // input off
-  mode->first.K406 = SR_RESET;    // accum ch1 off
-  mode->first.K407 = SR_RESET;    // dcv-source off
+  mode->serial.K402 = SR_RESET;    // input off
+  mode->serial.K406 = SR_RESET;    // accum ch1 off
+  mode->serial.K407 = SR_RESET;    // dcv-source off
 
-  mode->first.K401 = SR_RESET;    // ohms off
-  mode->first.K404 = SR_RESET;    // lts-source off
-  mode->first.K403 = SR_RESET;    // 10Meg impedance off
+  mode->serial.K401 = SR_RESET;    // ohms off
+  mode->serial.K404 = SR_RESET;    // lts-source off
+  mode->serial.K403 = SR_RESET;    // 10Meg impedance off
 }
 
 
 void mode_ch1_set_dcv(_mode_t *mode)
 {
   mode_ch1_reset( mode);
-  mode->first.K402 = SR_SET;      // input on
+  mode->serial.K402 = SR_SET;      // input on
 }
 
 void mode_ch1_set_dcv_source(_mode_t *mode)   // rename use K404. instead.
 {
   mode_ch1_reset( mode);
-  mode->first.K407 = SR_SET;      // dcv-source on
+  mode->serial.K407 = SR_SET;      // dcv-source on
 }
 
 
@@ -612,13 +606,13 @@ it works well to coordinate the three input muxes together like this.
 
 void mode_ch2_reset(_mode_t *mode)
 {
-  // mode->first.K405 = SR_RESET;    // accum ch2 off
+  // mode->serial.K405 = SR_RESET;    // accum ch2 off
 
   // inpput muxes.
-  mode->second.U419 = SOFF;     // himux or should be ref-lo? or agnd - for leakage?
-  mode->second.U420 = SOFF;     // lomux
+  mode->serial.U419 = SOFF;     // himux or should be ref-lo? or agnd - for leakage?
+  mode->serial.U420 = SOFF;     // lomux
 
-  mode->second.U409 = D4;   // feedmux  hi/lo
+  mode->serial.U409 = D4;   // feedmux  hi/lo
 }
 
 
@@ -630,9 +624,9 @@ void mode_ch2_set_ref( _mode_t *mode )
 
   mode_ch2_reset(mode);
 
-  mode->second.U419 = S4;   // REF-HI
-  mode->second.U420 = S7;   // REF-LO
-  mode->second.U409 = D4;   // feedmux  hi/lo
+  mode->serial.U419 = S4;   // REF-HI
+  mode->serial.U420 = S7;   // REF-LO
+  mode->serial.U409 = D4;   // feedmux  hi/lo
 }
 
 
@@ -640,9 +634,9 @@ void mode_ch2_set_ref_lo( _mode_t *mode )
 {
   mode_ch2_reset(mode);
 
-  mode->second.U419 = S3;   // REF-LO
-  mode->second.U420 = S7;   // REF-LO
-  mode->second.U409 = D4;   // feedmux  hi/lo
+  mode->serial.U419 = S3;   // REF-LO
+  mode->serial.U420 = S7;   // REF-LO
+  mode->serial.U409 = D4;   // feedmux  hi/lo
 }
 
 
@@ -650,9 +644,9 @@ void mode_ch2_set_temp( _mode_t *mode )
 {
   mode_ch2_reset(mode);
 
-  mode->second.U419 = S1;   // TEMP
-  mode->second.U420 = S1;   // A400-1
-  mode->second.U409 = D4;   // feedmux  hi/lo
+  mode->serial.U419 = S1;   // TEMP
+  mode->serial.U420 = S1;   // A400-1
+  mode->serial.U409 = D4;   // feedmux  hi/lo
 }
 
 
@@ -660,9 +654,9 @@ void mode_ch2_set_lts(_mode_t *mode)
 {
   mode_ch2_reset(mode);
 
-  mode->second.U419 = S2;   // lts-source-hi
-  mode->second.U420 = S1;   // A400-1
-  mode->second.U409 = D4;   // feedmux
+  mode->serial.U419 = S2;   // lts-source-hi
+  mode->serial.U420 = S1;   // A400-1
+  mode->serial.U409 = D4;   // feedmux
 }
 
 
@@ -670,9 +664,9 @@ void mode_ch2_set_daq( _mode_t *mode )
 {
   mode_ch2_reset(mode);
 
-  mode->second.U419 = S5;   // daq
-  mode->second.U420 = S5;   // com-lc
-  mode->second.U409 = D4;   // feedmux  hi/lo
+  mode->serial.U419 = S5;   // daq
+  mode->serial.U420 = S5;   // com-lc
+  mode->serial.U409 = D4;   // feedmux  hi/lo
 
   // USES com-lc.  but we have not set the BOOT here.
 }
@@ -683,9 +677,9 @@ void mode_ch2_set_shunts(_mode_t *mode)
 {
   mode_ch2_reset(mode);
 
-  mode->second.U419 = S6;   // shunts hi
-  mode->second.U420 = S6;   // shunts lo
-  mode->second.U409 = D4;   // feedmux  hi/lo
+  mode->serial.U419 = S6;   // shunts hi
+  mode->serial.U420 = S6;   // shunts lo
+  mode->serial.U409 = D4;   // feedmux  hi/lo
 }
 
 
@@ -693,9 +687,9 @@ void mode_ch2_set_tia( _mode_t *mode )
 {
   mode_ch2_reset(mode);
 
-  mode->second.U419 = S8;   // tia
-  mode->second.U420 = S1;   // A400-1
-  mode->second.U409 = D4;   // feedmux  hi/lo
+  mode->serial.U419 = S8;   // tia
+  mode->serial.U420 = S1;   // A400-1
+  mode->serial.U409 = D4;   // feedmux  hi/lo
 }
 
 
@@ -704,7 +698,7 @@ void mode_ch2_set_sense(_mode_t *mode)
 {
   mode_ch2_reset(mode);
 
-  mode->second.U409 = D1;         // sense hi and lo
+  mode->serial.U409 = D1;         // sense hi and lo
 }
 
 
@@ -713,7 +707,7 @@ void mode_ch2_set_dcv_div(_mode_t *mode)
 // TODO consider change name - hv-div.
   mode_ch2_reset(mode);
 
-  mode->second.U409 = D3;         // dcv div
+  mode->serial.U409 = D3;         // dcv div
 }
 
 
@@ -723,13 +717,13 @@ void mode_ch2_set_dcv_div(_mode_t *mode)
 
 void mode_ch1_accum( _mode_t *mode, bool val)
 {
-  mode->first.K406 = val ? SR_SET : SR_RESET;
+  mode->serial.K406 = val ? SR_SET : SR_RESET;
 }
 
 
 void mode_ch2_accum( _mode_t *mode, bool val)
 {
-  mode->first.K406 = val ? SR_SET : SR_RESET;
+  mode->serial.K406 = val ? SR_SET : SR_RESET;
 
 }
 
@@ -1075,30 +1069,30 @@ bool mode_repl_statement(
 
       ////////////////////////////////////////////
       // 4094 components.
-      // perhaps rename second. _4094_second etc.
+      // perhaps rename serial. _4094_serial etc.
 
 /*
       else if(strcmp(s0, "u504") == 0) {
-        mode->second.U504 = u0;
+        mode->serial.U504 = u0;
       }
 
 */
       else if(strcmp(s0, "u1003") == 0) {
-        mode->second.U1003 = u0;
+        mode->serial.U1003 = u0;
       }
 /*      else if(strcmp(s0, "u1006") == 0) {
-        mode->second.U1006 = u0;
+        mode->serial.U1006 = u0;
       }
 */
       else if(strcmp(s0, "u1012") == 0) {
-        mode->second.U1012 = u0;
+        mode->serial.U1012 = u0;
       }
 
       else if(strcmp(s0, "u1009") == 0) {
-        mode->second.U1009 = u0;
+        mode->serial.U1009 = u0;
       }
       else if(strcmp(s0, "u1010") == 0) {
-        mode->second.U1010 = u0;
+        mode->serial.U1010 = u0;
       }
 
 
@@ -1117,56 +1111,56 @@ bool mode_repl_statement(
       else if(strcmp(s0, "u409") == 0 || strcmp(s0, "feedmux") == 0) {
 
         // should use set channel functionality instead.
-        mode->second.U409 = u0 ;
+        mode->serial.U409 = u0 ;
       }
 
       else if(strcmp(s0, "u423") == 0) {
-        mode->second.U423 = u0 ;
+        mode->serial.U423 = u0 ;
       }
       else if(strcmp(s0, "u426") == 0) {
-        mode->second.U426 = u0 ;
+        mode->serial.U426 = u0 ;
       }
 
 
 
 
       else if(strcmp(s0, "k401") == 0) {
-        mode->first.K401 = u0 ? SR_SET: SR_RESET;
+        mode->serial.K401 = u0 ? SR_SET: SR_RESET;
       }
       else if(strcmp(s0, "k402") == 0) {
-        mode->first.K402 = u0 ? SR_SET: SR_RESET;
+        mode->serial.K402 = u0 ? SR_SET: SR_RESET;
       }
       else if(strcmp(s0, "k403") == 0) {
-        mode->first.K403 = u0 ? SR_SET: SR_RESET;
+        mode->serial.K403 = u0 ? SR_SET: SR_RESET;
       }
       else if(strcmp(s0, "k404") == 0) {
-        mode->first.K404 = u0 ? SR_SET: SR_RESET;
+        mode->serial.K404 = u0 ? SR_SET: SR_RESET;
       }
       else if(strcmp(s0, "k405") == 0) {
-        mode->first.K405 = u0 ? SR_SET: SR_RESET;
+        mode->serial.K405 = u0 ? SR_SET: SR_RESET;
       }
       else if(strcmp(s0, "k406") == 0) {
-        mode->first.K406 = u0 ? SR_SET: SR_RESET;
+        mode->serial.K406 = u0 ? SR_SET: SR_RESET;
       }
       else if(strcmp(s0, "k407") == 0) {
-        mode->first.K407 = u0 ? SR_SET: SR_RESET ;      // 0 == reset
+        mode->serial.K407 = u0 ? SR_SET: SR_RESET ;      // 0 == reset
       }
 
 
       else if(strcmp(s0, "k701") == 0) {
-        mode->first.K701 = u0 ? SR_SET: SR_RESET;
+        mode->serial.K701 = u0 ? SR_SET: SR_RESET;
       }
       else if(strcmp(s0, "k702") == 0) {
-        mode->first.K702 = u0 ? SR_SET: SR_RESET;
+        mode->serial.K702 = u0 ? SR_SET: SR_RESET;
       }
       else if(strcmp(s0, "k703") == 0) {
-        mode->first.K703 = u0 ? SR_SET: SR_RESET;
+        mode->serial.K703 = u0 ? SR_SET: SR_RESET;
       }
       else if(strcmp(s0, "k704") == 0) {
-        mode->first.K704 = u0 ? SR_SET: SR_RESET;
+        mode->serial.K704 = u0 ? SR_SET: SR_RESET;
       }
       else if(strcmp(s0, "k705") == 0) {
-        mode->first.K705 = u0 ? SR_SET: SR_RESET;
+        mode->serial.K705 = u0 ? SR_SET: SR_RESET;
       }
 
 
@@ -1273,7 +1267,7 @@ bool mode_repl_statement(
   // anything on channel two.
 
 /*
-  // zero first
+  // zero serial
   sa->p_seq_elt[ 0].azmux  = S6;     // A400-1
   sa->p_seq_elt[ 0].pc = 0b00;
 
@@ -1282,7 +1276,7 @@ bool mode_repl_statement(
   sa->p_seq_elt[ 1].pc = 0b10;
 
 
-  // could set the LS drive. first input switch here - eg. BOOT1/BOOT2/ agnd. if wanted.
+  // could set the LS drive. serial input switch here - eg. BOOT1/BOOT2/ agnd. if wanted.
   // so it is set up for the double range.
   // set the data catcher closurec.
 */
@@ -1361,7 +1355,7 @@ void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
 
       mode->sa.p_seq_n = 2;
 
-      // hi goes first
+      // hi goes serial
 
       if(arg0 == S3 )
         mode->sa.p_seq0 = (0b01 << 4) | S3;      // dcv
@@ -1472,35 +1466,35 @@ void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
 
   //  maybe make explicit all values  U408_SW_CTL. at least for the initial mode, from which others derive.
 
-  .first .U408_SW_CTL = 0,      // b2b fets/ input protection off/open
-  .second.U408_SW_CTL = 0,
+  .serial .U408_SW_CTL = 0,      // b2b fets/ input protection off/open
+  .serial.U408_SW_CTL = 0,
 
   // AMP FEEDBACK SHOULD NEVER BE TURNED OFF.
   // else draws current, and has risk damaging parts. mux pin 1. of adg. to put main amplifier in buffer/G=1 configuration.
-  .first. U506 =  D1,     // should always be on
-  .second.U506 =  D1,           // amplifier should always be on.
+  .serial. U506 =  D1,     // should always be on
+  .serial.U506 =  D1,           // amplifier should always be on.
 
-  .first. K603_CTL  = SR_RESET,     // ohms relay off.
+  .serial. K603_CTL  = SR_RESET,     // ohms relay off.
 
 
   /////////////////////////
   // 700
   // has inverting cmos buffer
-  .first. K702_CTL  = SR_RESET,
-  .second.K702_CTL  = 0b11,
+  .serial. K702_CTL  = SR_RESET,
+  .serial.K702_CTL  = 0b11,
 
   // 0.1R shunt off. has inverting cmos buffer
-  .first. K703_CTL  = SR_RESET,
-  .second.K703_CTL  = 0b11,
+  .serial. K703_CTL  = SR_RESET,
+  .serial.K703_CTL  = 0b11,
 
   // shunts / TIA - default to shunts
-  .first. K709_CTL  = SR_SET,
+  .serial. K709_CTL  = SR_SET,
 
   // agn200 shunts are off.
-  .first. K707_CTL  = SR_SET,
-  .first. K706_CTL  = SR_SET,
-  .first. K704_CTL  = SR_SET,
-  .first. K705_CTL  = SR_SET,
+  .serial. K707_CTL  = SR_SET,
+  .serial. K706_CTL  = SR_SET,
+  .serial. K704_CTL  = SR_SET,
+  .serial. K705_CTL  = SR_SET,
 
 
 #endif
@@ -1511,15 +1505,15 @@ void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
 #if 0
   // mode_lts_reset( mode);
 
-  // mode->second.U1006  = S3;       // JA mux dac
+  // mode->serial.U1006  = S3;       // JA mux dac
 
   if(u0 >= 0) {
     printf("positive");
-    mode->second.U1003  = S2;       // positive source.
+    mode->serial.U1003  = S2;       // positive source.
   } else if (u0 < 0) {
 
     printf("neg");
-    mode->second.U1003  = S1;      // negatie source
+    mode->serial.U1003  = S1;      // negatie source
   }
 
 #endif

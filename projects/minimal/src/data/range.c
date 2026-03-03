@@ -72,6 +72,8 @@ static void partial_reset( _mode_t *mode)
   mode_reset( mode);
 
 
+  // TODO. change this to just persist sa and adc complete structure ...
+
   // persist adc parameters, aperture and reset period
   mode->adc.p_aperture  = tmp.adc.p_aperture;
   mode->adc.p_reset     = tmp.adc.p_reset;
@@ -88,12 +90,10 @@ static void partial_reset( _mode_t *mode)
 
 
   // persist the daq input selection muxes
-  // this is silly having first,second states for 4094.
-  mode->first.U1009 =  tmp.first.U1009;
-  mode->first.U1010 =  tmp.first.U1010;
+  // this is silly having serial,second states for 4094.
+  mode->serial.U1009 =  tmp.serial.U1009;
+  mode->serial.U1010 =  tmp.serial.U1010;
 
-  mode->second.U1009 =  tmp.second.U1009;
-  mode->second.U1010 =  tmp.second.U1010;
 
   // persist sts datc
   mode->mdac1_val     = tmp.mdac1_val;
@@ -131,10 +131,10 @@ static void dcv_10( _mode_t *mode)
 
   mode_reg_cr_mode_set( mode, MODE_SA_ADC);
   mode_sa_az_set(mode, "ch1");
-  mode->first.K402 = SR_SET;
+  mode->serial.K402 = SR_SET;
 
   // apply impedance
-  mode->first.K403 = mode->reg_cr._10meg_impedance ? SR_SET : SR_RESET;
+  mode->serial.K403 = mode->reg_cr._10meg_impedance ? SR_SET : SR_RESET;
 }
 
 static void dcv_1( _mode_t *mode)
@@ -162,7 +162,7 @@ static void dcv_100( _mode_t *mode)
   mode_gain_set( mode, 10);
 
   // main divider on
-  mode->first.K403 = SR_SET;
+  mode->serial.K403 = SR_SET;
 }
 
 

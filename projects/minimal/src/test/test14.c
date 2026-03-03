@@ -69,9 +69,9 @@ static void test (app_t *app)     // should be passing the continuation.
   // phase 1, soak/charge accumulation cap
 
   // setup input relays.
-  mode->first .K407 = SR_SET;    // select dcv-source on ch1.
-  mode->first .K405 = SR_SET;     // select ch1. to feed through to accum cap.
-  mode->first .K406 = SR_RESET;   // select accum cap
+  mode->serial .K407 = SR_SET;    // select dcv-source on ch1.
+  mode->serial .K405 = SR_SET;     // select ch1. to feed through to accum cap.
+  mode->serial .K406 = SR_RESET;   // select accum cap
 
 
 
@@ -84,7 +84,7 @@ static void test (app_t *app)     // should be passing the continuation.
   // HERE assert( mode->reg_direct.sig_pc_ch_o == 0b00 );
   assert( mode->reg_direct.pc_ch1_o == SW_PC_BOOT );
 
-  mode->reg_direct.leds_o = 0b0001;        // phase first led turn on led, because muxinig signal.
+  mode->reg_direct.leds_o = 0b0001;        // phase serial led turn on led, because muxinig signal.
 
   // spi_mode_transition_state( &app->devices, mode, &app->system_millis);
   app_transition_state( app);
@@ -128,7 +128,7 @@ static void test (app_t *app)     // should be passing the continuation.
 
 
 
-  mode->first .K407 = SR_RESET;      // turn off dcv-source
+  mode->serial .K407 = SR_RESET;      // turn off dcv-source
   // mode->reg_direct.leds_o  = 0b0010;    // advance led.   note. won't display in different mode->
 
   // spi_mode_transition_state( &app->devices, mode, &app->system_millis);
