@@ -193,6 +193,11 @@ typedef struct _4094_state_t
 
 //////////
 
+// clear relay state
+
+void _4094_state_clear_relays(_4094_state_t *state);
+
+
 
 
 
@@ -264,7 +269,7 @@ typedef struct _mode_t
 
   _4094_state_t     first;
 
-  _4094_state_t     second;
+//   _4094_state_t     second;
 
 
   // inverter - rename invert_dac
@@ -301,10 +306,6 @@ void mode_reset(_mode_t *mode);
 
 
 
-// clear relay state
-void mode_clear_relays(_mode_t *mode);
-
-
 
 /*
   this is looking a bit complicated.
@@ -338,6 +339,13 @@ void mode_sa_az_set(_mode_t *mode, const char *s);
 void mode_gain_set( _mode_t *mode, uint32_t u);
 
 // prefix with adc... mode_adc_aperture_set
+
+/*
+  TODO - should be typed on the sa.  not mode.
+  and similar for other functions
+    adc_aperture_set( sa *, uint32_t );
+  same for trig_delay etc.
+*/
 void mode_adc_aperture_set( _mode_t *mode, uint32_t u);
 
 

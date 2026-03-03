@@ -110,44 +110,45 @@ void mode_reset(_mode_t *mode)
 
 
 
-void mode_clear_relays(_mode_t *mode)
+void _4094_state_clear_relays(_4094_state_t *state)
 {
-
+#if 0
   _4094_state_t *first = &mode->first;
 
 
   // U401 conditioning
-  first->K404  = SR_NONE;
-  first->K403  = SR_NONE;
-  first->K405  = SR_NONE;
-  first->K406  = SR_NONE;
+  state->K404  = SR_NONE;
+  state->K403  = SR_NONE;
+  state->K405  = SR_NONE;
+  state->K406  = SR_NONE;
 
 
   // U402
-  first->K407  = SR_NONE;
-  first->K402  = SR_NONE;
+  state->K407  = SR_NONE;
+  state->K402  = SR_NONE;
 
   // u405
-  first->K401 = SR_NONE;
+  state->K401 = SR_NONE;
 
 
   // u607
-  first->K602  = SR_NONE;
+  state->K602  = SR_NONE;
 
   // u713 AMPS
-  first->K701  = SR_NONE;
-  first->K704  = SR_NONE;
-  first->K707  = SR_NONE;
+  state->K701  = SR_NONE;
+  state->K704  = SR_NONE;
+  state->K707  = SR_NONE;
 
   // u705
-  first->K702  = SR_NONE;
-  first->K703  = SR_NONE;
+  state->K702  = SR_NONE;
+  state->K703  = SR_NONE;
 
 
   // u706
-  first->K708  = SR_NONE;
-  first->K705  = SR_NONE;
+  state->K708  = SR_NONE;
+  state->K705  = SR_NONE;
 
+#endif
 }
 
 

@@ -295,7 +295,14 @@ void app_transition_state( app_t  *app)
   printf("write second state\n");
   state_format ( (void *) &mode->second, sizeof(mode->second));
 */
-  spi_4094_write_n( app->spi_4094, (void *) &mode->second, sizeof(mode->second));
+
+  // void _4094_state_clear_relays(_4094_state_t state *)
+
+  _4094_state_t tmp = mode->first;
+  _4094_state_clear_relays( &tmp);
+
+  spi_4094_write_n( app->spi_4094, (void *) &tmp, sizeof(tmp));
+  // spi_4094_write_n( app->spi_4094, (void *) &mode->second, sizeof(mode->second));
 
 #endif
 
