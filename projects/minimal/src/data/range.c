@@ -58,6 +58,8 @@
 /*
   instead of have this extra state
 
+  mode_reset() is different from the partial state reset required to change ranges
+
 */
 
 static void partial_reset( _mode_t *mode)
@@ -73,10 +75,11 @@ static void partial_reset( _mode_t *mode)
 
 
   // TODO. change this to just persist sa and adc complete structure ...
+  // adc. is ok.
+  // but the precharge stuff changes.
 
   // persist adc parameters, aperture and reset period
-  mode->adc.p_aperture  = tmp.adc.p_aperture;
-  mode->adc.p_reset     = tmp.adc.p_reset;
+  mode->adc = tmp.adc;
 
   // persist the sa trigger-delay,  and precharge period
   mode->sa.p_clk_count_trig_delay   = tmp.sa.p_clk_count_trig_delay;
@@ -96,6 +99,7 @@ static void partial_reset( _mode_t *mode)
 
 
   // persist sts datc
+  // Not. sure .   we want to maintain... across tests.
   mode->mdac1_val     = tmp.mdac1_val;
 
   // keep the LTS setting , AG
