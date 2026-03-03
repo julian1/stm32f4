@@ -233,7 +233,7 @@ void mode_sa_az_set(_mode_t *mode, const char *s)
 
     // Keep this - helpful/useful in direct mode.
     mode->reg_direct.azmux_o = S3;
-    mode->reg_direct.pc_ch2_o = 1;
+    mode->reg_direct.pc_o = 0b10;
 
 
     // az mode
@@ -953,6 +953,8 @@ bool mode_repl_statement(
       }
 */
 
+
+/*
       if(strcmp(s0, "pc1") == 0) {
         mode->reg_direct.pc_ch1_o = u0;
       }
@@ -960,13 +962,21 @@ bool mode_repl_statement(
       else if(strcmp(s0, "pc2") == 0) {
         mode->reg_direct.pc_ch2_o = u0;
       }
+*/
 
-/*
+
+
+     if(strcmp(s0, "pc") == 0) {
+        mode->reg_direct.pc_o = u0;
+      }
+
+
       else if(strcmp(s0, "azmux") == 0) {
         mode->reg_direct.azmux_o = u0;
 
       }
-*/
+
+    //////////////
 
 
       // better name. _count.

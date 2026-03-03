@@ -58,7 +58,7 @@ static void test (app_t *app)     // should be passing the continuation.
   mode->reg_direct.leds_o = 0b0001;        // phase serial led turn on led, because muxinig signal.
 
   printf("azmux       %u\n", mode->reg_direct.azmux_o );   // consider - formatting
-  printf("pc_ch1      %u\n", mode->reg_direct.pc_ch1_o );  // add formatting
+  printf("pc_o        %u\n", mode->reg_direct.pc_o );  // add formatting
 
 
 

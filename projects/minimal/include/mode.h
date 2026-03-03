@@ -84,12 +84,12 @@
 #define SR_RESET    0b10
 
 
-
+/*
 // precharge switches
 #define SW_PC_BOOT        0
 #define SW_PC_SIGNAL      1
 
-
+*/
 
 
 

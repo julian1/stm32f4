@@ -81,8 +81,8 @@ static void test (app_t *app)     // should be passing the continuation.
 
 
   assert( mode->reg_direct.azmux_o == SOFF) ;
-  // HERE assert( mode->reg_direct.sig_pc_ch_o == 0b00 );
-  assert( mode->reg_direct.pc_ch1_o == SW_PC_BOOT );
+  assert( mode->reg_direct.pc_o == 0b00 );
+  // assert( mode->reg_direct.pc_ch1_o == SW_PC_BOOT );
 
   mode->reg_direct.leds_o = 0b0001;        // phase serial led turn on led, because muxinig signal.
 
