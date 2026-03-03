@@ -427,7 +427,7 @@ void mode_mdac1_set( _mode_t *mode, unsigned u0 )
 
 
 
-static void mode_loside_set( _mode_t *mode, const char *s)
+static bool mode_loside_set( _mode_t *mode, const char *s)
 {
   /*
     TODO add extra argument for the input.
@@ -482,9 +482,12 @@ static void mode_loside_set( _mode_t *mode, const char *s)
     mode_mdac0_set( mode, val);
   }
   else {
+
     printf("bad lo-side argument\n");
+    return 0;
   }
 
+  return 1;
 }
 
 /*
