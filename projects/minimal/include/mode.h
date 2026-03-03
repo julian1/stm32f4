@@ -175,7 +175,7 @@ typedef struct _4094_state_t
   // u706
   uint8_t K708  : 2;
   uint8_t K705  : 2;
-  uint8_t U706  : 4;
+  uint8_t K706  : 4;
 
 
   // u709

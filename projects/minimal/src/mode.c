@@ -142,6 +142,7 @@ void _4094_state_clear_relays(_4094_state_t *state)
   // u706
   state->K708  = SR_NONE;
   state->K705  = SR_NONE;
+  state->K706  = SR_NONE;
 
 }
 
@@ -305,74 +306,6 @@ void mode_gain_set( _mode_t *mode, uint32_t u)
 
 
 
-#if 0
-
-
-
-static void mode_ch2_set_iso( _mode_t *mode, signed u0 )
-{
-  /* this function is possible. but it is a bit confusing parallel state.
-    because output does not appear
-    and it is read from from the daq.
-    so should probably be handled exceptionally
-
-    and would need a call to the daq.
-  - void mode_ch2_set_daq( _mode_t *mode, unsigned u0, unsigned u1 )
-  */
-
-  UNUSED(mode);
-  UNUSED(u0);
-  assert(0);
-}
-
-
-
-// remove argument handling is messy here.
-void mode_ch2_set_ref( _mode_t *mode )
-{
-  // rename mode_dcv_ref_source
-
-  mode_lts_reset( mode);
-
-  if(u0 == 7) {
-    printf("with ref-hi +7V\n");
-    mode->serial.U1006  = S4;       // ref-hi
-    // mode->serial.U1007  = S4;       // ref-lo
-  }
-  else if( u0 == 0 ) {
-    // need bodge for this
-    printf("with ref-lo\n");
-    mode->serial.U1006  = S8;       // ref-lo
-    // mode->serial.U1007  = S4;       // ref-lo - looks funny. gives bad measurement. on DMM.
-  }
-  else
-    assert(0);
-}
-
-
-
-
-// this is a poor abstraction.
-void mode_ch2_set_channel( _mode_t *mode, unsigned u0 )
-{
-
-  // neither channel
-  mode->serial.K407 = SR_RESET;
-  mode->serial.U409 = DOFF;       // hi/lo mux.
-
-  if(u0 == 1) {
-
-    mode->serial.K407 = SR_SET;
-  } else if(u0 == 2) {
-
-    mode->serial.U409 = D4;
-  }
-
-}
-
-#endif
-
-
 
 
 
@@ -500,6 +433,7 @@ void mode_mdac1_set( _mode_t *mode, unsigned u0 )
 static void mode_loside_set( _mode_t *mode, const char *s)
 {
   /*
+    TODO add extra argument for the input.
       decode two arguments here. for boot channel U426.
       and output drive U423
 
@@ -576,6 +510,9 @@ void mode_ch1_reset(_mode_t *mode)      // change name reset() ?
 
   mode->serial.K402 = SR_RESET;    // input off
   mode->serial.K406 = SR_RESET;    // accum ch1 off
+  mode->serial.K405 = SR_RESET;    // accum ch2 off
+
+
   mode->serial.K407 = SR_RESET;    // dcv-source off
 
   mode->serial.K401 = SR_RESET;    // ohms off
@@ -1260,6 +1197,83 @@ bool mode_repl_statement(
   return 1;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+#if 0
+
+
+
+static void mode_ch2_set_iso( _mode_t *mode, signed u0 )
+{
+  /* this function is possible. but it is a bit confusing parallel state.
+    because output does not appear
+    and it is read from from the daq.
+    so should probably be handled exceptionally
+
+    and would need a call to the daq.
+  - void mode_ch2_set_daq( _mode_t *mode, unsigned u0, unsigned u1 )
+  */
+
+  UNUSED(mode);
+  UNUSED(u0);
+  assert(0);
+}
+
+
+
+// remove argument handling is messy here.
+void mode_ch2_set_ref( _mode_t *mode )
+{
+  // rename mode_dcv_ref_source
+
+  mode_lts_reset( mode);
+
+  if(u0 == 7) {
+    printf("with ref-hi +7V\n");
+    mode->serial.U1006  = S4;       // ref-hi
+    // mode->serial.U1007  = S4;       // ref-lo
+  }
+  else if( u0 == 0 ) {
+    // need bodge for this
+    printf("with ref-lo\n");
+    mode->serial.U1006  = S8;       // ref-lo
+    // mode->serial.U1007  = S4;       // ref-lo - looks funny. gives bad measurement. on DMM.
+  }
+  else
+    assert(0);
+}
+
+
+
+
+// this is a poor abstraction.
+void mode_ch2_set_channel( _mode_t *mode, unsigned u0 )
+{
+
+  // neither channel
+  mode->serial.K407 = SR_RESET;
+  mode->serial.U409 = DOFF;       // hi/lo mux.
+
+  if(u0 == 1) {
+
+    mode->serial.K407 = SR_SET;
+  } else if(u0 == 2) {
+
+    mode->serial.U409 = D4;
+  }
+
+}
+
+#endif
 
 
 
