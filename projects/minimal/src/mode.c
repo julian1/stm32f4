@@ -328,9 +328,6 @@ void mode_lts_set( _mode_t *mode, double f0)
 
   mode_lts_reset( mode);
 
-
-
-
   if(f0 >= 0) {
     printf("with +");
     mode->serial.U1003  = S1 ;       // positive source.
@@ -556,8 +553,10 @@ it works well to coordinate the three input muxes together like this.
 
 */
 
+/*
+  Using string switch like - could simplify all this string handling ...
 
-
+*/
 
 
 void mode_ch2_reset(_mode_t *mode)
@@ -573,98 +572,92 @@ void mode_ch2_reset(_mode_t *mode)
 
 
 
-
-void mode_ch2_set_ref( _mode_t *mode )
+bool mode_ch2_set( _mode_t *mode, const char *s0)
 {
-  // TODO. rename be set_ref.  to sets both the hi and the lo.
 
-  mode_ch2_reset(mode);
+    if(strcmp(s0, "off") == 0 || strcmp(s0, "reset") == 0) {      // reset
 
-  mode->serial.U419 = S4;   // REF-HI
-  mode->serial.U420 = S7;   // REF-LO
-  mode->serial.U409 = D4;   // feedmux  hi/lo
+      mode_ch2_reset(mode);
+    }
+
+    else if(strcmp(s0, "ref") == 0
+		|| strcmp(s0, "ref-hi") == 0) {
+
+      mode_ch2_reset(mode);
+
+      mode->serial.U419 = S4;   // REF-HI
+      mode->serial.U420 = S7;   // REF-LO
+      mode->serial.U409 = D4;   // feedmux  hi/lo
+    }
+    else if(strcmp(s0, "ref-lo") == 0
+		/*||  strcmp(s0, "ref_lo") == 0*/) {
+
+      mode_ch2_reset(mode);
+
+      mode->serial.U419 = S3;   // REF-LO
+      mode->serial.U420 = S7;   // REF-LO
+      mode->serial.U409 = D4;   // feedmux  hi/lo
+    }
+    else if(strcmp(s0, "temp") == 0) {
+
+      mode_ch2_reset(mode);
+
+      mode->serial.U419 = S1;   // TEMP
+      mode->serial.U420 = S1;   // A400-1
+      mode->serial.U409 = D4;   // feedmux  hi/lo
+    }
+    else if(strcmp(s0, "lts") == 0) {
+
+      mode_ch2_reset(mode);
+
+      mode->serial.U419 = S2;   // lts-source-hi
+      mode->serial.U420 = S1;   // A400-1
+      mode->serial.U409 = D4;   // feedmux
+    }
+    else if(strcmp(s0, "daq") == 0) {
+
+      mode_ch2_reset(mode);
+
+      mode->serial.U419 = S5;   // daq
+      mode->serial.U420 = S5;   // com-lc
+      mode->serial.U409 = D4;   // feedmux  hi/lo
+    }
+    else if(strcmp(s0, "shunts") == 0) {
+
+      mode_ch2_reset(mode);
+
+      mode->serial.U419 = S6;   // shunts hi
+      mode->serial.U420 = S6;   // shunts lo
+      mode->serial.U409 = D4;   // feedmux  hi/lo
+    }
+    else if(strcmp(s0, "tia") == 0) {
+
+      mode_ch2_reset(mode);
+
+      mode->serial.U419 = S8;   // tia
+      mode->serial.U420 = S1;   // A400-1
+      mode->serial.U409 = D4;   // feedmux  hi/lo
+    }
+    else if(strcmp(s0, "sense") == 0) {
+
+      mode_ch2_reset(mode);
+
+      mode->serial.U409 = D1;         // sense hi and lo
+    }
+
+    else if(strcmp(s0, "dcv-div") == 0) {
+
+      // TODO consider change name - hv-div. or just 'div'
+        mode_ch2_reset(mode);
+        mode->serial.U409 = D3;         // dcv div
+    }
+    else return 0;
+
+  return 1;
 }
 
 
-void mode_ch2_set_ref_lo( _mode_t *mode )
-{
-  mode_ch2_reset(mode);
 
-  mode->serial.U419 = S3;   // REF-LO
-  mode->serial.U420 = S7;   // REF-LO
-  mode->serial.U409 = D4;   // feedmux  hi/lo
-}
-
-
-void mode_ch2_set_temp( _mode_t *mode )
-{
-  mode_ch2_reset(mode);
-
-  mode->serial.U419 = S1;   // TEMP
-  mode->serial.U420 = S1;   // A400-1
-  mode->serial.U409 = D4;   // feedmux  hi/lo
-}
-
-
-void mode_ch2_set_lts(_mode_t *mode)
-{
-  mode_ch2_reset(mode);
-
-  mode->serial.U419 = S2;   // lts-source-hi
-  mode->serial.U420 = S1;   // A400-1
-  mode->serial.U409 = D4;   // feedmux
-}
-
-
-void mode_ch2_set_daq( _mode_t *mode )
-{
-  mode_ch2_reset(mode);
-
-  mode->serial.U419 = S5;   // daq
-  mode->serial.U420 = S5;   // com-lc
-  mode->serial.U409 = D4;   // feedmux  hi/lo
-
-  // USES com-lc.  but we have not set the BOOT here.
-}
-
-
-
-void mode_ch2_set_shunts(_mode_t *mode)
-{
-  mode_ch2_reset(mode);
-
-  mode->serial.U419 = S6;   // shunts hi
-  mode->serial.U420 = S6;   // shunts lo
-  mode->serial.U409 = D4;   // feedmux  hi/lo
-}
-
-
-void mode_ch2_set_tia( _mode_t *mode )
-{
-  mode_ch2_reset(mode);
-
-  mode->serial.U419 = S8;   // tia
-  mode->serial.U420 = S1;   // A400-1
-  mode->serial.U409 = D4;   // feedmux  hi/lo
-}
-
-
-
-void mode_ch2_set_sense(_mode_t *mode)
-{
-  mode_ch2_reset(mode);
-
-  mode->serial.U409 = D1;         // sense hi and lo
-}
-
-
-void mode_ch2_set_dcv_div(_mode_t *mode)
-{
-// TODO consider change name - hv-div.
-  mode_ch2_reset(mode);
-
-  mode->serial.U409 = D3;         // dcv div
-}
 
 
 
@@ -892,7 +885,23 @@ bool mode_repl_statement(
 
   else if( sscanf(cmd, "set ch2 %100s", s0) == 1)
   {
+    // why not manage this argument passing
+    // in the handler ???
+    // because issue with repl validation/error handling.
 
+
+    bool ret = mode_ch2_set( mode, s0);
+
+    if(!ret) {
+      printf("unrecognized\n");
+      assert(0);
+      return 0;
+    }
+
+  }
+
+
+#if 0
     if(strcmp(s0, "off") == 0 || strcmp(s0, "reset") == 0) {      // reset
       mode_ch2_reset(mode);
     }
@@ -932,9 +941,8 @@ bool mode_repl_statement(
       return 0;
       // assert(0);
     }
-  }
 
-
+#endif
 
 
 
@@ -950,17 +958,6 @@ bool mode_repl_statement(
 /*
       if(strcmp(s0, "mdac1") == 0) {
         mode->mdac1_val = u0;
-      }
-*/
-
-
-/*
-      if(strcmp(s0, "pc1") == 0) {
-        mode->reg_direct.pc_ch1_o = u0;
-      }
-
-      else if(strcmp(s0, "pc2") == 0) {
-        mode->reg_direct.pc_ch2_o = u0;
       }
 */
 

@@ -62,7 +62,8 @@ static void app_show_readings( app_t *app )
 
   ////////////////////
 
-  mode_ch2_set_ref( mode);
+  // mode_ch2_set_ref( mode);
+  mode_ch2_set( mode, "ref");
 
   // mode_ch2_set_ref_lo( mode);
   mode_sa_az_set(mode, "ch2" );
@@ -173,7 +174,8 @@ static void cal_dcv10_nom( app_t *app)
   // mode_gain_set(mode, 1);
 
   // hold input to adc at lo. to reduce leakage.
-  mode_ch2_set_ref_lo( mode);
+  // mode_ch2_set_ref_lo( mode);
+  mode_ch2_set( mode, "ref-lo");
 
   // disable sigmux. required to calc relative pos/neg ref current weight.
   mode->reg_cr.adc_p_active_sigmux = 0;
@@ -282,7 +284,9 @@ static void cal_dcv10_nom( app_t *app)
     */
 
     // calibrate using ref-current sources, derived from main ref
-    mode_ch2_set_ref( mode);
+    // mode_ch2_set_ref( mode);
+    mode_ch2_set( mode, "ref");
+
 
     // calibrate against 10V.
     // mode_lts_set( mode, 10 );

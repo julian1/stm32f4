@@ -54,7 +54,8 @@ static void test( app_t *app)
   mode_sa_az_set(mode, "0" );
 
   // hold input to adc at lo. to reduce leakage.
-  mode_ch2_set_ref_lo( mode);
+  // mode_ch2_set_ref_lo( mode);
+  mode_ch2_set( mode, "ref-lo");
 
 
   mode->reg_cr.adc_p_active_sigmux = 0;   // sigmux not active.

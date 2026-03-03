@@ -348,34 +348,8 @@ void mode_ch1_set_dcv_source(_mode_t *mode);    // change name lts eg.  using in
 // ch2
 void mode_ch2_reset(_mode_t *mode);
 
-
-/*
-  not sure we need all the setters
-  instead just use the range mechanicm as the starting point
-
-  temp has single range,
-  internal ref has one range
-  keep in mind daq. only has 10,1,0.1,0.01.  20,2,200mV. no 100 and 1000V. etc.
-
-  resistance / diode - can use ordinary DCV ranges. with cal.
-  Not. sure. the cal values may be the same..
-
-*/
-
-// We would have ranges for each of these - eg. 10,1,0.1.
-// because need to control appropriate amplifier gain.
-void mode_ch2_set_ref( _mode_t *mode);
-void mode_ch2_set_ref_lo( _mode_t *mode);
-void mode_ch2_set_temp( _mode_t *mode );
-void mode_ch2_set_lts(_mode_t *mode);
-void mode_ch2_set_daq( _mode_t *mode );
-//
-void mode_ch2_set_shunts(_mode_t *mode);
-void mode_ch2_set_tia( _mode_t *mode );
-void mode_ch2_set_sense(_mode_t *mode);
-void mode_ch2_set_dcv_div(_mode_t *mode);
-
-
+// set input
+bool mode_ch2_set( _mode_t *mode, const char *s);
 
 // better name.  set_cap. or something
 void mode_ch1_accum( _mode_t *mode, bool);

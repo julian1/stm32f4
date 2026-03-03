@@ -98,7 +98,8 @@ static void app_display_some_data( app_t *app, double cal_w, double cal_7v1_b)
   ////////////////////
 
 
-  mode_ch2_set_ref( mode);
+  // mode_ch2_set_ref( mode);
+  mode_ch2_set( mode, "ref");
   // mode_ch2_set_ref_lo( mode);
 
   mode_sa_az_set(mode, "ch2" );
@@ -245,7 +246,8 @@ static void test( app_t *app)
   // mode_gain_set(mode, 1);
 
   // hold input to adc at lo. to reduce leakage.
-  mode_ch2_set_ref_lo( mode);
+  // mode_ch2_set_ref_lo( mode);
+  mode_ch2_set( mode, "ref-lo");
 
 
   // set sigmux not active. needed to calculate relative pos/neg ref current weight.
@@ -372,7 +374,8 @@ static void test( app_t *app)
     */
 
     // calibrate using ref-current sources, derived from main ref
-    mode_ch2_set_ref( mode);
+    // mode_ch2_set_ref( mode);
+    mode_ch2_set( mode, "ref");
 
     // calibrate against 10V.
     // mode_lts_set( mode, 10 );
