@@ -231,7 +231,7 @@ void mode_sa_az_set(_mode_t *mode, const char *s)
 
   else if(strcmp(s, "ch2") == 0 ) {
 
-    // Keep this - it is really helpful for direct mode.
+    // Keep this - helpful/useful in direct mode.
     mode->reg_direct.azmux_o = S3;
     mode->reg_direct.pc_ch2_o = 1;
 
