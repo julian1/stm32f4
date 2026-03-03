@@ -245,20 +245,12 @@ void adc_aperture_set( adc_state_t *adc, uint32_t u);
 
 
 
-/*
-  Can use,
-  - 1. pre-constructed bit-vectors for state - for different modes. like K. services manuals.
-  - 2. or construct on an as need basis.
-  - 3. or derive from another mode, by copying and modifying.
-
-*/
 
 
 
 
 
-
-// prefix with underscore because 'mode_t'  is in conflict with sys/types 'mode_t'.
+// use underscore prefix because 'mode_t'  conflicts with sys/types 'mode_t'.
 
 typedef struct _mode_t
 {
@@ -268,10 +260,6 @@ typedef struct _mode_t
   // all state needed to achive a dmm function.
   // but not enough for different states.
 
-/*
-  // TODO prefix 4094 to var as well as type
-      eg. _4094_first _4094_second .
-*/
 
   _4094_state_t serial;
 
