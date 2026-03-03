@@ -78,7 +78,8 @@
 
 
 
-// relay
+// relay. consider enum
+#define SR_NONE     0b00
 #define SR_SET      0b01
 #define SR_RESET    0b10
 

@@ -109,6 +109,50 @@ void mode_reset(_mode_t *mode)
 
 
 
+
+void mode_clear_relays(_mode_t *mode)
+{
+
+  _4094_state_t *first = &mode->first;
+
+
+  // U401 conditioning
+  first->K404  = SR_NONE;
+  first->K403  = SR_NONE;
+  first->K405  = SR_NONE;
+  first->K406  = SR_NONE;
+
+
+  // U402
+  first->K407  = SR_NONE;
+  first->K402  = SR_NONE;
+
+  // u405
+  first->K401 = SR_NONE;
+
+
+  // u607
+  first->K602  = SR_NONE;
+
+  // u713 AMPS
+  first->K701  = SR_NONE;
+  first->K704  = SR_NONE;
+  first->K707  = SR_NONE;
+
+  // u705
+  first->K702  = SR_NONE;
+  first->K703  = SR_NONE;
+
+
+  // u706
+  first->K708  = SR_NONE;
+  first->K705  = SR_NONE;
+
+}
+
+
+
+
 void mode_adc_aperture_set( _mode_t *mode, uint32_t u)
 {
   mode->adc.p_aperture = u;
