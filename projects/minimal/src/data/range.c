@@ -123,8 +123,7 @@ static void dcv_ref( _mode_t *mode)
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
   mode_sa_az_set(mode, "ch2" );
-  // mode_ch2_set_ref( mode);
-  mode_ch2_set( mode, "ref");
+  mode_ch2_set_strict( mode, "ref");
 }
 
 
@@ -163,8 +162,7 @@ static void dcv_100( _mode_t *mode)
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
   mode_sa_az_set(mode, "ch2");
-  // mode_ch2_set_dcv_div( mode);
-  mode_ch2_set( mode, "dcv-div");
+  mode_ch2_set_strict( mode, "dcv-div");
 
   mode_gain_set( mode, 10);
 
@@ -186,8 +184,7 @@ static void temp( _mode_t *mode)
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
   mode_sa_az_set(mode, "ch2" );
-  // mode_ch2_set_temp( mode);
-  mode_ch2_set( mode, "temp");
+  mode_ch2_set_strict( mode, "temp");
 
   // consider - get rid of accessor and manage low level details of state setup here
   // mode_gain_set( mode, 1); could use a different gain

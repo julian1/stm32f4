@@ -332,7 +332,6 @@ void mode_gain_set( _mode_t *mode, uint32_t u);
 
 
 
-
 void mode_lts_set( _mode_t *mode, double f0 /*signed i0*/);       // arg is 10,0,-10
 void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 );   // factor into daq_set and ch2_set
 void mode_mdac0_set( _mode_t *mode, unsigned u0 );                // inverter  rename dac_invert_set
@@ -350,6 +349,7 @@ void mode_ch2_reset(_mode_t *mode);
 
 // set input
 bool mode_ch2_set( _mode_t *mode, const char *s);
+void mode_ch2_set_strict( _mode_t *mode, const char *s0);
 
 // better name.  set_cap. or something
 void mode_ch1_accum( _mode_t *mode, bool);

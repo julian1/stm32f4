@@ -651,13 +651,21 @@ bool mode_ch2_set( _mode_t *mode, const char *s0)
         mode_ch2_reset(mode);
         mode->serial.U409 = D3;         // dcv div
     }
-    else return 0;
+    else {
+
+      return 0;
+    }
 
   return 1;
 }
 
 
 
+void mode_ch2_set_strict( _mode_t *mode, const char *s0)
+{
+  bool ret = mode_ch2_set( mode, s0);
+  assert( ret);
+}
 
 
 
