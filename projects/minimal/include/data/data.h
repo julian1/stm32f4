@@ -65,9 +65,9 @@ typedef struct data_t
   double reading;
 
   bool show_counts;
-  bool show_sum;
+  // bool show_sum;
   bool show_reading;
-  bool show_ratio;
+  // bool show_ratio;
 
 
 } data_t;

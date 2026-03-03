@@ -87,7 +87,6 @@ static void app_show_readings( app_t *app )
   gpio_write( app->gpio_trigger, true);
 
   data->show_counts   = true;
-  data->show_sum      = true;
   data->show_reading  = true;
 
   // take obs loop
@@ -214,7 +213,6 @@ static void cal_dcv10_nom( app_t *app)
   */
 
   data->show_counts  = true;
-  data->show_sum     = false;
   data->show_reading = false;
 
   // take obs loop
@@ -300,8 +298,6 @@ static void cal_dcv10_nom( app_t *app)
     // start sampling
     gpio_write( app->gpio_trigger, true);
 
-
-    data->show_sum     = true;
 
     // compute ref for diff
     for(unsigned i = 0; i < ARRAY_SIZE( values);)

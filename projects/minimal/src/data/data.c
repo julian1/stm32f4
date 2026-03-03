@@ -57,9 +57,7 @@ void data_init(
 
   // default
   data->show_counts = true;
-  data->show_sum    = true;
   data->show_reading = true;
-  data->show_ratio = true;
 }
 
 
@@ -125,7 +123,7 @@ void data_update( data_t *data )
         - ((double) data->clk_count_refmux_pos_lo - (cal_w * data->clk_count_refmux_neg_lo));
 
 
-    if(data->show_sum)
+    if(data->show_counts)
       printf("sum %.2f, ", data->clk_count_sum);
 
     data->value     = data->clk_count_sum  / data->clk_count_sigmux;
