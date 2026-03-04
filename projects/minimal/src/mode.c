@@ -199,7 +199,7 @@ void reg_cr_mode_set( reg_cr_t *reg_cr, unsigned u0)
 // actually may be better to have noaz. to set up. to run with p_seq_n = 1;
 // and no switching.
 
-void mode_sa_az_set(_mode_t *mode, const char *s)
+bool mode_sa_az_set(_mode_t *mode, const char *s)
 {
   /* note the same syntax
 
@@ -226,40 +226,61 @@ void mode_sa_az_set(_mode_t *mode, const char *s)
     sa->p_seq_elt[ 0].pc = 0b00;
 
     // could set the catcher handler/closure here
-  }
 
+  }
 
   else if(strcmp(s, "ch2") == 0 ) {
 
-    // Keep this - helpful/useful in direct mode.
+    // direct mode - keep
     mode->reg_direct.azmux_o = S3;
     mode->reg_direct.pc_o = 0b10;
-
 
     // az mode
     // signal can come in on S3, S7
     sa_state_t *sa = &mode->sa;
     sa->p_seq_n = 2;
 
-    // zero serial
-    sa->p_seq_elt[ 0].azmux  = S7;     // channel2 lo. from feed mux.
+    // zero
+    sa->p_seq_elt[ 0].azmux  = S7;    // CH2-LO
     sa->p_seq_elt[ 0].pc = 0b00;
 
     // val
-    sa->p_seq_elt[ 1].azmux  = S3;     // CH2-IN
-    sa->p_seq_elt[ 1].pc = 0b10;
+    sa->p_seq_elt[ 1].azmux  = S3;    // PC-CH2-OUT
+    sa->p_seq_elt[ 1].pc = 0b10;      // pc2 active
 
     // could set the catcher handler/closure here
   }
+
   else if(strcmp(s, "ch1") == 0 ) {
-    assert( 0);
+
+    // direct mode - keep
+    mode->reg_direct.azmux_o = S1;
+    mode->reg_direct.pc_o = 0b01;
+
+    // az mode
+    // signal can come in on S3, S7
+    sa_state_t *sa = &mode->sa;
+    sa->p_seq_n = 2;
+
+    // zero
+    sa->p_seq_elt[ 0].azmux  = S5;    // COM-LC
+    sa->p_seq_elt[ 0].pc = 0b00;
+
+    // val
+    sa->p_seq_elt[ 1].azmux  = S1;    // PC-CH1-OUT
+    sa->p_seq_elt[ 1].pc = 0b01;      // pc1 active
   }
+
+
+
   else if(strcmp(s, "ratio") == 0 ) {
     assert( 0);
   }
-  else assert(0);
+  else {
+    return 0;
+  }
 
-
+  return 1;
 
 }
 
@@ -880,13 +901,20 @@ bool mode_repl_statement(
   else if( sscanf(cmd, "set loside %100s", s0) == 1
   )  {
 
-    mode_loside_set( mode, s0);
+    bool ret = mode_loside_set( mode, s0);
+    if(!ret) {
+      printf("bad argument\n");
+    }
   }
 
   else if( sscanf(cmd, "set az %100s", s0) == 1
     /* || sscanf(cmd, "set sa %100s", s0) == 1 */)  {
 
-    mode_sa_az_set( mode, s0 );
+    bool ret = mode_sa_az_set( mode, s0 );
+    if(!ret) {
+      printf("bad argument\n");
+    }
+
   }
 
 

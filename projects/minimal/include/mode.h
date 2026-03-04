@@ -326,7 +326,8 @@ void reg_cr_mode_set( reg_cr_t *reg_cr, unsigned u0);
 // void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 );
 
 
-void mode_sa_az_set(_mode_t *mode, const char *s);
+
+bool mode_sa_az_set(_mode_t *mode, const char *s);
 
 void mode_gain_set( _mode_t *mode, uint32_t u);
 
