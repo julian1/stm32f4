@@ -37,13 +37,13 @@ typedef struct buffer_t
 
   // memory dependency, pass on construction
   double *values;
-  size_t max_n ;  // max memory to work size
+  size_t max_n ;    // max memory to work size
 
 
 
-  size_t n;       // expand size of buffer
-  size_t i;       // next index/ modulus
-  size_t size;    // number of elements present
+  size_t i;         // next index/ modulus
+  size_t size;      // limit size of full buffer.  rename sz? consistent with stl.
+  size_t count;     // current count of elements present.
 
 
   double mean;
@@ -51,7 +51,7 @@ typedef struct buffer_t
   double min, max;
 
 
-  bool show_buffer;
+  // bool show_buffer;
 
   bool show;
 

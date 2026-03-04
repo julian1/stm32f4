@@ -100,9 +100,9 @@ void buffer_update( buffer_t *buffer)
     // clear data
     // memset( buffer->values, 0, sizeof(double) * buffer->max_n );
 
-    buffer->n = 10;
+    buffer->size = 10;
     buffer->i = 0;
-    buffer->size = 0;
+    buffer->count = 0;
 
   }
 
@@ -111,26 +111,29 @@ void buffer_update( buffer_t *buffer)
     assert(!data->status.first);
     // push buffer.
 
-    // printf("buffer i %u, size %u, ", buffer->i, buffer->size );
-    printf("(%u, %u), ", buffer->i, buffer->size );
+    // printf("buffer i %u, count %u, ", buffer->i, buffer->count);
+    if(buffer->show)
+      printf("(%u, %u), ", buffer->i, buffer->count);
 
     buffer->values[ buffer->i ] = data->reading;
 
-    buffer->i    = (buffer->i + 1 ) % buffer->n;
-    buffer->size = MIN( buffer->size  + 1, buffer->n) ;
+    buffer->i     = (buffer->i + 1 ) % buffer->size;
+    buffer->count = MIN( buffer->count + 1, buffer->size) ;
 
 
-    buffer->mean   = mean(   buffer->values, buffer->size);
-    buffer->stddev = stddev( buffer->values, buffer->size);
+    buffer->mean   = mean(   buffer->values, buffer->count);
+    buffer->stddev = stddev( buffer->values, buffer->count);
 
     char buf[100 + 1];
 
-    // printf( "(n %u) ", buffer->size);
-    printf( "mean   %s", str_format_float_with_commas(buf, 100, 8, buffer->mean));
-    printf( "%s, ", range->unit );
+    if(buffer->show) {
+      // printf( "(n %u) ", buffer->count);
+      printf( "mean   %s", str_format_float_with_commas(buf, 100, 8, buffer->mean));
+      printf( "%s, ", range->unit );
 
-    printf( "stddev %s", str_format_float_with_commas(buf, 100, 8, buffer->stddev));
-    printf( "%s, ", range->unit );
+      printf( "stddev %s", str_format_float_with_commas(buf, 100, 8, buffer->stddev));
+      printf( "%s, ", range->unit );
+    }
 
   }
 
@@ -152,7 +155,17 @@ bool buffer_repl_statement( buffer_t *buffer, const char *cmd)
   uint32_t u0;
 
 
-  if( sscanf(cmd, "data buffer size %lu", &u0 ) == 1) {
+
+  if(strcmp(cmd, "buffer show") == 0)
+    buffer->show = true;
+
+  else if(strcmp(cmd, "buffer unshow") == 0)
+    buffer->show = false;
+
+
+
+
+  if( sscanf(cmd, "buffer size %lu", &u0 ) == 1) {
 
 #if 0
     // if(u0 < 2 || u0 > 500 ) {
