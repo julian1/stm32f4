@@ -226,7 +226,6 @@ bool mode_sa_az_set(_mode_t *mode, const char *s)
     sa->p_seq_elt[ 0].pc = 0b00;
 
     // could set the catcher handler/closure here
-
   }
 
   else if(strcmp(s, "ch2") == 0 ) {
@@ -247,8 +246,6 @@ bool mode_sa_az_set(_mode_t *mode, const char *s)
     // val
     sa->p_seq_elt[ 1].azmux  = S3;    // PC-CH2-OUT
     sa->p_seq_elt[ 1].pc = 0b10;      // pc2 active
-
-    // could set the catcher handler/closure here
   }
 
   else if(strcmp(s, "ch1") == 0 ) {
