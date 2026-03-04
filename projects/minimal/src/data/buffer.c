@@ -119,12 +119,14 @@ void buffer_update( buffer_t *buffer)
     if(buffer->show)
       printf("(%u, %u), ", buffer->i, buffer->count);
 
+    // record value
     buffer->values[ buffer->i ] = data->reading;
 
+    // update index and count
     buffer->i     = (buffer->i + 1 ) % buffer->size;
     buffer->count = MIN( buffer->count + 1, buffer->size) ;
 
-
+    // calc some stats
     buffer->mean   = mean(   buffer->values, buffer->count);
     buffer->stddev = stddev( buffer->values, buffer->count);
 
