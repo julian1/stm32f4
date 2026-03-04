@@ -414,7 +414,7 @@ void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 )
 
 
 
-void mode_mdac0_set( _mode_t *mode, unsigned u0 )
+void mode_invert_dac_set( _mode_t *mode, unsigned u0 )
 {
   // invert dac
   printf("invert mdac\n");
@@ -431,7 +431,7 @@ void mode_mdac0_set( _mode_t *mode, unsigned u0 )
 }
 
 
-void mode_mdac1_set( _mode_t *mode, unsigned u0 )
+void mode_sts_dac_set( _mode_t *mode, unsigned u0 )
 {
   // sts dac
   printf("sts mdac\n");
@@ -477,7 +477,7 @@ static bool mode_loside_set( _mode_t *mode, const char *s)
     mode->serial.U423 = D3;      // drive com-lc with A400-1. star-ground
 
     uint16_t  val = 0x0;          // turn off
-    mode_mdac0_set( mode, val);
+    mode_invert_dac_set( mode, val);
   }
   else if(strcmp(s, "invert") == 0
     || strcmp(s, "inverter") == 0) {
@@ -489,7 +489,7 @@ static bool mode_loside_set( _mode_t *mode, const char *s)
     mode->serial.U423 = D1;      // drive com-lc from mdac output
 
     uint16_t  val = 0xfff;        // full.
-    mode_mdac0_set( mode, val);
+    mode_invert_dac_set( mode, val);
   }
   else if(strcmp(s, "divider") == 0
     || strcmp(s, "offset") == 0) {   // invert + divider.... for dither
@@ -498,13 +498,13 @@ static bool mode_loside_set( _mode_t *mode, const char *s)
     mode->serial.U423 = D2;      // drive com-lc from mdac and divider
 
     uint16_t  val = 0x0;          // off
-    mode_mdac0_set( mode, val);
+    mode_invert_dac_set( mode, val);
   }
   else if(strcmp(s, "boot") == 0) {
 
     mode->serial.U423 = D4;      // drive com-lc with boot direct
     uint16_t  val = 0x0;          // off
-    mode_mdac0_set( mode, val);
+    mode_invert_dac_set( mode, val);
   }
   else {
 
@@ -863,7 +863,7 @@ bool mode_repl_statement(
   )  {
 
     if( u0 <= 0xfff)
-      mode_mdac0_set( mode, u0);
+      mode_invert_dac_set( mode, u0);
     else
       printf("arg out of range\n");
 
@@ -876,7 +876,7 @@ bool mode_repl_statement(
   )  {
 
     if( u0 <= 0xfff)
-      mode_mdac1_set( mode, u0);
+      mode_sts_dac_set( mode, u0);
     else
       printf("arg out of range\n");
   }

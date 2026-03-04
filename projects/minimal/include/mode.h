@@ -318,16 +318,10 @@ bool mode_repl_statement(
 
 
 
-// TODO fixme - type on reg_cr
 void reg_cr_mode_set( reg_cr_t *reg_cr, unsigned u0);
 
 
-// feb 2026. do we even really need this
-// void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1 );
-
-
-
-bool mode_az_set_relax(_mode_t *mode, const char *s);
+bool mode_az_set_relax(_mode_t *mode, const char *s); // for repl
 void mode_az_set(_mode_t *mode, const char *s);
 
 void mode_gain_set( _mode_t *mode, uint32_t u);
@@ -336,8 +330,9 @@ void mode_gain_set( _mode_t *mode, uint32_t u);
 
 void mode_lts_set( _mode_t *mode, double f0 /*signed i0*/);       // arg is 10,0,-10
 void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 );   // factor into daq_set and ch2_set
-void mode_mdac0_set( _mode_t *mode, unsigned u0 );                // inverter  rename dac_invert_set
-void mode_mdac1_set( _mode_t *mode, unsigned u0 );                // floating  rename dac_float_set  or dac_sts_set
+
+void mode_sts_dac_set( _mode_t *mode, unsigned u0 );
+void mode_invert_dac_set( _mode_t *mode, unsigned u0 );
 
 
 // ch1.
@@ -350,8 +345,8 @@ void mode_ch1_set_dcv_source(_mode_t *mode);    // change name lts eg.  using in
 void mode_ch2_reset(_mode_t *mode);
 
 // set input
+bool mode_ch2_set_relax( _mode_t *mode, const char *s0);    // for repl.
 void mode_ch2_set( _mode_t *mode, const char *s);
-bool mode_ch2_set_relax( _mode_t *mode, const char *s0);    // only for repl.
 
 
 
