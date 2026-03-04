@@ -28,6 +28,9 @@
 void data_init(
   data_t    *data,
   spi_t     *spi,
+
+  // note that we have not injected cal here.
+  // for a default value.
   double    *cal_w,
   range_t   *ranges,
   unsigned *range_idx
@@ -133,9 +136,14 @@ void data_update( data_t *data )
 
     data->value     = data->clk_count_sum  / data->clk_count_sigmux;
 /*
-    if we don't have a range. or a range->cal.  function
-    then we should support the default.
+    if no range or no range->cal. function available
+    just the default.
     this keeps enough.  for doing acal egc
+    --------
+    I think we need to have cal here.  rather than a pointer to cal_w.
+    in order to pass to the cal range function. along with the value
+    ----
+    dcv by default
 
 */
     data->reading   = data->value  * range->b + range->a;
