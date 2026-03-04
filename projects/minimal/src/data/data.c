@@ -90,6 +90,12 @@ void data_update( data_t *data )
   data->clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
   data->clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
 
+  // useful for bounds - and to correct asymetry
+  double ratio = (data->clk_count_refmux_pos >= data->clk_count_refmux_neg)
+      ?  data->clk_count_refmux_pos / data->clk_count_refmux_neg
+      :  - data->clk_count_refmux_neg / data->clk_count_refmux_pos ;
+  UNUSED(ratio);
+
 
   if( data->status.first) {
 
@@ -100,6 +106,7 @@ void data_update( data_t *data )
   if(data->show_counts) {
     printf( "first=%u idx=%u seq_n=%u, ", data->status.first, data->status.sample_idx, data->status.sample_seq_n);
     printf( "counts pos %7lu neg %7lu sig %7lu, ", data->clk_count_refmux_pos, data->clk_count_refmux_neg, data->clk_count_sigmux);
+    printf( "ratio %.2f, ", ratio);
   }
 
 
