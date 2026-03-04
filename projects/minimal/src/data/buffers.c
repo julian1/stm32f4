@@ -23,6 +23,7 @@
 
 #include <data/buffers.h>
 #include <data/data.h>
+#include <data/range.h>
 
 
 
@@ -47,8 +48,14 @@
 
 
 
-void buffers_init( buffers_t *buffers, data_t *data, double *values, size_t n)
+void buffers_init( buffers_t *buffers, data_t *data, double *values, size_t n )
 {
+
+/*
+  could inject range here.
+
+*/
+
   assert(buffers);
   assert(data && data->magic == DATA_MAGIC);
 
@@ -80,6 +87,9 @@ void buffers_update( buffers_t *buffers)
 
   data_t *data = buffers->data;
   assert(data && data->magic == DATA_MAGIC);
+
+  range_t *range = &data->ranges[ *data->range_idx ];
+  assert(range);
 
 
 
@@ -116,8 +126,11 @@ void buffers_update( buffers_t *buffers)
     char buf[100 + 1];
 
     // printf( "(n %u) ", buffers->size);
-    printf( "mean   %s, ", str_format_float_with_commas(buf, 100, 8, buffers->mean));
-    printf( "stddev %s, ", str_format_float_with_commas(buf, 100, 8, buffers->stddev));
+    printf( "mean   %s", str_format_float_with_commas(buf, 100, 8, buffers->mean));
+    printf( "%s, ", range->unit );
+
+    printf( "stddev %s", str_format_float_with_commas(buf, 100, 8, buffers->stddev));
+    printf( "%s, ", range->unit );
 
   }
 

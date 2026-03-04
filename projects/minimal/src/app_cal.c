@@ -341,19 +341,24 @@ static void cal_dcv10_nom( app_t *app)
 
   // set app range.
   app->range_idx = DCV_REF;
-
   range_t *range = &app->ranges[  app->range_idx ];
   assert( range);
-
-  // could call transition state... here...
-
-
   // update range coeffs
   range->b = 7.0 / mean( values, ARRAY_SIZE(values));
   range->a = 0;
 
   printf( "name= %s  b=%.3f, a=%.3f", range->name,  range->b, range->a );
   printf("\n");
+
+
+
+  //  copy for dcv10.
+  range = &app->ranges[  DCV_10 ];
+  assert( range);
+  range->b = 7.0 / mean( values, ARRAY_SIZE(values));
+  range->a = 0;
+
+
 
 
   app_show_readings( app);

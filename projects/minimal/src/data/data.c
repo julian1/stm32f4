@@ -131,8 +131,9 @@ void data_update( data_t *data )
     data->valid     = true;
 
     if(data->show_reading) {
-      printf( "read %s, ", str_format_float_with_commas(buf, 100, 8, data->reading ));
-      printf( "%s %s, ", range->name, range->unit );
+      printf( "%s, ", range->name );
+      printf( "read %s", str_format_float_with_commas(buf, 100, 8, data->reading ));
+      printf( "%s, ", range->unit );
     }
 
   }
