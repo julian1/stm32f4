@@ -132,6 +132,12 @@ void data_update( data_t *data )
       printf("sum %.2f, ", data->clk_count_sum);
 
     data->value     = data->clk_count_sum  / data->clk_count_sigmux;
+/*
+    if we don't have a range. or a range->cal.  function
+    then we should support the default.
+    this keeps enough.  for doing acal egc
+
+*/
     data->reading   = data->value  * range->b + range->a;
     data->valid     = true;
 
@@ -140,6 +146,7 @@ void data_update( data_t *data )
       printf( "%s, ", range->name );
       printf( "read %s", str_format_float_with_commas(buf, 100, 8, data->reading ));
       printf( "%s, ", range->unit );
+      // printf( "%s, ", range ? range->unit : ""  );
     }
 
   }
