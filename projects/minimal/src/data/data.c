@@ -91,8 +91,6 @@ void data_update( data_t *data )
   data->clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
 
 
-  // data->first =  status.first;
-  // if(data->first ) {
   if( data->status.first) {
 
     // printf("\n");
