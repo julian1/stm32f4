@@ -761,7 +761,7 @@ void app_update( app_t *app)
     app->adc_interrupt_valid = false;
 
     data_update( app->data);
-    buffers_update( app->buffers);
+    buffer_update( app->buffer);
 
     printf( "\n");
 
@@ -1409,7 +1409,7 @@ void app_repl_statements(app_t *app,  const char *s)
 #if 0
     data_t *data = app->data;
 
-    // clear the data buffers
+    // clear the data buffer
     data_reset( data );
     // data_rdy_clear( data);
 
@@ -1700,12 +1700,12 @@ void app_update_simple_with_data(app_t *app)
 
           app_update() {
             data_update( app->data );         <- this
-            buffers_update( app->buffers );
+            buffer_update( app->buffer );
             vfd_update( app->vfd  );
           }
 
-          - EXTR - consider injecting data - into buffers.
-          - and the buffers into the vfd display
+          - EXTR - consider injecting data - into buffer.
+          - and the buffer into the vfd display
 
           - there is clear nested structure exposure - as needed.
 
@@ -1716,7 +1716,7 @@ void app_update_simple_with_data(app_t *app)
 
           note that all the test code passes around app. so it is ok.
 
-          - EXTR.   we don't even have to have data,buffers,display  structure pointers at top level.
+          - EXTR.   we don't even have to have data,buffer,display  structure pointers at top level.
                 if just inject them.
 
         */

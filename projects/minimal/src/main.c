@@ -289,7 +289,7 @@ static int main_f429(void)
     instead just block control until the output is flushed.
   */
   //////////////
-  // now can init usart peripheral using app console buffers
+  // now can init usart peripheral using app console buffer
   usart1_setup_portB();
 
   usart1_set_buffers( &app.cbuf_console_in, &app.cbuf_console_out);
@@ -450,9 +450,9 @@ static int main_f429(void)
 
   double values[ 1000];
 
-  buffers_t     buffers;
-  buffers_init( &buffers, app.data, values, ARRAY_SIZE(values));
-  app.buffers = &buffers;
+  buffer_t     buffer;
+  buffer_init( &buffer, app.data, values, ARRAY_SIZE(values));
+  app.buffer = &buffer;
 
 
 
@@ -563,18 +563,18 @@ static int main_f413(void)
 
   //////////////////////
   // main app setup
-  // initialzes the console buffers, that support printf() and error reporting
-  app_init_console_buffers( &app );
+  // initialzes the console buffer, that support printf() and error reporting
+  app_init_console_buffer( &app );
 
   /*
     dont' think it makes any sense to use a circular buffer on the output.
     instead just block control until the output is flushed.
   */
   //////////////
-  // now can init usart peripheral using app console buffers
+  // now can init usart peripheral using app console buffer
   usart1_setup_portB();
 
-  usart1_set_buffers( &app.cbuf_console_in, &app.cbuf_console_out);
+  usart1_set_buffer( &app.cbuf_console_in, &app.cbuf_console_out);
 
   printf("\n\n\n\n--------\n");
   printf("addr main() %p\n", main_f413);

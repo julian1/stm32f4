@@ -19,7 +19,7 @@ void buffer_stats_print( MAT *buffer /* flags */ );
 
 /* feb 2026.
     we want to add the repl command to change the buffer size
-    and add a buffers update.
+    and add a buffer update.
 
 */
 
@@ -29,7 +29,7 @@ void buffer_stats_print( MAT *buffer /* flags */ );
 typedef struct data_t data_t;
 
 
-typedef struct buffers_t
+typedef struct buffer_t
 {
   uint32_t magic;
 
@@ -51,20 +51,20 @@ typedef struct buffers_t
   double min, max;
 
 
-  bool show_buffers;
+  bool show_buffer;
 
   bool show;
 
-} buffers_t;
+} buffer_t;
 
 
 
 
 
 
-void buffers_init( buffers_t *buffers, data_t *data, double *values, size_t n);
+void buffer_init( buffer_t *buffer, data_t *data, double *values, size_t n);
 
-bool buffers_repl_statement( buffers_t *, const char *cmd);
+bool buffer_repl_statement( buffer_t *, const char *cmd);
 
-void buffers_update( buffers_t *);
+void buffer_update( buffer_t *);
 

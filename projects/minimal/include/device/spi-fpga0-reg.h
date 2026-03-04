@@ -95,7 +95,7 @@
       if n == 4 ratiometric then as above.
           and 2 is lo, and 3 is hi.
 
-    EXTR. can use first to clear buffers. after a trigger.
+    EXTR. can use first to clear buffer. after a trigger.
 
 */
 

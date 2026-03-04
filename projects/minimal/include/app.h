@@ -61,7 +61,7 @@ typedef struct range_t range_t;
 
 typedef struct _mode_t _mode_t;
 typedef struct data_t data_t;
-typedef struct buffers_t buffers_t;
+typedef struct buffer_t buffer_t;
 
 
 
@@ -209,7 +209,7 @@ typedef struct app_t
 
   data_t        *data;
 
-  buffers_t     *buffers;
+  buffer_t     *buffer;
 
 
   // not sure belongs here

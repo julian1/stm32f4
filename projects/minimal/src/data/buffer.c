@@ -1,6 +1,6 @@
 /*
 
-  buffers holds historic data vals.  to calculate stats
+  buffer holds historic data vals.  to calculate stats
     maintain own size
 
   have access to data for value.  and flags like first
@@ -36,7 +36,7 @@
   -------------
 
   No. want allocation of max buffer once at the start.
-  So we should pass the buffer as a dependency of buffers_t.
+  So we should pass the buffer as a dependency of buffer_t.
   -------------
 
   write modulus is  good.
@@ -48,7 +48,7 @@
 
 
 
-void buffers_init( buffers_t *buffers, data_t *data, double *values, size_t n )
+void buffer_init( buffer_t *buffer, data_t *data, double *values, size_t n )
 {
 
 /*
@@ -56,22 +56,22 @@ void buffers_init( buffers_t *buffers, data_t *data, double *values, size_t n )
 
 */
 
-  assert(buffers);
+  assert(buffer);
   assert(data && data->magic == DATA_MAGIC);
 
-  memset( buffers, 0, sizeof( buffers_t));
-  buffers->magic = BUFFERS_MAGIC;
+  memset( buffer, 0, sizeof( buffer_t));
+  buffer->magic = BUFFERS_MAGIC;
 
   assert(data);
-  buffers->data = data;
+  buffer->data = data;
 
-  buffers->values = values;
-  buffers->max_n = n;
+  buffer->values = values;
+  buffer->max_n = n;
 }
 
 
 
-// want a separate buffers_data_init();
+// want a separate buffer_data_init();
 
 
 /*
@@ -80,12 +80,12 @@ void buffers_init( buffers_t *buffers, data_t *data, double *values, size_t n )
   so use a separate variable
 */
 
-void buffers_update( buffers_t *buffers)
+void buffer_update( buffer_t *buffer)
 {
-  assert(buffers);
-  assert(buffers->magic == BUFFERS_MAGIC);
+  assert(buffer);
+  assert(buffer->magic == BUFFERS_MAGIC);
 
-  data_t *data = buffers->data;
+  data_t *data = buffer->data;
   assert(data && data->magic == DATA_MAGIC);
 
   range_t *range = &data->ranges[ *data->range_idx ];
@@ -98,38 +98,38 @@ void buffers_update( buffers_t *buffers)
     assert(!data->valid);
 
     // clear data
-    // memset( buffers->values, 0, sizeof(double) * buffers->max_n );
+    // memset( buffer->values, 0, sizeof(double) * buffer->max_n );
 
-    buffers->n = 10;
-    buffers->i = 0;
-    buffers->size = 0;
+    buffer->n = 10;
+    buffer->i = 0;
+    buffer->size = 0;
 
   }
 
   if(data->valid) {
 
     assert(!data->status.first);
-    // push buffers.
+    // push buffer.
 
-    // printf("buffers i %u, size %u, ", buffers->i, buffers->size );
-    printf("(%u, %u), ", buffers->i, buffers->size );
+    // printf("buffer i %u, size %u, ", buffer->i, buffer->size );
+    printf("(%u, %u), ", buffer->i, buffer->size );
 
-    buffers->values[ buffers->i ] = data->reading;
+    buffer->values[ buffer->i ] = data->reading;
 
-    buffers->i    = (buffers->i + 1 ) % buffers->n;
-    buffers->size = MIN( buffers->size  + 1, buffers->n) ;
+    buffer->i    = (buffer->i + 1 ) % buffer->n;
+    buffer->size = MIN( buffer->size  + 1, buffer->n) ;
 
 
-    buffers->mean   = mean(   buffers->values, buffers->size);
-    buffers->stddev = stddev( buffers->values, buffers->size);
+    buffer->mean   = mean(   buffer->values, buffer->size);
+    buffer->stddev = stddev( buffer->values, buffer->size);
 
     char buf[100 + 1];
 
-    // printf( "(n %u) ", buffers->size);
-    printf( "mean   %s", str_format_float_with_commas(buf, 100, 8, buffers->mean));
+    // printf( "(n %u) ", buffer->size);
+    printf( "mean   %s", str_format_float_with_commas(buf, 100, 8, buffer->mean));
     printf( "%s, ", range->unit );
 
-    printf( "stddev %s", str_format_float_with_commas(buf, 100, 8, buffers->stddev));
+    printf( "stddev %s", str_format_float_with_commas(buf, 100, 8, buffer->stddev));
     printf( "%s, ", range->unit );
 
   }
@@ -143,10 +143,10 @@ void buffers_update( buffers_t *buffers)
 
 
 
-bool buffers_repl_statement( buffers_t *buffers, const char *cmd)
+bool buffer_repl_statement( buffer_t *buffer, const char *cmd)
 {
-  assert(buffers);
-  assert(buffers->magic == BUFFERS_MAGIC);
+  assert(buffer);
+  assert(buffer->magic == BUFFERS_MAGIC);
   UNUSED(cmd);
 
   uint32_t u0;
