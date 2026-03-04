@@ -37,7 +37,7 @@
 #include <mode.h>
 #include <data/cal.h>
 #include <data/data.h>
-#include <data/buffers.h>
+#include <data/buffer.h>
 #include <data/range.h>
 
 #include <vfd.h>
