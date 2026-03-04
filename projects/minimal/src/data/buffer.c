@@ -1,10 +1,13 @@
 /*
 
-  buffer holds historic data vals.  to calculate stats
+  buffer to hold data vals.  and calculate basic stats
     maintain own size
 
-  have access to data for value.  and flags like first
+  should access to data for value.  and flags like first
   that are used to clear
+
+
+  could just pass the status_register on data update.
 
 */
 
@@ -21,8 +24,8 @@
 
 
 
-#include <data/buffer.h>
 #include <data/data.h>
+#include <data/buffer.h>
 #include <data/range.h>
 
 
@@ -48,7 +51,7 @@
 
 
 
-void buffer_init( buffer_t *buffer, data_t *data, double *values, size_t n )
+void buffer_init( buffer_t *buffer, data_t *data, double *values, size_t max_n )
 {
 
 /*
@@ -66,7 +69,10 @@ void buffer_init( buffer_t *buffer, data_t *data, double *values, size_t n )
   buffer->data = data;
 
   buffer->values = values;
-  buffer->max_n = n;
+  buffer->max_n = max_n;
+
+  // initial buffer size
+  buffer->size = 10;
 }
 
 
@@ -97,13 +103,11 @@ void buffer_update( buffer_t *buffer)
 
     assert(!data->valid);
 
-    // clear data
+    // could clear data
     // memset( buffer->values, 0, sizeof(double) * buffer->max_n );
 
-    buffer->size = 10;
     buffer->i = 0;
     buffer->count = 0;
-
   }
 
   if(data->valid) {
@@ -134,13 +138,9 @@ void buffer_update( buffer_t *buffer)
       printf( "stddev %s", str_format_float_with_commas(buf, 100, 8, buffer->stddev));
       printf( "%s, ", range->unit );
     }
-
   }
 
 }
-
-
-
 
 
 
@@ -167,19 +167,15 @@ bool buffer_repl_statement( buffer_t *buffer, const char *cmd)
 
   if( sscanf(cmd, "buffer size %lu", &u0 ) == 1) {
 
-#if 0
-    // if(u0 < 2 || u0 > 500 ) {
-    if(u0 < 1 || u0 > 10000 ) {
-      printf("set buffer size bad arg\n" );
-      return 1;
-    }
+    assert(u0 < buffer->max_n);
 
-    // set buffer size, efault
-    data->buffer = buffer_reset( data->buffer, u0);
+    buffer->size = 10;
 
-    assert( data->buffer);
-    data_reset( data );
-#endif
+    // reset buffer, by clearing the index and count...
+    // preserving buffer contents on resize is tricky with modulo index
+    buffer->i = 0;
+    buffer->count = 0;
+
   }
 
 
@@ -193,6 +189,9 @@ bool buffer_repl_statement( buffer_t *buffer, const char *cmd)
 
 
 #if 0
+
+
+
 bool data_repl_statement( data_t *data,  const char *cmd )
 {
   assert(data);

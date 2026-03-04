@@ -188,6 +188,9 @@ typedef struct app_t
   // issue is that the tests code wants easy access
   uint32_t      line_freq;
 
+
+  // not sure these will ever be used outside the context of cal_t
+  // so could move them there.
   unsigned      cal_id;
   double        cal_w;
 
