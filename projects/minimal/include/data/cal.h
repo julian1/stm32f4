@@ -42,6 +42,13 @@ typedef struct cal_t
 
   double    *w;         // same as &app->cal_w
 
+/*
+  with our proposed refactor.
+  these range structures get removed.
+  - instead.. the range_t has a function that takes cal_t
+
+*/
+
   range_t   *ranges;    // same as app->ranges
   size_t    ranges_sz;
 
@@ -51,12 +58,6 @@ typedef struct cal_t
 
 
   ///////////////////////
-
-/*
-  size_t  sz;
-  double  *b;
-  double  *a;
-*/
 
 } cal_t;
 
