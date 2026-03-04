@@ -19,8 +19,10 @@
 #include <lib2/format.h>    // format_float
 
 
+#include <data/cal.h>
 #include <data/data.h>
 #include <data/range.h>
+
 
 
 
@@ -28,7 +30,11 @@
 void data_init(
   data_t    *data,
   spi_t     *spi,
-  double    *cal_w,
+
+  // note that we have not injected cal here.
+  // for a default value.
+  // double    *cal_w,
+  cal_t     *cal,
   range_t   *ranges,
   unsigned *range_idx
 )
@@ -47,10 +53,8 @@ void data_init(
   // data->line_freq = 50;
 
 
-  // data->cal = cal;
-  data->spi = spi;
-
-  data->cal_w     = cal_w;
+  data->spi       = spi;
+  data->cal       = cal;
   data->ranges    = ranges;
   data->range_idx = range_idx;
 
@@ -68,8 +72,9 @@ void data_update( data_t *data )
   assert( data);
   assert( data->magic == DATA_MAGIC);
 
-  assert( data->cal_w);
-  double cal_w = *data->cal_w;
+  cal_t *cal = data->cal;
+  assert( cal && cal->magic == CAL_MAGIC );
+  // double cal_w = *data->cal_w;
 
   range_t *range = &data->ranges[ *data->range_idx ];
   assert(range);
@@ -106,7 +111,7 @@ void data_update( data_t *data )
   if(data->show_counts) {
     printf( "first=%u idx=%u seq_n=%u, ", data->status.first, data->status.sample_idx, data->status.sample_seq_n);
     printf( "counts pos %7lu neg %7lu sig %7lu, ", data->clk_count_refmux_pos, data->clk_count_refmux_neg, data->clk_count_sigmux);
-    printf( "ratio %.2f, ", ratio);
+    // printf( "ratio %.2f, ", ratio);
   }
 
 
@@ -124,22 +129,35 @@ void data_update( data_t *data )
 
     // hi
     data->clk_count_sum =
-          ((double) data->clk_count_refmux_pos    - (cal_w * data->clk_count_refmux_neg))
-        - ((double) data->clk_count_refmux_pos_lo - (cal_w * data->clk_count_refmux_neg_lo));
+          ((double) data->clk_count_refmux_pos    - (cal->w * data->clk_count_refmux_neg))
+        - ((double) data->clk_count_refmux_pos_lo - (cal->w * data->clk_count_refmux_neg_lo));
 
 
     if(data->show_counts)
       printf("sum %.2f, ", data->clk_count_sum);
 
     data->value     = data->clk_count_sum  / data->clk_count_sigmux;
-    data->reading   = data->value  * range->b + range->a;
+/*
+    if no range or no range->cal. function available
+    just the default.
+    this keeps enough.  for doing acal egc
+    --------
+    I think we need to have cal here.  rather than a pointer to cal_w.
+    in order to pass to the cal range function. along with the value
+    ----
+    dcv by default
+
+*/
+    // data->reading   = data->value  * range->b + range->a;
+    data->reading   = data->value  * cal->b;
     data->valid     = true;
 
     if(data->show_reading) {
 
-      printf( "%s, ", range->name );
+      printf( "%s-%s, ", range->name, range->arg );
       printf( "read %s", str_format_float_with_commas(buf, 100, 8, data->reading ));
       printf( "%s, ", range->unit );
+      // printf( "%s, ", range ? range->unit : ""  );
     }
 
   }

@@ -931,7 +931,7 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, uint32_t line_freq)
 
 
 
-
+#if 0
 static bool app_repl_range( app_t *app, const char *cmd)
 {
   // consider rename app_repl_set_range()  app_repl_maybe_set_range()
@@ -944,14 +944,60 @@ static bool app_repl_range( app_t *app, const char *cmd)
       // update range index
       app->range_idx = i;
 
-      // update the mode to use the range
-      range->f( app->mode );
+      // apply the mode...
+      range->mode_f( app->mode );
       return true;
     }
   }
 
   return false;
 }
+
+#endif
+
+
+
+static bool app_repl_range( app_t *app, const char *cmd)
+{
+
+  char name[ 100 + 1];
+  char arg[ 100 + 1];
+
+
+  // perhaps sscanf will do this - if second argument is not found?
+  arg[ 0] = 0;
+
+  // must handle no argument version of this also
+
+  unsigned n = sscanf(cmd, "%100s %100s", name, arg);
+
+  if( n == 2 || n == 1) {
+
+    int32_t range_idx = find_range_idx( app->ranges, app->ranges_sz, name, arg);
+
+    if( range_idx != -1) {
+
+      // apply the range mode state transition
+      range_t *range = &app->ranges[ range_idx];
+      assert(range);
+      assert(range->mode_f);
+
+      range->mode_f( app->mode, arg);
+
+
+      // set the current range_idx. used for data_update
+      app->range_idx = range_idx;
+
+      return true;
+    }
+
+  }
+
+
+  return false;
+
+}
+
 
 
 
@@ -985,6 +1031,8 @@ bool app_repl_statement( app_t *app,  const char *cmd)
     // ignore
     printf("empty\n" );
   }
+
+
 
 
   else if ( app_repl_range( app, cmd)) { }
@@ -1214,11 +1262,19 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
   else if( mode_repl_statement( app->mode, /*app->ranges, app->range_idx,*/ cmd, app->line_freq )) { }
 
+  ////////
+
+  else if( cal_repl_statement( app->cal, cmd)) { }
+
   else if( data_repl_statement( app->data, cmd )) { }
+
+  else if( buffer_repl_statement( app->buffer, cmd )) { }
+
+
+  ////////
 
   else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, app->line_freq)) { }
 
-  else if( cal_repl_statement( app->cal, cmd)) { }
 
 
   // let cal decode its own arguments if it needs

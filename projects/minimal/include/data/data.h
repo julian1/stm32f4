@@ -29,7 +29,10 @@ typedef struct data_t
   spi_t       *spi ;
 
 
-  double      *cal_w;
+  // double      *cal_w;
+
+  cal_t      *cal;
+
   range_t     *ranges;
   unsigned    *range_idx;    // current active range
 
@@ -79,7 +82,8 @@ typedef struct data_t
 void data_init(
   data_t    *data,
   spi_t     *spi,
-  double    *cal_w,
+  // double    *cal_w,
+  cal_t *   cal,
   range_t   *ranges,
   unsigned  *range_idx
 );

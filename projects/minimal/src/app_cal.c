@@ -34,6 +34,7 @@
 #include <util.h> // nplc_to_aperture()
 #include <mode.h>
 
+#include <data/cal.h>
 #include <data/range.h>
 #include <data/data.h>
 
@@ -53,9 +54,15 @@ static void app_show_readings( app_t *app )
   spi_t *spi = app->spi_fpga0;
   assert(spi);
 
+   cal_t *cal = app->cal;
+  assert( cal && cal->magic == CAL_MAGIC);
+
+
+
+/*
   range_t *range = &app->ranges[  app->range_idx ];
   assert( range);
-
+*/
 
   char buf[100 + 1];
 
@@ -105,7 +112,18 @@ static void app_show_readings( app_t *app )
 
 
     if( data->valid ) {
-      values[ i] = data->value  * range->b  + range->a ;
+
+    /*
+      if(range->cf)
+        values[i] = range->cf(app->cal, data->value );
+      else
+        values[i] = data->value;
+*/
+
+      // values[ i] = cdata->value  * range->b  + range->a ;
+
+      values[ i] = data->value  * cal->b;
+
       ++i;
     }
 
@@ -150,6 +168,9 @@ static void cal_dcv10_nom( app_t *app)
 
   spi_t *spi = app->spi_fpga0;
   assert(spi);
+
+  cal_t *cal = app->cal;
+  assert( cal && cal->magic == CAL_MAGIC);
 
 
 
@@ -254,11 +275,12 @@ static void cal_dcv10_nom( app_t *app)
   printf("\n");
 
   // cal_w
-  app->cal_w = pos_mean / neg_mean;
-  assert( app->cal_w);
+  // app->cal_w = pos_mean / neg_mean;
+  // assert( app->cal_w);
+  cal->w = pos_mean / neg_mean;
 
   // printf(" w %.8f, ", w );
-  printf( "cal_w %s\n", str_format_float_with_commas(buf, 100, 9, app->cal_w));
+  printf( "cal_w %s\n", str_format_float_with_commas(buf, 100, 9, cal->w));
 
 
 
@@ -338,7 +360,14 @@ static void cal_dcv10_nom( app_t *app)
   */
 
 
+  cal->b = 7.0 / mean( values, ARRAY_SIZE(values));
 
+
+  printf("\n");
+
+/*
+
+  // this code isn't right.
   // set app range.
   app->range_idx = DCV_REF;
   range_t *range = &app->ranges[  app->range_idx ];
@@ -357,7 +386,7 @@ static void cal_dcv10_nom( app_t *app)
   assert( range);
   range->b = 7.0 / mean( values, ARRAY_SIZE(values));
   range->a = 0;
-
+*/
 
 
 

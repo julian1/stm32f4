@@ -28,12 +28,12 @@ void cal_init(
   cal_t     *cal,
 
   uint32_t  flash_sect_addr,
-  uint8_t   flash_sect_num,
+  uint8_t   flash_sect_num
 
-  unsigned  *id,
-  double    *w,
-  range_t   *ranges,
-  size_t    ranges_sz
+  // unsigned  *id,
+  // double    *w,
+  // range_t   *ranges,
+  // size_t    ranges_sz
 ) {
 
   assert(cal);
@@ -45,11 +45,11 @@ void cal_init(
   cal->flash_sect_addr = flash_sect_addr;
   cal->flash_sect_num = flash_sect_num;
 
-  cal->id  = id;
-  cal->w  = w;
+  // cal->id  = id;
+  // cal->w  = w;
 
-  cal->ranges = ranges;
-  cal->ranges_sz = ranges_sz;
+  // cal->ranges = ranges;
+  // cal->ranges_sz = ranges_sz;
 }
 
 
@@ -89,17 +89,17 @@ static void file_write_cal_handler( FILE *f, blob_header_t *header,  cal_t *cal)
   assert(header->len == 0 && header->magic == 0);   // this handler doesn't care or know yet
   header->id = 108;
 
-  fwrite( cal->id,                  sizeof( *cal->id), 1, f);
-  fwrite( cal->w,                   sizeof( *cal->w), 1, f);
+  fwrite( &cal->id,                  sizeof( cal->id), 1, f);
+  fwrite( &cal->w,                   sizeof( cal->w), 1, f);
 
-
+/*
   for( unsigned i = 0; i < cal->ranges_sz ; ++i )  {
 
     range_t *range = &cal->ranges[ i];
     fwrite( &range->b,                   sizeof( range->b), 1, f);
     fwrite( &range->a,                   sizeof( range->a), 1, f);
   }
-
+*/
 
 }
 
@@ -124,17 +124,17 @@ static void file_scan_cal_handler( FILE *f, blob_header_t *header, cal_t *cal )
       || cal->model_id_to_load == 0 ) {    // to always load, and thus get the most recent.
 
 
-      *cal->id = id ;
-      fread( cal->w,               sizeof( *cal->w), 1, f);
+      cal->id = id ;
+      fread( &cal->w,               sizeof( cal->w), 1, f);
 
-
+/*
       for( unsigned i = 0; i < cal->ranges_sz ; ++i )  {
 
         range_t *range = &cal->ranges[ i];
         fread( &range->b,                   sizeof( range->b), 1, f);
         fread( &range->a,                   sizeof( range->a), 1, f);
       }
-
+*/
 
 
       // payload should be readable.
@@ -180,7 +180,7 @@ bool cal_repl_statement( cal_t *cal, const char *cmd)
 
   else if( sscanf(cmd, "cal set id %lu", &u0) == 1) {
 
-    *cal->id = u0;
+    cal->id = u0;
   }
 
 
@@ -223,8 +223,8 @@ bool cal_repl_statement( cal_t *cal, const char *cmd)
     printf("done\n");
 
     // simple print
-    printf("id    %u\n",  *cal->id);
-    printf("w     %f\n",  *cal->w);
+    printf("id    %u\n", cal->id);
+    printf("w     %f\n", cal->w);
   }
 
 
@@ -232,10 +232,10 @@ bool cal_repl_statement( cal_t *cal, const char *cmd)
   // NO. this is a cal function...
   else if( strcmp(cmd, "cal show") == 0) {
 
-    printf("id    %u\n",  *cal->id);
-    printf("w     %f\n",  *cal->w);
+    printf("id    %u\n", cal->id);
+    printf("w     %f\n", cal->w);
 
-
+/*
     for( unsigned i = 0; i < cal->ranges_sz ; ++i )  {
 
       range_t *range = &cal->ranges[ i];
@@ -244,6 +244,8 @@ bool cal_repl_statement( cal_t *cal, const char *cmd)
       printf("%3.6f %3.6f ", range->b,  range->a);
       printf("\n");
     }
+*/
+
   }
 
 

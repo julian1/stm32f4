@@ -407,16 +407,6 @@ static int main_f429(void)
   app.ranges    = init_range_values;
   app.ranges_sz = init_ranges_sz;
 
-  // check range idx matches id.
-  // consider factor this out to range.c
-  for( unsigned i = 0; i < app.ranges_sz ; ++i )  {
-
-    range_t *range = &app.ranges[ i];
-    assert( range->id == i);
-    assert( range->name);
-  }
-
-
 
   // structure just references state in app.
   // and makes it eay to serialize/deserialize to flash
@@ -424,11 +414,11 @@ static int main_f429(void)
   cal_init(
     &cal,
     FLASH_SECT_ADDR,
-    FLASH_SECT_NUM,
-    &app.cal_id,
-    &app.cal_w,
-    app.ranges,
-    app.ranges_sz
+    FLASH_SECT_NUM
+    // &app.cal_id,
+    // &app.cal_w,
+    // app.ranges,
+    // app.ranges_sz
   );
   app.cal = &cal;
 
@@ -441,7 +431,7 @@ static int main_f429(void)
   data_init(
     &data,
     app.spi_fpga0,
-    &app.cal_w,
+    app.cal,
     app.ranges,
     &app.range_idx
   );
