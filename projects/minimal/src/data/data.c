@@ -93,7 +93,7 @@ void data_update( data_t *data )
 
   // data->first =  status.first;
   // if(data->first ) {
-  if(data->status.first ) {
+  if( data->status.first) {
 
     // printf("\n");
   }
@@ -106,7 +106,7 @@ void data_update( data_t *data )
 
 
 
-  if(data->status.sample_idx == 0) {
+  if( data->status.sample_idx == 0) {
 
     // lo - record counts
     data->clk_count_refmux_pos_lo = data->clk_count_refmux_pos;
@@ -115,7 +115,7 @@ void data_update( data_t *data )
     data->valid = false;
   }
 
-  else if (data->status.sample_idx == 1) {
+  else if ( data->status.sample_idx == 1) {
 
     // hi
     data->clk_count_sum =
@@ -131,6 +131,7 @@ void data_update( data_t *data )
     data->valid     = true;
 
     if(data->show_reading) {
+
       printf( "%s, ", range->name );
       printf( "read %s", str_format_float_with_commas(buf, 100, 8, data->reading ));
       printf( "%s, ", range->unit );
@@ -149,7 +150,7 @@ void data_update( data_t *data )
 
 
 
-bool data_repl_statement( data_t *data,  const char *cmd )
+bool data_repl_statement( data_t *data,  const char *cmd)
 {
   assert(data);
   assert(data->magic == DATA_MAGIC);
@@ -157,32 +158,16 @@ bool data_repl_statement( data_t *data,  const char *cmd )
   UNUSED(cmd);
 
 
-  // could be called, 'buffer show stats', 'buffer show extra' etc.
-  // consider a boolean here
-#if 0
-  if(strcmp(cmd, "data show counts") == 0)
-    data->show_counts = 1;
+  if(strcmp(cmd, "data counts show") == 0)
+    data->show_counts = true;
 
-  else if(strcmp(cmd, "data show extra") == 0)
-    data->show_extra = 1;
+  else if(strcmp(cmd, "data counts unshow") == 0)
+    data->show_counts = false;
 
-  else if(strcmp(cmd, "data show stats") == 0)
-    data->show_stats = 1;
-
-#endif
-#if 0
-  else if(strcmp(cmd, "data cal show") == 0) {
-
-    data_cal_show( data );
-
-  }
-else
+  else
     return 0;
 
-#endif
-
-
-  return 0;
+  return 1;
 }
 
 
