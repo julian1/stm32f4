@@ -198,8 +198,12 @@ void reg_cr_mode_set( reg_cr_t *reg_cr, unsigned u0)
 
 // actually may be better to have noaz. to set up. to run with p_seq_n = 1;
 // and no switching.
+/*
+  could actually type this function in sa and  reg_direct.
 
-bool mode_sa_az_set(_mode_t *mode, const char *s)
+*/
+
+bool mode_az_set_relax(_mode_t *mode, const char *s)
 {
   /* note the same syntax
 
@@ -282,8 +286,11 @@ bool mode_sa_az_set(_mode_t *mode, const char *s)
 }
 
 
-
-
+void mode_az_set(_mode_t *mode, const char *s)
+{
+  bool ret = mode_az_set_relax( mode, s);
+  assert( ret);
+}
 
 
 
@@ -593,7 +600,7 @@ void mode_ch2_reset(_mode_t *mode)
 
 
 
-bool mode_ch2_set( _mode_t *mode, const char *s0)
+bool mode_ch2_set_relax( _mode_t *mode, const char *s0)
 {
 
     if(strcmp(s0, "off") == 0 || strcmp(s0, "reset") == 0) {      // reset
@@ -682,9 +689,9 @@ bool mode_ch2_set( _mode_t *mode, const char *s0)
 
 
 
-void mode_ch2_set_strict( _mode_t *mode, const char *s0)
+void mode_ch2_set( _mode_t *mode, const char *s0)
 {
-  bool ret = mode_ch2_set( mode, s0);
+  bool ret = mode_ch2_set_relax( mode, s0);
   assert( ret);
 }
 
@@ -907,7 +914,7 @@ bool mode_repl_statement(
   else if( sscanf(cmd, "set az %100s", s0) == 1
     /* || sscanf(cmd, "set sa %100s", s0) == 1 */)  {
 
-    bool ret = mode_sa_az_set( mode, s0 );
+    bool ret = mode_az_set_relax( mode, s0 );
     if(!ret) {
       printf("bad argument\n");
     }
@@ -926,7 +933,7 @@ bool mode_repl_statement(
     // because issue with repl validation/error handling.
 
 
-    bool ret = mode_ch2_set( mode, s0);
+    bool ret = mode_ch2_set_relax( mode, s0);
 
     if(!ret) {
       printf("unrecognized\n");

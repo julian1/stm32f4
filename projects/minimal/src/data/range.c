@@ -122,8 +122,8 @@ static void dcv_ref( _mode_t *mode)
   partial_reset( mode);
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  mode_sa_az_set(mode, "ch2" );
-  mode_ch2_set_strict( mode, "ref");
+  mode_az_set(mode, "ch2" );
+  mode_ch2_set( mode, "ref");
 }
 
 
@@ -134,7 +134,7 @@ static void dcv_10( _mode_t *mode)
   partial_reset( mode);
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  mode_sa_az_set(mode, "ch1");
+  mode_az_set(mode, "ch1");
   mode->serial.K402 = SR_SET;
 
   // apply impedance
@@ -161,8 +161,8 @@ static void dcv_100( _mode_t *mode)
   partial_reset( mode);
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  mode_sa_az_set(mode, "ch2");
-  mode_ch2_set_strict( mode, "dcv-div");
+  mode_az_set(mode, "ch2");
+  mode_ch2_set( mode, "dcv-div");
 
   mode_gain_set( mode, 10);
 
@@ -183,8 +183,8 @@ static void temp( _mode_t *mode)
   partial_reset( mode);
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  mode_sa_az_set(mode, "ch2" );
-  mode_ch2_set_strict( mode, "temp");
+  mode_az_set(mode, "ch2" );
+  mode_ch2_set( mode, "temp");
 
   // consider - get rid of accessor and manage low level details of state setup here
   // mode_gain_set( mode, 1); could use a different gain

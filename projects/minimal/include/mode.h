@@ -327,7 +327,8 @@ void reg_cr_mode_set( reg_cr_t *reg_cr, unsigned u0);
 
 
 
-bool mode_sa_az_set(_mode_t *mode, const char *s);
+bool mode_az_set_relax(_mode_t *mode, const char *s);
+void mode_az_set(_mode_t *mode, const char *s);
 
 void mode_gain_set( _mode_t *mode, uint32_t u);
 
@@ -349,8 +350,10 @@ void mode_ch1_set_dcv_source(_mode_t *mode);    // change name lts eg.  using in
 void mode_ch2_reset(_mode_t *mode);
 
 // set input
-bool mode_ch2_set( _mode_t *mode, const char *s);
-void mode_ch2_set_strict( _mode_t *mode, const char *s0);
+void mode_ch2_set( _mode_t *mode, const char *s);
+bool mode_ch2_set_relax( _mode_t *mode, const char *s0);    // only for repl.
+
+
 
 // better name.  set_cap. or something
 void mode_ch1_accum( _mode_t *mode, bool);

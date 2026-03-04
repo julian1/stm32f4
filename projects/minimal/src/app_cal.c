@@ -66,7 +66,7 @@ static void app_show_readings( app_t *app )
   mode_ch2_set( mode, "ref");
 
   // mode_ch2_set_ref_lo( mode);
-  mode_sa_az_set(mode, "ch2" );
+  mode_az_set(mode, "ch2" );
 
   // set 10V.
   // mode_lts_set( mode, 10 );
@@ -168,7 +168,7 @@ static void cal_dcv10_nom( app_t *app)
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
   // special sample acquisition mode - for adc running standalone.  // REVIEW ME
-  mode_sa_az_set(mode, "0" );
+  mode_az_set(mode, "0" );
 
   // REVIWE should not need this....
   // mode_gain_set(mode, 1);
@@ -292,7 +292,7 @@ static void cal_dcv10_nom( app_t *app)
     // mode_lts_set( mode, 10 );
     // mode_ch2_set_lts( mode);
 
-    mode_sa_az_set(mode, "ch2" );
+    mode_az_set(mode, "ch2" );
 
     // sigmux active
     mode->reg_cr.adc_p_active_sigmux = 1;
