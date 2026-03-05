@@ -1,10 +1,13 @@
 
 
 
-#include <stddef.h>
+#include <stdio.h>
+// #include <stddef.h>     // NULL
 #include <assert.h>
+#include <strings.h>      // strcasecmp
 
 #include <mode.h>
+#include <data/cal.h>
 #include <data/range.h>
 
 #include <lib2/util.h>   // UNUSED()
@@ -111,20 +114,7 @@ static void partial_reset( _mode_t *mode)
 
 
 
-
-static void dcv_ref( _mode_t *mode)
-{
-  /*
-    internal ref.  not a particularly useful function
-    only 1x gain applies
-  */
-
-  partial_reset( mode);
-
-  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  mode_az_set(mode, "ch2" );
-  mode_ch2_set( mode, "ref");
-}
+#if 0
 
 
 
@@ -178,19 +168,144 @@ static void dcv_1000( _mode_t *mode)
 }
 
 
-static void temp( _mode_t *mode)
+#endif
+
+
+// assert
+// if this is typed on cal.  then it should be cal_dcv.
+
+
+/*
+  - OK. perhaps factor a switch argument
+  - so "dcv" and 10 are passed.
+
+  - consider make the arg a string.
+  - pass it...
+    ----------------
+
+    if have  a get_range( const char *s, const char *arg ) function.
+      then we can get access to a range - easily -
+      and without encoding an enum.
+    -----------
+
+  - EXTR. can have the unit format a closulre. argument also.
+  - actually
+
+  -----
+*/
+
+
+
+
+static void mode_ref( _mode_t *mode, const char *arg)
 {
+  UNUSED(arg);
+  /*
+    internal ref.  not a particularly useful function
+    only 1x gain applies
+  */
+
+  partial_reset( mode);
+
+  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  mode_az_set(mode, "ch2" );
+  mode_ch2_set( mode, "ref");
+}
+
+
+
+
+static void mode_temp( _mode_t *mode, const char *arg)
+{
+  // consider - get rid of accessor and manage low level details of state setup here
+  // mode_gain_set( mode, 1); could use a different gain
+
+  UNUSED(arg);
+
   partial_reset( mode);
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
   mode_az_set(mode, "ch2" );
   mode_ch2_set( mode, "temp");
 
-  // consider - get rid of accessor and manage low level details of state setup here
-  // mode_gain_set( mode, 1); could use a different gain
+}
 
-  // should have better argument handling.  eg. pass arg indicating whether to assert
 
+
+
+static void dcv_10( _mode_t *mode)
+{
+
+  partial_reset( mode);
+
+  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  mode_az_set(mode, "ch1");
+  mode->serial.K402 = SR_SET;
+
+  // apply impedance
+  mode->serial.K403 = mode->reg_cr._10meg_impedance ? SR_SET : SR_RESET;
+}
+
+
+static void mode_dcv( _mode_t *mode, const char *arg )
+{
+
+    printf("arg is '%s' \n", arg);
+
+  if(strcasecmp(arg, "10") == 0) {
+
+    printf("here 0\n");
+    dcv_10( mode);
+  }
+  else if(strcasecmp(arg, "1") == 0) {
+
+    printf("here 1\n");
+    dcv_10( mode);
+    mode_gain_set(mode, 10);
+  }
+  else if(strcasecmp(arg, "0.1") == 0) {
+
+    printf("here 2\n");
+    dcv_10( mode);
+    mode_gain_set(mode, 100);
+  }
+  else
+    assert( 0);
+
+
+}
+
+
+
+static  double cal_dcv( const cal_t *cal, const char *arg, double value)
+{
+  // eg. with input terminl offset
+
+  if(strcasecmp(arg, "10") == 0) {
+
+    return cal->b * value;
+    // add front or rear terminal offset.
+  }
+  else
+    assert( 0);
+
+  return value;
+}
+
+
+static  double cal_normal( const cal_t *cal, const char *arg, double value)
+{
+
+  if(strcasecmp(arg, "") == 0
+    || strcasecmp(arg, "10") == 0) {
+
+    return cal->b * value;
+  }
+
+  else
+    assert( 0);
+
+  return value;
 }
 
 
@@ -200,20 +315,71 @@ static void temp( _mode_t *mode)
 
 range_t init_range_values[] = {
 
-  { DCV_REF,    "DCV REF",    "V", dcv_ref, 0, 0 },
-  { DCV_10,     "DCV 10",     "V", dcv_10, 0, 0 },
-  { DCV_1,      "DCV 1",      "V", dcv_1, 0, 0 },
-  { DCV_01,     "DCV 0.1",    "V", dcv_01, 0, 0 },
-  { DCV_001,    "DCV 0.01",   "V", NULL, 0, 0 },
-  { DCV_100,    "DCV 100",    "V", dcv_100, 0, 0 },
-  { DCV_1000,   "DCV 1000",   "V", dcv_1000, 0, 0 },
+  {   "REF",    "",     "V",  mode_ref,   cal_normal },
 
-  { TEMP_,      "TEMP",       "degC", temp, 0, 0 }
+  {   "DCV",   "10",    "V",  mode_dcv,   cal_dcv },
+  {   "DCV",    "1",    "V",  mode_dcv,   cal_dcv },
+  {   "DCV",    "0.1",  "V",  mode_dcv,   cal_dcv },
+  {   "DCV",    "0.01", "V",  mode_dcv,   cal_dcv },
+  {   "DCV",    "100",  "V",  mode_dcv,   cal_dcv },
+  {   "DCV",    "1000", "V",  mode_dcv,   cal_dcv },
+
+  {   "TEMP",   "",     "degC", mode_temp, cal_dcv },
+
+  {   "LTS",   "10",    "V",  mode_dcv,   cal_dcv },       // LTS or DCV LTS.
+  {   "LTS",    "1",    "V",  mode_dcv,   cal_dcv }
 
 
 };
 
 const size_t init_ranges_sz = ARRAY_SIZE( init_range_values );
+
+
+
+/*
+Passing a NULL pointer as an argument to strcasecmp results in undefined
+behavior. The function expects valid, null-terminated strings as its arguments.
+*/
+
+
+int32_t find_range_idx( range_t *ranges, size_t sz, const char *name, const char *arg )
+{
+
+  for( size_t i = 0; i < sz; ++i ) {
+
+    range_t *range = & ranges[ i];
+
+    if( strcasecmp( name, range->name) == 0
+      && strcasecmp( arg, range->arg) == 0
+    ) {
+
+      printf("found %s-%s\n", range->name, range->arg );
+      return i ;
+    }
+  }
+
+  return -1;
+}
+
+
+#if 0
+  // check range idx matches id.
+  // consider factor this out to range.c
+  for( unsigned i = 0; i < app.ranges_sz ; ++i )  {
+
+    range_t *range = &app.ranges[ i];
+    assert( range->id == i);
+    assert( range->name);
+  }
+#endif
+
+
+
+
+
+// range_t *find_range( range_t *ranges, size_t sz, const char *name, const char *arg );
+
+
 
 
 

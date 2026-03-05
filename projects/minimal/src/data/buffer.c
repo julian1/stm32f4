@@ -73,6 +73,8 @@ void buffer_init( buffer_t *buffer, data_t *data, double *values, size_t max_n )
 
   // initial buffer size
   buffer->size = 10;
+
+  buffer->show = true;
 }
 
 

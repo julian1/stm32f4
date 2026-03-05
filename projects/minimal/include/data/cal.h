@@ -35,12 +35,23 @@ typedef struct cal_t
 
   // referenceable name
   // this state does not need to be shared...
-  unsigned *id;
+  // unsigned *id;
 
   // date.
 
+  unsigned  id;
+  double    w;          // same as &app->cal_w
 
-  double    *w;         // same as &app->cal_w
+  double    b;          // 10V/1x. range scale factor
+                        // but this is associated with a range.  with DCV 10.
+                        // DCV 1.  will have a different scalar.
+                        // whether sampling terminals, lts, daq, or ref.
+
+  double    front_terminal_offset;    // should be represented once.
+                                      // and used for all values.
+  double    rear_terminal_offset;
+
+  // double    x[ max_ranges ];
 
 /*
   with our proposed refactor.
@@ -49,9 +60,10 @@ typedef struct cal_t
 
 */
 
+/*
   range_t   *ranges;    // same as app->ranges
   size_t    ranges_sz;
-
+*/
 
   // used for communication during file scan
   uint32_t  model_id_to_load;
@@ -73,14 +85,12 @@ void cal_init(
     should pass an already opened file descriptor
   */
   uint32_t  flash_sect_addr,
-  uint8_t   flash_sect_num,
+  uint8_t   flash_sect_num
 
-  unsigned  *id,
-  double    *w,
-
-  range_t   *ranges,
-  size_t    ranges_sz
-
+  // unsigned  *id,
+  // double    *w,
+  // range_t   *ranges,
+  // size_t    ranges_sz
 );
 
 
