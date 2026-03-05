@@ -973,7 +973,7 @@ static bool app_repl_range( app_t *app, const char *cmd)
 
   if( n == 2 || n == 1) {
 
-    int32_t range_idx = find_range_idx( app->ranges, app->ranges_sz, name, arg);
+    int32_t range_idx = range_get_idx( app->ranges, app->ranges_sz, name, arg);
 
     if( range_idx != -1) {
 

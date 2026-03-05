@@ -68,7 +68,7 @@ typedef struct range_t
 
 
 
-int32_t find_range_idx( range_t *ranges, size_t sz, const char *name, const char *arg );
+int32_t range_get_idx( range_t *ranges, size_t sz, const char *name, const char *arg );
 
 
 // forward declaration

@@ -105,94 +105,16 @@ static void partial_reset( _mode_t *mode)
   // Not. sure .   we want to maintain... across tests.
   mode->mdac1_val     = tmp.mdac1_val;
 
-  // keep the LTS setting , AG
+  // persist LTS state
   // mode->second.U1003 = tmp.second.U1003;
   // mode->second.U1012 = tmp.second.U1012;
 
-  // daq sts.
 }
 
 
 
-#if 0
 
 
-
-static void dcv_10( _mode_t *mode)
-{
-
-  partial_reset( mode);
-
-  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  mode_az_set(mode, "ch1");
-  mode->serial.K402 = SR_SET;
-
-  // apply impedance
-  mode->serial.K403 = mode->reg_cr._10meg_impedance ? SR_SET : SR_RESET;
-}
-
-static void dcv_1( _mode_t *mode)
-{
-  dcv_10( mode);
-  mode_gain_set(mode, 10);
-}
-
-static void dcv_01( _mode_t *mode)
-{
-  dcv_10( mode);
-  mode_gain_set(mode, 100);
-}
-
-
-
-static void dcv_100( _mode_t *mode)
-{
-
-  partial_reset( mode);
-
-  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  mode_az_set(mode, "ch2");
-  mode_ch2_set( mode, "dcv-div");
-
-  mode_gain_set( mode, 10);
-
-  // main divider on
-  mode->serial.K403 = SR_SET;
-}
-
-
-static void dcv_1000( _mode_t *mode)
-{
-  dcv_100( mode);
-  mode_gain_set( mode, 1);
-}
-
-
-#endif
-
-
-// assert
-// if this is typed on cal.  then it should be cal_dcv.
-
-
-/*
-  - OK. perhaps factor a switch argument
-  - so "dcv" and 10 are passed.
-
-  - consider make the arg a string.
-  - pass it...
-    ----------------
-
-    if have  a get_range( const char *s, const char *arg ) function.
-      then we can get access to a range - easily -
-      and without encoding an enum.
-    -----------
-
-  - EXTR. can have the unit format a closulre. argument also.
-  - actually
-
-  -----
-*/
 
 
 
@@ -236,13 +158,29 @@ static void mode_temp( _mode_t *mode, const char *arg)
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
   mode_az_set(mode, "ch2" );
   mode_ch2_set( mode, "temp");
+}
 
+
+static void mode_lts( _mode_t *mode, const char *arg)
+{
+  // need to set the gain...
+  assert(0);
+
+  UNUSED(arg);
+  partial_reset( mode);
+
+  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  mode_az_set(mode, "ch2" );
+  mode_ch2_set( mode, "lts");
 }
 
 
 
 
-static void dcv_10( _mode_t *mode)
+
+
+
+static void mode_dcv_10( _mode_t *mode)
 {
 
   partial_reset( mode);
@@ -264,24 +202,22 @@ static void mode_dcv( _mode_t *mode, const char *arg )
   if(strcasecmp(arg, "10") == 0) {
 
     printf("here 0\n");
-    dcv_10( mode);
+    mode_dcv_10( mode);
   }
   else if(strcasecmp(arg, "1") == 0) {
 
     printf("here 1\n");
-    dcv_10( mode);
+    mode_dcv_10( mode);
     mode_gain_set(mode, 10);
   }
   else if(strcasecmp(arg, "0.1") == 0) {
 
     printf("here 2\n");
-    dcv_10( mode);
+    mode_dcv_10( mode);
     mode_gain_set(mode, 100);
   }
   else
     assert( 0);
-
-
 }
 
 
@@ -344,8 +280,8 @@ range_t init_range_values[] = {
 
   {   "TEMP",   "",     "°C", mode_temp,  cal_temp },
 
-  {   "LTS",   "10",    "V",  mode_dcv,   cal_normal },       // LTS or DCV LTS.
-  {   "LTS",    "1",    "V",  mode_dcv,   cal_normal }
+  {   "LTS",   "10",    "V",  mode_lts,   cal_normal },       // LTS or DCV LTS.
+  {   "LTS",    "1",    "V",  mode_lts,   cal_normal }
 
 
 };
@@ -354,16 +290,12 @@ const size_t init_ranges_sz = ARRAY_SIZE( init_range_values );
 
 
 
-/*
-Passing a NULL pointer as an argument to strcasecmp results in undefined
-behavior. The function expects valid, null-terminated strings as its arguments.
-*/
 
-
-int32_t find_range_idx( range_t *ranges, size_t sz, const char *name, const char *arg )
+int32_t range_get_idx( range_t *ranges, size_t sz, const char *name, const char *arg )
 {
+  // TODO consider rename  lookup..  range_find_idx.
 
-  for( size_t i = 0; i < sz; ++i ) {
+  for( size_t i = 0; i < sz; ++i) {
 
     range_t *range = & ranges[ i];
 
@@ -380,6 +312,72 @@ int32_t find_range_idx( range_t *ranges, size_t sz, const char *name, const char
 }
 
 
+
+/*
+Passing a NULL pointer as an argument to strcasecmp results in undefined
+behavior. The function expects valid, null-terminated strings as its arguments.
+*/
+
+
+
+#if 0
+
+
+
+static void dcv_10( _mode_t *mode)
+{
+
+  partial_reset( mode);
+
+  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  mode_az_set(mode, "ch1");
+  mode->serial.K402 = SR_SET;
+
+  // apply impedance
+  mode->serial.K403 = mode->reg_cr._10meg_impedance ? SR_SET : SR_RESET;
+}
+
+static void dcv_1( _mode_t *mode)
+{
+  dcv_10( mode);
+  mode_gain_set(mode, 10);
+}
+
+static void dcv_01( _mode_t *mode)
+{
+  dcv_10( mode);
+  mode_gain_set(mode, 100);
+}
+
+
+
+static void dcv_100( _mode_t *mode)
+{
+
+  partial_reset( mode);
+
+  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  mode_az_set(mode, "ch2");
+  mode_ch2_set( mode, "dcv-div");
+
+  mode_gain_set( mode, 10);
+
+  // main divider on
+  mode->serial.K403 = SR_SET;
+}
+
+
+static void dcv_1000( _mode_t *mode)
+{
+  dcv_100( mode);
+  mode_gain_set( mode, 1);
+}
+
+
+#endif
+
+
+
 #if 0
   // check range idx matches id.
   // consider factor this out to range.c
@@ -390,14 +388,6 @@ int32_t find_range_idx( range_t *ranges, size_t sz, const char *name, const char
     assert( range->name);
   }
 #endif
-
-
-
-
-
-// range_t *find_range( range_t *ranges, size_t sz, const char *name, const char *arg );
-
-
 
 
 
