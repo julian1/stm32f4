@@ -139,17 +139,13 @@ void data_update( data_t *data )
     data->value     = data->clk_count_sum  / data->clk_count_sigmux;
 /*
     if no range or no range->cal. function available
-    just the default.
-    this keeps enough.  for doing acal egc
-    --------
-    I think we need to have cal here.  rather than a pointer to cal_w.
-    in order to pass to the cal range function. along with the value
-    ----
-    dcv by default
-
+    consider a default.
 */
-    // data->reading   = data->value  * range->b + range->a;
-    data->reading   = data->value  * cal->b;
+
+    data->reading = range->cal_f( cal, range->arg, data->value);
+
+   //  data->reading   = data->value  * cal->b;
+
     data->valid     = true;
 
     if(data->show_reading) {

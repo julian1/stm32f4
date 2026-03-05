@@ -26,50 +26,38 @@
 */
 
 typedef struct _mode_t _mode_t;
-typedef struct cal_t cal_t;
+typedef struct cal_t  cal_t;
 
 
 
 
-//   {   "DCV",   "10",      "V",  mode_dcv,    cal_dcv },
 
 typedef struct range_t
 {
   // unsigned  id;     // same as index in range_t [] array
-
   // const char *repl_name;
-  const char *name;         // for repl and display
 
-  // uint32_t    arg;
+  const char *name;
+
   const char  *arg;
 
   const char *unit;
 
   ///////////////////
 
-  /*
-      should we pass the 10meg. impedance state here...
-      i think it would be better.
-      mode represents spi writable state.
-  */
-  // void (*mf)( _mode_t *, uint32_t arg );
+
   void (*mode_f)( _mode_t *, const char *arg );
 
 
-  // function to convert value to a reading according to calibration
-  // consider pass id to index state on the cal structure.
-  // double (*cf)( cal_t *, double value);
-
+  // convert value to a reading according to calibration
+  // TODO consider rename to reading.  eg. turning data into a reading
   double (*cal_f)( const cal_t *, const char *arg, double value);
 
   ///////////////////
 
 #if 0
   // cal coeffs.  as experiment. instead of using a separate structure
-  // the amplifier  gain. should be included in b.
   double b;
-
-  // offset/intercept. thermal EMF.
   double a;
 #endif
 

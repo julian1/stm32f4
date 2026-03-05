@@ -209,7 +209,16 @@ static void mode_ref( _mode_t *mode, const char *arg)
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
   mode_az_set(mode, "ch2" );
-  mode_ch2_set( mode, "ref");
+
+
+  if(strcasecmp(arg, "lo") == 0) {
+
+    mode_ch2_set( mode, "ref-lo");
+  } else {
+
+    mode_ch2_set( mode, "ref");
+  }
+
 }
 
 
@@ -295,17 +304,25 @@ static  double cal_dcv( const cal_t *cal, const char *arg, double value)
 
 static  double cal_normal( const cal_t *cal, const char *arg, double value)
 {
+  // change name cal_internal
 
   if(strcasecmp(arg, "") == 0
-    || strcasecmp(arg, "10") == 0) {
+    || strcasecmp(arg, "10") == 0   //  lts, daq etc.
+    || strcasecmp(arg, "lo") == 0   // ref-lo
+  ) {
 
     return cal->b * value;
   }
-
   else
     assert( 0);
 
   return value;
+}
+
+static  double cal_temp( const cal_t *cal, const char *arg, double value)
+{
+  UNUSED(arg);
+  return cal->b * value * 100;
 }
 
 
@@ -316,6 +333,7 @@ static  double cal_normal( const cal_t *cal, const char *arg, double value)
 range_t init_range_values[] = {
 
   {   "REF",    "",     "V",  mode_ref,   cal_normal },
+  {   "REF",    "LO",   "V",  mode_ref,   cal_normal },
 
   {   "DCV",   "10",    "V",  mode_dcv,   cal_dcv },
   {   "DCV",    "1",    "V",  mode_dcv,   cal_dcv },
@@ -324,10 +342,10 @@ range_t init_range_values[] = {
   {   "DCV",    "100",  "V",  mode_dcv,   cal_dcv },
   {   "DCV",    "1000", "V",  mode_dcv,   cal_dcv },
 
-  {   "TEMP",   "",     "degC", mode_temp, cal_dcv },
+  {   "TEMP",   "",     "°C", mode_temp,  cal_temp },
 
-  {   "LTS",   "10",    "V",  mode_dcv,   cal_dcv },       // LTS or DCV LTS.
-  {   "LTS",    "1",    "V",  mode_dcv,   cal_dcv }
+  {   "LTS",   "10",    "V",  mode_dcv,   cal_normal },       // LTS or DCV LTS.
+  {   "LTS",    "1",    "V",  mode_dcv,   cal_normal }
 
 
 };
