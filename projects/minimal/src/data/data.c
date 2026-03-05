@@ -136,9 +136,12 @@ void data_update( data_t *data )
     if(data->show_counts)
       printf("sum %.2f, ", data->clk_count_sum);
 
-    data->value     = data->clk_count_sum  / data->clk_count_sigmux;
+    // TODO better name?
+    // value is not a good name aperture adjusted_sum.
+    data->value = data->clk_count_sum  / data->clk_count_sigmux;
+
 /*
-    if no range or no range->cal. function available
+    with no range or no range->cal. function available
     consider a default.
 */
 

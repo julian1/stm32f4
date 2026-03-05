@@ -161,28 +161,38 @@ static void mode_temp( _mode_t *mode, const char *arg)
 }
 
 
+
+
 static void mode_lts( _mode_t *mode, const char *arg)
 {
-  // need to set the gain...
-  assert(0);
-
-  UNUSED(arg);
   partial_reset( mode);
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
   mode_az_set(mode, "ch2" );
   mode_ch2_set( mode, "lts");
+
+
+  if(strcasecmp(arg, "10") == 0)
+    ;
+  else if(strcasecmp(arg, "1") == 0)
+    mode_gain_set(mode, 10);
+
+  else if(strcasecmp(arg, "0.1") == 0)
+    mode_gain_set(mode, 100);
+
+  else if(strcasecmp(arg, "0.01") == 0)
+    mode_gain_set(mode, 1000);
+
+  else
+    assert( 0);
 }
 
 
 
 
-
-
-
+#if 0
 static void mode_dcv_10( _mode_t *mode)
 {
-
   partial_reset( mode);
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
@@ -193,29 +203,37 @@ static void mode_dcv_10( _mode_t *mode)
   mode->serial.K403 = mode->reg_cr._10meg_impedance ? SR_SET : SR_RESET;
 }
 
+#endif
 
 static void mode_dcv( _mode_t *mode, const char *arg )
 {
+/*
+  instead of passing string arg.
+  why not pass the range_t structure.
+*/
 
-    printf("arg is '%s' \n", arg);
+  partial_reset( mode);
 
-  if(strcasecmp(arg, "10") == 0) {
+  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  mode_az_set(mode, "ch1");
+  mode->serial.K402 = SR_SET;
 
-    printf("here 0\n");
-    mode_dcv_10( mode);
-  }
-  else if(strcasecmp(arg, "1") == 0) {
+  // apply impedance
+  mode->serial.K403 = mode->reg_cr._10meg_impedance ? SR_SET : SR_RESET;
 
-    printf("here 1\n");
-    mode_dcv_10( mode);
+
+  if(strcasecmp(arg, "10") == 0)
+    ;
+
+  else if(strcasecmp(arg, "1") == 0)
     mode_gain_set(mode, 10);
-  }
-  else if(strcasecmp(arg, "0.1") == 0) {
 
-    printf("here 2\n");
-    mode_dcv_10( mode);
+  else if(strcasecmp(arg, "0.1") == 0)
     mode_gain_set(mode, 100);
-  }
+
+  else if(strcasecmp(arg, "0.01") == 0)
+    mode_gain_set(mode, 1000);
+
   else
     assert( 0);
 }
@@ -238,17 +256,30 @@ static  double cal_dcv( const cal_t *cal, const char *arg, double value)
 }
 
 
-static  double cal_normal( const cal_t *cal, const char *arg, double value)
+static double cal_normal( const cal_t *cal, const char *arg, double value)
 {
-  // change name cal_internal
+  // for ref and lts.
+  // consider
 
-  if(strcasecmp(arg, "") == 0
-    || strcasecmp(arg, "10") == 0   //  lts, daq etc.
-    || strcasecmp(arg, "lo") == 0   // ref-lo
+  if(strcasecmp(arg, "") == 0       // ref has no argument.
+    || strcasecmp(arg, "10") == 0   // lts, daq etc.
+    || strcasecmp(arg, "LO") == 0   // ref-lo
   ) {
 
     return cal->b * value;
   }
+
+  else if(strcasecmp(arg, "1") == 0)
+  {
+    // So if we set the gain...
+    // OK. kkkkkkkk
+
+
+    return cal->b * value;
+
+  }
+
+
   else
     assert( 0);
 
@@ -263,25 +294,30 @@ static  double cal_temp( const cal_t *cal, const char *arg, double value)
 
 
 
+// how to manage optional flags eg. is not clear
+// can inject into mode or cal... or
+//
 
 
 
 range_t init_range_values[] = {
 
-  {   "REF",    "",     "V",  mode_ref,   cal_normal },
-  {   "REF",    "LO",   "V",  mode_ref,   cal_normal },
+  {   "REF",    "",     "V",  mode_ref,   cal_normal,   true},
+  {   "REF",    "LO",   "V",  mode_ref,   cal_normal,  true  },
 
-  {   "DCV",   "10",    "V",  mode_dcv,   cal_dcv },
-  {   "DCV",    "1",    "V",  mode_dcv,   cal_dcv },
-  {   "DCV",    "0.1",  "V",  mode_dcv,   cal_dcv },
-  {   "DCV",    "0.01", "V",  mode_dcv,   cal_dcv },
-  {   "DCV",    "100",  "V",  mode_dcv,   cal_dcv },
-  {   "DCV",    "1000", "V",  mode_dcv,   cal_dcv },
+  {   "DCV",    "1000", "V",  mode_dcv,   cal_dcv,  true },
+  {   "DCV",    "100",  "V",  mode_dcv,   cal_dcv,  false  },
+  {   "DCV",    "10",   "V",  mode_dcv,   cal_dcv,  false },
+  {   "DCV",    "1",    "V",  mode_dcv,   cal_dcv,  false },
+  {   "DCV",    "0.1",  "V",  mode_dcv,   cal_dcv,  false  },
+  {   "DCV",    "0.01", "V",  mode_dcv,   cal_dcv,  true },
 
-  {   "TEMP",   "",     "°C", mode_temp,  cal_temp },
+  {   "TEMP",   "",     "°C", mode_temp,  cal_temp,  true },
 
-  {   "LTS",   "10",    "V",  mode_lts,   cal_normal },       // LTS or DCV LTS.
-  {   "LTS",    "1",    "V",  mode_lts,   cal_normal }
+  {   "LTS",    "10",   "V",  mode_lts,   cal_normal,  true },       // LTS or DCV LTS.
+  {   "LTS",    "1",    "V",  mode_lts,   cal_normal,  true },
+  {   "LTS",    "0.1",  "V",  mode_lts,   cal_normal,  true },
+  {   "LTS",    "0.01", "V",  mode_lts,   cal_normal,  true }
 
 
 };

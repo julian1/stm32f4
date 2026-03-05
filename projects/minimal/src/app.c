@@ -957,6 +957,29 @@ static bool app_repl_range( app_t *app, const char *cmd)
 
 
 
+
+static void app_switch_range( app_t *app, signed range_idx)
+{
+  assert( range_idx != -1);
+
+
+  // set the current range_idx. used for data_update
+  app->range_idx = range_idx;
+
+
+  // apply the range mode state transition
+  range_t *range = &app->ranges[ range_idx];
+  assert(range);
+  assert(range->mode_f);
+
+  range->mode_f( app->mode, range->arg);
+
+
+}
+
+
+
+
 static bool app_repl_range( app_t *app, const char *cmd)
 {
 
@@ -974,23 +997,11 @@ static bool app_repl_range( app_t *app, const char *cmd)
   if( n == 2 || n == 1) {
 
     int32_t range_idx = range_get_idx( app->ranges, app->ranges_sz, name, arg);
-
     if( range_idx != -1) {
 
-      // apply the range mode state transition
-      range_t *range = &app->ranges[ range_idx];
-      assert(range);
-      assert(range->mode_f);
-
-      range->mode_f( app->mode, arg);
-
-
-      // set the current range_idx. used for data_update
-      app->range_idx = range_idx;
-
+      app_switch_range( app, range_idx);
       return true;
     }
-
   }
 
 
