@@ -978,7 +978,7 @@ static void app_switch_range( app_t *app, signed range_idx)
 }
 
 
-
+// make these functions public.
 
 static bool app_repl_range( app_t *app, const char *cmd)
 {
