@@ -105,7 +105,7 @@ static void app_display_some_data( app_t *app, double cal_w, double cal_7v1_b)
   mode_az_set(mode, "ch2" );
 
   // set 10V.
-  // mode_lts_set( mode, 10 );
+  // mode_lts_source_set( mode, 10 );
   // mode_ch2_set_lts( mode);
 
   // nplc to use
@@ -378,7 +378,7 @@ static void test( app_t *app)
     mode_ch2_set( mode, "ref");
 
     // calibrate against 10V.
-    // mode_lts_set( mode, 10 );
+    // mode_lts_source_set( mode, 10 );
     // mode_ch2_set_lts( mode);
 
     mode_az_set(mode, "ch2" );

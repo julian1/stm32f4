@@ -25,7 +25,7 @@ void app_cal_01( app_t *app)
 
 
   // set the LTS source. to 1V.
-  mode_lts_set( app->mode, 1.0 );
+  mode_lts_source_set( app->mode, 1.0 );
 
 
 

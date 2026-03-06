@@ -346,7 +346,7 @@ static void mode_lts_reset( _mode_t *mode )
 
 
 
-void mode_lts_set( _mode_t *mode, double f0)
+void mode_lts_source_set( _mode_t *mode, double f0)
 {
 
   printf("set lts\n");
@@ -834,7 +834,7 @@ bool mode_repl_statement(
 
   else if( sscanf(cmd, "set lts %lf", &f0) == 1) {
 
-    mode_lts_set( mode, f0);
+    mode_lts_source_set( mode, f0);
   }
 
 
