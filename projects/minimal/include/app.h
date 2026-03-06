@@ -259,9 +259,16 @@ bool app_repl_statement(app_t *app,  const char *cmd);
 void app_repl_statements(app_t *app,  const char *s);
 
 
+////////
 
 
 bool app_cal( app_t *app, const char *cmd);
+
+void app_cal_01( app_t *app); // from src/data/cal01
+
+void app_switch_range( app_t *app, signed range_idx);
+bool app_repl_range( app_t *app, const char *cmd);
+
 
 /*
   IMPORTANT - none of these take arguments anymore,

@@ -110,20 +110,9 @@ static void app_show_readings( app_t *app )
 
     data_update( data);
 
-
     if( data->valid ) {
 
-    /*
-      if(range->cf)
-        values[i] = range->cf(app->cal, data->value );
-      else
-        values[i] = data->value;
-*/
-
-      // values[ i] = cdata->value  * range->b  + range->a ;
-
       values[ i] = data->value  * cal->b;
-
       ++i;
     }
 

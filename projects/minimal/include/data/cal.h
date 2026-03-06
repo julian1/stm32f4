@@ -79,8 +79,6 @@ bool cal_repl_statement( cal_t *cal, const char *cmd);
 
 
 
-
-
 #if 0
 
   // unsigned  *id,

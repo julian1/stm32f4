@@ -963,7 +963,8 @@ static bool app_repl_range( app_t *app, const char *cmd)
 */
 
 
-static void app_switch_range( app_t *app, signed range_idx)
+
+void app_switch_range( app_t *app, signed range_idx)
 {
   assert( range_idx != -1);
 
@@ -978,27 +979,23 @@ static void app_switch_range( app_t *app, signed range_idx)
   assert(range->range_set_mode);
 
   range->range_set_mode( range, app->mode);
-
-
 }
 
 
 // make these functions public.
 
-static bool app_repl_range( app_t *app, const char *cmd)
+bool app_repl_range( app_t *app, const char *cmd)
 {
-
   char name[ 100 + 1];
   char arg[ 100 + 1];
-
 
   // perhaps sscanf will do this - if second argument is not found?
   arg[ 0] = 0;
 
-  // must handle no argument version of this also
 
   unsigned n = sscanf(cmd, "%100s %100s", name, arg);
 
+  // handle no argument version of this also
   if( n == 2 || n == 1) {
 
     int32_t range_idx = range_get_idx( app->ranges, app->ranges_sz, name, arg);
@@ -1009,9 +1006,7 @@ static bool app_repl_range( app_t *app, const char *cmd)
     }
   }
 
-
   return false;
-
 }
 
 
@@ -1276,7 +1271,15 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 #endif
 
 
-  else if( mode_repl_statement( app->mode, /*app->ranges, app->range_idx,*/ cmd, app->line_freq )) { }
+
+  else if(strcmp(cmd, "cal01") == 0) {
+
+    app_cal_01( app);
+  }
+
+
+
+  else if( mode_repl_statement( app->mode, cmd, app->line_freq )) { }
 
   ////////
 
@@ -1294,7 +1297,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
 
   // let cal decode its own arguments if it needs
-  else if(  app_cal( app, cmd ))   { }
+  else if( app_cal( app, cmd ))   { }
 
 
   /*
