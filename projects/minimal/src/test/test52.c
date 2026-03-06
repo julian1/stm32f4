@@ -308,8 +308,8 @@ static void test( app_t *app)
     memcpy( &status, &status_,  sizeof( status_));
 
 
-    uint32_t clk_count_refmux_pos   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-    uint32_t clk_count_refmux_neg   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+    uint32_t clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+    uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
     uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
 
     printf( "first=%u idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
@@ -481,8 +481,7 @@ static void test( app_t *app)
 bool app_test52( app_t *app, const char *cmd)
 {
 
-  assert(app);
-  assert(app->magic == APP_MAGIC);
+  assert(app && app->magic == APP_MAGIC);
   assert(cmd);
 
   if( strcmp(cmd, "test52") == 0) {

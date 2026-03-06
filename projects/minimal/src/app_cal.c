@@ -27,7 +27,7 @@
 
 
 
-#include <peripheral/spi-ice40.h>
+// #include <peripheral/spi-ice40.h>
 #include <peripheral/gpio.h>        // trigger manipulation
 
 #include <app.h>
@@ -35,7 +35,7 @@
 #include <mode.h>
 
 #include <data/cal.h>
-#include <data/range.h>
+// #include <data/range.h>
 #include <data/data.h>
 
 
@@ -43,6 +43,7 @@
 
 static void app_show_readings( app_t *app )
 {
+  assert(app && app->magic == APP_MAGIC);
 
   _mode_t *mode = app->mode;
   assert(mode && mode->magic == MODE_MAGIC) ;
@@ -50,19 +51,9 @@ static void app_show_readings( app_t *app )
   data_t *data = app->data;
   assert( data && data->magic == DATA_MAGIC);
 
-
-  spi_t *spi = app->spi_fpga0;
-  assert(spi);
-
-   cal_t *cal = app->cal;
+  cal_t *cal = app->cal;
   assert( cal && cal->magic == CAL_MAGIC);
 
-
-
-/*
-  range_t *range = &app->ranges[  app->range_idx ];
-  assert( range);
-*/
 
   char buf[100 + 1];
 
@@ -91,11 +82,11 @@ static void app_show_readings( app_t *app )
   ////////////////////
   app_transition_state( app);
 
-  // start sampling
-  gpio_write( app->gpio_trigger, true);
-
   data->show_counts   = true;
   data->show_reading  = true;
+
+  // start sampling
+  gpio_write( app->gpio_trigger, true);
 
   // take obs loop
   for( unsigned i = 0; i < ARRAY_SIZE( values);)
@@ -112,7 +103,7 @@ static void app_show_readings( app_t *app )
 
     if( data->valid ) {
 
-      values[ i] = data->value  * cal->b;
+      values[ i] = data->count_norm * cal->b;
       ++i;
     }
 
@@ -148,15 +139,13 @@ static void cal_dcv10_nom( app_t *app)
   It is irrelevant. that we use the local 7V ref as nominal value..
 
 */
+  assert(app && app->magic == APP_MAGIC);
 
   _mode_t *mode = app->mode;
   assert(mode && mode->magic == MODE_MAGIC);
 
   data_t *data = app->data;
   assert( data && data->magic == DATA_MAGIC);
-
-  spi_t *spi = app->spi_fpga0;
-  assert(spi);
 
   cal_t *cal = app->cal;
   assert( cal && cal->magic == CAL_MAGIC);
@@ -214,18 +203,16 @@ static void cal_dcv10_nom( app_t *app)
 
   app_transition_state( app);
 
+  data->show_counts  = true;
+  data->show_reading = false;
+
   // start sampling
   gpio_write( app->gpio_trigger, true);
 
 
-  /* we can run this loop more simply
-      just sum up the values.
-      no need for mean function etc...  although having the stddev is useful.
-
+  /* could express this more simply just sum up the values.
+      no need for mean function etc...  but having the stddev is useful.
   */
-
-  data->show_counts  = true;
-  data->show_reading = false;
 
   // take obs loop
   for(unsigned i = 0; i < ARRAY_SIZE(pos_values); ++i)
@@ -330,7 +317,7 @@ static void cal_dcv10_nom( app_t *app)
       if( data->valid) {
 
         // value is sum / sigmux
-        values[ i] = data->value;
+        values[ i] = data->count_norm;
         ++i;
       }
 
@@ -410,8 +397,7 @@ static void cal_dcv10_nom( app_t *app)
 
 bool app_cal( app_t *app, const char *cmd)
 {
-  assert(app);
-  assert(app->magic == APP_MAGIC);
+  assert(app && app->magic == APP_MAGIC);
   assert(cmd);
 
   if( strcmp(cmd, "cal") == 0) {      // cal nominal

@@ -128,28 +128,27 @@ void data_update( data_t *data )
   else if ( data->status.sample_idx == 1) {
 
     // hi
-    data->clk_count_sum =
+    data->count_sum =
           ((double) data->clk_count_refmux_pos    - (cal->w * data->clk_count_refmux_neg))
         - ((double) data->clk_count_refmux_pos_lo - (cal->w * data->clk_count_refmux_neg_lo));
 
 
     if(data->show_counts)
-      printf("sum %.2f, ", data->clk_count_sum);
+      printf("sum %.2f, ", data->count_sum);
 
-    // TODO better name?
-    // value is not a good name aperture adjusted_sum.
-    data->value = data->clk_count_sum  / data->clk_count_sigmux;
+    // TODO consider better names here?
+    // data->count_sum
+    // data->adjusted_sum
+    // or count_norm.  for normalized.
+    data->count_norm = data->count_sum  / data->clk_count_sigmux;
 
 /*
-    with no range or no range->cal. function available
-    consider a default.
+    consider no range or no range->cal. function available consider a default.
+    except a range is always available here
+   //  data->reading   = data->value  * cal->b;
 */
 
-    // data->reading = range->cal_f( cal, range->arg, data->value);
-    data->reading = range->range_reading( range, cal, data->value);
-
-   //  data->reading   = data->value  * cal->b;
-
+    data->reading = range->range_reading( range, cal, data->count_norm );
     data->valid     = true;
 
     if(data->show_reading) {

@@ -46,9 +46,6 @@ typedef struct data_t
   uint32_t clk_count_sigmux;
 
 
-  // AZ HI-LO clk count sum, weight adjusted.
-  double  clk_count_sum;
-
   ////////////////////////////////
 
 
@@ -58,11 +55,14 @@ typedef struct data_t
 
   ///////////////////////
 
-  // computed using range
-  bool   valid;   // rename value_valid
+  // AZ HI-LO clk count sum, weight adjusted.
+  double  count_sum;
 
   // scaled by sigmux
-  double value;
+  double count_norm;
+
+  // computed using range
+  bool   valid;   // rename value_valid
 
   // reading scaled and offset
   double reading;
