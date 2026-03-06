@@ -972,7 +972,7 @@ static void app_switch_range( app_t *app, signed range_idx)
   assert(range);
   assert(range->mode_f);
 
-  range->mode_f( app->mode, range->arg);
+  range->mode_f( range, app->mode);
 
 
 }

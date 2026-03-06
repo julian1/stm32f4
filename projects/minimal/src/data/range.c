@@ -119,9 +119,9 @@ static void partial_reset( _mode_t *mode)
 
 
 
-static void mode_ref( _mode_t *mode, const char *arg)
+// static void mode_ref( _mode_t *mode, const char *arg)
+static void mode_ref( range_t *range, _mode_t *mode )
 {
-  UNUSED(arg);
   /*
     internal ref.  not a particularly useful function
     only 1x gain applies
@@ -133,7 +133,7 @@ static void mode_ref( _mode_t *mode, const char *arg)
   mode_az_set(mode, "ch2" );
 
 
-  if(strcasecmp(arg, "lo") == 0) {
+  if(strcasecmp( range->arg, "lo") == 0) {
 
     mode_ch2_set( mode, "ref-lo");
   } else {
@@ -146,12 +146,12 @@ static void mode_ref( _mode_t *mode, const char *arg)
 
 
 
-static void mode_temp( _mode_t *mode, const char *arg)
+// static void mode_temp( _mode_t *mode, const char *arg)
+static void mode_temp( range_t *range, _mode_t *mode)
 {
   // consider - get rid of accessor and manage low level details of state setup here
   // mode_gain_set( mode, 1); could use a different gain
-
-  UNUSED(arg);
+  UNUSED( range);
 
   partial_reset( mode);
 
@@ -163,7 +163,8 @@ static void mode_temp( _mode_t *mode, const char *arg)
 
 
 
-static void mode_lts( _mode_t *mode, const char *arg)
+// static void mode_lts( _mode_t *mode, const char *arg)
+static void mode_lts( range_t *range, _mode_t *mode)
 {
   partial_reset( mode);
 
@@ -172,15 +173,15 @@ static void mode_lts( _mode_t *mode, const char *arg)
   mode_ch2_set( mode, "lts");
 
 
-  if(strcasecmp(arg, "10") == 0)
+  if(strcasecmp( range->arg, "10") == 0)
     ;
-  else if(strcasecmp(arg, "1") == 0)
+  else if(strcasecmp( range->arg, "1") == 0)
     mode_gain_set(mode, 10);
 
-  else if(strcasecmp(arg, "0.1") == 0)
+  else if(strcasecmp( range->arg, "0.1") == 0)
     mode_gain_set(mode, 100);
 
-  else if(strcasecmp(arg, "0.01") == 0)
+  else if(strcasecmp( range->arg, "0.01") == 0)
     mode_gain_set(mode, 1000);
 
   else
@@ -189,23 +190,8 @@ static void mode_lts( _mode_t *mode, const char *arg)
 
 
 
-
-#if 0
-static void mode_dcv_10( _mode_t *mode)
-{
-  partial_reset( mode);
-
-  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  mode_az_set(mode, "ch1");
-  mode->serial.K402 = SR_SET;
-
-  // apply impedance
-  mode->serial.K403 = mode->reg_cr._10meg_impedance ? SR_SET : SR_RESET;
-}
-
-#endif
-
-static void mode_dcv( _mode_t *mode, const char *arg )
+// static void mode_dcv( _mode_t *mode, const char *arg )
+static void mode_dcv( range_t *range, _mode_t *mode)
 {
 /*
   instead of passing string arg.
@@ -222,17 +208,17 @@ static void mode_dcv( _mode_t *mode, const char *arg )
   mode->serial.K403 = mode->reg_cr._10meg_impedance ? SR_SET : SR_RESET;
 
 
-  if(strcasecmp(arg, "10") == 0)
+  if(strcasecmp( range->arg, "10") == 0)
     ;
 
-  else if(strcasecmp(arg, "1") == 0)
-    mode_gain_set(mode, 10);
+  else if(strcasecmp( range->arg, "1") == 0)
+    mode_gain_set( mode, 10);
 
-  else if(strcasecmp(arg, "0.1") == 0)
-    mode_gain_set(mode, 100);
+  else if(strcasecmp( range->arg, "0.1") == 0)
+    mode_gain_set( mode, 100);
 
-  else if(strcasecmp(arg, "0.01") == 0)
-    mode_gain_set(mode, 1000);
+  else if(strcasecmp( range->arg, "0.01") == 0)
+    mode_gain_set( mode, 1000);
 
   else
     assert( 0);
@@ -240,11 +226,12 @@ static void mode_dcv( _mode_t *mode, const char *arg )
 
 
 
-static  double cal_dcv( const cal_t *cal, const char *arg, double value)
+// static double cal_dcv( const cal_t *cal, const char *arg, double value)
+static double cal_dcv( range_t *range, const cal_t *cal, double value)
 {
   // eg. with input terminl offset
 
-  if(strcasecmp(arg, "10") == 0) {
+  if(strcasecmp( range->arg, "10") == 0) {
 
     return cal->b * value;
     // add front or rear terminal offset.
@@ -256,20 +243,21 @@ static  double cal_dcv( const cal_t *cal, const char *arg, double value)
 }
 
 
-static double cal_normal( const cal_t *cal, const char *arg, double value)
+// static double cal_normal( const cal_t *cal, const char *arg, double value)
+static double cal_normal( range_t *range, const cal_t *cal, double value)
 {
   // for ref and lts.
   // consider
 
-  if(strcasecmp(arg, "") == 0       // ref has no argument.
-    || strcasecmp(arg, "10") == 0   // lts, daq etc.
-    || strcasecmp(arg, "LO") == 0   // ref-lo
+  if(strcasecmp( range->arg, "") == 0       // ref has no argument.
+    || strcasecmp( range->arg, "10") == 0   // lts, daq etc.
+    || strcasecmp( range->arg, "LO") == 0   // ref-lo
   ) {
 
     return cal->b * value;
   }
 
-  else if(strcasecmp(arg, "1") == 0)
+  else if(strcasecmp( range->arg, "1") == 0)
   {
     // So if we set the gain...
     // OK. kkkkkkkk
@@ -278,17 +266,19 @@ static double cal_normal( const cal_t *cal, const char *arg, double value)
     return cal->b * value;
 
   }
-
-
   else
     assert( 0);
 
   return value;
 }
 
-static  double cal_temp( const cal_t *cal, const char *arg, double value)
+
+
+
+// static double cal_temp( const cal_t *cal, const char *arg, double value)
+static double cal_temp( range_t *range, const cal_t *cal, double value)
 {
-  UNUSED(arg);
+  UNUSED( range);
   return cal->b * value * 100;
 }
 

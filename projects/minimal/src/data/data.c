@@ -145,7 +145,8 @@ void data_update( data_t *data )
     consider a default.
 */
 
-    data->reading = range->cal_f( cal, range->arg, data->value);
+    // data->reading = range->cal_f( cal, range->arg, data->value);
+    data->reading = range->cal_f( range, cal, data->value);
 
    //  data->reading   = data->value  * cal->b;
 
