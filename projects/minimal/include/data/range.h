@@ -40,7 +40,8 @@ typedef struct range_t
   */
 
   // void (*mode_f)( _mode_t *, const char *arg );
-  void (*mode_f)( range_t *range, _mode_t * );
+  // void (*mode_f)( range_t *range, _mode_t * );
+  void (*range_set_mode)( range_t *range, _mode_t * );
 
 
   //  the same way the mode function  sets the mode.   the cal functino can scale/adjust the value to a reading.
@@ -49,7 +50,7 @@ typedef struct range_t
   // TODO consider rename to cal_reading.  eg. turning data into a reading
   // cal coefficients belong on cal.
   // double (*cal_f)( const cal_t *, const char *arg, double value);
-  double (*cal_f)( range_t *range, const cal_t *, double value);
+  double (*range_reading)( range_t *range, const cal_t *, double value);
 
 
   // sentinel need to encode whether it is top or bottom.

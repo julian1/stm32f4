@@ -958,6 +958,11 @@ static bool app_repl_range( app_t *app, const char *cmd)
 
 
 
+
+/*
+*/
+
+
 static void app_switch_range( app_t *app, signed range_idx)
 {
   assert( range_idx != -1);
@@ -970,9 +975,9 @@ static void app_switch_range( app_t *app, signed range_idx)
   // apply the range mode state transition
   range_t *range = &app->ranges[ range_idx];
   assert(range);
-  assert(range->mode_f);
+  assert(range->range_set_mode);
 
-  range->mode_f( range, app->mode);
+  range->range_set_mode( range, app->mode);
 
 
 }
