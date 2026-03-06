@@ -266,10 +266,10 @@ typedef struct _mode_t
 //   _4094_state_t     second;
 
 
-  // inverter - rename invert_dac
+  // inverter - rename invert_dac_val
   uint16_t      mdac0_val;
 
-  // sts_dac
+  // sts_dac_val
   uint16_t      mdac1_val;
 
 
@@ -302,13 +302,6 @@ void mode_reset(_mode_t *mode);
 
 
 
-/*
-  this is looking a bit complicated.
-  having the mode update the uuuuuuuuuuuuuuuuuu
-
-*/
-typedef struct range_t range_t;
-
 // bool mode_repl_statement( _mode_t *mode,  const char *cmd, const uint32_t line_freq);
 bool mode_repl_statement(
   _mode_t     *mode,
@@ -317,7 +310,7 @@ bool mode_repl_statement(
 );
 
 
-
+// typed on reg_cr - is there a better place for this
 void reg_cr_mode_set( reg_cr_t *reg_cr, unsigned u0);
 
 
@@ -325,14 +318,6 @@ bool mode_az_set_relax(_mode_t *mode, const char *s); // for repl
 void mode_az_set(_mode_t *mode, const char *s);
 
 void mode_gain_set( _mode_t *mode, uint32_t u);
-
-
-// TODO. consider rename mode_lts_source_set()
-void mode_lts_source_set( _mode_t *mode, double f0 /*signed i0*/);       // arg is 10,0,-10
-void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 );   // factor into daq_set and ch2_set
-
-void mode_sts_dac_set( _mode_t *mode, unsigned u0 );
-void mode_invert_dac_set( _mode_t *mode, unsigned u0 );
 
 
 // ch1.
@@ -355,6 +340,13 @@ void mode_ch1_accum( _mode_t *mode, bool);
 void mode_ch2_accum( _mode_t *mode, bool);
 
 
+/////////////////////////
+
+void mode_lts_source_set( _mode_t *mode, double f0 );       // arg is 10,0,-10
+void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 );   // factor into daq_set and ch2_set
+
+void mode_sts_dac_set( _mode_t *mode, unsigned u0 );
+void mode_invert_dac_set( _mode_t *mode, unsigned u0 );
 
 
 
