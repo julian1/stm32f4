@@ -45,7 +45,7 @@
 
 
 #include <peripheral/spi-ice40.h>
-#include <peripheral/gpio.h>        // trigger manipulation
+#include <peripheral/gpio.h>        // trigger
 
 
 

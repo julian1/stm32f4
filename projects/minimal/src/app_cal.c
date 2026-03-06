@@ -28,7 +28,7 @@
 
 
 // #include <peripheral/spi-ice40.h>
-#include <peripheral/gpio.h>        // trigger manipulation
+#include <peripheral/gpio.h>        // trigger
 
 #include <app.h>
 #include <util.h> // nplc_to_aperture()
@@ -89,7 +89,7 @@ static void app_show_readings( app_t *app )
   gpio_write( app->gpio_trigger, true);
 
   // take obs loop
-  for( unsigned i = 0; i < ARRAY_SIZE( values);)
+  for( size_t i = 0; i < ARRAY_SIZE( values);)
   {
     printf("i %u, ", i);
 
@@ -215,7 +215,7 @@ static void cal_dcv10_nom( app_t *app)
   */
 
   // take obs loop
-  for(unsigned i = 0; i < ARRAY_SIZE(pos_values); ++i)
+  for( size_t i = 0; i < ARRAY_SIZE(pos_values); ++i)
   {
     printf("i %u, ", i);
 
@@ -265,9 +265,10 @@ static void cal_dcv10_nom( app_t *app)
 
   ////////////////////////
 
-  // TODO better name here. count cal_7v1_b/ factor.
+  // TODO consider better name
+  // double count_norm[];
   double values[ 10 ];
-  memset(values, 0, sizeof(values));
+  memset( values, 0, sizeof(values));
 
   {
     // nplc
@@ -302,7 +303,7 @@ static void cal_dcv10_nom( app_t *app)
 
 
     // compute ref for diff
-    for(unsigned i = 0; i < ARRAY_SIZE( values);)
+    for( size_t i = 0; i < ARRAY_SIZE( values);)
     {
       printf("i %u, ", i);      // two readings per value...
 
@@ -328,6 +329,13 @@ static void cal_dcv10_nom( app_t *app)
     gpio_write( app->gpio_trigger, false);
 
   }
+
+  printf("norm ");
+  printf( "mean   %.9f, ", mean( values, ARRAY_SIZE(values)) );
+  printf( "stddev %.9f, ", stddev( values, ARRAY_SIZE(values)) );
+  printf("\n");
+
+
 
   /*
     above code - should be able to just call data_update()  directly

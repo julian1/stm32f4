@@ -95,19 +95,16 @@ static void partial_reset( _mode_t *mode)
   mode->reg_cr._10meg_impedance =  tmp.reg_cr._10meg_impedance;
 
 
-  // persist the daq input selection muxes
-  // this is silly having serial,second states for 4094.
-  mode->serial.U1009 =  tmp.serial.U1009;
-  mode->serial.U1010 =  tmp.serial.U1010;
-
+  // persist the daq input
+  mode->serial.U1009  =  tmp.serial.U1009;
+  mode->serial.U1010  =  tmp.serial.U1010;
 
   // persist sts datc
-  // Not. sure .   we want to maintain... across tests.
   mode->mdac1_val     = tmp.mdac1_val;
 
-  // persist LTS state
-  // mode->second.U1003 = tmp.second.U1003;
-  // mode->second.U1012 = tmp.second.U1012;
+  // persist LTS selection
+  mode->serial.U1003 = tmp.serial.U1003;
+  mode->serial.U1012 = tmp.serial.U1012;
 
 }
 

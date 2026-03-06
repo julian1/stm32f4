@@ -30,7 +30,7 @@
 
 
 #include <peripheral/spi-ice40.h>
-#include <peripheral/gpio.h>        // trigger manipulation
+#include <peripheral/gpio.h>        // trigger
 
 
 #include <mode.h>
@@ -135,7 +135,7 @@ static void app_display_some_data( app_t *app, double cal_w, double cal_7v1_b)
 
 
   // take obs loop
-  for(unsigned i = 0; i < ARRAY_SIZE( values);)
+  for( size_t i = 0; i < ARRAY_SIZE( values);)
   {
     printf("i %u, ", i);
 
@@ -292,7 +292,7 @@ static void test( app_t *app)
   */
 
   // take obs loop
-  for(unsigned i = 0; i < ARRAY_SIZE(pos_values); ++i)
+  for( size_t i = 0; i < ARRAY_SIZE(pos_values); ++i)
   {
     printf("i %u, ", i);
 
@@ -397,7 +397,7 @@ static void test( app_t *app)
 
 
     // compute ref for diff
-    for(unsigned i = 0; i < ARRAY_SIZE( values);)
+    for( size_t i = 0; i < ARRAY_SIZE( values);)
     {
       printf("i %u, ", i);      // two readings per value...
 

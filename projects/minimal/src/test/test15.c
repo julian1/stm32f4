@@ -21,7 +21,7 @@
 #include <app.h>
 
 #include <device/spi-fpga0-reg.h>    // modes
-#include <peripheral/gpio.h>        // trigger manipulation
+#include <peripheral/gpio.h>        // trigger
 
 
 
