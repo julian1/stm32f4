@@ -292,22 +292,22 @@ static double cal_temp( range_t *range, const cal_t *cal, double value)
 
 range_t init_range_values[] = {
 
-  {   "REF",    "",     "V",  mode_ref,   cal_normal,   true},
-  {   "REF",    "LO",   "V",  mode_ref,   cal_normal,  true  },
+  {   "REF",  "",     "V",  mode_ref,   cal_normal, true,   false },
+  {   "REF",  "LO",   "V",  mode_ref,   cal_normal, false,  true  },
 
-  {   "DCV",    "1000", "V",  mode_dcv,   cal_dcv,  true },
-  {   "DCV",    "100",  "V",  mode_dcv,   cal_dcv,  false  },
-  {   "DCV",    "10",   "V",  mode_dcv,   cal_dcv,  false },
-  {   "DCV",    "1",    "V",  mode_dcv,   cal_dcv,  false },
-  {   "DCV",    "0.1",  "V",  mode_dcv,   cal_dcv,  false  },
-  {   "DCV",    "0.01", "V",  mode_dcv,   cal_dcv,  true },
+  {   "DCV",  "1000", "V",  mode_dcv,   cal_dcv,    true,   false },
+  {   "DCV",  "100",  "V",  mode_dcv,   cal_dcv,    false,  false },
+  {   "DCV",  "10",   "V",  mode_dcv,   cal_dcv,    false,  false },
+  {   "DCV",  "1",    "V",  mode_dcv,   cal_dcv,    false,  false },
+  {   "DCV",  "0.1",  "V",  mode_dcv,   cal_dcv,    false,  false },
+  {   "DCV",  "0.01", "V",  mode_dcv,   cal_dcv,    false,  true  },
 
-  {   "TEMP",   "",     "°C", mode_temp,  cal_temp,  true },
+  {   "TEMP", "",     "°C", mode_temp,  cal_temp,   true,   true  },
 
-  {   "LTS",    "10",   "V",  mode_lts,   cal_normal,  true },       // LTS or DCV LTS.
-  {   "LTS",    "1",    "V",  mode_lts,   cal_normal,  true },
-  {   "LTS",    "0.1",  "V",  mode_lts,   cal_normal,  true },
-  {   "LTS",    "0.01", "V",  mode_lts,   cal_normal,  true }
+  {   "LTS",  "10",   "V",  mode_lts,   cal_normal, true,   false },       // better name, LTS or DCV LTS.
+  {   "LTS",  "1",    "V",  mode_lts,   cal_normal, false,  false },
+  {   "LTS",  "0.1",  "V",  mode_lts,   cal_normal, false,  false },
+  {   "LTS",  "0.01", "V",  mode_lts,   cal_normal, false,  true  }
 
 
 };

@@ -47,7 +47,9 @@ typedef struct range_t
   // sentinel to encode range limit - either top or bottom.
   // else needs to be enum/int.
   bool bot_sentinal;
-  // bool top_sentinal;
+  bool top_sentinal;
+
+  // EXTR.  if top and bottom. then only one iterable range availableset.
 
   ///////////////////
 
