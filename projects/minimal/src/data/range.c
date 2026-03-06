@@ -67,7 +67,7 @@
 
 static void partial_reset( _mode_t *mode)
 {
-  assert(mode);
+  assert(mode && mode->magic == MODE_MAGIC);
 
 
   _mode_t tmp = *mode;
@@ -105,7 +105,6 @@ static void partial_reset( _mode_t *mode)
   // persist LTS selection
   mode->serial.U1003 = tmp.serial.U1003;
   mode->serial.U1012 = tmp.serial.U1012;
-
 }
 
 
@@ -118,6 +117,9 @@ static void partial_reset( _mode_t *mode)
 
 static void mode_ref( const range_t *range, _mode_t *mode )
 {
+  assert(range && range->magic == RANGE_MAGIC);
+  assert(mode && mode->magic == MODE_MAGIC);
+
   /*
     internal ref.  not a particularly useful function
     only 1x gain applies
@@ -143,9 +145,12 @@ static void mode_ref( const range_t *range, _mode_t *mode )
 
 static void mode_temp( const range_t *range, _mode_t *mode)
 {
+  assert(range && range->magic == RANGE_MAGIC);
+  assert(mode && mode->magic == MODE_MAGIC);
+
+
   // consider - get rid of accessor and manage low level details of state setup here
   // mode_gain_set( mode, 1); could use a different gain
-  UNUSED( range);
 
   partial_reset( mode);
 
@@ -159,6 +164,9 @@ static void mode_temp( const range_t *range, _mode_t *mode)
 
 static void mode_lts( const range_t *range, _mode_t *mode)
 {
+  assert(range && range->magic == RANGE_MAGIC);
+  assert(mode && mode->magic == MODE_MAGIC);
+
   partial_reset( mode);
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
@@ -185,6 +193,10 @@ static void mode_lts( const range_t *range, _mode_t *mode)
 
 static void mode_dcv( const range_t *range, _mode_t *mode)
 {
+  assert(range && range->magic == RANGE_MAGIC);
+  assert(mode && mode->magic == MODE_MAGIC);
+
+
 /*
   instead of passing string arg.
   why not pass the range_t structure.
@@ -220,6 +232,7 @@ static void mode_dcv( const range_t *range, _mode_t *mode)
 
 static double cal_dcv( const range_t *range, const cal_t *cal, double value)
 {
+  assert(range && range->magic == RANGE_MAGIC);
   // eg. with input terminl offset
 
   if(strcasecmp( range->arg, "10") == 0) {
@@ -236,6 +249,7 @@ static double cal_dcv( const range_t *range, const cal_t *cal, double value)
 
 static double cal_normal( const range_t *range, const cal_t *cal, double value)
 {
+  assert(range && range->magic == RANGE_MAGIC);
   // for ref and lts.
   // consider
 
@@ -267,7 +281,8 @@ static double cal_normal( const range_t *range, const cal_t *cal, double value)
 
 static double cal_temp( const range_t *range, const cal_t *cal, double value)
 {
-  UNUSED( range);
+  assert(range && range->magic == RANGE_MAGIC);
+
   return cal->b * value * 100;
 }
 
@@ -281,22 +296,22 @@ static double cal_temp( const range_t *range, const cal_t *cal, double value)
 
 range_t init_range_values[] = {
 
-  {   "REF",  "",     "V",  mode_ref,   cal_normal, true,   false },
-  {   "REF",  "LO",   "V",  mode_ref,   cal_normal, false,  true  },
+  { RANGE_MAGIC,  "REF",  "",     "V",  mode_ref,   cal_normal, true,   false },
+  { RANGE_MAGIC,  "REF",  "LO",   "V",  mode_ref,   cal_normal, false,  true  },
 
-  {   "DCV",  "1000", "V",  mode_dcv,   cal_dcv,    true,   false },
-  {   "DCV",  "100",  "V",  mode_dcv,   cal_dcv,    false,  false },
-  {   "DCV",  "10",   "V",  mode_dcv,   cal_dcv,    false,  false },
-  {   "DCV",  "1",    "V",  mode_dcv,   cal_dcv,    false,  false },
-  {   "DCV",  "0.1",  "V",  mode_dcv,   cal_dcv,    false,  false },
-  {   "DCV",  "0.01", "V",  mode_dcv,   cal_dcv,    false,  true  },
+  { RANGE_MAGIC,  "DCV",  "1000", "V",  mode_dcv,   cal_dcv,    true,   false },
+  { RANGE_MAGIC,  "DCV",  "100",  "V",  mode_dcv,   cal_dcv,    false,  false },
+  { RANGE_MAGIC,  "DCV",  "10",   "V",  mode_dcv,   cal_dcv,    false,  false },
+  { RANGE_MAGIC,  "DCV",  "1",    "V",  mode_dcv,   cal_dcv,    false,  false },
+  { RANGE_MAGIC,  "DCV",  "0.1",  "V",  mode_dcv,   cal_dcv,    false,  false },
+  { RANGE_MAGIC,  "DCV",  "0.01", "V",  mode_dcv,   cal_dcv,    false,  true  },
 
-  {   "TEMP", "",     "°C", mode_temp,  cal_temp,   true,   true  },
+  { RANGE_MAGIC,  "TEMP", "",     "°C", mode_temp,  cal_temp,   true,   true  },
 
-  {   "LTS",  "10",   "V",  mode_lts,   cal_normal, true,   false },       // better name, LTS or DCV LTS.
-  {   "LTS",  "1",    "V",  mode_lts,   cal_normal, false,  false },
-  {   "LTS",  "0.1",  "V",  mode_lts,   cal_normal, false,  false },
-  {   "LTS",  "0.01", "V",  mode_lts,   cal_normal, false,  true  }
+  { RANGE_MAGIC,  "LTS",  "10",   "V",  mode_lts,   cal_normal, true,   false },       // better name, LTS or DCV LTS.
+  { RANGE_MAGIC,  "LTS",  "1",    "V",  mode_lts,   cal_normal, false,  false },
+  { RANGE_MAGIC,  "LTS",  "0.1",  "V",  mode_lts,   cal_normal, false,  false },
+  { RANGE_MAGIC,  "LTS",  "0.01", "V",  mode_lts,   cal_normal, false,  true  }
 
 
 };

@@ -38,38 +38,38 @@ void app_cal_01( app_t *app)
   data_t *data = app->data;
   assert( data && data->magic == DATA_MAGIC);
 
-  _mode_t *mode = app->mode;                // only for sa structure
+  _mode_t *mode = app->mode;                // only for sa for setting trig delay
   assert(mode && mode->magic == MODE_MAGIC) ;
-
-
-
-  // set trigger delay for settle time
-  sa_trig_delay_set( &mode->sa, period_to_aper_n(  1.f )); // 1 sec.
-
 
   printf("cal01\n");
 
   double values[ 10 ];
   memset(values, 0, sizeof(values));
 
-  mode_reset( app->mode);
 
-  // we already have the 10V. range.
-  // so set LTS. 10. input range.
-  app_switch_range1( app, "LTS", "10");
+  // sample off
+  gpio_write( app->gpio_trigger, false);
 
+  mode_reset( mode);
 
-  // set the LTS source. to 1V.
-  mode_lts_source_set( app->mode, 1.0 ); // dcv source is ok.
+  // trigger delay
+  sa_trig_delay_set( &mode->sa, period_to_aper_n(  1.f )); // 1 sec.
 
-  data->show_counts   = true;
-  data->show_reading  = true;
+  // set the dc source voltage
+  mode_lts_source_set ( mode, 1.f );
+
+  // set the input range to LTS.
+  app_switch_range1( app, "LTS", "10");     // overriding some state?
+
+  // must call transition state.
+  app_transition_state( app);
+
 
   // start sampling
   gpio_write( app->gpio_trigger, true);
 
-  // obs loop
-  for( size_t i = 0; i < ARRAY_SIZE( values);)
+  // take obs loop
+  for( unsigned i = 0; i < ARRAY_SIZE(values); ++i)
   {
     printf("i %u, ", i);
 
@@ -81,23 +81,11 @@ void app_cal_01( app_t *app)
 
     data_update( data);
 
-    if( data->valid ) {
-
-      // No.  measurement of 1V source using 10V. range is accurate - so use reading.
-
-      // values[ i] = data->count_norm * 1.f /*cal->b */;
-      values[ i] = data->reading ;
-      ++i;
-    }
-
     printf("\n");
   }
 
   // stop sampling
   gpio_write( app->gpio_trigger, false);
-
-
-
 
 
 }

@@ -15,12 +15,15 @@ typedef struct cal_t  cal_t;
 
 
 
+#define RANGE_MAGIC 34523418
 
 
 typedef struct range_t
 {
   // unsigned  id;     // same as index in range_t [] array
   // const char *repl_name;
+
+  uint32_t    magic;
 
   const char *name;
 

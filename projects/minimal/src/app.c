@@ -966,6 +966,8 @@ static bool app_repl_range( app_t *app, const char *cmd)
 
 void app_switch_range( app_t *app, signed range_idx)
 {
+  assert(app && app->magic == APP_MAGIC);
+
   assert( range_idx != -1);
 
 
@@ -985,6 +987,8 @@ void app_switch_range( app_t *app, signed range_idx)
 
 void app_switch_range1( app_t *app, const char *name, const char *arg)
 {
+  assert(app && app->magic == APP_MAGIC);
+
   // assert() that the range exists
 
   int32_t range_idx = range_get_idx( app->ranges, app->ranges_sz, name, arg);

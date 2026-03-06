@@ -160,9 +160,11 @@ void data_update( data_t *data )
     }
 
   }
-  else
+  else {
+
     assert(0);
 
+  }
 
 }
 
