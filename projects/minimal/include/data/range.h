@@ -30,17 +30,7 @@ typedef struct range_t
 
   ///////////////////
 
-  /*
-    important.
-    instead of passing the arg
 
-    It may make sense to pass the range as the first argument...
-
-
-  */
-
-  // void (*mode_f)( _mode_t *, const char *arg );
-  // void (*mode_f)( range_t *range, _mode_t * );
   void (*range_set_mode)( range_t *range, _mode_t * );
 
 
@@ -48,17 +38,16 @@ typedef struct range_t
 
   // convert value to a reading according to calibration
   // TODO consider rename to cal_reading.  eg. turning data into a reading
-  // cal coefficients belong on cal.
-  // double (*cal_f)( const cal_t *, const char *arg, double value);
   double (*range_reading)( range_t *range, const cal_t *, double value);
 
+  // perhaps autoranging test could be added here
+  // bool (*range_outofrange)( range_t *range, status_reg sr);
 
-  // sentinel need to encode whether it is top or bottom.
-  // otherwise we do not know which direction to move from...
-  // so needs to be enum/int.
-  // or have  two fields a top/ bottom or up/down  limmit
-  bool sentinal;
-  // bool down_sentinal;
+
+  // sentinel to encode range limit - either top or bottom.
+  // else needs to be enum/int.
+  bool bot_sentinal;
+  // bool top_sentinal;
 
   ///////////////////
 

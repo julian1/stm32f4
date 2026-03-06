@@ -982,6 +982,20 @@ void app_switch_range( app_t *app, signed range_idx)
 }
 
 
+
+void app_switch_range1( app_t *app, const char *name, const char *arg)
+{
+  // assert() for internal calls.
+
+  int32_t range_idx = range_get_idx( app->ranges, app->ranges_sz, name, arg);
+  assert( range_idx != -1);
+  app_switch_range( app, range_idx);
+}
+
+
+
+
+
 // make these functions public.
 
 bool app_repl_range( app_t *app, const char *cmd)
