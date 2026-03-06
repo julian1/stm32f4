@@ -119,8 +119,7 @@ static void partial_reset( _mode_t *mode)
 
 
 
-// static void mode_ref( _mode_t *mode, const char *arg)
-static void mode_ref( range_t *range, _mode_t *mode )
+static void mode_ref( const range_t *range, _mode_t *mode )
 {
   /*
     internal ref.  not a particularly useful function
@@ -145,9 +144,7 @@ static void mode_ref( range_t *range, _mode_t *mode )
 
 
 
-
-// static void mode_temp( _mode_t *mode, const char *arg)
-static void mode_temp( range_t *range, _mode_t *mode)
+static void mode_temp( const range_t *range, _mode_t *mode)
 {
   // consider - get rid of accessor and manage low level details of state setup here
   // mode_gain_set( mode, 1); could use a different gain
@@ -163,8 +160,7 @@ static void mode_temp( range_t *range, _mode_t *mode)
 
 
 
-// static void mode_lts( _mode_t *mode, const char *arg)
-static void mode_lts( range_t *range, _mode_t *mode)
+static void mode_lts( const range_t *range, _mode_t *mode)
 {
   partial_reset( mode);
 
@@ -190,8 +186,7 @@ static void mode_lts( range_t *range, _mode_t *mode)
 
 
 
-// static void mode_dcv( _mode_t *mode, const char *arg )
-static void mode_dcv( range_t *range, _mode_t *mode)
+static void mode_dcv( const range_t *range, _mode_t *mode)
 {
 /*
   instead of passing string arg.
@@ -226,8 +221,7 @@ static void mode_dcv( range_t *range, _mode_t *mode)
 
 
 
-// static double cal_dcv( const cal_t *cal, const char *arg, double value)
-static double cal_dcv( range_t *range, const cal_t *cal, double value)
+static double cal_dcv( const range_t *range, const cal_t *cal, double value)
 {
   // eg. with input terminl offset
 
@@ -243,8 +237,7 @@ static double cal_dcv( range_t *range, const cal_t *cal, double value)
 }
 
 
-// static double cal_normal( const cal_t *cal, const char *arg, double value)
-static double cal_normal( range_t *range, const cal_t *cal, double value)
+static double cal_normal( const range_t *range, const cal_t *cal, double value)
 {
   // for ref and lts.
   // consider
@@ -275,8 +268,7 @@ static double cal_normal( range_t *range, const cal_t *cal, double value)
 
 
 
-// static double cal_temp( const cal_t *cal, const char *arg, double value)
-static double cal_temp( range_t *range, const cal_t *cal, double value)
+static double cal_temp( const range_t *range, const cal_t *cal, double value)
 {
   UNUSED( range);
   return cal->b * value * 100;

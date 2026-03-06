@@ -31,14 +31,21 @@ typedef struct range_t
   ///////////////////
 
 
-  void (*range_set_mode)( range_t *range, _mode_t * );
+  void (*range_set_mode)( const range_t *range, _mode_t * );
 
 
   //  the same way the mode function  sets the mode.   the cal functino can scale/adjust the value to a reading.
 
   // convert value to a reading according to calibration
-  // TODO consider rename to cal_reading.  eg. turning data into a reading
-  double (*range_reading)( range_t *range, const cal_t *, double value);
+  // TODO consider rename to range_cal_reading.  eg. turning data into a reading
+  double (*range_reading)( const range_t *range, const cal_t *, double value);
+
+
+  // could have a range_cal_set  function here...  to hide all the cal mechanismm/ and serialization... hen performing cal.
+  // might be useful - to manage default values.  eg. for gain.
+  // or b and a. values...
+  //
+  // void (*range_set_cal_values)( range_t *range, const cal_t *, double b, double a);
 
   // perhaps autoranging test could be added here
   // bool (*range_outofrange)( range_t *range, status_reg sr);
