@@ -35,87 +35,66 @@
 #include <mode.h>
 
 #include <data/cal.h>
-// #include <data/range.h>
 #include <data/data.h>
 
 
 
 
-static void app_show_readings( app_t *app )
+
+
+static void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_t n)
 {
-  assert(app && app->magic == APP_MAGIC);
-
-  _mode_t *mode = app->mode;
-  assert(mode && mode->magic == MODE_MAGIC) ;
-
   data_t *data = app->data;
   assert( data && data->magic == DATA_MAGIC);
 
-  cal_t *cal = app->cal;
-  assert( cal && cal->magic == CAL_MAGIC);
+
+  // start sampling
+  gpio_write( app->gpio_trigger, true);
 
 
-  char buf[100 + 1];
+  /* could express this more simply just sum up the values.
+      no need for mean function etc...  but having the stddev is useful.
+  */
 
+  // take obs loop
+  // for( size_t i = 0; i < ARRAY_SIZE(pos_values); ++i)
+  for( size_t i = 0; i < n; )
+  {
+    printf("i %u, ", i);
 
-  ////////////////////
+    // wait for adc data
+    while( !app->adc_interrupt_valid )
+      app_yield( app);
 
-  // mode_ch2_set_ref( mode);
-  mode_ch2_set( mode, "ref");
+    app->adc_interrupt_valid = false;
 
-  // mode_ch2_set_ref_lo( mode);
-  mode_az_set(mode, "ch2" );
+    data_update( data);
 
-  // set 10V.
-  // mode_lts_source_set( mode, 10 );
-  // mode_ch2_set_lts( mode);
+    // take both hi and lo readings since they are the same.
+    // ignore data->valid
 
-  // nplc to use
-  // mode_adc_aperture_set( mode, nplc_to_aperture( 10, app->line_freq ));
+    pos_values[i] = data->clk_count_refmux_pos;
+    neg_values[i] = data->clk_count_refmux_neg;
 
-  ////////////////////
+    ++i;
 
-  // TODO consider rename to - readings
-  double values[ 10 ];
-  memset(values, 0, sizeof(values));
+    printf("\n");
+  }
 
-  ////////////////////
-  app_transition_state( app);
-
-  data->show_counts   = true;
-  data->show_reading  = true;
-
-
-  app_fill_buffer( app, values, ARRAY_SIZE( values));
-
-  for( size_t i = 0; i < ARRAY_SIZE(values); ++i)
-    values[ i] *=  cal->b;
-
-  // better names - readings_mean ?
-  double values_mean   = mean(   values, ARRAY_SIZE(values))  ;
-  double values_stddev = stddev( values, ARRAY_SIZE(values));
-
-  printf( "mean   %s, ", str_format_float_with_commas(buf, 100, 9, values_mean));
-  printf( "stddev %s, ", str_format_float_with_commas(buf, 100, 9, values_stddev));
-  printf("\n");
-
+  // sampling off
+  gpio_write( app->gpio_trigger, false);
 
 }
 
 
 
-
-
-
-
-
 static void cal_dcv10_nom( app_t *app)
 {
-/*
-  This is the cal. for the primary (not acal derived) DCV 10 range.
-  It is irrelevant. that we use the local 7V ref as nominal value..
+  /*
+    This is the cal. for the primary (not acal derived) DCV 10 range.
+    It is irrelevant. that we use the local 7V ref as nominal value..
 
-*/
+  */
   assert(app && app->magic == APP_MAGIC);
 
   _mode_t *mode = app->mode;
@@ -159,8 +138,6 @@ static void cal_dcv10_nom( app_t *app)
 
   /////////////////////////
 
-  unsigned nplc = 10;
-
 
   // need double for mean()
   double pos_values[ 10 ];
@@ -178,41 +155,15 @@ static void cal_dcv10_nom( app_t *app)
   // set nplc
   adc_aperture_set( &mode->adc, nplc_to_aperture( 10, app->line_freq ));
 
+  //////////////////////////////////////
+
   app_transition_state( app);
 
   data->show_counts  = true;
   data->show_reading = false;
 
-  // start sampling
-  gpio_write( app->gpio_trigger, true);
-
-
-  /* could express this more simply just sum up the values.
-      no need for mean function etc...  but having the stddev is useful.
-  */
-
-  // take obs loop
-  for( size_t i = 0; i < ARRAY_SIZE(pos_values); ++i)
-  {
-    printf("i %u, ", i);
-
-    // wait for adc data
-    while( !app->adc_interrupt_valid )
-      app_yield( app);
-
-    app->adc_interrupt_valid = false;
-
-    data_update( data);
-
-    pos_values[i] = data->clk_count_refmux_pos;
-    neg_values[i] = data->clk_count_refmux_neg;
-
-    printf("\n");
-  }
-
-  // sampling off
-  gpio_write( app->gpio_trigger, false);
-
+  // fill data
+  app_fill_buffer1( app, pos_values, neg_values, ARRAY_SIZE( pos_values));
 
   double pos_mean   = mean(   pos_values, ARRAY_SIZE(pos_values));
   double neg_mean   = mean(   neg_values, ARRAY_SIZE(neg_values));
@@ -227,14 +178,10 @@ static void cal_dcv10_nom( app_t *app)
   printf( "stddev %.3f, ", stddev_neg);
   printf("\n");
 
-  // cal_w
-  // app->cal_w = pos_mean / neg_mean;
-  // assert( app->cal_w);
+  // ref current weight
   cal->w = pos_mean / neg_mean;
 
-  // printf(" w %.8f, ", w );
-  printf( "cal_w %s\n", str_format_float_with_commas(buf, 100, 9, cal->w));
-
+  printf( "cal->w %s\n", str_format_float_with_commas(buf, 100, 9, cal->w));
 
 
 
@@ -247,38 +194,25 @@ static void cal_dcv10_nom( app_t *app)
   double values[ 10 ];
   memset( values, 0, sizeof(values));
 
-  {
-    // nplc
-    adc_aperture_set( &mode->adc, nplc_to_aperture( nplc, app->line_freq ));
+  // nplc
+  // adc_aperture_set( &mode->adc, nplc_to_aperture( nplc, app->line_freq ));
 
-    /*
-      expressing diff as a ratio of ref current - which is derived from main-ref is a decent approach.
-      mean   -0.488   for 7.1V.
-      mean   -0.689,  for 10V.
+  // calibrate using ref-current sources, derived from main ref
+  // mode_ch2_set_ref( mode);
+  mode_ch2_set( mode, "ref");
 
-      then different ranges dcv/shunts can use a different multiplier.
-    */
+  // alternate calibrate against 10V.
+  // mode_lts_source_set( mode, 10 );
+  // mode_ch2_set_lts( mode);
+  mode_az_set(mode, "ch2" );
 
-    // calibrate using ref-current sources, derived from main ref
-    // mode_ch2_set_ref( mode);
-    mode_ch2_set( mode, "ref");
+  // sigmux active
+  mode->reg_cr.adc_p_active_sigmux = 1;
 
-    // calibrate against 10V.
-    // mode_lts_source_set( mode, 10 );
-    // mode_ch2_set_lts( mode);
+  app_transition_state( app);
 
-    mode_az_set(mode, "ch2" );
+  app_fill_buffer( app, values, ARRAY_SIZE( values));
 
-    // sigmux active
-    mode->reg_cr.adc_p_active_sigmux = 1;
-
-    app_transition_state( app);
-
-
-    app_fill_buffer( app, values, ARRAY_SIZE( values));
-
-
-  }
 
   printf("norm ");
   printf( "mean   %.9f, ", mean( values, ARRAY_SIZE(values)) );
@@ -296,21 +230,34 @@ static void cal_dcv10_nom( app_t *app)
   printf("\n");
 
 
-  app_show_readings( app);
+  /////////////////////////////////////
+
+  // now show some values..  using the same range.
+
+  data->show_reading = true;
+  // buffer->show = true;
+  app_fill_buffer( app, values, ARRAY_SIZE( values));
+
+  // better names - readings_mean ?
+  double values_mean   = mean(   values, ARRAY_SIZE(values))  ;
+  double values_stddev = stddev( values, ARRAY_SIZE(values));
+
+  printf( "mean   %s, ", str_format_float_with_commas(buf, 100, 9, values_mean));
+  printf( "stddev %s, ", str_format_float_with_commas(buf, 100, 9, values_stddev));
+  printf("\n");
 
 
 
-  ////////////////////////
-
+#if 0
   // switch back to direct mode operation
-  // why???
   // why not stay in the mode we used for cal
+
   reg_cr_mode_set( &mode->reg_cr, MODE_DIRECT);
 
   app_transition_state( app);
 
   printf("\n");
-
+#endif
 }
 
 
