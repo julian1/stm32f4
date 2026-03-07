@@ -34,13 +34,14 @@ typedef struct cal_t
 
 
   unsigned  id;
-  double    w;          // same as &app->cal_w
+  double    w;          // ref current weighting
 
   double    b;          // 10V/1x. range scale factor
                         // but this is associated with a range.  with DCV 10.
                         // DCV 1.  will have a different scalar.
                         // whether sampling terminals, lts, daq, or ref.
 
+  double    b2;         // 10x gain
 
   // use a double array for everything else?
   // and indexable enums ?
@@ -70,6 +71,8 @@ void cal_init(
 
 );
 
+
+void cal_show( cal_t *cal);
 
 bool cal_repl_statement( cal_t *cal, const char *cmd);
 

@@ -25,11 +25,11 @@ typedef struct range_t
 
   uint32_t    magic;
 
-  const char *name;
+  const char  *name;
 
   const char  *arg;
 
-  const char *unit;
+  const char  *unit;
 
   ///////////////////
 
@@ -41,14 +41,17 @@ typedef struct range_t
 
   // convert value to a reading according to calibration
   // TODO consider rename to range_cal_reading.  eg. turning data into a reading
-  double (*range_reading)( const range_t *range, const cal_t *, double value);
+  // range_cal_convert()
+  // and range_cal_set( coeff)
+  double (*range_cal_convert)( const range_t *range, const cal_t *, double value);
 
 
-  // could have a range_cal_set  function here...  to hide all the cal mechanismm/ and serialization... hen performing cal.
-  // might be useful - to manage default values.  eg. for gain.
-  // or b and a. values...
-  //
-  // void (*range_set_cal_values)( range_t *range, const cal_t *, double b, double a);
+  /* could have a range_cal_set  function here...
+      to hide all the cal mechanismm/ and serialization... hen performing cal.
+    can just leave null if do not use.
+  */
+
+  // void (*range_cal_set)( range_t *range, const cal_t *, double b, double a);
 
   // perhaps autoranging test could be added here
   // bool (*range_outofrange)( range_t *range, status_reg sr);

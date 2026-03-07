@@ -12,8 +12,65 @@
 #include <app.h>
 #include <mode.h>
 #include <lib2/util.h>    // ARRAY_SIZE
+#include <lib2/stats.h>
 
 #include <data/data.h>
+#include <data/cal.h>
+
+
+
+
+// we could use the buffer.c....
+
+/*
+  - using data->count_norm is the most flexible.  independent of range.
+  - could pass in the transfer function to use.
+  - OR. can just apply the transform on the result.
+
+  - eg. add function to stats.c  to scale the buffer.
+
+*/
+
+
+void app_fill_buffer( app_t *app, double *values, size_t n)
+{
+  data_t *data = app->data;
+  assert( data && data->magic == DATA_MAGIC);
+
+
+  // start sampling
+  gpio_write( app->gpio_trigger, true);
+
+  // obs loop
+  for( unsigned i = 0; i < n; )
+  {
+    printf("i %u, ", i);
+
+    // wait for adc data
+    while( !app->adc_interrupt_valid )
+      app_yield( app);
+
+    app->adc_interrupt_valid = false;
+
+
+    data_update( data);
+    if( data->valid) {
+
+      // IMPORTANT - relies on havng the cal function.
+      // may want t
+      // values[ i] = data->reading;
+      values[ i] = data->count_norm;
+      ++i;
+    }
+
+    printf("\n");
+  }
+
+  // stop sampling
+  gpio_write( app->gpio_trigger, false);
+}
+
+
 
 
 /*
@@ -44,6 +101,10 @@ void app_cal_01( app_t *app)
   _mode_t *mode = app->mode;                // need for sa for setting trig delay
   assert(mode && mode->magic == MODE_MAGIC) ;
 
+  cal_t *cal = app->cal;
+  assert( cal && cal->magic == CAL_MAGIC);
+
+
   printf("cal01\n");
 
   double values[ 10 ];
@@ -61,39 +122,45 @@ void app_cal_01( app_t *app)
   // set the dc source voltage
   mode_lts_source_set ( mode, 1.f );
 
-  // set the input range to LTS.
-  app_switch_range1( app, "LTS", "10");     // overriding some state?
+  /////////////////////////////////
 
-  // must call transition state.
+  // set the input range to LTS
+  app_switch_range1( app, "LTS", "10");
+
+  // must call transition state
   app_transition_state( app);
 
+  app_fill_buffer( app, values, ARRAY_SIZE(values));
 
-  // start sampling
-  gpio_write( app->gpio_trigger, true);
+  double mean0 = mean( values, ARRAY_SIZE(values));
+  UNUSED( mean0);
 
-  // take obs loop
-  for( unsigned i = 0; i < ARRAY_SIZE(values); ++i)
-  {
-    printf("i %u, ", i);
-
-    // wait for adc data
-    while( !app->adc_interrupt_valid )
-      app_yield( app);
-
-    app->adc_interrupt_valid = false;
-
-    data_update( data);
-
-    printf("\n");
-  }
-  // get the mean.
-
-  // stop sampling
-  gpio_write( app->gpio_trigger, false);
+  printf("mean0 %f\n", mean0);
 
 
-  // now we use LTS 1.kkkkkkkk
+  /////////////////////////////////
 
+  // set the input range to LTS
+  app_switch_range1( app, "LTS", "1");
+
+  // must call transition state
+  app_transition_state( app);
+
+  //
+  app_fill_buffer( app, values, ARRAY_SIZE(values));
+
+  double mean1 = mean( values, ARRAY_SIZE(values));
+  UNUSED( mean1);
+  printf("mean1 %f\n", mean1);
+
+  // cal->b = 7.0 / mean( values, ARRAY_SIZE(values));
+  cal->b2 = (cal->b * mean0) / mean1 ;
+
+  printf("cal->b2 %f\n", cal->b2 );
+
+
+  // print some values using the new cal - will use the range_reading convert function
+  app_fill_buffer( app, values, ARRAY_SIZE(values));
 
 }
 

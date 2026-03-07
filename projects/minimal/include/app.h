@@ -262,6 +262,8 @@ void app_repl_statements(app_t *app,  const char *s);
 ////////
 
 
+void app_fill_buffer( app_t *app, double *values, size_t n);
+
 bool app_cal( app_t *app, const char *cmd);
 
 void app_cal_01( app_t *app); // from src/data/cal01

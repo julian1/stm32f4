@@ -160,6 +160,17 @@ static void mode_temp( const range_t *range, _mode_t *mode)
 }
 
 
+/*
+  would it be easier.
+
+  - instead of having a separate cal function.
+
+  - to just write b, a variables. once...
+
+  - eg. we write the mode. and write scaling factor
+
+
+*/
 
 
 static void mode_lts( const range_t *range, _mode_t *mode)
@@ -263,11 +274,9 @@ static double cal_normal( const range_t *range, const cal_t *cal, double value)
 
   else if(strcasecmp( range->arg, "1") == 0)
   {
-    // So if we set the gain...
-    // OK. kkkkkkkk
-
-
-    return cal->b * value;
+    // may want default values
+    // or express as or cal->b * cal->b2.
+    return cal->b2 * value;
 
   }
   else
@@ -283,6 +292,7 @@ static double cal_temp( const range_t *range, const cal_t *cal, double value)
 {
   assert(range && range->magic == RANGE_MAGIC);
 
+  // lm35d
   return cal->b * value * 100;
 }
 

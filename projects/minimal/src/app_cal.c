@@ -85,37 +85,14 @@ static void app_show_readings( app_t *app )
   data->show_counts   = true;
   data->show_reading  = true;
 
-  // start sampling
-  gpio_write( app->gpio_trigger, true);
 
-  // take obs loop
-  for( size_t i = 0; i < ARRAY_SIZE( values);)
-  {
-    printf("i %u, ", i);
+  app_fill_buffer( app, values, ARRAY_SIZE( values));
 
-    // wait for adc data
-    while( !app->adc_interrupt_valid )
-      app_yield( app);
-
-    app->adc_interrupt_valid = false;
-
-    data_update( data);
-
-    if( data->valid ) {
-
-      values[ i] = data->count_norm * cal->b;
-      ++i;
-    }
-
-    printf("\n");
-  }
-
-  // stop sampling
-  gpio_write( app->gpio_trigger, false);
-
+  for( size_t i = 0; i < ARRAY_SIZE(values); ++i)
+    values[ i] *=  cal->b;
 
   // better names - readings_mean ?
-  double values_mean   = mean(   values, ARRAY_SIZE(values));
+  double values_mean   = mean(   values, ARRAY_SIZE(values))  ;
   double values_stddev = stddev( values, ARRAY_SIZE(values));
 
   printf( "mean   %s, ", str_format_float_with_commas(buf, 100, 9, values_mean));
@@ -286,7 +263,6 @@ static void cal_dcv10_nom( app_t *app)
     // mode_ch2_set_ref( mode);
     mode_ch2_set( mode, "ref");
 
-
     // calibrate against 10V.
     // mode_lts_source_set( mode, 10 );
     // mode_ch2_set_lts( mode);
@@ -298,35 +274,9 @@ static void cal_dcv10_nom( app_t *app)
 
     app_transition_state( app);
 
-    // start sampling
-    gpio_write( app->gpio_trigger, true);
 
+    app_fill_buffer( app, values, ARRAY_SIZE( values));
 
-    // compute ref for diff
-    for( size_t i = 0; i < ARRAY_SIZE( values);)
-    {
-      printf("i %u, ", i);      // two readings per value...
-
-      // wait for adc data
-      while( !app->adc_interrupt_valid )
-        app_yield( app);
-
-      app->adc_interrupt_valid = false;
-
-      data_update( data);
-
-      if( data->valid) {
-
-        // value is sum / sigmux
-        values[ i] = data->count_norm;
-        ++i;
-      }
-
-      printf("\n");
-    }
-
-    // stop sampling
-    gpio_write( app->gpio_trigger, false);
 
   }
 
@@ -335,43 +285,15 @@ static void cal_dcv10_nom( app_t *app)
   printf( "stddev %.9f, ", stddev( values, ARRAY_SIZE(values)) );
   printf("\n");
 
-
-
   /*
     above code - should be able to just call data_update()  directly
       but keep separate. for independence when facoring etc.
-
   */
 
-
   cal->b = 7.0 / mean( values, ARRAY_SIZE(values));
-
+  printf("cal->b %f\n", cal->b);
 
   printf("\n");
-
-/*
-
-  // this code isn't right.
-  // set app range.
-  app->range_idx = DCV_REF;
-  range_t *range = &app->ranges[  app->range_idx ];
-  assert( range);
-  // update range coeffs
-  range->b = 7.0 / mean( values, ARRAY_SIZE(values));
-  range->a = 0;
-
-  printf( "name= %s  b=%.3f, a=%.3f", range->name,  range->b, range->a );
-  printf("\n");
-
-
-
-  //  copy for dcv10.
-  range = &app->ranges[  DCV_10 ];
-  assert( range);
-  range->b = 7.0 / mean( values, ARRAY_SIZE(values));
-  range->a = 0;
-*/
-
 
 
   app_show_readings( app);

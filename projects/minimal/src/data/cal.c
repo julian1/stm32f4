@@ -91,6 +91,8 @@ static void file_write_cal_handler( FILE *f, blob_header_t *header,  cal_t *cal)
 
   fwrite( &cal->id,                  sizeof( cal->id), 1, f);
   fwrite( &cal->w,                   sizeof( cal->w), 1, f);
+  fwrite( &cal->b,                   sizeof( cal->b), 1, f);
+  fwrite( &cal->b2,                  sizeof( cal->b), 1, f);
 
 /*
   for( unsigned i = 0; i < cal->ranges_sz ; ++i )  {
@@ -126,6 +128,8 @@ static void file_scan_cal_handler( FILE *f, blob_header_t *header, cal_t *cal )
 
       cal->id = id ;
       fread( &cal->w,               sizeof( cal->w), 1, f);
+      fread( &cal->b,               sizeof( cal->b), 1, f);
+      fread( &cal->b2,              sizeof( cal->b2), 1, f);
 
 /*
       for( unsigned i = 0; i < cal->ranges_sz ; ++i )  {
@@ -147,6 +151,17 @@ static void file_scan_cal_handler( FILE *f, blob_header_t *header, cal_t *cal )
 }
 
 
+
+
+void cal_show( cal_t *cal)
+{
+
+  // simple print
+  printf("id    %u\n", cal->id);
+  printf("w     %f\n", cal->w);
+  printf("b     %f\n", cal->b);
+  printf("b2    %f\n", cal->b2);
+}
 
 
 
@@ -223,8 +238,7 @@ bool cal_repl_statement( cal_t *cal, const char *cmd)
     printf("done\n");
 
     // simple print
-    printf("id    %u\n", cal->id);
-    printf("w     %f\n", cal->w);
+    cal_show( cal);
   }
 
 
@@ -232,8 +246,7 @@ bool cal_repl_statement( cal_t *cal, const char *cmd)
   // NO. this is a cal function...
   else if( strcmp(cmd, "cal show") == 0) {
 
-    printf("id    %u\n", cal->id);
-    printf("w     %f\n", cal->w);
+    cal_show( cal);
 
 /*
     for( unsigned i = 0; i < cal->ranges_sz ; ++i )  {
