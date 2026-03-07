@@ -245,7 +245,7 @@ void app_cal_00( app_t *app)
 
 #if 0
   // switch back to direct mode operation
-  // why not stay in the mode we used for cal
+  // why? cal
 
   reg_cr_mode_set( &mode->reg_cr, MODE_DIRECT);
 
@@ -255,34 +255,6 @@ void app_cal_00( app_t *app)
 #endif
 }
 
-
-
-/*
-  function should have a different name/repl
-  cal dcv10 nominal
-  or something.
-
-  no. it is nominal because it is internal.
-*/
-
-
-#if 0
-bool app_cal( app_t *app, const char *cmd)
-{
-  assert(app && app->magic == APP_MAGIC);
-  assert(cmd);
-
-  if( strcmp(cmd, "cal") == 0) {      // cal nominal
-
-    printf("cal()\n");
-
-    cal_dcv10_nom( app);
-    return 1;
-  }
-
-  return 0;
-}
-#endif
 
 
 
