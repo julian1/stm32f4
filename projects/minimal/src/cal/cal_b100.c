@@ -1,4 +1,5 @@
 
+
 /*
   REMEMBER
     - amplifier is picking up lots of noise. from the inductor.
@@ -26,7 +27,7 @@
 
 
 
-// perhaps change name cal_b100
+
 
 void app_cal_b100( app_t *app)
 {
@@ -43,6 +44,7 @@ void app_cal_b100( app_t *app)
 
   assert(cal->b10);
 
+  printf("--------\n");
   printf("cal_b100\n");
 
   double values[ 10 ];
@@ -52,14 +54,14 @@ void app_cal_b100( app_t *app)
   app_cal_setup( app);
 
   // set the dc source voltage
-  mode_lts_source_set ( mode, 0.1f );
-
-  /////////////////////////////////
+  printf("here0\n");
+  mode_lts_source_set ( mode, 0.1 );     // this fails
 
   // set the input range to LTS
   app_switch_range1( app, "LTS", "1");
   app_transition_state( app);
 
+  data->show_reading = true;
   app_fill_buffer( app, values, ARRAY_SIZE(values));
   double mean0 = mean( values, ARRAY_SIZE(values));
   UNUSED( mean0);
@@ -74,28 +76,23 @@ void app_cal_b100( app_t *app)
   app_transition_state( app);
 
   //
+  data->show_reading = false;
   app_fill_buffer( app, values, ARRAY_SIZE(values));
   double mean1 = mean( values, ARRAY_SIZE(values));
   UNUSED( mean1);
   printf("mean1 %f\n", mean1);
 
   // cal->b = 7.0 / mean( values, ARRAY_SIZE(values));
-  cal->b100 = (cal->b * mean0) / mean1 ;
+  cal->b100 = (cal->b10 * mean0) / mean1 ;
 
   printf("cal->b100 %f\n", cal->b100 );
 
 
   // print some values to confirm
+  data->show_reading = true;
   app_fill_buffer( app, values, ARRAY_SIZE(values));
 
-
   app_cal_finish( app);
-
 }
-
-
-
-
-
 
 

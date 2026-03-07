@@ -297,6 +297,8 @@ static double cal_dcv( const range_t *range, const cal_t *cal, double value)
 }
 
 
+
+
 static double cal_normal( const range_t *range, const cal_t *cal, double value)
 {
   assert(range && range->magic == RANGE_MAGIC);
@@ -315,8 +317,16 @@ static double cal_normal( const range_t *range, const cal_t *cal, double value)
     // may want default values
     // or express as or cal->b * cal->b10.
     return cal->b10 * value;
-
   }
+  else if(strcasecmp( range->arg, "0.1") == 0)
+  {
+    return cal->b100 * value;
+  }
+  else if(strcasecmp( range->arg, "0.01") == 0)
+  {
+    return cal->b1000 * value;
+  }
+
   else
     assert( 0);
 
@@ -344,10 +354,12 @@ static double cal_temp( const range_t *range, const cal_t *cal, double value)
 
 range_t init_range_values[] = {
 
-  { RANGE_MAGIC,  "REF",  "",     "V",  mode_ref,   cal_normal, true,   false },
+  { RANGE_MAGIC,  "REF",  "",     "V",  mode_ref,   cal_normal, true,   true },
 
   { RANGE_MAGIC,  "LO",   "10",   "V",  mode_lo,   cal_normal,  true,   false },  //
-  { RANGE_MAGIC,  "LO",   "1",    "V",  mode_lo,   cal_normal,  false,  true  },
+  { RANGE_MAGIC,  "LO",   "1",    "V",  mode_lo,   cal_normal,  false,  false },
+  { RANGE_MAGIC,  "LO",   "0.1",  "V",  mode_lo,   cal_normal,  false,  false },
+  { RANGE_MAGIC,  "LO",   "0.01", "V",  mode_lo,   cal_normal,  false,  true  },
 
   { RANGE_MAGIC,  "DCV",  "1000", "V",  mode_dcv,   cal_dcv,    true,   false },
   { RANGE_MAGIC,  "DCV",  "100",  "V",  mode_dcv,   cal_dcv,    false,  false },

@@ -53,6 +53,7 @@ void app_cal_b( app_t *app)
 
   assert(cal->w);
 
+  printf("--------\n");
   printf("cal_b\n");
 
 
@@ -74,8 +75,8 @@ void app_cal_b( app_t *app)
   double values[ 10 ];
   memset( values, 0, sizeof(values));
 
+  data->show_reading = false;
   app_fill_buffer( app, values, ARRAY_SIZE( values));
-
 
 
   char buf[100 + 1];
@@ -100,7 +101,6 @@ void app_cal_b( app_t *app)
   // now show some values..  to confirm
 
   data->show_reading = true;
-  // buffer->show = true;
   app_fill_buffer( app, values, ARRAY_SIZE( values));
 
   // better names - readings_mean ?

@@ -53,6 +53,7 @@ void app_cal_w( app_t *app)
   assert( cal && cal->magic == CAL_MAGIC);
 
 
+  printf("--------\n");
   printf("cal_w\n");
 
 

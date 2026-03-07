@@ -62,6 +62,7 @@ void app_cal_b10( app_t *app)
 
   assert(cal->b);
 
+  printf("--------\n");
   printf("cal_b10\n");
 
   double values[ 10 ];
@@ -77,6 +78,7 @@ void app_cal_b10( app_t *app)
   app_switch_range1( app, "LTS", "10");
   app_transition_state( app);
 
+  data->show_reading = true;
   app_fill_buffer( app, values, ARRAY_SIZE(values));
   double mean0 = mean( values, ARRAY_SIZE(values));
   UNUSED( mean0);
@@ -91,6 +93,7 @@ void app_cal_b10( app_t *app)
   app_transition_state( app);
 
   //
+  data->show_reading = false;
   app_fill_buffer( app, values, ARRAY_SIZE(values));
   double mean1 = mean( values, ARRAY_SIZE(values));
   UNUSED( mean1);
@@ -103,6 +106,7 @@ void app_cal_b10( app_t *app)
 
 
   // print some values to confirm
+  data->show_reading = true;
   app_fill_buffer( app, values, ARRAY_SIZE(values));
 
   app_cal_finish( app);
