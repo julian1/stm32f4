@@ -621,7 +621,16 @@ bool mode_ch2_set_relax( _mode_t *mode, const char *s0)
 		/*||  strcmp(s0, "ref_lo") == 0*/) {
 
       mode_ch2_reset(mode);
+/*
+    WANT range option. LO2.
+    to sample ref-lo.
+    using identical seq- elements.
 
+    eg. using the azmux.
+
+    Actually just star-ground  A400.  of the azmux.
+
+*/
       mode->serial.U419 = S3;   // REF-LO
       mode->serial.U420 = S7;   // REF-LO
       mode->serial.U409 = D4;   // feedmux  hi/lo

@@ -963,6 +963,53 @@ static bool app_repl_range( app_t *app, const char *cmd)
 */
 
 
+/*
+  - using data->count_norm is the most flexible.  independent of range.
+  - could pass in the transfer function to use.
+  - OR. can just apply the transform on the result.
+
+  - eg. add function to stats.c  to scale the buffer.
+
+*/
+
+
+void app_fill_buffer( app_t *app, double *values, size_t n)
+{
+  data_t *data = app->data;
+  assert( data && data->magic == DATA_MAGIC);
+
+
+  // start sampling
+  gpio_write( app->gpio_trigger, true);
+
+  // obs loop
+  for( unsigned i = 0; i < n; )
+  {
+    printf("i %u, ", i);
+
+    // wait for adc data
+    while( !app->adc_interrupt_valid )
+      app_yield( app);
+
+    app->adc_interrupt_valid = false;
+
+
+    data_update( data);
+    if( data->valid) {
+
+      values[ i] = data->count_norm;
+      ++i;
+    }
+
+    printf("\n");
+  }
+
+  // stop sampling
+  gpio_write( app->gpio_trigger, false);
+}
+
+
+
 
 void app_switch_range( app_t *app, signed range_idx)
 {
