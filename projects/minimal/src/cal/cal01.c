@@ -20,7 +20,6 @@
 
 
 
-// we could use the buffer.c....
 
 /*
   - using data->count_norm is the most flexible.  independent of range.

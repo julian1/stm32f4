@@ -110,10 +110,18 @@ static void partial_reset( _mode_t *mode)
 
 
 
+/*
 
+  think the easier way to manage ...
+    write the mode.
 
+    and write an array  with co-efficients for calculating the value.
+    used for the computing the value..
 
+  - can just inject the scaling array... from app. into the data_update()
+      this way data_update() also does not need the current range.
 
+*/
 
 static void mode_ref( const range_t *range, _mode_t *mode )
 {
@@ -125,21 +133,51 @@ static void mode_ref( const range_t *range, _mode_t *mode )
     only 1x gain applies
   */
 
-  partial_reset( mode);
+  assert(strcasecmp( range->name, "ref") == 0);
 
+  partial_reset( mode);
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
   mode_az_set(mode, "ch2" );
-
-
-  if(strcasecmp( range->arg, "lo") == 0) {
-
-    mode_ch2_set( mode, "ref-lo");
-  } else {
-
-    mode_ch2_set( mode, "ref");
-  }
-
+  mode_ch2_set( mode, "ref");
 }
+
+
+
+
+
+
+static void mode_lo( const range_t *range, _mode_t *mode )
+{
+  assert(range && range->magic == RANGE_MAGIC);
+  assert(mode && mode->magic == MODE_MAGIC);
+
+  assert(strcasecmp( range->name, "lo") == 0);
+
+  partial_reset( mode);
+  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  mode_az_set(mode, "ch2" );
+  mode_ch2_set( mode, "ref-lo");
+
+  if(strcasecmp( range->arg, "10") == 0)
+    mode_gain_set(mode, 1);
+
+  else if(strcasecmp( range->arg, "1") == 0)
+    mode_gain_set(mode, 10);
+
+  else if(strcasecmp( range->arg, "0.1") == 0)
+    mode_gain_set(mode, 100);
+
+  else if(strcasecmp( range->arg, "0.01") == 0)
+    mode_gain_set(mode, 1000);
+
+  else
+    assert(0);
+}
+
+
+
+
+
 
 
 
@@ -186,7 +224,8 @@ static void mode_lts( const range_t *range, _mode_t *mode)
 
 
   if(strcasecmp( range->arg, "10") == 0)
-    ;
+    mode_gain_set(mode, 1);
+
   else if(strcasecmp( range->arg, "1") == 0)
     mode_gain_set(mode, 10);
 
@@ -224,7 +263,7 @@ static void mode_dcv( const range_t *range, _mode_t *mode)
 
 
   if(strcasecmp( range->arg, "10") == 0)
-    ;
+    mode_gain_set( mode, 1);
 
   else if(strcasecmp( range->arg, "1") == 0)
     mode_gain_set( mode, 10);
@@ -266,7 +305,6 @@ static double cal_normal( const range_t *range, const cal_t *cal, double value)
 
   if(strcasecmp( range->arg, "") == 0       // ref has no argument.
     || strcasecmp( range->arg, "10") == 0   // lts, daq etc.
-    || strcasecmp( range->arg, "LO") == 0   // ref-lo
   ) {
 
     return cal->b * value;
@@ -307,7 +345,9 @@ static double cal_temp( const range_t *range, const cal_t *cal, double value)
 range_t init_range_values[] = {
 
   { RANGE_MAGIC,  "REF",  "",     "V",  mode_ref,   cal_normal, true,   false },
-  { RANGE_MAGIC,  "REF",  "LO",   "V",  mode_ref,   cal_normal, false,  true  },
+
+  { RANGE_MAGIC,  "LO",   "10",   "V",  mode_lo,   cal_normal,  true,   false },  //
+  { RANGE_MAGIC,  "LO",   "1",    "V",  mode_lo,   cal_normal,  false,  true  },
 
   { RANGE_MAGIC,  "DCV",  "1000", "V",  mode_dcv,   cal_dcv,    true,   false },
   { RANGE_MAGIC,  "DCV",  "100",  "V",  mode_dcv,   cal_dcv,    false,  false },

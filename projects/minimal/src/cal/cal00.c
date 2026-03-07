@@ -1,14 +1,6 @@
 
 /*
-  TODO
 
-  - add count ratio.  in output
-      so can adjust var pos to var neg.  for the bounds.
-
-  - better variable prefix would use cal_w and cal_7v1_b, cal_aper  and cal_ref_v
-
-
-  // why is there both aperture clk count, and sigmux clk count.  because runup does not turn on sigmux, for weight calculation
 */
 
 

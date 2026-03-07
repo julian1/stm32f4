@@ -298,7 +298,7 @@ void mode_az_set(_mode_t *mode, const char *s)
 void mode_gain_set( _mode_t *mode, uint32_t u)
 {
 
-  printf("set amp gain\n");
+  printf("set amp gain %lu\n", u);
 
   switch(u) {
 
