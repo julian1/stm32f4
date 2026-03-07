@@ -1290,10 +1290,8 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
 
 
-  else if(strcmp(cmd, "cal01") == 0) {
-
-    app_cal_01( app);
-  }
+  else if(strcmp(cmd, "cal00") == 0) { app_cal_00( app); }
+  else if(strcmp(cmd, "cal01") == 0) { app_cal_01( app); }
 
 
 
@@ -1312,10 +1310,6 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
   else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, app->line_freq)) { }
 
-
-
-  // let cal decode its own arguments if it needs
-  else if( app_cal( app, cmd ))   { }
 
 
   /*

@@ -51,13 +51,7 @@ static void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values
   // start sampling
   gpio_write( app->gpio_trigger, true);
 
-
-  /* could express this more simply just sum up the values.
-      no need for mean function etc...  but having the stddev is useful.
-  */
-
   // take obs loop
-  // for( size_t i = 0; i < ARRAY_SIZE(pos_values); ++i)
   for( size_t i = 0; i < n; )
   {
     printf("i %u, ", i);
@@ -88,7 +82,8 @@ static void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values
 
 
 
-static void cal_dcv10_nom( app_t *app)
+/// static void cal_dcv10_nom( app_t *app)
+void app_cal_00( app_t *app)
 {
   /*
     This is the cal. for the primary (not acal derived) DCV 10 range.
@@ -271,7 +266,7 @@ static void cal_dcv10_nom( app_t *app)
 */
 
 
-
+#if 0
 bool app_cal( app_t *app, const char *cmd)
 {
   assert(app && app->magic == APP_MAGIC);
@@ -287,7 +282,7 @@ bool app_cal( app_t *app, const char *cmd)
 
   return 0;
 }
-
+#endif
 
 
 
