@@ -24,7 +24,10 @@
         - communicating back.  - can add/ range specific bounds checks. etc.
         - but this code is already range / cal specific.
 
-        BUT we really only want to set amplifier gain once.
+        BUT we do not want to repeat cal constants.
+          eg. many values for amp. gain  are shared. for lts, daq. and dcv.
+          in cal structure.  so i think we dont use the range.
+          may be on ohms.
 
     2. whether to have the gain ranges - scale according to the 10V. range b.  or else directly from adc adjusted_sum.
 
@@ -38,7 +41,7 @@ void app_cal_01( app_t *app)
   data_t *data = app->data;
   assert( data && data->magic == DATA_MAGIC);
 
-  _mode_t *mode = app->mode;                // only for sa for setting trig delay
+  _mode_t *mode = app->mode;                // need for sa for setting trig delay
   assert(mode && mode->magic == MODE_MAGIC) ;
 
   printf("cal01\n");
@@ -83,9 +86,13 @@ void app_cal_01( app_t *app)
 
     printf("\n");
   }
+  // get the mean.
 
   // stop sampling
   gpio_write( app->gpio_trigger, false);
+
+
+  // now we use LTS 1.kkkkkkkk
 
 
 }
