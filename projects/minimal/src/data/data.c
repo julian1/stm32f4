@@ -97,8 +97,8 @@ void data_update( data_t *data )
 
   // useful for bounds - and to correct asymetry
   double ratio = (data->clk_count_refmux_pos >= data->clk_count_refmux_neg)
-      ?  data->clk_count_refmux_pos / data->clk_count_refmux_neg
-      :  - data->clk_count_refmux_neg / data->clk_count_refmux_pos ;
+      ?  (double) data->clk_count_refmux_pos / data->clk_count_refmux_neg
+      :  - (double) data->clk_count_refmux_neg / data->clk_count_refmux_pos ;
   UNUSED(ratio);
 
 
