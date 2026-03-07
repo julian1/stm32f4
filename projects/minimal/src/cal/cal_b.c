@@ -33,49 +33,7 @@
 
 
 
-
-static void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_t n)
-{
-  data_t *data = app->data;
-  assert( data && data->magic == DATA_MAGIC);
-
-
-  // start sampling
-  gpio_write( app->gpio_trigger, true);
-
-  // take obs loop
-  for( size_t i = 0; i < n; )
-  {
-    printf("i %u, ", i);
-
-    // wait for adc data
-    while( !app->adc_interrupt_valid )
-      app_yield( app);
-
-    app->adc_interrupt_valid = false;
-
-    data_update( data);
-
-    // take both hi and lo readings since they are the same.
-    // ignore data->valid
-
-    pos_values[i] = data->clk_count_refmux_pos;
-    neg_values[i] = data->clk_count_refmux_neg;
-
-    ++i;
-
-    printf("\n");
-  }
-
-  // sampling off
-  gpio_write( app->gpio_trigger, false);
-
-}
-
-
-
-/// static void cal_dcv10_nom( app_t *app)
-void app_cal_00( app_t *app)
+void app_cal_b( app_t *app)
 {
   /*
     This is the cal. for the primary (not acal derived) DCV 10 range.
@@ -93,99 +51,15 @@ void app_cal_00( app_t *app)
   cal_t *cal = app->cal;
   assert( cal && cal->magic == CAL_MAGIC);
 
+  assert(cal->w);
+
+  printf("cal_b\n");
 
 
-  char buf[100 + 1];
+  app_cal_setup( app);
 
 
-  // sample off
-  gpio_write( app->gpio_trigger, false);
-
-  mode_reset( mode);
-
-  // set the trigger delay for settle time
-  sa_trig_delay_set( &mode->sa, period_to_aper_n(  1.f )); // 1 sec.
-
-  // normal sample acquisition/adc operation
-  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-
-  // special sample acquisition mode - for adc running standalone.  // REVIEW ME
-  mode_az_set(mode, "0" );
-
-  // REVIWE should not need this....
-  // mode_gain_set(mode, 1);
-
-  // hold input to adc at lo. to reduce leakage.
-  // mode_ch2_set_ref_lo( mode);
-  mode_ch2_set( mode, "ref-lo");
-
-  // disable sigmux. required to calc relative pos/neg ref current weight.
-  mode->reg_cr.adc_p_active_sigmux = 0;
-
-
-  /////////////////////////
-
-
-  // need double for mean()
-  double pos_values[ 10 ];
-  double neg_values[ 10 ];
-
-  memset(pos_values, 0, sizeof(pos_values));
-  memset(neg_values, 0, sizeof(neg_values));
-
-
-  _Static_assert(ARRAY_SIZE(pos_values) == ARRAY_SIZE(neg_values), "array sizes do not match");
-
-  // stop sampling
-  gpio_write( app->gpio_trigger, false);
-
-  // set nplc
-  adc_aperture_set( &mode->adc, nplc_to_aperture( 10, app->line_freq ));
-
-  //////////////////////////////////////
-
-  app_transition_state( app);
-
-  data->show_counts  = true;
-  data->show_reading = false;
-
-  // fill data
-  app_fill_buffer1( app, pos_values, neg_values, ARRAY_SIZE( pos_values));
-
-  double pos_mean   = mean(   pos_values, ARRAY_SIZE(pos_values));
-  double neg_mean   = mean(   neg_values, ARRAY_SIZE(neg_values));
-  double stddev_pos = stddev( pos_values, ARRAY_SIZE(pos_values));
-  double stddev_neg = stddev( neg_values, ARRAY_SIZE(neg_values));
-
-  printf( "pos mean   %.3f, ", pos_mean);
-  printf( "stddev %.3f, ", stddev_pos);
-  printf("\n");
-
-  printf( "neg mean   %.3f, ", neg_mean);
-  printf( "stddev %.3f, ", stddev_neg);
-  printf("\n");
-
-  // ref current weight
-  cal->w = pos_mean / neg_mean;
-
-  printf( "cal->w %s\n", str_format_float_with_commas(buf, 100, 9, cal->w));
-
-
-
-
-
-  ////////////////////////
-
-  // TODO consider better name
-  // double count_norm[];
-  double values[ 10 ];
-  memset( values, 0, sizeof(values));
-
-  // nplc
-  // adc_aperture_set( &mode->adc, nplc_to_aperture( nplc, app->line_freq ));
-
-  // calibrate using ref-current sources, derived from main ref
-  // mode_ch2_set_ref( mode);
+  // use the ref as source
   mode_ch2_set( mode, "ref");
 
   // alternate calibrate against 10V.
@@ -193,14 +67,18 @@ void app_cal_00( app_t *app)
   // mode_ch2_set_lts( mode);
   mode_az_set(mode, "ch2" );
 
-  // sigmux active
-  mode->reg_cr.adc_p_active_sigmux = 1;
-
   app_transition_state( app);
+
+  // TODO consider better name
+  // double count_norm[];
+  double values[ 10 ];
+  memset( values, 0, sizeof(values));
 
   app_fill_buffer( app, values, ARRAY_SIZE( values));
 
 
+
+  char buf[100 + 1];
   printf("norm ");
   printf( "mean   %.9f, ", mean( values, ARRAY_SIZE(values)) );
   printf( "stddev %.9f, ", stddev( values, ARRAY_SIZE(values)) );
@@ -219,7 +97,7 @@ void app_cal_00( app_t *app)
 
   /////////////////////////////////////
 
-  // now show some values..  using the same range.
+  // now show some values..  to confirm
 
   data->show_reading = true;
   // buffer->show = true;
@@ -234,17 +112,8 @@ void app_cal_00( app_t *app)
   printf("\n");
 
 
+  app_cal_finish( app);
 
-#if 0
-  // switch back to direct mode operation
-  // why? cal
-
-  reg_cr_mode_set( &mode->reg_cr, MODE_DIRECT);
-
-  app_transition_state( app);
-
-  printf("\n");
-#endif
 }
 
 

@@ -55,6 +55,23 @@ void cal_init(
 
 
 
+void cal_show( cal_t *cal)
+{
+
+  // simple print
+  printf("id      %u\n", cal->id);
+  printf("w       %f\n", cal->w);
+  printf("b       %f\n", cal->b);
+  printf("b10     %f\n", cal->b10);
+  printf("b100    %f\n", cal->b100);
+  printf("b1000   %f\n", cal->b1000);
+
+  printf("div100  %f\n", cal->div100);
+  printf("div1000 %f\n", cal->div1000);
+}
+
+
+
 
 /*
 
@@ -91,8 +108,17 @@ static void file_write_cal_handler( FILE *f, blob_header_t *header,  cal_t *cal)
 
   fwrite( &cal->id,                  sizeof( cal->id), 1, f);
   fwrite( &cal->w,                   sizeof( cal->w), 1, f);
+
   fwrite( &cal->b,                   sizeof( cal->b), 1, f);
-  fwrite( &cal->b2,                  sizeof( cal->b), 1, f);
+  fwrite( &cal->b10,                 sizeof( cal->b10), 1, f);
+  fwrite( &cal->b100,                sizeof( cal->b100), 1, f);
+  fwrite( &cal->b1000,               sizeof( cal->b1000), 1, f);
+
+  fwrite( &cal->div100,                sizeof( cal->div100), 1, f);
+  fwrite( &cal->div1000,               sizeof( cal->div1000), 1, f);
+
+
+}
 
 /*
   for( unsigned i = 0; i < cal->ranges_sz ; ++i )  {
@@ -103,7 +129,7 @@ static void file_write_cal_handler( FILE *f, blob_header_t *header,  cal_t *cal)
   }
 */
 
-}
+
 
 
 
@@ -128,8 +154,14 @@ static void file_scan_cal_handler( FILE *f, blob_header_t *header, cal_t *cal )
 
       cal->id = id ;
       fread( &cal->w,               sizeof( cal->w), 1, f);
+
       fread( &cal->b,               sizeof( cal->b), 1, f);
-      fread( &cal->b2,              sizeof( cal->b2), 1, f);
+      fread( &cal->b10,             sizeof( cal->b10), 1, f);
+      fread( &cal->b100,            sizeof( cal->b100), 1, f);
+      fread( &cal->b1000,           sizeof( cal->b1000), 1, f);
+
+      fread( &cal->div100,          sizeof( cal->div100), 1, f);
+      fread( &cal->div1000,         sizeof( cal->div1000), 1, f);
 
 /*
       for( unsigned i = 0; i < cal->ranges_sz ; ++i )  {
@@ -150,18 +182,6 @@ static void file_scan_cal_handler( FILE *f, blob_header_t *header, cal_t *cal )
   }
 }
 
-
-
-
-void cal_show( cal_t *cal)
-{
-
-  // simple print
-  printf("id    %u\n", cal->id);
-  printf("w     %f\n", cal->w);
-  printf("b     %f\n", cal->b);
-  printf("b2    %f\n", cal->b2);
-}
 
 
 

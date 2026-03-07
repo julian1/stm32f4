@@ -41,15 +41,22 @@ typedef struct cal_t
                         // DCV 1.  will have a different scalar.
                         // whether sampling terminals, lts, daq, or ref.
 
-  double    b2;         // 10x gain
+  // amplifier
+  double    b10;         // 10x gain
+  double    b100;
+  double    b1000;
 
-  // use a double array for everything else?
+  // hv div
+  double    div100;       // with b10 or not?
+  double    div1000;      // with b or not?
+
+
+  // consider use a double array for everything
   // and indexable enums ?
   // simplifies the save/load. and values
 
 
   double    front_terminal_offset;    // should be represented once.
-                                      // and used for all values.
   double    rear_terminal_offset;
 
 

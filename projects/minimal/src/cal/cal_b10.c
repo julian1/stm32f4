@@ -45,8 +45,9 @@
 
 */
 
+// perhaps change name cal_b10
 
-void app_cal_01( app_t *app)
+void app_cal_b10( app_t *app)
 {
   assert( app && app->magic == APP_MAGIC);
 
@@ -59,34 +60,24 @@ void app_cal_01( app_t *app)
   cal_t *cal = app->cal;
   assert( cal && cal->magic == CAL_MAGIC);
 
+  assert(cal->b);
 
-  printf("cal01\n");
+  printf("cal_b10\n");
 
   double values[ 10 ];
   memset(values, 0, sizeof(values));
 
 
-  // sample off
-  gpio_write( app->gpio_trigger, false);
-
-  mode_reset( mode);
-
-  // trigger delay
-  sa_trig_delay_set( &mode->sa, period_to_aper_n(  1.f )); // 1 sec.
+  app_cal_setup( app);
 
   // set the dc source voltage
   mode_lts_source_set ( mode, 1.f );
 
-  /////////////////////////////////
-
   // set the input range to LTS
   app_switch_range1( app, "LTS", "10");
-
-  // must call transition state
   app_transition_state( app);
 
   app_fill_buffer( app, values, ARRAY_SIZE(values));
-
   double mean0 = mean( values, ARRAY_SIZE(values));
   UNUSED( mean0);
 
@@ -97,25 +88,23 @@ void app_cal_01( app_t *app)
 
   // set the input range to LTS
   app_switch_range1( app, "LTS", "1");
-
-  // must call transition state
   app_transition_state( app);
 
   //
   app_fill_buffer( app, values, ARRAY_SIZE(values));
-
   double mean1 = mean( values, ARRAY_SIZE(values));
   UNUSED( mean1);
   printf("mean1 %f\n", mean1);
 
   // cal->b = 7.0 / mean( values, ARRAY_SIZE(values));
-  cal->b2 = (cal->b * mean0) / mean1 ;
+  cal->b10 = (cal->b * mean0) / mean1 ;
 
-  printf("cal->b2 %f\n", cal->b2 );
+  printf("cal->b10 %f\n", cal->b10 );
 
 
-  // print some values using the new cal - will use the range_reading convert function
+  // print some values to confirm
   app_fill_buffer( app, values, ARRAY_SIZE(values));
 
+  app_cal_finish( app);
 }
 

@@ -263,11 +263,30 @@ void app_repl_statements(app_t *app,  const char *s);
 
 
 void app_fill_buffer( app_t *app, double *values, size_t n);
+void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_t n);
 
-bool app_cal( app_t *app, const char *cmd);
 
-void app_cal_00( app_t *app);
-void app_cal_01( app_t *app); // from src/data/cal01
+/*
+  use reasonable names
+  we can always put these functions in an array
+  and call by index
+  ----
+
+  EXTR> may want to pass a context.
+    to mangge setting nplc. number of obs. delay. etc.
+*/
+
+void app_cal_setup( app_t *app);
+void app_cal_finish( app_t *app);
+
+void app_cal_w( app_t *app);
+void app_cal_b( app_t *app);
+void app_cal_b10( app_t *app);
+void app_cal_b100( app_t *app);
+
+
+void app_cal_all( app_t *app);
+
 
 void app_switch_range( app_t *app, signed range_idx);
 void app_switch_range1( app_t *app, const char *name, const char *arg);

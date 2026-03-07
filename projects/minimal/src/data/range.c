@@ -313,8 +313,8 @@ static double cal_normal( const range_t *range, const cal_t *cal, double value)
   else if(strcasecmp( range->arg, "1") == 0)
   {
     // may want default values
-    // or express as or cal->b * cal->b2.
-    return cal->b2 * value;
+    // or express as or cal->b * cal->b10.
+    return cal->b10 * value;
 
   }
   else

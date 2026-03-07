@@ -959,54 +959,6 @@ static bool app_repl_range( app_t *app, const char *cmd)
 
 
 
-/*
-*/
-
-
-/*
-  - using data->count_norm is the most flexible.  independent of range.
-  - could pass in the transfer function to use.
-  - OR. can just apply the transform on the result.
-
-  - eg. add function to stats.c  to scale the buffer.
-
-*/
-
-
-void app_fill_buffer( app_t *app, double *values, size_t n)
-{
-  data_t *data = app->data;
-  assert( data && data->magic == DATA_MAGIC);
-
-
-  // start sampling
-  gpio_write( app->gpio_trigger, true);
-
-  // obs loop
-  for( unsigned i = 0; i < n; )
-  {
-    printf("i %u, ", i);
-
-    // wait for adc data
-    while( !app->adc_interrupt_valid )
-      app_yield( app);
-
-    app->adc_interrupt_valid = false;
-
-
-    data_update( data);
-    if( data->valid) {
-
-      values[ i] = data->count_norm;
-      ++i;
-    }
-
-    printf("\n");
-  }
-
-  // stop sampling
-  gpio_write( app->gpio_trigger, false);
-}
 
 
 
@@ -1336,10 +1288,12 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 #endif
 
 
-
-  else if(strcmp(cmd, "cal00") == 0) { app_cal_00( app); }
-  else if(strcmp(cmd, "cal01") == 0) { app_cal_01( app); }
-
+  else if(strcmp(cmd, "cal_w") == 0)    { app_cal_w( app); }
+  else if(strcmp(cmd, "cal_b") == 0)    { app_cal_b( app); }
+  else if(strcmp(cmd, "cal_b10") == 0)  { app_cal_b10( app); }
+  else if(strcmp(cmd, "cal_b100") == 0) { app_cal_b100( app); }
+  
+  else if(strcmp(cmd, "cal_all") == 0)  { app_cal_all( app); }
 
 
   else if( mode_repl_statement( app->mode, cmd, app->line_freq )) { }
