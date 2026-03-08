@@ -213,7 +213,7 @@ typedef struct app_t
 
   data_t        *data;
 
-  buffer_t     *buffer;
+  buffer_t      *buffer;
 
 
   // not sure belongs here
@@ -279,6 +279,7 @@ void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_
 
 typedef struct transfer_t
 {
+  // does this behond in app.h. functions are mostly typed on app_t here.
   // magic
   void (*step1)( app_t *app);
   void (*step2)( app_t *app);

@@ -266,10 +266,10 @@ typedef struct _mode_t
 //   _4094_state_t     second;
 
 
-  // inverter - rename invert_dac_val
+  // consider rename dac_invert_val
   uint16_t      mdac0_val;
 
-  // sts_dac_val
+  // dac_sts_val
   uint16_t      mdac1_val;
 
 
@@ -280,20 +280,29 @@ typedef struct _mode_t
   reg_direct_t  reg_direct;
 
 
-  sa_state_t   sa;
+  sa_state_t    sa;
 
 
-  adc_state_t  adc;
+  adc_state_t   adc;
 
 
-  // 1 == internal trigger (mcu) active
-  bool         trigger_source;
+  /*
+    mcu board state
+    1 == internal trigger (mcu) active
+  */
+  bool          trigger_source;
 
 
-  // state not written, but chich must persist range change
-  // alternatively inject from app as pointer into range.
-  uint8_t _10meg_impedance : 1;
 
+  /*
+    not sure _10meg_impedance belongs here.
+    mode_reset() should reset all fields to fixed state.
+    while this setting only applies for user/operator ranges
+    consider inject/move to the range_t structure
+    - same applies for the trigger_source
+    - TODO change to bool.
+  */
+  uint8_t       _10meg_impedance : 1;
 
 
 } _mode_t ;
