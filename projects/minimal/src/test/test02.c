@@ -34,16 +34,18 @@ static void test (app_t *app)
   for(unsigned k = 0; k < 6; k++) {
 
       for(unsigned i = 0; i < 4; ++i ) {
+
         flip = ! flip;
+        uint32_t val = flip ? SR_SET: SR_RESET;
 
-        switch(k) {
-          case 0: mode->serial.K702 =  flip ? 0b01 : 0b10; break;
-          case 1: mode->serial.K703 =  flip ? 0b01 : 0b10; break;
+        switch( k) {
+          case 0: mode->serial.K702 = val; break;
+          case 1: mode->serial.K703 = val; break;
 
-          case 2: mode->serial.K401 =  flip ? 0b01 : 0b10;  break;
-          case 3: mode->serial.K402 =  flip ? 0b01 : 0b10;  break;
-          case 4: mode->serial.K403 =  flip ? 0b01 : 0b10;  break;
-          case 5: mode->serial.K404 =  flip ? 0b01 : 0b10; break;
+          case 2: mode->serial.K401 = val; break;
+          case 3: mode->serial.K402 = val; break;
+          case 4: mode->serial.K403 = val; break;
+          case 5: mode->serial.K404 = val; break;
         }
 
         app_transition_state( app);
