@@ -1292,6 +1292,9 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   else if(strcmp(cmd, "cal_b") == 0)    { app_cal_b( app); }
   else if(strcmp(cmd, "cal_b10") == 0)  { app_cal_b10( app); }
   else if(strcmp(cmd, "cal_b100") == 0) { app_cal_b100( app); }
+  else if(strcmp(cmd, "cal_b1000") == 0) { app_cal_b1000( app); }
+
+  else if(strcmp(cmd, "cal_div1000") == 0) { app_cal_div1000( app); }
   
   else if(strcmp(cmd, "cal_all") == 0)  { app_cal_all( app); }
 

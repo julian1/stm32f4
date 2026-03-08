@@ -530,6 +530,14 @@ static bool mode_loside_set( _mode_t *mode, const char *s)
 */
 
 
+/*
+  Not sure we even need these functions -
+    for range - it is clearer to set up.
+    for calibration, set up states explicity
+
+*/
+
+#if 0
 
 void mode_ch1_reset(_mode_t *mode)      // change name reset() ?
 {
@@ -560,7 +568,7 @@ void mode_ch1_set_dcv_source(_mode_t *mode)   // rename use K404. instead.
 }
 
 
-
+#endif
 
 
 
@@ -683,11 +691,11 @@ bool mode_ch2_set_relax( _mode_t *mode, const char *s0)
       mode->serial.U409 = D1;         // sense hi and lo
     }
 
-    else if(strcmp(s0, "dcv-div") == 0) {
+    else if(strcmp(s0, "div") == 0) {
 
-      // TODO consider change name - hv-div. or just 'div'
-        mode_ch2_reset(mode);
-        mode->serial.U409 = D3;         // dcv div
+      mode_ch2_reset(mode);
+
+      mode->serial.U409 = D3;         // dcv div
     }
     else {
 
@@ -708,7 +716,7 @@ void mode_ch2_set( _mode_t *mode, const char *s0)
 
 
 
-
+#if 0
 
 void mode_ch1_accum( _mode_t *mode, bool val)
 {
@@ -722,9 +730,8 @@ void mode_ch2_accum( _mode_t *mode, bool val)
 
 }
 
+#endif
 
-
-// bool mode_repl_statement( _mode_t *mode,  ranges_t *ranges, const char *cmd, const uint32_t line_freq )
 
 bool mode_repl_statement(
   _mode_t     *mode,
@@ -824,7 +831,7 @@ bool mode_repl_statement(
 
 
 
-
+#if 0
   // channel set
   else if( sscanf(cmd, "set ch1 %100s", s0) == 1)
   {
@@ -839,7 +846,7 @@ bool mode_repl_statement(
     }
     else assert(0);
   }
-
+#endif
 
 
   else if( sscanf(cmd, "set lts %lf", &f0) == 1) {
@@ -986,7 +993,7 @@ bool mode_repl_statement(
     else if(strcmp(s0, "sense") == 0) {
       mode_ch2_set_sense(mode);
     }
-    else if(strcmp(s0, "dcv-div") == 0) {
+    else if(strcmp(s0, "div") == 0) {
       mode_ch2_set_dcv_div(mode);
     }
     else {

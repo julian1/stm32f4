@@ -1,4 +1,7 @@
-
+/*
+  rename cal.c perhaps
+  or app_cal.c
+*/
 
 
 
@@ -31,6 +34,9 @@ void app_cal_all( app_t *app)
   app_cal_b10( app);
   app_cal_b100( app);
   app_cal_b1000( app);
+  
+  // app_cal_div100( app);
+ 
 
   cal_show( app->cal);
 }

@@ -66,7 +66,7 @@ void cal_show( cal_t *cal)
   printf("b100    %f\n", cal->b100);
   printf("b1000   %f\n", cal->b1000);
 
-  printf("div100  %f\n", cal->div100);
+  // printf("div100  %f\n", cal->div100);
   printf("div1000 %f\n", cal->div1000);
 }
 
@@ -106,6 +106,8 @@ static void file_write_cal_handler( FILE *f, blob_header_t *header,  cal_t *cal)
   assert(header->len == 0 && header->magic == 0);   // this handler doesn't care or know yet
   header->id = 108;
 
+  double dummy = 0;
+
   fwrite( &cal->id,                  sizeof( cal->id), 1, f);
   fwrite( &cal->w,                   sizeof( cal->w), 1, f);
 
@@ -114,7 +116,7 @@ static void file_write_cal_handler( FILE *f, blob_header_t *header,  cal_t *cal)
   fwrite( &cal->b100,                sizeof( cal->b100), 1, f);
   fwrite( &cal->b1000,               sizeof( cal->b1000), 1, f);
 
-  fwrite( &cal->div100,                sizeof( cal->div100), 1, f);
+  fwrite( &dummy,                     sizeof( dummy), 1, f);
   fwrite( &cal->div1000,               sizeof( cal->div1000), 1, f);
 
 
@@ -148,6 +150,8 @@ static void file_scan_cal_handler( FILE *f, blob_header_t *header, cal_t *cal )
 
     printf("found id %u", id);
 
+    double dummy = 0;
+
     if(id == cal->model_id_to_load          // model_id_to_load
       || cal->model_id_to_load == 0 ) {    // to always load, and thus get the most recent.
 
@@ -160,7 +164,7 @@ static void file_scan_cal_handler( FILE *f, blob_header_t *header, cal_t *cal )
       fread( &cal->b100,            sizeof( cal->b100), 1, f);
       fread( &cal->b1000,           sizeof( cal->b1000), 1, f);
 
-      fread( &cal->div100,          sizeof( cal->div100), 1, f);
+      fread( &dummy,                sizeof( dummy), 1, f);
       fread( &cal->div1000,         sizeof( cal->div1000), 1, f);
 
 /*

@@ -499,7 +499,7 @@ static void dcv_100( _mode_t *mode)
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
   mode_az_set(mode, "ch2");
-  mode_ch2_set( mode, "dcv-div");
+  mode_ch2_set( mode, "div");
 
   mode_gain_set( mode, 10);
 
