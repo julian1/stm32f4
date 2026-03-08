@@ -115,9 +115,6 @@ reg_cr_t
   // sa - no az mode
   uint8_t sa_p_noaz : 1;
 
-  // board state, that must persist range change, not used directly by fpga
-  uint8_t _10meg_impedance : 1;
-
 
  // input           p_use_slow_rundown,
  // input           p_use_fast_rundown,
@@ -125,7 +122,7 @@ reg_cr_t
 
 
 
-  uint32_t   dummy_bits_o : 26;
+  uint32_t   dummy_bits_o : 27;
 
 } reg_cr_t;
 

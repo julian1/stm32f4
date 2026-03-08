@@ -255,7 +255,7 @@ void adc_aperture_set( adc_state_t *adc, uint32_t u);
 typedef struct _mode_t
 {
 
-  uint32_t magic;
+  uint32_t      magic;
 
   // all state needed to achive a dmm function.
   // but not enough for different states.
@@ -288,6 +288,11 @@ typedef struct _mode_t
 
   // 1 == internal trigger (mcu) active
   bool         trigger_source;
+
+
+  // state not written, but chich must persist range change
+  // alternatively inject from app as pointer into range.
+  uint8_t _10meg_impedance : 1;
 
 
 

@@ -29,8 +29,6 @@ static void test (app_t *app)
 
   bool flip = 0;
 
-
-
   for(unsigned k = 0; k < 6; k++) {
 
       for(unsigned i = 0; i < 4; ++i ) {
@@ -54,7 +52,9 @@ static void test (app_t *app)
       }
   }
 
-
+  // avoid leaving relays in non-reset state
+  mode_reset( mode);
+  app_transition_state( app);
 }
 
 

@@ -65,26 +65,23 @@
 
 */
 
-static void partial_reset( _mode_t *mode)
+static void mode_partial_reset( _mode_t *mode)
 {
   assert(mode && mode->magic == MODE_MAGIC);
 
-
+  // copy the mode
   _mode_t tmp = *mode;
   UNUSED(tmp);
 
-  // reset to known  good state
+  // reset to known state
   mode_reset( mode);
 
-
-  // TODO. change this to just persist sa and adc complete structure ...
-  // adc. is ok.
-  // but the precharge stuff changes.
 
   // persist adc parameters, aperture and reset period
   mode->adc = tmp.adc;
 
   // persist the sa trigger-delay,  and precharge period
+  // the channel seqn and seq, will be set by the range
   mode->sa.p_clk_count_trig_delay   = tmp.sa.p_clk_count_trig_delay;
   mode->sa.p_clk_count_precharge    = tmp.sa.p_clk_count_precharge;
 
@@ -92,7 +89,8 @@ static void partial_reset( _mode_t *mode)
   mode->reg_cr.sa_p_noaz = tmp.reg_cr.sa_p_noaz;
 
   // persist the 10meg. impedance flag
-  mode->reg_cr._10meg_impedance =  tmp.reg_cr._10meg_impedance;
+  // Hmmm. not sure why we put 10Meg. in the reg_cr.
+  mode->_10meg_impedance =  tmp._10meg_impedance;
 
 
   // persist the daq input
@@ -135,9 +133,9 @@ static void mode_ref( const range_t *range, _mode_t *mode )
 
   assert(strcasecmp( range->name, "ref") == 0);
 
-  partial_reset( mode);
+  mode_partial_reset( mode);
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  mode_az_set(mode, "ch2" );
+  mode_az_set( mode, "ch2" );
   mode_ch2_set( mode, "ref");
 }
 
@@ -154,9 +152,9 @@ static void mode_lo( const range_t *range, _mode_t *mode )
 
   assert(strcasecmp( range->name, "lo") == 0);
 
-  partial_reset( mode);
+  mode_partial_reset( mode);
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  mode_az_set(mode, "ch2" );
+  mode_az_set( mode, "ch2" );
   mode_ch2_set( mode, "ref-lo");
 
   if(strcasecmp( range->arg, "10") == 0)
@@ -182,10 +180,10 @@ static void mode_lo2( const range_t *range, _mode_t *mode )
 
   assert(strcasecmp( range->name, "lo2") == 0);
 
-  partial_reset( mode);
+  mode_partial_reset( mode);
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
-  mode_az_set(mode, "0" ); // sample A400 gnd
+  mode_az_set( mode, "0" ); // sample A400 gnd
 
   if(strcasecmp( range->arg, "10") == 0)
     mode_gain_set(mode, 1);
@@ -215,10 +213,10 @@ static void mode_temp( const range_t *range, _mode_t *mode)
   // consider - get rid of accessor and manage low level details of state setup here
   // mode_gain_set( mode, 1); could use a different gain
 
-  partial_reset( mode);
+  mode_partial_reset( mode);
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  mode_az_set(mode, "ch2" );
+  mode_az_set( mode, "ch2" );
   mode_ch2_set( mode, "temp");
 }
 
@@ -241,10 +239,10 @@ static void mode_lts( const range_t *range, _mode_t *mode)
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
 
-  partial_reset( mode);
+  mode_partial_reset( mode);
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  mode_az_set(mode, "ch2" );
+  mode_az_set( mode, "ch2" );
   mode_ch2_set( mode, "lts");
 
 
@@ -277,14 +275,14 @@ static void mode_dcv( const range_t *range, _mode_t *mode)
   why not pass the range_t structure.
 */
 
-  partial_reset( mode);
+  mode_partial_reset( mode);
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
   mode_az_set(mode, "ch1");
   mode->serial.K402 = SR_SET;
 
   // apply impedance
-  mode->serial.K403 = mode->reg_cr._10meg_impedance ? SR_SET : SR_RESET;
+  mode->serial.K403 = mode->_10meg_impedance ? SR_SET : SR_RESET;
 
 
   if(strcasecmp( range->arg, "10") == 0)
@@ -303,6 +301,9 @@ static void mode_dcv( const range_t *range, _mode_t *mode)
     assert( 0);
 }
 
+
+
+///////////////////////////
 
 
 static double cal_dcv( const range_t *range, const cal_t *cal, double value)
@@ -451,7 +452,7 @@ behavior. The function expects valid, null-terminated strings as its arguments.
 static void dcv_10( _mode_t *mode)
 {
 
-  partial_reset( mode);
+  mode_partial_reset( mode);
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
   mode_az_set(mode, "ch1");
@@ -478,7 +479,7 @@ static void dcv_01( _mode_t *mode)
 static void dcv_100( _mode_t *mode)
 {
 
-  partial_reset( mode);
+  mode_partial_reset( mode);
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
   mode_az_set(mode, "ch2");
