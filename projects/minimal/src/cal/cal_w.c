@@ -91,17 +91,13 @@ void app_cal_w( app_t *app)
 
   double pos_mean   = mean(   pos_values, ARRAY_SIZE(pos_values));
   double neg_mean   = mean(   neg_values, ARRAY_SIZE(neg_values));
-  double stddev_pos = stddev( pos_values, ARRAY_SIZE(pos_values));
-  double stddev_neg = stddev( neg_values, ARRAY_SIZE(neg_values));
+  double pos_stddev = stddev( pos_values, ARRAY_SIZE(pos_values));
+  double neg_stddev = stddev( neg_values, ARRAY_SIZE(neg_values));
 
   char buf[100 + 1];
-  printf( "pos mean   %.3f, ", pos_mean);
-  printf( "stddev %.3f, ", stddev_pos);
-  printf("\n");
 
-  printf( "neg mean   %.3f, ", neg_mean);
-  printf( "stddev %.3f, ", stddev_neg);
-  printf("\n");
+  printf( "pos mean   %.3f, stddev %.3f\n", pos_mean,  pos_stddev);
+  printf( "neg mean   %.3f, stddev %.3f\n", neg_mean, neg_stddev);
 
   // ref current weight
   cal->w = pos_mean / neg_mean;
