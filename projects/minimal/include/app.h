@@ -283,6 +283,7 @@ void app_cal_w( app_t *app);
 void app_cal_b( app_t *app);
 void app_cal_b10( app_t *app);
 void app_cal_b100( app_t *app);
+void app_cal_b1000( app_t *app);
 
 
 void app_cal_all( app_t *app);

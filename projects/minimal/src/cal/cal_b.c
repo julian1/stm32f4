@@ -1,5 +1,8 @@
 
 /*
+  REMEMBER
+    - amplifier is picking up lots of smps noise. from the inductor.
+    especially higher ranges.
 
 */
 
@@ -35,30 +38,17 @@
 
 void app_cal_b( app_t *app)
 {
-  /*
-    This is the cal. for the primary (not acal derived) DCV 10 range.
-    It is irrelevant. that we use the local 7V ref as nominal value..
-
-  */
-  assert(app && app->magic == APP_MAGIC);
 
   _mode_t *mode = app->mode;
-  assert(mode && mode->magic == MODE_MAGIC);
-
   data_t *data = app->data;
-  assert( data && data->magic == DATA_MAGIC);
-
   cal_t *cal = app->cal;
-  assert( cal && cal->magic == CAL_MAGIC);
-
-  assert(cal->w);
 
   printf("--------\n");
   printf("cal_b\n");
 
+  assert(cal->w);
 
   app_cal_setup( app);
-
 
   // use the ref as source
   mode_ch2_set( mode, "ref");
@@ -77,7 +67,6 @@ void app_cal_b( app_t *app)
 
   data->show_reading = false;
   app_fill_buffer( app, values, ARRAY_SIZE( values));
-
 
   char buf[100 + 1];
   printf("norm ");

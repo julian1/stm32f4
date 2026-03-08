@@ -1,4 +1,5 @@
 
+
 /*
   REMEMBER
     - amplifier is picking up lots of smps noise. from the inductor.
@@ -23,49 +24,68 @@
 #include <data/data.h>
 #include <data/cal.h>
 
-
-
-
-
-
 /*
+  the this entire. thing can be done.
+  with just the lts_source, and LTS range arguments  and b1000
+  being set.
 
-  questions
-    1. whether to use cal_t structure directly.
-        or communicate values value - through the range_t structure.
-        - if use range_t then can add/ range specific bounds checks. etc.
-        - but this code is already range / cal specific.
+  So instead of factoring to simplify the set_up() function.
+  could factor into three functions.
 
-        BUT we do not want to repeat cal constants.
-          eg. many values for amp. gain  are shared. for lts, daq. and dcv.
-          in cal structure.  so i think we dont use the range.
-          may be on ohms.
-
-    2. whether to have the gain ranges - scale according to the 10V. range b.  or else directly from adc adjusted_sum.
-
+  step1_setup()
+  step2_setup()
+  set_value(  cal, mean0, mean1, )
 */
 
-
-void app_cal_b10( app_t *app)
+static void step1( app_t *app)
 {
+  assert( app->cal->b100);
+  mode_lts_source_set ( app->mode, 0.01 );
+  app_switch_range1( app, "LTS", "0.1");
+}
 
+static void step2( app_t *app)
+{
+  app_switch_range1( app, "LTS", "0.01");
+}
+
+static void cal_set_value( cal_t *cal, double mean0, double mean1)
+{
+  cal->b1000 = (cal->b100 * mean0) / mean1;
+}
+
+
+typedef struct transfer10
+{
+  void (*step1)( app_t *app);
+  void (*step2)( app_t *app);
+  void (*set_value)( cal_t *cal, double mean0, double mean1);
+
+} transfer10;
+
+
+
+
+
+void app_cal_b1000( app_t *app)
+{
   data_t *data = app->data;
   _mode_t *mode = app->mode;
   cal_t *cal = app->cal;
 
-
   printf("--------\n");
-  printf("cal_b10\n");
+  printf("cal_b1000\n");
 
-  assert(cal->b);
+  assert(cal->b100);
 
   app_cal_setup( app);
 
   // set the dc source voltage
-  mode_lts_source_set ( mode, 1.f );
+  mode_lts_source_set ( mode, 0.01 );     // this fails
 
   // set the input range to LTS
-  app_switch_range1( app, "LTS", "10");
+  app_switch_range1( app, "LTS", "0.1");
+
   app_transition_state( app);
 
   double values[ 10 ];
@@ -82,7 +102,7 @@ void app_cal_b10( app_t *app)
   /////////////////////////////////
 
   // set the input range to LTS
-  app_switch_range1( app, "LTS", "1");
+  app_switch_range1( app, "LTS", "0.01");
   app_transition_state( app);
 
   //
@@ -93,15 +113,16 @@ void app_cal_b10( app_t *app)
   printf("mean1 %f\n", mean1);
 
   // cal->b = 7.0 / mean( values, ARRAY_SIZE(values));
-  cal->b10 = (cal->b * mean0) / mean1 ;
+  cal->b1000 = (cal->b100 * mean0) / mean1 ;
 
-  printf("cal->b10 %f\n", cal->b10 );
+  printf("cal->b100 %f\n", cal->b1000 );
 
 
-  // show print some values to confirm
+  // show some values to confirm
   data->show_reading = true;
   app_fill_buffer( app, values, ARRAY_SIZE(values));
 
   app_cal_finish( app);
 }
+
 

@@ -109,15 +109,11 @@ void app_cal_w( app_t *app)
   printf( "cal->w %s\n", str_format_float_with_commas(buf, 100, 9, cal->w));
 
 
+  // restore sigmux. even if mode_reset() will do it
+  mode->reg_cr.adc_p_active_sigmux = 1;
 
-  // note - sigmux is still inactive
-  // so should consider doing a reset back to normal operation
-  // no should not need. a subsequent operation can reset
 
-  // assert( mode->reg_cr.adc_p_active_sigmux == false);
-
-  // mode_reset( mode);
-  // app_transition_state( app);
+  app_cal_finish( app);
 }
 
 

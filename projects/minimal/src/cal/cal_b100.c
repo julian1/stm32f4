@@ -2,7 +2,7 @@
 
 /*
   REMEMBER
-    - amplifier is picking up lots of noise. from the inductor.
+    - amplifier is picking up lots of smps noise. from the inductor.
     especially higher ranges.
 
 */
@@ -31,35 +31,26 @@
 
 void app_cal_b100( app_t *app)
 {
-  assert( app && app->magic == APP_MAGIC);
-
   data_t *data = app->data;
-  assert( data && data->magic == DATA_MAGIC);
-
-  _mode_t *mode = app->mode;                // need for sa for setting trig delay
-  assert(mode && mode->magic == MODE_MAGIC) ;
-
+  _mode_t *mode = app->mode;
   cal_t *cal = app->cal;
-  assert( cal && cal->magic == CAL_MAGIC);
-
-  assert(cal->b10);
 
   printf("--------\n");
   printf("cal_b100\n");
 
-  double values[ 10 ];
-  memset(values, 0, sizeof(values));
-
+  assert(cal->b10);
 
   app_cal_setup( app);
 
   // set the dc source voltage
-  printf("here0\n");
   mode_lts_source_set ( mode, 0.1 );     // this fails
 
   // set the input range to LTS
   app_switch_range1( app, "LTS", "1");
   app_transition_state( app);
+
+  double values[ 10 ];
+  memset(values, 0, sizeof(values));
 
   data->show_reading = true;
   app_fill_buffer( app, values, ARRAY_SIZE(values));
@@ -88,7 +79,7 @@ void app_cal_b100( app_t *app)
   printf("cal->b100 %f\n", cal->b100 );
 
 
-  // print some values to confirm
+  // show some values to confirm
   data->show_reading = true;
   app_fill_buffer( app, values, ARRAY_SIZE(values));
 

@@ -29,7 +29,7 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/lzo_test.c \
             src/util.c \
             src/data/data.c src/data/cal.c src/data/buffer.c src/data/range.c  \
-            src/cal/cal-extra.c src/cal/cal_w.c src/cal/cal_b.c  src/cal/cal_b10.c src/cal/cal_b100.c \
+            src/cal/cal-extra.c src/cal/cal_w.c src/cal/cal_b.c  src/cal/cal_b10.c src/cal/cal_b100.c src/cal/cal_b1000.c \
             src/test/test01.c src/test/test02.c  \
             src/test/test08.c src/test/test09.c \
             src/test/test10.c  src/test/test11.c \
