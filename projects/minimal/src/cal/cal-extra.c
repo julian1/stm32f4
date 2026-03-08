@@ -84,10 +84,9 @@ void app_transfer( app_t *app, transfer_t *transfer)
 
   data->show_reading = true;
   app_fill_buffer( app, values, ARRAY_SIZE(values));
-  double mean0 = mean( values, ARRAY_SIZE(values));
-  UNUSED( mean0);
-
-  printf("mean0 %f\n", mean0);
+  double mean0    = mean( values, ARRAY_SIZE(values));
+  double stddev0  = stddev( values, ARRAY_SIZE(values));
+  printf("mean0 %f,  stddev0 %.9f\n", mean0, stddev0);
 
 
   /////////////////////////////////
@@ -100,9 +99,10 @@ void app_transfer( app_t *app, transfer_t *transfer)
   //
   data->show_reading = false;
   app_fill_buffer( app, values, ARRAY_SIZE(values));
-  double mean1 = mean( values, ARRAY_SIZE(values));
-  UNUSED( mean1);
-  printf("mean1 %f\n", mean1);
+  double mean1    = mean( values, ARRAY_SIZE(values));
+  double stddev1  = stddev( values, ARRAY_SIZE(values));
+  printf("mean1 %f,  stddev1 %.9f\n", mean1, stddev1);
+
 
   // step 3.
   transfer->cal_set_value( cal, mean0, mean1);
