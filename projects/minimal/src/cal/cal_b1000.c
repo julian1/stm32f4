@@ -41,6 +41,7 @@ static void step2( app_t *app)
 
 static void cal_set_value( cal_t *cal, double mean0, double mean1)
 {
+  // values are count_norm
   // cal->b = 7.0 / mean( values, ARRAY_SIZE(values));
   cal->b1000 = (cal->b100 * mean0) / mean1 ;
   printf("cal->b1000 %f\n", cal->b1000 );

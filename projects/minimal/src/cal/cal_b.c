@@ -1,56 +1,78 @@
-
 /*
   REMEMBER
     - amplifier is picking up lots of smps noise. from the inductor.
     especially higher ranges.
 
+  // could use an array of all these functions.
 */
-
-
 
 #include <stdio.h>
 #include <assert.h>
-// #include <math.h>     // NAN
-#include <string.h>
 
-
-
-
-#include <lib2/util.h>    // ARRAY_SIZE
-#include <lib2/stats.h>
-#include <lib2/format.h>  // format_with_commas
-
-
-
-// #include <peripheral/spi-ice40.h>
-#include <peripheral/gpio.h>        // trigger
+#include <lib2/util.h>    // UNUSED
 
 #include <app.h>
-#include <util.h> // nplc_to_aperture()
 #include <mode.h>
-
 #include <data/cal.h>
-#include <data/data.h>
 
 
 
 
-/*
+static void step1( app_t *app)
+{
+  printf("--------\n");
+  printf("cal_b\n");
 
-  questions
-    1. whether to use cal_t structure directly.
-        or communicate values value - through the range_t structure.
-        - if use range_t then can add/ range specific bounds checks. etc.
-        - but this code is already range / cal specific.
+  assert(app->cal->w);
 
-        BUT we do not want to repeat cal constants.
-          eg. many values for amp. gain  are shared. for lts, daq. and dcv.
-          in cal structure.  so i think we dont use the range.
-          may be on ohms.
+  // alternate calibrate against 10V.
+  // mode_lts_source_set( mode, 10 );
+  // mode_ch2_set_lts( mode);
+  mode_az_set( app->mode, "ch2" );
 
-    2. whether to have the gain ranges - scale according to the 10V. range b.  or else directly from adc adjusted_sum.
+  // use the ref as source
+  mode_ch2_set( app->mode, "ref");
 
-*/
+  // Could probably use the range here to set to the REF.
+}
+
+
+static void step2( app_t *app)
+{
+  UNUSED( app);
+  // ignore data here....
+
+  printf("*data ignored*\n");
+  // don't change. the source. else the next printing will not work
+  // mode_ch2_set( app->mode, "ref-lo");
+}
+
+
+static void cal_set_value( cal_t *cal, double mean0, double mean1)
+{
+  // values are count_norm
+  UNUSED(mean1);
+  // could also reset the mode for the print data
+
+  cal->b = 7.0 / mean0;
+  printf("cal->b %f\n", cal->b);
+}
+
+
+
+
+void app_cal_b( app_t *app)
+{
+
+  transfer_t x = {
+    . step1 = step1,
+    . step2 = step2,
+    . cal_set_value = cal_set_value
+  };
+
+  app_transfer( app, &x );
+}
+
 
 
 
@@ -133,63 +155,24 @@ void app_cal_b( app_t *app)
 
 
 
+/*
+
+  questions
+    1. whether to use cal_t structure directly.
+        or communicate values value - through the range_t structure.
+        - if use range_t then can add/ range specific bounds checks. etc.
+        - but this code is already range / cal specific.
+
+        BUT we do not want to repeat cal constants.
+          eg. many values for amp. gain  are shared. for lts, daq. and dcv.
+          in cal structure.  so i think we dont use the range.
+          may be on ohms.
+
+    2. whether to have the gain ranges - scale according to the 10V. range b.  or else directly from adc adjusted_sum.
+
+*/
 
 
-static void step1( app_t *app)
-{
-
-  printf("--------\n");
-  printf("cal_b\n");
-
-  assert(app->cal->w);
-
-  // alternate calibrate against 10V.
-  // mode_lts_source_set( mode, 10 );
-  // mode_ch2_set_lts( mode);
-  mode_az_set( app->mode, "ch2" );
-
-  // use the ref as source
-  mode_ch2_set( app->mode, "ref");
-
-  // Could probably use the range here to set to the REF.
-
-}
-
-
-static void step2( app_t *app)
-{
-  UNUSED( app);
-  // we will ignore data here....
-
-  printf("*data will be ignored*\n");
-  // don't change. the source. else the next printing will not work
-  // mode_ch2_set( app->mode, "ref-lo");
-}
-
-
-static void cal_set_value( cal_t *cal, double mean0, double mean1)
-{
-  UNUSED(mean1);
-  // could also reset the mode for the print data
-
-  cal->b = 7.0 / mean0; 
-  printf("cal->b %f\n", cal->b);
-}
-
-
-
-
-void app_cal_b( app_t *app)
-{
-
-  transfer_t x = {
-    . step1 = step1,
-    . step2 = step2,
-    . cal_set_value = cal_set_value
-  };
-
-  app_transfer( app, &x );
-}
 
 
 
