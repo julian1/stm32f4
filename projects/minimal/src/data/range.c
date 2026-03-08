@@ -148,6 +148,7 @@ static void mode_ref( const range_t *range, _mode_t *mode )
 
 static void mode_lo( const range_t *range, _mode_t *mode )
 {
+  // sample ref-lo switched on input hi and lo mux.
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
 
@@ -160,20 +161,44 @@ static void mode_lo( const range_t *range, _mode_t *mode )
 
   if(strcasecmp( range->arg, "10") == 0)
     mode_gain_set(mode, 1);
-
   else if(strcasecmp( range->arg, "1") == 0)
     mode_gain_set(mode, 10);
-
   else if(strcasecmp( range->arg, "0.1") == 0)
     mode_gain_set(mode, 100);
-
   else if(strcasecmp( range->arg, "0.01") == 0)
     mode_gain_set(mode, 1000);
-
   else
     assert(0);
 }
 
+
+static void mode_lo2( const range_t *range, _mode_t *mode )
+{
+  // sample star-lo switched straight into the azmux
+  // for both values.
+
+  assert(range && range->magic == RANGE_MAGIC);
+  assert(mode && mode->magic == MODE_MAGIC);
+
+  assert(strcasecmp( range->name, "lo2") == 0);
+
+  partial_reset( mode);
+  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+
+  mode_az_set(mode, "0" ); // sample A400 gnd
+
+  if(strcasecmp( range->arg, "10") == 0)
+    mode_gain_set(mode, 1);
+  else if(strcasecmp( range->arg, "1") == 0)
+    mode_gain_set(mode, 10);
+  else if(strcasecmp( range->arg, "0.1") == 0)
+    mode_gain_set(mode, 100);
+  else if(strcasecmp( range->arg, "0.01") == 0)
+    mode_gain_set(mode, 1000);
+  else
+    assert(0);
+
+}
 
 
 
@@ -360,6 +385,13 @@ range_t init_range_values[] = {
   { RANGE_MAGIC,  "LO",   "1",    "V",  mode_lo,   cal_normal,  false,  false },
   { RANGE_MAGIC,  "LO",   "0.1",  "V",  mode_lo,   cal_normal,  false,  false },
   { RANGE_MAGIC,  "LO",   "0.01", "V",  mode_lo,   cal_normal,  false,  true  },
+
+  { RANGE_MAGIC,  "LO2",  "10",   "V",  mode_lo2,  cal_normal,  true,   false },  //
+  { RANGE_MAGIC,  "LO2",  "1",    "V",  mode_lo2,  cal_normal,  false,  false },
+  { RANGE_MAGIC,  "LO2",  "0.1",  "V",  mode_lo2,  cal_normal,  false,  false },
+  { RANGE_MAGIC,  "LO2",  "0.01", "V",  mode_lo2,  cal_normal,  false,  true  },
+
+
 
   { RANGE_MAGIC,  "DCV",  "1000", "V",  mode_dcv,   cal_dcv,    true,   false },
   { RANGE_MAGIC,  "DCV",  "100",  "V",  mode_dcv,   cal_dcv,    false,  false },

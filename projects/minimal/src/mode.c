@@ -214,22 +214,23 @@ bool mode_az_set_relax(_mode_t *mode, const char *s)
 
   if(strcmp(s, "0") == 0 ) {
 
-    // sample star-ground
-    // use n=2 for good led activity indicator
+    /* sample star-ground, for both readings
+      use for noise test
+    */
 
     // signal can come in on S3, S7
     sa_state_t *sa = &mode->sa;
     sa->p_seq_n = 2;
 
-    // zero serial
+    // zero
     sa->p_seq_elt[ 0].azmux  = S6;     // A400-1
     sa->p_seq_elt[ 0].pc = 0b00;
 
     // val
-    sa->p_seq_elt[ 0].azmux  = S6;     // A400-1
-    sa->p_seq_elt[ 0].pc = 0b00;
+    sa->p_seq_elt[ 1].azmux  = S6;     // A400-1
+    sa->p_seq_elt[ 1].pc = 0b00;
 
-    // could set the catcher handler/closure here
+    // could set a catcher handler/closure here
   }
 
   else if(strcmp(s, "ch2") == 0 ) {
