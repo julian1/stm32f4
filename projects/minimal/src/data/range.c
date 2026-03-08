@@ -385,7 +385,14 @@ static double cal_temp( const range_t *range, const cal_t *cal, double value)
 // can inject into mode or cal... or
 //
 
+/*
+  EXTR> to include 20V,2V,200mV. in autorannging.
+  can repeat the dcv range sequence with the values includeds.
 
+  just need to change the initial lookup  in app_repl_range()0 etc.
+  to find which to start at. control with a boolean.
+
+*/
 
 range_t init_range_values[] = {
 
