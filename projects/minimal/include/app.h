@@ -290,8 +290,8 @@ void app_transfer( app_t *app, transfer_t *transfer);
 
 
 
-void app_cal_setup( app_t *app);
-void app_cal_finish( app_t *app);
+// void app_cal_setup( app_t *app);
+// void app_cal_finish( app_t *app);
 
 void app_cal_w( app_t *app);
 void app_cal_b( app_t *app);

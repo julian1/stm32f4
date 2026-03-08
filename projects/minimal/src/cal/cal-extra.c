@@ -113,11 +113,11 @@ void app_transfer( app_t *app, transfer_t *transfer)
   data->show_reading = true;
   app_fill_buffer( app, values, ARRAY_SIZE(values));
 
-  app_cal_finish( app);
+  // app_cal_finish( app);
 }
 
 
-
+#if 0
 
 // factor these functions into separate file
 // along with cal_fill_buffer() etc.
@@ -157,7 +157,7 @@ void app_cal_finish( app_t *app)
   UNUSED( app);
 }
 
-
+#endif
 
 
 /*

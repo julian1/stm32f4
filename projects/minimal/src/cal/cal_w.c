@@ -56,8 +56,25 @@ void app_cal_w( app_t *app)
   printf("--------\n");
   printf("cal_w\n");
 
+  ///////////////////////////////
+  // ensure sample off
+  gpio_write( app->gpio_trigger, false);
 
-  app_cal_setup( app);
+  // reset mode
+  mode_reset( mode);
+
+  // set the trigger delay for settle time
+  sa_trig_delay_set( &mode->sa, period_to_aper_n(  1.f )); // 1 sec.
+
+  // set normal sample acquisition/adc operation
+  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+
+  // set nplc
+  adc_aperture_set( &mode->adc, nplc_to_aperture( 10, app->line_freq ));
+
+
+  ///////////////////////////////
+
 
   // disable sigmux. required to calc relative pos/neg ref current weight.
   mode->reg_cr.adc_p_active_sigmux = 0;
@@ -109,7 +126,6 @@ void app_cal_w( app_t *app)
   mode->reg_cr.adc_p_active_sigmux = 1;
 
 
-  app_cal_finish( app);
 }
 
 
