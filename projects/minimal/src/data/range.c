@@ -269,34 +269,43 @@ static void mode_dcv( const range_t *range, _mode_t *mode)
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
 
-
-/*
-  instead of passing string arg.
-  why not pass the range_t structure.
-*/
-
   mode_partial_reset( mode);
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
   mode_az_set(mode, "ch1");
   mode->serial.K402 = SR_SET;
 
-  // apply impedance
-  mode->serial.K403 = mode->_10meg_impedance ? SR_SET : SR_RESET;
 
+  if(strcasecmp( range->arg, "1000") == 0) {
 
-  if(strcasecmp( range->arg, "10") == 0)
+    mode->serial.K403 = SR_SET;
     mode_gain_set( mode, 1);
+  }
+  else if(strcasecmp( range->arg, "100") == 0) {
 
-  else if(strcasecmp( range->arg, "1") == 0)
+    mode->serial.K403 = SR_SET;
     mode_gain_set( mode, 10);
+  }
+  else if(strcasecmp( range->arg, "10") == 0) {
 
-  else if(strcasecmp( range->arg, "0.1") == 0)
+    mode->serial.K403 = mode->_10meg_impedance ? SR_SET : SR_RESET;
+    mode_gain_set( mode, 1);
+  }
+  else if(strcasecmp( range->arg, "1") == 0) {
+
+    mode->serial.K403 = mode->_10meg_impedance ? SR_SET : SR_RESET;
+    mode_gain_set( mode, 10);
+  }
+  else if(strcasecmp( range->arg, "0.1") == 0) {
+
+    mode->serial.K403 = mode->_10meg_impedance ? SR_SET : SR_RESET;
     mode_gain_set( mode, 100);
+  }
+  else if(strcasecmp( range->arg, "0.01") == 0) {
 
-  else if(strcasecmp( range->arg, "0.01") == 0)
+    mode->serial.K403 = mode->_10meg_impedance ? SR_SET : SR_RESET;
     mode_gain_set( mode, 1000);
-
+  }
   else
     assert( 0);
 }
@@ -382,12 +391,12 @@ range_t init_range_values[] = {
 
   { RANGE_MAGIC,  "REF",  "",     "V",  mode_ref,   cal_normal, true,   true },
 
-  { RANGE_MAGIC,  "LO",   "10",   "V",  mode_lo,   cal_normal,  true,   false },  //
+  { RANGE_MAGIC,  "LO",   "10",   "V",  mode_lo,   cal_normal,  true,   false },
   { RANGE_MAGIC,  "LO",   "1",    "V",  mode_lo,   cal_normal,  false,  false },
   { RANGE_MAGIC,  "LO",   "0.1",  "V",  mode_lo,   cal_normal,  false,  false },
   { RANGE_MAGIC,  "LO",   "0.01", "V",  mode_lo,   cal_normal,  false,  true  },
 
-  { RANGE_MAGIC,  "LO2",  "10",   "V",  mode_lo2,  cal_normal,  true,   false },  //
+  { RANGE_MAGIC,  "LO2",  "10",   "V",  mode_lo2,  cal_normal,  true,   false },
   { RANGE_MAGIC,  "LO2",  "1",    "V",  mode_lo2,  cal_normal,  false,  false },
   { RANGE_MAGIC,  "LO2",  "0.1",  "V",  mode_lo2,  cal_normal,  false,  false },
   { RANGE_MAGIC,  "LO2",  "0.01", "V",  mode_lo2,  cal_normal,  false,  true  },
