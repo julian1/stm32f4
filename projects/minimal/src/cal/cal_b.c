@@ -35,6 +35,30 @@
 
 
 
+/*
+
+  questions
+    1. whether to use cal_t structure directly.
+        or communicate values value - through the range_t structure.
+        - if use range_t then can add/ range specific bounds checks. etc.
+        - but this code is already range / cal specific.
+
+        BUT we do not want to repeat cal constants.
+          eg. many values for amp. gain  are shared. for lts, daq. and dcv.
+          in cal structure.  so i think we dont use the range.
+          may be on ohms.
+
+    2. whether to have the gain ranges - scale according to the 10V. range b.  or else directly from adc adjusted_sum.
+
+*/
+
+
+
+
+
+
+#if 0
+
 
 void app_cal_b( app_t *app)
 {
@@ -105,73 +129,74 @@ void app_cal_b( app_t *app)
 
 }
 
+#endif
+
+
+
+
+
+static void step1( app_t *app)
+{
+
+  printf("--------\n");
+  printf("cal_b\n");
+
+  assert(app->cal->w);
+
+  // alternate calibrate against 10V.
+  // mode_lts_source_set( mode, 10 );
+  // mode_ch2_set_lts( mode);
+  mode_az_set( app->mode, "ch2" );
+
+  // use the ref as source
+  mode_ch2_set( app->mode, "ref");
+
+  // Could probably use the range here to set to the REF.
+
+}
+
+
+static void step2( app_t *app)
+{
+  UNUSED( app);
+  // we will ignore data here....
+
+  printf("*data will be ignored*\n");
+  // don't change. the source. else the next printing will not work
+  // mode_ch2_set( app->mode, "ref-lo");
+}
+
+
+static void cal_set_value( cal_t *cal, double mean0, double mean1)
+{
+  UNUSED(mean1);
+  // could also reset the mode for the print data
+
+  cal->b = 7.0 / mean0; 
+  printf("cal->b %f\n", cal->b);
+}
+
+
+
+
+void app_cal_b( app_t *app)
+{
+
+  transfer_t x = {
+    . step1 = step1,
+    . step2 = step2,
+    . cal_set_value = cal_set_value
+  };
+
+  app_transfer( app, &x );
+}
+
 
 
 
 
 #if 0
 
-
-
-> test52
-test52()
-nplc 10 for everything
-set amp gain
-i 0, first=1  idx=0 seq_n=2, counts pos 1975923 neg 2025236, sig       0,
-i 1, first=0  idx=1 seq_n=2, counts pos 1975927 neg 2025240, sig       0,
-i 2, first=0  idx=0 seq_n=2, counts pos 1975925 neg 2025238, sig       0,
-i 3, first=0  idx=1 seq_n=2, counts pos 1975924 neg 2025237, sig       0,
-i 4, first=0  idx=0 seq_n=2, counts pos 1975923 neg 2025236, sig       0,
-i 5, first=0  idx=1 seq_n=2, counts pos 1975926 neg 2025239, sig       0,
-i 6, first=0  idx=0 seq_n=2, counts pos 1975926 neg 2025239, sig       0,
-i 7, first=0  idx=1 seq_n=2, counts pos 1975928 neg 2025241, sig       0,
-i 8, first=0  idx=0 seq_n=2, counts pos 1975924 neg 2025237, sig       0,
-i 9, first=0  idx=1 seq_n=2, counts pos 1975926 neg 2025239, sig       0,
-pos mean   1975925.200, stddev 1.600,
-neg mean   2025238.200, stddev 1.600,
-cal_w 0.975,650,765,
-i 0, first=1  idx=0 seq_n=2, counts pos 1976353 neg 2025623, sig 4000001,
-i 0, first=0  idx=1 seq_n=2, counts pos  988735 neg 3013356, sig 4000001, v -1951300.457487,
-i 1, first=0  idx=0 seq_n=2, counts pos 1976360 neg 2025630, sig 4000001,
-i 1, first=0  idx=1 seq_n=2, counts pos  988738 neg 3013359, sig 4000001, v -1951300.554883,
-i 2, first=0  idx=0 seq_n=2, counts pos 1976358 neg 2025628, sig 4000001,
-i 2, first=0  idx=1 seq_n=2, counts pos  988735 neg 3013356, sig 4000001, v -1951300.579233,
-i 3, first=0  idx=0 seq_n=2, counts pos 1976359 neg 2025629, sig 4000001,
-i 3, first=0  idx=1 seq_n=2, counts pos  988740 neg 3013361, sig 4000001, v -1951300.481836,
-i 4, first=0  idx=0 seq_n=2, counts pos 1976360 neg 2025630, sig 4000001,
-i 4, first=0  idx=1 seq_n=2, counts pos  988739 neg 3013360, sig 4000001, v -1951300.530534,
-i 5, first=0  idx=0 seq_n=2, counts pos 1976365 neg 2025635, sig 4000001,
-i 5, first=0  idx=1 seq_n=2, counts pos  988738 neg 3013359, sig 4000001, v -1951300.676630,
-i 6, first=0  idx=0 seq_n=2, counts pos 1976361 neg 2025631, sig 4000001,
-i 6, first=0  idx=1 seq_n=2, counts pos  988737 neg 3013358, sig 4000001, v -1951300.603582,
-i 7, first=0  idx=0 seq_n=2, counts pos 1976361 neg 2025631, sig 4000001,
-i 7, first=0  idx=1 seq_n=2, counts pos  988738 neg 3013359, sig 4000001, v -1951300.579233,
-i 8, first=0  idx=0 seq_n=2, counts pos 1976361 neg 2025631, sig 4000001,
-i 8, first=0  idx=1 seq_n=2, counts pos  988737 neg 3013358, sig 4000001, v -1951300.603582,
-i 9, first=0  idx=0 seq_n=2, counts pos 1976362 neg 2025632, sig 4000001,
-i 9, first=0  idx=1 seq_n=2, counts pos  988741 neg 3013362, sig 4000001, v -1951300.530534,
-mean   -0.488, stddev 0.000000015,
-i 0, first=1  idx=0 seq_n=2, counts pos 1976354 neg 2025624, sigmux 4000001,
-i 0, first=0  idx=1 seq_n=2, counts pos 1976360 neg 2025630, sigmux 4000001, v 0.146095, v2 -0.000,000,532,,
-i 1, first=0  idx=0 seq_n=2, counts pos 1976359 neg 2025629, sigmux 4000001,
-i 1, first=0  idx=1 seq_n=2, counts pos 1976362 neg 2025632, sigmux 4000001, v 0.073048, v2 -0.000,000,266,,
-i 2, first=0  idx=0 seq_n=2, counts pos 1976357 neg 2025627, sigmux 4000001,
-i 2, first=0  idx=1 seq_n=2, counts pos 1976363 neg 2025633, sigmux 4000001, v 0.146095, v2 -0.000,000,532,,
-i 3, first=0  idx=0 seq_n=2, counts pos 1976361 neg 2025631, sigmux 4000001,
-i 3, first=0  idx=1 seq_n=2, counts pos 1976363 neg 2025633, sigmux 4000001, v 0.048698, v2 -0.000,000,177,,
-i 4, first=0  idx=0 seq_n=2, counts pos 1976360 neg 2025630, sigmux 4000001,
-i 4, first=0  idx=1 seq_n=2, counts pos 1976365 neg 2025635, sigmux 4000001, v 0.121746, v2 -0.000,000,443,,
-i 5, first=0  idx=0 seq_n=2, counts pos 1976359 neg 2025629, sigmux 4000001,
-i 5, first=0  idx=1 seq_n=2, counts pos 1976361 neg 2025631, sigmux 4000001, v 0.048698, v2 -0.000,000,177,,
-i 6, first=0  idx=0 seq_n=2, counts pos 1976359 neg 2025629, sigmux 4000001,
-i 6, first=0  idx=1 seq_n=2, counts pos 1976362 neg 2025632, sigmux 4000001, v 0.073048, v2 -0.000,000,266,,
-i 7, first=0  idx=0 seq_n=2, counts pos 1976356 neg 2025626, sigmux 4000001,
-i 7, first=0  idx=1 seq_n=2, counts pos 1976359 neg 2025629, sigmux 4000001, v 0.073048, v2 -0.000,000,266,,
-i 8, first=0  idx=0 seq_n=2, counts pos 1976356 neg 2025626, sigmux 4000001,
-i 8, first=0  idx=1 seq_n=2, counts pos 1976361 neg 2025631, sigmux 4000001, v 0.121746, v2 -0.000,000,443,,
-i 9, first=0  idx=0 seq_n=2, counts pos 1976356 neg 2025626, sigmux 4000001,
-i 9, first=0  idx=1 seq_n=2, counts pos 1976363 neg 2025633, sigmux 4000001, v 0.170445, v2 -0.000,000,620,,
-mean   -0.000,000,372,, stddev 0.000,000,152,,
 
 
 

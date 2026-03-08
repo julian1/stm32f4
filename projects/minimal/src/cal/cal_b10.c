@@ -1,26 +1,16 @@
-
 /*
   REMEMBER
     - amplifier is picking up lots of smps noise. from the inductor.
     especially higher ranges.
 
+  // could use an array of all these functions.
 */
 
 #include <stdio.h>
-#include <string.h>
 #include <assert.h>
 
-
-
-#include <peripheral/gpio.h>        // trigger
-
-#include <util.h>
 #include <app.h>
 #include <mode.h>
-#include <lib2/util.h>    // ARRAY_SIZE
-#include <lib2/stats.h>
-
-#include <data/data.h>
 #include <data/cal.h>
 
 
@@ -28,80 +18,48 @@
 
 
 
-/*
+static void step1( app_t *app)
+{
+  printf("\n\n--------\n");
+  printf("cal_b10\n");
 
-  questions
-    1. whether to use cal_t structure directly.
-        or communicate values value - through the range_t structure.
-        - if use range_t then can add/ range specific bounds checks. etc.
-        - but this code is already range / cal specific.
+  assert( app->cal->b);
 
-        BUT we do not want to repeat cal constants.
-          eg. many values for amp. gain  are shared. for lts, daq. and dcv.
-          in cal structure.  so i think we dont use the range.
-          may be on ohms.
+  // dont need to set az mode, because we are using the range
+  // set dc source voltage
+  mode_lts_source_set ( app->mode, 1.f );
+  // set LTS input range
+  app_switch_range1( app, "LTS", "10");
+}
 
-    2. whether to have the gain ranges - scale according to the 10V. range b.  or else directly from adc adjusted_sum.
 
-*/
+static void step2( app_t *app)
+{
+  app_switch_range1( app, "LTS", "1");
+}
+
+
+static void cal_set_value( cal_t *cal, double mean0, double mean1)
+{
+  // cal->b = 7.0 / mean( values, ARRAY_SIZE(values));
+  cal->b10 = (cal->b * mean0) / mean1 ;
+  printf("cal->b10 %f\n", cal->b10 );
+}
+
+
 
 
 void app_cal_b10( app_t *app)
 {
 
-  data_t *data = app->data;
-  _mode_t *mode = app->mode;
-  cal_t *cal = app->cal;
+  transfer_t x = {
+    . step1 = step1,
+    . step2 = step2,
+    . cal_set_value = cal_set_value
+  };
 
-
-  printf("--------\n");
-  printf("cal_b10\n");
-
-  assert(cal->b);
-
-  app_cal_setup( app);
-
-  // set the dc source voltage
-  mode_lts_source_set ( mode, 1.f );
-
-  // set the input range to LTS
-  app_switch_range1( app, "LTS", "10");
-  app_transition_state( app);
-
-  double values[ 10 ];
-  memset(values, 0, sizeof(values));
-
-  data->show_reading = true;
-  app_fill_buffer( app, values, ARRAY_SIZE(values));
-  double mean0 = mean( values, ARRAY_SIZE(values));
-  UNUSED( mean0);
-
-  printf("mean0 %f\n", mean0);
-
-
-  /////////////////////////////////
-
-  // set the input range to LTS
-  app_switch_range1( app, "LTS", "1");
-  app_transition_state( app);
-
-  //
-  data->show_reading = false;
-  app_fill_buffer( app, values, ARRAY_SIZE(values));
-  double mean1 = mean( values, ARRAY_SIZE(values));
-  UNUSED( mean1);
-  printf("mean1 %f\n", mean1);
-
-  // cal->b = 7.0 / mean( values, ARRAY_SIZE(values));
-  cal->b10 = (cal->b * mean0) / mean1 ;
-
-  printf("cal->b10 %f\n", cal->b10 );
-
-
-  // show print some values to confirm
-  data->show_reading = true;
-  app_fill_buffer( app, values, ARRAY_SIZE(values));
-
-  app_cal_finish( app);
+  app_transfer( app, &x );
 }
+
+
 

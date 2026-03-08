@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 
 #include <lib2/util.h>    // UNUSED
@@ -12,6 +13,8 @@
 
 #include <app.h>
 #include <util.h> // nplc_to_aperture()
+#include <lib2/stats.h>
+
 #include <mode.h>
 
 #include <data/cal.h>
@@ -31,6 +34,89 @@ void app_cal_all( app_t *app)
 
   cal_show( app->cal);
 }
+
+
+
+
+void app_transfer( app_t *app, transfer_t *transfer)
+{
+  assert(transfer);
+
+  assert(app && app->magic == APP_MAGIC);
+
+  _mode_t *mode = app->mode;
+  assert(mode && mode->magic == MODE_MAGIC);
+
+  data_t *data = app->data;
+  assert( data && data->magic == DATA_MAGIC);
+
+  cal_t *cal = app->cal;
+  assert( cal && cal->magic == CAL_MAGIC);
+
+  /////////////////////////
+
+  // ensure sample off
+  gpio_write( app->gpio_trigger, false);
+
+  // reset mode
+  mode_reset( mode);
+
+  // set the trigger delay for settle time
+  sa_trig_delay_set( &mode->sa, period_to_aper_n(  1.f )); // 1 sec.
+
+  // set normal sample acquisition/adc operation
+  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+
+  // set nplc
+  adc_aperture_set( &mode->adc, nplc_to_aperture( 10, app->line_freq ));
+
+
+  /////////////////////////
+
+
+  // step 1
+  transfer->step1( app);
+
+  app_transition_state( app);
+
+  double values[ 2 ];
+  memset(values, 0, sizeof(values));
+
+  data->show_reading = true;
+  app_fill_buffer( app, values, ARRAY_SIZE(values));
+  double mean0 = mean( values, ARRAY_SIZE(values));
+  UNUSED( mean0);
+
+  printf("mean0 %f\n", mean0);
+
+
+  /////////////////////////////////
+
+  // step 2
+  transfer->step2( app);
+
+  app_transition_state( app);
+
+  //
+  data->show_reading = false;
+  app_fill_buffer( app, values, ARRAY_SIZE(values));
+  double mean1 = mean( values, ARRAY_SIZE(values));
+  UNUSED( mean1);
+  printf("mean1 %f\n", mean1);
+
+  // step 3.
+  transfer->cal_set_value( cal, mean0, mean1);
+
+
+
+  // print some values using cal to confirm
+  data->show_reading = true;
+  app_fill_buffer( app, values, ARRAY_SIZE(values));
+
+  app_cal_finish( app);
+}
+
+
 
 
 // factor these functions into separate file
@@ -57,7 +143,7 @@ void app_cal_setup( app_t *app)
   // set the trigger delay for settle time
   sa_trig_delay_set( &mode->sa, period_to_aper_n(  1.f )); // 1 sec.
 
-  // normal sample acquisition/adc operation
+  // set normal sample acquisition/adc operation
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
   // set nplc

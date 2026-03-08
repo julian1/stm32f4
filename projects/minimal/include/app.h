@@ -276,6 +276,20 @@ void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_
     to mangge setting nplc. number of obs. delay. etc.
 */
 
+
+typedef struct transfer_t
+{
+  // magic
+  void (*step1)( app_t *app);
+  void (*step2)( app_t *app);
+  void (*cal_set_value)( cal_t *cal, double mean0, double mean1);
+
+} transfer_t;
+
+void app_transfer( app_t *app, transfer_t *transfer);
+
+
+
 void app_cal_setup( app_t *app);
 void app_cal_finish( app_t *app);
 
