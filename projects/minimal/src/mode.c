@@ -205,7 +205,10 @@ void reg_cr_mode_set( reg_cr_t *reg_cr, unsigned u0)
 
 bool mode_az_set_relax(_mode_t *mode, const char *s)
 {
-  /* note the same syntax
+  /*
+      this can almost be typed on sa which would be better.
+      same as setting the trigger delay.
+
 
       options here.   "ch1", "ch2", "ratio", "0".
       keep the az flag separate.
@@ -214,9 +217,13 @@ bool mode_az_set_relax(_mode_t *mode, const char *s)
 
   if(strcmp(s, "0") == 0 ) {
 
-    /* sample star-ground, for both readings
-      use for noise test
+    /*  sample star-ground, for both readings
+        used for noise test, and low-leakage input during adc weight calculation
     */
+
+    // for direct mode
+    mode->reg_direct.azmux_o = S6;    // A400-1
+    mode->reg_direct.pc_o = 0b00;
 
     // signal can come in on S3, S7
     sa_state_t *sa = &mode->sa;
@@ -235,12 +242,12 @@ bool mode_az_set_relax(_mode_t *mode, const char *s)
 
   else if(strcmp(s, "ch2") == 0 ) {
 
-    // direct mode - keep
+    // direct mode
     mode->reg_direct.azmux_o = S3;
     mode->reg_direct.pc_o = 0b10;
 
     // az mode
-    // signal can come in on S3, S7
+    // signal on S3, S7
     sa_state_t *sa = &mode->sa;
     sa->p_seq_n = 2;
 
@@ -255,12 +262,12 @@ bool mode_az_set_relax(_mode_t *mode, const char *s)
 
   else if(strcmp(s, "ch1") == 0 ) {
 
-    // direct mode - keep
+    // direct mode
     mode->reg_direct.azmux_o = S1;
     mode->reg_direct.pc_o = 0b01;
 
     // az mode
-    // signal can come in on S3, S7
+    // signal on S3, S7
     sa_state_t *sa = &mode->sa;
     sa->p_seq_n = 2;
 
@@ -272,8 +279,6 @@ bool mode_az_set_relax(_mode_t *mode, const char *s)
     sa->p_seq_elt[ 1].azmux  = S1;    // PC-CH1-OUT
     sa->p_seq_elt[ 1].pc = 0b01;      // pc1 active
   }
-
-
 
   else if(strcmp(s, "ratio") == 0 ) {
     assert( 0);
