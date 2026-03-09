@@ -53,6 +53,8 @@ static void step1( app_t *app)
     --
     do we need to deal with an EMF offset. when we set a ref voltage. but then transfer
     perhaps it cancels?
+    ----
+    perhaps we can tell if correct, by checking the offset using an input short, after the div1000 cal
   */
 
   // reference range
