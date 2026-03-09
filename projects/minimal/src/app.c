@@ -340,8 +340,8 @@ void app_transition_state( app_t  *app)
   ///////////////
 
   // sample acquisition
-  spi_ice40_reg_write32( app->spi_fpga0, REG_SA_P_CLK_COUNT_TRIG_DELAY, mode->sa.p_clk_count_trig_delay);
-  spi_ice40_reg_write32( app->spi_fpga0, REG_SA_P_CLK_COUNT_PRECHARGE,  mode->sa.p_clk_count_precharge);
+  spi_ice40_reg_write32( app->spi_fpga0, REG_SA_P_CLK_COUNT_TRIG_DELAY, mode->sa.p_trig_delay);
+  spi_ice40_reg_write32( app->spi_fpga0, REG_SA_P_CLK_COUNT_PRECHARGE,  mode->sa.p_precharge);
 
 
   spi_ice40_reg_write32( app->spi_fpga0, REG_SA_P_SEQ_N,  mode->sa.p_seq_n );
@@ -979,7 +979,7 @@ void app_switch_range( app_t *app, signed range_idx)
   assert(range);
   assert(range->range_set_mode);
 
-  range->range_set_mode( range, app->mode);
+  range->range_set_mode( range, app->mode, app->_10meg_impedance);
 }
 
 

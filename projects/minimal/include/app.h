@@ -228,6 +228,7 @@ typedef struct app_t
 
 
 
+  bool          _10meg_impedance ;
 
 
 } app_t;

@@ -40,7 +40,7 @@ typedef struct range_t
 
   */
 
-  void (*range_set_mode)( const range_t *range, _mode_t * /* bool *_10meg_impedance */  );
+  void (*range_set_mode)( const range_t *range, _mode_t *,  bool _10meg_impedance );
 
 
   //  the same way the mode function  sets the mode.   the cal functino can scale/adjust the value to a reading.
@@ -65,21 +65,9 @@ typedef struct range_t
 
 
   // sentinel to encode range limit - either top or bottom.
-  // else needs to be enum/int.
   bool bot_sentinal;
   bool top_sentinal;
 
-  // EXTR.  if top and bottom. then only one iterable range availableset.
-
-  ///////////////////
-
-/*
-  // we can inject this ... with a loop in  app.
-  bool *  _10meg_impedance ;
-
-  or just pass it in the range_set_mmode() function.
-
-*/
 
 
 } range_t;

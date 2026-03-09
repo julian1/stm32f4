@@ -61,8 +61,11 @@ void app_transfer( app_t *app, transfer_t *transfer)
 
   /////////////////////////
 
-  // ensure sample off
+  // sample off
   gpio_write( app->gpio_trigger, false);
+
+  // ensure 10Meg not set, persists range change, and mode_reset()
+  app->_10meg_impedance = false;
 
   // reset mode
   mode_reset( mode);

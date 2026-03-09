@@ -33,7 +33,7 @@ void adc_aperture_set( adc_state_t *adc, uint32_t u)
 
 void sa_trig_delay_set( sa_state_t *sa, uint32_t u)
 {
-  sa->p_clk_count_trig_delay = u;
+  sa->p_trig_delay = u;
 }
 
 
@@ -211,8 +211,8 @@ static const _mode_t mode_initial =  {
 
 
   // signal acquisition defaults
-  .sa.p_clk_count_trig_delay  = CLK_FREQ * 100e-3,         // 100ms
-  .sa.p_clk_count_precharge   = CLK_FREQ * 500e-6,          //  500us.
+  .sa.p_trig_delay  = CLK_FREQ * 100e-3,         // 100ms
+  .sa.p_precharge   = CLK_FREQ * 500e-6,          //  500us.
 
   /*
     .sa.p_seq_n = 2,
@@ -834,14 +834,14 @@ bool mode_repl_statement(
     && str_decode_uint( s0, &u0))  {
 
     // TODO consider use time, rather than raw count
-    mode->sa.p_clk_count_precharge = u0;
+    mode->sa.p_precharge = u0;
   }
 
   else if((sscanf(cmd, "trig delay %100s", s0) == 1)
     && str_decode_uint( s0, &u0))  {
 
     // TODO consider use time, rather than raw count
-    mode->sa.p_clk_count_trig_delay = u0;
+    mode->sa.p_trig_delay = u0;
   }
 
 

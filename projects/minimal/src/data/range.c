@@ -82,16 +82,14 @@ static void mode_partial_reset( _mode_t *mode)
 
   // persist the sa trigger-delay,  and precharge period
   // the channel seqn and seq, will be set by the range
-  mode->sa.p_clk_count_trig_delay   = tmp.sa.p_clk_count_trig_delay;
-  mode->sa.p_clk_count_precharge    = tmp.sa.p_clk_count_precharge;
+  mode->sa.p_trig_delay   = tmp.sa.p_trig_delay;
+  mode->sa.p_precharge    = tmp.sa.p_precharge;
 
   // persist noaz flag
   mode->reg_cr.sa_p_noaz = tmp.reg_cr.sa_p_noaz;
 
 
-  // TODO remove
-  // persist the 10meg. impedance flag
-  mode->_10meg_impedance =  tmp._10meg_impedance;
+  // 10meg. impedance flag. is persisted by app...
 
 
   // persist the daq input selection muxes
@@ -127,8 +125,9 @@ static void mode_partial_reset( _mode_t *mode)
 
 
 
-static void range_lo( const range_t *range, _mode_t *mode )
+static void range_lo( const range_t *range, _mode_t *mode, bool _10meg_impedance )
 {
+  UNUSED(_10meg_impedance);
   // sample ref-lo switched on input hi and lo mux.
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
@@ -153,10 +152,11 @@ static void range_lo( const range_t *range, _mode_t *mode )
 }
 
 
-static void range_lo2( const range_t *range, _mode_t *mode )
+static void range_lo2( const range_t *range, _mode_t *mode, bool _10meg_impedance  )
 {
   // sample star-lo switched straight into the azmux
   // for both values.
+  UNUSED(_10meg_impedance);
 
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
@@ -185,8 +185,9 @@ static void range_lo2( const range_t *range, _mode_t *mode )
 
 
 
-static void range_ref( const range_t *range, _mode_t *mode )
+static void range_ref( const range_t *range, _mode_t *mode, bool _10meg_impedance  )
 {
+  UNUSED(_10meg_impedance);
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
 
@@ -205,8 +206,9 @@ static void range_ref( const range_t *range, _mode_t *mode )
 
 
 
-static void range_temp( const range_t *range, _mode_t *mode)
+static void range_temp( const range_t *range, _mode_t *mode, bool _10meg_impedance )
 {
+  UNUSED(_10meg_impedance);
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
 
@@ -218,8 +220,9 @@ static void range_temp( const range_t *range, _mode_t *mode)
 
 
 
-static void range_lts( const range_t *range, _mode_t *mode)
+static void range_lts( const range_t *range, _mode_t *mode, bool _10meg_impedance )
 {
+  UNUSED(_10meg_impedance);
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
 
@@ -244,7 +247,7 @@ static void range_lts( const range_t *range, _mode_t *mode)
 
 
 
-static void range_dcv( const range_t *range, _mode_t *mode /*, bool _10meg_impedance*/ )
+static void range_dcv( const range_t *range, _mode_t *mode, bool _10meg_impedance )
 {
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
@@ -255,7 +258,7 @@ static void range_dcv( const range_t *range, _mode_t *mode /*, bool _10meg_imped
 
   sa_az_set( &mode->sa, "ch1");
 
-  // close relay - select external input
+  // close relay - select external terminal input
   mode->serial.K402 = SR_SET;
 
 
@@ -275,25 +278,25 @@ static void range_dcv( const range_t *range, _mode_t *mode /*, bool _10meg_imped
   }
   else if(strcasecmp( range->arg, "10") == 0) {
 
-    mode->serial.K403 = mode->_10meg_impedance ? SR_SET : SR_RESET;
+    mode->serial.K403 = _10meg_impedance ? SR_SET : SR_RESET;
     mode_gain_set( mode, 1);
     sa_az_set( &mode->sa, "ch1" );
   }
   else if(strcasecmp( range->arg, "1") == 0) {
 
-    mode->serial.K403 = mode->_10meg_impedance ? SR_SET : SR_RESET;
+    mode->serial.K403 = _10meg_impedance ? SR_SET : SR_RESET;
     mode_gain_set( mode, 10);
     sa_az_set( &mode->sa, "ch1" );
   }
   else if(strcasecmp( range->arg, "0.1") == 0) {
 
-    mode->serial.K403 = mode->_10meg_impedance ? SR_SET : SR_RESET;
+    mode->serial.K403 = _10meg_impedance ? SR_SET : SR_RESET;
     mode_gain_set( mode, 100);
     sa_az_set( &mode->sa, "ch1" );
   }
   else if(strcasecmp( range->arg, "0.01") == 0) {
 
-    mode->serial.K403 = mode->_10meg_impedance ? SR_SET : SR_RESET;
+    mode->serial.K403 = _10meg_impedance ? SR_SET : SR_RESET;
     mode_gain_set( mode, 1000);
     sa_az_set( &mode->sa, "ch1" );
   }

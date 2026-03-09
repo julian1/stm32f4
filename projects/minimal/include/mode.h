@@ -6,48 +6,6 @@
 
 #include <device/spi-fpga0-reg.h>
 
-/*
-  EXTR.
-    don't care about defining inidividual registers for muxes etc.
-    instead the entire state representation is considered as high-level register. with a subset of pre-determined set elements.
-
-    - the clearing mask for relays, is normally always the same. but the need to manipulate b2b fets changes thing.
-    - with a straight array.   WE *CAN* also define using a parallel alternative structure with bitfield.
-  ----
-    - sequencing - may also want to switch relays, wait. then turn on the analog switches.
-
-    - EXTR. THE state of ALL relays must be defined.  0 just means use prior state.  which is wrong.  either L1, or L2.  not 0.
-
-    - It would be easier to do this with a memcpy.
-
-                                      first transition            // second transition
-                                      U406    U401
-*/
-
-// is wrong. we have to switch all the relays to a defined state
-
-
-
-/*
-  EXTR. we can do the three step sequence of b2b fets in two steps. relying on faster speed
-
-  1. turn off b2b fets.   turn on relay.   relay slower.
-  2. turn off latch to relay. and turn on b2b fets.         <- so this is more than a mask.
-  -----------------
-
-  OR.    have two bits. and the interpreter.   will manage
-
-  Eg. b2b-fets stage1. b2b-fets stage2.   - and encode... issue is that noo
-
-  --------
-  - So we don't duplicate everything.  just if a relay has a different state.
-  - OR we just encode all states - as two states.  transition
-  - eg. just double  the bitvector.
-  ---
-  - then we can encode.   - and don't need messy mask abstractions.
-
-*/
-
 
 
 
@@ -84,12 +42,6 @@
 #define SR_RESET    0b10
 
 
-/*
-// precharge switches
-#define SW_PC_BOOT        0
-#define SW_PC_SIGNAL      1
-
-*/
 
 
 
@@ -204,15 +156,15 @@ void _4094_state_clear_relays(_4094_state_t *state);
 
 
 
-// sequence acquisition
+// sample/sequence acquisition
 
 typedef struct sa_state_t
 {
-  uint32_t p_clk_count_trig_delay;  // consider rename p_trig_delay
-  uint32_t p_clk_count_precharge;   // consider rename p_precharge   or p_cc_precharge
+  uint32_t p_trig_delay;
+  uint32_t p_precharge;
 
   // number of phases
-  // rename? - opportunity for confusion, suffix of _n in verilog indicates  inverted signal.
+  // consider rename - opportunity for confusion, since suffix of _n in verilog indicates  inverted signal.
   uint32_t p_seq_n;
 
   seq_elt_t p_seq_elt [ 4] ;
@@ -225,8 +177,8 @@ void sa_trig_delay_set( sa_state_t *sa, uint32_t u);
 
 void sa_az_set( sa_state_t *sa, const char *s);
 
-// these funcs almost belong where reg_direct, and reg_cr are defined
 
+// these funcs almost belong where reg_direct, and reg_cr are defined
 void direct_az_set(reg_direct_t *reg_direct, const char *s);
 
 void cr_mode_set( reg_cr_t *reg_cr, unsigned u0);
@@ -284,7 +236,7 @@ typedef struct _mode_t
   // control register
   reg_cr_t      reg_cr;
 
-  // when in mode 0
+  // control output in mode 0
   reg_direct_t  reg_direct;
 
 
@@ -302,16 +254,6 @@ typedef struct _mode_t
 
 
 
-  /*
-    not sure _10meg_impedance belongs here.
-    mode_reset() should reset all fields to fixed state.
-    while this setting only applies for user/operator ranges
-    consider inject/move to the range_t structure
-    - same applies for the trigger_source
-    - TODO change to bool.
-  */
-  uint8_t       _10meg_impedance : 1;
-
 
 } _mode_t ;
 
@@ -320,19 +262,7 @@ typedef struct _mode_t
 void mode_init(_mode_t *mode);
 void mode_reset(_mode_t *mode);
 
-
-
-
-
-// bool mode_repl_statement( _mode_t *mode,  const char *cmd, const uint32_t line_freq);
-bool mode_repl_statement(
-  _mode_t     *mode,
-  const char  *cmd,
-  const uint32_t line_freq
-);
-
-
-// void mode_az_set(_mode_t *mode, const char *s);
+bool mode_repl_statement( _mode_t     *mode, const char  *cmd, const uint32_t line_freq);
 
 void mode_gain_set( _mode_t *mode, uint32_t u);
 
@@ -350,10 +280,65 @@ void mode_lts_source_set( _mode_t *mode, double f0 );       // arg is 10,0,-10
 void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 );   // factor into daq_set and ch2_set
 
 void mode_sts_dac_set( _mode_t *mode, unsigned u0 );
+
 void mode_invert_dac_set( _mode_t *mode, unsigned u0 );
 
 
 
+
+
+
+
+/*
+
+OLD
+
+    don't care about defining inidividual registers for muxes etc.
+    instead the entire state representation is considered as high-level register. with a subset of pre-determined set elements.
+
+    - the clearing mask for relays, is normally always the same. but the need to manipulate b2b fets changes thing.
+    - with a straight array.   WE *CAN* also define using a parallel alternative structure with bitfield.
+  ----
+    - sequencing - may also want to switch relays, wait. then turn on the analog switches.
+
+    - EXTR. THE state of ALL relays must be defined.  0 just means use prior state.  which is wrong.  either L1, or L2.  not 0.
+
+    - It would be easier to do this with a memcpy.
+
+                                      first transition            // second transition
+                                      U406    U401
+*/
+
+// is wrong. we have to switch all the relays to a defined state
+
+
+
+/*
+  . we can do the three step sequence of b2b fets in two steps. relying on faster speed
+
+  1. turn off b2b fets.   turn on relay.   relay slower.
+  2. turn off latch to relay. and turn on b2b fets.         <- so this is more than a mask.
+  -----------------
+
+  OR.    have two bits. and the interpreter.   will manage
+
+  Eg. b2b-fets stage1. b2b-fets stage2.   - and encode... issue is that noo
+
+  --------
+  - So we don't duplicate everything.  just if a relay has a different state.
+  - OR we just encode all states - as two states.  transition
+  - eg. just double  the bitvector.
+  ---
+  - then we can encode.   - and don't need messy mask abstractions.
+
+*/
+
+/*
+// precharge switches
+#define SW_PC_BOOT        0
+#define SW_PC_SIGNAL      1
+
+*/
 
 
 /*
