@@ -286,6 +286,11 @@ bool app_repl_range( app_t *app, const char *cmd);
 */
 
 
+/*
+  consider add a separate repl() statement to dispatch these
+
+*/
+
 // from /test
 bool app_test01( app_t *app , const char *cmd);
 bool app_test02( app_t *app , const char *cmd);

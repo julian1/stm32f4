@@ -2,6 +2,7 @@
 
 #pragma once
 
+// consider renam app_transfer.h.
 
 #include <stdbool.h>
 
@@ -28,8 +29,8 @@ typedef struct transfer_t
 {
   // does this behond in app.h. functions are mostly typed on app_t here.
   // magic
-  void (*step1)( app_t *app);
-  void (*step2)( app_t *app);
+  void (*step1)( app_t *app);   // reference/transfer/source
+  void (*step2)( app_t *app);   // target
   void (*cal_set_value)( cal_t *cal, double mean0, double mean1);
 
 } transfer_t;
