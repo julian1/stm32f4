@@ -34,16 +34,18 @@ bool app_transfer_repl_statement( app_t *app, const char *cmd)
 
   // uint32_t u0;
 
+  // can rename all these  transfer w;  transfer b;   etc.
+  // TODO. improve string/arg handling  by decoding argument
   if( false );
-  else if(strcmp(cmd, "cal_w") == 0)    { app_cal_w( app); }
-  else if(strcmp(cmd, "cal_b") == 0)    { app_cal_b( app); }
-  else if(strcmp(cmd, "cal_b10") == 0)  { app_cal_b10( app); }
-  else if(strcmp(cmd, "cal_b100") == 0) { app_cal_b100( app); }
-  else if(strcmp(cmd, "cal_b1000") == 0) { app_cal_b1000( app); }
+  else if(strcmp(cmd, "cal w") == 0)    { app_cal_w( app); }
+  else if(strcmp(cmd, "cal b") == 0)    { app_cal_b( app); }
+  else if(strcmp(cmd, "cal b10") == 0)  { app_cal_b10( app); }
+  else if(strcmp(cmd, "cal b100") == 0) { app_cal_b100( app); }
+  else if(strcmp(cmd, "cal b1000") == 0) { app_cal_b1000( app); }
 
-  else if(strcmp(cmd, "cal_div1000") == 0) { app_cal_div1000( app); }
+  else if(strcmp(cmd, "cal div1000") == 0) { app_cal_div1000( app); }
 
-  else if(strcmp(cmd, "cal_all") == 0)  { app_cal_all( app); }
+  else if(strcmp(cmd, "cal all") == 0)  { app_cal_all( app); }
 
   else return 0;
 
