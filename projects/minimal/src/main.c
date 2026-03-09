@@ -404,8 +404,8 @@ static int main_f429(void)
   app.mode = &mode;
 
 
-  app.ranges    = init_range_values;
-  app.ranges_sz = init_ranges_sz;
+  app.ranges    = range_init_values;
+  app.ranges_sz = range_init_sz;
 
 
   // structure just references state in app.

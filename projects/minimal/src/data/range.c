@@ -412,7 +412,7 @@ static double cal_temp( const range_t *range, const cal_t *cal, double value)
 
 */
 
-range_t init_range_values[] = {
+range_t range_init_values[] = {
 
   { RANGE_MAGIC,  "REF",  "",     "V",  mode_ref,   cal_normal, true,   true },
 
@@ -445,7 +445,7 @@ range_t init_range_values[] = {
 
 };
 
-const size_t init_ranges_sz = ARRAY_SIZE( init_range_values );
+const size_t range_init_sz = ARRAY_SIZE( range_init_values );
 
 
 

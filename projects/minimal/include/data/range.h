@@ -66,6 +66,12 @@ typedef struct range_t
 
   ///////////////////
 
+/*
+  // we can inject this ... with a loop in  app.
+  bool *  _10meg_impedance ;
+
+*/
+
 
 } range_t;
 
@@ -80,9 +86,9 @@ int32_t range_get_idx( range_t *ranges, size_t sz, const char *name, const char 
 // forward declaration
 // do not use directly... use app->range_values instead
 // may be better manage this with a  reset() singleton.
-extern range_t  init_range_values[];
+extern range_t  range_init_values[];
 
-extern const size_t init_ranges_sz ;
+extern const size_t range_init_sz ;
 
 
 
