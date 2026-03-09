@@ -284,6 +284,7 @@ void sa_az_set( sa_state_t *sa, const char *s)
   }
 
   else if(strcmp(s, "ratio") == 0 ) {
+
     assert( 0);
   }
   else {

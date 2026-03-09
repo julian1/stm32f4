@@ -333,32 +333,16 @@ bool mode_repl_statement(
 );
 
 
-
 void mode_az_set(_mode_t *mode, const char *s);
 
 void mode_gain_set( _mode_t *mode, uint32_t u);
 
-
-#if 0
-// ch1.
-void mode_ch1_reset(_mode_t *mode);
-void mode_ch1_set_dcv(_mode_t *mode);
-void mode_ch1_set_dcv_source(_mode_t *mode);    // change name lts eg.  using input relay
-#endif
-
-
 // ch2
 void mode_ch2_reset(_mode_t *mode);
 
-// set input
 bool mode_ch2_set_relax( _mode_t *mode, const char *s0);    // for repl.
-void mode_ch2_set( _mode_t *mode, const char *s);
+void mode_ch2_set( _mode_t *mode, const char *s);             // consider rename set input
 
-
-
-// better name.  set_cap. or something
-void mode_ch1_accum( _mode_t *mode, bool);
-void mode_ch2_accum( _mode_t *mode, bool);
 
 
 /////////////////////////
