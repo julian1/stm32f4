@@ -51,7 +51,7 @@ static void test( app_t *app)
   cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
   // sample acquisition mode - for adc running standalone.  // REVIEW ME
-  mode_az_set(mode, "0" );
+  sa_az_set( &mode->sa, "0" );
 
   // hold input to adc at lo. to reduce leakage.
   // mode_ch2_set_ref_lo( mode);

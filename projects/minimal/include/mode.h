@@ -332,7 +332,7 @@ bool mode_repl_statement(
 );
 
 
-void mode_az_set(_mode_t *mode, const char *s);
+// void mode_az_set(_mode_t *mode, const char *s);
 
 void mode_gain_set( _mode_t *mode, uint32_t u);
 

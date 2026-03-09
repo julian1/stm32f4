@@ -15,6 +15,155 @@
 
 
 
+/*
+  better location for these fucntions
+  they are ok here, since they support mode handling.
+  although not typed on mode
+
+
+*/
+
+void adc_aperture_set( adc_state_t *adc, uint32_t u)
+{
+  adc->p_aperture = u;
+}
+
+
+
+
+void sa_trig_delay_set( sa_state_t *sa, uint32_t u)
+{
+  sa->p_clk_count_trig_delay = u;
+}
+
+
+
+void cr_mode_set( reg_cr_t *reg_cr, unsigned u0)
+{
+
+  // ease setting.
+  // change name of access to mode_cr_mode_set() ... or similar...
+
+  assert(u0 < 1<<3);
+
+  reg_cr->mode = u0;
+}
+
+
+
+
+
+void direct_az_set(reg_direct_t *reg_direct, const char *s)
+{
+  /*
+    set reg_direct with same inputs as would be used in az ode.
+    for tests.
+  */
+  if(strcmp(s, "0") == 0 ) {
+
+    /*  sample star-ground, for both readings
+        used for noise test, and low-leakage input during adc weight calculation
+    */
+
+    // for direct mode
+    reg_direct->azmux_o = S6;    // A400-1
+    reg_direct->pc_o = 0b00;
+  }
+  else if(strcmp(s, "ch2") == 0 ) {
+
+    // direct mode
+    reg_direct->azmux_o = S3;
+    reg_direct->pc_o = 0b10;
+  }
+  else if(strcmp(s, "ch1") == 0 ) {
+
+    // direct mode
+    reg_direct->azmux_o = S1;
+    reg_direct->pc_o = 0b01;
+
+  } else if(strcmp(s, "ratio") == 0 ) {
+    assert( 0);
+  }
+  else
+    assert( 0);
+
+}
+
+
+
+
+void sa_az_set( sa_state_t *sa, const char *s)
+{
+  /*
+      this can almost be typed on sa which would be better.
+      same as setting the trigger delay.
+
+      options here.   "ch1", "ch2", "ratio", "0".
+      keep the az flag separate.
+  */
+
+
+  if(strcmp(s, "0") == 0) {
+
+    /*  sample star-ground, for both readings
+        used for noise test, and low-leakage input during adc weight calculation
+    */
+
+    // signal can come in on S3, S7
+    // sa_state_t *sa = &mode->sa;
+    sa->p_seq_n = 2;
+
+    // zero
+    sa->p_seq_elt[ 0].azmux  = S6;     // A400-1
+    sa->p_seq_elt[ 0].pc = 0b00;
+
+    // val
+    sa->p_seq_elt[ 1].azmux  = S6;     // A400-1
+    sa->p_seq_elt[ 1].pc = 0b00;
+
+    // could set a catcher handler/closure here
+  }
+
+  else if(strcmp(s, "ch2") == 0 ) {
+
+    // az mode
+    // signal on S3, S7
+    sa->p_seq_n = 2;
+
+    // zero
+    sa->p_seq_elt[ 0].azmux  = S7;    // CH2-LO
+    sa->p_seq_elt[ 0].pc = 0b00;
+
+    // val
+    sa->p_seq_elt[ 1].azmux  = S3;    // PC-CH2-OUT
+    sa->p_seq_elt[ 1].pc = 0b10;      // pc2 active
+  }
+
+  else if(strcmp(s, "ch1") == 0 ) {
+
+    // az mode
+    // signal on S3, S7
+    sa->p_seq_n = 2;
+
+    // zero
+    sa->p_seq_elt[ 0].azmux  = S5;    // COM-LC
+    sa->p_seq_elt[ 0].pc = 0b00;
+
+    // val
+    sa->p_seq_elt[ 1].azmux  = S1;    // PC-CH1-OUT
+    sa->p_seq_elt[ 1].pc = 0b01;      // pc1 active
+  }
+
+  else if(strcmp(s, "ratio") == 0 ) {
+
+    assert( 0);
+  }
+  else {
+    assert( 0);
+  }
+
+}
+
 
 
 
@@ -149,152 +298,6 @@ void _4094_state_clear_relays(_4094_state_t *state)
 
 
 
-void adc_aperture_set( adc_state_t *adc, uint32_t u)
-// void mode_adc_aperture_set( _mode_t *mode, uint32_t u)
-{
-  adc->p_aperture = u;
-}
-
-
-
-
-void sa_trig_delay_set( sa_state_t *sa, uint32_t u)
-// void sa_trig_delay_set( _mode_t *mode, uint32_t u)
-{
-  sa->p_clk_count_trig_delay = u;
-}
-
-
-
-void cr_mode_set( reg_cr_t *reg_cr, unsigned u0)
-// void mode_cr_mode_set(_mode_t *mode, unsigned u0)
-{
-
-  // ease setting.
-  // change name of access to mode_cr_mode_set() ... or similar...
-
-  assert(u0 < 1<<3);
-
-  reg_cr->mode = u0;
-}
-
-
-
-
-
-void direct_az_set(reg_direct_t *reg_direct, const char *s)
-{
-  /*
-    set reg_direct with same inputs as would be used in az ode.
-    for tests.
-  */
-  if(strcmp(s, "0") == 0 ) {
-
-    /*  sample star-ground, for both readings
-        used for noise test, and low-leakage input during adc weight calculation
-    */
-
-    // for direct mode
-    reg_direct->azmux_o = S6;    // A400-1
-    reg_direct->pc_o = 0b00;
-  }
-  else if(strcmp(s, "ch2") == 0 ) {
-
-    // direct mode
-    reg_direct->azmux_o = S3;
-    reg_direct->pc_o = 0b10;
-  }
-  else if(strcmp(s, "ch1") == 0 ) {
-
-    // direct mode
-    reg_direct->azmux_o = S1;
-    reg_direct->pc_o = 0b01;
-
-  } else if(strcmp(s, "ratio") == 0 ) {
-    assert( 0);
-  }
-  else
-    assert( 0);
-
-}
-
-
-
-
-void sa_az_set( sa_state_t *sa, const char *s)
-{
-  /*
-      this can almost be typed on sa which would be better.
-      same as setting the trigger delay.
-
-      options here.   "ch1", "ch2", "ratio", "0".
-      keep the az flag separate.
-  */
-
-
-  if(strcmp(s, "0") == 0) {
-
-    /*  sample star-ground, for both readings
-        used for noise test, and low-leakage input during adc weight calculation
-    */
-
-    // signal can come in on S3, S7
-    // sa_state_t *sa = &mode->sa;
-    sa->p_seq_n = 2;
-
-    // zero
-    sa->p_seq_elt[ 0].azmux  = S6;     // A400-1
-    sa->p_seq_elt[ 0].pc = 0b00;
-
-    // val
-    sa->p_seq_elt[ 1].azmux  = S6;     // A400-1
-    sa->p_seq_elt[ 1].pc = 0b00;
-
-    // could set a catcher handler/closure here
-  }
-
-  else if(strcmp(s, "ch2") == 0 ) {
-
-    // az mode
-    // signal on S3, S7
-    sa->p_seq_n = 2;
-
-    // zero
-    sa->p_seq_elt[ 0].azmux  = S7;    // CH2-LO
-    sa->p_seq_elt[ 0].pc = 0b00;
-
-    // val
-    sa->p_seq_elt[ 1].azmux  = S3;    // PC-CH2-OUT
-    sa->p_seq_elt[ 1].pc = 0b10;      // pc2 active
-  }
-
-  else if(strcmp(s, "ch1") == 0 ) {
-
-    // az mode
-    // signal on S3, S7
-    sa->p_seq_n = 2;
-
-    // zero
-    sa->p_seq_elt[ 0].azmux  = S5;    // COM-LC
-    sa->p_seq_elt[ 0].pc = 0b00;
-
-    // val
-    sa->p_seq_elt[ 1].azmux  = S1;    // PC-CH1-OUT
-    sa->p_seq_elt[ 1].pc = 0b01;      // pc1 active
-  }
-
-  else if(strcmp(s, "ratio") == 0 ) {
-
-    assert( 0);
-  }
-  else {
-    assert( 0);
-  }
-
-}
-
-
-
 
 
 /*
@@ -303,7 +306,7 @@ void sa_az_set( sa_state_t *sa, const char *s)
 
 */
 
-
+#if 0
 void mode_az_set(_mode_t *mode, const char *s)
 {
 
@@ -313,6 +316,7 @@ void mode_az_set(_mode_t *mode, const char *s)
   // bool ret = mode_az_set_relax( mode, s);
   // assert( ret);
 }
+#endif
 
 
 
@@ -819,7 +823,9 @@ bool mode_repl_statement(
 
       aper_cc_print( aperture,  line_freq);
 
-      mode->adc.p_aperture = aperture;
+      adc_aperture_set( &mode->adc, aperture );
+
+      // mode->adc.p_aperture = aperture;
     }
   }
 
@@ -949,11 +955,11 @@ bool mode_repl_statement(
     }
   }
 
-  else if( sscanf(cmd, "set az %100s", s0) == 1
-    /* || sscanf(cmd, "set sa %100s", s0) == 1 */)  {
+  else if( sscanf(cmd, "set az %100s", s0) == 1)  {
 
+    sa_az_set( &mode->sa, s0 );
 
-    mode_az_set( mode, s0 );
+    // mode_az_set( mode, s0 );
 
 #if 0
     bool ret = mode_az_set_relax( mode, s0 );

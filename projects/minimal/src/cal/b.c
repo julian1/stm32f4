@@ -25,21 +25,21 @@ static void step1( app_t *app)
 
   assert(app->cal->w);
 
+/*
+  should use the range function.
+  that way. it is clear what reading value is displayed
+  // Could probably use the range here to set to the REF.
+*/
+
   // reference range
+  sa_az_set( &app->mode->sa, "ch2" );
 
   // alternate calibrate against 10V.
   // mode_lts_source_set( mode, 10 );
   // mode_ch2_set_lts( mode);
-  mode_az_set( app->mode, "ch2" );
-
   // use the ref as source
   mode_ch2_set( app->mode, "ref");
 
-  // Could probably use the range here to set to the REF.
-/*
-  should use the range function.
-  that way. it is clear what reading value is displayed
-*/
 }
 
 
