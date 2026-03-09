@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include <cal/transfer.h>
 #include <app.h>
 #include <mode.h>
 #include <data/cal.h>

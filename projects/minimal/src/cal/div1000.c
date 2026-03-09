@@ -11,6 +11,7 @@
 
 #include <lib2/util.h>    // UNUSED
 
+#include <cal/transfer.h>
 #include <app.h>
 #include <mode.h>
 #include <data/cal.h>
@@ -35,7 +36,9 @@ static void app_override_range( app_t *app)
   mode->serial.K404 = SR_SET;
 }
 
-// rename reference_step()
+
+
+// consider rename reference_step()
 
 static void step1( app_t *app)
 {

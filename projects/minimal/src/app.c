@@ -34,6 +34,8 @@
 
 
 #include <app.h>
+#include <cal/transfer.h>
+
 #include <mode.h>
 #include <data/cal.h>
 #include <data/data.h>
@@ -1287,6 +1289,8 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   }
 #endif
 
+  // have a separate cal_repl ...
+  // transfer
 
   else if(strcmp(cmd, "cal_w") == 0)    { app_cal_w( app); }
   else if(strcmp(cmd, "cal_b") == 0)    { app_cal_b( app); }
@@ -1295,7 +1299,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   else if(strcmp(cmd, "cal_b1000") == 0) { app_cal_b1000( app); }
 
   else if(strcmp(cmd, "cal_div1000") == 0) { app_cal_div1000( app); }
-  
+
   else if(strcmp(cmd, "cal_all") == 0)  { app_cal_all( app); }
 
 

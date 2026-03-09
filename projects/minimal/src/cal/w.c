@@ -22,6 +22,8 @@
 // #include <peripheral/spi-ice40.h>
 #include <peripheral/gpio.h>        // trigger
 
+
+#include <cal/transfer.h>
 #include <app.h>
 #include <util.h> // nplc_to_aperture()
 #include <mode.h>

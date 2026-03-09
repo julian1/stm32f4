@@ -15,6 +15,7 @@
 #include <peripheral/gpio.h>        // trigger
 
 #include <app.h>
+#include <cal/transfer.h>
 #include <util.h> // nplc_to_aperture()
 #include <lib2/stats.h>
 

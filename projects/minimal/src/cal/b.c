@@ -11,6 +11,7 @@
 
 #include <lib2/util.h>    // UNUSED
 
+#include <cal/transfer.h>
 #include <app.h>
 #include <mode.h>
 #include <data/cal.h>
