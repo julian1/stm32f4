@@ -18,6 +18,23 @@
 
 
 
+static void app_override_range( app_t *app)
+{
+	// consider - change name app_override_range()
+  _mode_t *mode = app->mode;
+  assert( mode && mode->magic == MODE_MAGIC);
+
+
+  // isolate external input with relay open
+  mode->serial.K402 = SR_RESET;
+
+  // isolate HV divider open/ no 10Meg. impedance
+  mode->serial.K403 = SR_RESET;
+
+  // close relay for LTS into dcv and hv divider
+  mode->serial.K404 = SR_SET;
+}
+
 
 
 static void step1( app_t *app)
@@ -31,31 +48,31 @@ static void step1( app_t *app)
   _mode_t *mode = app->mode;
   assert( mode && mode->magic == MODE_MAGIC);
 
-  /* set the reference - measure lts 10V. on ch1. input
-    easier to do this manually rather than with ranges.
-    this is all com-lc referenced.
-    do not call mode_reset() here... because adc/sa parameters have been set.
+  /* we use the range here. so that data_reading() will print something nominally ok
+    but note that calculation will use mean0,mean1 which are normalized counts
   */
 
+  // reference range
+  app_switch_range1( app, "DCV", "10");
+  // override
+  app_override_range( app);
+
+  // set the source voltage
   mode_lts_source_set ( mode, 10 );
 
-  // close the relay to send lts into dcv ch1.  and the hv divider
-  mode->serial.K404 = SR_SET;
-
-  mode_az_set( mode, "ch1" );
-
-  // is anything else needed dcv ?
-
-  // set the ch2. input up, ready for step 2.
-  mode_ch2_set( app->mode, "div");
-
+  // issue here is the dcv. offset. it will be shown in readings.
 }
 
 
 static void step2( app_t *app)
 {
-  // switch to ch2.
-  mode_az_set( app->mode, "ch2" );
+  _mode_t *mode = app->mode;
+  assert( mode && mode->magic == MODE_MAGIC);
+
+  // target range
+  app_switch_range1( app, "DCV", "1000");
+  // override
+  app_override_range( app);
 
 }
 
@@ -67,23 +84,12 @@ static void cal_set_value( cal_t *cal, double mean0, double mean1)
   // cal->b = 7.0 / mean( values, ARRAY_SIZE(values));
   // cal->b10 = (cal->b * mean0) / mean1 ;
 
-  printf("target %f\n" ,   cal->b * mean0 );   // should equal 9.8V. etc
+  printf("target %f\n" ,   cal->b * mean0 );   // eg. the input should be ~ 10V.
 
-  cal->div1000 = (cal->b * mean0)  /  mean1;
+  cal->div1000 = (cal->b * mean0)  /  mean1;    // the adjustment needed
 
   printf("cal->div1000 %f\n", cal->div1000 );
 
-
-  /* need to set the range here in order for data_update()
-    to have the div1000 available to set correct value...
-
-    but cannot because do not have reference to app_t.
-    AND because.... we do not want the input relay closed.
-
-    could set up a dummy range.  dcv1000 - internal...
-  */
-
-  app_switch_range1( app, "dcv", "1000");
 
 }
 

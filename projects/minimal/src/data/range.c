@@ -272,7 +272,10 @@ static void mode_dcv( const range_t *range, _mode_t *mode)
   mode_partial_reset( mode);
 
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+
   mode_az_set(mode, "ch1");
+
+  // close relay - select external input
   mode->serial.K402 = SR_SET;
 
 
@@ -280,31 +283,39 @@ static void mode_dcv( const range_t *range, _mode_t *mode)
 
     mode->serial.K403 = SR_SET;
     mode_gain_set( mode, 1);
+    mode_ch2_set( mode, "div");
+    mode_az_set( mode, "ch2" );
   }
   else if(strcasecmp( range->arg, "100") == 0) {
 
     mode->serial.K403 = SR_SET;
     mode_gain_set( mode, 10);
+    mode_ch2_set( mode, "div");
+    mode_az_set( mode, "ch2" );
   }
   else if(strcasecmp( range->arg, "10") == 0) {
 
     mode->serial.K403 = mode->_10meg_impedance ? SR_SET : SR_RESET;
     mode_gain_set( mode, 1);
+    mode_az_set( mode, "ch1" );
   }
   else if(strcasecmp( range->arg, "1") == 0) {
 
     mode->serial.K403 = mode->_10meg_impedance ? SR_SET : SR_RESET;
     mode_gain_set( mode, 10);
+    mode_az_set( mode, "ch1" );
   }
   else if(strcasecmp( range->arg, "0.1") == 0) {
 
     mode->serial.K403 = mode->_10meg_impedance ? SR_SET : SR_RESET;
     mode_gain_set( mode, 100);
+    mode_az_set( mode, "ch1" );
   }
   else if(strcasecmp( range->arg, "0.01") == 0) {
 
     mode->serial.K403 = mode->_10meg_impedance ? SR_SET : SR_RESET;
     mode_gain_set( mode, 1000);
+    mode_az_set( mode, "ch1" );
   }
   else
     assert( 0);
@@ -322,9 +333,16 @@ static double cal_dcv( const range_t *range, const cal_t *cal, double value)
 
   if(strcasecmp( range->arg, "10") == 0) {
 
+    // TODO add front or rear terminal offset.
     return cal->b * value;
-    // add front or rear terminal offset.
   }
+  else if(strcasecmp( range->arg, "1000") == 0) {
+
+    // TODO add front or rear terminal offset.
+    // but not if using internal...
+    return cal->div1000 * value;
+  }
+
   else
     assert( 0);
 

@@ -34,9 +34,9 @@ void app_cal_all( app_t *app)
   app_cal_b10( app);
   app_cal_b100( app);
   app_cal_b1000( app);
-  
+
   // app_cal_div100( app);
- 
+
 
   cal_show( app->cal);
 }
@@ -80,7 +80,7 @@ void app_transfer( app_t *app, transfer_t *transfer)
   /////////////////////////
 
 
-  // step 1
+  // step 1 - take reference
   transfer->step1( app);
 
   app_transition_state( app);
@@ -97,7 +97,7 @@ void app_transfer( app_t *app, transfer_t *transfer)
 
   /////////////////////////////////
 
-  // step 2
+  // step 2 - take target
   transfer->step2( app);
 
   app_transition_state( app);
@@ -110,7 +110,7 @@ void app_transfer( app_t *app, transfer_t *transfer)
   printf("mean1 %f,  stddev1 %.9f\n", mean1, stddev1);
 
 
-  // step 3.
+  // step 3. - compute cal for the target
   transfer->cal_set_value( cal, mean0, mean1);
 
 

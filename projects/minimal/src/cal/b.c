@@ -25,6 +25,8 @@ static void step1( app_t *app)
 
   assert(app->cal->w);
 
+  // reference range
+
   // alternate calibrate against 10V.
   // mode_lts_source_set( mode, 10 );
   // mode_ch2_set_lts( mode);
@@ -34,6 +36,10 @@ static void step1( app_t *app)
   mode_ch2_set( app->mode, "ref");
 
   // Could probably use the range here to set to the REF.
+/*
+  should use the range function.
+  that way. it is clear what reading value is displayed
+*/
 }
 
 
@@ -42,9 +48,9 @@ static void step2( app_t *app)
   UNUSED( app);
   // ignore data here....
 
+  // because target is comes from
+
   printf("*data ignored*\n");
-  // don't change. the source. else the next printing will not work
-  // mode_ch2_set( app->mode, "ref-lo");
 }
 
 
