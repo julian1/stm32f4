@@ -253,6 +253,13 @@ typedef struct _mode_t
   bool          trigger_source;
 
 
+  /* choice, is putting this in app_t or mode_t .
+    - putting in mode is bad, because it is state not actually state written to the board.
+    - however for mode_reset() we really expect a clear/fixed state point. and putting it in mode ensures this.
+    - eg. we really do not want to have to clear this flag when running cal transfer routines
+    */
+  bool          _10meg_impedance ;
+
 
 
 } _mode_t ;

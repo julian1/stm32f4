@@ -979,7 +979,7 @@ void app_switch_range( app_t *app, signed range_idx)
   assert(range);
   assert(range->range_set_mode);
 
-  range->range_set_mode( range, app->mode, app->_10meg_impedance);
+  range->range_set_mode( range, app->mode /*, app->_10meg_impedance */);
 }
 
 

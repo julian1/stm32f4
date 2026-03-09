@@ -227,8 +227,11 @@ typedef struct app_t
   bool          repl_trigger_value;
 
 
-
-  bool          _10meg_impedance ;
+  /* choice, is putting this in app or in mode.
+    - it is bad to put it mode, because it is not actually state written to the board.
+    - for mode_reset, we really expect a clear/fixed state point. and putting it in mode ensures this.
+    */
+  // bool          _10meg_impedance ;
 
 
 } app_t;
