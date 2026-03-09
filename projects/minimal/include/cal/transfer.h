@@ -2,6 +2,7 @@
 
 #pragma once
 
+// consider renam app_transfer.h.
 
 #include <stdbool.h>
 
