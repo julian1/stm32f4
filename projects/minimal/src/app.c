@@ -1268,40 +1268,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
 
 
-
-#if 0
-  else if( strcmp(cmd, "dcv") == 0) {
-
-    assert(0);
-
-/*
-    code cannot be put in mode, because needs app_repl parsing.
-*/
-    // sample ref
-    // reset ; set ch2 ref;  set az ch2;  set mode 7; trig;
-    app_repl_statements(app, "        \
-        set ch2   ref;  \
-        set az    ch2;  \
-        set mode  7 ;   \
-        trig;           \
-      " );
-
-  }
-#endif
-
-  // have a separate cal_repl ...
-  // transfer
-
-  else if(strcmp(cmd, "cal_w") == 0)    { app_cal_w( app); }
-  else if(strcmp(cmd, "cal_b") == 0)    { app_cal_b( app); }
-  else if(strcmp(cmd, "cal_b10") == 0)  { app_cal_b10( app); }
-  else if(strcmp(cmd, "cal_b100") == 0) { app_cal_b100( app); }
-  else if(strcmp(cmd, "cal_b1000") == 0) { app_cal_b1000( app); }
-
-  else if(strcmp(cmd, "cal_div1000") == 0) { app_cal_div1000( app); }
-
-  else if(strcmp(cmd, "cal_all") == 0)  { app_cal_all( app); }
-
+  else if( app_transfer_repl_statement( app, cmd)) { }
 
   else if( mode_repl_statement( app->mode, cmd, app->line_freq )) { }
 
@@ -1414,6 +1381,43 @@ void app_repl_statements(app_t *app,  const char *s)
 
 
 
+
+
+#if 0
+  else if( strcmp(cmd, "dcv") == 0) {
+
+    assert(0);
+
+/*
+    code cannot be put in mode, because needs app_repl parsing.
+*/
+    // sample ref
+    // reset ; set ch2 ref;  set az ch2;  set mode 7; trig;
+    app_repl_statements(app, "        \
+        set ch2   ref;  \
+        set az    ch2;  \
+        set mode  7 ;   \
+        trig;           \
+      " );
+
+  }
+#endif
+
+  // have a separate cal_repl ...
+  // transfer
+
+
+/*
+  else if(strcmp(cmd, "cal_w") == 0)    { app_cal_w( app); }
+  else if(strcmp(cmd, "cal_b") == 0)    { app_cal_b( app); }
+  else if(strcmp(cmd, "cal_b10") == 0)  { app_cal_b10( app); }
+  else if(strcmp(cmd, "cal_b100") == 0) { app_cal_b100( app); }
+  else if(strcmp(cmd, "cal_b1000") == 0) { app_cal_b1000( app); }
+
+  else if(strcmp(cmd, "cal_div1000") == 0) { app_cal_div1000( app); }
+
+  else if(strcmp(cmd, "cal_all") == 0)  { app_cal_all( app); }
+*/
 
 
 

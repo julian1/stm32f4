@@ -28,6 +28,29 @@
 
 
 
+bool app_transfer_repl_statement( app_t *app, const char *cmd)
+{
+  assert(app && app->magic == APP_MAGIC);
+
+  // uint32_t u0;
+
+  if( false );
+  else if(strcmp(cmd, "cal_w") == 0)    { app_cal_w( app); }
+  else if(strcmp(cmd, "cal_b") == 0)    { app_cal_b( app); }
+  else if(strcmp(cmd, "cal_b10") == 0)  { app_cal_b10( app); }
+  else if(strcmp(cmd, "cal_b100") == 0) { app_cal_b100( app); }
+  else if(strcmp(cmd, "cal_b1000") == 0) { app_cal_b1000( app); }
+
+  else if(strcmp(cmd, "cal_div1000") == 0) { app_cal_div1000( app); }
+
+  else if(strcmp(cmd, "cal_all") == 0)  { app_cal_all( app); }
+
+  else return 0;
+
+  return 1;
+}
+
+
 void app_cal_all( app_t *app)
 {
   app_cal_w( app);
