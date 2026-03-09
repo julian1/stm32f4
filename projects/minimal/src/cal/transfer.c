@@ -126,6 +126,95 @@ void app_transfer( app_t *app, transfer_t *transfer)
 }
 
 
+
+
+/*
+  - using data->count_norm is flexible.  and independent of range.
+  - could pass in the transfer function to use.
+  - OR. can just apply the transform on the result.
+
+  - eg. add function to stats.c  to scale the buffer.
+
+*/
+
+
+void app_fill_buffer( app_t *app, double *values, size_t n)
+{
+  data_t *data = app->data;
+  assert( data && data->magic == DATA_MAGIC);
+
+
+  // start sampling
+  gpio_write( app->gpio_trigger, true);
+
+  // obs loop
+  for( unsigned i = 0; i < n; )
+  {
+    printf("i %u, ", i);
+
+    // wait for adc data
+    while( !app->adc_interrupt_valid )
+      app_yield( app);
+
+    app->adc_interrupt_valid = false;
+
+    // get and compute counts
+    data_update( data);
+    if( data->valid) {
+
+      values[ i] = data->count_norm;
+      ++i;
+    }
+
+    printf("\n");
+  }
+
+  // stop sampling
+  gpio_write( app->gpio_trigger, false);
+}
+
+
+
+
+void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_t n)
+{
+  data_t *data = app->data;
+  assert( data && data->magic == DATA_MAGIC);
+
+
+  // start sampling
+  gpio_write( app->gpio_trigger, true);
+
+  // take obs loop
+  for( size_t i = 0; i < n; )
+  {
+    printf("i %u, ", i);
+
+    // wait for adc data
+    while( !app->adc_interrupt_valid )
+      app_yield( app);
+
+    app->adc_interrupt_valid = false;
+
+    // get and compute counts
+    data_update( data);
+
+    // take both hi and lo readings since they are the same.
+    // ignore data->valid
+
+    pos_values[i] = data->clk_count_refmux_pos;
+    neg_values[i] = data->clk_count_refmux_neg;
+
+    ++i;
+
+    printf("\n");
+  }
+
+  // sampling off
+  gpio_write( app->gpio_trigger, false);
+
+}
+
 #if 0
 
 // factor these functions into separate file
@@ -167,92 +256,4 @@ void app_cal_finish( app_t *app)
 }
 
 #endif
-
-
-/*
-  - using data->count_norm is the most flexible.  independent of range.
-  - could pass in the transfer function to use.
-  - OR. can just apply the transform on the result.
-
-  - eg. add function to stats.c  to scale the buffer.
-
-*/
-
-
-void app_fill_buffer( app_t *app, double *values, size_t n)
-{
-  data_t *data = app->data;
-  assert( data && data->magic == DATA_MAGIC);
-
-
-  // start sampling
-  gpio_write( app->gpio_trigger, true);
-
-  // obs loop
-  for( unsigned i = 0; i < n; )
-  {
-    printf("i %u, ", i);
-
-    // wait for adc data
-    while( !app->adc_interrupt_valid )
-      app_yield( app);
-
-    app->adc_interrupt_valid = false;
-
-
-    data_update( data);
-    if( data->valid) {
-
-      values[ i] = data->count_norm;
-      ++i;
-    }
-
-    printf("\n");
-  }
-
-  // stop sampling
-  gpio_write( app->gpio_trigger, false);
-}
-
-
-
-
-void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_t n)
-{
-  data_t *data = app->data;
-  assert( data && data->magic == DATA_MAGIC);
-
-
-  // start sampling
-  gpio_write( app->gpio_trigger, true);
-
-  // take obs loop
-  for( size_t i = 0; i < n; )
-  {
-    printf("i %u, ", i);
-
-    // wait for adc data
-    while( !app->adc_interrupt_valid )
-      app_yield( app);
-
-    app->adc_interrupt_valid = false;
-
-    data_update( data);
-
-    // take both hi and lo readings since they are the same.
-    // ignore data->valid
-
-    pos_values[i] = data->clk_count_refmux_pos;
-    neg_values[i] = data->clk_count_refmux_neg;
-
-    ++i;
-
-    printf("\n");
-  }
-
-  // sampling off
-  gpio_write( app->gpio_trigger, false);
-
-}
-
 
