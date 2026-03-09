@@ -35,7 +35,7 @@ static void app_override_range( app_t *app)
   mode->serial.K404 = SR_SET;
 }
 
-
+// rename reference_step()
 
 static void step1( app_t *app)
 {
@@ -50,6 +50,9 @@ static void step1( app_t *app)
 
   /* we use the range here. so that data_reading() will print something nominally ok
     but note that calculation will use mean0,mean1 which are normalized counts
+    --
+    do we need to deal with an EMF offset. when we set a ref voltage. but then transfer
+    perhaps it cancels?
   */
 
   // reference range
@@ -60,7 +63,6 @@ static void step1( app_t *app)
   // set the source voltage
   mode_lts_source_set ( mode, 10 );
 
-  // issue here is the dcv. offset. it will be shown in readings.
 }
 
 
@@ -73,29 +75,20 @@ static void step2( app_t *app)
   app_switch_range1( app, "DCV", "1000");
   // override
   app_override_range( app);
-
 }
 
 
 static void cal_set_value( cal_t *cal, double mean0, double mean1)
 {
-  UNUSED(mean0);
-  UNUSED(mean1);
   // cal->b = 7.0 / mean( values, ARRAY_SIZE(values));
   // cal->b10 = (cal->b * mean0) / mean1 ;
 
-  printf("target %f\n" ,   cal->b * mean0 );   // eg. the input should be ~ 10V.
-
   cal->div1000 = (cal->b * mean0)  /  mean1;    // the adjustment needed
-
   printf("cal->div1000 %f\n", cal->div1000 );
-
-
 }
 
 
 // actually i think we are doing div10000.  eg. when there is no gain.
-
 // if we have not got a range set, then the printing to use cal-.
 
 
