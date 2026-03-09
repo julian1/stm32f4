@@ -136,7 +136,7 @@ static void range_lo( const range_t *range, _mode_t *mode )
   assert(strcasecmp( range->name, "lo") == 0);
 
   mode_partial_reset( mode);
-  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
   mode_az_set( mode, "ch2" );
   mode_ch2_set( mode, "ref-lo");
 
@@ -164,7 +164,7 @@ static void range_lo2( const range_t *range, _mode_t *mode )
   assert(strcasecmp( range->name, "lo2") == 0);
 
   mode_partial_reset( mode);
-  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
   mode_az_set( mode, "0" ); // sample A400 gnd
 
@@ -198,7 +198,7 @@ static void range_ref( const range_t *range, _mode_t *mode )
   assert(strcasecmp( range->name, "ref") == 0);
 
   mode_partial_reset( mode);
-  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
   mode_az_set( mode, "ch2" );
   mode_ch2_set( mode, "ref");
 }
@@ -211,7 +211,7 @@ static void range_temp( const range_t *range, _mode_t *mode)
   assert(mode && mode->magic == MODE_MAGIC);
 
   mode_partial_reset( mode);
-  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
   mode_az_set( mode, "ch2" );
   mode_ch2_set( mode, "temp");
 }
@@ -225,7 +225,7 @@ static void range_lts( const range_t *range, _mode_t *mode)
 
   mode_partial_reset( mode);
 
-  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
   mode_az_set( mode, "ch2" );
   mode_ch2_set( mode, "lts");
 
@@ -251,7 +251,7 @@ static void range_dcv( const range_t *range, _mode_t *mode /*, bool _10meg_imped
 
   mode_partial_reset( mode);
 
-  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
   mode_az_set(mode, "ch1");
 

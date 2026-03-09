@@ -55,7 +55,7 @@ static void test(app_t *app)
 
 
   // set up fpga - with direct mode - for soak/charge of accum cap.
-  reg_cr_mode_set( &mode->reg_cr, MODE_DIRECT);
+  cr_mode_set( &mode->reg_cr, MODE_DIRECT);
 
   /*
     in direct_mode we manually set azmux to the azmux-hi-val while soaking/charging the accumulation capacitor.
@@ -93,7 +93,7 @@ static void test(app_t *app)
 
 
   // mode->reg_mode = MODE_SA_MOCK_ADC;
-  reg_cr_mode_set( &mode->reg_cr, MODE_SA_MOCK_ADC);
+  cr_mode_set( &mode->reg_cr, MODE_SA_MOCK_ADC);
 
   // july 2024 - note that this is all default.
   // need to review. make sure that pc switches serial, then azmux.
@@ -133,7 +133,7 @@ static void test(app_t *app)
   // phase 3. observe, take measurement etc
 
   // mode->reg_mode = MODE_DIRECT;
-  reg_cr_mode_set( &mode->reg_cr, MODE_DIRECT);
+  cr_mode_set( &mode->reg_cr, MODE_DIRECT);
 
   mode->reg_direct.leds_o = 0b0100;
   // now we do the sleep- to take the measurement.

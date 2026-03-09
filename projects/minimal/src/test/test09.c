@@ -49,7 +49,7 @@ bool app_test09( app_t *app , const char *cmd)
 
 
     // ordinary adc/sequence acquision
-    reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+    cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
 /*
     mode->sa.p_seq_n  = 2;

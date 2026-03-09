@@ -34,7 +34,7 @@ bool app_test08( app_t *app , const char *cmd)
     mode_reset( mode);
 
 
-    reg_cr_mode_set( &mode->reg_cr, MODE_ADC_MUX_REF_TEST);
+    cr_mode_set( &mode->reg_cr, MODE_ADC_MUX_REF_TEST);
 
     app_transition_state( app);
 

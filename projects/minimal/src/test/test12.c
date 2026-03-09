@@ -53,7 +53,7 @@ static void test (app_t *app)     // should be passing the continuation.
 
   // use direct mode - for soak/charge of accum cap.
   // mode->reg_mode =  MODE_DIRECT;
-  reg_cr_mode_set( &mode->reg_cr, MODE_DIRECT);
+  cr_mode_set( &mode->reg_cr, MODE_DIRECT);
 
   mode->reg_direct.leds_o = 0b0001;        // phase serial led turn on led, because muxinig signal.
 

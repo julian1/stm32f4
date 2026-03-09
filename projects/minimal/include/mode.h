@@ -225,11 +225,11 @@ void sa_trig_delay_set( sa_state_t *sa, uint32_t u);
 
 void sa_az_set( sa_state_t *sa, const char *s);
 
+// these funcs almost belong where reg_direct, and reg_cr are defined
+
 void direct_az_set(reg_direct_t *reg_direct, const char *s);
 
-// typed on reg_cr - is there a better place for this
-// TODO rename cr_mode_set
-void reg_cr_mode_set( reg_cr_t *reg_cr, unsigned u0);
+void cr_mode_set( reg_cr_t *reg_cr, unsigned u0);
 
 
 
@@ -248,7 +248,6 @@ typedef struct adc_state_t
 } adc_state_t;
 
 
-//   TODO - should be typed on the sa.  not mode.
 void adc_aperture_set( adc_state_t *adc, uint32_t u);
 
 

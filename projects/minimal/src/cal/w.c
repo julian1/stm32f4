@@ -67,7 +67,7 @@ void app_cal_w( app_t *app)
   sa_trig_delay_set( &mode->sa, period_to_aper_n(  1.f )); // 1 sec.
 
   // set normal sample acquisition/adc operation
-  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
   // set nplc
   adc_aperture_set( &mode->adc, nplc_to_aperture( 10, app->line_freq ));

@@ -166,8 +166,8 @@ void sa_trig_delay_set( sa_state_t *sa, uint32_t u)
 
 
 
-void reg_cr_mode_set( reg_cr_t *reg_cr, unsigned u0)
-// void mode_reg_cr_mode_set(_mode_t *mode, unsigned u0)
+void cr_mode_set( reg_cr_t *reg_cr, unsigned u0)
+// void mode_cr_mode_set(_mode_t *mode, unsigned u0)
 {
 
   // ease setting.
@@ -1071,7 +1071,7 @@ bool mode_repl_statement(
       // fpga0 mode.
       else if(strcmp(s0, "mode") == 0) {
 
-        reg_cr_mode_set( &mode->reg_cr, u0);
+        cr_mode_set( &mode->reg_cr, u0);
       }
 
 
