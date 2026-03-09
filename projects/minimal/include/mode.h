@@ -223,6 +223,15 @@ typedef struct sa_state_t
 
 void sa_trig_delay_set( sa_state_t *sa, uint32_t u);
 
+void sa_az_set( sa_state_t *sa, const char *s);
+
+void direct_az_set(reg_direct_t *reg_direct, const char *s);
+
+// typed on reg_cr - is there a better place for this
+// TODO rename cr_mode_set
+void reg_cr_mode_set( reg_cr_t *reg_cr, unsigned u0);
+
+
 
 
 
@@ -324,20 +333,18 @@ bool mode_repl_statement(
 );
 
 
-// typed on reg_cr - is there a better place for this
-void reg_cr_mode_set( reg_cr_t *reg_cr, unsigned u0);
 
-
-bool mode_az_set_relax(_mode_t *mode, const char *s); // for repl
 void mode_az_set(_mode_t *mode, const char *s);
 
 void mode_gain_set( _mode_t *mode, uint32_t u);
 
 
+#if 0
 // ch1.
 void mode_ch1_reset(_mode_t *mode);
 void mode_ch1_set_dcv(_mode_t *mode);
 void mode_ch1_set_dcv_source(_mode_t *mode);    // change name lts eg.  using input relay
+#endif
 
 
 // ch2

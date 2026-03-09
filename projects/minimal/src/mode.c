@@ -182,39 +182,12 @@ void reg_cr_mode_set( reg_cr_t *reg_cr, unsigned u0)
 
 
 
-
-
-
-
-
-
-///////////////////////////
-
-
-
-
-
-
-
-// actually may be better to have noaz. to set up. to run with p_seq_n = 1;
-// and no switching.
-/*
-  could actually type this function in sa and  reg_direct.
-
-*/
-
-bool mode_az_set_relax(_mode_t *mode, const char *s)
+void direct_az_set(reg_direct_t *reg_direct, const char *s)
 {
   /*
-      this can almost be typed on sa which would be better.
-      same as setting the trigger delay.
-
-
-      options here.   "ch1", "ch2", "ratio", "0".
-      keep the az flag separate.
+    set reg_direct with same inputs as would be used in az ode.
+    for tests.
   */
-
-
   if(strcmp(s, "0") == 0 ) {
 
     /*  sample star-ground, for both readings
@@ -222,11 +195,51 @@ bool mode_az_set_relax(_mode_t *mode, const char *s)
     */
 
     // for direct mode
-    mode->reg_direct.azmux_o = S6;    // A400-1
-    mode->reg_direct.pc_o = 0b00;
+    reg_direct->azmux_o = S6;    // A400-1
+    reg_direct->pc_o = 0b00;
+  }
+  else if(strcmp(s, "ch2") == 0 ) {
+
+    // direct mode
+    reg_direct->azmux_o = S3;
+    reg_direct->pc_o = 0b10;
+  }
+  else if(strcmp(s, "ch1") == 0 ) {
+
+    // direct mode
+    reg_direct->azmux_o = S1;
+    reg_direct->pc_o = 0b01;
+
+  } else if(strcmp(s, "ratio") == 0 ) {
+    assert( 0);
+  }
+  else
+    assert( 0);
+
+}
+
+
+
+
+void sa_az_set( sa_state_t *sa, const char *s)
+{
+  /*
+      this can almost be typed on sa which would be better.
+      same as setting the trigger delay.
+
+      options here.   "ch1", "ch2", "ratio", "0".
+      keep the az flag separate.
+  */
+
+
+  if(strcmp(s, "0") == 0) {
+
+    /*  sample star-ground, for both readings
+        used for noise test, and low-leakage input during adc weight calculation
+    */
 
     // signal can come in on S3, S7
-    sa_state_t *sa = &mode->sa;
+    // sa_state_t *sa = &mode->sa;
     sa->p_seq_n = 2;
 
     // zero
@@ -242,13 +255,8 @@ bool mode_az_set_relax(_mode_t *mode, const char *s)
 
   else if(strcmp(s, "ch2") == 0 ) {
 
-    // direct mode
-    mode->reg_direct.azmux_o = S3;
-    mode->reg_direct.pc_o = 0b10;
-
     // az mode
     // signal on S3, S7
-    sa_state_t *sa = &mode->sa;
     sa->p_seq_n = 2;
 
     // zero
@@ -262,13 +270,8 @@ bool mode_az_set_relax(_mode_t *mode, const char *s)
 
   else if(strcmp(s, "ch1") == 0 ) {
 
-    // direct mode
-    mode->reg_direct.azmux_o = S1;
-    mode->reg_direct.pc_o = 0b01;
-
     // az mode
     // signal on S3, S7
-    sa_state_t *sa = &mode->sa;
     sa->p_seq_n = 2;
 
     // zero
@@ -284,18 +287,30 @@ bool mode_az_set_relax(_mode_t *mode, const char *s)
     assert( 0);
   }
   else {
-    return 0;
+    assert( 0);
   }
-
-  return 1;
 
 }
 
 
+
+
+
+/*
+  for argument validation - need a function stringinlist...   perhaps even pass the strbasecmp comparison function
+  to validate
+
+*/
+
+
 void mode_az_set(_mode_t *mode, const char *s)
 {
-  bool ret = mode_az_set_relax( mode, s);
-  assert( ret);
+
+  sa_az_set(     &mode->sa, s);
+  direct_az_set( &mode->reg_direct, s);
+
+  // bool ret = mode_az_set_relax( mode, s);
+  // assert( ret);
 }
 
 
@@ -936,10 +951,15 @@ bool mode_repl_statement(
   else if( sscanf(cmd, "set az %100s", s0) == 1
     /* || sscanf(cmd, "set sa %100s", s0) == 1 */)  {
 
+
+    mode_az_set( mode, s0 );
+
+#if 0
     bool ret = mode_az_set_relax( mode, s0 );
     if(!ret) {
       printf("bad argument\n");
     }
+#endif
 
   }
 
