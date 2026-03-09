@@ -27,8 +27,10 @@ typedef struct cal_t cal_t;
 
 typedef struct transfer_t
 {
-  // does this behond in app.h. functions are mostly typed on app_t here.
   // magic
+  // const char *name;
+
+  // shoudl support return false/bool on error
   void (*step1)( app_t *app);   // reference/transfer/source
   void (*step2)( app_t *app);   // target
   void (*cal_set_value)( cal_t *cal, double mean0, double mean1);
@@ -49,6 +51,8 @@ void app_cal_b( app_t *app);
 void app_cal_b10( app_t *app);
 void app_cal_b100( app_t *app);
 void app_cal_b1000( app_t *app);
+
+void app_cal_div100( app_t *app);
 void app_cal_div1000( app_t *app);
 
 

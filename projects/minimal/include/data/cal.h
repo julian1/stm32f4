@@ -47,12 +47,12 @@ typedef struct cal_t
   double    b1000;
 
   // hv div
-  // double    div100;       // with b10 or not?
-  double    div1000;      // with b or not?
+  double    div100;
+  double    div1000;
 
 
   // consider use a double array for everything
-  // and indexable enums ?
+  // and then indexable enums ?
   // simplifies the save/load. and values
 
 

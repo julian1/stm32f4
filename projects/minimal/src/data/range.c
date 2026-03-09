@@ -367,8 +367,7 @@ static double range_reading_dcv( const range_t *range, const cal_t *cal, double 
   }
   if(strcasecmp( range->arg, "100") == 0) {
 
-    assert( 0);
-    // return cal->div100 * value;
+    return cal->div100 * value;
   }
   else  {
 

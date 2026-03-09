@@ -32,20 +32,30 @@ bool app_transfer_repl_statement( app_t *app, const char *cmd)
 {
   assert(app && app->magic == APP_MAGIC);
 
-  // uint32_t u0;
 
-  // can rename all these  transfer w;  transfer b;   etc.
+  // there is a bit of a name clash with the 'cal' specific funcs and repl.
+
+  // better name? transfer w;  transfer b;   etc.
   // TODO. improve string/arg handling  by decoding argument
   if( false );
-  else if(strcmp(cmd, "cal w") == 0)    { app_cal_w( app); }
-  else if(strcmp(cmd, "cal b") == 0)    { app_cal_b( app); }
-  else if(strcmp(cmd, "cal b10") == 0)  { app_cal_b10( app); }
-  else if(strcmp(cmd, "cal b100") == 0) { app_cal_b100( app); }
-  else if(strcmp(cmd, "cal b1000") == 0) { app_cal_b1000( app); }
+  else if(strcmp(cmd, "cal w") == 0)
+    app_cal_w( app);
+  else if(strcmp(cmd, "cal b") == 0)
+    app_cal_b( app);
+  else if(strcmp(cmd, "cal b10") == 0)
+    app_cal_b10( app);
+  else if(strcmp(cmd, "cal b100") == 0)
+    app_cal_b100( app);
+  else if(strcmp(cmd, "cal b1000") == 0)
+    app_cal_b1000( app);
 
-  else if(strcmp(cmd, "cal div1000") == 0) { app_cal_div1000( app); }
+  else if(strcmp(cmd, "cal div100") == 0)
+    app_cal_div100( app);
+  else if(strcmp(cmd, "cal div1000") == 0)
+    app_cal_div1000( app);
 
-  else if(strcmp(cmd, "cal all") == 0)  { app_cal_all( app); }
+  else if(strcmp(cmd, "cal all") == 0)
+    app_cal_all( app);
 
   else return 0;
 
@@ -63,7 +73,8 @@ void app_cal_all( app_t *app)
   app_cal_b100( app);
   app_cal_b1000( app);
 
-  // app_cal_div100( app);
+  app_cal_div100( app);
+  app_cal_div1000( app);
 
 
   cal_show( app->cal);
@@ -246,45 +257,22 @@ void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_
 
 }
 
+
+
 #if 0
 
-// factor these functions into separate file
-// along with cal_fill_buffer() etc.
-
-void app_cal_setup( app_t *app)
-{
-  // would be better to pass this function as a dependency of the
-  // specific cal function. eg. function pointer in a context
-
-  assert(app && app->magic == APP_MAGIC);
-
-  _mode_t *mode = app->mode;
-  assert(mode && mode->magic == MODE_MAGIC);
-
-
-  // sample off
-  gpio_write( app->gpio_trigger, false);
-
-  // reset mode
-  mode_reset( mode);
-  assert( mode->reg_cr.adc_p_active_sigmux == 1 );  // make no unwanted state left behind
-
-  // set the trigger delay for settle time
-  sa_trig_delay_set( &mode->sa, period_to_aper_n(  1.f )); // 1 sec.
-
-  // set normal sample acquisition/adc operation
-  cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-
-  // set nplc
-  adc_aperture_set( &mode->adc, nplc_to_aperture( 10, app->line_freq ));
-
-}
-
-
-void app_cal_finish( app_t *app)
-{
-  UNUSED( app);
-}
+id      0
+w       0.975650
+b       -14.349407
+b10     -1.434664
+b100    -0.143489
+b1000   -0.014346
+div100  -143.470197
+div1000 -1434.977747
 
 #endif
+
+
+
+
 

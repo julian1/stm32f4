@@ -33,25 +33,14 @@ static void mode_override_range( _mode_t *mode)
 
 
 
-
-// consider rename reference_step()
-
 static void step1( app_t *app)
 {
   // setup the reference/target
   printf("\n\n--------\n");
-  printf("cal_div1000\n");
+  printf("cal_div100\n");
 
-  assert( app->cal->b);
-
-  /* we use the range here. so that data_reading() will print something nominally ok
-    but note that calculation will use mean0,mean1 which are normalized counts
-    --
-    do we need to deal with an EMF offset. when we set a ref voltage. but then transfer
-    perhaps it cancels?
-    ----
-    perhaps we can tell if correct, by checking the offset using an input short, after the div1000 cal
-  */
+  assert( app->cal->b);   // for reference dcv10
+  assert( app->cal->b10); // for target dcv100
 
   // reference range
   app_switch_range1( app, "DCV", "10");
@@ -59,31 +48,31 @@ static void step1( app_t *app)
 
   // set lts source voltage
   mode_lts_source_set ( app->mode, 10);
-
 }
 
 
 static void step2( app_t *app)
 {
   // target range
-  app_switch_range1( app, "DCV", "1000");
+  app_switch_range1( app, "DCV", "100");
   mode_override_range( app->mode);
 }
 
 
 static void cal_set_value( cal_t *cal, double mean0, double mean1)
 {
-  cal->div1000 = (cal->b * mean0)  /  mean1;    // adjustment needed?
-  printf("cal->div1000 %f\n", cal->div1000 );
+  // note. b (not b10) is used for the reference just the same as dcv1000
+  cal->div100 = (cal->b * mean0)  /  mean1;    // adjustment needed?
+  printf("cal->div100 %f\n", cal->div100 );
 }
 
 
 
-void app_cal_div1000( app_t *app)
+void app_cal_div100( app_t *app)
 {
 
   transfer_t x = {
-    // .name = "div1000",
+    // .name = "div100",
     . step1 = step1,
     . step2 = step2,
     . cal_set_value = cal_set_value
