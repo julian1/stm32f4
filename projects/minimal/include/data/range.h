@@ -33,28 +33,35 @@ typedef struct range_t
 
   ///////////////////
 
+  /*
+    we can pass the arguments
+    using a structure,
+    if arg handling becomes too annoying
 
-  void (*range_set_mode)( const range_t *range, _mode_t * );
+  */
+
+  void (*range_set_mode)( const range_t *range, _mode_t * /* bool *_10meg_impedance */  );
 
 
   //  the same way the mode function  sets the mode.   the cal functino can scale/adjust the value to a reading.
 
   // convert value to a reading according to calibration
   // TODO consider rename to range_cal_reading.  eg. turning data into a reading
-  // range_cal_convert()
+  // range_cal_convert() // range_cal_reading()
   // and range_cal_set( coeff)
-  double (*range_cal_convert)( const range_t *range, const cal_t *, double value);
+  double (*range_reading)( const range_t *range, const cal_t *, double value);
 
 
   /* could have a range_cal_set  function here...
-      to hide all the cal mechanismm/ and serialization... hen performing cal.
-    can just leave null if do not use.
+      to hide all the underlying variable writing to the cal structure
+      from the calibration routines.
+      but would obscure what is going on.
   */
 
   // void (*range_cal_set)( range_t *range, const cal_t *, double b, double a);
 
-  // perhaps autoranging test could be added here
-  // bool (*range_outofrange)( range_t *range, status_reg sr);
+  // could have autoranging test here as well
+  // bool (*range_check)( range_t *range, status_reg sr);
 
 
   // sentinel to encode range limit - either top or bottom.
@@ -69,6 +76,8 @@ typedef struct range_t
 /*
   // we can inject this ... with a loop in  app.
   bool *  _10meg_impedance ;
+
+  or just pass it in the range_set_mmode() function.
 
 */
 

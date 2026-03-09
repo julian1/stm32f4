@@ -88,19 +88,20 @@ static void mode_partial_reset( _mode_t *mode)
   // persist noaz flag
   mode->reg_cr.sa_p_noaz = tmp.reg_cr.sa_p_noaz;
 
+
+  // TODO remove
   // persist the 10meg. impedance flag
-  // Hmmm. not sure why we put 10Meg. in the reg_cr.
   mode->_10meg_impedance =  tmp._10meg_impedance;
 
 
-  // persist the daq input
+  // persist the daq input selection muxes
   mode->serial.U1009  =  tmp.serial.U1009;
   mode->serial.U1010  =  tmp.serial.U1010;
 
-  // persist sts datc
+  // persist sts datc value
   mode->mdac1_val     = tmp.mdac1_val;
 
-  // persist LTS selection
+  // persist LTS source muxes
   mode->serial.U1003 = tmp.serial.U1003;
   mode->serial.U1012 = tmp.serial.U1012;
 }
@@ -121,30 +122,12 @@ static void mode_partial_reset( _mode_t *mode)
 
 */
 
-static void mode_ref( const range_t *range, _mode_t *mode )
-{
-  assert(range && range->magic == RANGE_MAGIC);
-  assert(mode && mode->magic == MODE_MAGIC);
-
-  /*
-    internal ref.  not a particularly useful function
-    only 1x gain applies
-  */
-
-  assert(strcasecmp( range->name, "ref") == 0);
-
-  mode_partial_reset( mode);
-  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  mode_az_set( mode, "ch2" );
-  mode_ch2_set( mode, "ref");
-}
 
 
 
 
 
-
-static void mode_lo( const range_t *range, _mode_t *mode )
+static void range_lo( const range_t *range, _mode_t *mode )
 {
   // sample ref-lo switched on input hi and lo mux.
   assert(range && range->magic == RANGE_MAGIC);
@@ -170,7 +153,7 @@ static void mode_lo( const range_t *range, _mode_t *mode )
 }
 
 
-static void mode_lo2( const range_t *range, _mode_t *mode )
+static void range_lo2( const range_t *range, _mode_t *mode )
 {
   // sample star-lo switched straight into the azmux
   // for both values.
@@ -202,39 +185,40 @@ static void mode_lo2( const range_t *range, _mode_t *mode )
 
 
 
-
-
-static void mode_temp( const range_t *range, _mode_t *mode)
+static void range_ref( const range_t *range, _mode_t *mode )
 {
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
 
+  /*
+    internal ref.  not a particularly useful function
+    only 1x gain applies
+  */
 
-  // consider - get rid of accessor and manage low level details of state setup here
-  // mode_gain_set( mode, 1); could use a different gain
+  assert(strcasecmp( range->name, "ref") == 0);
 
   mode_partial_reset( mode);
+  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
+  mode_az_set( mode, "ch2" );
+  mode_ch2_set( mode, "ref");
+}
 
+
+
+static void range_temp( const range_t *range, _mode_t *mode)
+{
+  assert(range && range->magic == RANGE_MAGIC);
+  assert(mode && mode->magic == MODE_MAGIC);
+
+  mode_partial_reset( mode);
   reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
   mode_az_set( mode, "ch2" );
   mode_ch2_set( mode, "temp");
 }
 
 
-/*
-  would it be easier.
 
-  - instead of having a separate cal function.
-
-  - to just write b, a variables. once...
-
-  - eg. we write the mode. and write scaling factor
-
-
-*/
-
-
-static void mode_lts( const range_t *range, _mode_t *mode)
+static void range_lts( const range_t *range, _mode_t *mode)
 {
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
@@ -248,23 +232,19 @@ static void mode_lts( const range_t *range, _mode_t *mode)
 
   if(strcasecmp( range->arg, "10") == 0)
     mode_gain_set(mode, 1);
-
   else if(strcasecmp( range->arg, "1") == 0)
     mode_gain_set(mode, 10);
-
   else if(strcasecmp( range->arg, "0.1") == 0)
     mode_gain_set(mode, 100);
-
   else if(strcasecmp( range->arg, "0.01") == 0)
     mode_gain_set(mode, 1000);
-
   else
     assert( 0);
 }
 
 
 
-static void mode_dcv( const range_t *range, _mode_t *mode)
+static void range_dcv( const range_t *range, _mode_t *mode /*, bool _10meg_impedance*/ )
 {
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
@@ -325,46 +305,27 @@ static void mode_dcv( const range_t *range, _mode_t *mode)
 
 ///////////////////////////
 
+/* we may need to pass whether the front or rear terminal inputs
+  are active.
+*/
 
-static double cal_dcv( const range_t *range, const cal_t *cal, double value)
+static double range_reading_normal( const range_t *range, const cal_t *cal, double value)
 {
-  assert(range && range->magic == RANGE_MAGIC);
-  // eg. with input terminl offset
+  /*
+    consider change name cal_internal.  or cal_nooffset.
+    where we dont consider input terminal
+  */
 
-  if(strcasecmp( range->arg, "10") == 0) {
-
-    // TODO add front or rear terminal offset.
-    return cal->b * value;
-  }
-  else if(strcasecmp( range->arg, "1000") == 0) {
-
-    // TODO add front or rear terminal offset.
-    // but not if using internal...
-    return cal->div1000 * value;
-  }
-
-  else
-    assert( 0);
-
-  return value;
-}
-
-
-
-
-static double cal_normal( const range_t *range, const cal_t *cal, double value)
-{
   assert(range && range->magic == RANGE_MAGIC);
   // for ref and lts.
   // consider
 
-  if(strcasecmp( range->arg, "") == 0       // ref has no argument.
+  if(strcasecmp( range->arg, "") == 0       // for ref/ temp has no argument.
     || strcasecmp( range->arg, "10") == 0   // lts, daq etc.
   ) {
 
     return cal->b * value;
   }
-
   else if(strcasecmp( range->arg, "1") == 0)
   {
     // may want default values
@@ -379,22 +340,55 @@ static double cal_normal( const range_t *range, const cal_t *cal, double value)
   {
     return cal->b1000 * value;
   }
-
   else
     assert( 0);
 
-  return value;
+  // compiler
+  return 0;
 }
 
 
 
 
-static double cal_temp( const range_t *range, const cal_t *cal, double value)
+static double range_reading_dcv( const range_t *range, const cal_t *cal, double value)
+{
+  assert(range && range->magic == RANGE_MAGIC);
+  // eg. with input terminl offset
+
+
+  if(strcasecmp( range->arg, "1000") == 0) {
+
+    // TODO add front or rear terminal offset.
+    // but not if using internal...
+    return cal->div1000 * value;
+  }
+  if(strcasecmp( range->arg, "100") == 0) {
+
+    assert( 0);
+    // return cal->div100 * value;
+  }
+  else  {
+
+    // TODO add offset
+    return range_reading_normal( range, cal, value);
+  }
+
+  // compiler
+  return 0;
+}
+
+
+
+
+static double range_reading_temp( const range_t *range, const cal_t *cal, double value)
 {
   assert(range && range->magic == RANGE_MAGIC);
 
+  // can delegate here
   // lm35d
-  return cal->b * value * 100;
+  // return cal->b * value * 100;
+
+  return range_reading_normal( range, cal, value) * 100.f;
 }
 
 
@@ -414,33 +408,33 @@ static double cal_temp( const range_t *range, const cal_t *cal, double value)
 
 range_t range_init_values[] = {
 
-  { RANGE_MAGIC,  "REF",  "",     "V",  mode_ref,   cal_normal, true,   true },
+  { RANGE_MAGIC,  "REF",  "",     "V",  range_ref,   range_reading_normal, true,   true },
 
-  { RANGE_MAGIC,  "LO",   "10",   "V",  mode_lo,   cal_normal,  true,   false },
-  { RANGE_MAGIC,  "LO",   "1",    "V",  mode_lo,   cal_normal,  false,  false },
-  { RANGE_MAGIC,  "LO",   "0.1",  "V",  mode_lo,   cal_normal,  false,  false },
-  { RANGE_MAGIC,  "LO",   "0.01", "V",  mode_lo,   cal_normal,  false,  true  },
+  { RANGE_MAGIC,  "LO",   "10",   "V",  range_lo,   range_reading_normal,  true,   false },
+  { RANGE_MAGIC,  "LO",   "1",    "V",  range_lo,   range_reading_normal,  false,  false },
+  { RANGE_MAGIC,  "LO",   "0.1",  "V",  range_lo,   range_reading_normal,  false,  false },
+  { RANGE_MAGIC,  "LO",   "0.01", "V",  range_lo,   range_reading_normal,  false,  true  },
 
-  { RANGE_MAGIC,  "LO2",  "10",   "V",  mode_lo2,  cal_normal,  true,   false },
-  { RANGE_MAGIC,  "LO2",  "1",    "V",  mode_lo2,  cal_normal,  false,  false },
-  { RANGE_MAGIC,  "LO2",  "0.1",  "V",  mode_lo2,  cal_normal,  false,  false },
-  { RANGE_MAGIC,  "LO2",  "0.01", "V",  mode_lo2,  cal_normal,  false,  true  },
+  { RANGE_MAGIC,  "LO2",  "10",   "V",  range_lo2,  range_reading_normal,  true,   false },
+  { RANGE_MAGIC,  "LO2",  "1",    "V",  range_lo2,  range_reading_normal,  false,  false },
+  { RANGE_MAGIC,  "LO2",  "0.1",  "V",  range_lo2,  range_reading_normal,  false,  false },
+  { RANGE_MAGIC,  "LO2",  "0.01", "V",  range_lo2,  range_reading_normal,  false,  true  },
 
 
 
-  { RANGE_MAGIC,  "DCV",  "1000", "V",  mode_dcv,   cal_dcv,    true,   false },
-  { RANGE_MAGIC,  "DCV",  "100",  "V",  mode_dcv,   cal_dcv,    false,  false },
-  { RANGE_MAGIC,  "DCV",  "10",   "V",  mode_dcv,   cal_dcv,    false,  false },
-  { RANGE_MAGIC,  "DCV",  "1",    "V",  mode_dcv,   cal_dcv,    false,  false },
-  { RANGE_MAGIC,  "DCV",  "0.1",  "V",  mode_dcv,   cal_dcv,    false,  false },
-  { RANGE_MAGIC,  "DCV",  "0.01", "V",  mode_dcv,   cal_dcv,    false,  true  },
+  { RANGE_MAGIC,  "DCV",  "1000", "V",  range_dcv,   range_reading_dcv,    true,   false },
+  { RANGE_MAGIC,  "DCV",  "100",  "V",  range_dcv,   range_reading_dcv,    false,  false },
+  { RANGE_MAGIC,  "DCV",  "10",   "V",  range_dcv,   range_reading_dcv,    false,  false },
+  { RANGE_MAGIC,  "DCV",  "1",    "V",  range_dcv,   range_reading_dcv,    false,  false },
+  { RANGE_MAGIC,  "DCV",  "0.1",  "V",  range_dcv,   range_reading_dcv,    false,  false },
+  { RANGE_MAGIC,  "DCV",  "0.01", "V",  range_dcv,   range_reading_dcv,    false,  true  },
 
-  { RANGE_MAGIC,  "TEMP", "",     "°C", mode_temp,  cal_temp,   true,   true  },
+  { RANGE_MAGIC,  "TEMP", "",     "°C", range_temp,  range_reading_temp,   true,   true  },
 
-  { RANGE_MAGIC,  "LTS",  "10",   "V",  mode_lts,   cal_normal, true,   false },       // better name, LTS or DCV LTS.
-  { RANGE_MAGIC,  "LTS",  "1",    "V",  mode_lts,   cal_normal, false,  false },
-  { RANGE_MAGIC,  "LTS",  "0.1",  "V",  mode_lts,   cal_normal, false,  false },
-  { RANGE_MAGIC,  "LTS",  "0.01", "V",  mode_lts,   cal_normal, false,  true  }
+  { RANGE_MAGIC,  "LTS",  "10",   "V",  range_lts,   range_reading_normal, true,   false },       // better name, LTS or DCV LTS.
+  { RANGE_MAGIC,  "LTS",  "1",    "V",  range_lts,   range_reading_normal, false,  false },
+  { RANGE_MAGIC,  "LTS",  "0.1",  "V",  range_lts,   range_reading_normal, false,  false },
+  { RANGE_MAGIC,  "LTS",  "0.01", "V",  range_lts,   range_reading_normal, false,  true  }
 
 
 };
@@ -477,63 +471,6 @@ Passing a NULL pointer as an argument to strcasecmp results in undefined
 behavior. The function expects valid, null-terminated strings as its arguments.
 */
 
-
-
-#if 0
-
-
-
-static void dcv_10( _mode_t *mode)
-{
-
-  mode_partial_reset( mode);
-
-  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  mode_az_set(mode, "ch1");
-  mode->serial.K402 = SR_SET;
-
-  // apply impedance
-  mode->serial.K403 = mode->reg_cr._10meg_impedance ? SR_SET : SR_RESET;
-}
-
-static void dcv_1( _mode_t *mode)
-{
-  dcv_10( mode);
-  mode_gain_set(mode, 10);
-}
-
-static void dcv_01( _mode_t *mode)
-{
-  dcv_10( mode);
-  mode_gain_set(mode, 100);
-}
-
-
-
-static void dcv_100( _mode_t *mode)
-{
-
-  mode_partial_reset( mode);
-
-  reg_cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  mode_az_set(mode, "ch2");
-  mode_ch2_set( mode, "div");
-
-  mode_gain_set( mode, 10);
-
-  // main divider on
-  mode->serial.K403 = SR_SET;
-}
-
-
-static void dcv_1000( _mode_t *mode)
-{
-  dcv_100( mode);
-  mode_gain_set( mode, 1);
-}
-
-
-#endif
 
 
 

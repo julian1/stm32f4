@@ -148,7 +148,7 @@ void data_update( data_t *data )
    //  data->reading   = data->value  * cal->b;
 */
 
-    data->reading = range->range_cal_convert( range, cal, data->count_norm );
+    data->reading = range->range_reading( range, cal, data->count_norm );
     data->valid     = true;
 
     if(data->show_reading) {
