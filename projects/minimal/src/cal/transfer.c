@@ -55,6 +55,8 @@ bool app_transfer_repl_statement( app_t *app, const char *cmd)
 
 void app_cal_all( app_t *app)
 {
+  assert(app && app->magic == APP_MAGIC);
+
   app_cal_w( app);
   app_cal_b( app);
   app_cal_b10( app);
