@@ -47,8 +47,7 @@ static void step2( app_t *app)
 {
   UNUSED( app);
   // ignore data here....
-
-  // because target is comes from
+  // because target is comes from external source or ref
 
   printf("*data ignored*\n");
 }

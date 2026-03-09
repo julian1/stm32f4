@@ -199,7 +199,7 @@ void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_
     // get and compute counts
     data_update( data);
 
-    // take both hi and lo readings since they are the same.
+    // we take both hi and lo readings, since they have the same
     // ignore data->valid
 
     pos_values[i] = data->clk_count_refmux_pos;
