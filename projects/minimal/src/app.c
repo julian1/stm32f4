@@ -963,7 +963,7 @@ static bool app_repl_range( app_t *app, const char *cmd)
 
 
 
-bool app_range_valid( app_t *app, uint32_t range_idx, bool dir)    // 1 up. 0 down
+bool app_range_dir_valid( app_t *app, uint32_t range_idx, bool dir)    // 1 up. 0 down
 {
   assert(app && app->magic == APP_MAGIC);
   assert( range_idx < app->ranges_sz );   // watch out for signess casts.
@@ -1087,7 +1087,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   // 'u' up in range
   else if(strcmp(cmd, "u") == 0) {
 
-    bool ret = app_range_valid( app, app->range_idx, 1);
+    bool ret = app_range_dir_valid( app, app->range_idx, 1);
     if(ret) {
       ++app->range_idx;
       app_range_switch( app, app->range_idx);
@@ -1096,7 +1096,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   // 'd' down in range
   else if(strcmp(cmd, "d") == 0) {
 
-    bool ret = app_range_valid( app, app->range_idx, 0);
+    bool ret = app_range_dir_valid( app, app->range_idx, 0);
     if(ret) {
       --app->range_idx;
       app_range_switch( app, app->range_idx);

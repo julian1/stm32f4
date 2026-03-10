@@ -266,7 +266,7 @@ void app_repl_statements(app_t *app,  const char *s);
 
 
 
-bool app_range_valid( app_t *app, uint32_t range_idx, bool dir);
+bool app_range_dir_valid( app_t *app, uint32_t range_idx, bool dir);
 void app_range_switch( app_t *app, uint32_t range_idx);
 void app_range_switch1( app_t *app, const char *name, const char *arg);
 bool app_repl_range( app_t *app, const char *cmd);
