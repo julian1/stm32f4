@@ -919,15 +919,14 @@ bool mode_repl_statement(
 
 
 
-  // two val set cmd
+  /* two val set cmd
+    where argument is uint.
+  */
   else if( sscanf(cmd, "set %100s %100s", s0, s1) == 2
     && str_decode_uint( s1, &u0)
   ) {
 
       // printf("set %s %lu\n", s0, u0);
-
-      // cannot manage pointer to bitfield. so have to hardcode.
-
 
 
       if(strcmp(s0, "10M") == 0) {
@@ -1102,16 +1101,6 @@ bool mode_repl_statement(
       }
 
 
-
-      /*
-        not completely clear if trig should be out-of-band. eg not put in the mode structure.
-      */
-/*
-      else if(strcmp(s0, "trig") == 0) {
-        // should move/place in signal acquisition?
-        mode->trig_sa = u0;
-      }
-*/
 
       else {
 
