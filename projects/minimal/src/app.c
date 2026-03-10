@@ -199,7 +199,7 @@ void app_msleep( app_t *app, uint32_t delay)
 
 
 
-void app_rdy_interrupt( app_t *app, interrupt_t *x) // runtime context
+void app_data_rdy_interrupt( app_t *app, interrupt_t *x) // runtime context
 {
 
   UNUSED(x);
@@ -447,7 +447,7 @@ void app_configure( app_t *app )
 
   // set up the fpga0 interrupt handler
   assert( app->fpga0_interrupt);
-  interrupt_handler_set( app->fpga0_interrupt, app, (interrupt_handler_t ) app_rdy_interrupt);
+  interrupt_handler_set( app->fpga0_interrupt, app, (interrupt_handler_t ) app_data_rdy_interrupt);
 
 }
 
@@ -963,7 +963,7 @@ static bool app_repl_range( app_t *app, const char *cmd)
 
 
 
-static bool app_range_valid( app_t *app, uint32_t range_idx, bool dir)    // 1 up. 0 down
+bool app_range_valid( app_t *app, uint32_t range_idx, bool dir)    // 1 up. 0 down
 {
   assert(app && app->magic == APP_MAGIC);
   assert( range_idx < app->ranges_sz );   // watch out for signess casts.
@@ -1054,10 +1054,10 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
 
 
-  char s0[100 + 1 ];
-  // char s1[100 + 1 ];
-  // char s2[100 + 1 ];
-  uint32_t u0;//, u1;
+  char s0[ 100 + 1];
+  // char s1[ 100 + 1];
+  // char s2[ 100 + 1];
+  uint32_t u0; //, u1;
   double f0;
   // int32_t i0;
 
@@ -1078,6 +1078,30 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
   else if ( app_repl_range( app, cmd)) { }
 
+/*
+  we have to reset the buffer, when changing ranges.
+  do this by forcing a retrigger.
+
+*/
+
+  // 'u' up in range
+  else if(strcmp(cmd, "u") == 0) {
+
+    bool ret = app_range_valid( app, app->range_idx, 1);
+    if(ret) {
+      ++app->range_idx;
+      app_range_switch( app, app->range_idx);
+    }
+  }
+  // 'd' down in range
+  else if(strcmp(cmd, "d") == 0) {
+
+    bool ret = app_range_valid( app, app->range_idx, 0);
+    if(ret) {
+      --app->range_idx;
+      app_range_switch( app, app->range_idx);
+    }
+  }
 
 
   // "t" to trigger
@@ -1282,8 +1306,6 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   else if( app_transfer_repl_statement( app, cmd)) { }
 
   else if( mode_repl_statement( app->mode, cmd, app->line_freq )) { }
-
-  ////////
 
   else if( cal_repl_statement( app->cal, cmd)) { }
 

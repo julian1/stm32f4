@@ -4,7 +4,6 @@
 #include <lib2/cbuffer.h>
 #include <lib2/cstring.h>
 
-// #include <devices.h>
 
 
 /*
@@ -248,7 +247,7 @@ void app_msleep( app_t *app, uint32_t delay);
 
 void app_update(app_t *app);
 
-void app_rdy_interrupt( app_t *app, interrupt_t *x);
+void app_data_rdy_interrupt( app_t *app, interrupt_t *x);
 
 void app_beep( app_t * app, uint32_t n);
 void app_led_dance( app_t * app );
@@ -267,28 +266,19 @@ void app_repl_statements(app_t *app,  const char *s);
 
 
 
+bool app_range_valid( app_t *app, uint32_t range_idx, bool dir);
 void app_range_switch( app_t *app, uint32_t range_idx);
-
 void app_range_switch1( app_t *app, const char *name, const char *arg);
-
 bool app_repl_range( app_t *app, const char *cmd);
 
 
-/*
-  IMPORTANT - none of these take arguments anymore,
-  the precondition state, should be setup in other commands.
-  so we could remove the cmd argument.  and do the test in the repl command.
-  but leave for moment, in case want to be able to pass flags.
-  --------
 
-  should pass a more limited structure than app.
 
-    eg. not sure.
-*/
 
 
 /*
-  consider add a separate repl() statement to dispatch these
+  consider move to a separate repl() statement to dispatch
+  ie. place in src/test/test.c
 
 */
 

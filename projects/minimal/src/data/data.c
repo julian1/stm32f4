@@ -182,10 +182,12 @@ bool data_repl_statement( data_t *data,  const char *cmd)
   UNUSED(cmd);
 
 
-  if(strcmp(cmd, "data counts show") == 0)
+  if(strcmp(cmd, "data counts show") == 0
+    || strcmp(cmd, "data count show") == 0)
     data->show_counts = true;
 
-  else if(strcmp(cmd, "data counts unshow") == 0)
+  else if(strcmp(cmd, "data counts unshow") == 0
+    || strcmp(cmd, "data count unshow") == 0)
     data->show_counts = false;
 
   else
