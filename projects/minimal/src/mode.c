@@ -727,6 +727,9 @@ bool mode_repl_statement(
       because float looks like int
   */
 
+
+
+
   else if( sscanf(cmd, "aper %100s", s0) == 1
     && str_decode_float( s0, &f0))
   {
@@ -904,14 +907,10 @@ bool mode_repl_statement(
   else if( sscanf(cmd, "set ch2 %100s", s0) == 1)
   {
     // why not manage this argument passing
-    // in the handler ???
-    // because issue with repl validation/error handling.
-
 
     bool ret = mode_ch2_set_relax( mode, s0);
-
     if(!ret) {
-      printf("unrecognized\n");
+      printf("arg unrecognized\n");
       assert(0);
       return 0;
     }
@@ -929,16 +928,11 @@ bool mode_repl_statement(
 
       // cannot manage pointer to bitfield. so have to hardcode.
 
-/*
-      if(strcmp(s0, "mdac1") == 0) {
-        mode->mdac1_val = u0;
-      }
-*/
 
 
+      if(strcmp(s0, "10M") == 0) {
 
-     if(strcmp(s0, "pc") == 0) {
-        mode->reg_direct.pc_o = u0;
+        mode->_10meg_impedance = u0;
       }
 
 
@@ -987,6 +981,10 @@ bool mode_repl_statement(
       // by field
       else if(strcmp(s0, "monitor") == 0) {
         mode->reg_direct.monitor_o = u0;
+      }
+
+      else if(strcmp(s0, "pc") == 0) {
+        mode->reg_direct.pc_o = u0;
       }
 
 
