@@ -32,10 +32,6 @@ static void mode_override_range( _mode_t *mode)
 }
 
 
-
-
-// consider rename reference_step()
-
 static void step1( app_t *app)
 {
   // setup the reference/target
@@ -44,17 +40,9 @@ static void step1( app_t *app)
 
   assert( app->cal->b);
 
-  /* we use the range here. so that data_reading() will print something nominally ok
-    but note that calculation will use mean0,mean1 which are normalized counts
-    --
-    do we need to deal with an EMF offset. when we set a ref voltage. but then transfer
-    perhaps it cancels?
-    ----
-    perhaps we can tell if correct, by checking the offset using an input short, after the div1000 cal
-  */
 
   // reference range
-  app_switch_range1( app, "DCV", "10");
+  app_range_switch1( app, "DCV", "10");
   mode_override_range( app->mode);
 
   // set lts source voltage
@@ -66,7 +54,7 @@ static void step1( app_t *app)
 static void step2( app_t *app)
 {
   // target range
-  app_switch_range1( app, "DCV", "1000");
+  app_range_switch1( app, "DCV", "1000");
   mode_override_range( app->mode);
 }
 
@@ -76,7 +64,6 @@ static void cal_set_value( cal_t *cal, double mean0, double mean1)
   cal->div1000 = (cal->b * mean0)  /  mean1;    // adjustment needed?
   printf("cal->div1000 %f\n", cal->div1000 );
 }
-
 
 
 void app_cal_div1000( app_t *app)
@@ -94,6 +81,14 @@ void app_cal_div1000( app_t *app)
 
 
 
+  /* we use the range here. so that data_reading() will print something nominally ok
+    but note that calculation will use mean0,mean1 which are normalized counts
+    --
+    do we need to deal with an EMF offset. when we set a ref voltage. but then transfer
+    perhaps it cancels?
+    ----
+    perhaps we can tell if correct, by checking the offset using an input short, after the div1000 cal
+  */
 
 
 

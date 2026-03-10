@@ -963,14 +963,25 @@ static bool app_repl_range( app_t *app, const char *cmd)
 
 
 
+static bool app_range_valid( app_t *app, uint32_t range_idx, bool dir)    // 1 up. 0 down
+{
+  assert(app && app->magic == APP_MAGIC);
+  assert( range_idx < app->ranges_sz );   // watch out for signess casts.
 
 
-void app_switch_range( app_t *app, signed range_idx)
+  range_t *range = &app->ranges[ range_idx];
+
+  return (dir == 1 && !range->top_sentinal)
+    || (dir == 0 && !range->bot_sentinal);
+}
+
+
+
+void app_range_switch( app_t *app, uint32_t range_idx)
 {
   assert(app && app->magic == APP_MAGIC);
 
-  assert( range_idx != -1);
-
+  assert( range_idx < app->ranges_sz );   // watch out for signess casts.
 
   // set the current range_idx. used for data_update
   app->range_idx = range_idx;
@@ -986,15 +997,15 @@ void app_switch_range( app_t *app, signed range_idx)
 
 
 
-void app_switch_range1( app_t *app, const char *name, const char *arg)
+void app_range_switch1( app_t *app, const char *name, const char *arg)
 {
   assert(app && app->magic == APP_MAGIC);
 
   // assert() that the range exists
 
   int32_t range_idx = range_get_idx( app->ranges, app->ranges_sz, name, arg);
-  assert( range_idx != -1);
-  app_switch_range( app, range_idx);
+  assert( range_idx >= 0);
+  app_range_switch( app, range_idx);
 }
 
 
@@ -1020,7 +1031,7 @@ bool app_repl_range( app_t *app, const char *cmd)
     int32_t range_idx = range_get_idx( app->ranges, app->ranges_sz, name, arg);
     if( range_idx != -1) {
 
-      app_switch_range( app, range_idx);
+      app_range_switch( app, range_idx);
       return true;
     }
   }

@@ -30,13 +30,13 @@ static void step1( app_t *app)
   // set dc source voltage
   mode_lts_source_set ( app->mode, 0.01 );
   // set LTS input range
-  app_switch_range1( app, "LTS", "0.1");
+  app_range_switch1( app, "LTS", "0.1");
 }
 
 
 static void step2( app_t *app)
 {
-  app_switch_range1( app, "LTS", "0.01");
+  app_range_switch1( app, "LTS", "0.01");
 }
 
 

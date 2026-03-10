@@ -32,7 +32,6 @@ static void mode_override_range( _mode_t *mode)
 }
 
 
-
 static void step1( app_t *app)
 {
   // setup the reference/target
@@ -43,7 +42,7 @@ static void step1( app_t *app)
   assert( app->cal->b10); // for target dcv100
 
   // reference range
-  app_switch_range1( app, "DCV", "10");
+  app_range_switch1( app, "DCV", "10");
   mode_override_range( app->mode);
 
   // set lts source voltage
@@ -54,18 +53,17 @@ static void step1( app_t *app)
 static void step2( app_t *app)
 {
   // target range
-  app_switch_range1( app, "DCV", "100");
+  app_range_switch1( app, "DCV", "100");
   mode_override_range( app->mode);
 }
 
 
 static void cal_set_value( cal_t *cal, double mean0, double mean1)
 {
-  // note. b (not b10) is used for the reference just the same as dcv1000
+  // note. b (not b10) used for the reference
   cal->div100 = (cal->b * mean0)  /  mean1;    // adjustment needed?
   printf("cal->div100 %f\n", cal->div100 );
 }
-
 
 
 void app_cal_div100( app_t *app)

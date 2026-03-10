@@ -31,6 +31,7 @@ typedef struct transfer_t
   // const char *name;
 
   // shoudl support return false/bool on error
+  // consider rename step_reference(). or reference_setup() target_setup() etc.
   void (*step1)( app_t *app);   // reference/transfer/source
   void (*step2)( app_t *app);   // target
   void (*cal_set_value)( cal_t *cal, double mean0, double mean1);

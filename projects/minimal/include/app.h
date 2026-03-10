@@ -267,8 +267,9 @@ void app_repl_statements(app_t *app,  const char *s);
 
 
 
-void app_switch_range( app_t *app, signed range_idx);
-void app_switch_range1( app_t *app, const char *name, const char *arg);
+void app_range_switch( app_t *app, uint32_t range_idx);
+
+void app_range_switch1( app_t *app, const char *name, const char *arg);
 
 bool app_repl_range( app_t *app, const char *cmd);
 
