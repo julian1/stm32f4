@@ -973,11 +973,14 @@ bool mode_repl_statement(
 
 
       else if(strcmp(s0, "direct") == 0) {
-        assert(sizeof(mode->reg_direct) == 4);
-        assert(sizeof(u0) == 4);
+
+        _Static_assert( sizeof(mode->reg_direct) == 4);
+        _Static_assert( sizeof(u0) == 4);
+
         memcpy( &mode->reg_direct, &u0, sizeof(mode->reg_direct));
       }
-      // set red_direct via bitfield arguments, nice.
+
+      // set led field
       else if(strcmp(s0, "leds") == 0) {
         mode->reg_direct.leds_o = u0;
       }
