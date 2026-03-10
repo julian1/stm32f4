@@ -167,6 +167,52 @@ void sa_az_set( sa_state_t *sa, const char *s)
 
 
 
+void _4094_state_clear_relays(_4094_state_t *state)
+{
+
+
+  // U401 conditioning
+  state->K404  = SR_NONE;
+  state->K403  = SR_NONE;
+  state->K405  = SR_NONE;
+  state->K406  = SR_NONE;
+
+
+  // U402
+  state->K407  = SR_NONE;
+  state->K402  = SR_NONE;
+
+  // u405
+  state->K401 = SR_NONE;
+
+
+  // u607
+  state->K602  = SR_NONE;
+
+  // u713 AMPS
+  state->K701  = SR_NONE;
+  state->K704  = SR_NONE;
+  state->K707  = SR_NONE;
+
+  // u705
+  state->K702  = SR_NONE;
+  state->K703  = SR_NONE;
+
+
+  // u706
+  state->K708  = SR_NONE;
+  state->K705  = SR_NONE;
+  state->K706  = SR_NONE;
+
+}
+
+
+
+
+
+
+
+
 static const _mode_t mode_initial =  {
 
   /*
@@ -256,47 +302,6 @@ void mode_reset(_mode_t *mode)
 
 
 
-void _4094_state_clear_relays(_4094_state_t *state)
-{
-
-
-  // U401 conditioning
-  state->K404  = SR_NONE;
-  state->K403  = SR_NONE;
-  state->K405  = SR_NONE;
-  state->K406  = SR_NONE;
-
-
-  // U402
-  state->K407  = SR_NONE;
-  state->K402  = SR_NONE;
-
-  // u405
-  state->K401 = SR_NONE;
-
-
-  // u607
-  state->K602  = SR_NONE;
-
-  // u713 AMPS
-  state->K701  = SR_NONE;
-  state->K704  = SR_NONE;
-  state->K707  = SR_NONE;
-
-  // u705
-  state->K702  = SR_NONE;
-  state->K703  = SR_NONE;
-
-
-  // u706
-  state->K708  = SR_NONE;
-  state->K705  = SR_NONE;
-  state->K706  = SR_NONE;
-
-}
-
-
-
 
 
 
@@ -330,21 +335,17 @@ void mode_gain_set( _mode_t *mode, uint32_t u)
 
     case 1:
       mode->serial .U506 = S8;
-      mode->serial.U506 = S8;
       break;
 
     case 10:
-      mode->serial. U506 = S2;
       mode->serial.U506 = S2;
       break;
 
     case 100:
-      mode->serial. U506 = S3;
       mode->serial.U506 = S3;
       break;
 
     case 1000:
-      mode->serial. U506 = S4;
       mode->serial.U506 = S4;
       break;
 
@@ -431,10 +432,6 @@ void mode_daq_set( _mode_t *mode, unsigned u0, unsigned u1 )
   // set the hig/lo dac inputs.
   mode->serial.U1009  = u0;
   mode->serial.U1010  = u1;
-
-
-
-
 }
 
 
@@ -541,59 +538,7 @@ static bool mode_loside_set( _mode_t *mode, const char *s)
   return 1;
 }
 
-/*
-- I think we can simplify the way we manage the serial/ serial.
 
-  just make a tmp copy of the serial.
-  write and wait 10ms.
-
-  then clear the relay pins  of the copy
-  and write
-
-  then we do not have to keep
-
-*/
-
-
-/*
-  Not sure we even need these functions -
-    for range - it is clearer to set up.
-    for calibration, set up states explicity
-
-*/
-
-#if 0
-
-void mode_ch1_reset(_mode_t *mode)      // change name reset() ?
-{
-
-  mode->serial.K402 = SR_RESET;    // input off
-  mode->serial.K406 = SR_RESET;    // accum ch1 off
-  mode->serial.K405 = SR_RESET;    // accum ch2 off
-
-
-  mode->serial.K407 = SR_RESET;    // dcv-source off
-
-  mode->serial.K401 = SR_RESET;    // ohms off
-  mode->serial.K404 = SR_RESET;    // lts-source off
-  mode->serial.K403 = SR_RESET;    // 10Meg impedance off
-}
-
-
-void mode_ch1_set_dcv(_mode_t *mode)
-{
-  mode_ch1_reset( mode);
-  mode->serial.K402 = SR_SET;      // input on
-}
-
-void mode_ch1_set_dcv_source(_mode_t *mode)   // rename use K404. instead.
-{
-  mode_ch1_reset( mode);
-  mode->serial.K407 = SR_SET;      // dcv-source on
-}
-
-
-#endif
 
 
 
@@ -741,21 +686,6 @@ void mode_ch2_set( _mode_t *mode, const char *s0)
 
 
 
-#if 0
-
-void mode_ch1_accum( _mode_t *mode, bool val)
-{
-  mode->serial.K406 = val ? SR_SET : SR_RESET;
-}
-
-
-void mode_ch2_accum( _mode_t *mode, bool val)
-{
-  mode->serial.K406 = val ? SR_SET : SR_RESET;
-
-}
-
-#endif
 
 
 bool mode_repl_statement(
@@ -926,8 +856,6 @@ bool mode_repl_statement(
   }
 
 
-
-
 #if 0
   else if( sscanf(cmd, "dcv-source sts %100s", s0) == 1
     && str_decode_int( s0, &i0)) {
@@ -942,8 +870,6 @@ bool mode_repl_statement(
   }
 
 #endif
-
-
 
 
   else if( sscanf(cmd, "set loside %100s", s0) == 1
@@ -991,50 +917,6 @@ bool mode_repl_statement(
     }
 
   }
-
-
-#if 0
-    if(strcmp(s0, "off") == 0 || strcmp(s0, "reset") == 0) {      // reset
-      mode_ch2_reset(mode);
-    }
-
-    else if(strcmp(s0, "ref") == 0
-		|| strcmp(s0, "ref-hi") == 0) {
-
-      mode_ch2_set_ref( mode);
-    }
-    else if(strcmp(s0, "ref-lo") == 0
-		||  strcmp(s0, "ref_lo") == 0) {
-      mode_ch2_set_ref_lo( mode);
-    }
-    else if(strcmp(s0, "temp") == 0) {
-      mode_ch2_set_temp( mode);
-    }
-    else if(strcmp(s0, "lts") == 0) {
-      mode_ch2_set_lts( mode);
-    }
-    else if(strcmp(s0, "daq") == 0) {
-      mode_ch2_set_daq( mode);
-    }
-    else if(strcmp(s0, "shunts") == 0) {
-      mode_ch2_set_shunts(mode);
-    }
-    else if(strcmp(s0, "tia") == 0) {
-      mode_ch2_set_tia( mode );
-    }
-    else if(strcmp(s0, "sense") == 0) {
-      mode_ch2_set_sense(mode);
-    }
-    else if(strcmp(s0, "div") == 0) {
-      mode_ch2_set_dcv_div(mode);
-    }
-    else {
-      printf("unrecognized\n");
-      return 0;
-      // assert(0);
-    }
-
-#endif
 
 
 
@@ -1220,6 +1102,104 @@ bool mode_repl_statement(
 
 
 
+      /*
+        not completely clear if trig should be out-of-band. eg not put in the mode structure.
+      */
+/*
+      else if(strcmp(s0, "trig") == 0) {
+        // should move/place in signal acquisition?
+        mode->trig_sa = u0;
+      }
+*/
+
+      else {
+
+        printf("unknown target %s for 2 var set\n", s0);
+        return 0;
+
+      }
+  }
+
+
+
+  else {
+
+    return 0;
+  }
+
+
+
+  return 1;
+}
+
+
+
+
+
+
+#if 0
+
+void mode_ch1_accum( _mode_t *mode, bool val)
+{
+  mode->serial.K406 = val ? SR_SET : SR_RESET;
+}
+
+
+void mode_ch2_accum( _mode_t *mode, bool val)
+{
+  mode->serial.K406 = val ? SR_SET : SR_RESET;
+
+}
+
+#endif
+
+
+#if 0
+
+
+/*
+  Not sure we even need these functions -
+    for range - it is clearer to set up.
+    for calibration, set up states explicity
+
+*/
+
+void mode_ch1_reset(_mode_t *mode)      // change name reset() ?
+{
+
+  mode->serial.K402 = SR_RESET;    // input off
+  mode->serial.K406 = SR_RESET;    // accum ch1 off
+  mode->serial.K405 = SR_RESET;    // accum ch2 off
+
+
+  mode->serial.K407 = SR_RESET;    // dcv-source off
+
+  mode->serial.K401 = SR_RESET;    // ohms off
+  mode->serial.K404 = SR_RESET;    // lts-source off
+  mode->serial.K403 = SR_RESET;    // 10Meg impedance off
+}
+
+
+void mode_ch1_set_dcv(_mode_t *mode)
+{
+  mode_ch1_reset( mode);
+  mode->serial.K402 = SR_SET;      // input on
+}
+
+void mode_ch1_set_dcv_source(_mode_t *mode)   // rename use K404. instead.
+{
+  mode_ch1_reset( mode);
+  mode->serial.K407 = SR_SET;      // dcv-source on
+}
+
+
+#endif
+
+
+
+
+
+
 
 
 
@@ -1266,41 +1246,50 @@ bool mode_repl_statement(
 #endif
 
 
-      /*
-        not completely clear if trig should be out-of-band. eg not put in the mode structure.
-      */
-/*
-      else if(strcmp(s0, "trig") == 0) {
-        // should move/place in signal acquisition?
-        mode->trig_sa = u0;
-      }
-*/
-
-      else {
-
-        printf("unknown target %s for 2 var set\n", s0);
-        return 0;
-
-      }
-  }
 
 
+#if 0
+    if(strcmp(s0, "off") == 0 || strcmp(s0, "reset") == 0) {      // reset
+      mode_ch2_reset(mode);
+    }
 
-  else {
+    else if(strcmp(s0, "ref") == 0
+		|| strcmp(s0, "ref-hi") == 0) {
 
-    return 0;
-  }
+      mode_ch2_set_ref( mode);
+    }
+    else if(strcmp(s0, "ref-lo") == 0
+		||  strcmp(s0, "ref_lo") == 0) {
+      mode_ch2_set_ref_lo( mode);
+    }
+    else if(strcmp(s0, "temp") == 0) {
+      mode_ch2_set_temp( mode);
+    }
+    else if(strcmp(s0, "lts") == 0) {
+      mode_ch2_set_lts( mode);
+    }
+    else if(strcmp(s0, "daq") == 0) {
+      mode_ch2_set_daq( mode);
+    }
+    else if(strcmp(s0, "shunts") == 0) {
+      mode_ch2_set_shunts(mode);
+    }
+    else if(strcmp(s0, "tia") == 0) {
+      mode_ch2_set_tia( mode );
+    }
+    else if(strcmp(s0, "sense") == 0) {
+      mode_ch2_set_sense(mode);
+    }
+    else if(strcmp(s0, "div") == 0) {
+      mode_ch2_set_dcv_div(mode);
+    }
+    else {
+      printf("unrecognized\n");
+      return 0;
+      // assert(0);
+    }
 
-
-
-  return 1;
-}
-
-
-
-
-
-
+#endif
 
 
 

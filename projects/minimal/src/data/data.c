@@ -136,19 +136,11 @@ void data_update( data_t *data )
     if(data->show_counts)
       printf("sum %.2f, ", data->count_sum);
 
-    // TODO consider better names here?
-    // data->count_sum
-    // data->adjusted_sum
-    // or count_norm.  for normalized.
+    // normalized count
     data->count_norm = data->count_sum  / data->clk_count_sigmux;
 
-/*
-    consider no range or no range->cal. function available consider a default.
-    except a range is always available here
-   //  data->reading   = data->value  * cal->b;
-*/
-
-    data->reading = range->range_reading( range, cal, data->count_norm );
+    // calculate reading for current range
+    data->reading = range->range_reading( range, cal, data->count_norm);
     data->valid     = true;
 
     if(data->show_reading) {
