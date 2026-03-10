@@ -729,7 +729,6 @@ bool mode_repl_statement(
 
 
 
-
   else if( sscanf(cmd, "aper %100s", s0) == 1
     && str_decode_float( s0, &f0))
   {
@@ -929,13 +928,9 @@ bool mode_repl_statement(
       // printf("set %s %lu\n", s0, u0);
 
 
-      if(strcmp(s0, "10M") == 0) {
-
-        mode->_10meg_impedance = u0;
-      }
 
 
-      else if(strcmp(s0, "azmux") == 0) {
+      if(strcmp(s0, "azmux") == 0) {
         mode->reg_direct.azmux_o = u0;
 
       }

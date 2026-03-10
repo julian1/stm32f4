@@ -258,7 +258,7 @@ typedef struct _mode_t
     - however for mode_reset() we really expect a clear/fixed state point. and placing in mode ensures this.
     - eg. we really do not want to have to clear this flag when running cal transfer routines
     */
-  bool          _10meg_impedance ;
+  bool          range_10Meg ;
 
 
 

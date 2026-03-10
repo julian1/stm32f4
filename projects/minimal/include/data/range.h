@@ -40,7 +40,7 @@ typedef struct range_t
 
   */
 
-  void (*range_set_mode)( const range_t *range, _mode_t * /*,  bool _10meg_impedance*/ );
+  void (*range_set_mode)( const range_t *range, _mode_t * /*,  bool range_10Meg*/ );
 
 
   //  the same way the mode function  sets the mode.   the cal functino can scale/adjust the value to a reading.

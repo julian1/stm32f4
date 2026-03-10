@@ -107,7 +107,7 @@ void app_transfer( app_t *app, transfer_t *transfer)
   // REALLY NOT SURE ABOUT THIS... just put it in mode?
   // normal user operation (eg. changing adc, ranges etc) will not reset the mode.
   // so i
-  // app->_10meg_impedance = false;
+  // app->range_10Meg = false;
 
   // reset mode
   mode_reset( mode);

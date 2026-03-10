@@ -67,13 +67,15 @@
 
 static void mode_partial_reset( _mode_t *mode)
 {
+  // rename this.  as mode_range_reset...
+
   assert(mode && mode->magic == MODE_MAGIC);
 
   // copy the mode
   _mode_t tmp = *mode;
   UNUSED(tmp);
 
-  // reset to known state
+  // reset mode,
   mode_reset( mode);
 
 
@@ -90,7 +92,6 @@ static void mode_partial_reset( _mode_t *mode)
 
 
 
-
   // persist the daq input selection muxes
   mode->serial.U1009  =  tmp.serial.U1009;
   mode->serial.U1010  =  tmp.serial.U1010;
@@ -104,7 +105,7 @@ static void mode_partial_reset( _mode_t *mode)
 
 
   // 10meg. impedance flag. is persisted by mode...
-  mode->_10meg_impedance  = tmp._10meg_impedance;
+  mode->range_10Meg  = tmp.range_10Meg;
 }
 
 
@@ -128,9 +129,9 @@ static void mode_partial_reset( _mode_t *mode)
 
 
 
-static void range_lo( const range_t *range, _mode_t *mode/*, bool _10meg_impedance*/ )
+static void range_lo( const range_t *range, _mode_t *mode/*, bool range_10Meg*/ )
 {
-  // UNUSED(_10meg_impedance);
+  // UNUSED(range_10Meg);
   // sample ref-lo switched on input hi and lo mux.
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
@@ -155,11 +156,11 @@ static void range_lo( const range_t *range, _mode_t *mode/*, bool _10meg_impedan
 }
 
 
-static void range_lo2( const range_t *range, _mode_t *mode /*, bool _10meg_impedance */ )
+static void range_lo2( const range_t *range, _mode_t *mode /*, bool range_10Meg */ )
 {
   // sample star-lo switched straight into the azmux
   // for both values.
-  // UNUSED(_10meg_impedance);
+  // UNUSED(range_10Meg);
 
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
@@ -188,9 +189,9 @@ static void range_lo2( const range_t *range, _mode_t *mode /*, bool _10meg_imped
 
 
 
-static void range_ref( const range_t *range, _mode_t *mode /*, bool _10meg_impedance */ )
+static void range_ref( const range_t *range, _mode_t *mode /*, bool range_10Meg */ )
 {
-  // UNUSED(_10meg_impedance);
+  // UNUSED(range_10Meg);
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
 
@@ -209,9 +210,9 @@ static void range_ref( const range_t *range, _mode_t *mode /*, bool _10meg_imped
 
 
 
-static void range_temp( const range_t *range, _mode_t *mode /*, bool _10meg_impedance */ )
+static void range_temp( const range_t *range, _mode_t *mode /*, bool range_10Meg */ )
 {
-  // UNUSED(_10meg_impedance);
+  // UNUSED(range_10Meg);
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
 
@@ -223,9 +224,9 @@ static void range_temp( const range_t *range, _mode_t *mode /*, bool _10meg_impe
 
 
 
-static void range_lts( const range_t *range, _mode_t *mode /*, bool _10meg_impedance */ )
+static void range_lts( const range_t *range, _mode_t *mode /*, bool range_10Meg */ )
 {
-  // UNUSED(_10meg_impedance);
+  // UNUSED(range_10Meg);
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
 
@@ -250,7 +251,7 @@ static void range_lts( const range_t *range, _mode_t *mode /*, bool _10meg_imped
 
 
 
-static void range_dcv( const range_t *range, _mode_t *mode /*, bool _10meg_impedance */ )
+static void range_dcv( const range_t *range, _mode_t *mode /*, bool range_10Meg */ )
 {
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
@@ -264,6 +265,7 @@ static void range_dcv( const range_t *range, _mode_t *mode /*, bool _10meg_imped
   // close relay - select external terminal input
   mode->serial.K402 = SR_SET;
 
+  printf("dcv range_10Meg is %u\n", mode->range_10Meg );
 
   if(strcasecmp( range->arg, "1000") == 0) {
 
@@ -281,36 +283,25 @@ static void range_dcv( const range_t *range, _mode_t *mode /*, bool _10meg_imped
   }
   else if(strcasecmp( range->arg, "10") == 0) {
 
-    printf("dcv-1  10Meg is %u\n", mode->_10meg_impedance );
-
-  /*
-  - ok. there is a sequencing issue.  we can set the 10Meg in mode.
-      but it will take no effect until we set the range again.
-      because the flag is not evaluated/ applied from the mode.
-    */
-
-    mode->serial.K403 = mode->_10meg_impedance ? SR_SET : SR_RESET;
-
+    mode->serial.K403 = mode->range_10Meg ? SR_SET : SR_RESET;
     mode_gain_set( mode, 1);
     sa_az_set( &mode->sa, "ch1" );
   }
   else if(strcasecmp( range->arg, "1") == 0) {
 
-    printf("dcv-1  10Meg is %u\n", mode->_10meg_impedance );
-
-    mode->serial.K403 = mode->_10meg_impedance ? SR_SET : SR_RESET;
+    mode->serial.K403 = mode->range_10Meg ? SR_SET : SR_RESET;
     mode_gain_set( mode, 10);
     sa_az_set( &mode->sa, "ch1" );
   }
   else if(strcasecmp( range->arg, "0.1") == 0) {
 
-    mode->serial.K403 = mode->_10meg_impedance ? SR_SET : SR_RESET;
+    mode->serial.K403 = mode->range_10Meg ? SR_SET : SR_RESET;
     mode_gain_set( mode, 100);
     sa_az_set( &mode->sa, "ch1" );
   }
   else if(strcasecmp( range->arg, "0.01") == 0) {
 
-    mode->serial.K403 = mode->_10meg_impedance ? SR_SET : SR_RESET;
+    mode->serial.K403 = mode->range_10Meg ? SR_SET : SR_RESET;
     mode_gain_set( mode, 1000);
     sa_az_set( &mode->sa, "ch1" );
   }

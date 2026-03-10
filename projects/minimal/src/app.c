@@ -992,7 +992,7 @@ void app_range_switch( app_t *app, uint32_t range_idx)
   assert(range);
   assert(range->range_set_mode);
 
-  range->range_set_mode( range, app->mode /*, app->_10meg_impedance */);
+  range->range_set_mode( range, app->mode /*, app->range_10Meg */);
 }
 
 
@@ -1103,6 +1103,23 @@ bool app_repl_statement( app_t *app,  const char *cmd)
     }
   }
 
+  else if( sscanf(cmd, "10Meg %100s", s0) == 1
+    && str_decode_uint( s0, &u0))  {
+
+      /*  the 10Meg. impedance is a high-level range state concept and belongs in app
+          ie. there is no use/relevance when not using ranges
+          we can still use the mode and write K403 directly if needed.
+      */
+      _mode_t  *mode  = app->mode;
+      assert(mode && mode->magic == MODE_MAGIC);
+
+      // set flag in mode,
+      mode->range_10Meg = u0;
+
+      // and re-apply the current range function
+      app_range_switch( app, app->range_idx);
+  }
+
 
   // "t" to trigger
   else if(strcmp(cmd, "trig") == 0 || strcmp(cmd, "t") == 0) {
@@ -1118,6 +1135,9 @@ bool app_repl_statement( app_t *app,  const char *cmd)
     app->repl_trigger_pending  = true;
     app->repl_trigger_value = 0;
   }
+
+
+
 
 
 /*
