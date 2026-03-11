@@ -63,7 +63,7 @@ typedef struct range_t
   /* put autoranging predicate test here also
       return value 1,0,-1  for up,stay,no change.
   */
-  // int32_t (*range_check)( range_t *range, double v);
+  int32_t (*range_predicate)( range_t *range, /*status_reg, */ double v);
 
 
   // sentinel to encode range limit - either top or bottom.

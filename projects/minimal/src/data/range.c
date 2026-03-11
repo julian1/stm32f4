@@ -399,6 +399,20 @@ static double range_reading_temp( const range_t *range, const cal_t *cal, double
 }
 
 
+
+
+
+
+
+static int32_t range_predicate( range_t *range,  double v)
+{
+  UNUSED(range);
+  UNUSED(v);
+
+  return 0;
+
+}
+
 /*
   34401a.
     up is higher voltage.
@@ -420,32 +434,32 @@ static double range_reading_temp( const range_t *range, const cal_t *cal, double
 
 range_t range_init_values[] = {
 
-  { RANGE_MAGIC,  "REF",  "",     "V",  range_ref,   range_reading_normal, true,   true },
+  { RANGE_MAGIC,  "REF",  "",     "V",  range_ref,   range_reading_normal,  NULL, true,   true },
 
-  { RANGE_MAGIC,  "LO",   "0.01", "V",  range_lo,   range_reading_normal,   true,   false },
-  { RANGE_MAGIC,  "LO",   "0.1",  "V",  range_lo,   range_reading_normal,   false,  false },
-  { RANGE_MAGIC,  "LO",   "1",    "V",  range_lo,   range_reading_normal,   false,  false },
-  { RANGE_MAGIC,  "LO",   "10",   "V",  range_lo,   range_reading_normal,   false,  true },
+  { RANGE_MAGIC,  "LO",   "0.01", "V",  range_lo,   range_reading_normal,   NULL, true,   false },
+  { RANGE_MAGIC,  "LO",   "0.1",  "V",  range_lo,   range_reading_normal,   NULL, false,  false },
+  { RANGE_MAGIC,  "LO",   "1",    "V",  range_lo,   range_reading_normal,   NULL, false,  false },
+  { RANGE_MAGIC,  "LO",   "10",   "V",  range_lo,   range_reading_normal,   NULL, false,  true },
 
-  { RANGE_MAGIC,  "LO2",  "0.01", "V",  range_lo2,  range_reading_normal,   true,   false },
-  { RANGE_MAGIC,  "LO2",  "0.1",  "V",  range_lo2,  range_reading_normal,   false,  false },
-  { RANGE_MAGIC,  "LO2",  "1",    "V",  range_lo2,  range_reading_normal,   false,  false },
-  { RANGE_MAGIC,  "LO2",  "10",   "V",  range_lo2,  range_reading_normal,   false,  true },
+  { RANGE_MAGIC,  "LO2",  "0.01", "V",  range_lo2,  range_reading_normal,   NULL, true,   false },
+  { RANGE_MAGIC,  "LO2",  "0.1",  "V",  range_lo2,  range_reading_normal,   NULL, false,  false },
+  { RANGE_MAGIC,  "LO2",  "1",    "V",  range_lo2,  range_reading_normal,   NULL, false,  false },
+  { RANGE_MAGIC,  "LO2",  "10",   "V",  range_lo2,  range_reading_normal,   NULL, false,  true },
 
 
-  { RANGE_MAGIC,  "DCV",  "0.01", "V",  range_dcv,  range_reading_dcv,      true,   false },
-  { RANGE_MAGIC,  "DCV",  "0.1",  "V",  range_dcv,  range_reading_dcv,      false,  false },
-  { RANGE_MAGIC,  "DCV",  "1",    "V",  range_dcv,  range_reading_dcv,      false,  false },
-  { RANGE_MAGIC,  "DCV",  "10",   "V",  range_dcv,  range_reading_dcv,      false,  false },
-  { RANGE_MAGIC,  "DCV",  "100",  "V",  range_dcv,  range_reading_dcv,      false,  false },
-  { RANGE_MAGIC,  "DCV",  "1000", "V",  range_dcv,  range_reading_dcv,      false,  true },
+  { RANGE_MAGIC,  "DCV",  "0.01", "V",  range_dcv,  range_reading_dcv,      range_predicate,  true,   false },
+  { RANGE_MAGIC,  "DCV",  "0.1",  "V",  range_dcv,  range_reading_dcv,      range_predicate,  false,  false },
+  { RANGE_MAGIC,  "DCV",  "1",    "V",  range_dcv,  range_reading_dcv,      range_predicate,  false,  false },
+  { RANGE_MAGIC,  "DCV",  "10",   "V",  range_dcv,  range_reading_dcv,      range_predicate,  false,  false },
+  { RANGE_MAGIC,  "DCV",  "100",  "V",  range_dcv,  range_reading_dcv,      range_predicate,  false,  false },
+  { RANGE_MAGIC,  "DCV",  "1000", "V",  range_dcv,  range_reading_dcv,      range_predicate,  false,  true },
 
-  { RANGE_MAGIC,  "TEMP", "",     "°C", range_temp, range_reading_temp,     true,   true  },
+  { RANGE_MAGIC,  "TEMP", "",     "°C", range_temp, range_reading_temp,     NULL, true,   true  },
 
-  { RANGE_MAGIC,  "LTS",  "0.01", "V",  range_lts,  range_reading_normal,   true,   false },  // better name, LTS or DCV LTS.
-  { RANGE_MAGIC,  "LTS",  "0.1",  "V",  range_lts,  range_reading_normal,   false,  false },
-  { RANGE_MAGIC,  "LTS",  "1",    "V",  range_lts,  range_reading_normal,   false,  false },
-  { RANGE_MAGIC,  "LTS",  "10",   "V",  range_lts,  range_reading_normal,   false,  true }
+  { RANGE_MAGIC,  "LTS",  "0.01", "V",  range_lts,  range_reading_normal,   NULL, true,   false },  // better name, LTS or DCV LTS.
+  { RANGE_MAGIC,  "LTS",  "0.1",  "V",  range_lts,  range_reading_normal,   NULL, false,  false },
+  { RANGE_MAGIC,  "LTS",  "1",    "V",  range_lts,  range_reading_normal,   NULL, false,  false },
+  { RANGE_MAGIC,  "LTS",  "10",   "V",  range_lts,  range_reading_normal,   NULL, false,  true }
 
 
 };
