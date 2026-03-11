@@ -222,7 +222,7 @@ typedef struct app_t
   // repl trigger behavior
   // do we need the pending anymore?
   // can we just always write the state
-  bool          repl_trigger_pending;
+  // bool          repl_trigger_pending;
   bool          repl_trigger_value;
 
 

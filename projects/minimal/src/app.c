@@ -722,7 +722,7 @@ static void app_update_console(app_t *app)
         // this ensures everything is consistent/aligned at this juncture.
         app_transition_state( app );
 
-
+#if 0
         // repl also controls the trigger state
         // consider the trigger
         // only after the board state has been updated for good settle time
@@ -734,6 +734,9 @@ static void app_update_console(app_t *app)
           // apply trigger value
           gpio_write( app->gpio_trigger, app->repl_trigger_value);
         }
+#endif
+
+        gpio_write( app->gpio_trigger, app->repl_trigger_value);
       }
 
       // issue new prompt
@@ -1131,7 +1134,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   // "t" to trigger
   else if(strcmp(cmd, "trig") == 0 || strcmp(cmd, "t") == 0) {
 
-    app->repl_trigger_pending  = true;
+    // app->repl_trigger_pending  = true;
     app->repl_trigger_value = 1;
   }
 
@@ -1139,7 +1142,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   // "h" for halt
   else if(strcmp(cmd, "halt") == 0 || strcmp(cmd, "h") == 0) {
 
-    app->repl_trigger_pending  = true;
+    // app->repl_trigger_pending  = true;
     app->repl_trigger_value = 0;
   }
 
