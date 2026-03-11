@@ -732,11 +732,26 @@ static void app_update_console(app_t *app)
           app->repl_trigger_pending = false;
 
           // apply trigger value
-          gpio_write( app->gpio_trigger, app->repl_trigger_value);
+          gpio_write( app->gpio_trigger, app->repl_trigger_val);
         }
 #endif
 
-        gpio_write( app->gpio_trigger, app->repl_trigger_value);
+
+        if( app->repl_retrigger) {
+
+          // sometimes we restore ranges, while not asserting trigger
+          // assert( app->repl_trigger_val );
+
+          printf("retrigger\n");
+
+          // clear for next time
+          app->repl_retrigger = false;
+          // set trigger low
+          gpio_write( app->gpio_trigger, 0);
+        }
+
+
+        gpio_write( app->gpio_trigger, app->repl_trigger_val);
       }
 
       // issue new prompt
@@ -998,6 +1013,9 @@ void app_range_switch( app_t *app, uint32_t range_idx)
   printf("switch to %s-%s\n", range->name, range->arg);
 
   range->range_set_mode( range, app->mode /*, app->range_10Meg */);
+
+  // set retrigger to clear buffers
+  app->repl_retrigger = true;
 }
 
 
@@ -1083,12 +1101,6 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
   else if ( app_repl_range( app, cmd)) { }
 
-  /*
-    we have to reset the buffer, when changing ranges.
-    do this with a forced re-trigger.
-    force_trig. or retrigger.
-
-  */
 
   // 'u' up in range
   else if(strcmp(cmd, "u") == 0) {
@@ -1128,6 +1140,9 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
       // and re-apply the current range function
       app_range_switch( app, app->range_idx);
+
+      // set retrigger to clear buffers
+      app->repl_retrigger = true;
   }
 
 
@@ -1135,7 +1150,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   else if(strcmp(cmd, "trig") == 0 || strcmp(cmd, "t") == 0) {
 
     // app->repl_trigger_pending  = true;
-    app->repl_trigger_value = 1;
+    app->repl_trigger_val = true;
   }
 
 
@@ -1143,7 +1158,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   else if(strcmp(cmd, "halt") == 0 || strcmp(cmd, "h") == 0) {
 
     // app->repl_trigger_pending  = true;
-    app->repl_trigger_value = 0;
+    app->repl_trigger_val = false;
   }
 
 

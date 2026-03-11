@@ -219,12 +219,11 @@ typedef struct app_t
   bool verbose;
 
 
-  // repl trigger behavior
-  // do we need the pending anymore?
-  // can we just always write the state
-  // bool          repl_trigger_pending;
-  bool          repl_trigger_value;
+  // state variable persists
+  bool          repl_trigger_val;
 
+  // flag
+  bool          repl_retrigger;
 
   /* choice, is putting this in app or in mode.
     - it is bad to put it mode, because it is not actually state written to the board.
