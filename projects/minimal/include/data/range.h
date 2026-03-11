@@ -44,7 +44,7 @@ typedef struct range_t
 
   // TODO. renam the range_reading value to count_norm.
 
-  // convert a nomralized count to a reading according to calibration
+  // convert nomralized count to a reading according to the calibration
   double (*range_reading)( const range_t *range, const cal_t *, double count_sum_norm);
 
 

@@ -766,9 +766,12 @@ void app_update( app_t *app)
 
     app->adc_interrupt_valid = false;
 
-    // EXTR.  we can always wrap data in an extra structure
-    // if there is additional info needed
+    /* EXTR.  we can always wrap data in an extra structure
+      // if there is additional info needed
+      this organization of passing the data, allows easy customizing of operations
+      aggregation, digial filter, null
 
+    */
     data_t  data;
     data_init( &data);
 
