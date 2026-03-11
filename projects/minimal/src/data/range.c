@@ -408,11 +408,22 @@ static double range_reading_temp( const range_t *range, const cal_t *cal, double
 
 static int32_t range_dcv_pred( range_t *range, /*reg_status */ double v)
 {
+/* autoranging predicate test here also
+      return value 1,0,-1  for up,stay,no change.
+  */
+
+  // we could pass some extra state here.
+  // if needed.
+
   assert(range && range->magic == RANGE_MAGIC);
 
   assert( strcasecmp( range->name, "dcv") == 0);
 
   // we just assume > 10 , then switch the range.
+  // So. use the count_norm. * b;
+  // rather than the specific range.
+  // or else we an use arg. to  work out the value we want.
+
 
   UNUSED(v);
 

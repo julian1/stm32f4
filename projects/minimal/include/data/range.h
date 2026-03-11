@@ -34,39 +34,32 @@ typedef struct range_t
   ///////////////////
 
   /*
-    we can pass the arguments
-    using a structure,
-    if arg handling becomes too annoying
-
+    can always use a structure to pass arguments,
+    if argument passing becomes to onerous
   */
 
+  // set the range, by manipulating the mode
   void (*range_set_mode)( const range_t *range, _mode_t * /*,  bool range_10Meg*/ );
 
 
-  //  the same way the mode function  sets the mode.   the cal functino can scale/adjust the value to a reading.
 
   // convert value to a reading according to calibration
-  // TODO consider rename to range_cal_reading.  eg. turning data into a reading
-  // range_cal_convert() // range_cal_reading()
-  // and range_cal_set( coeff)
   double (*range_reading)( const range_t *range, const cal_t *, double value);
 
 
-  /* could have a range_cal_set  function here...
-      to hide all the underlying variable writing to the cal structure
-      from the calibration routines.
-      but would obscure what is going on.
+  /* could have a range_cal_set()  function ...
+      to hide all the detail of writing the cal co-efficientss
+      when using the calibration routines.
+      but suspect would obscure too much what is going on.
   */
-
   // void (*range_cal_set)( range_t *range, const cal_t *, double b, double a);
 
-  /* put autoranging predicate test here also
-      return value 1,0,-1  for up,stay,no change.
-  */
+
+  // autoranging predicate test here also
   int32_t (*range_predicate)( range_t *range, /*status_reg, */ double v);
 
 
-  // sentinel to encode range limit - either top or bottom.
+  // sentinel encodes range limits - either top or bottom.
   bool bot_sentinal;
   bool top_sentinal;
 

@@ -1080,11 +1080,12 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
   else if ( app_repl_range( app, cmd)) { }
 
-/*
-  we have to reset the buffer, when changing ranges.
-  do this by forcing a retrigger.
+  /*
+    we have to reset the buffer, when changing ranges.
+    do this with a forced re-trigger.
+    force_trig. or retrigger.
 
-*/
+  */
 
   // 'u' up in range
   else if(strcmp(cmd, "u") == 0) {
@@ -1108,9 +1109,13 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   else if( sscanf(cmd, "10Meg %100s", s0) == 1
     && str_decode_uint( s0, &u0))  {
 
-      /*  the 10Meg. impedance is a high-level range state concept and belongs in app
+      /*  the 10Meg. impedance state is a high-level range_t state concept and belongs in app_t rather than mode_t
           ie. there is no use/relevance when not using ranges
-          we can still use the mode and write K403 directly if needed.
+          we can still use the mode_t and write K403 directly whenever needed.
+          -------
+          for the same reason - we only need to set it, in tests etc, if we use a dcv ranges
+          so perhaps should move it out of mode_t. and explicitly set it, for the few cases that tests use the range function.
+          perhaps rename  range_10Meg.
       */
       _mode_t  *mode  = app->mode;
       assert(mode && mode->magic == MODE_MAGIC);
