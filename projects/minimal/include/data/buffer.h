@@ -14,7 +14,6 @@ typedef struct buffer_t
 {
   uint32_t magic;
 
-  decode_t *data;
 
   // memory dependency, pass on construction
   double *values;
@@ -33,7 +32,6 @@ typedef struct buffer_t
 
 
   // bool show_buffer;
-
   bool show;
 
 } buffer_t;
@@ -43,7 +41,7 @@ typedef struct buffer_t
 
 
 
-void buffer_init( buffer_t *buffer, /*decode_t *data,*/ double *values, size_t n);
+void buffer_init( buffer_t *buffer, double *values, size_t n);
 
 bool buffer_repl_statement( buffer_t *, const char *cmd);
 

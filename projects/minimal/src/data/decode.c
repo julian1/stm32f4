@@ -38,8 +38,7 @@ void decode_init(
   spi_t     *spi,
   cal_t     *cal,
   range_t   *ranges,
-  unsigned  *range_idx// ,
-  // data_t *  data
+  unsigned  *range_idx
 )
 {
   // called once at initialization

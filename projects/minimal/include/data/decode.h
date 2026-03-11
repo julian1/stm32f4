@@ -34,14 +34,6 @@ typedef struct decode_t
   range_t     *ranges;
   unsigned    *range_idx;    // current active range
 
-  data_t      *data;
-
-
-  //////////////////////////////////
-  // first reading
-
-
-  ////////////////////////////////
 
 
   // persist...  for AZ. from last reading
@@ -49,24 +41,6 @@ typedef struct decode_t
   uint32_t clk_count_refmux_neg_lo;
 
   ///////////////////////
-
-
-#if 0
-  reg_sr_t status;
-
-  // AZ HI-LO clk count sum, weight adjusted.
-  double  count_sum;
-
-  // scaled by sigmux
-  double count_norm;
-
-  // computed using range
-  bool   valid;   // rename value_valid
-
-  // reading scaled and offset
-  double reading;
-
-#endif
 
   bool show_counts;
   // bool show_sum;
@@ -85,14 +59,13 @@ void decode_init(
   spi_t     *spi,
   cal_t *   cal,
   range_t   *ranges,
-  unsigned  *range_idx// ,
-  // data_t *   data
+  unsigned  *range_idx
 );
 
 
-bool decode_repl_statement( decode_t *decode,  const char *cmd );
+bool decode_repl_statement( decode_t *decode,  const char *cmd);
 
-void decode_update( decode_t *decode, data_t *data );
+void decode_update( decode_t *decode, data_t *data);
 
 
 

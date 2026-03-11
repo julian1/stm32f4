@@ -13,14 +13,13 @@
 #pragma once
 
 
+#include <stdint.h>
 #include <stdbool.h>
 
 #include <device/spi-fpga0-reg.h>     // for reg_sr_t
 
 
 
-typedef struct cal_t cal_t;
-typedef struct spi_t spi_t;
 typedef struct range_t range_t;
 
 

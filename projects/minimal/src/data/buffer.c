@@ -24,7 +24,6 @@
 
 
 
-// #include <data/decode.h>
 #include <data/data.h>
 #include <data/buffer.h>
 #include <data/range.h>
@@ -52,7 +51,7 @@
 
 
 
-void buffer_init( buffer_t *buffer, /*decode_t *data,*/ double *values, size_t max_n )
+void buffer_init( buffer_t *buffer, double *values, size_t max_n )
 {
 
 /*
@@ -91,16 +90,8 @@ void buffer_init( buffer_t *buffer, /*decode_t *data,*/ double *values, size_t m
 
 void buffer_update( buffer_t *buffer, data_t *data)
 {
+
   assert(buffer && buffer->magic == BUFFERS_MAGIC);
-
-  // decode_t *data = buffer->data;
-  // assert(data && data->magic == DECODE_MAGIC);
-
-  // range_t *range = &data->ranges[ *data->range_idx ];
-  // assert(range);
-
-  // TODO.  remove the range concept from here...
-
   assert( data && data->magic == DATA_MAGIC );
 
 

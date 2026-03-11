@@ -208,9 +208,6 @@ typedef struct app_t
 
   cal_t         *cal;     // array
 
-
-  // data_t        *data ;
-
   decode_t        *decode;
 
   buffer_t      *buffer;
