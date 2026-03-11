@@ -226,6 +226,7 @@ typedef struct app_t
   /* choice, is putting this in app or in mode.
     - it is bad to put it mode, because it is not actually state written to the board.
     - for mode_reset, we really expect a clear/fixed state point. and putting it in mode ensures this.
+    - but this is a rangeing concept, and there are only a few places where use ranges, and need to consider it
     */
   bool          range_10Meg ;
 
