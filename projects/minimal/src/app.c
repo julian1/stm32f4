@@ -1007,7 +1007,7 @@ void app_range_switch( app_t *app, uint32_t range_idx)
 
   printf("switch to %s-%s\n", range->name, range->arg);
 
-  range->range_set_mode( range, app->mode /*, app->range_10Meg */);
+  range->range_set_mode( range, app->mode, app->range_10Meg);
 
   // set retrigger to clear buffers
   app->repl_retrigger = true;
@@ -1116,7 +1116,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
     }
   }
 
-  else if( sscanf(cmd, "10M %100s", s0) == 1
+  else if( sscanf(cmd, "10Meg %100s", s0) == 1
     && str_decode_uint( s0, &u0))  {
 
       /*  the 10Meg. impedance state is a high-level range_t state concept and belongs in app_t rather than mode_t
@@ -1130,13 +1130,14 @@ bool app_repl_statement( app_t *app,  const char *cmd)
       _mode_t  *mode  = app->mode;
       assert(mode && mode->magic == MODE_MAGIC);
 
-      // set flag in mode,
-      mode->range_10Meg = u0;
+      // set flag
+      app->range_10Meg = u0;
 
-      // and re-apply the current range function
+      // re-apply the current range function
+      // this modifies the mode
       app_range_switch( app, app->range_idx);
 
-      // set retrigger to clear buffers
+      // set retrigger to clear data buffers
       app->repl_retrigger = true;
   }
 

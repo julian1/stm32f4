@@ -104,11 +104,8 @@ void app_transfer( app_t *app, transfer_t *transfer)
   // sample off
   gpio_write( app->gpio_trigger, false);
 
-  // ensure 10Meg not set, persists range change, and mode_reset()
-  // REALLY NOT SURE ABOUT THIS... just put it in mode?
-  // normal user operation (eg. changing adc, ranges etc) will not reset the mode.
-  // so i
-  // app->range_10Meg = false;
+  // clear 10Meg because will use range changing
+  app->range_10Meg = false;
 
   // reset mode
   mode_reset( mode);

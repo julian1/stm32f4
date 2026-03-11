@@ -39,7 +39,7 @@ typedef struct range_t
   */
 
   // set the range, by manipulating the mode
-  void (*range_set_mode)( const range_t *range, _mode_t * /*,  bool range_10Meg*/ );
+  void (*range_set_mode)( const range_t *range, _mode_t *,  bool range_10Meg);
 
 
   // TODO. renam the range_reading value to count_norm.
