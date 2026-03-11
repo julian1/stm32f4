@@ -1195,12 +1195,14 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   }
 
 
+#if 0
   // verbosity?
   else if( sscanf(cmd, "verbose %lu", &u0 ) == 1) {
 
     printf("setting verbose %lu\n", u0  );
     app->verbose = u0;
   }
+#endif
 
 
   else if(strcmp(cmd, "reset mcu") == 0) {

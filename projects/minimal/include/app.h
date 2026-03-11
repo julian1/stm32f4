@@ -214,7 +214,7 @@ typedef struct app_t
 
 
   // not sure belongs here
-  bool verbose;
+  // bool verbose;
 
 
   // state variable persists
