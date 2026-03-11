@@ -319,7 +319,7 @@ static void range_dcv( const range_t *range, _mode_t *mode /*, bool range_10Meg 
   are active.
 */
 
-static double range_reading_normal( const range_t *range, const cal_t *cal, double count_norm)
+static double range_reading_normal( const range_t *range, const cal_t *cal, double count_sum_norm)
 {
   /*
     consider change name cal_internal.  or cal_nooffset.
@@ -334,21 +334,21 @@ static double range_reading_normal( const range_t *range, const cal_t *cal, doub
     || strcasecmp( range->arg, "10") == 0   // lts, daq etc.
   ) {
 
-    return cal->b * count_norm;
+    return cal->b * count_sum_norm;
   }
   else if(strcasecmp( range->arg, "1") == 0)
   {
-    // may want default count_norms
+    // may want default count_sum_norms
     // or express as or cal->b * cal->b10.
-    return cal->b10 * count_norm;
+    return cal->b10 * count_sum_norm;
   }
   else if(strcasecmp( range->arg, "0.1") == 0)
   {
-    return cal->b100 * count_norm;
+    return cal->b100 * count_sum_norm;
   }
   else if(strcasecmp( range->arg, "0.01") == 0)
   {
-    return cal->b1000 * count_norm;
+    return cal->b1000 * count_sum_norm;
   }
   else
     assert( 0);
@@ -360,7 +360,7 @@ static double range_reading_normal( const range_t *range, const cal_t *cal, doub
 
 
 
-static double range_reading_dcv( const range_t *range, const cal_t *cal, double count_norm)
+static double range_reading_dcv( const range_t *range, const cal_t *cal, double count_sum_norm)
 {
   assert(range && range->magic == RANGE_MAGIC);
   // eg. with input terminl offset
@@ -370,16 +370,16 @@ static double range_reading_dcv( const range_t *range, const cal_t *cal, double 
 
     // TODO add front or rear terminal offset.
     // but not if using internal...
-    return cal->div1000 * count_norm;
+    return cal->div1000 * count_sum_norm;
   }
   if(strcasecmp( range->arg, "100") == 0) {
 
-    return cal->div100 * count_norm;
+    return cal->div100 * count_sum_norm;
   }
   else  {
 
     // TODO add offset
-    return range_reading_normal( range, cal, count_norm);
+    return range_reading_normal( range, cal, count_sum_norm);
   }
 
   // compiler
@@ -389,15 +389,15 @@ static double range_reading_dcv( const range_t *range, const cal_t *cal, double 
 
 
 
-static double range_reading_temp( const range_t *range, const cal_t *cal, double count_norm)
+static double range_reading_temp( const range_t *range, const cal_t *cal, double count_sum_norm)
 {
   assert(range && range->magic == RANGE_MAGIC);
 
   // can delegate here
   // lm35d
-  // return cal->b * count_norm * 100;
+  // return cal->b * count_sum_norm * 100;
 
-  return range_reading_normal( range, cal, count_norm) * 100.f;
+  return range_reading_normal( range, cal, count_sum_norm) * 100.f;
 }
 
 
@@ -420,7 +420,7 @@ static int32_t range_dcv_pred( range_t *range, /*reg_status */ double v)
   assert( strcasecmp( range->name, "dcv") == 0);
 
   // we just assume > 10 , then switch the range.
-  // So. use the count_norm. * b;
+  // So. use the count_sum_norm. * b;
   // rather than the specific range.
   // or else we an use arg. to  work out the value we want.
 

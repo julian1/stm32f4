@@ -38,6 +38,7 @@
 
 #include <mode.h>
 #include <data/cal.h>
+#include <data/data.h>
 #include <data/decode.h>
 #include <data/buffer.h>
 #include <data/range.h>
@@ -765,8 +766,14 @@ void app_update( app_t *app)
 
     app->adc_interrupt_valid = false;
 
-    decode_update( app->decode);
-    buffer_update( app->buffer);
+    // EXTR.  we can always wrap data in an extra structure
+    // if there is additional info needed
+
+    data_t  data;
+    data_init( &data);
+
+    decode_update( app->decode, &data);
+    buffer_update( app->buffer, &data);
 
     printf( "\n");
 

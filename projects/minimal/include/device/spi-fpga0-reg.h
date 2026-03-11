@@ -1,6 +1,9 @@
 
 #pragma once
 
+
+#include <stdint.h>
+
 /*
   fpga specific structure -  for comms
 

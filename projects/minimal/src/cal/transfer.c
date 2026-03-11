@@ -23,6 +23,7 @@
 
 #include <data/cal.h>
 #include <data/decode.h>
+#include <data/data.h>
 
 
 
@@ -200,11 +201,14 @@ void app_fill_buffer( app_t *app, double *values, size_t n)
 
     app->adc_interrupt_valid = false;
 
-    // get and compute counts
-    decode_update( decode);
-    if( decode->valid) {
+    data_t  data;
+    data_init( &data);
 
-      values[ i] = decode->count_norm;
+    // get and compute counts
+    decode_update( decode, &data);
+    if( data.valid) {
+
+      values[ i] = data.count_sum_norm;
       ++i;
     }
 
@@ -238,14 +242,17 @@ void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_
 
     app->adc_interrupt_valid = false;
 
+    data_t  data;
+    data_init( &data);
+
     // get and compute counts
-    decode_update( decode);
+    decode_update( decode, &data);
 
     // we take both hi and lo readings, since they have the same
     // ignore decode->valid
 
-    pos_values[i] = decode->clk_count_refmux_pos;
-    neg_values[i] = decode->clk_count_refmux_neg;
+    pos_values[i] = data.clk_count_refmux_pos;
+    neg_values[i] = data.clk_count_refmux_neg;
 
     ++i;
 

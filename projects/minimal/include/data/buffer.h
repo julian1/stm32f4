@@ -43,11 +43,11 @@ typedef struct buffer_t
 
 
 
-void buffer_init( buffer_t *buffer, decode_t *data, double *values, size_t n);
+void buffer_init( buffer_t *buffer, /*decode_t *data,*/ double *values, size_t n);
 
 bool buffer_repl_statement( buffer_t *, const char *cmd);
 
-void buffer_update( buffer_t *);
+void buffer_update( buffer_t *, data_t *data);
 
 
 

@@ -53,12 +53,10 @@ typedef struct gpio_t gpio_t;
 typedef struct spi_t spi_t;
 typedef struct spi_ice40_t spi_ice40_t;
 typedef struct interrupt_t interrupt_t;
-
-
 typedef struct cal_t cal_t;
 typedef struct range_t range_t;
-
 typedef struct _mode_t _mode_t;
+typedef struct data_t data_t;
 typedef struct decode_t decode_t;
 typedef struct buffer_t buffer_t;
 
@@ -209,6 +207,9 @@ typedef struct app_t
   ////////////
 
   cal_t         *cal;     // array
+
+
+  // data_t        *data ;
 
   decode_t        *decode;
 

@@ -24,7 +24,8 @@
 
 
 
-#include <data/decode.h>
+// #include <data/decode.h>
+#include <data/data.h>
 #include <data/buffer.h>
 #include <data/range.h>
 
@@ -51,7 +52,7 @@
 
 
 
-void buffer_init( buffer_t *buffer, decode_t *data, double *values, size_t max_n )
+void buffer_init( buffer_t *buffer, /*decode_t *data,*/ double *values, size_t max_n )
 {
 
 /*
@@ -59,14 +60,14 @@ void buffer_init( buffer_t *buffer, decode_t *data, double *values, size_t max_n
 
 */
 
-  assert(buffer);
-  assert(data && data->magic == DECODE_MAGIC);
+  // assert(buffer);
+  // assert(data && data->magic == DECODE_MAGIC);
 
   memset( buffer, 0, sizeof( buffer_t));
   buffer->magic = BUFFERS_MAGIC;
 
-  assert(data);
-  buffer->data = data;
+  // assert(data);
+  // buffer->data = data;
 
   buffer->values = values;
   buffer->max_n = max_n;
@@ -88,16 +89,19 @@ void buffer_init( buffer_t *buffer, decode_t *data, double *values, size_t max_n
   so use a separate variable
 */
 
-void buffer_update( buffer_t *buffer)
+void buffer_update( buffer_t *buffer, data_t *data)
 {
-  assert(buffer);
-  assert(buffer->magic == BUFFERS_MAGIC);
+  assert(buffer && buffer->magic == BUFFERS_MAGIC);
 
-  decode_t *data = buffer->data;
-  assert(data && data->magic == DECODE_MAGIC);
+  // decode_t *data = buffer->data;
+  // assert(data && data->magic == DECODE_MAGIC);
 
-  range_t *range = &data->ranges[ *data->range_idx ];
-  assert(range);
+  // range_t *range = &data->ranges[ *data->range_idx ];
+  // assert(range);
+
+  // TODO.  remove the range concept from here...
+
+  assert( data && data->magic == DATA_MAGIC );
 
 
 
@@ -108,7 +112,8 @@ void buffer_update( buffer_t *buffer)
     // could clear data
     // memset( buffer->values, 0, sizeof(double) * buffer->max_n );
 
-    buffer->i = 0;
+    // clear the current buffer
+    buffer->i     = 0;
     buffer->count = 0;
   }
 
@@ -131,6 +136,9 @@ void buffer_update( buffer_t *buffer)
     // calc some stats
     buffer->mean   = mean(   buffer->values, buffer->count);
     buffer->stddev = stddev( buffer->values, buffer->count);
+
+    range_t *range = data->range;
+    assert(range);
 
     char buf[100 + 1];
 

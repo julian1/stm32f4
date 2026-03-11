@@ -1,11 +1,15 @@
+
 /*
-  consider rename this file. perhaps to measurement.
-  and move the more cal specific functions to cal. perhaps.
+  decode counts, use cal to calculate reading, and assign range
 
 */
+
+
+
+
 #include <stdio.h>
 #include <assert.h>
-#include <stdlib.h>     // malloc
+// #include <stdlib.h>     // malloc
 #include <string.h>     // memcpy
 
 
@@ -20,6 +24,7 @@
 
 
 #include <data/cal.h>
+#include <data/data.h>
 #include <data/decode.h>
 #include <data/range.h>
 
@@ -28,15 +33,13 @@
 
 
 void decode_init(
-  decode_t    *decode,
-  spi_t     *spi,
 
-  // note that we have not injected cal here.
-  // for a default value.
-  // double    *cal_w,
+  decode_t  *decode,
+  spi_t     *spi,
   cal_t     *cal,
   range_t   *ranges,
-  unsigned *range_idx
+  unsigned  *range_idx// ,
+  // data_t *  data
 )
 {
   // called once at initialization
@@ -45,7 +48,6 @@ void decode_init(
   assert( decode);
   assert( ranges);
   assert( range_idx);
-
 
   memset( decode, 0, sizeof( decode_t));
   decode->magic = DECODE_MAGIC;
@@ -58,6 +60,7 @@ void decode_init(
   decode->ranges    = ranges;
   decode->range_idx = range_idx;
 
+  // decode->data      = data;
 
   // default
   decode->show_counts = true;
@@ -66,87 +69,99 @@ void decode_init(
 
 
 
+/*
+  EXTR.
+  can pass data_t to the update() function.
+  rather than static injecting on construction.
+*/
 
-void decode_update( decode_t *decode )
+void decode_update( decode_t *decode,  data_t *data)
 {
   assert( decode);
   assert( decode->magic == DECODE_MAGIC);
 
   cal_t *cal = decode->cal;
   assert( cal && cal->magic == CAL_MAGIC );
-  // double cal_w = *decode->cal_w;
 
-  range_t *range = &decode->ranges[ *decode->range_idx ];
-  assert(range);
+  spi_t *spi = decode->spi;
+
+
+  assert( data && data->magic == DATA_MAGIC );
 
 
 
   char buf[100 + 1];
 
-  // could actually pass this dependency - in the update_call().  since this is only time it is needed
-  spi_t *spi = decode->spi;
 
   uint32_t status_          = spi_ice40_reg_read32( spi, REG_STATUS );
 
-   _Static_assert(sizeof(decode->status) == sizeof(status_), "bad typedef size");
-  memcpy( &decode->status, &status_,  sizeof( status_));
+   _Static_assert(sizeof(data->status) == sizeof(status_), "bad typedef size");
+  memcpy( &data->status, &status_,  sizeof( status_));
 
-  decode->clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-  decode->clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-  decode->clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
+  // record for current part of reading
+  // cal w. needs this data
+  data->clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+  data->clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+  data->clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
 
   // useful for bounds - and to correct asymetry
-  double ratio = (decode->clk_count_refmux_pos >= decode->clk_count_refmux_neg)
-      ?  (double) decode->clk_count_refmux_pos / decode->clk_count_refmux_neg
-      :  - (double) decode->clk_count_refmux_neg / decode->clk_count_refmux_pos ;
+  double ratio = (data->clk_count_refmux_pos >= data->clk_count_refmux_neg)
+      ?  (double) data->clk_count_refmux_pos / data->clk_count_refmux_neg
+      :  - (double) data->clk_count_refmux_neg / data->clk_count_refmux_pos ;
   UNUSED(ratio);
 
 
-  if( decode->status.first) {
+  if( data->status.first) {
 
     // printf("\n");
   }
 
 
   if(decode->show_counts) {
-    printf( "first=%u idx=%u seq_n=%u, ", decode->status.first, decode->status.sample_idx, decode->status.sample_seq_n);
-    printf( "counts pos %7lu neg %7lu sig %7lu, ", decode->clk_count_refmux_pos, decode->clk_count_refmux_neg, decode->clk_count_sigmux);
+    printf( "first=%u idx=%u seq_n=%u, ", data->status.first, data->status.sample_idx, data->status.sample_seq_n);
+    printf( "counts pos %7lu neg %7lu sig %7lu, ", data->clk_count_refmux_pos, data->clk_count_refmux_neg, data->clk_count_sigmux);
     // printf( "ratio %.2f, ", ratio);
   }
 
 
 
-  if( decode->status.sample_idx == 0) {
+  if( data->status.sample_idx == 0) {
 
-    // lo - record counts
-    decode->clk_count_refmux_pos_lo = decode->clk_count_refmux_pos;
-    decode->clk_count_refmux_neg_lo = decode->clk_count_refmux_neg;
+    // lo - record LO counts
+    decode->clk_count_refmux_pos_lo = data->clk_count_refmux_pos;
+    decode->clk_count_refmux_neg_lo = data->clk_count_refmux_neg;
 
-    decode->valid = false;
+    data->valid = false;
   }
 
-  else if ( decode->status.sample_idx == 1) {
+  else if ( data->status.sample_idx == 1) {
 
     // hi
-    decode->count_sum =
-          ((double) decode->clk_count_refmux_pos    - (cal->w * decode->clk_count_refmux_neg))
+    data->count_sum =
+          ((double) data->clk_count_refmux_pos      - (cal->w * data->clk_count_refmux_neg))
         - ((double) decode->clk_count_refmux_pos_lo - (cal->w * decode->clk_count_refmux_neg_lo));
 
 
     if(decode->show_counts)
-      printf("sum %.2f, ", decode->count_sum);
+      printf("sum %.2f, ", data->count_sum);
 
     // normalized count
-    decode->count_norm = decode->count_sum  / decode->clk_count_sigmux;
+    data->count_sum_norm = data->count_sum  / data->clk_count_sigmux;
+
+
+    range_t *range = &decode->ranges[ *decode->range_idx ];
+    assert( range);
+    data->range  = range;
+
 
     // calculate reading for current range
-    decode->reading = range->range_reading( range, cal, decode->count_norm);
-    decode->valid     = true;
+    data->reading = range->range_reading( range, cal, data->count_sum_norm);
+    data->valid     = true;
 
     if(decode->show_reading) {
 
       printf( "%s-%s, ", range->name, range->arg );
-      printf( "read %s", str_format_float_with_commas(buf, 100, 8, decode->reading ));
+      printf( "read %s", str_format_float_with_commas(buf, 100, 8, data->reading ));
       printf( "%s, ", range->unit );
       // printf( "%s, ", range ? range->unit : ""  );
     }
@@ -189,6 +204,8 @@ bool decode_repl_statement( decode_t *decode,  const char *cmd)
 
 
 #if 0
+
+mar 12. 2026. move this into a test. sampling lo 10.
 
 nose seems lower in the morning. 6.50am.
 nplc 10.

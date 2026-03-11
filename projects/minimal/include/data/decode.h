@@ -16,6 +16,7 @@
 typedef struct cal_t cal_t;
 typedef struct spi_t spi_t;
 typedef struct range_t range_t;
+typedef struct data_t data_t;
 
 
 // consider move to data.c
@@ -29,19 +30,15 @@ typedef struct decode_t
   uint32_t    magic;
 
   spi_t       *spi ;
-
-  cal_t      *cal;
-
+  cal_t       *cal;
   range_t     *ranges;
   unsigned    *range_idx;    // current active range
+
+  data_t      *data;
 
 
   //////////////////////////////////
   // first reading
-
-  uint32_t clk_count_refmux_pos ;
-  uint32_t clk_count_refmux_neg;
-  uint32_t clk_count_sigmux;
 
 
   ////////////////////////////////
@@ -54,7 +51,7 @@ typedef struct decode_t
   ///////////////////////
 
 
-#if 1
+#if 0
   reg_sr_t status;
 
   // AZ HI-LO clk count sum, weight adjusted.
@@ -84,17 +81,18 @@ typedef struct decode_t
 
 
 void decode_init(
-  decode_t    *data,
+  decode_t    *decode,
   spi_t     *spi,
   cal_t *   cal,
   range_t   *ranges,
-  unsigned  *range_idx
+  unsigned  *range_idx// ,
+  // data_t *   data
 );
 
 
-bool decode_repl_statement( decode_t *data,  const char *cmd );
+bool decode_repl_statement( decode_t *decode,  const char *cmd );
 
-void decode_update( decode_t *data );
+void decode_update( decode_t *decode, data_t *data );
 
 
 

@@ -49,6 +49,7 @@
 #include <app.h>
 #include <data/cal.h>
 #include <data/range.h>
+#include <data/data.h>
 #include <data/decode.h>
 #include <data/buffer.h>
 
@@ -426,6 +427,12 @@ static int main_f429(void)
 
   app.line_freq = 50;
 
+#if 0
+  data_t          data;
+  data_init( &data );
+  app.data = &data;
+#endif
+
 
   decode_t        decode;
   decode_init(
@@ -433,7 +440,8 @@ static int main_f429(void)
     app.spi_fpga0,
     app.cal,
     app.ranges,
-    &app.range_idx
+    &app.range_idx// ,
+    // &data
   );
   app.decode = & decode;
 
@@ -441,7 +449,7 @@ static int main_f429(void)
   double values[ 1000];
 
   buffer_t     buffer;
-  buffer_init( &buffer, app.decode, values, ARRAY_SIZE(values));
+  buffer_init( &buffer, /*app.decode,*/ values, ARRAY_SIZE(values));
   app.buffer = &buffer;
 
 
