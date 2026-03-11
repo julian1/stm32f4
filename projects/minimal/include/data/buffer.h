@@ -1,27 +1,8 @@
 
 #pragma once
 
-// #include <stdint.h>
 #include <stdbool.h>
 
-
-#if 0
-// better name clear_init?
-// void buffer_set_size( MAT *buffer, uint32_t sz);
-
-MAT * buffer_init( MAT *buffer, uint32_t sz);
-
-void buffer_push( MAT *buffer, uint32_t *idx, double val );
-
-void buffer_stats_print( MAT *buffer /* flags */ );
-
-#endif
-
-/* feb 2026.
-    we want to add the repl command to change the buffer size
-    and add a buffer update.
-
-*/
 
 
 #define BUFFERS_MAGIC 88888123
@@ -67,4 +48,7 @@ void buffer_init( buffer_t *buffer, data_t *data, double *values, size_t n);
 bool buffer_repl_statement( buffer_t *, const char *cmd);
 
 void buffer_update( buffer_t *);
+
+
+
 

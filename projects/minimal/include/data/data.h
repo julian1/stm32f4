@@ -22,14 +22,34 @@ typedef struct range_t range_t;
 #define DATA_MAGIC 123
 
 
+#if 0
+  - another way to communicate. between the data_update() and buffer()
+    is to just inject a shared data structure.
+    single simpple struct
+    then can have several of these depending on how we want to wire it up.
+    eg. would inject same structure into data. and buffer.
+    ---------
+    rather than have an abstract sub type. update() or handler function
+    ---
+    note that the range information can be injectected separately also.
+#endif
+
+typedef struct result_t
+{
+  reg_sr_t  status;
+  double    data;
+  bool      valid;
+
+} result_t;
+
+
+
+
 typedef struct data_t
 {
   uint32_t    magic;
 
   spi_t       *spi ;
-
-
-  // double      *cal_w;
 
   cal_t      *cal;
 
@@ -82,7 +102,6 @@ typedef struct data_t
 void data_init(
   data_t    *data,
   spi_t     *spi,
-  // double    *cal_w,
   cal_t *   cal,
   range_t   *ranges,
   unsigned  *range_idx
