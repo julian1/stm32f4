@@ -42,9 +42,10 @@ typedef struct range_t
   void (*range_set_mode)( const range_t *range, _mode_t * /*,  bool range_10Meg*/ );
 
 
+  // TODO. renam the range_reading value to count_norm.
 
-  // convert value to a reading according to calibration
-  double (*range_reading)( const range_t *range, const cal_t *, double value);
+  // convert a nomralized count to a reading according to calibration
+  double (*range_reading)( const range_t *range, const cal_t *, double count_norm);
 
 
   /* could have a range_cal_set()  function ...
