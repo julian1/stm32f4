@@ -256,6 +256,8 @@ static void range_dcv( const range_t *range, _mode_t *mode /*, bool range_10Meg 
   assert(range && range->magic == RANGE_MAGIC);
   assert(mode && mode->magic == MODE_MAGIC);
 
+  assert( strcasecmp( range->name, "dcv") == 0);
+
   mode_partial_reset( mode);
 
   cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
@@ -404,9 +406,14 @@ static double range_reading_temp( const range_t *range, const cal_t *cal, double
 
 
 
-static int32_t range_predicate( range_t *range,  double v)
+static int32_t range_dcv_pred( range_t *range, /*reg_status */ double v)
 {
-  UNUSED(range);
+  assert(range && range->magic == RANGE_MAGIC);
+
+  assert( strcasecmp( range->name, "dcv") == 0);
+
+  // we just assume > 10 , then switch the range.
+
   UNUSED(v);
 
   return 0;
@@ -447,12 +454,12 @@ range_t range_init_values[] = {
   { RANGE_MAGIC,  "LO2",  "10",   "V",  range_lo2,  range_reading_normal,   NULL, false,  true },
 
 
-  { RANGE_MAGIC,  "DCV",  "0.01", "V",  range_dcv,  range_reading_dcv,      range_predicate,  true,   false },
-  { RANGE_MAGIC,  "DCV",  "0.1",  "V",  range_dcv,  range_reading_dcv,      range_predicate,  false,  false },
-  { RANGE_MAGIC,  "DCV",  "1",    "V",  range_dcv,  range_reading_dcv,      range_predicate,  false,  false },
-  { RANGE_MAGIC,  "DCV",  "10",   "V",  range_dcv,  range_reading_dcv,      range_predicate,  false,  false },
-  { RANGE_MAGIC,  "DCV",  "100",  "V",  range_dcv,  range_reading_dcv,      range_predicate,  false,  false },
-  { RANGE_MAGIC,  "DCV",  "1000", "V",  range_dcv,  range_reading_dcv,      range_predicate,  false,  true },
+  { RANGE_MAGIC,  "DCV",  "0.01", "V",  range_dcv,  range_reading_dcv,      range_dcv_pred,  true,   false },
+  { RANGE_MAGIC,  "DCV",  "0.1",  "V",  range_dcv,  range_reading_dcv,      range_dcv_pred,  false,  false },
+  { RANGE_MAGIC,  "DCV",  "1",    "V",  range_dcv,  range_reading_dcv,      range_dcv_pred,  false,  false },
+  { RANGE_MAGIC,  "DCV",  "10",   "V",  range_dcv,  range_reading_dcv,      range_dcv_pred,  false,  false },
+  { RANGE_MAGIC,  "DCV",  "100",  "V",  range_dcv,  range_reading_dcv,      range_dcv_pred,  false,  false },
+  { RANGE_MAGIC,  "DCV",  "1000", "V",  range_dcv,  range_reading_dcv,      range_dcv_pred,  false,  true },
 
   { RANGE_MAGIC,  "TEMP", "",     "°C", range_temp, range_reading_temp,     NULL, true,   true  },
 

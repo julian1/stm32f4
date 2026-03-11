@@ -992,6 +992,8 @@ void app_range_switch( app_t *app, uint32_t range_idx)
   assert(range);
   assert(range->range_set_mode);
 
+  printf("switch to %s-%s\n", range->name, range->arg);
+
   range->range_set_mode( range, app->mode /*, app->range_10Meg */);
 }
 
