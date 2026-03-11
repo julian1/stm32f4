@@ -18,7 +18,7 @@
 #include <lib2/util.h>      // ARRAY_SIZE
 
 #include <app.h>
-
+#include <test/test.h>
 
 
 static void test (app_t *app)     // should be passing the continuation.

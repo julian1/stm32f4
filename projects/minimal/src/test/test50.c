@@ -46,6 +46,7 @@
 
 #include <peripheral/gpio.h>        // trigger
 
+#include <test/test.h>
 #include <test/support.h>
 
 

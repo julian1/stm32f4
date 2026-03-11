@@ -12,11 +12,14 @@
 #include <string.h>   // strcmp
 
 
-#include <mode.h>
-#include <app.h>
-
-
 #include <device/spi-fpga0-reg.h>  // modes
+
+#include <mode.h>
+
+#include <app.h>
+#include <test/test.h>
+
+
 
 
 bool app_test08( app_t *app , const char *cmd)

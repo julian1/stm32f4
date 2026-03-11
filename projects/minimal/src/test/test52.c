@@ -15,6 +15,12 @@
 */
 
 
+/*
+  simple test.
+    that avoids dependencies, like cal and ranges
+
+*/
+
 
 #include <stdio.h>
 #include <assert.h>
@@ -37,21 +43,12 @@
 #include <app.h>
 
 
-/*
-  simple test.
-    that avoids dependencies, like cal and ranges
-
-*/
-
+#include <test/test.h>
 #include <test/support.h>
 
 
 static void app_display_some_data( app_t *app, double cal_w, double cal_7v1_b)
 {
-  /*
-    should be able to use decode_t and decode_update() to handle all this
-
-  */
 
   _mode_t *mode = app->mode;
   assert(mode);

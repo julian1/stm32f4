@@ -15,12 +15,11 @@
 #include <string.h>   // strcmp
 
 
-#include <app.h>
 #include <data/decode.h>
-// #include <data/buffer.h>
 
+#include <app.h>
+#include <test/test.h>
 
-// #include <mode.h>       // transition state
 
 
 

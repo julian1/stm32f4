@@ -28,14 +28,14 @@
 #include <assert.h>
 #include <string.h>   // strcmp
 
-#include <mode.h>
-#include <app.h>
-
 
 #include <device/spi-fpga0-reg.h>    // modes
 #include <peripheral/gpio.h>        // trigger
 
+#include <mode.h>
 
+#include <app.h>
+#include <test/test.h>
 
 /*
   OK, this test doesn't actually even need the app structure.

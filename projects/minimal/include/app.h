@@ -263,66 +263,14 @@ void app_repl_statements(app_t *app,  const char *s);
 ////////
 
 
-
+// range functions
 bool app_range_dir_valid( app_t *app, uint32_t range_idx, bool dir);
 void app_range_switch( app_t *app, uint32_t range_idx);
 void app_range_switch1( app_t *app, const char *name, const char *arg);
 bool app_repl_range( app_t *app, const char *cmd);
 
 
-
-
-
-
-/*
-  consider move to a separate repl() statement to dispatch
-  ie. place in src/test/test.c
-
-  move these to /test/test.h
-  or app/test
-
-  test/support.h
-  or support.c
-*/
-
-// from /test
-bool app_test01( app_t *app , const char *cmd);
-bool app_test02( app_t *app , const char *cmd);
-
-
-// adc refmux test.
-bool app_test08( app_t *app , const char *cmd);
-
-// sa/adc test
-bool app_test09( app_t *app , const char *cmd);
-
-
-// dcvsource
-bool app_test10( app_t *app , const char *cmd);
-bool app_test11( app_t *app , const char *cmd);
-
-// input mux tests
-bool app_test12( app_t *app , const char *cmd);     // formerly test05.
-bool app_test14( app_t *app , const char *cmd);
-bool app_test15( app_t *app , const char *cmd);
-
-
-// TODO. remove yield arguments
-// point of passing app is to have the context available
-// add - app_test_yield, app_test_yield_ctx;
-// to be controllable.
-bool app_test20( app_t *app, const char *cmd, void (*yield)( void * ), void * yield_ctx) ;
-
-bool app_test40( app_t *app, const char *cmd, void (*yield)( void * ), void * yield_ctx) ;
-bool app_test41( app_t *app, const char *cmd, void (*yield)( void * ), void * yield_ctx) ;
-bool app_test42( app_t *app, const char *cmd, void (*yield)( void * ), void * yield_ctx) ;
-
-
-
-bool app_test50( app_t *app , const char *cmd);
-bool app_test51( app_t *app , const char *cmd);
-bool app_test52( app_t *app , const char *cmd);
-
+// app test functions are in test/test.h.
 
 
 

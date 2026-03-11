@@ -15,12 +15,15 @@
 #include <string.h>   // strcmp
 
 
-#include <app.h>
-#include <data/decode.h>
-
 
 #include <mode.h>       // transition state
 // #include <peripheral/trigger.h>      // trigger
+
+#include <data/decode.h>
+
+#include <app.h>
+#include <test/test.h>
+
 
 
 #define UNUSED(x) ((void)(x))

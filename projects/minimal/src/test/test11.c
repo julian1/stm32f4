@@ -17,6 +17,7 @@
 
 
 #include <app.h>
+#include <test/test.h>
 
 
 

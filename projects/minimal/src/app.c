@@ -34,6 +34,8 @@
 
 
 #include <app.h>
+#include <test/test.h>
+
 #include <cal/transfer.h>
 
 #include <mode.h>

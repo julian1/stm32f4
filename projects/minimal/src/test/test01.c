@@ -21,13 +21,11 @@
 #include <lib2/util.h>     // msleep()
 #include <lib2/format.h>   // format_bits()
 
-
-
-#include <app.h>
 #include <peripheral/spi-ice40.h>
 #include <device/spi-fpga0-reg.h>
 
-
+#include <app.h>
+#include <test/test.h>
 
 
 

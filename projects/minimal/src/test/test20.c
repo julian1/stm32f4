@@ -10,8 +10,12 @@
 
 #include <lib2/util.h>  // UNUSED
 
-#include <app.h>
 #include <data/decode.h>
+
+
+#include <app.h>
+#include <test/test.h>
+
 // #include <data/buffer.h>
 
 // #include <data/matrix.h>  // m_rows()
