@@ -29,7 +29,6 @@
 #include <lib2/format.h>  // format_with_commas
 
 
-#include <peripheral/spi-ice40.h>
 #include <peripheral/gpio.h>        // trigger
 
 
@@ -40,40 +39,11 @@
 
 /*
   simple test.
-  avoid hanging other dependencies on this code
+    that avoids dependencies, like cal and ranges
 
 */
 
-
-
-static void spi_read_registers(
-  spi_t     *spi,
-  reg_sr_t  *status,
-  uint32_t  *clk_count_refmux_pos,
-  uint32_t  *clk_count_refmux_neg,
-  uint32_t  *clk_count_sigmux
-) {
-  /*
-    probably better to use this, so test test can run independly to/in isolation
-    to decode_t and decode_update() function
-    and range_t
-  */
-
-  uint32_t status_              = spi_ice40_reg_read32( spi, REG_STATUS );
-
-
-  // reg_sr_t  status;
-   _Static_assert(sizeof(*status) == sizeof(status_), "bad typedef size");
-  memcpy( status, &status_,  sizeof( status_));
-
-  *clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-  *clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-  *clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
-
-  printf( "first=%u idx=%u seq_n=%u, ", status->first, status->sample_idx, status->sample_seq_n);
-  printf( "counts pos %7lu neg %7lu sig %7lu, ", *clk_count_refmux_pos, *clk_count_refmux_neg, *clk_count_sigmux);
-
-}
+#include <test/support.h>
 
 
 static void app_display_some_data( app_t *app, double cal_w, double cal_7v1_b)
@@ -145,31 +115,25 @@ static void app_display_some_data( app_t *app, double cal_w, double cal_7v1_b)
 
     app->adc_interrupt_valid = false;
 
-    uint32_t status_ = spi_ice40_reg_read32( spi, REG_STATUS );
-    reg_sr_t  status;
-     _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
-    memcpy( &status, &status_,  sizeof( status_));
+    data_t   data;
+    memset( &data, 0, sizeof( data));
+    spi_read_registers( spi, &data);
+    print_data( &data);
 
-    uint32_t clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-    uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-    uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
 
-    printf( "first=%u idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
-    printf( "counts pos %7lu neg %7lu sig %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg, clk_count_sigmux);
-
-    if(status.sample_idx == 0) {
+    if(data.status.sample_idx == 0) {
       // lo - record counts
-      clk_count_refmux_pos_lo = clk_count_refmux_pos;
-      clk_count_refmux_neg_lo = clk_count_refmux_neg;
+      clk_count_refmux_pos_lo = data.clk_count_refmux_pos;
+      clk_count_refmux_neg_lo = data.clk_count_refmux_neg;
     }
-    else if (status.sample_idx == 1) {
+    else if (data.status.sample_idx == 1) {
       // hi
-      double v = ((double) clk_count_refmux_pos    - (cal_w * clk_count_refmux_neg))
+      double v = ((double) data.clk_count_refmux_pos    - (cal_w * data.clk_count_refmux_neg))
               - ( (double) clk_count_refmux_pos_lo - (cal_w * clk_count_refmux_neg_lo));
 
       printf("v %f, ", v );
 
-      double v2 = v / clk_count_sigmux * cal_7v1_b  ;
+      double v2 = v / data.clk_count_sigmux * cal_7v1_b  ;
 
       printf( "v2 %s, ", str_format_float_with_commas(buf, 100, 9, v2));
       // printf("v2 %f, ", v2 );
@@ -218,12 +182,6 @@ static void test( app_t *app)
   assert(mode);
   assert(mode->magic == MODE_MAGIC) ;
 
-/*
-  // TODO review/remove - only needed for line_freq... which indicates issue
-  decode_t    *data = app->data;
-  assert(data);
-  assert(data->magic == DECODE_MAGIC) ;
-*/
 
   spi_t *spi = app->spi_fpga0;
   assert(spi);
@@ -302,22 +260,13 @@ static void test( app_t *app)
 
     app->adc_interrupt_valid = false;
 
-    uint32_t status_ = spi_ice40_reg_read32( spi, REG_STATUS );
-    reg_sr_t  status;
-     _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
-    memcpy( &status, &status_,  sizeof( status_));
+    data_t   data;
+    memset( &data, 0, sizeof( data));
+    spi_read_registers( spi, &data);
+    print_data( &data);
 
-
-    uint32_t clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-    uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-    uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
-
-    printf( "first=%u idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
-    printf( "counts pos %7lu neg %7lu sig %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg, clk_count_sigmux);
-
-
-    pos_values[i] = clk_count_refmux_pos;
-    neg_values[i] = clk_count_refmux_neg;
+    pos_values[i] = data.clk_count_refmux_pos;
+    neg_values[i] = data.clk_count_refmux_neg;
 
     printf("\n");
   }
@@ -407,30 +356,24 @@ static void test( app_t *app)
 
       app->adc_interrupt_valid = false;
 
-      uint32_t status_ = spi_ice40_reg_read32( spi, REG_STATUS );
-      reg_sr_t  status;
-       _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
-      memcpy( &status, &status_,  sizeof( status_));
+      data_t   data;
+      memset( &data, 0, sizeof( data));
+      spi_read_registers( spi, &data);
+      print_data( &data);
 
-      uint32_t clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-      uint32_t clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-      uint32_t clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
 
-      printf("first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
-      printf("counts pos %7lu neg %7lu, sig %7lu, ", clk_count_refmux_pos, clk_count_refmux_neg, clk_count_sigmux);
-
-      if(status.sample_idx == 0) {
+      if(data.status.sample_idx == 0) {
         // lo - record counts
-        clk_count_refmux_pos_lo = clk_count_refmux_pos;
-        clk_count_refmux_neg_lo = clk_count_refmux_neg;
+        clk_count_refmux_pos_lo = data.clk_count_refmux_pos;
+        clk_count_refmux_neg_lo = data.clk_count_refmux_neg;
       }
-      else if (status.sample_idx == 1) {
+      else if (data.status.sample_idx == 1) {
         // hi
-        double v = ((double) clk_count_refmux_pos    - (cal_w * clk_count_refmux_neg))
+        double v = ((double) data.clk_count_refmux_pos    - (cal_w * data.clk_count_refmux_neg))
                 - ( (double) clk_count_refmux_pos_lo - (cal_w * clk_count_refmux_neg_lo));
 
         printf("v %f, ", v );
-        values[ i] = v / clk_count_sigmux;
+        values[ i] = v / data.clk_count_sigmux;
 
         // only increment on hi.
         ++i;

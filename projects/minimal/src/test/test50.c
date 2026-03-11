@@ -44,10 +44,9 @@
 #include <app.h>
 
 
-#include <peripheral/spi-ice40.h>
 #include <peripheral/gpio.h>        // trigger
 
-
+#include <test/support.h>
 
 
 
@@ -125,31 +124,13 @@ static void test( app_t *app)
       app->adc_interrupt_valid = false;
 
 
-      // embed a 8 bit. counter ini the reg_status and use it for the measure.
-
-      uint32_t status_ = spi_ice40_reg_read32( spi, REG_STATUS );
-
-      // error: dereferencing type-punned pointer will break strict-aliasing rules [-Werror=strict-aliasing]
-      // reg_sr_t  status = * (reg_sr_t*)((void *) &status_);  // gives error
-      reg_sr_t  status;
-       _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
-      memcpy( &status, &status_,  sizeof( status_));
+      data_t   data;
+      memset( &data, 0, sizeof( data));
+      spi_read_registers( spi, &data);
+      print_data( &data);
 
 
-      printf("  first=%u  idx=%u seq_n=%u, ",
-        status.first,
-        status.sample_idx,
-        status.sample_seq_n
-      );
-
-      // uint32_t clk_count_rstmux       = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_RSTMUX);    // useful check.
-      uint32_t clk_count_refmux_pos   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-      uint32_t clk_count_refmux_neg   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-      // uint32_t clk_count_refmux_both  = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_BOTH);   // check.
-      // uint32_t clk_count_sigmux       = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX);
-      // uint32_t clk_count_aperture     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);     // check.
-
-      double w =  (double) (clk_count_refmux_pos  )  /   clk_count_refmux_neg  ;
+      double w =  (double) (data.clk_count_refmux_pos  )  /   data.clk_count_refmux_neg  ;
       values[ i ] = w;
 
 

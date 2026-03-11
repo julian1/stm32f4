@@ -18,17 +18,16 @@
 #include <app.h>
 
 
-#include <peripheral/spi-ice40.h>
 #include <peripheral/gpio.h>        // trigger
 
 
 
+#include <test/support.h>
 
 
 
 static void test( app_t *app)
 {
-
 
   _mode_t *mode = app->mode;
   assert(mode);
@@ -59,9 +58,6 @@ static void test( app_t *app)
 
 
   mode->reg_cr.adc_p_active_sigmux = 0;   // sigmux not active.
-
-
-
 
 
   /////////////////////////
@@ -104,22 +100,18 @@ static void test( app_t *app)
 
       app->adc_interrupt_valid = false;
 
-      uint32_t status_ = spi_ice40_reg_read32( spi, REG_STATUS );
-      reg_sr_t  status;
-       _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
-      memcpy( &status, &status_,  sizeof( status_));
+      data_t   data;
+      memset( &data, 0, sizeof( data));
+      spi_read_registers( spi, &data);
+      print_data( &data);
 
-      printf("  first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
 
-      uint32_t clk_count_refmux_pos   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-      uint32_t clk_count_refmux_neg   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+      // not sigmux. because sigmux not active
+      w_clk_count_aperture            = data.clk_count_aperture;
 
-      w_clk_count_aperture            = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);
 
-      printf("  counts pos %lu neg %lu", clk_count_refmux_pos, clk_count_refmux_neg);
-
-      pos_values[i] = clk_count_refmux_pos;
-      neg_values[i] = clk_count_refmux_neg;
+      pos_values[i] = data.clk_count_refmux_pos;
+      neg_values[i] = data.clk_count_refmux_neg;
 
       printf("\n");
     }
@@ -201,27 +193,19 @@ static void test( app_t *app)
 
       app->adc_interrupt_valid = false;
 
-      uint32_t status_ = spi_ice40_reg_read32( spi, REG_STATUS );
-      reg_sr_t  status;
-       _Static_assert(sizeof(status) == sizeof(status_), "bad typedef size");
-      memcpy( &status, &status_,  sizeof( status_));
-
-      printf("  first=%u  idx=%u seq_n=%u, ", status.first, status.sample_idx, status.sample_seq_n);
-
-      // uint32_t clk_count_rstmux       = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_RSTMUX);    // useful check.
-      uint32_t clk_count_refmux_pos   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-      uint32_t clk_count_refmux_neg   = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-      // uint32_t clk_count_refmux_both  = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_BOTH);   // check.
-      // uint32_t clk_count_sigmux       = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX);
-      clk_count_aperture              = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_APERTURE);     // check.
+      data_t   data;
+      memset( &data, 0, sizeof( data));
+      spi_read_registers( spi, &data);
+      print_data( &data);
 
 
-      printf(" pos %lu neg %lu, ", clk_count_refmux_pos, clk_count_refmux_neg);
+      // not sigmux. because sigmux not active
+      clk_count_aperture  = data.clk_count_aperture;
 
       // difference in weighted.
 
-      double neg_w = clk_count_refmux_neg  * w;
-      double v =  (double)clk_count_refmux_pos  - neg_w;
+      double neg_w = data.clk_count_refmux_neg  * w;
+      double v =  (double) data.clk_count_refmux_pos  - neg_w;
       values[ i ] = v;
       printf( "neg_w %.3f,  v %.3f ", neg_w , v );
 
