@@ -1109,7 +1109,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
     }
   }
 
-  else if( sscanf(cmd, "10Meg %100s", s0) == 1
+  else if( sscanf(cmd, "10M %100s", s0) == 1
     && str_decode_uint( s0, &u0))  {
 
       /*  the 10Meg. impedance state is a high-level range_t state concept and belongs in app_t rather than mode_t
