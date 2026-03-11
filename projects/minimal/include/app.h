@@ -278,6 +278,9 @@ bool app_repl_range( app_t *app, const char *cmd);
   consider move to a separate repl() statement to dispatch
   ie. place in src/test/test.c
 
+  move these to /test/test.h
+  or app/test
+
   test/support.h
   or support.c
 */

@@ -7,10 +7,21 @@
 
 #include <device/spi-fpga0-reg.h>     // for reg_sr_t
 
-typedef struct spi_t spi_t ; 
+typedef struct spi_t spi_t ;
 
 
-typedef struct data_t     // only for tests. will conflict with data_t in data/data.h
+
+
+/*
+  lightweight data_t
+  and read functions only for tests.
+  will conflict with data_t in data/data.h
+
+*/
+
+
+
+typedef struct data_t
 {
 
   // uint32_t  magic;
@@ -22,7 +33,8 @@ typedef struct data_t     // only for tests. will conflict with data_t in data/d
   uint32_t clk_count_refmux_neg;
   uint32_t clk_count_sigmux;
 
-  uint32_t clk_count_aperture;  // needed when sigmux not active
+  // required when sigmux not active
+  uint32_t clk_count_aperture;
 
 } data_t;
 
