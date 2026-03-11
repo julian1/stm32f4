@@ -49,7 +49,7 @@
 #include <app.h>
 #include <data/cal.h>
 #include <data/range.h>
-#include <data/data.h>
+#include <data/decode.h>
 #include <data/buffer.h>
 
 
@@ -427,21 +427,21 @@ static int main_f429(void)
   app.line_freq = 50;
 
 
-  data_t        data;
-  data_init(
-    &data,
+  decode_t        decode;
+  decode_init(
+    &decode,
     app.spi_fpga0,
     app.cal,
     app.ranges,
     &app.range_idx
   );
-  app.data = & data;
+  app.decode = & decode;
 
 
   double values[ 1000];
 
   buffer_t     buffer;
-  buffer_init( &buffer, app.data, values, ARRAY_SIZE(values));
+  buffer_init( &buffer, app.decode, values, ARRAY_SIZE(values));
   app.buffer = &buffer;
 
 
@@ -582,7 +582,7 @@ static int main_f413(void)
 
 
   // init data
-  data_init( app.data );
+  decode_init( app.data );
 
   ////////////////
   // init the spi port, for adum/ice40 comms
@@ -593,7 +593,7 @@ static int main_f413(void)
   spi1_port_interrupt_setup();
 
   // shouldnt setup the interrupt handler - until fpga is configured, else looks like get
-  // spi1_port_interrupt_handler_set( (void (*) (void *)) data_rdy_interrupt, app.data );
+  // spi1_port_interrupt_handler_set( (void (*) (void *)) decode_rdy_interrupt, app.data );
   ice40_port_extra_setup();
 
 

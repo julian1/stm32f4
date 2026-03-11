@@ -81,7 +81,7 @@ void app_cal_div1000( app_t *app)
 
 
 
-  /* we use the range here. so that data_reading() will print something nominally ok
+  /* we use the range here. so that decode_reading() will print something nominally ok
     but note that calculation will use mean0,mean1 which are normalized counts
     --
     do we need to deal with an EMF offset. when we set a ref voltage. but then transfer

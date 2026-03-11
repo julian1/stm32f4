@@ -24,7 +24,7 @@
 
 
 
-#include <data/data.h>
+#include <data/decode.h>
 #include <data/buffer.h>
 #include <data/range.h>
 
@@ -51,7 +51,7 @@
 
 
 
-void buffer_init( buffer_t *buffer, data_t *data, double *values, size_t max_n )
+void buffer_init( buffer_t *buffer, decode_t *data, double *values, size_t max_n )
 {
 
 /*
@@ -60,7 +60,7 @@ void buffer_init( buffer_t *buffer, data_t *data, double *values, size_t max_n )
 */
 
   assert(buffer);
-  assert(data && data->magic == DATA_MAGIC);
+  assert(data && data->magic == DECODE_MAGIC);
 
   memset( buffer, 0, sizeof( buffer_t));
   buffer->magic = BUFFERS_MAGIC;
@@ -79,7 +79,7 @@ void buffer_init( buffer_t *buffer, data_t *data, double *values, size_t max_n )
 
 
 
-// want a separate buffer_data_init();
+// want a separate buffer_decode_init();
 
 
 /*
@@ -93,8 +93,8 @@ void buffer_update( buffer_t *buffer)
   assert(buffer);
   assert(buffer->magic == BUFFERS_MAGIC);
 
-  data_t *data = buffer->data;
-  assert(data && data->magic == DATA_MAGIC);
+  decode_t *data = buffer->data;
+  assert(data && data->magic == DECODE_MAGIC);
 
   range_t *range = &data->ranges[ *data->range_idx ];
   assert(range);
@@ -196,10 +196,10 @@ bool buffer_repl_statement( buffer_t *buffer, const char *cmd)
 
 
 
-bool data_repl_statement( data_t *data,  const char *cmd )
+bool decode_repl_statement( decode_t *data,  const char *cmd )
 {
   assert(data);
-  assert(data->magic == DATA_MAGIC);
+  assert(data->magic == DECODE_MAGIC);
 
 
   // prefix with data.  same as the struct, function prefix. eg.   'data cal'  'data buffer size x' ?
@@ -220,7 +220,7 @@ bool data_repl_statement( data_t *data,  const char *cmd )
     data->buffer = buffer_reset( data->buffer, u0);
 
     assert( data->buffer);
-    data_reset( data );
+    decode_reset( data );
   }
 
   else if( strcmp(cmd, "data buffer reset") == 0) {
@@ -228,7 +228,7 @@ bool data_repl_statement( data_t *data,  const char *cmd )
     // set buffer size, efault
     data->buffer = buffer_reset( data->buffer, 10 );
     assert( data->buffer);
-    data_reset( data );
+    decode_reset( data );
   }
 
 
@@ -278,7 +278,7 @@ bool data_repl_statement( data_t *data,  const char *cmd )
   else if(strcmp(cmd, "data cal show") == 0) {
 
 
-    data_cal_show( data );
+    decode_cal_show( data );
 
   }
 

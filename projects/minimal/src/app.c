@@ -38,7 +38,7 @@
 
 #include <mode.h>
 #include <data/cal.h>
-#include <data/data.h>
+#include <data/decode.h>
 #include <data/buffer.h>
 #include <data/range.h>
 
@@ -199,7 +199,7 @@ void app_msleep( app_t *app, uint32_t delay)
 
 
 
-void app_data_rdy_interrupt( app_t *app, interrupt_t *x) // runtime context
+void app_decode_rdy_interrupt( app_t *app, interrupt_t *x) // runtime context
 {
 
   UNUSED(x);
@@ -447,7 +447,7 @@ void app_configure( app_t *app )
 
   // set up the fpga0 interrupt handler
   assert( app->fpga0_interrupt);
-  interrupt_handler_set( app->fpga0_interrupt, app, (interrupt_handler_t ) app_data_rdy_interrupt);
+  interrupt_handler_set( app->fpga0_interrupt, app, (interrupt_handler_t ) app_decode_rdy_interrupt);
 
 }
 
@@ -765,15 +765,15 @@ void app_update( app_t *app)
 
     app->adc_interrupt_valid = false;
 
-    data_update( app->data);
+    decode_update( app->decode);
     buffer_update( app->buffer);
 
     printf( "\n");
 
 
 #if 0
-    // TODO.  feb 2026.  rename just data_update() and vfd_update()
-    data_update_new_reading2( data, app->spi_fpga0);
+    // TODO.  feb 2026.  rename just decode_update() and vfd_update()
+    decode_update_new_reading2( data, app->spi_fpga0);
 
     vfd_update_new_reading( app->data );  // use the data previously computed.
 #endif
@@ -986,7 +986,7 @@ void app_range_switch( app_t *app, uint32_t range_idx)
 
   assert( range_idx < app->ranges_sz );   // watch out for signess casts.
 
-  // set the current range_idx. used for data_update
+  // set the current range_idx. used for decode_update
   app->range_idx = range_idx;
 
 
@@ -1337,7 +1337,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
   else if( cal_repl_statement( app->cal, cmd)) { }
 
-  else if( data_repl_statement( app->data, cmd )) { }
+  else if( decode_repl_statement( app->decode, cmd )) { }
 
   else if( buffer_repl_statement( app->buffer, cmd )) { }
 
@@ -1510,12 +1510,12 @@ void app_repl_statements(app_t *app,  const char *s)
     /* enable the ice40 interrupt
     // to delay until after fpga is configured, else get spurious
     */
-    // spi1_port_interrupt_handler_set( (void (*) (void *)) data_rdy_interrupt, app->data );
+    // spi1_port_interrupt_handler_set( (void (*) (void *)) decode_rdy_interrupt, app->data );
 
 
     interrupt_t *x =  app->interrupt_u202;
     assert(x);
-    x->handler = ( interrupt_handler_t ) data_rdy_interrupt;
+    x->handler = ( interrupt_handler_t ) decode_rdy_interrupt;
     x->ctx = app->data ;
 
     // not needed
@@ -1548,7 +1548,7 @@ void app_repl_statements(app_t *app,  const char *s)
       eg. 'dcv az' or dcv noaz'
 
     - we could perhaps look at the azmux - to determine the input. to what values to use if switching between az/noaz even boot..
-    - actually the first element can stay the same.  we just change p_seq_n to 2. and change the data handler.
+    - actually the first element can stay the same.  we just change p_seq_n to 2. and change the decode.handler.
 
     remove the 'dcv-source chan 1' command.
 */
@@ -1567,18 +1567,18 @@ void app_repl_statements(app_t *app,  const char *s)
     // interrupt_handler_set( app->devices.fpga0_interrupt, NULL, NULL );
 
 #if 0
-    data_t *data = app->data;
+    decode_t *data = app->data;
 
     // clear the data buffer
-    data_reset( data );
-    // data_rdy_clear( data);
+    decode_reset( data );
+    // decode_rdy_clear( data);
 
 #endif
 
   // JA. disable feb 2026.
 #if 0
-    // set the data handler/catcher
-    data->handler_computed_val = data_sa_simple_computed_val;
+    // set the decode.handler/catcher
+    data->handler_computed_val = decode_sa_simple_computed_val;
     data->ctx_computed_val = NULL;
 #endif
 
@@ -1667,19 +1667,19 @@ void app_update_simple_with_data(app_t *app)
   assert(app);
   assert(app->magic == APP_MAGIC);
 
-  data_t *data = app->data;
+  decode_t *data = app->data;
   assert(data);
 
 
 
   // process potential new incomming data in priority
-  // data_update_new_reading( app->data, app->spi/*, app->verbose*/);
+  // decode_update_new_reading( app->data, app->spi/*, app->verbose*/);
 
   // process new incoming data.
   if(data->adc_interrupt_valid) {
 
     data->adc_interrupt_valid = false;
-    data_update_new_reading2( data, app->devices.spi_fpga0);
+    decode_update_new_reading2( data, app->devices.spi_fpga0);
   }
 
 
@@ -1854,12 +1854,12 @@ void app_update_simple_with_data(app_t *app)
         /*
           The better way to handle this.
           is handle the dispatch from the top level.
-          eg. move the data_rdy_flag. into app.
+          eg. move the decode_rdy_flag. into app.
 
           and call like this -
 
           app_update() {
-            data_update( app->data );         <- this
+            decode_update( app->data );         <- this
             buffer_update( app->buffer );
             vfd_update( app->vfd  );
           }
@@ -1882,7 +1882,7 @@ void app_update_simple_with_data(app_t *app)
         */
 
         // Feb 2026.  looks completely wrong.
-        // interrupt_handler_set( app->devices.fpga0_interrupt, app->data, (interrupt_handler_t ) data_rdy_interrupt);
+        // interrupt_handler_set( app->devices.fpga0_interrupt, app->data, (interrupt_handler_t ) decode_rdy_interrupt);
 
 
 

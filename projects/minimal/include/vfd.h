@@ -6,7 +6,7 @@
 
 
 
-typedef struct data_t data_t;
+typedef struct decode_t decode_t;
 
-void vfd_update_new_reading(data_t *data);
+void vfd_update_new_reading(decode_t *data);
 

@@ -13,7 +13,7 @@
 #include <vfd.h>
 
 
-#include <data/data.h>
+#include <data/decode.h>
 #include <util.h>
 
 #include <lib2/format.h>  // format_float
@@ -158,7 +158,7 @@ static void stoupper( char *s)
 // STTCPW
 
 
-void vfd_update_new_reading(data_t *data)
+void vfd_update_new_reading(decode_t *data)
 {
   UNUSED(data);
 
@@ -167,7 +167,7 @@ void vfd_update_new_reading(data_t *data)
 #if 0
 
   assert(data);
-  assert(data->magic == DATA_MAGIC);
+  assert(data->magic == DECODE_MAGIC);
 
 
   char buf[100];

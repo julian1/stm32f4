@@ -16,7 +16,7 @@
 
 
 #include <app.h>
-#include <data/data.h>
+#include <data/decode.h>
 // #include <data/buffer.h>
 
 
@@ -39,15 +39,15 @@ bool app_test40(
   assert(yield);
   assert(yield_ctx);
 
-  data_t *data = app->data;
-  assert(data);
+  decode_t *decode = app->decode;
+  assert(decode);
 
   // feb 2026.
   assert(0);
 
 #if 0
 
-  assert(data->magic == DATA_MAGIC);
+  assert(data->magic == DECODE_MAGIC);
 
 
   ////////////////////
@@ -57,7 +57,7 @@ bool app_test40(
     // az sample ref-hi on ch1, via the low mux, and ref-lo should be 7.000,000V.
 
     // note, if we call data buffer reset in repl. it will be done out of order.
-    // we want the data_reset after the adc is running.
+    // we want the decode_reset after the adc is running.
 
     if( !data->model_b) {
       printf("no cal model - loading one\n");
@@ -78,7 +78,7 @@ bool app_test40(
 
     data->show_stats = true;
     data->buffer = buffer_reset( data->buffer, 10 );
-    data_reset( data );
+    decode_reset( data );
 
     // check_data( == 7.000 )  etc.
     return 1;

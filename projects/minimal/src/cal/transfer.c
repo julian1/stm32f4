@@ -22,7 +22,7 @@
 #include <mode.h>
 
 #include <data/cal.h>
-#include <data/data.h>
+#include <data/decode.h>
 
 
 
@@ -92,8 +92,8 @@ void app_transfer( app_t *app, transfer_t *transfer)
   _mode_t *mode = app->mode;
   assert(mode && mode->magic == MODE_MAGIC);
 
-  data_t *data = app->data;
-  assert( data && data->magic == DATA_MAGIC);
+  decode_t *decode = app->decode;
+  assert( decode && decode->magic == DECODE_MAGIC);
 
   cal_t *cal = app->cal;
   assert( cal && cal->magic == CAL_MAGIC);
@@ -133,7 +133,7 @@ void app_transfer( app_t *app, transfer_t *transfer)
   double values[ 2 ];
   memset(values, 0, sizeof(values));
 
-  data->show_reading = true;
+  decode ->show_reading = true;
   app_fill_buffer( app, values, ARRAY_SIZE(values));
   double mean0    = mean( values, ARRAY_SIZE(values));
   double stddev0  = stddev( values, ARRAY_SIZE(values));
@@ -148,7 +148,7 @@ void app_transfer( app_t *app, transfer_t *transfer)
   app_transition_state( app);
 
   //
-  data->show_reading = false;
+  decode->show_reading = false;
   app_fill_buffer( app, values, ARRAY_SIZE(values));
   double mean1    = mean( values, ARRAY_SIZE(values));
   double stddev1  = stddev( values, ARRAY_SIZE(values));
@@ -161,7 +161,7 @@ void app_transfer( app_t *app, transfer_t *transfer)
 
 
   // print some values using cal to confirm
-  data->show_reading = true;
+  decode->show_reading = true;
   app_fill_buffer( app, values, ARRAY_SIZE(values));
 
   // app_cal_finish( app);
@@ -182,8 +182,8 @@ void app_transfer( app_t *app, transfer_t *transfer)
 
 void app_fill_buffer( app_t *app, double *values, size_t n)
 {
-  data_t *data = app->data;
-  assert( data && data->magic == DATA_MAGIC);
+  decode_t *decode = app->decode;
+  assert( decode && decode->magic == DECODE_MAGIC);
 
 
   // start sampling
@@ -194,17 +194,17 @@ void app_fill_buffer( app_t *app, double *values, size_t n)
   {
     printf("i %u, ", i);
 
-    // wait for adc data
+    // wait for adc decode
     while( !app->adc_interrupt_valid )
       app_yield( app);
 
     app->adc_interrupt_valid = false;
 
     // get and compute counts
-    data_update( data);
-    if( data->valid) {
+    decode_update( decode);
+    if( decode->valid) {
 
-      values[ i] = data->count_norm;
+      values[ i] = decode->count_norm;
       ++i;
     }
 
@@ -220,8 +220,8 @@ void app_fill_buffer( app_t *app, double *values, size_t n)
 
 void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_t n)
 {
-  data_t *data = app->data;
-  assert( data && data->magic == DATA_MAGIC);
+  decode_t *decode = app->decode;
+  assert( decode && decode->magic == DECODE_MAGIC);
 
 
   // start sampling
@@ -232,20 +232,20 @@ void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_
   {
     printf("i %u, ", i);
 
-    // wait for adc data
+    // wait for adc decode
     while( !app->adc_interrupt_valid )
       app_yield( app);
 
     app->adc_interrupt_valid = false;
 
     // get and compute counts
-    data_update( data);
+    decode_update( decode);
 
     // we take both hi and lo readings, since they have the same
-    // ignore data->valid
+    // ignore decode->valid
 
-    pos_values[i] = data->clk_count_refmux_pos;
-    neg_values[i] = data->clk_count_refmux_neg;
+    pos_values[i] = decode->clk_count_refmux_pos;
+    neg_values[i] = decode->clk_count_refmux_neg;
 
     ++i;
 

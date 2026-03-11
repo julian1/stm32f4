@@ -11,7 +11,7 @@
 #include <lib2/util.h>  // UNUSED
 
 #include <app.h>
-#include <data/data.h>
+#include <data/decode.h>
 // #include <data/buffer.h>
 
 // #include <data/matrix.h>  // m_rows()
@@ -33,9 +33,9 @@ bool app_test20(
   assert(yield_ctx);
 /*
   // note that we access the buffer - to test if it is full. so it's correct to expose its functionality.
-  data_t *data = app->data;
+  decode_t *data = app->data;
   assert(data);
-  assert(data->magic == DATA_MAGIC);
+  assert(data->magic == DECODE_MAGIC);
   // assert(data->buffer); // may not be guaranteed, at start up first time
 */
 
@@ -167,7 +167,7 @@ bool app_test20(
     // adc
 
     // data->buffer = buffer_reset( data->buffer, 5 );
-    // data_reset( app->data );
+    // decode_reset( app->data );
 
 
     // check_data( == 7.000 )  etc.

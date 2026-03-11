@@ -76,19 +76,19 @@ void fsmc_gpio_setup()
   // data lines.
 
 
-  uint16_t portd_data_lines = GPIO0 | GPIO1 | GPIO8 | GPIO9 | GPIO10 | GPIO14 | GPIO15;
-  // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, portd_data_lines);
-  gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, portd_data_lines);
-  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, speed, portd_data_lines);
-  gpio_set_af(GPIOD, GPIO_AF12, portd_data_lines);
+  uint16_t portd_decode_lines = GPIO0 | GPIO1 | GPIO8 | GPIO9 | GPIO10 | GPIO14 | GPIO15;
+  // gpio_set_mode(GPIOD, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, portd_decode_lines);
+  gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, portd_decode_lines);
+  gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, speed, portd_decode_lines);
+  gpio_set_af(GPIOD, GPIO_AF12, portd_decode_lines);
 
 
 
-  uint16_t porte_data_lines = GPIO7 | GPIO8 | GPIO9 | GPIO10 | GPIO11 | GPIO12 | GPIO13 | GPIO14 | GPIO15;
-  // gpio_set_mode(GPIOE, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, porte_data_lines);
-  gpio_mode_setup(GPIOE, GPIO_MODE_AF, GPIO_PUPD_NONE, porte_data_lines);
-  gpio_set_output_options(GPIOE, GPIO_OTYPE_PP, speed, porte_data_lines);
-  gpio_set_af(GPIOE, GPIO_AF12, porte_data_lines);
+  uint16_t porte_decode_lines = GPIO7 | GPIO8 | GPIO9 | GPIO10 | GPIO11 | GPIO12 | GPIO13 | GPIO14 | GPIO15;
+  // gpio_set_mode(GPIOE, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, porte_decode_lines);
+  gpio_mode_setup(GPIOE, GPIO_MODE_AF, GPIO_PUPD_NONE, porte_decode_lines);
+  gpio_set_output_options(GPIOE, GPIO_OTYPE_PP, speed, porte_decode_lines);
+  gpio_set_af(GPIOE, GPIO_AF12, porte_decode_lines);
 
 
   // could/can consolidate...

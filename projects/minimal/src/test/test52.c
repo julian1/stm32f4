@@ -55,7 +55,7 @@ static void spi_read_registers(
 ) {
   /*
     probably better to use this, so test test can run independly to/in isolation
-    to data_t and data_update() function
+    to decode_t and decode_update() function
     and range_t
   */
 
@@ -79,7 +79,7 @@ static void spi_read_registers(
 static void app_display_some_data( app_t *app, double cal_w, double cal_7v1_b)
 {
   /*
-    should be able to use data_t and data_update() to handle all this
+    should be able to use decode_t and decode_update() to handle all this
 
   */
 
@@ -220,9 +220,9 @@ static void test( app_t *app)
 
 /*
   // TODO review/remove - only needed for line_freq... which indicates issue
-  data_t    *data = app->data;
+  decode_t    *data = app->data;
   assert(data);
-  assert(data->magic == DATA_MAGIC) ;
+  assert(data->magic == DECODE_MAGIC) ;
 */
 
   spi_t *spi = app->spi_fpga0;
@@ -447,7 +447,7 @@ static void test( app_t *app)
   }
 
   /*
-    above code - should be able to just call data_update()  directly
+    above code - should be able to just call decode_update()  directly
       but keep separate. for independence when facoring etc.
 
   */

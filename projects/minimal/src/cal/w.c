@@ -29,7 +29,7 @@
 #include <mode.h>
 
 #include <data/cal.h>
-#include <data/data.h>
+#include <data/decode.h>
 
 
 
@@ -48,8 +48,8 @@ void app_cal_w( app_t *app)
   _mode_t *mode = app->mode;
   assert(mode && mode->magic == MODE_MAGIC);
 
-  data_t *data = app->data;
-  assert( data && data->magic == DATA_MAGIC);
+  decode_t *decode = app->decode;
+  assert( decode && decode->magic == DECODE_MAGIC);
 
   cal_t *cal = app->cal;
   assert( cal && cal->magic == CAL_MAGIC);
@@ -102,10 +102,10 @@ void app_cal_w( app_t *app)
   _Static_assert(ARRAY_SIZE(pos_values) == ARRAY_SIZE(neg_values), "array sizes do not match");
 
 
-  data->show_counts  = true;
-  data->show_reading = false;
+  decode->show_counts  = true;
+  decode->show_reading = false;
 
-  // fill data
+  // fill decode
   app_fill_buffer1( app, pos_values, neg_values, ARRAY_SIZE( pos_values));
 
   double pos_mean   = mean(   pos_values, ARRAY_SIZE(pos_values));

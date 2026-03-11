@@ -47,7 +47,7 @@ static void step1( app_t *app)
 static void step2( app_t *app)
 {
   UNUSED( app);
-  // ignore data here....
+  // ignore decode.here....
   // because target is comes from external source or ref
 
   printf("*data ignored*\n");
@@ -92,7 +92,7 @@ void app_cal_b( app_t *app)
 {
 
   _mode_t *mode = app->mode;
-  data_t *data = app->data;
+  decode_t *data = app->data;
   cal_t *cal = app->cal;
 
   printf("--------\n");
@@ -127,7 +127,7 @@ void app_cal_b( app_t *app)
   printf("\n");
 
   /*
-    above code - should be able to just call data_update()  directly
+    above code - should be able to just call decode_update()  directly
       but keep separate. for independence when facoring etc.
   */
 

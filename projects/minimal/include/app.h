@@ -19,7 +19,7 @@
       while control is blocking waiting for measurement data.
       without needing two stacks.  eg.
 
-      while(!app->data_ready)
+      while(!app->decode_ready)
         app->yield( app->yield_ctx);
 
 
@@ -59,7 +59,7 @@ typedef struct cal_t cal_t;
 typedef struct range_t range_t;
 
 typedef struct _mode_t _mode_t;
-typedef struct data_t data_t;
+typedef struct decode_t decode_t;
 typedef struct buffer_t buffer_t;
 
 
@@ -210,7 +210,7 @@ typedef struct app_t
 
   cal_t         *cal;     // array
 
-  data_t        *data;
+  decode_t        *decode;
 
   buffer_t      *buffer;
 
@@ -246,7 +246,7 @@ void app_msleep( app_t *app, uint32_t delay);
 
 void app_update(app_t *app);
 
-void app_data_rdy_interrupt( app_t *app, interrupt_t *x);
+void app_decode_rdy_interrupt( app_t *app, interrupt_t *x);
 
 void app_beep( app_t * app, uint32_t n);
 void app_led_dance( app_t * app );

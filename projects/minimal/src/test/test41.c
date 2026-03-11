@@ -16,7 +16,7 @@
 
 
 #include <app.h>
-#include <data/data.h>
+#include <data/decode.h>
 
 #include <mode.h>       // transition state
 
@@ -32,7 +32,7 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
     we probably don't need to pass app here.
   */
 
-  data_t *data = app->data;
+  decode_t *data = app->data;
 
   // start acquisition, generating interrupts, which sets data ready flags, which we ignore for the moemnt. - with trig
   printf("change state\n");
@@ -56,7 +56,7 @@ static void fill_buffer( app_t *app, void (*yield)( void *), void *yield_ctx)
 
   // reset the input data buffer
   // data->buffer = buffer_reset( data->buffer, 5 );
-  data_reset( data );
+  decode_reset( data );
 
   printf("waiting for data\n");
 
@@ -118,9 +118,9 @@ bool app_test41(
 
 #if 0
 
-  data_t *data = app->data;
+  decode_t *data = app->data;
   assert(data);
-  assert(data->magic == DATA_MAGIC);
+  assert(data->magic == DECODE_MAGIC);
 
   ////////////////////
 
@@ -563,7 +563,7 @@ The mdacs look to be reasonbly low noise as far as I can tell.
 
     /* note, there's real confusion - with in order, and out of order repl statements.
       eg. flash cal read, and data show stats etc will be done in sequence, while mode update is out of bound
-      we want to do the data_reset after the adc is running.
+      we want to do the decode_reset after the adc is running.
     */
 
 
@@ -582,7 +582,7 @@ The mdacs look to be reasonbly low noise as far as I can tell.
     spi_mode_transition_state( app->spi, app->mode, &app->system_millis);
 
     // data->buffer = buffer_reset( data->buffer, 30);     // resise buffer
-    // data_reset( data );                                 // reset
+    // decode_reset( data );                                 // reset
 
     // note - we could set the buffer, etc. and then do the trigger later.
 
