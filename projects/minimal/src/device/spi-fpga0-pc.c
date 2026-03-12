@@ -23,12 +23,12 @@
 
 
 
-
+#define FPGA0_MAGIC   834234234
 
 
 static void setup(spi_t *spi )
 {
-  UNUSED(spi);
+  assert(spi && spi->magic == FPGA0_MAGIC);
 
   printf("u102 setup\n");
 
@@ -52,7 +52,9 @@ static void setup(spi_t *spi )
 
 static void port_configure( spi_t *spi_)
 {
-  assert(spi_);
+
+  assert(spi_ && spi_->magic == FPGA0_MAGIC);
+
   uint32_t spi = spi_->spi;
 
   assert(spi == SPI1 || spi == SPI2);
@@ -88,8 +90,7 @@ static void port_configure( spi_t *spi_)
 
 static void cs_assert(spi_t *spi)
 {
-  // TODO magic
-
+  assert(spi && spi->magic == FPGA0_MAGIC);
   assert(spi->spi == SPI1);
 
   spi_wait_ready( spi->spi);
@@ -99,6 +100,8 @@ static void cs_assert(spi_t *spi)
 
 static void cs_deassert(spi_t *spi)
 {
+  assert(spi && spi->magic == FPGA0_MAGIC);
+
   spi_wait_ready( spi->spi);
   gpio_write_val( GPIOC, GPIO7, 1);
 }
@@ -107,6 +110,7 @@ static void cs_deassert(spi_t *spi)
 
 static void rst( spi_ice40_t *spi, uint8_t val)
 {
+  assert(spi && spi->magic == FPGA0_MAGIC);
   assert(spi->spi == SPI1);
 
   // gpio_write_val( SPI1_PORT, SPI1_CS2, val);
@@ -116,6 +120,7 @@ static void rst( spi_ice40_t *spi, uint8_t val)
 
 static bool cdone(spi_ice40_t *spi )
 {
+  assert(spi && spi->magic == FPGA0_MAGIC);
   assert(spi->spi == SPI1);
 
 
@@ -136,6 +141,8 @@ spi_ice40_t * spi_fpga0_pc_new( )
   assert(spi);
   memset(spi, 0, sizeof(spi_ice40_t));
 
+  spi->magic          = FPGA0_MAGIC;
+
   // base
   spi->spi            = SPI1;
   spi->setup          = setup;
@@ -144,11 +151,11 @@ spi_ice40_t * spi_fpga0_pc_new( )
   spi->cs_deassert    = cs_deassert;
 
 
-  // derived stuff
+  // derived
   spi->rst    = rst;
   spi->cdone  = cdone;
 
-  // interrupt not
+  // interrupt not handled here
 
   return spi;
 }

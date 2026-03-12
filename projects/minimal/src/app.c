@@ -621,11 +621,20 @@ static void app_update_soft_500ms(app_t *app)
   }
 
 
+    assert( app->spi_u202 );
+
   // u202 local ice40
   if( false && !spi_ice40_cdone( app->spi_u202)) {
 
+
+    printf("try to configure u202\n");
+
+
     FILE *f = flash_open_file( FLASH_U202_ADDR );
+    printf("here0 \n");
+
     spi_ice40_bitstream_send( app->spi_u202, f, FLASH_UP5K_SIZE, & app->system_millis );
+    printf("here1 \n");
     fclose(f);
 
     if( !spi_ice40_cdone( app->spi_u202)) {
