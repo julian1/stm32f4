@@ -7,7 +7,11 @@
 
   -  better than polymorphic update() or handler function
     note that the range information can be injectected separately also.
+  --------
 
+  note subsequnt controllers in chain, can test for the most updated field
+    in order, to determine which field to use as input.
+    either by checking valid flag, or NaN value etc.
 */
 
 #pragma once
@@ -34,7 +38,7 @@ typedef struct data_t
 
   reg_sr_t status;
 
-  // need to support cal w
+  // need to record to support cal w
   uint32_t clk_count_refmux_pos;
   uint32_t clk_count_refmux_neg;
   uint32_t clk_count_sigmux;
@@ -46,12 +50,12 @@ typedef struct data_t
   // normalized by aperture/sigmux
   double count_sum_norm;
 
-  // whether valid for specific update
+  // whether data valid for the specific update()
   bool   valid;   // consider rename count_sum_norm_valid
 
   // reading adjusted by cal
   double  reading;
-  // bool reading_valid
+  // bool reading_valid or use NaN
 
   // record range used
   range_t   *range;
