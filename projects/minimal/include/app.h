@@ -131,9 +131,9 @@ typedef struct app_t
 
   spi_t         *spi_fpga0;       // fpga post-configuration - register set etc
 
-  interrupt_t   *fpga0_interrupt; // TODO review. not clear if really belongs here.
-                                  // depends if we configured more than once
-                                  // TODO rename interrupt_fpga0
+  interrupt_t   *interrupt_fpga0;
+
+
   spi_t         *spi_4094;
 
   spi_t         *spi_mdac0;     // consider rename sts_mdac?

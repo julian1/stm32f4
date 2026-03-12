@@ -338,8 +338,8 @@ static int main_f429(void)
 
 
 
-  app.fpga0_interrupt = fpga0_interrupt_new();
-  interrupt_setup( app.fpga0_interrupt);
+  app.interrupt_fpga0 = interrupt_fpga0_new();
+  interrupt_setup( app.interrupt_fpga0);
 
   /////////
 

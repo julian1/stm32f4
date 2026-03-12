@@ -3,6 +3,6 @@
 
 typedef struct interrupt_t interrupt_t;
 
-extern interrupt_t * fpga0_interrupt_new(void);
+extern interrupt_t * interrupt_fpga0_new(void);
 
 

@@ -441,8 +441,8 @@ void app_configure( app_t *app )
 
 
   // set up the fpga0 interrupt handler
-  assert( app->fpga0_interrupt);
-  interrupt_handler_set( app->fpga0_interrupt, app, (interrupt_handler_t ) app_decode_rdy_interrupt);
+  assert( app->interrupt_fpga0);
+  interrupt_handler_set( app->interrupt_fpga0, app, (interrupt_handler_t ) app_decode_rdy_interrupt);
 
 }
 
@@ -1537,7 +1537,7 @@ static bool app_repl_range( app_t *app, const char *cmd)
 
     // JA.  feb. 2026. code looks completely wrong.
     assert(0);
-    // interrupt_handler_set( app->devices.fpga0_interrupt, NULL, NULL );
+    // interrupt_handler_set( app->devices.interrupt_fpga0, NULL, NULL );
 
 #if 0
     decode_t *data = app->data;
@@ -1855,7 +1855,7 @@ void app_update_simple_with_data(app_t *app)
         */
 
         // Feb 2026.  looks completely wrong.
-        // interrupt_handler_set( app->devices.fpga0_interrupt, app->data, (interrupt_handler_t ) decode_rdy_interrupt);
+        // interrupt_handler_set( app->devices.interrupt_fpga0, app->data, (interrupt_handler_t ) decode_rdy_interrupt);
 
 
 
