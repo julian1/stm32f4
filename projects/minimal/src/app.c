@@ -248,14 +248,11 @@ static void state_format ( uint8_t *state, size_t n)
 
 void app_transition_state( app_t  *app)
 {
-  assert(app);
-  assert(app->magic == APP_MAGIC);
 
+  assert(app && app->magic == APP_MAGIC);
 
   _mode_t *mode = app->mode;
-
-  assert( mode);
-  assert(mode->magic == MODE_MAGIC);
+  assert(mode && mode->magic == MODE_MAGIC);
 
 
   // printf("app transition state\n");
@@ -380,8 +377,8 @@ void app_transition_state( app_t  *app)
 
 void app_configure( app_t *app )
 {
-  assert( app);
-  assert( app->magic == APP_MAGIC);
+
+  assert(app && app->magic == APP_MAGIC);
 
 #if 0
 
@@ -497,8 +494,8 @@ static void spi_print_seq_register( spi_t *spi, uint32_t reg )
 
 void app_beep( app_t * app, uint32_t n)
 {
-  assert(app);
-  assert(app->magic == APP_MAGIC);
+
+  assert(app && app->magic == APP_MAGIC);
 
 
     // double beep ok.
@@ -525,8 +522,8 @@ void app_beep( app_t * app, uint32_t n)
 
 void app_led_dance( app_t * app )
 {
-  assert(app);
-  assert(app->magic == APP_MAGIC);
+
+  assert(app && app->magic == APP_MAGIC);
 
   // must be in mode direct.
 
@@ -566,8 +563,8 @@ void app_led_dance( app_t * app )
 
 static void app_update_soft_500ms(app_t *app)
 {
-  assert(app);
-  assert(app->magic == APP_MAGIC);
+
+  assert(app && app->magic == APP_MAGIC);
 
   /*
     function should reconstruct to localize scope of app. and then dispatch to other functions.
@@ -669,8 +666,8 @@ static void app_update_soft_500ms(app_t *app)
 
 static void app_update_console(app_t *app)
 {
-  assert(app);
-  assert(app->magic == APP_MAGIC);
+
+  assert(app && app->magic == APP_MAGIC);
 
 
 
@@ -754,9 +751,8 @@ static void app_update_console(app_t *app)
 
 void app_update( app_t *app)
 {
-  assert( app);
-  assert( app->magic == APP_MAGIC);
 
+  assert(app && app->magic == APP_MAGIC);
 
   // process new adc data in priority
   if( app->adc_interrupt_valid) {
@@ -1038,8 +1034,7 @@ bool app_repl_range( app_t *app, const char *cmd)
 bool app_repl_statement( app_t *app,  const char *cmd)
 {
 
-  assert( app);
-  assert( app->magic == APP_MAGIC);
+  assert(app && app->magic == APP_MAGIC);
 
 
   // printf("cmd '%s'  %u\n", cmd, strlen(cmd) );
@@ -1347,8 +1342,8 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
 void app_repl_statements(app_t *app,  const char *s)
 {
-  assert(app);
-  assert(app->magic == APP_MAGIC);
+
+  assert(app && app->magic == APP_MAGIC);
   assert(s);
 
 
