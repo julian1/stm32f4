@@ -24,20 +24,22 @@
 
 #include <device/spi1-port.h>
 #include <device/spi2-port.h>
-#include <device/spi-fpga0.h>
+
 #include <device/spi-fpga0-pc.h>
+#include <device/spi-fpga0.h>
+#include <device/interrupt-fpga0.h>
+
 #include <device/spi-4094-0.h>
 #include <device/spi-mdac0.h>
 #include <device/spi-mdac1.h>
-#include <device/interrupt-fpga0.h>
 #include <device/gpio-status-led.h>
 #include <device/gpio-trigger-internal.h>
 #include <device/gpio-trigger-selection.h>
 #include <device/fsmc.h>
 #include <device/systick.h>
 
-#include <device/spi-fpga1.h>
 #include <device/spi-fpga1-pc.h>
+#include <device/spi-fpga1.h>
 
 
 
@@ -344,6 +346,9 @@ static int main_f429(void)
 
   app.spi_fpga1_pc = spi_fpga1_pc_new();
   spi_setup( (spi_t *) app.spi_fpga1_pc );                // note upcast
+
+  app.spi_fpga1 = spi_fpga1_new();
+  spi_setup( app.spi_fpga1 );                // note upcast
 
 
 

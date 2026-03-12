@@ -502,7 +502,7 @@ void app_beep( app_t * app, uint32_t n)
     // double beep ok.
   uint32_t d = 70;
 
-  printf("configuring port\n");
+  printf("app_beep configure port\n");
   spi_port_configure( app->spi_fpga1 );
 
   for(unsigned i = 0; i < n; ++i)  {
@@ -511,7 +511,7 @@ void app_beep( app_t * app, uint32_t n)
     spi_print_register( app->spi_fpga1, REG_DIRECT );
     app_msleep( app, d);
 
-    printf("o\n");
+    printf("off\n");
     spi_ice40_reg_write32( app->spi_fpga1, REG_DIRECT, 0 );
     spi_print_register( app->spi_fpga1, REG_DIRECT );
     app_msleep( app, d);
@@ -580,7 +580,6 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
-
   // fpga0 on analog board, pre-configuration
 
   if( !spi_ice40_cdone( app->spi_fpga0_pc)) {
@@ -590,7 +589,6 @@ static void app_update_soft_500ms(app_t *app)
         seek() would need to work.
     */
     FILE *f = flash_open_file( FLASH_U102_ADDR);
-
     int ret = spi_ice40_bitstream_send( app->spi_fpga0_pc, f, FLASH_HX8K_SIZE, & app->system_millis );
     fclose(f);
 
@@ -606,35 +604,23 @@ static void app_update_soft_500ms(app_t *app)
 
       printf("fpga ok!\n");
 
-      // ensure CS vec. is not asserting anything
-      // should be asserted?
+      // deassert CS vec
       spi_cs_deassert( app->spi_fpga0 );
 
-      // app_beep( app, 2 );
-      // this checks comms
       // app_led_dance( app );
 
       // TODO better name
       app_configure( app);
     }
-
   }
 
 
-    assert( app->spi_fpga1_pc);
 
   // fpga1 - local ice40
   if( /*false &&*/ !spi_ice40_cdone( app->spi_fpga1_pc)) {
 
-
-    printf("try to configure u202\n");
-
-
     FILE *f = flash_open_file( FLASH_U202_ADDR );
-    printf("here0 \n");
-
     spi_ice40_bitstream_send( app->spi_fpga1_pc, f, FLASH_UP5K_SIZE, & app->system_millis );
-    printf("here1 \n");
     fclose(f);
 
     if( !spi_ice40_cdone( app->spi_fpga1_pc)) {
@@ -1290,7 +1276,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   else if(strcmp(cmd, "bitstream test") == 0) {
 
     FILE *f = flash_open_file( FLASH_U202_ADDR );
-    spi_ice40_bitstream_send( app->spi_fpga1, f, FLASH_UP5K_SIZE, & app->system_millis );
+    spi_ice40_bitstream_send( app->spi_fpga1_pc, f, FLASH_UP5K_SIZE, & app->system_millis );
     fclose(f);
   }
 
@@ -1310,7 +1296,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
     char buf[100];
     printf("writing v %lu  %s\n",  u0,  str_format_bits(buf, 4, u0));
 
-    spi_ice40_t *spi = app->spi_fpga1;
+    spi_t *spi = app->spi_fpga1;
 
     spi_port_configure( spi );
     spi_ice40_reg_write32( spi, REG_DIRECT, u0 );

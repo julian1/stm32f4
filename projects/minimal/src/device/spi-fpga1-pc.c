@@ -82,6 +82,8 @@ static void port_configure( spi_t *spi_)
 
 
 #if 0
+  review - old init code used cpol_clk_to_1.
+
   spi_init_master(
     spi,
     // SPI_CR1_BAUDRATE_FPCLK_DIV_2,  // div2 seems to work with iso, but not adum. actually misses a few bits with iso.

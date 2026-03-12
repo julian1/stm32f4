@@ -158,7 +158,7 @@ typedef struct app_t
   // separate system.
   spi_ice40_t   *spi_fpga1_pc;
 
-  spi_ice40_t   *spi_fpga1;
+  spi_t         *spi_fpga1;
 
   interrupt_t   *interrupt_u202;    // TODO rename
 

@@ -17,7 +17,7 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/device/systick.c  \
             src/device/fsmc.c  \
             src/device/spi-fpga0-pc.c  src/device/spi-fpga0.c \
-            src/device/spi-fpga1-pc.c  \
+            src/device/spi-fpga1-pc.c src/device/spi-fpga1.c  \
             src/device/spi-mdac0.c src/device/spi-mdac1.c \
             src/device/spi-4094-0.c \
             src/device/gpio-status-led.c src/device/gpio-trigger-internal.c src/device/gpio-trigger-selection.c \
