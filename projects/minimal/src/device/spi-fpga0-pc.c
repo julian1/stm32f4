@@ -19,10 +19,6 @@
 #include <device/support.h>
 
 
-#define UNUSED(x) ((void)(x))
-
-
-
 #define FPGA0_MAGIC   834234234
 
 
@@ -51,7 +47,6 @@ static void setup(spi_t *spi )
   gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO1 );
   gpio_set_output_options(GPIOE, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO1 );
 }
-
 
 
 static void port_configure( spi_t *spi_)

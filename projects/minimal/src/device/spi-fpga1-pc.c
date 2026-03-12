@@ -19,10 +19,8 @@
 #include <device/support.h>             // spi_wait_ready(), write_val();
 
 
-
 #define FPGA1_MAGIC   77994234
 
-#define UNUSED(x) ((void)(x))
 
 
 
@@ -49,8 +47,6 @@ static void setup( spi_t *spi)    // rename port() ?.
   gpio_mode_setup( GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO6);
   gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO6);
 }
-
-
 
 
 static void port_configure( spi_t *spi_)
@@ -101,7 +97,6 @@ static void port_configure( spi_t *spi_)
 }
 
 
-
 static void cs_assert(spi_t *spi)
 {
   assert(spi && spi->magic == FPGA1_MAGIC);
@@ -118,7 +113,6 @@ static void cs_deassert(spi_t *spi)
   spi_wait_ready( spi->spi);
   gpio_write_val( GPIOC, GPIO0, 1);
 }
-
 
 
 static void rst( spi_ice40_t *spi, uint8_t val)
@@ -171,82 +165,5 @@ spi_ice40_t * spi_fpga1_pc_new()
 
   return spi;
 }
-
-
-
-
-
-//////////////
-
-
-/*
-
-static void cs( spi_t *spi, uint8_t val)
-{
-  assert(spi->spi == SPI2);
-
-  spi_wait_ready( spi->spi);
-  gpio_write_val( GPIOC, GPIO0, val);   // PC0
-}
-
-*/
-
-
-
-/*
-  - actual instantiation of data structure (eg. actual memory requirement) should be done here.
-    or else in main/app.
-  and should not exposed anywhere else.
-
-  - this means returning a pointer. althouth we prefer to not use malloc.
-
-  - NO. instantiate  in main.c.    and reference pointer
-  or including this filei.   in the app.c
-  ----------
-
-  Do if we did distinguish between spi controller, and spi peripheral.
-  Then could organize the port_config()  more effectively.
-
-  -
-
-
-*/
-
-// this isn't really spi2 cs.  it is specifially u202.
-// BUT we could name it u202.
-
-
-/*
-  - advantage of using functions. is don't have to expose  gpio. port and pin detail.
-  - enough function to program fpga.
-  ----------
-
-  this is device specific. not a spi port viewed from mcu side.
-  should move to separate file.
-*/
-
-
-
-
-/*
-
-  now we need spi functions. to read/write registers.
-  these are not u202. specific.
-
-  they are generic.
-
-*/
-
-
-
-// Hmmmm
-
-/*
-
-  Hang on.  the u202. can setup the cs,rst,cdone lines.
-*/
-
-
-// interrupt could go here also.
 
 

@@ -17,8 +17,6 @@
 #include <device/support.h>
 
 
-
-
 #define FPGA1_MAGIC   77122877
 
 
@@ -37,7 +35,6 @@ static void setup(spi_t *spi )
   gpio_mode_setup( GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0);
   gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO0);
 }
-
 
 
 static void port_configure( spi_t *spi_)
@@ -66,7 +63,6 @@ static void port_configure( spi_t *spi_)
 }
 
 
-
 static void cs_assert(spi_t *spi)
 {
   assert(spi && spi->magic == FPGA1_MAGIC);
@@ -85,8 +81,6 @@ static void cs_deassert(spi_t *spi)
   spi_wait_ready( spi->spi);
   gpio_write_val( GPIOC, GPIO0, 1);
 }
-
-
 
 
 spi_t * spi_fpga1_new( )
