@@ -384,11 +384,11 @@ void app_configure( app_t *app )
 
   assert( 0);
   FILE *f = flash_open_file( FLASH_U202_ADDR );
-  spi_ice40_bitstream_send( app->spi_u202, f, FLASH_UP5K_SIZE, & app->system_millis );
+  spi_ice40_bitstream_send( app->spi_fpga1, f, FLASH_UP5K_SIZE, & app->system_millis );
   fclose(f);
 
   // if( ! spi_port_cdone_get()) {
-  if( ! app->spi_u202->cdone( app->spi_u202)) {
+  if( ! app->spi_fpga1->cdone( app->spi_fpga1)) {
 
     printf("fpga config failed\n");
 
@@ -497,23 +497,23 @@ void app_beep( app_t * app, uint32_t n)
 
   assert(app && app->magic == APP_MAGIC);
 
+  assert( app->spi_fpga1);
 
     // double beep ok.
-    uint32_t d = 70;
+  uint32_t d = 70;
 
   printf("configuring port\n");
-
-  spi_port_configure( app->spi_u202 );
+  spi_port_configure( app->spi_fpga1 );
 
   for(unsigned i = 0; i < n; ++i)  {
     printf("on\n");
-    spi_ice40_reg_write32( app->spi_u202, REG_DIRECT, 1 /*1<<10 */);
-    spi_print_register( app->spi_u202, REG_DIRECT );
+    spi_ice40_reg_write32( app->spi_fpga1, REG_DIRECT, 1 /*1<<10 */);
+    spi_print_register( app->spi_fpga1, REG_DIRECT );
     app_msleep( app, d);
 
     printf("o\n");
-    spi_ice40_reg_write32( app->spi_u202, REG_DIRECT, 0 );
-    spi_print_register( app->spi_u202, REG_DIRECT );
+    spi_ice40_reg_write32( app->spi_fpga1, REG_DIRECT, 0 );
+    spi_print_register( app->spi_fpga1, REG_DIRECT );
     app_msleep( app, d);
   }
 }
@@ -621,10 +621,10 @@ static void app_update_soft_500ms(app_t *app)
   }
 
 
-    assert( app->spi_u202 );
+    assert( app->spi_fpga1_pc);
 
-  // u202 local ice40
-  if( false && !spi_ice40_cdone( app->spi_u202)) {
+  // fpga1 - local ice40
+  if( /*false &&*/ !spi_ice40_cdone( app->spi_fpga1_pc)) {
 
 
     printf("try to configure u202\n");
@@ -633,11 +633,11 @@ static void app_update_soft_500ms(app_t *app)
     FILE *f = flash_open_file( FLASH_U202_ADDR );
     printf("here0 \n");
 
-    spi_ice40_bitstream_send( app->spi_u202, f, FLASH_UP5K_SIZE, & app->system_millis );
+    spi_ice40_bitstream_send( app->spi_fpga1_pc, f, FLASH_UP5K_SIZE, & app->system_millis );
     printf("here1 \n");
     fclose(f);
 
-    if( !spi_ice40_cdone( app->spi_u202)) {
+    if( !spi_ice40_cdone( app->spi_fpga1_pc)) {
 
       printf("fpga config failed\n");
     } else {
@@ -660,7 +660,7 @@ static void app_update_soft_500ms(app_t *app)
 /*
   // u102 analog board - old
   // if( false && !app->cdone && !spi_port_cdone_get() ) {
-  if( false && !app->cdone && !  app->spi_u202->cdone( app->spi_u202) ) {
+  if( false && !app->cdone && !  app->spi_fpga1->cdone( app->spi_fpga1) ) {
 
     // we should separate these.
 
@@ -1290,7 +1290,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   else if(strcmp(cmd, "bitstream test") == 0) {
 
     FILE *f = flash_open_file( FLASH_U202_ADDR );
-    spi_ice40_bitstream_send( app->spi_u202, f, FLASH_UP5K_SIZE, & app->system_millis );
+    spi_ice40_bitstream_send( app->spi_fpga1, f, FLASH_UP5K_SIZE, & app->system_millis );
     fclose(f);
   }
 
@@ -1310,7 +1310,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
     char buf[100];
     printf("writing v %lu  %s\n",  u0,  str_format_bits(buf, 4, u0));
 
-    spi_ice40_t *spi = app->spi_u202;
+    spi_ice40_t *spi = app->spi_fpga1;
 
     spi_port_configure( spi );
     spi_ice40_reg_write32( spi, REG_DIRECT, u0 );
@@ -1500,7 +1500,7 @@ static bool app_repl_range( app_t *app, const char *cmd)
     // spi1_port_interrupt_handler_set( (void (*) (void *)) decode_rdy_interrupt, app->data );
 
 
-    interrupt_t *x =  app->interrupt_u202;
+    interrupt_t *x =  app->interrupt_fpga1;
     assert(x);
     x->handler = ( interrupt_handler_t ) decode_rdy_interrupt;
     x->ctx = app->data ;
@@ -1708,16 +1708,16 @@ void app_update_simple_with_data(app_t *app)
 
 #if 0
   // only try to read registers if configured.
-  if( spi_ice40_cdone( app->spi_u202)) {
+  if( spi_ice40_cdone( app->spi_fpga1)) {
 
 
-    // spi_print_register( app->spi_u202, REG_STATUS );    // show fan speed.
+    // spi_print_register( app->spi_fpga1, REG_STATUS );    // show fan speed.
 
-    spi_port_configure( app->spi_u202 );
+    spi_port_configure( app->spi_fpga1 );
 
     // perhaps should put on a separate register.
     uint8_t reg = REG_STATUS;
-    uint32_t ret = spi_ice40_reg_read32( app->spi_u202, reg );
+    uint32_t ret = spi_ice40_reg_read32( app->spi_fpga1, reg );
 
     uint32_t speed = ret & 0xffff;
     uint32_t rpm = speed * 60;

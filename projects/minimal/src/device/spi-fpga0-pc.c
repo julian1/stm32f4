@@ -31,7 +31,7 @@ static void setup(spi_t *spi )
   assert(spi && spi->magic == FPGA0_MAGIC);
 
 
-  printf("fpga0/u102 only pc cs\n");
+  printf("fpga0 pc cs\n");
 
   /*
     - remember before fpga configuration. only one spi cs line is active
@@ -43,7 +43,7 @@ static void setup(spi_t *spi )
   gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO7 );
 
 
-  // cdone PE0
+  // cdone PE0 input
   gpio_mode_setup( GPIOE , GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO0 );
 
 
@@ -73,6 +73,8 @@ static void port_configure( spi_t *spi_)
 
     - mini-grabbers on soic is a problem, because they end up touching eash other, giving wrong signals.
   */
+
+  // note clk_to_0_when idle. during pc. but not in normal use.
 
   spi_init_master(
     spi,

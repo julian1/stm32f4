@@ -34,8 +34,10 @@
 #include <device/gpio-trigger-internal.h>
 #include <device/gpio-trigger-selection.h>
 #include <device/fsmc.h>
-#include <device/spi-fpga1.h>
 #include <device/systick.h>
+
+#include <device/spi-fpga1.h>
+#include <device/spi-fpga1-pc.h>
 
 
 
@@ -336,6 +338,13 @@ static int main_f429(void)
 
   app.fpga0_interrupt = fpga0_interrupt_new();
   interrupt_setup( app.fpga0_interrupt);
+
+  /////////
+
+
+  app.spi_fpga1_pc = spi_fpga1_pc_new();
+  spi_setup( (spi_t *) app.spi_fpga1_pc );                // note upcast
+
 
 
   app.spi_4094 = spi_4094_0_new();

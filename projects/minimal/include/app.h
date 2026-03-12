@@ -126,8 +126,6 @@ typedef struct app_t
 
   ////////////////////////////////
 
-  // analog board devices
-  // devices_t   devices;
 
   spi_ice40_t   *spi_fpga0_pc;    //  fpga pre-configuration
 
@@ -135,6 +133,7 @@ typedef struct app_t
 
   interrupt_t   *fpga0_interrupt; // TODO review. not clear if really belongs here.
                                   // depends if we configured more than once
+                                  // TODO rename interrupt_fpga0
   spi_t         *spi_4094;
 
   spi_t         *spi_mdac0;     // consider rename sts_mdac?
@@ -157,9 +156,11 @@ typedef struct app_t
   // power board devices
 
   // separate system.
-  spi_ice40_t   *spi_u202;        // rename spi_fpga1?.
+  spi_ice40_t   *spi_fpga1_pc;
 
-  interrupt_t   *interrupt_u202;
+  spi_ice40_t   *spi_fpga1;
+
+  interrupt_t   *interrupt_u202;    // TODO rename
 
   ////////////////////////////////
 
