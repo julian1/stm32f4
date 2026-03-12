@@ -34,7 +34,7 @@ typedef struct data_t
 
   reg_sr_t status;
 
-  // included for cal w
+  // need to support cal w
   uint32_t clk_count_refmux_pos;
   uint32_t clk_count_refmux_neg;
   uint32_t clk_count_sigmux;
