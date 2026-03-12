@@ -117,8 +117,7 @@ void app_init( app_t *app)
 
 void app_systick_interrupt(app_t *app)
 {
-  assert(app);
-  assert(app->magic == APP_MAGIC);
+  assert(app && app->magic == APP_MAGIC);
 
 
   // interrupt context. avoid doing anything complicatedhere.
@@ -135,8 +134,7 @@ static void app_update_simple_led_blink(app_t *app)
   // change name app_update_no_data() or app_update_limited()
   // or just app_update_simple()
 
-  assert(app);
-  assert(app->magic == APP_MAGIC);
+  assert(app && app->magic == APP_MAGIC);
 
   // 500ms soft timer
   if( (app->system_millis - app->soft_500ms) > 500) {
@@ -162,8 +160,7 @@ void app_yield( app_t *app)
     if(app->yield)
       app->yield( app->yield_ctx);
   */
-  assert(app);
-  assert(app->magic == APP_MAGIC);
+  assert(app && app->magic == APP_MAGIC);
 
 
   app_update_simple_led_blink( app);
@@ -181,8 +178,7 @@ void app_msleep( app_t *app, uint32_t delay)
     app->yield before calling the func that calls this
   */
 
-  assert(app);
-  assert(app->magic == APP_MAGIC);
+  assert(app && app->magic == APP_MAGIC);
 
 
   // remember system_millis is volatile.
@@ -210,8 +206,7 @@ void app_decode_rdy_interrupt( app_t *app, interrupt_t *x) // runtime context
     but relatively infrequent.
   */
 
-  assert(app);
-  assert(app->magic == APP_MAGIC) ;    // this is wrong.
+  assert(app && app->magic == APP_MAGIC) ;    // this is wrong.
 
 
   // if flag is still active, then record we missed processing some app.
@@ -456,10 +451,10 @@ void app_configure( app_t *app )
 
 
 
+/*
+  move this code to top-level support.h ?
 
-
-
-
+*/
 
 static void spi_print_register( spi_t *spi, uint32_t reg )
 {
@@ -948,35 +943,12 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, uint32_t line_freq)
 
 
 
-#if 0
-static bool app_repl_range( app_t *app, const char *cmd)
-{
-  // consider rename app_repl_set_range()  app_repl_maybe_set_range()
 
-  for( unsigned i = 0; i < app->ranges_sz; ++i )  {
+/*
+  these functions are typeed on app.
+  leave here, rather than moving to range.c
 
-    range_t *range = &app->ranges[ i];
-    if( strcasecmp(cmd, range->name) == 0) {
-
-      // update range index
-      app->range_idx = i;
-
-      // apply the mode...
-      range->mode_f( app->mode );
-      return true;
-    }
-  }
-
-  return false;
-}
-
-#endif
-
-
-
-
-
-
+*/
 
 bool app_range_dir_valid( app_t *app, uint32_t range_idx, bool dir)    // 1 up. 0 down
 {
@@ -1095,10 +1067,12 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
 
 
-
   else if ( app_repl_range( app, cmd)) { }
 
 
+  /*
+      TODO consider  move this code to app_repl_range
+  */
   // 'u' up in range
   else if(strcmp(cmd, "u") == 0) {
 
@@ -1236,9 +1210,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 #endif
 
 
-
-
-  // TODO move to test code.
+  // TODO move vfd to test code.
 
   else if( strcmp( cmd, "vfd") == 0) {
     // vfd
@@ -1344,8 +1316,6 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   ///////////////////////
 
 
-
-
   else if( app_transfer_repl_statement( app, cmd)) { }
 
   else if( mode_repl_statement( app->mode, cmd, app->line_freq )) { }
@@ -1356,42 +1326,9 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
   else if( buffer_repl_statement( app->buffer, cmd )) { }
 
-
-  ////////
-
   else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, app->line_freq)) { }
 
-
-
-  /*
-    these can apply the mode state, that has previously been setup.
-    this can simplify, the code in these functions.
-  */
-  else if( app_test01( app, cmd)) { }
-  else if( app_test02( app, cmd)) { }
-
-  else if( app_test08( app, cmd)) { }
-  else if( app_test09( app, cmd)) { }
-
-  else if( app_test10( app, cmd)) { }
-  else if( app_test11( app, cmd)) { }
-
-  else if( app_test12( app, cmd)) { }
-  else if( app_test14( app, cmd)) { }
-  else if( app_test15( app, cmd)) { }
-
-#if 0
-
-  else if( app_test20( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
-  else if( app_test40( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
-  else if( app_test41( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
-  else if( app_test42( app, cmd, (void (*)(void *))app_update_simple_with_data, app )) { }
-#endif
-
-
-  else if( app_test50( app, cmd)) { }
-  else if( app_test51( app, cmd)) { }
-  else if( app_test52( app, cmd)) { }
+  else if( app_test_repl_statement( app, cmd )) { }
 
   else {
 
@@ -1452,6 +1389,37 @@ void app_repl_statements(app_t *app,  const char *s)
   }
 
 }
+
+
+
+
+
+
+
+#if 0
+static bool app_repl_range( app_t *app, const char *cmd)
+{
+  // consider rename app_repl_set_range()  app_repl_maybe_set_range()
+
+  for( unsigned i = 0; i < app->ranges_sz; ++i )  {
+
+    range_t *range = &app->ranges[ i];
+    if( strcasecmp(cmd, range->name) == 0) {
+
+      // update range index
+      app->range_idx = i;
+
+      // apply the mode...
+      range->mode_f( app->mode );
+      return true;
+    }
+  }
+
+  return false;
+}
+
+#endif
+
 
 
 

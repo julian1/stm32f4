@@ -270,8 +270,8 @@ void app_range_switch1( app_t *app, const char *name, const char *arg);
 bool app_repl_range( app_t *app, const char *cmd);
 
 
-// app test functions are in test/test.h.
+// consider move to test/test.h.
 
-
+bool app_test_repl_statement( app_t *app,  const char *cmd);
 
 
