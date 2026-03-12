@@ -414,24 +414,15 @@ static int main_f429(void)
   cal_t         cal;
   cal_init(
     &cal,
+    // should pass already opened file, as the correct dependency
     FLASH_SECT_ADDR,
     FLASH_SECT_NUM
-    // &app.cal_id,
-    // &app.cal_w,
-    // app.ranges,
-    // app.ranges_sz
   );
   app.cal = &cal;
 
 
 
   app.line_freq = 50;
-
-#if 0
-  data_t          data;
-  data_init( &data );
-  app.data = &data;
-#endif
 
 
   decode_t        decode;
@@ -440,8 +431,7 @@ static int main_f429(void)
     app.spi_fpga0,
     app.cal,
     app.ranges,
-    &app.range_idx// ,
-    // &data
+    &app.range_idx
   );
   app.decode = & decode;
 
@@ -449,10 +439,8 @@ static int main_f429(void)
   double values[ 1000];
 
   buffer_t     buffer;
-  buffer_init( &buffer, /*app.decode,*/ values, ARRAY_SIZE(values));
+  buffer_init( &buffer, values, ARRAY_SIZE(values));
   app.buffer = &buffer;
-
-
 
 
   // loop, bottom of the control stack
