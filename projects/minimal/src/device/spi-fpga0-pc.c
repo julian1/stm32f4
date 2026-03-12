@@ -32,7 +32,10 @@ static void setup(spi_t *spi )
 
   printf("u102 setup\n");
 
-  // perhaps
+  /*
+    - remember before configuration. only one assert line is active
+    - we will reconfigure this in the normal spi. device
+  */
 
   // cs  PC7
   gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO7 /*| GPIO8 | GPIO9*/);
@@ -92,7 +95,9 @@ static void cs_assert(spi_t *spi)
 {
   assert(spi && spi->magic == FPGA0_MAGIC);
   assert(spi->spi == SPI1);
-
+  /*
+    - remember before configuration. only one assert line is active
+  */
   spi_wait_ready( spi->spi);
   gpio_write_val( GPIOC, GPIO7, 0);
 
