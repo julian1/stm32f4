@@ -21,15 +21,13 @@
 
 
 
-#define UNUSED(x) ((void)(x))
 
-
-
+#define FPGA0_MAGIC   9121214
 
 
 static void setup(spi_t *spi )
 {
-  UNUSED(spi);
+  assert(spi && spi->magic == FPGA0_MAGIC);
 
   printf("fpga0/u102 setup all 3 cs lines\n");
 
@@ -47,9 +45,9 @@ static void setup(spi_t *spi )
 
 static void port_configure( spi_t *spi_)
 {
-  assert(spi_);
-  uint32_t spi = spi_->spi;
+  assert(spi_ && spi_->magic == FPGA0_MAGIC);
 
+  uint32_t spi = spi_->spi;
   assert(spi == SPI1);
 
   spi_reset( spi );
@@ -75,6 +73,8 @@ static void port_configure( spi_t *spi_)
 
 static void cs_assert(spi_t *spi)
 {
+  assert(spi && spi->magic == FPGA0_MAGIC);
+
   // TODO add magic number?
   assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
@@ -85,6 +85,8 @@ static void cs_assert(spi_t *spi)
 
 static void cs_deassert(spi_t *spi)
 {
+  assert(spi && spi->magic == FPGA0_MAGIC);
+
   assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
 
@@ -107,13 +109,13 @@ spi_t * spi_fpga0_new( )
   assert(spi);
   memset(spi, 0, sizeof(spi_t));
 
-  spi->spi    = SPI1;
-  spi->setup   =  setup;
-  spi->port_configure = port_configure;
-  spi->cs_assert    = cs_assert;
-  spi->cs_deassert  = cs_deassert;
+  spi->magic          = FPGA0_MAGIC;
 
-  // interrupt not handled here
+  spi->spi            = SPI1;
+  spi->setup          =  setup;
+  spi->port_configure = port_configure;
+  spi->cs_assert      = cs_assert;
+  spi->cs_deassert    = cs_deassert;
 
   return spi;
 }
