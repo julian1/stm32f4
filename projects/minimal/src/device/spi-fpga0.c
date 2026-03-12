@@ -31,22 +31,16 @@ static void setup(spi_t *spi )
 {
   UNUSED(spi);
 
-  printf("u102 setup\n");
+  printf("fpga0/u102 setup all 3 cs lines\n");
 
 
-  // note GPIO7 was already set up in fpga0-pc.
-  // potential for conflict
-
+  /* note GPIO7 was already set up in fpga0-pc.
+    potential for conflict
+  */
 
   // cs  PC7,8,9
   gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,          GPIO7 | GPIO8 | GPIO9);
   gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ,  GPIO7 | GPIO8 | GPIO9);
-
-
-  // interrupt PA3
-  // should not be done here.
-  // gpio_mode_setup( GPIOA , GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO3 );
-
 }
 
 
