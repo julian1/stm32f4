@@ -1,80 +1,29 @@
-/*
-  feb 2026.
-  this is correctly peripheral code.
-  but the specific vfd instance state should move to device.
-  eg. the FSMC_A18. and the PB8 for reset.
-  -
-  there is an issue that we dont want to much indirection
-  for low-level funcs that must be fast.
 
-*/
-#include <libopencm3/stm32/gpio.h>
+
 
 #include <stdio.h>    // printf, scanf
 #include <assert.h>
 
-
-
-#include <peripheral/vfd.h>
+#include <libopencm3/stm32/gpio.h>
 
 #include <lib2/util.h>      // UNUSED, ARRAY_SIZE
 
-
-// todo move to fsmc header.
-#define FMC_MY_BASE 0x60000000
-#define FMC_A16 (1<<(16+1))
-#define FMC_A17 (1<<(17+1))
-#define FMC_A18 (1<<(18+1))
-#define FMC_A19 (1<<(19+1))
-
-
-// A16 is command/data .
-// A18 to select VFD.
-
-void vfd_write_cmd( uint8_t v)
-{
-  // higher byte is just ignored.
-  *((volatile uint16_t *)  (FMC_MY_BASE |  FMC_A18 | FMC_A16)) = v ;
-}
-
-void vfd_write_data( uint8_t v)
-{
-  *((volatile uint16_t *)  (FMC_MY_BASE |  FMC_A18 )) = v ;
-}
-
-uint8_t vfd_read_data( void)
-{
-  return *((volatile uint16_t *)  (FMC_MY_BASE |  FMC_A18 ));
-}
-
+#include <device/vfd.h>
 
 
 
 
 void vfd_init_gpio( void )
 {
+    // TODO rename vfd_gpio_init()
   printf("vfd_init_gpio()\n");
-  // what is frp_out.  is output from vfd.
-  // need interrupt.
-
 
   // ikon rst. feb 2026
   // feb 2026.  device init.
   gpio_set( GPIOB, GPIO8);   // keep high - to avoid supirious seting.
   gpio_mode_setup(  GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8 );
 
-
-#if 0
-  // Ikon reset is pf12.   for control-panel-7.jun 2024.
-  // PD6 for
-  // reset.
-  gpio_set( GPIOF, GPIO12);   // keep high - to avoid supirious seting.
-  gpio_mode_setup(  GPIOF, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12 );
-#endif
-
 }
-
-//////////////////////
 
 
 

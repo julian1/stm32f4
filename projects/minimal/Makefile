@@ -11,7 +11,8 @@ BINARY		= main
 
 SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/peripheral/spi-4094.c src/peripheral/spi-dac8811.c src/peripheral/spi-ad5446.c \
-            src/peripheral/vfd.c src/peripheral/vfd-fonts.c \
+            src/device/vfd.c \
+            src/peripheral/vfd-fonts.c \
             src/peripheral/interrupt.c \
             src/device/spi1-port.c src/device/spi2-port.c  \
             src/device/systick.c  \
@@ -24,6 +25,7 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/device/interrupt-fpga0.c \
             src/device/support.c \
             src/main.c  \
+            src/vfd.c \
             src/app.c  \
             src/syscalls.o \
             src/mode.o \
@@ -40,7 +42,6 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/test/test20.c src/test/test40.c src/test/test41.c  src/test/test42.c   \
             src/test/test50.c  src/test/test51.c  src/test/test52.c \
             src/flash/file-blob.c \
-            src/vfd.c \
 
 
 

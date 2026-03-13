@@ -1,12 +1,17 @@
+/*
+    there is no underlying device code here.
 
-
+*/
 #include <stdio.h>    // printf, scanf
 #include <string.h>   // strcmp, memset
 #include <stdint.h>
 #include <assert.h>
 
 
-#include <peripheral/vfd.h>
+// need access to fast vfd device command write functions
+#include <device/vfd.h>
+
+#include <peripheral/vfd-fonts.h>
 
 #include <lib2/util.h>      // UNUSED, ARRAY_SIZE
 

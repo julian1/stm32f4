@@ -5,25 +5,20 @@
 #include <assert.h>
 #include <math.h>       // fabs
 #include <string.h>       // memcpy
+#include <stdbool.h>
 
 
 
-// vfd
-#include <peripheral/vfd.h>
-#include <vfd.h>
 
 
-#include <data/decode.h>
-#include <util.h>
-
+#include <lib2/util.h>  // UNUSED
 #include <lib2/format.h>  // format_float
 
 
+// vfd
+#include <peripheral/vfd-fonts.h>
+#include <vfd.h>
 
-#include <device/spi-fpga0-reg.h>    // TODO REMOVE. does not belong here. for seq mode
-
-
-#define UNUSED(x) ((void)(x))
 
 
 
@@ -158,7 +153,7 @@ static void stoupper( char *s)
 // STTCPW
 
 
-void vfd_update_new_reading(decode_t *data)
+void vfd_update_data( data_t *data)
 {
   UNUSED(data);
 

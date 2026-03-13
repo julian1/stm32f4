@@ -37,6 +37,8 @@
 #include <device/fsmc.h>
 #include <device/systick.h>
 
+#include <device/vfd.h>
+
 #include <device/spi-fpga1-pc.h>
 #include <device/spi-fpga1.h>
 
@@ -44,7 +46,7 @@
 
 #include <peripheral/spi-ice40.h>
 #include <peripheral/interrupt.h>
-#include <peripheral/vfd.h>
+#include <peripheral/vfd-fonts.h>
 
 
 

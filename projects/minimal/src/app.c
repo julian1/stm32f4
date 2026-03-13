@@ -15,6 +15,11 @@
 #include <lib2/stream-flash.h>  // flash_open_file()
 
 
+
+// required. because vfd_init() - is delayed until the fpga is configured.
+#include <device/vfd.h>      // vfd
+
+
 #include <peripheral/spi-ice40.h>
 #include <peripheral/spi-4094.h>
 #include <peripheral/spi-ice40-pc.h>
@@ -22,12 +27,12 @@
 #include <peripheral/spi-ad5446.h>
 #include <peripheral/gpio.h>
 #include <peripheral/interrupt.h>
-#include <peripheral/vfd.h>   // this is ok.
+#include <peripheral/vfd-fonts.h>
 
 
 
-// TODO device code should not be here
-#include <device/fsmc.h>      // this should removee. ?  setup should be in main()
+
+
 #include <device/support.h>    // mcu_reset, print_stack_pointer
 #include <util.h>             // str_decode_uint
 
@@ -1208,6 +1213,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
   // TODO move vfd to test code.
 
+#if 0
   else if( strcmp( cmd, "vfd") == 0) {
     // vfd
 
@@ -1228,7 +1234,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
     vfd_do_something();
   }
-
+#endif
 
 
 
