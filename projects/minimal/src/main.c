@@ -498,7 +498,7 @@ static int main_f429(void)
 
 
   vfd_t         vfd;
-  vfd_init( &vfd);
+  vfd_init( &vfd, app.buffer);
   app.vfd = &vfd;
 
 

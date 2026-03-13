@@ -164,11 +164,14 @@ static void stoupper( char *s)
 
 
 
-void vfd_init( vfd_t *vfd)
+void vfd_init( vfd_t *vfd, buffer_t *buffer)
 {
   memset( vfd, 0, sizeof( vfd_t));
   vfd->magic = VFD_MAGIC;
 
+  assert( buffer && buffer->magic == BUFFER_MAGIC);
+
+  vfd->buffer = buffer;
 }
 
 
@@ -177,11 +180,14 @@ void vfd_init( vfd_t *vfd)
 
 
 
-void vfd_upate( vfd_t *vfd, buffer_t *buffer, data_t *data)
+
+
+
+void vfd_upate( vfd_t *vfd, data_t *data)
 {
   assert( vfd && vfd->magic == VFD_MAGIC);
   assert( data && data->magic == DATA_MAGIC);
-  assert( buffer && buffer->magic == BUFFER_MAGIC);
+
 
 
   // nothing to do
@@ -231,11 +237,27 @@ void vfd_upate( vfd_t *vfd, buffer_t *buffer, data_t *data)
   vfd_write_string2( buf, 0, 4 );
 #endif
 
+  /*
+    TODO .  need to add the noaz. flag. to the status register
+    so we can display mode. here. if AZ. or NOAZ.
 
+  */
+
+  buffer_t *buffer = vfd->buffer;
+  assert( buffer && buffer->magic == BUFFER_MAGIC);
+
+  // str_format_float_with_commas(buf, 100, 7, data->reading);
+  // snprintf( buf, 100, "n %u, mean %f", buffer->count, buffer->mean);
+  snprintf( buf, 100, "mean %f", buffer->mean);
+  vfd_write_string2( buf, 0, 4 );
+
+
+#if 0
   // write nplc
   double nplc = aper_n_to_nplc( data->adc_clk_count_sigmux, data->line_freq );
   snprintf(buf, 100, "nplc %.1lf ", nplc );
   vfd_write_string2( buf, 0, 5 );
+#endif
 
 
   // write/ dummy other stuff.
@@ -244,7 +266,7 @@ void vfd_upate( vfd_t *vfd, buffer_t *buffer, data_t *data)
   range_t *range = data->range;
   assert( range && range->magic == RANGE_MAGIC);
 
-  sprintf( buf, "%s-%s", range->name, range->arg );
+  snprintf( buf, 100, "%s-%s", range->name, range->arg );
   vfd_write_string2( buf, 0, 6 );
 
 }

@@ -14,6 +14,7 @@ typedef struct vfd_t
 {
   uint32_t magic;
 
+  buffer_t *buffer;
 
 
 
@@ -22,8 +23,8 @@ typedef struct vfd_t
 
 
 
-void vfd_init( vfd_t *vfd);
+void vfd_init( vfd_t *vfd, buffer_t *buffer);
 
-void vfd_upate( vfd_t *vfd, buffer_t *buffer, data_t *data);
+void vfd_upate( vfd_t *vfd, data_t *data);
 
 
