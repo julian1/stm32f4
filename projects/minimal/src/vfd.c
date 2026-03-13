@@ -18,7 +18,7 @@
 // vfd
 #include <peripheral/vfd-fonts.h>
 #include <vfd.h>
-
+#include <data/data.h>
 
 
 
@@ -150,12 +150,33 @@ static void stoupper( char *s)
 }
 
 
+
+
+
+
+
 // STTCPW
 
 
-void vfd_update_data( data_t *data)
+
+
+void vfd_init( vfd_t *vfd)
 {
-  UNUSED(data);
+  memset( vfd, 0, sizeof( vfd_t));
+  vfd->magic = VFD_MAGIC;
+
+}
+
+
+
+
+
+
+
+void vfd_update_data( vfd_t *vfd, data_t *data)
+{
+  assert( vfd && vfd->magic == VFD_MAGIC);
+  assert( data && data->magic == DATA_MAGIC);
 
 
 // feb 2026

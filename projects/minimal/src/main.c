@@ -46,7 +46,7 @@
 
 #include <peripheral/spi-ice40.h>
 #include <peripheral/interrupt.h>
-#include <peripheral/vfd-fonts.h>
+// #include <peripheral/vfd-fonts.h>
 
 
 
@@ -58,6 +58,7 @@
 #include <data/decode.h>
 #include <data/buffer.h>
 
+#include <vfd.h>
 
 
 
@@ -433,7 +434,7 @@ static int main_f429(void)
     // fsmc_setup( 12 );   // slow.
     // with divider == 1. is is easier to see the address is already well asserted on WR rising edge. before CS.
     fsmc_setup( 1 );   // fase.
-    vfd_init_gpio();
+    vfd_dev_gpio_init();
 
     // EXTR. with fpga muxing cs we must wait until it gets initialized. before
     // this is not very pleasant
@@ -492,6 +493,13 @@ static int main_f429(void)
   buffer_t     buffer;
   buffer_init( &buffer, values, ARRAY_SIZE(values));
   app.buffer = &buffer;
+
+
+
+  vfd_t         vfd;
+  vfd_init( &vfd);
+  app.vfd = &vfd;
+
 
 
   // loop, bottom of the control stack

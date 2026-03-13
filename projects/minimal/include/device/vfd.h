@@ -59,9 +59,9 @@ static inline uint8_t vfd_read_data( void)
 }
 
 
-void vfd_init_gpio( void );
+void vfd_dev_gpio_init( void);
 
-void vfd_init(  volatile uint32_t *system_millis);
+void vfd_dev_init(  volatile uint32_t *system_millis);
 
 
 

@@ -59,8 +59,10 @@ typedef struct _mode_t _mode_t;
 typedef struct data_t data_t;
 typedef struct decode_t decode_t;
 typedef struct buffer_t buffer_t;
+typedef struct buffer_t buffer_t;
 
 
+typedef struct vfd_t vfd_t;
 
 
 
@@ -230,6 +232,9 @@ typedef struct app_t
     - but this is a rangeing concept, and there are only a few places where use ranges, and need to consider it
     */
   bool          range_10Meg ;
+
+
+  vfd_t         *vfd;    // should be specific?
 
 
 } app_t;

@@ -13,22 +13,11 @@
 
 
 
-void vfd_init_gpio( void )
-{
-    // TODO rename vfd_gpio_init()
-  printf("vfd_init_gpio()\n");
-
-  // ikon rst. feb 2026
-  // feb 2026.  device init.
-  gpio_set( GPIOB, GPIO8);   // keep high - to avoid supirious seting.
-  gpio_mode_setup(  GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8 );
-
-}
 
 
 
 
-static void msleep(uint32_t delay, volatile uint32_t *system_millis)
+static void msleep( uint32_t delay, volatile uint32_t *system_millis)
 {
 
   // works for system_millis integer wrap around
@@ -46,6 +35,18 @@ static void msleep(uint32_t delay, volatile uint32_t *system_millis)
 
 
 
+void vfd_dev_gpio_init( void )
+{
+    // TODO rename vfd_gpio_init()
+  printf("vfd_dev_gpio_init()\n");
+
+  // ikon rst. feb 2026
+  // feb 2026.  device init.
+  gpio_set( GPIOB, GPIO8);   // keep high - to avoid supirious seting.
+  gpio_mode_setup(  GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8 );
+
+}
+
 
 /*
   - read/write  are for reading writing.
@@ -62,7 +63,7 @@ static void msleep(uint32_t delay, volatile uint32_t *system_millis)
 */
 
 
-void vfd_init(  volatile uint32_t *system_millis)
+void vfd_dev_init(  volatile uint32_t *system_millis)
 {
   // see s8 manual.  everything must be initialized with gram
 
