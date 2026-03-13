@@ -173,7 +173,7 @@ void vfd_init( vfd_t *vfd)
 
 
 
-void vfd_update_data( vfd_t *vfd, data_t *data)
+void vfd_upate( vfd_t *vfd, data_t *data)
 {
   assert( vfd && vfd->magic == VFD_MAGIC);
   assert( data && data->magic == DATA_MAGIC);

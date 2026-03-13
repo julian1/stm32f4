@@ -779,13 +779,9 @@ void app_update( app_t *app)
 
     printf( "\n");
 
+    vfd_upate( app->vfd, &data);
 
-#if 0
-    // TODO.  feb 2026.  rename just decode_update() and vfd_update()
-    decode_update_new_reading2( data, app->spi_fpga0);
 
-    vfd_update_new_reading( app->data );  // use the data previously computed.
-#endif
   }
 
 
