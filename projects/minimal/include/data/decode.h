@@ -33,12 +33,12 @@ typedef struct decode_t
   cal_t       *cal;
   range_t     *ranges;
   unsigned    *range_idx;    // current active range
-
+  uint32_t    *line_freq;
 
 
   // persist...  for AZ. from last reading
-  uint32_t clk_count_refmux_pos_lo;
-  uint32_t clk_count_refmux_neg_lo;
+  uint32_t adc_clk_count_refmux_pos_lo;
+  uint32_t adc_clk_count_refmux_neg_lo;
 
   ///////////////////////
 
@@ -59,7 +59,8 @@ void decode_init(
   spi_t     *spi,
   cal_t *   cal,
   range_t   *ranges,
-  unsigned  *range_idx
+  unsigned  *range_idx,
+  uint32_t  *line_freq
 );
 
 

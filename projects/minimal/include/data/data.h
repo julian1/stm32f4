@@ -41,9 +41,10 @@ typedef struct data_t
   reg_sr_t status;
 
   // need to record to support cal w
-  uint32_t clk_count_refmux_pos;
-  uint32_t clk_count_refmux_neg;
-  uint32_t clk_count_sigmux;        // also needed to report nplc in ui.
+  // TODO. prefix adc_clock_count...
+  uint32_t adc_clk_count_refmux_pos;
+  uint32_t adc_clk_count_refmux_neg;
+  uint32_t adc_clk_count_sigmux;        // also needed to report nplc in ui.
 
 
   // AZ HI-LO clk count sum, weight adjusted.
@@ -59,11 +60,15 @@ typedef struct data_t
   double  reading;
   // bool reading_valid or use NaN
 
-  // range used
+  // range used - could hard-copy if non const.
   range_t   *range;
 
   // can record cal used.
   cal_t     *cal;
+
+  // TODO.  add line_freq used.
+
+  uint32_t  line_freq;    // hard stamp or use pointer
 
 } data_t;
 

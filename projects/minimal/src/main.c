@@ -483,7 +483,8 @@ static int main_f429(void)
     app.spi_fpga0,
     app.cal,
     app.ranges,
-    &app.range_idx
+    &app.range_idx,
+    &app.line_freq
   );
   app.decode = & decode;
 

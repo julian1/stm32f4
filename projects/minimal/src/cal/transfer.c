@@ -248,8 +248,8 @@ void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_
     // we take both hi and lo readings, since they have the same
     // ignore decode->valid
 
-    pos_values[i] = data.clk_count_refmux_pos;
-    neg_values[i] = data.clk_count_refmux_neg;
+    pos_values[i] = data.adc_clk_count_refmux_pos;
+    neg_values[i] = data.adc_clk_count_refmux_neg;
 
     ++i;
 

@@ -38,12 +38,12 @@ void decode_init(
   spi_t     *spi,
   cal_t     *cal,
   range_t   *ranges,
-  unsigned  *range_idx
+  unsigned  *range_idx,
+  uint32_t  *line_freq
 )
 {
   // called once at initialization
 
-  // decode_t *decode = malloc( sizeof(decode_t));
   assert( decode);
   assert( ranges);
   assert( range_idx);
@@ -51,7 +51,6 @@ void decode_init(
   memset( decode, 0, sizeof( decode_t));
   decode->magic = DECODE_MAGIC;
 
-  // decode->line_freq = 50;
 
 
   decode->spi       = spi;
@@ -59,7 +58,8 @@ void decode_init(
   decode->ranges    = ranges;
   decode->range_idx = range_idx;
 
-  // decode->data      = data;
+
+  decode->line_freq = line_freq;
 
   // default
   decode->show_counts = true;
@@ -99,14 +99,14 @@ void decode_update( decode_t *decode,  data_t *data)
 
   // record for current part of reading
   // cal w. needs this data
-  data->clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
-  data->clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
-  data->clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
+  data->adc_clk_count_refmux_pos = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_POS);
+  data->adc_clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
+  data->adc_clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX );
 
   // useful for bounds - and to correct asymetry
-  double ratio = (data->clk_count_refmux_pos >= data->clk_count_refmux_neg)
-      ?  (double) data->clk_count_refmux_pos / data->clk_count_refmux_neg
-      :  - (double) data->clk_count_refmux_neg / data->clk_count_refmux_pos ;
+  double ratio = (data->adc_clk_count_refmux_pos >= data->adc_clk_count_refmux_neg)
+      ?  (double) data->adc_clk_count_refmux_pos / data->adc_clk_count_refmux_neg
+      :  - (double) data->adc_clk_count_refmux_neg / data->adc_clk_count_refmux_pos ;
   UNUSED(ratio);
 
 
@@ -118,7 +118,7 @@ void decode_update( decode_t *decode,  data_t *data)
 
   if(decode->show_counts) {
     printf( "first=%u idx=%u seq_n=%u, ", data->status.first, data->status.sample_idx, data->status.sample_seq_n);
-    printf( "counts pos %7lu neg %7lu sig %7lu, ", data->clk_count_refmux_pos, data->clk_count_refmux_neg, data->clk_count_sigmux);
+    printf( "counts pos %7lu neg %7lu sig %7lu, ", data->adc_clk_count_refmux_pos, data->adc_clk_count_refmux_neg, data->adc_clk_count_sigmux);
     // printf( "ratio %.2f, ", ratio);
   }
 
@@ -127,8 +127,8 @@ void decode_update( decode_t *decode,  data_t *data)
   if( data->status.sample_idx == 0) {
 
     // lo - record LO counts
-    decode->clk_count_refmux_pos_lo = data->clk_count_refmux_pos;
-    decode->clk_count_refmux_neg_lo = data->clk_count_refmux_neg;
+    decode->adc_clk_count_refmux_pos_lo = data->adc_clk_count_refmux_pos;
+    decode->adc_clk_count_refmux_neg_lo = data->adc_clk_count_refmux_neg;
 
     data->valid = false;
   }
@@ -137,15 +137,15 @@ void decode_update( decode_t *decode,  data_t *data)
 
     // hi
     data->count_sum =
-          ((double) data->clk_count_refmux_pos      - (cal->w * data->clk_count_refmux_neg))
-        - ((double) decode->clk_count_refmux_pos_lo - (cal->w * decode->clk_count_refmux_neg_lo));
+          ((double) data->adc_clk_count_refmux_pos      - (cal->w * data->adc_clk_count_refmux_neg))
+        - ((double) decode->adc_clk_count_refmux_pos_lo - (cal->w * decode->adc_clk_count_refmux_neg_lo));
 
 
     if(decode->show_counts)
       printf("sum %.2f, ", data->count_sum);
 
     // normalized count
-    data->count_sum_norm = data->count_sum  / data->clk_count_sigmux;
+    data->count_sum_norm = data->count_sum  / data->adc_clk_count_sigmux;
 
 
     range_t *range = &decode->ranges[ *decode->range_idx ];

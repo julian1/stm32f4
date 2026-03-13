@@ -19,6 +19,8 @@
 #include <peripheral/vfd-fonts.h>
 #include <vfd.h>
 #include <data/data.h>
+#include <util.h>         // aper_n_to_nplc
+#include <data/range.h>
 
 
 
@@ -179,20 +181,20 @@ void vfd_upate( vfd_t *vfd, data_t *data)
   assert( data && data->magic == DATA_MAGIC);
 
 
-// feb 2026
-#if 0
+  // nothing to do
+  if( !data->valid)
+    return;
 
-  assert(data);
-  assert(data->magic == DECODE_MAGIC);
+  // feb 2026
 
 
   char buf[100];
 
   // from util.  should deprecate
-  str_format_float_with_commas(buf, 100, 7, data->computed_val);
+  str_format_float_with_commas(buf, 100, 7, data->reading);
 
 
-  // format_value( buf, 100 - 1, data->computed_val, 3, 6 );
+  // format_value( buf, 100 - 1, data->reading, 3, 6 );
 
   // write value
   vfd_write_bitmap_string2( buf, 0 , 0 );
@@ -200,20 +202,25 @@ void vfd_upate( vfd_t *vfd, data_t *data)
 
 /*
   if(status_seq_mode == SEQ_MODE_RATIO)
-    printf(" meas %s", str_format_float_with_commas(buf, 100, 7, data->computed_val));
+    printf(" meas %s", str_format_float_with_commas(buf, 100, 7, data->reading));
   else
     printf(" meas %sV", buf );
 */
 
-
-
-#if 0
-  uint8_t status_sample_idx      =  STATUS_SAMPLE_IDX( data->adc_status) ;
-
-  uint8_t status_seq_mode =  STATUS_SAMPLE_SEQ_MODE( data->adc_status);
+  uint8_t status_sample_idx = data->status.sample_idx;
 
   // write a star, for the sample
   vfd_write_string2( status_sample_idx % 2 == 0 ? "*" : " ", 0, 3 );
+
+
+  // uint8_t status_sample_idx      =  STATUS_SAMPLE_IDX( data->adc_status) ;
+  // write a star, for the sample
+  // vfd_write_string2( status_sample_idx % 2 == 0 ? "*" : " ", 0, 3 );
+
+
+#if 0
+
+  uint8_t status_seq_mode =  STATUS_SAMPLE_SEQ_MODE( data->adc_status);
 
   // write mode
   seq_mode_str( status_seq_mode, buf, 8 );
@@ -229,10 +236,13 @@ void vfd_upate( vfd_t *vfd, data_t *data)
 
 
   // write/ dummy other stuff.
-  snprintf(buf, 100, "DCV 10M" );
-  vfd_write_string2( buf, 0, 6 );
+  // snprintf(buf, 100, "DCV 10M" );
 
-#endif
+  range_t *range = data->range;
+  assert( range && range->magic == RANGE_MAGIC);
+
+  sprintf( buf, "%s-%s", range->name, range->arg );
+  vfd_write_string2( buf, 0, 6 );
 
 }
 
