@@ -1,14 +1,17 @@
+
 /*
-    there is no underlying device code here.
+
+  perifpheal vfd code. not instance specific
 
 */
+
 #include <stdio.h>    // printf, scanf
 #include <string.h>   // strcmp, memset
 #include <stdint.h>
 #include <assert.h>
 
 
-// need access to fast vfd device command write functions
+// for vfd commands
 #include <device/vfd.h>
 
 #include <peripheral/vfd-fonts.h>
@@ -105,7 +108,7 @@ static void vfd_write_char( uint8_t ch, uint8_t xpix, uint8_t ychar )
 static void vfd_write_string( const char *s, size_t n, uint8_t xpix, uint8_t ychar )
 {
   /* feb 2026.  have a func like this in the device.
-    so ammotize the overhead of a virtual call.     
+    so ammotize the overhead of a virtual call.
   */
 
   // note that 0, sential is a character which is quite nice.

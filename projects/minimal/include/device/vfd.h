@@ -4,11 +4,12 @@
 
 /*
 
-  low level device specific code. placed in header. for speed.
+  device specific code
+  consider rename vfd0.h
 
   feb 2026.
 
-  low-level vfd instance specific state that touches the mcu hardward.
+  vfd device specific state that touches the mcu hardware
   eg. the FSMC_A18. and the PB8 for reset.
 
   for low-level funcs should be fast.
@@ -22,8 +23,9 @@
 
 
 
-/* keep in header
-no reason to directly associate with fsmc.
+/*
+  OK here
+  no reason to directly associate, or place with fsmc code.
 */
 #define FMC_MY_BASE 0x60000000
 #define FMC_A16 (1<<(16+1))
@@ -32,7 +34,7 @@ no reason to directly associate with fsmc.
 #define FMC_A19 (1<<(19+1))
 
 
-// place in header for speed
+// inline low-level funcs for speed
 
 // A16 is command/data .
 // A18 to select VFD.

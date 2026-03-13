@@ -42,7 +42,7 @@ typedef struct data_t
   // need to record to support cal w
   uint32_t clk_count_refmux_pos;
   uint32_t clk_count_refmux_neg;
-  uint32_t clk_count_sigmux;
+  uint32_t clk_count_sigmux;        // also needed to report nplc in ui.
 
 
   // AZ HI-LO clk count sum, weight adjusted.
@@ -60,6 +60,9 @@ typedef struct data_t
 
   // range used
   range_t   *range;
+
+  // could record cal used.
+  // cal_t     *cal;
 
 } data_t;
 

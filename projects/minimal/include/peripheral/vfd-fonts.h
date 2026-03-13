@@ -2,8 +2,10 @@
 #pragma once
 
 
-/*  this is peripheral code, unrelated to underlying vfd instance
-    except we are not bothering to pass an instance at the moment
+/*
+  peripheral independent code,
+  unrelated to specific vfd instance
+  except we do not bother to pass an instance argument at the moment
 */
 
 
