@@ -150,12 +150,13 @@ void decode_update( decode_t *decode,  data_t *data)
 
     range_t *range = &decode->ranges[ *decode->range_idx ];
     assert( range);
-    data->range  = range;
-
+    data->range   = range;
+    data->cal       = cal;
 
     // calculate reading for current range
     data->reading = range->range_reading( range, cal, data->count_sum_norm);
     data->valid     = true;
+
 
     if(decode->show_reading) {
 

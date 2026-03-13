@@ -26,6 +26,7 @@
 
 
 typedef struct range_t range_t;
+typedef struct cal_t cal_t;
 
 
 #define DATA_MAGIC 997878123
@@ -61,8 +62,8 @@ typedef struct data_t
   // range used
   range_t   *range;
 
-  // could record cal used.
-  // cal_t     *cal;
+  // can record cal used.
+  cal_t     *cal;
 
 } data_t;
 
