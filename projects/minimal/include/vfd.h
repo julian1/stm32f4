@@ -2,11 +2,13 @@
 #pragma once
 
 
-#define VFD_MAGIC   8224371
 
 
 typedef struct data_t data_t;
+typedef struct buffer_t buffer_t;
 
+
+#define VFD_MAGIC   8224371
 
 typedef struct vfd_t
 {
@@ -22,6 +24,6 @@ typedef struct vfd_t
 
 void vfd_init( vfd_t *vfd);
 
-void vfd_upate( vfd_t *vfd, data_t *data);
+void vfd_upate( vfd_t *vfd, buffer_t *buffer, data_t *data);
 
 

@@ -15,13 +15,15 @@
 #include <lib2/format.h>  // format_float
 
 
+#include <util.h>         // aper_n_to_nplc
+
+#include <data/data.h>
+#include <data/range.h>
+#include <data/buffer.h>
+
 // vfd
 #include <peripheral/vfd-fonts.h>
 #include <vfd.h>
-#include <data/data.h>
-#include <util.h>         // aper_n_to_nplc
-#include <data/range.h>
-
 
 
 
@@ -175,10 +177,11 @@ void vfd_init( vfd_t *vfd)
 
 
 
-void vfd_upate( vfd_t *vfd, data_t *data)
+void vfd_upate( vfd_t *vfd, buffer_t *buffer, data_t *data)
 {
   assert( vfd && vfd->magic == VFD_MAGIC);
   assert( data && data->magic == DATA_MAGIC);
+  assert( buffer && buffer->magic == BUFFER_MAGIC);
 
 
   // nothing to do

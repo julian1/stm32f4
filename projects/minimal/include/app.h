@@ -59,9 +59,6 @@ typedef struct _mode_t _mode_t;
 typedef struct data_t data_t;
 typedef struct decode_t decode_t;
 typedef struct buffer_t buffer_t;
-typedef struct buffer_t buffer_t;
-
-
 typedef struct vfd_t vfd_t;
 
 

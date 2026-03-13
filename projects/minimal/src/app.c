@@ -779,7 +779,7 @@ void app_update( app_t *app)
 
     printf( "\n");
 
-    vfd_upate( app->vfd, &data);
+    vfd_upate( app->vfd, app->buffer, &data);
 
 
   }

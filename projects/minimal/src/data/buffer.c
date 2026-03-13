@@ -63,7 +63,7 @@ void buffer_init( buffer_t *buffer, double *values, size_t max_n )
   // assert(data && data->magic == DECODE_MAGIC);
 
   memset( buffer, 0, sizeof( buffer_t));
-  buffer->magic = BUFFERS_MAGIC;
+  buffer->magic = BUFFER_MAGIC;
 
   // assert(data);
   // buffer->data = data;
@@ -91,7 +91,7 @@ void buffer_init( buffer_t *buffer, double *values, size_t max_n )
 void buffer_update( buffer_t *buffer, data_t *data)
 {
 
-  assert(buffer && buffer->magic == BUFFERS_MAGIC);
+  assert(buffer && buffer->magic == BUFFER_MAGIC);
   assert( data && data->magic == DATA_MAGIC );
 
 
@@ -152,7 +152,7 @@ void buffer_update( buffer_t *buffer, data_t *data)
 bool buffer_repl_statement( buffer_t *buffer, const char *cmd)
 {
   assert(buffer);
-  assert(buffer->magic == BUFFERS_MAGIC);
+  assert(buffer->magic == BUFFER_MAGIC);
   UNUSED(cmd);
 
   uint32_t u0;

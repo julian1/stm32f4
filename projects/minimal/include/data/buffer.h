@@ -5,7 +5,7 @@
 
 
 
-#define BUFFERS_MAGIC 88888123
+#define BUFFER_MAGIC 88888123
 
 typedef struct decode_t decode_t;
 
