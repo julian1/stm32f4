@@ -628,6 +628,12 @@ static void app_update_soft_500ms(app_t *app)
       printf("fpga config failed\n");
     } else {
 
+
+      vfd_init(  &app->system_millis);
+
+      vfd_do_something();
+
+
       printf("fpga ok!\n");
       app_beep( app, 2 );
     }
@@ -1211,10 +1217,10 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
     // fsmc_setup( 12 );   // slow.
     // with divider == 1. is is easier to see the address is already well asserted on WR rising edge. before CS.
-    fsmc_setup( 1 );   // fase.
-    vfd_init_gpio();
+    // fsmc_setup( 1 );   // fase.
+    // vfd_init_gpio();
 
-    app_msleep( app, 10);
+    // app_msleep( app, 10);
 
 
     ///////////

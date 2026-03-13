@@ -11,7 +11,6 @@
 #include <string.h>
 
 
-
 #include <libopencm3/stm32/rcc.h>   // mcu clock initialization
 #include <libopencm3/stm32/gpio.h>    // required to initialize critical_error_led blink.  context.
 #include <libopencm3/stm32/timer.h>
@@ -178,6 +177,28 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq /*, uint32_t dead
 
 
 
+static void msleep(uint32_t delay, volatile uint32_t *system_millis)
+{
+  // temporary. repeated in vfd.c
+
+  // works for system_millis integer wrap around
+  // could be a do/while block.
+  uint32_t start = *system_millis;
+  while (true) {
+    uint32_t elapsed = *system_millis - start;
+    if(elapsed > delay)
+      break;
+
+    // yield()
+  };
+
+}
+
+
+
+
+
+
 static int main_f429(void)
 {
 
@@ -230,6 +251,13 @@ static int main_f429(void)
 
   // Tim 5
   rcc_periph_clock_enable(RCC_TIM5);
+
+
+
+
+  // rcc_set_mco1_source(RCC_CFGR_MCO1_LSE);
+
+
 
   /////////////////////////////
   /*
@@ -394,7 +422,7 @@ static int main_f429(void)
 
 
 
-#if 0
+#if 1
 
 
   ///////////////////////////////
@@ -404,14 +432,21 @@ static int main_f429(void)
     // with divider == 1. is is easier to see the address is already well asserted on WR rising edge. before CS.
     fsmc_setup( 1 );   // fase.
     vfd_init_gpio();
-    msleep( 10, &app.system_millis );
+
+    // EXTR. with fpga muxing cs we must wait until it gets initialized. before
+    // this is not very pleasant
+/*
+    msleep( 10, &app.system_millis );   // relative
     vfd_init(  &app.system_millis);
 
-    // vfd_do_something();
+    vfd_do_something();
+*/
   //////////////////
 
 #endif
 
+
+  /////////////////////////////
 
 
   _mode_t       mode;

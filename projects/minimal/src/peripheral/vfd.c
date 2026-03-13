@@ -136,8 +136,9 @@ void vfd_init_gpio( void )
   // need interrupt.
 
 
-  gpio_set( GPIOD, GPIO6);   // keep high - to avoid supirious seting.
-  gpio_mode_setup(  GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO6 );
+  // ikon rst. feb 2026
+  gpio_set( GPIOB, GPIO8);   // keep high - to avoid supirious seting.
+  gpio_mode_setup(  GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8 );
 
 
 #if 0
@@ -196,9 +197,9 @@ void vfd_init(  volatile uint32_t *system_millis)
   printf("vfd_init()\n");
 
   // perform reset hold reset pin lo for 2ms.
-  gpio_clear ( GPIOD, GPIO6);
+  gpio_clear ( GPIOB, GPIO8);
   msleep( 2,  system_millis);     // seems to be 3ms. not 2?
-  gpio_set( GPIOD, GPIO6);
+  gpio_set( GPIOB, GPIO8);
 
 
   // display clear - it is part of sequence in s8. so may be required
@@ -497,6 +498,7 @@ void vfd_do_something(void)
   // vfd_write_cmd( 0x5f ); // need to turn on again.
   // vfd_write_cmd( 0x5f | (1 << 2) );
 
+  printf("vfd_do_something()\n");
 
   vfd_write_string2( "hello", 0, 3 );
   vfd_write_string2( "WORLD", 0, 4 );
