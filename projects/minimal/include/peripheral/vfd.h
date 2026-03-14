@@ -28,9 +28,10 @@ typedef struct vfd_t
   uint32_t  fmc_addr_cd;       // command/data FMC_A16
 
 
+  // remmember the bits p
   // in pix
   uint32_t  width;
-  uint32_t  height;
+  uint32_t  height;   // hieght in bytes is / 8.
 
   //
   bool page;

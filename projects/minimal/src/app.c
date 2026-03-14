@@ -642,7 +642,7 @@ static void app_update_soft_500ms(app_t *app)
 
       // vfd_dev_init(  &app->system_millis);
 
-      vfd_do_something( app->vfd0);
+      vfd_test( app->vfd0);
 
 
       printf("fpga ok!\n");

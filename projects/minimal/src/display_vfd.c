@@ -221,6 +221,9 @@ void display_vfd_update( display_vfd_t *display_vfd, data_t *data)
 
   // format_value( buf, 100 - 1, data->reading, 3, 6 );
 
+  vfd_clear( vfd);
+
+
   // write value
   vfd_write_bitmap_string2( vfd, buf, 0 , 0 );
 

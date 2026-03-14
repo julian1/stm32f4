@@ -189,16 +189,34 @@ void vfd_write_bitmap_string2( vfd_t *vfd, const char *s, uint8_t xpix, uint8_t 
 
 
 
+void vfd_clear( vfd_t *vfd)
+{
+
+  setincx( vfd);
+  for( unsigned y = 0; y < 4; ++y ) {   // half height
+
+    setx( vfd, 0 );
+    sety( vfd, y );
+
+    for( unsigned x = 0; x < vfd->width; ++x) {   // half width
+
+      vfd_write_data( vfd, 0x00 );
+    }
+  }
+
+}
+
+
 
 // move or at least rename test.
 
-void vfd_do_something( vfd_t *vfd)
+void vfd_test( vfd_t *vfd)
 {
   // display clear - it is part of sequence in s8. so may be required
   // vfd_write_cmd( 0x5f ); // need to turn on again.
   // vfd_write_cmd( 0x5f | (1 << 2) );
 
-  printf("vfd_do_something()\n");
+  printf("vfd test()\n");
 
   vfd_write_string2( vfd, "hello", 0, 3 );
   vfd_write_string2( vfd, "WORLD", 0, 4 );
