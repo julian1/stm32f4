@@ -191,14 +191,16 @@ void vfd_write_bitmap_string2( vfd_t *vfd, const char *s, uint8_t xpix, uint8_t 
 
 void vfd_clear( vfd_t *vfd)
 {
+  assert( vfd->height_bytes == 8);
+  assert( vfd->width == 128);
 
   setincx( vfd);
-  for( unsigned y = 0; y < 4; ++y ) {   // half height
+  for( unsigned y = 0; y < vfd->height_bytes; ++y ) {
 
     setx( vfd, 0 );
     sety( vfd, y );
 
-    for( unsigned x = 0; x < vfd->width; ++x) {   // half width
+    for( unsigned x = 0; x < vfd->width; ++x) {
 
       vfd_write_data( vfd, 0x00 );
     }

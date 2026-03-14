@@ -30,8 +30,8 @@ typedef struct vfd_t
 
   // remmember the bits p
   // in pix
-  uint32_t  width;
-  uint32_t  height;   // hieght in bytes is / 8.
+  uint32_t  width;          // pix
+  uint32_t  height_bytes;   // hieght in bytes is / 8.
 
   //
   bool page;

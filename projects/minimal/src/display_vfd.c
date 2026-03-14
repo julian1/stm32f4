@@ -213,10 +213,15 @@ void display_vfd_update( display_vfd_t *display_vfd, data_t *data)
   // feb 2026
 
 
-  char buf[100];
+  char buf[100 + 1];
+  char buf2[100 + 1];
+
 
   // from util.  should deprecate
-  str_format_float_with_commas( buf, 100, 7, data->reading);
+  sprintf( buf, "%s%s",
+    str_format_float_with_commas( buf2, 100, 7, data->reading),
+    "" // range->unit
+  );
 
 
   // format_value( buf, 100 - 1, data->reading, 3, 6 );
@@ -235,10 +240,13 @@ void display_vfd_update( display_vfd_t *display_vfd, data_t *data)
     printf(" meas %sV", buf );
 */
 
+
+  // wont work. until we assert valid for a ZERO.
   uint8_t status_sample_idx = data->status.sample_idx;
 
+
   // write a star, for the sample
-  vfd_write_string2( vfd, status_sample_idx % 2 == 0 ? "*" : " ", 0, 3 );
+  vfd_write_string2( vfd, (status_sample_idx == 0) ? "x" : "z", 0, 4 );
 
 
   // uint8_t status_sample_idx      =  STATUS_SAMPLE_IDX( data->adc_status) ;
@@ -246,43 +254,35 @@ void display_vfd_update( display_vfd_t *display_vfd, data_t *data)
   // vfd_write_string2( status_sample_idx % 2 == 0 ? "*" : " ", 0, 3 );
 
 
-#if 0
-
-  uint8_t status_seq_mode =  STATUS_SAMPLE_SEQ_MODE( data->adc_status);
-
-  // write mode
-  seq_mode_str( status_seq_mode, buf, 8 );
-  stoupper( buf);
-  vfd_write_string2( buf, 0, 4 );
-#endif
 
   /*
-    TODO .  need to add the noaz. flag. to the status register
+    TODO .  add the noaz. flag. to the status register
     so we can display mode. here. if AZ. or NOAZ.
-
+    ---
+    EXTR>  ... putting the 10Meg. flag in the status register as well
+      easy if put in cr.
+      so it is available in the display.
   */
+  bool  noaz = 0;
+
+  double nplc = aper_n_to_nplc( data->adc_clk_count_sigmux, data->line_freq );
+
+  snprintf( buf, 100, "%s-%s %s", range->name, range->arg,  noaz ? "NOAZ" : "AZ");
+  vfd_write_string2( vfd, buf, 0, 3 );
+
+
+  snprintf( buf, 100, "nplc %.1lf ", nplc );
+  vfd_write_string2( vfd, buf, 0, 4 );
 
 
   // str_format_float_with_commas(buf, 100, 7, data->reading);
   // snprintf( buf, 100, "n %u, mean %f", buffer->count, buffer->mean);
-  snprintf( buf, 100, "mean %f", buffer->mean);
-  vfd_write_string2( vfd, buf, 0, 4 );
+  snprintf( buf, 100, "mean   %.8f", buffer->mean);
+  vfd_write_string2( vfd, buf, 0, 5 );
 
-
-#if 0
-  // write nplc
-  double nplc = aper_n_to_nplc( data->adc_clk_count_sigmux, data->line_freq );
-  snprintf(buf, 100, "nplc %.1lf ", nplc );
-  vfd_write_string2( buf, 0, 5 );
-#endif
-
-
-  // write/ dummy other stuff.
-  // snprintf(buf, 100, "DCV 10M" );
-
-
-  snprintf( buf, 100, "%s-%s", range->name, range->arg );
+  snprintf( buf, 100, "stddev %.8f", buffer->stddev);
   vfd_write_string2( vfd, buf, 0, 6 );
+
 
 }
 

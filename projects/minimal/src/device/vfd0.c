@@ -79,8 +79,8 @@ void vfd0_init( vfd_t *vfd, volatile uint32_t *system_millis)
   vfd->fmc_addr     = FMC_MY_BASE | FMC_A18;
   vfd->fmc_addr_cd  = FMC_A16;
 
-  vfd->width    = 128;    // 16 bytes
-  vfd->height   = 64;     //
+  vfd->width        = 128;    // 16 bytes
+  vfd->height_bytes = 8;     //
 
 
   // could move to separate setup() code.
