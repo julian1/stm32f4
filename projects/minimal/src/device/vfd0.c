@@ -16,10 +16,8 @@
 
 
 /*
-  OK here
   no reason to directly associate, or place with fsmc code.
- 
-  would  move to device.  vfd0
+
 */
 #define FMC_MY_BASE 0x60000000
 #define FMC_A16 (1<<(16+1))
@@ -28,6 +26,7 @@
 #define FMC_A19 (1<<(19+1))
 
 
+// #define VFD0_MAGIC 1230237
 
 
 
@@ -67,10 +66,11 @@ static void msleep( uint32_t delay, volatile uint32_t *system_millis)
 
 
 
-// #define VFD0_MAGIC 1230237
 
 void vfd0_init( vfd_t *vfd, volatile uint32_t *system_millis)
 {
+
+  // printf("vfd_init()\n");
 
   memset( vfd, 0, sizeof( vfd_t));
 
@@ -79,8 +79,8 @@ void vfd0_init( vfd_t *vfd, volatile uint32_t *system_millis)
   vfd->fmc_addr     = FMC_MY_BASE | FMC_A18;
   vfd->fmc_addr_cd  = FMC_A16;
 
-  vfd->width    = 128;
-  vfd->height   = 64;
+  vfd->width    = 128;    // 16 bytes
+  vfd->height   = 64;     //
 
 
   // could move to separate setup() code.
@@ -90,9 +90,6 @@ void vfd0_init( vfd_t *vfd, volatile uint32_t *system_millis)
   gpio_mode_setup(  GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8 );
 
 
-  // see s8 manual.  everything must be initialized with gram
-
-  // printf("display_vfd_init()\n");
 
   // feb 2026.  delegate to device.
   // perform reset hold reset pin lo for 2ms.
@@ -100,8 +97,10 @@ void vfd0_init( vfd_t *vfd, volatile uint32_t *system_millis)
   msleep( 2,  system_millis);     // seems to be 3ms. not 2?
   gpio_set( GPIOB, GPIO8);
 
+  //////////////////////////
 
   // display clear - it is part of sequence in s8. so may be required
+  // see s8 manual.  everything must be initialized with gram
 
   vfd_write_cmd( vfd,  0x5f);
 
@@ -115,22 +114,21 @@ void vfd0_init( vfd_t *vfd, volatile uint32_t *system_millis)
     vfd_write_data( vfd, 0xff );
   }
 
-  // need to turn display on.
-  // EXTR.  quite easy to turn on the brightness.
 
+  /////////////////////////
+  // turn display on.
 
-    uint8_t l0 = 1 << 2;    // layer 0
- //   uint8_t l1 = 1 << 3;    // layer 1
+  uint8_t l0 = 1 << 2;    // layer 0
+  //   uint8_t l1 = 1 << 3;    // layer 1
 
-    uint8_t gs = 1 << 6;    // gs area off/on
-     uint8_t grv = 1 << 4;   // reverse or normal   EXTR.  should flip this
-    UNUSED(grv);
+  uint8_t gs = 1 << 6;    // gs area off/on
+  // uint8_t grv = 1 << 4;   // reverse or normal   EXTR.  should flip this
 
 //    uint8_t and_ = 1 << 3;
 //    uint8_t exor = 1 << 2;
 
 
-    // display on/off command with layer specified
+  // display on/off command with layer specified
   uint8_t cmd[] = { 0b00100000, 0 };
 
   cmd[0] |= l0;
