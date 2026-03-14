@@ -132,7 +132,9 @@ void vfd_dev_init(  volatile uint32_t *system_millis)
 
 static void vfd_clear( volatile uint32_t *system_millis)
 {
-   // display clear - it is part of sequence in s8. so may be required
+  // display clear - it is part of sequence in s8. so may be required
+  // may be more a reset function.
+  // clears mem both pages, so not suitable to screen anyway.
 
   vfd_write_cmd( 0x5f);
 
@@ -145,32 +147,39 @@ static void vfd_clear( volatile uint32_t *system_millis)
     vfd_write_cmd( i );   //
     vfd_write_data( 0xff );
   }
-
-
-
 }
+
+
+// should just have a bool page?
+// to control...
+// can alternate each draw. - good for test.
 
 static void vfd_display_on_off( bool layer0, bool layer1, bool gram)
 {
   /*  constrol which layer is shown
     could be both with operation
     bitfield struct might be easier.
+    -----
+    consider rename display_flip()  using a page arg.
+
   */
 
+/*
   uint8_t l0 = 1 << 2;    // layer 0
   uint8_t l1 = 1 << 3;    // layer 1
   uint8_t gs = 1 << 6;    // gs area off/on
 
+*/
     // display on/off command with layer specified
   uint8_t cmd[] = { 0b00100000, 0 };
 
   if(layer0)
-    cmd[0] |= l0;
+    cmd[0] |= 1 << 2;    // layer 0
   if(layer1)
-    cmd[0] |= l1;
+    cmd[0] |= 1 << 3;    // layer 1
 
   if(gram)
-   cmd[1] |= gs;
+   cmd[1] |= 1 << 6;    // gs area off/on
 
   vfd_write_cmd( cmd[0] );
   vfd_write_cmd( cmd[1] );

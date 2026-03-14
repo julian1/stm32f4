@@ -121,9 +121,6 @@ reg_cr_t
 
  // input           p_use_slow_rundown,
  // input           p_use_fast_rundown,
- // input           p_active_sigmux,     // adc whether to swtich in the input signal
-
-
 
   uint32_t   dummy_bits_o : 27;
 
@@ -141,9 +138,11 @@ reg_sr_t
 
   uint8_t   magic ;     // 8
 
+  // consider put hw flags in separate register. only needs to be read once at start
   uint8_t   hw_flags    : 4;
   uint8_t               : 4;   // 16
 
+  // sa
   uint8_t   sample_idx  : 3;
   uint8_t   first       : 1;
   uint8_t   sample_seq_n : 3;

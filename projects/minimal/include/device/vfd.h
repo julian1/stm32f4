@@ -53,7 +53,7 @@ static inline void vfd_write_data( uint8_t v)
 static inline uint8_t vfd_read_data( void)
 {
   // not supported
-  // because no control over dir of level shifter
+  // without control over dir pin of the level shifter
   assert( 0);
   return *((volatile uint16_t *)  (FMC_MY_BASE |  FMC_A18 ));
 }
