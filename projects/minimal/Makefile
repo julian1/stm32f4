@@ -11,7 +11,7 @@ BINARY		= main
 
 SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/peripheral/spi-4094.c src/peripheral/spi-dac8811.c src/peripheral/spi-ad5446.c \
-            src/device/vfd.c \
+            src/device/vfd0.c \
             src/peripheral/vfd-fonts.c \
             src/peripheral/interrupt.c \
             src/device/spi1-port.c src/device/spi2-port.c  \

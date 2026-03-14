@@ -12,7 +12,7 @@
 
 
 // for vfd commands
-#include <device/vfd.h>
+#include <peripheral/vfd.h>
 
 #include <peripheral/vfd-fonts.h>
 
@@ -63,27 +63,8 @@ static void rotate_and_reverse (  /*char inArray[8]*/ const uint8_t *inArray , u
 
 
 
-static void setx( uint8_t xpix )
-{
-    vfd_write_cmd( 0b01100100);          // write setx
-    vfd_write_cmd( xpix );
-}
 
-static void sety( uint8_t ychar )
-{
-    vfd_write_cmd( 0b01100000  );          // data write sety
-    vfd_write_cmd( ychar  );
-}
-
-
-static void setincx( void )
-{
-
-    vfd_write_cmd( 0b10000100 );          // set igx  to increment x,  bits are vertical. odd.
-}
-
-
-static void vfd_write_char( uint8_t ch, uint8_t xpix, uint8_t ychar )
+static void vfd_write_char( vfd_t *vfd, uint8_t ch, uint8_t xpix, uint8_t ychar )
 {
   // const char FONT[] = { 0x1C, 0x22, 0x2A, 0x3A, 0x1A, 0x02, 0x3C, 0x00, } ;   // @
   // const char FONT[] = { 0x08, 0x14, 0x22, 0x22, 0x3E, 0x22, 0x22, 0x00,  } ;  // A
@@ -95,17 +76,17 @@ static void vfd_write_char( uint8_t ch, uint8_t xpix, uint8_t ychar )
   uint8_t letter[ 8];
   rotate_and_reverse(  & FONT[ (( uint32_t) ch ) * 8 ] , letter ) ;
 
-  setincx();
-  setx( xpix );
-  sety( ychar );
+  setincx( vfd);
+  setx( vfd, xpix );
+  sety( vfd, ychar );
 
   for(unsigned i = 0; i < 8; ++i)
     // vfd_write_data( FONT[ (( uint32_t) 'A' ) * 8 +  i ] );     // OK. this *is* writing to the ramp. but in a funny position.
-    vfd_write_data( letter[ i ]  );
+    vfd_write_data( vfd, letter[ i ]  );
 }
 
 
-static void vfd_write_string( const char *s, size_t n, uint8_t xpix, uint8_t ychar )
+static void vfd_write_string( vfd_t *vfd, const char *s, size_t n, uint8_t xpix, uint8_t ychar )
 {
   /* feb 2026.  have a func like this in the device.
     so ammotize the overhead of a virtual call.
@@ -113,14 +94,14 @@ static void vfd_write_string( const char *s, size_t n, uint8_t xpix, uint8_t ych
 
   // note that 0, sential is a character which is quite nice.
   for(unsigned i = 0; i < n; ++i) {
-    vfd_write_char( s[ i], xpix + (i * 7), ychar );
+    vfd_write_char( vfd, s[ i], xpix + (i * 7), ychar );
   }
 }
 
-void vfd_write_string2( const char *s, uint8_t xpix, uint8_t ychar )
+void vfd_write_string2( vfd_t *vfd, const char *s, uint8_t xpix, uint8_t ychar )
 {
 
-  vfd_write_string( s, strlen(s), xpix, ychar );
+  vfd_write_string( vfd, s, strlen(s), xpix, ychar );
 }
 
 
@@ -150,7 +131,7 @@ void vfd_write_string2( const char *s, uint8_t xpix, uint8_t ychar )
 #include <fonts/Bitstream_Vera_Sans_Mono_24.h>
 
 
-static void vfd_write_bitmap_char( uint8_t xpix, uint8_t ychar, const char *bitmap, uint8_t width )
+static void vfd_write_bitmap_char( vfd_t *vfd, uint8_t xpix, uint8_t ychar, const char *bitmap, uint8_t width )
 {
   // important - note that it didn't need to be rotated.
   // need to try another letter.  eg. 3.
@@ -161,22 +142,22 @@ static void vfd_write_bitmap_char( uint8_t xpix, uint8_t ychar, const char *bitm
   // ??
 
 
-  setincx();
+  setincx( vfd);
 
 
   for(unsigned k = 0; k < 3; ++k )  {
 
-    setx( xpix );
-    sety( ychar  + k );
+    setx( vfd, xpix );
+    sety( vfd, ychar  + k );
 
     for(unsigned i = 0; i < width ; ++i)              // how far horizontally
-      vfd_write_data( bitmap[ (k * width) + i ]  );   // could just use a pointer.
+      vfd_write_data( vfd, bitmap[ (k * width) + i ]  );   // could just use a pointer.
   }
 }
 
 
 
-static void vfd_write_bitmap_string( const char *s, size_t n, uint8_t xpix, uint8_t ychar )
+static void vfd_write_bitmap_string( vfd_t *vfd, const char *s, size_t n, uint8_t xpix, uint8_t ychar )
 {
   // uses proporitional spacing.
   // can also have fixed width.
@@ -194,24 +175,24 @@ static void vfd_write_bitmap_string( const char *s, size_t n, uint8_t xpix, uint
     uint32_t char_idx = s[i] - '!';
     assert(char_idx < ARRAY_SIZE( char_addr));
 
-    vfd_write_bitmap_char( xpix , /*0*/ ychar, char_addr[ char_idx ], char_width[ char_idx ] );
+    vfd_write_bitmap_char( vfd, xpix , /*0*/ ychar, char_addr[ char_idx ], char_width[ char_idx ] );
     xpix += char_width[ char_idx ] + 1;
   }
 }
 
 
 
-void vfd_write_bitmap_string2( const char *s, uint8_t xpix, uint8_t ychar )
+void vfd_write_bitmap_string2( vfd_t *vfd, const char *s, uint8_t xpix, uint8_t ychar )
 {
-  vfd_write_bitmap_string( s, strlen(s), xpix, ychar );
+  vfd_write_bitmap_string( vfd, s, strlen(s), xpix, ychar );
 }
 
 
 
 
+// move or at least rename test.
 
-
-void vfd_do_something(void)
+void vfd_do_something( vfd_t *vfd)
 {
   // display clear - it is part of sequence in s8. so may be required
   // vfd_write_cmd( 0x5f ); // need to turn on again.
@@ -219,12 +200,12 @@ void vfd_do_something(void)
 
   printf("vfd_do_something()\n");
 
-  vfd_write_string2( "hello", 0, 3 );
-  vfd_write_string2( "WORLD", 0, 4 );
-  vfd_write_string2( "123467890", 0, 5 );
+  vfd_write_string2( vfd, "hello", 0, 3 );
+  vfd_write_string2( vfd, "WORLD", 0, 4 );
+  vfd_write_string2( vfd, "123467890", 0, 5 );
 
-  // vfd_write_bitmap_string2( "apple", 0 , 0 );
-  vfd_write_bitmap_string2( "7.168,259,0", 0 , 0 );
+  // vfd_write_bitmap_string2( vfd, "apple", 0 , 0 );
+  vfd_write_bitmap_string2( vfd, "7.168,259,0", 0 , 0 );
 
 }
 

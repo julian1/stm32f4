@@ -16,8 +16,6 @@
 
 
 
-// required. because vfd_init() - is delayed until the fpga is configured.
-#include <device/vfd.h>      // vfd
 
 
 #include <peripheral/spi-ice40.h>
@@ -29,6 +27,9 @@
 #include <peripheral/interrupt.h>
 #include <peripheral/vfd-fonts.h>
 
+#include <peripheral/vfd.h>
+
+#include <device/vfd0.h>      // device needed because we defer initialization of device
 
 
 
@@ -633,10 +634,13 @@ static void app_update_soft_500ms(app_t *app)
       printf("fpga config failed\n");
     } else {
 
+ 
+      // we need both system_millis, and fpga up here 
+      vfd0_init( app->vfd0, &app->system_millis);
 
-      vfd_dev_init(  &app->system_millis);
+      // vfd_dev_init(  &app->system_millis);
 
-      vfd_do_something();
+      vfd_do_something( app->vfd0);
 
 
       printf("fpga ok!\n");
@@ -779,7 +783,7 @@ void app_update( app_t *app)
 
     printf( "\n");
 
-    vfd_upate( app->vfd, &data);
+    display_vfd_update( app->display_vfd, &data);
 
 
   }
@@ -1226,7 +1230,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
 
     ///////////
-    vfd_init(  &app->system_millis);
+    display_vfd_init(  &app->system_millis);
 
     vfd_do_something();
   }
@@ -1842,7 +1846,7 @@ void app_update_simple_with_data(app_t *app)
           app_update() {
             decode_update( app->data );         <- this
             buffer_update( app->buffer );
-            vfd_update( app->vfd  );
+            display_vfd_update( app->vfd  );
           }
 
           - EXTR - consider injecting data - into buffer.

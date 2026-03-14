@@ -164,14 +164,15 @@ static void stoupper( char *s)
 
 
 
-void vfd_init( vfd_t *vfd, buffer_t *buffer)
+void display_vfd_init( display_vfd_t *display_vfd, vfd_t *vfd, buffer_t *buffer)
 {
-  memset( vfd, 0, sizeof( vfd_t));
-  vfd->magic = VFD_MAGIC;
+  memset( vfd, 0, sizeof( display_vfd_t));
+  display_vfd->magic = VFD_MAGIC;
 
   assert( buffer && buffer->magic == BUFFER_MAGIC);
 
-  vfd->buffer = buffer;
+  display_vfd->vfd = vfd;
+  display_vfd->buffer = buffer;
 }
 
 
@@ -183,10 +184,17 @@ void vfd_init( vfd_t *vfd, buffer_t *buffer)
 
 
 
-void vfd_upate( vfd_t *vfd, data_t *data)
+void display_vfd_update( display_vfd_t *display_vfd, data_t *data)
 {
-  assert( vfd && vfd->magic == VFD_MAGIC);
+  assert( display_vfd && display_vfd->magic == VFD_MAGIC);
   assert( data && data->magic == DATA_MAGIC);
+
+
+  vfd_t *vfd = display_vfd->vfd;
+  assert(vfd);
+
+  buffer_t *buffer = display_vfd->buffer;
+  assert( buffer && buffer->magic == BUFFER_MAGIC);
 
 
 
@@ -194,19 +202,26 @@ void vfd_upate( vfd_t *vfd, data_t *data)
   if( !data->valid)
     return;
 
+
+  // only have range if data is valid
+  range_t *range = data->range;
+  assert( range && range->magic == RANGE_MAGIC);
+
+
+
   // feb 2026
 
 
   char buf[100];
 
   // from util.  should deprecate
-  str_format_float_with_commas(buf, 100, 7, data->reading);
+  str_format_float_with_commas( buf, 100, 7, data->reading);
 
 
   // format_value( buf, 100 - 1, data->reading, 3, 6 );
 
   // write value
-  vfd_write_bitmap_string2( buf, 0 , 0 );
+  vfd_write_bitmap_string2( vfd, buf, 0 , 0 );
 
 
 /*
@@ -219,7 +234,7 @@ void vfd_upate( vfd_t *vfd, data_t *data)
   uint8_t status_sample_idx = data->status.sample_idx;
 
   // write a star, for the sample
-  vfd_write_string2( status_sample_idx % 2 == 0 ? "*" : " ", 0, 3 );
+  vfd_write_string2( vfd, status_sample_idx % 2 == 0 ? "*" : " ", 0, 3 );
 
 
   // uint8_t status_sample_idx      =  STATUS_SAMPLE_IDX( data->adc_status) ;
@@ -243,13 +258,11 @@ void vfd_upate( vfd_t *vfd, data_t *data)
 
   */
 
-  buffer_t *buffer = vfd->buffer;
-  assert( buffer && buffer->magic == BUFFER_MAGIC);
 
   // str_format_float_with_commas(buf, 100, 7, data->reading);
   // snprintf( buf, 100, "n %u, mean %f", buffer->count, buffer->mean);
   snprintf( buf, 100, "mean %f", buffer->mean);
-  vfd_write_string2( buf, 0, 4 );
+  vfd_write_string2( vfd, buf, 0, 4 );
 
 
 #if 0
@@ -263,11 +276,9 @@ void vfd_upate( vfd_t *vfd, data_t *data)
   // write/ dummy other stuff.
   // snprintf(buf, 100, "DCV 10M" );
 
-  range_t *range = data->range;
-  assert( range && range->magic == RANGE_MAGIC);
 
   snprintf( buf, 100, "%s-%s", range->name, range->arg );
-  vfd_write_string2( buf, 0, 6 );
+  vfd_write_string2( vfd, buf, 0, 6 );
 
 }
 

@@ -37,13 +37,14 @@
 #include <device/fsmc.h>
 #include <device/systick.h>
 
-#include <device/vfd.h>
+#include <device/vfd0.h>
 
 #include <device/spi-fpga1-pc.h>
 #include <device/spi-fpga1.h>
 
 
 
+#include <peripheral/vfd.h>
 #include <peripheral/spi-ice40.h>
 #include <peripheral/interrupt.h>
 // #include <peripheral/vfd-fonts.h>
@@ -434,13 +435,13 @@ static int main_f429(void)
     // fsmc_setup( 12 );   // slow.
     // with divider == 1. is is easier to see the address is already well asserted on WR rising edge. before CS.
     fsmc_setup( 1 );   // fase.
-    vfd_dev_gpio_init();
+    // vfd_dev_gpio_init();
 
     // EXTR. with fpga muxing cs we must wait until it gets initialized. before
     // this is not very pleasant
 /*
     msleep( 10, &app.system_millis );   // relative
-    vfd_init(  &app.system_millis);
+    display_vfd_init(  &app.system_millis);
 
     vfd_do_something();
 */
@@ -466,7 +467,7 @@ static int main_f429(void)
   cal_t         cal;
   cal_init(
     &cal,
-    // should pass already opened file, as the correct dependency
+    // consider - pass the already opened file, as the correct dependency
     FLASH_SECT_ADDR,
     FLASH_SECT_NUM
   );
@@ -497,9 +498,18 @@ static int main_f429(void)
 
 
 
-  vfd_t         vfd;
-  vfd_init( &vfd, app.buffer);
-  app.vfd = &vfd;
+  vfd_t             vfd0;   // device...
+  app.vfd0      = &vfd0;
+  // We cannot init here. because do not have system_millis 
+  // and fpga is not up. 
+  // vfd0_init( &vfd0, system_millis);
+
+
+
+  display_vfd_t         display_vfd;
+  display_vfd_init( &display_vfd, app.vfd0, app.buffer /*, vfd0 */);    // will initialize the gpio pins.
+
+  app.display_vfd = &display_vfd;
 
 
 
