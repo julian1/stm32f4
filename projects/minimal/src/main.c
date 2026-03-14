@@ -59,7 +59,7 @@
 #include <data/decode.h>
 #include <data/buffer.h>
 
-#include <vfd.h>
+#include <display_vfd.h>
 
 
 

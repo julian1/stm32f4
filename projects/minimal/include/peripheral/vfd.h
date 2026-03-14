@@ -16,7 +16,7 @@
 
 
 /*
-    supporting fast inlining. and avoid virtual call overhead.over
+    make sure support fast inlining and avoid virtual call overhead
 */
 
 
@@ -24,7 +24,7 @@ typedef struct vfd_t
 {
   uint32_t  magic;
 
-  //
+  // TODO prefix fmc
   uint32_t  addr;     // FMC_MY_BASE |  FMC_A18
   uint32_t  addr_cd;       // command/data FMC_A16
 
@@ -60,7 +60,6 @@ static inline uint8_t vfd_read_data( vfd_t *vfd)
 }
 
 
-// move to peripheral.
 
 static inline void setx( vfd_t *vfd, uint8_t xpix )
 {

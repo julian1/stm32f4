@@ -9,7 +9,7 @@ typedef struct buffer_t buffer_t;
 typedef struct vfd_t vfd_t;
 
 
-#define VFD_MAGIC   8224371
+#define DISPLAY_VFD_MAGIC   8224371
 
 // think we want to rename this...
 // not to conflict with underlying device.

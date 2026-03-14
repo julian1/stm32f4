@@ -29,7 +29,6 @@
 
 #include <peripheral/vfd.h>
 
-#include <device/vfd0.h>      // device needed because we defer initialization of device
 
 
 
@@ -51,7 +50,10 @@
 #include <data/buffer.h>
 #include <data/range.h>
 
-#include <vfd.h>
+
+
+#include <device/vfd0.h>      // device needed because we defer initialization of device
+#include <display_vfd.h>
 
 
 

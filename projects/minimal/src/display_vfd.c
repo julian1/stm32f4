@@ -23,7 +23,7 @@
 
 // vfd
 #include <peripheral/vfd-fonts.h>
-#include <vfd.h>
+#include <display_vfd.h>
 
 
 
@@ -167,7 +167,7 @@ static void stoupper( char *s)
 void display_vfd_init( display_vfd_t *display_vfd, vfd_t *vfd, buffer_t *buffer)
 {
   memset( vfd, 0, sizeof( display_vfd_t));
-  display_vfd->magic = VFD_MAGIC;
+  display_vfd->magic = DISPLAY_VFD_MAGIC;
 
   assert( buffer && buffer->magic == BUFFER_MAGIC);
 
@@ -186,7 +186,7 @@ void display_vfd_init( display_vfd_t *display_vfd, vfd_t *vfd, buffer_t *buffer)
 
 void display_vfd_update( display_vfd_t *display_vfd, data_t *data)
 {
-  assert( display_vfd && display_vfd->magic == VFD_MAGIC);
+  assert( display_vfd && display_vfd->magic == DISPLAY_VFD_MAGIC);
   assert( data && data->magic == DATA_MAGIC);
 
 

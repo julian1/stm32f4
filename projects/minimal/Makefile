@@ -25,7 +25,7 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/device/interrupt-fpga0.c \
             src/device/support.c \
             src/main.c  \
-            src/vfd.c \
+            src/display_vfd.c \
             src/app.c  \
             src/syscalls.o \
             src/mode.o \
