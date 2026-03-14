@@ -22,6 +22,7 @@
 #include <data/buffer.h>
 
 // vfd
+#include <peripheral/vfd.h> // magic
 #include <peripheral/vfd-fonts.h>
 #include <display_vfd.h>
 
@@ -191,7 +192,7 @@ void display_vfd_update( display_vfd_t *display_vfd, data_t *data)
 
 
   vfd_t *vfd = display_vfd->vfd;
-  assert(vfd);
+  assert(vfd && vfd->magic == VFD_MAGIC);
 
   buffer_t *buffer = display_vfd->buffer;
   assert( buffer && buffer->magic == BUFFER_MAGIC);

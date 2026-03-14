@@ -13,7 +13,7 @@
 #include <stdbool.h>
 
 
-
+#define VFD_MAGIC 72972619
 
 /*
     make sure support fast inlining and avoid virtual call overhead
@@ -24,9 +24,8 @@ typedef struct vfd_t
 {
   uint32_t  magic;
 
-  // TODO prefix fmc
-  uint32_t  addr;     // FMC_MY_BASE |  FMC_A18
-  uint32_t  addr_cd;       // command/data FMC_A16
+  uint32_t  fmc_addr;     // FMC_MY_BASE |  FMC_A18
+  uint32_t  fmc_addr_cd;       // command/data FMC_A16
 
 
   // in pix
@@ -43,12 +42,12 @@ typedef struct vfd_t
 static inline void vfd_write_cmd( vfd_t *vfd, uint8_t v)
 {
   // higher byte is just ignored.
-  *((volatile uint16_t *)  (vfd->addr | vfd->addr_cd)) = v ;
+  *((volatile uint16_t *)  (vfd->fmc_addr | vfd->fmc_addr_cd)) = v ;
 }
 
 static inline void vfd_write_data( vfd_t *vfd, uint8_t v)
 {
-  *((volatile uint16_t *)  (vfd->addr )) = v ;
+  *((volatile uint16_t *)  (vfd->fmc_addr )) = v ;
 }
 
 static inline uint8_t vfd_read_data( vfd_t *vfd)
@@ -56,7 +55,7 @@ static inline uint8_t vfd_read_data( vfd_t *vfd)
   // not supported
   // without control over dir pin of the level shifter
   assert( 0);
-  return *((volatile uint16_t *)  (vfd->addr ));
+  return *((volatile uint16_t *)  (vfd->fmc_addr ));
 }
 
 
