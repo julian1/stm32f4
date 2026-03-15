@@ -640,10 +640,7 @@ static void app_update_soft_500ms(app_t *app)
       // we need both system_millis, and fpga up here 
       vfd0_init( app->vfd0, &app->system_millis);
 
-      // vfd_dev_init(  &app->system_millis);
-
       vfd_test( app->vfd0);
-
 
       printf("fpga ok!\n");
       app_beep( app, 2 );

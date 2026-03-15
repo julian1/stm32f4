@@ -498,17 +498,14 @@ static int main_f429(void)
 
 
 
-  vfd_t             vfd0;   // device...
+  vfd_t         vfd0;
   app.vfd0      = &vfd0;
-  // We cannot init here. because do not have system_millis 
-  // and fpga is not up. 
+  // We cannot init here. because have to wait for system_millis and fpga
   // vfd0_init( &vfd0, system_millis);
 
 
-
   display_vfd_t         display_vfd;
-  display_vfd_init( &display_vfd, app.vfd0, app.buffer /*, vfd0 */);    // will initialize the gpio pins.
-
+  display_vfd_init( &display_vfd, app.vfd0, app.buffer);
   app.display_vfd = &display_vfd;
 
 

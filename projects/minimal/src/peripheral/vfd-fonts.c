@@ -1,7 +1,9 @@
 
 /*
+  fonts.
 
-  perifpheal vfd code. not instance specific
+  peripheral vfd code. not instance specific
+  but pretty general code, and probably does not belong in peripheral
 
 */
 

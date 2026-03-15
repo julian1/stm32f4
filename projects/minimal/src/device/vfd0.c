@@ -18,6 +18,12 @@
 /*
   no reason to directly associate, or place with fsmc code.
 
+  (0x60000000 | (1<<(16+1) )).toString(16);
+  "60020000"
+
+  (0x60000000 | (1<<(18+1) )).toString(16);
+  "60080000"
+
 */
 #define FMC_MY_BASE 0x60000000
 #define FMC_A16 (1<<(16+1))
@@ -50,21 +56,6 @@ static void msleep( uint32_t delay, volatile uint32_t *system_millis)
 
 
 
-/*
-  - read/write  are for reading writing.
-  - CD command/data - are whether the operation is a command. or if its data.  this is orthogonal. to read/write.
-      p16/ p15.
-
-  5f   01011111     to clear.   yes. top 4 bytes match clear in command function.
-
-  62H  01100010     in loop.  then n [ 0 - 8] as second byte.  and ff as data.
-                    it's the 3 byte -  display area set.
-                    first byte matches 01100010
-                    second byte 0000 and n.
-                    third byte  is 0xff.
-*/
-
-
 
 
 void vfd0_init( vfd_t *vfd, volatile uint32_t *system_millis)
@@ -90,6 +81,7 @@ void vfd0_init( vfd_t *vfd, volatile uint32_t *system_millis)
   gpio_mode_setup(  GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8 );
 
 
+  // nead to add the ikon_frp_out input .  on PB0.
 
   // feb 2026.  delegate to device.
   // perform reset hold reset pin lo for 2ms.
@@ -140,6 +132,28 @@ void vfd0_init( vfd_t *vfd, volatile uint32_t *system_millis)
   vfd_write_cmd( vfd, cmd[1] );
 
 }
+
+
+
+
+
+
+/*
+  - read/write  are for reading writing.
+  - CD command/data - are whether the operation is a command. or if its data.  this is orthogonal. to read/write.
+      p16/ p15.
+
+  5f   01011111     to clear.   yes. top 4 bytes match clear in command function.
+
+  62H  01100010     in loop.  then n [ 0 - 8] as second byte.  and ff as data.
+                    it's the 3 byte -  display area set.
+                    first byte matches 01100010
+                    second byte 0000 and n.
+                    third byte  is 0xff.
+*/
+
+
+
 
 
 #if 0
