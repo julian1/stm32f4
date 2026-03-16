@@ -24,6 +24,11 @@
   (0x60000000 | (1<<(18+1) )).toString(16);
   "60080000"
 
+starting
+lcd->reg  0x6001fffe
+lcd->ram  0x60020000
+
+
 */
 #define FMC_MY_BASE 0x60000000
 #define FMC_A16 (1<<(16+1))
@@ -68,7 +73,7 @@ void vfd0_init( vfd_t *vfd, volatile uint32_t *system_millis)
   vfd->magic    = VFD_MAGIC;      // this is the peripheral.  not instance specific.
 
   vfd->fmc_addr     = FMC_MY_BASE | FMC_A18;
-  vfd->fmc_addr_cd  = FMC_A16;
+  vfd->fmc_cd       = FMC_A16;
 
   vfd->width        = 128;    // 16 bytes
   vfd->height_bytes = 8;     //

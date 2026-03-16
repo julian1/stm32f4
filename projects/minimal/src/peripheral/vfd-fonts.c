@@ -78,9 +78,9 @@ static void vfd_write_char( vfd_t *vfd, uint8_t ch, uint8_t xpix, uint8_t ychar 
   uint8_t letter[ 8];
   rotate_and_reverse(  & FONT[ (( uint32_t) ch ) * 8 ] , letter ) ;
 
-  setincx( vfd);
-  setx( vfd, xpix );
-  sety( vfd, ychar );
+  vfd_setincx( vfd);
+  vfd_setx( vfd, xpix );
+  vfd_sety( vfd, ychar );
 
   for(unsigned i = 0; i < 8; ++i)
     // vfd_write_data( FONT[ (( uint32_t) 'A' ) * 8 +  i ] );     // OK. this *is* writing to the ramp. but in a funny position.
@@ -144,13 +144,13 @@ static void vfd_write_bitmap_char( vfd_t *vfd, uint8_t xpix, uint8_t ychar, cons
   // ??
 
 
-  setincx( vfd);
+  vfd_setincx( vfd);
 
 
   for(unsigned k = 0; k < 3; ++k )  {
 
-    setx( vfd, xpix );
-    sety( vfd, ychar  + k );
+    vfd_setx( vfd, xpix );
+    vfd_sety( vfd, ychar  + k );
 
     for(unsigned i = 0; i < width ; ++i)              // how far horizontally
       vfd_write_data( vfd, bitmap[ (k * width) + i ]  );   // could just use a pointer.
@@ -196,11 +196,11 @@ void vfd_clear( vfd_t *vfd)
   assert( vfd->height_bytes == 8);
   assert( vfd->width == 128);
 
-  setincx( vfd);
+  vfd_setincx( vfd);
   for( unsigned y = 0; y < vfd->height_bytes; ++y ) {
 
-    setx( vfd, 0 );
-    sety( vfd, y );
+    vfd_setx( vfd, 0 );
+    vfd_sety( vfd, y );
 
     for( unsigned x = 0; x < vfd->width; ++x) {
 
@@ -244,10 +244,10 @@ static void vfd_do_something_old(void)
   // vfd_write_cmd( 0b10000100 );          // set igx  to increment x,  bits are vertical. odd.
   vfd_write_cmd( 0b10000010 );          // set igy  to increment y,     bits are vertical. odd.
 
-  vfd_write_cmd( 0b01100100);          // write setx
+  vfd_write_cmd( 0b01100100);          // write vfd_setx
   vfd_write_cmd( 3 );                  // 30pixels to the right.
 
-  vfd_write_cmd( 0b01100000  );          // data write sety
+  vfd_write_cmd( 0b01100000  );          // data write vfd_sety
   vfd_write_cmd( 3 );                     // eg. moves down 3x8=24 bits.
 
   for(unsigned i = 0; i < 4; ++i)

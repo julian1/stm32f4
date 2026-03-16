@@ -4,6 +4,7 @@
 
 /*
   peripheral.  an abstraction
+  This is actually general enough to supp
 */
 
 
@@ -25,7 +26,7 @@ typedef struct vfd_t
   uint32_t  magic;
 
   uint32_t  fmc_addr;     // FMC_MY_BASE |  FMC_A18
-  uint32_t  fmc_addr_cd;       // command/data FMC_A16
+  uint32_t  fmc_cd;       // command/data bit. FMC_A16.   change name vmc_cd_bit.  it is bit in an address not address
 
 
   // remmember the bits p
@@ -43,7 +44,7 @@ typedef struct vfd_t
 static inline void vfd_write_cmd( vfd_t *vfd, uint8_t v)
 {
   // higher byte is just ignored.
-  *((volatile uint16_t *)  (vfd->fmc_addr | vfd->fmc_addr_cd)) = v ;
+  *((volatile uint16_t *)  (vfd->fmc_addr | vfd->fmc_cd)) = v ;
 }
 
 static inline void vfd_write_data( vfd_t *vfd, uint8_t v)
@@ -60,21 +61,25 @@ static inline uint8_t vfd_read_data( vfd_t *vfd)
 }
 
 
+/*
+  vfd specific, commands.
+  consider move.
+*/
 
-static inline void setx( vfd_t *vfd, uint8_t xpix )
+static inline void vfd_setx( vfd_t *vfd, uint8_t xpix )
 {
   vfd_write_cmd( vfd, 0b01100100);          // write setx
   vfd_write_cmd( vfd, xpix );
 }
 
-static inline void sety( vfd_t *vfd, uint8_t ychar )
+static inline void vfd_sety( vfd_t *vfd, uint8_t ychar )
 {
   vfd_write_cmd( vfd, 0b01100000  );          // data write sety
   vfd_write_cmd( vfd, ychar  );
 }
 
 
-static inline void setincx( vfd_t *vfd )
+static inline void vfd_setincx( vfd_t *vfd )
 {
 
   vfd_write_cmd( vfd,  0b10000100 );          // set igx  to increment x,  bits are vertical. odd.
