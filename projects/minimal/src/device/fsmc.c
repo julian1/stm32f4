@@ -180,10 +180,10 @@ void tft_reset(void )
 #endif
 
 
-void fsmc_setup(uint8_t divider)
+void fsmc_setup( uint8_t divider)
 {
 
-  printf("fsmc_ port setup \n");
+  printf("fsmc_ setup \n");
 
   /*
     https://titanwolf.org/Network/Articles/Article?AID=198f4410-66a4-4bee-a263-bfbb244dbc45

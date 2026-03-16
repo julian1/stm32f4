@@ -14,12 +14,13 @@
 #include <stdbool.h>
 
 
-#define VFD_MAGIC 72972619
 
 /*
     make sure support fast inlining and avoid virtual call overhead
 */
 
+
+typedef struct vfd_t vfd_t;
 
 typedef struct vfd_t
 {
@@ -27,6 +28,12 @@ typedef struct vfd_t
 
   uint32_t  fmc_addr;     // FMC_MY_BASE |  FMC_A18
   uint32_t  fmc_cd;       // command/data bit. FMC_A16.   change name vmc_cd_bit.  it is bit in an address not address
+
+  //
+  void (*vfd_gpio_setup)( vfd_t *);
+  bool (*vfd_getTear)( vfd_t *);
+  void (*vfd_reset)( vfd_t *, bool val );
+
 
 
   // remmember the bits p
@@ -40,6 +47,10 @@ typedef struct vfd_t
 } vfd_t;
 
 
+/*
+  typed for 8 bit. bus.
+  While tft. is usually 16 bit
+*/
 
 static inline void vfd_write_cmd( vfd_t *vfd, uint8_t v)
 {
@@ -62,8 +73,7 @@ static inline uint8_t vfd_read_data( vfd_t *vfd)
 
 
 /*
-  vfd specific, commands.
-  consider move.
+  vfd specific, but not instance specific are ok here
 */
 
 static inline void vfd_setx( vfd_t *vfd, uint8_t xpix )
@@ -84,6 +94,9 @@ static inline void vfd_setincx( vfd_t *vfd )
 
   vfd_write_cmd( vfd,  0b10000100 );          // set igx  to increment x,  bits are vertical. odd.
 }
+
+
+void vfd_init( vfd_t *vfd, volatile uint32_t *system_millis);
 
 
 

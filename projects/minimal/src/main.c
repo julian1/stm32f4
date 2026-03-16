@@ -37,17 +37,20 @@
 #include <device/fsmc.h>
 #include <device/systick.h>
 
+
+
+#include <peripheral/vfd.h>           // OK. need storage size.
+#include <peripheral/spi-ice40.h>
+#include <peripheral/interrupt.h>
+// #include <peripheral/vfd-fonts.h>
+
+
 #include <device/vfd0.h>
+#include <device/tft0.h>
 
 #include <device/spi-fpga1-pc.h>
 #include <device/spi-fpga1.h>
 
-
-
-#include <peripheral/vfd.h>
-#include <peripheral/spi-ice40.h>
-#include <peripheral/interrupt.h>
-// #include <peripheral/vfd-fonts.h>
 
 
 
@@ -180,7 +183,7 @@ static void timer_set_frequency( uint32_t timer, uint32_t freq /*, uint32_t dead
 
 
 
-
+#if 0
 static void msleep(uint32_t delay, volatile uint32_t *system_millis)
 {
   // temporary. repeated in vfd.c
@@ -198,7 +201,7 @@ static void msleep(uint32_t delay, volatile uint32_t *system_millis)
 
 }
 
-
+#endif
 
 
 
@@ -500,14 +503,25 @@ static int main_f429(void)
 
   vfd_t         vfd0;
   app.vfd0      = &vfd0;
+  vfd0_init( app.vfd0);
+  app.vfd0->vfd_gpio_setup( app.vfd0 );
+
   // We cannot init here. because have to wait for system_millis and fpga
   // vfd0_init( &vfd0, system_millis);
+  // TODO - separate the low-level gpio setup from the vfd code.
+  // use function pointer
 
 
   display_vfd_t         display_vfd;
   display_vfd_init( &display_vfd, app.vfd0, app.buffer);
   app.display_vfd = &display_vfd;
 
+
+  // tft
+  tft_t     tft0;
+  app.tft = &tft0;
+  tft0_init( app.tft);    // device specific
+  app.tft->tft_gpio_setup( app.tft);    // low level gpio. correct.
 
 
   // loop, bottom of the control stack

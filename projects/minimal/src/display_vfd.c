@@ -192,7 +192,8 @@ void display_vfd_update( display_vfd_t *display_vfd, data_t *data)
 
 
   vfd_t *vfd = display_vfd->vfd;
-  assert(vfd && vfd->magic == VFD_MAGIC);
+  assert( vfd);
+  // assert(vfd && vfd->magic == VFD_MAGIC);
 
   buffer_t *buffer = display_vfd->buffer;
   assert( buffer && buffer->magic == BUFFER_MAGIC);

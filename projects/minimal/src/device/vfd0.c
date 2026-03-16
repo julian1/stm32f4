@@ -37,40 +37,57 @@ lcd->ram  0x60020000
 #define FMC_A19 (1<<(19+1))
 
 
-// #define VFD0_MAGIC 1230237
+#define VFD0_MAGIC 1230237
 
 
 
 
-static void msleep( uint32_t delay, volatile uint32_t *system_millis)
+
+
+static void vfd_gpio_setup( vfd_t *vfd)
 {
+  assert( vfd && vfd->magic == VFD0_MAGIC);
 
-  // works for system_millis integer wrap around
-  // could be a do/while block.
-  uint32_t start = *system_millis;
-  while (true) {
-    uint32_t elapsed = *system_millis - start;
-    if(elapsed > delay)
-      break;
+  // ikon rst. feb 2026
+  // feb 2026.  device init.
+  gpio_set( GPIOB, GPIO8);   // keep high - to avoid supirious seting.
+  gpio_mode_setup(  GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8 );
 
-    // yield()
-  };
+  // need to do IRQ.
 
+}
+
+
+static void vfd_reset( vfd_t *vfd, bool val )
+{
+  assert( vfd && vfd->magic == VFD0_MAGIC);
+
+  if( val)
+    gpio_set( GPIOB, GPIO8);
+  else
+    gpio_clear ( GPIOB, GPIO8);
+}
+
+
+static bool vfd_getTear( vfd_t *vfd)
+{
+  assert( vfd && vfd->magic == VFD0_MAGIC);
+
+  assert( 0);
+  return false;
 }
 
 
 
 
-
-
-void vfd0_init( vfd_t *vfd, volatile uint32_t *system_millis)
+void vfd0_init( vfd_t *vfd)
 {
 
-  // printf("vfd_init()\n");
+  printf("vfd_init()\n");
 
   memset( vfd, 0, sizeof( vfd_t));
 
-  vfd->magic    = VFD_MAGIC;      // this is the peripheral.  not instance specific.
+  vfd->magic        = VFD0_MAGIC;      // TODO change to use macro in this file
 
   vfd->fmc_addr     = FMC_MY_BASE | FMC_A18;
   vfd->fmc_cd       = FMC_A16;
@@ -79,64 +96,15 @@ void vfd0_init( vfd_t *vfd, volatile uint32_t *system_millis)
   vfd->height_bytes = 8;     //
 
 
-  // could move to separate setup() code.
-  // ikon rst. feb 2026
-  // feb 2026.  device init.
-  gpio_set( GPIOB, GPIO8);   // keep high - to avoid supirious seting.
-  gpio_mode_setup(  GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8 );
-
-
-  // nead to add the ikon_frp_out input .  on PB0.
-
-  // feb 2026.  delegate to device.
-  // perform reset hold reset pin lo for 2ms.
-  gpio_clear ( GPIOB, GPIO8);
-  msleep( 2,  system_millis);     // seems to be 3ms. not 2?
-  gpio_set( GPIOB, GPIO8);
-
-  //////////////////////////
-
-  // display clear - it is part of sequence in s8. so may be required
-  // see s8 manual.  everything must be initialized with gram
-
-  vfd_write_cmd( vfd,  0x5f);
-
-  msleep( 1,  system_millis);
-
-  for(unsigned i = 0; i < 8; ++i) {
-
-    vfd_write_cmd( vfd, 0x62 );
-    // vfd_write_cmd( 0x00 );   //
-    vfd_write_cmd( vfd,  i );   //
-    vfd_write_data( vfd, 0xff );
-  }
-
-
-  /////////////////////////
-  // turn display on.
-
-  uint8_t l0 = 1 << 2;    // layer 0
-  //   uint8_t l1 = 1 << 3;    // layer 1
-
-  uint8_t gs = 1 << 6;    // gs area off/on
-  // uint8_t grv = 1 << 4;   // reverse or normal   EXTR.  should flip this
-
-//    uint8_t and_ = 1 << 3;
-//    uint8_t exor = 1 << 2;
-
-
-  // display on/off command with layer specified
-  uint8_t cmd[] = { 0b00100000, 0 };
-
-  cmd[0] |= l0;
-  cmd[1] |= gs;
-
-//    cmd[1] |= grv;      // inverse
-                      // OK. inverse actually worked.
-  vfd_write_cmd( vfd, cmd[0] );
-  vfd_write_cmd( vfd, cmd[1] );
-
+  vfd->vfd_gpio_setup = vfd_gpio_setup;
+  vfd->vfd_getTear    = vfd_getTear;
+  vfd->vfd_reset      = vfd_reset;
 }
+
+
+
+
+
 
 
 

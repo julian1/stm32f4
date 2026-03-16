@@ -28,6 +28,7 @@
 #include <peripheral/vfd-fonts.h>
 
 #include <peripheral/vfd.h>
+#include <peripheral/tft.h>
 
 
 
@@ -636,13 +637,21 @@ static void app_update_soft_500ms(app_t *app)
       printf("fpga config failed\n");
     } else {
 
- 
-      // we need both system_millis, and fpga up here 
-      vfd0_init( app->vfd0, &app->system_millis);
+      printf("fpga ok!\n");
 
+      // we need both system_millis, and fpga up here
+      // TODO should not be vfd0_init.
+
+      vfd_init( app->vfd0,  & app->system_millis);
       vfd_test( app->vfd0);
 
-      printf("fpga ok!\n");
+/*
+      printf("tft lcd init!\n");
+      // init the lcd
+      LCD_Init( app->tft, &app->system_millis );
+      LCD_TestFill( app->tft);
+*/
+
       app_beep( app, 2 );
     }
   }
