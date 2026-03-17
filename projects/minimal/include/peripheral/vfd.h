@@ -14,6 +14,8 @@
 #include <stdbool.h>
 
 
+#define VFD_MAGIC 1230237
+
 
 /*
     make sure support fast inlining and avoid virtual call overhead
@@ -45,6 +47,7 @@ typedef struct vfd_t
   bool page;
 
 } vfd_t;
+
 
 
 

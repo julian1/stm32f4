@@ -9,6 +9,9 @@
 #include <stdbool.h>
 
 
+#define TFT_MAGIC  82342351
+
+
 typedef struct tft_t tft_t;
 
 typedef struct tft_t

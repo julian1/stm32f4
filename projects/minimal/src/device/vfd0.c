@@ -37,16 +37,13 @@ lcd->ram  0x60020000
 #define FMC_A19 (1<<(19+1))
 
 
-#define VFD0_MAGIC 1230237
-
-
 
 
 
 
 static void vfd_gpio_setup( vfd_t *vfd)
 {
-  assert( vfd && vfd->magic == VFD0_MAGIC);
+  assert( vfd && vfd->magic == VFD_MAGIC);
 
   // ikon rst. feb 2026
   // feb 2026.  device init.
@@ -60,7 +57,7 @@ static void vfd_gpio_setup( vfd_t *vfd)
 
 static void vfd_reset( vfd_t *vfd, bool val )
 {
-  assert( vfd && vfd->magic == VFD0_MAGIC);
+  assert( vfd && vfd->magic == VFD_MAGIC);
 
   if( val)
     gpio_set( GPIOB, GPIO8);
@@ -71,7 +68,7 @@ static void vfd_reset( vfd_t *vfd, bool val )
 
 static bool vfd_getTear( vfd_t *vfd)
 {
-  assert( vfd && vfd->magic == VFD0_MAGIC);
+  assert( vfd && vfd->magic == VFD_MAGIC);
 
   assert( 0);
   return false;
@@ -87,7 +84,7 @@ void vfd0_init( vfd_t *vfd)
 
   memset( vfd, 0, sizeof( vfd_t));
 
-  vfd->magic        = VFD0_MAGIC;      // TODO change to use macro in this file
+  vfd->magic        = VFD_MAGIC;      // TODO change to use macro in this file
 
   vfd->fmc_addr     = FMC_MY_BASE | FMC_A18;
   vfd->fmc_cd       = FMC_A16;

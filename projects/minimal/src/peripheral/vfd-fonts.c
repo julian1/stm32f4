@@ -135,6 +135,7 @@ void vfd_write_string2( vfd_t *vfd, const char *s, uint8_t xpix, uint8_t ychar )
 
 static void vfd_write_bitmap_char( vfd_t *vfd, uint8_t xpix, uint8_t ychar, const char *bitmap, uint8_t width )
 {
+  assert( vfd && vfd->magic == VFD_MAGIC);
   // important - note that it didn't need to be rotated.
   // need to try another letter.  eg. 3.
 
@@ -161,6 +162,8 @@ static void vfd_write_bitmap_char( vfd_t *vfd, uint8_t xpix, uint8_t ychar, cons
 
 static void vfd_write_bitmap_string( vfd_t *vfd, const char *s, size_t n, uint8_t xpix, uint8_t ychar )
 {
+  assert( vfd && vfd->magic == VFD_MAGIC);
+
   // uses proporitional spacing.
   // can also have fixed width.
 
@@ -193,6 +196,8 @@ void vfd_write_bitmap_string2( vfd_t *vfd, const char *s, uint8_t xpix, uint8_t 
 
 void vfd_clear( vfd_t *vfd)
 {
+  assert( vfd && vfd->magic == VFD_MAGIC);
+
   assert( vfd->height_bytes == 8);
   assert( vfd->width == 128);
 
@@ -216,6 +221,8 @@ void vfd_clear( vfd_t *vfd)
 
 void vfd_test( vfd_t *vfd)
 {
+  assert( vfd && vfd->magic == VFD_MAGIC);
+
   // display clear - it is part of sequence in s8. so may be required
   // vfd_write_cmd( 0x5f ); // need to turn on again.
   // vfd_write_cmd( 0x5f | (1 << 2) );

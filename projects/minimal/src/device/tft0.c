@@ -40,12 +40,11 @@
 #define TEAR_IRQ            GPIO1
 
 
-#define TFT0_MAGIC  82342351
 
 
 static void tft_gpio_setup( tft_t *tft)
 {
-  assert( tft && tft->magic == TFT0_MAGIC);
+  assert( tft && tft->magic == TFT_MAGIC);
 
   // led and reset
   gpio_mode_setup( TFT_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, TFT_LED_A |  TFT_REST);
@@ -59,7 +58,7 @@ static void tft_gpio_setup( tft_t *tft)
 
 static bool tft_getTear( tft_t *tft)
 {
-  assert( tft && tft->magic == TFT0_MAGIC);
+  assert( tft && tft->magic == TFT_MAGIC);
 
   // TODO better prefix name. tft_get_tear() ?
   // hi tft stopped, means we should draw .
@@ -71,7 +70,7 @@ static bool tft_getTear( tft_t *tft)
 
 static void tft_reset( tft_t *tft, bool val )
 {
-  assert( tft && tft->magic == TFT0_MAGIC);
+  assert( tft && tft->magic == TFT_MAGIC);
 
   if( val)
     gpio_set( TFT_GPIO_PORT, TFT_REST);
@@ -90,7 +89,7 @@ void tft0_init( tft_t *tft)
 {
   memset( tft, 0, sizeof( tft_t));
 
-  tft->magic        = TFT0_MAGIC;
+  tft->magic        = TFT_MAGIC;
 
   tft->fmc_addr     = FMC_MY_BASE | FMC_A18;
   tft->fmc_cd       = FMC_A16;

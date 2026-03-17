@@ -174,6 +174,9 @@ static void msleep( uint32_t delay, volatile uint32_t *system_millis)
 
 void LCD_Init(  tft_t *tft, volatile uint32_t *system_millis)
 {
+
+  assert( tft && tft->magic == TFT_MAGIC);
+
   assert( tft);
 
   printf("-----------\n");
@@ -517,6 +520,8 @@ void LCD_Read_DDB( tft_t *tft)
 
 void  LCD_TestFill( tft_t *tft)
 {
+  assert( tft && tft->magic == TFT_MAGIC);
+
   // avoid filling corners - so can see that works.
 
   // put in function. LCD_testFill.

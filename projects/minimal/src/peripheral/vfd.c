@@ -32,19 +32,16 @@ static void msleep( uint32_t delay, volatile uint32_t *system_millis)
 void vfd_init( vfd_t *vfd, volatile uint32_t *system_millis)
 {
 
+  assert( vfd && vfd->magic == VFD_MAGIC);
+
   printf("vfd_init()\n");
 
-  assert( vfd);
-
-
-  printf("reset\n");
 
   vfd->vfd_reset( vfd, 0);
   msleep( 2,  system_millis);     // seems to be 3ms. not 2?
   vfd->vfd_reset( vfd, 1);
   msleep( 2,  system_millis);
 
-  printf("done\n");
 
   //////////////////////////
 
