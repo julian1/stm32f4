@@ -7,6 +7,7 @@
 #include <assert.h>
 
 #include <lib2/format.h>      // str_format_bits()
+#include <lib2/util.h>      // UNUSED
 
 #include <peripheral/tft.h>
 #include <device/fsmc.h>    // to change speed of fsmc bus
@@ -82,69 +83,54 @@
 
 */
 
-// #  - IMPR
- //     - change the 5 multipler for the setup time. and see if still workds. and if there's a timing difference.
 
 
 
-/*********************************************************/
 
 
-
-/*
-
-  VFD  is 8 bit.
-  TFT   is 16bit.
-
-  So we must change...
-  tft_write and tft_read are 8 bit.
-
-*/
-
-
-
-static inline void tft_write_cmd( tft_t *tft, uint16_t v)
+static inline void tft_write_cmd( tft_t *tft, uint16_t cmd)
 {
-  *((volatile uint16_t *)  (tft->fmc_addr | tft->fmc_cd)) = v ;
+
+  *((volatile uint16_t *)  (tft->fmc_addr )) = cmd;
 }
 
-static inline void tft_write_data( tft_t *tft, uint16_t v)
+static inline void tft_write_data( tft_t *tft, uint16_t data)
 {
-  *((volatile uint16_t *)  (tft->fmc_addr )) = v ;
+  *((volatile uint16_t *)  (tft->fmc_addr | tft->fmc_cd)) = data;
 }
 
 static inline uint16_t tft_read_data( tft_t *tft)
 {
-  return *((volatile uint16_t *)  (tft->fmc_addr ));
+  return *((volatile uint16_t *)  (tft->fmc_addr | tft->fmc_cd));
 }
 
+/*
 
-
+printf("LCD->LCD_REG %s cmd\n", str_format_bits( buf, 100, (uint32_t)(void *) &LCD->LCD_REG));
+tft lcd init!
+  ( 0x60000000 ).toString(2)                                                     "1100000000000000000000000000000"
+(tft->fmc_ad 0000000000000000000000000000000000000000000000000000000000000000000001100000000100000000000000000000 cmd
+(tft->fmc_ad 0000000000000000000000000000000000000000000000000000000000000000000001100000000100100000000000000000 data r
+(tft->fmc_ad 0000000000000000000000000000000000000000000000000000000000000000000001100000000100100000000000000000 data w
+fsmc_setup, divider 1
+*/
 
 static inline void LCD_Write_COM( tft_t *tft, uint16_t cmd)
 {
-  // LCD_Write_COM(cmd) ;
-  // LCD->LCD_REG = cmd;
   tft_write_cmd( tft, cmd );
 }
 
 static inline void  LCD_Write_DATA( tft_t *tft, uint16_t data)
 {
-
-  // LCD_Write_DATA(data) ;
   tft_write_data( tft, data );
-
 }
 
 static inline uint16_t LCD_ReadData( tft_t *tft)
 {
-  /* Read 16-bit data */
-  // return LCD_RAM;
-  // return (LCD->LCD_RAM);
-
-
   return tft_read_data( tft);
 }
+
+
 
 
 
@@ -183,7 +169,7 @@ void LCD_Init(  tft_t *tft, volatile uint32_t *system_millis)
 
   // LCD_Configuration();
   // fsmc_gpio_setup();
-  fsmc_setup(12);   // slow.
+  fsmc_setup( 12);   // slow.
 
 
   printf("pull reset lo\n");
@@ -213,7 +199,9 @@ void LCD_Init(  tft_t *tft, volatile uint32_t *system_millis)
   LCD_Write_DATA( tft,0x03); /* now, use PLL output as system clock */
 
   // JA LCD_FSMCConfig(1); /* Set FSMC full speed now */
-  fsmc_setup(1);
+  // HERE
+  // needs to be 2.  if using fpga for address demuxing using cs and addr_19.
+  fsmc_setup( 2);
   msleep(10, system_millis);
 
   LCD_Write_COM( tft, 0x01);    // software reset (JA requiredJ).
@@ -525,16 +513,16 @@ void  LCD_TestFill( tft_t *tft)
 
   // put in function. LCD_testFill.
 
-  LCD_fillRect( tft, 1, 1, 480 -1, 10 , packRGB565( 0xff , 0xff, 0xff));
+  LCD_fillRect( tft, 1, 1, 480 -1, 10 , packRGB565( 0xff , 0xff, 0xff));  // white bar
 
-  LCD_fillRect( tft, 1, 20, 480 -1, 30 , packRGB565( 0xff , 0xff, 0xff));
+  LCD_fillRect( tft, 1, 20, 480 -1, 30 , packRGB565( 0xff , 0xff, 0xff)); // white bar
 
 
   // LCD_fillRect(1, 50, 480 -1, 50 , packRGB565( 0xff , 0xff, 0xff)); // height of 0. draws nothing
-  LCD_fillRect( tft, 1, 50, 480 -1, 51 , packRGB565( 0xff , 0xff, 0xff)); // height of 1. draws
+  LCD_fillRect( tft, 1, 50, 480 -1, 51 , packRGB565( 0xff , 0xff, 0xff)); // white - height of 1. draws
 
 
-  LCD_fillRect( tft, 5, 5, 50, 50, packRGB565( 0x0, 0x0, 0xff));
+  LCD_fillRect( tft, 5, 5, 50, 50, packRGB565( 0x0, 0x0, 0xff));      // blue square
 
 
 //   agg_test2();
@@ -542,12 +530,60 @@ void  LCD_TestFill( tft_t *tft)
 }
 
 
+#if 0
+
+/*
+ok
+fpga ok!
+tft lcd init!
+LCD->LCD_REG 0000000000000000000000000000000000000000000000000000000000000000000001100000000000011111111111111110 cmd
+LCD->LCD_RAM 0000000000000000000000000000000000000000000000000000000000000000000001100000000000100000000000000000 data r
+LCD->LCD_RAM 0000000000000000000000000000000000000000000000000000000000000000000001100000000000100000000000000000 data w
+
+*/
+static inline void LCD_Write_COM( tft_t *tft, uint16_t cmd)
+{
+
+  static bool first = true;
+  if(first) {
+    char buf[101];
+    printf("LCD->LCD_REG %s cmd\n", str_format_bits( buf, 100, (uint32_t)(void *) &LCD->LCD_REG));
+    first = false;
+  }
+
+  UNUSED(tft);
+  LCD->LCD_REG = cmd;
+}
+
+static inline void  LCD_Write_DATA( tft_t *tft, uint16_t data)
+{
+  static bool first = true;
+  if(first) {
+    char buf[101];
+    printf("LCD->LCD_RAM %s data w\n", str_format_bits( buf, 100, (uint32_t)(void *) &LCD->LCD_RAM));
+    first = false;
+  }
 
 
+  UNUSED(tft);
+  LCD->LCD_RAM = data;
+}
+
+static inline uint16_t LCD_ReadData( tft_t *tft)
+{
+  static bool first = true;
+  if(first) {
+    char buf[101];
+    printf("LCD->LCD_RAM %s data r\n", str_format_bits( buf, 100, (uint32_t)(void *) &LCD->LCD_RAM));
+    first = false;
+  }
 
 
+  UNUSED(tft);
+  return (LCD->LCD_RAM);
+}
 
-
+#endif
 
 
 

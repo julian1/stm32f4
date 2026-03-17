@@ -639,23 +639,40 @@ static void app_update_soft_500ms(app_t *app)
 
       printf("fpga ok!\n");
 
-      // we need both system_millis, and fpga up here
-      // TODO should not be vfd0_init.
-
-      printf("app vfd->magic %lu\n", app->vfd0->magic );
-
+      // we need both system_millis, and fpga available
+      // before we can init here
+#if 0
+      printf("vfd init!\n");
       vfd_init( app->vfd0,  & app->system_millis);
       vfd_test( app->vfd0);
-
-
-#if 1
-      printf("tft lcd init!\n");
-      // init the lcd
-      LCD_Init( app->tft, &app->system_millis );
-      LCD_TestFill( app->tft);
 #endif
 
+      printf("tft lcd init!\n");
+
+      LCD_Read_DDB( app->tft );     // contains 00000
+
+      // init the lcd
+      LCD_Init( app->tft, &app->system_millis );
+
+      LCD_Read_DDB( app->tft );
+      /*
+      reg 161 (a1)  r
+      000  0000000000000000
+      087  0000000001010111
+      097  0000000001100001
+      001  0000000000000001
+      255  0000000011111111 */
+
+    //  LCD_SetTearOn( app->tft );
+
+      // set scroll start to base of memory
+      // setScrollStart( app->tft, 0  );
+
+      LCD_TestFill( app->tft);
+
+#if 0
       app_beep( app, 2 );
+#endif
     }
   }
 
@@ -668,17 +685,6 @@ static void app_update_soft_500ms(app_t *app)
   */
 }
 
-
-/*
-  // u102 analog board - old
-  // if( false && !app->cdone && !spi_port_cdone_get() ) {
-  if( false && !app->cdone && !  app->spi_fpga1->cdone( app->spi_fpga1) ) {
-
-    // we should separate these.
-
-    app_configure( app );
-  }
-*/
 
 
 

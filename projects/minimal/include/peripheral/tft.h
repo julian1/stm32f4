@@ -18,7 +18,7 @@ typedef struct tft_t
 {
   uint32_t  magic;
 
-  uint32_t  fmc_addr;     // FMC_MY_BASE |  FMC_A18
+  uint32_t  fmc_addr;     // FMC_MY_BASE |  FMC_A19
   uint32_t  fmc_cd;       // command/data bit. FMC_A16.   change name vmc_cd_bit.  it is bit in an address not address
 
 /*

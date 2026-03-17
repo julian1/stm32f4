@@ -183,7 +183,7 @@ void tft_reset(void )
 void fsmc_setup( uint8_t divider)
 {
 
-  printf("fsmc_ setup \n");
+  printf("fsmc_setup, divider %u\n", divider);
 
   /*
     https://titanwolf.org/Network/Articles/Article?AID=198f4410-66a4-4bee-a263-bfbb244dbc45
