@@ -642,6 +642,8 @@ static void app_update_soft_500ms(app_t *app)
       // we need both system_millis, and fpga up here
       // TODO should not be vfd0_init.
 
+      printf("app vfd->magic %lu\n", app->vfd0->magic );
+
       vfd_init( app->vfd0,  & app->system_millis);
       vfd_test( app->vfd0);
 

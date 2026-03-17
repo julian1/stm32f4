@@ -165,14 +165,14 @@ static void stoupper( char *s)
 
 
 
-void display_vfd_init( display_vfd_t *display_vfd, vfd_t *vfd, buffer_t *buffer)
+void display_vfd_init( display_vfd_t *display_vfd, vfd_t *vfd1, buffer_t *buffer)
 {
-  memset( vfd, 0, sizeof( display_vfd_t));
+  memset( display_vfd, 0, sizeof( display_vfd_t));
   display_vfd->magic = DISPLAY_VFD_MAGIC;
 
   assert( buffer && buffer->magic == BUFFER_MAGIC);
 
-  display_vfd->vfd = vfd;
+  display_vfd->vfd = vfd1;
   display_vfd->buffer = buffer;
 }
 
