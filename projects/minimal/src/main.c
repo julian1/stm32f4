@@ -501,37 +501,26 @@ static int main_f429(void)
 
 
 
+  // can only do gpio setup here. because must wait for system_millis and fpga
   vfd_t         vfd0;
   app.vfd0      = &vfd0;
   vfd0_init( app.vfd0);
   app.vfd0->vfd_gpio_setup( app.vfd0 );
 
-  printf("main1 app vfd->magic %lu\n", app.vfd0->magic );
 
-  // We cannot init here. because have to wait for system_millis and fpga
-  // vfd0_init( &vfd0, system_millis);
-  // TODO - separate the low-level gpio setup from the vfd code.
-  // use function pointer
 
-#if 1
   display_vfd_t         display_vfd;
   display_vfd_init( &display_vfd, app.vfd0, app.buffer);
   app.display_vfd = &display_vfd;
-#endif
 
-  printf("main1 app vfd->magic %lu\n", app.vfd0->magic );
 
-#if 1
   // tft
   tft_t     tft0;
   app.tft = &tft0;
   tft0_init( app.tft);    // device specific
   app.tft->tft_gpio_setup( app.tft);    // low level gpio. correct.
-#endif
 
-  printf("main3 app vfd->magic %lu\n", app.vfd0->magic );
 
-  assert( app.vfd0->magic );
 
   // loop, bottom of the control stack
   while( true) {

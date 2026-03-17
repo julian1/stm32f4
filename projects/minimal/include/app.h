@@ -235,7 +235,7 @@ typedef struct app_t
   bool          range_10Meg ;
 
 
-  vfd_t         *vfd0;    // uninitialized at start
+  vfd_t         *vfd0;    // rename just vfd if there is only one.
 
   display_vfd_t *display_vfd;   // rename display0 ?
 

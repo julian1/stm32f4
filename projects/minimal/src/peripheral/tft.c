@@ -10,16 +10,9 @@
 
 #include <peripheral/tft.h>
 #include <device/fsmc.h>    // to change speed of fsmc bus
-// #include <device/ssd1963.h>    // tft_gpio_setup() tft_reset()
 
-/*
-#include "fsmc.h"
 
-#include "util.h"       // msleep
-#include "streams.h"    // printf
 
-#include "format.h"  //format_bits. should rename
-*/
 
 
 
@@ -112,7 +105,6 @@
 
 static inline void tft_write_cmd( tft_t *tft, uint16_t v)
 {
-  // higher byte is just ignored.
   *((volatile uint16_t *)  (tft->fmc_addr | tft->fmc_cd)) = v ;
 }
 

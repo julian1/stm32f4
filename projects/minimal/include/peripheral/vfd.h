@@ -47,6 +47,13 @@ typedef struct vfd_t
 } vfd_t;
 
 
+
+
+
+void vfd_init( vfd_t *vfd, volatile uint32_t *system_millis);
+
+
+
 /*
   typed for 8 bit. bus.
   While tft. is usually 16 bit
@@ -91,46 +98,13 @@ static inline void vfd_sety( vfd_t *vfd, uint8_t ychar )
 
 static inline void vfd_setincx( vfd_t *vfd )
 {
-
-  vfd_write_cmd( vfd,  0b10000100 );          // set igx  to increment x,  bits are vertical. odd.
+  // set igx  to increment x,  bits are vertical. odd.
+  vfd_write_cmd( vfd,  0b10000100 );
 }
 
 
-void vfd_init( vfd_t *vfd, volatile uint32_t *system_millis);
 
 
 
-
-
-
-
-
-
-
-
-#if 0
-// inline low-level funcs for speed
-// A16 is command/data .
-// A18 to select VFD.
-
-static inline void vfd_write_cmd( uint8_t v)
-{
-  // higher byte is just ignored.
-  *((volatile uint16_t *)  (FMC_MY_BASE |  FMC_A18 | FMC_A16)) = v ;
-}
-
-static inline void vfd_write_data( uint8_t v)
-{
-  *((volatile uint16_t *)  (FMC_MY_BASE |  FMC_A18 )) = v ;
-}
-
-static inline uint8_t vfd_read_data( void)
-{
-  // not supported
-  // without control over dir pin of the level shifter
-  assert( 0);
-  return *((volatile uint16_t *)  (FMC_MY_BASE |  FMC_A18 ));
-}
-#endif
 
 
