@@ -429,29 +429,11 @@ static int main_f429(void)
 
 
 
-#if 1
 
 
   ///////////////////////////////
-    fsmc_gpio_setup();
-
-    // fsmc_setup( 12 );   // slow.
-    // with divider == 1. is is easier to see the address is already well asserted on WR rising edge. before CS.
-    fsmc_setup( 1 );   // fase.
-    // vfd_dev_gpio_init();
-
-    // EXTR. with fpga muxing cs we must wait until it gets initialized. before
-    // this is not very pleasant
-/*
-    msleep( 10, &app.system_millis );   // relative
-    display_vfd_init(  &app.system_millis);
-
-    vfd_do_something();
-*/
-  //////////////////
-
-#endif
-
+  fsmc_gpio_setup();
+  fsmc_setup( 1 );
 
   /////////////////////////////
 
