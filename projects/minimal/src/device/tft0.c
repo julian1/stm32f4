@@ -91,7 +91,7 @@ void tft0_init( tft_t *tft)
 
   tft->magic        = TFT_MAGIC;
 
-  tft->fmc_addr     = FMC_MY_BASE | FMC_A18;
+  tft->fmc_addr     = FMC_MY_BASE | FMC_A19;
   tft->fmc_cd       = FMC_A16;
 
   // tft->width        = 128;    // 16 bytes

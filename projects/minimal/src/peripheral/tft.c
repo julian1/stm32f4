@@ -177,7 +177,6 @@ void LCD_Init(  tft_t *tft, volatile uint32_t *system_millis)
 
   assert( tft && tft->magic == TFT_MAGIC);
 
-  assert( tft);
 
   printf("-----------\n");
   printf("LCD_Init\n");

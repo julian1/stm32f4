@@ -647,12 +647,13 @@ static void app_update_soft_500ms(app_t *app)
       vfd_init( app->vfd0,  & app->system_millis);
       vfd_test( app->vfd0);
 
-/*
+
+#if 1
       printf("tft lcd init!\n");
       // init the lcd
       LCD_Init( app->tft, &app->system_millis );
       LCD_TestFill( app->tft);
-*/
+#endif
 
       app_beep( app, 2 );
     }
