@@ -482,7 +482,7 @@ static int main_f429(void)
   app.buffer = &buffer;
 
 
-#if 0
+#if 1
   // can only do gpio setup here. because must wait for system_millis and fpga
   vfd_t         vfd0;
   app.vfd0      = &vfd0;
@@ -490,7 +490,7 @@ static int main_f429(void)
   app.vfd0->vfd_gpio_setup( app.vfd0 );
 
 
-  display_vfd_t         display_vfd;
+  display_vfd_t   display_vfd;
   display_vfd_init( &display_vfd, app.vfd0, app.buffer);
   app.display_vfd = &display_vfd;
 #endif

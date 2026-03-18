@@ -641,7 +641,7 @@ static void app_update_soft_500ms(app_t *app)
 
       // we need both system_millis, and fpga available
       // before we can init here
-#if 0
+#if 1
       printf("vfd init!\n");
       vfd_init( app->vfd0,  & app->system_millis);
       vfd_test( app->vfd0);
@@ -769,11 +769,6 @@ static void app_update_console(app_t *app)
 }
 
 
-/*
-  In order to use the simple functions in yield statements, we want to split out the update() from the loop() t want the
-
-  Actually we don't even want a app_loop() just loop at the bottom of the main statement.
-*/
 
 
 void app_update( app_t *app)
