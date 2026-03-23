@@ -21,8 +21,8 @@
 //#include "util.h"
 // #include "streams.h"
 
-#include <agg.h>
-#include <fonts.h>
+#include <agg/agg.h>
+#include <agg/fonts.h>
 
 
 
