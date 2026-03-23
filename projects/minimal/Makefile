@@ -26,6 +26,7 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/device/spi-4094-0.c \
             src/device/gpio-status-led.c src/device/gpio-trigger-internal.c src/device/gpio-trigger-selection.c \
             src/device/interrupt-fpga0.c \
+            src/agg.cpp \
             src/device/support.c \
             src/main.c  \
             src/display_vfd.c \
@@ -89,6 +90,11 @@ TGT_CFLAGS	+= -I./include
 # top level include, for assert and other libraries.
 TGT_CFLAGS	+= -I${TOP_DIR}/include
 TGT_CFLAGS	+= -I${TOP_DIR}/lib/libopencm3/include
+
+AGGINC=${TOP_DIR}/lib/agg-svn-r138-agg-2.4/include/
+TGT_CXXFLAGS += -I./include -I${AGGINC}
+
+
 
 
 # libs

@@ -86,24 +86,6 @@
 
 
 
-
-
-static inline void tft_write_cmd( tft_t *tft, uint16_t cmd)
-{
-
-  *((volatile uint16_t *)  (tft->fmc_addr )) = cmd;
-}
-
-static inline void tft_write_data( tft_t *tft, uint16_t data)
-{
-  *((volatile uint16_t *)  (tft->fmc_addr | tft->fmc_cd)) = data;
-}
-
-static inline uint16_t tft_read_data( tft_t *tft)
-{
-  return *((volatile uint16_t *)  (tft->fmc_addr | tft->fmc_cd));
-}
-
 /*
 
 printf("LCD->LCD_REG %s cmd\n", str_format_bits( buf, 100, (uint32_t)(void *) &LCD->LCD_REG));

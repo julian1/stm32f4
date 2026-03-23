@@ -43,6 +43,27 @@ typedef struct tft_t
 
 
 
+
+inline void tft_write_cmd( tft_t *tft, uint16_t cmd)
+{
+
+  *((volatile uint16_t *)  (tft->fmc_addr )) = cmd;
+}
+
+inline void tft_write_data( tft_t *tft, uint16_t data)
+{
+  *((volatile uint16_t *)  (tft->fmc_addr | tft->fmc_cd)) = data;
+}
+
+inline uint16_t tft_read_data( tft_t *tft)
+{
+  return *((volatile uint16_t *)  (tft->fmc_addr | tft->fmc_cd));
+}
+
+
+/////////////
+
+
 void LCD_Init( tft_t *tft, volatile uint32_t *system_millis);
 
 
