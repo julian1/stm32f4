@@ -135,7 +135,7 @@ static bool cdone(spi_ice40_t *spi )
 
 
 
-
+#if 0
 
 spi_ice40_t * spi_fpga1_pc_new()
 // spi_ice40_t * spi2_u202_new()
@@ -165,5 +165,27 @@ spi_ice40_t * spi_fpga1_pc_new()
 
   return spi;
 }
+#endif
+
+
+void spi_fpga1_pc_init( spi_ice40_t *spi)
+{
+  assert( spi);
+  memset( spi, 0, sizeof(spi_ice40_t));
+
+  spi->magic          = FPGA1_MAGIC;
+
+  // base
+  spi->spi            = SPI2;
+  spi->setup          =  setup;
+  spi->port_configure = port_configure;
+  spi->cs_assert      = cs_assert;
+  spi->cs_deassert    = cs_deassert;
+
+  // derived stuff
+  spi->rst    = rst;
+  spi->cdone  = cdone;
+}
+
 
 

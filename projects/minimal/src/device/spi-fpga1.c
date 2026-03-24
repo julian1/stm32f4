@@ -83,6 +83,7 @@ static void cs_deassert(spi_t *spi)
 }
 
 
+#if 0
 spi_t * spi_fpga1_new( )
 {
   /* called once at startup only, in main().
@@ -106,6 +107,20 @@ spi_t * spi_fpga1_new( )
 
   return spi;
 }
+#endif
 
 
+void spi_fpga1_init( spi_t *spi)
+{
+  assert(spi);
+  memset(spi, 0, sizeof(spi_t));
+
+  spi->magic          = FPGA1_MAGIC;
+
+  spi->spi            = SPI2;
+  spi->setup          = setup;
+  spi->port_configure = port_configure;
+  spi->cs_assert      = cs_assert;
+  spi->cs_deassert    = cs_deassert;
+}
 

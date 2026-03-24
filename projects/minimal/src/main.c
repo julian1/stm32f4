@@ -39,6 +39,8 @@
 
 
 
+#include <peripheral/spi-ice40-pc.h>    // naming is not quite right.
+
 #include <peripheral/vfd.h>           // OK. need storage size.
 #include <peripheral/spi-ice40.h>
 #include <peripheral/interrupt.h>
@@ -363,12 +365,18 @@ static int main_f429(void)
   ///////////////////////////////
   // devices
 
-  // these are all polymorphic/opaque
 
-  app.spi_fpga0_pc = spi_fpga0_pc_new();
-  spi_setup( (spi_t *) app.spi_fpga0_pc );                // note upcast
+  spi_ice40_t     spi_fpga0_pc;
+  app.spi_fpga0_pc = &spi_fpga0_pc;         // ie. opaque pointer
+  spi_fpga0_pc_init( app.spi_fpga0_pc);
+  // app.spi_fpga0_pc = spi_fpga0_pc_new();
+  spi_setup( app.spi_fpga0_pc );
 
-  app.spi_fpga0 = spi_fpga0_new();
+
+  spi_t     spi_fpga0;
+  app.spi_fpga0 = &spi_fpga0; 
+  // spi_fpga0_new();
+  spi_fpga0_init( app.spi_fpga0);
   spi_setup( app.spi_fpga0 );
 
 
@@ -378,11 +386,17 @@ static int main_f429(void)
 
   /////////
 
+  spi_ice40_t      spi_fpga1_pc;
+  app.spi_fpga1_pc = &spi_fpga1_pc ;
+  // app.spi_fpga1_pc = spi_fpga1_pc_new();
+  spi_fpga1_pc_init( app.spi_fpga1_pc);
+  spi_setup( app.spi_fpga1_pc );
 
-  app.spi_fpga1_pc = spi_fpga1_pc_new();
-  spi_setup( (spi_t *) app.spi_fpga1_pc );                // note upcast
 
-  app.spi_fpga1 = spi_fpga1_new();
+  spi_t    spit_fpga1;
+  app.spi_fpga1 = &spit_fpga1;
+  // spi_fpga1_new();
+  spi_fpga1_init( app.spi_fpga1);
   spi_setup( app.spi_fpga1 );                // note upcast
 
 

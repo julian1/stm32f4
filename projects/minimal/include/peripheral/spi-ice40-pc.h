@@ -1,6 +1,10 @@
 
 #pragma once
 
+/* naming here is not very good - file is spi_ice40_pc.h.  but struct is spi_ice40_t
+  but spi_ice40.h does not define a struct.  and has operations over just spi_t
+*/
+
 // peripheral interface/abstraction
 // not device/instance
 
