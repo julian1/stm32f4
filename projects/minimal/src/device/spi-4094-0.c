@@ -81,9 +81,7 @@ static void cs_deassert(spi_t *spi)
 
 
 
-
-
-
+#if 0
 
 spi_t * spi_4094_0_new( /* pass the spi_ice40 */  )
 {
@@ -107,6 +105,19 @@ spi_t * spi_4094_0_new( /* pass the spi_ice40 */  )
 
   return spi;
 }
+#endif
 
 
+void spi_4094_0_init( spi_t *spi)
+{
+  assert(spi);
+  memset(spi, 0, sizeof(spi_t));
+
+
+  spi->spi    = SPI1;     // consider pass underlying spi in the contructor.
+  spi->setup   =  setup;
+  spi->port_configure = port_configure;
+  spi->cs_assert    = cs_assert;
+  spi->cs_deassert  = cs_deassert;
+}
 

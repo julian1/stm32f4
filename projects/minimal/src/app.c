@@ -448,10 +448,13 @@ void app_configure( app_t *app )
   app_transition_state( app );
 
 
+  // interrupt_handler_set( app->interrupt_fpga0, app, (interrupt_handler_t ) app_decode_rdy_interrupt);
 
   // set up the fpga0 interrupt handler
-  assert( app->interrupt_fpga0);
-  interrupt_handler_set( app->interrupt_fpga0, app, (interrupt_handler_t ) app_decode_rdy_interrupt);
+  interrupt_t *i = app->interrupt_fpga0;
+  assert( i );
+  i->ctx = app;
+  i->handler = (interrupt_handler_t ) app_decode_rdy_interrupt;
 
 }
 

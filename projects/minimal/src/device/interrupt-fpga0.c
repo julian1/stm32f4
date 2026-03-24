@@ -21,7 +21,7 @@
 #define INT_MAGIC   789
 
 
-
+#if 0
 
 typedef struct interrupt2_t interrupt2_t;
 
@@ -37,6 +37,11 @@ struct interrupt2_t
 
 
 static interrupt2_t   *x = NULL;
+
+#endif
+
+
+static interrupt_t   *x = NULL;
 
 
 void exti3_isr(void) // called by runtime
@@ -63,7 +68,8 @@ void exti3_isr(void) // called by runtime
 
 
 
-static void setup( interrupt2_t *i)
+// static void setup( interrupt2_t *i)
+static void setup( interrupt_t *i)
 {
   UNUSED(i);
 
@@ -79,17 +85,19 @@ static void setup( interrupt2_t *i)
 }
 
 
-
-static void handler_set( interrupt2_t *i, void *ctx, interrupt_handler_t handler)
+#if 0
+// static void handler_set( interrupt2_t *i, void *ctx, interrupt_handler_t handler)
+static void handler_set( interrupt_t *i, void *ctx, interrupt_handler_t handler)
 {
   assert(i->magic == INT_MAGIC);
   i->ctx = ctx;
   i->handler = handler;
 }
+#endif
 
 
 
-
+#if 0
 interrupt_t * interrupt_fpga0_new()
 {
   interrupt2_t *i = malloc(sizeof(  interrupt2_t ));
@@ -103,6 +111,23 @@ interrupt_t * interrupt_fpga0_new()
   x = i;
 
   return i;
+}
+#endif
+
+
+// OK. this is messy.  because it uses interrupt2
+
+
+void interrupt_fpga0_init( interrupt_t *i)
+{
+  assert(i);
+  memset(i, 0, sizeof(interrupt_t));
+
+  i->magic        = INT_MAGIC;
+  i->setup        = (void (*)( interrupt_t *))  setup;
+  // i->handler_set  = (void (*)( interrupt_t *, void *, interrupt_handler_t)) handler_set;
+
+  x = i;
 }
 
 

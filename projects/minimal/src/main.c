@@ -309,7 +309,10 @@ static int main_f429(void)
 
   ///////////////////
 
-  app.gpio_status_led = gpio_status_led_new();
+  gpio_t  gpio_status_led;
+  app.gpio_status_led = &gpio_status_led;
+  // app.gpio_status_led = gpio_status_led_new();
+  gpio_status_led_init( app.gpio_status_led);
   gpio_setup( app.gpio_status_led);
 
   // setup external state required for critical error led blink in priority
@@ -374,15 +377,19 @@ static int main_f429(void)
 
 
   spi_t     spi_fpga0;
-  app.spi_fpga0 = &spi_fpga0; 
+  app.spi_fpga0 = &spi_fpga0;
   // spi_fpga0_new();
   spi_fpga0_init( app.spi_fpga0);
   spi_setup( app.spi_fpga0 );
 
 
-
-  app.interrupt_fpga0 = interrupt_fpga0_new();
+  interrupt_t interrupt_fpga0;
+  app.interrupt_fpga0 = &interrupt_fpga0;
+  // app.interrupt_fpga0 = interrupt_fpga0_new();
+  interrupt_fpga0_init( app.interrupt_fpga0);
   interrupt_setup( app.interrupt_fpga0);
+
+
 
   /////////
 
@@ -397,23 +404,33 @@ static int main_f429(void)
   app.spi_fpga1 = &spit_fpga1;
   // spi_fpga1_new();
   spi_fpga1_init( app.spi_fpga1);
-  spi_setup( app.spi_fpga1 );                // note upcast
+  spi_setup( app.spi_fpga1 );
 
 
-
-  app.spi_4094 = spi_4094_0_new();
+  spi_t    spi_4094_0;
+  app.spi_4094 = &spi_4094_0;
+  // app.spi_4094 = spi_4094_0_new();
+  spi_4094_0_init( app.spi_4094);
   spi_setup( app.spi_4094 );
 
-
-  app.spi_mdac0 = spi_mdac0_new();
+  spi_t   spi_mdac0;
+  app.spi_mdac0 = &spi_mdac0;
+  // app.spi_mdac0 = spi_mdac0_new();
+  spi_mdac0_init( app.spi_mdac0);
   spi_setup( app.spi_mdac0 );
 
 
-  app.spi_mdac1 = spi_mdac1_new();
+  spi_t   spi_mdac1;
+  app.spi_mdac1 = &spi_mdac1;
+  // app.spi_mdac1 = spi_mdac1_new();
+  spi_mdac1_init( app.spi_mdac1);
   spi_setup( app.spi_mdac1 );
 
 
-  app.gpio_trigger = gpio_trigger_new();
+  gpio_t    gpio_trigger;
+  app.gpio_trigger = &gpio_trigger;
+  // app.gpio_trigger = gpio_trigger_new();
+  gpio_trigger_init( app.gpio_trigger);
   gpio_setup( app.gpio_trigger);
 
 

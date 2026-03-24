@@ -81,8 +81,7 @@ static void cs_deassert(spi_t *spi)
 
 
 
-
-
+#if 0
 
 spi_t * spi_mdac0_new( )
 {
@@ -100,6 +99,19 @@ spi_t * spi_mdac0_new( )
 
   return spi;
 }
+#endif
 
 
+void spi_mdac0_init( spi_t *spi)
+{
+  assert(spi);
+  memset(spi, 0, sizeof(spi_t));
+
+  // base
+  spi->spi    = SPI1;     // consider pass underlying spi by contructor.
+  spi->setup   =  setup;
+  spi->port_configure = port_configure;
+  spi->cs_assert    = cs_assert;
+  spi->cs_deassert  = cs_deassert;
+}
 

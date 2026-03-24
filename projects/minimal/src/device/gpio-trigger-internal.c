@@ -38,7 +38,7 @@ static void write( gpio_t *p, uint8_t val)
 }
 
 
-
+#if 0
 gpio_t *gpio_trigger_new()
 {
   gpio_t *p = malloc(sizeof( gpio_t));
@@ -49,7 +49,15 @@ gpio_t *gpio_trigger_new()
   p->write = write;
   return p;
 }
+#endif
 
+void gpio_trigger_init( gpio_t *p)
+{
+  assert( p);
+  memset( p, 0, sizeof( gpio_t));
 
+  p->setup = setup;
+  p->write = write;
+}
 
 

@@ -3,7 +3,8 @@
 
 
 /*
-  very light abstraction for gpio
+  super light abstraction for gpio to organize code
+  systick should use
 */
 
 
@@ -19,8 +20,6 @@ struct gpio_t
 
   // can handle masking, shifting etc.
   void (*write)(gpio_t *, uint8_t val);
-
-
 };
 
 
