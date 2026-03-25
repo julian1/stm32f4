@@ -37,18 +37,13 @@ static void write( gpio_t *p, uint8_t val)
 }
 
 
-
-gpio_t *gpio_trigger_source_new()
+void gpio_trigger_source_init( gpio_t *p)
 {
-  gpio_t *p = malloc(sizeof( gpio_t));
-  assert(p);
-  memset(p, 0, sizeof( gpio_t));
+  assert( p);
+  memset( p, 0, sizeof( gpio_t));
 
   p->setup = setup;
   p->write = write;
-  return p;
 }
-
-
 
 

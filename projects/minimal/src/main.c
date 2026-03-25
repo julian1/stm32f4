@@ -424,8 +424,9 @@ static int main_f429(void)
   gpio_setup( app.gpio_trigger);
 
 
-
-  app.gpio_trigger_source = gpio_trigger_source_new();
+  gpio_t    gpio_trigger_source;
+  app.gpio_trigger_source = &gpio_trigger_source;
+  gpio_trigger_source_init( app.gpio_trigger_source);
   gpio_setup( app.gpio_trigger_source);
 
 

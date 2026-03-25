@@ -6,6 +6,6 @@
 #include <peripheral/gpio.h>
 
 
-gpio_t *gpio_trigger_source_new( void);
+void gpio_trigger_source_init( gpio_t *);
 
 
