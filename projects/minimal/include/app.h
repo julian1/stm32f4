@@ -152,6 +152,7 @@ typedef struct app_t
   /* trigger selection is just a regular device.
       even if it is on the digital board, not analog board.
       state is managed on the mode.
+      TODO .  consider rename.   gpio_trigger_selection. less confusion.
   */
   gpio_t        *gpio_trigger_source;
 
