@@ -126,14 +126,38 @@ void app_init( app_t *app)
 
 
 
-void app_systick_interrupt(app_t *app)
+void app_systick_interrupt( app_t *app, void *arg)
 {
+  // interrupt context. avoid doing anything complicated here.
+
   assert(app && app->magic == APP_MAGIC);
+  UNUSED( arg);
 
-
-  // interrupt context. avoid doing anything complicatedhere.
 
   ++ app->system_millis;
+}
+
+
+
+
+void app_decode_rdy_interrupt( app_t *app, void *arg) // runtime context
+{
+  /* interrupt context.  avoid doiing anything compliicated here
+    but relatively infrequent.
+  */
+
+  assert(app && app->magic == APP_MAGIC) ;    // this is wrong.
+  UNUSED( arg);
+
+
+  // if flag is still active, then record we missed processing some app.
+  if(app->adc_interrupt_valid == true) {
+    app->adc_interrupt_valid_missed = true;
+    // ++app->adc_interrupt_valid_missed;     // count better? but harder to report.
+  }
+
+  // set flag
+  app->adc_interrupt_valid = true;
 }
 
 
@@ -206,29 +230,6 @@ void app_msleep( app_t *app, uint32_t delay)
 
 
 
-
-
-
-void app_decode_rdy_interrupt( app_t *app, interrupt_t *x) // runtime context
-{
-
-  UNUSED(x);
-  /* interrupt context.  avoid doiing anything compliicated
-    but relatively infrequent.
-  */
-
-  assert(app && app->magic == APP_MAGIC) ;    // this is wrong.
-
-
-  // if flag is still active, then record we missed processing some app.
-  if(app->adc_interrupt_valid == true) {
-    app->adc_interrupt_valid_missed = true;
-    // ++app->adc_interrupt_valid_missed;     // count better? but harder to report.
-  }
-
-  // set flag
-  app->adc_interrupt_valid = true;
-}
 
 
 
@@ -455,8 +456,11 @@ void app_configure( app_t *app )
   // set up the fpga0 interrupt handler
   interrupt_t *i = app->interrupt_fpga0;
   assert( i );
-  i->ctx = app;
-  i->handler = (interrupt_handler_t ) app_decode_rdy_interrupt;
+
+  interrupt_handler_set( i, app, (void (*)(void *, void*)) app_decode_rdy_interrupt);
+
+  // i->ctx = app;
+  // i->handler = (interrupt_handler_t ) app_decode_rdy_interrupt;
 
 }
 

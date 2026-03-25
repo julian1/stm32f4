@@ -18,7 +18,7 @@ typedef struct spi_ice40_t  spi_ice40_t ;
 
 struct spi_ice40_t
 {
-  spi_t  ;   // anonymous.  for composition.
+  spi_t  ;   // C11. anonymous.  for composition.
 
 
   // derived functionality

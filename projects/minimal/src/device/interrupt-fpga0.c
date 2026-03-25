@@ -5,8 +5,6 @@
 #include <libopencm3/stm32/exti.h>
 
 
-// #include <stdio.h>
-#include <stdlib.h> // malloc
 #include <string.h> // memset
 #include <assert.h>
 
@@ -17,13 +15,10 @@
 
 #define UNUSED(x) ((void)(x))
 
-
 #define INT_MAGIC   789
 
 
-
 static interrupt_t   *x = NULL;
-
 
 void exti3_isr(void) // called by runtime
 {
@@ -70,37 +65,10 @@ void interrupt_fpga0_init( interrupt_t *i)
   memset(i, 0, sizeof(interrupt_t));
 
   i->magic        = INT_MAGIC;
-  i->setup        = (void (*)( interrupt_t *))  setup;
+  i->setup        = setup;
 
   x = i;
 }
-
-
-
-
-
-
-
-#if 0
-
-typedef struct interrupt2_t interrupt2_t;
-
-struct interrupt2_t
-{
-  // this is  a lot of work - just to set the ctx, and callee.
-
-  interrupt_t  ;   // anonymous.  for composition.
-
-  interrupt_handler_t  handler;
-  void *ctx;
-};
-
-
-static interrupt2_t   *x = NULL;
-
-#endif
-
-
 
 
 

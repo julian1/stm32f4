@@ -28,6 +28,7 @@
 #include <device/spi-fpga0-pc.h>
 #include <device/spi-fpga0.h>
 #include <device/interrupt-fpga0.h>
+#include <device/interrupt-systick.h>
 
 #include <device/spi-4094-0.h>
 #include <device/spi-mdac0.h>
@@ -36,7 +37,6 @@
 #include <device/gpio-trigger-internal.h>
 #include <device/gpio-trigger-selection.h>
 #include <device/fsmc.h>
-#include <device/systick.h>
 
 
 
@@ -45,6 +45,8 @@
 #include <peripheral/vfd.h>           // OK. need storage size.
 #include <peripheral/spi-ice40.h>
 #include <peripheral/interrupt.h>
+#include <peripheral/interrupt-systick.h>
+
 // #include <peripheral/vfd-fonts.h>
 
 
@@ -328,10 +330,23 @@ static int main_f429(void)
 
   assert_critical_error_led_setup( GPIOA, GPIO9 );
 
+
+
+#if 0
   // mcu clock
   // systick_setup(12000); // 12MHz. default lsi.
   systick_setup( 84000); // 84MHz.
   systick_handler_set( (void (*)(void *)) app_systick_interrupt, &app );
+#endif
+
+
+  // could put this in
+  interrupt_systick_t   interrupt_systick;
+  // should add to app...
+  interrupt_systick_init( &interrupt_systick, 84000); // 84MHz.
+  interrupt_setup( &interrupt_systick);
+  interrupt_handler_set( &interrupt_systick, &app, (void (*)(void *, void *)) app_systick_interrupt);
+
 
 
   ///////////////////
