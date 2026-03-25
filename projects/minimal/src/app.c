@@ -13,6 +13,8 @@
 #include <lib2/util.h>        // UNUSED
 #include <lib2/format.h>      // str_format_bits()
 #include <lib2/stream-flash.h>  // flash_open_file()
+#include <lib2/cbuffer.h>
+#include <lib2/cstring.h>
 
 
 
@@ -701,17 +703,17 @@ static void app_update_console(app_t *app)
 
 
 
-  while( !cbuf_is_empty(&app->cbuf_console_in)) {
+  while( !cbuf_is_empty( app->cbuf_console_in)) {
 
     // got a character
-    int32_t ch = cbuf_pop(&app->cbuf_console_in);
+    int32_t ch = cbuf_pop( app->cbuf_console_in);
     assert(ch >= 0);
 
 
     if (ch == ';' || ch == '\r' ) {
 
       // a separator, update state with changes according to string.
-      char *cmd = cstring_ptr(&app->command);
+      char *cmd = cstring_ptr( app->command);
       cmd = str_trim_whitespace_inplace( cmd );
 
       // TODO - transform lower case
@@ -721,13 +723,13 @@ static void app_update_console(app_t *app)
 
       // clear the current command buffer,
       // note, still more data to process in cbuf_console_in
-      cstring_clear( &app->command);
+      cstring_clear( app->command);
     }
-    else if( cstring_count(&app->command) < cstring_reserve(&app->command) ) {
+    else if( cstring_count( app->command) < cstring_reserve( app->command) ) {
 
       // normal character
       // must accept whitespace here, since used to demarcate args
-      cstring_push_back(&app->command, ch);
+      cstring_push_back( app->command, ch);
       // echo to output. required for minicom.
       putchar( ch);
 

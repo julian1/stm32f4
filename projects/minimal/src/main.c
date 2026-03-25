@@ -18,7 +18,8 @@
 #include <lib2/usart.h>
 #include <lib2/util.h>          // UNUSED,ARRAY_SIZE
 #include <lib2/streams.h>
-
+#include <lib2/cbuffer.h>
+#include <lib2/cstring.h>
 
 
 #include <device/spi1-port.h>
@@ -295,15 +296,23 @@ static int main_f429(void)
   char buf_command[1000];
 
 
+  cbuf_t        cbuf_console_in;
+  cbuf_t        cbuf_console_out;
+  cstring_t     command;
+
+  app.cbuf_console_in   = &cbuf_console_in;
+  app.cbuf_console_out  = &cbuf_console_out;
+  app.command           = &command;
+
   // uart/console
-  cbuf_init(&app.cbuf_console_in,  buf_cbuf_console_in,  sizeof(buf_cbuf_console_in));
-  cbuf_init(&app.cbuf_console_out, buf_cbuf_console_out, sizeof(buf_cbuf_console_out));
+  cbuf_init( app.cbuf_console_in,  buf_cbuf_console_in,  sizeof(buf_cbuf_console_in));
+  cbuf_init( app.cbuf_console_out, buf_cbuf_console_out, sizeof(buf_cbuf_console_out));
 
-  cbuf_init_stdout_streams( &app.cbuf_console_out );
-  cbuf_init_stdin_streams(  &app.cbuf_console_in );
+  cbuf_init_stdout_streams( app.cbuf_console_out );
+  cbuf_init_stdin_streams(  app.cbuf_console_in );
 
 
-  cstring_init(&app.command, buf_command, buf_command + sizeof( buf_command));
+  cstring_init( app.command, buf_command, buf_command + sizeof( buf_command));
 
 
 
@@ -336,7 +345,7 @@ static int main_f429(void)
   // now can init usart peripheral using app console buffer
   usart1_setup_portB();
 
-  usart1_set_buffers( &app.cbuf_console_in, &app.cbuf_console_out);
+  usart1_set_buffers( app.cbuf_console_in, app.cbuf_console_out);
 
   printf("\n\n\n\n--------\n");
   printf("addr main() %p\n", main_f429);

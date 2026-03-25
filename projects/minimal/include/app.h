@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include <lib2/cbuffer.h>
-#include <lib2/cstring.h>
-
+#include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>   // size_t
 
 
 /*
@@ -46,8 +46,8 @@
 */
 
 
-
-
+typedef struct cbuf_t cbuf_t;
+typedef struct cstring_t cstring_t;
 
 typedef struct gpio_t gpio_t;
 typedef struct spi_t spi_t;
@@ -65,6 +65,8 @@ typedef struct vfd_t vfd_t;
 typedef struct display_vfd_t display_vfd_t;
 
 typedef struct tft_t tft_t;
+
+
 
 
 #define APP_MAGIC   456
@@ -119,10 +121,10 @@ typedef struct app_t
 
   // TODO - consider make pointers, for opaque structure
   // and instantiate in main.
-  cbuf_t        cbuf_console_in;
-  cbuf_t        cbuf_console_out;
+  cbuf_t        *cbuf_console_in;
+  cbuf_t        *cbuf_console_out;
 
-  cstring_t     command;
+  cstring_t     *command;
 
 
 
@@ -212,7 +214,7 @@ typedef struct app_t
 
   cal_t         *cal;     // array
 
-  decode_t        *decode;
+  decode_t      *decode;
 
   buffer_t      *buffer;
 
@@ -249,11 +251,11 @@ typedef struct app_t
 
 void app_init( app_t *app);
 
+void app_update(app_t *app);
 
 void app_yield( app_t *app);
 void app_msleep( app_t *app, uint32_t delay);
 
-void app_update(app_t *app);
 
 void app_decode_rdy_interrupt( app_t *app, interrupt_t *x);
 
