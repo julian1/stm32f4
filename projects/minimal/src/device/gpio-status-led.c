@@ -37,20 +37,6 @@ static void write( gpio_t *p, uint8_t val)
 }
 
 
-#if 0
-gpio_t *gpio_status_led_new()
-{
-  gpio_t *p = malloc(sizeof( gpio_t));
-  assert(p);
-  memset(p, 0, sizeof( gpio_t));
-
-  p->setup = setup;
-  p->write = write;
-
-  return p;
-}
-#endif
-
 
 void gpio_status_led_init( gpio_t *p)
 {

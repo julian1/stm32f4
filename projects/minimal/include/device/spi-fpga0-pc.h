@@ -1,9 +1,8 @@
 
 #pragma once
 
-typedef struct spi_ice40_t spi_ice40_t;
 
-// spi_ice40_t * spi_fpga0_pc_new( void);
+typedef struct spi_ice40_t spi_ice40_t;
 
 void spi_fpga0_pc_init( spi_ice40_t *);
 

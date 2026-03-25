@@ -80,34 +80,6 @@ static void cs_deassert(spi_t *spi)
 }
 
 
-
-#if 0
-
-spi_t * spi_4094_0_new( /* pass the spi_ice40 */  )
-{
-  /* called once at startup only, in main().
-    it is really the malloc that buys us structure opaqueness.
-    where opaqueness - is the header dependencies, and struct size needed to instantiate
-    - only other way is to pull the structure in as a header.
-    --------
-  */
-  spi_t *spi = malloc(sizeof( spi_t));
-  assert(spi);
-  memset(spi, 0, sizeof(spi_t));
-
-
-  spi->spi    = SPI1;     // NOT sure if the spi should be passed in the contructor.
-  spi->setup   =  setup;
-  spi->port_configure = port_configure;
-  spi->cs_assert    = cs_assert;
-  spi->cs_deassert  = cs_deassert;
-
-
-  return spi;
-}
-#endif
-
-
 void spi_4094_0_init( spi_t *spi)
 {
   assert(spi);

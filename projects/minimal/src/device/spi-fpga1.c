@@ -83,32 +83,6 @@ static void cs_deassert(spi_t *spi)
 }
 
 
-#if 0
-spi_t * spi_fpga1_new( )
-{
-  /* called once at startup only, in main().
-    it is the malloc that buys us structure opaqueness.
-    where opaqueness - is the header dependencies, and struct size needed to instantiate
-    - only other way is to pull the structure in as a header.
-    --------
-  */
-
-  spi_t *spi = malloc(sizeof(  spi_t));
-  assert(spi);
-  memset(spi, 0, sizeof(spi_t));
-
-  spi->magic          = FPGA1_MAGIC;
-
-  spi->spi            = SPI2;
-  spi->setup          = setup;
-  spi->port_configure = port_configure;
-  spi->cs_assert      = cs_assert;
-  spi->cs_deassert    = cs_deassert;
-
-  return spi;
-}
-#endif
-
 
 void spi_fpga1_init( spi_t *spi)
 {

@@ -87,8 +87,6 @@ void spi1_port_setup(void)
   gpio_set_af(GPIOB, GPIO_AF5, GPIO5 );       // af 5
   gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO5 );   // 100MHZ ??
 
-
-
 }
 
 

@@ -94,29 +94,6 @@ static void cs_deassert(spi_t *spi)
 }
 
 
-
-#if 0
-spi_t * spi_mdac1_new( )
-{
-  spi_t *spi = malloc(sizeof( spi_t));
-  assert(spi);
-  memset(spi, 0, sizeof(spi_t));
-
-  // base
-  spi->magic          = MDAC1_MAGIC;
-  spi->spi            = SPI1;     // NOT sure if the spi should be passed in the contructor.
-  spi->setup          = setup;
-  spi->port_configure = port_configure;
-  spi->cs_assert      = cs_assert;
-  spi->cs_deassert    = cs_deassert;
-
-  // printf("port configure %p\n", port_configure );
-
-  return spi;
-}
-#endif
-
-
 void spi_mdac1_init( spi_t *spi)
 {
   assert(spi);

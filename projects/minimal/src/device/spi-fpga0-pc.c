@@ -132,40 +132,6 @@ static bool cdone(spi_ice40_t *spi )
 }
 
 
-#if 0
-spi_ice40_t * spi_fpga0_pc_new( )
-{
-  /* called once at startup only, in main().
-    it is really the malloc that buys us structure opaqueness.
-    where opaqueness - is the header dependencies, and struct size needed to instantiate
-    - only other way is to pull the structure in as a header.
-    --------
-  */
-  spi_ice40_t *spi = malloc(sizeof(  spi_ice40_t));
-  assert(spi);
-  memset(spi, 0, sizeof(spi_ice40_t));
-
-  spi->magic          = FPGA0_MAGIC;
-
-  // base
-  spi->spi            = SPI1;
-  spi->setup          = setup;
-  spi->port_configure = port_configure;
-  spi->cs_assert      = cs_assert;
-  spi->cs_deassert    = cs_deassert;
-
-
-  // derived
-  spi->rst    = rst;
-  spi->cdone  = cdone;
-
-  // interrupt not handled here
-
-  return spi;
-}
-#endif
-
-
 void spi_fpga0_pc_init( spi_ice40_t *spi)
 {
   // spi_ice40_t *spi = malloc(sizeof(  spi_ice40_t));
