@@ -3,12 +3,8 @@
 
 /*
 
-  peripheral interface/abstraction
-  basic interrupt should be abstract, and un-associated with any device.
+  peripheral interface is abstract, and not associated with any device instance.
 
-  just a simple structure - that adds a user-context, to the callback function
-
-  systick interrupt should probably use this structure also
 */
 
 typedef struct interrupt_t  interrupt_t;
