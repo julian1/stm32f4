@@ -127,6 +127,7 @@ typedef struct app_t
   cstring_t     *command;
 
 
+  interrupt_t   *interrupt_systick;
 
 
   ////////////////////////////////

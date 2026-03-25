@@ -342,10 +342,10 @@ static int main_f429(void)
 
   // could put this in
   interrupt_systick_t   interrupt_systick;
-  // should add to app...
+  app.interrupt_systick = &interrupt_systick;
   interrupt_systick_init( &interrupt_systick, 84000); // 84MHz.
-  interrupt_setup( &interrupt_systick);
-  interrupt_handler_set( &interrupt_systick, &app, (void (*)(void *, void *)) app_systick_interrupt);
+  interrupt_setup( app.interrupt_systick);
+  interrupt_handler_set( app.interrupt_systick, &app, (void (*)(void *, void *)) app_systick_interrupt);
 
 
 
