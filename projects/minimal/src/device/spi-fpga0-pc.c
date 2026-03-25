@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <string.h>   // memset
 #include <assert.h>
-#include <stdlib.h>
 
 
 #include <libopencm3/stm32/gpio.h>
@@ -128,15 +127,14 @@ static bool cdone(spi_ice40_t *spi )
 
 
   // return gpio_get(SPI1_PORT, SPI1_INT_CDONE)  != 0;
-  return gpio_get(GPIOE , GPIO0)  != 0;
+  return gpio_get( GPIOE, GPIO0) != 0;
 }
 
 
 void spi_fpga0_pc_init( spi_ice40_t *spi)
 {
-  // spi_ice40_t *spi = malloc(sizeof(  spi_ice40_t));
-  assert(spi);
-  memset(spi, 0, sizeof(spi_ice40_t));
+  assert( spi);
+  memset( spi, 0, sizeof(spi_ice40_t));
 
   spi->magic          = FPGA0_MAGIC;
 
@@ -152,8 +150,6 @@ void spi_fpga0_pc_init( spi_ice40_t *spi)
   spi->rst    = rst;
   spi->cdone  = cdone;
 }
-
-
 
 
 

@@ -3,16 +3,11 @@
 
 #include <assert.h>
 #include <string.h>  // memset
-#include <stdlib.h>  // malloc
-
 
 #include <libopencm3/stm32/gpio.h>
 
-
 #include <device/gpio-trigger-selection.h>
 #include <device/support.h>     // gpio_write_val()
-
-
 
 
 

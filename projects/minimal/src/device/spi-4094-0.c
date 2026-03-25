@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <string.h>   // memset
 #include <assert.h>
-#include <stdlib.h>
 
 
 #include <libopencm3/stm32/gpio.h>
