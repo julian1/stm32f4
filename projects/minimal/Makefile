@@ -16,7 +16,6 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/device/tft0.c \
             src/device/vfd0.c \
             src/peripheral/vfd-fonts.c \
-            src/peripheral/interrupt.c \
             src/device/spi1-port.c src/device/spi2-port.c  \
             src/device/fsmc.c  \
             src/device/spi-fpga0-pc.c  src/device/spi-fpga0.c \
