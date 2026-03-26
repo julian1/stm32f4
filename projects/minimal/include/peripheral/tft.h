@@ -23,7 +23,7 @@ typedef struct tft_t
 
 
   void (*tft_gpio_setup)( tft_t *);
-  bool (*tft_getTear)( tft_t *);
+  bool (*tft_getTear)( tft_t *);                  // renae
   void (*tft_reset)( tft_t *, bool val );
 
 /*
@@ -59,6 +59,20 @@ inline uint16_t tft_read_data( tft_t *tft)
 {
   return *((volatile uint16_t *)  (tft->fmc_addr | tft->fmc_cd));
 }
+
+
+
+inline bool tft_get_tear( tft_t *tft)
+{
+  assert( tft);
+  return tft->tft_getTear( tft);
+}
+
+
+
+
+
+
 
 
 /////////////

@@ -3,7 +3,7 @@
 
 /*
 
-  rename,  this creates the generalized render structure.
+  rename to tft-pixfmt.h,  this creates the generalized render structure.
     that we pass around
 
   prehaps use hpp suffix.
@@ -33,7 +33,7 @@
 #include "streams.h"    // usart1_printf
 */
 
-#include <peripheral/tft.h>  
+#include <peripheral/tft.h>
 
 
 
@@ -55,11 +55,13 @@ public:
 
 
 
+  public:
+    tft_t *tft;
   private:
+
     int scroll_start;
   public:
 
-    tft_t *tft;
 
     explicit pixfmt_tft_writer( tft_t *tft_,   int scroll_start_ )
       : tft( tft_),
@@ -155,7 +157,7 @@ template<class PixelFormat> class renderer_base_no_clip
   renderer_base without a clipbox.
 
   no clip - supports negative coordinates needed for font  spans.
-          - also should be faster, if we know drawing will not extend past bounds. 
+          - also should be faster, if we know drawing will not extend past bounds.
 
   // speed for drawing text not a lot different 9-10ms. to 8-10ms.
 
@@ -179,15 +181,15 @@ public:
     void blend_solid_hspan(int x, int y, int len,
                            const color_type& c,
                            const cover_type* covers)
-    { 
-      // no clip 
+    {
+      // no clip
       m_ren->blend_solid_hspan(x, y, len, c, covers);
     }
 
 
     void blend_hline(int x1, int y, int x2,
                      const color_type& c, cover_type cover)
-    { 
+    {
       // no clip
       m_ren->blend_hline(x1, y, x2 - x1 + 1, c, cover);
     }

@@ -25,6 +25,7 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/device/interrupt-systick.c \
             src/device/support.c \
             src/agg/agg.cpp \
+            src/agg/agg_test2.cpp \
             src/main.c  \
             src/display_vfd.c \
             src/app.c  \
