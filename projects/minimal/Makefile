@@ -11,11 +11,9 @@ BINARY		= main
 
 SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/peripheral/spi-4094.c src/peripheral/spi-dac8811.c src/peripheral/spi-ad5446.c \
-            src/peripheral/tft.c \
-            src/peripheral/vfd.c \
+            src/peripheral/tft.c src/peripheral/vfd.c src/peripheral/vfd-fonts.c \
             src/device/tft0.c \
             src/device/vfd0.c \
-            src/peripheral/vfd-fonts.c \
             src/device/spi1-port.c src/device/spi2-port.c  \
             src/device/fsmc.c  \
             src/device/spi-fpga0-pc.c  src/device/spi-fpga0.c \
@@ -25,8 +23,8 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/device/gpio-status-led.c src/device/gpio-trigger-internal.c src/device/gpio-trigger-selection.c \
             src/device/interrupt-fpga0.c \
             src/device/interrupt-systick.c \
-            src/agg/agg.cpp \
             src/device/support.c \
+            src/agg/agg.cpp \
             src/main.c  \
             src/display_vfd.c \
             src/app.c  \

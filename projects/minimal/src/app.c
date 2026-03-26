@@ -469,6 +469,11 @@ void app_configure( app_t *app )
 /*
   move this code to top-level support.h ?
 
+  could just about go in a source file to correspond.
+  no. it is general purpose
+
+  ./include/device/spi-fpga0-reg.h
+
 */
 
 static void spi_print_register( spi_t *spi, uint32_t reg )
