@@ -356,7 +356,7 @@ void app_transition_state( app_t  *app)
   spi_ice40_reg_write32( app->spi_fpga0, REG_SA_P_SEQ_N,  mode->sa.p_seq_n );
 
   // use write_n to work around strict aliasing
-  // we can consolidate using a single register.
+  // consider - consolidate to a single register
   _Static_assert ( sizeof( seq_elt_t) == 4);
   spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_SEQ0, &mode->sa.p_seq_elt[ 0], sizeof( seq_elt_t));
   spi_ice40_reg_write_n( app->spi_fpga0, REG_SA_P_SEQ1, &mode->sa.p_seq_elt[ 1], sizeof( seq_elt_t));
@@ -637,6 +637,7 @@ static void app_update_soft_500ms(app_t *app)
   // fpga1 - local ice40
   if( /*false &&*/ !spi_ice40_cdone( app->spi_fpga1_pc)) {
 
+    // dependency should be set/passed to app.
     FILE *f = flash_open_file( FLASH_U202_ADDR );
     spi_ice40_bitstream_send( app->spi_fpga1_pc, f, FLASH_UP5K_SIZE, & app->system_millis );
     fclose(f);

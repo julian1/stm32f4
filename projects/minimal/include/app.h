@@ -228,7 +228,7 @@ typedef struct app_t
   // state variable persists
   bool          repl_trigger_val;
 
-  // flag
+  // TODO consider better name repl_force_trigger.
   bool          repl_retrigger;
 
   /* choice, is putting this in app or in mode.
@@ -239,7 +239,7 @@ typedef struct app_t
   bool          range_10Meg ;
 
 
-  vfd_t         *vfd0;    // rename just vfd if there is only one.
+  vfd_t         *vfd0;    // TODO rename just vfd if only one.
 
   display_vfd_t *display_vfd;   // rename display0 ?
 
