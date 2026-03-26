@@ -2,6 +2,9 @@
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -113,6 +116,10 @@ void  LCD_Read_DDB( tft_t *tft);
 void  LCD_TestFill( tft_t *tft);
 
 
+
+#ifdef __cplusplus
+}
+#endif
 
 
 

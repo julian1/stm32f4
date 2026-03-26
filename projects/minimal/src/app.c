@@ -583,6 +583,7 @@ void app_led_dance( app_t * app )
 
 
 
+int agg_test2( tft_t *tft, volatile uint32_t *system_millis );
 
 static void app_update_soft_500ms(app_t *app)
 {
@@ -684,6 +685,9 @@ static void app_update_soft_500ms(app_t *app)
       // setScrollStart( app->tft, 0  );
 
       LCD_TestFill( app->tft);
+
+
+      agg_test2( app->tft, &app->system_millis );
 
 #if 0
       app_beep( app, 2 );

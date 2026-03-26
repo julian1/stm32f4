@@ -8,6 +8,7 @@
 
 BINARY		= main
 
+AGGSRC=${TOP_DIR}/lib/agg-svn-r138-agg-2.4/src/
 
 SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/peripheral/spi-4094.c src/peripheral/spi-dac8811.c src/peripheral/spi-ad5446.c \
@@ -24,7 +25,7 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/device/interrupt-fpga0.c \
             src/device/interrupt-systick.c \
             src/device/support.c \
-            src/agg/agg.cpp \
+            src/agg/agg.cpp src/agg/arial-outline.cpp \
             src/agg/agg_test2.cpp \
             src/main.c  \
             src/display_vfd.c \
@@ -44,6 +45,7 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/test/test20.c src/test/test40.c src/test/test41.c  src/test/test42.c   \
             src/test/test50.c  src/test/test51.c  src/test/test52.c \
             src/flash/file-blob.c \
+            ${AGGSRC}/agg_trans_affine.cpp  ${AGGSRC}/agg_curves.cpp ${AGGSRC}/agg_rounded_rect.cpp  ${AGGSRC}/agg_arc.cpp
 
 
 
@@ -105,7 +107,8 @@ LDLIBS		+= ${TOP_DIR}/lib/lzo/lzo.a
 LDLIBS		+= -L${TOP_DIR}/lib/libopencm3/lib  -lopencm3_stm32f4
 
 
-LDLIBS		+= -lm
+LDLIBS		+= -lm -lstdc++
+
 
 # LDLIBS		+=  -specs=nosys.specs -lnosys
 # LDLIBS		+=  -specs=nano.specs -lnano

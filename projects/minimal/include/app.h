@@ -108,8 +108,12 @@ typedef struct app_t
     TODO.  rename tick_millis .  for system tick.
     separate out the tick_millis . that always updates with += 1000;
     from the sleep. that can be set where used.
-
     And - perhaps hide it.
+
+    or millis_up. for timing code sections.  and millis_down for timers.
+    handle rollover, by just adjusting at code point where no that nothing depends on the code.
+    millis_down_500.  wants to be dedicated.
+    millis_down_yield   yield or sleep
   */
 
   volatile uint32_t system_millis;
@@ -119,11 +123,8 @@ typedef struct app_t
   ////////
 
 
-  // TODO - consider make pointers, for opaque structure
-  // and instantiate in main.
   cbuf_t        *cbuf_console_in;
   cbuf_t        *cbuf_console_out;
-
   cstring_t     *command;
 
 
@@ -253,11 +254,10 @@ typedef struct app_t
 
 void app_init( app_t *app);
 
-void app_update(app_t *app);
+void app_update( app_t *app);
 
 
-void app_systick_interrupt(app_t *app, void *arg);
-// void app_decode_rdy_interrupt( app_t *app, interrupt_t *x);
+void app_systick_interrupt( app_t *app, void *arg);
 void app_decode_rdy_interrupt( app_t *app, void *arg);
 
 

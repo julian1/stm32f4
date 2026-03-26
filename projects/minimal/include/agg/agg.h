@@ -224,7 +224,8 @@ public:
 
 
 
-
+// TODO - this typedef should be done where the pixfmt is used
+// not here and generically
 
 // packed rgb565
 typedef pixfmt_tft_writer             pixfmt_t;
