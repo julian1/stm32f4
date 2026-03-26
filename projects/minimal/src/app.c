@@ -126,7 +126,7 @@ void app_init( app_t *app)
 
 
 
-void app_systick_interrupt( app_t *app, void *arg)
+void app_interrupt_systick( app_t *app, void *arg)
 {
   // interrupt context. avoid doing anything complicated here.
 
@@ -140,7 +140,7 @@ void app_systick_interrupt( app_t *app, void *arg)
 
 
 
-void app_decode_rdy_interrupt( app_t *app, void *arg) // runtime context
+void app_interrupt_data_rdy( app_t *app, void *arg) // runtime context
 {
   /* interrupt context.  avoid doiing anything compliicated here
     but relatively infrequent.
@@ -451,16 +451,16 @@ void app_configure( app_t *app )
   app_transition_state( app );
 
 
-  // interrupt_handler_set( app->interrupt_fpga0, app, (interrupt_handler_t ) app_decode_rdy_interrupt);
+  // interrupt_handler_set( app->interrupt_fpga0, app, (interrupt_handler_t ) app_interrupt_data_rdy);
 
   // set up the fpga0 interrupt handler
-  interrupt_t *i = app->interrupt_fpga0;
-  assert( i );
+  // interrupt_t *i = app->interrupt_fpga0;
+  assert( app->interrupt_fpga0 );
 
-  interrupt_handler_set( i, app, (void (*)(void *, void*)) app_decode_rdy_interrupt);
+  interrupt_handler_set( app->interrupt_fpga0, app, (void (*)(void *, void*)) app_interrupt_data_rdy);
 
   // i->ctx = app;
-  // i->handler = (interrupt_handler_t ) app_decode_rdy_interrupt;
+  // i->handler = (interrupt_handler_t ) app_interrupt_data_rdy;
 
 }
 

@@ -336,7 +336,7 @@ static int main_f429(void)
   // mcu clock
   // systick_setup(12000); // 12MHz. default lsi.
   systick_setup( 84000); // 84MHz.
-  systick_handler_set( (void (*)(void *)) app_systick_interrupt, &app );
+  systick_handler_set( (void (*)(void *)) app_interrupt_systick, &app );
 #endif
 
 
@@ -345,7 +345,7 @@ static int main_f429(void)
   app.interrupt_systick = &interrupt_systick;
   interrupt_systick_init( &interrupt_systick, 84000); // 84MHz.
   interrupt_setup( app.interrupt_systick);
-  interrupt_handler_set( app.interrupt_systick, &app, (void (*)(void *, void *)) app_systick_interrupt);
+  interrupt_handler_set( app.interrupt_systick, &app, (void (*)(void *, void *)) app_interrupt_systick);
 
 
 
@@ -649,7 +649,7 @@ static int main_f413(void)
   // mcu clock
   // systick_setup(12000); // 12MHz. default lsi.
   systick_setup(84000); // 84MHz. hsi/hse
-  systick_handler_set( (void (*)(void *)) app_systick_interrupt, &app );  // rename systick_handler_set()
+  systick_handler_set( (void (*)(void *)) app_interrupt_systick, &app );  // rename systick_handler_set()
 
   //////////////////////
   // main app setup

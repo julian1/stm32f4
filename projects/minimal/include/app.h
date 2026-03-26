@@ -257,8 +257,8 @@ void app_init( app_t *app);
 void app_update( app_t *app);
 
 
-void app_systick_interrupt( app_t *app, void *arg);
-void app_decode_rdy_interrupt( app_t *app, void *arg);
+void app_interrupt_systick( app_t *app, void *arg);
+void app_interrupt_data_rdy( app_t *app, void *arg);
 
 
 void app_yield( app_t *app);
