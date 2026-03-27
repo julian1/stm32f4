@@ -284,12 +284,20 @@ static int main_f429(void)
 
   // nothing wrong with stack allocation here
 
+/*
+  we can probably use C11 style initialization. for app_t.
+  and pass all the references on construction. and by name
+
+  just avoid using the app_init() and set the magic.
+
+  and in this way avoid setters. and dependency issues.
+*/
 
 
-  app_t app ;
-  app_init( &app);
+  // app_init( &app);
 
 
+  volatile uint32_t system_millis  = 0;
 
   ///////////////////
 
@@ -302,33 +310,33 @@ static int main_f429(void)
   cbuf_t        cbuf_console_out;
   cstring_t     command;
 
-  app.cbuf_console_in   = &cbuf_console_in;
-  app.cbuf_console_out  = &cbuf_console_out;
-  app.command           = &command;
 
   // uart/console
-  cbuf_init( app.cbuf_console_in,  buf_cbuf_console_in,  sizeof(buf_cbuf_console_in));
-  cbuf_init( app.cbuf_console_out, buf_cbuf_console_out, sizeof(buf_cbuf_console_out));
+  cbuf_init( &cbuf_console_in,  buf_cbuf_console_in,  sizeof(buf_cbuf_console_in));
+  cbuf_init( &cbuf_console_out, buf_cbuf_console_out, sizeof(buf_cbuf_console_out));
 
-  cbuf_init_stdout_streams( app.cbuf_console_out );
-  cbuf_init_stdin_streams(  app.cbuf_console_in );
+  cbuf_init_stdout_streams( &cbuf_console_out );
+  cbuf_init_stdin_streams(  &cbuf_console_in );
 
 
-  cstring_init( app.command, buf_command, buf_command + sizeof( buf_command));
+  cstring_init( &command, buf_command, buf_command + sizeof( buf_command));
+
 
 
 
   ///////////////////
 
   gpio_t  gpio_status_led;
-  app.gpio_status_led = &gpio_status_led;
-  gpio_status_led_init( app.gpio_status_led);
-  gpio_setup( app.gpio_status_led);
+  // app.gpio_status_led = &gpio_status_led;
+  gpio_status_led_init( &gpio_status_led);
+  gpio_setup( &gpio_status_led);
 
   // setup external state required for critical error led blink in priority
   // because assert() cannot pass a context
 
   assert_critical_error_led_setup( GPIOA, GPIO9 );
+
+
 
 
 
@@ -342,10 +350,10 @@ static int main_f429(void)
 
   // could put this in
   interrupt_systick_t   interrupt_systick;
-  app.interrupt_systick = &interrupt_systick;
+  // app.interrupt_systick = &interrupt_systick;
   interrupt_systick_init( &interrupt_systick, 84000); // 84MHz.
-  interrupt_setup( app.interrupt_systick);
-  interrupt_handler_set( app.interrupt_systick, &app, (void (*)(void *, void *)) app_interrupt_systick);
+  interrupt_setup( &interrupt_systick);
+
 
 
 
@@ -360,7 +368,7 @@ static int main_f429(void)
   // now can init usart peripheral using app console buffer
   usart1_setup_portB();
 
-  usart1_set_buffers( app.cbuf_console_in, app.cbuf_console_out);
+  usart1_set_buffers( &cbuf_console_in, &cbuf_console_out);
 
   printf("\n\n\n\n--------\n");
   printf("addr main() %p\n", main_f429);
@@ -373,19 +381,23 @@ static int main_f429(void)
   /////////////////////////////////
 
 
-
-
   ////////////////
   // init spi related port state. before do spi port.
   // to prevent ice40 wanting to become spi master
 
 
-
-  // now init spi ports
+  // now init spi port controllers
   spi1_port_setup();
 
 
   spi2_port_setup();
+
+
+
+
+
+
+
 
 
   ///////////////////////////////
@@ -393,65 +405,74 @@ static int main_f429(void)
 
 
   spi_ice40_t     spi_fpga0_pc;
-  app.spi_fpga0_pc = &spi_fpga0_pc;         // ie. opaque pointer
-  spi_fpga0_pc_init( app.spi_fpga0_pc);
-  spi_setup( app.spi_fpga0_pc );
+  // app.spi_fpga0_pc = &spi_fpga0_pc;
+  spi_fpga0_pc_init( &spi_fpga0_pc);
+  spi_setup( &spi_fpga0_pc );
 
 
-  spi_t     spi_fpga0;
-  app.spi_fpga0 = &spi_fpga0;
-  spi_fpga0_init( app.spi_fpga0);
-  spi_setup( app.spi_fpga0 );
 
 
-  interrupt_t interrupt_fpga0;
-  app.interrupt_fpga0 = &interrupt_fpga0;
-  interrupt_fpga0_init( app.interrupt_fpga0);
-  interrupt_setup( app.interrupt_fpga0);
+  spi_t           spi_fpga0;
+  // app.spi_fpga0 = &spi_fpga0;
+  spi_fpga0_init( &spi_fpga0);
+  spi_setup( &spi_fpga0);
+
+
+
+
+  interrupt_t     interrupt_fpga0;
+  // app.interrupt_fpga0 = &interrupt_fpga0;
+  interrupt_fpga0_init( &interrupt_fpga0);
+  interrupt_setup( &interrupt_fpga0);
+
 
 
 
   /////////
 
   spi_ice40_t      spi_fpga1_pc;
-  app.spi_fpga1_pc = &spi_fpga1_pc ;
-  spi_fpga1_pc_init( app.spi_fpga1_pc);
-  spi_setup( app.spi_fpga1_pc );
+  // app.spi_fpga1_pc = &spi_fpga1_pc ;
+  spi_fpga1_pc_init( &spi_fpga1_pc);
+  spi_setup( &spi_fpga1_pc );
 
 
-  spi_t    spit_fpga1;
-  app.spi_fpga1 = &spit_fpga1;
-  spi_fpga1_init( app.spi_fpga1);
-  spi_setup( app.spi_fpga1 );
+  spi_t    spi_fpga1;
+  // app.spi_fpga1 = &spit_fpga1;
+  spi_fpga1_init( &spi_fpga1);
+  spi_setup( &spi_fpga1 );
 
 
   spi_t    spi_4094_0;
-  app.spi_4094 = &spi_4094_0;
-  spi_4094_0_init( app.spi_4094);
-  spi_setup( app.spi_4094 );
+  // app.spi_4094 = &spi_4094_0;
+  spi_4094_0_init( &spi_4094_0);
+  spi_setup( &spi_4094_0);
 
   spi_t   spi_mdac0;
-  app.spi_mdac0 = &spi_mdac0;
-  spi_mdac0_init( app.spi_mdac0);
-  spi_setup( app.spi_mdac0 );
+  // app.spi_mdac0 = &spi_mdac0;
+  spi_mdac0_init( &spi_mdac0);
+  spi_setup( &spi_mdac0 );
 
 
   spi_t   spi_mdac1;
-  app.spi_mdac1 = &spi_mdac1;
-  spi_mdac1_init( app.spi_mdac1);
-  spi_setup( app.spi_mdac1 );
+  // app.spi_mdac1 = &spi_mdac1;
+  spi_mdac1_init( &spi_mdac1);
+  spi_setup( &spi_mdac1 );
 
 
   gpio_t    gpio_trigger;
-  app.gpio_trigger = &gpio_trigger;
-  gpio_trigger_init( app.gpio_trigger);
-  gpio_setup( app.gpio_trigger);
+  // app.gpio_trigger = &gpio_trigger;
+  gpio_trigger_init( &gpio_trigger);
+  gpio_setup( &gpio_trigger);
 
 
   gpio_t    gpio_trigger_source;
-  app.gpio_trigger_source = &gpio_trigger_source;
-  gpio_trigger_source_init( app.gpio_trigger_source);
-  gpio_setup( app.gpio_trigger_source);
+  // app.gpio_trigger_source = &gpio_trigger_source;
+  gpio_trigger_source_init( &gpio_trigger_source);
+  gpio_setup( &gpio_trigger_source);
+
+
+
+
 
 
 
@@ -484,11 +505,11 @@ static int main_f429(void)
 
   _mode_t       mode;
   mode_init( &mode);
-  app.mode = &mode;
+  // app.mode = &mode;
 
 
-  app.ranges    = range_init_values;
-  app.ranges_sz = range_init_sz;
+  // app.ranges    = range_init_values;
+  // app.ranges_sz = range_init_sz;
 
 
   // structure just references state in app.
@@ -497,56 +518,70 @@ static int main_f429(void)
   cal_init(
     &cal,
     // consider - pass the already opened file, as the correct dependency
+    // use rewind. seek. etc. to position correctly
     FLASH_SECT_ADDR,
     FLASH_SECT_NUM
   );
-  app.cal = &cal;
+  // app.cal = &cal;
 
 
 
-  app.line_freq = 50;
+  // app.line_freq = 50;
+  uint32_t      line_freq = 50;
+  unsigned      range_idx;
+  // both line_freq and range_idx  are going to have to be defined here with memory..
+  //
 
 
   decode_t        decode;
   decode_init(
     &decode,
-    app.spi_fpga0,
-    app.cal,
-    app.ranges,
-    &app.range_idx,
-    &app.line_freq
+    &spi_fpga0,
+    &cal,
+    range_init_values,
+    &range_idx,
+    &line_freq
   );
-  app.decode = & decode;
+  // app.decode = & decode;
+
+
+
+
 
 
   double values[ 1000];
 
   buffer_t     buffer;
   buffer_init( &buffer, values, ARRAY_SIZE(values));
-  app.buffer = &buffer;
+  // app.buffer = &buffer;
 
 
-#if 1
+
+
+
   // only gpio is possible for vfd, and tft, because
   // of dependency on fpga. also system_millis
   // full init must wait for system_millis and fpga
   vfd_t         vfd0;
-  app.vfd0      = &vfd0;
-  vfd0_init( app.vfd0);
-  app.vfd0->vfd_gpio_setup( app.vfd0 );
+  // app.vfd0      = &vfd0;
+  vfd0_init( &vfd0);
+  vfd0.vfd_gpio_setup( &vfd0 );   // polymorphic, for multiple instances
 
 
   display_vfd_t   display_vfd;
-  display_vfd_init( &display_vfd, app.vfd0, app.buffer);
-  app.display_vfd = &display_vfd;
-#endif
+  display_vfd_init( &display_vfd, &vfd0, &buffer);
+  // app.display_vfd = &display_vfd;
+
+
+
+
 
 
   // tft
   tft_t     tft0;
-  app.tft = &tft0;
-  tft0_init( app.tft);    // device specific
-  app.tft->tft_gpio_setup( app.tft);    // low level gpio. correct.
+  // app.tft = &tft0;
+  tft0_init( &tft0);    // device specific
+  tft0.tft_gpio_setup( &tft0);    // polymorphic, for multiple instances
 
 
   /* consider make system_millis a pointer in app_t.
@@ -556,8 +591,77 @@ static int main_f429(void)
 
   // agg test
   agg_test_t    agg_test;
-  app.agg_test = &agg_test;
-  agg_test_init( app.agg_test, app.tft, &app.system_millis );
+  // app.agg_test = &agg_test;
+  agg_test_init( &agg_test, &tft0, &system_millis );
+
+  // OK. system_millis is going to need to be a pointer. if share with
+  // the agg test code.
+
+
+
+  app_t app = {
+
+    .magic              = APP_MAGIC,
+
+    .system_millis      = &system_millis,
+
+    .cbuf_console_in    = &cbuf_console_in,
+    .cbuf_console_out   = &cbuf_console_out,
+    .command            = &command,
+
+
+    .gpio_status_led    = &gpio_status_led,
+
+
+    .interrupt_systick  = &interrupt_systick,
+
+    .spi_fpga0_pc       = &spi_fpga0_pc,
+    .spi_fpga0          = &spi_fpga0,
+    .interrupt_fpga0    = &interrupt_fpga0,
+
+
+    .spi_fpga1_pc       = &spi_fpga1_pc,
+    .spi_fpga1          = &spi_fpga1,
+
+
+    .spi_4094           = &spi_4094_0,
+
+    .spi_mdac0          = &spi_mdac0,
+    .spi_mdac1          = &spi_mdac1,
+
+    .gpio_trigger       = &gpio_trigger,
+
+    .gpio_trigger_source = &gpio_trigger_source,
+
+
+    .mode               = &mode,
+
+    // these are extern declared
+    // not clear these even need to be in app_t
+    .ranges             = range_init_values,
+    .ranges_sz          = range_init_sz,
+
+    .cal                = &cal,
+
+    // review - does app_t need these
+    .line_freq          = &line_freq,
+    .range_idx          = &range_idx,
+
+    .decode             = &decode,
+    .buffer             = &buffer,
+
+    .vfd0               = &vfd0,        // needed because in app_t. because init() called only after init.
+    .display_vfd        = &display_vfd,
+
+
+    .tft                = &tft0,
+    .agg_test           = &agg_test,
+
+  } ;
+
+  // we have to delay this, until app has been instantiated
+  interrupt_handler_set( &interrupt_systick, &app, (void (*)(void *, void *)) app_interrupt_systick);
+
 
 
 

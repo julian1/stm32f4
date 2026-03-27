@@ -112,7 +112,7 @@ int flash_lzo_test(void);
 
 
 
-
+#if 0
 void app_init( app_t *app)
 {
   assert(app);
@@ -121,7 +121,7 @@ void app_init( app_t *app)
   memset( app, 0, sizeof(app_t));
   app->magic = APP_MAGIC;
 }
-
+#endif
 
 
 
@@ -133,7 +133,7 @@ void app_interrupt_systick( app_t *app, void *arg)
   UNUSED( arg);
 
 
-  ++ app->system_millis;
+  ++ (*app->system_millis);
 }
 
 
@@ -162,7 +162,7 @@ void app_interrupt_data_rdy( app_t *app, void *arg) // runtime context
 
 
 
-static void app_update_simple_led_blink(app_t *app)
+static void app_update_simple_led_blink( app_t *app)
 {
   // or just app_update_led_blink()
   // change name app_update_no_data() or app_update_limited()
@@ -171,7 +171,7 @@ static void app_update_simple_led_blink(app_t *app)
   assert(app && app->magic == APP_MAGIC);
 
   // 500ms soft timer
-  if( (app->system_millis - app->soft_500ms) > 500) {
+  if( ( *(app->system_millis) - app->soft_500ms) > 500) {
     app->soft_500ms += 500;
 
     // blink mcu led
@@ -205,6 +205,8 @@ void app_yield( app_t *app)
 void app_msleep( app_t *app, uint32_t delay)
 {
   /*
+    consider rename  app_yield_msleep()
+
     simple api, that should cover most cases as default
 
     caller should not know the yield context.
@@ -217,9 +219,9 @@ void app_msleep( app_t *app, uint32_t delay)
 
   // remember system_millis is volatile.
 
-  uint32_t start = app->system_millis;
+  uint32_t start = *app->system_millis;
   while (true) {
-    uint32_t elapsed = app->system_millis - start;
+    uint32_t elapsed = *(app->system_millis) - start;
     if(elapsed > delay)
       break;
 
@@ -515,6 +517,10 @@ static void spi_print_seq_register( spi_t *spi, uint32_t reg )
 
 void app_beep( app_t * app, uint32_t n)
 {
+  /* function should not really be typed on app_t. since only requires app_msleep()
+    should type on spi_t and system_millis.
+      except sleep() also yields which requires additional context from app.
+  */
 
   assert(app && app->magic == APP_MAGIC);
 
@@ -543,6 +549,12 @@ void app_beep( app_t * app, uint32_t n)
 
 void app_led_dance( app_t * app )
 {
+  /* function should not really be typed on app_t. since only requires app_msleep()
+    should type on spi_t and system_millis.
+
+    except sleep() also yields which requires additional context from app.
+  */
+
 
   assert(app && app->magic == APP_MAGIC);
 
@@ -610,7 +622,7 @@ static void app_update_soft_500ms(app_t *app)
         seek() would need to work.
     */
     FILE *f = flash_open_file( FLASH_U102_ADDR);
-    int ret = spi_ice40_bitstream_send( app->spi_fpga0_pc, f, FLASH_HX8K_SIZE, & app->system_millis );
+    int ret = spi_ice40_bitstream_send( app->spi_fpga0_pc, f, FLASH_HX8K_SIZE, app->system_millis );
     fclose(f);
 
 
@@ -642,7 +654,7 @@ static void app_update_soft_500ms(app_t *app)
 
     // dependency should be set/passed to app.
     FILE *f = flash_open_file( FLASH_U202_ADDR );
-    spi_ice40_bitstream_send( app->spi_fpga1_pc, f, FLASH_UP5K_SIZE, & app->system_millis );
+    spi_ice40_bitstream_send( app->spi_fpga1_pc, f, FLASH_UP5K_SIZE, app->system_millis );
     fclose(f);
 
     if( !spi_ice40_cdone( app->spi_fpga1_pc)) {
@@ -656,7 +668,7 @@ static void app_update_soft_500ms(app_t *app)
       // before we can init here
 #if 1
       printf("vfd init!\n");
-      vfd_init( app->vfd0,  & app->system_millis);
+      vfd_init( app->vfd0,  app->system_millis);
       vfd_test( app->vfd0);
 #endif
 
@@ -665,7 +677,7 @@ static void app_update_soft_500ms(app_t *app)
       LCD_Read_DDB( app->tft );     // contains 00000
 
       // init the lcd
-      LCD_Init( app->tft, &app->system_millis );
+      LCD_Init( app->tft, app->system_millis );
 
       LCD_Read_DDB( app->tft );
       /*
@@ -841,7 +853,7 @@ void app_update( app_t *app)
     */
 
   // 500ms soft timer
-  if( (app->system_millis - app->soft_500ms) > 500) {
+  if( ( *(app->system_millis) - app->soft_500ms) > 500) {
 
     // rename and make a signed down counter.   soft_500_down
     // and can then remove the subtraction
@@ -1005,7 +1017,7 @@ void app_range_switch( app_t *app, uint32_t range_idx)
   assert( range_idx < app->ranges_sz );   // watch out for signess casts.
 
   // set the current range_idx. used for decode_update
-  app->range_idx = range_idx;
+  *(app->range_idx) = range_idx;
 
 
   // apply the range mode state transition
@@ -1109,19 +1121,19 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   // 'u' up in range
   else if(strcmp(cmd, "u") == 0) {
 
-    bool ret = app_range_dir_valid( app, app->range_idx, 1);
+    bool ret = app_range_dir_valid( app, *app->range_idx, 1);
     if(ret) {
       ++app->range_idx;
-      app_range_switch( app, app->range_idx);
+      app_range_switch( app, *app->range_idx);
     }
   }
   // 'd' down in range
   else if(strcmp(cmd, "d") == 0) {
 
-    bool ret = app_range_dir_valid( app, app->range_idx, 0);
+    bool ret = app_range_dir_valid( app, *app->range_idx, 0);
     if(ret) {
       --app->range_idx;
-      app_range_switch( app, app->range_idx);
+      app_range_switch( app, *app->range_idx);
     }
   }
 
@@ -1144,7 +1156,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
       // re-apply the current range function
       // this modifies the mode
-      app_range_switch( app, app->range_idx);
+      app_range_switch( app, *app->range_idx);
 
       // set retrigger to clear data buffers
       app->repl_retrigger = true;
@@ -1320,7 +1332,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   else if(strcmp(cmd, "bitstream test") == 0) {
 
     FILE *f = flash_open_file( FLASH_U202_ADDR );
-    spi_ice40_bitstream_send( app->spi_fpga1_pc, f, FLASH_UP5K_SIZE, & app->system_millis );
+    spi_ice40_bitstream_send( app->spi_fpga1_pc, f, FLASH_UP5K_SIZE, app->system_millis );
     fclose(f);
   }
 
@@ -1352,7 +1364,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
   else if( app_transfer_repl_statement( app, cmd)) { }
 
-  else if( mode_repl_statement( app->mode, cmd, app->line_freq )) { }
+  else if( mode_repl_statement( app->mode, cmd, *app->line_freq )) { }
 
   else if( cal_repl_statement( app->cal, cmd)) { }
 
@@ -1360,7 +1372,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
   else if( buffer_repl_statement( app->buffer, cmd )) { }
 
-  else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, app->line_freq)) { }
+  else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, *app->line_freq)) { }
 
   else if( app_test_repl_statement( app, cmd )) { }
 

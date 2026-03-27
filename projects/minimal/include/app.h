@@ -120,8 +120,9 @@ typedef struct app_t
   /* consider make system_millis a pointer in app_t.
     since it is passed/shared to other structures at _init (eg. agg_test).
     and instantiate it here in main.c
+
   */
-  volatile uint32_t system_millis;
+  volatile uint32_t *system_millis;
 
   // volatile int32_t sleep_millis;  // signed count down.
 
@@ -197,7 +198,7 @@ typedef struct app_t
   // line_freq is environment property
   // does it belong in cal or data?
   // issue is that the tests code wants easy access
-  uint32_t      line_freq;
+  uint32_t      *line_freq;
 
 /*
   // not sure these will ever be used outside the context of cal_t
@@ -210,7 +211,7 @@ typedef struct app_t
 
   range_t       *ranges;      // including cal co-efficients
   size_t        ranges_sz;
-  unsigned      range_idx;    // active range
+  unsigned      *range_idx;    // active range TODO rename active_range_idx.
 
   ////////////////////////
 
@@ -245,7 +246,7 @@ typedef struct app_t
   bool          range_10Meg ;
 
 
-  vfd_t         *vfd0;    // TODO rename just vfd if only one.
+  vfd_t         *vfd0;    // required for call to init.  after fpga initialized.
 
   display_vfd_t *display_vfd;   // rename display0 ?
 
@@ -258,9 +259,7 @@ typedef struct app_t
 
 
 
-
-
-void app_init( app_t *app);
+// void app_init( app_t *app);
 
 void app_update( app_t *app);
 
@@ -273,7 +272,14 @@ void app_yield( app_t *app);
 void app_msleep( app_t *app, uint32_t delay);
 
 
+/*
+  both functions should be typed on spi_t and system_millis
+  - just the same as spi_print_register()_
+    and spi_repl_reg_query()
+  ------
+  except sleep() also yields which requires additional context from app.
 
+*/
 void app_beep( app_t * app, uint32_t n);
 void app_led_dance( app_t * app );
 

@@ -78,7 +78,7 @@ static void test( app_t *app)
     gpio_write( app->gpio_trigger, false);
 
     // nplc to use
-    adc_aperture_set( &mode->adc, nplc_to_aperture( 1, app->line_freq ));
+    adc_aperture_set( &mode->adc, nplc_to_aperture( 1, *app->line_freq ));
 
 
     app_transition_state( app);
@@ -168,7 +168,7 @@ static void test( app_t *app)
 
 
     // set nplc
-    adc_aperture_set( &mode->adc, nplc_to_aperture( nplc, app->line_freq ));
+    adc_aperture_set( &mode->adc, nplc_to_aperture( nplc, *app->line_freq ));
 
 
     app_transition_state( app);

@@ -97,7 +97,7 @@ static void test( app_t *app)
     gpio_write( app->gpio_trigger, false);
 
     // set nplc
-    adc_aperture_set( &mode->adc, nplc_to_aperture( k, app->line_freq ));
+    adc_aperture_set( &mode->adc, nplc_to_aperture( k, *app->line_freq ));
 
     app_transition_state( app);
 

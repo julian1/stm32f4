@@ -117,7 +117,7 @@ void app_transfer( app_t *app, transfer_t *transfer)
   cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
   // set nplc
-  adc_aperture_set( &mode->adc, nplc_to_aperture( 10, app->line_freq ));
+  adc_aperture_set( &mode->adc, nplc_to_aperture( 10, *app->line_freq ));
 
 
   /////////////////////////
