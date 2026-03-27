@@ -34,8 +34,6 @@
 
 
 
-
-
 #include <device/support.h>    // mcu_reset, print_stack_pointer
 #include <util.h>             // str_decode_uint
 
@@ -58,6 +56,7 @@
 #include <device/vfd0.h>      // device needed because we defer initialization of device
 #include <display_vfd.h>
 
+#include <agg/test.h> // consider better name. display_agg_test
 
 
 
@@ -376,12 +375,11 @@ void app_transition_state( app_t  *app)
   // this has nothing to do with the actual fpga/sample acquisition trigger
   gpio_write( app->gpio_trigger_source, mode->trigger_source);
 
-
   /*
-    trigger is not set here. instead,
-    for c code manage manually/explicitly.
-    for repl, update when repl string is processed
-    ie. after the call to state update
+    trigger state is not written here.
+    instead, for c code manage manually/explicitly.
+    for repl, the trigger update is when repl string is processed
+    ie. after the call to update state
   */
 }
 
@@ -583,7 +581,6 @@ void app_led_dance( app_t * app )
 
 
 
-int agg_test2( tft_t *tft, volatile uint32_t *system_millis );
 
 static void app_update_soft_500ms(app_t *app)
 {
@@ -687,7 +684,7 @@ static void app_update_soft_500ms(app_t *app)
       LCD_TestFill( app->tft);
 
 
-      agg_test2( app->tft, &app->system_millis );
+      // agg_test2( app->agg_test);
 
 #if 0
       app_beep( app, 2 );
@@ -826,6 +823,10 @@ void app_update( app_t *app)
     printf("missed adc interrupt\n");
     app->adc_interrupt_valid_missed = false;
   }
+
+
+  // agg test.
+  agg_test_update( app->agg_test);
 
 
 
@@ -1362,6 +1363,9 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   else if ( spi_repl_reg_query( app->spi_fpga0,  cmd, app->line_freq)) { }
 
   else if( app_test_repl_statement( app, cmd )) { }
+
+
+  else if( agg_test_repl_statement( app->agg_test, cmd )) { }
 
   else {
 

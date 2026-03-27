@@ -69,9 +69,7 @@
 
 #include <display_vfd.h>
 
-#include <agg/agg_test.h> // better name. display_agg_test
-                          // if it binds state.
-
+#include <agg/test.h> // consider better name. display_agg_test
 
 
 
@@ -529,7 +527,9 @@ static int main_f429(void)
 
 
 #if 1
-  // can only do gpio setup here. because must wait for system_millis and fpga
+  // only gpio is possible for vfd, and tft, because
+  // of dependency on fpga. also system_millis
+  // full init must wait for system_millis and fpga
   vfd_t         vfd0;
   app.vfd0      = &vfd0;
   vfd0_init( app.vfd0);
@@ -541,11 +541,23 @@ static int main_f429(void)
   app.display_vfd = &display_vfd;
 #endif
 
+
   // tft
   tft_t     tft0;
   app.tft = &tft0;
   tft0_init( app.tft);    // device specific
   app.tft->tft_gpio_setup( app.tft);    // low level gpio. correct.
+
+
+  /* consider make system_millis a pointer in app_t.
+    since it is passed/shared to other structures at _init (eg. agg_test).
+    and instantiate it here in main.c
+  */
+
+  // agg test
+  agg_test_t    agg_test;
+  app.agg_test = &agg_test;
+  agg_test_init( app.agg_test, app.tft, &app.system_millis );
 
 
 

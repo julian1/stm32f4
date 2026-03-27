@@ -1,5 +1,6 @@
+
 /*
-  draw direct / without paging/ double buffering
+  draw test with paging/ double buffering
 */
 
 
@@ -9,46 +10,57 @@
 #include <assert.h>
 
 
+
 #include <agg/agg.h>
 #include <agg/fonts.h>
 #include <agg/test.h>
 
 
 
-// extern "C" int agg_test2( tft_t *tft, volatile uint32_t *system_millis )
-extern "C" void agg_test2( agg_test_t *agg_test)
+
+extern "C" void agg_test3( agg_test_t *agg_test)
+// extern "C" int agg_test3(  )
 {
 
   assert( agg_test && agg_test->magic == AGG_TEST_MAGIC);
 
   volatile uint32_t *system_millis = agg_test->system_millis;
 
-
-  // set scroll start to base of memory
-  setScrollStart( agg_test->tft, 0  );
+  // persist the page that we need to draw
+  // static int page = 0; // page to use
+  agg_test->page = ! agg_test->page;
 
 
   // set up our buffer
-  pixfmt_t  pixf(  agg_test->tft, 0  );
-  rb_t    rb(pixf);
-  // agg::renderer_base<pixfmt_t>   rb(pixf);
+  pixfmt_t  pixf( agg_test->tft, agg_test->page *  272 );
+  agg::renderer_base<pixfmt_t>   rb(pixf);
 
-  // while( ! getTear() ); // wait for tear to go high... LOOKS. wrong.
-  // while( ! tft_get_tear( tft));
-  // printf("t_irq %u\n", getTear()  );
 
-  uint32_t start;
+  // EXTR. if looks like if draw too fast. then flipping the scrollstart can introduce flicker
 
-  start = *system_millis;
+  uint32_t start = *system_millis;
+
+
   rb.clear(agg::rgba(1,1,1));     // white .
-  printf("rb.clear() %lums\n", *system_millis - start );
+  // rb.clear(agg::rgba(1,1,1));     // white .
+  // usart_printf("rb.clear() %ums\n", system_millis - start );
 
+  /*
+    flicker could be backlight.
+  */
 
   // EXTR. this is a clear/fillRect that is not subpixel, and simple.
   // see, agg_renderer_base.h.
-  start = *system_millis;
-  rb.copy_bar(20, 20, 100, 200, agg::rgba(0,1,0));
-  printf("copy_bar()  %lums\n", *system_millis - start );
+  rb.copy_bar(20, 20, 100, 200, agg::rgba(1,0,0));
+/*
+  rb.copy_bar(20, 20, 50, 50, agg::rgba(1,0,0));
+  rb.copy_bar(320, 20, 350, 50, agg::rgba(1,0,0));
+  rb.copy_bar(20, 200, 50, 230, agg::rgba(1,0,0));
+*/
+
+  // fill  for background text
+  // rb.copy_bar(40, 40, 400, 200, agg::rgba(1,1,1));
+
 
   // EXTR. IMPORTANT confirm we have floating point enabled.
   // looks ok.
@@ -61,48 +73,63 @@ extern "C" void agg_test2( agg_test_t *agg_test)
   // mtx *= agg::trans_affine_scaling(1.0, -1); // this inverts/flips the glyph, relative to origin. but not in place.
   mtx *= agg::trans_affine_translation(50, 50);   // this moves from above origin, back into the screen.
   mtx *= agg::trans_affine_rotation(10.0 * 3.1415926 / 180.0);
+  mtx *= agg::trans_affine_scaling(1.0); // now scale it
+
+
+  // check if font has a space char...
+  // missing the '7' char/ aparently.
+
+  static int count = 0;
+  char buf[100];
+  snprintf(buf, 100, "whoot %u", count++);
+
+  drawOutlineText(rb, arial_outline, mtx, agg::rgba(0,0,1), buf);
+
+
+  // msleep(40); slower draw. maybe slightly less tearing.
+  // usart_printf("total draw time %ums\n", system_millis - start );
+
 
   /*
-    EXTR.
-    very hard to find bug.  combination  of font size. and scaling.  causes crashes.
-    why.
-    need a proper clipbox?
-    1.3 size is ok. may depend on available ram.
+  // OK. this fixes flicker... but opposite of what we thought...
+  // we flip the page when it is drawing. rather than when it's blanking.
+  IMPORTANT.
+    this is a blocking function and can block all display function
   */
-  // mtx *= agg::trans_affine_scaling(1.0 ); // ok.
-  // mtx *= agg::trans_affine_scaling(2.0 ); // crashes.
-  mtx *= agg::trans_affine_scaling(1.3 );
+  while( tft_get_tear( agg_test->tft)) {
+  // while( getTear() ) {
+    // usart_printf("tear hi\n" );
+  };
 
 
 
+  // flip the newly drawn page in
+  setScrollStart( agg_test->tft, agg_test->page *  272 );
 
-  /*
-    it's the height of the glyph. and athe affine scale I think.
-  */
-  const char *s = "hello123";
-  drawOutlineText(rb, arial_outline, mtx, agg::rgba(0,0,1), s);
 
+  // non anti aliased.
+  // agg::renderer_scanline_bin_solid(
 
 
   // setOriginBottomLeft(); // cartesion/ fonts/ postscript
 
   // agg::path_storage            m_path2;
 #if 0
-    m_path.remove_all();
-    m_path.move_to(10, 10);
-    m_path.line_to(50, 10);
-    m_path.line_to(50, 50);
-    m_path.line_to(10, 50);
-    m_path.line_to(10, 10);
-    m_path.close_polygon();//agg::path_flags_cw);
+      m_path.remove_all();
+      m_path.move_to(10, 10);
+      m_path.line_to(50, 10);
+      m_path.line_to(50, 50);
+      m_path.line_to(10, 50);
+      m_path.line_to(10, 10);
+      m_path.close_polygon();//agg::path_flags_cw);
 
-  ras.reset();
-  ras.add_path( m_path );
-  agg::render_scanlines_aa_solid(ras, sl, /*renb*/ rb, agg::rgba(0,1,0));
+    ras.reset();
+    ras.add_path( m_path );
+    agg::render_scanlines_aa_solid(ras, sl, /*renb*/ rb, agg::rgba(0,1,0));
 
 #endif
 
-  // return 0;
+    // return 0;
 }
 
 
@@ -113,6 +140,79 @@ extern "C" void agg_test2( agg_test_t *agg_test)
 
 
 
+
+
+
+
+
+
+// #include "agg_pixfmt_rgb24.h"
+// #include "agg_pixfmt_rgb.h"
+
+
+#if 0
+
+
+
+#include "agg_conv_curve.h"
+#include "agg_conv_contour.h"
+
+
+
+#include "agg_rasterizer_scanline_aa.h"
+#include "agg_scanline_p.h"
+#include "agg_renderer_scanline.h"
+
+// for fonts
+#include "agg_path_storage.h"
+#include "agg_path_storage_integer.h"
+
+#endif
+
+
+
+
+  /*
+    EXTR possible should only be done during vsync period
+    easist way would be to set up interupt on TR. and then
+    call setScrollStart in the interupt handler..
+  ---------------------
+
+    NO. simple way is to just poll, in a while() loop here..
+    ----------
+    MUST
+    put it on a scope and check...
+    nothing on scope.
+  */
+
+
+
+/*
+  ok. so drawing a clear background, then drawing over the top, will always produces flicker.
+
+  so use paging/scrolling.
+  actually the speed will be just the same.
+  drawing optimisation (eg. fill or character buffering etc) can still be used to improve speed.
+  ---
+
+  setBufferA/B.
+    should do two things - set a y offet for current drawing. and set the scroll to the other page.
+    We can concentrate the Y offet. not in the agg part. but in the setXY call.
+    excellent.
+
+
+
+*/
+
+
+/*
+  (800 * 480) / (480 * 272)
+  2.941
+  == 3x the number of pixels.
+
+  eg. drawtime will go from 50ms to 150ms.
+  not very nice.
+*/
 
 
 
@@ -245,98 +345,5 @@ extern "C" void agg_test2( agg_test_t *agg_test)
       what does postscript do.
       Note that we can flip the origin on the fly.
     */
-
-
-#if 0
-// #include "agg_pixfmt_rgb24.h"
-// #include "agg_pixfmt_rgb.h"
-#include "agg_pixfmt_rgb_packed.h"  // rgb565
-
-#include "agg_conv_curve.h"
-#include "agg_conv_contour.h"
-
-
-#include "agg_basics.h"
-// #include "agg_rendering_buffer.h"
-
-#include "agg_rendering_buffer.h"
-
-#include "agg_rasterizer_scanline_aa.h"
-
-#include "agg_scanline_p.h"
-#include "agg_renderer_scanline.h"
-
-
-#include "agg_path_storage.h"
-
-#include "agg_path_storage_integer.h"
-#endif
-
-
-
-#if 0
-
-typedef agg::serialized_integer_path_adaptor<short int, 6>  font_path_type;
-
-extern font_path_type *arial_glyph[256];
-extern int arial_glyph_advance_x[256] ;
-extern int arial_glyph_advance_y[256] ;
-
-
-/*
-  so we would move this into an include file? ....
-  and then pass it from main?
-*/
-
-// template< class T>
-static void drawText(rb_t & rb , agg::trans_affine &mtx, const char *s)
-{
-  // not even sure if it makes sense to factor this
-
-
-
-    // we can move these out of loop if desired...
-    agg::rasterizer_scanline_aa<> ras;
-    agg::scanline_p8 sl;
-
-
-    int x  = 0;
-
-   uint32_t start = system_millis;
-
-    for( const char *p = s; *p; ++p)  {
-
-        char ch = *p;
-
-        // whoot it links
-        font_path_type *path = arial_glyph[ ch ];
-        assert( path );
-
-        // TODO add a translate() method... or add an adapter
-        // should add a method translate( dx, dy );
-        path->m_dx = x;
-
-        x += arial_glyph_advance_x[ ch ];
-
-
-        agg::conv_transform<font_path_type> trans( *path, mtx);
-        agg::conv_curve<agg::conv_transform<  font_path_type > > curve(trans);
-
-        ras.reset();
-        ras.add_path( curve );
-        agg::render_scanlines_aa_solid(ras, sl, rb, agg::rgba(0,0,1));
-
-    }
-
-
-    printf("agg text draw %ums\n", system_millis - start );
-
-
-}
-
-
-
-#endif
-
 
 

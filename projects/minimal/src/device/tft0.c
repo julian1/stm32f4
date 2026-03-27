@@ -59,14 +59,20 @@ static void tft_gpio_setup( tft_t *tft)
 
 static bool tft_getTear( tft_t *tft)
 {
+  UNUSED( tft);
+
+  // mar. 2026. dont block.
+  return 0;
+
+#if 0
   assert( tft && tft->magic == TFT_MAGIC);
 
   // TODO better prefix name. tft_get_tear() ?
   // hi tft stopped, means we should draw .
   // return gpio_get(TFT_GPIO_PORT, TFT_T_IRQ) & (0x01 << 3);
   return gpio_get( TEAR_PORT, TEAR_IRQ) != 0 ;
+#endif
 }
-
 
 
 static void tft_reset( tft_t *tft, bool val )
@@ -87,7 +93,6 @@ static void tft_reset( tft_t *tft, bool val )
 }
 
 
-
 void tft0_init( tft_t *tft)
 {
   memset( tft, 0, sizeof( tft_t));
@@ -106,9 +111,6 @@ void tft0_init( tft_t *tft)
   tft->tft_reset      = tft_reset;
 
 }
-
-
-
 
 
 

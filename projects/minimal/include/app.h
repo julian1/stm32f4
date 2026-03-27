@@ -65,7 +65,7 @@ typedef struct vfd_t vfd_t;
 typedef struct display_vfd_t display_vfd_t;
 
 typedef struct tft_t tft_t;
-
+typedef struct agg_test_t agg_test_t;
 
 
 
@@ -116,6 +116,11 @@ typedef struct app_t
     millis_down_yield   yield or sleep
   */
 
+
+  /* consider make system_millis a pointer in app_t.
+    since it is passed/shared to other structures at _init (eg. agg_test).
+    and instantiate it here in main.c
+  */
   volatile uint32_t system_millis;
 
   // volatile int32_t sleep_millis;  // signed count down.
@@ -229,7 +234,7 @@ typedef struct app_t
   // state variable persists
   bool          repl_trigger_val;
 
-  // TODO consider better name repl_force_trigger.
+  // TODO consider rename repl_force_trigger.
   bool          repl_retrigger;
 
   /* choice, is putting this in app or in mode.
@@ -245,6 +250,9 @@ typedef struct app_t
   display_vfd_t *display_vfd;   // rename display0 ?
 
   tft_t         *tft;
+
+
+  agg_test_t    *agg_test;
 
 } app_t;
 

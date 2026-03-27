@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <string.h>   // strcmp()
 // #include <strings.h>   // strcasecmp().  use to_lower() instead
-#include <stdlib.h> // strtolu()
+#include <stdlib.h> // strtoul()
 #include <ctype.h>    // isdigit isspace
 
 
