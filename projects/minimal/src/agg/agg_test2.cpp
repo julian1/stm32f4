@@ -2,13 +2,12 @@
   draw direct / without paging/ double buffering
 */
 
+
+
 #include <stdio.h>
 #include <string.h>
-#include "assert.h"
+#include <assert.h>
 
-
-// #include "util.h"
-// #include "streams.h"
 
 #include <agg/agg.h>
 #include <agg/fonts.h>
@@ -21,9 +20,6 @@ extern "C" int agg_test2( tft_t *tft, volatile uint32_t *system_millis )
   // set scroll start to base of memory
   setScrollStart( tft, 0  );
 
-
-  // AHHHH....
-  // the scroll position is wrong?
 
   // set up our buffer
   pixfmt_t  pixf(  tft, 0  );

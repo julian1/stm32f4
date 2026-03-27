@@ -1,25 +1,23 @@
 
+
+
 #include <stdio.h>
-#include <string.h>
-#include <stdio.h> // snprintf
 #include <assert.h>
 
-#include "agg_conv_curve.h"
-#include "agg_conv_contour.h"
 
+// agg stuff
+#include <agg_conv_curve.h>
+#include <agg_conv_contour.h>
 
-#include "agg_rasterizer_scanline_aa.h"
-#include "agg_scanline_p.h"
-#include "agg_renderer_scanline.h"
+#include <agg_rasterizer_scanline_aa.h>
+#include <agg_scanline_p.h>
+#include <agg_renderer_scanline.h>
 
 // for fonts
-#include "agg_path_storage.h"
-#include "agg_path_storage_integer.h"
+#include <agg_path_storage.h>
+#include <agg_path_storage_integer.h>
 
 
-
-//#include "util.h"
-// #include "streams.h"
 
 #include <agg/agg.h>
 #include <agg/fonts.h>
@@ -118,7 +116,7 @@ void drawSpans( rb_t & rb, int dx, int dy,  const agg::rgba &color,  const uint8
         break;
       }
 
-      case (0x01 << 5): { 
+      case (0x01 << 5): {
         // sentinel, we are done.
         done = true;
         break;
@@ -141,14 +139,14 @@ void drawSpanChar(rb_t & rb, const FontSpans &font_spans, int x, int y, const ag
   assert(spans);
 
   drawSpans( rb, x, y, color , spans);
-  
+
 }
 
 
 
 void drawSpanText(rb_t & rb, const FontSpans &font_spans, int x, int y, const agg::rgba &color, const char *s)
 {
-  
+
   // should probably return x,y so can continue text
 
   // int x  = x1;

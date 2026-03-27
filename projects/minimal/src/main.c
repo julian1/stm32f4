@@ -69,6 +69,8 @@
 
 #include <display_vfd.h>
 
+#include <agg/agg_test.h> // better name. display_agg_test
+                          // if it binds state.
 
 
 

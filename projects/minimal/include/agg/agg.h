@@ -3,7 +3,7 @@
 
 /*
 
-  rename to tft-pixfmt.h,  this creates the generalized render structure.
+  consider rename to tft-pixfmt.h,  this creates the generalized render structure.
     that we pass around
 
   prehaps use hpp suffix.
@@ -22,16 +22,8 @@
 
 #include "agg_pixfmt_rgb_packed.h"  // rgb565
 #include "agg_renderer_base.h"
-
 #include "agg_trans_affine.h"   // for drawText() argument
 
-
-/*
-#include "fsmc.h"       // LCD_WriteData()
-#include "ssd1963.h"    // setXY
-#include "util.h"    // UNUSED()
-#include "streams.h"    // usart1_printf
-*/
 
 #include <peripheral/tft.h>
 
@@ -93,8 +85,6 @@ public:
 
     }
 
-
-  // linking error???
 
     inline void blend_solid_hspan(int x, int y,
                            unsigned len,
@@ -251,6 +241,10 @@ void drawSpanText(rb_t & rb, const FontSpans &font_spans, int x1, int y1, const 
 
 
 
+
+
+
+
 #if 0
 
 
@@ -317,10 +311,4 @@ void drawPath(rb_t & rb, PathType & path , agg::trans_affine &mtx, const agg::rg
   */
 
 
-
-/*
-#ifdef __cplusplus
-}
-#endif
-*/
 
