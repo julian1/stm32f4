@@ -108,7 +108,7 @@ LDLIBS		+= ${TOP_DIR}/lib/lzo/lzo.a
 LDLIBS		+= -L${TOP_DIR}/lib/libopencm3/lib  -lopencm3_stm32f4
 
 
-LDLIBS		+= -lm -lstdc++
+LDLIBS		+= -lm -lstdc++ -Wl,--no-warn-rwx-segments
 
 
 # LDLIBS		+=  -specs=nosys.specs -lnosys
