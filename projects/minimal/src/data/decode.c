@@ -92,6 +92,11 @@ void decode_update( decode_t *decode,  data_t *data)
   char buf[100 + 1];
 
 
+/*
+  - add a short (8 bit) transaction id field to the status register.
+    - to check consistency of register reads
+*/
+
   uint32_t status_          = spi_ice40_reg_read32( spi, REG_STATUS );
 
    _Static_assert(sizeof(data->status) == sizeof(status_), "bad typedef size");
