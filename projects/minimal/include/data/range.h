@@ -25,10 +25,15 @@ typedef struct range_t
 
   uint32_t    magic;
 
+  /*
+    public name and arg - both used for search critiera
+    should probably move the sentinal indicators to start.
+  */
   const char  *name;
 
   const char  *arg;
 
+  // consider make a function. it doefor
   const char  *unit;
 
   ///////////////////
@@ -45,7 +50,7 @@ typedef struct range_t
   // TODO. renam the range_reading value to count_norm.
 
   // convert normalized count to a reading according to the calibration
-  double (*range_reading)( const range_t *range, const cal_t *, double count_sum_norm);
+  double (*range_reading_convert)( const range_t *range, const cal_t *, double count_sum_norm);
 
 
   // convert value to string
@@ -62,6 +67,8 @@ typedef struct range_t
   // autoranging predicate test here also
   int32_t (*range_predicate)( range_t *range, /*status_reg, */ double v);
 
+  //
+  // bool ignore;
 
   // sentinel encodes range limits - either top or bottom.
   bool bot_sentinal;

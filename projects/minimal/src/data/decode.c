@@ -152,14 +152,14 @@ void decode_update_data( decode_t *decode,  data_t *data)
     data->count_sum_norm = data->count_sum  / data->adc_clk_count_sigmux;
 
 
-    range_t *range = &decode->ranges[ *decode->range_idx ];
+    range_t *range  = &decode->ranges[ *decode->range_idx];
     assert( range);
     data->range     = range;
     data->cal       = cal;
     data->line_freq =  *decode->line_freq;
 
     // calculate reading for current range
-    data->reading = range->range_reading( range, cal, data->count_sum_norm);
+    data->reading = range->range_reading_convert( range, cal, data->count_sum_norm);
     data->valid     = true;
 
 

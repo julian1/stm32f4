@@ -445,6 +445,7 @@ static void format_value( char *s, size_t n,  unsigned total, unsigned leading, 
 
   snprintf(s, n, "%0*.*f", total, trailing, fabs(value));
 
+  // both 34470a, dmm7510 preserve leading positive sign in display
   s[ 0] = value >= 0 ? '+' : '-';
 }
 
@@ -453,6 +454,9 @@ static void format_value( char *s, size_t n,  unsigned total, unsigned leading, 
 
 static void range_string( const range_t *range, char *s, size_t sz, unsigned ndigits, double value)
 {
+  // rename range_value_string.
+  //
+
   assert(range && range->magic == RANGE_MAGIC);
 
 
@@ -493,6 +497,7 @@ static void range_string( const range_t *range, char *s, size_t sz, unsigned ndi
   format_value( s, sz,  ndigits, nprefix, value);
 
   // consider can encode full unit here. 'mV'
+  // no. use a separate function
 
 }
 
