@@ -273,7 +273,7 @@ void app_msleep( app_t *app, uint32_t delay);
 
 
 /*
-  both functions should be typed on spi_t and system_millis
+  consider should type these funcs on spi_t and system_millis
   - just the same as spi_print_register()_
     and spi_repl_reg_query()
   ------
