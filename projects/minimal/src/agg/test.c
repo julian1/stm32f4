@@ -1,4 +1,8 @@
 
+/*
+  it is quite simple to combine
+
+*/
 
 
 #include <string.h>     // memcpy

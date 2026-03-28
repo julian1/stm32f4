@@ -89,7 +89,7 @@ typedef struct app_t
 
   gpio_t        *gpio_status_led;
 
-  uint32_t      soft_500ms;
+  uint32_t      soft_500ms;     // TODO . just use a separate countdown .
 
   // updated on interrupt. should probably be declared volatile.
   // but functions that use can also declare volatile
