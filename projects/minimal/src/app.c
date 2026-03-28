@@ -86,29 +86,6 @@ int flash_lzo_test(void);
 
 
 
-/*
-  keep general repl stuff (related to flashing, reset etc) here,
-  put app specific/ tests in a separatefile.
-
-*/
-
-
-/*
-  3 events
-
-    - systick/soft-timer interrupt.
-    - fpga interrupt
-    - external ui interrupt
-    - (also uart but never blocks).
-
-    - yield can be used, on any long-running process to continue to service updates
-        and out-of-band function
-
-*/
-
-/////////////////////////
-
-
 
 
 #if 0
