@@ -26,7 +26,7 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/device/interrupt-systick.c \
             src/device/support.c \
             src/agg/agg.cpp src/agg/arial-outline.cpp \
-            src/agg/agg_test2.cpp src/agg/agg_test3.cpp \
+            src/agg/tft-test2.cpp src/agg/tft-test3.cpp \
             src/agg/tft-display.c \
             src/main.c  \
             src/vfd-display.c \
