@@ -3,18 +3,8 @@
 
 /*
 
+  consider rename agg/support.h
 
-  consider rename agg/support.c
-
-  consider rename to tft-pixfmt.h,  this creates the generalized render structure.
-    that we pass around
-
-  prehaps use hpp suffix.
-
-  OK. there's a issue
-  To have a templated rendering buffer.
-  We need c++ linkage.
-  hmmmm.
 */
 
 
