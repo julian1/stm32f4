@@ -593,7 +593,7 @@ void app_led_dance( app_t * app )
 
 
 
-static void app_update_soft_500ms(app_t *app)
+static void app_update_500ms(app_t *app)
 {
 
   assert(app && app->magic == APP_MAGIC);
@@ -876,7 +876,7 @@ void app_update( app_t *app)
       actually msleep_with_yield() could be called recursively.
       probably want to check, with a count/mutex.
     */
-    app_update_soft_500ms(app);
+    app_update_500ms(app);
   }
 }
 
