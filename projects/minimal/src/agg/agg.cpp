@@ -19,7 +19,7 @@
 
 // for fonts
 #include <agg_path_storage.h>
-#include <agg_path_storage_integer.h>
+// #include <agg_path_storage_integer.h>
 
 
 

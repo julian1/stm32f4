@@ -33,7 +33,7 @@ typedef struct data_t data_t;
 
 
 
-#define AGG_TEST_MAGIC 1827218
+#define TFT_DISPLAY_MAGIC 1827218
 
 typedef struct tft_display_t tft_display_t;
 

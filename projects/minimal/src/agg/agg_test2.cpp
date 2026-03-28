@@ -25,7 +25,7 @@
 extern "C" void tft_test2( tft_display_t *tft_display)
 {
 
-  assert( tft_display && tft_display->magic == AGG_TEST_MAGIC);
+  assert( tft_display && tft_display->magic == TFT_DISPLAY_MAGIC);
 
   volatile uint32_t *system_millis = tft_display->system_millis;
 

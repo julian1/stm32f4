@@ -1,6 +1,5 @@
 
 /*
-  it is quite simple to combine
 
 */
 
@@ -22,7 +21,7 @@ void tft_test3( tft_display_t *tft_display);
 
 static void tft_display_update1( tft_display_t *tft_display)
 {
-  assert( tft_display && tft_display->magic == AGG_TEST_MAGIC);
+  assert( tft_display && tft_display->magic == TFT_DISPLAY_MAGIC);
 
   // do nothing
 
@@ -33,7 +32,7 @@ static void tft_display_update1( tft_display_t *tft_display)
 
 bool tft_display_repl_statement( tft_display_t *tft_display,  const char *cmd)
 {
-  assert( tft_display && tft_display->magic == AGG_TEST_MAGIC);
+  assert( tft_display && tft_display->magic == TFT_DISPLAY_MAGIC);
 
   if(strcmp(cmd, "tft_test2") == 0)
     tft_display->update = tft_test2;
@@ -59,7 +58,7 @@ void tft_display_init( tft_display_t *tft_display, tft_t *tft, volatile uint32_t
 
   memset( tft_display, 0, sizeof( tft_display_t));
 
-  tft_display->magic = AGG_TEST_MAGIC;
+  tft_display->magic = TFT_DISPLAY_MAGIC;
   tft_display->tft = tft;
   tft_display->system_millis = system_millis;
 
