@@ -237,7 +237,6 @@ void drawSpanText(rb_t & rb, const FontSpans &font_spans, int x1, int y1, const 
 
 
 
-
 #if 0
 
 

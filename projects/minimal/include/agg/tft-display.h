@@ -47,7 +47,7 @@ struct tft_display_t
 
   // int count;
 
-  // volatile int32_t *millis_yield_countdown;    // make count down
+  // volatile int32_t *millis_yield_countdown;    // make count updown
   volatile uint32_t *system_millis;
 
   /* if manage the update field here if want, instead of app_t.
@@ -75,6 +75,14 @@ void tft_display_init( tft_display_t *tft_display,  tft_t *tft, volatile uint32_
 // should be static.
 // void tft_display_update( tft_display_t *tft_display);
 bool tft_display_repl_statement( tft_display_t *,  const char *cmd);
+
+
+
+
+
+void tft_test2( tft_display_t *tft_display);
+void tft_test3( tft_display_t *tft_display);
+
 
 
 

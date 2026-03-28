@@ -13,11 +13,6 @@
 
 
 
-// FIXME.  dangerous.
-void tft_test2( tft_display_t *tft_display);
-void tft_test3( tft_display_t *tft_display);
-
-
 
 static void tft_display_update1( tft_display_t *tft_display)
 {
