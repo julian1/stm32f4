@@ -9,24 +9,16 @@
 #include <agg/test.h>
 
 
-void agg_test_init( agg_test_t *agg_test, tft_t *tft, volatile uint32_t *system_millis)
-{
-
-  memset( agg_test, 0, sizeof( agg_test_t));
-
-  agg_test->magic = AGG_TEST_MAGIC;
-  agg_test->tft = tft;
-  agg_test->system_millis = system_millis;
-
-}
+void agg_test2( agg_test_t *agg_test);
+void agg_test3( agg_test_t *agg_test);
 
 
-void agg_test_update( agg_test_t *agg_test)
+
+static void agg_test_update1( agg_test_t *agg_test)
 {
   assert( agg_test && agg_test->magic == AGG_TEST_MAGIC);
 
-  if(agg_test->update)
-    agg_test->update( agg_test);
+  // do nothing
 
 }
 
@@ -43,6 +35,9 @@ bool agg_test_repl_statement( agg_test_t *agg_test,  const char *cmd)
   else if(strcmp(cmd, "agg_test3") == 0)
     agg_test->update = agg_test3;
 
+  else if(strcmp(cmd, "agg_none") == 0)
+    agg_test->update = agg_test_update1;
+
 
 
   else
@@ -52,5 +47,19 @@ bool agg_test_repl_statement( agg_test_t *agg_test,  const char *cmd)
 
 }
 
+
+void agg_test_init( agg_test_t *agg_test, tft_t *tft, volatile uint32_t *system_millis)
+{
+
+  memset( agg_test, 0, sizeof( agg_test_t));
+
+  agg_test->magic = AGG_TEST_MAGIC;
+  agg_test->tft = tft;
+  agg_test->system_millis = system_millis;
+
+  agg_test->update = agg_test_update1;
+
+
+}
 
 

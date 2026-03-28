@@ -31,8 +31,11 @@ typedef struct display_vfd_t
 
 
 
-void display_vfd_init( display_vfd_t *vfd, vfd_t *,  buffer_t *buffer);
+void display_vfd_init( display_vfd_t *vfd, vfd_t *, buffer_t *buffer);
 
+
+// rename _update_data()
+// and make virtual for tests
 void display_vfd_update( display_vfd_t *vfd, data_t *data);
 
 

@@ -27,6 +27,7 @@ extern "C" {
 
 
 typedef struct tft_t tft_t;
+typedef struct data_t data_t;
 
 
 
@@ -34,7 +35,7 @@ typedef struct tft_t tft_t;
 
 typedef struct agg_test_t agg_test_t;
 
-struct agg_test_t
+struct agg_test_t   // rename tft_display_t
 {
 
   uint32_t  magic;
@@ -52,16 +53,26 @@ struct agg_test_t
   */
   void (*update)( agg_test_t *);
 
+  void (*update_data)( agg_test_t *, data_t *data);
+
 };
 
 
+
+static inline void agg_test_update( agg_test_t *agg_test)
+{
+  assert(agg_test);
+  if( agg_test->update)
+    agg_test->update( agg_test);
+}
+
+
 void agg_test_init( agg_test_t *agg_test,  tft_t *tft, volatile uint32_t *system_millis);
-void agg_test_update( agg_test_t *agg_test);
+
+// this does not look right.
+// should be static.
+// void agg_test_update( agg_test_t *agg_test);
 bool agg_test_repl_statement( agg_test_t *,  const char *cmd);
-
-
-void agg_test2( agg_test_t *agg_test);
-void agg_test3( agg_test_t *agg_test);
 
 
 
