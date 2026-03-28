@@ -445,7 +445,7 @@ static int main_f429(void)
 
 
   uint32_t      line_freq = 50;
-  unsigned      range_idx;
+  unsigned      range_idx = 0;
   // both line_freq and range_idx  are going to have to be defined here with memory..
   //
 
