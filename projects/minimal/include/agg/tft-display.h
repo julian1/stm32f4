@@ -8,17 +8,10 @@ extern "C" {
 
 
 /*
-  not sure this sturct is worthwhile. but simplifies all argument passing..
+  needed as interface between c++ and c. code
 
-  interface between c++ and c. for
-  and most agg code, want to be called on every app_update().
-
-  struct - simplifies the calling interface for test code.
-  although not sure if really needed
-
-  ---
-  update() should be called from app_update() eg. main loop.
-  -----------
+  most agg test code, wants to be called on app_update().
+  but real display on app_update_data()
 
 */
 
@@ -47,16 +40,16 @@ struct tft_display_t
 
   // int count;
 
-  // volatile int32_t *tick_up;   only used for performance test
+  // rename *tick_up;   could be dedicated.  tft_display_tick_up. - only for performance test
   volatile uint32_t *system_millis;
 
   /* if manage the update field here if want, instead of app_t.
     this way, the repl can be localized. and typed on tft_display_t rather than app_t
   */
   /*
-    common interface for tft, vfd, and display test code.
-    and even the repl output.
-    could factor to separate interface. but not clear how useful
+    this interface is common for tft, vfd, and display test code.
+    and even the repl output. and app.
+    could factor into a separate interface. but not clear how useful
   */
   void (*update)( tft_display_t *);
   void (*update_data)( tft_display_t *, data_t *data);
@@ -77,6 +70,7 @@ bool tft_display_repl_statement( tft_display_t *,  const char *cmd);
 
 
 // need to communicate between agg files
+// these are only called from tft_display_repl_statement()
 void tft_test2( tft_display_t *tft_display);
 void tft_test3( tft_display_t *tft_display);
 
