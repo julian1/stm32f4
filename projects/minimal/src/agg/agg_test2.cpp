@@ -14,9 +14,10 @@
 #include <agg/tft-display.h>
 
 /*
-  tft_display  has too much in it.
-  consider adding another data structure with reduced
-  but it is easy to handle from the repl. with a polymorphic dispatch.
+  tft_display  exposes too many fields
+
+  could a separate structure with reduced scope
+  but this is easy to handle with the repl and polymorphic dispatch.
 
 */
 
