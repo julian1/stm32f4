@@ -455,7 +455,8 @@ static void format_value( char *s, size_t n,  unsigned total, unsigned leading, 
 static void range_string( const range_t *range, char *s, size_t sz, unsigned ndigits, double value)
 {
   // rename range_value_string.
-  //
+  // could handle ',' or ' ' intersperse here with flags
+  // or where used.
 
   assert(range && range->magic == RANGE_MAGIC);
 
@@ -505,7 +506,7 @@ static void range_string( const range_t *range, char *s, size_t sz, unsigned ndi
 
 /*
   34401a.
-    up is higher voltage.
+    up button is higher voltage.
     down is lower
 */
 
@@ -519,6 +520,12 @@ static void range_string( const range_t *range, char *s, size_t sz, unsigned ndi
 
   just need to change the initial lookup  in app_repl_range()0 etc.
   to find which to start at. control with a boolean.
+
+*/
+
+/*
+  - auto-ranging with shunts - may be a little tricky.
+      unless organize the shunt values - so comparators at amplifier output are triggered where want for range switching.
 
 */
 

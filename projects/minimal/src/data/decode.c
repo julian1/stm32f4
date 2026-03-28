@@ -90,6 +90,12 @@ void decode_update_data( decode_t *decode,  data_t *data)
 
   char buf[100 + 1];
 
+/*
+  may need/want to distinguish the interrupt type.
+  adc value.  or comparator overload.
+  can use status register to indicate. what we need to respond to.
+
+*/
 
 /*
   - add a short (8 bit) transaction id field to the status register.

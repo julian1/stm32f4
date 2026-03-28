@@ -794,6 +794,14 @@ void app_update( app_t *app)
       aggregation, digial filter, null
 
     */
+
+    /*
+      may need/want to distinguish the interrupt type.
+      adc value.  or comparator overload.
+
+      can use status register to indicate. what we need to respond to.
+
+    */
     data_t  data;
     data_init( &data);
 
