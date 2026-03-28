@@ -168,7 +168,7 @@ static void stoupper( char *s)
 void vfd_display_init( vfd_display_t *vfd_display, vfd_t *vfd1, buffer_t *buffer)
 {
   memset( vfd_display, 0, sizeof( vfd_display_t));
-  vfd_display->magic = DISPLAY_VFD_MAGIC;
+  vfd_display->magic = VFD_DISPLAY_MAGIC;
 
   assert( buffer && buffer->magic == BUFFER_MAGIC);
 
@@ -179,15 +179,28 @@ void vfd_display_init( vfd_display_t *vfd_display, vfd_t *vfd1, buffer_t *buffer
 
 
 
-
-
-
-
-
-
-void vfd_display_update( vfd_display_t *vfd_display, data_t *data)
+void vfd_display_update( vfd_display_t *vfd_display)
 {
-  assert( vfd_display && vfd_display->magic == DISPLAY_VFD_MAGIC);
+  assert( vfd_display && vfd_display->magic == VFD_DISPLAY_MAGIC);
+
+  // do nothing
+}
+
+
+void vfd_display_update_500ms( vfd_display_t *vfd_display)
+{
+  assert( vfd_display && vfd_display->magic == VFD_DISPLAY_MAGIC);
+
+  // do nothing
+
+}
+
+
+
+
+void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
+{
+  assert( vfd_display && vfd_display->magic == VFD_DISPLAY_MAGIC);
   assert( data && data->magic == DATA_MAGIC);
 
 

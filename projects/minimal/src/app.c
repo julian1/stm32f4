@@ -610,13 +610,17 @@ static void app_update_soft_500ms(app_t *app)
   gpio_write( app->gpio_status_led, app->led_state);
 
 
+  // tft 500ms. timer
+  tft_display_update_500ms( app->tft_display);
+  vfd_display_update_500ms( app->vfd_display);
 
 
-  // fpga0 on analog board, pre-configuration
 
   if( !spi_ice40_cdone( app->spi_fpga0_pc)) {
 
-    /* feb 2026.  consider pass f as a constructor dependency to app on construction.
+    // fpga0 on analog board, pre-configuration
+
+    /* feb 2026.  consider just pass f as the constructor dependency on app_t construction.
         not pass the flash address and size.
         seek() would need to work.
     */
@@ -817,26 +821,31 @@ void app_update( app_t *app)
     data_t  data;
     data_init( &data);
 
+    // TODO change name decode_update to decode_update_data
     decode_update( app->decode, &data);
     buffer_update( app->buffer, &data);
 
     printf( "\n");
 
-    vfd_display_update( app->vfd_display, &data);
-
+    // vfd and tft update_data()
+    vfd_display_update_data( app->vfd_display, &data);
+    tft_display_update_data( app->tft_display, &data);
 
   }
 
 
   // TODO - check - we brought the right code across in the interrupt handler also.
   if( app->adc_interrupt_valid_missed == true) {
+
     // just report for now
     printf("missed adc interrupt\n");
     app->adc_interrupt_valid_missed = false;
   }
 
 
-  // agg test.
+  // vfd and tft update
+  // do nothing for the moment
+  vfd_display_update( app->vfd_display);
   tft_display_update( app->tft_display);
 
 
@@ -844,7 +853,8 @@ void app_update( app_t *app)
   // handle console
   // note this calls app_update_repl() that starts actions.
   // we could pass a flag indicicating if it whoudl be processed.
-  app_update_console(app);
+  app_update_console( app);
+
 
   /* to side-step overflow/wrap around issues
       just a dedicated signed upward counter
@@ -1892,7 +1902,7 @@ void app_update_simple_with_data(app_t *app)
           app_update() {
             decode_update( app->data );         <- this
             buffer_update( app->buffer );
-            vfd_display_update( app->vfd  );
+            vfd_display_update_data( app->vfd  );
           }
 
           - EXTR - consider injecting data - into buffer.
