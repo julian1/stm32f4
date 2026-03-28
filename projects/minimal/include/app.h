@@ -114,6 +114,12 @@ typedef struct app_t
     handle rollover, by just adjusting at code point where no that nothing depends on the code.
     millis_down_500.  wants to be dedicated.
     millis_down_yield   yield or sleep
+    -------------
+
+    rename the timer. include soft. tick implies soft_ count
+    or just tick_up.  and perhaps tick_down;  as general purpuse.
+        soft_millis_up;     for timing functions,
+        soft_millis_yield;   make down counter.
   */
 
 
@@ -273,11 +279,11 @@ void app_msleep( app_t *app, uint32_t delay);
 
 
 /*
-  consider should type these funcs on spi_t and system_millis
+  consider should type these two funcs on spi_t and system_millis
   - just the same as spi_print_register()_
     and spi_repl_reg_query()
   ------
-  except sleep() also yields which requires additional context from app.
+  except sleep() also yields which needs additional context from app.
 
 */
 void app_beep( app_t * app, uint32_t n);

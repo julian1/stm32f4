@@ -250,23 +250,14 @@ static int main_f429(void)
 
 
   /////////////////////////////
-  /*
-    peripheral/ports setup
+
+
+  /* setup external state required for critical error led blink in priority
+    because assert() has no passed context
   */
+  assert_critical_error_led_setup( GPIOA, GPIO9 );
 
 
-
-  //////////////////////
-  // main app setup
-
-
-  // stack allocation is good!
-
-
-
-  volatile uint32_t system_millis = 0;
-
-  ///////////////////
 
   char buf_cbuf_console_in[ 1000];
   char buf_cbuf_console_out[1000];    // changing this and it freezes. indicates. bug
@@ -289,45 +280,9 @@ static int main_f429(void)
   cstring_init( &command, buf_command, buf_command + sizeof( buf_command));
 
 
-
-
-  ///////////////////
-
-  gpio_t  gpio_status_led;
-  gpio_status_led_init( &gpio_status_led);
-  gpio_setup( &gpio_status_led);
-
-  // setup external state required for critical error led blink in priority
-  // because assert() cannot pass a context
-
-  assert_critical_error_led_setup( GPIOA, GPIO9 );
-
-
-
-
-
-#if 0
-  // mcu clock
-  // systick_setup(12000); // 12MHz. default lsi.
-  systick_setup( 84000); // 84MHz.
-  systick_handler_set( (void (*)(void *)) app_interrupt_systick, &app );
-#endif
-
-
-  // could put this in
-  interrupt_systick_t   interrupt_systick;
-  interrupt_systick_init( &interrupt_systick, 84000); // 84MHz.
-  interrupt_setup( &interrupt_systick);
-
-
-
-
-  ///////////////////
-
-
   /*
     the circular buffer on the output, makes no sense.
-    instead just block control until the output is flushed.
+    instead consider block control, until the output is flushed.
   */
   //////////////
   // now can init usart peripheral using app console buffer
@@ -340,6 +295,33 @@ static int main_f429(void)
 
   printf("\n--------");
   printf("\nstarting\n");
+
+
+
+
+  ///////////////////
+
+
+  volatile uint32_t system_millis = 0;
+
+
+  gpio_t  gpio_status_led;
+  gpio_status_led_init( &gpio_status_led);
+  gpio_setup( &gpio_status_led);
+
+
+#if 0
+  // mcu clock
+  // systick_setup(12000); // 12MHz. default lsi.
+  systick_setup( 84000); // 84MHz.
+  systick_handler_set( (void (*)(void *)) app_interrupt_systick, &app );
+#endif
+
+
+  // systick interrupt, but do not set handler
+  interrupt_systick_t   interrupt_systick;
+  interrupt_systick_init( &interrupt_systick, 84000); // 84MHz.
+  interrupt_setup( &interrupt_systick);
 
 
 
