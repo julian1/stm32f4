@@ -47,39 +47,36 @@ struct tft_display_t
 
   // int count;
 
-  // volatile int32_t *millis_yield_countdown;    // make count updown
+  // volatile int32_t *tick_up;   only used for performance test
   volatile uint32_t *system_millis;
 
   /* if manage the update field here if want, instead of app_t.
     this way, the repl can be localized. and typed on tft_display_t rather than app_t
   */
+  /*
+    common interface for tft, vfd, and display test code.
+    and even the repl output.
+    could factor to separate interface. but not clear how useful
+  */
   void (*update)( tft_display_t *);
-
   void (*update_data)( tft_display_t *, data_t *data);
+  void (*update_500ms)( tft_display_t *);
 
 };
 
 
-
-static inline void tft_display_update( tft_display_t *tft_display)
-{
-  assert(tft_display);
-  if( tft_display->update)
-    tft_display->update( tft_display);
-}
+// accessors
+void tft_display_update( tft_display_t *tft_display);
+void tft_display_update_data( tft_display_t *tft_display, data_t *data);
+void tft_display_update_500ms( tft_display_t *tft_display);
 
 
 void tft_display_init( tft_display_t *tft_display,  tft_t *tft, volatile uint32_t *system_millis);
 
-// this does not look right.
-// should be static.
-// void tft_display_update( tft_display_t *tft_display);
 bool tft_display_repl_statement( tft_display_t *,  const char *cmd);
 
 
-
-
-
+// need to communicate between agg files
 void tft_test2( tft_display_t *tft_display);
 void tft_test3( tft_display_t *tft_display);
 

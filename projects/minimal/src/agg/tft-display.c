@@ -14,6 +14,37 @@
 
 
 
+inline void tft_display_update( tft_display_t *tft_display)
+{
+  assert( tft_display && tft_display->magic == TFT_DISPLAY_MAGIC);
+
+  if( tft_display->update)
+    tft_display->update( tft_display);
+}
+
+
+void tft_display_update_data( tft_display_t *tft_display, data_t *data)
+{
+  assert( tft_display && tft_display->magic == TFT_DISPLAY_MAGIC);
+
+  if( tft_display->update_data)
+    tft_display->update_data( tft_display, data);
+
+}
+
+void tft_display_update_500ms( tft_display_t *tft_display)
+{
+  assert( tft_display && tft_display->magic == TFT_DISPLAY_MAGIC);
+
+  if( tft_display->update_500ms)
+    tft_display->update_500ms( tft_display);
+
+}
+
+
+
+
+
 static void tft_display_update_( tft_display_t *tft_display)
 {
   assert( tft_display && tft_display->magic == TFT_DISPLAY_MAGIC);
