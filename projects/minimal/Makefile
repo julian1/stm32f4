@@ -28,8 +28,8 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/agg/agg.cpp src/agg/arial-outline.cpp \
             src/agg/tft-test2.cpp src/agg/tft-test3.cpp \
             src/agg/tft-display.c \
-            src/main.c  \
             src/vfd-display.c \
+            src/main.c  \
             src/app.c  \
             src/syscalls.o \
             src/mode.o \
