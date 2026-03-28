@@ -11,25 +11,31 @@
 
 #include <agg/agg.h>
 #include <agg/fonts.h>
-#include <agg/test.h>
+#include <agg/tft-display.h>
+
+/*
+  tft_display  has too much in it.
+  consider adding another data structure with reduced
+  but it is easy to handle from the repl. with a polymorphic dispatch.
+
+*/
 
 
-
-// extern "C" int agg_test2( tft_t *tft, volatile uint32_t *system_millis )
-extern "C" void agg_test2( agg_test_t *agg_test)
+// extern "C" int tft_display2( tft_t *tft, volatile uint32_t *system_millis )
+extern "C" void tft_test2( tft_display_t *tft_display)
 {
 
-  assert( agg_test && agg_test->magic == AGG_TEST_MAGIC);
+  assert( tft_display && tft_display->magic == AGG_TEST_MAGIC);
 
-  volatile uint32_t *system_millis = agg_test->system_millis;
+  volatile uint32_t *system_millis = tft_display->system_millis;
 
 
   // set scroll start to base of memory
-  setScrollStart( agg_test->tft, 0  );
+  setScrollStart( tft_display->tft, 0  );
 
 
   // set up our buffer
-  pixfmt_t  pixf(  agg_test->tft, 0  );
+  pixfmt_t  pixf(  tft_display->tft, 0  );
   rb_t    rb(pixf);
   // agg::renderer_base<pixfmt_t>   rb(pixf);
 

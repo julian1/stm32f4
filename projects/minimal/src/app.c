@@ -53,10 +53,9 @@
 
 
 
-#include <device/vfd0.h>      // device needed because we defer initialization of device
+#include <device/vfd0.h>      // device needed here, because we defer initialization of device
 #include <vfd-display.h>
-
-#include <agg/test.h> // consider better name. display_agg_test
+#include <agg/tft-display.h>
 
 
 
@@ -696,7 +695,7 @@ static void app_update_soft_500ms(app_t *app)
       LCD_TestFill( app->tft);
 
 
-      // agg_test2( app->agg_test);
+      // tft_display2( app->tft_display);
 
 #if 0
       app_beep( app, 2 );
@@ -838,7 +837,7 @@ void app_update( app_t *app)
 
 
   // agg test.
-  agg_test_update( app->agg_test);
+  tft_display_update( app->tft_display);
 
 
 
@@ -1377,7 +1376,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   else if( app_test_repl_statement( app, cmd )) { }
 
 
-  else if( agg_test_repl_statement( app->agg_test, cmd )) { }
+  else if( tft_display_repl_statement( app->tft_display, cmd )) { }
 
   else {
 

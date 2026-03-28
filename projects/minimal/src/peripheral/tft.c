@@ -507,7 +507,7 @@ void  LCD_TestFill( tft_t *tft)
   LCD_fillRect( tft, 5, 5, 50, 50, packRGB565( 0x0, 0x0, 0xff));      // blue square
 
 
-//   agg_test2();
+//   tft_display2();
 
 }
 

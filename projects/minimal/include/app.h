@@ -65,7 +65,7 @@ typedef struct vfd_t vfd_t;
 typedef struct vfd_display_t vfd_display_t;
 
 typedef struct tft_t tft_t;
-typedef struct agg_test_t agg_test_t;
+typedef struct tft_display_t tft_display_t;
 
 
 
@@ -124,7 +124,7 @@ typedef struct app_t
 
 
   /* consider make system_millis a pointer in app_t.
-    since it is passed/shared to other structures at _init (eg. agg_test).
+    since it is passed/shared to other structures at _init (eg. tft_display).
     and instantiate it here in main.c
 
   */
@@ -259,7 +259,7 @@ typedef struct app_t
   tft_t         *tft;
 
 
-  agg_test_t    *agg_test;
+  tft_display_t    *tft_display;
 
 } app_t;
 

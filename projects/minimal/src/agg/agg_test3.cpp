@@ -13,26 +13,26 @@
 
 #include <agg/agg.h>
 #include <agg/fonts.h>
-#include <agg/test.h>
+#include <agg/tft-display.h>
 
 
 
 
-extern "C" void agg_test3( agg_test_t *agg_test)
-// extern "C" int agg_test3(  )
+extern "C" void tft_test3( tft_display_t *tft_display)
+// extern "C" int tft_display3(  )
 {
 
-  assert( agg_test && agg_test->magic == AGG_TEST_MAGIC);
+  assert( tft_display && tft_display->magic == AGG_TEST_MAGIC);
 
-  volatile uint32_t *system_millis = agg_test->system_millis;
+  volatile uint32_t *system_millis = tft_display->system_millis;
 
   // persist the page that we need to draw
   // static int page = 0; // page to use
-  agg_test->page = ! agg_test->page;
+  tft_display->page = ! tft_display->page;
 
 
   // set up our buffer
-  pixfmt_t  pixf( agg_test->tft, agg_test->page *  272 );
+  pixfmt_t  pixf( tft_display->tft, tft_display->page *  272 );
   agg::renderer_base<pixfmt_t>   rb(pixf);
 
 
@@ -96,7 +96,7 @@ extern "C" void agg_test3( agg_test_t *agg_test)
   IMPORTANT.
     this is a blocking function and can block all display function
   */
-  while( tft_get_tear( agg_test->tft)) {
+  while( tft_get_tear( tft_display->tft)) {
   // while( getTear() ) {
     // usart_printf("tear hi\n" );
   };
@@ -104,7 +104,7 @@ extern "C" void agg_test3( agg_test_t *agg_test)
 
 
   // flip the newly drawn page in
-  setScrollStart( agg_test->tft, agg_test->page *  272 );
+  setScrollStart( tft_display->tft, tft_display->page *  272 );
 
 
   // non anti aliased.

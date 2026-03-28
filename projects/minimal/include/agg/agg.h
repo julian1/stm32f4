@@ -3,6 +3,9 @@
 
 /*
 
+
+  consider rename agg/support.c
+
   consider rename to tft-pixfmt.h,  this creates the generalized render structure.
     that we pass around
 

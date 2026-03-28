@@ -1,4 +1,8 @@
+/*
 
+  could rename agg/support.c
+
+*/
 
 
 #include <stdio.h>

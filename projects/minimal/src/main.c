@@ -68,8 +68,7 @@
 #include <data/buffer.h>
 
 #include <vfd-display.h>
-
-#include <agg/test.h> // consider better name. display_agg_test
+#include <agg/tft-display.h>
 
 
 
@@ -496,8 +495,8 @@ static int main_f429(void)
   */
 
   // agg test
-  agg_test_t    agg_test;
-  agg_test_init( &agg_test, &tft0, &system_millis );
+  tft_display_t    tft_display;
+  tft_display_init( &tft_display, &tft0, &system_millis );
 
 
 
@@ -557,7 +556,7 @@ static int main_f429(void)
 
 
     .tft                = &tft0,
-    .agg_test           = &agg_test,
+    .tft_display           = &tft_display,
 
   } ;
 

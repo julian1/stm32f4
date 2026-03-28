@@ -10,7 +10,7 @@ extern "C" {
 /*
   not sure this sturct is worthwhile. but simplifies all argument passing..
 
-  need interface between c++ and c. for
+  interface between c++ and c. for
   and most agg code, want to be called on every app_update().
 
   struct - simplifies the calling interface for test code.
@@ -18,6 +18,8 @@ extern "C" {
 
   ---
   update() should be called from app_update() eg. main loop.
+  -----------
+
 */
 
 
@@ -33,9 +35,9 @@ typedef struct data_t data_t;
 
 #define AGG_TEST_MAGIC 1827218
 
-typedef struct agg_test_t agg_test_t;
+typedef struct tft_display_t tft_display_t;
 
-struct agg_test_t   // rename tft_display_t
+struct tft_display_t
 {
 
   uint32_t  magic;
@@ -49,30 +51,30 @@ struct agg_test_t   // rename tft_display_t
   volatile uint32_t *system_millis;
 
   /* if manage the update field here if want, instead of app_t.
-    this way, the repl can be localized. and typed on agg_test_t rather than app_t
+    this way, the repl can be localized. and typed on tft_display_t rather than app_t
   */
-  void (*update)( agg_test_t *);
+  void (*update)( tft_display_t *);
 
-  void (*update_data)( agg_test_t *, data_t *data);
+  void (*update_data)( tft_display_t *, data_t *data);
 
 };
 
 
 
-static inline void agg_test_update( agg_test_t *agg_test)
+static inline void tft_display_update( tft_display_t *tft_display)
 {
-  assert(agg_test);
-  if( agg_test->update)
-    agg_test->update( agg_test);
+  assert(tft_display);
+  if( tft_display->update)
+    tft_display->update( tft_display);
 }
 
 
-void agg_test_init( agg_test_t *agg_test,  tft_t *tft, volatile uint32_t *system_millis);
+void tft_display_init( tft_display_t *tft_display,  tft_t *tft, volatile uint32_t *system_millis);
 
 // this does not look right.
 // should be static.
-// void agg_test_update( agg_test_t *agg_test);
-bool agg_test_repl_statement( agg_test_t *,  const char *cmd);
+// void tft_display_update( tft_display_t *tft_display);
+bool tft_display_repl_statement( tft_display_t *,  const char *cmd);
 
 
 
