@@ -14,7 +14,7 @@
 
 
 
-inline void tft_display_update( tft_display_t *tft_display)
+void tft_display_update( tft_display_t *tft_display)
 {
   assert( tft_display && tft_display->magic == TFT_DISPLAY_MAGIC);
 
@@ -88,7 +88,7 @@ void tft_display_init( tft_display_t *tft_display, tft_t *tft, volatile uint32_t
   tft_display->tft = tft;
   tft_display->system_millis = system_millis;
 
-  tft_display->update = tft_display_update_;
+  tft_display->update = tft_display_update_;    // set to non
 
 
 }
