@@ -24,7 +24,7 @@
 // vfd
 #include <peripheral/vfd.h> // magic
 #include <peripheral/vfd-fonts.h>
-#include <display_vfd.h>
+#include <vfd_display.h>
 
 
 
@@ -165,15 +165,15 @@ static void stoupper( char *s)
 
 
 
-void display_vfd_init( display_vfd_t *display_vfd, vfd_t *vfd1, buffer_t *buffer)
+void vfd_display_init( vfd_display_t *vfd_display, vfd_t *vfd1, buffer_t *buffer)
 {
-  memset( display_vfd, 0, sizeof( display_vfd_t));
-  display_vfd->magic = DISPLAY_VFD_MAGIC;
+  memset( vfd_display, 0, sizeof( vfd_display_t));
+  vfd_display->magic = DISPLAY_VFD_MAGIC;
 
   assert( buffer && buffer->magic == BUFFER_MAGIC);
 
-  display_vfd->vfd = vfd1;
-  display_vfd->buffer = buffer;
+  vfd_display->vfd = vfd1;
+  vfd_display->buffer = buffer;
 }
 
 
@@ -185,17 +185,17 @@ void display_vfd_init( display_vfd_t *display_vfd, vfd_t *vfd1, buffer_t *buffer
 
 
 
-void display_vfd_update( display_vfd_t *display_vfd, data_t *data)
+void vfd_display_update( vfd_display_t *vfd_display, data_t *data)
 {
-  assert( display_vfd && display_vfd->magic == DISPLAY_VFD_MAGIC);
+  assert( vfd_display && vfd_display->magic == DISPLAY_VFD_MAGIC);
   assert( data && data->magic == DATA_MAGIC);
 
 
-  vfd_t *vfd = display_vfd->vfd;
+  vfd_t *vfd = vfd_display->vfd;
   assert( vfd);
   // assert(vfd && vfd->magic == VFD_MAGIC);
 
-  buffer_t *buffer = display_vfd->buffer;
+  buffer_t *buffer = vfd_display->buffer;
   assert( buffer && buffer->magic == BUFFER_MAGIC);
 
 

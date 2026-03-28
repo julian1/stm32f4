@@ -54,7 +54,7 @@
 
 
 #include <device/vfd0.h>      // device needed because we defer initialization of device
-#include <display_vfd.h>
+#include <vfd_display.h>
 
 #include <agg/test.h> // consider better name. display_agg_test
 
@@ -823,7 +823,7 @@ void app_update( app_t *app)
 
     printf( "\n");
 
-    display_vfd_update( app->display_vfd, &data);
+    vfd_display_update( app->vfd_display, &data);
 
 
   }
@@ -1274,7 +1274,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
 
     ///////////
-    display_vfd_init(  &app->system_millis);
+    vfd_display_init(  &app->system_millis);
 
     vfd_do_something();
   }
@@ -1893,7 +1893,7 @@ void app_update_simple_with_data(app_t *app)
           app_update() {
             decode_update( app->data );         <- this
             buffer_update( app->buffer );
-            display_vfd_update( app->vfd  );
+            vfd_display_update( app->vfd  );
           }
 
           - EXTR - consider injecting data - into buffer.

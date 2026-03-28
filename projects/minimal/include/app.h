@@ -62,7 +62,7 @@ typedef struct buffer_t buffer_t;
 
 
 typedef struct vfd_t vfd_t;
-typedef struct display_vfd_t display_vfd_t;
+typedef struct vfd_display_t vfd_display_t;
 
 typedef struct tft_t tft_t;
 typedef struct agg_test_t agg_test_t;
@@ -254,7 +254,7 @@ typedef struct app_t
 
   vfd_t         *vfd0;    // required for call to init.  after fpga initialized.
 
-  display_vfd_t *display_vfd;   // rename display0 ?
+  vfd_display_t *vfd_display;   // rename display0 ?
 
   tft_t         *tft;
 

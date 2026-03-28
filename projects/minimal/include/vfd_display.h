@@ -14,10 +14,10 @@ typedef struct vfd_t vfd_t;
 // think we want to rename this...
 // not to conflict with underlying device.
 
-// change name vfd_display. or display_vfd
+// change name vfd_display. or vfd_display
 // not to conflict.
 
-typedef struct display_vfd_t
+typedef struct vfd_display_t
 {
   uint32_t magic;
 
@@ -26,16 +26,16 @@ typedef struct display_vfd_t
   vfd_t    *vfd;    // device
 
 
-} display_vfd_t;
+} vfd_display_t;
 
 
 
 
-void display_vfd_init( display_vfd_t *vfd, vfd_t *, buffer_t *buffer);
+void vfd_display_init( vfd_display_t *vfd, vfd_t *, buffer_t *buffer);
 
 
 // rename _update_data()
 // and make virtual for tests
-void display_vfd_update( display_vfd_t *vfd, data_t *data);
+void vfd_display_update( vfd_display_t *vfd, data_t *data);
 
 

@@ -67,7 +67,7 @@
 #include <data/decode.h>
 #include <data/buffer.h>
 
-#include <display_vfd.h>
+#include <vfd_display.h>
 
 #include <agg/test.h> // consider better name. display_agg_test
 
@@ -478,8 +478,8 @@ static int main_f429(void)
   vfd0.vfd_gpio_setup( &vfd0 );   // polymorphic, for multiple instances
 
 
-  display_vfd_t   display_vfd;
-  display_vfd_init( &display_vfd, &vfd0, &buffer);
+  vfd_display_t   vfd_display;
+  vfd_display_init( &vfd_display, &vfd0, &buffer);
 
 
 
@@ -553,7 +553,7 @@ static int main_f429(void)
     .buffer             = &buffer,
 
     .vfd0               = &vfd0,        // needed because in app_t. because init() called only after init.
-    .display_vfd        = &display_vfd,
+    .vfd_display        = &vfd_display,
 
 
     .tft                = &tft0,
