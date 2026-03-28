@@ -73,7 +73,7 @@ void decode_init(
   rather than static injecting on construction.
 */
 
-void decode_update( decode_t *decode,  data_t *data)
+void decode_update_data( decode_t *decode,  data_t *data)
 {
   assert( decode);
   assert( decode->magic == DECODE_MAGIC);

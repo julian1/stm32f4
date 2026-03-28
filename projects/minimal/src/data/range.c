@@ -119,8 +119,8 @@ static void mode_partial_reset( _mode_t *mode)
     and write an array  with co-efficients for calculating the value.
     used for the computing the value..
 
-  - can just inject the scaling array... from app. into the decode_update()
-      this way decode_update() also does not need the current range.
+  - can just inject the scaling array... from app. into the decode_update_data()
+      this way decode_update_data() also does not need the current range.
 
 */
 

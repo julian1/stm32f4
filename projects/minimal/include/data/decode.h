@@ -66,7 +66,7 @@ void decode_init(
 
 bool decode_repl_statement( decode_t *decode,  const char *cmd);
 
-void decode_update( decode_t *decode, data_t *data);
+void decode_update_data( decode_t *decode, data_t *data);
 
 
 

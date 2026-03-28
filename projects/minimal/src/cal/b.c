@@ -127,7 +127,7 @@ void app_cal_b( app_t *app)
   printf("\n");
 
   /*
-    above code - should be able to just call decode_update()  directly
+    above code - should be able to just call decode_update_data()  directly
       but keep separate. for independence when facoring etc.
   */
 

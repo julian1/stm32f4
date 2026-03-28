@@ -202,7 +202,7 @@ void app_fill_buffer( app_t *app, double *values, size_t n)
     data_init( &data);
 
     // get and compute counts
-    decode_update( decode, &data);
+    decode_update_data( decode, &data);
     if( data.valid) {
 
       values[ i] = data.count_sum_norm;
@@ -243,7 +243,7 @@ void app_fill_buffer1( app_t *app, double *pos_values, double *neg_values, size_
     data_init( &data);
 
     // get and compute counts
-    decode_update( decode, &data);
+    decode_update_data( decode, &data);
 
     // we take both hi and lo readings, since they have the same
     // ignore decode->valid

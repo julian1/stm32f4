@@ -615,10 +615,9 @@ static void app_update_soft_500ms(app_t *app)
   vfd_display_update_500ms( app->vfd_display);
 
 
-
+  // check fpga0 configured
   if( !spi_ice40_cdone( app->spi_fpga0_pc)) {
 
-    // fpga0 on analog board, pre-configuration
 
     /* feb 2026.  consider just pass f as the constructor dependency on app_t construction.
         not pass the flash address and size.
@@ -652,7 +651,7 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
-  // fpga1 - local ice40
+  // check fpga1 configured
   if( /*false &&*/ !spi_ice40_cdone( app->spi_fpga1_pc)) {
 
     // dependency should be set/passed to app.
@@ -821,9 +820,9 @@ void app_update( app_t *app)
     data_t  data;
     data_init( &data);
 
-    // TODO change name decode_update to decode_update_data
-    decode_update( app->decode, &data);
-    buffer_update( app->buffer, &data);
+    // TODO change name decode_update_data to decode_update_data_data
+    decode_update_data( app->decode, &data);
+    buffer_update_data( app->buffer, &data);
 
     printf( "\n");
 
@@ -1025,7 +1024,7 @@ void app_range_switch( app_t *app, uint32_t range_idx)
 
   assert( range_idx < app->ranges_sz );   // watch out for signess casts.
 
-  // set the current range_idx. used for decode_update
+  // set the current range_idx. used for decode_update_data
   *(app->range_idx) = range_idx;
 
 
@@ -1714,13 +1713,13 @@ void app_update_simple_with_data(app_t *app)
 
 
   // process potential new incomming data in priority
-  // decode_update_new_reading( app->data, app->spi/*, app->verbose*/);
+  // decode_update_data_new_reading( app->data, app->spi/*, app->verbose*/);
 
   // process new incoming data.
   if(data->adc_interrupt_valid) {
 
     data->adc_interrupt_valid = false;
-    decode_update_new_reading2( data, app->devices.spi_fpga0);
+    decode_update_data_new_reading2( data, app->devices.spi_fpga0);
   }
 
 
@@ -1900,8 +1899,8 @@ void app_update_simple_with_data(app_t *app)
           and call like this -
 
           app_update() {
-            decode_update( app->data );         <- this
-            buffer_update( app->buffer );
+            decode_update_data( app->data );         <- this
+            buffer_update_data( app->buffer );
             vfd_display_update_data( app->vfd  );
           }
 
