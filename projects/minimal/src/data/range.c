@@ -524,33 +524,33 @@ static void range_string( const range_t *range, char *s, size_t sz, unsigned ndi
 
 range_t range_init_values[] = {
 
-  //              name    arg     unit  set_mode    convert to reading                        sentinels
-  { RANGE_MAGIC,  "REF",  "",     "V",  range_ref,  range_reading_normal, range_string,   NULL,             true,   true },
+  //              name    arg     sentinels         unit  set_mode    convert to reading    format          autorange predicate
+  { RANGE_MAGIC,  "REF",  "",     true,   true,     "V",  range_ref,  range_reading_normal, range_string,   NULL,             },
 
-  { RANGE_MAGIC,  "LO",   "0.01", "mV", range_lo,   range_reading_normal, range_string,   NULL,             true,   false },
-  { RANGE_MAGIC,  "LO",   "0.1",  "mV", range_lo,   range_reading_normal, range_string,   NULL,             false,  false },
-  { RANGE_MAGIC,  "LO",   "1",    "V",  range_lo,   range_reading_normal, range_string,   NULL,             false,  false },
-  { RANGE_MAGIC,  "LO",   "10",   "V",  range_lo,   range_reading_normal, range_string,   NULL,             false,  true },
+  { RANGE_MAGIC,  "LO",   "0.01", true,   false,    "mV", range_lo,   range_reading_normal, range_string,   NULL,             },
+  { RANGE_MAGIC,  "LO",   "0.1",  false,  false,    "mV", range_lo,   range_reading_normal, range_string,   NULL,             },
+  { RANGE_MAGIC,  "LO",   "1",    false,  false,    "V",  range_lo,   range_reading_normal, range_string,   NULL,             },
+  { RANGE_MAGIC,  "LO",   "10",   false,  true,     "V",  range_lo,   range_reading_normal, range_string,   NULL,             },
 
-  { RANGE_MAGIC,  "LO2",  "0.01", "mV", range_lo2,  range_reading_normal, range_string,   NULL,             true,   false },
-  { RANGE_MAGIC,  "LO2",  "0.1",  "mV", range_lo2,  range_reading_normal, range_string,   NULL,             false,  false },
-  { RANGE_MAGIC,  "LO2",  "1",    "V",  range_lo2,  range_reading_normal, range_string,   NULL,             false,  false },
-  { RANGE_MAGIC,  "LO2",  "10",   "V",  range_lo2,  range_reading_normal, range_string,   NULL,             false,  true },
+  { RANGE_MAGIC,  "LO2",  "0.01", true,   false,    "mV", range_lo2,  range_reading_normal, range_string,   NULL,             },
+  { RANGE_MAGIC,  "LO2",  "0.1",  false,  false,    "mV", range_lo2,  range_reading_normal, range_string,   NULL,             },
+  { RANGE_MAGIC,  "LO2",  "1",    false,  false,    "V",  range_lo2,  range_reading_normal, range_string,   NULL,             },
+  { RANGE_MAGIC,  "LO2",  "10",   false,  true,     "V",  range_lo2,  range_reading_normal, range_string,   NULL,             },
 
 
-  { RANGE_MAGIC,  "DCV",  "0.01", "mV", range_dcv,  range_reading_dcv,    range_string,   range_dcv_pred,   true,   false },
-  { RANGE_MAGIC,  "DCV",  "0.1",  "mV", range_dcv,  range_reading_dcv,    range_string,   range_dcv_pred,   false,  false },
-  { RANGE_MAGIC,  "DCV",  "1",    "V",  range_dcv,  range_reading_dcv,    range_string,   range_dcv_pred,   false,  false },
-  { RANGE_MAGIC,  "DCV",  "10",   "V",  range_dcv,  range_reading_dcv,    range_string,   range_dcv_pred,   false,  false },
-  { RANGE_MAGIC,  "DCV",  "100",  "V",  range_dcv,  range_reading_dcv,    range_string,   range_dcv_pred,   false,  false },
-  { RANGE_MAGIC,  "DCV",  "1000", "V",  range_dcv,  range_reading_dcv,    range_string,   range_dcv_pred,   false,  true },
+  { RANGE_MAGIC,  "DCV",  "0.01", true,   false,    "mV", range_dcv,  range_reading_dcv,    range_string,   range_dcv_pred,   },
+  { RANGE_MAGIC,  "DCV",  "0.1",  false,  false,    "mV", range_dcv,  range_reading_dcv,    range_string,   range_dcv_pred,   },
+  { RANGE_MAGIC,  "DCV",  "1",    false,  false,    "V",  range_dcv,  range_reading_dcv,    range_string,   range_dcv_pred,   },
+  { RANGE_MAGIC,  "DCV",  "10",   false,  false,    "V",  range_dcv,  range_reading_dcv,    range_string,   range_dcv_pred,   },
+  { RANGE_MAGIC,  "DCV",  "100",  false,  false,    "V",  range_dcv,  range_reading_dcv,    range_string,   range_dcv_pred,   },
+  { RANGE_MAGIC,  "DCV",  "1000", false,  true,     "V",  range_dcv,  range_reading_dcv,    range_string,   range_dcv_pred,   },
 
-  { RANGE_MAGIC,  "TEMP", "",     "°C", range_temp, range_reading_temp,   range_string,   NULL,             true,   true  },
+  { RANGE_MAGIC,  "TEMP", "",     true,   true,     "°C", range_temp, range_reading_temp,   range_string,   NULL,             },
 
-  { RANGE_MAGIC,  "LTS",  "0.01", "mV", range_lts,  range_reading_normal, range_string,   NULL,             true,   false },  // better name, LTS or DCV LTS.
-  { RANGE_MAGIC,  "LTS",  "0.1",  "mV", range_lts,  range_reading_normal, range_string,   NULL,             false,  false },
-  { RANGE_MAGIC,  "LTS",  "1",    "V",  range_lts,  range_reading_normal, range_string,   NULL,             false,  false },
-  { RANGE_MAGIC,  "LTS",  "10",   "V",  range_lts,  range_reading_normal, range_string,   NULL,             false,  true }
+  { RANGE_MAGIC,  "LTS",  "0.01", true,   false,    "mV", range_lts,  range_reading_normal, range_string,   NULL,             },  // better name, LTS or DCV LTS.
+  { RANGE_MAGIC,  "LTS",  "0.1",  false,  false,    "mV", range_lts,  range_reading_normal, range_string,   NULL,             },
+  { RANGE_MAGIC,  "LTS",  "1",    false,  false,    "V",  range_lts,  range_reading_normal, range_string,   NULL,             },
+  { RANGE_MAGIC,  "LTS",  "10",   false,  true,     "V",  range_lts,  range_reading_normal, range_string,   NULL,             }
 
 
 };

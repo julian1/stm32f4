@@ -33,10 +33,17 @@ typedef struct range_t
 
   const char  *arg;
 
-  // consider make a function. it doefor
-  const char  *unit;
+  // sentinel encodes range limits - either top or bottom.
+  bool bot_sentinal;
+  bool top_sentinal;
+
+  // bool ignore;
+
 
   ///////////////////
+
+  // consider make a function. it doefor
+  const char  *unit;
 
   /*
     can always use a structure to pass arguments,
@@ -68,12 +75,6 @@ typedef struct range_t
   int32_t (*range_predicate)( range_t *range, /*status_reg, */ double v);
 
   //
-  // bool ignore;
-
-  // sentinel encodes range limits - either top or bottom.
-  bool bot_sentinal;
-  bool top_sentinal;
-
 
 
 } range_t;
