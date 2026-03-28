@@ -722,7 +722,7 @@ static void app_update_soft_500ms(app_t *app)
 
 
 
-static void app_update_console(app_t *app)
+static void app_console_update(app_t *app)
 {
 
   assert(app && app->magic == APP_MAGIC);
@@ -853,7 +853,7 @@ void app_update( app_t *app)
   // handle console
   // note this calls app_update_repl() that starts actions.
   // we could pass a flag indicicating if it whoudl be processed.
-  app_update_console( app);
+  app_console_update( app);
 
 
   /* to side-step overflow/wrap around issues
