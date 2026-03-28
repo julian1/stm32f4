@@ -24,7 +24,7 @@
 // vfd
 #include <peripheral/vfd.h> // magic
 #include <peripheral/vfd-fonts.h>
-#include <vfd_display.h>
+#include <vfd-display.h>
 
 
 

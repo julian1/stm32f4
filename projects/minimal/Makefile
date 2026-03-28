@@ -29,7 +29,7 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/agg/agg.cpp src/agg/arial-outline.cpp \
             src/agg/agg_test2.cpp src/agg/agg_test3.cpp \
             src/main.c  \
-            src/display_vfd.c \
+            src/vfd-display.c \
             src/app.c  \
             src/syscalls.o \
             src/mode.o \

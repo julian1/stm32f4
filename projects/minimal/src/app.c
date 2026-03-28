@@ -54,7 +54,7 @@
 
 
 #include <device/vfd0.h>      // device needed because we defer initialization of device
-#include <vfd_display.h>
+#include <vfd-display.h>
 
 #include <agg/test.h> // consider better name. display_agg_test
 

@@ -67,7 +67,7 @@
 #include <data/decode.h>
 #include <data/buffer.h>
 
-#include <vfd_display.h>
+#include <vfd-display.h>
 
 #include <agg/test.h> // consider better name. display_agg_test
 
