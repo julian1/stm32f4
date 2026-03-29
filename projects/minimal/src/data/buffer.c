@@ -27,6 +27,8 @@
 #include <data/buffer.h>
 #include <data/range.h>
 
+#include <support.h>      // str_format
+
 
 
 /*
@@ -137,7 +139,15 @@ void buffer_update_data( buffer_t *buffer, data_t *data)
       printf( "mean   %s", str_format_float_with_commas(buf, 100, 8, buffer->mean));
       printf( "%s, ", range->unit );
 
-      printf( "stddev %s", str_format_float_with_commas(buf, 100, 8, buffer->stddev));
+
+
+      // this includes the unit
+      printf( "stddev %s", str_format_value_dynamic( buf, 100, buffer->stddev, 4 ));
+
+
+      // printf( "stddev %s", str_format_float_with_commas(buf, 100, 8, buffer->stddev));
+
+      // printf( "stddev %s", str_format_float_with_commas(buf, 100, 8, buffer->stddev));
       printf( "%s, ", range->unit );
     }
   }

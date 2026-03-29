@@ -1006,7 +1006,7 @@ void app_range_switch( app_t *app, uint32_t range_idx)
 {
   assert(app && app->magic == APP_MAGIC);
 
-  printf("range idx %lu\n", range_idx);   // is 50???
+  printf("here2 range idx %lu\n", range_idx);   // is 50???
 
   // range_idx is unsigned and expected to be valid
   assert( range_idx < app->ranges_sz );   // watch out for signess casts.
