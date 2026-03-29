@@ -1,13 +1,17 @@
 
+// consider rename  support.h
+
+
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>   // strcmp()
 // #include <strings.h>   // strcasecmp().  use to_lower() instead
 #include <stdlib.h> // strtoul()
 #include <ctype.h>    // isdigit isspace
+#include <math.h>    // fabs()
 
 
-#include <util.h>
+#include <support.h>
 #include <mode.h> // needed for S1-S8 etc. for string decoding
 
 
@@ -259,15 +263,18 @@ unsigned str_decode_float( const char *s, double *val )
   }
   else if (n == 2) {
 
-    if(unit == 'm')
-      *val *= 1e-3;
-    else if(unit == 'u')
-      *val *= 1e-6;
-    else if(unit == 'n')
-      *val *= 1e-9;
-    else
-      return 0;
+    switch( unit) {
 
+      case 'm':
+        *val *= 1e-3;  break;
+      case 'u':
+        *val *= 1e-6; break;
+      case 'n':
+        *val *= 1e-9;  break;
+
+      default:
+        return 0;     // eg. conversion failed.
+    }
     return 1;
   }
 
@@ -276,6 +283,250 @@ unsigned str_decode_float( const char *s, double *val )
 
 }
 
+
+
+
+
+/*
+  this code wont work for ranges
+  but is useful for some dynamic values where we don't know how to manage.
+  leading digits
+
+*/
+
+
+char * str_format_value( char *s, size_t n,  unsigned ndigits, unsigned leading, double value )
+{
+  // printf("%u\n", leading);
+
+  if( ndigits < leading) {
+    assert( 0);
+  }
+  else if( ndigits == leading) {
+    // +1 for sign. but there will be no dot
+    ndigits += 1;
+    leading += 1;
+  }
+  else {
+    // +1 for sign and +1 for dot
+    ndigits += 2;
+    leading += 2;
+  }
+  int trailing = ndigits  - leading ;
+
+  snprintf(s, n, "%0*.*f", ndigits, trailing, fabs(value));
+
+  // both 34470a, dmm7510, 3458a preserve leading positive sign in display
+  // 34401a. uses empty space
+  s[ 0] = value >= 0 ? '+' : '-';
+
+  return s;
+}
+
+
+
+void val_adjust_unit( double *val, char *c)
+{
+  unsigned count = 0;
+
+  *c = ' '; // default
+
+  char ch[] =  { ' ', 'm', 'u', 'n', 'p', 'a' };
+
+  while( fabs( *val) <=  1.2 && *val != 0) {
+    // printf("here1\n");
+    *val *= 1000;
+    ++count ;
+    assert( count < sizeof( ch));
+    *c = ch[ count];
+  }
+
+  char ch2[] =  { ' ', 'k', 'M', 'G', 'T', 'P' };
+
+  while( fabs( *val) >  1200) {
+    // printf("here2\n");
+    *val /= 1000;
+    ++count ;
+    assert( count < sizeof( ch2));
+    *c = ch2[ count];
+  }
+
+}
+
+
+unsigned val_leading_digits( double val_)
+{
+  // case of 0
+  if (val_ == 0)
+    return 1;
+
+  unsigned val = fabs( val_);
+  unsigned count = 0;
+
+  while (val > 0) {
+    // printf("val %f\n", val);
+    val /= 10;
+    count++;
+  }
+  return count ;
+}
+
+
+
+char * str_format_value_dynamic( char *s, size_t sz, double val, unsigned ndigits)
+{
+  // should have minimum of 4 digits to display value after unit adjust
+  assert( ndigits >= 4);
+
+  // adjust unit
+  char ch;
+  val_adjust_unit( &val, &ch);
+  // printf("adjust val %f%c\n", val, ch );
+
+  unsigned leading = val_leading_digits( val);
+  assert( ndigits >= leading);
+  // printf( "digits %u\n", digits );
+  // printf( "leading %u\n", leading );
+
+  char buf[ 101];
+  snprintf( s, sz, "%s%c", str_format_value( buf, 100, ndigits, leading, val ), ch );
+  return s;
+}
+
+
+
+
+
+
+#if 0
+
+static void string_rotate_right( char *s, size_t len,  unsigned shift )
+{
+  // rotate string right by shift digits
+  // correctly handles sentinal/terminating
+
+  if(shift == 0)
+    return;
+
+  // string_rotate_right right
+  for(unsigned i = len-1; i >= shift; --i) {
+
+    // printf("i %u   i-shift %u \n", i, i - shift );
+    assert( i < len);
+    assert( (i - shift)  < len);
+    s[ i ] = s [ i - shift ];
+  }
+
+}
+
+
+static signed strpos( char *s, size_t len, char ch)
+{
+  // like, strchr( s, ch) - s ; but no assumption string is null terminated
+  signed cur = 0;
+  for(unsigned i = 0; i < len && cur == 0 && s[i] != 0 ; ++i) {
+    if( s[i] == ch)
+      cur = i;
+  }
+  // return 0 if not found
+  return cur;
+}
+
+
+
+static void string_align_dot( char *s, size_t len, signed pos )
+{
+  /*
+    simpler way to do this - would be with log10().
+    eg. prefix_digits = floor(log10( aval)) + 1;
+    but it doesn't quite work, since sprintf always adds a leading zero.
+    so use string manipulation/interrogation instead
+  */
+
+  signed cur = strpos(s, len, '.' );
+  assert(cur != 0);
+
+  // determine chars to shift
+  signed shift = pos - cur;
+  assert( shift >= 0);
+  string_rotate_right( s, len,  shift );
+
+
+  // prepend zeros
+  for(unsigned i = 0; i < (unsigned) shift; ++i) {
+    assert( i < len);
+    s[i] = '0';
+  }
+}
+
+
+
+static void format_value( char *s, size_t n, double value, unsigned leading, unsigned trailing )
+{
+
+  // snprintf(s, n, "%.6f", fabs( value ) );
+  snprintf(s, n, "%.*f", trailing, fabs(value));
+
+  string_align_dot( s, n, leading);   // eg. -12.xxx
+
+  s[ 0 ] = value >= 0 ? '+' : '-';
+}
+
+
+
+static char * intersperse_commas(char *dst, size_t sz,  const char *src)
+{
+  /*
+    sz is the dst size buffer.
+  */
+  char *d = dst;
+  const char *s = src;
+
+  bool      gotdot = false;
+  unsigned  dotdigits = 0;
+
+  while(*s && d < dst + sz) {
+
+    if( *s == '.')
+      gotdot = true;
+
+    if(gotdot && isdigit( (int) *s))
+      ++dotdigits;
+
+
+    *d++ = *s++;
+
+    // eg. comma every third digit
+    if( dotdigits != 0
+      && (dotdigits % 3) == 0
+      && d < dst + sz)
+      *d++ = ',';
+  }
+
+  // always add a terminal
+  if( d < dst + sz)
+    *d = 0;
+  else
+    *(dst + sz - 1)  = 0;
+
+
+  return dst;
+}
+
+
+
+
+
+static void stoupper( char *s)
+{
+  // inplace
+  size_t n  = strlen(s);
+  for(unsigned i = 0; i < n; ++i)   // stoupper
+    s[i] = toupper( s[i]);
+
+}
+
+#endif
 
 
 

@@ -1,4 +1,6 @@
 
+// consider rename  support.h
+
 #pragma once
 
 
@@ -35,3 +37,11 @@ unsigned str_decode_float( const char *s, double *val);
 char * mux_to_string( unsigned val,  char *buf, unsigned n  );
 
 
+///////
+
+
+char * str_format_value( char *s, size_t n,  unsigned ndigits, unsigned leading, double value );
+void val_adjust_unit( double *val, char *c) ;
+unsigned val_leading_digits( double val_);
+
+char * str_format_value_dynamic( char *s, size_t sz, double val, unsigned ndigits);

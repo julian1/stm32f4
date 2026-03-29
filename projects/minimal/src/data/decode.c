@@ -37,6 +37,10 @@ void decode_init(
   spi_t     *spi,
   cal_t     *cal,
   range_t   *ranges,
+
+  // using pointers is a mess. line_freq could almost be instantiated here.
+  // or use a separate structure passed to both app_t and decode_t ...
+  // or pass on update_data()
   unsigned  *range_idx,
   uint32_t  *line_freq
 )
@@ -73,11 +77,15 @@ void decode_init(
   rather than static injecting on construction.
 */
 
-void decode_update_data( decode_t *decode,  data_t *data)
+void decode_update_data( decode_t *decode,  data_t *data  /* range_idx */ /* line_freq */ )
 {
   assert( decode);
   assert( decode->magic == DECODE_MAGIC);
 
+  /*
+    consider why is cal here...
+    instead of being pulled out of the range ?
+  */
   cal_t *cal = decode->cal;
   assert( cal && cal->magic == CAL_MAGIC);
 
@@ -143,12 +151,30 @@ void decode_update_data( decode_t *decode,  data_t *data)
     data->valid = false;
   }
 
-  else if ( data->status.sample_idx == 1) {
+  else if( data->status.sample_idx == 1) {
 
     // hi
     data->count_sum =
-          ((double) data->adc_clk_count_refmux_pos      - (cal->w * data->adc_clk_count_refmux_neg))
-        - ((double) decode->adc_clk_count_refmux_pos_lo - (cal->w * decode->adc_clk_count_refmux_neg_lo));
+        ((double) data->adc_clk_count_refmux_pos      - (cal->w * data->adc_clk_count_refmux_neg))
+      - ((double) decode->adc_clk_count_refmux_pos_lo - (cal->w * decode->adc_clk_count_refmux_neg_lo));
+
+    data->valid     = true;
+  }
+
+  else {
+
+    assert(0);
+
+  }
+
+
+  if( data->valid) {
+    //
+    range_t *range  = &decode->ranges[ *decode->range_idx];
+    assert( range);
+    data->range     = range;
+    data->cal       = cal;
+    data->line_freq = *decode->line_freq;
 
 
     if(decode->show_counts)
@@ -158,15 +184,9 @@ void decode_update_data( decode_t *decode,  data_t *data)
     data->count_sum_norm = data->count_sum  / data->adc_clk_count_sigmux;
 
 
-    range_t *range  = &decode->ranges[ *decode->range_idx];
-    assert( range);
-    data->range     = range;
-    data->cal       = cal;
-    data->line_freq =  *decode->line_freq;
-
     // calculate reading for current range
     data->reading = range->range_reading_convert( range, cal, data->count_sum_norm);
-    data->valid     = true;
+    // data->valid     = true;
 
 
     if(decode->show_reading) {
@@ -177,12 +197,8 @@ void decode_update_data( decode_t *decode,  data_t *data)
       // printf( "%s, ", range ? range->unit : ""  );
     }
 
-  }
-  else {
+  } // data->valid
 
-    assert(0);
-
-  }
 
 }
 

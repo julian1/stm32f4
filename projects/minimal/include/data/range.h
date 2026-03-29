@@ -61,7 +61,7 @@ typedef struct range_t
 
 
   // convert value to string
-  void (*range_string)( const range_t *range, char *s, size_t sz, unsigned ndigits, double value);
+  void (*range_format_value)( const range_t *range, char *s, size_t sz, unsigned ndigits, double value);
 
   /* could have a range_cal_set()  function ...
       to hide all the detail of writing the cal co-efficientss

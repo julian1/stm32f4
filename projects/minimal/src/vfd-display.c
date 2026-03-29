@@ -15,7 +15,7 @@
 #include <lib2/format.h>  // format_float
 
 
-#include <util.h>         // aper_n_to_nplc
+#include <support.h>         // format
 
 #include <data/data.h>
 #include <data/range.h>
@@ -25,137 +25,6 @@
 #include <peripheral/vfd.h> // magic
 #include <peripheral/vfd-fonts.h>
 #include <vfd-display.h>
-
-
-
-static void string_rotate_right( char *s, size_t len,  unsigned shift )
-{
-  // rotate string right by shift digits
-  // correctly handles sentinal/terminating
-
-  if(shift == 0)
-    return;
-
-  // string_rotate_right right
-  for(unsigned i = len-1; i >= shift; --i) {
-
-    // printf("i %u   i-shift %u \n", i, i - shift );
-    assert( i < len);
-    assert( (i - shift)  < len);
-    s[ i ] = s [ i - shift ];
-  }
-
-}
-
-
-static signed strpos( char *s, size_t len, char ch)
-{
-  // like, strchr( s, ch) - s ; but no assumption string is null terminated
-  signed cur = 0;
-  for(unsigned i = 0; i < len && cur == 0 && s[i] != 0 ; ++i) {
-    if( s[i] == ch)
-      cur = i;
-  }
-  // return 0 if not found
-  return cur;
-}
-
-
-
-static void string_align_dot( char *s, size_t len, signed pos )
-{
-  /*
-    simpler way to do this - would be with log10().
-    eg. prefix_digits = floor(log10( aval)) + 1;
-    but it doesn't quite work, since sprintf always adds a leading zero.
-    so use string manipulation/interrogation instead
-  */
-
-  signed cur = strpos(s, len, '.' );
-  assert(cur != 0);
-
-  // determine chars to shift
-  signed shift = pos - cur;
-  assert( shift >= 0);
-  string_rotate_right( s, len,  shift );
-
-
-  // prepend zeros
-  for(unsigned i = 0; i < (unsigned) shift; ++i) {
-    assert( i < len);
-    s[i] = '0';
-  }
-}
-
-
-
-static void format_value( char *s, size_t n, double value, unsigned leading, unsigned trailing )
-{
-
-  // snprintf(s, n, "%.6f", fabs( value ) );
-  snprintf(s, n, "%.*f", trailing, fabs(value));
-
-  string_align_dot( s, n, leading);   // eg. -12.xxx
-
-  s[ 0 ] = value >= 0 ? '+' : '-';
-}
-
-
-
-static char * intersperse_commas(char *dst, size_t sz,  const char *src)
-{
-  /*
-    sz is the dst size buffer.
-  */
-  char *d = dst;
-  const char *s = src;
-
-  bool      gotdot = false;
-  unsigned  dotdigits = 0;
-
-  while(*s && d < dst + sz) {
-
-    if( *s == '.')
-      gotdot = true;
-
-    if(gotdot && isdigit( (int) *s))
-      ++dotdigits;
-
-
-    *d++ = *s++;
-
-    // eg. comma every third digit
-    if( dotdigits != 0
-      && (dotdigits % 3) == 0
-      && d < dst + sz)
-      *d++ = ',';
-  }
-
-  // always add a terminal
-  if( d < dst + sz)
-    *d = 0;
-  else
-    *(dst + sz - 1)  = 0;
-
-
-  return dst;
-}
-
-
-
-
-
-static void stoupper( char *s)
-{
-  // inplace
-  size_t n  = strlen(s);
-  for(unsigned i = 0; i < n; ++i)   // stoupper
-    s[i] = toupper( s[i]);
-
-}
-
-
-
 
 
 
@@ -228,14 +97,19 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
 
 
   char buf[100 + 1];
-  char buf2[100 + 1];
+  // char buf2[100 + 1];
 
-
+#if 0
   // from util.  should deprecate
   sprintf( buf, "%s%s",
     str_format_float_with_commas( buf2, 100, 7, data->reading),
     "" // range->unit
   );
+#endif
+
+
+  // void (*range_format_value)( const range_t *range, char *s, size_t sz, unsigned ndigits, double value);
+  range->range_format_value( range, buf, 100, 8, data->reading);
 
 
   // format_value( buf, 100 - 1, data->reading, 3, 6 );
@@ -281,8 +155,14 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
 
   double nplc = aper_n_to_nplc( data->adc_clk_count_sigmux, data->line_freq );
 
-  snprintf( buf, 100, "%s-%s %s", range->name, range->arg,  noaz ? "NOAZ" : "AZ");
+  snprintf( buf, 100, "%s-%s %s   %s", range->name, range->arg,  noaz ? "NOAZ" : "AZ",   range->unit);
   vfd_write_string2( vfd, buf, 0, 3 );
+
+// TODO.   the x offset is in pix. not characters.
+//  snprintf( buf, 100, "here");
+//  vfd_write_string2( vfd, buf, 10, 3 );
+
+
 
 
   snprintf( buf, 100, "nplc %.1lf ", nplc );
@@ -294,11 +174,20 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
   snprintf( buf, 100, "mean   %.8f", buffer->mean);
   vfd_write_string2( vfd, buf, 0, 5 );
 
-  snprintf( buf, 100, "stddev %.8f", buffer->stddev);
+
+  char buf2[ 101];
+
+  // this includes the unit
+  snprintf( buf, 100, "stddev %s", str_format_value_dynamic( buf2, 100, buffer->stddev, 4 ));
+
+  // snprintf( buf, 100, "stddev %.8f", buffer->stddev);
   vfd_write_string2( vfd, buf, 0, 6 );
 
 
 }
+
+
+
 
 
 

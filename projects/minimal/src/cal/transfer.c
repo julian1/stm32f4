@@ -16,8 +16,8 @@
 
 #include <app.h>
 #include <cal/transfer.h>
-#include <util.h> // nplc_to_aperture()
 #include <lib2/stats.h>
+#include <support.h> // nplc_to_aperture()
 
 #include <mode.h>
 

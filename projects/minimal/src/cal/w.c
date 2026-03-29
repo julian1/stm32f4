@@ -25,8 +25,8 @@
 
 #include <cal/transfer.h>
 #include <app.h>
-#include <util.h> // nplc_to_aperture()
 #include <mode.h>
+#include <support.h> // nplc_to_aperture()
 
 #include <data/cal.h>
 #include <data/decode.h>

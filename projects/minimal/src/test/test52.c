@@ -39,8 +39,8 @@
 
 
 #include <mode.h>
-#include <util.h> // nplc_to_aperture()
 #include <app.h>
+#include <support.h> // nplc_to_aperture()
 
 
 #include <test/test.h>

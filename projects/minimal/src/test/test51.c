@@ -14,8 +14,8 @@
 
 
 #include <mode.h>
-#include <util.h> // nplc_to_aperture()
 #include <app.h>
+#include <support.h> // nplc_to_aperture()
 
 
 #include <peripheral/gpio.h>        // trigger

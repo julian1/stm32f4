@@ -448,6 +448,10 @@ static int main_f429(void)
   // both line_freq and range_idx  are going to have to be defined here with memory..
   //
 
+  /* 
+      having range_idx be a pointer to be shared between decode and app. is quite annoying
+      means that we have to de-reference it everywhere.
+  */
 
   decode_t        decode;
   decode_init(

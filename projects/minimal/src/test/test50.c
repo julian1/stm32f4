@@ -39,8 +39,8 @@
 #include <lib2/format.h>  // format_with_commas
 
 
+#include <support.h> // nplc_to_aperture()
 #include <mode.h>
-#include <util.h> // nplc_to_aperture()
 #include <app.h>
 
 

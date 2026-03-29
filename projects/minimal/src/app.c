@@ -35,7 +35,7 @@
 
 
 #include <device/support.h>    // mcu_reset, print_stack_pointer
-#include <util.h>             // str_decode_uint
+#include <support.h>             // str_decode_uint
 
 
 
@@ -798,7 +798,6 @@ void app_update( app_t *app)
     /*
       may need/want to distinguish the interrupt type.
       adc value.  or comparator overload.
-
       can use status register to indicate. what we need to respond to.
 
     */
@@ -1007,6 +1006,9 @@ void app_range_switch( app_t *app, uint32_t range_idx)
 {
   assert(app && app->magic == APP_MAGIC);
 
+  printf("range idx %lu\n", range_idx);   // is 50???
+
+  // range_idx is unsigned and expected to be valid
   assert( range_idx < app->ranges_sz );   // watch out for signess casts.
 
   // set the current range_idx. used for decode_update_data
@@ -1015,14 +1017,14 @@ void app_range_switch( app_t *app, uint32_t range_idx)
 
   // apply the range mode state transition
   range_t *range = &app->ranges[ range_idx];
-  assert(range);
-  assert(range->range_set_mode);
+  assert( range);
+  assert( range->range_set_mode);
 
-  printf("switch to %s-%s\n", range->name, range->arg);
+  printf( "switch to %s-%s\n", range->name, range->arg);
 
   range->range_set_mode( range, app->mode, app->range_10Meg);
 
-  // set retrigger to clear buffers
+  // force retrigger to clear buffers
   app->repl_retrigger = true;
 }
 
@@ -1035,7 +1037,10 @@ void app_range_switch1( app_t *app, const char *name, const char *arg)
   // assert() that the range exists
 
   int32_t range_idx = range_get_idx( app->ranges, app->ranges_sz, name, arg);
-  assert( range_idx >= 0);
+
+
+  assert( range_idx >= 0 && range_idx < (int) app->ranges_sz);
+
   app_range_switch( app, range_idx);
 }
 
@@ -1043,10 +1048,11 @@ void app_range_switch1( app_t *app, const char *name, const char *arg)
 
 
 
-// make these functions public.
 
 bool app_repl_range( app_t *app, const char *cmd)
 {
+  assert(app && app->magic == APP_MAGIC);
+
   char name[ 100 + 1];
   char arg[ 100 + 1];
 
@@ -1060,11 +1066,21 @@ bool app_repl_range( app_t *app, const char *cmd)
   if( n == 2 || n == 1) {
 
     int32_t range_idx = range_get_idx( app->ranges, app->ranges_sz, name, arg);
-    if( range_idx != -1) {
+
+    printf("here range idx %ld\n", range_idx);   // is 50???
+
+    assert( range_idx < (int) app->ranges_sz);
+
+    if( range_idx >= 0) {
 
       app_range_switch( app, range_idx);
       return true;
     }
+    else {
+
+      printf("range not found\n");
+    }
+
   }
 
   return false;
