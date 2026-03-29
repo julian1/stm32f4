@@ -88,7 +88,7 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
 
 
   // only have range if data is valid
-  range_t *range = data->range;
+  const range_t *range = data->range;
   assert( range && range->magic == RANGE_MAGIC);
 
 

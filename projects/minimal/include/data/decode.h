@@ -31,7 +31,9 @@ typedef struct decode_t
 
   spi_t       *spi ;
   cal_t       *cal;
-  range_t     *ranges;
+  const range_t *ranges;
+
+
   unsigned    *range_idx;    // current active range
   uint32_t    *line_freq;
 
@@ -58,7 +60,8 @@ void decode_init(
   decode_t    *decode,
   spi_t     *spi,
   cal_t *   cal,
-  range_t   *ranges,
+  const range_t   *ranges,
+
   unsigned  *range_idx,
   uint32_t  *line_freq
 );

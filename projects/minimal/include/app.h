@@ -72,10 +72,37 @@ typedef struct tft_display_t tft_display_t;
 #define APP_MAGIC   456
 
 
+typedef struct common_t
+{
+  /* system state properties where values often change. and which must be shared between more than one module
+      also require repl setting.
+
+  */
+  // and dont
+  // uint32_t magic;
+
+  volatile uint32_t system_millis;
+
+  uint32_t      line_freq;
+
+  unsigned      range_idx;    // active range TODO rename range_active_idx.
+
+  bool          range_10Meg;
+
+  unsigned      ndigits;
+
+
+} common_t;
+
+
+
 
 
 typedef struct app_t
 {
+
+  // common_t   ;   // consider anonymous composition struct
+
   uint32_t magic;
 
 
@@ -206,17 +233,13 @@ typedef struct app_t
   // issue is that the tests code wants easy access
   uint32_t      *line_freq;
 
-/*
-  // not sure these will ever be used outside the context of cal_t
-  // so could move them there.
-  unsigned      cal_id;
-  double        cal_w;
-*/
 
   //////////////
 
-  range_t       *ranges;      // including cal co-efficients
-  size_t        ranges_sz;
+  // these are const.
+  const range_t *ranges;      // including cal co-efficients
+  const size_t  ranges_sz;
+
   unsigned      *range_idx;    // active range TODO rename active_range_idx.
 
   ////////////////////////
@@ -227,7 +250,7 @@ typedef struct app_t
 
   ////////////
 
-  cal_t         *cal;     // array
+  cal_t         *cal;
 
   decode_t      *decode;
 
@@ -259,7 +282,7 @@ typedef struct app_t
   tft_t         *tft;
 
 
-  tft_display_t    *tft_display;
+  tft_display_t *tft_display;
 
 } app_t;
 

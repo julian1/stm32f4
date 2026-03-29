@@ -36,7 +36,7 @@ void decode_init(
   decode_t  *decode,
   spi_t     *spi,
   cal_t     *cal,
-  range_t   *ranges,
+  const range_t *ranges,
 
   // using pointers is a mess. line_freq could almost be instantiated here.
   // or use a separate structure passed to both app_t and decode_t ...
@@ -59,9 +59,10 @@ void decode_init(
   decode->spi       = spi;
   decode->cal       = cal;
   decode->ranges    = ranges;
+
+
+  //  handling these as pointers is not great
   decode->range_idx = range_idx;
-
-
   decode->line_freq = line_freq;
 
   // default
@@ -170,7 +171,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_idx */ /* lin
 
   if( data->valid) {
     //
-    range_t *range  = &decode->ranges[ *decode->range_idx];
+    const range_t *range  = &decode->ranges[ *decode->range_idx];
     assert( range);
     data->range     = range;
     data->cal       = cal;

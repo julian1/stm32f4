@@ -129,7 +129,7 @@ void buffer_update_data( buffer_t *buffer, data_t *data)
     buffer->mean   = mean(   buffer->values, buffer->count);
     buffer->stddev = stddev( buffer->values, buffer->count);
 
-    range_t *range = data->range;
+    const range_t *range = data->range;
     assert(range);
 
     char buf[100 + 1];

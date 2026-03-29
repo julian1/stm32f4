@@ -469,26 +469,32 @@ static void range_format_value( const range_t *range, char *s, size_t sz, unsign
   */
 
   unsigned leading = 0;
+  char  ch = 'x';
 
   if(strcasecmp( range->arg, "1000") == 0) {
     leading = 4;
+    ch = ' ';
   }
   else if(strcasecmp( range->arg, "100") == 0) {
     leading = 3;
+    ch = ' ';
   }
   else if(strcasecmp( range->arg, "") == 0
     || strcasecmp( range->arg, "10") == 0
   ) {
     leading = 2;
+    ch = ' ';
   }
   else if(strcasecmp( range->arg, "1") == 0)
   {
     leading = 1;
+    ch = ' ';
   }
   else if(strcasecmp( range->arg, "0.1") == 0)
   {
     leading = 3;
     value *= 1000.;
+    ch = 'm';
     // can change unit to "mV"
     // have to add 'm'
   }
@@ -496,19 +502,22 @@ static void range_format_value( const range_t *range, char *s, size_t sz, unsign
   {
     leading = 2;
     value *= 1000.;
+    ch = 'm';
     // have to add 'm'
   }
   else
     assert( 0);
 
+  UNUSED( ch);
 
   str_format_value( s, sz,  ndigits, leading, value);
 
-  // consider can encode full unit here. 'mV'
-  // no. use a separate function
+  /* consider encode full unit here. 'mV'
+    would be a real convenience.  for mean min,max. etc.
+    even if in some cases we dont want it
+  */
 
-  // we likely want to use the same function - for mean, min,max. etc  and for charting.
-
+  // can always remove want.
 }
 
 
@@ -536,9 +545,14 @@ static void range_format_value( const range_t *range, char *s, size_t sz, unsign
   - auto-ranging with shunts - may be a little tricky.
       unless organize the shunt values - so comparators at amplifier output are triggered where want for range switching.
 
+  - consider remove the unit string.
+    hiding capability behind a function is more flexible and more localized.
+
+    better hiding/ encapsulation.   and more flexible.
+    range_format_unit()   function
 */
 
-range_t range_init_values[] = {
+const range_t range_init_values[] = {
 
   //              name    arg     sentinels         unit  set_mode    convert to reading    format          autorange predicate
   { RANGE_MAGIC,  "REF",  "",     true,   true,     "V",  range_ref,  range_reading_normal, range_format_value,   NULL,             },
@@ -576,13 +590,13 @@ const size_t range_init_sz = ARRAY_SIZE( range_init_values );
 
 
 
-int32_t range_get_idx( range_t *ranges, size_t sz, const char *name, const char *arg )
+int32_t range_get_idx( const range_t *ranges, size_t sz, const char *name, const char *arg )
 {
   // TODO consider rename  lookup..  range_find_idx.
 
   for( size_t i = 0; i < sz; ++i) {
 
-    range_t *range = & ranges[ i];
+    const range_t *range = & ranges[ i];
 
     if( strcasecmp( name, range->name) == 0
       && strcasecmp( arg, range->arg) == 0

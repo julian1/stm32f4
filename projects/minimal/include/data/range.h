@@ -84,13 +84,13 @@ typedef struct range_t
 
 
 
-int32_t range_get_idx( range_t *ranges, size_t sz, const char *name, const char *arg );
+int32_t range_get_idx( const range_t *ranges, size_t sz, const char *name, const char *arg );
 
 
 // forward declaration
 // do not use global ... use app->range_values instead
 // may be better manage this with a  reset() singleton.
-extern range_t  range_init_values[];
+extern const range_t  range_init_values[];
 
 extern const size_t range_init_sz ;
 

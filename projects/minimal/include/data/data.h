@@ -61,10 +61,10 @@ typedef struct data_t
   // bool reading_valid or use NaN
 
   // range used - could hard-copy if non const.
-  range_t   *range;
+  const range_t   *range;
 
-  // can record cal used.
-  cal_t     *cal;
+  // record cal used.
+  const cal_t     *cal;
 
   // TODO.  add line_freq used.
 

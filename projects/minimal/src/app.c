@@ -994,7 +994,7 @@ bool app_range_dir_valid( app_t *app, uint32_t range_idx, bool dir)    // 1 up. 
   assert( range_idx < app->ranges_sz );   // watch out for signess casts.
 
 
-  range_t *range = &app->ranges[ range_idx];
+  const range_t *range = &app->ranges[ range_idx];
 
   return (dir == 1 && !range->top_sentinal)
     || (dir == 0 && !range->bot_sentinal);
@@ -1016,7 +1016,7 @@ void app_range_switch( app_t *app, uint32_t range_idx)
 
 
   // apply the range mode state transition
-  range_t *range = &app->ranges[ range_idx];
+  const range_t *range = &app->ranges[ range_idx];
   assert( range);
   assert( range->range_set_mode);
 
