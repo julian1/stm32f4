@@ -66,7 +66,7 @@ bool tft_display_repl_statement( tft_display_t *tft_display,  const char *cmd)
   else if(strcmp(cmd, "tft_test3") == 0)
     tft_display->update = tft_test3;
 
-  else if(strcmp(cmd, "agg_none") == 0)
+  else if(strcmp(cmd, "tft_none") == 0)
     tft_display->update = tft_display_update_;
 
 
