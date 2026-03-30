@@ -82,10 +82,16 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
 
 
 
-  // nothing to do
-  if( !data->valid)
-    return;
+  // no valid measurement reading
+  if( !data->valid) {
 
+    // just clear the star, to indicate no measurement data
+    char buf[101];
+    snprintf( buf, 100, "%c", ' ');
+    vfd_write_string2( vfd, buf, 0, 3 );
+
+    return;
+  }
 
   // only have range if data is valid
   const range_t *range = data->range;
@@ -108,11 +114,9 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
 #endif
 
 
-  // void (*range_format_value)( const range_t *range, char *s, size_t sz, unsigned ndigits, double value);
   range->range_format_value( range, buf, 100, 8, data->reading);
 
 
-  // format_value( buf, 100 - 1, data->reading, 3, 6 );
 
   vfd_clear( vfd);
 
@@ -120,13 +124,6 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
   // write value
   vfd_write_bitmap_string2( vfd, buf, 0 , 0 );
 
-
-/*
-  if(status_seq_mode == SEQ_MODE_RATIO)
-    printf(" meas %s", str_format_float_with_commas(buf, 100, 7, data->reading));
-  else
-    printf(" meas %sV", buf );
-*/
 
 
   // wont work. until we assert valid for a ZERO.
@@ -137,10 +134,8 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
   vfd_write_string2( vfd, (status_sample_idx == 0) ? "x" : "z", 0, 4 );
 
 
-  // uint8_t status_sample_idx      =  STATUS_SAMPLE_IDX( data->adc_status) ;
-  // write a star, for the sample
-  // vfd_write_string2( status_sample_idx % 2 == 0 ? "*" : " ", 0, 3 );
 
+  char star  = status_sample_idx % 2 == 1 ? '*' : ' ';
 
 
   /*
@@ -155,13 +150,12 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
 
   double nplc = aper_n_to_nplc( data->adc_clk_count_sigmux, data->line_freq );
 
-  snprintf( buf, 100, "%s-%s %s   %s", range->name, range->arg,  noaz ? "NOAZ" : "AZ",   range->unit);
+  snprintf( buf, 100, "%c %s-%s %s   %s", star, range->name, range->arg,  noaz ? "NOAZ" : "AZ",   range->unit);
   vfd_write_string2( vfd, buf, 0, 3 );
 
 // TODO.   the x offset is in pix. not characters.
 //  snprintf( buf, 100, "here");
 //  vfd_write_string2( vfd, buf, 10, 3 );
-
 
 
 
@@ -186,6 +180,13 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
 
 }
 
+
+/*
+  if(status_seq_mode == SEQ_MODE_RATIO)
+    printf(" meas %s", str_format_float_with_commas(buf, 100, 7, data->reading));
+  else
+    printf(" meas %sV", buf );
+*/
 
 
 

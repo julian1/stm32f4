@@ -1067,12 +1067,13 @@ bool app_repl_range( app_t *app, const char *cmd)
 
     int32_t range_idx = range_get_idx( app->ranges, app->ranges_sz, name, arg);
 
-    printf("here range idx %ld\n", range_idx);   // is 50???
+    printf("here0 range idx %ld\n", range_idx);   // is 50???
 
     assert( range_idx < (int) app->ranges_sz);
 
     if( range_idx >= 0) {
 
+      printf("calling range switch\n");
       app_range_switch( app, range_idx);
       return true;
     }
