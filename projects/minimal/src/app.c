@@ -440,8 +440,9 @@ void app_configure( app_t *app )
 
 
 
+  // set start configuration
   // need a cbuf_push_str( ) function
-  const char *cmd = "cal flash load; dcv 10 ; decode unshow;";
+  const char *cmd = "cal flash load; dcv 10 ; decode unshow; t;\r";
   const char *s = cmd;
   while(*s )  {
     cbuf_push( app->cbuf_console_in, *s) ;

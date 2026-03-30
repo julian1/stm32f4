@@ -333,17 +333,18 @@ void val_adjust_unit( double *val, char *c)
 
   char ch[] =  { ' ', 'm', 'u', 'n', 'p', 'a' };
 
-  while( fabs( *val) <=  1.2 && *val != 0) {
+  while( fabs( *val) <=  1.2 && (count + 1) < sizeof(ch ) ) {
     // printf("here1\n");
     *val *= 1000;
     ++count ;
+
     assert( count < sizeof( ch));
     *c = ch[ count];
   }
 
   char ch2[] =  { ' ', 'k', 'M', 'G', 'T', 'P' };
 
-  while( fabs( *val) >  1200) {
+  while( fabs( *val) >  1200  && (count + 1) < sizeof(ch2 )  ) {
     // printf("here2\n");
     *val /= 1000;
     ++count ;
