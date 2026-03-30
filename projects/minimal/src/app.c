@@ -438,6 +438,19 @@ void app_configure( app_t *app )
   // i->ctx = app;
   // i->handler = (interrupt_handler_t ) app_interrupt_data_rdy;
 
+
+
+  // need a cbuf_push_str( ) function
+  const char *cmd = "cal flash load; dcv 10 ; decode unshow;";
+  const char *s = cmd;
+  while(*s )  {
+    cbuf_push( app->cbuf_console_in, *s) ;
+    ++s;
+  }
+
+
+
+
 }
 
 
@@ -1353,7 +1366,8 @@ bool app_repl_statement( app_t *app,  const char *cmd)
     app_beep( app, 1 );
   }
 
-  // need better name
+#if 0
+  // test write a value to u202 register
   // u202 reg write
   else if( sscanf(cmd, "whoot %lu", &u0 ) == 1) {
 
@@ -1368,6 +1382,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
     spi_ice40_reg_write32( spi, REG_DIRECT, u0 );
     spi_print_register( spi, REG_DIRECT );
   }
+#endif
 
   ///////////////////////
 
