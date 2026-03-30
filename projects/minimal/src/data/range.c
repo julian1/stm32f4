@@ -434,30 +434,18 @@ static int32_t range_dcv_pred( range_t *range, /*reg_status */ double v)
 
 ///////////////////////////////////
 
-#if 0
-
-static char *format_value( char *s, size_t n,  unsigned total, unsigned leading, double value )
-{
-  // printf("%u\n", leading);
-
-  // +1 for dot and +1 for sign,
-  total += 2;
-  leading += 2;
-  int trailing = total  - leading ;
-
-  snprintf(s, n, "%0*.*f", total, trailing, fabs( value));
-
-  // both 34470a, dmm7510 preserve leading positive sign in display
-  s[ 0] = value >= 0 ? '+' : '-';
-
-  return s;
-}
-
-#endif
 
 
-static void range_format_value( const range_t *range, char *s, size_t sz, unsigned ndigits, double value)
-{
+//   void (*range_format_value)( const range_t *range, format_val_t *fval, unsigned ndigits, double value);
+
+static void range_format_value(
+  const range_t *range,
+  format_val_t  *val,
+  unsigned    ndigits,
+  double      value
+) {
+
+
   // rename range_value_string.
   // could handle ',' or ' ' intersperse here with flags
   // or where used.
@@ -468,56 +456,58 @@ static void range_format_value( const range_t *range, char *s, size_t sz, unsign
       so must manage leading digits statically per range, rather than dynamically and per value
   */
 
-  unsigned leading = 0;
-  char  ch = 'x';
+  val->leading = 0;
+
+  /*
+    for degC.  can convert ch 'C' to 'degC' or °C locally
+    except we may want the full range.   eg. DCV
+    No. keep separate.
+  */
+
 
   if(strcasecmp( range->arg, "1000") == 0) {
-    leading = 4;
-    ch = ' ';
+    val->leading = 4;
+    val->m = ' ';
   }
   else if(strcasecmp( range->arg, "100") == 0) {
-    leading = 3;
-    ch = ' ';
+    val->leading = 3;
+    val->m = ' ';
   }
   else if(strcasecmp( range->arg, "") == 0
     || strcasecmp( range->arg, "10") == 0
   ) {
-    leading = 2;
-    ch = ' ';
+    val->leading = 2;
+    val->m = ' ';
   }
   else if(strcasecmp( range->arg, "1") == 0)
   {
-    leading = 1;
-    ch = ' ';
+    val->leading = 1;
+    val->m = ' ';
   }
   else if(strcasecmp( range->arg, "0.1") == 0)
   {
-    leading = 3;
+    val->leading = 3;
     value *= 1000.;
-    ch = 'm';
+    val->m = 'm';
     // can change unit to "mV"
     // have to add 'm'
   }
   else if(strcasecmp( range->arg, "0.01") == 0)
   {
-    leading = 2;
+    val->leading = 2;
     value *= 1000.;
-    ch = 'm';
+    val->m = 'm';
     // have to add 'm'
   }
   else
     assert( 0);
 
-  UNUSED( ch);
 
-  str_format_value( s, sz,  ndigits, leading, value);
+  // format unit
+  snprintf( val->u, ARRAY_SIZE(val->u) - 1, "V");
 
-  /* consider encode full unit here. 'mV'
-    would be a real convenience.  for mean min,max. etc.
-    even if in some cases we dont want it
-  */
-
-  // can always remove want.
+  // format value
+  str_format_value( val->s, ARRAY_SIZE( val->s) - 1,  ndigits, val->leading, value);
 }
 
 
@@ -555,32 +545,32 @@ static void range_format_value( const range_t *range, char *s, size_t sz, unsign
 const range_t range_init_values[] = {
 
   //              name    arg     sentinels         unit  set_mode    convert to reading    format          autorange predicate
-  { RANGE_MAGIC,  "REF",  "",     true,   true,     "V",  range_ref,  range_reading_normal, range_format_value,   NULL,             },
+  { RANGE_MAGIC,  "REF",  "",     true,   true,     range_ref,  range_reading_normal, range_format_value,   NULL,             },
 
-  { RANGE_MAGIC,  "LO",   "0.01", true,   false,    "mV", range_lo,   range_reading_normal, range_format_value,   NULL,             },
-  { RANGE_MAGIC,  "LO",   "0.1",  false,  false,    "mV", range_lo,   range_reading_normal, range_format_value,   NULL,             },
-  { RANGE_MAGIC,  "LO",   "1",    false,  false,    "V",  range_lo,   range_reading_normal, range_format_value,   NULL,             },
-  { RANGE_MAGIC,  "LO",   "10",   false,  true,     "V",  range_lo,   range_reading_normal, range_format_value,   NULL,             },
+  { RANGE_MAGIC,  "LO",   "0.01", true,   false,    range_lo,   range_reading_normal, range_format_value,   NULL,             },
+  { RANGE_MAGIC,  "LO",   "0.1",  false,  false,    range_lo,   range_reading_normal, range_format_value,   NULL,             },
+  { RANGE_MAGIC,  "LO",   "1",    false,  false,    range_lo,   range_reading_normal, range_format_value,   NULL,             },
+  { RANGE_MAGIC,  "LO",   "10",   false,  true,     range_lo,   range_reading_normal, range_format_value,   NULL,             },
 
-  { RANGE_MAGIC,  "LO2",  "0.01", true,   false,    "mV", range_lo2,  range_reading_normal, range_format_value,   NULL,             },
-  { RANGE_MAGIC,  "LO2",  "0.1",  false,  false,    "mV", range_lo2,  range_reading_normal, range_format_value,   NULL,             },
-  { RANGE_MAGIC,  "LO2",  "1",    false,  false,    "V",  range_lo2,  range_reading_normal, range_format_value,   NULL,             },
-  { RANGE_MAGIC,  "LO2",  "10",   false,  true,     "V",  range_lo2,  range_reading_normal, range_format_value,   NULL,             },
+  { RANGE_MAGIC,  "LO2",  "0.01", true,   false,    range_lo2,  range_reading_normal, range_format_value,   NULL,             },
+  { RANGE_MAGIC,  "LO2",  "0.1",  false,  false,    range_lo2,  range_reading_normal, range_format_value,   NULL,             },
+  { RANGE_MAGIC,  "LO2",  "1",    false,  false,    range_lo2,  range_reading_normal, range_format_value,   NULL,             },
+  { RANGE_MAGIC,  "LO2",  "10",   false,  true,     range_lo2,  range_reading_normal, range_format_value,   NULL,             },
 
 
-  { RANGE_MAGIC,  "DCV",  "0.01", true,   false,    "mV", range_dcv,  range_reading_dcv,    range_format_value,   range_dcv_pred,   },
-  { RANGE_MAGIC,  "DCV",  "0.1",  false,  false,    "mV", range_dcv,  range_reading_dcv,    range_format_value,   range_dcv_pred,   },
-  { RANGE_MAGIC,  "DCV",  "1",    false,  false,    "V",  range_dcv,  range_reading_dcv,    range_format_value,   range_dcv_pred,   },
-  { RANGE_MAGIC,  "DCV",  "10",   false,  false,    "V",  range_dcv,  range_reading_dcv,    range_format_value,   range_dcv_pred,   },
-  { RANGE_MAGIC,  "DCV",  "100",  false,  false,    "V",  range_dcv,  range_reading_dcv,    range_format_value,   range_dcv_pred,   },
-  { RANGE_MAGIC,  "DCV",  "1000", false,  true,     "V",  range_dcv,  range_reading_dcv,    range_format_value,   range_dcv_pred,   },
+  { RANGE_MAGIC,  "DCV",  "0.01", true,   false,    range_dcv,  range_reading_dcv,    range_format_value,   range_dcv_pred,   },
+  { RANGE_MAGIC,  "DCV",  "0.1",  false,  false,    range_dcv,  range_reading_dcv,    range_format_value,   range_dcv_pred,   },
+  { RANGE_MAGIC,  "DCV",  "1",    false,  false,    range_dcv,  range_reading_dcv,    range_format_value,   range_dcv_pred,   },
+  { RANGE_MAGIC,  "DCV",  "10",   false,  false,    range_dcv,  range_reading_dcv,    range_format_value,   range_dcv_pred,   },
+  { RANGE_MAGIC,  "DCV",  "100",  false,  false,    range_dcv,  range_reading_dcv,    range_format_value,   range_dcv_pred,   },
+  { RANGE_MAGIC,  "DCV",  "1000", false,  true,     range_dcv,  range_reading_dcv,    range_format_value,   range_dcv_pred,   },
 
-  { RANGE_MAGIC,  "TEMP", "",     true,   true,     "°C", range_temp, range_reading_temp,   range_format_value,   NULL,             },
+  { RANGE_MAGIC,  "TEMP", "",     true,   true,     range_temp, range_reading_temp,   range_format_value,   NULL,             },
 
-  { RANGE_MAGIC,  "LTS",  "0.01", true,   false,    "mV", range_lts,  range_reading_normal, range_format_value,   NULL,             },  // better name, LTS or DCV LTS.
-  { RANGE_MAGIC,  "LTS",  "0.1",  false,  false,    "mV", range_lts,  range_reading_normal, range_format_value,   NULL,             },
-  { RANGE_MAGIC,  "LTS",  "1",    false,  false,    "V",  range_lts,  range_reading_normal, range_format_value,   NULL,             },
-  { RANGE_MAGIC,  "LTS",  "10",   false,  true,     "V",  range_lts,  range_reading_normal, range_format_value,   NULL,             }
+  { RANGE_MAGIC,  "LTS",  "0.01", true,   false,    range_lts,  range_reading_normal, range_format_value,   NULL,             },  // better name, LTS or DCV LTS.
+  { RANGE_MAGIC,  "LTS",  "0.1",  false,  false,    range_lts,  range_reading_normal, range_format_value,   NULL,             },
+  { RANGE_MAGIC,  "LTS",  "1",    false,  false,    range_lts,  range_reading_normal, range_format_value,   NULL,             },
+  { RANGE_MAGIC,  "LTS",  "10",   false,  true,     range_lts,  range_reading_normal, range_format_value,   NULL,             }
 
 
 };

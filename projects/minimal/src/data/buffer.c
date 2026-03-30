@@ -137,8 +137,7 @@ void buffer_update_data( buffer_t *buffer, data_t *data)
     if(buffer->show) {
       // printf( "(n %u) ", buffer->count);
       printf( "mean   %s", str_format_float_with_commas(buf, 100, 8, buffer->mean));
-      printf( "%s, ", range->unit );
-
+      // printf( "%s, ", range->unit );
 
 
       // this includes the unit
@@ -146,9 +145,8 @@ void buffer_update_data( buffer_t *buffer, data_t *data)
 
 
       // printf( "stddev %s", str_format_float_with_commas(buf, 100, 8, buffer->stddev));
-
       // printf( "stddev %s", str_format_float_with_commas(buf, 100, 8, buffer->stddev));
-      printf( "%s, ", range->unit );
+      // printf( "%s, ", range->unit );
     }
   }
 

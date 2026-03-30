@@ -18,6 +18,33 @@ typedef struct cal_t  cal_t;
 #define RANGE_MAGIC 34523418
 
 
+
+/*
+  using struct eases syntax and we use it in enough places
+  justified
+  handle the different components of the formatted value separately.
+  because the way we use, depends on the output device,  tft, vfd, repl, buffer statistic,
+
+
+*/
+
+typedef struct format_val_t
+{
+  // unsigned ndigits;
+  unsigned leading;
+
+  // formatted value
+  char s[ 100];
+  // unit multiplier
+  char m;
+  // unit
+  char u[ 10];
+
+} format_val_t;
+
+
+
+
 typedef struct range_t
 {
   // unsigned  id;     // same as index in range_t [] array
@@ -43,7 +70,7 @@ typedef struct range_t
   ///////////////////
 
   // consider make a function. it doefor
-  const char  *unit;
+  // const char  *unit;
 
   /*
     can always use a structure to pass arguments,
@@ -61,7 +88,11 @@ typedef struct range_t
 
 
   // convert value to string
-  void (*range_format_value)( const range_t *range, char *s, size_t sz, unsigned ndigits, double value);
+
+  void (*range_format_value)( const range_t *range, format_val_t *fval, unsigned ndigits, double value);
+
+  // void (*range_format_value)( const range_t *range, char *s, size_t sz, char *m, char *u, unsigned ndigits, double value);
+  // void (*range_format_value)( const range_t *range, char *s, size_t sz, unsigned ndigits, double value);
 
   /* could have a range_cal_set()  function ...
       to hide all the detail of writing the cal co-efficientss

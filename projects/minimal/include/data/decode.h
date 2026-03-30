@@ -45,8 +45,8 @@ typedef struct decode_t
   ///////////////////////
 
   bool show_counts;
-  // bool show_sum;
   bool show_reading;
+  // bool show_sum;
   // bool show_ratio;
 
 

@@ -81,6 +81,7 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
   assert( buffer && buffer->magic == BUFFER_MAGIC);
 
 
+  // feb 2026
 
   // no valid measurement reading
   if( !data->valid) {
@@ -93,46 +94,31 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
     return;
   }
 
-  // only have range if data is valid
+  // range only available if data valid
   const range_t *range = data->range;
   assert( range && range->magic == RANGE_MAGIC);
-
-
-
-  // feb 2026
-
-
-  char buf[100 + 1];
-  // char buf2[100 + 1];
-
-#if 0
-  // from util.  should deprecate
-  sprintf( buf, "%s%s",
-    str_format_float_with_commas( buf2, 100, 7, data->reading),
-    "" // range->unit
-  );
-#endif
-
-
-  range->range_format_value( range, buf, 100, 8, data->reading);
-
 
 
   vfd_clear( vfd);
 
 
-  // write value
-  vfd_write_bitmap_string2( vfd, buf, 0 , 0 );
+  /*
+    extr. we could do the formatting once, at the time of decode.
+  */
 
+  format_val_t  val;
+  range->range_format_value( range, &val, 8, data->reading);
+
+
+  // write value
+  vfd_write_bitmap_string2( vfd, val.s, 0 , 0 );
+
+
+  char buf[ 100 + 1 ];
 
 
   // wont work. until we assert valid for a ZERO.
   uint8_t status_sample_idx = data->status.sample_idx;
-
-
-  // write a star, for the sample
-  vfd_write_string2( vfd, (status_sample_idx == 0) ? "x" : "z", 0, 4 );
-
 
 
   char star  = status_sample_idx % 2 == 1 ? '*' : ' ';
@@ -153,9 +139,11 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
   snprintf( buf, 100, "%c %s-%s %s", star, range->name, range->arg,  noaz ? "NOAZ" : "AZ" );
   vfd_write_string2( vfd, buf, 0, 3 );
 
-// TODO.   the x offset is in pix. not characters.
-  snprintf( buf, 100, range->unit);
-  vfd_write_string2( vfd, buf, (17 - strlen( range->unit)) * 7, 3 );   // think chars are 7bit wide.
+  // format the multiplier and unit
+  // and left align
+  // chars are 7bit wide.
+  snprintf( buf, 100, "%c%s", val.m, val.u);
+  vfd_write_string2( vfd, buf, (17 - strlen( buf)) * 7, 3 );   
 
 
 
@@ -193,5 +181,14 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
 
 
 
+
+
+#if 0
+  // from util.  should deprecate
+  sprintf( buf, "%s%s",
+    str_format_float_with_commas( buf2, 100, 7, data->reading),
+    "" // range->unit
+  );
+#endif
 
 

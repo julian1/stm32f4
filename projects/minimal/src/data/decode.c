@@ -194,7 +194,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_idx */ /* lin
 
       printf( "%s-%s, ", range->name, range->arg );
       printf( "read %s", str_format_float_with_commas(buf, 100, 8, data->reading ));
-      printf( "%s, ", range->unit );
+      // printf( "%s, ", range->unit );
       // printf( "%s, ", range ? range->unit : ""  );
     }
 
