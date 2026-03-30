@@ -150,12 +150,12 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
 
   double nplc = aper_n_to_nplc( data->adc_clk_count_sigmux, data->line_freq );
 
-  snprintf( buf, 100, "%c %s-%s %s   %s", star, range->name, range->arg,  noaz ? "NOAZ" : "AZ",   range->unit);
+  snprintf( buf, 100, "%c %s-%s %s", star, range->name, range->arg,  noaz ? "NOAZ" : "AZ" );
   vfd_write_string2( vfd, buf, 0, 3 );
 
 // TODO.   the x offset is in pix. not characters.
-//  snprintf( buf, 100, "here");
-//  vfd_write_string2( vfd, buf, 10, 3 );
+  snprintf( buf, 100, range->unit);
+  vfd_write_string2( vfd, buf, (17 - strlen( range->unit)) * 7, 3 );   // think chars are 7bit wide.
 
 
 
@@ -172,7 +172,9 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
   char buf2[ 101];
 
   // this includes the unit
-  snprintf( buf, 100, "stddev %s", str_format_value_dynamic( buf2, 100, buffer->stddev, 4 ));
+  // TODO fix me.   multiplying unit (eg. k) is correct but 'V' is not.
+  // need
+  snprintf( buf, 100, "stddev %sV", str_format_value_dynamic( buf2, 100, buffer->stddev, 4 ));
 
   // snprintf( buf, 100, "stddev %.8f", buffer->stddev);
   vfd_write_string2( vfd, buf, 0, 6 );
