@@ -124,7 +124,7 @@ void vfd_display_update_data( vfd_display_t *display, data_t *data)
   vfd_write_bitmap_string_mono( vfd, val.s, 7, 0 );
 
 
-  char buf[ 100 + 1 ];
+  char buf[ 130 + 1 ];
 
   // format the value multiplier and unit, left align, chars are 7bit wide.
   snprintf( buf, 100, "%c%s", val.m, val.u);
@@ -157,13 +157,15 @@ void vfd_display_update_data( vfd_display_t *display, data_t *data)
 
 
 
-  snprintf( buf, 100, "nplc %.1lf ", nplc );
+  snprintf( buf, 100, "nplc %.1lf n=%u", nplc,   buffer->count );
   vfd_write_string2( vfd, buf, 0, 4 );
 
 
-  // str_format_float_with_commas(buf, 100, 7, data->reading);
-  // snprintf( buf, 100, "n %u, mean %f", buffer->count, buffer->mean);
-  snprintf( buf, 100, "mean   %.8f", buffer->mean);
+  // use the range formatting function to format the mean
+  range->range_reading_format( range, &val, 9, buffer->mean);
+  // snprintf( buf, ARRAY_SIZE(buf), "mean(%u) %s", buffer->count, val.all);
+  snprintf( buf, ARRAY_SIZE(buf), "mean %s", val.all);
+
   vfd_write_string2( vfd, buf, 0, 5 );
 
 
@@ -172,7 +174,7 @@ void vfd_display_update_data( vfd_display_t *display, data_t *data)
   // this includes the unit
   // TODO fix me.   multiplying unit (eg. k) is correct but 'V' is not.
   // need
-  snprintf( buf, 100, "stddev %sV", str_format_value_dynamic( buf2, 100, buffer->stddev, 4 ));
+  snprintf( buf, ARRAY_SIZE(buf), "stddev %sV", str_format_value_dynamic( buf2, 100, buffer->stddev, 4 ));
 
   // snprintf( buf, 100, "stddev %.8f", buffer->stddev);
   vfd_write_string2( vfd, buf, 0, 6 );
