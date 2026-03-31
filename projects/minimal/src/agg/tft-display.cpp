@@ -19,7 +19,11 @@
 
 
 
+/*
+  if the page flip is moved from data_update() to update()
+  then the timing code, could also be hoisted up and placed around the _update()  call.
 
+*/
 
 static void tft_display_update_data_( tft_display_t *tft_display, data_t *data)
 {
@@ -94,13 +98,10 @@ static void tft_display_update_data_( tft_display_t *tft_display, data_t *data)
   drawOutlineText(rb, arial_outline, mtx, agg::rgba(0,0,1), val.all );
 
 
+  tft_display->page_ready = true;
 
-  /*
-    Extr.  move this page flip code into the normal update() call
-    to avoid blocking here.
 
-  */
-
+#if 0
   /*
   // OK. this fixes flicker... but opposite of what we thought...
   // we flip the page when it is drawing. rather than when it's blanking.
@@ -112,9 +113,7 @@ static void tft_display_update_data_( tft_display_t *tft_display, data_t *data)
     // usart_printf("tear hi\n" );
   };
 
-  // flip the newly drawn page in
-  setScrollStart( tft_display->tft, tft_display->page *  272 );
-
+#endif
 }
 
 
@@ -129,23 +128,29 @@ void tft_display_update( tft_display_t *tft_display)
 {
   assert( tft_display && tft_display->magic == TFT_DISPLAY_MAGIC);
 
-
-  /*
-    Extr.  move the tear test, and page flip code
-    to avoid blocking, and so that control is yielded.
-
-    if( new_page && tear ) {
-        new_page = false;
-
-        setScrollStart( tft_display->tft, tft_display->page *  272 );
-    }
-
-    if( page != new_page && ! tft_get_tear())
-      // then flip and set page == new_page
-
+  /* non-blocking page flip
   */
 
+  if( !tft_display->page_ready)
+    return;
 
+
+  /*
+  // OK. this fixes flicker... but opposite of what we thought...
+  // we flip the page when it is drawing. rather than when it's blanking.
+  IMPORTANT.
+    this is a blocking function and can block all display function
+  */
+
+  // non blocking
+  // if( tft_get_tear( tft_display->tft))
+  //  return ;
+
+  // flip the newly drawn page in
+  setScrollStart( tft_display->tft, tft_display->page *  272 );
+
+
+  tft_display->page_ready = false;
 }
 
 

@@ -39,7 +39,7 @@ struct tft_display_t
   int       page;
 
   // TODO
-  bool      new_page;
+  bool      page_ready; // for flipping
 
   // int count;
 
