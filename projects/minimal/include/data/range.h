@@ -22,14 +22,18 @@ typedef struct cal_t  cal_t;
 /*
   using struct eases syntax and we use it in enough places
   justified
-  handle the different components of the formatted value separately.
-  because the way we use, depends on the output device,  tft, vfd, repl, buffer statistic,
-
-
+  handle all parts of the formatted value separately.
+  since the way we use depends on the output device, layout, font width etc,
+  tft, vfd, repl, buffer statistic,
+  ----
+  should be format_reading
 */
+
 
 typedef struct format_val_t
 {
+  // this could be computed once, and stored in data_t
+
   // unsigned ndigits;
   unsigned leading;
 
@@ -39,6 +43,9 @@ typedef struct format_val_t
   char m;
   // unit
   char u[ 10];
+
+  // convenience, all fields formatted
+  char all[ 120];
 
 } format_val_t;
 
@@ -89,10 +96,10 @@ typedef struct range_t
 
   // convert value to string
 
-  void (*range_format_value)( const range_t *range, format_val_t *fval, unsigned ndigits, double value);
+  void (*range_reading_format)( const range_t *range, format_val_t *fval, unsigned ndigits, double value);
 
-  // void (*range_format_value)( const range_t *range, char *s, size_t sz, char *m, char *u, unsigned ndigits, double value);
-  // void (*range_format_value)( const range_t *range, char *s, size_t sz, unsigned ndigits, double value);
+  // void (*range_reading_format)( const range_t *range, char *s, size_t sz, char *m, char *u, unsigned ndigits, double value);
+  // void (*range_reading_format)( const range_t *range, char *s, size_t sz, unsigned ndigits, double value);
 
   /* could have a range_cal_set()  function ...
       to hide all the detail of writing the cal co-efficientss

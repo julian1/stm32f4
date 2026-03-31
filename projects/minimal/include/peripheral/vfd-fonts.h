@@ -10,9 +10,21 @@
 
 typedef struct vfd_t vfd_t;
 
-void vfd_write_bitmap_string2( vfd_t *vfd, const char *s, uint8_t xpix, uint8_t ychar );
 
-void vfd_write_string2( vfd_t *vfd, const char *s, uint8_t xpix, uint8_t ychar );
+
+
+
+
+
+// need a better name to distinguish this
+void vfd_write_string2( vfd_t *vfd, const char *s, uint8_t xpix, uint8_t ychar);
+
+
+////////////
+
+
+void vfd_write_bitmap_string_proportional( vfd_t *vfd, const char *s, uint8_t xpix, uint8_t ychar);
+void vfd_write_bitmap_string_mono( vfd_t *vfd, const char *s, uint8_t xpix, uint8_t ychar);
 
 
 void vfd_clear( vfd_t *vfd);

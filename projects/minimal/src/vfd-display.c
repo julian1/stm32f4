@@ -86,7 +86,7 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
   // no valid measurement reading
   if( !data->valid) {
 
-    // just clear the star, to indicate no measurement data
+    // clear the reading star, to indicate no measurement data
     char buf[101];
     snprintf( buf, 100, "%c", ' ');
     vfd_write_string2( vfd, buf, 0, 3 );
@@ -103,18 +103,32 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
 
 
   /*
-    extr. we could do the formatting once, at the time of decode.
+    extr. could do this formatting once, at the time of decode.
   */
 
   format_val_t  val;
-  range->range_format_value( range, &val, 8, data->reading);
+  range->range_reading_format( range, &val, 9, data->reading);
 
 
-  // write value
-  vfd_write_bitmap_string2( vfd, val.s, 0 , 0 );
+  // write sign in small font
+  vfd_write_string2( vfd, data->reading >= 0 ? "+" : "-", 0, 0 );
+
+  /*
+    vfd. would be really nice to,  intersperse commas, or even just a column of pixels herue.
+  */
+
+  // write value in alrge font, starting with offset for the sign
+  // vfd_write_bitmap_string_proportional( vfd, val.s, 7, 0 );
+  vfd_write_bitmap_string_mono( vfd, val.s, 7, 0 );
 
 
   char buf[ 100 + 1 ];
+
+  // format the value multiplier and unit, left align, chars are 7bit wide.
+  snprintf( buf, 100, "%c%s", val.m, val.u);
+  vfd_write_string2( vfd, buf, (17 - strlen( buf)) * 7, 3 );
+
+
 
 
   // wont work. until we assert valid for a ZERO.
@@ -138,12 +152,6 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
 
   snprintf( buf, 100, "%c %s-%s %s", star, range->name, range->arg,  noaz ? "NOAZ" : "AZ" );
   vfd_write_string2( vfd, buf, 0, 3 );
-
-  // format the multiplier and unit
-  // and left align
-  // chars are 7bit wide.
-  snprintf( buf, 100, "%c%s", val.m, val.u);
-  vfd_write_string2( vfd, buf, (17 - strlen( buf)) * 7, 3 );   
 
 
 

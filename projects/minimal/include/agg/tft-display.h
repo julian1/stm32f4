@@ -38,9 +38,13 @@ struct tft_display_t
   tft_t     *tft;
   int       page;
 
+  // TODO
+  bool      new_page;
+
   // int count;
 
-  // rename *tick_up;   could be dedicated.  tft_display_tick_up. - only for performance test
+  // only to time rendering
+  // use a dedicated up counter
   volatile uint32_t *system_millis;
 
   /* if manage the update field here if want, instead of app_t.
@@ -51,16 +55,19 @@ struct tft_display_t
     and even the repl output. and app.
     could factor into a separate interface. but not clear how useful
   */
-  void (*update)( tft_display_t *);
   void (*update_data)( tft_display_t *, data_t *data);
-  void (*update_500ms)( tft_display_t *);
+
+  // no reason to make thi
+  // void (*update)( tft_display_t *);
+  // void (*update_500ms)( tft_display_t *);
 
 };
 
 
 // accessors
-void tft_display_update( tft_display_t *tft_display);
 void tft_display_update_data( tft_display_t *tft_display, data_t *data);
+// no reason to make polymorphic unless clear we need
+void tft_display_update( tft_display_t *tft_display);
 void tft_display_update_500ms( tft_display_t *tft_display);
 
 

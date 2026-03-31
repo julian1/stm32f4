@@ -294,8 +294,8 @@ unsigned str_decode_float( const char *s, double *val )
 
 */
 
-
-char * str_format_value( char *s, size_t n,  unsigned ndigits, unsigned leading, double value )
+#if 0
+char * str_format_value( char *s, size_t n,  unsigned ndigits, unsigned leading, double value)
 {
   // printf("%u\n", leading);
 
@@ -322,11 +322,39 @@ char * str_format_value( char *s, size_t n,  unsigned ndigits, unsigned leading,
 
   return s;
 }
+#endif
 
-
-
-void val_adjust_unit( double *val, char *c)
+char * str_format_value( char *s, size_t n,  unsigned ndigits, unsigned leading, double val)
 {
+  // handle the sign separately, since may need different font
+  // printf("%u\n", leading);
+
+  if( ndigits < leading) {
+    assert( 0);
+  }
+  else if( ndigits == leading) {
+
+  }
+  else {
+    // +1 for dots
+    ndigits += 1;
+    leading += 1;
+  }
+  int trailing = ndigits  - leading ;
+
+  // format without sign
+  // important, this correctly handles rounding of last digit
+  snprintf(s, n, "%0*.*f", ndigits, trailing, fabs( val));
+  return s;
+}
+
+
+
+
+
+void val_adjust_multiplier( double *val, char *c)
+{
+  // adjust value to use a unit reasonable for display purpose
   unsigned count = 0;
 
   *c = ' '; // default
@@ -351,8 +379,31 @@ void val_adjust_unit( double *val, char *c)
     assert( count < sizeof( ch2));
     *c = ch2[ count];
   }
-
 }
+
+
+void val_force_multiplier( double *val, char c)
+{
+  switch( c) {
+
+    case ' ':   break;
+    case 'm': *val *= 1000; break;
+    case 'u': *val *= 1e6; break;
+    case 'n': *val *= 1e9; break;
+    case 'p': *val *= 1e12; break;
+    case 'a': *val *= 1e15; break;
+    case 'k': *val /= 1e3; break;
+    case 'M': *val /= 1e6; break;
+    case 'G': *val /= 1e9; break;
+    case 'T': *val /= 1e12; break;
+    case 'P': *val /= 1e15; break;
+    default:
+      assert( 0);
+  };
+}
+
+
+
 
 
 unsigned val_leading_digits( double val_)
@@ -376,12 +427,12 @@ unsigned val_leading_digits( double val_)
 
 char * str_format_value_dynamic( char *s, size_t sz, double val, unsigned ndigits)
 {
-  // should have minimum of 4 digits to display value after unit adjust
+  // needs at least 4 digits to display value with unit adjust
   assert( ndigits >= 4);
 
   // adjust unit
   char ch;
-  val_adjust_unit( &val, &ch);
+  val_adjust_multiplier( &val, &ch);
   // printf("adjust val %f%c\n", val, ch );
 
   unsigned leading = val_leading_digits( val);
@@ -389,8 +440,15 @@ char * str_format_value_dynamic( char *s, size_t sz, double val, unsigned ndigit
   // printf( "digits %u\n", digits );
   // printf( "leading %u\n", leading );
 
-  char buf[ 101];
-  snprintf( s, sz, "%s%c", str_format_value( buf, 100, ndigits, leading, val ), ch );
+  char buf[ 100 + 1];
+  snprintf( 
+    s, sz, 
+    "%c%s%c",
+    val >= 0 ? '+' : '-',
+    str_format_value( buf, 100, ndigits, leading, val ),
+    ch
+  );
+
   return s;
 }
 

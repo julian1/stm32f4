@@ -28,9 +28,7 @@ void aper_cc_print( uint32_t aperture,  uint32_t lfreq);
 //
 
 unsigned str_decode_uint( const char *s, uint32_t *val);
-
 unsigned str_decode_int( const char *s, int32_t *val);
-
 unsigned str_decode_float( const char *s, double *val);
 
 // better name mux_to_string?
@@ -41,7 +39,7 @@ char * mux_to_string( unsigned val,  char *buf, unsigned n  );
 
 
 char * str_format_value( char *s, size_t n,  unsigned ndigits, unsigned leading, double value );
-void val_adjust_unit( double *val, char *c) ;
+void val_adjust_multiplier( double *val, char *c) ;
+void val_force_multiplier( double *val, char c);
 unsigned val_leading_digits( double val_);
-
 char * str_format_value_dynamic( char *s, size_t sz, double val, unsigned ndigits);

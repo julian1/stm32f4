@@ -27,8 +27,8 @@ typedef struct vfd_display_t
 
 
 /*
-  can make polymorphic for strategy pattern. and to test separate functions
-  and to support modal
+  can make polymorphic for strategy-like pattern. and to test separate functions
+  as needed
 
   void (*update)( tft_display_t *);
   void (*update_data)( tft_display_t *, data_t *data);

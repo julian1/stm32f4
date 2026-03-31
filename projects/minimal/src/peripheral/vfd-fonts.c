@@ -43,6 +43,7 @@
 
 static void rotate_and_reverse (  /*char inArray[8]*/ const uint8_t *inArray , uint8_t outArray[8])
 {
+  // EXTR. should be precomputed. and cached for speed.
   // https://forum.arduino.cc/t/rotating-a-2d-matrix/287097/2
 
   int i, j, val;
@@ -66,7 +67,7 @@ static void rotate_and_reverse (  /*char inArray[8]*/ const uint8_t *inArray , u
 
 
 
-static void vfd_write_char( vfd_t *vfd, uint8_t ch, uint8_t xpix, uint8_t ychar )
+static void vfd_write_char( vfd_t *vfd, uint8_t ch, uint8_t xpix, uint8_t ychar)
 {
   // const char FONT[] = { 0x1C, 0x22, 0x2A, 0x3A, 0x1A, 0x02, 0x3C, 0x00, } ;   // @
   // const char FONT[] = { 0x08, 0x14, 0x22, 0x22, 0x3E, 0x22, 0x22, 0x00,  } ;  // A
@@ -88,7 +89,7 @@ static void vfd_write_char( vfd_t *vfd, uint8_t ch, uint8_t xpix, uint8_t ychar 
 }
 
 
-static void vfd_write_string( vfd_t *vfd, const char *s, size_t n, uint8_t xpix, uint8_t ychar )
+static void vfd_write_string( vfd_t *vfd, const char *s, size_t n, uint8_t xpix, uint8_t ychar)
 {
   /* feb 2026.  have a func like this in the device.
     so ammotize the overhead of a virtual call.
@@ -96,14 +97,14 @@ static void vfd_write_string( vfd_t *vfd, const char *s, size_t n, uint8_t xpix,
 
   // note that 0, sential is a character which is quite nice.
   for(unsigned i = 0; i < n; ++i) {
-    vfd_write_char( vfd, s[ i], xpix + (i * 7), ychar );
+    vfd_write_char( vfd, s[ i], xpix + (i * 7), ychar);
   }
 }
 
-void vfd_write_string2( vfd_t *vfd, const char *s, uint8_t xpix, uint8_t ychar )
+void vfd_write_string2( vfd_t *vfd, const char *s, uint8_t xpix, uint8_t ychar)
 {
 
-  vfd_write_string( vfd, s, strlen(s), xpix, ychar );
+  vfd_write_string( vfd, s, strlen(s), xpix, ychar);
 }
 
 
@@ -160,20 +161,12 @@ static void vfd_write_bitmap_char( vfd_t *vfd, uint8_t xpix, uint8_t ychar, cons
 
 
 
-static void vfd_write_bitmap_string( vfd_t *vfd, const char *s, size_t n, uint8_t xpix, uint8_t ychar )
+void vfd_write_bitmap_string_proportional( vfd_t *vfd, const char *s, uint8_t xpix, uint8_t ychar )
 {
+  // proportional spacing
   assert( vfd && vfd->magic == VFD_MAGIC);
 
-  // uses proporitional spacing.
-  // can also have fixed width.
-
-  /*
-    - the pixel wide space added between chars - needs to be cleared.
-    - or use monospace.
-    - possibly want a monospace format version .
-    - avoid - a separate blanking pass, that would need to be synchronized with device scan.
-
-  */
+  const size_t n = strlen( s);
 
   for(unsigned i = 0; i < n; ++i) {
 
@@ -186,11 +179,34 @@ static void vfd_write_bitmap_string( vfd_t *vfd, const char *s, size_t n, uint8_
 }
 
 
-
-void vfd_write_bitmap_string2( vfd_t *vfd, const char *s, uint8_t xpix, uint8_t ychar )
+void vfd_write_bitmap_string_mono( vfd_t *vfd, const char *s, uint8_t xpix, uint8_t ychar )
 {
-  vfd_write_bitmap_string( vfd, s, strlen(s), xpix, ychar );
+  // mono spacing.
+  assert( vfd && vfd->magic == VFD_MAGIC);
+
+  const size_t n = strlen( s);
+
+  for(unsigned i = 0; i < n; ++i) {
+
+    uint32_t char_idx = s[i] - '!';
+    assert(char_idx < ARRAY_SIZE( char_addr));
+
+    vfd_write_bitmap_char( vfd, xpix , /*0*/ ychar, char_addr[ char_idx ], char_width[ char_idx ] );
+
+
+    // short fixed width
+    if( s[ i] == '.' || s[ i] == ',' ) {
+
+      xpix += char_width[ char_idx] + 1;
+    }
+    else
+      // use letter '0' for spacing
+      xpix += char_width[ '0' ] ;
+  }
 }
+
+
+
 
 
 
@@ -234,7 +250,8 @@ void vfd_test( vfd_t *vfd)
   vfd_write_string2( vfd, "123467890", 0, 5 );
 
   // vfd_write_bitmap_string2( vfd, "apple", 0 , 0 );
-  vfd_write_bitmap_string2( vfd, "7.168,259,0", 0 , 0 );
+  // vfd_write_bitmap_string2( vfd, "7.168,259,0", 0 , 0 );
+  vfd_write_bitmap_string_proportional( vfd, "7.168,259,0", 0 , 0 );
 
 }
 
