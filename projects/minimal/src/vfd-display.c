@@ -89,7 +89,9 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
     // clear the reading star, to indicate no measurement data
     char buf[101];
     snprintf( buf, 100, "%c", ' ');
-    vfd_write_string2( vfd, buf, 0, 3 );
+    // vfd_write_string2( vfd, buf, 0, 3 );
+
+    vfd_write_string2( vfd, buf, 0, 7 );
 
     return;
   }
@@ -126,7 +128,7 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
 
   // format the value multiplier and unit, left align, chars are 7bit wide.
   snprintf( buf, 100, "%c%s", val.m, val.u);
-  vfd_write_string2( vfd, buf, (17 - strlen( buf)) * 7, 3 );
+  vfd_write_string2( vfd, buf, (18 - strlen( buf)) * 7, 3 );
 
 
 
@@ -150,7 +152,7 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
 
   double nplc = aper_n_to_nplc( data->adc_clk_count_sigmux, data->line_freq );
 
-  snprintf( buf, 100, "%c %s-%s %s", star, range->name, range->arg,  noaz ? "NOAZ" : "AZ" );
+  snprintf( buf, 100, "%s-%s %s",  range->name, range->arg,  noaz ? "NOAZ" : "AZ" );
   vfd_write_string2( vfd, buf, 0, 3 );
 
 
@@ -174,6 +176,10 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
 
   // snprintf( buf, 100, "stddev %.8f", buffer->stddev);
   vfd_write_string2( vfd, buf, 0, 6 );
+
+
+  snprintf( buf, 100, "%c", star );
+  vfd_write_string2( vfd, buf, 0, 7 );
 
 
 }

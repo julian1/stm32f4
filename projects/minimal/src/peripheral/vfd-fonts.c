@@ -194,14 +194,14 @@ void vfd_write_bitmap_string_mono( vfd_t *vfd, const char *s, uint8_t xpix, uint
     vfd_write_bitmap_char( vfd, xpix , /*0*/ ychar, char_addr[ char_idx ], char_width[ char_idx ] );
 
 
-    // short fixed width
     if( s[ i] == '.' || s[ i] == ',' ) {
 
+      // use fixed width, for punctuation
       xpix += char_width[ char_idx] + 1;
     }
     else
       // use letter '0' for spacing
-      xpix += char_width[ '0' ] ;
+      xpix += char_width[ '0' - '!' ] + 1;
   }
 }
 
