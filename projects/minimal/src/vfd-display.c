@@ -34,31 +34,31 @@
 
 
 
-void vfd_display_init( vfd_display_t *vfd_display, vfd_t *vfd1, buffer_t *buffer)
+void vfd_display_init( vfd_display_t *display, vfd_t *vfd1, buffer_t *buffer)
 {
-  memset( vfd_display, 0, sizeof( vfd_display_t));
-  vfd_display->magic = VFD_DISPLAY_MAGIC;
+  memset( display, 0, sizeof( vfd_display_t));
+  display->magic = VFD_DISPLAY_MAGIC;
 
   assert( buffer && buffer->magic == BUFFER_MAGIC);
 
-  vfd_display->vfd = vfd1;
-  vfd_display->buffer = buffer;
+  display->vfd = vfd1;
+  display->buffer = buffer;
 }
 
 
 
 
-void vfd_display_update( vfd_display_t *vfd_display)
+void vfd_display_update( vfd_display_t *display)
 {
-  assert( vfd_display && vfd_display->magic == VFD_DISPLAY_MAGIC);
+  assert( display && display->magic == VFD_DISPLAY_MAGIC);
 
   // do nothing
 }
 
 
-void vfd_display_update_500ms( vfd_display_t *vfd_display)
+void vfd_display_update_500ms( vfd_display_t *display)
 {
-  assert( vfd_display && vfd_display->magic == VFD_DISPLAY_MAGIC);
+  assert( display && display->magic == VFD_DISPLAY_MAGIC);
 
   // do nothing
 
@@ -67,17 +67,17 @@ void vfd_display_update_500ms( vfd_display_t *vfd_display)
 
 
 
-void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
+void vfd_display_update_data( vfd_display_t *display, data_t *data)
 {
-  assert( vfd_display && vfd_display->magic == VFD_DISPLAY_MAGIC);
+  assert( display && display->magic == VFD_DISPLAY_MAGIC);
   assert( data && data->magic == DATA_MAGIC);
 
 
-  vfd_t *vfd = vfd_display->vfd;
+  vfd_t *vfd = display->vfd;
   assert( vfd);
   // assert(vfd && vfd->magic == VFD_MAGIC);
 
-  buffer_t *buffer = vfd_display->buffer;
+  buffer_t *buffer = display->buffer;
   assert( buffer && buffer->magic == BUFFER_MAGIC);
 
 
@@ -185,15 +185,18 @@ void vfd_display_update_data( vfd_display_t *vfd_display, data_t *data)
 }
 
 
+
+
+
+
+
+
 /*
   if(status_seq_mode == SEQ_MODE_RATIO)
     printf(" meas %s", str_format_float_with_commas(buf, 100, 7, data->reading));
   else
     printf(" meas %sV", buf );
 */
-
-
-
 
 
 

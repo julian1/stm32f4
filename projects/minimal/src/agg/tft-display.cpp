@@ -25,33 +25,41 @@
 
 */
 
-static void tft_display_update_data_( tft_display_t *tft_display, data_t *data)
+static void tft_display_update_data_( tft_display_t *display, data_t *data)
 {
-  assert( tft_display && tft_display->magic == TFT_DISPLAY_MAGIC);
+  assert( display && display->magic == TFT_DISPLAY_MAGIC);
   assert( data && data->magic == DATA_MAGIC);
 
 
-  volatile uint32_t *system_millis = tft_display->system_millis;
+  // do nothing - if still waiting to display existin page.
+  if( display->page_ready)
+    return;
+
+
+
+  volatile uint32_t *system_millis = display->system_millis;
 
   // persist the page that we need to draw
   // static int page = 0; // page to use
-  tft_display->page = ! tft_display->page;
+  display->page = ! display->page;
 
 
   // set up our buffer
-  pixfmt_t  pixf( tft_display->tft, tft_display->page *  272);
+  pixfmt_t  pixf( display->tft, display->page *  272);
   agg::renderer_base<pixfmt_t>   rb(pixf);
 
 // EXTR. if looks like if draw too fast. then flipping the scrollstart can introduce flicker
   uint32_t start = *system_millis;
 
   // consider - if the last rendered page has not updated, then skip
-  // if( tft_display->new_page)
+  // if( display->new_page)
   //  return;
 
 
   // no valid measurement reading
   if( !data->valid) {
+
+    // clear the measurement star
 
     return;
   }
@@ -98,22 +106,8 @@ static void tft_display_update_data_( tft_display_t *tft_display, data_t *data)
   drawOutlineText(rb, arial_outline, mtx, agg::rgba(0,0,1), val.all );
 
 
-  tft_display->page_ready = true;
+  display->page_ready = true;
 
-
-#if 0
-  /*
-  // OK. this fixes flicker... but opposite of what we thought...
-  // we flip the page when it is drawing. rather than when it's blanking.
-  IMPORTANT.
-    this is a blocking function and can block all display function
-  */
-  while( tft_get_tear( tft_display->tft)) {
-  // while( getTear() ) {
-    // usart_printf("tear hi\n" );
-  };
-
-#endif
 }
 
 
@@ -124,14 +118,14 @@ static void tft_display_update_data_( tft_display_t *tft_display, data_t *data)
 
 
 
-void tft_display_update( tft_display_t *tft_display)
+void tft_display_update( tft_display_t *display)
 {
-  assert( tft_display && tft_display->magic == TFT_DISPLAY_MAGIC);
+  assert( display && display->magic == TFT_DISPLAY_MAGIC);
 
   /* non-blocking page flip
   */
 
-  if( !tft_display->page_ready)
+  if( !display->page_ready)
     return;
 
 
@@ -143,51 +137,51 @@ void tft_display_update( tft_display_t *tft_display)
   */
 
   // non blocking
-  // if( tft_get_tear( tft_display->tft))
+  // if( tft_get_tear( display->tft))
   //  return ;
 
   // flip the newly drawn page in
-  setScrollStart( tft_display->tft, tft_display->page *  272 );
+  setScrollStart( display->tft, display->page *  272 );
 
 
-  tft_display->page_ready = false;
+  display->page_ready = false;
 }
 
 
-void tft_display_update_500ms( tft_display_t *tft_display)
+void tft_display_update_500ms( tft_display_t *display)
 {
-  assert( tft_display && tft_display->magic == TFT_DISPLAY_MAGIC);
+  assert( display && display->magic == TFT_DISPLAY_MAGIC);
 
 }
 
 
-void tft_display_update_data( tft_display_t *tft_display, data_t *data)
+void tft_display_update_data( tft_display_t *display, data_t *data)
 {
-  assert( tft_display && tft_display->magic == TFT_DISPLAY_MAGIC);
+  assert( display && display->magic == TFT_DISPLAY_MAGIC);
 
-  if( tft_display->update_data)
-    tft_display->update_data( tft_display, data);
+  if( display->update_data)
+    display->update_data( display, data);
 }
 
 
 
 
-bool tft_display_repl_statement( tft_display_t *tft_display,  const char *cmd)
+bool tft_display_repl_statement( tft_display_t *display,  const char *cmd)
 {
-  assert( tft_display && tft_display->magic == TFT_DISPLAY_MAGIC);
+  assert( display && display->magic == TFT_DISPLAY_MAGIC);
 
   if(strcmp(cmd, "tft_test2") == 0) {
-    tft_display->update_data = NULL;
-    // tft_display->update = tft_test2;
+    display->update_data = NULL;
+    // display->update = tft_test2;
   }
 
   else if(strcmp(cmd, "tft_test3") == 0) {
-    tft_display->update_data = NULL;
-    // tft_display->update = tft_test3;
+    display->update_data = NULL;
+    // display->update = tft_test3;
   }
 
   else if(strcmp(cmd, "tft_none") == 0)
-    tft_display->update_data = NULL;
+    display->update_data = NULL;
 
 
   else
@@ -198,18 +192,18 @@ bool tft_display_repl_statement( tft_display_t *tft_display,  const char *cmd)
 }
 
 
-void tft_display_init( tft_display_t *tft_display, tft_t *tft, volatile uint32_t *system_millis)
+void tft_display_init( tft_display_t *display, tft_t *tft, volatile uint32_t *system_millis)
 {
 
-  memset( tft_display, 0, sizeof( tft_display_t));
+  memset( display, 0, sizeof( tft_display_t));
 
-  tft_display->magic = TFT_DISPLAY_MAGIC;
-  tft_display->tft = tft;
-  tft_display->system_millis = system_millis;
+  display->magic = TFT_DISPLAY_MAGIC;
+  display->tft = tft;
+  display->system_millis = system_millis;
 
-  // tft_display->update = tft_display_update_;    // set to non
+  // display->update = display_update_;    // set to non
 
-  tft_display->update_data =  tft_display_update_data_;
+  display->update_data =  tft_display_update_data_;
 
 }
 
