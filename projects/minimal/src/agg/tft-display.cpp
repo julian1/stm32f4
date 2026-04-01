@@ -66,9 +66,6 @@ static void tft_display_update_data_( tft_display_t *display, data_t *data)
   assert( range && range->magic == RANGE_MAGIC);
 
 
-  // change the page
-  display->page = ! display->page;
-
   // set up our buffer
   pixfmt_t  pixf( display->tft, display->page *  272 );
   rb_t    rb(pixf);
