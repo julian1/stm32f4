@@ -23,20 +23,20 @@
 
 
 // extern "C" int tft_display2( tft_t *tft, volatile uint32_t *system_millis )
-extern "C" void tft_test2( tft_display_t *tft_display)
+extern "C" void tft_test2( tft_display_t *display)
 {
 
-  assert( tft_display && tft_display->magic == TFT_DISPLAY_MAGIC);
+  assert( display && display->magic == TFT_DISPLAY_MAGIC);
 
-  volatile uint32_t *system_millis = tft_display->system_millis;
+  volatile uint32_t *system_millis = display->system_millis;
 
 
   // set scroll start to base of memory
-  setScrollStart( tft_display->tft, 0  );
+  setScrollStart( display->tft, 0  );
 
 
   // set up our buffer
-  pixfmt_t  pixf(  tft_display->tft, 0  );
+  pixfmt_t  pixf(  display->tft, 0  );
   rb_t    rb(pixf);
   // agg::renderer_base<pixfmt_t>   rb(pixf);
 
