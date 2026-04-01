@@ -122,10 +122,11 @@ void tft_display_update( tft_display_t *display)
 {
   assert( display && display->magic == TFT_DISPLAY_MAGIC);
 
-
-  tft_test4( display);
-
 #if 0
+  tft_test6( display);
+#endif
+
+#if 1
 
   /* non-blocking page flip
   */

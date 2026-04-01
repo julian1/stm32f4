@@ -5449,7 +5449,7 @@ static const uint8_t glyph_87[] = {
 128, 53, 255, 1, 39, 
 32
 };
-#include "fonts.h"
+#include <agg/fonts.h>
 
 const FontSpans arial_span_72 = {
 {
