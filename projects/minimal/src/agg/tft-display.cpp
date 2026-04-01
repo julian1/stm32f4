@@ -122,6 +122,11 @@ void tft_display_update( tft_display_t *display)
 {
   assert( display && display->magic == TFT_DISPLAY_MAGIC);
 
+
+  tft_test4( display);
+
+#if 0
+
   /* non-blocking page flip
   */
 
@@ -145,6 +150,12 @@ void tft_display_update( tft_display_t *display)
 
 
   display->page_ready = false;
+
+
+  // EXTR. should move the page flip here.
+  // display->page = ! display->page;
+
+#endif
 }
 
 

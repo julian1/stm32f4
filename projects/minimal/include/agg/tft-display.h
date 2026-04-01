@@ -80,6 +80,9 @@ bool tft_display_repl_statement( tft_display_t *,  const char *cmd);
 // these are only called from tft_display_repl_statement()
 void tft_test2( tft_display_t *tft_display);
 void tft_test3( tft_display_t *tft_display);
+void tft_test4( tft_display_t *tft_display);
+void tft_test5( tft_display_t *tft_display);
+void tft_test6( tft_display_t *tft_display);
 
 
 

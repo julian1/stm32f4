@@ -22,7 +22,6 @@
 */
 
 
-// extern "C" int tft_display2( tft_t *tft, volatile uint32_t *system_millis )
 extern "C" void tft_test2( tft_display_t *display)
 {
 

@@ -19,7 +19,6 @@
 
 
 extern "C" void tft_test3( tft_display_t *display)
-// extern "C" int tft_display3(  )
 {
 
   assert( display && display->magic == TFT_DISPLAY_MAGIC);
