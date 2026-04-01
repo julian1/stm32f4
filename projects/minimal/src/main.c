@@ -500,7 +500,7 @@ static int main_f429(void)
 
   // agg test
   tft_display_t    tft_display;
-  tft_display_init( &tft_display, &tft0, &system_millis );
+  tft_display_init( &tft_display, &tft0, &buffer, &system_millis );
 
 
 

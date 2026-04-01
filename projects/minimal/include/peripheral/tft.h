@@ -10,6 +10,7 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <assert.h>
 
 
 #define TFT_MAGIC  82342351

@@ -23,6 +23,7 @@ extern "C" {
 
 typedef struct tft_t tft_t;
 typedef struct data_t data_t;
+typedef struct buffer_t buffer_t;
 
 
 
@@ -36,6 +37,8 @@ struct tft_display_t
   uint32_t  magic;
 
   tft_t     *tft;
+  buffer_t  *buffer;
+
   int       page;
 
   // TODO
@@ -71,7 +74,9 @@ void tft_display_update( tft_display_t *tft_display);
 void tft_display_update_500ms( tft_display_t *tft_display);
 
 
-void tft_display_init( tft_display_t *tft_display,  tft_t *tft, volatile uint32_t *system_millis);
+void tft_display_init( tft_display_t *tft_display,  tft_t *tft, buffer_t *buffer, volatile uint32_t *system_millis);
+
+
 
 bool tft_display_repl_statement( tft_display_t *,  const char *cmd);
 

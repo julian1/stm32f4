@@ -16,14 +16,16 @@
 
 
 #include <support.h>         // format
-
 #include <data/data.h>
 #include <data/range.h>
 #include <data/buffer.h>
 
 // vfd
 #include <peripheral/vfd.h> // magic
-#include <peripheral/vfd-fonts.h>
+
+#include <peripheral/vfd-font-small.h>
+#include <peripheral/vfd-font-large.h>
+
 #include <vfd-display.h>
 
 
@@ -77,6 +79,8 @@ void vfd_display_update_data( vfd_display_t *display, data_t *data)
   assert( vfd);
   // assert(vfd && vfd->magic == VFD_MAGIC);
 
+  // buffer is in the display....
+  // not sure if it would be better to pass
   buffer_t *buffer = display->buffer;
   assert( buffer && buffer->magic == BUFFER_MAGIC);
 
@@ -89,9 +93,9 @@ void vfd_display_update_data( vfd_display_t *display, data_t *data)
     // clear the reading star, to indicate no measurement data
     char buf[101];
     snprintf( buf, 100, "%c", ' ');
-    // vfd_write_string2( vfd, buf, 0, 3 );
+    // vfd_font_small_write( vfd, buf, 0, 3 );
 
-    vfd_write_string2( vfd, buf, 0, 7 );
+    vfd_font_small_write( vfd, buf, 0, 7 );
 
     return;
   }
@@ -111,24 +115,25 @@ void vfd_display_update_data( vfd_display_t *display, data_t *data)
   format_val_t  val;
   range->range_reading_format( range, &val, 9, data->reading);
 
+    // if(ndigits == 9) ...
 
-  // write sign in small font
-  vfd_write_string2( vfd, data->reading >= 0 ? "+" : "-", 0, 0 );
+  // write sign using small font
+  vfd_font_small_write( vfd, data->reading >= 0 ? "+" : "-", 0, 0 );
 
   /*
     vfd. would be really nice to,  intersperse commas, or even just a column of pixels herue.
   */
 
   // write value in alrge font, starting with offset for the sign
-  // vfd_write_bitmap_string_proportional( vfd, val.s, 7, 0 );
-  vfd_write_bitmap_string_mono( vfd, val.s, 7, 0 );
+  // vfd_font_large_write_proportional( vfd, val.s, 7, 0 );
+  vfd_font_large_write_special( vfd, val.s, 7, 0 );
 
 
   char buf[ 130 + 1 ];
 
   // format the value multiplier and unit, left align, chars are 7bit wide.
   snprintf( buf, 100, "%c%s", val.m, val.u);
-  vfd_write_string2( vfd, buf, (18 - strlen( buf)) * 7, 3 );
+  vfd_font_small_write( vfd, buf, (18 - strlen( buf)) * 7, 3 );
 
 
 
@@ -153,12 +158,12 @@ void vfd_display_update_data( vfd_display_t *display, data_t *data)
   double nplc = aper_n_to_nplc( data->adc_clk_count_sigmux, data->line_freq );
 
   snprintf( buf, 100, "%s-%s %s",  range->name, range->arg,  noaz ? "NOAZ" : "AZ" );
-  vfd_write_string2( vfd, buf, 0, 3 );
+  vfd_font_small_write( vfd, buf, 0, 3 );
 
 
 
   snprintf( buf, 100, "nplc %.1lf n=%u", nplc,   buffer->count );
-  vfd_write_string2( vfd, buf, 0, 4 );
+  vfd_font_small_write( vfd, buf, 0, 4 );
 
 
   // use the range formatting function to format the mean
@@ -166,7 +171,7 @@ void vfd_display_update_data( vfd_display_t *display, data_t *data)
   // snprintf( buf, ARRAY_SIZE(buf), "mean(%u) %s", buffer->count, val.all);
   snprintf( buf, ARRAY_SIZE(buf), "mean %s", val.all);
 
-  vfd_write_string2( vfd, buf, 0, 5 );
+  vfd_font_small_write_special( vfd, buf, 0, 5 );
 
 
   char buf2[ 101];
@@ -177,11 +182,11 @@ void vfd_display_update_data( vfd_display_t *display, data_t *data)
   snprintf( buf, ARRAY_SIZE(buf), "stddev %sV", str_format_value_dynamic( buf2, 100, buffer->stddev, 4 ));
 
   // snprintf( buf, 100, "stddev %.8f", buffer->stddev);
-  vfd_write_string2( vfd, buf, 0, 6 );
+  vfd_font_small_write_special( vfd, buf, 0, 6 );
 
 
   snprintf( buf, 100, "%c", star );
-  vfd_write_string2( vfd, buf, 0, 7 );
+  vfd_font_small_write( vfd, buf, 0, 7 );
 
 
 }

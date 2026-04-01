@@ -1,12 +1,6 @@
 
 #pragma once
 
-/*
-
-  consider rename agg/support.h
-
-*/
-
 
 
 
@@ -14,8 +8,6 @@
 
 
 #include "agg_pixfmt_rgb_packed.h"  // rgb565
-#include "agg_renderer_base.h"
-#include "agg_trans_affine.h"   // for drawText() argument
 
 
 #include <peripheral/tft.h>
@@ -39,12 +31,11 @@ public:
     typedef typename agg::blender_rgb565::color_type  color_type;
 
 
-
-  public:
-    tft_t *tft;
   private:
 
-    int scroll_start;
+    tft_t   *tft;
+    int     scroll_start;
+
   public:
 
 
@@ -204,32 +195,6 @@ public:
 
 
 
-
-
-
-// TODO - this typedef should be done where the pixfmt is used
-// not here and generically
-
-// packed rgb565
-typedef pixfmt_tft_writer             pixfmt_t;
-
-
-// how does render_base delegate to the pixel buf???
-typedef agg::renderer_base<pixfmt_t>   rb_t ;
-// typedef renderer_base_no_clip<pixfmt_t>   rb_t ;
-
-
-
-// front fonts.h
-struct FontOutline;
-struct FontSpans;
-
-void drawOutlineText(rb_t & rb, const FontOutline &font_outline, agg::trans_affine &mtx, const agg::rgba &color, const char *s);
-
-
-void drawSpanChar(rb_t & rb, const FontSpans &font_spans, int x1, int y1, const agg::rgba &color, const char ch);
-
-void drawSpanText(rb_t & rb, const FontSpans &font_spans, int x1, int y1, const agg::rgba &color, const char *s);
 
 
 

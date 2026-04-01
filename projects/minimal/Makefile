@@ -12,7 +12,7 @@ AGGSRC=${TOP_DIR}/lib/agg-svn-r138-agg-2.4/src/
 
 SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/peripheral/spi-4094.c src/peripheral/spi-dac8811.c src/peripheral/spi-ad5446.c \
-            src/peripheral/tft.c src/peripheral/vfd.c src/peripheral/vfd-fonts.c \
+            src/peripheral/tft.c src/peripheral/vfd.c src/peripheral/vfd-font-large.c src/peripheral/vfd-font-small.c \
             src/device/tft0.c \
             src/device/vfd0.c \
             src/device/spi1-port.c src/device/spi2-port.c  \
@@ -25,7 +25,8 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/device/interrupt-fpga0.c \
             src/device/interrupt-systick.c \
             src/device/support.c \
-            src/agg/agg.cpp src/agg/arial-outline.cpp src/agg/arial-span-18.cpp  src/agg/arial-span-72.cpp \
+            src/agg/font-span.cpp src/agg/font-outline.cpp \
+            src/agg/arial-outline.cpp src/agg/arial-span-18.cpp  src/agg/arial-span-72.cpp \
             src/agg/tft-test2.cpp src/agg/tft-test3.cpp src/agg/tft-test4.cpp src/agg/tft-test5.cpp src/agg/tft-test6.cpp \
             src/agg/tft-display.cpp \
             src/vfd-display.c \
@@ -85,15 +86,14 @@ TGT_CFLAGS  += -Werror \
 
 
 
-# local include
+# local, lib  include
 TGT_CFLAGS	+= -I./include
-
-# top level include, for assert and other libraries.
 TGT_CFLAGS	+= -I${TOP_DIR}/include
 TGT_CFLAGS	+= -I${TOP_DIR}/lib/libopencm3/include
 
 AGGINC=${TOP_DIR}/lib/agg-svn-r138-agg-2.4/include/
-TGT_CXXFLAGS += -I./include -I${AGGINC}
+
+TGT_CXXFLAGS += -I./include -I${TOP_DIR}/include -I${AGGINC}
 
 
 

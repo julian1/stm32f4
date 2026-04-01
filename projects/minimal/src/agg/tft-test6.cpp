@@ -5,8 +5,8 @@
 #include <string.h>
 #include <assert.h>
 
-#include <agg/agg.h>
-#include <agg/fonts.h>
+
+#include <agg/font-span.h>
 #include <agg/tft-display.h>
 
 
@@ -25,6 +25,8 @@
 
 extern "C" void tft_test6( tft_display_t *display)
 {
+
+  assert( display && display->magic == TFT_DISPLAY_MAGIC);
 
   // change the page
   display->page = ! display->page;
@@ -70,10 +72,10 @@ extern "C" void tft_test6( tft_display_t *display)
 
   // printf("addr of arial_span_72 %p\n" , & arial_span_72 );
   // but if we try to do the large text it fails.
-  drawSpanText(rb,  arial_span_72,    50, 100 , agg::rgba(0,0,1), "7.14159" );
+  rb_font_span_write(rb,  arial_span_72,    50, 100 , agg::rgba(0,0,1), "7.14159" );
 
 
-  drawSpanText(rb,  arial_span_18,    50, 150 , agg::rgba(0,1,0), "7.000V" );
+  rb_font_span_write(rb,  arial_span_18,    50, 150 , agg::rgba(0,1,0), "7.000V" );
 
 
   printf("draw time  %u\n", *display->system_millis - start);
@@ -160,8 +162,8 @@ fit, including the elimination of storage in favour of inlining.
   char buf[100];
   format_float(buf, 100, 5, volts );
 
-  //drawSpanText(rb,  arial_span_72,    50, 100 , agg::rgba(0,0,1), buf );
-  drawSpanText(rb,  arial_span_18,    50, 150 , agg::rgba(0,0,1), "7.000V" );
+  //rb_font_span_write(rb,  arial_span_72,    50, 100 , agg::rgba(0,0,1), buf );
+  rb_font_span_write(rb,  arial_span_18,    50, 150 , agg::rgba(0,0,1), "7.000V" );
 
   }
 #endif

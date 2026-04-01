@@ -6,8 +6,7 @@
 
 
 
-#include <agg/agg.h>
-#include <agg/fonts.h>
+#include <agg/font-outline.h>
 #include <agg/tft-display.h>
 
 
@@ -32,7 +31,7 @@ extern "C" void tft_test4( tft_display_t *display)
 
   uint32_t start = *display->system_millis;
 
-  rb.clear(agg::rgba(1,1,1));     // white .
+  rb.clear( agg::rgba(1,1,1));     // white .
   // usart_printf("rb.clear() time %u\n", system_millis - start);
 
   char buf[100];
@@ -61,7 +60,7 @@ extern "C" void tft_test4( tft_display_t *display)
   mtx *= agg::trans_affine_translation(30, 70);
   static double volts = 7.159884 + (rand() % 3);
   snprintf(buf, 100, "%gV", volts);
-  drawOutlineText(rb, arial_outline, mtx, agg::rgba(0,0,1), buf);
+  rb_font_outline_write(rb, arial_outline, mtx, agg::rgba(0,0,1), buf);
 
 
 
@@ -70,14 +69,14 @@ extern "C" void tft_test4( tft_display_t *display)
   mtx *= agg::trans_affine_scaling(1.3);
   mtx *= agg::trans_affine_translation(30, 140);
   snprintf(buf, 100, "%gmA", 3.0194 );
-  drawOutlineText(rb, arial_outline, mtx, agg::rgba(0,0,1), buf);
+  rb_font_outline_write(rb, arial_outline, mtx, agg::rgba(0,0,1), buf);
 
 
   /////////////////////
   mtx.reset();
   mtx *= agg::trans_affine_translation(50, 180);
   snprintf(buf, 100, "%lums", *display->system_millis - start);
-  drawOutlineText(rb, arial_outline, mtx, agg::rgba(0,0,1), buf);
+  rb_font_outline_write(rb, arial_outline, mtx, agg::rgba(0,0,1), buf);
 
 
   // usart_printf("time %u\n", system_millis - start);

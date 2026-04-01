@@ -27,7 +27,8 @@
 #include <peripheral/spi-ad5446.h>
 #include <peripheral/gpio.h>
 #include <peripheral/interrupt.h>
-#include <peripheral/vfd-fonts.h>
+
+#include <peripheral/vfd-font-large.h>  // vfd-test()
 
 #include <peripheral/vfd.h>
 #include <peripheral/tft.h>

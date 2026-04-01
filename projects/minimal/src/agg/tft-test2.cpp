@@ -9,8 +9,7 @@
 #include <assert.h>
 
 
-#include <agg/agg.h>
-#include <agg/fonts.h>
+#include <agg/font-outline.h>
 #include <agg/tft-display.h>
 
 /*
@@ -36,7 +35,7 @@ extern "C" void tft_test2( tft_display_t *display)
 
   // set up our buffer
   pixfmt_t  pixf(  display->tft, 0  );
-  rb_t    rb(pixf);
+  rb_t    rb( pixf);
   // agg::renderer_base<pixfmt_t>   rb(pixf);
 
   // while( ! getTear() ); // wait for tear to go high... LOOKS. wrong.
@@ -86,7 +85,7 @@ extern "C" void tft_test2( tft_display_t *display)
     it's the height of the glyph. and athe affine scale I think.
   */
   const char *s = "hello123";
-  drawOutlineText(rb, arial_outline, mtx, agg::rgba(0,0,1), s);
+  rb_font_outline_write(rb, arial_outline, mtx, agg::rgba(0,0,1), s);
 
 
 

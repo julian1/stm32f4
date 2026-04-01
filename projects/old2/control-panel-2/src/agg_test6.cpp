@@ -1,4 +1,7 @@
 
+
+
+
 #include <stdio.h>
 #include <string.h>
 #include <stdio.h> // snprintf
@@ -14,16 +17,18 @@
 
 #include "format.h"
 
-#include "fonts.h"
+#include "font-span.h"
+
 
 #include "agg_rounded_rect.h"
 #include "agg_ellipse.h"
-
-
 #include "agg_scanline_p.h"
 #include "agg_rasterizer_scanline_aa.h"
-
 #include "agg_renderer_scanline.h"
+
+
+
+
 
 extern "C" int agg_test6()
 {

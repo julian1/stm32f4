@@ -4,6 +4,12 @@
 #pragma once
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -43,3 +49,10 @@ void val_adjust_multiplier( double *val, char *c) ;
 void val_force_multiplier( double *val, char c);
 unsigned val_leading_digits( double val_);
 char * str_format_value_dynamic( char *s, size_t sz, double val, unsigned ndigits);
+
+
+#ifdef __cplusplus
+}
+#endif
+
+

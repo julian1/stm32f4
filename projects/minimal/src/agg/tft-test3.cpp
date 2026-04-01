@@ -11,8 +11,7 @@
 
 
 
-#include <agg/agg.h>
-#include <agg/fonts.h>
+#include <agg/font-outline.h>
 #include <agg/tft-display.h>
 
 
@@ -32,7 +31,7 @@ extern "C" void tft_test3( tft_display_t *display)
 
   // set up our buffer
   pixfmt_t  pixf( display->tft, display->page *  272 );
-  agg::renderer_base<pixfmt_t>   rb(pixf);
+  agg::renderer_base< pixfmt_t>   rb(pixf);
 
 
   // EXTR. if looks like if draw too fast. then flipping the scrollstart can introduce flicker
@@ -82,7 +81,7 @@ extern "C" void tft_test3( tft_display_t *display)
   char buf[100];
   snprintf(buf, 100, "whoot %u", count++);
 
-  drawOutlineText(rb, arial_outline, mtx, agg::rgba(0,0,1), buf);
+  rb_font_outline_write(rb, arial_outline, mtx, agg::rgba(0,0,1), buf);
 
 
   // msleep(40); slower draw. maybe slightly less tearing.
