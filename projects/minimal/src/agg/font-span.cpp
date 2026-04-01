@@ -121,11 +121,17 @@ void rb_font_span_write_special(rb_t & rb, const font_span_t &font_spans, int x,
       || ch == '+' || ch == '-')
     {
       // mono-space advance. reference'0'
-      x += font_spans.glyph_advance_x[ '0' ];
+      x += font_spans.glyph_advance_x[ '0' ] - 2;
+    }
+    else if (ch == '.')
+    {
+      // printf("got dot\n");
+      x += font_spans.glyph_advance_x[ ch ] - 10;
     }
     else {
+
       // proportional advance for everything else
-      x += font_spans.glyph_advance_x[ ch ];
+      x += font_spans.glyph_advance_x[ ch ] - 2;
     }
 
 

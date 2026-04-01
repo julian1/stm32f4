@@ -48,27 +48,37 @@ static void tft_display_update_data_( tft_display_t *display, data_t *data)
     return;
 
 
-
   if( !data->valid) {
 
-    // clear the star to indicate no measurement data
-    char buf[101];
-    snprintf( buf, 100, "%c", ' ');
-    // vfd_font_small_write( vfd, buf, 0, 3 );
-    // vfd_font_small_write( vfd, buf, 0, 7 );
+    // set up render buffer on current page
+    pixfmt_t  pixf( display->tft, display->page *  272 );
+    rb_t    rb(pixf);
+
+    // printf("clearing dot\n");
+    char buf[ 100 + 1] ;
+    snprintf( buf, 100, "*");
+    // overwrite using white
+    rb_font_span_write(rb,  arial_span_18,    10, 120, agg::rgba( 1,1,1), buf );  // white color
+
+    display->page_ready = true;
 
     return;
   }
+
+
+  // flip the display page
+  display->page = ! display->page;
+
+
+  // set up our buffer
+  pixfmt_t  pixf( display->tft, display->page *  272 );
+  rb_t    rb(pixf);
 
 
   // range only available if data valid
   const range_t *range = data->range;
   assert( range && range->magic == RANGE_MAGIC);
 
-
-  // set up our buffer
-  pixfmt_t  pixf( display->tft, display->page *  272 );
-  rb_t    rb(pixf);
 
   rb.clear(agg::rgba( 1,1,1));     // white .
 
@@ -79,16 +89,20 @@ static void tft_display_update_data_( tft_display_t *display, data_t *data)
   format_val_t  val;
   range->range_reading_format( range, &val, 9, data->reading);
 
-  rb_font_span_write_special(rb,  arial_span_72, 10, 100 , agg::rgba(0,0,1), val.all );
+  rb_font_span_write_special(rb,  arial_span_72, 1, 70 , agg::rgba( 0,0,1), val.all );
 
   ///////
 
   char buf[ 101];
   char buf2[ 101];
 
-  snprintf( buf, 100, "stddev %sV", str_format_value_dynamic( buf2, 100, buffer->stddev, 4 ));
+  // star...
+  snprintf( buf, 100, "*");
+  rb_font_span_write(rb,  arial_span_18,    10, 120, agg::rgba(0,0,1), buf );
 
-  rb_font_span_write(rb,  arial_span_18,    10, 150 , agg::rgba(0,0,1), buf );
+
+  snprintf( buf, 100, "stddev %sV", str_format_value_dynamic( buf2, 100, buffer->stddev, 4 ));
+  rb_font_span_write(rb,  arial_span_18,    10, 140 , agg::rgba( 0,0,1), buf );
 
 
   display->page_ready = true;
@@ -132,9 +146,6 @@ void tft_display_update( tft_display_t *display)
 
   display->page_ready = false;
 
-
-  // flip the display page
-  display->page = ! display->page;
 
 
 #endif
