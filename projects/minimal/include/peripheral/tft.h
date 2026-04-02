@@ -75,10 +75,6 @@ inline bool tft_get_tear( tft_t *tft)
 
 
 
-
-
-
-
 /////////////
 
 uint16_t packRGB565(  uint16_t r, uint16_t g, uint16_t b);

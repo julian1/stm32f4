@@ -97,22 +97,6 @@ tft lcd init!
 fsmc_setup, divider 1
 */
 
-static inline void LCD_Write_COM( tft_t *tft, uint16_t cmd)
-{
-  tft_write_cmd( tft, cmd );
-}
-
-static inline void  LCD_Write_DATA( tft_t *tft, uint16_t data)
-{
-  tft_write_data( tft, data );
-}
-
-static inline uint16_t LCD_ReadData( tft_t *tft)
-{
-  return tft_read_data( tft);
-}
-
-
 
 
 
@@ -133,8 +117,6 @@ static void msleep( uint32_t delay, volatile uint32_t *system_millis)
   };
 
 }
-
-
 
 
 
@@ -165,20 +147,20 @@ void tft_init(  tft_t *tft, volatile uint32_t *system_millis)
   /* Set MN(multipliers) of PLL, VCO = crystal freq * (N+1) */
   /* PLL freq = VCO/M with 250MHz < VCO < 800MHz */
   /* The max PLL freq is around 120MHz. To obtain 120MHz as the PLL freq */
-  LCD_Write_COM( tft, 0xE2); /* Set PLL with OSC = 10MHz (hardware) */
+  tft_write_cmd( tft, 0xE2); /* Set PLL with OSC = 10MHz (hardware) */
   /* Multiplier N = 35, VCO (>250MHz)= OSC*(N+1), VCO = 360MHz */
-  LCD_Write_DATA( tft, 0x23);
-  LCD_Write_DATA( tft, 0x02); /* Divider M = 2, PLL = 360/(M+1) = 120MHz */
-  LCD_Write_DATA( tft, 0x54); /* Validate M and N values */
+  tft_write_data( tft, 0x23);
+  tft_write_data( tft, 0x02); /* Divider M = 2, PLL = 360/(M+1) = 120MHz */
+  tft_write_data( tft, 0x54); /* Validate M and N values */
 
-  LCD_Write_COM( tft, 0xE0); /* Start PLL command */
-  LCD_Write_DATA( tft,0x01); /* enable PLL */
+  tft_write_cmd( tft, 0xE0); /* Start PLL command */
+  tft_write_data( tft,0x01); /* enable PLL */
 
   // JA delay_ms(10); /* wait stabilization */
   msleep(10, system_millis);
 
-  LCD_Write_COM( tft, 0xE0); /* Start PLL command again */
-  LCD_Write_DATA( tft,0x03); /* now, use PLL output as system clock */
+  tft_write_cmd( tft, 0xE0); /* Start PLL command again */
+  tft_write_data( tft,0x03); /* now, use PLL output as system clock */
 
   // JA LCD_FSMCConfig(1); /* Set FSMC full speed now */
   // HERE
@@ -186,35 +168,35 @@ void tft_init(  tft_t *tft, volatile uint32_t *system_millis)
   fsmc_setup( 2);
   msleep(10, system_millis);
 
-  LCD_Write_COM( tft, 0x01);    // software reset (JA requiredJ).
+  tft_write_cmd( tft, 0x01);    // software reset (JA requiredJ).
   msleep(100, system_millis);
 
   // https://github.com/jscrane/UTFT-Energia/blob/master/tft_drivers/ssd1963/480/initlcd.h
 // case SSD1963_480:
 
 /*
-  LCD_Write_COM(0xE2);    //PLL multiplier, set PLL clock to 120M
-  LCD_Write_DATA(0x23);     //N=0x36 for 6.5M, 0x23 for 10M crystal
-  LCD_Write_DATA(0x02);
-  LCD_Write_DATA(0x54);
+  tft_write_cmd(0xE2);    //PLL multiplier, set PLL clock to 120M
+  tft_write_data(0x23);     //N=0x36 for 6.5M, 0x23 for 10M crystal
+  tft_write_data(0x02);
+  tft_write_data(0x54);
 
-  LCD_Write_COM(0xE0);    // PLL enable
-  LCD_Write_DATA(0x01);
+  tft_write_cmd(0xE0);    // PLL enable
+  tft_write_data(0x01);
   delay(10);
-  LCD_Write_COM(0xE0);
-  LCD_Write_DATA(0x03);
+  tft_write_cmd(0xE0);
+  tft_write_data(0x03);
   delay(10);
-  LCD_Write_COM(0x01);    // software reset
+  tft_write_cmd(0x01);    // software reset
   delay(100);
 */
 
 
 /*
                           // 73727
-  LCD_Write_COM(0xE6);    //PLL setting for PCLK, depends on resolution
-  LCD_Write_DATA(0x01);
-  LCD_Write_DATA(0x1F);
-  LCD_Write_DATA(0xFF);
+  tft_write_cmd(0xE6);    //PLL setting for PCLK, depends on resolution
+  tft_write_data(0x01);
+  tft_write_data(0x1F);
+  tft_write_data(0xFF);
 */
 
 
@@ -224,66 +206,66 @@ void tft_init(  tft_t *tft, volatile uint32_t *system_millis)
   // JA 105000 ==  19A28
   // 120 * (   105000 + 1 ) / Math.pow(2, 20)
   // ==  12.016410827636719 == 12MHz.
-  LCD_Write_COM( tft,  0xE6);    //PLL setting for PCLK, depends on resolution
-  LCD_Write_DATA( tft, 0x01);
-  LCD_Write_DATA( tft, 0xA2);
-  LCD_Write_DATA( tft, 0x28);
+  tft_write_cmd( tft,  0xE6);    //PLL setting for PCLK, depends on resolution
+  tft_write_data( tft, 0x01);
+  tft_write_data( tft, 0xA2);
+  tft_write_data( tft, 0x28);
 
 
 
-  LCD_Write_COM( tft, 0xB0);    //LCD SPECIFICATION
-  LCD_Write_DATA( tft, 0x20);
-  LCD_Write_DATA( tft, 0x00);
-  LCD_Write_DATA( tft, 0x01);   //Set HDP 479
-  LCD_Write_DATA( tft, 0xDF);
-  LCD_Write_DATA( tft, 0x01);   //Set VDP 271
-  LCD_Write_DATA( tft, 0x0F);
-  LCD_Write_DATA( tft, 0x00);
+  tft_write_cmd( tft, 0xB0);    //LCD SPECIFICATION
+  tft_write_data( tft, 0x20);
+  tft_write_data( tft, 0x00);
+  tft_write_data( tft, 0x01);   //Set HDP 479
+  tft_write_data( tft, 0xDF);
+  tft_write_data( tft, 0x01);   //Set VDP 271
+  tft_write_data( tft, 0x0F);
+  tft_write_data( tft, 0x00);
 
-  LCD_Write_COM( tft, 0xB4);    //HSYNC
-  LCD_Write_DATA( tft, 0x02);   //Set HT  531
-  LCD_Write_DATA( tft, 0x13);
-  LCD_Write_DATA( tft, 0x00);   //Set HPS 8
-  LCD_Write_DATA( tft, 0x08);
-  LCD_Write_DATA( tft, 0x2B);   //Set HPW 43
-  LCD_Write_DATA( tft, 0x00);   //Set LPS 2
-  LCD_Write_DATA( tft, 0x02);
-  LCD_Write_DATA( tft, 0x00);
+  tft_write_cmd( tft, 0xB4);    //HSYNC
+  tft_write_data( tft, 0x02);   //Set HT  531
+  tft_write_data( tft, 0x13);
+  tft_write_data( tft, 0x00);   //Set HPS 8
+  tft_write_data( tft, 0x08);
+  tft_write_data( tft, 0x2B);   //Set HPW 43
+  tft_write_data( tft, 0x00);   //Set LPS 2
+  tft_write_data( tft, 0x02);
+  tft_write_data( tft, 0x00);
 
-  LCD_Write_COM( tft, 0xB6);    //VSYNC
-  LCD_Write_DATA( tft, 0x01);   //Set VT  288
-  LCD_Write_DATA( tft, 0x20);
-  LCD_Write_DATA( tft, 0x00);   //Set VPS 4
-  LCD_Write_DATA( tft, 0x04);
-  LCD_Write_DATA( tft, 0x0c);   //Set VPW 12
-  LCD_Write_DATA( tft, 0x00);   //Set FPS 2
-  LCD_Write_DATA( tft, 0x02);
+  tft_write_cmd( tft, 0xB6);    //VSYNC
+  tft_write_data( tft, 0x01);   //Set VT  288
+  tft_write_data( tft, 0x20);
+  tft_write_data( tft, 0x00);   //Set VPS 4
+  tft_write_data( tft, 0x04);
+  tft_write_data( tft, 0x0c);   //Set VPW 12
+  tft_write_data( tft, 0x00);   //Set FPS 2
+  tft_write_data( tft, 0x02);
 
 /*
   // TODO remove
-  LCD_Write_COM(0xBA);  // JA set_gpio_value
-  LCD_Write_DATA(0x0F);   //GPIO[3:0] out 1
+  tft_write_cmd(0xBA);  // JA set_gpio_value
+  tft_write_data(0x0F);   //GPIO[3:0] out 1
 
-  LCD_Write_COM(0xB8);  // JA set_gpio_conf
-  LCD_Write_DATA(0x07);     //GPIO3=input, GPIO[2:0]=output
-  LCD_Write_DATA(0x01);   //GPIO0 normal
+  tft_write_cmd(0xB8);  // JA set_gpio_conf
+  tft_write_data(0x07);     //GPIO3=input, GPIO[2:0]=output
+  tft_write_data(0x01);   //GPIO0 normal
 */
 
-  LCD_Write_COM( tft, 0x36);    //rotation
-  // LCD_Write_DATA(0x22);  // 0x22 == 10110 origin is top-right
-  LCD_Write_DATA( tft, 0x00);     // 0x00 origin is top-left
-  // LCD_Write_DATA(0b0011  );
-  // LCD_Write_DATA(0b0010  );     // bottom right?
-  // LCD_Write_DATA(0b0001  );     // origin bottom left
+  tft_write_cmd( tft, 0x36);    //rotation
+  // tft_write_data(0x22);  // 0x22 == 10110 origin is top-right
+  tft_write_data( tft, 0x00);     // 0x00 origin is top-left
+  // tft_write_data(0b0011  );
+  // tft_write_data(0b0010  );     // bottom right?
+  // tft_write_data(0b0001  );     // origin bottom left
 
 
-  LCD_Write_COM( tft, 0xF0);    //pixel data interface
-  LCD_Write_DATA( tft, 0x03);       // 3 == 011 == 16bit 565
-  // LCD_Write_DATA(0b101 );       // JA 101 24-bit default.
+  tft_write_cmd( tft, 0xF0);    //pixel data interface
+  tft_write_data( tft, 0x03);       // 3 == 011 == 16bit 565
+  // tft_write_data(0b101 );       // JA 101 24-bit default.
 
 
-  // LCD_Write_COM(0x35);     // set tear on
-  // LCD_Write_DATA(0x00);   // vblanking only
+  // tft_write_cmd(0x35);     // set tear on
+  // tft_write_data(0x00);   // vblanking only
 
 
 
@@ -291,19 +273,19 @@ void tft_init(  tft_t *tft, volatile uint32_t *system_millis)
   // delay(1);
   msleep( 1, system_millis);
 
-  LCD_Write_COM( tft, 0x29);    //display on
+  tft_write_cmd( tft, 0x29);    //display on
 
 /*
-  LCD_Write_COM(0xBE);    //set PWM for B/L
-  LCD_Write_DATA(0x06);
-  LCD_Write_DATA(0xf0);
-  LCD_Write_DATA(0x01);
-  LCD_Write_DATA(0xf0);
-  LCD_Write_DATA(0x00);
-  LCD_Write_DATA(0x00);
+  tft_write_cmd(0xBE);    //set PWM for B/L
+  tft_write_data(0x06);
+  tft_write_data(0xf0);
+  tft_write_data(0x01);
+  tft_write_data(0xf0);
+  tft_write_data(0x00);
+  tft_write_data(0x00);
 
-  LCD_Write_COM(0xd0);   // JA set dynamic backlight configuration
-  LCD_Write_DATA(0x0d);
+  tft_write_cmd(0xd0);   // JA set dynamic backlight configuration
+  tft_write_data(0x0d);
 */
 
 
@@ -322,9 +304,9 @@ void tft_set_scrollstart( tft_t *tft, uint16_t y)
   when this command is used with the set_scroll_area (0x33).
   */
 
-  LCD_Write_COM( tft, 0x37);
-  LCD_Write_DATA( tft, y>>8);
-  LCD_Write_DATA( tft, y);
+  tft_write_cmd( tft, 0x37);
+  tft_write_data( tft, y>>8);
+  tft_write_data( tft, y);
 }
 
 
@@ -344,17 +326,17 @@ void tft_set_xy( tft_t *tft, uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2
 //   swap(word, x1, y1);
 //   swap(word, x2, y2);
 
-  LCD_Write_COM( tft, 0x2a);  // JA set_column_address
-  LCD_Write_DATA( tft, x1>>8);
-  LCD_Write_DATA( tft, x1);
-  LCD_Write_DATA( tft, (x2-1)>>8);
-  LCD_Write_DATA( tft, x2-1);
-  LCD_Write_COM( tft, 0x2b);  // JA set_page_address
-  LCD_Write_DATA( tft, y1>>8);
-  LCD_Write_DATA( tft, y1);
-  LCD_Write_DATA( tft, (y2 - 1)>>8);
-  LCD_Write_DATA( tft, y2-1);
-  LCD_Write_COM( tft, 0x2c); // write_memory_start
+  tft_write_cmd( tft, 0x2a);  // JA set_column_address
+  tft_write_data( tft, x1>>8);
+  tft_write_data( tft, x1);
+  tft_write_data( tft, (x2-1)>>8);
+  tft_write_data( tft, x2-1);
+  tft_write_cmd( tft, 0x2b);  // JA set_page_address
+  tft_write_data( tft, y1>>8);
+  tft_write_data( tft, y1);
+  tft_write_data( tft, (y2 - 1)>>8);
+  tft_write_data( tft, y2-1);
+  tft_write_cmd( tft, 0x2c); // write_memory_start
   // break;
 }
 
@@ -362,15 +344,15 @@ void tft_set_xy( tft_t *tft, uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2
 
 void tft_set_origin_top_left( tft_t *tft )
 {
-  LCD_Write_COM( tft, 0x36);    //rotation
-  LCD_Write_DATA( tft, 0x00);     // 0x00 origin is top-left
+  tft_write_cmd( tft, 0x36);    //rotation
+  tft_write_data( tft, 0x00);     // 0x00 origin is top-left
 }
 
 void tft_set_origin_bottom_left( tft_t *tft)
 {
   // better for truetype fonts...
-  LCD_Write_COM( tft, 0x36);    //rotation
-  LCD_Write_DATA( tft, 0b0001  );     // origin bottom left
+  tft_write_cmd( tft, 0x36);    //rotation
+  tft_write_data( tft, 0b0001  );     // origin bottom left
 }
 
 
@@ -392,8 +374,8 @@ period (VNDP) to enable the LCD controller will always get the newly updated dat
 
 uint16_t tft_get_tear_effect_status( tft_t *tft)
 {
-  LCD_Write_COM( tft, 0x0E);    //rotation
-  uint16_t x1 = LCD_ReadData( tft);
+  tft_write_cmd( tft, 0x0E);    //rotation
+  uint16_t x1 = tft_read_data( tft);
   return x1;
 }
 
@@ -402,8 +384,8 @@ void tft_set_tear_on( tft_t *tft)
 {
   // this doesn't appear to work.
   // cannot read anything with getTearEffectSttaus or probe with scope
-  LCD_Write_COM( tft, 0x35);
-  LCD_Write_DATA( tft, 0x00);   // vblanking only
+  tft_write_cmd( tft, 0x35);
+  tft_write_data( tft, 0x00);   // vblanking only
 }
 
 
@@ -439,7 +421,7 @@ void tft_fill_rect( tft_t *tft, uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t
   int len =  (x2 - x1) * (y2 - y1 );
 
   for( int i  = 0; i < len ; ++i ) {
-    LCD_Write_DATA( tft,  c  ) ;
+    tft_write_data( tft,  c  ) ;
   }
 
 }
@@ -464,14 +446,14 @@ void tft_read_ddb( tft_t *tft)
   //uint16_t reg = 0xE2;   //
 
   //  LCD_SetAddr(reg );
-  LCD_Write_COM( tft, reg ) ;
+  tft_write_cmd( tft, reg ) ;
 
 
-  uint16_t x1 = LCD_ReadData( tft);
-  uint16_t x2 = LCD_ReadData( tft);
-  uint16_t x3 = LCD_ReadData( tft);
-  uint16_t x4 = LCD_ReadData( tft);
-  uint16_t x5 = LCD_ReadData( tft);
+  uint16_t x1 = tft_read_data( tft);
+  uint16_t x2 = tft_read_data( tft);
+  uint16_t x3 = tft_read_data( tft);
+  uint16_t x4 = tft_read_data( tft);
+  uint16_t x5 = tft_read_data( tft);
 
   printf("reg %u (%02x)  r\n", reg,  reg);
   printf("%03u  %s\n", x1, str_format_bits(buf, 16, x1));
@@ -523,7 +505,7 @@ LCD->LCD_RAM 0000000000000000000000000000000000000000000000000000000000000000000
 LCD->LCD_RAM 0000000000000000000000000000000000000000000000000000000000000000000001100000000000100000000000000000 data w
 
 */
-static inline void LCD_Write_COM( tft_t *tft, uint16_t cmd)
+static inline void tft_write_cmd( tft_t *tft, uint16_t cmd)
 {
 
   static bool first = true;
@@ -537,7 +519,7 @@ static inline void LCD_Write_COM( tft_t *tft, uint16_t cmd)
   LCD->LCD_REG = cmd;
 }
 
-static inline void  LCD_Write_DATA( tft_t *tft, uint16_t data)
+static inline void  tft_write_data( tft_t *tft, uint16_t data)
 {
   static bool first = true;
   if(first) {
@@ -551,7 +533,7 @@ static inline void  LCD_Write_DATA( tft_t *tft, uint16_t data)
   LCD->LCD_RAM = data;
 }
 
-static inline uint16_t LCD_ReadData( tft_t *tft)
+static inline uint16_t tft_read_data( tft_t *tft)
 {
   static bool first = true;
   if(first) {
@@ -610,7 +592,7 @@ for(k=y1;k<y2;k++)
     for(l=x1;l<x2;l++)
      {
 
-    LCD_Write_DATA(   c  ) ;
+    tft_write_data(   c  ) ;
     // LCD_RS1_WR(color);
     }
    }
@@ -633,28 +615,28 @@ void tft_fill_rect(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2, uint16_t
   // tft_set_xy(20, 20, 100, 100);
   // tft_set_xy(100, 100, 20, 20);
 
-  // LCD_Write_COM(0x2C);    // JA write memory start
+  // tft_write_cmd(0x2C);    // JA write memory start
   for( int i  = 20 * 20 ; i < 100 * 200; ++i ) {
 
     // NO. should be 16bit values.... not 8 bit. eg. only registers use lower 8 bits of 16 bit bus.
-    // LCD_Write_DATA(0xff << 6 | 0x00 );
-    // LCD_Write_DATA(0x0 << 8 | 0x00 );
-    // LCD_Write_DATA(0xff << 8 | 0x00 );
-    // LCD_Write_DATA(0x00); // hmmmmm
-    // LCD_Write_DATA(0xff );
+    // tft_write_data(0xff << 6 | 0x00 );
+    // tft_write_data(0x0 << 8 | 0x00 );
+    // tft_write_data(0xff << 8 | 0x00 );
+    // tft_write_data(0x00); // hmmmmm
+    // tft_write_data(0xff );
 
     // this is bright red
-    // LCD_Write_DATA(  0x00 | 0xff >> 5);
+    // tft_write_data(  0x00 | 0xff >> 5);
 
     //
     // 11111 = 1F
     // 111111 == 3F
 
     // bright red
-    // LCD_Write_DATA(   (0x1f ) ) ;
+    // tft_write_data(   (0x1f ) ) ;
 
     // bright yellow
-    // LCD_Write_DATA(   (0x1fu ) << 11) ;
+    // tft_write_data(   (0x1fu ) << 11) ;
 
     // 101 = 565 format
     // uint16_t r = 0xff, g = 0xff, b = 0xff;
@@ -667,14 +649,14 @@ void tft_fill_rect(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2, uint16_t
     UNUSED(b);
 */
     // rgb 565
-    // LCD_Write_DATA(   (r & 0x1f ) << 11 /* | (g & 0x3f << 5) */  /*| (b & 0x1f )*/ ) ; // bright red. good.
-    // LCD_Write_DATA(   0xffff  ) ; // works.
+    // tft_write_data(   (r & 0x1f ) << 11 /* | (g & 0x3f << 5) */  /*| (b & 0x1f )*/ ) ; // bright red. good.
+    // tft_write_data(   0xffff  ) ; // works.
 
-    // LCD_Write_DATA(    ((g & 0x3f) << 5)  ) ;   // bright green ???
+    // tft_write_data(    ((g & 0x3f) << 5)  ) ;   // bright green ???
 
-    // LCD_Write_DATA(   (r & 0x1f ) << 11 | (g & 0x3f) << 5 | (b & 0x1f)  ) ;
+    // tft_write_data(   (r & 0x1f ) << 11 | (g & 0x3f) << 5 | (b & 0x1f)  ) ;
 
-    LCD_Write_DATA(   c  ) ;
+    tft_write_data(   c  ) ;
 
   }
 }
@@ -695,25 +677,25 @@ static void tft_init(void)
   /* Set MN(multipliers) of PLL, VCO = crystal freq * (N+1) */
   /* PLL freq = VCO/M with 250MHz < VCO < 800MHz */
   /* The max PLL freq is around 120MHz. To obtain 120MHz as the PLL freq */
-  LCD_Write_COM(0xE2); /* Set PLL with OSC = 10MHz (hardware) */
+  tft_write_cmd(0xE2); /* Set PLL with OSC = 10MHz (hardware) */
   /* Multiplier N = 35, VCO (>250MHz)= OSC*(N+1), VCO = 360MHz */
-  LCD_Write_DATA(0x23);
-  LCD_Write_DATA(0x02); /* Divider M = 2, PLL = 360/(M+1) = 120MHz */
-  LCD_Write_DATA(0x54); /* Validate M and N values */
+  tft_write_data(0x23);
+  tft_write_data(0x02); /* Divider M = 2, PLL = 360/(M+1) = 120MHz */
+  tft_write_data(0x54); /* Validate M and N values */
 
-  LCD_Write_COM(0xE0); /* Start PLL command */
-  LCD_Write_DATA(0x01); /* enable PLL */
+  tft_write_cmd(0xE0); /* Start PLL command */
+  tft_write_data(0x01); /* enable PLL */
   // JA delay_ms(10); /* wait stabilization */
   msleep(10);
 
-  LCD_Write_COM(0xE0); /* Start PLL command again */
-  LCD_Write_DATA(0x03); /* now, use PLL output as system clock */
+  tft_write_cmd(0xE0); /* Start PLL command again */
+  tft_write_data(0x03); /* now, use PLL output as system clock */
 
   // JA LCD_FSMCConfig(1); /* Set FSMC full speed now */
   fsmc_setup(1);
 
   /* once PLL locked (at 120MHz), the data hold time is shortened */
-  LCD_Write_COM(0x01); /* Soft reset */
+  tft_write_cmd(0x01); /* Soft reset */
   // JA delay_ms(10);
   msleep(10);
 
@@ -723,10 +705,10 @@ static void tft_init(void)
   /* Typical DCLK for TYX350TFT320240 is 6.5MHz in 24 bit format */
   /* 6.5MHz = 120MHz*(LCDC_FPR+1)/2^20 */
   /* LCDC_FPR = 56796 (0x00DDDC) */
-  LCD_Write_COM(0xE6);
-  LCD_Write_DATA(0x00);
-  LCD_Write_DATA(0xDD);
-  LCD_Write_DATA(0xDC);
+  tft_write_cmd(0xE6);
+  tft_write_data(0x00);
+  tft_write_data(0xDD);
+  tft_write_data(0xDC);
 
 
      // for 4.3 inch lcd 12 MHz
@@ -739,17 +721,17 @@ static void tft_init(void)
 
 
   /* Set panel mode, varies from individual manufacturer */
-  LCD_Write_COM(0xB0);
-  LCD_Write_DATA(0x20); /* Set 24-bit 3.5" TFT Panel */
-  LCD_Write_DATA(0x00); /* set Hsync+Vsync mode */
-  LCD_Write_DATA((DISP_HOR_RESOLUTION - 1) >> 8 & 0x07); /* Set panel size */
-  LCD_Write_DATA((DISP_HOR_RESOLUTION - 1) & 0xff);
-  LCD_Write_DATA((DISP_VER_RESOLUTION - 1) >> 8 & 0x07);
-  LCD_Write_DATA((DISP_VER_RESOLUTION - 1) & 0xff);
-  LCD_Write_DATA(0x00); /* RGB sequence */
+  tft_write_cmd(0xB0);
+  tft_write_data(0x20); /* Set 24-bit 3.5" TFT Panel */
+  tft_write_data(0x00); /* set Hsync+Vsync mode */
+  tft_write_data((DISP_HOR_RESOLUTION - 1) >> 8 & 0x07); /* Set panel size */
+  tft_write_data((DISP_HOR_RESOLUTION - 1) & 0xff);
+  tft_write_data((DISP_VER_RESOLUTION - 1) >> 8 & 0x07);
+  tft_write_data((DISP_VER_RESOLUTION - 1) & 0xff);
+  tft_write_data(0x00); /* RGB sequence */
 
   /* Set horizontal period */
-  LCD_Write_COM(0xB4);
+  tft_write_cmd(0xB4);
 }
 #endif
 
