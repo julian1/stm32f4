@@ -30,7 +30,7 @@ extern "C" void tft_test2( tft_display_t *display)
 
 
   // set scroll start to base of memory
-  setScrollStart( display->tft, 0  );
+  tft_set_scrollstart( display->tft, 0  );
 
 
   // set up our buffer
@@ -89,7 +89,7 @@ extern "C" void tft_test2( tft_display_t *display)
 
 
 
-  // setOriginBottomLeft(); // cartesion/ fonts/ postscript
+  // tft_set_origin_bottom_left(); // cartesion/ fonts/ postscript
 
   // agg::path_storage            m_path2;
 #if 0

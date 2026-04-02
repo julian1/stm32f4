@@ -141,7 +141,7 @@ void tft_display_update( tft_display_t *display)
   //  return ;
 
   // flip the newly drawn page in
-  setScrollStart( display->tft, display->page *  272 );
+  tft_set_scrollstart( display->tft, display->page *  272 );
 
 
   display->page_ready = false;

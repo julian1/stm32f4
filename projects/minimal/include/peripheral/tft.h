@@ -81,40 +81,45 @@ inline bool tft_get_tear( tft_t *tft)
 
 /////////////
 
-
-void LCD_Init( tft_t *tft, volatile uint32_t *system_millis);
-
-
-void setScrollStart( tft_t *tft, uint16_t y);
-
-
-// TODO prefix with LCD
-void setXY( tft_t *tft,  uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2 );
-
-
-//
-// cannot interleave to switch on the fly. since governs 1963 memory to screen. not blt operations.
-void setOriginTopLeft(  tft_t *tft);    // conventional
-void setOriginBottomLeft( tft_t *tft ); // cartesion/ fonts/ postscript
-
-
-
-uint16_t getTearEffectStatus( tft_t *tft);
-
-void LCD_SetTearOn( tft_t *tft);
-
-
 uint16_t packRGB565(  uint16_t r, uint16_t g, uint16_t b);
 
-void LCD_fillRect( tft_t *tft,  uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2, uint16_t c );
+
+
+void tft_init( tft_t *tft, volatile uint32_t *system_millis);
+
+void tft_read_ddb( tft_t *tft);
+
+void tft_set_scrollstart( tft_t *tft, uint16_t y);
+
+void tft_test_fill( tft_t *tft);
+
+void tft_set_xy( tft_t *tft,  uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2 );
+
+void tft_fill_rect( tft_t *tft,  uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2, uint16_t c );
 
 
 
 
 
-void  LCD_Read_DDB( tft_t *tft);
+/*
+  cannot interleave and change on the fly.
+  since governs 1963 memory to screen. not blt operations.
+*/
 
-void  LCD_TestFill( tft_t *tft);
+// conventional
+void tft_set_origin_top_left(  tft_t *tft);
+
+// cartesion/ fonts/ postscript
+void tft_set_origin_bottom_left( tft_t *tft );
+
+
+/*
+  think - these are software/not hardware
+  consider remove
+*/
+uint16_t tft_get_tear_effect_status( tft_t *tft);
+void tft_set_tear_on( tft_t *tft);
+
 
 
 

@@ -674,12 +674,12 @@ static void app_update_500ms(app_t *app)
 
       printf("tft lcd init!\n");
 
-      LCD_Read_DDB( app->tft );     // contains 00000
+      tft_read_ddb( app->tft );     // contains 00000
 
       // init the lcd
-      LCD_Init( app->tft, app->system_millis );
+      tft_init( app->tft, app->system_millis );
 
-      LCD_Read_DDB( app->tft );
+      tft_read_ddb( app->tft );
       /*
       reg 161 (a1)  r
       000  0000000000000000
@@ -688,12 +688,12 @@ static void app_update_500ms(app_t *app)
       001  0000000000000001
       255  0000000011111111 */
 
-    //  LCD_SetTearOn( app->tft );
+    //  tft_set_tear_on( app->tft );
 
       // set scroll start to base of memory
-      // setScrollStart( app->tft, 0  );
+      // tft_set_scrollstart( app->tft, 0  );
 
-      LCD_TestFill( app->tft);
+      tft_test_fill( app->tft);
 
 
       // tft_display2( app->tft_display);

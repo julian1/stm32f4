@@ -102,14 +102,14 @@ extern "C" void tft_test3( tft_display_t *display)
 
 
   // flip the newly drawn page in
-  setScrollStart( display->tft, display->page *  272 );
+  tft_set_scrollstart( display->tft, display->page *  272 );
 
 
   // non anti aliased.
   // agg::renderer_scanline_bin_solid(
 
 
-  // setOriginBottomLeft(); // cartesion/ fonts/ postscript
+  // tft_set_origin_bottom_left(); // cartesion/ fonts/ postscript
 
   // agg::path_storage            m_path2;
 #if 0
@@ -173,7 +173,7 @@ extern "C" void tft_test3( tft_display_t *display)
   /*
     EXTR possible should only be done during vsync period
     easist way would be to set up interupt on TR. and then
-    call setScrollStart in the interupt handler..
+    call tft_set_scrollstart in the interupt handler..
   ---------------------
 
     NO. simple way is to just poll, in a while() loop here..
@@ -195,7 +195,7 @@ extern "C" void tft_test3( tft_display_t *display)
 
   setBufferA/B.
     should do two things - set a y offet for current drawing. and set the scroll to the other page.
-    We can concentrate the Y offet. not in the agg part. but in the setXY call.
+    We can concentrate the Y offet. not in the agg part. but in the tft_set_xy call.
     excellent.
 
 

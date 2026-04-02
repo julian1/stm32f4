@@ -91,7 +91,7 @@ extern "C" void tft_test6( tft_display_t *display)
 
 
   // flip the newly drawn page in
-  setScrollStart( display->tft, display->page *  272 );
+  tft_set_scrollstart( display->tft, display->page *  272 );
 
 
 }

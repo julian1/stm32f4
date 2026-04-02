@@ -140,14 +140,14 @@ static void msleep( uint32_t delay, volatile uint32_t *system_millis)
 
 
 
-void LCD_Init(  tft_t *tft, volatile uint32_t *system_millis)
+void tft_init(  tft_t *tft, volatile uint32_t *system_millis)
 {
 
   assert( tft && tft->magic == TFT_MAGIC);
 
 
   printf("-----------\n");
-  printf("LCD_Init\n");
+  printf("tft_init\n");
 
   // LCD_Configuration();
   // fsmc_gpio_setup();
@@ -315,7 +315,7 @@ void LCD_Init(  tft_t *tft, volatile uint32_t *system_millis)
 
 
 
-void setScrollStart( tft_t *tft, uint16_t y)
+void tft_set_scrollstart( tft_t *tft, uint16_t y)
 {
   /*
   This command sets the start of the vertical scrolling area in the frame buffer. The vertical scrolling area is fully defined
@@ -331,7 +331,7 @@ void setScrollStart( tft_t *tft, uint16_t y)
 
 
 
-void setXY( tft_t *tft, uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2 )
+void tft_set_xy( tft_t *tft, uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2 )
 {
 /*
   passing in a scroll offset context - would be very useful for paging/double buffering
@@ -360,13 +360,13 @@ void setXY( tft_t *tft, uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2 )
 
 
 
-void setOriginTopLeft( tft_t *tft )
+void tft_set_origin_top_left( tft_t *tft )
 {
   LCD_Write_COM( tft, 0x36);    //rotation
   LCD_Write_DATA( tft, 0x00);     // 0x00 origin is top-left
 }
 
-void setOriginBottomLeft( tft_t *tft)
+void tft_set_origin_bottom_left( tft_t *tft)
 {
   // better for truetype fonts...
   LCD_Write_COM( tft, 0x36);    //rotation
@@ -390,7 +390,7 @@ period (VNDP) to enable the LCD controller will always get the newly updated dat
 
 */
 
-uint16_t getTearEffectStatus( tft_t *tft)
+uint16_t tft_get_tear_effect_status( tft_t *tft)
 {
   LCD_Write_COM( tft, 0x0E);    //rotation
   uint16_t x1 = LCD_ReadData( tft);
@@ -398,7 +398,7 @@ uint16_t getTearEffectStatus( tft_t *tft)
 }
 
 
-void LCD_SetTearOn( tft_t *tft)
+void tft_set_tear_on( tft_t *tft)
 {
   // this doesn't appear to work.
   // cannot read anything with getTearEffectSttaus or probe with scope
@@ -431,10 +431,10 @@ uint16_t packRGB565( uint16_t r, uint16_t g, uint16_t b)
 
 }
 
-void LCD_fillRect( tft_t *tft, uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2, uint16_t c )
+void tft_fill_rect( tft_t *tft, uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2, uint16_t c )
 {
 
-  setXY( tft, x1, y1, x2, y2);
+  tft_set_xy( tft, x1, y1, x2, y2);
 
   int len =  (x2 - x1) * (y2 - y1 );
 
@@ -445,7 +445,7 @@ void LCD_fillRect( tft_t *tft, uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t 
 }
 
 
-void LCD_Read_DDB( tft_t *tft)
+void tft_read_ddb( tft_t *tft)
 {
 
   /*
@@ -487,7 +487,7 @@ void LCD_Read_DDB( tft_t *tft)
 
 
 
-void  LCD_TestFill( tft_t *tft)
+void  tft_test_fill( tft_t *tft)
 {
   assert( tft && tft->magic == TFT_MAGIC);
 
@@ -495,16 +495,16 @@ void  LCD_TestFill( tft_t *tft)
 
   // put in function. LCD_testFill.
 
-  LCD_fillRect( tft, 1, 1, 480 -1, 10 , packRGB565( 0xff , 0xff, 0xff));  // white bar
+  tft_fill_rect( tft, 1, 1, 480 -1, 10 , packRGB565( 0xff , 0xff, 0xff));  // white bar
 
-  LCD_fillRect( tft, 1, 20, 480 -1, 30 , packRGB565( 0xff , 0xff, 0xff)); // white bar
-
-
-  // LCD_fillRect(1, 50, 480 -1, 50 , packRGB565( 0xff , 0xff, 0xff)); // height of 0. draws nothing
-  LCD_fillRect( tft, 1, 50, 480 -1, 51 , packRGB565( 0xff , 0xff, 0xff)); // white - height of 1. draws
+  tft_fill_rect( tft, 1, 20, 480 -1, 30 , packRGB565( 0xff , 0xff, 0xff)); // white bar
 
 
-  LCD_fillRect( tft, 5, 5, 50, 50, packRGB565( 0x0, 0x0, 0xff));      // blue square
+  // tft_fill_rect(1, 50, 480 -1, 50 , packRGB565( 0xff , 0xff, 0xff)); // height of 0. draws nothing
+  tft_fill_rect( tft, 1, 50, 480 -1, 51 , packRGB565( 0xff , 0xff, 0xff)); // white - height of 1. draws
+
+
+  tft_fill_rect( tft, 5, 5, 50, 50, packRGB565( 0x0, 0x0, 0xff));      // blue square
 
 
 //   tft_display2();
@@ -618,7 +618,7 @@ for(k=y1;k<y2;k++)
 
 
 #if 0
-void LCD_fillRect(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2, uint16_t c )
+void tft_fill_rect(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2, uint16_t c )
 {
 
   printf("writing some data\n");
@@ -628,10 +628,10 @@ void LCD_fillRect(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2, uint16_t 
 
 
   */
-  // setXY(20, 20, 479, 271);
-  setXY(20, 20, 100, 200);
-  // setXY(20, 20, 100, 100);
-  // setXY(100, 100, 20, 20);
+  // tft_set_xy(20, 20, 479, 271);
+  tft_set_xy(20, 20, 100, 200);
+  // tft_set_xy(20, 20, 100, 100);
+  // tft_set_xy(100, 100, 20, 20);
 
   // LCD_Write_COM(0x2C);    // JA write memory start
   for( int i  = 20 * 20 ; i < 100 * 200; ++i ) {
@@ -681,10 +681,10 @@ void LCD_fillRect(uint16_t x1,  uint16_t y1,uint16_t x2,  uint16_t y2, uint16_t 
 #endif
 
 #if 0
-static void LCD_Init(void)
+static void tft_init(void)
 {
   printf("-----------\n");
-  printf("LCD_Init\n");
+  printf("tft_init\n");
 
   // LCD_Configuration();
   // fsmc_gpio_setup();

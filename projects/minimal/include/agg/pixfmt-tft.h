@@ -62,7 +62,7 @@ public:
       // we could use y += page * height();
 
       y += scroll_start;
-      setXY( tft, x, y, x + len, y + 1);   // y + 1 ????
+      tft_set_xy( tft, x, y, x + len, y + 1);   // y + 1 ????
       for( unsigned i = 0; i < len; ++i ) {
         tft_write_data(  tft, packRGB565( c.r, c.g, c.b)  ) ;
       }
@@ -89,7 +89,7 @@ public:
       */
       y += scroll_start;
 
-      setXY(tft, x, y, x + len, y + 1);
+      tft_set_xy(tft, x, y, x + len, y + 1);
       for( unsigned i = 0; i < len; ++i ) {
         tft_write_data( tft, packRGB565( c.r, c.g, c.b)  ) ;
       }
@@ -110,7 +110,7 @@ public:
 
       y += scroll_start;
 
-      setXY( tft, x, y, x + len, y + 1);
+      tft_set_xy( tft, x, y, x + len, y + 1);
       for( unsigned i = 0; i < len; ++i ) {
         tft_write_data( tft, packRGB565( c.r, c.g, c.b)  ) ;
       }
