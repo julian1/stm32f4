@@ -18,20 +18,18 @@ extern "C" {
 // move to ice40_reg.h ?
 #define CLK_FREQ 20000000
 
-// rename aper_n  to just aperture which is always expressed in clock count
+// rename aperture  to just aperture which is always expressed in clock count
 
 uint32_t nplc_to_aperture( double nplc, uint32_t lfreq );
 
-// TODO rename to aperture.  eg. aperture_to_nplc.
-// or aper_cc_to_nplc
-double aper_n_to_nplc( uint32_t aper_n, uint32_t lfreq);
-double aper_n_to_period( uint32_t aper_n);
+double aperture_to_nplc( uint32_t aperture, uint32_t lfreq);
+double aperture_to_period( uint32_t aperture);
 
-uint32_t period_to_aper_n(  double period );
+uint32_t period_to_aperture(  double period);
 
 bool nplc_valid( double nplc );
 
-void aper_cc_print( uint32_t aperture,  uint32_t lfreq);
+void aperture_print( uint32_t aperture,  uint32_t lfreq);
 
 //
 
@@ -42,13 +40,13 @@ unsigned str_decode_float( const char *s, double *val);
 
 unsigned str_decode_mux( const char *s, uint32_t *val);
 
-char * mux_to_str( unsigned val,  char *buf, unsigned n  );
+char * mux_to_str( unsigned val,  char *buf, unsigned n);
 
 
 ///////
 
 
-char * str_format_value( char *s, size_t n,  unsigned ndigits, unsigned leading, double value );
+char * str_format_value( char *s, size_t n,  unsigned ndigits, unsigned leading, double value);
 void val_adjust_multiplier( double *val, char *c) ;
 
 void val_set_multiplier( double *val, char c);

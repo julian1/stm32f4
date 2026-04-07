@@ -66,7 +66,7 @@ void app_cal_w( app_t *app)
   mode_reset( mode);
 
   // set the trigger delay for settle time
-  sa_trig_delay_set( &mode->sa, period_to_aper_n(  1.f )); // 1 sec.
+  sa_trig_delay_set( &mode->sa, period_to_aperture(  1.f )); // 1 sec.
 
   // set normal sample acquisition/adc operation
   cr_mode_set( &mode->reg_cr, MODE_SA_ADC);

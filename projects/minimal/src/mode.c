@@ -734,9 +734,9 @@ bool mode_repl_statement(
   {
 
     // printf("set aperture\n");
-    uint32_t aperture = period_to_aper_n( f0 );
+    uint32_t aperture = period_to_aperture( f0 );
     // assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
-    aper_cc_print( aperture,  line_freq);
+    aperture_print( aperture,  line_freq);
     mode->adc.p_aperture = aperture;
   }
 
@@ -753,7 +753,7 @@ bool mode_repl_statement(
       // should be called cc_aperture or similar.
       uint32_t aperture = nplc_to_aperture( f0, line_freq );
 
-      aper_cc_print( aperture,  line_freq);
+      aperture_print( aperture,  line_freq);
 
       adc_aperture_set( &mode->adc, aperture );
 

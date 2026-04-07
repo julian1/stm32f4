@@ -155,7 +155,7 @@ void vfd_display_update_data( vfd_display_t *display, data_t *data)
   */
   bool  noaz = 0;
 
-  double nplc = aper_n_to_nplc( data->adc_clk_count_sigmux, data->line_freq );
+  double nplc = aperture_to_nplc( data->adc_clk_count_sigmux, data->line_freq );
 
   snprintf( buf, 100, "%s-%s %s",  range->name, range->arg,  noaz ? "NOAZ" : "AZ" );
   vfd_font_small_write( vfd, buf, 0, 3 );
