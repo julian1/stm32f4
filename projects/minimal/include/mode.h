@@ -15,6 +15,8 @@
   that way can keep the same encoding for 2x04, and 1x08 muxes.
 */
 
+// TODO. consider rename M1, M2 etc. although does not distinguish single v dual
+
 // 1of8 muxes
 #define SOFF        0
 #define S1          ((1-1)<<1|0b1)
