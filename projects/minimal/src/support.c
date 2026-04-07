@@ -395,7 +395,7 @@ void val_adjust_multiplier( double *val, char *c)
 }
 
 
-void val_force_multiplier( double *val, char c)
+void val_set_multiplier( double *val, char c)
 {
   switch( c) {
 

@@ -51,8 +51,7 @@ char * mux_to_str( unsigned val,  char *buf, unsigned n  );
 char * str_format_value( char *s, size_t n,  unsigned ndigits, unsigned leading, double value );
 void val_adjust_multiplier( double *val, char *c) ;
 
-// change name val_set_multipler
-void val_force_multiplier( double *val, char c);
+void val_set_multiplier( double *val, char c);
 unsigned val_leading_digits( double val_);
 char * str_format_value_dynamic( char *s, size_t sz, double val, unsigned ndigits);
 
