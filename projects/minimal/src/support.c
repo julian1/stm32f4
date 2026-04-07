@@ -83,7 +83,7 @@ void aper_cc_print( /* FILE */ uint32_t aperture,  uint32_t line_freq)
 
 
 
-char * mux_to_string( unsigned val,  char *buf, unsigned n  )
+char * mux_to_str( unsigned val,  char *buf, unsigned n  )
 {
   // change name mux_to_str() at least.
   // this is 1ofN mux.
@@ -124,6 +124,51 @@ static void set_seq( uint32_t *val,  uint32_t pc, uint32_t azmux)
 
 
 
+unsigned str_decode_mux( const char *s, uint32_t *val  )
+{
+
+
+  // 1 of 8 mux values.
+  if(strcmp(s, "s8") == 0 )
+    *val = S8;
+  else if(strcmp(s, "s7") == 0 )
+    *val = S7;
+  else if(strcmp(s, "s6") == 0 )
+    *val = S6;
+  else if(strcmp(s, "s5") == 0 )
+    *val = S5;
+  else if(strcmp(s, "s4") == 0 )
+    *val = S4;
+  else if(strcmp(s, "s3") == 0 )
+    *val = S3;
+  else if(strcmp(s, "s2") == 0 )
+    *val = S2;
+  else if(strcmp(s, "s1") == 0 )
+    *val = S1;
+  else if(strcmp(s, "soff") == 0 )
+    *val = SOFF;
+
+  else
+    return false;
+
+  return true;
+
+
+#if 0
+  // 2 of 4 mux values
+  else if(strcmp(s, "d4") == 0 )
+    *val = D4;
+  else if(strcmp(s, "d3") == 0 )
+    *val = D3;
+  else if(strcmp(s, "d2") == 0 )
+    *val = D2;
+  else if(strcmp(s, "d1") == 0 )
+    *val = D1;
+  else if(strcmp(s, "doff") == 0 )
+    *val = DOFF;
+#endif
+
+}
 
 /*
   use strcasecmp() from strings.h.
@@ -157,41 +202,9 @@ unsigned str_decode_uint( const char *s, uint32_t *val  )
     this allows az-mux. to usse either type of analog switch - 1x08 instead of 2x04 mux.
   */
 
-  // 1 of 8 mux values.
-  else if(strcmp(s, "s8") == 0 )
-    *val = S8;
-  else if(strcmp(s, "s7") == 0 )
-    *val = S7;
-  else if(strcmp(s, "s6") == 0 )
-    *val = S6;
-  else if(strcmp(s, "s5") == 0 )
-    *val = S5;
-  else if(strcmp(s, "s4") == 0 )
-    *val = S4;
-  else if(strcmp(s, "s3") == 0 )
-    *val = S3;
-  else if(strcmp(s, "s2") == 0 )
-    *val = S2;
-  else if(strcmp(s, "s1") == 0 )
-    *val = S1;
-  else if(strcmp(s, "soff") == 0 )
-    *val = SOFF;
 
-
-#if 0
-  // 2 of 4 mux values
-  else if(strcmp(s, "d4") == 0 )
-    *val = D4;
-  else if(strcmp(s, "d3") == 0 )
-    *val = D3;
-  else if(strcmp(s, "d2") == 0 )
-    *val = D2;
-  else if(strcmp(s, "d1") == 0 )
-    *val = D1;
-  else if(strcmp(s, "doff") == 0 )
-    *val = DOFF;
-#endif
-
+  else if( str_decode_mux( s, val))
+    { }
 
 
   // we could factor all this handling.
@@ -441,8 +454,8 @@ char * str_format_value_dynamic( char *s, size_t sz, double val, unsigned ndigit
   // printf( "leading %u\n", leading );
 
   char buf[ 100 + 1];
-  snprintf( 
-    s, sz, 
+  snprintf(
+    s, sz,
     "%c%s%c",
     val >= 0 ? '+' : '-',
     str_format_value( buf, 100, ndigits, leading, val ),
