@@ -38,7 +38,7 @@ unsigned str_decode_int( const char *s, int32_t *val);
 unsigned str_decode_float( const char *s, double *val);
 
 
-unsigned str_decode_mux( const char *s, uint32_t *val);
+// unsigned str_decode_mux( const char *s, uint32_t *val);
 
 char * mux_to_str( unsigned val,  char *buf, unsigned n);
 

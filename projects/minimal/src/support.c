@@ -124,7 +124,7 @@ static void set_seq( uint32_t *val,  uint32_t pc, uint32_t azmux)
 
 
 
-unsigned str_decode_mux( const char *s, uint32_t *val  )
+static unsigned str_decode_mux( const char *s, uint32_t *val  )
 {
 
 
@@ -147,7 +147,6 @@ unsigned str_decode_mux( const char *s, uint32_t *val  )
     *val = S1;
   else if(strcmp(s, "soff") == 0 )
     *val = SOFF;
-
   else
     return false;
 
@@ -170,6 +169,7 @@ unsigned str_decode_mux( const char *s, uint32_t *val  )
 
 }
 
+
 /*
   use strcasecmp() from strings.h.
   or just force lower case first?
@@ -177,7 +177,40 @@ unsigned str_decode_mux( const char *s, uint32_t *val  )
 */
 
 
-unsigned str_decode_uint( const char *s, uint32_t *val  )
+
+static unsigned str_decode_integer( const char *s, uint32_t *val)
+{
+  // handle hex,octal,binary, decimal
+
+  // we could factor all this handling.
+  // read_int.
+  if( s[0] == '0' && s[1] == 'x' && sscanf(s, "%lx", val) == 1) {
+    // printf("got hex\n" );
+  }
+  else if( s[0] == '0' && s[1] == 'o' && sscanf(s + 2, "%lo", val) == 1) {
+    // for octal, sscanf doesn't like/accept a prefix
+    // printf("got octal\n" );
+  }
+  else if( s[0] == '0' && s[1] == 'b') {
+    // binary is very useful for muxes
+    *val = strtoul(s + 2, NULL, 2);
+    // char buf[100];
+    // printf("got binary %s\n", format_bits(buf, 32, val ) );
+  }
+  else if( isdigit( (unsigned char) s[0] ) && sscanf(s, "%lu", val) == 1) {
+    // printf("got decimal\n" );
+  }
+
+  else
+    return false;
+
+  return true;
+
+}
+
+
+
+unsigned str_decode_uint( const char *s, uint32_t *val)
 {
   // decode int literal
   // set/reset  for relay.
@@ -196,35 +229,12 @@ unsigned str_decode_uint( const char *s, uint32_t *val  )
     *val = 0;
 
 
-  /*
-    Can probably use this for adg1209. also - by puting the EN pin on 4th bit.
-    eg. easy to remap in fpga.  but not for 4094.
-    this allows az-mux. to usse either type of analog switch - 1x08 instead of 2x04 mux.
-  */
-
-
+  // probably mux support could be moved out of here
   else if( str_decode_mux( s, val))
     { }
 
-
-  // we could factor all this handling.
-  // read_int.
-  else if( s[0] == '0' && s[1] == 'x' && sscanf(s, "%lx", val) == 1) {
-    // printf("got hex\n" );
-  }
-  else if( s[0] == '0' && s[1] == 'o' && sscanf(s + 2, "%lo", val) == 1) {
-    // for octal, sscanf doesn't like/accept a prefix
-    // printf("got octal\n" );
-  }
-  else if( s[0] == '0' && s[1] == 'b') {
-    // binary is very useful for muxes
-    *val = strtoul(s + 2, NULL, 2);
-    // char buf[100];
-    // printf("got binary %s\n", format_bits(buf, 32, val ) );
-  }
-  else if( isdigit( (unsigned char) s[0] ) && sscanf(s, "%lu", val) == 1) {
-    // printf("got decimal\n" );
-  }
+  else if( str_decode_integer( s, val))
+    { }
 
   else {
     printf("bad val arg\n" );
