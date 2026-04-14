@@ -462,53 +462,9 @@ void app_configure( app_t *app )
 }
 
 
+static void spi_print_register( spi_t *spi, uint32_t reg );
 
-/*
-  move this code to top-level support.h ?
-
-  could just about go in a source file to correspond.
-  no. it is general purpose
-
-  ./include/device/spi-fpga0-reg.h
-
-*/
-
-static void spi_print_register( spi_t *spi, uint32_t reg )
-{
-  // TODO this code does not here in app.c
-  // move to /src/device/fpga0-reg.c ?
-
-  // basic generic print
-  // query any register
-
-  //assert(0);
-  // spi_mux_ice40( spi);
-  uint32_t ret = spi_ice40_reg_read32( spi, reg );
-  char buf[ 100];
-  printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
-}
-
-
-
-static void spi_print_seq_register( spi_t *spi, uint32_t reg )
-{
-  // TODO
-  // basic generic print
-  // query any register
-
-  assert(0);
-  // spi_mux_ice40( spi);
-  uint32_t ret = spi_ice40_reg_read32( spi, reg );
-  char buf[ 100];
-  char buf2[ 100];
-  // printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
-
-  printf("r %lu   pc:%s   azmux:%s\n",  reg,
-      str_format_bits(buf, 2, ret >> 4  ),          // pc switch value
-      mux_to_str( ret & 0b1111,  buf2, 100  )    // azmux value
-    );
-}
-
+static void spi_print_seq_register( spi_t *spi, uint32_t reg );
 
 
 
@@ -895,8 +851,51 @@ void app_update( app_t *app)
 
 
 
+/*
+  move this spi_ prefixed code to top-level support.h ?
+    or spi.h.
+
+  or even to
+
+  ./include/device/spi-fpga0-reg.h
+
+*/
+
+static void spi_print_register( spi_t *spi, uint32_t reg )
+{
+  // TODO this code does not here in app.c
+  // move to /src/device/fpga0-reg.c ?
+
+  // basic generic print
+  // query any register
+
+  //assert(0);
+  // spi_mux_ice40( spi);
+  uint32_t ret = spi_ice40_reg_read32( spi, reg );
+  char buf[ 100];
+  printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
+}
 
 
+
+static void spi_print_seq_register( spi_t *spi, uint32_t reg )
+{
+  // TODO
+  // basic generic print
+  // query any register
+
+  assert(0);
+  // spi_mux_ice40( spi);
+  uint32_t ret = spi_ice40_reg_read32( spi, reg );
+  char buf[ 100];
+  char buf2[ 100];
+  // printf("r %lu  v %lu  %s\n",  reg, ret,  str_format_bits(buf, 32, ret ));
+
+  printf("r %lu   pc:%s   azmux:%s\n",  reg,
+      str_format_bits(buf, 2, ret >> 4  ),          // pc switch value
+      mux_to_str( ret & 0b1111,  buf2, 100  )    // azmux value
+    );
+}
 
 
 
