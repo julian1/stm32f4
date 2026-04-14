@@ -729,18 +729,6 @@ bool mode_repl_statement(
 
 
 
-  else if( sscanf(cmd, "aper %100s", s0) == 1
-    && str_decode_float( s0, &f0))
-  {
-
-    // printf("set aperture\n");
-    uint32_t aperture = period_to_aperture( f0 );
-    // assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
-    aperture_print( aperture,  line_freq);
-    mode->adc.p_aperture = aperture;
-  }
-
-
   else if( sscanf(cmd, "nplc %100s", s0) == 1
     && str_decode_float( s0, &f0))
   {
@@ -759,6 +747,19 @@ bool mode_repl_statement(
 
       // mode->adc.p_aperture = aperture;
     }
+  }
+
+
+
+  else if( sscanf(cmd, "aper %100s", s0) == 1
+    && str_decode_float( s0, &f0))
+  {
+
+    // printf("set aperture\n");
+    uint32_t aperture = period_to_aperture( f0 );
+    // assert(u1 == 1 || u1 == 10 || u1 == 100 || u1 == 1000); // not really necessary. just avoid mistakes
+    aperture_print( aperture,  line_freq);
+    mode->adc.p_aperture = aperture;
   }
 
 
@@ -952,6 +953,10 @@ bool mode_repl_statement(
 
 
       else if(strcmp(s0, "noaz") == 0) {
+
+        // TODO - remove argument.  just use 'az' and 'noaz'
+        // as commands.
+        // remove from set syntax.
 
         // this will be over-written by a range. reset...
         mode->reg_cr.sa_p_noaz = u0;
