@@ -149,11 +149,22 @@ void vfd_display_update_data( vfd_display_t *display, data_t *data)
     TODO .  add the noaz. flag. to the status register
     so we can display mode. here. if AZ. or NOAZ.
     ---
-    EXTR>  ... putting the 10Meg. flag in the status register as well
-      easy if put in cr.
-      so it is available in the display.
+    EXTR  ... could put the 10Meg. flag in the status register as well
+
+    10Meg. is external to the fpga, SA or ADC. so dont add to sr.
+
+    or dig them out of the mode?
+    do we just need a better synchronization systm?
+      so we dont associate wrong state with reading?
+
+    eg. use the seqence number.  and expected sequence number
+
+    if write the mode/  then need to invalidate
+
+    or on state_transition.   we reset the value.
+
   */
-  bool  noaz = 0;
+  bool  noaz = 0; //  data->status.noaz;  or dig out from the mode?
 
   double nplc = aperture_to_nplc( data->adc_clk_count_sigmux, data->line_freq );
 
