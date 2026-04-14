@@ -232,6 +232,9 @@ static void state_format ( uint8_t *state, size_t n)
     moved spi_mode_transition_state() function to app level.
     gets rid of all the low level includes in mode. for fpga regs. much better.
     also get rid of the devices_t type
+    ----
+
+    obvious to type this on app_t, since depends on spi peripherals, and mode_t etc.
 */
 
 

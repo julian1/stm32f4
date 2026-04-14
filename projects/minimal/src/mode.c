@@ -51,7 +51,7 @@ void cr_mode_set( reg_cr_t *reg_cr, unsigned u0)
 
 
 
-
+#if 0
 
 void direct_az_set(reg_direct_t *reg_direct, const char *s)
 {
@@ -89,6 +89,32 @@ void direct_az_set(reg_direct_t *reg_direct, const char *s)
 
 }
 
+
+#endif
+
+
+
+
+
+/*
+  for argument validation - need a function stringinlist...   perhaps even pass the strbasecmp comparison function
+  to validate
+
+*/
+
+#if 0
+void mode_az_set(_mode_t *mode, const char *s)
+{
+  // we used to set both the direct register as well as the saaz setup.
+  // but we could combine.
+
+  sa_az_set(     &mode->sa, s);
+  direct_az_set( &mode->reg_direct, s);
+
+  // bool ret = mode_az_set_relax( mode, s);
+  // assert( ret);
+}
+#endif
 
 
 
@@ -300,28 +326,6 @@ void mode_reset(_mode_t *mode)
 }
 
 
-
-
-
-
-
-/*
-  for argument validation - need a function stringinlist...   perhaps even pass the strbasecmp comparison function
-  to validate
-
-*/
-
-#if 0
-void mode_az_set(_mode_t *mode, const char *s)
-{
-
-  sa_az_set(     &mode->sa, s);
-  direct_az_set( &mode->reg_direct, s);
-
-  // bool ret = mode_az_set_relax( mode, s);
-  // assert( ret);
-}
-#endif
 
 
 
@@ -728,6 +732,21 @@ bool mode_repl_statement(
   */
 
 
+  else if(strcmp(cmd, "noaz") == 0) {
+
+    // better to be a command. rather than set + argument.
+    // else if(strcmp(s0, "noaz") == 0) {
+
+    mode->reg_cr.sa_p_noaz = true;
+  }
+
+  else if(strcmp(cmd, "az") == 0) {
+
+    mode->reg_cr.sa_p_noaz = false;
+  }
+
+
+
 
   else if( sscanf(cmd, "nplc %100s", s0) == 1
     && str_decode_float( s0, &f0))
@@ -884,6 +903,13 @@ bool mode_repl_statement(
     }
   }
 
+
+
+  /*
+    consider rename   set sa xxx
+    because the function is sa
+
+  */
   else if( sscanf(cmd, "set az %100s", s0) == 1)  {
 
     sa_az_set( &mode->sa, s0 );
@@ -951,16 +977,6 @@ bool mode_repl_statement(
         cr_mode_set( &mode->reg_cr, u0);
       }
 
-
-      else if(strcmp(s0, "noaz") == 0) {
-
-        // TODO - remove argument.  just use 'az' and 'noaz'
-        // as commands.
-        // remove from set syntax.
-
-        // this will be over-written by a range. reset...
-        mode->reg_cr.sa_p_noaz = u0;
-      }
 
 
 

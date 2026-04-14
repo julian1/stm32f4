@@ -181,7 +181,7 @@ void sa_az_set( sa_state_t *sa, const char *s);
 
 
 // these funcs almost belong where reg_direct, and reg_cr are defined
-void direct_az_set(reg_direct_t *reg_direct, const char *s);
+// void direct_az_set(reg_direct_t *reg_direct, const char *s);
 
 void cr_mode_set( reg_cr_t *reg_cr, unsigned u0);
 
