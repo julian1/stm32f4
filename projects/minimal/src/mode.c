@@ -945,8 +945,9 @@ bool mode_repl_statement(
 
 
 
-  /* two val set cmd
-    where argument is uint.
+  /*
+    two val set cmd
+    mmore contol over low level mode fields
   */
   else if( sscanf(cmd, "set %100s %100s", s0, s1) == 2
     && str_decode_uint( s1, &u0)
@@ -956,30 +957,22 @@ bool mode_repl_statement(
 
 
 
-
       if(strcmp(s0, "azmux") == 0) {
         mode->reg_direct.azmux_o = u0;
 
       }
 
-    //////////////
 
-
-      // better name. _count.
       else if(strcmp(s0, "seqn") == 0) {
         mode->sa.p_seq_n = u0;
       }
 
 
-      // fpga0 mode.
+      // control register mode
       else if(strcmp(s0, "mode") == 0) {
 
         cr_mode_set( &mode->reg_cr, u0);
       }
-
-
-
-
 
       else if(strcmp(s0, "direct") == 0) {
 
