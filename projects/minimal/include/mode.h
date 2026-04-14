@@ -177,7 +177,7 @@ typedef struct sa_state_t
 
 void sa_trig_delay_set( sa_state_t *sa, uint32_t u);
 
-void sa_az_set( sa_state_t *sa, const char *s);
+void sa_set( sa_state_t *sa, const char *s);
 
 
 // these funcs almost belong where reg_direct, and reg_cr are defined

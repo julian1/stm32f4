@@ -82,7 +82,7 @@ void app_cal_w( app_t *app)
   mode->reg_cr.adc_p_active_sigmux = 0;
 
   // special sample acquisition mode, just sampling lo
-  sa_az_set( &mode->sa, "0" );
+  sa_set( &mode->sa, "0" );
 
   // set ch2 input to LO, to reduce leakage on adc input mux.
   mode_ch2_set( mode, "ref-lo");

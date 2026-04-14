@@ -108,7 +108,7 @@ void mode_az_set(_mode_t *mode, const char *s)
   // we used to set both the direct register as well as the saaz setup.
   // but we could combine.
 
-  sa_az_set(     &mode->sa, s);
+  sa_set(     &mode->sa, s);
   direct_az_set( &mode->reg_direct, s);
 
   // bool ret = mode_az_set_relax( mode, s);
@@ -118,7 +118,7 @@ void mode_az_set(_mode_t *mode, const char *s)
 
 
 
-void sa_az_set( sa_state_t *sa, const char *s)
+void sa_set( sa_state_t *sa, const char *s)
 {
   /*
       this can almost be typed on sa which would be better.
@@ -747,6 +747,32 @@ bool mode_repl_statement(
 
 
 
+  /*
+    this looks wrongly prefix named.
+
+    it sets the sequencing inputs. / or sequence/sample acquisition input
+
+    should rename   set_sa_ xxx
+    because the function is sa
+    or just sa.  because
+
+    eg. 'sa ch2'
+
+  */
+  else if( sscanf(cmd, "set az %100s", s0) == 1)  {
+
+    // consider deprecate
+    sa_set( &mode->sa, s0 );
+  }
+
+  else if( sscanf(cmd, "sa %100s", s0) == 1)  {
+
+    // eg. like this.
+    sa_set( &mode->sa, s0 );
+  }
+
+
+
 
   else if( sscanf(cmd, "nplc %100s", s0) == 1
     && str_decode_float( s0, &f0))
@@ -798,15 +824,6 @@ bool mode_repl_statement(
 
 
 
-  // need to work out if keep the set...
-
-
-  else if((sscanf(cmd, "set gain %100s", s0) == 1)
-    && str_decode_uint( s0, &u0))  {
-
-
-    mode_gain_set( mode, u0 );
-  }
 
 
 
@@ -826,6 +843,20 @@ bool mode_repl_statement(
     else assert(0);
   }
 #endif
+
+
+  // need to work out if keep the set...
+
+
+  else if((sscanf(cmd, "set gain %100s", s0) == 1)
+    && str_decode_uint( s0, &u0))  {
+
+
+    mode_gain_set( mode, u0 );
+  }
+
+
+
 
 
   else if( sscanf(cmd, "set lts %lf", &f0) == 1) {
@@ -902,29 +933,6 @@ bool mode_repl_statement(
       printf("bad argument\n");
     }
   }
-
-
-
-  /*
-    consider rename   set sa xxx
-    because the function is sa
-
-  */
-  else if( sscanf(cmd, "set az %100s", s0) == 1)  {
-
-    sa_az_set( &mode->sa, s0 );
-
-    // mode_az_set( mode, s0 );
-
-#if 0
-    bool ret = mode_az_set_relax( mode, s0 );
-    if(!ret) {
-      printf("bad argument\n");
-    }
-#endif
-
-  }
-
 
 
 

@@ -83,7 +83,7 @@ static void test( app_t *app)
 
 
   // sample acquisition mode - for adc running standalone.  // REVIEW ME
-  sa_az_set( &mode->sa, "0" );
+  sa_set( &mode->sa, "0" );
 
 
   mode->reg_cr.adc_p_active_sigmux = 0;   // sigmux not active.

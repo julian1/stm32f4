@@ -142,7 +142,7 @@ static void range_lo( const range_t *range, _mode_t *mode, bool range_10Meg)
 
   mode_partial_reset( mode);
   cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  sa_az_set( &mode->sa, "ch2" );
+  sa_set( &mode->sa, "ch2" );
   mode_ch2_set( mode, "ref-lo");
 
   if(strcasecmp( range->arg, "10") == 0)
@@ -172,7 +172,7 @@ static void range_lo2( const range_t *range, _mode_t *mode, bool range_10Meg)
   mode_partial_reset( mode);
   cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
-  sa_az_set( &mode->sa, "0" ); // sample A400 gnd
+  sa_set( &mode->sa, "0" ); // sample A400 gnd
 
   if(strcasecmp( range->arg, "10") == 0)
     mode_gain_set(mode, 1);
@@ -206,7 +206,7 @@ static void range_ref( const range_t *range, _mode_t *mode, bool range_10Meg)
 
   mode_partial_reset( mode);
   cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  sa_az_set( &mode->sa, "ch2" );
+  sa_set( &mode->sa, "ch2" );
   mode_ch2_set( mode, "ref");
 }
 
@@ -220,7 +220,7 @@ static void range_temp( const range_t *range, _mode_t *mode, bool range_10Meg)
 
   mode_partial_reset( mode);
   cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  sa_az_set( &mode->sa, "ch2" );
+  sa_set( &mode->sa, "ch2" );
   mode_ch2_set( mode, "temp");
 }
 
@@ -235,7 +235,7 @@ static void range_lts( const range_t *range, _mode_t *mode, bool range_10Meg)
   mode_partial_reset( mode);
 
   cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
-  sa_az_set( &mode->sa, "ch2" );
+  sa_set( &mode->sa, "ch2" );
   mode_ch2_set( mode, "lts");
 
 
@@ -264,7 +264,7 @@ static void range_dcv( const range_t *range, _mode_t *mode, bool range_10Meg)
 
   cr_mode_set( &mode->reg_cr, MODE_SA_ADC);
 
-  sa_az_set( &mode->sa, "ch1");
+  sa_set( &mode->sa, "ch1");
 
   // close relay - select external terminal input
   mode->serial.K402 = SR_SET;
@@ -276,38 +276,38 @@ static void range_dcv( const range_t *range, _mode_t *mode, bool range_10Meg)
     mode->serial.K403 = SR_SET;
     mode_gain_set( mode, 1);
     mode_ch2_set( mode, "div");
-    sa_az_set( &mode->sa, "ch2" );
+    sa_set( &mode->sa, "ch2" );
   }
   else if(strcasecmp( range->arg, "100") == 0) {
 
     mode->serial.K403 = SR_SET;
     mode_gain_set( mode, 10);
     mode_ch2_set( mode, "div");
-    sa_az_set( &mode->sa, "ch2" );
+    sa_set( &mode->sa, "ch2" );
   }
   else if(strcasecmp( range->arg, "10") == 0) {
 
     mode->serial.K403 = range_10Meg ? SR_SET : SR_RESET;
     mode_gain_set( mode, 1);
-    sa_az_set( &mode->sa, "ch1" );
+    sa_set( &mode->sa, "ch1" );
   }
   else if(strcasecmp( range->arg, "1") == 0) {
 
     mode->serial.K403 = range_10Meg ? SR_SET : SR_RESET;
     mode_gain_set( mode, 10);
-    sa_az_set( &mode->sa, "ch1" );
+    sa_set( &mode->sa, "ch1" );
   }
   else if(strcasecmp( range->arg, "0.1") == 0) {
 
     mode->serial.K403 = range_10Meg ? SR_SET : SR_RESET;
     mode_gain_set( mode, 100);
-    sa_az_set( &mode->sa, "ch1" );
+    sa_set( &mode->sa, "ch1" );
   }
   else if(strcasecmp( range->arg, "0.01") == 0) {
 
     mode->serial.K403 = range_10Meg ? SR_SET : SR_RESET;
     mode_gain_set( mode, 1000);
-    sa_az_set( &mode->sa, "ch1" );
+    sa_set( &mode->sa, "ch1" );
   }
   else
     assert( 0);
