@@ -8,21 +8,6 @@
 #include <device/support.h>
 
 
-/*
-  - almost all spi is active lo.
-  - only fpga config . should change name to enable/disable
-
-  - 4094 is inverted, by fpga or 74lvc1g.
-
-  only expose enable/disable here.  whether active hi/lo is detail.
-
-  ---
-  whether active high/lo depends on the peripheral device. and fpga may invert
-  so use  _enable(), disable() . instead of clear
-  following normal CS convention. active low
-
-*/
-
 
 
 static inline void spi_wait_until_not_busy(uint32_t spi)
