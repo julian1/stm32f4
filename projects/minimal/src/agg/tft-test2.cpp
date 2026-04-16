@@ -13,7 +13,7 @@
 #include <agg/tft-display.h>
 
 /*
-  tft_display  exposes too many fields
+  display_tft  exposes too many fields
 
   could a separate structure with reduced scope
   but this is easy to handle with the repl and polymorphic dispatch.
@@ -21,7 +21,7 @@
 */
 
 
-extern "C" void tft_test2( tft_display_t *display)
+extern "C" void tft_test2( display_tft_t *display)
 {
 
   assert( display && display->magic == TFT_DISPLAY_MAGIC);

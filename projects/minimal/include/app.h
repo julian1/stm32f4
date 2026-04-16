@@ -62,10 +62,10 @@ typedef struct buffer_t buffer_t;
 
 
 typedef struct vfd_t vfd_t;
-typedef struct vfd_display_t vfd_display_t;
+typedef struct display_vfd_t display_vfd_t;
 
 typedef struct tft_t tft_t;
-typedef struct tft_display_t tft_display_t;
+typedef struct display_tft_t display_tft_t;
 
 
 
@@ -151,7 +151,7 @@ typedef struct app_t
 
 
   /* consider make system_millis a pointer in app_t.
-    since it is passed/shared to other structures at _init (eg. tft_display).
+    since it is passed/shared to other structures at _init (eg. display_tft).
     and instantiate it here in main.c
 
   */
@@ -277,12 +277,12 @@ typedef struct app_t
 
   vfd_t         *vfd0;    // required for call to init.  after fpga initialized.
 
-  vfd_display_t *vfd_display;   // rename display0 ?
+  display_vfd_t *display_vfd;   // rename display0 ?
 
   tft_t         *tft;
 
 
-  tft_display_t *tft_display;
+  display_tft_t *display_tft;
 
 } app_t;
 

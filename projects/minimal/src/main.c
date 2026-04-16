@@ -481,8 +481,8 @@ static int main_f429(void)
   vfd0.vfd_gpio_setup( &vfd0 );   // polymorphic, for multiple instances
 
 
-  vfd_display_t   vfd_display;
-  vfd_display_init( &vfd_display, &vfd0, &buffer);
+  display_vfd_t   display_vfd;
+  display_vfd_init( &display_vfd, &vfd0, &buffer);
 
 
 
@@ -499,8 +499,8 @@ static int main_f429(void)
   */
 
   // agg test
-  tft_display_t    tft_display;
-  tft_display_init( &tft_display, &tft0, &buffer, &system_millis );
+  display_tft_t    display_tft;
+  display_tft_init( &display_tft, &tft0, &buffer, &system_millis );
 
 
 
@@ -556,11 +556,11 @@ static int main_f429(void)
     .buffer             = &buffer,
 
     .vfd0               = &vfd0,        // needed because in app_t. because init() called only after init.
-    .vfd_display        = &vfd_display,
+    .display_vfd        = &display_vfd,
 
 
     .tft                = &tft0,
-    .tft_display           = &tft_display,
+    .display_tft           = &display_tft,
 
   } ;
 

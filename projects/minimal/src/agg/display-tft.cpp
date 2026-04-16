@@ -32,7 +32,7 @@
 
 
 
-static void tft_display_update_data_( tft_display_t *display, data_t *data)
+static void display_tft_update_data_( display_tft_t *display, data_t *data)
 {
   assert( display && display->magic == TFT_DISPLAY_MAGIC);
   assert( data && data->magic == DATA_MAGIC);
@@ -116,7 +116,7 @@ static void tft_display_update_data_( tft_display_t *display, data_t *data)
 
 
 
-void tft_display_update( tft_display_t *display)
+void display_tft_update( display_tft_t *display)
 {
   assert( display && display->magic == TFT_DISPLAY_MAGIC);
 
@@ -152,14 +152,14 @@ void tft_display_update( tft_display_t *display)
 }
 
 
-void tft_display_update_500ms( tft_display_t *display)
+void display_tft_update_500ms( display_tft_t *display)
 {
   assert( display && display->magic == TFT_DISPLAY_MAGIC);
 
 }
 
 
-void tft_display_update_data( tft_display_t *display, data_t *data)
+void display_tft_update_data( display_tft_t *display, data_t *data)
 {
   assert( display && display->magic == TFT_DISPLAY_MAGIC);
 
@@ -170,7 +170,7 @@ void tft_display_update_data( tft_display_t *display, data_t *data)
 
 
 
-bool tft_display_repl_statement( tft_display_t *display,  const char *cmd)
+bool display_tft_repl_statement( display_tft_t *display,  const char *cmd)
 {
   assert( display && display->magic == TFT_DISPLAY_MAGIC);
 
@@ -196,10 +196,10 @@ bool tft_display_repl_statement( tft_display_t *display,  const char *cmd)
 }
 
 
-void tft_display_init( tft_display_t *display,  tft_t *tft, buffer_t *buffer, volatile uint32_t *system_millis)
+void display_tft_init( display_tft_t *display,  tft_t *tft, buffer_t *buffer, volatile uint32_t *system_millis)
 {
 
-  memset( display, 0, sizeof( tft_display_t));
+  memset( display, 0, sizeof( display_tft_t));
 
   display->magic = TFT_DISPLAY_MAGIC;
   display->tft = tft;
@@ -209,7 +209,7 @@ void tft_display_init( tft_display_t *display,  tft_t *tft, buffer_t *buffer, vo
 
   // display->update = display_update_;    // set to non
 
-  display->update_data =  tft_display_update_data_;
+  display->update_data =  display_tft_update_data_;
 
 }
 
@@ -224,7 +224,7 @@ void tft_display_init( tft_display_t *display,  tft_t *tft, buffer_t *buffer, vo
 
 
 #if 0
-static void tft_display_update_data_( tft_display_t *display, data_t *data)
+static void display_tft_update_data_( display_tft_t *display, data_t *data)
 {
   assert( display && display->magic == TFT_DISPLAY_MAGIC);
   assert( data && data->magic == DATA_MAGIC);

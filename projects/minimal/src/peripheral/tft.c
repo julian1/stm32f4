@@ -489,7 +489,7 @@ void  tft_test_fill( tft_t *tft)
   tft_fill_rect( tft, 5, 5, 50, 50, packRGB565( 0x0, 0x0, 0xff));      // blue square
 
 
-//   tft_display2();
+//   display_tft2();
 
 }
 

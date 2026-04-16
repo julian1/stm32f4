@@ -16,7 +16,7 @@ typedef struct vfd_t vfd_t;
 
 
 
-typedef struct vfd_display_t
+typedef struct display_vfd_t
 {
   uint32_t magic;
 
@@ -30,21 +30,21 @@ typedef struct vfd_display_t
   can make polymorphic for strategy-like pattern. and to test separate functions
   as needed
 
-  void (*update)( tft_display_t *);
-  void (*update_data)( tft_display_t *, data_t *data);
-  void (*update_500ms)( tft_display_t *);
+  void (*update)( display_tft_t *);
+  void (*update_data)( display_tft_t *, data_t *data);
+  void (*update_500ms)( display_tft_t *);
 */
 
-} vfd_display_t;
+} display_vfd_t;
 
 
 
 
-void vfd_display_init( vfd_display_t *vfd, vfd_t *, buffer_t *buffer);
+void display_vfd_init( display_vfd_t *vfd, vfd_t *, buffer_t *buffer);
 
 
-void vfd_display_update( vfd_display_t *vfd_display) ;
-void vfd_display_update_data( vfd_display_t *vfd, data_t *data);
-void vfd_display_update_500ms( vfd_display_t *vfd);
+void display_vfd_update( display_vfd_t *display_vfd) ;
+void display_vfd_update_data( display_vfd_t *vfd, data_t *data);
+void display_vfd_update_500ms( display_vfd_t *vfd);
 
 

@@ -28,8 +28,8 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/agg/font-span.cpp src/agg/font-outline.cpp \
             src/agg/arial-outline.cpp src/agg/arial-span-18.cpp  src/agg/arial-span-72.cpp \
             src/agg/tft-test2.cpp src/agg/tft-test3.cpp src/agg/tft-test4.cpp src/agg/tft-test5.cpp src/agg/tft-test6.cpp \
-            src/agg/tft-display.cpp \
-            src/vfd-display.c \
+            src/agg/display-tft.cpp \
+            src/display_vfd.c \
             src/main.c  \
             src/app.c  \
             src/syscalls.o \

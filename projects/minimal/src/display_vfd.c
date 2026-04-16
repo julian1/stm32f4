@@ -36,9 +36,9 @@
 
 
 
-void vfd_display_init( vfd_display_t *display, vfd_t *vfd1, buffer_t *buffer)
+void display_vfd_init( display_vfd_t *display, vfd_t *vfd1, buffer_t *buffer)
 {
-  memset( display, 0, sizeof( vfd_display_t));
+  memset( display, 0, sizeof( display_vfd_t));
   display->magic = VFD_DISPLAY_MAGIC;
 
   assert( buffer && buffer->magic == BUFFER_MAGIC);
@@ -50,7 +50,7 @@ void vfd_display_init( vfd_display_t *display, vfd_t *vfd1, buffer_t *buffer)
 
 
 
-void vfd_display_update( vfd_display_t *display)
+void display_vfd_update( display_vfd_t *display)
 {
   assert( display && display->magic == VFD_DISPLAY_MAGIC);
 
@@ -58,7 +58,7 @@ void vfd_display_update( vfd_display_t *display)
 }
 
 
-void vfd_display_update_500ms( vfd_display_t *display)
+void display_vfd_update_500ms( display_vfd_t *display)
 {
   assert( display && display->magic == VFD_DISPLAY_MAGIC);
 
@@ -69,7 +69,7 @@ void vfd_display_update_500ms( vfd_display_t *display)
 
 
 
-void vfd_display_update_data( vfd_display_t *display, data_t *data)
+void display_vfd_update_data( display_vfd_t *display, data_t *data)
 {
   assert( display && display->magic == VFD_DISPLAY_MAGIC);
   assert( data && data->magic == DATA_MAGIC);

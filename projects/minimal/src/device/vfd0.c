@@ -151,7 +151,7 @@ static void vfd_clear( volatile uint32_t *system_millis)
 // to control...
 // can alternate each draw. - good for test.
 
-static void vfd_display_on_off( bool layer0, bool layer1, bool gram)
+static void display_vfd_on_off( bool layer0, bool layer1, bool gram)
 {
   /*  constrol which layer is shown
     could be both with operation

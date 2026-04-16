@@ -568,8 +568,8 @@ static void app_update_500ms(app_t *app)
 
 
   // tft 500ms. timer
-  tft_display_update_500ms( app->tft_display);
-  vfd_display_update_500ms( app->vfd_display);
+  display_tft_update_500ms( app->display_tft);
+  display_vfd_update_500ms( app->display_vfd);
 
 
   // check fpga0 configured
@@ -655,7 +655,7 @@ static void app_update_500ms(app_t *app)
       tft_test_fill( app->tft);
 
 
-      // tft_display2( app->tft_display);
+      // display_tft2( app->display_tft);
 
 #if 0
       app_beep( app, 2 );
@@ -791,8 +791,8 @@ void app_update( app_t *app)
     printf( "\n");
 
     // vfd and tft update_data()
-    vfd_display_update_data( app->vfd_display, &data);
-    tft_display_update_data( app->tft_display, &data);
+    display_vfd_update_data( app->display_vfd, &data);
+    display_tft_update_data( app->display_tft, &data);
 
   }
 
@@ -808,8 +808,8 @@ void app_update( app_t *app)
 
   // vfd and tft update
   // do nothing for the moment
-  vfd_display_update( app->vfd_display);
-  tft_display_update( app->tft_display);
+  display_vfd_update( app->display_vfd);
+  display_tft_update( app->display_tft);
 
 
 
@@ -1307,7 +1307,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
 
     ///////////
-    vfd_display_init(  &app->system_millis);
+    display_vfd_init(  &app->system_millis);
 
     vfd_do_something();
   }
@@ -1412,7 +1412,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   else if( app_test_repl_statement( app, cmd )) { }
 
 
-  else if( tft_display_repl_statement( app->tft_display, cmd )) { }
+  else if( display_tft_repl_statement( app->display_tft, cmd )) { }
 
   else {
 
@@ -1928,7 +1928,7 @@ void app_update_simple_with_data(app_t *app)
           app_update() {
             decode_update_data( app->data );         <- this
             buffer_update_data( app->buffer );
-            vfd_display_update_data( app->vfd  );
+            display_vfd_update_data( app->vfd  );
           }
 
           - EXTR - consider injecting data - into buffer.
