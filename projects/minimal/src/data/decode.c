@@ -111,7 +111,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_idx */ /* lin
     - to check consistency of register reads
 */
 
-  uint32_t status_          = spi_ice40_reg_read32( spi, REG_STATUS);
+  uint32_t status_               = spi_ice40_reg_read32( spi, REG_STATUS);
 
    _Static_assert(sizeof(data->status) == sizeof(status_), "bad typedef size");
   memcpy( &data->status, &status_,  sizeof( status_));
@@ -136,8 +136,17 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_idx */ /* lin
 
 
   if(decode->show_counts) {
-    printf( "first=%u idx=%u seq_n=%u, ", data->status.first, data->status.sample_idx, data->status.sample_seq_n);
-    printf( "counts pos %7lu neg %7lu sig %7lu, ", data->adc_clk_count_refmux_pos, data->adc_clk_count_refmux_neg, data->adc_clk_count_sigmux);
+
+    printf( "first=%u idx=%u seq_n=%u, ",
+      data->status.first,
+      data->status.sample_idx,
+      data->status.sample_seq_n
+    );
+    printf( "counts pos %7lu neg %7lu sig %7lu, ",
+      data->adc_clk_count_refmux_pos,
+      data->adc_clk_count_refmux_neg,
+      data->adc_clk_count_sigmux
+    );
     // printf( "ratio %.2f, ", ratio);
   }
 
