@@ -57,15 +57,19 @@ void decode_init(
 
 
   decode->spi       = spi;
-  decode->cal       = cal;
+  decode->cal       = cal;    // provisiional
+
+
+  // why not pass the range
   decode->ranges    = ranges;
 
 
   //  handling these as pointers is not great
   decode->range_idx = range_idx;
+
   decode->line_freq = line_freq;
 
-  // default
+  // persistent state.  along with previous reading
   decode->show_counts = true;
   decode->show_reading = true;
 }
@@ -76,9 +80,10 @@ void decode_init(
   EXTR.
   can pass data_t to the update() function.
   rather than static injecting on construction.
+  --------------
 */
 
-void decode_update_data( decode_t *decode,  data_t *data  /* range_idx */ /* line_freq */ )
+void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 {
   assert( decode);
   assert( decode->magic == DECODE_MAGIC);

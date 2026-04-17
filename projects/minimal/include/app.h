@@ -72,6 +72,9 @@ typedef struct display_tft_t display_tft_t;
 #define APP_MAGIC   456
 
 
+
+#if 0
+
 typedef struct common_t
 {
   /* system state properties where values often change. and which must be shared between more than one module
@@ -94,7 +97,7 @@ typedef struct common_t
 
 } common_t;
 
-
+#endif
 
 
 
@@ -236,6 +239,8 @@ typedef struct app_t
 
   //////////////
 
+  // consider injecting into a ranging_t structure - to allow it to write the mode.
+  // instead of handling at top level.
   // these are const.
   const range_t *ranges;      // including cal co-efficients
   const size_t  ranges_sz;
@@ -325,6 +330,14 @@ void app_repl_statements(app_t *app,  const char *s);
 
 
 // range functions
+/* these really look like should work over common structure
+
+    - and make range_idx a non pointer.
+      but decode_t needs range_idx.
+      hmmm....
+
+      pass range_t to decode ? perhaps?
+*/
 bool app_range_dir_valid( app_t *app, uint32_t range_idx, bool dir);
 void app_range_switch( app_t *app, uint32_t range_idx);
 void app_range_switch1( app_t *app, const char *name, const char *arg);

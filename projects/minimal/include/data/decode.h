@@ -19,9 +19,8 @@ typedef struct range_t range_t;
 typedef struct data_t data_t;
 
 
-// consider move to data.c
+// consider move to decode.c
 #define DECODE_MAGIC 123
-
 
 
 
@@ -34,9 +33,17 @@ typedef struct decode_t
   const range_t *ranges;
 
 
+  /*
+    could be passed in the decode() function.
+    but then so could everything else
+  */
   unsigned    *range_idx;    // current active range
   uint32_t    *line_freq;
 
+
+  /*
+    these fields are the important persistent state
+  */
 
   // persist...  for AZ. from last reading
   uint32_t adc_clk_count_refmux_pos_lo;

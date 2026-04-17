@@ -444,13 +444,17 @@ static int main_f429(void)
 
 
   uint32_t      line_freq = 50;
-  unsigned      range_idx = 0;
+  unsigned      range_idx = 0;        // TODO consider change to size_t. because indexes and allow bound check
+
   // both line_freq and range_idx  are going to have to be defined here with memory..
   //
 
   /*
-      having range_idx be a pointer to be shared between decode and app. is quite annoying
-      means that we have to de-reference it everywhere.
+      we want to be able to call decode_update_data()
+      outside the context of app_update()
+      eg. for tests etc.
+      this point determines how much shared state from app_t,
+      that has to be passed to decode_t on construction.
   */
 
   decode_t        decode;
@@ -458,8 +462,20 @@ static int main_f429(void)
     &decode,
     &spi_fpga0,
     &cal,
+
+    // TODO pass the range _sz also, customary and permits bounds checks.
+    // OR consider passing the range_t
+    /* - passing three separate values all associated with range. is a bit much.
+
+        consider just pass single ranging structure. to decode.
+        or else add a _decode( data_t *data) function to fill in the ranging info
+
+        just range_t * ranging->get_active_range( ranging );     or something like this.
+
+    */
     range_init_values,
-    // TODO pass the _sz also
+
+    // deode_t will stamp these into data_t. to make available to other modules.
     &range_idx,
     &line_freq
   );
@@ -549,6 +565,7 @@ static int main_f429(void)
     .cal                = &cal,
 
     // review - does app_t need these
+    // or just inject into the decode_t and ranging_t.  etc.
     .line_freq          = &line_freq,
     .range_idx          = &range_idx,
 

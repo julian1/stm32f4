@@ -733,8 +733,7 @@ static void app_console_update(app_t *app)
 
         if( app->repl_retrigger) {
 
-          // sometimes we restore ranges, while not asserting trigger
-          // assert( app->repl_trigger_val );
+          // re-trigger. should be force_trigger
 
           printf("retrigger\n");
 
@@ -784,8 +783,31 @@ void app_update( app_t *app)
     data_t  data;
     data_init( &data);
 
+    /*
+        we can get the current range. and pass it...
+        in the decode_update_data() function.
+    */
+
+    // EXTR.
+    /* TODO just stamp the active range here??!!!!
+        NO. reason not to.
+        is because we want flexibility to call decode_update()
+        from outside the context of app_update().
+        for tests etc.
+        and for cal,  and acal transfer
+        --------
+        This point determines
+        how much app_t state needs to go into decode_t
+        ----
+
+    */
+
+    // data->range = ranging_current_range( ranging );
+    // data.line_freq = app->line_freq;
+    // and same for the line_freq. maybe the provisional cal.
+
     // TODO change name decode_update_data to decode_update_data_data
-    decode_update_data( app->decode, &data);
+    decode_update_data( app->decode, &data /* range_t *range */);
     buffer_update_data( app->buffer, &data);
 
     printf( "\n");
@@ -1008,6 +1030,10 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, uint32_t line_freq)
 /*
   these functions are typeed on app.
   leave here, rather than moving to range.c
+    --------------
+
+  actually do not really need access to app.   because repl will automatically update.
+  could inject into ranging.c  structure.
 
 */
 
@@ -1118,6 +1144,15 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 {
 
   assert(app && app->magic == APP_MAGIC);
+
+  /*
+
+      we can dig line_freq out of app->data here if want.
+      in order to pass down.
+      rather than store line_freq in app.
+      ----
+
+  */
 
 
   // printf("cmd '%s'  %u\n", cmd, strlen(cmd) );

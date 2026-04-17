@@ -32,11 +32,22 @@ typedef struct cal_t cal_t;
 #define DATA_MAGIC 997878123
 
 
+/*
+  consider.  that data_t  should record everything needed for forther processing / display, after decode.
+  it is almost like a command.
+
+  - eg. do not want display_vfd  needing to reference the mode. to determine/figure out the 10Meg. setting.
+  - instead 10Meg. should be stamped. in data_t.
+  - likewise line_freq. etc.
+
+*/
 
 typedef struct data_t
 {
 
   uint32_t  magic;
+
+  // uint32_t  timestamp;
 
   reg_sr_t status;
 
@@ -60,15 +71,20 @@ typedef struct data_t
   double  reading;
   // bool reading_valid or use NaN
 
+  /*
+    move range_t, line_freq  to the top of this structure
+    if we decide to stamp. in app_update().
+  */
+
   // range used - could hard-copy if non const.
   const range_t   *range;
 
   // record cal used.
+  // provisional.  for cal->w ?
+  // TODO review. does not correct. should come from the  range_t
   const cal_t     *cal;
 
-  // TODO.  add line_freq used.
-
-  uint32_t  line_freq;    // hard stamp or use pointer
+  uint32_t  line_freq;
 
 } data_t;
 

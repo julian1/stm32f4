@@ -255,8 +255,13 @@ typedef struct _mode_t
   bool          trigger_source;
 
 
-  /* choice, is putting 10Meg flag in app_t or mode_t .
-    - putting here in mode is bad, because this state is not directly written to the board.
+  /* choice,
+      is to place 10Meg flag in app_t or mode_t.
+
+      state must persistent across ranges.
+        So perhaps place in range_t.
+
+    - mode_t is bad, because this mode_t is board state.  and 10Meg. is not directly written to the board.
     - however for mode_reset() we really expect a clear/fixed state point. and placing in mode ensures this.
     - ie.. we really do not want to have to clear this flag when running cal transfer routines
     -----------
