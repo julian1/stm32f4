@@ -42,8 +42,9 @@ static inline void gpio_write( gpio_t *gpio, uint8_t val)
 
 
 /*
-  most output gpio can handle, with default speed,
-  and can be handled generically with port,pin in constructor in main.c or app.c
+  most gpio is simple and can be handled generically
+  ie. pass port,pin in constructor in main.c or app.c
+  and optionally speed
 */
 
 struct gpio2_t
