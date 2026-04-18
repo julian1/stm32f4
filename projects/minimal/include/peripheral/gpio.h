@@ -22,22 +22,40 @@ struct gpio_t
 
   // can handle masking, shifting etc.
   void (*write)(gpio_t *, uint8_t val);
+  // bool (*read)( gpio_t *);
 };
 
 
-static inline void gpio_setup( gpio_t *io)
+static inline void gpio_setup( gpio_t *gpio)
 {
-  // assert(io);
-  io->setup( io);
+  // assert(gpio);
+  gpio->setup( gpio);
+}
+
+
+static inline void gpio_write( gpio_t *gpio, uint8_t val)
+{
+  // assert(gpio);
+  gpio->write( gpio, val);
 }
 
 
 
-static inline void gpio_write( gpio_t *io, uint8_t val)
+/*
+  most output gpio can handle, with default speed,
+  and can be handled generically with port,pin in constructor in main.c or app.c
+*/
+
+struct gpio2_t
 {
-  // assert(io);
-  io->write(io, val);
-}
+  // anonymous
+  gpio_t    ;
+
+  // passed on construction
+  uint16_t    port;
+  uint16_t    pin;
+};
+
 
 
 
