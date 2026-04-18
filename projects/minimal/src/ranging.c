@@ -55,8 +55,7 @@ void ranging_init(
   _mode_t       *mode,
   const         range_t *ranges,      // including cal co-efficients
   const size_t  ranges_sz                  // not sizeof() should be const
-)
-{
+) {
 
   const ranging_t temp = {
 
@@ -68,9 +67,7 @@ void ranging_init(
     .range_idx    = 0,
   };
 
-  // elide over constness
-  memcpy( ranging, &temp, sizeof(ranging_t));
-
+  memcpy( ranging, &temp, sizeof(ranging_t)); // handle field constness
 }
 
 

@@ -46,21 +46,6 @@ void decode_init(
   assert( decode);
   assert( ranging);
   assert(cal && cal->magic == CAL_MAGIC);
-#if 0
-  memset( decode, 0, sizeof( decode_t));
-
-  decode->magic = DECODE_MAGIC;
-
-  decode->spi       = spi;
-  decode->cal       = cal;    // correct. like a singleton.
-  decode->ranging = ranging;
-
-  decode->line_freq = line_freq;
-
-  // persistent state.  along with previous reading
-  decode->show_counts = true;
-  decode->show_reading = true;
-#endif
 
   const decode_t temp = {
 
@@ -76,7 +61,8 @@ void decode_init(
   };
 
   // *decode = temp; // no constness
-  memcpy( decode, &temp, sizeof( decode_t));
+  memcpy( decode, &temp, sizeof( decode_t)); // handle field constness
+
 }
 
 
