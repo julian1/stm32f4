@@ -90,19 +90,6 @@ int flash_lzo_test(void);
 
 
 
-#if 0
-void app_init( app_t *app)
-{
-  assert(app);
-
-  // to be consistent with other code
-  memset( app, 0, sizeof(app_t));
-  app->magic = APP_MAGIC;
-}
-#endif
-
-
-
 void app_interrupt_systick( app_t *app, void *arg)
 {
   // interrupt context. avoid doing anything complicated here.

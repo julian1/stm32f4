@@ -1,5 +1,4 @@
 
-
 /*
   tasks
     set up clocks
@@ -51,8 +50,8 @@
 
 
 #include <peripheral/spi-ice40-pc.h>
-#include <peripheral/vfd.h>             // OK. need storage size.
-#include <peripheral/interrupt-systick.h>   // needed because we initialize systick here
+#include <peripheral/vfd.h>                   // OK. need storage size.
+#include <peripheral/interrupt-systick.h>     // needed because we initialize systick here
 
 
 
@@ -65,7 +64,7 @@
 #include <mode.h>
 #include <app.h>
 #include <data/cal.h>
-#include <data/range.h>   // for ranges_init( range_t *ranges, size_t sz);
+#include <data/range.h>                           // for ranges_init()
 // #include <data/data.h>
 #include <data/decode.h>
 #include <data/buffer.h>
@@ -172,8 +171,8 @@ static int main_f429(void)
 
 
   char buf_cbuf_console_in[ 1000];
-  char buf_cbuf_console_out[1000];    // changing this and it freezes. indicates. bug
-  char buf_command[1000];
+  char buf_cbuf_console_out[ 1000];    // changing this and it freezes. indicates. bug
+  char buf_command[ 1000];
 
 
   cbuf_t        cbuf_console_in;

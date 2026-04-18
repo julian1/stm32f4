@@ -1,9 +1,4 @@
 
-/*
-  low-level data update
-
-*/
-
 #pragma once
 
 

@@ -1,5 +1,5 @@
 /*
-  range.h sets mode.  which is a more high-level concept than data handling.
+  range.h sets mode.  which is a high-level unrelated to data handling.
   consider move out of src/data dir
   but everything else - formatting, range lookup, etc. are data orientated
 */
