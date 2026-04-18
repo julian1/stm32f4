@@ -258,14 +258,11 @@ typedef struct app_t
   // state variable persists
   bool          repl_trigger_val;
 
-  // TODO consider rename repl_force_trigger.
-  // bool          repl_retrigger;
-
 
 
   vfd_t         *vfd0;    // required for call to init.  after fpga initialized.
 
-  display_vfd_t *display_vfd;   // rename display0 ?
+  display_vfd_t *display_vfd;
 
   tft_t         *tft;
 
@@ -284,19 +281,15 @@ void app_update( app_t *app);
 void app_interrupt_systick( app_t *app, void *arg);
 void app_interrupt_data_rdy( app_t *app, void *arg);
 
+/*
+  consider, type onsystem_millis
+  except sleep() also yields which needs additional context from app.
 
+*/
 void app_yield( app_t *app);
 void app_msleep( app_t *app, uint32_t delay);
 
 
-/*
-  consider should type these two funcs on spi_t and system_millis
-  - just the same as spi_print_register()_
-    and spi_repl_reg_query()
-  ------
-  except sleep() also yields which needs additional context from app.
-
-*/
 void app_beep( app_t * app, uint32_t n);
 void app_led_dance( app_t * app );
 
@@ -310,7 +303,6 @@ void app_repl_statements(app_t *app,  const char *s);
 
 
 // consider move to test/test.h.
-
 bool app_test_repl_statement( app_t *app,  const char *cmd);
 
 
