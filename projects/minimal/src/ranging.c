@@ -236,9 +236,9 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
 
 #endif
 
-  /* regex is very catch-ally
-    so should return false. if the range is not match
-    instead of an error message.
+  /* regex is very catchall-y
+    should return false - if the range is not match
+    rather than a relaxed error message
   */
 
   else if( n = sscanf(cmd, "%100s %100s", name, arg), n == 2 || n == 1) {
