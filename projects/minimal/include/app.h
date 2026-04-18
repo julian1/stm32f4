@@ -164,7 +164,16 @@ typedef struct app_t
 
   ////////
 
+  /*
+    apr. 2026.
+    consider putting all the repl stuff in its own module.
 
+    there are a handful of functions that do not need
+    the entire app_t context.
+    ----
+    it is however fairly simple and neat as is
+
+  */
   cbuf_t        *cbuf_console_in;
   cbuf_t        *cbuf_console_out;
   cstring_t     *command;

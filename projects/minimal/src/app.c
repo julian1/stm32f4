@@ -721,20 +721,19 @@ static void app_console_update(app_t *app)
       printf("too many chars!!\n");
     }
 
-    // apply state changes
     if( ch == '\r')
     {
+      // apply state changes
 
       if( spi_ice40_cdone( app->spi_fpga0_pc))  {
 
         // update analog board state by calling transition_state(),
-        // this ensures everything is consistent/aligned at this juncture.
+        // juncture for transition/transfering state
         app_transition_state( app );
 
         if( app->repl_retrigger) {
 
-          // re-trigger. should be force_trigger
-
+          // re-trigger
           printf("retrigger\n");
 
           // clear for next time

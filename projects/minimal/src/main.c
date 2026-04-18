@@ -428,6 +428,7 @@ static int main_f429(void)
 
     .system_millis      = &system_millis,
 
+    // consider - can move to dedicated repl module?
     .cbuf_console_in    = &cbuf_console_in,
     .cbuf_console_out   = &cbuf_console_out,
     .command            = &command,
