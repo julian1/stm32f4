@@ -5,6 +5,7 @@
 // #include <stddef.h>     // NULL
 #include <assert.h>
 #include <strings.h>      // strcasecmp
+#include <string.h>      // strcasecmp
 #include <math.h>         // fabs
 
 #include <mode.h>
@@ -571,17 +572,53 @@ static void range_reading_format(
 */
 
 
-size_t ranges_init( range_t *ranges, size_t  sz)
+size_t ranges_init( range_t *ranges, size_t sz)
 {
-  UNUSED( ranges);
-  UNUSED( sz);
-  assert( 0);
+
+  const range_t temp[] = {
+
+    //              name    arg     sentinels         unit  set_mode    convert to reading    format          autorange predicate
+    { RANGE_MAGIC,  "REF",  "",     true,   true,     range_ref,  range_reading_normal, range_reading_format,   NULL,             },
+
+    { RANGE_MAGIC,  "LO",   "0.01", true,   false,    range_lo,   range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LO",   "0.1",  false,  false,    range_lo,   range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LO",   "1",    false,  false,    range_lo,   range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LO",   "10",   false,  true,     range_lo,   range_reading_normal, range_reading_format,   NULL,             },
+
+    { RANGE_MAGIC,  "LO2",  "0.01", true,   false,    range_lo2,  range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LO2",  "0.1",  false,  false,    range_lo2,  range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LO2",  "1",    false,  false,    range_lo2,  range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LO2",  "10",   false,  true,     range_lo2,  range_reading_normal, range_reading_format,   NULL,             },
 
 
-  return sz;
+    { RANGE_MAGIC,  "DCV",  "0.01", true,   false,    range_dcv,  range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
+    { RANGE_MAGIC,  "DCV",  "0.1",  false,  false,    range_dcv,  range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
+    { RANGE_MAGIC,  "DCV",  "1",    false,  false,    range_dcv,  range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
+    { RANGE_MAGIC,  "DCV",  "10",   false,  false,    range_dcv,  range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
+    { RANGE_MAGIC,  "DCV",  "100",  false,  false,    range_dcv,  range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
+    { RANGE_MAGIC,  "DCV",  "1000", false,  true,     range_dcv,  range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
+
+    { RANGE_MAGIC,  "TEMP", "",     true,   true,     range_temp, range_reading_temp,   range_reading_format,   NULL,             },
+
+    { RANGE_MAGIC,  "LTS",  "0.01", true,   false,    range_lts,  range_reading_normal, range_reading_format,   NULL,             },  // better name, LTS or DCV LTS.
+    { RANGE_MAGIC,  "LTS",  "0.1",  false,  false,    range_lts,  range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LTS",  "1",    false,  false,    range_lts,  range_reading_normal, range_reading_format,   NULL,             },
+    { RANGE_MAGIC,  "LTS",  "10",   false,  true,     range_lts,  range_reading_normal, range_reading_format,   NULL,             }
+
+  };
+
+
+  printf( "ranges sz %u,  max %u\n", ARRAY_SIZE( temp), sz);
+
+  assert( ARRAY_SIZE( temp) < sz);
+
+  memcpy( ranges, &temp, sizeof( temp));
+
+  return ARRAY_SIZE( temp);
 }
 
 
+#if 0
 
 const range_t range_init_values[] = {
 
@@ -618,6 +655,7 @@ const range_t range_init_values[] = {
 
 const size_t range_init_sz = ARRAY_SIZE( range_init_values );
 
+#endif
 
 
 

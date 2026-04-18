@@ -339,30 +339,30 @@ static int main_f429(void)
 
 
   uint32_t      line_freq = 50;
-  // unsigned      range_idx = 0;        // TODO consider change to size_t. because indexes and allow bound check
-
-  // both line_freq and range_idx  are going to have to be defined here with memory..
-  //
 
 
-  /*
-    use this, instead of passing globals
-    size_t ranges_init( range_t *ranges, size_t sz);   // or size_t for elts.
 
+  /* keep memory for ranges on the stack
+    use oversize array.
+    keep dependencies clear, using _init(), and no global passing
   */
+  const size_t ranges_sz_max = 25;
+  range_t ranges[ ranges_sz_max];
+
+  size_t ranges_sz = ranges_init( ranges, ranges_sz_max);
 
 
   ranging_t     ranging;
-  ranging_init( &ranging, &mode, range_init_values, range_init_sz);
+  ranging_init( &ranging, &mode, ranges, ranges_sz);
 
 
 
   /*
-      we want to be able to call decode_update_data()
-      outside the context of app_update()
-      eg. for tests etc.
-      this point determines how much shared state from app_t,
-      that has to be passed to decode_t on construction.
+    we want to be able to call decode_update_data()
+    in more contexts than just app_update()
+    for tests,  and transfer calibration etc.
+
+    this point determines how much has to be passed to decode_t at init/construction.
   */
 
   decode_t        decode;
@@ -375,6 +375,7 @@ static int main_f429(void)
   );
 
 
+  // buffer memory goes on the stack
   double values[ 1000];
 
   buffer_t     buffer;

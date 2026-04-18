@@ -126,7 +126,7 @@ struct range_t
 
 size_t ranges_init( range_t *ranges, size_t sz);   // or size_t for elts.
 
-
+/*
 
 // forward declaration
 // do not use global ... use app->range_values instead
@@ -135,23 +135,5 @@ extern const range_t  range_init_values[];
 
 extern const size_t range_init_sz ;
 
-
-
-
-
-
-#if 0
-
-// DCV_INITIAL
-#define DCV_REF    0              // default. nominal. for 7.1V. reference
-#define DCV_10        1           // with b + a - for thermal EMF.
-#define DCV_1         2           // derived
-#define DCV_01        3           // 100mV
-#define DCV_001       4           // 10mV
-#define DCV_100       5           // 100V
-#define DCV_1000      6           // 1000
-#define TEMP_          7           // single range
-
-#endif
-
+*/
 
