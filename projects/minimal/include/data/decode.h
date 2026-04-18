@@ -33,19 +33,6 @@ typedef struct decode_t
 
   spi_t       *spi ;
   cal_t       *cal;
-
-
-#if 0
-  const range_t *ranges;
-
-
-  /*
-    could be passed in the decode() function.
-    but then so could everything else
-  */
-  unsigned    *range_idx;    // current active range
-#endif
-
   ranging_t   *ranging;
 
 
