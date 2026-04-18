@@ -37,6 +37,7 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/mode.c \
             src/lzo_test.c \
             src/support.c \
+            src/ranging.c \
             src/data/decode.c src/data/data.c   src/data/cal.c src/data/buffer.c src/data/range.c  \
             src/cal/transfer.c src/cal/w.c src/cal/b.c  src/cal/b10.c src/cal/b100.c src/cal/b1000.c \
             src/cal/div100.c src/cal/div1000.c \

@@ -2,9 +2,12 @@
 /*
   create app_t dependencies
   create app_t,
-  loop app_update()
+  loop on app_update()
 
 */
+
+
+
 
 #include <stdio.h>    // printf, scanf
 #include <assert.h>
@@ -23,37 +26,36 @@
 
 #include <device/spi1-port.h>
 #include <device/spi2-port.h>
-
-#include <device/spi-fpga0-pc.h>
-#include <device/spi-fpga0.h>
-#include <device/interrupt-fpga0.h>
-#include <device/interrupt-systick.h>
-
-#include <device/spi-4094-0.h>
-#include <device/spi-mdac0.h>
-#include <device/spi-mdac1.h>
-#include <device/gpio-status-led.h>
-#include <device/gpio-trigger-internal.h>
-#include <device/gpio-trigger-selection.h>
 #include <device/fsmc.h>
 
 
+#include <device/spi-fpga0-pc.h>
+#include <device/spi-fpga0.h>
+#include <device/spi-4094-0.h>
+#include <device/spi-mdac0.h>
+#include <device/spi-mdac1.h>
+#include <device/spi-fpga1-pc.h>
+#include <device/spi-fpga1.h>
 
-#include <peripheral/spi-ice40-pc.h>    // naming is not quite right.
 
-#include <peripheral/vfd.h>           // OK. need storage size.
-#include <peripheral/spi-ice40.h>
-#include <peripheral/interrupt.h>
-#include <peripheral/interrupt-systick.h>
 
-// #include <peripheral/vfd-fonts.h>
+#include <device/gpio-status-led.h>
+#include <device/gpio-trigger-internal.h>
+#include <device/gpio-trigger-selection.h>
+
+#include <device/interrupt-fpga0.h>
+#include <device/interrupt-systick.h>
+
+
+
+#include <peripheral/spi-ice40-pc.h>
+#include <peripheral/vfd.h>             // OK. need storage size.
+#include <peripheral/interrupt-systick.h>   // needed because we initialize systick here
+
 
 
 #include <device/vfd0.h>
 #include <device/tft0.h>
-
-#include <device/spi-fpga1-pc.h>
-#include <device/spi-fpga1.h>
 
 
 
@@ -66,7 +68,7 @@
 #include <data/decode.h>
 #include <data/buffer.h>
 // #include <data/aggregate.h>
-//#include <data/ranging.h>
+#include <ranging.h>
 
 #include <display-vfd.h>
 #include <agg/display-tft.h>
@@ -350,6 +352,12 @@ static int main_f429(void)
 
   // both line_freq and range_idx  are going to have to be defined here with memory..
   //
+
+
+  ranging_t     ranging;
+
+  UNUSED(ranging);
+
 
   /*
       we want to be able to call decode_update_data()
