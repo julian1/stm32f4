@@ -23,7 +23,7 @@
 #define UNUSED(x) ((void)(x))
 
 
-static void setup(spi_t *spi )
+static void setup(spi_t *spi)
 {
   UNUSED(spi);
 
@@ -85,8 +85,8 @@ void spi_4094_0_init( spi_t *spi)
   memset(spi, 0, sizeof(spi_t));
 
 
-  spi->spi    = SPI1;     // consider pass underlying spi in the contructor.
-  spi->setup   =  setup;
+  spi->spi          = SPI1;     // consider, pass underlying spi in the contructor
+  spi->setup        =  setup;
   spi->port_configure = port_configure;
   spi->cs_assert    = cs_assert;
   spi->cs_deassert  = cs_deassert;

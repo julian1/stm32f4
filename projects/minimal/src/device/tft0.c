@@ -3,12 +3,12 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #include <libopencm3/stm32/gpio.h>
 
 #include <device/tft0.h>
 #include <lib2/util.h>           // UNUSED
-#include <string.h>
 
 
 
