@@ -24,15 +24,15 @@
 
 
 #include <data/data.h>
+// #include <data/range.h>
 #include <data/buffer.h>
-#include <data/range.h>
 
 #include <support.h>      // str_format
 
 
 
 /*
-  should just use a wrapped deque.
+  consider, just use a wrapped c++ stl deque.
   contiguous.  -
 
   and maintain order rather than a modul
@@ -52,35 +52,27 @@
 
 
 
-void buffer_init( buffer_t *buffer, double *values, size_t max_n )
+void buffer_init( buffer_t *buffer, double *values, size_t max_sz )
 {
 
-/*
-  could inject range here.
+  const buffer_t temp = {
 
-*/
+    .magic = BUFFER_MAGIC,
 
-  // assert(buffer);
-  // assert(data && data->magic == DECODE_MAGIC);
+    .values = values,
+    .max_sz = max_sz,
 
-  memset( buffer, 0, sizeof( buffer_t));
-  buffer->magic = BUFFER_MAGIC;
+    // initial buffer size
+    .size = 10,
 
-  // assert(data);
-  // buffer->data = data;
+    .show = true,
+  };
 
-  buffer->values = values;
-  buffer->max_n = max_n;
-
-  // initial buffer size
-  buffer->size = 10;
-
-  buffer->show = true;
+  memcpy( buffer, &temp, sizeof( buffer_t));  // handle field constness
 }
 
 
 
-// want a separate buffer_decode_init();
 
 
 /*
@@ -102,7 +94,7 @@ void buffer_update_data( buffer_t *buffer, data_t *data)
     assert(!data->valid);
 
     // could clear data
-    // memset( buffer->values, 0, sizeof(double) * buffer->max_n );
+    // memset( buffer->values, 0, sizeof(double) * buffer->max_sz );
 
     // clear the current buffer
     buffer->i     = 0;
@@ -177,7 +169,7 @@ bool buffer_repl_statement( buffer_t *buffer, const char *cmd)
 
   if( sscanf(cmd, "buffer size %lu", &u0 ) == 1) {
 
-    assert(u0 < buffer->max_n);
+    assert(u0 < buffer->max_sz);
 
     buffer->size = 10;
 

@@ -17,7 +17,8 @@ typedef struct buffer_t
 
   // memory dependency, pass on construction
   double *values;
-  size_t max_n ;    // max memory to work size
+  size_t max_sz;    // max memory to work size
+                    // change name max_sz or sz_max?
 
 
 
@@ -41,7 +42,7 @@ typedef struct buffer_t
 
 
 
-void buffer_init( buffer_t *buffer, double *values, size_t n);
+void buffer_init( buffer_t *buffer, double *values, size_t sz);
 
 bool buffer_repl_statement( buffer_t *, const char *cmd);
 
