@@ -64,7 +64,7 @@ static void port_configure( spi_t *spi_)
 
 
 
-static void cs_assert(spi_t *spi)
+static void cs_assert( spi_t *spi)
 {
   assert(spi && spi->magic == _4094_MAGIC);
 
@@ -75,7 +75,7 @@ static void cs_assert(spi_t *spi)
   gpio_write_with_mask( GPIOC, 7, 0b111, SPI_CS_4094);
 }
 
-static void cs_deassert(spi_t *spi)
+static void cs_deassert( spi_t *spi)
 {
   assert(spi && spi->magic == _4094_MAGIC);
 
