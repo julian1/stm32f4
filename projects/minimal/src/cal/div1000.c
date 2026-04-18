@@ -43,7 +43,7 @@ static void step1( app_t *app)
 
 
   // reference range
-  ranging_range_switch1( app->ranging, "DCV", "10");
+  ranging_range_set_by_name( app->ranging, "DCV", "10");
   mode_override_range( app->mode);
 
   // set lts source voltage
@@ -55,7 +55,7 @@ static void step1( app_t *app)
 static void step2( app_t *app)
 {
   // target range
-  ranging_range_switch1( app->ranging, "DCV", "1000");
+  ranging_range_set_by_name( app->ranging, "DCV", "1000");
   mode_override_range( app->mode);
 }
 

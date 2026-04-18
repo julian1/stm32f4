@@ -42,7 +42,7 @@ void ranging_init( ranging_t *ranging,    _mode_t *mode);
 const range_t * ranging_active_range( ranging_t *ranging);
 
 
-void ranging_range_switch1( ranging_t *ranging, const char *name, const char *arg);
+void ranging_range_set_by_name( ranging_t *ranging, const char *name, const char *arg);
 
 
 bool ranging_repl_range( ranging_t *ranging, const char *cmd);

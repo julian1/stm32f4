@@ -33,14 +33,14 @@ static void step1( app_t *app)
   mode_lts_source_set ( app->mode, 1.f );
 
   // reference range
-  ranging_range_switch1( app->ranging, "LTS", "10");
+  ranging_range_set_by_name( app->ranging, "LTS", "10");
 }
 
 
 static void step2( app_t *app)
 {
   // target range
-  ranging_range_switch1( app->ranging, "LTS", "1");
+  ranging_range_set_by_name( app->ranging, "LTS", "1");
 }
 
 

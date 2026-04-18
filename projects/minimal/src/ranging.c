@@ -98,15 +98,14 @@ static bool ranging_range_dir_valid( ranging_t *ranging, uint32_t range_idx, boo
 
 
 
-static void ranging_range_switch( ranging_t *ranging, uint32_t range_idx)
+static void ranging_range_set( ranging_t *ranging, uint32_t range_idx)
 {
   assert(ranging && ranging->magic == RANGING_MAGIC);
 
-  printf("here2 range idx %lu\n", range_idx);   // is 50???
+  printf("here2 range idx %lu\n", range_idx);
 
   // range_idx is unsigned and expected to be valid
-  // set the current range_idx. used for decode_update_data
-  assert( range_idx < ranging->ranges_sz );   // watch out for signess casts.
+  assert( range_idx < ranging->ranges_sz );
   ranging->range_idx = range_idx;
 
 
@@ -121,29 +120,28 @@ static void ranging_range_switch( ranging_t *ranging, uint32_t range_idx)
 
 
 
-  /*  who clears this????
-    it is cleared by app_t after state transistion.  which is messy.
-    consider could use a flag on the mode... instead.
+  /*  who clears this flag????
+    cleared by app_t after state transistion.  which is messy.
+    consider record flag against the mode...
   */
   ranging->retrigger = true;
 }
 
 
 
-void ranging_range_switch1( ranging_t *ranging, const char *name, const char *arg)
+void ranging_range_set_by_name( ranging_t *ranging, const char *name, const char *arg)
 {
   /*
     for external callers.
-    asserts the range exists
+    expects and asserts that the range will exist
   */
 
   assert( ranging && ranging->magic == RANGING_MAGIC);
 
   int32_t range_idx = range_get_idx( ranging->ranges, ranging->ranges_sz, name, arg);
-
   assert( range_idx >= 0 && range_idx < (int) ranging->ranges_sz);
 
-  ranging_range_switch( ranging, range_idx);
+  ranging_range_set( ranging, range_idx);
 }
 
 
@@ -194,7 +192,7 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
 
     // re-apply range function
     // which may modify the mode
-    ranging_range_switch( ranging, ranging->range_idx);
+    ranging_range_set( ranging, ranging->range_idx);
 
     // set retrigger to clear data buffers
     ranging->retrigger = true;
@@ -210,7 +208,7 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
     bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 1);
     if(ret) {
       ++ranging->range_idx;
-      ranging_range_switch( ranging, ranging->range_idx);
+      ranging_range_set( ranging, ranging->range_idx);
     }
   }
   // 'd' down in range
@@ -222,7 +220,7 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
     bool ret = ranging_range_dir_valid( ranging, ranging->range_idx, 0);
     if(ret) {
       --ranging->range_idx;
-      ranging_range_switch( ranging, ranging->range_idx);
+      ranging_range_set( ranging, ranging->range_idx);
     }
   }
 
@@ -255,7 +253,7 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
     if( range_idx >= 0) {
       // pos
       printf("calling range switch\n");
-      ranging_range_switch( ranging, range_idx);
+      ranging_range_set( ranging, range_idx);
     }
     else {
       // neg
@@ -274,71 +272,6 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
   return true;
 
 }
-
-
-
-
-
-
-#if 0
-
-  else if( sscanf(cmd, "10Meg %100s", s0) == 1
-    && str_decode_uint( s0, &u0))  {
-
-      /*  the 10Meg. impedance state is a high-level range_t state concept and belongs in ranging_t rather than mode_t
-          ie. there is no use/relevance when not using ranges
-          we can still use the mode_t and write K403 directly whenever needed.
-          -------
-          for the same reason - we only need to set it, in tests etc, if we use a dcv ranges
-          so perhaps should move it out of mode_t. and explicitly set it, for the few cases that tests use the range function.
-          perhaps rename  range_10Meg.
-      */
-      _mode_t  *mode  = ranging->mode;
-      assert(mode && mode->magic == MODE_MAGIC);
-
-      // set flag
-      ranging->range_10Meg = u0;
-
-
-      // re-rangingly the current range function
-      // this modifies the mode
-      ranging_range_switch( ranging, *ranging->range_idx);
-
-      // set retrigger to clear data buffers
-      ranging->repl_retrigger = true;
-  }
-
-
-#endif
-
-
-
-
-#if 0
-
-  /*
-      TODO consider  move this code to ranging_repl_range
-  */
-  // 'u' up in range
-  else if(strcmp(cmd, "u") == 0) {
-
-    bool ret = ranging_range_dir_valid( ranging, *ranging->range_idx, 1);
-    if(ret) {
-      ++ranging->range_idx;
-      ranging_range_switch( ranging, *ranging->range_idx);
-    }
-  }
-  // 'd' down in range
-  else if(strcmp(cmd, "d") == 0) {
-
-    bool ret = ranging_range_dir_valid( ranging, *ranging->range_idx, 0);
-    if(ret) {
-      --ranging->range_idx;
-      ranging_range_switch( ranging, *ranging->range_idx);
-    }
-  }
-
-#endif
 
 
 
