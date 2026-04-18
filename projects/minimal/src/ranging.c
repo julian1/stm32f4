@@ -22,36 +22,6 @@
 
 
 
-void ranging_init( ranging_t *ranging, _mode_t *mode)
-{
-
-
-  const struct ranging_t temp = {
-
-    .magic        = RANGING_MAGIC,
-    .mode         = mode,
-    .ranges       = range_init_values,
-    .ranges_sz    = range_init_sz,     // note const
-    .range_idx    = 0,
-  };
-
-  // elide over constness
-  memcpy( ranging, &temp, sizeof(ranging_t));
-
-}
-
-
-
-
-const range_t * ranging_range_active_get( ranging_t *ranging)
-{
-  // printf("active range %u\n" ,   ranging->range_idx );
-
-  assert( ranging->range_idx < ranging->ranges_sz);
-  const range_t *range  = & ranging->ranges[ ranging->range_idx];
-  return range;
-}
-
 
 
 
@@ -78,6 +48,37 @@ static int32_t range_get_idx( const range_t *ranges, size_t sz, const char *name
 
 
 
+void ranging_init( ranging_t *ranging, _mode_t *mode)
+{
+
+
+  const struct ranging_t temp = {
+
+    .magic        = RANGING_MAGIC,
+    .mode         = mode,
+    .ranges       = range_init_values,
+    .ranges_sz    = range_init_sz,     // note const
+    .range_idx    = 0,
+  };
+
+  // elide over constness
+  memcpy( ranging, &temp, sizeof(ranging_t));
+
+}
+
+
+
+
+const range_t * ranging_range_active_get( ranging_t *ranging)
+{
+  assert( ranging && ranging->magic == RANGING_MAGIC);
+  // printf("active range %u\n" ,   ranging->range_idx );
+
+  assert( ranging->range_idx < ranging->ranges_sz);
+  const range_t *range  = & ranging->ranges[ ranging->range_idx];
+  return range;
+}
+
 
 
 
@@ -86,7 +87,7 @@ static int32_t range_get_idx( const range_t *ranges, size_t sz, const char *name
 
 static bool ranging_range_dir_valid( ranging_t *ranging, uint32_t range_idx, bool dir)    // 1 up. 0 down
 {
-  assert(ranging && ranging->magic == RANGING_MAGIC);
+  assert( ranging && ranging->magic == RANGING_MAGIC);
   assert( range_idx < ranging->ranges_sz );   // watch out for signess casts.
 
 
