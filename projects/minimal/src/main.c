@@ -363,22 +363,6 @@ static int main_f429(void)
     &decode,
     &spi_fpga0,
     &cal,
-
-#if 0
-    // TODO pass the range _sz also, customary and permits bounds checks.
-    // OR consider passing the range_t
-    /* - passing three separate values all associated with range. is a bit much.
-
-        consider just pass single ranging structure. to decode.
-        or else add a _decode( data_t *data) function to fill in the ranging info
-
-        just range_t * ranging->get_active_range( ranging );     or something like this.
-    */
-    range_init_values,
-
-    // deode_t will stamp these into data_t. to make available to other modules.
-    &range_idx,
-#endif
     &ranging,
     &line_freq
   );

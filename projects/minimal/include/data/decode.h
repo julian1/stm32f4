@@ -76,12 +76,7 @@ void decode_init(
   decode_t  *decode,
   spi_t     *spi,
   cal_t     *cal,
-/*
-  const range_t   *ranges,
-  unsigned  *range_idx,
-*/
   ranging_t *ranging,
-
   uint32_t  *line_freq
 );
 

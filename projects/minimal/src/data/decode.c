@@ -37,14 +37,6 @@ void decode_init(
   decode_t  *decode,
   spi_t     *spi,
   cal_t     *cal,
-#if 0
-  const range_t *ranges,
-
-  // using pointers is a mess. line_freq could almost be instantiated here.
-  // or use a separate structure passed to both app_t and decode_t ...
-  // or pass on update_data()
-  unsigned  *range_idx,
-#endif
   ranging_t	*ranging,
   uint32_t  *line_freq
 )
@@ -62,15 +54,6 @@ void decode_init(
 
   decode->spi       = spi;
   decode->cal       = cal;    // correct. like a singleton.
-
-#if 0
-  // why not pass the range
-  decode->ranges    = ranges;
-
-
-  //  handling these as pointers is not great
-  decode->range_idx = range_idx;
-#endif
   decode->ranging = ranging;
 
   decode->line_freq = line_freq;
