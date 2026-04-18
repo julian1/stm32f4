@@ -7,13 +7,42 @@
 #include <stddef.h>   // size_t
 
 
+typedef struct range_t range_t;
+typedef struct _mode_t _mode_t;
+
+
 
 typedef struct ranging_t
 {
-  uint32_t    magic;
+  uint32_t      magic;
 
 
+  // ranging writes the mode
+  _mode_t       *mode;
+
+
+  const         range_t *ranges;      // including cal co-efficients
+  size_t        ranges_sz;                  // should be const
+
+
+  size_t        range_idx;
+
+
+  bool          range_10Meg ;
+
+  bool          retrigger;              // mode was modified
 
 } ranging_t;
 
 
+
+
+void ranging_init( ranging_t *ranging,    _mode_t *mode);
+
+const range_t * ranging_active_range( ranging_t *ranging);
+
+
+void ranging_range_switch1( ranging_t *ranging, const char *name, const char *arg);
+
+
+bool ranging_repl_range( ranging_t *ranging, const char *cmd);

@@ -63,8 +63,8 @@
 #include <mode.h>
 #include <app.h>
 #include <data/cal.h>
-#include <data/range.h>
-#include <data/data.h>
+// #include <data/range.h>
+// #include <data/data.h>
 #include <data/decode.h>
 #include <data/buffer.h>
 // #include <data/aggregate.h>
@@ -310,7 +310,7 @@ static int main_f429(void)
 
   ///////////////////////////////
   fsmc_gpio_setup();
-  fsmc_setup( 12 );
+  fsmc_setup( 12 );   // tft will manipulate this itself.
 
   /////////////////////////////
 
@@ -335,15 +335,15 @@ static int main_f429(void)
 
 
   uint32_t      line_freq = 50;
-  unsigned      range_idx = 0;        // TODO consider change to size_t. because indexes and allow bound check
+  // unsigned      range_idx = 0;        // TODO consider change to size_t. because indexes and allow bound check
 
   // both line_freq and range_idx  are going to have to be defined here with memory..
   //
 
 
   ranging_t     ranging;
+  ranging_init( &ranging, &mode);
 
-  UNUSED(ranging);
 
 
   /*
@@ -360,6 +360,7 @@ static int main_f429(void)
     &spi_fpga0,
     &cal,
 
+#if 0
     // TODO pass the range _sz also, customary and permits bounds checks.
     // OR consider passing the range_t
     /* - passing three separate values all associated with range. is a bit much.
@@ -368,12 +369,13 @@ static int main_f429(void)
         or else add a _decode( data_t *data) function to fill in the ranging info
 
         just range_t * ranging->get_active_range( ranging );     or something like this.
-
     */
     range_init_values,
 
     // deode_t will stamp these into data_t. to make available to other modules.
     &range_idx,
+#endif
+    &ranging,
     &line_freq
   );
 
@@ -455,17 +457,15 @@ static int main_f429(void)
 
     .mode               = &mode,
 
-    // review. declared extern
-    // not clear required in app_t, can limit scope to decode_t
-    .ranges             = range_init_values,
-    .ranges_sz          = range_init_sz,
+
+    .ranging            = &ranging,
+
 
     .cal                = &cal,
 
     // review - does app_t need these
     // or just inject into the decode_t and ranging_t.  etc.
     .line_freq          = &line_freq,
-    .range_idx          = &range_idx,
 
     .decode             = &decode,
     .buffer             = &buffer,
