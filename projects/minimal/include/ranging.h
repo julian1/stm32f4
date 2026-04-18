@@ -22,7 +22,7 @@ typedef struct ranging_t
 
 
   const         range_t *ranges;      // including cal co-efficients
-  const size_t  ranges_sz;                  // should be const
+  const size_t  ranges_sz;                  // not sizeof() should be const
 
 
   size_t        range_idx;
@@ -37,7 +37,42 @@ typedef struct ranging_t
 
 
 
-void ranging_init( ranging_t *ranging,    _mode_t *mode);
+
+
+
+#if 0
+/*
+  apr 2026.
+
+  call  ranges_init()  in main.c.
+  then pass fully formed to ranging_t
+  ---
+
+  can avoid the global variable.
+
+*/
+
+void ranging_init(
+  ranging_t *ranging,
+  _mode_t *mode,
+
+    /* pass initalized ranges here as dependency from main*/
+  const         range_t *ranges,      // including cal co-efficients
+  const size_t  ranges_sz                  // not sizeof() should be const
+
+);
+
+#endif
+
+
+void ranging_init(
+  ranging_t     *ranging,
+  _mode_t       *mode,
+  const         range_t *ranges,      // including cal co-efficients
+  const size_t  ranges_sz                  // not sizeof() should be const
+);
+
+
 
 const range_t * ranging_range_active_get( ranging_t *ranging);
 

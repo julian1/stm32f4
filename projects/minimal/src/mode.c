@@ -239,87 +239,90 @@ void _4094_state_clear_relays(_4094_state_t *state)
 
 
 
-static const _mode_t mode_initial =  {
-
-  /*
-    all relays need to be defined as b01 or b10.
-    for default initialization
-    otherwise they will not get an initial pulse/value.
-  */
-
-  .magic  = MODE_MAGIC,
-
-
-  // U401
-  .serial. K404  = SR_RESET,
-  .serial. K403  = SR_RESET,
-  .serial. K405  = SR_RESET,
-  .serial. K406  = SR_RESET,
-
-  // U402
-  .serial. K407  = SR_RESET,
-  .serial. K402  = SR_RESET,
-
-  // u405
-  .serial. K401  = SR_RESET,
-
-  .serial. K701  = SR_RESET,
-  .serial. K702  = SR_RESET,
-  .serial. K703  = SR_RESET,
-
-  ////////////
-
-  // set lo-side drive of com-lc to A400-1/ star-ground
-  .serial.U423   = D3,
-
-  // set loside input boot buffer mux to A400-1/ star ground
-  .serial.U426   = S4,
-
-
-  ////////////
-
-  // amplifier set fb 1x feb 2026.
-  .serial .U506 = S8,
-
-
-  // signal acquisition defaults
-  .sa.p_trig_delay  = CLK_FREQ * 100e-3,         // 100ms
-  .sa.p_precharge   = CLK_FREQ * 500e-6,          //  500us.
-
-  /*
-    .sa.p_seq_n = 2,
-    .sa.p_seq0 = (0b01 << 4) | S3,         // dcv
-    .sa.p_seq1 = (0b00 << 4) | S7,         // star-lo
-    .sa.p_seq2 = 0,
-    .sa.p_seq3 = 0,
-  */
-
-
-  .trigger_source = 1,   // set internal trigger active
-
-  // default adc
-  .adc.p_aperture     = CLK_FREQ * 0.2,             // 200ms. 10nplc 50Hz.  // Not. should use current calibration?  // should be authoritative source of state.
-  .adc.p_reset        = CLK_FREQ * 500e-6,          // 500us.
-
-
-
-  .reg_cr.mode = 0,
-
-  // eg sigmux should be on during normal integration.
-  .reg_cr.adc_p_active_sigmux  = true
-
-};
-
-
 
 void mode_init(_mode_t *mode)
 {
 
-  *mode = mode_initial;
+
+
+  const _mode_t temp = {
+
+    /*
+      all relays need to be defined as b01 or b10.
+      for default initialization
+      otherwise they will not get an initial pulse/value.
+    */
+
+    .magic  = MODE_MAGIC,
+
+
+    // U401
+    .serial. K404  = SR_RESET,
+    .serial. K403  = SR_RESET,
+    .serial. K405  = SR_RESET,
+    .serial. K406  = SR_RESET,
+
+    // U402
+    .serial. K407  = SR_RESET,
+    .serial. K402  = SR_RESET,
+
+    // u405
+    .serial. K401  = SR_RESET,
+
+    .serial. K701  = SR_RESET,
+    .serial. K702  = SR_RESET,
+    .serial. K703  = SR_RESET,
+
+    ////////////
+
+    // set lo-side drive of com-lc to A400-1/ star-ground
+    .serial.U423      = D3,
+
+    // set loside input boot buffer mux to A400-1/ star ground
+    .serial.U426      = S4,
+
+
+    ////////////
+
+    // amplifier set fb 1x feb 2026.
+    .serial .U506     = S8,
+
+
+    // signal acquisition defaults
+    .sa.p_trig_delay  = CLK_FREQ * 100e-3,         // 100ms
+    .sa.p_precharge   = CLK_FREQ * 500e-6,          //  500us.
+
+    /*
+      .sa.p_seq_n = 2,
+      .sa.p_seq0 = (0b01 << 4) | S3,         // dcv
+      .sa.p_seq1 = (0b00 << 4) | S7,         // star-lo
+      .sa.p_seq2 = 0,
+      .sa.p_seq3 = 0,
+    */
+
+
+    .trigger_source = 1,   // set internal trigger active
+
+    // default adc
+    .adc.p_aperture   = CLK_FREQ * 0.2,             // 200ms. 10nplc 50Hz.  // Not. should use current calibration?  // should be authoritative source of state.
+    .adc.p_reset      = CLK_FREQ * 500e-6,          // 500us.
+
+
+
+    .reg_cr.mode      = 0,
+
+    // eg sigmux should be on during normal integration.
+    .reg_cr.adc_p_active_sigmux  = true
+
+  };
+
+
+  // *mode = temp;
+  memcpy( mode, &temp, sizeof( _mode_t)); // support const fields
 }
 
 
-void mode_reset(_mode_t *mode)
+void mode_reset( _mode_t *mode)
 {
   // same as init
   mode_init( mode);

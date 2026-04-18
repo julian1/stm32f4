@@ -63,7 +63,7 @@
 #include <mode.h>
 #include <app.h>
 #include <data/cal.h>
-// #include <data/range.h>
+#include <data/range.h>   // for ranges_init( range_t *ranges, size_t sz);
 // #include <data/data.h>
 #include <data/decode.h>
 #include <data/buffer.h>
@@ -345,8 +345,15 @@ static int main_f429(void)
   //
 
 
+  /*
+    use this, instead of passing globals
+    size_t ranges_init( range_t *ranges, size_t sz);   // or size_t for elts.
+
+  */
+
+
   ranging_t     ranging;
-  ranging_init( &ranging, &mode);
+  ranging_init( &ranging, &mode, range_init_values, range_init_sz);
 
 
 

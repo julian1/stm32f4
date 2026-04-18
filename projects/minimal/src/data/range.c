@@ -557,6 +557,32 @@ static void range_reading_format(
     range_format_unit()   function
 */
 
+/*
+  TODO
+    change this interface to a function.
+
+  size_t range_init(  range_t *ranges, size_t  sz);   // or size_t elts.
+
+    eg.
+      - pass the memory to be used.
+      - and the size  limit
+      - and return the sz of ranges that were created...
+
+*/
+
+
+size_t ranges_init( range_t *ranges, size_t  sz)
+{
+  UNUSED( ranges);
+  UNUSED( sz);
+  assert( 0);
+
+
+  return sz;
+}
+
+
+
 const range_t range_init_values[] = {
 
   //              name    arg     sentinels         unit  set_mode    convert to reading    format          autorange predicate

@@ -124,6 +124,7 @@ struct range_t
 
 
 
+size_t ranges_init( range_t *ranges, size_t sz);   // or size_t for elts.
 
 
 

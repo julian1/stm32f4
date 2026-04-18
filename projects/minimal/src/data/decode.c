@@ -45,12 +45,11 @@ void decode_init(
 
   assert( decode);
   assert( ranging);
-  // assert( range_idx);
-
-  memset( decode, 0, sizeof( decode_t));
-  decode->magic = DECODE_MAGIC;
-
   assert(cal && cal->magic == CAL_MAGIC);
+#if 0
+  memset( decode, 0, sizeof( decode_t));
+
+  decode->magic = DECODE_MAGIC;
 
   decode->spi       = spi;
   decode->cal       = cal;    // correct. like a singleton.
@@ -61,6 +60,23 @@ void decode_init(
   // persistent state.  along with previous reading
   decode->show_counts = true;
   decode->show_reading = true;
+#endif
+
+  const decode_t temp = {
+
+    .magic        = DECODE_MAGIC,
+    .spi          = spi,
+    .cal          = cal,    // correct. like a singleton.
+    .ranging      = ranging,
+
+    .line_freq    = line_freq,
+
+    .show_counts  = true,
+    .show_reading = true,
+  };
+
+  // *decode = temp; // no constness
+  memcpy( decode, &temp, sizeof( decode_t));
 }
 
 

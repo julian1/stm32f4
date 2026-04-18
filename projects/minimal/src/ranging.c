@@ -8,7 +8,7 @@
 #include <strings.h>      // strcasecmp
 
 
-#include <data/range.h>   // for init_values
+#include <data/range.h>   // for range_t
 
 #include <ranging.h>
 
@@ -48,16 +48,23 @@ static int32_t range_get_idx( const range_t *ranges, size_t sz, const char *name
 
 
 
-void ranging_init( ranging_t *ranging, _mode_t *mode)
+
+
+void ranging_init(
+  ranging_t     *ranging,
+  _mode_t       *mode,
+  const         range_t *ranges,      // including cal co-efficients
+  const size_t  ranges_sz                  // not sizeof() should be const
+)
 {
 
-
-  const struct ranging_t temp = {
+  const ranging_t temp = {
 
     .magic        = RANGING_MAGIC,
     .mode         = mode,
-    .ranges       = range_init_values,
-    .ranges_sz    = range_init_sz,     // note const
+    .ranges       = ranges,
+    .ranges_sz    = ranges_sz,     // note const
+
     .range_idx    = 0,
   };
 
