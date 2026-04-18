@@ -25,6 +25,7 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/device/interrupt-fpga0.c \
             src/device/interrupt-systick.c \
             src/device/support.c \
+            src/device/timer5.c \
             src/agg/font-span.cpp src/agg/font-outline.cpp \
             src/agg/arial-outline.cpp src/agg/arial-span-18.cpp  src/agg/arial-span-72.cpp \
             src/agg/tft-test2.cpp src/agg/tft-test3.cpp src/agg/tft-test4.cpp src/agg/tft-test5.cpp src/agg/tft-test6.cpp \
