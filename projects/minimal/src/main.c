@@ -1,11 +1,13 @@
 
+
 /*
-  create app_t dependencies
-  create app_t,
-  loop on app_update()
+  tasks
+    set up clocks
+    create app_t dependencies
+    create app_t,
+    loop on app_update()
 
 */
-
 
 
 
@@ -146,7 +148,7 @@ static int main_f429(void)
 
 
 
-  // not for f4?
+  // not available for f4?
   // rcc_set_mco1_source(RCC_CFGR_MCO1_LSE);
 
 
@@ -158,9 +160,12 @@ static int main_f429(void)
     setup the critical error led blink in priority
     because assert() uses it
 
-    TODO.   review - this wont work however
-          until gpio_status_led  has ports/pins configured.
+    TODO.   review -
+      this will not work however
+      not until gpio_status_led  has ports/pins configured.
 
+      it is not good to call any functions to reinitialize
+      but perhaps makes sense.
   */
   assert_critical_error_led_setup( GPIOA, GPIO9 );
 
