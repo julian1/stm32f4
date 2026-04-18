@@ -20,6 +20,20 @@
 #include <libopencm3/stm32/timer.h>
 
 
+#if 0
+  competes with mic1557
+
+  printf("----------\nsetting up timer\n");
+  uint32_t timer = TIM5;
+  timer_port_setup();
+  timer_setup( timer );
+  timer_set_frequency( timer, 15000 );    // need to know the main mcu clock freq to do this.
+#endif
+                                          // perhaps record with the timer?
+                                          // as device.
+
+
+
 
 // this all looks ok. to me.
 // is something else trying
