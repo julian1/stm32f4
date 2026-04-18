@@ -139,6 +139,8 @@ typedef struct _4094_state_t
 
 
 
+  // flag that something changed.
+  // bool retrigger ;
 
 
 } _4094_state_t;

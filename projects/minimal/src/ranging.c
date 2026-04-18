@@ -48,11 +48,8 @@ const range_t * ranging_active_range( ranging_t *ranging)
   // printf("active range %u\n" ,   ranging->range_idx );
 
   assert( ranging->range_idx < ranging->ranges_sz);
-
   const range_t *range  = & ranging->ranges[ ranging->range_idx];
-
   return range;
-
 }
 
 
@@ -100,10 +97,6 @@ static bool ranging_range_dir_valid( ranging_t *ranging, uint32_t range_idx, boo
 }
 
 
-/*
-  OK. this needs the mode passed to it.
-
-*/
 
 static void ranging_range_switch( ranging_t *ranging, uint32_t range_idx)
 {
@@ -128,17 +121,11 @@ static void ranging_range_switch( ranging_t *ranging, uint32_t range_idx)
 
 
 
-#if 0
-  // force retrigger to clear buffers
-  // HMMMMM.....
-  // this is a problem
-  ranging->repl_retrigger = true;
-#endif
-
   // who clears this????
-  // has to be done on state transition.  which is messy.
-  ranging->retrigger = true;
+  // it is cleared by app_t after state transistion.  which is messy.
+  // EXTR.  consider put a flag on the mode... instead.
 
+  ranging->retrigger = true;
 }
 
 
