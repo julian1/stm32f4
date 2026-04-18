@@ -247,33 +247,9 @@ typedef struct app_t
   uint32_t      *line_freq;
 
 
-  //////////////
-
-/*
-  // consider injecting into a ranging_t structure - to allow it to write the mode.
-  // instead of handling at top level.
-  // these are const.
-  const range_t *ranges;      // including cal co-efficients
-  const size_t  ranges_sz;
-
-  unsigned      *range_idx;    // active range TODO rename active_range_idx.
-*/
-  /* choice, is putting this in app or in mode.
-    - it is bad to put it mode, because it is not actually state written to the board.
-    - for mode_reset, we really expect a clear/fixed state point. and putting it in mode ensures this.
-    - but this is a rangeing concept, and there are only a few places where use ranges, and need to consider it
-    */
-  // bool          range_10Meg ;
-
 
   ranging_t     *ranging;
-  ////////////////////////
 
-
-  // there is a bit of confusion (or potential for state mismatch) between range and the active mode.
-  // but we need to permit the mode to deviate (eg. for adc settings/nplc, LTS,  etc).
-
-  ////////////
 
   cal_t         *cal;
 
@@ -343,6 +319,18 @@ void app_repl_statements(app_t *app,  const char *s);
 ////////
 
 
+
+// consider move to test/test.h.
+
+bool app_test_repl_statement( app_t *app,  const char *cmd);
+
+
+
+
+
+
+
+
 // range functions
 /* these really look like should work over common structure
 
@@ -362,8 +350,20 @@ bool app_repl_range( app_t *app, const char *cmd);
 #endif
 
 
-// consider move to test/test.h.
+/*
+  // consider injecting into a ranging_t structure - to allow it to write the mode.
+  // instead of handling at top level.
+  // these are const.
+  const range_t *ranges;      // including cal co-efficients
+  const size_t  ranges_sz;
 
-bool app_test_repl_statement( app_t *app,  const char *cmd);
+  unsigned      *range_idx;    // active range TODO rename active_range_idx.
+*/
+  /* choice, is putting this in app or in mode.
+    - it is bad to put it mode, because it is not actually state written to the board.
+    - for mode_reset, we really expect a clear/fixed state point. and putting it in mode ensures this.
+    - but this is a rangeing concept, and there are only a few places where use ranges, and need to consider it
+    */
+  // bool          range_10Meg ;
 
 
