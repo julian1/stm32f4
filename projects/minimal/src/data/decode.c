@@ -247,35 +247,35 @@ bool decode_repl_statement( decode_t *decode,  const char *cmd)
 
 #if 0
 
-mar 12. 2026. move this into a test. sampling lo 10.
+  mar 12. 2026. move this into a test. sampling lo 10.
 
-nose seems lower in the morning. 6.50am.
-nplc 10.
+  nose seems lower in the morning. 6.50am.
+  nplc 10.
 
-> first=1 idx=0 seq_n=2, counts pos 1975984 neg 2025255 sig 4000001,
-first=0 idx=1 seq_n=2, counts pos 1976354 neg 2025634 sig 4000001, sum 0.23, LO-10, read -0.000,000,82V, (0, 0), mean   -0.000,000,82V, stddev 0.000,000,00V,
-first=0 idx=0 seq_n=2, counts pos 1975946 neg 2025216 sig 4000001,
-first=0 idx=1 seq_n=2, counts pos 1976352 neg 2025632 sig 4000001, sum 0.13, LO-10, read -0.000,000,46V, (1, 1), mean   -0.000,000,64V, stddev 0.000,000,18V,
-first=0 idx=0 seq_n=2, counts pos 1976348 neg 2025628 sig 4000001,
-first=0 idx=1 seq_n=2, counts pos 1976354 neg 2025634 sig 4000001, sum 0.15, LO-10, read -0.000,000,52V, (2, 2), mean   -0.000,000,60V, stddev 0.000,000,16V,
-first=0 idx=0 seq_n=2, counts pos 1976348 neg 2025628 sig 4000001,
-first=0 idx=1 seq_n=2, counts pos 1976316 neg 2025595 sig 4000001, sum 0.20, LO-10, read -0.000,000,70V, (3, 3), mean   -0.000,000,63V, stddev 0.000,000,14V,
-first=0 idx=0 seq_n=2, counts pos 1976347 neg 2025627 sig 4000001,
-first=0 idx=1 seq_n=2, counts pos 1976316 neg 2025595 sig 4000001, sum 0.22, LO-10, read -0.000,000,79V, (4, 4), mean   -0.000,000,66V, stddev 0.000,000,14V,
-first=0 idx=0 seq_n=2, counts pos 1976349 neg 2025629 sig 4000001,
-first=0 idx=1 seq_n=2, counts pos 1976318 neg 2025597 sig 4000001, sum 0.22, LO-10, read -0.000,000,79V, (5, 5), mean   -0.000,000,68V, stddev 0.000,000,14V,
-first=0 idx=0 seq_n=2, counts pos 1976351 neg 2025631 sig 4000001,
-first=0 idx=1 seq_n=2, counts pos 1976354 neg 2025634 sig 4000001, sum 0.07, LO-10, read -0.000,000,26V, (6, 6), mean   -0.000,000,62V, stddev 0.000,000,20V,
-first=0 idx=0 seq_n=2, counts pos 1975945 neg 2025215 sig 4000001,
-first=0 idx=1 seq_n=2, counts pos 1976315 neg 2025594 sig 4000001, sum 0.23, LO-10, read -0.000,000,82V, (7, 7), mean   -0.000,000,65V, stddev 0.000,000,19V,
-first=0 idx=0 seq_n=2, counts pos 1976346 neg 2025626 sig 4000001,
-first=0 idx=1 seq_n=2, counts pos 1976353 neg 2025633 sig 4000001, sum 0.17, LO-10, read -0.000,000,61V, (8, 8), mean   -0.000,000,64V, stddev 0.000,000,18V,
-first=0 idx=0 seq_n=2, counts pos 1976348 neg 2025628 sig 4000001,
-first=0 idx=1 seq_n=2, counts pos 1976354 neg 2025634 sig 4000001, sum 0.15, LO-10, read -0.000,000,52V, (9, 9), mean   -0.000,000,63V, stddev 0.000,000,18V,
-first=0 idx=0 seq_n=2, counts pos 1975945 neg 2025215 sig 4000001,
-first=0 idx=1 seq_n=2, counts pos 1976353 neg 2025633 sig 4000001, sum 0.18, LO-10, read -0.000,000,64V, (0, 10), mean   -0.000,000,61V, stddev 0.000,000,17V,
-first=0 idx=0 seq_n=2, counts pos 1976348 neg 2025628 sig 4000001,
-first=0 idx=1 seq_n=2, counts pos 1976317 neg 2025596 sig 4000001, sum 0.22, LO-10, read -0.000,000,79V, (1, 10), mean   -0.000,000,65V, stddev 0.000,000,17V,
+  > first=1 idx=0 seq_n=2, counts pos 1975984 neg 2025255 sig 4000001,
+  first=0 idx=1 seq_n=2, counts pos 1976354 neg 2025634 sig 4000001, sum 0.23, LO-10, read -0.000,000,82V, (0, 0), mean   -0.000,000,82V, stddev 0.000,000,00V,
+  first=0 idx=0 seq_n=2, counts pos 1975946 neg 2025216 sig 4000001,
+  first=0 idx=1 seq_n=2, counts pos 1976352 neg 2025632 sig 4000001, sum 0.13, LO-10, read -0.000,000,46V, (1, 1), mean   -0.000,000,64V, stddev 0.000,000,18V,
+  first=0 idx=0 seq_n=2, counts pos 1976348 neg 2025628 sig 4000001,
+  first=0 idx=1 seq_n=2, counts pos 1976354 neg 2025634 sig 4000001, sum 0.15, LO-10, read -0.000,000,52V, (2, 2), mean   -0.000,000,60V, stddev 0.000,000,16V,
+  first=0 idx=0 seq_n=2, counts pos 1976348 neg 2025628 sig 4000001,
+  first=0 idx=1 seq_n=2, counts pos 1976316 neg 2025595 sig 4000001, sum 0.20, LO-10, read -0.000,000,70V, (3, 3), mean   -0.000,000,63V, stddev 0.000,000,14V,
+  first=0 idx=0 seq_n=2, counts pos 1976347 neg 2025627 sig 4000001,
+  first=0 idx=1 seq_n=2, counts pos 1976316 neg 2025595 sig 4000001, sum 0.22, LO-10, read -0.000,000,79V, (4, 4), mean   -0.000,000,66V, stddev 0.000,000,14V,
+  first=0 idx=0 seq_n=2, counts pos 1976349 neg 2025629 sig 4000001,
+  first=0 idx=1 seq_n=2, counts pos 1976318 neg 2025597 sig 4000001, sum 0.22, LO-10, read -0.000,000,79V, (5, 5), mean   -0.000,000,68V, stddev 0.000,000,14V,
+  first=0 idx=0 seq_n=2, counts pos 1976351 neg 2025631 sig 4000001,
+  first=0 idx=1 seq_n=2, counts pos 1976354 neg 2025634 sig 4000001, sum 0.07, LO-10, read -0.000,000,26V, (6, 6), mean   -0.000,000,62V, stddev 0.000,000,20V,
+  first=0 idx=0 seq_n=2, counts pos 1975945 neg 2025215 sig 4000001,
+  first=0 idx=1 seq_n=2, counts pos 1976315 neg 2025594 sig 4000001, sum 0.23, LO-10, read -0.000,000,82V, (7, 7), mean   -0.000,000,65V, stddev 0.000,000,19V,
+  first=0 idx=0 seq_n=2, counts pos 1976346 neg 2025626 sig 4000001,
+  first=0 idx=1 seq_n=2, counts pos 1976353 neg 2025633 sig 4000001, sum 0.17, LO-10, read -0.000,000,61V, (8, 8), mean   -0.000,000,64V, stddev 0.000,000,18V,
+  first=0 idx=0 seq_n=2, counts pos 1976348 neg 2025628 sig 4000001,
+  first=0 idx=1 seq_n=2, counts pos 1976354 neg 2025634 sig 4000001, sum 0.15, LO-10, read -0.000,000,52V, (9, 9), mean   -0.000,000,63V, stddev 0.000,000,18V,
+  first=0 idx=0 seq_n=2, counts pos 1975945 neg 2025215 sig 4000001,
+  first=0 idx=1 seq_n=2, counts pos 1976353 neg 2025633 sig 4000001, sum 0.18, LO-10, read -0.000,000,64V, (0, 10), mean   -0.000,000,61V, stddev 0.000,000,17V,
+  first=0 idx=0 seq_n=2, counts pos 1976348 neg 2025628 sig 4000001,
+  first=0 idx=1 seq_n=2, counts pos 1976317 neg 2025596 sig 4000001, sum 0.22, LO-10, read -0.000,000,79V, (1, 10), mean   -0.000,000,65V, stddev 0.000,000,17V,
 #endif
 
 
