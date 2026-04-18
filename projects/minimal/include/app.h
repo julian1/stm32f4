@@ -78,20 +78,13 @@ typedef struct display_tft_t display_tft_t;
 
 typedef struct common_t
 {
-  /* system state properties where values often change. and which must be shared between more than one module
-      also require repl setting.
+  /* consider a struct  for common properties that need to be shared out between modules
 
   */
-  // and dont
-  // uint32_t magic;
 
   volatile uint32_t system_millis;
 
   uint32_t      line_freq;
-
-  unsigned      range_idx;    // active range TODO rename range_active_idx.
-
-  bool          range_10Meg;
 
   unsigned      ndigits;
 
@@ -316,54 +309,11 @@ bool app_repl_statement(app_t *app,  const char *cmd);
 void app_repl_statements(app_t *app,  const char *s);
 
 
-////////
-
-
-
 // consider move to test/test.h.
 
 bool app_test_repl_statement( app_t *app,  const char *cmd);
 
 
 
-
-
-
-
-
-// range functions
-/* these really look like should work over common structure
-
-    - and make range_idx a non pointer.
-      but decode_t needs range_idx.
-      hmmm....
-
-      pass range_t to decode ? perhaps?
-*/
-
-#if 0
-bool app_range_dir_valid( app_t *app, uint32_t range_idx, bool dir);
-void app_range_switch( app_t *app, uint32_t range_idx);
-void app_range_switch1( app_t *app, const char *name, const char *arg);
-bool app_repl_range( app_t *app, const char *cmd);
-
-#endif
-
-
-/*
-  // consider injecting into a ranging_t structure - to allow it to write the mode.
-  // instead of handling at top level.
-  // these are const.
-  const range_t *ranges;      // including cal co-efficients
-  const size_t  ranges_sz;
-
-  unsigned      *range_idx;    // active range TODO rename active_range_idx.
-*/
-  /* choice, is putting this in app or in mode.
-    - it is bad to put it mode, because it is not actually state written to the board.
-    - for mode_reset, we really expect a clear/fixed state point. and putting it in mode ensures this.
-    - but this is a rangeing concept, and there are only a few places where use ranges, and need to consider it
-    */
-  // bool          range_10Meg ;
 
 
