@@ -33,8 +33,8 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/display_vfd.c \
             src/main.c  \
             src/app.c  \
-            src/syscalls.o \
-            src/mode.o \
+            src/syscalls.c \
+            src/mode.c \
             src/lzo_test.c \
             src/support.c \
             src/data/decode.c src/data/data.c   src/data/cal.c src/data/buffer.c src/data/range.c  \
