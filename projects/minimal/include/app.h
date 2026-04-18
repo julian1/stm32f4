@@ -74,26 +74,6 @@ typedef struct display_tft_t display_tft_t;
 
 
 
-#if 0
-
-typedef struct common_t
-{
-  /* consider a struct  for common properties that need to be shared out between modules
-
-  */
-
-  volatile uint32_t system_millis;
-
-  uint32_t      line_freq;
-
-  unsigned      ndigits;
-
-
-} common_t;
-
-#endif
-
-
 
 typedef struct app_t
 {
@@ -234,9 +214,9 @@ typedef struct app_t
 
   ////////////////////////
 
-  // line_freq is environment property
+  // line_freq is an environment property
   // does it belong in cal or data?
-  // issue is that the tests code wants easy access
+  // issue is that it is needed in many places eg. tests, cal
   uint32_t      *line_freq;
 
 
@@ -304,6 +284,7 @@ void app_repl_statements(app_t *app,  const char *s);
 
 // consider move to test/test.h.
 bool app_test_repl_statement( app_t *app,  const char *cmd);
+
 
 
 

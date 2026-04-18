@@ -1029,120 +1029,6 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, uint32_t line_freq)
 
 
 
-#if 0
-/*
-  these functions are typeed on app.
-  leave here, rather than moving to range.c
-    --------------
-
-  actually do not really need access to app.   because repl will automatically update.
-  could inject into ranging.c  structure.
-
-*/
-
-bool app_range_dir_valid( app_t *app, uint32_t range_idx, bool dir)    // 1 up. 0 down
-{
-  assert(app && app->magic == APP_MAGIC);
-  assert( range_idx < app->ranges_sz );   // watch out for signess casts.
-
-
-  const range_t *range = &app->ranges[ range_idx];
-
-  return (dir == 1 && !range->top_sentinal)
-    || (dir == 0 && !range->bot_sentinal);
-}
-
-
-
-void app_range_switch( app_t *app, uint32_t range_idx)
-{
-  assert(app && app->magic == APP_MAGIC);
-
-  printf("here2 range idx %lu\n", range_idx);   // is 50???
-
-  // range_idx is unsigned and expected to be valid
-  assert( range_idx < app->ranges_sz );   // watch out for signess casts.
-
-  // set the current range_idx. used for decode_update_data
-  *(app->range_idx) = range_idx;
-
-
-  // apply the range mode state transition
-  const range_t *range = &app->ranges[ range_idx];
-  assert( range);
-  assert( range->range_set_mode);
-
-  printf( "switch to %s-%s\n", range->name, range->arg);
-
-  range->range_set_mode( range, app->mode, app->range_10Meg);
-
-  // force retrigger to clear buffers
-  app->repl_retrigger = true;
-}
-
-
-
-void app_range_switch1( app_t *app, const char *name, const char *arg)
-{
-  assert(app && app->magic == APP_MAGIC);
-
-  // assert() that the range exists
-
-  int32_t range_idx = range_get_idx( app->ranges, app->ranges_sz, name, arg);
-
-
-  assert( range_idx >= 0 && range_idx < (int) app->ranges_sz);
-
-  app_range_switch( app, range_idx);
-}
-
-
-
-
-
-
-bool app_repl_range( app_t *app, const char *cmd)
-{
-  assert(app && app->magic == APP_MAGIC);
-
-  char name[ 100 + 1];
-  char arg[ 100 + 1];
-
-  // perhaps sscanf will do this - if second argument is not found?
-  arg[ 0] = 0;
-
-
-  unsigned n = sscanf(cmd, "%100s %100s", name, arg);
-
-  // handle no argument version of this also
-  if( n == 2 || n == 1) {
-
-    int32_t range_idx = range_get_idx( app->ranges, app->ranges_sz, name, arg);
-
-    printf("here0 range idx %ld\n", range_idx);   // is 50???
-
-    assert( range_idx < (int) app->ranges_sz);
-
-    if( range_idx >= 0) {
-
-      printf("calling range switch\n");
-      app_range_switch( app, range_idx);
-      return true;
-    }
-    else {
-
-      printf("range not found\n");
-    }
-
-  }
-
-  return false;
-}
-
-#endif
-
-
-
 bool app_repl_statement( app_t *app,  const char *cmd)
 {
 
@@ -1181,36 +1067,6 @@ bool app_repl_statement( app_t *app,  const char *cmd)
     printf("empty\n" );
   }
 
-
-
-
-#if 0
-
-  /*
-      TODO consider  move this code to app_repl_range
-  */
-  // 'u' up in range
-  else if(strcmp(cmd, "u") == 0) {
-
-    bool ret = app_range_dir_valid( app, *app->range_idx, 1);
-    if(ret) {
-      ++app->range_idx;
-      app_range_switch( app, *app->range_idx);
-    }
-  }
-  // 'd' down in range
-  else if(strcmp(cmd, "d") == 0) {
-
-    bool ret = app_range_dir_valid( app, *app->range_idx, 0);
-    if(ret) {
-      --app->range_idx;
-      app_range_switch( app, *app->range_idx);
-    }
-  }
-
-#endif
-
-
   // "t" to trigger
   else if(strcmp(cmd, "trig") == 0 || strcmp(cmd, "t") == 0) {
 
@@ -1223,7 +1079,6 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
     app->repl_trigger_val = false;
   }
-
 
 
 
@@ -1303,35 +1158,8 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 #endif
 
 
-  // TODO move vfd to test code.
-
-#if 0
-  else if( strcmp( cmd, "vfd") == 0) {
-    // vfd
-
-
-    fsmc_gpio_setup();
-
-
-    // fsmc_setup( 12 );   // slow.
-    // with divider == 1. is is easier to see the address is already well asserted on WR rising edge. before CS.
-    // fsmc_setup( 1 );   // fase.
-    // vfd_dev_gpio_init();
-
-    // app_msleep( app, 10);
-
-
-    ///////////
-    display_vfd_init(  &app->system_millis);
-
-    vfd_do_something();
-  }
-#endif
-
-
-
-
   else if(strcmp(cmd, "assert 0") == 0) {
+
     // test assert(0);
     assert(0);
   }
@@ -1500,6 +1328,120 @@ void app_repl_statements(app_t *app,  const char *s)
 
 
 
+#if 0
+/*
+  these functions are typeed on app.
+  leave here, rather than moving to range.c
+    --------------
+
+  actually do not really need access to app.   because repl will automatically update.
+  could inject into ranging.c  structure.
+
+*/
+
+bool app_range_dir_valid( app_t *app, uint32_t range_idx, bool dir)    // 1 up. 0 down
+{
+  assert(app && app->magic == APP_MAGIC);
+  assert( range_idx < app->ranges_sz );   // watch out for signess casts.
+
+
+  const range_t *range = &app->ranges[ range_idx];
+
+  return (dir == 1 && !range->top_sentinal)
+    || (dir == 0 && !range->bot_sentinal);
+}
+
+
+
+void app_range_switch( app_t *app, uint32_t range_idx)
+{
+  assert(app && app->magic == APP_MAGIC);
+
+  printf("here2 range idx %lu\n", range_idx);   // is 50???
+
+  // range_idx is unsigned and expected to be valid
+  assert( range_idx < app->ranges_sz );   // watch out for signess casts.
+
+  // set the current range_idx. used for decode_update_data
+  *(app->range_idx) = range_idx;
+
+
+  // apply the range mode state transition
+  const range_t *range = &app->ranges[ range_idx];
+  assert( range);
+  assert( range->range_set_mode);
+
+  printf( "switch to %s-%s\n", range->name, range->arg);
+
+  range->range_set_mode( range, app->mode, app->range_10Meg);
+
+  // force retrigger to clear buffers
+  app->repl_retrigger = true;
+}
+
+
+
+void app_range_switch1( app_t *app, const char *name, const char *arg)
+{
+  assert(app && app->magic == APP_MAGIC);
+
+  // assert() that the range exists
+
+  int32_t range_idx = range_get_idx( app->ranges, app->ranges_sz, name, arg);
+
+
+  assert( range_idx >= 0 && range_idx < (int) app->ranges_sz);
+
+  app_range_switch( app, range_idx);
+}
+
+
+
+
+
+
+bool app_repl_range( app_t *app, const char *cmd)
+{
+  assert(app && app->magic == APP_MAGIC);
+
+  char name[ 100 + 1];
+  char arg[ 100 + 1];
+
+  // perhaps sscanf will do this - if second argument is not found?
+  arg[ 0] = 0;
+
+
+  unsigned n = sscanf(cmd, "%100s %100s", name, arg);
+
+  // handle no argument version of this also
+  if( n == 2 || n == 1) {
+
+    int32_t range_idx = range_get_idx( app->ranges, app->ranges_sz, name, arg);
+
+    printf("here0 range idx %ld\n", range_idx);   // is 50???
+
+    assert( range_idx < (int) app->ranges_sz);
+
+    if( range_idx >= 0) {
+
+      printf("calling range switch\n");
+      app_range_switch( app, range_idx);
+      return true;
+    }
+    else {
+
+      printf("range not found\n");
+    }
+
+  }
+
+  return false;
+}
+
+#endif
+
+
+
 
 #if 0
 static bool app_repl_range( app_t *app, const char *cmd)
@@ -1527,6 +1469,31 @@ static bool app_repl_range( app_t *app, const char *cmd)
 
 
 
+
+
+
+#if 0
+  else if( strcmp( cmd, "vfd") == 0) {
+    // vfd
+
+
+    fsmc_gpio_setup();
+
+
+    // fsmc_setup( 12 );   // slow.
+    // with divider == 1. is is easier to see the address is already well asserted on WR rising edge. before CS.
+    // fsmc_setup( 1 );   // fase.
+    // vfd_dev_gpio_init();
+
+    // app_msleep( app, 10);
+
+
+    ///////////
+    display_vfd_init(  &app->system_millis);
+
+    vfd_do_something();
+  }
+#endif
 
 
 
