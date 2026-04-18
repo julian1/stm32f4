@@ -51,8 +51,10 @@ typedef struct data_t
 
   reg_sr_t status;
 
-  // need to record to support cal w
-  // TODO. prefix adc_clock_count...
+  /*
+    data_t is more high-level structure
+    only reason to record the counts here is to support cal w
+  */
   uint32_t adc_clk_count_refmux_pos;
   uint32_t adc_clk_count_refmux_neg;
   uint32_t adc_clk_count_sigmux;        // also needed to report nplc in ui.
