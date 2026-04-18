@@ -8,7 +8,7 @@
 
 
 #include <agg/font-span.h>
-#include <agg/tft-display.h>
+#include <agg/display-tft.h>
 
 
 

@@ -68,8 +68,8 @@
 // #include <data/aggregate.h>
 //#include <data/ranging.h>
 
-#include <vfd-display.h>
-#include <agg/tft-display.h>
+#include <display-vfd.h>
+#include <agg/display-tft.h>
 
 
 

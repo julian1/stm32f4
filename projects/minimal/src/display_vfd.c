@@ -26,7 +26,7 @@
 #include <peripheral/vfd-font-small.h>
 #include <peripheral/vfd-font-large.h>
 
-#include <vfd-display.h>
+#include <display-vfd.h>
 
 
 

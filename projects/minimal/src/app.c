@@ -55,8 +55,8 @@
 
 
 #include <device/vfd0.h>      // device needed here, because we defer initialization of device
-#include <vfd-display.h>
-#include <agg/tft-display.h>
+#include <display-vfd.h>
+#include <agg/display-tft.h>
 
 
 

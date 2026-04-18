@@ -12,7 +12,7 @@
 
 
 #include <agg/font-outline.h>
-#include <agg/tft-display.h>
+#include <agg/display-tft.h>
 
 
 
