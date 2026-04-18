@@ -12,40 +12,6 @@
 
 #include <device/fsmc.h>
 
-// #include "util.h"      // msleep
-// #include "streams.h"  // printf
-
-
-#if 0
-#define TFT_GPIO_PORT       GPIOE
-#define TFT_REST            GPIO1
-#define TFT_LED_A           GPIO2   // unused, due to jumper.
-
-#endif
-
-/*
-  pin only shows a 1.5V signal...
-
-  TE  p50 ssd1963 ref voltage is VDDLCD
-  LCD interface supply power (VDDLCD): 1.65V to 3.6V
-  ----
-  Issue is that pin was bridged.
-  Also old bodge was tied to interrupt of xt2046.
-*/
-
-/*
-// Mapped to spi2 nss2 unused. using bodge wire.  ssd1963 TE tear interrupt pin.
-#define TEAR_PORT           GPIOB
-#define TEAR_IRQ            GPIO9
-*/
-
-#if 0
-// control-panel-2 / spectra184
-#define TEAR_PORT           GPIOE
-#define TEAR_IRQ            GPIO3
-
-#endif
-
 
 
 
@@ -132,52 +98,10 @@ void fsmc_gpio_setup()
   gpio_set_af(GPIOE, GPIO_AF12, porte_address_lines);
 
 
-
-
-
 }
 
 
 
-
-#if 0
-  // led is required....
-  gpio_mode_setup(TFT_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, TFT_LED_A |  TFT_REST);
-
-  // ssd1963 tear irq. bodge wire.
-  gpio_mode_setup(TEAR_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, TEAR_IRQ);
-#endif
-
-
-
-#if 0
-
-bool getTear()
-{
-  // TODO better prefix name. tft_get_tear() ?
-  // hi tft stopped, means we should draw .
-  // return gpio_get(TFT_GPIO_PORT, TFT_T_IRQ) & (0x01 << 3);
-  return gpio_get(TEAR_PORT, TEAR_IRQ) != 0 ;
-}
-
-
-
-void tft_reset(void )
-{
-
-  usart1_printf("pull reset lo\n");
-  // reset. pull lo then high.
-  gpio_clear( TFT_GPIO_PORT, TFT_REST);
-  msleep(20);
-  usart1_printf("pull reset hi\n");
-  gpio_set( TFT_GPIO_PORT, TFT_REST);
-  msleep(20);
-
-  // backlight must be on, to see anything.
-  gpio_set( TFT_GPIO_PORT, TFT_LED_A ); // turn on backlight. works!!!
-}
-
-#endif
 
 
 void fsmc_setup( uint8_t divider)
