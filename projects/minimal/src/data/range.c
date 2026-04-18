@@ -558,18 +558,9 @@ static void range_reading_format(
     range_format_unit()   function
 */
 
-/*
-  TODO
-    change this interface to a function.
 
-  size_t range_init(  range_t *ranges, size_t  sz);   // or size_t elts.
 
-    eg.
-      - pass the memory to be used.
-      - and the size  limit
-      - and return the sz of ranges that were created...
 
-*/
 
 
 size_t ranges_init( range_t *ranges, size_t sz)
@@ -577,7 +568,7 @@ size_t ranges_init( range_t *ranges, size_t sz)
 
   const range_t temp[] = {
 
-    //              name    arg     sentinels         unit  set_mode    convert to reading    format          autorange predicate
+    // magic        name    arg     sentinels         unit  set_mode    convert to reading    format          autorange predicate
     { RANGE_MAGIC,  "REF",  "",     true,   true,     range_ref,  range_reading_normal, range_reading_format,   NULL,             },
 
     { RANGE_MAGIC,  "LO",   "0.01", true,   false,    range_lo,   range_reading_normal, range_reading_format,   NULL,             },
@@ -618,46 +609,6 @@ size_t ranges_init( range_t *ranges, size_t sz)
 }
 
 
-#if 0
-
-const range_t range_init_values[] = {
-
-  //              name    arg     sentinels         unit  set_mode    convert to reading    format          autorange predicate
-  { RANGE_MAGIC,  "REF",  "",     true,   true,     range_ref,  range_reading_normal, range_reading_format,   NULL,             },
-
-  { RANGE_MAGIC,  "LO",   "0.01", true,   false,    range_lo,   range_reading_normal, range_reading_format,   NULL,             },
-  { RANGE_MAGIC,  "LO",   "0.1",  false,  false,    range_lo,   range_reading_normal, range_reading_format,   NULL,             },
-  { RANGE_MAGIC,  "LO",   "1",    false,  false,    range_lo,   range_reading_normal, range_reading_format,   NULL,             },
-  { RANGE_MAGIC,  "LO",   "10",   false,  true,     range_lo,   range_reading_normal, range_reading_format,   NULL,             },
-
-  { RANGE_MAGIC,  "LO2",  "0.01", true,   false,    range_lo2,  range_reading_normal, range_reading_format,   NULL,             },
-  { RANGE_MAGIC,  "LO2",  "0.1",  false,  false,    range_lo2,  range_reading_normal, range_reading_format,   NULL,             },
-  { RANGE_MAGIC,  "LO2",  "1",    false,  false,    range_lo2,  range_reading_normal, range_reading_format,   NULL,             },
-  { RANGE_MAGIC,  "LO2",  "10",   false,  true,     range_lo2,  range_reading_normal, range_reading_format,   NULL,             },
-
-
-  { RANGE_MAGIC,  "DCV",  "0.01", true,   false,    range_dcv,  range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
-  { RANGE_MAGIC,  "DCV",  "0.1",  false,  false,    range_dcv,  range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
-  { RANGE_MAGIC,  "DCV",  "1",    false,  false,    range_dcv,  range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
-  { RANGE_MAGIC,  "DCV",  "10",   false,  false,    range_dcv,  range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
-  { RANGE_MAGIC,  "DCV",  "100",  false,  false,    range_dcv,  range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
-  { RANGE_MAGIC,  "DCV",  "1000", false,  true,     range_dcv,  range_reading_dcv,    range_reading_format,   range_dcv_pred,   },
-
-  { RANGE_MAGIC,  "TEMP", "",     true,   true,     range_temp, range_reading_temp,   range_reading_format,   NULL,             },
-
-  { RANGE_MAGIC,  "LTS",  "0.01", true,   false,    range_lts,  range_reading_normal, range_reading_format,   NULL,             },  // better name, LTS or DCV LTS.
-  { RANGE_MAGIC,  "LTS",  "0.1",  false,  false,    range_lts,  range_reading_normal, range_reading_format,   NULL,             },
-  { RANGE_MAGIC,  "LTS",  "1",    false,  false,    range_lts,  range_reading_normal, range_reading_format,   NULL,             },
-  { RANGE_MAGIC,  "LTS",  "10",   false,  true,     range_lts,  range_reading_normal, range_reading_format,   NULL,             }
-
-
-};
-
-const size_t range_init_sz = ARRAY_SIZE( range_init_values );
-
-#endif
-
-
 
 /*
 Passing a NULL pointer as an argument to strcasecmp results in undefined
@@ -666,41 +617,4 @@ behavior. The function expects valid, null-terminated strings as its arguments.
 
 
 
-
-#if 0
-  // check range idx matches id.
-  // consider factor this out to range.c
-  for( unsigned i = 0; i < app.ranges_sz ; ++i )  {
-
-    range_t *range = &app.ranges[ i];
-    assert( range->id == i);
-    assert( range->name);
-  }
-#endif
-
-
-
-
-/*
-  we may need a calibration range...
-  for front/ v rear terminals.
-  ---------
-
-  - consider -  placing the cal structure here. rather than just sharing the index.
-  - on cal load. we write the cal coefficients.
-
-  - we pass extra data .  butthere is no reason. into this static structure.
-  - it could simplify.
-  ----------------
-
-  eg. the loading from flash would be interspersed....
-    and the cal_w would be a separate variable..
-
-  ---------------------------
-
-  this would be a lot simpler...
-
-  Like how Microsoft Office - internal COM/  works - with arrays and active index.
-
-*/
 

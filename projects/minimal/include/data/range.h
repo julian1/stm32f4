@@ -124,16 +124,5 @@ struct range_t
 
 
 
-size_t ranges_init( range_t *ranges, size_t sz);   // or size_t for elts.
-
-/*
-
-// forward declaration
-// do not use global ... use app->range_values instead
-// may be better manage this with a  reset() singleton.
-extern const range_t  range_init_values[];
-
-extern const size_t range_init_sz ;
-
-*/
+size_t ranges_init( range_t *ranges, size_t sz);
 
