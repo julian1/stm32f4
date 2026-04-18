@@ -121,10 +121,10 @@ static void ranging_range_switch( ranging_t *ranging, uint32_t range_idx)
 
 
 
-  // who clears this????
-  // it is cleared by app_t after state transistion.  which is messy.
-  // EXTR.  consider put a flag on the mode... instead.
-
+  /*  who clears this????
+    it is cleared by app_t after state transistion.  which is messy.
+    consider could use a flag on the mode... instead.
+  */
   ranging->retrigger = true;
 }
 
@@ -132,12 +132,14 @@ static void ranging_range_switch( ranging_t *ranging, uint32_t range_idx)
 
 void ranging_range_switch1( ranging_t *ranging, const char *name, const char *arg)
 {
-  assert(ranging && ranging->magic == RANGING_MAGIC);
+  /*
+    for external callers.
+    asserts the range exists
+  */
 
-  // assert() that the range exists
+  assert( ranging && ranging->magic == RANGING_MAGIC);
 
   int32_t range_idx = range_get_idx( ranging->ranges, ranging->ranges_sz, name, arg);
-
 
   assert( range_idx >= 0 && range_idx < (int) ranging->ranges_sz);
 
@@ -175,27 +177,27 @@ bool ranging_repl_range( ranging_t *ranging, const char *cmd)
   if( sscanf(cmd, "10Meg %100s", s0) == 1
     && str_decode_uint( s0, &u0))  {
 
-      /*  the 10Meg. impedance state is a high-level range_t state concept and belongs in ranging_t rather than mode_t
-          ie. there is no use/relevance when not using ranges
-          we can still use the mode_t and write K403 directly whenever needed.
-          -------
-          for the same reason - we only need to set it, in tests etc, if we use a dcv ranges
-          so perhaps should move it out of mode_t. and explicitly set it, for the few cases that tests use the range function.
-          perhaps rename  range_10Meg.
-      */
-      _mode_t  *mode  = ranging->mode;
-      assert(mode && mode->magic == MODE_MAGIC);
+    /*  the 10Meg. impedance state is a high-level range_t state concept and belongs in ranging_t rather than mode_t
+        ie. there is no use/relevance when not using ranges
+        we can still use the mode_t and write K403 directly whenever needed.
+        -------
+        for the same reason - we only need to set it, in tests etc, if we use a dcv ranges
+        so perhaps should move it out of mode_t. and explicitly set it, for the few cases that tests use the range function.
+        perhaps rename  range_10Meg.
+    */
+    _mode_t  *mode  = ranging->mode;
+    assert(mode && mode->magic == MODE_MAGIC);
 
-      // set flag
-      ranging->range_10Meg = u0;
+    // set flag
+    ranging->range_10Meg = u0;
 
 
-      // re-apply range function
-      // this modifies the mode
-      ranging_range_switch( ranging, ranging->range_idx);
+    // re-apply range function
+    // which may modify the mode
+    ranging_range_switch( ranging, ranging->range_idx);
 
-      // set retrigger to clear data buffers
-      ranging->retrigger = true;
+    // set retrigger to clear data buffers
+    ranging->retrigger = true;
   }
 
 
