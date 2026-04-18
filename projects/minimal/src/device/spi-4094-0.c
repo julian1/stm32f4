@@ -23,6 +23,10 @@
 #define UNUSED(x) ((void)(x))
 
 
+
+#define _4094_MAGIC 546123
+
+
 static void setup(spi_t *spi)
 {
   UNUSED(spi);
@@ -62,7 +66,8 @@ static void port_configure( spi_t *spi_)
 
 static void cs_assert(spi_t *spi)
 {
-  // TODO magic
+  assert(spi && spi->magic == _4094_MAGIC);
+
   assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
 
@@ -72,6 +77,8 @@ static void cs_assert(spi_t *spi)
 
 static void cs_deassert(spi_t *spi)
 {
+  assert(spi && spi->magic == _4094_MAGIC);
+
   assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
 
@@ -84,11 +91,15 @@ void spi_4094_0_init( spi_t *spi)
   assert(spi);
   memset(spi, 0, sizeof(spi_t));
 
-
+  spi->magic        = _4094_MAGIC;
   spi->spi          = SPI1;     // consider, pass underlying spi in the contructor
   spi->setup        =  setup;
   spi->port_configure = port_configure;
   spi->cs_assert    = cs_assert;
   spi->cs_deassert  = cs_deassert;
 }
+
+
+
+
 
