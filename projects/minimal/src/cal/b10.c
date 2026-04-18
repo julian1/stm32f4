@@ -11,6 +11,8 @@
 
 #include <cal/transfer.h>
 #include <app.h>
+#include <ranging.h>
+
 #include <mode.h>
 #include <data/cal.h>
 
@@ -31,14 +33,14 @@ static void step1( app_t *app)
   mode_lts_source_set ( app->mode, 1.f );
 
   // reference range
-  app_range_switch1( app, "LTS", "10");
+  ranging_range_switch1( app->ranging, "LTS", "10");
 }
 
 
 static void step2( app_t *app)
 {
   // target range
-  app_range_switch1( app, "LTS", "1");
+  ranging_range_switch1( app->ranging, "LTS", "1");
 }
 
 

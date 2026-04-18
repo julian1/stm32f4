@@ -15,6 +15,7 @@
 #include <peripheral/gpio.h>        // trigger
 
 #include <app.h>
+#include <ranging.h>
 #include <cal/transfer.h>
 #include <lib2/stats.h>
 #include <support.h> // nplc_to_aperture()
@@ -104,8 +105,10 @@ void app_transfer( app_t *app, transfer_t *transfer)
   // sample off
   gpio_write( app->gpio_trigger, false);
 
-  // clear 10Meg because will use range changing
-  app->range_10Meg = false;
+  // clear ranging 10Meg because will use range changing
+  // app->range_10Meg = false;
+  app->ranging->range_10Meg = false;
+
 
   // reset mode
   mode_reset( mode);

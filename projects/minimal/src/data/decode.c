@@ -24,10 +24,11 @@
 
 #include <data/cal.h>
 #include <data/data.h>
-#include <data/decode.h>
 #include <data/range.h>
+#include <ranging.h>
 
 
+#include <data/decode.h>
 
 
 
@@ -36,36 +37,41 @@ void decode_init(
   decode_t  *decode,
   spi_t     *spi,
   cal_t     *cal,
+#if 0
   const range_t *ranges,
 
   // using pointers is a mess. line_freq could almost be instantiated here.
   // or use a separate structure passed to both app_t and decode_t ...
   // or pass on update_data()
   unsigned  *range_idx,
+#endif
+  ranging_t	*ranging,
   uint32_t  *line_freq
 )
 {
   // called once at initialization
 
   assert( decode);
-  assert( ranges);
-  assert( range_idx);
+  assert( ranging);
+  // assert( range_idx);
 
   memset( decode, 0, sizeof( decode_t));
   decode->magic = DECODE_MAGIC;
 
-
+  assert(cal && cal->magic == CAL_MAGIC);
 
   decode->spi       = spi;
-  decode->cal       = cal;    // provisiional
+  decode->cal       = cal;    // correct. like a singleton.
 
-
+#if 0
   // why not pass the range
   decode->ranges    = ranges;
 
 
   //  handling these as pointers is not great
   decode->range_idx = range_idx;
+#endif
+  decode->ranging = ranging;
 
   decode->line_freq = line_freq;
 
@@ -185,7 +191,16 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   if( data->valid) {
     //
-    const range_t *range  = &decode->ranges[ *decode->range_idx];
+    /*
+      only place/juncture where ranging active range . is
+      used to stamp the data_t.
+
+    */
+    // const range_t *range  = &decode->ranges[ *decode->range_idx];
+    const range_t *range = ranging_active_range( decode->ranging);
+    assert(range && range->magic == RANGE_MAGIC);
+
+
     assert( range);
     data->range     = range;
     data->cal       = cal;
@@ -198,6 +213,8 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     // normalized count
     data->count_sum_norm = data->count_sum  / data->adc_clk_count_sigmux;
 
+    // printf("cal %p\n", cal);
+    // printf("cal->w %lf\n", cal->w);
 
     // calculate reading for current range
     data->reading = range->range_reading_convert( range, cal, data->count_sum_norm);

@@ -595,28 +595,6 @@ const size_t range_init_sz = ARRAY_SIZE( range_init_values );
 
 
 
-int32_t range_get_idx( const range_t *ranges, size_t sz, const char *name, const char *arg )
-{
-  // TODO consider rename  lookup..  range_find_idx.
-
-  for( size_t i = 0; i < sz; ++i) {
-
-    const range_t *range = & ranges[ i];
-
-    if( strcasecmp( name, range->name) == 0
-      && strcasecmp( arg, range->arg) == 0
-    ) {
-
-      printf("found %s-%s\n", range->name, range->arg );
-      return i ;
-    }
-  }
-
-  return -1;
-}
-
-
-
 /*
 Passing a NULL pointer as an argument to strcasecmp results in undefined
 behavior. The function expects valid, null-terminated strings as its arguments.

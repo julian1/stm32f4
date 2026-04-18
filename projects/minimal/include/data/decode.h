@@ -17,6 +17,9 @@ typedef struct cal_t cal_t;
 typedef struct spi_t spi_t;
 typedef struct range_t range_t;
 typedef struct data_t data_t;
+typedef struct ranging_t ranging_t;
+
+
 
 
 // consider move to decode.c
@@ -30,6 +33,9 @@ typedef struct decode_t
 
   spi_t       *spi ;
   cal_t       *cal;
+
+
+#if 0
   const range_t *ranges;
 
 
@@ -38,6 +44,11 @@ typedef struct decode_t
     but then so could everything else
   */
   unsigned    *range_idx;    // current active range
+#endif
+
+  ranging_t   *ranging;
+
+
   uint32_t    *line_freq;
 
 
@@ -61,15 +72,16 @@ typedef struct decode_t
 
 
 
-
-
 void decode_init(
-  decode_t    *decode,
+  decode_t  *decode,
   spi_t     *spi,
-  cal_t *   cal,
+  cal_t     *cal,
+/*
   const range_t   *ranges,
-
   unsigned  *range_idx,
+*/
+  ranging_t *ranging,
+
   uint32_t  *line_freq
 );
 

@@ -2,6 +2,10 @@
 
 #pragma once
 
+
+
+#include <stdbool.h>
+
 /*
   the arrays should reference from app.
   although the cal values ....
@@ -51,8 +55,9 @@ typedef struct format_val_t
 
 
 
+typedef struct range_t range_t;
 
-typedef struct range_t
+struct range_t
 {
   // unsigned  id;     // same as index in range_t [] array
   // const char *repl_name;
@@ -113,16 +118,13 @@ typedef struct range_t
   int32_t (*range_ar_predicate)( range_t *range, /*status_reg, */ double v);
 
   //
-
-
-} range_t;
+};
 
 
 
 
 
 
-int32_t range_get_idx( const range_t *ranges, size_t sz, const char *name, const char *arg );
 
 
 // forward declaration

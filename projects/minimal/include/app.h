@@ -54,9 +54,10 @@ typedef struct spi_t spi_t;
 typedef struct spi_ice40_t spi_ice40_t;
 typedef struct interrupt_t interrupt_t;
 typedef struct cal_t cal_t;
-typedef struct range_t range_t;
 typedef struct _mode_t _mode_t;
-typedef struct data_t data_t;
+// typedef struct range_t range_t;
+// typedef struct data_t data_t;
+typedef struct ranging_t ranging_t;
 typedef struct decode_t decode_t;
 typedef struct buffer_t buffer_t;
 
@@ -248,6 +249,7 @@ typedef struct app_t
 
   //////////////
 
+/*
   // consider injecting into a ranging_t structure - to allow it to write the mode.
   // instead of handling at top level.
   // these are const.
@@ -255,7 +257,16 @@ typedef struct app_t
   const size_t  ranges_sz;
 
   unsigned      *range_idx;    // active range TODO rename active_range_idx.
+*/
+  /* choice, is putting this in app or in mode.
+    - it is bad to put it mode, because it is not actually state written to the board.
+    - for mode_reset, we really expect a clear/fixed state point. and putting it in mode ensures this.
+    - but this is a rangeing concept, and there are only a few places where use ranges, and need to consider it
+    */
+  // bool          range_10Meg ;
 
+
+  ranging_t     *ranging;
   ////////////////////////
 
 
@@ -279,14 +290,8 @@ typedef struct app_t
   bool          repl_trigger_val;
 
   // TODO consider rename repl_force_trigger.
-  bool          repl_retrigger;
+  // bool          repl_retrigger;
 
-  /* choice, is putting this in app or in mode.
-    - it is bad to put it mode, because it is not actually state written to the board.
-    - for mode_reset, we really expect a clear/fixed state point. and putting it in mode ensures this.
-    - but this is a rangeing concept, and there are only a few places where use ranges, and need to consider it
-    */
-  bool          range_10Meg ;
 
 
   vfd_t         *vfd0;    // required for call to init.  after fpga initialized.
@@ -347,10 +352,14 @@ void app_repl_statements(app_t *app,  const char *s);
 
       pass range_t to decode ? perhaps?
 */
+
+#if 0
 bool app_range_dir_valid( app_t *app, uint32_t range_idx, bool dir);
 void app_range_switch( app_t *app, uint32_t range_idx);
 void app_range_switch1( app_t *app, const char *name, const char *arg);
 bool app_repl_range( app_t *app, const char *cmd);
+
+#endif
 
 
 // consider move to test/test.h.

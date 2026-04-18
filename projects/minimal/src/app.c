@@ -51,6 +51,7 @@
 #include <data/decode.h>
 #include <data/buffer.h>
 #include <data/range.h>
+#include <ranging.h>
 
 
 
@@ -731,13 +732,16 @@ static void app_console_update(app_t *app)
         // juncture for transition/transfering state
         app_transition_state( app );
 
-        if( app->repl_retrigger) {
+        ranging_t *ranging = app->ranging;
+
+        if( ranging->retrigger) {
 
           // re-trigger
-          printf("retrigger\n");
+          printf("ranging retrigger\n");
 
           // clear for next time
-          app->repl_retrigger = false;
+          ranging->retrigger = false;
+
           // set trigger low
           gpio_write( app->gpio_trigger, 0);
         }
@@ -1025,7 +1029,7 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, uint32_t line_freq)
 
 
 
-
+#if 0
 /*
   these functions are typeed on app.
   leave here, rather than moving to range.c
@@ -1135,7 +1139,7 @@ bool app_repl_range( app_t *app, const char *cmd)
   return false;
 }
 
-
+#endif
 
 
 
@@ -1161,7 +1165,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   char s0[ 100 + 1];
   // char s1[ 100 + 1];
   // char s2[ 100 + 1];
-  uint32_t u0; //, u1;
+  // uint32_t u0; //, u1;
   double f0;
   // int32_t i0;
 
@@ -1179,8 +1183,8 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
 
 
-  else if ( app_repl_range( app, cmd)) { }
 
+#if 0
 
   /*
       TODO consider  move this code to app_repl_range
@@ -1204,30 +1208,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
     }
   }
 
-  else if( sscanf(cmd, "10Meg %100s", s0) == 1
-    && str_decode_uint( s0, &u0))  {
-
-      /*  the 10Meg. impedance state is a high-level range_t state concept and belongs in app_t rather than mode_t
-          ie. there is no use/relevance when not using ranges
-          we can still use the mode_t and write K403 directly whenever needed.
-          -------
-          for the same reason - we only need to set it, in tests etc, if we use a dcv ranges
-          so perhaps should move it out of mode_t. and explicitly set it, for the few cases that tests use the range function.
-          perhaps rename  range_10Meg.
-      */
-      _mode_t  *mode  = app->mode;
-      assert(mode && mode->magic == MODE_MAGIC);
-
-      // set flag
-      app->range_10Meg = u0;
-
-      // re-apply the current range function
-      // this modifies the mode
-      app_range_switch( app, *app->range_idx);
-
-      // set retrigger to clear data buffers
-      app->repl_retrigger = true;
-  }
+#endif
 
 
   // "t" to trigger
@@ -1431,6 +1412,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   ///////////////////////
 
 
+
   else if( app_transfer_repl_statement( app, cmd)) { }
 
   else if( mode_repl_statement( app->mode, cmd, *app->line_freq )) { }
@@ -1447,6 +1429,10 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
 
   else if( display_tft_repl_statement( app->display_tft, cmd )) { }
+
+
+  // do last because of catchall like range interpretation
+  else if ( ranging_repl_range( app->ranging, cmd)) { }
 
   else {
 

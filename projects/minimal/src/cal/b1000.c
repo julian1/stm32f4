@@ -11,6 +11,7 @@
 
 #include <cal/transfer.h>
 #include <app.h>
+#include <ranging.h>
 #include <mode.h>
 #include <data/cal.h>
 
@@ -30,13 +31,13 @@ static void step1( app_t *app)
   // set dc source voltage
   mode_lts_source_set ( app->mode, 0.01 );
   // set LTS input range
-  app_range_switch1( app, "LTS", "0.1");
+  ranging_range_switch1( app->ranging, "LTS", "0.1");
 }
 
 
 static void step2( app_t *app)
 {
-  app_range_switch1( app, "LTS", "0.01");
+  ranging_range_switch1( app->ranging, "LTS", "0.01");
 }
 
 
