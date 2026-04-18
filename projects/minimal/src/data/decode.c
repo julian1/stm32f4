@@ -180,7 +180,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
     */
     // const range_t *range  = &decode->ranges[ *decode->range_idx];
-    const range_t *range = ranging_active_range( decode->ranging);
+    const range_t *range = ranging_range_active_get( decode->ranging);
     assert(range && range->magic == RANGE_MAGIC);
 
 

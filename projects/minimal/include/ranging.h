@@ -39,7 +39,7 @@ typedef struct ranging_t
 
 void ranging_init( ranging_t *ranging,    _mode_t *mode);
 
-const range_t * ranging_active_range( ranging_t *ranging);
+const range_t * ranging_range_active_get( ranging_t *ranging);
 
 
 void ranging_range_set_by_name( ranging_t *ranging, const char *name, const char *arg);

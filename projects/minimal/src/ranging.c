@@ -43,7 +43,7 @@ void ranging_init( ranging_t *ranging, _mode_t *mode)
 
 
 
-const range_t * ranging_active_range( ranging_t *ranging)
+const range_t * ranging_range_active_get( ranging_t *ranging)
 {
   // printf("active range %u\n" ,   ranging->range_idx );
 
