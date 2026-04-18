@@ -9,6 +9,7 @@
 // not device/instance
 
 
+#include <stdint.h>
 #include <stdio.h>  // FILE
 
 #include <peripheral/spi.h>
