@@ -157,6 +157,10 @@ static int main_f429(void)
   /*
     setup the critical error led blink in priority
     because assert() uses it
+
+    TODO.   review - this wont work however
+          until gpio_status_led  has ports/pins configured.
+
   */
   assert_critical_error_led_setup( GPIOA, GPIO9 );
 
