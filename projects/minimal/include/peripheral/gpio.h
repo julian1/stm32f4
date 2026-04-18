@@ -16,6 +16,8 @@ struct gpio_t
 {
   // magic, type, size.
 
+  uint32_t  magic;
+
   void (*setup)(gpio_t *);
 
   // can handle masking, shifting etc.

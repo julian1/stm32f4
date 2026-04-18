@@ -29,7 +29,7 @@ struct spi_t
   // magic, type, size.
 
   uint32_t  magic;
-  uint32_t  spi;    // controller could be shared.  consider should hide/make opaque?
+  uint32_t  spi;    // controller could be shared.  consider should hide/make opaque? should pass in constructor
 
   void (*setup)(spi_t *);
   void (*port_configure)(spi_t *);
