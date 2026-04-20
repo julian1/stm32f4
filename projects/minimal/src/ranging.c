@@ -2,7 +2,7 @@
 
 
 
-#include <stdio.h>        // printf, scanf
+#include <stdio.h>
 #include <assert.h>
 #include <string.h>
 #include <strings.h>      // strcasecmp
@@ -53,7 +53,7 @@ static int32_t range_get_idx( const range_t *ranges, size_t sz, const char *name
 void ranging_init(
   ranging_t     *ranging,
   _mode_t       *mode,
-  const         range_t *ranges,      // including cal co-efficients
+  const range_t *ranges,      // including cal co-efficients
   const size_t  ranges_sz                  // not sizeof() should be const
 ) {
 
@@ -67,7 +67,7 @@ void ranging_init(
     .range_idx    = 0,
   };
 
-  memcpy( ranging, &temp, sizeof(ranging_t)); // handle field constness
+  memcpy( ranging, &temp, sizeof(ranging_t)); // field constness
 }
 
 
@@ -82,9 +82,6 @@ const range_t * ranging_range_active_get( ranging_t *ranging)
   const range_t *range  = & ranging->ranges[ ranging->range_idx];
   return range;
 }
-
-
-
 
 
 

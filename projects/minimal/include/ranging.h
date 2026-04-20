@@ -42,7 +42,7 @@ typedef struct ranging_t
 void ranging_init(
   ranging_t     *ranging,
   _mode_t       *mode,
-  const         range_t *ranges,      // including cal co-efficients
+  const range_t *ranges,      // including cal co-efficients
   const size_t  ranges_sz                  // not sizeof() should be const
 );
 

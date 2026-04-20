@@ -61,7 +61,7 @@ void decode_init(
   };
 
   // *decode = temp; // no constness
-  memcpy( decode, &temp, sizeof( decode_t)); // handle field constness
+  memcpy( decode, &temp, sizeof( decode_t)); // field constness
 
 }
 

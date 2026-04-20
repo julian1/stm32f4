@@ -68,7 +68,7 @@ void buffer_init( buffer_t *buffer, double *values, size_t max_sz )
     .show = true,
   };
 
-  memcpy( buffer, &temp, sizeof( buffer_t));  // handle field constness
+  memcpy( buffer, &temp, sizeof( buffer_t));  // field constness
 }
 
 
