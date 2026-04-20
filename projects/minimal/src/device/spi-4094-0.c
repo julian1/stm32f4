@@ -1,7 +1,7 @@
 
 
 #include <stdio.h>
-#include <string.h>   // memset
+#include <string.h>   // memcpy
 #include <assert.h>
 
 
@@ -89,17 +89,19 @@ static void cs_deassert( spi_t *spi)
 void spi_4094_0_init( spi_t *spi)
 {
   assert(spi);
-  memset(spi, 0, sizeof(spi_t));
 
-  spi->magic        = _4094_MAGIC;
-  spi->spi          = SPI1;     // consider, pass underlying spi in the contructor
-  spi->setup        =  setup;
-  spi->port_configure = port_configure;
-  spi->cs_assert    = cs_assert;
-  spi->cs_deassert  = cs_deassert;
+  const spi_t temp = {
+
+    .magic        = _4094_MAGIC,
+    .spi          = SPI1,     // consider, pass underlying spi in the contructor
+    .setup        = setup,
+    .port_configure = port_configure,
+    .cs_assert    = cs_assert,
+    .cs_deassert  = cs_deassert,
+  };
+
+  memcpy( spi, &temp, sizeof( spi_t));
 }
-
-
 
 
 

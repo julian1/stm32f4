@@ -95,21 +95,24 @@ static void tft_reset( tft_t *tft, bool val )
 
 void tft0_init( tft_t *tft)
 {
-  memset( tft, 0, sizeof( tft_t));
+  assert( tft);
 
-  tft->magic        = TFT_MAGIC;
+  const tft_t temp = {
 
-  tft->fmc_addr     = FMC_MY_BASE | FMC_A19;
-  tft->fmc_cd       = FMC_A16;
+    .magic        = TFT_MAGIC,
 
-  // tft->width        = 128;    // 16 bytes
-  // tft->height_bytes = 8;     //
+    .fmc_addr     = FMC_MY_BASE | FMC_A19,
+    .fmc_cd       = FMC_A16,
 
+    // .width        = 128,    // 16 bytes
+    // .height_bytes = 8,     //
 
-  tft->tft_gpio_setup = tft_gpio_setup;
-  tft->tft_getTear    = tft_getTear;
-  tft->tft_reset      = tft_reset;
+    .tft_gpio_setup = tft_gpio_setup,
+    .tft_getTear    = tft_getTear,
+    .tft_reset      = tft_reset,
+  };
 
+  memcpy( tft, &temp, sizeof( tft_t));
 }
 
 

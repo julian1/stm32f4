@@ -3,7 +3,7 @@
 
 
 #include <stdio.h>
-#include <string.h>   // memset
+#include <string.h>   // memcpy
 #include <assert.h>
 
 
@@ -86,14 +86,17 @@ static void cs_deassert(spi_t *spi)
 void spi_fpga1_init( spi_t *spi)
 {
   assert(spi);
-  memset(spi, 0, sizeof(spi_t));
 
-  spi->magic          = FPGA1_MAGIC;
+  const spi_t temp = {
 
-  spi->spi            = SPI2;
-  spi->setup          = setup;
-  spi->port_configure = port_configure;
-  spi->cs_assert      = cs_assert;
-  spi->cs_deassert    = cs_deassert;
+    .magic          = FPGA1_MAGIC,
+    .spi            = SPI2,
+    .setup          = setup,
+    .port_configure = port_configure,
+    .cs_assert      = cs_assert,
+    .cs_deassert    = cs_deassert,
+  };
+
+  memcpy( spi, &temp, sizeof( spi_t));
 }
 

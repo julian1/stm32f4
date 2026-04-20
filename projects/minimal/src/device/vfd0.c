@@ -79,23 +79,27 @@ static bool vfd_getTear( vfd_t *vfd)
 
 void vfd0_init( vfd_t *vfd)
 {
+  assert( vfd);
 
   printf("vfd_init()\n");
 
-  memset( vfd, 0, sizeof( vfd_t));
+  const vfd_t temp = {
 
-  vfd->magic        = VFD_MAGIC;      // TODO change to use macro in this file
+    .magic        = VFD_MAGIC,      // TODO change to use macro in this file
 
-  vfd->fmc_addr     = FMC_MY_BASE | FMC_A18;
-  vfd->fmc_cd       = FMC_A16;
+    .fmc_addr     = FMC_MY_BASE | FMC_A18,
+    .fmc_cd       = FMC_A16,
 
-  vfd->width        = 128;    // 16 bytes
-  vfd->height_bytes = 8;     //
+    .width        = 128,    // 16 bytes
+    .height_bytes = 8,     //
 
 
-  vfd->vfd_gpio_setup = vfd_gpio_setup;
-  vfd->vfd_getTear    = vfd_getTear;
-  vfd->vfd_reset      = vfd_reset;
+    .vfd_gpio_setup = vfd_gpio_setup,
+    .vfd_getTear    = vfd_getTear,
+    .vfd_reset      = vfd_reset,
+  };
+
+  memcpy( vfd, &temp, sizeof( vfd_t));
 }
 
 

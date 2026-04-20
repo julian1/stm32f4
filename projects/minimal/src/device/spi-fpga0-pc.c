@@ -5,7 +5,7 @@
 */
 
 #include <stdio.h>
-#include <string.h>   // memset
+#include <string.h>   // memcpy
 #include <assert.h>
 
 
@@ -134,21 +134,24 @@ static bool cdone(spi_ice40_t *spi )
 void spi_fpga0_pc_init( spi_ice40_t *spi)
 {
   assert( spi);
-  memset( spi, 0, sizeof(spi_ice40_t));
 
-  spi->magic          = FPGA0_MAGIC;
+  const spi_ice40_t temp = {
 
-  // base
-  spi->spi            = SPI1;
-  spi->setup          = setup;
-  spi->port_configure = port_configure;
-  spi->cs_assert      = cs_assert;
-  spi->cs_deassert    = cs_deassert;
+    .magic          = FPGA0_MAGIC,
 
+    // base
+    .spi            = SPI1,
+    .setup          = setup,
+    .port_configure = port_configure,
+    .cs_assert      = cs_assert,
+    .cs_deassert    = cs_deassert,
 
-  // derived
-  spi->rst    = rst;
-  spi->cdone  = cdone;
+    // derived
+    .rst    = rst,
+    .cdone  = cdone,
+  };
+
+  memcpy( spi, &temp, sizeof( spi_ice40_t));
 }
 
 
