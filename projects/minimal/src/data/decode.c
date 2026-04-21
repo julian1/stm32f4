@@ -138,12 +138,13 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   if( true) {
 
-    printf( "zgjc=%u ch1=%u ch2=%u ovld=%u unld=%u, ",
-      status.adc_zgjc_cmpr,
-      status.ovld_boot_ch1,
-      status.ovld_boot_ch2,
-      status.ovld_amp,
-      status.unld_amp
+    printf( "zgjc=%u ovld=%u unld=%u ch1=%u ch2=%u, ",
+
+      status.amp_cmpr,
+      status.amp_ovld,
+      status.amp_unld,
+      status.boot_ch1_ovld,
+      status.boot_ch2_ovld
     );
 
   }

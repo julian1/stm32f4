@@ -140,20 +140,14 @@ reg_sr_t
 
   // consider put hw flags in separate register. only needs to be read once at start
   // uint8_t   hw_flags : 4;
-  /*
-    {   3'b0,
-        unld_amp_i,
-        ovld_amp_i,
-        ovld_boot_ch2_i
-        ovld_boot_ch1_i,
-        adc_agjc_cmpr_i, */
+
 
   // comparators
-  uint8_t   adc_zgjc_cmpr : 1;
-  uint8_t   ovld_boot_ch1 : 1;
-  uint8_t   ovld_boot_ch2 : 1;
-  uint8_t   ovld_amp      : 1;
-  uint8_t   unld_amp      : 1;
+  uint8_t   amp_cmpr      : 1;
+  uint8_t   amp_ovld      : 1;
+  uint8_t   amp_unld      : 1;
+  uint8_t   boot_ch1_ovld : 1;
+  uint8_t   boot_ch2_ovld : 1;
   uint8_t                 : 3;   // 16
 
 
