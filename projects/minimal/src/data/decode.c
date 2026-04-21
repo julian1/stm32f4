@@ -109,8 +109,13 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   uint32_t status_               = spi_ice40_reg_read32( spi, REG_STATUS);
 
-   _Static_assert(sizeof(data->status) == sizeof(status_), "bad typedef size");
-  memcpy( &data->status, &status_,  sizeof( status_));
+  reg_sr_t  status;
+   _Static_assert( sizeof(status) == sizeof(status_), "bad typedef size");
+
+  memcpy( &status, &status_,  sizeof( status_));
+
+  data->status = status;
+
 
   // record for current part of reading
   // cal w. needs this data
@@ -125,18 +130,31 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   UNUSED(ratio);
 
 
-  if( data->status.first) {
+  if( status.first) {
 
     // printf("\n");
   }
 
 
-  if(decode->show_counts) {
+  if( true) {
+
+    printf( "zgjc=%u ch1=%u ch2=%u ovld=%u unld=%u, ",
+      status.adc_zgjc_cmpr,
+      status.ovld_boot_ch1,
+      status.ovld_boot_ch2,
+      status.ovld_amp,
+      status.unld_amp
+    );
+
+  }
+
+
+  if( decode->show_counts) {
 
     printf( "first=%u idx=%u seq_n=%u, ",
-      data->status.first,
-      data->status.sample_idx,
-      data->status.sample_seq_n
+      status.first,
+      status.sample_idx,
+      status.sample_seq_n
     );
     printf( "counts pos %7lu neg %7lu sig %7lu, ",
       data->adc_clk_count_refmux_pos,
@@ -148,7 +166,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
 
 
-  if( data->status.sample_idx == 0) {
+  if( status.sample_idx == 0) {
 
     // lo - record LO counts
     decode->adc_clk_count_refmux_pos_lo = data->adc_clk_count_refmux_pos;
@@ -157,7 +175,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     data->valid = false;
   }
 
-  else if( data->status.sample_idx == 1) {
+  else if( status.sample_idx == 1) {
 
     // hi
     data->count_sum =

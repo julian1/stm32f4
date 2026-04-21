@@ -113,16 +113,16 @@ reg_cr_t
 
 
   // adc - whether to switch the input sigmux
-  uint8_t adc_p_active_sigmux : 1;
+  uint8_t   adc_p_active_sigmux : 1;
 
   // sa - no az mode
-  uint8_t sa_p_noaz : 1;
+  uint8_t   sa_p_noaz : 1;
 
 
  // input           p_use_slow_rundown,
  // input           p_use_fast_rundown,
 
-  uint32_t   dummy_bits_o : 27;
+  uint32_t  dummy_bits_o : 27;
 
 } reg_cr_t;
 
@@ -136,20 +136,35 @@ typedef struct __attribute__((__packed__))
 reg_sr_t
 {
 
-  uint8_t   magic ;     // 8
+  uint8_t   magic ;           // 8
 
   // consider put hw flags in separate register. only needs to be read once at start
-  uint8_t   hw_flags    : 4;
-  uint8_t               : 4;   // 16
+  // uint8_t   hw_flags : 4;
+  /*
+    {   3'b0,
+        unld_amp_i,
+        ovld_amp_i,
+        ovld_boot_ch2_i
+        ovld_boot_ch1_i,
+        adc_agjc_cmpr_i, */
+
+  // comparators
+  uint8_t   adc_zgjc_cmpr : 1;
+  uint8_t   ovld_boot_ch1 : 1;
+  uint8_t   ovld_boot_ch2 : 1;
+  uint8_t   ovld_amp      : 1;
+  uint8_t   unld_amp      : 1;
+  uint8_t                 : 3;   // 16
+
 
   // sa
-  uint8_t   sample_idx  : 3;
-  uint8_t   first       : 1;
-  uint8_t   sample_seq_n : 3;
-  uint8_t               : 1;   // 24
+  uint8_t   sample_idx    : 3;
+  uint8_t   first         : 1;
+  uint8_t   sample_seq_n  : 3;
+  uint8_t                 : 1;   // 24
 
 
-  uint32_t              : 8;    // 31
+  uint32_t                : 8;    // 31
 
 
   // uint32_t   azmux : 4;
