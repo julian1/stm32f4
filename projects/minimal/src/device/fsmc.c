@@ -21,8 +21,9 @@ void fsmc_gpio_port_configure()
 
   printf("fsmc_gpio_port_configure\n");
 /*
-  // Do pin setup separately from the fsmc peripheral setup. because we will call fsmc setup
-  twice once for slow/hi speed operation.
+  // Keep pin setup separate from fsmc peripheral setup.
+  because we need to call fsmc setup twice
+  for slow/hi speed operation during tft high-level configuration
 
   // Enable PORTD and PORTE
   rcc_periph_clock_enable(RCC_GPIOD);
@@ -57,7 +58,8 @@ void fsmc_gpio_port_configure()
   gpio_set_af(GPIOE, GPIO_AF12, porte_decode_lines);
 
 
-  // could/can consolidate...
+  // could consolidate these.
+  // there is also the fsmc clock.
 
  /* config FSMC NOE -  PD4  RD */
   gpio_mode_setup(GPIOD, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO4);
@@ -106,6 +108,7 @@ void fsmc_gpio_port_configure()
 
 void fsmc_setup( uint8_t divider)
 {
+  // consider rename fsmc_controller_configure() for consistency
 
   printf("fsmc_setup, divider %u\n", divider);
 

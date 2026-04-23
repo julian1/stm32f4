@@ -30,6 +30,7 @@ struct interrupt_t
 
 /*
   consider rename port_configure() to just configure()
+  for interrupt.
 
 */
 
