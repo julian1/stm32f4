@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 
-void fsmc_gpio_setup( void);
+void fsmc_gpio_port_configure( void);
 void fsmc_setup( uint8_t divider);
 
 

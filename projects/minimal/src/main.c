@@ -218,7 +218,7 @@ static int main_f429(void)
 
   gpio_t  gpio_status_led;
   gpio_status_led_init( &gpio_status_led);
-  gpio_setup( &gpio_status_led);
+  gpio_port_configure( &gpio_status_led);
 
 
 #if 0
@@ -232,7 +232,7 @@ static int main_f429(void)
   // systick interrupt, but do not set handler
   interrupt_systick_t   interrupt_systick;
   interrupt_systick_init( &interrupt_systick, 84000); // 84MHz.
-  interrupt_setup( &interrupt_systick);
+  interrupt_port_configure( &interrupt_systick);
 
 
 
@@ -245,10 +245,10 @@ static int main_f429(void)
 
 
   // now init spi port controllers
-  spi1_port_setup();
+  spi1_port_configure();
 
 
-  spi2_port_setup();
+  spi2_port_configure();
 
 
 
@@ -259,55 +259,55 @@ static int main_f429(void)
 
   spi_ice40_t     spi_fpga0_pc;
   spi_fpga0_pc_init( &spi_fpga0_pc);
-  spi_setup( &spi_fpga0_pc );
+  spi_port_configure( &spi_fpga0_pc );
 
 
 
   spi_t           spi_fpga0;
   spi_fpga0_init( &spi_fpga0);
-  spi_setup( &spi_fpga0);
+  spi_port_configure( &spi_fpga0);
 
 
 
   interrupt_t     interrupt_fpga0;
   interrupt_fpga0_init( &interrupt_fpga0);
-  interrupt_setup( &interrupt_fpga0);
+  interrupt_port_configure( &interrupt_fpga0);
 
 
   /////////
 
   spi_ice40_t      spi_fpga1_pc;
   spi_fpga1_pc_init( &spi_fpga1_pc);
-  spi_setup( &spi_fpga1_pc );
+  spi_port_configure( &spi_fpga1_pc );
 
 
   spi_t    spi_fpga1;
   spi_fpga1_init( &spi_fpga1);
-  spi_setup( &spi_fpga1 );
+  spi_port_configure( &spi_fpga1 );
 
 
   spi_t    spi_4094_0;
   spi_4094_0_init( &spi_4094_0);
-  spi_setup( &spi_4094_0);
+  spi_port_configure( &spi_4094_0);
 
   spi_t   spi_mdac0;
   spi_mdac0_init( &spi_mdac0);
-  spi_setup( &spi_mdac0 );
+  spi_port_configure( &spi_mdac0 );
 
 
   spi_t   spi_mdac1;
   spi_mdac1_init( &spi_mdac1);
-  spi_setup( &spi_mdac1 );
+  spi_port_configure( &spi_mdac1 );
 
 
   gpio_t    gpio_trigger;
   gpio_trigger_init( &gpio_trigger);
-  gpio_setup( &gpio_trigger);
+  gpio_port_configure( &gpio_trigger);
 
 
   gpio_t    gpio_trigger_source;
   gpio_trigger_source_init( &gpio_trigger_source);
-  gpio_setup( &gpio_trigger_source);
+  gpio_port_configure( &gpio_trigger_source);
 
 
 
@@ -317,8 +317,9 @@ static int main_f429(void)
 
 
   ///////////////////////////////
-  fsmc_gpio_setup();
-  fsmc_setup( 12 );   // tft will manipulate this itself.
+  fsmc_gpio_port_configure();
+  fsmc_setup( 12 );       // tft will manipulate this itself.
+                          // TODO rename to controller_configure() to be consistent
 
   /////////////////////////////
 
@@ -393,7 +394,7 @@ static int main_f429(void)
   // full init must wait for system_millis and fpga
   vfd_t         vfd0;
   vfd0_init( &vfd0);
-  vfd0.vfd_gpio_setup( &vfd0 );   // polymorphic, for multiple instances
+  vfd0.vfd_gpio_port_configure( &vfd0 );   // polymorphic, for multiple instances
 
 
   display_vfd_t   display_vfd;
@@ -405,7 +406,7 @@ static int main_f429(void)
   // tft
   tft_t     tft0;
   tft0_init( &tft0);    // device specific
-  tft0.tft_gpio_setup( &tft0);    // polymorphic, for multiple instances
+  tft0.tft_gpio_port_configure( &tft0);    // polymorphic, for multiple instances
 
 
 
@@ -625,11 +626,11 @@ static int main_f413(void)
 
   ////////////////
   // init the spi port, for adum/ice40 comms
-  spi1_port_setup();
+  spi1_port_configure();
 
-  // spi1_port_interrupt_setup( (void (*) (void *))spi1_interrupt, &app);
+  // spi1_port_interrupt_port_configure( (void (*) (void *))spi1_interrupt, &app);
 
-  spi1_port_interrupt_setup();
+  spi1_port_interrupt_port_configure();
 
   // shouldnt setup the interrupt handler - until fpga is configured, else looks like get
   // spi1_port_interrupt_handler_set( (void (*) (void *)) decode_rdy_interrupt, app.data );

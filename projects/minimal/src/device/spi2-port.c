@@ -8,7 +8,7 @@
 
 
 
-void spi2_port_setup(void)
+void spi2_port_configure(void)
 {
   printf("spi2 port setup\n");
 

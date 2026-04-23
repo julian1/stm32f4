@@ -25,7 +25,7 @@
 #define _4094_MAGIC 546123
 
 
-static void setup(spi_t *spi)
+static void port_configure(spi_t *spi)
 {
   UNUSED(spi);
 
@@ -35,7 +35,7 @@ static void setup(spi_t *spi)
 }
 
 
-static void port_configure( spi_t *spi_)
+static void controller_configure( spi_t *spi_)
 {
   assert(spi_);
   uint32_t spi = spi_->spi;
@@ -89,8 +89,8 @@ void spi_4094_0_init( spi_t *spi)
 
     .magic        = _4094_MAGIC,
     .spi          = SPI1,     // consider, pass underlying spi in the contructor
-    .setup        = setup,
     .port_configure = port_configure,
+    .controller_configure = controller_configure,
     .cs_assert    = cs_assert,
     .cs_deassert  = cs_deassert,
   };

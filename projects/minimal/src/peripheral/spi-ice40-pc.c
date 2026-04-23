@@ -92,7 +92,7 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi , FILE *f, size_t size , volatile
   // configure with soft/manual control over cs.
   // spi_ice40_bitstream_setup(spi->spi);
 
-  spi->port_configure( spi );
+  spi->controller_configure( spi );
 
 
   // must have spi enabled to output clk cycles, regardless of state of SS.

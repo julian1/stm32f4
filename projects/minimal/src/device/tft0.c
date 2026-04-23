@@ -42,7 +42,7 @@
 
 
 
-static void tft_gpio_setup( tft_t *tft)
+static void tft_gpio_port_configure( tft_t *tft)
 {
   assert( tft && tft->magic == TFT_MAGIC);
 
@@ -107,7 +107,7 @@ void tft0_init( tft_t *tft)
     // .width        = 128,    // 16 bytes
     // .height_bytes = 8,     //
 
-    .tft_gpio_setup = tft_gpio_setup,
+    .tft_gpio_port_configure = tft_gpio_port_configure,
     .tft_getTear    = tft_getTear,
     .tft_reset      = tft_reset,
   };

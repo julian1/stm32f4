@@ -22,7 +22,7 @@
 
 
 
-static void setup(gpio_t *p)
+static void port_configure(gpio_t *p)
 {
   assert(p);
   gpio_mode_setup( PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, PIN);
@@ -42,7 +42,7 @@ void gpio_trigger_init( gpio_t *p)
   assert( p);
   memset( p, 0, sizeof( gpio_t));
 
-  p->setup = setup;
+  p->port_configure = port_configure;
   p->write = write;
 }
 

@@ -71,7 +71,7 @@ void exti3_isr(void) // called by runtime
 }
 
 
-static void setup( interrupt_t *i)
+static void port_configure( interrupt_t *i)
 {
   UNUSED(i);
 
@@ -93,7 +93,7 @@ void interrupt_fpga0_init( interrupt_t *i /* nvic_ctx_table * */ )
   memset(i, 0, sizeof(interrupt_t));
 
   i->magic        = INT_MAGIC;
-  i->setup        = setup;
+  i->port_configure = port_configure;
 
   x = i;
 }

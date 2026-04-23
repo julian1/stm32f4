@@ -16,10 +16,10 @@
 
 
 
-void fsmc_gpio_setup()
+void fsmc_gpio_port_configure()
 {
 
-  printf("fsmc_gpio_setup\n");
+  printf("fsmc_gpio_port_configure\n");
 /*
   // Do pin setup separately from the fsmc peripheral setup. because we will call fsmc setup
   twice once for slow/hi speed operation.

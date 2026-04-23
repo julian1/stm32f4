@@ -24,7 +24,7 @@
 
 
 
-static void setup( spi_t *spi)    // rename port() ?.
+static void port_configure( spi_t *spi)    // rename port() ?.
 {
   assert(spi && spi->magic == FPGA1_MAGIC);
 
@@ -48,7 +48,7 @@ static void setup( spi_t *spi)    // rename port() ?.
 }
 
 
-static void port_configure( spi_t *spi_)
+static void controller_configure( spi_t *spi_)
 {
   //  this is device specific. so belongs on the device structure
   // taken from,  void spi_mux_ice40(uint32_t spi) in spi-ice40.c
@@ -142,8 +142,8 @@ void spi_fpga1_pc_init( spi_ice40_t *spi)
 
     // base
     .spi            = SPI2,
-    .setup          =  setup,
-    .port_configure = port_configure,
+    .port_configure =  port_configure,
+    .controller_configure = controller_configure,
     .cs_assert      = cs_assert,
     .cs_deassert    = cs_deassert,
 

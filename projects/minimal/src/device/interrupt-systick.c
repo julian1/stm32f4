@@ -40,7 +40,7 @@ void sys_tick_handler( void) // called by runtime
 }
 
 
-static void setup( interrupt_t *i)
+static void port_configure( interrupt_t *i)
 {
   assert(i && i->magic == INT_SYSTICK_MAGIC);
 
@@ -65,7 +65,7 @@ void interrupt_systick_init( interrupt_systick_t *i, /* nvic_ctx_table * */ uint
   memset( i, 0, sizeof( interrupt_systick_t));
 
   i->magic        = INT_SYSTICK_MAGIC;
-  i->setup        =  setup;
+  i->port_configure =  port_configure;
 
   i->tick_divider = tick_divider;
 

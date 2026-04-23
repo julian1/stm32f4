@@ -41,7 +41,7 @@ lcd->ram  0x60020000
 
 
 
-static void vfd_gpio_setup( vfd_t *vfd)
+static void vfd_gpio_port_configure( vfd_t *vfd)
 {
   assert( vfd && vfd->magic == VFD_MAGIC);
 
@@ -94,7 +94,7 @@ void vfd0_init( vfd_t *vfd)
     .height_bytes = 8,     //
 
 
-    .vfd_gpio_setup = vfd_gpio_setup,
+    .vfd_gpio_port_configure = vfd_gpio_port_configure,
     .vfd_getTear    = vfd_getTear,
     .vfd_reset      = vfd_reset,
   };

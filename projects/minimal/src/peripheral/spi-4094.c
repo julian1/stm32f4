@@ -224,11 +224,11 @@ void spi_mux_4094(uint32_t spi )
 
 
 /*
-  spi_port_cs2_gpio_setup();
-  spi_setup(spi);
+  spi_port_cs2_gpio_port_configure();
+  spi_port_configure(spi);
 */
 
-static void spi_setup(uint32_t spi)
+static void spi_port_configure(uint32_t spi)
 {
   // not clear this needs to be exposed.
   // EXTR. setup on the mcu side.

@@ -22,16 +22,21 @@ struct interrupt_t
   interrupt_handler_t  handler;
   void *ctx;
 
-  void (*setup)( interrupt_t *);
+  void (*port_configure)( interrupt_t *);
   // void (*handler_set)( interrupt_t *, void *ctx, interrupt_handler_t);
 };
 
 
 
-static inline void interrupt_setup( interrupt_t *i)
+/*
+  consider rename port_configure() to just configure()
+
+*/
+
+static inline void interrupt_port_configure( interrupt_t *i)
 {
   assert(i);
-  i->setup( i);
+  i->port_configure( i);
 }
 
 

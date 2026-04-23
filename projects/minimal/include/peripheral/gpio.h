@@ -18,7 +18,7 @@ struct gpio_t
 
   uint32_t  magic;
 
-  void (*setup)(gpio_t *);
+  void (*port_configure)( gpio_t *);
 
   // can handle masking, shifting etc.
   void (*write)(gpio_t *, uint8_t val);
@@ -26,10 +26,10 @@ struct gpio_t
 };
 
 
-static inline void gpio_setup( gpio_t *gpio)
+static inline void gpio_port_configure( gpio_t *gpio)
 {
   // assert(gpio);
-  gpio->setup( gpio);
+  gpio->port_configure( gpio);
 }
 
 

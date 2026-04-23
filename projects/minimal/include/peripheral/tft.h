@@ -26,7 +26,7 @@ typedef struct tft_t
   uint32_t  fmc_cd;       // command/data bit. FMC_A16.
 
 
-  void (*tft_gpio_setup)( tft_t *);
+  void (*tft_gpio_port_configure)( tft_t *);
   bool (*tft_getTear)( tft_t *);                  // renae
   void (*tft_reset)( tft_t *, bool val );
 

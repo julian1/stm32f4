@@ -253,7 +253,7 @@ void app_transition_state( app_t  *app)
   assert( app->spi_4094);
 
   // configure
-  spi_port_configure( app->spi_4094);
+  spi_controller_configure( app->spi_4094);
 
 
 /*
@@ -289,13 +289,13 @@ void app_transition_state( app_t  *app)
 
   // write mdac0
   assert( app->spi_mdac0);
-  spi_port_configure( app->spi_mdac0);
+  spi_controller_configure( app->spi_mdac0);
   spi_ad5446_write16( app->spi_mdac0, mode->mdac0_val );
 
 
   // write mdac1
   assert( app->spi_mdac1);
-  spi_port_configure( app->spi_mdac1);
+  spi_controller_configure( app->spi_mdac1);
   spi_ad5446_write16( app->spi_mdac1, mode->mdac1_val );
 
 
@@ -405,7 +405,7 @@ void app_configure( app_t *app )
   // now assert 4094 OE
   // should check supply rails etc. first.
   printf("asserting 4094 OE\n");
-  spi_port_configure( app->spi_fpga0);
+  spi_controller_configure( app->spi_fpga0);
   spi_ice40_reg_write32( app->spi_fpga0, REG_4094_OE, 1 );
 
 
@@ -474,7 +474,7 @@ void app_beep( app_t * app, uint32_t n)
   uint32_t d = 70;
 
   printf("app_beep configure port\n");
-  spi_port_configure( app->spi_fpga1 );
+  spi_controller_configure( app->spi_fpga1 );
 
   for(unsigned i = 0; i < n; ++i)  {
     printf("on\n");
@@ -504,7 +504,7 @@ void app_led_dance( app_t * app )
 
   // must be in mode direct.
 
-  spi_port_configure( app->spi_fpga0);
+  spi_controller_configure( app->spi_fpga0);
 
   // led dance
   for(unsigned i = 0; i < 50; ++i )  {
@@ -928,7 +928,7 @@ static bool spi_repl_reg_query( spi_t *spi, const char *cmd, uint32_t line_freq)
 
   uint32_t u0;
 
-  // spi_port_configure( spi_fpga);
+  // spi_controller_configure( spi_fpga);
 
   if( sscanf(cmd, "reg? %lu", &u0 ) == 1) {
 
@@ -1218,7 +1218,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
 
     spi_t *spi = app->spi_fpga1;
 
-    spi_port_configure( spi );
+    spi_controller_configure( spi );
     spi_ice40_reg_write32( spi, REG_DIRECT, u0 );
     spi_print_register( spi, REG_DIRECT );
   }
@@ -1464,7 +1464,7 @@ static bool app_repl_range( app_t *app, const char *cmd)
     // vfd
 
 
-    fsmc_gpio_setup();
+    fsmc_gpio_port_configure();
 
 
     // fsmc_setup( 12 );   // slow.
@@ -1651,14 +1651,14 @@ static bool spi_repl_reg_write( spi_t *spi,  const char *cmd)
   if( sscanf(cmd, "reg! %lu %100s", &u0, s0) == 2
     && str_decode_uint( s0, &u1)
   ) {
-    spi_port_configure( spi);
+    spi_controller_configure( spi);
 
     spi_ice40_reg_write32( spi, u0 , u1 );
     spi_print_register(  spi, u0);
   }
   else if( sscanf(cmd, "mode! %lu", &u0 ) == 1) {
 
-    spi_port_configure( spi);
+    spi_controller_configure( spi);
 
     spi_ice40_reg_write32( spi, REG_CR, u0 );
     spi_print_register(  spi, REG_CR);
@@ -1667,7 +1667,7 @@ static bool spi_repl_reg_write( spi_t *spi,  const char *cmd)
     && str_decode_uint( s0, &u0)
   ) {
 
-    spi_port_configure( spi);
+    spi_controller_configure( spi);
 
     spi_ice40_reg_write32( spi, REG_DIRECT, u0 );
     spi_print_register(  spi, REG_DIRECT);
@@ -1680,10 +1680,10 @@ static bool spi_repl_reg_write( spi_t *spi,  const char *cmd)
   else if( sscanf(cmd, "dac %s", s0 ) == 1
     && str_decode_uint( s0, &u0)
   ) {
-      spi_port_configure( spi);
+      spi_controller_configure( spi);
 
       spi_ice40_reg_write32( spi, REG_SPI_MUX,  SPI_MUX_DAC );
-      spi_port_configure_mdac0( spi);
+      spi_controller_configure_mdac0( spi);
 
       spi_mdac0_write16( spi, u0 );
       spi_mux_ice40( spi);
@@ -1768,7 +1768,7 @@ void app_update_simple_with_data(app_t *app)
 
     // spi_print_register( app->spi_fpga1, REG_STATUS );    // show fan speed.
 
-    spi_port_configure( app->spi_fpga1 );
+    spi_controller_configure( app->spi_fpga1 );
 
     // perhaps should put on a separate register.
     uint8_t reg = REG_STATUS;

@@ -1717,7 +1717,7 @@ void mode_seq_set( _mode_t *mode, uint32_t seq_mode , uint8_t arg0, uint8_t arg1
 
 
 #if 0
-  spi_port_configure( spi_4094);
+  spi_controller_configure( spi_4094);
   spi_4094_write_n( spi_4094, (void *) &x , 4  );
 /*
   uint32_t x = 0xffffffff;

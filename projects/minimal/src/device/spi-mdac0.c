@@ -25,16 +25,16 @@
 
 
 
-static void setup(spi_t *spi )
+static void port_configure(spi_t *spi )
 {
-  UNUSED(spi);
+  UNUSED( spi);
 
-  // cs vec already have been setup by the spi controller.
+  // port already setup by shared spi controller.
 }
 
 
 
-static void port_configure( spi_t *spi_)
+static void controller_configure( spi_t *spi_)
 {
   assert( spi_ && spi_->spi );
   uint32_t spi = spi_->spi;
@@ -86,8 +86,8 @@ void spi_mdac0_init( spi_t *spi)
   const spi_t temp = {
 
     .spi          = SPI1,     // consider pass underlying spi by contructor.
-    .setup        =  setup,
-    .port_configure = port_configure,
+    .port_configure =  port_configure,
+    .controller_configure = controller_configure,
     .cs_assert    = cs_assert,
     .cs_deassert  = cs_deassert,
   };

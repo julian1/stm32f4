@@ -7,7 +7,7 @@
   abstracts gpio setup, and spi pol/phase configuration.
 
 
-  the spi port_configure(). should be implemented per device.
+  the spi controller_configure(). should be implemented per device.
   even if the function is repeated/the same for devices of the same *type* .
 
   ---
@@ -31,23 +31,23 @@ struct spi_t
   uint32_t  magic;
   uint32_t  spi;
 
-  void (*setup)(spi_t *);
-  void (*port_configure)(spi_t *);    // this is wrongly named. it is the spi-controller should is configured.
+  void (*port_configure)(spi_t *);             // this is the controller_configure
+  void (*controller_configure)(spi_t *);    // this is wrongly named. it is the spi-controller should is configured.
   void (*cs_assert)(spi_t *);
   void (*cs_deassert)(spi_t *);
 };
 
 
-static inline void spi_setup( spi_t *spi)
-{
-  // assert(spi);
-  spi->setup( spi);
-}
-
 static inline void spi_port_configure( spi_t *spi)
 {
   // assert(spi);
   spi->port_configure( spi);
+}
+
+static inline void spi_controller_configure( spi_t *spi)
+{
+  // assert(spi);
+  spi->controller_configure( spi);
 }
 
 

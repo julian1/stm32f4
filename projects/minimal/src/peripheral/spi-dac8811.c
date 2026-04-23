@@ -13,7 +13,7 @@
 #include <peripheral/spi.h>
 
 
-void spi_dac8811_port_configure(uint32_t spi)
+void spi_dac8811_controller_configure(uint32_t spi)
 {
   // EXTR. setup on the ice40 side.
   // printf("spi mux dac8811 \n");

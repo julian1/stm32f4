@@ -19,7 +19,7 @@
 #define FPGA1_MAGIC   77122877
 
 
-static void setup(spi_t *spi )
+static void port_configure(spi_t *spi )
 {
   assert(spi && spi->magic == FPGA1_MAGIC);
 
@@ -36,7 +36,7 @@ static void setup(spi_t *spi )
 }
 
 
-static void port_configure( spi_t *spi_)
+static void controller_configure( spi_t *spi_)
 {
   assert(spi_ && spi_->magic == FPGA1_MAGIC);
 
@@ -91,8 +91,8 @@ void spi_fpga1_init( spi_t *spi)
 
     .magic          = FPGA1_MAGIC,
     .spi            = SPI2,
-    .setup          = setup,
     .port_configure = port_configure,
+    .controller_configure = controller_configure,
     .cs_assert      = cs_assert,
     .cs_deassert    = cs_deassert,
   };

@@ -32,7 +32,7 @@ typedef struct vfd_t
   uint32_t  fmc_cd;       // command/data bit. FMC_A16.   change name vmc_cd_bit.  it is bit in an address not address
 
   //
-  void (*vfd_gpio_setup)( vfd_t *);
+  void (*vfd_gpio_port_configure)( vfd_t *);
   bool (*vfd_getTear)( vfd_t *);
   void (*vfd_reset)( vfd_t *, bool val );
 

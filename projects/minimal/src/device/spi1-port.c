@@ -72,7 +72,7 @@
 
 
 
-void spi1_port_setup(void)
+void spi1_port_configure(void)
 {
   printf("spi1 port setup\n");
 

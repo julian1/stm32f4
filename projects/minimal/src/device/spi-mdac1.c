@@ -35,7 +35,7 @@
 
 
 
-static void setup(spi_t *spi )
+static void port_configure(spi_t *spi )
 {
   UNUSED(spi);
 
@@ -44,7 +44,7 @@ static void setup(spi_t *spi )
 
 
 
-static void port_configure( spi_t *spi_)
+static void controller_configure( spi_t *spi_)
 {
   assert( spi_ && spi_->magic == MDAC1_MAGIC);
 
@@ -101,8 +101,8 @@ void spi_mdac1_init( spi_t *spi)
     // base
     .magic          = MDAC1_MAGIC,
     .spi            = SPI1,     // consider pass underlying spi by contructor.
-    .setup          = setup,
     .port_configure = port_configure,
+    .controller_configure = controller_configure,
     .cs_assert      = cs_assert,
     .cs_deassert    = cs_deassert,
   };
