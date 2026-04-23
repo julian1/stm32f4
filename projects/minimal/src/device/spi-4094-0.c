@@ -19,9 +19,7 @@
 
 
 
-
 #define UNUSED(x) ((void)(x))
-
 
 
 #define _4094_MAGIC 546123
@@ -34,10 +32,7 @@ static void setup(spi_t *spi)
 
   // SPI1_CS2 should already have been setup by spi.
   // because it is used for configure.
-
-  // assert(0);
 }
-
 
 
 static void port_configure( spi_t *spi_)
@@ -63,7 +58,6 @@ static void port_configure( spi_t *spi_)
 }
 
 
-
 static void cs_assert( spi_t *spi)
 {
   assert(spi && spi->magic == _4094_MAGIC);
@@ -74,6 +68,7 @@ static void cs_assert( spi_t *spi)
   assert(SPI_CS_4094 == 2);
   gpio_write_with_mask( GPIOC, 7, 0b111, SPI_CS_4094);
 }
+
 
 static void cs_deassert( spi_t *spi)
 {

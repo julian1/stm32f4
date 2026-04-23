@@ -32,7 +32,7 @@ struct spi_t
   uint32_t  spi;
 
   void (*setup)(spi_t *);
-  void (*port_configure)(spi_t *);
+  void (*port_configure)(spi_t *);    // this is wrongly named. it is the spi-controller should is configured.
   void (*cs_assert)(spi_t *);
   void (*cs_deassert)(spi_t *);
 };

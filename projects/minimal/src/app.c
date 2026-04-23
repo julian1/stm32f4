@@ -2,7 +2,7 @@
 
 
 #include <stdio.h>      // printf, scanf
-#include <string.h>     // memset
+#include <string.h>     // strcmp
 #include <assert.h>
 #include <malloc.h>     // malloc_stats()
 #include <strings.h>    // strcasecmp

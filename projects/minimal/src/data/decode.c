@@ -136,7 +136,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   }
 
 
-  if( true) {
+  if( true /* show_comparators */) {
 
     printf( "zgjc=%u ovld=%u unld=%u ch1=%u ch2=%u, ",
 

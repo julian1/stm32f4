@@ -59,7 +59,10 @@ void usart1_setup_portA(void)
 static void usart_configure( uint32_t usart )
 {
 
+
+  // TODO - refactor the interrupt configuration out of here.
   switch(usart) {
+
     case USART1:
       nvic_enable_irq(NVIC_USART1_IRQ);
       nvic_set_priority(NVIC_USART1_IRQ, 5);    // value???
@@ -92,8 +95,44 @@ static void usart_configure( uint32_t usart )
 
 
 
+/*
+  apr. 2026.
+
+  Much better if the interrupts propagates as handler to the top app_t level first.
+  because app_t is the ctx that has pointers to BOTH the input and output queues.
+  ------------
+
+  That way we get rid of the usart1_set_buffers()
+  and handle everything from app_t ctx.
+
+  can have the usart
+  usart_interupt_setup(  )
+
+  -----------
+
+  also in app_update()
+
+  check if the output buffer is non-empty, and enable the tx interrupt.
+
+    if(!cbuf_is_empty(coutput)) {
+      usart_enable_tx_interrupt(USART1);
+    }
+
+  struct usart_t {
+
+    uint32_t  usart;    // specific device.
+
+    void (*setup)( void );
+  };
 
 
+
+  void init(   handler_t handler  )
+
+
+}
+
+*/
 
 static cbuf_t *coutput = NULL;
 static cbuf_t *cinput  = NULL;

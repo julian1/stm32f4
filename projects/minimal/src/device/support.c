@@ -9,6 +9,33 @@
 
 
 
+/*
+  consider a better way to context pointers for callbacks/handlers.
+  a single global table.
+
+    void *glb_nvic_ctx_table[ NVIC_IRQ_COUNT ];
+
+  to register,
+
+    glb_nvic_ctx_table[  NVIC_EXTI3_IRQ ] = (void *) this;
+
+  and index lookup,
+
+    void *ctx = glb_nvic_ctx_tabl[ NVIC_EXTI3_IRQ ];
+
+
+  But note, negative value/index for systick.
+  So would need something different.
+
+  #define NVIC_SYSTICK_IRQ    -1
+
+    The NVIC_SYSTICK_IRQ is defined as a negative number because it represents a
+    processor core exception (internal interrupt) rather than a device-specific
+    (external) interrupt, according to ARM CMSIS standards.
+*/
+
+
+
 
 static inline void spi_wait_until_not_busy(uint32_t spi)
 {

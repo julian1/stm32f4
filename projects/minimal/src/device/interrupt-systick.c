@@ -59,7 +59,7 @@ static void setup( interrupt_t *i)
 }
 
 
-void interrupt_systick_init( interrupt_systick_t *i, uint32_t tick_divider)
+void interrupt_systick_init( interrupt_systick_t *i, /* nvic_ctx_table * */ uint32_t tick_divider)
 {
   assert( i);
   memset( i, 0, sizeof( interrupt_systick_t));
