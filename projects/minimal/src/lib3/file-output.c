@@ -12,7 +12,6 @@
 
 #include <libopencm3/stm32/usart.h>
 
-#include <lib3/usart.h> // usart1_enable_output_interupt()
 #include <lib3/cbuffer.h>
 
 
@@ -25,17 +24,19 @@
 
 
 
-struct Cookie
+struct cookie_t
 {
   cbuf_t    *coutput;
   int       flags;
 
-  /* usart */
+  /* TODO add usart id - to avoid hardcoding
+    and set on init
+  */
 
 };
 
 
-typedef struct Cookie Cookie;
+typedef struct cookie_t cookie_t;
 
 
 
@@ -53,15 +54,13 @@ static void * file_to_cookie( FILE *f )
   return cookie;
 }
 
-// change name SYNC_OUTPUT_ON_NEWLINE
-#define SYNC_OUTPUT_ON_NEWLINE   0x01
 
 
 
 int ffnctl( FILE *f, int cmd)
 {
   assert(f);
-  Cookie * cookie = file_to_cookie( f );
+  cookie_t * cookie = file_to_cookie( f );
   assert(cookie);
 
   if( cmd) {
@@ -75,7 +74,7 @@ int ffnctl( FILE *f, int cmd)
 
 
 
-static ssize_t mywrite( Cookie *cookie, const char *buf, size_t size)
+static ssize_t mywrite( cookie_t *cookie, const char *buf, size_t size)
 {
 
   cbuf_t *coutput = cookie->coutput;
@@ -85,11 +84,12 @@ static ssize_t mywrite( Cookie *cookie, const char *buf, size_t size)
     int ch = buf[ i ];
 
     if(ch  == '\n') {
+
       cbuf_push( coutput, '\r');
       cbuf_push( coutput, ch);
 
       // block control, in order to flush circular buffer
-      if(cookie->flags & SYNC_OUTPUT_ON_NEWLINE) {
+      if(cookie->flags & O_SYNC_NEWLINE) {
 
         // usart1_flush();
         usart_enable_tx_interrupt( USART1);
@@ -117,7 +117,6 @@ static ssize_t mywrite( Cookie *cookie, const char *buf, size_t size)
 
 
 FILE *file_open_output_cbuf( cbuf_t *coutput  /* usart */ )
-// void cbuf_init_stdout_streams( cbuf_t *circ_buf )
 {
   /*
     advantage of using is stdout, and avoid intermediate handling with buffers
@@ -133,12 +132,13 @@ FILE *file_open_output_cbuf( cbuf_t *coutput  /* usart */ )
     .close = NULL
   };
 
-  // memory never released.
-  Cookie *cookie = malloc(sizeof(Cookie));
+  // TODO memory never released.
+  // implement close()
+  cookie_t *cookie = malloc( sizeof(cookie_t));
   assert(cookie);
 
   // nice C99 init
-  *cookie = (Cookie const) {
+  *cookie = (cookie_t const) {
     .coutput      = coutput,
     .flags        = 0,
   };
@@ -150,12 +150,6 @@ FILE *file_open_output_cbuf( cbuf_t *coutput  /* usart */ )
   setbuf(f, NULL);
 
   return f;
-
-/*
-  // change stdout to pOINT at f.
-  stdout = f;
-  stderr = f;
-*/
 }
 
 

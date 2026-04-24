@@ -9,8 +9,8 @@
 #include <assert.h>
 
 
-#include <lib3/file-input.h>
 #include <lib3/cbuffer.h>
+#include <lib3/file-input.h>
 
 
 #define UNUSED(x) (void)(x)
@@ -19,14 +19,14 @@
 
 
 
+typedef struct cookie_t cookie_t;
 
-struct Cookie
+struct cookie_t
 {
   cbuf_t  *cinput;
   // int     flags;
 };
 
-typedef struct Cookie Cookie;
 
 
 
@@ -34,7 +34,7 @@ typedef struct Cookie Cookie;
 
 static ssize_t myread( void *cookie_, char *buf, size_t sz)
 {
-  Cookie *cookie = (Cookie *) cookie_;
+  cookie_t *cookie = (cookie_t *) cookie_;
 
   /* return 0 on non-blocking buf empty,
   which gets turned to EOF(-1) by FILE read.
@@ -54,10 +54,9 @@ static ssize_t myread( void *cookie_, char *buf, size_t sz)
 
 
 
-FILE *file_open_input_cbuf( cbuf_t *console_in )
-// void cbuf_init_stdin_streams( cbuf_t *console_in )
+FILE *file_open_input_cbuf( cbuf_t *cinput)
 {
-  assert(console_in);
+  assert(cinput);
 
 
   cookie_io_functions_t file_func = {
@@ -67,14 +66,15 @@ FILE *file_open_input_cbuf( cbuf_t *console_in )
     .close = NULL
   };
 
-  // memory never released.
-  Cookie *cookie = malloc(sizeof(Cookie));
+  // TODO memory never released.
+  // implement close()
+  cookie_t *cookie = malloc( sizeof(cookie_t));
   assert(cookie);
 
 
   // nice C99 init
-  *cookie = (Cookie const) {
-    .cinput  = console_in,
+  *cookie = (cookie_t const) {
+    .cinput  = cinput,
     // .flags     = 0,
   };
 
@@ -85,7 +85,6 @@ FILE *file_open_input_cbuf( cbuf_t *console_in )
   // required, because we use circ buffer as buffer
   setbuf(f, NULL);
 
-  // stdin = f;
   return f;
 }
 
