@@ -211,10 +211,12 @@ static int main_f429(void)
   */
   //////////////
   // now can init usart peripheral using app console buffer
-  usart1_setup_portB();
+  usart1_configure_port_B();
 
   // this configures the usart also
   usart1_set_buffers( &cbuf_console_in, &cbuf_console_out);
+
+  usart_configure( USART1 );
 
 
   // interrupt_t   usart1_interupt;
@@ -627,7 +629,7 @@ static int main_f413(void)
   */
   //////////////
   // now can init usart peripheral using app console buffer
-  usart1_setup_portB();
+  usart1_configure_port_B();
 
   usart1_set_buffer( &app.cbuf_console_in, &app.cbuf_console_out);
 

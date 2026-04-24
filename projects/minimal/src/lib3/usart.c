@@ -24,8 +24,9 @@
 
 
 
-void usart1_setup_portB(void)
+void usart1_configure_port_B(void)
 {
+
   // we moved usart 1 for stm32f410. to different pins,
   // PB6 = tx, PB7=rx
   // still AF7
@@ -36,8 +37,9 @@ void usart1_setup_portB(void)
 
 
 
-void usart1_setup_portA(void)
+void usart1_configure_port_A(void)
 {
+
   // stm32f407 usart1.
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9 | GPIO10);
   gpio_set_af(GPIOA, GPIO_AF7, GPIO9 | GPIO10);
@@ -56,7 +58,7 @@ void usart1_setup_portA(void)
 
 
 
-static void usart_configure( uint32_t usart )
+void usart_configure( uint32_t usart )
 {
 
 
@@ -95,44 +97,6 @@ static void usart_configure( uint32_t usart )
 
 
 
-/*
-  apr. 2026.
-
-  Much better if the interrupts propagates as handler to the top app_t level first.
-  because app_t is the ctx that has pointers to BOTH the input and output queues.
-  ------------
-
-  That way we get rid of the usart1_set_buffers()
-  and handle everything from app_t ctx.
-
-  can have the usart
-  usart_interupt_setup(  )
-
-  -----------
-
-  also in app_update()
-
-  check if the output buffer is non-empty, and enable the tx interrupt.
-
-    if(!cbuf_is_empty(coutput)) {
-      usart_enable_tx_interrupt(USART1);
-    }
-
-  struct usart_t {
-
-    uint32_t  usart;    // specific device.
-
-    void (*setup)( void );
-  };
-
-
-
-  void init(   handler_t handler  )
-
-
-}
-
-*/
 
 static cbuf_t *coutput = NULL;
 static cbuf_t *cinput  = NULL;
@@ -146,7 +110,6 @@ void usart1_set_buffers( cbuf_t *input, cbuf_t *output)
   cinput = input;
   coutput = output;
 
-  usart_configure( USART1);
 }
 
 
