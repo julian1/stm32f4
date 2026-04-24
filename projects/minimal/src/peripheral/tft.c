@@ -132,7 +132,7 @@ void tft_init(  tft_t *tft, volatile uint32_t *system_millis)
   printf("tft_init\n");
 
   // LCD_Configuration();
-  // fsmc_gpio_port_configure();
+  // fsmc_port_configure();
   fsmc_setup( 12);   // slow.
 
 

@@ -1477,7 +1477,7 @@ static bool app_repl_range( app_t *app, const char *cmd)
     // vfd
 
 
-    fsmc_gpio_port_configure();
+    fsmc_port_configure();
 
 
     // fsmc_setup( 12 );   // slow.

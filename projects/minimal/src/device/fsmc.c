@@ -16,10 +16,10 @@
 
 
 
-void fsmc_gpio_port_configure()
+void fsmc_port_configure()
 {
 
-  printf("fsmc_gpio_port_configure\n");
+  printf("fsmc_port_configure\n");
 /*
   // Keep pin setup separate from fsmc peripheral setup.
   because we need to call fsmc setup twice
@@ -108,7 +108,7 @@ void fsmc_gpio_port_configure()
 
 void fsmc_setup( uint8_t divider)
 {
-  // consider rename fsmc_controller_configure() for consistency
+  // consider rename fsmc_controller_configure() to be consistent
 
   printf("fsmc_setup, divider %u\n", divider);
 
