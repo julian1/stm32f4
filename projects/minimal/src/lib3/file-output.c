@@ -102,7 +102,9 @@ static ssize_t cookie_write( cookie_t *cookie, const char *buf, size_t size)
   }
 
   // if more to process, then re-enable tx interupt
+  // void usart1_enable_output_interupt()
   if( !cbuf_is_empty( coutput)) {
+
     usart_enable_tx_interrupt( USART1);
   }
 

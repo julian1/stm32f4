@@ -141,23 +141,26 @@ void usart1_isr(void)
       ((USART_SR(USART1) & USART_SR_TXE) != 0)) {
 
     if(cbuf_is_empty(coutput)) {
+
       // no more chars
       // disable transmit interupt
       usart_disable_tx_interrupt(USART1);
-      return;
-    }
+    } else {
 
-    // else send next char
-    int ch = cbuf_pop(coutput);
-    usart_send(USART1,ch);
+      // else send next char
+      int ch = cbuf_pop(coutput);
+      usart_send(USART1,ch);
+    }
   }
 
 
-  return ;
 }
 
 
+
 #if 0
+
+this code moved to lib3/file-output.c
 
 void usart1_enable_output_interupt()
 {
