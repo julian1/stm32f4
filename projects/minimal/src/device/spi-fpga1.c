@@ -22,7 +22,7 @@ static void port_configure(spi_t *spi )
 {
   assert(spi && spi->magic == FPGA1_MAGIC);
 
-  printf("fpga1/u202 single cs\n");
+  printf("fpga1/u202 port configure\n");
 
 
   /* note was already set up in spi-fpga1-pc.

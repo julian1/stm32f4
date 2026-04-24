@@ -27,7 +27,7 @@ static void port_configure(spi_t *spi )
 {
   assert(spi && spi->magic == FPGA0_MAGIC);
 
-  printf("fpga0/u102 setup all 3 cs lines\n");
+  printf("fpga0/u102 port configure, setup all 3 cs lines\n");
 
 
   /* note GPIO7 was already set up in fpga0-pc.
@@ -48,7 +48,6 @@ static void controller_configure( spi_t *spi_)
   uint32_t spi = spi_->spi;
 
   spi_reset( spi );
-
 
   spi_init_master(
     spi,
@@ -73,8 +72,6 @@ static void cs_assert(spi_t *spi)
   assert(spi && spi->magic == FPGA0_MAGIC);
 
   spi_wait_ready( spi->spi);
-
-  assert(SPI_CS_FPGA0 == 1);
   gpio_write_with_mask( GPIOC, 7, 0b111, SPI_CS_FPGA0);
 }
 
@@ -83,7 +80,6 @@ static void cs_deassert(spi_t *spi)
   assert(spi && spi->magic == FPGA0_MAGIC);
 
   spi_wait_ready( spi->spi);
-
   gpio_write_with_mask( GPIOC, 7, 0b111, SPI_CS_DEASSERT);
 }
 

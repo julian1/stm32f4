@@ -74,16 +74,15 @@ static void cs_assert(spi_t *spi)
   assert( spi && spi->magic == MDAC1_MAGIC);
 
   spi_wait_ready( spi->spi);
-
-  assert(SPI_CS_MDAC0 == 3);
   gpio_write_with_mask( GPIOC, 7, 0b111, SPI_CS_MDAC1);
-
 }
+
 
 static void cs_deassert(spi_t *spi)
 {
-  spi_wait_ready( spi->spi);
+  assert(spi && spi->magic == MDAC1_MAGIC);
 
+  spi_wait_ready( spi->spi);
   gpio_write_with_mask( GPIOC, 7, 0b111, SPI_CS_DEASSERT);
 }
 

@@ -7,10 +7,7 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
 
-
-
 #include <peripheral/spi.h>
-
 
 #include <device/spi-4094-0.h>
 #include <device/spi-fpga0-reg.h>   // cs vec
@@ -36,12 +33,11 @@ static void port_configure(spi_t *spi)
 
 static void controller_configure( spi_t *spi_)
 {
-  assert(spi_);
+  assert(spi_ && spi_->magic == _4094_MAGIC);
+
   uint32_t spi = spi_->spi;
-  assert(spi == SPI1);
 
   spi_reset( spi );
-
 
   spi_init_master(
     spi,
@@ -61,10 +57,7 @@ static void cs_assert( spi_t *spi)
 {
   assert(spi && spi->magic == _4094_MAGIC);
 
-  assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
-
-  assert(SPI_CS_4094 == 2);
   gpio_write_with_mask( GPIOC, 7, 0b111, SPI_CS_4094);
 }
 
@@ -73,9 +66,7 @@ static void cs_deassert( spi_t *spi)
 {
   assert(spi && spi->magic == _4094_MAGIC);
 
-  assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
-
   gpio_write_with_mask( GPIOC, 7, 0b111, SPI_CS_DEASSERT);
 }
 

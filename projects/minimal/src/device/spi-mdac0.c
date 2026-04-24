@@ -22,6 +22,7 @@
 #define UNUSED(x) ((void)(x))
 
 
+#define MDAC0_MAGIC 4538111
 
 
 static void port_configure(spi_t *spi )
@@ -60,17 +61,17 @@ static void controller_configure( spi_t *spi_)
 
 static void cs_assert(spi_t *spi)
 {
+  assert(spi && spi->magic == MDAC0_MAGIC);
+
   spi_wait_ready( spi->spi);
-
-  assert(SPI_CS_MDAC0 == 3);
   gpio_write_with_mask( GPIOC, 7, 0b111, SPI_CS_MDAC0);
-
 }
 
 static void cs_deassert(spi_t *spi)
 {
-  spi_wait_ready( spi->spi);
+  assert(spi && spi->magic == MDAC0_MAGIC);
 
+  spi_wait_ready( spi->spi);
   gpio_write_with_mask( GPIOC, 7, 0b111, SPI_CS_DEASSERT);
 }
 
@@ -81,6 +82,7 @@ void spi_mdac0_init( spi_t *spi)
 
   *spi = (const spi_t) {
 
+    .magic        = MDAC0_MAGIC,
     .spi          = SPI1,     // consider pass underlying spi by contructor.
     .port_configure =  port_configure,
     .controller_configure = controller_configure,
