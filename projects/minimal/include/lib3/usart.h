@@ -17,7 +17,7 @@ void usart1_setup_portB(void);
 
 
 //   TODO maybe use separate functions to set the buffers/queues
-void usart1_set_buffers(cbuf_t *input, cbuf_t *output);
+void usart1_set_buffers( cbuf_t *input, cbuf_t *output);
 
 
 /*
@@ -25,9 +25,9 @@ void usart1_set_buffers(cbuf_t *input, cbuf_t *output);
   use only for printf()/puts()  etc
   to re-enable tx interupt
 */
-void usart1_enable_output_interupt(void);
+// void usart1_enable_output_interupt(void);
 
-void usart1_flush(void);
+// void usart1_flush(void);
 
 
 #ifdef __cplusplus

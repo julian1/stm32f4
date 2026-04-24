@@ -194,6 +194,8 @@ void usart1_isr(void)
 }
 
 
+#if 0
+
 void usart1_enable_output_interupt()
 {
   /*
@@ -218,7 +220,7 @@ void usart1_flush()
   while(!cbuf_is_empty(coutput));
 }
 
-
+#endif
 
 
 

@@ -10,8 +10,11 @@
 #include <assert.h>
 
 
+#include <libopencm3/stm32/usart.h>
+
 #include <lib3/usart.h> // usart1_enable_output_interupt()
 #include <lib3/cbuffer.h>
+
 
 #include <lib3/file-output.h>
 
@@ -75,27 +78,38 @@ int ffnctl( FILE *f, int cmd)
 static ssize_t mywrite( Cookie *cookie, const char *buf, size_t size)
 {
 
+  cbuf_t *output = cookie->circ_buf;
+
   for(unsigned i = 0; i < size; ++i ) {
 
     int ch = buf[ i ];
 
     if(ch  == '\n') {
-      cbuf_push(cookie->circ_buf, '\r');
-      cbuf_push(cookie->circ_buf, ch);
+      cbuf_push( output, '\r');
+      cbuf_push( output, ch);
 
       // block control, in order to flush circular buffer
-      if(cookie->flags & SYNC_OUTPUT_ON_NEWLINE)
-        usart1_flush();
+      if(cookie->flags & SYNC_OUTPUT_ON_NEWLINE) {
 
+        // usart1_flush();
+        usart_enable_tx_interrupt( USART1);
+        while( !cbuf_is_empty( output));
+
+      }
     }
     else {
-      cbuf_push(cookie->circ_buf, ch);
+      cbuf_push( output, ch);
     }
   }
 
   // re-enable tx interupt... if needed
   // could do line buffering here, if wanted.
-  usart1_enable_output_interupt();
+
+  // usart1_enable_output_interupt();
+  if( !cbuf_is_empty( output)) {
+    usart_enable_tx_interrupt( USART1);
+  }
+
 
   return size;
 }
