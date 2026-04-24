@@ -53,12 +53,12 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/lib3/assert.c   \
             src/lib3/cstring.c  \
             src/lib3/cbuffer.c  \
-            src/lib3/stream-output.c  \
-            src/lib3/stream-input.c  \
+            src/lib3/file-output.c  \
+            src/lib3/file-input.c  \
+            src/lib3/file-flash.c  \
             src/lib3/usart.c  \
             src/lib3/stats.c  \
             src/lib3/format.c  \
-            src/lib3/stream-flash.c  \
 
 
 

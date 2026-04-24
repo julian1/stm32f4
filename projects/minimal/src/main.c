@@ -24,8 +24,9 @@
 #include <lib3/util.h>          // UNUSED,ARRAY_SIZE
 #include <lib3/cbuffer.h>
 #include <lib3/cstring.h>
-#include <lib3/stream-input.h>
-#include <lib3/stream-output.h>
+
+#include <lib3/file-input.h>
+#include <lib3/file-output.h>
 
 
 
@@ -186,16 +187,16 @@ static int main_f429(void)
 
 
   // uart/console
-  cbuf_init( &cbuf_console_in,  buf_cbuf_console_in,  sizeof(buf_cbuf_console_in));
-  cbuf_init( &cbuf_console_out, buf_cbuf_console_out, sizeof(buf_cbuf_console_out));
+  cbuf_init( &cbuf_console_in,  buf_cbuf_console_in,  sizeof( buf_cbuf_console_in));
+  cbuf_init( &cbuf_console_out, buf_cbuf_console_out, sizeof( buf_cbuf_console_out));
 
   // cbuf_init_stdout_streams( &cbuf_console_out );
   // cbuf_init_stdin_streams(  &cbuf_console_in );
 
 
-  stdout = stderr = stream_init_output( &cbuf_console_out);
+  stdout = stderr = file_open_output_cbuf( &cbuf_console_out);
 
-  stdin = stream_init_input( &cbuf_console_in);
+  stdin = file_open_input_cbuf( &cbuf_console_in);
 
 
 

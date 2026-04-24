@@ -4,7 +4,7 @@
 
 typedef struct cbuf_t cbuf_t;
 
-FILE *stream_init_output( cbuf_t *circ_buf );
+FILE *file_open_output_cbuf( cbuf_t *circ_buf );
 
 int ffnctl( FILE *f, int cmd );
 

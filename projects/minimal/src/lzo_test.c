@@ -9,7 +9,7 @@
 #include <lzo/unlzo.h>
 
 #include <lib3/util.h>    // msleep
-#include <lib3/stream-flash.h>
+#include <lib3/file-flash.h>
 
 
 // fix me
@@ -73,7 +73,7 @@ int flash_lzo_test(void)
   // fill_file = fopen(argv[1], "r") ;
 
   printf("flash lzo test 0\n");
-  fill_file = flash_open_file(  FLASH_SECT_ADDR );
+  fill_file = file_open_flash(  FLASH_SECT_ADDR );
 
   printf("lzo test 1\n");
   assert(fill_file);

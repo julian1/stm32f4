@@ -12,9 +12,11 @@
 
 #include <lib3/util.h>        // UNUSED
 #include <lib3/format.h>      // str_format_bits()
-#include <lib3/stream-flash.h>  // flash_open_file()
 #include <lib3/cbuffer.h>
 #include <lib3/cstring.h>
+
+// TODO - file should  be opened as dependency in main.c
+#include <lib3/file-flash.h>  // file_open_flash()
 
 
 
@@ -372,7 +374,7 @@ void app_configure( app_t *app )
 #if 0
 
   assert( 0);
-  FILE *f = flash_open_file( FLASH_U202_ADDR );
+  FILE *f = file_open_flash( FLASH_U202_ADDR );
   spi_ice40_bitstream_send( app->spi_fpga1, f, FLASH_UP5K_SIZE, & app->system_millis );
   fclose(f);
 
@@ -577,7 +579,7 @@ static void app_update_500ms(app_t *app)
         not pass the flash address and size.
         seek() would need to work.
     */
-    FILE *f = flash_open_file( FLASH_U102_ADDR);
+    FILE *f = file_open_flash( FLASH_U102_ADDR);
     int ret = spi_ice40_bitstream_send( app->spi_fpga0_pc, f, FLASH_HX8K_SIZE, app->system_millis );
     fclose(f);
 
@@ -609,7 +611,7 @@ static void app_update_500ms(app_t *app)
   if( /*false &&*/ !spi_ice40_cdone( app->spi_fpga1_pc)) {
 
     // dependency should be set/passed to app.
-    FILE *f = flash_open_file( FLASH_U202_ADDR );
+    FILE *f = file_open_flash( FLASH_U202_ADDR );
     spi_ice40_bitstream_send( app->spi_fpga1_pc, f, FLASH_UP5K_SIZE, app->system_millis );
     fclose(f);
 
@@ -1205,7 +1207,7 @@ bool app_repl_statement( app_t *app,  const char *cmd)
   // need better name u202 load bitstream
   else if(strcmp(cmd, "bitstream test") == 0) {
 
-    FILE *f = flash_open_file( FLASH_U202_ADDR );
+    FILE *f = file_open_flash( FLASH_U202_ADDR );
     spi_ice40_bitstream_send( app->spi_fpga1_pc, f, FLASH_UP5K_SIZE, app->system_millis );
     fclose(f);
   }

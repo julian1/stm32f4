@@ -14,7 +14,9 @@
 
 #include <libopencm3/stm32/flash.h>
 
-#include <lib3/stream-flash.h>
+// TODO. should open file once in main. and pass as dependency
+#include <lib3/file-flash.h>
+
 #include <flash/file-blob.h>
 
 #include <data/cal.h>
@@ -226,7 +228,7 @@ bool cal_repl_statement( cal_t *cal, const char *cmd)
     printf("flash unlock\n");
     flash_unlock();
 
-    FILE *f = flash_open_file( cal->flash_sect_addr /*FLASH_SECT_ADDR */);
+    FILE *f = file_open_flash( cal->flash_sect_addr /*FLASH_SECT_ADDR */);
     file_blob_skip_end( f);
     // use callback to write the block.
     file_blob_write( f,  (void (*)(FILE *, blob_header_t *, void *)) file_write_cal_handler, cal);
@@ -249,7 +251,7 @@ bool cal_repl_statement( cal_t *cal, const char *cmd)
 
     printf("flash unlock\n");
     flash_unlock();
-    FILE *f = flash_open_file( cal->flash_sect_addr /*FLASH_SECT_ADDR */);
+    FILE *f = file_open_flash( cal->flash_sect_addr /*FLASH_SECT_ADDR */);
 
     file_blobs_scan( f,  (void (*)( FILE *, blob_header_t *, void *))  file_scan_cal_handler, cal);
     fclose(f);

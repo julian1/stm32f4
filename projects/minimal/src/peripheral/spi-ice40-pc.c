@@ -282,7 +282,7 @@ int spi_ice40_bitstream_send( spi_ice40_t *spi , FILE *f, size_t size , volatile
 int flash_raw_test(void)
 {
   printf("flash raw test\n");
-  FILE *f = flash_open_file();
+  FILE *f = file_open_flash();
   assert(f);
   // print first 100 chars.
   char buf[ 100 ] ;

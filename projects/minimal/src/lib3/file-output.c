@@ -13,7 +13,7 @@
 #include <lib3/usart.h> // usart1_enable_output_interupt()
 #include <lib3/cbuffer.h>
 
-#include <lib3/stream-output.h>
+#include <lib3/file-output.h>
 
 
 #define UNUSED(x) (void)(x)
@@ -26,7 +26,11 @@ struct Cookie
 {
   cbuf_t    *circ_buf;
   int       flags;
+
+  /* usart */
+
 };
+
 
 typedef struct Cookie Cookie;
 
@@ -34,11 +38,6 @@ typedef struct Cookie Cookie;
 
 static void * file_to_cookie( FILE *f )
 {
-  /*
-    change name ffcntl()  to support different args
-    should not be exposed.
-    but allows supporting other file based operations over our structure
-  */
 
   // actually a handler
   void *cookie_ptr= f->_cookie;
@@ -62,8 +61,9 @@ int ffnctl( FILE *f, int cmd)
   Cookie * cookie = file_to_cookie( f );
   assert(cookie);
 
-  if(cmd)
+  if( cmd) {
     cookie->flags = cmd;
+  }
 
   return cookie->flags;
 }
@@ -72,7 +72,7 @@ int ffnctl( FILE *f, int cmd)
 
 
 
-static ssize_t mywrite(Cookie *cookie, const char *buf, size_t size)
+static ssize_t mywrite( Cookie *cookie, const char *buf, size_t size)
 {
 
   for(unsigned i = 0; i < size; ++i ) {
@@ -102,8 +102,8 @@ static ssize_t mywrite(Cookie *cookie, const char *buf, size_t size)
 
 
 
+FILE *file_open_output_cbuf( cbuf_t *circ_buf /* usart */ )
 // void cbuf_init_stdout_streams( cbuf_t *circ_buf )
-FILE *stream_init_output( cbuf_t *circ_buf )
 {
   /*
     advantage of using is stdout, and avoid intermediate handling with buffers

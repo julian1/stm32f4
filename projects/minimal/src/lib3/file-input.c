@@ -9,7 +9,7 @@
 #include <assert.h>
 
 
-#include <lib3/stream-input.h>
+#include <lib3/file-input.h>
 #include <lib3/cbuffer.h>
 
 
@@ -54,7 +54,7 @@ static ssize_t myread( void *cookie_, char *buf, size_t sz)
 
 
 
-FILE *stream_init_input( cbuf_t *console_in )
+FILE *file_open_input_cbuf( cbuf_t *console_in )
 // void cbuf_init_stdin_streams( cbuf_t *console_in )
 {
   assert(console_in);

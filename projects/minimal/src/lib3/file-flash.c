@@ -86,7 +86,7 @@
 #include <libopencm3/stm32/flash.h>
 
 
-#include <lib3/stream-flash.h>
+#include <lib3/file-flash.h>
 
 
 /*
@@ -311,7 +311,7 @@ static int seek_handler(void *a_, long int *offset_, int whence)
 
 
 
-FILE * flash_open_file( uint32_t flash_sect_addr )
+FILE * file_open_flash( uint32_t flash_sect_addr )
 {
   // think fopencookie will copies
   static cookie_io_functions_t  memfile_func = {
