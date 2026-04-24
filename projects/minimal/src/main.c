@@ -190,8 +190,6 @@ static int main_f429(void)
   cbuf_init( &cbuf_console_in,  buf_cbuf_console_in,  sizeof( buf_cbuf_console_in));
   cbuf_init( &cbuf_console_out, buf_cbuf_console_out, sizeof( buf_cbuf_console_out));
 
-  // cbuf_init_stdout_streams( &cbuf_console_out );
-  // cbuf_init_stdin_streams(  &cbuf_console_in );
 
 
   stdout = stderr = file_open_output_cbuf( &cbuf_console_out);
