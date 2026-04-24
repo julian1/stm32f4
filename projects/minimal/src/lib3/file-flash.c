@@ -313,6 +313,10 @@ static int seek_handler(void *a_, long int *offset_, int whence)
 
 FILE * file_open_flash( uint32_t flash_sect_addr )
 {
+  /*
+      need to refactor this.
+      malloc() the cookie structure.
+  */
   // think fopencookie will copies
   static cookie_io_functions_t  memfile_func = {
     .read  = read_handler,                  // avoid casting ptrf, because types get confusing

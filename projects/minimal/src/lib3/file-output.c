@@ -27,7 +27,7 @@
 
 struct Cookie
 {
-  cbuf_t    *circ_buf;
+  cbuf_t    *coutput;
   int       flags;
 
   /* usart */
@@ -78,27 +78,27 @@ int ffnctl( FILE *f, int cmd)
 static ssize_t mywrite( Cookie *cookie, const char *buf, size_t size)
 {
 
-  cbuf_t *output = cookie->circ_buf;
+  cbuf_t *coutput = cookie->coutput;
 
   for(unsigned i = 0; i < size; ++i ) {
 
     int ch = buf[ i ];
 
     if(ch  == '\n') {
-      cbuf_push( output, '\r');
-      cbuf_push( output, ch);
+      cbuf_push( coutput, '\r');
+      cbuf_push( coutput, ch);
 
       // block control, in order to flush circular buffer
       if(cookie->flags & SYNC_OUTPUT_ON_NEWLINE) {
 
         // usart1_flush();
         usart_enable_tx_interrupt( USART1);
-        while( !cbuf_is_empty( output));
+        while( !cbuf_is_empty( coutput));
 
       }
     }
     else {
-      cbuf_push( output, ch);
+      cbuf_push( coutput, ch);
     }
   }
 
@@ -106,7 +106,7 @@ static ssize_t mywrite( Cookie *cookie, const char *buf, size_t size)
   // could do line buffering here, if wanted.
 
   // usart1_enable_output_interupt();
-  if( !cbuf_is_empty( output)) {
+  if( !cbuf_is_empty( coutput)) {
     usart_enable_tx_interrupt( USART1);
   }
 
@@ -116,7 +116,7 @@ static ssize_t mywrite( Cookie *cookie, const char *buf, size_t size)
 
 
 
-FILE *file_open_output_cbuf( cbuf_t *circ_buf /* usart */ )
+FILE *file_open_output_cbuf( cbuf_t *coutput  /* usart */ )
 // void cbuf_init_stdout_streams( cbuf_t *circ_buf )
 {
   /*
@@ -127,19 +127,19 @@ FILE *file_open_output_cbuf( cbuf_t *circ_buf /* usart */ )
   */
 
   cookie_io_functions_t file_func = {
-     .read  = NULL,
-     .write =  (cookie_write_function_t *) mywrite,
-     .seek  = NULL,
-     .close = NULL
+    .read  = NULL,
+    .write =  (cookie_write_function_t *) mywrite,
+    .seek  = NULL,
+    .close = NULL
   };
 
   // memory never released.
   Cookie *cookie = malloc(sizeof(Cookie));
   assert(cookie);
 
-  // loverly designated initializer
+  // nice C99 init
   *cookie = (Cookie const) {
-    .circ_buf  = circ_buf,
+    .coutput      = coutput,
     .flags        = 0,
   };
 

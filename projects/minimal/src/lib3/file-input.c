@@ -22,8 +22,8 @@
 
 struct Cookie
 {
-  cbuf_t  *circ_buf;
-  int   flags;
+  cbuf_t  *cinput;
+  // int     flags;
 };
 
 typedef struct Cookie Cookie;
@@ -48,7 +48,7 @@ static ssize_t myread( void *cookie_, char *buf, size_t sz)
     the issue with blocking here is that it won't pump update()
   */
 
-  return cbuf_read( cookie->circ_buf, buf, sz);
+  return cbuf_read( cookie->cinput, buf, sz);
 }
 
 
@@ -61,20 +61,21 @@ FILE *file_open_input_cbuf( cbuf_t *console_in )
 
 
   cookie_io_functions_t file_func = {
-     .read  =  myread,      // avoid casting ptrf, because types get confusing
-     .write = NULL ,
-     .seek  = NULL,
-     .close = NULL
+    .read  =  myread,      // avoid casting ptrf, because types get confusing
+    .write = NULL ,
+    .seek  = NULL,
+    .close = NULL
   };
 
   // memory never released.
   Cookie *cookie = malloc(sizeof(Cookie));
   assert(cookie);
 
-  // lovely designated initializer
+
+  // nice C99 init
   *cookie = (Cookie const) {
-    .circ_buf  = console_in,
-    .flags     = 0,
+    .cinput  = console_in,
+    // .flags     = 0,
   };
 
 
