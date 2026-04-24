@@ -194,6 +194,10 @@ static int main_f429(void)
 
   stdout = stderr = file_open_output_cbuf( &cbuf_console_out);
 
+  /*
+    Not sure, we ever even use this with fgetc( stdin); etc
+    instead we use the cbuf directly.
+  */
   stdin = file_open_input_cbuf( &cbuf_console_in);
 
 

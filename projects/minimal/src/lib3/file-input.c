@@ -38,9 +38,19 @@ static ssize_t cookie_read( cookie_t *cookie, char *buf, size_t sz)
 {
 
   /* return 0 on non-blocking buf empty,
-  which gets turned to EOF(-1) by FILE read.
-  EOF can be clear by calling clearerr()
+  which gets turned to EOF(-1) by FILE read().
+  which is a pain.
+
+  although EOF can be clear by calling clearerr()
   */
+
+  /*
+    perhaps could just return EAGAIN from here?
+    EAGAIN: The file is non-blocking and the read would block.
+    May also need to set file descriptor to non-blocking mode (O_NONBLOCK`)
+    But not sure if can get at underlying descriptor
+  */
+
   assert( cookie);
 
   /*

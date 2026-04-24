@@ -682,8 +682,13 @@ static void app_console_update(app_t *app)
 
   assert(app && app->magic == APP_MAGIC);
 
-
-
+  /*
+    It would be nice to just use, getc() or fgetc( stdin); here.
+    issue we is cannot return empty char, only EOF.
+    And we dont want to block.
+    so use cbuf_console_in directly
+    see comments in file-input.c
+  */
   while( !cbuf_is_empty( app->cbuf_console_in)) {
 
     // got a character
