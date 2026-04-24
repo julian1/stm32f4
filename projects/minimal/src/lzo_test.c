@@ -8,8 +8,8 @@
 
 #include <lzo/unlzo.h>
 
-#include <lib2/util.h>    // msleep
-#include <lib2/stream-flash.h>
+#include <lib3/util.h>    // msleep
+#include <lib3/stream-flash.h>
 
 
 // fix me

@@ -14,7 +14,7 @@
 
 #include <libopencm3/stm32/flash.h>
 
-#include <lib2/stream-flash.h>
+#include <lib3/stream-flash.h>
 #include <flash/file-blob.h>
 
 #include <data/cal.h>

@@ -130,7 +130,7 @@ static void f()
 #endif
 
 /*
-  see lib2/util.c  for other approaches
+  see lib3/util.c  for other approaches
 
 */
 

@@ -18,8 +18,8 @@
 #include <device/spi-fpga0-reg.h>   // for seq mode
 
 
-#include <lib2/util.h>      // UNUSED
-#include <lib2/format.h>    // format_float
+#include <lib3/util.h>      // UNUSED
+#include <lib3/format.h>    // format_float
 
 
 #include <data/cal.h>

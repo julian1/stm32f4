@@ -17,9 +17,9 @@
 #include <string.h>     // memcpy
 
 
-#include <lib2/util.h>      // UNUSED, ARRAY_SIZE
-#include <lib2/stats.h>
-#include <lib2/format.h>  // format_with_commas
+#include <lib3/util.h>      // UNUSED, ARRAY_SIZE
+#include <lib3/stats.h>
+#include <lib3/format.h>  // format_with_commas
 
 
 

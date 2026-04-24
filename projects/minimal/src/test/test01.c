@@ -18,8 +18,8 @@
 #include <string.h>         // strcmp
 
 
-#include <lib2/util.h>     // msleep()
-#include <lib2/format.h>   // format_bits()
+#include <lib3/util.h>     // msleep()
+#include <lib3/format.h>   // format_bits()
 
 #include <peripheral/spi-ice40.h>
 #include <device/spi-fpga0-reg.h>

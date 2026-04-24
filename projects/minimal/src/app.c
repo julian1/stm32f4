@@ -10,11 +10,11 @@
 
 
 
-#include <lib2/util.h>        // UNUSED
-#include <lib2/format.h>      // str_format_bits()
-#include <lib2/stream-flash.h>  // flash_open_file()
-#include <lib2/cbuffer.h>
-#include <lib2/cstring.h>
+#include <lib3/util.h>        // UNUSED
+#include <lib3/format.h>      // str_format_bits()
+#include <lib3/stream-flash.h>  // flash_open_file()
+#include <lib3/cbuffer.h>
+#include <lib3/cstring.h>
 
 
 
@@ -88,6 +88,15 @@ int flash_lzo_test(void);
 
 
 
+void app_interrupt_usart( app_t *app, void *arg)
+{
+  assert(app && app->magic == APP_MAGIC);
+  UNUSED( arg);
+
+
+  assert( 0);
+
+}
 
 
 void app_interrupt_systick( app_t *app, void *arg)
@@ -854,6 +863,8 @@ void app_update( app_t *app)
     */
     app_update_500ms(app);
   }
+
+
 }
 
 

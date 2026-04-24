@@ -7,7 +7,7 @@
 #include <libopencm3/stm32/spi.h>
 
 
-#include <lib2/util.h>    // MAX
+#include <lib3/util.h>    // MAX
 
 #include <peripheral/spi-ice40-pc.h>
 

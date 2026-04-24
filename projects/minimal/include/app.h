@@ -261,6 +261,9 @@ void app_update( app_t *app);
 void app_interrupt_systick( app_t *app, void *arg);
 void app_interrupt_data_rdy( app_t *app, void *arg);
 
+void app_interrupt_usart( app_t *app, void *arg);
+
+
 /*
   consider, type onsystem_millis
   except sleep() also yields which needs additional context from app.

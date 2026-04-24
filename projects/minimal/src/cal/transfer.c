@@ -10,14 +10,14 @@
 #include <string.h>
 
 
-#include <lib2/util.h>    // UNUSED
+#include <lib3/util.h>    // UNUSED
 
 #include <peripheral/gpio.h>        // trigger
 
 #include <app.h>
 #include <ranging.h>
 #include <cal/transfer.h>
-#include <lib2/stats.h>
+#include <lib3/stats.h>
 #include <support.h> // nplc_to_aperture()
 
 #include <mode.h>

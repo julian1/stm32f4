@@ -1,0 +1,225 @@
+/*
+
+  TODO - consider using loop in the interupt, to process all/multiple chars for the interrupt.
+      alternatively - perhaps can rely on the interupt re-raise, and control will jump straight back to the context of the queuing function, and that will be enough?
+
+  eg.
+     " ISRs run very fast on these chips. I have ISRs running is 3-4us on a 168MHz 32F417."
+*/
+
+
+#include <assert.h>   // assert_critical_error_led_blink()
+
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/usart.h>
+#include <libopencm3/cm3/nvic.h>
+
+
+#include <lib3/usart.h>
+#include <lib3/cbuffer.h>
+
+
+
+
+
+
+void usart1_setup_portB(void)
+{
+  // we moved usart 1 for stm32f410. to different pins,
+  // PB6 = tx, PB7=rx
+  // still AF7
+  gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO6 | GPIO7);
+  gpio_set_af(GPIOB, GPIO_AF7, GPIO6 | GPIO7);
+  gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO6);
+}
+
+
+
+void usart1_setup_portA(void)
+{
+  // stm32f407 usart1.
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9 | GPIO10);
+  gpio_set_af(GPIOA, GPIO_AF7, GPIO9 | GPIO10);
+  gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO9);
+}
+
+
+
+/*
+  feb 2022.
+  - we should be passing the usart argument explicitly. like we do with spi.
+  - the actual usart configu called setup() or init() oconfigure()...
+  - separate the buffer from the actual configuration.
+  - but cbuffers means can only actually deal with one usart here.
+*/
+
+
+
+static void usart_configure( uint32_t usart )
+{
+
+
+  // TODO - refactor the interrupt configuration out of here.
+  switch(usart) {
+
+    case USART1:
+      nvic_enable_irq(NVIC_USART1_IRQ);
+      nvic_set_priority(NVIC_USART1_IRQ, 5);    // value???
+      break;
+
+    default:
+      // assert() won't work here, because no usart configured for debug output
+      // assert(0);
+      // critical_error_led_blink();
+
+      assert_critical_error_led_blink();
+  }
+
+
+  usart_set_baudrate(usart, 115200);
+  usart_set_databits(usart, 8);
+  usart_set_stopbits(usart, USART_STOPBITS_1);
+
+  usart_set_mode(usart, USART_MODE_TX_RX);
+  usart_set_parity(usart, USART_PARITY_NONE);
+  usart_set_flow_control(usart, USART_FLOWCONTROL_NONE);
+
+
+  /* Enable usart Receive interrupt. */
+  usart_enable_rx_interrupt(usart);
+
+  usart_enable(usart);
+}
+
+
+
+
+/*
+  apr. 2026.
+
+  Much better if the interrupts propagates as handler to the top app_t level first.
+  because app_t is the ctx that has pointers to BOTH the input and output queues.
+  ------------
+
+  That way we get rid of the usart1_set_buffers()
+  and handle everything from app_t ctx.
+
+  can have the usart
+  usart_interupt_setup(  )
+
+  -----------
+
+  also in app_update()
+
+  check if the output buffer is non-empty, and enable the tx interrupt.
+
+    if(!cbuf_is_empty(coutput)) {
+      usart_enable_tx_interrupt(USART1);
+    }
+
+  struct usart_t {
+
+    uint32_t  usart;    // specific device.
+
+    void (*setup)( void );
+  };
+
+
+
+  void init(   handler_t handler  )
+
+
+}
+
+*/
+
+static cbuf_t *coutput = NULL;
+static cbuf_t *cinput  = NULL;
+
+
+
+void usart1_set_buffers( cbuf_t *input, cbuf_t *output)
+{
+  // TODO change name  usart1_set_buffers
+  // set buffers before configure and interupt enable.
+  cinput = input;
+  coutput = output;
+
+  usart_configure( USART1);
+}
+
+
+void usart1_isr(void)
+{
+
+  /* Check if we were called because of RXNE. */
+  if (((USART_CR1(USART1) & USART_CR1_RXNEIE) != 0) &&
+      ((USART_SR(USART1) & USART_SR_RXNE) != 0)) {
+
+    /* Retrieve the data from the peripheral.
+      and clear flags.
+     */
+
+    // write the input buffer
+    char ch = usart_recv(USART1);
+    cbuf_push(cinput, ch);
+  }
+
+
+  /*
+    eg.
+    https://github.com/libopencm3/libopencm3-examples/blob/master/examples/stm32/f4/stm32f429i-discovery/usart_irq/usart_irq.c
+    https://src.xengineering.eu/xengineering/stm32f103c8-examples/src/commit/a68a6b6a088cac53231e3910947d88e9167a3962/libraries/usart.c
+  */
+
+  /* Check if we were called because of TXE. */
+  if (((USART_CR1(USART1) & USART_CR1_TXEIE) != 0) &&
+      ((USART_SR(USART1) & USART_SR_TXE) != 0)) {
+
+    if(cbuf_is_empty(coutput)) {
+      // no more chars
+      // disable transmit interupt
+      usart_disable_tx_interrupt(USART1);
+      return;
+    }
+
+    // else send next char
+    int ch = cbuf_pop(coutput);
+    usart_send(USART1,ch);
+  }
+
+
+  return ;
+}
+
+
+void usart1_enable_output_interupt()
+{
+  /*
+    note. we check in the interupt handler if more data in output buffer.
+    and explicitly de-enable interupt there. so don't do it here.
+  */
+
+  // data in buf, then ensure that txe interupt is enabled to process
+  if(!cbuf_is_empty(coutput)) {
+    usart_enable_tx_interrupt(USART1);
+  }
+}
+
+
+
+void usart1_flush()
+{
+  // block until flushed
+
+  usart1_enable_output_interupt();
+
+  while(!cbuf_is_empty(coutput));
+}
+
+
+
+
+
+

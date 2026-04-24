@@ -15,7 +15,7 @@
 #include <assert.h>
 #include <string.h>   // strcmp
 
-#include <lib2/util.h>      // ARRAY_SIZE
+#include <lib3/util.h>      // ARRAY_SIZE
 
 #include <app.h>
 #include <test/test.h>

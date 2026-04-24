@@ -11,7 +11,7 @@ typedef struct interrupt_t  interrupt_t;
 
 
 
-typedef void (*interrupt_handler_t)(void *ctx, void *arg);
+typedef void (*interrupt_handler_t)( void *ctx, void *arg);
 
 
 struct interrupt_t
@@ -46,7 +46,7 @@ static inline  void interrupt_handler_set( interrupt_t *i, void *ctx, interrupt_
   // simple accessor
   assert(i);
   //  handler_set( i, ctx, h );  no point to delegate, when fields are not opaque
-  i->ctx = ctx;
-  i->handler = h;
+  i->ctx      = ctx;
+  i->handler  = h;
 }
 

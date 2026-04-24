@@ -18,12 +18,12 @@
 #include <device/support.h>
 
 
-#define FPGA0_MAGIC   834234234
+#define FPGA0_PC_MAGIC   834234234
 
 
 static void port_configure(spi_t *spi )
 {
-  assert(spi && spi->magic == FPGA0_MAGIC);
+  assert(spi && spi->magic == FPGA0_PC_MAGIC);
 
 
   printf("fpga0 pc cs\n");
@@ -51,7 +51,7 @@ static void port_configure(spi_t *spi )
 static void controller_configure( spi_t *spi_)
 {
 
-  assert(spi_ && spi_->magic == FPGA0_MAGIC);
+  assert(spi_ && spi_->magic == FPGA0_PC_MAGIC);
 
   uint32_t spi = spi_->spi;
 
@@ -90,7 +90,7 @@ static void controller_configure( spi_t *spi_)
 
 static void cs_assert(spi_t *spi)
 {
-  assert(spi && spi->magic == FPGA0_MAGIC);
+  assert(spi && spi->magic == FPGA0_PC_MAGIC);
   assert(spi->spi == SPI1);
   /*
     - remember before configuration. only one spi cs line is active
@@ -102,7 +102,7 @@ static void cs_assert(spi_t *spi)
 
 static void cs_deassert(spi_t *spi)
 {
-  assert(spi && spi->magic == FPGA0_MAGIC);
+  assert(spi && spi->magic == FPGA0_PC_MAGIC);
 
   spi_wait_ready( spi->spi);
   gpio_write_val( GPIOC, GPIO7, 1);
@@ -112,7 +112,7 @@ static void cs_deassert(spi_t *spi)
 
 static void rst( spi_ice40_t *spi, uint8_t val)
 {
-  assert(spi && spi->magic == FPGA0_MAGIC);
+  assert(spi && spi->magic == FPGA0_PC_MAGIC);
   assert(spi->spi == SPI1);
 
   // gpio_write_val( SPI1_PORT, SPI1_CS2, val);
@@ -122,7 +122,7 @@ static void rst( spi_ice40_t *spi, uint8_t val)
 
 static bool cdone(spi_ice40_t *spi )
 {
-  assert(spi && spi->magic == FPGA0_MAGIC);
+  assert(spi && spi->magic == FPGA0_PC_MAGIC);
   assert(spi->spi == SPI1);
 
 
@@ -137,7 +137,7 @@ void spi_fpga0_pc_init( spi_ice40_t *spi)
 
   const spi_ice40_t temp = {
 
-    .magic          = FPGA0_MAGIC,
+    .magic          = FPGA0_PC_MAGIC,
 
     // base
     .spi            = SPI1,

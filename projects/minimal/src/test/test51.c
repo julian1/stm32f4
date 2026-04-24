@@ -8,9 +8,9 @@
 
 
 
-#include <lib2/util.h>    // ARRAY_SIZE
-#include <lib2/stats.h>
-#include <lib2/format.h>  // format_with_commas
+#include <lib3/util.h>    // ARRAY_SIZE
+#include <lib3/stats.h>
+#include <lib3/format.h>  // format_with_commas
 
 
 #include <mode.h>

@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include <lib2/util.h>    // UNUSED
+#include <lib3/util.h>    // UNUSED
 
 #include <cal/transfer.h>
 #include <app.h>

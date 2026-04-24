@@ -7,7 +7,7 @@
 
 
 
-#include <lib2/usart.h>  // usart1_flush()
+// #include <lib3/usart.h>  // usart1_flush()
 
 
 
@@ -35,15 +35,15 @@ void file_blob_skip_end( FILE *f)
 
   printf( "----------------------\n");
   printf( "file_skip_to_end()\n");
-  usart1_flush();
+  // usart1_flush();
 
   // seek file start
   printf("fseek file start\n");
-  usart1_flush();
+  // usart1_flush();
   fseek( f, 0, SEEK_SET) ;
 
   printf("done fseek\n");
-  usart1_flush();
+  // usart1_flush();
 
 
   blob_header_t header;
@@ -53,12 +53,12 @@ void file_blob_skip_end( FILE *f)
 
     // read hader
     printf("seek read header\n");
-    usart1_flush();
+    // usart1_flush();
     unsigned items = fread( &header, sizeof(header), 1, f);
     assert(items == 1);
 
     printf("magic is %x\n", header.magic );
-    usart1_flush();
+    // usart1_flush();
 
     if(header.magic == MAGIC ) {
 
@@ -101,7 +101,7 @@ void file_blob_write( FILE *f, void (*pf)( FILE *, blob_header_t *, void *ctx ),
   printf( "file_write_data f is %p   ftell() is  %ld\n", f, ftell( f) );
 
 
-  usart1_flush();
+  // usart1_flush();
 
   assert( sizeof(blob_header_t) == 12 );
 
@@ -124,7 +124,7 @@ void file_blob_write( FILE *f, void (*pf)( FILE *, blob_header_t *, void *ctx ),
 
   // determine how far we advanced
   long len = ftell( f) - start;
-  usart1_flush();
+  // usart1_flush();
 
   printf("len %ld\n", len );
   // seek back to header start
@@ -154,7 +154,7 @@ int file_blobs_scan( FILE *f,  void (*pf)( FILE *f, blob_header_t *, void *ctx )
 
   printf( "----------------------\n");
   printf( "file_scan_cal()\n");
-  usart1_flush();
+  // usart1_flush();
 
   // seek the start of file
   fseek( f, 0 , SEEK_SET) ;

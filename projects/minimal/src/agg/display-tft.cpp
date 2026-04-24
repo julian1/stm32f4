@@ -7,7 +7,7 @@
 #include <string.h>     // memcpy
 #include <assert.h>
 
-#include <lib2/util.h>  // ARRAY_SIZE
+#include <lib3/util.h>  // ARRAY_SIZE
 
 // #include <agg/font-outline.h>
 #include <agg/font-span.h>

@@ -8,7 +8,7 @@
 #include <assert.h>
 #include <string.h>   // strcmp
 
-#include <lib2/util.h>  // UNUSED
+#include <lib3/util.h>  // UNUSED
 
 #include <data/decode.h>
 

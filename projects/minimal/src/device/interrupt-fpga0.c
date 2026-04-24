@@ -15,7 +15,7 @@
 
 #define UNUSED(x) ((void)(x))
 
-#define INT_MAGIC   789
+#define FPGA0_MAGIC   78912433
 
 
 
@@ -58,7 +58,7 @@ void exti3_isr(void) // called by runtime
   // void *ctx = glb_nvic_ctx_table[ NVIC_EXTI3_IRQ ];
 
   assert(x);
-  assert(x->magic == INT_MAGIC);
+  assert(x->magic == FPGA0_MAGIC);
 
   if( x->handler) {
 
@@ -92,7 +92,7 @@ void interrupt_fpga0_init( interrupt_t *i /* nvic_ctx_table * */ )
   assert(i);
   memset(i, 0, sizeof(interrupt_t));
 
-  i->magic        = INT_MAGIC;
+  i->magic        = FPGA0_MAGIC;
   i->port_configure = port_configure;
 
   x = i;

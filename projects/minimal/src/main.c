@@ -18,16 +18,19 @@
 #include <libopencm3/stm32/gpio.h>    // assert_critical_error_led_setup()
 
 
-#include <lib2/usart.h>
-#include <lib2/util.h>          // UNUSED,ARRAY_SIZE
-#include <lib2/streams.h>
-#include <lib2/cbuffer.h>
-#include <lib2/cstring.h>
+#include <libopencm3/stm32/usart.h>   // TODO should try to remove
+
+#include <lib3/usart.h>
+#include <lib3/util.h>          // UNUSED,ARRAY_SIZE
+#include <lib3/streams.h>
+#include <lib3/cbuffer.h>
+#include <lib3/cstring.h>
 
 
 #include <device/spi1-port.h>
 #include <device/spi2-port.h>
 #include <device/fsmc.h>
+// #include <device/usart1.h>
 
 
 #include <device/spi-fpga0-pc.h>
@@ -46,12 +49,14 @@
 
 #include <device/interrupt-fpga0.h>
 #include <device/interrupt-systick.h>
+// #include <device/interrupt-usart1.h>
 
+#include <peripheral/interrupt-systick.h>     // needed because we initialize systick here
+                                              // review. why not device?
 
 
 #include <peripheral/spi-ice40-pc.h>
 #include <peripheral/vfd.h>                   // OK. need storage size.
-#include <peripheral/interrupt-systick.h>     // needed because we initialize systick here
 
 
 
@@ -199,7 +204,14 @@ static int main_f429(void)
   // now can init usart peripheral using app console buffer
   usart1_setup_portB();
 
+  // this configures the usart also
   usart1_set_buffers( &cbuf_console_in, &cbuf_console_out);
+
+
+  // interrupt_t   usart1_interupt;
+  // interrupt_usart1_init( & usart1_interupt );
+
+
 
   printf("\n\n\n\n--------\n");
   printf("addr main() %p\n", main_f429);
@@ -426,6 +438,8 @@ static int main_f429(void)
 
     .system_millis      = &system_millis,
 
+
+
     // consider - can move to dedicated repl module?
     .cbuf_console_in    = &cbuf_console_in,
     .cbuf_console_out   = &cbuf_console_out,
@@ -435,7 +449,7 @@ static int main_f429(void)
     .gpio_status_led    = &gpio_status_led,
 
 
-    .interrupt_systick  = &interrupt_systick,
+    .interrupt_systick  = &interrupt_systick,   // dont even need to store in app...
 
     .spi_fpga0_pc       = &spi_fpga0_pc,
     .spi_fpga0          = &spi_fpga0,
@@ -483,6 +497,8 @@ static int main_f429(void)
 
   // must delay handler setup, until app is instantiated
   interrupt_handler_set( &interrupt_systick, &app, (void (*)(void *, void *)) app_interrupt_systick);
+
+  // interrupt_handler_set( &usart1_interupt, &app, ( interrupt_handler_t ) app_interrupt_usart);
 
 
 

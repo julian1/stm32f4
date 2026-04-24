@@ -8,7 +8,7 @@
 #include <libopencm3/stm32/gpio.h>
 
 #include <device/tft0.h>
-#include <lib2/util.h>           // UNUSED
+#include <lib3/util.h>           // UNUSED
 
 
 

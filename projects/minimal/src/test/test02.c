@@ -13,7 +13,7 @@
 #include <string.h>   // strcmp
 
 
-#include <lib2/format.h>   // format_bits()
+#include <lib3/format.h>   // format_bits()
 
 
 #include <mode.h>

@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include <lib2/format.h>      // str_format_bits()
-#include <lib2/util.h>      // UNUSED
+#include <lib3/format.h>      // str_format_bits()
+#include <lib3/util.h>      // UNUSED
 
 #include <peripheral/tft.h>
 #include <device/fsmc.h>    // to change speed of fsmc bus

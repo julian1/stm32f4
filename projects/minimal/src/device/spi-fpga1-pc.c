@@ -18,7 +18,7 @@
 #include <device/support.h>             // spi_wait_ready(), write_val();
 
 
-#define FPGA1_MAGIC   77994234
+#define FPGA1_PC_MAGIC   77994234
 
 
 
@@ -26,7 +26,7 @@
 
 static void port_configure( spi_t *spi)    // rename port() ?.
 {
-  assert(spi && spi->magic == FPGA1_MAGIC);
+  assert(spi && spi->magic == FPGA1_PC_MAGIC);
 
   printf("fpga1 setup pc cs\n");
 
@@ -53,7 +53,7 @@ static void controller_configure( spi_t *spi_)
   //  this is device specific. so belongs on the device structure
   // taken from,  void spi_mux_ice40(uint32_t spi) in spi-ice40.c
 
-  assert(spi_ && spi_->magic == FPGA1_MAGIC);
+  assert(spi_ && spi_->magic == FPGA1_PC_MAGIC);
 
   uint32_t spi = spi_->spi;
   assert(spi == SPI2);
@@ -98,7 +98,7 @@ static void controller_configure( spi_t *spi_)
 
 static void cs_assert(spi_t *spi)
 {
-  assert(spi && spi->magic == FPGA1_MAGIC);
+  assert(spi && spi->magic == FPGA1_PC_MAGIC);
   assert(spi->spi == SPI2);
 
   spi_wait_ready( spi->spi);
@@ -107,7 +107,7 @@ static void cs_assert(spi_t *spi)
 
 static void cs_deassert(spi_t *spi)
 {
-  assert(spi && spi->magic == FPGA1_MAGIC);
+  assert(spi && spi->magic == FPGA1_PC_MAGIC);
 
   spi_wait_ready( spi->spi);
   gpio_write_val( GPIOC, GPIO0, 1);
@@ -116,7 +116,7 @@ static void cs_deassert(spi_t *spi)
 
 static void rst( spi_ice40_t *spi, uint8_t val)
 {
-  assert(spi && spi->magic == FPGA1_MAGIC);
+  assert(spi && spi->magic == FPGA1_PC_MAGIC);
   assert(spi->spi == SPI2);
 
   // spi_wait_ready( spi->spi); not needed for rst
@@ -126,7 +126,7 @@ static void rst( spi_ice40_t *spi, uint8_t val)
 
 static bool cdone(spi_ice40_t *spi )
 {
-  assert(spi && spi->magic == FPGA1_MAGIC);
+  assert(spi && spi->magic == FPGA1_PC_MAGIC);
   assert(spi->spi == SPI2);
   return gpio_get(GPIOC, GPIO3) != 0;   // PC3
 }
@@ -138,7 +138,7 @@ void spi_fpga1_pc_init( spi_ice40_t *spi)
 
   const spi_ice40_t temp = {
 
-    .magic          = FPGA1_MAGIC,
+    .magic          = FPGA1_PC_MAGIC,
 
     // base
     .spi            = SPI2,

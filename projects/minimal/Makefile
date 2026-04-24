@@ -49,7 +49,17 @@ SRCFILES	= src/peripheral/spi-ice40.c src/peripheral/spi-ice40-pc.c \
             src/test/test20.c src/test/test40.c src/test/test41.c  src/test/test42.c   \
             src/test/test50.c  src/test/test51.c  src/test/test52.c \
             src/flash/file-blob.c \
-            ${AGGSRC}/agg_trans_affine.cpp  ${AGGSRC}/agg_curves.cpp ${AGGSRC}/agg_rounded_rect.cpp  ${AGGSRC}/agg_arc.cpp
+            ${AGGSRC}/agg_trans_affine.cpp  ${AGGSRC}/agg_curves.cpp ${AGGSRC}/agg_rounded_rect.cpp  ${AGGSRC}/agg_arc.cpp \
+            src/lib3/assert.c   \
+            src/lib3/cstring.c  \
+            src/lib3/cbuffer.c  \
+            src/lib3/streams.c  \
+            src/lib3/usart.c  \
+            src/lib3/stats.c  \
+            src/lib3/format.c  \
+            src/lib3/stream-flash.c  \
+
+
 
 
 
@@ -101,7 +111,7 @@ TGT_CXXFLAGS += -I./include -I${TOP_DIR}/include -I${AGGINC}
 
 
 # libs
-LDLIBS		+= ${TOP_DIR}/lib/lib2/lib2.a
+# LDLIBS		+= ${TOP_DIR}/lib/lib2/lib2.a
 LDLIBS		+= ${TOP_DIR}/lib/lzo/lzo.a
 # LDLIBS		+= ${TOP_DIR}/lib/mesch12b/mesch12b.a
 

@@ -7,7 +7,7 @@
 
 #include <libopencm3/stm32/gpio.h>
 
-#include <lib2/util.h>      // UNUSED, ARRAY_SIZE
+#include <lib3/util.h>      // UNUSED, ARRAY_SIZE
 
 #include <peripheral/vfd.h>
 #include <device/vfd0.h>

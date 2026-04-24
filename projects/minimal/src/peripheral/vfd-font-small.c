@@ -18,7 +18,7 @@
 
 #include <peripheral/vfd-font-small.h>
 
-#include <lib2/util.h>      // UNUSED, ARRAY_SIZE
+#include <lib3/util.h>      // UNUSED, ARRAY_SIZE
 
 
 /*
