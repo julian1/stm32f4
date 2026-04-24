@@ -47,7 +47,7 @@ void decode_init(
   assert( ranging);
   assert(cal && cal->magic == CAL_MAGIC);
 
-  const decode_t temp = {
+  *decode = (const decode_t) {
 
     .magic        = DECODE_MAGIC,
     .spi          = spi,
@@ -59,9 +59,6 @@ void decode_init(
     .show_counts  = true,
     .show_reading = true,
   };
-
-  // *decode = temp; // no constness
-  memcpy( decode, &temp, sizeof( decode_t)); // field constness
 
 }
 

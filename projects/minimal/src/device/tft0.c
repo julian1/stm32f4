@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include <string.h>
+// #include <string.h>
 
 #include <libopencm3/stm32/gpio.h>
 
@@ -97,7 +97,7 @@ void tft0_init( tft_t *tft)
 {
   assert( tft);
 
-  const tft_t temp = {
+  *tft = ( const tft_t) {
 
     .magic        = TFT_MAGIC,
 
@@ -112,7 +112,6 @@ void tft0_init( tft_t *tft)
     .tft_reset      = tft_reset,
   };
 
-  memcpy( tft, &temp, sizeof( tft_t));
 }
 
 

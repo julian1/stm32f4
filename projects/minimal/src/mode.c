@@ -242,16 +242,15 @@ void _4094_state_clear_relays(_4094_state_t *state)
 
 void mode_init(_mode_t *mode)
 {
-
-
-
-  const _mode_t temp = {
-
-    /*
+   /*
       all relays need to be defined as b01 or b10.
       for default initialization
       otherwise they will not get an initial pulse/value.
     */
+
+
+  *mode = ( const _mode_t) {
+
 
     .magic  = MODE_MAGIC,
 
@@ -316,9 +315,6 @@ void mode_init(_mode_t *mode)
 
   };
 
-
-  // *mode = temp;
-  memcpy( mode, &temp, sizeof( _mode_t)); // support const fields
 }
 
 

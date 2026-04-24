@@ -67,7 +67,8 @@ void ranging_init(
     .range_idx    = 0,
   };
 
-  memcpy( ranging, &temp, sizeof(ranging_t)); // field constness
+  // handle field constness
+  memcpy( ranging, &temp, sizeof( ranging_t));
 }
 
 

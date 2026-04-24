@@ -14,7 +14,7 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include <string.h>     // memcpy
+#include <string.h>     // memcmp
 
 
 #include <lib3/util.h>      // UNUSED, ARRAY_SIZE
@@ -55,7 +55,7 @@
 void buffer_init( buffer_t *buffer, double *values, size_t max_sz )
 {
 
-  const buffer_t temp = {
+  *buffer = (const buffer_t) {
 
     .magic = BUFFER_MAGIC,
 
@@ -68,7 +68,6 @@ void buffer_init( buffer_t *buffer, double *values, size_t max_sz )
     .show = true,
   };
 
-  memcpy( buffer, &temp, sizeof( buffer_t));  // field constness
 }
 
 
@@ -158,10 +157,10 @@ bool buffer_repl_statement( buffer_t *buffer, const char *cmd)
 
 
 
-  if(strcmp(cmd, "buffer show") == 0)
+  if( strcmp(cmd, "buffer show") == 0)
     buffer->show = true;
 
-  else if(strcmp(cmd, "buffer unshow") == 0)
+  else if( strcmp(cmd, "buffer unshow") == 0)
     buffer->show = false;
 
 

@@ -83,7 +83,7 @@ void vfd0_init( vfd_t *vfd)
 
   printf("vfd_init()\n");
 
-  const vfd_t temp = {
+  *vfd = (const vfd_t) {
 
     .magic        = VFD_MAGIC,      // TODO change to use macro in this file
 
@@ -99,7 +99,6 @@ void vfd0_init( vfd_t *vfd)
     .vfd_reset      = vfd_reset,
   };
 
-  memcpy( vfd, &temp, sizeof( vfd_t));
 }
 
 
