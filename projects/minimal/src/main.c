@@ -22,9 +22,11 @@
 
 #include <lib3/usart.h>
 #include <lib3/util.h>          // UNUSED,ARRAY_SIZE
-#include <lib3/streams.h>
 #include <lib3/cbuffer.h>
 #include <lib3/cstring.h>
+#include <lib3/stream-input.h>
+#include <lib3/stream-output.h>
+
 
 
 #include <device/spi1-port.h>
@@ -177,22 +179,28 @@ static int main_f429(void)
 
   char buf_cbuf_console_in[ 1000];
   char buf_cbuf_console_out[ 1000];    // changing this and it freezes. indicates. bug
-  char buf_command[ 1000];
 
 
   cbuf_t        cbuf_console_in;
   cbuf_t        cbuf_console_out;
-  cstring_t     command;
 
 
   // uart/console
   cbuf_init( &cbuf_console_in,  buf_cbuf_console_in,  sizeof(buf_cbuf_console_in));
   cbuf_init( &cbuf_console_out, buf_cbuf_console_out, sizeof(buf_cbuf_console_out));
 
-  cbuf_init_stdout_streams( &cbuf_console_out );
-  cbuf_init_stdin_streams(  &cbuf_console_in );
+  // cbuf_init_stdout_streams( &cbuf_console_out );
+  // cbuf_init_stdin_streams(  &cbuf_console_in );
 
 
+  stdout = stderr = stream_init_output( &cbuf_console_out);
+
+  stdin = stream_init_input( &cbuf_console_in);
+
+
+
+  char buf_command[ 1000];
+  cstring_t     command;
   cstring_init( &command, buf_command, buf_command + sizeof( buf_command));
 
 

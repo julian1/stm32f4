@@ -86,10 +86,6 @@
 #include <libopencm3/stm32/flash.h>
 
 
-#include <lib3/streams.h>  // printf
-#include <lib3/usart.h>     // usart1_flush()
-
-// careful - conflicts with lib3/include/flash.h
 #include <lib3/stream-flash.h>
 
 
