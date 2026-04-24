@@ -1,7 +1,6 @@
 
 
 #include <stdio.h>
-#include <string.h>   // memcpy
 #include <assert.h>
 
 
@@ -38,7 +37,6 @@ static void controller_configure( spi_t *spi_)
 {
   assert( spi_ && spi_->spi );
   uint32_t spi = spi_->spi;
-  assert(spi == SPI1);
 
   spi_reset( spi );   // critical, avoid hang
 
@@ -62,7 +60,6 @@ static void controller_configure( spi_t *spi_)
 
 static void cs_assert(spi_t *spi)
 {
-  assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
 
   assert(SPI_CS_MDAC0 == 3);
@@ -72,7 +69,6 @@ static void cs_assert(spi_t *spi)
 
 static void cs_deassert(spi_t *spi)
 {
-  assert(spi->spi == SPI1);
   spi_wait_ready( spi->spi);
 
   gpio_write_with_mask( GPIOC, 7, 0b111, SPI_CS_DEASSERT);
@@ -83,7 +79,7 @@ void spi_mdac0_init( spi_t *spi)
 {
   assert(spi);
 
-  const spi_t temp = {
+  *spi = (const spi_t) {
 
     .spi          = SPI1,     // consider pass underlying spi by contructor.
     .port_configure =  port_configure,
@@ -92,6 +88,5 @@ void spi_mdac0_init( spi_t *spi)
     .cs_deassert  = cs_deassert,
   };
 
-  memcpy( spi, &temp, sizeof( spi_t));
 }
 

@@ -5,7 +5,7 @@
 
 
 
-#include <string.h> // memset
+#include <string.h> // NULL
 #include <assert.h>
 
 
@@ -62,12 +62,13 @@ static void port_configure( interrupt_t *i)
 void interrupt_systick_init( interrupt_systick_t *i, /* nvic_ctx_table * */ uint32_t tick_divider)
 {
   assert( i);
-  memset( i, 0, sizeof( interrupt_systick_t));
 
-  i->magic        = INT_SYSTICK_MAGIC;
-  i->port_configure =  port_configure;
+  *i = ( const interrupt_systick_t)  {
 
-  i->tick_divider = tick_divider;
+    .magic        = INT_SYSTICK_MAGIC,
+    .port_configure =  port_configure,
+    .tick_divider = tick_divider,
+  };
 
   x = i;
 }

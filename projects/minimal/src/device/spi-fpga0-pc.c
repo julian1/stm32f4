@@ -5,7 +5,6 @@
 */
 
 #include <stdio.h>
-#include <string.h>   // memcpy
 #include <assert.h>
 
 
@@ -135,7 +134,7 @@ void spi_fpga0_pc_init( spi_ice40_t *spi)
 {
   assert( spi);
 
-  const spi_ice40_t temp = {
+  *spi = (const spi_ice40_t) {
 
     .magic          = FPGA0_PC_MAGIC,
 
@@ -151,7 +150,6 @@ void spi_fpga0_pc_init( spi_ice40_t *spi)
     .cdone  = cdone,
   };
 
-  memcpy( spi, &temp, sizeof( spi_ice40_t));
 }
 
 

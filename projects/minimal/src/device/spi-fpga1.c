@@ -3,7 +3,6 @@
 
 
 #include <stdio.h>
-#include <string.h>   // memcpy
 #include <assert.h>
 
 
@@ -41,7 +40,6 @@ static void controller_configure( spi_t *spi_)
   assert(spi_ && spi_->magic == FPGA1_MAGIC);
 
   uint32_t spi = spi_->spi;
-  assert(spi == SPI2);
 
   spi_reset( spi );
 
@@ -65,7 +63,6 @@ static void controller_configure( spi_t *spi_)
 static void cs_assert(spi_t *spi)
 {
   assert(spi && spi->magic == FPGA1_MAGIC);
-  assert(spi->spi == SPI2);
 
   spi_wait_ready( spi->spi);
   gpio_write_val( GPIOC, GPIO0, 0);
@@ -75,7 +72,6 @@ static void cs_assert(spi_t *spi)
 static void cs_deassert(spi_t *spi)
 {
   assert(spi && spi->magic == FPGA1_MAGIC);
-  assert(spi->spi == SPI2);
 
   spi_wait_ready( spi->spi);
   gpio_write_val( GPIOC, GPIO0, 1);
@@ -87,7 +83,7 @@ void spi_fpga1_init( spi_t *spi)
 {
   assert(spi);
 
-  const spi_t temp = {
+  *spi = (const spi_t) {
 
     .magic          = FPGA1_MAGIC,
     .spi            = SPI2,
@@ -97,6 +93,5 @@ void spi_fpga1_init( spi_t *spi)
     .cs_deassert    = cs_deassert,
   };
 
-  memcpy( spi, &temp, sizeof( spi_t));
 }
 

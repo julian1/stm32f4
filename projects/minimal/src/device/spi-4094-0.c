@@ -1,7 +1,6 @@
 
 
 #include <stdio.h>
-#include <string.h>   // memcpy
 #include <assert.h>
 
 
@@ -85,7 +84,7 @@ void spi_4094_0_init( spi_t *spi)
 {
   assert(spi);
 
-  const spi_t temp = {
+  *spi = ( const spi_t) {
 
     .magic        = _4094_MAGIC,
     .spi          = SPI1,     // consider, pass underlying spi in the contructor
@@ -95,7 +94,6 @@ void spi_4094_0_init( spi_t *spi)
     .cs_deassert  = cs_deassert,
   };
 
-  memcpy( spi, &temp, sizeof( spi_t));
 }
 
 
