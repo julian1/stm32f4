@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <malloc.h>     // malloc_stats()
 #include <strings.h>    // strcasecmp
+#include <errno.h>
 
 
 
@@ -682,17 +683,27 @@ static void app_console_update(app_t *app)
 
   assert(app && app->magic == APP_MAGIC);
 
-  /*
-    It would be nice to just use, getc() or fgetc( stdin); here.
-    issue we is cannot return empty char, only EOF.
-    And we dont want to block.
-    so use cbuf_console_in directly
-    see comments in file-input.c
-  */
-  while( !cbuf_is_empty( app->cbuf_console_in)) {
+
+  while( true) {
 
     // got a character
-    int32_t ch = cbuf_pop( app->cbuf_console_in);
+    // int32_t ch = cbuf_pop( app->cbuf_console_in);
+
+    signed ch = fgetc( stdin);
+    if( ch < 0) {
+
+      if( errno == EAGAIN) {
+        clearerr( stdin);
+        break;
+      }
+      else {
+
+        printf("error code: %d, Description: %s\n", errno, strerror(errno));
+        assert( 0);
+      }
+    }
+
+
     assert(ch >= 0);
 
 

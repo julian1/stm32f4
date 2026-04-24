@@ -146,7 +146,10 @@ typedef struct app_t
     the entire app_t context.
     ----
     it is however fairly simple and neat as is
+  */
 
+  /* if limit to stdin/stdout funcs and operations,
+    then app_t would not need references to the buffers, could be removed
   */
   cbuf_t        *cbuf_console_in;
   cbuf_t        *cbuf_console_out;

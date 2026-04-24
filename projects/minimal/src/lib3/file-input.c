@@ -6,6 +6,7 @@
 
 #include <stdlib.h> // malloc
 #include <assert.h>
+#include <errno.h>    // EAGAIN
 
 
 #include <lib3/cbuffer.h>
@@ -33,32 +34,61 @@ struct cookie_t
 
 
 
+#if 0
+
+This is not needed and probably does not work correctly
+since the FILE is cookie based, without underlying file descriptor
+
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
+
+
+static void set_stdin_nonblocking( void) {
+  int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+  fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+}
+
+#endif
+
+
 
 static ssize_t cookie_read( cookie_t *cookie, char *buf, size_t sz)
 {
 
-  /* return 0 on non-blocking buf empty,
-  which gets turned to EOF(-1) by FILE read().
-  which is a pain.
-
-  although EOF can be clear by calling clearerr()
+  /*
+    EAGAIN: The file is non-blocking and the read would block.
   */
 
   /*
-    perhaps could just return EAGAIN from here?
-    EAGAIN: The file is non-blocking and the read would block.
-    May also need to set file descriptor to non-blocking mode (O_NONBLOCK`)
-    But not sure if can get at underlying descriptor
+    you do not need to explicitly call clearerr() or clear errno
+    immediately after receiving EAGAIN (or EWOULDBLOCK). EAGAIN is a temporary
+    state indicating a non-blocking operation would block, not a fatal error. You
+    should simply retry the operation later. However, you must ensure you check
+    errno only immediately after a system call returns -1.
   */
 
   assert( cookie);
 
+#if 0
+  // OK. this works to propagate errno out of calls on FILE *.
+  errno = EAGAIN;
+  return 0;   // must be 0. not -1.
+#endif
+
   /*
-    could also implement blocking behvior here,
-    controllable with ffcntl()
-    instead of bytes available/ returned
+    could control over blocking behvior here,
+    using flags and ffcntl()
   */
-  return cbuf_read( cookie->cinput, buf, sz);
+
+  if( cbuf_is_empty( cookie->cinput)) {
+    errno = EAGAIN;
+    return 0; // must be 0. not -1.
+  }
+  else {
+
+    return cbuf_read( cookie->cinput, buf, sz);
+  }
 }
 
 
