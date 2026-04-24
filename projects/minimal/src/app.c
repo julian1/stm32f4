@@ -686,19 +686,19 @@ static void app_console_update(app_t *app)
 
   while( true) {
 
-    // got a character
+    // get a character
     // int32_t ch = cbuf_pop( app->cbuf_console_in);
 
     signed ch = fgetc( stdin);
     if( ch < 0) {
 
-      if( errno == EAGAIN) {
+      if( errno == EAGAIN || errno == EWOULDBLOCK ) {
         clearerr( stdin);
         break;
       }
       else {
 
-        printf("error code: %d, Description: %s\n", errno, strerror(errno));
+        // printf("unknown code: %d, Description: %s\n", errno, strerror(errno));
         assert( 0);
       }
     }
