@@ -5,7 +5,6 @@
 #include <stdio.h>
 
 
-// #include <stdarg.h> // va_starrt etc
 #include <stdlib.h> // malloc
 #include <assert.h>
 
@@ -74,12 +73,12 @@ int ffnctl( FILE *f, int cmd)
 
 
 
-static ssize_t mywrite( cookie_t *cookie, const char *buf, size_t size)
+static ssize_t cookie_write( cookie_t *cookie, const char *buf, size_t size)
 {
 
   cbuf_t *coutput = cookie->coutput;
 
-  for(unsigned i = 0; i < size; ++i ) {
+  for( unsigned i = 0; i < size; ++i ) {
 
     int ch = buf[ i ];
 
@@ -102,10 +101,7 @@ static ssize_t mywrite( cookie_t *cookie, const char *buf, size_t size)
     }
   }
 
-  // re-enable tx interupt... if needed
-  // could do line buffering here, if wanted.
-
-  // usart1_enable_output_interupt();
+  // if more to process, then re-enable tx interupt
   if( !cbuf_is_empty( coutput)) {
     usart_enable_tx_interrupt( USART1);
   }
@@ -127,12 +123,12 @@ FILE *file_open_output_cbuf( cbuf_t *coutput  /* usart */ )
 
   cookie_io_functions_t file_func = {
     .read  = NULL,
-    .write =  (cookie_write_function_t *) mywrite,
+    .write =  (cookie_write_function_t *) cookie_write,
     .seek  = NULL,
     .close = NULL
   };
 
-  // TODO memory never released.
+  // TODO memory not released.
   // implement close()
   cookie_t *cookie = malloc( sizeof(cookie_t));
   assert(cookie);
