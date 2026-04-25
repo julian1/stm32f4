@@ -40,30 +40,35 @@
 
 
 
-void cbuf_init(cbuf_t *a, char *p, size_t sz)
+void cbuf_init( cbuf_t *a, char *p, size_t sz)
 {
   assert(a);
   assert(p);
   assert(sz > 0);
 
   a->p = p;
-  a->sz = sz;
+  a->sz = sz;     // renam max_sz;  or capacity follow stl convention
   a->wi = 0;
   a->ri = 0;
 }
 
 
+size_t cbuf_capacity( const cbuf_t *a)
+{
+
+  return a->sz;
+}
 
 
-
-bool cbuf_is_empty(const cbuf_t *a)
+bool cbuf_is_empty( const cbuf_t *a)
 {
   return a->ri == a->wi;
 }
 
 
-size_t cbuf_count(const cbuf_t *a)
+size_t cbuf_size( const cbuf_t *a)
 {
+
   int n = a->wi - a->ri;
   if(n < 0)
     n += a->sz;
@@ -73,13 +78,36 @@ size_t cbuf_count(const cbuf_t *a)
 
 
 
-size_t cbuf_reserve(cbuf_t *a)
+int32_t cbuf_back( const cbuf_t *a)
 {
-  return a->sz;
+  // ie. peek last char to be pushed, considered as fifo.
+
+  // last item to be pushed...
+  assert( !cbuf_is_empty( a));
+
+  // this kind of needs some tests
+  if(a->wi == 0) {
+    return (a->p)[a->sz - 1];
+  }
+  else
+    return (a->p)[a->wi - 1];
 }
 
 
-void cbuf_clear(cbuf_t *a)
+
+int32_t cbuf_front( const cbuf_t *a)
+{
+  // ie. peek first char to be pushed, considered as fifo.
+
+  assert( !cbuf_is_empty( a));
+
+  return (a->p)[a->ri];
+}
+
+
+
+
+void cbuf_clear( cbuf_t *a)
 {
   assert(a);
 
@@ -88,8 +116,7 @@ void cbuf_clear(cbuf_t *a)
 }
 
 
-
-void cbuf_push(cbuf_t *a, char val)
+void cbuf_push( cbuf_t *a, char val)
 {
 /*
   assert(a);
@@ -118,10 +145,11 @@ void cbuf_push(cbuf_t *a, char val)
 
 
 
-int32_t cbuf_pop(cbuf_t *a)
+int32_t cbuf_pop( cbuf_t *a)
 {
   // ie as fifo. pop first pushed. *not* most recent.
-  assert(a->ri != a->wi);
+
+  assert( !cbuf_is_empty( a));
 
   // read then update index. - but could be reordered by compiler
   char ret = (a->p)[ a->ri];
@@ -132,32 +160,39 @@ int32_t cbuf_pop(cbuf_t *a)
 
 
 
-
-int32_t cbuf_peek_first(const cbuf_t *a)
+ssize_t cbuf_read( cbuf_t *a, char *p, size_t n)
 {
-  // ie. peek first char to be pushed, considered as fifo.
-  // eg. char that will be popped
-  // TODO rename cBufPeek()
-  assert(a->ri != a->wi);
 
-  return (a->p)[a->ri];
-}
-
-
-
-int32_t cbuf_peek_last(const cbuf_t *a)
-{
-  // last item to be pushed...
-  assert(a->ri != a->wi);
-
-  // this kind of needs some tests
-  if(a->wi == 0) {
-    return (a->p)[a->sz - 1];
+  size_t i = 0;
+  while(i < n && !cbuf_is_empty(a)) {
+    p[i++] = cbuf_pop(a);
   }
-  else
-    return (a->p)[a->wi - 1];
+
+  return i;
 }
 
+
+ssize_t cbuf_write( cbuf_t *a, const char *buf, size_t size)
+{
+  assert(a->sz);
+
+  for(size_t i = 0; i < size; ++i)
+    cbuf_push(a, buf[i]);
+
+  return size;
+}
+
+
+
+
+#if 0
+
+/*
+  if we really need these
+  then just rewrite using cbuf_read() and cbuf_write(), and n-1
+  but probably better to handle externally
+
+*/
 
 /*
   really think these should be returning size_t.
@@ -206,38 +241,6 @@ int32_t cbuf_copy_string2(const cbuf_t *a, char *p, size_t n)
   return i;
 }
 
-
-
-///////////////////
-
-// consumes...
-// no sentinel
-
-/*
-  for use with cookie_io_functions_t
-*/
-
-int32_t cbuf_read(cbuf_t *a, char *p, size_t n)
-{
-
-  size_t i = 0;
-  while(i < n && !cbuf_is_empty(a)) {
-    p[i++] = cbuf_pop(a);
-  }
-
-  return i;
-}
-
-
-ssize_t cbuf_write(cbuf_t *a, const char *buf, size_t size)
-{
-  assert(a->sz);
-
-  for(size_t i = 0; i < size; ++i)
-    cbuf_push(a, buf[i]);
-
-  return size;
-}
-
+#endif
 
 
