@@ -722,7 +722,7 @@ static void app_console_update(app_t *app)
       // note, still more data to process in cbuf_console_in
       cstring_clear( app->command);
     }
-    else if( cstring_count( app->command) < cstring_reserve( app->command) ) {
+    else if( cstring_size( app->command) < cstring_capacity( app->command) ) {
 
       // normal character
       // must accept whitespace here, since used to demarcate args
@@ -733,7 +733,7 @@ static void app_console_update(app_t *app)
     } else {
 
       // ignore overflow chars
-      printf("too many chars!!\n");
+      printf("command buffer overflow!!\n");
     }
 
     if( ch == '\r')
@@ -1318,7 +1318,7 @@ void app_repl_statements(app_t *app,  const char *s)
       app_repl_statement(app, cmd);
       cstring_clear( &stmt);
     }
-    else if( cstring_count(&stmt) < cstring_reserve(&stmt) ) {
+    else if( cstring_size(&stmt) < cstring_capacity(&stmt) ) {
       // push char, unless overflow
       cstring_push_back(&stmt, ch);
     } else {

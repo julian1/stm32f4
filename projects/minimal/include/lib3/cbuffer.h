@@ -16,7 +16,7 @@ typedef struct cbuf_t cbuf_t;
 
 struct cbuf_t
 {
-  uint32_t  magic;
+  // uint32_t  magic;
 
   char      *p;
   size_t    sz_max;
