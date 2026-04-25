@@ -76,10 +76,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   assert( decode);
   assert( decode->magic == DECODE_MAGIC);
 
-  /*
-    consider why is cal here...
-    instead of being pulled out of the range ?
-  */
+
   cal_t *cal = decode->cal;
   assert( cal && cal->magic == CAL_MAGIC);
 

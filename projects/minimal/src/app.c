@@ -89,7 +89,7 @@ int flash_lzo_test(void);
 
 
 
-
+#if 0
 
 void app_interrupt_usart( app_t *app, void *arg)
 {
@@ -100,6 +100,7 @@ void app_interrupt_usart( app_t *app, void *arg)
   assert( 0);
 
 }
+#endif
 
 
 void app_interrupt_systick( app_t *app, void *arg)
