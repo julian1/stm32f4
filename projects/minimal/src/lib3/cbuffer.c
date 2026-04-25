@@ -40,95 +40,98 @@
 
 
 
-void cbuf_init( cbuf_t *a, char *p, size_t sz)
+void cbuf_init( cbuf_t *b, char *p, size_t sz_max)
 {
-  assert(a);
-  assert(p);
-  assert(sz > 0);
+  assert( b);
+  assert( p);
+  assert( sz_max > 0);
 
-  a->p = p;
-  a->sz = sz;     // renam max_sz;  or capacity follow stl convention
-  a->wi = 0;
-  a->ri = 0;
+  *b = (const cbuf_t) {
+    // .magic = BUFFER_MAGIC,
+    .p      = p,
+    .sz_max = sz_max,
+    .wi     = 0,
+    .ri     = 0,
+  };
 }
 
 
-size_t cbuf_capacity( const cbuf_t *a)
+size_t cbuf_capacity( const cbuf_t *b)
 {
 
-  return a->sz;
+  return b->sz_max;
 }
 
 
-bool cbuf_is_empty( const cbuf_t *a)
+bool cbuf_is_empty( const cbuf_t *b)
 {
-  return a->ri == a->wi;
+  return b->ri == b->wi;
 }
 
 
-size_t cbuf_size( const cbuf_t *a)
+size_t cbuf_size( const cbuf_t *b)
 {
 
-  int n = a->wi - a->ri;
+  int n = b->wi - b->ri;
   if(n < 0)
-    n += a->sz;
+    n += b->sz_max;
 
   return n;
 }
 
 
 
-int32_t cbuf_back( const cbuf_t *a)
+int32_t cbuf_back( const cbuf_t *b)
 {
   // ie. peek last char to be pushed, considered as fifo.
 
   // last item to be pushed...
-  assert( !cbuf_is_empty( a));
+  assert( !cbuf_is_empty( b));
 
   // this kind of needs some tests
-  if(a->wi == 0) {
-    return (a->p)[a->sz - 1];
+  if(b->wi == 0) {
+    return (b->p)[b->sz_max - 1];
   }
   else
-    return (a->p)[a->wi - 1];
+    return (b->p)[b->wi - 1];
 }
 
 
 
-int32_t cbuf_front( const cbuf_t *a)
+int32_t cbuf_front( const cbuf_t *b)
 {
   // ie. peek first char to be pushed, considered as fifo.
 
-  assert( !cbuf_is_empty( a));
+  assert( !cbuf_is_empty( b));
 
-  return (a->p)[a->ri];
+  return (b->p)[b->ri];
 }
 
 
 
 
-void cbuf_clear( cbuf_t *a)
+void cbuf_clear( cbuf_t *b)
 {
-  assert(a);
+  assert( b);
 
-  a->wi = 0;
-  a->ri = 0;
+  b->wi = 0;
+  b->ri = 0;
 }
 
 
-void cbuf_push( cbuf_t *a, char val)
+void cbuf_push( cbuf_t *b, char val)
 {
 /*
-  assert(a);
-  assert(a->p);
-  assert(a->wi < a->sz );
-  assert( a->sz > 0);
+  assert( b);
+  assert( b->p);
+  assert( b->wi < b->sz_max );
+  assert( b->sz_max > 0);
 */
   // update val
-  (a->p)[a->wi] = val;
+  (b->p)[b->wi] = val;
 
   // increment wi
-  a->wi = (a->wi + 1) % a->sz;
+  b->wi = (b->wi + 1) % b->sz_max;
 
   /* handle overflow more gracefully.
     if overflow, increment the ri
@@ -136,48 +139,48 @@ void cbuf_push( cbuf_t *a, char val)
     ----------
     IMPORTANT but for thread safety, this breaks assumption, that pushing will not touch the read index.
   */
-  if(a->wi == a->ri) {
+  if(b->wi == b->ri) {
 
     // could set/raise overflow flag here.
-    a->ri = (a->ri + 1) % a->sz;
+    b->ri = (b->ri + 1) % b->sz_max;
   }
 }
 
 
 
-int32_t cbuf_pop( cbuf_t *a)
+int32_t cbuf_pop( cbuf_t *b)
 {
   // ie as fifo. pop first pushed. *not* most recent.
 
-  assert( !cbuf_is_empty( a));
+  assert( !cbuf_is_empty( b));
 
   // read then update index. - but could be reordered by compiler
-  char ret = (a->p)[ a->ri];
-  a->ri = (a->ri + 1) % a->sz;
+  char ret = (b->p)[ b->ri];
+  b->ri = (b->ri + 1) % b->sz_max;
 
   return ret;
 }
 
 
 
-ssize_t cbuf_read( cbuf_t *a, char *p, size_t n)
+ssize_t cbuf_read( cbuf_t *b, char *p, size_t n)
 {
 
   size_t i = 0;
-  while(i < n && !cbuf_is_empty(a)) {
-    p[i++] = cbuf_pop(a);
+  while(i < n && !cbuf_is_empty( b)) {
+    p[ i++] = cbuf_pop( b);
   }
 
   return i;
 }
 
 
-ssize_t cbuf_write( cbuf_t *a, const char *buf, size_t size)
+ssize_t cbuf_write( cbuf_t *b, const char *buf, size_t size)
 {
-  assert(a->sz);
+  assert( b->sz_max);   // must be initialized
 
   for(size_t i = 0; i < size; ++i)
-    cbuf_push(a, buf[i]);
+    cbuf_push( b, buf[i]);
 
   return size;
 }
@@ -188,9 +191,11 @@ ssize_t cbuf_write( cbuf_t *a, const char *buf, size_t size)
 #if 0
 
 /*
-  if we really need these
-  then just rewrite using cbuf_read() and cbuf_write(), and n-1
-  but probably better to handle externally
+  funcs with space for string sentinal.
+  if we really need these funcs,
+  then just rewrite using cbuf_read() and cbuf_write(), with n-1
+
+  but probably better if caller handles.
 
 */
 
@@ -225,15 +230,15 @@ int32_t cbuf_copy_string2(const cbuf_t *a, char *p, size_t n)
   // could use more testing
   // for c-style strings, so handle sentinel
 
-  size_t ri = a->ri;
+  size_t ri = b->ri;
   size_t i = 0;
 
-  while(ri != a->wi && i < (n - 1)) {
+  while(ri != b->wi && i < (n - 1)) {
 
-    assert(ri < a->sz);
-    p[i++] = (a->p)[ri];
+    assert(ri < b->sz_max);
+    p[i++] = (b->p)[ri];
 
-    ri = (ri + 1) % a->sz;
+    ri = (ri + 1) % b->sz_max;
   }
 
   // sentinel
