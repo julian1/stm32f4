@@ -142,8 +142,7 @@ void app_interrupt_data_rdy( app_t *app, void *arg) // runtime context
 
 static void app_update_simple_led_blink( app_t *app)
 {
-  // or just app_update_led_blink()
-  // change name app_update_no_data() or app_update_limited()
+  // consider change name app_update_no_data() or no_console()
   // or just app_update_simple()
 
   assert(app && app->magic == APP_MAGIC);
