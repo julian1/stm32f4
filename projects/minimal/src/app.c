@@ -432,36 +432,23 @@ void app_configure( app_t *app )
   app_transition_state( app );
 
 
-  // interrupt_handler_set( app->interrupt_fpga0, app, (interrupt_handler_t ) app_interrupt_data_rdy);
 
-  // set up the fpga0 interrupt handler
-  // interrupt_t *i = app->interrupt_fpga0;
+  // set up fpga0 interrupt handler
   assert( app->interrupt_fpga0 );
-
   interrupt_handler_set( app->interrupt_fpga0, app, (void (*)(void *, void*)) app_interrupt_data_rdy);
-
-  // i->ctx = app;
-  // i->handler = (interrupt_handler_t ) app_interrupt_data_rdy;
-
 
 
   // set start configuration
   // need a cbuf_push_str( ) function
   const char *cmd = "cal flash load; dcv 10; decode unshow; t;\r";
 
-  for( const char *s = cmd; *s; ++s)
-    cbuf_push( app->cbuf_console_in, *s);
 
-
-/*
-  const char *s = cmd;
-  while( *s)  {
-    cbuf_push( app->cbuf_console_in, *s) ;
-    ++s;
-  }
-*/
-
-
+  /* TODO
+      review - there is potential race condition here, with RX interrupt
+      that will also push chars to cbuf_console_in
+  */
+  cbuf_clear( app->cbuf_console_in);
+  cbuf_write( app->cbuf_console_in, cmd, strlen( cmd));
 
 }
 
