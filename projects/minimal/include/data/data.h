@@ -65,11 +65,11 @@ typedef struct data_t
   // AZ HI-LO clk count sum, weight adjusted.
   double  count_sum;
 
-  // normalized by aperture/sigmux
+  // count normalized by aperture/sigmux
   double count_sum_norm;
 
-  // whether data valid for this iteration
-  bool   valid;   // consider rename count_sum_norm_valid
+  // reading valid for this conversion/iteration
+  bool   reading_valid;
 
   // reading adjusted by cal
   double  reading;

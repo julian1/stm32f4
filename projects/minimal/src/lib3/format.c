@@ -1,4 +1,7 @@
 
+/*
+    TODO rename str-format.c
+*/
 
 #include <stdbool.h>    // true
 #include <stdio.h>
@@ -146,6 +149,7 @@ char * str_format_float_with_commas(char *s, size_t sz, int digits, double value
 
 char * str_format_bits(char *buf, size_t width, uint32_t value)
 {
+  // consider rename str_format_binary()
   // eg. size_t == width + 1 for terminal.
   // passing the buf, means can use more than once in printf expression. using separate bufs
   char *s = buf;

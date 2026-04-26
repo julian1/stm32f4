@@ -88,7 +88,7 @@ void display_vfd_update_data( display_vfd_t *display, data_t *data)
   // feb 2026
 
   // no valid measurement reading
-  if( !data->valid) {
+  if( !data->reading_valid) {
 
     // clear the reading star, to indicate no measurement data
     char buf[101];

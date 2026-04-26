@@ -812,6 +812,20 @@ void app_update( app_t *app)
 
     // TODO change name decode_update_data to decode_update_data_data
     decode_update_data( app->decode, &data /* range_t *range */);
+
+    if( !data.reading_valid ) {
+      // display functions... still want to see the update...
+
+    }
+    if( data.status.isr_adc) {
+
+      /*
+        EXTR. if it is ranging . then probably want to skip overhead of rendering.
+        and instead pass control to rendering
+      */
+    }
+
+
     buffer_update_data( app->buffer, &data);
 
     printf( "\n");

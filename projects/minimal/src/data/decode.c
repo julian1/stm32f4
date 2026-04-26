@@ -71,44 +71,30 @@ void decode_init(
   --------------
 */
 
-void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
-{
-  assert( decode);
-  assert( decode->magic == DECODE_MAGIC);
 
+
+
+
+
+static void decode_update_data_conversion( decode_t *decode,  data_t *data  )
+{
+
+  // consider change name data_conversion()...
+
+  assert( decode && decode->magic == DECODE_MAGIC);
+
+
+  spi_t *spi = decode->spi;
+  assert( spi);
 
   cal_t *cal = decode->cal;
   assert( cal && cal->magic == CAL_MAGIC);
 
-  spi_t *spi = decode->spi;
 
+  reg_sr_t  status = data->status;
 
-  assert( data && data->magic == DATA_MAGIC);
+  assert( status.isr_adc) ;
 
-
-
-  char buf[100 + 1];
-
-/*
-  may need/want to distinguish the interrupt type.
-  adc value.  or comparator overload.
-  can use status register to indicate. what we need to respond to.
-
-*/
-
-/*
-  - add a short (8 bit) transaction id field to the status register.
-    - to check consistency of register reads
-*/
-
-  uint32_t status_               = spi_ice40_reg_read32( spi, REG_STATUS);
-
-  reg_sr_t  status;
-   _Static_assert( sizeof(status) == sizeof(status_), "bad typedef size");
-
-  memcpy( &status, &status_,  sizeof( status_));
-
-  data->status = status;
 
 
   // record for current part of reading
@@ -117,37 +103,13 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   data->adc_clk_count_refmux_neg = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_REFMUX_NEG);
   data->adc_clk_count_sigmux     = spi_ice40_reg_read32( spi, REG_ADC_CLK_COUNT_SIGMUX);
 
+
   // useful for bounds - and to correct asymetry
   data->clk_count_ratio =
       (data->adc_clk_count_refmux_pos >= data->adc_clk_count_refmux_neg)
       ?  (double) data->adc_clk_count_refmux_pos / data->adc_clk_count_refmux_neg
       :  - (double) data->adc_clk_count_refmux_neg / data->adc_clk_count_refmux_pos;
 
-
-
-  printf( "{first=%u idx=%u seq_n=%u}, ",
-    status.first,
-    status.sample_idx,
-    status.sample_seq_n
-  );
-
-
-  if( status.sample_idx == 0 ) {
-
-    // for HI
-    printf( "{zgjc=%u ovld=%u unld=%u ch1=%u ch2=%u}, ",
-
-      status.amp_cmpr,
-      status.amp_ovld,
-      status.amp_unld,
-      status.boot_ch1_ovld,
-      status.boot_ch2_ovld
-    );
-  } else {
-
-    // ignore for LO
-    printf( "                                    ");
-  }
 
 
 
@@ -169,7 +131,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     decode->adc_clk_count_refmux_pos_hi = data->adc_clk_count_refmux_pos;
     decode->adc_clk_count_refmux_neg_hi = data->adc_clk_count_refmux_neg;
 
-    data->valid = false;
+    // data->valid = false;
   }
 
   else if( status.sample_idx == 1) {
@@ -179,7 +141,8 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
         ((double) decode->adc_clk_count_refmux_pos_hi - (cal->w * decode->adc_clk_count_refmux_neg_hi))
       - ((double) data->adc_clk_count_refmux_pos      - (cal->w * data->adc_clk_count_refmux_neg));
 
-    data->valid     = true;
+    // change reading_valid. meaning the HI-LO
+    data->reading_valid     = true;
   }
 
   else {
@@ -189,7 +152,7 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
   }
 
 
-  if( data->valid) {
+  if( data->reading_valid) {
     //
     /*
       only place/juncture where ranging active range . is
@@ -221,6 +184,8 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     // data->valid     = true;
 
 
+    char buf[100 + 1];
+
     if(decode->show_reading) {
 
       printf( "%s-%s, ", range->name, range->arg );
@@ -230,6 +195,104 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
     }
 
   } // data->valid
+
+
+}
+
+
+
+
+
+
+/*
+  - consider add a short (8 bit) transaction id field to the status register.
+    - to check consistency of register reads
+*/
+
+
+
+
+
+
+void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
+{
+
+  assert( decode && decode->magic == DECODE_MAGIC);
+
+
+  assert( data && data->magic == DATA_MAGIC);
+
+  spi_t *spi = decode->spi;
+  assert( spi);
+
+
+  uint32_t status_  = spi_ice40_reg_read32( spi, REG_STATUS);
+
+  reg_sr_t  status;
+   _Static_assert( sizeof(status) == sizeof(status_), "bad typedef size");
+
+  memcpy( &status, &status_,  sizeof( status_));
+
+  data->status = status;
+
+  assert( status.magic  == 0b1010 );
+
+
+
+  printf( "{isr %c%c%c%c}, ",
+    '0',
+    '0',
+    status.isr_cmpr ? '1' : '0',
+    status.isr_adc  ? '1' : '1'
+  );
+
+
+  printf( "{first=%u idx=%u seq_n=%u}, ",
+    status.first,
+    status.sample_idx,
+    status.sample_seq_n
+  );
+
+
+  // by convention
+  bool is_hi =  status.sample_idx % 2 == 0;
+
+  if( is_hi) {
+
+    // for HI
+    printf( "{zgjc=%u ovld=%u unld=%u ch1=%u ch2=%u}, ",
+
+      status.amp_cmpr,
+      status.amp_ovld,
+      status.amp_unld,
+      status.boot_ch1_ovld,
+      status.boot_ch2_ovld
+    );
+  } else {
+
+    // ignore for LO
+    printf( "                                    ");
+  }
+
+
+
+
+  if( status.isr_adc ) {
+
+    // adc conversion
+    decode_update_data_conversion( decode,  data);
+
+  }
+
+  else if( status.isr_cmpr) {
+
+    printf( "isr comparator");
+
+  }
+  else {
+
+    printf( "unknown");
+  }
 
 
 }

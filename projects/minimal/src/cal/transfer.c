@@ -206,7 +206,7 @@ void app_fill_buffer( app_t *app, double *values, size_t n)
 
     // get and compute counts
     decode_update_data( decode, &data);
-    if( data.valid) {
+    if( data.reading_valid) {
 
       values[ i] = data.count_sum_norm;
       ++i;

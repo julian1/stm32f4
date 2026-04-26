@@ -201,6 +201,15 @@ typedef struct app_t
   ////////////////////////////////
 
 
+  /*
+    hw flags should have their own register.  not SR.
+    state will persist across power cycles/init
+    and we only want to read once at startup anyway.
+  */
+  // uint8_t   hw_flags : 4;
+
+
+
 
   // feb 2026.  current mode
   _mode_t       *mode;

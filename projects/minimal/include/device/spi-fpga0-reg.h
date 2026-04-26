@@ -132,30 +132,50 @@ _Static_assert (sizeof(reg_cr_t) == 4, "bad typedef size");
 
 
 
+
+
 typedef struct __attribute__((__packed__))
 reg_sr_t
 {
 
-  uint8_t   magic ;           // 8
+  uint8_t   magic         : 4;
 
-  // consider put hw flags in separate register. only needs to be read once at start
-  // uint8_t   hw_flags : 4;
+  // almost an isr
+  // consider nested prefix 'isr'
+  uint8_t   isr_adc       : 1;
+  uint8_t   isr_cmpr      : 1;
+  uint8_t                 : 2;  // 8
 
+  // hw flags do not belong here. since constant across power cycles.
 
-  // comparators
+#if 0
+  struct {
+    uint8_t   amp_cmpr      : 1;      // rename zero
+    uint8_t   amp_ovld      : 1;
+    uint8_t   amp_unld      : 1;
+    uint8_t   boot_ch1_ovld : 1;
+    uint8_t   boot_ch2_ovld : 1;
+    uint8_t                 : 3;    // 16
+  } cmpr;
+#endif
+
+#if 1
+  // comparator state
+  // consider prefix  'cmpr'.  eg.  'cmpr_amp_ovld' else nested structure
   uint8_t   amp_cmpr      : 1;
   uint8_t   amp_ovld      : 1;
   uint8_t   amp_unld      : 1;
   uint8_t   boot_ch1_ovld : 1;
   uint8_t   boot_ch2_ovld : 1;
-  uint8_t                 : 3;   // 16
-
+  uint8_t                 : 3;    // 16
+#endif
 
   // sa
+  // prefix sample. or 'sa'
   uint8_t   sample_idx    : 3;
-  uint8_t   first         : 1;
+  uint8_t   first         : 1;            // rename sample_first...
   uint8_t   sample_seq_n  : 3;
-  uint8_t                 : 1;   // 24
+  uint8_t                 : 1;    // 24
 
 
   uint32_t                : 8;    // 31
@@ -167,6 +187,8 @@ reg_sr_t
 } reg_sr_t;
 
 _Static_assert (sizeof(reg_sr_t) == 4, "bad typedef size");
+
+
 
 
 
@@ -186,8 +208,8 @@ reg_direct_t
   */
 
 
-  uint8_t   leds_o     : 4;               // 0
-  uint8_t   monitor_o  : 8;               // 4
+  uint8_t   leds_o            : 4;               // 0
+  uint8_t   monitor_o         : 8;               // 4
 
 /*
   - EXTR. TODO use spearate vars for the precharge switches.
@@ -198,21 +220,21 @@ reg_direct_t
 
   // should be the same as seq_elt_t
   uint8_t   pc_o : 2;                       // 14
-  // uint8_t   pc_ch1_o : 1;                 // 14
-  // uint8_t   pc_ch2_o : 1;                 // 15
+  // uint8_t   pc_ch1_o       : 1;                 // 14
+  // uint8_t   pc_ch2_o       : 1;                 // 15
 
 
-  uint8_t   azmux_o : 4 ;                 // 16
+  uint8_t   azmux_o           : 4 ;                 // 16
 
-  uint8_t   adc_refmux_o : 4;                   // 21     // better name adc_refmux   adc_cmpr_latch
-  uint8_t   adc_cmpr_latch_o : 1;          // 20
+  uint8_t   adc_refmux_o      : 4;                   // 21     // better name adc_refmux   adc_cmpr_latch
+  uint8_t   adc_cmpr_latch_o  : 1;          // 20
 
   uint8_t   spi_interrupt_ctl_o : 1;      // 12
-  uint8_t   meas_complete_o : 1;          // 13
+  uint8_t   meas_complete_o   : 1;          // 13
 
 
 
-  uint8_t   dummy_bits_o : 7;               // 25 = (32-25)  TODO. make anonymous
+  uint8_t   dummy_bits_o      : 7;               // 25 = (32-25)  TODO. make anonymous
 
   /*
   471     .out( {   dummy_bits_o,               // 25

@@ -48,7 +48,7 @@ static void display_tft_update_data_( display_tft_t *display, data_t *data)
     return;
 
 
-  if( !data->valid) {
+  if( !data->reading_valid) {
 
     // set up render buffer on current page
     pixfmt_t  pixf( display->tft, display->page *  272 );

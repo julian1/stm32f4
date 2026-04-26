@@ -90,7 +90,7 @@ void buffer_update_data( buffer_t *buffer, data_t *data)
 
   if(data->status.first) {
 
-    assert(!data->valid);
+    assert(!data->reading_valid);
 
     // could clear data
     // memset( buffer->values, 0, sizeof(double) * buffer->max_sz );
@@ -100,7 +100,7 @@ void buffer_update_data( buffer_t *buffer, data_t *data)
     buffer->count = 0;
   }
 
-  if(data->valid) {
+  if(data->reading_valid) {
 
     assert(!data->status.first);
     // push buffer.
