@@ -136,13 +136,18 @@ void sa_set( sa_state_t *sa, const char *s)
     // sa_state_t *sa = &mode->sa;
     sa->p_seq_n = 2;
 
-    // zero
+    // val
     sa->p_seq_elt[ 0].azmux = S6;     // A400-1
     sa->p_seq_elt[ 0].pc    = 0b00;
 
-    // val
+    // zero
+    sa->p_seq_elt[ 1] = sa->p_seq_elt[ 0];
+
+/*
+    // zero
     sa->p_seq_elt[ 1].azmux = S6;     // A400-1
     sa->p_seq_elt[ 1].pc    = 0b00;
+*/
 
     // could set a catcher handler/closure here
   }
@@ -153,13 +158,14 @@ void sa_set( sa_state_t *sa, const char *s)
     // signal on S3, S7
     sa->p_seq_n = 2;
 
-    // zero
-    sa->p_seq_elt[ 0].azmux = S7;    // CH2-LO
-    sa->p_seq_elt[ 0].pc    = 0b00;
-
     // val
-    sa->p_seq_elt[ 1].azmux = S3;    // PC-CH2-OUT
-    sa->p_seq_elt[ 1].pc    = 0b10;      // pc2 active
+    sa->p_seq_elt[ 0].azmux = S3;    // PC-CH2-OUT
+    sa->p_seq_elt[ 0].pc    = 0b10;  // pc2 active
+
+    // zero
+    sa->p_seq_elt[ 1].azmux = S7;    // CH2-LO
+    sa->p_seq_elt[ 1].pc    = 0b00;
+
   }
 
   else if(strcmp(s, "ch1") == 0 ) {
@@ -168,13 +174,14 @@ void sa_set( sa_state_t *sa, const char *s)
     // signal on S3, S7
     sa->p_seq_n = 2;
 
-    // zero
-    sa->p_seq_elt[ 0].azmux = S5;    // COM-LC
-    sa->p_seq_elt[ 0].pc    = 0b00;
-
     // val
-    sa->p_seq_elt[ 1].azmux = S1;    // PC-CH1-OUT
-    sa->p_seq_elt[ 1].pc    = 0b01;      // pc1 active
+    sa->p_seq_elt[ 0].azmux = S1;    // PC-CH1-OUT
+    sa->p_seq_elt[ 0].pc    = 0b01;  // pc1 active
+
+    // zero
+    sa->p_seq_elt[ 1].azmux = S5;    // COM-LC
+    sa->p_seq_elt[ 1].pc    = 0b00;
+
   }
 
   else if(strcmp(s, "ratio") == 0 ) {

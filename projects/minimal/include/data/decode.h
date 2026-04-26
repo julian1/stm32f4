@@ -39,8 +39,8 @@ typedef struct decode_t
   */
 
   // persist...  for AZ. from last reading
-  uint32_t adc_clk_count_refmux_pos_lo;
-  uint32_t adc_clk_count_refmux_neg_lo;
+  uint32_t adc_clk_count_refmux_pos_hi;
+  uint32_t adc_clk_count_refmux_neg_hi;
 
   ///////////////////////
 

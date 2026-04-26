@@ -163,19 +163,19 @@ void decode_update_data( decode_t *decode,  data_t *data  /* range_t *range */ )
 
   if( status.sample_idx == 0) {
 
-    // lo - record LO counts
-    decode->adc_clk_count_refmux_pos_lo = data->adc_clk_count_refmux_pos;
-    decode->adc_clk_count_refmux_neg_lo = data->adc_clk_count_refmux_neg;
+    // HI.  record counts.
+    decode->adc_clk_count_refmux_pos_hi = data->adc_clk_count_refmux_pos;
+    decode->adc_clk_count_refmux_neg_hi = data->adc_clk_count_refmux_neg;
 
     data->valid = false;
   }
 
   else if( status.sample_idx == 1) {
 
-    // hi
+    // LO
     data->count_sum =
-        ((double) data->adc_clk_count_refmux_pos      - (cal->w * data->adc_clk_count_refmux_neg))
-      - ((double) decode->adc_clk_count_refmux_pos_lo - (cal->w * decode->adc_clk_count_refmux_neg_lo));
+        ((double) decode->adc_clk_count_refmux_pos_hi - (cal->w * decode->adc_clk_count_refmux_neg_hi))
+      - ((double) data->adc_clk_count_refmux_pos      - (cal->w * data->adc_clk_count_refmux_neg));
 
     data->valid     = true;
   }
